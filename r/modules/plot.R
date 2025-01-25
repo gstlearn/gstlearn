@@ -667,8 +667,8 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
   ndir = 1
   if (! .isNotDef(vario)) ndir = vario$getDirectionNumber()
   nvar = 1
-  if (! .isNotDef(vario)) nvar = vario$getVariableNumber()
-  if (! .isNotDef(model)) nvar = model$getVariableNumber()
+  if (! .isNotDef(vario)) nvar = vario$getNVar()
+  if (! .isNotDef(model)) nvar = model$getNVar()
   if (missing(cols)) cols = .getColors()
   
   idirUtil = .selectItemsInList(ndir, idir)
@@ -800,7 +800,7 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
 {
   if (!require(ggpubr, quietly=TRUE))
     stop("Package ggpubr is mandatory to use this function!")
-  nvar = vario$getVariableNumber()
+  nvar = vario$getNVar()
   
   ivarUtil = .selectItemsInList(nvar, ivar)
   jvarUtil = .selectItemsInList(nvar, jvar)

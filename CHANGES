@@ -4,7 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.7.0
 =============
-
+- Major renaming of variables, such as:
+  getVariableNumber() becomes getNVar()
 
 Release 1.6.0
 =============

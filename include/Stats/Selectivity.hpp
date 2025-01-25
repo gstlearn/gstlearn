@@ -77,7 +77,7 @@ public:
   void   resetCuts(const VectorDouble& zcuts);
   int    getNCuts() const { return static_cast<int>(_Zcut.size()); }
   static int getNQT() { return static_cast<int>(ESelectivity::getSize()); }
-  int    getVariableNumber() const;
+  int    getNVar() const;
   String getVariableName(const ESelectivity& code, int icut, int mode) const;
   String getVariableName(int rank0) const;
   VectorString getVariableNames() const;

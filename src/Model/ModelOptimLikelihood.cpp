@@ -60,10 +60,10 @@ bool ModelOptimLikelihood::_checkConsistency()
             model->getDimensionNumber(), db->getLocatorNumber(ELoc::X));
     return false;
   }
-  if (model->getVariableNumber() != db->getLocatorNumber(ELoc::Z))
+  if (model->getNVar() != db->getLocatorNumber(ELoc::Z))
   {
     messerr("'_model'(%d) and '_db'(%d) should have same number of Variables",
-            model->getVariableNumber(), db->getLocatorNumber(ELoc::Z));
+            model->getNVar(), db->getLocatorNumber(ELoc::Z));
     return false;
   }
   return true;

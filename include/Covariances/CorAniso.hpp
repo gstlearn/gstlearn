@@ -72,9 +72,7 @@ public:
   /// ACov Interface
   virtual int getNVariables() const override { return 1; }
 
-
   /// ACov Interface
-  
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
                       int ivar = 0,

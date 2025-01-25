@@ -501,7 +501,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
     messerr("The input Db must contain a LAYER locator");
     return false;
   }
-  if (model->getVariableNumber() != 1)
+  if (model->getNVar() != 1)
   {
     messerr("The Model must be monovariate");
     return false;

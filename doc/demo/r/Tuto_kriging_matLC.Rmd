@@ -246,7 +246,7 @@ OptDbg_setReference(0)
 # TODO: generalize to rectangular matrix?
 model_of_LC <- function(model, A) {
   stopifnot(dim(A)[1] == dim(A)[2])
-  nv = model$getVariableNumber()
+  nv = model$getNVar()
   stopifnot(nv == dim(A)[1])
   ns = model$getCovaNumber()
   model_LC = model$clone()

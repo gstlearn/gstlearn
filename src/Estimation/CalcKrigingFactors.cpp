@@ -50,7 +50,7 @@ bool CalcKrigingFactors::_check()
     messerr("This tool cannot function with an IMAGE neighborhood");
     return false;
   }
-  if (getModel()->getVariableNumber() != 1)
+  if (getModel()->getNVar() != 1)
   {
     messerr("This application is limited to the monovariate Model case");
     return false;

@@ -245,10 +245,10 @@ bool RuleShift::checkModel(const Model* model, int nvar) const
     messerr("No Model is provided");
     return false;
   }
-  if (nvar > 0 && model->getVariableNumber() != nvar)
+  if (nvar > 0 && model->getNVar() != nvar)
   {
     messerr("The number of variables in the Model (%d) does not match",
-            model->getVariableNumber());
+            model->getNVar());
     messerr(" the number of variables in the Db (%d)", nvar);
     return false;
   }

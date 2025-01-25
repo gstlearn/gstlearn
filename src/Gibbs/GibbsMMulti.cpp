@@ -224,7 +224,7 @@ void GibbsMMulti::update(VectorVectorDouble &y, int isimu, int ipgs, int iter)
 int GibbsMMulti::_getVariableNumber() const
 {
   Model* model = getModel();
-  return model->getVariableNumber();
+  return model->getNVar();
 }
 
 int GibbsMMulti::_getSize() const

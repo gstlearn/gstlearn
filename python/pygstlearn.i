@@ -1428,7 +1428,7 @@ setattr(gl.Vario, "toTL", vario_toTL)
 def vario_updateFromPanda(self, pf, idir, ivar, jvar):
 	vario = self
 	ndir = vario.getDirectionNumber()
-	nvar = vario.getVariableNumber()
+	nvar = vario.getNVar()
 	if idir < 0 or idir >= ndir:
 	 return vario
 	if ivar < 0 or ivar >= nvar:

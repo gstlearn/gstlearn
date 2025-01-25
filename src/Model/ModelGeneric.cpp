@@ -174,7 +174,7 @@ bool ModelGeneric::isValid() const
 }
 
 // Pipes methods to _ctxt
-int ModelGeneric::getVariableNumber() const
+int ModelGeneric::getNVar() const
 {
   return _ctxt.getNVar();
 }

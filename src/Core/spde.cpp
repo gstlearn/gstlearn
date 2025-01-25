@@ -1334,7 +1334,7 @@ int spde_attach_model(Model *model)
   if (model == nullptr) return (1);
 
   ndim = model->getDimensionNumber();
-  nvar = model->getVariableNumber();
+  nvar = model->getNVar();
 
   if (ndim > 3)
   {
@@ -1414,7 +1414,7 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
   if (model == nullptr) return (1);
 
   ndim = model->getDimensionNumber();
-  nvar = model->getVariableNumber();
+  nvar = model->getNVar();
   if (dbin != nullptr)
   {
     if (dbin->getNDim() != ndim)
@@ -2294,7 +2294,7 @@ static int st_fill_Bnugget(Db *dbin)
   error = 1;
   model = st_get_model();
   ndata = dbin->getSampleNumber(true);
-  nvar = model->getVariableNumber();
+  nvar = model->getNVar();
   nvar2 = nvar * nvar;
   nvs2 = nvar * (nvar + 1) / 2;
   mat = local = local0 = nullptr;
@@ -2520,7 +2520,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
   error = 1;
   model = st_get_model();
   ndata = dbin->getSampleNumber(true);
-  nvar = model->getVariableNumber();
+  nvar = model->getNVar();
   BheteroD = BheteroT = nullptr;
   ranks = ndata1 = ntarget1 = nullptr;
   SPDE_Matelem &Mat1 = spde_get_current_matelem(0);
@@ -8481,10 +8481,10 @@ int m2d_gibbs_spde(Db *dbin,
     goto label_end;
   }
   ndim = model->getDimensionNumber();
-  if (model->getVariableNumber() != 1)
+  if (model->getNVar() != 1)
   {
     messerr("This function should be called in the case of a single Model");
-    messerr("In your case: %d\n", model->getVariableNumber());
+    messerr("In your case: %d\n", model->getNVar());
     goto label_end;
   }
   if (nlayer <= 0)

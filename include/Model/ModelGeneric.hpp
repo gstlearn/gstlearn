@@ -119,7 +119,7 @@ public:
 
   // Pipes for the private members
   // Case of _ctxt
-  int getVariableNumber() const;
+  int getNVar() const;
   int getDimensionNumber() const;
   const VectorDouble& getMeans() const;
 

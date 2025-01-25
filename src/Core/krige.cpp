@@ -620,11 +620,11 @@ static int st_check_environment(int flag_in,
 
   if (model != nullptr)
   {
-    nvar = model->getVariableNumber();
+    nvar = model->getNVar();
     if (nvar <= 0)
     {
       messerr("The number of variables must be positive = %d",
-              model->getVariableNumber());
+              model->getNVar());
       goto label_end;
     }
     // The following test is avoided in the case of simulations
@@ -731,7 +731,7 @@ static int st_model_manage(int mode, Model *model)
 
   /* Initializations */
 
-  nvar = model->getVariableNumber();
+  nvar = model->getNVar();
 
   /* Dispatch */
 
@@ -869,7 +869,7 @@ static int st_krige_manage(int mode,
 
   /* Initializations */
 
-  nvar = model->getVariableNumber();
+  nvar = model->getNVar();
   nfeq = model->getDriftEquationNumber();
   nech = DBIN->getSampleNumber();
   nmax = st_get_nmax(neigh);
@@ -1639,7 +1639,7 @@ int global_transitive(DbGrid* dbgrid,
     messerr("The transitive global estimation is implemented for 1 and 2 space only");
     return 1;
   }
-  if (model->getVariableNumber() != 1)
+  if (model->getNVar() != 1)
   {
     messerr("The transitive global estimation is implemented for 1 variable only");
     return 1;
@@ -3053,7 +3053,7 @@ int krigsum(Db *dbin,
             const NamingConvention& namconv)
 {
   int nvar = dbin->getLocNumber(ELoc::Z);
-  if (model->getVariableNumber() != 1)
+  if (model->getNVar() != 1)
   {
     messerr("This procedure requires a monovariate model");
     return 1;
@@ -3766,7 +3766,7 @@ int krigsampling_f(Db *dbin,
   FLAG_EST = true;
   FLAG_STD = flag_std;
   if (st_check_environment(1, 1, model)) return 1;
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
   int nech = dbin->getSampleNumber();
 
   /* Preliminary checks */
@@ -4856,12 +4856,12 @@ int inhomogeneous_kriging(Db *dbdat,
 
   /* Preliminary checks */
 
-  if (model_dat->getVariableNumber() != nvar)
+  if (model_dat->getNVar() != nvar)
   {
     messerr("The Model for the Data must be Monovariate");
     goto label_end;
   }
-  if (model_src->getVariableNumber() != nvar)
+  if (model_src->getNVar() != nvar)
   {
     messerr("The Model for the Sources must be Monovariate");
     goto label_end;

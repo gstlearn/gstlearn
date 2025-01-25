@@ -118,7 +118,7 @@ bool CalcAnamTransform::_hasSelectivity() const
     messerr("You must define some cutoff values");
     return false;
   }
-  int nvarout = _selectivity->getVariableNumber();
+  int nvarout = _selectivity->getNVar();
   if (nvarout <= 0)
   {
     messerr("No recovery function is defined");

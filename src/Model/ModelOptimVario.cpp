@@ -70,10 +70,10 @@ bool ModelOptimVario::_checkConsistency()
             vario->getDimensionNumber(), model->getDimensionNumber());
     return false;
   }
-  if (vario->getVariableNumber() != model->getVariableNumber())
+  if (vario->getNVar() != model->getNVar())
   {
     messerr("'_vario'(%d) and '_model'(%d) should have same number of Variables",
-      vario->getVariableNumber(), model->getVariableNumber());
+      vario->getNVar(), model->getNVar());
     return false;
   }
   return true;
@@ -134,7 +134,7 @@ int ModelOptimVario::_buildExperimental()
   // Clean previous contents
   _varioPart._lags.clear();
 
-  int nvar = vario->getVariableNumber();
+  int nvar = vario->getNVar();
   int ndim = vario->getDimensionNumber();
   VectorDouble dd(ndim);
 

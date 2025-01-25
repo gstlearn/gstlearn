@@ -439,7 +439,7 @@ void Vario::resetReduce(const VectorInt &varcols,
   VectorInt selvars;
   VectorInt seldirs;
   Vario vario_in(*this); // Copy the current variogram as input variogram
-  int nvar_in = vario_in.getVariableNumber();
+  int nvar_in = vario_in.getNVar();
   int ndir_in = vario_in._varioparam.getDirectionNumber();
 
   // Checking arguments
@@ -591,7 +591,7 @@ int Vario::transformZToY(const AAnam *anam)
     messerr("The function 'transformZToY' needs a Hermite Anamorphosis");
     return 1;
   }
-  if (getVariableNumber() != 1)
+  if (getNVar() != 1)
   {
     messerr("The function 'transformZToY' is restricted to Monovariate Variogram");
     return 1;
@@ -647,7 +647,7 @@ int Vario::transformYToZ(const AAnam *anam)
     messerr("The function 'transformYToZ' needs a Hermite Anamorphosis");
     return 1;
   }
-  if (getVariableNumber() != 1)
+  if (getNVar() != 1)
   {
     messerr("The function 'transformYToZ' is restricted to Monovariate Variogram");
     return 1;
@@ -695,7 +695,7 @@ int Vario::regularizeFromModel(const Model &model,
                                bool asCov)
 {
   int ndim = model.getDimensionNumber();
-  int nvar = model.getVariableNumber();
+  int nvar = model.getNVar();
 
   /* Preliminary checks */
 
@@ -753,7 +753,7 @@ MatrixSquareGeneral Vario::_evalAverageDbIncr(Model *model,
                                               const VectorDouble &incr,
                                               const CovCalcMode *mode) const
 {
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   int nech = db.getSampleNumber(true);
   int ndim = getDimensionNumber();
   int norme = nech * nech;
@@ -799,7 +799,7 @@ int Vario::regularizeFromDbGrid(Model* model,
                                 const Db& db,
                                 const CovCalcMode* mode)
 {
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
   setNVar(nvar);
   internalVariableResize();
   internalDirectionResize();
@@ -1951,7 +1951,7 @@ bool Vario::_serialize(std::ostream& os, bool /*verbose*/) const
 
   bool ret = true;
   ret = ret && _recordWrite<int>(os, "Space Dimension", _varioparam.getDimensionNumber());
-  ret = ret && _recordWrite<int>(os, "Number of variables", getVariableNumber());
+  ret = ret && _recordWrite<int>(os, "Number of variables", getNVar());
   ret = ret && _recordWrite<int>(os, "Number of directions", getDirectionNumber());
   ret = ret && _recordWrite<double>(os, "Scale", _varioparam.getScale());
   ret = ret && _recordWrite<int>(os, "Calculation Flag", flag_calcul);
@@ -1959,7 +1959,7 @@ bool Vario::_serialize(std::ostream& os, bool /*verbose*/) const
   // Dump the variable names
 
   ret = ret && _commentWrite(os, "Variable Names");
-  for (int ivar = 0; ivar < getVariableNumber(); ivar++)
+  for (int ivar = 0; ivar < getNVar(); ivar++)
   {
     if (ivar < (int) _variableNames.size())
       ret = ret && _recordWrite<String>(os, "", _variableNames[ivar]);
@@ -1973,9 +1973,9 @@ bool Vario::_serialize(std::ostream& os, bool /*verbose*/) const
   if (flag_calcul)
   {
     ret = ret && _commentWrite(os, "Variance");
-    for (int ivar = 0; ret && ivar < getVariableNumber(); ivar++)
+    for (int ivar = 0; ret && ivar < getNVar(); ivar++)
     {
-      for (int jvar = 0; ret && jvar < getVariableNumber(); jvar++)
+      for (int jvar = 0; ret && jvar < getNVar(); jvar++)
         ret = ret && _recordWrite<double>(os, "", getVar(ivar,jvar));
       ret = ret && _commentWrite(os, "");
     }
@@ -2073,10 +2073,10 @@ int Vario::fill(int idir,
 VectorInt Vario::_getVariableInterval(int ivar) const
 {
   VectorInt bounds(2);
-  if (ivar < 0 || ivar >= getVariableNumber())
+  if (ivar < 0 || ivar >= getNVar())
   {
     bounds[0] = 0;
-    bounds[1] = getVariableNumber();
+    bounds[1] = getNVar();
   }
   else
   {
@@ -2339,7 +2339,7 @@ int Vario::_compute(Db *db,
   }
 
   // Save the variable names
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   _variableNames.resize(nvar, "Unknown");
   for (int ivar = 0; ivar < nvar; ivar++)
   {
@@ -2695,7 +2695,7 @@ int Vario::_calculateGenOnLine(Db *db, int norder)
 {
   /* Preliminary checks */
 
-  if (getVariableNumber() != 1)
+  if (getNVar() != 1)
   {
     messerr("The generalized variogram requires a single variable");
     return (1);
@@ -2741,7 +2741,7 @@ void Vario::_calculateOnLineSolution(Db *db, int idir, int norder)
 
   int nech     = db->getSampleNumber();
   int npas     = getLagNumber(idir);
-  int nvar     = getVariableNumber();
+  int nvar     = getNVar();
   double dist0 = 0.;
   double dist  = 0.;
   bool hasSel  = db->hasLocVariable(ELoc::SEL);
@@ -2886,7 +2886,7 @@ int Vario::_calculateGenOnGrid(DbGrid *db, int norder)
 {
   /* Preliminary checks */
 
-  if (getVariableNumber() != 1)
+  if (getNVar() != 1)
   {
     messerr("The generalized variogram requires a single variable");
     return (1);
@@ -3271,7 +3271,7 @@ void Vario::_calculateFromGeometry(Db *db, int idir, Vario_Order *vorder)
   /* Initializations */
 
   int npas = getLagNumber(idir);
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
 
   /* Loop on the lags */
 
@@ -3330,7 +3330,7 @@ int Vario::_calculateGeneralSolution1(Db *db,
 
   DirParam dirparam = getDirParam(idir);
   int nech          = db->getSampleNumber();
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   double maxdist = getMaximumDistance(idir);
   const VarioParam& varioparam = getVarioParam();
 
@@ -3432,7 +3432,7 @@ int Vario::_calculateGeneralSolution2(Db *db, int idir, const int *rindex)
  const DirParam& dirparam     = getDirParam(idir);
  int nech                     = db->getSampleNumber();
  int size                     = getDirSize(idir);
- int nvar                     = getVariableNumber();
+ int nvar                     = getNVar();
  double maxdist               = getMaximumDistance(idir);
 
  /* Core allocation */
@@ -3547,7 +3547,7 @@ int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
   bool hasSel    = db->hasLocVariable(ELoc::SEL);
   bool hasWeight = db->hasLocVariable(ELoc::W);
   double dist    = 0.;
-  int nvar       = getVariableNumber();
+  int nvar       = getNVar();
   int ndim       = db->getNDim();
 
   /* Core allocation */
@@ -3626,7 +3626,7 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
  int nech                 = db->getSampleNumber();
  int npas                 = getLagNumber(idir);
  int ndim                 = db->getNDim();
- int nvar                 = getVariableNumber();
+ int nvar                 = getNVar();
  const DirParam& dirparam = getDirParam(idir);
 
  // Local variables to speed up calculations
@@ -3776,7 +3776,7 @@ void Vario::_centerCovariance(Db *db, int idir)
 
   /* Scale the experimental variogram quantities */
 
-  for (int ivar = 0, nvar = getVariableNumber(); ivar < nvar; ivar++)
+  for (int ivar = 0, nvar = getNVar(); ivar < nvar; ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++)
     {
       /* Calculate the mean for each variable */
@@ -3817,13 +3817,13 @@ void Vario::_centerCovariance(Db *db, int idir)
 bool Vario::_isCompatible(const Db *db) const
 {
   if (db->getNDim() != getDimensionNumber() ||
-      db->getLocNumber(ELoc::Z) != getVariableNumber())
+      db->getLocNumber(ELoc::Z) != getNVar())
   {
     messerr("Inconsistent parameters:");
     messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(),
             db->getLocNumber(ELoc::Z));
     messerr("Variogram: NDIM=%d NVAR=%d", getDimensionNumber(),
-            getVariableNumber());
+            getNVar());
     return false;
   }
   return true;
@@ -4070,7 +4070,7 @@ int Vario::_calculateVarioVectSolution(Db *db, int idir, int ncomp, const int *r
 
   const DirParam &dirparam = getDirParam(idir);
   int nech = db->getSampleNumber();
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   double maxdist = getMaximumDistance(idir);
 
   // Local variables to speed up calculations
@@ -4217,7 +4217,7 @@ void Vario::_getVarioVectStatistics(Db *db, int ncomp)
   /* Loop on the variables */
 
   int nb_neg = 0;
-  for (int ivar = 0; ivar < getVariableNumber(); ivar++)
+  for (int ivar = 0; ivar < getNVar(); ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++)
     {
 
@@ -4278,7 +4278,7 @@ void Vario::_getVarioVectStatistics(Db *db, int ncomp)
  *****************************************************************************/
 void Vario::_rescale(int idir)
 {
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
 
   /* Scale the experimental variogram quantities */
 
@@ -4572,7 +4572,7 @@ double Vario::_linear_interpolate(int n,
  *****************************************************************************/
 int Vario::transformCut(int nh, double ycut)
 {
-  if (getVariableNumber() != 1)
+  if (getNVar() != 1)
   {
     messerr("The method 'transformCut' is available in the monovariate case only");
     return 1;
@@ -4717,7 +4717,7 @@ int Vario::sampleModel(Model *model, const CovCalcMode*  mode)
 {
   int ndim = getDimensionNumber();
   int ndir = getDirectionNumber();
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
 
   /* Core allocation */
 
@@ -4810,7 +4810,7 @@ double Vario::getC00(int idir, int ivar, int jvar) const
 VectorDouble Vario::computeWeightPerDirection() const
 {
   int ndir = getDirectionNumber();
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   int nvs2 = nvar * (nvar + 1) / 2;
   VectorDouble count(ndir);
 
@@ -4855,7 +4855,7 @@ int Vario::getTotalLagsPerDirection() const
 VectorDouble Vario::computeWeightsFromVario(int wmode)
 {
   int ndir           = getDirectionNumber();
-  int nvar           = getVariableNumber();
+  int nvar           = getNVar();
   int npadir         = getTotalLagsPerDirection();
   VectorDouble count = computeWeightPerDirection();
   int nvs2           = nvar * (nvar + 1) / 2;

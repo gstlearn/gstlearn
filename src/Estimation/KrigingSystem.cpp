@@ -274,12 +274,12 @@ int KrigingSystem::_getNVar() const
   int nvar = 0;
   if (_model != nullptr)
   {
-    if (nvar > 0 && nvar != _model->getVariableNumber())
+    if (nvar > 0 && nvar != _model->getNVar())
     {
       messerr("Inconsistent number of Variables - Value is returned as 0");
       return 0;
     }
-    nvar = _model->getVariableNumber();
+    nvar = _model->getNVar();
   }
 
   // In the case of factor kriging, the number of Z-variables in the Data file
@@ -2583,7 +2583,7 @@ int KrigingSystem::setKrigOptDGM(bool flag_dgm, double eps)
     messerr("The option DGM is limited to Stationary Covariances");
     return 1;
   }
-  if (_model->getVariableNumber() != 1)
+  if (_model->getNVar() != 1)
   {
     messerr("The DGM option is limited to the Monovariate case");
     return 1;
@@ -2773,7 +2773,7 @@ bool KrigingSystem::_isCorrect()
   }
   if (_model != nullptr)
   {
-    if (nvar > 0 && nvar != _model->getVariableNumber())
+    if (nvar > 0 && nvar != _model->getNVar())
     {
       messerr("Incompatible Variable Number of '_ model'");
       return false;

@@ -70,10 +70,10 @@ bool ModelOptimVMap::_checkConsistency()
   int nvar = _vmapPart._dbmap->getLocNumber(ELoc::Z);
   int ndim = _vmapPart._dbmap->getLocNumber(ELoc::X);
 
-  if (model->getVariableNumber() != nvar)
+  if (model->getNVar() != nvar)
   {
     messerr("Number of variables in Dbmap (%d) must match the one in Model (%d)",
-            nvar, model->getVariableNumber());
+            nvar, model->getNVar());
     return false;
   }
   if (model->getDimensionNumber() != ndim)

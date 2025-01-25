@@ -592,7 +592,7 @@ void Selectivity::defineRecoveries(const std::vector<ESelectivity>& codes,
 
   /* Count the total number of variables */
 
-  int ntotal = getVariableNumber();
+  int ntotal = getNVar();
   if (ntotal <= 0)
   {
     messerr("The number of variables calculated is zero");
@@ -781,7 +781,7 @@ bool Selectivity::_isRecoveryDefined() const
   return true;
 }
 
-int Selectivity::getVariableNumber() const
+int Selectivity::getNVar() const
 {
   int ntotal = 0;
   if (! _isRecoveryDefined()) return ntotal;

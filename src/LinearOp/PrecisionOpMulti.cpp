@@ -221,7 +221,7 @@ bool PrecisionOpMulti::_matchModelAndMeshes() const
 int PrecisionOpMulti::_getNVar() const
 {
   if (_model == nullptr) return 0;
-  return _model->getVariableNumber();
+  return _model->getNVar();
 }
 
 int PrecisionOpMulti::_getNCov() const

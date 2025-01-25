@@ -926,7 +926,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   int nech = db->getSampleNumber();
   if (model == nullptr) return mat;
   int nvar = db->getLocNumber(ELoc::Z);
-  if (nvar != model->getVariableNumber())
+  if (nvar != model->getNVar())
   {
     messerr("'db' and 'model' should have the same number of variables");
     return mat;
@@ -945,7 +945,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   }
   if (!hasnugget)
   {
-    MatrixSquareSymmetric sills(model->getVariableNumber());
+    MatrixSquareSymmetric sills(model->getNVar());
     cova = CovAniso::createIsotropicMulti(model->getContext(), ECov::NUGGET, 0, sills);
   }
   VectorInt ivars = VH::sequence(nvar);

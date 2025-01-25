@@ -105,7 +105,7 @@ int CalcGlobal::_globalKriging()
 
   // Initializations
 
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
   NeighUnique neighU = NeighUnique(false);
   neighU.attach(getDbin(), getDbout());
 

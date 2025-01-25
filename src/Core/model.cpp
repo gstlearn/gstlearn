@@ -72,7 +72,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
   // Preliminary checks
 
   new_model = nullptr;
-  int nvar  = model->getVariableNumber();
+  int nvar  = model->getNVar();
   int ndim  = model->getDimensionNumber();
   int ncova = model->getCovaNumber();
 
@@ -195,7 +195,7 @@ void model_covupdt(Model *model,
 
   silltot = range = nullptr;
   rank = nullptr;
-  nvar = model->getVariableNumber();
+  nvar = model->getNVar();
   ncova = model->getCovaNumber();
   flag_update = 0;
 
@@ -388,12 +388,12 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
     messerr("This function requires at least one model defined");
     return nullptr;
   }
-  if (model1 != nullptr && model1->getVariableNumber() != 1)
+  if (model1 != nullptr && model1->getNVar() != 1)
   {
     messerr("This function can only combine monovariate models");
     return nullptr;
   }
-  if (model2 != nullptr && model2->getVariableNumber() != 1)
+  if (model2 != nullptr && model2->getNVar() != 1)
   {
     messerr("This function can only combine monovariate models");
     return nullptr;

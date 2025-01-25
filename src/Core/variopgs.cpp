@@ -3419,7 +3419,7 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
 
   Db* db = local_pgs->db;
   int nech = db->getSampleNumber();
-  int nvar = vario->getVariableNumber();
+  int nvar = vario->getNVar();
   double maxdist = vario->getMaximumDistance(idir);
   const DirParam &dirparam = vario->getDirParam(idir);
 
@@ -4133,7 +4133,7 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
   double cround;
 
   const Rule *rule = local_pgs->rule;
-  int nvar = local_pgs->model->getVariableNumber();
+  int nvar = local_pgs->model->getNVar();
   int ngrf = local_pgs->rule->getGRFNumber();
   MatrixSquareGeneral cov0(nvar);
   MatrixSquareGeneral covh(nvar);
@@ -4411,7 +4411,7 @@ static double st_get_value(Local_Pgs *local_pgs,
  *****************************************************************************/
 static void st_variogram_scale(Vario *vario, int idir)
 {
-  int nvar = vario->getVariableNumber();
+  int nvar = vario->getNVar();
 
   /* Scale the experimental variogram quantities */
 
@@ -4615,7 +4615,7 @@ static int st_copy_swhh(const Vario *vario1,
       return 1;
     }
   }
-  int nvar = vario2->getVariableNumber();
+  int nvar = vario2->getNVar();
 
   for (int idir = 0; idir < vario2->getDirectionNumber(); idir++)
   {
@@ -4912,7 +4912,7 @@ Vario* model_pgs(Db *db,
     messerr("The Model(s) must be defined");
     return nullptr;
   }
-  if (new_model->getVariableNumber() != ngrf)
+  if (new_model->getNVar() != ngrf)
   {
     messerr("The number of GRF is not equal to the number of variables");
     messerr("defined in the combined Model");

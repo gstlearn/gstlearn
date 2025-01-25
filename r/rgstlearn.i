@@ -1021,7 +1021,7 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 "Vario_updateFromDF" <- function(vario, df, idir=0, ivar=0, jvar=0)
 {
 	ndir = vario$getDirectionNumber()
-	nvar = vario$getVariableNumber()
+	nvar = vario$getNVar()
 	if (idir < 0 || idir >= ndir) return
 	if (ivar < 0 || ivar >= nvar) return 
 	if (jvar < 0 || jvar >= nvar) return 

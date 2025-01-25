@@ -254,7 +254,7 @@ int AModelOptim::_buildModelParamList()
 
   // Loop on the covariances
   const Model* model       = _modelPart._model;
-  int nvar                 = model->getVariableNumber();
+  int nvar                 = model->getNVar();
   int ndim                 = model->getDimensionNumber();
   bool flagRotationDefined = false;
 
@@ -368,7 +368,7 @@ int AModelOptim::_buildModelParamList()
   {
     // Initializations
     int ncov    = modelPart._model->getCovaNumber();
-    int nvar    = modelPart._model->getVariableNumber();
+    int nvar    = modelPart._model->getNVar();
     int nvs2    = nvar * (nvar + 1) / 2;
     int nparams = (int)modelPart._params.size();
     bool samerot = modelPart._optvar.getLockSamerot();

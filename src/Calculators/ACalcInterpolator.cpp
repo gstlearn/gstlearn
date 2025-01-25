@@ -102,17 +102,17 @@ bool ACalcInterpolator::_check()
   {
     if (nvar > 0)
     {
-      if (nvar != _model->getVariableNumber())
+      if (nvar != _model->getNVar())
       {
         messerr("Inconsistent Variable Number:");
         messerr("- Current number = %d",nvar);
-        messerr("- Number of variables in 'model' = %d",_model->getVariableNumber());
+        messerr("- Number of variables in 'model' = %d",_model->getNVar());
         return false;
       }
     }
     else
     {
-//      nvar = _model->getVariableNumber(); // Never reached
+//      nvar = _model->getNVar(); // Never reached
     }
   }
 
@@ -190,7 +190,7 @@ bool ACalcInterpolator::_preprocess()
 
   if (_model != nullptr)
   {
-    if (!_setNvar(_model->getVariableNumber())) return false;
+    if (!_setNvar(_model->getNVar())) return false;
   }
 
   // Number of covariance functions

@@ -579,7 +579,7 @@ public:
   Model* duplicate() const;
   Model* createReduce(const VectorInt& validVars) const;
 
-  int getVariableNumber() const
+  int getNVar() const
   {
     // TODO/ the strange next line have been commented out.
     // There should be either validated or suppressed

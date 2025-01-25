@@ -2021,7 +2021,7 @@ int multilayers_kriging(Db* dbin,
   acov = atot = nullptr;
   a0 = cc = ss = gs = post_mean = post_S = nullptr;
   lmlayers = nullptr;
-  nlayers = model->getVariableNumber();
+  nlayers = model->getNVar();
   nechmax = dbin->getSampleNumber();
   ptime = (match_time) ? ELoc::F : ELoc::TIME;
   if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
@@ -2748,7 +2748,7 @@ int multilayers_get_prior(Db* dbin,
   error = 1;
   flag_created = false;
   lmlayers = nullptr;
-  nlayers = model->getVariableNumber();
+  nlayers = model->getNVar();
   nechmax = dbin->getSampleNumber();
   ptime = (match_time) ? ELoc::F : ELoc::TIME;
   if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))  goto label_end;

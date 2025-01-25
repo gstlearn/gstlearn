@@ -77,7 +77,7 @@ CovContext::CovContext(const Vario *vario, const ASpaceSharedPtr& space)
       _covar0()
 {
   /// TODO : check vario dimension vs provided space
-  _nVar = vario->getVariableNumber();
+  _nVar = vario->getNVar();
   _field = vario->getHmax();
   _update();
 }

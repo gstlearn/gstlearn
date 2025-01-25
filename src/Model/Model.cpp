@@ -253,7 +253,7 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   if (isFlagGradient()) sstr << "(Specific for Handling Gradient)" << std::endl;
   sstr << "Space dimension              = " << getDimensionNumber()
        << std::endl;
-  sstr << "Number of variable(s)        = " << getVariableNumber() << std::endl;
+  sstr << "Number of variable(s)        = " << getNVar() << std::endl;
   sstr << "Number of basic structure(s) = " << ncov << std::endl;
   sstr << "Number of drift function(s)  = " << ndrift << std::endl;
   sstr << "Number of drift equation(s)  = " << getDriftEquationNumber() << std::endl;
@@ -365,7 +365,7 @@ void Model::addCovFromParamOldStyle(const ECov& type,
     }
     ndim = (int) angles.size();
   }
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   if (! sills.empty())
   {
     if (nvar > 0 && (int) sills.size() != nvar * nvar)
@@ -461,7 +461,7 @@ void Model::addCovFromParam(const ECov& type,
     }
     ndim = (int)angles.size();
   }
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   if (!sills.empty())
   {
     if (nvar > 0 && nvar != sills.getNCols())
@@ -1078,8 +1078,8 @@ VectorDouble Model::sampleUnitary(const VectorDouble &hh,
                                   VectorDouble codir,
                                   const CovCalcMode* mode)
 {
-  if (ivar < 0 || ivar >= getVariableNumber()) return VectorDouble();
-  if (jvar < 0 || jvar >= getVariableNumber()) return VectorDouble();
+  if (ivar < 0 || ivar >= getNVar()) return VectorDouble();
+  if (jvar < 0 || jvar >= getNVar()) return VectorDouble();
   if (ivar == jvar) return VectorDouble();
   int ndim = getDimensionNumber();
   if (codir.empty())
@@ -1106,8 +1106,8 @@ VectorDouble Model::envelop(const VectorDouble &hh,
                             VectorDouble codir,
                             const CovCalcMode* mode)
 {
-  if (ivar < 0 || ivar >= getVariableNumber()) return VectorDouble();
-  if (jvar < 0 || jvar >= getVariableNumber()) return VectorDouble();
+  if (ivar < 0 || ivar >= getNVar()) return VectorDouble();
+  if (jvar < 0 || jvar >= getNVar()) return VectorDouble();
   if (ivar == jvar) return VectorDouble();
   if (isign != -1 && isign != 1) return VectorDouble();
   int ndim = getDimensionNumber();
@@ -1379,7 +1379,7 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
   /* Write the Model structure */
 
   ret = ret && _recordWrite<int>(os, "", getDimensionNumber());
-  ret = ret && _recordWrite<int>(os, "", getVariableNumber());
+  ret = ret && _recordWrite<int>(os, "", getNVar());
   ret = ret && _recordWrite<double>(os, "General parameters", getField());
   ret = ret && _recordWrite<int>(os, "Number of basic covariance terms", getCovaNumber());
   ret = ret && _recordWrite<int>(os, "Number of drift terms", getDriftNumber());
@@ -1424,7 +1424,7 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
   /* Writing the matrix of means (if nbfl <= 0) */
 
   if (getDriftNumber() <= 0)
-    for (int ivar = 0; ret && ivar < getVariableNumber(); ivar++)
+    for (int ivar = 0; ret && ivar < getNVar(); ivar++)
     {
       ret = ret && _recordWrite<double>(os, "Mean of Variables", getContext().getMean(ivar));
     }
@@ -1433,16 +1433,16 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
 
   for (int icova = 0; ret && icova < getCovaNumber(); icova++)
   {
-    for (int ivar = 0; ret && ivar < getVariableNumber(); ivar++)
-      for (int jvar = 0; ret && jvar < getVariableNumber(); jvar++)
+    for (int ivar = 0; ret && ivar < getNVar(); ivar++)
+      for (int jvar = 0; ret && jvar < getNVar(); jvar++)
         ret = ret && _recordWrite<double>(os, "", getSill(icova, ivar, jvar));
     ret = ret && _commentWrite(os, "Matrix of sills");
   }
 
   /* Writing the variance-covariance at the origin (optional) */
 
-  for (int ivar = 0; ret && ivar < getVariableNumber(); ivar++)
-    for (int jvar = 0; ret && jvar < getVariableNumber(); jvar++)
+  for (int ivar = 0; ret && ivar < getNVar(); ivar++)
+    for (int jvar = 0; ret && jvar < getNVar(); jvar++)
       ret = ret && _recordWrite<double>(os, "", getContext().getCovar0(ivar, jvar));
   ret = ret && _commentWrite(os, "Var-Covar at origin");
 
@@ -1512,7 +1512,7 @@ Model* Model::duplicate() const
 
 Model* Model::createReduce(const VectorInt& validVars) const
 {
-  VectorInt localValidVars = VH::filter(validVars, 0, getVariableNumber());
+  VectorInt localValidVars = VH::filter(validVars, 0, getNVar());
   int nvar = (int) localValidVars.size();
   if (nvar <= 0)
   {
@@ -1546,7 +1546,7 @@ Model* Model::createReduce(const VectorInt& validVars) const
  */
 double Model::gofToVario(const Vario *vario, bool verbose)
 {
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   int ndir = vario->getDirectionNumber();
 
   double total = 0.;
@@ -1947,7 +1947,7 @@ int Model::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv) co
  *****************************************************************************/
 int Model::stabilize(double percent, bool verbose)
 {
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   if (nvar > 1) return 0;
   if (percent <= 0.) return 0;
   int ncov = getCovaNumber();
@@ -1991,7 +1991,7 @@ int Model::stabilize(double percent, bool verbose)
 int Model::standardize(bool verbose)
 
 {
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   int ncov = getCovaNumber();
   VectorDouble total(nvar,0.);
 
@@ -2052,7 +2052,7 @@ VectorDouble Model::sample(const VectorDouble &h,
 {
   int nh   = (int) h.size();
   int ndim = getDimensionNumber();
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
 
   /* Core allocation */
 
@@ -2105,7 +2105,7 @@ double Model::evaluateOneIncr(double hh,
                               const CovCalcMode *mode)
 {
   int ndim = getDimensionNumber();
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
 
   /* Core allocation */
 
@@ -2166,7 +2166,7 @@ void Model::evaluateMatInPlace(const CovInternal *covint,
 
   MatrixSquareGeneral mat = evalNvarIpas(1., d1, mode);
 
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
@@ -2231,7 +2231,7 @@ VectorDouble Model::evaluateFromDb(Db *db,
     return VectorDouble();
   }
   int ndim = getDimensionNumber();
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   int nech = db->getSampleNumber();
 
   /* Core allocation */

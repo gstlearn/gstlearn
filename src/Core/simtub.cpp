@@ -378,11 +378,11 @@ static int st_check_simtub_environment(Db *dbin,
 
   if (model != nullptr)
   {
-    nvar = model->getVariableNumber();
+    nvar = model->getNVar();
     if (nvar <= 0)
     {
       messerr("The number of variables must be positive = %d",
-              model->getVariableNumber());
+              model->getNVar());
       return 1;
     }
     if (flag_cond && dbin->getLocNumber(ELoc::Z) != nvar)
@@ -713,10 +713,10 @@ int simpgs(Db* dbin,
       messerr("No corresponding Model is provided");
       goto label_end;
     }
-    if (models[igrf]->getVariableNumber() != 1)
+    if (models[igrf]->getNVar() != 1)
     {
       messerr("The number of variables in the model #%d (%d) should be 1",
-              igrf + 1, model1->getVariableNumber());
+              igrf + 1, model1->getNVar());
       goto label_end;
     }
     if (models[igrf]->stabilize(percent, true)) goto label_end;
@@ -1089,11 +1089,11 @@ int simbipgs(Db *dbin,
         messerr("No corresponding Model is provided");
         goto label_end;
       }
-      if (models[ipgs][igrf]->getVariableNumber() != 1)
+      if (models[ipgs][igrf]->getNVar() != 1)
       {
         messerr(
             "The number of variables in Model #%d (%d) for Variable %d should be 1",
-            igrf + 1, ipgs + 1, models[ipgs][igrf]->getVariableNumber());
+            igrf + 1, ipgs + 1, models[ipgs][igrf]->getNVar());
         goto label_end;
       }
       if (models[ipgs][igrf]->stabilize(percent, true)) goto label_end;
@@ -1550,7 +1550,7 @@ int gibbs_sampler(Db *dbin,
     messerr("No Model is provided");
     goto label_end;
   }
-  nvar = model->getVariableNumber();
+  nvar = model->getNVar();
   if (!flag_propagation)
   {
     if (model->stabilize(percent, true)) goto label_end;
@@ -1957,7 +1957,7 @@ int simmaxstable(Db *dbout,
 
   /* Preliminary checks */
 
-  if (model->getVariableNumber() != 1)
+  if (model->getNVar() != 1)
   {
     messerr("This feature is limited to the monovariate case");
     goto label_end;
@@ -2118,7 +2118,7 @@ int simRI(Db *dbout,
 
   /* Preliminary checks */
 
-  if (model->getVariableNumber() != 1)
+  if (model->getNVar() != 1)
   {
     messerr("This feature is limited to the monovariate case");
     goto label_end;
@@ -2367,10 +2367,10 @@ int simpgs_spde(Db* dbin,
       messerr("No corresponding Model is provided");
       goto label_end;
     }
-    if (models[igrf]->getVariableNumber() != 1)
+    if (models[igrf]->getNVar() != 1)
     {
       messerr("The number of variables in the model #%d (%d) should be 1",
-              igrf + 1, model1->getVariableNumber());
+              igrf + 1, model1->getNVar());
       goto label_end;
     }
     if (models[igrf]->stabilize(percent, true)) goto label_end;
@@ -2537,7 +2537,7 @@ int simcond(Db *dbin,
   error = 1;
   bool flag_ext_created = false;
   bool flag_nostat_created = false;
-  nvar = model->getVariableNumber();
+  nvar = model->getNVar();
   iptr = -1;
   propdef = nullptr;
 

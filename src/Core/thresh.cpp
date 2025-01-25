@@ -1251,7 +1251,7 @@ Model* model_rule_combine(const Model *model1,
 
   /* Case of a bivariate input model or monogaussian: simply duplicate */
 
-  if (model1->getVariableNumber() == 2 || ngrf == 1)
+  if (model1->getNVar() == 2 || ngrf == 1)
   {
     new_model = model1->clone();
     return (new_model);
@@ -1272,7 +1272,7 @@ Model* model_rule_combine(const Model *model1,
 
   /* Subsequent checks */
 
-  if (model1->getVariableNumber() != 1 || model2->getVariableNumber() != 1)
+  if (model1->getNVar() != 1 || model2->getNVar() != 1)
   {
     messerr("This function can only combine monovariate models");
     return (new_model);

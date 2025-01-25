@@ -149,7 +149,7 @@ public:
   bool              drawOnlyPositiveX(int ivar, int jvar) const;
   bool              drawOnlyPositiveY(int ivar, int jvar) const;
 
-  int    getVariableNumber() const { return _nVar; }
+  int    getNVar() const { return _nVar; }
   const  VectorDouble& getMeans() const { return _means; }
   double getMean(int ivar) const;
 

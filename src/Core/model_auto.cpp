@@ -283,7 +283,7 @@ static int st_parid_alloc(StrMod *strmod, int npar0)
 
   Option_VarioFit optvar = strmod->optvar;
   int ndim = strmod->models[0]->getDimensionNumber();
-  int nvar = strmod->models[0]->getVariableNumber();
+  int nvar = strmod->models[0]->getNVar();
   int first_covrot = -1;
 
   /* Core allocation */
@@ -462,7 +462,7 @@ static StrMod* st_model_auto_strmod_alloc(Model *model1,
     Model* model = strmod->models[i];
     if (model == nullptr) break;
     nmodel++;
-    nvar = model->getVariableNumber();
+    nvar = model->getNVar();
     if (ncovmax < model->getCovaNumber()) ncovmax = model->getCovaNumber();
 
     /* Set the default value for the range */
@@ -533,7 +533,7 @@ static int st_get_vario_dimension(Vario *vario,
 {
   int nbexp = 0;
   int npadir = 0;
-  int nvar = vario->getVariableNumber();
+  int nvar = vario->getNVar();
 
   // Possibly update the distance for first lag
   // if equal to 0 but corresponds to lots of pairs attached
@@ -730,7 +730,7 @@ static void st_compress_array(const Vario *vario,
                               VectorDouble &tabin,
                               VectorDouble &tabout)
 {
-  int nvar = vario->getVariableNumber();
+  int nvar = vario->getNVar();
 
   int ecr = 0;
   int ipadir = 0;
@@ -814,7 +814,7 @@ static void st_load_gg(const Vario *vario,
                        std::vector<StrExp> &strexps,
                        VectorDouble &gg)
 {
-  int nvar = vario->getVariableNumber();
+  int nvar = vario->getNVar();
   int ndim = vario->getDimensionNumber();
 
   /* Load the Experimental conditions structure */
@@ -896,7 +896,7 @@ static void st_prepar_goulard_vario(int imod)
   Model *model = STRMOD->models[imod];
   int npadir = RECINT.npadir;
   int ndim = model->getDimensionNumber();
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
   int nvs2 = nvar * (nvar + 1) / 2;
   VectorDouble &dd = RECINT.dd;
   std::vector<MatrixRectangular> &ge = RECINT.ge;
@@ -961,7 +961,7 @@ static void st_load_ge(const Vario *vario,
 {
   int ndim = model->getDimensionNumber();
   int ndir = vario->getDirectionNumber();
-  int nvar = vario->getVariableNumber();
+  int nvar = vario->getNVar();
   int nvs2 = nvar * (nvar + 1) / 2;
   int norder = 0;
   if (vario->getCalcul() == ECalcVario::GENERAL1) norder = 1;
@@ -1046,7 +1046,7 @@ static void st_load_wt(const Vario *vario,
   /* Initializations */
 
   int ndir = vario->getDirectionNumber();
-  int nvar = vario->getVariableNumber();
+  int nvar = vario->getNVar();
   int nvs2 = nvar * (nvar + 1) / 2;
   VectorDouble flag(ndir);
 
@@ -1283,7 +1283,7 @@ static void st_keypair_sill(int mode, Model *model)
 
   if (model == nullptr) return;
   int ncova = model->getCovaNumber();
-  int nvar  = model->getVariableNumber();
+  int nvar  = model->getNVar();
 
   if (mode < 0)
   {
@@ -1742,7 +1742,7 @@ static void st_model_auto_strmod_print(int flag_title,
 
   Option_VarioFit optvar = strmod->optvar;
   int ndim = strmod->models[0]->getDimensionNumber();
-  int nvar = strmod->models[0]->getVariableNumber();
+  int nvar = strmod->models[0]->getNVar();
   int imod_mem = -1;
   int icov_mem = -1;
 
@@ -2049,7 +2049,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
 
   /* Initializations */
 
-  int nvar = strmod->models[0]->getVariableNumber();
+  int nvar = strmod->models[0]->getNVar();
   int ndim = strmod->models[0]->getDimensionNumber();
   Option_VarioFit optvar = strmod->optvar;
   int size = nvar * (nvar + 1) / 2;
@@ -2211,7 +2211,7 @@ static int st_structure_reduce(StrMod *strmod,
                                double tolsigma)
 {
   Model *model = strmod->models[imod];
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
   int ndim = model->getDimensionNumber();
   VectorDouble d1(ndim, hmax);
   MatrixSquareGeneral tab(nvar);
@@ -2278,7 +2278,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
 {
   Model *model = strmod->models[imod];
   int ndim = model->getDimensionNumber();
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
   int nech = DBMAP->getSampleNumber();
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
@@ -2360,7 +2360,7 @@ static int st_parid_match(StrMod *strmod,
  *****************************************************************************/
 static int st_check_definite_positive(Model *model)
 {
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
   MatrixSquareSymmetric cc(nvar);
 
   /* Loop on the basic structures */
@@ -3300,7 +3300,7 @@ static int st_sill_fitting_intrinsic(Model* model,
   /* Initializations */
 
   int error = 1;
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
   int ncova = model->getCovaNumber();
   int nvs2 = nvar * (nvar + 1) / 2;
   double crit_mem = 1.e30;
@@ -3411,12 +3411,12 @@ static int st_goulard_fitting(int flag_title,
 
   /* Initialize the array of sills */
 
-  st_sill_reset(model->getVariableNumber(), model->getCovaNumber(), RECINT.sill);
+  st_sill_reset(model->getNVar(), model->getCovaNumber(), RECINT.sill);
 
   /* Print the debug title (optional) */
 
   if (flag_title)
-    st_goulard_debug_title(model->getVariableNumber(), model->getCovaNumber());
+    st_goulard_debug_title(model->getNVar(), model->getCovaNumber());
 
   /* Dispatch */
 
@@ -3430,7 +3430,7 @@ static int st_goulard_fitting(int flag_title,
     {
       /* Without constraint on the sill */
 
-      status = st_goulard_without_constraint(mauto, model->getVariableNumber(),
+      status = st_goulard_without_constraint(mauto, model->getNVar(),
                                              model->getCovaNumber(),
                                              RECINT.npadir, RECINT.wt,
                                              RECINT.gg, RECINT.ge, RECINT.sill,
@@ -3442,14 +3442,14 @@ static int st_goulard_fitting(int flag_title,
       /* With constraint on the sill */
 
       status = st_goulard_with_constraints(
-        constraints.getConstantSills(), mauto, model->getVariableNumber(),
+        constraints.getConstantSills(), mauto, model->getNVar(),
         model->getCovaNumber(), RECINT.npadir, RECINT.wt, RECINT.gg, RECINT.ge,
         RECINT.sill);
     }
 
     /* Copy the array 'sill' in the Model */
 
-    st_goulard_sill_to_model(model->getVariableNumber(), model->getCovaNumber(),
+    st_goulard_sill_to_model(model->getNVar(), model->getCovaNumber(),
                              RECINT.sill, model);
   }
   else
@@ -3852,7 +3852,7 @@ static int st_alter_model_optvar(const Vario *vario,
 
   /* Return an error if Goulard is not used in multivariate case */
 
-  if (model->getVariableNumber() > 1 && !optvar.getFlagGoulardUsed())
+  if (model->getNVar() > 1 && !optvar.getFlagGoulardUsed())
   {
     messerr("In Multivariate case, Goulard option is mandatory");
     messerr("It seems that it has been switched OFF. This is an error");
@@ -3897,7 +3897,7 @@ static int st_alter_vmap_optvar(const Db *dbmap,
 
   /* Return an error if Goulard is not used in multivariate case */
 
-  if (model->getVariableNumber() > 1 && !optvar.getFlagGoulardUsed())
+  if (model->getNVar() > 1 && !optvar.getFlagGoulardUsed())
   {
     messerr("In Multivariate case, Goulard option is mandatory");
     messerr("It seems that it has been switched OFF. This is an error");
@@ -3954,7 +3954,7 @@ static int st_model_auto_count(const Vario *vario,
     /* Initializations */
 
     int ndim = model->getDimensionNumber();
-    int nvar = model->getVariableNumber();
+    int nvar = model->getNVar();
     int first_covrot = -1;
     if (st_alter_model_optvar(vario, model, constraints, optvar)) return (-2);
 
@@ -4096,7 +4096,7 @@ static void st_prepar_goulard_vmap(int imod)
   Model *model = STRMOD->models[imod];
   std::vector<MatrixRectangular> &ge = RECINT.ge;
   int ndim = model->getDimensionNumber();
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
   int ncova = model->getCovaNumber();
   int nech = DBMAP->getSampleNumber();
   VectorDouble d0(ndim);
@@ -4189,7 +4189,7 @@ static void st_vario_varchol_manage(const Vario *vario,
                                     VectorDouble &varchol)
 {
   int ndim = model->getDimensionNumber();
-  int nvar = vario->getVariableNumber();
+  int nvar = vario->getNVar();
 
   MatrixSquareSymmetric mat(nvar);
 
@@ -4407,7 +4407,7 @@ int model_auto_fit(Vario *vario,
   int npadir = 0;
   int ncova = model->getCovaNumber();
   int ndim = model->getDimensionNumber();
-  int nvar = vario->getVariableNumber();
+  int nvar = vario->getNVar();
   VectorDouble angles;
   st_regularize_init();
   mauto.setVerbose(verbose);
@@ -4608,7 +4608,7 @@ int model_fitting_sills(Vario* vario,
   if (vario == nullptr) return (1);
   int ndir = vario->getDirectionNumber();
   int ndim = model->getDimensionNumber();
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
   int ncova = model->getCovaNumber();
 
   /* Reset the coregionalization matrix */
@@ -4682,7 +4682,7 @@ static int st_vmap_auto_count(const Db *dbmap,
   /* Initializations */
 
   int ndim = model->getDimensionNumber();
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
   int first_covrot = -1;
 
   /* Check the number of Variogram Maps */
@@ -4864,7 +4864,7 @@ int vmap_auto_fit(const DbGrid* dbmap,
   int norder = 0;
   int npadir = 0;
   int ncova = model->getCovaNumber();
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
   int ndim = model->getDimensionNumber();
   double hmax = 0.;
   double gmax = 0.;
@@ -4877,7 +4877,7 @@ int vmap_auto_fit(const DbGrid* dbmap,
   if (nvar != dbmap->getLocNumber(ELoc::Z))
   {
     messerr("Number of variables in Db (%d) must match the one in Model (%d)",
-            model->getVariableNumber(), dbmap->getLocNumber(ELoc::Z));
+            model->getNVar(), dbmap->getLocNumber(ELoc::Z));
     goto label_end;
   }
   if (constraints.isConstraintSillDefined())

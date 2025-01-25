@@ -102,7 +102,7 @@ void PrecisionOpMultiMatrix::_prepareMatrix()
   {
     const MatrixSparse* Q = ((PrecisionOpMatrix*)_pops[istruct])->getQ();
 
-    if (_model->getVariableNumber() == 1)
+    if (_model->getNVar() == 1)
     {
       MatrixSparse::glueInPlace(&_Q, Q, 1, 1);
     }

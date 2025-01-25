@@ -493,7 +493,7 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, axsOld=None, *args, **kwargs):
 
     **kwargs : arguments passed to matplotlib.pyplot.plot for all variograms plotted (not models!)
     """
-    nvar = vario.getVariableNumber()
+    nvar = vario.getNVar()
     ivarUtil, ivarN = __selectItems(nvar, ivar)
     jvarUtil, jvarN = __selectItems(nvar, jvar)
     axs = __getNewAxes(axsOld, 0, nx=ivarN, ny=jvarN)
@@ -518,7 +518,7 @@ def __ax_varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
         hmax = vario.getHmax(ivar, jvar, idir)
         
     ndir = vario.getDirectionNumber()
-    nvar = vario.getVariableNumber()
+    nvar = vario.getNVar()
     cols = getColorMap(ndir,cmap)
     
     ndirUtil, ivarD = __selectItems(ndir, idir)
@@ -611,7 +611,7 @@ def variogram(vario, ivar=0, jvar=0, axsOld=None, *args, **kwargs):
     -------
     axs : axes where the variograms are represented
     """
-    nvar = vario.getVariableNumber()
+    nvar = vario.getNVar()
     ivarUtil, ivarN = __selectItems(nvar, ivar)
     jvarUtil, jvarN = __selectItems(nvar, jvar)
     axs = __getNewAxes(axsOld, 0, nx=ivarN, ny=jvarN)
