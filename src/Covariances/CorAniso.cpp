@@ -173,7 +173,7 @@ void CorAniso::setRangeIsotropic(double range)
 void CorAniso::setRanges(const VectorDouble &ranges)
 {
   if (!hasRange()) return;
-  if (ranges.size() != getNDim())
+  if ((int) ranges.size() != getNDim())
   {
     messerr("Inconsistency on Space Dimension");
     return;
@@ -293,7 +293,7 @@ void CorAniso::setRotationAnglesAndRadius(const VectorDouble &angles,
       return;
     }
 
-    if (scales.size() != getNDim())
+    if ((int) scales.size() != getNDim())
     {
       messerr("Inconsistency on Space Dimension");
       return;
@@ -311,7 +311,7 @@ void CorAniso::setRotationAnglesAndRadius(const VectorDouble &angles,
 
   if (! ranges.empty())
   {
-    if (ranges.size() != getNDim())
+    if ((int) ranges.size() != getNDim())
     {
       messerr("Inconsistency on Space Dimension");
       return;

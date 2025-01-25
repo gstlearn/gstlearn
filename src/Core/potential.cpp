@@ -245,7 +245,7 @@ static void st_cov(Model* model,
                    VectorDouble& covGp,
                    VectorDouble& covGG)
 {
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   VectorDouble vec(ndim);
   if (ndim >= 1) vec[0] = dx;
   if (ndim >= 2) vec[1] = dy;
@@ -485,7 +485,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
     messerr("The Tangent and Data Db must share the same space dimension");
     return false;
   }
-  if (model->getDimensionNumber() != pot_env->ndim)
+  if (model->getNDim() != pot_env->ndim)
   {
     messerr("The Model and Data Db must have the same space dimension");
     return false;
@@ -3454,7 +3454,7 @@ int potential_cov(Model *model,
   // Preliminary checks
 
   VERBOSE = verbose;
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   covtab.resize(ndim * ndim, TEST);
 
   /* Preliminary checks */

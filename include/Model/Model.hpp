@@ -566,7 +566,7 @@ public:
   const VectorDouble& getCovar0s() const { return _ctxt.getCovar0(); }
   double getCovar0(int ivar, int jvar) const { return _ctxt.getCovar0(ivar,jvar); }
   double getField() const               { return _ctxt.getField(); }
-  int getDimensionNumber() const        { return _ctxt.getNDim(); }
+  int getNDim() const                   { return _ctxt.getNDim(); }
 
   void setMeans(const VectorDouble& mean);
   void setMean(double mean, int ivar=0);

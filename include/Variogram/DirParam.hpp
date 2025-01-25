@@ -140,7 +140,7 @@ public:
   int  getNBreak() const { return ((int) _breaks.size() / 2); }
   bool getFlagRegular() const { return (getNBreak() <= 0); }
 
-  void getNLag(int npas) {_nPas = npas; }
+  void setNLag(int npas) {_nPas = npas; }
   void setOptionCode(int option_code) {_optionCode = option_code; }
   void setIdate(int idate) {_idate = idate; }
   void setDPas(double dpas) {_dPas = dpas; }

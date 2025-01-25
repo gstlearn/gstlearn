@@ -73,7 +73,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
 
   new_model = nullptr;
   int nvar  = model->getNVar();
-  int ndim  = model->getDimensionNumber();
+  int ndim  = model->getNDim();
   int ncova = model->getNCov();
 
   // Create the new model (linked drift functions)
@@ -408,7 +408,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
     model = model1->duplicate();
     return model;
   }
-  if (model1->getDimensionNumber() != model2->getDimensionNumber())
+  if (model1->getNDim() != model2->getNDim())
   {
     messerr("The two models to be combined must share the space dimension");
     return nullptr;
@@ -432,7 +432,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
   cova0[3] = 1.;
 
   // Creating the context
-  CovContext ctxt = CovContext(2, model1->getDimensionNumber(), mean, cova0);
+  CovContext ctxt = CovContext(2, model1->getNDim(), mean, cova0);
 
   // Creating the new Model
   model = new Model(ctxt);

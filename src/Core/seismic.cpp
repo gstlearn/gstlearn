@@ -2448,7 +2448,7 @@ static void st_estimate_flag(ST_Seismic_Neigh *ngh,
  *****************************************************************************/
 static void st_estimate_var0(Model *model, double *var0)
 {
-  VectorDouble d1(model->getDimensionNumber());
+  VectorDouble d1(model->getNDim());
   CovCalcMode mode(ECalcMember::VAR);
   model->evaluateMatInPlace(nullptr, d1, covtab, true, 1., &mode);
 
@@ -2467,7 +2467,7 @@ static void st_estimate_var0(Model *model, double *var0)
  *****************************************************************************/
 static void st_estimate_c00(Model *model, double *c00)
 {
-  VectorDouble d1(model->getDimensionNumber());
+  VectorDouble d1(model->getNDim());
   CovCalcMode mode(ECalcMember::VAR);
   model->evaluateMatInPlace(nullptr, d1, covtab, true, 1., &mode);
 

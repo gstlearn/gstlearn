@@ -262,7 +262,7 @@ int ShiftOpMatrix::initFromCS(const MatrixSparse* S,
 
     _TildeC = TildeC;
     _Lambda = Lambda;
-    _ndim   = cova->getDimensionNumber();
+    _ndim   = cova->getNDim();
 
     // Duplicate the Shift Operator sparse matrix
 

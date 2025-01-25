@@ -114,7 +114,7 @@ public:
   VectorDouble getCodirs(int idir = 0) const;
   const std::vector<DirParam>& getDirParams() const { return _dirparams; }
   const DirParam& getDirParam(int idir) const { return _dirparams[idir]; }
-  int getDimensionNumber() const;
+  int getNDim() const;
   bool isDefinedForGrid() const;
 
   int hasDate() const { return (getNDate() > 0 && (_dates[0] > -1.e30 || _dates[1] < 1.e30)); }

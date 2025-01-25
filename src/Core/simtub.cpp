@@ -398,17 +398,17 @@ static int st_check_simtub_environment(Db *dbin,
       return 1;
     }
 
-    if (model->getDimensionNumber() <= 0)
+    if (model->getNDim() <= 0)
     {
       messerr("The Space Dimension must be positive = %d",
-              model->getDimensionNumber());
+              model->getNDim());
       return 1;
     }
-    if (model->getDimensionNumber() != ndim)
+    if (model->getNDim() != ndim)
     {
       messerr("The Space Dimension of the Db structure (%d)", ndim);
       messerr("Does not correspond to the Space Dimension of the model (%d)",
-              model->getDimensionNumber());
+              model->getNDim());
       return 1;
     }
 

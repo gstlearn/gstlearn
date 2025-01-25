@@ -122,7 +122,7 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
    *****************************************************************************/
   int ModelOptimSillsVario::_getDimensions()
   {
-    _ndim        = _modelPart._model->getDimensionNumber();
+    _ndim        = _modelPart._model->getNDim();
     _nvar        = _modelPart._model->getNVar();
     _ncova       = _modelPart._model->getNCov();
     Vario* vario = _vario;

@@ -1277,7 +1277,7 @@ Model* model_rule_combine(const Model *model1,
     messerr("This function can only combine monovariate models");
     return (new_model);
   }
-  if (model1->getDimensionNumber() != model2->getDimensionNumber())
+  if (model1->getNDim() != model2->getNDim())
   {
     messerr("The two models to be combined must share the space dimension");
     return (new_model);

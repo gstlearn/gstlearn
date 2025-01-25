@@ -245,7 +245,7 @@ public:
   void computeMarkovCoeffs();
   double getCorrec() const;
   double getFullCorrec() const;
-  int getDimensionNumber() const { return _ctxt.getNDim(); }
+  int getNDim() const { return _ctxt.getNDim(); }
   
   CovAniso* createReduce(const VectorInt &validVars) const;
 

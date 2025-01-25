@@ -154,7 +154,7 @@ void SPDE::_setUseCholesky(int useCholesky, bool verbose)
 {
   if (useCholesky == -1)
   {
-    useCholesky = (_model->getDimensionNumber() == 2);
+    useCholesky = (_model->getNDim() == 2);
   }
   else if (useCholesky == 1)
     _useCholesky = true;
@@ -165,7 +165,7 @@ void SPDE::_setUseCholesky(int useCholesky, bool verbose)
   if (verbose)
   {
     mestitle(1, "SPDE parameters");
-    message("- Space dimension = %d\n", _model->getDimensionNumber());
+    message("- Space dimension = %d\n", _model->getNDim());
     if (! _meshingKrig.empty())
     {
       for (int imesh = 0; imesh < (int) _meshingKrig.size(); imesh++)

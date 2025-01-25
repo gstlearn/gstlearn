@@ -251,7 +251,7 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
 
   sstr << toTitle(0, "Model characteristics");
   if (isFlagGradient()) sstr << "(Specific for Handling Gradient)" << std::endl;
-  sstr << "Space dimension              = " << getDimensionNumber()
+  sstr << "Space dimension              = " << getNDim()
        << std::endl;
   sstr << "Number of variable(s)        = " << getNVar() << std::endl;
   sstr << "Number of basic structure(s) = " << ncov << std::endl;
@@ -342,7 +342,7 @@ void Model::addCovFromParamOldStyle(const ECov& type,
 {
   // Check consistency with parameters of the model
 
-  int ndim = getDimensionNumber();
+  int ndim = getNDim();
   if (! ranges.empty())
   {
     if (ndim > 0 && (int) ranges.size() != ndim)
@@ -436,7 +436,7 @@ void Model::addCovFromParam(const ECov& type,
 {
   // Check consistency with parameters of the model
 
-  int ndim = getDimensionNumber();
+  int ndim = getNDim();
   if (!ranges.empty())
   {
     if (ndim > 0 && (int)ranges.size() != ndim)
@@ -1081,7 +1081,7 @@ VectorDouble Model::sampleUnitary(const VectorDouble &hh,
   if (ivar < 0 || ivar >= getNVar()) return VectorDouble();
   if (jvar < 0 || jvar >= getNVar()) return VectorDouble();
   if (ivar == jvar) return VectorDouble();
-  int ndim = getDimensionNumber();
+  int ndim = getNDim();
   if (codir.empty())
   {
     (void) GH::rotationGetDirectionDefault(ndim, codir);
@@ -1110,7 +1110,7 @@ VectorDouble Model::envelop(const VectorDouble &hh,
   if (jvar < 0 || jvar >= getNVar()) return VectorDouble();
   if (ivar == jvar) return VectorDouble();
   if (isign != -1 && isign != 1) return VectorDouble();
-  int ndim = getDimensionNumber();
+  int ndim = getNDim();
   if (codir.empty())
   {
     (void) GH::rotationGetDirectionDefault(ndim, codir);
@@ -1378,7 +1378,7 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
 
   /* Write the Model structure */
 
-  ret = ret && _recordWrite<int>(os, "", getDimensionNumber());
+  ret = ret && _recordWrite<int>(os, "", getNDim());
   ret = ret && _recordWrite<int>(os, "", getNVar());
   ret = ret && _recordWrite<double>(os, "General parameters", getField());
   ret = ret && _recordWrite<int>(os, "Number of basic covariance terms", getNCov());
@@ -1399,7 +1399,7 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
 
     if (!cova->getFlagAniso()) continue;
 
-    for (int idim = 0; ret && idim < getDimensionNumber(); idim++)
+    for (int idim = 0; ret && idim < getNDim(); idim++)
       ret = ret && _recordWrite<double>(os, "", cova->getAnisoCoeffs(idim));
     ret = ret && _commentWrite(os, "Anisotropy Coefficients");
     ret = ret && _recordWrite<int>(os, "Anisotropy Rotation Flag", (int) cova->getFlagRotation());
@@ -1407,8 +1407,8 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
     if (!cova->getFlagRotation()) continue;
 
     // Storing the rotation matrix by Column (compatibility)
-    for (int idim = 0; ret && idim < getDimensionNumber(); idim++)
-      for (int jdim = 0; ret && jdim < getDimensionNumber(); jdim++)
+    for (int idim = 0; ret && idim < getNDim(); idim++)
+      for (int jdim = 0; ret && jdim < getNDim(); jdim++)
         ret = ret && _recordWrite<double>(os, "", cova->getAnisoRotMat(jdim, idim));
     ret = ret && _commentWrite(os, "Anisotropy Rotation Matrix");
   }
@@ -2051,7 +2051,7 @@ VectorDouble Model::sample(const VectorDouble &h,
                            const CovInternal *covint)
 {
   int nh   = (int) h.size();
-  int ndim = getDimensionNumber();
+  int ndim = getNDim();
   int nvar = getNVar();
 
   /* Core allocation */
@@ -2104,7 +2104,7 @@ double Model::evaluateOneIncr(double hh,
                               int jvar,
                               const CovCalcMode *mode)
 {
-  int ndim = getDimensionNumber();
+  int ndim = getNDim();
   int nvar = getNVar();
 
   /* Core allocation */
@@ -2224,13 +2224,13 @@ VectorDouble Model::evaluateFromDb(Db *db,
                                    int jvar,
                                    const CovCalcMode *mode)
 {
-  if (getDimensionNumber() != db->getNDim())
+  if (getNDim() != db->getNDim())
   {
     messerr("Dimension of the Db (%d) does not match dimension of the Model (%d)",
-            db->getNDim(), getDimensionNumber());
+            db->getNDim(), getNDim());
     return VectorDouble();
   }
-  int ndim = getDimensionNumber();
+  int ndim = getNDim();
   int nvar = getNVar();
   int nech = db->getNSample();
 

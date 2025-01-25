@@ -178,7 +178,7 @@ int RuleShift::particularities(Db* db,
                                int flag_grid_check,
                                int /*flag_stat*/) const
 {
-  int ndim = (model != nullptr) ? model->getDimensionNumber() : 0;
+  int ndim = (model != nullptr) ? model->getNDim() : 0;
   VectorDouble wxyz(ndim);
   double rhoval;
 

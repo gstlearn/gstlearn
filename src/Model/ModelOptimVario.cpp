@@ -64,10 +64,10 @@ bool ModelOptimVario::_checkConsistency()
   const Model* model = _modelPart._model;
   const Vario* vario = _varioPart._vario;
 
-  if (vario->getDimensionNumber() != model->getDimensionNumber())
+  if (vario->getNDim() != model->getNDim())
   {
     messerr("'_vario'(%d) and '_model'(%d) should have same Space Dimension",
-            vario->getDimensionNumber(), model->getDimensionNumber());
+            vario->getNDim(), model->getNDim());
     return false;
   }
   if (vario->getNVar() != model->getNVar())
@@ -135,7 +135,7 @@ int ModelOptimVario::_buildExperimental()
   _varioPart._lags.clear();
 
   int nvar = vario->getNVar();
-  int ndim = vario->getDimensionNumber();
+  int ndim = vario->getNDim();
   VectorDouble dd(ndim);
 
   for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)

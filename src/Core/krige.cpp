@@ -355,7 +355,7 @@ static double st_get_idim(int loc_rank, int idim)
 //
 //  // Initialization
 //
-//  if (idim < it->model->getDimensionNumber() - 1)
+//  if (idim < it->model->getNDim() - 1)
 //  {
 //    idim = idim + 1;
 //
@@ -387,7 +387,7 @@ static double st_get_idim(int loc_rank, int idim)
 //      while (decal < exts2);
 //    }
 //  }
-//  else if (jdim < it->model->getDimensionNumber() - 1)
+//  else if (jdim < it->model->getNDim() - 1)
 //  {
 //    jdim = jdim + 1;
 //
@@ -424,7 +424,7 @@ static double st_get_idim(int loc_rank, int idim)
 //    // End of implicit loop on dimensions
 //
 //    it->ndtot++;
-//    for (int i = 0; i < it->model->getDimensionNumber(); i++)
+//    for (int i = 0; i < it->model->getNDim(); i++)
 //      d1_t_global[i] = d1_global[i] + d1_1_global[i] + d1_2_global[i];
 //    st_cov(it->model, 0, it->nugget_opt, it->nostd, it->member, it->icov_r,
 //           it->weight, it->rank1, it->rank2, d1_t_global, covaux_global);
@@ -461,7 +461,7 @@ void set_DBOUT(Db* dbout)
 //
 //  // Initialization
 //
-//  if (idim < it->model->getDimensionNumber() - 1)
+//  if (idim < it->model->getNDim() - 1)
 //  {
 //    idim = idim + 1;
 //
@@ -500,7 +500,7 @@ void set_DBOUT(Db* dbout)
 //    // End of implicit loop on dimensions
 //
 //    it->ndtot++;
-//    for (int i = 0; i < it->model->getDimensionNumber(); i++)
+//    for (int i = 0; i < it->model->getNDim(); i++)
 //      d1_t_global[i] = d1_global[i] + d1_1_global[i];
 //    st_cov(it->model, 0, it->nugget_opt, it->nostd, it->member, it->icov_r,
 //           it->weight, it->rank1, it->rank2, d1_t_global, covaux_global);
@@ -641,17 +641,17 @@ static int st_check_environment(int flag_in,
       messerr("The number of covariance must be positive");
       goto label_end;
     }
-    if (model->getDimensionNumber() <= 0)
+    if (model->getNDim() <= 0)
     {
       messerr("The Space Dimension must be positive = %d",
-              model->getDimensionNumber());
+              model->getNDim());
       goto label_end;
     }
-    if (model->getDimensionNumber() != ndim)
+    if (model->getNDim() != ndim)
     {
       messerr("The Space Dimension of the Db structure (%d)", ndim);
       messerr("Does not correspond to the Space Dimension of the model (%d)",
-              model->getDimensionNumber());
+              model->getNDim());
       goto label_end;
     }
 

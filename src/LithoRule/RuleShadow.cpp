@@ -181,7 +181,7 @@ int RuleShadow::particularities(Db *db,
                                 int flag_stat) const
 {
   double sh_dsup_max, sh_down_max;
-  int ndim = (model != nullptr) ? model->getDimensionNumber() : 0;
+  int ndim = (model != nullptr) ? model->getNDim() : 0;
 
   _incr = 1.e30;
   for (int idim = 0; idim < ndim; idim++)

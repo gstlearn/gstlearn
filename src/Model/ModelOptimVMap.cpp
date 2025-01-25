@@ -76,11 +76,11 @@ bool ModelOptimVMap::_checkConsistency()
             nvar, model->getNVar());
     return false;
   }
-  if (model->getDimensionNumber() != ndim)
+  if (model->getNDim() != ndim)
   {
     messerr(
       "'_dbmap'(%d) and '_model'(%d) should have same Space Dimensions",
-      ndim, model->getDimensionNumber());
+      ndim, model->getNDim());
     return false;
   }
   // if (_constraints->isConstraintSillDefined())

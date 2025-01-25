@@ -59,17 +59,17 @@ bool ACalcInterpolator::_check()
   {
     if (ndim > 0)
     {
-      if (ndim != _model->getDimensionNumber())
+      if (ndim != _model->getNDim())
       {
         messerr("Inconsistent Space dimension:");
         messerr("- Current dimension = %d",ndim);
-        messerr("- Space Dimension of 'model' = %d",_model->getDimensionNumber());
+        messerr("- Space Dimension of 'model' = %d",_model->getNDim());
         return false;
       }
     }
     else
     {
-      ndim = _model->getDimensionNumber();
+      ndim = _model->getNDim();
     }
   }
 
@@ -179,7 +179,7 @@ bool ACalcInterpolator::_preprocess()
 
   if (_model != nullptr)
   {
-    if (!_setNdim(_model->getDimensionNumber())) return false;
+    if (!_setNdim(_model->getNDim())) return false;
   }
   if (_neigh != nullptr)
   {

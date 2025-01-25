@@ -560,7 +560,7 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
 {
   dots = list(...)
   p = list()
-  ndim = model$getDimensionNumber()
+  ndim = model$getNDim()
   
   # if hmax not specified = 3*maximum range of the model's basic structures
   if (.isNotDef(hmax))

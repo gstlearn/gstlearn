@@ -694,7 +694,7 @@ int Vario::regularizeFromModel(const Model &model,
                                const CovCalcMode *mode,
                                bool asCov)
 {
-  int ndim = model.getDimensionNumber();
+  int ndim = model.getNDim();
   int nvar = model.getNVar();
 
   /* Preliminary checks */
@@ -755,7 +755,7 @@ MatrixSquareGeneral Vario::_evalAverageDbIncr(Model *model,
 {
   int nvar = getNVar();
   int nech = db.getNSample(true);
-  int ndim = getDimensionNumber();
+  int ndim = getNDim();
   int norme = nech * nech;
 
   MatrixSquareGeneral mat(nvar);
@@ -1950,7 +1950,7 @@ bool Vario::_serialize(std::ostream& os, bool /*verbose*/) const
   /* Write the Vario structure */
 
   bool ret = true;
-  ret = ret && _recordWrite<int>(os, "Space Dimension", _varioparam.getDimensionNumber());
+  ret = ret && _recordWrite<int>(os, "Space Dimension", _varioparam.getNDim());
   ret = ret && _recordWrite<int>(os, "Number of variables", getNVar());
   ret = ret && _recordWrite<int>(os, "Number of directions", getNDir());
   ret = ret && _recordWrite<double>(os, "Scale", _varioparam.getScale());
@@ -2627,7 +2627,7 @@ void Vario::_calculateBiasGlobal(Db *db)
   /* Initializations */
 
   int nbfl = _model->getNDrift();
-  int ndim = _model->getDimensionNumber();
+  int ndim = _model->getNDim();
   int nech = db->getNSampleActiveAndDefined(0);
   VectorDouble d1(ndim,0.);
 
@@ -3816,13 +3816,13 @@ void Vario::_centerCovariance(Db *db, int idir)
 
 bool Vario::_isCompatible(const Db *db) const
 {
-  if (db->getNDim() != getDimensionNumber() ||
+  if (db->getNDim() != getNDim() ||
       db->getNLoc(ELoc::Z) != getNVar())
   {
     messerr("Inconsistent parameters:");
     messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(),
             db->getNLoc(ELoc::Z));
-    messerr("Variogram: NDIM=%d NVAR=%d", getDimensionNumber(),
+    messerr("Variogram: NDIM=%d NVAR=%d", getNDim(),
             getNVar());
     return false;
   }
@@ -4715,7 +4715,7 @@ int Vario::computeGeometryMLayers(Db *db,
  *****************************************************************************/
 int Vario::sampleModel(Model *model, const CovCalcMode*  mode)
 {
-  int ndim = getDimensionNumber();
+  int ndim = getNDim();
   int ndir = getNDir();
   int nvar = model->getNVar();
 

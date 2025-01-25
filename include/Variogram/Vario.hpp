@@ -324,7 +324,7 @@ public:
   double getDates(int idate, int icas) const { return _varioparam.getDate(idate, icas); }
   int getNDate() const { return _varioparam.getNDate(); }
   double getScale() const { return _varioparam.getScale(); }
-  int getDimensionNumber() const { return getDirParam(0).getNDim(); }
+  int getNDim() const { return getDirParam(0).getNDim(); }
   ASpaceSharedPtr getSpace() const { return getDirParam(0).getSpace(); }
 
   void setScale(double scale) { _varioparam.setScale(scale); }
@@ -332,7 +332,7 @@ public:
 
   int getNLag(int idir) const { return getDirParam(idir).getNLag(); }
   double getDPas(int idir) const { return getDirParam(idir).getDPas(); }
-  int getDimensionNumber(int idir) const { return getDirParam(idir).getNDim(); }
+  int getNDim(int idir) const { return getDirParam(idir).getNDim(); }
   VectorDouble getCodirs(int idir) const;
   double getCodir(int idir, int idim) const;
   double getMaximumDistance(int idir) const { return getDirParam(idir).getMaximumDistance(); }

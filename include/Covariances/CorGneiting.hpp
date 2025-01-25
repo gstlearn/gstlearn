@@ -61,7 +61,5 @@ private:
   const CorAniso* _covTemp;
   double _separability;
   mutable CorAniso _covSCopy;
-
-
 };
 

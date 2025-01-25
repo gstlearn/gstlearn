@@ -401,7 +401,7 @@ public:
     DECLARE_UNUSED(iech2);
   }
 
-  int getDimensionNumber() const { return _ctxt.getNDim(); }
+  int getNDim(int ispace = -1) const { return _ctxt.getNDim(ispace); }
 
 private:
 
@@ -410,8 +410,6 @@ private:
     DECLARE_UNUSED(db1)
     DECLARE_UNUSED(db2)
   }
-
- 
 
   void setNoStatDbIfNecessary(const Db*& db);
 private : 

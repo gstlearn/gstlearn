@@ -662,7 +662,7 @@ def __ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
     
     if codir is None:
         if vario is None:
-            codir = [0] * modelobj.getDimensionNumber()
+            codir = [0] * modelobj.getNDim()
             codir[0] = 1
         else:
             codir = vario.getCodirs(idir)

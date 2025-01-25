@@ -91,7 +91,7 @@ int SimuSpectral::simulate(int ns, int seed, bool verbose, int nd)
     return 1;
   }
 
-  _ndim = _model->getDimensionNumber();
+  _ndim = _model->getNDim();
   _ns = ns;
 
   // Cleaning any previously allocated memory
@@ -587,10 +587,10 @@ int simuSpectral(Db *dbin,
     messerr("You must provide a positive number of simulations");
     return 1;
   }
-  if (dbout->getNDim() != model->getDimensionNumber())
+  if (dbout->getNDim() != model->getNDim())
   {
     messerr("The Space dimension of 'dbout'(%d) should match the one of Model(%d)",
-            dbout->getNDim(), model->getDimensionNumber());
+            dbout->getNDim(), model->getNDim());
     return 1;
   }
 

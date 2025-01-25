@@ -282,7 +282,7 @@ static int st_parid_alloc(StrMod *strmod, int npar0)
   /* Initializations */
 
   Option_VarioFit optvar = strmod->optvar;
-  int ndim = strmod->models[0]->getDimensionNumber();
+  int ndim = strmod->models[0]->getNDim();
   int nvar = strmod->models[0]->getNVar();
   int first_covrot = -1;
 
@@ -815,7 +815,7 @@ static void st_load_gg(const Vario *vario,
                        VectorDouble &gg)
 {
   int nvar = vario->getNVar();
-  int ndim = vario->getDimensionNumber();
+  int ndim = vario->getNDim();
 
   /* Load the Experimental conditions structure */
 
@@ -895,7 +895,7 @@ static void st_prepar_goulard_vario(int imod)
 {
   Model *model = STRMOD->models[imod];
   int npadir = RECINT.npadir;
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   int nvar = model->getNVar();
   int nvs2 = nvar * (nvar + 1) / 2;
   VectorDouble &dd = RECINT.dd;
@@ -959,7 +959,7 @@ static void st_load_ge(const Vario *vario,
                        VectorDouble &dd,
                        std::vector<MatrixRectangular> &ge)
 {
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   int ndir = vario->getNDir();
   int nvar = vario->getNVar();
   int nvs2 = nvar * (nvar + 1) / 2;
@@ -1741,7 +1741,7 @@ static void st_model_auto_strmod_print(int flag_title,
   if (skip) return;
 
   Option_VarioFit optvar = strmod->optvar;
-  int ndim = strmod->models[0]->getDimensionNumber();
+  int ndim = strmod->models[0]->getNDim();
   int nvar = strmod->models[0]->getNVar();
   int imod_mem = -1;
   int icov_mem = -1;
@@ -2050,7 +2050,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
   /* Initializations */
 
   int nvar = strmod->models[0]->getNVar();
-  int ndim = strmod->models[0]->getDimensionNumber();
+  int ndim = strmod->models[0]->getNDim();
   Option_VarioFit optvar = strmod->optvar;
   int size = nvar * (nvar + 1) / 2;
   VectorDouble ranges(ndim, 0.);
@@ -2212,7 +2212,7 @@ static int st_structure_reduce(StrMod *strmod,
 {
   Model *model = strmod->models[imod];
   int nvar = model->getNVar();
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   VectorDouble d1(ndim, hmax);
   MatrixSquareGeneral tab(nvar);
   CovCalcMode mode(ECalcMember::LHS);
@@ -2277,7 +2277,7 @@ static void st_evaluate_vario(int imod,
 static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
 {
   Model *model = strmod->models[imod];
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   int nvar = model->getNVar();
   int nech = DBMAP->getNSample();
   VectorDouble d0(ndim);
@@ -3790,7 +3790,7 @@ static int st_alter_model_optvar(const Vario *vario,
                                  Constraints &constraints,
                                  Option_VarioFit &optvar)
 {
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   int ndir = vario->getNDir();
   int n_2d = 0;
   int n_3d = 0;
@@ -3953,7 +3953,7 @@ static int st_model_auto_count(const Vario *vario,
 
     /* Initializations */
 
-    int ndim = model->getDimensionNumber();
+    int ndim = model->getNDim();
     int nvar = model->getNVar();
     int first_covrot = -1;
     if (st_alter_model_optvar(vario, model, constraints, optvar)) return (-2);
@@ -4095,7 +4095,7 @@ static void st_prepar_goulard_vmap(int imod)
 {
   Model *model = STRMOD->models[imod];
   std::vector<MatrixRectangular> &ge = RECINT.ge;
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   int nvar = model->getNVar();
   int ncova = model->getNCov();
   int nech = DBMAP->getNSample();
@@ -4188,7 +4188,7 @@ static void st_vario_varchol_manage(const Vario *vario,
                                     Model *model,
                                     VectorDouble &varchol)
 {
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   int nvar = vario->getNVar();
 
   MatrixSquareSymmetric mat(nvar);
@@ -4406,7 +4406,7 @@ int model_auto_fit(Vario *vario,
   int status = 0;
   int npadir = 0;
   int ncova = model->getNCov();
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   int nvar = vario->getNVar();
   VectorDouble angles;
   st_regularize_init();
@@ -4607,7 +4607,7 @@ int model_fitting_sills(Vario* vario,
   if (model == nullptr) return (1);
   if (vario == nullptr) return (1);
   int ndir = vario->getNDir();
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   int nvar = model->getNVar();
   int ncova = model->getNCov();
 
@@ -4681,7 +4681,7 @@ static int st_vmap_auto_count(const Db *dbmap,
 
   /* Initializations */
 
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   int nvar = model->getNVar();
   int first_covrot = -1;
 
@@ -4865,7 +4865,7 @@ int vmap_auto_fit(const DbGrid* dbmap,
   int npadir = 0;
   int ncova = model->getNCov();
   int nvar = model->getNVar();
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   double hmax = 0.;
   double gmax = 0.;
   StrMod* strmod = nullptr;

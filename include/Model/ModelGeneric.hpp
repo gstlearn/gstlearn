@@ -120,7 +120,7 @@ public:
   // Pipes for the private members
   // Case of _ctxt
   int getNVar() const;
-  int getDimensionNumber() const;
+  int getNDim() const;
   const VectorDouble& getMeans() const;
 
   // Case of _driftList

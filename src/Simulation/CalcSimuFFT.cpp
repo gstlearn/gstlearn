@@ -1051,7 +1051,7 @@ bool CalcSimuFFT::_check()
 
   if (!hasDbout()) return false;
   if (!hasModel()) return false;
-  int ndim = getModel()->getDimensionNumber();
+  int ndim = getModel()->getNDim();
   int nvar = getModel()->getNVar();
   if (ndim < 1 || ndim > 3)
   {

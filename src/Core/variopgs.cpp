@@ -3698,7 +3698,7 @@ static void st_manage_pgs(int mode,
       local_pgs->model = model;
       if (model != nullptr)
       {
-        int ndim = model->getDimensionNumber();
+        int ndim = model->getNDim();
         local_pgs->d0.resize(ndim);
         local_pgs->d1.resize(ndim);
       }
@@ -3968,7 +3968,7 @@ static int st_vario_pgs_check(int flag_db,
     if (db != nullptr)
     {
       if (!db->isNVarComparedTo(1)) return 1;
-      if (db->getNDim() != vario->getDimensionNumber())
+      if (db->getNDim() != vario->getNDim())
       {
         messerr("Space Dimension inconsistency between Input Db and Vario");
         return (1);
@@ -3994,7 +3994,7 @@ static int st_vario_pgs_check(int flag_db,
 
   /* Optional Proportion File */
 
-  if (dbprop != nullptr && dbprop->getNDim() != vario->getDimensionNumber())
+  if (dbprop != nullptr && dbprop->getNDim() != vario->getNDim())
   {
     messerr("Space Dimension inconsistency between Dbprop and Vario");
     return (1);
@@ -4139,7 +4139,7 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
   MatrixSquareGeneral covh(nvar);
 
   /* Calculate the covariance for the zero distance */
-  for (int i = 0; i < local_pgs->model->getDimensionNumber(); i++)
+  for (int i = 0; i < local_pgs->model->getNDim(); i++)
     local_pgs->d0[i] = 0.;
   local_pgs->model->evaluateMatInPlace(nullptr, local_pgs->d0, cov0);
 
@@ -4164,19 +4164,19 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
     cov[0] = covh.getValue(0,0); /* C11(h)  */
     cov[5] = (nvar == 1) ? covh.getValue(0,0) : covh.getValue(1,1); /* C22(h)  */
 
-    for (int i = 0; i < local_pgs->model->getDimensionNumber(); i++)
+    for (int i = 0; i < local_pgs->model->getNDim(); i++)
       local_pgs->d0[i] = ruleshift->getShift(i);
 
     local_pgs->model->evaluateMatInPlace(nullptr, local_pgs->d0, covh);
     cov[1] = (nvar == 1) ? covh.getValue(0,0) : covh.getValue(1,0); /* C21(s)  */
     cov[4] = (nvar == 1) ? covh.getValue(0,0) : covh.getValue(1,0); /* C21(s)  */
 
-    for (int i = 0; i < local_pgs->model->getDimensionNumber(); i++)
+    for (int i = 0; i < local_pgs->model->getNDim(); i++)
       local_pgs->d0[i] = local_pgs->d1[i] - ruleshift->getShift(i);
     local_pgs->model->evaluateMatInPlace(nullptr, local_pgs->d0, covh);
     cov[2] = (nvar == 1) ? covh.getValue(0,0) : covh.getValue(1,0); /* C21(h-s) */
 
-    for (int i = 0; i < local_pgs->model->getDimensionNumber(); i++)
+    for (int i = 0; i < local_pgs->model->getNDim(); i++)
       local_pgs->d0[i] = local_pgs->d1[i] + ruleshift->getShift(i);
     local_pgs->model->evaluateMatInPlace(nullptr, local_pgs->d0, covh);
     cov[3] = (nvar == 1) ? covh.getValue(0,0) : covh.getValue(1,0); /* C21(h+s)  */
@@ -4675,7 +4675,7 @@ static int st_vario_indic_model_stat(Local_Pgs *local_pgs)
 
       /* Calculate the distance vector */
 
-      for (int i = 0; i < vario->getDimensionNumber(); i++)
+      for (int i = 0; i < vario->getNDim(); i++)
       {
         int jpas = vario->getDirAddress(idir, 0, 0, ipas, false, 1);
         local_pgs->d1[i] = vario->getHhByIndex(idir, jpas) * vario->getCodir(idir, i);
@@ -4926,24 +4926,24 @@ Vario* model_pgs(Db *db,
       messerr("You must define the Input Db");
       return nullptr;
     }
-    if (db->getNDim() != varioparam->getDimensionNumber())
+    if (db->getNDim() != varioparam->getNDim())
     {
       messerr("Inconsistent parameters:");
       messerr("Input DB : NDIM=%d", db->getNDim());
-      messerr("Variogram: NDIM=%d", varioparam->getDimensionNumber());
+      messerr("Variogram: NDIM=%d", varioparam->getNDim());
       return nullptr;
     }
     if (dbprop != nullptr && dbprop->getNDim()
-        != varioparam->getDimensionNumber())
+        != varioparam->getNDim())
     {
       messerr("Space Dimension inconsistency between Dbprop and Vario");
       return nullptr;
     }
-    if (new_model->getDimensionNumber() != db->getNDim())
+    if (new_model->getNDim() != db->getNDim())
     {
       messerr("The Space Dimension of the Db structure (%d)", db->getNDim());
       messerr("Does not correspond to the Space Dimension of the model (%d)",
-              new_model->getDimensionNumber());
+              new_model->getNDim());
       return nullptr;
     }
   }

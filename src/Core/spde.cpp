@@ -1333,7 +1333,7 @@ int spde_attach_model(Model *model)
 
   if (model == nullptr) return (1);
 
-  ndim = model->getDimensionNumber();
+  ndim = model->getNDim();
   nvar = model->getNVar();
 
   if (ndim > 3)
@@ -1413,7 +1413,7 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
 
   if (model == nullptr) return (1);
 
-  ndim = model->getDimensionNumber();
+  ndim = model->getNDim();
   nvar = model->getNVar();
   if (dbin != nullptr)
   {
@@ -5857,10 +5857,10 @@ int kriging2D_spde(Db *dbin,
 
   /* Preliminary checks */
 
-  if (model->getDimensionNumber() != 2)
+  if (model->getNDim() != 2)
   {
     messerr("This application is restricted to the 2-D case (ndim=%d)",
-            model->getDimensionNumber());
+            model->getNDim());
     goto label_end;
   }
 
@@ -8480,7 +8480,7 @@ int m2d_gibbs_spde(Db *dbin,
     messerr("The function requires an output Db argument");
     goto label_end;
   }
-  ndim = model->getDimensionNumber();
+  ndim = model->getNDim();
   if (model->getNVar() != 1)
   {
     messerr("This function should be called in the case of a single Model");

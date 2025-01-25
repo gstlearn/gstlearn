@@ -178,7 +178,7 @@ int ModelGeneric::getNVar() const
 {
   return _ctxt.getNVar();
 }
-int ModelGeneric::getDimensionNumber() const
+int ModelGeneric::getNDim() const
 {
   return _ctxt.getNDim();
 }

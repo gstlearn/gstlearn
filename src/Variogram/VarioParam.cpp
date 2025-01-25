@@ -312,7 +312,7 @@ String VarioParam::toStringMain(const AStringFormat* /*strfmt*/) const
   /* General parameters */
 
   sstr << "Number of direction(s)      = " << ndir << std::endl;
-  sstr << "Space dimension             = " << getDimensionNumber() << std::endl;
+  sstr << "Space dimension             = " << getNDim() << std::endl;
 
   if (hasDate())
   {
@@ -360,7 +360,7 @@ bool VarioParam::_isDateValid(int idate) const
 VectorDouble VarioParam::_getDirectionInterval(int idir) const
 {
   VectorDouble bounds(2);
-  if (idir < 0 || idir >= getDimensionNumber())
+  if (idir < 0 || idir >= getNDim())
   {
     bounds[0] = 0;
     bounds[1] = getNDir();
@@ -385,7 +385,7 @@ void VarioParam::setGrincr(int idir, const VectorInt& grincr)
   _dirparams[idir].setGrincr(grincr);
 }
 
-int VarioParam::getDimensionNumber() const
+int VarioParam::getNDim() const
 {
   if (getNDir() <= 0) return 0;
   return _dirparams[0].getNDim();

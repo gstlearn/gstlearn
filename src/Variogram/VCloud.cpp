@@ -136,11 +136,11 @@ int VCloud::compute(Db *db, const NamingConvention &namconv)
 
   /* Preliminary checks */
 
-  if (db->getNDim() != _varioparam->getDimensionNumber())
+  if (db->getNDim() != _varioparam->getNDim())
   {
     messerr("Inconsistent parameters:");
     messerr("Data Base: NDIM=%d", db->getNDim());
-    messerr("Variogram: NDIM=%d", _varioparam->getDimensionNumber());
+    messerr("Variogram: NDIM=%d", _varioparam->getNDim());
     return (1);
   }
   if (!db->isNVarComparedTo(1)) return 1;

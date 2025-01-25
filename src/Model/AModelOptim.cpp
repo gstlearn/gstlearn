@@ -255,7 +255,7 @@ int AModelOptim::_buildModelParamList()
   // Loop on the covariances
   const Model* model       = _modelPart._model;
   int nvar                 = model->getNVar();
-  int ndim                 = model->getDimensionNumber();
+  int ndim                 = model->getNDim();
   bool flagRotationDefined = false;
 
   for (int icov = 0, ncov = model->getNCov(); icov < ncov; icov++)
