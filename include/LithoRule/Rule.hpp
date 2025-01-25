@@ -97,9 +97,9 @@ public:
                  double *prop_tot) const;
 
   int  getNFacies() const;
-  int  getGRFNumber() const;
-  int  getY1Number() const;
-  int  getY2Number() const;
+  int  getNGRF() const;
+  int  getNY1() const;
+  int  getNY2() const;
   bool isYUsed(int igrf) const;
   VectorInt whichGRFUsed() const;
   double getProportion(int facies);

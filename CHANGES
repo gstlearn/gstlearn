@@ -4,7 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.7.0
 =============
-- Major renaming of variables, such as:
+- Major renaming of variables, such as getxxxNumber() into getNxxx().
+  Some examples:
   getVariableNumber() or getNVariables() becomes getNVar()
   getSampleNumber() becomes getNSample()
   getActiveSampleNumber() becomes getNSampleActive()

@@ -18,8 +18,8 @@ class GSTLEARN_EXPORT ProjMulti : public IProj
 {
 public:
   ProjMulti(const std::vector<std::vector<const IProj*>> &projs,bool silent = false);
-  int getApexNumber() const override;
-  int getPointNumber() const override;
+  int getNApex() const override;
+  int getNPoint() const override;
   int getNVariable() const { return _nvariable; }
   int getNLatent() const { return _nlatent; }
   virtual ~ProjMulti();
@@ -38,8 +38,8 @@ private :
 protected:
 int findFirstNoNullOnRow(int j) const;
 int findFirstNoNullOnCol(int j) const;
-const std::vector<int>& getPointNumbers() const {return _pointNumbers;}
-const std::vector<int>& getApexNumbers()  const {return _apexNumbers;}
+const std::vector<int>& getNPoints() const {return _pointNumbers;}
+const std::vector<int>& getNApexs()  const {return _apexNumbers;}
 
 
 

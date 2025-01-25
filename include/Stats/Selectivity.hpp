@@ -115,10 +115,10 @@ public:
   bool isNeededQ() const;
   int  getAddressQTEst(const ESelectivity& code, int iptr0, int rank=0) const;
   int  getAddressQTStd(const ESelectivity& code, int iptr0, int rank=0) const;
-  int  getNumberQTEst(const ESelectivity& code) const;
-  int  getNumberQTStd(const ESelectivity& code) const;
-  VectorInt getNumberQTEst() const;
-  VectorInt getNumberQTStd() const;
+  int  getNQTEst(const ESelectivity& code) const;
+  int  geNQTStd(const ESelectivity& code) const;
+  VectorInt getNQTEst() const;
+  VectorInt geNQTStd() const;
   void storeInDb(Db *db, int iech0, int iptr, double zestim, double zstdev) const;
   void interpolateSelectivity(const Selectivity* selecin);
 

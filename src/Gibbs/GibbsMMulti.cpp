@@ -114,7 +114,7 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
   if (verbose) mestitle(1,"Gibbs using Moving Neighborhood");
   Db* db = getDb();
   Model* model = getModel();
-  int nvar   = _getVariableNumber();
+  int nvar   = _getNVar();
   int nact   = _getSampleRankNumber();
   int nvardb = db->getNLoc(ELoc::Z);
   bool flag_var_defined = nvardb > 0;
@@ -180,7 +180,7 @@ void GibbsMMulti::update(VectorVectorDouble &y, int isimu, int ipgs, int iter)
 {
   double valsim, yk, vk;
 
-  int nvar = _getVariableNumber();
+  int nvar = _getNVar();
   int nact = _getSampleRankNumber();
 
   /* Print the title */
@@ -221,7 +221,7 @@ void GibbsMMulti::update(VectorVectorDouble &y, int isimu, int ipgs, int iter)
   _updateStats(y, ipgs, iter);
 }
 
-int GibbsMMulti::_getVariableNumber() const
+int GibbsMMulti::_getNVar() const
 {
   Model* model = getModel();
   return model->getNVar();
@@ -230,7 +230,7 @@ int GibbsMMulti::_getVariableNumber() const
 int GibbsMMulti::_getSize() const
 {
   int nact = _getSampleRankNumber();
-  int nvar = _getVariableNumber();
+  int nvar = _getNVar();
   return nact * nvar;
 }
 
@@ -431,7 +431,7 @@ double GibbsMMulti::_getEstimate(int ipgs,
   }
   else
   {
-    int nvar = _getVariableNumber();
+    int nvar = _getNVar();
     int nact = _getSampleRankNumber();
     int irow = 0;
     for (jvar = 0; jvar < nvar; jvar++)

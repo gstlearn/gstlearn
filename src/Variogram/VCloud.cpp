@@ -153,7 +153,7 @@ int VCloud::compute(Db *db, const NamingConvention &namconv)
   /* Allocate new variables */
 
   setCalcul(ECalcVario::VARIOGRAM);
-  int ndir = _varioparam->getDirectionNumber();
+  int ndir = _varioparam->getNDir();
   int iptr = _dbcloud->addColumnsByConstant(ndir, 0.);
   if (iptr < 0) return (1);
 

@@ -123,7 +123,7 @@ bool ACalcInterpolator::_check()
   int nfex = 0;
   if (_model != nullptr)
   {
-    nfex = _model->getExternalDriftNumber();
+    nfex = _model->getNExtDrift();
     if (nfex > 0)
     {
       // No check needs to be performed on the Input file as
@@ -202,7 +202,7 @@ bool ACalcInterpolator::_preprocess()
 
   // Expand information amongst Db if necessary
 
-  if (_model != nullptr && _model->getExternalDriftNumber() > 0)
+  if (_model != nullptr && _model->getNExtDrift() > 0)
   {
     if (_expandInformation(1, ELoc::F)) return false;
   }

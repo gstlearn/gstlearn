@@ -118,7 +118,7 @@ NeighImage* NeighImage::createFromNF(const String& neutralFilename, bool verbose
  * @param db Pointer to the target Db
  * @return
  */
-int NeighImage::getMaxSampleNumber(const Db* /*db*/) const
+int NeighImage::getNSampleMax(const Db* /*db*/) const
 {
   int nmax = 1;
   for (int idim = 0; idim < (int) getNDim(); idim++)

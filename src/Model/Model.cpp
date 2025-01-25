@@ -256,7 +256,7 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   sstr << "Number of variable(s)        = " << getNVar() << std::endl;
   sstr << "Number of basic structure(s) = " << ncov << std::endl;
   sstr << "Number of drift function(s)  = " << ndrift << std::endl;
-  sstr << "Number of drift equation(s)  = " << getDriftEquationNumber() << std::endl;
+  sstr << "Number of drift equation(s)  = " << getNDriftEquation() << std::endl;
 
   /* Covariance part */
 
@@ -662,12 +662,12 @@ String Model::getCovName(int icov) const
   if (covalist == nullptr) return String();
   return covalist->getCovName(icov);
 }
-int Model::getGradParamNumber(int icov) const
+int Model::getNGradParam(int icov) const
 {
   if (_cova == nullptr) return ITEST;
   const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return ITEST;
-  return covalist->getGradParamNumber(icov);
+  return covalist->getNGradParam(icov);
 }
 void Model::setSill(int icov, int ivar, int jvar, double value)
 {
@@ -968,10 +968,10 @@ int Model::getNDrift() const
   if (_driftList == nullptr) return 0;
   return _driftList->getNDrift();
 }
-int Model::getExternalDriftNumber() const
+int Model::getNExtDrift() const
 {
   if (_driftList == nullptr) return 0;
-  return _driftList->getExternalDriftNumber();
+  return _driftList->getNExtDrift();
 }
 int Model::getRankFext(int il) const
 {
@@ -987,10 +987,10 @@ bool Model::isDriftSampleDefined(const Db *db,
   if (_driftList == nullptr) return false;
   return _driftList->isDriftSampleDefined(db,ib,nech,nbgh,loctype);
 }
-int Model::getDriftEquationNumber() const
+int Model::getNDriftEquation() const
 {
   if (_driftList == nullptr) return 0;
-  return _driftList->getDriftEquationNumber();
+  return _driftList->getNDriftEquation();
 }
 bool Model::isDriftFiltered(unsigned int il) const
 {
@@ -1547,7 +1547,7 @@ Model* Model::createReduce(const VectorInt& validVars) const
 double Model::gofToVario(const Vario *vario, bool verbose)
 {
   int nvar = getNVar();
-  int ndir = vario->getDirectionNumber();
+  int ndir = vario->getNDir();
 
   double total = 0.;
 
@@ -1715,7 +1715,7 @@ double Model::evalDriftVarCoef(const Db *db,
     return mean;
   }
   double drift = 0.;
-  for (int ib = 0, nfeq = getDriftEquationNumber(); ib < nfeq; ib++)
+  for (int ib = 0, nfeq = getNDriftEquation(); ib < nfeq; ib++)
     drift += evalDriftValue(db, iech, ivar, ib, ECalcMember::LHS) * coeffs[ib];
   return drift;
 }
@@ -2317,7 +2317,7 @@ double Model::computeLogLikelihood(const Db* db, bool verbose)
     messerr("The 'db' should have at least one variable defined");
     return TEST;
   }
-  int nDrift = getDriftEquationNumber();
+  int nDrift = getNDriftEquation();
  
   // Calculate the covariance matrix C and perform its Cholesky decomposition
   MatrixSquareSymmetric cov = evalCovMatSym(db);
@@ -2343,7 +2343,7 @@ double Model::computeLogLikelihood(const Db* db, bool verbose)
     message("- Number of variables          = %d\n", nvar);
     message("- Length of Information Vector = %d\n", size);
     if (nDrift > 0)
-      message("- Number of drift conditions = %d\n", getDriftEquationNumber());
+      message("- Number of drift conditions = %d\n", getNDriftEquation());
     else
       VH::display("Constant Mean(s)", getMeans());
   }

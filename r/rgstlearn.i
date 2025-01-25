@@ -1020,12 +1020,12 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 
 "Vario_updateFromDF" <- function(vario, df, idir=0, ivar=0, jvar=0)
 {
-	ndir = vario$getDirectionNumber()
+	ndir = vario$getNDir()
 	nvar = vario$getNVar()
 	if (idir < 0 || idir >= ndir) return
 	if (ivar < 0 || ivar >= nvar) return 
 	if (jvar < 0 || jvar >= nvar) return 
-	nlag = vario$getLagTotalNumber(idir)
+	nlag = vario$getNLagTotal(idir)
 	if (dim(df)[1] != nlag) return 
 	
 	vario$setSwVec(idir, ivar, jvar, df$sw)

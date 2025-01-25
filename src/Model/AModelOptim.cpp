@@ -109,7 +109,7 @@ void AModelOptim::_updateModelParamList(double distmax_def,
 {
   double value = TEST;
   double scale = 1.;
-  int nparams  = _getParamNumber();
+  int nparams  = _getNParam();
   Model* model = _modelPart._model;
   int ncov     = model->getNCov(true);
 
@@ -179,7 +179,7 @@ void AModelOptim::_updateModelParamList(double distmax_def,
 void AModelOptim::_dumpParamList() const
 {
   mestitle(1, "List of the Model parameters to be infered");
-  int nparams = _getParamNumber();
+  int nparams = _getNParam();
   for (int iparam = 0; iparam < nparams; iparam++)
   {
     _dumpOneModelParam(_modelPart._params[iparam], _modelPart._tabval[iparam]);
@@ -220,7 +220,7 @@ void AModelOptim::_performOptimization(double (*optim_func)(unsigned n,
                                        const MatrixSquareSymmetric& vars_def)
 {
   // Define the optimization criterion
-  int npar      = _getParamNumber();
+  int npar      = _getNParam();
   nlopt_opt opt = nlopt_create(NLOPT_LN_NELDERMEAD, npar);
   nlopt_set_lower_bounds(opt, _modelPart._tablow.data());
   nlopt_set_upper_bounds(opt, _modelPart._tabupp.data());

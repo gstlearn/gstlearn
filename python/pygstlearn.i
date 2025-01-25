@@ -1427,7 +1427,7 @@ setattr(gl.Vario, "toTL", vario_toTL)
 
 def vario_updateFromPanda(self, pf, idir, ivar, jvar):
 	vario = self
-	ndir = vario.getDirectionNumber()
+	ndir = vario.getNDir()
 	nvar = vario.getNVar()
 	if idir < 0 or idir >= ndir:
 	 return vario
@@ -1435,7 +1435,7 @@ def vario_updateFromPanda(self, pf, idir, ivar, jvar):
 	 return vario
 	if jvar < 0 or jvar >= nvar:
 	 return vario
-	nlag = vario.getLagTotalNumber(idir)
+	nlag = vario.getNLagTotal(idir)
 	if len(pf.index) != nlag:
 	 return vario
 	

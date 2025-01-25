@@ -2381,7 +2381,7 @@ static int st_varioexp_chh(LMlayers *lmlayers,
 
   /* Loop on the lags */
 
-  for (ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
+  for (ipas = 0; ipas < vario->getNLag(idir); ipas++)
   {
     vario_order_get_bounds(vorder, idir, ipas, &ifirst, &ilast);
     number = ilast - ifirst;
@@ -2582,7 +2582,7 @@ int multilayers_vario(Db *dbin,
 
   /* Evaluate the variogram */
 
-  for (idir = 0; idir < vario->getDirectionNumber(); idir++)
+  for (idir = 0; idir < vario->getNDir(); idir++)
   {
     if (st_varioexp_chh(lmlayers, verbose, dbin, dbout, vorder, zval, idir,
                         vario)) goto label_end;

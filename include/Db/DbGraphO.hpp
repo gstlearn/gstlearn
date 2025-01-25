@@ -87,8 +87,8 @@ public:
   static DbGraphO* createFromNF(const String& neutralFilename,
                                 bool verbose = true);
 
-  int getArcNumber() const;
-  int getNodeNumber() const;
+  int getNArc() const;
+  int getNNode() const;
   VectorDouble getArc(int iarc, int idim) const;
   double getArcValue(int iarc) const;
   VectorInt getOrderDown(int node = 0) const;

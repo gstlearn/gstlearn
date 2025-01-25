@@ -2127,7 +2127,7 @@ VectorVectorInt hscatterPairs(Db *db,
 
   if (db == nullptr) return indices;
   if (varioparam == nullptr) return indices;
-  if (idir < 0 || idir >= varioparam->getDirectionNumber()) return indices;
+  if (idir < 0 || idir >= varioparam->getNDir()) return indices;
 
   /* Initializations */
 

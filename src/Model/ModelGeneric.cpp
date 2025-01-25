@@ -193,15 +193,15 @@ int ModelGeneric::getNDrift() const
   if (_driftList == nullptr) return 0;
   return _driftList->getNDrift();
 }
-int ModelGeneric::getDriftEquationNumber() const
+int ModelGeneric::getNDriftEquation() const
 {
   if (_driftList == nullptr) return 0;
-  return _driftList->getDriftEquationNumber();
+  return _driftList->getNDriftEquation();
 }
-int ModelGeneric::getExternalDriftNumber() const
+int ModelGeneric::getNExtDrift() const
 {
   if (_driftList == nullptr) return 0;
-  return _driftList->getExternalDriftNumber();
+  return _driftList->getNExtDrift();
 }
 int ModelGeneric::getDriftMaxIRFOrder(void) const
 {

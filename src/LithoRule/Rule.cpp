@@ -342,13 +342,13 @@ int Rule::getNFacies() const
   return nfac_tot;
 }
 
-int Rule::getGRFNumber() const
+int Rule::getNGRF() const
 {
-  int ny2 = getY2Number();
+  int ny2 = getNY2();
   return (ny2 > 0 ? 2 : 1);
 }
 
-int Rule::getY1Number() const
+int Rule::getNY1() const
 {
   int node_tot, nfac, nmax, ny1, ny2;
   double prop;
@@ -356,7 +356,7 @@ int Rule::getY1Number() const
   return ny1;
 }
 
-int Rule::getY2Number() const
+int Rule::getNY2() const
 {
   int node_tot, nfac, nmax, ny1, ny2;
   double prop;
@@ -369,8 +369,8 @@ int Rule::getY2Number() const
 bool Rule::isYUsed(int igrf) const
 {
   if (igrf == 0)
-    return getY1Number() > 0;
-  return getY2Number() > 0;
+    return getNY1() > 0;
+  return getNY2() > 0;
 }
 
 VectorInt Rule::whichGRFUsed() const

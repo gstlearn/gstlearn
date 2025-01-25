@@ -5,8 +5,8 @@ import gstlearn as gl
 import numpy as np
 
 def compute(i,proj):
-    mv = gl.VectorDouble(proj.getApexNumber())
-    pv = gl.VectorDouble(proj.getPointNumber())
+    mv = gl.VectorDouble(proj.getNApex())
+    pv = gl.VectorDouble(proj.getNPoint())
     for k in range(mv.size()):
         mv[k]=0
     mv[i]=1.
@@ -14,8 +14,8 @@ def compute(i,proj):
     return pv
 
 def computeT(i,proj):
-    mv = gl.VectorDouble(proj.getApexNumber())
-    pv = gl.VectorDouble(proj.getPointNumber())
+    mv = gl.VectorDouble(proj.getNApex())
+    pv = gl.VectorDouble(proj.getNPoint())
     for k in range(pv.size()):
         pv[k]=0
     pv[i]=1.

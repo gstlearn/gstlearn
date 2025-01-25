@@ -788,7 +788,7 @@ bool CorAniso::_isVariableValid(int ivar) const
   return checkArg("Rank of the Variable", ivar, getNVar());
 }
 
-int CorAniso::getGradParamNumber() const
+int CorAniso::getNGradParam() const
 {
   int ndim = getNDim();
   int number = 0;

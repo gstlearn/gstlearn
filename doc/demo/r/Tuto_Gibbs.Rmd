@@ -250,11 +250,11 @@ qc_simulations <- function(db, names, vario_param, vario_model, title, stat_keys
 #'  @values no returned value (invisible)
 qc_variogram <- function(vario_list, vario_param, vario_model, title) {
   nsim = length(vario_list)
-  ndir = vario_param$getDirectionNumber()
+  ndir = vario_param$getNDir()
   # variogram matrices
   res_gg = list()
   for (idir in 1:ndir) {
-    nlags = vario_param$getDirParam(idir-1)$getLagNumber()
+    nlags = vario_param$getDirParam(idir-1)$getNLag()
     gg_sim = matrix(NaN, nrow = nlags, ncol = nsim)
     for (i in 1:nsim) {
       gg_sim[,i] = vario_list[[i]]$getGgVec(idir = idir-1, ivar = 0, jvar = 0)
@@ -265,7 +265,7 @@ qc_variogram <- function(vario_list, vario_param, vario_model, title) {
   # plot for each direction
   for (idir in 1:ndir) {
     
-    nlags = vario_param$getDirParam(idir-1)$getLagNumber()
+    nlags = vario_param$getDirParam(idir-1)$getNLag()
     # hh = dx[idir]*(1:(nlags-1))
     hh     = vario_list[[i]]$getHhVec(idir = idir-1, ivar = 0, jvar = 0)
     v_mean = apply(X = res_gg[[idir]], MARGIN = 1, FUN = mean)

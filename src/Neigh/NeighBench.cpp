@@ -128,7 +128,7 @@ NeighBench* NeighBench::createFromNF(const String& neutralFilename, bool verbose
  * @param db Pointer to the target Db
  * @return
  */
-int NeighBench::getMaxSampleNumber(const Db* db) const
+int NeighBench::getNSampleMax(const Db* db) const
 {
   bool useSel = false;
   int nech = db->getNSample();

@@ -419,7 +419,7 @@ void AGibbs::_updateStats(const VectorVectorDouble& y,
  * This number is based on the number of iterations, exclusing the burnout
  * @return
  */
-int AGibbs::_getRowNumberStats() const
+int AGibbs::_getNRowStats() const
 {
   int nrows = _niter - _nburn;
   return nrows;
@@ -433,7 +433,7 @@ int AGibbs::_getRowNumberStats() const
  * - the storage of mean and standard deviation
  * @return
  */
-int AGibbs::_getColNumberStats() const
+int AGibbs::_getNColStats() const
 {
   int ncols = 2 * _getDimension();
   return ncols;
@@ -481,7 +481,7 @@ bool AGibbs::_isConstraintTight(int icase,
 void AGibbs::_statsInit()
 {
   if (_optionStats == 0) return;
-  _stats.reset(_getRowNumberStats(), _getColNumberStats());
+  _stats.reset(_getNRowStats(), _getNColStats());
 }
 
 /**

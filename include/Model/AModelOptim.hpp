@@ -71,7 +71,7 @@ public:
 
 protected:
   int _buildModelParamList();
-  int _getParamNumber() const { return (int) _modelPart._params.size(); }
+  int _getNParam() const { return (int) _modelPart._params.size(); }
 
   static void _patchModel(Model_Part& modelPart, const double* current);
   static void _printResult(const String& title, const Model_Part& modelPart, double result);

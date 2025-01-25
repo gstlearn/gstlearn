@@ -65,10 +65,10 @@ public:
   void setFiltered(const VectorBool& filtered) { _filtered = filtered; }
   bool isFiltered(int i) const;
   void setFiltered(int i, bool filter);
-  int  getDriftEquationNumber() const;
+  int  getNDriftEquation() const;
   bool hasExternalDrift() const;
   bool isValid() const;
-  int  getExternalDriftNumber() const;
+  int  getNExtDrift() const;
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
@@ -140,7 +140,7 @@ private:
   bool _isDriftEquationValid(int ib) const;
   int  _getAddress(int ivar, int il, int ib) const
   {
-    return (ib + getDriftEquationNumber() * (il + getNDrift() * ivar));
+    return (ib + getNDriftEquation() * (il + getNDrift() * ivar));
   }
   double _getDriftCL(int ivar, int il, int ib) const { return _driftCL[_getAddress(ivar,il,ib)]; }
   void   _setDriftCL(int ivar, int il, int ib, double value) { _driftCL[_getAddress(ivar,il,ib)] = value; }

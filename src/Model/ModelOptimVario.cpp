@@ -138,9 +138,9 @@ int ModelOptimVario::_buildExperimental()
   int ndim = vario->getDimensionNumber();
   VectorDouble dd(ndim);
 
-  for (int idir = 0, ndir = vario->getDirectionNumber(); idir < ndir; idir++)
+  for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
   {
-    for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++)
+    for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++)
     {
       int ijvar = 0;
       for (int ivar = ijvar = 0; ivar < nvar; ivar++)
@@ -195,9 +195,9 @@ int ModelOptimVario::_buildExperimental()
   int ecr         = 0;
   int ipadir      = 0;
 
-  for (int idir = 0, ndir = vario->getDirectionNumber(); idir < ndir; idir++)
+  for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
   {
-    for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
+    for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
     {
       int ijvar = 0;
       for (int ivar = ijvar = 0; ivar < nvar; ivar++)

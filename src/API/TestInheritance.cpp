@@ -27,8 +27,8 @@ String TestInheritance::toString(const AStringFormat* strfmt) const
   std::stringstream sstr;
   if (nullptr != _iproj)
   {
-    sstr << "Number of Apices: " << _iproj->getApexNumber()  << std::endl;
-    sstr << "Number of Points: " << _iproj->getPointNumber();
+    sstr << "Number of Apices: " << _iproj->getNApex()  << std::endl;
+    sstr << "Number of Points: " << _iproj->getNPoint();
   }
   else
   {

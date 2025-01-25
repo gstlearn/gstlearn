@@ -665,7 +665,7 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
   
   p = list()
   ndir = 1
-  if (! .isNotDef(vario)) ndir = vario$getDirectionNumber()
+  if (! .isNotDef(vario)) ndir = vario$getNDir()
   nvar = 1
   if (! .isNotDef(vario)) nvar = vario$getNVar()
   if (! .isNotDef(model)) nvar = model$getNVar()
@@ -1239,7 +1239,7 @@ plot.polygon <- function(poly, cols=NA, flagTitle=FALSE, ...)
   has_color = "color" %in% names(dots)
   
   p = list()
-  npol = poly$getPolyElemNumber()
+  npol = poly$getNPolyElem()
   if (missing(cols)) cols = .getColors()
   
   dotloc = dots

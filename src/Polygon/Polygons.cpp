@@ -248,7 +248,7 @@ void Polygons::getExtension(double *xmin,
 {
   double xmin_loc, xmax_loc, ymin_loc, ymax_loc;
 
-  for (int ipol = 0; ipol < getPolyElemNumber(); ipol++)
+  for (int ipol = 0; ipol < getNPolyElem(); ipol++)
   {
     _polyelems[ipol].getExtension(&xmin_loc, &xmax_loc, &ymin_loc, &ymax_loc);
     if (xmin_loc < *xmin) (*xmin) = xmin_loc;
@@ -261,7 +261,7 @@ void Polygons::getExtension(double *xmin,
 double Polygons::getSurface() const
 {
   double surface = 0.;
-  for (int ipol = 0; ipol < getPolyElemNumber(); ipol++)
+  for (int ipol = 0; ipol < getNPolyElem(); ipol++)
   {
     surface += _polyelems[ipol].getSurface();
   }
@@ -355,11 +355,11 @@ bool Polygons::_deserialize(std::istream& is, bool verbose)
 bool Polygons::_serialize(std::ostream& os, bool verbose) const
 {
   bool ret = true;
-  ret = ret && _recordWrite<int>(os, "Number of Polygons", getPolyElemNumber());
+  ret = ret && _recordWrite<int>(os, "Number of Polygons", getNPolyElem());
 
   /* Writing the covariance part */
 
-  for (int ipol = 0; ret && ipol < getPolyElemNumber(); ipol++)
+  for (int ipol = 0; ret && ipol < getNPolyElem(); ipol++)
   {
     const PolyElem& polyelem = getPolyElem(ipol);
     ret = ret && polyelem._serialize(os, verbose);
@@ -481,7 +481,7 @@ void Polygons::setY(int ipol, const VectorDouble& y)
 
 bool Polygons::_isValidPolyElemIndex(int ipol) const
 {
-  int npol = getPolyElemNumber();
+  int npol = getNPolyElem();
   if (ipol < 0 || ipol >= npol)
   {
     messerr("PolyElem Index %d is not valid. It should lie in [0,%d[",
@@ -539,7 +539,7 @@ int dbPolygonDistance(Db *db,
 
   double distmax = 0.;
   double distmin = TEST;
-  for (int iset = 0; iset < polygon->getPolyElemNumber(); iset++)
+  for (int iset = 0; iset < polygon->getNPolyElem(); iset++)
   {
     const PolyElem &polyelem = polygon->getPolyElem(iset);
 
@@ -668,7 +668,7 @@ bool Polygons::inside(const VectorDouble& coor, bool flag_nested) const
   if (flag_nested)
   {
     int number = 0;
-    for (int ipol = 0; ipol < getPolyElemNumber(); ipol++)
+    for (int ipol = 0; ipol < getNPolyElem(); ipol++)
     {
       PolyElem polyelem = getClosedPolyElem(ipol);
       if (flag3d)
@@ -681,7 +681,7 @@ bool Polygons::inside(const VectorDouble& coor, bool flag_nested) const
   }
   else
   {
-    for (int ipol = 0; ipol < getPolyElemNumber(); ipol++)
+    for (int ipol = 0; ipol < getNPolyElem(); ipol++)
     {
       PolyElem polyelem = getClosedPolyElem(ipol);
       if (flag3d)
@@ -900,7 +900,7 @@ Polygons Polygons::reduceComplexity(double distmin) const
 {
   Polygons newpolygon;
 
-  for (int ipol = 0, npol = getPolyElemNumber(); ipol < npol; ipol++)
+  for (int ipol = 0, npol = getNPolyElem(); ipol < npol; ipol++)
   {
     PolyElem newpolyelem = getPolyElem(ipol).reduceComplexity(distmin);
     newpolygon.addPolyElem(newpolyelem);

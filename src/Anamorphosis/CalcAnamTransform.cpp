@@ -682,11 +682,11 @@ int CalcAnamTransform::_conditionalExpectation(Db* db,
   if (!selectivity->isUsed(ESelectivity::T))
     db->deleteColumnsByUIDRange(
       selectivity->getAddressQTEst(ESelectivity::T, iptr0),
-      selectivity->getNumberQTEst(ESelectivity::T));
+      selectivity->getNQTEst(ESelectivity::T));
   if (!selectivity->isUsed(ESelectivity::Q))
     db->deleteColumnsByUIDRange(
       selectivity->getAddressQTEst(ESelectivity::Q, iptr0),
-      selectivity->getNumberQTEst(ESelectivity::Q));
+      selectivity->getNQTEst(ESelectivity::Q));
   return 0;
 }
 

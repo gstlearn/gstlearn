@@ -263,6 +263,7 @@ public:
   static int getNEloc();
   int getNSample(bool useSel = false) const;
   int getNSampleActiveAndDefined(int item) const;
+  int getNSampleActiveAndDefined(const String& name) const;
   int getNSampleActive() const;
   int getRankRelativeToAbsolute(int irel) const;
   int getRankAbsoluteToRelative(int iabs) const;
@@ -621,8 +622,6 @@ public:
   bool isActive(int iech) const;
   bool isActiveDomain(int iech) const;
   bool isActiveAndDefined(int iech, int item) const;
-  int  getActiveAndDefinedNumber(int item) const;
-  int  getActiveAndDefinedNumber(const String& name) const;
   VectorBool getActiveArray() const;
 
   VectorInt getSortArray() const;

@@ -125,8 +125,8 @@ public:
 
   // Case of _driftList
   int getNDrift() const;
-  int getDriftEquationNumber() const;
-  int getExternalDriftNumber() const;
+  int getNDriftEquation() const;
+  int getNExtDrift() const;
   int getDriftMaxIRFOrder(void) const;
   void delAllDrifts();
 

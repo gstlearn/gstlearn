@@ -412,18 +412,18 @@ static int st_check_simtub_environment(Db *dbin,
       return 1;
     }
 
-    nfex = model->getExternalDriftNumber();
+    nfex = model->getNExtDrift();
     if (flag_cond && nfex != 0 && ! dbout->isGrid()
         && dbin->getNLoc(ELoc::F) != nfex)
     {
-      messerr("The Model requires %d external drift(s)", model->getExternalDriftNumber());
+      messerr("The Model requires %d external drift(s)", model->getNExtDrift());
       messerr("but the input Db refers to %d external drift variables",
               dbin->getNLoc(ELoc::F));
       return 1;
     }
     if (nfex != 0 && dbout->getNLoc(ELoc::F) != nfex)
     {
-      messerr("The Model requires %d external drift(s)", model->getExternalDriftNumber());
+      messerr("The Model requires %d external drift(s)", model->getNExtDrift());
       messerr("but the output Db refers to %d external drift variables",
               dbout->getNLoc(ELoc::F));
       return 1;
@@ -678,7 +678,7 @@ int simpgs(Db* dbin,
   const VectorDouble &propcst = ruleprop->getPropCst();
   const Db *dbprop = ruleprop->getDbprop();
 
-  ngrf = rule->getGRFNumber();
+  ngrf = rule->getNGRF();
   if (rule->particularities(dbout, dbprop, model1, 1, flag_stat))
     goto label_end;
   if (st_check_simtub_environment(dbin, dbout, model1, neigh)) goto label_end;
@@ -1073,7 +1073,7 @@ int simbipgs(Db *dbin,
   ngrftot = 0;
   for (int ipgs=0; ipgs<npgs; ipgs++)
   {
-    ngrf[ipgs] = rules[ipgs]->getGRFNumber();
+    ngrf[ipgs] = rules[ipgs]->getNGRF();
     ngrftot += ngrf[ipgs];
 
     /* Check the validity of the model */

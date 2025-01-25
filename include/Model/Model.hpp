@@ -166,7 +166,7 @@ public:
   VectorDouble getRanges(int icov) const;
   double getParam(int icov) const;
   String getCovName(int icov) const;
-  int getGradParamNumber(int icov) const;
+  int getNGradParam(int icov) const;
   
 
   double getBallRadius() const;
@@ -510,9 +510,9 @@ public:
   const DriftList* getDriftList()                  const;
   const ADrift* getDrift(int il)                   const;
   int  getNDrift()                            const;
-  int  getExternalDriftNumber()                    const;
+  int  getNExtDrift()                    const;
   int  getRankFext(int il)                         const;
-  int  getDriftEquationNumber()                    const;
+  int  getNDriftEquation()                    const;
   bool isDriftFiltered(unsigned int il)            const;
   int  getDriftMaxIRFOrder(void)                   const;
   bool isDriftDefined(const VectorInt &powers, int rank_fex = 0) const;

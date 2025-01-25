@@ -632,10 +632,10 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
     _covAnisos[icov]->setType(type);
   }
 
-  int CovAnisoList::getGradParamNumber(int icov) const
+  int CovAnisoList::getNGradParam(int icov) const
   {
     if (!_isCovarianceIndexValid(icov)) return 0;
-    return _covAnisos[icov]->getGradParamNumber();
+    return _covAnisos[icov]->getNGradParam();
   }
 
   /**

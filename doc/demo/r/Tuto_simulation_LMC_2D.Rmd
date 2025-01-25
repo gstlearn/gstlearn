@@ -144,11 +144,11 @@ NULL
 # ------------------------------------------------------------
 qc_variogram <- function(var_list, var_param, var_model, titre) {
 nsim = length(var_list)
-ndir = var_param$getDirectionNumber()
+ndir = var_param$getNDir()
 # variogram matrices
 res_gg = list()
 for (idir in 1:ndir) {
-  nlags = var_param$getDirParam(idir-1)$getLagNumber()
+  nlags = var_param$getDirParam(idir-1)$getNLag()
   gg_sim = matrix(NaN, nrow = nlags-1, ncol = nsim)
   for (i in 1:nsim) {
     gg_sim[,i] = var_list[[i]]$getGgVec(idir = idir-1, ivar = 0, jvar = 0)
@@ -159,7 +159,7 @@ for (idir in 1:ndir) {
 # plot for each direction
 for (idir in 1:ndir) {
   
-  nlags = var_param$getDirParam(idir-1)$getLagNumber()
+  nlags = var_param$getDirParam(idir-1)$getNLag()
   hh = dx[idir]*(1:(nlags-1))
   v_mean = apply(X = res_gg[[idir]], MARGIN = 1, FUN = mean)
   v_sd   = apply(X = res_gg[[idir]], MARGIN = 1, FUN = sd)

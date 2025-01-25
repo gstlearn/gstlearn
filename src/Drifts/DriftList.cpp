@@ -142,7 +142,7 @@ String DriftList::getDriftName(int il) const
   return _drifts[il]->getDriftName();
 }
 
-int DriftList::getDriftEquationNumber() const
+int DriftList::getNDriftEquation() const
 {
   int nbfl = getNDrift();
   int nvar = getNVar();
@@ -189,13 +189,13 @@ bool DriftList::_isDriftIndexValid(int i) const
  */
 bool DriftList::_isDriftEquationValid(int ib) const
 {
-  return checkArg("Drift Equation", ib, getDriftEquationNumber());
+  return checkArg("Drift Equation", ib, getNDriftEquation());
 }
 
 void DriftList::resetDriftList()
 {
   int nvar = getNVar();
-  int nfeq = getDriftEquationNumber();
+  int nfeq = getNDriftEquation();
   int nbfl = getNDrift();
 
   /* Copy the coefficients from the old to the new structure */
@@ -434,7 +434,7 @@ bool DriftList::hasExternalDrift() const
   return false;
 }
 
-int DriftList::getExternalDriftNumber() const
+int DriftList::getNExtDrift() const
 {
   int nfex = 0;
   for (int il = 0; il < getNDrift(); il++)
@@ -499,7 +499,7 @@ MatrixRectangular DriftList::evalDriftMatByRanks(const Db* db,
 
   int nvar  = getNVar();
   int nbfl  = getNDrift();
-  int nfeq  = getDriftEquationNumber();
+  int nfeq  = getNDriftEquation();
   int ncols = (isFlagLinked()) ? nfeq : nvar * nbfl;
 
   // Creating the matrix
@@ -573,7 +573,7 @@ MatrixRectangular DriftList::evalDriftMatByTarget(const Db* db,
   MatrixRectangular drfmat;
   int nvar        = getNVar();
   int nbfl        = getNDrift();
-  int nfeq        = getDriftEquationNumber();
+  int nfeq        = getNDriftEquation();
   int ncols       = (isFlagLinked()) ? nfeq : nvar * nbfl;
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return drfmat;

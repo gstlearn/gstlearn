@@ -517,7 +517,7 @@ def __ax_varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
     if hmax is None:
         hmax = vario.getHmax(ivar, jvar, idir)
         
-    ndir = vario.getDirectionNumber()
+    ndir = vario.getNDir()
     nvar = vario.getNVar()
     cols = getColorMap(ndir,cmap)
     
@@ -1100,7 +1100,7 @@ def __ax_polygon(ax, poly, facecolor='yellow', edgecolor = 'blue',
     if __isNotCorrect(object=poly, types=["Polygons"]):
         return None
     
-    npol = poly.getPolyElemNumber()
+    npol = poly.getNPolyElem()
     cols = getColorMap(npol)
     
     for ipol in range(npol):
@@ -1301,7 +1301,7 @@ def __ax_line(ax, dbline, color = 'blue', colorPoint='black', colorHeader='red',
     if dbline.getNDim() != 2:
         return None
     
-    nbline = dbline.getLineNumber()
+    nbline = dbline.getNLine()
     
     for iline in range(nbline):
         x = dbline.getCoordinates(iline, 0)
@@ -1343,7 +1343,7 @@ def __ax_graphO(ax, dbgraphO, name = None, color = 'blue', colorPoint='black', f
         y = dbgraphO.getCoordinates(1)
         ax.plot(x, y, marker='.', color=colorPoint, linestyle='None')
     
-    narcs = dbgraphO.getArcNumber()
+    narcs = dbgraphO.getNArc()
     for iarc in range(narcs):
         x = dbgraphO.getArc(iarc, 0)
         y = dbgraphO.getArc(iarc, 1)

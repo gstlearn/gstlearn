@@ -102,8 +102,8 @@ protected:
                           double simval,
                           double vmin,
                           double vmax) const;
-  int _getRowNumberStats() const;
-  int _getColNumberStats() const;
+  int _getNRowStats() const;
+  int _getNColStats() const;
   int _getColRankStats(int ipgs, int ivar, int mode) const;
   void _displayCurrentVector(bool flag_init,
                              const VectorVectorDouble& y,

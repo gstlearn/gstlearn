@@ -129,16 +129,16 @@ void ProjConvolution::_buildShiftVector()
 bool ProjConvolution::_isVecDimCorrect(const constvect valonseismic,
                                        const constvect valonvertex) const
 {
-  if ((int) valonvertex.size() != getApexNumber())
+  if ((int) valonvertex.size() != getNApex())
   {
     messerr("Dimension of 'valonvertex'(%d) incorrect. If should be %d",
-            (int) valonvertex.size(), getApexNumber());
+            (int) valonvertex.size(), getNApex());
     return false;
   }
-  if ((int) valonseismic.size() != getPointNumber())
+  if ((int) valonseismic.size() != getNPoint())
   {
     messerr("Dimension of 'valonseismic'(%d) incorrect. If should be %d",
-            (int) valonseismic.size(), getPointNumber());
+            (int) valonseismic.size(), getNPoint());
     return false;
   }
   if (_shiftVector.size() == 0)
@@ -320,13 +320,13 @@ DbGrid* ProjConvolution::getResolutionGrid() const
   return dbgrid;
 }
 
-int ProjConvolution::getApexNumber() const
+int ProjConvolution::getNApex() const
 {
   Grid grid = _getGridCharacteristicsRR();
   return VH::product(grid.getNXs());
 }
 
-int ProjConvolution::getPointNumber() const
+int ProjConvolution::getNPoint() const
 {
   VectorInt nxs = _gridSeismic->getNXs();
   return VH::product(nxs);

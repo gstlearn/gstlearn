@@ -196,7 +196,7 @@ public:
   const Tensor& getAniso() const { return _aniso; }
   void   setAniso(const Tensor& aniso) { _aniso = aniso; }
   const ACovFunc* getCova() const { return _cova; }
-  int    getGradParamNumber() const;
+  int    getNGradParam() const;
   bool   hasCovDerivative() const { return _cova->hasCovDerivative(); }
   bool   hasCovOnSphere() const { return _cova->hasCovOnSphere(); }
   bool   hasSpectrumOnSphere() const { return _cova->hasSpectrumOnSphere(); }

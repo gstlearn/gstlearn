@@ -310,7 +310,7 @@ Table Selectivity::getStats() const
 {
   VectorString names = _getAllNames();
   int nrow = _stats.getNRows();
-  int ncol = _stats.getNumberColumnDefined();
+  int ncol = _stats.getNColDefined();
 
   // Allocate the output Table
   Table rtable(nrow, ncol, false, true);
@@ -1129,22 +1129,22 @@ String Selectivity::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-int Selectivity::getNumberQTEst(const ESelectivity& code) const
+int Selectivity::getNQTEst(const ESelectivity& code) const
 {
   return _numberQT.getValue(code.getValue(), 0);
 }
 
-int Selectivity::getNumberQTStd(const ESelectivity& code) const
+int Selectivity::geNQTStd(const ESelectivity& code) const
 {
   return _numberQT.getValue(code.getValue(), 1);
 }
 
-VectorInt Selectivity::getNumberQTEst() const
+VectorInt Selectivity::getNQTEst() const
 {
   return _numberQT.getValuesPerColumn(0);
 }
 
-VectorInt Selectivity::getNumberQTStd() const
+VectorInt Selectivity::geNQTStd() const
 {
   return _numberQT.getValuesPerColumn(1);
 }

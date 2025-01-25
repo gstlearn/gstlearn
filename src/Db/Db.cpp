@@ -2806,21 +2806,6 @@ int Db::getNSample(bool useSel) const
   return count;
 }
 
-/**
- * Returns the number of samples active and whose Z-value(item) is defined
- * @param item Rank of the Z-locator
- * @return
- */
-int Db::getNSampleActiveAndDefined(int item) const
-{
-  int count = 0;
-  for (int iech = 0; iech < getNSample(); iech++)
-  {
-    if (isActiveAndDefined(iech, item)) count++;
-  }
-  return count;
-}
-
 double Db::getWeight(int iech) const
 {
   if (!hasLocVariable(ELoc::W)) return 1.;
@@ -2964,7 +2949,7 @@ bool Db::isActiveAndDefined(int iech, int item) const
  * @param item Rank of the ELoc::Z variable
  * @return Number of samples
  */
-int Db::getActiveAndDefinedNumber(int item) const
+int Db::getNSampleActiveAndDefined(int item) const
 {
   int nech = 0;
   for (int iech = 0; iech < _nech; iech++)
@@ -2982,7 +2967,7 @@ int Db::getActiveAndDefinedNumber(int item) const
  * @param name Name of the Target variable
  * @return Number of samples
  */
-int Db::getActiveAndDefinedNumber(const String& name) const
+int Db::getNSampleActiveAndDefined(const String& name) const
 {
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return 0;
@@ -3604,7 +3589,7 @@ VectorDouble Db::getColumnsActiveAndDefined(const ELoc& locatorType,
   // Calculate the dimension of the output vector
   int size = 0;
   for (int ivar = 0; ivar < nvar; ivar++)
-    size += getActiveAndDefinedNumber(names[ivar]);
+    size += getNSampleActiveAndDefined(names[ivar]);
 
   VectorDouble retval(size);
 

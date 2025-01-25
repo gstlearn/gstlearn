@@ -314,7 +314,7 @@ int KrigingSystem::_getNbfl() const
 int KrigingSystem::_getNFeq() const
 {
   if (_model == nullptr) return 0;
-  return _model->getDriftEquationNumber();
+  return _model->getNDriftEquation();
 }
 
 /**
@@ -337,7 +337,7 @@ int KrigingSystem::getNDim() const
 int KrigingSystem::_getNFex() const
 {
   if (_model == nullptr) return 0;
-  return _model->getExternalDriftNumber();
+  return _model->getNExtDrift();
 }
 
 int KrigingSystem::getNeq() const
@@ -2806,12 +2806,12 @@ bool KrigingSystem::_isCorrect()
   int nfex = 0;
   if (_model != nullptr)
   {
-    if (nfex > 0 && nfex != _model->getExternalDriftNumber())
+    if (nfex > 0 && nfex != _model->getNExtDrift())
     {
       messerr("Incompatible Number of External Drifts of '_model'");
       return false;
     }
-    nfex = _model->getExternalDriftNumber();
+    nfex = _model->getNExtDrift();
   }
   if (nfex > 0)
   {

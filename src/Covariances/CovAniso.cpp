@@ -512,9 +512,9 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
 }
 
 
-int CovAniso::getGradParamNumber() const
+int CovAniso::getNGradParam() const
 {
-  return _corAniso->getGradParamNumber();
+  return _corAniso->getNGradParam();
 }
 
 CovAniso* CovAniso::createIsotropic(const CovContext &ctxt,

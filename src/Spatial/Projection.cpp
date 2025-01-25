@@ -162,7 +162,7 @@ int Projection::operateOnDb(Db *db) const
 int Projection::operateOnPolygons(Polygons* poly) const
 {
   if (poly == nullptr) return 0;
-  int npol = poly->getPolyElemNumber();
+  int npol = poly->getNPolyElem();
 
   // Loop on the Polygon elements
   for (int ipol = 0; ipol < npol; ipol++)

@@ -92,11 +92,11 @@ typedef struct
 #define STAT_PROBA(i,j) (M_R(local_pgs->stat_proba,local_pgs->nfacies,i,j))
 #define STAT_THRESH(ifac,igrf,rank) (local_pgs->stat_thresh[2*(nfacies * (igrf) + (ifac))+(rank)])
 #define LAG_USED(idir, ipas)                                                   \
-  (vario->getSwByIndex(idir, vario->getLagNumber(idir) + ipas + 1) > 0 &&      \
-   vario->getUtilizeByIndex(idir, vario->getLagNumber(idir) + ipas + 1) != 0)
+  (vario->getSwByIndex(idir, vario->getNLag(idir) + ipas + 1) > 0 &&      \
+   vario->getUtilizeByIndex(idir, vario->getNLag(idir) + ipas + 1) != 0)
 #define LAG_UNUSED(idir, ipas)                                                   \
-  (vario->getSwByIndex(idir, vario->getLagNumber(idir) + ipas + 1) <= 0 ||      \
-   vario->getUtilizeByIndex(idir, vario->getLagNumber(idir) + ipas + 1) == 0)
+  (vario->getSwByIndex(idir, vario->getNLag(idir) + ipas + 1) <= 0 ||      \
+   vario->getUtilizeByIndex(idir, vario->getNLag(idir) + ipas + 1) == 0)
 #define TABOUT(i,j)      tabout[(j)*neq+(i)]
 #define EIGVEC(i,j)      eigvec[(i)*neq+(j)]
 #define RULES(ir,i)     (rules[(ir)  * NRULE  + (i)])
@@ -1130,7 +1130,7 @@ static int st_varcalc_from_vario_stat(Vario *vario,
 
   /* Loop on the directions */
 
-  for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
+  for (int idir = 0; idir < vario->getNDir(); idir++)
   {
     local_pgs->idircur = idir;
 
@@ -1140,9 +1140,9 @@ static int st_varcalc_from_vario_stat(Vario *vario,
 
     /* Loop on the lags */
 
-    for (int ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
+    for (int ipas = 0; ipas < vario->getNLag(idir); ipas++)
     {
-      mes_process("Inverting Variogram Lag", vario->getLagNumber(idir), ipas);
+      mes_process("Inverting Variogram Lag", vario->getNLag(idir), ipas);
       local_pgs->ipascur = ipas;
       trace_add_row(local_pgs);
 
@@ -1239,9 +1239,9 @@ static void st_varcalc_uncorrelated_grf(Local_Pgs *local_pgs, int idir)
 
   /* Loop on the lags */
 
-  for (ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
+  for (ipas = 0; ipas < vario->getNLag(idir); ipas++)
   {
-    mes_process("Inverting Variogram Lag", vario->getLagNumber(idir), ipas);
+    mes_process("Inverting Variogram Lag", vario->getNLag(idir), ipas);
     local_pgs->ipascur = ipas;
     trace_add_row(local_pgs);
     if (LAG_UNUSED(idir, ipas)) continue;
@@ -1287,7 +1287,7 @@ static double st_rule_calcul(Local_Pgs *local_pgs, int *string)
   /* Preliminary assignments */
 
   local_pgs->rule = st_rule_encode(string);
-  local_pgs->ngrf = local_pgs->rule->getGRFNumber();
+  local_pgs->ngrf = local_pgs->rule->getNGRF();
   local_pgs->vario->setNVar(local_pgs->ngrf);
   local_pgs->vario->internalVariableResize();
   local_pgs->vario->internalDirectionResize();
@@ -1305,7 +1305,7 @@ static double st_rule_calcul(Local_Pgs *local_pgs, int *string)
                                  local_pgs->db, local_pgs->propdef,
                                  local_pgs->rule);
     st_set_rho(0., local_pgs);
-    for (int idir = 0; idir < local_pgs->vario->getDirectionNumber(); idir++)
+    for (int idir = 0; idir < local_pgs->vario->getNDir(); idir++)
     {
       local_pgs->idircur = idir;
       st_variogram_patch_C00(local_pgs, local_pgs->vario, idir,
@@ -3379,7 +3379,7 @@ static void st_variogram_geometry_pgs_correct(Local_Pgs *local_pgs,
   int iad;
 
   int ngrf = local_pgs->ngrf;
-  for (int ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
+  for (int ipas = 0; ipas < vario->getNLag(idir); ipas++)
     for (int igrf = 0; igrf < ngrf; igrf++)
       for (int jgrf = 0; jgrf <= igrf; jgrf++)
       {
@@ -3552,9 +3552,9 @@ static double st_varcalc_correlated_grf(Local_Pgs *local_pgs, int idir)
   double value = 0.;
   Vario* vario = local_pgs->vario;
 
-  for (int ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
+  for (int ipas = 0; ipas < vario->getNLag(idir); ipas++)
   {
-    mes_process("Inverting Variogram Lag", vario->getLagNumber(idir), ipas);
+    mes_process("Inverting Variogram Lag", vario->getNLag(idir), ipas);
     local_pgs->ipascur = ipas;
     trace_add_row(local_pgs);
     if (LAG_UNUSED(idir, ipas)) continue;
@@ -3566,7 +3566,7 @@ static double st_varcalc_correlated_grf(Local_Pgs *local_pgs, int idir)
 
     st_optim_onelag_pgs(local_pgs, 1e-3, 1);
     st_set_opt_correl(opt_temp, &local_pgs->corpgs);
-    value += (vario->getUtilizeByIndex(idir, vario->getLagNumber(idir) + ipas)
+    value += (vario->getUtilizeByIndex(idir, vario->getNLag(idir) + ipas)
         * st_optim_onelag_pgs(local_pgs, 1e-3, 0));
 
     for (int igrf = 0; igrf < local_pgs->ngrf; igrf++)
@@ -3745,7 +3745,7 @@ static int st_variopgs_calcul_norho(Vario *vario,
 
   /* Loop on the directions */
 
-  for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
+  for (int idir = 0; idir < vario->getNDir(); idir++)
   {
     local_pgs->idircur = idir;
 
@@ -3784,9 +3784,9 @@ static int st_variopgs_calcul_norho(Vario *vario,
  *****************************************************************************/
 static void st_make_some_lags_inactive(Vario *vario)
 {
-  for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
-    for (int ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
-      vario->setUtilizeByIndex(idir, vario->getLagNumber(idir) + ipas, 1.);
+  for (int idir = 0; idir < vario->getNDir(); idir++)
+    for (int ipas = 0; ipas < vario->getNLag(idir); ipas++)
+      vario->setUtilizeByIndex(idir, vario->getNLag(idir) + ipas, 1.);
 }
 
 /****************************************************************************/
@@ -3798,9 +3798,9 @@ static void st_make_some_lags_inactive(Vario *vario)
  *****************************************************************************/
 static void st_make_all_lags_active(Vario *vario)
 {
-  for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
-    for (int ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
-      vario->setUtilizeByIndex(idir, vario->getLagNumber(idir) + ipas, 1.);
+  for (int idir = 0; idir < vario->getNDir(); idir++)
+    for (int ipas = 0; ipas < vario->getNLag(idir); ipas++)
+      vario->setUtilizeByIndex(idir, vario->getNLag(idir) + ipas, 1.);
 }
 
 /****************************************************************************/
@@ -3817,7 +3817,7 @@ static double st_rho_search(double rho, void *user_data)
 {
   double sum = 0;
   Local_Pgs* local_pgs = (Local_Pgs*) user_data;
-  int ndir = local_pgs->vario->getDirectionNumber();
+  int ndir = local_pgs->vario->getNDir();
   st_set_rho(rho, local_pgs);
 
   /* Evaluation of the global cost-function */
@@ -3853,7 +3853,7 @@ static int st_variopgs_calcul_rho(Vario *vario,
 
   /* Calculate the geometry */
 
-  for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
+  for (int idir = 0; idir < vario->getNDir(); idir++)
   {
     if (st_variogram_geometry_pgs_calcul(local_pgs, vario, idir)) return (1);
     st_variogram_geometry_pgs_correct(local_pgs, vario, idir);
@@ -4058,7 +4058,7 @@ static int st_variogram_pgs_nostat(Db *db,
   /* Core allocation */
   /*******************/
 
-  ngrf = rule->getGRFNumber();
+  ngrf = rule->getNGRF();
   nfacies = rule->getNFacies();
   propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
                               propcst, propdef);
@@ -4134,7 +4134,7 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
 
   const Rule *rule = local_pgs->rule;
   int nvar = local_pgs->model->getNVar();
-  int ngrf = local_pgs->rule->getGRFNumber();
+  int ngrf = local_pgs->rule->getNGRF();
   MatrixSquareGeneral cov0(nvar);
   MatrixSquareGeneral covh(nvar);
 
@@ -4419,7 +4419,7 @@ static void st_variogram_scale(Vario *vario, int idir)
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++)
     {
-      for (int i = 0; i < vario->getLagTotalNumber(idir); i++, ecr++)
+      for (int i = 0; i < vario->getNLagTotal(idir); i++, ecr++)
       {
         int j = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
         if (vario->getSwByIndex(idir, j) <= 0)
@@ -4430,7 +4430,7 @@ static void st_variogram_scale(Vario *vario, int idir)
         else
         {
           vario->setHhByIndex(idir, j, vario->getHhByIndex(idir, j) / vario->getSwByIndex(idir, j));
-          if (vario->getFlagAsym() && i < vario->getLagNumber(idir))
+          if (vario->getFlagAsym() && i < vario->getNLag(idir))
             vario->setHhByIndex(idir, j, -ABS(vario->getHhByIndex(idir, j)));
           if (vario->getCalcul() != ECalcVario::COVARIOGRAM)
             vario->setGgByIndex(idir, j,
@@ -4446,7 +4446,7 @@ static void st_variogram_scale(Vario *vario, int idir)
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < ivar; jvar++)
       {
-        for (int i = 0; i < vario->getLagTotalNumber(idir); i++, ecr++)
+        for (int i = 0; i < vario->getNLagTotal(idir); i++, ecr++)
         {
           int j = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
           int j0 = vario->getDirAddress(idir, jvar, jvar, i, true, 0);
@@ -4460,7 +4460,7 @@ static void st_variogram_scale(Vario *vario, int idir)
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < ivar; jvar++)
       {
-        for (int i = 0; i < vario->getLagTotalNumber(idir); i++, ecr++)
+        for (int i = 0; i < vario->getNLagTotal(idir); i++, ecr++)
         {
           int j = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
           int j0 = vario->getDirAddress(idir, ivar, ivar, i, true, 0);
@@ -4474,7 +4474,7 @@ static void st_variogram_scale(Vario *vario, int idir)
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < ivar; jvar++)
       {
-        for (int i = 0; i < vario->getLagTotalNumber(idir); i++, ecr++)
+        for (int i = 0; i < vario->getNLagTotal(idir); i++, ecr++)
         {
           int j = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
           int j1 = vario->getDirAddress(idir, ivar, ivar, i, true, 0);
@@ -4511,7 +4511,7 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
 
   /* Loop on the directions */
 
-  for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
+  for (int idir = 0; idir < vario->getNDir(); idir++)
   {
     /* Establish the geometry */
 
@@ -4520,7 +4520,7 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
 
     /* Loop on the lags */
 
-    for (int ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
+    for (int ipas = 0; ipas < vario->getNLag(idir); ipas++)
     {
       vario_order_get_bounds(local_pgs->vorder, idir, ipas,
                              &local_pgs->ifirst, &local_pgs->ilast);
@@ -4601,14 +4601,14 @@ static int st_copy_swhh(const Vario *vario1,
                         bool flagHh,
                         bool flagGg)
 {
-  if (vario1->getDirectionNumber() != vario2->getDirectionNumber())
+  if (vario1->getNDir() != vario2->getNDir())
   {
     messerr("Both variograms should share the same number of Directions");
     return 1;
   }
-  for (int idir = 0; idir < vario1->getDirectionNumber(); idir++)
+  for (int idir = 0; idir < vario1->getNDir(); idir++)
   {
-    if (vario1->getLagTotalNumber(idir) != vario2->getLagTotalNumber(idir))
+    if (vario1->getNLagTotal(idir) != vario2->getNLagTotal(idir))
     {
       messerr("Both variograms should share the same number of flags for Direction #%d",
               idir+1);
@@ -4617,9 +4617,9 @@ static int st_copy_swhh(const Vario *vario1,
   }
   int nvar = vario2->getNVar();
 
-  for (int idir = 0; idir < vario2->getDirectionNumber(); idir++)
+  for (int idir = 0; idir < vario2->getNDir(); idir++)
   {
-    for (int i = 0; i < vario1->getLagTotalNumber(idir); i++)
+    for (int i = 0; i < vario1->getNLagTotal(idir); i++)
     {
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar < nvar; jvar++)
@@ -4665,12 +4665,12 @@ static int st_vario_indic_model_stat(Local_Pgs *local_pgs)
 
   /* Loop on the directions */
 
-  for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
+  for (int idir = 0; idir < vario->getNDir(); idir++)
   {
 
     /* Loop on the lags */
 
-    for (int ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
+    for (int ipas = 0; ipas < vario->getNLag(idir); ipas++)
     {
 
       /* Calculate the distance vector */
@@ -4736,7 +4736,7 @@ static void st_update_variance_stat(Local_Pgs *local_pgs)
         vario->setVar(-pivar * pjvar, ivar, jvar);
       if (!vario->getFlagAsym()) continue;
 
-      for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
+      for (int idir = 0; idir < vario->getNDir(); idir++)
       {
         iad = vario->getDirAddress(idir, ivar, jvar, 0, false, 0);
         vario->setSwByIndex(idir, iad, 1);
@@ -4824,7 +4824,7 @@ static void st_update_variance_nostat(Local_Pgs *local_pgs)
       if (!vario->getFlagAsym()) continue;
 
       // Set the C00 term
-      for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
+      for (int idir = 0; idir < vario->getNDir(); idir++)
       {
         int iad = vario->getDirAddress(idir, ivar, jvar, 0, false, 0);
         vario->setSwByIndex(idir, iad, dbin->getNSample());
@@ -4896,7 +4896,7 @@ Vario* model_pgs(Db *db,
 
   int error = 1;
   int nfacies = rule->getNFacies();
-  int ngrf = rule->getGRFNumber();
+  int ngrf = rule->getNGRF();
   if (rule->getModeRule() == ERule::SHIFT) ngrf++;
 
   new_model = nullptr;
@@ -5064,7 +5064,7 @@ static int st_variogram_pgs_stat(Db *db,
 
   if (st_vario_pgs_check(0, 1, 1, db, NULL, vario, varioind, rule))
     goto label_end;
-  ngrf = rule->getGRFNumber();
+  ngrf = rule->getNGRF();
   nfacies = rule->getNFacies();
 
   /*******************/
@@ -5162,7 +5162,7 @@ Vario* variogram_pgs(Db *db,
   // Preliminary checks
 
   if (st_check_test_discret(rule->getModeRule(), flag_rho)) return nullptr;
-  if (varioparam->getDirectionNumber() <= 0)
+  if (varioparam->getNDir() <= 0)
   {
     messerr("The variogram must contain at least one calculation Direction");
     return nullptr;
@@ -5221,7 +5221,7 @@ Vario* variogram_pgs(Db *db,
 
   vario = Vario::create(*varioparam);
   vario->setDb(db);
-  vario->setNVar(rule->getGRFNumber());
+  vario->setNVar(rule->getNGRF());
   if (vario->prepare(ECalcVario::COVARIANCE_NC)) return nullptr;
 
   /* Perform the calculations */
@@ -5346,7 +5346,7 @@ Rule* _rule_auto(Db *db,
 
     // Prepare the geometry 
 
-    for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
+    for (int idir = 0; idir < vario->getNDir(); idir++)
     {
       local_pgs.idircur = idir;
       if (st_variogram_geometry_pgs_calcul(&local_pgs, vario, idir))

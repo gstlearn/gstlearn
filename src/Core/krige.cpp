@@ -656,12 +656,12 @@ static int st_check_environment(int flag_in,
     }
 
     // External drifts
-    nfex = model->getExternalDriftNumber();
+    nfex = model->getNExtDrift();
     if (nfex > 0)
     {
       if (flag_out && DBOUT->getNLoc(ELoc::F) != nfex)
       {
-        messerr("The Model requires %d external drift(s)", model->getExternalDriftNumber());
+        messerr("The Model requires %d external drift(s)", model->getNExtDrift());
         messerr("but the output Db refers to %d external drift variables",
                 DBOUT->getNLoc(ELoc::F));
         goto label_end;
@@ -671,7 +671,7 @@ static int st_check_environment(int flag_in,
       {
         if (!(flag_out && DBOUT->isGrid()))
         {
-          messerr("The Model requires %d external drift(s)", model->getExternalDriftNumber());
+          messerr("The Model requires %d external drift(s)", model->getNExtDrift());
           messerr("but the input Db refers to %d external drift variables",
                   DBIN->getNLoc(ELoc::F));
           goto label_end;
@@ -839,7 +839,7 @@ static int st_krige_manage_basic(int mode,
  *****************************************************************************/
 static int st_get_nmax(ANeigh *neigh)
 {
-  return neigh->getMaxSampleNumber(DBIN);
+  return neigh->getNSampleMax(DBIN);
 }
 
 /****************************************************************************/
@@ -870,7 +870,7 @@ static int st_krige_manage(int mode,
   /* Initializations */
 
   nvar = model->getNVar();
-  nfeq = model->getDriftEquationNumber();
+  nfeq = model->getNDriftEquation();
   nech = DBIN->getNSample();
   nmax = st_get_nmax(neigh);
 
@@ -2954,7 +2954,7 @@ int bayes_simulate(Model *model,
   /* Initializations */
 
   error = 1;
-  nfeq = model->getDriftEquationNumber();
+  nfeq = model->getNDriftEquation();
   nftri = nfeq * (nfeq + 1) / 2;
   trimat = rndmat = nullptr;
   memo = law_get_random_seed();
@@ -4281,8 +4281,8 @@ static double* st_calcul_covmat(const char *title,
 
   /* Initializations */
 
-  n1 = (test_def1) ? db1->getActiveAndDefinedNumber(0) : db1->getNSample(true);
-  n2 = (test_def2) ? db2->getActiveAndDefinedNumber(0) : db2->getNSample(true);
+  n1 = (test_def1) ? db1->getNSampleActiveAndDefined(0) : db1->getNSample(true);
+  n2 = (test_def2) ? db2->getNSampleActiveAndDefined(0) : db2->getNSample(true);
 
   /* Core allocation */
 
@@ -4352,7 +4352,7 @@ static double* st_calcul_drfmat(const char *title,
 
   /* Initializations */
 
-  n1 = (test_def1) ? db1->getActiveAndDefinedNumber(0) :
+  n1 = (test_def1) ? db1->getNSampleActiveAndDefined(0) :
                      db1->getNSample(true);
   nbfl = model->getNDrift();
 
@@ -4416,9 +4416,9 @@ static double* st_calcul_distmat(const char *title,
 
   /* Initializations */
 
-  n1 = (test_def1) ? db1->getActiveAndDefinedNumber(0) :
+  n1 = (test_def1) ? db1->getNSampleActiveAndDefined(0) :
                      db1->getNSample(true);
-  ns = (test_def2) ? db2->getActiveAndDefinedNumber(0) :
+  ns = (test_def2) ? db2->getNSampleActiveAndDefined(0) :
                      db2->getNSample(true);
   ndim = db1->getNDim();
 
@@ -4539,7 +4539,7 @@ static double* st_inhomogeneous_covpp(Db *dbdat,
   error = 1;
   covpp = nullptr;
 
-  np = dbdat->getActiveAndDefinedNumber(0);
+  np = dbdat->getNSampleActiveAndDefined(0);
   ns = dbsrc->getNSample(true);
 
   /* Covariance matrix between Mesures */
@@ -4600,7 +4600,7 @@ static double* st_inhomogeneous_covgp(Db *dbdat,
   error = 1;
   covgp = nullptr;
 
-  np = dbdat->getActiveAndDefinedNumber(0);
+  np = dbdat->getNSampleActiveAndDefined(0);
   ns = dbsrc->getNSample(true);
   ng = dbout->getNSample(true);
 
@@ -4879,7 +4879,7 @@ int inhomogeneous_kriging(Db *dbdat,
     IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_STD < 0) goto label_end;
   }
-  nred = neq = np = dbdat->getActiveAndDefinedNumber(0);
+  nred = neq = np = dbdat->getNSampleActiveAndDefined(0);
   nfeq = 0;
   ns = dbsrc->getNSample(true);
   ng = dbout->getNSample(true);

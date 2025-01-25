@@ -550,7 +550,7 @@ int db_rule_shadow(Db* db,
 
   /* Preliminary checks */
 
-  ngrf = rule->getGRFNumber();
+  ngrf = rule->getNGRF();
   for (igrf = 0; igrf < 2; igrf++)
     flag_used[igrf] = rule->isYUsed(igrf);
 
@@ -645,7 +645,7 @@ int _db_rule(Db *db,
   int error = 1;
   int iptr = -1;
   PropDef *propdef = nullptr;
-  int ngrf = rule->getGRFNumber();
+  int ngrf = rule->getNGRF();
   VectorInt flagUsed = rule->whichGRFUsed();
   int nfacies = rule->getNFacies();
   bool flagReturn = false;
@@ -759,7 +759,7 @@ int db_bounds_shadow(Db* db,
     messerr("The Rule is not defined");
     goto label_end;
   }
-  ngrf = rule->getGRFNumber();
+  ngrf = rule->getNGRF();
   for (igrf = 0; igrf < 2; igrf++)
     flag_used[igrf] = rule->isYUsed(igrf);
 
@@ -847,7 +847,7 @@ int _db_bounds(Db *db,
 
   VectorInt flagUsed = rule->whichGRFUsed();
   int nfacies = rule->getNFacies();
-  int ngrf = rule->getGRFNumber();
+  int ngrf = rule->getNGRF();
 
   /* Input Db */
 
@@ -1134,7 +1134,7 @@ int _db_threshold(Db *db,
   /* Preliminary checks */
   /**********************/
 
-  ngrf = rule->getGRFNumber();
+  ngrf = rule->getNGRF();
   if (rule->checkModel(model)) return 1;
 
   /*******************/
@@ -1247,7 +1247,7 @@ Model* model_rule_combine(const Model *model1,
     messerr("This function requires the first model to be defined");
     return (new_model);
   }
-  ngrf = rule->getGRFNumber();
+  ngrf = rule->getNGRF();
 
   /* Case of a bivariate input model or monogaussian: simply duplicate */
 

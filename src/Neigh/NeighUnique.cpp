@@ -96,7 +96,7 @@ NeighUnique* NeighUnique::createFromNF(const String& neutralFilename, bool verbo
  * @param db Pointer to the target Db
  * @return
  */
-int NeighUnique::getMaxSampleNumber(const Db* db) const
+int NeighUnique::getNSampleMax(const Db* db) const
 {
   return db->getNSample(true);
 }

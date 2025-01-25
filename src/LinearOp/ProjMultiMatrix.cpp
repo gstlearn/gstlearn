@@ -119,14 +119,14 @@ std::vector<std::vector<const ProjMatrix*>> ProjMultiMatrix::create(std::vector<
         }
     }
 
-    int npoint = vectproj[0]->getPointNumber();
+    int npoint = vectproj[0]->getNPoint();
 
     for (int i = 1; i < nlatent; i++)
     {
-        if (vectproj[i]->getPointNumber() != npoint)
+        if (vectproj[i]->getNPoint() != npoint)
         {
             messerr("All the ProjMatrix should have the same number of Point.");
-            messerr("Element %d has %d Point instead of %d.",i,vectproj[i]->getPointNumber(),npoint);
+            messerr("Element %d has %d Point instead of %d.",i,vectproj[i]->getNPoint(),npoint);
             return result;
         }
     }
@@ -149,8 +149,8 @@ ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*
 , _toClean(toClean)
 {
   if (ProjMulti::empty()) return;
-  const VectorInt& pointNumbers = getPointNumbers();
-  const VectorInt& apexNumbers  = getApexNumbers();
+  const VectorInt& pointNumbers = getNPoints();
+  const VectorInt& apexNumbers  = getNApexs();
 
   for (int i = 0; i < getNVariable(); i++)
   {
