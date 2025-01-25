@@ -500,7 +500,7 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh) const
   VectorInt nbgh;
   CovContext ctxt(1, ndim);
   const DriftList* drft = DriftFactory::createDriftListFromIRF(_order, 0, ctxt);
-  int ndrift = drft->getDriftNumber();
+  int ndrift = drft->getNDrift();
   VectorDouble X(ndrift);
   VectorDouble B(ndrift);
   MatrixSquareSymmetric A(ndrift);

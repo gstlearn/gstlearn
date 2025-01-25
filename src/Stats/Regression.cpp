@@ -122,7 +122,7 @@ bool _regressionCheck(Db *db1,
         messerr("Model should be defined");
         return false;
       }
-      if (model->getDriftNumber() <= 0)
+      if (model->getNDrift() <= 0)
       {
         messerr("The number of Drift equations in the Model should be positive");
         return false;
@@ -164,7 +164,7 @@ bool _regressionLoad(Db *db1,
       break;
 
     case 2:
-      nbfl = model->getDriftNumber();
+      nbfl = model->getNDrift();
       *value = db1->getZVariable(iech, 0);
       for (int i = 0; i < nbfl; i++)
          x[ecr++] = model->evalDrift(db2, iech, i, ECalcMember::LHS);
@@ -280,7 +280,7 @@ Regression regression(Db *db1,
       if (flagCst) size++;
       break;
     case 2:
-      size = model->getDriftNumber();
+      size = model->getNDrift();
       break;
   }
 

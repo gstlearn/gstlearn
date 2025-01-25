@@ -46,7 +46,7 @@ public:
                       int jvar = 0,
                       const CovCalcMode* mode = nullptr) const override;
 
-  virtual int getNVariables() const override { return 1; }
+  virtual int getNVar() const override { return 1; }
   void optimizationSetTargetByIndex(int iech) const override;
 protected:
     void _optimizationSetTarget(const SpacePoint &pt) const override;

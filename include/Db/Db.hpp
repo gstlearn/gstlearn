@@ -537,14 +537,14 @@ public:
   VectorDouble getLocVariables(const ELoc& loctype, int iech, int nitemax = 0) const;
   void   setLocVariables(const ELoc& loctype, int iech, const VectorDouble& values);
 
-  bool   isVariableNumberComparedTo(int nvar, int compare = 0) const;
+  bool   isNVarComparedTo(int nvar, int compare = 0) const;
   bool   isIsotopic(int iech, int nvar_max = -1) const;
   bool   isAllUndefined(int iech) const;
   bool   isAllUndefinedByType(const ELoc& loctype, int iech) const;
   bool   isAllIsotopic() const;
 
   void   setInterval(int iech, int item, double rklow = TEST, double rkup = TEST);
-  int    getIntervalNumber() const;
+  int    getNInterval() const;
   void   setBound(int iech, int item, double lower = TEST, double upper = TEST);
   VectorDouble getWithinBounds(int item, bool useSel = false) const;
   VectorDouble getGradient(int item, bool useSel = false) const;

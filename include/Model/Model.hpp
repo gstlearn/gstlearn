@@ -509,7 +509,7 @@ public:
   /// TODO : to be removed (encapsulation of DriftList)
   const DriftList* getDriftList()                  const;
   const ADrift* getDrift(int il)                   const;
-  int  getDriftNumber()                            const;
+  int  getNDrift()                            const;
   int  getExternalDriftNumber()                    const;
   int  getRankFext(int il)                         const;
   int  getDriftEquationNumber()                    const;
@@ -587,7 +587,7 @@ public:
     //      return 3; // This strange number of variables is linked to the Gradient calculation
     //    else
     // However, note used for Gradient (Functional type) in Potential
-    int nvar = _cova->getNVariables();
+    int nvar = _cova->getNVar();
     if (nvar <= 0)
       nvar = _ctxt.getNVar();
     return nvar;

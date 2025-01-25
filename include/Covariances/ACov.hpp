@@ -51,7 +51,7 @@ public:
   virtual ~ACov();
 
   /// ACov Interface
-  virtual int getNVariables() const {return _ctxt.getNVar();};
+  virtual int getNVar() const {return _ctxt.getNVar();};
   virtual bool isIndexable() const { return false; }
   virtual bool isNoStat() const { return false; }
 

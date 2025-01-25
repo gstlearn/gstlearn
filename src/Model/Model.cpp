@@ -246,7 +246,7 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   int ncov   = getNCov();
-  int ndrift = getDriftNumber();
+  int ndrift = getNDrift();
   if (ncov <= 0 && ndrift <= 0) return sstr.str();
 
   sstr << toTitle(0, "Model characteristics");
@@ -279,7 +279,7 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
 
   /* Mean Part */
 
-  if (getDriftNumber() <= 0)
+  if (getNDrift() <= 0)
   {
     sstr << toVector("Known Mean(s)", getMeans());
     // TODO: could be added but changes all non-regression files
@@ -517,7 +517,7 @@ void Model::addCovFromParam(const ECov& type,
   }
 
  
-  _ctxt.setNVar(cov.getNVariables());
+  _ctxt.setNVar(cov.getNVar());
   _copyCovContext();
   if (!angles.empty()) cov.setAnisoAngles(angles);
   addCov(&cov);
@@ -963,10 +963,10 @@ const ADrift* Model::getDrift(int il) const
   if (_driftList == nullptr) return nullptr;
   return _driftList->getDrift(il);
 }
-int Model::getDriftNumber() const
+int Model::getNDrift() const
 {
   if (_driftList == nullptr) return 0;
-  return _driftList->getDriftNumber();
+  return _driftList->getNDrift();
 }
 int Model::getExternalDriftNumber() const
 {
@@ -1382,7 +1382,7 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWrite<int>(os, "", getNVar());
   ret = ret && _recordWrite<double>(os, "General parameters", getField());
   ret = ret && _recordWrite<int>(os, "Number of basic covariance terms", getNCov());
-  ret = ret && _recordWrite<int>(os, "Number of drift terms", getDriftNumber());
+  ret = ret && _recordWrite<int>(os, "Number of drift terms", getNDrift());
 
   /* Writing the covariance part */
 
@@ -1415,7 +1415,7 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
 
   /* Writing the drift part */
 
-  for (int ibfl = 0; ret && ibfl < getDriftNumber(); ibfl++)
+  for (int ibfl = 0; ret && ibfl < getNDrift(); ibfl++)
   {
     const ADrift *drift = getDrift(ibfl);
     ret = ret && _recordWrite<String>(os,"Drift Identifier", drift->getDriftName());
@@ -1423,7 +1423,7 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
 
   /* Writing the matrix of means (if nbfl <= 0) */
 
-  if (getDriftNumber() <= 0)
+  if (getNDrift() <= 0)
     for (int ivar = 0; ret && ivar < getNVar(); ivar++)
     {
       ret = ret && _recordWrite<double>(os, "Mean of Variables", getContext().getMean(ivar));

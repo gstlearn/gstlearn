@@ -785,7 +785,7 @@ double CorAniso::getIntegralRange(int ndisc, double hmax) const
 
 bool CorAniso::_isVariableValid(int ivar) const
 {
-  return checkArg("Rank of the Variable", ivar, getNVariables());
+  return checkArg("Rank of the Variable", ivar, getNVar());
 }
 
 int CorAniso::getGradParamNumber() const

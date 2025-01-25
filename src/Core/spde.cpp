@@ -3437,7 +3437,7 @@ static void st_load_data(AMesh *amesh,
 
         /* This target is not collocated to any Datum */
 
-        if (S_DECIDE.flag_gibbs && dbout->getIntervalNumber() > 0)
+        if (S_DECIDE.flag_gibbs && dbout->getNInterval() > 0)
           zloc = st_get_data_constraints(dbout, igrf, iech);
         else
           zloc = TEST;
@@ -3468,7 +3468,7 @@ static void st_load_data(AMesh *amesh,
         if (!dbin->isActive(iech)) continue;
         if (S_DECIDE.flag_several) data[ecrd++] = dbin->getZVariable(iech, ivar);
 
-        if (S_DECIDE.flag_gibbs && dbin->getIntervalNumber() > 0)
+        if (S_DECIDE.flag_gibbs && dbin->getNInterval() > 0)
           zloc = st_get_data_constraints(dbin, igrf, iech);
         else
           zloc = dbin->getZVariable(iech, ivar);
@@ -8492,11 +8492,11 @@ int m2d_gibbs_spde(Db *dbin,
     messerr("This application requires the Number of Layers to be positive");
     goto label_end;
   }
-  if (dbin->getIntervalNumber() < nlayer)
+  if (dbin->getNInterval() < nlayer)
   {
     messerr("This application requires Lower and Upper variables");
     messerr("to be defined in the Input Db for each layer (nint=%d)",
-            dbin->getIntervalNumber());
+            dbin->getNInterval());
     goto label_end;
   }
   if (! dbout->isGrid())

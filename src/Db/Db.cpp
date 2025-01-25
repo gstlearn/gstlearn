@@ -2542,7 +2542,7 @@ void Db::updZVariable(int iech, int item, const EOperator& oper, double value)
  * - compare<0: 'this' should contain less (or equal) than 'nvar'
  * - compare>0: 'this' should contain more (or equal) than 'nvar'
  */
-bool Db::isVariableNumberComparedTo(int nvar, int compare) const
+bool Db::isNVarComparedTo(int nvar, int compare) const
 {
   if (compare == 0)
   {
@@ -2632,7 +2632,7 @@ bool Db::isAllUndefinedByType(const ELoc& loctype, int iech) const
   return false;
 }
 
-int Db::getIntervalNumber() const
+int Db::getNInterval() const
 {
   return MAX(getNLoc(ELoc::RKLOW), getNLoc(ELoc::RKUP));
 }

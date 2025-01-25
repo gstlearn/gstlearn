@@ -40,7 +40,7 @@ CovBase::~CovBase()
 void CovBase::setCor(ACov* cor)
 {
   _cor = cor;
-  int nvar = getNVariables();
+  int nvar = getNVar();
   if (cor != nullptr)
   {
     _ctxt = cor->getContextCopy();
@@ -54,7 +54,7 @@ void CovBase::setContext(const CovContext &ctxt)
 }
 void CovBase::setSill(double sill) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   if (nvar > 0 && nvar!= 1)
   {
     messerr("Number of provided sill doesn't match number of variables");
@@ -65,7 +65,7 @@ void CovBase::setSill(double sill) const
 
 void CovBase::setSill(const MatrixSquareSymmetric &sill) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   if (nvar > 0 && nvar != sill.getNCols())
   {
     messerr("Number of provided sills doesn't match number of variables");
@@ -77,7 +77,7 @@ void CovBase::setSill(const MatrixSquareSymmetric &sill) const
 void CovBase::setSill(const VectorDouble &sill) const 
 {
   int size = static_cast<int>(sill.size());
-  int nvar = getNVariables();
+  int nvar = getNVar();
   if (size != nvar * nvar)
   {
     messerr("Number of provided sills doesn't match number of variables");
@@ -97,7 +97,7 @@ void CovBase::setSill(int ivar, int jvar, double sill) const
 
 bool CovBase::_isVariableValid(int ivar) const
 {
-  return checkArg("Rank of the Variable", ivar, getNVariables());
+  return checkArg("Rank of the Variable", ivar, getNVar());
 }
 
 void CovBase::_initFromContext()
@@ -293,7 +293,7 @@ void CovBase::makeSillStationary(int ivar, int jvar)
 
 bool CovBase::_checkSill(int ivar, int jvar) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   if ((ivar > nvar) || (jvar > nvar))
   {
     messerr("Your model has only %d variables.",nvar);
@@ -469,7 +469,7 @@ void CovBase::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                           const SpacePoint &p2,
                                           const CovCalcMode *mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {

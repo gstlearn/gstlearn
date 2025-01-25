@@ -188,10 +188,10 @@ const VectorDouble& ModelGeneric::getMeans() const
 }
 
 // Pipes method to _driftList
-int ModelGeneric::getDriftNumber() const
+int ModelGeneric::getNDrift() const
 {
   if (_driftList == nullptr) return 0;
-  return _driftList->getDriftNumber();
+  return _driftList->getNDrift();
 }
 int ModelGeneric::getDriftEquationNumber() const
 {

@@ -803,7 +803,7 @@ static int st_update_tangent(Db *dbtgt, Pot_Env *pot_env)
  *****************************************************************************/
 static int st_update_model(Model *model, Pot_Env *pot_env)
 {
-  int nbfl = model->getDriftNumber();
+  int nbfl = model->getNDrift();
   if (model->isDriftDefined(VectorInt(), 0)) nbfl--;
   pot_env->order =  model->getDriftMaxIRFOrder();
   pot_env->size_drf = nbfl;

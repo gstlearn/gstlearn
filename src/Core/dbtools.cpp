@@ -700,7 +700,7 @@ void ut_trace_sample(Db *db,
   xs = ys = nullptr;
   lys = typ = rks = nullptr;
   ns = 0;
-  nvar = db->getIntervalNumber();
+  nvar = db->getNInterval();
 
   /* Loop on the samples */
 
@@ -1159,7 +1159,7 @@ int db_gradient_components(DbGrid *dbgrid)
     messerr("The Db should be organized as a Grid");
     goto label_end;
   }
-  if (!dbgrid->isVariableNumberComparedTo(1)) goto label_end;
+  if (!dbgrid->isNVarComparedTo(1)) goto label_end;
   if (ndim > 3)
   {
     messerr("This function is limited to Space Dimension <= 3");
@@ -1653,7 +1653,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
     return dbnew;
   }
 
-  if (! db->isVariableNumberComparedTo(1,1))
+  if (! db->isNVarComparedTo(1,1))
   {
     messerr("You should define some Z-variables in input 'db'");
     return dbnew;

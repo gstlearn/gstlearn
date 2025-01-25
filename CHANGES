@@ -5,12 +5,16 @@ This file contains the logs between consecutive releases
 Release 1.7.0
 =============
 - Major renaming of variables, such as:
-  getVariableNumber() becomes getNVar()
+  getVariableNumber() or getNVariables() becomes getNVar()
   getSampleNumber() becomes getNSample()
   getActiveSampleNumber() becomes getNSampleActive()
   getNumberActiveAndDefined() becomes getNSampleActiveAndDefined()
   getLocatorNumber() or getLocNumber() becomes getNLoc()
   getCovaNumber() becomes getNCov()
+  getDriftNumber() becomes getNDrift()
+  getIntervalNumber() becomes getNInterval()
+
+  isVariableNumberComparedTo() becomes isNVarComparedTo()
 
 Release 1.6.0
 =============

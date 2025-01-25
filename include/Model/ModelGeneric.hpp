@@ -124,7 +124,7 @@ public:
   const VectorDouble& getMeans() const;
 
   // Case of _driftList
-  int getDriftNumber() const;
+  int getNDrift() const;
   int getDriftEquationNumber() const;
   int getExternalDriftNumber() const;
   int getDriftMaxIRFOrder(void) const;

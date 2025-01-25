@@ -603,7 +603,7 @@ void CovLMCAnamorphosis::addCovAniso(const CovAniso* cov)
 {
   // In this context, check that the Covariance is monovariate
 
-  if (cov->getNVariables() != 1)
+  if (cov->getNVar() != 1)
   {
     messerr("You can only add Monovariate Covariances in 'CovLMCAnamorphosis' "
             "object");

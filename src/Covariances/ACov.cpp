@@ -184,7 +184,7 @@ void ACov::_optimizationPostProcess() const
 
 MatrixSquareGeneral ACov::eval0Mat(const CovCalcMode* mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
   eval0CovMatBiPointInPlace(mat,mode);
   return mat;
@@ -212,7 +212,7 @@ void ACov::eval0CovMatBiPointInPlace(MatrixSquareGeneral& mat, const CovCalcMode
  */
 void ACov::addEval0CovMatBiPointInPlace(MatrixSquareGeneral& mat, const CovCalcMode* mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
 
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
@@ -245,7 +245,7 @@ MatrixSquareGeneral ACov::evalMat(const SpacePoint& p1,
                                   const SpacePoint& p2,
                                   const CovCalcMode* mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
   evalCovMatBiPointInPlace(mat,p1, p2,mode);
   return mat;
@@ -352,7 +352,7 @@ MatrixSquareGeneral ACov::evalNvarIpas(double step,
                                        const VectorDouble& dir,
                                        const CovCalcMode* mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
@@ -363,7 +363,7 @@ MatrixSquareGeneral ACov::evalNvarIpas(double step,
 MatrixSquareGeneral ACov::evalNvarIpasIncr(const VectorDouble& dincr,
                                            const CovCalcMode* mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
@@ -422,7 +422,7 @@ VectorDouble ACov::evalIsoIvarNpas(const VectorDouble& vec_step,
 MatrixSquareGeneral ACov::evalIsoNvarIpas(double step,
                                           const CovCalcMode* mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   VectorDouble dir = getUnitaryVector();
   MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
@@ -741,7 +741,7 @@ MatrixSquareGeneral ACov::evalCvvM(const VectorDouble& ext,
                                    const VectorDouble& angles,
                                    const CovCalcMode* mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
@@ -843,7 +843,7 @@ MatrixSquareGeneral ACov::evalCxvM(const SpacePoint& p1,
                                    const VectorDouble& x0,
                                    const CovCalcMode* mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
@@ -901,7 +901,7 @@ Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid, int seed) const
 
 VectorInt ACov::_getActiveVariables(int ivar0) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
 
   VectorInt ivars;
   if (ivar0 >= 0)
@@ -1224,7 +1224,7 @@ void ACov::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
                                         const SpacePoint& pwork2,
                                         const CovCalcMode* mode) const
 {
-  for (int ivar = 0, nvar = getNVariables(); ivar < nvar; ivar++)
+  for (int ivar = 0, nvar = getNVar(); ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
       mat.addValue(ivar, jvar, eval(pwork1, pwork2, ivar, jvar, mode));
 }

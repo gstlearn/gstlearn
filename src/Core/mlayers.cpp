@@ -2036,7 +2036,7 @@ int multilayers_kriging(Db* dbin,
     messerr("The output Db must be defined in 2-D");
     goto label_end;
   }
-  if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
+  if (!dbin->isNVarComparedTo(1)) goto label_end;
   if (!flag_same && ! dbout->isGrid())
   {
     messerr("If Input and Output are different, Output should be a Grid Db");
@@ -2512,7 +2512,7 @@ int multilayers_vario(Db *dbin,
     messerr("The output Db must be defined in 2-D");
     goto label_end;
   }
-  if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
+  if (!dbin->isNVarComparedTo(1)) goto label_end;
   if (!dbin->hasLocator(ELoc::LAYER))
   {
     messerr("The input Db must contain a LAYER locator");
@@ -2762,7 +2762,7 @@ int multilayers_get_prior(Db* dbin,
     messerr("The output Db must be defined in 2-D");
     goto label_end;
   }
-  if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
+  if (!dbin->isNVarComparedTo(1)) goto label_end;
   if (!flag_same && ! dbout->isGrid())
   {
     messerr("If Input and Output are different, Output should be a Grid Db");

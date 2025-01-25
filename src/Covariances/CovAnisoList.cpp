@@ -81,7 +81,7 @@ void CovAnisoList::addCovAniso(const CovAniso* cov)
 {
   if (getNCov() == 0)
   {
-    setNVar(cov->getNVariables());
+    setNVar(cov->getNVar());
   }
   else
   {
@@ -138,10 +138,10 @@ bool CovAnisoList::isConsistent(const ASpace* /*space*/) const
   return true;
 }
 
-int CovAnisoList::getNVariables() const
+int CovAnisoList::getNVar() const
 {
   if (getNCov() > 0)
-    return _covs[0]->getNVariables();
+    return _covs[0]->getNVar();
   return 0;
 }
 
@@ -463,13 +463,13 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
     // Display the Total Sill (optional)
     if (isStationary())
     {
-      if (getNVariables() <= 1)
+      if (getNVar() <= 1)
       {
         sstr << "Total Sill     = " << toDouble(getTotalSill(0, 0));
       }
       else
       {
-        sstr << toMatrix("Total Sill", VectorString(), VectorString(), 0, getNVariables(), getNVariables(),
+        sstr << toMatrix("Total Sill", VectorString(), VectorString(), 0, getNVar(), getNVar(),
                          getTotalSills().getValues());
       }
     }

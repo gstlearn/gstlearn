@@ -46,7 +46,7 @@ void CovList::addCov(const CovBase* cov)
 {
   if (getNCov() == 0)
   {
-    setNVar(cov->getNVariables());
+    setNVar(cov->getNVar());
   }
   else
   {
@@ -106,10 +106,10 @@ bool CovList::isConsistent(const ASpace* /*space*/) const
   return true;
 }
 
-int CovList::getNVariables() const
+int CovList::getNVar() const
 {
   if (getNCov() > 0)
-    return _covs[0]->getNVariables();
+    return _covs[0]->getNVar();
   return 0;
 }
 
@@ -363,7 +363,7 @@ double CovList::getTotalSill(int ivar, int jvar) const
 
 MatrixSquareSymmetric CovList::getTotalSills() const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   MatrixSquareSymmetric mat(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++)

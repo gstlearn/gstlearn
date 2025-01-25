@@ -750,7 +750,7 @@ int db_bounds_shadow(Db* db,
     messerr("The Db is not defined");
     goto label_end;
   }
-  if (!db->isVariableNumberComparedTo(1)) goto label_end;
+  if (!db->isNVarComparedTo(1)) goto label_end;
 
   /* Rule */
 
@@ -852,7 +852,7 @@ int _db_bounds(Db *db,
   /* Input Db */
 
   int nvar = db->getNLoc(ELoc::Z);
-  if (!db->isVariableNumberComparedTo(1)) goto label_end;
+  if (!db->isNVarComparedTo(1)) goto label_end;
 
   /* Model (for SHIFT case) */
 

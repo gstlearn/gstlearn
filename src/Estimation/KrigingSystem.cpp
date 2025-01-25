@@ -308,7 +308,7 @@ int KrigingSystem::_getNVarCL() const
 int KrigingSystem::_getNbfl() const
 {
   if (_model == nullptr) return 0;
-  return _model->getDriftNumber();
+  return _model->getNDrift();
 }
 
 int KrigingSystem::_getNFeq() const

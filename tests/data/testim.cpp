@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
 
   /* Conditional expectation */
 
-  if (dbin->getIntervalNumber() > 0)
+  if (dbin->getNInterval() > 0)
   {
     dbin->clearLocators(ELoc::Z);
     if (gibbs_sampler(dbin,new_model,

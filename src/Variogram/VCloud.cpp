@@ -143,7 +143,7 @@ int VCloud::compute(Db *db, const NamingConvention &namconv)
     messerr("Variogram: NDIM=%d", _varioparam->getDimensionNumber());
     return (1);
   }
-  if (!db->isVariableNumberComparedTo(1)) return 1;
+  if (!db->isNVarComparedTo(1)) return 1;
   if (_dbcloud->getNDim() != 2)
   {
     messerr("The output Db for storing the variogram cloud must be 2-D");

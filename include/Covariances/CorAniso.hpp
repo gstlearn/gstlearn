@@ -70,7 +70,7 @@ public:
   virtual bool isConsistent(const ASpace* space) const override;
 
   /// ACov Interface
-  virtual int getNVariables() const override { return 1; }
+  virtual int getNVar() const override { return 1; }
 
   /// ACov Interface
   virtual double eval(const SpacePoint& p1,

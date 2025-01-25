@@ -4182,7 +4182,7 @@ int declustering(Db *dbin,
                  int flag_sel,
                  bool verbose)
 {
-  if (! dbin->isVariableNumberComparedTo(1)) return 1;
+  if (! dbin->isNVarComparedTo(1)) return 1;
 
   /* Add the kriging weight as a new variable */
 
@@ -4354,7 +4354,7 @@ static double* st_calcul_drfmat(const char *title,
 
   n1 = (test_def1) ? db1->getActiveAndDefinedNumber(0) :
                      db1->getNSample(true);
-  nbfl = model->getDriftNumber();
+  nbfl = model->getNDrift();
 
   /* Core allocation */
 
@@ -4883,7 +4883,7 @@ int inhomogeneous_kriging(Db *dbdat,
   nfeq = 0;
   ns = dbsrc->getNSample(true);
   ng = dbout->getNSample(true);
-  nbfl = model_dat->getDriftNumber();
+  nbfl = model_dat->getNDrift();
 
   /* Core allocation */
 

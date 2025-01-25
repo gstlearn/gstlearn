@@ -23,7 +23,7 @@ CovProportional::CovProportional(ACov* cor,
   _workMat.resize(_ctxt.getNVar(), _ctxt.getNVar());
   _workMat.setIdentity();
   if (cor != nullptr)
-    if (cor->getNVariables() != 1)
+    if (cor->getNVar() != 1)
     {
         messerr("Correlation function should have only 1 variable");
         messerr("You should use CovBase instead of CovProportional");
@@ -39,7 +39,7 @@ CovProportional::~CovProportional()
 
 void CovProportional::setCor(ACov* cor)
 {
-  if (cor->getNVariables() != 1)
+  if (cor->getNVar() != 1)
   {
     messerr("Correlation function should have only 1 variable");
     return;

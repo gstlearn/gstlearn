@@ -898,7 +898,7 @@ int DbHelper::dbgrid_filling(DbGrid *dbgrid,
     messerr("This function is limited to Grid Db");
     return (1);
   }
-  if (!dbgrid->isVariableNumberComparedTo(1)) return (1);
+  if (!dbgrid->isNVarComparedTo(1)) return (1);
   ndim = dbgrid->getNDim();
   if (ndim > 3)
   {

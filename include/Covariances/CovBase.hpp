@@ -31,7 +31,7 @@ public:
   virtual ~CovBase();
 
   virtual bool isConsistent(const ASpace* space) const override;
-  virtual int getNVariables() const override { return _ctxt.getNVar(); }
+  virtual int getNVar() const override { return _ctxt.getNVar(); }
   bool isOptimizationInitialized(const Db* db = nullptr) const;
   
   void optimizationSetTargetByIndex(int iech) const override;

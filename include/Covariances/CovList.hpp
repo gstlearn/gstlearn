@@ -49,7 +49,7 @@ public:
   virtual bool isConsistent(const ASpace* space) const override;
 
   /// Interface for ACov
-  virtual int    getNVariables() const override;
+  virtual int    getNVar() const override;
   virtual bool   isIndexable() const override { return true; }
   virtual double eval0(int ivar = 0,
                        int jvar = 0,

@@ -2422,7 +2422,7 @@ int Vario::_calculateGeneral(Db *db,
       messerr("The special Variogram option is incompatible with flag.sample");
       return 1;
     }
-    if (!db->isVariableNumberComparedTo(1)) return 1;
+    if (!db->isNVarComparedTo(1)) return 1;
   }
 
   /* Evaluate the drift coefficients */
@@ -2626,7 +2626,7 @@ void Vario::_calculateBiasGlobal(Db *db)
 
   /* Initializations */
 
-  int nbfl = _model->getDriftNumber();
+  int nbfl = _model->getNDrift();
   int ndim = _model->getDimensionNumber();
   int nech = db->getActiveAndDefinedNumber(0);
   VectorDouble d1(ndim,0.);
@@ -4427,7 +4427,7 @@ void Vario::_driftManage(Db *db)
 {
   if (_model == nullptr) return;
 
-  int nbfl = _model->getDriftNumber();
+  int nbfl = _model->getNDrift();
   int nech = db->getActiveAndDefinedNumber(0);
 
   _BETA.resize(nbfl,0.);
@@ -4451,7 +4451,7 @@ int Vario::_driftEstimateCoefficients(Db *db)
 {
   if (_model == nullptr) return 1;
   int iiech;
-  int nbfl = _model->getDriftNumber();
+  int nbfl = _model->getNDrift();
   VectorDouble b(nbfl, 0.);
   MatrixSquareGeneral matdrf(nbfl);
 
@@ -4512,7 +4512,7 @@ int Vario::_driftEstimateCoefficients(Db *db)
  *****************************************************************************/
 double Vario::_getBias(int iiech, int jjech)
 {
-  int nbfl = _model->getDriftNumber();
+  int nbfl = _model->getNDrift();
 
   double bias0 = 0.;
   for (int il = 0; il < nbfl; il++)

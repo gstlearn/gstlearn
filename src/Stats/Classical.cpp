@@ -927,7 +927,7 @@ int statisticsProportion(DbGrid *dbin,
     messerr("The 1-D output grid does not match input grid");
     return 1;
   }
-  if (!dbin->isVariableNumberComparedTo(1)) return 1;
+  if (!dbin->isNVarComparedTo(1)) return 1;
 
   /* Core allocation */
 
@@ -1024,7 +1024,7 @@ int statisticsTransition(DbGrid *dbin,
     messerr("The 1-D output grid does not match input grid");
     return 1;
   }
-  if (!dbin->isVariableNumberComparedTo(1)) return 1;
+  if (!dbin->isNVarComparedTo(1)) return 1;
 
   /* Core allocation */
 

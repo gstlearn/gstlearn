@@ -691,7 +691,7 @@ int simpgs(Db* dbin,
   if (flag_cond)
   {
     nechin = dbin->getNSample();
-    if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
+    if (!dbin->isNVarComparedTo(1)) goto label_end;
   }
 
   /* Output Db */
@@ -1055,7 +1055,7 @@ int simbipgs(Db *dbin,
   if (flag_cond)
   {
     nechin = dbin->getNSample();
-    if (!dbin->isVariableNumberComparedTo(2)) goto label_end;
+    if (!dbin->isNVarComparedTo(2)) goto label_end;
     iatt_z[0] = dbin->getUIDByLocator(ELoc::Z, 0);
     iatt_z[1] = dbin->getUIDByLocator(ELoc::Z, 1);
   }
@@ -1536,7 +1536,7 @@ int gibbs_sampler(Db *dbin,
 
   if (flag_propagation)
   {
-    if (dbin->getIntervalNumber() > 0)
+    if (dbin->getNInterval() > 0)
     {
       messerr("The propagation algorithm is incompatible with bounds");
       goto label_end;
@@ -2339,7 +2339,7 @@ int simpgs_spde(Db* dbin,
   if (flag_cond)
   {
     nechin = dbin->getNSample();
-    if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
+    if (!dbin->isNVarComparedTo(1)) goto label_end;
   }
 
   /* Output Db */
@@ -2556,7 +2556,7 @@ int simcond(Db *dbin,
     messerr("This method is restricted to the monovariate case");
     goto label_end;
   }
-  if (dbin->getIntervalNumber() <= 0)
+  if (dbin->getNInterval() <= 0)
   {
     messerr("No bound is defined: use 'simtub' instead");
     goto label_end;

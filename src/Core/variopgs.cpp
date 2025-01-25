@@ -3325,7 +3325,7 @@ static int st_discard_point(Local_Pgs *local_pgs, int iech)
 
   if (!TEST_DISCRET)
   {
-    if (local_pgs->db->getIntervalNumber() <= 0) return (0);
+    if (local_pgs->db->getNInterval() <= 0) return (0);
     low = local_pgs->db->getLocVariable(ELoc::L,iech, local_pgs->igrfcur);
     up = local_pgs->db->getLocVariable(ELoc::U,iech, local_pgs->igrfcur);
   }
@@ -3967,7 +3967,7 @@ static int st_vario_pgs_check(int flag_db,
     }
     if (db != nullptr)
     {
-      if (!db->isVariableNumberComparedTo(1)) return 1;
+      if (!db->isNVarComparedTo(1)) return 1;
       if (db->getNDim() != vario->getDimensionNumber())
       {
         messerr("Space Dimension inconsistency between Input Db and Vario");

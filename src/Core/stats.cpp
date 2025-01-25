@@ -683,7 +683,7 @@ int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
     messerr("This function is limited to 2-D or 3-D input grids");
     goto label_end;
   }
-  if (!dbgrid1->isVariableNumberComparedTo(1)) goto label_end;
+  if (!dbgrid1->isNVarComparedTo(1)) goto label_end;
   if (orient < 1 || orient > ndim)
   {
     messerr("Inconsistency between Orientation (%d) and Space dimension (%d)",
@@ -1291,7 +1291,7 @@ int db_diffusion(DbGrid *dbgrid1,
             orient);
     goto label_end;
   }
-  if (!dbgrid1->isVariableNumberComparedTo(1)) goto label_end;
+  if (!dbgrid1->isNVarComparedTo(1)) goto label_end;
   if (pmid < 5 || pmid > 95)
   {
     messerr("'PMid' must lie between 5% and 95%");
