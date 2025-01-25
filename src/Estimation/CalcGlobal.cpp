@@ -50,10 +50,10 @@ bool CalcGlobal::_check()
       return false;
     }
   }
-  if (_ivar0 < 0 || _ivar0 >= getDbin()->getLocNumber(ELoc::Z))
+  if (_ivar0 < 0 || _ivar0 >= getDbin()->getNLoc(ELoc::Z))
   {
     messerr("The target variable (%d) must lie between 1 and the number of variables (%d)",
-            _ivar0 + 1, getDbin()->getLocNumber(ELoc::Z));
+            _ivar0 + 1, getDbin()->getNLoc(ELoc::Z));
     return false;
   }
 

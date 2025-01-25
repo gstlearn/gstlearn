@@ -67,8 +67,8 @@ bool ModelOptimVMap::_checkConsistency()
     messerr("You must have defined 'dbmap' beforehand");
     return false;
   }
-  int nvar = _vmapPart._dbmap->getLocNumber(ELoc::Z);
-  int ndim = _vmapPart._dbmap->getLocNumber(ELoc::X);
+  int nvar = _vmapPart._dbmap->getNLoc(ELoc::Z);
+  int ndim = _vmapPart._dbmap->getNLoc(ELoc::X);
 
   if (model->getNVar() != nvar)
   {
@@ -112,8 +112,8 @@ double ModelOptimVMap::evalCost(unsigned int nparams,
   VMap_Part& vmapPart             = algorithm->_vmapPart;
   ModelOptimSillsVMap& optGoulard = algorithm->_goulardPart;
   const DbGrid* dbmap   = vmapPart._dbmap;
-  int ndim              = dbmap->getLocNumber(ELoc::X);
-  int nvar              = dbmap->getLocNumber(ELoc::Z);
+  int ndim              = dbmap->getNLoc(ELoc::X);
+  int nvar              = dbmap->getNLoc(ELoc::Z);
   int nech              = dbmap->getNSample();
 
   // Update the Model
@@ -203,7 +203,7 @@ int ModelOptimVMap::_getDimensions()
   }
   int nbexp  = 0;
   int npadir = 0;
-  int nvar   = _vmapPart._dbmap->getLocNumber(ELoc::Z);
+  int nvar   = _vmapPart._dbmap->getNLoc(ELoc::Z);
   int nech   = _vmapPart._dbmap->getNSample();
   int nvs2   = nvar * (nvar + 1) / 2;
 
@@ -238,7 +238,7 @@ int ModelOptimVMap::_getDimensions()
 void ModelOptimVMap::_computeFromVMap()
 {
   const DbGrid* dbmap = _vmapPart._dbmap;
-  int nvar            = dbmap->getLocNumber(ELoc::Z);
+  int nvar            = dbmap->getNLoc(ELoc::Z);
   int nech            = dbmap->getNSample();
   int nvs2            = nvar * (nvar + 1) / 2;
   int npadir          = _vmapPart._npadir;

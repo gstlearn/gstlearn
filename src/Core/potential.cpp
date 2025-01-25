@@ -513,7 +513,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
   }
 
   int next = model->getExternalDriftNumber();
-  if (dbout != NULL && next != dbout->getLocNumber(ELoc::F))
+  if (dbout != NULL && next != dbout->getNLoc(ELoc::F))
   {
     messerr("Inconsistency for External Drift between Model and Dbout");
     return false;

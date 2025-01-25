@@ -416,7 +416,7 @@ int db_write_csv(Db *db,
   int ncol = db->getColumnNumber();
   int ndim = db->getNDim();
   int nech = db->getNSample();
-  int nvar = db->getLocNumber(ELoc::Z);
+  int nvar = db->getNLoc(ELoc::Z);
   bool flag_header = csvfmt.getFlagHeader();
 
   // Count the number of items per line

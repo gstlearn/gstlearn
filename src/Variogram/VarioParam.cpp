@@ -432,7 +432,7 @@ Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam)
     messerr("This function requires your 'Db' to have some active samples");
     return nullptr;
   }
-  if (db->getLocNumber(ELoc::Z) != 1)
+  if (db->getNLoc(ELoc::Z) != 1)
   {
     messerr("This function is restricted to the Monovariate case");
     return nullptr;

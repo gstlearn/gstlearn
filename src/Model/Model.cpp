@@ -96,7 +96,7 @@ Model::~Model()
 int Model::resetFromDb(const Db *db)
 {
   int ndim = db->getNDim();
-  int nvar = db->getLocNumber(ELoc::Z);
+  int nvar = db->getNLoc(ELoc::Z);
   if (nvar <= 0) nvar = 1;
   auto space = SpaceRN::create(ndim);
   _ctxt = CovContext(nvar, space);
@@ -1890,7 +1890,7 @@ int Model::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv) co
   /* Initializations */
 
   int ndim = dbgrid->getNDim();
-  int nvar = dbgrid->getLocNumber(ELoc::Z);
+  int nvar = dbgrid->getNLoc(ELoc::Z);
   int nv2  = nvar * (nvar + 1) / 2;
 
   /* Create the variables in the Variogram Map file */

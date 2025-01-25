@@ -385,10 +385,10 @@ static int st_check_simtub_environment(Db *dbin,
               model->getNVar());
       return 1;
     }
-    if (flag_cond && dbin->getLocNumber(ELoc::Z) != nvar)
+    if (flag_cond && dbin->getNLoc(ELoc::Z) != nvar)
     {
       messerr("The number of variables of the Data (%d)",
-              dbin->getLocNumber(ELoc::Z));
+              dbin->getNLoc(ELoc::Z));
       messerr("does not match the number of variables of the Model (%d)", nvar);
       return 1;
     }
@@ -414,18 +414,18 @@ static int st_check_simtub_environment(Db *dbin,
 
     nfex = model->getExternalDriftNumber();
     if (flag_cond && nfex != 0 && ! dbout->isGrid()
-        && dbin->getLocNumber(ELoc::F) != nfex)
+        && dbin->getNLoc(ELoc::F) != nfex)
     {
       messerr("The Model requires %d external drift(s)", model->getExternalDriftNumber());
       messerr("but the input Db refers to %d external drift variables",
-              dbin->getLocNumber(ELoc::F));
+              dbin->getNLoc(ELoc::F));
       return 1;
     }
-    if (nfex != 0 && dbout->getLocNumber(ELoc::F) != nfex)
+    if (nfex != 0 && dbout->getNLoc(ELoc::F) != nfex)
     {
       messerr("The Model requires %d external drift(s)", model->getExternalDriftNumber());
       messerr("but the output Db refers to %d external drift variables",
-              dbout->getLocNumber(ELoc::F));
+              dbout->getNLoc(ELoc::F));
       return 1;
     }
   }

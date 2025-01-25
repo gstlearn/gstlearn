@@ -288,12 +288,12 @@ int KrigingSystem::_getNVar() const
   {
     if (_dbin != nullptr)
     {
-      if (nvar > 0 && nvar != _dbin->getLocNumber(ELoc::Z))
+      if (nvar > 0 && nvar != _dbin->getNLoc(ELoc::Z))
       {
         messerr("Inconsistent number of Variables - Value is returned as 0");
         return 0;
       }
-      nvar = _dbin->getLocNumber(ELoc::Z);
+      nvar = _dbin->getNLoc(ELoc::Z);
     }
   }
   return nvar;
@@ -1178,7 +1178,7 @@ void KrigingSystem::_wgtDump(int status)
     // Code
     if (_dbin->hasLocVariable(ELoc::C)) tab_prints(NULL, "Code");
     // Variance of measurement error
-    if (_dbin->getLocNumber(ELoc::V) > 0) tab_prints(NULL, "Err.");
+    if (_dbin->getNLoc(ELoc::V) > 0) tab_prints(NULL, "Err.");
     // Block Extension
     if (ndisc > 0)
       for (int idim = 0; idim < _ndim; idim++)
@@ -1214,7 +1214,7 @@ void KrigingSystem::_wgtDump(int status)
           tab_printg(NULL, _getIdim(_nbgh[iech], idim));
         if (_dbin->hasLocVariable(ELoc::C))
           tab_printg(NULL, _dbin->getLocVariable(ELoc::C, _nbgh[iech], 0));
-        if (_dbin->getLocNumber(ELoc::V) > 0)
+        if (_dbin->getNLoc(ELoc::V) > 0)
           tab_printg(NULL, _getVerr(_nbgh[iech], (_flagCode) ? 0 : jvarCL));
         if (ndisc > 0)
         {
@@ -1243,7 +1243,7 @@ void KrigingSystem::_wgtDump(int status)
       }
 
       int number = 1 + _ndim + 1;
-      if (_dbin->getLocNumber(ELoc::V) > 0) number++;
+      if (_dbin->getNLoc(ELoc::V) > 0) number++;
       if (ndisc > 0) number += _ndim;
       tab_prints(NULL, "Sum of weights", number, EJustify::LEFT);
       for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
@@ -2538,7 +2538,7 @@ int KrigingSystem::setKrigoptCode(bool flag_code)
   _isReady = false;
   if (flag_code)
   {
-    if (! _dbin->hasLocVariable(ELoc::C) || _dbin->getLocNumber(ELoc::V) != 1)
+    if (! _dbin->hasLocVariable(ELoc::C) || _dbin->getNLoc(ELoc::V) != 1)
     {
       messerr("This method requires variables CODE and V to be defined");
       return 1;
@@ -2764,12 +2764,12 @@ bool KrigingSystem::_isCorrect()
   int nvar = 0;
   if (_dbin != nullptr && ! _flagSimu)
   {
-    if (nvar > 0 && nvar != _dbin->getLocNumber(ELoc::Z))
+    if (nvar > 0 && nvar != _dbin->getNLoc(ELoc::Z))
     {
       messerr("Incompatible Variable Number of '_dbin'");
       return false;
     }
-    nvar = _dbin->getLocNumber(ELoc::Z);
+    nvar = _dbin->getNLoc(ELoc::Z);
   }
   if (_model != nullptr)
   {
@@ -2820,27 +2820,27 @@ bool KrigingSystem::_isCorrect()
 
     if (_dbout != nullptr)
     {
-      if (nfex != _dbout->getLocNumber(ELoc::F))
+      if (nfex != _dbout->getNLoc(ELoc::F))
       {
         messerr("Incompatible Number of External Drifts:");
         messerr("- In 'Model' = %d", nfex);
-        messerr("- In '_dbout' = %d", _dbout->getLocNumber(ELoc::F));
+        messerr("- In '_dbout' = %d", _dbout->getNLoc(ELoc::F));
         return false;
       }
     }
     if (_dbin != nullptr)
     {
-      if (_dbin->getLocNumber(ELoc::F) == 0)
+      if (_dbin->getNLoc(ELoc::F) == 0)
       {
         if (migrateByLocator(_dbout, _dbin, ELoc::F)) return false;
         // Store the UID of the newly created variables to be deleted at the end of the process
         _dbinUidToBeDeleted = _dbin->getUIDsByLocator(ELoc::F);
       }
-      if (nfex != _dbin->getLocNumber(ELoc::F))
+      if (nfex != _dbin->getNLoc(ELoc::F))
       {
         messerr("Incompatible Number of External Drifts:");
         messerr("- In 'Model' = %d", nfex);
-        messerr("- In 'dbin' = %d", _dbin->getLocNumber(ELoc::F));
+        messerr("- In 'dbin' = %d", _dbin->getNLoc(ELoc::F));
         return false;
       }
     }

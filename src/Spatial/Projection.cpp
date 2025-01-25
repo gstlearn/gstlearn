@@ -25,7 +25,7 @@ Projection::Projection(bool flag_mean, Db* db)
   _xcenter(TEST),
   _ycenter(TEST)
 {
-  int ndim = db->getLocNumber(ELoc::X);
+  int ndim = db->getNLoc(ELoc::X);
   if (ndim != 2)
   {
     messerr("The Projection structure is only valid for 2-D space");
@@ -139,7 +139,7 @@ int Projection::operateVecInPlace(VectorDouble& x, VectorDouble& y) const
 int Projection::operateOnDb(Db *db) const
 {
   if (db == nullptr) return 0;
-  if (db->getLocNumber(ELoc::X) < 2)
+  if (db->getNLoc(ELoc::X) < 2)
   {
     messerr("This method is dedicated to 2-D space (or more)");
     return 1;

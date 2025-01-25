@@ -141,7 +141,7 @@ def __isNotCorrect(object, types):
 
 def __defaultVariable(db, name):
     if name is None:
-        if db.getLocNumber(gl.ELoc.Z) > 0:
+        if db.getNLoc(gl.ELoc.Z) > 0:
             name = db.getNameByLocator(gl.ELoc.Z,0)
         else : # if no Z locator, choose the last field
             name = db.getLastName()
@@ -905,7 +905,7 @@ def gradient(db, *args, **kwargs):
     
 def __ax_gradient(ax, db, nameCoorX=None, nameCoorY=None, useSel=True, 
                   posX=0, posY=1, **kwargs):
-    if db.getLocNumber(gl.ELoc.G) <= 0:
+    if db.getNLoc(gl.ELoc.G) <= 0:
         return None
     
     # Extracting coordinates
@@ -941,7 +941,7 @@ def tangent(db, *args, **kwargs):
 
 def __ax_tangent(ax, db, nameCoorX=None, nameCoorY=None, useSel=True, 
                  posX=0, posY=1, **kwargs):
-    if db.getLocNumber(gl.ELoc.TGTE) <= 0:
+    if db.getNLoc(gl.ELoc.TGTE) <= 0:
         return None
 
     # Extracting coordinates
@@ -1445,7 +1445,7 @@ def __ax_grid1D(ax, dbgrid, name = None, useSel = True,
         return None
     
     if name is None:
-        if dbgrid.getLocNumber(gl.ELoc.Z) > 0:
+        if dbgrid.getNLoc(gl.ELoc.Z) > 0:
             name = dbgrid.getNameByLocator(gl.ELoc.Z,0) # select locator z1, prints an error if no Z locator
         else : # if no Z locator, choose the last field
             name = dbgrid.getLastName()

@@ -239,7 +239,7 @@ void db_sample_print(Db* db,
   }
   if (flag_nvar != 0)
   {
-    for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
+    for (int ivar = 0; ivar < db->getNLoc(ELoc::Z); ivar++)
     {
       double value = db->getZVariable(iech, ivar);
       if (FFFF(value))
@@ -250,7 +250,7 @@ void db_sample_print(Db* db,
   }
   if (flag_nerr != 0)
   {
-    for (int ierr = 0; ierr < db->getLocNumber(ELoc::V); ierr++)
+    for (int ierr = 0; ierr < db->getNLoc(ELoc::V); ierr++)
     {
       double value = db->getLocVariable(ELoc::V,iech, ierr);
       if (FFFF(value))
@@ -270,7 +270,7 @@ void db_sample_print(Db* db,
   }
   if (flag_blk != 0)
   {
-    for (int iblk = 0; iblk < db->getLocNumber(ELoc::V); iblk++)
+    for (int iblk = 0; iblk < db->getNLoc(ELoc::V); iblk++)
     {
       double value = db->getLocVariable(ELoc::BLEX, iech, iblk);
       if (FFFF(value))
@@ -397,8 +397,8 @@ int db_gradient_update(Db* db)
 
 {
   int ndim  = db->getNDim();
-  int ngrad = db->getLocNumber(ELoc::G);
-  int nvar  = db->getLocNumber(ELoc::Z);
+  int ngrad = db->getNLoc(ELoc::G);
+  int nvar  = db->getNLoc(ELoc::Z);
 
   /* Preliminary checks */
 
@@ -1060,7 +1060,7 @@ int db_proportion(
 
   /* Initializations */
 
-  int nvar = db->getLocNumber(ELoc::Z);
+  int nvar = db->getNLoc(ELoc::Z);
   int nech = db->getNSample();
   if (nvar <= 0 || nvar > 2)
   {
@@ -1381,7 +1381,7 @@ int db_prop_read(DbGrid* db, int ix, int iy, double* props)
 
   /* Initializations */
 
-  int nprop = db->getLocNumber(ELoc::P);
+  int nprop = db->getNLoc(ELoc::P);
   int ndim  = db->getNDim();
   int nz    = db->getNX(2);
   for (int i = 0; i < nz * nprop; i++) props[i] = 0.;
@@ -1441,7 +1441,7 @@ int db_prop_read(DbGrid* db, int ix, int iy, double* props)
  *****************************************************************************/
 int db_prop_write(DbGrid* db, int ix, int iy, double* props)
 {
-  int nprop = db->getLocNumber(ELoc::P);
+  int nprop = db->getNLoc(ELoc::P);
   int nz    = db->getNX(2);
   int ndim  = db->getNDim();
 
@@ -1521,12 +1521,12 @@ double* db_distances_general(Db* db1,
 
   /* Preliminary checks */
 
-  if (niso > db1->getLocNumber(ELoc::Z) || niso > db2->getLocNumber(ELoc::Z))
+  if (niso > db1->getNLoc(ELoc::Z) || niso > db2->getNLoc(ELoc::Z))
   {
     messerr("You ask for distances between samples with %d variables defined",
             niso);
     messerr("But the input 'Db' have %d and %d variables defined",
-            db1->getLocNumber(ELoc::Z), db2->getLocNumber(ELoc::Z));
+            db1->getNLoc(ELoc::Z), db2->getNLoc(ELoc::Z));
     return (dist);
   }
 

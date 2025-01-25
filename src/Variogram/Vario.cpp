@@ -347,7 +347,7 @@ int Vario::compute(Db* db,
                    bool verbose)
 {
   _db   = db;
-  _nVar = _db->getLocNumber(ELoc::Z);
+  _nVar = _db->getNLoc(ELoc::Z);
   if (_nVar <= 0)
   {
     messerr(
@@ -375,7 +375,7 @@ int Vario::computeIndic(Db *db,
                         int nfacmax)
 {
   _db = db;
-  int nvar = _db->getLocNumber(ELoc::Z);
+  int nvar = _db->getNLoc(ELoc::Z);
   if (nvar != 1)
   {
     messerr("The 'db' must contain ONE variable defined");
@@ -844,7 +844,7 @@ void Vario::setDb(Db* db)
 {
   _db = db;
   if (db != nullptr)
-    _nVar = _db->getLocNumber(ELoc::Z);
+    _nVar = _db->getNLoc(ELoc::Z);
 }
 
 int Vario::internalVariableResize() //TODO: to be called when nvar is modified...
@@ -2154,7 +2154,7 @@ int Vario::_getNVar(const Db* db)
 {
   if (db != nullptr)
   {
-    _nVar = db->getLocNumber(ELoc::Z);
+    _nVar = db->getNLoc(ELoc::Z);
     return 0;
   }
   if (!_means.empty())
@@ -2391,7 +2391,7 @@ int Vario::_calculateGeneral(Db *db,
 
   /* Auxiliary check for Variance Measurement Error */
 
-  if (db->getLocNumber(ELoc::V) > 0 && verr_mode > 0)
+  if (db->getNLoc(ELoc::V) > 0 && verr_mode > 0)
   {
     vorder = vario_order_manage(1, 1, 0, vorder);
     flag_verr = true;
@@ -2817,7 +2817,7 @@ void Vario::_patchC00(Db *db, int idir)
 
   /* Calculate the C00 term */
 
-  for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
+  for (int ivar = 0; ivar < db->getNLoc(ELoc::Z); ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++)
     {
       int i = getDirAddress(idir, ivar, jvar, 0, false, 0);
@@ -2987,7 +2987,7 @@ int Vario::_get_generalized_variogram_order()
 void Vario::_getStatistics(Db *db)
 {
   double z1, z2, ww;
-  int nvar = db->getLocNumber(ELoc::Z);
+  int nvar = db->getNLoc(ELoc::Z);
 
   /* Initializations */
 
@@ -3018,7 +3018,7 @@ void Vario::_getStatistics(Db *db)
     setMean(s1z / s1w, ivar);
   }
 
-  for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
+  for (int ivar = 0; ivar < db->getNLoc(ELoc::Z); ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++)
     {
 
@@ -3817,11 +3817,11 @@ void Vario::_centerCovariance(Db *db, int idir)
 bool Vario::_isCompatible(const Db *db) const
 {
   if (db->getNDim() != getDimensionNumber() ||
-      db->getLocNumber(ELoc::Z) != getNVar())
+      db->getNLoc(ELoc::Z) != getNVar())
   {
     messerr("Inconsistent parameters:");
     messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(),
-            db->getLocNumber(ELoc::Z));
+            db->getNLoc(ELoc::Z));
     messerr("Variogram: NDIM=%d NVAR=%d", getDimensionNumber(),
             getNVar());
     return false;

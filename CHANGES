@@ -9,7 +9,7 @@ Release 1.7.0
   getSampleNumber() becomes getNSample()
   getActiveSampleNumber() becomes getNSampleActive()
   getNumberActiveAndDefined() becomes getNSampleActiveAndDefined()
-  getLocatorNumber() becoles getNLoc()
+  getLocatorNumber() or getLocNumber() becomes getNLoc()
   getCovaNumber() becomes getNCov()
 
 Release 1.6.0

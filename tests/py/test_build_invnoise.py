@@ -49,10 +49,10 @@ def codeHetero(isdefined):
 #ou si il n'y a pas d'erreur de mesure.
 def measurementErrorAllEquals(dat):
     ok = True
-    nverr = dat.getLocNumber(gl.ELoc.V)
+    nverr = dat.getNLoc(gl.ELoc.V)
     if nverr==0:
         return ok
-    nvar = dat.getLocNumber(gl.ELoc.Z)
+    nvar = dat.getNLoc(gl.ELoc.Z)
     nech = dat.getNSample()
     
     ok = 1
@@ -66,9 +66,9 @@ def measurementErrorAllEquals(dat):
 #Renvoit un vecteur contenant l'erreur de mesure d'un échantillon pour
 #chaque variable (0 si il n'y a pas d'erreur de mesure pour cette variable)
 def getVerr(dat,iech):
-    nvar = dat.getLocNumber(gl.ELoc.Z)
+    nvar = dat.getNLoc(gl.ELoc.Z)
     verr = np.zeros(shape=nvar)
-    nverr = dat.getLocNumber(gl.ELoc.V)
+    nverr = dat.getNLoc(gl.ELoc.V)
     for i in range(nvar):
         if i<nverr:
             verr[i] = dat.getLocVariable(gl.ELoc.V,iech,i)
@@ -76,7 +76,7 @@ def getVerr(dat,iech):
 
 #add the measurements error of iech on the diagonal of sillMat
 def update(dat,sillMat,iech):
-    nvar = dat.getLocNumber(gl.ELoc.Z)
+    nvar = dat.getNLoc(gl.ELoc.Z)
     verr = getVerr(dat,iech)
     for i in range(nvar):
          sillMat[i,i]+=verr[i]

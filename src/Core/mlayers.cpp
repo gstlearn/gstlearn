@@ -2047,12 +2047,12 @@ int multilayers_kriging(Db* dbin,
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
   }
-  if (flag_ext && nlayers != dbout->getLocNumber(ELoc::F))
+  if (flag_ext && nlayers != dbout->getNLoc(ELoc::F))
   {
     messerr("Inconsistency between:");
     messerr("- the number of variables in the Model (%d)", nlayers);
     messerr("- the number of external drifts in the Output Db File (%d)",
-            dbout->getLocNumber(ELoc::F));
+            dbout->getNLoc(ELoc::F));
     goto label_end;
   }
   if (flag_vel && nlayers != get_LOCATOR_NITEM(dbout, ptime))
@@ -2518,12 +2518,12 @@ int multilayers_vario(Db *dbin,
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
   }
-  if (flag_ext && nlayers != dbout->getLocNumber(ELoc::F))
+  if (flag_ext && nlayers != dbout->getNLoc(ELoc::F))
   {
     messerr("Inconsistency between:");
     messerr("- the number of variables in the Model (%d)", nlayers);
     messerr("- the number of external drifts in the Output Db File (%d)",
-            dbout->getLocNumber(ELoc::F));
+            dbout->getNLoc(ELoc::F));
     goto label_end;
   }
   if (flag_vel && nlayers != get_LOCATOR_NITEM(dbout, ptime))
@@ -2773,12 +2773,12 @@ int multilayers_get_prior(Db* dbin,
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
   }
-  if (flag_ext && nlayers != dbout->getLocNumber(ELoc::F))
+  if (flag_ext && nlayers != dbout->getNLoc(ELoc::F))
   {
     messerr("Inconsistency between:");
     messerr("- the number of variables in the Model (%d)", nlayers);
     messerr("- the number of external drifts in the Output Db File (%d)",
-            dbout->getLocNumber(ELoc::F));
+            dbout->getNLoc(ELoc::F));
     goto label_end;
   }
   if (flag_vel && nlayers != get_LOCATOR_NITEM(dbout, ptime))

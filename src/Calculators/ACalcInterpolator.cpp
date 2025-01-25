@@ -132,11 +132,11 @@ bool ACalcInterpolator::_check()
 
       if (hasDbout(false))
       {
-        if (getDbout()->getLocNumber(ELoc::F) != nfex)
+        if (getDbout()->getNLoc(ELoc::F) != nfex)
         {
           messerr("The model requires %d external drift(s)", nfex);
           messerr("but the output Db refers to %d external drift variables",
-                  getDbout()->getLocNumber(ELoc::F));
+                  getDbout()->getNLoc(ELoc::F));
           return false;
         }
       }

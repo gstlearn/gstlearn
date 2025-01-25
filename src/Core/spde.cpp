@@ -1434,13 +1434,13 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
     }
     else
     {
-      if (dbin->getLocNumber(ELoc::Z) != nvar && S_DECIDE.flag_case
+      if (dbin->getNLoc(ELoc::Z) != nvar && S_DECIDE.flag_case
           != CASE_MATRICES
           && !S_DECIDE.flag_gibbs)
       {
         messerr(
             "Model (%d) and Input Db (%d) must refer to the same number of variables",
-            nvar, dbin->getLocNumber(ELoc::Z));
+            nvar, dbin->getNLoc(ELoc::Z));
         return (1);
       }
     }
@@ -8509,11 +8509,11 @@ int m2d_gibbs_spde(Db *dbin,
     messerr("This application is restricted to the 2-D case (ndim=%d)", ndim);
     goto label_end;
   }
-  if (flag_ed && nlayer > dbout->getLocNumber(ELoc::F))
+  if (flag_ed && nlayer > dbout->getNLoc(ELoc::F))
   {
     messerr("External Drifts are used for Drift definition");
     messerr("- Count of F-variables (%d) must match Count of layers (%d)",
-            dbout->getLocNumber(ELoc::F), nlayer);
+            dbout->getNLoc(ELoc::F), nlayer);
     goto label_end;
   }
   if (nbsimu <= 0)

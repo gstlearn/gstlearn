@@ -460,7 +460,7 @@ int simbool(Db* dbin,
   int iptr_cover = -1;
   if (dbin != nullptr)
   {
-    if (dbin->getLocNumber(ELoc::Z) != 1)
+    if (dbin->getNLoc(ELoc::Z) != 1)
     {
       messerr("Conditional Boolean simulation needs 1 variable");
       return 1;

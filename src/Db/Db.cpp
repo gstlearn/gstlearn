@@ -339,14 +339,6 @@ int Db::getColIdxByLocator(const ELoc& locatorType, int locatorIndex) const
   return (icol);
 }
 
-int Db::getNLoc(const ELoc& locatorType) const
-{
-  int number = locatorType.getValue();
-  if (number < 0) return 0;
-  const PtrGeos& p = _p[locatorType.getValue()];
-  return p.getNLoc();
-}
-
 int Db::_findUIDInLocator(const ELoc& locatorType, int iuid) const
 {
   const PtrGeos& p = _p[locatorType.getValue()];
@@ -2433,12 +2425,13 @@ void Db::setValuesByColIdx(const VectorInt &iechs,
  *
  * @return Number of fields
  */
-int Db::getLocNumber(const ELoc& loctype) const
+int Db::getNLoc(const ELoc& loctype) const
 {
   if (loctype == ELoc::UNKNOWN) return 0;
   const PtrGeos& p = _p[loctype.getValue()];
   return p.getNLoc();
 }
+
 int Db::getZNumber() const
 {
   const PtrGeos& p = _p[ELoc::Z.getValue()];
@@ -2553,28 +2546,28 @@ bool Db::isVariableNumberComparedTo(int nvar, int compare) const
 {
   if (compare == 0)
   {
-    if (getLocNumber(ELoc::Z) != nvar)
+    if (getNLoc(ELoc::Z) != nvar)
     {
       messerr("This function requires %d variables (locator 'Z'). The 'Db' contains %d variables",
-              nvar,getLocNumber(ELoc::Z));
+              nvar,getNLoc(ELoc::Z));
       return false;
     }
   }
   else if (compare < 0)
   {
-    if (! (getLocNumber(ELoc::Z) <= nvar))
+    if (! (getNLoc(ELoc::Z) <= nvar))
     {
       messerr("This function requires nvar <= %d variables (locator 'Z'). The 'Db' contains %d variables",
-              nvar,getLocNumber(ELoc::Z));
+              nvar,getNLoc(ELoc::Z));
       return false;
     }
   }
   else
   {
-    if (! (getLocNumber(ELoc::Z) > nvar))
+    if (! (getNLoc(ELoc::Z) > nvar))
     {
       messerr("This function requires nvar >= %d variables (locator 'Z'). The 'Db' contains %d variables",
-              nvar,getLocNumber(ELoc::Z));
+              nvar,getNLoc(ELoc::Z));
       return false;
     }
   }
@@ -2595,7 +2588,7 @@ bool Db::isVariableNumberComparedTo(int nvar, int compare) const
  */
 bool Db::isIsotopic(int iech, int nvar_max) const
 {
-  int nvar = getLocNumber(ELoc::Z);
+  int nvar = getNLoc(ELoc::Z);
   if (nvar_max > 0) nvar = MIN(nvar, nvar_max);
   if (nvar <= 0) return false;
   if (!isSampleIndexValid(iech)) return false;
@@ -2620,7 +2613,7 @@ bool Db::isAllIsotopic() const
 bool Db::isAllUndefined(int iech) const
 {
   if (!isSampleIndexValid(iech)) return false;
-  int nvar = getLocNumber(ELoc::Z);
+  int nvar = getNLoc(ELoc::Z);
   if (nvar <= 0) return false;
 
   for (int ivar = 0; ivar < nvar; ivar++)
@@ -2631,7 +2624,7 @@ bool Db::isAllUndefined(int iech) const
 bool Db::isAllUndefinedByType(const ELoc& loctype, int iech) const
 {
   if (!isSampleIndexValid(iech)) return false;
-  int natt = getLocNumber(loctype);
+  int natt = getNLoc(loctype);
   if (natt <= 0) return false;
 
   for (int iatt = 0; iatt < natt; iatt++)
@@ -2641,7 +2634,7 @@ bool Db::isAllUndefinedByType(const ELoc& loctype, int iech) const
 
 int Db::getIntervalNumber() const
 {
-  return MAX(getLocNumber(ELoc::RKLOW), getLocNumber(ELoc::RKUP));
+  return MAX(getNLoc(ELoc::RKLOW), getNLoc(ELoc::RKUP));
 }
 
 void Db::setInterval(int iech, int item, double rklow, double rkup)
@@ -3558,7 +3551,7 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh,
   int icol = (useSel) ? getColIdxByLocator(ELoc::SEL, 0) : -1;
 
   // Update the search for variable, if no variable is defined
-  if (getLocNumber(ELoc::Z) <= 0) item = -1;
+  if (getNLoc(ELoc::Z) <= 0) item = -1;
 
   // Check the presence of variance of measurement error (when 'useVerr')
   bool useV = false;

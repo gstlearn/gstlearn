@@ -749,7 +749,7 @@ static int st_vario_pgs_variable(int mode,
       /* The proportions (if not already present in correct number) */
 
       is_prop_defined = false;
-      if (flag_prop && db->getLocNumber(ELoc::P) != nfacies)
+      if (flag_prop && db->getNLoc(ELoc::P) != nfacies)
       {
         iptr = db->addColumnsByConstant(nfacies, 0., String(), ELoc::P);
         if (iptr < 0) return (1);
@@ -5167,10 +5167,10 @@ Vario* variogram_pgs(Db *db,
     messerr("The variogram must contain at least one calculation Direction");
     return nullptr;
   }
-  if (db->getLocNumber(ELoc::Z) != 1)
+  if (db->getNLoc(ELoc::Z) != 1)
   {
     messerr("The number of variables (%d) must be equal to 1",
-            db->getLocNumber(ELoc::Z));
+            db->getNLoc(ELoc::Z));
     return nullptr;
   }
   int nclass = rule->getNFacies();

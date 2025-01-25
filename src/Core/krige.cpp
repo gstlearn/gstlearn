@@ -629,10 +629,10 @@ static int st_check_environment(int flag_in,
     }
     // The following test is avoided in the case of simulations
     // as there may be no Z-variable defined as this stage (Gibbs)
-    if (flag_in && !FLAG_SIMU && DBIN->getLocNumber(ELoc::Z) != nvar)
+    if (flag_in && !FLAG_SIMU && DBIN->getNLoc(ELoc::Z) != nvar)
     {
       messerr("The number of variables of the Data (%d)",
-              DBIN->getLocNumber(ELoc::Z));
+              DBIN->getNLoc(ELoc::Z));
       messerr("does not match the number of variables of the Model (%d)", nvar);
       goto label_end;
     }
@@ -659,21 +659,21 @@ static int st_check_environment(int flag_in,
     nfex = model->getExternalDriftNumber();
     if (nfex > 0)
     {
-      if (flag_out && DBOUT->getLocNumber(ELoc::F) != nfex)
+      if (flag_out && DBOUT->getNLoc(ELoc::F) != nfex)
       {
         messerr("The Model requires %d external drift(s)", model->getExternalDriftNumber());
         messerr("but the output Db refers to %d external drift variables",
-                DBOUT->getLocNumber(ELoc::F));
+                DBOUT->getNLoc(ELoc::F));
         goto label_end;
       }
 
-      if (flag_in && DBIN->getLocNumber(ELoc::F) != nfex)
+      if (flag_in && DBIN->getNLoc(ELoc::F) != nfex)
       {
         if (!(flag_out && DBOUT->isGrid()))
         {
           messerr("The Model requires %d external drift(s)", model->getExternalDriftNumber());
           messerr("but the input Db refers to %d external drift variables",
-                  DBIN->getLocNumber(ELoc::F));
+                  DBIN->getNLoc(ELoc::F));
           goto label_end;
         }
       }
@@ -919,7 +919,7 @@ static void st_data_discretize_alloc(int ndim)
   int nrow, ncol;
 
   KOPTION->flag_data_disc = 0;
-  if (DBIN->getLocNumber(ELoc::BLEX) > 0)
+  if (DBIN->getNLoc(ELoc::BLEX) > 0)
   {
     if (!get_keypair("Data_Discretization", &nrow, &ncol, &KOPTION->dsize))
     {
@@ -937,7 +937,7 @@ static void st_data_discretize_alloc(int ndim)
     }
     else
     {
-      if (DBIN->getLocNumber(ELoc::BLEX) > 0)
+      if (DBIN->getNLoc(ELoc::BLEX) > 0)
       {
         message("\n");
         message("Your Input Data File contains 'dblk' locator(s)\n");
@@ -1367,7 +1367,7 @@ static void krige_wgt_print(int status,
     tab_prints(NULL, strloc.c_str());
   }
   if (DBIN->hasLocVariable(ELoc::C)) tab_prints(NULL, "Code");
-  if (DBIN->getLocNumber(ELoc::V) > 0)
+  if (DBIN->getNLoc(ELoc::V) > 0)
     tab_prints(NULL, "Err.");
   if (KOPTION->flag_data_disc) for (idim = 0; idim < ndim; idim++)
   {
@@ -1400,7 +1400,7 @@ static void krige_wgt_print(int status,
         tab_printg(NULL, st_get_idim(nbgh_ranks[iech], idim));
       if (DBIN->hasLocVariable(ELoc::C))
         tab_printg(NULL, DBIN->getLocVariable(ELoc::C,nbgh_ranks[iech],0));
-      if (DBIN->getLocNumber(ELoc::V) > 0)
+      if (DBIN->getNLoc(ELoc::V) > 0)
         tab_printg(NULL, st_get_verr(nbgh_ranks[iech], (FLAG_PROF) ? 0 : jvar_m));
       if (KOPTION->flag_data_disc)
       {
@@ -1424,7 +1424,7 @@ static void krige_wgt_print(int status,
     }
 
     number = 1 + ndim + 1;
-    if (DBIN->getLocNumber(ELoc::V) > 0) number++;
+    if (DBIN->getNLoc(ELoc::V) > 0) number++;
     if (KOPTION->flag_data_disc) number += ndim + 1;
     tab_prints(NULL, "Sum of weights", number, EJustify::LEFT);
     for (ivar = 0; ivar < nvar; ivar++)
@@ -1652,7 +1652,7 @@ int global_transitive(DbGrid* dbgrid,
   /* Abundance estimation */
 
   flag_value = 0;
-  if (dbgrid->getLocNumber(ELoc::Z) == 1)
+  if (dbgrid->getNLoc(ELoc::Z) == 1)
   {
     for (i = 0; i < dbgrid->getNSample(); i++)
     {
@@ -2059,7 +2059,7 @@ int anakexp_f(DbGrid *db,
   FLAG_EST = true;
   lhs_global = rhs_global = wgt_global = nullptr;
   ndim = db->getNDim();
-  nvarin = db->getLocNumber(ELoc::Z);
+  nvarin = db->getNLoc(ELoc::Z);
   nbefore_mem = nafter_mem = -1;
   size = 0;
 
@@ -2733,7 +2733,7 @@ int anakexp_3D(DbGrid* db,
   num_tot = nei_cur = nei_ref = nullptr;
   lhs_global = rhs_global = wgt_global = nullptr;
   ndim                                 = db->getNDim();
-  nvarin                               = db->getLocNumber(ELoc::Z);
+  nvarin                               = db->getNLoc(ELoc::Z);
   size_nei                             = 0;
   VectorInt indg(ndim, 0);
 
@@ -3052,7 +3052,7 @@ int krigsum(Db *dbin,
             bool flag_positive,
             const NamingConvention& namconv)
 {
-  int nvar = dbin->getLocNumber(ELoc::Z);
+  int nvar = dbin->getNLoc(ELoc::Z);
   if (model->getNVar() != 1)
   {
     messerr("This procedure requires a monovariate model");

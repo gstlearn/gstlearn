@@ -423,7 +423,6 @@ public:
                        int* ret_locatorIndex) const;
   VectorString getLocators(bool anyLocator = true,
                            const ELoc& locatorType = ELoc::fromKey("UNKNOWN")) const;
-  int getNLoc(const ELoc& locatorType) const;
   bool isUIDDefined(int iuid) const;
 
   int getUID(const String &name) const;
@@ -522,7 +521,7 @@ public:
    * @param value   Assigned value
    *  @{
    */
-  int    getLocNumber(const ELoc& loctype) const;
+  int    getNLoc(const ELoc& loctype) const;
   bool   hasLocVariable(const ELoc& loctype) const;
   double getLocVariable(const ELoc& loctype, int iech, int item) const;
   void   setLocVariable(const ELoc& loctype, int iech, int item, double value);

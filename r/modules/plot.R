@@ -359,7 +359,7 @@ ggDefault <- function(figsize=NA)
 {
   if (is.null(name))
   {
-  	if (db$getLocNumber(ELoc_Z()) > 0)
+  	if (db$getNLoc(ELoc_Z()) > 0)
 		name = db$getNameByLocator(ELoc_Z(),0)
   	else
 	    name = db$getLastName()

@@ -196,8 +196,8 @@ int ModelOptimSillsVMap::_getDimensions()
   int npadir = 0;
   int nvs2   = _nvar * (_nvar + 1) / 2;
   _nech      = _dbmap->getNSample();
-  _nvar      = _dbmap->getLocNumber(ELoc::Z);
-  _ndim      = _dbmap->getLocNumber(ELoc::X);
+  _nvar      = _dbmap->getNLoc(ELoc::Z);
+  _ndim      = _dbmap->getNLoc(ELoc::X);
 
   /* Calculate the total number of lags */
 

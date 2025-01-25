@@ -212,7 +212,7 @@ void VCloud::_variogram_cloud(Db *db, int idir)
   // Local variables to speed up calculations
   bool hasSel = db->hasLocVariable(ELoc::SEL);
   int nech = db->getNSample();
-  int nvar = db->getLocNumber(ELoc::Z);
+  int nvar = db->getNLoc(ELoc::Z);
 
   /* Loop on the first point */
 

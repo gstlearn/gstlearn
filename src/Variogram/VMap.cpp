@@ -120,7 +120,7 @@ int VMap::compute(Db *db,
 
   /* Create the variables in the Variogram Map file */
 
-  int nvar = db->getLocNumber(ELoc::Z);
+  int nvar = db->getNLoc(ELoc::Z);
   int nvs2 = nvar * (nvar + 1) / 2;
   IPTV = _dbmap->addColumnsByConstant(nvs2, 0.);
   if (IPTV < 0) return 1;
@@ -323,7 +323,7 @@ int VMap::_grid_fft(DbGrid *dbgrid, const NamingConvention &namconv)
 
    /* Preliminary calculations */
 
-   nvar = dbgrid->getLocNumber(ELoc::Z);
+   nvar = dbgrid->getNLoc(ELoc::Z);
    ndim = 0;
    sizetot = sizemap = sizegrid = 1;
    for (int i = 0; i < 3; i++)
@@ -628,7 +628,7 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
   /* Initializations */
 
   int ndim = _dbmap->getNDim();
-  int nvar = db->getLocNumber(ELoc::Z);
+  int nvar = db->getNLoc(ELoc::Z);
   int nech = db->getNSample();
   int nv2 = nvar * (nvar + 1) / 2;
 
@@ -760,7 +760,7 @@ int VMap::_vmap_grid(DbGrid *dbgrid, const NamingConvention &namconv)
   /* Initializations */
 
   ndim = _dbmap->getNDim();
-  nvar = dbgrid->getLocNumber(ELoc::Z);
+  nvar = dbgrid->getNLoc(ELoc::Z);
   nv2 = nvar * (nvar + 1) / 2;
 
   /* Core allocation */

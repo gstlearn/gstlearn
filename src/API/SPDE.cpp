@@ -297,7 +297,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
   // Evaluation of the variance at data point
   if (_isKrigingRequested() && _data != nullptr)
   {
-    if (_data->getLocNumber(ELoc::V) > 0)
+    if (_data->getNLoc(ELoc::V) > 0)
     {
       // If a variance of measurement error is defined
       // we must intersect it with the definition of the Z-value
@@ -427,7 +427,7 @@ int SPDE::compute(Db *dbout,
       messerr("For this calculation option, you must define some Data");
       return 1;
     }
-    if (_data->getLocNumber(ELoc::Z) != 1)
+    if (_data->getNLoc(ELoc::Z) != 1)
     {
       messerr("The Input dbin must contain ONE variable (Z locator)");
       return 1;
@@ -676,7 +676,7 @@ double SPDE::computeLogLikelihood(int nbsimu, bool verbose) const
       messerr("For this calculation option, you must define some Data");
       return 1;
     }
-    if (_data->getLocNumber(ELoc::Z) != 1)
+    if (_data->getNLoc(ELoc::Z) != 1)
     {
       messerr("The Input dbin must contain ONE variable (Z locator)");
       return 1;
@@ -925,7 +925,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   if (db == nullptr) return mat;
   int nech = db->getNSample();
   if (model == nullptr) return mat;
-  int nvar = db->getLocNumber(ELoc::Z);
+  int nvar = db->getNLoc(ELoc::Z);
   if (nvar != model->getNVar())
   {
     messerr("'db' and 'model' should have the same number of variables");
@@ -971,7 +971,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   // - flag_isotropic: True in Isotopic case
   // - flag_uniqueVerr: True if the Variance of Measurement Error is constant per variable
   // - flag_nostat: True is some non-stationarity is defined
-  int nverr = db->getLocNumber(ELoc::V);
+  int nverr = db->getNLoc(ELoc::V);
   bool flag_verr = (nverr > 0);
   bool flag_isotopic = true;
   for (int ivar = 1; ivar < nvar && flag_isotopic; ivar++)

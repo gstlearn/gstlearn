@@ -85,7 +85,7 @@ bool _regressionCheck(Db *db1,
                       const Model *model)
 {
   int ncol = (int) icols.size();
-  int nfex = db2->getLocNumber(ELoc::F);
+  int nfex = db2->getNLoc(ELoc::F);
 
   switch (mode)
   {
@@ -156,7 +156,7 @@ bool _regressionLoad(Db *db1,
       break;
 
     case 1:
-      nfex = db2->getLocNumber(ELoc::F);
+      nfex = db2->getNLoc(ELoc::F);
       *value = db1->getZVariable(iech, 0);
       if (flagCst) x[ecr++] = 1.;
       for (int i = 0; i < nfex; i++)
@@ -265,7 +265,7 @@ Regression regression(Db *db1,
   int icol0 = db1->getUID(nameResp);
   VectorInt icols = db2->getUIDs(nameAux);
 
-  int nfex = db2->getLocNumber(ELoc::F);
+  int nfex = db2->getNLoc(ELoc::F);
   int nech = db1->getNSample();
   int ncol = (int) icols.size();
   int size = 0;

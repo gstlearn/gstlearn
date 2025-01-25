@@ -47,7 +47,7 @@ bool CalcImage::_check()
   if (! ACalcInterpolator::_check()) return false;
 
   if (!hasDbin()) return false;
-  int nvar = getDbin()->getLocNumber(ELoc::Z);
+  int nvar = getDbin()->getNLoc(ELoc::Z);
   if (! getDbin()->isGrid())
   {
     messerr("This method requires the Db to be a Grid");
@@ -113,7 +113,7 @@ bool CalcImage::_postprocess()
   _cleanVariableDb(2);
 
   if (_flagFilter)
-    _renameVariable(2, VectorString(), ELoc::Z, getDbin()->getLocNumber(ELoc::Z), _iattOut, String(), 1);
+    _renameVariable(2, VectorString(), ELoc::Z, getDbin()->getNLoc(ELoc::Z), _iattOut, String(), 1);
 
   if (_flagMorpho)
     _renameVariable(2, VectorString(), ELoc::Z, 1, _iattOut, String{_oper.getKey()}, _nvarMorpho);

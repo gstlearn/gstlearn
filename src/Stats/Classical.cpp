@@ -841,7 +841,7 @@ Table dbStatisticsCorrel(Db *db, const VectorString &names, bool flagIso, const 
  */
 MatrixSquareSymmetric dbVarianceMatrix(const Db* db)
 {
-  int nvar = db->getLocNumber(ELoc::Z);
+  int nvar = db->getNLoc(ELoc::Z);
   VectorDouble data(nvar, 0.);
   VectorDouble mean(nvar, 0.);
   MatrixSquareSymmetric mat(nvar);

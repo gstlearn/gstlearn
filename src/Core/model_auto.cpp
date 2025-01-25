@@ -4242,7 +4242,7 @@ static void st_vario_varchol_manage(const Vario *vario,
  *****************************************************************************/
 static void st_vmap_varchol_manage(const Db *dbmap, VectorDouble &varchol)
 {
-  int nvar = dbmap->getLocNumber(ELoc::Z);
+  int nvar = dbmap->getNLoc(ELoc::Z);
   int size = nvar * (nvar + 1) / 2;
 
   /* Allocation */
@@ -4687,10 +4687,10 @@ static int st_vmap_auto_count(const Db *dbmap,
 
   /* Check the number of Variogram Maps */
 
-  if (nvar * (nvar + 1) / 2 != dbmap->getLocNumber(ELoc::Z))
+  if (nvar * (nvar + 1) / 2 != dbmap->getNLoc(ELoc::Z))
   {
     messerr("The number of items in the Db Grid for Variogram maps (%d)",
-            dbmap->getLocNumber(ELoc::Z));
+            dbmap->getNLoc(ELoc::Z));
     messerr("is not compatible with the number of variables in the Model (%d)",
             nvar);
     return (-1);
@@ -4791,7 +4791,7 @@ static int st_vmap_auto_count(const Db *dbmap,
 static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
 {
   int nech = DBMAP->getNSample();
-  int nvar = DBMAP->getLocNumber(ELoc::Z);
+  int nvar = DBMAP->getNLoc(ELoc::Z);
   int nvs2 = nvar * (nvar + 1) / 2;
   DBMAP->rankToIndice(nech / 2, INDG1);
 
@@ -4874,10 +4874,10 @@ int vmap_auto_fit(const DbGrid* dbmap,
 
   /* Preliminary checks */
 
-  if (nvar != dbmap->getLocNumber(ELoc::Z))
+  if (nvar != dbmap->getNLoc(ELoc::Z))
   {
     messerr("Number of variables in Db (%d) must match the one in Model (%d)",
-            model->getNVar(), dbmap->getLocNumber(ELoc::Z));
+            model->getNVar(), dbmap->getNLoc(ELoc::Z));
     goto label_end;
   }
   if (constraints.isConstraintSillDefined())

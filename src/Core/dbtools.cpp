@@ -894,7 +894,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
     messerr("This function requires the Db organized as a grid");
     return tab;
   }
-  bool flag_dens = (dbgrid->getLocNumber(ELoc::Z) == 1);
+  bool flag_dens = (dbgrid->getNLoc(ELoc::Z) == 1);
   bool flag_region = (ndim == 2 && dbgrid->getNLoc(ELoc::NOSTAT) == (ndim+1));
 
   VectorDouble coor(ndim);
@@ -1398,11 +1398,11 @@ int db_streamline(DbGrid *dbgrid,
 
   if (use_grad)
   {
-    if (dbgrid->getLocNumber(ELoc::G) != ndim)
+    if (dbgrid->getNLoc(ELoc::G) != ndim)
     {
       messerr("When using the option 'use.grad'");
       messerr("the number of gradients should be %d (%d)", ndim,
-              dbgrid->getLocNumber(ELoc::G));
+              dbgrid->getNLoc(ELoc::G));
       goto label_end;
     }
     iptr_grad = dbgrid->getColIdxByLocator(ELoc::G, 0);
@@ -1524,7 +1524,7 @@ int db_smooth_vpc(DbGrid *db, int width, double range)
   /* Initializations */
 
   error = 1;
-  nprop = db->getLocNumber(ELoc::P);
+  nprop = db->getNLoc(ELoc::P);
   nz = db->getNX(2);
   dz = db->getDX(2);
   prop1 = prop2 = kernel = nullptr;
@@ -1663,7 +1663,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
   int iz = 0;
   int nz   = dbgrid->getNX(2);
-  int nvar = db->getLocNumber(ELoc::Z);
+  int nvar = db->getNLoc(ELoc::Z);
   int ndim = db->getNDim();
   int size = ndim + nvar + 1;
 
@@ -2102,7 +2102,7 @@ int db_proportion_estimate(Db *dbin,
     messerr("This method requires a 'model' argument");
     return 1;
   }
-  if (dbin->getLocNumber(ELoc::Z) != 1)
+  if (dbin->getNLoc(ELoc::Z) != 1)
   {
     messerr("The argument 'dbin' should have a single variable");
     return 1;

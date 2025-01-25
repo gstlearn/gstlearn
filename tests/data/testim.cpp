@@ -46,7 +46,7 @@ static Model *st_modify(Model *model,
 
   /* Modify the model */
 
-  if (db->getLocNumber(ELoc::G) > 0)
+  if (db->getNLoc(ELoc::G) > 0)
   {
     if (db_gradient_update(db)) return(new_model);
     new_model = model_duplicate_for_gradient(model,ball_radius);

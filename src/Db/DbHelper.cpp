@@ -1385,7 +1385,7 @@ int DbHelper::db_grid1D_fill(DbGrid *dbgrid,
     messerr("The argument 'mode' should lie between 0 and 1");
     return (1);
   }
-  int nvar = dbgrid->getLocNumber(ELoc::Z);
+  int nvar = dbgrid->getNLoc(ELoc::Z);
   if (nvar <= 0)
   {
     messerr("You must have at least one Z-locator defined");
