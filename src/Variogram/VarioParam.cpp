@@ -472,7 +472,7 @@ Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam)
   for (int idir = 0; idir < varioparam.getDirectionNumber(); idir++)
   {
     const DirParam& dirparam = varioparam.getDirParam(idir);
-    int nech = db->getSampleNumber();
+    int nech = db->getNSample();
     double maxdist = dirparam.getMaximumDistance();
 
     /* Loop on the first point */

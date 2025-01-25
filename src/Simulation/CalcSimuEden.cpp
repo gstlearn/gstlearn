@@ -75,7 +75,7 @@ String CalcSimuEden::toString(const AStringFormat* /*strfmt*/) const
 bool CalcSimuEden::_simulate()
 {
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  _nxyz    = dbgrid->getSampleNumber();
+  _nxyz    = dbgrid->getNSample();
 
   Skin* skin = new Skin(this, dbgrid);
 

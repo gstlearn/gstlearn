@@ -415,7 +415,7 @@ int db_write_csv(Db *db,
   if (db == nullptr) return 1;
   int ncol = db->getColumnNumber();
   int ndim = db->getNDim();
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int nvar = db->getLocNumber(ELoc::Z);
   bool flag_header = csvfmt.getFlagHeader();
 

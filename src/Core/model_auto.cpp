@@ -613,7 +613,7 @@ static int st_get_vmap_dimension(const Db *dbmap,
   int nbexp = 0;
   int npadir = 0;
   int nvs2 = nvar * (nvar + 1) / 2;
-  int nech = dbmap->getSampleNumber();
+  int nech = dbmap->getNSample();
 
   /* Calculate the total number of lags */
 
@@ -2279,7 +2279,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
   Model *model = strmod->models[imod];
   int ndim = model->getDimensionNumber();
   int nvar = model->getNVar();
-  int nech = DBMAP->getSampleNumber();
+  int nech = DBMAP->getNSample();
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
   DBMAP->rankToIndice(nech / 2, INDG1);
@@ -4098,7 +4098,7 @@ static void st_prepar_goulard_vmap(int imod)
   int ndim = model->getDimensionNumber();
   int nvar = model->getNVar();
   int ncova = model->getCovaNumber();
-  int nech = DBMAP->getSampleNumber();
+  int nech = DBMAP->getNSample();
   VectorDouble d0(ndim);
   MatrixSquareGeneral tab(nvar);
   DBMAP->rankToIndice(nech / 2, INDG1);
@@ -4790,7 +4790,7 @@ static int st_vmap_auto_count(const Db *dbmap,
  *****************************************************************************/
 static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
 {
-  int nech = DBMAP->getSampleNumber();
+  int nech = DBMAP->getNSample();
   int nvar = DBMAP->getLocNumber(ELoc::Z);
   int nvs2 = nvar * (nvar + 1) / 2;
   DBMAP->rankToIndice(nech / 2, INDG1);

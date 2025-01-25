@@ -139,7 +139,7 @@ bool NeighImage::hasChanged(int iech_out) const
  */
 void NeighImage::getNeigh(int iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getSampleNumber();
+  int nech = _dbin->getNSample();
   ranks.resize(nech);
   ranks.fill(-1);
 
@@ -164,7 +164,7 @@ void NeighImage::getNeigh(int iech_out, VectorInt& ranks)
  *****************************************************************************/
 void NeighImage::_uimage(int iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getSampleNumber();
+  int nech = _dbin->getNSample();
 
   /* Loop on samples */
 

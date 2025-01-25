@@ -378,7 +378,7 @@ static int st_locate_point_on_grid(const Db *db_point,
   int ndim = db_grid->getNDim();
 
   int number = 0;
-  for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db_point->getNSample(); iech++)
   {
     tab[iech] = TEST;
     if (!db_point->isActive(iech)) continue;
@@ -519,7 +519,7 @@ static void st_expand(int flag_size,
                       VectorInt& indg,
                       VectorDouble &tab2)
 {
-  int nech = dbgrid->getSampleNumber();
+  int nech = dbgrid->getNSample();
   int ndim = dbgrid->getNDim();
 
   /* Loop on the grid nodes */
@@ -588,7 +588,7 @@ int CalcMigrate::_migrateGridToPoint(DbGrid* db_grid,
 
   /* Loop on the point samples */
 
-  for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db_point->getNSample(); iech++)
   {
     if (FFFF(tab[iech])) continue;
     int rank = (int) tab[iech];
@@ -1207,14 +1207,14 @@ int expandPointToGrid(Db *db_point,
 
   // Core allocation
 
-  int ng = db_grid->getSampleNumber();
-  int np = db_point->getSampleNumber(true);
+  int ng = db_grid->getNSample();
+  int np = db_point->getNSample(true);
   VectorDouble dvect(ndim_max);
   VectorDouble xtab(np);
 
   /* Sort the point samples according to their coordinate ranked 'idim_ref' */
 
-  for (int ip = np = 0; ip < db_point->getSampleNumber(); ip++)
+  for (int ip = np = 0; ip < db_point->getNSample(); ip++)
   {
     if (!db_point->isActive(ip)) continue;
     if (FFFF(db_point->getArray(ip, iatt))) continue;
@@ -1352,7 +1352,7 @@ int expandPointToCoor(const Db *db1,
 
     double distmin = 1.e30;
     int iechmin = -1;
-    for (int iech1 = 0; iech1 < db1->getSampleNumber(); iech1++)
+    for (int iech1 = 0; iech1 < db1->getNSample(); iech1++)
     {
       if (!db1->isActive(iech1)) continue;
       for (int idim = 0; idim < ndim; idim++)
@@ -1424,8 +1424,8 @@ int pointToBlock(Db *dbpoint,
 
   VectorInt indg0(ndim);
   VectorInt indg(ndim);;
-  tab1.resize(dbgrid->getSampleNumber());
-  tab2.resize(dbgrid->getSampleNumber(), -1.);
+  tab1.resize(dbgrid->getNSample());
+  tab2.resize(dbgrid->getNSample(), -1.);
 
   /* Variable allocation */
 
@@ -1442,7 +1442,7 @@ int pointToBlock(Db *dbpoint,
 
   /* Create the sample rank attribute and expand it over the grid */
 
-  for (int iech = 0; iech < dbpoint->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbpoint->getNSample(); iech++)
     dbpoint->setArray(iech, iatt_rank, (double) iech);
   if (expandPointToGrid(dbpoint, dbgrid, iatt_rank, iatt_time, iatt_angle,
                         iatt_scaleu, iatt_scalev, iatt_scalew, flag_index, 0,
@@ -1452,7 +1452,7 @@ int pointToBlock(Db *dbpoint,
 
   if (flag_index)
   {
-    for (int i = 0; i < dbgrid->getSampleNumber(); i++)
+    for (int i = 0; i < dbgrid->getNSample(); i++)
       tab2[i] = tab1[i];
     goto label_suite;
   }
@@ -1464,7 +1464,7 @@ int pointToBlock(Db *dbpoint,
 
   /* Loop on the grid nodes */
 
-  for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbgrid->getNSample(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
 
@@ -1513,14 +1513,14 @@ int pointToBlock(Db *dbpoint,
 
   if (iatt_size >= 0)
   {
-    for (int i = 0; i < dbgrid->getSampleNumber(); i++)
+    for (int i = 0; i < dbgrid->getNSample(); i++)
       tab1[i] = tab2[i];
     st_expand(flag_size, dbgrid, tab1, indg0, indg, tab2);
   }
 
   /* Transform values into 0 and 1 */
 
-  for (int i = 0; i < dbgrid->getSampleNumber(); i++)
+  for (int i = 0; i < dbgrid->getNSample(); i++)
   {
     if (flag_size)
       tab2[i] = (tab2[i] < 0) ? 0 : tab2[i];
@@ -1637,7 +1637,7 @@ int expand_point_to_coor(const Db *db1,
 
     double distmin = 1.e30;
     int iechmin = -1;
-    for (int iech1 = 0; iech1 < db1->getSampleNumber(); iech1++)
+    for (int iech1 = 0; iech1 < db1->getNSample(); iech1++)
     {
       if (!db1->isActive(iech1)) continue;
       for (int idim = 0; idim < ndim; idim++)
@@ -1683,7 +1683,7 @@ int CalcMigrate::_migrate(Db *db1,
                           bool flag_inter,
                           bool flag_ball)
 {
-  int size = db2->getSampleNumber();
+  int size = db2->getNSample();
   VectorDouble tab(size, TEST);
 
   if (db2->isGrid())
@@ -1815,7 +1815,7 @@ int CalcMigrate::_migratePointToGrid(Db *db_point,
 
   /* Core allocation */
 
-  VectorDouble local(db_point->getSampleNumber());
+  VectorDouble local(db_point->getNSample());
   VectorDouble dvect(ndim_max);
   VectorDouble coor(ndim_max);
   db_grid->getCoordinatesPerSampleInPlace(0, coor);
@@ -1827,7 +1827,7 @@ int CalcMigrate::_migratePointToGrid(Db *db_point,
   /* Assign the index of the closest sample to each grid node */
 
   int nb_assign = 0;
-  for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db_point->getNSample(); iech++)
   {
     if (FFFF(local[iech])) continue;
     if (FFFF(db_point->getArray(iech, iatt))) continue;
@@ -1853,11 +1853,11 @@ int CalcMigrate::_migratePointToGrid(Db *db_point,
   }
   if (OptDbg::query(EDbg::DB))
     message("Number of nodes directly assigned = %d/%d\n", nb_assign,
-            db_grid->getSampleNumber());
+            db_grid->getNSample());
 
   /* Convert into data values */
 
-  for (int jnode = 0; jnode < db_grid->getSampleNumber(); jnode++)
+  for (int jnode = 0; jnode < db_grid->getNSample(); jnode++)
   {
     if (FFFF(tab[jnode])) continue;
     tab[jnode] = db_point->getArray((int) tab[jnode], iatt);
@@ -1903,7 +1903,7 @@ int CalcMigrate::_expandPointToPointBall(Db *db1,
 
   // Loop on the sample points
 
-  for (int inode = 0; inode < db2->getSampleNumber(); inode++)
+  for (int inode = 0; inode < db2->getNSample(); inode++)
   {
     if (! db2->isActive(inode)) continue;
     db2->getCoordinatesPerSampleInPlace(inode, coor);
@@ -1954,14 +1954,14 @@ int CalcMigrate::_migrateGridToGrid(DbGrid *db_gridin,
 
   VectorDouble coor(ndim_max);
   VectorDouble dvect(ndim_max);
-  VectorDouble dist(db_gridout->getSampleNumber(), 1.e30);
+  VectorDouble dist(db_gridout->getNSample(), 1.e30);
 
   // Initialize 'coor' as the first target sample
   db_gridout->rankToCoordinatesInPlace(0, coor);
 
   /* Loop on the input grid nodes */
 
-  for (int iech = 0; iech < db_gridin->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db_gridin->getNSample(); iech++)
   {
     double value = db_gridin->getArray(iech, iatt);
     if (FFFF(value)) continue;
@@ -2021,7 +2021,7 @@ int CalcMigrate::_expandPointToPoint(Db *db1,
 
   /* Loop on the output structure */
 
-  for (int iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
+  for (int iech2 = 0; iech2 < db2->getNSample(); iech2++)
   {
     if (!db2->isActive(iech2)) continue;
 
@@ -2029,7 +2029,7 @@ int CalcMigrate::_expandPointToPoint(Db *db1,
 
     double distmin = 1.e30;
     int iechmin = -1;
-    for (int iech1 = 0; iech1 < db1->getSampleNumber(); iech1++)
+    for (int iech1 = 0; iech1 < db1->getNSample(); iech1++)
     {
       if (!db1->isActive(iech1)) continue;
       double dist = distance_inter(db1, db2, iech1, iech2, dvect.data());
@@ -2088,13 +2088,13 @@ int CalcMigrate::_expandGridToGrid(DbGrid *db_gridin,
 
   VectorDouble coor(ndim_max);
   VectorDouble dvect(ndim_max);
-  VectorDouble dist(db_gridout->getSampleNumber());
-  for (int jech = 0; jech < db_gridout->getSampleNumber(); jech++)
+  VectorDouble dist(db_gridout->getNSample());
+  for (int jech = 0; jech < db_gridout->getNSample(); jech++)
     dist[jech] = 1.e30;
 
   /* Loop on the output grid nodes */
 
-  for (int iech = 0; iech < db_gridout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db_gridout->getNSample(); iech++)
   {
     if (!db_gridout->isActive(iech)) continue;
 
@@ -2147,7 +2147,7 @@ int CalcMigrate::_interpolateGridToPoint(DbGrid *db_grid,
 
   /* Loop on the point samples */
 
-  for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db_point->getNSample(); iech++)
   {
     if (!db_point->isActive(iech)) continue;
     db_point->getCoordinatesPerSampleInPlace(iech, coor);

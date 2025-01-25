@@ -36,7 +36,7 @@ dx_S = c(0.01, 0.01)
 grid = DbGrid_create(nx = nx_S, dx = dx_S)
 grid$display()
 
-np = grid$getSampleNumber()
+np = grid$getNSample()
 nv = 3 # Number of variables
 m_Z = c(1, 2, 3)
 S_Z = c(0.25, 3.0, 1.5)
@@ -51,15 +51,15 @@ LM_3 = matrix(c(1.0, 0.1, 0.2, 0.0, sqrt(1-0.1^2), 0.3, 0.0, 0.0, sqrt(1 - 0.2^2
 # Simulation of the Gaussian factors for structure #1
 m1 = Model_createFromParam(ECov_NUGGET(), sill= 1.0)
 err = simtub(NULL, grid, m1, nbsimu = nv, namconv=NamingConvention("U1"))
-U1 = matrix(grid$getColumns(names = "U1.*"), nrow = grid$getSampleNumber(), ncol = nv)
+U1 = matrix(grid$getColumns(names = "U1.*"), nrow = grid$getNSample(), ncol = nv)
 # Simulation of the Gaussian factors for structure #2
 m2 = Model_createFromParam(ECov_EXPONENTIAL(), range=0.1, sill=1.)
 err = simtub(NULL, grid, m2, nbsimu = nv, namconv=NamingConvention("U2"))
-U2 = matrix(grid$getColumns(names = "U2.*"), nrow = grid$getSampleNumber(), ncol = nv)
+U2 = matrix(grid$getColumns(names = "U2.*"), nrow = grid$getNSample(), ncol = nv)
 # Simulation of the Gaussian factors for structure #2
 m3 = Model_createFromParam(ECov_CUBIC(), range=0.25, sill=1.)
 err = simtub(NULL, grid, m3, nbsimu = nv, namconv=NamingConvention("U3"))
-U3 = matrix(grid$getColumns(names = "U3.*"), nrow = grid$getSampleNumber(), ncol = nv)
+U3 = matrix(grid$getColumns(names = "U3.*"), nrow = grid$getNSample(), ncol = nv)
 
 # Correlated variables
 Z = outer(X = rep(1, np), Y = m_Z, FUN = "*") + 
@@ -88,7 +88,7 @@ data$display()
 
 ```{r}
 # Statistics (vector of means and covariance matrix)
-data_Z = matrix(data$getColumns(names = "Z*"), nrow = data$getSampleNumber(), ncol = nv)
+data_Z = matrix(data$getColumns(names = "Z*"), nrow = data$getNSample(), ncol = nv)
 mZ = apply(X = data_Z, 2, mean)
 varZ = var(data_Z)
 
@@ -276,7 +276,7 @@ round(range(abs(abs(pca$getEigVals()) - abs(res$values))),8)
 
 # getting the computed factors
 data_gsPCA = matrix(data$getColumns(names = "PCA.*"), 
-                    nrow = data$getSampleNumber(), ncol = nv)
+                    nrow = data$getNSample(), ncol = nv)
 
 # Statistics (mean and variance) compared to the values of eigen
 round(apply(X = data_gsPCA, MARGIN = 2, mean), 8)
@@ -332,7 +332,7 @@ round(range(abs(abs(maf$getEigVals()) - abs(res_maf$values[sequence]))),8)
 
 # computing the factors
 data_gsMAF = matrix(data$getColumns(names = "MAF.*"), 
-                    nrow = data$getSampleNumber(), ncol = nv)
+                    nrow = data$getNSample(), ncol = nv)
 # Statistics (mean and variance)
 round(apply(X = data_gsMAF, MARGIN = 2, mean), 8)
 round(t(data_gsMAF) %*% data_gsMAF / (np -1), 8)

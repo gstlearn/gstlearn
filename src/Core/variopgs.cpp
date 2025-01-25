@@ -555,7 +555,7 @@ static void st_set_rho(double rho, Local_Pgs *local_pgs)
   else
   {
     ngrf = local_pgs->ngrf;
-    for (iech = 0; iech < db->getSampleNumber(); iech++)
+    for (iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
       ifac = (int) db->getZVariable(iech, 0);
@@ -782,7 +782,7 @@ static int st_vario_pgs_variable(int mode,
       /* Use dummy rho value in order to avoid discarding pairs in geometry */
 
       nloop = (flag_one) ? 1 : nfacies;
-      for (int iech = 0; iech < db->getSampleNumber(); iech++)
+      for (int iech = 0; iech < db->getNSample(); iech++)
       {
         if (!db->isActive(iech)) continue;
 
@@ -913,7 +913,7 @@ static void st_variogram_patch_C00(Local_Pgs *local_pgs,
                                    double rho)
 {
   Db *db = local_pgs->db;
-  int nech = (db == nullptr) ? 0 : db->getSampleNumber(true);
+  int nech = (db == nullptr) ? 0 : db->getNSample(true);
   vario->patchCenter(idir, nech, rho);
 }
 
@@ -3418,7 +3418,7 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
   /* Retrieve information from Local_pgs structure */
 
   Db* db = local_pgs->db;
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int nvar = vario->getNVar();
   double maxdist = vario->getMaximumDistance(idir);
   const DirParam &dirparam = vario->getDirParam(idir);
@@ -4786,7 +4786,7 @@ static void st_update_variance_nostat(Local_Pgs *local_pgs)
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbin->getNSample(); iech++)
   {
     if (!dbin->isActive(iech)) continue;
 
@@ -4827,7 +4827,7 @@ static void st_update_variance_nostat(Local_Pgs *local_pgs)
       for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
       {
         int iad = vario->getDirAddress(idir, ivar, jvar, 0, false, 0);
-        vario->setSwByIndex(idir, iad, dbin->getSampleNumber());
+        vario->setSwByIndex(idir, iad, dbin->getNSample());
         vario->setHhByIndex(idir, iad, 0);
 
         switch (local_pgs->calcul_type.toEnum())

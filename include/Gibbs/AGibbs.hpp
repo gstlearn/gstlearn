@@ -82,7 +82,7 @@ public:
 
   VectorVectorDouble allocY() const;
   void storeResult(const VectorVectorDouble& y, int isimu, int ipgs);
-  int getSampleNumber() const;
+  int getNSample() const;
   int getSampleRank(int i) const;
   int getRank(int ipgs, int ivar) const;
 

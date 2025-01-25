@@ -188,11 +188,11 @@ int DbLine::_lineLinkage(const VectorInt& lineCounts)
 {
   // Prelimnary check
   int nech = VH::cumul(lineCounts);
-  if (nech != getSampleNumber())
+  if (nech != getNSample())
   {
     messerr("Cumulated number of samples given by 'lineCounts' (%d) should "
             "match the number of samples (%d)",
-            nech, getSampleNumber());
+            nech, getNSample());
     return 1;
   }
 
@@ -215,7 +215,7 @@ int DbLine::_lineLinkage(const VectorInt& lineCounts)
 int DbLine::_lineLinkageById(const VectorInt& linesId,
                              const VectorInt& ranksPerId)
 {
-  int nech = getSampleNumber();
+  int nech = getNSample();
 
   // Preliminary checks by dimensions
   if ((int)linesId.size() != nech)
@@ -494,11 +494,11 @@ DbLine* DbLine::createFillRandom(int ndim,
 bool DbLine::isConsistent() const
 {
   // Check on the count of addresses
-  int nech = getSampleNumber();
+  int nech = getNSample();
   if (nech != getNTotal())
   {
     messerr("The number of samples contained in the Db (%d)",
-            getSampleNumber());
+            getNSample());
     messerr("is not equal to the number of addresses referenced in DbLine (%d)",
             getNTotal());
     return false;

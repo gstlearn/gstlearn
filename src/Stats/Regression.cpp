@@ -266,7 +266,7 @@ Regression regression(Db *db1,
   VectorInt icols = db2->getUIDs(nameAux);
 
   int nfex = db2->getLocNumber(ELoc::F);
-  int nech = db1->getSampleNumber();
+  int nech = db1->getNSample();
   int ncol = (int) icols.size();
   int size = 0;
   switch (mode)
@@ -408,7 +408,7 @@ int Regression::apply(Db *db1,
   double value = 0;
   VectorDouble x(size);
 
-  for (int iech = 0; iech < db1->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db1->getNSample(); iech++)
   {
     if (db1->isActive(iech))
     {

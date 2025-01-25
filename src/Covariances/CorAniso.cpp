@@ -1025,7 +1025,7 @@ bool CorAniso::isOptimizationInitialized(const std::vector<SpacePoint> &p1As,
   if (p1As.empty()) return false;
   if (db == nullptr) return true;
   int n = (int) p1As.size();
-  return n == db->getSampleNumber();
+  return n == db->getNSample();
 }
 
   

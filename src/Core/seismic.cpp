@@ -556,7 +556,7 @@ int seismic_z2t_grid(int verbose,
     return 1;
   }
   ndim = db_z->getNDim();
-  nech = db_z->getSampleNumber();
+  nech = db_z->getNSample();
 
   /* Core allocation */
 
@@ -626,7 +626,7 @@ int seismic_t2z_grid(int verbose,
     return (1);
   }
   ndim = db_t->getNDim();
-  nech = db_t->getSampleNumber();
+  nech = db_t->getNSample();
 
   /* Core allocation */
 
@@ -679,7 +679,7 @@ int seismic_t2z_grid(int verbose,
 static void st_copy(int mode, DbGrid *db, int iatt, int ival, double *tab)
 {
   int ndim = db->getNDim();
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int nval = db->getNX(ndim - 1);
   int nby = nech / nval;
 
@@ -719,7 +719,7 @@ static int st_match(DbGrid *db_z, DbGrid *db_t)
 
   NTRACE = 0;
   error = 1;
-  nech = db_z->getSampleNumber();
+  nech = db_z->getNSample();
   ndim = db_z->getNDim();
   nz = db_z->getNX(ndim - 1);
 
@@ -3207,7 +3207,7 @@ static void st_copy_attribute(Db *db, int nbsimu, int *iatt)
 
   /* Initializations */
 
-  nech = db->getSampleNumber();
+  nech = db->getNSample();
 
   /* Loop on the variables */
 

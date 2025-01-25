@@ -615,7 +615,7 @@ static int st_update_isopot(Db *dbiso, Pot_Env *pot_env)
 
 {
   if (dbiso == nullptr) return (0);
-  int nech = dbiso->getSampleNumber();
+  int nech = dbiso->getNSample();
   int nlayers = 0;
   int niso = 0;
   VectorInt laycnt;
@@ -721,7 +721,7 @@ static int st_update_isopot(Db *dbiso, Pot_Env *pot_env)
 static int st_update_gradient(Db *dbgrd, Pot_Env *pot_env)
 {
   if (dbgrd == nullptr) return (0);
-  int nech = dbgrd->getSampleNumber();
+  int nech = dbgrd->getNSample();
   int ngrd = 0;
   pot_env->rank_grd.resize(nech);
 
@@ -766,7 +766,7 @@ static int st_update_tangent(Db *dbtgt, Pot_Env *pot_env)
 
 {
   if (dbtgt == nullptr) return (0);
-  int nech = dbtgt->getSampleNumber();
+  int nech = dbtgt->getNSample();
   int ntgt = 0;
   pot_env->rank_tgt.resize(nech);
 
@@ -1986,9 +1986,9 @@ static void st_estimate_result(Pot_Env *pot_env,
 {
   VectorDouble result(4);
 
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
-    mes_process("Potential Estimation on Grid", dbout->getSampleNumber(),iech);
+    mes_process("Potential Estimation on Grid", dbout->getNSample(),iech);
     OptDbg::setCurrentIndex(iech);
     if (!dbout->isActive(iech)) continue;
 
@@ -2038,7 +2038,7 @@ static void st_estimate_data(Pot_Env *pot_env,
   if (db_target == nullptr) return;
   VectorDouble result(4);
 
-  for (int iech = 0; iech < db_target->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db_target->getNSample(); iech++)
   {
     if (! db_target->isActive(iech)) continue;
 
@@ -2471,9 +2471,9 @@ static void st_simcond(Pot_Env *pot_env,
   VectorDouble resest(4), result(4);
 
   int ndim = dbgrd->getNDim();
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
-    mes_process("Potential Simulation on Grid", dbout->getSampleNumber(),iech);
+    mes_process("Potential Simulation on Grid", dbout->getNSample(),iech);
     OptDbg::setCurrentIndex(iech);
     if (!dbout->isActive(iech)) continue;
 
@@ -3033,7 +3033,7 @@ static int st_distance_to_isoline(DbGrid *dbout)
   double eps = 1.e-3;
 
   // Highlight the isoline of interest
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
     double value = dbout->getZVariable(iech, 0);
     if (!FFFF(value) && ABS(value) > eps) dbout->setLocVariable(ELoc::Z,iech, 0, TEST);

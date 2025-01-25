@@ -48,7 +48,7 @@ ProjConvolution::ProjConvolution(const VectorDouble &convolution,
 
   _buildGridRes2D();
 
-  _work.resize(_gridRes2D->getSampleNumber() * _gridSeismic->getNX(ndim-1));
+  _work.resize(_gridRes2D->getNSample() * _gridSeismic->getNX(ndim-1));
 
   _buildAprojHoriz();
 
@@ -164,10 +164,10 @@ int ProjConvolution::_addPoint2mesh(const constvect valonseismic,
    int ndim  = _getNDim();
 
    // Get the characteristics of the R-R grid
-   int slice_R = _gridRes2D->getSampleNumber();
+   int slice_R = _gridRes2D->getNSample();
 
    // Get the characteristics of the S-S grid
-   int slice_S = _gridSeis2D->getSampleNumber();
+   int slice_S = _gridSeis2D->getNSample();
 
    // Mesh barycenter on 'ndim-1' slices
    for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
@@ -195,10 +195,10 @@ int ProjConvolution::_addMesh2point(const constvect valonvertex,
   int ndim  = _getNDim();
 
   // Get the characteristics of the R-R grid
-  int slice_R = _gridRes2D->getSampleNumber();
+  int slice_R = _gridRes2D->getNSample();
 
   // Get the characteristics of the R-S grid
-  int slice_S = _gridSeis2D->getSampleNumber();
+  int slice_S = _gridSeis2D->getNSample();
 
   // Convolution
   vect ws(_work);

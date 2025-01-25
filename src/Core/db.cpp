@@ -224,7 +224,7 @@ void db_sample_print(Db* db,
                      int flag_nerr,
                      int flag_blk)
 {
-  message("Sample #%d (from %d)\n", iech + 1, db->getSampleNumber());
+  message("Sample #%d (from %d)\n", iech + 1, db->getNSample());
   if (flag_ndim != 0)
   {
     for (int idim = 0; idim < db->getNDim(); idim++)
@@ -307,7 +307,7 @@ int db_center(Db* db, double* center)
   {
     VectorDouble tab = db->getCoordinates(idim);
     StatResults stats =
-      ut_statistics(db->getSampleNumber(), tab.data(), sel.data(), wgt.data());
+      ut_statistics(db->getNSample(), tab.data(), sel.data(), wgt.data());
     center[idim] = stats.mean;
   }
 
@@ -334,7 +334,7 @@ int db_grid_define_coordinates(DbGrid* db)
 {
   if (db == nullptr) return (0);
   int ndim = db->getNDim();
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   VectorInt ntab(ndim, 0);
   VectorDouble coor(ndim);
   VectorDouble cbis(ndim);
@@ -601,7 +601,7 @@ int db_grid_copy(DbGrid* db1,
 
   /* Loop on the output grid Db */
 
-  for (int iech = 0; iech < db2->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db2->getNSample(); iech++)
   {
 
     /* Find the indices of the target grid node */
@@ -676,7 +676,7 @@ int db_grid_copy_dilate(
 
   /* Loop on the samples of the second Db */
 
-  for (int iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
+  for (int iech2 = 0; iech2 < db2->getNSample(); iech2++)
   {
     db2->rankToIndice(iech2, indg);
     for (int idim = 0; idim < ndim; idim++) indg[idim] += mode * nshift[idim];
@@ -711,7 +711,7 @@ int point_to_point(Db* db, const double* coor)
 
   iechmin = 0;
   distmin = 1.e30;
-  for (iech = 0; iech < db->getSampleNumber(); iech++)
+  for (iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
 
@@ -919,7 +919,7 @@ int index_point_to_grid(
   const Db* dbin, int iech, int flag_outside, const DbGrid* dbout, double* coor)
 {
   int ndim = dbin->getNDim();
-  int nech = dbin->getSampleNumber();
+  int nech = dbin->getNSample();
   VectorInt iwork1(ndim);
 
   /* Get the coordinates of the input sample */
@@ -1006,7 +1006,7 @@ void db_monostat(Db* db,
 
   /* Loop on the data */
 
-  for (iech = 0; iech < db->getSampleNumber(); iech++)
+  for (iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     value = db->getArray(iech, iatt);
@@ -1061,7 +1061,7 @@ int db_proportion(
   /* Initializations */
 
   int nvar = db->getLocNumber(ELoc::Z);
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   if (nvar <= 0 || nvar > 2)
   {
     messerr("This procedure is designed for 1 or 2 variables");
@@ -1138,7 +1138,7 @@ int db_proportion(
 
   /* Normalization phase */
 
-  for (int jech = 0; jech < dbgrid->getSampleNumber(); jech++)
+  for (int jech = 0; jech < dbgrid->getNSample(); jech++)
   {
     /* Cumulate the proportions */
 
@@ -1196,7 +1196,7 @@ int db_merge(Db* db, int ncol, int* cols)
 
   /* Loop on the samples */
 
-  for (iech = 0; iech < db->getSampleNumber(); iech++)
+  for (iech = 0; iech < db->getNSample(); iech++)
   {
 
     /* Loop on the other variables until a defined value is found */
@@ -1514,8 +1514,8 @@ double* db_distances_general(Db* db1,
 
   *n1     = 0;
   *n2     = 0;
-  nech1   = db1->getSampleNumber(true);
-  nech2   = db2->getSampleNumber(true);
+  nech1   = db1->getNSample(true);
+  nech2   = db2->getNSample(true);
   dist    = nullptr;
   max_all = nech1 * nech2;
 
@@ -1704,7 +1704,7 @@ int db_gradient_modang_to_component(
 
   /* Gradient conversion */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (FFFF(v1[iech]) || FFFF(v2[iech])) continue;
     modulus = v1[iech];
@@ -1767,7 +1767,7 @@ int db_gradient_component_to_modang(Db* db,
   /* Convert gradient components into modulus and azimuth */
 
   vmax = 0.;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (FFFF(v1[iech]) || FFFF(v2[iech])) continue;
     norme    = sqrt(v1[iech] * v1[iech] + v2[iech] * v2[iech]);
@@ -1781,7 +1781,7 @@ int db_gradient_component_to_modang(Db* db,
 
   mini = 1.e30;
   maxi = -1.e30;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     alpha    = 1. / (1. + ve);
@@ -1915,7 +1915,7 @@ DbGrid* db_grid_reduce(DbGrid* db_grid,
 
   // Core allocation
 
-  nech = db_grid->getSampleNumber();
+  nech = db_grid->getNSample();
   ndim = db_grid->getNDim();
   VectorInt indcur(ndim);
   VectorInt indmin(ndim, nech);
@@ -1924,7 +1924,7 @@ DbGrid* db_grid_reduce(DbGrid* db_grid,
 
   // Loop on the input grid
 
-  for (int i = 0; i < db_grid->getSampleNumber(); i++)
+  for (int i = 0; i < db_grid->getNSample(); i++)
   {
     if (!db_grid->isActive(i)) continue;
     value = db_grid->getArray(i, iptr);
@@ -1997,7 +1997,7 @@ DbGrid* db_grid_reduce(DbGrid* db_grid,
   if (flag_sel)
   {
     isel = ss_grid->addColumnsByConstant(1, 0., String(), ELoc::SEL);
-    for (int i = 0; i < ss_grid->getSampleNumber(); i++)
+    for (int i = 0; i < ss_grid->getNSample(); i++)
     {
       ss_grid->rankToIndice(i, indcur);
       for (int idim = 0; idim < ndim; idim++) indcur[idim] += indmin[idim];
@@ -2013,7 +2013,7 @@ DbGrid* db_grid_reduce(DbGrid* db_grid,
   if (flag_copy)
   {
     icopy = ss_grid->addColumnsByConstant(1, 0., String(), ELoc::SEL);
-    for (int i = 0; i < ss_grid->getSampleNumber(); i++)
+    for (int i = 0; i < ss_grid->getNSample(); i++)
     {
       ss_grid->rankToIndice(i, indcur);
       for (int idim = 0; idim < ndim; idim++) indcur[idim] += indmin[idim];
@@ -2126,7 +2126,7 @@ int db_grid_patch(DbGrid* ss_grid,
   /* Patch the values */
 
   nused = noused = nundef = nout = nmask = 0;
-  for (int iech = 0; iech < ss_grid->getSampleNumber(); iech++)
+  for (int iech = 0; iech < ss_grid->getNSample(); iech++)
   {
 
     // Sample masked off in the subgrid
@@ -2202,7 +2202,7 @@ int db_grid_patch(DbGrid* ss_grid,
   if (verbose)
   {
     ndef = nbnomask = 0;
-    for (int iech = 0; iech < db_grid->getSampleNumber(); iech++)
+    for (int iech = 0; iech < db_grid->getNSample(); iech++)
     {
       if (!db_grid->isActive(iech)) continue;
       value = db_grid->getArray(iech, iptr_db);
@@ -2216,14 +2216,14 @@ int db_grid_patch(DbGrid* ss_grid,
       message("- Dimension %d: NX_S =%4d - NX_G =%4d - Shift =%4d\n", idim + 1,
               ss_grid->getNX(idim), db_grid->getNX(idim), indg0[idim]);
     message("Subgrid                               = %d\n",
-            ss_grid->getSampleNumber());
+            ss_grid->getNSample());
     message("- Number of masked off samples        = %d\n", nmask);
     message("- Number of undefined values          = %d\n", nundef);
     message("- Number of samples outside main grid = %d\n", nout);
     message("- Number of valid values (save)       = %d\n", nused);
     message("- Number of valid values (skip)       = %d\n", noused);
     message("Main Grid                             = %d\n",
-            db_grid->getSampleNumber());
+            db_grid->getNSample());
     message("- Number of non-masked values         = %d\n", nbnomask);
     message("- Number of valid values              = %d\n", ndef);
   }

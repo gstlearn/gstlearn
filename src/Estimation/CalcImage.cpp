@@ -149,9 +149,9 @@ bool CalcImage::_run()
 
     /* Loop on the targets to be processed */
 
-    for (int iech_out = 0; iech_out < dbgrid->getSampleNumber(); iech_out++)
+    for (int iech_out = 0; iech_out < dbgrid->getNSample(); iech_out++)
     {
-      mes_process("Image filtering", dbgrid->getSampleNumber(), iech_out);
+      mes_process("Image filtering", dbgrid->getNSample(), iech_out);
       if (ksys.estimate(iech_out)) return false;
     }
 

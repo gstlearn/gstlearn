@@ -821,7 +821,7 @@ int AnamDiscreteDD::factor2Selectivity(Db *db,
                                        int iptr0)
 {
   int nclass   = getNClass();
-  int nech     = db->getSampleNumber();
+  int nech     = db->getNSample();
   int nb_est   = (int) cols_est.size();
   int nb_std   = (int) cols_std.size();
   int ncleff   = MAX(nb_est, nb_std);

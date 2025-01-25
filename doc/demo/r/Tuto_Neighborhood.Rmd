@@ -112,7 +112,7 @@ ggDefaultGeographic()+
 In the following chunk, variables are generated in the grid containing the cell extension. This cell extension replaces the constant value of the mesh. The new values define blocks around each sample point that will be represented below 
 ```{r}
 # defining the parameters 
-nech = grid$getSampleNumber()
+nech = grid$getNSample()
 mini = 0.5
 maxi = 2.5
 blx = numeric()
@@ -224,7 +224,7 @@ The file is converted into a point file to make the rest of the procedure more f
 Creating the grid and the point file containing the data 
 ```{r}
 grid = DbGrid_create(nx=c(20,100), dx=c(10,1))
-iuid = grid$addColumns(VectorHelper_simulateUniform(grid$getSampleNumber()),"z", ELoc_Z())
+iuid = grid$addColumns(VectorHelper_simulateUniform(grid$getNSample()),"z", ELoc_Z())
 point = Db_createReduce(grid)
 
 ggDefaultGeographic()+

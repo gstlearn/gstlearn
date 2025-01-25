@@ -1150,12 +1150,12 @@ def check_nrows(db, nrows):
     samples or the total number of samples)"""
     if nrows == db.getActiveSampleNumber() :
         useSel = True
-    elif nrows == db.getSampleNumber() or db.getSampleNumber()==0:
+    elif nrows == db.getNSample() or db.getNSample()==0:
         useSel = False
     else:
-        if db.getActiveSampleNumber() != db.getSampleNumber():
+        if db.getActiveSampleNumber() != db.getNSample():
             raise ValueError("Error of dimension. Your number of lines ("+str(nrows)+") has to be equal to " +
-                str(db.getActiveSampleNumber()) + " or " + str(db.getSampleNumber()))
+                str(db.getActiveSampleNumber()) + " or " + str(db.getNSample()))
         else :
             raise ValueError("Error of dimension. Your number of lines ("+str(nrows)+") has to be equal to " +
                   str(db.getActiveSampleNumber()))
@@ -1209,7 +1209,7 @@ def getNrows(self, useSel=None):
     """ get number of rows of the Db when using or not a selection"""
     if useSel is None:
         useSel = self.useSel
-    nrows = self.getSampleNumber(useSel)
+    nrows = self.getNSample(useSel)
     return nrows
 
 def getdbitem(self,arg):
@@ -1342,7 +1342,7 @@ setattr(gl.Db,"__getitem__",getdbitem)
 setattr(gl.Db,"__setitem__",setdbitem)
 
 def Db_toTL(self, flagLocate=False):
-  dat = pd.DataFrame(self.getAllColumns().reshape(-1,self.getSampleNumber()).T, 
+  dat = pd.DataFrame(self.getAllColumns().reshape(-1,self.getNSample()).T, 
     columns = self.getAllNames())
     
   if flagLocate:

@@ -519,7 +519,7 @@ for (s in 1:nbsimu) {
 
 grid["Ind.mean"] <- apply(
   X = matrix(grid$getColumns(names = paste("Ind", 1:nbsimu, sep = ".")),
-      nrow = grid$getSampleNumber(FALSE),
+      nrow = grid$getNSample(FALSE),
       ncol = nbsimu),
   MARGIN = 1,
   FUN = mean
@@ -608,7 +608,7 @@ for (s in 1:nbsimu) {
 # computing the mean of CEs given the Gibbs values: estimation
 grid["CE.cs.Z.estim"] <- apply(
   X = matrix(grid$getColumns(names = paste("ce.cs.z", 1:nbsimu, "estim", sep = ".")),
-      nrow = grid$getSampleNumber(FALSE),
+      nrow = grid$getNSample(FALSE),
       ncol = nbsimu),
   MARGIN = 1,
   FUN = mean
@@ -617,7 +617,7 @@ grid["CE.cs.Z.estim"] <- apply(
 # computing the mean of CEs given the Gibbs values: Std.
 grid["CE.cs.Z.stdev"] <- sqrt(apply(
   X = matrix(grid$getColumns(names = paste("ce.cs.z", 1:nbsimu, "stdev", sep = "."))^2,
-      nrow = grid$getSampleNumber(FALSE),
+      nrow = grid$getNSample(FALSE),
       ncol = nbsimu),
   MARGIN = 1,
   FUN = mean

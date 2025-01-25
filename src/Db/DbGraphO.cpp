@@ -327,7 +327,7 @@ int DbGraphO::getArcNumber() const
 
 int DbGraphO::getNodeNumber() const
 {
-  return getSampleNumber();
+  return getNSample();
 }
 
 bool DbGraphO::_isValidArcRank(int iarc) const

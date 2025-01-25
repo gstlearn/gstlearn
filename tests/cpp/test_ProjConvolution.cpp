@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
   VectorDouble data = grid_data->getColumnByUID(uid_in);
 
   // Perform the convolution
-  VectorDouble seismic = VectorDouble(grid_seismic->getSampleNumber());
+  VectorDouble seismic = VectorDouble(grid_seismic->getNSample());
   if (Aproj.mesh2point(data, seismic)) return 1;
   grid_seismic->addColumns(seismic,"Seismic",ELoc::Z);
 
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
   (void) grid_seismic->dumpToNF("Seismic.ascii");
 
   // Perform convolution back-transform
-  VectorDouble data2 = VectorDouble(grid_data->getSampleNumber());
+  VectorDouble data2 = VectorDouble(grid_data->getNSample());
   if (Aproj.point2mesh(seismic, data2)) return 1;
   grid_data->addColumns(data2,"Data",ELoc::Z);
 

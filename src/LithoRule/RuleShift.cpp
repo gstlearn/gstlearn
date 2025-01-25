@@ -294,7 +294,7 @@ int RuleShift::gaus2facResult(PropDef* propdef,
 
   /* Processing the translation */
 
-  for (iech=0; iech<dbgrid->getSampleNumber(); iech++)
+  for (iech=0; iech<dbgrid->getNSample(); iech++)
   {
     if (! dbgrid->isActive(iech)) continue;
 
@@ -353,7 +353,7 @@ int RuleShift::evaluateBounds(PropDef *propdef,
 
   if (dbin == nullptr) return(0);
   nadd = 0;
-  nech = dbin->getSampleNumber();
+  nech = dbin->getNSample();
 
   /* Dispatch */
 

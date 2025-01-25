@@ -359,7 +359,7 @@ int Limits::_computeCategory(Db *db,
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     double value = db->getArray(iech, iatt);
@@ -501,7 +501,7 @@ int Limits::_computeIndicator(Db *db,
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     double value = db->getArray(iech, iatt);
@@ -594,7 +594,7 @@ int Limits::_computeIndicator(Db *db,
 
   if (!flag_indic)
   {
-    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    for (int iech = 0; iech < db->getNSample(); iech++)
     {
       if (! db->isActive(iech)) continue;
       double value = db->getArray(iech, iptr_mean);
@@ -694,7 +694,7 @@ VectorDouble Limits::_computeLimitStatistics(Db *db,
   /* Loop on the samples */
 
   int nactive = 0;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     double value = db->getArray(iech, iatt);

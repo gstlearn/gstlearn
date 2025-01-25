@@ -40,7 +40,7 @@ manual_centering <- function(data, target) {
     
     xy_nm = data$getNamesByLocator(ELoc_X())
     # initial coordinates
-    xy = matrix(NaN, nrow = data$getSampleNumber(), ncol = length(xy_nm))
+    xy = matrix(NaN, nrow = data$getNSample(), ncol = length(xy_nm))
     for (i in seq_along(xy_nm)) {
       xy[, i] = data$getColumns(xy_nm[i])
     }
@@ -154,7 +154,7 @@ data_ini1$setLocators("Y", ELoc_Z())
 
 # Second input data set (extracted from the target grid)
 data_ini2 = Db_createSamplingDb(target, number=nech, names=c("x1","x2"))
-data_ini2["Y"] = rnorm(data_ini2$getSampleNumber())
+data_ini2["Y"] = rnorm(data_ini2$getNSample())
 data_ini2$setLocators("Y", ELoc_Z())
 ```
 

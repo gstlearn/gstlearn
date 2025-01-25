@@ -259,7 +259,7 @@ neigh = NeighUnique()
 
   # cross plot of kriging std. (SPDE vs. kriging)
   nm_sims = grid$getNames(names = "SPDE.Z.*")
-  tab = matrix(grid$getColumns(names = nm_sims) , nrow = grid$getSampleNumber(), ncol = length(nm_sims))
+  tab = matrix(grid$getColumns(names = nm_sims) , nrow = grid$getNSample(), ncol = length(nm_sims))
   estim = apply(X = tab, MARGIN = 1, FUN = mean)
   stdev = apply(X = tab, MARGIN = 1, FUN = sd)
   grid["SPDE.ZMC.estim"] = estim
@@ -371,7 +371,7 @@ neigh = NeighUnique()
 
   # cross plot of kriging std. (SPDE vs. kriging)
   nm_sims = grid$getNames(names = "SPDE.Z.*")
-  tab = matrix(grid$getColumns(names = nm_sims) , nrow = grid$getSampleNumber(), ncol = length(nm_sims))
+  tab = matrix(grid$getColumns(names = nm_sims) , nrow = grid$getNSample(), ncol = length(nm_sims))
   estim = apply(X = tab, MARGIN = 1, FUN = mean)
   stdev = apply(X = tab, MARGIN = 1, FUN = sd)
   grid["SPDE.ZMC.estim"] = estim

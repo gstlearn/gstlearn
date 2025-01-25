@@ -826,7 +826,7 @@ int Rule::gaus2facData(PropDef* propdef,
 
   /* Processing the translation */
 
-  for (int iech=0; iech<dbin->getSampleNumber(); iech++)
+  for (int iech=0; iech<dbin->getNSample(); iech++)
   {
     if (! dbin->isActive(iech)) continue;
 
@@ -888,7 +888,7 @@ int Rule::gaus2facResult(PropDef  *propdef,
 
   /* Processing the translation */
 
-  for (iech=0; iech<dbout->getSampleNumber(); iech++)
+  for (iech=0; iech<dbout->getNSample(); iech++)
   {
     if (! dbout->isActive(iech)) continue;
 
@@ -976,7 +976,7 @@ int Rule::evaluateBounds(PropDef* propdef,
 
   if (dbin == nullptr) return(0);
   nadd = 0;
-  nech = dbin->getSampleNumber();
+  nech = dbin->getNSample();
 
   /* Dispatch */
 

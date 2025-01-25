@@ -24,12 +24,12 @@ def check_nrows(db, nrows):
     for useSel (whether it matches the number of active samples or the total number of samples)"""
     if nrows == db.getActiveSampleNumber() :
         useSel = True
-    elif nrows == db.getSampleNumber() or db.getSampleNumber()==0:
+    elif nrows == db.getNSample() or db.getNSample()==0:
         useSel = False
     else:
-        if db.getActiveSampleNumber() != db.getSampleNumber():
+        if db.getActiveSampleNumber() != db.getNSample():
             raise ValueError(f"Error of dimension. Your number of lines ({nrows}) has to be equal to " +
-                str(db.getActiveSampleNumber()) + " or " + str(db.getSampleNumber()))
+                str(db.getActiveSampleNumber()) + " or " + str(db.getNSample()))
         else :
             raise ValueError(f"Error of dimension. Your number of lines ({nrows}) has to be equal to " +
                   str(db.getActiveSampleNumber()))
@@ -94,7 +94,7 @@ def getNrows(self, useSel=None):
     if useSel:
         nrows = self.getActiveSampleNumber()
     else:
-        nrows = self.getSampleNumber()
+        nrows = self.getNSample()
     return nrows
 
 def getitem(self,arg):

@@ -299,13 +299,13 @@ VectorVectorDouble DriftList::getDrifts(const Db* db, bool useSel) const
 {
   VectorVectorDouble vecvec;
   int nbfl = getDriftNumber();
-  int nech = db->getSampleNumber(useSel);
+  int nech = db->getNSample(useSel);
   VectorDouble vec(nech);
 
   for (int ib=0; ib<nbfl; ib++)
   {
     int ecr = 0;
-    for (int iech=0; iech<db->getSampleNumber(); iech++)
+    for (int iech=0; iech<db->getNSample(); iech++)
     {
       if (useSel && ! db->isActive(iech)) continue;
       vec[ecr++] = _drifts[ib]->eval(db, iech);
@@ -356,7 +356,7 @@ VectorDouble DriftList::evalDriftCoefs(const Db *db,
     return vec;
   }
 
-  for (int iech=0, nech=db->getSampleNumber(); iech<nech; iech++)
+  for (int iech=0, nech=db->getNSample(); iech<nech; iech++)
   {
     if (useSel && ! db->isActive(iech)) continue;
     double value = evalDriftCoef(db, iech, coeffs);

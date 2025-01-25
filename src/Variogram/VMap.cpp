@@ -629,7 +629,7 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
 
   int ndim = _dbmap->getNDim();
   int nvar = db->getLocNumber(ELoc::Z);
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int nv2 = nvar * (nvar + 1) / 2;
 
   /* Core allocation */
@@ -771,14 +771,14 @@ int VMap::_vmap_grid(DbGrid *dbgrid, const NamingConvention &namconv)
 
   /* Loop on the first data */
 
-  for (int iech1 = 0; iech1 < dbgrid->getSampleNumber(); iech1++)
+  for (int iech1 = 0; iech1 < dbgrid->getNSample(); iech1++)
   {
     if (!dbgrid->isActive(iech1)) continue;
     dbgrid->rankToIndice(iech1, ind1);
 
     /* Loop on the second data */
 
-    for (int iech2 = 0; iech2 < dbgrid->getSampleNumber(); iech2++)
+    for (int iech2 = 0; iech2 < dbgrid->getNSample(); iech2++)
     {
       if (!dbgrid->isActive(iech2)) continue;
       dbgrid->rankToIndice(iech2, ind2);
@@ -1157,7 +1157,7 @@ int VMap::_findNeighCell(const VectorInt& indg0,
  *****************************************************************************/
 void VMap::_vmap_normalize(int nv2)
 {
-  for (int iech = 0; iech < _dbmap->getSampleNumber(); iech++)
+  for (int iech = 0; iech < _dbmap->getNSample(); iech++)
   {
     for (int ijvar = 0; ijvar < nv2; ijvar++)
     {

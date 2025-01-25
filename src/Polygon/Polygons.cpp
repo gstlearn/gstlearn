@@ -528,7 +528,7 @@ int dbPolygonDistance(Db *db,
 
   // Initializations
 
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
 
   // Create a new attribute
 
@@ -837,7 +837,7 @@ int Polygons::_buildHull(const Db *db, double dilate, bool verbose)
     messerr("The input Db must be contain at least 2 coordinates");
     return 1;
   }
-  int number = db->getSampleNumber(true);
+  int number = db->getNSample(true);
   if (number <= 0)
   {
     messerr("No active data in the input Db. Convex Hull impossible");
@@ -942,9 +942,9 @@ void db_polygon(Db *db,
   /* Loop on the samples */
 
   VectorDouble coor(3, TEST);
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
-    mes_process("Checking if sample belongs to a polygon",db->getSampleNumber(),iech);
+    mes_process("Checking if sample belongs to a polygon",db->getNSample(),iech);
     int selval = 0;
     if (! flag_sel || db->isActive(iech))
     {
@@ -1002,7 +1002,7 @@ int db_selhull(Db *db1,
   // Note that all samples must be checked as a sample, initially masked, can be
   // masked OFF as it belongs to the convex hull.
 
-  int ntotal = db2->getSampleNumber();
+  int ntotal = db2->getNSample();
   int nactive = 0;
   int nout = 0;
   int nin = 0;

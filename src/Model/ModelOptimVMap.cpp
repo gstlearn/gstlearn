@@ -114,7 +114,7 @@ double ModelOptimVMap::evalCost(unsigned int nparams,
   const DbGrid* dbmap   = vmapPart._dbmap;
   int ndim              = dbmap->getLocNumber(ELoc::X);
   int nvar              = dbmap->getLocNumber(ELoc::Z);
-  int nech              = dbmap->getSampleNumber();
+  int nech              = dbmap->getNSample();
 
   // Update the Model
   _patchModel(modelPart, current);
@@ -204,7 +204,7 @@ int ModelOptimVMap::_getDimensions()
   int nbexp  = 0;
   int npadir = 0;
   int nvar   = _vmapPart._dbmap->getLocNumber(ELoc::Z);
-  int nech   = _vmapPart._dbmap->getSampleNumber();
+  int nech   = _vmapPart._dbmap->getNSample();
   int nvs2   = nvar * (nvar + 1) / 2;
 
   /* Calculate the total number of lags */
@@ -239,7 +239,7 @@ void ModelOptimVMap::_computeFromVMap()
 {
   const DbGrid* dbmap = _vmapPart._dbmap;
   int nvar            = dbmap->getLocNumber(ELoc::Z);
-  int nech            = dbmap->getSampleNumber();
+  int nech            = dbmap->getNSample();
   int nvs2            = nvar * (nvar + 1) / 2;
   int npadir          = _vmapPart._npadir;
   dbmap->rankToIndice(nech / 2, _vmapPart._indg1);

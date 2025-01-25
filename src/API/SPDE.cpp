@@ -304,7 +304,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
       VectorDouble valData = _data->getColumnByLocator(ELoc::Z,0,useSel);
       VectorDouble varData = _data->getColumnByLocator(ELoc::V,0,useSel);
       double eps_loc = _params.getEpsNugget() * totalSill;
-      for (int iech = 0; iech < _data->getSampleNumber(true); iech++)
+      for (int iech = 0; iech < _data->getNSample(true); iech++)
       {
         if (FFFF(valData[iech])) continue;
         {
@@ -364,7 +364,7 @@ void SPDE::_computeSimuCond() const
   _computeSimuNonCond();
 
   // Perform the non conditional simulation on data
-  std::vector<double> temp_dat(_data->getSampleNumber(true));
+  std::vector<double> temp_dat(_data->getNSample(true));
   _precisionsSimu->simulateOnDataPointFromMeshings(_workingSimu, temp_dat);
 
   // Calculate the simulation error
@@ -473,7 +473,7 @@ int SPDE::compute(Db *dbout,
 
   // Dispatch
 
-  VectorDouble result(dbout->getSampleNumber(true));
+  VectorDouble result(dbout->getNSample(true));
 
   if (_calcul == ESPDECalcMode::KRIGING)
   {
@@ -502,8 +502,8 @@ int SPDE::compute(Db *dbout,
                                 "estim", 1);
 
     // Standard Deviation using Monte-Carlo simulations
-    VectorDouble temp_mean(dbout->getSampleNumber(true), 0.);
-    VectorDouble temp_mean2(dbout->getSampleNumber(true), 0.);
+    VectorDouble temp_mean(dbout->getNSample(true), 0.);
+    VectorDouble temp_mean2(dbout->getNSample(true), 0.);
 
     for (int isimu = 0; isimu < nbsimu; isimu++)
     {
@@ -568,7 +568,7 @@ void SPDE::_projecLocal(Db* dbout,
                         std::vector<double>& working,
                         VectorDouble& result)
 {
-  std::vector<double> temp_out(dbout->getSampleNumber(true));
+  std::vector<double> temp_out(dbout->getNSample(true));
   vect tempoutm(temp_out);
   constvect workingm(working);
   ProjMatrix proj(dbout,meshing);
@@ -923,7 +923,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
 
   MatrixSparse* mat = nullptr;
   if (db == nullptr) return mat;
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   if (model == nullptr) return mat;
   int nvar = db->getLocNumber(ELoc::Z);
   if (nvar != model->getNVar())

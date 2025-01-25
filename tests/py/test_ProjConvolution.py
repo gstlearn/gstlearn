@@ -32,8 +32,8 @@ wavelet = [-0.000000,-0.010629,0.079015,0.209873,
 
 test  = gl.DbGrid.create([5,5,40])
 projc = gl.ProjConvolution(wavelet,test,nodeRes2D=[3,3])
-nrow  = test.getSampleNumber()
-ncol  = projc.getResolutionGrid().getSampleNumber()
+nrow  = test.getNSample()
+ncol  = projc.getResolutionGrid().getNSample()
 A = np.zeros(shape=(nrow,ncol))
 B = np.zeros(shape=(ncol,nrow))
 

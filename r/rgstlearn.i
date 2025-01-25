@@ -788,7 +788,7 @@ function (x,i,j,...,drop=TRUE)
   dots = list(...)
   if (length(dots) > 0) args = append(args, dots)
   nargs = length(args)
-  nech_abs = db$getSampleNumber()
+  nech_abs = db$getNSample()
   ncol_abs = db$getColumnNumber()
   rows <- NA
   namcols <- NA
@@ -843,7 +843,7 @@ function (x,i,j,...,drop=TRUE)
   if (length(dots) > 0) args = append(args, dots)
   nargs = length(args)
   
-  nech_abs = db$getSampleNumber()
+  nech_abs = db$getNSample()
   ncol_abs = db$getColumnNumber()
   value = as.numeric(unlist(value))
 

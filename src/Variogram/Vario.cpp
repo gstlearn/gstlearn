@@ -754,7 +754,7 @@ MatrixSquareGeneral Vario::_evalAverageDbIncr(Model *model,
                                               const CovCalcMode *mode) const
 {
   int nvar = getNVar();
-  int nech = db.getSampleNumber(true);
+  int nech = db.getNSample(true);
   int ndim = getDimensionNumber();
   int norme = nech * nech;
 
@@ -2638,14 +2638,14 @@ void Vario::_calculateBiasGlobal(Db *db)
   /* Calculate the term: G %*% X */
 
   int iiech = 0;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
     for (int il = 0; il < nbfl; il++)
     {
       value = 0;
       int jjech = 0;
-      for (int jech = 0; jech < db->getSampleNumber(); jech++)
+      for (int jech = 0; jech < db->getNSample(); jech++)
       {
         if (!db->isActiveAndDefined(jech, 0)) continue;
         for (int idim = 0; idim < ndim; idim++)
@@ -2673,7 +2673,7 @@ void Vario::_calculateBiasGlobal(Db *db)
   /* Calculate the term: diag(bias) */
 
   iiech = 0;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
     _DRFDIAG[iiech] = _getBias(iiech, iiech);
@@ -2739,7 +2739,7 @@ void Vario::_calculateOnLineSolution(Db *db, int idir, int norder)
   int jech, keep;
   double value, zz;
 
-  int nech     = db->getSampleNumber();
+  int nech     = db->getNSample();
   int npas     = getLagNumber(idir);
   int nvar     = getNVar();
   double dist0 = 0.;
@@ -2827,7 +2827,7 @@ void Vario::_patchC00(Db *db, int idir)
 
       /* Calculate the statistics for each variable */
 
-      for (int iech = 0; iech < db->getSampleNumber(); iech++)
+      for (int iech = 0; iech < db->getNSample(); iech++)
       {
         if (!db->isActive(iech)) continue;
         ww = db->getWeight(iech);
@@ -2929,7 +2929,7 @@ int Vario::_calculateOnGrid(DbGrid *db)
     if (iadd_new < 0) return 1;
     db->setLocatorByUID(iadd_new, ELoc::W, 0);
     maille = db->getCellSize();
-    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    for (int iech = 0; iech < db->getNSample(); iech++)
       db->setLocVariable(ELoc::W, iech, 0, maille);
   }
 
@@ -3029,7 +3029,7 @@ void Vario::_getStatistics(Db *db)
       double s12wz2 = 0.;
       double s12wzz = 0.;
 
-      for (int iech = 0; iech < db->getSampleNumber(); iech++)
+      for (int iech = 0; iech < db->getNSample(); iech++)
       {
         if (!db->isActive(iech)) continue;
         ww = db->getWeight(iech);
@@ -3245,7 +3245,7 @@ double Vario::_g(Db *db, int iech, int jech) const
 int Vario::_getRelativeSampleRank(Db *db, int iech0)
 {
   int iiech = 0;
-  for (int iech = 0, nech = db->getSampleNumber(); iech < nech; iech++)
+  for (int iech = 0, nech = db->getNSample(); iech < nech; iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
     if (iech == iech0) return (iiech);
@@ -3329,7 +3329,7 @@ int Vario::_calculateGeneralSolution1(Db *db,
   int iech, jech, ipas, npair, ideb;
 
   DirParam dirparam = getDirParam(idir);
-  int nech          = db->getSampleNumber();
+  int nech          = db->getNSample();
   int nvar = getNVar();
   double maxdist = getMaximumDistance(idir);
   const VarioParam& varioparam = getVarioParam();
@@ -3430,7 +3430,7 @@ int Vario::_calculateGeneralSolution2(Db *db, int idir, const int *rindex)
 
  const VarioParam& varioparam = getVarioParam();
  const DirParam& dirparam     = getDirParam(idir);
- int nech                     = db->getSampleNumber();
+ int nech                     = db->getNSample();
  int size                     = getDirSize(idir);
  int nvar                     = getNVar();
  double maxdist               = getMaximumDistance(idir);
@@ -3539,7 +3539,7 @@ int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
 
   /* Initializations */
 
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int npas = getLagNumber(idir);
   const DirParam &dirparam = getDirParam(idir);
 
@@ -3623,7 +3623,7 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
 
  /* Initializations */
 
- int nech                 = db->getSampleNumber();
+ int nech                 = db->getNSample();
  int npas                 = getLagNumber(idir);
  int ndim                 = db->getNDim();
  int nvar                 = getNVar();
@@ -3782,7 +3782,7 @@ void Vario::_centerCovariance(Db *db, int idir)
       /* Calculate the mean for each variable */
 
       m1 = m2 = sumw = 0.;
-      for (int iech = 0, nech = db->getSampleNumber(); iech < nech; iech++)
+      for (int iech = 0, nech = db->getNSample(); iech < nech; iech++)
       {
         if (!db->isActive(iech)) continue;
         ww = db->getWeight(iech);
@@ -3868,7 +3868,7 @@ int Vario::computeGeometry(Db *db, Vario_Order *vorder, int *npair)
   bool hasSel    = db->hasLocVariable(ELoc::SEL);
   bool hasWeight = db->hasLocVariable(ELoc::W);
   bool hasDate   = varioparam.isDateUsed(db);
-  int nech       = db->getSampleNumber();
+  int nech       = db->getNSample();
   int ndir       = getDirectionNumber();
   double dist    = 0.;
 
@@ -4069,7 +4069,7 @@ int Vario::_calculateVarioVectSolution(Db *db, int idir, int ncomp, const int *r
   double w1, w2, zi1, zi2, zj1, zj2, v12, v21, di1, di2, dj1, dj2;
 
   const DirParam &dirparam = getDirParam(idir);
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int nvar = getNVar();
   double maxdist = getMaximumDistance(idir);
 
@@ -4224,7 +4224,7 @@ void Vario::_getVarioVectStatistics(Db *db, int ncomp)
       /* Loop on the samples */
 
       s12ww = s12wzz = 0.;
-      for (int iech = 0; iech < db->getSampleNumber(); iech++)
+      for (int iech = 0; iech < db->getNSample(); iech++)
       {
         if (!db->isActive(iech)) continue;
         ww = db->getWeight(iech);
@@ -4457,7 +4457,7 @@ int Vario::_driftEstimateCoefficients(Db *db)
 
   /* Calculate: t(X) %*% X */
 
-  for (int iech = iiech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = iiech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
     VectorDouble drfloc = _model->evalDriftBySample(db, iech, ECalcMember::LHS);
@@ -4653,7 +4653,7 @@ int Vario::computeGeometryMLayers(Db *db,
 
    // Local variables to speed up calculations
    bool hasSel = db->hasLocVariable(ELoc::SEL);
-   int nech    = db->getSampleNumber();
+   int nech    = db->getNSample();
    int ndir    = getDirectionNumber();
    double dist = 0.;
 

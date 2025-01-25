@@ -204,7 +204,7 @@ void SimuSpectral::_simulateOnSphere(int nd, bool verbose)
 
 void SimuSpectral::_computeOnRn(Db *dbout, int iuid, bool verbose)
 {
-  int nech = dbout->getSampleNumber(true);
+  int nech = dbout->getNSample(true);
 
   // Preparation
   MatrixSquareGeneral tensor = _model->getCova(0)->getAniso().getTensorInverse();
@@ -254,7 +254,7 @@ int SimuSpectral::compute(Db *dbout,
                           bool verbose,
                           const NamingConvention &namconv)
 {
-  int nech = dbout->getSampleNumber(true);
+  int nech = dbout->getNSample(true);
   int ndim = dbout->getNDim();
   bool flagNewVariable = (iuid <= 0);
 
@@ -391,7 +391,7 @@ void SimuSpectral::_printSpSims(int status)
 
 void SimuSpectral::_computeOnSphere(Db* dbout, int iuid, bool verbose)
 {
-  int np   = dbout->getSampleNumber(true);
+  int np   = dbout->getNSample(true);
 
   int nb = 0;
   int N_max = -9999;

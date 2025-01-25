@@ -157,7 +157,7 @@ int SpatialIndices::computeCGI(const String &name)
 {
   // Initializations
   double wvalue, value, weight;
-  int nech = _db->getSampleNumber();
+  int nech = _db->getNSample();
   int ndim = _db->getNDim();
   bool flag_w = _db->hasLocVariable(ELoc::W);
 
@@ -232,7 +232,7 @@ double SpatialIndices::getLIC(const String &name1, const String &name2)
 {
   // Initializations
   double wvalue, value1, value2, weight;
-  int nech = _db->getSampleNumber();
+  int nech = _db->getNSample();
   int ndim = _db->getNDim();
   bool flag_w = _db->hasLocVariable(ELoc::W);
 
@@ -399,7 +399,7 @@ void SpatialIndices::spatial(const String &name)
   double top = 0.;
   double bot = 0.;
   double sum = 0.;
-  for (int iech = 0, nech = _db->getSampleNumber(); iech < nech; iech++)
+  for (int iech = 0, nech = _db->getNSample(); iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue)) continue;
     if (value > 0)
@@ -450,7 +450,7 @@ VectorVectorDouble SpatialIndices::getQT(const String &name) const
   VectorDouble zz;
   VectorDouble ww;
   VectorDouble wz;
-  for (int iech = 0, nech = _db->getSampleNumber(); iech < nech; iech++)
+  for (int iech = 0, nech = _db->getNSample(); iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue))
       continue;
@@ -504,7 +504,7 @@ double SpatialIndices::getMicroStructure(const String& name,
   double xmax = -1.e30;
   double ymin = +1.e30;
   double ymax = -1.e30;
-  for (int iech = 0, nech = _db->getSampleNumber(); iech < nech; iech++)
+  for (int iech = 0, nech = _db->getNSample(); iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue))
       continue;
@@ -687,7 +687,7 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
   VectorDouble ww;
   VectorDouble zz;
   VectorInt origRank;
-  for (int iech = 0, nech = _db->getSampleNumber(); iech < nech; iech++)
+  for (int iech = 0, nech = _db->getNSample(); iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue))
       continue;

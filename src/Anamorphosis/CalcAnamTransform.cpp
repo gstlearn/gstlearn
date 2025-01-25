@@ -370,7 +370,7 @@ bool CalcAnamTransform::_run()
 
 bool CalcAnamTransform::_ZToYByNormalScore()
 {
-  int nech = getDb()->getSampleNumber();
+  int nech = getDb()->getNSample();
   int nvar = _getNVar();
 
   // Reading the optional weight
@@ -427,7 +427,7 @@ bool CalcAnamTransform::_ZToFactors()
 {
   int nfact = _getNfact();
 
-  for (int iech = 0; iech < getDb()->getSampleNumber(); iech++)
+  for (int iech = 0; iech < getDb()->getNSample(); iech++)
   {
     if (! getDb()->isActive(iech)) continue;
     double zval = getDb()->getZVariable(iech, 0);
@@ -758,7 +758,7 @@ int CalcAnamTransform::_uniformConditioning(Db* db,
   double sv_max = -1.e30;
   double yv_max = -1.e30;
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     anam->setPsiHns(psi_hn);
@@ -777,7 +777,7 @@ int CalcAnamTransform::_uniformConditioning(Db* db,
 
   /* Loop on the panels to compute the grade-tonnage functions */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     double sv = db->getArray(iech, iptr_sV);
@@ -876,7 +876,7 @@ void CalcAnamTransform::_getVectorsForCE(Db* db,
                                           VectorDouble& krigest,
                                           VectorDouble& krigstd)
 {
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   krigest.resize(nech);
   krigstd.resize(nech);
   for (int iech = 0; iech < nech; iech++)
@@ -929,7 +929,7 @@ int CalcAnamTransform::_ceZ(Db* db,
 
   int iptrEst = selectivity->getAddressQTEst(ESelectivity::Z, iptr0);
   int iptrStd = selectivity->getAddressQTStd(ESelectivity::Z, iptr0);
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     if (selectivity->isUsedEst(ESelectivity::Z))
@@ -990,7 +990,7 @@ int CalcAnamTransform::_ceT(int mode,
     int iptrStd = selectivity->getAddressQTStd(ESelectivity::T, iptr0, icut);
     int iptrProba =
       selectivity->getAddressQTEst(ESelectivity::PROP, iptr0, icut);
-    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    for (int iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
       if (mode == 1)
@@ -1039,7 +1039,7 @@ int CalcAnamTransform::_ceQuant(Db* db,
 
   int iptrQuant = selectivity->getAddressQTEst(ESelectivity::QUANT, iptr0);
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     _correctForOK(db, iech, col_est, col_std, flag_OK, &krigest, &krigstd);
@@ -1100,7 +1100,7 @@ int CalcAnamTransform::_ceQ(Db* db,
 
     int iptrEst = selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut);
     int iptrStd = selectivity->getAddressQTStd(ESelectivity::Q, iptr0, icut);
-    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    for (int iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
       if (selectivity->isUsedEst(ESelectivity::Q))
@@ -1141,7 +1141,7 @@ int CalcAnamTransform::_ceB(Db* db,
 
     /* Loop on the samples */
 
-    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    for (int iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
 
@@ -1178,7 +1178,7 @@ int CalcAnamTransform::_ceM(Db* db, const Selectivity* selectivity, int iptr0)
 
     /* Loop on the samples */
 
-    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    for (int iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
 

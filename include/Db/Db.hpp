@@ -261,7 +261,7 @@ public:
   inline int getColumnNumber() const { return _ncol; }
 
   static int getNEloc();
-  int getSampleNumber(bool useSel = false) const;
+  int getNSample(bool useSel = false) const;
   int getNumberActiveAndDefined(int item) const;
   int getActiveSampleNumber() const;
   int getRankRelativeToAbsolute(int irel) const;

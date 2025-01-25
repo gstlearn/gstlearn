@@ -1452,7 +1452,7 @@ void KrigingSystem::_estimateCalculImage(int status)
   VectorInt indnl(_ndim);
   VectorInt indgl(_ndim);
 
-  _dbaux->rankToIndice(_dbaux->getSampleNumber()/2, indn0);
+  _dbaux->rankToIndice(_dbaux->getNSample()/2, indn0);
   dbgrid->rankToIndice(_iechOut, indg0);
   VH::subtractInPlace(indg0, indn0);
 
@@ -1514,7 +1514,7 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
     /* Perform the estimation */
 
     double valest = _getMean(0, true);
-    for (int jech = 0; jech < _dbin->getSampleNumber(); jech++)
+    for (int jech = 0; jech < _dbin->getNSample(); jech++)
     {
       int jjech = _getFlagAddress(jech, 0);
       if (jjech < 0) continue;
@@ -3097,7 +3097,7 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux, const NeighImage* neighI)
   NeighUnique* neighU = NeighUnique::create(false);
   neighU->attach(dbaux, dbaux);
 
-  _iechOut = dbaux->getSampleNumber() / 2;
+  _iechOut = dbaux->getNSample() / 2;
   neighU->select(_iechOut, _nbgh);
   if (_setInternalShortCutVariablesNeigh()) return error;
 
@@ -3223,7 +3223,7 @@ VectorDouble KrigingSystem::getZamC() const
 int KrigingSystem::_bayesPreCalculations()
 {
   if (_dbin == nullptr) return 1;
-  // _iechOut = _dbin->getSampleNumber() / 2;
+  // _iechOut = _dbin->getNSample() / 2;
   _iechOut = 0;
 
   // Elaborate the (Unique) Neighborhood
@@ -3485,7 +3485,7 @@ int KrigingSystem::_getFlagAddress(int iech0, int ivar0)
 {
   int rank = 0;
   for (int ivar = 0; ivar < _nvar; ivar++)
-    for (int iech = 0; iech < (int) _dbin->getSampleNumber(); iech++)
+    for (int iech = 0; iech < (int) _dbin->getNSample(); iech++)
     {
       bool found = (ivar == ivar0 && iech == iech0);
       if (!_dbin->isActive(iech) || !_dbin->isIsotopic(iech))

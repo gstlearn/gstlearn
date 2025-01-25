@@ -214,7 +214,7 @@ void RuleShadow::_st_shadow_max(const Db *dbprop,
   else
   {
     *sh_dsup_max = *sh_down_max = 0.;
-    for (iech = 0; iech < dbprop->getSampleNumber(); iech++)
+    for (iech = 0; iech < dbprop->getNSample(); iech++)
     {
       val2 = dbprop->getLocVariable(ELoc::P,iech, 1);
       if (val2 > (*sh_dsup_max)) (*sh_dsup_max) = val2;
@@ -361,7 +361,7 @@ int RuleShadow::gaus2facData(PropDef *propdef,
 
   /* Processing the translation */
 
-  for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbin->getNSample(); iech++)
   {
     if (!dbin->isActive(iech)) continue;
 
@@ -429,7 +429,7 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
   error = 1;
   nstep = 0;
   ndim  = dbgrid->getNDim();
-  nech  = dbgrid->getSampleNumber();
+  nech  = dbgrid->getNSample();
   icase = get_rank_from_propdef(propdef, ipgs, 0);
   _xyz.resize(ndim);
   _ind1.resize(ndim);
@@ -446,7 +446,7 @@ int RuleShadow::gaus2facResult(PropDef *propdef,
 
   /* Processing the translation */
 
-  for (iech = 0; iech < dbgrid->getSampleNumber(); iech++)
+  for (iech = 0; iech < dbgrid->getNSample(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
 
@@ -536,7 +536,7 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
 
   if (dbin == nullptr) return (0);
   nadd = jech = 0;
-  nech = dbin->getSampleNumber();
+  nech = dbin->getNSample();
   dist = 0.;
   dinc = getIncr();
   nstep = (int) floor(getDMax() / dinc);

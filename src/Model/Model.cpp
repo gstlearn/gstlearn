@@ -1739,7 +1739,7 @@ VectorDouble Model::evalDriftVarCoefs(const Db *db,
   if (_driftList == nullptr)
   {
     if (db == nullptr) return vec;
-    int nech = db->getSampleNumber(useSel);
+    int nech = db->getNSample(useSel);
     double mean = getMean(ivar);
     vec = VectorDouble(nech, mean);
   }
@@ -1906,7 +1906,7 @@ int Model::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv) co
   VectorDouble dincr(ndim);
   VectorInt indices(ndim);
   MatrixSquareGeneral mat;
-  for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbgrid->getNSample(); iech++)
   {
     if (! dbgrid->isActive(iech)) continue;
     dbgrid->rankToIndice(iech, indices);
@@ -2232,7 +2232,7 @@ VectorDouble Model::evaluateFromDb(Db *db,
   }
   int ndim = getDimensionNumber();
   int nvar = getNVar();
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
 
   /* Core allocation */
 
@@ -2339,7 +2339,7 @@ double Model::computeLogLikelihood(const Db* db, bool verbose)
   if (verbose)
   {
     message("Likelihood calculation:\n");
-    message("- Number of active samples     = %d\n", db->getSampleNumber(true));
+    message("- Number of active samples     = %d\n", db->getNSample(true));
     message("- Number of variables          = %d\n", nvar);
     message("- Length of Information Vector = %d\n", size);
     if (nDrift > 0)

@@ -721,7 +721,7 @@ int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
 
   /* Loop on the cells of the Output Grid */
 
-  for (iech = 0; iech < dbgrid2->getSampleNumber(); iech++)
+  for (iech = 0; iech < dbgrid2->getNSample(); iech++)
   {
     result1 = result2 = result = TEST;
     OptDbg::setCurrentIndex(iech + 1);
@@ -732,7 +732,7 @@ int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
 
       /* Load the subgrid to be upscaled */
 
-      probtot = st_extract_subgrid(verbose, 0, iech, dbgrid2->getSampleNumber(),
+      probtot = st_extract_subgrid(verbose, 0, iech, dbgrid2->getNSample(),
                                    ntot, dbgrid1, ind0, ixyz.data(), nxyz, numtab0,
                                    valtab0);
 
@@ -1277,7 +1277,7 @@ int db_diffusion(DbGrid *dbgrid1,
   /* Preliminary checks */
 
   ndim = dbgrid1->getNDim();
-  nech = dbgrid2->getSampleNumber();
+  nech = dbgrid2->getNSample();
   int ndim2 = dbgrid2->getNDim();
   VectorInt ixyz(ndim2,0);
   if (ndim < 1 || ndim > 3)

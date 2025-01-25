@@ -520,7 +520,7 @@ int model_covmat_inchol(int verbose,
   VectorDouble d1;
 
   error = 1;
-  nech = db->getSampleNumber();
+  nech = db->getNSample();
   pvec = nullptr;
   diag = crit = G = Gmatrix = nullptr;
   flag_incr = (center != nullptr);

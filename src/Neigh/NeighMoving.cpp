@@ -381,7 +381,7 @@ int NeighMoving::attach(const Db *dbin, const Db *dbout)
     if (! _bipts[ipt]->isValid(dbin, dbout)) return 1;
   }
 
-  int nech = _dbin->getSampleNumber();
+  int nech = _dbin->getNSample();
   int nsect = getNSect();
   _movingInd = VectorInt(nech);
   _movingDst = VectorDouble(nech);
@@ -519,7 +519,7 @@ void NeighMoving::getNeigh(int iech_out, VectorInt& ranks)
  *****************************************************************************/
 int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
 {
-  int nech = _dbin->getSampleNumber();
+  int nech = _dbin->getNSample();
   ranks.resize(nech);
   ranks.fill(-1);
   int isect = 0;

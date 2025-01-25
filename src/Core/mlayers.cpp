@@ -690,7 +690,7 @@ static int st_lhs_one(LMlayers *lmlayers,
 
   /* Covariance part */
 
-  for (jech = jjech = 0; jech < dbin->getSampleNumber(); jech++)
+  for (jech = jjech = 0; jech < dbin->getNSample(); jech++)
   {
     if (seltab[jech] == 0) continue;
     coor2[0] = dbin->getCoordinate(jech, 0);
@@ -773,7 +773,7 @@ static int st_rhs(LMlayers *lmlayers,
 
   /* Covariance part */
 
-  for (jech = jjech = 0; jech < dbin->getSampleNumber(); jech++)
+  for (jech = jjech = 0; jech < dbin->getNSample(); jech++)
   {
     if (seltab[jech] == 0) continue;
     coor2[0] = dbin->getCoordinate(jech, 0);
@@ -857,7 +857,7 @@ static int st_lhs(LMlayers *lmlayers,
   /* Loop on the first sample */
 
   iiech = 0;
-  for (int iech=0; iech<dbin->getSampleNumber(); iech++)
+  for (int iech=0; iech<dbin->getNSample(); iech++)
   {
     if (seltab[iech] == 0) continue;
     coor[0] = dbin->getCoordinate(iech,0);
@@ -929,7 +929,7 @@ static void st_data_vector(LMlayers *lmlayers,
 
   /* Loop on the samples */
 
-  for (iech = iiech = 0; iech < dbin->getSampleNumber(); iech++)
+  for (iech = iiech = 0; iech < dbin->getNSample(); iech++)
   {
     if (seltab[iech] == 0) continue;
 
@@ -1035,7 +1035,7 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
 
   /* Find the vector of optimal mean values */
 
-  for (iech = iiech = 0; iech < dbin->getSampleNumber(); iech++)
+  for (iech = iiech = 0; iech < dbin->getNSample(); iech++)
   {
     if (seltab[iech] == 0) continue;
 
@@ -1085,7 +1085,7 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
 
   /* Subtract the optimal mean */
 
-  for (iech = iiech = 0; iech < dbin->getSampleNumber(); iech++)
+  for (iech = iiech = 0; iech < dbin->getNSample(); iech++)
   {
     if (seltab[iech] == 0) continue;
 
@@ -1175,7 +1175,7 @@ static int st_get_close_sample(LMlayers *lmlayers,
   /* Check among the subsequent samples if a sample with matching coordinates */
   /* and belonging to the bottom surface exists */
 
-  for (iech = iech0 + 1; iech < dbin->getSampleNumber(); iech++)
+  for (iech = iech0 + 1; iech < dbin->getNSample(); iech++)
   {
     dx = dbin->getCoordinate(iech, 0) - coor[0];
     if (ABS(dx) > EPS) continue;
@@ -1465,7 +1465,7 @@ static void st_estimate(LMlayers *lmlayers,
   if (flag_std && !lmlayers->flag_cumul)
     st_covariance_c00(lmlayers, model, VectorDouble(), covtab, c00);
 
-  for (iechout = 0; iechout < dbout->getSampleNumber(); iechout++)
+  for (iechout = 0; iechout < dbout->getNSample(); iechout++)
   {
     OptDbg::setCurrentIndex(iechout + 1);
     if (!dbout->isActive(iechout)) continue;
@@ -1574,7 +1574,7 @@ static int st_check_auxiliary_variables(LMlayers *lmlayers,
   double drift, value, coor[2];
 
   nechtot = 0;
-  for (iech = 0; iech < dbin->getSampleNumber(); iech++)
+  for (iech = 0; iech < dbin->getNSample(); iech++)
   {
     if (seltab[iech] == 0) continue;
     coor[0] = dbin->getCoordinate(iech, 0);
@@ -1657,7 +1657,7 @@ static void st_convert_results(LMlayers *lmlayers, Db *dbout, int flag_std)
 
   /* Loop on the target points */
 
-  for (iechout = 0; iechout < dbout->getSampleNumber(); iechout++)
+  for (iechout = 0; iechout < dbout->getNSample(); iechout++)
   {
 
     /* Identify the reference surface */
@@ -1762,7 +1762,7 @@ static int st_drift_data(LMlayers *lmlayers,
   for (int i = 0; i < npar * nech; i++)
     fftab[i] = 0.;
 
-  for (iech = iiech = 0; iech < dbin->getSampleNumber(); iech++)
+  for (iech = iiech = 0; iech < dbin->getNSample(); iech++)
   {
     if (seltab[iech] == 0) continue;
     coor[0] = dbin->getCoordinate(iech, 0);
@@ -2022,7 +2022,7 @@ int multilayers_kriging(Db* dbin,
   a0 = cc = ss = gs = post_mean = post_S = nullptr;
   lmlayers = nullptr;
   nlayers = model->getNVar();
-  nechmax = dbin->getSampleNumber();
+  nechmax = dbin->getNSample();
   ptime = (match_time) ? ELoc::F : ELoc::TIME;
   if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
@@ -2500,7 +2500,7 @@ int multilayers_vario(Db *dbin,
   flag_created = false;
   lmlayers = nullptr;
   vorder = nullptr;
-  nechmax = dbin->getSampleNumber();
+  nechmax = dbin->getNSample();
   ptime = (match_time) ? ELoc::F : ELoc::TIME;
   if (dbin->getNDim() != 2)
   {
@@ -2749,7 +2749,7 @@ int multilayers_get_prior(Db* dbin,
   flag_created = false;
   lmlayers = nullptr;
   nlayers = model->getNVar();
-  nechmax = dbin->getSampleNumber();
+  nechmax = dbin->getNSample();
   ptime = (match_time) ? ELoc::F : ELoc::TIME;
   if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))  goto label_end;
   if (dbin->getNDim() != 2)

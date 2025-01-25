@@ -131,7 +131,7 @@ NeighBench* NeighBench::createFromNF(const String& neutralFilename, bool verbose
 int NeighBench::getMaxSampleNumber(const Db* db) const
 {
   bool useSel = false;
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int ndim = db->getNDim();
   if (db->getNDim() <= 2) return nech;
 
@@ -216,7 +216,7 @@ void NeighBench::getNeigh(int iech_out, VectorInt& ranks)
  *****************************************************************************/
 void NeighBench::_bench(int iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getSampleNumber();
+  int nech = _dbin->getNSample();
   ranks.resize(nech);
   ranks.fill(-1);
 

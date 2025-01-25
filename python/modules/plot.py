@@ -1839,7 +1839,7 @@ def __ax_correlation(ax, db, namex, namey, db2=None,
     if db2 is None:
         db2 = db
    
-    if db.getSampleNumber() != db2.getSampleNumber():
+    if db.getNSample() != db2.getNSample():
         print("Db and Db2 should have the same number of samples")
         return None
 

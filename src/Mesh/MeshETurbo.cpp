@@ -544,7 +544,7 @@ void MeshETurbo::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool ve
   int iech = 0;
   int nout = 0;
   int nvalid = 0;
-  for (int jech=0; jech<db->getSampleNumber(); jech++)
+  for (int jech=0; jech<db->getNSample(); jech++)
   {
     if (! db->isActive(jech)) continue;
     if (rankZ >= 0)
@@ -610,7 +610,7 @@ void MeshETurbo::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool ve
 
   if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
-            nout, db->getSampleNumber(true));
+            nout, db->getNSample(true));
 
   return m->resetFromTriplet(NF_T);
 }

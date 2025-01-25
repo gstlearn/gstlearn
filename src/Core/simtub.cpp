@@ -136,7 +136,7 @@ void simu_func_continuous_update(Db *db, int verbose, int isimu, int nbsimu)
 
   /* Loop on the grid cells */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     simval = db->getFromLocator(ELoc::SIMU, iech, iptr_simu);
@@ -174,7 +174,7 @@ void simu_func_categorical_update(Db *db, int verbose, int isimu, int nbsimu)
 
   /* Loop on the grid cells */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     facies = (int) db->getFromLocator(ELoc::FACIES, iech, iptr_simu) - 1;
@@ -208,7 +208,7 @@ void simu_func_continuous_scale(Db *db, int verbose, int nbsimu)
 
   /* Loop on the grid cells */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     mean = db->getZVariable(iech, 0) / nbsimu;
@@ -248,7 +248,7 @@ void simu_func_categorical_scale(Db *db, int verbose, int nbsimu)
 
   /* Loop on the grid cells */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     for (int ifac = 0; ifac < nfacies; ifac++)
@@ -497,7 +497,7 @@ static void st_suppress_added_samples(Db *db, int nech)
   int iech;
 
   if (nech <= 0) return;
-  for (iech = db->getSampleNumber() - 1; iech >= nech; iech--)
+  for (iech = db->getNSample() - 1; iech >= nech; iech--)
     (void) db->deleteSample(iech);
 }
 
@@ -690,7 +690,7 @@ int simpgs(Db* dbin,
   /* Input Db */
   if (flag_cond)
   {
-    nechin = dbin->getSampleNumber();
+    nechin = dbin->getNSample();
     if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
   }
 
@@ -1054,7 +1054,7 @@ int simbipgs(Db *dbin,
   /* Input Db */
   if (flag_cond)
   {
-    nechin = dbin->getSampleNumber();
+    nechin = dbin->getNSample();
     if (!dbin->isVariableNumberComparedTo(2)) goto label_end;
     iatt_z[0] = dbin->getUIDByLocator(ELoc::Z, 0);
     iatt_z[1] = dbin->getUIDByLocator(ELoc::Z, 1);
@@ -1388,7 +1388,7 @@ int db_simulations_to_ce(Db *db,
   error = 1;
   iptr_ce = iptr_cstd = iptr_nb = -1;
   if (db == nullptr) goto label_end;
-  nech = db->getSampleNumber();
+  nech = db->getNSample();
   if (nbsimu <= 0 || nvar <= 0 || nech <= 0) return (1);
 
   // Allocate the new attributes:
@@ -1741,8 +1741,8 @@ int simtub_constraints(Db* dbin,
 
   flag_grid = dbout->isGrid();
   ndim = dbout->getNDim();
-  nech = dbout->getSampleNumber();
-  tab.resize(dbout->getSampleNumber());
+  nech = dbout->getNSample();
+  tab.resize(dbout->getNSample());
   if (flag_grid)
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
@@ -1864,7 +1864,7 @@ static int st_maxstable_mask(Db *dbout,
   int iech, number;
   double valsim;
 
-  for (iech = number = 0; iech < dbout->getSampleNumber(); iech++)
+  for (iech = number = 0; iech < dbout->getNSample(); iech++)
   {
     if (!dbout->isActive(iech)) continue;
     valsim = dbout->getArray(iech, iptrv);
@@ -1901,7 +1901,7 @@ static void st_maxstable_combine(Db *dbout,
   int iech;
   double valsim, valold;
 
-  for (iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (iech = 0; iech < dbout->getNSample(); iech++)
   {
     if (!dbout->isActive(iech)) continue;
     valold = dbout->getArray(iech, iptrv);
@@ -1987,7 +1987,7 @@ int simmaxstable(Db *dbout,
 
   if (verbose)
   {
-    message("Total number of cells = %d\n", dbout->getSampleNumber());
+    message("Total number of cells = %d\n", dbout->getNSample());
     message("Maximum simulation value = %lf\n", seuil);
   }
 
@@ -2059,7 +2059,7 @@ static double st_quantile(Db *dbout, double proba, double *sort)
 
   /* Initializations */
 
-  nech = dbout->getSampleNumber();
+  nech = dbout->getNSample();
 
   /* Load the non-masked simulated values */
 
@@ -2112,7 +2112,7 @@ int simRI(Db *dbout,
   error = 1;
   iptrg = iptrs = -1;
   pres = pton = sort = nullptr;
-  nech = dbout->getSampleNumber();
+  nech = dbout->getNSample();
   law_set_random_seed(seed);
   if (st_check_simtub_environment(NULL, dbout, model, NULL)) goto label_end;
 
@@ -2338,7 +2338,7 @@ int simpgs_spde(Db* dbin,
   /* Input Db */
   if (flag_cond)
   {
-    nechin = dbin->getSampleNumber();
+    nechin = dbin->getNSample();
     if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
   }
 
@@ -2887,7 +2887,7 @@ MatrixRectangular fluid_extract(DbGrid *dbgrid,
   /* Initialize the array */
 
   tab = MatrixRectangular(ntime, 4);
-  int nxyz    = dbgrid->getSampleNumber();
+  int nxyz    = dbgrid->getNSample();
   for (int itime = 0; itime < ntime; itime++)
   {
     tab.setValue(itime, 0, time0 + dtime * itime);

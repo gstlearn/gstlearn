@@ -181,7 +181,7 @@ int VCloud::compute(Db *db, const NamingConvention &namconv)
  *****************************************************************************/
 void VCloud::_final_discretization_grid()
 {
-  int nech = _dbcloud->getSampleNumber();
+  int nech = _dbcloud->getNSample();
   for (int iech = 0; iech < nech; iech++)
   {
     double value = _dbcloud->getArray(iech, IPTR);
@@ -211,7 +211,7 @@ void VCloud::_variogram_cloud(Db *db, int idir)
 
   // Local variables to speed up calculations
   bool hasSel = db->hasLocVariable(ELoc::SEL);
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int nvar = db->getLocNumber(ELoc::Z);
 
   /* Loop on the first point */
@@ -333,7 +333,7 @@ DbGrid* db_vcloud(Db *db,
 int VCloud::selectFromPolygon(Db *db, Polygons *polygon, int idir)
 {
   POLYGON = polygon;
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   IDS.resize(nech, 0.);
 
   _variogram_cloud(db, idir);

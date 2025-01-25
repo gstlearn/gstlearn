@@ -1196,7 +1196,7 @@ int dbSelectivity(Db *db,
 
   // Loop on the samples
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (! db->isActive(iech)) continue;
     double value = db->getArray(iech, iuid);

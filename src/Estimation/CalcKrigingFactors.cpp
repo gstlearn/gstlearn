@@ -170,7 +170,7 @@ bool CalcKrigingFactors::_run()
 
   // Loop on the targets to be processed
 
-  int ntotal = getDbout()->getSampleNumber() * _getNFactors();
+  int ntotal = getDbout()->getNSample() * _getNFactors();
   int iproc = 0;
   for (int iclass = 1; iclass <= _getNFactors(); iclass++)
   {
@@ -181,7 +181,7 @@ bool CalcKrigingFactors::_run()
     if (ksys.updKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
     if (ksys.updKrigOptIclass(iclass, _getNFactors())) return 1;
 
-    for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
+    for (int iech_out = 0; iech_out < getDbout()->getNSample(); iech_out++)
     {
       mes_process("Disjunctive Kriging for cell", ntotal, iproc);
       if (ksys.estimate(iech_out)) return 1;

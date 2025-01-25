@@ -459,7 +459,7 @@ double ACov::evalAverageDbToDb(const Db* db1,
 
   double norme = 0.;
   double total = 0.;
-  for (int iech1 = 0; iech1 < db1->getSampleNumber(); iech1++)
+  for (int iech1 = 0; iech1 < db1->getNSample(); iech1++)
   {
     if (!db1->isActive(iech1)) continue;
     double w1 = db1->getWeight(iech1);
@@ -468,7 +468,7 @@ double ACov::evalAverageDbToDb(const Db* db1,
 
     /* Loop on the second sample */
 
-    for (int iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
+    for (int iech2 = 0; iech2 < db2->getNSample(); iech2++)
     {
       if (!db2->isActive(iech2)) continue;
       double w2 = db2->getWeight(iech2);
@@ -551,7 +551,7 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
 
   /* Loop on the second sample */
 
-  for (int iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
+  for (int iech2 = 0; iech2 < db2->getNSample(); iech2++)
   {
     if (!db2->isActive(iech2)) continue;
     double w2 = db2->getWeight(iech2);
@@ -613,7 +613,7 @@ VectorDouble ACov::evalPointToDb(const SpacePoint& p1,
   VectorDouble values;
   int nech2;
   if (nbgh2.empty())
-    nech2 = db2->getSampleNumber();
+    nech2 = db2->getNSample();
   else
     nech2 = (int) nbgh2.size();
 
@@ -883,7 +883,7 @@ DbGrid* ACov::_discretizeBlock(const VectorDouble& ext,
 Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid, int seed) const
 {
   int ndim = getNDim();
-  int nech = dbgrid->getSampleNumber();
+  int nech = dbgrid->getNSample();
   Db* db = Db::createFromSamples(nech);
   VectorString names = generateMultipleNames("x",ndim);
   law_set_random_seed(seed);

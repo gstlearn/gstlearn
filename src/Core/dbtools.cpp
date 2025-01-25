@@ -109,13 +109,13 @@ int surface(Db *db_point,
 
   double d2max = (FFFF(dlim)) ? 1.e30 : dlim * dlim;
   double maille = db_grid->getCellSize();
-  for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db_point->getNSample(); iech++)
     dtab[iech] = 0.;
 
   /* Loop on the target points */
 
   VectorDouble vgrid(ndim);
-  for (int igrid = 0; igrid < db_grid->getSampleNumber(); igrid++)
+  for (int igrid = 0; igrid < db_grid->getNSample(); igrid++)
   {
     gtab[igrid] = -1;
     if (!db_grid->isActive(igrid)) continue;
@@ -130,7 +130,7 @@ int surface(Db *db_point,
     /* Loop on the data points */
 
     double d2min = d2max;
-    for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
+    for (int iech = 0; iech < db_point->getNSample(); iech++)
     {
       if (!db_point->isActive(iech)) continue;
 
@@ -162,18 +162,18 @@ int surface(Db *db_point,
 
   /* Calculate the influence of each datum */
 
-  for (int igrid = 0; igrid < db_grid->getSampleNumber(); igrid++)
+  for (int igrid = 0; igrid < db_grid->getNSample(); igrid++)
   {
     int jech = (int) gtab[igrid];
     if (jech >= 0) dtab[jech]++;
   }
-  for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db_point->getNSample(); iech++)
     dtab[iech] *= maille;
 
   /* Evaluate each grid node with the size of the influence polygon */
   /* to which it belongs                                            */
 
-  for (int igrid = 0; igrid < db_grid->getSampleNumber(); igrid++)
+  for (int igrid = 0; igrid < db_grid->getNSample(); igrid++)
   {
     int jech = (int) gtab[igrid];
     if (jech >= 0)
@@ -204,7 +204,7 @@ static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
   /* Initializations */
 
   (void) gslStrcpy(string, "NA");
-  nech = db->getSampleNumber();
+  nech = db->getNSample();
   nvar = db->getColumnNumber();
 
   ivar_deb = ivar - nrdv;
@@ -299,7 +299,7 @@ static int st_edit_find(Db *db,
 
   if (orient > 0)
   {
-    for (int i = iech + 1; i < db->getSampleNumber(); i++)
+    for (int i = iech + 1; i < db->getNSample(); i++)
     {
       value = db->getArray(i, ivar);
       if (FFFF(value)) continue;
@@ -482,7 +482,7 @@ int db_edit(Db *db, int *flag_valid)
 
   /* Initializations */
 
-  nech = db->getSampleNumber();
+  nech = db->getNSample();
   nvar = db->getColumnNumber();
   ivar = iech = 0;
   nrds = nrdv = incr = 1;
@@ -704,7 +704,7 @@ void ut_trace_sample(Db *db,
 
   /* Loop on the samples */
 
-  for (iech = 0; iech < db->getSampleNumber(); iech++)
+  for (iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
 
@@ -906,7 +906,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
 
   /* Evaluate the density */
 
-  int ngrid = dbgrid->getSampleNumber(true);
+  int ngrid = dbgrid->getNSample(true);
   VectorDouble dens;
   dens.resize(ngrid,0.);
   double denstot = 0.;
@@ -923,7 +923,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
   }
   else
   {
-    denstot = dbgrid->getSampleNumber(true);
+    denstot = dbgrid->getNSample(true);
   }
 
   /* Point generation */
@@ -1037,7 +1037,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
  *****************************************************************************/
 int db_resind(Db *db, int ivar, const VectorDouble& zcut)
 {
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int ncut = (int) zcut.size();
   if (! VH::isSorted(zcut, true))
   {
@@ -1112,7 +1112,7 @@ static void st_gradient_normalize(Db *dbgrid)
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbgrid->getNSample(); iech++)
   {
 
     norme = 0.;
@@ -1419,7 +1419,7 @@ int db_streamline(DbGrid *dbgrid,
 
   /* Loop on the drop points */
 
-  for (int iech = 0; iech < dbpoint->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbpoint->getNSample(); iech++)
   {
     if (!dbpoint->isActive(iech)) continue;
     if (iech % nbyech != 0) continue;
@@ -1676,7 +1676,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
   // Loop on the different samples
 
-  int ntot = db->getSampleNumber();
+  int ntot = db->getNSample();
 
   //message("Before regularization: ncode = %d, nz = %d, ntot = %d\n", (int)ncode, (int)nz, (int)ntot);
 
@@ -1815,7 +1815,7 @@ int db_grid2point_sampling(DbGrid *dbgrid,
   coor = data = nullptr;
   retain = nullptr;
   ndim = dbgrid->getNDim();
-  nfine = dbgrid->getSampleNumber();
+  nfine = dbgrid->getNSample();
   nmini       = MAX(nmini, npcell);
   VectorInt indg(ndim,0);
   if (ndim > 3)
@@ -2128,7 +2128,7 @@ int db_proportion_estimate(Db *dbin,
   // Loading the resulting results in the output 'dbout'
 
   int iptr0 = -1;
-  VectorDouble propout(dbout->getSampleNumber(true));
+  VectorDouble propout(dbout->getNSample(true));
   for (int i = 0; i < ncat; i++)
   {
     AprojOut.mesh2point(props[i],propout);

@@ -53,7 +53,7 @@ def measurementErrorAllEquals(dat):
     if nverr==0:
         return ok
     nvar = dat.getLocNumber(gl.ELoc.Z)
-    nech = dat.getSampleNumber()
+    nech = dat.getNSample()
     
     ok = 1
     for i in range(nvar):
@@ -89,7 +89,7 @@ def startingIndex(dat):
     names = dat.getNamesByLocator(gl.ELoc.Z)
     nvar = dat.getLocatorNumber(gl.ELoc.Z)
     count = np.array([0 for i in range(nvar)]) #std::vector<int> de zéros de taille nvar
-    for iech in np.arange(dat.getSampleNumber(True)): #useSel = True
+    for iech in np.arange(dat.getNSample(True)): #useSel = True
         count += heterobool(dat,iech)
     starind = 0 * count
     starind[1:] = np.cumsum(count)[:-1] #premier indice à 0 puis deuxième au nombre d'échantillons
@@ -168,7 +168,7 @@ def GeneralCase(dat,model):
                              ##### pas d'erreur de mesure. Quoiqu'il en soit, dans ce cas, je ne sais pas
                              ##### ce que répond la fonction measurementErrorAllEquals
         
-    for iech in np.arange(dat.getSampleNumber()):
+    for iech in np.arange(dat.getNSample()):
         isdefined = heterobool(dat,iech) #privilegier un proto heterobool(const &db, int, &vector<int>)
         indexdefined = np.where(isdefined)[0]
 

@@ -192,7 +192,7 @@ bool CovBase::isOptimizationInitialized(const Db* db) const
   if (_p1As.empty()) return false;
   if (db == nullptr) return true;
   int n = (int) _p1As.size();
-  return n == db->getSampleNumber();
+  return n == db->getNSample();
 }
 
  

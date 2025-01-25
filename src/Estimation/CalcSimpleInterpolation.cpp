@@ -356,9 +356,9 @@ int CalcSimpleInterpolation::_nearest(Db *dbin,
 
   /* Loop on the targets to be processed */
 
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
-    mes_process("Estimation by Nearest Neighbor", dbout->getSampleNumber(), iech);
+    mes_process("Estimation by Nearest Neighbor", dbout->getNSample(), iech);
     if (!dbout->isActive(iech)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
         || OptDbg::query(EDbg::RESULTS))
@@ -401,9 +401,9 @@ int CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeigh* neigh)
 
   /* Loop on the targets to be processed */
 
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
-    mes_process("Estimation by Moving Average", dbout->getSampleNumber(), iech);
+    mes_process("Estimation by Moving Average", dbout->getNSample(), iech);
     if (!dbout->isActive(iech)) continue;
     OptDbg::setCurrentIndex(iech + 1);
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
@@ -453,9 +453,9 @@ int CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeigh* neigh)
 
   /* Loop on the targets to be processed */
 
-   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+   for (int iech = 0; iech < dbout->getNSample(); iech++)
    {
-     mes_process("Estimation by Moving Median", dbout->getSampleNumber(), iech);
+     mes_process("Estimation by Moving Median", dbout->getNSample(), iech);
      if (!dbout->isActive(iech)) continue;
      OptDbg::setCurrentIndex(iech + 1);
      if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
@@ -507,9 +507,9 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh) const
 
   /* Loop on the targets to be processed */
 
-   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+   for (int iech = 0; iech < dbout->getNSample(); iech++)
    {
-     mes_process("Estimation by Inverse distance", dbout->getSampleNumber(), iech);
+     mes_process("Estimation by Inverse distance", dbout->getNSample(), iech);
      OptDbg::setCurrentIndex(iech + 1);
      if (!dbout->isActive(iech)) continue;
      if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
@@ -604,9 +604,9 @@ void CalcSimpleInterpolation::_pointInvdist(Db *dbin, Db *dbout)
 
   /* Loop on the targets to be processed */
 
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
-    mes_process("Estimation by Inverse distance", dbout->getSampleNumber(), iech);
+    mes_process("Estimation by Inverse distance", dbout->getNSample(), iech);
     OptDbg::setCurrentIndex(iech + 1);
     if (!dbout->isActive(iech)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
@@ -620,7 +620,7 @@ void CalcSimpleInterpolation::_pointInvdist(Db *dbin, Db *dbout)
 
     /* Loop on the data points */
 
-    for (int iech_in = 0; iech_in < dbin->getSampleNumber(); iech_in++)
+    for (int iech_in = 0; iech_in < dbin->getNSample(); iech_in++)
     {
       if (!dbin->isActive(iech_in)) continue;
       dbin->getCoordinatesPerSampleInPlace(iech_in, coor);
@@ -671,9 +671,9 @@ void CalcSimpleInterpolation::_gridInvdist(DbGrid *dbin, Db *dbout)
 
   /* Loop on the targets to be processed */
 
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
-    mes_process("Estimation by Inverse distance", dbout->getSampleNumber(), iech);
+    mes_process("Estimation by Inverse distance", dbout->getNSample(), iech);
     OptDbg::setCurrentIndex(iech + 1);
     if (!dbout->isActive(iech)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))

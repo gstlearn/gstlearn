@@ -287,7 +287,7 @@ void ANeigh::_display(const VectorInt& ranks)
 {
   String string;
   int ndim = _dbin->getNDim();
-  int nech = _dbin->getSampleNumber();
+  int nech = _dbin->getNSample();
   int nerr = _dbin->getLocNumber(ELoc::V);
   bool flag_code = _dbin->getLocNumber(ELoc::C) > 0;
   bool flag_verr = _dbin->getLocNumber(ELoc::V) > 0;

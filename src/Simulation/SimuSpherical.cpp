@@ -45,7 +45,7 @@ int SimuSpherical::simulate(DbGrid *db,
   int degmax = sphepar.getDegmax();
   int nx = db->getNX(0);
   int ny = db->getNX(1);
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int shunt  = (int) get_keypone("Simsph_Shunt",0);
   law_set_random_seed(getSeed());
 

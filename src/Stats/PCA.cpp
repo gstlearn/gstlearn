@@ -333,7 +333,7 @@ void PCA::_calculateNormalization(const Db *db,
 {
   int niso = 0;
   int nvar = db->getLocNumber(ELoc::Z);
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   VectorDouble data(nvar);
 
   for (int ivar = 0; ivar < nvar; ivar++)
@@ -394,7 +394,7 @@ void PCA::_covariance0(const Db *db,
                        bool flag_nm1)
 {
   int nvar = db->getLocNumber(ELoc::Z);
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int niso = 0;
   VectorDouble data1(nvar);
 
@@ -506,7 +506,7 @@ void PCA::_pcaZ2F(int iptr,
                   const VectorDouble& sigma)
 {
   int nvar = db->getLocNumber(ELoc::Z);
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   VectorDouble data1(nvar, 0.);
 
   /* Loop on the samples */
@@ -541,7 +541,7 @@ void PCA::_pcaF2Z(int iptr,
                   const VectorDouble &sigma)
 {
   int nvar = db->getLocNumber(ELoc::Z);
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   VectorDouble data1(nvar);
   VectorDouble data2(nvar);
 
@@ -725,7 +725,7 @@ void PCA::_variogramh(Db *db,
 
   // Initializations
 
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int nvar = db->getLocNumber(ELoc::Z);
   int npairs = 0;
 
@@ -824,7 +824,7 @@ void PCA::_variogramh(Db *db,
 
 VectorBool PCA::_getVectorIsotopic(const Db* db)
 {
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   VectorBool isoFlag = VectorBool(nech);
 
   for (int iech = 0; iech < nech; iech++)

@@ -145,13 +145,13 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
     
     target = gl.DbGrid.create(nx = nx)
    
-    indOut = np.arange(target.getSampleNumber())
+    indOut = np.arange(target.getNSample())
     
     if selDbout:
         np.random.shuffle(indOut)
-        indOut = indOut[range(int(target.getSampleNumber()/2))]
+        indOut = indOut[range(int(target.getNSample()/2))]
         indOut = np.sort(indOut)
-        sel = np.zeros(shape = target.getSampleNumber())
+        sel = np.zeros(shape = target.getNSample())
         sel[indOut] = 1
         target["sel"] = sel
         target.setLocator("sel",gl.ELoc.SEL, 0)
@@ -160,7 +160,7 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
         modeln.setDriftIRF(irf)
     
     if drift :
-        target["ff"] = np.random.normal(size = target.getSampleNumber())
+        target["ff"] = np.random.normal(size = target.getNSample())
         
         target.setLocator("ff",gl.ELoc.F, 0)
         modeln.addDrift(gl.DriftF(0))
@@ -173,18 +173,18 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
     #Creation of a db2 without selection to build the complete covariance matrix
     db2 = db.clone()
     db2.setLocator("sel")
-    vect = gl.VectorDouble(nvar**2 * db2.getSampleNumber()**2)
+    vect = gl.VectorDouble(nvar**2 * db2.getNSample()**2)
     
     target2 = target.clone()
     target2.setLocator("sel")
     
-    covgl = np.array(list(vect)).reshape(nvar * db2.getSampleNumber(),-1)[indF,:][:,indF]
+    covgl = np.array(list(vect)).reshape(nvar * db2.getNSample(),-1)[indF,:][:,indF]
     
     if measurement_error:
         err = db["err*"].T.reshape(-1,)
         np.fill_diagonal(cov,np.diag(cov)+err[indF])
     
-    vect = gl.VectorDouble(nvar**2 * db2.getSampleNumber() * len(indOut))
+    vect = gl.VectorDouble(nvar**2 * db2.getNSample() * len(indOut))
     
     neigh = gl.NeighUnique()
     
@@ -207,12 +207,12 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
     
     weights = np.linalg.solve(cov,c0t)
     
-    ntarget = target.getSampleNumber(useSel=True)
+    ntarget = target.getNSample(useSel=True)
     krig = (db["z*"].T.reshape(1,-1).T[indF].T@weights).reshape(-1,)
     
     varest = np.sum(c0t*weights,axis=0).T.reshape(-1,)
     
-    nt = target.getSampleNumber(useSel=True)
+    nt = target.getNSample(useSel=True)
     c0v = np.atleast_2d(np.ones(nt)).T@np.atleast_2d(np.array([modeln.getTotalSill(i,i) for i in range(nvar)]))
     c0v = c0v.T.reshape(-1,)
     var = c0v + varest - 2 * np.sum(weights*c0,axis=0).T.reshape(-1,)

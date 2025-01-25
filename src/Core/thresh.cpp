@@ -1158,7 +1158,7 @@ int _db_threshold(Db *db,
 
   /* Calculate the thresholds and store them in the Db file */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     rank = 0;
