@@ -70,6 +70,7 @@ AMatrixDense::~AMatrixDense()
 
 void AMatrixDense::_allocate()
 {
+  _maxSize = getNRows() * getNCols();
   _deallocate();
   if (isMultiThread()) omp_set_num_threads(getMultiThread()); // TODO Move to multithread handling class
   int size = getNRows() * getNCols();
@@ -495,6 +496,18 @@ int AMatrixDense::_computeEigen(bool optionPositive)
   Eigen::MatrixXd eigenVectors = solver.eigenvectors().real();
 
   return _terminateEigen(eigenValues, eigenVectors, optionPositive, true);
+}
+
+bool AMatrixDense::_needToReset(int nrows, int ncols) 
+{
+  int newsize = nrows * ncols;
+  
+  return newsize > _maxSize;
+  {
+    _maxSize = newsize;
+    return true;
+  }
+  return false;
 }
 
 void AMatrixDense::_recopy(const AMatrixDense &r)

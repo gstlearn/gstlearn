@@ -144,13 +144,13 @@ protected:
 
   int             _computeEigen(bool optionPositive = true);
   int             _computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
-
 private:
   void _recopy(const AMatrixDense &r);
   int  _terminateEigen(const Eigen::VectorXd &eigenValues,
                        const Eigen::MatrixXd &eigenVectors,
                        bool optionPositive = true,
                        bool changeOrder = false);
+  bool _needToReset(int nrows, int ncols) override;
 
 #ifndef SWIG
   public:
@@ -167,7 +167,7 @@ protected:
   bool _flagEigenDecompose;
   VectorDouble         _eigenValues;  // Used only when ! flag_eigen()
   MatrixSquareGeneral* _eigenVectors; // Used only when ! flag_eigen()
-
+  int _maxSize;
 protected:
   std::unique_ptr<Eigen::Map<Eigen::MatrixXd> > _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
 };

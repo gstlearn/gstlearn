@@ -222,6 +222,8 @@ public:
 protected:
   virtual void    _allocate() = 0;
   virtual void    _deallocate() = 0;
+  virtual bool    _needToReset(int nrows, int ncols);
+
 
   /*! Say if (irow, icol) is stored physically or not */
   virtual bool    _isPhysicallyPresent(int /*irow*/, int /*icol*/) const { return true; }

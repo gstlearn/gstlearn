@@ -529,6 +529,11 @@ void AMatrix::prodVecMatInPlacePtr(const double* x, double* y, bool transpose) c
   _prodVecMatInPlacePtr(x, y, transpose);
 }
 
+bool AMatrix::_needToReset(int nrows, int ncols)
+{
+  return nrows != getNRows() || ncols != getNCols();
+}
+
 /**
  * @brief Resize the matrix to new dimensions
  *        (this method doesn't change the storage type)
@@ -539,7 +544,7 @@ void AMatrix::prodVecMatInPlacePtr(const double* x, double* y, bool transpose) c
 void AMatrix::resize(int nrows, int ncols)
 {
   // Check if nothing is to be done
-  if (nrows == getNRows() && ncols == getNCols()) return;
+  if (!_needToReset(nrows, ncols)) return;
 
   // Reset the sizes (clear values)
   reset(nrows, ncols);

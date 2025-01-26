@@ -138,7 +138,7 @@ static void _firstTest(Db* data,
 
   VH::display("Kriging Value(s)", Kcalc.getEstimation());
   VH::display("Standard Deviation of Estimation Error", Kcalc.getStdv());
-  VH::display("Variance of Estimator", Kcalc.getVarianceZstar());
+  //VH::display("Variance of Estimator", Kcalc.getVarianceZstar());
   if (debugSchur) Kcalc.printStatus();
 
   delete dataP;

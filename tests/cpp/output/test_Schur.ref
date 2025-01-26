@@ -64,8 +64,6 @@ Kriging Value(s)
      0.190     0.080     0.189
 Standard Deviation of Estimation Error
      1.028     0.885     1.118
-Variance of Estimator
-     4.113     3.049     4.864
 
 Collocated Option (in Unique Neighborhood):
 ===========================================
@@ -100,7 +98,7 @@ Kriging Value(s)
 Standard Deviation of Estimation Error
      0.000     0.040     0.000
 Variance of Estimator
-     5.167     3.830     6.110
+     5.167     2.324     6.110
 
 Cross-Validation (in Unique Neighborhood)
 =========================================
