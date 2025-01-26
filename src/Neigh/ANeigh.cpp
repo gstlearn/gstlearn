@@ -287,11 +287,11 @@ void ANeigh::_display(const VectorInt& ranks)
 {
   String string;
   int ndim = _dbin->getNDim();
-  int nech = _dbin->getSampleNumber();
-  int nerr = _dbin->getLocNumber(ELoc::V);
-  bool flag_code = _dbin->getLocNumber(ELoc::C) > 0;
-  bool flag_verr = _dbin->getLocNumber(ELoc::V) > 0;
-  bool flag_ext  = _dbin->getLocNumber(ELoc::BLEX) > 0;
+  int nech = _dbin->getNSample();
+  int nerr = _dbin->getNLoc(ELoc::V);
+  bool flag_code = _dbin->getNLoc(ELoc::C) > 0;
+  bool flag_verr = _dbin->getNLoc(ELoc::V) > 0;
+  bool flag_ext  = _dbin->getNLoc(ELoc::BLEX) > 0;
 
   /* Title */
 
@@ -385,7 +385,7 @@ void ANeigh::_display(const VectorInt& ranks)
  *****************************************************************************/
 bool ANeigh::_discardUndefined(int iech)
 {
-  if (_dbin->getLocNumber(ELoc::Z) <= 0) return 0;
+  if (_dbin->getNLoc(ELoc::Z) <= 0) return 0;
 
   if (! _flagSimu)
   {

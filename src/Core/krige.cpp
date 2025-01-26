@@ -355,7 +355,7 @@ static double st_get_idim(int loc_rank, int idim)
 //
 //  // Initialization
 //
-//  if (idim < it->model->getDimensionNumber() - 1)
+//  if (idim < it->model->getNDim() - 1)
 //  {
 //    idim = idim + 1;
 //
@@ -387,7 +387,7 @@ static double st_get_idim(int loc_rank, int idim)
 //      while (decal < exts2);
 //    }
 //  }
-//  else if (jdim < it->model->getDimensionNumber() - 1)
+//  else if (jdim < it->model->getNDim() - 1)
 //  {
 //    jdim = jdim + 1;
 //
@@ -424,7 +424,7 @@ static double st_get_idim(int loc_rank, int idim)
 //    // End of implicit loop on dimensions
 //
 //    it->ndtot++;
-//    for (int i = 0; i < it->model->getDimensionNumber(); i++)
+//    for (int i = 0; i < it->model->getNDim(); i++)
 //      d1_t_global[i] = d1_global[i] + d1_1_global[i] + d1_2_global[i];
 //    st_cov(it->model, 0, it->nugget_opt, it->nostd, it->member, it->icov_r,
 //           it->weight, it->rank1, it->rank2, d1_t_global, covaux_global);
@@ -461,7 +461,7 @@ void set_DBOUT(Db* dbout)
 //
 //  // Initialization
 //
-//  if (idim < it->model->getDimensionNumber() - 1)
+//  if (idim < it->model->getNDim() - 1)
 //  {
 //    idim = idim + 1;
 //
@@ -500,7 +500,7 @@ void set_DBOUT(Db* dbout)
 //    // End of implicit loop on dimensions
 //
 //    it->ndtot++;
-//    for (int i = 0; i < it->model->getDimensionNumber(); i++)
+//    for (int i = 0; i < it->model->getNDim(); i++)
 //      d1_t_global[i] = d1_global[i] + d1_1_global[i];
 //    st_cov(it->model, 0, it->nugget_opt, it->nostd, it->member, it->icov_r,
 //           it->weight, it->rank1, it->rank2, d1_t_global, covaux_global);
@@ -620,60 +620,60 @@ static int st_check_environment(int flag_in,
 
   if (model != nullptr)
   {
-    nvar = model->getVariableNumber();
+    nvar = model->getNVar();
     if (nvar <= 0)
     {
       messerr("The number of variables must be positive = %d",
-              model->getVariableNumber());
+              model->getNVar());
       goto label_end;
     }
     // The following test is avoided in the case of simulations
     // as there may be no Z-variable defined as this stage (Gibbs)
-    if (flag_in && !FLAG_SIMU && DBIN->getLocNumber(ELoc::Z) != nvar)
+    if (flag_in && !FLAG_SIMU && DBIN->getNLoc(ELoc::Z) != nvar)
     {
       messerr("The number of variables of the Data (%d)",
-              DBIN->getLocNumber(ELoc::Z));
+              DBIN->getNLoc(ELoc::Z));
       messerr("does not match the number of variables of the Model (%d)", nvar);
       goto label_end;
     }
-    if (model->getCovaNumber() <= 0)
+    if (model->getNCov() <= 0)
     {
       messerr("The number of covariance must be positive");
       goto label_end;
     }
-    if (model->getDimensionNumber() <= 0)
+    if (model->getNDim() <= 0)
     {
       messerr("The Space Dimension must be positive = %d",
-              model->getDimensionNumber());
+              model->getNDim());
       goto label_end;
     }
-    if (model->getDimensionNumber() != ndim)
+    if (model->getNDim() != ndim)
     {
       messerr("The Space Dimension of the Db structure (%d)", ndim);
       messerr("Does not correspond to the Space Dimension of the model (%d)",
-              model->getDimensionNumber());
+              model->getNDim());
       goto label_end;
     }
 
     // External drifts
-    nfex = model->getExternalDriftNumber();
+    nfex = model->getNExtDrift();
     if (nfex > 0)
     {
-      if (flag_out && DBOUT->getLocNumber(ELoc::F) != nfex)
+      if (flag_out && DBOUT->getNLoc(ELoc::F) != nfex)
       {
-        messerr("The Model requires %d external drift(s)", model->getExternalDriftNumber());
+        messerr("The Model requires %d external drift(s)", model->getNExtDrift());
         messerr("but the output Db refers to %d external drift variables",
-                DBOUT->getLocNumber(ELoc::F));
+                DBOUT->getNLoc(ELoc::F));
         goto label_end;
       }
 
-      if (flag_in && DBIN->getLocNumber(ELoc::F) != nfex)
+      if (flag_in && DBIN->getNLoc(ELoc::F) != nfex)
       {
         if (!(flag_out && DBOUT->isGrid()))
         {
-          messerr("The Model requires %d external drift(s)", model->getExternalDriftNumber());
+          messerr("The Model requires %d external drift(s)", model->getNExtDrift());
           messerr("but the input Db refers to %d external drift variables",
-                  DBIN->getLocNumber(ELoc::F));
+                  DBIN->getNLoc(ELoc::F));
           goto label_end;
         }
       }
@@ -731,7 +731,7 @@ static int st_model_manage(int mode, Model *model)
 
   /* Initializations */
 
-  nvar = model->getVariableNumber();
+  nvar = model->getNVar();
 
   /* Dispatch */
 
@@ -839,7 +839,7 @@ static int st_krige_manage_basic(int mode,
  *****************************************************************************/
 static int st_get_nmax(ANeigh *neigh)
 {
-  return neigh->getMaxSampleNumber(DBIN);
+  return neigh->getNSampleMax(DBIN);
 }
 
 /****************************************************************************/
@@ -869,9 +869,9 @@ static int st_krige_manage(int mode,
 
   /* Initializations */
 
-  nvar = model->getVariableNumber();
-  nfeq = model->getDriftEquationNumber();
-  nech = DBIN->getSampleNumber();
+  nvar = model->getNVar();
+  nfeq = model->getNDriftEquation();
+  nech = DBIN->getNSample();
   nmax = st_get_nmax(neigh);
 
   return (st_krige_manage_basic(mode, nech, nmax, nvar, nfeq));
@@ -919,7 +919,7 @@ static void st_data_discretize_alloc(int ndim)
   int nrow, ncol;
 
   KOPTION->flag_data_disc = 0;
-  if (DBIN->getLocNumber(ELoc::BLEX) > 0)
+  if (DBIN->getNLoc(ELoc::BLEX) > 0)
   {
     if (!get_keypair("Data_Discretization", &nrow, &ncol, &KOPTION->dsize))
     {
@@ -937,7 +937,7 @@ static void st_data_discretize_alloc(int ndim)
     }
     else
     {
-      if (DBIN->getLocNumber(ELoc::BLEX) > 0)
+      if (DBIN->getNLoc(ELoc::BLEX) > 0)
       {
         message("\n");
         message("Your Input Data File contains 'dblk' locator(s)\n");
@@ -1367,7 +1367,7 @@ static void krige_wgt_print(int status,
     tab_prints(NULL, strloc.c_str());
   }
   if (DBIN->hasLocVariable(ELoc::C)) tab_prints(NULL, "Code");
-  if (DBIN->getLocNumber(ELoc::V) > 0)
+  if (DBIN->getNLoc(ELoc::V) > 0)
     tab_prints(NULL, "Err.");
   if (KOPTION->flag_data_disc) for (idim = 0; idim < ndim; idim++)
   {
@@ -1400,7 +1400,7 @@ static void krige_wgt_print(int status,
         tab_printg(NULL, st_get_idim(nbgh_ranks[iech], idim));
       if (DBIN->hasLocVariable(ELoc::C))
         tab_printg(NULL, DBIN->getLocVariable(ELoc::C,nbgh_ranks[iech],0));
-      if (DBIN->getLocNumber(ELoc::V) > 0)
+      if (DBIN->getNLoc(ELoc::V) > 0)
         tab_printg(NULL, st_get_verr(nbgh_ranks[iech], (FLAG_PROF) ? 0 : jvar_m));
       if (KOPTION->flag_data_disc)
       {
@@ -1424,7 +1424,7 @@ static void krige_wgt_print(int status,
     }
 
     number = 1 + ndim + 1;
-    if (DBIN->getLocNumber(ELoc::V) > 0) number++;
+    if (DBIN->getNLoc(ELoc::V) > 0) number++;
     if (KOPTION->flag_data_disc) number += ndim + 1;
     tab_prints(NULL, "Sum of weights", number, EJustify::LEFT);
     for (ivar = 0; ivar < nvar; ivar++)
@@ -1585,9 +1585,9 @@ int _krigsim(Db* dbin,
 
   /* Loop on the targets to be processed */
 
-  for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
+  for (int iech_out = 0; iech_out < dbout->getNSample(); iech_out++)
   {
-    mes_process("Conditional Simulation", dbout->getSampleNumber(), iech_out);
+    mes_process("Conditional Simulation", dbout->getNSample(), iech_out);
     if (ksys.estimate(iech_out)) return 1;
   }
 
@@ -1639,7 +1639,7 @@ int global_transitive(DbGrid* dbgrid,
     messerr("The transitive global estimation is implemented for 1 and 2 space only");
     return 1;
   }
-  if (model->getVariableNumber() != 1)
+  if (model->getNVar() != 1)
   {
     messerr("The transitive global estimation is implemented for 1 variable only");
     return 1;
@@ -1652,9 +1652,9 @@ int global_transitive(DbGrid* dbgrid,
   /* Abundance estimation */
 
   flag_value = 0;
-  if (dbgrid->getLocNumber(ELoc::Z) == 1)
+  if (dbgrid->getNLoc(ELoc::Z) == 1)
   {
-    for (i = 0; i < dbgrid->getSampleNumber(); i++)
+    for (i = 0; i < dbgrid->getNSample(); i++)
     {
       value = dbgrid->getZVariable(i, 0);
       if (!FFFF(value)) dsum += value;
@@ -2059,7 +2059,7 @@ int anakexp_f(DbGrid *db,
   FLAG_EST = true;
   lhs_global = rhs_global = wgt_global = nullptr;
   ndim = db->getNDim();
-  nvarin = db->getLocNumber(ELoc::Z);
+  nvarin = db->getNLoc(ELoc::Z);
   nbefore_mem = nafter_mem = -1;
   size = 0;
 
@@ -2733,7 +2733,7 @@ int anakexp_3D(DbGrid* db,
   num_tot = nei_cur = nei_ref = nullptr;
   lhs_global = rhs_global = wgt_global = nullptr;
   ndim                                 = db->getNDim();
-  nvarin                               = db->getLocNumber(ELoc::Z);
+  nvarin                               = db->getNLoc(ELoc::Z);
   size_nei                             = 0;
   VectorInt indg(ndim, 0);
 
@@ -2839,7 +2839,7 @@ int anakexp_3D(DbGrid* db,
 
       for (iz = 0; iz < db->getNX(2); iz++, ecr++)
       {
-        mes_process("3-D Factorial Kriging Analysis", DBOUT->getSampleNumber(),
+        mes_process("3-D Factorial Kriging Analysis", DBOUT->getNSample(),
                     ecr);
         indg[0] = ix;
         indg[1] = iy;
@@ -2954,7 +2954,7 @@ int bayes_simulate(Model *model,
   /* Initializations */
 
   error = 1;
-  nfeq = model->getDriftEquationNumber();
+  nfeq = model->getNDriftEquation();
   nftri = nfeq * (nfeq + 1) / 2;
   trimat = rndmat = nullptr;
   memo = law_get_random_seed();
@@ -3052,8 +3052,8 @@ int krigsum(Db *dbin,
             bool flag_positive,
             const NamingConvention& namconv)
 {
-  int nvar = dbin->getLocNumber(ELoc::Z);
-  if (model->getVariableNumber() != 1)
+  int nvar = dbin->getNLoc(ELoc::Z);
+  if (model->getNVar() != 1)
   {
     messerr("This procedure requires a monovariate model");
     return 1;
@@ -3095,9 +3095,9 @@ int krigsum(Db *dbin,
 
     /* Loop on the targets to be processed */
 
-    for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
+    for (int iech_out = 0; iech_out < dbout->getNSample(); iech_out++)
     {
-      mes_process(string, dbout->getSampleNumber(), iech_out);
+      mes_process(string, dbout->getNSample(), iech_out);
       if (ksys.estimate(iech_out)) return 1;
     }
 
@@ -3110,7 +3110,7 @@ int krigsum(Db *dbin,
 
   // Posterior scaling
 
-  for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
+  for (int iech_out = 0; iech_out < dbout->getNSample(); iech_out++)
   {
     bool correct = false;
     for (int ivar = 0; ivar < nvar; ivar++) active[ivar] = 0;
@@ -3235,7 +3235,7 @@ static int st_sampling_krige_data(Db *db,
   /* Initializations */
 
   int error = 1;
-  int ndat = db->getSampleNumber(true);
+  int ndat = db->getNSample(true);
   int nsize1 = (int) ranks1.size();
   int nsize2 = (int) ranks2.size();
   int ntot = nsize1 + nsize2;
@@ -3426,7 +3426,7 @@ int st_krige_data(Db *db,
   /* Core allocation */
 
   nutil = ntot = 0;
-  nech = db->getSampleNumber();
+  nech = db->getNSample();
 
   /* Perform local sampling */
 
@@ -3516,7 +3516,7 @@ int st_crit_global(Db *db,
   /* Initializations */
 
   int nsize1 = (int) ranks1.size();
-  int ndat   = db->getSampleNumber(true);
+  int ndat   = db->getNSample(true);
   int nutil  = ndat - nsize1;
   c00 = invc = cs = cs1 = nullptr;
   if (nsize1 <= 0) return 1;
@@ -3644,7 +3644,7 @@ int sampling_f(Db* db,
 
   int nsize1 = (int) ranks1.size();
   int nsize2 = (int) ranks2.size();
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
 
   /* Preliminary checks */
 
@@ -3766,8 +3766,8 @@ int krigsampling_f(Db *dbin,
   FLAG_EST = true;
   FLAG_STD = flag_std;
   if (st_check_environment(1, 1, model)) return 1;
-  int nvar = model->getVariableNumber();
-  int nech = dbin->getSampleNumber();
+  int nvar = model->getNVar();
+  int nech = dbin->getNSample();
 
   /* Preliminary checks */
 
@@ -3835,9 +3835,9 @@ int krigsampling_f(Db *dbin,
 
   /* Loop on the target samples */
 
-  for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
+  for (IECH_OUT = 0; IECH_OUT < DBOUT->getNSample(); IECH_OUT++)
   {
-    mes_process("Kriging sample", DBOUT->getSampleNumber(), IECH_OUT);
+    mes_process("Kriging sample", DBOUT->getNSample(), IECH_OUT);
     OptDbg::setCurrentIndex(IECH_OUT + 1);
     if (!dbout->isActive(IECH_OUT)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
@@ -3913,7 +3913,7 @@ static void st_declustering_stats(int mode, int method, Db *db, int iptr)
   mean = var = sumwgt = 0.;
   mini = 1.e30;
   maxi = -1.e30;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     zval = db->getZVariable(iech, 0);
@@ -3970,7 +3970,7 @@ static void st_declustering_truncate_and_rescale(Db *db, int iptr)
   /* Truncate the negative weights */
 
   total = 0;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     if (FFFF(db->getZVariable(iech, 0))) continue;
@@ -3983,7 +3983,7 @@ static void st_declustering_truncate_and_rescale(Db *db, int iptr)
 
   /* Rescale */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     if (FFFF(db->getZVariable(iech, 0))) continue;
@@ -4015,14 +4015,14 @@ static int st_declustering_1(Db *db, int iptr, const VectorDouble& radius)
 
   /* Loop on the target sample */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     if (FFFF(db->getZVariable(iech, 0))) continue;
 
     /* Loop on the second sample */
 
-    for (int jech = 0; jech < db->getSampleNumber(); jech++)
+    for (int jech = 0; jech < db->getNSample(); jech++)
     {
       if (!db->isActive(jech)) continue;
       double value = db->getZVariable(iech, 0);
@@ -4045,13 +4045,13 @@ static int st_declustering_1(Db *db, int iptr, const VectorDouble& radius)
   /* Normalization step */
 
   double total = 0.;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     if (FFFF(db->getZVariable(iech, 0))) continue;
     total += 1. / db->getArray(iech, iptr);
   }
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     if (FFFF(db->getZVariable(iech, 0))) continue;
@@ -4140,9 +4140,9 @@ static int st_declustering_3(Db *db,
 
   /* Loop on the targets to be processed */
 
-  for (int iech_out = 0; iech_out < dbgrid->getSampleNumber(); iech_out++)
+  for (int iech_out = 0; iech_out < dbgrid->getNSample(); iech_out++)
   {
-    mes_process("Kriging sample", dbgrid->getSampleNumber(), iech_out);
+    mes_process("Kriging sample", dbgrid->getNSample(), iech_out);
     if (ksys.estimate(iech_out)) return 1;
   }
 
@@ -4182,7 +4182,7 @@ int declustering(Db *dbin,
                  int flag_sel,
                  bool verbose)
 {
-  if (! dbin->isVariableNumberComparedTo(1)) return 1;
+  if (! dbin->isNVarComparedTo(1)) return 1;
 
   /* Add the kriging weight as a new variable */
 
@@ -4237,7 +4237,7 @@ int declustering(Db *dbin,
   {
     int iptr_sel = dbin->addColumnsByConstant(1, 0.);
     if (iptr_sel < 0) return 1;
-    for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+    for (int iech = 0; iech < dbin->getNSample(); iech++)
     {
       dbin->setArray(iech, iptr_sel, 0.);
       if (!dbin->isActive(iech)) continue;
@@ -4281,15 +4281,15 @@ static double* st_calcul_covmat(const char *title,
 
   /* Initializations */
 
-  n1 = (test_def1) ? db1->getActiveAndDefinedNumber(0) : db1->getSampleNumber(true);
-  n2 = (test_def2) ? db2->getActiveAndDefinedNumber(0) : db2->getSampleNumber(true);
+  n1 = (test_def1) ? db1->getNSampleActiveAndDefined(0) : db1->getNSample(true);
+  n2 = (test_def2) ? db2->getNSampleActiveAndDefined(0) : db2->getNSample(true);
 
   /* Core allocation */
 
   covgen = (double*) mem_alloc(sizeof(double) * n1 * n2, 0);
   if (covgen == nullptr) return (covgen);
 
-  for (int ii1 = i1 = 0; ii1 < db1->getSampleNumber(); ii1++)
+  for (int ii1 = i1 = 0; ii1 < db1->getNSample(); ii1++)
   {
     if (test_def1)
     {
@@ -4300,7 +4300,7 @@ static double* st_calcul_covmat(const char *title,
       if (!db1->isActive(ii1)) continue;
     }
 
-    for (int ii2 = i2 = 0; ii2 < db2->getSampleNumber(); ii2++)
+    for (int ii2 = i2 = 0; ii2 < db2->getNSample(); ii2++)
     {
       if (test_def2)
       {
@@ -4352,9 +4352,9 @@ static double* st_calcul_drfmat(const char *title,
 
   /* Initializations */
 
-  n1 = (test_def1) ? db1->getActiveAndDefinedNumber(0) :
-                     db1->getSampleNumber(true);
-  nbfl = model->getDriftNumber();
+  n1 = (test_def1) ? db1->getNSampleActiveAndDefined(0) :
+                     db1->getNSample(true);
+  nbfl = model->getNDrift();
 
   /* Core allocation */
 
@@ -4364,7 +4364,7 @@ static double* st_calcul_drfmat(const char *title,
   /* Loop on the samples */
 
   i1 = 0;
-  for (int ii1 = 0; ii1 < db1->getSampleNumber(); ii1++)
+  for (int ii1 = 0; ii1 < db1->getNSample(); ii1++)
   {
     if (test_def1)
     {
@@ -4416,10 +4416,10 @@ static double* st_calcul_distmat(const char *title,
 
   /* Initializations */
 
-  n1 = (test_def1) ? db1->getActiveAndDefinedNumber(0) :
-                     db1->getSampleNumber(true);
-  ns = (test_def2) ? db2->getActiveAndDefinedNumber(0) :
-                     db2->getSampleNumber(true);
+  n1 = (test_def1) ? db1->getNSampleActiveAndDefined(0) :
+                     db1->getNSample(true);
+  ns = (test_def2) ? db2->getNSampleActiveAndDefined(0) :
+                     db2->getNSample(true);
   ndim = db1->getNDim();
 
   /* Core allocation */
@@ -4427,7 +4427,7 @@ static double* st_calcul_distmat(const char *title,
   distgen = (double*) mem_alloc(sizeof(double) * n1 * ns, 0);
   if (distgen == nullptr) return (distgen);
 
-  for (int ii1 = i1 = 0; ii1 < db1->getSampleNumber(); ii1++)
+  for (int ii1 = i1 = 0; ii1 < db1->getNSample(); ii1++)
   {
     if (test_def1)
     {
@@ -4438,7 +4438,7 @@ static double* st_calcul_distmat(const char *title,
       if (!db1->isActive(ii1)) continue;
     }
 
-    for (int iis = is = 0; iis < db2->getSampleNumber(); iis++)
+    for (int iis = is = 0; iis < db2->getNSample(); iis++)
     {
       if (test_def2)
       {
@@ -4539,8 +4539,8 @@ static double* st_inhomogeneous_covpp(Db *dbdat,
   error = 1;
   covpp = nullptr;
 
-  np = dbdat->getActiveAndDefinedNumber(0);
-  ns = dbsrc->getSampleNumber(true);
+  np = dbdat->getNSampleActiveAndDefined(0);
+  ns = dbsrc->getNSample(true);
 
   /* Covariance matrix between Mesures */
 
@@ -4600,9 +4600,9 @@ static double* st_inhomogeneous_covgp(Db *dbdat,
   error = 1;
   covgp = nullptr;
 
-  np = dbdat->getActiveAndDefinedNumber(0);
-  ns = dbsrc->getSampleNumber(true);
-  ng = dbout->getSampleNumber(true);
+  np = dbdat->getNSampleActiveAndDefined(0);
+  ns = dbsrc->getNSample(true);
+  ng = dbout->getNSample(true);
 
   /* Covariance matrix between Mesures and Target */
 
@@ -4656,8 +4656,8 @@ static VectorDouble st_inhomogeneous_covgg(Db *dbsrc,
                                            const double *distgs,
                                            const double *prodgs)
 {
-  int ns = dbsrc->getSampleNumber(true);
-  int ng = dbout->getSampleNumber(true);
+  int ns = dbsrc->getNSample(true);
+  int ng = dbout->getNSample(true);
   VectorDouble covgg(ng, 0);
 
   /* Calculate the variance term (for a zero-distance) */
@@ -4856,12 +4856,12 @@ int inhomogeneous_kriging(Db *dbdat,
 
   /* Preliminary checks */
 
-  if (model_dat->getVariableNumber() != nvar)
+  if (model_dat->getNVar() != nvar)
   {
     messerr("The Model for the Data must be Monovariate");
     goto label_end;
   }
-  if (model_src->getVariableNumber() != nvar)
+  if (model_src->getNVar() != nvar)
   {
     messerr("The Model for the Sources must be Monovariate");
     goto label_end;
@@ -4879,11 +4879,11 @@ int inhomogeneous_kriging(Db *dbdat,
     IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_STD < 0) goto label_end;
   }
-  nred = neq = np = dbdat->getActiveAndDefinedNumber(0);
+  nred = neq = np = dbdat->getNSampleActiveAndDefined(0);
   nfeq = 0;
-  ns = dbsrc->getSampleNumber(true);
-  ng = dbout->getSampleNumber(true);
-  nbfl = model_dat->getDriftNumber();
+  ns = dbsrc->getNSample(true);
+  ng = dbout->getNSample(true);
+  nbfl = model_dat->getNDrift();
 
   /* Core allocation */
 
@@ -4900,7 +4900,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
   /* Constitute the Data vector */
 
-  for (int iip = ip = 0; iip < dbdat->getSampleNumber(); iip++)
+  for (int iip = ip = 0; iip < dbdat->getNSample(); iip++)
   {
     if (!dbdat->isActiveAndDefined(iip, 0)) continue;
     data[ip] = dbdat->getZVariable(iip, 0);
@@ -4983,9 +4983,9 @@ int inhomogeneous_kriging(Db *dbdat,
 
   /* Loop on the targets to be processed */
 
-  for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
+  for (IECH_OUT = 0; IECH_OUT < DBOUT->getNSample(); IECH_OUT++)
   {
-    mes_process("Kriging sample", DBOUT->getSampleNumber(), IECH_OUT);
+    mes_process("Kriging sample", DBOUT->getNSample(), IECH_OUT);
     OptDbg::setCurrentIndex(IECH_OUT + 1);
     if (!dbout->isActive(IECH_OUT)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
@@ -5133,12 +5133,12 @@ void _image_smoother(DbGrid *dbgrid,
     DbGrid::create(nx, dbgrid->getDXs(), dbgrid->getX0s(), dbgrid->getAngles(),
                    ELoadBy::COLUMN, tab, {"test"}, {String{ELoc::Z.getKey()}}, 1);
 
-  int nb_neigh = dbaux->getSampleNumber(true);
+  int nb_neigh = dbaux->getNSample(true);
   dbaux->rankToIndice(nb_neigh/2, indn0);
 
   /* Loop on the targets to be processed */
 
-  for (int iech_out=0; iech_out<dbgrid->getSampleNumber(); iech_out++)
+  for (int iech_out=0; iech_out<dbgrid->getNSample(); iech_out++)
   {
     if (! dbgrid->isActive(iech_out)) continue;
     dbgrid->rankToIndice(iech_out, indg0);

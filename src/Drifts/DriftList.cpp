@@ -70,7 +70,7 @@ DriftList::~DriftList()
 String DriftList::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  for (int i = 0, nbfl = getDriftNumber(); i < nbfl; i++)
+  for (int i = 0, nbfl = getNDrift(); i < nbfl; i++)
   {
     sstr << _drifts[i]->toString();
     if (_filtered[i])
@@ -142,10 +142,10 @@ String DriftList::getDriftName(int il) const
   return _drifts[il]->getDriftName();
 }
 
-int DriftList::getDriftEquationNumber() const
+int DriftList::getNDriftEquation() const
 {
-  int nbfl = getDriftNumber();
-  int nvar = getNVariables();
+  int nbfl = getNDrift();
+  int nvar = getNVar();
   int ndriftEquationNumber = (_flagLinked) ? nbfl : nbfl * nvar;
   return ndriftEquationNumber;
 }
@@ -156,7 +156,7 @@ int DriftList::getDriftEquationNumber() const
  */
 bool DriftList::isValid() const
 {
-  int nbfl = getDriftNumber();
+  int nbfl = getNDrift();
 
   // Check that the same drift function has not been called twice
   for (int il=0; il<nbfl; il++)
@@ -179,7 +179,7 @@ bool DriftList::isValid() const
 
 bool DriftList::_isDriftIndexValid(int i) const
 {
-  return checkArg("Drift Rank", i, getDriftNumber());
+  return checkArg("Drift Rank", i, getNDrift());
 }
 
 /**
@@ -189,14 +189,14 @@ bool DriftList::_isDriftIndexValid(int i) const
  */
 bool DriftList::_isDriftEquationValid(int ib) const
 {
-  return checkArg("Drift Equation", ib, getDriftEquationNumber());
+  return checkArg("Drift Equation", ib, getNDriftEquation());
 }
 
 void DriftList::resetDriftList()
 {
-  int nvar = getNVariables();
-  int nfeq = getDriftEquationNumber();
-  int nbfl = getDriftNumber();
+  int nvar = getNVar();
+  int nfeq = getNDriftEquation();
+  int nbfl = getNDrift();
 
   /* Copy the coefficients from the old to the new structure */
 
@@ -239,7 +239,7 @@ void DriftList::resetDriftList()
  */
 void DriftList::setDriftCLByPart(int ivar, int ib, const VectorDouble& coef)
 {
-  int nbfl = getDriftNumber();
+  int nbfl = getNDrift();
   if (nbfl != (int) coef.size())
   {
     messerr("The dimension of 'vec' (%d) is not equal to the number of drift functions (%d)",
@@ -267,8 +267,8 @@ bool DriftList::isDriftSampleDefined(const Db *db,
                                      const VectorInt &nbgh,
                                      const ELoc &loctype) const
 {
-  int nbfl = getDriftNumber();
-  int nvar = db->getLocatorNumber(loctype);
+  int nbfl = getNDrift();
+  int nvar = db->getNLoc(loctype);
 
   if (_flagCombined)
   {
@@ -298,14 +298,14 @@ double DriftList::getDrift(const Db* db, int ib, int iech) const
 VectorVectorDouble DriftList::getDrifts(const Db* db, bool useSel) const
 {
   VectorVectorDouble vecvec;
-  int nbfl = getDriftNumber();
-  int nech = db->getSampleNumber(useSel);
+  int nbfl = getNDrift();
+  int nech = db->getNSample(useSel);
   VectorDouble vec(nech);
 
   for (int ib=0; ib<nbfl; ib++)
   {
     int ecr = 0;
-    for (int iech=0; iech<db->getSampleNumber(); iech++)
+    for (int iech=0; iech<db->getNSample(); iech++)
     {
       if (useSel && ! db->isActive(iech)) continue;
       vec[ecr++] = _drifts[ib]->eval(db, iech);
@@ -317,7 +317,7 @@ VectorVectorDouble DriftList::getDrifts(const Db* db, bool useSel) const
 
 double DriftList::evalDriftCoef(const Db *db, int iech, const VectorDouble &coeffs) const
 {
-  int nbfl = getDriftNumber();
+  int nbfl = getNDrift();
   int ncoeff = (int) coeffs.size();
   if (nbfl != ncoeff)
   {
@@ -347,7 +347,7 @@ VectorDouble DriftList::evalDriftCoefs(const Db *db,
                                        bool useSel) const
 {
   VectorDouble vec;
-  int nbfl = getDriftNumber();
+  int nbfl = getNDrift();
   int ncoeff = (int) coeffs.size();
   if (ncoeff != nbfl)
   {
@@ -356,7 +356,7 @@ VectorDouble DriftList::evalDriftCoefs(const Db *db,
     return vec;
   }
 
-  for (int iech=0, nech=db->getSampleNumber(); iech<nech; iech++)
+  for (int iech=0, nech=db->getNSample(); iech<nech; iech++)
   {
     if (useSel && ! db->isActive(iech)) continue;
     double value = evalDriftCoef(db, iech, coeffs);
@@ -371,7 +371,7 @@ VectorDouble DriftList::evalDriftCoefs(const Db *db,
 int DriftList::getDriftMaxIRFOrder(void) const
 {
   int max_order = 0;
-  for (int il = 0, nbfl = getDriftNumber(); il < nbfl; il++)
+  for (int il = 0, nbfl = getNDrift(); il < nbfl; il++)
   {
     const ADrift* drft = _drifts[il];
     int order = drft->getOrderIRF();
@@ -388,7 +388,7 @@ int DriftList::getDriftMaxIRFOrder(void) const
  */
 bool DriftList::isDriftDefined(const VectorInt &powers, int rank_fex) const
 {
-  for (int il = 0, nbfl = getDriftNumber(); il < nbfl; il++)
+  for (int il = 0, nbfl = getNDrift(); il < nbfl; il++)
   {
     if (_drifts[il]->isDriftExternal())
     {
@@ -411,7 +411,7 @@ bool DriftList::isDriftDefined(const VectorInt &powers, int rank_fex) const
  */
 bool DriftList::isDriftDifferentDefined(const VectorInt &powers, int rank_fex) const
 {
-  for (int il = 0, nbfl = getDriftNumber(); il < nbfl; il++)
+  for (int il = 0, nbfl = getNDrift(); il < nbfl; il++)
   {
     if (_drifts[il]->isDriftExternal())
     {
@@ -427,17 +427,17 @@ bool DriftList::isDriftDifferentDefined(const VectorInt &powers, int rank_fex) c
 
 bool DriftList::hasExternalDrift() const
 {
-  for (int il = 0, nbfl = getDriftNumber(); il < nbfl; il++)
+  for (int il = 0, nbfl = getNDrift(); il < nbfl; il++)
   {
     if (getDrift(il)->isDriftExternal()) return true;
   }
   return false;
 }
 
-int DriftList::getExternalDriftNumber() const
+int DriftList::getNExtDrift() const
 {
   int nfex = 0;
-  for (int il = 0; il < getDriftNumber(); il++)
+  for (int il = 0; il < getNDrift(); il++)
   {
     if (getDrift(il)->isDriftExternal()) nfex++;
   }
@@ -446,7 +446,7 @@ int DriftList::getExternalDriftNumber() const
 
 VectorInt DriftList::_getActiveVariables(int ivar0) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
 
   VectorInt ivars;
   if (ivar0 >= 0)
@@ -497,9 +497,9 @@ MatrixRectangular DriftList::evalDriftMatByRanks(const Db* db,
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return drfmat;
 
-  int nvar  = getNVariables();
-  int nbfl  = getDriftNumber();
-  int nfeq  = getDriftEquationNumber();
+  int nvar  = getNVar();
+  int nbfl  = getNDrift();
+  int nfeq  = getNDriftEquation();
   int ncols = (isFlagLinked()) ? nfeq : nvar * nbfl;
 
   // Creating the matrix
@@ -571,9 +571,9 @@ MatrixRectangular DriftList::evalDriftMatByTarget(const Db* db,
                                                    const ECalcMember& member)
 {
   MatrixRectangular drfmat;
-  int nvar        = getNVariables();
-  int nbfl        = getDriftNumber();
-  int nfeq        = getDriftEquationNumber();
+  int nvar        = getNVar();
+  int nbfl        = getNDrift();
+  int nfeq        = getNDriftEquation();
   int ncols       = (isFlagLinked()) ? nfeq : nvar * nbfl;
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return drfmat;
@@ -639,7 +639,7 @@ VectorDouble DriftList::evalDriftBySample(const Db *db,
                                           int iech,
                                           const ECalcMember &member) const
 {
-  int nbfl = getDriftNumber();
+  int nbfl = getNDrift();
   VectorDouble drftab(nbfl);
   evalDriftBySampleInPlace(db, iech, member, drftab);
   return drftab;
@@ -650,7 +650,7 @@ void DriftList::evalDriftBySampleInPlace(const Db *db,
                                          const ECalcMember &member,
                                          VectorDouble &drftab) const
 {
-  int nbfl = getDriftNumber();
+  int nbfl = getNDrift();
   if (nbfl != (int) drftab.size()) drftab.resize(nbfl);
   for (int il = 0; il < nbfl; il++)
   {
@@ -676,7 +676,7 @@ double DriftList::evalDriftValue(const Db *db,
                                  int ib,
                                  const ECalcMember &member) const
 {
-  int nbfl = getDriftNumber();
+  int nbfl = getNDrift();
   double value = 0.;
   if (_flagCombined)
   {

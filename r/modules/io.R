@@ -100,7 +100,7 @@ gstlearn_to_sf <- function(x, crs = NA)
   val = NULL
   if (class(x)[1] == "_p_Polygons") {
       lp = list()
-      for (i in 0:(x$getPolyElemNumber()-1)) {
+      for (i in 0:(x$getNPolyElem()-1)) {
         lp[[1+length(lp)]] <- list(matrix(c(x$getX(i), x$getY(i)),
                                           ncol = 2, byrow = FALSE))
       }

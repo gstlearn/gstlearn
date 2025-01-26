@@ -48,7 +48,7 @@ public:
   virtual int attach(const Db *dbin, const Db *dbout = nullptr) override;
   virtual void getNeigh(int iech_out, VectorInt& ranks) override;
   virtual bool hasChanged(int iech_out) const override;
-  virtual int getMaxSampleNumber(const Db* db) const override;
+  virtual int getNSampleMax(const Db* db) const override;
   virtual ENeigh getType() const override { return ENeigh::fromKey("BENCH"); }
 
   /// Interface for AStringable

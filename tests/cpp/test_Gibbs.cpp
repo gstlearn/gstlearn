@@ -51,7 +51,7 @@ static int st_save(Db    *dbgrid,
                    const VectorDouble& z)
 {
   int iptr;
-  int nech = dbgrid->getSampleNumber();
+  int nech = dbgrid->getNSample();
 
   /* Add the terms to 'dbgrid' */
   

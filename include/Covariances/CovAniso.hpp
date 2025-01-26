@@ -194,7 +194,7 @@ public:
   const Tensor& getAniso() const { return _corAniso->getAniso(); }
   void   setAniso(const Tensor& aniso) { _corAniso->setAniso(aniso); }
   const ACovFunc* getCova() const { return _corAniso->getCova(); }
-  int    getGradParamNumber() const;
+  int    getNGradParam() const;
   bool   hasCovDerivative() const { return _corAniso->hasCovDerivative(); }
   bool   hasCovOnSphere() const { return _corAniso->hasCovOnSphere(); }
   bool   hasSpectrumOnSphere() const { return _corAniso->hasSpectrumOnSphere(); }
@@ -245,7 +245,7 @@ public:
   void computeMarkovCoeffs();
   double getCorrec() const;
   double getFullCorrec() const;
-  int getDimensionNumber() const { return _ctxt.getNDim(); }
+  int getNDim() const { return _ctxt.getNDim(); }
   
   CovAniso* createReduce(const VectorInt &validVars) const;
 

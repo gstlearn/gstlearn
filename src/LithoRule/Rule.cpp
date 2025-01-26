@@ -333,7 +333,7 @@ String Rule::displaySpecific() const
   return sstr.str();
 }
 
-int Rule::getFaciesNumber() const
+int Rule::getNFacies() const
 {
   int node_tot, nfac_tot, nmax_tot, ny1_tot, ny2_tot;
   double prop_tot;
@@ -342,13 +342,13 @@ int Rule::getFaciesNumber() const
   return nfac_tot;
 }
 
-int Rule::getGRFNumber() const
+int Rule::getNGRF() const
 {
-  int ny2 = getY2Number();
+  int ny2 = getNY2();
   return (ny2 > 0 ? 2 : 1);
 }
 
-int Rule::getY1Number() const
+int Rule::getNY1() const
 {
   int node_tot, nfac, nmax, ny1, ny2;
   double prop;
@@ -356,7 +356,7 @@ int Rule::getY1Number() const
   return ny1;
 }
 
-int Rule::getY2Number() const
+int Rule::getNY2() const
 {
   int node_tot, nfac, nmax, ny1, ny2;
   double prop;
@@ -369,8 +369,8 @@ int Rule::getY2Number() const
 bool Rule::isYUsed(int igrf) const
 {
   if (igrf == 0)
-    return getY1Number() > 0;
-  return getY2Number() > 0;
+    return getNY1() > 0;
+  return getNY2() > 0;
 }
 
 VectorInt Rule::whichGRFUsed() const
@@ -623,7 +623,7 @@ int Rule::setProportions(const VectorDouble& proportions) const
   VectorDouble props = proportions;
   if (props.empty())
   {
-    int nfacies = getFaciesNumber();
+    int nfacies = getNFacies();
     props = VectorDouble(nfacies, 1. / (double) nfacies);
   }
 
@@ -826,7 +826,7 @@ int Rule::gaus2facData(PropDef* propdef,
 
   /* Processing the translation */
 
-  for (int iech=0; iech<dbin->getSampleNumber(); iech++)
+  for (int iech=0; iech<dbin->getNSample(); iech++)
   {
     if (! dbin->isActive(iech)) continue;
 
@@ -888,7 +888,7 @@ int Rule::gaus2facResult(PropDef  *propdef,
 
   /* Processing the translation */
 
-  for (iech=0; iech<dbout->getSampleNumber(); iech++)
+  for (iech=0; iech<dbout->getNSample(); iech++)
   {
     if (! dbout->isActive(iech)) continue;
 
@@ -976,7 +976,7 @@ int Rule::evaluateBounds(PropDef* propdef,
 
   if (dbin == nullptr) return(0);
   nadd = 0;
-  nech = dbin->getSampleNumber();
+  nech = dbin->getNSample();
 
   /* Dispatch */
 

@@ -127,7 +127,7 @@ public:
   double getDPas() const { return _dPas; }
   double getLag() const { return _dPas; }
   int    getIdate() const { return _idate; }
-  int    getLagNumber() const { return _nPas; }
+  int    getNLag() const { return _nPas; }
   int    getOptionCode() const { return _optionCode; }
   double getTolAngle() const { return _tolAngle; }
   double getTolCode() const { return _tolCode; }
@@ -137,10 +137,10 @@ public:
   int    getGrincr(int i) const;
   double getMaximumDistance() const;
 
-  int  getBreakNumber() const { return ((int) _breaks.size() / 2); }
-  bool getFlagRegular() const { return (getBreakNumber() <= 0); }
+  int  getNBreak() const { return ((int) _breaks.size() / 2); }
+  bool getFlagRegular() const { return (getNBreak() <= 0); }
 
-  void setLagNumber(int npas) {_nPas = npas; }
+  void setNLag(int npas) {_nPas = npas; }
   void setOptionCode(int option_code) {_optionCode = option_code; }
   void setIdate(int idate) {_idate = idate; }
   void setDPas(double dpas) {_dPas = dpas; }

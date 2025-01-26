@@ -78,14 +78,14 @@ VarioParam::~VarioParam()
 
 bool VarioParam::isDefinedForGrid() const
 {
-  int ndir = getDirectionNumber();
+  int ndir = getNDir();
   if (ndir <= 0) return false;
   return _dirparams[0].isDefinedForGrid();
 }
 
 bool VarioParam::_validDefinedFromGrid(const DirParam& dirparam) const
 {
-  int ndir = getDirectionNumber();
+  int ndir = getNDir();
   bool definedFromGrid = dirparam.isDefinedForGrid();
   if (ndir > 0)
   {
@@ -275,7 +275,7 @@ void VarioParam::addMultiDirs(const std::vector<DirParam>& dirparams)
 
 void VarioParam::delDir(int rank)
 {
-  if (rank < 0 || rank >= getDirectionNumber()) return;
+  if (rank < 0 || rank >= getNDir()) return;
   _dirparams.erase(_dirparams.begin() + rank);
 }
 
@@ -287,7 +287,7 @@ void VarioParam::delAllDirs()
 String VarioParam::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  if (getDirectionNumber() <= 0) return sstr.str();
+  if (getNDir() <= 0) return sstr.str();
 
   // Print the Main part
 
@@ -295,7 +295,7 @@ String VarioParam::toString(const AStringFormat* strfmt) const
 
   /* Loop on the directions */
 
-  for (int idir=0; idir<getDirectionNumber(); idir++)
+  for (int idir=0; idir<getNDir(); idir++)
   {
     sstr << toTitle(1,"Direction #%d",idir+1);
     sstr << _dirparams[idir].toString(strfmt);
@@ -307,18 +307,18 @@ String VarioParam::toString(const AStringFormat* strfmt) const
 String VarioParam::toStringMain(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  int ndir = getDirectionNumber();
+  int ndir = getNDir();
 
   /* General parameters */
 
   sstr << "Number of direction(s)      = " << ndir << std::endl;
-  sstr << "Space dimension             = " << getDimensionNumber() << std::endl;
+  sstr << "Space dimension             = " << getNDim() << std::endl;
 
   if (hasDate())
   {
-    sstr << "Number of Date Intervals    = " << getDateNumber() << std::endl;
+    sstr << "Number of Date Intervals    = " << getNDate() << std::endl;
     sstr << toMatrix("Matrix of Bounds for Data Intervals",VectorString(),VectorString(),
-                     false,getDateNumber(),2,getDates());
+                     false,getNDate(),2,getDates());
   }
 
   if (hasFaults())
@@ -334,10 +334,10 @@ double VarioParam::getDate(int idate, int icas) const
   return _dates[2 * idate + icas];
 }
 
-int VarioParam::getLagNumber(int idir) const
+int VarioParam::getNLag(int idir) const
 {
   if (! _isDirectionValid(idir)) return 0;
-  return _dirparams[idir].getLagNumber();
+  return _dirparams[idir].getNLag();
 }
 
 VectorDouble VarioParam::getCodirs(int idir) const
@@ -348,22 +348,22 @@ VectorDouble VarioParam::getCodirs(int idir) const
 
 bool VarioParam::_isDirectionValid(int idir) const
 {
-  return checkArg("Direction Index", idir, getDirectionNumber());
+  return checkArg("Direction Index", idir, getNDir());
 }
 
 bool VarioParam::_isDateValid(int idate) const
 {
   if (!hasDate()) return false;
-  return checkArg("Date Index", idate, getDateNumber());
+  return checkArg("Date Index", idate, getNDate());
 }
 
 VectorDouble VarioParam::_getDirectionInterval(int idir) const
 {
   VectorDouble bounds(2);
-  if (idir < 0 || idir >= getDimensionNumber())
+  if (idir < 0 || idir >= getNDim())
   {
     bounds[0] = 0;
-    bounds[1] = getDirectionNumber();
+    bounds[1] = getNDir();
   }
   else
   {
@@ -385,9 +385,9 @@ void VarioParam::setGrincr(int idir, const VectorInt& grincr)
   _dirparams[idir].setGrincr(grincr);
 }
 
-int VarioParam::getDimensionNumber() const
+int VarioParam::getNDim() const
 {
-  if (getDirectionNumber() <= 0) return 0;
+  if (getNDir() <= 0) return 0;
   return _dirparams[0].getNDim();
 }
 
@@ -427,17 +427,17 @@ Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam)
     messerr("This function can only be calculated in dimension equal to 2 or 3");
     return nullptr;
   }
-  if (db->getActiveSampleNumber() <= 0)
+  if (db->getNSampleActive() <= 0)
   {
     messerr("This function requires your 'Db' to have some active samples");
     return nullptr;
   }
-  if (db->getLocNumber(ELoc::Z) != 1)
+  if (db->getNLoc(ELoc::Z) != 1)
   {
     messerr("This function is restricted to the Monovariate case");
     return nullptr;
   }
-  if (varioparam.getDirectionNumber() <= 0)
+  if (varioparam.getNDir() <= 0)
   {
     messerr("This function requires some direction to be defined in 'VarioParam'");
     return nullptr;
@@ -469,10 +469,10 @@ Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam)
   bool hasDate = varioparam.isDateUsed(db);
   double dist = 0.;
 
-  for (int idir = 0; idir < varioparam.getDirectionNumber(); idir++)
+  for (int idir = 0; idir < varioparam.getNDir(); idir++)
   {
     const DirParam& dirparam = varioparam.getDirParam(idir);
-    int nech = db->getSampleNumber();
+    int nech = db->getNSample();
     double maxdist = dirparam.getMaximumDistance();
 
     /* Loop on the first point */

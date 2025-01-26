@@ -48,7 +48,7 @@ bool CalcSimuPartition::_voronoi()
 {
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   int ndim = _getNDim();
-  VectorDouble simgrid(dbgrid->getSampleNumber());
+  VectorDouble simgrid(dbgrid->getNSample());
 
   /************************************/
   /* Simulation of the Gaussian field */
@@ -84,7 +84,7 @@ bool CalcSimuPartition::_voronoi()
 
   Db* dbpoint = Db::createFromSamples(nbpoints, ELoadBy::SAMPLE, coor);
   dbpoint->setLocatorsByUID(ndim, 0, ELoc::X, 0);
-  VectorDouble simpoint(dbpoint->getSampleNumber());
+  VectorDouble simpoint(dbpoint->getNSample());
 
   /* Perform the simulation at the seed points */
   if (simtub(NULL, dbpoint, getModel(), NULL, 1,
@@ -163,7 +163,7 @@ bool CalcSimuPartition::_poisson()
   /* Simulating the directing function */
 
   VectorDouble cen(ndim);
-  for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbgrid->getNSample(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
     dbgrid->getCoordinatesPerSampleInPlace(iech, cen);
@@ -191,7 +191,7 @@ bool CalcSimuPartition::_poisson()
   /* Coding process */
   /******************/
 
-  for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbgrid->getNSample(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
     double valref = dbgrid->getArray(iech, _iattOut);

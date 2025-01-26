@@ -15,7 +15,6 @@
 #include "Space/SpaceRN.hpp"
 #include "Space/SpacePoint.hpp"
 #include <iostream>
-#include <memory>
 
 /**
  * Demonstration of space composite features

@@ -74,7 +74,7 @@ public:
   const VectorDouble& getConvWeight() const { return _convWeight; }
   const MatrixRectangular& getConvIncr() const { return _convIncr; }
   VectorDouble getConvIncr(int rank) const { return _convIncr.getColumn(rank); }
-  int getConvNumber() const { return _convNumber; }
+  int getNConv() const { return _convNumber; }
 
 protected:
   void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,

@@ -167,7 +167,7 @@ int Selectivity::calculateFromDb(const Db* db, bool autoCuts)
     messerr("You must provide a valid 'Db'");
     return 1;
   }
-  if (db->getLocNumber(ELoc::Z) != 1)
+  if (db->getNLoc(ELoc::Z) != 1)
   {
     messerr("The 'Db' must contain a SINGLE variable");
     return 1;
@@ -310,7 +310,7 @@ Table Selectivity::getStats() const
 {
   VectorString names = _getAllNames();
   int nrow = _stats.getNRows();
-  int ncol = _stats.getNumberColumnDefined();
+  int ncol = _stats.getNColDefined();
 
   // Allocate the output Table
   Table rtable(nrow, ncol, false, true);
@@ -592,7 +592,7 @@ void Selectivity::defineRecoveries(const std::vector<ESelectivity>& codes,
 
   /* Count the total number of variables */
 
-  int ntotal = getVariableNumber();
+  int ntotal = getNVar();
   if (ntotal <= 0)
   {
     messerr("The number of variables calculated is zero");
@@ -781,7 +781,7 @@ bool Selectivity::_isRecoveryDefined() const
   return true;
 }
 
-int Selectivity::getVariableNumber() const
+int Selectivity::getNVar() const
 {
   int ntotal = 0;
   if (! _isRecoveryDefined()) return ntotal;
@@ -1129,22 +1129,22 @@ String Selectivity::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-int Selectivity::getNumberQTEst(const ESelectivity& code) const
+int Selectivity::getNQTEst(const ESelectivity& code) const
 {
   return _numberQT.getValue(code.getValue(), 0);
 }
 
-int Selectivity::getNumberQTStd(const ESelectivity& code) const
+int Selectivity::geNQTStd(const ESelectivity& code) const
 {
   return _numberQT.getValue(code.getValue(), 1);
 }
 
-VectorInt Selectivity::getNumberQTEst() const
+VectorInt Selectivity::getNQTEst() const
 {
   return _numberQT.getValuesPerColumn(0);
 }
 
-VectorInt Selectivity::getNumberQTStd() const
+VectorInt Selectivity::geNQTStd() const
 {
   return _numberQT.getValuesPerColumn(1);
 }
@@ -1196,7 +1196,7 @@ int dbSelectivity(Db *db,
 
   // Loop on the samples
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (! db->isActive(iech)) continue;
     double value = db->getArray(iech, iuid);

@@ -69,9 +69,9 @@ int main(int argc, char *argv[])
 
   // ===== Create the Grid Db
   DbGrid* dbg1 = DbGrid::create({12,10},{0.1,0.3},{0.2,0.4});
-  vec1 = VH::simulateGaussian(dbg1->getSampleNumber());
+  vec1 = VH::simulateGaussian(dbg1->getNSample());
   dbg1->addColumns(vec1,"myvar1",ELoc::Z, 0);
-  vec2 = VH::simulateGaussian(dbg1->getSampleNumber());
+  vec2 = VH::simulateGaussian(dbg1->getNSample());
   vec2[2] = TEST;
   vec2[5] = TEST;
   dbg1->addColumns(vec2,"myvar2",ELoc::Z, 1);

@@ -67,7 +67,7 @@ public:
   /// Interface for ANeigh
   virtual int attach(const Db *dbin, const Db *dbout);
   virtual void getNeigh(int iech_out, VectorInt& ranks) = 0;
-  virtual int getMaxSampleNumber(const Db* db) const = 0;
+  virtual int getNSampleMax(const Db* db) const = 0;
   virtual bool hasChanged(int iech_out) const { DECLARE_UNUSED(iech_out); return true; }
   virtual VectorDouble summary(int iech_out) { DECLARE_UNUSED(iech_out); return VectorDouble(); }
   virtual ENeigh getType() const { return ENeigh::fromKey("UNKNOWN"); }

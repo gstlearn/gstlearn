@@ -56,7 +56,7 @@ public:
   virtual bool isConsistent(const ASpace* space) const override;
 
   /// Interface for ACov
-  virtual int    getNVariables() const override;
+  virtual int    getNVar() const override;
   virtual bool   isIndexable() const override { return true; }
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
@@ -88,7 +88,7 @@ public:
   // Filter a covariance
   void setFiltered(int icov, bool filtered);
 
-  int             getCovaNumber(bool skipNugget = false) const;
+  int             getNCov(bool skipNugget = false) const;
   bool            isFiltered(int icov) const;
   bool            hasRange() const;
   bool            isStationary() const;
@@ -114,7 +114,7 @@ public:
   double             getParam(int icov) const;
   double             getRange(int icov) const;
   VectorDouble       getRanges(int icov) const;
-  int                getGradParamNumber(int icov) const;
+  int                getNGradParam(int icov) const;
   CovAniso           extractCova(int icov) const;
   int                getCovaMinIRFOrder() const;
 

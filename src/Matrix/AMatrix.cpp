@@ -1191,7 +1191,7 @@ bool AMatrix::isRowDefined(int irow) const
 }
 
 /*! Define the number of defined columns */
-int AMatrix::getNumberColumnDefined() const
+int AMatrix::getNColDefined() const
 {
   int ncol = 0;
   for (int icol = 0; icol < getNCols(); icol++)
@@ -1202,7 +1202,7 @@ int AMatrix::getNumberColumnDefined() const
 }
 
 /*! Define the number of defined rows */
-int AMatrix::getNumberRowDefined() const
+int AMatrix::getNRowDefined() const
 {
   int nrow = 0;
   for (int irow = 0; irow < getNRows(); irow++)

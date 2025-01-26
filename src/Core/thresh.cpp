@@ -550,7 +550,7 @@ int db_rule_shadow(Db* db,
 
   /* Preliminary checks */
 
-  ngrf = rule->getGRFNumber();
+  ngrf = rule->getNGRF();
   for (igrf = 0; igrf < 2; igrf++)
     flag_used[igrf] = rule->isYUsed(igrf);
 
@@ -645,15 +645,15 @@ int _db_rule(Db *db,
   int error = 1;
   int iptr = -1;
   PropDef *propdef = nullptr;
-  int ngrf = rule->getGRFNumber();
+  int ngrf = rule->getNGRF();
   VectorInt flagUsed = rule->whichGRFUsed();
-  int nfacies = rule->getFaciesNumber();
+  int nfacies = rule->getNFacies();
   bool flagReturn = false;
 
   /* Preliminary checks */
 
-  int nbsimu = db->getLocatorNumber(ELoc::SIMU);
-  int nvar = db->getLocatorNumber(ELoc::Z);
+  int nbsimu = db->getNLoc(ELoc::SIMU);
+  int nvar = db->getNLoc(ELoc::Z);
   if (nbsimu != ngrf && nvar != ngrf)
   {
     messerr("The Rule specifies the use of %d underlying GRF(s)", ngrf);
@@ -678,7 +678,7 @@ int _db_rule(Db *db,
 
   /* Identify the Non conditional simulations at target points */
 
-  if (db->getLocatorNumber(ELoc::SIMU) != ngrf)
+  if (db->getNLoc(ELoc::SIMU) != ngrf)
   {
     db->switchLocator(ELoc::Z, ELoc::SIMU);
     flagReturn = true;
@@ -750,7 +750,7 @@ int db_bounds_shadow(Db* db,
     messerr("The Db is not defined");
     goto label_end;
   }
-  if (!db->isVariableNumberComparedTo(1)) goto label_end;
+  if (!db->isNVarComparedTo(1)) goto label_end;
 
   /* Rule */
 
@@ -759,7 +759,7 @@ int db_bounds_shadow(Db* db,
     messerr("The Rule is not defined");
     goto label_end;
   }
-  ngrf = rule->getGRFNumber();
+  ngrf = rule->getNGRF();
   for (igrf = 0; igrf < 2; igrf++)
     flag_used[igrf] = rule->isYUsed(igrf);
 
@@ -846,13 +846,13 @@ int _db_bounds(Db *db,
   PropDef *propdef = nullptr;
 
   VectorInt flagUsed = rule->whichGRFUsed();
-  int nfacies = rule->getFaciesNumber();
-  int ngrf = rule->getGRFNumber();
+  int nfacies = rule->getNFacies();
+  int ngrf = rule->getNGRF();
 
   /* Input Db */
 
-  int nvar = db->getLocNumber(ELoc::Z);
-  if (!db->isVariableNumberComparedTo(1)) goto label_end;
+  int nvar = db->getNLoc(ELoc::Z);
+  if (!db->isNVarComparedTo(1)) goto label_end;
 
   /* Model (for SHIFT case) */
 
@@ -1012,11 +1012,11 @@ PropDef* proportion_manage(int mode,
           messerr("The 'Db' used for Proportions must be a Grid");
           goto label_end;
         }
-        if (db_loc->getLocNumber(ELoc::P) != nfacprod)
+        if (db_loc->getNLoc(ELoc::P) != nfacprod)
         {
           messerr(
               "In the non-stationary case, the number of proportion variables (%d)",
-              db_loc->getLocNumber(ELoc::P));
+              db_loc->getNLoc(ELoc::P));
           messerr(
               "must be equal to the number of facies (%d) in the Lithotype Rule",
               nfacprod);
@@ -1134,14 +1134,14 @@ int _db_threshold(Db *db,
   /* Preliminary checks */
   /**********************/
 
-  ngrf = rule->getGRFNumber();
+  ngrf = rule->getNGRF();
   if (rule->checkModel(model)) return 1;
 
   /*******************/
   /* Core allocation */
   /*******************/
 
-  nfacies = rule->getFaciesNumber();
+  nfacies = rule->getNFacies();
   propdef = proportion_manage(1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
                               propcst, propdef);
   if (propdef == nullptr) goto label_end;
@@ -1158,7 +1158,7 @@ int _db_threshold(Db *db,
 
   /* Calculate the thresholds and store them in the Db file */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     rank = 0;
@@ -1247,11 +1247,11 @@ Model* model_rule_combine(const Model *model1,
     messerr("This function requires the first model to be defined");
     return (new_model);
   }
-  ngrf = rule->getGRFNumber();
+  ngrf = rule->getNGRF();
 
   /* Case of a bivariate input model or monogaussian: simply duplicate */
 
-  if (model1->getVariableNumber() == 2 || ngrf == 1)
+  if (model1->getNVar() == 2 || ngrf == 1)
   {
     new_model = model1->clone();
     return (new_model);
@@ -1272,12 +1272,12 @@ Model* model_rule_combine(const Model *model1,
 
   /* Subsequent checks */
 
-  if (model1->getVariableNumber() != 1 || model2->getVariableNumber() != 1)
+  if (model1->getNVar() != 1 || model2->getNVar() != 1)
   {
     messerr("This function can only combine monovariate models");
     return (new_model);
   }
-  if (model1->getDimensionNumber() != model2->getDimensionNumber())
+  if (model1->getNDim() != model2->getNDim())
   {
     messerr("The two models to be combined must share the space dimension");
     return (new_model);

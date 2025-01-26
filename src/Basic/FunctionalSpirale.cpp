@@ -129,7 +129,7 @@ VectorVectorDouble FunctionalSpirale::getFunctionVectors(const Db *db, const Cov
     return VectorVectorDouble();
   }
 
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   VectorVectorDouble vec(3);
   vec[0].resize(nech);
   vec[1].resize(nech);

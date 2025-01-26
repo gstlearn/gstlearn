@@ -149,7 +149,7 @@ public:
   bool              drawOnlyPositiveX(int ivar, int jvar) const;
   bool              drawOnlyPositiveY(int ivar, int jvar) const;
 
-  int    getVariableNumber() const { return _nVar; }
+  int    getNVar() const { return _nVar; }
   const  VectorDouble& getMeans() const { return _means; }
   double getMean(int ivar) const;
 
@@ -268,7 +268,7 @@ public:
                     int sens      = 0,
                     bool flagCheck = true) const;
   int getVarAddress(int ivar, int jvar) const;
-  int getLagTotalNumber(int idir) const;
+  int getNLagTotal(int idir) const;
 
   int compute(Db* db,
               const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
@@ -318,21 +318,21 @@ public:
 
   // Pipe to the DirParam
   const DirParam& getDirParam(int idir) const { return _varioparam.getDirParam(idir); }
-  int getDirectionNumber() const { return _varioparam.getDirectionNumber(); }
+  int getNDir() const { return _varioparam.getNDir(); }
   const VectorDouble& getDates() const { return _varioparam.getDates(); }
   bool hasDate() const { return _varioparam.hasDate(); }
   double getDates(int idate, int icas) const { return _varioparam.getDate(idate, icas); }
-  int getDateNumber() const { return _varioparam.getDateNumber(); }
+  int getNDate() const { return _varioparam.getNDate(); }
   double getScale() const { return _varioparam.getScale(); }
-  int getDimensionNumber() const { return getDirParam(0).getNDim(); }
+  int getNDim() const { return getDirParam(0).getNDim(); }
   ASpaceSharedPtr getSpace() const { return getDirParam(0).getSpace(); }
 
   void setScale(double scale) { _varioparam.setScale(scale); }
   void addDirs(const DirParam& dirparam) { _varioparam.addDir(dirparam); }
 
-  int getLagNumber(int idir) const { return getDirParam(idir).getLagNumber(); }
+  int getNLag(int idir) const { return getDirParam(idir).getNLag(); }
   double getDPas(int idir) const { return getDirParam(idir).getDPas(); }
-  int getDimensionNumber(int idir) const { return getDirParam(idir).getNDim(); }
+  int getNDim(int idir) const { return getDirParam(idir).getNDim(); }
   VectorDouble getCodirs(int idir) const;
   double getCodir(int idir, int idim) const;
   double getMaximumDistance(int idir) const { return getDirParam(idir).getMaximumDistance(); }
@@ -349,7 +349,7 @@ public:
   int  prepare(const ECalcVario &calcul = ECalcVario::fromKey("VARIOGRAM"), bool defineList = true);
 
   const VarioParam& getVarioParam() const { return _varioparam; }
-  int getBiPtsNumberPerDirection() const { return _biPtsPerDirection; }
+  int getNBiPtsPerDir() const { return _biPtsPerDirection; }
   const ABiTargetCheck* getBipts(int idir, int rank) const { return _bipts[_getBiPtsRank(idir, rank)]; }
   bool keepPair(int idir, SpaceTarget &T1, SpaceTarget &T2, double *dist) const;
   int getRankFromDirAndDate(int idir, int idate) const;
@@ -390,7 +390,7 @@ private:
   void _clearBiTargetCheck();
   void _addBiTargetCheck(ABiTargetCheck* abpc);
   void _setListBiTargetCheck();
-  int  _getBiPtsNumber() const { return (int) _bipts.size(); }
+  int  _getNBiPts() const { return (int) _bipts.size(); }
   int  _getBiPtsRank(int idir, int rank) const;
 
   int _compute(Db *db,

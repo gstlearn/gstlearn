@@ -10,7 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "Covariances/CovBase.hpp"
 #include "Covariances/CovList.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "gstlearn_export.hpp"
