@@ -1496,7 +1496,7 @@ MatrixSparse* MatrixSparse::extractSubmatrixByRanks(const VectorInt &rank_rows,
 
   /* Fill the new sparse triplet */
 
-  for (int i = 0; i < NF_Tin.getNumber(); i++)
+  for (int i = 0; i < NF_Tin.getNElements(); i++)
   {
     old_row = NF_Tin.getRow(i);
     old_col = NF_Tin.getCol(i);
@@ -1556,7 +1556,7 @@ MatrixSparse* MatrixSparse::extractSubmatrixByColor(const VectorInt &colors,
 
   /* Fill the new sparse triplet */
 
-  for (int i = 0; i < NF_Tin.getNumber(); i++)
+  for (int i = 0; i < NF_Tin.getNElements(); i++)
   {
     ir = u_row[NF_Tin.getRow(i)];
     ic = u_col[NF_Tin.getCol(i)];

@@ -253,7 +253,7 @@ bool Db::isDimensionIndexValid(int idim) const
  */
 bool Db::isUIDValid(int iuid) const
 {
-  return checkArg("UID Index", iuid, getUIDMaxNumber());
+  return checkArg("UID Index", iuid, getNUIDMax());
 }
 
 /**
@@ -312,7 +312,7 @@ VectorInt Db::getColIdxsByUID(const VectorInt& iuids) const
 int Db::getUIDByColIdx(int icol) const
 {
   if (!isColIdxValid(icol)) return -1;
-  for (int iuid = 0; iuid < getUIDMaxNumber(); iuid++)
+  for (int iuid = 0; iuid < getNUIDMax(); iuid++)
     if (_uidcol[iuid] == icol) return iuid;
   return -1;
 }
@@ -1002,7 +1002,7 @@ bool Db::hasLocator(const ELoc& locatorType) const
   return p.hasLocator();
 }
 
-int Db::getFromLocatorNumber(const ELoc& locatorType) const
+int Db::getNFromLocator(const ELoc& locatorType) const
 {
   const PtrGeos& p = _p[locatorType.getValue()];
   return p.getNLoc();
@@ -1070,15 +1070,15 @@ String Db::_summaryUIDs(void) const
   std::stringstream sstr;
 
   sstr << toTitle(1, "List of unsorted UIDs");
-  sstr << "Maximum number of positions = " << getUIDMaxNumber() << std::endl;
-  sstr << "Number of Columns           = " << getColumnNumber() << std::endl;
+  sstr << "Maximum number of positions = " << getNUIDMax() << std::endl;
+  sstr << "Number of Columns           = " << getNColumn() << std::endl;
 
   /* Loop on the UIDs */
 
-  if (getUIDMaxNumber() <= 0) return sstr.str();
+  if (getNUIDMax() <= 0) return sstr.str();
 
   sstr << "UID = ";
-  for (int iuid = 0; iuid < getUIDMaxNumber(); iuid++)
+  for (int iuid = 0; iuid < getNUIDMax(); iuid++)
     sstr << _uidcol[iuid] << " ";
   sstr << std::endl;
   return sstr.str();
@@ -1285,7 +1285,7 @@ int Db::addColumnsByConstant(int nadd,
                              int nechInit)
 {
   int ncol = _ncol;
-  int nmax = getUIDMaxNumber();
+  int nmax = getNUIDMax();
   int nnew = ncol + nadd;
   if (nadd <= 0) return (-1);
 
@@ -1346,7 +1346,7 @@ int Db::addColumnsRandom(int nadd,
                          int nechInit)
 {
   int ncol = _ncol;
-  int nmax = getUIDMaxNumber();
+  int nmax = getNUIDMax();
   int nnew = ncol + nadd;
   if (nadd <= 0) return (-1);
 
@@ -1895,7 +1895,7 @@ void Db::deleteColumnByUID(int iuid_del)
 {
   int ncol = _ncol;
   int nech = _nech;
-  int nmax = getUIDMaxNumber();
+  int nmax = getNUIDMax();
   int nnew = ncol - 1;
   if (!isUIDValid(iuid_del)) return;
 
@@ -2125,7 +2125,7 @@ VectorString Db::identifyNames(const VectorString& names) const
 
   // Constitute the list of the locator names
   VectorString locnames;
-  for (int j = 0; j < getColumnNumber(); j++)
+  for (int j = 0; j < getNColumn(); j++)
   {
     if (! getLocatorByColIdx(j, &locatorType, &locatorIndex)) continue;
     String local = getLocatorName(locatorType, locatorIndex);
@@ -2308,8 +2308,8 @@ void Db::switchLocator(const ELoc& locatorType_in, const ELoc& locatorType_out)
 {
   PtrGeos& p_in  = _p[locatorType_in.getValue()];
   PtrGeos& p_out = _p[locatorType_out.getValue()];
-  int n_in  = getFromLocatorNumber(locatorType_in);
-  int n_out = getFromLocatorNumber(locatorType_out);
+  int n_in  = getNFromLocator(locatorType_in);
+  int n_out = getNFromLocator(locatorType_out);
 
   /* Move the gradient components into additional variables */
   p_out.resize(n_in + n_out);
@@ -2432,7 +2432,7 @@ int Db::getNLoc(const ELoc& loctype) const
   return p.getNLoc();
 }
 
-int Db::getZNumber() const
+int Db::getNZValues() const
 {
   const PtrGeos& p = _p[ELoc::Z.getValue()];
   return p.getNLoc();
@@ -2470,7 +2470,7 @@ double Db::getZVariable(int iech, int item) const
 VectorDouble Db::getLocVariables(const ELoc& loctype, int iech, int nitemax) const
 {
   VectorDouble vec;
-  int number = getFromLocatorNumber(loctype);
+  int number = getNFromLocator(loctype);
   if (number <= 0) return vec;
   int nitem = (nitemax > 0) ? MIN(nitemax, number) : number;
 
@@ -2497,7 +2497,7 @@ void Db::setLocVariables(const ELoc& loctype,
                          int iech,
                          const VectorDouble& values)
 {
-  int number = getFromLocatorNumber(loctype);
+  int number = getNFromLocator(loctype);
   int size = (int) values.size();
   if (number != size)
   {
@@ -3033,7 +3033,7 @@ String Db::getNameByUID(int iuid) const
 VectorString Db::getNamesByLocator(const ELoc& locatorType) const
 {
   VectorString namelist;
-  int count = getFromLocatorNumber(locatorType);
+  int count = getNFromLocator(locatorType);
   if (count <= 0) return namelist;
   for (int i = 0; i < count; i++)
   {
@@ -3152,7 +3152,7 @@ void Db::setName(const VectorString& list, const String& name)
 void Db::setNameByLocator(const ELoc& locatorType, const String& name)
 {
   VectorString namelist;
-  int count = getFromLocatorNumber(locatorType);
+  int count = getNFromLocator(locatorType);
   if (count <= 0) return;
   for (int i = 0; i < count; i++)
   {
@@ -3175,7 +3175,7 @@ String Db::_summaryString(void) const
     sstr << "File is organized as a set of isolated points" << std::endl;
 
   sstr << "Space dimension              = " << getNDim() << std::endl;
-  sstr << "Number of Columns            = " << getColumnNumber() << std::endl;
+  sstr << "Number of Columns            = " << getNColumn() << std::endl;
   sstr << "Total number of samples      = " << getNSample() << std::endl;
   if (hasLocVariable(ELoc::SEL))
     sstr << "Number of active samples     = " << getNSample(true)
@@ -3212,10 +3212,10 @@ String Db::_summaryVariables(void) const
 {
   std::stringstream sstr;
 
-  if (getColumnNumber() <= 0) return sstr.str();
+  if (getNColumn() <= 0) return sstr.str();
   sstr << toTitle(1, "Variables");
 
-  for (int icol = 0; icol < getColumnNumber(); icol++)
+  for (int icol = 0; icol < getNColumn(); icol++)
   {
     sstr << "Column = " << icol;
     sstr << " - Name = " << getNameByColIdx(icol);
@@ -3236,7 +3236,7 @@ String Db::_summaryStats(VectorInt cols, int mode, int maxNClass) const
 {
   std::stringstream sstr;
 
-  int ncol = (cols.empty()) ? getColumnNumber() : static_cast<int> (cols.size());
+  int ncol = (cols.empty()) ? getNColumn() : static_cast<int> (cols.size());
   if (ncol <= 0) return sstr.str();
 
   sstr << toTitle(1, "Data Base Statistics");
@@ -3306,7 +3306,7 @@ String Db::_summaryArrays(VectorInt cols, bool useSel) const
 {
   std::stringstream sstr;
 
-  int ncol = (cols.empty()) ? getColumnNumber() : static_cast<int> (cols.size());
+  int ncol = (cols.empty()) ? getNColumn() : static_cast<int> (cols.size());
   if (ncol <= 0) return sstr.str();
 
   sstr << toTitle(1, "Data Base Contents");
@@ -4376,7 +4376,7 @@ void Db::_createRank(int icol)
  */
 void Db::_addRank(int nech)
 {
-  if (getColumnNumber() > 0 || getNSample() > 0)
+  if (getNColumn() > 0 || getNSample() > 0)
   {
     messerr("Error: the Db should be empty in order to call _addRank. "
             "Nothing is done");
@@ -4388,7 +4388,7 @@ void Db::_addRank(int nech)
 
 void Db::_defineDefaultNames(int shift, const VectorString& names)
 {
-  int ncol = getColumnNumber() - shift;
+  int ncol = getNColumn() - shift;
   if (!names.empty())
   {
     if ((int)names.size() != ncol)
@@ -4412,7 +4412,7 @@ void Db::_defineDefaultLocators(int shift, const VectorString& locatorNames)
 {
   if (locatorNames.empty()) return;
 
-  int ncol = getColumnNumber() - shift;
+  int ncol = getNColumn() - shift;
   if ((int)locatorNames.size() != ncol)
     my_throw("Error in the dimension of 'locatorNames'");
 
@@ -4430,7 +4430,7 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
 {
   if (names.empty()) return;
 
-  int ncol = getColumnNumber() - shift;
+  int ncol = getNColumn() - shift;
   if ((int)names.size() != ncol) my_throw("Error in the dimension of 'names'");
 
   ELoc locatorType;
@@ -4531,7 +4531,7 @@ Db* Db::createFromNF(const String& neutralFilename, bool verbose)
 
 bool Db::_serialize(std::ostream& os, bool /*verbose*/) const
 {
-  int ncol              = getColumnNumber();
+  int ncol              = getNColumn();
   VectorString locators = getLocators(true);
   VectorString names    = getName("*");
   std::vector<double> vals;
@@ -4611,7 +4611,7 @@ void Db::_loadData(const ELoadBy& order,
 {
   // Preliminary check
 
-  if (getColumnNumber() <= 0) return;
+  if (getNColumn() <= 0) return;
   int jcol = 0;
 
   // Add the rank (optional)
@@ -4627,7 +4627,7 @@ void Db::_loadData(const ELoadBy& order,
   // Add the input array 'tab' (if provided)
 
   if (tab.empty()) return;
-  int ntab = (flagAddSampleRank) ? getColumnNumber() - 1 : getColumnNumber();
+  int ntab = (flagAddSampleRank) ? getNColumn() - 1 : getNColumn();
   int ecr  = 0;
   for (int icol = 0; icol < ntab; icol++)
   {

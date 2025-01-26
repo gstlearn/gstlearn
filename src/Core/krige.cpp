@@ -3058,11 +3058,11 @@ int krigsum(Db *dbin,
     messerr("This procedure requires a monovariate model");
     return 1;
   }
-  if (dbout->getFromLocatorNumber(ELoc::SUM) != 1)
+  if (dbout->getNFromLocator(ELoc::SUM) != 1)
   {
     messerr("This procedure requires one Variable with Locator SUM in the Output Db");
     messerr("The number of such variable is currently equal to %d",
-            dbout->getFromLocatorNumber(ELoc::SUM ));
+            dbout->getNFromLocator(ELoc::SUM ));
     return 1;
   }
 

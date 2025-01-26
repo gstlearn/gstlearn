@@ -789,7 +789,7 @@ function (x,i,j,...,drop=TRUE)
   if (length(dots) > 0) args = append(args, dots)
   nargs = length(args)
   nech_abs = db$getNSample()
-  ncol_abs = db$getColumnNumber()
+  ncol_abs = db$getNColumn()
   rows <- NA
   namcols <- NA
 
@@ -844,7 +844,7 @@ function (x,i,j,...,drop=TRUE)
   nargs = length(args)
   
   nech_abs = db$getNSample()
-  ncol_abs = db$getColumnNumber()
+  ncol_abs = db$getNColumn()
   value = as.numeric(unlist(value))
 
   rows <- NA
@@ -990,7 +990,7 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 "Db_toTL" <- function(x)
 {
   names = x$getAllNames()
-  nc = x$getColumnNumber()
+  nc = x$getNColumn()
   vals = NULL
   for (i in seq(0,nc-1)) {
     vals = cbind(vals,x$getColumnsByColIdx(i))

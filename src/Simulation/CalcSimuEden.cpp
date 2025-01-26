@@ -141,7 +141,7 @@ bool CalcSimuEden::_simulate()
       }
       else
       {
-        _addStatNumber(_getFACIES(ipos)-1,ref_fluid-1,1);
+        _addStatCount(_getFACIES(ipos)-1,ref_fluid-1,1);
         _addStatVolume(_getFACIES(ipos)-1,ref_fluid-1,_getPORO(ipos));
         _setFLUID(ipos, ref_fluid);
         _setDATE(ipos, idate);
@@ -513,12 +513,12 @@ void CalcSimuEden::_statsReset()
   for (int ifluid = 0; ifluid < _nfluids; ifluid++)
     for (int ifacies = 0; ifacies < _nfacies; ifacies++)
     {
-      _setStatNumber(ifacies,ifluid,0);
+      _setStatCount(ifacies,ifluid,0);
       _setStatVolume(ifacies,ifluid,0.);
     }
 }
 
-void CalcSimuEden::_setStatNumber(int ifacies, int ifluid, int value)
+void CalcSimuEden::_setStatCount(int ifacies, int ifluid, int value)
 {
   _numbers[ifacies * _nfluids + ifluid] = value;
 }
@@ -526,7 +526,7 @@ void CalcSimuEden::_setStatVolume(int ifacies, int ifluid, double value)
 {
   _volumes[ifacies * _nfluids + ifluid] = value;
 }
-void CalcSimuEden::_addStatNumber(int ifacies, int ifluid, int value)
+void CalcSimuEden::_addStatCount(int ifacies, int ifluid, int value)
 {
   _numbers[ifacies * _nfluids + ifluid] += value;
 }
@@ -534,7 +534,7 @@ void CalcSimuEden::_addStatVolume(int ifacies, int ifluid, double value)
 {
   _volumes[ifacies * _nfluids + ifluid] += value;
 }
-int CalcSimuEden::_getStatNumber(int ifacies, int ifluid) const
+int CalcSimuEden::_getStatCount(int ifacies, int ifluid) const
 {
   return _numbers[ifacies * _nfluids + ifluid];
 }
@@ -659,7 +659,7 @@ void CalcSimuEden::_statsInit()
 
     /* The cell does not belong to the skin: it is already filled */
 
-    _addStatNumber(_getFACIES(lec)-1,_getFLUID(lec)-1,1);
+    _addStatCount(_getFACIES(lec)-1,_getFLUID(lec)-1,1);
     _addStatVolume(_getFACIES(lec)-1,_getFLUID(lec)-1,_getPORO(lec));
   }
 }
@@ -680,7 +680,7 @@ int CalcSimuEden::_checkMax(double number_max, double volume_max)
   for (int ifluid = 0; ifluid < _nfluids; ifluid++)
     for (int ifacies = 0; ifacies < _nfacies; ifacies++)
     {
-      int number = _getStatNumber(ifacies, ifluid);
+      int number = _getStatCount(ifacies, ifluid);
       double volume = _getStatVolume(ifacies, ifluid);
       totnum += number;
       totvol += volume;
@@ -784,7 +784,7 @@ void CalcSimuEden::_statsPrint(const char *title)
   for (int ifluid = 0; ifluid < _nfluids; ifluid++)
     for (int ifacies = 0; ifacies < _nfacies; ifacies++)
     {
-      int number    = _getStatNumber(ifacies, ifluid);
+      int number    = _getStatCount(ifacies, ifluid);
       double volume = _getStatVolume(ifacies, ifluid);
       totnum += number;
       totvol += volume;
@@ -1107,7 +1107,7 @@ int fluid_propagation(DbGrid *dbgrid,
 
   seden.setSpeeds(speeds);
   seden.setShowFluid(show_fluid);
-  seden.setNumberMax(number_max);
+  seden.setNMax(number_max);
   seden.setVolumeMax(volume_max);
 
   // Run the calculator

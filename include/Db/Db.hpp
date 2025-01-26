@@ -257,8 +257,8 @@ public:
   VectorString identifyNames(const VectorString& names) const;
   /**@}*/
 
-  inline int getUIDMaxNumber() const { return (int) _uidcol.size(); }
-  inline int getColumnNumber() const { return _ncol; }
+  inline int getNUIDMax() const { return (int) _uidcol.size(); }
+  inline int getNColumn() const { return _ncol; }
 
   static int getNEloc();
   int getNSample(bool useSel = false) const;
@@ -477,7 +477,7 @@ public:
   void getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpaceSharedPtr& space,bool useSel = false) const;
 
   bool   hasLocator(const ELoc& locatorType) const;
-  int    getFromLocatorNumber(const ELoc& locatorType) const;
+  int    getNFromLocator(const ELoc& locatorType) const;
   double getFromLocator(const ELoc& locatorType, int iech, int locatorIndex=0) const;
   void   setFromLocator(const ELoc& locatorType,
                         int iech,
@@ -529,7 +529,7 @@ public:
   void   updLocVariable(const ELoc& loctype, int iech, int item, const EOperator& oper, double value);
   /**@}*/
 
-  int    getZNumber() const;
+  int    getNZValues() const;
   bool   hasZVariable() const;
   double getZVariable(int iech, int item) const;
   void   setZVariable(int iech, int item, double value);
