@@ -97,8 +97,8 @@ public:
   
   Db* createStatToHeader() const;
 
-  int getLineNumber() const;
-  int getLineSampleNumber(int iline) const;
+  int getNLine() const;
+  int getNSamplePerLine(int iline) const;
   double getLineLength(int iline) const;
   int getNTotal() const;
   int getLineBySample(int iech) const;

@@ -534,7 +534,7 @@ bool CalcSimuRefine::_check()
     messerr("Input Db must be a Grid");
     return false;
   }
-  if (getDbin()->getLocatorNumber(ELoc::Z) != 1)
+  if (getDbin()->getNLoc(ELoc::Z) != 1)
   {
     messerr("This method can only be used with 1 variable");
     return false;

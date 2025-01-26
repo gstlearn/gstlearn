@@ -178,7 +178,7 @@ int RuleShift::particularities(Db* db,
                                int flag_grid_check,
                                int /*flag_stat*/) const
 {
-  int ndim = (model != nullptr) ? model->getDimensionNumber() : 0;
+  int ndim = (model != nullptr) ? model->getNDim() : 0;
   VectorDouble wxyz(ndim);
   double rhoval;
 
@@ -245,10 +245,10 @@ bool RuleShift::checkModel(const Model* model, int nvar) const
     messerr("No Model is provided");
     return false;
   }
-  if (nvar > 0 && model->getVariableNumber() != nvar)
+  if (nvar > 0 && model->getNVar() != nvar)
   {
     messerr("The number of variables in the Model (%d) does not match",
-            model->getVariableNumber());
+            model->getNVar());
     messerr(" the number of variables in the Db (%d)", nvar);
     return false;
   }
@@ -294,7 +294,7 @@ int RuleShift::gaus2facResult(PropDef* propdef,
 
   /* Processing the translation */
 
-  for (iech=0; iech<dbgrid->getSampleNumber(); iech++)
+  for (iech=0; iech<dbgrid->getNSample(); iech++)
   {
     if (! dbgrid->isActive(iech)) continue;
 
@@ -353,7 +353,7 @@ int RuleShift::evaluateBounds(PropDef *propdef,
 
   if (dbin == nullptr) return(0);
   nadd = 0;
-  nech = dbin->getSampleNumber();
+  nech = dbin->getNSample();
 
   /* Dispatch */
 

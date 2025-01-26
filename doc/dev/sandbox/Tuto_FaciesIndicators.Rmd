@@ -164,7 +164,7 @@ vario$display()
 # Transition probabilities
 
 ```{r transition_proba}
-ndir = vario$getDirectionNumber()
+ndir = vario$getNDir()
 for (idir in 0:(ndir-1)) {
     for (ifac in 0:(nfacies-1)) {
         for (jfac in 0:ifac) {

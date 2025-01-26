@@ -15,18 +15,15 @@
 #include "Space/SpaceRN.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Basic/AException.hpp"
-#include <memory>
 
 /// Unique default global space
 static ASpaceSharedPtr defaultSpace = nullptr;
 
 ASpaceObject::ASpaceObject(const ASpaceSharedPtr& space)
-  : AStringable(),
-    _space(ASpace::getDefaultSpaceIfNull(space))
+  : AStringable()
+  , _space(ASpace::getDefaultSpaceIfNull(space))
 {
-
 }
-
 
 ASpaceObject::ASpaceObject(const ASpaceObject& r)
   : AStringable(r),
@@ -147,26 +144,23 @@ void defineDefaultSpace(const ESpaceType& type, unsigned int ndim, double param)
 
 /**
  * @brief Defining the default space from another one
- * 
- * @param space 
+ *
+ * @param space
  */
 void setDefaultSpace(const ASpaceSharedPtr& space)
 {
   defaultSpace = space;
 }
 
-
 ESpaceType getDefaultSpaceType()
 {
-  if (nullptr == defaultSpace)
-    defineDefaultSpace(ESpaceType::RN, 2);
+  if (nullptr == defaultSpace) defineDefaultSpace(ESpaceType::RN, 2);
   return defaultSpace->getType();
 }
 
 int getDefaultSpaceDimension()
 {
-  if (nullptr == defaultSpace)
-    defineDefaultSpace(ESpaceType::RN, 2);
+  if (nullptr == defaultSpace) defineDefaultSpace(ESpaceType::RN, 2);
   return defaultSpace->getNDim();
 }
 
@@ -175,11 +169,9 @@ const ASpace* getDefaultSpace()
   return getDefaultSpaceSh().get();
 }
 
-
 ASpaceSharedPtr getDefaultSpaceSh()
 {
-  if (nullptr == defaultSpace)
-    defineDefaultSpace(ESpaceType::RN, 2);
+  if (nullptr == defaultSpace) defineDefaultSpace(ESpaceType::RN, 2);
   return defaultSpace;
 }
 
@@ -187,4 +179,3 @@ bool isDefaultSpaceSphere()
 {
   return (getDefaultSpaceType() == ESpaceType::SN);
 }
-

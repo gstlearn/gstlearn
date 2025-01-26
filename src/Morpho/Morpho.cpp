@@ -812,7 +812,7 @@ VectorInt gridcell_neigh(int ndim,
 
   /* (Maximum) core allocation */
 
-  nech = grid->getSampleNumber();
+  nech = grid->getNSample();
   indret.resize(nech * ndim);
   VectorInt indg0(ndim, 0);
   VectorInt indg1(ndim, 0);
@@ -1028,7 +1028,7 @@ int db_morpho_calc(DbGrid *dbgrid,
                     bool flagDistErode,
                     bool verbose)
 {
-  int ntotal = dbgrid->getSampleNumber();
+  int ntotal = dbgrid->getNSample();
   VectorInt nxy = dbgrid->getNXs();
 
   VectorDouble tabin = dbgrid->getColumnByLocator(ELoc::Z);

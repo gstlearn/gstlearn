@@ -141,7 +141,7 @@ def __isNotCorrect(object, types):
 
 def __defaultVariable(db, name):
     if name is None:
-        if db.getLocNumber(gl.ELoc.Z) > 0:
+        if db.getNLoc(gl.ELoc.Z) > 0:
             name = db.getNameByLocator(gl.ELoc.Z,0)
         else : # if no Z locator, choose the last field
             name = db.getLastName()
@@ -493,7 +493,7 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, axsOld=None, *args, **kwargs):
 
     **kwargs : arguments passed to matplotlib.pyplot.plot for all variograms plotted (not models!)
     """
-    nvar = vario.getVariableNumber()
+    nvar = vario.getNVar()
     ivarUtil, ivarN = __selectItems(nvar, ivar)
     jvarUtil, jvarN = __selectItems(nvar, jvar)
     axs = __getNewAxes(axsOld, 0, nx=ivarN, ny=jvarN)
@@ -517,8 +517,8 @@ def __ax_varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
     if hmax is None:
         hmax = vario.getHmax(ivar, jvar, idir)
         
-    ndir = vario.getDirectionNumber()
-    nvar = vario.getVariableNumber()
+    ndir = vario.getNDir()
+    nvar = vario.getNVar()
     cols = getColorMap(ndir,cmap)
     
     ndirUtil, ivarD = __selectItems(ndir, idir)
@@ -611,7 +611,7 @@ def variogram(vario, ivar=0, jvar=0, axsOld=None, *args, **kwargs):
     -------
     axs : axes where the variograms are represented
     """
-    nvar = vario.getVariableNumber()
+    nvar = vario.getNVar()
     ivarUtil, ivarN = __selectItems(nvar, ivar)
     jvarUtil, jvarN = __selectItems(nvar, jvar)
     axs = __getNewAxes(axsOld, 0, nx=ivarN, ny=jvarN)
@@ -662,7 +662,7 @@ def __ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
     
     if codir is None:
         if vario is None:
-            codir = [0] * modelobj.getDimensionNumber()
+            codir = [0] * modelobj.getNDim()
             codir[0] = 1
         else:
             codir = vario.getCodirs(idir)
@@ -670,7 +670,7 @@ def __ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
     # if hmax not specified = 3*maximum range of the model's basic structures
     if hmax is None:
         hmax = 0
-        for icova in range(modelobj.getCovaNumber()):
+        for icova in range(modelobj.getNCov()):
             range_max = np.max(modelobj.getCova(icova).getRanges())
             if 3*range_max > hmax:
                 hmax = 3*range_max
@@ -685,7 +685,7 @@ def __ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
             label = "model"
 
     istart = 0
-    for i in range(modelobj.getCovaNumber()):
+    for i in range(modelobj.getNCov()):
         if modelobj.getCovName(i) == 'Nugget Effect':
             istart = 1 # do not plot the first lag (h=0) for nugget effect (discontinuity)
      
@@ -905,7 +905,7 @@ def gradient(db, *args, **kwargs):
     
 def __ax_gradient(ax, db, nameCoorX=None, nameCoorY=None, useSel=True, 
                   posX=0, posY=1, **kwargs):
-    if db.getLocNumber(gl.ELoc.G) <= 0:
+    if db.getNLoc(gl.ELoc.G) <= 0:
         return None
     
     # Extracting coordinates
@@ -941,7 +941,7 @@ def tangent(db, *args, **kwargs):
 
 def __ax_tangent(ax, db, nameCoorX=None, nameCoorY=None, useSel=True, 
                  posX=0, posY=1, **kwargs):
-    if db.getLocNumber(gl.ELoc.TGTE) <= 0:
+    if db.getNLoc(gl.ELoc.TGTE) <= 0:
         return None
 
     # Extracting coordinates
@@ -1100,7 +1100,7 @@ def __ax_polygon(ax, poly, facecolor='yellow', edgecolor = 'blue',
     if __isNotCorrect(object=poly, types=["Polygons"]):
         return None
     
-    npol = poly.getPolyElemNumber()
+    npol = poly.getNPolyElem()
     cols = getColorMap(npol)
     
     for ipol in range(npol):
@@ -1301,7 +1301,7 @@ def __ax_line(ax, dbline, color = 'blue', colorPoint='black', colorHeader='red',
     if dbline.getNDim() != 2:
         return None
     
-    nbline = dbline.getLineNumber()
+    nbline = dbline.getNLine()
     
     for iline in range(nbline):
         x = dbline.getCoordinates(iline, 0)
@@ -1343,7 +1343,7 @@ def __ax_graphO(ax, dbgraphO, name = None, color = 'blue', colorPoint='black', f
         y = dbgraphO.getCoordinates(1)
         ax.plot(x, y, marker='.', color=colorPoint, linestyle='None')
     
-    narcs = dbgraphO.getArcNumber()
+    narcs = dbgraphO.getNArc()
     for iarc in range(narcs):
         x = dbgraphO.getArc(iarc, 0)
         y = dbgraphO.getArc(iarc, 1)
@@ -1445,7 +1445,7 @@ def __ax_grid1D(ax, dbgrid, name = None, useSel = True,
         return None
     
     if name is None:
-        if dbgrid.getLocNumber(gl.ELoc.Z) > 0:
+        if dbgrid.getNLoc(gl.ELoc.Z) > 0:
             name = dbgrid.getNameByLocator(gl.ELoc.Z,0) # select locator z1, prints an error if no Z locator
         else : # if no Z locator, choose the last field
             name = dbgrid.getLastName()
@@ -1667,7 +1667,7 @@ def __ax_rule(ax, ruleobj, proportions=[],cmap=None, maxG=3.):
     if __isNotCorrect(object=ruleobj, types=["Rule"]):
         return None
     
-    nfac = ruleobj.getFaciesNumber()
+    nfac = ruleobj.getNFacies()
     ruleobj.setProportions(proportions)
     
     cols = getColorMap(nfac, cmap)
@@ -1839,7 +1839,7 @@ def __ax_correlation(ax, db, namex, namey, db2=None,
     if db2 is None:
         db2 = db
    
-    if db.getSampleNumber() != db2.getSampleNumber():
+    if db.getNSample() != db2.getNSample():
         print("Db and Db2 should have the same number of samples")
         return None
 

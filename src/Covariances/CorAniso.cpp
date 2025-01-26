@@ -173,7 +173,7 @@ void CorAniso::setRangeIsotropic(double range)
 void CorAniso::setRanges(const VectorDouble &ranges)
 {
   if (!hasRange()) return;
-  if (ranges.size() != getNDim())
+  if ((int) ranges.size() != getNDim())
   {
     messerr("Inconsistency on Space Dimension");
     return;
@@ -293,7 +293,7 @@ void CorAniso::setRotationAnglesAndRadius(const VectorDouble &angles,
       return;
     }
 
-    if (scales.size() != getNDim())
+    if ((int) scales.size() != getNDim())
     {
       messerr("Inconsistency on Space Dimension");
       return;
@@ -311,7 +311,7 @@ void CorAniso::setRotationAnglesAndRadius(const VectorDouble &angles,
 
   if (! ranges.empty())
   {
-    if (ranges.size() != getNDim())
+    if ((int) ranges.size() != getNDim())
     {
       messerr("Inconsistency on Space Dimension");
       return;
@@ -785,10 +785,10 @@ double CorAniso::getIntegralRange(int ndisc, double hmax) const
 
 bool CorAniso::_isVariableValid(int ivar) const
 {
-  return checkArg("Rank of the Variable", ivar, getNVariables());
+  return checkArg("Rank of the Variable", ivar, getNVar());
 }
 
-int CorAniso::getGradParamNumber() const
+int CorAniso::getNGradParam() const
 {
   int ndim = getNDim();
   int number = 0;
@@ -1025,7 +1025,7 @@ bool CorAniso::isOptimizationInitialized(const std::vector<SpacePoint> &p1As,
   if (p1As.empty()) return false;
   if (db == nullptr) return true;
   int n = (int) p1As.size();
-  return n == db->getSampleNumber();
+  return n == db->getNSample();
 }
 
   

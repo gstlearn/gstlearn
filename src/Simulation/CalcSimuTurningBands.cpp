@@ -75,7 +75,7 @@ bool CalcSimuTurningBands::_resize()
   if (nbsimu > 0 && nbtuba > 0)
   {
     int nvar  = _getNVar();
-    int ncova = _getNCova();
+    int ncova = _getNCov();
 
     /* Allocate the structures for the seeds */
 
@@ -95,7 +95,7 @@ bool CalcSimuTurningBands::_resize()
 
 int CalcSimuTurningBands::_getAddressBand(int ivar, int is, int ib, int isimu)
 {
-  int ncova = _getNCova();
+  int ncova = _getNCov();
   int nvar = _getNVar();
   return ivar+nvar*((is)+ncova*((ib)+_nbtuba*(isimu)));
 }
@@ -125,7 +125,7 @@ int CalcSimuTurningBands::_generateDirections(const Db* dbout)
 {
   double x[2];
   int ndim = _getNDim();
-  int ncova = _getNCova();
+  int ncova = _getNCov();
   int nbsimu = getNbSimu();
   int nbands = getNDirs();
 
@@ -319,7 +319,7 @@ void CalcSimuTurningBands::_minmax(const Db *db)
 
     /* Case of an isolated set of data */
 
-    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    for (int iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
       for (int ibs = 0; ibs < nbands; ibs++)
@@ -333,7 +333,7 @@ void CalcSimuTurningBands::_minmax(const Db *db)
     }
   }
 
-  _npointSimulated += db->getSampleNumber();
+  _npointSimulated += db->getNSample();
 }
 
 /****************************************************************************/
@@ -410,7 +410,7 @@ int CalcSimuTurningBands::_initializeSeedBands()
   /* Initializations */
 
   _setDensity();
-  int ncova  = _getNCova();
+  int ncova  = _getNCov();
   int nvar   = _getNVar();
   int nbsimu = getNbSimu();
   double theta1 = 1. / _theta;
@@ -898,7 +898,7 @@ double CalcSimuTurningBands::_irfProcessInit(int ibs,
  *****************************************************************************/
 VectorDouble CalcSimuTurningBands::_createAIC()
 {
-  int ncova = _getNCova();
+  int ncova = _getNCov();
   int nvar  = _getNVar();
 
   VectorDouble aic(ncova * nvar * nvar);
@@ -1030,7 +1030,7 @@ void CalcSimuTurningBands::_spreadRegularOnPoint(const Db *db,
 {
   CovAniso* cova = getModel()->getCova(is);
   double t0;
-  for (int iech = 0, nech = db->getSampleNumber(); iech < nech; iech++)
+  for (int iech = 0, nech = db->getNSample(); iech < nech; iech++)
   {
     if (! activeArray[iech]) continue;
     t0 = _codirs[ibs].projectPoint(db, iech);
@@ -1047,7 +1047,7 @@ void CalcSimuTurningBands::_spreadSpectralOnPoint(const Db* db,
 {
   CovAniso* cova = getModel()->getCova(is);
   double t0;
-  for (int iech = 0, nech = db->getSampleNumber(); iech < nech; iech++)
+  for (int iech = 0, nech = db->getNSample(); iech < nech; iech++)
   {
     if (!activeArray[iech]) continue;
     t0 = _codirs[ibs].projectPoint(db, iech);
@@ -1071,8 +1071,8 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
                                           int icase,
                                           int shift)
 {
-  int nech   = db->getSampleNumber();
-  int ncova  = _getNCova();
+  int nech   = db->getNSample();
+  int ncova  = _getNCov();
   int nvar   = _getNVar();
   int nbsimu = getNbSimu();
   double theta1 = 1. / _theta;
@@ -1222,7 +1222,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
   int nbsimu = getNbSimu();
   double theta1 = 1. / _theta;
   int nvar   = _getNVar();
-  int ncova  = _getNCova();
+  int ncova  = _getNCov();
   int ndim   = db->getNDim();
   int nx     = (ndim >= 1) ? db->getNX(0) : 1;
   int ny     = (ndim >= 2) ? db->getNX(1) : 1;
@@ -1393,7 +1393,7 @@ void CalcSimuTurningBands::_simulateGradient(Db *dbgrd,
 
     /* Shift the information */
 
-    for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
+    for (int iech = 0; iech < dbgrd->getNSample(); iech++)
       if (activeArray[iech])
         dbgrd->setCoordinate(iech, idim,
                              dbgrd->getCoordinate(iech, idim) + delta);
@@ -1408,7 +1408,7 @@ void CalcSimuTurningBands::_simulateGradient(Db *dbgrd,
 
     /* Un-Shift the information */
 
-    for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
+    for (int iech = 0; iech < dbgrd->getNSample(); iech++)
       if (!activeArray[iech])
         dbgrd->setCoordinate(iech, idim,
                              dbgrd->getCoordinate(iech, idim) - delta);
@@ -1416,7 +1416,7 @@ void CalcSimuTurningBands::_simulateGradient(Db *dbgrd,
     /* Scaling */
 
     for (int isimu = 0; isimu < nbsimu; isimu++)
-      for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
+      for (int iech = 0; iech < dbgrd->getNSample(); iech++)
       {
         if (!!activeArray[iech]) continue;
         jsimu = isimu + idim * nbsimu + ndim * nbsimu;
@@ -1462,7 +1462,7 @@ void CalcSimuTurningBands::_simulateTangent(Db *dbtgt,
   /* Calculate the simulated tangent */
 
   for (int isimu = 0; isimu < nbsimu; isimu++)
-    for (int iech = 0; iech < dbtgt->getSampleNumber(); iech++)
+    for (int iech = 0; iech < dbtgt->getNSample(); iech++)
     {
       if (! activeArray[iech]) continue;
 
@@ -1554,8 +1554,8 @@ void CalcSimuTurningBands::_getOmegaPhi(int ibs,
  *****************************************************************************/
 void CalcSimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int icase)
 {
-  int nech = db->getSampleNumber();
-  int ncova = _getNCova();
+  int nech = db->getNSample();
+  int ncova = _getNCov();
   int nvar = _getNVar();
   int nbsimu = getNbSimu();
   VectorBool activeArray = db->getActiveArray();
@@ -1642,7 +1642,7 @@ void CalcSimuTurningBands::_difference(Db *dbin,
     /* Standard case (multivariate) */
     /********************************/
 
-    for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+    for (int iech = 0; iech < dbin->getNSample(); iech++)
     {
       if (!dbin->isActive(iech)) continue;
       for (int ivar = 0; ivar < nvar; ivar++)
@@ -1682,7 +1682,7 @@ void CalcSimuTurningBands::_difference(Db *dbin,
     /* Case of PGS: Data varies per simulation (monovariate) */
     /*********************************************************/
 
-    for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+    for (int iech = 0; iech < dbin->getNSample(); iech++)
     {
       if (!dbin->isActive(iech)) continue;
       for (int isimu = 0; isimu < nbsimu; isimu++)
@@ -1710,7 +1710,7 @@ void CalcSimuTurningBands::_meanCorrect(Db *dbout, int icase)
   if (_flagBayes) return;
   int nbsimu = getNbSimu();
   int nvar   = _getNVar();
-  int nech   = dbout->getSampleNumber();
+  int nech   = dbout->getNSample();
 
   VectorBool activeArray = dbout->getActiveArray();
 
@@ -1757,7 +1757,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
                                                 bool flag_pgs,
                                                 bool flag_dgm)
 {
-  if (dbin->getSampleNumber() <= 0) return;
+  if (dbin->getNSample() <= 0) return;
   if (flag_dgm) return;
   int nvar = _getNVar();
   int ndim = dbin->getNDim();
@@ -1783,7 +1783,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
     /* Case where the output file is a grid file */
     /*********************************************/
 
-    for (int ip = 0; ip < dbin->getSampleNumber(); ip++)
+    for (int ip = 0; ip < dbin->getNSample(); ip++)
     {
       if (!activeArrayIn[ip]) continue;
       dbin->getCoordinatesPerSampleInPlace(ip, coor2);
@@ -1825,7 +1825,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
     /* Case where the output file is a point file */
     /**********************************************/
 
-    for (int ik = 0; ik < dbout->getSampleNumber(); ik++)
+    for (int ik = 0; ik < dbout->getNSample(); ik++)
     {
       if (!activeArrayOut[ik]) continue;
       dbin->getCoordinatesPerSampleInPlace(ik, coor1);
@@ -1833,7 +1833,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
       /* Look for the closest data point */
 
       int ip_close = -1;
-      for (int ip = 0; ip < dbin->getSampleNumber() && ip_close < 0; ip++)
+      for (int ip = 0; ip < dbin->getNSample() && ip_close < 0; ip++)
       {
         if (!activeArrayIn[ip]) continue;
         dbin->getCoordinatesPerSampleInPlace(ip, coor2);
@@ -2086,7 +2086,7 @@ bool CalcSimuTurningBands::isValidForTurningBands(const Model *model)
 {
   /* Loop on the structures */
 
-  for (int is = 0; is < model->getCovaNumber(); is++)
+  for (int is = 0; is < model->getNCov(); is++)
   {
     if (! model->getCova(is)->isValidForTurningBand()) return false;
   }
@@ -2123,7 +2123,7 @@ void CalcSimuTurningBands::_checkGaussianData2Grid(Db *dbin,
 
   int number = 0;
   VectorDouble coor(ndim);
-  for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbin->getNSample(); iech++)
   {
     if (!dbin->isActive(iech)) continue;
 

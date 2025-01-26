@@ -59,7 +59,7 @@ Qsimu = gl.PrecisionOp(S, cova, False)
 result = Qsimu.simulateOne()
 workingDb.addColumns(result,"Simu",gl.ELoc.X)
 
-ind = np.random.choice(workingDb.getActiveSampleNumber(), size=100, replace=False)
+ind = np.random.choice(workingDb.getNSampleActive(), size=100, replace=False)
 data = gl.Db()
 data['x1'] = workingDb['x1'][ind]
 data['x2'] = workingDb['x1'][ind]

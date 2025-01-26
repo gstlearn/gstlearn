@@ -263,7 +263,7 @@ void CalcGridToGrid::_reduceIndices(const VectorInt& indgIn, VectorInt& indgOut)
 
 bool CalcGridToGrid::_g2gCopy()
 {
-  int nech = getDbin()->getSampleNumber();
+  int nech = getDbin()->getNSample();
 
   for (int iech = 0; iech < nech; iech++)
   {
@@ -282,7 +282,7 @@ bool CalcGridToGrid::_g2gExpand()
   VectorInt indgOut(ndim_out);
 
   // Loop on the output file
-  for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(true); iech_out++)
+  for (int iech_out = 0; iech_out < getDbout()->getNSample(true); iech_out++)
   {
     if (! getDbout()->isActive(iech_out)) continue;
     getGridout()->rankToIndice(iech_out, indgOut);
@@ -302,7 +302,7 @@ bool CalcGridToGrid::_g2gShrink()
   VectorInt indgOut(ndim_out);
 
   // Loop on the input file
-  for (int iech_in = 0; iech_in < getDbin()->getSampleNumber(true); iech_in++)
+  for (int iech_in = 0; iech_in < getDbin()->getNSample(true); iech_in++)
   {
     if (! getDbin()->isActive(iech_in)) continue;
     getGridin()->rankToIndice(iech_in, indgIn);
@@ -319,7 +319,7 @@ bool CalcGridToGrid::_g2gShrink()
   }
 
   // Normalization
-  for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(true); iech_out++)
+  for (int iech_out = 0; iech_out < getDbout()->getNSample(true); iech_out++)
   {
     double ratio = getDbout()->getArray(iech_out, _iattAux);
     if (ratio > 0.)
@@ -349,7 +349,7 @@ bool CalcGridToGrid::_g2gInter()
   VectorInt iuidBot = getDbin()->getUIDs(_nameBots);
 
   // Loop on the output file
-  for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(true); iech_out++)
+  for (int iech_out = 0; iech_out < getDbout()->getNSample(true); iech_out++)
   {
     if (! getDbout()->isActive(iech_out)) continue;
     getGridout()->rankToIndice(iech_out, indgOut);

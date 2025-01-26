@@ -47,9 +47,9 @@ void st_test(Db* grid, Model* model, int nech, int leaf_size, bool verbose)
     // Print the test environment
     message("This test is meant to test Kriging using Moving Neighborhood\n");
     message("- the Data Set contains %d samples\n",
-            data->getSampleNumber(true));
+            data->getNSample(true));
     message("- the Output Grid contains %d nodes\n",
-            grid->getSampleNumber(true));
+            grid->getNSample(true));
     message("- the Moving Neighborhood is required:\n");
     message("  . Radius dimension = %lf\n", radius);
     message("  . Maximum number of neighbors = %d\n", nmaxi);
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
     message("This test is meant to test Kriging Efficiency using Moving "
             "Neighborhood\n");
     message("- the Output Grid contains %d nodes\n",
-            grid->getSampleNumber(true));
+            grid->getNSample(true));
     message("- Various number of samples in the Data Set\n");
     message("- Various dimensions of Leaf sizes (for Ball Tree search)\n");
     message("  (0: no Ball Tree search)\n");

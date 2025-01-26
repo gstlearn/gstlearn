@@ -119,7 +119,7 @@ static int st_reference_define(Db *db, int *iptr_init, Surf_Def *surf_reference)
   /* Calculate the center of gravity */
 
   double nn = 0.;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     x = db->getArray(iech, iptr_init[0]);
@@ -138,7 +138,7 @@ static int st_reference_define(Db *db, int *iptr_init, Surf_Def *surf_reference)
   /* Establish the mean plane */
 
   mat.fill(0.);
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     x = db->getArray(iech, iptr_init[0]) - surf_reference->xg;
@@ -283,7 +283,7 @@ static void st_transform_init2proj(Surf_Def *surf_reference,
   st_mima_init(mima_out, &nundefs_out);
 
   n = 0;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
 
@@ -422,7 +422,7 @@ static int st_selection_per_code(Db *db, int icode, int iptr_sel)
   int number;
 
   number = 0;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (IFFFF(icode) || (int) db->getLocVariable(ELoc::C,iech,0) == icode)
     {

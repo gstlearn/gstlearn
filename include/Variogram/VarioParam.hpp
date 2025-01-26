@@ -106,18 +106,18 @@ public:
 
   ASpaceSharedPtr getSpace() const { return _dirparams[0].getSpace(); }
   double getScale() const { return _scale; }
-  int    getDateNumber() const { return (int) _dates.size() / 2; }
-  int    getDirectionNumber() const { return (int) _dirparams.size(); }
+  int    getNDate() const { return (int) _dates.size() / 2; }
+  int    getNDir() const { return (int) _dirparams.size(); }
   const VectorDouble& getDates() const { return _dates; }
   double getDate(int idate, int icas) const;
-  int getLagNumber(int idir) const;
+  int getNLag(int idir) const;
   VectorDouble getCodirs(int idir = 0) const;
   const std::vector<DirParam>& getDirParams() const { return _dirparams; }
   const DirParam& getDirParam(int idir) const { return _dirparams[idir]; }
-  int getDimensionNumber() const;
+  int getNDim() const;
   bool isDefinedForGrid() const;
 
-  int hasDate() const { return (getDateNumber() > 0 && (_dates[0] > -1.e30 || _dates[1] < 1.e30)); }
+  int hasDate() const { return (getNDate() > 0 && (_dates[0] > -1.e30 || _dates[1] < 1.e30)); }
   bool isDateUsed(const Db *db1, const Db *db2 = nullptr) const;
 
   void setScale(double scale) { _scale = scale; }

@@ -1051,8 +1051,8 @@ bool CalcSimuFFT::_check()
 
   if (!hasDbout()) return false;
   if (!hasModel()) return false;
-  int ndim = getModel()->getDimensionNumber();
-  int nvar = getModel()->getVariableNumber();
+  int ndim = getModel()->getNDim();
+  int nvar = getModel()->getNVar();
   if (ndim < 1 || ndim > 3)
   {
     messerr("The FFT Method is not a relevant simulation model");

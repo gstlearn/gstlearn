@@ -40,8 +40,8 @@ public:
 protected:
   virtual bool _check() override;
   virtual bool _preprocess() override;
-  int  _getNCova() const { return _ncova; }
-  bool _setNCova(int ncova);
+  int  _getNCov() const { return _ncova; }
+  bool _setNCov(int ncova);
 
   int _centerDataToGrid(DbGrid* dbgrid);
 

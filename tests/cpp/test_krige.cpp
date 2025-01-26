@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
   message("\n<----- Test Kriging Multiple Variables under Constraints ----->\n");
   delete grid_res;
   grid_res = grid->clone();
-  tab = VH::simulateUniform(grid->getSampleNumber(), 10., 20.);
+  tab = VH::simulateUniform(grid->getNSample(), 10., 20.);
   grid_res->addColumns(tab, "Constraints", ELoc::SUM);
   krigsum(data, grid_res, model, neighU, true);
   grid_res->display(&dbfmtKriging);

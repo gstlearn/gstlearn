@@ -136,14 +136,14 @@ int VCloud::compute(Db *db, const NamingConvention &namconv)
 
   /* Preliminary checks */
 
-  if (db->getNDim() != _varioparam->getDimensionNumber())
+  if (db->getNDim() != _varioparam->getNDim())
   {
     messerr("Inconsistent parameters:");
     messerr("Data Base: NDIM=%d", db->getNDim());
-    messerr("Variogram: NDIM=%d", _varioparam->getDimensionNumber());
+    messerr("Variogram: NDIM=%d", _varioparam->getNDim());
     return (1);
   }
-  if (!db->isVariableNumberComparedTo(1)) return 1;
+  if (!db->isNVarComparedTo(1)) return 1;
   if (_dbcloud->getNDim() != 2)
   {
     messerr("The output Db for storing the variogram cloud must be 2-D");
@@ -153,7 +153,7 @@ int VCloud::compute(Db *db, const NamingConvention &namconv)
   /* Allocate new variables */
 
   setCalcul(ECalcVario::VARIOGRAM);
-  int ndir = _varioparam->getDirectionNumber();
+  int ndir = _varioparam->getNDir();
   int iptr = _dbcloud->addColumnsByConstant(ndir, 0.);
   if (iptr < 0) return (1);
 
@@ -181,7 +181,7 @@ int VCloud::compute(Db *db, const NamingConvention &namconv)
  *****************************************************************************/
 void VCloud::_final_discretization_grid()
 {
-  int nech = _dbcloud->getSampleNumber();
+  int nech = _dbcloud->getNSample();
   for (int iech = 0; iech < nech; iech++)
   {
     double value = _dbcloud->getArray(iech, IPTR);
@@ -211,8 +211,8 @@ void VCloud::_variogram_cloud(Db *db, int idir)
 
   // Local variables to speed up calculations
   bool hasSel = db->hasLocVariable(ELoc::SEL);
-  int nech = db->getSampleNumber();
-  int nvar = db->getLocNumber(ELoc::Z);
+  int nech = db->getNSample();
+  int nvar = db->getNLoc(ELoc::Z);
 
   /* Loop on the first point */
 
@@ -333,7 +333,7 @@ DbGrid* db_vcloud(Db *db,
 int VCloud::selectFromPolygon(Db *db, Polygons *polygon, int idir)
 {
   POLYGON = polygon;
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   IDS.resize(nech, 0.);
 
   _variogram_cloud(db, idir);

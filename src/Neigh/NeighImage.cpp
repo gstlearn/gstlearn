@@ -118,7 +118,7 @@ NeighImage* NeighImage::createFromNF(const String& neutralFilename, bool verbose
  * @param db Pointer to the target Db
  * @return
  */
-int NeighImage::getMaxSampleNumber(const Db* /*db*/) const
+int NeighImage::getNSampleMax(const Db* /*db*/) const
 {
   int nmax = 1;
   for (int idim = 0; idim < (int) getNDim(); idim++)
@@ -139,7 +139,7 @@ bool NeighImage::hasChanged(int iech_out) const
  */
 void NeighImage::getNeigh(int iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getSampleNumber();
+  int nech = _dbin->getNSample();
   ranks.resize(nech);
   ranks.fill(-1);
 
@@ -164,7 +164,7 @@ void NeighImage::getNeigh(int iech_out, VectorInt& ranks)
  *****************************************************************************/
 void NeighImage::_uimage(int iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getSampleNumber();
+  int nech = _dbin->getNSample();
 
   /* Loop on samples */
 

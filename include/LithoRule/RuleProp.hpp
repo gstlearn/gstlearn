@@ -64,7 +64,7 @@ public:
   const Rule* getRule(int rank = 0) const;
   void addRule(const Rule* rule);
   void clearRule();
-  int getRuleNumber() const { return static_cast<int>(_rules.size()); }
+  int getNRule() const { return static_cast<int>(_rules.size()); }
 
   int fit(Db* db,
           const VarioParam* varioparam,

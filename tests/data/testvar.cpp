@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
 
   // Define and store the Space
 
-  defineDefaultSpace(ESpaceType::RN,model->getDimensionNumber());
+  defineDefaultSpace(ESpaceType::RN,model->getNDim());
 
   /* Perform the non-conditional Simulation */
   

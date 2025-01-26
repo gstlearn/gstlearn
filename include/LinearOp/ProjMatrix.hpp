@@ -48,8 +48,8 @@ public:
 #endif
   public:
 
-  int getApexNumber() const override { return getNCols(); }
-  int getPointNumber() const override { return getNRows(); }
+  int getNApex() const override { return getNCols(); }
+  int getNPoint() const override { return getNRows(); }
 
   static ProjMatrix* create(const Db *db,
                             const AMesh *a_mesh,

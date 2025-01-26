@@ -92,7 +92,7 @@ int meshes_2D_sph_from_db(Db *db, SphTriangle *t)
 
   if (db == nullptr) return (0);
   error = 1;
-  nech = db->getSampleNumber();
+  nech = db->getNSample();
   ndim = db->getNDim();
   if (ndim != 2)
   {
@@ -104,7 +104,7 @@ int meshes_2D_sph_from_db(Db *db, SphTriangle *t)
 
   /* Count the number of active samples */
 
-  neff = db->getSampleNumber(true);
+  neff = db->getNSample(true);
 
   /* Core allocation */
 

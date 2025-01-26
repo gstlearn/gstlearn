@@ -489,7 +489,7 @@ int CalcSimuPost::_getNEff() const
 VectorInt CalcSimuPost::_samplesInCellIdenticalSpaceDimension(const VectorInt& indblock) const
 {
   VectorInt local;
-  for (int iechin = 0, nechin = getDbin()->getSampleNumber(); iechin < nechin; iechin++)
+  for (int iechin = 0, nechin = getDbin()->getNSample(); iechin < nechin; iechin++)
   {
     if (!getDbin()->isActive(iechin)) continue;
     if (indblock[iechin] != _iechout) continue;
@@ -502,7 +502,7 @@ VectorInt CalcSimuPost::_samplesInCellDifferentSpaceDimension() const
 {
   VectorInt local;
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  for (int iechin = 0, nechin = getDbin()->getSampleNumber(); iechin < nechin; iechin++)
+  for (int iechin = 0, nechin = getDbin()->getNSample(); iechin < nechin; iechin++)
   {
     if (!getDbin()->isActive(iechin)) continue;
     VectorDouble coor = getDbin()->getSampleCoordinates(iechin);
@@ -533,7 +533,7 @@ int CalcSimuPost::_getSortingCase() const
 
 int CalcSimuPost::_process()
 {
-  int nechout = getDbout()->getSampleNumber();
+  int nechout = getDbout()->getNSample();
   int niter = _getNiter();
   VectorDouble sampleIn(_getNVar());
   VectorDouble sampleOut;

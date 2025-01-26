@@ -117,7 +117,7 @@ int CovLMCAnamorphosis::init(const VectorInt& anam_strcnt)
       messerr("Argument 'anam_strcnt' must be dimensioned to the number of factors (%d)",nfact);
       return 1;
     }
-    int ncov = getCovaNumber();
+    int ncov = getNCov();
     for (int i=0; i<nfact; i++)
     {
       if (anam_strcnt[i] < 0 || anam_strcnt[i] >= ncov)
@@ -603,7 +603,7 @@ void CovLMCAnamorphosis::addCovAniso(const CovAniso* cov)
 {
   // In this context, check that the Covariance is monovariate
 
-  if (cov->getNVariables() != 1)
+  if (cov->getNVar() != 1)
   {
     messerr("You can only add Monovariate Covariances in 'CovLMCAnamorphosis' "
             "object");

@@ -67,20 +67,20 @@ bool ModelOptimVMap::_checkConsistency()
     messerr("You must have defined 'dbmap' beforehand");
     return false;
   }
-  int nvar = _vmapPart._dbmap->getLocNumber(ELoc::Z);
-  int ndim = _vmapPart._dbmap->getLocNumber(ELoc::X);
+  int nvar = _vmapPart._dbmap->getNLoc(ELoc::Z);
+  int ndim = _vmapPart._dbmap->getNLoc(ELoc::X);
 
-  if (model->getVariableNumber() != nvar)
+  if (model->getNVar() != nvar)
   {
     messerr("Number of variables in Dbmap (%d) must match the one in Model (%d)",
-            nvar, model->getVariableNumber());
+            nvar, model->getNVar());
     return false;
   }
-  if (model->getDimensionNumber() != ndim)
+  if (model->getNDim() != ndim)
   {
     messerr(
       "'_dbmap'(%d) and '_model'(%d) should have same Space Dimensions",
-      ndim, model->getDimensionNumber());
+      ndim, model->getNDim());
     return false;
   }
   // if (_constraints->isConstraintSillDefined())
@@ -112,9 +112,9 @@ double ModelOptimVMap::evalCost(unsigned int nparams,
   VMap_Part& vmapPart             = algorithm->_vmapPart;
   ModelOptimSillsVMap& optGoulard = algorithm->_goulardPart;
   const DbGrid* dbmap   = vmapPart._dbmap;
-  int ndim              = dbmap->getLocNumber(ELoc::X);
-  int nvar              = dbmap->getLocNumber(ELoc::Z);
-  int nech              = dbmap->getSampleNumber();
+  int ndim              = dbmap->getNLoc(ELoc::X);
+  int nvar              = dbmap->getNLoc(ELoc::Z);
+  int nech              = dbmap->getNSample();
 
   // Update the Model
   _patchModel(modelPart, current);
@@ -203,8 +203,8 @@ int ModelOptimVMap::_getDimensions()
   }
   int nbexp  = 0;
   int npadir = 0;
-  int nvar   = _vmapPart._dbmap->getLocNumber(ELoc::Z);
-  int nech   = _vmapPart._dbmap->getSampleNumber();
+  int nvar   = _vmapPart._dbmap->getNLoc(ELoc::Z);
+  int nech   = _vmapPart._dbmap->getNSample();
   int nvs2   = nvar * (nvar + 1) / 2;
 
   /* Calculate the total number of lags */
@@ -238,8 +238,8 @@ int ModelOptimVMap::_getDimensions()
 void ModelOptimVMap::_computeFromVMap()
 {
   const DbGrid* dbmap = _vmapPart._dbmap;
-  int nvar            = dbmap->getLocNumber(ELoc::Z);
-  int nech            = dbmap->getSampleNumber();
+  int nvar            = dbmap->getNLoc(ELoc::Z);
+  int nech            = dbmap->getNSample();
   int nvs2            = nvar * (nvar + 1) / 2;
   int npadir          = _vmapPart._npadir;
   dbmap->rankToIndice(nech / 2, _vmapPart._indg1);

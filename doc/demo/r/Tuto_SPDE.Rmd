@@ -393,7 +393,7 @@ iuid    = spdeRes$compute(grid, namconv = NamingConvention("spdeK"))
 
 # computing the stdev by Monte Carlo
 tab = matrix(grid$getColumns(names = "spde.Z.*", useSel = FALSE), 
-             nrow = grid$getSampleNumber(FALSE), ncol = nsim)
+             nrow = grid$getNSample(FALSE), ncol = nsim)
 val_std = apply(X = tab, MARGIN = 1, FUN = sd)
 err = grid$setColumn(tab = val_std, name = "spdeK.Z.stdev", useSel = FALSE)
 

@@ -40,7 +40,7 @@ public:
 
   /// Interface for ANeigh
   virtual void getNeigh(int iech_out, VectorInt& ranks) override;
-  virtual int getMaxSampleNumber(const Db* db) const override;
+  virtual int getNSampleMax(const Db* db) const override;
   virtual bool hasChanged(int iech_out) const override;
   virtual ENeigh getType() const override { return ENeigh::fromKey("UNIQUE"); }
 

@@ -63,8 +63,8 @@ int FileVTK::writeInFile()
 
   int ndim = _db->getNDim();
   int ncol = (int) _cols.size();
-  int nech = _db->getSampleNumber();
-  int nactive = _db->getSampleNumber(true);
+  int nech = _db->getNSample();
+  int nactive = _db->getNSample(true);
   bool flag_grid = _db->isGrid();
 
   /* Define the reading parameters */

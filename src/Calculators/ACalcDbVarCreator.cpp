@@ -36,7 +36,7 @@ int ACalcDbVarCreator::_getNDim() const
 int ACalcDbVarCreator::_getNVar() const
 {
   if (_db == nullptr) return -1;
-  return  _db->getLocatorNumber(ELoc::Z);
+  return  _db->getNLoc(ELoc::Z);
 }
 
 /**

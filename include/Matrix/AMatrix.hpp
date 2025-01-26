@@ -163,9 +163,9 @@ public:
   /*! Checks if a Row is valid (contains a non TEST value) */
   bool isRowDefined(int irow) const;
   /*! Define the number of defined columns */
-  int getNumberColumnDefined() const;
+  int getNColDefined() const;
   /*! Define the number of defined rows */
-  int getNumberRowDefined() const;
+  int getNRowDefined() const;
   /*! Check if the matrix does not contain any negative element */
   bool isNonNegative(bool verbose = false) const;
 

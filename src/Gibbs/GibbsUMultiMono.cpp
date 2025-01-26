@@ -69,7 +69,7 @@ int GibbsUMultiMono::covmatAlloc(bool verbose, bool /*verboseTimer*/)
 
   if (verbose) mestitle(1,"Gibbs using Unique Neighborhood in MultiMono case");
   int nact = _getSampleRankNumber();
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   _covmat.resize(nvar);
 
   // Loop on the variables

@@ -64,16 +64,16 @@ bool ModelOptimVario::_checkConsistency()
   const Model* model = _modelPart._model;
   const Vario* vario = _varioPart._vario;
 
-  if (vario->getDimensionNumber() != model->getDimensionNumber())
+  if (vario->getNDim() != model->getNDim())
   {
     messerr("'_vario'(%d) and '_model'(%d) should have same Space Dimension",
-            vario->getDimensionNumber(), model->getDimensionNumber());
+            vario->getNDim(), model->getNDim());
     return false;
   }
-  if (vario->getVariableNumber() != model->getVariableNumber())
+  if (vario->getNVar() != model->getNVar())
   {
     messerr("'_vario'(%d) and '_model'(%d) should have same number of Variables",
-      vario->getVariableNumber(), model->getVariableNumber());
+      vario->getNVar(), model->getNVar());
     return false;
   }
   return true;
@@ -134,13 +134,13 @@ int ModelOptimVario::_buildExperimental()
   // Clean previous contents
   _varioPart._lags.clear();
 
-  int nvar = vario->getVariableNumber();
-  int ndim = vario->getDimensionNumber();
+  int nvar = vario->getNVar();
+  int ndim = vario->getNDim();
   VectorDouble dd(ndim);
 
-  for (int idir = 0, ndir = vario->getDirectionNumber(); idir < ndir; idir++)
+  for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
   {
-    for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++)
+    for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++)
     {
       int ijvar = 0;
       for (int ivar = ijvar = 0; ivar < nvar; ivar++)
@@ -195,9 +195,9 @@ int ModelOptimVario::_buildExperimental()
   int ecr         = 0;
   int ipadir      = 0;
 
-  for (int idir = 0, ndir = vario->getDirectionNumber(); idir < ndir; idir++)
+  for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
   {
-    for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
+    for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
     {
       int ijvar = 0;
       for (int ivar = ijvar = 0; ivar < nvar; ivar++)

@@ -68,7 +68,7 @@ int GibbsUMulti::covmatAlloc(bool verbose, bool /*verboseTimer*/)
   if (verbose) mestitle(1,"Gibbs using Unique Neighborhood");
   Db* db = getDb();
   Model* model = getModel();
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
   int nact = _getSampleRankNumber();
   int neq  = nvar * nact;
 

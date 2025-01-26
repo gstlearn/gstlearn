@@ -50,10 +50,10 @@ bool CalcGlobal::_check()
       return false;
     }
   }
-  if (_ivar0 < 0 || _ivar0 >= getDbin()->getLocNumber(ELoc::Z))
+  if (_ivar0 < 0 || _ivar0 >= getDbin()->getNLoc(ELoc::Z))
   {
     messerr("The target variable (%d) must lie between 1 and the number of variables (%d)",
-            _ivar0 + 1, getDbin()->getLocNumber(ELoc::Z));
+            _ivar0 + 1, getDbin()->getNLoc(ELoc::Z));
     return false;
   }
 
@@ -105,7 +105,7 @@ int CalcGlobal::_globalKriging()
 
   // Initializations
 
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
   NeighUnique neighU = NeighUnique(false);
   neighU.attach(getDbin(), getDbout());
 
@@ -118,9 +118,9 @@ int CalcGlobal::_globalKriging()
   /* Loop on the targets to be processed */
 
   int ng = 0;
-  for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
+  for (int iech_out = 0; iech_out < getDbout()->getNSample(); iech_out++)
   {
-    mes_process("Kriging sample", getDbout()->getSampleNumber(), iech_out);
+    mes_process("Kriging sample", getDbout()->getNSample(), iech_out);
     if (! getDbout()->isActive(iech_out)) continue;
     if (ksys.estimate(iech_out)) return 1;
 
@@ -136,8 +136,8 @@ int CalcGlobal::_globalKriging()
 
   /* Preliminary checks */
 
-  int ntot = getDbin()->getSampleNumber(false);
-  int np   = getDbin()->getSampleNumber(true);
+  int ntot = getDbin()->getNSample(false);
+  int np   = getDbin()->getNSample(true);
   double cell = 1.;
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   if (dbgrid != nullptr) cell = dbgrid->getCellSize();
@@ -211,9 +211,9 @@ int CalcGlobal::_globalArithmetic()
 {
   Model* model = getModel();
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  int ntot = getDbin()->getSampleNumber(false);
-  int np = getDbin()->getSampleNumber(true);
-  int ng = dbgrid->getSampleNumber(true);
+  int ntot = getDbin()->getNSample(false);
+  int np = getDbin()->getNSample(true);
+  int ng = dbgrid->getNSample(true);
   double surface = ng * dbgrid->getCellSize();
 
   /* Average covariance over the data */

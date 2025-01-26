@@ -136,7 +136,7 @@ void simu_func_continuous_update(Db *db, int verbose, int isimu, int nbsimu)
 
   /* Loop on the grid cells */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     simval = db->getFromLocator(ELoc::SIMU, iech, iptr_simu);
@@ -174,7 +174,7 @@ void simu_func_categorical_update(Db *db, int verbose, int isimu, int nbsimu)
 
   /* Loop on the grid cells */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     facies = (int) db->getFromLocator(ELoc::FACIES, iech, iptr_simu) - 1;
@@ -208,7 +208,7 @@ void simu_func_continuous_scale(Db *db, int verbose, int nbsimu)
 
   /* Loop on the grid cells */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     mean = db->getZVariable(iech, 0) / nbsimu;
@@ -248,7 +248,7 @@ void simu_func_categorical_scale(Db *db, int verbose, int nbsimu)
 
   /* Loop on the grid cells */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     for (int ifac = 0; ifac < nfacies; ifac++)
@@ -378,54 +378,54 @@ static int st_check_simtub_environment(Db *dbin,
 
   if (model != nullptr)
   {
-    nvar = model->getVariableNumber();
+    nvar = model->getNVar();
     if (nvar <= 0)
     {
       messerr("The number of variables must be positive = %d",
-              model->getVariableNumber());
+              model->getNVar());
       return 1;
     }
-    if (flag_cond && dbin->getLocNumber(ELoc::Z) != nvar)
+    if (flag_cond && dbin->getNLoc(ELoc::Z) != nvar)
     {
       messerr("The number of variables of the Data (%d)",
-              dbin->getLocNumber(ELoc::Z));
+              dbin->getNLoc(ELoc::Z));
       messerr("does not match the number of variables of the Model (%d)", nvar);
       return 1;
     }
-    if (model->getCovaNumber() <= 0)
+    if (model->getNCov() <= 0)
     {
       messerr("The number of covariance must be positive");
       return 1;
     }
 
-    if (model->getDimensionNumber() <= 0)
+    if (model->getNDim() <= 0)
     {
       messerr("The Space Dimension must be positive = %d",
-              model->getDimensionNumber());
+              model->getNDim());
       return 1;
     }
-    if (model->getDimensionNumber() != ndim)
+    if (model->getNDim() != ndim)
     {
       messerr("The Space Dimension of the Db structure (%d)", ndim);
       messerr("Does not correspond to the Space Dimension of the model (%d)",
-              model->getDimensionNumber());
+              model->getNDim());
       return 1;
     }
 
-    nfex = model->getExternalDriftNumber();
+    nfex = model->getNExtDrift();
     if (flag_cond && nfex != 0 && ! dbout->isGrid()
-        && dbin->getLocNumber(ELoc::F) != nfex)
+        && dbin->getNLoc(ELoc::F) != nfex)
     {
-      messerr("The Model requires %d external drift(s)", model->getExternalDriftNumber());
+      messerr("The Model requires %d external drift(s)", model->getNExtDrift());
       messerr("but the input Db refers to %d external drift variables",
-              dbin->getLocNumber(ELoc::F));
+              dbin->getNLoc(ELoc::F));
       return 1;
     }
-    if (nfex != 0 && dbout->getLocNumber(ELoc::F) != nfex)
+    if (nfex != 0 && dbout->getNLoc(ELoc::F) != nfex)
     {
-      messerr("The Model requires %d external drift(s)", model->getExternalDriftNumber());
+      messerr("The Model requires %d external drift(s)", model->getNExtDrift());
       messerr("but the output Db refers to %d external drift variables",
-              dbout->getLocNumber(ELoc::F));
+              dbout->getNLoc(ELoc::F));
       return 1;
     }
   }
@@ -497,7 +497,7 @@ static void st_suppress_added_samples(Db *db, int nech)
   int iech;
 
   if (nech <= 0) return;
-  for (iech = db->getSampleNumber() - 1; iech >= nech; iech--)
+  for (iech = db->getNSample() - 1; iech >= nech; iech--)
     (void) db->deleteSample(iech);
 }
 
@@ -678,7 +678,7 @@ int simpgs(Db* dbin,
   const VectorDouble &propcst = ruleprop->getPropCst();
   const Db *dbprop = ruleprop->getDbprop();
 
-  ngrf = rule->getGRFNumber();
+  ngrf = rule->getNGRF();
   if (rule->particularities(dbout, dbprop, model1, 1, flag_stat))
     goto label_end;
   if (st_check_simtub_environment(dbin, dbout, model1, neigh)) goto label_end;
@@ -690,8 +690,8 @@ int simpgs(Db* dbin,
   /* Input Db */
   if (flag_cond)
   {
-    nechin = dbin->getSampleNumber();
-    if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
+    nechin = dbin->getNSample();
+    if (!dbin->isNVarComparedTo(1)) goto label_end;
   }
 
   /* Output Db */
@@ -713,10 +713,10 @@ int simpgs(Db* dbin,
       messerr("No corresponding Model is provided");
       goto label_end;
     }
-    if (models[igrf]->getVariableNumber() != 1)
+    if (models[igrf]->getNVar() != 1)
     {
       messerr("The number of variables in the model #%d (%d) should be 1",
-              igrf + 1, model1->getVariableNumber());
+              igrf + 1, model1->getNVar());
       goto label_end;
     }
     if (models[igrf]->stabilize(percent, true)) goto label_end;
@@ -740,7 +740,7 @@ int simpgs(Db* dbin,
   /* Add the attributes */
   /**********************/
 
-  nfacies = rule->getFaciesNumber();
+  nfacies = rule->getNFacies();
 
   /* Storage of the facies proportions */
   if (flag_prop)
@@ -1025,8 +1025,8 @@ int simbipgs(Db *dbin,
   const VectorDouble &propcst = ruleprop->getPropCst();
   const Db *dbprop = ruleprop->getDbprop();
 
-  nfac[0] = rule1.getFaciesNumber();
-  nfac[1] = rule2.getFaciesNumber();
+  nfac[0] = rule1.getNFacies();
+  nfac[1] = rule2.getNFacies();
   rules[0] = &rule1;
   rules[1] = &rule2;
   models[0][0] = model11;
@@ -1054,8 +1054,8 @@ int simbipgs(Db *dbin,
   /* Input Db */
   if (flag_cond)
   {
-    nechin = dbin->getSampleNumber();
-    if (!dbin->isVariableNumberComparedTo(2)) goto label_end;
+    nechin = dbin->getNSample();
+    if (!dbin->isNVarComparedTo(2)) goto label_end;
     iatt_z[0] = dbin->getUIDByLocator(ELoc::Z, 0);
     iatt_z[1] = dbin->getUIDByLocator(ELoc::Z, 1);
   }
@@ -1073,7 +1073,7 @@ int simbipgs(Db *dbin,
   ngrftot = 0;
   for (int ipgs=0; ipgs<npgs; ipgs++)
   {
-    ngrf[ipgs] = rules[ipgs]->getGRFNumber();
+    ngrf[ipgs] = rules[ipgs]->getNGRF();
     ngrftot += ngrf[ipgs];
 
     /* Check the validity of the model */
@@ -1089,11 +1089,11 @@ int simbipgs(Db *dbin,
         messerr("No corresponding Model is provided");
         goto label_end;
       }
-      if (models[ipgs][igrf]->getVariableNumber() != 1)
+      if (models[ipgs][igrf]->getNVar() != 1)
       {
         messerr(
             "The number of variables in Model #%d (%d) for Variable %d should be 1",
-            igrf + 1, ipgs + 1, models[ipgs][igrf]->getVariableNumber());
+            igrf + 1, ipgs + 1, models[ipgs][igrf]->getNVar());
         goto label_end;
       }
       if (models[ipgs][igrf]->stabilize(percent, true)) goto label_end;
@@ -1388,7 +1388,7 @@ int db_simulations_to_ce(Db *db,
   error = 1;
   iptr_ce = iptr_cstd = iptr_nb = -1;
   if (db == nullptr) goto label_end;
-  nech = db->getSampleNumber();
+  nech = db->getNSample();
   if (nbsimu <= 0 || nvar <= 0 || nech <= 0) return (1);
 
   // Allocate the new attributes:
@@ -1536,7 +1536,7 @@ int gibbs_sampler(Db *dbin,
 
   if (flag_propagation)
   {
-    if (dbin->getIntervalNumber() > 0)
+    if (dbin->getNInterval() > 0)
     {
       messerr("The propagation algorithm is incompatible with bounds");
       goto label_end;
@@ -1550,7 +1550,7 @@ int gibbs_sampler(Db *dbin,
     messerr("No Model is provided");
     goto label_end;
   }
-  nvar = model->getVariableNumber();
+  nvar = model->getNVar();
   if (!flag_propagation)
   {
     if (model->stabilize(percent, true)) goto label_end;
@@ -1741,8 +1741,8 @@ int simtub_constraints(Db* dbin,
 
   flag_grid = dbout->isGrid();
   ndim = dbout->getNDim();
-  nech = dbout->getSampleNumber();
-  tab.resize(dbout->getSampleNumber());
+  nech = dbout->getNSample();
+  tab.resize(dbout->getNSample());
   if (flag_grid)
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
@@ -1864,7 +1864,7 @@ static int st_maxstable_mask(Db *dbout,
   int iech, number;
   double valsim;
 
-  for (iech = number = 0; iech < dbout->getSampleNumber(); iech++)
+  for (iech = number = 0; iech < dbout->getNSample(); iech++)
   {
     if (!dbout->isActive(iech)) continue;
     valsim = dbout->getArray(iech, iptrv);
@@ -1901,7 +1901,7 @@ static void st_maxstable_combine(Db *dbout,
   int iech;
   double valsim, valold;
 
-  for (iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (iech = 0; iech < dbout->getNSample(); iech++)
   {
     if (!dbout->isActive(iech)) continue;
     valold = dbout->getArray(iech, iptrv);
@@ -1957,7 +1957,7 @@ int simmaxstable(Db *dbout,
 
   /* Preliminary checks */
 
-  if (model->getVariableNumber() != 1)
+  if (model->getNVar() != 1)
   {
     messerr("This feature is limited to the monovariate case");
     goto label_end;
@@ -1987,7 +1987,7 @@ int simmaxstable(Db *dbout,
 
   if (verbose)
   {
-    message("Total number of cells = %d\n", dbout->getSampleNumber());
+    message("Total number of cells = %d\n", dbout->getNSample());
     message("Maximum simulation value = %lf\n", seuil);
   }
 
@@ -2020,7 +2020,7 @@ int simmaxstable(Db *dbout,
 
     /* Update the model for next iteration */
 
-    for (icov = 0; icov < model->getCovaNumber(); icov++)
+    for (icov = 0; icov < model->getNCov(); icov++)
       model->setRangeIsotropic(icov, model->getRange(icov) * ratio);
   }
 
@@ -2059,7 +2059,7 @@ static double st_quantile(Db *dbout, double proba, double *sort)
 
   /* Initializations */
 
-  nech = dbout->getSampleNumber();
+  nech = dbout->getNSample();
 
   /* Load the non-masked simulated values */
 
@@ -2112,13 +2112,13 @@ int simRI(Db *dbout,
   error = 1;
   iptrg = iptrs = -1;
   pres = pton = sort = nullptr;
-  nech = dbout->getSampleNumber();
+  nech = dbout->getNSample();
   law_set_random_seed(seed);
   if (st_check_simtub_environment(NULL, dbout, model, NULL)) goto label_end;
 
   /* Preliminary checks */
 
-  if (model->getVariableNumber() != 1)
+  if (model->getNVar() != 1)
   {
     messerr("This feature is limited to the monovariate case");
     goto label_end;
@@ -2338,8 +2338,8 @@ int simpgs_spde(Db* dbin,
   /* Input Db */
   if (flag_cond)
   {
-    nechin = dbin->getSampleNumber();
-    if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
+    nechin = dbin->getNSample();
+    if (!dbin->isNVarComparedTo(1)) goto label_end;
   }
 
   /* Output Db */
@@ -2367,10 +2367,10 @@ int simpgs_spde(Db* dbin,
       messerr("No corresponding Model is provided");
       goto label_end;
     }
-    if (models[igrf]->getVariableNumber() != 1)
+    if (models[igrf]->getNVar() != 1)
     {
       messerr("The number of variables in the model #%d (%d) should be 1",
-              igrf + 1, model1->getVariableNumber());
+              igrf + 1, model1->getNVar());
       goto label_end;
     }
     if (models[igrf]->stabilize(percent, true)) goto label_end;
@@ -2537,7 +2537,7 @@ int simcond(Db *dbin,
   error = 1;
   bool flag_ext_created = false;
   bool flag_nostat_created = false;
-  nvar = model->getVariableNumber();
+  nvar = model->getNVar();
   iptr = -1;
   propdef = nullptr;
 
@@ -2556,7 +2556,7 @@ int simcond(Db *dbin,
     messerr("This method is restricted to the monovariate case");
     goto label_end;
   }
-  if (dbin->getIntervalNumber() <= 0)
+  if (dbin->getNInterval() <= 0)
   {
     messerr("No bound is defined: use 'simtub' instead");
     goto label_end;
@@ -2688,7 +2688,7 @@ int simsph(DbGrid *db,
     messerr("The Simulation on Sphere is restricted to 2-D case");
     return 1;
   }
-  for (int icova = 0; icova < model->getCovaNumber(); icova++)
+  for (int icova = 0; icova < model->getNCov(); icova++)
   {
     if (model->getCova(icova)->getFlagAniso())
     {
@@ -2735,7 +2735,7 @@ VectorDouble simsph_mesh(MeshSpherical *mesh,
     messerr("The Spherical Simulation is restricted to Spherical coordinates");
     return simu;
   }
-  for (int icova = 0; icova < model->getCovaNumber(); icova++)
+  for (int icova = 0; icova < model->getNCov(); icova++)
   {
     if (model->getCova(icova)->getFlagAniso())
     {
@@ -2887,7 +2887,7 @@ MatrixRectangular fluid_extract(DbGrid *dbgrid,
   /* Initialize the array */
 
   tab = MatrixRectangular(ntime, 4);
-  int nxyz    = dbgrid->getSampleNumber();
+  int nxyz    = dbgrid->getNSample();
   for (int itime = 0; itime < ntime; itime++)
   {
     tab.setValue(itime, 0, time0 + dtime * itime);

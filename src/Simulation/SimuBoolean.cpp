@@ -119,7 +119,7 @@ int SimuBoolean::_countConditioningPore(const Db* db)
   if (db == nullptr) return 0;
 
   int nbpore = 0;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (! db->isActive(iech)) continue;
     double data = db->getZVariable(iech, 0);
@@ -135,7 +135,7 @@ int SimuBoolean::_countConditioningGrain(const Db* db)
   if (db == nullptr) return 0 ;
 
   int nbgrain = 0;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (! db->isActive(iech)) continue;
     double data = db->getZVariable(iech, 0);
@@ -149,7 +149,7 @@ int SimuBoolean::_countConditioningGrain(const Db* db)
 int SimuBoolean::_getRankUncovered(const Db* db, int rank) const
 {
   int number = 0;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (! db->isActive(iech)) continue;
     int data = (int) db->getZVariable(iech, 0);
@@ -460,7 +460,7 @@ int simbool(Db* dbin,
   int iptr_cover = -1;
   if (dbin != nullptr)
   {
-    if (dbin->getLocNumber(ELoc::Z) != 1)
+    if (dbin->getNLoc(ELoc::Z) != 1)
     {
       messerr("Conditional Boolean simulation needs 1 variable");
       return 1;

@@ -91,7 +91,7 @@ int SimuSpectral::simulate(int ns, int seed, bool verbose, int nd)
     return 1;
   }
 
-  _ndim = _model->getDimensionNumber();
+  _ndim = _model->getNDim();
   _ns = ns;
 
   // Cleaning any previously allocated memory
@@ -204,7 +204,7 @@ void SimuSpectral::_simulateOnSphere(int nd, bool verbose)
 
 void SimuSpectral::_computeOnRn(Db *dbout, int iuid, bool verbose)
 {
-  int nech = dbout->getSampleNumber(true);
+  int nech = dbout->getNSample(true);
 
   // Preparation
   MatrixSquareGeneral tensor = _model->getCova(0)->getAniso().getTensorInverse();
@@ -254,7 +254,7 @@ int SimuSpectral::compute(Db *dbout,
                           bool verbose,
                           const NamingConvention &namconv)
 {
-  int nech = dbout->getSampleNumber(true);
+  int nech = dbout->getNSample(true);
   int ndim = dbout->getNDim();
   bool flagNewVariable = (iuid <= 0);
 
@@ -391,7 +391,7 @@ void SimuSpectral::_printSpSims(int status)
 
 void SimuSpectral::_computeOnSphere(Db* dbout, int iuid, bool verbose)
 {
-  int np   = dbout->getSampleNumber(true);
+  int np   = dbout->getNSample(true);
 
   int nb = 0;
   int N_max = -9999;
@@ -532,7 +532,7 @@ void SimuSpectral::_computeOnSphere(Db* dbout, int iuid, bool verbose)
 bool SimuSpectral::isValidForSpectral(const Model* model)
 {
   ESpaceType type = getDefaultSpaceType();
-  if (model->getCovaNumber() != 1)
+  if (model->getNCov() != 1)
   {
     messerr("This method only considers Model with a single covariance structure");
     return false;
@@ -540,7 +540,7 @@ bool SimuSpectral::isValidForSpectral(const Model* model)
 
   /* Loop on the structures */
 
-  for (int is = 0; is < model->getCovaNumber(); is++)
+  for (int is = 0; is < model->getNCov(); is++)
   {
     const CovAniso* cova = model->getCova(is);
     if (! cova->isValidForSpectral())
@@ -587,10 +587,10 @@ int simuSpectral(Db *dbin,
     messerr("You must provide a positive number of simulations");
     return 1;
   }
-  if (dbout->getNDim() != model->getDimensionNumber())
+  if (dbout->getNDim() != model->getNDim())
   {
     messerr("The Space dimension of 'dbout'(%d) should match the one of Model(%d)",
-            dbout->getNDim(), model->getDimensionNumber());
+            dbout->getNDim(), model->getNDim());
     return 1;
   }
 

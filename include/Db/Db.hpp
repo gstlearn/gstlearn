@@ -261,9 +261,10 @@ public:
   inline int getColumnNumber() const { return _ncol; }
 
   static int getNEloc();
-  int getSampleNumber(bool useSel = false) const;
-  int getNumberActiveAndDefined(int item) const;
-  int getActiveSampleNumber() const;
+  int getNSample(bool useSel = false) const;
+  int getNSampleActiveAndDefined(int item) const;
+  int getNSampleActiveAndDefined(const String& name) const;
+  int getNSampleActive() const;
   int getRankRelativeToAbsolute(int irel) const;
   int getRankAbsoluteToRelative(int iabs) const;
 
@@ -423,7 +424,6 @@ public:
                        int* ret_locatorIndex) const;
   VectorString getLocators(bool anyLocator = true,
                            const ELoc& locatorType = ELoc::fromKey("UNKNOWN")) const;
-  int getLocatorNumber(const ELoc& locatorType) const;
   bool isUIDDefined(int iuid) const;
 
   int getUID(const String &name) const;
@@ -439,7 +439,7 @@ public:
   void copyByUID(int iuidIn, int iuidOut);
   void copyByCol(int icolIn, int icolOut);
 
-  int getFaciesNumber(void) const;
+  int getNFacies(void) const;
   bool hasLocatorDefined(const String& name, const ELoc& locatorType, int locatorIndex=0) const;
 
   // Accessing elements of the contents
@@ -522,7 +522,7 @@ public:
    * @param value   Assigned value
    *  @{
    */
-  int    getLocNumber(const ELoc& loctype) const;
+  int    getNLoc(const ELoc& loctype) const;
   bool   hasLocVariable(const ELoc& loctype) const;
   double getLocVariable(const ELoc& loctype, int iech, int item) const;
   void   setLocVariable(const ELoc& loctype, int iech, int item, double value);
@@ -538,14 +538,14 @@ public:
   VectorDouble getLocVariables(const ELoc& loctype, int iech, int nitemax = 0) const;
   void   setLocVariables(const ELoc& loctype, int iech, const VectorDouble& values);
 
-  bool   isVariableNumberComparedTo(int nvar, int compare = 0) const;
+  bool   isNVarComparedTo(int nvar, int compare = 0) const;
   bool   isIsotopic(int iech, int nvar_max = -1) const;
   bool   isAllUndefined(int iech) const;
   bool   isAllUndefinedByType(const ELoc& loctype, int iech) const;
   bool   isAllIsotopic() const;
 
   void   setInterval(int iech, int item, double rklow = TEST, double rkup = TEST);
-  int    getIntervalNumber() const;
+  int    getNInterval() const;
   void   setBound(int iech, int item, double lower = TEST, double upper = TEST);
   VectorDouble getWithinBounds(int item, bool useSel = false) const;
   VectorDouble getGradient(int item, bool useSel = false) const;
@@ -622,8 +622,6 @@ public:
   bool isActive(int iech) const;
   bool isActiveDomain(int iech) const;
   bool isActiveAndDefined(int iech, int item) const;
-  int  getActiveAndDefinedNumber(int item) const;
-  int  getActiveAndDefinedNumber(const String& name) const;
   VectorBool getActiveArray() const;
 
   VectorInt getSortArray() const;

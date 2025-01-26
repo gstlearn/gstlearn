@@ -28,7 +28,7 @@ ACalcInterpolator::~ACalcInterpolator()
 {
 }
 
-bool ACalcInterpolator::_setNCova(int ncova)
+bool ACalcInterpolator::_setNCov(int ncova)
 {
   if (ncova <= 0) return true;
   if (_ncova <= 0)
@@ -59,17 +59,17 @@ bool ACalcInterpolator::_check()
   {
     if (ndim > 0)
     {
-      if (ndim != _model->getDimensionNumber())
+      if (ndim != _model->getNDim())
       {
         messerr("Inconsistent Space dimension:");
         messerr("- Current dimension = %d",ndim);
-        messerr("- Space Dimension of 'model' = %d",_model->getDimensionNumber());
+        messerr("- Space Dimension of 'model' = %d",_model->getNDim());
         return false;
       }
     }
     else
     {
-      ndim = _model->getDimensionNumber();
+      ndim = _model->getNDim();
     }
   }
 
@@ -102,17 +102,17 @@ bool ACalcInterpolator::_check()
   {
     if (nvar > 0)
     {
-      if (nvar != _model->getVariableNumber())
+      if (nvar != _model->getNVar())
       {
         messerr("Inconsistent Variable Number:");
         messerr("- Current number = %d",nvar);
-        messerr("- Number of variables in 'model' = %d",_model->getVariableNumber());
+        messerr("- Number of variables in 'model' = %d",_model->getNVar());
         return false;
       }
     }
     else
     {
-//      nvar = _model->getVariableNumber(); // Never reached
+//      nvar = _model->getNVar(); // Never reached
     }
   }
 
@@ -123,7 +123,7 @@ bool ACalcInterpolator::_check()
   int nfex = 0;
   if (_model != nullptr)
   {
-    nfex = _model->getExternalDriftNumber();
+    nfex = _model->getNExtDrift();
     if (nfex > 0)
     {
       // No check needs to be performed on the Input file as
@@ -132,11 +132,11 @@ bool ACalcInterpolator::_check()
 
       if (hasDbout(false))
       {
-        if (getDbout()->getLocNumber(ELoc::F) != nfex)
+        if (getDbout()->getNLoc(ELoc::F) != nfex)
         {
           messerr("The model requires %d external drift(s)", nfex);
           messerr("but the output Db refers to %d external drift variables",
-                  getDbout()->getLocNumber(ELoc::F));
+                  getDbout()->getNLoc(ELoc::F));
           return false;
         }
       }
@@ -149,7 +149,7 @@ bool ACalcInterpolator::_check()
 
   if (_model != nullptr)
   {
-    if (_model->getCovaNumber() <= 0)
+    if (_model->getNCov() <= 0)
     {
       messerr("The number of covariance must be positive");
       return false;
@@ -179,7 +179,7 @@ bool ACalcInterpolator::_preprocess()
 
   if (_model != nullptr)
   {
-    if (!_setNdim(_model->getDimensionNumber())) return false;
+    if (!_setNdim(_model->getNDim())) return false;
   }
   if (_neigh != nullptr)
   {
@@ -190,19 +190,19 @@ bool ACalcInterpolator::_preprocess()
 
   if (_model != nullptr)
   {
-    if (!_setNvar(_model->getVariableNumber())) return false;
+    if (!_setNvar(_model->getNVar())) return false;
   }
 
   // Number of covariance functions
 
   if (_model != nullptr)
   {
-     if (!_setNCova(_model->getCovaNumber())) return false;
+     if (!_setNCov(_model->getNCov())) return false;
   }
 
   // Expand information amongst Db if necessary
 
-  if (_model != nullptr && _model->getExternalDriftNumber() > 0)
+  if (_model != nullptr && _model->getNExtDrift() > 0)
   {
     if (_expandInformation(1, ELoc::F)) return false;
   }

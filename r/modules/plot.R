@@ -359,7 +359,7 @@ ggDefault <- function(figsize=NA)
 {
   if (is.null(name))
   {
-  	if (db$getLocNumber(ELoc_Z()) > 0)
+  	if (db$getNLoc(ELoc_Z()) > 0)
 		name = db$getNameByLocator(ELoc_Z(),0)
   	else
 	    name = db$getLastName()
@@ -560,13 +560,13 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
 {
   dots = list(...)
   p = list()
-  ndim = model$getDimensionNumber()
+  ndim = model$getNDim()
   
   # if hmax not specified = 3*maximum range of the model's basic structures
   if (.isNotDef(hmax))
   {
     hmax = 0
-    for (icova in 1:model$getCovaNumber())
+    for (icova in 1:model$getNCov())
     {
       range_max = max(model$getCova(icova-1)$getRanges())
       if (3*range_max > hmax)
@@ -583,7 +583,7 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
   }
   
   istart = 0
-  for (icova in 1:model$getCovaNumber())
+  for (icova in 1:model$getNCov())
   {
     if (model$getCovName(icova-1) == 'Nugget Effect')
       istart = 1 # do not plot the first lag (h=0) for nugget effect (discontinuity)
@@ -665,10 +665,10 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
   
   p = list()
   ndir = 1
-  if (! .isNotDef(vario)) ndir = vario$getDirectionNumber()
+  if (! .isNotDef(vario)) ndir = vario$getNDir()
   nvar = 1
-  if (! .isNotDef(vario)) nvar = vario$getVariableNumber()
-  if (! .isNotDef(model)) nvar = model$getVariableNumber()
+  if (! .isNotDef(vario)) nvar = vario$getNVar()
+  if (! .isNotDef(model)) nvar = model$getNVar()
   if (missing(cols)) cols = .getColors()
   
   idirUtil = .selectItemsInList(ndir, idir)
@@ -800,7 +800,7 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
 {
   if (!require(ggpubr, quietly=TRUE))
     stop("Package ggpubr is mandatory to use this function!")
-  nvar = vario$getVariableNumber()
+  nvar = vario$getNVar()
   
   ivarUtil = .selectItemsInList(nvar, ivar)
   jvarUtil = .selectItemsInList(nvar, jvar)
@@ -1239,7 +1239,7 @@ plot.polygon <- function(poly, cols=NA, flagTitle=FALSE, ...)
   has_color = "color" %in% names(dots)
   
   p = list()
-  npol = poly$getPolyElemNumber()
+  npol = poly$getNPolyElem()
   if (missing(cols)) cols = .getColors()
   
   dotloc = dots
@@ -1550,7 +1550,7 @@ plot.rule <- function(rule, proportions=NULL, maxG = 3., cols=NA,
 	flagLegend=FALSE, legendName="Facies", ...)
 {
   p = list()
-  nrect = rule$getFaciesNumber()
+  nrect = rule$getNFacies()
   if (! is.null(proportions)) 
     rule$setProportions(proportions)
   else

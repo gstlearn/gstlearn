@@ -197,7 +197,7 @@ static int EXT(int iext)
  *****************************************************************************/
 static int st_model_invalid(Model *model)
 {
-  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  for (int icov = 0; icov < model->getNCov(); icov++)
   {
     const ECov& type = model->getCovaType(icov);
     if (type != ECov::GAUSSIAN && type != ECov::CUBIC &&
@@ -245,7 +245,7 @@ static void st_cov(Model* model,
                    VectorDouble& covGp,
                    VectorDouble& covGG)
 {
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   VectorDouble vec(ndim);
   if (ndim >= 1) vec[0] = dx;
   if (ndim >= 2) vec[1] = dy;
@@ -485,7 +485,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
     messerr("The Tangent and Data Db must share the same space dimension");
     return false;
   }
-  if (model->getDimensionNumber() != pot_env->ndim)
+  if (model->getNDim() != pot_env->ndim)
   {
     messerr("The Model and Data Db must have the same space dimension");
     return false;
@@ -501,7 +501,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
     messerr("The input Db must contain a LAYER locator");
     return false;
   }
-  if (model->getVariableNumber() != 1)
+  if (model->getNVar() != 1)
   {
     messerr("The Model must be monovariate");
     return false;
@@ -512,8 +512,8 @@ bool st_potenv_valid(Pot_Env* pot_env,
     return false;
   }
 
-  int next = model->getExternalDriftNumber();
-  if (dbout != NULL && next != dbout->getLocNumber(ELoc::F))
+  int next = model->getNExtDrift();
+  if (dbout != NULL && next != dbout->getNLoc(ELoc::F))
   {
     messerr("Inconsistency for External Drift between Model and Dbout");
     return false;
@@ -615,7 +615,7 @@ static int st_update_isopot(Db *dbiso, Pot_Env *pot_env)
 
 {
   if (dbiso == nullptr) return (0);
-  int nech = dbiso->getSampleNumber();
+  int nech = dbiso->getNSample();
   int nlayers = 0;
   int niso = 0;
   VectorInt laycnt;
@@ -721,7 +721,7 @@ static int st_update_isopot(Db *dbiso, Pot_Env *pot_env)
 static int st_update_gradient(Db *dbgrd, Pot_Env *pot_env)
 {
   if (dbgrd == nullptr) return (0);
-  int nech = dbgrd->getSampleNumber();
+  int nech = dbgrd->getNSample();
   int ngrd = 0;
   pot_env->rank_grd.resize(nech);
 
@@ -766,7 +766,7 @@ static int st_update_tangent(Db *dbtgt, Pot_Env *pot_env)
 
 {
   if (dbtgt == nullptr) return (0);
-  int nech = dbtgt->getSampleNumber();
+  int nech = dbtgt->getNSample();
   int ntgt = 0;
   pot_env->rank_tgt.resize(nech);
 
@@ -803,11 +803,11 @@ static int st_update_tangent(Db *dbtgt, Pot_Env *pot_env)
  *****************************************************************************/
 static int st_update_model(Model *model, Pot_Env *pot_env)
 {
-  int nbfl = model->getDriftNumber();
+  int nbfl = model->getNDrift();
   if (model->isDriftDefined(VectorInt(), 0)) nbfl--;
   pot_env->order =  model->getDriftMaxIRFOrder();
   pot_env->size_drf = nbfl;
-  pot_env->next = pot_env->size_ext = model->getExternalDriftNumber();
+  pot_env->next = pot_env->size_ext = model->getNExtDrift();
 
   return (0);
 }
@@ -1986,9 +1986,9 @@ static void st_estimate_result(Pot_Env *pot_env,
 {
   VectorDouble result(4);
 
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
-    mes_process("Potential Estimation on Grid", dbout->getSampleNumber(),iech);
+    mes_process("Potential Estimation on Grid", dbout->getNSample(),iech);
     OptDbg::setCurrentIndex(iech);
     if (!dbout->isActive(iech)) continue;
 
@@ -2038,7 +2038,7 @@ static void st_estimate_data(Pot_Env *pot_env,
   if (db_target == nullptr) return;
   VectorDouble result(4);
 
-  for (int iech = 0; iech < db_target->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db_target->getNSample(); iech++)
   {
     if (! db_target->isActive(iech)) continue;
 
@@ -2471,9 +2471,9 @@ static void st_simcond(Pot_Env *pot_env,
   VectorDouble resest(4), result(4);
 
   int ndim = dbgrd->getNDim();
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
-    mes_process("Potential Simulation on Grid", dbout->getSampleNumber(),iech);
+    mes_process("Potential Simulation on Grid", dbout->getNSample(),iech);
     OptDbg::setCurrentIndex(iech);
     if (!dbout->isActive(iech)) continue;
 
@@ -3033,7 +3033,7 @@ static int st_distance_to_isoline(DbGrid *dbout)
   double eps = 1.e-3;
 
   // Highlight the isoline of interest
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
     double value = dbout->getZVariable(iech, 0);
     if (!FFFF(value) && ABS(value) > eps) dbout->setLocVariable(ELoc::Z,iech, 0, TEST);
@@ -3454,7 +3454,7 @@ int potential_cov(Model *model,
   // Preliminary checks
 
   VERBOSE = verbose;
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   covtab.resize(ndim * ndim, TEST);
 
   /* Preliminary checks */

@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
   VectorInt nx = { 600, 400 };
   VectorDouble dx = { 1.0, 1.0 };
   DbGrid* grid    = DbGrid::create(nx, dx);
-  VectorDouble tab = VH::simulateGaussian(grid->getSampleNumber());
+  VectorDouble tab = VH::simulateGaussian(grid->getNSample());
   grid->addColumns(tab, "Var", ELoc::Z);
   if (verbose) grid->display();
 

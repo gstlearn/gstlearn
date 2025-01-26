@@ -94,16 +94,16 @@ void ProjMatrix::resetFromMeshAndDb(const Db* db, const AMesh* a_mesh, int rankZ
 
 /* int ProjMatrix::point2mesh(const VectorDouble& inv, VectorDouble& outv) const
 {
-  if ((int) inv.size() != getPointNumber())
+  if ((int) inv.size() != getNPoint())
   {
     messerr("point2mesh: Error in the dimension of argument 'inv'(%d). It should be (%d)",
-            inv.size(),getPointNumber());
+            inv.size(),getNPoint());
     return 1;
   }
-  if ((int) outv.size() != getApexNumber())
+  if ((int) outv.size() != getNApex())
   {
     messerr("point2mesh: Error in the dimension of argument 'outv'(%d). It should be (%d)",
-            outv.size(),getApexNumber());
+            outv.size(),getNApex());
     return 1;
   }
 
@@ -113,16 +113,16 @@ void ProjMatrix::resetFromMeshAndDb(const Db* db, const AMesh* a_mesh, int rankZ
  */
 int ProjMatrix::_addMesh2point(const constvect inv, vect outv) const
 {
-  if ((int) inv.size() != getApexNumber())
+  if ((int) inv.size() != getNApex())
   {
     messerr("mesh2point: Error in the dimension of argument 'inv'(%d). It should be (%d)",
-            inv.size(),getApexNumber());
+            inv.size(),getNApex());
     return 1;
   }
-  if ((int) outv.size() != getPointNumber())
+  if ((int) outv.size() != getNPoint())
   {
     messerr("mesh2point: Error in the dimension of argument 'outv'(%d). It should be (%d)",
-            outv.size(),getPointNumber());
+            outv.size(),getNPoint());
     return 1;
   }
 
@@ -132,16 +132,16 @@ int ProjMatrix::_addMesh2point(const constvect inv, vect outv) const
 
 int ProjMatrix::_addPoint2mesh(const constvect inv, vect outv) const
 {
-  if ((int) inv.size() != getPointNumber())
+  if ((int) inv.size() != getNPoint())
   {
     messerr("point2mesh: Error in the dimension of argument 'inv'(%d). It should be (%d)",
-            inv.size(),getPointNumber());
+            inv.size(),getNPoint());
     return 1;
   }
-  if ((int) outv.size() != getApexNumber())
+  if ((int) outv.size() != getNApex())
   {
     messerr("point2mesh: Error in the dimension of argument 'outv'(%d). It should be (%d)",
-            outv.size(),getApexNumber());
+            outv.size(),getNApex());
     return 1;
   }
 
@@ -151,16 +151,16 @@ int ProjMatrix::_addPoint2mesh(const constvect inv, vect outv) const
 
 /* int ProjMatrix::mesh2point(const VectorDouble& inv, VectorDouble& outv) const
 {
-  if ((int) inv.size() != getApexNumber())
+  if ((int) inv.size() != getNApex())
   {
     messerr("mesh2point: Error in the dimension of argument 'inv'(%d). It should be (%d)",
-            inv.size(),getApexNumber());
+            inv.size(),getNApex());
     return 1;
   }
-  if ((int) outv.size() != getPointNumber())
+  if ((int) outv.size() != getNPoint())
   {
     messerr("mesh2point: Error in the dimension of argument 'outv'(%d). It should be (%d)",
-            outv.size(),getPointNumber());
+            outv.size(),getNPoint());
     return 1;
   }
 

@@ -40,7 +40,7 @@ public:
   static Limits* create(const VectorDouble& bounds, bool addFromZero = false);
   static Limits* create(int nclass);
 
-  int getLimitNumber() const { return static_cast<int>(_bounds.size()); }
+  int getNLimit() const { return static_cast<int>(_bounds.size()); }
   std::vector<Interval>& getBounds() { return _bounds; }
   VectorDouble getBound(int iclass, int mode = 0) const;
   VectorDouble getLowerBounds() const;

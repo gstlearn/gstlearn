@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
   int nall = 100;
   Db* dbin = Db::createFillRandom(nall, ndim);
   dbin->addSelectionRandom(0.9);
-  int ndat = dbin->getSampleNumber(true);
+  int ndat = dbin->getNSample(true);
   if (verbose) dbin->display();
 
   // Generate the output data base

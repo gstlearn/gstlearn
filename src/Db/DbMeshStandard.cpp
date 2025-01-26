@@ -197,7 +197,7 @@ DbMeshStandard* DbMeshStandard::createFromNF(const String& neutralFilename, bool
 bool DbMeshStandard::isConsistent() const
 {
   // Check on the count of addresses
-  int nech = getSampleNumber();
+  int nech = getNSample();
   if (_mesh.getNApices() > nech)
   {
     messerr("Number of meshes (%d)", _mesh.getNApices());

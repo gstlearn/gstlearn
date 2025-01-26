@@ -16,14 +16,14 @@
 int IProj::mesh2point(const VectorDouble& inv,
                                   VectorDouble& outv) const
 {
-  outv.resize(getPointNumber());
+  outv.resize(getNPoint());
   return mesh2point(inv.getVector(), outv.getVector());
 }
 
 int IProj::point2mesh(const VectorDouble& inv,
                            VectorDouble& outv) const
 {
-  outv.resize(getApexNumber());
+  outv.resize(getNApex());
   return point2mesh(inv.getVector(), outv.getVector());
 }
 

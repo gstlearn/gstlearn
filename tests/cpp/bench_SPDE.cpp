@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 
     // Printout of general environment
     if (showStats)
-      message("- Number of covariances  = %d\n", model->getCovaNumber());
+      message("- Number of covariances  = %d\n", model->getNCov());
 
     // Building Shift Operator
     if (mode < 0 || mode == 0)

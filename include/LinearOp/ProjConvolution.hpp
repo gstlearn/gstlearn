@@ -33,8 +33,8 @@ public:
   ProjConvolution& operator= (const ProjConvolution &m)= delete;
   virtual ~ProjConvolution();
 
-  int getApexNumber() const override;
-  int getPointNumber() const override;
+  int getNApex() const override;
+  int getNPoint() const override;
 
   DbGrid* getResolutionGrid() const;
 

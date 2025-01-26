@@ -179,7 +179,7 @@ String Limits::toString(const AStringFormat* /*strfmt*/) const
 VectorDouble Limits::getBound(int iclass, int mode) const
 {
   VectorDouble bounds;
-  if (iclass < 0 || iclass >= getLimitNumber()) return bounds;
+  if (iclass < 0 || iclass >= getNLimit()) return bounds;
 
   if (mode == 0 || mode == 1)
     bounds.push_back(_bounds[iclass].getVmin());
@@ -190,7 +190,7 @@ VectorDouble Limits::getBound(int iclass, int mode) const
 
 VectorDouble Limits::getLowerBounds() const
 {
-  int nclass = getLimitNumber();
+  int nclass = getNLimit();
   VectorDouble lower(nclass);
   for (int i = 0; i < nclass; i++)
     lower[i] = _bounds[i].getVmin();
@@ -199,7 +199,7 @@ VectorDouble Limits::getLowerBounds() const
 
 VectorDouble Limits::getUpperBounds() const
 {
-  int nclass = getLimitNumber();
+  int nclass = getNLimit();
   VectorDouble upper(nclass);
   for (int i = 0; i < nclass; i++)
     upper[i] = _bounds[i].getVmax();
@@ -208,7 +208,7 @@ VectorDouble Limits::getUpperBounds() const
 
 VectorBool Limits::getLowerIncluded() const
 {
-  int nclass = getLimitNumber();
+  int nclass = getNLimit();
   VectorBool mininc(nclass);
   for (int i = 0; i < nclass; i++)
     mininc[i] = _bounds[i].getMinIncluded();
@@ -217,7 +217,7 @@ VectorBool Limits::getLowerIncluded() const
 
 VectorBool Limits::getUpperIncluded() const
 {
-  int nclass = getLimitNumber();
+  int nclass = getNLimit();
   VectorBool maxinc(nclass);
   for (int i = 0; i < nclass; i++)
     maxinc[i] = _bounds[i].getMaxIncluded();
@@ -226,7 +226,7 @@ VectorBool Limits::getUpperIncluded() const
 
 bool Limits::isInside(double value) const
 {
-  for (int i = 0; i < getLimitNumber(); i++)
+  for (int i = 0; i < getNLimit(); i++)
   {
     if (! _bounds[i].isInside(value)) return false;
   }
@@ -359,7 +359,7 @@ int Limits::_computeCategory(Db *db,
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     double value = db->getArray(iech, iatt);
@@ -501,7 +501,7 @@ int Limits::_computeIndicator(Db *db,
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     double value = db->getArray(iech, iatt);
@@ -594,7 +594,7 @@ int Limits::_computeIndicator(Db *db,
 
   if (!flag_indic)
   {
-    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    for (int iech = 0; iech < db->getNSample(); iech++)
     {
       if (! db->isActive(iech)) continue;
       double value = db->getArray(iech, iptr_mean);
@@ -694,7 +694,7 @@ VectorDouble Limits::_computeLimitStatistics(Db *db,
   /* Loop on the samples */
 
   int nactive = 0;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     double value = db->getArray(iech, iatt);

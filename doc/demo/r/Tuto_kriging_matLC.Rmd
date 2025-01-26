@@ -174,7 +174,7 @@ grd["Z1"] = m[1] * exp(sig[1] * grd["Y1"] - sig[1]**2 / 2)
 grd["Z2"] = m[2] * exp(sig[2] * grd["Y2"] - sig[2]**2 / 2)
 
 # Data set (ssp proportion of the grid)
-data = Db_createFillRandom(ndat = ssp*grd$getSampleNumber(), nvar = 0)
+data = Db_createFillRandom(ndat = ssp*grd$getNSample(), nvar = 0)
 err  = data$setName("x-1", "x1")
 err  = data$setName("x-2", "x2")
 err  = migrate(dbin = grd, name = "Z1", dbout = data, dmax = c(0.1, 0.1), 
@@ -208,9 +208,9 @@ colnames(matLC) <- nm_var
 rownames(matLC) <- nm_LC
 
 # computing the linear computation
-data["LC"] = matrix(data$getColumns(colnames(matLC)), nrow = data$getSampleNumber(), 
+data["LC"] = matrix(data$getColumns(colnames(matLC)), nrow = data$getNSample(), 
                     ncol = dim(matLC)[2]) %*% t(matLC)[,1]
-grd["LC"]  = matrix(grd$getColumns(colnames(matLC)),  nrow = grd$getSampleNumber(),  
+grd["LC"]  = matrix(grd$getColumns(colnames(matLC)),  nrow = grd$getNSample(),  
                     ncol = dim(matLC)[2]) %*% t(matLC)[,1]
 
 # statistics
@@ -246,9 +246,9 @@ OptDbg_setReference(0)
 # TODO: generalize to rectangular matrix?
 model_of_LC <- function(model, A) {
   stopifnot(dim(A)[1] == dim(A)[2])
-  nv = model$getVariableNumber()
+  nv = model$getNVar()
   stopifnot(nv == dim(A)[1])
-  ns = model$getCovaNumber()
+  ns = model$getNCov()
   model_LC = model$clone()
   for (k in 1:ns) {
     CC = A %*% model$getSillValues(k-1)$toTL() %*% t(A)
@@ -301,7 +301,7 @@ err = kriging(data, grd, mod_Z_IRF0, neigh,
 
 # computing the LC of kriging
 grd["LC.OK.estim"]  = matrix(grd$getColumns(names = paste("OK", colnames(matLC), "estim", sep = ".")),
-                    nrow = grd$getSampleNumber(),  ncol = dim(matLC)[2]) %*% t(matLC)[,1]
+                    nrow = grd$getNSample(),  ncol = dim(matLC)[2]) %*% t(matLC)[,1]
 
 # statistics
 vn  = c("Z1", paste("OK", "Z1", c("estim", "stdev"), sep = "."),
@@ -484,7 +484,7 @@ err = kriging(data, grd, mod_Z_SOS, neigh,
 
 # computing the LC of kriging
 grd["LC.SK.estim"]  = matrix(grd$getColumns(names = paste("SK", colnames(matLC), "estim", sep = ".")),
-                    nrow = grd$getSampleNumber(),  ncol = dim(matLC)[2]) %*% t(matLC)[,1]
+                    nrow = grd$getNSample(),  ncol = dim(matLC)[2]) %*% t(matLC)[,1]
 
 # statistics
 vn  = c("Z1", paste("SK", "Z1", c("estim", "stdev"), sep = "."),

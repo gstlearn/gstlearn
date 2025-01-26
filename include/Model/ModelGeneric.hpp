@@ -119,14 +119,14 @@ public:
 
   // Pipes for the private members
   // Case of _ctxt
-  int getVariableNumber() const;
-  int getDimensionNumber() const;
+  int getNVar() const;
+  int getNDim() const;
   const VectorDouble& getMeans() const;
 
   // Case of _driftList
-  int getDriftNumber() const;
-  int getDriftEquationNumber() const;
-  int getExternalDriftNumber() const;
+  int getNDrift() const;
+  int getNDriftEquation() const;
+  int getNExtDrift() const;
   int getDriftMaxIRFOrder(void) const;
   void delAllDrifts();
 
@@ -134,7 +134,7 @@ public:
   const CovAnisoList* getCovAnisoList() const;
   CovAnisoList* getCovAnisoListModify() const;
   int getCovaMinIRFOrder() const;
-  int getCovaNumber(bool skipNugget = false) const;
+  int getNCov(bool skipNugget = false) const;
   void setActiveFactor(int iclass);
   int  getActiveFactor() const;
 

@@ -199,7 +199,7 @@ void MeshSpherical::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool
   int nmeshes     = getNMeshes();
   int nvertex     = getNApices();
   int ncorner     = getNApexPerMesh();
-  int nech        = db->getSampleNumber();
+  int nech        = db->getNSample();
 
   // Preliminary checks 
 
@@ -269,7 +269,7 @@ void MeshSpherical::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool
 
   if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
-            nout, db->getSampleNumber(true));
+            nout, db->getNSample(true));
 
   return m->resetFromTriplet(NF_T);
 }

@@ -923,9 +923,9 @@ invisible()
 ```{r}
 # QC of the DK
 Hn.est <- matrix(grid$getColumns(names = c("SK.F.*.estim"), useSel = FALSE),
-                 ncol = nfactor, nrow = grid$getSampleNumber())
+                 ncol = nfactor, nrow = grid$getNSample())
 Hn.std <- matrix(grid$getColumns(names = c("SK.F.*.stdev"), useSel = FALSE),
-                ncol = nfactor, nrow = grid$getSampleNumber())
+                ncol = nfactor, nrow = grid$getNSample())
 
 # estimation of Z using DK
 psi <- anam$getPsiHns()
@@ -1017,7 +1017,7 @@ knitr::kable(dbStatisticsMono(grid, nm, opers=opers)$toTL(), digits=3,
 scoringRules <- function(db, nm_val, nm_est, nm_std){
   val  <- matrix(
     db$getColumns(names = c(nm_val, nm_est, nm_std), useSel = TRUE),
-    nrow = db$getSampleNumber(TRUE),
+    nrow = db$getNSample(TRUE),
     ncol = 3, byrow = FALSE)
   err  <- (val[,1] - val[,2])
   nerr <- err / val[,3]
@@ -1052,7 +1052,7 @@ res_xval$deleteColumns("DK.*")
 res_xval$deleteColumns("code")
 
 # definition of the folds
-res_xval["code"] <- sample(x = 1:K, size = res_xval$getSampleNumber(), replace = TRUE)
+res_xval["code"] <- sample(x = 1:K, size = res_xval$getNSample(), replace = TRUE)
 res_xval$setLocator("code", ELoc_C(), cleanSameLocator=TRUE)
 
 # generic function for k-fold cross validation

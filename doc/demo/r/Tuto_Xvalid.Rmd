@@ -211,7 +211,7 @@ Note: the K-fold cross validation is not available for a unique neighborhood.
 N     = 300
 K     = 10
 dbin  = Db_createFillRandom(ndat = N, nvar = 0, seed = 125)
-dbin["folds"] = sample(1:K, size = dbin$getSampleNumber(TRUE), replace = TRUE)
+dbin["folds"] = sample(1:K, size = dbin$getNSample(TRUE), replace = TRUE)
 p <- ggDefaultGeographic() +
   plot.point(dbin,  nameColor = "folds", palette = "Spectral", 
              flagLegendColor = TRUE, flagLegendLabel = "Folds") +

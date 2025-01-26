@@ -123,18 +123,18 @@ bool ACalcDbToDb::_checkVariableNumber()
   {
     if (nvar > 0)
     {
-      if (nvar != _dbin->getLocNumber(ELoc::Z))
+      if (nvar != _dbin->getNLoc(ELoc::Z))
       {
         messerr("Inconsistent Variable Number:");
         messerr("- Current number = %d", nvar);
         messerr("- Number of variables in 'dbin' = %d",
-                _dbin->getLocNumber(ELoc::Z));
+                _dbin->getNLoc(ELoc::Z));
         return false;
       }
     }
     else
     {
-      nvar = _dbin->getLocNumber(ELoc::Z);
+      nvar = _dbin->getNLoc(ELoc::Z);
     }
   }
   _setNvar(nvar);

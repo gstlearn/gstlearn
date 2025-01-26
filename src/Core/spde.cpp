@@ -460,7 +460,7 @@ static CovAniso* st_get_nugget(void)
   CovAniso *cova;
 
   model = st_get_model();
-  for (int is = 0; is < model->getCovaNumber(); is++)
+  for (int is = 0; is < model->getNCov(); is++)
   {
     cova = model->getCova(is);
     if (cova->getType() == ECov::NUGGET) return (cova);
@@ -483,7 +483,7 @@ static CovAniso* st_get_cova(void)
   model = st_get_model();
   is0 = SPDE_CURRENT_ICOV;
 
-  for (int icov = jcov = 0; icov < model->getCovaNumber(); icov++)
+  for (int icov = jcov = 0; icov < model->getNCov(); icov++)
   {
     cova = model->getCova(icov);
     if (cova->getType() == ECov::NUGGET) continue;
@@ -910,7 +910,7 @@ static int st_get_ncova_max(void)
   for (int igrf = 0; igrf < st_get_number_grf(); igrf++)
   {
     SPDE_CURRENT_IGRF = igrf;
-    ncova = st_get_model()->getCovaNumber();
+    ncova = st_get_model()->getNCov();
     if (ncova > ncova_max) ncova_max = ncova;
   }
   SPDE_CURRENT_IGRF = igrf_memo;
@@ -932,7 +932,7 @@ static int st_get_ncova(void)
   ncova = 0;
   model = st_get_model();
   if (model == nullptr) return (ncova);
-  for (int is = 0; is < model->getCovaNumber(); is++)
+  for (int is = 0; is < model->getNCov(); is++)
   {
     cova = model->getCova(is);
     if (cova->getType() != ECov::NUGGET) ncova++;
@@ -1333,8 +1333,8 @@ int spde_attach_model(Model *model)
 
   if (model == nullptr) return (1);
 
-  ndim = model->getDimensionNumber();
-  nvar = model->getVariableNumber();
+  ndim = model->getNDim();
+  nvar = model->getNVar();
 
   if (ndim > 3)
   {
@@ -1347,7 +1347,7 @@ int spde_attach_model(Model *model)
 
   /* Checking the Model contents */
 
-  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  for (int icov = 0; icov < model->getNCov(); icov++)
   {
     cova = model->getCova(icov);
     if (cova->getType() == ECov::MATERN)
@@ -1413,8 +1413,8 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
 
   if (model == nullptr) return (1);
 
-  ndim = model->getDimensionNumber();
-  nvar = model->getVariableNumber();
+  ndim = model->getNDim();
+  nvar = model->getNVar();
   if (dbin != nullptr)
   {
     if (dbin->getNDim() != ndim)
@@ -1434,13 +1434,13 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
     }
     else
     {
-      if (dbin->getLocNumber(ELoc::Z) != nvar && S_DECIDE.flag_case
+      if (dbin->getNLoc(ELoc::Z) != nvar && S_DECIDE.flag_case
           != CASE_MATRICES
           && !S_DECIDE.flag_gibbs)
       {
         messerr(
             "Model (%d) and Input Db (%d) must refer to the same number of variables",
-            nvar, dbin->getLocNumber(ELoc::Z));
+            nvar, dbin->getNLoc(ELoc::Z));
         return (1);
       }
     }
@@ -1467,7 +1467,7 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
 
   silltot = 0.;
   flag_nugget = 0;
-  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  for (int icov = 0; icov < model->getNCov(); icov++)
   {
     cova = model->getCova(icov);
     silltot += cova->getSill(0, 0);
@@ -1716,7 +1716,7 @@ static void st_save_result(double *z,
                            int iatt_simu)
 {
   int iech, lec, ecr;
-  int nech = dbout->getSampleNumber();
+  int nech = dbout->getNSample();
 
   /* Loop on all the vertices */
 
@@ -2293,8 +2293,8 @@ static int st_fill_Bnugget(Db *dbin)
 
   error = 1;
   model = st_get_model();
-  ndata = dbin->getSampleNumber(true);
-  nvar = model->getVariableNumber();
+  ndata = dbin->getNSample(true);
+  nvar = model->getNVar();
   nvar2 = nvar * nvar;
   nvs2 = nvar * (nvar + 1) / 2;
   mat = local = local0 = nullptr;
@@ -2342,7 +2342,7 @@ static int st_fill_Bnugget(Db *dbin)
   /* Loop on the active samples */
 
   ecr = 0;
-  /* for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+  /* for (int iech = 0; iech < dbin->getNSample(); iech++)
   {
     if (!dbin->isActive(iech)) continue;
  */
@@ -2464,8 +2464,8 @@ static int st_fill_Bnugget(Db *dbin)
 static int *st_get_vertex_ranks(AMesh *amesh, Db* dbin, Db* dbout)
 {
   int nvertex = amesh->getNApices();
-  int n_in  = (dbin != nullptr) ? dbin->getSampleNumber(true) : 0;
-  int n_out = dbout->getSampleNumber(true);
+  int n_in  = (dbin != nullptr) ? dbin->getNSample(true) : 0;
+  int n_out = dbout->getNSample(true);
   if (nvertex < (n_in + n_out))
     messageAbort("Nvertex(%d) must be larger than n_in(%d) + n_out(%d)",
                  nvertex, n_in, n_out);
@@ -2480,13 +2480,13 @@ static int *st_get_vertex_ranks(AMesh *amesh, Db* dbin, Db* dbout)
 
   int ecr = 0;
   if (dbin != nullptr)
-    for (int i = 0; i < dbin->getSampleNumber(); i++)
+    for (int i = 0; i < dbin->getNSample(); i++)
     {
       if (! dbin->isActive(i)) continue;
       ranks[ecr++] = (i + 1);
     }
 
-  for (int i = 0; i < dbout->getActiveSampleNumber(); i++)
+  for (int i = 0; i < dbout->getNSampleActive(); i++)
   {
     if (! dbout->isActive(i)) continue;
     ranks[ecr++] = -(i + 1);
@@ -2519,8 +2519,8 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
 
   error = 1;
   model = st_get_model();
-  ndata = dbin->getSampleNumber(true);
-  nvar = model->getVariableNumber();
+  ndata = dbin->getNSample(true);
+  nvar = model->getNVar();
   BheteroD = BheteroT = nullptr;
   ranks = ndata1 = ntarget1 = nullptr;
   SPDE_Matelem &Mat1 = spde_get_current_matelem(0);
@@ -3431,13 +3431,13 @@ static void st_load_data(AMesh *amesh,
 
     if (dbout != nullptr)
     {
-      for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+      for (int iech = 0; iech < dbout->getNSample(); iech++)
       {
         if (!dbout->isActive(iech)) continue;
 
         /* This target is not collocated to any Datum */
 
-        if (S_DECIDE.flag_gibbs && dbout->getIntervalNumber() > 0)
+        if (S_DECIDE.flag_gibbs && dbout->getNInterval() > 0)
           zloc = st_get_data_constraints(dbout, igrf, iech);
         else
           zloc = TEST;
@@ -3463,12 +3463,12 @@ static void st_load_data(AMesh *amesh,
 
     if (dbin != nullptr)
     {
-      for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+      for (int iech = 0; iech < dbin->getNSample(); iech++)
       {
         if (!dbin->isActive(iech)) continue;
         if (S_DECIDE.flag_several) data[ecrd++] = dbin->getZVariable(iech, ivar);
 
-        if (S_DECIDE.flag_gibbs && dbin->getIntervalNumber() > 0)
+        if (S_DECIDE.flag_gibbs && dbin->getNInterval() > 0)
           zloc = st_get_data_constraints(dbin, igrf, iech);
         else
           zloc = dbin->getZVariable(iech, ivar);
@@ -4848,7 +4848,7 @@ int spde_process(Db *dbin,
   }
   if (S_DECIDE.flag_dbin)
   {
-    ndata = dbin->getSampleNumber(true);
+    ndata = dbin->getNSample(true);
     zkrig = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
     if (zkrig == nullptr) goto label_end;
     zdat = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
@@ -5857,10 +5857,10 @@ int kriging2D_spde(Db *dbin,
 
   /* Preliminary checks */
 
-  if (model->getDimensionNumber() != 2)
+  if (model->getNDim() != 2)
   {
     messerr("This application is restricted to the 2-D case (ndim=%d)",
-            model->getDimensionNumber());
+            model->getNDim());
     goto label_end;
   }
 
@@ -5876,7 +5876,7 @@ int kriging2D_spde(Db *dbin,
 
     nvar = S_ENV.nvar;
     ncova = st_get_ncova_max();
-    ndata = dbin->getSampleNumber(true);
+    ndata = dbin->getNSample(true);
     ncur = amesh->getNApices();
     zcur = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
     if (zcur == nullptr) goto label_end;
@@ -6062,7 +6062,7 @@ static int st_m2d_check_pinchout(Db *dbgrid, int icol_pinch)
 
   // Initializations
 
-  int nech = dbgrid->getSampleNumber();
+  int nech = dbgrid->getNSample();
   VectorDouble tab = dbgrid->getColumnByUID(icol_pinch);
 
   // Check that values are within [0,1] interval
@@ -6229,7 +6229,7 @@ static int st_check_validity_MS(Db *db,
   if (flag_verbose)
   {
     messerr("Error at Sample #%d/%d for Layer #%d", iech + 1,
-            db->getSampleNumber(), ilayer + 1);
+            db->getNSample(), ilayer + 1);
     if (FFFF(M))
       messerr("- Mean is undefined");
     else
@@ -6381,7 +6381,7 @@ static void st_m2d_set_M(M2D_Environ *m2denv,
 
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
   {
-    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    for (int iech = 0; iech < db->getNSample(); iech++)
     {
       if (db->isActive(iech))
       {
@@ -6416,7 +6416,7 @@ static int st_m2d_migrate_pinch_to_point(Db *dbout, Db *dbc, int icol_pinch)
 
   // Initializations
 
-  int nech = dbc->getSampleNumber();
+  int nech = dbc->getNSample();
   if (dbout == nullptr) return 0;
   if (icol_pinch < 0) return 0;
 
@@ -6494,7 +6494,7 @@ static int st_m2d_drift_inc_manage(M2D_Environ *m2denv,
 
     /* Check validity of drift at data points */
 
-    for (int iech = 0; iech < dbc->getSampleNumber(); iech++)
+    for (int iech = 0; iech < dbc->getNSample(); iech++)
     {
       if (!dbc->isActive(iech)) continue;
       for (int ilayer = 0; ilayer < nlayer; ilayer++)
@@ -6548,7 +6548,7 @@ static void st_m2d_stats_init(M2D_Environ *m2denv,
 
   /* Initializations */
 
-  nech = dbin->getSampleNumber();
+  nech = dbin->getNSample();
   nb = mm = vv = 0.;
   mini = 1.e30;
   maxi = -1.e30;
@@ -6651,7 +6651,7 @@ static void st_m2d_stats_updt(M2D_Environ *m2denv,
 
   /* Initializations */
 
-  nech = dbc->getSampleNumber();
+  nech = dbc->getNSample();
   nb = mm = vv = 0.;
   mini = 1.e30;
   maxi = -1.e30;
@@ -6741,7 +6741,7 @@ static int st_m2d_initial_elevations(M2D_Environ *m2denv,
 
   /* Initializations */
 
-  nech = dbc->getSampleNumber();
+  nech = dbc->getNSample();
   eps = m2denv->zeps;
   int flag_jter = 0;
 
@@ -6890,7 +6890,7 @@ static int st_m2d_drift_manage(M2D_Environ *m2denv,
   /* Initializations */
 
   error = 1;
-  nechin = dbin->getSampleNumber();
+  nechin = dbin->getNSample();
   dval = nullptr;
   (*iatt_f) = -1;
 
@@ -6930,7 +6930,7 @@ static int st_m2d_drift_manage(M2D_Environ *m2denv,
 
       // Calculate the statistics of the external drift on the grid
 
-      for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+      for (int iech = 0; iech < dbout->getNSample(); iech++)
       {
         if (!dbout->isActive(iech)) continue;
         value = dbout->getLocVariable(ELoc::F,iech, ilayer);
@@ -7051,7 +7051,7 @@ static int st_m2d_drift_fitting(M2D_Environ *m2denv,
   /* Initializations */
 
   error = 1;
-  nech = MIN(number_hard, dbc->getSampleNumber());
+  nech = MIN(number_hard, dbc->getNSample());
   nbfl = 1;
   a = b = nullptr;
 
@@ -7188,7 +7188,7 @@ static void st_m2d_drift_save(M2D_Environ *m2denv,
 
   /* Initializations */
 
-  ngrid = dbout->getSampleNumber();
+  ngrid = dbout->getNSample();
 
   /* Loop on the target nodes */
 
@@ -7418,8 +7418,8 @@ static Db* st_m2d_create_constraints(M2D_Environ *m2denv,
 
   error = 1;
   db = nullptr;
-  nechin = dbin->getSampleNumber(true);
-  nechout = dbout->getSampleNumber(true);
+  nechin = dbin->getNSample(true);
+  nechout = dbout->getNSample(true);
   nech = nechin + nechout;
   natt = 1;                  // Rank
   natt += ndim;               // Coordinates
@@ -7433,7 +7433,7 @@ static Db* st_m2d_create_constraints(M2D_Environ *m2denv,
   /* Load information from 'dbin' */
 
   number = 0;
-  for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbin->getNSample(); iech++)
   {
     if (!dbin->isActive(iech)) continue;
     if (st_record_sample(m2denv, dbin, iech, ndim, natt, nlayer, 0, &number,
@@ -7443,7 +7443,7 @@ static Db* st_m2d_create_constraints(M2D_Environ *m2denv,
 
   /* Load information from 'dbout' */
 
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
     if (!dbout->isActive(iech)) continue;
     if (st_record_sample(m2denv, dbout, iech, ndim, natt, nlayer, 0, &number,
@@ -7454,7 +7454,7 @@ static Db* st_m2d_create_constraints(M2D_Environ *m2denv,
 
   if (number <= 0)
   {
-    for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+    for (int iech = 0; iech < dbin->getNSample(); iech++)
     {
       if (!dbin->isActive(iech)) continue;
       if (st_record_sample(m2denv, dbin, iech, ndim, natt, nlayer, 1, &number,
@@ -7618,7 +7618,7 @@ MatrixSparse* db_mesh_neigh(const Db *db,
   int* pts = nullptr;
   int* ranks = nullptr;
   ncorner = amesh->getNApexPerMesh();
-  nech = db->getSampleNumber();
+  nech = db->getNSample();
   bool flag_sphere = isDefaultSpaceSphere();
   NF_Triplet Atriplet;
   if (flag_sphere)
@@ -7990,7 +7990,7 @@ static void st_print_sample(const char *title,
   int nech;
   double zmin, zmax;
 
-  nech = dbc->getSampleNumber();
+  nech = dbc->getNSample();
   message("%s - Sample #%d/%d\n", title, iech + 1, nech);
 
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
@@ -8039,7 +8039,7 @@ static int st_global_gibbs(M2D_Environ *m2denv,
 
   // Initializations
 
-  nech = dbc->getSampleNumber();
+  nech = dbc->getNSample();
 
   // Loop on the samples
 
@@ -8156,7 +8156,7 @@ static int st_check_gibbs_data(const char *title,
   // Initializations
 
   error = 0;
-  nech = dbc->getSampleNumber();
+  nech = dbc->getNSample();
   eps = m2denv->zeps;
 
   // Loop on the constraints samples
@@ -8289,7 +8289,7 @@ static void st_m2d_vector_extract(M2D_Environ *m2denv,
 
   /* Initializations */
 
-  nech = dbc->getSampleNumber();
+  nech = dbc->getNSample();
 
   /* Loop on the samples */
 
@@ -8347,7 +8347,7 @@ static void st_print_db_constraints(const char *title,
   // Printout
 
   mestitle(1, title);
-  nech = db->getSampleNumber();
+  nech = db->getNSample();
   if (nprint > 0) nech = MIN(nech, nprint);
   for (int iech = 0; iech < nech; iech++)
   {
@@ -8480,11 +8480,11 @@ int m2d_gibbs_spde(Db *dbin,
     messerr("The function requires an output Db argument");
     goto label_end;
   }
-  ndim = model->getDimensionNumber();
-  if (model->getVariableNumber() != 1)
+  ndim = model->getNDim();
+  if (model->getNVar() != 1)
   {
     messerr("This function should be called in the case of a single Model");
-    messerr("In your case: %d\n", model->getVariableNumber());
+    messerr("In your case: %d\n", model->getNVar());
     goto label_end;
   }
   if (nlayer <= 0)
@@ -8492,11 +8492,11 @@ int m2d_gibbs_spde(Db *dbin,
     messerr("This application requires the Number of Layers to be positive");
     goto label_end;
   }
-  if (dbin->getIntervalNumber() < nlayer)
+  if (dbin->getNInterval() < nlayer)
   {
     messerr("This application requires Lower and Upper variables");
     messerr("to be defined in the Input Db for each layer (nint=%d)",
-            dbin->getIntervalNumber());
+            dbin->getNInterval());
     goto label_end;
   }
   if (! dbout->isGrid())
@@ -8509,11 +8509,11 @@ int m2d_gibbs_spde(Db *dbin,
     messerr("This application is restricted to the 2-D case (ndim=%d)", ndim);
     goto label_end;
   }
-  if (flag_ed && nlayer > dbout->getLocNumber(ELoc::F))
+  if (flag_ed && nlayer > dbout->getNLoc(ELoc::F))
   {
     messerr("External Drifts are used for Drift definition");
     messerr("- Count of F-variables (%d) must match Count of layers (%d)",
-            dbout->getLocNumber(ELoc::F), nlayer);
+            dbout->getNLoc(ELoc::F), nlayer);
     goto label_end;
   }
   if (nbsimu <= 0)
@@ -8528,7 +8528,7 @@ int m2d_gibbs_spde(Db *dbin,
   if (st_m2d_check_pinchout(dbout, icol_pinch)) goto label_end;
 
   law_set_random_seed(seed);
-  ngrid = dbout->getSampleNumber();
+  ngrid = dbout->getNSample();
 
   /* Prepare the M2D_Environ structure */
 
@@ -8568,7 +8568,7 @@ int m2d_gibbs_spde(Db *dbin,
   dbc = st_m2d_create_constraints(m2denv, dbin, dbout, ndim, nlayer,
                                   &number_hard);
   if (dbc == nullptr) goto label_end;
-  nech = dbc->getSampleNumber(true);
+  nech = dbc->getNSample(true);
 
   /* Check SPDE environment */
   // At the first call, only one variable is Z_locatorized in order to

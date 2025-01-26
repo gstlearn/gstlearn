@@ -70,11 +70,9 @@ public:
   virtual bool isConsistent(const ASpace* space) const override;
 
   /// ACov Interface
-  virtual int getNVariables() const override { return 1; }
-
+  virtual int getNVar() const override { return 1; }
 
   /// ACov Interface
-  
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
                       int ivar = 0,
@@ -198,7 +196,7 @@ public:
   const Tensor& getAniso() const { return _aniso; }
   void   setAniso(const Tensor& aniso) { _aniso = aniso; }
   const ACovFunc* getCova() const { return _cova; }
-  int    getGradParamNumber() const;
+  int    getNGradParam() const;
   bool   hasCovDerivative() const { return _cova->hasCovDerivative(); }
   bool   hasCovOnSphere() const { return _cova->hasCovOnSphere(); }
   bool   hasSpectrumOnSphere() const { return _cova->hasSpectrumOnSphere(); }

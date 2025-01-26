@@ -63,7 +63,7 @@ CovContext::CovContext(const Db *db, const ASpaceSharedPtr& space)
       _covar0()
 {
   /// TODO : check Db dimension vs provided space
-  _nVar = db->getLocNumber(ELoc::Z);
+  _nVar = db->getNLoc(ELoc::Z);
   // As it does not make sense not to have any variable, this number is set to 1 at least
   if (_nVar <= 1) _nVar = 1;
   _update();
@@ -77,7 +77,7 @@ CovContext::CovContext(const Vario *vario, const ASpaceSharedPtr& space)
       _covar0()
 {
   /// TODO : check vario dimension vs provided space
-  _nVar = vario->getVariableNumber();
+  _nVar = vario->getNVar();
   _field = vario->getHmax();
   _update();
 }

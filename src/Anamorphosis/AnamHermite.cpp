@@ -746,7 +746,7 @@ int AnamHermite::factor2Selectivity(Db *db,
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (_isSampleSkipped(db, iech, cols_est, cols_std)) continue;
 
