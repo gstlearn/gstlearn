@@ -413,7 +413,7 @@ int db_write_csv(Db *db,
                  bool flagInteger)
 {
   if (db == nullptr) return 1;
-  int ncol = db->getColumnNumber();
+  int ncol = db->getNColumn();
   int ndim = db->getNDim();
   int nech = db->getNSample();
   int nvar = db->getNLoc(ELoc::Z);

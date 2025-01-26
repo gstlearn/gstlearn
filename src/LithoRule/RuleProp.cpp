@@ -196,7 +196,7 @@ bool RuleProp::_checkConsistency()
     _propcst.clear();
 
     // Check consistency of the number of facies
-    int nfacdb = _dbprop->getFromLocatorNumber(ELoc::P);
+    int nfacdb = _dbprop->getNFromLocator(ELoc::P);
     if (nfacies > 0 && nfacies != nfacdb)
     {
       messerr("Mismatch between:");
@@ -256,7 +256,7 @@ int RuleProp::_getNFacies()
   // Non-stationary case: proportions are provided using Dbprop
   if (_dbprop != nullptr)
   {
-    return _dbprop->getFromLocatorNumber(ELoc::P);
+    return _dbprop->getNFromLocator(ELoc::P);
   }
 
   // Stationary proportions provided by 'propcst'

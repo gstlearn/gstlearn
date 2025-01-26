@@ -705,7 +705,7 @@
     int ncols = mat.getNCols();
 
     NF_Triplet NFT = mat.getMatrixToTriplet();
-    const npy_intp nnz = NFT.getNumber();;
+    const npy_intp nnz = NFT.getNElements();
 
     // Create 1D NumPy arrays for row indices, column indices, and values
     npy_intp dim[1] = {nnz};
@@ -1171,14 +1171,14 @@ def findColumnNames(self, columns):
         names = self.getNameByColIdx(columns)
     
     elif isinstance(columns, slice):
-        Nmax = self.getColumnNumber()
+        Nmax = self.getNColumn()
         names = []
         for i in range(Nmax)[columns]:
             names.append(self.getNameByColIdx(i))
 
     elif is_list_type(columns, (int, np.int_)):
         names = []
-        Nfields = self.getColumnNumber()
+        Nfields = self.getNColumn()
         for i in columns:
             if i >= Nfields:
                 print("Warning: the index {} is out of bounds with {}, this index is ignored".format(i,Nfields))

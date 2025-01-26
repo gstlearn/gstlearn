@@ -205,7 +205,7 @@ static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
 
   (void) gslStrcpy(string, "NA");
   nech = db->getNSample();
-  nvar = db->getColumnNumber();
+  nvar = db->getNColumn();
 
   ivar_deb = ivar - nrdv;
   ivar_fin = ivar + nrdv;
@@ -483,7 +483,7 @@ int db_edit(Db *db, int *flag_valid)
   /* Initializations */
 
   nech = db->getNSample();
-  nvar = db->getColumnNumber();
+  nvar = db->getNColumn();
   ivar = iech = 0;
   nrds = nrdv = incr = 1;
   vmin = vmax = TEST;

@@ -46,7 +46,7 @@ public:
   DECLARE_TOTL;
 
   void add(int irow, int icol, double value);
-  int getNumber() const { return (int) _eigenT.size(); }
+  int getNElements() const { return (int) _eigenT.size(); }
   int getNRows()  const { return _nrowmax; }
   int getNCols()  const { return _ncolmax; }
   void force(int nrow, int ncol);

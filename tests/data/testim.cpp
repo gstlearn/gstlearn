@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
                       5.,true,true,true))
       messageAbort("gibbs_sampler");
     /* Set the current variable to the conditional expectation */
-    dbin->setLocatorByUID(dbin->getColumnNumber()-1,ELoc::Z, 0);
+    dbin->setLocatorByUID(dbin->getNColumn()-1,ELoc::Z, 0);
   }
 
   /* Perform the estimation */

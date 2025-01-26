@@ -1310,7 +1310,7 @@ DbGrid* DbHelper::dbgrid_sampling(DbGrid *dbin, const VectorInt &nmult)
   /* Initializations */
 
   dbout = nullptr;
-  ncol = dbin->getColumnNumber();
+  ncol = dbin->getNColumn();
   ndim = dbin->getNDim();
 
   /* Core allocation */

@@ -71,7 +71,7 @@ int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
   if (db == nullptr) return (0);
   if (db->isGrid() && locatorType == ELoc::X)
     return (db->getNDim());
-  return (db->getFromLocatorNumber(locatorType));
+  return (db->getNFromLocator(locatorType));
 }
 
 /****************************************************************************/
@@ -2250,7 +2250,7 @@ label_end:
  *****************************************************************************/
 int db_name_identify(Db* db, const String& string)
 {
-  for (int iatt = 0, natt = db->getUIDMaxNumber(); iatt < natt; iatt++)
+  for (int iatt = 0, natt = db->getNUIDMax(); iatt < natt; iatt++)
   {
     int icol = db->getColIdxByUID(iatt);
     if (string != db->getNameByColIdx(icol)) return iatt;

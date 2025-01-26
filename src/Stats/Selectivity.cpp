@@ -1134,7 +1134,7 @@ int Selectivity::getNQTEst(const ESelectivity& code) const
   return _numberQT.getValue(code.getValue(), 0);
 }
 
-int Selectivity::geNQTStd(const ESelectivity& code) const
+int Selectivity::getNQTStd(const ESelectivity& code) const
 {
   return _numberQT.getValue(code.getValue(), 1);
 }

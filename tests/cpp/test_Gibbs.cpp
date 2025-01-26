@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
   (void)simulateSPDE(NULL, dbgrid, model2, nullptr, nsimu, NULL, useCholesky,
                      SPDEParam(), verbose);
 
-  int rank = dbgrid->getColumnNumber();
+  int rank = dbgrid->getNColumn();
   for (int i=0; i<nvertex; i++)
   {
     consmin[i] = MIN(dbgrid->getArray(i,rank-1), dbgrid->getArray(i,rank-2));

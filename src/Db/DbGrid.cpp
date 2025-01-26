@@ -592,7 +592,7 @@ bool DbGrid::migrateAllVariables(Db *dbin, bool flag_fill, bool flag_inter,
   // Constitute the list of Variables to be migrated
 
   VectorInt icols;
-  for (int icol = 0; icol < dbin->getColumnNumber(); icol++)
+  for (int icol = 0; icol < dbin->getNColumn(); icol++)
   {
     // Skip the rank
     if (flagAddSampleRank && icol == 0) continue;
@@ -609,7 +609,7 @@ bool DbGrid::migrateAllVariables(Db *dbin, bool flag_fill, bool flag_inter,
   if (ncol <= 0) return true;
 
   // Migrate the variables
-  int icolOut = getColumnNumber();
+  int icolOut = getNColumn();
   if (migrateByAttribute(dbin, this, icols, 2, VectorDouble(), flag_fill,
                          flag_inter, flag_ball, NamingConvention(String())))
     return false;

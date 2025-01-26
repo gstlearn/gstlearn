@@ -111,7 +111,7 @@ void CalcSimuFFT::_alloc()
   {
     if (i < _getNDim())
     {
-      int nval = _getOptimalEvenNumber(_shift[i] + dbgrid->getNX(i));
+      int nval = _getNOptimalEven(_shift[i] + dbgrid->getNX(i));
       _dims[i] = nval;
       _dim2[i] = nval / 2;
     }
@@ -155,7 +155,7 @@ void CalcSimuFFT::_alloc()
  ** \param[in]  largeFactor Maximum value for a Factor
  **
  *****************************************************************************/
-int CalcSimuFFT::_getOptimalEvenNumber(int number, int largeFactor)
+int CalcSimuFFT::_getNOptimalEven(int number, int largeFactor)
 {
   int local = number;
   if ((local % 2) == 1) local++;

@@ -1763,7 +1763,7 @@ int simtub_constraints(Db* dbin,
 
   /* Implicit loop on the simulations */
 
-  iatt = dbout->getColumnNumber();
+  iatt = dbout->getNColumn();
   nvalid = iter = nbtest = 0;
   nbsimu = nbsimu_min + nbsimu_quant;
   while (nvalid < nbsimu_min && iter < niter_max)

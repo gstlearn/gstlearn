@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
       /* Define the indicators */
 
       nclass   = nfac[i];
-      iatt_ind = dbin->getColumnNumber();
+      iatt_ind = dbin->getNColumn();
       Limits limits = Limits(nclass);
       limits.toIndicator(dbin);
       dbin->setLocatorsByUID(nclass,iatt_ind,ELoc::Z, 0);

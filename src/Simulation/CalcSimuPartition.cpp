@@ -92,7 +92,7 @@ bool CalcSimuPartition::_voronoi()
 
   /* Expand the data values over the grid nodes */
 
-  int iattp = dbpoint->getColumnNumber() - 1;
+  int iattp = dbpoint->getNColumn() - 1;
   if (expandPointToGrid(dbpoint, dbgrid, iattp, -1, 0, -1, -1, -1, -1, 0,
                            VectorDouble(), simgrid)) return 1;
 
@@ -139,7 +139,7 @@ bool CalcSimuPartition::_poisson()
 
   if (simtub(NULL, dbgrid, getModel(), NULL, 1, getSeed(), _parparam.getNbtuba()))
     return false;
-  iattg = dbgrid->getColumnNumber() - 1;
+  iattg = dbgrid->getNColumn() - 1;
 
   /***********************/
   /* Information process */
