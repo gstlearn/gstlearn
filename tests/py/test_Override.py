@@ -53,14 +53,14 @@ def findColumnNames(self, columns):
         names = self.getNameByColIdx(columns)
     
     elif isinstance(columns, slice):
-        Nmax = self.getColumnNumber()
+        Nmax = self.getNColumn()
         names = []
         for i in range(Nmax)[columns]:
             names.append(self.getNameByColIdx(i))
 
     elif is_list_type(columns, (int, np.int_)):
         names = []
-        Nfields = self.getColumnNumber()
+        Nfields = self.getNColumn()
         for i in columns:
             if i >= Nfields:
                 print(f"Warning: the index {i} is out of bounds with {Nfields}, this index is ignored")

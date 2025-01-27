@@ -66,7 +66,7 @@ public:
   void setIndPerm(int indPerm) { _indPerm = indPerm; }
   void setIndPoro(int indPoro) { _indPoro = indPoro; }
   void setSpeeds(const VectorInt &speeds) { _speeds = speeds; }
-  void setNumberMax(double numberMax) { _numberMax = numberMax; }
+  void setNMax(double numberMax) { _numberMax = numberMax; }
   void setShowFluid(bool showFluid) { _showFluid = showFluid; }
   void setVolumeMax(double volumeMax) { _volumeMax = volumeMax; }
 
@@ -94,12 +94,12 @@ private:
   void _statsDefine(void);
   void _statsReset();
   void _statsInit();
-  void _setStatNumber(int ifacies, int ifluid, int value);
+  void _setStatCount(int ifacies, int ifluid, int value);
   void _setStatVolume(int ifacies, int ifluid, double value);
-  void _addStatNumber(int ifacies, int ifluid, int value);
+  void _addStatCount(int ifacies, int ifluid, int value);
   void _addStatVolume(int ifacies, int ifluid, double value);
   void _checkInconsistency(bool verbose);
-  int _getStatNumber(int ifacies, int ifluid) const;
+  int  _getStatCount(int ifacies, int ifluid) const;
   double _getStatVolume(int ifacies, int ifluid) const;
   int _checkMax(double number_max, double volume_max);
   int _fluidModify(Skin *skin, int ipos, int *ref_fluid_loc);

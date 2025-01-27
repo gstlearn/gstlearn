@@ -283,7 +283,7 @@ int MeshETurbo::_initFromGridInternal(const VectorDouble& sel,
 
   // Define the number of Elements per Cell
 
-  _setNumberElementPerCell();
+  _setNElementPerCell();
 
   // Set polarization
 
@@ -470,7 +470,7 @@ int MeshETurbo::initFromExtend(const VectorDouble &extendmin,
 
   // Define the number of Elements per Cell
 
-  _setNumberElementPerCell();
+  _setNElementPerCell();
 
   // Set polarization
 
@@ -680,7 +680,7 @@ int MeshETurbo::_defineGrid(const VectorDouble& cellsize)
   return 0;
 }
 
-void MeshETurbo::_setNumberElementPerCell()
+void MeshETurbo::_setNElementPerCell()
 {
   int ndim = getNDim();
 

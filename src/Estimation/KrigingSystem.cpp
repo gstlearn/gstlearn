@@ -2410,13 +2410,13 @@ int KrigingSystem::setKrigOptColCok(const VectorInt& rank_colcok)
   {
     int jvar = _rankColCok[ivar];
     if (IFFFF(jvar)) continue;
-    if (jvar > _dbout->getColumnNumber())
+    if (jvar > _dbout->getNColumn())
     {
       messerr("Error in the Colocation array:");
       messerr("Input variable (#%d): rank of the colocated variable is %d",
               ivar + 1, jvar);
       messerr("But the Output file only contains %d attributes(s)",
-              _dbout->getColumnNumber());
+              _dbout->getNColumn());
       return (1);
     }
   }

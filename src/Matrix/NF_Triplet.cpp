@@ -66,7 +66,7 @@ void NF_Triplet::force(int nrow, int ncol)
 cs* NF_Triplet::buildCsFromTriplet() const
 {
   cs* local = cs_spalloc2(0,0,1,1,1);
-  for (int i = 0, n = getNumber(); i < n; i++)
+  for (int i = 0, n = getNElements(); i < n; i++)
     (void) cs_entry2(local, getRow(i), getCol(i), getValue(i));
   cs* Q = cs_triplet2(local);
   cs_spfree2(local);
@@ -110,25 +110,25 @@ NF_Triplet NF_Triplet::createFromEigen(const Eigen::SparseMatrix<double>& mat, i
 
 int NF_Triplet::getRow(int i) const
 {
-  if (i < 0 || i >= getNumber()) return ITEST;
+  if (i < 0 || i >= getNElements()) return ITEST;
   return _eigenT[i].row();
 }
 
 int NF_Triplet::getCol(int i) const
 {
-  if (i < 0 || i >= getNumber()) return ITEST;
+  if (i < 0 || i >= getNElements()) return ITEST;
   return _eigenT[i].col();
 }
 
 double NF_Triplet::getValue(int i) const
 {
-  if (i < 0 || i >= getNumber()) return TEST;
+  if (i < 0 || i >= getNElements()) return TEST;
   return _eigenT[i].value();
 }
 
 VectorDouble NF_Triplet::getValues() const
 {
-  int n = getNumber();
+  int n = getNElements();
   VectorDouble vec(n);
   for (int i = 0; i< n; i++)
     vec[i] = _eigenT[i].value();
@@ -137,7 +137,7 @@ VectorDouble NF_Triplet::getValues() const
 
 VectorInt NF_Triplet::getRows(bool flag_from_1) const
 {
-  int n = getNumber();
+  int n = getNElements();
   int shift = (flag_from_1) ? 1 : 0;
   VectorInt vec(n);
   for (int i = 0; i < n; i++)
@@ -147,7 +147,7 @@ VectorInt NF_Triplet::getRows(bool flag_from_1) const
 
 VectorInt NF_Triplet::getCols(bool flag_from_1) const
 {
-  int n = getNumber();
+  int n = getNElements();
   int shift = (flag_from_1) ? 1 : 0;
   VectorInt vec(n);
   for (int i = 0; i < n; i++)
@@ -164,7 +164,7 @@ void NF_Triplet::appendInPlace(const NF_Triplet& T2)
   _eigenT.insert( _eigenT.end(), T2._eigenT.begin(), T2._eigenT.end() );
 
   // Update the maxima for rows and columns
-  for (int i = 0, n = T2.getNumber(); i < n; i++)
+  for (int i = 0, n = T2.getNElements(); i < n; i++)
   {
     int irow = T2.getRow(i);
     int icol = T2.getCol(i);

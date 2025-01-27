@@ -41,10 +41,8 @@ int findFirstNoNullOnCol(int j) const;
 const std::vector<int>& getNPoints() const {return _pointNumbers;}
 const std::vector<int>& getNApexs()  const {return _apexNumbers;}
 
-
-
 protected:
-std::vector<std::vector<const IProj*> >_projs; // NOT TO BE DELETED
+std::vector<std::vector<const IProj*>> _projs; // NOT TO BE DELETED
 
 private:
 int _pointNumber;
