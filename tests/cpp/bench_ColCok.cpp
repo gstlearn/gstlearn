@@ -44,11 +44,11 @@ int main(int argc, char* argv[])
 
   // Parameters
   double oldstyle = 1.;
-  bool debug      = false;
+  bool debug      = true;
   int nech        = 3;
   int nvar        = 3;
   bool flagSK     = false;
-  bool flagUnique = true;
+  bool flagUnique = false;
   OptCustom::define("oldStyle", oldstyle);
 
   // Generate the data base
@@ -61,19 +61,8 @@ int main(int argc, char* argv[])
   Db* target = Db::createFillRandom(1, ndim, 0, 0);
 
   // Create the Model
-  double scale = 0.7;
-  MatrixSquareSymmetric* sills =
-    MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
-  Model* model = Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
-                                 *sills, VectorDouble(), nullptr, false);
-  if (flagSK)
-  {
-    VectorDouble means = VH::simulateGaussian(nvar);
-    model->setMeans(means);
-  }
-  else
-    model->setDriftIRF(0, 0);
-  VectorDouble means(nvar, 0.);
+  int order    = (flagSK) ? -1 : 0;
+  Model* model = Model::createFillRandom(ndim, nvar, {ECov::EXPONENTIAL}, 1., order);
 
   // Neighborhood
   ANeigh* neigh;
@@ -96,7 +85,6 @@ int main(int argc, char* argv[])
 
   // Free pointers
 
-  delete sills;
   delete neigh;
   delete data;
   delete target;

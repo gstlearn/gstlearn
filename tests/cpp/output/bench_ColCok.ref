@@ -8,6 +8,134 @@ Data Base Contents
      [  0,]     1.000     0.652     0.015     0.753    -0.454    -0.752
      [  1,]     2.000     0.483     0.557       N/A    -0.872     0.080
      [  2,]     3.000     0.762     0.433     0.793     0.744     0.319
+Range is too small (0.000000). It has been replaced by 1.
+
+Target location
+---------------
+Sample #1 (from 1)
+Coordinate #1 = 0.652223
+Coordinate #2 = 0.483448
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2
+          1          1      0.652      0.015
+          2          2      0.483      0.557
+          3          3      0.762      0.433
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 3
+Total number of equations   = 12
+Reduced number of equations = 11
+
+       Rank                     1          2          3          4          5
+                  Flag          1          2          3          4          5
+          1          1      5.167      1.414     -3.000     -0.548     -0.821
+          2          2      1.414      5.167     -0.821     -1.205     -3.000
+          3          3     -3.000     -0.821      3.831      0.700      1.048
+          4          4     -0.548     -1.205      0.700      3.831      1.538
+          5          5     -0.821     -3.000      1.048      1.538      3.831
+          6          6      1.843      0.504      2.299      0.420      0.629
+          7          7      0.337      0.740      0.420      2.299      0.923
+          8          8      0.504      1.843      0.629      0.923      2.299
+          9          9      1.000      1.000      0.000      0.000      0.000
+         10         10      0.000      0.000      1.000      1.000      1.000
+         11         11      0.000      0.000      0.000      0.000      0.000
+
+       Rank                     6          7          8          9         10
+                  Flag          6          7          8          9         10
+          1          1      1.843      0.337      0.504      1.000      0.000
+          2          2      0.504      0.740      1.843      1.000      0.000
+          3          3      2.299      0.420      0.629      0.000      1.000
+          4          4      0.420      2.299      0.923      0.000      1.000
+          5          5      0.629      0.923      2.299      0.000      1.000
+          6          6      6.110      1.117      1.672      0.000      0.000
+          7          7      1.117      6.110      2.453      0.000      0.000
+          8          8      1.672      2.453      6.110      0.000      0.000
+          9          9      0.000      0.000      0.000      0.000      0.000
+         10         10      0.000      0.000      0.000      0.000      0.000
+         11         11      1.000      1.000      1.000      0.000      0.000
+
+       Rank                    11
+                  Flag         11
+          1          1      0.000
+          2          2      0.000
+          3          3      0.000
+          4          4      0.000
+          5          5      0.000
+          6          6      1.000
+          7          7      1.000
+          8          8      1.000
+          9          9      0.000
+         10         10      0.000
+         11         11      0.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 3
+Total number of equations   = 12
+Reduced number of equations = 11
+Number of right-hand sides  = 3
+Punctual Estimation
+
+       Rank       Flag          1          2          3
+          1          1      1.269     -0.737      0.453
+          2          2      3.599     -2.090      1.284
+          3          3     -0.737      0.941      0.565
+          4          4     -1.729      2.208      1.325
+          5          5     -2.090      2.668      1.601
+          6          6      0.453      0.565      1.501
+          7          7      1.062      1.325      3.522
+          8          8      1.284      1.601      4.256
+          9          9      1.000      0.000      0.000
+         10         10      0.000      1.000      0.000
+         11         11      0.000      0.000      1.000
+
+(Co-) Kriging weights
+=====================
+       Rank         x1         x2       Data        Z1*        Z2*        Z3*
+Using variable Z1 
+          1      0.652      0.015      0.753      0.190      0.000      0.000
+          2      0.483      0.557        N/A        N/A        N/A        N/A
+          3      0.762      0.433      0.793      0.810      0.000      0.000
+Sum of weights                                    1.000      0.000      0.000
+Using variable Z2 
+          1      0.652      0.015     -0.454      0.163      0.059      0.000
+          2      0.483      0.557     -0.872     -0.467      0.375      0.000
+          3      0.762      0.433      0.744      0.304      0.567      0.000
+Sum of weights                                    0.000      1.000      0.000
+Using variable Z3 
+          1      0.652      0.015     -0.752     -0.101      0.000      0.059
+          2      0.483      0.557      0.080      0.289      0.000      0.375
+          3      0.762      0.433      0.319     -0.188      0.000      0.567
+Sum of weights                                    0.000      0.000      1.000
+
+Drift or Mean Information
+=========================
+       Rank   Lagrange      Coeff
+          1     -0.190      1.312
+          2      0.110     -0.260
+          3     -0.067     -0.171
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =       1.383
+ - Std. Dev. =       1.459
+ - Variance  =       2.128
+ - Cov(h=0)  =       5.167
+Variable Z2 
+ - Estimate  =       0.068
+ - Std. Dev. =       1.256
+ - Variance  =       1.577
+ - Cov(h=0)  =       3.831
+Variable Z3 
+ - Estimate  =       0.166
+ - Std. Dev. =       1.586
+ - Variance  =       2.514
+ - Cov(h=0)  =       6.110
 
 Data Base Characteristics
 =========================
@@ -17,48 +145,48 @@ Data Base Statistics
 4 - Name Kriging.z-1.estim - Locator z1
  Nb of data          =          1
  Nb of active values =          1
- Minimum value       =      1.418
- Maximum value       =      1.418
- Mean value          =      1.418
+ Minimum value       =      1.383
+ Maximum value       =      1.383
+ Mean value          =      1.383
  Standard Deviation  =      0.000
  Variance            =      0.000
 5 - Name Kriging.z-2.estim - Locator z2
  Nb of data          =          1
  Nb of active values =          1
- Minimum value       =      0.081
- Maximum value       =      0.081
- Mean value          =      0.081
+ Minimum value       =      0.068
+ Maximum value       =      0.068
+ Mean value          =      0.068
  Standard Deviation  =      0.000
  Variance            =      0.000
 6 - Name Kriging.z-3.estim - Locator z3
  Nb of data          =          1
  Nb of active values =          1
- Minimum value       =      0.190
- Maximum value       =      0.190
- Mean value          =      0.190
+ Minimum value       =      0.166
+ Maximum value       =      0.166
+ Mean value          =      0.166
  Standard Deviation  =      0.000
  Variance            =      0.000
 7 - Name Kriging.z-1.stdev - Locator NA
  Nb of data          =          1
  Nb of active values =          1
- Minimum value       =      1.029
- Maximum value       =      1.029
- Mean value          =      1.029
+ Minimum value       =      1.459
+ Maximum value       =      1.459
+ Mean value          =      1.459
  Standard Deviation  =      0.000
  Variance            =      0.000
 8 - Name Kriging.z-2.stdev - Locator NA
  Nb of data          =          1
  Nb of active values =          1
- Minimum value       =      0.885
- Maximum value       =      0.885
- Mean value          =      0.885
+ Minimum value       =      1.256
+ Maximum value       =      1.256
+ Mean value          =      1.256
  Standard Deviation  =      0.000
  Variance            =      0.000
 9 - Name Kriging.z-3.stdev - Locator NA
  Nb of data          =          1
  Nb of active values =          1
- Minimum value       =      1.118
- Maximum value       =      1.118
- Mean value          =      1.118
+ Minimum value       =      1.586
+ Maximum value       =      1.586
+ Mean value          =      1.586
  Standard Deviation  =      0.000
  Variance            =      0.000

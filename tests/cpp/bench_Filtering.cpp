@@ -16,7 +16,6 @@
 #include "Covariances/CovContext.hpp"
 #include "Enum/ESpaceType.hpp"
 
-#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
