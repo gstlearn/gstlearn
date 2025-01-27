@@ -1,0 +1,44 @@
+Conditional simulation(s) on grid using Turning Bands:
+- Data (4) samples
+- Grid (20 x 20)
+- Number of Bands = 1000
+- Number of simulations = 2
+#NO_DIFF# Non-conditional Simulation on Grid: 116 ms. (Ref = 6800 ms.)
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+4 - Name Simu.z-1.1 - Locator z1
+ Nb of data          =        400
+ Nb of active values =        400
+ Minimum value       =     -3.475
+ Maximum value       =      3.764
+ Mean value          =     -0.274
+ Standard Deviation  =      1.327
+ Variance            =      1.762
+5 - Name Simu.z-1.2 - Locator z2
+ Nb of data          =        400
+ Nb of active values =        400
+ Minimum value       =     -3.638
+ Maximum value       =      5.578
+ Mean value          =      0.422
+ Standard Deviation  =      1.768
+ Variance            =      3.126
+6 - Name Simu.z-2.1 - Locator z3
+ Nb of data          =        400
+ Nb of active values =        400
+ Minimum value       =     -2.549
+ Maximum value       =      3.532
+ Mean value          =      0.105
+ Standard Deviation  =      1.141
+ Variance            =      1.302
+7 - Name Simu.z-2.2 - Locator z4
+ Nb of data          =        400
+ Nb of active values =        400
+ Minimum value       =     -2.602
+ Maximum value       =      5.301
+ Mean value          =      0.682
+ Standard Deviation  =      1.453
+ Variance            =      2.112
