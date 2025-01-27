@@ -29,6 +29,24 @@ class ADrift;
 class AnamContinuous;
 class AnamHermite;
 
+
+#define FORWARD_METHOD(obj,name)                                                 \
+    template <typename... Args>                                                  \
+    auto name(Args&&... args)                                                    \
+        -> decltype(auto) {                                                      \
+        if (obj()!=nullptr) {                                                               \
+            return obj()->name(std::forward<Args>(args)...);                       \
+        } else {                                                                 \
+            using ReturnType = decltype(obj()->name(std::forward<Args>(args)...)); \
+            if constexpr (std::is_void<ReturnType>::value) {                     \
+                return;                                                          \
+            } else {                                                             \
+                std::cerr << "Warning: The object is null, returning default value.\n"; \
+                return ReturnType();                                             \
+            }                                                                    \
+        }                                                                        \
+    }
+
 typedef std::vector<ECov> VectorECov;
 
 /**
@@ -89,11 +107,14 @@ public:
                                            const int iech2         = 0,
                                            const CovCalcMode* mode = nullptr,
                                            bool cleanOptim         = true) const;
-  MatrixSquareSymmetric evalCovMatSym(const Db* db1,
-                                      int ivar0               = -1,
-                                      const VectorInt& nbgh1  = VectorInt(),
-                                      const CovCalcMode* mode = nullptr,
-                                      bool cleanOptim         = true) const;
+  #ifndef SWIG
+  FORWARD_METHOD(getCov, evalCovMatSym)
+  #endif
+  // MatrixSquareSymmetric evalCovMatSym(const Db* db1,
+  //                                     int ivar0               = -1,
+  //                                     const VectorInt& nbgh1  = VectorInt(),
+  //                                     const CovCalcMode* mode = nullptr,
+  //                                     bool cleanOptim         = true) const;
   MatrixSquareSymmetric evalCovMatSymOptim(const Db* db1,
                                            const VectorInt& nbgh1  = VectorInt(),
                                            int ivar0               = -1,
@@ -131,6 +152,7 @@ public:
   void delAllDrifts();
 
     // Case of _cova
+  const ACov* getCov() const {return _cova;}
   const CovAnisoList* getCovAnisoList() const;
   CovAnisoList* getCovAnisoListModify() const;
   int getCovaMinIRFOrder() const;

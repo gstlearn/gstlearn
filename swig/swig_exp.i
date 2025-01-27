@@ -7,6 +7,7 @@
 
 %include gstlearn_export.hpp // Do not forget this file in priority (for SWIG preprocessor)
 
+
 // Export VectorXXX classes
 %include Basic/VectorT.hpp
 %include Basic/VectorNumT.hpp

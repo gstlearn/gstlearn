@@ -69,15 +69,15 @@ MatrixRectangular ModelGeneric::evalCovMat(Db* db1,
   return _cova->evalCovMat(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode);
 }
 
-MatrixSquareSymmetric ModelGeneric::evalCovMatSym(const Db* db1,
-                                                           int ivar0,
-                                                           const VectorInt& nbgh1,
-                                                           const CovCalcMode* mode,
-                                                           bool cleanOptim) const
-{
-  if (_cova == nullptr) return MatrixSquareSymmetric();
-  return _cova->evalCovMatSym(db1, nbgh1, ivar0, mode, cleanOptim);
-}
+// MatrixSquareSymmetric ModelGeneric::evalCovMatSym(const Db* db1,
+//                                                            int ivar0,
+//                                                            const VectorInt& nbgh1,
+//                                                            const CovCalcMode* mode,
+//                                                            bool cleanOptim) const
+// {
+//   if (_cova == nullptr) return MatrixSquareSymmetric();
+//   return _cova->evalCovMatSym(db1, nbgh1, ivar0, mode, cleanOptim);
+// }
 
 MatrixRectangular ModelGeneric::evalCovMatOptim(Db* db1,
                                                 Db* db2,
