@@ -641,7 +641,11 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
     if (!_isCovarianceIndexValid(icov)) return 0.;
     return _covAnisos[icov]->getRanges();
   }
-
+  VectorDouble CovAnisoList::getAngles(int icov) const
+  {
+    if (!_isCovarianceIndexValid(icov)) return 0.;
+    return _covAnisos[icov]->getAnisoAngles();
+  }
   void CovAnisoList::setSill(int icov, int ivar, int jvar, double value)
   {
     if (!_isCovarianceIndexValid(icov)) return;

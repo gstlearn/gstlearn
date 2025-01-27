@@ -650,7 +650,7 @@ VectorDouble Model::getRanges(int icov) const
 VectorDouble Model::getAngles(int icov) const
 {
   if (_cova == nullptr) return VectorDouble();
-  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return VectorDouble();
   return covalist->getAngles(icov);
 }
