@@ -104,8 +104,8 @@ protected:
                           const VectorDouble &tab);
 
 private:
-  static String myContainerName;
-  static String myPrefixName;
+  static String _myContainerName;
+  static String _myPrefixName;
 };
 
 template <typename T>

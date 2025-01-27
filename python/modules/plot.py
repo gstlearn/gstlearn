@@ -1825,7 +1825,7 @@ def __ax_baseMap(ax, db, crsFrom="EPSG:4326", crsTo="EPSG:3857",
             from shapely.geometry import Point
             geometry = [Point(xy) for xy in extPoints]
             gdf = prj.projGP(geometry, crsFrom, crsTo)
-            gdf.plot(ax=ax, color='white', markersize=0.1)
+            gdf.plot(ax=ax, color='black', markersize=0.1)
         else:
             plt.scatter(extPoints[:,0], extPoints[:,1], c="white", s=0.1)
 

@@ -19,13 +19,13 @@
 
 #include <iostream>
 
-static int  globalMultiThread = 0;
+static int globalMultiThread = 0;
+bool AMatrix::_flagCheckAddress = false;
 
 AMatrix::AMatrix(int nrow, int ncol)
   : AStringable(),
     _nRows(nrow),
     _nCols(ncol),
-    _flagCheckAddress(false),
     _nullTerm(0.)
 {
 }
@@ -34,7 +34,6 @@ AMatrix::AMatrix(const AMatrix &m)
   : AStringable(m),
     _nRows(m._nRows),
     _nCols(m._nCols),
-    _flagCheckAddress(m._flagCheckAddress),
     _nullTerm(m._nullTerm)
 {
 }
@@ -46,7 +45,6 @@ AMatrix& AMatrix::operator=(const AMatrix &m)
     AStringable::operator=(m);
     _nRows = m._nRows;
     _nCols = m._nCols;
-    _flagCheckAddress = m._flagCheckAddress;
     _nullTerm = m._nullTerm;
   }
   return *this;
@@ -949,7 +947,7 @@ bool AMatrix::_checkLink(int nrow1,
                          int ncol3,
                          bool transpose3) const
 {
-  if (! _getFlagCheckAddress()) return true;
+  if (! _flagCheckAddress) return true;
   int level = 0;
   int ncur = getNRows();
 

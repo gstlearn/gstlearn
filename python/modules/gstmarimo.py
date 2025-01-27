@@ -47,29 +47,31 @@ def _WLock(WTest, condition, colorBackground = "white", colorText = "black"):
         })
     return newWTest
 
-def WdefineCovariance(ic = 0, ncovmax = 1, distmax = 100, varmax = 100, model=None):
+def WdefineCovariance(ic = 0, ncovmax = 1, distmax = 100, varmax = 100, defmodel=None):
     '''
     Returns the widget for inquiring the parameters for a single Basic structure
     ncovmax: Maximum number of Basic structures (used for defaulting range)
     distmax: Maximum distance
     varmax:  Maximum Variance value
-    model:   Model used for providing default values
+    defmodel: Model used for providing default values (optional)
     '''
-    if  model is None or ic < model.getCovaNumber():
-        typeRef = "Spherical"
-        distRef = distmax * (ic+1) / (ncovmax + 1)
-        distAux = distRef
-        varRef  = varmax / ncovmax
-        angRef = 0
+    if  defmodel is None or ic >= defmodel.getCovaNumber():
+        typeRef   = "Spherical"
+        distRef   = distmax * (ic+1) / (ncovmax + 1)
+        distAux   = distRef
+        varRef    = varmax / ncovmax
+        angRef    = 0
+        flagAniso = False
     else:
-        typeRef = model.getCovaType(ic)
-        distRef = model.getRange(ic)
-        varRef  = model.getSill(ic)
-        distAux = model.getRanges(ic)[1]
-        angRef  = model.getAngles(ic)[1]
+        typeRef   = defmodel.getCovaType(ic).getDescr()
+        distRef   = defmodel.getRange(ic)
+        varRef    = defmodel.getSill(ic,0,0)
+        distAux   = defmodel.getRanges(ic)[1]
+        angRef    = defmodel.getCova(ic).getAnisoAngles(1)
+        flagAniso = defmodel.getCova(ic).getFlagAniso()
 
     WUsed   = mo.ui.switch(True, label="Basic Structure Used")
-    WType   = mo.ui.dropdown(options=_getCovarianceDict(), value=typeRef, label="Structure")
+    WType   = mo.ui.dropdown(options=_getCovarianceDict(), value = typeRef, label="Structure")
     WRange  = mo.ui.number(start=None, stop=None, value = distRef, label="Range")
     WSill   = mo.ui.number(start=0, stop=None, value = varRef, label="Sill")
     WAniso  = mo.ui.switch(value = False, label="Anisotropy")
@@ -116,19 +118,19 @@ def WgetCovariance(WAll):
                                    flagRange = True)
     return cova
 
-def WdefineModel(ncovmax=1, distmax=100, varmax=100, model=None):
+def WdefineModel(ncovmax=1, distmax=100, varmax=100, defmodel=None):
     '''
     Returns the array of widgets for inquiring a series of 'ncovmax' basic structures
     ncovmax: Maximum number of Basic structures (used for defaulting range)
     distmax: Maximum distance
     varmax:  Maximum Variance value
-    model:   Model used for providing default values
+    defmodel: Model used for providing default values
     '''
-    if model is not None:
-        ncovmax = model.getCovaNumber()
-        distmax = model.getMaximumDistance()
-        varmax  = model.getTotalSill()
-    return mo.ui.array([WdefineCovariance(ic, ncovmax, distmax, varmax) 
+    if defmodel is not None:
+        ncovmax = defmodel.getCovaNumber()
+        distmax = defmodel.getMaximumDistance()
+        varmax  = defmodel.getTotalSill()
+    return mo.ui.array([WdefineCovariance(ic, ncovmax, distmax, varmax, defmodel) 
                          for ic in range(ncovmax)])
 
 def WshowModel(WAlls, flagTitle=True):
@@ -403,6 +405,32 @@ def WgetDb(WAll):
 
     return db
 
+def WdefineSaveNF(filename = "file.ascii"):
+    '''
+    Save the contents into a Neutral File
+    '''
+    Wbutton = mo.ui.run_button(label="Save")
+
+    Wfilename = mo.ui.text(value=filename, label="Saving in Neutral File")
+
+    return mo.ui.array([Wfilename, Wbutton])
+
+def WshowSaveNF(WAll):
+    return mo.hstack(WAll, justify='start')
+
+def WperformSaveNF(Wall, contents):
+    '''
+    Save the contents into a Neutral File
+    '''
+    [Wfilename, Wbutton] = Wall
+
+    if Wbutton.value:
+        filename = Wfilename.value
+        if filename is not None:
+            contents.dumpToNF(filename)
+        else:
+            print("You must define a valid filename")
+
 def WdefineVarioFromNF():
     '''
     Inquiry to load a Variogram File from a Neutral File
@@ -437,24 +465,28 @@ def WdefineVario(nlag = 10, dlag = 1, ndir = 4, valdef = "Omni"):
         },
         value = valdef)
     
-    return mo.ui.array([WidgetVarioChoice, WidgetVarioParamOmni, WidgetVarioParamMulti, WidgetVarioFromNF])
+    WidgetVarioSaveNF = WdefineSaveNF("vario.ascii")
+
+    return mo.ui.array([WidgetVarioChoice, WidgetVarioParamOmni, WidgetVarioParamMulti, WidgetVarioFromNF, WidgetVarioSaveNF])
 
 def WshowVario(WAll, flagTitle=True):
-    [WidgetVarioChoice, WidgetVarioParamOmni, WidgetVarioParamMulti, WidgetVarioFromNF] = WAll
+    [WidgetVarioChoice, WidgetVarioParamOmni, WidgetVarioParamMulti, WidgetVarioFromNF, WidgetVarioSaveNF] = WAll
 
     WTitle = WgetTitle("Variogram Parameters", flagTitle)
     option = WidgetVarioChoice.value
     if option == 1:
-        return mo.vstack([WTitle, WidgetVarioChoice, *WidgetVarioParamOmni])
+        return mo.vstack([WTitle, WidgetVarioChoice, *WidgetVarioParamOmni,
+                          WshowSaveNF(WidgetVarioSaveNF)])
     elif option == 2:
-        return mo.vstack([WTitle, WidgetVarioChoice, *WidgetVarioParamMulti])
+        return mo.vstack([WTitle, WidgetVarioChoice, *WidgetVarioParamMulti, 
+                          WshowSaveNF(WidgetVarioSaveNF)])
     elif option == 3:
         return mo.vstack([WTitle, WidgetVarioChoice, *WidgetVarioFromNF])
     else:
         return None
 
 def WgetVario(WAll, db):
-    [WidgetVarioChoice, WidgetVarioParamOmni, WidgetVarioParamMulti, WidgetVarioFromNF] = WAll
+    [WidgetVarioChoice, WidgetVarioParamOmni, WidgetVarioParamMulti, WidgetVarioFromNF, WidgetVarioSaveNF] = WAll
 
     varioparam = None
     option = WidgetVarioChoice.value
@@ -478,16 +510,21 @@ def WgetVario(WAll, db):
         return None
     
     vario = gl.Vario.computeFromDb(varioparam, db, 
-                                    calcul = gl.ECalcVario.VARIOGRAM, 
-                                    verbose = True)
+                                   calcul = gl.ECalcVario.VARIOGRAM, 
+                                   verbose = True)
+    
+    WperformSaveNF(WidgetVarioSaveNF, vario)
+
     return vario
 
-def WdefineCovList():
+def WdefineCovList(deftypes = ["Spherical"]):
     '''
     Returns the widget for inquiring the list of basic structures to be used
     for fitting a Model to an Experimental variogram
+
+    deftypes: List containined the types of the defaulted basic structures 
     '''
-    WTypes = mo.ui.multiselect(options=_getCovarianceDict(), value = ["Spherical"])
+    WTypes = mo.ui.multiselect(options=_getCovarianceDict(), value = deftypes)
 
     return mo.ui.array([WTypes])
 
@@ -518,15 +555,15 @@ def WdefineBox(db = None):
         latmin  = box[1,0]
         latmax  = box[1,1]
     else:
-        longmin = 0
-        longmax = 360
-        latmin = -90
-        latmax = 90
+        longmin = -180
+        longmax =  180
+        latmin  =  -90
+        latmax  =   90
 
-    WLongMin = mo.ui.number(start=1, stop=200, value=longmin)
-    WLongMax = mo.ui.number(start=1, stop=200, value=longmax)
-    WLatMin  = mo.ui.number(start=1, stop=200, value=latmin)
-    WLatMax  = mo.ui.number(start=1, stop=200, value=latmax)
+    WLongMin = mo.ui.number(start=-180, stop=180, value=longmin)
+    WLongMax = mo.ui.number(start=-180, stop=180, value=longmax)
+    WLatMin  = mo.ui.number(start=-90,  stop=90,  value=latmin)
+    WLatMax  = mo.ui.number(start=-90,  stop=90,  value=latmax)
 
     return mo.ui.array([WLongMin, WLongMax, WLatMin, WLatMax])
 

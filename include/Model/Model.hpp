@@ -115,10 +115,9 @@ public:
                   const Option_AutoFit& mauto    = Option_AutoFit(),
                   bool verbose                   = false);
 
-  void   setCovList(const ACovAnisoList* covalist);
+  void setCovList(const ACovAnisoList* covalist);
   void addCov(const CovAniso* cov);
-  void
-  addCovFromParam(const ECov& type,
+  void addCovFromParam(const ECov& type,
                   double range                       = EPSILON6,
                   double sill                        = 1.,
                   double param                       = 1.,

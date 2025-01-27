@@ -921,8 +921,8 @@ MatrixRectangular Db::getAllCoordinatesMat(const MatrixRectangular& box) const
       for (int idim = 0; idim < ndim && flagIn; idim++)
       {
         double coor = coors[idim];
-        if (coor < box.getValue(idim,0)) flagIn = false;
-        if (coor > box.getValue(idim,1)) flagIn = false;
+        if (coor < box.getValue(0,idim)) flagIn = false;
+        if (coor > box.getValue(1,idim)) flagIn = false;
       }
       if (flagIn)
         nechValid++;
