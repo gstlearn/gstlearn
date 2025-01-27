@@ -1749,7 +1749,7 @@ int KrigingSystem::_prepar()
   {
     _sampleRanks = _dbin->getSampleRanks(VectorInt(), _nbgh);
     _Z           = _dbin->getValuesByRanks(_sampleRanks, _means);
-    _Sigma = _model->evalCovMatSymOptimByRanks(_dbin, _sampleRanks, -1, nullptr, false);
+    _Sigma = _model->evalCovMatSymOptimByRanks(_dbin, _sampleRanks, -1, &_calcModeLHS, false);
     _X     = _model->evalDriftMatByRanks(_dbin, _sampleRanks);
     _algebra.resetNewData();
     _algebra.setData(&_Z, &_sampleRanks, &_means);
@@ -1963,7 +1963,7 @@ int KrigingSystem::estimate(int iech_out)
       }
     else
     {
-      _Sigma0 = _model->evalCovMatOptimByRanks(_dbin, _dbout, _sampleRanks, -1, -1, iech_out, nullptr, false);
+      _Sigma0 = _model->evalCovMatOptimByRanks(_dbin, _dbout, _sampleRanks, -1, -1, iech_out, &_calcModeRHS, false);
       _X0     = _model->evalDriftMatByTarget(_dbout, -1, iech_out);
       _algebra.setRHS(&_Sigma0, &_X0);
     };
