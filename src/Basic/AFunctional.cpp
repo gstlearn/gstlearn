@@ -46,7 +46,7 @@ VectorDouble AFunctional::getFunctionValues(const Db *db, bool useSel) const
   VectorDouble coor(_ndim);
   VectorDouble vec;
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (useSel && ! db->isActive(iech)) continue;
 

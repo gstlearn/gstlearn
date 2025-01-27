@@ -1,8 +1,8 @@
-This test is mean to test Kriging using Unique Neighborhood
+This test is meant to test Kriging using Unique Neighborhood
 - the Data Set contains 100 samples
 - the output Grid contains 10000 nodes
 - the Unique Neighborhood is required
-#NO_DIFF# Kriging in Unique Neighborhood: 84 ms. (Ref = 700 ms.)
+#NO_DIFF# Kriging in Unique Neighborhood: 108 ms. (Ref = 700 ms.)
 
 Data Base Grid Characteristics
 ==============================

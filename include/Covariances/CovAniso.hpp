@@ -12,15 +12,12 @@
 
 #include "Basic/AFunctional.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Covariances/CovBase.hpp"
-#include "Covariances/CorAniso.hpp"
-#include "Covariances/TabNoStatCovAniso.hpp"
-#include "Enum/EConsElem.hpp"
+#include "Covariances/CovProportional.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 #include "Enum/ECov.hpp"
-
+#include "Covariances/CorAniso.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Tensor.hpp"
@@ -28,8 +25,6 @@
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
 #include "Space/SpacePoint.hpp"
-#include <array>
-#include <vector>
 
 class Rotation;
 class MatrixSquareGeneral;
@@ -47,7 +42,7 @@ class CovInternal;
  * All these parameters are processed and stored as a **tensor** in order to avoid repetitive calculations.
  * - the **sill**. This comes as a square symmetric matrix whose dimension is equal to the number of variables.
  */
-class GSTLEARN_EXPORT CovAniso: public CovBase, public ICloneable
+class GSTLEARN_EXPORT CovAniso: public CovProportional, public ICloneable
 {
 public:
   CovAniso(const ECov& type, const CovContext& ctxt);
@@ -98,7 +93,6 @@ public:
   virtual String getFormula() const { return _corAniso->getFormula(); }
   virtual double getBallRadius() const { return TEST; }
 
-
   void evalOptimInPlace(MatrixRectangular& res,
                         const VectorInt& ivars,
                         const VectorVectorInt& index,
@@ -139,8 +133,6 @@ public:
                                           const VectorDouble& angles = VectorDouble(),
                                           bool flagRange = true);
 
-
- 
   void setParam(double param);
 
   /// Practical range
@@ -202,7 +194,7 @@ public:
   const Tensor& getAniso() const { return _corAniso->getAniso(); }
   void   setAniso(const Tensor& aniso) { _corAniso->setAniso(aniso); }
   const ACovFunc* getCova() const { return _corAniso->getCova(); }
-  int    getGradParamNumber() const;
+  int    getNGradParam() const;
   bool   hasCovDerivative() const { return _corAniso->hasCovDerivative(); }
   bool   hasCovOnSphere() const { return _corAniso->hasCovOnSphere(); }
   bool   hasSpectrumOnSphere() const { return _corAniso->hasSpectrumOnSphere(); }
@@ -244,11 +236,13 @@ public:
   Array evalCovFFT(const VectorDouble& hmax, int N = 128, int ivar = 0, int jvar = 0) const;
   VectorDouble getMarkovCoeffs() const;
   void setMarkovCoeffs(const VectorDouble& coeffs);
-  void setMarkovCoeffsBySquaredPolynomials(VectorDouble coeffs1, VectorDouble coeffs2, double eps = 0);
+  void setMarkovCoeffsBySquaredPolynomials(const VectorDouble& coeffs1,
+                                           const VectorDouble& coeffs2,
+                                           double eps = 0);
   void computeMarkovCoeffs();
   double getCorrec() const;
   double getFullCorrec() const;
-  int getDimensionNumber() const { return _ctxt.getNDim(); }
+  int getNDim() const { return _ctxt.getNDim(); }
   
   CovAniso* createReduce(const VectorInt &validVars) const;
 
@@ -278,7 +272,6 @@ public:
   double _getDetTensor() const;
   void _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
   void _optimizationSetTarget(const SpacePoint& pt) const override;
-
 
 private:
 

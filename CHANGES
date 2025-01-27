@@ -4,7 +4,18 @@ This file contains the logs between consecutive releases
 
 Release 1.7.0
 =============
+- Major renaming of variables, such as getxxxNumber() into getNxxx().
+  Some examples:
+  getVariableNumber() or getNVariables() becomes getNVar()
+  getSampleNumber() becomes getNSample()
+  getActiveSampleNumber() becomes getNSampleActive()
+  getNumberActiveAndDefined() becomes getNSampleActiveAndDefined()
+  getLocatorNumber() or getLocNumber() becomes getNLoc()
+  getCovaNumber() becomes getNCov()
+  getDriftNumber() becomes getNDrift()
+  getIntervalNumber() becomes getNInterval()
 
+  isVariableNumberComparedTo() becomes isNVarComparedTo()
 
 Release 1.6.0
 =============
@@ -112,7 +123,7 @@ Release 1.3.0
 - Model::covMatrixMS() is replaced by evalCovMatrixSymmetric()
 - Model::covMatrixM() is replaced by evalCovMatrix()
 - Model::covMatrixV() is replaced by evalCovMatrixV() (option added)
-- Db::getActiveSampleNumber() (deprecated) is replaced by getSampleNumber(true)
+- Db::getNSampleActive() (deprecated) is replaced by getNSample(true)
 - Use Eigen library for content storage of all dense matrices
 
 Release 1.2.3
@@ -285,7 +296,7 @@ Release 0.2.0
 - Modification of the names of the getDriftXXX functions
 - Correction for Variance of Measurement error in Kriging and covMatrix functions
 - Reorganization of the Class diagram for AMatrix
-- Adding method "reduce" to AMatrix (and related classes) and to Model, ACovAnisoList and CovAniso
+- Adding method "reduce" to AMatrix (and related classes) and to Model, CovAnisoList and CovAniso
 - option flag_varZ in Kriging() is restricted to stationary covariances
 - new function db_variogram which returns the information on variogram pairs (in a vmap setup)
 

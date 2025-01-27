@@ -67,22 +67,22 @@ bool DbLine::_isLineNumberValid(int iline) const
     messerr("Argument 'iline' should be non negative");
     return false;
   }
-  if (iline >= getLineNumber())
+  if (iline >= getNLine())
   {
     messerr("ilin' (%d) should be smaller than Number of Lines (%d)", iline,
-            getLineNumber());
+            getNLine());
     return false;
   }
   return true;
 }
 
-int DbLine::getLineNumber() const
+int DbLine::getNLine() const
 {
   if (_lineAdds.empty()) return 0;
   return (int) _lineAdds.size();
 }
 
-int DbLine::getLineSampleNumber(int iline) const
+int DbLine::getNSamplePerLine(int iline) const
 {
   if (! _isLineNumberValid(iline)) return -1;
   return (int) _lineAdds[iline].size();
@@ -91,8 +91,8 @@ int DbLine::getLineSampleNumber(int iline) const
 int DbLine::getNTotal() const
 {
   int ntotal = 0;
-  for (int iline = 0, nbline = getLineNumber(); iline < nbline; iline++)
-    ntotal += getLineSampleNumber(iline);
+  for (int iline = 0, nbline = getNLine(); iline < nbline; iline++)
+    ntotal += getNSamplePerLine(iline);
   return ntotal;
 }
 
@@ -102,12 +102,10 @@ double DbLine::getLineLength(int iline) const
   double total = 0.;
   SpacePoint P1;
   SpacePoint P2;
-  P1.setIech(_lineAdds[iline][0]);
-  getSampleAsSPInPlace(P1);
-  for (int iech = 1, nech = getLineSampleNumber(iline); iech < nech; iech++)
+  getSampleAsSPInPlace(P1, _lineAdds[iline][0]);
+  for (int iech = 1, nech = getNSamplePerLine(iline); iech < nech; iech++)
   {
-    P2.setIech(_lineAdds[iline][iech]);
-    getSampleAsSPInPlace(P2);
+    getSampleAsSPInPlace(P2, _lineAdds[iline][iech]);
     total += P2.getDistance(P1);
     P1 = P2;
   }
@@ -116,7 +114,7 @@ double DbLine::getLineLength(int iline) const
 
 VectorDouble DbLine::getLineLengths() const
 {
-  int nline = getLineNumber();
+  int nline = getNLine();
   VectorDouble lengths(nline);
   for (int iline = 0; iline < nline; iline++)
     lengths[iline] = getLineLength(iline);
@@ -133,12 +131,12 @@ String DbLine::toString(const AStringFormat* strfmt) const
 
   sstr << toTitle(0, "Data Base Line Characteristics");
 
-  sstr << "Number of Lines = " << getLineNumber() << std::endl;
+  sstr << "Number of Lines = " << getNLine() << std::endl;
   sstr << "Line length = ";
-  for (int iline = 0, nbline = getLineNumber(); iline < nbline; iline++)
+  for (int iline = 0, nbline = getNLine(); iline < nbline; iline++)
   {
     if (iline > 0) sstr << " / ";
-    sstr << getLineSampleNumber(iline);
+    sstr << getNSamplePerLine(iline);
   }
   sstr << std::endl;
 
@@ -190,11 +188,11 @@ int DbLine::_lineLinkage(const VectorInt& lineCounts)
 {
   // Prelimnary check
   int nech = VH::cumul(lineCounts);
-  if (nech != getSampleNumber())
+  if (nech != getNSample())
   {
     messerr("Cumulated number of samples given by 'lineCounts' (%d) should "
             "match the number of samples (%d)",
-            nech, getSampleNumber());
+            nech, getNSample());
     return 1;
   }
 
@@ -217,7 +215,7 @@ int DbLine::_lineLinkage(const VectorInt& lineCounts)
 int DbLine::_lineLinkageById(const VectorInt& linesId,
                              const VectorInt& ranksPerId)
 {
-  int nech = getSampleNumber();
+  int nech = getNSample();
 
   // Preliminary checks by dimensions
   if ((int)linesId.size() != nech)
@@ -380,10 +378,10 @@ bool DbLine::_serialize(std::ostream& os, bool verbose) const
 
   // Writing the set of addresses for Line organization
 
-  ret      = ret && _recordWrite<int>(os, "Number of Lines", getLineNumber());
-  for (int iline = 0, nbline = getLineNumber(); iline < nbline; iline++)
+  ret      = ret && _recordWrite<int>(os, "Number of Lines", getNLine());
+  for (int iline = 0, nbline = getNLine(); iline < nbline; iline++)
   {
-    ret = ret && _recordWrite<int>(os, "Number of Samples", getLineSampleNumber(iline));
+    ret = ret && _recordWrite<int>(os, "Number of Samples", getNSamplePerLine(iline));
     ret = ret && _recordWriteVec<int>(os, "", _lineAdds[iline]);
   }
 
@@ -496,11 +494,11 @@ DbLine* DbLine::createFillRandom(int ndim,
 bool DbLine::isConsistent() const
 {
   // Check on the count of addresses
-  int nech = getSampleNumber();
+  int nech = getNSample();
   if (nech != getNTotal())
   {
     messerr("The number of samples contained in the Db (%d)",
-            getSampleNumber());
+            getNSample());
     messerr("is not equal to the number of addresses referenced in DbLine (%d)",
             getNTotal());
     return false;
@@ -508,9 +506,9 @@ bool DbLine::isConsistent() const
 
   // Check that all addresses are reached
   VectorBool isReached(nech, false);
-  for (int iline = 0, nbline = getLineNumber(); iline < nbline; iline++)
+  for (int iline = 0, nbline = getNLine(); iline < nbline; iline++)
   {
-    for (int i = 0, number = getLineSampleNumber(iline); i < number; i++)
+    for (int i = 0, number = getNSamplePerLine(iline); i < number; i++)
     {
       int iadd = _lineAdds[iline][i];
       if (isReached[iadd])
@@ -536,7 +534,7 @@ bool DbLine::isConsistent() const
  */
 int DbLine::getLineBySample(int iech) const
 {
-  for (int iline = 0, nbline = getLineNumber(); iline < nbline; iline++)
+  for (int iline = 0, nbline = getNLine(); iline < nbline; iline++)
   {
     int rank = VH::whereElement(_lineAdds[iline], iech);
     if (rank >= 0) return iline;
@@ -546,7 +544,7 @@ int DbLine::getLineBySample(int iech) const
 
 VectorDouble DbLine::_getHeaderCoordinate(int idim) const
 {
-  int nbline = getLineNumber();
+  int nbline = getNLine();
   VectorDouble vec(nbline);
   for (int iline = 0; iline < nbline; iline++)
   {
@@ -561,7 +559,7 @@ VectorDouble DbLine::getCoordinates(int iline, int idim) const
   VectorDouble vec;
   if (!_isLineNumberValid(iline)) return vec;
 
-  int number = getLineSampleNumber(iline);
+  int number = getNSamplePerLine(iline);
   vec.resize(number);
   for (int i = 0; i < number; i++)
     vec[i] = getCoordinate(_lineAdds[iline][i], idim);
@@ -591,10 +589,10 @@ Db* DbLine::createStatToHeader() const
   }
 
   // Add the line length as variable
-  int nbline = getLineNumber();
+  int nbline = getNLine();
   VectorDouble tab(nbline);
   for (int iline = 0; iline < nbline; iline++)
-    tab[iline] = getLineSampleNumber(iline);
+    tab[iline] = getNSamplePerLine(iline);
   db->addColumns(tab, "Count");
 
   return db;
@@ -610,13 +608,13 @@ Db* DbLine::createStatToHeader() const
  */
 int DbLine::getLineSampleRank(int iline, int isample) const
 {
-  if (iline < 0 || iline >= getLineNumber())
+  if (iline < 0 || iline >= getNLine())
   {
     messerr("Error in Line number (%d): it must lie within [0, %d]\n",
-            iline, getLineNumber());
+            iline, getNLine());
     return -1;
   }
-  int nsample = getLineSampleNumber(iline);
+  int nsample = getNSamplePerLine(iline);
   if (isample < 0 || isample >= nsample)
   {
     messerr(

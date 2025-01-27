@@ -32,7 +32,7 @@ DirParam::DirParam(int npas,
                    const VectorDouble& breaks,
                    const VectorDouble& codir,
                    double angle2D,
-                   const ASpace* space)
+                   const ASpaceSharedPtr& space)
     : ASpaceObject(space),
       _nPas(npas),
       _optionCode(opt_code),
@@ -53,7 +53,7 @@ DirParam::DirParam(int npas,
 DirParam::DirParam(const DbGrid *dbgrid,
                    int npas,
                    const VectorInt &grincr,
-                   const ASpace *space)
+                   const ASpaceSharedPtr& space)
     : ASpaceObject(space),
       _nPas(npas),
       _optionCode(0),
@@ -133,7 +133,7 @@ DirParam* DirParam::create(int npas,
                            const VectorDouble& breaks,
                            const VectorDouble& codir,
                            double angle2D,
-                           const ASpace* space)
+                           const ASpaceSharedPtr& space)
 {
   return new DirParam(npas, dpas, toldis, tolang, opt_code, idate,
                       bench, cylrad, tolcode, breaks, codir, angle2D, space);
@@ -148,7 +148,7 @@ DirParam* DirParam::createOmniDirection(int npas,
                                         double cylrad,
                                         double tolcode,
                                         const VectorDouble& breaks,
-                                        const ASpace* space)
+                                        const ASpaceSharedPtr& space)
 {
   return new DirParam(npas, dpas, toldis, 90.1, opt_code, idate,
                       bench, cylrad, tolcode, breaks, VectorDouble(), TEST, space);
@@ -157,7 +157,7 @@ DirParam* DirParam::createOmniDirection(int npas,
 DirParam* DirParam::createFromGrid(const DbGrid* dbgrid,
                                    int npas,
                                    const VectorInt &grincr,
-                                   const ASpace *space)
+                                   const ASpaceSharedPtr& space)
 {
   return new DirParam(dbgrid, npas, grincr, space);
 }
@@ -214,7 +214,7 @@ bool DirParam::isDimensionValid(int idim) const
 bool DirParam::isLagValid(int ilag, bool flagAsym, bool flagCheck) const
 {
   if (!flagCheck) return true;
-  int nlag = getLagNumber();
+  int nlag = getNLag();
   if (flagAsym) nlag = 2 * nlag + 1;
   return checkArg("Lag Index", ilag, nlag);
 }
@@ -247,9 +247,9 @@ double DirParam::getMaximumDistance() const
   double maxdist;
 
   if (getFlagRegular())
-    maxdist = getDPas() * (getLagNumber() + getTolDist());
+    maxdist = getDPas() * (getNLag() + getTolDist());
   else
-    maxdist = getBreak(getLagNumber());
+    maxdist = getBreak(getNLag());
   return (maxdist);
 }
 
@@ -263,8 +263,8 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
   std::stringstream sstr;
   int ndim = getNDim();
 
-  if (getLagNumber() > 0)
-    sstr << "Number of lags              = " << getLagNumber() << std::endl;
+  if (getNLag() > 0)
+    sstr << "Number of lags              = " << getNLag() << std::endl;
 
   sstr << toVector("Direction coefficients      = ", _codir);
   if (ndim > 1)
@@ -298,7 +298,7 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
   else
   {
     sstr << "Calculation intervals       = " << std::endl;
-    for (int i = 0; i < getBreakNumber(); i++)
+    for (int i = 0; i < getNBreak(); i++)
     {
       sstr << " - Interval " << i + 1 << " = ["
           << toInterval(getBreak(i), getBreak(i + 1)) << "]" << std::endl;
@@ -329,7 +329,7 @@ std::vector<DirParam> DirParam::createMultiple(int ndir,
                                                double dpas,
                                                double toldis,
                                                double angref,
-                                               const ASpace* space)
+                                               const ASpaceSharedPtr& space)
 {
   int ndim = getDefaultSpaceDimension();
   if (space != nullptr) ndim = space->getNDim();
@@ -354,7 +354,7 @@ std::vector<DirParam> DirParam::createSeveral2D(const VectorDouble &angles,
                                                 double dpas,
                                                 double toldis,
                                                 double tolang,
-                                                const ASpace *space)
+                                                const ASpaceSharedPtr& space)
 {
   std::vector<DirParam> dirs;
   int ndim = getDefaultSpaceDimension();
@@ -392,7 +392,7 @@ std::vector<DirParam> DirParam::createSeveral2D(const VectorDouble &angles,
  *
  * @remark: the angular tolerance is set equal to 0
  */
-std::vector<DirParam> DirParam::createMultipleInSpace(int npas, double dpas, const ASpace* space)
+std::vector<DirParam> DirParam::createMultipleInSpace(int npas, double dpas, const ASpaceSharedPtr& space)
 {
   int ndim = getDefaultSpaceDimension();
   if (space != nullptr) ndim = space->getNDim();
@@ -434,10 +434,10 @@ int DirParam::getLagRank(double dist) const
   else
   {
     ilag = -1;
-    for (int k = 0; k < getLagNumber() && ilag < 0; k++)
+    for (int k = 0; k < getNLag() && ilag < 0; k++)
       if (distloc > getBreaks()[k] && distloc <= getBreaks()[k + 1]) ilag = k;
   }
-  if (ilag < 0 || ilag >= getLagNumber()) return (ITEST);
+  if (ilag < 0 || ilag >= getNLag()) return (ITEST);
 
   return ilag;
 }

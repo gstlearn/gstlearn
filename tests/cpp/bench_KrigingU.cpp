@@ -18,6 +18,8 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
+#include "Basic/OptCustom.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
 
@@ -38,10 +40,12 @@ int main(int argc, char *argv[])
   // Global parameters
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
+  OptCustom::define("oldStyle", 0.);
 
   // Generate the data base
   int nech = 100;
   int nvar = 1;
+  bool verbose = false;
   Db* data = Db::createFillRandom(nech, ndim, nvar);
 
   // Generate the output grid
@@ -58,10 +62,13 @@ int main(int argc, char *argv[])
   // Unique Neighborhood
   NeighUnique* neighU = NeighUnique::create();
 
+  // Set the verbose option
+  if (verbose) OptDbg::setReference(1);
+
   // Print the test environment
-  message("This test is mean to test Kriging using Unique Neighborhood\n");
-  message("- the Data Set contains %d samples\n", data->getSampleNumber(true));
-  message("- the output Grid contains %d nodes\n", grid->getSampleNumber(true));
+  message("This test is meant to test Kriging using Unique Neighborhood\n");
+  message("- the Data Set contains %d samples\n", data->getNSample(true));
+  message("- the output Grid contains %d nodes\n", grid->getNSample(true));
   message("- the Unique Neighborhood is required\n");
 
   Timer timer;

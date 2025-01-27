@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
   double scaleT = 5.3;
   VectorDouble coords1 = {12.,3.,1.};
   VectorDouble coords2 = {4.,5.,2.};
-  auto space1d = SpaceRN(1);
+  auto space1d = SpaceRN::create(1);
   double sep = 1.;
   Model* mT = Model::createFromParam(ECov::EXPONENTIAL,
                                      scaleT,
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
                                      VectorDouble(),
                                      MatrixSquareSymmetric(),
                                      VectorDouble(),
-                                     &space1d,
+                                     space1d,
                                      false);
                                     
   Model* mS = Model::createFromParam(ECov::EXPONENTIAL,

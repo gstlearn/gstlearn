@@ -10,16 +10,16 @@
 /******************************************************************************/
 
 #include "Covariances/CovBase.hpp"
-#include "Covariances/ACor.hpp"
 #include "Covariances/ACov.hpp"
+#include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/NoStatFunctional.hpp"
 
-CovBase::CovBase(ACor* cor,
+CovBase::CovBase(ACov* cor,
                 const MatrixSquareSymmetric &sill)
-: ACov(cor == nullptr? nullptr : cor->getSpace())
+: ACov(cor == nullptr? CovContext() : cor->getContext())
 , _sill(sill)
 , _cor(cor)
 {
@@ -37,10 +37,10 @@ CovBase::~CovBase()
 
 }
 
-void CovBase::setCor(ACor* cor)
+void CovBase::setCor(ACov* cor)
 {
   _cor = cor;
-  int nvar = getNVariables();
+  int nvar = getNVar();
   if (cor != nullptr)
   {
     _ctxt = cor->getContextCopy();
@@ -54,7 +54,7 @@ void CovBase::setContext(const CovContext &ctxt)
 }
 void CovBase::setSill(double sill) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   if (nvar > 0 && nvar!= 1)
   {
     messerr("Number of provided sill doesn't match number of variables");
@@ -65,7 +65,7 @@ void CovBase::setSill(double sill) const
 
 void CovBase::setSill(const MatrixSquareSymmetric &sill) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   if (nvar > 0 && nvar != sill.getNCols())
   {
     messerr("Number of provided sills doesn't match number of variables");
@@ -77,7 +77,7 @@ void CovBase::setSill(const MatrixSquareSymmetric &sill) const
 void CovBase::setSill(const VectorDouble &sill) const 
 {
   int size = static_cast<int>(sill.size());
-  int nvar = getNVariables();
+  int nvar = getNVar();
   if (size != nvar * nvar)
   {
     messerr("Number of provided sills doesn't match number of variables");
@@ -97,7 +97,7 @@ void CovBase::setSill(int ivar, int jvar, double sill) const
 
 bool CovBase::_isVariableValid(int ivar) const
 {
-  return checkArg("Rank of the Variable", ivar, getNVariables());
+  return checkArg("Rank of the Variable", ivar, getNVar());
 }
 
 void CovBase::_initFromContext()
@@ -131,7 +131,7 @@ double CovBase::getSill(int ivar, int jvar) const
  **                          or NULL (for stationary case)
  **
  *****************************************************************************/
-void CovBase::nostatUpdate(CovInternal *covint)
+void CovBase::nostatUpdate(CovInternal *covint) const
 {
   if (covint == NULL) return;
   updateCovByPoints(covint->getIcas1(), covint->getIech1(),
@@ -140,8 +140,7 @@ void CovBase::nostatUpdate(CovInternal *covint)
 
 
 
-
-void CovBase::copyCovContext(const CovContext &ctxt)
+void CovBase::_copyCovContext(const CovContext &ctxt)
 {
   _ctxt.copyCovContext(ctxt);
   _cor->copyCovContext(ctxt);
@@ -193,7 +192,7 @@ bool CovBase::isOptimizationInitialized(const Db* db) const
   if (_p1As.empty()) return false;
   if (db == nullptr) return true;
   int n = (int) _p1As.size();
-  return n == db->getSampleNumber();
+  return n == db->getNSample();
 }
 
  
@@ -294,7 +293,7 @@ void CovBase::makeSillStationary(int ivar, int jvar)
 
 bool CovBase::_checkSill(int ivar, int jvar) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   if ((ivar > nvar) || (jvar > nvar))
   {
     messerr("Your model has only %d variables.",nvar);
@@ -385,8 +384,6 @@ void CovBase::informDbOutForSills(const Db* dbout) const
   _tabNoStat.informDbOut(dbout,EConsElem::SILL);
 }
 
-
-
 /**
  * Update the Model according to the Non-stationary parameters
  * @param icas1 Type of first Db: 1 for Input; 2 for Output
@@ -472,15 +469,13 @@ void CovBase::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                           const SpacePoint &p2,
                                           const CovCalcMode *mode) const
 {
-  
-  double cor = _cor->eval(p1,p2,0,0,mode);
-
-  if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatInPlace(_sill, 1., cor);
-  else
-  {
-    mat.addMatInPlace(_workMat, 1., cor);
-  }
+  int nvar = getNVar();
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+    {
+      double cor = _cor->eval(p1,p2,ivar,jvar,mode);
+      mat.addValue(ivar, jvar, _sill.getValue(ivar, jvar) * cor);
+    }
 }
 
 void CovBase::_optimizationPostProcess() const 

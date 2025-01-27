@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
 
   // Define and store the Space
 
-  defineDefaultSpace(ESpaceType::RN,model->getDimensionNumber());
+  defineDefaultSpace(ESpaceType::RN,model->getNDim());
 
   /* Perform the non-conditional Simulation */
   
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
     if (simtub(nullptr,dbout,model,nullptr,nbsimu,seed,nbtuba,0))
       messageAbort("Simulations");
     /* Set the current variable to the conditional expectation */
-    dbout->setLocatorByUID(dbout->getColumnNumber()-1,ELoc::Z, 0);
+    dbout->setLocatorByUID(dbout->getNColumn()-1,ELoc::Z, 0);
   }
   seed = law_get_random_seed();
   

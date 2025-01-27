@@ -15,7 +15,7 @@
 #include "Drifts/ADrift.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
@@ -72,9 +72,9 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
   // Preliminary checks
 
   new_model = nullptr;
-  int nvar  = model->getVariableNumber();
-  int ndim  = model->getDimensionNumber();
-  int ncova = model->getCovaNumber();
+  int nvar  = model->getNVar();
+  int ndim  = model->getNDim();
+  int ncova = model->getNCov();
 
   // Create the new model (linked drift functions)
 
@@ -95,7 +95,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
   // Create the basic covariance structures
   // **************************************
 
-  ACovAnisoList* covs = new CovLMGradient();
+  CovAnisoList* covs = new CovLMGradient(ctxt);
 
   int lec = 0;
   for (int icov = 0; icov < ncova; icov++)
@@ -154,7 +154,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
       delete covnew;
     }
   }
-  new_model->setCovList(covs);
+  new_model->setCovAnisoList(covs);
   delete covs;
 
   // *********************************
@@ -195,8 +195,8 @@ void model_covupdt(Model *model,
 
   silltot = range = nullptr;
   rank = nullptr;
-  nvar = model->getVariableNumber();
-  ncova = model->getCovaNumber();
+  nvar = model->getNVar();
+  ncova = model->getNCov();
   flag_update = 0;
 
   /* Core allocation */
@@ -348,7 +348,7 @@ void model_cova_characteristics(const ECov &type,
                                 double *scale,
                                 double *parmax)
 {
-  SpaceRN space(1); // Use 1-D in order to retrieve all covariances
+  auto space = SpaceRN::create(1); // Use 1-D in order to retrieve all covariances
   CovContext ctxt = CovContext(1, 1);
   ACovFunc *cov = CovFactory::createCovFunc(type, ctxt);
   (void) gslStrcpy((char*) cov_name, cov->getCovName().c_str());
@@ -388,12 +388,12 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
     messerr("This function requires at least one model defined");
     return nullptr;
   }
-  if (model1 != nullptr && model1->getVariableNumber() != 1)
+  if (model1 != nullptr && model1->getNVar() != 1)
   {
     messerr("This function can only combine monovariate models");
     return nullptr;
   }
-  if (model2 != nullptr && model2->getVariableNumber() != 1)
+  if (model2 != nullptr && model2->getNVar() != 1)
   {
     messerr("This function can only combine monovariate models");
     return nullptr;
@@ -408,7 +408,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
     model = model1->duplicate();
     return model;
   }
-  if (model1->getDimensionNumber() != model2->getDimensionNumber())
+  if (model1->getNDim() != model2->getNDim())
   {
     messerr("The two models to be combined must share the space dimension");
     return nullptr;
@@ -432,14 +432,14 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
   cova0[3] = 1.;
 
   // Creating the context
-  CovContext ctxt = CovContext(2, model1->getDimensionNumber(), mean, cova0);
+  CovContext ctxt = CovContext(2, model1->getNDim(), mean, cova0);
 
   // Creating the new Model
   model = new Model(ctxt);
 
   /* Add the covariance of the first Model */
 
-  for (int i = 0; i < model1->getCovaNumber(); i++)
+  for (int i = 0; i < model1->getNCov(); i++)
   {
     const CovAniso* cova = model1->getCova(i);
     sill.setValue(0, 0, cova->getSill(0, 0));
@@ -451,7 +451,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
 
   /* Add the covariance of the second Model */
 
-  for (int i = 0; i < model2->getCovaNumber(); i++)
+  for (int i = 0; i < model2->getNCov(); i++)
   {
     const CovAniso* cova = model2->getCova(i);
     sill.setValue(0,0, 0.);
@@ -520,7 +520,7 @@ int model_covmat_inchol(int verbose,
   VectorDouble d1;
 
   error = 1;
-  nech = db->getSampleNumber();
+  nech = db->getNSample();
   pvec = nullptr;
   diag = crit = G = Gmatrix = nullptr;
   flag_incr = (center != nullptr);

@@ -10,22 +10,24 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/CovContext.hpp"
+#include "Space/ASpace.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 
 class ASpace;
 class SpacePoint;
 class CovGradientNumerical;
 class CovCalcMode;
 
-class GSTLEARN_EXPORT CovLMGradient : public ACovAnisoList
+class GSTLEARN_EXPORT CovLMGradient : public CovAnisoList
 {
 public:
-  CovLMGradient(const ASpace* space = nullptr);
+  CovLMGradient(const CovContext& ctxt = CovContext());
   CovLMGradient(const CovLMGradient& r);
-  CovLMGradient(const ACovAnisoList& r);
+  CovLMGradient(const CovAnisoList& r);
   CovLMGradient& operator= (const CovLMGradient &r);
   virtual ~CovLMGradient();
 
@@ -33,7 +35,7 @@ public:
   IMPLEMENT_CLONING(CovLMGradient)
 
   // Add an elementary covariance structure
-  virtual void addCov(const CovAniso* cov) override;
+  virtual void addCovAniso(const CovAniso* cov) override;
 
   /// ACov interface
   
@@ -52,28 +54,30 @@ public:
                          bool flagGrad = false) const;
 
 protected:
-    void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                                            const SpacePoint& p1,const SpacePoint& p2,
-                                            const CovCalcMode *mode = nullptr) const override
-    {
-      ACov::_loadAndAddEvalCovMatBiPointInPlace(mat,p1,p2,mode);  
-    }
-    void addEval0CovMatBiPointInPlace(MatrixSquareGeneral& mat, const CovCalcMode* mode) const override
-    {
-      ACov::addEval0CovMatBiPointInPlace(mat,mode);
-    }
-    void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                        const SpacePoint& pwork1, 
-                        const SpacePoint& pwork2, 
-                        const CovCalcMode *mode = nullptr) const override
-    {
-      ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
-    }
+  void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                           const SpacePoint& p1,
+                                           const SpacePoint& p2,
+                                           const CovCalcMode *mode = nullptr) const override
+  {
+    ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
+  }
+  void addEval0CovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                    const CovCalcMode* mode) const override
+  {
+    ACov::addEval0CovMatBiPointInPlace(mat, mode);
+  }
+  void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                    const SpacePoint& pwork1,
+                                    const SpacePoint& pwork2,
+                                    const CovCalcMode* mode = nullptr) const override
+  {
+    ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
+  }
+  void _optimizationSetTarget(const SpacePoint& pt) const override
+  {
+    ACov::_optimizationSetTarget(pt); // TODO: cannot replace by CovAnisoList???
+  }
 
-    void _optimizationSetTarget(const SpacePoint &pt) const override
-    {
-      ACov::_optimizationSetTarget(pt);
-    }
 private:
   static void _initGradients(double& covVal,
                              VectorDouble& covGp,

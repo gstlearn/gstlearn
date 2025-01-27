@@ -1,14 +1,14 @@
-This test is mean to test Kriging using Moving Neighborhood
+This test is meant to test Kriging using Moving Neighborhood
 - the Data Set contains 1000 samples
 - the Output Grid contains 10000 nodes
 - the Moving Neighborhood is required:
   . Radius dimension = 1.000000
   . Maximum number of neighbors = 20
-  . Minimum number of neighbors = 2
+  . Minimum number of neiNumber of Rowsghbors = 2
   . Number of angular sectors   = 8
   . Maxmimum number of neighbors per sector = 3
   . Leaf Size for Ball Tree algorithm = 30
-#NO_DIFF# Kriging in Moving Neighborhood: 1123 ms. (Ref = 1500 ms.)
+#NO_DIFF# Kriging in Moving Neighborhood: 807 ms. (Ref = 1500 ms.)
 
 Data Base Grid Characteristics
 ==============================

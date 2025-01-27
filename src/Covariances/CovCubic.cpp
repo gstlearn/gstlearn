@@ -11,7 +11,6 @@
 #include "Covariances/CovCubic.hpp"
 
 #include "Simulation/TurningBandOperate.hpp"
-#include "Basic/Law.hpp"
 #include "Covariances/CovContext.hpp"
 
 CovCubic::CovCubic(const CovContext& ctxt)

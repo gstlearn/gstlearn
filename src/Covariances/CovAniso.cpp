@@ -8,22 +8,20 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_define.h"
+
 #include "Arrays/Array.hpp"
 #include "Basic/AFunctional.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CorAniso.hpp"
-#include "Covariances/CovBase.hpp"
-#include "Covariances/TabNoStatCovAniso.hpp"
+#include "Covariances/CovProportional.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
-#include "Covariances/NoStatFunctional.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Enum/EConsElem.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixFactory.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/FFT.hpp"
@@ -32,24 +30,24 @@
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "geoslib_define.h"
+#include "Matrix/MatrixFactory.hpp"
+
 #include <math.h>
 #include <functional>
 #include <ostream>
 #include <vector>
 
-
 CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
-    : CovBase(nullptr, MatrixSquareSymmetric(ctxt.getNVar())), /// TODO : shared pointer
+    : CovProportional(nullptr, MatrixSquareSymmetric(ctxt.getNVar())), /// TODO : shared pointer
       _corAniso(new CorAniso(type, ctxt)),
       _optimEnabled(true)
 {
-  CovBase::setCor(_corAniso);
+  CovProportional::setCor(_corAniso);
   _initFromContext();
 }
 
 CovAniso::CovAniso(const String &symbol, const CovContext &ctxt)
-    :CovBase(new CorAniso(symbol, ctxt)), /// TODO : shared pointer
+    :CovProportional(new CorAniso(symbol, ctxt)), /// TODO : shared pointer
       _corAniso((CorAniso*)getCor()),
       _optimEnabled(true)
 {
@@ -63,7 +61,7 @@ CovAniso::CovAniso(const ECov &type,
                    double sill,
                    const CovContext &ctxt,
                    bool flagRange)
-    : CovBase(new CorAniso(type, range,param, ctxt, flagRange), MatrixSquareSymmetric(ctxt.getNVar())), /// TODO : shared pointer
+    : CovProportional(new CorAniso(type, range,param, ctxt, flagRange), MatrixSquareSymmetric(ctxt.getNVar())), /// TODO : shared pointer
       _corAniso((CorAniso*)getCor()),
       _optimEnabled(true)
 {
@@ -91,16 +89,17 @@ CovAniso::CovAniso(const ECov &type,
 }
 
 CovAniso::CovAniso(const CovAniso &r)
-    : CovBase(new CorAniso(*r._corAniso),r._sill), /// TODO : shared pointer
+    : CovProportional(new CorAniso(*r._corAniso),r._sill), /// TODO : shared pointer
       _corAniso((CorAniso*)getCor()),
       _optimEnabled(r._optimEnabled)
 {
+  _ctxt.setNVar(r.getNVar());
 }
 
 CovAniso& CovAniso::operator=(const CovAniso &r)
 {
   if (this != &r)
-  {
+  { 
      setCor(new CorAniso(*r._corAniso));
     _corAniso = (CorAniso*)getCor();
     _ctxt = r._ctxt;
@@ -215,8 +214,6 @@ double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
   return (cov);
 }
 
-
-
 double CovAniso::eval(const SpacePoint &p1,
                       const SpacePoint &p2,
                       int ivar,
@@ -227,8 +224,8 @@ double CovAniso::eval(const SpacePoint &p1,
   if (mode == nullptr || ! mode->getUnitary())
     cov *= getSill(ivar, jvar);
   return (cov);
-
 }
+
 /**
  * Calculate the Matrix of covariance for zero distance
  * @param mat   Covariance matrix (Dimension: nvar * nvar)
@@ -327,8 +324,8 @@ void CovAniso::setMarkovCoeffs(const VectorDouble& coeffs)
 /* This function computes a polynomial P from two polynomials P1 and P2 and a small constant eps
  * P(x) = P1(x)^2 + x * P2(x)^2 + eps
  */
-void CovAniso::setMarkovCoeffsBySquaredPolynomials(VectorDouble coeffs1,
-                                                   VectorDouble coeffs2,
+void CovAniso::setMarkovCoeffsBySquaredPolynomials(const VectorDouble& coeffs1,
+                                                   const VectorDouble& coeffs2,
                                                    double eps)
 {
   _corAniso->setMarkovCoeffsBySquaredPolynomials(coeffs1, coeffs2, eps);
@@ -388,10 +385,10 @@ String CovAniso::toString(const AStringFormat* strfmt) const
   {
     // A sill is defined
 
-    if (getNVariables() > 1)
+    if (getNVar() > 1)
     {
       sstr << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
-                      getNVariables(), getNVariables(), _sill.getValues());
+                      getNVar(), getNVar(), _sill.getValues());
     }
     else
     {
@@ -405,15 +402,15 @@ String CovAniso::toString(const AStringFormat* strfmt) const
   {
     // The sill is not defined: use slope instead
 
-    if (getNVariables() > 1)
+    if (getNVar() > 1)
     {
       MatrixSquareGeneral slopes = _sill;
       double range = getRange(0);
-      for (int ivar = 0; ivar < getNVariables(); ivar++)
-        for (int jvar = 0; jvar < getNVariables(); jvar++)
+      for (int ivar = 0; ivar < getNVar(); ivar++)
+        for (int jvar = 0; jvar < getNVar(); jvar++)
           slopes.setValue(ivar, jvar, _sill.getValue(ivar, jvar) / range);
       sstr << toMatrix("- Slope matrix:", VectorString(), VectorString(), 0,
-                      getNVariables(), getNVariables(), slopes.getValues());
+                      getNVar(), getNVar(), slopes.getValues());
     }
     else
     {
@@ -424,10 +421,10 @@ String CovAniso::toString(const AStringFormat* strfmt) const
   {
     // Only sill is defined
 
-    if (getNVariables() > 1)
+    if (getNVar() > 1)
     {
       sstr << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
-                      getNVariables(), getNVariables(), _sill.getValues());
+                      getNVar(), getNVar(), _sill.getValues());
     }
     else
     {
@@ -515,9 +512,9 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
 }
 
 
-int CovAniso::getGradParamNumber() const
+int CovAniso::getNGradParam() const
 {
-  return _corAniso->getGradParamNumber();
+  return _corAniso->getNGradParam();
 }
 
 CovAniso* CovAniso::createIsotropic(const CovContext &ctxt,
@@ -658,8 +655,6 @@ CovAniso* CovAniso::createReduce(const VectorInt &validVars) const
   newCovAniso->setSill(*newsill);
   return newCovAniso;
 }
-
-
 
 double scale2range(const ECov &type, double scale, double param)
 {

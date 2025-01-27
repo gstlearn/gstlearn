@@ -50,8 +50,8 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int getNVariables() const { return _ctxt.getNVar(); }
-  int getDriftNumber() const { return static_cast<int>(_drifts.size()); }
+  int getNVar() const { return _ctxt.getNVar(); }
+  int getNDrift() const { return static_cast<int>(_drifts.size()); }
   bool hasDrift() const { return !_drifts.empty(); }
 
   // Add one elementary drift structure
@@ -65,15 +65,16 @@ public:
   void setFiltered(const VectorBool& filtered) { _filtered = filtered; }
   bool isFiltered(int i) const;
   void setFiltered(int i, bool filter);
-  int  getDriftEquationNumber() const;
+  int  getNDriftEquation() const;
   bool hasExternalDrift() const;
   bool isValid() const;
+  int  getNExtDrift() const;
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
-  const ADrift*  getDrift(int il) const;
-  int            getRankFex(int il) const;
-  String         getDriftName(int il) const;
+  const ADrift* getDrift(int il) const;
+  int getRankFex(int il) const;
+  String getDriftName(int il) const;
   ////////////////////////////////////////////////
 
   const VectorDouble& getBetaHats() const { return _betaHat; }
@@ -116,10 +117,18 @@ public:
                                 int iech,
                                 const ECalcMember &member,
                                 VectorDouble &drftab) const;
-  MatrixRectangular evalDriftMatrix(const Db *db,
-                                    int ivar0 = -1,
-                                    const VectorInt &nbgh = VectorInt(),
-                                    const ECalcMember &member = ECalcMember::fromKey("LHS"));
+  MatrixRectangular evalDriftMat(const Db* db,
+                                 int ivar0                 = -1,
+                                 const VectorInt& nbgh     = VectorInt(),
+                                 const ECalcMember& member = ECalcMember::fromKey("LHS"));
+  MatrixRectangular evalDriftMatByRanks(const Db* db,
+                      const VectorVectorInt& sampleranks,
+                      int ivar0                 = -1,
+                      const ECalcMember& member = ECalcMember::fromKey("LHS"));
+  MatrixRectangular evalDriftMatByTarget(const Db* db,
+                       int ivar0                 = -1,
+                       int iech2                 = 0,
+                       const ECalcMember& member = ECalcMember::fromKey("LHS"));
   double evalDriftValue(const Db *db,
                         int iech,
                         int ivar,
@@ -131,7 +140,7 @@ private:
   bool _isDriftEquationValid(int ib) const;
   int  _getAddress(int ivar, int il, int ib) const
   {
-    return (ib + getDriftEquationNumber() * (il + getDriftNumber() * ivar));
+    return (ib + getNDriftEquation() * (il + getNDrift() * ivar));
   }
   double _getDriftCL(int ivar, int il, int ib) const { return _driftCL[_getAddress(ivar,il,ib)]; }
   void   _setDriftCL(int ivar, int il, int ib, double value) { _driftCL[_getAddress(ivar,il,ib)] = value; }

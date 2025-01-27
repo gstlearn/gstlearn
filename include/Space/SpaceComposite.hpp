@@ -15,6 +15,7 @@
 #include "Space/ASpace.hpp"
 #include "Enum/ESpaceType.hpp"
 
+#include <memory>
 #include <vector>
 
 class SpacePoint;
@@ -22,16 +23,18 @@ class Tensor;
 
 class GSTLEARN_EXPORT SpaceComposite : public ASpace
 {
-public:
-  SpaceComposite();
-  SpaceComposite(const std::vector<const ASpace*>& vectspace);
+private:
+  SpaceComposite(const std::vector<ASpaceSharedPtr>& vectspace = std::vector<ASpaceSharedPtr>());
   SpaceComposite(const SpaceComposite& r);
   SpaceComposite& operator=(const SpaceComposite& r);
+  
+public:
   virtual ~SpaceComposite();
 
   /// ICloneable interface
   IMPLEMENT_CLONING(SpaceComposite)
 
+  static std::shared_ptr<SpaceComposite> create(const ASpaceSharedPtrVector& vectspace = ASpaceSharedPtrVector());
   /// Return the concrete space type
   ESpaceType getType() const override { return ESpaceType::COMPOSITE; }
 
@@ -51,7 +54,7 @@ public:
   unsigned int getNComponents() const override;
 
   /// Return the space component at index ispace
-  const ASpace* getComponent(int ispace = -1) const override;
+  ASpaceSharedPtr getComponent(int ispace = -1) const override;
 
   /// Dump a space in a string (given the space index)
   String toString(const AStringFormat* strfmt, int ispace) const override;
@@ -67,8 +70,7 @@ public:
   /////////////////////////////////////////////
   
   /// Add a space component to me (for exemple RN(1) for time dimension)
-  /// Note: The given argument is cloned
-  void addSpaceComponent(const ASpace* comp);
+  void addSpaceComponent(const ASpaceSharedPtr& comp);
 
 protected:
 
@@ -105,11 +107,8 @@ protected:
                             VectorDouble& ptemp,
                             int ispace = -1) const override;
 
-private:
-  /// Destroy components and empty vector
-  void _destroyComponents();
 
 private:
   /// Space composits list
-  std::vector<ASpace *> _comps;
+  std::vector<std::shared_ptr<ASpace> > _comps;
 };

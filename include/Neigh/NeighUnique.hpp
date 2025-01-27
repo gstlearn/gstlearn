@@ -16,7 +16,7 @@
 #include "Enum/ENeigh.hpp"
 
 #include "Neigh/ANeigh.hpp"
-
+#include "Space/ASpace.hpp"
 class Db;
 
 /**
@@ -33,21 +33,21 @@ class Db;
 class GSTLEARN_EXPORT NeighUnique: public ANeigh
 {
 public:
-  NeighUnique(bool flag_xvalid = false, const ASpace* space = nullptr);
+  NeighUnique(bool flag_xvalid = false, const ASpaceSharedPtr& space = ASpaceSharedPtr());
   NeighUnique(const NeighUnique& r);
   NeighUnique& operator=(const NeighUnique& r);
   virtual ~NeighUnique();
 
   /// Interface for ANeigh
   virtual void getNeigh(int iech_out, VectorInt& ranks) override;
-  virtual int getMaxSampleNumber(const Db* db) const override;
+  virtual int getNSampleMax(const Db* db) const override;
   virtual bool hasChanged(int iech_out) const override;
   virtual ENeigh getType() const override { return ENeigh::fromKey("UNIQUE"); }
 
   /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static NeighUnique* create(bool flag_xvalid = false, const ASpace* space = nullptr);
+  static NeighUnique* create(bool flag_xvalid = false, const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static NeighUnique* createFromNF(const String& neutralFilename, bool verbose = true);
 
 protected:

@@ -17,6 +17,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/ICloneable.hpp"
+#include <memory>
 
 class SpacePoint;
 class Tensor;
@@ -31,12 +32,15 @@ class Tensor;
 class GSTLEARN_EXPORT ASpace: public AStringable,
                               public ICloneable
 {
-public:
+protected:
   ASpace(unsigned int ndim);
   ASpace(const ASpace& r);
   ASpace& operator=(const ASpace& r);
+
+public: 
   virtual ~ASpace();
 
+public:
   /// Interface for AStringable
   String toString(const AStringFormat* strfmt = nullptr) const final;
 
@@ -62,7 +66,7 @@ public:
   virtual unsigned int getNComponents() const;
 
   /// Return the space component at index ispace
-  virtual const ASpace* getComponent(int ispace = -1) const;
+  virtual std::shared_ptr<const ASpace> getComponent(int ispace = -1) const;
 
   /// Dump a space in a string (given the space index)
   virtual String toString(const AStringFormat* strfmt, int ispace) const;
@@ -111,6 +115,7 @@ public:
   /// TODO : to be made private
   void setOffset(unsigned int offset) { _offset = offset; }
 
+  static std::shared_ptr<const ASpace> getDefaultSpaceIfNull(const std::shared_ptr<const ASpace>& space);
 protected:
 
   /// Move the given space point by the given vector
@@ -163,3 +168,6 @@ protected:
   /// Privilege to SpaceComposit only
   //friend class SpaceComposit; /// TODO : this has no effect (see _setOffset). Why ?
 };
+
+typedef std::shared_ptr<const ASpace> ASpaceSharedPtr;
+typedef std::vector<ASpaceSharedPtr> ASpaceSharedPtrVector;

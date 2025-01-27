@@ -86,7 +86,6 @@ static void _firstTest(Db* data,
     return;
   }
   
-  
   // Local parameters
   bool debugPrint = false;
   bool debugSchur = false;
@@ -115,15 +114,17 @@ static void _firstTest(Db* data,
   mestitle(1, "Using Schur class");
 
   MatrixSquareSymmetric Sigma00 = model->eval0Mat();
-  MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetric(data);
-  MatrixRectangular X           = model->evalDriftMatrix(data);
-  MatrixRectangular Sigma0      = model->evalCovMatrix(data, target);
-  MatrixRectangular X0          = model->evalDriftMatrix(target);
-  VectorDouble Z = data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+  MatrixSquareSymmetric Sigma   = model->evalCovMatSym(data);
+  MatrixRectangular X           = model->evalDriftMat(data);
+  MatrixRectangular Sigma0      = model->evalCovMat(data, target);
+  MatrixRectangular X0          = model->evalDriftMat(target);
+  VectorVectorInt sampleRanks   = data->getSampleRanks();
+  VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
+
   KrigingCalcul Kcalc;
-  Kcalc.setData(&Z, &means);
+  Kcalc.setData(&Z, &sampleRanks, &means);
   Kcalc.setLHS(&Sigma, &X);
-  Kcalc.setVar(&Sigma00);
+  Kcalc.setVariance(&Sigma00);
   Kcalc.setRHS(&Sigma0, &X0);
   Kcalc.setBayes(&PriorMean, &PriorCov);
 
@@ -152,7 +153,7 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
 {
   Model* modelc = dynamic_cast<Model*>(model);
   // Local parameters
-  int nvar = modelc->getVariableNumber();
+  int nvar = modelc->getNVar();
   VectorInt varColCok = {0, 2}; // Ranks of collcated variables
   bool debugSchur     = false;
   if (nvar <= 1)
@@ -178,17 +179,18 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   mestitle(1, "With Complemented input Data Base");
 
   MatrixSquareSymmetric Sigma00P = model->eval0Mat();
-  MatrixSquareSymmetric SigmaP   = model->evalCovMatrixSymmetric(dataP);
-  MatrixRectangular XP           = model->evalDriftMatrix(dataP);
-  MatrixRectangular Sigma0P      = model->evalCovMatrix(dataP, target);
-  MatrixRectangular X0P          = model->evalDriftMatrix(target);
-  VectorDouble ZP = dataP->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+  MatrixSquareSymmetric SigmaP   = model->evalCovMatSym(dataP);
+  MatrixRectangular XP           = model->evalDriftMat(dataP);
+  MatrixRectangular Sigma0P      = model->evalCovMat(dataP, target);
+  MatrixRectangular X0P          = model->evalDriftMat(target);
+  VectorVectorInt sampleRanksP   = dataP->getSampleRanks();
+  VectorDouble ZP                = dataP->getValuesByRanks(sampleRanksP, means);
 
   KrigingCalcul KcalcP;
-  KcalcP.setData(&ZP, &means);
+  KcalcP.setData(&ZP, &sampleRanksP, &means);
   KcalcP.setLHS(&SigmaP, &XP);
   KcalcP.setRHS(&Sigma0P, &X0P);
-  KcalcP.setVar(&Sigma00P);
+  KcalcP.setVariance(&Sigma00P);
 
   VH::display("Kriging Value(s)", KcalcP.getEstimation());
   VH::display("Standard Deviation of Estimation Error", KcalcP.getStdv());
@@ -200,17 +202,18 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   mestitle(1, "With Collocated Option");
 
   MatrixSquareSymmetric Sigma00 = model->eval0Mat();
-  MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetricOptim(data);
-  MatrixRectangular X           = model->evalDriftMatrix(data);
-  MatrixRectangular Sigma0      = model->evalCovMatrixOptim(data, target);
-  MatrixRectangular X0          = model->evalDriftMatrix(target);
-  VectorDouble Z = data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+  MatrixSquareSymmetric Sigma   = model->evalCovMatSymOptim(data);
+  MatrixRectangular X           = model->evalDriftMat(data);
+  MatrixRectangular Sigma0      = model->evalCovMatOptim(data, target);
+  MatrixRectangular X0          = model->evalDriftMat(target);
+  VectorVectorInt sampleRanks   = data->getSampleRanks();
+  VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
 
   KrigingCalcul Kcalc;
-  Kcalc.setData(&Z, &means);
+  Kcalc.setData(&Z, &sampleRanks, &means);
   Kcalc.setLHS(&Sigma, &X);
   Kcalc.setRHS(&Sigma0, &X0);
-  Kcalc.setVar(&Sigma00);
+  Kcalc.setVariance(&Sigma00);
   // Subtract the mean (non zero for SK only) from the Collocated values
   VH::subtractInPlace(valuesTarget, means);
   Kcalc.setColCokUnique(&valuesTarget, &varColCok);
@@ -237,8 +240,8 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   AStringFormat format;
   bool debugSchur = false;
 
-  const VectorVectorInt index = data->getMultipleRanksActive();
-  VectorInt rankXvalidEqs = Db::getMultipleSelectedIndices(index, varXvalid, {iech0});
+  const VectorVectorInt index = data->getSampleRanks();
+  VectorInt rankXvalidEqs = Db::getMultipleSelectedRanks(index, varXvalid, {iech0});
   VectorInt rankXvalidVars = Db::getMultipleSelectedVariables(index, varXvalid, {iech0});
 
   // Title
@@ -255,18 +258,18 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   mestitle(1, "With Deplemented input Data Base");
 
   MatrixSquareSymmetric Sigma00P = model->eval0Mat();
-  MatrixSquareSymmetric SigmaP   = model->evalCovMatrixSymmetricOptim(dataP);
-  MatrixRectangular XP           = model->evalDriftMatrix(dataP);
-  MatrixRectangular Sigma0P      = model->evalCovMatrixOptim(dataP, targetP, -1, -1, VectorInt(), {iech0});
-  MatrixRectangular X0P          = model->evalDriftMatrix(targetP, -1, {iech0});
-  VectorDouble ZP =
-    dataP->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+  MatrixSquareSymmetric SigmaP   = model->evalCovMatSymOptim(dataP);
+  MatrixRectangular XP           = model->evalDriftMat(dataP);
+  MatrixRectangular Sigma0P      = model->evalCovMatOptim(dataP, targetP, -1, -1, VectorInt(), {iech0});
+  MatrixRectangular X0P          = model->evalDriftMat(targetP, -1, {iech0});
+  VectorVectorInt sampleRanksP   = dataP->getSampleRanks();
+  VectorDouble ZP                = dataP->getValuesByRanks(sampleRanksP, means);
 
   KrigingCalcul KcalcP;
-  KcalcP.setData(&ZP, &means);
+  KcalcP.setData(&ZP, &sampleRanksP, &means);
   KcalcP.setLHS(&SigmaP, &XP);
   KcalcP.setRHS(&Sigma0P, &X0P);
-  KcalcP.setVar(&Sigma00P);
+  KcalcP.setVariance(&Sigma00P);
 
   VH::display("Kriging Value(s)", KcalcP.getEstimation());
   VH::display("Standard Deviation of Estimation Error", KcalcP.getStdv());
@@ -278,17 +281,17 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   mestitle(1, "With Cross-Validation Option");
 
   MatrixSquareSymmetric Sigma00 = model->eval0Mat();
-  MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetricOptim(data);
-  MatrixRectangular X           = model->evalDriftMatrix(data);
-  MatrixRectangular Sigma0      = model->evalCovMatrixOptim(data, targetP);
-  MatrixRectangular X0          = model->evalDriftMatrix(targetP);
-  VectorDouble Z =
-    data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+  MatrixSquareSymmetric Sigma   = model->evalCovMatSymOptim(data);
+  MatrixRectangular X           = model->evalDriftMat(data);
+  MatrixRectangular Sigma0      = model->evalCovMatOptim(data, targetP);
+  MatrixRectangular X0          = model->evalDriftMat(targetP);
+  VectorVectorInt sampleRanks   = data->getSampleRanks();
+  VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
 
   KrigingCalcul Kcalc;
-  Kcalc.setData(&Z, &means);
+  Kcalc.setData(&Z, &sampleRanks, &means);
   Kcalc.setLHS(&Sigma, &X);
-  Kcalc.setVar(&Sigma00);
+  Kcalc.setVariance(&Sigma00);
   Kcalc.setXvalidUnique(&rankXvalidEqs, &rankXvalidVars);
 
   VH::display("Kriging Value(s)", Kcalc.getEstimation());
@@ -316,17 +319,18 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   mestitle(1, "Without Dual option");
 
   MatrixSquareSymmetric Sigma00 = model->eval0Mat();
-  MatrixSquareSymmetric Sigma   = model->evalCovMatrixSymmetricOptim(data);
-  MatrixRectangular X           = model->evalDriftMatrix(data);
-  MatrixRectangular Sigma0      = model->evalCovMatrixOptim(data, target);
-  MatrixRectangular X0          = model->evalDriftMatrix(target);
-  VectorDouble Z = data->getMultipleValuesActive(VectorInt(), VectorInt(), means);
+  MatrixSquareSymmetric Sigma   = model->evalCovMatSymOptim(data);
+  MatrixRectangular X           = model->evalDriftMat(data);
+  MatrixRectangular Sigma0      = model->evalCovMatOptim(data, target);
+  MatrixRectangular X0          = model->evalDriftMat(target);
+  VectorVectorInt sampleRanks   = data->getSampleRanks();
+  VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
 
   KrigingCalcul Kcalc1(false);
-  Kcalc1.setData(&Z, &means);
+  Kcalc1.setData(&Z, &sampleRanks, &means);
   Kcalc1.setLHS(&Sigma, &X);
   Kcalc1.setRHS(&Sigma0, &X0);
-  Kcalc1.setVar(&Sigma00);
+  Kcalc1.setVariance(&Sigma00);
 
   VH::display("Kriging Value(s)", Kcalc1.getEstimation());
   VH::display("Standard Deviation of Estimation Error", Kcalc1.getStdv());
@@ -336,7 +340,7 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   mestitle(1, "With Dual Option (only Estimation is available)");
 
   KrigingCalcul Kcalc2(true);
-  Kcalc2.setData(&Z, &means);
+  Kcalc2.setData(&Z, &sampleRanks, &means);
   Kcalc2.setLHS(&Sigma, &X);
   Kcalc2.setRHS(&Sigma0, &X0);
 

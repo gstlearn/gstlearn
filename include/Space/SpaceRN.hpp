@@ -14,24 +14,28 @@
 
 #include "Space/ASpace.hpp"
 #include "Basic/VectorNumT.hpp"
+#include <memory>
 
 class SpacePoint;
 class Tensor;
 
 class GSTLEARN_EXPORT SpaceRN: public ASpace
 {
-public:
+ private:
   SpaceRN(unsigned int ndim);
   SpaceRN(const SpaceRN& r);
   SpaceRN& operator=(const SpaceRN& r);
+
+public:
   virtual ~SpaceRN();
 
+public:
   /// ICloneable interface
   IMPLEMENT_CLONING(SpaceRN)
 
   /// Return the concrete space type
   ESpaceType getType() const override { return ESpaceType::RN; }
-
+  static ASpaceSharedPtr create(int ndim);
 protected:
   /// Move the given space point by the given vector
   void _move(SpacePoint &p1, const VectorDouble &vec) const override;

@@ -1,8 +1,10 @@
 // Sensitive file ! Keep Order
 
+
 // Global files to be wrapped from C++ library
 // Remind that swig %include doesn't follow #include inclusion.
 // Put low level headers in first positions (otherwise Syntax error in input(1).)
+
 %include gstlearn_export.hpp // Do not forget this file in priority (for SWIG preprocessor)
 
 // Export VectorXXX classes
@@ -211,6 +213,7 @@
 %include Variogram/VCloud.hpp
 
 %include Model/ModelGeneric.hpp
+%include Model/ModelCovList.hpp
 %include Model/Model.hpp
 %include Model/Option_AutoFit.hpp
 %include Model/Option_VarioFit.hpp
@@ -227,10 +230,11 @@
 %include Covariances/NoStatFunctional.hpp
 %include Covariances/ACov.hpp
 %include Covariances/CovBase.hpp
-%include Covariances/ACor.hpp
+%include Covariances/CovProportional.hpp
 %include Covariances/CorAniso.hpp
 %include Covariances/ACovFunc.hpp
-%include Covariances/ACovAnisoList.hpp
+%include Covariances/CovList.hpp
+%include Covariances/CovAnisoList.hpp
 %include Covariances/CovAniso.hpp
 %include Covariances/ACovGradient.hpp
 %include Covariances/CorGneiting.hpp
@@ -391,3 +395,4 @@
 
 %template(LinearOpCGSolver) LinearOpCGSolver< ScaleOp >;
 %template(LinearSPDEOpCGSolver) LinearOpCGSolver< SPDEOp >;
+

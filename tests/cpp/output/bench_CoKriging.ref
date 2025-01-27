@@ -1,0 +1,48 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                 rank       x-1       x-2       z-1       z-2
+     [  0,]     1.000     0.652     0.015     0.753    -0.454
+     [  1,]     2.000     0.483     0.557       N/A    -0.872
+     [  2,]     3.000     0.762     0.433     0.793     0.744
+
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+4 - Name Kriging.z-1.estim - Locator z1
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      1.359
+ Maximum value       =      1.359
+ Mean value          =      1.359
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+5 - Name Kriging.z-2.estim - Locator z2
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      0.081
+ Maximum value       =      0.081
+ Mean value          =      0.081
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+6 - Name Kriging.z-1.stdev - Locator NA
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      1.007
+ Maximum value       =      1.007
+ Mean value          =      1.007
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+7 - Name Kriging.z-2.stdev - Locator NA
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      0.794
+ Maximum value       =      0.794
+ Mean value          =      0.794
+ Standard Deviation  =      0.000
+ Variance            =      0.000

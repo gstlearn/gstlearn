@@ -13,6 +13,7 @@
 #include "Space/SpacePoint.hpp"
 #include "Basic/AException.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include <memory>
 
 SpaceSN::SpaceSN(unsigned int ndim, double radius)
   : ASpace(ndim)
@@ -40,6 +41,11 @@ SpaceSN& SpaceSN::operator=(const SpaceSN &r)
 
 SpaceSN::~SpaceSN()
 {
+}
+
+ASpaceSharedPtr SpaceSN::create(int ndim, double radius)
+{
+  return std::shared_ptr<SpaceSN>(new SpaceSN(ndim, radius));
 }
 
 String SpaceSN::toString(const AStringFormat* strfmt, int idx) const

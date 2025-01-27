@@ -3,9 +3,9 @@ Assigning values into a storage
 -------------------------------
 Random values are assigned at random locations 5000000 times
 - Assigning value to the vector of dimension 100000000
-#NO_DIFF# Assignment to vector: 132 ms. (Ref = 120 ms.)
+#NO_DIFF# Assignment to vector: 132 ms. (Ref = 140 ms.)
 - Assigning value to the square matrix of dimension 10000 x 10000
-#NO_DIFF# Assignment to matrix: 82 ms. (Ref = 75 ms.)
+#NO_DIFF# Assignment to matrix: 82 ms. (Ref = 70 ms.)
 
 Comparing various ways of operating Vectors of Double values
 ------------------------------------------------------------

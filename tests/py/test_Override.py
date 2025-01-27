@@ -22,17 +22,17 @@ def is_list_type(mylist, types):
 def check_nrows(db, nrows):
     """Check if a number of rows matches with the number of samples of a Db, and returns the flag
     for useSel (whether it matches the number of active samples or the total number of samples)"""
-    if nrows == db.getActiveSampleNumber() :
+    if nrows == db.getNSampleActive() :
         useSel = True
-    elif nrows == db.getSampleNumber() or db.getSampleNumber()==0:
+    elif nrows == db.getNSample() or db.getNSample()==0:
         useSel = False
     else:
-        if db.getActiveSampleNumber() != db.getSampleNumber():
+        if db.getNSampleActive() != db.getNSample():
             raise ValueError(f"Error of dimension. Your number of lines ({nrows}) has to be equal to " +
-                str(db.getActiveSampleNumber()) + " or " + str(db.getSampleNumber()))
+                str(db.getNSampleActive()) + " or " + str(db.getNSample()))
         else :
             raise ValueError(f"Error of dimension. Your number of lines ({nrows}) has to be equal to " +
-                  str(db.getActiveSampleNumber()))
+                  str(db.getNSampleActive()))
     return useSel
 
 def findColumnNames(self, columns):
@@ -53,14 +53,14 @@ def findColumnNames(self, columns):
         names = self.getNameByColIdx(columns)
     
     elif isinstance(columns, slice):
-        Nmax = self.getColumnNumber()
+        Nmax = self.getNColumn()
         names = []
         for i in range(Nmax)[columns]:
             names.append(self.getNameByColIdx(i))
 
     elif is_list_type(columns, (int, np.int_)):
         names = []
-        Nfields = self.getColumnNumber()
+        Nfields = self.getNColumn()
         for i in columns:
             if i >= Nfields:
                 print(f"Warning: the index {i} is out of bounds with {Nfields}, this index is ignored")
@@ -92,9 +92,9 @@ def getNrows(self, useSel=None):
     if useSel is None:
         useSel = self.useSel
     if useSel:
-        nrows = self.getActiveSampleNumber()
+        nrows = self.getNSampleActive()
     else:
-        nrows = self.getSampleNumber()
+        nrows = self.getNSample()
     return nrows
 
 def getitem(self,arg):

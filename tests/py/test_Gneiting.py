@@ -9,7 +9,7 @@ scales = [2.,3.]
 scaleT = 5.3
 coords1 = [12,3,1]
 coords2 = [4,5,2]
-space1D = gl.SpaceRN(1)
+space1D = gl.SpaceRN.create(1)
 sep = 1
 covtemp = gl.Model.createFromParam(gl.ECov.EXPONENTIAL,ranges =scaleT,flagRange = False, space = space1D).getCova(0)
 covspat = gl.Model.createFromParam(gl.ECov.EXPONENTIAL,ranges =scales,flagRange = False).getCova(0)

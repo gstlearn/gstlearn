@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Db/Db.hpp"
@@ -57,21 +57,21 @@ int main(int argc, char *argv[])
   // Creating the Model
   Model modellmc = Model(ctxt);
   // Build the List of Covariances
-  ACovAnisoList covlmc = ACovAnisoList(ctxt.getSpace());
+  CovAnisoList covlmc = CovAnisoList(ctxt);
   // Build the Elementary Covariances
   CovAniso cov1 = CovAniso(ECov::CUBIC,ctxt);
   cov1.setRanges({1.2,2.1});
   cov1.setSill(1.5);
-  covlmc.addCov(&cov1);
+  covlmc.addCovAniso(&cov1);
   CovAniso cov2 = CovAniso(ECov::NUGGET,ctxt);
   cov2.setSill(0.5);
-  covlmc.addCov(&cov2);
+  covlmc.addCovAniso(&cov2);
   // Assembling the Model
-  modellmc.setCovList(&covlmc);
+  modellmc.setCovAnisoList(&covlmc);
   modellmc.display();
 
   // Building the Covariance Matrix
-  MatrixSquareSymmetric result = modellmc.evalCovMatrixSymmetric(workingDbc);
+  MatrixSquareSymmetric result = modellmc.evalCovMatSym(workingDbc);
   result.display();
 
   // Sample the Model at regular steps
@@ -82,13 +82,13 @@ int main(int argc, char *argv[])
 
   /////////////////////////////
   // Creating the Tapered Model
-  CovLMCTapering covtape = CovLMCTapering(ETape::STORKEY, 4., ctxt.getSpace());
+  CovLMCTapering covtape = CovLMCTapering(ETape::STORKEY, 4., ctxt);
   // Build the Covariance list
-  covtape.addCov(&cov1);
-  covtape.addCov(&cov2);
+  covtape.addCovAniso(&cov1);
+  covtape.addCovAniso(&cov2);
   // Building the Model
   Model modeltape = Model(ctxt);
-  modeltape.setCovList(&covtape);
+  modeltape.setCovAnisoList(&covtape);
   modeltape.display();
 
   // Sample the Tapered Model at regular steps
@@ -96,13 +96,13 @@ int main(int argc, char *argv[])
 
   /////////////////////////////
   // Creating the Convoluted Model
-  CovLMCConvolution covconv = CovLMCConvolution(EConvType::EXPONENTIAL, EConvDir::X, 1., 10, ctxt.getSpace());
+  CovLMCConvolution covconv = CovLMCConvolution(EConvType::EXPONENTIAL, EConvDir::X, 1., 10, ctxt);
   // Build the Covariance list
-  covconv.addCov(&cov1);
-  covconv.addCov(&cov2);
+  covconv.addCovAniso(&cov1);
+  covconv.addCovAniso(&cov2);
   // Building the Model
   Model modelconv = Model(ctxt);
-  modelconv.setCovList(&covconv);
+  modelconv.setCovAnisoList(&covconv);
   modelconv.display();
   // Sample the Tapered Model at regular steps
   VH::display("\nConvoluted Model", modelconv.sample(hh,VectorDouble(),0,0,&mode));
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
   modelM->addDrift(&FF);
   modelM->display();
 
-  int nsample = workingDbc->getSampleNumber();
+  int nsample = workingDbc->getNSample();
   // Adding a first variable (filled completely)
   VectorDouble rnd1 = VH::simulateGaussian(nsample);
   workingDbc->addColumns(rnd1, "Z1");
@@ -168,50 +168,50 @@ int main(int argc, char *argv[])
 
   // Complete Matrices on the whole grid
   message("Covariance Matrix (complete)\n");
-  MatrixSquareSymmetric covMS = modelM->evalCovMatrixSymmetric(workingDbc);
+  MatrixSquareSymmetric covMS = modelM->evalCovMatSym(workingDbc);
   covMS.display();
 
   message("Covariance Matrix Optimal (complete)\n");
-  MatrixSquareSymmetric covMO = modelM->evalCovMatrixSymmetricOptim(workingDbc);
+  MatrixSquareSymmetric covMO = modelM->evalCovMatSymOptim(workingDbc);
   covMO.display();
 
   message("Covariance Matrix Sparse (complete)\n");
-  MatrixSparse* covMSS = modelM->evalCovMatrixSparse(workingDbc);
+  MatrixSparse* covMSS = modelM->evalCovMatSparse(workingDbc);
   covMSS->display();
   delete covMSS;
 
   message("Drift Matrix (complete)\n");
-  driftM = modelM->evalDriftMatrix(workingDbc);
+  driftM = modelM->evalDriftMat(workingDbc);
   driftM.display();
 
   // Adding the selection
   workingDbc->setLocator("Sel", ELoc::SEL, 0);
   message("Covariance Matrix (with selection)\n");
-  covM = modelM->evalCovMatrixSymmetric(workingDbc);
+  covM = modelM->evalCovMatSym(workingDbc);
   covM.display();
 
   message("Drift Matrix (with selection)\n");
-  driftM = modelM->evalDriftMatrix(workingDbc);
+  driftM = modelM->evalDriftMat(workingDbc);
   driftM.display();
 
   // Adding the variables (heterotopic multivariate)
   workingDbc->setLocators({"Z*"}, ELoc::Z, 0);
   message("Covariance Matrix (with selection & heterotopic multivariate)\n");
-  covM = modelM->evalCovMatrixSymmetric(workingDbc);
+  covM = modelM->evalCovMatSym(workingDbc);
   covM.display();
 
   message("Drift Matrix (with selection & heterotopic multivariate)\n");
-  driftM = modelM->evalDriftMatrix(workingDbc);
+  driftM = modelM->evalDriftMat(workingDbc);
   driftM.display();
 
   // Adding the variables (heterotopic multivariate & Verr)
   workingDbc->setLocators({"V*"}, ELoc::V, 0);
   message("Covariance Matrix (with selection & heterotopic multivariate & verr)\n");
-  covM = modelM->evalCovMatrixSymmetric(workingDbc);
+  covM = modelM->evalCovMatSym(workingDbc);
   covM.display();
 
   message("Drift Matrix (with selection & heterotopic multivariate & verr)\n");
-  driftM = modelM->evalDriftMatrix(workingDbc);
+  driftM = modelM->evalDriftMat(workingDbc);
   driftM.display();
 
   // Selecting samples
@@ -219,11 +219,11 @@ int main(int argc, char *argv[])
   VH::display("Ranks of selected samples = ",nbgh);
 
   message("Covariance Matrix (selection & heterotopic multivariate & sampling)\n");
-  covM = modelM->evalCovMatrixSymmetric(workingDbc, -1, nbgh);
+  covM = modelM->evalCovMatSym(workingDbc, -1, nbgh);
   covM.display();
 
   message("Drift Matrix (selection & heterotopic multivariate & sampling)\n");
-  driftM = modelM->evalDriftMatrix(workingDbc, -1, nbgh);
+  driftM = modelM->evalDriftMat(workingDbc, -1, nbgh);
   driftM.display();
 
   // Testing Models on the Sphere

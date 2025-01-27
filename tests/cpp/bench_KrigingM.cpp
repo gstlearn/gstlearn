@@ -18,6 +18,8 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
+#include "Basic/OptCustom.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Estimation/CalcKriging.hpp"
 
@@ -43,15 +45,15 @@ void st_test(Db* grid, Model* model, int nech, int leaf_size, bool verbose)
   if (verbose)
   {
     // Print the test environment
-    message("This test is mean to test Kriging using Moving Neighborhood\n");
+    message("This test is meant to test Kriging using Moving Neighborhood\n");
     message("- the Data Set contains %d samples\n",
-            data->getSampleNumber(true));
+            data->getNSample(true));
     message("- the Output Grid contains %d nodes\n",
-            grid->getSampleNumber(true));
+            grid->getNSample(true));
     message("- the Moving Neighborhood is required:\n");
     message("  . Radius dimension = %lf\n", radius);
     message("  . Maximum number of neighbors = %d\n", nmaxi);
-    message("  . Minimum number of neighbors = %d\n", nmini);
+    message("  . Minimum number of neiNumber of Rowsghbors = %d\n", nmini);
     message("  . Number of angular sectors   = %d\n", nsect);
     message("  . Maxmimum number of neighbors per sector = %d\n", nsmax);
     if (leaf_size > 0)
@@ -94,6 +96,7 @@ int main(int argc, char *argv[])
   // Global parameters
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
+  OptCustom::define("oldStyle", 0.);
 
   // Generate the output grid
   int ncell       = 100;
@@ -104,12 +107,14 @@ int main(int argc, char *argv[])
   // Create the Model
   double range = 1. / 5.;
   double sill  = 2.;
+  bool verbose = false;
   Model* model = Model::createFromParam(ECov::SPHERICAL, range, sill);
 
   if (onlyOne)
   {
     int nech      = 1000;
     int leaf_size = 30;
+    if (verbose) OptDbg::setReference(1);
     st_test(grid, model, nech, leaf_size, true);
 
     // Produce some stats for comparison
@@ -120,10 +125,10 @@ int main(int argc, char *argv[])
   }
   else
   {
-    message("This test is mean to test Kriging Efficiency using Moving "
+    message("This test is meant to test Kriging Efficiency using Moving "
             "Neighborhood\n");
     message("- the Output Grid contains %d nodes\n",
-            grid->getSampleNumber(true));
+            grid->getNSample(true));
     message("- Various number of samples in the Data Set\n");
     message("- Various dimensions of Leaf sizes (for Ball Tree search)\n");
     message("  (0: no Ball Tree search)\n");

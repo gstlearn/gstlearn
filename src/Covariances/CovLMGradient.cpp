@@ -11,25 +11,26 @@
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Covariances/CovLMGradient.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovGradientFunctional.hpp"
 
-CovLMGradient::CovLMGradient(const ASpace* space)
-: ACovAnisoList(space)
+CovLMGradient::CovLMGradient(const CovContext& ctxt)
+: CovAnisoList(ctxt)
 {
 }
+
 
 CovLMGradient::CovLMGradient(const CovLMGradient &r)
-: ACovAnisoList(r)
+: CovAnisoList(r)
 {
 
 }
 
-CovLMGradient::CovLMGradient(const ACovAnisoList& r)
-    : ACovAnisoList()
+CovLMGradient::CovLMGradient(const CovAnisoList& r)
+    : CovAnisoList(r.getContext())
 {
 
-  for (int icov = r.getCovaNumber()-1; icov >= 0; icov--)
+  for (int icov = r.getNCov()-1; icov >= 0; icov--)
   {
     const CovAniso *cov = r.getCova(icov);
     if (!cov->hasCovDerivative())
@@ -44,7 +45,7 @@ CovLMGradient::CovLMGradient(const ACovAnisoList& r)
       delete newcov;
     }
   }
-  for (auto &e: _covs)
+  for (auto &e: _covAnisos)
   {
     e->setOptimEnabled(false);
   }
@@ -54,7 +55,7 @@ CovLMGradient& CovLMGradient::operator=(const CovLMGradient &r)
 {
   if (this != &r)
   {
-    ACovAnisoList::operator=(r);
+    CovAnisoList::operator=(r);
   }
   return *this;
 }
@@ -75,9 +76,9 @@ void CovLMGradient::evalZAndGradients(const SpacePoint& p1,
 {
   _initGradients(covVal, covGp, covGG, flagGrad);
 
-  for (unsigned int i = 0, n = getCovaNumber(); i < n; i++)
+  for (unsigned int i = 0, n = getNCov(); i < n; i++)
   {
-    ACovGradient* covloc = dynamic_cast<ACovGradient *>(_covs[i]);
+    ACovGradient* covloc = dynamic_cast<ACovGradient *>(_covAnisos[i]);
     if (covloc != nullptr)
       covloc->evalZAndGradients(p1, p2, covVal, covGp, covGG, mode, flagGrad);
   }
@@ -98,7 +99,7 @@ void CovLMGradient::evalZAndGradients(const VectorDouble& vec,
   evalZAndGradients(p1, p2, covVal, covGp, covGG, mode, flagGrad);
 }
 
-void CovLMGradient::addCov(const CovAniso* cov)
+void CovLMGradient::addCovAniso(const CovAniso* cov)
 {
   // TODO This should be checked for some cases of Gradient (probably non numerical)
   const ACovGradient* covgrad = dynamic_cast<const ACovGradient*>(cov);
@@ -108,7 +109,7 @@ void CovLMGradient::addCov(const CovAniso* cov)
     return;
   }
   cov->setOptimEnabled(false);
-  ACovAnisoList::addCov(cov);
+  CovAnisoList::addCovAniso(cov);
 
 }
 

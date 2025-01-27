@@ -257,13 +257,14 @@ public:
   VectorString identifyNames(const VectorString& names) const;
   /**@}*/
 
-  inline int getUIDMaxNumber() const { return (int) _uidcol.size(); }
-  inline int getColumnNumber() const { return _ncol; }
+  inline int getNUIDMax() const { return (int) _uidcol.size(); }
+  inline int getNColumn() const { return _ncol; }
 
   static int getNEloc();
-  int getSampleNumber(bool useSel = false) const;
-  int getNumberActiveAndDefined(int item) const;
-  int getActiveSampleNumber() const;
+  int getNSample(bool useSel = false) const;
+  int getNSampleActiveAndDefined(int item) const;
+  int getNSampleActiveAndDefined(const String& name) const;
+  int getNSampleActive() const;
   int getRankRelativeToAbsolute(int irel) const;
   int getRankAbsoluteToRelative(int iabs) const;
 
@@ -423,7 +424,6 @@ public:
                        int* ret_locatorIndex) const;
   VectorString getLocators(bool anyLocator = true,
                            const ELoc& locatorType = ELoc::fromKey("UNKNOWN")) const;
-  int getLocatorNumber(const ELoc& locatorType) const;
   bool isUIDDefined(int iuid) const;
 
   int getUID(const String &name) const;
@@ -439,13 +439,13 @@ public:
   void copyByUID(int iuidIn, int iuidOut);
   void copyByCol(int icolIn, int icolOut);
 
-  int getFaciesNumber(void) const;
+  int getNFacies(void) const;
   bool hasLocatorDefined(const String& name, const ELoc& locatorType, int locatorIndex=0) const;
 
   // Accessing elements of the contents
 
   VectorDouble getSampleCoordinates(int iech) const;
-          void getSampleAsSPInPlace(SpacePoint& P) const;
+  void getSampleAsSPInPlace(SpacePoint& P, int iech) const;
   virtual void getSampleAsSTInPlace(int iech, SpaceTarget& P) const;
   VectorDouble getSampleLocators(const ELoc& locatorType, int iech) const;
   VectorVectorDouble getIncrements(const VectorInt& iechs, const VectorInt& jechs) const;
@@ -474,10 +474,10 @@ public:
   void getArrayBySample(std::vector<double>& vals, int iech) const;
   void   setArrayBySample(int iech, const VectorDouble& vec);
 
-  void getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpace* space,bool useSel = false) const;
+  void getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpaceSharedPtr& space,bool useSel = false) const;
 
   bool   hasLocator(const ELoc& locatorType) const;
-  int    getFromLocatorNumber(const ELoc& locatorType) const;
+  int    getNFromLocator(const ELoc& locatorType) const;
   double getFromLocator(const ELoc& locatorType, int iech, int locatorIndex=0) const;
   void   setFromLocator(const ELoc& locatorType,
                         int iech,
@@ -522,14 +522,14 @@ public:
    * @param value   Assigned value
    *  @{
    */
-  int    getLocNumber(const ELoc& loctype) const;
+  int    getNLoc(const ELoc& loctype) const;
   bool   hasLocVariable(const ELoc& loctype) const;
   double getLocVariable(const ELoc& loctype, int iech, int item) const;
   void   setLocVariable(const ELoc& loctype, int iech, int item, double value);
   void   updLocVariable(const ELoc& loctype, int iech, int item, const EOperator& oper, double value);
   /**@}*/
 
-  int    getZNumber() const;
+  int    getNZValues() const;
   bool   hasZVariable() const;
   double getZVariable(int iech, int item) const;
   void   setZVariable(int iech, int item, double value);
@@ -538,14 +538,14 @@ public:
   VectorDouble getLocVariables(const ELoc& loctype, int iech, int nitemax = 0) const;
   void   setLocVariables(const ELoc& loctype, int iech, const VectorDouble& values);
 
-  bool   isVariableNumberComparedTo(int nvar, int compare = 0) const;
+  bool   isNVarComparedTo(int nvar, int compare = 0) const;
   bool   isIsotopic(int iech, int nvar_max = -1) const;
   bool   isAllUndefined(int iech) const;
   bool   isAllUndefinedByType(const ELoc& loctype, int iech) const;
   bool   isAllIsotopic() const;
 
   void   setInterval(int iech, int item, double rklow = TEST, double rkup = TEST);
-  int    getIntervalNumber() const;
+  int    getNInterval() const;
   void   setBound(int iech, int item, double lower = TEST, double upper = TEST);
   VectorDouble getWithinBounds(int item, bool useSel = false) const;
   VectorDouble getGradient(int item, bool useSel = false) const;
@@ -554,28 +554,24 @@ public:
 
   int          getSelection(int iech) const;
   VectorDouble getSelections(void) const;
-  VectorInt getRanksActive(const VectorInt &nbgh = VectorInt(),
-                           int item = -1,
-                           bool useSel = true,
-                           bool useVerr = false) const;
-  VectorVectorInt getMultipleRanksActive(const VectorInt &ivars = VectorInt(),
-                                         const VectorInt &nbgh = VectorInt(),
-                                         bool useSel = true,
-                                         bool useVerr = false) const;
-  VectorDouble
-  getMultipleValuesActive(const VectorInt& ivars    = VectorInt(),
-                          const VectorInt& nbgh     = VectorInt(),
-                          const VectorDouble& means = VectorDouble(),
-                          bool useSel               = true,
-                          bool useVerr              = false) const;
-  static VectorInt
-  getMultipleSelectedIndices(const VectorVectorInt& index,
-                             const VectorInt& ivars = VectorInt(),
-                             const VectorInt& nbgh  = VectorInt());
-  static VectorInt
-  getMultipleSelectedVariables(const VectorVectorInt& index,
-                               const VectorInt& ivars = VectorInt(),
-                               const VectorInt& nbgh  = VectorInt());
+  VectorInt getRanksActive(const VectorInt& nbgh = VectorInt(),
+                           int item              = -1,
+                           bool useSel           = true,
+                           bool useZ             = true,
+                           bool useVerr          = false) const;
+  VectorVectorInt getSampleRanks(const VectorInt& ivars = VectorInt(),
+                                 const VectorInt& nbgh  = VectorInt(),
+                                 bool useSel            = true,
+                                 bool useZ              = true,
+                                 bool useVerr           = false) const;
+  VectorDouble getValuesByRanks(const VectorVectorInt& sampleRanks,
+                                const VectorDouble& means = VectorDouble()) const;
+  static VectorInt getMultipleSelectedRanks(const VectorVectorInt& index,
+                                            const VectorInt& ivars = VectorInt(),
+                                            const VectorInt& nbgh  = VectorInt());
+  static VectorInt getMultipleSelectedVariables(const VectorVectorInt& index,
+                                                const VectorInt& ivars = VectorInt(),
+                                                const VectorInt& nbgh  = VectorInt());
 
   double getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;
@@ -626,8 +622,6 @@ public:
   bool isActive(int iech) const;
   bool isActiveDomain(int iech) const;
   bool isActiveAndDefined(int iech, int item) const;
-  int  getActiveAndDefinedNumber(int item) const;
-  int  getActiveAndDefinedNumber(const String& name) const;
   VectorBool getActiveArray() const;
 
   VectorInt getSortArray() const;
@@ -883,7 +877,6 @@ public:
                    int belowRow = ITEST,
                    int aboveRow = ITEST) const;
 
-  VectorInt getSampleRanks() const;
   Table printOneSample(int iech,
                        const VectorString& names = VectorString(),
                        bool excludeCoordinates   = true,

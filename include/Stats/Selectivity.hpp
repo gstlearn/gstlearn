@@ -77,7 +77,7 @@ public:
   void   resetCuts(const VectorDouble& zcuts);
   int    getNCuts() const { return static_cast<int>(_Zcut.size()); }
   static int getNQT() { return static_cast<int>(ESelectivity::getSize()); }
-  int    getVariableNumber() const;
+  int    getNVar() const;
   String getVariableName(const ESelectivity& code, int icut, int mode) const;
   String getVariableName(int rank0) const;
   VectorString getVariableNames() const;
@@ -115,10 +115,10 @@ public:
   bool isNeededQ() const;
   int  getAddressQTEst(const ESelectivity& code, int iptr0, int rank=0) const;
   int  getAddressQTStd(const ESelectivity& code, int iptr0, int rank=0) const;
-  int  getNumberQTEst(const ESelectivity& code) const;
-  int  getNumberQTStd(const ESelectivity& code) const;
-  VectorInt getNumberQTEst() const;
-  VectorInt getNumberQTStd() const;
+  int  getNQTEst(const ESelectivity& code) const;
+  int  getNQTStd(const ESelectivity& code) const;
+  VectorInt getNQTEst() const;
+  VectorInt geNQTStd() const;
   void storeInDb(Db *db, int iech0, int iptr, double zestim, double zstdev) const;
   void interpolateSelectivity(const Selectivity* selecin);
 
@@ -131,7 +131,7 @@ public:
   Table getStats() const;
   Table getAllStats() const { return _stats; }
 
-  const MatrixInt& getNumberQt() const { return _numberQT; }
+  const MatrixInt& getCountQT() const { return _numberQT; }
   const MatrixInt& getRankQt() const { return _rankQT; }
 
 private:

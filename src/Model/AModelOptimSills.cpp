@@ -1027,7 +1027,7 @@ void AModelOptimSills::_printResults(double crit) const
   if (_modelPart._verbose)
   {
     const Model* model = _modelPart._model;
-    int ncov           = model->getCovaNumber();
+    int ncov           = model->getNCov();
     for (int icov = 0; icov < ncov; icov++)
     {
       const CovAniso* cova = model->getCova(icov);

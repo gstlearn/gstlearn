@@ -1,6 +1,5 @@
 #include "Covariances/TabNoStat.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/String.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ParamId.hpp"
 #include "Enum/EConsElem.hpp"

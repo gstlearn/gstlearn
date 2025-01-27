@@ -384,7 +384,7 @@ void dbStatisticsVariables(Db *db,
   /* Loop on the samples */
 
   VectorDouble local(niuid);
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
 
@@ -490,14 +490,14 @@ Table dbStatisticsMono(Db *db,
   VectorInt iuids = db->getUIDs(names);
   int niuid = static_cast<int>(iuids.size());
   int noper = static_cast<int>(opers.size());
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
 
   // Find the Isotopic samples (optional)
 
   VectorDouble tab;
   VectorDouble local(nech, 0.);
   VectorBool accept(nech, true);
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     accept[iech] = false;
     if (! db->isActive(iech)) continue;
@@ -529,7 +529,7 @@ Table dbStatisticsMono(Db *db,
 
     /* Loop on the samples */
 
-    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    for (int iech = 0; iech < db->getNSample(); iech++)
     {
       if (! accept[iech]) continue;
       double value = db->getArray(iech, iuids[iuid]);
@@ -660,15 +660,15 @@ VectorDouble dbStatisticsFacies(Db *db)
 {
   VectorDouble props;
 
-  if (db->getLocatorNumber(ELoc::Z) != 1)
+  if (db->getNLoc(ELoc::Z) != 1)
   {
     messerr(
         "This function requires the number of variables (%d) to be equal to 1",
-        db->getLocatorNumber(ELoc::Z));
+        db->getNLoc(ELoc::Z));
     return props;
   }
-  int nech = db->getSampleNumber();
-  int nfac = db->getFaciesNumber();
+  int nech = db->getNSample();
+  int nfac = db->getNFacies();
 
   // Calculate the proportions
 
@@ -705,11 +705,11 @@ VectorDouble dbStatisticsFacies(Db *db)
  *****************************************************************************/
 double dbStatisticsIndicator(Db *db)
 {
-  if (db->getLocatorNumber(ELoc::Z) != 1)
+  if (db->getNLoc(ELoc::Z) != 1)
   {
     messerr(
         "This function requires the number of variables (%d) to be equal to 1",
-        db->getLocatorNumber(ELoc::Z));
+        db->getNLoc(ELoc::Z));
     return TEST;
   }
 
@@ -717,7 +717,7 @@ double dbStatisticsIndicator(Db *db)
 
   double prop = 0.;
   int neff = 0;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
     int ifac = (int) db->getZVariable(iech, 0);
@@ -754,7 +754,7 @@ Table dbStatisticsCorrel(Db *db, const VectorString &names, bool flagIso, const 
   /* Loop on the samples */
 
   int numiso = 0;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
 
@@ -841,7 +841,7 @@ Table dbStatisticsCorrel(Db *db, const VectorString &names, bool flagIso, const 
  */
 MatrixSquareSymmetric dbVarianceMatrix(const Db* db)
 {
-  int nvar = db->getLocNumber(ELoc::Z);
+  int nvar = db->getNLoc(ELoc::Z);
   VectorDouble data(nvar, 0.);
   VectorDouble mean(nvar, 0.);
   MatrixSquareSymmetric mat(nvar);
@@ -849,7 +849,7 @@ MatrixSquareSymmetric dbVarianceMatrix(const Db* db)
   /* Loop on the samples */
 
   int numiso = 0;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
 
@@ -927,7 +927,7 @@ int statisticsProportion(DbGrid *dbin,
     messerr("The 1-D output grid does not match input grid");
     return 1;
   }
-  if (!dbin->isVariableNumberComparedTo(1)) return 1;
+  if (!dbin->isNVarComparedTo(1)) return 1;
 
   /* Core allocation */
 
@@ -1024,7 +1024,7 @@ int statisticsTransition(DbGrid *dbin,
     messerr("The 1-D output grid does not match input grid");
     return 1;
   }
-  if (!dbin->isVariableNumberComparedTo(1)) return 1;
+  if (!dbin->isNVarComparedTo(1)) return 1;
 
   /* Core allocation */
 
@@ -1165,7 +1165,7 @@ void dbStatisticsPrint(const Db *db,
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
 
@@ -1363,7 +1363,7 @@ VectorDouble dbStatisticsPerCell(Db *db,
   if (! name2.empty()) juid = db->getUID(name2);
   double z1 = 0.;
   double z2 = 0.;
-  int nxyz = dbgrid->getSampleNumber();
+  int nxyz = dbgrid->getNSample();
   int ncut = (int) cuts.size();
   int ndim = dbgrid->getNDim();
   if (juid < 0) juid = iuid;
@@ -1455,7 +1455,7 @@ VectorDouble dbStatisticsPerCell(Db *db,
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
 
@@ -1614,7 +1614,7 @@ Table dbStatisticsMulti(Db *db,
 
   VectorInt cols = db->getUIDs(names);
   int ncol = (int) cols.size();
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int ncol2 = ncol * ncol;
 
   /* Check that all variables are defined */
@@ -1836,7 +1836,7 @@ int dbStatisticsInGridTool(Db *db,
 {
   int iptm = -1;
   int iptn = -1;
-  int nxyz = dbgrid->getSampleNumber();
+  int nxyz = dbgrid->getNSample();
   int ndim = dbgrid->getNDim();
   VectorInt iuids = db->getUIDs(names);
   int nuid = (int) iuids.size();
@@ -1874,7 +1874,7 @@ int dbStatisticsInGridTool(Db *db,
     /* Loop on the samples */
 
     int nmed = 0;
-    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    for (int iech = 0; iech < db->getNSample(); iech++)
     {
 
       /* Read a sample */
@@ -2046,18 +2046,18 @@ VectorVectorInt correlationPairs(Db *db1,
   if (db1 == nullptr) return indices;
   if (db2 == nullptr) return indices;
   if (db1->getNDim() != db2->getNDim() ||
-      db1->getSampleNumber(true) != db2->getSampleNumber(true))
+      db1->getNSample(true) != db2->getNSample(true))
   {
     messerr("The two input 'db' are not compatible");
     return indices;
   }
 
-  int nech = db1->getSampleNumber();
+  int nech = db1->getNSample();
   int ndim = db1->getNDim();
   int shift = (flagFrom1) ? 1 : 0;
-  SpaceRN space(ndim);
-  SpaceTarget T1(&space);
-  SpaceTarget T2(&space);
+  auto space = SpaceRN::create(ndim);
+  SpaceTarget T1(space);
+  SpaceTarget T2(space);
 
   /* Regular correlation */
 
@@ -2127,16 +2127,16 @@ VectorVectorInt hscatterPairs(Db *db,
 
   if (db == nullptr) return indices;
   if (varioparam == nullptr) return indices;
-  if (idir < 0 || idir >= varioparam->getDirectionNumber()) return indices;
+  if (idir < 0 || idir >= varioparam->getNDir()) return indices;
 
   /* Initializations */
 
   const DirParam dirparam = varioparam->getDirParam(idir);
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int ndim = db->getNDim();
-  SpaceRN space(ndim);
-  SpaceTarget T1(&space);
-  SpaceTarget T2(&space);
+  auto space = SpaceRN::create(ndim);
+  SpaceTarget T1(space);
+  SpaceTarget T2(space);
   indices.resize(2);
 
   // Creating a local Vario structure from VarioParam (in order to constitute the BiTargetCheck list)
@@ -2221,7 +2221,7 @@ int correlationIdentify(Db *db1,
 {
   if (db1 == nullptr) return (1);
   if (db2 == nullptr) return (1);
-  int nech = db1->getSampleNumber();
+  int nech = db1->getNSample();
   int number = 0;
 
   /* Correlation */
@@ -2281,7 +2281,7 @@ VectorVectorDouble condexp(Db *db1,
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < db1->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db1->getNSample(); iech++)
   {
     if (!db1->isActive(iech)) continue;
     double val1 = db1->getArray(iech, icol1);

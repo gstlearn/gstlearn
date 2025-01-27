@@ -109,13 +109,13 @@ int surface(Db *db_point,
 
   double d2max = (FFFF(dlim)) ? 1.e30 : dlim * dlim;
   double maille = db_grid->getCellSize();
-  for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db_point->getNSample(); iech++)
     dtab[iech] = 0.;
 
   /* Loop on the target points */
 
   VectorDouble vgrid(ndim);
-  for (int igrid = 0; igrid < db_grid->getSampleNumber(); igrid++)
+  for (int igrid = 0; igrid < db_grid->getNSample(); igrid++)
   {
     gtab[igrid] = -1;
     if (!db_grid->isActive(igrid)) continue;
@@ -130,7 +130,7 @@ int surface(Db *db_point,
     /* Loop on the data points */
 
     double d2min = d2max;
-    for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
+    for (int iech = 0; iech < db_point->getNSample(); iech++)
     {
       if (!db_point->isActive(iech)) continue;
 
@@ -162,18 +162,18 @@ int surface(Db *db_point,
 
   /* Calculate the influence of each datum */
 
-  for (int igrid = 0; igrid < db_grid->getSampleNumber(); igrid++)
+  for (int igrid = 0; igrid < db_grid->getNSample(); igrid++)
   {
     int jech = (int) gtab[igrid];
     if (jech >= 0) dtab[jech]++;
   }
-  for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db_point->getNSample(); iech++)
     dtab[iech] *= maille;
 
   /* Evaluate each grid node with the size of the influence polygon */
   /* to which it belongs                                            */
 
-  for (int igrid = 0; igrid < db_grid->getSampleNumber(); igrid++)
+  for (int igrid = 0; igrid < db_grid->getNSample(); igrid++)
   {
     int jech = (int) gtab[igrid];
     if (jech >= 0)
@@ -204,8 +204,8 @@ static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
   /* Initializations */
 
   (void) gslStrcpy(string, "NA");
-  nech = db->getSampleNumber();
-  nvar = db->getColumnNumber();
+  nech = db->getNSample();
+  nvar = db->getNColumn();
 
   ivar_deb = ivar - nrdv;
   ivar_fin = ivar + nrdv;
@@ -299,7 +299,7 @@ static int st_edit_find(Db *db,
 
   if (orient > 0)
   {
-    for (int i = iech + 1; i < db->getSampleNumber(); i++)
+    for (int i = iech + 1; i < db->getNSample(); i++)
     {
       value = db->getArray(i, ivar);
       if (FFFF(value)) continue;
@@ -482,8 +482,8 @@ int db_edit(Db *db, int *flag_valid)
 
   /* Initializations */
 
-  nech = db->getSampleNumber();
-  nvar = db->getColumnNumber();
+  nech = db->getNSample();
+  nvar = db->getNColumn();
   ivar = iech = 0;
   nrds = nrdv = incr = 1;
   vmin = vmax = TEST;
@@ -700,11 +700,11 @@ void ut_trace_sample(Db *db,
   xs = ys = nullptr;
   lys = typ = rks = nullptr;
   ns = 0;
-  nvar = db->getIntervalNumber();
+  nvar = db->getNInterval();
 
   /* Loop on the samples */
 
-  for (iech = 0; iech < db->getSampleNumber(); iech++)
+  for (iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
 
@@ -894,8 +894,8 @@ static VectorDouble st_point_init_inhomogeneous(int number,
     messerr("This function requires the Db organized as a grid");
     return tab;
   }
-  bool flag_dens = (dbgrid->getLocNumber(ELoc::Z) == 1);
-  bool flag_region = (ndim == 2 && dbgrid->getLocatorNumber(ELoc::NOSTAT) == (ndim+1));
+  bool flag_dens = (dbgrid->getNLoc(ELoc::Z) == 1);
+  bool flag_region = (ndim == 2 && dbgrid->getNLoc(ELoc::NOSTAT) == (ndim+1));
 
   VectorDouble coor(ndim);
   VectorDouble coorbis(ndim);
@@ -906,14 +906,14 @@ static VectorDouble st_point_init_inhomogeneous(int number,
 
   /* Evaluate the density */
 
-  int ngrid = dbgrid->getSampleNumber(true);
+  int ngrid = dbgrid->getNSample(true);
   VectorDouble dens;
   dens.resize(ngrid,0.);
   double denstot = 0.;
   if (flag_dens)
   {
     int ig = 0;
-    for (int jg = 0, ng = dbgrid->getActiveSampleNumber(); jg < ng; jg++)
+    for (int jg = 0, ng = dbgrid->getNSampleActive(); jg < ng; jg++)
     {
       if (!dbgrid->isActiveAndDefined(jg, 0)) continue;
       double densloc = dbgrid->getZVariable(jg, 0);
@@ -923,7 +923,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
   }
   else
   {
-    denstot = dbgrid->getSampleNumber(true);
+    denstot = dbgrid->getNSample(true);
   }
 
   /* Point generation */
@@ -1037,7 +1037,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
  *****************************************************************************/
 int db_resind(Db *db, int ivar, const VectorDouble& zcut)
 {
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int ncut = (int) zcut.size();
   if (! VH::isSorted(zcut, true))
   {
@@ -1112,7 +1112,7 @@ static void st_gradient_normalize(Db *dbgrid)
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbgrid->getNSample(); iech++)
   {
 
     norme = 0.;
@@ -1159,7 +1159,7 @@ int db_gradient_components(DbGrid *dbgrid)
     messerr("The Db should be organized as a Grid");
     goto label_end;
   }
-  if (!dbgrid->isVariableNumberComparedTo(1)) goto label_end;
+  if (!dbgrid->isNVarComparedTo(1)) goto label_end;
   if (ndim > 3)
   {
     messerr("This function is limited to Space Dimension <= 3");
@@ -1398,11 +1398,11 @@ int db_streamline(DbGrid *dbgrid,
 
   if (use_grad)
   {
-    if (dbgrid->getLocNumber(ELoc::G) != ndim)
+    if (dbgrid->getNLoc(ELoc::G) != ndim)
     {
       messerr("When using the option 'use.grad'");
       messerr("the number of gradients should be %d (%d)", ndim,
-              dbgrid->getLocNumber(ELoc::G));
+              dbgrid->getNLoc(ELoc::G));
       goto label_end;
     }
     iptr_grad = dbgrid->getColIdxByLocator(ELoc::G, 0);
@@ -1419,7 +1419,7 @@ int db_streamline(DbGrid *dbgrid,
 
   /* Loop on the drop points */
 
-  for (int iech = 0; iech < dbpoint->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbpoint->getNSample(); iech++)
   {
     if (!dbpoint->isActive(iech)) continue;
     if (iech % nbyech != 0) continue;
@@ -1524,7 +1524,7 @@ int db_smooth_vpc(DbGrid *db, int width, double range)
   /* Initializations */
 
   error = 1;
-  nprop = db->getLocNumber(ELoc::P);
+  nprop = db->getNLoc(ELoc::P);
   nz = db->getNX(2);
   dz = db->getDX(2);
   prop1 = prop2 = kernel = nullptr;
@@ -1653,7 +1653,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
     return dbnew;
   }
 
-  if (! db->isVariableNumberComparedTo(1,1))
+  if (! db->isNVarComparedTo(1,1))
   {
     messerr("You should define some Z-variables in input 'db'");
     return dbnew;
@@ -1663,7 +1663,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
   int iz = 0;
   int nz   = dbgrid->getNX(2);
-  int nvar = db->getLocNumber(ELoc::Z);
+  int nvar = db->getNLoc(ELoc::Z);
   int ndim = db->getNDim();
   int size = ndim + nvar + 1;
 
@@ -1676,7 +1676,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
   // Loop on the different samples
 
-  int ntot = db->getSampleNumber();
+  int ntot = db->getNSample();
 
   //message("Before regularization: ncode = %d, nz = %d, ntot = %d\n", (int)ncode, (int)nz, (int)ntot);
 
@@ -1815,7 +1815,7 @@ int db_grid2point_sampling(DbGrid *dbgrid,
   coor = data = nullptr;
   retain = nullptr;
   ndim = dbgrid->getNDim();
-  nfine = dbgrid->getSampleNumber();
+  nfine = dbgrid->getNSample();
   nmini       = MAX(nmini, npcell);
   VectorInt indg(ndim,0);
   if (ndim > 3)
@@ -2102,7 +2102,7 @@ int db_proportion_estimate(Db *dbin,
     messerr("This method requires a 'model' argument");
     return 1;
   }
-  if (dbin->getLocNumber(ELoc::Z) != 1)
+  if (dbin->getNLoc(ELoc::Z) != 1)
   {
     messerr("The argument 'dbin' should have a single variable");
     return 1;
@@ -2128,7 +2128,7 @@ int db_proportion_estimate(Db *dbin,
   // Loading the resulting results in the output 'dbout'
 
   int iptr0 = -1;
-  VectorDouble propout(dbout->getSampleNumber(true));
+  VectorDouble propout(dbout->getNSample(true));
   for (int i = 0; i < ncat; i++)
   {
     AprojOut.mesh2point(props[i],propout);

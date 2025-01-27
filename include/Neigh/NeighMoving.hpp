@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
@@ -52,7 +53,7 @@ public:
               int nsmax = ITEST,
               const VectorDouble& coeffs = VectorDouble(),
               const VectorDouble& angles = VectorDouble(),
-              const ASpace* space = nullptr);
+              const ASpaceSharedPtr& space = ASpaceSharedPtr());
   NeighMoving(const NeighMoving& r);
   NeighMoving& operator=(const NeighMoving& r);
   virtual ~NeighMoving();
@@ -62,7 +63,7 @@ public:
   virtual void getNeigh(int iech_out, VectorInt& ranks) override;
   virtual bool hasChanged(int iech_out) const override;
   virtual VectorDouble summary(int iech_out) override;
-  virtual int getMaxSampleNumber(const Db* db) const override;
+  virtual int getNSampleMax(const Db* db) const override;
   virtual ENeigh getType() const override { return ENeigh::fromKey("MOVING"); }
   virtual bool getFlagContinuous() const override { return (! FFFF(_distCont) && _distCont < 1.); }
 
@@ -77,7 +78,7 @@ public:
                              int nsmax = ITEST,
                              const VectorDouble& coeffs = VectorDouble(),
                              const VectorDouble& angles = VectorDouble(),
-                             const ASpace* space = nullptr);
+                             const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = true);
 
   void addBiTargetCheck(ABiTargetCheck* abpc);
@@ -115,7 +116,7 @@ protected:
   String _getNFName() const override { return "NeighMoving"; }
 
 private:
-  int  _getBiPtsNumber() const { return (int) _bipts.size(); }
+  int  _getNBiPts() const { return (int) _bipts.size(); }
   int  _moving(int iech_out, VectorInt& ranks, double eps = EPSILON9);
   int  _movingSectorDefine(double dx, double dy) const;
   void _movingSectorNsmax(int nsel, VectorInt& ranks);

@@ -262,7 +262,7 @@ int ShiftOpMatrix::initFromCS(const MatrixSparse* S,
 
     _TildeC = TildeC;
     _Lambda = Lambda;
-    _ndim   = cova->getDimensionNumber();
+    _ndim   = cova->getNDim();
 
     // Duplicate the Shift Operator sparse matrix
 
@@ -955,7 +955,7 @@ bool ShiftOpMatrix::_cond(int indref, int igparam, int ipref)
 int ShiftOpMatrix::_buildSGrad(const AMesh *amesh, double tol)
 {
   auto cova = _getCovAniso();
-  _nCovAnisoGradParam = cova->getGradParamNumber();
+  _nCovAnisoGradParam = cova->getNGradParam();
   int number = _nCovAnisoGradParam * getSize();
   VectorT<std::map<int, double> > tab(number);
   std::vector<std::map<std::pair<int, int>, double> > Mtab(number);
@@ -1178,7 +1178,7 @@ void ShiftOpMatrix::_buildLambda(const AMesh *amesh)
 
  if (flagSphere)
   {
-    const ASpace *space = getDefaultSpace();
+    const ASpace *space = getDefaultSpaceSh().get();
     const SpaceSN *spaceSn = dynamic_cast<const SpaceSN*>(space);
     double r = 1.;
     if (spaceSn != nullptr) r = spaceSn->getRadius();

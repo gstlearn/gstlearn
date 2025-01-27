@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
   int nall = 100;
   Db* dbin = Db::createFillRandom(nall, ndim);
   dbin->addSelectionRandom(0.9);
-  int ndat = dbin->getSampleNumber(true);
+  int ndat = dbin->getNSample(true);
   if (verbose) dbin->display();
 
   // Generate the output data base
@@ -80,8 +80,7 @@ int main(int argc, char *argv[])
     timer.reset();
     for (int i = 0; i < nout; i++)
     {
-      p2.setIech(i);
-      dbout->getSampleAsSPInPlace(p2);
+      dbout->getSampleAsSPInPlace(p2, i);
       VectorDouble rhs1 = model->evalPointToDb(p2, dbin);
       VH::addInPlace(cumul, rhs1);
     }
@@ -105,8 +104,7 @@ int main(int argc, char *argv[])
     timer.reset();
     for (int i = 0; i < nout; i++)
     {
-      p2.setIech(i);
-      dbout->getSampleAsSPInPlace(p2);
+      dbout->getSampleAsSPInPlace(p2, i);
       VectorDouble rhs2 = model->evalPointToDbAsSP(p1s, p2);
       VH::addInPlace(cumul, rhs2);
     }
@@ -128,7 +126,7 @@ int main(int argc, char *argv[])
     VH::fill(cumul, 0.);
 
     timer.reset();
-    MatrixRectangular matvec = model->evalCovMatrixOptim(dbin, dbout);
+    MatrixRectangular matvec = model->evalCovMatOptim(dbin, dbout);
     for (int i = 0; i < nout; i++)
       VH::addInPlace(cumul, matvec.getColumn(i));
     timer.displayIntervalMilliseconds("Establishing RHS (optimized)", 300);
@@ -147,7 +145,7 @@ int main(int argc, char *argv[])
     VH::fill(cumul, 0.);
 
     timer.reset();
-    MatrixRectangular matvec = model->evalCovMatrix(dbin, dbout);
+    MatrixRectangular matvec = model->evalCovMat(dbin, dbout);
     for (int i = 0; i < nout; i++)
       VH::addInPlace(cumul, matvec.getColumn(i));
     timer.displayIntervalMilliseconds("Establishing RHS (not optimized)", 300);

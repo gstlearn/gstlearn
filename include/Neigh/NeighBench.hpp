@@ -11,6 +11,7 @@
 #pragma once
 
 #include <Geometry/BiTargetCheckBench.hpp>
+#include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
@@ -38,7 +39,7 @@ class Db;
 class GSTLEARN_EXPORT NeighBench: public ANeigh
 {
 public:
-  NeighBench(bool flag_xvalid = false, double width = 0., const ASpace* space = nullptr);
+  NeighBench(bool flag_xvalid = false, double width = 0., const ASpaceSharedPtr& space = ASpaceSharedPtr());
   NeighBench(const NeighBench& r);
   NeighBench& operator=(const NeighBench& r);
   virtual ~NeighBench();
@@ -47,7 +48,7 @@ public:
   virtual int attach(const Db *dbin, const Db *dbout = nullptr) override;
   virtual void getNeigh(int iech_out, VectorInt& ranks) override;
   virtual bool hasChanged(int iech_out) const override;
-  virtual int getMaxSampleNumber(const Db* db) const override;
+  virtual int getNSampleMax(const Db* db) const override;
   virtual ENeigh getType() const override { return ENeigh::fromKey("BENCH"); }
 
   /// Interface for AStringable
@@ -55,7 +56,7 @@ public:
 
   static NeighBench* create(bool flag_xvalid = false,
                             double width = 0,
-                            const ASpace *space = nullptr);
+                            const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static NeighBench* createFromNF(const String& neutralFilename, bool verbose = true);
 
   double getWidth() const { return _width; }

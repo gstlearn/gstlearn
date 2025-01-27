@@ -12,6 +12,7 @@
 
 #include "Basic/AFunctional.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Enum/EConsElem.hpp"
@@ -23,7 +24,6 @@
 
 #include "Basic/ICloneable.hpp"
 #include "Basic/Tensor.hpp"
-#include "Covariances/ACor.hpp"
 #include "Covariances/ACovFunc.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
@@ -46,7 +46,7 @@ class CovInternal;
  * structure, ...
  * All these parameters are processed and stored as a **tensor** in order to avoid repetitive calculations.
  */
-class GSTLEARN_EXPORT CorAniso: public ACor, public ICloneable
+class GSTLEARN_EXPORT CorAniso: public ACov, public ICloneable
 {
 public:
   CorAniso(const ECov& type, const CovContext& ctxt);
@@ -70,11 +70,9 @@ public:
   virtual bool isConsistent(const ASpace* space) const override;
 
   /// ACov Interface
-  virtual int getNVariables() const override { return 1; }
-
+  virtual int getNVar() const override { return 1; }
 
   /// ACov Interface
-  
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
                       int ivar = 0,
@@ -107,12 +105,12 @@ public:
 
   void optimizationPreProcess(const std::vector<SpacePoint>& p,
                                std::vector<SpacePoint> &p1As) const override;
-  void optimizationSetTargetByIndex(int iech,
+  void _optimizationSetTargetByIndex(int iech,
                                     const std::vector<SpacePoint> &p1As,
                                     SpacePoint & p2A) const;
 
-  void optimizationPostProcess() const override;
-  bool isNoStat() const;
+  void _optimizationPostProcess() const override;
+  bool isNoStat() const override;
   bool isValidForTurningBand() const;
   double simulateTurningBand(double t0, TurningBandOperate &operTB) const;
   bool isValidForSpectral() const ;
@@ -161,7 +159,7 @@ public:
 
   void setRotationAnglesAndRadius(const VectorDouble& angles = VectorDouble(),
                                   const VectorDouble& ranges = VectorDouble(),
-                                  const VectorDouble& scales = VectorDouble());
+                                  const VectorDouble& scales = VectorDouble()) const;
 
   VectorDouble getRanges() const;
   const Rotation& getAnisoRotation() const { return _aniso.getRotation(); }
@@ -198,7 +196,7 @@ public:
   const Tensor& getAniso() const { return _aniso; }
   void   setAniso(const Tensor& aniso) { _aniso = aniso; }
   const ACovFunc* getCova() const { return _cova; }
-  int    getGradParamNumber() const;
+  int    getNGradParam() const;
   bool   hasCovDerivative() const { return _cova->hasCovDerivative(); }
   bool   hasCovOnSphere() const { return _cova->hasCovOnSphere(); }
   bool   hasSpectrumOnSphere() const { return _cova->hasSpectrumOnSphere(); }
@@ -260,29 +258,28 @@ public:
   /// Tell if the use of Optimization is enabled or not
 
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
-  void updateCovByMesh(int imesh,bool aniso = true) override;
+  void updateCovByMesh(int imesh,bool aniso = true) const override;
   double getValue(const EConsElem &econs,int iv1,int iv2) const override;
   void setOptimEnabled(bool flag) const { _optimEnabled = flag; }
   void computeCorrec();
   double evalCorFromH(double h, const CovCalcMode *mode) const;
   double getDetTensor() const;
-  void updateFromContext() override;
-  void initFromContext() override;
+
   void optimizationSetTarget(const SpacePoint& pt,
                               SpacePoint& p2A) const;
   void optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
   String toStringParams(const AStringFormat* strfmt = nullptr) const;
   String toStringNoStat(const AStringFormat* strfmt = nullptr,int i = 0) const;
-
+  
 protected:
   /// Update internal parameters consistency with the context
 
-
+  void _initFromContext() override;
 private:
   TabNoStat* _createNoStatTab() override;
   void _copyCovContext(const CovContext &ctxt) override;
 
-bool _isOptimEnabled() const  
+bool _isOptimEnabled() const override
 { 
   return _optimEnabled && !isNoStatForAnisotropy(); 
 }
@@ -296,6 +293,7 @@ bool _isOptimEnabled() const
 
   bool   _isVariableValid(int ivar) const;
   
+  void _updateFromContext() override;
 
 private:
   ACovFunc *_cova;                     /// Covariance basic function

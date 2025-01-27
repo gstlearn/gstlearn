@@ -39,7 +39,7 @@ Skin::Skin(const ISkinFunctions* skf, DbGrid* dbgrid)
       _energy()
 {
   if (dbgrid != nullptr)
-    _nxyz = _dbgrid->getSampleNumber();
+    _nxyz = _dbgrid->getNSample();
 }
 
 Skin::Skin(const Skin &r)

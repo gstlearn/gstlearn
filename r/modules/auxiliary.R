@@ -23,8 +23,8 @@
 #'
 compare_variograms <- function(var_list, title, idir = 0) {
   nsim  = length(var_list)
-  ndir  = var_list[[1]]$getDirectionNumber()
-  nlags = var_list[[1]]$getLagNumber(0)
+  ndir  = var_list[[1]]$getNDir()
+  nlags = var_list[[1]]$getNLag(0)
   if (idir == 0) {
 	ldir = 1:ndir
   } else {

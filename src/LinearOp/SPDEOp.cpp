@@ -14,7 +14,6 @@
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "geoslib_define.h"
-#include <vector>
 
 SPDEOp::SPDEOp(const PrecisionOpMulti* const pop,
                const ProjMulti* const proj,
@@ -30,7 +29,7 @@ SPDEOp::SPDEOp(const PrecisionOpMulti* const pop,
    if (_Proj == nullptr) return;
    if (_invNoise == nullptr) return;
    if (_Q == nullptr) return;
-   _ndat = _Proj->getPointNumber();
+   _ndat = _Proj->getNPoint();
   _prepare(true, true);
 }
 

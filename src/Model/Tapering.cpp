@@ -51,7 +51,7 @@ int Tapering::init(int tape_type,double tape_range)
 
   /* Preliminary check */
 
-  if (!checkArg("Tapering Index", tape_type, getTapeNumber())) return 1;
+  if (!checkArg("Tapering Index", tape_type, getNTape())) return 1;
   if (tape_range <= 0)
   {
     messerr("The argument 'tape_range' must be strictly positive");
@@ -68,7 +68,7 @@ int Tapering::init(int tape_type,double tape_range)
   return 0;
 }
 
-int Tapering::getTapeNumber()
+int Tapering::getNTape()
 {
   int N_DEF_TAPERING = 7;
   return N_DEF_TAPERING;

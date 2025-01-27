@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/File.hpp"
+#include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceComposite.hpp"
 #include "Space/SpaceRN.hpp"
@@ -25,10 +26,12 @@ int main(int argc, char *argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // 2D Space + Time (for example)
-  SpaceComposite sp({new SpaceRN(2), new SpaceRN(1)});
-  setDefaultSpace(&sp);
+  auto R2 = SpaceRN::create(2);
+  auto R1 = SpaceRN::create(1);
+  auto sp = SpaceComposite::create({R2 , R1});
+  setDefaultSpace(sp);
 
-  const ASpace* psp = getDefaultSpace();
+  auto psp = getDefaultSpaceSh();
   psp->display();  // Long description (level 1)
   psp->display(0); // Short description (level 0)
 
@@ -48,8 +51,6 @@ int main(int argc, char *argv[])
 
   std::cout << "Increments space #0: " << pt1.getIncrement(pt2, 0).toString() << std::endl;
   std::cout << "Increments space #1: " << pt1.getIncrement(pt2, 1).toString() << std::endl;
-
-  delete psp;
   
   return 0;
 }

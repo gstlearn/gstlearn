@@ -13,9 +13,10 @@
 #include "gstlearn_export.hpp"
 
 #include "Calculators/ACalcDbToDb.hpp"
+#include "Model/Model.hpp"
 
 class ELoc;
-class Model;
+// class Model;
 class ANeigh;
 
 // TODO : Create InterpolatorParam ASpaceParam which inherits from ASPaceObject and AParam, which inherits from ASerializable, AStringable, IClonable
@@ -27,8 +28,8 @@ public:
   ACalcInterpolator& operator=(const ACalcInterpolator &r) = delete;
   virtual ~ACalcInterpolator();
 
-  void setModel(Model *model)  { _model = model; }
-  void setNeigh(ANeigh *neigh) { _neigh = neigh; }
+  void setModel(Model* model) { _model = model; }
+  void setNeigh(ANeigh* neigh) { _neigh = neigh; }
 
   Model*  getModel() const { return _model; }
   ANeigh* getNeigh() const { return _neigh; }
@@ -39,8 +40,8 @@ public:
 protected:
   virtual bool _check() override;
   virtual bool _preprocess() override;
-  int _getNCova() const { return _ncova; }
-  bool _setNCova(int ncova);
+  int  _getNCov() const { return _ncova; }
+  bool _setNCov(int ncova);
 
   int _centerDataToGrid(DbGrid* dbgrid);
 

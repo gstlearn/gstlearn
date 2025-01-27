@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
@@ -40,21 +41,21 @@ class GSTLEARN_EXPORT NeighImage: public ANeigh
 public:
   NeighImage(const VectorInt &radius = VectorInt(),
              int skip = 0,
-             const ASpace *space = nullptr);
+             const ASpaceSharedPtr& space = ASpaceSharedPtr());
   NeighImage(const NeighImage& r);
   NeighImage& operator=(const NeighImage& r);
   virtual ~NeighImage();
 
   /// Interface for ANeigh
   virtual void getNeigh(int iech_out, VectorInt& ranks) override;
-  virtual int getMaxSampleNumber(const Db* db) const override;
+  virtual int getNSampleMax(const Db* db) const override;
   virtual bool hasChanged(int iech_out) const override;
   virtual ENeigh getType() const override { return ENeigh::fromKey("IMAGE"); }
 
   /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static NeighImage* create(const VectorInt& image, int skip = 0, const ASpace* space = nullptr);
+  static NeighImage* create(const VectorInt& image, int skip = 0, const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static NeighImage* createFromNF(const String& neutralFilename, bool verbose = true);
 
   int getSkip() const { return _skip; }

@@ -592,7 +592,7 @@ bool DbGrid::migrateAllVariables(Db *dbin, bool flag_fill, bool flag_inter,
   // Constitute the list of Variables to be migrated
 
   VectorInt icols;
-  for (int icol = 0; icol < dbin->getColumnNumber(); icol++)
+  for (int icol = 0; icol < dbin->getNColumn(); icol++)
   {
     // Skip the rank
     if (flagAddSampleRank && icol == 0) continue;
@@ -609,7 +609,7 @@ bool DbGrid::migrateAllVariables(Db *dbin, bool flag_fill, bool flag_inter,
   if (ncol <= 0) return true;
 
   // Migrate the variables
-  int icolOut = getColumnNumber();
+  int icolOut = getNColumn();
   if (migrateByAttribute(dbin, this, icols, 2, VectorDouble(), flag_fill,
                          flag_inter, flag_ball, NamingConvention(String())))
     return false;
@@ -647,7 +647,7 @@ void DbGrid::_createGridCoordinates(int icol0)
   std::vector<double> coors(ndim);
   std::vector<int> indices;
   _grid.iteratorInit();
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int iech = 0; iech < getNSample(); iech++)
   {
     _grid.iteratorNext(indices);
     _grid.indicesToCoordinateInPlace(indices, coors);
@@ -734,7 +734,7 @@ void DbGrid::resetDims(int ncol, int /*nech*/)
 
 bool DbGrid::isConsistent() const
 {
-  return _grid.getNTotal() == getSampleNumber();
+  return _grid.getNTotal() == getNSample();
 }
 
 bool DbGrid::_deserialize(std::istream& is, bool verbose)
@@ -866,7 +866,7 @@ VectorDouble DbGrid::getColumnSubGrid(const String& name,
   // Loop on the samples
 
   _grid.iteratorInit();
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int iech = 0; iech < getNSample(); iech++)
   {
     VectorInt indices = _grid.iteratorNext();
     if (indices[idim0] != rank) continue;
@@ -929,7 +929,7 @@ void DbGrid::generateCoordinates(const String& radix)
   int ndim = getNDim();
   VectorDouble coors(ndim);
   (void) addColumnsByConstant(ndim, 0., radix, ELoc::X);
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int iech = 0; iech < getNSample(); iech++)
   {
     _grid.rankToCoordinatesInPlace(iech, coors);
     for (int idim = 0; idim < ndim; idim++)
@@ -1042,7 +1042,7 @@ int DbGrid::assignGridColumn(const String& name,
   }
 
   _grid.iteratorInit();
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int iech = 0; iech < getNSample(); iech++)
   {
     VectorInt indices = _grid.iteratorNext();
     if (indices[idim] != rank) continue;
@@ -1529,7 +1529,7 @@ DbGrid* DbGrid::createSubGrid(const DbGrid* gridIn, VectorVectorInt limits, bool
   VectorInt indg(ndim);
   double value;
   int igin;
-  for (int igout = 0, nout = gridOut->getSampleNumber(); igout < nout; igout++)
+  for (int igout = 0, nout = gridOut->getNSample(); igout < nout; igout++)
   {
     // Get the indices in the output grid
     gridOut->rankToIndice(igout, indg);
@@ -1852,7 +1852,7 @@ VectorVectorInt DbGrid::getLimitsFromVariableExtend(const String &nameTop,
 
   // Find the set of Min and Max indices of the subgrid
 
-  int nech = getSampleNumber(true);
+  int nech = getNSample(true);
   VectorInt indmin(ndim,  10000000);
   VectorInt indmax(ndim, -10000000);
   VectorInt indg(ndim);
@@ -1923,7 +1923,7 @@ int DbGrid::setSelectionFromVariableExtend(const String &nameTop, const String &
 
   // Find the set of Min and Max indices of the subgrid
 
-  int nech = getSampleNumber(true);
+  int nech = getNSample(true);
   int iuid_top = getUID(nameTop);
   int iuid_bot = getUID(nameBot);
 
@@ -2116,7 +2116,7 @@ VectorInt DbGrid::locateDataInGrid(const Db *data,
 
     // Locate all samples (using useSel criterion)
 
-    for (int ip = 0, np = data->getSampleNumber(useSel); ip < np; ip++)
+    for (int ip = 0, np = data->getNSample(useSel); ip < np; ip++)
     {
       if (data->isActive(ip) || ! useSel)
       {
@@ -2160,7 +2160,7 @@ int DbGrid::addSelectionFromDbByMorpho(Db *db,
     return 1;
   }
 
-  int nech = getSampleNumber();
+  int nech = getNSample();
 
   VectorString names = db->getNamesByColIdx({0});
   int iuid = addColumnsByConstant(1);
@@ -2316,7 +2316,7 @@ VectorDouble DbGrid::getDistanceToOrigin(const VectorInt& origin,
                                          const VectorDouble& radius)
 {
   int ndim           = getNDim();
-  int nech           = getSampleNumber();
+  int nech           = getNSample();
   VectorDouble coor0 = getCoordinatesByIndice(origin);
   VectorDouble radloc   = radius;
   if (ndim != (int) radloc.size()) radloc = VectorDouble(ndim, 1.);

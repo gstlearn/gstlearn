@@ -356,15 +356,15 @@ int CalcSimpleInterpolation::_nearest(Db *dbin,
 
   /* Loop on the targets to be processed */
 
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
-    mes_process("Estimation by Nearest Neighbor", dbout->getSampleNumber(), iech);
+    mes_process("Estimation by Nearest Neighbor", dbout->getNSample(), iech);
     if (!dbout->isActive(iech)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
         || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(dbout, iech, 1, 0, 0);
+      db_sample_print(dbout, iech, 1, 0, 0, 0);
     }
     VectorDouble weights;
 
@@ -401,16 +401,16 @@ int CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeigh* neigh)
 
   /* Loop on the targets to be processed */
 
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
-    mes_process("Estimation by Moving Average", dbout->getSampleNumber(), iech);
+    mes_process("Estimation by Moving Average", dbout->getNSample(), iech);
     if (!dbout->isActive(iech)) continue;
     OptDbg::setCurrentIndex(iech + 1);
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
         || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(dbout, iech, 1, 0, 0);
+      db_sample_print(dbout, iech, 1, 0, 0, 0);
     }
     VectorDouble weights;
 
@@ -453,15 +453,15 @@ int CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeigh* neigh)
 
   /* Loop on the targets to be processed */
 
-   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+   for (int iech = 0; iech < dbout->getNSample(); iech++)
    {
-     mes_process("Estimation by Moving Median", dbout->getSampleNumber(), iech);
+     mes_process("Estimation by Moving Median", dbout->getNSample(), iech);
      if (!dbout->isActive(iech)) continue;
      OptDbg::setCurrentIndex(iech + 1);
      if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
      {
        mestitle(1, "Target location");
-       db_sample_print(dbout, iech, 1, 0, 0);
+       db_sample_print(dbout, iech, 1, 0, 0, 0);
      }
      VectorDouble weights;
      VectorInt nbghmed;
@@ -500,22 +500,22 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh) const
   VectorInt nbgh;
   CovContext ctxt(1, ndim);
   const DriftList* drft = DriftFactory::createDriftListFromIRF(_order, 0, ctxt);
-  int ndrift = drft->getDriftNumber();
+  int ndrift = drft->getNDrift();
   VectorDouble X(ndrift);
   VectorDouble B(ndrift);
   MatrixSquareSymmetric A(ndrift);
 
   /* Loop on the targets to be processed */
 
-   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+   for (int iech = 0; iech < dbout->getNSample(); iech++)
    {
-     mes_process("Estimation by Inverse distance", dbout->getSampleNumber(), iech);
+     mes_process("Estimation by Inverse distance", dbout->getNSample(), iech);
      OptDbg::setCurrentIndex(iech + 1);
      if (!dbout->isActive(iech)) continue;
      if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
      {
        mestitle(1, "Target location");
-       db_sample_print(dbout, iech, 1, 0, 0);
+       db_sample_print(dbout, iech, 1, 0, 0, 0);
      }
 
      // Find the neighborhood
@@ -604,15 +604,15 @@ void CalcSimpleInterpolation::_pointInvdist(Db *dbin, Db *dbout)
 
   /* Loop on the targets to be processed */
 
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
-    mes_process("Estimation by Inverse distance", dbout->getSampleNumber(), iech);
+    mes_process("Estimation by Inverse distance", dbout->getNSample(), iech);
     OptDbg::setCurrentIndex(iech + 1);
     if (!dbout->isActive(iech)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(dbout, iech, 1, 0, 0);
+      db_sample_print(dbout, iech, 1, 0, 0, 0);
     }
     VectorInt nbgh;
     VectorDouble weights;
@@ -620,7 +620,7 @@ void CalcSimpleInterpolation::_pointInvdist(Db *dbin, Db *dbout)
 
     /* Loop on the data points */
 
-    for (int iech_in = 0; iech_in < dbin->getSampleNumber(); iech_in++)
+    for (int iech_in = 0; iech_in < dbin->getNSample(); iech_in++)
     {
       if (!dbin->isActive(iech_in)) continue;
       dbin->getCoordinatesPerSampleInPlace(iech_in, coor);
@@ -671,15 +671,15 @@ void CalcSimpleInterpolation::_gridInvdist(DbGrid *dbin, Db *dbout)
 
   /* Loop on the targets to be processed */
 
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
-    mes_process("Estimation by Inverse distance", dbout->getSampleNumber(), iech);
+    mes_process("Estimation by Inverse distance", dbout->getNSample(), iech);
     OptDbg::setCurrentIndex(iech + 1);
     if (!dbout->isActive(iech)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(dbout, iech, 1, 0, 0);
+      db_sample_print(dbout, iech, 1, 0, 0, 0);
     }
 
     /* Find the grid index corresponding to the target */
@@ -820,7 +820,7 @@ double CalcSimpleInterpolation::_stdevCalc(Db* dbin,
 
   // Covariance between Data and Data
   MatrixRectangular Mxx =
-    getModel()->evalCovMatrix(dbin, dbin, 0, 0, nbgh, nbgh);
+    getModel()->evalCovMat(dbin, dbin, 0, 0, nbgh, nbgh);
   double cxx = Mxx.quadraticMatrix(weights, weights);
 
   double result = sqrt(c00 - 2. * c0x + cxx);

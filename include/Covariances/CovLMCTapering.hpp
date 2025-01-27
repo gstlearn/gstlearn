@@ -10,10 +10,12 @@
 /******************************************************************************/
 #pragma once
 
+#include "Covariances/CovContext.hpp"
 #include "Enum/ETape.hpp"
+#include "Space/ASpace.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 class ASpace;
 class SpacePoint;
 class CovAniso;
@@ -37,12 +39,12 @@ GSTLEARN_EXPORT double _tape_wendland2(double);
 
 GSTLEARN_EXPORT Def_Tapering& D_TAPE(int rank);
 
-class GSTLEARN_EXPORT CovLMCTapering : public ACovAnisoList
+class GSTLEARN_EXPORT CovLMCTapering : public CovAnisoList
 {
 public:
   CovLMCTapering(const ETape& tapetype,
                  double taperange,
-                 const ASpace* space = nullptr);
+                 const CovContext& ctxt = CovContext());
   CovLMCTapering(const CovLMCTapering &r);
   CovLMCTapering& operator= (const CovLMCTapering &r);
   virtual ~CovLMCTapering();
@@ -68,17 +70,19 @@ public:
   double getTapeRange() const { return _tapeRange; }
   void setTapeRange(double range) { _tapeRange = range; }
 protected:
-    void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode = nullptr) const override;
+  void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                           const SpacePoint& p1,
+                                           const SpacePoint& p2,
+                                           const CovCalcMode* mode = nullptr) const override;
+  void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                    const SpacePoint& pwork1,
+                                    const SpacePoint& pwork2,
+                                    const CovCalcMode* mode) const override;
+  void _optimizationSetTarget(const SpacePoint& pt) const override
+  {
+    ACov::_optimizationSetTarget(pt); // TODO: cannot replace by CovAnisoList???
+  }
 
-    void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                        const SpacePoint& pwork1, 
-                        const SpacePoint& pwork2, 
-                        const CovCalcMode *mode) const override;
-    void _optimizationSetTarget(const SpacePoint &pt) const override
-    {
-      ACov::_optimizationSetTarget(pt);
-    }
 private:
   ETape  _tapeType;
   double _tapeRange;

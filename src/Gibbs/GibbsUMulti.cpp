@@ -68,7 +68,7 @@ int GibbsUMulti::covmatAlloc(bool verbose, bool /*verboseTimer*/)
   if (verbose) mestitle(1,"Gibbs using Unique Neighborhood");
   Db* db = getDb();
   Model* model = getModel();
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
   int nact = _getSampleRankNumber();
   int neq  = nvar * nact;
 
@@ -78,7 +78,7 @@ int GibbsUMulti::covmatAlloc(bool verbose, bool /*verboseTimer*/)
 
   /* Establish the covariance matrix and invert it */
 
-  _covmat = model->evalCovMatrixV(db, db, -1, -1);
+  _covmat = model->evalCovMatV(db, db, -1, -1);
 
   // Invert Covariance Matrix
 

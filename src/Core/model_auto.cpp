@@ -132,7 +132,7 @@ static void st_modify_optvar_for_anam(Model* model, Option_VarioFit &optvar)
   const CovLMCAnamorphosis* covanam = dynamic_cast<const CovLMCAnamorphosis*>(model->getCovAnisoList());
   if (covanam != nullptr)
   {
-    const EAnam anamtype = covanam->getAnamType();
+    EAnam anamtype = covanam->getAnamType();
     if (anamtype != EAnam::HERMITIAN && optvar.getFlagGoulardUsed())
       optvar.setFlagGoulardUsed(0);
   }
@@ -282,8 +282,8 @@ static int st_parid_alloc(StrMod *strmod, int npar0)
   /* Initializations */
 
   Option_VarioFit optvar = strmod->optvar;
-  int ndim = strmod->models[0]->getDimensionNumber();
-  int nvar = strmod->models[0]->getVariableNumber();
+  int ndim = strmod->models[0]->getNDim();
+  int nvar = strmod->models[0]->getNVar();
   int first_covrot = -1;
 
   /* Core allocation */
@@ -299,7 +299,7 @@ static int st_parid_alloc(StrMod *strmod, int npar0)
 
     /* Loop on the basic structures */
 
-    for (int jcov = 0; jcov < model->getCovaNumber(); jcov++)
+    for (int jcov = 0; jcov < model->getNCov(); jcov++)
     {
       model_cova_characteristics(model->getCovaType(jcov), cov_name,
                                  &flag_range, &flag_param, &min_order,
@@ -462,14 +462,14 @@ static StrMod* st_model_auto_strmod_alloc(Model *model1,
     Model* model = strmod->models[i];
     if (model == nullptr) break;
     nmodel++;
-    nvar = model->getVariableNumber();
-    if (ncovmax < model->getCovaNumber()) ncovmax = model->getCovaNumber();
+    nvar = model->getNVar();
+    if (ncovmax < model->getNCov()) ncovmax = model->getNCov();
 
     /* Set the default value for the range */
     /* For models where range is not asked, as it is redundant with sill */
 
     model->setField(hmax);
-    for (int icov = 0; icov < model->getCovaNumber(); icov++)
+    for (int icov = 0; icov < model->getNCov(); icov++)
     {
       // Set the default range
 
@@ -533,12 +533,12 @@ static int st_get_vario_dimension(Vario *vario,
 {
   int nbexp = 0;
   int npadir = 0;
-  int nvar = vario->getVariableNumber();
+  int nvar = vario->getNVar();
 
   // Possibly update the distance for first lag
   // if equal to 0 but corresponds to lots of pairs attached
   // This patch is not performed for asymetrical case as the h=0 is only conventional.
-  for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
+  for (int idir = 0; idir < vario->getNDir(); idir++)
   {
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++)
@@ -566,10 +566,10 @@ static int st_get_vario_dimension(Vario *vario,
 
   /* Calculate the total number of lags */
 
-  for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
+  for (int idir = 0; idir < vario->getNDir(); idir++)
   {
-    npadir += vario->getLagTotalNumber(idir);
-    for (int ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
+    npadir += vario->getNLagTotal(idir);
+    for (int ipas = 0; ipas < vario->getNLag(idir); ipas++)
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++)
         {
@@ -613,7 +613,7 @@ static int st_get_vmap_dimension(const Db *dbmap,
   int nbexp = 0;
   int npadir = 0;
   int nvs2 = nvar * (nvar + 1) / 2;
-  int nech = dbmap->getSampleNumber();
+  int nech = dbmap->getNSample();
 
   /* Calculate the total number of lags */
 
@@ -730,14 +730,14 @@ static void st_compress_array(const Vario *vario,
                               VectorDouble &tabin,
                               VectorDouble &tabout)
 {
-  int nvar = vario->getVariableNumber();
+  int nvar = vario->getNVar();
 
   int ecr = 0;
   int ipadir = 0;
   int sizein = (int)tabin.size();
   int sizeout = tabout.size();
-  for (int idir = 0, ndir = vario->getDirectionNumber(); idir < ndir; idir++)
-    for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
+  for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
+    for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
     {
       int ijvar = 0;
       for (int ivar = 0; ivar < nvar; ivar++)
@@ -785,7 +785,7 @@ static double st_get_c00(const Vario *vario, int idir, int ivar, int jvar)
   if (! isZero(vario->getGgByIndex(idir, iad)) || vario->getSwByIndex(idir, iad) > 0)
     goto label_end;
 
-  for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++)
+  for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++)
   {
     iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
     if (! isZero(vario->getGgByIndex(idir, iad))) goto label_end;
@@ -814,16 +814,16 @@ static void st_load_gg(const Vario *vario,
                        std::vector<StrExp> &strexps,
                        VectorDouble &gg)
 {
-  int nvar = vario->getVariableNumber();
-  int ndim = vario->getDimensionNumber();
+  int nvar = vario->getNVar();
+  int ndim = vario->getNDim();
 
   /* Load the Experimental conditions structure */
 
   int ecr = 0;
   int ipadir = 0;
-  for (int idir = 0, ndir = vario->getDirectionNumber(); idir < ndir; idir++)
+  for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
   {
-    for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
+    for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
     {
       int ijvar = 0;
       for (int ivar = ijvar = 0; ivar < nvar; ivar++)
@@ -895,8 +895,8 @@ static void st_prepar_goulard_vario(int imod)
 {
   Model *model = STRMOD->models[imod];
   int npadir = RECINT.npadir;
-  int ndim = model->getDimensionNumber();
-  int nvar = model->getVariableNumber();
+  int ndim = model->getNDim();
+  int nvar = model->getNVar();
   int nvs2 = nvar * (nvar + 1) / 2;
   VectorDouble &dd = RECINT.dd;
   std::vector<MatrixRectangular> &ge = RECINT.ge;
@@ -909,7 +909,7 @@ static void st_prepar_goulard_vario(int imod)
 
   /* Loop on the basic structures */
 
-  for (int icov = 0, ncov = model->getCovaNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = model->getNCov(); icov < ncov; icov++)
   {
     mode.setActiveCovListFromOne(icov);
 
@@ -959,9 +959,9 @@ static void st_load_ge(const Vario *vario,
                        VectorDouble &dd,
                        std::vector<MatrixRectangular> &ge)
 {
-  int ndim = model->getDimensionNumber();
-  int ndir = vario->getDirectionNumber();
-  int nvar = vario->getVariableNumber();
+  int ndim = model->getNDim();
+  int ndir = vario->getNDir();
+  int nvar = vario->getNVar();
   int nvs2 = nvar * (nvar + 1) / 2;
   int norder = 0;
   if (vario->getCalcul() == ECalcVario::GENERAL1) norder = 1;
@@ -975,7 +975,7 @@ static void st_load_ge(const Vario *vario,
 
   /* Loop on the basic structures */
 
-  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  for (int icov = 0; icov < model->getNCov(); icov++)
   {
     ACov *cova = model->getCova(icov);
     for (int idim = 0; idim < ndim; idim++)
@@ -986,20 +986,20 @@ static void st_load_ge(const Vario *vario,
     int ipadir = 0;
     for (int idir = 0; idir < ndir; idir++)
     {
-      for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
+      for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
       {
         int ijvar = 0;
         for (int ivar = 0; ivar < nvar; ivar++)
           for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
           {
-            int shift = ijvar * vario->getLagTotalNumber(idir);
+            int shift = ijvar * vario->getNLagTotal(idir);
             if (!ge.empty()) ge[icov].setValue(ijvar,ipadir,0.);
 
             double dist = 0.;
             if (vario->getFlagAsym())
             {
-              int iad = shift + vario->getLagNumber(idir) + ipas + 1;
-              int jad = shift + vario->getLagNumber(idir) - ipas - 1;
+              int iad = shift + vario->getNLag(idir) + ipas + 1;
+              int jad = shift + vario->getNLag(idir) - ipas - 1;
               if (INCORRECT(idir, iad) || INCORRECT(idir, jad)) continue;
               dist = (ABS(vario->getHhByIndex(idir,iad)) + ABS(vario->getHhByIndex(idir,jad))) / 2.;
             }
@@ -1045,8 +1045,8 @@ static void st_load_wt(const Vario *vario,
 
   /* Initializations */
 
-  int ndir = vario->getDirectionNumber();
-  int nvar = vario->getVariableNumber();
+  int ndir = vario->getNDir();
+  int nvar = vario->getNVar();
   int nvs2 = nvar * (nvar + 1) / 2;
   VectorDouble flag(ndir);
 
@@ -1055,14 +1055,14 @@ static void st_load_wt(const Vario *vario,
   for (int idir = 0; idir < ndir; idir++)
   {
     flag[idir] = 0.;
-    for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++)
+    for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++)
       for (int ijvar = 0; ijvar < nvs2; ijvar++)
       {
-        int shift = ijvar * vario->getLagTotalNumber(idir);
+        int shift = ijvar * vario->getNLagTotal(idir);
         if (vario->getFlagAsym())
         {
-          int iad = shift + vario->getLagNumber(idir) + ipas + 1;
-          int jad = shift + vario->getLagNumber(idir) - ipas - 1;
+          int iad = shift + vario->getNLag(idir) + ipas + 1;
+          int jad = shift + vario->getNLag(idir) - ipas - 1;
           double n1 = vario->getSwByIndex(idir, iad);
           double n2 = vario->getSwByIndex(idir, jad);
           if (CORRECT(idir, iad)) flag[idir] += n1;
@@ -1083,16 +1083,16 @@ static void st_load_wt(const Vario *vario,
       ipadir = 0;
       for (int idir = 0; idir < ndir; idir++)
       {
-        for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
+        for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
         {
           if (isZero(flag[idir])) continue;
           for (int ijvar = 0; ijvar < nvs2; ijvar++)
           {
-            int shift = ijvar * vario->getLagTotalNumber(idir);
+            int shift = ijvar * vario->getNLagTotal(idir);
             if (vario->getFlagAsym())
             {
-              int iad = shift + vario->getLagNumber(idir) + ipas + 1;
-              int jad = shift + vario->getLagNumber(idir) - ipas - 1;
+              int iad = shift + vario->getNLag(idir) + ipas + 1;
+              int jad = shift + vario->getNLag(idir) - ipas - 1;
               if (CORRECT(idir,iad) && CORRECT(idir, jad))
               WT(ijvar,ipadir)= flag[idir];
             }
@@ -1111,16 +1111,16 @@ static void st_load_wt(const Vario *vario,
       ipadir = 0;
       for (int idir=0; idir<ndir; idir++)
       {
-        for (int ipas=0, npas = vario->getLagNumber(idir); ipas < npas; ipas++,ipadir++)
+        for (int ipas=0, npas = vario->getNLag(idir); ipas < npas; ipas++,ipadir++)
         {
           if (isZero(flag[idir])) continue;
           for (int ijvar=0; ijvar<nvs2; ijvar++)
           {
-            int shift = ijvar * vario->getLagTotalNumber(idir);
+            int shift = ijvar * vario->getNLagTotal(idir);
             if (vario->getFlagAsym())
             {
-              int iad = shift + vario->getLagNumber(idir) + ipas + 1;
-              int jad = shift + vario->getLagNumber(idir) - ipas - 1;
+              int iad = shift + vario->getNLag(idir) + ipas + 1;
+              int jad = shift + vario->getNLag(idir) - ipas - 1;
               if (INCORRECT(idir,iad) || INCORRECT(idir,jad)) continue;
               double n1 = vario->getSwByIndex(idir,iad);
               double n2 = vario->getSwByIndex(idir,jad);
@@ -1147,24 +1147,24 @@ static void st_load_wt(const Vario *vario,
       ipadir = 0;
       for (int idir=0; idir<ndir; idir++)
       {
-        for (int ipas=0, npas=vario->getLagNumber(idir); ipas < npas; ipas++,ipadir++)
+        for (int ipas=0, npas=vario->getNLag(idir); ipas < npas; ipas++,ipadir++)
         {
           if (isZero(flag[idir])) continue;
           for (int ijvar=0; ijvar<nvs2; ijvar++)
           {
-            int shift = ijvar * vario->getLagTotalNumber(idir);
+            int shift = ijvar * vario->getNLagTotal(idir);
             if (vario->getFlagAsym())
             {
-              int iad = shift + vario->getLagNumber(idir) + ipas + 1;
-              int jad = shift + vario->getLagNumber(idir) - ipas - 1;
+              int iad = shift + vario->getNLag(idir) + ipas + 1;
+              int jad = shift + vario->getNLag(idir) - ipas - 1;
               if (CORRECT(idir,iad) && CORRECT(idir,jad))
-              WT(ijvar,ipadir) = 1. / vario->getLagNumber(idir);
+              WT(ijvar,ipadir) = 1. / vario->getNLag(idir);
             }
             else
             {
               int iad = shift + ipas;
               if (CORRECT(idir,iad))
-              WT(ijvar,ipadir) = 1. / vario->getLagNumber(idir);
+              WT(ijvar,ipadir) = 1. / vario->getNLag(idir);
             }
           }
         }
@@ -1175,16 +1175,16 @@ static void st_load_wt(const Vario *vario,
       ipadir = 0;
       for (int idir=0; idir<ndir; idir++)
       {
-        for (int ipas=0, npas=vario->getLagNumber(idir); ipas < npas; ipas++,ipadir++)
+        for (int ipas=0, npas=vario->getNLag(idir); ipas < npas; ipas++,ipadir++)
         {
           if (isZero(flag[idir])) continue;
           for (int ijvar=0; ijvar<nvs2; ijvar++)
           {
-            int shift = ijvar * vario->getLagTotalNumber(idir);
+            int shift = ijvar * vario->getNLagTotal(idir);
             if (vario->getFlagAsym())
             {
-              int iad = shift + vario->getLagNumber(idir) + ipas + 1;
-              int jad = shift + vario->getLagNumber(idir) - ipas - 1;
+              int iad = shift + vario->getNLag(idir) + ipas + 1;
+              int jad = shift + vario->getNLag(idir) - ipas - 1;
               if (CORRECT(idir,iad) && CORRECT(idir,jad))
               WT(ijvar,ipadir) = 1.;
             }
@@ -1208,15 +1208,15 @@ static void st_load_wt(const Vario *vario,
     for (int idir = 0; idir < ndir; idir++)
     {
       double total = 0.;
-      for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
+      for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
       {
         if (isZero(flag[idir])) continue;
         if (WT(ijvar,ipadir)> 0 && ! FFFF(WT(ijvar,ipadir)))
         total += WT(ijvar,ipadir);
       }
       if (isZero(total)) continue;
-      ipadir -= vario->getLagNumber(idir);
-      for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
+      ipadir -= vario->getNLag(idir);
+      for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
       {
         if (isZero(flag[idir])) continue;
         if (WT(ijvar,ipadir)> 0 && ! FFFF(WT(ijvar,ipadir)))
@@ -1236,7 +1236,7 @@ static void st_load_wt(const Vario *vario,
       ipadir = 0;
       for (int idir = 0; idir < ndir; idir++)
       {
-        for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
+        for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
           if (!FFFF(WT(ijvar0, ipadir))) WT(ijvar0,ipadir)/= ratio;
         }
       }
@@ -1282,8 +1282,8 @@ static void st_keypair_sill(int mode, Model *model)
   char loc_string[100];
 
   if (model == nullptr) return;
-  int ncova = model->getCovaNumber();
-  int nvar  = model->getVariableNumber();
+  int ncova = model->getNCov();
+  int nvar  = model->getNVar();
 
   if (mode < 0)
   {
@@ -1741,8 +1741,8 @@ static void st_model_auto_strmod_print(int flag_title,
   if (skip) return;
 
   Option_VarioFit optvar = strmod->optvar;
-  int ndim = strmod->models[0]->getDimensionNumber();
-  int nvar = strmod->models[0]->getVariableNumber();
+  int ndim = strmod->models[0]->getNDim();
+  int nvar = strmod->models[0]->getNVar();
   int imod_mem = -1;
   int icov_mem = -1;
 
@@ -1860,7 +1860,7 @@ static void st_model_auto_scldef(StrMod *strmod,
       case EConsElem::E_SILL:
       {
         int lec = ivar * (ivar + 1) / 2 + jvar;
-        scale[ntot] = ABS(varchol[lec]) / sqrt(model->getCovaNumber());
+        scale[ntot] = ABS(varchol[lec]) / sqrt(model->getNCov());
         break;
       }
 
@@ -1873,7 +1873,7 @@ static void st_model_auto_scldef(StrMod *strmod,
 
       case EConsElem::E_RANGE:
       {
-        scale[ntot] = hmax / model->getCovaNumber(true) / 2.;
+        scale[ntot] = hmax / model->getNCov(true) / 2.;
         break;
       }
 
@@ -1985,7 +1985,7 @@ static void st_model_auto_pardef(StrMod *strmod,
       case EConsElem::E_SILL:
       {
         int lec = ivar * (ivar + 1) / 2 + jvar;
-        double dvar = varchol[lec] / sqrt(model->getCovaNumber());
+        double dvar = varchol[lec] / sqrt(model->getNCov());
         st_affect(ntot, dvar, TEST, TEST, param, lower, upper);
         break;
       }
@@ -2001,7 +2001,7 @@ static void st_model_auto_pardef(StrMod *strmod,
 
       case EConsElem::E_RANGE:
       {
-        double dunit = hmax / model->getCovaNumber(true) / 2.;
+        double dunit = hmax / model->getNCov(true) / 2.;
         double dmin = hmax / 1.e6;
         double dist = dunit * (icov + 1 - icovm);
         st_affect(ntot, dist, dmin, TEST, param, lower, upper);
@@ -2049,8 +2049,8 @@ static void st_model_auto_strmod_define(StrMod *strmod,
 
   /* Initializations */
 
-  int nvar = strmod->models[0]->getVariableNumber();
-  int ndim = strmod->models[0]->getDimensionNumber();
+  int nvar = strmod->models[0]->getNVar();
+  int ndim = strmod->models[0]->getNDim();
   Option_VarioFit optvar = strmod->optvar;
   int size = nvar * (nvar + 1) / 2;
   VectorDouble ranges(ndim, 0.);
@@ -2171,14 +2171,14 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       // Look for the first basic structure with a rotation defined
 
       int found = -1;
-      for (int jcov = 0; jcov < model->getCovaNumber() && found < 0; jcov++)
+      for (int jcov = 0; jcov < model->getNCov() && found < 0; jcov++)
       {
         if (model->getCova(jcov)->hasRange()) found = jcov;
       }
       if (found < 0) continue;
       cova1 = model->getCova(found);
 
-      for (int jcov = 1; jcov < model->getCovaNumber(); jcov++)
+      for (int jcov = 1; jcov < model->getNCov(); jcov++)
       {
         if (jcov == found) continue;
         cova = model->getCova(jcov);
@@ -2211,8 +2211,8 @@ static int st_structure_reduce(StrMod *strmod,
                                double tolsigma)
 {
   Model *model = strmod->models[imod];
-  int nvar = model->getVariableNumber();
-  int ndim = model->getDimensionNumber();
+  int nvar = model->getNVar();
+  int ndim = model->getNDim();
   VectorDouble d1(ndim, hmax);
   MatrixSquareGeneral tab(nvar);
   CovCalcMode mode(ECalcMember::LHS);
@@ -2277,9 +2277,9 @@ static void st_evaluate_vario(int imod,
 static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
 {
   Model *model = strmod->models[imod];
-  int ndim = model->getDimensionNumber();
-  int nvar = model->getVariableNumber();
-  int nech = DBMAP->getSampleNumber();
+  int ndim = model->getNDim();
+  int nvar = model->getNVar();
+  int nech = DBMAP->getNSample();
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
   DBMAP->rankToIndice(nech / 2, INDG1);
@@ -2360,12 +2360,12 @@ static int st_parid_match(StrMod *strmod,
  *****************************************************************************/
 static int st_check_definite_positive(Model *model)
 {
-  int nvar = model->getVariableNumber();
+  int nvar = model->getNVar();
   MatrixSquareSymmetric cc(nvar);
 
   /* Loop on the basic structures */
 
-  for (int icov = 0, ncov = model->getCovaNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = model->getNCov(); icov < ncov; icov++)
   {
     message("\nCheck the Sill Matrix for structure %d\n", icov + 1);
 
@@ -3300,8 +3300,8 @@ static int st_sill_fitting_intrinsic(Model* model,
   /* Initializations */
 
   int error = 1;
-  int nvar = model->getVariableNumber();
-  int ncova = model->getCovaNumber();
+  int nvar = model->getNVar();
+  int ncova = model->getNCov();
   int nvs2 = nvar * (nvar + 1) / 2;
   double crit_mem = 1.e30;
   for (int icov = 0; icov < ncova; icov++)
@@ -3411,12 +3411,12 @@ static int st_goulard_fitting(int flag_title,
 
   /* Initialize the array of sills */
 
-  st_sill_reset(model->getVariableNumber(), model->getCovaNumber(), RECINT.sill);
+  st_sill_reset(model->getNVar(), model->getNCov(), RECINT.sill);
 
   /* Print the debug title (optional) */
 
   if (flag_title)
-    st_goulard_debug_title(model->getVariableNumber(), model->getCovaNumber());
+    st_goulard_debug_title(model->getNVar(), model->getNCov());
 
   /* Dispatch */
 
@@ -3430,8 +3430,8 @@ static int st_goulard_fitting(int flag_title,
     {
       /* Without constraint on the sill */
 
-      status = st_goulard_without_constraint(mauto, model->getVariableNumber(),
-                                             model->getCovaNumber(),
+      status = st_goulard_without_constraint(mauto, model->getNVar(),
+                                             model->getNCov(),
                                              RECINT.npadir, RECINT.wt,
                                              RECINT.gg, RECINT.ge, RECINT.sill,
                                              &crit);
@@ -3442,14 +3442,14 @@ static int st_goulard_fitting(int flag_title,
       /* With constraint on the sill */
 
       status = st_goulard_with_constraints(
-        constraints.getConstantSills(), mauto, model->getVariableNumber(),
-        model->getCovaNumber(), RECINT.npadir, RECINT.wt, RECINT.gg, RECINT.ge,
+        constraints.getConstantSills(), mauto, model->getNVar(),
+        model->getNCov(), RECINT.npadir, RECINT.wt, RECINT.gg, RECINT.ge,
         RECINT.sill);
     }
 
     /* Copy the array 'sill' in the Model */
 
-    st_goulard_sill_to_model(model->getVariableNumber(), model->getCovaNumber(),
+    st_goulard_sill_to_model(model->getNVar(), model->getNCov(),
                              RECINT.sill, model);
   }
   else
@@ -3482,7 +3482,7 @@ static int st_model_has_intrinsic(Model *model, const int *filter)
   /* Loop on the basic structures */
 
   int n_int = 0;
-  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  for (int icov = 0; icov < model->getNCov(); icov++)
   {
     if (filter != nullptr && filter[icov]) continue;
     model_cova_characteristics(model->getCovaType(icov), cov_name, &flag_range,
@@ -3557,7 +3557,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
   nmodel = strmod->nmodel;
   ncova = 0;
   for (imod = 0; imod < nmodel; imod++)
-    ncova = MAX(ncova, strmod->models[imod]->getCovaNumber());
+    ncova = MAX(ncova, strmod->models[imod]->getNCov());
   if (ncova <= 1) return (0);
   flag_modified = 0;
   flag_compress.resize(ncova * nmodel);
@@ -3569,7 +3569,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
   for (imod = 0; imod < strmod->nmodel; imod++)
   {
     model = strmod->models[imod];
-    for (icov = 0; icov < model->getCovaNumber(); icov++)
+    for (icov = 0; icov < model->getNCov(); icov++)
     {
       FLAG_COMPRESS(imod,icov) = st_structure_reduce(strmod, imod, icov, hmax,
                                                      gmax, mauto.getTolsigma());
@@ -3645,7 +3645,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
     for (imod = 0; imod < strmod->nmodel; imod++)
     {
       model = strmod->models[imod];
-      for (icov = 0; icov < model->getCovaNumber(); icov++)
+      for (icov = 0; icov < model->getNCov(); icov++)
       {
         if (FLAG_COMPRESS(imod, icov)) continue;
         model_cova_characteristics(model->getCovaType(icov), cov_name,
@@ -3687,7 +3687,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
   for (imod = 0; imod < strmod->nmodel; imod++)
   {
     int jcov = 0;
-    for (icov = 0; icov < strmod->models[imod]->getCovaNumber(); icov++)
+    for (icov = 0; icov < strmod->models[imod]->getNCov(); icov++)
     {
       if (FLAG_COMPRESS(imod, icov)) continue;
 
@@ -3710,7 +3710,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
 
   for (imod = strmod->nmodel - 1; imod >= 0; imod--)
   {
-    ncova = strmod->models[imod]->getCovaNumber();
+    ncova = strmod->models[imod]->getNCov();
     for (icov = ncova - 1; icov >= 0; icov--)
     {
       if (!FLAG_COMPRESS(imod, icov)) continue;
@@ -3741,7 +3741,7 @@ static int st_model_define(Model *model, const Option_VarioFit &optvar)
 
   /* Loop on the basic structures */
 
-  for (int jcov = 0; jcov < model->getCovaNumber(); jcov++)
+  for (int jcov = 0; jcov < model->getNCov(); jcov++)
   {
     CovAniso* cova = model->getCova(jcov);
     model_cova_characteristics(cova->getType(), cov_name, &flag_range,
@@ -3790,8 +3790,8 @@ static int st_alter_model_optvar(const Vario *vario,
                                  Constraints &constraints,
                                  Option_VarioFit &optvar)
 {
-  int ndim = model->getDimensionNumber();
-  int ndir = vario->getDirectionNumber();
+  int ndim = model->getNDim();
+  int ndir = vario->getNDir();
   int n_2d = 0;
   int n_3d = 0;
 
@@ -3852,7 +3852,7 @@ static int st_alter_model_optvar(const Vario *vario,
 
   /* Return an error if Goulard is not used in multivariate case */
 
-  if (model->getVariableNumber() > 1 && !optvar.getFlagGoulardUsed())
+  if (model->getNVar() > 1 && !optvar.getFlagGoulardUsed())
   {
     messerr("In Multivariate case, Goulard option is mandatory");
     messerr("It seems that it has been switched OFF. This is an error");
@@ -3897,7 +3897,7 @@ static int st_alter_vmap_optvar(const Db *dbmap,
 
   /* Return an error if Goulard is not used in multivariate case */
 
-  if (model->getVariableNumber() > 1 && !optvar.getFlagGoulardUsed())
+  if (model->getNVar() > 1 && !optvar.getFlagGoulardUsed())
   {
     messerr("In Multivariate case, Goulard option is mandatory");
     messerr("It seems that it has been switched OFF. This is an error");
@@ -3953,8 +3953,8 @@ static int st_model_auto_count(const Vario *vario,
 
     /* Initializations */
 
-    int ndim = model->getDimensionNumber();
-    int nvar = model->getVariableNumber();
+    int ndim = model->getNDim();
+    int nvar = model->getNVar();
     int first_covrot = -1;
     if (st_alter_model_optvar(vario, model, constraints, optvar)) return (-2);
 
@@ -3964,7 +3964,7 @@ static int st_model_auto_count(const Vario *vario,
 
     /* Count the number of parameters */
 
-    for (int jcov = 0; jcov < model->getCovaNumber(); jcov++)
+    for (int jcov = 0; jcov < model->getNCov(); jcov++)
     {
       model_cova_characteristics(model->getCovaType(jcov), cov_name,
                                  &flag_range, &flag_param, &min_order,
@@ -4095,10 +4095,10 @@ static void st_prepar_goulard_vmap(int imod)
 {
   Model *model = STRMOD->models[imod];
   std::vector<MatrixRectangular> &ge = RECINT.ge;
-  int ndim = model->getDimensionNumber();
-  int nvar = model->getVariableNumber();
-  int ncova = model->getCovaNumber();
-  int nech = DBMAP->getSampleNumber();
+  int ndim = model->getNDim();
+  int nvar = model->getNVar();
+  int ncova = model->getNCov();
+  int nech = DBMAP->getNSample();
   VectorDouble d0(ndim);
   MatrixSquareGeneral tab(nvar);
   DBMAP->rankToIndice(nech / 2, INDG1);
@@ -4188,8 +4188,8 @@ static void st_vario_varchol_manage(const Vario *vario,
                                     Model *model,
                                     VectorDouble &varchol)
 {
-  int ndim = model->getDimensionNumber();
-  int nvar = vario->getVariableNumber();
+  int ndim = model->getNDim();
+  int nvar = vario->getNVar();
 
   MatrixSquareSymmetric mat(nvar);
 
@@ -4242,7 +4242,7 @@ static void st_vario_varchol_manage(const Vario *vario,
  *****************************************************************************/
 static void st_vmap_varchol_manage(const Db *dbmap, VectorDouble &varchol)
 {
-  int nvar = dbmap->getLocNumber(ELoc::Z);
+  int nvar = dbmap->getNLoc(ELoc::Z);
   int size = nvar * (nvar + 1) / 2;
 
   /* Allocation */
@@ -4273,7 +4273,7 @@ static void st_model_post_update(StrMod *strmod, const Option_VarioFit &optvar)
   {
     Model *model = strmod->models[imod];
 
-    for (int icov = 0; icov < model->getCovaNumber(); icov++)
+    for (int icov = 0; icov < model->getNCov(); icov++)
     {
       CovAniso *cova = model->getCova(icov);
       if (!cova->hasRange()) continue;
@@ -4405,9 +4405,9 @@ int model_auto_fit(Vario *vario,
   int nbexp = 0;
   int status = 0;
   int npadir = 0;
-  int ncova = model->getCovaNumber();
-  int ndim = model->getDimensionNumber();
-  int nvar = vario->getVariableNumber();
+  int ncova = model->getNCov();
+  int ndim = model->getNDim();
+  int nvar = vario->getNVar();
   VectorDouble angles;
   st_regularize_init();
   mauto.setVerbose(verbose);
@@ -4606,10 +4606,10 @@ int model_fitting_sills(Vario* vario,
 
   if (model == nullptr) return (1);
   if (vario == nullptr) return (1);
-  int ndir = vario->getDirectionNumber();
-  int ndim = model->getDimensionNumber();
-  int nvar = model->getVariableNumber();
-  int ncova = model->getCovaNumber();
+  int ndir = vario->getNDir();
+  int ndim = model->getNDim();
+  int nvar = model->getNVar();
+  int ncova = model->getNCov();
 
   /* Reset the coregionalization matrix */
 
@@ -4681,16 +4681,16 @@ static int st_vmap_auto_count(const Db *dbmap,
 
   /* Initializations */
 
-  int ndim = model->getDimensionNumber();
-  int nvar = model->getVariableNumber();
+  int ndim = model->getNDim();
+  int nvar = model->getNVar();
   int first_covrot = -1;
 
   /* Check the number of Variogram Maps */
 
-  if (nvar * (nvar + 1) / 2 != dbmap->getLocNumber(ELoc::Z))
+  if (nvar * (nvar + 1) / 2 != dbmap->getNLoc(ELoc::Z))
   {
     messerr("The number of items in the Db Grid for Variogram maps (%d)",
-            dbmap->getLocNumber(ELoc::Z));
+            dbmap->getNLoc(ELoc::Z));
     messerr("is not compatible with the number of variables in the Model (%d)",
             nvar);
     return (-1);
@@ -4705,7 +4705,7 @@ static int st_vmap_auto_count(const Db *dbmap,
   /* Count the number of parameters */
 
   int ntot = 0;
-  for (int jcov = 0; jcov < model->getCovaNumber(); jcov++)
+  for (int jcov = 0; jcov < model->getNCov(); jcov++)
   {
     model_cova_characteristics(model->getCovaType(jcov), cov_name, &flag_range,
                                &flag_param, &min_order, &max_ndim, &flag_int_1d,
@@ -4790,8 +4790,8 @@ static int st_vmap_auto_count(const Db *dbmap,
  *****************************************************************************/
 static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
 {
-  int nech = DBMAP->getSampleNumber();
-  int nvar = DBMAP->getLocNumber(ELoc::Z);
+  int nech = DBMAP->getNSample();
+  int nvar = DBMAP->getNLoc(ELoc::Z);
   int nvs2 = nvar * (nvar + 1) / 2;
   DBMAP->rankToIndice(nech / 2, INDG1);
 
@@ -4863,9 +4863,9 @@ int vmap_auto_fit(const DbGrid* dbmap,
   int status = 0;
   int norder = 0;
   int npadir = 0;
-  int ncova = model->getCovaNumber();
-  int nvar = model->getVariableNumber();
-  int ndim = model->getDimensionNumber();
+  int ncova = model->getNCov();
+  int nvar = model->getNVar();
+  int ndim = model->getNDim();
   double hmax = 0.;
   double gmax = 0.;
   StrMod* strmod = nullptr;
@@ -4874,10 +4874,10 @@ int vmap_auto_fit(const DbGrid* dbmap,
 
   /* Preliminary checks */
 
-  if (nvar != dbmap->getLocNumber(ELoc::Z))
+  if (nvar != dbmap->getNLoc(ELoc::Z))
   {
     messerr("Number of variables in Db (%d) must match the one in Model (%d)",
-            model->getVariableNumber(), dbmap->getLocNumber(ELoc::Z));
+            model->getNVar(), dbmap->getNLoc(ELoc::Z));
     goto label_end;
   }
   if (constraints.isConstraintSillDefined())

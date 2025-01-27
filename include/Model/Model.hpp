@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "Model/ModelGeneric.hpp"
+#include "Model/ModelCovList.hpp"
 #include "gstlearn_export.hpp"
 
 #include "geoslib_define.h"
@@ -21,7 +21,7 @@
 
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovLMGradient.hpp"
 
 #include "Drifts/DriftList.hpp"
@@ -66,7 +66,7 @@ typedef std::vector<ECov> VectorECov;
  * - the field extension: this information is needed to get a *stationary* version to any covariance
  * - the experimental mean vector and the variance-covariance matrix (used to calibrate the Model)
  */
-class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public ModelGeneric
+class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public ModelCovList
 {
 public:
   Model(const CovContext& ctxt = CovContext());
@@ -94,7 +94,7 @@ public:
                                 const VectorDouble& ranges = VectorDouble(),
                                 const MatrixSquareSymmetric& sills  = MatrixSquareSymmetric(),
                                 const VectorDouble& angles = VectorDouble(),
-                                const ASpace* space        = nullptr,
+                                const ASpaceSharedPtr& space = ASpaceSharedPtr(),
                                 bool flagRange             = true);
   static Model* createFromParamOldStyle(const ECov& type = ECov::fromKey("NUGGET"),
                           double range               = 1.,
@@ -103,7 +103,7 @@ public:
                           const VectorDouble& ranges = VectorDouble(),
                           const VectorDouble& sills  = VectorDouble(),
                           const VectorDouble& angles = VectorDouble(),
-                          const ASpace* space        = nullptr,
+                          const ASpaceSharedPtr& space = ASpaceSharedPtr(),
                           bool flagRange             = true);
   static Model* createFromDb(const Db* db);
   static Model* createFromNF(const String& neutralFilename,
@@ -115,7 +115,7 @@ public:
                   const Option_AutoFit& mauto    = Option_AutoFit(),
                   bool verbose                   = false);
 
-  void setCovList(const ACovAnisoList* covalist);
+  void setCovAnisoList(const CovAnisoList* covalist);
   void addCov(const CovAniso* cov);
   void addCovFromParam(const ECov& type,
                   double range                       = EPSILON6,
@@ -133,8 +133,7 @@ public:
                                const VectorDouble& sills  = VectorDouble(),
                                const VectorDouble& angles = VectorDouble(),
                                bool flagRange             = true);
-  void   delCova(int icov);
-  void   delAllCovas();
+ 
   void   setDriftList(const DriftList* driftlist);
   void   setDriftIRF(int order = 0, int nfex = 0);
   void   setFlagLinked(bool flagLinked);
@@ -153,24 +152,23 @@ public:
   bool   hasDrift() const;
 
   ////////////////////////////////////////////////
-  /// TODO : to be removed (encapsulation of ACovAnisoList)
-  const ACovAnisoList* getCovAnisoList() const;
-  ACovAnisoList* getCovAnisoListModify();
+  /// TODO : to be removed (encapsulation of CovAnisoList)
+  const CovAnisoList* getCovAnisoList() const;
+  CovAnisoList* getCovAnisoListModify();
 
   const CovAniso* getCova(int icov) const;
   CovAniso* getCova(int icov);
-  int getCovaNumber(bool skipNugget = false) const;
+  int getNCov(bool skipNugget = false) const;
   const ECov& getCovaType(int icov) const;
-  const MatrixSquareSymmetric& getSillValues(int icov) const;
-  double getSill(int icov, int ivar, int jvar) const;
+  
   double getRange(int icov) const;
   VectorDouble getRanges(int icov) const;
   VectorDouble getAngles(int icov) const;
   double getParam(int icov) const;
   String getCovName(int icov) const;
-  int getGradParamNumber(int icov) const;
-  double getTotalSill(int ivar=0, int jvar=0) const;
-  MatrixSquareSymmetric getTotalSills() const;
+  int getNGradParam(int icov) const;
+  
+
   double getBallRadius() const;
   const AnamHermite* getAnamHermite() const;
 
@@ -182,9 +180,7 @@ public:
   void normalize(double sill);
   bool hasNugget() const;
   int  getRankNugget() const;
-  VectorInt getActiveCovList() const;
-  VectorInt getAllActiveCovList() const;
-  bool isAllActiveCovList() const;
+
   void setTapeRange(double range);
 
   double eval0(int ivar = 0,
@@ -391,40 +387,42 @@ public:
    *
    *  @{
    */
-  VectorDouble evalCovMatrixV(Db *db1,
-                              Db *db2 = nullptr,
-                              int ivar0 = -1,
-                              int jvar0 = -1,
-                              const VectorInt &nbgh1 = VectorInt(),
-                              const VectorInt &nbgh2 = VectorInt(),
-                              const CovCalcMode *mode = nullptr)
+  VectorDouble evalCovMatV(Db* db1,
+                           Db* db2                 = nullptr,
+                           int ivar0               = -1,
+                           int jvar0               = -1,
+                           const VectorInt& nbgh1  = VectorInt(),
+                           const VectorInt& nbgh2  = VectorInt(),
+                           const CovCalcMode* mode = nullptr)
   {
     if (_cova == nullptr) return VectorDouble();
-    return _cova->evalCovMatrix(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode).getValues();
+    return _cova->evalCovMat(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode).getValues();
   }
-  MatrixRectangular evalCovMatrixOptim(const Db *db1,
-                                       const Db *db2 = nullptr,
-                                       int ivar0 = -1,
-                                       int jvar0 = -1,
-                                       const VectorInt &nbgh1 = VectorInt(),
-                                       const VectorInt &nbgh2 = VectorInt(),
-                                       const CovCalcMode *mode = nullptr)
+  MatrixRectangular evalCovMatOptim(const Db* db1,
+                                    const Db* db2           = nullptr,
+                                    int ivar0               = -1,
+                                    int jvar0               = -1,
+                                    const VectorInt& nbgh1  = VectorInt(),
+                                    const VectorInt& nbgh2  = VectorInt(),
+                                    const CovCalcMode* mode = nullptr,
+                                    bool cleanOptim         = true)
   {
-    const ACovAnisoList *covalist = _castInCovAnisoListConst();
+    const CovAnisoList *covalist = _castInCovAnisoListConst();
     if (covalist == nullptr) return MatrixRectangular();
-    return covalist->evalCovMatrixOptim(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode);
+    return covalist->evalCovMatOptim(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
   }
 
-  MatrixSquareSymmetric evalCovMatrixSymmetricOptim(const Db *db1,
-                                                    int ivar0 = -1,
-                                                    const VectorInt &nbgh1 = VectorInt(),
-                                                    const CovCalcMode *mode = nullptr)
+  MatrixSquareSymmetric evalCovMatSymOptim(const Db* db1,
+                                           const VectorInt& nbgh1  = VectorInt(),
+                                           int ivar0               = -1,
+                                           const CovCalcMode* mode = nullptr,
+                                           bool cleanOptim         = true)
   {
-    const ACovAnisoList *covalist = _castInCovAnisoListConst();
+    const CovAnisoList* covalist = _castInCovAnisoListConst();
     if (covalist == nullptr) return MatrixRectangular();
-    return covalist->evalCovMatrixSymmetricOptim(db1, ivar0, nbgh1, mode);
+    return covalist->evalCovMatSymOptim(db1, nbgh1, ivar0, mode, cleanOptim);
   }
-  
+
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,
                            const VectorInt& ndisc,
@@ -511,10 +509,10 @@ public:
   /// TODO : to be removed (encapsulation of DriftList)
   const DriftList* getDriftList()                  const;
   const ADrift* getDrift(int il)                   const;
-  int  getDriftNumber()                            const;
-  int  getExternalDriftNumber()                    const;
+  int  getNDrift()                            const;
+  int  getNExtDrift()                    const;
   int  getRankFext(int il)                         const;
-  int  getDriftEquationNumber()                    const;
+  int  getNDriftEquation()                    const;
   bool isDriftFiltered(unsigned int il)            const;
   int  getDriftMaxIRFOrder(void)                   const;
   bool isDriftDefined(const VectorInt &powers, int rank_fex = 0) const;
@@ -560,13 +558,15 @@ public:
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of Context)
   const CovContext& getContext() const { return _ctxt; }
-  const ASpace*     getASpace() const { return _ctxt.getASpace(); }
+  ASpaceSharedPtr     getASpaceSh() const { return _ctxt.getSpace(); }
+  ASpaceSharedPtr    getASpace() const { return getASpaceSh(); }
+
   const VectorDouble& getMeans() const { return _ctxt.getMean(); }
   double getMean(int ivar) const { return _ctxt.getMean(ivar); }
   const VectorDouble& getCovar0s() const { return _ctxt.getCovar0(); }
   double getCovar0(int ivar, int jvar) const { return _ctxt.getCovar0(ivar,jvar); }
   double getField() const               { return _ctxt.getField(); }
-  int getDimensionNumber() const        { return _ctxt.getNDim(); }
+  int getNDim() const                   { return _ctxt.getNDim(); }
 
   void setMeans(const VectorDouble& mean);
   void setMean(double mean, int ivar=0);
@@ -579,7 +579,7 @@ public:
   Model* duplicate() const;
   Model* createReduce(const VectorInt& validVars) const;
 
-  int getVariableNumber() const
+  int getNVar() const
   {
     // TODO/ the strange next line have been commented out.
     // There should be either validated or suppressed
@@ -587,12 +587,11 @@ public:
     //      return 3; // This strange number of variables is linked to the Gradient calculation
     //    else
     // However, note used for Gradient (Functional type) in Potential
-    int nvar = _cova->getNVariables();
+    int nvar = _cova->getNVar();
     if (nvar <= 0)
       nvar = _ctxt.getNVar();
     return nvar;
   }
-
   int hasExternalCov() const;
 
   VectorDouble sampleUnitary(const VectorDouble &hh,
@@ -678,8 +677,8 @@ protected:
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "Model"; }
 
-  const ACovAnisoList* _castInCovAnisoListConst(int icov = -1) const;
-  ACovAnisoList*       _castInCovAnisoList(int icov = -1);
+  const CovAnisoList* _castInCovAnisoListConst(int icov = -1) const;
+  CovAnisoList*       _castInCovAnisoList(int icov = -1);
 
 private:
   void _clear();

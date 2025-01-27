@@ -73,7 +73,7 @@ public:
 protected:
   int _getFeatureNumber() const { return _tree->n_features; }
   int _getLeafSize() const { return _tree->leaf_size; }
-  int _getSampleNumber() const { return _tree->n_samples; }
+  int _getNSample() const { return _tree->n_samples; }
 
 private:
   t_btree* _tree;

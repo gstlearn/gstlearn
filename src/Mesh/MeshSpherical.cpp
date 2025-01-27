@@ -199,7 +199,7 @@ void MeshSpherical::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool
   int nmeshes     = getNMeshes();
   int nvertex     = getNApices();
   int ncorner     = getNApexPerMesh();
-  int nech        = db->getSampleNumber();
+  int nech        = db->getNSample();
 
   // Preliminary checks 
 
@@ -269,7 +269,7 @@ void MeshSpherical::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool
 
   if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
-            nout, db->getSampleNumber(true));
+            nout, db->getNSample(true));
 
   return m->resetFromTriplet(NF_T);
 }
@@ -320,7 +320,7 @@ void MeshSpherical::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coor
 
   if (variety_sphere)
   {
-    const ASpace* space = getDefaultSpace();
+    const ASpace* space = getDefaultSpaceSh().get();
     const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
     if (spaceSn != nullptr) r = spaceSn->getRadius();
   }
@@ -338,7 +338,7 @@ void MeshSpherical::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) cons
   bool variety_sphere = isDefaultSpaceSphere();
   if (variety_sphere)
   {
-    const ASpace* space = getDefaultSpace();
+    const ASpace* space = getDefaultSpaceSh().get();
     const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
     if (spaceSn != nullptr) r = spaceSn->getRadius();
   }

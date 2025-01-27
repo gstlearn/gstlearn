@@ -109,9 +109,9 @@ void AModelOptim::_updateModelParamList(double distmax_def,
 {
   double value = TEST;
   double scale = 1.;
-  int nparams  = _getParamNumber();
+  int nparams  = _getNParam();
   Model* model = _modelPart._model;
-  int ncov     = model->getCovaNumber(true);
+  int ncov     = model->getNCov(true);
 
   // Cholesky decomposition of the matrix of variances
   VectorDouble varchol;
@@ -179,7 +179,7 @@ void AModelOptim::_updateModelParamList(double distmax_def,
 void AModelOptim::_dumpParamList() const
 {
   mestitle(1, "List of the Model parameters to be infered");
-  int nparams = _getParamNumber();
+  int nparams = _getNParam();
   for (int iparam = 0; iparam < nparams; iparam++)
   {
     _dumpOneModelParam(_modelPart._params[iparam], _modelPart._tabval[iparam]);
@@ -220,7 +220,7 @@ void AModelOptim::_performOptimization(double (*optim_func)(unsigned n,
                                        const MatrixSquareSymmetric& vars_def)
 {
   // Define the optimization criterion
-  int npar      = _getParamNumber();
+  int npar      = _getNParam();
   nlopt_opt opt = nlopt_create(NLOPT_LN_NELDERMEAD, npar);
   nlopt_set_lower_bounds(opt, _modelPart._tablow.data());
   nlopt_set_upper_bounds(opt, _modelPart._tabupp.data());
@@ -254,11 +254,11 @@ int AModelOptim::_buildModelParamList()
 
   // Loop on the covariances
   const Model* model       = _modelPart._model;
-  int nvar                 = model->getVariableNumber();
-  int ndim                 = model->getDimensionNumber();
+  int nvar                 = model->getNVar();
+  int ndim                 = model->getNDim();
   bool flagRotationDefined = false;
 
-  for (int icov = 0, ncov = model->getCovaNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = model->getNCov(); icov < ncov; icov++)
   {
     const CovAniso* cova = model->getCova(icov);
     bool flagSill        = true;
@@ -367,8 +367,8 @@ int AModelOptim::_buildModelParamList()
   void AModelOptim::_patchModel(Model_Part & modelPart, const double* current)
   {
     // Initializations
-    int ncov    = modelPart._model->getCovaNumber();
-    int nvar    = modelPart._model->getVariableNumber();
+    int ncov    = modelPart._model->getNCov();
+    int nvar    = modelPart._model->getNVar();
     int nvs2    = nvar * (nvar + 1) / 2;
     int nparams = (int)modelPart._params.size();
     bool samerot = modelPart._optvar.getLockSamerot();

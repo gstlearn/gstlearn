@@ -27,7 +27,7 @@ NeighMoving::NeighMoving(bool flag_xvalid,
                          int nsmax,
                          const VectorDouble& coeffs,
                          const VectorDouble& angles,
-                         const ASpace *space)
+                         const ASpaceSharedPtr& space)
     : ANeigh(space),
       _nMini(nmini),
       _nMaxi(nmaxi),
@@ -101,7 +101,7 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
 
 NeighMoving::~NeighMoving()
 {
-  int number = _getBiPtsNumber();
+  int number = _getNBiPts();
   for (int ipt = 0; ipt < number; ipt++)
     delete _bipts[ipt];
   _bipts.clear();
@@ -130,7 +130,7 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
 
   sstr << _biPtDist->toString(strfmt);
 
-  int number = _getBiPtsNumber();
+  int number = _getNBiPts();
   for (int ipt = 0; ipt < number; ipt++)
   {
     sstr << _bipts[ipt]->toString(strfmt);
@@ -243,7 +243,7 @@ NeighMoving* NeighMoving::create(bool flag_xvalid,
                                  int nsmax,
                                  const VectorDouble& coeffs,
                                  const VectorDouble& angles,
-                                 const ASpace* space)
+                                 const ASpaceSharedPtr& space)
 {
   return new NeighMoving(flag_xvalid, nmaxi, radius, nmini, nsect, nsmax,
                          coeffs, angles, space);
@@ -278,7 +278,7 @@ NeighMoving* NeighMoving::createFromNF(const String& neutralFilename, bool verbo
  * @param db Pointer to the target Db
  * @return
  */
-int NeighMoving::getMaxSampleNumber(const Db* /*db*/) const
+int NeighMoving::getNSampleMax(const Db* /*db*/) const
 {
   return (getFlagSector()) ? _nSect * _nSMax : _nMaxi;
 }
@@ -376,12 +376,12 @@ int NeighMoving::attach(const Db *dbin, const Db *dbout)
 
   _dbgrid = dynamic_cast<const DbGrid*>(_dbout);
 
-  for (int ipt = 0, nbt = _getBiPtsNumber(); ipt < nbt; ipt++)
+  for (int ipt = 0, nbt = _getNBiPts(); ipt < nbt; ipt++)
   {
     if (! _bipts[ipt]->isValid(dbin, dbout)) return 1;
   }
 
-  int nech = _dbin->getSampleNumber();
+  int nech = _dbin->getNSample();
   int nsect = getNSect();
   _movingInd = VectorInt(nech);
   _movingDst = VectorDouble(nech);
@@ -519,7 +519,7 @@ void NeighMoving::getNeigh(int iech_out, VectorInt& ranks)
  *****************************************************************************/
 int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
 {
-  int nech = _dbin->getSampleNumber();
+  int nech = _dbin->getNSample();
   ranks.resize(nech);
   ranks.fill(-1);
   int isect = 0;
@@ -574,7 +574,7 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
     // (other than the one based on distance which must come last)
 
     bool reject = false;
-    for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt && !reject; ipt++)
+    for (int ipt = 0, npt = _getNBiPts(); ipt < npt && !reject; ipt++)
     {
       if (!_bipts[ipt]->isOK(_T1, _T2)) reject = true;
     }

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -25,25 +26,35 @@
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
-
+#include "Covariances/NoStatArray.hpp"
+#include "Covariances/NoStatFunctional.hpp"
 #include <vector>
 #include <math.h>
 
-ACov::ACov(const ASpace *space)
-    : ASpaceObject(space),
+
+ACov::ACov(const CovContext& ctxt)
+    : ASpaceObject(ctxt.getSpace()),
+      _ctxt(ctxt),
       _optimEnabled(true),
       _isOptimPreProcessed(false),
       _p1As(),
-      _p2A(space)
+      _p2A(ctxt.getSpace()),
+      _tabNoStat(nullptr)
 {
+    createNoStatTab();
 }
 
-ACov::ACov(const ACov &r)
-    : ASpaceObject(r),
-      _optimEnabled(r._optimEnabled),
-      _isOptimPreProcessed(false),
-      _p1As(),
-      _p2A(r.getSpace())
+ACov::ACov(const ACov& r)
+  : ASpaceObject(r)
+  , _ctxt(r._ctxt)
+  , _optimEnabled(r._optimEnabled)
+  , _isOptimPreProcessed(r._isOptimPreProcessed)
+  , _p1As()
+  , _p2A(r.getSpace())
+  , _pw1(r._pw1)
+  , _pw2(r._pw2)
+
+  , _tabNoStat(r._tabNoStat == nullptr? nullptr:new TabNoStat(*r._tabNoStat))
 {
 }
 
@@ -52,9 +63,16 @@ ACov& ACov::operator=(const ACov &r)
   if (this != &r)
   {
     ASpaceObject::operator=(r);
-    _optimEnabled = r._optimEnabled;
+    _ctxt                = r._ctxt;
+    _optimEnabled        = r._optimEnabled;
     _isOptimPreProcessed = r._isOptimPreProcessed;
-    _p2A = SpacePoint(r._space);
+    _p1As                = r._p1As;
+    _p2A                 = r._p2A;
+    _pw1                 = r._pw1;
+    _pw2                 = r._pw2;
+
+    _p2A = SpacePoint(r.getSpace());
+    _tabNoStat = r._tabNoStat->clone();
   }
   return *this;
 }
@@ -72,21 +90,20 @@ void ACov::optimizationPostProcess() const
 void ACov::optimizationPreProcess(const Db* db) const
 {
   if (_isOptimPreProcessed) return;
-  db->getSamplesAsSP(_p1As,_space);
+  db->getSamplesAsSP(_p1As,getSpace());
   _optimizationPreProcess(_p1As);
-  
+  _isOptimPreProcessed = true;
 }
 
-void ACov::optimizationSetTarget(const SpacePoint &pt) const
+void ACov::optimizationSetTarget(const SpacePoint& pt) const
 {
   _optimizationSetTarget(pt);
 }
 
-void ACov::_optimizationSetTarget(const SpacePoint &pt) const
+void ACov::_optimizationSetTarget(const SpacePoint& pt) const
 {
   _p2A = pt;
 }
-
 
 void ACov::optimizationPreProcess(const std::vector<SpacePoint>& p) const
 {
@@ -99,20 +116,75 @@ void ACov::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
 {
   if (!_p1As.empty() && _isOptimPreProcessed) return;
   _p1As.clear();
-  for (const auto &e : p)
+  for (const auto& e: p)
   {
-   _p1As.push_back(e);
+    _p1As.push_back(e);
   }
+}
+
+
+void ACov::createNoStatTab()
+{
+  delete _tabNoStat;
+  _tabNoStat = _createNoStatTab();
+}
+
+void ACov::attachNoStatDb(const Db* db)
+{
+  _tabNoStat->setDbNoStatRef(db);
+}
+
+VectorDouble ACov::informCoords(const VectorVectorDouble& coords, 
+                                    const EConsElem& econs,
+                                    int iv1,
+                                    int iv2) const
+{
+  VectorDouble result(coords[0].size(),getValue(econs,iv1,iv2));
+  _tabNoStat->informCoords(coords,econs,iv1,iv2,result);
+  return result;
+}
+
+bool ACov::checkAndManageNoStatDb(const Db*&  db, const String& namecol)
+{
+ if (_tabNoStat->getDbNoStatRef() == nullptr && db == nullptr)
+ {
+  messerr("You have to define a Db (with attachNoStatDb or by specifying a Db here)");  
+  return false;
+ }
+  setNoStatDbIfNecessary(db);
+
+ if (db->getUID(namecol)< 0)
+ {
+    messerr("You have to specified a name of a column of the reference Db");
+    return false;
+ }
+ return true;
+}
+
+TabNoStat* ACov::_createNoStatTab()
+{
+  return new TabNoStat();
+}
+
+bool ACov::_checkDims(int idim, int jdim) const
+{
+  int ndim = getNDim();
+  if ((idim > ndim) || (jdim > ndim))
+  {
+    messerr("Your model is only in dimension %d.",ndim);
+    return false;
+  }
+  return true;
 }
 
 void ACov::_optimizationPostProcess() const
 {
-    _p1As.clear();
+  _p1As.clear();
 }
 
 MatrixSquareGeneral ACov::eval0Mat(const CovCalcMode* mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
   eval0CovMatBiPointInPlace(mat,mode);
   return mat;
@@ -140,7 +212,7 @@ void ACov::eval0CovMatBiPointInPlace(MatrixSquareGeneral& mat, const CovCalcMode
  */
 void ACov::addEval0CovMatBiPointInPlace(MatrixSquareGeneral& mat, const CovCalcMode* mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
 
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
@@ -168,11 +240,12 @@ double ACov::eval0(int ivar,
   SpacePoint p1(getSpace()->getOrigin(),-1);
   return eval(p1,p1,ivar,jvar,mode); // pure virtual method
 }
+
 MatrixSquareGeneral ACov::evalMat(const SpacePoint& p1,
                                   const SpacePoint& p2,
                                   const CovCalcMode* mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
   evalCovMatBiPointInPlace(mat,p1, p2,mode);
   return mat;
@@ -211,7 +284,7 @@ double ACov::evalIvarIpas(double step,
                           const CovCalcMode* mode) const
 {
   // Define the point in the ACov space (center will be checked)
-  const ASpace* space = getSpace();
+  ASpaceSharedPtr space = getSpace();
   SpacePoint p1(space);
   SpacePoint p2(space);
 
@@ -238,8 +311,8 @@ double ACov::evalIvarIpasIncr(const VectorDouble& dincr,
                               const CovCalcMode* mode) const
 {
   // Define the point in the ACov space (center will be checked)
-  SpacePoint p1(VectorDouble(_space->getNDim()),-1,_space);
-  SpacePoint p2(VectorDouble(_space->getNDim()),-1,_space);
+  SpacePoint p1(VectorDouble(_space->getNDim()),-1,getSpace());
+  SpacePoint p2(VectorDouble(_space->getNDim()),-1,getSpace());
   p2.move(dincr);
   return eval(p1, p2, ivar, jvar, mode); // pure virtual method
 }
@@ -279,7 +352,7 @@ MatrixSquareGeneral ACov::evalNvarIpas(double step,
                                        const VectorDouble& dir,
                                        const CovCalcMode* mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
@@ -290,7 +363,7 @@ MatrixSquareGeneral ACov::evalNvarIpas(double step,
 MatrixSquareGeneral ACov::evalNvarIpasIncr(const VectorDouble& dincr,
                                            const CovCalcMode* mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
@@ -349,7 +422,7 @@ VectorDouble ACov::evalIsoIvarNpas(const VectorDouble& vec_step,
 MatrixSquareGeneral ACov::evalIsoNvarIpas(double step,
                                           const CovCalcMode* mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   VectorDouble dir = getUnitaryVector();
   MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
@@ -386,7 +459,7 @@ double ACov::evalAverageDbToDb(const Db* db1,
 
   double norme = 0.;
   double total = 0.;
-  for (int iech1 = 0; iech1 < db1->getSampleNumber(); iech1++)
+  for (int iech1 = 0; iech1 < db1->getNSample(); iech1++)
   {
     if (!db1->isActive(iech1)) continue;
     double w1 = db1->getWeight(iech1);
@@ -395,7 +468,7 @@ double ACov::evalAverageDbToDb(const Db* db1,
 
     /* Loop on the second sample */
 
-    for (int iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
+    for (int iech2 = 0; iech2 < db2->getNSample(); iech2++)
     {
       if (!db2->isActive(iech2)) continue;
       double w2 = db2->getWeight(iech2);
@@ -478,7 +551,7 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
 
   /* Loop on the second sample */
 
-  for (int iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
+  for (int iech2 = 0; iech2 < db2->getNSample(); iech2++)
   {
     if (!db2->isActive(iech2)) continue;
     double w2 = db2->getWeight(iech2);
@@ -540,7 +613,7 @@ VectorDouble ACov::evalPointToDb(const SpacePoint& p1,
   VectorDouble values;
   int nech2;
   if (nbgh2.empty())
-    nech2 = db2->getSampleNumber();
+    nech2 = db2->getNSample();
   else
     nech2 = (int) nbgh2.size();
 
@@ -668,7 +741,7 @@ MatrixSquareGeneral ACov::evalCvvM(const VectorDouble& ext,
                                    const VectorDouble& angles,
                                    const CovCalcMode* mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
@@ -770,7 +843,7 @@ MatrixSquareGeneral ACov::evalCxvM(const SpacePoint& p1,
                                    const VectorDouble& x0,
                                    const CovCalcMode* mode) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
@@ -810,7 +883,7 @@ DbGrid* ACov::_discretizeBlock(const VectorDouble& ext,
 Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid, int seed) const
 {
   int ndim = getNDim();
-  int nech = dbgrid->getSampleNumber();
+  int nech = dbgrid->getNSample();
   Db* db = Db::createFromSamples(nech);
   VectorString names = generateMultipleNames("x",ndim);
   law_set_random_seed(seed);
@@ -828,7 +901,7 @@ Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid, int seed) const
 
 VectorInt ACov::_getActiveVariables(int ivar0) const
 {
-  int nvar = getNVariables();
+  int nvar = getNVar();
 
   VectorInt ivars;
   if (ivar0 >= 0)
@@ -857,6 +930,7 @@ VectorInt ACov::_getActiveVariables(int ivar0) const
  ** \param[in]  nbgh1 Vector of indices of active samples in db1 (optional)
  ** \param[in]  nbgh2 Vector of indices of active samples in db2 (optional)
  ** \param[in]  mode  CovCalcMode structure
+ ** \param[in]  cleanOptim When True, clean optimization internal when ended
  **
  ** \remarks If a Db does not contain any Z-variable defined, the covariance
  ** \remarks cannot treat possible heterotopy and therefore uses all samples
@@ -869,14 +943,16 @@ VectorInt ACov::_getActiveVariables(int ivar0) const
  ** \note due to the presence of 'nostat'
  **
  *****************************************************************************/
-MatrixRectangular ACov::evalCovMatrix(const Db* db1,
+MatrixRectangular ACov::evalCovMat(const Db* db1,
                                       const Db* db2,
                                       int ivar0,
                                       int jvar0,
                                       const VectorInt& nbgh1,
                                       const VectorInt& nbgh2,
-                                      const CovCalcMode* mode) const 
+                                      const CovCalcMode* mode,
+                                      bool cleanOptim) const
 {
+  DECLARE_UNUSED(cleanOptim)
   MatrixRectangular mat;
 
   // Preliminary checks
@@ -891,8 +967,8 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
   manage(db1,db2);
   
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1);
-  VectorVectorInt index2 = db2->getMultipleRanksActive(jvars, nbgh2);
+  VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1);
+  VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2);
 
   // Creating the matrix
   int neq1 = VH::count(index1);
@@ -919,8 +995,7 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
     for (int jech1 = 0; jech1 < nech1s; jech1++)
     {
       int iech1 = index1[ivar][jech1];
-      p1.setIech(iech1);
-      db1->getSampleAsSPInPlace(p1);
+      db1->getSampleAsSPInPlace(p1, iech1);
 
       // Loop on the second variable
       int icol = 0;
@@ -933,8 +1008,7 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
         for (int jech2 = 0; jech2 < nech2s; jech2++)
         {
           int iech2 = index2[jvar][jech2];
-          p2.setIech(iech2);
-          db2->getSampleAsSPInPlace(p2);
+          db2->getSampleAsSPInPlace(p2, iech2);
 
           // Modify the covariance (if non stationary)
           updateCovByPoints(1, iech1, 2, iech2);
@@ -949,6 +1023,115 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
     }
   }
 
+  return mat;
+}
+
+/****************************************************************************/
+/*!
+ **  Establish covariance matrix between one Db and one sample of a Target Db
+ **  Takes into account selection and heterotopy
+ **
+ ** \return Dense matrix containing the covariance matrix
+ **
+ ** \param[in]  db1   First Db
+ ** \param[in]  db2   Second Db
+ ** \param[in]  sampleRanks1 Vector of vector indices of active samples in db1
+ ** \param[in]  ivar0 Rank of the first variable (-1 for all variables)
+ ** \param[in]  jvar0 Rank of the second variable (-1 for all variables)
+ ** \param[in]  iech2 Sample rank within db2
+ ** \param[in]  mode  CovCalcMode structure
+ ** \param[in]  cleanOptim When True, clean optimization internal when ended
+ **
+ ** \remarks If a Db does not contain any Z-variable defined, the covariance
+ ** \remarks cannot treat possible heterotopy and therefore uses all samples
+ **
+ ** \remarks The returned matrix if dimension to nrows * 1 where
+ ** \remarks each 'nrows' is the number of active samples
+ ** \remarks by the number of samples where the variable is defined
+ **
+ ** \note 'dbin' and 'dbout' cannot be made 'const' as they can be updated
+ ** \note due to the presence of 'nostat'
+ **
+ *****************************************************************************/
+MatrixRectangular ACov::evalCovMatByRanks(const Db* db1,
+                                                     const Db* db2,
+                                                     const VectorVectorInt& sampleRanks1,
+                                                     int ivar0,
+                                                     int jvar0,
+                                                     int iech2,
+                                                     const CovCalcMode* mode,
+                                                     bool cleanOptim) const
+{
+  DECLARE_UNUSED(cleanOptim)
+  MatrixRectangular mat;
+
+  // Preliminary checks
+  if (db1 == nullptr || db2 == nullptr) return MatrixRectangular();
+  VectorInt ivars = _getActiveVariables(ivar0);
+  if (ivars.empty()) return mat;
+  VectorInt jvars = _getActiveVariables(jvar0);
+  if (jvars.empty()) return mat;
+
+  // Play the non-stationarity (if needed)
+  manage(db1, db2);
+
+  // Create the sets of Vector of valid sample indices per variable
+  // (not masked and defined)
+  VectorVectorInt index2 = db2->getSampleRanks(jvars, {iech2}, true, false, false);
+
+  // Creating the matrix
+  int neq1 = VH::count(sampleRanks1);
+  int neq2 = VH::count(index2);
+  if (neq1 <= 0 || neq2 <= 0)
+  {
+    messerr("The returned matrix does not have any valid sample for any valid "
+            "variable");
+    return mat;
+  }
+  mat.resize(neq1, neq2);
+
+  // Define the two space points
+  SpacePoint p1(getSpace());
+  SpacePoint p2(getSpace());
+
+  // Loop on the first variable
+  int irow = 0;
+  for (int ivar = 0, nvar1 = (int)sampleRanks1.size(); ivar < nvar1; ivar++)
+  {
+    int ivar1 = ivars[ivar];
+
+    // Loop on the first sample
+    int nech1s = (int)sampleRanks1[ivar].size();
+    for (int jech1 = 0; jech1 < nech1s; jech1++)
+    {
+      int iech1 = sampleRanks1[ivar][jech1];
+      db1->getSampleAsSPInPlace(p1, iech1);
+
+      // Loop on the second variable
+      int icol = 0;
+      for (int jvar = 0, nvar2 = (int)jvars.size(); jvar < nvar2; jvar++)
+      {
+        int jvar2 = jvars[jvar];
+
+        // Loop on the second sample
+        int nech2s = (int)index2[jvar].size();
+        for (int jech2 = 0; jech2 < nech2s; jech2++)
+        {
+          int iech2 = index2[jvar][jech2];
+          db2->getSampleAsSPInPlace(p2, iech2);
+
+          // Modify the covariance (if non stationary)
+          updateCovByPoints(1, iech1, 2, iech2);
+
+          /* Loop on the dimension of the space */
+          double value = eval(p1, p2, ivar1, jvar2, mode);
+          mat.setValue(irow, icol, value);
+          icol++;
+        }
+      }
+      irow++;
+    }
+  }
   return mat;
 }
 
@@ -988,56 +1171,79 @@ void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
   }
 }
 
-MatrixRectangular ACov::evalCovMatrixOptim(const Db *db1,
-                                           const Db *db2,
+MatrixRectangular ACov::evalCovMatOptim(const Db* db1,
+                                           const Db* db2,
                                            int ivar0,
                                            int jvar0,
                                            const VectorInt& nbgh1,
                                            const VectorInt& nbgh2,
-                                           const CovCalcMode *mode) const
+                                           const CovCalcMode* mode,
+                                           bool cleanOptim) const
 {
-  return evalCovMatrix(db1,db2,ivar0,jvar0,nbgh1,nbgh2,mode);                                
+  return evalCovMat(db1,db2,ivar0,jvar0,nbgh1,nbgh2,mode, cleanOptim);                                
+}
+MatrixRectangular ACov::evalCovMatOptimByRanks(const Db* db1,
+                                                          const Db* db2,
+                                                          const VectorVectorInt& sampleRanks1,
+                                                          int ivar0,
+                                                          int jvar0,
+                                                          int iech2,
+                                                          const CovCalcMode* mode,
+                                                          bool cleanOptim) const
+{
+  return evalCovMatByRanks(db1, db2, sampleRanks1, ivar0, jvar0, iech2, mode, cleanOptim);
+}
+MatrixSquareSymmetric ACov::evalCovMatSymOptim(const Db* db1,
+                                                        const VectorInt& nbgh1,
+                                                        int ivar0,
+                                                        const CovCalcMode* mode,
+                                                        bool cleanOptim) const
+{
+  return evalCovMatSym(db1, nbgh1, ivar0, mode, cleanOptim);
 }
 
-MatrixSquareSymmetric ACov::evalCovMatrixSymmetricOptim(const Db *db1,
-                                                        int ivar0 ,
-                                                        const VectorInt &nbgh1,
-                                                        const CovCalcMode *mode) const
+MatrixSquareSymmetric ACov::evalCovMatSymOptimByRanks(const Db* db1,
+                                                                       const VectorVectorInt& sampleRanks1,
+                                                                       int ivar0,
+                                                                       const CovCalcMode* mode,
+                                                                       bool cleanOptim) const
 {
-  return evalCovMatrixSymmetric(db1,ivar0,nbgh1,mode); 
+  return evalCovMatSymByRanks(db1, sampleRanks1, ivar0, mode, cleanOptim);
 }
 
-void ACov::addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                        const SpacePoint& pwork1, 
-                        const SpacePoint& pwork2, 
-                        const CovCalcMode *mode) const
+void ACov::addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                       const SpacePoint& pwork1,
+                                       const SpacePoint& pwork2,
+                                       const CovCalcMode* mode) const
 {
   _addEvalCovMatBiPointInPlace(mat, pwork1, pwork2,mode);
 }
 
-void ACov::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                        const SpacePoint& pwork1, 
-                        const SpacePoint& pwork2, 
-                        const CovCalcMode *mode) const
+void ACov::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                        const SpacePoint& pwork1,
+                                        const SpacePoint& pwork2,
+                                        const CovCalcMode* mode) const
 {
-  for (int ivar = 0, nvar = getNVariables(); ivar < nvar; ivar++)
+  for (int ivar = 0, nvar = getNVar(); ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
-      mat.addValue(ivar, jvar, eval(pwork1,pwork2,ivar,jvar,mode)); 
+      mat.addValue(ivar, jvar, eval(pwork1, pwork2, ivar, jvar, mode));
 }
 
-void ACov::evalCovKriging(MatrixSquareGeneral &mat,
-                          SpacePoint &pwork1,
-                          SpacePoint& pout, 
-                          const CovCalcMode *mode) const
+void ACov::evalCovKriging(MatrixSquareGeneral& mat,
+                          SpacePoint& pwork1,
+                          SpacePoint& pout,
+                          const CovCalcMode* mode) const
 {
   mat.fill(0.);
-  loadAndAddEvalCovMatBiPointInPlace(mat,pwork1,pout,mode);
+  loadAndAddEvalCovMatBiPointInPlace(mat, pwork1, pout, mode);
 }
 
-void ACov::loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode) const
+void ACov::loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                              const SpacePoint& p1,
+                                              const SpacePoint& p2,
+                                              const CovCalcMode* mode) const
 {
-  _loadAndAddEvalCovMatBiPointInPlace(mat,p1,p2,mode);
+  _loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
 }
 
 double ACov::loadAndEval(const SpacePoint& p1,
@@ -1062,26 +1268,26 @@ double ACov::_loadAndEval(const SpacePoint& p1,
 }
 void ACov::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                               const SpacePoint& p1,
-                                              const SpacePoint&p2,
+                                              const SpacePoint& p2,
                                               const CovCalcMode *mode) const
 {
-  load(p1,true);
-  load(p2,false);
-  _addEvalCovMatBiPointInPlace(mat,*_pw1,*_pw2,mode);
+  load(p1, true);
+  load(p2, false);
+  _addEvalCovMatBiPointInPlace(mat, *_pw1, *_pw2, mode);
 }
 
 void ACov::load(const SpacePoint& p,bool case1) const
 {
-  const SpacePoint** pp = case1? &_pw1:&_pw2;
-  *pp = p.isTarget()? &_p2A:&_p1As[p.getIech()];
+  const SpacePoint** pp = case1 ? &_pw1 : &_pw2;
+  *pp                   = p.isTarget() ? &_p2A : &_p1As[p.getIech()];
 }
-
 
 /****************************************************************************/
 /*!
  **  Establish the covariance matrix within a Db
  **  Takes into account selection and heterotopy
- **  This method takes advantage of calculating covariance between a Db and itself
+ **  This method takes advantage of calculating covariance between a Db and
+itself
  **
  ** \return Dense matrix containing the covariance matrix
  **
@@ -1089,6 +1295,7 @@ void ACov::load(const SpacePoint& p,bool case1) const
  ** \param[in]  ivar0 Rank of the first variable (-1 for all variables)
  ** \param[in]  nbgh1 Vector of indices of active samples in db1 (optional)
  ** \param[in]  mode  CovCalcMode structure
+ ** \param[in]  cleanOptim When True, clean optimization internal arrays at end 
  **
  ** \remarks If a Db does not contain any Z-variable defined, the covariance
  ** \remarks cannot treat possible heterotopy and therefore uses all samples
@@ -1098,27 +1305,45 @@ void ACov::load(const SpacePoint& p,bool case1) const
  ** \remarks by the number of samples where the variable is defined
  **
  *****************************************************************************/
-MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(const Db *db1,
+MatrixSquareSymmetric ACov::evalCovMatSym(const Db* db1,
+                                                   const VectorInt& nbgh1,
                                                    int ivar0,
-                                                   const VectorInt &nbgh1,
-                                                   const CovCalcMode *mode) const
+                                                   const CovCalcMode* mode,
+                                                   bool cleanOptim) const
 {
+  DECLARE_UNUSED(cleanOptim)
   MatrixSquareSymmetric mat;
 
   // Preliminary checks
-  if (db1 == nullptr) return MatrixRectangular();
+  if (db1 == nullptr) return mat;
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return mat;
 
-  // Play the non-stationarity (if needed)
-  manage(db1,nullptr);
-  
-
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1, true, true);
+  VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1, true, true, true);
 
+  return evalCovMatSymByRanks(db1, index1, ivar0, mode, cleanOptim);
+}
+
+MatrixSquareSymmetric ACov::evalCovMatSymByRanks(const Db* db1,
+                                                                  const VectorVectorInt& sampleRanks1,
+                                                                  int ivar0,
+                                                                  const CovCalcMode* mode,
+                                                                  bool cleanOptim) const
+{
+  DECLARE_UNUSED(cleanOptim)
+  MatrixSquareSymmetric mat;
+
+  // Preliminary checks
+  if (db1 == nullptr) return mat;
+  VectorInt ivars = _getActiveVariables(ivar0);
+  if (ivars.empty()) return mat;
+
+  // Apply the non-stationarity (if needed)
+  manage(db1, nullptr);
+  
   // Creating the matrix
-  int neq1 = VH::count(index1);
+  int neq1 = VH::count(sampleRanks1);
   if (neq1 <= 0)
   {
     messerr("The returned matrix does not have any valid sample for any valid variable");
@@ -1132,34 +1357,32 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(const Db *db1,
 
   // Loop on the first variable
   int irow = 0;
-  for (int rvar1 = 0, nvar1 = (int) ivars.size(); rvar1 < nvar1; rvar1++)
+  for (int rvar1 = 0, nvar1 = (int)ivars.size(); rvar1 < nvar1; rvar1++)
   {
     int ivar1 = ivars[rvar1];
 
     // Loop on the first sample
-    int nech1s = (int) index1[rvar1].size();
+    int nech1s = (int)sampleRanks1[rvar1].size();
     for (int rech1 = 0; rech1 < nech1s; rech1++)
     {
-      int iech1 = index1[rvar1][rech1];
-      p1.setIech(iech1);
-      db1->getSampleAsSPInPlace(p1);
+      int iech1 = sampleRanks1[rvar1][rech1];
+      db1->getSampleAsSPInPlace(p1, iech1);
 
       // Loop on the second variable
       int icol = 0;
-      for (int rvar2 = 0, nvar2 = (int) ivars.size(); rvar2 < nvar2; rvar2++)
+      for (int rvar2 = 0, nvar2 = (int)ivars.size(); rvar2 < nvar2; rvar2++)
       {
         int ivar2 = ivars[rvar2];
 
         // Loop on the second sample
-        int nech2s = (int) index1[rvar2].size();
+        int nech2s = (int)sampleRanks1[rvar2].size();
         for (int rech2 = 0; rech2 < nech2s; rech2++)
         {
           // Perform calculation only in upper triangle of the Symmetric Matrix
           if (icol >= irow)
           {
-            int iech2 = index1[rvar2][rech2];
-            p2.setIech(iech2);
-            db1->getSampleAsSPInPlace(p2);
+            int iech2 = sampleRanks1[rvar2][rech2];
+            db1->getSampleAsSPInPlace(p2, iech2);
 
             // Modify the covariance (if non stationary)
             updateCovByPoints(1, iech1, 1, iech2);
@@ -1176,7 +1399,7 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(const Db *db1,
   }
 
   // Update the matrix due to presence of Variance of Measurement Error
-  _updateCovMatrixSymmetricVerr(db1, &mat, ivars, index1);
+  _updateCovMatrixSymmetricVerr(db1, &mat, ivars, sampleRanks1);
 
   return mat;
 }
@@ -1204,14 +1427,14 @@ MatrixSquareSymmetric ACov::evalCovMatrixSymmetric(const Db *db1,
  ** \remarks but only ranks positive or null are considered
  **
  *****************************************************************************/
-MatrixSparse* ACov::evalCovMatrixSparse(const Db *db1,
-                                        const Db *db2,
-                                        int ivar0,
-                                        int jvar0,
-                                        const VectorInt &nbgh1,
-                                        const VectorInt &nbgh2,
-                                        const CovCalcMode *mode,
-                                        double eps)
+MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
+                                     const Db* db2,
+                                     int ivar0,
+                                     int jvar0,
+                                     const VectorInt& nbgh1,
+                                     const VectorInt& nbgh2,
+                                     const CovCalcMode* mode,
+                                     double eps)
 {
   MatrixSparse* mat = nullptr;
   if (db2 == nullptr) db2 = db1;
@@ -1228,8 +1451,8 @@ MatrixSparse* ACov::evalCovMatrixSparse(const Db *db1,
   
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1 = db1->getMultipleRanksActive(ivars, nbgh1, true, flagSameDb);
-  VectorVectorInt index2 = db2->getMultipleRanksActive(jvars, nbgh2, true, flagSameDb);
+  VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1, true, true, flagSameDb);
+  VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2, true, true, flagSameDb);
 
   // Evaluate the matrix of sills
   int nvar1 = (int) ivars.size();
@@ -1264,8 +1487,7 @@ MatrixSparse* ACov::evalCovMatrixSparse(const Db *db1,
     for (int jech1 = 0; jech1 < nech1s; jech1++)
     {
       int iech1 = index1[ivar][jech1];
-      p1.setIech(iech1);
-      db1->getSampleAsSPInPlace(p1);
+      db1->getSampleAsSPInPlace(p1, iech1);
 
       // Loop on the second variable
       int icol = 0;
@@ -1278,8 +1500,7 @@ MatrixSparse* ACov::evalCovMatrixSparse(const Db *db1,
         for (int jech2 = 0; jech2 < nech2s; jech2++)
         {
           int iech2 = index2[jvar][jech2];
-          p2.setIech(iech2);
-          db2->getSampleAsSPInPlace(p2);
+          db2->getSampleAsSPInPlace(p2, iech2);
 
           // Modify the covariance (if non stationary)
           updateCovByPoints(1, iech1, 2, iech2);
@@ -1466,3 +1687,51 @@ double ACov::_getVolume(const VectorDouble& ext) const
   return maille;
 }
 
+
+
+/////////////  Functions to attach no stat information on various supports ////////
+void ACov::informMeshByMesh(const AMesh* amesh) const
+{
+  _tabNoStat->informMeshByMesh(amesh);
+}
+void ACov::informMeshByApex(const AMesh* amesh) const
+{
+  _tabNoStat->informMeshByApex(amesh);
+}
+void ACov::informDbIn(const Db* dbin) const
+{
+  _tabNoStat->informDbIn(dbin);
+}
+void ACov::informDbOut(const Db* dbout) const
+{
+  _tabNoStat->informDbOut(dbout);
+}
+
+
+void ACov::setNoStatDbIfNecessary(const Db*& db)
+{
+  if (_tabNoStat->getDbNoStatRef() == nullptr)
+    attachNoStatDb(db);
+  if (db == nullptr)
+    db = _tabNoStat->getDbNoStatRef();
+}
+
+void ACov::makeStationary()
+{
+  _tabNoStat->clear();
+}
+int ACov::makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AFunctional* func, const Db* db, const String& namecol)
+{
+  std::shared_ptr<ANoStat> ns;
+  if (func == nullptr)
+  {
+    if(!checkAndManageNoStatDb(db,namecol)) return 1;
+    ns = std::shared_ptr<ANoStat>(new NoStatArray(db,namecol));
+  }
+  else 
+  {
+    ns = std::unique_ptr<ANoStat>(new NoStatFunctional(func));
+  }
+   return _tabNoStat->addElem(ns, econs,iv1,iv2);
+  
+}

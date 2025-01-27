@@ -14,8 +14,11 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/String.hpp"
+#include "Basic/AStringable.hpp"
 
 KrigingCalcul::KrigingCalcul(bool flagDual,
+                             const VectorVectorInt* sampleRanks,
                              const VectorDouble* Z,
                              const MatrixSquareSymmetric* Sigma,
                              const MatrixRectangular* X,
@@ -34,6 +37,7 @@ KrigingCalcul::KrigingCalcul(bool flagDual,
   , _rankColCok(nullptr)
   , _rankXvalidEqs(nullptr)
   , _rankXvalidVars(nullptr)
+  , _sampleRanks(nullptr)
   , _Zstar()
   , _Beta()
   , _LambdaSK(nullptr)
@@ -70,9 +74,9 @@ KrigingCalcul::KrigingCalcul(bool flagDual,
   , _flagBayes(false)
   , _flagDual(flagDual)
 {
-  (void)setData(Z, Means);
+  (void)setData(Z, sampleRanks, Means);
   (void)setLHS(Sigma, X);
-  (void)setVar(Sigma00);
+  (void)setVariance(Sigma00);
 }
 
 KrigingCalcul::~KrigingCalcul()
@@ -82,45 +86,54 @@ KrigingCalcul::~KrigingCalcul()
 
 void KrigingCalcul::_resetAll()
 {
-  resetLinkedToZ();
-  resetLinkedToLHS();
-  resetLinkedToRHS();
-  resetLinkedtoVar0();
-  resetLinkedToBayes();
-  resetLinkedToColCok();
-  resetLinkedToXvalid();
+  _resetLinkedToZ();
+  _resetLinkedToLHS();
+  _resetLinkedToRHS();
+  _resetLinkedtoVar0();
+  _resetLinkedToBayes();
+  _resetLinkedToColCok();
+  _resetLinkedToXvalid();
 }
 
-void KrigingCalcul::resetLinkedToZ()
+void KrigingCalcul::setDual(bool status)
+{
+  _resetAll();
+  _flagDual = status;
+}
+void KrigingCalcul::_resetLinkedToSampleRanks()
+{
+  _deleteIndices();
+}
+void KrigingCalcul::_resetLinkedToZ()
 {
   _deleteZ();
 }
-void KrigingCalcul::resetLinkedToLHS()
+void KrigingCalcul::_resetLinkedToLHS()
 {
   _deleteSigma();
   _deleteX();
   _deleteDual();
 }
-void KrigingCalcul::resetLinkedToRHS()
+void KrigingCalcul::_resetLinkedToRHS()
 {
   _deleteSigma0();
   _deleteX0();
 }
-void KrigingCalcul::resetLinkedtoVar0()
+void KrigingCalcul::_resetLinkedtoVar0()
 {
   _deleteSigma00();
 }
-void KrigingCalcul::resetLinkedToBayes()
+void KrigingCalcul::_resetLinkedToBayes()
 {
   _deletePriorCov();
   _deletePriorMean();
 }
-void KrigingCalcul::resetLinkedToColCok()
+void KrigingCalcul::_resetLinkedToColCok()
 {
   _deleteZp();
   _deleteColCok();
 }
-void KrigingCalcul::resetLinkedToXvalid()
+void KrigingCalcul::_resetLinkedToXvalid()
 {
   _deleteXvalid();
 }
@@ -335,6 +348,10 @@ void KrigingCalcul::_deletePriorMean()
   _deleteBeta();
   // Cannot delete _PriorMean due to constness
 }
+void KrigingCalcul::_deleteIndices()
+{
+  _deleteZ();
+}
 void KrigingCalcul::_deleteZ()
 {
   _deleteZstar();
@@ -374,31 +391,50 @@ void KrigingCalcul::_deleteDual()
 }
 
 /**
+ * @brief Method to be used when the data has changed (e.g. Moving Neighborhood)
+ */
+void KrigingCalcul::resetNewData()
+{
+  _neq = 0;
+}
+
+/**
  * @brief Modify the Data Values (and Means)
  *
  * @param Z Data flattened vector (possibly multivariate)
+ * @param indices Vector Of Vector of sample ranks
  * @param Means  Vector of known Drift coefficients (optional)
  * @return int
  *
  * @note If one element is not provided, its address (if already defined) is
  * @note kept unchanged (even if its contents may have been updated)
  */
-int KrigingCalcul::setData(const VectorDouble* Z, const VectorDouble* Means)
+int KrigingCalcul::setData(const VectorDouble* Z,
+                           const VectorVectorInt* indices,
+                           const VectorDouble* Means)
 {
-  resetLinkedToZ();
+  _resetLinkedToZ();
+  _resetLinkedToSampleRanks();
 
   // Argument Z
   if (Z != nullptr)
   {
-    if (!_checkDimensionVector("Z", Z, &_neq)) return 1;
+    if (!_checkDimensionVD("Z", Z, &_neq)) return 1;
     _Z = Z;
   }
 
+  // Argument indices
+  if (indices != nullptr)
+  {
+    if (!_checkDimensionVVI("sampleRanks", indices, &_neq)) return 1;
+    _sampleRanks = indices;
+  }
+  
   // Argument Means
   if (Means != nullptr)
   {
     int local_nvar = 0;
-    if (!_checkDimensionVector("Means", Means, &local_nvar)) return 1;
+    if (!_checkDimensionVD("Means", Means, &local_nvar)) return 1;
     _Means = Means;
   }
   return 0;
@@ -417,7 +453,7 @@ int KrigingCalcul::setData(const VectorDouble* Z, const VectorDouble* Means)
 int KrigingCalcul::setLHS(const MatrixSquareSymmetric* Sigma,
                           const MatrixRectangular* X)
 {
-  resetLinkedToLHS();
+  _resetLinkedToLHS();
 
   // Argument Sigma
   if (Sigma != nullptr)
@@ -442,7 +478,7 @@ int KrigingCalcul::setLHS(const MatrixSquareSymmetric* Sigma,
   return 0;
 }
 
-int KrigingCalcul::setVar(const MatrixSquareSymmetric* Sigma00)
+int KrigingCalcul::setVariance(const MatrixSquareSymmetric* Sigma00)
 {
   if (Sigma00 != nullptr)
   {
@@ -453,9 +489,9 @@ int KrigingCalcul::setVar(const MatrixSquareSymmetric* Sigma00)
 }
 
 int KrigingCalcul::setRHS(const MatrixRectangular* Sigma0,
-                             const MatrixRectangular* X0)
+                          const MatrixRectangular* X0)
 {
-  resetLinkedToRHS();
+  _resetLinkedToRHS();
 
   // Argument Sigma0
   if (Sigma0 == nullptr)
@@ -481,7 +517,7 @@ int KrigingCalcul::setRHS(const MatrixRectangular* Sigma0,
   return 0;
 }
 
-bool KrigingCalcul::_checkDimensionVector(const String& name,
+bool KrigingCalcul::_checkDimensionVD(const String& name,
                                           const VectorDouble* vec,
                                           int *sizeRef)
 {
@@ -490,6 +526,18 @@ bool KrigingCalcul::_checkDimensionVector(const String& name,
   {
     messerr("Dimension of %s (%d) incorrect: it should be (%d)",
             name.c_str(),size, *sizeRef);
+    return false;
+  }
+  if (size > 0) *sizeRef = size;
+  return true;
+}
+
+bool KrigingCalcul::_checkDimensionVVI(const String& name, const VectorVectorInt* vec, int* sizeRef)
+{
+  int size = VH::count(*vec);
+  if (*sizeRef > 0 && size != *sizeRef)
+  {
+    messerr("Dimension of %s (%d) incorrect: it should be (%d)", name.c_str(), size, *sizeRef);
     return false;
   }
   if (size > 0) *sizeRef = size;
@@ -533,7 +581,7 @@ bool KrigingCalcul::_checkDimensionMatrix(const String& name,
 int KrigingCalcul::setColCokUnique(const VectorDouble* Zp,
                                    const VectorInt* rankColCok)
 {
-  resetLinkedToColCok();
+  _resetLinkedToColCok();
 
   if (Zp == nullptr || rankColCok == nullptr)
   {
@@ -547,7 +595,7 @@ int KrigingCalcul::setColCokUnique(const VectorDouble* Zp,
   }
 
   // Argument Zp
-  if (!_checkDimensionVector("Zp", Zp, &_nrhs)) return 1;
+  if (!_checkDimensionVD("Zp", Zp, &_nrhs)) return 1;
 
   // Argument rankColCok
   int ncck = (int) rankColCok->size();
@@ -578,7 +626,7 @@ int KrigingCalcul::setXvalidUnique(const VectorInt* rankXvalidEqs, const VectorI
 {
   if (rankXvalidEqs == nullptr || rankXvalidVars == nullptr) return 1;
   if (rankXvalidEqs->size() <= 0 || rankXvalidVars->size() <= 0) return 1;
-  resetLinkedToXvalid();
+  _resetLinkedToXvalid();
   _nrhs           = 0;
   _rankXvalidEqs  = rankXvalidEqs;
   _rankXvalidVars = rankXvalidVars;
@@ -589,7 +637,7 @@ int KrigingCalcul::setXvalidUnique(const VectorInt* rankXvalidEqs, const VectorI
 int KrigingCalcul::setBayes(const VectorDouble* PriorMean,
                             const MatrixSquareSymmetric* PriorCov)
 {
-  resetLinkedToBayes();
+  _resetLinkedToBayes();
 
   if (PriorMean == nullptr || PriorCov == nullptr)
   {
@@ -602,7 +650,7 @@ int KrigingCalcul::setBayes(const VectorDouble* PriorMean,
     return 1;
   }
   
-  if (!_checkDimensionVector("PriorMean", PriorMean, &_nbfl)) return 1;
+  if (!_checkDimensionVD("PriorMean", PriorMean, &_nbfl)) return 1;
   if (!_checkDimensionMatrix("PriorCov", PriorCov, &_nbfl, &_nbfl)) return 1;
   _PriorMean = PriorMean;
   _PriorCov  = PriorCov;
@@ -781,10 +829,10 @@ int KrigingCalcul::_needZstar()
   if (_flagSK || _flagBayes)
   {
     if (_needLambdaSK()) return 1;
-    _Zstar = _LambdaSK->prodMatVec(*_Z, true);
+    _Zstar = _LambdaSK->prodVecMat(*_Z, false);
 
     // Adding Mean per Variable
-    if (_flagSK && _Means->empty())
+    if (_flagSK && !_Means->empty())
     {
       VectorDouble localMeans = *_Means;
       if (_nxvalid > 0) localMeans = VH::sample(*_Means, *_rankXvalidVars);
@@ -802,7 +850,7 @@ int KrigingCalcul::_needZstar()
   else
   {
     if (_needLambdaUK()) return 1;
-    _Zstar = _LambdaUK->prodMatVec(*_Z, true);
+    _Zstar = _LambdaUK->prodVecMat(*_Z, false);
   }
 
   // Collocated case
@@ -1116,8 +1164,8 @@ int KrigingCalcul::_needInvSigmaSigma0()
 
 int KrigingCalcul::_patchRHSForXvalidUnique()
 {
-  resetLinkedToRHS();
-  resetLinkedtoVar0();
+  _resetLinkedToRHS();
+  _resetLinkedtoVar0();
 
   if (_needInvSigma()) return 1;
   if (_needSigma()) return 1;
@@ -1191,7 +1239,7 @@ int KrigingCalcul::_patchRHSForXvalidUnique()
 
   setRHS(_C_RHS, _X_RHS);
 
-  setVar(S00->clone());
+  setVariance(S00->clone());
   delete alpha;
 
   return 0;
@@ -1200,6 +1248,12 @@ int KrigingCalcul::_patchRHSForXvalidUnique()
 int KrigingCalcul::_needPriorCov()
 {
   if (!_isPresentMatrix("PriorCov", _PriorCov)) return 1;
+  return 0;
+}
+
+int KrigingCalcul::_needSampleRanks()
+{
+  if (!_isPresentIIVector("SampleRanks", _sampleRanks)) return 1;
   return 0;
 }
 
@@ -1395,6 +1449,14 @@ bool KrigingCalcul::_isPresentIVector(const String& name,
   return false;
 }
 
+bool KrigingCalcul::_isPresentIIVector(const String& name, const VectorVectorInt* vec)
+{
+  if (vec != nullptr) return true;
+  messerr(">>> VectorVector %s is missing (required)", name.c_str());
+  messerr("    (generated in KrigingCalcul::_isIIPresentVector)");
+  return false;
+}
+
 int KrigingCalcul::_needLambda0()
 {
   if (_Lambda0 != nullptr) return 0;
@@ -1456,4 +1518,204 @@ int KrigingCalcul::_needLambda0()
   _Lambda0->prodMatMatInPlace(&bot, &top);
 
   return 0;
+}
+
+void KrigingCalcul::dumpLHS(int nbypas) const
+{
+  int size = _neq;
+  if (! _flagSK && ! _flagBayes) size += _nbfl;
+  int npass = (size - 1) / nbypas + 1;
+
+  /* General Header */
+
+  mestitle(0, "LHS of Kriging matrix");
+  if (_Sigma != nullptr)
+    message("Dimension of the Covariance Matrix  = %d\n", _Sigma->getNRows());
+  if (_X != nullptr && ! _flagSK && ! _flagBayes)
+    message("Dimension of the Drift Matrix       = %d\n", _nbfl);
+
+  // LHS matrices
+  for (int ipass = 0; ipass < npass; ipass++)
+  {
+    int ideb = ipass * nbypas;
+    int ifin = MIN(size, ideb + nbypas);
+    message("\n");
+
+    // Header line 
+    tab_prints(NULL, "Rank");
+    for (int j = ideb; j < ifin; j++) tab_printi(NULL, j + 1);
+    message("\n");
+
+    // LHS Matrix
+    for (int i = 0; i < size; i++)
+    {
+      tab_printi(NULL, i + 1);
+      if (i < _neq)
+      {
+        for (int j = ideb; j < ifin; j++)
+        {
+          if (j < _neq)
+            tab_printg(NULL, _Sigma->getValue(i, j, false));
+          else
+            tab_printg(NULL, _X->getValue(i, j - _neq, false));
+        }
+        message("\n");
+      }
+      else
+      {
+        for (int j = ideb; j < ifin; j++)
+        {
+          if (j < _neq)
+            tab_printg(NULL, _X->getValue(j, i - _neq, false));
+          else
+            tab_printg(NULL, 0.);
+        }
+        message("\n");
+      }
+    }
+  }
+}
+
+void KrigingCalcul::dumpRHS() const
+{
+  int size = _neq;
+  if (!_flagSK && !_flagBayes) size += _nbfl;
+
+  // Header line 
+  tab_prints(NULL, "Rank");
+  for (int irhs = 0; irhs < _nrhs; irhs++) tab_printi(NULL, irhs + 1);
+  message("\n");
+
+  // RHS Matrix
+  for (int i = 0; i < size; i++)
+  {
+    tab_printi(NULL, i + 1);
+    if (i < _neq)
+    {
+      for (int irhs = 0; irhs < _nrhs; irhs++)
+        tab_printg(NULL, _Sigma0->getValue(i, irhs, false));
+    }
+    else
+    {
+      for (int irhs = 0; irhs < _nrhs; irhs++)
+        tab_printg(NULL, _X0->getValue(i - _neq, irhs, false));
+    }
+    message("\n");
+  }
+}
+
+// This method cannot be const as it may compute _lambda internally upon request
+void KrigingCalcul::dumpWGT()
+{
+  const MatrixRectangular* lambda;
+  if (_flagSK || _flagBayes)
+  {
+    if (_needLambdaSK()) return;
+    lambda = _LambdaSK;
+  }
+  else
+  {
+    if (_needLambdaUK()) return;
+    lambda = _LambdaUK;
+  }
+  if (_needSampleRanks()) return;
+  char string[20];
+
+  /* Header Line */
+
+  int nvar = _sampleRanks->size();
+  tab_prints(NULL, "Rank");
+  tab_prints(NULL, "Data");
+  for (int irhs = 0; irhs < _nrhs; irhs++)
+  {
+    (void)gslSPrintf(string, "Z%d*", irhs + 1);
+    tab_prints(NULL, string);
+  }
+  message("\n");
+
+  // Matrix lines
+  VectorDouble sum(_nrhs);
+  int lec = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    if (nvar > 1) message("Using variable Z%-2d\n", ivar + 1);
+    int nbyvar = (*_sampleRanks)[ivar].size();
+    sum.fill(0.);
+
+    for (int j = 0; j < nbyvar; j++)
+    {
+      tab_printi(NULL, lec + 1);
+      double value = (*_Z)[lec];
+      // Correct printout by the mean locally in case of SK
+      if (_flagSK && !_Means->empty()) value += (*_Means)[ivar]; 
+      tab_printg(NULL, value);
+      for (int irhs = 0; irhs < _nrhs; irhs++)
+      {
+        double value = lambda->getValue(lec, irhs, false);
+        tab_printg(NULL, value);
+        sum[irhs] += value;
+      }
+      message("\n");
+      lec++;
+    }
+
+    // Display sum of weights
+    tab_prints(NULL, "Sum of weights", 2, EJustify::LEFT);
+    for (int irhs = 0; irhs < _nrhs; irhs++) tab_printg(NULL, sum[irhs]);
+    message("\n");
+  }
+}
+
+void KrigingCalcul::dumpAux()
+{
+  if (_needSampleRanks()) return;
+  char string[20];
+  int nvar = _sampleRanks->size();
+
+  // For Simple Kriging, dump the information on Means
+  if (_nbfl <= 0)
+  {
+    if (!_Means->empty())
+    {
+      for (int ivar = 0; ivar < nvar; ivar++)
+        message("Mean for Variable Z%d = %lf\n", ivar + 1, (*_Means)[ivar]);
+    }
+    return;
+  }
+
+  // In Bayesian case, dump the Prior and Posterior information
+  if (_flagBayes)
+  {
+    VH::display("Prior Mean", *_PriorMean);
+    VectorDouble postmean = getPostMean();
+    VH::display("Posterior Mean", postmean);
+    message("Prior Covariance Matrix\n");
+    _PriorCov->display();
+    message("Posterior Covariance Matrix\n");
+    const MatrixSquareSymmetric* postcov = getPostCov();
+    postcov->display();
+    return;
+  }
+
+  if (_needMuUK()) return;
+  if (_needBeta()) return;
+
+  // Header Line
+  tab_prints(NULL, "Rank");
+  for (int irhs = 0; irhs < _nrhs; irhs++)
+  {
+    (void)gslSPrintf(string, "Mu%d*", irhs + 1);
+    tab_prints(NULL, string);
+  }
+  tab_prints(NULL, "Coeff");
+  message("\n");
+
+  for (int ibfl = 0; ibfl < _nbfl; ibfl++)
+  {
+    tab_printi(NULL, ibfl + 1);
+    for (int irhs = 0; irhs < _nrhs; irhs++)
+      tab_printg(NULL, _MuUK->getValue(ibfl, irhs, false));
+    tab_printg(NULL, _Beta[ibfl]);
+    message("\n");
+  }
 }

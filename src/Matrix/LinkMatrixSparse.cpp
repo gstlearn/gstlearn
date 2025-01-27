@@ -1408,7 +1408,7 @@ String toStringRange(const String &title, const cs *C)
 
   /* Calculate the extreme values */
 
-  StatResults stats = ut_statistics(NF_T.getNumber(), NF_T.getValues().data());
+  StatResults stats = ut_statistics(NF_T.getNElements(), NF_T.getValues().data());
 
   /* Printout */
 
@@ -1417,7 +1417,7 @@ String toStringRange(const String &title, const cs *C)
   sstr << " Descr: m=" << cs_getnrow(C) << " - n=" << cs_getncol(C) << " - nzmax=" << C->nzmax
   << std::endl;
   sstr << " Range: [" << stats.mini << " ; " << stats.maxi << "] (" << stats.nvalid << " / "
-       << NF_T.getNumber() << ")" << std::endl;
+       << NF_T.getNElements() << ")" << std::endl;
 
   return sstr.str();
 }
@@ -1553,7 +1553,7 @@ cs* cs_extract_submatrix(cs *C,
   /* Fill the new sparse triplet */
 
   NF_Triplet NF_Tout;
-  for (int i = 0, n = NF_T.getNumber(); i < n; i++)
+  for (int i = 0, n = NF_T.getNElements(); i < n; i++)
   {
     int ic = NF_T.getCol(i) - col_from;
     if (ic < 0 || ic >= col_length) continue;
@@ -1604,7 +1604,7 @@ void cs_print_range(const char *title, const cs *C)
 
   /* Calculate the extreme values */
 
-  StatResults stats = ut_statistics(NF_T.getNumber(), NF_T.getValues().data());
+  StatResults stats = ut_statistics(NF_T.getNElements(), NF_T.getValues().data());
 
   /* Printout */
 
@@ -1613,8 +1613,8 @@ void cs_print_range(const char *title, const cs *C)
   else
     message("Sparse matrix\n");
   message(" Descr: m=%d n=%d nnz=%d\n", cs_getnrow(C), cs_getncol(C), C->nzmax);
-  if (NF_T.getNumber() > 0)
-    message(" Range: [%lf ; %lf] (%d/%d)\n", stats.mini, stats.maxi, stats.nvalid, NF_T.getNumber());
+  if (NF_T.getNElements() > 0)
+    message(" Range: [%lf ; %lf] (%d/%d)\n", stats.mini, stats.maxi, stats.nvalid, NF_T.getNElements());
   else
     message(" All terms are set to zero\n");
 }
@@ -3085,7 +3085,7 @@ cs* cs_compress(cs *A)
   NF_Triplet NF_T = csToTriplet(A);
 
   NF_Triplet NF_Tout;
-  for (int i = 0; i < NF_T.getNumber(); i++)
+  for (int i = 0; i < NF_T.getNElements(); i++)
   {
     double value = NF_T.getValue(i);
     if (isZero(value)) continue;
@@ -3111,7 +3111,7 @@ void cs_print_file(const char *radix, int rank, const cs *A)
 
   NF_Triplet NF_T = csToTriplet(A);
 
-  for (int i = 0; i < NF_T.getNumber(); i++)
+  for (int i = 0; i < NF_T.getNElements(); i++)
   {
     fprintf(file, "%10d %10d %20.10lf\n", NF_T.getCol(i), NF_T.getRow(i), NF_T.getValue(i));
   }
@@ -3462,11 +3462,11 @@ cs* cs_glue(const cs* A1, const cs* A2, bool shiftRow, bool shiftCol)
   NF_Triplet T2 = csToTriplet(A2);
 
   // Copy the contents of A1 into triplets
-  for (int i = 0; i < T1.getNumber(); i++)
+  for (int i = 0; i < T1.getNElements(); i++)
     NF_Tout.add(T1.getRow(i), T1.getCol(i), T1.getValue(i));
 
   // Copy the contents of A2 into triplets
-  for (int i = 0; i < T2.getNumber(); i++)
+  for (int i = 0; i < T2.getNElements(); i++)
     NF_Tout.add(T2.getRow(i) + addRow, T2.getCol(i) + addCol, T2.getValue(i));
 
   int row_cur = NF_Tout.getNRows();

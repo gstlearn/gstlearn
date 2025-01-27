@@ -23,7 +23,7 @@
  * @param nvar         Number of variables
  * @param space        Space definition
  */
-CovContext::CovContext(int nvar, const ASpace *space)
+CovContext::CovContext(int nvar, const ASpaceSharedPtr& space)
 
     : ASpaceObject(space),
       _nVar(nvar),
@@ -46,7 +46,7 @@ CovContext::CovContext(int nvar,
                        int ndim,
                        const VectorDouble &mean,
                        const VectorDouble &covar0)
-    : ASpaceObject(SpaceRN(ndim)),
+    : ASpaceObject(SpaceRN::create(ndim)),
       _nVar(nvar),
       _field(TEST),
       _mean(mean),
@@ -55,7 +55,7 @@ CovContext::CovContext(int nvar,
   _update();
 }
 
-CovContext::CovContext(const Db *db, const ASpace* space)
+CovContext::CovContext(const Db *db, const ASpaceSharedPtr& space)
     : ASpaceObject(space),
       _nVar(0),
       _field(TEST),
@@ -63,13 +63,13 @@ CovContext::CovContext(const Db *db, const ASpace* space)
       _covar0()
 {
   /// TODO : check Db dimension vs provided space
-  _nVar = db->getLocNumber(ELoc::Z);
+  _nVar = db->getNLoc(ELoc::Z);
   // As it does not make sense not to have any variable, this number is set to 1 at least
   if (_nVar <= 1) _nVar = 1;
   _update();
 }
 
-CovContext::CovContext(const Vario *vario, const ASpace *space)
+CovContext::CovContext(const Vario *vario, const ASpaceSharedPtr& space)
     : ASpaceObject(space),
       _nVar(0),
       _field(TEST),
@@ -77,7 +77,7 @@ CovContext::CovContext(const Vario *vario, const ASpace *space)
       _covar0()
 {
   /// TODO : check vario dimension vs provided space
-  _nVar = vario->getVariableNumber();
+  _nVar = vario->getNVar();
   _field = vario->getHmax();
   _update();
 }
@@ -141,7 +141,7 @@ bool CovContext::isConsistent(const ASpace* space) const
  */
 bool CovContext::isEqual(const CovContext &r) const
 {
-  return (_nVar == r.getNVar() && _space->isEqual(r.getSpace()));
+  return (_nVar == r.getNVar() && _space->isEqual(r.getSpace().get()));
 }
 
 double CovContext::getMean(int ivar) const

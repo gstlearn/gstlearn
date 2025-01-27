@@ -111,7 +111,7 @@ void CalcSimuFFT::_alloc()
   {
     if (i < _getNDim())
     {
-      int nval = _getOptimalEvenNumber(_shift[i] + dbgrid->getNX(i));
+      int nval = _getNOptimalEven(_shift[i] + dbgrid->getNX(i));
       _dims[i] = nval;
       _dim2[i] = nval / 2;
     }
@@ -155,7 +155,7 @@ void CalcSimuFFT::_alloc()
  ** \param[in]  largeFactor Maximum value for a Factor
  **
  *****************************************************************************/
-int CalcSimuFFT::_getOptimalEvenNumber(int number, int largeFactor)
+int CalcSimuFFT::_getNOptimalEven(int number, int largeFactor)
 {
   int local = number;
   if ((local % 2) == 1) local++;
@@ -1051,8 +1051,8 @@ bool CalcSimuFFT::_check()
 
   if (!hasDbout()) return false;
   if (!hasModel()) return false;
-  int ndim = getModel()->getDimensionNumber();
-  int nvar = getModel()->getVariableNumber();
+  int ndim = getModel()->getNDim();
+  int nvar = getModel()->getNVar();
   if (ndim < 1 || ndim > 3)
   {
     messerr("The FFT Method is not a relevant simulation model");

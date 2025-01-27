@@ -235,7 +235,7 @@ void CalcKriging::_storeResultsForExport(const KrigingSystem& ksys)
   _ktest.nech = ksys.getNRed();
   _ktest.nrhs = 1;
   _ktest.neq  = ksys.getNeq();
-  _ktest.nbgh = ksys.getSampleIndices();
+  _ktest.nbgh = ksys.getSampleNbgh();
   _ktest.xyz  = ksys.getSampleCoordinates();
   _ktest.data = ksys.getSampleData();
   _ktest.zam  = ksys.getZam();
@@ -293,7 +293,7 @@ bool CalcKriging::_run()
   /* Loop on the targets to be processed */
   /***************************************/
 
-  for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
+  for (int iech_out = 0; iech_out < getDbout()->getNSample(); iech_out++)
   {
     if (_iechSingleTarget > 0)
     {
@@ -302,7 +302,7 @@ bool CalcKriging::_run()
     }
     else
     {
-      mes_process("Kriging sample", getDbout()->getSampleNumber(), iech_out);
+      mes_process("Kriging sample", getDbout()->getNSample(), iech_out);
     }
 
     bool error = ksys.estimate(iech_out);

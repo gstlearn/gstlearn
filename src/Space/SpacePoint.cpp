@@ -21,7 +21,7 @@
 #include <iostream>
 #include <math.h>
 
-SpacePoint::SpacePoint(const ASpace* space)
+SpacePoint::SpacePoint(const ASpaceSharedPtr& space)
 : ASpaceObject(space),
   _coord(),
   _iech(-1),
@@ -41,7 +41,7 @@ SpacePoint::SpacePoint(const SpacePoint& r)
 {
 }
 
-SpacePoint::SpacePoint(const VectorDouble& coord, int iech, const ASpace* space)
+SpacePoint::SpacePoint(const VectorDouble& coord, int iech, const ASpaceSharedPtr& space)
   : ASpaceObject(space)
   , _coord(coord)
   , _iech(iech)
@@ -104,7 +104,7 @@ SpacePoint SpacePoint::spacePointOnSubspace(int ispace) const
 
   /// TODO : Memory copies
   VectorDouble vec = getSpace()->projCoord(_coord, ispace);
-  const ASpace* sp = getSpace()->getComponent(ispace);
+  const auto sp = getSpace()->getComponent(ispace);
   SpacePoint p(vec, _iech, sp);
   p.setTarget(_target);
   return p;

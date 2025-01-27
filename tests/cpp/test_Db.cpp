@@ -15,7 +15,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
   // Testing the selections
   /////////////////////////
 
-  int nech = grid->getSampleNumber();
+  int nech = grid->getNSample();
 
   // First selection generated with Bernoulli (proba=0.6)
   VectorDouble sel1 = VH::simulateBernoulli(nech, 0.6);

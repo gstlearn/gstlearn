@@ -16,7 +16,8 @@
 #include <iostream>
 #include <math.h>
 
-SpaceTarget::SpaceTarget(const ASpace* space,
+
+SpaceTarget::SpaceTarget(const ASpaceSharedPtr& space,
                          bool checkExtend,
                          bool checkCode,
                          bool checkDate)
@@ -65,10 +66,9 @@ SpaceTarget* SpaceTarget::create(const VectorDouble &center,
                                  const VectorDouble &extend,
                                  double code,
                                  double date,
-                                 const ASpace *space)
+                                 const ASpaceSharedPtr& space)
 {
-  DECLARE_UNUSED(space);
-  SpaceTarget* st = new SpaceTarget();
+  SpaceTarget* st = new SpaceTarget(space);
   st->setCoords(center);
   st->setExtend(extend);
   st->setCode(code);
