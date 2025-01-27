@@ -193,7 +193,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _Z = _dbin->getValuesByRanks(_sampleRanks, _means);
       _algebra.setData(&_Z, &_sampleRanks, &_means);
     }
-    _Sigma00 = _model->eval0Mat();
+    _Sigma00 = _model->eval0Mat(&_calcModeVAR);
     _algebra.setVariance(&_Sigma00);
   }
 
