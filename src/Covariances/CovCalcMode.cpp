@@ -9,8 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovCalcMode.hpp"
-#include "Basic/AException.hpp"
-#include "Basic/Utilities.hpp"
 
 CovCalcMode::CovCalcMode(const ECalcMember &member,
                          bool asVario,
@@ -44,19 +42,17 @@ CovCalcMode& CovCalcMode::operator=(const CovCalcMode &r)
   if (this != &r)
   {
     AStringable::operator=(r);
-    _member = r._member;
-    _asVario = r._asVario;
-    _unitary = r._unitary;
-    _orderVario = r._orderVario;
-    _allActiveCov = r._allActiveCov;
+    _member        = r._member;
+    _asVario       = r._asVario;
+    _unitary       = r._unitary;
+    _orderVario    = r._orderVario;
+    _allActiveCov  = r._allActiveCov;
     _activeCovList = r._activeCovList;
-
   }
   return *this;
 }
-CovCalcMode::~CovCalcMode()
-{
-}
+
+CovCalcMode::~CovCalcMode() {}
 
 CovCalcMode* CovCalcMode::create(const ECalcMember &member,
                                  bool asVario,
@@ -70,8 +66,8 @@ CovCalcMode* CovCalcMode::create(const ECalcMember &member,
 
 void CovCalcMode::setActiveCovListFromOne(int keepOnlyCovIdx)
 {
-  _activeCovList.clear();
   _allActiveCov = true;
+  _activeCovList.clear();
   if (keepOnlyCovIdx >= 0)
   {
     _activeCovList.push_back(keepOnlyCovIdx);
@@ -87,8 +83,7 @@ void CovCalcMode::setActiveCovListFromOne(int keepOnlyCovIdx)
 void CovCalcMode::setActiveCovListFromInterval(int inddeb, int indto)
 {
   _activeCovList.clear();
-  for (int i = inddeb; i < indto; i++)
-    _activeCovList.push_back(i);
+  for (int i = inddeb; i < indto; i++) _activeCovList.push_back(i);
   _allActiveCov = false;
 }
 

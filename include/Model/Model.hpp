@@ -114,11 +114,14 @@ public:
                   const Option_VarioFit& optvar  = Option_VarioFit(),
                   const Option_AutoFit& mauto    = Option_AutoFit(),
                   bool verbose                   = false);
-
+  static Model* createFillRandom(int ndim,
+                   int nvar,
+                   const std::vector<ECov>& types = ECov::fromKeys({"SPHERICAL"}),
+                   double hmax = 1,
+                   int order   = -1);
   void setCovAnisoList(const CovAnisoList* covalist);
   void addCov(const CovAniso* cov);
-  void
-  addCovFromParam(const ECov& type,
+  void addCovFromParam(const ECov& type,
                   double range                       = EPSILON6,
                   double sill                        = 1.,
                   double param                       = 1.,

@@ -264,7 +264,6 @@ void CovList::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const
     for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
       _covs[mode->getActiveCovList(i)]->loadAndAddEvalCovMatBiPointInPlace(mat,p1,p2,mode); 
   }
- 
 }
 
 String CovList::toString(const AStringFormat* /*strfmt*/) const

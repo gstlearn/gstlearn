@@ -128,10 +128,9 @@ private:
   virtual void _delAllCov(){};
   void _manage(const Db* db1,const Db* db2) const override;
   
-
 #ifndef SWIG
 protected:
-  std::vector<const CovBase*> _covs;      /// Vector of elementary covariances
-  VectorBool             _filtered; /// Vector of filtered flags (size is nb. cova)
+  std::vector<const CovBase*> _covs; /// Vector of elementary covariances
+  VectorBool _filtered;              /// Vector of filtered flags (size is nb. cova)
 #endif
 };

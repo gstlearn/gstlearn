@@ -149,7 +149,6 @@ int CovAnisoList::getNVar() const
 double CovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
   double cov = 0.;
-
   if (_considerAllCovariances(mode))
   {
     for (int i=0, n=getNCov(); i<n; i++)

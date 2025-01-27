@@ -9,11 +9,40 @@ Data Base Contents
      [  1,]     2.000     0.483     0.557       N/A    -0.872
      [  2,]     3.000     0.762     0.433     0.793     0.744
 
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 2
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     4.708    -3.586
+     [  1,]    -3.586     3.084
+  (This component is Filtered)
+Spherical
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     4.708    -3.586
+     [  1,]    -3.586     3.084
+- Range        =      0.250
+Total Sill
+               [,  0]    [,  1]
+     [  0,]     9.416    -7.172
+     [  1,]    -7.172     6.168
+
+Known Mean(s)     0.353    -0.127
+
 Target location
 ---------------
 Sample #1 (from 1)
 Coordinate #1 = 0.652223
-Coordinate #2 = 0.483448
+Coordinate #2 = 0.014824
 
 Data selected in neighborhood
 -----------------------------
@@ -30,11 +59,11 @@ Reduced number of equations = 5
 
        Rank                     1          2          3          4          5
                   Flag          1          2          3          4          5
-          1          1      3.000      0.314      0.300      0.009      0.016
-          2          2      0.314      3.000      0.016      0.027      0.300
-          3          3      0.300      0.016      4.000      0.088      0.157
-          4          4      0.009      0.027      0.088      4.000      0.272
-          5          5      0.016      0.300      0.157      0.272      4.000
+          1          1      9.416      0.000     -7.172      0.000      0.000
+          2          2      0.000      9.416      0.000      0.000     -7.172
+          3          3     -7.172      0.000      6.168      0.000      0.000
+          4          4      0.000      0.000      0.000      6.168      0.000
+          5          5      0.000     -7.172      0.000      0.000      6.168
 
 RHS of Kriging matrix (compressed)
 ==================================
@@ -45,39 +74,39 @@ Number of right-hand sides  = 2
 Punctual Estimation
 
        Rank       Flag          1          2
-          1          1      0.269      0.013
-          2          2      1.193      0.060
-          3          3      0.013      0.135
-          4          4      0.046      0.455
-          5          5      0.060      0.596
+          1          1      4.708     -3.586
+          2          2      0.000      0.000
+          3          3     -3.586      3.084
+          4          4      0.000      0.000
+          5          5      0.000      0.000
 
 (Co-) Kriging weights
 =====================
        Rank         x1         x2       Data        Z1*        Z2*
 Using variable Z1 
-          1      0.652      0.015      0.753      0.049      0.000
+          1      0.652      0.015      0.753      0.500      0.000
           2      0.483      0.557        N/A        N/A        N/A
-          3      0.762      0.433      0.793      0.394      0.005
-Sum of weights                                    0.443      0.005
+          3      0.762      0.433      0.793      0.000      0.000
+Sum of weights                                    0.500      0.000
 Using variable Z2 
-          1      0.652      0.015     -0.454     -0.001      0.026
-          2      0.483      0.557     -0.872      0.010      0.104
-          3      0.762      0.433      0.744     -0.015      0.141
-Sum of weights                                   -0.007      0.270
+          1      0.652      0.015     -0.454      0.000      0.500
+          2      0.483      0.557     -0.872      0.000      0.000
+          3      0.762      0.433      0.744      0.000      0.000
+Sum of weights                                    0.000      0.500
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =       0.732
- - Std. Dev. =       1.587
- - Variance  =       2.517
- - Cov(h=0)  =       3.000
+ - Estimate  =       0.553
+ - Std. Dev. =       1.534
+ - Variance  =       2.354
+ - Cov(h=0)  =       4.708
 Variable Z2 
- - Estimate  =      -0.719
- - Std. Dev. =       1.966
- - Variance  =       3.865
- - Cov(h=0)  =       4.000
+ - Estimate  =      -0.290
+ - Std. Dev. =       1.242
+ - Variance  =       1.542
+ - Cov(h=0)  =       3.084
 
 Data Base Characteristics
 =========================
@@ -87,32 +116,32 @@ Data Base Statistics
 4 - Name Kriging.z-1.estim - Locator z1
  Nb of data          =          1
  Nb of active values =          1
- Minimum value       =      0.732
- Maximum value       =      0.732
- Mean value          =      0.732
+ Minimum value       =      0.553
+ Maximum value       =      0.553
+ Mean value          =      0.553
  Standard Deviation  =      0.000
  Variance            =      0.000
 5 - Name Kriging.z-2.estim - Locator z2
  Nb of data          =          1
  Nb of active values =          1
- Minimum value       =     -0.719
- Maximum value       =     -0.719
- Mean value          =     -0.719
+ Minimum value       =     -0.290
+ Maximum value       =     -0.290
+ Mean value          =     -0.290
  Standard Deviation  =      0.000
  Variance            =      0.000
 6 - Name Kriging.z-1.stdev - Locator NA
  Nb of data          =          1
  Nb of active values =          1
- Minimum value       =      1.587
- Maximum value       =      1.587
- Mean value          =      1.587
+ Minimum value       =      1.534
+ Maximum value       =      1.534
+ Mean value          =      1.534
  Standard Deviation  =      0.000
  Variance            =      0.000
 7 - Name Kriging.z-2.stdev - Locator NA
  Nb of data          =          1
  Nb of active values =          1
- Minimum value       =      1.966
- Maximum value       =      1.966
- Mean value          =      1.966
+ Minimum value       =      1.242
+ Maximum value       =      1.242
+ Mean value          =      1.242
  Standard Deviation  =      0.000
  Variance            =      0.000

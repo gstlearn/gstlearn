@@ -61,22 +61,11 @@ int main(int argc, char* argv[])
   target->setCoordinate(0, 1, data->getCoordinate(0, 1));
 
   // Create the Model
-  Model* model = Model::create(CovContext(nvar, ndim));
-  MatrixSquareSymmetric* sillNug =
-    MatrixSquareSymmetric::createFromVD({1., 0.2, 0.2, 3.});
-  model->addCovFromParam(ECov::NUGGET, 0., 0., 0., VectorDouble(), *sillNug);
-  MatrixSquareSymmetric* sillExp =
-    MatrixSquareSymmetric::createFromVD({2., 0.1, 0.1, 1.});
-  model->addCovFromParam(ECov::EXPONENTIAL, 0.7, 0., 0., VectorDouble(), *sillExp);
+  int order = (flagSK) ? -1 : 0;
+  Model* model = Model::createFillRandom(ndim, nvar, {ECov::NUGGET, ECov::SPHERICAL},
+                                         1., order);
   model->setCovFiltered(0, true);
-  if (flagSK)
-  {
-    VectorDouble means = VH::simulateGaussian(nvar);
-    model->setMeans(means);
-  }
-  else
-    model->setDriftIRF(0, 0);
-  VectorDouble means(nvar, 0.);
+  model->display();
 
   // Neighborhood
   ANeigh* neigh = NeighUnique::create();
@@ -91,8 +80,6 @@ int main(int argc, char* argv[])
 
   // Free pointers
 
-  delete sillNug;
-  delete sillExp;
   delete neigh;
   delete data;
   delete target;

@@ -58,16 +58,10 @@ int main(int argc, char *argv[])
   VectorDouble dx = { 0.05, 0.05 };
   DbGrid* grid = DbGrid::create(nx, dx);
 
-  // Creating a Model(s) for simulating a variable
-  double scale = 0.7;
-  MatrixSquareSymmetric* sills =
-    MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
-  Model* model = Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
-                                        *sills, VectorDouble(), nullptr, false);
-  if (flagSK)
-    model->setMeans(VH::simulateGaussian(nvar));
-  else
-    model->setDriftIRF(0, 0);
+  // Create the Model
+  int order = (flagSK) ? -1 : 0;
+  Model* model =
+    Model::createFillRandom(ndim, nvar, {ECov::EXPONENTIAL}, 1., order);
 
   // Creating the Neighborhood
   ANeigh* neigh = NeighUnique::create();
