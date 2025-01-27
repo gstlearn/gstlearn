@@ -174,11 +174,11 @@ bool ModelGeneric::isValid() const
 }
 
 // Pipes methods to _ctxt
-int ModelGeneric::getVariableNumber() const
+int ModelGeneric::getNVar() const
 {
   return _ctxt.getNVar();
 }
-int ModelGeneric::getDimensionNumber() const
+int ModelGeneric::getNDim() const
 {
   return _ctxt.getNDim();
 }
@@ -188,20 +188,20 @@ const VectorDouble& ModelGeneric::getMeans() const
 }
 
 // Pipes method to _driftList
-int ModelGeneric::getDriftNumber() const
+int ModelGeneric::getNDrift() const
 {
   if (_driftList == nullptr) return 0;
-  return _driftList->getDriftNumber();
+  return _driftList->getNDrift();
 }
-int ModelGeneric::getDriftEquationNumber() const
+int ModelGeneric::getNDriftEquation() const
 {
   if (_driftList == nullptr) return 0;
-  return _driftList->getDriftEquationNumber();
+  return _driftList->getNDriftEquation();
 }
-int ModelGeneric::getExternalDriftNumber() const
+int ModelGeneric::getNExtDrift() const
 {
   if (_driftList == nullptr) return 0;
-  return _driftList->getExternalDriftNumber();
+  return _driftList->getNExtDrift();
 }
 int ModelGeneric::getDriftMaxIRFOrder(void) const
 {
@@ -233,11 +233,11 @@ int ModelGeneric::getCovaMinIRFOrder() const
   if (covalist == nullptr) return ITEST;
   return covalist->getCovaMinIRFOrder();
 }
-int ModelGeneric::getCovaNumber(bool skipNugget) const
+int ModelGeneric::getNCov(bool skipNugget) const
 {
   const CovAnisoList* covalist = getCovAnisoList();
   if (covalist == nullptr) return ITEST;
-  return covalist->getCovaNumber(skipNugget);
+  return covalist->getNCov(skipNugget);
 }
 void ModelGeneric::setActiveFactor(int iclass)
 {

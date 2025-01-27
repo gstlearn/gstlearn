@@ -153,7 +153,7 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
 {
   Model* modelc = dynamic_cast<Model*>(model);
   // Local parameters
-  int nvar = modelc->getVariableNumber();
+  int nvar = modelc->getNVar();
   VectorInt varColCok = {0, 2}; // Ranks of collcated variables
   bool debugSchur     = false;
   if (nvar <= 1)

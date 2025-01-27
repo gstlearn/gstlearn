@@ -38,7 +38,7 @@ public:
   void setFlagStoreInternal(bool flagStoreInternal) ;
 
 private:
-  int  _getVariableNumber() const;
+  int  _getNVar() const;
   int  _getSize() const;
   void _storeWeights(int icol);
   void _storeWeightsMS(int icol, NF_Triplet& NF_T);

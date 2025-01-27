@@ -120,7 +120,7 @@ int VMap::compute(Db *db,
 
   /* Create the variables in the Variogram Map file */
 
-  int nvar = db->getLocNumber(ELoc::Z);
+  int nvar = db->getNLoc(ELoc::Z);
   int nvs2 = nvar * (nvar + 1) / 2;
   IPTV = _dbmap->addColumnsByConstant(nvs2, 0.);
   if (IPTV < 0) return 1;
@@ -323,7 +323,7 @@ int VMap::_grid_fft(DbGrid *dbgrid, const NamingConvention &namconv)
 
    /* Preliminary calculations */
 
-   nvar = dbgrid->getLocNumber(ELoc::Z);
+   nvar = dbgrid->getNLoc(ELoc::Z);
    ndim = 0;
    sizetot = sizemap = sizegrid = 1;
    for (int i = 0; i < 3; i++)
@@ -628,8 +628,8 @@ int VMap::_vmap_general(Db *db, int radius, const NamingConvention &namconv)
   /* Initializations */
 
   int ndim = _dbmap->getNDim();
-  int nvar = db->getLocNumber(ELoc::Z);
-  int nech = db->getSampleNumber();
+  int nvar = db->getNLoc(ELoc::Z);
+  int nech = db->getNSample();
   int nv2 = nvar * (nvar + 1) / 2;
 
   /* Core allocation */
@@ -760,7 +760,7 @@ int VMap::_vmap_grid(DbGrid *dbgrid, const NamingConvention &namconv)
   /* Initializations */
 
   ndim = _dbmap->getNDim();
-  nvar = dbgrid->getLocNumber(ELoc::Z);
+  nvar = dbgrid->getNLoc(ELoc::Z);
   nv2 = nvar * (nvar + 1) / 2;
 
   /* Core allocation */
@@ -771,14 +771,14 @@ int VMap::_vmap_grid(DbGrid *dbgrid, const NamingConvention &namconv)
 
   /* Loop on the first data */
 
-  for (int iech1 = 0; iech1 < dbgrid->getSampleNumber(); iech1++)
+  for (int iech1 = 0; iech1 < dbgrid->getNSample(); iech1++)
   {
     if (!dbgrid->isActive(iech1)) continue;
     dbgrid->rankToIndice(iech1, ind1);
 
     /* Loop on the second data */
 
-    for (int iech2 = 0; iech2 < dbgrid->getSampleNumber(); iech2++)
+    for (int iech2 = 0; iech2 < dbgrid->getNSample(); iech2++)
     {
       if (!dbgrid->isActive(iech2)) continue;
       dbgrid->rankToIndice(iech2, ind2);
@@ -1157,7 +1157,7 @@ int VMap::_findNeighCell(const VectorInt& indg0,
  *****************************************************************************/
 void VMap::_vmap_normalize(int nv2)
 {
-  for (int iech = 0; iech < _dbmap->getSampleNumber(); iech++)
+  for (int iech = 0; iech < _dbmap->getNSample(); iech++)
   {
     for (int ijvar = 0; ijvar < nv2; ijvar++)
     {

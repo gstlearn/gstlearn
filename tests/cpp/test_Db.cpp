@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
   // Testing the selections
   /////////////////////////
 
-  int nech = grid->getSampleNumber();
+  int nech = grid->getNSample();
 
   // First selection generated with Bernoulli (proba=0.6)
   VectorDouble sel1 = VH::simulateBernoulli(nech, 0.6);

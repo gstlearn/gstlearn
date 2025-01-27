@@ -4,7 +4,7 @@ import numpy as np
 
 np.random.seed(123)
 dbg = gl.DbGrid.create(nx = [11,11])
-ncell = dbg.getSampleNumber()
+ncell = dbg.getNSample()
 seltab = np.ones(ncell)
 middle = int(ncell / 2)
 seltab[middle] = 0
@@ -19,7 +19,7 @@ model = gl.Model.createFromParam(gl.ECov.MATERN,ranges = [3.,4.],param=1)
 cova = model.getCova(0)
 
 # %%
-newvar = np.random.normal(size=dbg.getSampleNumber())
+newvar = np.random.normal(size=dbg.getNSample())
 newvar[dbg["x1"]==00] = 0
 newvar[dbg["x1"]==10] = 0
 newvar[dbg["x2"]==00] = 0

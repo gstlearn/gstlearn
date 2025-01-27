@@ -96,7 +96,7 @@ Model::~Model()
 int Model::resetFromDb(const Db *db)
 {
   int ndim = db->getNDim();
-  int nvar = db->getLocNumber(ELoc::Z);
+  int nvar = db->getNLoc(ELoc::Z);
   if (nvar <= 0) nvar = 1;
   auto space = SpaceRN::create(ndim);
   _ctxt = CovContext(nvar, space);
@@ -245,18 +245,18 @@ Model* Model::createFromVario(Vario* vario,
 String Model::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  int ncov   = getCovaNumber();
-  int ndrift = getDriftNumber();
+  int ncov   = getNCov();
+  int ndrift = getNDrift();
   if (ncov <= 0 && ndrift <= 0) return sstr.str();
 
   sstr << toTitle(0, "Model characteristics");
   if (isFlagGradient()) sstr << "(Specific for Handling Gradient)" << std::endl;
-  sstr << "Space dimension              = " << getDimensionNumber()
+  sstr << "Space dimension              = " << getNDim()
        << std::endl;
-  sstr << "Number of variable(s)        = " << getVariableNumber() << std::endl;
+  sstr << "Number of variable(s)        = " << getNVar() << std::endl;
   sstr << "Number of basic structure(s) = " << ncov << std::endl;
   sstr << "Number of drift function(s)  = " << ndrift << std::endl;
-  sstr << "Number of drift equation(s)  = " << getDriftEquationNumber() << std::endl;
+  sstr << "Number of drift equation(s)  = " << getNDriftEquation() << std::endl;
 
   /* Covariance part */
 
@@ -279,7 +279,7 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
 
   /* Mean Part */
 
-  if (getDriftNumber() <= 0)
+  if (getNDrift() <= 0)
   {
     sstr << toVector("Known Mean(s)", getMeans());
     // TODO: could be added but changes all non-regression files
@@ -342,7 +342,7 @@ void Model::addCovFromParamOldStyle(const ECov& type,
 {
   // Check consistency with parameters of the model
 
-  int ndim = getDimensionNumber();
+  int ndim = getNDim();
   if (! ranges.empty())
   {
     if (ndim > 0 && (int) ranges.size() != ndim)
@@ -365,7 +365,7 @@ void Model::addCovFromParamOldStyle(const ECov& type,
     }
     ndim = (int) angles.size();
   }
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   if (! sills.empty())
   {
     if (nvar > 0 && (int) sills.size() != nvar * nvar)
@@ -436,7 +436,7 @@ void Model::addCovFromParam(const ECov& type,
 {
   // Check consistency with parameters of the model
 
-  int ndim = getDimensionNumber();
+  int ndim = getNDim();
   if (!ranges.empty())
   {
     if (ndim > 0 && (int)ranges.size() != ndim)
@@ -461,7 +461,7 @@ void Model::addCovFromParam(const ECov& type,
     }
     ndim = (int)angles.size();
   }
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   if (!sills.empty())
   {
     if (nvar > 0 && nvar != sills.getNCols())
@@ -517,7 +517,7 @@ void Model::addCovFromParam(const ECov& type,
   }
 
  
-  _ctxt.setNVar(cov.getNVariables());
+  _ctxt.setNVar(cov.getNVar());
   _copyCovContext();
   if (!angles.empty()) cov.setAnisoAngles(angles);
   addCov(&cov);
@@ -618,12 +618,12 @@ CovAniso* Model::getCova(int icov)
   if (covalist == nullptr) return nullptr;
   return covalist->getCova(icov);
 }
-int Model::getCovaNumber(bool skipNugget) const
+int Model::getNCov(bool skipNugget) const
 {
   if (_cova == nullptr) return 0;
   const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return ITEST;
-  return covalist->getCovaNumber(skipNugget);
+  return covalist->getNCov(skipNugget);
 }
 const ECov& Model::getCovaType(int icov) const
 {
@@ -662,12 +662,12 @@ String Model::getCovName(int icov) const
   if (covalist == nullptr) return String();
   return covalist->getCovName(icov);
 }
-int Model::getGradParamNumber(int icov) const
+int Model::getNGradParam(int icov) const
 {
   if (_cova == nullptr) return ITEST;
   const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
   if (covalist == nullptr) return ITEST;
-  return covalist->getGradParamNumber(icov);
+  return covalist->getNGradParam(icov);
 }
 void Model::setSill(int icov, int ivar, int jvar, double value)
 {
@@ -703,7 +703,7 @@ int Model::hasExternalCov() const
   if (_cova == nullptr) return 0;
   const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return 0;
-  for (int icov = 0; icov < (int) covalist->getCovaNumber(); icov++)
+  for (int icov = 0; icov < (int) covalist->getNCov(); icov++)
   {
     if (covalist->getType(icov) == ECov::FUNCTION) return 1;
   }
@@ -963,15 +963,15 @@ const ADrift* Model::getDrift(int il) const
   if (_driftList == nullptr) return nullptr;
   return _driftList->getDrift(il);
 }
-int Model::getDriftNumber() const
+int Model::getNDrift() const
 {
   if (_driftList == nullptr) return 0;
-  return _driftList->getDriftNumber();
+  return _driftList->getNDrift();
 }
-int Model::getExternalDriftNumber() const
+int Model::getNExtDrift() const
 {
   if (_driftList == nullptr) return 0;
-  return _driftList->getExternalDriftNumber();
+  return _driftList->getNExtDrift();
 }
 int Model::getRankFext(int il) const
 {
@@ -987,10 +987,10 @@ bool Model::isDriftSampleDefined(const Db *db,
   if (_driftList == nullptr) return false;
   return _driftList->isDriftSampleDefined(db,ib,nech,nbgh,loctype);
 }
-int Model::getDriftEquationNumber() const
+int Model::getNDriftEquation() const
 {
   if (_driftList == nullptr) return 0;
-  return _driftList->getDriftEquationNumber();
+  return _driftList->getNDriftEquation();
 }
 bool Model::isDriftFiltered(unsigned int il) const
 {
@@ -1078,10 +1078,10 @@ VectorDouble Model::sampleUnitary(const VectorDouble &hh,
                                   VectorDouble codir,
                                   const CovCalcMode* mode)
 {
-  if (ivar < 0 || ivar >= getVariableNumber()) return VectorDouble();
-  if (jvar < 0 || jvar >= getVariableNumber()) return VectorDouble();
+  if (ivar < 0 || ivar >= getNVar()) return VectorDouble();
+  if (jvar < 0 || jvar >= getNVar()) return VectorDouble();
   if (ivar == jvar) return VectorDouble();
-  int ndim = getDimensionNumber();
+  int ndim = getNDim();
   if (codir.empty())
   {
     (void) GH::rotationGetDirectionDefault(ndim, codir);
@@ -1106,11 +1106,11 @@ VectorDouble Model::envelop(const VectorDouble &hh,
                             VectorDouble codir,
                             const CovCalcMode* mode)
 {
-  if (ivar < 0 || ivar >= getVariableNumber()) return VectorDouble();
-  if (jvar < 0 || jvar >= getVariableNumber()) return VectorDouble();
+  if (ivar < 0 || ivar >= getNVar()) return VectorDouble();
+  if (jvar < 0 || jvar >= getNVar()) return VectorDouble();
   if (ivar == jvar) return VectorDouble();
   if (isign != -1 && isign != 1) return VectorDouble();
-  int ndim = getDimensionNumber();
+  int ndim = getNDim();
   if (codir.empty())
   {
     (void) GH::rotationGetDirectionDefault(ndim, codir);
@@ -1378,15 +1378,15 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
 
   /* Write the Model structure */
 
-  ret = ret && _recordWrite<int>(os, "", getDimensionNumber());
-  ret = ret && _recordWrite<int>(os, "", getVariableNumber());
+  ret = ret && _recordWrite<int>(os, "", getNDim());
+  ret = ret && _recordWrite<int>(os, "", getNVar());
   ret = ret && _recordWrite<double>(os, "General parameters", getField());
-  ret = ret && _recordWrite<int>(os, "Number of basic covariance terms", getCovaNumber());
-  ret = ret && _recordWrite<int>(os, "Number of drift terms", getDriftNumber());
+  ret = ret && _recordWrite<int>(os, "Number of basic covariance terms", getNCov());
+  ret = ret && _recordWrite<int>(os, "Number of drift terms", getNDrift());
 
   /* Writing the covariance part */
 
-  for (int icova = 0; ret && icova < getCovaNumber(); icova++)
+  for (int icova = 0; ret && icova < getNCov(); icova++)
   {
     const CovAniso *cova = getCova(icova);
     ret = ret && _recordWrite<int>(os, "", cova->getType().getValue());
@@ -1399,7 +1399,7 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
 
     if (!cova->getFlagAniso()) continue;
 
-    for (int idim = 0; ret && idim < getDimensionNumber(); idim++)
+    for (int idim = 0; ret && idim < getNDim(); idim++)
       ret = ret && _recordWrite<double>(os, "", cova->getAnisoCoeffs(idim));
     ret = ret && _commentWrite(os, "Anisotropy Coefficients");
     ret = ret && _recordWrite<int>(os, "Anisotropy Rotation Flag", (int) cova->getFlagRotation());
@@ -1407,15 +1407,15 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
     if (!cova->getFlagRotation()) continue;
 
     // Storing the rotation matrix by Column (compatibility)
-    for (int idim = 0; ret && idim < getDimensionNumber(); idim++)
-      for (int jdim = 0; ret && jdim < getDimensionNumber(); jdim++)
+    for (int idim = 0; ret && idim < getNDim(); idim++)
+      for (int jdim = 0; ret && jdim < getNDim(); jdim++)
         ret = ret && _recordWrite<double>(os, "", cova->getAnisoRotMat(jdim, idim));
     ret = ret && _commentWrite(os, "Anisotropy Rotation Matrix");
   }
 
   /* Writing the drift part */
 
-  for (int ibfl = 0; ret && ibfl < getDriftNumber(); ibfl++)
+  for (int ibfl = 0; ret && ibfl < getNDrift(); ibfl++)
   {
     const ADrift *drift = getDrift(ibfl);
     ret = ret && _recordWrite<String>(os,"Drift Identifier", drift->getDriftName());
@@ -1423,26 +1423,26 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
 
   /* Writing the matrix of means (if nbfl <= 0) */
 
-  if (getDriftNumber() <= 0)
-    for (int ivar = 0; ret && ivar < getVariableNumber(); ivar++)
+  if (getNDrift() <= 0)
+    for (int ivar = 0; ret && ivar < getNVar(); ivar++)
     {
       ret = ret && _recordWrite<double>(os, "Mean of Variables", getContext().getMean(ivar));
     }
 
   /* Writing the matrices of sills (optional) */
 
-  for (int icova = 0; ret && icova < getCovaNumber(); icova++)
+  for (int icova = 0; ret && icova < getNCov(); icova++)
   {
-    for (int ivar = 0; ret && ivar < getVariableNumber(); ivar++)
-      for (int jvar = 0; ret && jvar < getVariableNumber(); jvar++)
+    for (int ivar = 0; ret && ivar < getNVar(); ivar++)
+      for (int jvar = 0; ret && jvar < getNVar(); jvar++)
         ret = ret && _recordWrite<double>(os, "", getSill(icova, ivar, jvar));
     ret = ret && _commentWrite(os, "Matrix of sills");
   }
 
   /* Writing the variance-covariance at the origin (optional) */
 
-  for (int ivar = 0; ret && ivar < getVariableNumber(); ivar++)
-    for (int jvar = 0; ret && jvar < getVariableNumber(); jvar++)
+  for (int ivar = 0; ret && ivar < getNVar(); ivar++)
+    for (int jvar = 0; ret && jvar < getNVar(); jvar++)
       ret = ret && _recordWrite<double>(os, "", getContext().getCovar0(ivar, jvar));
   ret = ret && _commentWrite(os, "Var-Covar at origin");
 
@@ -1512,7 +1512,7 @@ Model* Model::duplicate() const
 
 Model* Model::createReduce(const VectorInt& validVars) const
 {
-  VectorInt localValidVars = VH::filter(validVars, 0, getVariableNumber());
+  VectorInt localValidVars = VH::filter(validVars, 0, getNVar());
   int nvar = (int) localValidVars.size();
   if (nvar <= 0)
   {
@@ -1546,8 +1546,8 @@ Model* Model::createReduce(const VectorInt& validVars) const
  */
 double Model::gofToVario(const Vario *vario, bool verbose)
 {
-  int nvar = getVariableNumber();
-  int ndir = vario->getDirectionNumber();
+  int nvar = getNVar();
+  int ndir = vario->getNDir();
 
   double total = 0.;
 
@@ -1715,7 +1715,7 @@ double Model::evalDriftVarCoef(const Db *db,
     return mean;
   }
   double drift = 0.;
-  for (int ib = 0, nfeq = getDriftEquationNumber(); ib < nfeq; ib++)
+  for (int ib = 0, nfeq = getNDriftEquation(); ib < nfeq; ib++)
     drift += evalDriftValue(db, iech, ivar, ib, ECalcMember::LHS) * coeffs[ib];
   return drift;
 }
@@ -1739,7 +1739,7 @@ VectorDouble Model::evalDriftVarCoefs(const Db *db,
   if (_driftList == nullptr)
   {
     if (db == nullptr) return vec;
-    int nech = db->getSampleNumber(useSel);
+    int nech = db->getNSample(useSel);
     double mean = getMean(ivar);
     vec = VectorDouble(nech, mean);
   }
@@ -1835,10 +1835,10 @@ const CovAnisoList* Model::_castInCovAnisoListConst(int icov) const
   if (icov < 0) return covalist;
 
   // Check the rank
-  if (icov >= covalist->getCovaNumber())
+  if (icov >= covalist->getNCov())
   {
     messerr("The rank 'icov' (%d) is not valid. The CovAnisoList contains %d covariances",
-            icov, covalist->getCovaNumber());
+            icov, covalist->getNCov());
     return nullptr;
   }
   return covalist;
@@ -1856,10 +1856,10 @@ CovAnisoList* Model::_castInCovAnisoList(int icov)
   if (icov < 0) return covalist;
 
   // Check the rank
-  if (icov >= covalist->getCovaNumber())
+  if (icov >= covalist->getNCov())
   {
     messerr("The rank 'icov' (%d) is not valid. The CovAnisoList contains %d covariances",
-            icov, covalist->getCovaNumber());
+            icov, covalist->getNCov());
     return nullptr;
   }
   return covalist;
@@ -1890,7 +1890,7 @@ int Model::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv) co
   /* Initializations */
 
   int ndim = dbgrid->getNDim();
-  int nvar = dbgrid->getLocNumber(ELoc::Z);
+  int nvar = dbgrid->getNLoc(ELoc::Z);
   int nv2  = nvar * (nvar + 1) / 2;
 
   /* Create the variables in the Variogram Map file */
@@ -1906,7 +1906,7 @@ int Model::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv) co
   VectorDouble dincr(ndim);
   VectorInt indices(ndim);
   MatrixSquareGeneral mat;
-  for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbgrid->getNSample(); iech++)
   {
     if (! dbgrid->isActive(iech)) continue;
     dbgrid->rankToIndice(iech, indices);
@@ -1947,10 +1947,10 @@ int Model::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv) co
  *****************************************************************************/
 int Model::stabilize(double percent, bool verbose)
 {
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   if (nvar > 1) return 0;
   if (percent <= 0.) return 0;
-  int ncov = getCovaNumber();
+  int ncov = getNCov();
 
   /* Check if the model only contains GAUSSIAN components */
 
@@ -1991,8 +1991,8 @@ int Model::stabilize(double percent, bool verbose)
 int Model::standardize(bool verbose)
 
 {
-  int nvar = getVariableNumber();
-  int ncov = getCovaNumber();
+  int nvar = getNVar();
+  int ncov = getNCov();
   VectorDouble total(nvar,0.);
 
   /* Calculate the total sills for each variable */
@@ -2051,8 +2051,8 @@ VectorDouble Model::sample(const VectorDouble &h,
                            const CovInternal *covint)
 {
   int nh   = (int) h.size();
-  int ndim = getDimensionNumber();
-  int nvar = getVariableNumber();
+  int ndim = getNDim();
+  int nvar = getNVar();
 
   /* Core allocation */
 
@@ -2104,8 +2104,8 @@ double Model::evaluateOneIncr(double hh,
                               int jvar,
                               const CovCalcMode *mode)
 {
-  int ndim = getDimensionNumber();
-  int nvar = getVariableNumber();
+  int ndim = getNDim();
+  int nvar = getNVar();
 
   /* Core allocation */
 
@@ -2166,7 +2166,7 @@ void Model::evaluateMatInPlace(const CovInternal *covint,
 
   MatrixSquareGeneral mat = evalNvarIpas(1., d1, mode);
 
-  int nvar = getVariableNumber();
+  int nvar = getNVar();
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
@@ -2224,15 +2224,15 @@ VectorDouble Model::evaluateFromDb(Db *db,
                                    int jvar,
                                    const CovCalcMode *mode)
 {
-  if (getDimensionNumber() != db->getNDim())
+  if (getNDim() != db->getNDim())
   {
     messerr("Dimension of the Db (%d) does not match dimension of the Model (%d)",
-            db->getNDim(), getDimensionNumber());
+            db->getNDim(), getNDim());
     return VectorDouble();
   }
-  int ndim = getDimensionNumber();
-  int nvar = getVariableNumber();
-  int nech = db->getSampleNumber();
+  int ndim = getNDim();
+  int nvar = getNVar();
+  int nech = db->getNSample();
 
   /* Core allocation */
 
@@ -2311,13 +2311,13 @@ double Model::calculateStdev(Db *db1,
  */
 double Model::computeLogLikelihood(const Db* db, bool verbose)
 {
-  int nvar = db->getLocatorNumber(ELoc::Z);
+  int nvar = db->getNLoc(ELoc::Z);
   if (nvar < 1)
   {
     messerr("The 'db' should have at least one variable defined");
     return TEST;
   }
-  int nDrift = getDriftEquationNumber();
+  int nDrift = getNDriftEquation();
  
   // Calculate the covariance matrix C and perform its Cholesky decomposition
   MatrixSquareSymmetric cov = evalCovMatSym(db);
@@ -2339,11 +2339,11 @@ double Model::computeLogLikelihood(const Db* db, bool verbose)
   if (verbose)
   {
     message("Likelihood calculation:\n");
-    message("- Number of active samples     = %d\n", db->getSampleNumber(true));
+    message("- Number of active samples     = %d\n", db->getNSample(true));
     message("- Number of variables          = %d\n", nvar);
     message("- Length of Information Vector = %d\n", size);
     if (nDrift > 0)
-      message("- Number of drift conditions = %d\n", getDriftEquationNumber());
+      message("- Number of drift conditions = %d\n", getNDriftEquation());
     else
       VH::display("Constant Mean(s)", getMeans());
   }

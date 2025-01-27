@@ -93,7 +93,7 @@ CovAniso::CovAniso(const CovAniso &r)
       _corAniso((CorAniso*)getCor()),
       _optimEnabled(r._optimEnabled)
 {
-  _ctxt.setNVar(r.getNVariables());
+  _ctxt.setNVar(r.getNVar());
 }
 
 CovAniso& CovAniso::operator=(const CovAniso &r)
@@ -385,10 +385,10 @@ String CovAniso::toString(const AStringFormat* strfmt) const
   {
     // A sill is defined
 
-    if (getNVariables() > 1)
+    if (getNVar() > 1)
     {
       sstr << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
-                      getNVariables(), getNVariables(), _sill.getValues());
+                      getNVar(), getNVar(), _sill.getValues());
     }
     else
     {
@@ -402,15 +402,15 @@ String CovAniso::toString(const AStringFormat* strfmt) const
   {
     // The sill is not defined: use slope instead
 
-    if (getNVariables() > 1)
+    if (getNVar() > 1)
     {
       MatrixSquareGeneral slopes = _sill;
       double range = getRange(0);
-      for (int ivar = 0; ivar < getNVariables(); ivar++)
-        for (int jvar = 0; jvar < getNVariables(); jvar++)
+      for (int ivar = 0; ivar < getNVar(); ivar++)
+        for (int jvar = 0; jvar < getNVar(); jvar++)
           slopes.setValue(ivar, jvar, _sill.getValue(ivar, jvar) / range);
       sstr << toMatrix("- Slope matrix:", VectorString(), VectorString(), 0,
-                      getNVariables(), getNVariables(), slopes.getValues());
+                      getNVar(), getNVar(), slopes.getValues());
     }
     else
     {
@@ -421,10 +421,10 @@ String CovAniso::toString(const AStringFormat* strfmt) const
   {
     // Only sill is defined
 
-    if (getNVariables() > 1)
+    if (getNVar() > 1)
     {
       sstr << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
-                      getNVariables(), getNVariables(), _sill.getValues());
+                      getNVar(), getNVar(), _sill.getValues());
     }
     else
     {
@@ -512,9 +512,9 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
 }
 
 
-int CovAniso::getGradParamNumber() const
+int CovAniso::getNGradParam() const
 {
-  return _corAniso->getGradParamNumber();
+  return _corAniso->getNGradParam();
 }
 
 CovAniso* CovAniso::createIsotropic(const CovContext &ctxt,

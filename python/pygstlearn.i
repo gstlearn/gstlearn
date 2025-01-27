@@ -705,7 +705,7 @@
     int ncols = mat.getNCols();
 
     NF_Triplet NFT = mat.getMatrixToTriplet();
-    const npy_intp nnz = NFT.getNumber();;
+    const npy_intp nnz = NFT.getNElements();
 
     // Create 1D NumPy arrays for row indices, column indices, and values
     npy_intp dim[1] = {nnz};
@@ -1150,17 +1150,17 @@ def check_nrows(db, nrows):
     """Check if a number of rows matches with the number of samples of a Db, 
     and returns the flag for useSel (whether it matches the number of active 
     samples or the total number of samples)"""
-    if nrows == db.getActiveSampleNumber() :
+    if nrows == db.getNSampleActive() :
         useSel = True
-    elif nrows == db.getSampleNumber() or db.getSampleNumber()==0:
+    elif nrows == db.getNSample() or db.getNSample()==0:
         useSel = False
     else:
-        if db.getActiveSampleNumber() != db.getSampleNumber():
+        if db.getNSampleActive() != db.getNSample():
             raise ValueError("Error of dimension. Your number of lines ("+str(nrows)+") has to be equal to " +
-                str(db.getActiveSampleNumber()) + " or " + str(db.getSampleNumber()))
+                str(db.getNSampleActive()) + " or " + str(db.getNSample()))
         else :
             raise ValueError("Error of dimension. Your number of lines ("+str(nrows)+") has to be equal to " +
-                  str(db.getActiveSampleNumber()))
+                  str(db.getNSampleActive()))
     return useSel
 
 def findColumnNames(self, columns):
@@ -1173,14 +1173,14 @@ def findColumnNames(self, columns):
         names = self.getNameByColIdx(columns)
     
     elif isinstance(columns, slice):
-        Nmax = self.getColumnNumber()
+        Nmax = self.getNColumn()
         names = []
         for i in range(Nmax)[columns]:
             names.append(self.getNameByColIdx(i))
 
     elif is_list_type(columns, (int, np.int_)):
         names = []
-        Nfields = self.getColumnNumber()
+        Nfields = self.getNColumn()
         for i in columns:
             if i >= Nfields:
                 print("Warning: the index {} is out of bounds with {}, this index is ignored".format(i,Nfields))
@@ -1211,7 +1211,7 @@ def getNrows(self, useSel=None):
     """ get number of rows of the Db when using or not a selection"""
     if useSel is None:
         useSel = self.useSel
-    nrows = self.getSampleNumber(useSel)
+    nrows = self.getNSample(useSel)
     return nrows
 
 def getdbitem(self,arg):
@@ -1344,7 +1344,7 @@ setattr(gl.Db,"__getitem__",getdbitem)
 setattr(gl.Db,"__setitem__",setdbitem)
 
 def Db_toTL(self, flagLocate=False):
-  dat = pd.DataFrame(self.getAllColumns().reshape(-1,self.getSampleNumber()).T, 
+  dat = pd.DataFrame(self.getAllColumns().reshape(-1,self.getNSample()).T, 
     columns = self.getAllNames())
     
   if flagLocate:
@@ -1429,15 +1429,15 @@ setattr(gl.Vario, "toTL", vario_toTL)
 
 def vario_updateFromPanda(self, pf, idir, ivar, jvar):
 	vario = self
-	ndir = vario.getDirectionNumber()
-	nvar = vario.getVariableNumber()
+	ndir = vario.getNDir()
+	nvar = vario.getNVar()
 	if idir < 0 or idir >= ndir:
 	 return vario
 	if ivar < 0 or ivar >= nvar:
 	 return vario
 	if jvar < 0 or jvar >= nvar:
 	 return vario
-	nlag = vario.getLagTotalNumber(idir)
+	nlag = vario.getNLagTotal(idir)
 	if len(pf.index) != nlag:
 	 return vario
 	

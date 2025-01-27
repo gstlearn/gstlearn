@@ -159,14 +159,14 @@ public:
 
   const CovAniso* getCova(int icov) const;
   CovAniso* getCova(int icov);
-  int getCovaNumber(bool skipNugget = false) const;
+  int getNCov(bool skipNugget = false) const;
   const ECov& getCovaType(int icov) const;
   
   double getRange(int icov) const;
   VectorDouble getRanges(int icov) const;
   double getParam(int icov) const;
   String getCovName(int icov) const;
-  int getGradParamNumber(int icov) const;
+  int getNGradParam(int icov) const;
   
 
   double getBallRadius() const;
@@ -509,10 +509,10 @@ public:
   /// TODO : to be removed (encapsulation of DriftList)
   const DriftList* getDriftList()                  const;
   const ADrift* getDrift(int il)                   const;
-  int  getDriftNumber()                            const;
-  int  getExternalDriftNumber()                    const;
+  int  getNDrift()                            const;
+  int  getNExtDrift()                    const;
   int  getRankFext(int il)                         const;
-  int  getDriftEquationNumber()                    const;
+  int  getNDriftEquation()                    const;
   bool isDriftFiltered(unsigned int il)            const;
   int  getDriftMaxIRFOrder(void)                   const;
   bool isDriftDefined(const VectorInt &powers, int rank_fex = 0) const;
@@ -566,7 +566,7 @@ public:
   const VectorDouble& getCovar0s() const { return _ctxt.getCovar0(); }
   double getCovar0(int ivar, int jvar) const { return _ctxt.getCovar0(ivar,jvar); }
   double getField() const               { return _ctxt.getField(); }
-  int getDimensionNumber() const        { return _ctxt.getNDim(); }
+  int getNDim() const                   { return _ctxt.getNDim(); }
 
   void setMeans(const VectorDouble& mean);
   void setMean(double mean, int ivar=0);
@@ -579,7 +579,7 @@ public:
   Model* duplicate() const;
   Model* createReduce(const VectorInt& validVars) const;
 
-  int getVariableNumber() const
+  int getNVar() const
   {
     // TODO/ the strange next line have been commented out.
     // There should be either validated or suppressed
@@ -587,7 +587,7 @@ public:
     //      return 3; // This strange number of variables is linked to the Gradient calculation
     //    else
     // However, note used for Gradient (Functional type) in Potential
-    int nvar = _cova->getNVariables();
+    int nvar = _cova->getNVar();
     if (nvar <= 0)
       nvar = _ctxt.getNVar();
     return nvar;

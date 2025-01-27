@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
   modelM->addDrift(&FF);
   modelM->display();
 
-  int nsample = workingDbc->getSampleNumber();
+  int nsample = workingDbc->getNSample();
   // Adding a first variable (filled completely)
   VectorDouble rnd1 = VH::simulateGaussian(nsample);
   workingDbc->addColumns(rnd1, "Z1");

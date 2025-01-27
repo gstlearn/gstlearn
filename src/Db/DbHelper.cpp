@@ -414,7 +414,7 @@ static void st_grid1D_interpolate_linear(Db *dbgrid,
                                          const double *X,
                                          const double *Y)
 {
-  int nech = dbgrid->getSampleNumber();
+  int nech = dbgrid->getNSample();
 
   // Loop on the grid nodes
 
@@ -450,7 +450,7 @@ static int st_grid1D_interpolate_spline(Db *dbgrid,
                                         const double *Y)
 {
   VectorDouble h, F, R, M, C, Cp;
-  int nech = dbgrid->getSampleNumber();
+  int nech = dbgrid->getNSample();
 
   // Preliminary calculations
 
@@ -545,7 +545,7 @@ int DbHelper::centerPointToGrid(Db *db_point, DbGrid *db_grid, double eps_random
 
   /* Loop on the samples of the Point Db */
 
-  for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db_point->getNSample(); iech++)
   {
 
     /* Read the coordinates of the point sample */
@@ -609,15 +609,15 @@ int DbHelper::findDuplicates(Db *db1,
 
   /* Set the selection */
 
-  for (int iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
+  for (int iech2 = 0; iech2 < db2->getNSample(); iech2++)
     sel[iech2] = db2->getSelection(iech2);
 
   /* Loop on the samples of the second Db */
 
-  for (int iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
+  for (int iech2 = 0; iech2 < db2->getNSample(); iech2++)
   {
     if (!db2->isActive(iech2)) continue;
-    for (int iech1 = 0; iech1 < db1->getSampleNumber(); iech1++)
+    for (int iech1 = 0; iech1 < db1->getNSample(); iech1++)
     {
       if (!db1->isActive(iech1)) continue;
       if (flag_same)
@@ -698,7 +698,7 @@ int DbHelper::normalizeVariables(Db *db,
 
   /* Initializations */
 
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   num = mm = vv = nullptr;
   int ncol = (int) cols.size();
 
@@ -898,7 +898,7 @@ int DbHelper::dbgrid_filling(DbGrid *dbgrid,
     messerr("This function is limited to Grid Db");
     return (1);
   }
-  if (!dbgrid->isVariableNumberComparedTo(1)) return (1);
+  if (!dbgrid->isNVarComparedTo(1)) return (1);
   ndim = dbgrid->getNDim();
   if (ndim > 3)
   {
@@ -1017,7 +1017,7 @@ int DbHelper::db_duplicate(Db *db,
 
   // Adding a new variable
 
-  VectorDouble sel(db->getSampleNumber());
+  VectorDouble sel(db->getNSample());
 
   // Check for duplicates
 
@@ -1083,7 +1083,7 @@ int DbHelper::db_compositional_transform(Db *db,
   /* Initializations */
 
   error = 1;
-  nech = db->getSampleNumber();
+  nech = db->getNSample();
   tabin = tabout = nullptr;
   eps = get_keypone("CompositionalEps", EPSILON3);
 
@@ -1310,7 +1310,7 @@ DbGrid* DbHelper::dbgrid_sampling(DbGrid *dbin, const VectorInt &nmult)
   /* Initializations */
 
   dbout = nullptr;
-  ncol = dbin->getColumnNumber();
+  ncol = dbin->getNColumn();
   ndim = dbin->getNDim();
 
   /* Core allocation */
@@ -1331,7 +1331,7 @@ DbGrid* DbHelper::dbgrid_sampling(DbGrid *dbin, const VectorInt &nmult)
 
   /* Loop on the samples of the output grid */
 
-  for (iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (iech = 0; iech < dbout->getNSample(); iech++)
   {
     if (!dbout->isActive(iech)) continue;
     dbout->getCoordinatesPerSampleInPlace(iech, coor);
@@ -1385,7 +1385,7 @@ int DbHelper::db_grid1D_fill(DbGrid *dbgrid,
     messerr("The argument 'mode' should lie between 0 and 1");
     return (1);
   }
-  int nvar = dbgrid->getLocNumber(ELoc::Z);
+  int nvar = dbgrid->getNLoc(ELoc::Z);
   if (nvar <= 0)
   {
     messerr("You must have at least one Z-locator defined");
@@ -1401,7 +1401,7 @@ int DbHelper::db_grid1D_fill(DbGrid *dbgrid,
     dbgrid->duplicateColumnByUID(iatt_in, iatt_out + ivar);
   }
 
-  int nech = dbgrid->getSampleNumber();
+  int nech = dbgrid->getNSample();
 
   /* Core allocation */
 

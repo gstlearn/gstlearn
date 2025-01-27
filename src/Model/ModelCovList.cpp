@@ -18,7 +18,6 @@ ModelCovList::ModelCovList(const CovContext &ctxt)
     _cova = _covList = nullptr;
 }
 
-
 void ModelCovList::delCova(int icov)
 {
   if (_cova == nullptr) return;

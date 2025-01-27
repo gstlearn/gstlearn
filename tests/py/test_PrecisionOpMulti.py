@@ -100,7 +100,7 @@ class PrecisionOpMultiLocal:
         self.invSigmaMult = []
         self.Qop = []
         self.temp = []
-        self.ncovar = modelC.getCovaNumber()
+        self.ncovar = modelC.getNCov()
         
         for i in range(self.ncovar):
             cova = modelC.getCova(i)
@@ -223,7 +223,7 @@ def sizetot(model,mesh):
     s = 0
     for i in mesh:
         s+=i.getNApices()
-    return s * model.getVariableNumber()
+    return s * model.getNVar()
 
 def testAllSituations(model,mesh,verbose = True,ndig=11):
     

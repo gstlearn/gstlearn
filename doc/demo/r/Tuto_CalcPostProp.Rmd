@@ -134,7 +134,7 @@ for (i in 1:N) {
 for (i in 1:N) {
   val = matrix(surfaces$getColumns(names = paste0("Y_", i , ".", 1:nbsim[i]), 
                                    useSel = FALSE),
-               nrow = surfaces$getSampleNumber(useSel = FALSE), ncol = nbsim[i])
+               nrow = surfaces$getNSample(useSel = FALSE), ncol = nbsim[i])
   val = h_mean[i] * pnorm(val)
   for (k in 1:nbsim[i]) {
     err = surfaces$setColumn(tab = val[, k], name = paste0("Z_", i , ".", k), 
@@ -222,7 +222,7 @@ select_samples <- function(dbin, rank, grid, nameSel = "inBlock") {
   err = dbin$deleteColumn(name = nameSel)
   err = dbin$setColumn(tab = sel, name = nameSel, useSel=FALSE)
   err = dbin$setLocator(name = nameSel, locatorType = ELoc_SEL(), cleanSameLocator = TRUE)
-  dbin$getSampleNumber(useSel = TRUE)
+  dbin$getNSample(useSel = TRUE)
 }
 
 err = surfaces$deleteColumn("inBlock")
@@ -299,7 +299,7 @@ for (r in cell_selected) {
   for (n in 1:N) {
     H[[1+length(H)]] <- matrix(surfaces$getColumns(names = paste0("Z_", n, ".*"),
                                                    useSel = TRUE),
-               nrow = surfaces$getSampleNumber(useSel = TRUE),
+               nrow = surfaces$getNSample(useSel = TRUE),
                ncol = nbsim[n]
               )
   }
@@ -344,7 +344,7 @@ for (r in cell_selected) {
   colnames(tab) <- opers
   rownames(tab) <- paste0("Code = ", 0:(P-1))
 
-  print(paste0("== Cell #", r, "/", grid$getSampleNumber(useSel=FALSE),
+  print(paste0("== Cell #", r, "/", grid$getNSample(useSel=FALSE),
                " (regrouping ", ns, " samples)"))
   
   titre = paste0("Statistics on ", ns, " samples", 

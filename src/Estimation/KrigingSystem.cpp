@@ -169,7 +169,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   // in order to avoid too many dynamic casts in the code
   if (model != nullptr) _modelCovAniso = dynamic_cast<const Model*>(model);
 
-  if (_model->getCovaNumber() > 0)
+  if (_model->getNCov() > 0)
     _cova = _model->getCovAnisoListModify();
   
   if (model != nullptr)
@@ -274,12 +274,12 @@ int KrigingSystem::_getNVar() const
   int nvar = 0;
   if (_model != nullptr)
   {
-    if (nvar > 0 && nvar != _model->getVariableNumber())
+    if (nvar > 0 && nvar != _model->getNVar())
     {
       messerr("Inconsistent number of Variables - Value is returned as 0");
       return 0;
     }
-    nvar = _model->getVariableNumber();
+    nvar = _model->getNVar();
   }
 
   // In the case of factor kriging, the number of Z-variables in the Data file
@@ -288,12 +288,12 @@ int KrigingSystem::_getNVar() const
   {
     if (_dbin != nullptr)
     {
-      if (nvar > 0 && nvar != _dbin->getLocNumber(ELoc::Z))
+      if (nvar > 0 && nvar != _dbin->getNLoc(ELoc::Z))
       {
         messerr("Inconsistent number of Variables - Value is returned as 0");
         return 0;
       }
-      nvar = _dbin->getLocNumber(ELoc::Z);
+      nvar = _dbin->getNLoc(ELoc::Z);
     }
   }
   return nvar;
@@ -308,13 +308,13 @@ int KrigingSystem::_getNVarCL() const
 int KrigingSystem::_getNbfl() const
 {
   if (_model == nullptr) return 0;
-  return _model->getDriftNumber();
+  return _model->getNDrift();
 }
 
 int KrigingSystem::_getNFeq() const
 {
   if (_model == nullptr) return 0;
-  return _model->getDriftEquationNumber();
+  return _model->getNDriftEquation();
 }
 
 /**
@@ -337,7 +337,7 @@ int KrigingSystem::getNDim() const
 int KrigingSystem::_getNFex() const
 {
   if (_model == nullptr) return 0;
-  return _model->getExternalDriftNumber();
+  return _model->getNExtDrift();
 }
 
 int KrigingSystem::getNeq() const
@@ -1178,7 +1178,7 @@ void KrigingSystem::_wgtDump(int status)
     // Code
     if (_dbin->hasLocVariable(ELoc::C)) tab_prints(NULL, "Code");
     // Variance of measurement error
-    if (_dbin->getLocNumber(ELoc::V) > 0) tab_prints(NULL, "Err.");
+    if (_dbin->getNLoc(ELoc::V) > 0) tab_prints(NULL, "Err.");
     // Block Extension
     if (ndisc > 0)
       for (int idim = 0; idim < _ndim; idim++)
@@ -1214,7 +1214,7 @@ void KrigingSystem::_wgtDump(int status)
           tab_printg(NULL, _getIdim(_nbgh[iech], idim));
         if (_dbin->hasLocVariable(ELoc::C))
           tab_printg(NULL, _dbin->getLocVariable(ELoc::C, _nbgh[iech], 0));
-        if (_dbin->getLocNumber(ELoc::V) > 0)
+        if (_dbin->getNLoc(ELoc::V) > 0)
           tab_printg(NULL, _getVerr(_nbgh[iech], (_flagCode) ? 0 : jvarCL));
         if (ndisc > 0)
         {
@@ -1243,7 +1243,7 @@ void KrigingSystem::_wgtDump(int status)
       }
 
       int number = 1 + _ndim + 1;
-      if (_dbin->getLocNumber(ELoc::V) > 0) number++;
+      if (_dbin->getNLoc(ELoc::V) > 0) number++;
       if (ndisc > 0) number += _ndim;
       tab_prints(NULL, "Sum of weights", number, EJustify::LEFT);
       for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
@@ -1452,7 +1452,7 @@ void KrigingSystem::_estimateCalculImage(int status)
   VectorInt indnl(_ndim);
   VectorInt indgl(_ndim);
 
-  _dbaux->rankToIndice(_dbaux->getSampleNumber()/2, indn0);
+  _dbaux->rankToIndice(_dbaux->getNSample()/2, indn0);
   dbgrid->rankToIndice(_iechOut, indg0);
   VH::subtractInPlace(indg0, indn0);
 
@@ -1514,7 +1514,7 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
     /* Perform the estimation */
 
     double valest = _getMean(0, true);
-    for (int jech = 0; jech < _dbin->getSampleNumber(); jech++)
+    for (int jech = 0; jech < _dbin->getNSample(); jech++)
     {
       int jjech = _getFlagAddress(jech, 0);
       if (jjech < 0) continue;
@@ -2410,13 +2410,13 @@ int KrigingSystem::setKrigOptColCok(const VectorInt& rank_colcok)
   {
     int jvar = _rankColCok[ivar];
     if (IFFFF(jvar)) continue;
-    if (jvar > _dbout->getColumnNumber())
+    if (jvar > _dbout->getNColumn())
     {
       messerr("Error in the Colocation array:");
       messerr("Input variable (#%d): rank of the colocated variable is %d",
               ivar + 1, jvar);
       messerr("But the Output file only contains %d attributes(s)",
-              _dbout->getColumnNumber());
+              _dbout->getNColumn());
       return (1);
     }
   }
@@ -2538,7 +2538,7 @@ int KrigingSystem::setKrigoptCode(bool flag_code)
   _isReady = false;
   if (flag_code)
   {
-    if (! _dbin->hasLocVariable(ELoc::C) || _dbin->getLocNumber(ELoc::V) != 1)
+    if (! _dbin->hasLocVariable(ELoc::C) || _dbin->getNLoc(ELoc::V) != 1)
     {
       messerr("This method requires variables CODE and V to be defined");
       return 1;
@@ -2583,7 +2583,7 @@ int KrigingSystem::setKrigOptDGM(bool flag_dgm, double eps)
     messerr("The option DGM is limited to Stationary Covariances");
     return 1;
   }
-  if (_model->getVariableNumber() != 1)
+  if (_model->getNVar() != 1)
   {
     messerr("The DGM option is limited to the Monovariate case");
     return 1;
@@ -2740,12 +2740,12 @@ bool KrigingSystem::_isCorrect()
   }
   if (_model != nullptr)
   {
-    if (ndim > 0 && ndim != _model->getDimensionNumber())
+    if (ndim > 0 && ndim != _model->getNDim())
     {
       messerr("Incompatible Space Dimension of '_ model'");
       return false;
     }
-    ndim = _model->getDimensionNumber();
+    ndim = _model->getNDim();
   }
   if (_neigh != nullptr)
   {
@@ -2764,16 +2764,16 @@ bool KrigingSystem::_isCorrect()
   int nvar = 0;
   if (_dbin != nullptr && ! _flagSimu)
   {
-    if (nvar > 0 && nvar != _dbin->getLocNumber(ELoc::Z))
+    if (nvar > 0 && nvar != _dbin->getNLoc(ELoc::Z))
     {
       messerr("Incompatible Variable Number of '_dbin'");
       return false;
     }
-    nvar = _dbin->getLocNumber(ELoc::Z);
+    nvar = _dbin->getNLoc(ELoc::Z);
   }
   if (_model != nullptr)
   {
-    if (nvar > 0 && nvar != _model->getVariableNumber())
+    if (nvar > 0 && nvar != _model->getNVar())
     {
       messerr("Incompatible Variable Number of '_ model'");
       return false;
@@ -2786,7 +2786,7 @@ bool KrigingSystem::_isCorrect()
 
   if (_model != nullptr)
   {
-    if (_model->getCovaNumber() <= 0)
+    if (_model->getNCov() <= 0)
     {
       messerr("The Model should contain some Covariances defined before Kriging");
       return false;
@@ -2806,12 +2806,12 @@ bool KrigingSystem::_isCorrect()
   int nfex = 0;
   if (_model != nullptr)
   {
-    if (nfex > 0 && nfex != _model->getExternalDriftNumber())
+    if (nfex > 0 && nfex != _model->getNExtDrift())
     {
       messerr("Incompatible Number of External Drifts of '_model'");
       return false;
     }
-    nfex = _model->getExternalDriftNumber();
+    nfex = _model->getNExtDrift();
   }
   if (nfex > 0)
   {
@@ -2820,27 +2820,27 @@ bool KrigingSystem::_isCorrect()
 
     if (_dbout != nullptr)
     {
-      if (nfex != _dbout->getLocNumber(ELoc::F))
+      if (nfex != _dbout->getNLoc(ELoc::F))
       {
         messerr("Incompatible Number of External Drifts:");
         messerr("- In 'Model' = %d", nfex);
-        messerr("- In '_dbout' = %d", _dbout->getLocNumber(ELoc::F));
+        messerr("- In '_dbout' = %d", _dbout->getNLoc(ELoc::F));
         return false;
       }
     }
     if (_dbin != nullptr)
     {
-      if (_dbin->getLocNumber(ELoc::F) == 0)
+      if (_dbin->getNLoc(ELoc::F) == 0)
       {
         if (migrateByLocator(_dbout, _dbin, ELoc::F)) return false;
         // Store the UID of the newly created variables to be deleted at the end of the process
         _dbinUidToBeDeleted = _dbin->getUIDsByLocator(ELoc::F);
       }
-      if (nfex != _dbin->getLocNumber(ELoc::F))
+      if (nfex != _dbin->getNLoc(ELoc::F))
       {
         messerr("Incompatible Number of External Drifts:");
         messerr("- In 'Model' = %d", nfex);
-        messerr("- In 'dbin' = %d", _dbin->getLocNumber(ELoc::F));
+        messerr("- In 'dbin' = %d", _dbin->getNLoc(ELoc::F));
         return false;
       }
     }
@@ -3097,7 +3097,7 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux, const NeighImage* neighI)
   NeighUnique* neighU = NeighUnique::create(false);
   neighU->attach(dbaux, dbaux);
 
-  _iechOut = dbaux->getSampleNumber() / 2;
+  _iechOut = dbaux->getNSample() / 2;
   neighU->select(_iechOut, _nbgh);
   if (_setInternalShortCutVariablesNeigh()) return error;
 
@@ -3223,7 +3223,7 @@ VectorDouble KrigingSystem::getZamC() const
 int KrigingSystem::_bayesPreCalculations()
 {
   if (_dbin == nullptr) return 1;
-  // _iechOut = _dbin->getSampleNumber() / 2;
+  // _iechOut = _dbin->getNSample() / 2;
   _iechOut = 0;
 
   // Elaborate the (Unique) Neighborhood
@@ -3485,7 +3485,7 @@ int KrigingSystem::_getFlagAddress(int iech0, int ivar0)
 {
   int rank = 0;
   for (int ivar = 0; ivar < _nvar; ivar++)
-    for (int iech = 0; iech < (int) _dbin->getSampleNumber(); iech++)
+    for (int iech = 0; iech < (int) _dbin->getNSample(); iech++)
     {
       bool found = (ivar == ivar0 && iech == iech0);
       if (!_dbin->isActive(iech) || !_dbin->isIsotopic(iech))

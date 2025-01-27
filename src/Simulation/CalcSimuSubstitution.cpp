@@ -83,7 +83,7 @@ bool CalcSimuSubstitution::_simulate()
 
     /* Simulating the directing function */
 
-    for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
+    for (int iech = 0; iech < dbgrid->getNSample(); iech++)
     {
       VectorDouble cen = dbgrid->getSampleCoordinates(iech);
 
@@ -137,7 +137,7 @@ bool CalcSimuSubstitution::_simulate()
 
   double vmin =  1.e30;
   double vmax = -1.e30;
-  for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbgrid->getNSample(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
     double value = (_subparam.isFlagDirect()) ?
@@ -199,7 +199,7 @@ bool CalcSimuSubstitution::_simulate()
 
     /* Simulating the directing function */
 
-    for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
+    for (int iech = 0; iech < dbgrid->getNSample(); iech++)
     {
       if (!dbgrid->isActive(iech)) continue;
       double value = (_subparam.isFlagDirect()) ? dbgrid->getArray(iech, _iattOut) :

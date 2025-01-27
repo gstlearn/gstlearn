@@ -122,9 +122,9 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
    *****************************************************************************/
   int ModelOptimSillsVario::_getDimensions()
   {
-    _ndim        = _modelPart._model->getDimensionNumber();
-    _nvar        = _modelPart._model->getVariableNumber();
-    _ncova       = _modelPart._model->getCovaNumber();
+    _ndim        = _modelPart._model->getNDim();
+    _nvar        = _modelPart._model->getNVar();
+    _ncova       = _modelPart._model->getNCov();
     Vario* vario = _vario;
 
     int nbexp  = 0;
@@ -134,7 +134,7 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
     // if equal to 0 but corresponds to lots of pairs attached
     // This patch is not performed for asymetrical case as the h=0 is only
     // conventional.
-    for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
+    for (int idir = 0; idir < vario->getNDir(); idir++)
     {
       for (int ivar = 0; ivar < _nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++)
@@ -162,10 +162,10 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
 
     /* Calculate the total number of lags */
 
-    for (int idir = 0; idir < vario->getDirectionNumber(); idir++)
+    for (int idir = 0; idir < vario->getNDir(); idir++)
     {
-      npadir += vario->getLagTotalNumber(idir);
-      for (int ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
+      npadir += vario->getNLagTotal(idir);
+      for (int ipas = 0; ipas < vario->getNLag(idir); ipas++)
         for (int ivar = 0; ivar < _nvar; ivar++)
           for (int jvar = 0; jvar <= ivar; jvar++)
           {
@@ -195,9 +195,9 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
     Vario* vario = _vario;
 
     int ipadir = 0;
-    for (int idir = 0, ndir = vario->getDirectionNumber(); idir < ndir; idir++)
+    for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
     {
-      for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
+      for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
       {
         int ijvar = 0;
         for (int ivar = ijvar = 0; ivar < _nvar; ivar++)
@@ -278,7 +278,7 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
 
     /* Loop on the basic structures */
 
-    for (int icov = 0; icov < model->getCovaNumber(); icov++)
+    for (int icov = 0; icov < model->getNCov(); icov++)
     {
       ACov* cova = model->getCova(icov);
       for (int idim = 0; idim < _ndim; idim++) d1[idim] = 0.;
@@ -286,24 +286,24 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
       /* Loop on the experiments */
 
       int ipadir = 0;
-      for (int idir = 0, ndir = vario->getDirectionNumber(); idir < ndir;
+      for (int idir = 0, ndir = vario->getNDir(); idir < ndir;
            idir++)
       {
-        for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas;
+        for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas;
              ipas++, ipadir++)
         {
           int ijvar = 0;
           for (int ivar = 0; ivar < _nvar; ivar++)
             for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
             {
-              int shift = ijvar * vario->getLagTotalNumber(idir);
+              int shift = ijvar * vario->getNLagTotal(idir);
               if (!_ge.empty()) _ge[icov].setValue(ijvar, ipadir, 0.);
 
               double dist = 0.;
               if (vario->getFlagAsym())
               {
-                int iad = shift + vario->getLagNumber(idir) + ipas + 1;
-                int jad = shift + vario->getLagNumber(idir) - ipas - 1;
+                int iad = shift + vario->getNLag(idir) + ipas + 1;
+                int jad = shift + vario->getNLag(idir) - ipas - 1;
                 if (INCORRECT(idir, iad) || INCORRECT(idir, jad)) continue;
                 dist = (ABS(vario->getHhByIndex(idir, iad)) +
                         ABS(vario->getHhByIndex(idir, jad))) / 2.;
@@ -396,8 +396,8 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
 
     int ecr    = 0;
     int ipadir = 0;
-    for (int idir = 0, ndir = vario->getDirectionNumber(); idir < ndir; idir++)
-      for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas;
+    for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
+      for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas;
            ipas++, ipadir++)
       {
         int ijvar = 0;

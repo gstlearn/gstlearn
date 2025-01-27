@@ -90,7 +90,7 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
   {
       _shiftOp = new ShiftOpMatrix(mesh,cova,nullptr,verbose);
   }
-  if (_cova->getNVariables() == 1)
+  if (_cova->getNVar() == 1)
   {
     _shiftOp->normalizeLambdaBySills(mesh);
   }

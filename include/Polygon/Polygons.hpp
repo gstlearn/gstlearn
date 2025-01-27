@@ -57,7 +57,7 @@ public:
                                  int nrow_max = -1);
   static Polygons* createFromDb(const Db* db, double dilate=0., bool verbose=false);
 
-  int getPolyElemNumber() const { return static_cast<int>(_polyelems.size()); }
+  int getNPolyElem() const { return static_cast<int>(_polyelems.size()); }
   void addPolyElem(const PolyElem& polyelem);
 
   const std::vector<PolyElem>& getPolyElems() const { return _polyelems; }

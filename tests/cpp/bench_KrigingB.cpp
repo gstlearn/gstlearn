@@ -65,8 +65,8 @@ int main(int argc, char *argv[])
 
   // Print the test environment
   message("This test is meant to test Kriging using Moving Neighborhood\n");
-  message("- the Data Set contains %d samples\n", data->getSampleNumber(true));
-  message("- the Output Grid contains %d nodes\n", grid->getSampleNumber(true));
+  message("- the Data Set contains %d samples\n", data->getNSample(true));
+  message("- the Output Grid contains %d nodes\n", grid->getNSample(true));
   message("- the Bench Neighborhood is required:\n");
   message("  . Bench width = %lf\n", width);
 
