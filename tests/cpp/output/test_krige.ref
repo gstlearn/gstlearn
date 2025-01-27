@@ -526,11 +526,11 @@ Data Base Statistics
 5 - Name Filtering.Simu - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =    108.375
- Maximum value       =    146.543
- Mean value          =    128.015
- Standard Deviation  =      5.309
- Variance            =     28.187
+ Minimum value       =    114.774
+ Maximum value       =    139.903
+ Mean value          =    128.010
+ Standard Deviation  =      3.841
+ Variance            =     14.750
 
 Model characteristics
 =====================
