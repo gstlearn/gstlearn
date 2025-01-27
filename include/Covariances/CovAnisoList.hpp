@@ -116,7 +116,7 @@ public:
   VectorDouble       getRanges(int icov) const;
   int                getNGradParam(int icov) const;
   CovAniso           extractCova(int icov) const;
-  int                getCovaMinIRFOrder() const;
+  int                getCovMinIRFOrder() const;
 
   // Methods necessary for Optimization
   void _optimizationPreProcess(const std::vector<SpacePoint> &p) const override;

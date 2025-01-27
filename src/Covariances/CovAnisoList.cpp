@@ -553,7 +553,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
   /**
    * @return The Minimum IRF-order induced by the covariances
    */
-  int CovAnisoList::getCovaMinIRFOrder() const
+  int CovAnisoList::getCovMinIRFOrder() const
   {
     int nmini = -1;
     for (unsigned i = 0, n = getNCov(); i < n; i++)

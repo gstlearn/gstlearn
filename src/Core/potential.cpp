@@ -199,7 +199,7 @@ static int st_model_invalid(Model *model)
 {
   for (int icov = 0; icov < model->getNCov(); icov++)
   {
-    const ECov& type = model->getCovaType(icov);
+    const ECov& type = model->getCovType(icov);
     if (type != ECov::GAUSSIAN && type != ECov::CUBIC &&
         type != ECov::SPLINE2_GC && type != ECov::NUGGET)
     {

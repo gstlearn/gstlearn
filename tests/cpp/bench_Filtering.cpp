@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
   MatrixSquareSymmetric* sillExp =
     MatrixSquareSymmetric::createFromVD({2., 0.1, 0.1, 1.});
   model->addCovFromParam(ECov::EXPONENTIAL, 0.7, 0., 0., VectorDouble(), *sillExp);
-  model->setCovaFiltered(0, true);
+  model->setCovFiltered(0, true);
   if (flagSK)
   {
     VectorDouble means = VH::simulateGaussian(nvar);

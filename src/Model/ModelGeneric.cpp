@@ -161,7 +161,7 @@ bool ModelGeneric::isValid() const
 
   // Check the consistency between the Covariance and the Drift parts
   int irf_drift = getDriftMaxIRFOrder();
-  int irf_cova  = getCovaMinIRFOrder();
+  int irf_cova  = getCovMinIRFOrder();
   if (irf_cova > irf_drift)
   {
     messerr("Model if invalid due to IRF degree inconsistency");
@@ -227,11 +227,11 @@ CovAnisoList* ModelGeneric::getCovAnisoListModify() const
   CovAnisoList* covalist = dynamic_cast<CovAnisoList*>(_cova);
   return covalist;
 }
-int ModelGeneric::getCovaMinIRFOrder() const
+int ModelGeneric::getCovMinIRFOrder() const
 {
   const CovAnisoList* covalist = getCovAnisoList();
   if (covalist == nullptr) return ITEST;
-  return covalist->getCovaMinIRFOrder();
+  return covalist->getCovMinIRFOrder();
 }
 int ModelGeneric::getNCov(bool skipNugget) const
 {

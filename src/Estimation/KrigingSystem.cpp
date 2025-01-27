@@ -2578,7 +2578,7 @@ int KrigingSystem::setKrigOptDGM(bool flag_dgm, double eps)
     return 0;
   }
 
-  if (_model->getCovaMinIRFOrder() != -1)
+  if (_model->getCovMinIRFOrder() != -1)
   {
     messerr("The option DGM is limited to Stationary Covariances");
     return 1;

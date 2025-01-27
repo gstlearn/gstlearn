@@ -625,7 +625,7 @@ int Model::getNCov(bool skipNugget) const
   if (covalist == nullptr) return ITEST;
   return covalist->getNCov(skipNugget);
 }
-const ECov& Model::getCovaType(int icov) const
+const ECov& Model::getCovType(int icov) const
 {
   if (_cova == nullptr) return ECov::UNKNOWN;
   const CovAnisoList* covalist = _castInCovAnisoListConst(icov);
@@ -691,7 +691,7 @@ void Model::setMarkovCoeffs(int icov, const VectorDouble& coeffs)
   covalist->setMarkovCoeffs(icov, coeffs);
 }
 
-void Model::setCovaFiltered(int icov, bool filtered)
+void Model::setCovFiltered(int icov, bool filtered)
 {
   if (_cova == nullptr) return;
   CovAnisoList* covalist = _castInCovAnisoList(icov);
@@ -715,11 +715,11 @@ double Model::getMaximumDistance() const
   if (covalist == nullptr) return TEST;
   return covalist->getMaximumDistance();
 }
-int Model::getCovaMinIRFOrder() const
+int Model::getCovMinIRFOrder() const
 {
   const CovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return ITEST;
-  return covalist->getCovaMinIRFOrder();
+  return covalist->getCovMinIRFOrder();
 }
 bool Model::hasAnam() const
 {
@@ -1795,7 +1795,7 @@ bool Model::isValid() const
 
   // Check the consistency between the Covariance and the Drift parts
   int irf_drift = getDriftMaxIRFOrder();
-  int irf_cova = getCovaMinIRFOrder();
+  int irf_cova = getCovMinIRFOrder();
   if (irf_cova > irf_drift)
   {
     messerr("Model if invalid due to IRF degree inconsistency");

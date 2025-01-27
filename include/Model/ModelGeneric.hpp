@@ -133,7 +133,7 @@ public:
     // Case of _cova
   const CovAnisoList* getCovAnisoList() const;
   CovAnisoList* getCovAnisoListModify() const;
-  int getCovaMinIRFOrder() const;
+  int getCovMinIRFOrder() const;
   int getNCov(bool skipNugget = false) const;
   void setActiveFactor(int iclass);
   int  getActiveFactor() const;

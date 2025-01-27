@@ -174,8 +174,8 @@ bool PrecisionOpMulti::_isValidModel(Model* model)
   _covList.clear();
   for (int icov = 0, ncov = model->getNCov(); icov < ncov; icov++)
   {
-    if (model->getCovaType(icov) == ECov::NUGGET) continue;
-    if (model->getCovaType(icov) == ECov::MATERN)
+    if (model->getCovType(icov) == ECov::NUGGET) continue;
+    if (model->getCovType(icov) == ECov::MATERN)
       _covList.push_back(icov);
     else
     {

@@ -160,7 +160,7 @@ public:
   const CovAniso* getCova(int icov) const;
   CovAniso* getCova(int icov);
   int getNCov(bool skipNugget = false) const;
-  const ECov& getCovaType(int icov) const;
+  const ECov& getCovType(int icov) const;
   
   double getRange(int icov) const;
   VectorDouble getRanges(int icov) const;
@@ -173,7 +173,7 @@ public:
   const AnamHermite* getAnamHermite() const;
 
   double getMaximumDistance() const;
-  int getCovaMinIRFOrder() const;
+  int getCovMinIRFOrder() const;
   bool hasAnam() const;
   const AAnam* getAnam() const;
   bool isChangeSupportDefined() const;
@@ -499,7 +499,7 @@ public:
   void setSill(int icov, int ivar, int jvar, double value);
   void setRangeIsotropic(int icov, double range);
   void setMarkovCoeffs(int icov, const VectorDouble& coeffs);
-  void setCovaFiltered(int icov, bool filtered);
+  void setCovFiltered(int icov, bool filtered);
   void setActiveFactor(int iclass);
   int  getActiveFactor() const;
   int  getAnamNClass() const;

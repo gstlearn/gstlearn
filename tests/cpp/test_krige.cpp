@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
 
   // Modify the Model (for filtering)
   model_res = model->clone();
-  model_res->setCovaFiltered(1, true);
+  model_res->setCovFiltered(1, true);
   model_res->display();
 
   message("\n<----- Image Filtering ----->\n");
