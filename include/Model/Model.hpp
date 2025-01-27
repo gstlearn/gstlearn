@@ -167,6 +167,7 @@ public:
   
   double getRange(int icov) const;
   VectorDouble getRanges(int icov) const;
+  VectorDouble getAngles(int icov) const;
   double getParam(int icov) const;
   String getCovName(int icov) const;
   int getNGradParam(int icov) const;

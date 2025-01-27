@@ -114,6 +114,7 @@ public:
   double             getParam(int icov) const;
   double             getRange(int icov) const;
   VectorDouble       getRanges(int icov) const;
+  VectorDouble       getAngles(int icov) const;
   int                getNGradParam(int icov) const;
   CovAniso           extractCova(int icov) const;
   int                getCovMinIRFOrder() const;

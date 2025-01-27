@@ -209,11 +209,8 @@ public:
   bool isNoStatForParam()   const {return _corAniso->isNoStatForParam();}
   bool isNoStatForTensor()  const {return _corAniso->isNoStatForTensor();}
   bool isNoStatForAnisotropy() const { return _corAniso->isNoStatForAnisotropy();}
-  
  
   bool isNoStatForRotation()   const { return _corAniso->isNoStatForRotation();}
-
-  
 
   void   makeRangeNoStatDb( const String &namecol, int idim = 0,              const Db* db = nullptr);
   void   makeScaleNoStatDb( const String &namecol, int idim = 0,              const Db* db = nullptr);
