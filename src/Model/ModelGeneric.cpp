@@ -61,20 +61,6 @@ bool ModelGeneric::isValid() const
   return true;
 }
 
-// Pipes methods to _ctxt
-int ModelGeneric::getNVar() const
-{
-  return _ctxt.getNVar();
-}
-int ModelGeneric::getNDim() const
-{
-  return _ctxt.getNDim();
-}
-const VectorDouble& ModelGeneric::getMeans() const
-{
-  return _ctxt.getMeans();
-}
-
 // Pipes method to _driftList
 int ModelGeneric::getNDrift() const
 {

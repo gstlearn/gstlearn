@@ -84,15 +84,9 @@ public:
   FORWARD_METHOD(getContext, getNVar)
   FORWARD_METHOD(getContext, getNDim)
   FORWARD_METHOD(getContext, getMeans)
-  
+
   void setField(double field);
   bool isValid() const;
-
-  // Pipes for the private members
-  // Case of _ctxt
-  int getNVar() const;
-  int getNDim() const;
-  const VectorDouble& getMeans() const;
 
   // Case of _driftList
   int getNDrift() const;

@@ -120,7 +120,7 @@ using vectint = std::span<int>;
             return;                                                             \
         } else if constexpr (std::is_reference_v<ReturnType>) {                 \
             static std::remove_reference_t<ReturnType> default_value{};         \
-            return default_value;                                               \
+            return static_cast<ReturnType>(default_value);                      \
         } else {                                                                \
             return ReturnType(__VA_ARGS__);                                     \
         }                                                                       \
