@@ -127,6 +127,6 @@ using vectint = std::span<int>;
     }
 #else
 
-#define FORWARD_METHOD(obj, name, arg)
+#define FORWARD_METHOD(obj, name, ...)
 
 #endif
