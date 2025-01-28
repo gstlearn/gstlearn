@@ -64,6 +64,18 @@ add_custom_target(r_doc
   VERBATIM
 )
 
+####CUSTOM WRAPPER
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/r/generated_r.i
+COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/r/generated_r.i
+COMMENT "Ensure that generated_r.i exists")
+  
+add_custom_target(r_wrap_macro
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../swig/macrogenerate.py
+  "r"
+  COMMENT "Generate macro wrapper package"
+  )
+
+
 # Tell that we need to generate doxymentation before building R package
 # (not yet)
 #add_dependencies(r_doc doxygen)
@@ -152,6 +164,8 @@ target_link_libraries(r_build PRIVATE ${R_LIBRARIES})
 
 # Tell that we need to generate Rd files before building R package
 add_dependencies(r_build r_doc)
+
+add_dependencies(r_build r_wrap_macro)
 
 ########################################
 # PACKAGING

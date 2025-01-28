@@ -104,3 +104,23 @@ using vectint = std::span<int>;
 
 #endif
 
+// This macro is used to forward a method to the object
+#ifndef SWIG  
+
+#define FORWARD_METHOD(obj,name)                                                  \
+    template <typename... Args>                                                   \
+    auto name(Args&&... args)                                                     \
+        -> decltype(auto)     \
+        {\
+            if (obj()!=nullptr)                                                   \
+                return obj()->name(std::forward<Args>(args)...);                  \
+            using ReturnType = decltype(obj()->name(std::forward<Args>(args)...));\
+            if constexpr (std::is_void<ReturnType>::value)                        \
+                return;                                                           \
+            return ReturnType();                                                  \
+        }                                                                   
+#else
+
+#define FORWARD_METHOD(obj,name)
+
+#endif

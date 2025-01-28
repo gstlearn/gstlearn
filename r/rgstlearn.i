@@ -574,6 +574,7 @@
 //                    Add C++ extension                     //
 //////////////////////////////////////////////////////////////
 
+%include ../r/generated_r.i
 %{
   #include <stdio.h>
   #include <string>
@@ -724,21 +725,27 @@ function(x, i, value)
   return(second_part[ind])
 }
 
-"generateListMethods" <-function(base,derived)
+"addMethodToList" <- function(classe,namemethod,listcur)
+{
+  listcur[[namemethod]] <- get(paste0(classe, "_", namemethod))
+  return(listcur)
+}
+
+"generateListMethods" <-function(listclasses)
 {
   accessorFuns = list()
-  for (classe in c(base, derived))
+  for (classe in listclasses)
   {
     methodsName = getMethodsOfClass(classe)
     for (namemethod in methodsName)
     {
-      accessorFuns[[namemethod]] <- get(paste0(classe, "_", namemethod))
+      accessorFuns = addMethodToList(classe,namemethod,accessorFuns)
     }
   }
   return(accessorFuns)
 }
 
-"addMethodsFromList" <- function(derived,listmethods) {
+"addMethodsFromNames" <- function(derived,listmethods) {
   setMethod(
     "$", paste0("_p_", derived),
     function(x, name) {
@@ -755,8 +762,9 @@ function(x, i, value)
   )
 }
 
-"addMethods" <- function(base,derived) {
-  addMethodsFromList(derived, generateListMethods(base,derived))
+"addMethods" <- function(derived,listclasses) {
+  listfull = c(derived,listclasses)
+  addMethodsFromNames(derived, generateListMethods(listfull))
 }
 
 setMethod('[',    '_p_VectorTT_int_t',                  getVitem)
@@ -1256,7 +1264,7 @@ setMethod("plot", signature(x="_p_AAnam"), function(x,y="missing",...) plot.anam
 
 #Add methods of ModelCovList (base) to Model (derived) (in case inheritance didn t work)
 
-addMethods("ModelCovList","Model")
+addMethods("Model",c("ModelCovList","ModelGeneric"))
 
 
 %}

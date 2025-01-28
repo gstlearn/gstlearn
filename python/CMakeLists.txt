@@ -52,6 +52,7 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/python/generated_python.i
   
 add_custom_target(python_wrap_macro
   COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../swig/macrogenerate.py
+  "python"
   COMMENT "Generate macro wrapper package"
   )
 
