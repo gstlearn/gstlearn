@@ -13,6 +13,7 @@
 #include "Covariances/CovList.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "gstlearn_export.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 
 /**
  * \brief

@@ -92,7 +92,7 @@ public:
   VectorVectorDouble getDrifts(const Db* db, bool useSel = true) const;
   bool isFlagLinked() const { return _flagLinked; }
   bool isFlagCombined() const { return _flagCombined; }
-  int getDriftMaxIRFOrder(void) const;
+  int getDriftMaxIRFOrder() const;
   bool isDriftDefined(const VectorInt &powers, int rank_fex = 0) const;
   bool isDriftDifferentDefined(const VectorInt &powers, int rank_fex = -1) const;
 
@@ -120,11 +120,11 @@ public:
   MatrixRectangular evalDriftMat(const Db* db,
                                  int ivar0                 = -1,
                                  const VectorInt& nbgh     = VectorInt(),
-                                 const ECalcMember& member = ECalcMember::fromKey("LHS"));
+                                 const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
   MatrixRectangular evalDriftMatByRanks(const Db* db,
                       const VectorVectorInt& sampleranks,
                       int ivar0                 = -1,
-                      const ECalcMember& member = ECalcMember::fromKey("LHS"));
+                      const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
   MatrixRectangular evalDriftMatByTarget(const Db* db,
                        int ivar0                 = -1,
                        int iech2                 = 0,

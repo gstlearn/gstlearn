@@ -2740,7 +2740,7 @@ bool KrigingSystem::_isCorrect()
   }
   if (_model != nullptr)
   {
-    if (ndim > 0 && ndim != _model->getNDim())
+    if (ndim > 0 && ndim != (int)_model->getNDim())
     {
       messerr("Incompatible Space Dimension of '_ model'");
       return false;

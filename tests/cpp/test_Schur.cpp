@@ -260,8 +260,8 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   MatrixSquareSymmetric Sigma00P = model->eval0Mat();
   MatrixSquareSymmetric SigmaP   = model->evalCovMatSymOptim(dataP);
   MatrixRectangular XP           = model->evalDriftMat(dataP);
-  MatrixRectangular Sigma0P      = model->evalCovMatOptim(dataP, targetP, -1, -1, VectorInt(), {iech0});
-  MatrixRectangular X0P          = model->evalDriftMat(targetP, -1, {iech0});
+  MatrixRectangular Sigma0P      = model->evalCovMatOptim(dataP, targetP, -1, -1, VectorInt(), VectorInt({iech0}));
+  MatrixRectangular X0P          = model->evalDriftMat(targetP, -1, VectorInt{iech0});
   VectorVectorInt sampleRanksP   = dataP->getSampleRanks();
   VectorDouble ZP                = dataP->getValuesByRanks(sampleRanksP, means);
 

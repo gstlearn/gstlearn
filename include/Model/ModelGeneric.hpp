@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Enum/ECov.hpp"
@@ -54,6 +55,14 @@ public:
   ModelGeneric& operator= (const ModelGeneric &m) = delete;
   virtual ~ModelGeneric();
 
+  //getters for member pointers
+  const ACov*       getCov()             const { return  _cova;     }
+  const CovContext* getContext()         const { return &_ctxt;     }
+  const DriftList*  getDriftList()       const { return  _driftList;}
+  ACov*             getCovModify()             { return  _cova;     }
+  CovContext*       getContextModify()         { return &_ctxt;     }
+  DriftList*        getDriftListModify()       { return  _driftList;}
+  
   MatrixRectangular evalDriftMat(const Db* db,
                                     int ivar0             = -1,
                                     const VectorInt& nbgh = VectorInt(),
@@ -90,13 +99,9 @@ public:
                                            const int iech2         = 0,
                                            const CovCalcMode* mode = nullptr,
                                            bool cleanOptim         = true) const;
-  FORWARD_METHOD(getCov, evalCovMatSym)
-  
-  MatrixSquareSymmetric evalCovMatSymOptim(const Db* db1,
-                                           const VectorInt& nbgh1  = VectorInt(),
-                                           int ivar0               = -1,
-                                           const CovCalcMode* mode = nullptr,
-                                           bool cleanOptim         = true);
+  FORWARD_METHOD(getCov, evalCovMatSym,)
+  FORWARD_METHOD(getCov, evalCovMatSymOptim,)
+
   MatrixSquareSymmetric evalCovMatSymOptimByRanks(const Db* db1,
                                                   const VectorVectorInt& sampleRanks1,
                                                   int ivar0               = -1,
@@ -129,7 +134,6 @@ public:
   void delAllDrifts();
 
     // Case of _cova
-  const ACov* getCov() const {return _cova;}
   const CovAnisoList* getCovAnisoList() const;
   CovAnisoList* getCovAnisoListModify() const;
   int getCovaMinIRFOrder() const;

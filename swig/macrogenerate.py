@@ -8,14 +8,30 @@ def extract_macro_calls(header_file = "../include/Model/ModelGeneric.hpp", macro
     """
     classname = header_file.split("/")[4].split(".")[0]
     macro_calls = []
-    macro_pattern =  rf"^(?!#define\s+{macro_name})\s*{macro_name}\(([^,]+),\s*([^)]*)\)"
+    macro_pattern = rf"^(?!#define\s+{macro_name})\s*{macro_name}\(([^,]+),\s*([^,]+),\s*([^)]*)\)"
     with open(header_file, 'r') as file:
         for line in file:
             match = re.search(macro_pattern, line)
             if match:
                 print(line)
-                body, func_name = match.groups()
-                macro_calls.append((classname, func_name, body.strip()))
+                body, func_name,arg = match.groups()
+                macro_calls.append((classname, func_name, body.strip(),arg))
+    return macro_calls
+
+def extract_macro_calls2(header_file = "../include/Model/ModelGeneric.hpp", macro_name = "FORWARD_METHOD"):
+    """
+    Extrait les appels à une macro spécifique dans un fichier d'en-tête.
+    """
+    classname = header_file.split("/")[4].split(".")[0]
+    macro_calls = []
+    macro_pattern = macro_pattern = rf"^(?!#define\s+{macro_name})\s*{macro_name}\((.*?)\)"
+    with open(header_file, 'r') as file:
+        for line in file:
+            match = re.findall(macro_pattern, line, re.MULTILINE)
+            if match:
+                print(line)
+                body, func_name,arg = match.groups()
+                macro_calls.append((classname, func_name, body.strip(),arg))
     return macro_calls
 
 def generate_python_code(macro_calls, output_file):
@@ -26,7 +42,7 @@ def generate_python_code(macro_calls, output_file):
     with open(output_file, 'w') as file:
         file.write('%pythoncode %{\n')
         file.write(f"import gstlearn as gl\n")
-        for classname, func_name, body in macro_calls:
+        for classname, func_name, body, arg in macro_calls:
             # Conversion simple : remplacer le corps C++ par une chaîne Python équivalente
             python_body = body.replace('std::cout', 'print').replace(';', '')
             file.write("\n")

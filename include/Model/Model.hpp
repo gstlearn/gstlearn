@@ -398,9 +398,19 @@ public:
     if (_cova == nullptr) return VectorDouble();
     return _cova->evalCovMat(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode).getValues();
   }
-
-  FORWARD_METHOD(getCovAnisoList, evalCovMatOptim)
-  
+  MatrixRectangular evalCovMatOptim(const Db* db1,
+                                    const Db* db2           = nullptr,
+                                    int ivar0               = -1,
+                                    int jvar0               = -1,
+                                    const VectorInt& nbgh1  = VectorInt(),
+                                    const VectorInt& nbgh2  = VectorInt(),
+                                    const CovCalcMode* mode = nullptr,
+                                    bool cleanOptim         = true)
+  {
+    const CovAnisoList *covalist = _castInCovAnisoListConst();
+    if (covalist == nullptr) return MatrixRectangular();
+    return covalist->evalCovMatOptim(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
+  }
 
   MatrixSquareSymmetric evalCovMatSymOptim(const Db* db1,
                                            const VectorInt& nbgh1  = VectorInt(),
@@ -551,7 +561,7 @@ public:
   ASpaceSharedPtr     getASpaceSh() const { return _ctxt.getSpace(); }
   ASpaceSharedPtr    getASpace() const { return getASpaceSh(); }
 
-  const VectorDouble& getMeans() const { return _ctxt.getMean(); }
+  const VectorDouble& getMeans() const { return _ctxt.getMeans(); }
   double getMean(int ivar) const { return _ctxt.getMean(ivar); }
   const VectorDouble& getCovar0s() const { return _ctxt.getCovar0(); }
   double getCovar0(int ivar, int jvar) const { return _ctxt.getCovar0(ivar,jvar); }

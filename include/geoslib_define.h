@@ -107,20 +107,26 @@ using vectint = std::span<int>;
 // This macro is used to forward a method to the object
 #ifndef SWIG  
 
-#define FORWARD_METHOD(obj,name)                                                  \
-    template <typename... Args>                                                   \
-    auto name(Args&&... args)                                                     \
-        -> decltype(auto)     \
-        {\
-            if (obj()!=nullptr)                                                   \
-                return obj()->name(std::forward<Args>(args)...);                  \
-            using ReturnType = decltype(obj()->name(std::forward<Args>(args)...));\
-            if constexpr (std::is_void<ReturnType>::value)                        \
-                return;                                                           \
-            return ReturnType();                                                  \
-        }                                                                   
+#define FORWARD_METHOD(obj, name, ...)                                           \
+    template <typename... Args>                                                 \
+    auto name(Args&&... args) -> decltype(auto) {                               \
+        if (obj() != nullptr) {                                                 \
+            if constexpr (std::is_const_v<std::remove_pointer_t<decltype(obj())>>) { \
+                return obj()->name(std::forward<Args>(args)...);                \
+            }                                                                   \
+        }                                                                       \
+        using ReturnType = decltype(obj()->name(std::forward<Args>(args)...));  \
+        if constexpr (std::is_void<ReturnType>::value) {                        \
+            return;                                                             \
+        } else if constexpr (std::is_reference_v<ReturnType>) {                 \
+            static std::remove_reference_t<ReturnType> default_value{};         \
+            return default_value;                                               \
+        } else {                                                                \
+            return ReturnType(__VA_ARGS__);                                     \
+        }                                                                       \
+    }
 #else
 
-#define FORWARD_METHOD(obj,name)
+#define FORWARD_METHOD(obj, name, arg)
 
 #endif

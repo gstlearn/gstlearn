@@ -368,7 +368,7 @@ VectorDouble DriftList::evalDriftCoefs(const Db *db,
 /**
  * @return Maximum IRF-order (-1 for order-2 stationarity)
  */
-int DriftList::getDriftMaxIRFOrder(void) const
+int DriftList::getDriftMaxIRFOrder() const
 {
   int max_order = 0;
   for (int il = 0, nbfl = getNDrift(); il < nbfl; il++)
@@ -476,7 +476,7 @@ VectorInt DriftList::_getActiveVariables(int ivar0) const
 MatrixRectangular DriftList::evalDriftMat(const Db* db,
                                           int ivar0,
                                           const VectorInt& nbgh,
-                                          const ECalcMember& member)
+                                          const ECalcMember& member) const
 {
   MatrixRectangular drfmat;
   VectorInt ivars = _getActiveVariables(ivar0);
@@ -491,7 +491,7 @@ MatrixRectangular DriftList::evalDriftMat(const Db* db,
 MatrixRectangular DriftList::evalDriftMatByRanks(const Db* db,
                                                  const VectorVectorInt& sampleRanks,
                                                  int ivar0,
-                                                 const ECalcMember& member)
+                                                 const ECalcMember& member) const 
 {
   MatrixRectangular drfmat;
   VectorInt ivars = _getActiveVariables(ivar0);

@@ -314,7 +314,7 @@ public:
                                     const VectorInt &nbgh1 = VectorInt(),
                                     const VectorInt &nbgh2 = VectorInt(),
                                     const CovCalcMode *mode = nullptr,
-                                    double eps = EPSILON3);
+                                    double eps = EPSILON3) const;
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,
                            const VectorInt& ndisc,

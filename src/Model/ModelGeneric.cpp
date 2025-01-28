@@ -104,15 +104,7 @@ MatrixRectangular ModelGeneric::evalCovMatOptimByRanks(const Db* db1,
   if (_cova == nullptr) return MatrixRectangular();
   return _cova->evalCovMatOptimByRanks(db1, db2, sampleRanks1, ivar0, jvar0, iech2, mode, cleanOptim);
 }
-MatrixSquareSymmetric ModelGeneric::evalCovMatSymOptim(const Db* db1,
-                                                                const VectorInt& nbgh1,
-                                                                int ivar0,
-                                                                const CovCalcMode* mode,
-                                                                bool cleanOptim)
-{
-  if (_cova == nullptr) return MatrixSquareSymmetric();
-  return _cova->evalCovMatSymOptim(db1, nbgh1, ivar0, mode, cleanOptim);
-}
+
 MatrixSquareSymmetric ModelGeneric::evalCovMatSymOptimByRanks(const Db* db1,
                                                                                const VectorVectorInt& sampleRanks1,
                                                                                int ivar0,
@@ -184,7 +176,7 @@ int ModelGeneric::getNDim() const
 }
 const VectorDouble& ModelGeneric::getMeans() const
 {
-  return _ctxt.getMean();
+  return _ctxt.getMeans();
 }
 
 // Pipes method to _driftList

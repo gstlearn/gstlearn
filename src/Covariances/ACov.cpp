@@ -1434,7 +1434,7 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
                                      const VectorInt& nbgh1,
                                      const VectorInt& nbgh2,
                                      const CovCalcMode* mode,
-                                     double eps)
+                                     double eps) const
 {
   MatrixSparse* mat = nullptr;
   if (db2 == nullptr) db2 = db1;
