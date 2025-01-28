@@ -568,7 +568,7 @@ MatrixRectangular DriftList::evalDriftMatByRanks(const Db* db,
 MatrixRectangular DriftList::evalDriftMatByTarget(const Db* db,
                                                    int ivar0,
                                                    int iech2,
-                                                   const ECalcMember& member)
+                                                   const ECalcMember& member) const
 {
   MatrixRectangular drfmat;
   int nvar        = getNVar();

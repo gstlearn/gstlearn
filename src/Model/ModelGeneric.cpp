@@ -23,38 +23,6 @@ ModelGeneric::~ModelGeneric()
 {
 }
 
-MatrixRectangular ModelGeneric::evalDriftMat(const Db* db,
-                                                int ivar0,
-                                                const VectorInt& nbgh,
-                                                const ECalcMember& member) const
-{
-  if (_driftList == nullptr) return MatrixRectangular();
-  return _driftList->evalDriftMat(db, ivar0, nbgh, member);
-}
-
-MatrixRectangular ModelGeneric::evalDriftMatByRanks(const Db* db,
-                                                    const VectorVectorInt& sampleRanks,
-                                                    int ivar0,
-                                                    const ECalcMember& member) const
-{
-  if (_driftList == nullptr) return MatrixRectangular();
-  return _driftList->evalDriftMatByRanks(db, sampleRanks, ivar0, member);
-}
-
-MatrixRectangular
-ModelGeneric::evalDriftMatByTarget(const Db* db,
-                                    int ivar0,
-                                    int iech2,
-                                    const ECalcMember& member) const
-{
-  if (_driftList == nullptr) return MatrixRectangular();
-  return _driftList->evalDriftMatByTarget(db, ivar0, iech2, member);
-}
-
-
-
-
-
 
 void ModelGeneric::setField(double field)
 {

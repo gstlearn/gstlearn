@@ -63,30 +63,27 @@ public:
   CovContext*       getContextModify()         { return &_ctxt;     }
   DriftList*        getDriftListModify()       { return  _driftList;}
   
-  MatrixRectangular evalDriftMat(const Db* db,
-                                    int ivar0             = -1,
-                                    const VectorInt& nbgh = VectorInt(),
-                                    const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-  MatrixRectangular evalDriftMatByRanks(const Db* db,
-                    const VectorVectorInt& sampleRanks,
-                    int ivar0                 = -1,
-                    const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+  // Forwarding the methods from _cova
+  FORWARD_METHOD(getCov, evalCovMatOptim)
+  FORWARD_METHOD(getCov, evalCovMatSym)
+  FORWARD_METHOD(getCov, evalCovMatSymOptim)
+  FORWARD_METHOD(getCov, evalCovMatOptimByRanks)
+  FORWARD_METHOD(getCov, evalCovMatSymOptimByRanks)
+  FORWARD_METHOD(getCov, evalCovMatSymByRanks)
+  FORWARD_METHOD(getCov, eval0Mat)
+  FORWARD_METHOD(getCov, evalCovMat)
+  FORWARD_METHOD(getCov, evalCovMatByRanks)
+  FORWARD_METHOD(getCov, evalCovMatSparse)
+  
+  // Forwarding the methods from _driftList
+  FORWARD_METHOD(getDriftList, evalDriftMat)
+  FORWARD_METHOD(getDriftList, evalDriftMatByRanks)
+  FORWARD_METHOD(getDriftList, evalDriftMatByTarget)
 
-  MatrixRectangular evalDriftMatByTarget(const Db* db,
-                                          int ivar0 = -1,
-                                          int iech2 = 0,
-                                          const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-
-  FORWARD_METHOD(getCov, evalCovMatOptim,)
-  FORWARD_METHOD(getCov, evalCovMatSym,)
-  FORWARD_METHOD(getCov, evalCovMatSymOptim,)
-  FORWARD_METHOD(getCov, evalCovMatOptimByRanks,)
-  FORWARD_METHOD(getCov, evalCovMatSymOptimByRanks,)
-  FORWARD_METHOD(getCov, evalCovMatSymByRanks,)
-  FORWARD_METHOD(getCov, eval0Mat,)
-  FORWARD_METHOD(getCov, evalCovMat,)
-  FORWARD_METHOD(getCov, evalCovMatByRanks,)
-  FORWARD_METHOD(getCov, evalCovMatSparse,)
+  // Forwarding the methods from _ctxt
+  FORWARD_METHOD(getContext, getNVar)
+  FORWARD_METHOD(getContext, getNDim)
+  FORWARD_METHOD(getContext, getMeans)
   
   void setField(double field);
   bool isValid() const;
