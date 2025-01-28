@@ -91,7 +91,7 @@ public:
   FORWARD_METHOD(getContext, getMeans)
 
   void setField(double field);
-  bool isValid();
+  bool isValid() const;
 
 
   // Case of _cova
@@ -101,6 +101,9 @@ public:
   int getNCov(bool skipNugget = false) const;
   void setActiveFactor(int iclass);
   int  getActiveFactor() const;
+
+private :
+  virtual bool _isValid() const;
 
 protected:               // TODO : pass into private to finish clean
   ACov* _cova;           /* Generic Covariance structure */

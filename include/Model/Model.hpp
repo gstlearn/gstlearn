@@ -680,6 +680,8 @@ protected:
   const CovAnisoList* _castInCovAnisoListConst(int icov = -1) const;
   CovAnisoList*       _castInCovAnisoList(int icov = -1);
 
+  private:
+  bool _isValid() const override;
 private:
   void _clear();
   void _create();

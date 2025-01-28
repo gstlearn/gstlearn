@@ -32,35 +32,6 @@ void ModelGeneric::setField(double field)
   if (_driftList != nullptr) _driftList->copyCovContext(_ctxt);
 }
 
-bool ModelGeneric::isValid()
-{
-  // Covariances: there should be some defined
-  if (_cova == nullptr)
-  {
-    messerr("Model is not valid: no covariance has been defined");
-    return false;
-  }
-
-  // Drifts: there should be valid
-  if (_driftList != nullptr)
-  {
-    if (!_driftList->isValid()) return false;
-  }
-
-  // Check the consistency between the Covariance and the Drift parts
-  int irf_drift = getDriftMaxIRFOrder();
-  int irf_cova  = getCovaMinIRFOrder();
-  if (irf_cova > irf_drift)
-  {
-    messerr("Model if invalid due to IRF degree inconsistency");
-    messerr("- Covariance implies a order >= %d", irf_cova);
-    messerr("- Drift implies a order %d", irf_drift);
-    messerr("(Order -1 stands for strict stationarity)");
-    return false;
-  }
-  return true;
-}
-
 // Pipes method to _ACov
 const CovAnisoList* ModelGeneric::getCovAnisoList() const
 {
@@ -99,4 +70,14 @@ int ModelGeneric::getActiveFactor() const
   CovLMCAnamorphosis* covalist = dynamic_cast<CovLMCAnamorphosis*>(_cova);
   if (covalist == nullptr) return 0;
   return covalist->getActiveFactor();
+}
+
+bool ModelGeneric::isValid() const
+{
+  return _isValid();
+}
+
+bool ModelGeneric::_isValid() const
+{
+  return true;
 }
