@@ -42,3 +42,4 @@ doc/courses/r/*_cache
 .metadata
 2
 python/generated_python.i
+r/generated_r.i

@@ -713,6 +713,52 @@ function(x, i, value)
   x
 }
 
+"getMethodsOfClass" <- function(name)
+{
+  x=ls(envir=asNamespace("gstlearn"))
+  split_vec = strsplit(x,"_")
+  first_part <- sapply(split_vec, function(x) x[1])
+  second_part <- sapply(split_vec, function(x) x[2])
+  len = sapply(split_vec,function(x) length(x))
+  ind = (first_part == name) & len == 2
+  return(second_part[ind])
+}
+
+"generateListMethods" <-function(base,derived)
+{
+  accessorFuns = list()
+  for (classe in c(base, derived))
+  {
+    methodsName = getMethodsOfClass(classe)
+    for (namemethod in methodsName)
+    {
+      accessorFuns[[namemethod]] <- get(paste0(classe, "_", namemethod))
+    }
+  }
+  return(accessorFuns)
+}
+
+"addMethodsFromList" <- function(derived,listmethods) {
+  setMethod(
+    "$", paste0("_p_", derived),
+    function(x, name) {
+      idx = match(name, names(listmethods))
+      if (is.na(idx)) {
+        return(callNextMethod(x, name))
+      }
+      f = listmethods[[idx]]
+      result = function(...) {
+        f(x, ...)
+      }
+      return(result)
+    }
+  )
+}
+
+"addMethods" <- function(base,derived) {
+  addMethodsFromList(derived, generateListMethods(base,derived))
+}
+
 setMethod('[',    '_p_VectorTT_int_t',                  getVitem)
 setMethod('[<-',  '_p_VectorTT_int_t',                  setVitem)
 setMethod('[',    '_p_VectorTT_double_t',               getVitem)
@@ -1207,4 +1253,10 @@ setMethod("plot", signature(x="_p_Model"), function(x,y="missing",...) plot.mode
 
 setMethod("plot", signature(x="_p_Rule"), function(x,y="missing",...) plot.rule(x,...))
 setMethod("plot", signature(x="_p_AAnam"), function(x,y="missing",...) plot.anam(x,...))
+
+#Add methods of ModelCovList (base) to Model (derived) (in case inheritance didn t work)
+
+addMethods("ModelCovList","Model")
+
+
 %}
