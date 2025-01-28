@@ -267,7 +267,6 @@ protected:
   bool _isRankValid(int rank) const;
   void _fillFromVVD(const VectorVectorDouble& X);
 
-
   bool _checkLink(int nrow1,
                   int ncol1,
                   bool transpose1,

@@ -378,7 +378,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
  
-  sstr << _corAniso->getCova()->toString();
+  sstr << _corAniso->getCovFunc()->toString();
 
   // Sill - Factor / Slope information
   if (_corAniso->hasRange() > 0)

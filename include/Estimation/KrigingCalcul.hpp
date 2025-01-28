@@ -54,12 +54,12 @@ public:
   int setRHS(const MatrixRectangular* Sigma0 = nullptr,
              const MatrixRectangular* X0     = nullptr);
   int setVariance(const MatrixSquareSymmetric* Sigma00 = nullptr);
-  int setColCokUnique(const VectorDouble* Zp      = nullptr,
-                      const VectorInt* rankColCok = nullptr);
   int setBayes(const VectorDouble* PriorMean         = nullptr,
                const MatrixSquareSymmetric* PriorCov = nullptr);
   int setXvalidUnique(const VectorInt* rankXvalidEqs  = nullptr,
                       const VectorInt* rankXvalidVars = nullptr);
+  int setColCokUnique(const VectorDouble* Zp      = nullptr,
+                      const VectorInt* rankColCok = nullptr);
 
   void printStatus() const;
   void dumpLHS(int nbypas) const;
@@ -241,8 +241,8 @@ private:
   int _neq;
   int _nbfl;
   int _nrhs;
-  int _ncck;
-  int _nxvalid;
+  int _ncck;      // Number of additional samples for ColCok in Unique Neighborhood
+  int _nxvalid;   // Number of samples in XValid in Unique Neighborhood
   bool _flagSK;
   bool _flagBayes;
   bool _flagDual;
