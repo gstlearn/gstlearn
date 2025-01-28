@@ -79,6 +79,11 @@ public:
   FORWARD_METHOD(getDriftList, evalDriftMat)
   FORWARD_METHOD(getDriftList, evalDriftMatByRanks)
   FORWARD_METHOD(getDriftList, evalDriftMatByTarget)
+  FORWARD_METHOD(getDriftList, getNDrift)
+  FORWARD_METHOD(getDriftList, getNDriftEquation)
+  FORWARD_METHOD(getDriftList, getNExtDrift)
+  FORWARD_METHOD(getDriftList, getDriftMaxIRFOrder,-1)
+  FORWARD_METHOD_NON_CONST(getDriftListModify, delAllDrifts)
 
   // Forwarding the methods from _ctxt
   FORWARD_METHOD(getContext, getNVar)
@@ -86,16 +91,10 @@ public:
   FORWARD_METHOD(getContext, getMeans)
 
   void setField(double field);
-  bool isValid() const;
+  bool isValid();
 
-  // Case of _driftList
-  int getNDrift() const;
-  int getNDriftEquation() const;
-  int getNExtDrift() const;
-  int getDriftMaxIRFOrder(void) const;
-  void delAllDrifts();
 
-    // Case of _cova
+  // Case of _cova
   const CovAnisoList* getCovAnisoList() const;
   CovAnisoList* getCovAnisoListModify() const;
   int getCovaMinIRFOrder() const;

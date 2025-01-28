@@ -32,7 +32,7 @@ void ModelGeneric::setField(double field)
   if (_driftList != nullptr) _driftList->copyCovContext(_ctxt);
 }
 
-bool ModelGeneric::isValid() const
+bool ModelGeneric::isValid()
 {
   // Covariances: there should be some defined
   if (_cova == nullptr)
@@ -59,33 +59,6 @@ bool ModelGeneric::isValid() const
     return false;
   }
   return true;
-}
-
-// Pipes method to _driftList
-int ModelGeneric::getNDrift() const
-{
-  if (_driftList == nullptr) return 0;
-  return _driftList->getNDrift();
-}
-int ModelGeneric::getNDriftEquation() const
-{
-  if (_driftList == nullptr) return 0;
-  return _driftList->getNDriftEquation();
-}
-int ModelGeneric::getNExtDrift() const
-{
-  if (_driftList == nullptr) return 0;
-  return _driftList->getNExtDrift();
-}
-int ModelGeneric::getDriftMaxIRFOrder(void) const
-{
-  if (_driftList == nullptr) return -1;
-  return _driftList->getDriftMaxIRFOrder();
-}
-void ModelGeneric::delAllDrifts()
-{
-  if (_driftList == nullptr) return;
-  _driftList->delAllDrifts();
 }
 
 // Pipes method to _ACov
