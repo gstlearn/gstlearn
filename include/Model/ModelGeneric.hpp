@@ -50,7 +50,7 @@ public:
   const DriftList*  getDriftList()       const { return  _driftList;}
   
   public:
-  
+
   ACov*             _getCovModify()             { return  _cova;     }
   CovContext*       _getContextModify()         { return &_ctxt;     }
   DriftList*        _getDriftListModify()       { return  _driftList;}
@@ -153,10 +153,7 @@ public:
   void   addDrift(const ADrift* drift);  // TODO: check that the same driftM has not been already defined
   void   setDrifts(const VectorString& driftSymbols);
   
-  
-  double computeLogLikelihood(const Db* db, bool verbose = false);
-
-  
+  double computeLogLikelihood(const Db* db, bool verbose = false);  
 
 private :
   virtual bool _isValid() const;

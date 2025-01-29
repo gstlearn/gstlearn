@@ -89,13 +89,13 @@ void DriftList::addDrift(const ADrift* drift)
   resetDriftList();
 }
 
-void DriftList::delDrift(unsigned int i)
+void DriftList::delDrift(unsigned int rank)
 {
   if (_drifts.empty()) return;
-  if (! _isDriftIndexValid(i)) return;
-  _drifts.erase(_drifts.begin() + i);
-  _filtered.erase(_filtered.begin() + i);
-  _betaHat.erase(_betaHat.begin() + i);
+  if (! _isDriftIndexValid(rank)) return;
+  _drifts.erase(_drifts.begin() + rank);
+  _filtered.erase(_filtered.begin() + rank);
+  _betaHat.erase(_betaHat.begin() + rank);
   resetDriftList();
 }
 
