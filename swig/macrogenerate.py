@@ -54,7 +54,7 @@ def generate_r_code(macro_calls, output_file, first=True):
             file.write(f"   return({classname}_{python_body}(self)${func_name}(...))\n")
             file.write(f"}}\n")
             file.write(f"\n")
-            file.write(f"assign('{classname}_evalCovMatSym', f , envir = asNamespace('gstlearn'))\n")
+            file.write(f"assign('{classname}_{func_name}', f , envir = asNamespace('gstlearn'))\n")
         file.write("%}\n")
     return False
 
@@ -74,7 +74,6 @@ def build_macro_r(macro_name, filename, output_file, first=True):
     print(f"R additional wrappers generated in {output_file}")
     return first
 
-header_file = "Model/ModelGeneric.hpp"
 output_file = "generated.i"
 includedir = "../../include/"
 
