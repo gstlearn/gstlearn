@@ -331,7 +331,7 @@ String CovList::getCovName(int icov) const
   return std::string(unknown.getKey());
 }
   
-const MatrixSquareSymmetric& CovList::getSill(int icov) const
+const MatrixSquareSymmetric& CovList::getSills(int icov) const
 {
   return _covs[icov]->getSill();
 }

@@ -907,7 +907,7 @@ VectorDouble CalcSimuTurningBands::_createAIC()
 
   for (int icov = 0; icov < ncova; icov++)
   {
-    MatrixSquareSymmetric mat = getModel()->getSillValues(icov);
+    MatrixSquareSymmetric mat = getModel()->getSills(icov);
     if (! mat.isDefinitePositive())
     {
       messerr("Warning: the model is not authorized");

@@ -253,9 +253,9 @@ void PrecisionOpMulti::_computeSize()
 
 int PrecisionOpMulti::_buildGlobalMatricesStationary(int icov)
 {
-  _invCholSillsStat[icov].setMatrix(&_model->getSillValues(icov)); // TODO: a nettoyer
+  _invCholSillsStat[icov].setMatrix(&_model->getSills(icov)); // TODO: a nettoyer
   if (!_invCholSillsStat[icov].isReady()) return 1;
-  _cholSillsStat[icov].setMatrix(&_model->getSillValues(icov));
+  _cholSillsStat[icov].setMatrix(&_model->getSills(icov));
   if (!_cholSillsStat[icov].isReady()) return 1;
   return 0;
 }

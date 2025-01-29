@@ -251,7 +251,7 @@ model_of_LC <- function(model, A) {
   ns = model$getNCov()
   model_LC = model$clone()
   for (k in 1:ns) {
-    CC = A %*% model$getSillValues(k-1)$toTL() %*% t(A)
+    CC = A %*% model$getSills(k-1)$toTL() %*% t(A)
     for (i in 1:nv) {
       for (j in 1:nv) {
         err = model_LC$setSill(icov = k-1, ivar=i-1, jvar=j-1, value = CC[i, j])

@@ -97,7 +97,7 @@ public:
   virtual const ECov& getType(int icov) const;
   virtual void      setCova(int icov, const CovBase* covs);
   void               setSill(int icov, int ivar, int jvar, double value);
-  const MatrixSquareSymmetric& getSill(int icov) const;
+  const MatrixSquareSymmetric& getSills(int icov) const;
   double             getSill(int icov, int ivar, int jvar) const;
 
   // Methods necessary for Optimization

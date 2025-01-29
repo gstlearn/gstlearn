@@ -1295,7 +1295,7 @@ static void st_keypair_sill(int mode, Model *model)
     {
       (void) gslSPrintf(loc_string, "Fitted_Sill_%d", icova + 1);
       set_keypair(loc_string, 1, nvar, nvar,
-                  model->getSillValues(icova).getValues().data());
+                  model->getSills(icova).getValues().data());
     }
   }
 }

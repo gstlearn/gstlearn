@@ -1179,7 +1179,7 @@ int Model::fitFromCovIndices(Vario *vario,
 
   // Clean out possible covariances in the existing model
 
-  delAllCovas();
+  delAllCov();
 
   // Add the relevant covariances
 
@@ -1219,7 +1219,7 @@ int Model::fit(Vario* vario,
 
   // Clean out possible covariances in the existing model
 
-  delAllCovas();
+  delAllCov();
 
   // Add the relevant covariances
 
@@ -1255,7 +1255,7 @@ int Model::fitFromVMap(DbGrid* dbmap,
 
   // Clean out possible covariances in the existing model
 
-  delAllCovas();
+  delAllCov();
 
   // Add the relevant covariances
 
