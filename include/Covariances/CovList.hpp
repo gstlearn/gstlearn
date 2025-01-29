@@ -94,7 +94,7 @@ public:
   ////////////////////////////////////////////////
   const CovBase*    getCova(int icov) const;
   virtual String getCovName(int icov) const;
-  virtual const ECov& getType(int icov) const;
+  virtual const ECov& getCovType(int icov) const;
   virtual void      setCova(int icov, const CovBase* covs);
   void               setSill(int icov, int ivar, int jvar, double value);
   const MatrixSquareSymmetric& getSills(int icov) const;

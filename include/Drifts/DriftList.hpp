@@ -63,7 +63,7 @@ public:
 
   const VectorBool& getFiltered() const { return _filtered; }
   void setFiltered(const VectorBool& filtered) { _filtered = filtered; }
-  bool isFiltered(int i) const;
+  bool isDriftFiltered(int i) const;
   void setFiltered(int i, bool filter);
   int  getNDriftEquation() const;
   bool hasExternalDrift() const;
@@ -87,7 +87,7 @@ public:
                             int nech,
                             const VectorInt &nbgh,
                             const ELoc &loctype) const;
-  double getDrift(const Db* db, int ib, int iech) const;
+  double computeDrift(const Db* db, int ib, int iech) const;
 
   VectorVectorDouble getDrifts(const Db* db, bool useSel = true) const;
   bool isFlagLinked() const { return _flagLinked; }

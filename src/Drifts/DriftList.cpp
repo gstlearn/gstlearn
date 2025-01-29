@@ -112,7 +112,7 @@ void DriftList::delAllDrifts()
   _driftCL.clear();
 }
 
-bool DriftList::isFiltered(int i) const
+bool DriftList::isDriftFiltered(int i) const
 {
   if (! _isDriftIndexValid(i)) return false;
   return _filtered[i];
@@ -289,7 +289,7 @@ bool DriftList::isDriftSampleDefined(const Db *db,
   return false;
 }
 
-double DriftList::getDrift(const Db* db, int ib, int iech) const
+double DriftList::computeDrift(const Db* db, int ib, int iech) const
 {
   if (! _isDriftIndexValid(ib)) return TEST;
   return _drifts[ib]->eval(db, iech);
@@ -328,7 +328,7 @@ double DriftList::evalDriftCoef(const Db *db, int iech, const VectorDouble &coef
   double value = 0.;
   for (int ib = 0; ib < nbfl; ib++)
   {
-    double drift = getDrift(db, ib, iech);
+    double drift = computeDrift(db, ib, iech);
     if (FFFF(drift)) return TEST;
     value += coeffs[ib] * drift;
   }
@@ -654,7 +654,7 @@ void DriftList::evalDriftBySampleInPlace(const Db *db,
   if (nbfl != (int) drftab.size()) drftab.resize(nbfl);
   for (int il = 0; il < nbfl; il++)
   {
-    if (member != ECalcMember::LHS && isFiltered(il))
+    if (member != ECalcMember::LHS && isDriftFiltered(il))
       drftab[il] = 0.;
     else
       drftab[il] = _drifts[il]->eval(db, iech);
@@ -710,7 +710,7 @@ double DriftList::evalDrift(const Db *db,
                             int il,
                             const ECalcMember &member) const
 {
-  if (member != ECalcMember::LHS && isFiltered(il)) return 0.;
+  if (member != ECalcMember::LHS && isDriftFiltered(il)) return 0.;
   if (!_isDriftIndexValid(il)) return TEST;
   return _drifts[il]->eval(db, iech);
   return TEST;

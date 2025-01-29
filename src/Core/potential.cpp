@@ -199,7 +199,7 @@ static int st_model_invalid(Model *model)
 {
   for (int icov = 0; icov < model->getNCov(); icov++)
   {
-    const ECov& type = model->getCovaType(icov);
+    const ECov& type = model->getCovType(icov);
     if (type != ECov::GAUSSIAN && type != ECov::CUBIC &&
         type != ECov::SPLINE2_GC && type != ECov::NUGGET)
     {
@@ -485,7 +485,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
     messerr("The Tangent and Data Db must share the same space dimension");
     return false;
   }
-  if (model->getNDim() != pot_env->ndim)
+  if ((int)model->getNDim() != pot_env->ndim)
   {
     messerr("The Model and Data Db must have the same space dimension");
     return false;
@@ -849,15 +849,15 @@ static int st_update_final(Model *model, Pot_Env *pot_env)
   for (int i = 0; i < 9; i++)
     TAB_DRF[i] = -1;
 
-  if (model->isDriftDefined({1}))     TAB_DRF[0] = pos++;
-  if (model->isDriftDefined({0,1}))   TAB_DRF[1] = pos++;
-  if (model->isDriftDefined({0,0,1})) TAB_DRF[2] = pos++;
-  if (model->isDriftDefined({2}))     TAB_DRF[3] = pos++;
-  if (model->isDriftDefined({0,2}))   TAB_DRF[4] = pos++;
-  if (model->isDriftDefined({0,0,2})) TAB_DRF[5] = pos++;
-  if (model->isDriftDefined({1,1}))   TAB_DRF[6] = pos++;
-  if (model->isDriftDefined({1,0,1})) TAB_DRF[7] = pos++;
-  if (model->isDriftDefined({0,1,1})) TAB_DRF[8] = pos++;
+  if (model->isDriftDefined(VectorInt{1}))     TAB_DRF[0] = pos++;
+  if (model->isDriftDefined(VectorInt{0,1}))   TAB_DRF[1] = pos++;
+  if (model->isDriftDefined(VectorInt{0,0,1})) TAB_DRF[2] = pos++;
+  if (model->isDriftDefined(VectorInt{2}))     TAB_DRF[3] = pos++;
+  if (model->isDriftDefined(VectorInt{0,2}))   TAB_DRF[4] = pos++;
+  if (model->isDriftDefined(VectorInt{0,0,2})) TAB_DRF[5] = pos++;
+  if (model->isDriftDefined(VectorInt{1,1}))   TAB_DRF[6] = pos++;
+  if (model->isDriftDefined(VectorInt{1,0,1})) TAB_DRF[7] = pos++;
+  if (model->isDriftDefined(VectorInt{0,1,1})) TAB_DRF[8] = pos++;
 
   /* Optional output */
 

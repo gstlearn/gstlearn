@@ -14,9 +14,10 @@
 #include "Basic/AStringable.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Model/CovInternal.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
-
+#include "Basic/NamingConvention.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
@@ -31,6 +32,7 @@ class MatrixSquareGeneral;
 class MatrixSparse;
 class TabNoStat;
 class AFunctional;
+class CovInternal;
 
 /**
  * \brief
@@ -355,7 +357,63 @@ public:
                                const VectorDouble &x0 = VectorDouble(),
                                int ivar = 0,
                                int jvar = 0) const;
-
+  double evaluateOneGeneric(const CovInternal *covint,
+                            const VectorDouble &d1 = VectorDouble(),
+                            double weight = 1.,
+                            const CovCalcMode *mode = nullptr) const;
+  double calculateStDev(Db *db1,
+                        int iech1,
+                        Db *db2,
+                        int iech2,
+                        bool verbose = false,
+                        double factor = 1.,
+                        const CovCalcMode *mode = nullptr) const;
+  
+  VectorDouble evalCovMatV(Db* db1,
+                           Db* db2                 = nullptr,
+                           int ivar0               = -1,
+                           int jvar0               = -1,
+                           const VectorInt& nbgh1  = VectorInt(),
+                           const VectorInt& nbgh2  = VectorInt(),
+                           const CovCalcMode* mode = nullptr) const;
+  void evaluateMatInPlace(const CovInternal *covint,
+                          const VectorDouble &d1,
+                          MatrixSquareGeneral &covtab,
+                          bool flag_init = false,
+                          double weight = 1.,
+                          const CovCalcMode *mode = nullptr) const;
+  VectorDouble evaluateFromDb(Db *db,
+                              int ivar = 0,
+                              int jvar = 0,
+                              const CovCalcMode *mode = nullptr) const;
+  double evaluateOneIncr(double hh,
+                         const VectorDouble &codir = VectorDouble(),
+                         int ivar = 0,
+                         int jvar = 0,
+                         const CovCalcMode *mode = nullptr) const;
+  VectorDouble sample(const VectorDouble &h,
+                      const VectorDouble &codir = VectorDouble(),
+                      int ivar = 0,
+                      int jvar = 0,
+                      const CovCalcMode* mode = nullptr,
+                      const CovInternal* covint = nullptr) const;
+  VectorDouble sampleUnitary(const VectorDouble &hh,
+                             int ivar = 0,
+                             int jvar = 0,
+                             VectorDouble codir = VectorDouble(),
+                             const CovCalcMode* mode = nullptr);
+  VectorDouble envelop(const VectorDouble &hh,
+                       int ivar = 0,
+                       int jvar = 0,
+                       int isign = 1,
+                       VectorDouble codir = VectorDouble(),
+                       const CovCalcMode* mode = nullptr);
+  int buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv = NamingConvention("VMAP")) const;
+  double gofToVario(const Vario* vario, bool verbose = true) const;
+  static void gofDisplay(double gof,
+                         bool byValue                   = true,
+                         const VectorDouble& thresholds = {2., 5., 10., 100});
+  
   void manage(const Db* db1, const Db* db2) const { _manage(db1, db2); }
 
   void load(const SpacePoint& p,bool case1) const;

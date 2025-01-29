@@ -616,7 +616,7 @@ void KrigingSystem::_covtab0Calcul(int icas, int iech, const CovCalcMode* mode)
 {
   DECLARE_UNUSED(icas);
   DECLARE_UNUSED(iech);
-  _modelCovAniso->eval0MatInPlace(_covtab, mode);
+  _modelCovAniso->eval0CovMatBiPointInPlace(_covtab, mode);
 }
 
 

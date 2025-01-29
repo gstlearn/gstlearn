@@ -68,7 +68,7 @@ bool ModelOptimVMap::_checkConsistency()
     return false;
   }
   int nvar = _vmapPart._dbmap->getNLoc(ELoc::Z);
-  int ndim = _vmapPart._dbmap->getNLoc(ELoc::X);
+  unsigned int ndim = _vmapPart._dbmap->getNLoc(ELoc::X);
 
   if (model->getNVar() != nvar)
   {

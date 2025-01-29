@@ -946,7 +946,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   if (!hasnugget)
   {
     MatrixSquareSymmetric sills(model->getNVar());
-    cova = CovAniso::createIsotropicMulti(model->getContext(), ECov::NUGGET, 0, sills);
+    cova = CovAniso::createIsotropicMulti(*model->getContext(), ECov::NUGGET, 0, sills);
   }
   VectorInt ivars = VH::sequence(nvar);
 

@@ -428,7 +428,7 @@ int CalcSimuTurningBands::_initializeSeedBands()
           operTB.reset();
           double scale = _getCodirScale(ibs);
           double param = getModel()->getParam(is);
-          ECov type    = _particularCase(getModel()->getCovaType(is), param);
+          ECov type    = _particularCase(getModel()->getCovType(is), param);
           _setSeedBand(ivar, is, ib, isimu, law_get_random_seed());
 
           switch (type.toEnum())
@@ -587,7 +587,7 @@ double CalcSimuTurningBands::_dilutionInit(int ibs,
 
   operTB.setTdeb(tdeb);
 
-  ECov type = getModel()->getCovaType(is);
+  ECov type = getModel()->getCovType(is);
   double correc;
   switch (type.toEnum())
   {
@@ -624,7 +624,7 @@ double CalcSimuTurningBands::_spectralInit(int ibs,
 {
   double scale = _getCodirScale(ibs);
   double param = getModel()->getParam(is);
-  ECov type    = getModel()->getCovaType(is);
+  ECov type    = getModel()->getCovType(is);
 
   double val = 0.;
   double period = 0.;
@@ -842,7 +842,7 @@ double CalcSimuTurningBands::_irfProcessInit(int ibs,
                                              int is,
                                              TurningBandOperate &operTB)
 {
-  ECov type = getModel()->getCovaType(is);
+  ECov type = getModel()->getCovType(is);
   double delta;
 
   int level = -1;
@@ -946,7 +946,7 @@ void CalcSimuTurningBands::_spreadRegularOnGrid(int nx,
   CovAniso* cova = getModel()->getCova(is);
   double t0y, t0z, t0;
 
-  ECov type = getModel()->getCovaType(is);
+  ECov type = getModel()->getCovType(is);
 
   double t00 = _getCodirT00(ibs);
   double dxp = _getCodirDXP(ibs);
@@ -1098,7 +1098,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
         {
           double scale = _getCodirScale(ibs);
           double param = getModel()->getParam(is);
-          ECov type    = _particularCase(getModel()->getCovaType(is), param);
+          ECov type    = _particularCase(getModel()->getCovType(is), param);
           operTB.reset();
           operTB.setScale(scale);
           operTB.setFlagScaled(false);
@@ -1250,7 +1250,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
         {
           double scale = _getCodirScale(ibs);
           double param = getModel()->getParam(is);
-          ECov type    = _particularCase(getModel()->getCovaType(is), param);
+          ECov type    = _particularCase(getModel()->getCovType(is), param);
           operTB.reset();
           operTB.setScale(scale);
           operTB.setFlagScaled(true);
@@ -1565,7 +1565,7 @@ void CalcSimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int 
   bool flag_used = false;
   for (int is = 0; is < ncova && flag_used == 0; is++)
   {
-    if (getModel()->getCovaType(is) == ECov::NUGGET) flag_used = true;
+    if (getModel()->getCovType(is) == ECov::NUGGET) flag_used = true;
   }
   if (!flag_used) return;
 
@@ -1576,7 +1576,7 @@ void CalcSimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int 
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int is = 0; is < ncova; is++)
       {
-        ECov type = getModel()->getCovaType(is);
+        ECov type = getModel()->getCovType(is);
 
         if (type != ECov::NUGGET) continue;
         law_set_random_seed(_getSeedBand(ivar, is, 0, isimu));
@@ -2130,7 +2130,7 @@ void CalcSimuTurningBands::_checkGaussianData2Grid(Db *dbin,
     // Find the index of the closest grid node and derive tolerance
     int jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor.data());
     if (jech < 0) continue;
-    double eps = model->calculateStdev(dbin, iech, dbgrid, jech, false, 2.);
+    double eps = model->calculateStDev(dbin, iech, dbgrid, jech, false, 2.);
     if (eps < 1.e-6) eps = 1.e-6;
 
     for (int isimu = 0; isimu < nbsimu; isimu++)
