@@ -3714,7 +3714,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
     for (icov = ncova - 1; icov >= 0; icov--)
     {
       if (!FLAG_COMPRESS(imod, icov)) continue;
-      strmod->models[imod]->delCova(icov);
+      strmod->models[imod]->delCov(icov);
     }
   }
 

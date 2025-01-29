@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/ICloneable.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
@@ -20,7 +21,6 @@
 class Model;
 class Db;
 class CovCalcMode;
-class ADrift;
 
 /**
  * \brief
@@ -36,7 +36,7 @@ class ADrift;
  * - the field extension: this information is needed to get a *stationary* version to any covariance
  * - the experimental mean vector and the variance-covariance matrix (used to calibrate the Model)
  */
-class GSTLEARN_EXPORT ModelGeneric
+class GSTLEARN_EXPORT ModelGeneric : public ICloneable
 {
 public:
   ModelGeneric(const CovContext& ctxt = CovContext());

@@ -12,6 +12,7 @@
 
 #include "Covariances/CovList.hpp"
 #include "Model/ModelGeneric.hpp"
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 
@@ -31,7 +32,11 @@ public:
   ModelCovList& operator= (const ModelCovList &m) = delete;
   virtual ~ModelCovList();
 
-  void   delCova(int icov);
+  const CovList* getCovList() const { return _covList; }
+  CovList* getCovListModify() { return _covList; }
+
+  FORWARD_METHOD_NON_CONST(getCovListModify, delCov)
+
   void   delAllCovas();
 
   const MatrixSquareSymmetric& getSillValues(int icov) const;
