@@ -49,9 +49,8 @@ public:
   const CovContext* getContext()         const { return &_ctxt;     }
   const DriftList*  getDriftList()       const { return  _driftList;}
   
-  #ifndef SWIG
-  protected:
-  #endif
+  public:
+  
   ACov*             _getCovModify()             { return  _cova;     }
   CovContext*       _getContextModify()         { return &_ctxt;     }
   DriftList*        _getDriftListModify()       { return  _driftList;}

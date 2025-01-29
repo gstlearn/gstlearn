@@ -93,9 +93,7 @@ public:
   const CovLMGradient*  castInCovLMGradientConst() const;
   const CovLMCAnamorphosis*  castInCovLMCAnamorphosisConst() const;
   
-  #ifndef SWIG
-  protected:
-  #endif
+  public:
   CovAnisoList*        _castInCovAnisoList(int icov = -1);
   CovLMCTapering*      _castInCovLMCTapering();
   CovLMGradient*       _castInCovLMGradient();
