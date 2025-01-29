@@ -202,7 +202,7 @@ private:
   Db* _dbin;
   Db*                  _dbout;
   ModelGeneric*        _modelInit; // Copy of the input ModelGeneric
-  const Model*         _modelCovAniso; // Used to replace _model when used for covaniso explicitly
+  Model*               _modelCovAniso; // Used to replace _model when used for covaniso explicitly
   ANeigh*              _neigh;
   const AAnam*         _anam;
   bool                 _isReady;

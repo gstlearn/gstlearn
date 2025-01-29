@@ -13,25 +13,14 @@
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
-#include "Enum/ECov.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Drifts/DriftList.hpp"
-#include "Basic/ICloneable.hpp"
 
 class Model;
 class Db;
-class CovInternal;
 class CovCalcMode;
-class CovAnisoList;
-class Vario;
 class ADrift;
-class AnamContinuous;
-class AnamHermite;
-
-
-typedef std::vector<ECov> VectorECov;
 
 /**
  * \brief
@@ -47,7 +36,7 @@ typedef std::vector<ECov> VectorECov;
  * - the field extension: this information is needed to get a *stationary* version to any covariance
  * - the experimental mean vector and the variance-covariance matrix (used to calibrate the Model)
  */
-class GSTLEARN_EXPORT ModelGeneric : public ICloneable
+class GSTLEARN_EXPORT ModelGeneric
 {
 public:
   ModelGeneric(const CovContext& ctxt = CovContext());
@@ -92,15 +81,6 @@ public:
 
   void setField(double field);
   bool isValid() const;
-
-
-  // Case of _cova
-  const CovAnisoList* getCovAnisoList() const;
-  CovAnisoList* getCovAnisoListModify() const;
-  int getCovaMinIRFOrder() const;
-  int getNCov(bool skipNugget = false) const;
-  void setActiveFactor(int iclass);
-  int  getActiveFactor() const;
 
 private :
   virtual bool _isValid() const;

@@ -33,7 +33,6 @@ public:
 
   void   delCova(int icov);
   void   delAllCovas();
-  int   getNCov(bool skipNugget) const;
 
   const MatrixSquareSymmetric& getSillValues(int icov) const;
   double getSill(int icov, int ivar, int jvar) const;

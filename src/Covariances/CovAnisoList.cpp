@@ -679,6 +679,14 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
     return maxdist;
   }
 
+void CovAnisoList::_setContext(const CovContext& ctxt)
+{
+  for (auto &e : _covAnisos)
+  {
+    e->setContext(ctxt);
+  }
+}
+
   void CovAnisoList::copyCovContext(const CovContext& ctxt)
   {
     int number = (int)_covAnisos.size();

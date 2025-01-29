@@ -1404,6 +1404,13 @@ MatrixSquareSymmetric ACov::evalCovMatSymByRanks(const Db* db1,
   return mat;
 }
 
+void ACov::setContext(const CovContext &ctxt)
+{
+  _ctxt = ctxt;
+  _setContext(ctxt);
+}
+
+
 /****************************************************************************/
 /*!
  **  Establish the covariance matrix between two Dbs where samples are selected by ranks

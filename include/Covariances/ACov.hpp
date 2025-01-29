@@ -56,7 +56,7 @@ public:
   virtual bool isNoStat() const { return false; }
 
   const CovContext& getContext() const { return _ctxt; }
-  void setContext(const CovContext& ctxt) { _ctxt = ctxt; }
+  void setContext(const CovContext& ctxt);
   void updateFromContext() { _updateFromContext(); }
   void copyCovContext(const CovContext& ctxt){ _copyCovContext(ctxt);}
   void initFromContext(){   _initFromContext(); }
@@ -404,7 +404,11 @@ public:
   int getNDim(int ispace = -1) const { return _ctxt.getNDim(ispace); }
 
 private:
-
+  virtual void _setContext(const CovContext& ctxt) 
+  {
+    DECLARE_UNUSED(ctxt)
+  }
+  
   virtual void _manage(const Db* db1,const Db* db2) const 
   {
     DECLARE_UNUSED(db1)
