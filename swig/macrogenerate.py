@@ -63,7 +63,6 @@ def build_macro_python(macro_name, filename, output_file, first=True):
     output_file = os.path.join("..","..", "python", output_file)
     macro_calls = extract_macro_calls(header_file, macro_name)
     first = generate_python_code(macro_calls, output_file, first)
-    print(f"Python additional wrappers generated in {output_file}")
     return first
 
 def build_macro_r(macro_name, filename, output_file, first=True):
@@ -71,7 +70,6 @@ def build_macro_r(macro_name, filename, output_file, first=True):
     output_file = os.path.join("..","..", "r", output_file)
     macro_calls = extract_macro_calls(header_file, macro_name)
     first = generate_r_code(macro_calls, output_file, first)
-    print(f"R additional wrappers generated in {output_file}")
     return first
 
 output_file = "generated.i"
@@ -82,7 +80,6 @@ first = True
 
 for macro_name in ["FORWARD_METHOD","FORWARD_METHOD_NON_CONST"]:
     tree = os.walk(os.path.join(os.pardir, os.pardir, "include"))
-    print(macro_name)
     for dir, root, files in tree:
         path = os.path.split(dir)[1]
         if path in ["include", "Core"]:

@@ -299,22 +299,13 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   /* Drift part */
 
   if (ndrift > 0)
-  {
     sstr << toTitle(1, "Drift Part");
-    sstr << _driftList->toString();
+  
+  sstr << _driftList->toString();
 
-    if (isFlagLinked())
-      sstr << "Drifts are linked" << std::endl;
-  }
-
-  /* Mean Part */
-
-  if (getNDrift() <= 0)
-  {
-    sstr << toVector("Known Mean(s)", getMeans());
-    // TODO: could be added but changes all non-regression files
-//    sstr << "(Note: Simple Kriging will be used)" << std::endl;
-  }
+  if (isFlagLinked())
+    sstr << "Drifts are linked" << std::endl;
+  
 
   return sstr.str();
 }
@@ -671,27 +662,6 @@ void Model::_copyCovContext()
   if (_driftList != nullptr) _driftList->copyCovContext(_ctxt);
 }
 
-void Model::setMeans(const VectorDouble& mean)
-{
-  if (mean.empty()) return;
-  _ctxt.setMean(mean);
-  _copyCovContext();
-}
-void Model::setMean(double mean, int ivar)
-{
-  _ctxt.setMean(mean, ivar);
-  _copyCovContext();
-}
-void Model::setCovar0s(const VectorDouble& covar0)
-{
-  _ctxt.setCovar0(covar0);
-  _copyCovContext();
-}
-void Model::setCovar0(int ivar, int jvar, double covar0)
-{
-  _ctxt.setCovar0(ivar,jvar,covar0);
-  _copyCovContext();
-}
 void Model::setField(double field)
 {
   _ctxt.setField(field);
@@ -766,6 +736,8 @@ int Model::fit(Vario* vario,
   // Add the relevant covariances
 
   _ctxt = CovContext(vario); /// TODO : What to do with that ?
+  _driftList->copyCovContext(_ctxt);
+
   for (int is = 0; is < (int) types.size(); is++)
   {
     CovAniso cov = CovAniso(types[is], _ctxt);
@@ -998,7 +970,7 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
   if (getNDrift() <= 0)
     for (int ivar = 0; ret && ivar < getNVar(); ivar++)
     {
-      ret = ret && _recordWrite<double>(os, "Mean of Variables", getContext()->getMean(ivar));
+      ret = ret && _recordWrite<double>(os, "Mean of Variables", getMean(ivar));
     }
 
   /* Writing the matrices of sills (optional) */
@@ -1105,65 +1077,6 @@ bool Model::isFlagGradientFunctional() const
   const CovGradientFunctional* cova = dynamic_cast<const CovGradientFunctional*>(covalist->getCova(0));
   return (cova != nullptr);
 }
-
-/****************************************************************************/
-/*!
- **  Evaluate the drift with a given sample and a given variable
- **  The value is scaled by 'coeffs'
- **
- ** \param[in]  db      Db structure
- ** \param[in]  iech    Rank of the sample
- ** \param[in]  ivar    Rank of the variable
- ** \param[in]  coeffs  Vector of coefficients
- **
- *****************************************************************************/
-double Model::evalDriftVarCoef(const Db *db,
-                               int iech,
-                               int ivar,
-                               const VectorDouble &coeffs) const
-{
-  if (_driftList == nullptr)
-  {
-    double mean = getMean(ivar);
-    return mean;
-  }
-  double drift = 0.;
-  for (int ib = 0, nfeq = getNDriftEquation(); ib < nfeq; ib++)
-    drift += evalDriftValue(db, iech, ivar, ib, ECalcMember::LHS) * coeffs[ib];
-  return drift;
-}
-
-/**
- * A vector of the drift evaluation (for all samples)
- * @param db     Db structure
- * @param coeffs Vector of drift coefficients
- * @param ivar   Variable rank (used for constant drift value)
- * @param useSel When TRUE, only non masked samples are returned
- * @return The vector of values
- *
- * @remark When no drift is defined, a vector is returned filled with the variable mean
- */
-VectorDouble Model::evalDriftVarCoefs(const Db *db,
-                                      const VectorDouble &coeffs,
-                                      int ivar,
-                                      bool useSel) const
-{
-  VectorDouble vec;
-  if (_driftList == nullptr)
-  {
-    if (db == nullptr) return vec;
-    int nech = db->getNSample(useSel);
-    double mean = getMean(ivar);
-    vec = VectorDouble(nech, mean);
-  }
-  else
-  {
-    vec = _driftList->evalDriftCoefs(db, coeffs, useSel);
-  }
-  return vec;
-}
-
-
 
 VectorECov Model::initCovList(const VectorInt & covranks)
 {

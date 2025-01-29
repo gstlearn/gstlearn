@@ -432,11 +432,11 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
   cova0[3] = 1.;
 
   // Creating the context
-  CovContext ctxt = CovContext(2, model1->getNDim(), mean, cova0);
+  CovContext ctxt = CovContext(2, model1->getNDim(), cova0);
 
   // Creating the new Model
   model = new Model(ctxt);
-
+  model->setMeans(mean);
   /* Add the covariance of the first Model */
 
   for (int i = 0; i < model1->getNCov(); i++)

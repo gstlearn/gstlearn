@@ -190,14 +190,13 @@ public:
 
   FORWARD_METHOD_NON_CONST(_castInCovLMCTapering, setTapeRange)
   FORWARD_METHOD(castInCovLMGradientConst, evalZAndGradients)
-
-
+  
   int    setAnam(const AAnam* anam, const VectorInt& strcnt = VectorInt());
   int    unsetAnam();
   bool   isFlagGradient() const;
   bool   isFlagGradientNumerical() const;
   bool   isFlagGradientFunctional() const;
-  void switchToGradient();
+  void   switchToGradient();
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of CovAnisoList)
@@ -208,28 +207,9 @@ public:
                  int icov = 0,
                  const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
 
-  /////////////////////////////////////////////////
-
-  ////////////////////////////////////////////////
-  /// TODO : to be removed (encapsulation of DriftList
-
-  double evalDriftVarCoef(const Db *db,
-                          int iech,
-                          int ivar,
-                          const VectorDouble &coeffs) const;
-  VectorDouble evalDriftVarCoefs(const Db *db,
-                                 const VectorDouble &coeffs,
-                                 int ivar = 0,
-                                 bool useSel = false) const;
-  /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of Context)
-
-  void setMeans(const VectorDouble& mean);
-  void setMean(double mean, int ivar=0);
-  void setCovar0s(const VectorDouble& covar0);
-  void setCovar0(int ivar, int jvar, double covar0);
   void setField(double field);
   /////////////////////////////////////////////////
 

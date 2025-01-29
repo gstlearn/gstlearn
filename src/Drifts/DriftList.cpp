@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/VectorNumT.hpp"
 #include "Drifts/ADrift.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Basic/Utilities.hpp"
@@ -23,7 +24,8 @@ DriftList::DriftList(const CovContext &ctxt)
       _drifts(),
       _betaHat(),
       _filtered(),
-      _ctxt(ctxt)
+      _ctxt(ctxt),
+      _mean(VectorDouble(ctxt.getNVar(), 0.))
 {
 }
 
@@ -35,7 +37,8 @@ DriftList::DriftList(const DriftList &r)
       _drifts(),
       _betaHat(r._betaHat),
       _filtered(r._filtered),
-      _ctxt(r._ctxt)
+      _ctxt(r._ctxt),
+      _mean(r._mean)
 {
   for (const auto& e: r._drifts)
   {
@@ -51,6 +54,7 @@ DriftList& DriftList::operator=(const DriftList &r)
     _flagLinked = r._flagLinked;
     _flagCombined = r._flagCombined;
     _driftCL  = r._driftCL;
+    _mean = r._mean;
     for (const auto& e: r._drifts)
     {
       _drifts.push_back(dynamic_cast<ADrift*>(e->clone()));
@@ -67,9 +71,24 @@ DriftList::~DriftList()
   delAllDrifts();
 }
 
+void DriftList::copyCovContext(const CovContext& ctxt)
+{
+  _ctxt = ctxt;
+  _update();
+}
+
+void DriftList::_update()
+{
+  _mean = VectorDouble(_ctxt.getNVar(), 0.);
+}
+
 String DriftList::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
+  if (getNDrift() <= 0)
+    sstr << toVector("Known Mean(s)", getMeans());
+  // TODO: could be added but changes all non-regression files
+  //    sstr << "(Note: Simple Kriging will be used)" << std::endl;
   for (int i = 0, nbfl = getNDrift(); i < nbfl; i++)
   {
     sstr << _drifts[i]->toString();
@@ -110,6 +129,8 @@ void DriftList::delAllDrifts()
   _filtered.clear();
   _betaHat.clear();
   _driftCL.clear();
+  _mean.resize(0);
+
 }
 
 bool DriftList::isDriftFiltered(int i) const
@@ -714,4 +735,93 @@ double DriftList::evalDrift(const Db *db,
   if (!_isDriftIndexValid(il)) return TEST;
   return _drifts[il]->eval(db, iech);
   return TEST;
+}
+
+const DriftList* DriftList::createReduce(const VectorInt &validVars) const
+{
+  int ecr = 0;
+  int lec = 0;
+  VectorBool valids(getNVar(), false);
+  int nvar = (int) validVars.size();
+  VectorDouble mean(nvar,0);
+
+  for (int ivar = 0; ivar < nvar; ivar++) valids[validVars[ivar]] = true;
+  for (int ivar = 0; ivar < getNVar(); ivar++)
+  {
+    if (valids[ivar])
+    {
+      mean[ecr++] = _mean[lec];
+    }
+    lec++;
+  }
+  DriftList* driftlist = new DriftList(_ctxt);
+  driftlist->setMeans(mean);
+  return driftlist;
+}
+
+void DriftList::setMeans(const VectorDouble& mean)
+{
+  if (_mean.size() == mean.size()) _mean = mean;
+}
+
+double DriftList::getMean(int ivar) const
+{
+  if (ivar < 0 || ivar >= (int) _mean.size())
+    my_throw("Invalid argument in _getMean");
+  return _mean[ivar];
+}
+
+/**
+ * Define the Mean for one variable
+ * @param mean Value for the mean
+ * @param ivar Rank of the variable (starting from 0)
+ */
+void DriftList::setMean(const double mean, int ivar)
+{
+  if (ivar < 0 || ivar >= (int) _mean.size())
+    my_throw("Invalid argument in _setMean");
+  _mean[ivar] = mean;
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the drift with a given sample and a given variable
+ **  The value is scaled by 'coeffs'
+ **
+ ** \param[in]  db      Db structure
+ ** \param[in]  iech    Rank of the sample
+ ** \param[in]  ivar    Rank of the variable
+ ** \param[in]  coeffs  Vector of coefficients
+ **
+ *****************************************************************************/
+double DriftList::evalDriftVarCoef(const Db *db,
+                                   int iech,
+                                   int ivar,
+                                   const VectorDouble &coeffs) const
+{
+
+  double drift = 0.;
+  for (int ib = 0, nfeq = getNDriftEquation(); ib < nfeq; ib++)
+    drift += evalDriftValue(db, iech, ivar, ib, ECalcMember::LHS) * coeffs[ib];
+  return drift;
+}
+
+/**
+ * A vector of the drift evaluation (for all samples)
+ * @param db     Db structure
+ * @param coeffs Vector of drift coefficients
+ * @param ivar   Variable rank (used for constant drift value)
+ * @param useSel When TRUE, only non masked samples are returned
+ * @return The vector of values
+ *
+ * @remark When no drift is defined, a vector is returned filled with the variable mean
+ */
+ 
+VectorDouble DriftList::evalDriftVarCoefs(const Db *db,
+                                          const VectorDouble &coeffs,
+                                          bool useSel) const
+{
+  VectorDouble vec;
+  vec = evalDriftCoefs(db, coeffs, useSel);
+  return vec;
 }

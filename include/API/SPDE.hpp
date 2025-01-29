@@ -84,7 +84,7 @@ private:
             const AMesh *mesh = nullptr,
             bool verbose = false,
             bool showStats = false);
-  void _centerByDrift(const VectorDouble& dataVect,int ivar=0,bool useSel=true) const;
+  void _centerByDrift(const VectorDouble& dataVect,bool useSel=true) const;
   void _computeDriftCoeffs() const;
   void _purge();
   bool _isSimulationRequested() const;
@@ -94,7 +94,7 @@ private:
   void _computeSimuNonCond() const;
   void _computeSimuCond() const;
   void _addNuggetOnResult(VectorDouble &result) const;
-  void _addDrift(Db* db, VectorDouble &result, int ivar = 0, bool useSel = true);
+  void _addDrift(Db* db, VectorDouble &result, bool useSel = true);
   void _setUseCholesky(int useCholesky = -1, bool verbose = false);
   double _computeLogLikelihood(int nbsimu = 1, bool verbose = false) const;
   #ifndef SWIG

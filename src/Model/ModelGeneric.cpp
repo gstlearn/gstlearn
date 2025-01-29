@@ -170,9 +170,6 @@ double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
   return loglike;
 }
 
-
-
-
 /**
  * Add a list of Drifts. This operation cleans any previously stored drift function
  * @param driftlist List of Drifts to be added

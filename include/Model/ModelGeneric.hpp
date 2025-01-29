@@ -129,22 +129,33 @@ public:
   FORWARD_METHOD(getDriftList, evalDriftBySampleInPlace)
   FORWARD_METHOD(getDriftList, hasDrift, false)
 
+  FORWARD_METHOD(getDriftList, getMean, TEST)
+  FORWARD_METHOD(getDriftList, getMeans)
+  FORWARD_METHOD(getDriftList, evalDriftVarCoef,TEST)
+  FORWARD_METHOD(getDriftList, evalDriftVarCoefs)
+
   FORWARD_METHOD_NON_CONST(_getDriftListModify, setFlagLinked)
   FORWARD_METHOD_NON_CONST(_getDriftListModify, setBetaHat)
   FORWARD_METHOD_NON_CONST(_getDriftListModify, setFiltered)
   FORWARD_METHOD_NON_CONST(_getDriftListModify, delDrift)
   FORWARD_METHOD_NON_CONST(_getDriftListModify, delAllDrifts)
   FORWARD_METHOD_NON_CONST(_getDriftListModify, copyCovContext)
-
+  FORWARD_METHOD_NON_CONST(_getDriftListModify,setMeans)
+  FORWARD_METHOD_NON_CONST(_getDriftListModify,setMean)
+  
   // Forwarding the methods from _ctxt
   FORWARD_METHOD(getContext, getNVar, -1)
   FORWARD_METHOD(getContext, getNDim, -1)
-  FORWARD_METHOD(getContext, getMeans, TEST)
   FORWARD_METHOD(getContext, getSpace)
-  FORWARD_METHOD(getContext, getMean, TEST)
+
+  
   FORWARD_METHOD(getContext, getCovar0)
   FORWARD_METHOD(getContext, getField, TEST)
 
+  FORWARD_METHOD_NON_CONST(_getContextModify, setField)
+  FORWARD_METHOD_NON_CONST(_getContextModify, setCovar0s)
+  FORWARD_METHOD_NON_CONST(_getContextModify, setCovar0)
+  
   void setField(double field);
   bool isValid() const;
 
