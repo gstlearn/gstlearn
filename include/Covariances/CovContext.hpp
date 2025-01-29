@@ -42,7 +42,7 @@ public:
 
   int                             getNVar()      const { return _nVar; }
   double                          getField()     const { return _field; }
-  const VectorDouble&             getMean()      const { return _mean; }
+  const VectorDouble&             getMeans()     const { return _mean; }
   const VectorDouble&             getCovar0()    const { return _covar0; }
   double getMean(int ivar) const;
   double getCovar0(int ivar, int jvar) const;

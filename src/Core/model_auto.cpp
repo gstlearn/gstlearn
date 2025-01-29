@@ -1295,7 +1295,7 @@ static void st_keypair_sill(int mode, Model *model)
     {
       (void) gslSPrintf(loc_string, "Fitted_Sill_%d", icova + 1);
       set_keypair(loc_string, 1, nvar, nvar,
-                  model->getSillValues(icova).getValues().data());
+                  model->getSills(icova).getValues().data());
     }
   }
 }
@@ -3714,7 +3714,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
     for (icov = ncova - 1; icov >= 0; icov--)
     {
       if (!FLAG_COMPRESS(imod, icov)) continue;
-      strmod->models[imod]->delCova(icov);
+      strmod->models[imod]->delCov(icov);
     }
   }
 

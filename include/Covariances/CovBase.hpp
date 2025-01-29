@@ -35,7 +35,6 @@ public:
   bool isOptimizationInitialized(const Db* db = nullptr) const;
   
   void optimizationSetTargetByIndex(int iech) const override;
-  void setContext(const CovContext& ctxt);
 
   void setSill(double sill) const; /// Only valid when there is only one variable (in the context)
   void setSill(const MatrixSquareSymmetric& sill) const;
@@ -107,6 +106,8 @@ protected:
 
 
 private:
+void _setContext(const CovContext& ctxt) override;
+
 void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
 void _optimizationPostProcess() const override; 
 

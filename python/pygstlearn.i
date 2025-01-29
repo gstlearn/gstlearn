@@ -1054,6 +1054,8 @@ void exit_f(void)
   std::string __repr__() {  return $self->toString(); }
 }
 
+%include generated_python.i
+
 //////////////////////////////////////////////////////////////
 //       Add target language additional features below      //
 //////////////////////////////////////////////////////////////

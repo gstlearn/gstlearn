@@ -16,6 +16,7 @@
 #include "Db/Db.hpp"
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/NoStatFunctional.hpp"
+#include "geoslib_define.h"
 
 CovBase::CovBase(ACov* cor,
                 const MatrixSquareSymmetric &sill)
@@ -47,11 +48,12 @@ void CovBase::setCor(ACov* cor)
     _ctxt.setNVar(nvar);
   }
 }
-void CovBase::setContext(const CovContext &ctxt)
+void CovBase::_setContext(const CovContext &ctxt)
 {
-  _ctxt = ctxt;
+  DECLARE_UNUSED(ctxt)
   _updateFromContext();
 }
+
 void CovBase::setSill(double sill) const
 {
   int nvar = getNVar();

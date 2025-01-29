@@ -561,7 +561,7 @@ public:
   ASpaceSharedPtr     getASpaceSh() const { return _ctxt.getSpace(); }
   ASpaceSharedPtr    getASpace() const { return getASpaceSh(); }
 
-  const VectorDouble& getMeans() const { return _ctxt.getMean(); }
+  const VectorDouble& getMeans() const { return _ctxt.getMeans(); }
   double getMean(int ivar) const { return _ctxt.getMean(ivar); }
   const VectorDouble& getCovar0s() const { return _ctxt.getCovar0(); }
   double getCovar0(int ivar, int jvar) const { return _ctxt.getCovar0(ivar,jvar); }
@@ -680,6 +680,8 @@ protected:
   const CovAnisoList* _castInCovAnisoListConst(int icov = -1) const;
   CovAnisoList*       _castInCovAnisoList(int icov = -1);
 
+  private:
+  bool _isValid() const override;
 private:
   void _clear();
   void _create();

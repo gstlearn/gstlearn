@@ -10,26 +10,17 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/ICloneable.hpp"
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
-#include "Enum/ECov.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Drifts/DriftList.hpp"
-#include "Basic/ICloneable.hpp"
 
 class Model;
 class Db;
-class CovInternal;
 class CovCalcMode;
-class CovAnisoList;
-class Vario;
-class ADrift;
-class AnamContinuous;
-class AnamHermite;
-
-typedef std::vector<ECov> VectorECov;
 
 /**
  * \brief
@@ -53,90 +44,46 @@ public:
   ModelGeneric& operator= (const ModelGeneric &m) = delete;
   virtual ~ModelGeneric();
 
-  MatrixRectangular evalDriftMat(const Db* db,
-                                    int ivar0             = -1,
-                                    const VectorInt& nbgh = VectorInt(),
-                                    const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-  MatrixRectangular evalDriftMatByRanks(const Db* db,
-                    const VectorVectorInt& sampleRanks,
-                    int ivar0                 = -1,
-                    const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+  //getters for member pointers
+  const ACov*       getCov()             const { return  _cova;     }
+  const CovContext* getContext()         const { return &_ctxt;     }
+  const DriftList*  getDriftList()       const { return  _driftList;}
+  ACov*             getCovModify()             { return  _cova;     }
+  CovContext*       getContextModify()         { return &_ctxt;     }
+  DriftList*        getDriftListModify()       { return  _driftList;}
+  
+  // Forwarding the methods from _cova
+  FORWARD_METHOD(getCov, evalCovMatOptim)
+  FORWARD_METHOD(getCov, evalCovMatSym)
+  FORWARD_METHOD(getCov, evalCovMatSymOptim)
+  FORWARD_METHOD(getCov, evalCovMatOptimByRanks)
+  FORWARD_METHOD(getCov, evalCovMatSymOptimByRanks)
+  FORWARD_METHOD(getCov, evalCovMatSymByRanks)
+  FORWARD_METHOD(getCov, eval0Mat)
+  FORWARD_METHOD(getCov, evalCovMat)
+  FORWARD_METHOD(getCov, evalCovMatByRanks)
+  FORWARD_METHOD(getCov, evalCovMatSparse)
+  
+  // Forwarding the methods from _driftList
+  FORWARD_METHOD(getDriftList, evalDriftMat)
+  FORWARD_METHOD(getDriftList, evalDriftMatByRanks)
+  FORWARD_METHOD(getDriftList, evalDriftMatByTarget)
+  FORWARD_METHOD(getDriftList, getNDrift)
+  FORWARD_METHOD(getDriftList, getNDriftEquation)
+  FORWARD_METHOD(getDriftList, getNExtDrift)
+  FORWARD_METHOD(getDriftList, getDriftMaxIRFOrder,-1)
+  FORWARD_METHOD_NON_CONST(getDriftListModify, delAllDrifts)
 
-  MatrixRectangular evalDriftMatByTarget(const Db* db,
-                                          int ivar0 = -1,
-                                          int iech2 = 0,
-                                          const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-  MatrixRectangular evalCovMat(Db* db1,
-                               Db* db2                 = nullptr,
-                               int ivar0               = -1,
-                               int jvar0               = -1,
-                               const VectorInt& nbgh1  = VectorInt(),
-                               const VectorInt& nbgh2  = VectorInt(),
-                               const CovCalcMode* mode = nullptr);
-  MatrixRectangular evalCovMatOptim(Db* db1,
-                                    Db* db2                 = nullptr,
-                                    int ivar0               = -1,
-                                    int jvar0               = -1,
-                                    const VectorInt& nbgh1  = VectorInt(),
-                                    const VectorInt& nbgh2  = VectorInt(),
-                                    const CovCalcMode* mode = nullptr,
-                                    bool cleanOptim         = true);
-  MatrixRectangular evalCovMatOptimByRanks(const Db* db1,
-                                           const Db* db2,
-                                           const VectorVectorInt& sampleRanks1,
-                                           int ivar0               = -1,
-                                           int jvar0               = -1,
-                                           const int iech2         = 0,
-                                           const CovCalcMode* mode = nullptr,
-                                           bool cleanOptim         = true) const;
-  MatrixSquareSymmetric evalCovMatSym(const Db* db1,
-                                      int ivar0               = -1,
-                                      const VectorInt& nbgh1  = VectorInt(),
-                                      const CovCalcMode* mode = nullptr,
-                                      bool cleanOptim         = true) const;
-  MatrixSquareSymmetric evalCovMatSymOptim(const Db* db1,
-                                           const VectorInt& nbgh1  = VectorInt(),
-                                           int ivar0               = -1,
-                                           const CovCalcMode* mode = nullptr,
-                                           bool cleanOptim         = true);
-  MatrixSquareSymmetric evalCovMatSymOptimByRanks(const Db* db1,
-                                                  const VectorVectorInt& sampleRanks1,
-                                                  int ivar0               = -1,
-                                                  const CovCalcMode* mode = nullptr,
-                                                  bool cleanOptim         = true);
-  MatrixSquareGeneral eval0Mat(const CovCalcMode* mode = nullptr) const;
-  MatrixSparse* evalCovMatSparse(Db* db1,
-                                 Db* db2                 = nullptr,
-                                 int ivar0               = -1,
-                                 int jvar0               = -1,
-                                 const VectorInt& nbgh1  = VectorInt(),
-                                 const VectorInt& nbgh2  = VectorInt(),
-                                 const CovCalcMode* mode = nullptr,
-                                 double eps              = EPSILON3);
+  // Forwarding the methods from _ctxt
+  FORWARD_METHOD(getContext, getNVar)
+  FORWARD_METHOD(getContext, getNDim)
+  FORWARD_METHOD(getContext, getMeans)
 
   void setField(double field);
   bool isValid() const;
 
-  // Pipes for the private members
-  // Case of _ctxt
-  int getNVar() const;
-  int getNDim() const;
-  const VectorDouble& getMeans() const;
-
-  // Case of _driftList
-  int getNDrift() const;
-  int getNDriftEquation() const;
-  int getNExtDrift() const;
-  int getDriftMaxIRFOrder(void) const;
-  void delAllDrifts();
-
-    // Case of _cova
-  const CovAnisoList* getCovAnisoList() const;
-  CovAnisoList* getCovAnisoListModify() const;
-  int getCovaMinIRFOrder() const;
-  int getNCov(bool skipNugget = false) const;
-  void setActiveFactor(int iclass);
-  int  getActiveFactor() const;
+private :
+  virtual bool _isValid() const;
 
 protected:               // TODO : pass into private to finish clean
   ACov* _cova;           /* Generic Covariance structure */

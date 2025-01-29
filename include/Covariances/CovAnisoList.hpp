@@ -157,6 +157,7 @@ public:
   const CovAnisoList* createReduce(const VectorInt &validVars) const;
 
 private:
+  void _setContext(const CovContext& ctxt) override;
   // Remove an elementary covariance structure
   void _delCov(int icov) override;
   // Remove all elementary covariance structures

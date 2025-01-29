@@ -12,7 +12,9 @@
 
 #include "Covariances/CovList.hpp"
 #include "Model/ModelGeneric.hpp"
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 
 /**
  * \brief
@@ -30,22 +32,23 @@ public:
   ModelCovList& operator= (const ModelCovList &m) = delete;
   virtual ~ModelCovList();
 
-  void   delCova(int icov);
-  void   delAllCovas();
-  const MatrixSquareSymmetric& getSillValues(int icov) const;
-  double getSill(int icov, int ivar, int jvar) const;
-  double getTotalSill(int ivar=0, int jvar=0) const;
-  MatrixSquareSymmetric getTotalSills() const;
-  VectorInt getActiveCovList() const;
-  VectorInt getAllActiveCovList() const;
-  bool isAllActiveCovList() const;
-  void setCovList(CovList* covs);
+  const CovList* getCovList() const { return _covList; }
+  CovList* getCovListModify() { return _covList; }
 
+  FORWARD_METHOD_NON_CONST(getCovListModify, delCov)
+  FORWARD_METHOD_NON_CONST(getCovListModify, delAllCov)
+
+  FORWARD_METHOD(getCovList, getSills)
+  FORWARD_METHOD(getCovList, getSill, TEST)
+  FORWARD_METHOD(getCovList, getTotalSill)
+  FORWARD_METHOD(getCovList, getTotalSills)
+  FORWARD_METHOD(getCovList, getActiveCovList)
+  FORWARD_METHOD(getCovList, getAllActiveCovList)
+  FORWARD_METHOD(getCovList, isAllActiveCovList)
+  
+  void setCovList(CovList* covs);
 
 protected:
   CovList* _covList;
-
-private :
-  MatrixSquareSymmetric _dummy;
 
 };

@@ -45,6 +45,18 @@ if (BUILD_DOXYGEN)
   add_dependencies(python_doc doxygen)
 endif()
 
+####CUSTOM WRAPPER
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/python/generated_python.i
+  COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/python/generated_python.i
+  COMMENT "Ensure that generated_python.i exists")
+  
+add_custom_target(python_wrap_macro
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../swig/macrogenerate.py
+  "python"
+  COMMENT "Generate macro wrapper package"
+  )
+
+
 ######################################
 # WRAPPER GENERATION & BUILD
 
@@ -154,6 +166,7 @@ if(USE_BOOST_SPAN)
   target_compile_definitions(python_build PUBLIC USE_BOOST_SPAN)
 endif()
 
+add_dependencies(python_build python_wrap_macro)
 ########################################
 # PACKAGING (target independent)
 
@@ -219,8 +232,8 @@ endforeach()
 add_custom_target(python_install
   COMMAND ${Python3_EXECUTABLE} -m pip install ${PYTHON_PACKAGE_ROOT_FOLDER}
   COMMENT "Installing python package"
-  VERBATIM
-)
-
+  )
+ 
 # Tell to CMake that python package must be built before installation [python_doc is optional]
+
 add_dependencies(python_install python_build)

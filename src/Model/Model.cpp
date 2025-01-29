@@ -104,6 +104,36 @@ int Model::resetFromDb(const Db *db)
   return 0;
 }
 
+
+bool Model::_isValid() const
+{
+  // Covariances: there should be some defined
+  if (_covList == nullptr)
+  {
+    messerr("Model is not valid: no covariance has been defined");
+    return false;
+  }
+
+  // Drifts: there should be valid
+  if (_driftList != nullptr)
+  {
+    if (!_driftList->isValid()) return false;
+  }
+
+  // Check the consistency between the Covariance and the Drift parts
+  int irf_drift = getDriftMaxIRFOrder();
+  int irf_cova  = getCovaMinIRFOrder();
+  if (irf_cova > irf_drift)
+  {
+    messerr("Model if invalid due to IRF degree inconsistency");
+    messerr("- Covariance implies a order >= %d", irf_cova);
+    messerr("- Drift implies a order %d", irf_drift);
+    messerr("(Order -1 stands for strict stationarity)");
+    return false;
+  }
+  return true;
+}
+
 Model* Model::create(const CovContext& ctxt)
 {
   return new Model(ctxt);
@@ -1156,7 +1186,7 @@ int Model::fitFromCovIndices(Vario *vario,
 
   // Clean out possible covariances in the existing model
 
-  delAllCovas();
+  delAllCov();
 
   // Add the relevant covariances
 
@@ -1196,7 +1226,7 @@ int Model::fit(Vario* vario,
 
   // Clean out possible covariances in the existing model
 
-  delAllCovas();
+  delAllCov();
 
   // Add the relevant covariances
 
@@ -1232,7 +1262,7 @@ int Model::fitFromVMap(DbGrid* dbmap,
 
   // Clean out possible covariances in the existing model
 
-  delAllCovas();
+  delAllCov();
 
   // Add the relevant covariances
 
