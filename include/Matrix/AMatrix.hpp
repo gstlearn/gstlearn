@@ -199,7 +199,6 @@ public:
                   const VectorInt &validRows,
                   const VectorInt &validCols);
   void copyElements(const AMatrix &m, double factor = 1.);
-  void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
 
   void makePositiveColumn();
   void linearCombination(double val1,
@@ -208,11 +207,18 @@ public:
                          const AMatrix* mat2 = nullptr,
                          double val3         = 1.,
                          const AMatrix* mat3 = nullptr);
-                      
 
+  static void setFlagMatrixCheckAddress(bool flagCheckAddress)
+  {
+    _flagCheckAddress = flagCheckAddress;
+  }
+
+  static bool _getFlagMatrixCheckAddress()
+  {
+    return _flagCheckAddress;
+  }
 #ifndef SWIG
-  virtual int
-  addProdMatVecInPlace(const constvect x, vect y, bool transpose = false) const;
+  virtual int addProdMatVecInPlace(const constvect x, vect y, bool transpose = false) const;
 
   /*! Get value operator override */
   double  operator()(int row, int col) const { return getValue(row, col); }
@@ -261,7 +267,6 @@ protected:
   bool _isRankValid(int rank) const;
   void _fillFromVVD(const VectorVectorDouble& X);
 
-  bool _getFlagCheckAddress() const { return _flagCheckAddress; }
 
   bool _checkLink(int nrow1,
                   int ncol1,
@@ -276,7 +281,7 @@ protected:
 private:
   int  _nRows;
   int  _nCols;
-  bool _flagCheckAddress;
+  static bool _flagCheckAddress;
   double _nullTerm; // Used for returning a null constant address
 #endif
 };

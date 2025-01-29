@@ -39,8 +39,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-String ASerializable::myContainerName = String();
-String ASerializable::myPrefixName = String();
+String ASerializable::_myContainerName = String();
+String ASerializable::_myPrefixName = String();
 
 ASerializable::ASerializable()
 {
@@ -220,17 +220,17 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
   // - otherwise, add the 'containerName' and 'prefixName' (if defined)
   if (status == 2 || (filename.size() > 2 && filename[0] != '/' && filename[1] != ':'))
   {
-    if (!myContainerName.empty())
+    if (!_myContainerName.empty())
     {
-      fileLocal += myContainerName;
+      fileLocal += _myContainerName;
       if (ensureDirExist)
       {
         (void) createDirectory(fileLocal);
       }
     }
-    if (!myPrefixName.empty())
+    if (!_myPrefixName.empty())
     {
-      fileLocal += myPrefixName;
+      fileLocal += _myPrefixName;
     }
   }
   fileLocal += filename;
@@ -385,11 +385,11 @@ void ASerializable::setContainerName(bool useDefault,
       if (verbose)
         message("Results are stored in PYGSTLEARN_DIR\n");
     }
-    myContainerName = pygst;
+    _myContainerName = pygst;
   }
   else
   {
-    myContainerName = containerName;
+    _myContainerName = containerName;
   }
 }
 
@@ -398,27 +398,27 @@ void ASerializable::setContainerName(bool useDefault,
  */
 void ASerializable::unsetContainerName()
 {
-  myContainerName.erase();
+  _myContainerName.erase();
 }
 
 void ASerializable::setPrefixName(const String& prefixName)
 {
-  myPrefixName = prefixName;
+  _myPrefixName = prefixName;
 }
 
 void ASerializable::unsetPrefixName(void)
 {
-  myPrefixName.erase();
+  _myPrefixName.erase();
 }
 
 const String& ASerializable::getContainerName()
 {
-  return myContainerName;
+  return _myContainerName;
 }
 
 const String& ASerializable::getPrefixName()
 {
-  return myPrefixName;
+  return _myPrefixName;
 }
 
 /*!

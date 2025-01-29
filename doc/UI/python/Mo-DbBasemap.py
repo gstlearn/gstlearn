@@ -27,7 +27,8 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(b, gl):
+def _(b, gl, mo):
+    mo.stop(len(b.value) == 0, "You must define a NF file first")
     db = gl.Db.createFromNF(b.value[0].path)
     box = db.getExtremas()
     return box, db
@@ -48,7 +49,7 @@ def _(box, mo):
 
 
 @app.cell(hide_code=True)
-def _(Wlatitude, Wlongitude, box, ctx, db, plt):
+def _(Wlatitude, Wlongitude, box, ctx, db, mo, plt):
     box[0,0] = Wlongitude.value[0]
     box[0,1] = Wlongitude.value[1]
     box[1,0] = Wlatitude.value[0]
@@ -66,14 +67,8 @@ def _(Wlatitude, Wlongitude, box, ctx, db, plt):
     ctx.add_basemap(ax2, source=ctx.providers.OpenStreetMap.Mapnik)
     ax2.decoration(title="Based on your Area Definition")
 
-    #plt.show()
-    return ax1, ax2, fig
-
-
-@app.cell
-def _(fig, mo):
     mo.mpl.interactive(fig)
-    return
+    return ax1, ax2, fig
 
 
 if __name__ == "__main__":

@@ -251,8 +251,20 @@ MatrixRectangular CovAnisoList::evalCovMatOptim(const Db* db1,
       optimizationSetTarget(p2);
 
       // Loop on the basic structures
-      for (int i = 0, n = getNCov(); i < n; i++)
-         _covAnisos[i]->evalOptimInPlace(mat, ivars, index1, ivar2, icol, mode, false);
+      if (_considerAllCovariances(mode))
+      {
+        for (int i=0, n=getNCov(); i<n; i++)
+        {
+          _covAnisos[i]->evalOptimInPlace(mat, ivars, index1, ivar2, icol, mode, false);
+        }
+      }
+      else
+      {
+        for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
+        {
+          _covAnisos[mode->getActiveCovList(i)]->evalOptimInPlace(mat, ivars, index1, ivar2, icol, mode, false);
+        }
+      }
       icol++;
     }
   }
@@ -323,9 +335,22 @@ MatrixRectangular CovAnisoList::evalCovMatOptimByRanks(const Db* db1,
       optimizationSetTarget(p2);
 
       // Loop on the basic structures
-      for (int i = 0, n = getNCov(); i < n; i++)
-        _covAnisos[i]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode,
-                                        false);
+      if (_considerAllCovariances(mode))
+      {
+        for (int i=0, n=getNCov(); i<n; i++)
+        {
+          _covAnisos[i]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode,
+                                          false);
+        }
+      }
+      else
+      {
+        for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
+        {
+          _covAnisos[mode->getActiveCovList(i)]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode,
+                                                                  false);
+        }
+      }
       icol++;
     }
   }
@@ -407,9 +432,20 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
       optimizationSetTargetByIndex(iech2);
 
       // Loop on the basic structures
-      for (int i = 0, n = getNCov(); i < n; i++)
-        _covAnisos[i]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode, true);
-
+      if (_considerAllCovariances(mode))
+      {
+        for (int i=0, n=getNCov(); i<n; i++)
+        {
+          _covAnisos[i]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode, true);
+        }
+      }
+      else
+      {
+        for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
+        {
+          _covAnisos[mode->getActiveCovList(i)]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode, true);
+        }
+      }
       icol++;
     }
   }
@@ -605,7 +641,11 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
     if (!_isCovarianceIndexValid(icov)) return 0.;
     return _covAnisos[icov]->getRanges();
   }
-
+  VectorDouble CovAnisoList::getAngles(int icov) const
+  {
+    if (!_isCovarianceIndexValid(icov)) return 0.;
+    return _covAnisos[icov]->getAnisoAngles();
+  }
   void CovAnisoList::setSill(int icov, int ivar, int jvar, double value)
   {
     if (!_isCovarianceIndexValid(icov)) return;

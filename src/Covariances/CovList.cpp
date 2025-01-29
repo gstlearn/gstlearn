@@ -203,10 +203,22 @@ double CovList::_loadAndEval(const SpacePoint& p1,
                           const CovCalcMode *mode) const
 { 
   double res = 0.;
-  for (const auto &e : _covs)
+
+  if (_considerAllCovariances(mode))
   {
-    res += e->loadAndEval(p1, p2, ivar, jvar, mode);
+    for (int i=0, n=getNCov(); i<n; i++)
+    {
+      res+= _covs[i]->loadAndEval(p1, p2, ivar,jvar, mode);
+    }
   }
+  else
+  {
+    for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
+    {
+      res+= _covs[mode->getActiveCovList(i)]->loadAndEval(p1, p2, ivar,jvar, mode);
+    }
+  }
+
   return res;
 }
 /**
@@ -242,10 +254,17 @@ void CovList::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
 void CovList::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
                                               const CovCalcMode *mode) const
 {
-  for (const auto &e : _covs)
+  if (_considerAllCovariances(mode))
   {
-    e->loadAndAddEvalCovMatBiPointInPlace(mat,p1,p2,mode);
+    for (int i=0, n=getNCov(); i<n; i++)
+    _covs[i]->loadAndAddEvalCovMatBiPointInPlace(mat,p1,p2,mode); 
+   }
+  else
+  {
+    for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
+      _covs[mode->getActiveCovList(i)]->loadAndAddEvalCovMatBiPointInPlace(mat,p1,p2,mode); 
   }
+ 
 }
 
 String CovList::toString(const AStringFormat* /*strfmt*/) const
