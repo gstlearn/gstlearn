@@ -79,7 +79,8 @@ void DriftList::copyCovContext(const CovContext& ctxt)
 
 void DriftList::_update()
 {
-  _mean = VectorDouble(_ctxt.getNVar(), 0.);
+  if ((int)_mean.size() != _ctxt.getNVar())
+  _mean =  VectorDouble(_ctxt.getNVar(), 0.);
 }
 
 String DriftList::toString(const AStringFormat* /*strfmt*/) const
