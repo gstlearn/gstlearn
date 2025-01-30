@@ -353,7 +353,7 @@ static int st_check_simtub_environment(Db *dbin,
   int nvar = 0;
   int nfex = 0;
   bool flag_cond = (dbin != nullptr);
-  int ndim = dbout->getNDim();
+  unsigned int ndim = dbout->getNDim();
 
   /**************************************************************/
   /* Check if the Space dimension is compatible with the method */
@@ -451,7 +451,7 @@ static int st_check_simtub_environment(Db *dbin,
 
   if (flag_cond && neigh != nullptr)
   {
-    if (ndim != (int) neigh->getNDim())
+    if (ndim != neigh->getNDim())
     {
       messerr("The Space Dimension of the Neighborhood (%d)", (int) neigh->getNDim());
       messerr("does not correspond to the Space Dimension of the first Db (%d)",

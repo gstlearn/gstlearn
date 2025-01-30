@@ -28,7 +28,6 @@ CovContext::CovContext(int nvar, const ASpaceSharedPtr& space)
     : ASpaceObject(space),
       _nVar(nvar),
       _field(TEST),
-      _mean(),
       _covar0()
 {
   _update();
@@ -39,17 +38,14 @@ CovContext::CovContext(int nvar, const ASpaceSharedPtr& space)
  *
  * @param nvar         Number of variables
  * @param ndim         Number of dimension of the euclidean space (RN)
- * @param mean         Vector of Means
  * @param covar0       Vector of variance-covariance
  */
 CovContext::CovContext(int nvar,
                        int ndim,
-                       const VectorDouble &mean,
                        const VectorDouble &covar0)
     : ASpaceObject(SpaceRN::create(ndim)),
       _nVar(nvar),
       _field(TEST),
-      _mean(mean),
       _covar0(covar0)
 {
   _update();
@@ -59,7 +55,6 @@ CovContext::CovContext(const Db *db, const ASpaceSharedPtr& space)
     : ASpaceObject(space),
       _nVar(0),
       _field(TEST),
-      _mean(),
       _covar0()
 {
   /// TODO : check Db dimension vs provided space
@@ -73,7 +68,6 @@ CovContext::CovContext(const Vario *vario, const ASpaceSharedPtr& space)
     : ASpaceObject(space),
       _nVar(0),
       _field(TEST),
-      _mean(),
       _covar0()
 {
   /// TODO : check vario dimension vs provided space
@@ -86,7 +80,6 @@ CovContext::CovContext(const CovContext &r)
     : ASpaceObject(r),
       _nVar(r._nVar),
       _field(r._field),
-      _mean(r._mean),
       _covar0(r._covar0)
 {
 }
@@ -98,7 +91,6 @@ CovContext& CovContext::operator=(const CovContext &r)
     ASpaceObject::operator =(r);
     _nVar = r._nVar;
     _field = r._field;
-    _mean = r._mean;
     _covar0 = r._covar0;
   }
   return *this;
@@ -115,7 +107,6 @@ String CovContext::toString(const AStringFormat* strfmt) const
   sstr << "Nb Variables       = "       << _nVar << std::endl;
   if (! FFFF(_field))
     sstr << "Field Size         = "       << _field << std::endl;
-  sstr << "Mean(s)            = "       << VH::toStringAsVD(_mean);
   sstr << "Covariance (0)     = "       << VH::toStringAsVD(_covar0);
   return sstr.str();
 }
@@ -144,12 +135,6 @@ bool CovContext::isEqual(const CovContext &r) const
   return (_nVar == r.getNVar() && _space->isEqual(r.getSpace().get()));
 }
 
-double CovContext::getMean(int ivar) const
-{
-  if (ivar < 0 || ivar >= (int) _mean.size())
-    my_throw("Invalid argument in _getMean");
-  return _mean[ivar];
-}
 
 double CovContext::getCovar0(int ivar, int jvar) const
 {
@@ -159,28 +144,11 @@ double CovContext::getCovar0(int ivar, int jvar) const
   return _covar0[rank];
 }
 
-void CovContext::setMean(const VectorDouble& mean)
-{
-  if (_mean.size() == mean.size()) _mean = mean;
-}
-
-/**
- * Define the Mean for one variable
- * @param mean Value for the mean
- * @param ivar Rank of the variable (starting from 0)
- */
-void CovContext::setMean(const double mean, int ivar)
-{
-  if (ivar < 0 || ivar >= (int) _mean.size())
-    my_throw("Invalid argument in _setMean");
-  _mean[ivar] = mean;
-}
-
 /**
  * Define the covariance at the origin
  * @param covar0 Values
  */
-void CovContext::setCovar0(const VectorDouble& covar0)
+void CovContext::setCovar0s(const VectorDouble& covar0)
 {
   if (_covar0.size() == covar0.size())
     _covar0 = covar0;
@@ -201,8 +169,6 @@ int CovContext::_getIndex(int ivar, int jvar) const
 
 void CovContext::_update()
 {
-  if (_nVar != (int) _mean.size())
-    _mean.resize(_nVar, 0.);
   if (_nVar * _nVar != (int) _covar0.size())
   {
     MatrixSquareSymmetric Id(_nVar);
@@ -228,7 +194,6 @@ void CovContext::copyCovContext(const CovContext& ctxt, bool severe)
   }
   _nVar   = ctxt._nVar;
   _field  = ctxt._field;
-  _mean   = ctxt._mean;
   _covar0 = ctxt._covar0;
   _update();
 }
@@ -240,18 +205,6 @@ const CovContext* CovContext::createReduce(const VectorInt &validVars) const
   int ndim = getNDim();
   VectorBool valids(_nVar, false);
   for (int ivar = 0; ivar < nvar; ivar++) valids[validVars[ivar]] = true;
-
-  VectorDouble mean(nvar,0);
-  ecr = 0;
-  lec = 0;
-  for (int ivar = 0; ivar < _nVar; ivar++)
-  {
-    if (valids[ivar])
-    {
-      mean[ecr++] = _mean[lec];
-    }
-    lec++;
-  }
 
   VectorDouble covar0(nvar * nvar,0);
   ecr = 0;
@@ -266,6 +219,6 @@ const CovContext* CovContext::createReduce(const VectorInt &validVars) const
       lec++;
     }
 
-  CovContext* newctxt = new CovContext(nvar, ndim, mean, covar0);
+  CovContext* newctxt = new CovContext(nvar, ndim, covar0);
   return newctxt;
 }

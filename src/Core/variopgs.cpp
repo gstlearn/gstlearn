@@ -4139,7 +4139,7 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
   MatrixSquareGeneral covh(nvar);
 
   /* Calculate the covariance for the zero distance */
-  for (int i = 0; i < local_pgs->model->getNDim(); i++)
+  for (unsigned int i = 0; i < local_pgs->model->getNDim(); i++)
     local_pgs->d0[i] = 0.;
   local_pgs->model->evaluateMatInPlace(nullptr, local_pgs->d0, cov0);
 
@@ -4164,19 +4164,19 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
     cov[0] = covh.getValue(0,0); /* C11(h)  */
     cov[5] = (nvar == 1) ? covh.getValue(0,0) : covh.getValue(1,1); /* C22(h)  */
 
-    for (int i = 0; i < local_pgs->model->getNDim(); i++)
+    for (unsigned int i = 0; i < local_pgs->model->getNDim(); i++)
       local_pgs->d0[i] = ruleshift->getShift(i);
 
     local_pgs->model->evaluateMatInPlace(nullptr, local_pgs->d0, covh);
     cov[1] = (nvar == 1) ? covh.getValue(0,0) : covh.getValue(1,0); /* C21(s)  */
     cov[4] = (nvar == 1) ? covh.getValue(0,0) : covh.getValue(1,0); /* C21(s)  */
 
-    for (int i = 0; i < local_pgs->model->getNDim(); i++)
+    for (unsigned int i = 0; i < local_pgs->model->getNDim(); i++)
       local_pgs->d0[i] = local_pgs->d1[i] - ruleshift->getShift(i);
     local_pgs->model->evaluateMatInPlace(nullptr, local_pgs->d0, covh);
     cov[2] = (nvar == 1) ? covh.getValue(0,0) : covh.getValue(1,0); /* C21(h-s) */
 
-    for (int i = 0; i < local_pgs->model->getNDim(); i++)
+    for (unsigned int i = 0; i < local_pgs->model->getNDim(); i++)
       local_pgs->d0[i] = local_pgs->d1[i] + ruleshift->getShift(i);
     local_pgs->model->evaluateMatInPlace(nullptr, local_pgs->d0, covh);
     cov[3] = (nvar == 1) ? covh.getValue(0,0) : covh.getValue(1,0); /* C21(h+s)  */
@@ -4939,7 +4939,7 @@ Vario* model_pgs(Db *db,
       messerr("Space Dimension inconsistency between Dbprop and Vario");
       return nullptr;
     }
-    if (new_model->getNDim() != db->getNDim())
+    if ((int) new_model->getNDim() != db->getNDim())
     {
       messerr("The Space Dimension of the Db structure (%d)", db->getNDim());
       messerr("Does not correspond to the Space Dimension of the model (%d)",

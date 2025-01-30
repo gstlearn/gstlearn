@@ -587,7 +587,7 @@ int simuSpectral(Db *dbin,
     messerr("You must provide a positive number of simulations");
     return 1;
   }
-  if (dbout->getNDim() != model->getNDim())
+  if (dbout->getNDim() != (int)model->getNDim())
   {
     messerr("The Space dimension of 'dbout'(%d) should match the one of Model(%d)",
             dbout->getNDim(), model->getNDim());

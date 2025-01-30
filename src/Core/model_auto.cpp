@@ -301,7 +301,7 @@ static int st_parid_alloc(StrMod *strmod, int npar0)
 
     for (int jcov = 0; jcov < model->getNCov(); jcov++)
     {
-      model_cova_characteristics(model->getCovaType(jcov), cov_name,
+      model_cova_characteristics(model->getCovType(jcov), cov_name,
                                  &flag_range, &flag_param, &min_order,
                                  &max_ndim, &flag_int_1d, &flag_int_2d,
                                  &flag_aniso, &flag_rotation, &scalfac,
@@ -1851,7 +1851,7 @@ static void st_model_auto_scldef(StrMod *strmod,
   {
     st_parid_decode(strmod->parid[ntot], &imod, &icov, &icons, &ivar, &jvar);
     Model* model = strmod->models[imod];
-    model_cova_characteristics(model->getCovaType(icov), cov_name, &flag_range,
+    model_cova_characteristics(model->getCovType(icov), cov_name, &flag_range,
                                &flag_param, &min_order, &max_ndim, &flag_int_1d,
                                &flag_int_2d, &flag_aniso, &flag_rotation,
                                &scalfac, &parmax);
@@ -1974,7 +1974,7 @@ static void st_model_auto_pardef(StrMod *strmod,
   {
     st_parid_decode(strmod->parid[ntot], &imod, &icov, &icons, &ivar, &jvar);
     Model* model = strmod->models[imod];
-    type = model->getCovaType(icov);
+    type = model->getCovType(icov);
     model_cova_characteristics(type, cov_name, &flag_range, &flag_param,
                                &min_order, &max_ndim, &flag_int_1d,
                                &flag_int_2d, &flag_aniso, &flag_rotation,
@@ -3485,7 +3485,7 @@ static int st_model_has_intrinsic(Model *model, const int *filter)
   for (int icov = 0; icov < model->getNCov(); icov++)
   {
     if (filter != nullptr && filter[icov]) continue;
-    model_cova_characteristics(model->getCovaType(icov), cov_name, &flag_range,
+    model_cova_characteristics(model->getCovType(icov), cov_name, &flag_range,
                                &flag_param, &min_order, &max_ndim, &flag_int_1d,
                                &flag_int_2d, &flag_aniso, &flag_rotation,
                                &scalfac, &parmax);
@@ -3648,7 +3648,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
       for (icov = 0; icov < model->getNCov(); icov++)
       {
         if (FLAG_COMPRESS(imod, icov)) continue;
-        model_cova_characteristics(model->getCovaType(icov), cov_name,
+        model_cova_characteristics(model->getCovType(icov), cov_name,
                                    &flag_range, &flag_param, &min_order,
                                    &max_ndim, &flag_int_1d, &flag_int_2d,
                                    &flag_aniso, &flag_rotation, &scalfac,
@@ -3966,7 +3966,7 @@ static int st_model_auto_count(const Vario *vario,
 
     for (int jcov = 0; jcov < model->getNCov(); jcov++)
     {
-      model_cova_characteristics(model->getCovaType(jcov), cov_name,
+      model_cova_characteristics(model->getCovType(jcov), cov_name,
                                  &flag_range, &flag_param, &min_order,
                                  &max_ndim, &flag_int_1d, &flag_int_2d,
                                  &flag_aniso, &flag_rotation, &scalfac,
@@ -4707,7 +4707,7 @@ static int st_vmap_auto_count(const Db *dbmap,
   int ntot = 0;
   for (int jcov = 0; jcov < model->getNCov(); jcov++)
   {
-    model_cova_characteristics(model->getCovaType(jcov), cov_name, &flag_range,
+    model_cova_characteristics(model->getCovType(jcov), cov_name, &flag_range,
                                &flag_param, &min_order, &max_ndim, &flag_int_1d,
                                &flag_int_2d, &flag_aniso, &flag_rotation,
                                &scalfac, &parmax);

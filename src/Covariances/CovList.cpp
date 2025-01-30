@@ -337,7 +337,7 @@ void CovList::setCova(int icov,const CovBase* covs)
   if (! _isCovarianceIndexValid(icov)) return;
   _covs[icov] = covs;
 }
-const ECov& CovList::getType(int icov) const
+const ECov& CovList::getCovType(int icov) const
 {
     DECLARE_UNUSED(icov)
     return ECov::UNKNOWN;

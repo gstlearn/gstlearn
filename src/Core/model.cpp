@@ -86,7 +86,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
 
   new_nvar = 3;
   nfact = 6;
-  CovContext ctxt(model->getContext());
+  CovContext ctxt(*model->getContext());
   ctxt.setNVar(new_nvar);
   new_model = new Model(ctxt);
   if (new_model == nullptr) return new_model;
@@ -424,19 +424,19 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
   VectorDouble mean(2);
   VectorDouble cova0(4);
   MatrixSquareSymmetric sill(2);
-  mean[0] = model1->getContext().getMean(0);
-  mean[1] = model2->getContext().getMean(0);
+  mean[0] = model1->getMean(0);
+  mean[1] = model2->getMean(0);
   cova0[0] = 1.;
   cova0[1] = r;
   cova0[2] = r;
   cova0[3] = 1.;
 
   // Creating the context
-  CovContext ctxt = CovContext(2, model1->getNDim(), mean, cova0);
+  CovContext ctxt = CovContext(2, model1->getNDim(), cova0);
 
   // Creating the new Model
   model = new Model(ctxt);
-
+  model->setMeans(mean);
   /* Add the covariance of the first Model */
 
   for (int i = 0; i < model1->getNCov(); i++)
