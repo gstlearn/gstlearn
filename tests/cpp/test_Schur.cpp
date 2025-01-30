@@ -154,7 +154,7 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   Model* modelc = dynamic_cast<Model*>(model);
   // Local parameters
   int nvar = modelc->getNVar();
-  VectorInt varColCok = {0, 2}; // Ranks of collcated variables
+  VectorInt varColCok = {0, -1, 2}; // Ranks of collcated variables (dim = nvar)
   bool debugSchur     = false;
   if (nvar <= 1)
   {
@@ -171,8 +171,12 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
 
   // Creating the Complemented Data Set
   VectorDouble valuesTarget(nvar, TEST);
-  for (int ivar = 0; ivar < (int)varColCok.size(); ivar++)
-    valuesTarget[varColCok[ivar]] = law_gaussian();
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    int jvar = varColCok[ivar];
+    if (jvar >= 0) valuesTarget[varColCok[jvar]] = law_gaussian();
+  }
+
   Db* dataP = _dataComplement(data, target, valuesTarget);
 
   // ---------------------- With complemented Data Base ---------------------

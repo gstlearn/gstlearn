@@ -89,6 +89,7 @@ public:
 private:
   static bool _checkDimensionMatrix(const String& name, const AMatrix* mat, int* nrowsRef, int* ncolsRef);
   static bool _checkDimensionVD(const String& name, const VectorDouble* vec, int* sizeRef);
+  static bool _checkDimensionVI(const String& name, const VectorInt* vec, int* sizeRef);
   static bool _checkDimensionVVI(const String& name, const VectorVectorInt* vec, int* sizeRef);
 
   static bool _isPresentMatrix(const String& name, const AMatrix* mat);
@@ -226,6 +227,7 @@ private:
   MatrixRectangular* _Sigma0p;       // Collocated Covariance (Dim: _neq * _ncck)
   MatrixRectangular* _X0p;           // Collocated Drift (Dim: _ncck * _nbfl)
   MatrixRectangular* _Y0p;           // X0p - Sigma0p^t * Inv{Sigma} * X (Dim: _ncck *_nbfl)
+  VectorInt _rankColVars;            // Ranks of active collocated variables
   VectorDouble _Z0p;                 // Vector of (active) collocated values
   MatrixRectangular* _Lambda0;       // Collocated weights (Dim: _ncck * _nrhs)
 

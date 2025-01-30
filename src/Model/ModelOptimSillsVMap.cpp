@@ -162,6 +162,7 @@ void ModelOptimSillsVMap::updateFromModel()
   MatrixSquareGeneral tab(_nvar);
   _dbmap->rankToIndice(_nech / 2, _indg1);
   CovCalcMode mode(ECalcMember::LHS);
+  const CovAnisoList* cova = model->getCovAnisoList();
   mode.setAsVario(true);
   mode.setUnitary(true);
 
@@ -169,7 +170,7 @@ void ModelOptimSillsVMap::updateFromModel()
 
   for (int icov = 0; icov < _ncova; icov++)
   {
-    mode.setActiveCovListFromOne(icov);
+    cova->setActiveCovListFromOne(icov);
 
     /* Loop on the experiments */
 

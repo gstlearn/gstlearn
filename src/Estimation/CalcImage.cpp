@@ -18,6 +18,9 @@
 #include "Db/DbGrid.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Model/Model.hpp"
+#include "Basic/Law.hpp"
+
+#include "geoslib_old_f.h"
 
 CalcImage::CalcImage()
     : ACalcInterpolator(),
@@ -286,4 +289,51 @@ GSTLEARN_EXPORT int dbMorpho(DbGrid *dbgrid,
   // Run the calculator
   int error = (image.run()) ? 0 : 1;
   return error;
+}
+
+DbGrid* CalcImage::_prepareForImage(int seed)
+{
+  DbGrid* dbaux = nullptr;
+
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  if (dbgrid == nullptr) return dbaux;
+  const NeighImage* neighI = dynamic_cast<const NeighImage*>(getNeigh());
+  if (neighI == nullptr) return dbaux;
+
+  double seuil = 1. / neighI->getSkip();
+  int ndim     = dbgrid->getNDim();
+  int nvar     = dbgrid->getNLoc(ELoc::Z);
+
+  /* Core allocation */
+
+  VectorInt nx(ndim);
+  int nech = 1;
+  for (int i = 0; i < ndim; i++)
+  {
+    nx[i] = 2 * neighI->getImageRadius(i) + 1;
+    nech *= nx[i];
+  }
+
+  law_set_random_seed(seed);
+  VectorBool sel(nech);
+  for (int iech = 0; iech < nech; iech++) sel[iech] = (law_uniform(0., 1.) < seuil);
+
+  VectorDouble tab(nech * nvar);
+  int iecr = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int iech = 0; iech < nech; iech++) tab[iecr++] = (sel[iech]) ? 0. : TEST;
+
+  /* Create the grid */
+
+  dbaux = DbGrid::create(nx, dbgrid->getDXs(), dbgrid->getX0s(), dbgrid->getAngles());
+  dbaux->addColumns(tab, "Test", ELoc::Z);
+
+  /* Shift the origin */
+
+  VectorDouble coor(ndim);
+  dbaux->rankToCoordinatesInPlace(nech / 2, coor);
+  for (int i = 0; i < ndim; i++) dbaux->setX0(i, dbaux->getX0(i) - coor[i]);
+  if (db_grid_define_coordinates(dbaux)) return dbaux;
+
+  return dbaux;
 }

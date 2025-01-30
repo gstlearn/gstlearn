@@ -906,12 +906,13 @@ static void st_prepar_goulard_vario(int imod)
   mode.setAsVario(true);
   mode.setUnitary(true);
   mode.setOrderVario(STRMOD->norder);
+  const CovAnisoList* cova = model->getCovAnisoList();
 
   /* Loop on the basic structures */
 
   for (int icov = 0, ncov = model->getNCov(); icov < ncov; icov++)
   {
-    mode.setActiveCovListFromOne(icov);
+    cova->setActiveCovListFromOne(icov);
 
     /* Loop on the experiments */
 
@@ -2217,8 +2218,9 @@ static int st_structure_reduce(StrMod *strmod,
   MatrixSquareGeneral tab(nvar);
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
-  mode.setActiveCovListFromOne(icov);
   mode.setOrderVario(STRMOD->norder);
+  const CovAnisoList* cova = model->getCovAnisoList();
+  cova->setActiveCovListFromOne(icov);
   model->evaluateMatInPlace(nullptr, d1, tab, true, 1., &mode);
 
   for (int ivar = 0; ivar < nvar; ivar++)
@@ -4103,6 +4105,7 @@ static void st_prepar_goulard_vmap(int imod)
   MatrixSquareGeneral tab(nvar);
   DBMAP->rankToIndice(nech / 2, INDG1);
   CovCalcMode mode(ECalcMember::LHS);
+  const CovAnisoList* cova = model->getCovAnisoList();
   mode.setAsVario(true);
   mode.setUnitary(true);
   mode.setOrderVario(STRMOD->norder);
@@ -4111,7 +4114,7 @@ static void st_prepar_goulard_vmap(int imod)
 
   for (int icov = 0; icov < ncova; icov++)
   {
-    mode.setActiveCovListFromOne(icov);
+    cova->setActiveCovListFromOne(icov);
 
     /* Loop on the experiments */
 

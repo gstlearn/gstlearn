@@ -41,6 +41,7 @@ CovAnisoList::CovAnisoList(const CovAnisoList &r)
     _pushCov(e->clone());
   }
   _filtered = r._filtered;
+  _updateLists();
 }
 
 CovAnisoList& CovAnisoList::operator=(const CovAnisoList &r)
@@ -53,6 +54,7 @@ CovAnisoList& CovAnisoList::operator=(const CovAnisoList &r)
      _pushCov(e->clone());
     }
     _filtered = r._filtered;
+    _updateLists();
   }
   return *this;
 }
@@ -98,6 +100,7 @@ void CovAnisoList::addCovAniso(const CovAniso* cov)
   }
   _pushCov(cov);
   _filtered.push_back(false);
+  _updateLists();
 }
 
 void CovAnisoList::_pushCov(const CovAniso* cov)
@@ -130,6 +133,7 @@ void CovAnisoList::setFiltered(int icov, bool filtered)
 {
   if (! _isCovarianceIndexValid(icov)) return;
   _filtered[icov] = filtered;
+  _updateLists();
 }
 
 bool CovAnisoList::isConsistent(const ASpace* /*space*/) const
@@ -148,17 +152,10 @@ int CovAnisoList::getNVar() const
 
 double CovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
-  double cov = 0.;
-  if (_considerAllCovariances(mode))
-  {
-    for (int i=0, n=getNCov(); i<n; i++)
-      cov += _covs[i]->eval0(ivar, jvar, mode);
-  }
-  else
-  {
-    for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-      cov += _covs[mode->getActiveCovList(i)]->eval0(ivar, jvar, mode);
-  }
+  double cov      = 0.;
+  const VectorInt& list = _getListActiveCovariances(mode);
+  for (int i = 0, n = (int)list.size(); i < n; i++)
+    cov += _covs[list[i]]->eval0(ivar, jvar, mode);
   return cov;
 }
 
@@ -169,23 +166,12 @@ double CovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void CovAnisoList::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                                    const CovCalcMode *mode) const
+void CovAnisoList::addEval0CovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                                const CovCalcMode* mode) const
 {
-  if (_considerAllCovariances(mode))
-  {
-    for (int i=0, n=getNCov(); i<n; i++)
-    {
-      _covs[i]->addEval0CovMatBiPointInPlace(mat, mode);
-    }
-  }
-  else
-  {
-    for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-    {
-      _covs[mode->getActiveCovList(i)]->addEval0CovMatBiPointInPlace(mat, mode);
-    }
-  }
+  const VectorInt& list = _getListActiveCovariances(mode);
+  for (int i = 0, n = (int)list.size(); i < n; i++)
+    _covs[list[i]]->addEval0CovMatBiPointInPlace(mat, mode);
 }
 
 /**
@@ -237,6 +223,7 @@ MatrixRectangular CovAnisoList::evalCovMatOptim(const Db* db1,
 
   // Loop on the second variable
   int icol = 0;
+ const  VectorInt& list = _getListActiveCovariances(mode);
   for (int rvar2 = 0, nvar2 = (int) jvars.size(); rvar2 < nvar2; rvar2++)
   {
     int ivar2 = jvars[rvar2];
@@ -250,20 +237,8 @@ MatrixRectangular CovAnisoList::evalCovMatOptim(const Db* db1,
       optimizationSetTarget(p2);
 
       // Loop on the basic structures
-      if (_considerAllCovariances(mode))
-      {
-        for (int i=0, n=getNCov(); i<n; i++)
-        {
-          _covAnisos[i]->evalOptimInPlace(mat, ivars, index1, ivar2, icol, mode, false);
-        }
-      }
-      else
-      {
-        for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-        {
-          _covAnisos[mode->getActiveCovList(i)]->evalOptimInPlace(mat, ivars, index1, ivar2, icol, mode, false);
-        }
-      }
+      for (int i = 0, n = (int)list.size(); i < n; i++)
+        _covAnisos[list[i]]->evalOptimInPlace(mat, ivars, index1, ivar2, icol, mode, false);
       icol++;
     }
   }
@@ -321,6 +296,7 @@ MatrixRectangular CovAnisoList::evalCovMatOptimByRanks(const Db* db1,
 
   // Loop on the second variable
   int icol = 0;
+  const VectorInt& list = _getListActiveCovariances(mode);
   for (int rvar2 = 0, nvar2 = (int)jvars.size(); rvar2 < nvar2; rvar2++)
   {
     int ivar2 = jvars[rvar2];
@@ -334,22 +310,9 @@ MatrixRectangular CovAnisoList::evalCovMatOptimByRanks(const Db* db1,
       optimizationSetTarget(p2);
 
       // Loop on the basic structures
-      if (_considerAllCovariances(mode))
-      {
-        for (int i=0, n=getNCov(); i<n; i++)
-        {
-          _covAnisos[i]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode,
-                                          false);
-        }
-      }
-      else
-      {
-        for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-        {
-          _covAnisos[mode->getActiveCovList(i)]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode,
-                                                                  false);
-        }
-      }
+      for (int i = 0, n = (int)list.size(); i < n; i++)
+        _covAnisos[list[i]]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode,
+                                              false);
       icol++;
     }
   }
@@ -418,6 +381,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
 
   // Loop on the second variable
   int icol = 0;
+  const VectorInt& list = _getListActiveCovariances(mode);
   for (int rvar2 = 0, nvar2 = (int)ivars.size(); rvar2 < nvar2; rvar2++)
   {
     int ivar2 = ivars[rvar2];
@@ -431,20 +395,9 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
       optimizationSetTargetByIndex(iech2);
 
       // Loop on the basic structures
-      if (_considerAllCovariances(mode))
-      {
-        for (int i=0, n=getNCov(); i<n; i++)
-        {
-          _covAnisos[i]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode, true);
-        }
-      }
-      else
-      {
-        for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-        {
-          _covAnisos[mode->getActiveCovList(i)]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode, true);
-        }
-      }
+      for (int i = 0, n = (int)list.size(); i < n; i++)
+        _covAnisos[list[i]]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode,
+                                              true);
       icol++;
     }
   }
@@ -468,20 +421,9 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
   void CovAnisoList::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral & mat, const SpacePoint& p1, const SpacePoint& p2,
                                                   const CovCalcMode* mode) const
   {
-    if (_considerAllCovariances(mode))
-    {
-      for (int i = 0, n = getNCov(); i < n; i++)
-      {
-        _covs[i]->addEvalCovMatBiPointInPlace(mat, p1, p2, mode);
-      }
-    }
-    else
-    {
-      for (int i = 0, n = (int)mode->getActiveCovList().size(); i < n; i++)
-      {
-        _covs[mode->getActiveCovList(i)]->addEvalCovMatBiPointInPlace(mat, p1, p2, mode);
-      }
-    }
+    const VectorInt& list = _getListActiveCovariances(mode);
+    for (int i = 0, n = (int)list.size(); i < n; i++)
+      _covs[list[i]]->addEvalCovMatBiPointInPlace(mat, p1, p2, mode);
   }
 
   String CovAnisoList::toString(const AStringFormat* /*strfmt*/) const
@@ -549,37 +491,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
     }
     return true;
   }
-
-  VectorInt CovAnisoList::getActiveCovList() const
-  {
-    VectorInt actives;
-    for (int i = 0, n = getNCov(); i < n; i++)
-    {
-      if (_filtered[i]) continue;
-      actives.push_back(i);
-    }
-    return actives;
-  }
-
-  bool CovAnisoList::isAllActiveCovList() const
-  {
-    for (int i = 0, n = getNCov(); i < n; i++)
-    {
-      if (_filtered[i]) return false;
-    }
-    return true;
-  }
-
-  VectorInt CovAnisoList::getAllActiveCovList() const
-  {
-    VectorInt actives;
-    for (int i = 0, n = getNCov(); i < n; i++)
-    {
-      actives.push_back(i);
-    }
-    return actives;
-  }
-
+ 
   CovAniso CovAnisoList::extractCova(int icov) const
   {
     return *(_covAnisos[icov]);

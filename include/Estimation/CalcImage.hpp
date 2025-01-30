@@ -51,8 +51,10 @@ private:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
 
+  DbGrid* _prepareForImage(int seed);
+
 private:
-  int    _iattOut;
+  int _iattOut;
 
   bool _flagFilter;
 
@@ -83,11 +85,9 @@ GSTLEARN_EXPORT int dbMorpho(DbGrid *dbgrid,
                              const VectorInt &radius = VectorInt(),
                              bool flagDistErode = false,
                              bool verbose = false,
-                             const NamingConvention &namconv = NamingConvention(
-                                 "Morpho"));
+                             const NamingConvention &namconv = NamingConvention("Morpho"));
 GSTLEARN_EXPORT int dbSmoother(DbGrid *dbgrid,
                                ANeigh *neigh,
                                int type = 1,
                                double range = 1.,
-                               const NamingConvention &namconv = NamingConvention(
-                                   "Smooth"));
+                               const NamingConvention &namconv = NamingConvention("Smooth"));

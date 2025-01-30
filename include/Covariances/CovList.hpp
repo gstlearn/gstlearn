@@ -86,25 +86,29 @@ public:
   bool            isFiltered(int icov) const;
   virtual double  getTotalSill(int ivar = 0, int jvar = 0) const;
   MatrixSquareSymmetric getTotalSills() const;
-  VectorInt       getActiveCovList() const;
-  VectorInt       getAllActiveCovList() const;
+  VectorInt       getActiveCovList() const { return _activeCovList; }
+  VectorInt       getAllActiveCovList() const { return _allActiveCovList; }
   bool            isAllActiveCovList() const;
   bool            isNoStat() const override;
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
-  const CovBase*    getCova(int icov) const;
-  virtual String getCovName(int icov) const;
+  const CovBase*      getCova(int icov) const;
+  virtual String      getCovName(int icov) const;
   virtual const ECov& getType(int icov) const;
-  virtual void      setCova(int icov, const CovBase* covs);
-  void               setSill(int icov, int ivar, int jvar, double value);
+  virtual void        setCova(int icov, const CovBase* covs);
+  void                setSill(int icov, int ivar, int jvar, double value);
+  double              getSill(int icov, int ivar, int jvar) const;
   const MatrixSquareSymmetric& getSill(int icov) const;
-  double             getSill(int icov, int ivar, int jvar) const;
 
   // Methods necessary for Optimization
   void _optimizationPreProcess(const std::vector<SpacePoint> &p) const override;
   void _optimizationPostProcess() const override ;
   void _optimizationSetTarget(const SpacePoint &pt) const override;
   void optimizationSetTargetByIndex(int iech) const override;
+
+  void setActiveCovListFromOne(int keepOnlyCovIdx) const;
+  void setActiveCovListFromInterval(int inddeb, int indto) const;
+  void setActiveCovList(const VectorInt& activeCovList, bool allActiveCov) const;
 
 protected:
   bool _isCovarianceIndexValid(int icov) const;
@@ -117,20 +121,22 @@ protected:
                           const CovCalcMode *mode) const;
 
 protected:
- static bool _considerAllCovariances(const CovCalcMode* mode);
+  const VectorInt& _getListActiveCovariances(const CovCalcMode* mode) const;
+  void _updateLists();
 
 private:
-  virtual void _delCov(int icov)
-  {
-    DECLARE_UNUSED(icov)
-  };
+  virtual void _delCov(int icov) { DECLARE_UNUSED(icov) };
   // Remove all elementary covariance structures
   virtual void _delAllCov(){};
-  void _manage(const Db* db1,const Db* db2) const override;
-  
+  void _manage(const Db* db1, const Db* db2) const override;
+
 #ifndef SWIG
+
 protected:
-  std::vector<const CovBase*> _covs; /// Vector of elementary covariances
-  VectorBool _filtered;              /// Vector of filtered flags (size is nb. cova)
+  std::vector<const CovBase*> _covs;   /// Vector of elementary covariances
+  VectorBool _filtered;                /// Vector of filtered flags (size is nb. cova)
+  mutable bool _allActiveCov;          /*! True if all covariances are active */
+  mutable VectorInt _allActiveCovList; /*! List of indices of all covariances */
+  mutable VectorInt _activeCovList;    /*! List of indices of the active covariances */
 #endif
 };

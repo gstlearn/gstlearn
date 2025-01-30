@@ -58,6 +58,7 @@ KrigingCalcul::KrigingCalcul(bool flagDual,
   , _Sigma0p(nullptr)
   , _X0p(nullptr)
   , _Y0p(nullptr)
+  , _rankColVars()
   , _Z0p()
   , _Lambda0(nullptr)
   , _bDual()
@@ -518,14 +519,29 @@ int KrigingCalcul::setRHS(const MatrixRectangular* Sigma0,
 }
 
 bool KrigingCalcul::_checkDimensionVD(const String& name,
-                                          const VectorDouble* vec,
-                                          int *sizeRef)
+                                      const VectorDouble* vec,
+                                      int* sizeRef)
 {
   int size = (int)vec->size();
   if (*sizeRef > 0 && size != *sizeRef)
   {
     messerr("Dimension of %s (%d) incorrect: it should be (%d)",
             name.c_str(),size, *sizeRef);
+    return false;
+  }
+  if (size > 0) *sizeRef = size;
+  return true;
+}
+
+bool KrigingCalcul::_checkDimensionVI(const String& name,
+                                      const VectorInt* vec,
+                                      int* sizeRef)
+{
+  int size = (int)vec->size();
+  if (*sizeRef > 0 && size != *sizeRef)
+  {
+    messerr("Dimension of %s (%d) incorrect: it should be (%d)", name.c_str(), size,
+            *sizeRef);
     return false;
   }
   if (size > 0) *sizeRef = size;
@@ -572,14 +588,14 @@ bool KrigingCalcul::_checkDimensionMatrix(const String& name,
  * @brief Define the inforlation for Collocated Option
  *
  * @param Zp Vector of the Collocated variables (see note)
- * @param rankColCok Vector of ranks of Collocated variables
+ * @param rankColCok Vector of ranks of Collocated variables (dim: nvar)
  * @return int Error return code
  *
+ * @note Argument 'rankColCok' gives the variable rank in Target File or -1
  * @note The argument 'Zp' must be corrected by the mean of the variables
  * for the use of Collocated Option in Simple Kriging
  */
-int KrigingCalcul::setColCokUnique(const VectorDouble* Zp,
-                                   const VectorInt* rankColCok)
+int KrigingCalcul::setColCokUnique(const VectorDouble* Zp, const VectorInt* rankColCok)
 {
   _resetLinkedToColCok();
 
@@ -598,16 +614,19 @@ int KrigingCalcul::setColCokUnique(const VectorDouble* Zp,
   if (!_checkDimensionVD("Zp", Zp, &_nrhs)) return 1;
 
   // Argument rankColCok
-  int ncck = (int) rankColCok->size();
-  if (ncck >= _nrhs)
+  if (!_checkDimensionVI("rankColCok", rankColCok, &_nrhs)) return 1;
+
+  _ncck = 0;
+  _rankColVars.clear();
+  for (int i = 0; i < _nrhs; i++)
   {
-    messerr("All variables may not be collocated");
-    return 1;
+    if ((*rankColCok)[i] < 0) continue;
+    _rankColVars.push_back((*rankColCok)[i]);
+    _ncck++;
   }
 
   _rankColCok = rankColCok;
   _Zp         = Zp;
-  _ncck       = ncck;
 
   return 0;
 }
@@ -622,10 +641,11 @@ int KrigingCalcul::setColCokUnique(const VectorDouble* Zp,
  * @remarks The argument 'rankXvalidVars' only serves in assigning the
  * mean of the correct cross-validated variable (SK only). It is optional in OK
  */
-int KrigingCalcul::setXvalidUnique(const VectorInt* rankXvalidEqs, const VectorInt* rankXvalidVars)
+int KrigingCalcul::setXvalidUnique(const VectorInt* rankXvalidEqs,
+                                   const VectorInt* rankXvalidVars)
 {
   if (rankXvalidEqs == nullptr || rankXvalidVars == nullptr) return 1;
-  if (rankXvalidEqs->size() <= 0 || rankXvalidVars->size() <= 0) return 1;
+  if (rankXvalidEqs->size() <= 0) return 1;
   _resetLinkedToXvalid();
   _nrhs           = 0;
   _rankXvalidEqs  = rankXvalidEqs;
@@ -1002,7 +1022,7 @@ int KrigingCalcul::_needZ0p()
   if (_needColCok()) return 1;
 
   // Sample the active values for collocated information
-  _Z0p = VH::sample(*_Zp, *_rankColCok);
+  _Z0p = VH::sample(*_Zp, _rankColVars);
   return 0;
 }
 
@@ -1043,7 +1063,7 @@ int KrigingCalcul::_needSigma00p()
   if (_Sigma00p != nullptr) return 0;
   if (_needSigma00()) return 1;
   if (_needColCok()) return 1;
-  _Sigma00p = MatrixRectangular::sample(_Sigma00, *_rankColCok, VectorInt());
+  _Sigma00p = MatrixRectangular::sample(_Sigma00, _rankColVars, VectorInt());
   return 0;
 }
 
@@ -1052,7 +1072,7 @@ int KrigingCalcul::_needSigma00pp()
   if (_Sigma00pp != nullptr) return 0;
   if (_needSigma00()) return 1;
   if (_needColCok()) return 1;
-  _Sigma00pp = MatrixSquareSymmetric::sample(_Sigma00, *_rankColCok);
+  _Sigma00pp = MatrixSquareSymmetric::sample(_Sigma00, _rankColVars);
   return 0;
 }
 
@@ -1062,7 +1082,7 @@ int KrigingCalcul::_needSigma0p()
   if (_needSigma0()) return 1;
   if (_needColCok()) return 1;
 
-  _Sigma0p = MatrixRectangular::sample(_Sigma0, VectorInt(), *_rankColCok);
+  _Sigma0p = MatrixRectangular::sample(_Sigma0, VectorInt(), _rankColVars);
   return 0;
 }
 
@@ -1072,7 +1092,7 @@ int KrigingCalcul::_needX0p()
   if (_needX0()) return 1;
   if (_needColCok()) return 1;
 
-  _X0p = MatrixRectangular::sample(_X0, *_rankColCok, VectorInt());
+  _X0p = MatrixRectangular::sample(_X0, _rankColVars, VectorInt());
   return 0;
 }
 
@@ -1271,7 +1291,7 @@ int KrigingCalcul::_needZp()
 
 int KrigingCalcul::_needColCok()
 {
-  if (!_isPresentIVector("rankColCok", _rankColCok)) return 1;
+  if (!_isPresentIVector("rankColVars", &_rankColVars)) return 1;
   return 0;
 }
 
@@ -1373,7 +1393,7 @@ void KrigingCalcul::printStatus() const
   if (_ncck > 0)
   {
     message("Number of Collocated Variables = %d\n", _ncck);
-    VH::display("Rank of Collocated Variables", *_rankColCok, false);
+    VH::display("Rank of Collocated Variables", _rankColVars, false);
   }
   if (_flagSK)
     message("Working with Known Mean(s)\n");

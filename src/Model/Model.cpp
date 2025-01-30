@@ -477,7 +477,7 @@ void Model::addCovFromParam(const ECov& type,
   // Define the covariance
 
   auto space = SpaceRN::create(ndim);
-  _ctxt         = CovContext(nvar, space);
+  _ctxt      = CovContext(nvar, space);
   CovAniso cov(type, _ctxt);
 
   // Define the Third parameter
@@ -2440,7 +2440,7 @@ Model* Model::createFillRandom(
   {
     MatrixSquareSymmetric* sill =
       MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
-    double range = (hmax * icov) / (2. * ncov);
+    double range = (hmax * (1.+icov)) / (2. * ncov);
     model->addCovFromParam(types[icov], range, 0., 1., VectorDouble(), *sill);
     delete sill;
   }

@@ -17,7 +17,6 @@
 #include "Basic/NamingConvention.hpp"
 #include "Enum/ESpaceType.hpp"
 
-#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -43,11 +42,11 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  double oldstyle = 1.;
+  double oldstyle = 0.;
   bool debug      = true;
   int nech        = 3;
   int nvar        = 3;
-  bool flagSK     = false;
+  bool flagSK     = true;
   bool flagUnique = false;
   OptCustom::define("oldStyle", oldstyle);
 
@@ -57,8 +56,8 @@ int main(int argc, char* argv[])
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_ARRAY);
   data->display(dbfmt);
 
-  // Generate the target file
-  Db* target = Db::createFillRandom(1, ndim, 0, 0);
+  // Generate the target file (variables must also exist in Target for ColCok)
+  Db* target = Db::createFillRandom(1, ndim, nvar, 0);
 
   // Create the Model
   int order    = (flagSK) ? -1 : 0;
@@ -77,8 +76,8 @@ int main(int argc, char* argv[])
   if (debug) OptDbg::setReference(1);
 
   // Test on Collocated CoKriging in Unique Neighborhood
-  VectorInt varColCok = {0, 2};
-  kriging(data, target, model, neigh, EKrigOpt::POINT, true, true, false,
+  VectorInt varColCok = {0, -1, 2};
+  kriging(data, target, model, neigh, EKrigOpt::POINT, true, true, false, VectorInt(),
           varColCok);
   dbfmt = DbStringFormat::create(FLAG_STATS, {"Kriging.*"});
   target->display(dbfmt);

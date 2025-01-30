@@ -109,7 +109,7 @@ private:
   double _evalHermite0(int ivar, int jvar, const CovCalcMode* mode) const;
   double _evalDiscreteDD0(int ivar, int jvar, const CovCalcMode* mode) const;
   double _evalDiscreteIR0(int ivar, int jvar, const CovCalcMode* mode) const;
-  void   _transformCovCalcModeIR(CovCalcMode* mode, int iclass) const;
+  void   _transformCovCalcModeIR(int iclass) const;
 
 private:
   int       _activeFactor;    /* Target factor (-1: Raw; 1: Gaussian; n: rank of factor) */

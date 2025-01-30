@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
   double oldstyle = 1.;
   bool verbose    = true;
   int nech        = 3;
-  int nvar        = 2; // Should not be modified (see Model)
+  int nvar        = 2; 
   bool flagSK     = true;
   OptCustom::define("oldStyle", oldstyle);
 

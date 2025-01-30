@@ -20,6 +20,7 @@
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/OptCustom.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Neigh/NeighUnique.hpp"
@@ -42,12 +43,13 @@ int main(int argc, char *argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  int ndat        = 4;
+  double oldstyle = 0.;
+  int ndat        = 3;
   int nvar        = 2;
-  int nbsimu      = 2;
-  int nbtuba      = 1000;
-  double oldstyle = 1.;
+  int nbsimu      = 4;
+  int nbtuba      = 100;
   bool flagSK     = false;
+  bool verbose    = true;
   OptCustom::define("oldStyle", oldstyle);
 
   // Creating the data base
@@ -65,6 +67,9 @@ int main(int argc, char *argv[])
 
   // Creating the Neighborhood
   ANeigh* neigh = NeighUnique::create();
+
+  // Define the verbose option
+  if (verbose) OptDbg::setReference(1);
 
   message("Conditional simulation(s) on grid using Turning Bands:\n");
   message("- Data (%d) samples\n", data->getNSample());

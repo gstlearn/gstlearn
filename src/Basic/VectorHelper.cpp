@@ -2728,20 +2728,18 @@ VectorDouble VectorHelper::sample(const VectorDouble& vecin,
   VectorDouble vecout;
 
   VectorInt indices = indKeep;
-  if (indices.empty()) indices = VH::sequence((int) vecin.size());
+  if (indices.empty()) indices = VH::sequence((int)vecin.size());
 
   int nindices = (int)indices.size();
   if (nindices <= 0) return vecout;
 
   for (int i = 0; i < nindices; i++)
   {
-    if (!checkArg("Selected index", indices[i], (int) vecin.size()))
-      return vecout;
+    if (!checkArg("Selected index", indices[i], (int)vecin.size())) return vecout;
   }
 
   vecout.resize(nindices);
-  for (int i = 0; i < nindices; i++)
-      vecout[i] = vecin[indices[i]];
+  for (int i = 0; i < nindices; i++) vecout[i] = vecin[indices[i]];
   return vecout;
 }
 

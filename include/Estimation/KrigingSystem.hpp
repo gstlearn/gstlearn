@@ -195,12 +195,13 @@ private:
   void _mustBeOldStyle(const String& title) const;
   Model* _castInOldModel();
   VectorInt _xvalidUniqueIndices() const;
+  void _updateForColCokMoving();
 
 private:
   bool _oldStyle;
 
   Db* _dbin;
-  Db*                  _dbout;
+  Db* _dbout;
   ModelGeneric*        _modelInit; // Copy of the input ModelGeneric
   const Model*         _modelCovAniso; // Used to replace _model when used for covaniso explicitly
   ANeigh*              _neigh;
@@ -268,6 +269,7 @@ private:
 
   /// Option for Colocation
   VectorInt _rankColCok;
+  VectorDouble _valuesColCok;
 
   /// Option for Bayesian
   bool _flagBayes;

@@ -30,7 +30,7 @@ Spherical
                [,  0]    [,  1]
      [  0,]     4.708    -3.586
      [  1,]    -3.586     3.084
-- Range        =      0.250
+- Range        =      0.500
 Total Sill
                [,  0]    [,  1]
      [  0,]     9.416    -7.172
@@ -59,11 +59,11 @@ Reduced number of equations = 5
 
        Rank                     1          2          3          4          5
                   Flag          1          2          3          4          5
-          1          1      9.416      0.000     -7.172      0.000      0.000
-          2          2      0.000      9.416      0.000      0.000     -7.172
-          3          3     -7.172      0.000      6.168      0.000      0.000
-          4          4      0.000      0.000      0.000      6.168      0.000
-          5          5      0.000     -7.172      0.000      0.000      6.168
+          1          1      9.416      0.122     -7.172      0.000     -0.093
+          2          2      0.122      9.416     -0.093     -0.714     -7.172
+          3          3     -7.172     -0.093      6.168      0.000      0.080
+          4          4      0.000     -0.714      0.000      6.168      0.614
+          5          5     -0.093     -7.172      0.080      0.614      6.168
 
 RHS of Kriging matrix (compressed)
 ==================================
@@ -75,10 +75,10 @@ Punctual Estimation
 
        Rank       Flag          1          2
           1          1      4.708     -3.586
-          2          2      0.000      0.000
+          2          2      0.122     -0.093
           3          3     -3.586      3.084
           4          4      0.000      0.000
-          5          5      0.000      0.000
+          5          5     -0.093      0.080
 
 (Co-) Kriging weights
 =====================
@@ -86,24 +86,24 @@ Punctual Estimation
 Using variable Z1 
           1      0.652      0.015      0.753      0.500      0.000
           2      0.483      0.557        N/A        N/A        N/A
-          3      0.762      0.433      0.793      0.000      0.000
-Sum of weights                                    0.500      0.000
+          3      0.762      0.433      0.793      0.007      0.000
+Sum of weights                                    0.506      0.000
 Using variable Z2 
           1      0.652      0.015     -0.454      0.000      0.500
-          2      0.483      0.557     -0.872      0.000      0.000
-          3      0.762      0.433      0.744      0.000      0.000
-Sum of weights                                    0.000      0.500
+          2      0.483      0.557     -0.872      0.001     -0.001
+          3      0.762      0.433      0.744      0.000      0.007
+Sum of weights                                    0.001      0.506
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =       0.553
+ - Estimate  =       0.555
  - Std. Dev. =       1.534
  - Variance  =       2.354
  - Cov(h=0)  =       4.708
 Variable Z2 
- - Estimate  =      -0.290
+ - Estimate  =      -0.284
  - Std. Dev. =       1.242
  - Variance  =       1.542
  - Cov(h=0)  =       3.084
@@ -116,17 +116,17 @@ Data Base Statistics
 4 - Name Kriging.z-1.estim - Locator z1
  Nb of data          =          1
  Nb of active values =          1
- Minimum value       =      0.553
- Maximum value       =      0.553
- Mean value          =      0.553
+ Minimum value       =      0.555
+ Maximum value       =      0.555
+ Mean value          =      0.555
  Standard Deviation  =      0.000
  Variance            =      0.000
 5 - Name Kriging.z-2.estim - Locator z2
  Nb of data          =          1
  Nb of active values =          1
- Minimum value       =     -0.290
- Maximum value       =     -0.290
- Mean value          =     -0.290
+ Minimum value       =     -0.284
+ Maximum value       =     -0.284
+ Mean value          =     -0.284
  Standard Deviation  =      0.000
  Variance            =      0.000
 6 - Name Kriging.z-1.stdev - Locator NA

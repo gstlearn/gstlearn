@@ -41,7 +41,6 @@ public:
   bool isAllActiveCovList() const;
   void setCovList(CovList* covs);
 
-
 protected:
   CovList* _covList;
 

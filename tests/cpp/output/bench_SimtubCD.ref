@@ -1,10 +1,99 @@
-Range is too small (0.000000). It has been replaced by 1.
 Conditional simulation(s) on grid using Turning Bands:
-- Data (4) samples
+- Data (3) samples
 - Grid (20 x 20)
-- Number of Bands = 1000
-- Number of simulations = 2
-#NO_DIFF# Non-conditional Simulation on Grid: 119 ms. (Ref = 6800 ms.)
+- Number of Bands = 100
+- Number of simulations = 4
+
+Target location
+---------------
+Sample #1 (from 400)
+Coordinate #1 = 0.000000
+Coordinate #2 = 0.000000
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2
+          1          1      0.652      0.015
+          2          2      0.483      0.557
+          3          3      0.762      0.433
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 3
+Total number of equations   = 8
+Reduced number of equations = 8
+
+       Rank                     1          2          3          4          5
+                  Flag          1          2          3          4          5
+          1          1      4.708      0.157      0.352     -3.586     -0.120
+          2          2      0.157      4.708      0.759     -0.120     -3.586
+          3          3      0.352      0.759      4.708     -0.268     -0.578
+          4          4     -3.586     -0.120     -0.268      3.084      0.103
+          5          5     -0.120     -3.586     -0.578      0.103      3.084
+          6          6     -0.268     -0.578     -3.586      0.231      0.497
+          7          7      1.000      1.000      1.000      0.000      0.000
+          8          8      0.000      0.000      0.000      1.000      1.000
+
+       Rank                     6          7          8
+                  Flag          6          7          8
+          1          1     -0.268      1.000      0.000
+          2          2     -0.578      1.000      0.000
+          3          3     -3.586      1.000      0.000
+          4          4      0.231      0.000      1.000
+          5          5      0.497      0.000      1.000
+          6          6      3.084      0.000      1.000
+          7          7      0.000      0.000      0.000
+          8          8      1.000      0.000      0.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 3
+Total number of equations   = 8
+Reduced number of equations = 8
+Number of right-hand sides  = 2
+Punctual Estimation
+
+       Rank       Flag          1          2
+          1          1      0.094     -0.072
+          2          2      0.057     -0.043
+          3          3      0.025     -0.019
+          4          4     -0.072      0.062
+          5          5     -0.043      0.037
+          6          6     -0.019      0.016
+          7          7      1.000      0.000
+          8          8      0.000      1.000
+
+(Co-) Kriging weights
+=====================
+       Rank         x1         x2       Data        Z1*        Z2*
+Using variable Z1 
+          1      0.652      0.015                 0.366      0.000
+          2      0.483      0.557                 0.330      0.000
+          3      0.762      0.433                 0.304      0.000
+Sum of weights                                    1.000      0.000
+Using variable Z2 
+          1      0.652      0.015                 0.000      0.366
+          2      0.483      0.557                 0.000      0.330
+          3      0.762      0.433                 0.000      0.304
+Sum of weights                                    0.000      1.000
+
+Drift or Mean Information
+=========================
+       Rank   Lagrange      Coeff
+          1     -1.786      0.000
+          2      1.361      0.000
+
+Simulation results
+==================
+Simulation #1 of Z1  :  =       0.856
+Simulation #1 of Z2  :  =       2.451
+Simulation #2 of Z1  :  =       0.922
+Simulation #2 of Z2  :  =      -1.008
+Simulation #3 of Z1  :  =       0.302
+Simulation #3 of Z2  :  =       1.943
+Simulation #4 of Z1  :  =      -0.797
+Simulation #4 of Z2  :  =      -1.507
+#NO_DIFF# Non-conditional Simulation on Grid: 23 ms. (Ref = 6800 ms.)
 
 Data Base Grid Characteristics
 ==============================
@@ -14,32 +103,64 @@ Data Base Statistics
 4 - Name Simu.z-1.1 - Locator z1
  Nb of data          =        400
  Nb of active values =        400
- Minimum value       =     -5.367
- Maximum value       =      3.280
- Mean value          =     -1.451
- Standard Deviation  =      1.563
- Variance            =      2.443
+ Minimum value       =     -4.227
+ Maximum value       =      6.868
+ Mean value          =      0.716
+ Standard Deviation  =      2.082
+ Variance            =      4.336
 5 - Name Simu.z-1.2 - Locator z2
  Nb of data          =        400
  Nb of active values =        400
- Minimum value       =     -5.000
- Maximum value       =      3.036
- Mean value          =     -1.655
- Standard Deviation  =      1.639
- Variance            =      2.687
-6 - Name Simu.z-2.1 - Locator z3
+ Minimum value       =     -6.585
+ Maximum value       =      5.539
+ Mean value          =      0.390
+ Standard Deviation  =      2.134
+ Variance            =      4.556
+6 - Name Simu.z-1.3 - Locator z3
  Nb of data          =        400
  Nb of active values =        400
- Minimum value       =     -4.366
- Maximum value       =      2.385
- Mean value          =     -1.359
- Standard Deviation  =      1.294
- Variance            =      1.673
-7 - Name Simu.z-2.2 - Locator z4
+ Minimum value       =     -3.397
+ Maximum value       =      7.908
+ Mean value          =      1.516
+ Standard Deviation  =      2.087
+ Variance            =      4.354
+7 - Name Simu.z-1.4 - Locator z4
  Nb of data          =        400
  Nb of active values =        400
- Minimum value       =     -4.159
- Maximum value       =      2.677
- Mean value          =     -1.060
- Standard Deviation  =      1.355
- Variance            =      1.835
+ Minimum value       =     -7.446
+ Maximum value       =      6.849
+ Mean value          =     -0.209
+ Standard Deviation  =      2.474
+ Variance            =      6.123
+8 - Name Simu.z-2.1 - Locator z5
+ Nb of data          =        400
+ Nb of active values =        400
+ Minimum value       =     -4.095
+ Maximum value       =      4.238
+ Mean value          =     -0.274
+ Standard Deviation  =      1.636
+ Variance            =      2.677
+9 - Name Simu.z-2.2 - Locator z6
+ Nb of data          =        400
+ Nb of active values =        400
+ Minimum value       =     -5.416
+ Maximum value       =      5.431
+ Mean value          =      0.166
+ Standard Deviation  =      1.738
+ Variance            =      3.020
+10 - Name Simu.z-2.3 - Locator z7
+ Nb of data          =        400
+ Nb of active values =        400
+ Minimum value       =     -3.188
+ Maximum value       =      5.636
+ Mean value          =      0.751
+ Standard Deviation  =      1.736
+ Variance            =      3.012
+11 - Name Simu.z-2.4 - Locator z8
+ Nb of data          =        400
+ Nb of active values =        400
+ Minimum value       =     -7.822
+ Maximum value       =      3.321
+ Mean value          =     -1.394
+ Standard Deviation  =      1.976
+ Variance            =      3.904

@@ -17,7 +17,6 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
-#include <memory>
 
 class ASpace;
 class SpacePoint;

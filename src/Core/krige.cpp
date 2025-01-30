@@ -335,7 +335,7 @@ static double st_get_idim(int loc_rank, int idim)
 //  }
 //
 //  CovCalcMode mode(member);
-//  mode.setActiveCovListFromOne(icov_r);
+//  model->setActiveCovListFromOne(icov_r);
 //  model->evaluateMatInPlace(&COVINT, d1loc, covtab_loc, flag_init, weight, &mode);
 //}
 //

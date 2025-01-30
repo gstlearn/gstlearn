@@ -1194,19 +1194,19 @@ MatrixRectangular ACov::evalCovMatOptimByRanks(const Db* db1,
   return evalCovMatByRanks(db1, db2, sampleRanks1, ivar0, jvar0, iech2, mode, cleanOptim);
 }
 MatrixSquareSymmetric ACov::evalCovMatSymOptim(const Db* db1,
-                                                        const VectorInt& nbgh1,
-                                                        int ivar0,
-                                                        const CovCalcMode* mode,
-                                                        bool cleanOptim) const
+                                               const VectorInt& nbgh1,
+                                               int ivar0,
+                                               const CovCalcMode* mode,
+                                               bool cleanOptim) const
 {
   return evalCovMatSym(db1, nbgh1, ivar0, mode, cleanOptim);
 }
 
 MatrixSquareSymmetric ACov::evalCovMatSymOptimByRanks(const Db* db1,
-                                                                       const VectorVectorInt& sampleRanks1,
-                                                                       int ivar0,
-                                                                       const CovCalcMode* mode,
-                                                                       bool cleanOptim) const
+                                                      const VectorVectorInt& sampleRanks1,
+                                                      int ivar0,
+                                                      const CovCalcMode* mode,
+                                                      bool cleanOptim) const
 {
   return evalCovMatSymByRanks(db1, sampleRanks1, ivar0, mode, cleanOptim);
 }
