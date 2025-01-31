@@ -111,8 +111,8 @@ def generate_swig_extend_code(class_name):
 
 
 if __name__ == "__main__":
-    output_txt_file = sys.argv[1]
     print("--------------------------------------")
+    output_txt_file = sys.argv[1]
     print(os.getcwd())
     print(output_txt_file)
     include_path = os.path.join("..", "..", "include")
