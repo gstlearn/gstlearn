@@ -77,6 +77,7 @@ includedir = "../../include/"
 
 
 first = True
+first2 = True
 
 for macro_name in ["FORWARD_METHOD","FORWARD_METHOD_NON_CONST"]:
     tree = os.walk(os.path.join(os.pardir, os.pardir, "include"))

@@ -23,7 +23,7 @@ public:
   NoStatArray(const NoStatArray &m) = delete;
   NoStatArray& operator=(const NoStatArray &m) = delete;
   virtual ~NoStatArray(){};
-  String toString(const AStringFormat* strfmt) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
 private :
   void _informField(const VectorVectorDouble& coords,

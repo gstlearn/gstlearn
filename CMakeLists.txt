@@ -114,10 +114,16 @@ endif()
 
 if(BUILD_PYTHON)
   add_subdirectory(python)
+  set(SWIG ON)  
 endif()
 
 if(BUILD_R)
   add_subdirectory(r)
+  set(SWIG ON)
+endif()
+
+if(SWIG)
+  add_subdirectory(swig)
 endif()
 
 ####################################################

@@ -863,4 +863,3 @@
 
 %template(ASpaceSharedPtr)    std::shared_ptr<const ASpace>;
 %template(ASpaceSharedPtrVector)   std::vector< ASpaceSharedPtr>;
-%newobject Model::createFromParam;
