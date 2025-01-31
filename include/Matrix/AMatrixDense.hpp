@@ -39,7 +39,8 @@ class EOperator;
  * Square and Symmetric.
  */
 
-class GSTLEARN_EXPORT AMatrixDense : public AMatrix {
+class GSTLEARN_EXPORT AMatrixDense : public AMatrix 
+{
 
 public:
   AMatrixDense(int nrow = 0, int ncol = 0);
