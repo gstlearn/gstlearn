@@ -39,6 +39,7 @@ set(SRC
   LithoRule/RuleShadow.cpp
   LithoRule/RuleShift.cpp
   LithoRule/Node.cpp
+  Model/ParamInfo.cpp
   Model/ModelGeneric.cpp
   Model/ModelCovList.cpp
   Model/ConsItem.cpp

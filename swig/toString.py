@@ -96,9 +96,9 @@ def find_classes_inheriting_from_AStringable(root_folder):
 
 def generate_swig_extend_code(class_name):
     """
-    Génère le code SWIG %extend pour une classe donnée.
+    Write SWIG code %extend for a given class.
 
-    :param class_name: Nom de la classe.
+    :param class_name: Name of the class.
     :return: Code SWIG %extend.
     """
     return f"""
@@ -111,10 +111,7 @@ def generate_swig_extend_code(class_name):
 
 
 if __name__ == "__main__":
-    print("--------------------------------------")
     output_txt_file = sys.argv[1]
-    print(os.getcwd())
-    print(output_txt_file)
     include_path = os.path.join("..", "..", "include")
     Astringable_classes = sorted(find_classes_inheriting_from_AStringable(include_path))
     with open(output_txt_file, "w", encoding='utf-8') as file:
