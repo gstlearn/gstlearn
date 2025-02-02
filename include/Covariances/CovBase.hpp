@@ -17,7 +17,8 @@
 #include "Covariances/CovContext.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"
-
+#include "Matrix/MatrixT.hpp"
+#include "Basic/ParamInfo.hpp"
 class AFunctional;
 class CovInternal;
 
@@ -42,15 +43,16 @@ public:
   void setSill(int ivar, int jvar, double sill) const;
   void initSill(double value = 0.);
 
-  const MatrixSquareSymmetric& getSill() const { return _sill; }
+  const MatrixSquareSymmetric& getSill() const { return _sillCur; }
   virtual void setCor(ACov* cor);
   const ACov* getCor() const { return _cor; }
   
   double getSill(int ivar, int jvar) const;
   void   attachNoStatDb(const Db* db);
   
-  void   makeSillNoStatDb(  const String &namecol, int ivar = 0, int jvar = 0,const Db* db = nullptr);
-  void   makeSillStationary( int ivar = 0, int jvar = 0);
+  void   makeSillNoStatDb( const String &namecol, int ivar = 0, int jvar = 0,const Db* db = nullptr);
+  void   makeSillStationary(int ivar = 0, int jvar = 0);
+  void   makeSillsStationary();
   void   makeSillNoStatFunctional(  const AFunctional *func, int ivar = 0, int jvar = 0);
 
   void   makeStationary() override;
@@ -121,8 +123,9 @@ void   _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const
 
 
 protected:
+    MatrixT<ParamInfo> _sills;
     TabNoStat _tabNoStat;
-    mutable MatrixSquareSymmetric _sill;
+    mutable MatrixSquareSymmetric _sillCur;
     mutable MatrixSquareGeneral _workMat;
 private :
     ACov* _cor;

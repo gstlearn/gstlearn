@@ -39,7 +39,6 @@ set(SRC
   LithoRule/RuleShadow.cpp
   LithoRule/RuleShift.cpp
   LithoRule/Node.cpp
-  Model/ParamInfo.cpp
   Model/ModelGeneric.cpp
   Model/ModelCovList.cpp
   Model/ConsItem.cpp
@@ -220,6 +219,7 @@ set(SRC
   Variogram/Vario.cpp
   Variogram/VarioParam.cpp
   Variogram/DirParam.cpp
+  Basic/ParamInfo.cpp
   Basic/Limits.cpp
   Basic/AStringable.cpp
   Basic/AStringFormat.cpp

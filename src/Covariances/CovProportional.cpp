@@ -66,7 +66,7 @@ void CovProportional::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
   double cor = getCor()->eval(p1,p2,0,0,mode);
 
   if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatInPlace(_sill, 1., cor);
+    mat.addMatInPlace(_sillCur, 1., cor);
   else
   {
     mat.addMatInPlace(_workMat, 1., cor);

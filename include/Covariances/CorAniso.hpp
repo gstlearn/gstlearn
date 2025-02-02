@@ -97,7 +97,7 @@ public:
                               int jvar = 0) const override;
 
   virtual double getIntegralRange(int ndisc, double hmax) const;
-  virtual String getFormula() const { return _cova->getFormula(); }
+  virtual String getFormula() const { return _corfunc->getFormula(); }
   virtual double getBallRadius() const { return TEST; }
 
   static bool isOptimizationInitialized(const std::vector<SpacePoint> &p1As,
@@ -139,7 +139,6 @@ public:
                                           const VectorDouble& angles = VectorDouble(),
                                           bool flagRange = true);
 
-  void setContext(const CovContext& ctxt);
   void setParam(double param);
   void setNoStatFactor(double noStatFactor) { _noStatFactor = noStatFactor; }
 
@@ -179,29 +178,29 @@ public:
   double getAnisoAngles(int idim) const { return getAnisoAngles()[idim]; }
   double getAnisoRotMat(int idim, int jdim) const { return _aniso.getMatrixDirect().getValue(idim,jdim); }
   double getAnisoCoeffs(int idim) const { return getAnisoCoeffs()[idim]; }
-  const ECov& getType() const { return _cova->getType(); }
+  const ECov& getType() const { return _corfunc->getType(); }
   double getParam() const;
-  double getScadef() const { return _cova->getScadef(); }
-  double getParMax() const { return _cova->getParMax(); }
-  int    getMaxNDim() const { return _cova->getMaxNDim(); }
-  int    getMinOrder() const { return _cova->getMinOrder(); }
-  bool   hasInt1D() const { return _cova->hasInt1D(); }
-  bool   hasInt2D() const { return _cova->hasInt2D(); }
-  int    hasRange() const { return _cova->hasRange(); }
-  int    hasParam() const  { return _cova->hasParam(); }
-  String getCovName() const { return _cova->getCovName(); }
+  double getScadef() const { return _corfunc->getScadef(); }
+  double getParMax() const { return _corfunc->getParMax(); }
+  int    getMaxNDim() const { return _corfunc->getMaxNDim(); }
+  int    getMinOrder() const { return _corfunc->getMinOrder(); }
+  bool   hasInt1D() const { return _corfunc->hasInt1D(); }
+  bool   hasInt2D() const { return _corfunc->hasInt2D(); }
+  int    hasRange() const { return _corfunc->hasRange(); }
+  int    hasParam() const  { return _corfunc->hasParam(); }
+  String getCovName() const { return _corfunc->getCovName(); }
   bool   isIsotropic() const { return _aniso.isIsotropic(); }
   bool   isAsymptotic() const { return getScadef() != 1.; }
   bool   hasRotation() const { return _aniso.hasRotation(); }
   const Tensor& getAniso() const { return _aniso; }
   void   setAniso(const Tensor& aniso) { _aniso = aniso; }
-  const ACovFunc* getCova() const { return _cova; }
+  const ACovFunc* getCova() const { return _corfunc; }
   int    getNGradParam() const;
-  bool   hasCovDerivative() const { return _cova->hasCovDerivative(); }
-  bool   hasCovOnSphere() const { return _cova->hasCovOnSphere(); }
-  bool   hasSpectrumOnSphere() const { return _cova->hasSpectrumOnSphere(); }
-  bool   hasMarkovCoeffs() const { return _cova->hasMarkovCoeffs(); }
-  bool   hasSpectrumOnRn() const { return _cova->hasSpectrumOnRn(); }
+  bool   hasCovDerivative() const { return _corfunc->hasCovDerivative(); }
+  bool   hasCovOnSphere() const { return _corfunc->hasCovOnSphere(); }
+  bool   hasSpectrumOnSphere() const { return _corfunc->hasSpectrumOnSphere(); }
+  bool   hasMarkovCoeffs() const { return _corfunc->hasMarkovCoeffs(); }
+  bool   hasSpectrumOnRn() const { return _corfunc->hasSpectrumOnRn(); }
   double normalizeOnSphere(int n = 50) const;
   //////////////////////// New NoStat methods //////////////////////////
 
@@ -294,9 +293,10 @@ bool _isOptimEnabled() const override
   bool   _isVariableValid(int ivar) const;
   
   void _updateFromContext() override;
+  void _setContext(const CovContext &ctxt) override;
 
 private:
-  ACovFunc *_cova;                     /// Covariance basic function
+  ACovFunc *_corfunc;                  /// Basic correlation function
   mutable Tensor _aniso;               /// Anisotropy parameters
   TabNoStatCovAniso* _tabNoStatCovAniso;
   mutable double _noStatFactor;        /// Correcting factor for non-stationarity

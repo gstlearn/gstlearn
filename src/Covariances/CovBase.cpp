@@ -10,6 +10,7 @@
 /******************************************************************************/
 
 #include "Covariances/CovBase.hpp"
+#include "Basic/ParamInfo.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -17,11 +18,22 @@
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/NoStatFunctional.hpp"
 #include "geoslib_define.h"
+#include <limits>
+#define INF std::numeric_limits<double>::infinity()
 
+static ParamInfo createParamInfoForSill()
+{
+  ParamInfo pinf("Sill",
+                TEST, 
+                {-INF,INF},
+                "Element of the sill matrix");
+  return pinf;  
+}
 CovBase::CovBase(ACov* cor,
                 const MatrixSquareSymmetric &sill)
 : ACov(cor == nullptr? CovContext() : cor->getContext())
-, _sill(sill)
+, _sills(MatrixT<ParamInfo>(sill.getNRows(), sill.getNCols(), createParamInfoForSill()))
+, _sillCur(sill)
 , _cor(cor)
 {
   if (cor != nullptr)
@@ -31,6 +43,7 @@ CovBase::CovBase(ACov* cor,
   _ctxt.setNVar(sill.getNSize());
   _workMat.resize(_ctxt.getNVar(), _ctxt.getNVar());
   _workMat.setIdentity();
+
 }
 
 CovBase::~CovBase()
@@ -62,7 +75,7 @@ void CovBase::setSill(double sill) const
     messerr("Number of provided sill doesn't match number of variables");
     return;
   }
-  _sill.resetFromValue(1, 1, sill);
+  _sillCur.resetFromValue(1, 1, sill);
 }
 
 void CovBase::setSill(const MatrixSquareSymmetric &sill) const
@@ -73,7 +86,7 @@ void CovBase::setSill(const MatrixSquareSymmetric &sill) const
     messerr("Number of provided sills doesn't match number of variables");
     return;
   }
-  _sill = sill;
+  _sillCur = sill;
 }
 
 void CovBase::setSill(const VectorDouble &sill) const 
@@ -85,7 +98,7 @@ void CovBase::setSill(const VectorDouble &sill) const
     messerr("Number of provided sills doesn't match number of variables");
     return;
   }
-  _sill.setValues(sill);
+  _sillCur.setValues(sill);
 }
 
 void CovBase::setSill(int ivar, int jvar, double sill) const
@@ -93,8 +106,8 @@ void CovBase::setSill(int ivar, int jvar, double sill) const
   if (!_isVariableValid(ivar)) return;
   if (!_isVariableValid(jvar)) return;
   /// TODO : Test if sill matrix is positive definite (if not, generate a warning)
-  if (!_sill.isValid(ivar, jvar)) return;
-  _sill.setValue(ivar, jvar, sill);
+  if (!_sillCur.isValid(ivar, jvar)) return;
+  _sillCur.setValue(ivar, jvar, sill);
 }
 
 bool CovBase::_isVariableValid(int ivar) const
@@ -105,11 +118,11 @@ bool CovBase::_isVariableValid(int ivar) const
 void CovBase::_initFromContext()
 {
   _cor->initFromContext();
-  _sill.reset(_ctxt.getNVar(), _ctxt.getNVar());
+  _sillCur.reset(_ctxt.getNVar(), _ctxt.getNVar());
 }
 void CovBase::initSill(double value)
 {
-  _sill.fill(value);
+  _sillCur.fill(value);
 }
 
 bool CovBase::isConsistent(const ASpace* space) const
@@ -121,7 +134,7 @@ bool CovBase::isConsistent(const ASpace* space) const
 
 double CovBase::getSill(int ivar, int jvar) const
 {
-  return _sill.getValue(ivar, jvar);
+  return _sillCur.getValue(ivar, jvar);
 }
 
 /*****************************************************************************/
@@ -281,7 +294,16 @@ void CovBase::makeSillNoStatFunctional(const AFunctional  *func, int ivar, int j
   _makeElemNoStat(EConsElem::SILL, ivar, jvar,func);
 
 }
-  
+
+void CovBase::makeSillsStationary()
+{
+  if (_tabNoStat.getNSills() == 0)
+  {
+    messerr("All the sills are already stationary!");
+    return;
+  }
+  _tabNoStat.clear();
+}
 void CovBase::makeSillStationary(int ivar, int jvar)
 {
   if (!_checkSill(ivar,jvar)) return;
@@ -445,6 +467,7 @@ void CovBase::updateCovByMesh(int imesh,bool aniso) const
 void CovBase::makeStationary()
 {
   _cor->makeStationary();
+  makeSillsStationary();
 }
 
 void CovBase::_manage(const Db* db1,const Db* db2) const
@@ -476,7 +499,7 @@ void CovBase::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
     for (int jvar = 0; jvar < nvar; jvar++)
     {
       double cor = _cor->eval(p1,p2,ivar,jvar,mode);
-      mat.addValue(ivar, jvar, _sill.getValue(ivar, jvar) * cor);
+      mat.addValue(ivar, jvar, _sillCur.getValue(ivar, jvar) * cor);
     }
 }
 
