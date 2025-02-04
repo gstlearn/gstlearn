@@ -167,6 +167,7 @@ add_dependencies(r_build r_doc)
 
 add_dependencies(r_build r_wrap_macro)
 
+add_dependencies(r_build generate_output)
 ########################################
 # PACKAGING
 

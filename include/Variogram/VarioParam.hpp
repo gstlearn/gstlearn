@@ -125,7 +125,7 @@ public:
   void setDPas(int idir,const DbGrid* db);
   void setGrincr(int idir, const VectorInt& grincr);
 
-  String toStringMain(const AStringFormat* strfmt) const;
+  String toStringMain(const AStringFormat* strfmt = nullptr) const;
 
   const Faults* getFaults() const { return _faults; }
   bool hasFaults() const { return _faults != nullptr; }

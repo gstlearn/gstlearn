@@ -222,6 +222,8 @@
 %include Model/ConsItem.hpp
 %include Model/CovParamId.hpp
 %include Model/CovParamId.hpp
+%include Model/AModelOptim.hpp
+%include Model/ModelOptimLikelihood.hpp
 
 %include Covariances/ParamId.hpp
 %include Covariances/TabNoStat.hpp

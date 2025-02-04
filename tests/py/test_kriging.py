@@ -93,7 +93,7 @@ def createDbIn(ndat,nvar,percent,ndim=2,selDbin=False,measurement_error=False,nd
     return db,indF
 
 
-def test_kriging(ndat,nx,nvar,percent,model,cova,
+def test_kriging_internal(ndat,nx,nvar,percent,model,cova,
                  irf=None,drift=False,measurement_error=False,compute_vars = True,
                  selDbin = True, selDbout = True,flag_isotopic=True,
                  seed=1234,tol=1e-12,eps=1e-3,test = True,verbose=False):
@@ -271,7 +271,7 @@ if general:
                                     isolist = [True,False]
                                 for iso in isolist:
                                     for cv in [False,True]:
-                                        a = test_kriging(ndat,nx,nvar,percent,
+                                        a = test_kriging_internal(ndat,nx,nvar,percent,
                                                          model,cova,compute_vars=cv,
                                                          irf=irf,drift=drift,
                                                          measurement_error=measurement_error,
@@ -296,7 +296,7 @@ if not general:
     iso = True
     cv = True
                                     
-    a = test_kriging(ndat,nx,nvar,percent,
+    a = test_kriging_internal(ndat,nx,nvar,percent,
                      model,cova,compute_vars=cv,
                      irf=irf,drift=drift,
                      measurement_error=measurement_error,

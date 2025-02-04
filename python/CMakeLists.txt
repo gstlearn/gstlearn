@@ -167,6 +167,8 @@ if(USE_BOOST_SPAN)
 endif()
 
 add_dependencies(python_build python_wrap_macro)
+add_dependencies(python_build generate_output)
+
 ########################################
 # PACKAGING (target independent)
 
