@@ -78,7 +78,7 @@ void NoStatArray::_informField(const VectorVectorDouble& coords,
     char str[LONG_SIZE];
     (void) gslSPrintf(str,
                       "Statistics for Non-Stationary Parameter on Mesh");
-    VH::displayStats(str,tab);
+    VH::dumpStats(str,tab);
   }
 
 }

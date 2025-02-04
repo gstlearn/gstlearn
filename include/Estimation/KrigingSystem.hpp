@@ -75,7 +75,7 @@ public:
   int  setKrigOptFactorKriging(bool flag_factor_kriging);
 
   // The subsequent methods do not require isReady() validation
-  int  updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
+  int  updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ, bool forceNoDual = false);
   int  updKrigOptIclass(int index_class, int nclasses);
   int  updKrigOptNeighOnly(int iptrNeigh);
 
@@ -93,8 +93,8 @@ public:
   MatrixRectangular     getZam() const { return _zam; }
   MatrixSquareSymmetric getLHSC() const { return _lhsc; }
   MatrixRectangular     getRHSC() const { return _rhsc; }
-  MatrixRectangular     getWeights() const { return _wgt; }
   MatrixSquareGeneral   getVariance() const { return _var0; }
+  MatrixRectangular     getWeights() const;
 
   double getLTerm() const { return _lterm; }
 
@@ -212,7 +212,8 @@ private:
   ModelGeneric*        _model;
 
   // Pointers used when plugging KrigingCalcul (not to be deleted)
-  KrigingCalcul         _algebra;
+  // Note that 'algebra' is mutable not to destroy constness when calling getLambda.
+  mutable KrigingCalcul _algebra;
   VectorVectorInt       _sampleRanks; // Vector of vector of sample indices
   MatrixSquareSymmetric _Sigma00; // Covariance part for variance
   MatrixSquareSymmetric _Sigma;   // Covariance part for LHS

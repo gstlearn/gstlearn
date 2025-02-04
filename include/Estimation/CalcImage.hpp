@@ -19,6 +19,7 @@
 
 class DbGrid;
 class ANeigh;
+class NeighImage;
 
 class GSTLEARN_EXPORT CalcImage: public ACalcInterpolator
 {
@@ -29,6 +30,8 @@ public:
   virtual ~CalcImage();
 
   void setFlagFilter(bool flagFilter) { _flagFilter = flagFilter; }
+  void setFlagFFT(bool flagFFT) { _flagFFT = flagFFT; }
+  void setSeed(int seed) { _seed = seed; }
 
   void setFlagMorpho(bool flagMorpho) { _flagMorpho = flagMorpho; }
   void setOper(const EMorpho& oper) { _oper = oper; }
@@ -51,12 +54,19 @@ private:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
 
-  DbGrid* _prepareForImage(int seed);
+  bool _filterImage(DbGrid* dbgrid, const ModelGeneric* modelgeneric);
+  bool _filterImageOld(DbGrid* dbgrid, const ModelGeneric* modelgeneric);
+  static DbGrid* _buildMarpat(const NeighImage* neigh,
+                              const VectorVectorInt& ranks,
+                              const MatrixRectangular& wgt);
+  static VectorVectorInt _getActiveRanks(const DbGrid* dblocal);
 
 private:
   int _iattOut;
 
   bool _flagFilter;
+  bool _flagFFT;
+  int  _seed;
 
   bool _flagMorpho;
   int  _nvarMorpho;
@@ -73,9 +83,11 @@ private:
   double _smoothRange;
 };
 
-GSTLEARN_EXPORT int krimage(DbGrid *dbgrid,
-                            Model *model,
-                            ANeigh *neigh,
+GSTLEARN_EXPORT int krimage(DbGrid* dbgrid,
+                            Model* model,
+                            ANeigh* neigh,
+                            bool flagFFT = false,
+                            int seed = 13431,
                             const NamingConvention& namconv = NamingConvention("Filtering"));
 GSTLEARN_EXPORT int dbMorpho(DbGrid *dbgrid,
                              const EMorpho &oper,

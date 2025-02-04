@@ -54,17 +54,6 @@ void ModelCovList::setCovList(CovList* covs)
     _cova = _covList;
 }
 
-VectorInt ModelCovList::getActiveCovList() const
-{
-  if (_covList == nullptr) return VectorInt();
-  return _covList->getActiveCovList();
-}
-VectorInt ModelCovList::getAllActiveCovList() const
-{
-  if (_covList == nullptr) return VectorInt();
-  return _covList->getAllActiveCovList();
-}
-
 bool ModelCovList::isAllActiveCovList() const
 {
   if (_covList == nullptr) return false;

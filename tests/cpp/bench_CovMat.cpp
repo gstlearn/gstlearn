@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 
     // Some printout for comparison
     VH::divideConstant(cumul, nout);
-    VH::displayRange("", cumul);
+    VH::dumpRange("", cumul);
   }
 
   if (option < 0 || option == 2)
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 
     // Some printout for comparison
     VH::divideConstant(cumul, nout);
-    VH::displayRange("", cumul);
+    VH::dumpRange("", cumul);
   }
 
   if (option < 0 || option == 3)
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 
     // Some printout for comparison
     VH::divideConstant(cumul, nout);
-    VH::displayRange("", cumul);
+    VH::dumpRange("", cumul);
   }
   if (option < 0 || option == 4)
   {
@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
 
     // Some printout for comparison
     VH::divideConstant(cumul, nout);
-    VH::displayRange("", cumul);
+    VH::dumpRange("", cumul);
   }
 
   // Cleaning

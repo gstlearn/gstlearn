@@ -1331,17 +1331,16 @@ void KrigingSystem::_wgtDump(int status)
  *****************************************************************************/
 void KrigingSystem::_simulateCalcul(int status)
 {
-  _mustBeOldStyle("_simulateCalcul");
   int ecr = 0;
   for (int isimu = ecr = 0; isimu < _nbsimu; isimu++)
     for (int ivar = 0; ivar < _nvar; ivar++, ecr++)
     {
       double simu = 0.;
-
       if (status == 0)
       {
         if (_flagBayes)
-          simu = _modelCovAniso->evalDriftVarCoef(_dbout, _iechOut, ivar, _postSimu.getColumn(isimu));
+          simu = _modelCovAniso->evalDriftVarCoef(_dbout, _iechOut, ivar,
+                                                  _postSimu.getColumn(isimu));
 
         int lec = 0;
         for (int jvar = 0; jvar < _nvar; jvar++)
@@ -1350,11 +1349,17 @@ void KrigingSystem::_simulateCalcul(int status)
             int jech = _nbgh[iech];
 
             // Get the simulated difference at data point (Simu - Data)
-            double diff = _dbin->getSimvar(ELoc::SIMU, jech, isimu, jvar, _rankPGS, _nbsimu, _nvar);
+            double diff =
+              _dbin->getSimvar(ELoc::SIMU, jech, isimu, jvar, _rankPGS, _nbsimu, _nvar);
             if (FFFF(diff)) continue;
 
             // Get the kriging weight
-            double wgt = _wgt.getValue(lec++,ivar,false);
+            double wgt;
+            if (_oldStyle)
+              wgt = _wgt.getValue(lec, ivar, false);
+            else
+              wgt = _algebra.getLambda()->getValue(lec, ivar);
+            lec++;
 
             // Calculate the Kriging of simulated differences: -sum {wgt * diff}
             simu -= wgt * diff;
@@ -1496,7 +1501,7 @@ void KrigingSystem::_estimateCalculImage(int status)
     {
       /* Loop on the neighboring points */
 
-      int ecr = ivar * _neq;
+      int ecr = 0;
       for (int jvar = 0; jvar < _nvar; jvar++)
       {
         for (int iech = 0; iech < _nech; iech++)
@@ -1513,7 +1518,7 @@ void KrigingSystem::_estimateCalculImage(int status)
           else
           {
             data -= _getMean(jvar, true);
-            estim += data * _wgt.getValue(ecr++,0,false);
+            estim += data * _wgt.getValue(ecr++,ivar,false);
           }
         }
       }
@@ -2357,7 +2362,6 @@ void KrigingSystem::_krigingDump(int status)
 
 void KrigingSystem::_simulateDump(int status)
 {
-  _mustBeOldStyle("_simulateDump");
   mestitle(0, "Simulation results");
 
   /* Loop on the results */
@@ -2378,12 +2382,16 @@ void KrigingSystem::_simulateDump(int status)
  * @param iptrEst  UID for storing the estimation(s)
  * @param iptrStd  UID for storing the Standard deviations(s)
  * @param iptrVarZ UID for storing the Variance(s) of estimator
+ * @param forceNoDual Force that the algebra is not using the Dual option
  * @return Error returned code
  * @remark If a term must not be calculated, its UID must be negative
  */
-int KrigingSystem::updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ)
+int KrigingSystem::updKrigOptEstim(int iptrEst,
+                                   int iptrStd,
+                                   int iptrVarZ,
+                                   bool forceNoDual)
 {
-  _iptrEst = iptrEst;
+  _iptrEst  = iptrEst;
   _iptrStd  = iptrStd;
   _iptrVarZ = iptrVarZ;
 
@@ -2393,7 +2401,11 @@ int KrigingSystem::updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ)
 
   _flagDataChanged = true;
 
-  if (!_flagStd && !_flagVarZ)
+  // Set the Dual option automatically if:
+  // - no Variance estimation(s) is requested
+  // - the Unique Neighborhood is used
+  // - the Dual option is not forced OFF
+  if (! forceNoDual && !_flagStd && !_flagVarZ)
   {
     if (_neigh != nullptr && _neigh->getType() == ENeigh::UNIQUE)
       _algebra.setDual(true);
@@ -3267,7 +3279,6 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux, const NeighImage* neighI)
   int error = 1;
 
   /* Prepare the neighborhood (mimicking the Unique neighborhood) */
-
   NeighUnique* neighU = NeighUnique::create(false);
   neighU->attach(dbaux, dbaux);
 
@@ -3276,19 +3287,16 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux, const NeighImage* neighI)
   if (_setInternalShortCutVariablesNeigh()) return error;
 
   /* Establish the L.H.S. */
-
   int status = _prepar();
   if (status) goto label_end;
   _dualCalcul();
 
   /* Establish the R.H.S. */
-
   _rhsCalcul();
   if (status != 0) goto label_end;
   _rhsIsoToHetero();
 
   /* Derive the Kriging weights (always necessary) */
-
   _wgtCalcul();
 
   // Optional printouts
@@ -3710,4 +3718,10 @@ void KrigingSystem::_setInternalShortCutVariablesGeneral()
   _ndim   = getNDim();
   _nvarCL = _getNVarCL();
   _setInternalShortCutVariablesModel();
+}
+
+MatrixRectangular KrigingSystem::getWeights() const
+{
+  if (_oldStyle) return _wgt;
+  return *(_algebra.getLambda());
 }

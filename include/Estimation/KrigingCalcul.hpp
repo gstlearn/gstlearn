@@ -183,7 +183,7 @@ private:
   static void _printMatrix(const String& name, const AMatrix* mat);
   static void _printVector(const String& name, const VectorDouble* vec);
 
-  bool _validForDual() const;
+  bool _forbiddenWhenDual() const;
   void _resetAll();
 
 private:

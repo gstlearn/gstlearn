@@ -544,7 +544,7 @@ int main (int argc, char *argv[])
 
     hdf5b.openDataSet("VectorVectorDouble");
     rvdval = hdf5b.getData();
-    VH::display("Ensemble of VectorDouble",rvdval);
+    VH::dump("Ensemble of VectorDouble",rvdval);
 
     int myrank = 3;
     message("Extract Vector #%d (add 100) and replace\n\n",myrank);
@@ -554,7 +554,7 @@ int main (int argc, char *argv[])
 
     // Extract the whole file and print it
     rvdval = hdf5b.getData();
-    VH::display("Modified VectorVectorDouble",rvdval);
+    VH::dump("Modified VectorVectorDouble",rvdval);
 
     // Delete the file
 
@@ -601,7 +601,7 @@ int main (int argc, char *argv[])
 
     // Extract the whole file and print it
     VectorVectorDouble rpvdval = hdf5c.getData();
-    VH::display("Initial VectorDouble",rpvdval);
+    VH::dump("Initial VectorDouble",rpvdval);
 
     // Extracting one VectorDouble (at a given row number). Modify it by adding 1000
 
@@ -614,7 +614,7 @@ int main (int argc, char *argv[])
 
     // Extract the whole file and print it
     rpvdval = hdf5c.getData();
-    VH::display("Modified VectorVectorDouble",rpvdval);
+    VH::dump("Modified VectorVectorDouble",rpvdval);
 
     // Delete the file
 

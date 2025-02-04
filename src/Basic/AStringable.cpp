@@ -852,6 +852,33 @@ String toVector(const String& title, const VectorVectorDouble& tab, bool flagOve
   return sstr.str();
 }
 
+/**
+ * Printout a list of vectors in a formatted manner
+ * @param title Title of the printout (or empty string)
+ * @param tab   Vector of vectors (integer values) to be printed
+ * @param flagOverride true to override printout limitations
+ * @return The string (terminated with a newline)
+ */
+String toVector(const String& title, const VectorVectorInt& tab, bool flagOverride)
+{
+  std::stringstream sstr;
+  if (tab.empty()) return sstr.str();
+
+  if (!title.empty()) sstr << title << std::endl;
+
+  int nrows  = (int)tab.size();
+  int nrutil = nrows;
+  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride)
+    nrutil = _getMaxNRows();
+
+  for (int i = 0; i < nrutil; i++) sstr << toVector(String(), tab[i], flagOverride);
+
+  // Print the trailer
+  sstr << _printTrailer(0, nrows, 0, nrutil);
+
+  return sstr.str();
+}
+
 String toVector(const String& title, const VectorString& tab, bool flagOverride)
 {
   std::stringstream sstr;

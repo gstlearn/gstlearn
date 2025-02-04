@@ -592,7 +592,7 @@ void AMesh::dumpNeighborhood(std::vector<VectorInt>& Vmesh, int nline_max)
   if (nline_max > 0) nmax = MIN(nmax, nline_max);
   for (int irow = 0; irow < nmax; irow++)
   {
-    VH::display(String(), Vmesh[irow]);
+    VH::dump(String(), Vmesh[irow]);
   }
 }
 

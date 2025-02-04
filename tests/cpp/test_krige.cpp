@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
   message("- Space Dimension = %d\n",ktest.ndim);
   message("- Number of Neighbors = %d\n",ktest.nech);
   message("- Number of Kriging System equations = %d\n",ktest.neq);
-  VH::display("- Neighboring Sample Indices", ktest.nbgh);
+  VH::dump("- Neighboring Sample Indices", ktest.nbgh);
 
   // ====================== Unique Neighborhood case ===========================
   message("\n<----- Cross-Validation in Unique Neighborhood ----->\n");

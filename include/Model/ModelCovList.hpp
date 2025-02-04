@@ -36,8 +36,6 @@ public:
   double getSill(int icov, int ivar, int jvar) const;
   double getTotalSill(int ivar=0, int jvar=0) const;
   MatrixSquareSymmetric getTotalSills() const;
-  VectorInt getActiveCovList() const;
-  VectorInt getAllActiveCovList() const;
   bool isAllActiveCovList() const;
   void setCovList(CovList* covs);
 

@@ -1445,6 +1445,97 @@ DbGrid* DbGrid::createGrid2D(const ELoadBy &order,
   return db;
 }
 
+/**
+ * Creating a new Db loaded with random values
+ * @param nx Vector of mesh indices
+ * @param nvar Number of variables
+ * @param nfex Number of external drift functions
+ * @param ncode Number of codes (no code when 0)
+ * @param varmax Maximum value for the measurement error
+ * @param selRatio Percentage of samples that must be masked off (between 0 and 1)
+ * @param heteroRatio Vector of proportions of NA to be generated per
+ * variable
+ * @param seed Value for the Random Generator seed
+ * @return A pointer to the newly created DbGrid
+ *
+ * @remarks
+ * The generated grid lies within a [0,1] hypercube.
+ * The variance of measurement error is created only if 'varmax' is
+ * positive. Then a field is created for each variable. this field is filled
+ * with random values uniformly generated in [0, varmax] The external drift
+ * values are generated according to Normal distribution.
+ */
+DbGrid* DbGrid::createFillRandom(const VectorInt& nx,
+                                 int nvar,
+                                 int nfex,
+                                 int ncode,
+                                 double varmax,
+                                 double selRatio,
+                                 const VectorDouble& heteroRatio,
+                                 int seed)
+{
+  // Set the seed
+  law_set_random_seed(seed);
+
+  // Create the Db
+  int ndim = (int)nx.size();
+  VectorDouble dx(ndim);
+  for (int idim = 0; idim < ndim; idim++) dx[idim] = 1. / nx[idim];
+  DbGrid* dbgrid = DbGrid::create(nx, dx);
+  int ndat = VH::product(nx);
+
+  // Generate the Vectors of Variance of measurement error (optional)
+  if (varmax > 0.)
+  {
+    VectorVectorDouble varm(nvar);
+    for (int ivar = 0; ivar < nvar; ivar++)
+      varm[ivar] = VH::simulateUniform(ndat, 0., varmax);
+    dbgrid->addColumnsByVVD(varm, "v", ELoc::V);
+  }
+
+  // Generate the External Drift functions (optional)
+  if (nfex > 0)
+  {
+    VectorVectorDouble fex(nfex);
+    for (int ifex = 0; ifex < nfex; ifex++) fex[ifex] = VH::simulateGaussian(ndat);
+    dbgrid->addColumnsByVVD(fex, "f", ELoc::F);
+  }
+
+  // Generate the selection (optional)
+  if (selRatio > 0)
+  {
+    VectorDouble sel(ndat);
+    VectorDouble rnd = VH::simulateUniform(ndat);
+    for (int idat = 0; idat < ndat; idat++) sel[idat] = (rnd[idat] > selRatio) ? 1. : 0.;
+    dbgrid->addColumns(sel, "sel", ELoc::SEL);
+  }
+
+  // Generate the variables
+  bool flag_hetero = ((int)heteroRatio.size() == nvar);
+  VectorVectorDouble vars(nvar);
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    vars[ivar] = VH::simulateGaussian(ndat);
+    if (flag_hetero)
+    {
+      VectorDouble rnd = VH::simulateUniform(ndat);
+      for (int idat = 0; idat < ndat; idat++)
+        if (rnd[idat] <= heteroRatio[ivar]) vars[ivar][idat] = TEST;
+    }
+  }
+  dbgrid->addColumnsByVVD(vars, "z", ELoc::Z);
+
+  // Generate the code (optional)
+  if (ncode > 0)
+  {
+    VectorDouble codes = VH::simulateUniform(ndat);
+    for (int idat = 0; idat < ndat; idat++) codes[idat] = floor(ncode * codes[idat]);
+    dbgrid->addColumns(codes, "code", ELoc::C);
+  }
+
+  return dbgrid;
+}
+
 void DbGrid::_interpolate(const DbGrid *grid3D,
                           int idim0,
                           double top,

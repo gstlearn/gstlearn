@@ -10,8 +10,12 @@
 /******************************************************************************/
 #include "Neigh/NeighImage.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/Law.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Mesh/AMesh.hpp"
+
+#include "geoslib_old_f.h"
 
 NeighImage::NeighImage(const VectorInt& radius, int skip, const ASpaceSharedPtr& space)
     : ANeigh(space),
@@ -84,9 +88,9 @@ bool NeighImage::_serialize(std::ostream& os, bool verbose) const
   return ret;
 }
 
-NeighImage* NeighImage::create(const VectorInt& image, int skip, const ASpaceSharedPtr& space)
+NeighImage* NeighImage::create(const VectorInt& radius, int skip, const ASpaceSharedPtr& space)
 {
-  return new NeighImage(image, skip, space);
+  return new NeighImage(radius, skip, space);
 }
 
 /**
@@ -188,3 +192,57 @@ void NeighImage::_uimage(int iech_out, VectorInt& ranks)
   }
 }
 
+/**
+ * @brief Create a subgrid containing the minimum pattern for Image Neighborhood.
+ * The output subgrid is "parallel" to the input 'dbgrid'.
+ *
+ * @param dbgrid Input DbGrid
+ * @param seed   Seed used for random number generation
+ * @return Pointer to the newly created DbGrid
+ *
+ * @remark When a sample is skipped ('using 'skip' Neighborhood parameter)
+ * the value of the corresponding variable is set to 'TEST'.
+ * @remark The center point can never be skipped.
+ */
+DbGrid* NeighImage::buildImageGrid(const DbGrid* dbgrid, int seed) const
+{
+  DbGrid* dbsub = nullptr;
+
+  double seuil = 1. / (1. + _skip);
+  int ndim     = dbgrid->getNDim();
+  int nvar     = dbgrid->getNLoc(ELoc::Z);
+
+  /* Core allocation */
+
+  VectorInt nx(ndim);
+  int nech = 1;
+  for (int i = 0; i < ndim; i++)
+  {
+    nx[i] = 2 * _imageRadius[i] + 1;
+    nech *= nx[i];
+  }
+
+  law_set_random_seed(seed);
+  VectorBool sel(nech);
+  for (int iech = 0; iech < nech; iech++) sel[iech] = (law_uniform(0., 1.) < seuil);
+  sel[nech / 2] = 1.;
+
+  VectorDouble tab(nech * nvar);
+  int iecr = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int iech = 0; iech < nech; iech++) tab[iecr++] = (sel[iech]) ? 0. : TEST;
+
+  /* Create the grid */
+
+  dbsub = DbGrid::create(nx, dbgrid->getDXs(), dbgrid->getX0s(), dbgrid->getAngles());
+  dbsub->addColumns(tab, "Test", ELoc::Z);
+
+  /* Shift the origin */
+
+  VectorDouble coor(ndim);
+  dbsub->rankToCoordinatesInPlace(nech / 2, coor);
+  for (int i = 0; i < ndim; i++) dbsub->setX0(i, dbsub->getX0(i) - coor[i]);
+  if (db_grid_define_coordinates(dbsub)) return dbsub;
+
+  return dbsub;
+}

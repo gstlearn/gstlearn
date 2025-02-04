@@ -95,9 +95,6 @@ public:
   double          getMaximumDistance() const;
   double          getTotalSill(int ivar = 0, int jvar = 0) const override;
   void            normalize(double sill = 1., int ivar=0, int jvar=0);
-  VectorInt       getActiveCovList() const;
-  VectorInt       getAllActiveCovList() const;
-  bool            isAllActiveCovList() const;
   bool            isNoStat() const override;
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////

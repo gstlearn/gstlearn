@@ -637,6 +637,19 @@ VectorDouble Db::getArrayByUID(int iuid, bool useSel) const
   return tab;
 }
 
+void Db::setArrayByUID(const VectorDouble& tab, int iuid)
+{
+  int nech = getNSample();
+  if (!isUIDValid(iuid)) return;
+
+  int ecr = 0;
+  for (int iech = 0; iech < nech; iech++)
+  {
+    setArray(iech, iuid, tab[ecr]);
+    ecr++;
+  }
+}
+
 static std::vector<int> uids;
 
 void Db::getArrayBySample(std::vector<double>& vals, int iech) const

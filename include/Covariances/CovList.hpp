@@ -86,8 +86,6 @@ public:
   bool            isFiltered(int icov) const;
   virtual double  getTotalSill(int ivar = 0, int jvar = 0) const;
   MatrixSquareSymmetric getTotalSills() const;
-  VectorInt       getActiveCovList() const { return _activeCovList; }
-  VectorInt       getAllActiveCovList() const { return _allActiveCovList; }
   bool            isAllActiveCovList() const;
   bool            isNoStat() const override;
   /// TODO : to be removed (encapsulation)

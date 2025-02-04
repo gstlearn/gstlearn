@@ -12,9 +12,31 @@
 
 #include "gstlearn_export.hpp"
 
-GSTLEARN_EXPORT int fftn(int ndim,
-                         const int dims[],
-                         double Re[],
-                         double Im[],
-                         int iSign = 1,
-                         double scaling = 1.);
+#include "Basic/VectorNumT.hpp"
+
+class DbGrid;
+class MatrixRectangular;
+
+class GSTLEARN_EXPORT Convolution
+{
+public:
+  Convolution(DbGrid* dbgrid = nullptr);
+  Convolution(const Convolution& m);
+  Convolution& operator=(const Convolution& m);
+  virtual ~Convolution();
+
+  int ConvolveSparse(int iatt,
+                     const VectorVectorInt& ranks,
+                     const MatrixRectangular& wgt,
+                     const VectorDouble& means = VectorDouble());
+  int ConvolveFFT(int iatt,
+                  int nvar,
+                  const DbGrid* marpat,
+                  const VectorDouble& means = VectorDouble());
+
+private:
+  bool _isDbGridDefined() const;
+
+private:
+  DbGrid* _dbgrid; // Pointer to external DbGrid: do not delete
+};

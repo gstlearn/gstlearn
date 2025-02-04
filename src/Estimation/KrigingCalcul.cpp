@@ -691,30 +691,30 @@ VectorDouble KrigingCalcul::getPostMean()
   return _Beta;
 }
 
-bool KrigingCalcul::_validForDual() const
+bool KrigingCalcul::_forbiddenWhenDual() const
 {
   if (!_flagDual) return true;
-  messerr("This option is not available has 'Dual' is switched ON");
+  messerr("This option is not available as 'Dual' is switched ON");
   return false;
 }
 
 VectorDouble KrigingCalcul::getStdv()
 {
-  if (! _validForDual()) return VectorDouble();
+  if (! _forbiddenWhenDual()) return VectorDouble();
   if (_needStdv()) return VectorDouble();
   return _Stdv->getDiagonal();
 }
 
 const MatrixSquareSymmetric* KrigingCalcul::getStdvMat()
 {
-  if (! _validForDual()) return nullptr;
+  if (! _forbiddenWhenDual()) return nullptr;
   if (_needStdv()) return nullptr;
   return _Stdv;
 }
 
 VectorDouble KrigingCalcul::getVarianceZstar()
 {
-  if (! _validForDual()) return VectorDouble();
+  if (! _forbiddenWhenDual()) return VectorDouble();
   if (_flagSK)
   {
     if (_needVarZSK()) return VectorDouble();
@@ -726,7 +726,7 @@ VectorDouble KrigingCalcul::getVarianceZstar()
 
 const MatrixSquareSymmetric* KrigingCalcul::getVarianceZstarMat()
 {
-  if (! _validForDual()) return nullptr;
+  if (! _forbiddenWhenDual()) return nullptr;
   if (_flagSK)
   {
     if (_needVarZSK()) return nullptr;
@@ -738,7 +738,7 @@ const MatrixSquareSymmetric* KrigingCalcul::getVarianceZstarMat()
 
 const MatrixRectangular* KrigingCalcul::getLambda()
 {
-  if (_validForDual()) return nullptr;
+  if (!_forbiddenWhenDual()) return nullptr;
   if (_flagSK)
   {
     if (_needLambdaSK()) return nullptr;
@@ -1393,7 +1393,7 @@ void KrigingCalcul::printStatus() const
   if (_ncck > 0)
   {
     message("Number of Collocated Variables = %d\n", _ncck);
-    VH::display("Rank of Collocated Variables", _rankColVars, false);
+    VH::dump("Rank of Collocated Variables", _rankColVars, false);
   }
   if (_flagSK)
     message("Working with Known Mean(s)\n");
@@ -1706,9 +1706,9 @@ void KrigingCalcul::dumpAux()
   // In Bayesian case, dump the Prior and Posterior information
   if (_flagBayes)
   {
-    VH::display("Prior Mean", *_PriorMean);
+    VH::dump("Prior Mean", *_PriorMean);
     VectorDouble postmean = getPostMean();
-    VH::display("Posterior Mean", postmean);
+    VH::dump("Posterior Mean", postmean);
     message("Prior Covariance Matrix\n");
     _PriorCov->display();
     message("Posterior Covariance Matrix\n");

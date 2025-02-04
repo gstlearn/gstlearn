@@ -251,6 +251,7 @@ set(SRC
   Basic/Plane.cpp
   Basic/FFT.cpp
   Basic/PolyLine2D.cpp
+  Basic/Convolution.cpp
   Geometry/GeometryHelper.cpp
   Geometry/ABiTargetCheck.cpp
   Geometry/BiTargetCheckDistance.cpp
