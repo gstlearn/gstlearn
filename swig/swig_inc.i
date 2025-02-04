@@ -188,6 +188,8 @@
   #include "Model/ConsItem.hpp"
   #include "Model/CovParamId.hpp"
   #include "Model/CovParamId.hpp"
+  #include "Model/AModelOptim.hpp"
+  #include "Model/ModelOptimLikelihood.hpp"
   
   #include "Covariances/ParamId.hpp"
   #include "Covariances/TabNoStat.hpp"
@@ -860,7 +862,8 @@
 
 %include <std_shared_ptr.i>
 
+%include swig/newobject.i
+
 
 %template(ASpaceSharedPtr)    std::shared_ptr<const ASpace>;
 %template(ASpaceSharedPtrVector)   std::vector< ASpaceSharedPtr>;
-%newobject Model::createFromParam;
