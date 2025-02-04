@@ -2251,7 +2251,7 @@ static int st_fill_Csill(void)
 
   /* Load the sills of continuous covariance elements */
 
-  if (matrix_cholesky_decompose(model->getSillValues(icov).getValues().data(), mcova, nvar))
+  if (matrix_cholesky_decompose(model->getSills(icov).getValues().data(), mcova, nvar))
     goto label_end;
 
   /* Optional printout */

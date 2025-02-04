@@ -104,3 +104,70 @@ using vectint = std::span<int>;
 
 #endif
 
+/* The macro FORWARD_METHOD simplifies forwarding method calls   
+   to an encapsulated object (obj). It acts as a proxy for accessing
+   member functions of the inner object, handling cases where 
+   the object may be null and providing default behavior
+    when necessary.
+    Object Proxying:
+    If obj() is not nullptr, the macro forwards the call to the 
+    method name of the inner object using perfect forwarding for 
+    arguments.
+    Handling Null Objects:
+    If obj() is nullptr, the macro handles the return type as
+    follows:
+        For void methods, it simply returns.
+        For methods returning a reference, it returns a static, 
+        default-constructed object.
+        For methods returning values, it constructs and returns 
+        a default-initialized object using optional arguments 
+        (__VA_ARGS__).
+    Const-Correctness:
+    The macro detects if the inner object is const and ensures the forwarded call is to the const version of the method.
+    Static Default Value:
+    For reference return types, a static default object is 
+    used to provide a valid reference that persists beyond 
+    the function scope.
+*/
+
+#ifndef SWIG  
+#define FORWARD_METHOD_NON_CONST(obj, name, ...)                               \
+    template <typename... Args>                                               \
+    auto name(Args&&... args) -> decltype(auto) {                             \
+        if (obj() != nullptr) {                                               \
+            return obj()->name(std::forward<Args>(args)...);                  \
+        }                                                                      \
+        using ReturnType = decltype(obj()->name(std::forward<Args>(args)...)); \
+        if constexpr (std::is_void_v<ReturnType>) {                            \
+            return;                                                            \
+        } else if constexpr (std::is_reference_v<ReturnType>) {                \
+            static std::remove_reference_t<ReturnType> default_value{};        \
+            return static_cast<ReturnType>(default_value);                     \
+        } else {                                                               \
+            return ReturnType(__VA_ARGS__);                                    \
+        }                                                                      \
+    }                                                              \
+
+#define FORWARD_METHOD(obj, name, ...)                                  \
+    template <typename... Args>                                               \
+    auto name(Args&&... args) const -> decltype(auto) {                       \
+        if (obj() != nullptr) {                                               \
+            return obj()->name(std::forward<Args>(args)...);                  \
+        }                                                                      \
+        using ReturnType = decltype(obj()->name(std::forward<Args>(args)...)); \
+        if constexpr (std::is_void_v<ReturnType>) {                            \
+            return;                                                            \
+        } else if constexpr (std::is_reference_v<ReturnType>) {                \
+            static std::remove_reference_t<ReturnType> default_value{};        \
+            return static_cast<ReturnType>(default_value);                     \
+        } else {                                                               \
+            return ReturnType(__VA_ARGS__);                                    \
+        }                                                                      \
+    }
+
+#else
+
+#define FORWARD_METHOD(obj, name, ...)
+#define FORWARD_METHOD_NON_CONST(obj, name, ...)
+
+#endif

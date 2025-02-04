@@ -18,35 +18,6 @@ ModelCovList::ModelCovList(const CovContext &ctxt)
     _cova = _covList = nullptr;
 }
 
-void ModelCovList::delCova(int icov)
-{
-  if (_cova == nullptr) return;
-  _covList->delCov(icov);
-  
-}
-
-void ModelCovList::delAllCovas()
-{
-  if (_covList == nullptr) return;
-  _covList->delAllCov();
-}
-
-const MatrixSquareSymmetric& ModelCovList::getSillValues(int icov) const
-{
-  if (_cova == nullptr) return _dummy;
-  return _covList->getSill(icov);
-}
-
-double ModelCovList::getSill(int icov, int ivar, int jvar) const
-{
-  if (_covList == nullptr) return TEST;
-  return _covList->getSill(icov, ivar, jvar);
-}
-
-double ModelCovList::getTotalSill(int ivar, int jvar) const
-{
-  return _covList->getTotalSill(ivar, jvar);
-}
 
 void ModelCovList::setCovList(CovList* covs)
 {

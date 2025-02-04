@@ -169,10 +169,10 @@ KrigingSystem::KrigingSystem(Db* dbin,
 
   // Store the pointer casting the input ModelGeneric* into Model*
   // in order to avoid too many dynamic casts in the code
-  if (model != nullptr) _modelCovAniso = dynamic_cast<const Model*>(model);
+  _modelCovAniso = dynamic_cast<Model*>(model->clone());
 
-  if (_model->getNCov() > 0)
-    _cova = _model->getCovAnisoListModify();
+  if (_modelCovAniso->getNCov() > 0)
+    _cova = _modelCovAniso->getCovAnisoListModify();
   
   if (model != nullptr)
     _flagNoStat = _cova->isNoStat();
@@ -618,7 +618,7 @@ void KrigingSystem::_covtab0Calcul(int icas, int iech, const CovCalcMode* mode)
 {
   DECLARE_UNUSED(icas);
   DECLARE_UNUSED(iech);
-  _modelCovAniso->eval0MatInPlace(_covtab, mode);
+  _modelCovAniso->eval0CovMatBiPointInPlace(_covtab, mode);
 }
 
 
@@ -1878,7 +1878,7 @@ bool KrigingSystem::isReady()
         _cova->optimizationPreProcess(_dbin);
 
       if (_flagBayes && _modelSimple != nullptr && _dbin != nullptr)
-        _modelSimple->getCovAnisoList()->optimizationPreProcess(_dbin);
+        ((Model*)_modelSimple)->getCovAnisoList()->optimizationPreProcess(_dbin);
     }
   }
 
@@ -1936,7 +1936,7 @@ int KrigingSystem::estimate(int iech_out)
   if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
   {
     if (_flagFactorKriging)
-      message("\nProcessing Factor %d / %d\n",_model->getActiveFactor(), _nclasses);
+      message("\nProcessing Factor %d / %d\n",_modelCovAniso->getActiveFactor(), _nclasses);
 
     mestitle(1, "Target location");
     if (_rankColCok.empty())
@@ -2653,7 +2653,7 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
 
     if (_oldStyle)
     {
-      _modelSimple = (ModelGeneric*)_modelInit->clone();
+      _modelSimple = (Model*)_modelCovAniso->clone();
       _modelSimple->delAllDrifts();
     }
 
@@ -2882,7 +2882,7 @@ int KrigingSystem::updKrigOptIclass(int index_class, int nclasses)
     messerr("Use 'setKrigOptFactorKriging()' beforehand");
     return 1;
   }
-  _model->setActiveFactor(index_class);
+  _modelCovAniso->setActiveFactor(index_class);
   _nclasses = nclasses;
 
   // Update C00 if the variance calculation is required
@@ -2921,7 +2921,7 @@ bool KrigingSystem::_isCorrect()
   }
   if (_model != nullptr)
   {
-    if (ndim > 0 && ndim != _model->getNDim())
+    if (ndim > 0 && ndim != (int)_model->getNDim())
     {
       messerr("Incompatible Space Dimension of '_ model'");
       return false;
@@ -2967,7 +2967,7 @@ bool KrigingSystem::_isCorrect()
 
   if (_model != nullptr)
   {
-    if (_model->getNCov() <= 0)
+    if (_modelCovAniso->getNCov() <= 0)
     {
       messerr("The Model should contain some Covariances defined before Kriging");
       return false;

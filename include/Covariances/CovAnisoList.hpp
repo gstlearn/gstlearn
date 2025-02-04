@@ -10,6 +10,8 @@
 /******************************************************************************/
 #pragma once
 
+#include "Anamorphosis/AnamHermite.hpp"
+#include "Enum/EModelProperty.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
@@ -29,6 +31,9 @@ class CovAniso;
 class CovContext;
 class AStringFormat;
 class AAnam;
+class AnamHermite;
+class EModelProperty;
+
 
 /**
  * \brief
@@ -76,7 +81,9 @@ public:
   /// CovAnisoList Interface
   virtual void addCovAniso(const CovAniso* cov);
   void addCov(const CovBase* cov) override;
+  const AnamHermite* getAnamHermite() const;
 
+  const EModelProperty& getCovMode() const;
   virtual bool hasAnam() const { return false; }
   virtual const AAnam* getAnam() const { return nullptr; }
   virtual void setActiveFactor(int /*iclass*/) { }
@@ -86,7 +93,7 @@ public:
   void addCovList(const CovAnisoList* covs);
 
   // Filter a covariance
-  void setFiltered(int icov, bool filtered);
+  void setCovaFiltered(int icov, bool filtered);
 
   int             getNCov(bool skipNugget = false) const;
   bool            isFiltered(int icov) const;
@@ -101,7 +108,7 @@ public:
   const CovAniso*    getCova(int icov) const;
   CovAniso*          getCova(int icov); // TODO : beurk :(
   void               setCovAniso(int icov, CovAniso* covs);
-  const ECov&        getType(int icov) const override;
+  const ECov&        getCovType(int icov) const override;
   String             getCovName(int icov) const override;
   void               setRangeIsotropic(int icov, double range);
   void               setType(int icov, const ECov& type);
@@ -114,8 +121,10 @@ public:
   VectorDouble       getAngles(int icov) const;
   int                getNGradParam(int icov) const;
   CovAniso           extractCova(int icov) const;
-  int                getCovMinIRFOrder() const;
-
+  int                getCovaMinIRFOrder() const;
+  double             getBallRadius() const;
+  int                hasExternalCov() const;
+  bool               isChangeSupportDefined() const;
   // Methods necessary for Optimization
   void _optimizationPreProcess(const std::vector<SpacePoint> &p) const override;
   void _optimizationPostProcess() const override ;
@@ -154,6 +163,7 @@ public:
   const CovAnisoList* createReduce(const VectorInt &validVars) const;
 
 private:
+  void _setContext(const CovContext& ctxt) override;
   // Remove an elementary covariance structure
   void _delCov(int icov) override;
   // Remove all elementary covariance structures

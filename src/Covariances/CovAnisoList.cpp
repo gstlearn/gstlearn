@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovAnisoList.hpp"
+#include "Enum/EModelProperty.hpp"
 
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
@@ -19,8 +20,12 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovLMGradient.hpp"
+#include "Covariances/CovLMCConvolution.hpp"
+#include "Covariances/CovLMCTapering.hpp"
+#include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Db/Db.hpp"
 #include "Space/SpacePoint.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
 
 #include <math.h>
 #include <vector>
@@ -129,7 +134,7 @@ bool CovAnisoList::isNoStat() const
   }
   return nostat;
 }
-void CovAnisoList::setFiltered(int icov, bool filtered)
+void CovAnisoList::setCovaFiltered(int icov, bool filtered)
 {
   if (! _isCovarianceIndexValid(icov)) return;
   _filtered[icov] = filtered;
@@ -527,7 +532,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
     _covAnisos[icov] = covs;
     _covs[icov]      = covs;
   }
-  const ECov& CovAnisoList::getType(int icov) const
+  const ECov& CovAnisoList::getCovType(int icov) const
   {
     if (!_isCovarianceIndexValid(icov)) return ECov::UNKNOWN;
     return _covAnisos[icov]->getType();
@@ -630,6 +635,14 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
     return maxdist;
   }
 
+void CovAnisoList::_setContext(const CovContext& ctxt)
+{
+  for (auto &e : _covAnisos)
+  {
+    e->setContext(ctxt);
+  }
+}
+
   void CovAnisoList::copyCovContext(const CovContext& ctxt)
   {
     int number = (int)_covAnisos.size();
@@ -655,7 +668,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
   {
     for (int is = 0, ns = getNCov(); is < ns; is++)
     {
-      if (getType(is) == ECov::NUGGET) return true;
+      if (getCovType(is) == ECov::NUGGET) return true;
     }
     return false;
   }
@@ -664,7 +677,7 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
   {
     for (int is = 0, ns = getNCov(); is < ns; is++)
     {
-      if (getType(is) == ECov::NUGGET) return is;
+      if (getCovType(is) == ECov::NUGGET) return is;
     }
     return -1;
   }
@@ -693,3 +706,59 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
     }
     return newcovlist;
   }
+
+/**
+ * Returns the Ball radius (from the first covariance of _covaList)
+ * @return Value of the Ball Radius (if defined, i.e. for Numerical Gradient calculation)
+ */
+double CovAnisoList::getBallRadius() const
+{
+  // Check is performed on the first covariance
+  const CovAniso* cova = getCova(0);
+  double ball_radius = cova->getBallRadius();
+  if (! FFFF(ball_radius)) return ball_radius;
+  return 0.;
+}
+
+int CovAnisoList::hasExternalCov() const
+{
+  for (int icov = 0; icov < (int) getNCov(); icov++)
+  {
+    if (getCovType(icov) == ECov::FUNCTION) return 1;
+  }
+  return 0;
+}
+
+bool CovAnisoList::isChangeSupportDefined() const
+{
+  if (getAnam() == nullptr)
+  {
+     return false;
+  }
+  return getAnam()->isChangeSupportDefined();
+}
+
+const AnamHermite* CovAnisoList::getAnamHermite() const
+{
+  const AAnam* anam = getAnam();
+  if (anam == nullptr) return nullptr;
+  const AnamHermite *anamH = dynamic_cast<const AnamHermite*>(anam);
+  return anamH;
+}
+
+const EModelProperty& CovAnisoList::getCovMode() const
+{
+  if (dynamic_cast<const CovLMCTapering*>(this) != nullptr)
+    return EModelProperty::TAPE;
+
+  if (dynamic_cast<const CovLMCConvolution*>(this) != nullptr)
+    return EModelProperty::CONV;
+
+  if (dynamic_cast<const CovLMCAnamorphosis*>(this) != nullptr)
+    return EModelProperty::ANAM;
+ 
+  if (dynamic_cast<const CovLMGradient*>(this) != nullptr)
+    return EModelProperty::GRAD;
+
+  return EModelProperty::NONE;
+}

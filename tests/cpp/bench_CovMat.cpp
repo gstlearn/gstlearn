@@ -65,8 +65,8 @@ int main(int argc, char *argv[])
   // Preparing a vector of SpacePoints for the active samples in 'data'
   // for this usage, the list of SP can be reduced to the active samples only
   std::vector<SpacePoint> p1s;
-  dbin->getSamplesAsSP(p1s,model->getASpace(),true);
-  SpacePoint p2(model->getASpace());
+  dbin->getSamplesAsSP(p1s,model->getSpace(),true);
+  SpacePoint p2(model->getSpace());
   VectorDouble cumul(ndat, 0.);
   Timer timer;
 

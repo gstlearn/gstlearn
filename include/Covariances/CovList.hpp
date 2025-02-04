@@ -90,13 +90,13 @@ public:
   bool            isNoStat() const override;
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
-  const CovBase*      getCova(int icov) const;
-  virtual String      getCovName(int icov) const;
-  virtual const ECov& getType(int icov) const;
-  virtual void        setCova(int icov, const CovBase* covs);
-  void                setSill(int icov, int ivar, int jvar, double value);
-  double              getSill(int icov, int ivar, int jvar) const;
-  const MatrixSquareSymmetric& getSill(int icov) const;
+  const CovBase*    getCova(int icov) const;
+  virtual String getCovName(int icov) const;
+  virtual const ECov& getCovType(int icov) const;
+  virtual void      setCova(int icov, const CovBase* covs);
+  void               setSill(int icov, int ivar, int jvar, double value);
+  const MatrixSquareSymmetric& getSills(int icov) const;
+  double             getSill(int icov, int ivar, int jvar) const;
 
   // Methods necessary for Optimization
   void _optimizationPreProcess(const std::vector<SpacePoint> &p) const override;

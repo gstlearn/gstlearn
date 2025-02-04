@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
   VH::dump("Ranks of selected samples = ",nbgh);
 
   message("Covariance Matrix (selection & heterotopic multivariate & sampling)\n");
-  covM = modelM->evalCovMatSym(workingDbc, -1, nbgh);
+  covM = modelM->evalCovMatSym(workingDbc, nbgh, -1);
   covM.display();
 
   message("Drift Matrix (selection & heterotopic multivariate & sampling)\n");

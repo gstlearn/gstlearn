@@ -17,6 +17,7 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Db/Db.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
@@ -28,6 +29,7 @@
 #include "geoslib_define.h"
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/NoStatFunctional.hpp"
+#include "Variogram/Vario.hpp"
 #include <vector>
 #include <math.h>
 
@@ -1404,6 +1406,13 @@ MatrixSquareSymmetric ACov::evalCovMatSymByRanks(const Db* db1,
   return mat;
 }
 
+void ACov::setContext(const CovContext &ctxt)
+{
+  _ctxt = ctxt;
+  _setContext(ctxt);
+}
+
+
 /****************************************************************************/
 /*!
  **  Establish the covariance matrix between two Dbs where samples are selected by ranks
@@ -1434,7 +1443,7 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
                                      const VectorInt& nbgh1,
                                      const VectorInt& nbgh2,
                                      const CovCalcMode* mode,
-                                     double eps)
+                                     double eps) const
 {
   MatrixSparse* mat = nullptr;
   if (db2 == nullptr) db2 = db1;
@@ -1735,3 +1744,543 @@ int ACov::makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AFunctio
    return _tabNoStat->addElem(ns, econs,iv1,iv2);
   
 }
+
+
+/*****************************************************************************/
+/*!
+ **  Returns the covariance for an increment
+ **  This is the generic internal function
+ **  It can be called for stationary or non-stationary case
+ **
+ ** \param[in]  covint       Internal structure for non-stationarityAddress for the next term after the drift
+ **                          or NULL (for stationary case)
+ ** \param[in]  mode         CovCalcMode structure
+ ** \param[in]  weight       Multiplicative weight
+ ** \param[in]  d1           Distance vector
+ **
+ *****************************************************************************/
+double ACov::evaluateOneGeneric(const CovInternal *covint,
+                                 const VectorDouble &d1,
+                                 double weight,
+                                 const CovCalcMode *mode) const
+{
+  // Load the non-stationary parameters if needed
+
+  if (covint != nullptr)
+  {
+    updateCovByPoints(covint->getIcas1(), covint->getIech1(),
+                      covint->getIcas2(), covint->getIech2());
+  }
+
+  // Return the (weighted) Model value
+
+  return (weight * evalIvarIpas(1, d1, 0, 0, mode));
+}
+
+/*****************************************************************************/
+/*!
+ **  Returns the standard deviation at a given increment for a given model
+ **  between two samples of two Dbs
+ **
+ ** \param[in]  db1         First Db
+ ** \param[in]  iech1       Rank in the first Db
+ ** \param[in]  db2         Second Db
+ ** \param[in]  iech2       Rank in the second Db
+ ** \param[in]  verbose     Verbose flag
+ ** \param[in]  factor      Multiplicative factor for standard deviation
+ ** \param[in]  mode        CovCalcMode structure
+ **
+ *****************************************************************************/
+double ACov::calculateStDev(Db *db1,
+                             int iech1,
+                             Db *db2,
+                             int iech2,
+                             bool verbose,
+                             double factor,
+                             const CovCalcMode *mode) const
+{
+
+  /* Covariance at origin */
+
+  int ndim = db1->getNDim();
+  VectorDouble dd(ndim, 0.);
+  double c00 = evaluateOneGeneric(nullptr, dd, 1., mode);
+
+  /* Covariance at increment */
+
+  if (db1->getDistanceVecInPlace(iech1, iech2, dd, db2) != 0) return TEST;
+  double cov = evaluateOneGeneric(nullptr, dd, 1., mode);
+  double stdev = factor * sqrt(c00 - cov);
+
+  if (verbose)
+  {
+    message("Db1(%d) - Db2(%d)", iech1 + 1, iech2 + 1);
+    message(" - Incr=");
+    for (int idim = 0; idim < ndim; idim++)
+      message(" %lf", dd[idim]);
+    message(" - c(0)=%lf cov=%lf stdev=%lf\n", c00, cov, stdev);
+  }
+  return stdev;
+}
+
+
+/****************************************************************************/
+/*!
+ **  Evaluate the model on a Db
+ **
+ ** \param[in]  db         Db structure
+ ** \param[in]  ivar       Rank of the first variable
+ ** \param[in]  jvar       Rank of the second variable
+ ** \param[in]  mode       CovCalcMode structure
+ **
+ *****************************************************************************/
+VectorDouble ACov::evaluateFromDb(Db *db,
+                                   int ivar,
+                                   int jvar,
+                                   const CovCalcMode *mode) const
+{
+  if ((int)getNDim() != db->getNDim())
+  {
+    messerr("Dimension of the Db (%d) does not match dimension of the Model (%d)",
+            db->getNDim(), getNDim());
+    return VectorDouble();
+  }
+  int ndim = getNDim();
+  int nvar = getNVar();
+  int nech = db->getNSample();
+
+  /* Core allocation */
+
+  VectorDouble d1(ndim,0.);
+  MatrixSquareGeneral covtab(nvar);
+  VectorDouble gg(nech, TEST);
+
+  /* Loop on the lags */
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (!db->isActive(iech)) continue;
+    db->getCoordinatesPerSampleInPlace(iech, d1);
+    evaluateMatInPlace(nullptr, d1, covtab, true, 1., mode);
+    gg[iech] = covtab.getValue(ivar, jvar);
+  }
+  return gg;
+}
+
+/*****************************************************************************/
+/*!
+ **  Returns the covariances for an increment
+ **  This is the generic internal function
+ **  It can be called for stationary or non-stationary case
+ **
+ ** \param[in]  covint       Internal structure for non-stationarityAddress for the next term after the drift
+ **                          or NULL (for stationary case)
+ ** \param[in]  mode         CovCalcMode structure
+ ** \param[in]  flag_init    Initialize the array beforehand
+ ** \param[in]  weight       Multiplicative weight
+ ** \param[in]  d1           Distance vector
+ ** \param[out] covtab       Covariance array
+ **
+ *****************************************************************************/
+void ACov::evaluateMatInPlace(const CovInternal *covint,
+                               const VectorDouble &d1,
+                               MatrixSquareGeneral &covtab,
+                               bool flag_init,
+                               double weight,
+                               const CovCalcMode *mode) const
+{
+  // Load the non-stationary parameters if needed
+
+  if (isNoStat() && covint != nullptr)
+  {
+    updateCovByPoints(covint->getIcas1(), covint->getIech1(),
+                      covint->getIcas2(), covint->getIech2());
+  }
+
+  // Evaluate the Model
+
+  MatrixSquareGeneral mat = evalNvarIpas(1., d1, mode);
+
+  int nvar = getNVar();
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+    {
+      double value = weight * mat.getValue(ivar, jvar);
+      if (flag_init)
+        covtab.setValue(ivar,jvar,value);
+      else
+        covtab.updValue(ivar,jvar, EOperator::ADD, value);
+      }
+}
+
+
+/****************************************************************************/
+/*!
+ **  Calculate the variogram map from a Model
+ **  (presented as Variogram, not Covariance)
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbgrid      Grid structure
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+int ACov::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv) const
+{
+  if (dbgrid == nullptr) return 1;
+
+  /* Initializations */
+
+  int ndim = dbgrid->getNDim();
+  int nvar = dbgrid->getNLoc(ELoc::Z);
+  int nv2  = nvar * (nvar + 1) / 2;
+
+  /* Create the variables in the Variogram Map file */
+
+  int iptr = dbgrid->addColumnsByConstant(nv2, 0.);
+  if (iptr < 0) return 1;
+
+  /* Loop on the grid nodes */
+
+  CovCalcMode mode(ECalcMember::LHS);
+  mode.setAsVario(true);
+  VectorInt center = dbgrid->getCenterIndices();
+  VectorDouble dincr(ndim);
+  VectorInt indices(ndim);
+  MatrixSquareGeneral mat;
+  for (int iech = 0; iech < dbgrid->getNSample(); iech++)
+  {
+    if (! dbgrid->isActive(iech)) continue;
+    dbgrid->rankToIndice(iech, indices);
+
+    for (int idim = 0; idim < ndim; idim++)
+      dincr[idim] = (indices[idim] - center[idim]) * dbgrid->getDX(idim);
+
+    // Evaluate the variogram map
+    mat = evalNvarIpasIncr(dincr, &mode);
+
+    int ecr = 0;
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar <= ivar; jvar++, ecr++)
+        dbgrid->setArray(iech, iptr+ecr, mat.getValue(ivar, jvar));
+  }
+
+  /* Set the error return code */
+
+  namconv.setNamesAndLocators(dbgrid, iptr, "Model", nv2);
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the value of the model for a set of distances
+ **
+ ** \return  The model value
+ **
+ ** \param[in]  ivar       Rank of the first variable
+ ** \param[in]  jvar       Rank of the second variable
+ ** \param[in]  mode       CovCalcMode structure
+ ** \param[in]  codir      Array giving the direction coefficients (optional)
+ ** \param[in]  hh         Vector of increments
+ **
+ *****************************************************************************/
+double ACov::evaluateOneIncr(double hh,
+                              const VectorDouble &codir,
+                              int ivar,
+                              int jvar,
+                              const CovCalcMode *mode) const
+{
+  int ndim = getNDim();
+  int nvar = getNVar();
+
+  /* Core allocation */
+
+  VectorDouble d1(ndim);
+  MatrixSquareGeneral covtab(nvar);
+
+  /* Normalize the direction vector codir */
+
+  /* Get the normalized direction vector */
+
+  VectorDouble codir_loc = codir;
+  if (codir_loc.empty())
+  {
+    (void) GH::rotationGetDirectionDefault(ndim, codir_loc);
+  }
+  else
+  {
+    VH::normalizeCodir(ndim, codir_loc);
+  }
+
+  for (int idim = 0; idim < ndim; idim++)
+    d1[idim] = hh * codir_loc[idim];
+  evaluateMatInPlace(nullptr, d1, covtab, true, 1., mode);
+  return covtab.getValue(ivar, jvar);
+}
+
+
+/****************************************************************************/
+/*!
+ **  Calculate the value of the model for a set of distances
+ **
+ ** \return  Array containing the model values
+ **
+ ** \param[in]  ivar       Rank of the first variable
+ ** \param[in]  jvar       Rank of the second variable
+ ** \param[in]  codir      Array giving the direction coefficients (optional)
+ ** \param[in]  h          Vector of increments
+ ** \param[in]  mode       CovCalcMode structure
+ ** \param[in]  covint     Non-stationary parameters
+ **
+ *****************************************************************************/
+VectorDouble ACov::sample(const VectorDouble &h,
+                           const VectorDouble &codir,
+                           int ivar,
+                           int jvar,
+                           const CovCalcMode *mode,
+                           const CovInternal *covint) const
+{
+  int nh   = (int) h.size();
+  int ndim = getNDim();
+  int nvar = getNVar();
+
+  /* Core allocation */
+
+  VectorDouble d1(ndim);
+  MatrixSquareGeneral covtab(nvar);
+
+  /* Get the normalized direction vector */
+
+  VectorDouble codir_loc = codir;
+  if (codir_loc.empty())
+  {
+    (void) GH::rotationGetDirectionDefault(ndim, codir_loc);
+  }
+  else
+  {
+    VH::normalizeCodir(ndim, codir_loc);
+  }
+
+  /* Loop on the lags */
+
+  VectorDouble g(nh);
+  for (int ih = 0; ih < nh; ih++)
+  {
+    double hh = h[ih];
+    for (int idim = 0; idim < ndim; idim++)
+      d1[idim] = hh * codir_loc[idim];
+    evaluateMatInPlace(covint, d1, covtab, true, 1., mode);
+    g[ih] = covtab.getValue(ivar, jvar);
+  }
+  return g;
+}
+
+
+/**
+ * Returns the value of the normalized covariance (by the variance/covariance value)
+ * for a given pair of variables
+ * @param hh    Vector of distances
+ * @param ivar  Rank of the first variable
+ * @param jvar  Rank of the second variable
+ * @param codir Direction coefficients
+ * @param mode  CovCalcMode structure
+ * @return
+ */
+VectorDouble ACov::sampleUnitary(const VectorDouble &hh,
+                                  int ivar,
+                                  int jvar,
+                                  VectorDouble codir,
+                                  const CovCalcMode* mode)
+{
+  if (ivar < 0 || ivar >= getNVar()) return VectorDouble();
+  if (jvar < 0 || jvar >= getNVar()) return VectorDouble();
+  if (ivar == jvar) return VectorDouble();
+  int ndim = getNDim();
+  if (codir.empty())
+  {
+    (void) GH::rotationGetDirectionDefault(ndim, codir);
+  }
+  int nh = (int) hh.size();
+
+  double c00 = eval0(ivar, ivar, mode);
+  double c11 = eval0(jvar, jvar, mode);
+  c00 = sqrt(c00 * c11);
+  VectorDouble gg = sample(hh, codir, ivar, jvar, mode);
+
+  for (int i = 0; i < nh; i++)
+    gg[i] /= c00;
+
+  return gg;
+}
+
+VectorDouble ACov::envelop(const VectorDouble &hh,
+                            int ivar,
+                            int jvar,
+                            int isign,
+                            VectorDouble codir,
+                            const CovCalcMode* mode)
+{
+  if (ivar < 0 || ivar >= getNVar()) return VectorDouble();
+  if (jvar < 0 || jvar >= getNVar()) return VectorDouble();
+  if (ivar == jvar) return VectorDouble();
+  if (isign != -1 && isign != 1) return VectorDouble();
+  int ndim = getNDim();
+  if (codir.empty())
+  {
+    (void) GH::rotationGetDirectionDefault(ndim, codir);
+  }
+  int nh = (int) hh.size();
+  VectorDouble gg(nh);
+  VectorDouble g1 = sample(hh, codir, ivar, ivar, mode);
+  VectorDouble g2 = sample(hh, codir, jvar, jvar, mode);
+
+  for (int i = 0; i < nh; i++)
+    gg[i] = isign * sqrt(abs(g1[i] * g2[i]));
+
+  return gg;
+}
+
+
+
+/**
+ * Evaluate the Goodness-of_fit of the Model on the Experimental Variogram
+ * It is expressed as the average departure between Model and Variogram
+ * scaled to the variance.
+ * As this variance may be poorly calculated (< gmax / 5), it may be replaced
+ * by the largest value (gmax) divided by 2 (highly non_stationary cases).
+ * @param vario Experimental variogram
+ * @param verbose Verbose flag
+
+ * @return Value for the Goodness-of_fit (as percentage of the total sill)
+ */
+double ACov::gofToVario(const Vario *vario, bool verbose) const
+{
+  int nvar = getNVar();
+  int ndir = vario->getNDir();
+
+  double total = 0.;
+
+  // Loop on the pair of variables
+
+  CovCalcMode mode(ECalcMember::LHS);
+  mode.setAsVario(true);
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+    {
+      double varij  = vario->getVar(ivar, jvar);
+      double varmax = vario->getGmax(ivar, jvar);
+      // Modify the normalization as variance seems not consistent
+      if (ABS(varij) < varmax / 5)
+      {
+        if (verbose)
+          messerr("Variance seems erroneous. It is replaced by Gmax / 2.");
+        varij = varmax / 2.;
+      }
+
+      // Loop on the variogram directions
+
+      double totdir = 0.;
+      for (int idir = 0; idir < ndir; idir++)
+      {
+
+        // Read information from Experimental Variogram
+
+        VectorDouble codir = vario->getCodirs(idir);
+        VectorDouble sw = vario->getSwVec(idir, ivar, jvar);
+        VectorDouble hh = vario->getHhVec(idir, ivar, jvar);
+        VectorDouble gexp = vario->getGgVec(idir, ivar, jvar);
+
+        // Evaluate the Model
+
+        int npas = (int) gexp.size();
+        VectorDouble gmod = sample(hh, codir, ivar, jvar, &mode);
+
+        // Evaluate the score
+
+        double totpas = 0;
+        double scale = 0.;
+        for (int ipas = 0; ipas < npas; ipas++)
+        {
+          if (sw[ipas] <= 0 || hh[ipas] <= 0.) continue;
+          double ecart = sw[ipas] * ABS(gexp[ipas] - gmod[ipas]) / hh[ipas];
+          totpas += ecart;
+          scale  += sw[ipas] / hh[ipas];
+        }
+        totpas  = totpas / scale;
+        totdir += totpas;
+      }
+      totdir /= (double) ndir;
+      totdir /= varij;
+      total  += ABS(totdir);
+    }
+  total = 100. * total / (double) (nvar * nvar);
+  return total;
+}
+
+/**
+ * Printout of statement concerning the Quality of the GOF
+ * @param gof        Value of the Gof
+ * @param byValue    true: display GOF value; false: print its quality level
+ * @param thresholds Vector giving the Quality thresholds
+ */
+void ACov::gofDisplay(double gof, bool byValue, const VectorDouble& thresholds)
+{
+  message("Goodness-of-fit (as a percentage of the variance)");
+  if (byValue)
+  {
+    message(" = %5.2lf\n", gof);
+    return;
+  }
+  int nclass = (int)thresholds.size();
+  for (int iclass = 0; iclass < nclass; iclass++)
+  {
+    if (gof < thresholds[iclass])
+    {
+      message(" corresponds to level #%d (1 for very good)\n", iclass + 1);
+      return;
+    }
+  }
+}
+
+  /**
+   * \defgroup Model Model: Set of classes for processing Model contents
+   *
+   **/
+
+  /** @addtogroup Model_0 Calculating Covariance Matrix
+   * \ingroup Model
+   *
+   * These functions are meant to calculate the covariance Matrix between two Dbs
+   * or between a Db and itself.
+   * They take into account the presence of a possible selection
+   * They also account for heterotopy (if Z-variables are defined in the Db(s)
+   *
+   * @param  db1   First Db
+   * @param  db2   (Optional second Db)
+   * @param  ivar0 Rank of the selected variable in the first Db (-1 for all variables)
+   * @param  jvar0 Rank of the selected variable in the second Db (-1 for all variables)
+   * @param  nbgh1 Vector of indices of active samples in first Db (optional)
+   * @param  nbgh2 Vector of indices of active samples in second Db (optional)
+   * @param  mode  CovCalcMode structure
+   *
+   * @remarks The returned matrix if dimension to nrows * ncols where
+   * @remarks each term is the product of the number of active samples
+   * @remarks by the number of samples where the variable is defined
+   *
+   * @note 'dbin' and 'dbout' cannot be made 'const' as they can be updated
+   * @note due to the presence of 'nostat'
+   *
+   * @return A Matrix either in Dense or Sparse format
+   *
+   *  @{
+   */
+  VectorDouble ACov::evalCovMatV(Db* db1    ,
+                     Db* db2                ,
+                     int ivar0              ,
+                     int jvar0              ,
+                     const VectorInt& nbgh1 ,
+                     const VectorInt& nbgh2 ,
+                     const CovCalcMode* mode) const
+  {
+    return evalCovMat(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode).getValues();
+  }

@@ -9,8 +9,12 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Model/ModelGeneric.hpp"
-#include "Covariances/CovAnisoList.hpp"
-#include "Covariances/CovLMCAnamorphosis.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixFactory.hpp"
+#include "LinearOp/CholeskyDense.hpp"
+#include "Db/Db.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Drifts/DriftFactory.hpp"
 
 ModelGeneric::ModelGeneric(const CovContext &ctxt)
     : _cova(nullptr),
@@ -23,233 +27,206 @@ ModelGeneric::~ModelGeneric()
 {
 }
 
-MatrixRectangular ModelGeneric::evalDriftMat(const Db* db,
-                                                int ivar0,
-                                                const VectorInt& nbgh,
-                                                const ECalcMember& member) const
-{
-  if (_driftList == nullptr) return MatrixRectangular();
-  return _driftList->evalDriftMat(db, ivar0, nbgh, member);
-}
-
-MatrixRectangular ModelGeneric::evalDriftMatByRanks(const Db* db,
-                                                    const VectorVectorInt& sampleRanks,
-                                                    int ivar0,
-                                                    const ECalcMember& member) const
-{
-  if (_driftList == nullptr) return MatrixRectangular();
-  return _driftList->evalDriftMatByRanks(db, sampleRanks, ivar0, member);
-}
-
-MatrixRectangular
-ModelGeneric::evalDriftMatByTarget(const Db* db,
-                                    int ivar0,
-                                    int iech2,
-                                    const ECalcMember& member) const
-{
-  if (_driftList == nullptr) return MatrixRectangular();
-  return _driftList->evalDriftMatByTarget(db, ivar0, iech2, member);
-}
-
-MatrixSquareGeneral ModelGeneric::eval0Mat(const CovCalcMode* mode) const
-{
-  if (_cova == nullptr) return MatrixSquareGeneral();
-  return _cova->eval0Mat(mode);
-}
-
-MatrixRectangular ModelGeneric::evalCovMat(Db* db1,
-                                              Db* db2,
-                                              int ivar0,
-                                              int jvar0,
-                                              const VectorInt& nbgh1,
-                                              const VectorInt& nbgh2,
-                                              const CovCalcMode* mode)
-{
-  if (_cova == nullptr) return MatrixRectangular();
-  return _cova->evalCovMat(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode);
-}
-
-MatrixSquareSymmetric ModelGeneric::evalCovMatSym(const Db* db1,
-                                                           int ivar0,
-                                                           const VectorInt& nbgh1,
-                                                           const CovCalcMode* mode,
-                                                           bool cleanOptim) const
-{
-  if (_cova == nullptr) return MatrixSquareSymmetric();
-  return _cova->evalCovMatSym(db1, nbgh1, ivar0, mode, cleanOptim);
-}
-
-MatrixRectangular ModelGeneric::evalCovMatOptim(Db* db1,
-                                                Db* db2,
-                                                int ivar0,
-                                                int jvar0,
-                                                const VectorInt& nbgh1,
-                                                const VectorInt& nbgh2,
-                                                const CovCalcMode* mode,
-                                                bool cleanOptim)
-{
-  if (_cova == nullptr) return MatrixRectangular();
-  return _cova->evalCovMatOptim(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
-}
-
-MatrixRectangular ModelGeneric::evalCovMatOptimByRanks(const Db* db1,
-                                     const Db* db2,
-                                     const VectorVectorInt& sampleRanks1,
-                                     int ivar0,
-                                     int jvar0,
-                                     const int iech2,
-                                     const CovCalcMode* mode,
-                                     bool cleanOptim) const
-{
-  if (_cova == nullptr) return MatrixRectangular();
-  return _cova->evalCovMatOptimByRanks(db1, db2, sampleRanks1, ivar0, jvar0, iech2, mode, cleanOptim);
-}
-MatrixSquareSymmetric ModelGeneric::evalCovMatSymOptim(const Db* db1,
-                                                       const VectorInt& nbgh1,
-                                                       int ivar0,
-                                                       const CovCalcMode* mode,
-                                                       bool cleanOptim)
-{
-  if (_cova == nullptr) return MatrixSquareSymmetric();
-  return _cova->evalCovMatSymOptim(db1, nbgh1, ivar0, mode, cleanOptim);
-}
-MatrixSquareSymmetric ModelGeneric::evalCovMatSymOptimByRanks(const Db* db1,
-                                        const VectorVectorInt& sampleRanks1,
-                                        int ivar0,
-                                        const CovCalcMode* mode,
-                                        bool cleanOptim)
-{
-  if (_cova == nullptr) return MatrixSquareSymmetric();
-  return _cova->evalCovMatSymOptimByRanks(db1, sampleRanks1, ivar0, mode, cleanOptim);
-}
-
-MatrixSparse* ModelGeneric::evalCovMatSparse(Db* db1,
-                                                Db* db2,
-                                                int ivar0,
-                                                int jvar0,
-                                                const VectorInt& nbgh1,
-                                                const VectorInt& nbgh2,
-                                                const CovCalcMode* mode,
-                                                double eps)
-{
-  if (_cova == nullptr) return nullptr;
-  return _cova->evalCovMatSparse(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, eps);
-}
 
 void ModelGeneric::setField(double field)
 {
   _ctxt.setField(field);
-  CovAnisoList* covalist = dynamic_cast<CovAnisoList*>(_cova);
-  if (covalist != nullptr) covalist->copyCovContext(_ctxt);
-  if (_driftList != nullptr) _driftList->copyCovContext(_ctxt);
+  setContext(_ctxt);
+  copyCovContext(_ctxt);
 }
 
 bool ModelGeneric::isValid() const
 {
-  // Covariances: there should be some defined
-  if (_cova == nullptr)
-  {
-    messerr("Model is not valid: no covariance has been defined");
-    return false;
-  }
+  return _isValid();
+}
 
-  // Drifts: there should be valid
-  if (_driftList != nullptr)
-  {
-    if (!_driftList->isValid()) return false;
-  }
-
-  // Check the consistency between the Covariance and the Drift parts
-  int irf_drift = getDriftMaxIRFOrder();
-  int irf_cova  = getCovMinIRFOrder();
-  if (irf_cova > irf_drift)
-  {
-    messerr("Model if invalid due to IRF degree inconsistency");
-    messerr("- Covariance implies a order >= %d", irf_cova);
-    messerr("- Drift implies a order %d", irf_drift);
-    messerr("(Order -1 stands for strict stationarity)");
-    return false;
-  }
+bool ModelGeneric::_isValid() const
+{
   return true;
 }
 
-// Pipes methods to _ctxt
-int ModelGeneric::getNVar() const
+/**
+ * Compute the log-likelihood (based on covariance)
+ *
+ * @param db  Db structure where variable are loaded from
+ * @param verbose Verbose flag
+ *
+ * @remarks The calculation considers all the active samples.
+ * @remarks It can work in multivariate case with or without drift conditions (linked or not)
+ * @remarks The algorithm is stopped (with a message) in the heterotopic case
+ * // TODO; improve for heterotopic case
+ */
+double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
 {
-  return _ctxt.getNVar();
-}
-int ModelGeneric::getNDim() const
-{
-  return _ctxt.getNDim();
-}
-const VectorDouble& ModelGeneric::getMeans() const
-{
-  return _ctxt.getMean();
+  int nvar = db->getNLoc(ELoc::Z);
+  if (nvar < 1)
+  {
+    messerr("The 'db' should have at least one variable defined");
+    return TEST;
+  }
+  int nDrift = getNDriftEquation();
+ 
+  // Calculate the covariance matrix C and perform its Cholesky decomposition
+  MatrixSquareSymmetric cov = evalCovMatSym(db);
+  CholeskyDense covChol(&cov);
+  if (! covChol.isReady())
+  {
+    messerr("Cholesky decomposition of Covariance matrix failed");
+    return TEST;
+  }
+
+  // Establish the vector of multivariate data
+  VectorDouble Z;
+  if (nDrift > 0)
+    Z = db->getColumnsByLocator(ELoc::Z, true, true);
+  else
+    Z = db->getColumnsByLocator(ELoc::Z, true, true, getMeans());
+
+  int size = (int)Z.size();
+  if (verbose)
+  {
+    message("Likelihood calculation:\n");
+    message("- Number of active samples     = %d\n", db->getNSample(true));
+    message("- Number of variables          = %d\n", nvar);
+    message("- Length of Information Vector = %d\n", size);
+    if (nDrift > 0)
+      message("- Number of drift conditions = %d\n", getNDriftEquation());
+    else
+      VH::display("Constant Mean(s)", getMeans());
+  }
+
+  // If Drift functions are present, evaluate the optimal Drift coefficients
+  if (nDrift > 0)
+  {
+    // Extract the matrix of drifts at samples X
+    MatrixRectangular X = evalDriftMat(db);
+
+    // Calculate Cm1X = Cm1 * X
+    MatrixRectangular Cm1X;
+    if (covChol.solveMatrix(X, Cm1X))
+    {
+      messerr("Problem when solving a Linear System after Cholesky decomposition");
+      return TEST;
+    }
+
+    // Calculate XtCm1X = Xt * Cm1 * X
+    MatrixSquareSymmetric* XtCm1X =
+      MatrixFactory::prodMatMat<MatrixSquareSymmetric>(&X, &Cm1X, true, false);
+   
+    // Construct ZtCm1X = Zt * Cm1 * X and perform its Cholesky decomposition
+    VectorDouble ZtCm1X = Cm1X.prodVecMat(Z);
+    CholeskyDense XtCm1XChol(XtCm1X);
+    if (! XtCm1XChol.isReady())
+    {
+      messerr("Cholesky decomposition of XtCm1X matrix failed");
+      delete XtCm1X;
+      return TEST;
+    }
+
+    // Calculate beta = (XtCm1X)-1 * ZtCm1X
+    VectorDouble beta(nDrift);
+    if (XtCm1XChol.solve(ZtCm1X, beta))
+    {
+      messerr("Error when calculating Likelihood");
+      delete XtCm1X;
+      return TEST;
+    }
+    setBetaHat(beta);
+    delete XtCm1X;
+
+    if (verbose)
+    {
+      VH::display("Optimal Drift coefficients = ", beta);
+    }
+
+    // Center the data by the optimal drift: Z = Z - beta * X
+    VH::subtractInPlace(Z, X.prodMatVec(beta));
+  }
+
+   // Calculate Cm1Z = Cm1 * Z
+  VectorDouble Cm1Z(Z.size());
+  if (covChol.solve(Z, Cm1Z))
+  {
+    messerr("Error when calculating Cm1Z");
+    return TEST;
+  }
+
+  // Calculate the log-determinant
+  double logdet = covChol.computeLogDeterminant();
+
+  // Calculate quad = Zt * Cm1Z
+  double quad = VH::innerProduct(Z, Cm1Z);
+
+  // Derive the log-likelihood
+  double loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
+
+  // Optional printout
+  if (verbose)
+  {
+    message("Log-Determinant = %lf\n", logdet);
+    message("Quadratic term = %lf\n", quad);
+    message("Log-likelihood = %lf\n", loglike);
+  }
+  return loglike;
 }
 
-// Pipes method to _driftList
-int ModelGeneric::getNDrift() const
+/**
+ * Add a list of Drifts. This operation cleans any previously stored drift function
+ * @param driftlist List of Drifts to be added
+ *
+ * @remark This method deletes any pre-existing drift functions
+ */
+void ModelGeneric::setDriftList(const DriftList* driftlist)
 {
-  if (_driftList == nullptr) return 0;
-  return _driftList->getNDrift();
-}
-int ModelGeneric::getNDriftEquation() const
-{
-  if (_driftList == nullptr) return 0;
-  return _driftList->getNDriftEquation();
-}
-int ModelGeneric::getNExtDrift() const
-{
-  if (_driftList == nullptr) return 0;
-  return _driftList->getNExtDrift();
-}
-int ModelGeneric::getDriftMaxIRFOrder(void) const
-{
-  if (_driftList == nullptr) return -1;
-  return _driftList->getDriftMaxIRFOrder();
-}
-void ModelGeneric::delAllDrifts()
-{
-  if (_driftList == nullptr) return;
-  _driftList->delAllDrifts();
+  if (driftlist == nullptr) return;
+  delete _driftList;
+  _driftList = driftlist->clone();
+
+  // Check that the DriftList has the same type of CovContext as the Model
+  _driftList->copyCovContext(_ctxt);
 }
 
-// Pipes method to _ACov
-const CovAnisoList* ModelGeneric::getCovAnisoList() const
+/**
+ * Define the list of drift functions for:
+ * - a given degree of the IRF
+ * - a given number of external drifts
+ * @param order Order of the IRF
+ * @param nfex  Number of External Drifts
+ *
+ * @remark This method deletes any pre-existing drift functions and replaces them by the new definition
+ * @remark This replacement is performed accounting for information stored in 'model', such as:
+ * - the space dimension
+ * - the number of variables
+ */
+void ModelGeneric::setDriftIRF(int order, int nfex)
 {
-  if (_cova == nullptr) return nullptr;
-  const CovAnisoList* covalist = dynamic_cast<const CovAnisoList*>(_cova);
-  return covalist;
+  delete _driftList;
+  _driftList = DriftFactory::createDriftListFromIRF(order, nfex, _ctxt);
 }
-CovAnisoList* ModelGeneric::getCovAnisoListModify() const
+
+
+void ModelGeneric::addDrift(const ADrift *drift)
 {
-  if (_cova == nullptr) return nullptr;
-  CovAnisoList* covalist = dynamic_cast<CovAnisoList*>(_cova);
-  return covalist;
+  if (drift == nullptr) return;
+  if (_driftList == nullptr) _driftList = new DriftList(_ctxt);
+  ADrift* drift_loc = dynamic_cast<ADrift*>(drift->clone());
+  _driftList->addDrift(drift_loc);
+
+  // Check that the DriftList has the same type of CovContext as the Model
+  _driftList->copyCovContext(_ctxt);
 }
-int ModelGeneric::getCovMinIRFOrder() const
+
+void ModelGeneric::setDrifts(const VectorString &driftSymbols)
 {
-  const CovAnisoList* covalist = getCovAnisoList();
-  if (covalist == nullptr) return ITEST;
-  return covalist->getCovMinIRFOrder();
+  if (_driftList == nullptr)
+    _driftList = new DriftList();
+  else
+    delAllDrifts();
+
+  for (int i = 0; i < (int) driftSymbols.size(); i++)
+  {
+    ADrift *drift = DriftFactory::createDriftBySymbol(driftSymbols[i]);
+    addDrift(drift);
+  }
 }
-int ModelGeneric::getNCov(bool skipNugget) const
-{
-  const CovAnisoList* covalist = getCovAnisoList();
-  if (covalist == nullptr) return ITEST;
-  return covalist->getNCov(skipNugget);
-}
-void ModelGeneric::setActiveFactor(int iclass)
-{
-  if (_cova == nullptr) return;
-  CovLMCAnamorphosis* covalist = dynamic_cast<CovLMCAnamorphosis*>(_cova);
-  if (covalist == nullptr) return;
-  covalist->setActiveFactor(iclass);
-}
-int ModelGeneric::getActiveFactor() const
-{
-  if (_cova == nullptr) return 0;
-  CovLMCAnamorphosis* covalist = dynamic_cast<CovLMCAnamorphosis*>(_cova);
-  if (covalist == nullptr) return 0;
-  return covalist->getActiveFactor();
-}
+

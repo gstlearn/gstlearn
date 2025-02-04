@@ -907,7 +907,7 @@ VectorDouble CalcSimuTurningBands::_createAIC()
 
   for (int icov = 0; icov < ncova; icov++)
   {
-    MatrixSquareSymmetric mat = getModel()->getSillValues(icov);
+    MatrixSquareSymmetric mat = getModel()->getSills(icov);
     if (! mat.isDefinitePositive())
     {
       messerr("Warning: the model is not authorized");
@@ -2130,7 +2130,7 @@ void CalcSimuTurningBands::_checkGaussianData2Grid(Db *dbin,
     // Find the index of the closest grid node and derive tolerance
     int jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor.data());
     if (jech < 0) continue;
-    double eps = model->calculateStdev(dbin, iech, dbgrid, jech, false, 2.);
+    double eps = model->calculateStDev(dbin, iech, dbgrid, jech, false, 2.);
     if (eps < 1.e-6) eps = 1.e-6;
 
     for (int isimu = 0; isimu < nbsimu; isimu++)

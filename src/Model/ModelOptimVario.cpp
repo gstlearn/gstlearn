@@ -64,7 +64,7 @@ bool ModelOptimVario::_checkConsistency()
   const Model* model = _modelPart._model;
   const Vario* vario = _varioPart._vario;
 
-  if (vario->getNDim() != model->getNDim())
+  if (vario->getNDim() != (int)model->getNDim())
   {
     messerr("'_vario'(%d) and '_model'(%d) should have same Space Dimension",
             vario->getNDim(), model->getNDim());

@@ -647,7 +647,7 @@ static int st_check_environment(int flag_in,
               model->getNDim());
       goto label_end;
     }
-    if (model->getNDim() != ndim)
+    if ((int)model->getNDim() != ndim)
     {
       messerr("The Space Dimension of the Db structure (%d)", ndim);
       messerr("Does not correspond to the Space Dimension of the model (%d)",

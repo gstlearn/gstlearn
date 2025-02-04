@@ -253,6 +253,7 @@ String CovList::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
+
 int  CovList::getNCov() const
 {
   int ncov = (int) _covs.size();
@@ -285,7 +286,7 @@ void CovList::setCova(int icov,const CovBase* covs)
   if (! _isCovarianceIndexValid(icov)) return;
   _covs[icov] = covs;
 }
-const ECov& CovList::getType(int icov) const
+const ECov& CovList::getCovType(int icov) const
 {
     DECLARE_UNUSED(icov)
     return ECov::UNKNOWN;
@@ -298,7 +299,7 @@ String CovList::getCovName(int icov) const
   return std::string(unknown.getKey());
 }
   
-const MatrixSquareSymmetric& CovList::getSill(int icov) const
+const MatrixSquareSymmetric& CovList::getSills(int icov) const
 {
   return _covs[icov]->getSill();
 }

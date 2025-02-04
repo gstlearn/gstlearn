@@ -54,7 +54,7 @@ bool ACalcInterpolator::_check()
   /* Cross-checking the Space Dimension consistency */
   /**************************************************/
 
-  int ndim = _getNDim();
+  unsigned int ndim = _getNDim();
   if (_model != nullptr)
   {
     if (ndim > 0)
@@ -77,7 +77,7 @@ bool ACalcInterpolator::_check()
   {
     if (ndim > 0)
     {
-      if (ndim != (int) _neigh->getNDim())
+      if (ndim != _neigh->getNDim())
       {
         messerr("Inconsistent Space dimension:");
         messerr("- Current dimension = %d",ndim);

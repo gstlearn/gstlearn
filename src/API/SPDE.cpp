@@ -377,7 +377,7 @@ void SPDE::_computeSimuCond() const
   _computeKriging();
 }
 
-void SPDE::_centerByDrift(const VectorDouble& dataVect,int ivar,bool useSel) const
+void SPDE::_centerByDrift(const VectorDouble& dataVect, bool useSel) const
 {
   _computeDriftCoeffs();
 
@@ -395,7 +395,7 @@ void SPDE::_centerByDrift(const VectorDouble& dataVect,int ivar,bool useSel) con
   }
   else
   {
-    _workingDataInit = _model->evalDriftVarCoefs(_data,_driftCoeffs,ivar,useSel);
+    _workingDataInit = _model->evalDriftVarCoefs(_data,_driftCoeffs,useSel);
 
     for(int iech = 0, nech = (int) _workingDataInit.size(); iech<nech; iech++)
     {
@@ -404,10 +404,10 @@ void SPDE::_centerByDrift(const VectorDouble& dataVect,int ivar,bool useSel) con
   }
 }
 
-void SPDE::_addDrift(Db* db, VectorDouble &result, int ivar, bool useSel)
+void SPDE::_addDrift(Db* db, VectorDouble &result, bool useSel)
 {
   if (! _requireCoeffs) return;
-  VectorDouble temp_out = _model->evalDriftVarCoefs(db, _driftCoeffs, ivar, useSel);
+  VectorDouble temp_out = _model->evalDriftVarCoefs(db, _driftCoeffs, useSel);
   VH::addInPlace(result, temp_out);
 }
 
@@ -453,7 +453,7 @@ int SPDE::compute(Db *dbout,
     dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
     // Suppress any TEST value and center by the drift
     dataVect = VH::suppressTest(dataVect);
-    _centerByDrift(dataVect,ivar,useSel);
+    _centerByDrift(dataVect,useSel);
   }
 
   // Create the output vectors in the output Db
@@ -627,7 +627,7 @@ double SPDE::computeQuad() const
   int ivar = 0;
   bool useSel = true;
   VectorDouble dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
-  _centerByDrift(dataVect,ivar,useSel);
+  _centerByDrift(dataVect,useSel);
   return _precisionsKrig->computeQuadratic(_workingData);
 }
 
@@ -692,7 +692,7 @@ double SPDE::computeLogLikelihood(int nbsimu, bool verbose) const
     dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
     // Suppress any TEST value and center by the drift
     dataVect = VH::suppressTest(dataVect);
-    _centerByDrift(dataVect,ivar,useSel);
+    _centerByDrift(dataVect,useSel);
   }
 
   // Dispatch
@@ -946,7 +946,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   if (!hasnugget)
   {
     MatrixSquareSymmetric sills(model->getNVar());
-    cova = CovAniso::createIsotropicMulti(model->getContext(), ECov::NUGGET, 0, sills);
+    cova = CovAniso::createIsotropicMulti(*model->getContext(), ECov::NUGGET, 0, sills);
   }
   VectorInt ivars = VH::sequence(nvar);
 

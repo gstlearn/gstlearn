@@ -574,6 +574,7 @@
 //                    Add C++ extension                     //
 //////////////////////////////////////////////////////////////
 
+%include ../r/generated_r.i
 %{
   #include <stdio.h>
   #include <string>
@@ -711,6 +712,59 @@ function(x, i, value)
     x$setAt(idx-1, value)
   }
   x
+}
+
+"getMethodsOfClass" <- function(name)
+{
+  x=ls(envir=asNamespace("gstlearn"))
+  split_vec = strsplit(x,"_")
+  first_part <- sapply(split_vec, function(x) x[1])
+  second_part <- sapply(split_vec, function(x) x[2])
+  len = sapply(split_vec,function(x) length(x))
+  ind = (first_part == name) & len == 2
+  return(second_part[ind])
+}
+
+"addMethodToList" <- function(classe,namemethod,listcur)
+{
+  listcur[[namemethod]] <- get(paste0(classe, "_", namemethod))
+  return(listcur)
+}
+
+"generateListMethods" <-function(listclasses)
+{
+  accessorFuns = list()
+  for (classe in listclasses)
+  {
+    methodsName = getMethodsOfClass(classe)
+    for (namemethod in methodsName)
+    {
+      accessorFuns = addMethodToList(classe,namemethod,accessorFuns)
+    }
+  }
+  return(accessorFuns)
+}
+
+"addMethodsFromNames" <- function(derived,listmethods) {
+  setMethod(
+    "$", paste0("_p_", derived),
+    function(x, name) {
+      idx = match(name, names(listmethods))
+      if (is.na(idx)) {
+        return(callNextMethod(x, name))
+      }
+      f = listmethods[[idx]]
+      result = function(...) {
+        f(x, ...)
+      }
+      return(result)
+    }
+  )
+}
+
+"addMethods" <- function(derived,listclasses) {
+  listfull = c(derived,listclasses)
+  addMethodsFromNames(derived, generateListMethods(listfull))
 }
 
 setMethod('[',    '_p_VectorTT_int_t',                  getVitem)
@@ -1207,4 +1261,10 @@ setMethod("plot", signature(x="_p_Model"), function(x,y="missing",...) plot.mode
 
 setMethod("plot", signature(x="_p_Rule"), function(x,y="missing",...) plot.rule(x,...))
 setMethod("plot", signature(x="_p_AAnam"), function(x,y="missing",...) plot.anam(x,...))
+
+#Add methods of ModelCovList (base) to Model (derived) (in case inheritance didn t work)
+
+addMethods("Model",c("ModelCovList","ModelGeneric"))
+
+
 %}
