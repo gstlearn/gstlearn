@@ -2759,7 +2759,8 @@ int KrigingSystem::setKrigOptDGM(bool flag_dgm, double eps)
     return 0;
   }
 
-  if (_model->getCovMinIRFOrder() != -1)
+  const Model* model = dynamic_cast<const Model*>(_model);
+  if (model->getCovMinIRFOrder() != -1)
   {
     messerr("The option DGM is limited to Stationary Covariances");
     return 1;

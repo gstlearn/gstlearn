@@ -93,7 +93,7 @@ public:
   void addCovList(const CovAnisoList* covs);
 
   // Filter a covariance
-  void setCovaFiltered(int icov, bool filtered);
+  void setCovFiltered(int icov, bool filtered);
 
   int             getNCov(bool skipNugget = false) const;
   bool            isFiltered(int icov) const;
@@ -121,7 +121,7 @@ public:
   VectorDouble       getAngles(int icov) const;
   int                getNGradParam(int icov) const;
   CovAniso           extractCova(int icov) const;
-  int                getCovaMinIRFOrder() const;
+  int                getCovMinIRFOrder() const;
   double             getBallRadius() const;
   int                hasExternalCov() const;
   bool               isChangeSupportDefined() const;

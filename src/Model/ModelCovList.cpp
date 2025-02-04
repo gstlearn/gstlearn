@@ -25,17 +25,6 @@ void ModelCovList::setCovList(CovList* covs)
     _cova = _covList;
 }
 
-bool ModelCovList::isAllActiveCovList() const
-{
-  if (_covList == nullptr) return false;
-  return _covList->isAllActiveCovList();
-}
-
-MatrixSquareSymmetric ModelCovList::getTotalSills() const
-{
-  return _covList->getTotalSills();
-}
-
 ModelCovList::~ModelCovList()
 {
 }

@@ -134,7 +134,7 @@ bool CovAnisoList::isNoStat() const
   }
   return nostat;
 }
-void CovAnisoList::setCovaFiltered(int icov, bool filtered)
+void CovAnisoList::setCovFiltered(int icov, bool filtered)
 {
   if (! _isCovarianceIndexValid(icov)) return;
   _filtered[icov] = filtered;

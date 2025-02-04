@@ -170,7 +170,7 @@ public:
   FORWARD_METHOD(castInCovAnisoListConst, extractCova)
   FORWARD_METHOD(castInCovAnisoListConst, getNGradParam,ITEST)
   FORWARD_METHOD(castInCovAnisoListConst, getMaximumDistance, TEST)
-  FORWARD_METHOD(castInCovAnisoListConst, getCovaMinIRFOrder, ITEST)
+  FORWARD_METHOD(castInCovAnisoListConst, getCovMinIRFOrder, ITEST)
   FORWARD_METHOD(castInCovAnisoListConst, getAnamNClass, ITEST)
   FORWARD_METHOD(castInCovAnisoListConst, hasAnam  , false)
   FORWARD_METHOD(castInCovAnisoListConst, hasNugget, false)
@@ -188,10 +188,9 @@ public:
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setSill)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setRangeIsotropic)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setMarkovCoeffs)
-  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setCovaFiltered)
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setCovFiltered)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, normalize)
   
-
   FORWARD_METHOD_NON_CONST(_castInCovLMCTapering, setTapeRange)
   FORWARD_METHOD(castInCovLMGradientConst, evalZAndGradients)
   

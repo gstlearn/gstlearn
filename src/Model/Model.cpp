@@ -122,7 +122,7 @@ bool Model::_isValid() const
 
   // Check the consistency between the Covariance and the Drift parts
   int irf_drift = getDriftMaxIRFOrder();
-  int irf_cova  = getCovaMinIRFOrder();
+  int irf_cova  = getCovMinIRFOrder();
   if (irf_cova > irf_drift)
   {
     messerr("Model if invalid due to IRF degree inconsistency");
