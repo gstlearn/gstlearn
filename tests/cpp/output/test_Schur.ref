@@ -71,7 +71,7 @@ Collocated Option (in Unique Neighborhood):
 ===========================================
 - using 'KrigingCalcul' on the Complemented Data Set
 - using 'KrigingCalcul' on Standard Data Set adding Collocated Option
-- Collocated Variable ranks:         0         2
+- Collocated Variable ranks:         0        -1         2
 
 Data Base Characteristics
 =========================

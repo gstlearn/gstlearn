@@ -51,48 +51,49 @@ Data selected in neighborhood
           2          2      0.483      0.557
           3          3      0.762      0.433
 
-LHS of Kriging matrix (compressed)
-==================================
-Number of active samples    = 3
-Total number of equations   = 6
-Reduced number of equations = 5
+LHS of Kriging matrix
+=====================
+Dimension of the Covariance Matrix  = 5
 
-       Rank                     1          2          3          4          5
-                  Flag          1          2          3          4          5
-          1          1      9.416      0.122     -7.172      0.000     -0.093
-          2          2      0.122      9.416     -0.093     -0.714     -7.172
-          3          3     -7.172     -0.093      6.168      0.000      0.080
-          4          4      0.000     -0.714      0.000      6.168      0.614
-          5          5     -0.093     -7.172      0.080      0.614      6.168
+       Rank          1          2          3          4          5
+          1      9.416      0.122     -7.172      0.000     -0.093
+          2      0.122      9.416     -0.093     -0.714     -7.172
+          3     -7.172     -0.093      6.168      0.000      0.080
+          4      0.000     -0.714      0.000      6.168      0.614
+          5     -0.093     -7.172      0.080      0.614      6.168
 
-RHS of Kriging matrix (compressed)
-==================================
+RHS of Kriging matrix
+=====================
 Number of active samples    = 3
 Total number of equations   = 6
 Reduced number of equations = 5
 Number of right-hand sides  = 2
 Punctual Estimation
 
-       Rank       Flag          1          2
-          1          1      4.708     -3.586
-          2          2      0.122     -0.093
-          3          3     -3.586      3.084
-          4          4      0.000      0.000
-          5          5     -0.093      0.080
+       Rank          1          2
+          1      4.708     -3.586
+          2      0.122     -0.093
+          3     -3.586      3.084
+          4      0.000      0.000
+          5     -0.093      0.080
 
 (Co-) Kriging weights
 =====================
-       Rank         x1         x2       Data        Z1*        Z2*
+       Rank       Data        Z1*        Z2*
 Using variable Z1 
-          1      0.652      0.015      0.753      0.500      0.000
-          2      0.483      0.557        N/A        N/A        N/A
-          3      0.762      0.433      0.793      0.007      0.000
-Sum of weights                                    0.506      0.000
+          1      0.753      0.500      0.000
+          2      0.793      0.007      0.000
+Sum of weights              0.506      0.000
 Using variable Z2 
-          1      0.652      0.015     -0.454      0.000      0.500
-          2      0.483      0.557     -0.872      0.001     -0.001
-          3      0.762      0.433      0.744      0.000      0.007
-Sum of weights                                    0.001      0.506
+          3     -0.454      0.000      0.500
+          4     -0.872      0.001     -0.001
+          5      0.744      0.000      0.007
+Sum of weights              0.001      0.506
+
+Drift or Mean Information
+=========================
+Mean for Variable Z1 = 0.352981
+Mean for Variable Z2 = -0.127129
 
 (Co-) Kriging results
 =====================

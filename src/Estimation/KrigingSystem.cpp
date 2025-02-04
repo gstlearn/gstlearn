@@ -52,7 +52,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
                              Db* dbout,
                              const ModelGeneric* model,
                              ANeigh* neigh)
-  : _oldStyle(true)
+  : _oldStyle(false)
   , _dbin(dbin)
   , _dbout(dbout)
   , _modelInit(nullptr)
@@ -70,9 +70,9 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _X0()
   , _Z()
   , _means()
-  , _calcModeLHS()
-  , _calcModeRHS()
-  , _calcModeVAR()
+  , _calcModeLHS(ECalcMember::LHS)
+  , _calcModeRHS(ECalcMember::RHS)
+  , _calcModeVAR(ECalcMember::VAR)
   , _iptrEst(-1)
   , _iptrStd(-1)
   , _iptrVarZ(-1)
@@ -1846,11 +1846,6 @@ void KrigingSystem::_dualCalcul()
 bool KrigingSystem::isReady()
 {
   if (! _isCorrect()) return false;
-
-  // Define the calculation modes
-  _calcModeLHS = CovCalcMode(ECalcMember::LHS);
-  _calcModeRHS = CovCalcMode(ECalcMember::RHS);
-  _calcModeVAR = CovCalcMode(ECalcMember::VAR);
 
   // Perform some pre-calculation when variance of estimator is requested
   if (_flagStd)

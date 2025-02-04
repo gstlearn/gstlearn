@@ -223,7 +223,6 @@ bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelGeneric* modelgeneric)
 
 bool CalcImage::_filterImageOld(DbGrid* dbgrid, const ModelGeneric* modelgeneric)
 {
-  message("on passe page le Krigeage\n");
   KrigingSystem ksys(dbgrid, dbgrid, modelgeneric, getNeigh());
   if (ksys.updKrigOptEstim(_iattOut, -1, -1)) return false;
   if (!ksys.isReady()) return false;
