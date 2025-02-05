@@ -179,6 +179,7 @@
   #include "Variogram/VMap.hpp"
   #include "Variogram/VCloud.hpp"
   
+  #include "Basic/ParamInfo.hpp"
   #include "Model/ModelGeneric.hpp"
   #include "Model/ModelCovList.hpp"
   #include "Model/Model.hpp"

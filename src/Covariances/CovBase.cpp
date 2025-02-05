@@ -11,31 +11,58 @@
 
 #include "Covariances/CovBase.hpp"
 #include "Basic/ParamInfo.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/NoStatFunctional.hpp"
 #include "geoslib_define.h"
-#include <limits>
-#define INF std::numeric_limits<double>::infinity()
+#include <cstddef>
+#include <functional>
 
-static ParamInfo createParamInfoForSill()
+
+ParamInfo CovBase::createParamInfoForCholSill(int ivar, int jvar)
 {
-  ParamInfo pinf("Sill",
-                TEST, 
-                {-INF,INF},
-                "Element of the sill matrix");
+  std::function<void(double)> setCholSill = [this, ivar, jvar](double value) {
+    this->setCholSill(ivar, jvar, value);
+  };
+  ParamInfo pinf(String("Cholesky sill"),
+                 TEST, 
+                 {-INF,INF},
+                 String("Term of the Cholesky decomposition of the sill matrix")
+                 );
   return pinf;  
 }
 CovBase::CovBase(ACov* cor,
                 const MatrixSquareSymmetric &sill)
 : ACov(cor == nullptr? CovContext() : cor->getContext())
-, _sills(MatrixT<ParamInfo>(sill.getNRows(), sill.getNCols(), createParamInfoForSill()))
+, _cholSillsInfo(MatrixT<ParamInfo>(sill.getNRows(), sill.getNCols(), createParamInfoForCholSill()))
+, _cholSills(MatrixRectangular(sill.getNRows(), sill.getNCols()))
 , _sillCur(sill)
 , _cor(cor)
-{
+{ 
+  _ctxt.setNVar(sill.getNSize());
+  for (size_t i = 0, n = getNVar(); i < n; i++)
+  {
+
+    for (size_t j = 0; j <= n; j++)
+    {
+      //_cholSillsInfo(i,j).setValueDefault(4.);
+      //_cholSillsInfo(i,j).setUpdateFunction(nullptr);
+      // _cholSillsInfo(i,j).setUpdateFunction([this, i, j](double value) 
+      //  {
+      //    this->setCholSill(i, j, value);
+      //  });
+      _cholSillsInfo(i,j).setUpdateFunction(nullptr);
+    }
+    for (size_t j = i+1; j < n; j++)
+    {
+       _cholSillsInfo(i,j).setFixed(true);
+    }
+  }
   if (cor != nullptr)
   {
     _ctxt = cor->getContextCopy();
@@ -51,6 +78,18 @@ CovBase::~CovBase()
 
 }
 
+void CovBase::loadInfoValues()
+{
+  for (size_t ivar = 0, n = getNVar(); ivar < n; ivar++)
+  {
+    for (size_t jvar = 0; jvar < n; jvar++)
+    {
+     // _cholSills.setValue(ivar, jvar, _cholSillsInfo(ivar, jvar).getValue());
+    }
+  }
+  _sillCur.prodMatMatInPlace(&_cholSills, &_cholSills, false, true);
+  _cor->loadInfoValues();
+}
 void CovBase::setCor(ACov* cor)
 {
   _cor = cor;
@@ -66,6 +105,7 @@ void CovBase::_setContext(const CovContext &ctxt)
   DECLARE_UNUSED(ctxt)
   _updateFromContext();
 }
+
 
 void CovBase::setSill(double sill) const
 {
@@ -101,6 +141,7 @@ void CovBase::setSill(const VectorDouble &sill) const
   _sillCur.setValues(sill);
 }
 
+
 void CovBase::setSill(int ivar, int jvar, double sill) const
 {
   if (!_isVariableValid(ivar)) return;
@@ -108,6 +149,19 @@ void CovBase::setSill(int ivar, int jvar, double sill) const
   /// TODO : Test if sill matrix is positive definite (if not, generate a warning)
   if (!_sillCur.isValid(ivar, jvar)) return;
   _sillCur.setValue(ivar, jvar, sill);
+}
+
+
+void CovBase::setCholSill(int ivar, int jvar, double val) const
+{
+  if (!_isVariableValid(ivar)) return;
+  if (!_isVariableValid(jvar)) return;
+  if (ivar < jvar)
+  {
+    messerr("The Cholesky decomposition of the sill matrix is lower triangular");
+    return;
+  }
+  _cholSills.setValue(ivar, jvar, val);
 }
 
 bool CovBase::_isVariableValid(int ivar) const

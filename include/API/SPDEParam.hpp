@@ -20,6 +20,7 @@ public:
   SPDEParam(int refineK = 11,
             int refineS = 18,
             int border = 8,
+            bool flag_polarized = true,
             double epsNugget = EPSILON2,
             const CGParam& cgparams = CGParam());
   SPDEParam(const SPDEParam &m);
@@ -31,7 +32,8 @@ public:
   double getEpsNugget() const { return _epsNugget; }
   int getRefineK() const { return _refineK; }
   int getRefineS() const { return _refineS; }
-
+  bool isPolarized() const { return _flagPolarized; }
+  void setPolarized(bool flagPolarized) { _flagPolarized = flagPolarized; }
   void setBorder(int border) { _border = border; }
   void setCGparams(const CGParam &CGparams) { _CGparams = CGparams; }
   void setEpsNugget(double epsNugget) { _epsNugget = epsNugget; }
@@ -42,6 +44,7 @@ private:
   int _refineK;
   int _refineS;
   int _border;
+  bool _flagPolarized;
   double _epsNugget;
 
   CGParam _CGparams;

@@ -13,11 +13,13 @@
 SPDEParam::SPDEParam(int refineK,
                      int refineS,
                      int border,
+                     bool flag_polarized,
                      double epsNugget,
                      const CGParam& cgparams)
     : _refineK(refineK),
       _refineS(refineS),
       _border(border),
+      _flagPolarized(flag_polarized),
       _epsNugget(epsNugget),
       _CGparams(cgparams)
 {
@@ -27,6 +29,7 @@ SPDEParam::SPDEParam(const SPDEParam &m)
     : _refineK(m._refineK),
       _refineS(m._refineS),
       _border(m._border),
+      _flagPolarized(m._flagPolarized),
       _epsNugget(m._epsNugget),
       _CGparams(m._CGparams)
 {
@@ -39,6 +42,7 @@ SPDEParam& SPDEParam::operator=(const SPDEParam &m)
     _refineK = m._refineK;
     _refineS = m._refineS;
     _border = m._border;
+    _flagPolarized = m._flagPolarized;
     _epsNugget = m._epsNugget;
     _CGparams = m._CGparams;
   }

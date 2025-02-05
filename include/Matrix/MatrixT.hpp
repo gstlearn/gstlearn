@@ -14,6 +14,20 @@ public:
     : _nrow(nrow), _ncol(ncol), _data(_nrow * _ncol, defaultValue) 
     {}
 
+
+    MatrixT(const MatrixT& other)
+        : _nrow(other._nrow), _ncol(other._ncol), _data(other._data) 
+    {}
+
+    MatrixT& operator=(const MatrixT& other) {
+        if (this != &other) {
+            _nrow = other._nrow;
+            _ncol = other._ncol;
+            _data = other._data;
+        }
+        return *this;
+}
+
     T& operator()(size_t row, size_t col) {
         return _data[row * _ncol + col];
     }

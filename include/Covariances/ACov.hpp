@@ -56,7 +56,7 @@ public:
   virtual int getNVar() const {return _ctxt.getNVar();};
   virtual bool isIndexable() const { return false; }
   virtual bool isNoStat() const { return false; }
-
+  virtual void loadInfoValues() {}
   const CovContext& getContext() const { return _ctxt; }
   void setContext(const CovContext& ctxt);
   void updateFromContext() { _updateFromContext(); }

@@ -79,6 +79,7 @@ public:
                                     const Db *field,
                                     double ratio,
                                     int nbExt = 0,
+                                    bool isPolarized = false,
                                     bool useSel = true,
                                     bool flagNoStatRot = false,
                                     bool verbose = false);
@@ -107,6 +108,7 @@ public:
                    const Db* field,
                    double ratio,
                    int nbExt = 0,
+                   bool isPolarized = false,
                    bool useSel = true,
                    bool flagNoStatRot = false,
                    bool verbose = false);

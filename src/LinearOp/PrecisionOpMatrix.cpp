@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
 #include "LinearOp/AShiftOp.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "geoslib_define.h"
 
 #include "Covariances/CovAniso.hpp"
@@ -36,6 +37,11 @@ PrecisionOpMatrix::PrecisionOpMatrix(const AMesh* mesh, CovAniso* cova, bool ver
   , _chol(nullptr)
 {
   _buildQ();
+}
+
+const MatrixSparse* PrecisionOpMatrix::  getS() const
+{
+  return dynamic_cast<const ShiftOpMatrix*>(getShiftOp())->getS();
 }
 
 PrecisionOpMatrix::~PrecisionOpMatrix()

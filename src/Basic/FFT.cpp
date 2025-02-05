@@ -12,7 +12,6 @@
 #include "Basic/FFT.hpp"
 #include "Arrays/Array.hpp"
 #include "Core/fftn.hpp"
-
 #include <math.h>
 
 /****************************************************************************/

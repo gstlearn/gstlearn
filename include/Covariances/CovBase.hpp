@@ -12,6 +12,7 @@
 #include "Basic/AFunctional.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStat.hpp"
+#include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Covariances/CovContext.hpp"
@@ -31,12 +32,15 @@ public:
   CovBase& operator=(const CovBase &r) = delete;
   virtual ~CovBase();
 
+  ParamInfo createParamInfoForCholSill(int ivar = 0, int jvar = 0);
+
   virtual bool isConsistent(const ASpace* space) const override;
   virtual int getNVar() const override { return _ctxt.getNVar(); }
   bool isOptimizationInitialized(const Db* db = nullptr) const;
   
   void optimizationSetTargetByIndex(int iech) const override;
-
+  void loadInfoValues() override;
+  void setCholSill(int ivar, int jvar, double val) const;
   void setSill(double sill) const; /// Only valid when there is only one variable (in the context)
   void setSill(const MatrixSquareSymmetric& sill) const;
   void setSill(const VectorDouble& sill) const;
@@ -123,7 +127,8 @@ void   _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const
 
 
 protected:
-    MatrixT<ParamInfo> _sills;
+    MatrixT<ParamInfo> _cholSillsInfo;
+    mutable MatrixSquareGeneral _cholSills;
     TabNoStat _tabNoStat;
     mutable MatrixSquareSymmetric _sillCur;
     mutable MatrixSquareGeneral _workMat;
