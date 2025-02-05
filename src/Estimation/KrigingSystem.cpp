@@ -2027,7 +2027,11 @@ int KrigingSystem::estimate(int iech_out)
 
   // Printout for debugging case
 
-  if (OptDbg::query(EDbg::KRIGING)) _lhsDump();
+  if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || OptDbg::force())
+  {
+    // LHS is not printed systematically... only when it has been modified
+    if (OptDbg::query(EDbg::KRIGING)) _lhsDump();
+  }
   if (OptDbg::query(EDbg::KRIGING)) _rhsDump();
   if (OptDbg::query(EDbg::KRIGING)) _wgtDump(status);
 

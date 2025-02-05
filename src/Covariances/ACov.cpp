@@ -2018,7 +2018,6 @@ double ACov::evaluateOneIncr(double hh,
   return covtab.getValue(ivar, jvar);
 }
 
-
 /****************************************************************************/
 /*!
  **  Calculate the value of the model for a set of distances
@@ -2075,7 +2074,6 @@ VectorDouble ACov::sample(const VectorDouble &h,
   return g;
 }
 
-
 /**
  * Returns the value of the normalized covariance (by the variance/covariance value)
  * for a given pair of variables
@@ -2090,7 +2088,7 @@ VectorDouble ACov::sampleUnitary(const VectorDouble &hh,
                                   int ivar,
                                   int jvar,
                                   VectorDouble codir,
-                                  const CovCalcMode* mode)
+                                  const CovCalcMode* mode) const
 {
   if (ivar < 0 || ivar >= getNVar()) return VectorDouble();
   if (jvar < 0 || jvar >= getNVar()) return VectorDouble();
@@ -2118,7 +2116,7 @@ VectorDouble ACov::envelop(const VectorDouble &hh,
                             int jvar,
                             int isign,
                             VectorDouble codir,
-                            const CovCalcMode* mode)
+                            const CovCalcMode* mode) const
 {
   if (ivar < 0 || ivar >= getNVar()) return VectorDouble();
   if (jvar < 0 || jvar >= getNVar()) return VectorDouble();
@@ -2139,8 +2137,6 @@ VectorDouble ACov::envelop(const VectorDouble &hh,
 
   return gg;
 }
-
-
 
 /**
  * Evaluate the Goodness-of_fit of the Model on the Experimental Variogram
@@ -2242,45 +2238,46 @@ void ACov::gofDisplay(double gof, bool byValue, const VectorDouble& thresholds)
   }
 }
 
-  /**
-   * \defgroup Model Model: Set of classes for processing Model contents
-   *
-   **/
+/**
+ * \defgroup Model Model: Set of classes for processing Model contents
+ *
+ **/
 
-  /** @addtogroup Model_0 Calculating Covariance Matrix
-   * \ingroup Model
-   *
-   * These functions are meant to calculate the covariance Matrix between two Dbs
-   * or between a Db and itself.
-   * They take into account the presence of a possible selection
-   * They also account for heterotopy (if Z-variables are defined in the Db(s)
-   *
-   * @param  db1   First Db
-   * @param  db2   (Optional second Db)
-   * @param  ivar0 Rank of the selected variable in the first Db (-1 for all variables)
-   * @param  jvar0 Rank of the selected variable in the second Db (-1 for all variables)
-   * @param  nbgh1 Vector of indices of active samples in first Db (optional)
-   * @param  nbgh2 Vector of indices of active samples in second Db (optional)
-   * @param  mode  CovCalcMode structure
-   *
-   * @remarks The returned matrix if dimension to nrows * ncols where
-   * @remarks each term is the product of the number of active samples
-   * @remarks by the number of samples where the variable is defined
-   *
-   * @note 'dbin' and 'dbout' cannot be made 'const' as they can be updated
-   * @note due to the presence of 'nostat'
-   *
-   * @return A Matrix either in Dense or Sparse format
-   *
-   *  @{
-   */
-  VectorDouble ACov::evalCovMatV(Db* db1    ,
-                     Db* db2                ,
-                     int ivar0              ,
-                     int jvar0              ,
-                     const VectorInt& nbgh1 ,
-                     const VectorInt& nbgh2 ,
-                     const CovCalcMode* mode) const
-  {
-    return evalCovMat(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode).getValues();
-  }
+/** @addtogroup Model_0 Calculating Covariance Matrix
+ * \ingroup Model
+ *
+ * These functions are meant to calculate the covariance Matrix between two Dbs
+ * or between a Db and itself.
+ * They take into account the presence of a possible selection
+ * They also account for heterotopy (if Z-variables are defined in the Db(s)
+ *
+ * @param  db1   First Db
+ * @param  db2   (Optional second Db)
+ * @param  ivar0 Rank of the selected variable in the first Db (-1 for all variables)
+ * @param  jvar0 Rank of the selected variable in the second Db (-1 for all variables)
+ * @param  nbgh1 Vector of indices of active samples in first Db (optional)
+ * @param  nbgh2 Vector of indices of active samples in second Db (optional)
+ * @param  mode  CovCalcMode structure
+ *
+ * @remarks The returned matrix if dimension to nrows * ncols where
+ * @remarks each term is the product of the number of active samples
+ * @remarks by the number of samples where the variable is defined
+ *
+ * @note 'dbin' and 'dbout' cannot be made 'const' as they can be updated
+ * @note due to the presence of 'nostat'
+ *
+ * @return A Matrix either in Dense or Sparse format
+ *
+ *  @{
+ */
+VectorDouble ACov::evalCovMatV(Db* db1,
+                               Db* db2,
+                               int ivar0,
+                               int jvar0,
+                               const VectorInt& nbgh1,
+                               const VectorInt& nbgh2,
+                               const CovCalcMode* mode) const
+{
+  return evalCovMat(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode).getValues();
+}
+/**@}*/

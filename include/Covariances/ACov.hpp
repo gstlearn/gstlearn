@@ -401,13 +401,13 @@ public:
                              int ivar = 0,
                              int jvar = 0,
                              VectorDouble codir = VectorDouble(),
-                             const CovCalcMode* mode = nullptr);
+                             const CovCalcMode* mode = nullptr) const;
   VectorDouble envelop(const VectorDouble &hh,
                        int ivar = 0,
                        int jvar = 0,
                        int isign = 1,
                        VectorDouble codir = VectorDouble(),
-                       const CovCalcMode* mode = nullptr);
+                       const CovCalcMode* mode = nullptr) const;
   int buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv = NamingConvention("VMAP")) const;
   double gofToVario(const Vario* vario, bool verbose = true) const;
   static void gofDisplay(double gof,

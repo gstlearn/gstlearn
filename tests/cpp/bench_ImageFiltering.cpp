@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
   bool verbose    = true;
   int nx          = 5;
   int ny          = 5;
-  int nvar        = 1;
+  int nvar        = 2;
   int skip        = 0;
   bool flagSK     = false;
   bool flagFFT    = true;

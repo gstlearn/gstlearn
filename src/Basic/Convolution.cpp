@@ -218,7 +218,7 @@ int Convolution::ConvolveFFT(int iatt,
     if (fftn(ndim, dims.data(), imageRe[ivar].data(), imageIm[ivar].data(), 1)) return 1;
   }
 
-  VectorDouble result(sImage, 0.);
+  VectorDouble result(sImage);
   VectorDouble localRe(sImage);
   VectorDouble localIm(sImage);
 
@@ -226,6 +226,7 @@ int Convolution::ConvolveFFT(int iatt,
   int iv2 = 0;
   for (int ivar = 0; ivar < nvar; ivar++)
   {
+    result.fill(0.);
     for (int jvar = 0; jvar < nvar; jvar++, iv2++)
     {
 
@@ -244,11 +245,8 @@ int Convolution::ConvolveFFT(int iatt,
     fftshift(dims, result);
 
     // Store the results in the Db
-    for (int ivar = 0; ivar < nvar; ivar++)
-    {
-      if (!means.empty()) VH::addConstant(result, means[ivar]);
-      _dbgrid->setArrayByUID(result, iatt + ivar);
-    }
+    if (!means.empty()) VH::addConstant(result, means[ivar]);
+    _dbgrid->setArrayByUID(result, iatt + ivar);
   }
   return 0;
 }

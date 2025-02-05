@@ -35,9 +35,6 @@
 
 #include "Anamorphosis/AAnam.hpp"
 
-#include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
-
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"

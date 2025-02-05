@@ -811,7 +811,6 @@ double DriftList::evalDriftVarCoef(const Db *db,
  * A vector of the drift evaluation (for all samples)
  * @param db     Db structure
  * @param coeffs Vector of drift coefficients
- * @param ivar   Variable rank (used for constant drift value)
  * @param useSel When TRUE, only non masked samples are returned
  * @return The vector of values
  *

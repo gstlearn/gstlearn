@@ -341,7 +341,7 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
     Model* model = _modelPart._model;
     VectorDouble tab(_nvar * _nvar);
     VectorDouble d0(_ndim);
-    CovCalcMode mode(ECalcMember::LHS);
+    CovCalcMode mode(ECalcMember::RHS);
     mode.setAsVario(true);
     mode.setUnitary(true);
     const CovAnisoList* cova = model->getCovAnisoList();
