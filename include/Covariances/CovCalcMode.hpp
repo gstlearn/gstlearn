@@ -47,6 +47,4 @@ private:
   bool          _asVario;        /*! True to calculate variogram instead of covariance */
   bool          _unitary;        /*! True to calculate covariance without sill (in Goulard) */
   int           _orderVario;     /*! Higher Variogram Order (0: standard) */
-  bool          _allActiveCov;   /*! True if all covariances are active */
-  VectorInt     _activeCovList;  /*! List of indices of the active covariances */
 };

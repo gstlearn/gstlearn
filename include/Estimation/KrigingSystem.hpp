@@ -14,6 +14,7 @@
 
 #include "Covariances/CovAnisoList.hpp"
 #include "Estimation/KrigingCalcul.hpp"
+#include "Estimation/KrigOpt.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Space/SpacePoint.hpp"
@@ -36,6 +37,7 @@ class NeighImage;
 class AAnam;
 class ACov;
 class KrigingCalcul;
+class KrigOpt;
 
 class GSTLEARN_EXPORT KrigingSystem
 {
@@ -214,6 +216,7 @@ private:
   // Pointers used when plugging KrigingCalcul (not to be deleted)
   // Note that 'algebra' is mutable not to destroy constness when calling getLambda.
   mutable KrigingCalcul _algebra;
+  mutable KrigOpt       _krigopt;
   VectorVectorInt       _sampleRanks; // Vector of vector of sample indices
   MatrixSquareSymmetric _Sigma00; // Covariance part for variance
   MatrixSquareSymmetric _Sigma;   // Covariance part for LHS

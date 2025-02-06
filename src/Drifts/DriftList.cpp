@@ -528,7 +528,7 @@ MatrixRectangular DriftList::evalDriftMatByRanks(const Db* db,
   int neq = VH::count(sampleRanks);
   if (neq <= 0)
   {
-    messerr("The returned matrix does not have any valid sample for any valid variable");
+    messerr("The returned matrix has no valid sample and no valid variable");
     return drfmat;
   }
   drfmat.resize(neq, ncols);
@@ -582,35 +582,31 @@ MatrixRectangular DriftList::evalDriftMatByRanks(const Db* db,
  ** (Dimension/ nrows = nvar * nech; ncols = nfeq * nvar)
  **
  ** \param[in]  db     Db structure
- ** \param[in]  ivar0  Rank of the variable (-1 for all variables)
  ** \param[in]  iech2  Index of active samples in db
  ** \param[in]  member Member of the Kriging System (ECalcMember)
  **
  *****************************************************************************/
 MatrixRectangular DriftList::evalDriftMatByTarget(const Db* db,
-                                                   int ivar0,
-                                                   int iech2,
-                                                   const ECalcMember& member) const
+                                                  int iech2,
+                                                  const ECalcMember& member) const
 {
   MatrixRectangular drfmat;
   int nvar        = getNVar();
   int nbfl        = getNDrift();
   int nfeq        = getNDriftEquation();
   int ncols       = (isFlagLinked()) ? nfeq : nvar * nbfl;
-  VectorInt ivars = _getActiveVariables(ivar0);
+  VectorInt ivars = VH::sequence(getNVar());
   if (ivars.empty()) return drfmat;
 
   // Create the sets of Vector of valid sample indices per variable
   // (not masked and defined)
-  VectorVectorInt index =
-    db->getSampleRanks(ivars, {iech2}, true, false, false);
+  VectorVectorInt index = db->getSampleRanks(ivars, {iech2}, true, false, false);
 
   // Creating the matrix
   int neq = VH::count(index);
   if (neq <= 0)
   {
-    messerr("The returned matrix does not have any valid sample for any valid "
-            "variable");
+    messerr("The returned matrix has no valid sample and no valid variable");
     return drfmat;
   }
   drfmat.resize(neq, ncols);
@@ -646,8 +642,7 @@ MatrixRectangular DriftList::evalDriftMatByTarget(const Db* db,
           for (int jl = 0; jl < nbfl; jl++)
           {
             int jb = jl + jvar * nbfl;
-            drfmat.setValue(irow, icol,
-                            evalDriftValue(db, iech, ivar1, jb, member));
+            drfmat.setValue(irow, icol, evalDriftValue(db, iech, ivar1, jb, member));
             icol++;
           }
       }

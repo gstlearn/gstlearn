@@ -21,6 +21,7 @@
 #include "Covariances/CovList.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Estimation/KrigOpt.hpp"
 
 #include <vector>
 
@@ -33,7 +34,6 @@ class AStringFormat;
 class AAnam;
 class AnamHermite;
 class EModelProperty;
-
 
 /**
  * \brief
@@ -138,24 +138,22 @@ public:
                                        const VectorInt& nbgh2  = VectorInt(),
                                        const CovCalcMode* mode = nullptr,
                                        bool cleanOptim         = true) const override;
-  MatrixRectangular evalCovMatOptimByRanks(const Db* db1,
-                                                      const Db* db2,
-                                                      const VectorVectorInt& sampleRanks1,
-                                                      int ivar0               = -1,
-                                                      int jvar0               = -1,
-                                                      int iech2               = 0,
-                                                      const CovCalcMode* mode = nullptr,
-                                                      bool cleanOptim         = true) const override;
+  MatrixRectangular evalCovMatOptimByTarget(const Db* db1,
+                                            const Db* db2,
+                                            const VectorVectorInt& sampleRanks1,
+                                            int iech2              = 0,
+                                            const KrigOpt& krigopt = KrigOpt(),
+                                            bool cleanOptim        = true) const override;
   MatrixSquareSymmetric evalCovMatSymOptim(const Db* db1,
-                                                    const VectorInt& nbgh1  = VectorInt(),
-                                                    int ivar0               = -1,
-                                                    const CovCalcMode* mode = nullptr,
-                                                    bool cleanOptim         = true) const override;
+                                           const VectorInt& nbgh1  = VectorInt(),
+                                           int ivar0               = -1,
+                                           const CovCalcMode* mode = nullptr,
+                                           bool cleanOptim         = true) const override;
   MatrixSquareSymmetric evalCovMatSymOptimByRanks(const Db* db1,
-                                                                   const VectorVectorInt& sampleRanks,
-                                                                   int ivar0               = -1,
-                                                                   const CovCalcMode* mode = nullptr,
-                                                                   bool cleanOptim         = true) const override;
+                                                  const VectorVectorInt& sampleRanks,
+                                                  int ivar0               = -1,
+                                                  const CovCalcMode* mode = nullptr,
+                                                  bool cleanOptim = true) const override;
 
   void copyCovContext(const CovContext& ctxt);
   bool hasNugget() const;

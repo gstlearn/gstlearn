@@ -555,12 +555,12 @@ String toMatrix(const String &title,
  * @param title        Title of the printout
  * @param colnames     Names of the columns (optional)
  * @param rownames     Names of the rows (optional)
- * @param bycol        true if values as sorted by column; false otherwise
+ * @param bycol        True if values as sorted by column; false otherwise
  * @param nrows        Number of rows
  * @param ncols        Number of columns
  * @param tab          VectorDouble containing the values
- * @param flagOverride true to override printout limitations
- * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
+ * @param flagOverride True to override printout limitations
+ * @param flagSkipZero when True, skip the zero values (represented by a '.' as for sparse matrix)
  */
 String toMatrix(const String& title,
                 const VectorString& colnames,

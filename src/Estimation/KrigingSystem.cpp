@@ -40,6 +40,7 @@
 #include "Space/SpaceRN.hpp"
 #include "Core/Keypair.hpp"
 #include "Estimation/KrigingCalcul.hpp"
+#include "Estimation/KrigOpt.hpp"
 #include "Basic/OptCustom.hpp"
 
 #include <math.h>
@@ -62,6 +63,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _isReady(false)
   , _model(nullptr)
   , _algebra()
+  , _krigopt()
   , _sampleRanks()
   , _Sigma00()
   , _Sigma()
@@ -159,7 +161,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _flagNoStat(false)
   , _cova(nullptr)
 {
-  _oldStyle = OptCustom::query("oldStyle", 1.) == 1.;
+  _oldStyle = OptCustom::query("oldStyle", 0.) == 1.;
 
   // _model is a copy of input model to allow modification (still used???)
   if (model != nullptr) _model = (ModelGeneric*) model->clone();
@@ -1995,11 +1997,10 @@ int KrigingSystem::estimate(int iech_out)
     }
     else
     {
-      _Sigma0 = _model->evalCovMatOptimByRanks(_dbin, _dbout, _sampleRanks, -1, -1, iech_out, &_calcModeRHS, false);
-      _X0     = _model->evalDriftMatByTarget(_dbout, -1, iech_out);
+      _Sigma0 = _model->evalCovMatOptimByTarget(_dbin, _dbout, _sampleRanks, iech_out, _krigopt, false);
+      _X0     = _model->evalDriftMatByTarget(_dbout, iech_out);
       _algebra.setRHS(&_Sigma0, &_X0);
     };
-    _algebra.setRHS(&_Sigma0, &_X0);
   }
 
   // Special patch for Colocated CoKriging
@@ -2465,9 +2466,11 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
   _isReady = false;
   _calcul = calcul;
   _flagPerCell = false;
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(_dbout);
+
   if (_calcul == EKrigOpt::BLOCK)
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(_dbout);
+
     if (dbgrid == nullptr)
     {
       messerr("Block Estimation is only possible for Grid '_dbout'");
@@ -2513,6 +2516,9 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
     _ndiscs.clear();
     _ndiscNumber = 0;
   }
+
+  // New style operation
+  _krigopt.setKrigingOption(calcul, dbgrid, ndiscs, flag_per_cell);
   return 0;
 }
 
@@ -2706,6 +2712,9 @@ int KrigingSystem::setKrigOptMatLC(const MatrixRectangular* matLC)
   _matLC = matLC;
   _flagNoMatLC = false;
   _resetMemoryGeneral();
+
+  // New style assignment
+  _krigopt.setMatLC(matLC, _getNVar());
   return 0;
 }
 
@@ -2782,6 +2791,9 @@ int KrigingSystem::setKrigOptDGM(bool flag_dgm, double eps)
     return 1;
   }
   _flagDGM = flag_dgm;
+
+  // New style assignment
+  _krigopt.setKrigingDGM(flag_dgm);
   return 0;
 }
 
@@ -3502,12 +3514,18 @@ int KrigingSystem::_bayesPreCalculations()
   if (OptDbg::query(EDbg::BAYES))
   {
     mestitle(0, "Bayesian Drift coefficients");
-    print_matrix("Prior Mean", 0, 1, _nfeq, 1, NULL, _priorMean.data());
-    print_matrix("Prior Variance-Covariance", 0, 1, _nfeq, _nfeq, NULL,
-                 _priorCov.getValues().data());
-    print_matrix("Posterior Mean", 0, 1, _nfeq, 1, NULL, _postMean.data());
-    print_matrix("Posterior Variance-Covariance", 0, 1, _nfeq, _nfeq, NULL,
-                 _postCov.getValues().data());
+    if (_oldStyle)
+    {
+      print_matrix("Prior Mean", 0, 1, _nfeq, 1, NULL, _priorMean.data());
+      print_matrix("Prior Variance-Covariance", 0, 1, _nfeq, _nfeq, NULL,
+                   _priorCov.getValues().data());
+      print_matrix("Posterior Mean", 0, 1, _nfeq, 1, NULL, _postMean.data());
+      print_matrix("Posterior Variance-Covariance", 0, 1, _nfeq, _nfeq, NULL,
+                   _postCov.getValues().data());
+    }
+    else {
+      _algebra.dumpAux();
+    }
   }
 
   // Particular case of Simulation: Simulate several outcomes for posterior means

@@ -1,0 +1,57 @@
+/******************************************************************************/
+/*                                                                            */
+/*                            gstlearn C++ Library                            */
+/*                                                                            */
+/* Copyright (c) (2023) MINES Paris / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://gstlearn.org                                              */
+/* License: BSD 3-clause                                                      */
+/*                                                                            */
+/******************************************************************************/
+#pragma once
+
+#include "gstlearn_export.hpp"
+
+#include "Enum/EKrigOpt.hpp"
+#include "Covariances/CovCalcMode.hpp"
+
+class Db;
+class DbGrid;
+class MatrixRectangular;
+
+class GSTLEARN_EXPORT KrigOpt
+{
+public:
+  KrigOpt(const EKrigOpt& calcul = EKrigOpt::POINT);
+  KrigOpt(const KrigOpt &m);
+  KrigOpt& operator=(const KrigOpt &m);
+  virtual ~KrigOpt();
+
+  int setMatLC(const MatrixRectangular* matLC, int nvar);
+  int setKrigingOption(const EKrigOpt& calcul  = EKrigOpt::POINT,
+                       DbGrid* dbgrid          = nullptr,
+                       const VectorInt& ndiscs = VectorInt(),
+                       bool flag_per_cell      = false);
+  int setKrigingDGM(bool flag_dgm);
+
+  const CovCalcMode& getMode() const { return _mode; }
+  const EKrigOpt& getCalcul() const { return _calcul; }
+
+private:
+  void _blockDiscretize(int iechout, bool flagRandom);
+
+private:
+  EKrigOpt _calcul;
+  CovCalcMode _mode;
+
+  bool _flagPerCell;
+  int _ndiscNumber;
+  VectorInt _ndiscs;
+  VectorVectorDouble _disc1; // Dimension: ndiscNumber, ndim
+  VectorVectorDouble _disc2; // Dimension: ndiscNumber, ndim
+
+  bool _flagDGM;
+
+  const MatrixRectangular* _matLC; // Pointer not to be deleted
+  DbGrid* _dbgrid; // Pointer to the DbGrid (not to be deleted)
+};

@@ -1706,11 +1706,12 @@ void KrigingCalcul::dumpAux()
   // In Bayesian case, dump the Prior and Posterior information
   if (_flagBayes)
   {
-    VH::dump("Prior Mean", *_PriorMean);
-    VectorDouble postmean = getPostMean();
-    VH::dump("Posterior Mean", postmean);
+    VH::dump("Prior Mean", *_PriorMean, false);
     message("Prior Covariance Matrix\n");
     _PriorCov->display();
+
+    VectorDouble postmean = getPostMean();
+    VH::dump("Posterior Mean", postmean, false);
     message("Posterior Covariance Matrix\n");
     const MatrixSquareSymmetric* postcov = getPostCov();
     postcov->display();

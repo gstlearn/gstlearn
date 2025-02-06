@@ -23,6 +23,7 @@
 #include "Covariances/CovContext.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Space/ASpace.hpp"
+#include "Estimation/KrigOpt.hpp"
 
 #include <vector>
 
@@ -156,14 +157,12 @@ public:
                                             const VectorInt& nbgh2  = VectorInt(),
                                             const CovCalcMode* mode = nullptr,
                                             bool cleanOptim         = true) const;
-  virtual MatrixRectangular evalCovMatOptimByRanks(const Db* db1,
-                                                   const Db* db2,
-                                                   const VectorVectorInt& sampleRanks1,
-                                                   int ivar0               = -1,
-                                                   int jvar0               = -1,
-                                                   int iech2               = -1,
-                                                   const CovCalcMode* mode = nullptr,
-                                                   bool cleanOptim         = true) const;
+  virtual MatrixRectangular evalCovMatOptimByTarget(const Db* db1,
+                                                    const Db* db2,
+                                                    const VectorVectorInt& sampleRanks1,
+                                                    int iech2              = -1,
+                                                    const KrigOpt& krigopt = KrigOpt(),
+                                                    bool cleanOptim        = true) const;
   virtual MatrixSquareSymmetric evalCovMatSymOptim(const Db* db1,
                                                    const VectorInt& nbgh1  = VectorInt(),
                                                    int ivar0               = -1,
@@ -193,14 +192,12 @@ public:
                                const VectorInt& nbgh2  = VectorInt(),
                                const CovCalcMode* mode = nullptr,
                                bool cleanOptim         = true) const;
-  MatrixRectangular evalCovMatByRanks(const Db* db1,
-                                      const Db* db2,
-                                      const VectorVectorInt& sampleRanks1,
-                                      int ivar0               = -1,
-                                      int jvar0               = -1,
-                                      const int iech2         = 0,
-                                      const CovCalcMode* mode = nullptr,
-                                      bool cleanOptim         = true) const;
+  MatrixRectangular evalCovMatByTarget(const Db* db1,
+                                       const Db* db2,
+                                       const VectorVectorInt& sampleRanks1,
+                                       const int iech2        = 0,
+                                       const KrigOpt& krigopt = KrigOpt(),
+                                       bool cleanOptim        = true) const;
   MatrixSquareSymmetric evalCovMatSym(const Db* db1,
                                       const VectorInt& nbgh1  = VectorInt(),
                                       int ivar0               = -1,

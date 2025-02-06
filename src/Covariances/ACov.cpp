@@ -11,6 +11,7 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Enum/EKrigOpt.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -30,6 +31,7 @@
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/NoStatFunctional.hpp"
 #include "Variogram/Vario.hpp"
+#include "Estimation/KrigOpt.hpp"
 #include <vector>
 #include <math.h>
 
@@ -123,7 +125,6 @@ void ACov::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
     _p1As.push_back(e);
   }
 }
-
 
 void ACov::createNoStatTab()
 {
@@ -977,7 +978,7 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
   int neq2 = VH::count(index2);
   if (neq1 <= 0 || neq2 <= 0)
   {
-    messerr("The returned matrix does not have any valid sample for any valid variable");
+    messerr("The returned matrix has no valid sample and no valid variable");
     return mat;
   }
   mat.resize(neq1, neq2);
@@ -1031,17 +1032,14 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
 /****************************************************************************/
 /*!
  **  Establish covariance matrix between one Db and one sample of a Target Db
- **  Takes into account selection and heterotopy
  **
  ** \return Dense matrix containing the covariance matrix
  **
  ** \param[in]  db1   First Db
  ** \param[in]  db2   Second Db
  ** \param[in]  sampleRanks1 Vector of vector indices of active samples in db1
- ** \param[in]  ivar0 Rank of the first variable (-1 for all variables)
- ** \param[in]  jvar0 Rank of the second variable (-1 for all variables)
  ** \param[in]  iech2 Sample rank within db2
- ** \param[in]  mode  CovCalcMode structure
+ ** \param[in]  krigopt KrigOpt structure
  ** \param[in]  cleanOptim When True, clean optimization internal when ended
  **
  ** \remarks If a Db does not contain any Z-variable defined, the covariance
@@ -1055,24 +1053,21 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
  ** \note due to the presence of 'nostat'
  **
  *****************************************************************************/
-MatrixRectangular ACov::evalCovMatByRanks(const Db* db1,
-                                                     const Db* db2,
-                                                     const VectorVectorInt& sampleRanks1,
-                                                     int ivar0,
-                                                     int jvar0,
-                                                     int iech2,
-                                                     const CovCalcMode* mode,
-                                                     bool cleanOptim) const
+MatrixRectangular ACov::evalCovMatByTarget(const Db* db1,
+                                           const Db* db2,
+                                           const VectorVectorInt& sampleRanks1,
+                                           int iech2,
+                                           const KrigOpt& krigopt,
+                                           bool cleanOptim) const
 {
   DECLARE_UNUSED(cleanOptim)
   MatrixRectangular mat;
 
   // Preliminary checks
-  if (db1 == nullptr || db2 == nullptr) return MatrixRectangular();
-  VectorInt ivars = _getActiveVariables(ivar0);
+  if (db1 == nullptr || db2 == nullptr) return mat;
+  VectorInt ivars = VH::sequence(getNVar());
   if (ivars.empty()) return mat;
-  VectorInt jvars = _getActiveVariables(jvar0);
-  if (jvars.empty()) return mat;
+  VectorInt jvars = ivars;
 
   // Play the non-stationarity (if needed)
   manage(db1, db2);
@@ -1086,19 +1081,22 @@ MatrixRectangular ACov::evalCovMatByRanks(const Db* db1,
   int neq2 = VH::count(index2);
   if (neq1 <= 0 || neq2 <= 0)
   {
-    messerr("The returned matrix does not have any valid sample for any valid "
-            "variable");
+    messerr("The returned matrix has no valid sample and no valid variable");
     return mat;
   }
+  const CovCalcMode* mode = &krigopt.getMode();
+
+  // Dimension the returned matrix
   mat.resize(neq1, neq2);
+  mat.fill(0.);
+  if (krigopt.getCalcul() == EKrigOpt::DRIFT) return mat;
 
   // Define the two space points
   SpacePoint p1(getSpace());
   SpacePoint p2(getSpace());
 
   // Loop on the first variable
-  int irow = 0;
-  for (int ivar = 0, nvar1 = (int)sampleRanks1.size(); ivar < nvar1; ivar++)
+  for (int ivar = 0, irow = 0, nvar1 = (int)sampleRanks1.size(); ivar < nvar1; ivar++)
   {
     int ivar1 = ivars[ivar];
 
@@ -1110,14 +1108,13 @@ MatrixRectangular ACov::evalCovMatByRanks(const Db* db1,
       db1->getSampleAsSPInPlace(p1, iech1);
 
       // Loop on the second variable
-      int icol = 0;
-      for (int jvar = 0, nvar2 = (int)jvars.size(); jvar < nvar2; jvar++)
+      for (int jvar = 0, icol = 0, nvar2 = (int)jvars.size(); jvar < nvar2; jvar++, irow++)
       {
         int jvar2 = jvars[jvar];
 
         // Loop on the second sample
         int nech2s = (int)index2[jvar].size();
-        for (int jech2 = 0; jech2 < nech2s; jech2++)
+        for (int jech2 = 0; jech2 < nech2s; jech2++, icol++)
         {
           int iech2 = index2[jvar][jech2];
           db2->getSampleAsSPInPlace(p2, iech2);
@@ -1128,10 +1125,8 @@ MatrixRectangular ACov::evalCovMatByRanks(const Db* db1,
           /* Loop on the dimension of the space */
           double value = eval(p1, p2, ivar1, jvar2, mode);
           mat.setValue(irow, icol, value);
-          icol++;
         }
       }
-      irow++;
     }
   }
   return mat;
@@ -1174,26 +1169,24 @@ void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
 }
 
 MatrixRectangular ACov::evalCovMatOptim(const Db* db1,
-                                           const Db* db2,
-                                           int ivar0,
-                                           int jvar0,
-                                           const VectorInt& nbgh1,
-                                           const VectorInt& nbgh2,
-                                           const CovCalcMode* mode,
-                                           bool cleanOptim) const
+                                        const Db* db2,
+                                        int ivar0,
+                                        int jvar0,
+                                        const VectorInt& nbgh1,
+                                        const VectorInt& nbgh2,
+                                        const CovCalcMode* mode,
+                                        bool cleanOptim) const
 {
   return evalCovMat(db1,db2,ivar0,jvar0,nbgh1,nbgh2,mode, cleanOptim);                                
 }
-MatrixRectangular ACov::evalCovMatOptimByRanks(const Db* db1,
-                                                          const Db* db2,
-                                                          const VectorVectorInt& sampleRanks1,
-                                                          int ivar0,
-                                                          int jvar0,
-                                                          int iech2,
-                                                          const CovCalcMode* mode,
-                                                          bool cleanOptim) const
+MatrixRectangular ACov::evalCovMatOptimByTarget(const Db* db1,
+                                               const Db* db2,
+                                               const VectorVectorInt& sampleRanks1,
+                                               int iech2,
+                                               const KrigOpt& krigopt,
+                                               bool cleanOptim) const
 {
-  return evalCovMatByRanks(db1, db2, sampleRanks1, ivar0, jvar0, iech2, mode, cleanOptim);
+  return evalCovMatByTarget(db1, db2, sampleRanks1, iech2, krigopt, cleanOptim);
 }
 MatrixSquareSymmetric ACov::evalCovMatSymOptim(const Db* db1,
                                                const VectorInt& nbgh1,
@@ -1348,7 +1341,7 @@ MatrixSquareSymmetric ACov::evalCovMatSymByRanks(const Db* db1,
   int neq1 = VH::count(sampleRanks1);
   if (neq1 <= 0)
   {
-    messerr("The returned matrix does not have any valid sample for any valid variable");
+    messerr("The returned matrix has no valid sample and no valid variable");
     return mat;
   }
   mat.resize(neq1, neq1);

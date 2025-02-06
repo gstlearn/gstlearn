@@ -295,7 +295,7 @@ bool CalcImage::_run()
   {
     const ModelGeneric* modelgeneric = dynamic_cast<const ModelGeneric*>(getModel());
 
-    bool _oldStyle = OptCustom::query("oldStyle", 1.) == 1.;
+    bool _oldStyle = OptCustom::query("oldStyle", 0.) == 1.;
     if (!_oldStyle)
     {
       if (!_filterImage(dbgrid, modelgeneric)) return false;

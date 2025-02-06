@@ -3509,10 +3509,10 @@ VectorInt Db::getMultipleSelectedVariables(const VectorVectorInt& index,
  * @note: where a variable is defined is considered (search for heterotopy).
  */
 VectorVectorInt Db::getSampleRanks(const VectorInt& ivars,
-                                           const VectorInt& nbgh,
-                                           bool useSel,
-                                           bool useZ, 
-                                           bool useVerr) const
+                                   const VectorInt& nbgh,
+                                   bool useSel,
+                                   bool useZ,
+                                   bool useVerr) const
 {
   VectorInt jvars = ivars;
   if (jvars.empty()) jvars = VH::sequence(getNLoc(ELoc::Z));
@@ -3572,10 +3572,10 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh,
     }
 
     // Check against the existence of a target variable
-    if (item >= 0)
+    if (useZ && item >= 0)
     {
       value = getZVariable(iech, item);
-      if (useZ && FFFF(value)) continue;
+      if (FFFF(value)) continue;
     }
 
     // Check against the validity of the Variance of Measurement Error

@@ -311,6 +311,7 @@ set(SRC
   Estimation/CalcSimpleInterpolation.cpp
   Estimation/CalcImage.cpp
   Estimation/CalcGlobal.cpp
+  Estimation/KrigOpt.cpp
   OutputFormat/AOF.cpp
   OutputFormat/GridIfpEn.cpp
   OutputFormat/GridEclipse.cpp

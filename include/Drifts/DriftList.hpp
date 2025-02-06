@@ -128,7 +128,6 @@ public:
                       int ivar0                 = -1,
                       const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
   MatrixRectangular evalDriftMatByTarget(const Db* db,
-                       int ivar0                 = -1,
                        int iech2                 = 0,
                        const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
   double evalDriftValue(const Db *db,
