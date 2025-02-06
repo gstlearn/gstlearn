@@ -84,13 +84,13 @@ public:
   virtual void evalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                         const SpacePoint &p1,
                                         const SpacePoint &p2,
-                                        const CovCalcMode *mode = nullptr) const; 
-                                        
-  virtual void addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                               const SpacePoint& pwork1, 
-                               const SpacePoint& pwork2,
-                               const CovCalcMode *mode) const;
-                               
+                                        const CovCalcMode *mode = nullptr) const;
+
+  virtual void addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                           const SpacePoint& pwork1,
+                                           const SpacePoint& pwork2,
+                                           const CovCalcMode* mode) const;
+
   void evalCovKriging(MatrixSquareGeneral &mat,
                       SpacePoint &pwork1,
                       SpacePoint& pout, 
@@ -137,7 +137,7 @@ public:
   ///
 
   virtual void optimizationPreProcess(const std::vector<SpacePoint>& p,
-                               std::vector<SpacePoint> &p1As) const
+                                      std::vector<SpacePoint>& p1As) const
   {
     DECLARE_UNUSED(p,p1As)
   }
@@ -459,20 +459,26 @@ public:
   int getNDim(int ispace = -1) const { return _ctxt.getNDim(ispace); }
 
 private:
-  virtual void _setContext(const CovContext& ctxt) 
-  {
-    DECLARE_UNUSED(ctxt)
-  }
-  
-  virtual void _manage(const Db* db1,const Db* db2) const 
-  {
-    DECLARE_UNUSED(db1)
-    DECLARE_UNUSED(db2)
-  }
+  virtual void _setContext(const CovContext& ctxt) { DECLARE_UNUSED(ctxt); }
+
+  virtual void _manage(const Db* db1, const Db* db2) const {DECLARE_UNUSED(db1) DECLARE_UNUSED(db2)}
+  virtual void _load(const SpacePoint& p, bool case1) const;
 
   void setNoStatDbIfNecessary(const Db*& db);
-private : 
- virtual TabNoStat* _createNoStatTab();
+
+  void _loopOnData(const Db* db1,
+                   const VectorVectorInt& sampleRanks1,
+                   const VectorInt& ivars,
+                   int ivar2,
+                   int iech2,
+                   int icol,
+                   SpacePoint& p1,
+                   SpacePoint& p2,
+                   bool flagSym,
+                   const CovCalcMode* mode,
+                   MatrixRectangular& mat) const;
+
+  virtual TabNoStat* _createNoStatTab();
 
 protected:
   void setNVar(int nvar) { _ctxt.setNVar(nvar); }
@@ -518,7 +524,6 @@ private:
                            const VectorDouble& x0 = VectorDouble()) const;
   Db* _discretizeBlockRandom(const DbGrid* dbgrid, int seed = 34131) const;
   double _getVolume(const VectorDouble& ext) const;
-  
 
 protected:
   CovContext _ctxt;         /* Context */

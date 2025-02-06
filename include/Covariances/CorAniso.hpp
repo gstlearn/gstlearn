@@ -103,8 +103,7 @@ public:
   static bool isOptimizationInitialized(const std::vector<SpacePoint> &p1As,
                                         const Db* db = nullptr);
 
-  void optimizationPreProcess(const std::vector<SpacePoint>& p,
-                               std::vector<SpacePoint> &p1As) const override;
+  void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
   void _optimizationSetTargetByIndex(int iech,
                                     const std::vector<SpacePoint> &p1As,
                                     SpacePoint & p2A) const;
@@ -265,16 +264,15 @@ public:
   double evalCorFromH(double h, const CovCalcMode *mode) const;
   double getDetTensor() const;
 
-  void optimizationSetTarget(const SpacePoint& pt,
-                              SpacePoint& p2A) const;
+  void optimizationSetTarget(const SpacePoint& pt) const;
   void optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
   String toStringParams(const AStringFormat* strfmt = nullptr) const;
   String toStringNoStat(const AStringFormat* strfmt = nullptr,int i = 0) const;
   
 protected:
   /// Update internal parameters consistency with the context
-
   void _initFromContext() override;
+  
 private:
   TabNoStat* _createNoStatTab() override;
   void _copyCovContext(const CovContext &ctxt) override;
@@ -284,29 +282,26 @@ bool _isOptimEnabled() const override
   return _optimEnabled && !isNoStatForAnisotropy(); 
 }
 
-  void _manage(const Db* db1,const Db* db2) const override;
+void _manage(const Db* db1, const Db* db2) const override;
 
- 
-  bool _checkTensor() const;
-  bool _checkRotation() const;
-  bool _checkParam() const;
+bool _checkTensor() const;
+bool _checkRotation() const;
+bool _checkParam() const;
 
-  bool   _isVariableValid(int ivar) const;
-  
-  void _updateFromContext() override;
+bool _isVariableValid(int ivar) const;
+
+void _updateFromContext() override;
+void _optimizationSetTarget(const SpacePoint& pt) const override;
 
 private:
-  ACovFunc *_covfunc;                  /// Covariance basic function
-  mutable Tensor _aniso;               /// Anisotropy parameters
-  TabNoStatCovAniso* _tabNoStatCovAniso;
-  mutable double _noStatFactor;        /// Correcting factor for non-stationarity
-  const std::array<EConsElem,4> _listaniso = {EConsElem::RANGE,
-                                              EConsElem::SCALE,
-                                              EConsElem::TENSOR,
-                                              EConsElem::ANGLE};
-  mutable bool _isOptimizationPreProcessed;
-  mutable bool _optimEnabled;
-  // These temporary information is used to speed up processing (optimization functions)
-  // They are in a protected section as they may be modified by class hierarchy
+ACovFunc* _covfunc;    /// Covariance basic function
+mutable Tensor _aniso; /// Anisotropy parameters
+TabNoStatCovAniso* _tabNoStatCovAniso;
+mutable double _noStatFactor; /// Correcting factor for non-stationarity
+const std::array<EConsElem, 4> _listaniso = {EConsElem::RANGE, EConsElem::SCALE,
+                                             EConsElem::TENSOR, EConsElem::ANGLE};
+mutable bool _isOptimizationPreProcessed;
+mutable bool _optimEnabled;
+// These temporary information is used to speed up processing (optimization functions)
+// They are in a protected section as they may be modified by class hierarchy
 };
-

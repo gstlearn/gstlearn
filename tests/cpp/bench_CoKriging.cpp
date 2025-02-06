@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  double oldstyle = 1.;
+  double oldstyle = 0.;
   bool verbose    = false;
   int nech        = 3;
   int nvar        = 2;

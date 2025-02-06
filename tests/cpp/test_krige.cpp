@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
   // Global parameters
   int ndim = 2;
   int nvar = 1;
-  int oldstyle = 1;
+  int oldstyle = 0.;
   law_set_random_seed(32131);
   OptCustom::define("oldStyle", oldstyle);
 

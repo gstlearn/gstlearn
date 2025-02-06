@@ -270,8 +270,6 @@ public:
 
   void   _computeCorrec();
   double _getDetTensor() const;
-  void _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
-  void _optimizationSetTarget(const SpacePoint& pt) const override;
 
 private:
 

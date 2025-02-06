@@ -173,14 +173,8 @@ void CovBase::optimizationSetTargetByIndex(int iech) const
  */
 void CovBase::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
 {
-  if (!isOptimEnabled())
-  {
-     ACov::_optimizationPreProcess(p);
-     return;
-  }
-  _cor->optimizationPreProcess(p,_p1As);
+  _cor->optimizationPreProcess(p);
 }
-
 
 /**
  * Checks that the Optimization has already been initiated, by:
@@ -488,4 +482,14 @@ void CovBase::_optimizationPostProcess() const
 void CovBase::_updateFromContext()
 {
   _cor->updateFromContext();
+}
+
+void CovBase::_load(const SpacePoint& p, bool case1) const
+{
+  _cor->load(p, case1);
+}
+
+void CovBase::_optimizationSetTarget(const SpacePoint& pt) const
+{
+  _cor->optimizationSetTarget(pt);
 }

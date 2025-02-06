@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  double oldstyle = 1;
+  double oldstyle = 0.;
   bool debug      = false;
   bool flagSK     = false;
   bool flagUnique = true;

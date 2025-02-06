@@ -126,34 +126,31 @@ public:
   int                hasExternalCov() const;
   bool               isChangeSupportDefined() const;
   // Methods necessary for Optimization
-  void _optimizationPreProcess(const std::vector<SpacePoint> &p) const override;
-  void _optimizationPostProcess() const override ;
-  void _optimizationSetTarget(const SpacePoint &pt) const override;
   void optimizationSetTargetByIndex(int iech) const override;
-  MatrixRectangular evalCovMatOptim(const Db* db1,
+  MatrixRectangular evalCovMatOptimOld(const Db* db1,
                                        const Db* db2,
                                        int ivar0               = -1,
                                        int jvar0               = -1,
                                        const VectorInt& nbgh1  = VectorInt(),
                                        const VectorInt& nbgh2  = VectorInt(),
                                        const CovCalcMode* mode = nullptr,
-                                       bool cleanOptim         = true) const override;
-  MatrixRectangular evalCovMatOptimByTarget(const Db* db1,
+                                       bool cleanOptim         = true) const;
+  MatrixRectangular evalCovMatOptimByTargetOld(const Db* db1,
                                             const Db* db2,
                                             const VectorVectorInt& sampleRanks1,
                                             int iech2              = 0,
                                             const KrigOpt& krigopt = KrigOpt(),
-                                            bool cleanOptim        = true) const override;
-  MatrixSquareSymmetric evalCovMatSymOptim(const Db* db1,
+                                            bool cleanOptim        = true) const;
+  MatrixSquareSymmetric evalCovMatSymOptimOld(const Db* db1,
                                            const VectorInt& nbgh1  = VectorInt(),
                                            int ivar0               = -1,
                                            const CovCalcMode* mode = nullptr,
-                                           bool cleanOptim         = true) const override;
-  MatrixSquareSymmetric evalCovMatSymOptimByRanks(const Db* db1,
+                                           bool cleanOptim         = true) const;
+  MatrixSquareSymmetric evalCovMatSymOptimByRanksOld(const Db* db1,
                                                   const VectorVectorInt& sampleRanks,
                                                   int ivar0               = -1,
                                                   const CovCalcMode* mode = nullptr,
-                                                  bool cleanOptim = true) const override;
+                                                  bool cleanOptim = true) const;
 
   void copyCovContext(const CovContext& ctxt);
   bool hasNugget() const;

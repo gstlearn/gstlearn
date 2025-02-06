@@ -965,7 +965,6 @@ void KrigingSystem::_rhsCalculBlock()
       _p0 = _p0_memo;
       _p0.move(_getDISC1Vec(i));
       _cova->optimizationSetTarget(_p0);
-
       _cova->evalCovKriging(_covtab, _p1, _p0, &_calcModeRHS);
 
       // Cumulate the Local covariance to '_covtab'

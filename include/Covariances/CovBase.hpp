@@ -111,19 +111,18 @@ void _setContext(const CovContext& ctxt) override;
 void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
 void _optimizationPostProcess() const override; 
 
-
 void  _evalOptim(SpacePoint* p1A, SpacePoint* p2A,
                  MatrixSquareGeneral &mat,
                  const CovCalcMode *mode) const;
- 
-void   _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
 
-
+void _load(const SpacePoint& p, bool case1) const override;
+void _optimizationSetTarget(const SpacePoint& pt) const override;
 
 protected:
-    TabNoStat _tabNoStat;
-    mutable MatrixSquareSymmetric _sill;
-    mutable MatrixSquareGeneral _workMat;
-private :
-    ACov* _cor;
+TabNoStat _tabNoStat;
+mutable MatrixSquareSymmetric _sill;
+mutable MatrixSquareGeneral _workMat;
+
+private:
+ACov* _cor;
 };

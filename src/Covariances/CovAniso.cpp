@@ -801,20 +801,3 @@ void CovAniso::informDbOutForAnisotropy(const Db* dbout) const
 {
    _corAniso->informDbOutForAnisotropy(dbout);  
 }
-
-void CovAniso::_optimizationSetTarget(const SpacePoint& pt) const
-{
-  if (_isOptimEnabled())
-  {  
-    _optimizationTransformSP(pt, _p2A);
-  }
-  else 
-  {
-    _p2A = pt;
-  }  
-}
-
-void CovAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const
-{
-  _corAniso->optimizationTransformSP(ptin, ptout);
-}

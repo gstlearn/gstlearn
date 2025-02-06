@@ -186,10 +186,10 @@ void CovList::optimizationSetTargetByIndex(int iech) const
 }
 
 double CovList::eval(const SpacePoint& p1,
-                           const SpacePoint& p2,
-                           int ivar,
-                           int jvar,
-                           const CovCalcMode* mode) const
+                     const SpacePoint& p2,
+                     int ivar,
+                     int jvar,
+                     const CovCalcMode* mode) const
 {
   double cov      = 0.;
   const VectorInt& list = _getListActiveCovariances(mode);
@@ -235,6 +235,13 @@ void CovList::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const
   const VectorInt& list = _getListActiveCovariances(mode);
   for (int i = 0, n = (int)list.size(); i < n; i++)
     _covs[list[i]]->loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
+}
+
+void CovList::_load(const SpacePoint& p, bool case1) const
+{
+  const VectorInt& list = _getListActiveCovariances(nullptr);
+  for (int i = 0, n = (int)list.size(); i < n; i++)
+    _covs[list[i]]->load(p, case1);
 }
 
 String CovList::toString(const AStringFormat* /*strfmt*/) const

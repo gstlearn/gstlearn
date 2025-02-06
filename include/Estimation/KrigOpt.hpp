@@ -36,6 +36,8 @@ public:
 
   const CovCalcMode& getMode() const { return _mode; }
   const EKrigOpt& getCalcul() const { return _calcul; }
+  int getNDisc() const { return _ndiscNumber; }
+  bool isFlagCell() const { return _flagPerCell; }
 
 private:
   void _blockDiscretize(int iechout, bool flagRandom);

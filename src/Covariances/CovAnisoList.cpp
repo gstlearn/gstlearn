@@ -192,7 +192,7 @@ void CovAnisoList::addEval0CovMatBiPointInPlace(MatrixSquareGeneral& mat,
  * @param cleanOptim True if Optimization internal arrays must be cleaned at end
  * @return
  */
-MatrixRectangular CovAnisoList::evalCovMatOptim(const Db* db1,
+MatrixRectangular CovAnisoList::evalCovMatOptimOld(const Db* db1,
                                                 const Db* db2,
                                                 int ivar0,
                                                 int jvar0,
@@ -227,9 +227,9 @@ MatrixRectangular CovAnisoList::evalCovMatOptim(const Db* db1,
   mat.resize(neq1, neq2);
 
   // Loop on Target
-  int icol = 0;
- const  VectorInt& list = _getListActiveCovariances(mode);
-  for (int rvar2 = 0, nvar2 = (int) jvars.size(); rvar2 < nvar2; rvar2++)
+  int icol              = 0;
+  const VectorInt& list = _getListActiveCovariances(mode);
+  for (int rvar2 = 0, nvar2 = (int)jvars.size(); rvar2 < nvar2; rvar2++)
   {
     int ivar2 = jvars[rvar2];
     int nech2s = (int)index2[rvar2].size();
@@ -265,7 +265,7 @@ MatrixRectangular CovAnisoList::evalCovMatOptim(const Db* db1,
  * @return
  */
 MatrixRectangular
-CovAnisoList::evalCovMatOptimByTarget(const Db* db1,
+CovAnisoList::evalCovMatOptimByTargetOld(const Db* db1,
                                       const Db* db2,
                                       const VectorVectorInt& sampleRanks1,
                                       int iech2,
@@ -275,6 +275,12 @@ CovAnisoList::evalCovMatOptimByTarget(const Db* db1,
   MatrixRectangular mat;
 
   // Preliminary checks
+  if (krigopt.getCalcul() == EKrigOpt::DGM)
+  {
+    messerr("This method is not designed for DGM Krigopt option");
+    return mat;
+  }
+
   VectorInt ivars = VH::sequence(getNVar());
   if (ivars.empty()) return mat;
   VectorInt jvars = ivars;
@@ -300,14 +306,13 @@ CovAnisoList::evalCovMatOptimByTarget(const Db* db1,
   if (krigopt.getCalcul() == EKrigOpt::DRIFT) return mat;
 
   // Loop on target
-  int icol = 0;
   SpacePoint p2(getSpace());
   const VectorInt& list = _getListActiveCovariances(&krigopt.getMode());
-  for (int rvar2 = 0, nvar2 = (int)jvars.size(); rvar2 < nvar2; rvar2++)
+  for (int rvar2 = 0, icol = 0, nvar2 = (int)jvars.size(); rvar2 < nvar2; rvar2++)
   {
     int ivar2 = jvars[rvar2];
     int nech2s = (int)index2[rvar2].size();
-    for (int rech2 = 0; rech2 < nech2s; rech2++)
+    for (int rech2 = 0; rech2 < nech2s; rech2++, icol++)
     {
       int jech2 = index2[rvar2][rech2];
       db2->getSampleAsSPInPlace(p2, jech2);
@@ -319,18 +324,11 @@ CovAnisoList::evalCovMatOptimByTarget(const Db* db1,
         int j = list[i];
         _covAnisos[j]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode, false);
       }
-      icol++;
     }
   }
 
   if (cleanOptim) optimizationPostProcess();
   return mat;
-}
-
-void CovAnisoList::_optimizationSetTarget(const SpacePoint& pt) const
-{
-  for (int is = 0, ns = getNCov(); is < ns; is++)
-    _covs[is]->optimizationSetTarget(pt);
 }
 
 void CovAnisoList::optimizationSetTargetByIndex(int iech) const
@@ -348,7 +346,7 @@ void CovAnisoList::optimizationSetTargetByIndex(int iech) const
  * @param cleanOptim When True, clean Optimization internal arrays at end
  * @return
  */
-MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptim(
+MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimOld(
   const Db* db1, const VectorInt& nbgh1, int ivar0, const CovCalcMode* mode, bool cleanOptim) const
 {
   MatrixSquareSymmetric mat;
@@ -362,11 +360,11 @@ MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptim(
   return evalCovMatSymOptimByRanks(db1, index1, ivar0, mode, cleanOptim);
 }
 
-MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
+MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanksOld(
   const Db* db1, const VectorVectorInt& sampleRanks1, int ivar0, const CovCalcMode* mode, bool cleanOptim) const
 {
   MatrixSquareSymmetric mat;
-  SpacePoint p2;
+  SpacePoint p2(getSpace());
 
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return mat;
@@ -680,19 +678,6 @@ void CovAnisoList::_setContext(const CovContext& ctxt)
       if (getCovType(is) == ECov::NUGGET) return is;
     }
     return -1;
-  }
-
-  void CovAnisoList::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
-  {
-    for (const auto& e: _covs)
-    {
-      e->optimizationPreProcess(p);
-    }
-  }
-
-  void CovAnisoList::_optimizationPostProcess() const
-  {
-    for (int is = 0, ns = getNCov(); is < ns; is++) _covs[is]->optimizationPostProcess();
   }
 
   const CovAnisoList* CovAnisoList::createReduce(const VectorInt& validVars) const
