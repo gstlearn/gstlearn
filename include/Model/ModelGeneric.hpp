@@ -67,6 +67,7 @@ public:
   FORWARD_METHOD(getCov, evalCovMatSymOptimByRanks)
   FORWARD_METHOD(getCov, evalCovMatSymByRanks)
   FORWARD_METHOD(getCov, eval0Mat)
+  FORWARD_METHOD(getCov, eval0MatByTarget)
   FORWARD_METHOD(getCov, evalCovMat)
   FORWARD_METHOD(getCov, evalCovMatV)
   FORWARD_METHOD(getCov, evalCovMatByTarget)
@@ -109,7 +110,7 @@ public:
   
   FORWARD_METHOD(getDriftList, getDrift)
   FORWARD_METHOD(getDriftList, computeDrift, TEST)
-  FORWARD_METHOD(getDriftList, evalDriftValue,TEST)
+  FORWARD_METHOD(getDriftList, evalDriftValue, TEST)
   FORWARD_METHOD(getDriftList, evalDriftMat)
   FORWARD_METHOD(getDriftList, evalDriftMatByRanks)
   FORWARD_METHOD(getDriftList, evalDriftMatByTarget)

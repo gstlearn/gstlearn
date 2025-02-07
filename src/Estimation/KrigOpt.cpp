@@ -19,6 +19,7 @@ KrigOpt::KrigOpt(const EKrigOpt& calcul)
   : _calcul(calcul)
   , _mode()
   , _flagPerCell(false)
+  , _ndim(0)
   , _ndiscNumber(0)
   , _ndiscs()
   , _disc1()
@@ -34,6 +35,7 @@ KrigOpt::KrigOpt(const KrigOpt& m)
   : _calcul(m._calcul)
   , _mode(m._mode)
   , _flagPerCell(m._flagPerCell)
+  , _ndim(m._ndim)
   , _ndiscNumber(m._ndiscNumber)
   , _ndiscs(m._ndiscs)
   , _disc1(m._disc1)
@@ -50,6 +52,7 @@ KrigOpt& KrigOpt::operator=(const KrigOpt& m)
     _calcul      = m._calcul;
     _mode        = m._mode;
     _flagPerCell = m._flagPerCell;
+    _ndim        = m._ndim;
     _ndiscNumber = m._ndiscNumber;
     _ndiscs      = m._ndiscs;
     _disc1       = m._disc1;
@@ -64,12 +67,24 @@ KrigOpt::~KrigOpt()
 {
 }
 
+int KrigOpt::getNvarCL() const
+{
+  if (_matLC == nullptr) return 0;
+  return _matLC->getNRows();
+}
+
+double KrigOpt::getMatCLValue(int ivarcl, int ivar) const
+{
+  if (_matLC == nullptr) return TEST;
+  return _matLC->getValue(ivarcl, ivar);
+}
+
 /**
  * Define the output as Linear Combinations of the Input Variables
  * @param matLC Vector of Vectors of weights (see remarks)
  * @param nvar  Number of Input variables
  * @return
- * @remarks The number of Rows of 'matLC' is the number of Output variables
+ * @remarks The number of Rows of d'matLC' is the number of Output variables
  * @remarks The number of Columns of 'matLC' is the number of input Variables.
  */
 int KrigOpt::setMatLC(const MatrixRectangular* matLC, int nvar)
@@ -128,18 +143,18 @@ int KrigOpt::setKrigingOption(const EKrigOpt& calcul,
     _flagPerCell = flag_per_cell;
 
     // Prepare auxiliary storage
-    int ndim     = (int)ndiscs.size();
+    _ndim        = (int)ndiscs.size();
     _ndiscNumber = VH::product(_ndiscs);
     _disc1.resize(_ndiscNumber);
     _disc2.resize(_ndiscNumber);
     for (int i = 0; i < _ndiscNumber; i++)
     {
-      _disc1[i].resize(ndim);
-      _disc2[i].resize(ndim);
+      _disc1[i].resize(_ndim);
+      _disc2[i].resize(_ndim);
     }
 
     // For constant discretization, calculate discretization coordinates
-    if (!_flagPerCell) _blockDiscretize(0, true);
+    if (!_flagPerCell) blockDiscretize(0, true);
   }
 
   return 0;
@@ -151,10 +166,43 @@ int KrigOpt::setKrigingDGM(bool flag_dgm)
   return 0;
 }
 
-void KrigOpt::_blockDiscretize(int iechout, bool flagRandom)
+void KrigOpt::blockDiscretize(int iechout, bool flagRandom, int seed) const
 {
   _disc1 = _dbgrid->getDiscretizedBlock(_ndiscs, iechout, _flagPerCell, false);
 
   if (flagRandom)
-    _disc2 = _dbgrid->getDiscretizedBlock(_ndiscs, iechout, _flagPerCell, true, 1234546);
+    _disc2 = _dbgrid->getDiscretizedBlock(_ndiscs, iechout, _flagPerCell, true, seed);
+}
+
+double KrigOpt::_getDisc1(int idisc, int idim) const
+{
+  return _disc1[idisc][idim];
+}
+VectorDouble KrigOpt::getDisc1VD(int idisc) const
+{
+  VectorDouble vec(_ndim);
+  for (int idim = 0; idim < _ndim; idim++) vec[idim] = _disc1[idisc][idim];
+  return vec;
+}
+VectorVectorDouble KrigOpt::getDisc1VVD() const
+{
+  VectorVectorDouble vecvec(_ndiscNumber);
+  for (int idisc = 0; idisc < _ndiscNumber; idisc++) vecvec[idisc] = getDisc1VD(idisc);
+  return vecvec;
+}
+double KrigOpt::_getDisc2(int idisc, int idim) const
+{
+  return _disc2[idisc][idim];
+}
+VectorDouble KrigOpt::getDisc2VD(int idisc) const
+{
+  VectorDouble vec(_ndim);
+  for (int idim = 0; idim < _ndim; idim++) vec[idim] = _disc2[idisc][idim];
+  return vec;
+}
+VectorVectorDouble KrigOpt::getDisc2VVD() const
+{
+  VectorVectorDouble vecvec(_ndiscNumber);
+  for (int idisc = 0; idisc < _ndiscNumber; idisc++) vecvec[idisc] = getDisc2VD(idisc);
+  return vecvec;
 }

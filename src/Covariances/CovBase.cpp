@@ -2,7 +2,7 @@
 /*                                                                            */
 /*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* Copyright (c3) MINES Paris / ARMINES                                        */
+/* Copyright (c3) MINES Paris / ARMINES                                       */
 /* Authors: gstlearn Team                                                     */
 /* Website: https://gstlearn.org                                              */
 /* License: BSD 3-clause                                                      */

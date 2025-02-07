@@ -38,19 +38,30 @@ public:
   const EKrigOpt& getCalcul() const { return _calcul; }
   int getNDisc() const { return _ndiscNumber; }
   bool isFlagCell() const { return _flagPerCell; }
+  void blockDiscretize(int iechout, bool flagRandom = false, int seed = 1234546) const;
+  VectorDouble getDisc1VD(int idisc) const;
+  VectorDouble getDisc2VD(int idisc) const;
+  VectorVectorDouble getDisc1VVD() const;
+  VectorVectorDouble getDisc2VVD() const;
+  const MatrixRectangular* getMatLC() const { return _matLC; }
+  double getMatCLValue(int ivarcl, int ivar) const;
+  bool isMatLC() const { return _matLC != nullptr; }
+  int getNvarCL() const;
 
 private:
-  void _blockDiscretize(int iechout, bool flagRandom);
+  double _getDisc1(int idisc, int idim) const;
+  double _getDisc2(int idisc, int idim) const;
 
 private:
   EKrigOpt _calcul;
   CovCalcMode _mode;
 
   bool _flagPerCell;
+  int _ndim;
   int _ndiscNumber;
   VectorInt _ndiscs;
-  VectorVectorDouble _disc1; // Dimension: ndiscNumber, ndim
-  VectorVectorDouble _disc2; // Dimension: ndiscNumber, ndim
+  mutable VectorVectorDouble _disc1; // Dimension: ndiscNumber, ndim
+  mutable VectorVectorDouble _disc2; // Dimension: ndiscNumber, ndim
 
   bool _flagDGM;
 

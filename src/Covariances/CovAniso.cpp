@@ -223,7 +223,7 @@ double CovAniso::eval(const SpacePoint &p1,
   double cov = _corAniso->evalCor(p1,p2,mode);
   if (mode == nullptr || ! mode->getUnitary())
     cov *= getSill(ivar, jvar);
-  return (cov);
+  return cov;
 }
 
 /**

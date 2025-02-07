@@ -187,20 +187,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
   _flagNoMatLC = _matLC == nullptr;
   _flagVerr    = _dbin->hasLocVariable(ELoc::V);
 
-  // Define the vector of data
-  if (!_oldStyle)
-  {
-    _means = _model->getMeans();
-    if (_neigh != nullptr && _neigh->getType() == ENeigh::UNIQUE)
-    {
-      _sampleRanks = _dbin->getSampleRanks();
-      _Z = _dbin->getValuesByRanks(_sampleRanks, _means);
-      _algebra.setData(&_Z, &_sampleRanks, &_means);
-    }
-    _Sigma00 = _model->eval0Mat(&_calcModeVAR);
-    _algebra.setVariance(&_Sigma00);
-  }
-
   _resetMemoryGeneral();
 }
 
@@ -382,7 +368,7 @@ void KrigingSystem::_resetMemoryGeneral()
   _drftab.resize(_nbfl);
   _var0.reset(_nvarCL, _nvarCL);
 
-  // _results serves for internal calculation of estimation and variance of estimation error.
+  // '_results' serves for internal calculation of estimation and variance of estimation error.
   // For the latter, the matrix product provides the full variance-covariance matrix:
   // Only the diagonal terms are used, but the matrix must be square.
   _results.reset(_nvarCL,_nvarCL);
@@ -623,7 +609,6 @@ void KrigingSystem::_covtab0Calcul(int icas, int iech, const CovCalcMode* mode)
   _modelCovAniso->eval0CovMatBiPointInPlace(_covtab, mode);
 }
 
-
 void KrigingSystem::_covCvvCalcul(const CovCalcMode* mode)
 {
   if (_flagPerCell) _blockDiscretize(2);
@@ -712,7 +697,7 @@ void KrigingSystem::_lhsCalcul()
           _dbout->getSampleAsSPInPlace(_p2, _iechOut);
           _cova->optimizationSetTarget(_p2);
         }
-        _cova->evalCovKriging(_covtab,_p1,_p2,&_calcModeLHS);
+        _cova->evalCovKriging(_covtab, _p1, _p2, &_calcModeLHS);
       }
       for (int ivar = 0; ivar < _nvar; ivar++)
         for (int jvar = 0; jvar < _nvar; jvar++)
@@ -757,7 +742,6 @@ void KrigingSystem::_lhsCalcul()
 
   if (_nfeq <= 0 || _nbfl <= 0) return;
   for (int iech = 0; iech < _nech; iech++)
-  {
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int ib = 0; ib < _nfeq; ib++)
       {
@@ -765,7 +749,6 @@ void KrigingSystem::_lhsCalcul()
         _setLHSF(iech,ivar,ib,_nvar,value);
         _setLHSF(ib,_nvar,iech,ivar,value);
       }
-  }
 }
 
 void KrigingSystem::_lhsIsoToHetero()
@@ -1848,6 +1831,20 @@ bool KrigingSystem::isReady()
 {
   if (! _isCorrect()) return false;
 
+  // Define 
+  if (!_oldStyle)
+  {
+    _means = _model->getMeans();
+    if (_neigh != nullptr && _neigh->getType() == ENeigh::UNIQUE)
+    {
+      _sampleRanks = _dbin->getSampleRanks();
+      _Z           = _dbin->getValuesByRanks(_sampleRanks, _means);
+      _algebra.setData(&_Z, &_sampleRanks, &_means);
+    }
+    _Sigma00 = _model->eval0MatByTarget(_dbout, 0, _krigopt);
+    _algebra.setVariance(&_Sigma00);
+  }
+
   // Perform some pre-calculation when variance of estimator is requested
   if (_flagStd)
   {
@@ -1997,7 +1994,7 @@ int KrigingSystem::estimate(int iech_out)
     else
     {
       _Sigma0 = _model->evalCovMatOptimByTarget(_dbin, _dbout, _sampleRanks, iech_out, _krigopt, false);
-      _X0     = _model->evalDriftMatByTarget(_dbout, iech_out);
+      _X0     = _model->evalDriftMatByTarget(_dbout, iech_out, _krigopt);
       _algebra.setRHS(&_Sigma0, &_X0);
     };
   }

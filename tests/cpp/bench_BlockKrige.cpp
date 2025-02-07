@@ -9,17 +9,16 @@
 /*                                                                            */
 /******************************************************************************/
 
-// This test is meant to check CoKriging with Bayesian hypotheses on Drift
-// - in Multivariate (heterotopic) case
-// - in Unique or Moving neighborhood
+// This test is mean to check the Block Kriging (essentially for printout)
 
+#include "Basic/AStringFormat.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Enum/ESpaceType.hpp"
 
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Basic/Law.hpp"
 #include "Model/Model.hpp"
@@ -39,13 +38,15 @@ int main(int argc, char* argv[])
   // Global parameters
   int ndim = 2;
   law_set_random_seed(32131);
+  AStringFormat format;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
   double oldstyle = 0.;
-  bool verbose    = false;
-  int nech        = 3;
+  bool verbose    = true;
+  int nech        = 4;
   int nvar        = 1;
+  bool flagSK     = false;
   OptCustom::define("oldStyle", oldstyle);
 
   // Generate the data base
@@ -55,30 +56,40 @@ int main(int argc, char* argv[])
   data->display(dbfmt);
 
   // Generate the target file
-  Db* target = Db::createFillRandom(1, ndim, 0, 0);
+  VectorInt nx = {1, 1};
+  VectorDouble dx = {0.2, 0.3};
+  VectorDouble x0 = {0.5, 0.5};
+  DbGrid* target = DbGrid::create(nx, dx, x0);
 
   // Create the Model
   double scale = 0.7;
   MatrixSquareSymmetric* sills =
     MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
-  Model* model =
-    Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
-                           *sills, VectorDouble(), ASpaceSharedPtr(), false);
-  model->setDriftIRF(0, 0);
+  Model* model = Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
+                                        *sills, VectorDouble(), nullptr, false);
+  if (flagSK)
+  {
+    VectorDouble means = VH::simulateGaussian(nvar);
+    model->setMeans(means);
+  }
+  else
+    model->setDriftIRF(1, 0);
+  VectorDouble means(nvar, 0.);
 
   // Neighborhood
-  ANeigh* neigh = NeighUnique::create();
-
-  // Create the Bayesian Priors for Drift coefficients
-  VectorDouble PriorMean = VH::simulateGaussian(nvar);
-  MatrixSquareSymmetric PriorCov(nvar);
-  PriorCov.setDiagonal(VH::simulateUniform(nvar, 0.1, 0.5));
+  ANeigh* neigh;
+  int nmaxi     = nech;
+  double radius = 5.;
+  neigh         = NeighMoving::create(false, nmaxi, radius);
 
   // Define the verbose option
   if (verbose) OptDbg::setReference(1);
 
-  // Test on Bayesian
-  kribayes(data, target, model, neigh, PriorMean, PriorCov);
+  // Test on Collocated CoKriging in Unique Neighborhood
+  VectorInt ndisc = {3, 3};
+  data->display();
+  target->display();
+  kriging(data, target, model, neigh, EKrigOpt::BLOCK, true, true, false, ndisc);
   dbfmt = DbStringFormat::create(FLAG_STATS, {"Kriging.*"});
   target->display(dbfmt);
 

@@ -181,6 +181,7 @@ public:
                     int jvar                = 0,
                     const CovCalcMode* mode = nullptr) const;
   MatrixSquareGeneral eval0Mat(const CovCalcMode* mode = nullptr) const;
+  MatrixSquareGeneral eval0MatByTarget(const Db* db, int iech, const KrigOpt& krigopt = KrigOpt()) const;
   MatrixSquareGeneral evalMat(const SpacePoint& p1,
                               const SpacePoint& p2,
                               const CovCalcMode* mode = nullptr) const;
@@ -466,24 +467,38 @@ private:
 
   void setNoStatDbIfNecessary(const Db*& db);
 
-  void _loopOnData(const Db* db1,
-                   const VectorVectorInt& sampleRanks1,
-                   const VectorInt& ivars,
-                   int ivar2,
-                   int iech2,
-                   int icol,
-                   SpacePoint& p1,
-                   SpacePoint& p2,
-                   bool flagSym,
-                   const CovCalcMode* mode,
-                   MatrixRectangular& mat) const;
+  void _loopOnPointTarget(const Db* db2,
+                          const VectorVectorInt& sampleRanks2,
+                          const VectorInt& jvars,
+                          int ivar1,
+                          int iech1,
+                          int irow,
+                          SpacePoint& p1,
+                          SpacePoint& p2,
+                          bool flagSym,
+                          const CovCalcMode* mode,
+                          MatrixRectangular& mat) const;
+
+  void _loopOnBlockTarget(const Db* db2,
+                          const VectorVectorInt& sampleRanks2,
+                          const VectorInt& jvars,
+                          int ivar1,
+                          int iech1,
+                          int irow,
+                          SpacePoint& p1,
+                          SpacePoint& p2,
+                          const KrigOpt& krigopt,
+                          const CovCalcMode* mode,
+                          MatrixRectangular& mat) const;
 
   virtual TabNoStat* _createNoStatTab();
 
 protected:
   void setNVar(int nvar) { _ctxt.setNVar(nvar); }
-  virtual void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode = nullptr) const;
+  virtual void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                      const SpacePoint& p1,
+                                      const SpacePoint& p2,
+                                      const CovCalcMode* mode = nullptr) const;
   virtual void _optimizationSetTarget(const SpacePoint &pt) const;
 
   void _setOptimEnabled(bool enabled){ _optimEnabled = enabled;}

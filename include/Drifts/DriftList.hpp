@@ -19,11 +19,13 @@
 #include "Basic/ICloneable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Estimation/KrigOpt.hpp"
 
 class ASpace;
 class SpacePoint;
 class Db;
 class ELoc;
+class CovCalcMode;
 
 /**
  * \brief
@@ -128,8 +130,8 @@ public:
                       int ivar0                 = -1,
                       const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
   MatrixRectangular evalDriftMatByTarget(const Db* db,
-                       int iech2                 = 0,
-                       const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+                                         int iech2 = 0,
+                                         const KrigOpt& krigopt = KrigOpt()) const;
   double evalDriftValue(const Db *db,
                         int iech,
                         int ivar,

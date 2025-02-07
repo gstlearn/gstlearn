@@ -248,10 +248,13 @@ public:
 
   void informDbInForAnisotropy(const Db* dbin) const;
   void informDbOutForAnisotropy(const Db* dbout) const;
-  
-  void setOptimEnabled(bool flag) const { _optimEnabled = flag; }
-  
-  
+
+  void setOptimEnabled(bool flag) const
+  {
+    _optimEnabled = flag;
+    _corAniso->setOptimEnabled(flag);
+  }
+
   void informMeshByMeshForAnisotropy(const AMesh* amesh) const;
   void informMeshByApexForAnisotropy(const AMesh* amesh) const;
  

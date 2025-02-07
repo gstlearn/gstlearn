@@ -65,7 +65,6 @@ CovLMGradient::~CovLMGradient()
   /// TODO : Delete pointers ?
 }
 
-
 void CovLMGradient::evalZAndGradients(const SpacePoint& p1,
                                       const SpacePoint& p2,
                                       double& covVal,
@@ -110,7 +109,6 @@ void CovLMGradient::addCovAniso(const CovAniso* cov)
   }
   cov->setOptimEnabled(false);
   CovAnisoList::addCovAniso(cov);
-
 }
 
 /**

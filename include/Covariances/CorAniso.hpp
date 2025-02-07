@@ -264,7 +264,6 @@ public:
   double evalCorFromH(double h, const CovCalcMode *mode) const;
   double getDetTensor() const;
 
-  void optimizationSetTarget(const SpacePoint& pt) const;
   void optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
   String toStringParams(const AStringFormat* strfmt = nullptr) const;
   String toStringNoStat(const AStringFormat* strfmt = nullptr,int i = 0) const;
