@@ -1266,5 +1266,8 @@ setMethod("plot", signature(x="_p_AAnam"), function(x,y="missing",...) plot.anam
 
 addMethods("Model",c("ModelCovList","ModelGeneric"))
 
+addMethods("Db", c("ASerializable"))
+addMethods("DbGrid", c("ASerializable"))
+
 
 %}
