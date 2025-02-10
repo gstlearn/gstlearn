@@ -9,11 +9,17 @@
 #                                                                              #
 ################################################################################
 
-import plotly.graph_objects as go
 import numpy                as np
 import gstlearn             as gl
 from numpy import pi
 from matplotlib.animation import adjusted_figsize
+
+try:
+    import plotly.graph_objects as go
+except ModuleNotFoundError as ex:
+    msg = ("Python dependency 'plotly' not found.\n"
+          "To install it alongside gstlearn, please run `pip install gstlearn[plot]'")
+    raise ModuleNotFoundError(msg) from ex
 
 def getCscale():
     cscale = [
