@@ -118,7 +118,7 @@ static Model* createModel(int nvar, int typecov, int typedrift, int typemean)
 
   if (typemean == 1)
   {
-    model->setMean(123.);
+    model->setMeans(VH::simulateGaussian(nvar));
   }
   return model;
 }
@@ -423,7 +423,7 @@ int main(int argc, char* argv[])
   message("\n<----- Test Kriging Multiple Variables with matLC ----->\n");
   nvar  = 3;
   data  = createLocalDb(10, 2, 3, 4901);
-  model = createModel(nvar, 1, 1, 0);
+  model = createModel(nvar, 1, 0, 1);
 
   if (mode == 0 || mode == 21)
   {

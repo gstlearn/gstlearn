@@ -1146,7 +1146,8 @@ void ACov::_loopOnBlockTarget(const Db* db2,
       db2->getSampleAsSPInPlace(p2, iech2);
 
       // Discretize the block if adapted to the cell dimensions
-      if (krigopt.isFlagCell()) krigopt.blockDiscretize(iech2);
+      if (krigopt.isFlagCell())
+        krigopt.blockDiscretize(iech2);
 
       p2.setTarget(true);
       p2.setIech(iech2);

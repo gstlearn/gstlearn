@@ -225,7 +225,8 @@ private:
   MatrixRectangular     _Sigma0;  // Covariance part for RHS
   MatrixRectangular     _X0;      // Drift par for RHS
   VectorDouble          _Z;       // Vector of Data
-  VectorDouble          _means;   // Means of the variables (used to center variables)
+  VectorDouble _means;            // Means of the variables (used to center variables)
+  VectorDouble _meansTarget;      // Means for target (possible using matLC)
 
   // Calculation modes
   CovCalcMode _calcModeLHS;

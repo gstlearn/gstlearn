@@ -436,7 +436,7 @@ int KrigingCalcul::setData(const VectorDouble* Z,
   // Argument Means
   if (Means != nullptr)
   {
-    if (!_checkDimensionVD("Means", Means, &_nvar)) return 1;
+    if (!_checkDimensionVD("Means", Means, &_nrhs)) return 1;
     _Means = Means;
   }
   return 0;

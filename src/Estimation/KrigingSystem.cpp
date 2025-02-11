@@ -74,6 +74,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _X0()
   , _Z()
   , _means()
+  , _meansTarget()
   , _calcModeLHS(ECalcMember::LHS)
   , _calcModeRHS(ECalcMember::RHS)
   , _calcModeVAR(ECalcMember::VAR)
@@ -1663,6 +1664,7 @@ void KrigingSystem::_estimateEstim(int status)
   if (!_oldStyle)
   {
     VectorDouble local = _algebra.getEstimation();
+    if (status) local.fill(TEST);
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
       _dbout->setArray(_iechOut, _iptrEst + ivarCL, local[ivarCL]);
     return;
@@ -1697,6 +1699,7 @@ void KrigingSystem::_estimateStdv(int status)
   if (!_oldStyle)
   {
     VectorDouble local = _algebra.getStdv();
+    if (status) local.fill(TEST);
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
       _dbout->setArray(_iechOut, _iptrStd + ivarCL, local[ivarCL]);
 
@@ -1745,6 +1748,7 @@ void KrigingSystem::_estimateVarZ(int status)
   if (!_oldStyle)
   {
     VectorDouble local = _algebra.getVarianceZstar();
+    if (status) local.fill(TEST);
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
       _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, local[ivarCL]);
     return;
@@ -1809,7 +1813,7 @@ int KrigingSystem::_prepar()
     _Sigma = _cova->evalCovMatSymOptimByRanks(_dbin, _sampleRanks, -1, &_calcModeLHS, false);
     _X = _model->evalDriftMatByRanks(_dbin, _sampleRanks);
     if (_algebra.resetNewData()) return 1;
-    if (_algebra.setData(&_Z, &_sampleRanks, &_means)) return 1;
+    if (_algebra.setData(&_Z, &_sampleRanks, &_meansTarget)) return 1;
     if (_algebra.setLHS(&_Sigma, &_X)) return 1;
   }
 
@@ -1825,7 +1829,7 @@ int KrigingSystem::resetNewData()
   _X = _model->evalDriftMatByRanks(_dbin, _sampleRanks);
 
   if (_algebra.resetNewData()) return 1;
-  if (_algebra.setData(&_Z, &_sampleRanks, &_means)) return 1;
+  if (_algebra.setData(&_Z, &_sampleRanks, &_meansTarget)) return 1;
   if (_algebra.setLHS(&_Sigma, &_X)) return 1;
 
   return 0;
@@ -1886,11 +1890,17 @@ bool KrigingSystem::isReady()
   if (!_oldStyle)
   {
     _means = _model->getMeans();
+    _meansTarget = _means;
+
+    // Possible adjust the means in case of presence of 'matLC'
+    if (_matLC != nullptr)
+      _meansTarget = _matLC->prodMatVec(_means);
+
     if (_neigh != nullptr && _neigh->getType() == ENeigh::UNIQUE)
     {
       _sampleRanks = _dbin->getSampleRanks();
       _Z           = _dbin->getValuesByRanks(_sampleRanks, _means, !_model->hasDrift());
-      if (_algebra.setData(&_Z, &_sampleRanks, &_means)) return false;
+      if (_algebra.setData(&_Z, &_sampleRanks, &_meansTarget)) return false;
     }
   }
 
@@ -2046,8 +2056,14 @@ int KrigingSystem::estimate(int iech_out)
     {
       // For XValid in Unique Neighborhood:
       // - no need to define the RHS information (it will be extracted from LHS°)
-      // - only define the indices of the XValidated columns 
+      // - only define the indices of the XValidated columns
       VectorInt xvalidEqs = _xvalidUniqueIndices();
+      if (xvalidEqs.size() <= 0)
+      {
+        // The sample to be cross-validated is not valid, skip
+        status = 1;
+        goto label_store;
+      }
       VectorInt xvalidVars = VH::sequence(_getNVar());
       if (_algebra.setXvalidUnique(&xvalidEqs, &xvalidVars)) return 1;
     }
@@ -2284,7 +2300,7 @@ int KrigingSystem::_updateForColCokMoving()
 
   // Store the result of Colocated updating in Moving Neighbrohood 
   _algebra.resetNewData();
-  if (_algebra.setData(&_Z, &_sampleRanks, &_means)) return 1;
+  if (_algebra.setData(&_Z, &_sampleRanks, &_meansTarget)) return 1;
   if (_algebra.setLHS(&_Sigma, &_X)) return 1;
   if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
   return 0;
@@ -2304,7 +2320,7 @@ VectorInt KrigingSystem::_xvalidUniqueIndices() const
   for (int ivar = 0, nvar = (int)_sampleRanks.size(); ivar < nvar; ivar++)
   {
     for (int i = 0, n = (int) _sampleRanks[ivar].size(); i < n; i++, lec++)
-      if (i == _iechOut) ranks.push_back(lec);
+      if (_sampleRanks[ivar][i] == _iechOut) ranks.push_back(lec);
   }
   return ranks;
 }
@@ -2583,7 +2599,7 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
   }
 
   // New style operation
-  _krigopt.setKrigingOption(calcul, dbgrid, ndiscs, flag_per_cell);
+  _krigopt.setKrigingOption(calcul, dbgrid, ndiscs, _flagPerCell);
   return 0;
 }
 
