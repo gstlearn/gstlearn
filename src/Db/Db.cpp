@@ -3423,7 +3423,9 @@ VectorDouble Db::getSelections(void) const
   return tab;
 }
 
-VectorDouble Db::getValuesByRanks(const VectorVectorInt& sampleRanks, const VectorDouble& means) const
+VectorDouble Db::getValuesByRanks(const VectorVectorInt& sampleRanks,
+                                  const VectorDouble& means,
+                                  bool subtractMean) const
 {
   int nvar        = getNLoc(ELoc::Z);
   VectorInt jvars = VH::sequence(nvar);
@@ -3431,7 +3433,7 @@ VectorDouble Db::getValuesByRanks(const VectorVectorInt& sampleRanks, const Vect
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int jvar               = jvars[ivar];
-    double meanlocal       = (!means.empty()) ? means[jvar] : 0.;
+    double meanlocal       = (!means.empty() && subtractMean) ? means[jvar] : 0.;
     const VectorInt& local = sampleRanks[ivar];
     for (int iech = 0, nech = (int)local.size(); iech < nech; iech++)
       vec.push_back(getZVariable(local[iech], jvar) - meanlocal);

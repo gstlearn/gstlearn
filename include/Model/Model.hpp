@@ -84,33 +84,33 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  public:
-  const CovAnisoList*   castInCovAnisoListConst(int icov = -1) const;
+public:
+  const CovAnisoList* castInCovAnisoListConst(int icov = -1) const;
   const CovLMCTapering* castInCovLMCTaperingConst() const;
-  const CovLMGradient*  castInCovLMGradientConst() const;
-  const CovLMCAnamorphosis*  castInCovLMCAnamorphosisConst() const;
-  
-  public:
-  CovAnisoList*        _castInCovAnisoList(int icov = -1);
-  CovLMCTapering*      _castInCovLMCTapering();
-  CovLMGradient*       _castInCovLMGradient();
-  CovLMCAnamorphosis*  _castInCovLMCAnamorphosis();
+  const CovLMGradient* castInCovLMGradientConst() const;
+  const CovLMCAnamorphosis* castInCovLMCAnamorphosisConst() const;
 
-  public:
+public:
+  CovAnisoList* _castInCovAnisoList(int icov = -1);
+  CovLMCTapering* _castInCovLMCTapering();
+  CovLMGradient* _castInCovLMGradient();
+  CovLMCAnamorphosis* _castInCovLMCAnamorphosis();
 
+public:
   int resetFromDb(const Db* db);
   static Model* create(const CovContext& ctxt = CovContext());
   static Model* createFromEnvironment(int nvar, int ndim = 2);
   static Model* createNugget(int nvar, int ndim = 2, double sill = 1.);
-  static Model* createFromParam(const ECov& type = ECov::fromKey("NUGGET"),
-                                double range     = 1.,
-                                double sill      = 1.,
-                                double param     = 1.,
-                                const VectorDouble& ranges = VectorDouble(),
-                                const MatrixSquareSymmetric& sills  = MatrixSquareSymmetric(),
-                                const VectorDouble& angles = VectorDouble(),
-                                const ASpaceSharedPtr& space = ASpaceSharedPtr(),
-                                bool flagRange             = true);
+  static Model*
+  createFromParam(const ECov& type                   = ECov::fromKey("NUGGET"),
+                  double range                       = 1.,
+                  double sill                        = 1.,
+                  double param                       = 1.,
+                  const VectorDouble& ranges         = VectorDouble(),
+                  const MatrixSquareSymmetric& sills = MatrixSquareSymmetric(),
+                  const VectorDouble& angles         = VectorDouble(),
+                  const ASpaceSharedPtr& space       = ASpaceSharedPtr(),
+                  bool flagRange                     = true);
   static Model* createFromParamOldStyle(const ECov& type = ECov::fromKey("NUGGET"),
                           double range               = 1.,
                           double sill                = 1.,
@@ -153,8 +153,7 @@ public:
                                const VectorDouble& angles = VectorDouble(),
                                bool flagRange             = true);
  
-
-  FORWARD_METHOD(castInCovAnisoListConst,getActiveFactor,ITEST)
+  FORWARD_METHOD(castInCovAnisoListConst, getActiveFactor,ITEST)
   FORWARD_METHOD(castInCovAnisoListConst, getCova)
   FORWARD_METHOD(castInCovAnisoListConst, getNCov,ITEST)
   FORWARD_METHOD(castInCovAnisoListConst, getCovType, ECov::UNKNOWN)
@@ -248,15 +247,14 @@ public:
   static VectorECov initCovList(const VectorInt & covranks);
 
   bool isValid() const;
-  
-  protected:
+
+protected:
   /// Interface to ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "Model"; }
 
-  private:
-
+private:
   bool _isValid() const override;
   void _clear();
   void _create();

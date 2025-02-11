@@ -9,24 +9,22 @@
 /*                                                                            */
 /******************************************************************************/
 
-// This test is meant to check the Cross-validation estimation
-// - in mutlivariate case
-// - in Moving and Unique Neighborhood
-// A printout is provided
+// This test is mean to check the Block Kriging (essentially for printout)
 
+#include "Basic/AStringFormat.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Enum/ESpaceType.hpp"
 
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Basic/Law.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
-#include "Neigh/NeighUnique.hpp"
-#include "Neigh/NeighMoving.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/CalcGlobal.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -37,15 +35,14 @@ int main(int argc, char* argv[])
   // Global parameters
   int ndim = 2;
   law_set_random_seed(32131);
+  AStringFormat format;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
   double oldstyle = 0.;
-  bool debug      = false;
+  int nech        = 4;
+  int nvar        = 1;
   bool flagSK     = false;
-  bool flagUnique = true;
-  int nech        = 3;
-  int nvar        = (flagUnique) ? 1 : 2;
   OptCustom::define("oldStyle", oldstyle);
 
   // Generate the data base
@@ -54,47 +51,39 @@ int main(int argc, char* argv[])
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_ARRAY);
   data->display(dbfmt);
 
+  // Generate the target file
+  VectorInt nx = {5, 5};
+  VectorDouble dx = {0.2, 0.2};
+  DbGrid* target = DbGrid::create(nx, dx);
+
   // Create the Model
   double scale = 0.7;
-  MatrixSquareSymmetric* sills = MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
-  Model* model =
-    Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
-                           *sills, VectorDouble(), nullptr, false);
+  MatrixSquareSymmetric* sills =
+    MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
+  Model* model = Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
+                                        *sills, VectorDouble(), nullptr, false);
   if (flagSK)
   {
     VectorDouble means = VH::simulateGaussian(nvar);
     model->setMeans(means);
   }
   else
-    model->setDriftIRF(0, 0);
+    model->setDriftIRF(1, 0);
+  VectorDouble means(nvar, 0.);
+  model->display();
 
-  // Unique Neighborhood
-  ANeigh* neigh;
-  int nmaxi     = nech;
-  double radius = 5.;
-  if (flagUnique)
-    neigh = NeighUnique::create();
-  else
-    neigh = NeighMoving::create(false, nmaxi, radius);
-
-  // Define the verbose option
-  if (debug) OptDbg::setReference(1);
-
-  // Perform the cross-validation
-  xvalid(data, model, neigh);
-
-  // Produce some statistics for comparison
-  // dbfmt = DbStringFormat::create(FLAG_STATS, {"Xvalid.*"});
-  dbfmt = DbStringFormat::create(FLAG_ARRAY, {"Xvalid.*"});
-  data->display(dbfmt);
+  // Test on Global Kriging
+  VectorInt ndisc = {3, 3};
+  data->display();
+  target->display();
+  global_kriging(data, target, model, 0, true);
 
   // Free pointers
 
   delete sills;
-  delete neigh;
   delete data;
+  delete target;
   delete model;
-  delete dbfmt;
 
   return (0);
 }

@@ -12,7 +12,6 @@
 
 #include "Covariances/CovContext.hpp"
 #include "Space/ASpace.hpp"
-#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Covariances/CovAnisoList.hpp"
@@ -75,7 +74,7 @@ protected:
   }
   void _optimizationSetTarget(const SpacePoint& pt) const override
   {
-    ACov::_optimizationSetTarget(pt); // TODO: cannot replace by CovAnisoList???
+    ACov::_optimizationSetTarget(pt); 
   }
 
 private:

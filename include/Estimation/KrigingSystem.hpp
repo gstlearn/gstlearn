@@ -51,6 +51,7 @@ public:
   virtual ~KrigingSystem();
 
   void setKrigingSystemNewStyle(bool status = false);
+  int resetNewData();
   int  setKrigOptCalcul(const EKrigOpt& calcul,
                         const VectorInt& ndiscs = VectorInt(),
                         bool flag_per_cell = false);
@@ -197,7 +198,7 @@ private:
   void _mustBeOldStyle(const String& title) const;
   Model* _castInOldModel();
   VectorInt _xvalidUniqueIndices() const;
-  void _updateForColCokMoving();
+  int  _updateForColCokMoving();
 
 private:
   bool _oldStyle;
@@ -292,7 +293,8 @@ private:
 
   /// Option for (Disjunctive) Kriging of Factor
   bool _flagFactorKriging;
-  int  _nclasses;
+  int _nclasses;
+  int _factorClass;
 
   /// Option for Estimating the Linear Combination of Variables
   const MatrixRectangular* _matLC;

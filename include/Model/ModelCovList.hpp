@@ -14,7 +14,6 @@
 #include "Model/ModelGeneric.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
 
 /**
  * \brief

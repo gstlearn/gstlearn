@@ -894,3 +894,4 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createRandomDefinitePositive(int n
   mat->prodMatMatInPlace(&local, &local, true);
   return mat;
 }
+

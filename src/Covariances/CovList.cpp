@@ -409,9 +409,7 @@ void CovList::_manage(const Db* db1,const Db* db2)  const
 void CovList::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const
 {
   for (const auto &e : _covs)
-  {
     e->updateCovByPoints(icas1,iech1,icas2,iech2);
-  }
 }
 
 void CovList::setActiveCovListFromOne(int keepOnlyCovIdx) const

@@ -69,7 +69,6 @@ public:
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const;
   /// Calculate the matrix of covariances for 0-distance (stationary case)
-  
   virtual void eval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                  const CovCalcMode *mode = nullptr) const;
   virtual void addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
@@ -476,7 +475,7 @@ private:
                           SpacePoint& p1,
                           SpacePoint& p2,
                           bool flagSym,
-                          const CovCalcMode* mode,
+                          const KrigOpt& krigopt,
                           MatrixRectangular& mat) const;
 
   void _loopOnBlockTarget(const Db* db2,
@@ -488,7 +487,6 @@ private:
                           SpacePoint& p1,
                           SpacePoint& p2,
                           const KrigOpt& krigopt,
-                          const CovCalcMode* mode,
                           MatrixRectangular& mat) const;
 
   virtual TabNoStat* _createNoStatTab();

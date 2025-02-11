@@ -19,10 +19,10 @@
 class GSTLEARN_EXPORT CovCalcMode : public AStringable
 {
 public:
-  CovCalcMode(const ECalcMember &member = ECalcMember::fromKey("LHS"),
-              bool asVario = false,
-              bool unitary = false,
-              int orderVario = 0);
+  CovCalcMode(const ECalcMember& member = ECalcMember::fromKey("LHS"),
+              bool asVario              = false,
+              bool unitary              = false,
+              int orderVario            = 0);
   CovCalcMode(const CovCalcMode &r);
   CovCalcMode& operator= (const CovCalcMode &r);
   virtual ~CovCalcMode();

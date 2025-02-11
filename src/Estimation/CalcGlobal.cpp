@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Covariances/CovCalcMode.hpp"
 #include "geoslib_old_f.h"
 
 #include "Estimation/CalcGlobal.hpp"
@@ -16,6 +17,7 @@
 #include "Estimation/KrigingSystem.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Model/Model.hpp"
 
 #include <math.h>
@@ -102,70 +104,127 @@ int CalcGlobal::_globalKriging()
 {
   VectorDouble rhsCum;
   Model* model = getModel();
+  Db* dbin      = getDbin();
+  Db* dbout     = getDbout();
+  int nvar      = model->getNVar();
+  int ng        = 0;
+  double estim  = 0.;
+  double cv0    = 0.;
+  VectorDouble wgt;
+  bool oldStyle = OptCustom::query("oldStyle", 0.) == 1.;
 
-  // Initializations
-
-  int nvar = model->getNVar();
-  NeighUnique neighU = NeighUnique(false);
-  neighU.attach(getDbin(), getDbout());
-
-  /* Setting options */
-
-  KrigingSystem ksys(getDbin(), getDbout(), model, &neighU);
-  if (ksys.setKrigOptFlagGlobal(true)) return 1;
-  if (! ksys.isReady()) return 1;
-
-  /* Loop on the targets to be processed */
-
-  int ng = 0;
-  for (int iech_out = 0; iech_out < getDbout()->getNSample(); iech_out++)
+  if (oldStyle)
   {
-    mes_process("Kriging sample", getDbout()->getNSample(), iech_out);
-    if (! getDbout()->isActive(iech_out)) continue;
-    if (ksys.estimate(iech_out)) return 1;
+    // Initializations
 
-    // Cumulate the R.H.S.
+    NeighUnique neighU = NeighUnique(false);
+    neighU.attach(dbin, dbout);
 
-    VectorDouble rhs = ksys.getRHSC(_ivar0);
-    if (rhsCum.empty()) rhsCum.resize(rhs.size(),0.);
-    VH::addInPlace(rhsCum, rhs);
-    ng++;
+    /* Setting options */
+
+    KrigingSystem ksys(dbin, dbout, model, &neighU);
+    if (ksys.setKrigOptFlagGlobal(true)) return 1;
+    if (!ksys.isReady()) return 1;
+
+    /* Loop on the targets to be processed */
+    for (int iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
+    {
+      mes_process("Kriging sample", dbout->getNSample(), iech);
+      if (!getDbout()->isActive(iech)) continue;
+      if (ksys.estimate(iech)) return 1;
+
+      // Cumulate the R.H.S.
+
+      VectorDouble rhs = ksys.getRHSC(_ivar0);
+      if (rhsCum.empty()) rhsCum.resize(rhs.size(), 0.);
+      VH::addInPlace(rhsCum, rhs);
+      ng++;
+    }
+
+    /* Derive the kriging weights */
+
+    VH::divideConstant(rhsCum, (double)ng);
+    int nred            = ksys.getNRed();
+    VectorDouble lhsinv = ksys.getLHSInvC();
+    VectorDouble zam    = ksys.getZamC();
+    wgt.resize(nred);
+    matrix_product_safe(nred, nred, nvar, lhsinv.data(), rhsCum.data(), wgt.data());
+    estim = VH::innerProduct(rhsCum, zam);
+    cv0   = VH::innerProduct(rhsCum, wgt);
+    ksys.conclusion();
   }
+  else
+  {
+    KrigOpt krigopt;
 
-  ksys.conclusion();
+    // Get the Covariance between data (Unique Neighborhood)
+    CovCalcMode mode = CovCalcMode(ECalcMember::LHS);
+    VectorVectorInt sampleRanks = dbin->getSampleRanks({_ivar0});
+    VectorDouble Z =
+      dbin->getValuesByRanks(sampleRanks, model->getMeans(), !model->hasDrift());
+    MatrixSquareSymmetric Sigma =
+      model->evalCovMatSymOptimByRanks(dbin, sampleRanks, -1, &mode, false);
+    MatrixRectangular X = model->evalDriftMatByRanks(dbin, sampleRanks);
+
+    KrigingCalcul algebra;
+    algebra.resetNewData();
+    algebra.setData(&Z, &sampleRanks, &model->getMeans());
+    algebra.setLHS(&Sigma, &X);
+
+    // Prepare the cumulative matrices
+    MatrixRectangular Sigma0Cum(Sigma.getNRows(), 1);
+    MatrixRectangular X0Cum(1, X.getNCols());
+
+    /* Loop on the targets to be processed */
+    for (int iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
+    {
+      mes_process("Kriging sample", dbout->getNSample(), iech);
+      if (!dbout->isActive(iech)) continue;
+
+      MatrixRectangular Sigma0 =
+        model->evalCovMatOptimByTarget(dbin, dbout, sampleRanks, iech,
+                                       krigopt, false);
+      MatrixRectangular X0 = model->evalDriftMatByTarget(dbout, iech, krigopt);
+
+      // Cumulate the R.H.S.
+      Sigma0Cum.addMatInPlace(Sigma0);
+      X0Cum.addMatInPlace(X0);
+      ng++;
+    }
+
+    // Normalize the cumulative R.H.S.
+    double oneOverNG = 1. / (double) ng;
+    Sigma0Cum.prodScalar(oneOverNG);
+    X0Cum.prodScalar(oneOverNG);
+    algebra.setRHS(&Sigma0Cum, &X0Cum);
+
+    MatrixSquareSymmetric Sigma00 = model->eval0MatByTarget(dbout, 0);
+    algebra.setVariance(&Sigma00);
+
+    estim = algebra.getEstimation()[0];
+    double stdv = algebra.getStdv()[0];
+    cv0 = model->getTotalSill(_ivar0, _ivar0) - stdv * stdv;
+  }
 
   /* Preliminary checks */
 
-  int ntot = getDbin()->getNSample(false);
-  int np   = getDbin()->getNSample(true);
+  int ntot = dbin->getNSample(false);
+  int np   = dbin->getNSample(true);
   double cell = 1.;
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
   if (dbgrid != nullptr) cell = dbgrid->getCellSize();
   double surface = ng * cell;
 
   /* Average covariance over the territory */
 
-  double cvv = model->evalAverageDbToDb(getDbout(), getDbout(), _ivar0, _ivar0,
-                                        getDbin()->getExtensionDiagonal() / 1.e3, 0);
-
-  /* Load the scaled cumulated R.H.S. in the array rhs */
-
-  VH::divideConstant(rhsCum, (double) ng);
-
-  /* Derive the kriging weights */
-
-  int nred = ksys.getNRed();
-  VectorDouble lhsinv = ksys.getLHSInvC();
-  VectorDouble zam = ksys.getZamC();
-  VectorDouble wgt(nred);
-  matrix_product_safe(nred, nred, nvar, lhsinv.data(), rhsCum.data(), wgt.data());
+  double cvv = model->evalAverageDbToDb(dbout, dbout, _ivar0, _ivar0,
+                                        dbin->getExtensionDiagonal() / 1.e3, 0);
 
   /* Perform the estimation */
 
-  double estim = VH::innerProduct(rhsCum, zam);
-  double stdv = cvv - VH::innerProduct(rhsCum, wgt);
-  stdv = (stdv > 0) ? sqrt(stdv) : 0.;
-  double cvgeo = (isZero(estim) || FFFF(estim)) ? TEST : stdv / estim;
+  double cvvgeo = cvv - cv0;
+  double stdgeo = (cvvgeo > 0) ? sqrt(cvvgeo) : 0.;
+  double cvgeo = (isZero(estim) || FFFF(estim)) ? TEST : stdgeo / estim;
 
   /* Store the results in the output Global_Result struture */
 
@@ -174,7 +233,7 @@ int CalcGlobal::_globalKriging()
   _gRes.ng = ng;
   _gRes.surface = surface;
   _gRes.zest = estim;
-  _gRes.sse = stdv;
+  _gRes.sse = stdgeo;
   _gRes.cvgeo = cvgeo;
   _gRes.cvv = cvv;
   _gRes.weights = wgt;
@@ -192,7 +251,7 @@ int CalcGlobal::_globalKriging()
       message("Estimation by kriging            = NA\n");
     else
       message("Estimation by kriging            = %lf\n", estim);
-    message("Estimation St. Dev. of the mean  = %lf\n", stdv);
+    message("Estimation St. Dev. of the mean  = %lf\n", stdgeo);
     if (FFFF(cvgeo))
       message("CVgeo                            = NA\n");
     else

@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Covariances/ACov.hpp"
 #include "Covariances/CovAnisoList.hpp"
 #include "Enum/EAnam.hpp"
 #include "Enum/ECalcMember.hpp"
@@ -66,25 +65,6 @@ CovLMCAnamorphosis& CovLMCAnamorphosis::operator=(const CovLMCAnamorphosis& r)
     _anam         = r._anam;
   }
   return *this;
-}
-
-void CovLMCAnamorphosis::_loadAndAddEvalCovMatBiPointInPlace(
-  MatrixSquareGeneral& mat,
-  const SpacePoint& p1,
-  const SpacePoint& p2,
-  const CovCalcMode* mode) const
-{
-  // TODO: cannot replace by CovAnisoList???
-  ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode); 
-}
-
-void CovLMCAnamorphosis::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                                                     const SpacePoint &pwork1,
-                                                     const SpacePoint &pwork2,
-                                                     const CovCalcMode *mode) const
-{
-  // TODO: cannot replace by CovAnisoList???
-  ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
 }
 
 CovLMCAnamorphosis::~CovLMCAnamorphosis()

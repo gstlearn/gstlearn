@@ -22,8 +22,6 @@
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Basic/File.hpp"
-#include "Basic/OptCustom.hpp"
-#include "Basic/OptDbg.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Estimation/CalcKriging.hpp"

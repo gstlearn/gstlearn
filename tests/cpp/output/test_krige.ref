@@ -236,14 +236,14 @@ Data Base Statistics
 Statistics before Declustering
 ------------------------------
 - Using the average weight for Kriging cells of a Grid
-- Mean              = 0.004377
-- Variance          = 0.250605
+- Mean              = 0.002885
+- Variance          = 0.972124
 
 Statistics after Declustering
 -----------------------------
 - Using the average weight for Kriging cells of a Grid
-- Mean              = -0.165025
-- Variance          = 0.177077
+- Mean              = -0.096594
+- Variance          = 0.727538
 - Minimum Weight    = 0.000000
 - Maximum Weight    = 0.119009
 
@@ -350,27 +350,27 @@ Data Base Statistics
 6 - Name SimBayes.Var.1 - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =    -16.853
- Maximum value       =     16.463
- Mean value          =      0.765
- Standard Deviation  =      4.617
- Variance            =     21.320
+ Minimum value       =    -16.563
+ Maximum value       =     16.778
+ Mean value          =      1.066
+ Standard Deviation  =      4.618
+ Variance            =     21.330
 7 - Name SimBayes.Var.2 - Locator z2
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =    -17.192
- Maximum value       =     12.987
- Mean value          =     -1.824
- Standard Deviation  =      4.908
- Variance            =     24.092
+ Minimum value       =    -17.256
+ Maximum value       =     12.892
+ Mean value          =     -1.936
+ Standard Deviation  =      4.910
+ Variance            =     24.106
 8 - Name SimBayes.Var.3 - Locator z3
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =    -16.161
- Maximum value       =     14.476
- Mean value          =     -0.274
- Standard Deviation  =      4.699
- Variance            =     22.076
+ Minimum value       =    -16.458
+ Maximum value       =     14.146
+ Mean value          =     -0.546
+ Standard Deviation  =      4.696
+ Variance            =     22.051
 
 <----- Declustering in Unique Neighborhood ----->
 
@@ -524,12 +524,12 @@ Data Base Statistics
 --------------------
 5 - Name Filtering.Simu - Locator z1
  Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =    114.774
- Maximum value       =    139.903
- Mean value          =    128.010
- Standard Deviation  =      3.841
- Variance            =     14.750
+ Nb of active values =       2116
+ Minimum value       =    117.040
+ Maximum value       =    138.896
+ Mean value          =    128.031
+ Standard Deviation  =      3.672
+ Variance            =     13.483
 
 Model characteristics
 =====================
@@ -553,10 +553,16 @@ Universality_Condition
 
 Bayesian Drift coefficients
 ===========================
-Prior Mean       0.000
-Prior Variance-Covariance       1.000
-Posterior Mean       0.001
-Posterior Variance-Covariance       0.997
+Prior Mean:     0.000
+Prior Covariance Matrix
+- Number of rows    = 1
+- Number of columns = 1
+     1.000
+Posterior Mean:     0.001
+Posterior Covariance Matrix
+- Number of rows    = 1
+- Number of columns = 1
+     0.997
 
 Data Base Grid Characteristics
 ==============================
@@ -616,47 +622,45 @@ Data selected in neighborhood
           3          3     71.456     -2.698
           4          4    -34.253    -39.276
 
-LHS of Kriging matrix (compressed)
-==================================
-Number of active samples    = 4
-Total number of equations   = 5
-Reduced number of equations = 5
+LHS of Kriging matrix
+=====================
+Dimension of the Covariance Matrix  = 4
+Dimension of the Drift Matrix       = 1
 
-       Rank                     1          2          3          4          5
-                  Flag          1          2          3          4          5
-          1          1    480.418    220.637    287.429    392.340      1.000
-          2          2    220.637    480.418    270.214    285.231      1.000
-          3          3    287.429    270.214    480.418    368.559      1.000
-          4          4    392.340    285.231    368.559    480.418      1.000
-          5          5      1.000      1.000      1.000      1.000      0.000
+       Rank          1          2          3          4          5
+          1    480.418    220.637    287.429    392.340      1.000
+          2    220.637    480.418    270.214    285.231      1.000
+          3    287.429    270.214    480.418    368.559      1.000
+          4    392.340    285.231    368.559    480.418      1.000
+          5      1.000      1.000      1.000      1.000      0.000
 
-RHS of Kriging matrix (compressed)
-==================================
+RHS of Kriging matrix
+=====================
 Number of active samples    = 4
 Total number of equations   = 5
 Reduced number of equations = 5
 Number of right-hand sides  = 1
 Punctual Estimation
 
-       Rank       Flag          1
-          1          1    480.418
-          2          2    220.637
-          3          3    287.429
-          4          4    392.340
-          5          5      1.000
+       Rank          1
+          1    480.418
+          2    220.637
+          3    287.429
+          4    392.340
+          5      1.000
 
 (Co-) Kriging weights
 =====================
-       Rank         x1         x2       Data        Z1*
-          1    -91.328   -106.361      1.191      1.000
-          2    -70.246    152.564     -0.664      0.000
-          3     71.456     -2.698     -0.413      0.000
-          4    -34.253    -39.276     -0.211      0.000
-Sum of weights                                    1.000
+       Rank       Data        Z1*
+          1      1.191      1.000
+          2     -0.664      0.000
+          3     -0.413      0.000
+          4     -0.211      0.000
+Sum of weights              1.000
 
 Drift or Mean Information
 =========================
-       Rank   Lagrange      Coeff
+       Rank       Mu1*      Coeff
           1      0.000      0.156
 
 (Co-) Kriging results
@@ -684,48 +688,46 @@ Data selected in neighborhood
           3          3     71.456     -2.698
           4          4    -34.253    -39.276
 
-LHS of Kriging matrix (compressed)
-==================================
-Number of active samples    = 4
-Total number of equations   = 5
-Reduced number of equations = 5
+LHS of Kriging matrix
+=====================
+Dimension of the Covariance Matrix  = 4
+Dimension of the Drift Matrix       = 1
 
-       Rank                     1          2          3          4          5
-                  Flag          1          2          3          4          5
-          1          1    480.418    220.637    287.429    392.340      1.000
-          2          2    220.637    480.418    270.214    285.231      1.000
-          3          3    287.429    270.214    480.418    368.559      1.000
-          4          4    392.340    285.231    368.559    480.418      1.000
-          5          5      1.000      1.000      1.000      1.000      0.000
+       Rank          1          2          3          4          5
+          1    480.418    220.637    287.429    392.340      1.000
+          2    220.637    480.418    270.214    285.231      1.000
+          3    287.429    270.214    480.418    368.559      1.000
+          4    392.340    285.231    368.559    480.418      1.000
+          5      1.000      1.000      1.000      1.000      0.000
 
-RHS of Kriging matrix (compressed)
-==================================
+RHS of Kriging matrix
+=====================
 Number of active samples    = 4
 Total number of equations   = 5
 Reduced number of equations = 5
 Number of right-hand sides  = 1
 Punctual Estimation
 
-       Rank       Flag          1
-          1          1    340.227
-          2          2    312.459
-          3          3    408.911
-          4          4    428.303
-          5          5      1.000
+       Rank          1
+          1    340.227
+          2    312.459
+          3    408.911
+          4    428.303
+          5      1.000
 
 (Co-) Kriging weights
 =====================
-       Rank         x1         x2       Data        Z1*
-          1    -91.328   -106.361      1.191     -0.030
-          2    -70.246    152.564     -0.664      0.115
-          3     71.456     -2.698     -0.413      0.365
-          4    -34.253    -39.276     -0.211      0.550
-Sum of weights                                    1.000
+       Rank       Data        Z1*
+          1      1.191     -0.030
+          2     -0.664      0.115
+          3     -0.413      0.365
+          4     -0.211      0.550
+Sum of weights              1.000
 
 Drift or Mean Information
 =========================
-       Rank   Lagrange      Coeff
-          1      8.426      0.156
+       Rank       Mu1*      Coeff
+          1     -8.426      0.156
 
 (Co-) Kriging results
 =====================
@@ -802,32 +804,32 @@ Data Base Statistics
 6 - Name Kriging.LC-1.estim - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -0.324
- Maximum value       =      0.443
- Mean value          =      0.016
- Standard Deviation  =      0.123
- Variance            =      0.015
+ Minimum value       =      0.093
+ Maximum value       =      1.007
+ Mean value          =      0.882
+ Standard Deviation  =      0.168
+ Variance            =      0.028
 7 - Name Kriging.LC-2.estim - Locator z2
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -0.425
- Maximum value       =      0.183
- Mean value          =     -0.020
- Standard Deviation  =      0.098
- Variance            =      0.010
+ Minimum value       =     -0.302
+ Maximum value       =      0.348
+ Mean value          =      0.234
+ Standard Deviation  =      0.116
+ Variance            =      0.013
 8 - Name Kriging.LC-1.stdev - Locator NA
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     13.947
- Maximum value       =     16.882
- Mean value          =     16.675
- Standard Deviation  =      0.418
- Variance            =      0.175
+ Minimum value       =     14.141
+ Maximum value       =     17.712
+ Mean value          =     17.373
+ Standard Deviation  =      0.562
+ Variance            =      0.315
 9 - Name Kriging.LC-2.stdev - Locator NA
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     15.278
- Maximum value       =     18.493
- Mean value          =     18.267
- Standard Deviation  =      0.458
- Variance            =      0.210
+ Minimum value       =     15.491
+ Maximum value       =     19.402
+ Mean value          =     19.031
+ Standard Deviation  =      0.615
+ Variance            =      0.378

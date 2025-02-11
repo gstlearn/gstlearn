@@ -204,7 +204,6 @@ MatrixRectangular CovAniso::simulateSpectralOmega(int nb) const
   return _corAniso->simulateSpectralOmega(nb);
 }
 
-
 double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
   double cov = _corAniso->evalCorFromH(0, mode);
@@ -245,7 +244,6 @@ void CovAniso::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
     mat.addMatInPlace(_workMat, 1., cov);
   }
 }
-
 
 /**
  * Fill the vector of covariances between each valid SpacePoint (recorded in _p1As)

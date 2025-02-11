@@ -8,23 +8,18 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-
 #include "Model/ModelCovList.hpp"
 
-
-ModelCovList::ModelCovList(const CovContext &ctxt)
-: ModelGeneric(ctxt)
+ModelCovList::ModelCovList(const CovContext& ctxt)
+  : ModelGeneric(ctxt)
 {
-    _cova = _covList = nullptr;
+  _cova = _covList = nullptr;
 }
-
 
 void ModelCovList::setCovList(CovList* covs)
 {
-    _covList = covs;
-    _cova = _covList;
+  _covList = covs;
+  _cova    = _covList;
 }
 
-ModelCovList::~ModelCovList()
-{
-}
+ModelCovList::~ModelCovList() {}

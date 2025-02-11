@@ -21,7 +21,6 @@
 #include "Covariances/CovList.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Estimation/KrigOpt.hpp"
 
 #include <vector>
 

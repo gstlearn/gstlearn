@@ -207,6 +207,7 @@ public:
                          const AMatrix* mat2 = nullptr,
                          double val3         = 1.,
                          const AMatrix* mat3 = nullptr);
+  void power(double value);
 
   static void setFlagMatrixCheckAddress(bool flagCheckAddress)
   {

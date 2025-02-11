@@ -1,0 +1,85 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                 rank       x-1       x-2         z
+     [  0,]     1.000     0.652     0.557    -0.774
+     [  1,]     2.000     0.483     0.433       N/A
+     [  2,]     3.000     0.762     0.497    -0.454
+     [  3,]     4.000     0.015     0.140    -0.872
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 3
+Number of drift equation(s)  = 3
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      2.242
+- Range        =      2.097
+- Theo. Range  =      0.700
+Total Sill     =      2.242
+
+Drift Part
+----------
+Universality_Condition
+Drift:x1
+Drift:x2
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 4
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z - Locator = z1
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.200     0.200
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+
+Global estimation kriging
+-------------------------
+Total number of data             = 4
+Number of active data            = 4
+Number of variables              = 1
+Cvv                              = 1.150804
+Estimation by kriging            = -0.831554
+Estimation St. Dev. of the mean  = 0.612683
+CVgeo                            = -0.736793
+Surface                          = 1.000000
+Q (Estimation * Surface)         = -0.831554
+

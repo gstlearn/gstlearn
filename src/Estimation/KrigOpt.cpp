@@ -206,3 +206,11 @@ VectorVectorDouble KrigOpt::getDisc2VVD() const
   for (int idisc = 0; idisc < _ndiscNumber; idisc++) vecvec[idisc] = getDisc2VD(idisc);
   return vecvec;
 }
+
+void KrigOpt::setMode(const CovCalcMode* mode)
+{
+  if (mode != nullptr)
+    _mode = *mode;
+  else
+    _mode = CovCalcMode(ECalcMember::RHS);
+}

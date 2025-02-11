@@ -568,7 +568,8 @@ public:
                                  bool useZ              = true,
                                  bool useVerr           = false) const;
   VectorDouble getValuesByRanks(const VectorVectorInt& sampleRanks,
-                                const VectorDouble& means = VectorDouble()) const;
+                                const VectorDouble& means = VectorDouble(),
+                                bool subtractMean = true) const;
   static VectorInt getMultipleSelectedRanks(const VectorVectorInt& index,
                                             const VectorInt& ivars = VectorInt(),
                                             const VectorInt& nbgh  = VectorInt());

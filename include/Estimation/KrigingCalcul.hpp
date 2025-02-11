@@ -44,8 +44,8 @@ public:
   KrigingCalcul& operator=(const KrigingCalcul& r) = delete;
   virtual ~KrigingCalcul();
 
-  void resetNewData();
   void setDual(bool status);
+  int resetNewData();
   int setData(const VectorDouble* Z = nullptr,
               const VectorVectorInt* indices = nullptr,
               const VectorDouble* Means = nullptr);
@@ -76,7 +76,9 @@ public:
   const MatrixSquareSymmetric* getPostCov();
   const MatrixRectangular*     getLambda();
   const MatrixRectangular*     getLambda0();
-  const MatrixRectangular*     getMu();
+  const MatrixRectangular* getMu();
+  double getLTerm();
+  bool isDual() const { return _flagDual; }
 
   // Some debugging functions. Should be deleted later
   const MatrixRectangular* getX0();
@@ -90,7 +92,7 @@ private:
   static bool _checkDimensionMatrix(const String& name, const AMatrix* mat, int* nrowsRef, int* ncolsRef);
   static bool _checkDimensionVD(const String& name, const VectorDouble* vec, int* sizeRef);
   static bool _checkDimensionVI(const String& name, const VectorInt* vec, int* sizeRef);
-  static bool _checkDimensionVVI(const String& name, const VectorVectorInt* vec, int* sizeRef);
+  static bool _checkDimensionVVI(const String& name, const VectorVectorInt* vec, int* size1Ref, int* size2Ref);
 
   static bool _isPresentMatrix(const String& name, const AMatrix* mat);
   static bool _isPresentVector(const String& name, const VectorDouble* vec);
@@ -238,8 +240,9 @@ private:
   // Following elements are defined for internal storage (Cross-validation in UN)
   MatrixRectangular* _C_RHS;         // Fictitious Right-hand side (covariance part)
   MatrixRectangular* _X_RHS;         // Fictitious Right-hand side (drift part)
-  
+
   // Additional parameters
+  int _nvar;
   int _neq;
   int _nbfl;
   int _nrhs;

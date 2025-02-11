@@ -621,9 +621,7 @@ int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
     CovLMCAnamorphosis* newcov = new CovLMCAnamorphosis(*cov, anam, strcnt);
 
     // Replace the current list by the newly create one (CovLMCAnamorphosis)
-
     ModelCovList::setCovList(newcov);
-
   }
   return 0;
 }

@@ -311,6 +311,19 @@ void AMatrix::fill(double value)
     _setValueByRank(rank, value);
 }
 
+/**
+ * Raise all elements of 'this' to the 'power'
+ * @param value Value for power
+ */
+void AMatrix::power(double value)
+{
+  for (int rank = 0, n = _getMatrixPhysicalSize(); rank < n; rank++)
+  {
+    double local = _getValueByRank(rank);
+    _setValueByRank(rank, pow(local, value));
+  }
+}
+
 int AMatrix::_getMatrixPhysicalSize() const
 {
   return (getNRows() * getNCols());

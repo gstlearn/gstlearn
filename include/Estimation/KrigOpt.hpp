@@ -33,6 +33,7 @@ public:
                        const VectorInt& ndiscs = VectorInt(),
                        bool flag_per_cell      = false);
   int setKrigingDGM(bool flag_dgm);
+  void setMode(const CovCalcMode* mode);
 
   const CovCalcMode& getMode() const { return _mode; }
   const EKrigOpt& getCalcul() const { return _calcul; }
