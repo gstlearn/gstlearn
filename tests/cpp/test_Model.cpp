@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
   covMS.display();
 
   message("Covariance Matrix Optimal (complete)\n");
-  MatrixSquareSymmetric covMO = modelM->evalCovMatSymOptim(workingDbc);
+  MatrixSquareSymmetric covMO = modelM->evalCovMatSym(workingDbc);
   covMO.display();
 
   message("Covariance Matrix Sparse (complete)\n");

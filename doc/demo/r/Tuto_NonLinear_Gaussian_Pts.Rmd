@@ -271,7 +271,7 @@ Define the variogram calculation parameters:
 * 10 lags of 0.025.
 
 ```{r, echo=TRUE, eval=TRUE}
-varioparam = VarioParam_createOmniDirection(nlag=10, dpas=0.025)
+varioparam = VarioParam_createOmniDirection(nlag=10, dlag=0.025)
 ```
 
 ## Variography of the raw variable

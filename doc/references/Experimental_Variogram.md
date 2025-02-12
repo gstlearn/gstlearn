@@ -10,7 +10,7 @@ $$ N(h) = \bigg\lbrace (i,j) : \Vert x_j-x_i\Vert = h\bigg\rbrace_{1\le i\le j\l
 and $\vert N(h)\vert$ is the cardinal of $N(h)$. In practice, when computing $\gamma(h)$, we look for pairs of data points separated by a distance $h \pm \tau h$ where $\tau > 0$ is a tolerance on the separation distance $h$. In other words, $N(h)$ is replaced by
 $$ \widehat N(h) = \bigg\lbrace (i,j) : (1-\tau)h \le \Vert x_j-x_i\Vert \le (1+\tau) h\bigg\rbrace_{1\le i\le j\le n}$$
 
-To compute an experimental variogram, we start by creating a `VarioParam` object containing the parameters of the variogram. This is done using the function `VarioParam_createOmniDirection`. We can specify the number of lags $h$ for which the experimental variogram is computed (argument `nlag`), and the distance between these lags (argument `dpas`), as well as the tolerance $\tau$ on the lags (argument `toldis`).
+To compute an experimental variogram, we start by creating a `VarioParam` object containing the parameters of the variogram. This is done using the function `VarioParam_createOmniDirection`. We can specify the number of lags $h$ for which the experimental variogram is computed (argument `nlag`), and the distance between these lags (argument `dlag`), as well as the tolerance $\tau$ on the lags (argument `toldis`).
 
 Then, the experimental variogram is computed in two steps. First, a `Vario` object is initialized from the `VarioParam` object  and the `Db` containing the data points. Then, the values of the experimental variogram at the lags specified by  the `VarioParam` object  are computed using the method `compute` of the `Vario` object (which returns an error code, `0` meaning that no error was detected).
 

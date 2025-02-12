@@ -57,7 +57,7 @@ grid$display()
 Calculate the omni-directional variogram of the temperature for 18 lags of 25.
 
 ```{r Preamble,message=FALSE, fig.show='hide'}
-vparam = VarioParam_createOmniDirection(nlag=18, dpas=25)
+vparam = VarioParam_createOmniDirection(nlag=18, dlag=25)
 vario = Vario(vparam)
 err = vario$compute(temperatures)
 vario$display()
@@ -73,7 +73,7 @@ ggPrint(p)
 We calculate the variogram (using the same calculation parameters) based on the residuals after a trend has been removed. This trend is considered as a linear combination of the external drift information.
 
 ```{r}
-vparam = VarioParam_createOmniDirection(nlag=18, dpas=25)
+vparam = VarioParam_createOmniDirection(nlag=18, dlag=25)
 vario = Vario(vparam)
 md = Model()
 md$setDriftIRF(order=0, nfex=1)

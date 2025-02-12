@@ -148,31 +148,6 @@ public:
 
   void optimizationPostProcess() const;
   virtual bool isOptimEnabled() const {return _isOptimEnabled();}
-  virtual MatrixRectangular evalCovMatOptim(const Db* db1,
-                                            const Db* db2,
-                                            int ivar0               = -1,
-                                            int jvar0               = -1,
-                                            const VectorInt& nbgh1  = VectorInt(),
-                                            const VectorInt& nbgh2  = VectorInt(),
-                                            const CovCalcMode* mode = nullptr,
-                                            bool cleanOptim         = true) const;
-  virtual MatrixRectangular evalCovMatOptimByTarget(const Db* db1,
-                                                    const Db* db2,
-                                                    const VectorVectorInt& sampleRanks1,
-                                                    int iech2              = -1,
-                                                    const KrigOpt& krigopt = KrigOpt(),
-                                                    bool cleanOptim        = true) const;
-  virtual MatrixSquareSymmetric evalCovMatSymOptim(const Db* db1,
-                                                   const VectorInt& nbgh1  = VectorInt(),
-                                                   int ivar0               = -1,
-                                                   const CovCalcMode* mode = nullptr,
-                                                   bool cleanOptim         = true) const;
-  virtual MatrixSquareSymmetric
-  evalCovMatSymOptimByRanks(const Db* db1,
-                            const VectorVectorInt& sampleRanks1,
-                            int ivar0               = -1,
-                            const CovCalcMode* mode = nullptr,
-                            bool cleanOptim         = true) const;
 
   VectorDouble eval(const std::vector<SpacePoint>& vec_p1,
                     const std::vector<SpacePoint>& vec_p2,

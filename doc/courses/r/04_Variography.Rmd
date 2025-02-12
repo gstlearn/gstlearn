@@ -74,7 +74,7 @@ cat(loadDoc("Experimental_Variogram.md"), sep="\n")
 ```
 
 ```{r Experimental_Variogram, results=FALSE}
-varioParamOmni = VarioParam_createOmniDirection(nlag=40, dpas=10,toldis = 0.1) 
+varioParamOmni = VarioParam_createOmniDirection(nlag=40, dlag=10,toldis = 0.1) 
 
 dat$setLocator("January_temp",ELoc_Z())
 varioexp = Vario(varioParamOmni)
@@ -206,7 +206,7 @@ cat(loadDoc("Directional_Variogram.md"), sep="\n")
 ```
 
 ```{r Directional_Variograms}
-varioParamMulti = VarioParam_createMultiple(ndir=4, nlag=15, dpas=15.)
+varioParamMulti = VarioParam_createMultiple(ndir=4, nlag=15, dlag=15.)
 vario.4dir = Vario(varioParamMulti)
 err = vario.4dir$compute(dat)
 ```

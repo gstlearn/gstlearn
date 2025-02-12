@@ -154,7 +154,7 @@ We start by computing an experimental directional variogram `vario_raw2dir` of t
 
 ```{r Experimental_directional_variograms}
 ## Create experimental variogram on raw data
-varioparam = VarioParam_createMultiple(ndir=2, nlag=30, dpas=10)
+varioparam = VarioParam_createMultiple(ndir=2, nlag=30, dlag=10)
 vario_raw2dir = Vario(varioparam)
 err = vario_raw2dir$compute(dat)
 ```

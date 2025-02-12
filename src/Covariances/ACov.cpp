@@ -691,7 +691,6 @@ VectorDouble ACov::evalPointToDb(const SpacePoint& p1,
       }
     }
   }
-
   return values;
 }
 
@@ -1002,7 +1001,6 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
                                    const CovCalcMode* mode,
                                    bool cleanOptim) const
 {
-  DECLARE_UNUSED(cleanOptim)
   MatrixRectangular mat;
 
   // Preliminary checks
@@ -1015,7 +1013,10 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
 
   // Play the non-stationarity (if needed)
   manage(db1,db2);
-  
+
+  // Prepare the Optimization for covariance calculation
+  optimizationPreProcess(db1);
+
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1);
   VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2);
@@ -1033,46 +1034,30 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
   // Define the two space points
   SpacePoint p1(getSpace());
   SpacePoint p2(getSpace());
+  KrigOpt krigopt;
+  krigopt.setMode(mode);
 
   // Loop on the first variable
-  int irow = 0;
-  for (int ivar = 0, nvar1 = (int) ivars.size(); ivar < nvar1; ivar++)
+  for (int ivar = 0, irow = 0, nvar1 = (int) ivars.size(); ivar < nvar1; ivar++)
   {
     int ivar1 = ivars[ivar];
-
-    // Loop on the first sample
-    int nech1s = (int) index1[ivar].size();
-    for (int jech1 = 0; jech1 < nech1s; jech1++)
+    const VectorInt& index1i = index1[ivar];
+    int nech1s = (int) index1i.size();
+    for (int jech1 = 0; jech1 < nech1s; jech1++, irow++)
     {
-      int iech1 = index1[ivar][jech1];
+      int iech1 = index1i[jech1];
       db1->getSampleAsSPInPlace(p1, iech1);
+      p1.setTarget(false);
+      p1.setIech(iech1);
+      load(p1, true);
 
-      // Loop on the second variable
-      int icol = 0;
-      for (int jvar = 0, nvar2 = (int) jvars.size(); jvar < nvar2; jvar++)
-      {
-        int jvar2 = jvars[jvar];
-
-        // Loop on the second sample
-        int nech2s = (int) index2[jvar].size();
-        for (int jech2 = 0; jech2 < nech2s; jech2++)
-        {
-          int iech2 = index2[jvar][jech2];
-          db2->getSampleAsSPInPlace(p2, iech2);
-
-          // Modify the covariance (if non stationary)
-          updateCovByPoints(1, iech1, 2, iech2);
-
-          /* Loop on the dimension of the space */
-          double value = eval(p1, p2, ivar1, jvar2, mode);
-          mat.setValue(irow, icol, value);
-          icol++;
-        }
-      }
-      irow++;
+      // Loop on Target
+      _loopOnPointTarget(db2, index2, jvars, ivar1, iech1, irow, p1, p2, false, krigopt,
+                          mat);
     }
   }
 
+  if (cleanOptim) optimizationPostProcess();
   return mat;
 }
 
@@ -1091,17 +1076,18 @@ void ACov::_loopOnPointTarget(const Db* db2,
   int icas = (flagSym) ? 1 : 2;
   for (int jvar2 = 0, icol = 0, nvar2 = (int)jvars.size(); jvar2 < nvar2; jvar2++)
   {
-    int ivar2  = jvars[jvar2];
-    int nech2s = (int)sampleRanks2[jvar2].size();
+    int ivar2 = jvars[jvar2];
+    const VectorInt& sampleRanks2j = sampleRanks2[jvar2];
+    int nech2s = (int)sampleRanks2j.size();
     for (int jech2 = 0; jech2 < nech2s; jech2++, icol++)
     {
       // Perform calculation only in upper triangle of the Symmetric Matrix
       if (flagSym && icol < irow) continue;
 
-      int iech2 = sampleRanks2[jvar2][jech2];
+      int iech2 = sampleRanks2j[jech2];
       db2->getSampleAsSPInPlace(p2, iech2);
-      optimizationSetTarget(p2);
-      p2.setTarget(true);
+      if (!flagSym) optimizationSetTarget(p2);
+      p2.setTarget(!flagSym);
       p2.setIech(iech2);
       load(p2, false);
 
@@ -1308,43 +1294,6 @@ void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
   }
 }
 
-MatrixRectangular ACov::evalCovMatOptim(const Db* db1,
-                                        const Db* db2,
-                                        int ivar0,
-                                        int jvar0,
-                                        const VectorInt& nbgh1,
-                                        const VectorInt& nbgh2,
-                                        const CovCalcMode* mode,
-                                        bool cleanOptim) const
-{
-  return evalCovMat(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
-}
-MatrixRectangular ACov::evalCovMatOptimByTarget(const Db* db1,
-                                                const Db* db2,
-                                                const VectorVectorInt& sampleRanks1,
-                                                int iech2,
-                                                const KrigOpt& krigopt,
-                                                bool cleanOptim) const
-{
-  return evalCovMatByTarget(db1, db2, sampleRanks1, iech2, krigopt, cleanOptim);
-}
-MatrixSquareSymmetric ACov::evalCovMatSymOptim(const Db* db1,
-                                               const VectorInt& nbgh1,
-                                               int ivar0,
-                                               const CovCalcMode* mode,
-                                               bool cleanOptim) const
-{
-  return evalCovMatSym(db1, nbgh1, ivar0, mode, cleanOptim);
-}
-MatrixSquareSymmetric ACov::evalCovMatSymOptimByRanks(const Db* db1,
-                                                      const VectorVectorInt& sampleRanks1,
-                                                      int ivar0,
-                                                      const CovCalcMode* mode,
-                                                      bool cleanOptim) const
-{
-  return evalCovMatSymByRanks(db1, sampleRanks1, ivar0, mode, cleanOptim);
-}
-
 void ACov::addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
                                        const SpacePoint& pwork1,
                                        const SpacePoint& pwork2,
@@ -1450,7 +1399,6 @@ MatrixSquareSymmetric ACov::evalCovMatSym(const Db* db1,
                                           const CovCalcMode* mode,
                                           bool cleanOptim) const
 {
-  DECLARE_UNUSED(cleanOptim)
   MatrixSquareSymmetric mat;
 
   // Preliminary checks

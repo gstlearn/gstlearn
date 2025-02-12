@@ -95,7 +95,7 @@ ggPrint(p)
 We calculate the experimental directional variogram of the gaussian scores and fit the Model (with the constraints that sill should be 1)
 
 ```{r Fitting_Model}
-varioparam = VarioParam_createMultiple(ndir=2, nlag=40, dpas=10)
+varioparam = VarioParam_createMultiple(ndir=2, nlag=40, dlag=10)
 vario_gauss2dir = Vario_create(varioparam)
 err = vario_gauss2dir$compute(dat)
 

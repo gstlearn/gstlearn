@@ -175,8 +175,7 @@ public:
   FORWARD_METHOD(castInCovAnisoListConst, hasExternalCov)
   FORWARD_METHOD(castInCovAnisoListConst, isChangeSupportDefined, false)
   FORWARD_METHOD(castInCovAnisoListConst, getAnamHermite) 
-  FORWARD_METHOD(castInCovAnisoListConst, evalCovMatOptim)
-  FORWARD_METHOD(castInCovAnisoListConst, evalCovMatSymOptim)
+  FORWARD_METHOD(castInCovAnisoListConst, evalCovMat)
   FORWARD_METHOD(castInCovAnisoListConst, getCovMode, EModelProperty::NONE)
 
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setActiveFactor)

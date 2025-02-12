@@ -206,9 +206,9 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   mestitle(1, "With Collocated Option");
 
   MatrixSquareSymmetric Sigma00 = model->eval0Mat();
-  MatrixSquareSymmetric Sigma   = model->evalCovMatSymOptim(data);
+  MatrixSquareSymmetric Sigma   = model->evalCovMatSym(data);
   MatrixRectangular X           = model->evalDriftMat(data);
-  MatrixRectangular Sigma0      = model->evalCovMatOptim(data, target);
+  MatrixRectangular Sigma0      = model->evalCovMat(data, target);
   MatrixRectangular X0          = model->evalDriftMat(target);
   VectorVectorInt sampleRanks   = data->getSampleRanks();
   VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
@@ -262,9 +262,9 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   mestitle(1, "With Deplemented input Data Base");
 
   MatrixSquareSymmetric Sigma00P = model->eval0Mat();
-  MatrixSquareSymmetric SigmaP   = model->evalCovMatSymOptim(dataP);
+  MatrixSquareSymmetric SigmaP   = model->evalCovMatSym(dataP);
   MatrixRectangular XP           = model->evalDriftMat(dataP);
-  MatrixRectangular Sigma0P      = model->evalCovMatOptim(dataP, targetP, -1, -1, VectorInt(), VectorInt({iech0}));
+  MatrixRectangular Sigma0P      = model->evalCovMat(dataP, targetP, -1, -1, VectorInt(), VectorInt({iech0}));
   MatrixRectangular X0P          = model->evalDriftMat(targetP, -1, VectorInt{iech0});
   VectorVectorInt sampleRanksP   = dataP->getSampleRanks();
   VectorDouble ZP                = dataP->getValuesByRanks(sampleRanksP, means);
@@ -285,9 +285,9 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   mestitle(1, "With Cross-Validation Option");
 
   MatrixSquareSymmetric Sigma00 = model->eval0Mat();
-  MatrixSquareSymmetric Sigma   = model->evalCovMatSymOptim(data);
+  MatrixSquareSymmetric Sigma   = model->evalCovMatSym(data);
   MatrixRectangular X           = model->evalDriftMat(data);
-  MatrixRectangular Sigma0      = model->evalCovMatOptim(data, targetP);
+  MatrixRectangular Sigma0      = model->evalCovMat(data, targetP);
   MatrixRectangular X0          = model->evalDriftMat(targetP);
   VectorVectorInt sampleRanks   = data->getSampleRanks();
   VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
@@ -323,9 +323,9 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   mestitle(1, "Without Dual option");
 
   MatrixSquareSymmetric Sigma00 = model->eval0Mat();
-  MatrixSquareSymmetric Sigma   = model->evalCovMatSymOptim(data);
+  MatrixSquareSymmetric Sigma   = model->evalCovMatSym(data);
   MatrixRectangular X           = model->evalDriftMat(data);
-  MatrixRectangular Sigma0      = model->evalCovMatOptim(data, target);
+  MatrixRectangular Sigma0      = model->evalCovMat(data, target);
   MatrixRectangular X0          = model->evalDriftMat(target);
   VectorVectorInt sampleRanks   = data->getSampleRanks();
   VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);

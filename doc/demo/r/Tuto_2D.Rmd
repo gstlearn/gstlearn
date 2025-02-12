@@ -86,7 +86,7 @@ We first define the geometry of the variogram calculations
 
 ```{r}
 myVarioParamOmni = VarioParam()
-mydir = DirParam_create(nlag=10,dpas=1.)
+mydir = DirParam_create(nlag=10,dlag=1.)
 myVarioParamOmni$addDir(mydir)
 ```
 
@@ -124,7 +124,7 @@ Calculate a variogram in several directions
 
 ```{r}
 myvarioParam = VarioParam()
-mydirs = DirParam_createMultiple(ndir=4, nlag=10, dpas=1.)
+mydirs = DirParam_createMultiple(ndir=4, nlag=10, dlag=1.)
 myvarioParam$addMultiDirs(mydirs)
 myvario = Vario(myvarioParam)
 myvario$compute(mydb, ECalcVario_VARIOGRAM())
@@ -338,7 +338,7 @@ We quickly calculate experimental (omni-directional) variograms using the alread
 
 ```{r}
 myvarioParam = VarioParam()
-mydir = DirParam_create(npnlagas=10,dpas=1.)
+mydir = DirParam_create(npnlagas=10,dlag=1.)
 myvarioParam$addDir(mydir)
 myVario = Vario(myvarioParam)
 err = myvario$compute(mydb,ECalcVario_VARIOGRAM())
