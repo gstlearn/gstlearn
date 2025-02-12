@@ -137,5 +137,7 @@ base::message("Erreur dans validObject(.Object) :
 ASerializable_dumpToNF(db, "mygrid.backup.nf")
 ```
 
+More details here: https://github.com/gstlearn/gstlearn/issues/308
+
 
 
