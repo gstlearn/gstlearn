@@ -312,13 +312,13 @@ def WshowVarioParamOmni(WAll, flagTitle=True):
 def WgetVarioParamOmni(WAll):
     [WNlag, WDlag, WToldis, WCylrad] = WAll
     if WCylrad.value > 0:
-        varioparam = gl.VarioParam.createOmniDirection(npas = WNlag.value,
-                                                       dpas = WDlag.value,
+        varioparam = gl.VarioParam.createOmniDirection(nlag = WNlag.value,
+                                                       dlag = WDlag.value,
                                                        toldis = WToldis.value,
                                                        cylrad = WCylrad.value)
     else:
-        varioparam = gl.VarioParam.createOmniDirection(npas = WNlag.value,
-                                                       dpas = WDlag.value,
+        varioparam = gl.VarioParam.createOmniDirection(nlag = WNlag.value,
+                                                       dlag = WDlag.value,
                                                        toldis = WToldis.value)
     return varioparam
 
@@ -345,8 +345,8 @@ def WshowVarioParamMulti(WAll, flagTitle=True):
 def WgetVarioParamMulti(WAll):
     [WNdir, WNlag, WDlag, WAngref, WToldis] = WAll
     varioparam = gl.VarioParam.createMultiple(ndir = WNdir.value,
-                                              npas = WNlag.value,
-                                              dpas = WDlag.value,
+                                              nlag = WNlag.value,
+                                              dlag = WDlag.value,
                                               toldis = WToldis.value,
                                               angref = WAngref.value)
     return varioparam

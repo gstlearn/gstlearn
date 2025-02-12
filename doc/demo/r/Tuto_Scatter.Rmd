@@ -75,7 +75,7 @@ In this section, we represent samples distant by a given distance. This distance
 We first define the VarioParam set of calculation parameters: essentially, we define the lag and the number of lags.
 
 ```{r}
-varioparam = VarioParam_createOmniDirection(npas=10, dpas=0.1)
+varioparam = VarioParam_createOmniDirection(nlag=10, dpas=0.1)
 ```
 
 We represent the H-Scatter plot:

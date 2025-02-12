@@ -217,7 +217,7 @@ public:
                           int ivar = 0,
                           int jvar = 0,
                           const CovCalcMode* mode = nullptr) const;
-  VectorDouble evalIvarNpas(const VectorDouble& vec_step,
+  VectorDouble evalIvarNlag(const VectorDouble& vec_step,
                             const VectorDouble& dir = VectorDouble(),
                             int ivar = 0,
                             int jvar = 0,
@@ -231,7 +231,7 @@ public:
                          int ivar = 0,
                          int jvar = 0,
                          const CovCalcMode* mode = nullptr) const;
-  VectorDouble evalIsoIvarNpas(const VectorDouble& vec_step,
+  VectorDouble evalIsoIvarNlag(const VectorDouble& vec_step,
                                int ivar = 0,
                                int jvar = 0,
                                const CovCalcMode* mode = nullptr) const;

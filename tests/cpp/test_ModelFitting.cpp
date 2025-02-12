@@ -40,9 +40,9 @@
 static Vario* _computeVariogram(Db* db2D, const ECalcVario& calcul)
 {
   double hmax            = db2D->getExtensionDiagonal();
-  int npas               = 10;
-  double dpas            = hmax / 2. / npas;
-  VarioParam* varioparam = VarioParam::createOmniDirection(npas, dpas);
+  int nlag               = 10;
+  double dlag            = hmax / 2. / nlag;
+  VarioParam* varioparam = VarioParam::createOmniDirection(nlag, dlag);
   Vario* vario           = Vario::computeFromDb(*varioparam, db2D, calcul);
   (void)vario->dumpToNF("Vario.ascii");
   delete varioparam;

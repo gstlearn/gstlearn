@@ -382,7 +382,7 @@ double ACov::evalIvarIpasIncr(const VectorDouble& dincr,
  * @param mode      CovCalcMode structure
  * @return
  */
-VectorDouble ACov::evalIvarNpas(const VectorDouble& vec_step,
+VectorDouble ACov::evalIvarNlag(const VectorDouble& vec_step,
                                 const VectorDouble& dir,
                                 int ivar,
                                 int jvar,
@@ -454,7 +454,7 @@ double ACov::evalIsoIvarIpas(double step,
  * @param mode
  * @return
  */
-VectorDouble ACov::evalIsoIvarNpas(const VectorDouble& vec_step,
+VectorDouble ACov::evalIsoIvarNlag(const VectorDouble& vec_step,
                                    int ivar,
                                    int jvar,
                                    const CovCalcMode* mode) const
@@ -2308,14 +2308,14 @@ double ACov::gofToVario(const Vario *vario, bool verbose) const
 
         // Evaluate the Model
 
-        int npas = (int) gexp.size();
+        int nlag = (int) gexp.size();
         VectorDouble gmod = sample(hh, codir, ivar, jvar, &mode);
 
         // Evaluate the score
 
         double totpas = 0;
         double scale = 0.;
-        for (int ipas = 0; ipas < npas; ipas++)
+        for (int ipas = 0; ipas < nlag; ipas++)
         {
           if (sw[ipas] <= 0 || hh[ipas] <= 0.) continue;
           double ecart = sw[ipas] * ABS(gexp[ipas] - gmod[ipas]) / hh[ipas];

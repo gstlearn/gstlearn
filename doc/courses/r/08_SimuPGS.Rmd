@@ -89,7 +89,7 @@ Model of Underlying GRF
 Calculate the Experimental Variogram of the Underlying Gaussian Random Function and fit the Model (used in PGS).
 
 ```{r Calculate_Experimental_Underlying_GRF, fig.align='center'}
-varioparam = VarioParam_createOmniDirection(dpas=5, npas=20)
+varioparam = VarioParam_createOmniDirection(dpas=5, nlag=20)
 ruleprop = RuleProp_createFromRule(rule, props)
 vario = variogram_pgs(data, varioparam, ruleprop)
 

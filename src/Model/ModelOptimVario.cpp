@@ -140,7 +140,7 @@ int ModelOptimVario::_buildExperimental()
 
   for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
   {
-    for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++)
+    for (int ipas = 0, nlag = vario->getNLag(idir); ipas < nlag; ipas++)
     {
       int ijvar = 0;
       for (int ivar = ijvar = 0; ivar < nvar; ivar++)
@@ -196,15 +196,13 @@ int ModelOptimVario::_buildExperimental()
   int ipadir      = 0;
 
   for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
-  {
-    for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
+    for (int ipas = 0, nlag = vario->getNLag(idir); ipas < nlag; ipas++, ipadir++)
     {
       int ijvar = 0;
       for (int ivar = ijvar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
           _varioPart._lags[ecr]._weight = WT(ijvar, ipadir);
     }
-  }
 
   return 0;
 }

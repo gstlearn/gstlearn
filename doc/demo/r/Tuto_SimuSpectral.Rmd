@@ -77,7 +77,7 @@ ggPrint(p)
 
 # experimental variogram for the first simulation and simulated model
 nlag = 50
-varioPar = VarioParam_createMultipleFromGrid(grid, npas = nlag)
+varioPar = VarioParam_createMultipleFromGrid(grid, nlag = nlag)
 err = grid$setLocator(name = "S.1", locatorType = ELoc_Z(), 
                       cleanSameLocator = TRUE)
 vario = Vario_computeFromDb(varioPar, grid)
@@ -181,7 +181,7 @@ knitr::kable(rbind(
 nlag = 25
 coldir = c("green", "blue", "red")
 err = grid1$setLocator("S1", ELoc_Z(), cleanSameLocator = TRUE)
-varioPar = VarioParam_createMultipleFromGrid(grid1, npas=nlag)
+varioPar = VarioParam_createMultipleFromGrid(grid1, nlag=nlag)
 
 # computing the experimental variogram  
 vario = Vario_computeFromDb(varioPar, grid1)
@@ -236,7 +236,7 @@ ggPrint(p)
 nlag = 20
 coldir = c("green", "red", "blue")
 err = grid$setLocator("S1", ELoc_Z(), cleanSameLocator = TRUE)
-varioPar = VarioParam_createMultipleFromGrid(grid, npas=nlag)
+varioPar = VarioParam_createMultipleFromGrid(grid, nlag=nlag)
 
 # computing the experimental variogram  
 vario = Vario_computeFromDb(varioPar, grid)

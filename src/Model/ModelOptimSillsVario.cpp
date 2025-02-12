@@ -197,7 +197,7 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
     int ipadir = 0;
     for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
     {
-      for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
+      for (int ipas = 0, nlag = vario->getNLag(idir); ipas < nlag; ipas++, ipadir++)
       {
         int ijvar = 0;
         for (int ivar = ijvar = 0; ivar < _nvar; ivar++)
@@ -289,7 +289,7 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
       for (int idir = 0, ndir = vario->getNDir(); idir < ndir;
            idir++)
       {
-        for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas;
+        for (int ipas = 0, nlag = vario->getNLag(idir); ipas < nlag;
              ipas++, ipadir++)
         {
           int ijvar = 0;
@@ -398,7 +398,7 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
     int ecr    = 0;
     int ipadir = 0;
     for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
-      for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas;
+      for (int ipas = 0, nlag = vario->getNLag(idir); ipas < nlag;
            ipas++, ipadir++)
       {
         int ijvar = 0;

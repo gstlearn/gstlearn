@@ -47,8 +47,8 @@ class DbGrid;
 class GSTLEARN_EXPORT DirParam : public ASpaceObject
 {
 public:
-  DirParam(int npas = 10,
-           double dpas = 1.,
+  DirParam(int nlag = 10,
+           double dlag = 1.,
            double toldis = 0.5,
            double tolang = 90.,
            int opt_code = 0,
@@ -61,15 +61,15 @@ public:
            double angle2D = TEST,
            const ASpaceSharedPtr& space = ASpaceSharedPtr());
   DirParam(const DbGrid *dbgrid,
-           int npas,
+           int nlag,
            const VectorInt &grincr,
            const ASpaceSharedPtr& space);
   DirParam(const DirParam& r);
   DirParam& operator=(const DirParam& r);
   virtual ~DirParam();
 
-  static DirParam* create(int npas = 10,
-                          double dpas = 1.,
+  static DirParam* create(int nlag = 10,
+                          double dlag = 1.,
                           double toldis = 0.5,
                           double tolang = 90.,
                           int opt_code = 0,
@@ -81,8 +81,8 @@ public:
                           const VectorDouble& codir = VectorDouble(),
                           double angle2D = TEST,
                           const ASpaceSharedPtr& space = ASpaceSharedPtr());
-  static DirParam* createOmniDirection(int npas = 10,
-                                       double dpas = 1., // TODO : translate
+  static DirParam* createOmniDirection(int nlag = 10,
+                                       double dlag = 1.,
                                        double toldis = 0.5,
                                        int opt_code = 0,
                                        int idate = 0,
@@ -92,23 +92,23 @@ public:
                                        const VectorDouble& breaks = VectorDouble(),
                                        const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static DirParam* createFromGrid(const DbGrid* dbgrid,
-                                  int npas = 10,
+                                  int nlag = 10,
                                   const VectorInt& grincr = VectorInt(),
                                   const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static std::vector<DirParam> createMultiple(int ndir,
-                                              int npas = 10,
-                                              double dpas = 1.,
+                                              int nlag = 10,
+                                              double dlag = 1.,
                                               double toldis = 0.5,
                                               double angref = 0.,
                                               const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static std::vector<DirParam> createSeveral2D(const VectorDouble& angles,
-                                               int npas = 10,
-                                               double dpas = 1.,
+                                               int nlag = 10,
+                                               double dlag = 1.,
                                                double toldis = 0.5,
                                                double tolang = TEST,
                                                const ASpaceSharedPtr& space = ASpaceSharedPtr());
-  static std::vector<DirParam> createMultipleInSpace(int npas,
-                                                     double dpas = 1.,
+  static std::vector<DirParam> createMultipleInSpace(int nlag,
+                                                     double dlag = 1.,
                                                      const ASpaceSharedPtr& space = ASpaceSharedPtr());
 
 public:
@@ -124,10 +124,10 @@ public:
   const  VectorDouble& getCodirs() const { return _codir; }
   double getCodir(int i) const;
   double getCylRad() const { return _cylRad; }
-  double getDPas() const { return _dPas; }
-  double getLag() const { return _dPas; }
+  double getDPas() const { return _dLag; }
+  double getLag() const { return _dLag; }
   int    getIdate() const { return _idate; }
-  int    getNLag() const { return _nPas; }
+  int    getNLag() const { return _nLag; }
   int    getOptionCode() const { return _optionCode; }
   double getTolAngle() const { return _tolAngle; }
   double getTolCode() const { return _tolCode; }
@@ -140,11 +140,11 @@ public:
   int  getNBreak() const { return ((int) _breaks.size() / 2); }
   bool getFlagRegular() const { return (getNBreak() <= 0); }
 
-  void setNLag(int npas) {_nPas = npas; }
+  void setNLag(int nlag) {_nLag = nlag; }
   void setOptionCode(int option_code) {_optionCode = option_code; }
   void setIdate(int idate) {_idate = idate; }
-  void setDPas(double dpas) {_dPas = dpas; }
-  void setDLag(double dlag) {_dPas = dlag; }
+  void setDPas(double dlag) {_dLag = dlag; }
+  void setDLag(double dlag) {_dLag = dlag; }
   void setDPas(const DbGrid* db);
   void setBench(double bench) {_bench = bench; }
   void setCylRad(double cylrad) {_cylRad = cylrad; }
@@ -166,10 +166,10 @@ private:
   void _completeDefinition(double angle2D = TEST);
 
 private:
-  int    _nPas;
+  int    _nLag;
   int    _optionCode;
   int    _idate;
-  double _dPas;
+  double _dLag;
   double _bench;
   double _cylRad;
   double _tolDist;

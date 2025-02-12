@@ -737,7 +737,7 @@ static void st_compress_array(const Vario *vario,
   int sizein = (int)tabin.size();
   int sizeout = tabout.size();
   for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
-    for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
+    for (int ipas = 0, nlag = vario->getNLag(idir); ipas < nlag; ipas++, ipadir++)
     {
       int ijvar = 0;
       for (int ivar = 0; ivar < nvar; ivar++)
@@ -785,7 +785,7 @@ static double st_get_c00(const Vario *vario, int idir, int ivar, int jvar)
   if (! isZero(vario->getGgByIndex(idir, iad)) || vario->getSwByIndex(idir, iad) > 0)
     goto label_end;
 
-  for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++)
+  for (int ipas = 0, nlag = vario->getNLag(idir); ipas < nlag; ipas++)
   {
     iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
     if (! isZero(vario->getGgByIndex(idir, iad))) goto label_end;
@@ -823,7 +823,7 @@ static void st_load_gg(const Vario *vario,
   int ipadir = 0;
   for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
   {
-    for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
+    for (int ipas = 0, nlag = vario->getNLag(idir); ipas < nlag; ipas++, ipadir++)
     {
       int ijvar = 0;
       for (int ivar = ijvar = 0; ivar < nvar; ivar++)
@@ -987,7 +987,7 @@ static void st_load_ge(const Vario *vario,
     int ipadir = 0;
     for (int idir = 0; idir < ndir; idir++)
     {
-      for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
+      for (int ipas = 0, nlag = vario->getNLag(idir); ipas < nlag; ipas++, ipadir++)
       {
         int ijvar = 0;
         for (int ivar = 0; ivar < nvar; ivar++)
@@ -1056,7 +1056,7 @@ static void st_load_wt(const Vario *vario,
   for (int idir = 0; idir < ndir; idir++)
   {
     flag[idir] = 0.;
-    for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++)
+    for (int ipas = 0, nlag = vario->getNLag(idir); ipas < nlag; ipas++)
       for (int ijvar = 0; ijvar < nvs2; ijvar++)
       {
         int shift = ijvar * vario->getNLagTotal(idir);
@@ -1084,7 +1084,7 @@ static void st_load_wt(const Vario *vario,
       ipadir = 0;
       for (int idir = 0; idir < ndir; idir++)
       {
-        for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
+        for (int ipas = 0, nlag = vario->getNLag(idir); ipas < nlag; ipas++, ipadir++)
         {
           if (isZero(flag[idir])) continue;
           for (int ijvar = 0; ijvar < nvs2; ijvar++)
@@ -1112,7 +1112,7 @@ static void st_load_wt(const Vario *vario,
       ipadir = 0;
       for (int idir=0; idir<ndir; idir++)
       {
-        for (int ipas=0, npas = vario->getNLag(idir); ipas < npas; ipas++,ipadir++)
+        for (int ipas=0, nlag = vario->getNLag(idir); ipas < nlag; ipas++,ipadir++)
         {
           if (isZero(flag[idir])) continue;
           for (int ijvar=0; ijvar<nvs2; ijvar++)
@@ -1148,7 +1148,7 @@ static void st_load_wt(const Vario *vario,
       ipadir = 0;
       for (int idir=0; idir<ndir; idir++)
       {
-        for (int ipas=0, npas=vario->getNLag(idir); ipas < npas; ipas++,ipadir++)
+        for (int ipas=0, nlag=vario->getNLag(idir); ipas < nlag; ipas++,ipadir++)
         {
           if (isZero(flag[idir])) continue;
           for (int ijvar=0; ijvar<nvs2; ijvar++)
@@ -1176,7 +1176,7 @@ static void st_load_wt(const Vario *vario,
       ipadir = 0;
       for (int idir=0; idir<ndir; idir++)
       {
-        for (int ipas=0, npas=vario->getNLag(idir); ipas < npas; ipas++,ipadir++)
+        for (int ipas=0, nlag=vario->getNLag(idir); ipas < nlag; ipas++,ipadir++)
         {
           if (isZero(flag[idir])) continue;
           for (int ijvar=0; ijvar<nvs2; ijvar++)
@@ -1209,7 +1209,7 @@ static void st_load_wt(const Vario *vario,
     for (int idir = 0; idir < ndir; idir++)
     {
       double total = 0.;
-      for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
+      for (int ipas = 0, nlag = vario->getNLag(idir); ipas < nlag; ipas++, ipadir++)
       {
         if (isZero(flag[idir])) continue;
         if (WT(ijvar,ipadir)> 0 && ! FFFF(WT(ijvar,ipadir)))
@@ -1217,7 +1217,7 @@ static void st_load_wt(const Vario *vario,
       }
       if (isZero(total)) continue;
       ipadir -= vario->getNLag(idir);
-      for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
+      for (int ipas = 0, nlag = vario->getNLag(idir); ipas < nlag; ipas++, ipadir++)
       {
         if (isZero(flag[idir])) continue;
         if (WT(ijvar,ipadir)> 0 && ! FFFF(WT(ijvar,ipadir)))
@@ -1237,7 +1237,7 @@ static void st_load_wt(const Vario *vario,
       ipadir = 0;
       for (int idir = 0; idir < ndir; idir++)
       {
-        for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
+        for (int ipas = 0, nlag = vario->getNLag(idir); ipas < nlag; ipas++, ipadir++)
           if (!FFFF(WT(ijvar0, ipadir))) WT(ijvar0,ipadir)/= ratio;
         }
       }

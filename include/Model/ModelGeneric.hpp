@@ -76,7 +76,7 @@ public:
   FORWARD_METHOD(getCov, evalNvarIpas)
   FORWARD_METHOD(getCov, evalMat)
   FORWARD_METHOD(getCov, evalNvarIpasIncr)
-  FORWARD_METHOD(getCov, evalIvarNpas)
+  FORWARD_METHOD(getCov, evalIvarNlag)
   FORWARD_METHOD(getCov, evalIvarIpas)
   FORWARD_METHOD(getCov, evalCvv)
   FORWARD_METHOD(getCov, evalCvvShift)
