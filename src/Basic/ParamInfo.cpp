@@ -8,9 +8,7 @@
 ParamInfo::ParamInfo(const String& name, 
                     double value,
                     const std::array<double,2>& absoluteBounds,
-                    const String& description,
-                    const std::function<void(double)>& func
-                   )
+                    const String& description)              
 : AStringable()
 , _name(name)
 , _value(value)
@@ -19,21 +17,9 @@ ParamInfo::ParamInfo(const String& name,
 , _userBounds(absoluteBounds)
 , _isFixed(false)
 , _description(description)
-, _setParamValue(func)
 {
-    if (func == nullptr) 
-    {
-        _setParamValue = [this](double value){ this->setValueDefault(value);};
-    }
+    
 }
-
-void ParamInfo::setUpdateFunction(const std::function<void(double)>& func)
-{
-
-    //_setParamValue = [](double value){DECLARE_UNUSED(value)};
-    //_setParamValue = std::move(func);
-}
-
 
 ParamInfo::ParamInfo(const ParamInfo& other)
 : AStringable(other)

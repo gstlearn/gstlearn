@@ -140,6 +140,9 @@ public:
   static VectorDouble subtract(const VectorDouble& veca, const VectorDouble& vecb);
   static VectorDouble subtract(constvect veca,constvect vecb);
   static VectorInt    subtract(const VectorInt& veca, const VectorInt& vecb);
+  static void   subtractInPlace(const constvect in1,
+                                const constvect in2,
+                                vect  outv);
   static void subtractInPlace(VectorDouble &dest, const VectorDouble &src);
   static void subtractInPlace(VectorInt &dest, const VectorInt &src);
   static void subtractInPlace(const VectorVectorDouble& in1,

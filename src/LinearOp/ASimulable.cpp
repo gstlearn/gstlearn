@@ -9,6 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ASimulable.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "geoslib_define.h"
 
 VectorDouble ASimulable::evalSimulate(const VectorDouble& whitenoise) const
@@ -18,6 +20,14 @@ VectorDouble ASimulable::evalSimulate(const VectorDouble& whitenoise) const
   return res;
 }
 
+VectorDouble ASimulable::simulate() const
+{
+  VectorDouble whitenoise(getSize());
+  VH::simulateGaussianInPlace(whitenoise);
+  VectorDouble res(getSize());
+  evalSimulate(whitenoise, res);
+  return res;
+}
 int ASimulable::evalSimulate(const VectorDouble& whitenoise,
                              VectorDouble& outv) const
 {

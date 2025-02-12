@@ -16,8 +16,7 @@ public:
     ParamInfo(const String& name ="", 
               double value = TEST,
               const std::array<double,2>& absoluteBounds = {-INF, INF},
-              const std::string& description = "",
-              const std::function<void(double)>& func = nullptr);
+              const std::string& description = "");
     ParamInfo(const ParamInfo& other);
     ParamInfo& operator=(const ParamInfo& other) = delete;
     virtual ~ParamInfo();
@@ -31,7 +30,6 @@ public:
     void setMaxValue(double value);
     void setFixed(bool isFixed) {_isFixed = isFixed;};
 
-    void setUpdateFunction(const std::function<void(double)>& func);
     String toString(const AStringFormat* strfmt = nullptr) const override;
 
 private:
@@ -42,6 +40,5 @@ private:
           std::array<double,2> _userBounds;
     bool  _isFixed;
     const String _description;
-    std::function<void(double)> _setParamValue;
 };
 

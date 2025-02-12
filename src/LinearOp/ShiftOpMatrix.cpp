@@ -1175,7 +1175,6 @@ void ShiftOpMatrix::_buildLambda(const AMesh *amesh)
 
   double correc = cova->getCorrec();
   //double sqdethh = 0.;
-  double factor = 1.;
 
  if (flagSphere)
   {
@@ -1188,7 +1187,7 @@ void ShiftOpMatrix::_buildLambda(const AMesh *amesh)
     if (_isGlobalHH())
     {
       _loadHH(amesh, hh, 0);
-      factor = sqrt(hh.determinant());
+      //factor = sqrt(hh.determinant());
     }
   }
 

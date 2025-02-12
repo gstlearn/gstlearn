@@ -50,13 +50,7 @@ CovBase::CovBase(ACov* cor,
 
     for (size_t j = 0; j <= n; j++)
     {
-      //_cholSillsInfo(i,j).setValueDefault(4.);
-      //_cholSillsInfo(i,j).setUpdateFunction(nullptr);
-      // _cholSillsInfo(i,j).setUpdateFunction([this, i, j](double value) 
-      //  {
-      //    this->setCholSill(i, j, value);
-      //  });
-      _cholSillsInfo(i,j).setUpdateFunction(nullptr);
+   
     }
     for (size_t j = i+1; j < n; j++)
     {

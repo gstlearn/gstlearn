@@ -21,7 +21,7 @@ public:
 
   int evalSimulate(const VectorDouble& whitenoise, VectorDouble& outv) const;
   VectorDouble evalSimulate(const VectorDouble& whitenoise) const;
-
+  VectorDouble simulate() const;
 #ifndef SWIG
 
 public:

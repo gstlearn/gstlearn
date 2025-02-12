@@ -39,3 +39,5 @@ ax = plt.scatter(ref,resultFree,s=1)
 plt.plot(ax.axes.get_xbound(),ax.axes.get_xbound(),c="r")
 #plt.show()
 print("Difference with classical kriging (matrix free version) = " + str (np.round(np.max(np.abs(ref-resultFree))/totalSill,5)))
+
+# %%
