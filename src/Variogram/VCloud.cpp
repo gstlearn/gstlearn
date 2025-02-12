@@ -70,7 +70,7 @@ double VCloud::_getIVAR(const Db *db, int iech, int ivar) const
  ** \param[in]  iech1       Rank of the first sample
  ** \param[in]  iech2       Rank of the second sample
  ** \param[in]  nvar        Number of variables
- ** \param[in]  ipas        Rank of the variogram lag
+ ** \param[in]  ilag        Rank of the variogram lag
  ** \param[in]  ivar        Index of the first variable
  ** \param[in]  jvar        Index of the second variable
  ** \param[in]  orient      Orientation
@@ -82,7 +82,7 @@ double VCloud::_getIVAR(const Db *db, int iech, int ivar) const
 void VCloud::_setResult(int iech1,
                         int iech2,
                         int nvar,
-                        int ipas,
+                        int ilag,
                         int ivar,
                         int jvar,
                         int orient,
@@ -91,7 +91,7 @@ void VCloud::_setResult(int iech1,
                         double value)
 {
   DECLARE_UNUSED(nvar);
-  DECLARE_UNUSED(ipas);
+  DECLARE_UNUSED(ilag);
   DECLARE_UNUSED(ivar);
   DECLARE_UNUSED(jvar);
   DECLARE_UNUSED(orient);

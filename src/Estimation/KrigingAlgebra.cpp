@@ -8,7 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Estimation/KrigingCalcul.hpp"
+#include "Estimation/KrigingAlgebra.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/AMatrixDense.hpp"
 #include "Matrix/MatrixRectangular.hpp"
@@ -17,7 +17,7 @@
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
 
-KrigingCalcul::KrigingCalcul(bool flagDual,
+KrigingAlgebra::KrigingAlgebra(bool flagDual,
                              const VectorVectorInt* sampleRanks,
                              const VectorDouble* Z,
                              const MatrixSquareSymmetric* Sigma,
@@ -81,12 +81,12 @@ KrigingCalcul::KrigingCalcul(bool flagDual,
   (void)setVariance(Sigma00);
 }
 
-KrigingCalcul::~KrigingCalcul()
+KrigingAlgebra::~KrigingAlgebra()
 {
   _resetAll();
 }
 
-void KrigingCalcul::_resetAll()
+void KrigingAlgebra::_resetAll()
 {
   _resetLinkedToZ();
   _resetLinkedToLHS();
@@ -97,68 +97,68 @@ void KrigingCalcul::_resetAll()
   _resetLinkedToXvalid();
 }
 
-void KrigingCalcul::setDual(bool status)
+void KrigingAlgebra::setDual(bool status)
 {
   _resetAll();
   _flagDual = status;
 }
-void KrigingCalcul::_resetLinkedToSampleRanks()
+void KrigingAlgebra::_resetLinkedToSampleRanks()
 {
   _deleteIndices();
 }
-void KrigingCalcul::_resetLinkedToZ()
+void KrigingAlgebra::_resetLinkedToZ()
 {
   _deleteZ();
 }
-void KrigingCalcul::_resetLinkedToLHS()
+void KrigingAlgebra::_resetLinkedToLHS()
 {
   _deleteSigma();
   _deleteX();
   _deleteDual();
 }
-void KrigingCalcul::_resetLinkedToRHS()
+void KrigingAlgebra::_resetLinkedToRHS()
 {
   _deleteSigma0();
   _deleteX0();
 }
-void KrigingCalcul::_resetLinkedtoVar0()
+void KrigingAlgebra::_resetLinkedtoVar0()
 {
   _deleteSigma00();
 }
-void KrigingCalcul::_resetLinkedToBayes()
+void KrigingAlgebra::_resetLinkedToBayes()
 {
   _deletePriorCov();
   _deletePriorMean();
 }
-void KrigingCalcul::_resetLinkedToColCok()
+void KrigingAlgebra::_resetLinkedToColCok()
 {
   _deleteZp();
   _deleteColCok();
 }
-void KrigingCalcul::_resetLinkedToXvalid()
+void KrigingAlgebra::_resetLinkedToXvalid()
 {
   _deleteXvalid();
 }
 
-void KrigingCalcul::_deleteX()
+void KrigingAlgebra::_deleteX()
 {
   _deleteXtInvSigma();
   _deleteSigmac();
   // Cannot delete _X due to constness
 }
-void KrigingCalcul::_deleteX0()
+void KrigingAlgebra::_deleteX0()
 {
   _deleteX0p();
   _deleteY0();
   _deleteStdv();
   // Cannot delete _X0 due to constness
 }
-void KrigingCalcul::_deleteSigma()
+void KrigingAlgebra::_deleteSigma()
 {
   _deleteInvSigma();
   // Cannot delete _Sigma due to constness
 }
-void KrigingCalcul::_deleteSigma0()
+void KrigingAlgebra::_deleteSigma0()
 {
   _deleteStdv();
   _deleteSigma0p();
@@ -167,7 +167,7 @@ void KrigingCalcul::_deleteSigma0()
   _deleteVarZUK();
   // Cannot delete _Sigma0 due to constness
 }
-void KrigingCalcul::_deleteSigma00()
+void KrigingAlgebra::_deleteSigma00()
 {
   _deleteSigma00p();
   _deleteSigma00pp();
@@ -175,12 +175,12 @@ void KrigingCalcul::_deleteSigma00()
   _deleteStdv();
   // Cannot delete _Sigma00 due to constness
 }
-void KrigingCalcul::_deleteBeta()
+void KrigingAlgebra::_deleteBeta()
 {
   _deleteZstar();
   _Beta.clear();
 }
-void KrigingCalcul::_deleteInvSigma()
+void KrigingAlgebra::_deleteInvSigma()
 {
   _deleteInvSigmaSigma0();
   _deleteLambdaSK();
@@ -190,7 +190,7 @@ void KrigingCalcul::_deleteInvSigma()
   delete _InvSigma;
   _InvSigma = nullptr;
 }
-void KrigingCalcul::_deleteLambdaSK()
+void KrigingAlgebra::_deleteLambdaSK()
 {
   _deleteLambdaUK();
   _deleteZstar();
@@ -199,7 +199,7 @@ void KrigingCalcul::_deleteLambdaSK()
   delete _LambdaSK;
   _LambdaSK = nullptr;
 }
-void KrigingCalcul::_deleteLambdaUK()
+void KrigingAlgebra::_deleteLambdaUK()
 {
   _deleteVarZUK();
   _deleteStdv();
@@ -208,7 +208,7 @@ void KrigingCalcul::_deleteLambdaUK()
   delete _LambdaUK;
   _LambdaUK = nullptr;
 }
-void KrigingCalcul::_deleteMuUK()
+void KrigingAlgebra::_deleteMuUK()
 {
   _deleteLambdaUK();
   _deleteStdv();
@@ -216,7 +216,7 @@ void KrigingCalcul::_deleteMuUK()
   delete _MuUK;
   _MuUK = nullptr;
 }
-void KrigingCalcul::_deleteSigmac()
+void KrigingAlgebra::_deleteSigmac()
 {
   _deleteLambda0();
   _deleteBeta();
@@ -226,11 +226,11 @@ void KrigingCalcul::_deleteSigmac()
   delete _Sigmac;
   _Sigmac = nullptr;
 }
-void KrigingCalcul::_deleteZstar()
+void KrigingAlgebra::_deleteZstar()
 {
   _Zstar.clear();
 }
-void KrigingCalcul::_deleteY0()
+void KrigingAlgebra::_deleteY0()
 {
   _deleteZstar();
   _deleteMuUK();
@@ -239,7 +239,7 @@ void KrigingCalcul::_deleteY0()
   delete _Y0;
   _Y0 = nullptr;
 }
-void KrigingCalcul::_deleteXtInvSigma()
+void KrigingAlgebra::_deleteXtInvSigma()
 {
   _deleteY0p();
   _deleteLambdaUK();
@@ -249,24 +249,24 @@ void KrigingCalcul::_deleteXtInvSigma()
   delete _XtInvSigma;
   _XtInvSigma = nullptr;
 }
-void KrigingCalcul::_deleteStdv()
+void KrigingAlgebra::_deleteStdv()
 {
   delete _Stdv;
   _Stdv = nullptr;
 }
-void KrigingCalcul::_deleteVarZSK()
+void KrigingAlgebra::_deleteVarZSK()
 {
   _deleteStdv();
 
   delete _VarZSK;
   _VarZSK = nullptr;
 }
-void KrigingCalcul::_deleteVarZUK()
+void KrigingAlgebra::_deleteVarZUK()
 {
   delete _VarZUK;
   _VarZUK = nullptr;
 }
-void KrigingCalcul::_deleteInvPriorCov()
+void KrigingAlgebra::_deleteInvPriorCov()
 {
   _deleteSigmac();
   _deleteBeta();
@@ -274,7 +274,7 @@ void KrigingCalcul::_deleteInvPriorCov()
   delete _InvPriorCov;
   _InvPriorCov = nullptr;
 }
-void KrigingCalcul::_deleteSigma0p()
+void KrigingAlgebra::_deleteSigma0p()
 {
   _deleteY0p();
   _deleteLambdaSK();
@@ -284,7 +284,7 @@ void KrigingCalcul::_deleteSigma0p()
   delete _Sigma0p;
   _Sigma0p = nullptr;
 }
-void KrigingCalcul::_deleteSigma00p()
+void KrigingAlgebra::_deleteSigma00p()
 {
   _deleteLambda0();
   _deleteStdv();
@@ -292,7 +292,7 @@ void KrigingCalcul::_deleteSigma00p()
   delete _Sigma00p;
   _Sigma00p = nullptr;
 }
-void KrigingCalcul::_deleteSigma00pp()
+void KrigingAlgebra::_deleteSigma00pp()
 {
   _deleteLambda0();
   _deleteVarZUK();
@@ -300,14 +300,14 @@ void KrigingCalcul::_deleteSigma00pp()
   delete _Sigma00pp;
   _Sigma00pp = nullptr;
 }
-void KrigingCalcul::_deleteX0p()
+void KrigingAlgebra::_deleteX0p()
 {
   _deleteY0p();
 
   delete _X0p;
   _X0p = nullptr;
 }
-void KrigingCalcul::_deleteY0p()
+void KrigingAlgebra::_deleteY0p()
 {
   _deleteZstar();
   _deleteMuUK();
@@ -316,13 +316,13 @@ void KrigingCalcul::_deleteY0p()
   delete _Y0;
   _Y0 = nullptr;
 }
-void KrigingCalcul::_deleteZ0p()
+void KrigingAlgebra::_deleteZ0p()
 {
   _deleteZstar();
 
   _Z0p.clear();
 }
-void KrigingCalcul::_deleteLambda0()
+void KrigingAlgebra::_deleteLambda0()
 {
   _deleteVarZUK();
   _deleteMuUK();
@@ -331,7 +331,7 @@ void KrigingCalcul::_deleteLambda0()
   delete _Lambda0;
   _Lambda0 = nullptr;
 }
-void KrigingCalcul::_deleteInvSigmaSigma0()
+void KrigingAlgebra::_deleteInvSigmaSigma0()
 {
   _deleteY0();
   _deleteLambdaSK();
@@ -340,21 +340,21 @@ void KrigingCalcul::_deleteInvSigmaSigma0()
   _InvSigmaSigma0 = nullptr;
 }
 
-void KrigingCalcul::_deletePriorCov()
+void KrigingAlgebra::_deletePriorCov()
 {
   _deleteInvPriorCov();
   // Cannot delete _PriorCov due to constness
 }
-void KrigingCalcul::_deletePriorMean()
+void KrigingAlgebra::_deletePriorMean()
 {
   _deleteBeta();
   // Cannot delete _PriorMean due to constness
 }
-void KrigingCalcul::_deleteIndices()
+void KrigingAlgebra::_deleteIndices()
 {
   _deleteZ();
 }
-void KrigingCalcul::_deleteZ()
+void KrigingAlgebra::_deleteZ()
 {
   _deleteZstar();
   _deleteBeta();
@@ -362,12 +362,12 @@ void KrigingCalcul::_deleteZ()
 
   _deleteDual();
 }
-void KrigingCalcul::_deleteZp()
+void KrigingAlgebra::_deleteZp()
 {
   _deleteZ0p();
   // Cannot delete _Zp due to constness
 }
-void KrigingCalcul::_deleteColCok()
+void KrigingAlgebra::_deleteColCok()
 {
   _deleteX0p();
   _deleteZ0p();
@@ -376,7 +376,7 @@ void KrigingCalcul::_deleteColCok()
   _deleteSigma00pp();
   // Cannot delete _rankColCok due to constness
 }
-void KrigingCalcul::_deleteXvalid()
+void KrigingAlgebra::_deleteXvalid()
 {
   _nxvalid = 0;
   // Cannot delete _rankXvalidEqs or _rankXvalidVars due to constness
@@ -385,7 +385,7 @@ void KrigingCalcul::_deleteXvalid()
   delete _X_RHS;
   _X_RHS = nullptr;
 }
-void KrigingCalcul::_deleteDual()
+void KrigingAlgebra::_deleteDual()
 {
   if (! _flagDual) return;
   _bDual.clear();
@@ -395,7 +395,7 @@ void KrigingCalcul::_deleteDual()
 /**
  * @brief Method to be used when the data has changed (e.g. Moving Neighborhood)
  */
-int KrigingCalcul::resetNewData()
+int KrigingAlgebra::resetNewData()
 {
   _neq = 0;
   return 0;
@@ -412,7 +412,7 @@ int KrigingCalcul::resetNewData()
  * @note If one element is not provided, its address (if already defined) is
  * @note kept unchanged (even if its contents may have been updated)
  */
-int KrigingCalcul::setData(const VectorDouble* Z,
+int KrigingAlgebra::setData(const VectorDouble* Z,
                            const VectorVectorInt* indices,
                            const VectorDouble* Means)
 {
@@ -452,7 +452,7 @@ int KrigingCalcul::setData(const VectorDouble* Z,
  * @note If one element is not provided, its address (if already defined) is
  * @note kept unchanged (even if its contents may have been updated)
  */
-int KrigingCalcul::setLHS(const MatrixSquareSymmetric* Sigma,
+int KrigingAlgebra::setLHS(const MatrixSquareSymmetric* Sigma,
                           const MatrixRectangular* X)
 {
   _resetLinkedToLHS();
@@ -480,7 +480,7 @@ int KrigingCalcul::setLHS(const MatrixSquareSymmetric* Sigma,
   return 0;
 }
 
-int KrigingCalcul::setVariance(const MatrixSquareSymmetric* Sigma00)
+int KrigingAlgebra::setVariance(const MatrixSquareSymmetric* Sigma00)
 {
   if (Sigma00 != nullptr)
   {
@@ -490,7 +490,7 @@ int KrigingCalcul::setVariance(const MatrixSquareSymmetric* Sigma00)
   return 0;
 }
 
-int KrigingCalcul::setRHS(const MatrixRectangular* Sigma0,
+int KrigingAlgebra::setRHS(const MatrixRectangular* Sigma0,
                           const MatrixRectangular* X0)
 {
   _resetLinkedToRHS();
@@ -519,7 +519,7 @@ int KrigingCalcul::setRHS(const MatrixRectangular* Sigma0,
   return 0;
 }
 
-bool KrigingCalcul::_checkDimensionVD(const String& name,
+bool KrigingAlgebra::_checkDimensionVD(const String& name,
                                       const VectorDouble* vec,
                                       int* sizeRef)
 {
@@ -534,7 +534,7 @@ bool KrigingCalcul::_checkDimensionVD(const String& name,
   return true;
 }
 
-bool KrigingCalcul::_checkDimensionVI(const String& name,
+bool KrigingAlgebra::_checkDimensionVI(const String& name,
                                       const VectorInt* vec,
                                       int* sizeRef)
 {
@@ -549,7 +549,7 @@ bool KrigingCalcul::_checkDimensionVI(const String& name,
   return true;
 }
 
-bool KrigingCalcul::_checkDimensionVVI(const String& name,
+bool KrigingAlgebra::_checkDimensionVVI(const String& name,
                                        const VectorVectorInt* vec,
                                        int* size1Ref,
                                        int* size2Ref)
@@ -574,7 +574,7 @@ bool KrigingCalcul::_checkDimensionVVI(const String& name,
   return true;
 }
 
-bool KrigingCalcul::_checkDimensionMatrix(const String& name,
+bool KrigingAlgebra::_checkDimensionMatrix(const String& name,
                                           const AMatrix* mat,
                                           int* nrowsRef,
                                           int* ncolsRef)
@@ -609,7 +609,7 @@ bool KrigingCalcul::_checkDimensionMatrix(const String& name,
  * @note The argument 'Zp' must be corrected by the mean of the variables
  * for the use of Collocated Option in Simple Kriging
  */
-int KrigingCalcul::setColCokUnique(const VectorDouble* Zp, const VectorInt* rankColCok)
+int KrigingAlgebra::setColCokUnique(const VectorDouble* Zp, const VectorInt* rankColCok)
 {
   _resetLinkedToColCok();
 
@@ -655,7 +655,7 @@ int KrigingCalcul::setColCokUnique(const VectorDouble* Zp, const VectorInt* rank
  * @remarks The argument 'rankXvalidVars' only serves in assigning the
  * mean of the correct cross-validated variable (SK only). It is optional in OK
  */
-int KrigingCalcul::setXvalidUnique(const VectorInt* rankXvalidEqs,
+int KrigingAlgebra::setXvalidUnique(const VectorInt* rankXvalidEqs,
                                    const VectorInt* rankXvalidVars)
 {
   if (rankXvalidEqs == nullptr || rankXvalidVars == nullptr) return 1;
@@ -668,7 +668,7 @@ int KrigingCalcul::setXvalidUnique(const VectorInt* rankXvalidEqs,
   return _patchRHSForXvalidUnique();
 }
 
-int KrigingCalcul::setBayes(const VectorDouble* PriorMean,
+int KrigingAlgebra::setBayes(const VectorDouble* PriorMean,
                             const MatrixSquareSymmetric* PriorCov)
 {
   _resetLinkedToBayes();
@@ -693,40 +693,40 @@ int KrigingCalcul::setBayes(const VectorDouble* PriorMean,
   return 0;
 }
 
-VectorDouble KrigingCalcul::getEstimation()
+VectorDouble KrigingAlgebra::getEstimation()
 {
   if (_needZstar()) return VectorDouble();
   return _Zstar;
 }
 
-VectorDouble KrigingCalcul::getPostMean()
+VectorDouble KrigingAlgebra::getPostMean()
 {
   if (_needBeta()) return VectorDouble();
   return _Beta;
 }
 
-bool KrigingCalcul::_forbiddenWhenDual() const
+bool KrigingAlgebra::_forbiddenWhenDual() const
 {
   if (!_flagDual) return true;
   messerr("This option is not available as 'Dual' is switched ON");
   return false;
 }
 
-VectorDouble KrigingCalcul::getStdv()
+VectorDouble KrigingAlgebra::getStdv()
 {
   if (! _forbiddenWhenDual()) return VectorDouble();
   if (_needStdv()) return VectorDouble();
   return _Stdv->getDiagonal();
 }
 
-const MatrixSquareSymmetric* KrigingCalcul::getStdvMat()
+const MatrixSquareSymmetric* KrigingAlgebra::getStdvMat()
 {
   if (! _forbiddenWhenDual()) return nullptr;
   if (_needStdv()) return nullptr;
   return _Stdv;
 }
 
-VectorDouble KrigingCalcul::getVarianceZstar()
+VectorDouble KrigingAlgebra::getVarianceZstar()
 {
   if (! _forbiddenWhenDual()) return VectorDouble();
   if (_flagSK)
@@ -738,7 +738,7 @@ VectorDouble KrigingCalcul::getVarianceZstar()
   return _VarZUK->getDiagonal();
 }
 
-const MatrixSquareSymmetric* KrigingCalcul::getVarianceZstarMat()
+const MatrixSquareSymmetric* KrigingAlgebra::getVarianceZstarMat()
 {
   if (! _forbiddenWhenDual()) return nullptr;
   if (_flagSK)
@@ -750,7 +750,7 @@ const MatrixSquareSymmetric* KrigingCalcul::getVarianceZstarMat()
   return _VarZUK;
 }
 
-const MatrixRectangular* KrigingCalcul::getLambda()
+const MatrixRectangular* KrigingAlgebra::getLambda()
 {
   if (!_forbiddenWhenDual()) return nullptr;
   if (_flagSK)
@@ -762,62 +762,62 @@ const MatrixRectangular* KrigingCalcul::getLambda()
   return _LambdaUK;
 }
 
-const MatrixRectangular* KrigingCalcul::getLambda0()
+const MatrixRectangular* KrigingAlgebra::getLambda0()
 {
   if (_needLambda0()) return nullptr;
   return _Lambda0;
 }
 
-const MatrixRectangular* KrigingCalcul::getMu()
+const MatrixRectangular* KrigingAlgebra::getMu()
 {
   if (_needMuUK()) return nullptr;
   return _MuUK;
 }
 
-const MatrixSquareSymmetric* KrigingCalcul::getPostCov()
+const MatrixSquareSymmetric* KrigingAlgebra::getPostCov()
 {
   // At this stage, the posterior covariance is contained in '_Sigmac'
   if (_needSigmac()) return nullptr;
   return _Sigmac;
 }
 
-const MatrixRectangular* KrigingCalcul::getX0()
+const MatrixRectangular* KrigingAlgebra::getX0()
 {
   if (_needX0()) return nullptr;
   return _X0;
 }
 
-const MatrixRectangular* KrigingCalcul::getX0p()
+const MatrixRectangular* KrigingAlgebra::getX0p()
 {
   if (_needX0p()) return nullptr;
   return _X0p;
 }
 
-const MatrixRectangular* KrigingCalcul::getY0()
+const MatrixRectangular* KrigingAlgebra::getY0()
 {
   if (_needY0()) return nullptr;
   return _Y0;
 }
 
-const MatrixRectangular* KrigingCalcul::getY0p()
+const MatrixRectangular* KrigingAlgebra::getY0p()
 {
   if (_needY0p()) return nullptr;
   return _Y0p;
 }
 
-const MatrixRectangular* KrigingCalcul::getSigma0()
+const MatrixRectangular* KrigingAlgebra::getSigma0()
 {
   if (_needSigma0()) return nullptr;
   return _Sigma0;
 }
 
-const MatrixRectangular* KrigingCalcul::getSigma0p()
+const MatrixRectangular* KrigingAlgebra::getSigma0p()
 {
   if (_needSigma0p()) return nullptr;
   return _Sigma0p;
 }
 
-int KrigingCalcul::_needInvSigma()
+int KrigingAlgebra::_needInvSigma()
 {
   if (_InvSigma != nullptr) return 0;
   if (_needSigma()) return 1;
@@ -827,7 +827,7 @@ int KrigingCalcul::_needInvSigma()
   return 0;
 }
 
-int KrigingCalcul::_needInvPriorCov()
+int KrigingAlgebra::_needInvPriorCov()
 {
   if (_InvPriorCov != nullptr) return 0;
   if (_needPriorCov()) return 1;
@@ -836,7 +836,7 @@ int KrigingCalcul::_needInvPriorCov()
   return 0;
 }
 
-double KrigingCalcul::getLTerm()
+double KrigingAlgebra::getLTerm()
 {
   if (!_flagDual)
   {
@@ -849,7 +849,7 @@ double KrigingCalcul::getLTerm()
   return VH::innerProduct(_bDual, *_Z);
 }
 
-int KrigingCalcul::_needZstar()
+int KrigingAlgebra::_needZstar()
 {
   if (!_Zstar.empty()) return 0;
   if (_flagDual)
@@ -910,7 +910,7 @@ int KrigingCalcul::_needZstar()
   return 0;
 }
 
-int KrigingCalcul::_patchColCokVarianceZstar(MatrixSquareSymmetric *varZK)
+int KrigingAlgebra::_patchColCokVarianceZstar(MatrixSquareSymmetric *varZK)
 {
   if (_needLambda0()) return 1;
   if (_needSigma0p()) return 1;
@@ -937,7 +937,7 @@ int KrigingCalcul::_patchColCokVarianceZstar(MatrixSquareSymmetric *varZK)
   return 0;
 }
 
-int KrigingCalcul::_needVarZSK()
+int KrigingAlgebra::_needVarZSK()
 {
   if (_VarZSK != nullptr) return 0;
   if (_needSigma0()) return 1;
@@ -952,7 +952,7 @@ int KrigingCalcul::_needVarZSK()
   return 0;
 }
 
-int KrigingCalcul::_needVarZUK()
+int KrigingAlgebra::_needVarZUK()
 {
   if (_VarZUK != nullptr) return 0;
   if (_needSigma0()) return 1;
@@ -967,7 +967,7 @@ int KrigingCalcul::_needVarZUK()
   return 0;
 }
 
-int KrigingCalcul::_needStdv()
+int KrigingAlgebra::_needStdv()
 {
   if (_Stdv != nullptr) return 0;
   if (_needSigma00()) return 1;
@@ -1012,37 +1012,37 @@ int KrigingCalcul::_needStdv()
   return 0;
 }
 
-int KrigingCalcul::_needX()
+int KrigingAlgebra::_needX()
 {
   if (!_isPresentMatrix("X", _X)) return 1;
   return 0;
 }
 
-int KrigingCalcul::_needX0()
+int KrigingAlgebra::_needX0()
 {
   if (!_isPresentMatrix("X0", _X0)) return 1;
   return 0;
 }
 
-int KrigingCalcul::_needSigma()
+int KrigingAlgebra::_needSigma()
 {
   if (!_isPresentMatrix("Sigma", _Sigma)) return 1;
   return 0;
 }
 
-int KrigingCalcul::_needSigma00()
+int KrigingAlgebra::_needSigma00()
 {
   if (!_isPresentMatrix("Sigma00", _Sigma00)) return 1;
   return 0;
 }
 
-int KrigingCalcul::_needSigma0()
+int KrigingAlgebra::_needSigma0()
 {
   if (!_isPresentMatrix("Sigma0", _Sigma0)) return 1;
   return 0;
 }
 
-int KrigingCalcul::_needZ0p()
+int KrigingAlgebra::_needZ0p()
 {
   if (! _Z0p.empty()) return 0;
   if (_needZp()) return 1;
@@ -1053,7 +1053,7 @@ int KrigingCalcul::_needZ0p()
   return 0;
 }
 
-int KrigingCalcul::_needXtInvSigma()
+int KrigingAlgebra::_needXtInvSigma()
 {
   if (_XtInvSigma != nullptr) return 0;
   if (_needX()) return 1;
@@ -1064,7 +1064,7 @@ int KrigingCalcul::_needXtInvSigma()
   return 0;
 }
 
-int KrigingCalcul::_needSigmac()
+int KrigingAlgebra::_needSigmac()
 {
   if (_Sigmac != nullptr) return 0;
   if (_needX()) return 1;
@@ -1085,7 +1085,7 @@ int KrigingCalcul::_needSigmac()
   return 0;
 }
 
-int KrigingCalcul::_needSigma00p()
+int KrigingAlgebra::_needSigma00p()
 {
   if (_Sigma00p != nullptr) return 0;
   if (_needSigma00()) return 1;
@@ -1094,7 +1094,7 @@ int KrigingCalcul::_needSigma00p()
   return 0;
 }
 
-int KrigingCalcul::_needSigma00pp()
+int KrigingAlgebra::_needSigma00pp()
 {
   if (_Sigma00pp != nullptr) return 0;
   if (_needSigma00()) return 1;
@@ -1103,7 +1103,7 @@ int KrigingCalcul::_needSigma00pp()
   return 0;
 }
 
-int KrigingCalcul::_needSigma0p()
+int KrigingAlgebra::_needSigma0p()
 {
   if (_Sigma0p != nullptr) return 0;
   if (_needSigma0()) return 1;
@@ -1113,7 +1113,7 @@ int KrigingCalcul::_needSigma0p()
   return 0;
 }
 
-int KrigingCalcul::_needX0p()
+int KrigingAlgebra::_needX0p()
 {
   if (_X0p != nullptr) return 0;
   if (_needX0()) return 1;
@@ -1123,7 +1123,7 @@ int KrigingCalcul::_needX0p()
   return 0;
 }
 
-int KrigingCalcul::_needBeta()
+int KrigingAlgebra::_needBeta()
 {
   if (!_Beta.empty()) return 0;
   if (_needZ()) return 1;
@@ -1144,7 +1144,7 @@ int KrigingCalcul::_needBeta()
   return 0;
 }
 
-int KrigingCalcul::_needY0()
+int KrigingAlgebra::_needY0()
 {
   if (_Y0 != nullptr) return 0;
   if (_needX0()) return 1;
@@ -1158,7 +1158,7 @@ int KrigingCalcul::_needY0()
   return 0;
 }
 
-int KrigingCalcul::_needY0p()
+int KrigingAlgebra::_needY0p()
 {
   if (_Y0p != nullptr) return 0;
   if (_needX0p()) return 1;
@@ -1171,7 +1171,7 @@ int KrigingCalcul::_needY0p()
   return 0;
 }
 
-int KrigingCalcul::_needMuUK()
+int KrigingAlgebra::_needMuUK()
 {
   if (_MuUK != nullptr) return 0;
   if (_flagSK) return 0;
@@ -1199,7 +1199,7 @@ int KrigingCalcul::_needMuUK()
   return 0;
 }
 
-int KrigingCalcul::_needInvSigmaSigma0()
+int KrigingAlgebra::_needInvSigmaSigma0()
 {
   if (_InvSigmaSigma0 != nullptr) return 0;
   if (_needSigma0()) return 1;
@@ -1209,7 +1209,7 @@ int KrigingCalcul::_needInvSigmaSigma0()
   return 0;
 }
 
-int KrigingCalcul::_patchRHSForXvalidUnique()
+int KrigingAlgebra::_patchRHSForXvalidUnique()
 {
   _resetLinkedToRHS();
   _resetLinkedtoVar0();
@@ -1292,49 +1292,49 @@ int KrigingCalcul::_patchRHSForXvalidUnique()
   return 0;
 }
 
-int KrigingCalcul::_needPriorCov()
+int KrigingAlgebra::_needPriorCov()
 {
   if (!_isPresentMatrix("PriorCov", _PriorCov)) return 1;
   return 0;
 }
 
-int KrigingCalcul::_needSampleRanks()
+int KrigingAlgebra::_needSampleRanks()
 {
   if (!_isPresentIIVector("SampleRanks", _sampleRanks)) return 1;
   return 0;
 }
 
-int KrigingCalcul::_needZ()
+int KrigingAlgebra::_needZ()
 {
   if (!_isPresentVector("Z", _Z)) return 1;
   return 0;
 }
 
-int KrigingCalcul::_needZp()
+int KrigingAlgebra::_needZp()
 {
   if (!_isPresentVector("Zp", _Zp)) return 1;
   return 0;
 }
 
-int KrigingCalcul::_needColCok()
+int KrigingAlgebra::_needColCok()
 {
   if (!_isPresentIVector("rankColVars", &_rankColVars)) return 1;
   return 0;
 }
 
-int KrigingCalcul::_needXvalid()
+int KrigingAlgebra::_needXvalid()
 {
   if (!_isPresentIVector("rankXvalidEqs", _rankXvalidEqs)) return 1;
   return 0;
 }
 
-int KrigingCalcul::_needPriorMean()
+int KrigingAlgebra::_needPriorMean()
 {
   if (!_isPresentVector("PriorMean", _PriorMean)) return 1;
   return 0;
 }
 
-int KrigingCalcul::_needLambdaSK()
+int KrigingAlgebra::_needLambdaSK()
 {
   if (_LambdaSK != nullptr) return 0;
   // In the case of Xvalidation when drift is present, cannot return the vector of SK weights
@@ -1359,7 +1359,7 @@ int KrigingCalcul::_needLambdaSK()
   return 0;
 }
 
-int KrigingCalcul::_needLambdaUK()
+int KrigingAlgebra::_needLambdaUK()
 {
   if (_LambdaUK != nullptr) return 0;
   _LambdaUK = new MatrixRectangular(_neq, _nrhs);
@@ -1375,7 +1375,7 @@ int KrigingCalcul::_needLambdaUK()
   return 0;
 }
 
-int KrigingCalcul::_needDual()
+int KrigingAlgebra::_needDual()
 {
   if (!_flagDual) return 1;
   if (_needZ()) return 1;
@@ -1397,22 +1397,22 @@ int KrigingCalcul::_needDual()
   return 0;
 }
 
-void KrigingCalcul::_printMatrix(const String& name, const AMatrix* mat)
+void KrigingAlgebra::_printMatrix(const String& name, const AMatrix* mat)
 {
   if (mat == nullptr || mat->empty()) return;
   message(" - %s (%d, %d)\n", name.c_str(), mat->getNRows(), mat->getNCols());
 }
 
-void KrigingCalcul::_printVector(const String& name, const VectorDouble* vec)
+void KrigingAlgebra::_printVector(const String& name, const VectorDouble* vec)
 {
   if (vec == nullptr) return;
   if (vec->size() <= 0) return;
   message(" - %s (%d)\n", name.c_str(), (int)vec->size());
 }
 
-void KrigingCalcul::printStatus() const
+void KrigingAlgebra::printStatus() const
 {
-  mestitle(1, "List of arrays used in 'KrigingCalcul'");
+  mestitle(1, "List of arrays used in 'KrigingAlgebra'");
   message("\nGeneral Parameters\n");
   message("Number of Covariance Rows = %d\n", _neq);
   message("Number of Drift equations = %d\n", _nbfl);
@@ -1470,41 +1470,41 @@ void KrigingCalcul::printStatus() const
   }
 }
 
-bool KrigingCalcul::_isPresentMatrix(const String& name, const AMatrix* mat)
+bool KrigingAlgebra::_isPresentMatrix(const String& name, const AMatrix* mat)
 {
   if (mat != nullptr) return true;
   messerr(">>> Matrix %s is missing (required)", name.c_str());
-  messerr("    (generated in KrigingCalcul::_isPresentMatrix)");
+  messerr("    (generated in KrigingAlgebra::_isPresentMatrix)");
   return false;
 }
 
-bool KrigingCalcul::_isPresentVector(const String& name,
+bool KrigingAlgebra::_isPresentVector(const String& name,
                                      const VectorDouble* vec)
 {
   if (vec != nullptr) return true;
   messerr(">>> Vector %s is missing (required)", name.c_str());
-  messerr("    (generated in KrigingCalcul::_isPresentVector)");
+  messerr("    (generated in KrigingAlgebra::_isPresentVector)");
   return false;
 }
 
-bool KrigingCalcul::_isPresentIVector(const String& name,
+bool KrigingAlgebra::_isPresentIVector(const String& name,
                                       const VectorInt* vec)
 {
   if (vec != nullptr) return true;
   messerr(">>> Vector %s is missing (required)", name.c_str());
-  messerr("    (generated in KrigingCalcul::_isIPresentVector)");
+  messerr("    (generated in KrigingAlgebra::_isIPresentVector)");
   return false;
 }
 
-bool KrigingCalcul::_isPresentIIVector(const String& name, const VectorVectorInt* vec)
+bool KrigingAlgebra::_isPresentIIVector(const String& name, const VectorVectorInt* vec)
 {
   if (vec != nullptr) return true;
   messerr(">>> VectorVector %s is missing (required)", name.c_str());
-  messerr("    (generated in KrigingCalcul::_isIIPresentVector)");
+  messerr("    (generated in KrigingAlgebra::_isIIPresentVector)");
   return false;
 }
 
-int KrigingCalcul::_needLambda0()
+int KrigingAlgebra::_needLambda0()
 {
   if (_Lambda0 != nullptr) return 0;
 
@@ -1567,7 +1567,7 @@ int KrigingCalcul::_needLambda0()
   return 0;
 }
 
-void KrigingCalcul::dumpLHS(int nbypas) const
+void KrigingAlgebra::dumpLHS(int nbypas) const
 {
   int size = _neq;
   if (! _flagSK && ! _flagBayes) size += _nbfl;
@@ -1623,7 +1623,7 @@ void KrigingCalcul::dumpLHS(int nbypas) const
   }
 }
 
-void KrigingCalcul::dumpRHS() const
+void KrigingAlgebra::dumpRHS() const
 {
   int size = _Sigma0->getNRows();
   // Note: X0 is transposed!
@@ -1654,7 +1654,7 @@ void KrigingCalcul::dumpRHS() const
 }
 
 // This method cannot be const as it may compute _lambda internally upon request
-void KrigingCalcul::dumpWGT()
+void KrigingAlgebra::dumpWGT()
 {
   const MatrixRectangular* lambda;
   if (_flagSK || _flagBayes)
@@ -1714,7 +1714,7 @@ void KrigingCalcul::dumpWGT()
   }
 }
 
-void KrigingCalcul::dumpAux()
+void KrigingAlgebra::dumpAux()
 {
   if (_needSampleRanks()) return;
   char string[20];

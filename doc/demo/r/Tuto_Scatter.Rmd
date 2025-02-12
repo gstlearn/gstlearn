@@ -83,14 +83,14 @@ We represent the H-Scatter plot:
 - as a set of isolated symbols
 
 ```{r}
-ggplot() + plot.hscatter(db, "Simu.1", "Simu.2", varioparam, ipas=8, asPoint=TRUE, 
+ggplot() + plot.hscatter(db, "Simu.1", "Simu.2", varioparam, ilag=8, asPoint=TRUE, 
                  flagBiss=TRUE, flagSameAxes=TRUE)
 ```
 
 - as cells (of a fictitious grid) painted with color representing point density
 
 ```{r}
-ggplot() + plot.hscatter(db, "Simu.1", "Simu.2", varioparam, ipas=1, asPoint=FALSE, 
+ggplot() + plot.hscatter(db, "Simu.1", "Simu.2", varioparam, ilag=1, asPoint=FALSE, 
                     flagBiss=TRUE, flagSameAxes=TRUE, bins=20)
 ```
 

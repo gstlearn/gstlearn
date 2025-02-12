@@ -108,7 +108,7 @@ public:
   void _setResult(int iech1,
                   int iech2,
                   int nvar,
-                  int ipas,
+                  int ilag,
                   int ivar,
                   int jvar,
                   int orient,
@@ -174,12 +174,12 @@ public:
   double getGg(int idir = 0,
                int ivar = 0,
                int jvar = 0,
-               int ipas = 0,
+               int ilag = 0,
                bool asCov = false,
                bool flagNormalized = false) const;
-  double getHh(int idir = 0, int ivar = 0, int jvar = 0, int ipas = 0) const;
-  double getSw(int idir = 0, int ivar = 0, int jvar = 0, int ipas = 0) const;
-  double getUtilize(int idir = 0, int ivar = 0, int jvar = 0, int ipas = 0) const;
+  double getHh(int idir = 0, int ivar = 0, int jvar = 0, int ilag = 0) const;
+  double getSw(int idir = 0, int ivar = 0, int jvar = 0, int ilag = 0) const;
+  double getUtilize(int idir = 0, int ivar = 0, int jvar = 0, int ilag = 0) const;
 
   VectorVectorDouble getVec(int idir = 0, int ivar = 0, int jvar = 0) const;
   VectorDouble getGgVec(int idir = 0,
@@ -208,8 +208,8 @@ public:
   VectorDouble getGgs(int idir = 0,
                       int ivar = 0,
                       int jvar = 0,
-                      const VectorInt &ipas = VectorInt()) const;
-  VectorDouble setGgs(int idir, int ivar, int jvar, const VectorInt& ipas, const VectorDouble& values);
+                      const VectorInt &ilag = VectorInt()) const;
+  VectorDouble setGgs(int idir, int ivar, int jvar, const VectorInt& ilag, const VectorDouble& values);
 
   const VectorDouble& getAllGg(int idir = 0) const;
   const VectorDouble& getAllHh(int idir = 0) const;
@@ -221,13 +221,13 @@ public:
   void setSwByIndex(int idir, int i, double sw, bool flagCheck = true);
   void setUtilizeByIndex(int idir, int i, double utilize, bool flagCheck = true);
 
-  void setSw(int idir, int ivar, int jvar, int ipas, double sw, bool flagCheck = true);
-  void setHh(int idir, int ivar, int jvar, int ipas, double hh, bool flagCheck = true);
-  void setGg(int idir, int ivar, int jvar, int ipas, double gg, bool flagCheck = true);
+  void setSw(int idir, int ivar, int jvar, int ilag, double sw, bool flagCheck = true);
+  void setHh(int idir, int ivar, int jvar, int ilag, double hh, bool flagCheck = true);
+  void setGg(int idir, int ivar, int jvar, int ilag, double gg, bool flagCheck = true);
   void setUtilize(int idir,
                   int ivar,
                   int jvar,
-                  int ipas,
+                  int ilag,
                   double utilize,
                   bool flagCheck = true);
 
@@ -263,7 +263,7 @@ public:
   int getDirAddress(int idir,
                     int ivar,
                     int jvar,
-                    int ipas,
+                    int ilag,
                     bool flag_abs = false,
                     int sens      = 0,
                     bool flagCheck = true) const;
@@ -364,7 +364,7 @@ public:
   double getC00(int idir, int ivar, int jvar) const;
   VectorDouble computeWeightPerDirection() const;
   int getTotalLagsPerDirection() const;
-  VectorDouble computeWeightsFromVario(int wmode);
+  VectorDouble computeWeightsFromVario(int wmode) const;
 
 protected:
   /// Interface for ASerializable
@@ -416,7 +416,7 @@ private:
   double _g(Db *db, int iech, int jech) const;
   void _calculateBiasLocal(Db *db,
                            int idir,
-                           int ipas,
+                           int ilag,
                            Vario_Order *vorder,
                            int ifirst,
                            int ilast);
@@ -493,7 +493,7 @@ GSTLEARN_EXPORT void vario_order_print(Vario_Order* vorder,
                                        int ipas_target,
                                        int verbose);
 GSTLEARN_EXPORT void vario_order_get_bounds(
-  Vario_Order* vorder, int idir, int ipas, int* ifirst, int* ilast);
+  Vario_Order* vorder, int idir, int ilag, int* ifirst, int* ilast);
 GSTLEARN_EXPORT void vario_order_get_indices(
   Vario_Order* vorder, int ipair, int* iech, int* jech, double* dist);
 GSTLEARN_EXPORT void vario_order_get_auxiliary(Vario_Order* vorder,
@@ -505,6 +505,6 @@ GSTLEARN_EXPORT int vario_order_add(Vario_Order* vorder,
                                     int jech,
                                     void* aux_iech,
                                     void* aux_jech,
-                                    int ipas,
+                                    int ilag,
                                     int idir,
                                     double dist);

@@ -166,7 +166,7 @@ int CalcGlobal::_globalKriging()
       model->evalCovMatSymOptimByRanks(dbin, sampleRanks, -1, &mode, false);
     MatrixRectangular X = model->evalDriftMatByRanks(dbin, sampleRanks);
 
-    KrigingCalcul algebra;
+    KrigingAlgebra algebra;
     algebra.resetNewData();
     algebra.setData(&Z, &sampleRanks, &model->getMeans());
     algebra.setLHS(&Sigma, &X);

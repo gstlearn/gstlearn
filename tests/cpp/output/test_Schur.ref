@@ -3,7 +3,7 @@ Bayes option
 ============
 Compare:
 - Kriging with traditional code
-- Estimation performed with 'KrigingCalcul'
+- Estimation performed with 'KrigingAlgebra'
 Option: Bayesian
 
 Data Base Characteristics
@@ -73,8 +73,8 @@ Variance of Estimator
 
 Collocated Option (in Unique Neighborhood):
 ===========================================
-- using 'KrigingCalcul' on the Complemented Data Set
-- using 'KrigingCalcul' on Standard Data Set adding Collocated Option
+- using 'KrigingAlgebra' on the Complemented Data Set
+- using 'KrigingAlgebra' on Standard Data Set adding Collocated Option
 - Collocated Variable ranks:         0        -1         2
 
 Data Base Characteristics
@@ -110,7 +110,7 @@ Cross-Validation (in Unique Neighborhood)
 =========================================
 Compare the Cross-validation Option (in Unique Neighborhood):
 - using Standard Kriging on the Deplemented Data Set
-- using 'KrigingCalcul' on Initial Set with Cross-validation option
+- using 'KrigingAlgebra' on Initial Set with Cross-validation option
 
 Data Base Characteristics
 =========================

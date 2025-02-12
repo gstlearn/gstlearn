@@ -498,8 +498,8 @@ Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam)
 
         /* Get the rank of the lag */
 
-        int ipas = dirparam.getLagRank(dist);
-        if (IFFFF(ipas)) continue;
+        int ilag = dirparam.getLagRank(dist);
+        if (IFFFF(ilag)) continue;
 
         // The pair is kept
 
@@ -509,8 +509,8 @@ Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam)
         ranks[1].push_back((double) iech);
         dirs.push_back((double) idir);
         dirs.push_back((double) idir);
-        lags.push_back((double) ipas);
-        lags.push_back((double) ipas);
+        lags.push_back((double) ilag);
+        lags.push_back((double) ilag);
         dists.push_back(dist);
         dists.push_back(dist);
       }

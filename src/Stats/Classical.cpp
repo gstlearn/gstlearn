@@ -2102,7 +2102,7 @@ VectorVectorInt correlationPairs(Db *db1,
  ** \param[in]  name1        Name of the first variable
  ** \param[in]  name2        Name of the second variable
  ** \param[in]  varioparam   pointer to a VarioParam structure
- ** \param[in]  ipas         Rank of the lag of interest
+ ** \param[in]  ilag         Rank of the lag of interest
  ** \param[in]  idir         Rank of the direction of interest (within VarioParam)
  ** \param[in]  verbose      Verbose flag
  **
@@ -2116,7 +2116,7 @@ VectorVectorInt hscatterPairs(Db *db,
                               const String& name1,
                               const String& name2,
                               VarioParam *varioparam,
-                              int ipas,
+                              int ilag,
                               int idir,
                               bool verbose)
 {
@@ -2170,7 +2170,7 @@ VectorVectorInt hscatterPairs(Db *db,
 
       int ipasloc = dirparam.getLagRank(dist);
       if (IFFFF(ipasloc)) continue;
-      if (ipas != ipasloc) continue;
+      if (ilag != ipasloc) continue;
 
       /* Point update */
 

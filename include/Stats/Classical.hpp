@@ -113,7 +113,7 @@ GSTLEARN_EXPORT VectorVectorInt hscatterPairs(Db *db,
                                               const String &name1,
                                               const String &name2,
                                               VarioParam *varioparam,
-                                              int ipas = 0,
+                                              int ilag = 0,
                                               int idir = 0,
                                               bool verbose = false);
 GSTLEARN_EXPORT int correlationIdentify(Db *db1,

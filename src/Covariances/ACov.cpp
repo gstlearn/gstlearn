@@ -2315,12 +2315,12 @@ double ACov::gofToVario(const Vario *vario, bool verbose) const
 
         double totpas = 0;
         double scale = 0.;
-        for (int ipas = 0; ipas < nlag; ipas++)
+        for (int ilag = 0; ilag < nlag; ilag++)
         {
-          if (sw[ipas] <= 0 || hh[ipas] <= 0.) continue;
-          double ecart = sw[ipas] * ABS(gexp[ipas] - gmod[ipas]) / hh[ipas];
+          if (sw[ilag] <= 0 || hh[ilag] <= 0.) continue;
+          double ecart = sw[ilag] * ABS(gexp[ilag] - gmod[ilag]) / hh[ilag];
           totpas += ecart;
-          scale  += sw[ipas] / hh[ipas];
+          scale  += sw[ilag] / hh[ilag];
         }
         totpas  = totpas / scale;
         totdir += totpas;
