@@ -21,11 +21,7 @@ import math
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from numpy                   import shape
 from pandas.io               import orc
-from plotly.matplotlylib     import mpltools
 from matplotlib.pyplot       import axes
-
-
-from plotly.validators.layout.scene import aspectratio
 
 #Set of global values
 defaultDims = [[5,5], [8,8]]
