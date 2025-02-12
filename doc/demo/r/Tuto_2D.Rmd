@@ -338,7 +338,7 @@ We quickly calculate experimental (omni-directional) variograms using the alread
 
 ```{r}
 myvarioParam = VarioParam()
-mydir = DirParam_create(npnlagas=10,dlag=1.)
+mydir = DirParam_create(nlag=10,dlag=1.)
 myvarioParam$addDir(mydir)
 myVario = Vario(myvarioParam)
 err = myvario$compute(mydb,ECalcVario_VARIOGRAM())

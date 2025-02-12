@@ -169,7 +169,7 @@ public:
                                bool cleanOptim         = true) const;
   MatrixRectangular evalCovMatByTarget(const Db* db1,
                                        const Db* db2,
-                                       const VectorVectorInt& sampleRanks1,
+                                       const VectorVectorInt& index1,
                                        const int iech2        = 0,
                                        const KrigOpt& krigopt = KrigOpt(),
                                        bool cleanOptim        = true) const;
@@ -179,7 +179,7 @@ public:
                                       const CovCalcMode* mode = nullptr,
                                       bool cleanOptim         = true) const;
   MatrixSquareSymmetric evalCovMatSymByRanks(const Db* db1,
-                                             const VectorVectorInt& sampleRanks1,
+                                             const VectorVectorInt& index1,
                                              int ivar0,
                                              const CovCalcMode* mode,
                                              bool cleanOptim) const;
@@ -442,7 +442,7 @@ private:
   void setNoStatDbIfNecessary(const Db*& db);
 
   void _loopOnPointTarget(const Db* db2,
-                          const VectorVectorInt& sampleRanks2,
+                          const VectorVectorInt& index2,
                           const VectorInt& jvars,
                           int ivar1,
                           int iech1,
@@ -454,7 +454,7 @@ private:
                           MatrixRectangular& mat) const;
 
   void _loopOnBlockTarget(const Db* db2,
-                          const VectorVectorInt& sampleRanks2,
+                          const VectorVectorInt& index2,
                           const VectorInt& jvars,
                           int ivar1,
                           int iech1,

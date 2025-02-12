@@ -664,32 +664,19 @@ VectorDouble ACov::evalPointToDb(const SpacePoint& p1,
                                  const VectorInt& nbgh2,
                                  const CovCalcMode* mode) const
 {
-  VectorDouble values;
-  int nech2 = (nbgh2.empty()) ? db2->getNSample() : (int) nbgh2.size();
+  VectorVectorInt index2 = db2->getSampleRanks(jvar, nbgh2, useSel);
 
   /* Loop on the second sample */
 
-  for (int kech2 = 0; kech2 < nech2; kech2++)
+  SpacePoint p2(getSpace());
+  const VectorInt& index2i = index2[jvar];
+  int nech2 = (int) index2i.size();
+  VectorDouble values(nech2);
+  for (int jech2 = 0; jech2 < nech2; jech2++)
   {
-    int iech2 = (nbgh2.empty()) ? kech2 : nbgh2[kech2];
-    if (! nbgh2.empty())
-    {
-      SpacePoint p2(db2->getSampleCoordinates(iech2),iech2,getSpace());
-      values.push_back(eval(p1, p2, ivar, jvar, mode));
-    }
-    else
-    {
-      if (db2->isActive(iech2))
-      {
-        SpacePoint p2(db2->getSampleCoordinates(iech2),iech2, getSpace());
-        values.push_back(eval(p1, p2, ivar, jvar, mode));
-
-      }
-      else
-      {
-        if (!useSel) values.push_back(TEST);
-      }
-    }
+    int iech2 = index2i[jech2];
+    db2->getSampleAsSPInPlace(p2, iech2);
+    values[jech2] = eval(p1, p2, ivar, jvar, mode);
   }
   return values;
 }
@@ -1038,12 +1025,11 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
   krigopt.setMode(mode);
 
   // Loop on the first variable
-  for (int ivar = 0, irow = 0, nvar1 = (int) ivars.size(); ivar < nvar1; ivar++)
+  for (int jvar1 = 0, irow = 0, nvar1 = (int)ivars.size(); jvar1 < nvar1; jvar1++)
   {
-    int ivar1 = ivars[ivar];
-    const VectorInt& index1i = index1[ivar];
-    int nech1s = (int) index1i.size();
-    for (int jech1 = 0; jech1 < nech1s; jech1++, irow++)
+    int ivar1 = ivars[jvar1];
+    const VectorInt& index1i = index1[ivar1];
+    for (int jech1 = 0, nech1s = index1i.size(); jech1 < nech1s; jech1++, irow++)
     {
       int iech1 = index1i[jech1];
       db1->getSampleAsSPInPlace(p1, iech1);
@@ -1052,8 +1038,7 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
       load(p1, true);
 
       // Loop on Target
-      _loopOnPointTarget(db2, index2, jvars, ivar1, iech1, irow, p1, p2, false, krigopt,
-                          mat);
+      _loopOnPointTarget(db2, index2, jvars, ivar1, iech1, irow, p1, p2, false, krigopt, mat);
     }
   }
 
@@ -1062,7 +1047,7 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
 }
 
 void ACov::_loopOnPointTarget(const Db* db2,
-                              const VectorVectorInt& sampleRanks2,
+                              const VectorVectorInt& index2,
                               const VectorInt& jvars,
                               int ivar1,
                               int iech1,
@@ -1077,14 +1062,13 @@ void ACov::_loopOnPointTarget(const Db* db2,
   for (int jvar2 = 0, icol = 0, nvar2 = (int)jvars.size(); jvar2 < nvar2; jvar2++)
   {
     int ivar2 = jvars[jvar2];
-    const VectorInt& sampleRanks2j = sampleRanks2[jvar2];
-    int nech2s = (int)sampleRanks2j.size();
-    for (int jech2 = 0; jech2 < nech2s; jech2++, icol++)
+    const VectorInt& index2i = index2[ivar2];
+    for (int jech2 = 0, nech2s = index2i.size(); jech2 < nech2s; jech2++, icol++)
     {
       // Perform calculation only in upper triangle of the Symmetric Matrix
       if (flagSym && icol < irow) continue;
 
-      int iech2 = sampleRanks2j[jech2];
+      int iech2 = index2i[jech2];
       db2->getSampleAsSPInPlace(p2, iech2);
       if (!flagSym) optimizationSetTarget(p2);
       p2.setTarget(!flagSym);
@@ -1106,7 +1090,7 @@ void ACov::_loopOnPointTarget(const Db* db2,
 }
 
 void ACov::_loopOnBlockTarget(const Db* db2,
-                              const VectorVectorInt& sampleRanks2,
+                              const VectorVectorInt& index2,
                               const VectorInt& jvars,
                               int ivar1,
                               int iech1,
@@ -1120,11 +1104,11 @@ void ACov::_loopOnBlockTarget(const Db* db2,
   SpacePoint p2aux(getSpace());
   for (int jvar2 = 0, icol = 0, nvar2 = (int)jvars.size(); jvar2 < nvar2; jvar2++)
   {
-    int ivar2  = jvars[jvar2];
-    int nech2s = (int)sampleRanks2[jvar2].size();
-    for (int jech2 = 0; jech2 < nech2s; jech2++, icol++)
+    int ivar2 = jvars[jvar2];
+    const VectorInt& index2i = index2[ivar2];
+    for (int jech2 = 0, nech2s = index2i.size(); jech2 < nech2s; jech2++, icol++)
     {
-      int iech2 = sampleRanks2[jvar2][jech2];
+      int iech2 = index2i[jech2];
       db2->getSampleAsSPInPlace(p2, iech2);
 
       // Discretize the block if adapted to the cell dimensions
@@ -1162,7 +1146,7 @@ void ACov::_loopOnBlockTarget(const Db* db2,
  **
  ** \param[in]  db1   First Db
  ** \param[in]  db2   Second Db
- ** \param[in]  sampleRanks1 Vector of vector indices of active samples in db1
+ ** \param[in]  index1 Vector of vector indices of active samples in db1
  ** \param[in]  iech2 Sample rank within db2
  ** \param[in]  krigopt KrigOpt structure
  ** \param[in]  cleanOptim When True, clean optimization internal when ended
@@ -1180,7 +1164,7 @@ void ACov::_loopOnBlockTarget(const Db* db2,
  *****************************************************************************/
 MatrixRectangular ACov::evalCovMatByTarget(const Db* db1,
                                            const Db* db2,
-                                           const VectorVectorInt& sampleRanks1,
+                                           const VectorVectorInt& index1,
                                            int iech2,
                                            const KrigOpt& krigopt,
                                            bool cleanOptim) const
@@ -1210,7 +1194,7 @@ MatrixRectangular ACov::evalCovMatByTarget(const Db* db1,
   VectorVectorInt index2 = db2->getSampleRanks(jvars, {iech2}, true, false, false);
 
   // Creating the matrix
-  int neq1 = VH::count(sampleRanks1);
+  int neq1 = VH::count(index1);
   int neq2 = VH::count(index2);
   if (neq1 <= 0 || neq2 <= 0)
   {
@@ -1233,11 +1217,11 @@ MatrixRectangular ACov::evalCovMatByTarget(const Db* db1,
   // Loop on Data
   for (int jvar1 = 0, irow = 0, nvar1 = (int)ivars.size(); jvar1 < nvar1; jvar1++)
   {
-    int ivar1  = ivars[jvar1];
-    int nech1s = (int)sampleRanks1[jvar1].size();
-    for (int jech1 = 0; jech1 < nech1s; jech1++, irow++)
+    int ivar1 = ivars[jvar1];
+    const VectorInt& index1i = index1[ivar1];
+    for (int jech1 = 0, nech1s = index1i.size(); jech1 < nech1s; jech1++, irow++)
     {
-      int iech1 = sampleRanks1[jvar1][jech1];
+      int iech1 = index1i[jech1];
       db1->getSampleAsSPInPlace(p1, iech1);
       p1.setTarget(false);
       p1.setIech(iech1);
@@ -1271,17 +1255,14 @@ void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
   double verr = 0.;
 
   // Loop on the first variable
-  int irow = 0;
-  for (int rvar1 = 0, nvar1 = (int) ivars.size(); rvar1 < nvar1; rvar1++)
+  for (int jvar1 = 0, irow = 0, nvar1 = (int)ivars.size(); jvar1 < nvar1; jvar1++)
   {
-    int ivar1 = ivars[rvar1];
+    int ivar1 = ivars[jvar1];
     icolVerr = db1->getColIdxByLocator(ELoc::V, ivar1);
-
-    // Loop on the first sample
-    int nech1s = (int) index1[rvar1].size();
-    for (int rech1 = 0; rech1 < nech1s; rech1++)
+    const VectorInt& index1i = index1[ivar1];
+    for (int jech1 = 0, nech1s = index1i.size(); jech1 < nech1s; jech1++, irow++)
     {
-      int iech1 = index1[rvar1][rech1];
+      int iech1 = index1i[jech1];
 
       // Update the Diagonal due to the presence of Variance of Measurement Error
       if (icolVerr >= 0)
@@ -1289,7 +1270,6 @@ void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
         verr = db1->getValueByColIdx(iech1, icolVerr);
         mat->updValue(irow, irow, EOperator::ADD, verr);
       }
-      irow++;
     }
   }
 }
@@ -1413,7 +1393,7 @@ MatrixSquareSymmetric ACov::evalCovMatSym(const Db* db1,
 }
 
 MatrixSquareSymmetric ACov::evalCovMatSymByRanks(const Db* db1,
-                                                 const VectorVectorInt& sampleRanks1,
+                                                 const VectorVectorInt& index1,
                                                  int ivar0,
                                                  const CovCalcMode* mode,
                                                  bool cleanOptim) const
@@ -1432,7 +1412,7 @@ MatrixSquareSymmetric ACov::evalCovMatSymByRanks(const Db* db1,
   optimizationPreProcess(db1);
 
   // Creating the matrix
-  int neq1 = VH::count(sampleRanks1);
+  int neq1 = VH::count(index1);
   if (neq1 <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
@@ -1449,24 +1429,24 @@ MatrixSquareSymmetric ACov::evalCovMatSymByRanks(const Db* db1,
   // Loop on Data
   for (int jvar1 = 0, irow = 0, nvar1 = (int)ivars.size(); jvar1 < nvar1; jvar1++)
   {
-    int ivar1  = ivars[jvar1];
-    int nech1s = (int)sampleRanks1[jvar1].size();
-    for (int jech1 = 0; jech1 < nech1s; jech1++, irow++)
+    int ivar1 = ivars[jvar1];
+    const VectorInt& index1i = index1[ivar1];
+    for (int jech1 = 0, nech1s = index1i.size(); jech1 < nech1s; jech1++, irow++)
     {
-      int iech1 = sampleRanks1[jvar1][jech1];
+      int iech1 = index1i[jech1];
       db1->getSampleAsSPInPlace(p1, iech1);
       p1.setTarget(false);
       p1.setIech(iech1);
       load(p1, true);
 
       // Loop on Target
-      _loopOnPointTarget(db1, sampleRanks1, ivars, ivar1, iech1, irow, p1, p2, true,
+      _loopOnPointTarget(db1, index1, ivars, ivar1, iech1, irow, p1, p2, true,
                          krigopt, mat);
     }
   }
 
   // Update the matrix due to presence of Variance of Measurement Error
-  _updateCovMatrixSymmetricVerr(db1, &mat, ivars, sampleRanks1);
+  _updateCovMatrixSymmetricVerr(db1, &mat, ivars, index1);
 
   if (cleanOptim) optimizationPostProcess();
   return mat;
@@ -1550,29 +1530,23 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
   SpacePoint p2(getSpace());
 
   // Loop on the first variable
-  int irow = 0;
-  for (int ivar = 0; ivar < nvar1; ivar++)
+  for (int jvar1 = 0, irow = 0, nvar1 = (int)ivars.size(); jvar1 < nvar1; jvar1++)
   {
-    int ivar1 = ivars[ivar];
-
-    // Loop on the first sample
-    int nech1s = (int) index1[ivar].size();
-    for (int jech1 = 0; jech1 < nech1s; jech1++)
+    int ivar1 = ivars[jvar1];
+    const VectorInt& index1i = index1[ivar1];
+    for (int jech1 = 0, nech1s = index1i.size(); jech1 < nech1s; jech1++, irow++)
     {
-      int iech1 = index1[ivar][jech1];
+      int iech1 = index1i[jech1];
       db1->getSampleAsSPInPlace(p1, iech1);
 
       // Loop on the second variable
-      int icol = 0;
-      for (int jvar = 0; jvar < nvar2; jvar++)
+      for (int jvar2 = 0, icol = 0; jvar2 < nvar2; jvar2++)
       {
-        int jvar2 = jvars[jvar];
-
-        // Loop on the second sample
-        int nech2s = (int) index2[jvar].size();
-        for (int jech2 = 0; jech2 < nech2s; jech2++)
+        int ivar2 = jvars[jvar2];
+        const VectorInt& index2i = index2[ivar2];
+        for (int jech2 = 0, nech2s = index2i.size(); jech2 < nech2s; jech2++, icol++)
         {
-          int iech2 = index2[jvar][jech2];
+          int iech2 = index2i[jech2];
           db2->getSampleAsSPInPlace(p2, iech2);
 
           // Modify the covariance (if non stationary)
@@ -1583,10 +1557,8 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
 
           if (ABS(value) >= eps * mat0.getValue(ivar1, jvar2))
             NF_T.add(irow, icol, value);
-          icol++;
         }
       }
-      irow++;
     }
   }
 
