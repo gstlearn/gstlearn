@@ -5,7 +5,7 @@ import os
 
 
 def process_cpp_file(classname,header_file, output_file, first):
-    pattern = re.compile(r'\w+\s*\*\s*(create\w+)')
+    pattern = re.compile(r'\w+\s*\*\s*(create[a-zA-Z0-9_]*)')
     if first:
         mode = 'w'
     else:
