@@ -665,11 +665,7 @@ VectorDouble ACov::evalPointToDb(const SpacePoint& p1,
                                  const CovCalcMode* mode) const
 {
   VectorDouble values;
-  int nech2;
-  if (nbgh2.empty())
-    nech2 = db2->getNSample();
-  else
-    nech2 = (int) nbgh2.size();
+  int nech2 = (nbgh2.empty()) ? db2->getNSample() : (int) nbgh2.size();
 
   /* Loop on the second sample */
 
