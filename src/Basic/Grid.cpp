@@ -630,10 +630,10 @@ int Grid::coordinateToRank(const VectorDouble& coor, bool centered, double eps) 
   return indiceToRank(_iwork0);
 }
 
-VectorInt Grid::getCenterIndices() const
+VectorInt Grid::getCenterIndices(bool flagSup) const
 {
   for (int idim = 0; idim < _nDim; idim++)
-    _iwork0[idim] = (_nx[idim] - 1) / 2;
+    _iwork0[idim] = (flagSup) ? ceil(_nx[idim] / 2.) : floor(_nx[idim] / 2.);
   return _iwork0;
 }
 
@@ -1040,6 +1040,15 @@ void Grid::divider(const VectorInt &nmult,
 int Grid::getMirrorIndex(int idim, int ix) const
 {
   return generateMirrorIndex(_nx[idim], ix);
+}
+
+bool Grid::isInside(const VectorInt& indices) const
+{
+  for (int idim = 0; idim < _nDim; idim++)
+  {
+    if (indices[idim] < 0 || indices[idim] >= _nx[idim]) return false;
+  }
+  return true;
 }
 
 /****************************************************************************/

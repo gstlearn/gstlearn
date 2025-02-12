@@ -58,6 +58,7 @@ KrigingCalcul::KrigingCalcul(bool flagDual,
   , _Sigma0p(nullptr)
   , _X0p(nullptr)
   , _Y0p(nullptr)
+  , _rankColVars()
   , _Z0p()
   , _Lambda0(nullptr)
   , _bDual()
@@ -65,6 +66,7 @@ KrigingCalcul::KrigingCalcul(bool flagDual,
   , _C_RHS(nullptr)
   , _X_RHS(nullptr)
 
+  , _nvar(0)
   , _neq(0)
   , _nbfl(0)
   , _nrhs(0)
@@ -393,9 +395,10 @@ void KrigingCalcul::_deleteDual()
 /**
  * @brief Method to be used when the data has changed (e.g. Moving Neighborhood)
  */
-void KrigingCalcul::resetNewData()
+int KrigingCalcul::resetNewData()
 {
   _neq = 0;
+  return 0;
 }
 
 /**
@@ -426,15 +429,14 @@ int KrigingCalcul::setData(const VectorDouble* Z,
   // Argument indices
   if (indices != nullptr)
   {
-    if (!_checkDimensionVVI("sampleRanks", indices, &_neq)) return 1;
+    if (!_checkDimensionVVI("sampleRanks", indices, &_nvar, &_neq)) return 1;
     _sampleRanks = indices;
   }
   
   // Argument Means
   if (Means != nullptr)
   {
-    int local_nvar = 0;
-    if (!_checkDimensionVD("Means", Means, &local_nvar)) return 1;
+    if (!_checkDimensionVD("Means", Means, &_nrhs)) return 1;
     _Means = Means;
   }
   return 0;
@@ -505,7 +507,7 @@ int KrigingCalcul::setRHS(const MatrixRectangular* Sigma0,
   }
 
   // Argument X0
-  if (X0 == nullptr || X0->getNRows() <= 0 || X0->getNCols() <= 0)
+  if (X0 == nullptr || X0->empty())
   {
     _X0 = nullptr;
   }
@@ -518,8 +520,8 @@ int KrigingCalcul::setRHS(const MatrixRectangular* Sigma0,
 }
 
 bool KrigingCalcul::_checkDimensionVD(const String& name,
-                                          const VectorDouble* vec,
-                                          int *sizeRef)
+                                      const VectorDouble* vec,
+                                      int* sizeRef)
 {
   int size = (int)vec->size();
   if (*sizeRef > 0 && size != *sizeRef)
@@ -532,15 +534,43 @@ bool KrigingCalcul::_checkDimensionVD(const String& name,
   return true;
 }
 
-bool KrigingCalcul::_checkDimensionVVI(const String& name, const VectorVectorInt* vec, int* sizeRef)
+bool KrigingCalcul::_checkDimensionVI(const String& name,
+                                      const VectorInt* vec,
+                                      int* sizeRef)
 {
-  int size = VH::count(*vec);
+  int size = (int)vec->size();
   if (*sizeRef > 0 && size != *sizeRef)
   {
-    messerr("Dimension of %s (%d) incorrect: it should be (%d)", name.c_str(), size, *sizeRef);
+    messerr("Dimension of %s (%d) incorrect: it should be (%d)", name.c_str(), size,
+            *sizeRef);
     return false;
   }
   if (size > 0) *sizeRef = size;
+  return true;
+}
+
+bool KrigingCalcul::_checkDimensionVVI(const String& name,
+                                       const VectorVectorInt* vec,
+                                       int* size1Ref,
+                                       int* size2Ref)
+{
+  int count = (int)vec->size();
+  if (*size1Ref > 0 && count != *size1Ref)
+  {
+    messerr("First dimension of %s (%d) incorrect: it should be (%d)", name.c_str(),
+            count, *size1Ref);
+    return false;
+  }
+  if (count > 0) *size1Ref = count;
+
+  int size = VH::count(*vec);
+  if (*size2Ref > 0 && size != *size2Ref)
+  {
+    messerr("Second dimension of %s (%d) incorrect: it should be (%d)", name.c_str(),
+            size, *size2Ref);
+    return false;
+  }
+  if (size > 0) *size2Ref = size;
   return true;
 }
 
@@ -572,14 +602,14 @@ bool KrigingCalcul::_checkDimensionMatrix(const String& name,
  * @brief Define the inforlation for Collocated Option
  *
  * @param Zp Vector of the Collocated variables (see note)
- * @param rankColCok Vector of ranks of Collocated variables
+ * @param rankColCok Vector of ranks of Collocated variables (dim: _nvar)
  * @return int Error return code
  *
+ * @note Argument 'rankColCok' gives the variable rank in Target File or -1
  * @note The argument 'Zp' must be corrected by the mean of the variables
  * for the use of Collocated Option in Simple Kriging
  */
-int KrigingCalcul::setColCokUnique(const VectorDouble* Zp,
-                                   const VectorInt* rankColCok)
+int KrigingCalcul::setColCokUnique(const VectorDouble* Zp, const VectorInt* rankColCok)
 {
   _resetLinkedToColCok();
 
@@ -598,16 +628,19 @@ int KrigingCalcul::setColCokUnique(const VectorDouble* Zp,
   if (!_checkDimensionVD("Zp", Zp, &_nrhs)) return 1;
 
   // Argument rankColCok
-  int ncck = (int) rankColCok->size();
-  if (ncck >= _nrhs)
+  if (!_checkDimensionVI("rankColCok", rankColCok, &_nvar)) return 1;
+
+  _ncck = 0;
+  _rankColVars.clear();
+  for (int var = 0; var < _nvar; var++)
   {
-    messerr("All variables may not be collocated");
-    return 1;
+    if ((*rankColCok)[var] < 0) continue;
+    _rankColVars.push_back((*rankColCok)[var]);
+    _ncck++;
   }
 
   _rankColCok = rankColCok;
   _Zp         = Zp;
-  _ncck       = ncck;
 
   return 0;
 }
@@ -622,10 +655,11 @@ int KrigingCalcul::setColCokUnique(const VectorDouble* Zp,
  * @remarks The argument 'rankXvalidVars' only serves in assigning the
  * mean of the correct cross-validated variable (SK only). It is optional in OK
  */
-int KrigingCalcul::setXvalidUnique(const VectorInt* rankXvalidEqs, const VectorInt* rankXvalidVars)
+int KrigingCalcul::setXvalidUnique(const VectorInt* rankXvalidEqs,
+                                   const VectorInt* rankXvalidVars)
 {
   if (rankXvalidEqs == nullptr || rankXvalidVars == nullptr) return 1;
-  if (rankXvalidEqs->size() <= 0 || rankXvalidVars->size() <= 0) return 1;
+  if (rankXvalidEqs->size() <= 0) return 1;
   _resetLinkedToXvalid();
   _nrhs           = 0;
   _rankXvalidEqs  = rankXvalidEqs;
@@ -671,30 +705,30 @@ VectorDouble KrigingCalcul::getPostMean()
   return _Beta;
 }
 
-bool KrigingCalcul::_validForDual() const
+bool KrigingCalcul::_forbiddenWhenDual() const
 {
   if (!_flagDual) return true;
-  messerr("This option is not available has 'Dual' is switched ON");
+  messerr("This option is not available as 'Dual' is switched ON");
   return false;
 }
 
 VectorDouble KrigingCalcul::getStdv()
 {
-  if (! _validForDual()) return VectorDouble();
+  if (! _forbiddenWhenDual()) return VectorDouble();
   if (_needStdv()) return VectorDouble();
   return _Stdv->getDiagonal();
 }
 
 const MatrixSquareSymmetric* KrigingCalcul::getStdvMat()
 {
-  if (! _validForDual()) return nullptr;
+  if (! _forbiddenWhenDual()) return nullptr;
   if (_needStdv()) return nullptr;
   return _Stdv;
 }
 
 VectorDouble KrigingCalcul::getVarianceZstar()
 {
-  if (! _validForDual()) return VectorDouble();
+  if (! _forbiddenWhenDual()) return VectorDouble();
   if (_flagSK)
   {
     if (_needVarZSK()) return VectorDouble();
@@ -706,7 +740,7 @@ VectorDouble KrigingCalcul::getVarianceZstar()
 
 const MatrixSquareSymmetric* KrigingCalcul::getVarianceZstarMat()
 {
-  if (! _validForDual()) return nullptr;
+  if (! _forbiddenWhenDual()) return nullptr;
   if (_flagSK)
   {
     if (_needVarZSK()) return nullptr;
@@ -718,7 +752,7 @@ const MatrixSquareSymmetric* KrigingCalcul::getVarianceZstarMat()
 
 const MatrixRectangular* KrigingCalcul::getLambda()
 {
-  if (_validForDual()) return nullptr;
+  if (!_forbiddenWhenDual()) return nullptr;
   if (_flagSK)
   {
     if (_needLambdaSK()) return nullptr;
@@ -800,6 +834,19 @@ int KrigingCalcul::_needInvPriorCov()
   _InvPriorCov = _PriorCov->clone();
   if (_InvPriorCov->invert()) return 1;
   return 0;
+}
+
+double KrigingCalcul::getLTerm()
+{
+  if (!_flagDual)
+  {
+    messerr("This Option requires 'Dual' programming");
+    return TEST;
+  }
+  if (_needDual()) return 1;
+  if (_needZ()) return 1;
+
+  return VH::innerProduct(_bDual, *_Z);
 }
 
 int KrigingCalcul::_needZstar()
@@ -1002,7 +1049,7 @@ int KrigingCalcul::_needZ0p()
   if (_needColCok()) return 1;
 
   // Sample the active values for collocated information
-  _Z0p = VH::sample(*_Zp, *_rankColCok);
+  _Z0p = VH::sample(*_Zp, _rankColVars);
   return 0;
 }
 
@@ -1043,7 +1090,7 @@ int KrigingCalcul::_needSigma00p()
   if (_Sigma00p != nullptr) return 0;
   if (_needSigma00()) return 1;
   if (_needColCok()) return 1;
-  _Sigma00p = MatrixRectangular::sample(_Sigma00, *_rankColCok, VectorInt());
+  _Sigma00p = MatrixRectangular::sample(_Sigma00, _rankColVars, VectorInt());
   return 0;
 }
 
@@ -1052,7 +1099,7 @@ int KrigingCalcul::_needSigma00pp()
   if (_Sigma00pp != nullptr) return 0;
   if (_needSigma00()) return 1;
   if (_needColCok()) return 1;
-  _Sigma00pp = MatrixSquareSymmetric::sample(_Sigma00, *_rankColCok);
+  _Sigma00pp = MatrixSquareSymmetric::sample(_Sigma00, _rankColVars);
   return 0;
 }
 
@@ -1062,7 +1109,7 @@ int KrigingCalcul::_needSigma0p()
   if (_needSigma0()) return 1;
   if (_needColCok()) return 1;
 
-  _Sigma0p = MatrixRectangular::sample(_Sigma0, VectorInt(), *_rankColCok);
+  _Sigma0p = MatrixRectangular::sample(_Sigma0, VectorInt(), _rankColVars);
   return 0;
 }
 
@@ -1072,7 +1119,7 @@ int KrigingCalcul::_needX0p()
   if (_needX0()) return 1;
   if (_needColCok()) return 1;
 
-  _X0p = MatrixRectangular::sample(_X0, *_rankColCok, VectorInt());
+  _X0p = MatrixRectangular::sample(_X0, _rankColVars, VectorInt());
   return 0;
 }
 
@@ -1271,7 +1318,7 @@ int KrigingCalcul::_needZp()
 
 int KrigingCalcul::_needColCok()
 {
-  if (!_isPresentIVector("rankColCok", _rankColCok)) return 1;
+  if (!_isPresentIVector("rankColVars", &_rankColVars)) return 1;
   return 0;
 }
 
@@ -1373,7 +1420,7 @@ void KrigingCalcul::printStatus() const
   if (_ncck > 0)
   {
     message("Number of Collocated Variables = %d\n", _ncck);
-    VH::display("Rank of Collocated Variables", *_rankColCok, false);
+    VH::dump("Rank of Collocated Variables", _rankColVars, false);
   }
   if (_flagSK)
     message("Working with Known Mean(s)\n");
@@ -1578,8 +1625,9 @@ void KrigingCalcul::dumpLHS(int nbypas) const
 
 void KrigingCalcul::dumpRHS() const
 {
-  int size = _neq;
-  if (!_flagSK && !_flagBayes) size += _nbfl;
+  int size = _Sigma0->getNRows();
+  // Note: X0 is transposed!
+  if (_X0 != nullptr) size += _X0->getNCols();
 
   // Header line 
   tab_prints(NULL, "Rank");
@@ -1597,8 +1645,9 @@ void KrigingCalcul::dumpRHS() const
     }
     else
     {
-      for (int irhs = 0; irhs < _nrhs; irhs++)
-        tab_printg(NULL, _X0->getValue(i - _neq, irhs, false));
+      if (_X0 != nullptr)
+        for (int irhs = 0; irhs < _nrhs; irhs++)
+          tab_printg(NULL, _X0->getValue(irhs, i - _neq, false));
     }
     message("\n");
   }
@@ -1623,7 +1672,6 @@ void KrigingCalcul::dumpWGT()
 
   /* Header Line */
 
-  int nvar = _sampleRanks->size();
   tab_prints(NULL, "Rank");
   tab_prints(NULL, "Data");
   for (int irhs = 0; irhs < _nrhs; irhs++)
@@ -1636,9 +1684,9 @@ void KrigingCalcul::dumpWGT()
   // Matrix lines
   VectorDouble sum(_nrhs);
   int lec = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (int ivar = 0; ivar < _nvar; ivar++)
   {
-    if (nvar > 1) message("Using variable Z%-2d\n", ivar + 1);
+    if (_nvar > 1) message("Using variable Z%-2d\n", ivar + 1);
     int nbyvar = (*_sampleRanks)[ivar].size();
     sum.fill(0.);
 
@@ -1670,14 +1718,13 @@ void KrigingCalcul::dumpAux()
 {
   if (_needSampleRanks()) return;
   char string[20];
-  int nvar = _sampleRanks->size();
 
   // For Simple Kriging, dump the information on Means
   if (_nbfl <= 0)
   {
     if (!_Means->empty())
     {
-      for (int ivar = 0; ivar < nvar; ivar++)
+      for (int ivar = 0; ivar < _nvar; ivar++)
         message("Mean for Variable Z%d = %lf\n", ivar + 1, (*_Means)[ivar]);
     }
     return;
@@ -1686,11 +1733,12 @@ void KrigingCalcul::dumpAux()
   // In Bayesian case, dump the Prior and Posterior information
   if (_flagBayes)
   {
-    VH::display("Prior Mean", *_PriorMean);
-    VectorDouble postmean = getPostMean();
-    VH::display("Posterior Mean", postmean);
+    VH::dump("Prior Mean", *_PriorMean, false);
     message("Prior Covariance Matrix\n");
     _PriorCov->display();
+
+    VectorDouble postmean = getPostMean();
+    VH::dump("Posterior Mean", postmean, false);
     message("Posterior Covariance Matrix\n");
     const MatrixSquareSymmetric* postcov = getPostCov();
     postcov->display();

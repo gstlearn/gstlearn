@@ -62,17 +62,17 @@ int main(int argc, char *argv[])
 
   // First selection generated with Bernoulli (proba=0.6)
   VectorDouble sel1 = VH::simulateBernoulli(nech, 0.6);
-  VH::display("sel1", sel1);
+  VH::dump("sel1", sel1);
   grid->addSelection(sel1, "Sel1");
 
   // Second selection generated with Bernoulli (proba=0.4) combined with previous one
   VectorDouble sel2 = VH::simulateBernoulli(nech, 0.4);
-  VH::display("sel2", sel2);
+  VH::dump("sel2", sel2);
   grid->addSelection(sel2, "Sel2","and");
 
   // Retrieve resulting selection for check
   VectorDouble sel3 = grid->getSelections();
-  VH::display("sel1 && sel2",sel3);
+  VH::dump("sel1 && sel2",sel3);
 
   // Testing Filters on Db printout (only Statistics on the variables "Sel*")
   DbStringFormat dbfmt(FLAG_VARS | FLAG_STATS,{"Sel*"});

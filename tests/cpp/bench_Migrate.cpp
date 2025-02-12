@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
   mestitle(1, "Migrations");
   message("- with a Point data base with %d points\n",nech);
   message("- with a Grid  data base with %d nodes\n",nx*nx);
-  if (! dmax.empty()) VH::display("- using Dmax criterion", dmax);
+  if (! dmax.empty()) VH::dump("- using Dmax criterion", dmax);
   message("\n");
 
   // Migrate Grid -> Point (no interpolation)

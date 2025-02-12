@@ -19,6 +19,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
@@ -45,9 +46,13 @@ int main(int argc, char *argv[])
   // Global parameters
   int ndim = 2;
   law_set_random_seed(32131);
-
   defineDefaultSpace(ESpaceType::RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS);
+
+  // General parameters
+  double oldstyle = 0.;
+  bool verbose    = true;
+  OptCustom::define("oldStyle", oldstyle);
 
   // Generate initial grid
   DbGrid* grid = DbGrid::create({100,100}, {0.01,0.01});
@@ -154,7 +159,7 @@ int main(int argc, char *argv[])
   // ====================== Point Disjunctive Kriging =====================
 
   // Setting the trace
-  OptDbg::setReference(1);
+  if (verbose) OptDbg::setReference(1);
 
   // Attach the Anamorphosis
   model->setAnam(anam);

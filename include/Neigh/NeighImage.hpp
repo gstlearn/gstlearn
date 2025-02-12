@@ -10,17 +10,15 @@
 /******************************************************************************/
 #pragma once
 
-#include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
+#include "Space/ASpace.hpp"
 #include "Enum/ENeigh.hpp"
-
 #include "Neigh/ANeigh.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
 
 class Db;
+class DbGrid;
 
 /**
  * \brief
@@ -55,7 +53,7 @@ public:
   /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static NeighImage* create(const VectorInt& image, int skip = 0, const ASpaceSharedPtr& space = ASpaceSharedPtr());
+  static NeighImage* create(const VectorInt& radius, int skip = 0, const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static NeighImage* createFromNF(const String& neutralFilename, bool verbose = true);
 
   int getSkip() const { return _skip; }
@@ -64,6 +62,8 @@ public:
 
   void setImageRadius(const VectorInt& imageRadius) { _imageRadius = imageRadius; }
   void setSkip(int skip) { _skip = skip; }
+
+  DbGrid* buildImageGrid(const DbGrid* dbgrid, int seed) const;
 
 protected:
   /// Interface for ASerializable

@@ -14,6 +14,7 @@
 
 #include "Covariances/CovAnisoList.hpp"
 #include "Estimation/KrigingCalcul.hpp"
+#include "Estimation/KrigOpt.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Space/SpacePoint.hpp"
@@ -36,6 +37,7 @@ class NeighImage;
 class AAnam;
 class ACov;
 class KrigingCalcul;
+class KrigOpt;
 
 class GSTLEARN_EXPORT KrigingSystem
 {
@@ -49,6 +51,7 @@ public:
   virtual ~KrigingSystem();
 
   void setKrigingSystemNewStyle(bool status = false);
+  int resetNewData();
   int  setKrigOptCalcul(const EKrigOpt& calcul,
                         const VectorInt& ndiscs = VectorInt(),
                         bool flag_per_cell = false);
@@ -75,7 +78,7 @@ public:
   int  setKrigOptFactorKriging(bool flag_factor_kriging);
 
   // The subsequent methods do not require isReady() validation
-  int  updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
+  int  updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ, bool forceNoDual = false);
   int  updKrigOptIclass(int index_class, int nclasses);
   int  updKrigOptNeighOnly(int iptrNeigh);
 
@@ -93,8 +96,8 @@ public:
   MatrixRectangular     getZam() const { return _zam; }
   MatrixSquareSymmetric getLHSC() const { return _lhsc; }
   MatrixRectangular     getRHSC() const { return _rhsc; }
-  MatrixRectangular     getWeights() const { return _wgt; }
   MatrixSquareGeneral   getVariance() const { return _var0; }
+  MatrixRectangular     getWeights() const;
 
   double getLTerm() const { return _lterm; }
 
@@ -195,12 +198,13 @@ private:
   void _mustBeOldStyle(const String& title) const;
   Model* _castInOldModel();
   VectorInt _xvalidUniqueIndices() const;
+  int  _updateForColCokMoving();
 
 private:
   bool _oldStyle;
 
   Db* _dbin;
-  Db*                  _dbout;
+  Db* _dbout;
   ModelGeneric*        _modelInit; // Copy of the input ModelGeneric
   Model*               _modelCovAniso; // Used to replace _model when used for covaniso explicitly
   ANeigh*              _neigh;
@@ -211,7 +215,9 @@ private:
   ModelGeneric*        _model;
 
   // Pointers used when plugging KrigingCalcul (not to be deleted)
-  KrigingCalcul         _algebra;
+  // Note that 'algebra' is mutable not to destroy constness when calling getLambda.
+  mutable KrigingCalcul _algebra;
+  mutable KrigOpt       _krigopt;
   VectorVectorInt       _sampleRanks; // Vector of vector of sample indices
   MatrixSquareSymmetric _Sigma00; // Covariance part for variance
   MatrixSquareSymmetric _Sigma;   // Covariance part for LHS
@@ -219,7 +225,8 @@ private:
   MatrixRectangular     _Sigma0;  // Covariance part for RHS
   MatrixRectangular     _X0;      // Drift par for RHS
   VectorDouble          _Z;       // Vector of Data
-  VectorDouble          _means;   // Means of the variables (used to center variables)
+  VectorDouble _means;            // Means of the variables (used to center variables)
+  VectorDouble _meansTarget;      // Means for target (possible using matLC)
 
   // Calculation modes
   CovCalcMode _calcModeLHS;
@@ -268,6 +275,7 @@ private:
 
   /// Option for Colocation
   VectorInt _rankColCok;
+  VectorDouble _valuesColCok;
 
   /// Option for Bayesian
   bool _flagBayes;
@@ -286,7 +294,8 @@ private:
 
   /// Option for (Disjunctive) Kriging of Factor
   bool _flagFactorKriging;
-  int  _nclasses;
+  int _nclasses;
+  int _factorClass;
 
   /// Option for Estimating the Linear Combination of Variables
   const MatrixRectangular* _matLC;

@@ -52,10 +52,10 @@ int main(int argc, char *argv[])
   message("\nUniform Distribution: mini=%lf maxi=%lf\n",mini,maxi);
   law_set_old_style(true);
   for (int i = 0; i < number; i++) tab[i] = law_uniform(mini,maxi);
-  VH::displayStats("Old Style", tab);
+  VH::dumpStats("Old Style", tab);
   law_set_old_style(false);
   for (int i = 0; i < number; i++) tab[i] = law_uniform(mini,maxi);
-  VH::displayStats("New Style", tab);
+  VH::dumpStats("New Style", tab);
 
   // Sampling Gaussian distribution
 
@@ -65,10 +65,10 @@ int main(int argc, char *argv[])
   message("\nNormal Distribution: mean=%lf sigma=%lf\n",mean,stdv);
   law_set_old_style(true);
   for (int i = 0; i < number; i++) tab[i] = law_gaussian();
-  VH::displayStats("Old Style", tab);
+  VH::dumpStats("Old Style", tab);
   law_set_old_style(false);
   for (int i = 0; i < number; i++) tab[i] = law_gaussian();
-  VH::displayStats("New Style", tab);
+  VH::dumpStats("New Style", tab);
 
   // Sampling Exponential distribution
 
@@ -77,10 +77,10 @@ int main(int argc, char *argv[])
   message("\nExponential Distribution: param=%lf\n",param);
   law_set_old_style(true);
   for (int i = 0; i < number; i++) tab[i] = law_exponential(param);
-  VH::displayStats("Old Style", tab);
+  VH::dumpStats("Old Style", tab);
   law_set_old_style(false);
   for (int i = 0; i < number; i++) tab[i] = law_exponential(param);
-  VH::displayStats("New Style", tab);
+  VH::dumpStats("New Style", tab);
 
   // Sampling Gamma distribution
 
@@ -90,10 +90,10 @@ int main(int argc, char *argv[])
   message("\nGamma Distribution: alpha=%lf beta=%lf\n",alpha,beta);
   law_set_old_style(true);
   for (int i = 0; i < number; i++) tab[i] = law_gamma(alpha,beta);
-  VH::displayStats("Old Style", tab);
+  VH::dumpStats("Old Style", tab);
   law_set_old_style(false);
   for (int i = 0; i < number; i++) tab[i] = law_gamma(alpha,beta);
-  VH::displayStats("New Style", tab);
+  VH::dumpStats("New Style", tab);
 
   // Sampling Poisson distribution
 
@@ -105,10 +105,10 @@ int main(int argc, char *argv[])
   message("\nPoisson Distribution: lambda=%lf\n",lambda);
   law_set_old_style(true);
   for (int i = 0; i < number; i++) tab[i] = (double) law_poisson(lambda);
-  VH::displayStats("Old Style", tab);
+  VH::dumpStats("Old Style", tab);
   law_set_old_style(false);
   for (int i = 0; i < number; i++) tab[i] = (double) law_poisson(lambda);
-  VH::displayStats("New Style", tab);
+  VH::dumpStats("New Style", tab);
   OptCst::define(ECst::NTDEC, ndec);
 
   // Retrieve seed
@@ -126,17 +126,17 @@ int main(int argc, char *argv[])
   law_set_old_style(true);
   law_set_random_seed(seed);
   for (int i = 0; i < number; i++) tab[i] = law_uniform(mini,maxi);
-  VH::display("Old Style", tab);
+  VH::dump("Old Style", tab);
   law_set_old_style(false);
   law_set_random_seed(seed);
   for (int i = 0; i < number; i++) tab[i] = law_uniform(mini,maxi);
-  VH::display("New Style", tab);
+  VH::dump("New Style", tab);
 
   // Testing miscellaneous functions
 
   message("BesselJ value = %lf\n", besselj(5.2, 0));
 
   VectorInt ipois = VH::sequence(10);
-  VH::display("Poisson intensity", law_df_poisson_vec(ipois, 5.2));
+  VH::dump("Poisson intensity", law_df_poisson_vec(ipois, 5.2));
   return 0;
 }

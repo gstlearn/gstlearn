@@ -61,8 +61,9 @@ public:
                 bool flagInvertRow = false,
                 bool flagInvertCol = false);
 
-  /*! Adding a Row or a Column (at the bottom or right of Rectangular Matrix)
-   */
+  MatrixRectangular compressMatLC(const MatrixRectangular& matLC, bool transpose = false);
+
+  // Adding a Row or a Column (at the bottom or right of Rectangular Matrix)
   void addRow(int nrow_added = 1);
   void addColumn(int ncolumn_added = 1);
 };

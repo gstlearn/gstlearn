@@ -19,15 +19,14 @@ class CovInternal;
 class GSTLEARN_EXPORT CovProportional: public CovBase
 {
 public:
-    
   CovProportional(ACov* cor = nullptr,const MatrixSquareSymmetric &sills = MatrixSquareSymmetric());
   CovProportional(const CovProportional &r) = delete;
   CovProportional& operator=(const CovProportional &r) = delete;
   virtual ~CovProportional();
 
   void setCor(ACov* cor) override;
+
 protected:
-    
   void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
                                     const SpacePoint& p1,
                                     const SpacePoint& p2,

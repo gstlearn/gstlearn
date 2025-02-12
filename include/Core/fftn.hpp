@@ -16,5 +16,5 @@ GSTLEARN_EXPORT int fftn(int ndim,
                          const int dims[],
                          double Re[],
                          double Im[],
-                         int iSign,
-                         double scaling);
+                         int iSign = 1,
+                         double scaling = 1.);

@@ -44,8 +44,8 @@ public:
   KrigingCalcul& operator=(const KrigingCalcul& r) = delete;
   virtual ~KrigingCalcul();
 
-  void resetNewData();
   void setDual(bool status);
+  int resetNewData();
   int setData(const VectorDouble* Z = nullptr,
               const VectorVectorInt* indices = nullptr,
               const VectorDouble* Means = nullptr);
@@ -54,12 +54,12 @@ public:
   int setRHS(const MatrixRectangular* Sigma0 = nullptr,
              const MatrixRectangular* X0     = nullptr);
   int setVariance(const MatrixSquareSymmetric* Sigma00 = nullptr);
-  int setColCokUnique(const VectorDouble* Zp      = nullptr,
-                      const VectorInt* rankColCok = nullptr);
   int setBayes(const VectorDouble* PriorMean         = nullptr,
                const MatrixSquareSymmetric* PriorCov = nullptr);
   int setXvalidUnique(const VectorInt* rankXvalidEqs  = nullptr,
                       const VectorInt* rankXvalidVars = nullptr);
+  int setColCokUnique(const VectorDouble* Zp      = nullptr,
+                      const VectorInt* rankColCok = nullptr);
 
   void printStatus() const;
   void dumpLHS(int nbypas) const;
@@ -76,7 +76,9 @@ public:
   const MatrixSquareSymmetric* getPostCov();
   const MatrixRectangular*     getLambda();
   const MatrixRectangular*     getLambda0();
-  const MatrixRectangular*     getMu();
+  const MatrixRectangular* getMu();
+  double getLTerm();
+  bool isDual() const { return _flagDual; }
 
   // Some debugging functions. Should be deleted later
   const MatrixRectangular* getX0();
@@ -89,7 +91,8 @@ public:
 private:
   static bool _checkDimensionMatrix(const String& name, const AMatrix* mat, int* nrowsRef, int* ncolsRef);
   static bool _checkDimensionVD(const String& name, const VectorDouble* vec, int* sizeRef);
-  static bool _checkDimensionVVI(const String& name, const VectorVectorInt* vec, int* sizeRef);
+  static bool _checkDimensionVI(const String& name, const VectorInt* vec, int* sizeRef);
+  static bool _checkDimensionVVI(const String& name, const VectorVectorInt* vec, int* size1Ref, int* size2Ref);
 
   static bool _isPresentMatrix(const String& name, const AMatrix* mat);
   static bool _isPresentVector(const String& name, const VectorDouble* vec);
@@ -182,7 +185,7 @@ private:
   static void _printMatrix(const String& name, const AMatrix* mat);
   static void _printVector(const String& name, const VectorDouble* vec);
 
-  bool _validForDual() const;
+  bool _forbiddenWhenDual() const;
   void _resetAll();
 
 private:
@@ -226,6 +229,7 @@ private:
   MatrixRectangular* _Sigma0p;       // Collocated Covariance (Dim: _neq * _ncck)
   MatrixRectangular* _X0p;           // Collocated Drift (Dim: _ncck * _nbfl)
   MatrixRectangular* _Y0p;           // X0p - Sigma0p^t * Inv{Sigma} * X (Dim: _ncck *_nbfl)
+  VectorInt _rankColVars;            // Ranks of active collocated variables
   VectorDouble _Z0p;                 // Vector of (active) collocated values
   MatrixRectangular* _Lambda0;       // Collocated weights (Dim: _ncck * _nrhs)
 
@@ -236,13 +240,14 @@ private:
   // Following elements are defined for internal storage (Cross-validation in UN)
   MatrixRectangular* _C_RHS;         // Fictitious Right-hand side (covariance part)
   MatrixRectangular* _X_RHS;         // Fictitious Right-hand side (drift part)
-  
+
   // Additional parameters
+  int _nvar;
   int _neq;
   int _nbfl;
   int _nrhs;
-  int _ncck;
-  int _nxvalid;
+  int _ncck;      // Number of additional samples for ColCok in Unique Neighborhood
+  int _nxvalid;   // Number of samples in XValid in Unique Neighborhood
   bool _flagSK;
   bool _flagBayes;
   bool _flagDual;

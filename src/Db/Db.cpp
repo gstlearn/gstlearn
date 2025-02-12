@@ -637,6 +637,19 @@ VectorDouble Db::getArrayByUID(int iuid, bool useSel) const
   return tab;
 }
 
+void Db::setArrayByUID(const VectorDouble& tab, int iuid)
+{
+  int nech = getNSample();
+  if (!isUIDValid(iuid)) return;
+
+  int ecr = 0;
+  for (int iech = 0; iech < nech; iech++)
+  {
+    setArray(iech, iuid, tab[ecr]);
+    ecr++;
+  }
+}
+
 static std::vector<int> uids;
 
 void Db::getArrayBySample(std::vector<double>& vals, int iech) const
@@ -3410,7 +3423,9 @@ VectorDouble Db::getSelections(void) const
   return tab;
 }
 
-VectorDouble Db::getValuesByRanks(const VectorVectorInt& sampleRanks, const VectorDouble& means) const
+VectorDouble Db::getValuesByRanks(const VectorVectorInt& sampleRanks,
+                                  const VectorDouble& means,
+                                  bool subtractMean) const
 {
   int nvar        = getNLoc(ELoc::Z);
   VectorInt jvars = VH::sequence(nvar);
@@ -3418,7 +3433,7 @@ VectorDouble Db::getValuesByRanks(const VectorVectorInt& sampleRanks, const Vect
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int jvar               = jvars[ivar];
-    double meanlocal       = (!means.empty()) ? means[jvar] : 0.;
+    double meanlocal       = (!means.empty() && subtractMean) ? means[jvar] : 0.;
     const VectorInt& local = sampleRanks[ivar];
     for (int iech = 0, nech = (int)local.size(); iech < nech; iech++)
       vec.push_back(getZVariable(local[iech], jvar) - meanlocal);
@@ -3496,10 +3511,10 @@ VectorInt Db::getMultipleSelectedVariables(const VectorVectorInt& index,
  * @note: where a variable is defined is considered (search for heterotopy).
  */
 VectorVectorInt Db::getSampleRanks(const VectorInt& ivars,
-                                           const VectorInt& nbgh,
-                                           bool useSel,
-                                           bool useZ, 
-                                           bool useVerr) const
+                                   const VectorInt& nbgh,
+                                   bool useSel,
+                                   bool useZ,
+                                   bool useVerr) const
 {
   VectorInt jvars = ivars;
   if (jvars.empty()) jvars = VH::sequence(getNLoc(ELoc::Z));
@@ -3559,10 +3574,10 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh,
     }
 
     // Check against the existence of a target variable
-    if (item >= 0)
+    if (useZ && item >= 0)
     {
       value = getZVariable(iech, item);
-      if (useZ && FFFF(value)) continue;
+      if (FFFF(value)) continue;
     }
 
     // Check against the validity of the Variance of Measurement Error

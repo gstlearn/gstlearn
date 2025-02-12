@@ -26,7 +26,6 @@
 #include "Space/SpaceRN.hpp"
 #include "Variogram/Vario.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Matrix/MatrixFactory.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAnisoList.hpp"
@@ -122,7 +121,7 @@ bool Model::_isValid() const
 
   // Check the consistency between the Covariance and the Drift parts
   int irf_drift = getDriftMaxIRFOrder();
-  int irf_cova  = getCovaMinIRFOrder();
+  int irf_cova  = getCovMinIRFOrder();
   if (irf_cova > irf_drift)
   {
     messerr("Model if invalid due to IRF degree inconsistency");
@@ -498,7 +497,7 @@ void Model::addCovFromParam(const ECov& type,
   // Define the covariance
 
   auto space = SpaceRN::create(ndim);
-  _ctxt         = CovContext(nvar, space);
+  _ctxt      = CovContext(nvar, space);
   CovAniso cov(type, _ctxt);
 
   // Define the Third parameter
@@ -622,9 +621,7 @@ int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
     CovLMCAnamorphosis* newcov = new CovLMCAnamorphosis(*cov, anam, strcnt);
 
     // Replace the current list by the newly create one (CovLMCAnamorphosis)
-
     ModelCovList::setCovList(newcov);
-
   }
   return 0;
 }
@@ -1113,7 +1110,7 @@ bool Model::isValid() const
 
   // Check the consistency between the Covariance and the Drift parts
   int irf_drift = getDriftMaxIRFOrder();
-  int irf_cova = getCovaMinIRFOrder();
+  int irf_cova = getCovMinIRFOrder();
   if (irf_cova > irf_drift)
   {
     messerr("Model if invalid due to IRF degree inconsistency");
@@ -1367,4 +1364,32 @@ int Model::getNVar() const
     if (nvar <= 0)
       nvar = _ctxt.getNVar();
     return nvar;
+}
+
+Model* Model::createFillRandom(
+  int ndim, int nvar, const std::vector<ECov>& types, double hmax, int order)
+{
+  // Create the Covariance Part
+  Model* model = Model::create(CovContext(nvar, ndim));
+  int ncov     = (int)types.size();
+  for (int icov = 0; icov < ncov; icov++)
+  {
+    MatrixSquareSymmetric* sill =
+      MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
+    double range = (hmax * (1. + icov)) / (2. * ncov);
+    model->addCovFromParam(types[icov], range, 0., 1., VectorDouble(), *sill);
+    delete sill;
   }
+
+  // Create the Drift part
+  if (order < 0)
+  {
+    VectorDouble means = VH::simulateGaussian(nvar);
+    model->setMeans(means);
+  }
+  else
+  {
+    model->setDriftIRF(order, 0);
+  }
+  return model;
+}

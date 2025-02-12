@@ -335,7 +335,7 @@ static double st_get_idim(int loc_rank, int idim)
 //  }
 //
 //  CovCalcMode mode(member);
-//  mode.setActiveCovListFromOne(icov_r);
+//  model->setActiveCovListFromOne(icov_r);
 //  model->evaluateMatInPlace(&COVINT, d1loc, covtab_loc, flag_init, weight, &mode);
 //}
 //
@@ -1578,7 +1578,7 @@ int _krigsim(Db* dbin,
 
   KrigingSystem ksys(dbin, dbout, model, neigh);
   if (ksys.setKrigOptFlagSimu(true, nbsimu, icase)) return 1;
-  if (ksys.updKrigOptEstim(iptr_est, -1, -1)) return 1;
+  if (ksys.updKrigOptEstim(iptr_est, -1, -1, true)) return 1;
   if (ksys.setKrigOptBayes(flag_bayes, dmean, dcov)) return 1;
   if (ksys.setKrigOptDGM(flag_dgm)) return 1;
   if (! ksys.isReady()) return 1;
@@ -3090,6 +3090,7 @@ int krigsum(Db *dbin,
   {
     dbin->clearLocators(ELoc::Z);
     dbin->setLocatorByUID(iuids[ivar], ELoc::Z, 0);
+    if (ksys.resetNewData()) return 1;
     if (ksys.updKrigOptEstim(iptr_est + ivar, -1, -1)) return 1;
     (void) gslSPrintf(string, "Kriging of variable #%d at sample", ivar + 1);
 

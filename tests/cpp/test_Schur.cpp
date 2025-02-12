@@ -128,17 +128,17 @@ static void _firstTest(Db* data,
   Kcalc.setRHS(&Sigma0, &X0);
   Kcalc.setBayes(&PriorMean, &PriorCov);
 
-  VH::display("Prior Mean", PriorMean);
+  VH::dump("Prior Mean", PriorMean);
   message("Prior Variance-Covariance Matrix\n");
   PriorCov.display();
   VectorDouble beta = Kcalc.getPostMean();
-  if (!beta.empty()) VH::display("Posterior Mean", beta);
+  if (!beta.empty()) VH::dump("Posterior Mean", beta);
   message("Posterior Variance-Covariance Matrix\n");
   Kcalc.getPostCov()->display();
 
-  VH::display("Kriging Value(s)", Kcalc.getEstimation());
-  VH::display("Standard Deviation of Estimation Error", Kcalc.getStdv());
-  VH::display("Variance of Estimator", Kcalc.getVarianceZstar());
+  VH::dump("Kriging Value(s)", Kcalc.getEstimation());
+  VH::dump("Standard Deviation of Estimation Error", Kcalc.getStdv());
+  VH::dump("Variance of Estimator", Kcalc.getVarianceZstar());
   if (debugSchur) Kcalc.printStatus();
 
   delete dataP;
@@ -154,7 +154,7 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   Model* modelc = dynamic_cast<Model*>(model);
   // Local parameters
   int nvar = modelc->getNVar();
-  VectorInt varColCok = {0, 2}; // Ranks of collcated variables
+  VectorInt varColCok = {0, -1, 2}; // Ranks of collcated variables (dim = nvar)
   bool debugSchur     = false;
   if (nvar <= 1)
   {
@@ -167,12 +167,16 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   message("- using 'KrigingCalcul' on the Complemented Data Set\n");
   message(
     "- using 'KrigingCalcul' on Standard Data Set adding Collocated Option\n");
-  VH::display("- Collocated Variable ranks", varColCok, false);
+  VH::dump("- Collocated Variable ranks", varColCok, false);
 
   // Creating the Complemented Data Set
   VectorDouble valuesTarget(nvar, TEST);
-  for (int ivar = 0; ivar < (int)varColCok.size(); ivar++)
-    valuesTarget[varColCok[ivar]] = law_gaussian();
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    int jvar = varColCok[ivar];
+    if (jvar >= 0) valuesTarget[varColCok[jvar]] = law_gaussian();
+  }
+
   Db* dataP = _dataComplement(data, target, valuesTarget);
 
   // ---------------------- With complemented Data Base ---------------------
@@ -192,9 +196,9 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   KcalcP.setRHS(&Sigma0P, &X0P);
   KcalcP.setVariance(&Sigma00P);
 
-  VH::display("Kriging Value(s)", KcalcP.getEstimation());
-  VH::display("Standard Deviation of Estimation Error", KcalcP.getStdv());
-  VH::display("Variance of Estimator", KcalcP.getVarianceZstar());
+  VH::dump("Kriging Value(s)", KcalcP.getEstimation());
+  VH::dump("Standard Deviation of Estimation Error", KcalcP.getStdv());
+  VH::dump("Variance of Estimator", KcalcP.getVarianceZstar());
 
   if (debugSchur) KcalcP.printStatus();
 
@@ -218,9 +222,9 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   VH::subtractInPlace(valuesTarget, means);
   Kcalc.setColCokUnique(&valuesTarget, &varColCok);
 
-  VH::display("Kriging Value(s)", Kcalc.getEstimation());
-  VH::display("Standard Deviation of Estimation Error", Kcalc.getStdv());
-  VH::display("Variance of Estimator", Kcalc.getVarianceZstar());
+  VH::dump("Kriging Value(s)", Kcalc.getEstimation());
+  VH::dump("Standard Deviation of Estimation Error", Kcalc.getStdv());
+  VH::dump("Variance of Estimator", Kcalc.getVarianceZstar());
 
   if (debugSchur) Kcalc.printStatus();
 
@@ -271,9 +275,9 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   KcalcP.setRHS(&Sigma0P, &X0P);
   KcalcP.setVariance(&Sigma00P);
 
-  VH::display("Kriging Value(s)", KcalcP.getEstimation());
-  VH::display("Standard Deviation of Estimation Error", KcalcP.getStdv());
-  VH::display("Variance of Estimator", KcalcP.getVarianceZstar());
+  VH::dump("Kriging Value(s)", KcalcP.getEstimation());
+  VH::dump("Standard Deviation of Estimation Error", KcalcP.getStdv());
+  VH::dump("Variance of Estimator", KcalcP.getVarianceZstar());
 
   if (debugSchur) KcalcP.printStatus();
 
@@ -294,9 +298,9 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   Kcalc.setVariance(&Sigma00);
   Kcalc.setXvalidUnique(&rankXvalidEqs, &rankXvalidVars);
 
-  VH::display("Kriging Value(s)", Kcalc.getEstimation());
-  VH::display("Standard Deviation of Estimation Error", Kcalc.getStdv());
-  VH::display("Variance of Estimator", Kcalc.getVarianceZstar());
+  VH::dump("Kriging Value(s)", Kcalc.getEstimation());
+  VH::dump("Standard Deviation of Estimation Error", Kcalc.getStdv());
+  VH::dump("Variance of Estimator", Kcalc.getVarianceZstar());
 
   if (debugSchur) Kcalc.printStatus();
 
@@ -332,9 +336,9 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   Kcalc1.setRHS(&Sigma0, &X0);
   Kcalc1.setVariance(&Sigma00);
 
-  VH::display("Kriging Value(s)", Kcalc1.getEstimation());
-  VH::display("Standard Deviation of Estimation Error", Kcalc1.getStdv());
-  VH::display("Variance of Estimator", Kcalc1.getVarianceZstar());
+  VH::dump("Kriging Value(s)", Kcalc1.getEstimation());
+  VH::dump("Standard Deviation of Estimation Error", Kcalc1.getStdv());
+  VH::dump("Variance of Estimator", Kcalc1.getVarianceZstar());
 
   // ---------------------- With Dual Option -------------------------
   mestitle(1, "With Dual Option (only Estimation is available)");
@@ -344,7 +348,7 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   Kcalc2.setLHS(&Sigma, &X);
   Kcalc2.setRHS(&Sigma0, &X0);
 
-  VH::display("Kriging Value(s)", Kcalc2.getEstimation());
+  VH::dump("Kriging Value(s)", Kcalc2.getEstimation());
 }
 
 /****************************************************************************/

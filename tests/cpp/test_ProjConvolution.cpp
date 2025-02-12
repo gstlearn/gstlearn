@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
   }
   for (int i = 0; i < conv_dim; i++)
     convolution[i] /= total;
-  VH::display("Convolution", convolution);
+  VH::dump("Convolution", convolution);
 
   int ngrid_seismic = ngrid - (conv_dim - 1);
   nx = VectorInt({nxval, ngrid_seismic});

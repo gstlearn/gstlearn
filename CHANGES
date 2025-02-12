@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.7.0
 =============
+- Create a new method to generate a Model with random values
 - Major renaming of variables, such as getxxxNumber() into getNxxx().
   Some examples:
   getVariableNumber() or getNVariables() becomes getNVar()

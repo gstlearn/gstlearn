@@ -398,7 +398,7 @@ void btree_display(const t_btree *tree, int level)
 
     if (level > 0)
     {
-      VH::display("Centroid = ", centroid, 0);
+      VH::dump("Centroid = ", centroid, 0);
 
       if (level > 1 && info->is_leaf)
       {

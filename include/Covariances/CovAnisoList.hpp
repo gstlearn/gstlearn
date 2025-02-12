@@ -34,7 +34,6 @@ class AAnam;
 class AnamHermite;
 class EModelProperty;
 
-
 /**
  * \brief
  * This class describes the **Covariance** as a list of elementary covariances (see CovAniso.hpp for more details)
@@ -93,7 +92,7 @@ public:
   void addCovList(const CovAnisoList* covs);
 
   // Filter a covariance
-  void setCovaFiltered(int icov, bool filtered);
+  void setCovFiltered(int icov, bool filtered);
 
   int             getNCov(bool skipNugget = false) const;
   bool            isFiltered(int icov) const;
@@ -102,9 +101,6 @@ public:
   double          getMaximumDistance() const;
   double          getTotalSill(int ivar = 0, int jvar = 0) const override;
   void            normalize(double sill = 1., int ivar=0, int jvar=0);
-  VectorInt       getActiveCovList() const;
-  VectorInt       getAllActiveCovList() const;
-  bool            isAllActiveCovList() const;
   bool            isNoStat() const override;
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
@@ -124,41 +120,12 @@ public:
   VectorDouble       getAngles(int icov) const;
   int                getNGradParam(int icov) const;
   CovAniso           extractCova(int icov) const;
-  int                getCovaMinIRFOrder() const;
+  int                getCovMinIRFOrder() const;
   double             getBallRadius() const;
   int                hasExternalCov() const;
   bool               isChangeSupportDefined() const;
   // Methods necessary for Optimization
-  void _optimizationPreProcess(const std::vector<SpacePoint> &p) const override;
-  void _optimizationPostProcess() const override ;
-  void _optimizationSetTarget(const SpacePoint &pt) const override;
   void optimizationSetTargetByIndex(int iech) const override;
-  MatrixRectangular evalCovMatOptim(const Db* db1,
-                                       const Db* db2,
-                                       int ivar0               = -1,
-                                       int jvar0               = -1,
-                                       const VectorInt& nbgh1  = VectorInt(),
-                                       const VectorInt& nbgh2  = VectorInt(),
-                                       const CovCalcMode* mode = nullptr,
-                                       bool cleanOptim         = true) const override;
-  MatrixRectangular evalCovMatOptimByRanks(const Db* db1,
-                                                      const Db* db2,
-                                                      const VectorVectorInt& sampleRanks1,
-                                                      int ivar0               = -1,
-                                                      int jvar0               = -1,
-                                                      int iech2               = 0,
-                                                      const CovCalcMode* mode = nullptr,
-                                                      bool cleanOptim         = true) const override;
-  MatrixSquareSymmetric evalCovMatSymOptim(const Db* db1,
-                                                    const VectorInt& nbgh1  = VectorInt(),
-                                                    int ivar0               = -1,
-                                                    const CovCalcMode* mode = nullptr,
-                                                    bool cleanOptim         = true) const override;
-  MatrixSquareSymmetric evalCovMatSymOptimByRanks(const Db* db1,
-                                                                   const VectorVectorInt& sampleRanks,
-                                                                   int ivar0               = -1,
-                                                                   const CovCalcMode* mode = nullptr,
-                                                                   bool cleanOptim         = true) const override;
 
   void copyCovContext(const CovContext& ctxt);
   bool hasNugget() const;

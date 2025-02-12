@@ -34,7 +34,6 @@
 #include "Estimation/CalcImage.hpp"
 #include "Estimation/CalcGlobal.hpp"
 
-
 static Db* createLocalDb(int nech, int ndim, int nvar, int seed)
 {
   // Define seed
@@ -43,26 +42,26 @@ static Db* createLocalDb(int nech, int ndim, int nvar, int seed)
   // Coordinates
   VectorDouble tab = VH::simulateGaussian(ndim * nech, 0., 50.);
   // Variable
-  for (int ivar=0; ivar<nvar; ivar++)
+  for (int ivar = 0; ivar < nvar; ivar++)
   {
     VectorDouble tabvar = VH::simulateGaussian(nech);
     tab.insert(tab.end(), tabvar.begin(), tabvar.end());
   }
 
-  Db* data = Db::createFromSamples(nech,ELoadBy::COLUMN,tab);
-  data->setNameByUID(1,"x1");
-  data->setNameByUID(2,"x2");
+  Db* data = Db::createFromSamples(nech, ELoadBy::COLUMN, tab);
+  data->setNameByUID(1, "x1");
+  data->setNameByUID(2, "x2");
 
-  data->setLocatorByUID(1,ELoc::X,0);
-  data->setLocatorByUID(2,ELoc::X,1);
+  data->setLocatorByUID(1, ELoc::X, 0);
+  data->setLocatorByUID(2, ELoc::X, 1);
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     if (nvar == 1)
-      data->setNameByUID(3+ivar,"Var");
+      data->setNameByUID(3 + ivar, "Var");
     else
-      data->setNameByUID(3+ivar, incrementStringVersion("Var",ivar+1));
-    data->setLocatorByUID(3+ivar,ELoc::Z,ivar);
+      data->setNameByUID(3 + ivar, incrementStringVersion("Var", ivar + 1));
+    data->setLocatorByUID(3 + ivar, ELoc::Z, ivar);
   }
   return data;
 }
@@ -111,7 +110,7 @@ static Model* createModel(int nvar, int typecov, int typedrift, int typemean)
   {
     DriftM drift1 = DriftM();
     DriftM driftx = DriftM(VectorInt({1}));
-    DriftM drifty = DriftM({0,1});
+    DriftM drifty = DriftM({0, 1});
     model->addDrift(&drift1);
     model->addDrift(&driftx);
     model->addDrift(&drifty);
@@ -119,7 +118,7 @@ static Model* createModel(int nvar, int typecov, int typedrift, int typemean)
 
   if (typemean == 1)
   {
-    model->setMean(123.);
+    model->setMeans(VH::simulateGaussian(nvar));
   }
   return model;
 }
@@ -129,7 +128,7 @@ static Model* createModel(int nvar, int typecov, int typedrift, int typemean)
  ** Main Program
  **
  *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
@@ -145,22 +144,23 @@ int main(int argc, char *argv[])
   VectorDouble tab;
 
   // Global parameters
-  int ndim = 2;
-  int nvar = 1;
-  int oldstyle = 1;
+  int ndim     = 2;
+  int nvar     = 1;
+  int mode     = 0;
+  int oldstyle = 0.;
   law_set_random_seed(32131);
   OptCustom::define("oldStyle", oldstyle);
 
   defineDefaultSpace(ESpaceType::RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS);
-  DbStringFormat dbfmtXvalid(FLAG_STATS,{"Xvalid*"});
-  DbStringFormat dbfmtKriging(FLAG_STATS,{"Krig*"});
-  DbStringFormat dbfmtImage(FLAG_STATS,{"Filter*"});
-  DbStringFormat dbfmtBayes(FLAG_STATS,{"Bayes*"});
-  DbStringFormat dbfmtSimu(FLAG_STATS,{"Sim*"});
+  DbStringFormat dbfmtXvalid(FLAG_STATS, {"Xvalid*"});
+  DbStringFormat dbfmtKriging(FLAG_STATS, {"Krig*"});
+  DbStringFormat dbfmtImage(FLAG_STATS, {"Filter*"});
+  DbStringFormat dbfmtBayes(FLAG_STATS, {"Bayes*"});
+  DbStringFormat dbfmtSimu(FLAG_STATS, {"Sim*"});
 
   // Generate the output grid
-  VectorInt nx = {50,50};
+  VectorInt nx = {50, 50};
   DbGrid* grid = DbGrid::create(nx);
   grid->addColumnsByConstant(2, 1., "Extend", ELoc::BLEX);
   grid->display();
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
   model->display();
 
   // Image Neighborhood
-  NeighImage* neighI = NeighImage::create({2,2}, 2);
+  NeighImage* neighI = NeighImage::create({2, 2}, 2);
   neighI->display();
 
   // Creating a Moving Neighborhood
@@ -190,120 +190,171 @@ int main(int argc, char *argv[])
   neighU->display();
 
   // Block discretization
-  VectorInt ndiscs = {3,3};
+  VectorInt ndiscs = {3, 3};
 
   // ====================== Testing Neighborhood Storage ===========================
-  message("\n---> Testing Neighborhood storage\n");
-  delete grid_res;
-  grid_res = grid->clone();
-  test_neigh(data, grid_res, model, neighM);
-  grid_res->display(&dbfmtKriging);
+  if (mode == 0 || mode == 1)
+  {
+    message("\n---> Testing Neighborhood storage\n");
+    delete grid_res;
+    grid_res = grid->clone();
+    test_neigh(data, grid_res, model, neighM);
+    grid_res->display(&dbfmtKriging);
+  }
 
   // ====================== Moving Neighborhood case ===========================
-  message("\n<----- Cross-Validation in Moving Neighborhood ----->\n");
-  delete data_res;
-  data_res = data->clone();
-  xvalid(data_res, model, neighM, 0, -1, -1, 0);
-  data_res->display(&dbfmtXvalid);
+  if (mode == 0 || mode == 2)
+  {
+    message("\n<----- Cross-Validation in Moving Neighborhood ----->\n");
+    delete data_res;
+    data_res = data->clone();
+    xvalid(data_res, model, neighM, 0, -1, -1, 0);
+    data_res->display(&dbfmtXvalid);
+  }
 
-  message("\n<----- Kriging in Moving Neighborhood ----->\n");
-  delete grid_res;
-  grid_res = grid->clone();
-  kriging(data, grid_res, model, neighM);
-  grid_res->display(&dbfmtKriging);
+  if (mode == 0 || mode == 3)
+  {
+    message("\n<----- Kriging in Moving Neighborhood ----->\n");
+    delete grid_res;
+    grid_res = grid->clone();
+    kriging(data, grid_res, model, neighM);
+    grid_res->display(&dbfmtKriging);
+  }
 
-  message("\n<----- Declustering in Moving Neighborhood ----->\n");
-  declustering(data_res, model, 3, neighM, grid, VectorDouble(), ndiscs, false, true);
+  if (mode == 0 || mode == 4)
+  {
+    message("\n<----- Declustering in Moving Neighborhood ----->\n");
+    delete data_res;
+    data_res = data->clone();
+    declustering(data_res, model, 3, neighM, grid, VectorDouble(), ndiscs, false, true);
+  }
 
-  message("\n<----- Kriging Test in Moving Neighborhood ----->\n");
-  delete grid_res;
-  grid_res = grid->clone();
-  ktest = krigtest(data, grid_res, model, neighM, 0);
-  message("\nTesting KrigTest facility\n");
-  message("- Space Dimension = %d\n",ktest.ndim);
-  message("- Number of Neighbors = %d\n",ktest.nech);
-  message("- Number of Kriging System equations = %d\n",ktest.neq);
-  VH::display("- Neighboring Sample Indices", ktest.nbgh);
+  if (mode == 0 || mode == 5)
+  {
+    message("\n<----- Kriging Test in Moving Neighborhood ----->\n");
+    delete grid_res;
+    grid_res = grid->clone();
+    ktest    = krigtest(data, grid_res, model, neighM, 0);
+    message("\nTesting KrigTest facility\n");
+    message("- Space Dimension = %d\n", ktest.ndim);
+    message("- Number of Neighbors = %d\n", ktest.nech);
+    message("- Number of Kriging System equations = %d\n", ktest.neq);
+    VH::dump("- Neighboring Sample Indices", ktest.nbgh);
+  }
 
   // ====================== Unique Neighborhood case ===========================
-  message("\n<----- Cross-Validation in Unique Neighborhood ----->\n");
-  delete data_res;
-  data_res = data->clone();
-  xvalid(data_res, model, neighU, 0, -1, -1, 0);
-  data_res->display(&dbfmtXvalid);
+  if (mode == 0 || mode == 6)
+  {
+    message("\n<----- Cross-Validation in Unique Neighborhood ----->\n");
+    delete data_res;
+    data_res = data->clone();
+    xvalid(data_res, model, neighU, 0, -1, -1, 0);
+    data_res->display(&dbfmtXvalid);
+  }
 
-  message("\n<----- Kriging in Unique Neighborhood ----->\n");
-  delete grid_res;
-  grid_res = grid->clone();
-  kriging(data, grid_res, model, neighU);
-  grid_res->display(&dbfmtKriging);
+  if (mode == 0 || mode == 7)
+  {
+    message("\n<----- Kriging in Unique Neighborhood ----->\n");
+    delete grid_res;
+    grid_res = grid->clone();
+    kriging(data, grid_res, model, neighU);
+    grid_res->display(&dbfmtKriging);
+  }
 
-  message("\n<----- Simulations in Unique Neighborhood ----->\n");
-  delete grid_res;
-  grid_res = grid->clone();
-  simtub(data, grid_res, model, neighU, 3, 12345);
-  grid_res->display(&dbfmtSimu);
+  if (mode == 0 || mode == 8)
+  {
+    message("\n<----- Simulations in Unique Neighborhood ----->\n");
+    delete grid_res;
+    grid_res = grid->clone();
+    simtub(data, grid_res, model, neighU, 3, 12345);
+    grid_res->display(&dbfmtSimu);
+  }
 
-  message("\n<----- Bayesian Simulations in Unique Neighborhood ----->\n");
-  delete grid_res;
-  grid_res = grid->clone();
-  simbayes(data, grid_res, model, neighU, 3, 12345);
-  grid_res->display(&dbfmtSimu);
+  if (mode == 0 || mode == 9)
+  {
+    message("\n<----- Bayesian Simulations in Unique Neighborhood ----->\n");
+    delete grid_res;
+    grid_res = grid->clone();
+    simbayes(data, grid_res, model, neighU, 3, 12345);
+    grid_res->display(&dbfmtSimu);
+  }
 
-  message("\n<----- Declustering in Unique Neighborhood ----->\n");
-  delete data_res;
-  data_res = data->clone();
-  declustering(data_res, model, 2, neighU, nullptr, VectorDouble(), VectorInt(), false, true);
+  if (mode == 0 || mode == 10)
+  {
+    message("\n<----- Declustering in Unique Neighborhood ----->\n");
+    delete data_res;
+    data_res = data->clone();
+    declustering(data_res, model, 2, neighU, nullptr, VectorDouble(), VectorInt(), false,
+                 true);
+  }
 
-  message("\n<----- Global Estimate (Average) ----->\n");
-  delete grid_res;
-  grid_res = grid->clone();
-  gres = global_arithmetic(data, grid_res, model, 0, true);
+  if (mode == 0 || mode == 11)
+  {
+    message("\n<----- Global Estimate (Average) ----->\n");
+    delete grid_res;
+    grid_res = grid->clone();
+    gres     = global_arithmetic(data, grid_res, model, 0, true);
+  }
 
-  message("\n<----- Global Estimate (Kriging) ----->\n");
-  gres = global_kriging(data, grid_res, model, 0, true);
+  if (mode == 0 || mode == 12)
+  {
+    message("\n<----- Global Estimate (Kriging) ----->\n");
+    gres = global_kriging(data, grid_res, model, 0, true);
+  }
 
   // ====================== Block Kriging case ===========================
-  message("\n<----- Block Kriging (fixed size) ----->\n");
-  delete grid_res;
-  grid_res = grid->clone();
-  kriging(data, grid_res, model, neighU, EKrigOpt::BLOCK, 1, 1, 0, ndiscs);
-  grid_res->display(&dbfmtKriging);
+  if (mode == 0 || mode == 13)
+  {
+    message("\n<----- Block Kriging (fixed size) ----->\n");
+    delete grid_res;
+    grid_res = grid->clone();
+    kriging(data, grid_res, model, neighU, EKrigOpt::BLOCK, 1, 1, 0, ndiscs);
+    grid_res->display(&dbfmtKriging);
+  }
 
-  message("\n<----- Block Kriging (variable size) ----->\n");
-  delete grid_res;
-  grid_res = grid->clone();
-  krigcell(data, grid_res, model, neighU, 1, 1, ndiscs);
-  grid_res->display(&dbfmtKriging);
+  if (mode == 0 || mode == 14)
+  {
+    message("\n<----- Block Kriging (variable size) ----->\n");
+    delete grid_res;
+    grid_res = grid->clone();
+    krigcell(data, grid_res, model, neighU, 1, 1, ndiscs);
+    grid_res->display(&dbfmtKriging);
+  }
 
   // ====================== Image Neighborhood case ===========================
   // Generate the Image
-  (void) simtub(nullptr,image,model);
+  (void)simtub(nullptr, image, model);
   image->setLocator("Simu", ELoc::Z, 0);
   image->display();
 
   // Modify the Model (for filtering)
   model_res = model->clone();
-  model_res->setCovaFiltered(1, true);
+  model_res->setCovFiltered(1, true);
   model_res->display();
 
-  message("\n<----- Image Filtering ----->\n");
-  image_res = image->clone();
-  krimage(image_res, model_res, neighI);
-  image_res->display(&dbfmtImage);
+  if (mode == 0 || mode == 15)
+  {
+    message("\n<----- Image Filtering ----->\n");
+    image_res = image->clone();
+    krimage(image_res, model_res, neighI);
+    image_res->display(&dbfmtImage);
+  }
 
   // ====================== Testing Bayesian Kriging ===========================
   // Create the Model
   model = createModel(nvar, 2, 1, 2);
   model->display();
 
-  message("\n<----- Bayesian Kriging in Unique Neighborhood ----->\n");
-  delete grid_res;
-  grid_res = grid->clone();
-  OptDbg::define(EDbg::BAYES);
-  kribayes(data, grid_res, model, neighU);
-  OptDbg::undefine(EDbg::BAYES);
-  grid_res->display(&dbfmtBayes);
+  if (mode == 0 || mode == 16)
+  {
+    message("\n<----- Bayesian Kriging in Unique Neighborhood ----->\n");
+    delete grid_res;
+    grid_res = grid->clone();
+    OptDbg::define(EDbg::BAYES);
+    kribayes(data, grid_res, model, neighU);
+    OptDbg::undefine(EDbg::BAYES);
+    grid_res->display(&dbfmtBayes);
+  }
 
   // ====================== Testing Printout ==================================
   message("\n<----- Test Kriging Printout ----->\n");
@@ -314,29 +365,38 @@ int main(int argc, char *argv[])
   model = createModel(nvar, 2, 1, 0);
   model->display();
 
-  message("\n---> Kriging in Place (checking Exact Interpolator)\n");
-  OptDbg::setReference(1);
-  delete data_res;
-  data_res = data->clone();
-  kriging(data_res, data_res, model, neighU);
-  OptDbg::setReference(0);
+  if (mode == 0 || mode == 17)
+  {
+    message("\n---> Kriging in Place (checking Exact Interpolator)\n");
+    OptDbg::setReference(1);
+    delete data_res;
+    data_res = data->clone();
+    kriging(data_res, data_res, model, neighU);
+    OptDbg::setReference(0);
+  }
 
-  message("\n---> Kriging in general\n");
-  OptDbg::setReference(1);
-  kriging(data, grid_res, model, neighU);
-  OptDbg::setReference(0);
+  if (mode == 0 || mode == 18)
+  {
+    message("\n---> Kriging in general\n");
+    OptDbg::setReference(1);
+    kriging(data, grid_res, model, neighU);
+    OptDbg::setReference(0);
+  }
 
   // ====================== Testing Specials ==================================
   // Create the Local Data Base
   data = createLocalDb(10, 2, 3, 4901);
 
-  message("\n<----- Test Kriging Multiple Variables under Constraints ----->\n");
-  delete grid_res;
-  grid_res = grid->clone();
-  tab = VH::simulateUniform(grid->getNSample(), 10., 20.);
-  grid_res->addColumns(tab, "Constraints", ELoc::SUM);
-  krigsum(data, grid_res, model, neighU, true);
-  grid_res->display(&dbfmtKriging);
+  if (mode == 0 || mode == 19)
+  {
+    message("\n<----- Test Kriging Multiple Variables under Constraints ----->\n");
+    delete grid_res;
+    grid_res = grid->clone();
+    tab      = VH::simulateUniform(grid->getNSample(), 10., 20.);
+    grid_res->addColumns(tab, "Constraints", ELoc::SUM);
+    krigsum(data, grid_res, model, neighU, true);
+    grid_res->display(&dbfmtKriging);
+  }
 
   // Create the Local Data Base
   data = createLocalDb(100, 2, 1, 42781);
@@ -347,28 +407,34 @@ int main(int argc, char *argv[])
   // Create the Gaussian
   anam = AnamHermite::create(20);
   anam->fitFromArray(data->getColumn("Var"));
-  (void) anam->rawToGaussianByLocator(data);
+  (void)anam->rawToGaussianByLocator(data);
 
-  message("\n<----- Test Kriging Anamorphosed Gaussian ----->\n");
-  delete grid_res;
-  grid_res = grid->clone();
-  kriggam(data, grid_res, model, neighU, anam);
-  grid_res->display(&dbfmtKriging);
+  if (mode == 0 || mode == 20)
+  {
+    message("\n<----- Test Kriging Anamorphosed Gaussian ----->\n");
+    delete grid_res;
+    grid_res = grid->clone();
+    kriggam(data, grid_res, model, neighU, anam);
+    grid_res->display(&dbfmtKriging);
+  }
 
-  // ====================== Testing Multivariate===============================
+  // ====================== Testing Multivariate=======================
   // Create the Local Data Base
   message("\n<----- Test Kriging Multiple Variables with matLC ----->\n");
+  nvar  = 3;
+  data  = createLocalDb(10, 2, 3, 4901);
+  model = createModel(nvar, 1, 0, 1);
 
-  nvar = 3;
-  data = createLocalDb(10, 2, 3, 4901);
-  model = createModel(nvar, 1, 0, 0);
-
-  delete grid_res;
-  grid_res = grid->clone();
-  MatrixRectangular* matLC = MatrixRectangular::createFromVD({2., 2., 1., 1., 0., 1.}, 2, 3);
-  kriging(data, grid_res, model, neighU, EKrigOpt::POINT, true, true, false,
-          VectorInt(), VectorInt(), matLC);
-  grid_res->display(&dbfmtKriging);
+  if (mode == 0 || mode == 21)
+  {
+    delete grid_res;
+    grid_res = grid->clone();
+    MatrixRectangular* matLC =
+      MatrixRectangular::createFromVD({2., 2., 1., 1., 0., 1.}, 2, 3);
+    kriging(data, grid_res, model, neighU, EKrigOpt::POINT, true, true, false,
+            VectorInt(), VectorInt(), matLC);
+    grid_res->display(&dbfmtKriging);
+  }
 
   // ====================== Free pointers ==================================
   delete neighM;

@@ -40,7 +40,7 @@ private:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
 
-  int _getNFactors() const;
+  int  _getNFactors() const;
   void _storeResultsForExport(const KrigingSystem& ksys);
   bool _hasChangeSupport() const;
 
