@@ -47,7 +47,6 @@ void CovProportional::setCor(ACov* cor)
   CovBase::setCor(cor);
 }
 
-
 /**
  * Calculate the Matrix of covariance between two space points
  * @param p1 Reference of the first space point
@@ -62,8 +61,7 @@ void CovProportional::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                           const SpacePoint &p2,
                                           const CovCalcMode *mode) const
 {
-  
-  double cor = getCor()->eval(p1,p2,0,0,mode);
+  double cor = getCor()->eval(p1, p2, 0, 0, mode);
 
   if (mode == nullptr || ! mode->getUnitary())
     mat.addMatInPlace(_sillCur, 1., cor);

@@ -96,9 +96,9 @@ int main(int argc, char *argv[])
     message(">>> Function 'LLt' is validated\n");
   else
   {
-    VH::display("LLt (by Matrix)", vecref);
-    VH::display("LLt (by CholeskySparse)", vecout1);
-    VH::display("LLt (by CholeskyDense)", vecout2);
+    VH::dump("LLt (by Matrix)", vecref);
+    VH::dump("LLt (by CholeskySparse)", vecout1);
+    VH::dump("LLt (by CholeskyDense)", vecout2);
     message(">>> Function 'LLt' is INVALID =======================\n");
   }
 
@@ -111,9 +111,9 @@ int main(int argc, char *argv[])
     message(">>> Function 'solve' is validated\n");
   else
   {
-    VH::display("Solve (by Matrix)", vecref);
-    VH::display("Solve (by CholeskySparse)", vecout1);
-    VH::display("Solve (by CholeskyDense)", vecout2);
+    VH::dump("Solve (by Matrix)", vecref);
+    VH::dump("Solve (by CholeskySparse)", vecout1);
+    VH::dump("Solve (by CholeskyDense)", vecout2);
     message(">>> Function 'solve' is INVALID =======================\n");
   }
 
@@ -127,9 +127,9 @@ int main(int argc, char *argv[])
     message(">>> Function 'InvLX(LX)' is validated\n");
   else
   {
-    VH::display("Function 'InvLX(LX)' (by Matrix)", vecin);
-    VH::display("Function 'InvLX(LX)' (by CholeskySparse)", vecout1);
-    VH::display("Function 'InvLX(LX)' (by CholeskyDense)", vecout2);
+    VH::dump("Function 'InvLX(LX)' (by Matrix)", vecin);
+    VH::dump("Function 'InvLX(LX)' (by CholeskySparse)", vecout1);
+    VH::dump("Function 'InvLX(LX)' (by CholeskyDense)", vecout2);
     message(">>> Function 'InvLX(LX)' is INVALID ========================\n");
   }
 
@@ -143,9 +143,9 @@ int main(int argc, char *argv[])
     message(">>> Function 'LtX(InvLtX)' is validated\n");
   else
   {
-    VH::display("Function 'LtX(InvLtX)' (by Matrix)", vecin);
-    VH::display("Function 'LtX(InvLtX)' (by CholeskySparse)", vecout1);
-    VH::display("Function 'LtX(InvLtX)' (by CholeskyDense)", vecout2);
+    VH::dump("Function 'LtX(InvLtX)' (by Matrix)", vecin);
+    VH::dump("Function 'LtX(InvLtX)' (by CholeskySparse)", vecout1);
+    VH::dump("Function 'LtX(InvLtX)' (by CholeskyDense)", vecout2);
     message(">>> Function 'LtX(InvLtX)' is INVALID ========================\n");
   }
 
@@ -165,8 +165,8 @@ int main(int argc, char *argv[])
     message(">>> Function 'stdev' is validated\n");
   else
   {
-    VH::display("Standard Deviation (by Matrix)", vecout1b);
-    VH::display("Standard Deviation (by Cholesky)", vecout2);
+    VH::dump("Standard Deviation (by Matrix)", vecout1b);
+    VH::dump("Standard Deviation (by Cholesky)", vecout2);
     message(">>> Function 'stdev' is INVALID =============================\n");
   }
 

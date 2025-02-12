@@ -193,7 +193,7 @@ public:
   bool   hasRotation() const { return _corAniso->getAniso().hasRotation(); }
   const Tensor& getAniso() const { return _corAniso->getAniso(); }
   void   setAniso(const Tensor& aniso) { _corAniso->setAniso(aniso); }
-  const ACovFunc* getCova() const { return _corAniso->getCova(); }
+  const ACovFunc* getCovFunc() const { return _corAniso->getCovFunc(); }
   int    getNGradParam() const;
   bool   hasCovDerivative() const { return _corAniso->hasCovDerivative(); }
   bool   hasCovOnSphere() const { return _corAniso->hasCovOnSphere(); }
@@ -248,10 +248,13 @@ public:
 
   void informDbInForAnisotropy(const Db* dbin) const;
   void informDbOutForAnisotropy(const Db* dbout) const;
-  
-  void setOptimEnabled(bool flag) const { _optimEnabled = flag; }
-  
-  
+
+  void setOptimEnabled(bool flag) const
+  {
+    _optimEnabled = flag;
+    _corAniso->setOptimEnabled(flag);
+  }
+
   void informMeshByMeshForAnisotropy(const AMesh* amesh) const;
   void informMeshByApexForAnisotropy(const AMesh* amesh) const;
  
@@ -270,8 +273,6 @@ public:
 
   void   _computeCorrec();
   double _getDetTensor() const;
-  void _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
-  void _optimizationSetTarget(const SpacePoint& pt) const override;
 
 private:
 

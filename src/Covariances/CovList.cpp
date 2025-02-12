@@ -12,24 +12,28 @@
 #include "Covariances/CovBase.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Enum/ECalcMember.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Space/ASpace.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Db/Db.hpp"
 #include "Space/SpacePoint.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "geoslib_define.h"
 
 #include <math.h>
 #include <vector>
 
 CovList::CovList(const CovContext& ctxt)
-: ACov(ctxt),
-  _covs(),
-  _filtered()
+  : ACov(ctxt)
+  , _covs()
+  , _filtered()
+  , _allActiveCov(true)
+  , _allActiveCovList()
+  , _activeCovList()
 {
 }
-
 
 CovList::~CovList()
 {
@@ -63,6 +67,19 @@ void CovList::addCov(const CovBase* cov)
   }
   _covs.push_back(cov);
   _filtered.push_back(false);
+  _updateLists();
+}
+
+void CovList::_updateLists()
+{
+  int ncov = getNCov();
+  _allActiveCovList = VH::sequence(ncov);
+
+  _activeCovList.clear();
+  for (int icov = 0; icov < ncov; icov++)
+    if (!_filtered[icov]) _activeCovList.push_back(icov);
+
+  _allActiveCov = _activeCovList.size() == _allActiveCovList.size();
 }
 
 void CovList::delCov(int icov)
@@ -72,6 +89,7 @@ void CovList::delCov(int icov)
   _covs.erase(_covs.begin() + icov);
   _filtered.erase(_filtered.begin() + icov);
   _delCov(icov);
+  _updateLists();
 }
 
 void CovList::delAllCov()
@@ -82,6 +100,8 @@ void CovList::delAllCov()
   }
   _covs.clear();
   _filtered.clear();
+  _allActiveCovList.clear();
+  _activeCovList.clear();
   _delAllCov();
 }
 
@@ -98,6 +118,7 @@ void CovList::setFiltered(int icov, bool filtered)
 {
   if (! _isCovarianceIndexValid(icov)) return;
   _filtered[icov] = filtered;
+  _updateLists();
 }
 
 bool CovList::isConsistent(const ASpace* /*space*/) const
@@ -113,26 +134,29 @@ int CovList::getNVar() const
   return 0;
 }
 
-bool CovList::_considerAllCovariances(const CovCalcMode* mode)
+/**
+ * @brief Check if all covariances should be processed
+ *
+ * @param mode  CovCalcMode structure
+ * @return True  all covariances should be treated;
+ * @return False only the non-filtered ones are returned 
+ */
+const VectorInt& CovList::_getListActiveCovariances(const CovCalcMode* mode) const
 {
-  if (mode == nullptr) return true;
-  if (mode->isAllActiveCov()) return true;
-  return false;
+  if (mode == nullptr) return _allActiveCovList;
+  if (_allActiveCov) return _allActiveCovList;
+  if (mode->getMember() != ECalcMember::LHS) return _activeCovList;
+  return _allActiveCovList;
 }
 
 double CovList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
-  double cov = 0.;
-
-  if (_considerAllCovariances(mode))
+  double cov      = 0.;
+  const VectorInt& list = _getListActiveCovariances(mode);
+  for (int i = 0, n = (int)list.size(); i < n; i++)
   {
-    for (int i=0, n=getNCov(); i<n; i++)
-      cov += _covs[i]->eval0(ivar, jvar, mode);
-  }
-  else
-  {
-    for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-      cov += _covs[mode->getActiveCovList(i)]->eval0(ivar, jvar, mode);
+    int j = list[i];
+    cov += _covs[j]->eval0(ivar, jvar, mode);
   }
   return cov;
 }
@@ -144,22 +168,14 @@ double CovList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void CovList::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                                    const CovCalcMode *mode) const
+void CovList::addEval0CovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                           const CovCalcMode* mode) const
 {
-  if (_considerAllCovariances(mode))
+  const VectorInt& list = _getListActiveCovariances(mode);
+  for (int i = 0, n = (int)list.size(); i < n; i++)
   {
-    for (int i=0, n=getNCov(); i<n; i++)
-    {
-      _covs[i]->addEval0CovMatBiPointInPlace(mat, mode);
-    }
-  }
-  else
-  {
-    for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-    {
-      _covs[mode->getActiveCovList(i)]->addEval0CovMatBiPointInPlace(mat, mode);
-    }
+    int j = list[i];
+    _covs[j]->addEval0CovMatBiPointInPlace(mat, mode);
   }
 }
 
@@ -176,51 +192,37 @@ void CovList::optimizationSetTargetByIndex(int iech) const
 }
 
 double CovList::eval(const SpacePoint& p1,
-                           const SpacePoint& p2,
-                           int ivar,
-                           int jvar,
-                           const CovCalcMode* mode) const
+                     const SpacePoint& p2,
+                     int ivar,
+                     int jvar,
+                     const CovCalcMode* mode) const
 {
-  double cov = 0.;
-
-  if (_considerAllCovariances(mode))
+  double cov            = 0.;
+  const VectorInt& list = _getListActiveCovariances(mode);
+  for (int i = 0, n = (int)list.size(); i < n; i++)
   {
-    for (int i=0, n=getNCov(); i<n; i++)
-      cov += _covs[i]->eval(p1, p2, ivar, jvar, mode);
-  }
-  else
-  {
-    for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-      cov += _covs[mode->getActiveCovList(i)]->eval(p1, p2, ivar, jvar, mode);
+    int j = list[i];
+    cov += _covs[j]->eval(p1, p2, ivar, jvar, mode);
   }
   return cov;
 }
 
 double CovList::_loadAndEval(const SpacePoint& p1,
-                          const SpacePoint&p2,
-                          int ivar,
-                          int jvar,
-                          const CovCalcMode *mode) const
-{ 
-  double res = 0.;
-
-  if (_considerAllCovariances(mode))
+                             const SpacePoint& p2,
+                             int ivar,
+                             int jvar,
+                             const CovCalcMode* mode) const
+{
+  double res      = 0.;
+  const VectorInt& list = _getListActiveCovariances(mode);
+  for (int i = 0, n = (int)list.size(); i < n; i++)
   {
-    for (int i=0, n=getNCov(); i<n; i++)
-    {
-      res+= _covs[i]->loadAndEval(p1, p2, ivar,jvar, mode);
-    }
+    int j = list[i];
+    res += _covs[j]->loadAndEval(p1, p2, ivar, jvar, mode);
   }
-  else
-  {
-    for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-    {
-      res+= _covs[mode->getActiveCovList(i)]->loadAndEval(p1, p2, ivar,jvar, mode);
-    }
-  }
-
   return res;
 }
+
 /**
  * Calculate the Matrix of covariance between two space points
  * @param p1 Reference of the first space point
@@ -230,41 +232,40 @@ double CovList::_loadAndEval(const SpacePoint& p1,
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void CovList::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                                                const SpacePoint &p1,
-                                                const SpacePoint &p2,
-                                                const CovCalcMode *mode) const
+void CovList::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                           const SpacePoint& p1,
+                                           const SpacePoint& p2,
+                                           const CovCalcMode* mode) const
 {
-  if (_considerAllCovariances(mode))
+  const VectorInt& list = _getListActiveCovariances(mode);
+  for (int i = 0, n = (int)list.size(); i < n; i++)
   {
-    for (int i=0, n=getNCov(); i<n; i++)
-    {
-      _covs[i]->addEvalCovMatBiPointInPlace(mat,p1, p2, mode);
-    }
-  }
-  else
-  {
-    for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-    {
-      _covs[mode->getActiveCovList(i)]->addEvalCovMatBiPointInPlace(mat,p1, p2, mode);
-    }
+    int j = list[i];
+    _covs[j]->addEvalCovMatBiPointInPlace(mat, p1, p2, mode);
   }
 }
 
-void CovList::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode) const
+void CovList::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                                  const SpacePoint& p1,
+                                                  const SpacePoint& p2,
+                                                  const CovCalcMode* mode) const
 {
-  if (_considerAllCovariances(mode))
+  const VectorInt& list = _getListActiveCovariances(mode);
+  for (int i = 0, n = (int)list.size(); i < n; i++)
   {
-    for (int i=0, n=getNCov(); i<n; i++)
-    _covs[i]->loadAndAddEvalCovMatBiPointInPlace(mat,p1,p2,mode); 
-   }
-  else
-  {
-    for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-      _covs[mode->getActiveCovList(i)]->loadAndAddEvalCovMatBiPointInPlace(mat,p1,p2,mode); 
+    int j = list[i];
+    _covs[j]->loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
   }
- 
+}
+
+void CovList::_load(const SpacePoint& p, bool case1) const
+{
+  const VectorInt& list = _getListActiveCovariances(nullptr);
+  for (int i = 0, n = (int)list.size(); i < n; i++)
+  {
+    int j = list[i];
+    _covs[j]->load(p, case1);
+  }
 }
 
 String CovList::toString(const AStringFormat* /*strfmt*/) const
@@ -296,17 +297,6 @@ bool CovList::isFiltered(int icov) const
   return _filtered[icov];
 }
 
-VectorInt CovList::getActiveCovList() const
-{
-  VectorInt actives;
-  for (int i=0, n=getNCov(); i<n; i++)
-  {
-    if (_filtered[i]) continue;
-    actives.push_back(i);
-  }
-  return actives;
-}
-
 bool CovList::isAllActiveCovList() const
 {
   for (int i=0, n=getNCov(); i<n; i++)
@@ -314,16 +304,6 @@ bool CovList::isAllActiveCovList() const
     if (_filtered[i]) return false;
   }
   return true;
-}
-
-VectorInt CovList::getAllActiveCovList() const
-{
-  VectorInt actives;
-  for (int i=0, n=getNCov(); i<n; i++)
-  {
-    actives.push_back(i);
-  }
-  return actives;
 }
 
 const CovBase* CovList::getCova(int icov) const
@@ -418,7 +398,6 @@ void CovList::_manage(const Db* db1,const Db* db2)  const
   }
 }
 
-
 /**
  * Update the Model according to the Non-stationary parameters
  * @param icas1 Type of first Db: 1 for Input; 2 for Output
@@ -430,8 +409,34 @@ void CovList::_manage(const Db* db1,const Db* db2)  const
 void CovList::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const
 {
   for (const auto &e : _covs)
-  {
     e->updateCovByPoints(icas1,iech1,icas2,iech2);
+}
+
+void CovList::setActiveCovListFromOne(int keepOnlyCovIdx) const
+{
+  _allActiveCov = true;
+  _activeCovList.clear();
+  if (keepOnlyCovIdx >= 0)
+  {
+    _activeCovList.push_back(keepOnlyCovIdx);
+    _allActiveCov = false;
   }
 }
 
+/**
+ * Set the list of active covariances from an interval
+ * @param inddeb Lower bound of the interval (included)
+ * @param indto  Upper bound of the interval (excluded)
+ */
+void CovList::setActiveCovListFromInterval(int inddeb, int indto) const
+{
+  _activeCovList.clear();
+  for (int i = inddeb; i < indto; i++) _activeCovList.push_back(i);
+  _allActiveCov = false;
+}
+
+void CovList::setActiveCovList(const VectorInt& activeCovList, bool allActiveCov) const
+{
+  _activeCovList = activeCovList;
+  _allActiveCov  = allActiveCov;
+}

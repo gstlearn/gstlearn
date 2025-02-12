@@ -216,7 +216,7 @@ void CalcSimuPost::_readIn(int iech, const VectorInt& indices, VectorDouble& tab
     message("\n");
   }
   if (_mustBeChecked(2))
-    VH::display("    Initial    ", tabin, false);
+    VH::dump("    Initial    ", tabin, false);
 }
 
 void CalcSimuPost::_writeOut(int iech, const VectorDouble& tabout) const
@@ -286,7 +286,7 @@ void CalcSimuPost::_upscaleFunction(const VectorVectorDouble& Y_p_k_s, VectorDou
   {
     std::ostringstream string;
     string << "    Upscaled (" << nsample << ")";
-    VH::display(string.str(), tabout, false);
+    VH::dump(string.str(), tabout, false);
   }
 }
 
@@ -603,7 +603,7 @@ int CalcSimuPost::_process()
         {
           _transformFunction(sampleIn, sampleOut);
           if (_mustBeChecked(2))
-            VH::display("    Transformed",sampleOut, false);
+            VH::dump("    Transformed",sampleOut, false);
           Z_n_k_s.push_back(sampleOut);
         }
       }

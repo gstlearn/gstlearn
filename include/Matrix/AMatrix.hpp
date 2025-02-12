@@ -207,6 +207,7 @@ public:
                          const AMatrix* mat2 = nullptr,
                          double val3         = 1.,
                          const AMatrix* mat3 = nullptr);
+  void power(double value);
 
   static void setFlagMatrixCheckAddress(bool flagCheckAddress)
   {
@@ -266,7 +267,6 @@ protected:
   bool _isRowSizeConsistent(const VectorDouble &tab) const;
   bool _isRankValid(int rank) const;
   void _fillFromVVD(const VectorVectorDouble& X);
-
 
   bool _checkLink(int nrow1,
                   int ncol1,

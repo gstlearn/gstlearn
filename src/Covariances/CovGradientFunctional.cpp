@@ -138,12 +138,12 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
 
   //  Calculate the covariance
 
-  double covar = getSill(0,0) * getCova()->evalCov(h);
+  double covar = getSill(0,0) * getCovFunc()->evalCov(h);
   covVal += covar;
-  if (getCova()->getType() == ECov::NUGGET) return;
+  if (getCovFunc()->getType() == ECov::NUGGET) return;
 
   _calculateTrTtr(d, u, trttr);
-  double dcovsr = getSill(0,0) * getCova()->evalCovDerivative(1,h);
+  double dcovsr = getSill(0,0) * getCovFunc()->evalCovDerivative(1,h);
 
   //  Case where distance is null
 
@@ -169,7 +169,7 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
 
     if (flagGrad)
     {
-      double d2cov = getSill(0,0) * getCova()->evalCovDerivative(2,h);
+      double d2cov = getSill(0,0) * getCovFunc()->evalCovDerivative(2,h);
       double a = (dcovsr - d2cov) / (h * h);
       if (getAniso().isIsotropic())
       {

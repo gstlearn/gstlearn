@@ -204,7 +204,6 @@ MatrixRectangular CovAniso::simulateSpectralOmega(int nb) const
   return _corAniso->simulateSpectralOmega(nb);
 }
 
-
 double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
   double cov = _corAniso->evalCorFromH(0, mode);
@@ -223,7 +222,7 @@ double CovAniso::eval(const SpacePoint &p1,
   double cov = _corAniso->evalCor(p1,p2,mode);
   if (mode == nullptr || ! mode->getUnitary())
     cov *= getSill(ivar, jvar);
-  return (cov);
+  return cov;
 }
 
 /**
@@ -245,7 +244,6 @@ void CovAniso::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
     mat.addMatInPlace(_workMat, 1., cov);
   }
 }
-
 
 /**
  * Fill the vector of covariances between each valid SpacePoint (recorded in _p1As)
@@ -378,7 +376,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
  
-  sstr << _corAniso->getCova()->toString();
+  sstr << _corAniso->getCovFunc()->toString();
 
   // Sill - Factor / Slope information
   if (_corAniso->hasRange() > 0)
@@ -800,21 +798,4 @@ void CovAniso::informDbInForAnisotropy(const Db* dbin) const
 void CovAniso::informDbOutForAnisotropy(const Db* dbout) const
 {
    _corAniso->informDbOutForAnisotropy(dbout);  
-}
-
-void CovAniso::_optimizationSetTarget(const SpacePoint& pt) const
-{
-  if (_isOptimEnabled())
-  {  
-    _optimizationTransformSP(pt, _p2A);
-  }
-  else 
-  {
-    _p2A = pt;
-  }  
-}
-
-void CovAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const
-{
-  _corAniso->optimizationTransformSP(ptin, ptout);
 }

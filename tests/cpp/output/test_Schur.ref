@@ -21,24 +21,28 @@ Using Standard Kriging procedure
 
 Bayesian Drift coefficients
 ===========================
-Prior Mean      -0.504     -1.222      0.290
-Prior Variance-Covariance
-                  [,1]       [,2]       [,3]
-       [1,]      0.223      0.000      0.000
-       [2,]      0.000      0.173      0.000
-       [3,]      0.000      0.000      0.213
-Posterior Mean      -0.269     -0.191      0.364
-Posterior Variance-Covariance
-                  [,1]       [,2]       [,3]
-       [1,]     -0.005      0.003     -0.005
-       [2,]      0.003     -0.003     -0.004
-       [3,]     -0.005     -0.004     -0.009
-Bayes.z-1.estim      0.184
-Bayes.z-2.estim      0.082
-Bayes.z-3.estim      0.195
+Prior Mean:    -0.504    -1.222     0.290
+Prior Covariance Matrix
+- Number of rows    = 3
+- Number of columns = 3
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.223     0.000     0.000
+     [  1,]     0.000     0.173     0.000
+     [  2,]     0.000     0.000     0.213
+Posterior Mean:     0.289    -0.444    -0.294
+Posterior Covariance Matrix
+- Number of rows    = 3
+- Number of columns = 3
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.138    -0.074     0.056
+     [  1,]    -0.074     0.095     0.055
+     [  2,]     0.056     0.055     0.164
+Bayes.z-1.estim      0.190
+Bayes.z-2.estim      0.080
+Bayes.z-3.estim      0.189
 Bayes.z-1.stdev      1.028
-Bayes.z-2.stdev      0.883
-Bayes.z-3.stdev      1.114
+Bayes.z-2.stdev      0.885
+Bayes.z-3.stdev      1.118
 
 Using Schur class
 -----------------
@@ -71,7 +75,7 @@ Collocated Option (in Unique Neighborhood):
 ===========================================
 - using 'KrigingCalcul' on the Complemented Data Set
 - using 'KrigingCalcul' on Standard Data Set adding Collocated Option
-- Collocated Variable ranks:         0         2
+- Collocated Variable ranks:         0        -1         2
 
 Data Base Characteristics
 =========================

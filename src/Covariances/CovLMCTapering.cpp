@@ -8,15 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Covariances/ACov.hpp"
-#include "Covariances/CovAnisoList.hpp"
 #include "Enum/ETape.hpp"
-
-#include "Covariances/CovLMCTapering.hpp"
 #include "Space/ASpace.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
+#include "Covariances/CovAnisoList.hpp"
+#include "Covariances/CovLMCTapering.hpp"
 
 #include <math.h>
 
@@ -50,21 +48,6 @@ CovLMCTapering& CovLMCTapering::operator=(const CovLMCTapering &r)
 
 CovLMCTapering::~CovLMCTapering()
 {
-}
-
-void CovLMCTapering::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode) const
-{
-  // TODO: cannot replace by CovAnisoList???
-  ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
-}
-void CovLMCTapering::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                                                     const SpacePoint &pwork1,
-                                                     const SpacePoint &pwork2,
-                                                     const CovCalcMode *mode) const
-{
-  // TODO: cannot replace by CovAnisoList???
-  ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
 }
 
 int CovLMCTapering::init(const ETape& tapetype, double taperange)

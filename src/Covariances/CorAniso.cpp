@@ -416,7 +416,7 @@ double CorAniso::evalCor(const SpacePoint &p1,
   }
   else
   {
-    h = p2.getDistance(p1);
+    h = _pw2->getDistance(*_pw1);
   }
 
   return evalCorFromH(h, mode);
@@ -914,26 +914,6 @@ Array CorAniso::evalCovFFT(const VectorDouble& hmax,
   return evalCovFFTSpatial(hmax, N, funcSpectrum);
 }
 
-
-/**
- * Define the second Space Point by transforming the input Space Point 'pt'
- * on the basis of the current covariance
- *
- * @param pt Target sample provided as a Space Point
- * @param p2A Space Point after projection
- */
-void CorAniso::optimizationSetTarget(const SpacePoint& pt,SpacePoint& p2A) const
-{
-  if (_isOptimEnabled())
-  {  
-    optimizationTransformSP(pt, p2A);
-  }
-  else 
-  {
-    p2A = pt;
-  }  
-}
-
 /**
  * Define the Second Space Point as coinciding with the Input Space Point
 'iech'.
@@ -972,6 +952,7 @@ void CorAniso::optimizationTransformSP(const SpacePoint& ptin,
     _aniso.applyInverseInPlace(ptin.getCoords(), ptout.getCoordRef());
     ptout.setIech(ptin.getIech());
     ptout.setTarget(ptin.isTarget());
+    return;
   }
 
   bool isTarget = ptin.isTarget();
@@ -988,11 +969,15 @@ void CorAniso::optimizationTransformSP(const SpacePoint& ptin,
 selection
  * or checking for heterotopy.
  * @param p Vector of SpacePoints
- * @param p1As Vector of SpacePoints after projection
  */
-void CorAniso::optimizationPreProcess(const std::vector<SpacePoint>& p,
-                                      std::vector<SpacePoint>& p1As) const
+
+void CorAniso::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
 {
+  if (!isOptimEnabled())
+  {
+    ACov::_optimizationPreProcess(p);
+    return;
+  }
 
   int n = (int)p.size();
   SpacePoint pt(getSpace());
@@ -1007,7 +992,7 @@ void CorAniso::optimizationPreProcess(const std::vector<SpacePoint>& p,
     {
       pt.setFFFF();
     }
-    p1As.push_back(pt);
+    _p1As.push_back(pt);
   }
   _isOptimizationPreProcessed = true;
 }
@@ -1027,9 +1012,6 @@ bool CorAniso::isOptimizationInitialized(const std::vector<SpacePoint> &p1As,
   int n = (int) p1As.size();
   return n == db->getNSample();
 }
-
-  
-
 
 bool CorAniso::isNoStat() const
 {
@@ -1472,4 +1454,14 @@ void CorAniso::_manage(const Db* db1,const Db* db2) const
     informDbIn(db1);
   if (db2!=nullptr)
     informDbOut(db2);
+}
+
+void CorAniso::_optimizationSetTarget(const SpacePoint& pt) const
+{
+  if (!isOptimEnabled())
+  {
+    ACov::_optimizationSetTarget(pt);
+    return;
+  }
+  optimizationTransformSP(pt, _p2A);
 }

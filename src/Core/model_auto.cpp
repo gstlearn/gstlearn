@@ -902,16 +902,17 @@ static void st_prepar_goulard_vario(int imod)
   std::vector<MatrixRectangular> &ge = RECINT.ge;
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
-  CovCalcMode mode(ECalcMember::LHS);
+  CovCalcMode mode(ECalcMember::RHS); // to allow selecting individual structures
   mode.setAsVario(true);
   mode.setUnitary(true);
   mode.setOrderVario(STRMOD->norder);
+  const CovAnisoList* cova = model->getCovAnisoList();
 
   /* Loop on the basic structures */
 
   for (int icov = 0, ncov = model->getNCov(); icov < ncov; icov++)
   {
-    mode.setActiveCovListFromOne(icov);
+    cova->setActiveCovListFromOne(icov);
 
     /* Loop on the experiments */
 
@@ -1397,17 +1398,19 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
 
   /* Core allocation */
 
+  MatrixSquareSymmetric cc(nvar);
   MatrixRectangular mp(nvs2, npadir);
+
   std::vector<MatrixRectangular> fk;
   fk.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
     fk.push_back(MatrixRectangular(nvs2, npadir));
-  MatrixSquareSymmetric cc(nvar);
 
   std::vector<MatrixSquareSymmetric> aic;
   aic.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
     aic.push_back(MatrixSquareSymmetric(nvar));
+
   std::vector<MatrixSquareSymmetric> alphak;
   alphak.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
@@ -2215,10 +2218,11 @@ static int st_structure_reduce(StrMod *strmod,
   int ndim = model->getNDim();
   VectorDouble d1(ndim, hmax);
   MatrixSquareGeneral tab(nvar);
-  CovCalcMode mode(ECalcMember::LHS);
+  CovCalcMode mode(ECalcMember::RHS);
   mode.setAsVario(true);
-  mode.setActiveCovListFromOne(icov);
   mode.setOrderVario(STRMOD->norder);
+  const CovAnisoList* cova = model->getCovAnisoList();
+  cova->setActiveCovListFromOne(icov);
   model->evaluateMatInPlace(nullptr, d1, tab, true, 1., &mode);
 
   for (int ivar = 0; ivar < nvar; ivar++)
@@ -4102,7 +4106,8 @@ static void st_prepar_goulard_vmap(int imod)
   VectorDouble d0(ndim);
   MatrixSquareGeneral tab(nvar);
   DBMAP->rankToIndice(nech / 2, INDG1);
-  CovCalcMode mode(ECalcMember::LHS);
+  CovCalcMode mode(ECalcMember::RHS);
+  const CovAnisoList* cova = model->getCovAnisoList();
   mode.setAsVario(true);
   mode.setUnitary(true);
   mode.setOrderVario(STRMOD->norder);
@@ -4111,7 +4116,7 @@ static void st_prepar_goulard_vmap(int imod)
 
   for (int icov = 0; icov < ncova; icov++)
   {
-    mode.setActiveCovListFromOne(icov);
+    cova->setActiveCovListFromOne(icov);
 
     /* Loop on the experiments */
 

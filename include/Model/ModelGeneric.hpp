@@ -48,28 +48,28 @@ public:
   const ACov*       getCov()             const { return  _cova;     }
   const CovContext* getContext()         const { return &_ctxt;     }
   const DriftList*  getDriftList()       const { return  _driftList;}
-  
-  public:
 
-  ACov*             _getCovModify()             { return  _cova;     }
-  CovContext*       _getContextModify()         { return &_ctxt;     }
-  DriftList*        _getDriftListModify()       { return  _driftList;}
-  
-  public:
+public:
+  ACov* _getCovModify() { return _cova; }
+  CovContext* _getContextModify() { return &_ctxt; }
+  DriftList* _getDriftListModify() { return _driftList; }
+
+public:
 
   // Forwarding the methods from _cova
-  FORWARD_METHOD(getCov,evalCovMatBiPointInPlace)
+  FORWARD_METHOD(getCov, evalCovMatBiPointInPlace)
   FORWARD_METHOD(getCov, eval0CovMatBiPointInPlace)
   FORWARD_METHOD(getCov, evalCovMatOptim)
   FORWARD_METHOD(getCov, evalCovMatSym)
   FORWARD_METHOD(getCov, evalCovMatSymOptim)
-  FORWARD_METHOD(getCov, evalCovMatOptimByRanks)
+  FORWARD_METHOD(getCov, evalCovMatOptimByTarget)
   FORWARD_METHOD(getCov, evalCovMatSymOptimByRanks)
   FORWARD_METHOD(getCov, evalCovMatSymByRanks)
   FORWARD_METHOD(getCov, eval0Mat)
+  FORWARD_METHOD(getCov, eval0MatByTarget)
   FORWARD_METHOD(getCov, evalCovMat)
   FORWARD_METHOD(getCov, evalCovMatV)
-  FORWARD_METHOD(getCov, evalCovMatByRanks)
+  FORWARD_METHOD(getCov, evalCovMatByTarget)
   FORWARD_METHOD(getCov, evalCovMatSparse)
   FORWARD_METHOD(getCov, eval0)
   FORWARD_METHOD(getCov, eval)
@@ -109,7 +109,7 @@ public:
   
   FORWARD_METHOD(getDriftList, getDrift)
   FORWARD_METHOD(getDriftList, computeDrift, TEST)
-  FORWARD_METHOD(getDriftList, evalDriftValue,TEST)
+  FORWARD_METHOD(getDriftList, evalDriftValue, TEST)
   FORWARD_METHOD(getDriftList, evalDriftMat)
   FORWARD_METHOD(getDriftList, evalDriftMatByRanks)
   FORWARD_METHOD(getDriftList, evalDriftMatByTarget)
@@ -140,8 +140,8 @@ public:
   FORWARD_METHOD_NON_CONST(_getDriftListModify, delDrift)
   FORWARD_METHOD_NON_CONST(_getDriftListModify, delAllDrifts)
   FORWARD_METHOD_NON_CONST(_getDriftListModify, copyCovContext)
-  FORWARD_METHOD_NON_CONST(_getDriftListModify,setMeans)
-  FORWARD_METHOD_NON_CONST(_getDriftListModify,setMean)
+  FORWARD_METHOD_NON_CONST(_getDriftListModify, setMeans)
+  FORWARD_METHOD_NON_CONST(_getDriftListModify, setMean)
   
   // Forwarding the methods from _ctxt
   FORWARD_METHOD(getContext, getNVar, -1)

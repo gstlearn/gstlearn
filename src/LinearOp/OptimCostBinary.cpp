@@ -162,7 +162,7 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
   if (verbose)
   {
     message("Mean proportion (provided as input) = %lf\n",_meanPropRaw);
-    VH::displayStats("Proportions calculated on Data",indic);
+    VH::dumpStats("Proportions calculated on Data",indic);
   }
 
   try 
@@ -232,7 +232,7 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
 
     if (verbose)
     {
-      VH::displayStats("Calculated Proportions",propfac);
+      VH::dumpStats("Calculated Proportions",propfac);
     }
   }
   catch(const std::string& str)

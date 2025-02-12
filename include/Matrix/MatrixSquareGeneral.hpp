@@ -42,17 +42,17 @@ public:
                                            int nrow,
                                            bool byCol = false,
                                            bool invertColumnOrder = false);
-
   int decomposeLU(MatrixSquareGeneral& tls,
                   MatrixSquareGeneral& tus,
                   double eps = EPSILON20);
+  MatrixSquareGeneral compress0MatLC(const MatrixRectangular& matLC);
 
 private:
-  int     _invertLU();
-  int     _solveLU(const MatrixSquareGeneral& tus,
-                   const MatrixSquareGeneral& tls,
-                   const double *b,
-                   double *x);
+  int _invertLU();
+  int _solveLU(const MatrixSquareGeneral& tus,
+               const MatrixSquareGeneral& tls,
+               const double* b,
+               double* x);
   int     _forwardLU(const MatrixSquareGeneral& tls, const double *b, double *x, double eps = EPSILON20);
   int     _backwardLU(const MatrixSquareGeneral& tus, const double *b, double *x, double eps = EPSILON20);
 };

@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
       neigh1->getNeigh(i, indices1);
       VectorDouble dists = getSortedDistance(data, indices1, Pt);
       checkDistances1.push_back(dists);
-      if (verbose) VH::display("", indices1);
+      if (verbose) VH::dump("", indices1);
     }
     timer.displayIntervalMilliseconds("Standard Neighborhood", 17000);
   }
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
       neigh2->getNeigh(i, indices2);
       VectorDouble dists = getSortedDistance(data, indices2, Pt);
       checkDistances2.push_back(dists);
-      if (verbose) VH::display("", indices2);
+      if (verbose) VH::dump("", indices2);
     }
     timer.displayIntervalMilliseconds("Neigh. with Ball option", 400);
   }
@@ -138,8 +138,8 @@ int main(int argc, char *argv[])
       if (!VH::isEqual(checkDistances1[i], checkDistances2[i], 0.01))
       {
         messerr("Vector of indices are different at rank %d", i);
-        VH::display("- Standard search", checkDistances1[i]);
-        VH::display("- BallTree search", checkDistances2[i]);
+        VH::dump("- Standard search", checkDistances1[i]);
+        VH::dump("- BallTree search", checkDistances2[i]);
       }
   }
 

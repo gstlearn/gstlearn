@@ -252,6 +252,7 @@ set(SRC
   Basic/Plane.cpp
   Basic/FFT.cpp
   Basic/PolyLine2D.cpp
+  Basic/Convolution.cpp
   Geometry/GeometryHelper.cpp
   Geometry/ABiTargetCheck.cpp
   Geometry/BiTargetCheckDistance.cpp
@@ -311,6 +312,7 @@ set(SRC
   Estimation/CalcSimpleInterpolation.cpp
   Estimation/CalcImage.cpp
   Estimation/CalcGlobal.cpp
+  Estimation/KrigOpt.cpp
   OutputFormat/AOF.cpp
   OutputFormat/GridIfpEn.cpp
   OutputFormat/GridEclipse.cpp

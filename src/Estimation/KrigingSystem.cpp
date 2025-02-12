@@ -9,6 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
+#include "Covariances/CovLMCAnamorphosis.hpp"
+#include "geoslib_define.h"
 #include "geoslib_old_f.h"
 
 #include "Estimation/KrigingSystem.hpp"
@@ -32,6 +34,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/OptCst.hpp"
 #include "Covariances/CovAnisoList.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
@@ -39,6 +42,7 @@
 #include "Space/SpaceRN.hpp"
 #include "Core/Keypair.hpp"
 #include "Estimation/KrigingCalcul.hpp"
+#include "Estimation/KrigOpt.hpp"
 #include "Basic/OptCustom.hpp"
 
 #include <math.h>
@@ -51,7 +55,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
                              Db* dbout,
                              const ModelGeneric* model,
                              ANeigh* neigh)
-  : _oldStyle(true)
+  : _oldStyle(false)
   , _dbin(dbin)
   , _dbout(dbout)
   , _modelInit(nullptr)
@@ -61,6 +65,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _isReady(false)
   , _model(nullptr)
   , _algebra()
+  , _krigopt()
   , _sampleRanks()
   , _Sigma00()
   , _Sigma()
@@ -69,9 +74,10 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _X0()
   , _Z()
   , _means()
-  , _calcModeLHS()
-  , _calcModeRHS()
-  , _calcModeVAR()
+  , _meansTarget()
+  , _calcModeLHS(ECalcMember::LHS)
+  , _calcModeRHS(ECalcMember::RHS)
+  , _calcModeVAR(ECalcMember::VAR)
   , _iptrEst(-1)
   , _iptrStd(-1)
   , _iptrVarZ(-1)
@@ -97,6 +103,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _xvalidStdev(true)
   , _xvalidVarZ(false)
   , _rankColCok()
+  , _valuesColCok()
   , _flagBayes(false)
   , _seedForBayes(123456)
   , _priorMean()
@@ -109,6 +116,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _flagDGM(false)
   , _flagFactorKriging(false)
   , _nclasses(0)
+  , _factorClass(0)
   , _matLC(nullptr)
   , _flagLTerm(false)
   , _lterm(0.)
@@ -157,7 +165,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _flagNoStat(false)
   , _cova(nullptr)
 {
-  _oldStyle = OptCustom::query("oldStyle", 1.) == 1.;
+  _oldStyle = OptCustom::query("oldStyle", 0.) == 1.;
 
   // _model is a copy of input model to allow modification (still used???)
   if (model != nullptr) _model = (ModelGeneric*) model->clone();
@@ -167,10 +175,12 @@ KrigingSystem::KrigingSystem(Db* dbin,
 
   // Store the pointer casting the input ModelGeneric* into Model*
   // in order to avoid too many dynamic casts in the code
-  _modelCovAniso = dynamic_cast<Model*>(model->clone());
-
-  if (_modelCovAniso->getNCov() > 0)
-    _cova = _modelCovAniso->getCovAnisoListModify();
+  // _cova = model->getCovAnisoListModify();
+  ACov* cov = _model->_getCovModify();
+  _cova = dynamic_cast<CovAnisoList*>(cov);
+  // _modelCovAniso = dynamic_cast<Model*>(model->clone());
+  // if (_modelCovAniso->getNCov() > 0)
+  //   _cova = _modelCovAniso->getCovAnisoListModify();
   
   if (model != nullptr)
     _flagNoStat = _cova->isNoStat();
@@ -182,20 +192,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
   // Define local constants
   _flagNoMatLC = _matLC == nullptr;
   _flagVerr    = _dbin->hasLocVariable(ELoc::V);
-
-  // Define the vector of data
-  if (!_oldStyle)
-  {
-    _means = _model->getMeans();
-    if (_neigh != nullptr && _neigh->getType() == ENeigh::UNIQUE)
-    {
-      _sampleRanks = _dbin->getSampleRanks();
-      _Z = _dbin->getValuesByRanks(_sampleRanks, _means);
-      _algebra.setData(&_Z, &_sampleRanks, &_means);
-    }
-    _Sigma00 = _model->eval0Mat();
-    _algebra.setVariance(&_Sigma00);
-  }
 
   _resetMemoryGeneral();
 }
@@ -378,7 +374,7 @@ void KrigingSystem::_resetMemoryGeneral()
   _drftab.resize(_nbfl);
   _var0.reset(_nvarCL, _nvarCL);
 
-  // _results serves for internal calculation of estimation and variance of estimation error.
+  // '_results' serves for internal calculation of estimation and variance of estimation error.
   // For the latter, the matrix product provides the full variance-covariance matrix:
   // Only the diagonal terms are used, but the matrix must be square.
   _results.reset(_nvarCL,_nvarCL);
@@ -451,8 +447,8 @@ double KrigingSystem::_getIvar(int rank, int ivar) const
   // Variable in the Output file: colocated case
 
   int jvar = (_rankColCok.empty()) ? -1 : _rankColCok[ivar];
-  if (IFFFF(jvar)) return TEST;
-  return _dbout->getArray(_iechOut, jvar);
+  if (jvar < 0 || jvar >= _dbout->getNLoc(ELoc::Z)) return TEST;
+  return _dbout->getZVariable(_iechOut, jvar);
 }
 
 /****************************************************************************/
@@ -485,17 +481,17 @@ double KrigingSystem::_getMean(int ivar, bool flagLHS) const
 
   if (_flagNoMatLC || flagLHS)
   {
-    double mean = _modelCovAniso->getMean(ivar);
+    double mean = _model->getMean(ivar);
     if (_flagBayes)
-      mean = _modelCovAniso->evalDriftVarCoef(_dbout, _iechOut, ivar, _postMean);
+      mean = _model->evalDriftVarCoef(_dbout, _iechOut, ivar, _postMean);
     return mean;
   }
   double value = 0.;
   for (int jvar = 0; jvar < _nvar; jvar++)
   {
-    double mean = _modelCovAniso->getMean(jvar);
+    double mean = _model->getMean(jvar);
     if (_flagBayes)
-      mean = _modelCovAniso->evalDriftVarCoef(_dbout, _iechOut, jvar, _postMean);
+      mean = _model->evalDriftVarCoef(_dbout, _iechOut, jvar, _postMean);
     value += _matLC->getValue(ivar, jvar) * mean;
   }
   return value;
@@ -564,7 +560,7 @@ void KrigingSystem::_flagDefine()
 
   for (int ib = 0; ib < _nfeq; ib++)
   {
-    if (!_modelCovAniso->isDriftSampleDefined(_dbin, ib, _nech, _nbgh, ELoc::Z))
+    if (!_model->isDriftSampleDefined(_dbin, ib, _nech, _nbgh, ELoc::Z))
       _setFlag(_nech + ib, _nvar - 1, 0);
   }
 
@@ -616,9 +612,8 @@ void KrigingSystem::_covtab0Calcul(int icas, int iech, const CovCalcMode* mode)
 {
   DECLARE_UNUSED(icas);
   DECLARE_UNUSED(iech);
-  _modelCovAniso->eval0CovMatBiPointInPlace(_covtab, mode);
+  _cova->eval0CovMatBiPointInPlace(_covtab, mode);
 }
-
 
 void KrigingSystem::_covCvvCalcul(const CovCalcMode* mode)
 {
@@ -684,8 +679,20 @@ void KrigingSystem::_lhsCalcul()
   _p1.setTarget(false);
   _p2.setTarget(false);
   for (int iech = 0; iech < _nech; iech++)
-  { 
-    _p1.setIech(_nbgh[iech]);
+  {
+    if (_nbgh[iech] >= 0)
+    {
+      _p1.setIech(_nbgh[iech]);
+      _dbin->getSampleAsSPInPlace(_p1, _nbgh[iech]);
+    }
+    else
+    {
+      // Modification for fictitious sample (colocated option)
+      _p1.setTarget(true);
+      _p1.setIech(-1);
+      _dbout->getSampleAsSPInPlace(_p1, _iechOut);
+    }
+    _cova->optimizationSetTarget(_p1);
     for (int jech = 0; jech <= iech; jech++)
     {
       _cova->updateCovByPoints(1, _nbgh[iech], 1, _nbgh[jech]);
@@ -693,8 +700,21 @@ void KrigingSystem::_lhsCalcul()
         _covtab0Calcul(1, _nbgh[iech], &_calcModeLHS);
       else
       {
-        _p2.setIech(_nbgh[jech]);
-        _cova->evalCovKriging(_covtab,_p1,_p2,&_calcModeLHS);
+        if (_nbgh[jech] >= 0)
+        {
+          _p2.setIech(_nbgh[jech]);
+          _dbin->getSampleAsSPInPlace(_p2, _nbgh[jech]);
+        }
+        else
+        {
+          // Modification for fictitious sample (colocated option)
+          _p2.setTarget(true);
+          _p2.setIech(-1);
+          _dbout->getSampleAsSPInPlace(_p2, _iechOut);
+        }
+        _cova->optimizationSetTarget(_p2);
+
+        _cova->evalCovKriging(_covtab, _p1, _p2, &_calcModeLHS);
       }
       for (int ivar = 0; ivar < _nvar; ivar++)
         for (int jvar = 0; jvar < _nvar; jvar++)
@@ -739,15 +759,13 @@ void KrigingSystem::_lhsCalcul()
 
   if (_nfeq <= 0 || _nbfl <= 0) return;
   for (int iech = 0; iech < _nech; iech++)
-  {
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int ib = 0; ib < _nfeq; ib++)
       {
-        double value = _modelCovAniso->evalDriftValue(_dbin, _nbgh[iech], ivar, ib, ECalcMember::LHS);
+        double value = _model->evalDriftValue(_dbin, _nbgh[iech], ivar, ib, ECalcMember::LHS);
         _setLHSF(iech,ivar,ib,_nvar,value);
         _setLHSF(ib,_nvar,iech,ivar,value);
       }
-  }
 }
 
 void KrigingSystem::_lhsIsoToHetero()
@@ -897,7 +915,18 @@ void KrigingSystem::_rhsCalculPoint()
   for (int iech = 0; iech < _nech; iech++)
   {
     _cova->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
-    _p1.setIech(_nbgh[iech]);
+    if (_nbgh[iech] >= 0)
+    {
+      _p1.setIech(_nbgh[iech]);
+      _dbin->getSampleAsSPInPlace(_p1, _nbgh[iech]);
+    }
+    else
+    {
+      // Modification for fictitious sample (colocated option)
+      _p1.setTarget(true);
+      _dbout->getSampleAsSPInPlace(_p1, _iechOut);
+      _cova->optimizationSetTarget(_p1);
+    }
     _cova->evalCovKriging(_covtab, _p1, _p0, &_calcModeRHS);
     _rhsStore(iech);
   }
@@ -923,6 +952,18 @@ void KrigingSystem::_rhsCalculBlock()
   for (int iech = 0; iech < _nech; iech++)
   {
     _cova->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
+    if (_nbgh[iech] >= 0)
+    {
+      _p1.setIech(_nbgh[iech]);
+      _dbin->getSampleAsSPInPlace(_p1, _nbgh[iech]);
+    }
+    else
+    {
+      // Modification for fictitious sample (colocated option)
+      _p1.setTarget(true);
+      _dbout->getSampleAsSPInPlace(_p1, _iechOut);
+      _cova->optimizationSetTarget(_p1);
+    }
     if (_flagPerCell) _blockDiscretize(1);
     covcum.fill(0.);
 
@@ -932,7 +973,6 @@ void KrigingSystem::_rhsCalculBlock()
       _p0 = _p0_memo;
       _p0.move(_getDISC1Vec(i));
       _cova->optimizationSetTarget(_p0);
-      _p1.setIech(_nbgh[iech]);
       _cova->evalCovKriging(_covtab, _p1, _p0, &_calcModeRHS);
 
       // Cumulate the Local covariance to '_covtab'
@@ -977,7 +1017,15 @@ void KrigingSystem::_rhsCalculDGM()
   for (int iech = 0; iech < _nech; iech++)
   {
     _cova->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
-    _p1.setIech(_nbgh[iech]);
+    if (_nbgh[iech] >= 0)
+    {
+      _p1.setIech(_nbgh[iech]);
+      _dbin->getSampleAsSPInPlace(_p1, _nbgh[iech]);
+    }
+    else
+    {
+      messageAbort("Case not envisaged in DGM option");
+    }
     _cova->evalCovKriging(_covtab, _p1, _p0,&_calcModeRHS);
     _rhsStore(iech);
   }
@@ -1036,7 +1084,7 @@ int KrigingSystem::_rhsCalcul()
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int ib = 0; ib < _nfeq; ib++)
       {
-        double value = _modelCovAniso->evalDriftValue(_dbout, _iechOut, ivar, ib, ECalcMember::RHS);
+        double value = _model->evalDriftValue(_dbout, _iechOut, ivar, ib, ECalcMember::RHS);
         if (FFFF(value)) return 1;
         _setRHSF(ib,_nvar,ivar,value);
       }
@@ -1049,7 +1097,7 @@ int KrigingSystem::_rhsCalcul()
       for (int jvar = 0; jvar < _nvar; jvar++)
         for (int jl = 0; jl < _nbfl; jl++, ib++)
         {
-          double value = _modelCovAniso->evalDriftValue(_dbout, _iechOut, jvar, ib, ECalcMember::RHS);
+          double value = _model->evalDriftValue(_dbout, _iechOut, jvar, ib, ECalcMember::RHS);
           if (FFFF(value)) return 1;
           value *= _matLC->getValue(ivarCL,jvar);
           _setRHSF(ib,_nvar,ivarCL,value);
@@ -1299,17 +1347,15 @@ void KrigingSystem::_wgtDump(int status)
  *****************************************************************************/
 void KrigingSystem::_simulateCalcul(int status)
 {
-  _mustBeOldStyle("_simulateCalcul");
   int ecr = 0;
   for (int isimu = ecr = 0; isimu < _nbsimu; isimu++)
     for (int ivar = 0; ivar < _nvar; ivar++, ecr++)
     {
       double simu = 0.;
-
       if (status == 0)
       {
         if (_flagBayes)
-          simu = _modelCovAniso->evalDriftVarCoef(_dbout, _iechOut, ivar, _postSimu.getColumn(isimu));
+          simu = _model->evalDriftVarCoef(_dbout, _iechOut, ivar, _postSimu.getColumn(isimu));
 
         int lec = 0;
         for (int jvar = 0; jvar < _nvar; jvar++)
@@ -1318,11 +1364,17 @@ void KrigingSystem::_simulateCalcul(int status)
             int jech = _nbgh[iech];
 
             // Get the simulated difference at data point (Simu - Data)
-            double diff = _dbin->getSimvar(ELoc::SIMU, jech, isimu, jvar, _rankPGS, _nbsimu, _nvar);
+            double diff =
+              _dbin->getSimvar(ELoc::SIMU, jech, isimu, jvar, _rankPGS, _nbsimu, _nvar);
             if (FFFF(diff)) continue;
 
             // Get the kriging weight
-            double wgt = _wgt.getValue(lec++,ivar,false);
+            double wgt;
+            if (_oldStyle)
+              wgt = _wgt.getValue(lec, ivar, false);
+            else
+              wgt = _algebra.getLambda()->getValue(lec, ivar);
+            lec++;
 
             // Calculate the Kriging of simulated differences: -sum {wgt * diff}
             simu -= wgt * diff;
@@ -1405,7 +1457,13 @@ void KrigingSystem::_estimateCalcul(int status)
       for (int i = 0; i < _nech; i++)
       {
         if (status != 0) continue;
-        double wgt = _wgt.getValue(i,ivarCL,false);
+        double wgt;
+        if (_oldStyle)
+          wgt = _wgt.getValue(i, ivarCL, false);
+        else
+        {
+          wgt = _algebra.getLambda()->getValue(i, ivarCL);
+        }
         int iech = _nbgh[i];
         if (_flagSet)
           _dbin->setArray(iech, _iptrWeights + ivarCL, wgt);
@@ -1464,7 +1522,7 @@ void KrigingSystem::_estimateCalculImage(int status)
     {
       /* Loop on the neighboring points */
 
-      int ecr = ivar * _neq;
+      int ecr = 0;
       for (int jvar = 0; jvar < _nvar; jvar++)
       {
         for (int iech = 0; iech < _nech; iech++)
@@ -1481,7 +1539,7 @@ void KrigingSystem::_estimateCalculImage(int status)
           else
           {
             data -= _getMean(jvar, true);
-            estim += data * _wgt.getValue(ecr++,0,false);
+            estim += data * _wgt.getValue(ecr++,ivar,false);
           }
         }
       }
@@ -1552,7 +1610,6 @@ void KrigingSystem::_variance0()
   _p0.setTarget(true);
   _dbout->getSampleAsSPInPlace(_p0, _iechOut);
   _cova->optimizationSetTarget(_p0);
-
   _cova->updateCovByPoints(2, _iechOut, 2, _iechOut);
 
   switch (_calcul.toEnum())
@@ -1607,6 +1664,7 @@ void KrigingSystem::_estimateEstim(int status)
   if (!_oldStyle)
   {
     VectorDouble local = _algebra.getEstimation();
+    if (status) local.fill(TEST);
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
       _dbout->setArray(_iechOut, _iptrEst + ivarCL, local[ivarCL]);
     return;
@@ -1641,8 +1699,10 @@ void KrigingSystem::_estimateStdv(int status)
   if (!_oldStyle)
   {
     VectorDouble local = _algebra.getStdv();
+    if (status) local.fill(TEST);
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
       _dbout->setArray(_iechOut, _iptrStd + ivarCL, local[ivarCL]);
+
     return;
   }
 
@@ -1688,6 +1748,7 @@ void KrigingSystem::_estimateVarZ(int status)
   if (!_oldStyle)
   {
     VectorDouble local = _algebra.getVarianceZstar();
+    if (status) local.fill(TEST);
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
       _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, local[ivarCL]);
     return;
@@ -1748,15 +1809,28 @@ int KrigingSystem::_prepar()
   else
   {
     _sampleRanks = _dbin->getSampleRanks(VectorInt(), _nbgh);
-    _Z           = _dbin->getValuesByRanks(_sampleRanks, _means);
-    _Sigma = _model->evalCovMatSymOptimByRanks(_dbin, _sampleRanks, -1, &_calcModeLHS, false);
-    _X     = _model->evalDriftMatByRanks(_dbin, _sampleRanks);
-    _algebra.resetNewData();
-    _algebra.setData(&_Z, &_sampleRanks, &_means);
-    _algebra.setLHS(&_Sigma, &_X);
+    _Z           = _dbin->getValuesByRanks(_sampleRanks, _means, !_model->hasDrift());
+    _Sigma = _cova->evalCovMatSymOptimByRanks(_dbin, _sampleRanks, -1, &_calcModeLHS, false);
+    _X = _model->evalDriftMatByRanks(_dbin, _sampleRanks);
+    if (_algebra.resetNewData()) return 1;
+    if (_algebra.setData(&_Z, &_sampleRanks, &_meansTarget)) return 1;
+    if (_algebra.setLHS(&_Sigma, &_X)) return 1;
   }
 
-  if (OptDbg::query(EDbg::KRIGING)) _lhsDump();
+  return 0;
+}
+
+int KrigingSystem::resetNewData()
+{
+  _sampleRanks = _dbin->getSampleRanks(VectorInt(), _nbgh);
+  _Z           = _dbin->getValuesByRanks(_sampleRanks, _means, !_model->hasDrift());
+  _Sigma =
+    _cova->evalCovMatSymOptimByRanks(_dbin, _sampleRanks, -1, &_calcModeLHS, false);
+  _X = _model->evalDriftMatByRanks(_dbin, _sampleRanks);
+
+  if (_algebra.resetNewData()) return 1;
+  if (_algebra.setData(&_Z, &_sampleRanks, &_meansTarget)) return 1;
+  if (_algebra.setLHS(&_Sigma, &_X)) return 1;
 
   return 0;
 }
@@ -1812,21 +1886,38 @@ bool KrigingSystem::isReady()
 {
   if (! _isCorrect()) return false;
 
-  // Define the calculation modes
-  _calcModeLHS = CovCalcMode(ECalcMember::LHS);
-  _calcModeLHS.setActiveCovList(_modelCovAniso->getAllActiveCovList(), true);
-  _calcModeRHS = CovCalcMode(ECalcMember::RHS);
-  _calcModeRHS.setActiveCovList(_modelCovAniso->getActiveCovList(),
-                                _modelCovAniso->isAllActiveCovList());
-  _calcModeVAR = CovCalcMode(ECalcMember::VAR);
-  _calcModeVAR.setActiveCovList(_modelCovAniso->getActiveCovList(),
-                                _modelCovAniso->isAllActiveCovList());
+  // Define 
+  if (!_oldStyle)
+  {
+    _means = _model->getMeans();
+    _meansTarget = _means;
+
+    // Possible adjust the means in case of presence of 'matLC'
+    if (_matLC != nullptr)
+      _meansTarget = _matLC->prodMatVec(_means);
+
+    if (_neigh != nullptr && _neigh->getType() == ENeigh::UNIQUE)
+    {
+      _sampleRanks = _dbin->getSampleRanks();
+      _Z           = _dbin->getValuesByRanks(_sampleRanks, _means, !_model->hasDrift());
+      if (_algebra.setData(&_Z, &_sampleRanks, &_meansTarget)) return false;
+    }
+  }
 
   // Perform some pre-calculation when variance of estimator is requested
   if (_flagStd)
   {
     _iechOut = 0;
-    _variance0();
+
+    if (_oldStyle)
+    {
+      _variance0();
+    }
+    else
+    {
+      _Sigma00 = _cova->eval0MatByTarget(_dbout, 0, _krigopt);
+      if (_algebra.setVariance(&_Sigma00)) return false;
+    }
   }
 
   if (_neigh->getType() == ENeigh::IMAGE)
@@ -1839,7 +1930,6 @@ bool KrigingSystem::isReady()
 
     if (_model != nullptr && _dbaux != nullptr)
         _cova->optimizationPreProcess(_dbaux);
-    
 
     // Setup the Kriging pre-processings
     if (_prepareForImageKriging(_dbaux, neighI)) return false;
@@ -1896,7 +1986,8 @@ int KrigingSystem::estimate(int iech_out)
   bool skipCalculAll = false;
   if (_neigh->getType() == ENeigh::IMAGE) skipCalculAll = true;
 
-  // In case of Cross-validation in Unique Neighborhood, do not establish the RHS
+  // Particular cases:
+  // - Cross-validation in Unique Neighborhood
   bool caseXvalidUnique = (_neigh->getType() == ENeigh::UNIQUE && _neigh->getFlagXvalid());
 
   // Store the Rank of the Target sample
@@ -1910,10 +2001,13 @@ int KrigingSystem::estimate(int iech_out)
   if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
   {
     if (_flagFactorKriging)
-      message("\nProcessing Factor %d / %d\n",_modelCovAniso->getActiveFactor(), _nclasses);
+      message("\nProcessing Factor %d / %d\n", _cova->getActiveFactor(), _nclasses);
 
     mestitle(1, "Target location");
-    db_sample_print(_dbout, _iechOut, 1, 0, 0, 0);
+    if (_rankColCok.empty())
+      db_sample_print(_dbout, _iechOut, 1, 0, 0, 0);
+    else
+      db_sample_print(_dbout, _iechOut, 1, 1, 0, 0);
   }
 
   // Elaborate the Neighborhood
@@ -1938,7 +2032,10 @@ int KrigingSystem::estimate(int iech_out)
 
   if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || _flagDataChanged || OptDbg::force())
   {
-    if (_oldStyle) _dualCalcul();
+    if (_oldStyle)
+      _dualCalcul();
+    else
+      if (_algebra.isDual()) _lterm = _algebra.getLTerm();
   }
 
   if (caseXvalidUnique) _neigh->setFlagXvalid(true);
@@ -1957,27 +2054,63 @@ int KrigingSystem::estimate(int iech_out)
   {
     if (caseXvalidUnique)
     {
+      // For XValid in Unique Neighborhood:
+      // - no need to define the RHS information (it will be extracted from LHS°)
+      // - only define the indices of the XValidated columns
       VectorInt xvalidEqs = _xvalidUniqueIndices();
-      VectorInt xvalidVars = VH::sequence(_getNVar());
-      _algebra.setXvalidUnique(&xvalidEqs, &xvalidVars);
+      if (xvalidEqs.size() <= 0)
+      {
+        // The sample to be cross-validated is not valid, skip
+        status = 1;
+        goto label_store;
       }
+      VectorInt xvalidVars = VH::sequence(_getNVar());
+      if (_algebra.setXvalidUnique(&xvalidEqs, &xvalidVars)) return 1;
+    }
     else
     {
-      _Sigma0 = _model->evalCovMatOptimByRanks(_dbin, _dbout, _sampleRanks, -1, -1, iech_out, &_calcModeRHS, false);
-      _X0     = _model->evalDriftMatByTarget(_dbout, -1, iech_out);
-      _algebra.setRHS(&_Sigma0, &_X0);
+      _Sigma0 = _cova->evalCovMatOptimByTarget(_dbin, _dbout, _sampleRanks, iech_out, _krigopt, false);
+      _X0 = _model->evalDriftMatByTarget(_dbout, iech_out, _krigopt);
+      if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
     };
   }
-  if (OptDbg::query(EDbg::KRIGING)) _rhsDump();
 
-  /* Derive the kriging weights */
+  // Special patch for Colocated CoKriging
+  if (!_rankColCok.empty() && !_oldStyle)
+  {
+    if (_neigh->getType() == ENeigh::MOVING)
+    {
+      _updateForColCokMoving();
+    }
+    else
+    {
+      _valuesColCok = _dbout->getLocVariables(ELoc::Z, _iechOut);
+      if (_X.empty()) VH::subtractInPlace(_valuesColCok, _means);
+      if (_algebra.setColCokUnique(&_valuesColCok, &_rankColCok)) return 1;
+    }
+  }
+
+   /* Derive the kriging weights */
 
   if (_oldStyle)
   {
     if (_flagStd || _flagVarZ || _flagSimu || _flagWeights || _flagKeypairWeights)
       _wgtCalcul();
   }
-  if (OptDbg::query(EDbg::KRIGING)) _wgtDump(status);
+
+  // Printout for debugging case
+
+  if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || OptDbg::force())
+  {
+    // LHS is not printed systematically... only when it has been modified
+    if (OptDbg::query(EDbg::KRIGING)) _lhsDump();
+  }
+
+  if (OptDbg::query(EDbg::KRIGING))
+  {
+    _rhsDump();
+    _wgtDump(status);
+  }
 
   // Optional Save of the Kriging weights
   if (_flagKeypairWeights) _saveWeights(status);
@@ -2047,6 +2180,132 @@ int KrigingSystem::estimate(int iech_out)
   return 0;
 }
 
+int KrigingSystem::_updateForColCokMoving()
+{
+  int nvar = (int)_sampleRanks.size();
+  int nbfl = _X.getNCols();
+  int nrhs = _Sigma0.getNCols();
+  int ndim = _dbin->getNDim();
+
+  // If the target coincides with a data point, do not do anything
+  // (otherwise the new CoKriging system will be regular)
+  VectorDouble coor = _dbout->getSampleCoordinates(_iechOut);
+  for (int jech = 0, nech = _nbgh.size(); jech < nech; jech++)
+  {
+    int iech          = _nbgh[jech];
+    bool flagCoincide = true;
+    for (int idim = 0; idim < ndim && flagCoincide; idim++)
+    {
+      if (ABS(_dbin->getCoordinate(iech, idim)) > EPSILON3) flagCoincide = false;
+    }
+    if (flagCoincide) return 0;
+  }
+
+  // Prepare the vector of values from the Target File for Colocated option
+  int nAdd = 0;
+  VectorDouble newValues(nvar, TEST);
+  for (int jvar = 0; jvar < nvar; jvar++)
+  {
+    int ivar = _rankColCok[jvar];
+    if (ivar < 0 || ivar >= _dbout->getNLoc(ELoc::Z)) continue;
+    double value = _dbout->getZVariable(_iechOut, ivar);
+    if (FFFF(value)) continue;
+    newValues[ivar] = (nbfl > 0) ? value : value - _means[ivar];
+    nAdd++;
+  }
+  if (nAdd <= 0) return 0;
+
+  int oldSize = (int)_Z.size();
+  int newSize = oldSize + nAdd;
+
+  // Create the indexing vector (>0 for actual samples, <0 for additional sample)
+  // Indices are 1-based values (to allow negative and positive distinction) 
+  VectorInt adds(newSize);
+  int ecr = 0;
+  int lec = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    for (int i = 0, n = (int)_sampleRanks[ivar].size(); i < n; i++)
+      adds[ecr++] = 1 + lec++;
+    if (FFFF(newValues[ivar])) continue;
+    adds[ecr++] = -1 - ivar;
+  }
+
+  // Update _sampleRanks
+  VectorVectorInt newVVI(nvar);
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    newVVI[ivar] = _sampleRanks[ivar];
+    if (! FFFF(newValues[ivar])) newVVI[ivar].push_back(-1);
+  }
+  _sampleRanks = newVVI;
+
+  // Update Z vector
+  VectorDouble newZ = VectorDouble(newSize);
+  for (int i = 0; i < newSize; i++)
+    newZ[i] = (adds[i] > 0) ? _Z[adds[i] - 1] : newValues[-adds[i] - 1];
+  _Z = newZ;
+
+  // Update _Sigma (symmetric square matrix)
+  MatrixSquareSymmetric newS = MatrixSquareSymmetric(newSize);
+  for (int i = 0; i < newSize; i++)
+    for (int j = 0; j <= i; j++)
+    {
+      double value = TEST;
+      if (adds[i] > 0)
+      {
+        if (adds[j] > 0)
+          value = _Sigma.getValue(adds[i] - 1, adds[j] - 1);
+        else
+          value = _Sigma0.getValue(adds[i] - 1, -adds[j] - 1);
+      }
+      else
+      {
+        if (adds[j] > 0)
+          value = _Sigma0.getValue(adds[j] - 1, -adds[i] - 1);
+        else
+          value = _Sigma00.getValue(-adds[i] - 1, -adds[j] - 1);
+      }
+      newS.setValue(i, j, value);
+    }
+  _Sigma = newS;
+
+  // Update X
+  MatrixRectangular newX = MatrixRectangular(newSize, nbfl);
+  for (int i = 0; i < newSize; i++)
+    for (int j = 0; j < nbfl; j++)
+    {
+      double value;
+      if (adds[i] > 0)
+        value = _X.getValue(adds[i] - 1, j);
+      else
+        value = _X0.getValue(-adds[i] - 1, j);
+      newX.setValue(i, j, value);
+    }
+  _X = newX;
+
+  // Update Sigma0
+  MatrixRectangular newS0 = MatrixRectangular(newSize, nrhs);
+  for (int i = 0; i < newSize; i++)
+    for (int j = 0; j < nrhs; j++)
+    {
+      double value;
+      if (adds[i] > 0)
+        value = _Sigma0.getValue(adds[i] - 1, j);
+      else
+        value = _Sigma00.getValue(-adds[i] - 1, j);
+      newS0.setValue(i, j, value);
+    }
+  _Sigma0 = newS0;
+
+  // Store the result of Colocated updating in Moving Neighbrohood 
+  _algebra.resetNewData();
+  if (_algebra.setData(&_Z, &_sampleRanks, &_meansTarget)) return 1;
+  if (_algebra.setLHS(&_Sigma, &_X)) return 1;
+  if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
+  return 0;
+}
+
 /**
  * @brief Identify the list of equations involving the target sample
  *        within the vector of vector of data indices.
@@ -2061,7 +2320,7 @@ VectorInt KrigingSystem::_xvalidUniqueIndices() const
   for (int ivar = 0, nvar = (int)_sampleRanks.size(); ivar < nvar; ivar++)
   {
     for (int i = 0, n = (int) _sampleRanks[ivar].size(); i < n; i++, lec++)
-      if (i == _iechOut) ranks.push_back(lec);
+      if (_sampleRanks[ivar][i] == _iechOut) ranks.push_back(lec);
   }
   return ranks;
 }
@@ -2083,7 +2342,7 @@ void KrigingSystem::_krigingDump(int status)
 
   /* Loop on the results */
 
-  for (int ivar = 0; ivar < _nvar; ivar++)
+  for (int ivar = 0; ivar < _nvarCL; ivar++)
   {
     if (_neigh->getFlagXvalid())
     {
@@ -2164,7 +2423,10 @@ void KrigingSystem::_krigingDump(int status)
         tab_printg(" - Std. Dev. = ", value);
         message("\n");
         tab_printg(" - Variance  = ", FFFF(value) ? TEST : value * value);
-        value = (status == 0) ? _var0(ivar, ivar) : TEST;
+        if (_oldStyle)
+          value = (status == 0) ? _var0(ivar, ivar) : TEST;
+        else
+          value = _Sigma00.getValue(ivar, ivar);
         message("\n");
         tab_printg(" - Cov(h=0)  = ", value);
         message("\n");
@@ -2181,7 +2443,6 @@ void KrigingSystem::_krigingDump(int status)
 
 void KrigingSystem::_simulateDump(int status)
 {
-  _mustBeOldStyle("_simulateDump");
   mestitle(0, "Simulation results");
 
   /* Loop on the results */
@@ -2202,12 +2463,16 @@ void KrigingSystem::_simulateDump(int status)
  * @param iptrEst  UID for storing the estimation(s)
  * @param iptrStd  UID for storing the Standard deviations(s)
  * @param iptrVarZ UID for storing the Variance(s) of estimator
+ * @param forceNoDual Force that the algebra is not using the Dual option
  * @return Error returned code
  * @remark If a term must not be calculated, its UID must be negative
  */
-int KrigingSystem::updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ)
+int KrigingSystem::updKrigOptEstim(int iptrEst,
+                                   int iptrStd,
+                                   int iptrVarZ,
+                                   bool forceNoDual)
 {
-  _iptrEst = iptrEst;
+  _iptrEst  = iptrEst;
   _iptrStd  = iptrStd;
   _iptrVarZ = iptrVarZ;
 
@@ -2217,7 +2482,11 @@ int KrigingSystem::updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ)
 
   _flagDataChanged = true;
 
-  if (!_flagStd && !_flagVarZ)
+  // Set the Dual option automatically if:
+  // - no Variance estimation(s) is requested
+  // - the Unique Neighborhood is used
+  // - the Dual option is not forced OFF
+  if (!forceNoDual && !_flagStd && !_flagVarZ)
   {
     if (_neigh != nullptr && _neigh->getType() == ENeigh::UNIQUE)
       _algebra.setDual(true);
@@ -2278,9 +2547,11 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
   _isReady = false;
   _calcul = calcul;
   _flagPerCell = false;
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(_dbout);
+
   if (_calcul == EKrigOpt::BLOCK)
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(_dbout);
+
     if (dbgrid == nullptr)
     {
       messerr("Block Estimation is only possible for Grid '_dbout'");
@@ -2326,6 +2597,9 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
     _ndiscs.clear();
     _ndiscNumber = 0;
   }
+
+  // New style operation
+  _krigopt.setKrigingOption(calcul, dbgrid, ndiscs, _flagPerCell);
   return 0;
 }
 
@@ -2391,26 +2665,24 @@ int KrigingSystem::setKrigOptXValid(bool flag_xvalid,
  ** \remarks or -1 if not colocated
  ** \remarks If the array 'rank_colcok' is absent, colocation option is OFF.
  **
- ** \remarks In input, the numbering in ; rank_colcok' starts from 1
- ** \remarks In output, the numbering starts from 0
- **
  *****************************************************************************/
 int KrigingSystem::setKrigOptColCok(const VectorInt& rank_colcok)
 {
   if (rank_colcok.empty()) return 0;
 
   _isReady = false;
+  int nvar    = _getNVar();
   _rankColCok = rank_colcok;
-  int nvar = _getNVar();
-  _neigh->setRankColCok(rank_colcok);
+  _valuesColCok.resize(nvar);
+  if (_oldStyle) _neigh->setRankColCok(rank_colcok);
 
   /* Loop on the ranks of the colocated variables */
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int jvar = _rankColCok[ivar];
-    if (IFFFF(jvar)) continue;
-    if (jvar > _dbout->getNColumn())
+    if (jvar < 0) continue;
+    if (jvar > _dbout->getNLoc(ELoc::Z))
     {
       messerr("Error in the Colocation array:");
       messerr("Input variable (#%d): rank of the colocated variable is %d",
@@ -2472,12 +2744,12 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
 
     if (_oldStyle)
     {
-      _modelSimple = (Model*)_modelCovAniso->clone();
+      _modelSimple = (Model*)_model->clone();
       _modelSimple->delAllDrifts();
     }
 
     // Pass the Bayesian information to '_algebra'
-    _algebra.setBayes(&_priorMean, &_priorCov);
+    if (_algebra.setBayes(&_priorMean, &_priorCov)) return 1;
   }
   _flagBayes = flag_bayes;
   _seedForBayes = seed;
@@ -2521,6 +2793,10 @@ int KrigingSystem::setKrigOptMatLC(const MatrixRectangular* matLC)
   _matLC = matLC;
   _flagNoMatLC = false;
   _resetMemoryGeneral();
+
+  
+  // New style assignment
+  _krigopt.setMatLC(matLC, _getNVar());
   return 0;
 }
 
@@ -2578,7 +2854,8 @@ int KrigingSystem::setKrigOptDGM(bool flag_dgm, double eps)
     return 0;
   }
 
-  if (_modelCovAniso->getCovaMinIRFOrder() != -1)
+  const Model* model = dynamic_cast<const Model*>(_model);
+  if (model->getCovMinIRFOrder() != -1)
   {
     messerr("The option DGM is limited to Stationary Covariances");
     return 1;
@@ -2596,6 +2873,9 @@ int KrigingSystem::setKrigOptDGM(bool flag_dgm, double eps)
     return 1;
   }
   _flagDGM = flag_dgm;
+
+  // New style assignment
+  _krigopt.setKrigingDGM(flag_dgm);
   return 0;
 }
 
@@ -2683,7 +2963,13 @@ int KrigingSystem::setKrigOptFactorKriging(bool flag_factor_kriging)
   }
   else
   {
-    if (! _modelCovAniso->hasAnam())
+    CovLMCAnamorphosis* covAnam = dynamic_cast<CovLMCAnamorphosis*>(_cova);
+    if (covAnam == nullptr)
+    {
+      messerr("Your Model should contain a CovLMCAnamorphosis covariance item");
+      return 1;
+    }
+    if (!covAnam->hasAnam())
     {
       messerr("You may not use this option as there is no Anamorphosis defined");
       return 1;
@@ -2701,11 +2987,26 @@ int KrigingSystem::updKrigOptIclass(int index_class, int nclasses)
     messerr("Use 'setKrigOptFactorKriging()' beforehand");
     return 1;
   }
-  _modelCovAniso->setActiveFactor(index_class);
-  _nclasses = nclasses;
+  CovLMCAnamorphosis* covAnam = dynamic_cast<CovLMCAnamorphosis*>(_cova);
+  if (covAnam == nullptr)
+  {
+    messerr("Your Model should contain a CovLMCAnamorphosis covariance item");
+    return 1;
+  }
+  covAnam->setActiveFactor(index_class);
+  _nclasses    = nclasses;
+  _factorClass = index_class;
 
   // Update C00 if the variance calculation is required
-  if (_flagStd) _variance0();
+  if (_flagStd)
+  {
+    if (_oldStyle) _variance0();
+    else
+    {
+      _Sigma00 = _cova->eval0MatByTarget(_dbout, 0, _krigopt);
+      if (_algebra.setVariance(&_Sigma00)) return 1;
+     };
+  }
 
   // Cancel any already existing Neighborhood
   _neigh->setIsChanged();
@@ -2786,7 +3087,7 @@ bool KrigingSystem::_isCorrect()
 
   if (_model != nullptr)
   {
-    if (_modelCovAniso->getNCov() <= 0)
+    if (_model->getCov() == nullptr)
     {
       messerr("The Model should contain some Covariances defined before Kriging");
       return false;
@@ -2918,7 +3219,12 @@ bool KrigingSystem::_isCorrect()
 
 bool KrigingSystem::_preparNoStat()
 {
-  const auto* const cova = _modelCovAniso->getCovAnisoList();
+  CovAnisoList* cova = dynamic_cast<CovAnisoList*>(_cova);
+  if (cova == nullptr)
+  {
+    messerr("Your Model should contain a CovAnisoList covariance item");
+    return 1;
+  }
   cova->manage(_dbin, _dbout);
   return true;
 }
@@ -3093,7 +3399,6 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux, const NeighImage* neighI)
   int error = 1;
 
   /* Prepare the neighborhood (mimicking the Unique neighborhood) */
-
   NeighUnique* neighU = NeighUnique::create(false);
   neighU->attach(dbaux, dbaux);
 
@@ -3102,22 +3407,25 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux, const NeighImage* neighI)
   if (_setInternalShortCutVariablesNeigh()) return error;
 
   /* Establish the L.H.S. */
-
   int status = _prepar();
   if (status) goto label_end;
   _dualCalcul();
 
   /* Establish the R.H.S. */
-
   _rhsCalcul();
   if (status != 0) goto label_end;
   _rhsIsoToHetero();
-  if (OptDbg::query(EDbg::KRIGING)) _rhsDump();
 
   /* Derive the Kriging weights (always necessary) */
-
   _wgtCalcul();
-  if (OptDbg::query(EDbg::KRIGING)) _wgtDump(status);
+
+  // Optional printouts
+  if (OptDbg::query(EDbg::KRIGING))
+  {
+    _lhsDump();
+    _rhsDump();
+    _wgtDump(status);
+  }
 
   error = 0;
 
@@ -3280,7 +3588,12 @@ int KrigingSystem::_bayesPreCalculations()
 
   for (int ib = 0; ib < shift; ib++)
     for (int jb = 0; jb < shift; jb++)
-      sigma.setValue(ib, jb, _getLHS(ib, jb));
+    {
+      if (_oldStyle)
+        sigma.setValue(ib, jb, _getLHS(ib, jb));
+      else
+        sigma.setValue(ib, jb, _Sigma.getValue(ib, jb));
+    }
 
   /* Calculate SIGMA-1 */
 
@@ -3317,12 +3630,18 @@ int KrigingSystem::_bayesPreCalculations()
   if (OptDbg::query(EDbg::BAYES))
   {
     mestitle(0, "Bayesian Drift coefficients");
-    print_matrix("Prior Mean", 0, 1, _nfeq, 1, NULL, _priorMean.data());
-    print_matrix("Prior Variance-Covariance", 0, 1, _nfeq, _nfeq, NULL,
-                 _priorCov.getValues().data());
-    print_matrix("Posterior Mean", 0, 1, _nfeq, 1, NULL, _postMean.data());
-    print_matrix("Posterior Variance-Covariance", 0, 1, _nfeq, _nfeq, NULL,
-                 _postCov.getValues().data());
+    if (_oldStyle)
+    {
+      print_matrix("Prior Mean", 0, 1, _nfeq, 1, NULL, _priorMean.data());
+      print_matrix("Prior Variance-Covariance", 0, 1, _nfeq, _nfeq, NULL,
+                   _priorCov.getValues().data());
+      print_matrix("Posterior Mean", 0, 1, _nfeq, 1, NULL, _postMean.data());
+      print_matrix("Posterior Variance-Covariance", 0, 1, _nfeq, _nfeq, NULL,
+                   _postCov.getValues().data());
+    }
+    else {
+      _algebra.dumpAux();
+    }
   }
 
   // Particular case of Simulation: Simulate several outcomes for posterior means
@@ -3353,8 +3672,7 @@ void KrigingSystem::_bayesCorrectVariance()
   for (int ib = 0; ib < shift; ib++)
     for (int il = 0; il < _nfeq; il++)
     {
-      FF(ib, il) =
-        _modelCovAniso->evalDriftValue(_dbin, _nbgh[ib], 0, il, ECalcMember::LHS);
+      FF(ib, il) = _model->evalDriftValue(_dbin, _nbgh[ib], 0, il, ECalcMember::LHS);
     }
 
   // Establish the drift vector at target
@@ -3362,8 +3680,7 @@ void KrigingSystem::_bayesCorrectVariance()
   for (int ivar = 0; ivar < _nvar; ivar++)
     for (int il = 0; il < _nfeq; il++)
     {
-      double X0 =
-        _modelCovAniso->evalDriftValue(_dbout, _iechOut, ivar, il, ECalcMember::RHS);
+      double X0 = _model->evalDriftValue(_dbout, _iechOut, ivar, il, ECalcMember::RHS);
       for (int ib = 0; ib < shift; ib++)
         X0 -= FF(ib, il) * _wgt.getValue(ib, ivar, false);
       FF0(il, ivar) = X0;
@@ -3533,4 +3850,10 @@ void KrigingSystem::_setInternalShortCutVariablesGeneral()
   _ndim   = getNDim();
   _nvarCL = _getNVarCL();
   _setInternalShortCutVariablesModel();
+}
+
+MatrixRectangular KrigingSystem::getWeights() const
+{
+  if (_oldStyle) return _wgt;
+  return *(_algebra.getLambda());
 }

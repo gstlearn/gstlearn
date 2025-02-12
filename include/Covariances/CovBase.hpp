@@ -110,21 +110,19 @@ protected:
   virtual void _initFromContext() override;
   void _copyCovContext(const CovContext& ctxt) override;
 
-
 private:
-void _setContext(const CovContext& ctxt) override;
+  void _setContext(const CovContext& ctxt) override;
 
-void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
-void _optimizationPostProcess() const override; 
+  void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
+  void _optimizationPostProcess() const override;
 
+  void _evalOptim(SpacePoint* p1A,
+                  SpacePoint* p2A,
+                  MatrixSquareGeneral& mat,
+                  const CovCalcMode* mode) const;
 
-void  _evalOptim(SpacePoint* p1A, SpacePoint* p2A,
-                 MatrixSquareGeneral &mat,
-                 const CovCalcMode *mode) const;
- 
-void   _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
-
-
+  void _load(const SpacePoint& p, bool case1) const override;
+  void _optimizationSetTarget(const SpacePoint& pt) const override;
 
 protected:
     MatrixT<ParamInfo> _cholSillsInfo;

@@ -61,7 +61,7 @@ public:
   double  getCellSize() const;
   double  getExtend(int idim, bool flagCell = false) const;
   double  getVolume(bool flagCell = false) const;
-  VectorDouble  getExtends(bool flagCell = false) const;
+  VectorDouble getExtends(bool flagCell = false) const;
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -113,7 +113,7 @@ public:
   int coordinateToRank(const VectorDouble &coor,
                        bool centered = false,
                        double eps = EPSILON6) const;
-  VectorInt getCenterIndices() const;
+  VectorInt getCenterIndices(bool flagSup = false) const;
   VectorInt generateGridIndices(const String &string,
                                 bool startFromZero = true,
                                 bool invert = true,
@@ -161,6 +161,7 @@ public:
                VectorDouble& dx,
                VectorDouble& x0) const;
   int getMirrorIndex(int idim, int ix) const;
+  bool isInside(const VectorInt& indices) const;
 
 private:
   const MatrixSquareGeneral& _getRotMat() const { return _rotation.getMatrixDirect(); }

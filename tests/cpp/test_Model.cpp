@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
   VectorDouble hh = VH::sequence(0., 3., 3./50.);
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
-  VH::display("\nModel sampled",modellmc.sample(hh,VectorDouble(),0,0,&mode));
+  VH::dump("\nModel sampled",modellmc.sample(hh,VectorDouble(),0,0,&mode));
 
   /////////////////////////////
   // Creating the Tapered Model
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
   modeltape.display();
 
   // Sample the Tapered Model at regular steps
-  VH::display("\nTapered Model",modeltape.sample(hh,VectorDouble(),0,0,&mode));
+  VH::dump("\nTapered Model",modeltape.sample(hh,VectorDouble(),0,0,&mode));
 
   /////////////////////////////
   // Creating the Convoluted Model
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
   modelconv.setCovAnisoList(&covconv);
   modelconv.display();
   // Sample the Tapered Model at regular steps
-  VH::display("\nConvoluted Model", modelconv.sample(hh,VectorDouble(),0,0,&mode));
+  VH::dump("\nConvoluted Model", modelconv.sample(hh,VectorDouble(),0,0,&mode));
 
   /////////////////////////////////////////
   // Creating Covariance and Drift matrices
@@ -216,7 +216,7 @@ int main(int argc, char *argv[])
 
   // Selecting samples
   VectorInt nbgh = {0, 2, 3, 5};
-  VH::display("Ranks of selected samples = ",nbgh);
+  VH::dump("Ranks of selected samples = ",nbgh);
 
   message("Covariance Matrix (selection & heterotopic multivariate & sampling)\n");
   covM = modelM->evalCovMatSym(workingDbc, nbgh, -1);
@@ -244,8 +244,8 @@ int main(int argc, char *argv[])
   Model *modelSph = Model::createFromParam(ECov::MATERN, 1./kappa, 1., mu,
                                            VectorDouble(), MatrixSquareSymmetric(),
                                            VectorDouble(), nullptr, false);
-  VH::display("Spectrum", modelSph->getCova(0)->evalSpectrumOnSphere(ns));
-  VH::display("Covariance", modelSph->getCova(0)->evalCovOnSphereVec(incr));
+  VH::dump("Spectrum", modelSph->getCova(0)->evalSpectrumOnSphere(ns));
+  VH::dump("Covariance", modelSph->getCova(0)->evalCovOnSphereVec(incr));
 
 
   delete workingDbc;

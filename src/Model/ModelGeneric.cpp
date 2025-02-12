@@ -92,7 +92,7 @@ double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
     if (nDrift > 0)
       message("- Number of drift conditions = %d\n", getNDriftEquation());
     else
-      VH::display("Constant Mean(s)", getMeans());
+      VH::dump("Constant Mean(s)", getMeans());
   }
 
   // If Drift functions are present, evaluate the optimal Drift coefficients
@@ -136,7 +136,7 @@ double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
 
     if (verbose)
     {
-      VH::display("Optimal Drift coefficients = ", beta);
+      VH::dump("Optimal Drift coefficients = ", beta);
     }
 
     // Center the data by the optimal drift: Z = Z - beta * X

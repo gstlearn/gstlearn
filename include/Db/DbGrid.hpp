@@ -146,6 +146,14 @@ public:
                                bool flagAddCoordinates = false);
   static DbGrid* createMultiple(DbGrid* dbin, const VectorInt& nmult, bool flagAddSampleRank);
   static DbGrid* createDivider(DbGrid* dbin, const VectorInt& nmult, bool flagAddSampleRank);
+  static DbGrid* createFillRandom(const VectorInt& nx,
+                                  int nvar                        = 1,
+                                  int nfex                        = 0,
+                                  int ncode                       = 0,
+                                  double varmax                   = 0.,
+                                  double selRatio                 = 0.,
+                                  const VectorDouble& heteroRatio = VectorDouble(),
+                                  int seed                        = 1367843);
 
   int reset(const VectorInt& nx,
             const VectorDouble& dx           = VectorDouble(),
@@ -236,9 +244,9 @@ public:
                                  VectorInt &indices,
                                  bool centered = false,
                                  double eps = EPSILON6) const;
-  VectorInt getCenterIndices() const
+  VectorInt getCenterIndices(bool flagSup = false) const
   {
-    return _grid.getCenterIndices();
+    return _grid.getCenterIndices(flagSup);
   }
   int indiceToRank(const VectorInt& indice) const
   {

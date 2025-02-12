@@ -75,7 +75,7 @@ public:
 
   virtual bool _isPhysicallyPresent(int irow, int icol) const override;
   virtual void _setValues(const double* values, bool byCol = true) override;
-  virtual int  _invert() override;
+  virtual int _invert() override;
 
   // Local functions (old style algebra)
   int _matrix_qo(const VectorDouble& gmat, VectorDouble& xmat);

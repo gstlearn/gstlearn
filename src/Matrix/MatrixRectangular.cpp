@@ -248,3 +248,61 @@ void MatrixRectangular::unsample(const AMatrix* A,
     for (int icol = 0; icol < ncols; icol++)
       setValue(rows[irow], cols[icol], A->getValue(irow, icol));
 }
+
+/**
+ * @brief Perform the compressing product, according to 'transpose'
+ * - False: 'this'[nrows,ncols] %*% t('matLC')[ncolsCL,nrowsCL] -> mat[nrows,ncolsCL]
+ * - True:  t('matLC')[ncolsCL,nrowsCL] %*% 'this'[nrows,ncols] -> mat[ncolsCL,ncols]
+ * 
+ * @param matLC 
+ * @param transpose 
+ * @return MatrixRectangular 
+ */
+MatrixRectangular MatrixRectangular::compressMatLC(const MatrixRectangular& matLC,
+                                                   bool transpose)
+{
+  int nrows = getNRows();
+  int ncols = getNCols();
+  int nrowCL = matLC.getNRows();
+  int ncolCL = matLC.getNCols();
+  MatrixRectangular mat;
+
+  if (!transpose)
+  {
+    if (ncols != ncolCL)
+    {
+      messerr("Number of Columns (%d) should match number of columns of 'matLC' (%d)",
+              ncols, ncolCL);
+      return mat;
+    }
+    mat.resize(nrows, nrowCL);
+    for (int irow = 0; irow < nrows; irow++)
+      for (int irowCL = 0; irowCL < nrowCL; irowCL++)
+      {
+        double value = 0.;
+        for (int k = 0; k < ncols; k++)
+          value += getValue(irow, k) * matLC.getValue(irowCL, k);
+        mat.setValue(irow, irowCL, value);
+      }
+  }
+  else
+  {
+    if (ncolCL != nrows)
+    {
+      messerr("Number of Rows (%d) should match number of Columns of 'matLC' (%d)",
+              nrows, ncolCL);
+      return mat;
+    }
+    mat.resize(nrowCL, ncols);
+    for (int irowCL = 0; irowCL < nrowCL; irowCL++)
+      for (int icol = 0; icol < ncols; icol++)
+      {
+        double value = 0.;
+        for (int k = 0; k < nrows; k++)
+          value += matLC.getValue(irowCL, k) * getValue(k, icol);
+        mat.setValue(irowCL, icol, value);
+      }
+  }
+
+  return mat;
+}

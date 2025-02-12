@@ -19,6 +19,7 @@
 
 class DbGrid;
 class ANeigh;
+class NeighImage;
 
 class GSTLEARN_EXPORT CalcImage: public ACalcInterpolator
 {
@@ -29,6 +30,8 @@ public:
   virtual ~CalcImage();
 
   void setFlagFilter(bool flagFilter) { _flagFilter = flagFilter; }
+  void setFlagFFT(bool flagFFT) { _flagFFT = flagFFT; }
+  void setSeed(int seed) { _seed = seed; }
 
   void setFlagMorpho(bool flagMorpho) { _flagMorpho = flagMorpho; }
   void setOper(const EMorpho& oper) { _oper = oper; }
@@ -51,10 +54,19 @@ private:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
 
+  bool _filterImage(DbGrid* dbgrid, const ModelGeneric* modelgeneric);
+  bool _filterImageOld(DbGrid* dbgrid, const ModelGeneric* modelgeneric);
+  static DbGrid* _buildMarpat(const NeighImage* neigh,
+                              const VectorVectorInt& ranks,
+                              const MatrixRectangular& wgt);
+  static VectorVectorInt _getActiveRanks(const DbGrid* dblocal);
+
 private:
-  int    _iattOut;
+  int _iattOut;
 
   bool _flagFilter;
+  bool _flagFFT;
+  int  _seed;
 
   bool _flagMorpho;
   int  _nvarMorpho;
@@ -71,9 +83,11 @@ private:
   double _smoothRange;
 };
 
-GSTLEARN_EXPORT int krimage(DbGrid *dbgrid,
-                            Model *model,
-                            ANeigh *neigh,
+GSTLEARN_EXPORT int krimage(DbGrid* dbgrid,
+                            Model* model,
+                            ANeigh* neigh,
+                            bool flagFFT = false,
+                            int seed = 13431,
                             const NamingConvention& namconv = NamingConvention("Filtering"));
 GSTLEARN_EXPORT int dbMorpho(DbGrid *dbgrid,
                              const EMorpho &oper,
@@ -83,11 +97,9 @@ GSTLEARN_EXPORT int dbMorpho(DbGrid *dbgrid,
                              const VectorInt &radius = VectorInt(),
                              bool flagDistErode = false,
                              bool verbose = false,
-                             const NamingConvention &namconv = NamingConvention(
-                                 "Morpho"));
+                             const NamingConvention &namconv = NamingConvention("Morpho"));
 GSTLEARN_EXPORT int dbSmoother(DbGrid *dbgrid,
                                ANeigh *neigh,
                                int type = 1,
                                double range = 1.,
-                               const NamingConvention &namconv = NamingConvention(
-                                   "Smooth"));
+                               const NamingConvention &namconv = NamingConvention("Smooth"));

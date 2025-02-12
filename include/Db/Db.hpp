@@ -471,10 +471,13 @@ public:
   void   updArray(int iech, int iuid, const EOperator& oper, double value);
   void   updArrayVec(const VectorInt& iechs, int iuid, const EOperator& oper, VectorDouble& values);
   VectorDouble getArrayByUID(int iuid, bool useSel = false) const;
-  void getArrayBySample(std::vector<double>& vals, int iech) const;
+  void   setArrayByUID(const VectorDouble& tab, int iuid);
+  void   getArrayBySample(std::vector<double>& vals, int iech) const;
   void   setArrayBySample(int iech, const VectorDouble& vec);
 
-  void getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpaceSharedPtr& space,bool useSel = false) const;
+  void getSamplesAsSP(std::vector<SpacePoint>& pvec,
+                      const ASpaceSharedPtr& space,
+                      bool useSel = false) const;
 
   bool   hasLocator(const ELoc& locatorType) const;
   int    getNFromLocator(const ELoc& locatorType) const;
@@ -565,7 +568,8 @@ public:
                                  bool useZ              = true,
                                  bool useVerr           = false) const;
   VectorDouble getValuesByRanks(const VectorVectorInt& sampleRanks,
-                                const VectorDouble& means = VectorDouble()) const;
+                                const VectorDouble& means = VectorDouble(),
+                                bool subtractMean = true) const;
   static VectorInt getMultipleSelectedRanks(const VectorVectorInt& index,
                                             const VectorInt& ivars = VectorInt(),
                                             const VectorInt& nbgh  = VectorInt());

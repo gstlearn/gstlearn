@@ -27,25 +27,24 @@ public:
   static VectorDouble       initVDouble(const double* values, int number);
   static VectorVectorDouble initVVDouble(const double* value, int n1, int n2);
 
-  static VectorString       initVString(int ntab, char** names);
-
-  static void display(const String& title,
-                      const VectorDouble& vect,
-                      bool skipLine = true); // TODO rename
-  static void display(const String &title, const VectorVectorDouble &vect, bool skipLine = true);
-  static void display(const String &title, const VectorString &vect, bool skipLine = true);
-  static void display(const String &title, const VectorInt &vect, bool skipLine = true);
-  static void dump(const String &title, const VectorDouble& vect);
+  static VectorString initVString(int ntab, char** names);
+  
+  static void dump(const String& title, const VectorVectorInt& vect, bool skipLine = true);
+  static void dump(const String& title, const VectorVectorDouble& vect, bool skipLine = true);
+  static void dump(const String& title, const VectorDouble& vect, bool skipLine = true);
+  static void dump(const String& title, const VectorString &vect, bool skipLine = true);
+  static void dump(const String& title, const VectorInt &vect, bool skipLine = true);
   static String toStringAsSpan(constvect vec);
   static String toStringAsVD(const VectorDouble& vec); // TODO rename
   static String toStringAsVVD(const VectorVectorDouble& vec);
+  static String toStringAsVVI(const VectorVectorInt& vec);
   static String toStringAsVS(const VectorString& vec);
   static String toStringAsVI(const VectorInt& vec);
 
-  static void displayStats(const String &title, const VectorDouble &vect);
-  static void displayRange(const String &title, const VectorDouble &vect);
-  static void displayRange(const String &title, const VectorInt &vect);
-  static void displayNNZ(const String &title, const VectorDouble &vect, int nclass = 10);
+  static void dumpStats(const String &title, const VectorDouble &vect);
+  static void dumpRange(const String &title, const VectorDouble &vect);
+  static void dumpRange(const String &title, const VectorInt &vect);
+  static void dumpNNZ(const String &title, const VectorDouble &vect, int nclass = 10);
 
   static int maximum(const VectorInt &vec, bool flagAbs = false);
   static int minimum(const VectorInt &vec, bool flagAbs = false);
@@ -121,9 +120,13 @@ public:
   static void addInPlace(VectorDouble& dest, const VectorDouble& src);
   static void addInPlace(VectorInt& dest, const VectorInt& src);
   static void addInPlace(std::vector<double>& dest, const std::vector<double> &src);
-  static void addInPlace(const VectorDouble &veca,
-                         const VectorDouble &vecb,
-                         VectorDouble &res,
+  static void addInPlace(const VectorDouble& veca,
+                         const VectorDouble& vecb,
+                         VectorDouble& res,
+                         int size = 0);
+  static void addInPlace(const VectorInt& veca,
+                         const VectorInt& vecb,
+                         VectorInt& res,
                          int size = 0);
   static void addInPlace(const double *veca,
                          const double *vecb,
@@ -152,8 +155,19 @@ public:
                               const std::vector<std::vector<double>>& in2,
                               std::vector<std::vector<double>>& outv);
 
+  static VectorDouble multiply(const VectorDouble& veca, const VectorDouble& vecb);
+  static void multiplyInPlace(const VectorDouble& veca, const VectorDouble& vecb, VectorDouble& res);
   static void multiplyInPlace(VectorDouble& vec, const VectorDouble& v);
+  static VectorDouble divide(const VectorDouble& veca, const VectorDouble& vecb);
+  static void divideInPlace(const VectorDouble& veca, const VectorDouble& vecb, VectorDouble& res);
   static void divideInPlace(VectorDouble& vec, const VectorDouble& v);
+  static void divideInPlace(std::vector<double>& vec, const std::vector<double>& v);
+  static void multiplyComplexInPlace(const VectorDouble& vecaRe,
+                                     const VectorDouble& vecaIm,
+                                     const VectorDouble& vecbRe,
+                                     const VectorDouble& vecbIm,
+                                     VectorDouble& resRe,
+                                     VectorDouble& resIm);
 
   static void multiplyConstant(VectorDouble& vec, double v);
   static void multiplyConstantInPlace(const VectorDouble& vec, double v, VectorDouble& vecout);
@@ -196,7 +210,6 @@ public:
   static double innerProduct(const VectorVectorDouble &x,
                              const VectorVectorDouble &y);
   static double innerProduct(const std::vector<double> &veca, const std::vector<double> &vecb, int size = -1);
-  static void divideInPlace(std::vector<double> &vec, const std::vector<double> &v);
 
   static VectorDouble crossProduct3D(const VectorDouble &veca, const VectorDouble &vecb);
   static void crossProduct3DInPlace(const double *a, const double *b, double *v);

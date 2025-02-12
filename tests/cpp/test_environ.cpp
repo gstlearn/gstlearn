@@ -34,14 +34,14 @@ int main(int argc, char *argv[])
 
   VectorDouble vect = VH::simulateGaussian(20);
   message("\n");
-  VH::display("Vector Display (initial)", vect);
+  VH::dump("Vector Display (initial)", vect);
 
   OptCst::define(ECst::NTCAR,  12.);
   OptCst::define(ECst::NTDEC,   4.);
   OptCst::define(ECst::NTBATCH, 6.);
   OptCst::display();
   message("\n");
-  VH::display("Vector Display (modified)",vect);
+  VH::dump("Vector Display (modified)",vect);
 
   // Management of OptCustom
   mestitle(0,"Checking 'OptCustom' functionalities");

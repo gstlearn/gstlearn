@@ -73,74 +73,69 @@ Maximum horizontal distance         = 30----
 #NO_DIFF#XXX
 ----
 
- Target location
- ---------------
- Sample #15301 (from 30000)
- Coordinate #1 = 100.000000
- Coordinate #2 = 76.000000
- 
- Data selected in neighborhood
- -----------------------------
-        Rank      Sample          x1          x2      Sector 
-           1          20     114.631      72.031           4 
-           2          52     116.444      65.590           4 
-           3          56     114.720      79.035           5 
-           4          65     116.816      94.871           6 
-           5          69      89.960      69.482           1 
- 
- LHS of Kriging matrix (compressed)
- ==================================
- Number of active samples    = 5
- Total number of equations   = 5
- Reduced number of equations = 5
- 
-        Rank                       1           2           3           4           5 
-                    Flag           1           2           3           4           5 
-           1           1       1.000       0.526       0.518       0.164       0.132 
-           2           2       0.526       1.000       0.358       0.069       0.102 
-           3           3       0.518       0.358       1.000       0.303       0.106 
-           4           4       0.164       0.069       0.303       1.000       0.006 
-           5           5       0.132       0.102       0.106       0.006       1.000 
- 
- RHS of Kriging matrix (compressed)
- ==================================
- Number of active samples    = 5
- Total number of equations   = 5
- Reduced number of equations = 5
- Number of right-hand sides  = 1
- Punctual Estimation
- 
-        Rank        Flag           1 
-           1           1       0.321 
-           2           2       0.229 
-           3           3       0.324 
-           4           4       0.125 
-           5           5       0.395 
- 
- (Co-) Kriging weights
- =====================
-        Rank          x1          x2        Data         Z1* 
-           1     114.631      72.031       0.057       0.150 
-           2     116.444      65.590       1.275       0.048 
-           3     114.720      79.035      -0.061       0.180 
-           4     116.816      94.871       1.144       0.040 
-           5      89.960      69.482       0.308       0.351 
- Sum of weights                                     0.769 
- 
- (Co-) Kriging results
- =====================
- Target Sample = 15301
- Variable Z1 
-  - Estimate  =        0.213 
-  - Std. Dev. =        0.860 
-  - Variance  =        0.739 
-  - Cov(h=0)  =        1.000 
- ----
+Target location
+---------------
+Sample #15301 (from 30000)
+Coordinate #1 = 100.000000
+Coordinate #2 = 76.000000
 
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2     Sector
+          1         20    114.631     72.031          4
+          2         52    116.444     65.590          4
+          3         56    114.720     79.035          5
+          4         65    116.816     94.871          6
+          5         69     89.960     69.482          1
 
-#NO_DIFF#XXX
-----
-#NO_DIFF#XXX
+LHS of Kriging matrix
+=====================
+Dimension of the Covariance Matrix  = 5
+
+       Rank          1          2          3          4          5
+          1      1.000      0.526      0.518      0.164      0.132
+          2      0.526      1.000      0.358      0.069      0.102
+          3      0.518      0.358      1.000      0.303      0.106
+          4      0.164      0.069      0.303      1.000      0.006
+          5      0.132      0.102      0.106      0.006      1.000
+
+RHS of Kriging matrix
+=====================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+Number of right-hand sides  = 1
+Punctual Estimation
+
+       Rank          1
+          1      0.321
+          2      0.229
+          3      0.324
+          4      0.125
+          5      0.395
+
+(Co-) Kriging weights
+=====================
+       Rank       Data        Z1*
+          1      0.057      0.150
+          2      1.275      0.048
+          3     -0.061      0.180
+          4      1.144      0.040
+          5      0.308      0.351
+Sum of weights              0.769
+
+Drift or Mean Information
+=========================
+Mean for Variable Z1 = 0.000000
+
+(Co-) Kriging results
+=====================
+Target Sample = 15301
+Variable Z1 
+ - Estimate  =       0.213
+ - Std. Dev. =       0.860
+ - Variance  =       0.739
+ - Cov(h=0)  =       1.000
 ----
 
 
@@ -152,70 +147,77 @@ Maximum horizontal distance         = 30----
 
 #NO_DIFF#XXX
 ----
+#NO_DIFF#XXX
+----
 
- Target location
- ---------------
- Sample #15301 (from 30000)
- Coordinate #1 = 100.000000
- Coordinate #2 = 76.000000
- 
- Data selected in neighborhood
- -----------------------------
-        Rank      Sample          x1          x2      Sector 
-           1          20     114.631      72.031           4 
-           2          52     116.444      65.590           4 
-           3          56     114.720      79.035           5 
-           4          65     116.816      94.871           6 
-           5          69      89.960      69.482           1 
- 
- LHS of Kriging matrix (compressed)
- ==================================
- Number of active samples    = 5
- Total number of equations   = 5
- Reduced number of equations = 5
- 
-        Rank                       1           2           3           4           5 
-                    Flag           1           2           3           4           5 
-           1           1       1.000       0.526       0.518       0.164       0.132 
-           2           2       0.526       1.000       0.358       0.069       0.102 
-           3           3       0.518       0.358       1.000       0.303       0.106 
-           4           4       0.164       0.069       0.303       1.000       0.006 
-           5           5       0.132       0.102       0.106       0.006       1.000 
- 
- RHS of Kriging matrix (compressed)
- ==================================
- Number of active samples    = 5
- Total number of equations   = 5
- Reduced number of equations = 5
- Number of right-hand sides  = 1
- Block Estimation : Discretization =  5  x  5 
- 
-        Rank        Flag           1 
-           1           1       0.321 
-           2           2       0.229 
-           3           3       0.324 
-           4           4       0.125 
-           5           5       0.395 
- 
- (Co-) Kriging weights
- =====================
-        Rank          x1          x2       Size1       Size2        Data         Z1* 
-           1     114.631      72.031       1.000       1.000       0.057       0.150 
-           2     116.444      65.590       1.000       1.000       1.275       0.048 
-           3     114.720      79.035       1.000       1.000      -0.061       0.180 
-           4     116.816      94.871       1.000       1.000       1.144       0.040 
-           5      89.960      69.482       1.000       1.000       0.308       0.351 
- Sum of weights                                                           0.769 
- 
- (Co-) Kriging results
- =====================
- Target Sample = 15301
- Variable Z1 
-  - Estimate  =        0.213 
-  - Std. Dev. =        0.652 
-  - Variance  =        0.425 
-  - Cov(h=0)  =        0.686 
- ----
+
+#NO_DIFF#XXX
+----
+
+Target location
+---------------
+Sample #15301 (from 30000)
+Coordinate #1 = 100.000000
+Coordinate #2 = 76.000000
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2     Sector
+          1         20    114.631     72.031          4
+          2         52    116.444     65.590          4
+          3         56    114.720     79.035          5
+          4         65    116.816     94.871          6
+          5         69     89.960     69.482          1
+
+LHS of Kriging matrix
+=====================
+Dimension of the Covariance Matrix  = 5
+
+       Rank          1          2          3          4          5
+          1      1.000      0.526      0.518      0.164      0.132
+          2      0.526      1.000      0.358      0.069      0.102
+          3      0.518      0.358      1.000      0.303      0.106
+          4      0.164      0.069      0.303      1.000      0.006
+          5      0.132      0.102      0.106      0.006      1.000
+
+RHS of Kriging matrix
+=====================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+Number of right-hand sides  = 1
+Block Estimation : Discretization = 5 x 5
+
+       Rank          1
+          1      0.321
+          2      0.229
+          3      0.324
+          4      0.125
+          5      0.395
+
+(Co-) Kriging weights
+=====================
+       Rank       Data        Z1*
+          1      0.057      0.150
+          2      1.275      0.048
+          3     -0.061      0.180
+          4      1.144      0.040
+          5      0.308      0.351
+Sum of weights              0.769
+
+Drift or Mean Information
+=========================
+Mean for Variable Z1 = 0.000000
+
+(Co-) Kriging results
+=====================
+Target Sample = 15301
+Variable Z1 
+ - Estimate  =       0.213
+ - Std. Dev. =       0.652
+ - Variance  =       0.425
+ - Cov(h=0)  =       0.686
+----
 
 
 #NO_DIFF#XXX
@@ -248,81 +250,82 @@ Maximum horizontal distance         = 30----
 Cell Neighborhood
 =================
 Reject samples which do not belong to target Block
- ----
-
-
-#NO_DIFF#XXX
-----
-#NO_DIFF#XXX
 ----
 
 
 #NO_DIFF#XXX
 ----
+#NO_DIFF#XXX
+----
 
- Target location
- ---------------
- Sample #15301 (from 30000)
- Coordinate #1 = 100.000000
- Coordinate #2 = 76.000000
- 
- Data selected in neighborhood
- -----------------------------
-        Rank      Sample          x1          x2 
-           1          20     114.631      72.031 
-           2          52     116.444      65.590 
-           3          56     114.720      79.035 
-           4          65     116.816      94.871 
-           5          69      89.960      69.482 
- 
- LHS of Kriging matrix (compressed)
- ==================================
- Number of active samples    = 5
- Total number of equations   = 5
- Reduced number of equations = 5
- 
-        Rank                       1           2           3           4           5 
-                    Flag           1           2           3           4           5 
-           1           1       1.000       0.526       0.518       0.164       0.132 
-           2           2       0.526       1.000       0.358       0.069       0.102 
-           3           3       0.518       0.358       1.000       0.303       0.106 
-           4           4       0.164       0.069       0.303       1.000       0.006 
-           5           5       0.132       0.102       0.106       0.006       1.000 
- 
- RHS of Kriging matrix (compressed)
- ==================================
- Number of active samples    = 5
- Total number of equations   = 5
- Reduced number of equations = 5
- Number of right-hand sides  = 1
- Block Estimation : Discretization =  5  x  5 
- 
-        Rank        Flag           1 
-           1           1       0.205 
-           2           2       0.179 
-           3           3       0.206 
-           4           4       0.140 
-           5           5       0.224 
- 
- (Co-) Kriging weights
- =====================
-        Rank          x1          x2       Size1       Size2        Data         Z1* 
-           1     114.631      72.031      50.000      50.000       0.057       0.075 
-           2     116.444      65.590      50.000      50.000       1.275       0.082 
-           3     114.720      79.035      50.000      50.000      -0.061       0.089 
-           4     116.816      94.871      50.000      50.000       1.144       0.094 
-           5      89.960      69.482      50.000      50.000       0.308       0.196 
- Sum of weights                                                           0.535 
- 
- (Co-) Kriging results
- =====================
- Target Sample = 15301
- Variable Z1 
-  - Estimate  =        0.270 
-  - Std. Dev. =        0.266 
-  - Variance  =        0.071 
-  - Cov(h=0)  =        0.176 
- ----
+
+#NO_DIFF#XXX
+----
+
+Target location
+---------------
+Sample #15301 (from 30000)
+Coordinate #1 = 100.000000
+Coordinate #2 = 76.000000
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2
+          1         20    114.631     72.031
+          2         52    116.444     65.590
+          3         56    114.720     79.035
+          4         65    116.816     94.871
+          5         69     89.960     69.482
+
+LHS of Kriging matrix
+=====================
+Dimension of the Covariance Matrix  = 5
+
+       Rank          1          2          3          4          5
+          1      1.000      0.526      0.518      0.164      0.132
+          2      0.526      1.000      0.358      0.069      0.102
+          3      0.518      0.358      1.000      0.303      0.106
+          4      0.164      0.069      0.303      1.000      0.006
+          5      0.132      0.102      0.106      0.006      1.000
+
+RHS of Kriging matrix
+=====================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+Number of right-hand sides  = 1
+Block Estimation : Discretization = 5 x 5
+
+       Rank          1
+          1      0.205
+          2      0.179
+          3      0.206
+          4      0.140
+          5      0.224
+
+(Co-) Kriging weights
+=====================
+       Rank       Data        Z1*
+          1      0.057      0.075
+          2      1.275      0.082
+          3     -0.061      0.089
+          4      1.144      0.094
+          5      0.308      0.196
+Sum of weights              0.535
+
+Drift or Mean Information
+=========================
+Mean for Variable Z1 = 0.000000
+
+(Co-) Kriging results
+=====================
+Target Sample = 15301
+Variable Z1 
+ - Estimate  =       0.270
+ - Std. Dev. =       0.266
+ - Variance  =       0.071
+ - Cov(h=0)  =       0.176
+----
 
 
 #NO_DIFF#XXX

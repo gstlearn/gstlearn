@@ -86,8 +86,6 @@ public:
   bool            isFiltered(int icov) const;
   virtual double  getTotalSill(int ivar = 0, int jvar = 0) const;
   MatrixSquareSymmetric getTotalSills() const;
-  VectorInt       getActiveCovList() const;
-  VectorInt       getAllActiveCovList() const;
   bool            isAllActiveCovList() const;
   bool            isNoStat() const override;
   /// TODO : to be removed (encapsulation)
@@ -106,10 +104,17 @@ public:
   void _optimizationSetTarget(const SpacePoint &pt) const override;
   void optimizationSetTargetByIndex(int iech) const override;
 
+  void setActiveCovListFromOne(int keepOnlyCovIdx) const;
+  void setActiveCovListFromInterval(int inddeb, int indto) const;
+  void setActiveCovList(const VectorInt& activeCovList, bool allActiveCov) const;
+
 protected:
   bool _isCovarianceIndexValid(int icov) const;
-  void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode = nullptr) const override;
+  void _load(const SpacePoint& p, bool case1) const override;
+  void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                      const SpacePoint& p1,
+                                      const SpacePoint& p2,
+                                      const CovCalcMode* mode = nullptr) const override;
   double _loadAndEval(const SpacePoint& p1,
                           const SpacePoint&p2,
                           int ivar,
@@ -117,21 +122,22 @@ protected:
                           const CovCalcMode *mode) const;
 
 protected:
- static bool _considerAllCovariances(const CovCalcMode* mode);
+  const VectorInt& _getListActiveCovariances(const CovCalcMode* mode) const;
+  void _updateLists();
 
 private:
-  virtual void _delCov(int icov)
-  {
-    DECLARE_UNUSED(icov)
-  };
+  virtual void _delCov(int icov) { DECLARE_UNUSED(icov) };
   // Remove all elementary covariance structures
   virtual void _delAllCov(){};
-  void _manage(const Db* db1,const Db* db2) const override;
-  
+  void _manage(const Db* db1, const Db* db2) const override;
 
 #ifndef SWIG
+
 protected:
-  std::vector<const CovBase*> _covs;      /// Vector of elementary covariances
-  VectorBool             _filtered; /// Vector of filtered flags (size is nb. cova)
+  std::vector<const CovBase*> _covs;   /// Vector of elementary covariances
+  VectorBool _filtered;                /// Vector of filtered flags (size is nb. cova)
+  mutable bool _allActiveCov;          /*! True if all covariances are active */
+  mutable VectorInt _allActiveCovList; /*! List of indices of all covariances */
+  mutable VectorInt _activeCovList;    /*! List of indices of the active covariances */
 #endif
 };

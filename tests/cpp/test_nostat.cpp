@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
   {
     int target = 1000;
     VectorDouble vect = workingDbc->getSampleLocators(ELoc::NOSTAT, target);
-    VH::display("Non-stationary parameters at sample", vect);
+    VH::dump("Non-stationary parameters at sample", vect);
   }
 
   int useCholesky = 0;

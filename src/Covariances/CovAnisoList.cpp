@@ -46,6 +46,7 @@ CovAnisoList::CovAnisoList(const CovAnisoList &r)
     _pushCov(e->clone());
   }
   _filtered = r._filtered;
+  _updateLists();
 }
 
 CovAnisoList& CovAnisoList::operator=(const CovAnisoList &r)
@@ -58,6 +59,7 @@ CovAnisoList& CovAnisoList::operator=(const CovAnisoList &r)
      _pushCov(e->clone());
     }
     _filtered = r._filtered;
+    _updateLists();
   }
   return *this;
 }
@@ -103,6 +105,7 @@ void CovAnisoList::addCovAniso(const CovAniso* cov)
   }
   _pushCov(cov);
   _filtered.push_back(false);
+  _updateLists();
 }
 
 void CovAnisoList::_pushCov(const CovAniso* cov)
@@ -131,10 +134,11 @@ bool CovAnisoList::isNoStat() const
   }
   return nostat;
 }
-void CovAnisoList::setCovaFiltered(int icov, bool filtered)
+void CovAnisoList::setCovFiltered(int icov, bool filtered)
 {
   if (! _isCovarianceIndexValid(icov)) return;
   _filtered[icov] = filtered;
+  _updateLists();
 }
 
 bool CovAnisoList::isConsistent(const ASpace* /*space*/) const
@@ -153,17 +157,12 @@ int CovAnisoList::getNVar() const
 
 double CovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
-  double cov = 0.;
-
-  if (_considerAllCovariances(mode))
+  double cov      = 0.;
+  const VectorInt& list = _getListActiveCovariances(mode);
+  for (int i = 0, n = (int)list.size(); i < n; i++)
   {
-    for (int i=0, n=getNCov(); i<n; i++)
-      cov += _covs[i]->eval0(ivar, jvar, mode);
-  }
-  else
-  {
-    for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-      cov += _covs[mode->getActiveCovList(i)]->eval0(ivar, jvar, mode);
+    int j = list[i];
+    cov += _covs[j]->eval0(ivar, jvar, mode);
   }
   return cov;
 }
@@ -175,199 +174,15 @@ double CovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void CovAnisoList::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                                    const CovCalcMode *mode) const
+void CovAnisoList::addEval0CovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                                const CovCalcMode* mode) const
 {
-  if (_considerAllCovariances(mode))
+  const VectorInt& list = _getListActiveCovariances(mode);
+  for (int i = 0, n = (int)list.size(); i < n; i++)
   {
-    for (int i=0, n=getNCov(); i<n; i++)
-    {
-      _covs[i]->addEval0CovMatBiPointInPlace(mat, mode);
-    }
+    int j = list[i];
+    _covs[j]->addEval0CovMatBiPointInPlace(mat, mode);
   }
-  else
-  {
-    for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-    {
-      _covs[mode->getActiveCovList(i)]->addEval0CovMatBiPointInPlace(mat, mode);
-    }
-  }
-}
-
-/**
- * Evaluate the covariance rectangular matrix between samples of input 'db1' and
-'db2'
- * @param db1 Input Db
- * @param db2 Output db
- * @param ivar0 Rank of the first variable (-1 for all variables)
- * @param jvar0 Rank of the second variable (-1 for all variables)
- * @param nbgh1 Vector of indices of active samples in db1 (optional)
- * @param nbgh2 Vector of indices of active samples in db2 (optional)
- * @param mode CovCalcMode structure
- * @param cleanOptim True if Optimization internal arrays must be cleaned at end
- * @return
- */
-MatrixRectangular CovAnisoList::evalCovMatOptim(const Db* db1,
-                                                   const Db* db2,
-                                                   int ivar0,
-                                                   int jvar0,
-                                                   const VectorInt& nbgh1,
-                                                   const VectorInt& nbgh2,
-                                                   const CovCalcMode* mode,
-                                                   bool cleanOptim) const
-{
-  MatrixRectangular mat;
-  SpacePoint p2(getSpace());
-  if (db2 == nullptr) db2 = db1;
-  VectorInt ivars = _getActiveVariables(ivar0);
-  if (ivars.empty()) return mat;
-  VectorInt jvars = _getActiveVariables(jvar0);
-  if (jvars.empty()) return mat;
-
-  // Prepare the Optimization for covariance calculation
-  optimizationPreProcess(db1);
-
-  // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1);
-  VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2);
-
-  // Creating the matrix
-  int neq1 = VH::count(index1);
-  int neq2 = VH::count(index2);
-  if (neq1 <= 0 || neq2 <= 0)
-  {
-    messerr("The returned matrix does not have any valid sample for any valid variable");
-    return mat;
-  }
-  mat.resize(neq1, neq2);
-
-  // Loop on the second variable
-  int icol = 0;
-  for (int rvar2 = 0, nvar2 = (int) jvars.size(); rvar2 < nvar2; rvar2++)
-  {
-    int ivar2 = jvars[rvar2];
-
-    // Loop on the second sample
-    int nech2s = (int) index2[rvar2].size();
-    for (int rech2 = 0; rech2 < nech2s; rech2++)
-    {
-      int iech2 = index2[rvar2][rech2];
-      db2->getSampleAsSPInPlace(p2, iech2);
-      optimizationSetTarget(p2);
-
-      // Loop on the basic structures
-      if (_considerAllCovariances(mode))
-      {
-        for (int i=0, n=getNCov(); i<n; i++)
-        {
-          _covAnisos[i]->evalOptimInPlace(mat, ivars, index1, ivar2, icol, mode, false);
-        }
-      }
-      else
-      {
-        for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-        {
-          _covAnisos[mode->getActiveCovList(i)]->evalOptimInPlace(mat, ivars, index1, ivar2, icol, mode, false);
-        }
-      }
-      icol++;
-    }
-  }
-
-  if (cleanOptim) optimizationPostProcess();
-  return mat;
-}
-
-/**
- * Evaluate the covariance rectangular matrix between samples of input 'db1' and
-'db2'
- * @param db1 Input Db
- * @param db2 Output db
- * @param sampleRanks1 Vector of Vector indices on input Db
- * @param ivar0 Rank of the first variable (-1 for all variables)
- * @param jvar0 Rank of the second variable (-1 for all variables)
- * @param iech2 Index of active samples in db2
- * @param mode CovCalcMode structure
- * @param cleanOptim True if Optimization internal arrays must be cleaned at end
- * @return
- */
-MatrixRectangular CovAnisoList::evalCovMatOptimByRanks(const Db* db1,
-                                                                  const Db* db2,
-                                                                  const VectorVectorInt& sampleRanks1,
-                                                                  int ivar0,
-                                                                  int jvar0,
-                                                                  int iech2,
-                                                                  const CovCalcMode* mode,
-                                                                  bool cleanOptim) const
-{
-  MatrixRectangular mat;
-  SpacePoint p2;
-  VectorInt ivars = _getActiveVariables(ivar0);
-  if (ivars.empty()) return mat;
-  VectorInt jvars = _getActiveVariables(jvar0);
-  if (jvars.empty()) return mat;
-
-  // Prepare the Optimization for covariance calculation
-  optimizationPreProcess(db1);
-
-  // Create the sets of Vector of valid sample indices per variable (not masked
-  // and defined)
-  VectorVectorInt index2 = db2->getSampleRanks(jvars, {iech2}, true, false, false);
-
-  // Creating the matrix
-  int neq1 = VH::count(sampleRanks1);
-  int neq2 = VH::count(index2);
-  if (neq1 <= 0 || neq2 <= 0)
-  {
-    messerr("The returned matrix does not have any valid sample for any valid "
-            "variable");
-    return mat;
-  }
-  mat.resize(neq1, neq2);
-
-  // Loop on the second variable
-  int icol = 0;
-  for (int rvar2 = 0, nvar2 = (int)jvars.size(); rvar2 < nvar2; rvar2++)
-  {
-    int ivar2 = jvars[rvar2];
-
-    // Loop on the second sample
-    int nech2s = (int)index2[rvar2].size();
-    for (int rech2 = 0; rech2 < nech2s; rech2++)
-    {
-      int iech2 = index2[rvar2][rech2];
-      db2->getSampleAsSPInPlace(p2, iech2);
-      optimizationSetTarget(p2);
-
-      // Loop on the basic structures
-      if (_considerAllCovariances(mode))
-      {
-        for (int i=0, n=getNCov(); i<n; i++)
-        {
-          _covAnisos[i]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode,
-                                          false);
-        }
-      }
-      else
-      {
-        for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-        {
-          _covAnisos[mode->getActiveCovList(i)]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode,
-                                                                  false);
-        }
-      }
-      icol++;
-    }
-  }
-
-  if (cleanOptim) optimizationPostProcess();
-  return mat;
-}
-
-void CovAnisoList::_optimizationSetTarget(const SpacePoint& pt) const
-{
-  for (int is = 0, ns = getNCov(); is < ns; is++)
-    _covs[is]->optimizationSetTarget(pt);
 }
 
 void CovAnisoList::optimizationSetTargetByIndex(int iech) const
@@ -377,424 +192,289 @@ void CovAnisoList::optimizationSetTargetByIndex(int iech) const
 }
 
 /**
- * Evaluate the covariance matrix between samples of input 'db1'
- * @param db1 Input Db
- * @param ivar0 Rank of the first variable (-1 for all variables)
- * @param nbgh1 Vector of indices of active samples in db1 (optional)
- * @param mode CovCalcMode structure
- * @param cleanOptim When True, clean Optimization internal arrays at end
- * @return
+ * Calculate the Matrix of covariance between two space points
+ * @param p1 Reference of the first space point
+ * @param p2 Reference of the second space point
+ * @param mat   Covariance matrix (Dimension: nvar * nvar)
+ * @param mode  Calculation Options
+ *
+ * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptim(
-  const Db* db1, const VectorInt& nbgh1, int ivar0, const CovCalcMode* mode, bool cleanOptim) const
+void CovAnisoList::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                                const SpacePoint& p1,
+                                                const SpacePoint& p2,
+                                                const CovCalcMode* mode) const
 {
-  MatrixSquareSymmetric mat;
-
-  VectorInt ivars = _getActiveVariables(ivar0);
-  if (ivars.empty()) return mat;
-
-  // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1, true, true, true);
-
-  return evalCovMatSymOptimByRanks(db1, index1, ivar0, mode, cleanOptim);
+  const VectorInt& list = _getListActiveCovariances(mode);
+  for (int i = 0, n = (int)list.size(); i < n; i++)
+  {
+    int j = list[i];
+    _covs[j]->addEvalCovMatBiPointInPlace(mat, p1, p2, mode);
+  }
 }
 
-MatrixSquareSymmetric CovAnisoList::evalCovMatSymOptimByRanks(
-  const Db* db1, const VectorVectorInt& sampleRanks1, int ivar0, const CovCalcMode* mode, bool cleanOptim) const
+String CovAnisoList::toString(const AStringFormat* /*strfmt*/) const
 {
-  MatrixSquareSymmetric mat;
-  SpacePoint p2;
+  std::stringstream sstr;
+  if (getNCov() <= 0) return sstr.str();
 
-  VectorInt ivars = _getActiveVariables(ivar0);
-  if (ivars.empty()) return mat;
-
-  // Prepare the Optimization for covariance calculation
-  optimizationPreProcess(db1);
-
-  //VectorVectorInt sampleRanks1 = db1->getMultipleRanksActive(ivars, nbgh1, true, true, true);
-
-  // Creating the matrix
-  int neq1 = VH::count(sampleRanks1);
-  if (neq1 <= 0)
+  for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
   {
-    messerr("The returned matrix does not have any valid sample for any valid variable");
-    return mat;
-  }
-  mat.resize(neq1, neq1);
-
-  // Loop on the second variable
-  int icol = 0;
-  for (int rvar2 = 0, nvar2 = (int)ivars.size(); rvar2 < nvar2; rvar2++)
-  {
-    int ivar2 = ivars[rvar2];
-
-    // Loop on the second sample
-    int nech2s = (int)sampleRanks1[rvar2].size();
-    for (int rech2 = 0; rech2 < nech2s; rech2++)
-    {
-      int iech2 = sampleRanks1[rvar2][rech2];
-
-      optimizationSetTargetByIndex(iech2);
-
-      // Loop on the basic structures
-      if (_considerAllCovariances(mode))
-      {
-        for (int i=0, n=getNCov(); i<n; i++)
-        {
-          _covAnisos[i]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode, true);
-        }
-      }
-      else
-      {
-        for (int i=0, n=(int) mode->getActiveCovList().size(); i<n; i++)
-        {
-          _covAnisos[mode->getActiveCovList(i)]->evalOptimInPlace(mat, ivars, sampleRanks1, ivar2, icol, mode, true);
-        }
-      }
-      icol++;
-    }
+    sstr << getCova(icov)->toString();
+    if (isFiltered(icov)) sstr << "  (This component is Filtered)" << std::endl;
   }
 
-  // Update the matrix due to presence of Variance of Measurement Error
-  _updateCovMatrixSymmetricVerr(db1, &mat, ivars, sampleRanks1);
-
-  if (cleanOptim) optimizationPostProcess();
-  return mat;
-}
-
-  /**
-   * Calculate the Matrix of covariance between two space points
-   * @param p1 Reference of the first space point
-   * @param p2 Reference of the second space point
-   * @param mat   Covariance matrix (Dimension: nvar * nvar)
-   * @param mode  Calculation Options
-   *
-   * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
-   */
-  void CovAnisoList::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral & mat, const SpacePoint& p1, const SpacePoint& p2,
-                                                  const CovCalcMode* mode) const
+  // Display the Total Sill (optional)
+  if (isStationary())
   {
-    if (_considerAllCovariances(mode))
+    if (getNVar() <= 1)
     {
-      for (int i = 0, n = getNCov(); i < n; i++)
-      {
-        _covs[i]->addEvalCovMatBiPointInPlace(mat, p1, p2, mode);
-      }
+      sstr << "Total Sill     = " << toDouble(getTotalSill(0, 0));
     }
     else
     {
-      for (int i = 0, n = (int)mode->getActiveCovList().size(); i < n; i++)
-      {
-        _covs[mode->getActiveCovList(i)]->addEvalCovMatBiPointInPlace(mat, p1, p2, mode);
-      }
+      sstr << toMatrix("Total Sill", VectorString(), VectorString(), 0, getNVar(),
+                       getNVar(), getTotalSills().getValues());
     }
   }
+  sstr << std::endl;
 
-  String CovAnisoList::toString(const AStringFormat* /*strfmt*/) const
-  {
-    std::stringstream sstr;
-    if (getNCov() <= 0) return sstr.str();
+  return sstr.str();
+}
 
-    for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
-    {
-      sstr << getCova(icov)->toString();
-      if (isFiltered(icov)) sstr << "  (This component is Filtered)" << std::endl;
-    }
+int CovAnisoList::getNCov(bool skipNugget) const
+{
+  int ncov = (int)_covs.size();
+  if (!skipNugget) return ncov;
 
-    // Display the Total Sill (optional)
-    if (isStationary())
-    {
-      if (getNVar() <= 1)
-      {
-        sstr << "Total Sill     = " << toDouble(getTotalSill(0, 0));
-      }
-      else
-      {
-        sstr << toMatrix("Total Sill", VectorString(), VectorString(), 0, getNVar(), getNVar(),
-                         getTotalSills().getValues());
-      }
-    }
-    sstr << std::endl;
+  int nstruc = 0;
+  for (int icov = 0; icov < ncov; icov++)
+  {
+    if (getCova(icov)->getType() != ECov::NUGGET) nstruc++;
+  }
+  return nstruc;
+}
 
-    return sstr.str();
-  }
+bool CovAnisoList::isFiltered(int icov) const
+{
+  if (!_isCovarianceIndexValid(icov)) return false;
+  return _filtered[icov];
+}
 
-  int CovAnisoList::getNCov(bool skipNugget) const
+bool CovAnisoList::hasRange() const
+{
+  for (int i = 0, n = getNCov(); i < n; i++)
   {
-    int ncov = (int)_covs.size();
-    if (!skipNugget) return ncov;
+    if (!getCova(i)->hasRange()) return false;
+  }
+  return true;
+}
 
-    int nstruc = 0;
-    for (int icov = 0; icov < ncov; icov++)
-    {
-      if (getCova(icov)->getType() != ECov::NUGGET) nstruc++;
-    }
-    return nstruc;
+bool CovAnisoList::isStationary() const
+{
+  for (int i = 0, n = getNCov(); i < n; i++)
+  {
+    if (getCova(i)->getMinOrder() >= 0) return false;
   }
+  return true;
+}
 
-  bool CovAnisoList::isFiltered(int icov) const
-  {
-    if (!_isCovarianceIndexValid(icov)) return false;
-    return _filtered[icov];
-  }
+CovAniso CovAnisoList::extractCova(int icov) const
+{
+  return *(_covAnisos[icov]);
+}
 
-  bool CovAnisoList::hasRange() const
+/**
+ * @return The Minimum IRF-order induced by the covariances
+ */
+int CovAnisoList::getCovMinIRFOrder() const
+{
+  int nmini = -1;
+  for (unsigned i = 0, n = getNCov(); i < n; i++)
   {
-    for (int i = 0, n = getNCov(); i < n; i++)
-    {
-      if (!getCova(i)->hasRange()) return false;
-    }
-    return true;
+    int locmini = _covAnisos[i]->getMinOrder();
+    if (locmini > nmini) nmini = locmini;
   }
+  return nmini;
+}
 
-  bool CovAnisoList::isStationary() const
-  {
-    for (int i = 0, n = getNCov(); i < n; i++)
-    {
-      if (getCova(i)->getMinOrder() >= 0) return false;
-    }
-    return true;
-  }
+const CovAniso* CovAnisoList::getCova(int icov) const
+{
+  if (!_isCovarianceIndexValid(icov)) return nullptr;
+  return _covAnisos[icov];
+}
+CovAniso* CovAnisoList::getCova(int icov)
+{
+  if (!_isCovarianceIndexValid(icov)) return nullptr;
+  return _covAnisos[icov];
+}
+void CovAnisoList::setCovAniso(int icov, CovAniso* covs)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  _covAnisos[icov] = covs;
+  _covs[icov]      = covs;
+}
+const ECov& CovAnisoList::getCovType(int icov) const
+{
+  if (!_isCovarianceIndexValid(icov)) return ECov::UNKNOWN;
+  return _covAnisos[icov]->getType();
+}
+String CovAnisoList::getCovName(int icov) const
+{
+  if (!_isCovarianceIndexValid(icov)) return String();
+  return _covAnisos[icov]->getCovName();
+}
+double CovAnisoList::getParam(int icov) const
+{
+  if (!_isCovarianceIndexValid(icov)) return 0.;
+  return _covAnisos[icov]->getParam();
+}
+double CovAnisoList::getRange(int icov) const
+{
+  if (!_isCovarianceIndexValid(icov)) return 0.;
+  return _covAnisos[icov]->getRange();
+}
+VectorDouble CovAnisoList::getRanges(int icov) const
+{
+  if (!_isCovarianceIndexValid(icov)) return 0.;
+  return _covAnisos[icov]->getRanges();
+}
+VectorDouble CovAnisoList::getAngles(int icov) const
+{
+  if (!_isCovarianceIndexValid(icov)) return 0.;
+  return _covAnisos[icov]->getAnisoAngles();
+}
+void CovAnisoList::setSill(int icov, int ivar, int jvar, double value)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  _covs[icov]->setSill(ivar, jvar, value);
+}
+void CovAnisoList::setRangeIsotropic(int icov, double range)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  _covAnisos[icov]->setRangeIsotropic(range);
+}
+void CovAnisoList::setParam(int icov, double value)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  _covAnisos[icov]->setParam(value);
+}
+void CovAnisoList::setMarkovCoeffs(int icov, const VectorDouble& coeffs)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  _covAnisos[icov]->setMarkovCoeffs(coeffs);
+}
+void CovAnisoList::setType(int icov, const ECov& type)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  _covAnisos[icov]->setType(type);
+}
 
-  VectorInt CovAnisoList::getActiveCovList() const
-  {
-    VectorInt actives;
-    for (int i = 0, n = getNCov(); i < n; i++)
-    {
-      if (_filtered[i]) continue;
-      actives.push_back(i);
-    }
-    return actives;
-  }
+int CovAnisoList::getNGradParam(int icov) const
+{
+  if (!_isCovarianceIndexValid(icov)) return 0;
+  return _covAnisos[icov]->getNGradParam();
+}
 
-  bool CovAnisoList::isAllActiveCovList() const
+/**
+ * Calculate the total sill of the model for given pair of variables
+ * Returns TEST as soon as one structure has no sill
+ * @param ivar Rank of the first variable
+ * @param jvar Rank of the second variable
+ */
+double CovAnisoList::getTotalSill(int ivar, int jvar) const
+{
+  double sill_total = 0.;
+  for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
   {
-    for (int i = 0, n = getNCov(); i < n; i++)
-    {
-      if (_filtered[i]) return false;
-    }
-    return true;
+    const CovAniso* cova = getCova(icov);
+    if (cova->getMinOrder() >= 0) return TEST;
+    sill_total += cova->getSill(ivar, jvar);
   }
+  return sill_total;
+}
 
-  VectorInt CovAnisoList::getAllActiveCovList() const
-  {
-    VectorInt actives;
-    for (int i = 0, n = getNCov(); i < n; i++)
-    {
-      actives.push_back(i);
-    }
-    return actives;
-  }
+bool CovAnisoList::_isCovarianceIndexValid(int icov) const
+{
+  return checkArg("Covariance Index", icov, getNCov());
+}
 
-  CovAniso CovAnisoList::extractCova(int icov) const
-  {
-    return *(_covAnisos[icov]);
-  }
+/**
+ * Returns the largest range (in any direction in the heterotopic case)
+ * @return
+ */
+double CovAnisoList::getMaximumDistance() const
 
-  /**
-   * @return The Minimum IRF-order induced by the covariances
-   */
-  int CovAnisoList::getCovaMinIRFOrder() const
+{
+  double maxdist = 0.;
+  for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
   {
-    int nmini = -1;
-    for (unsigned i = 0, n = getNCov(); i < n; i++)
-    {
-      int locmini = _covAnisos[i]->getMinOrder();
-      if (locmini > nmini) nmini = locmini;
-    }
-    return nmini;
+    const CovAniso* cova = getCova(icov);
+    if (!cova->hasRange()) continue;
+    double range = cova->getRange();
+    if (range > maxdist) maxdist = range;
   }
-
-  const CovAniso* CovAnisoList::getCova(int icov) const
-  {
-    if (!_isCovarianceIndexValid(icov)) return nullptr;
-    return _covAnisos[icov];
-  }
-  CovAniso* CovAnisoList::getCova(int icov)
-  {
-    if (!_isCovarianceIndexValid(icov)) return nullptr;
-    return _covAnisos[icov];
-  }
-  void CovAnisoList::setCovAniso(int icov, CovAniso* covs)
-  {
-    if (!_isCovarianceIndexValid(icov)) return;
-    _covAnisos[icov] = covs;
-    _covs[icov]      = covs;
-  }
-  const ECov& CovAnisoList::getCovType(int icov) const
-  {
-    if (!_isCovarianceIndexValid(icov)) return ECov::UNKNOWN;
-    return _covAnisos[icov]->getType();
-  }
-  String CovAnisoList::getCovName(int icov) const
-  {
-    if (!_isCovarianceIndexValid(icov)) return String();
-    return _covAnisos[icov]->getCovName();
-  }
-  double CovAnisoList::getParam(int icov) const
-  {
-    if (!_isCovarianceIndexValid(icov)) return 0.;
-    return _covAnisos[icov]->getParam();
-  }
-  double CovAnisoList::getRange(int icov) const
-  {
-    if (!_isCovarianceIndexValid(icov)) return 0.;
-    return _covAnisos[icov]->getRange();
-  }
-  VectorDouble CovAnisoList::getRanges(int icov) const
-  {
-    if (!_isCovarianceIndexValid(icov)) return 0.;
-    return _covAnisos[icov]->getRanges();
-  }
-  VectorDouble CovAnisoList::getAngles(int icov) const
-  {
-    if (!_isCovarianceIndexValid(icov)) return 0.;
-    return _covAnisos[icov]->getAnisoAngles();
-  }
-  void CovAnisoList::setSill(int icov, int ivar, int jvar, double value)
-  {
-    if (!_isCovarianceIndexValid(icov)) return;
-    _covs[icov]->setSill(ivar, jvar, value);
-  }
-  void CovAnisoList::setRangeIsotropic(int icov, double range)
-  {
-    if (!_isCovarianceIndexValid(icov)) return;
-    _covAnisos[icov]->setRangeIsotropic(range);
-  }
-  void CovAnisoList::setParam(int icov, double value)
-  {
-    if (!_isCovarianceIndexValid(icov)) return;
-    _covAnisos[icov]->setParam(value);
-  }
-  void CovAnisoList::setMarkovCoeffs(int icov, const VectorDouble& coeffs)
-  {
-    if (!_isCovarianceIndexValid(icov)) return;
-    _covAnisos[icov]->setMarkovCoeffs(coeffs);
-  }
-  void CovAnisoList::setType(int icov, const ECov& type)
-  {
-    if (!_isCovarianceIndexValid(icov)) return;
-    _covAnisos[icov]->setType(type);
-  }
-
-  int CovAnisoList::getNGradParam(int icov) const
-  {
-    if (!_isCovarianceIndexValid(icov)) return 0;
-    return _covAnisos[icov]->getNGradParam();
-  }
-
-  /**
-   * Calculate the total sill of the model for given pair of variables
-   * Returns TEST as soon as one structure has no sill
-   * @param ivar Rank of the first variable
-   * @param jvar Rank of the second variable
-   */
-  double CovAnisoList::getTotalSill(int ivar, int jvar) const
-  {
-    double sill_total = 0.;
-    for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
-    {
-      const CovAniso* cova = getCova(icov);
-      if (cova->getMinOrder() >= 0) return TEST;
-      sill_total += cova->getSill(ivar, jvar);
-    }
-    return sill_total;
-  }
-
-  bool CovAnisoList::_isCovarianceIndexValid(int icov) const
-  {
-    return checkArg("Covariance Index", icov, getNCov());
-  }
-
-  /**
-   * Returns the largest range (in any direction in the heterotopic case)
-   * @return
-   */
-  double CovAnisoList::getMaximumDistance() const
-
-  {
-    double maxdist = 0.;
-    for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
-    {
-      const CovAniso* cova = getCova(icov);
-      if (!cova->hasRange()) continue;
-      double range = cova->getRange();
-      if (range > maxdist) maxdist = range;
-    }
-    return maxdist;
-  }
+  return maxdist;
+}
 
 void CovAnisoList::_setContext(const CovContext& ctxt)
 {
-  for (auto &e : _covAnisos)
+  for (auto& e: _covAnisos)
   {
     e->setContext(ctxt);
   }
 }
 
-  void CovAnisoList::copyCovContext(const CovContext& ctxt)
+void CovAnisoList::copyCovContext(const CovContext& ctxt)
+{
+  int number = (int)_covAnisos.size();
+  for (int i = 0; i < number; i++) _covAnisos[i]->copyCovContext(ctxt);
+}
+
+void CovAnisoList::normalize(double sill, int ivar, int jvar)
+{
+  double covval = 0.;
+  for (int i = 0, n = getNCov(); i < n; i++) covval += _covs[i]->eval0(ivar, jvar);
+
+  if (covval <= 0. || isEqual(covval, sill)) return;
+  double ratio = sill / covval;
+
+  for (int i = 0, n = getNCov(); i < n; i++)
   {
-    int number = (int)_covAnisos.size();
-    for (int i = 0; i < number; i++) _covAnisos[i]->copyCovContext(ctxt);
+    CovAniso* cov = _covAnisos[i];
+    cov->setSill(cov->getSill(ivar, jvar) * ratio);
   }
+}
 
-  void CovAnisoList::normalize(double sill, int ivar, int jvar)
+bool CovAnisoList::hasNugget() const
+{
+  for (int is = 0, ns = getNCov(); is < ns; is++)
   {
-    double covval = 0.;
-    for (int i = 0, n = getNCov(); i < n; i++) covval += _covs[i]->eval0(ivar, jvar);
-
-    if (covval <= 0. || isEqual(covval, sill)) return;
-    double ratio = sill / covval;
-
-    for (int i = 0, n = getNCov(); i < n; i++)
-    {
-      CovAniso* cov = _covAnisos[i];
-      cov->setSill(cov->getSill(ivar, jvar) * ratio);
-    }
+    if (getCovType(is) == ECov::NUGGET) return true;
   }
+  return false;
+}
 
-  bool CovAnisoList::hasNugget() const
+int CovAnisoList::getRankNugget() const
+{
+  for (int is = 0, ns = getNCov(); is < ns; is++)
   {
-    for (int is = 0, ns = getNCov(); is < ns; is++)
-    {
-      if (getCovType(is) == ECov::NUGGET) return true;
-    }
-    return false;
+    if (getCovType(is) == ECov::NUGGET) return is;
   }
+  return -1;
+}
 
-  int CovAnisoList::getRankNugget() const
+const CovAnisoList* CovAnisoList::createReduce(const VectorInt& validVars) const
+{
+  CovAnisoList* newcovlist = this->clone();
+
+  for (int is = 0, ns = getNCov(); is < ns; is++)
   {
-    for (int is = 0, ns = getNCov(); is < ns; is++)
-    {
-      if (getCovType(is) == ECov::NUGGET) return is;
-    }
-    return -1;
+    CovAniso* covs = newcovlist->getCova(is);
+    newcovlist->setCovAniso(is, covs->createReduce(validVars));
   }
-
-  void CovAnisoList::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
-  {
-    for (const auto& e: _covs)
-    {
-      e->optimizationPreProcess(p);
-    }
-  }
-
-  void CovAnisoList::_optimizationPostProcess() const
-  {
-    for (int is = 0, ns = getNCov(); is < ns; is++) _covs[is]->optimizationPostProcess();
-  }
-
-  const CovAnisoList* CovAnisoList::createReduce(const VectorInt& validVars) const
-  {
-    CovAnisoList* newcovlist = this->clone();
-
-    for (int is = 0, ns = getNCov(); is < ns; is++)
-    {
-      CovAniso* covs = newcovlist->getCova(is);
-      newcovlist->setCovAniso(is, covs->createReduce(validVars));
-    }
-    return newcovlist;
-  }
+  return newcovlist;
+}
 
 /**
  * Returns the Ball radius (from the first covariance of _covaList)
@@ -804,14 +484,14 @@ double CovAnisoList::getBallRadius() const
 {
   // Check is performed on the first covariance
   const CovAniso* cova = getCova(0);
-  double ball_radius = cova->getBallRadius();
-  if (! FFFF(ball_radius)) return ball_radius;
+  double ball_radius   = cova->getBallRadius();
+  if (!FFFF(ball_radius)) return ball_radius;
   return 0.;
 }
 
 int CovAnisoList::hasExternalCov() const
 {
-  for (int icov = 0; icov < (int) getNCov(); icov++)
+  for (int icov = 0; icov < (int)getNCov(); icov++)
   {
     if (getCovType(icov) == ECov::FUNCTION) return 1;
   }
@@ -822,7 +502,7 @@ bool CovAnisoList::isChangeSupportDefined() const
 {
   if (getAnam() == nullptr)
   {
-     return false;
+    return false;
   }
   return getAnam()->isChangeSupportDefined();
 }
@@ -831,23 +511,21 @@ const AnamHermite* CovAnisoList::getAnamHermite() const
 {
   const AAnam* anam = getAnam();
   if (anam == nullptr) return nullptr;
-  const AnamHermite *anamH = dynamic_cast<const AnamHermite*>(anam);
+  const AnamHermite* anamH = dynamic_cast<const AnamHermite*>(anam);
   return anamH;
 }
 
 const EModelProperty& CovAnisoList::getCovMode() const
 {
-  if (dynamic_cast<const CovLMCTapering*>(this) != nullptr)
-    return EModelProperty::TAPE;
+  if (dynamic_cast<const CovLMCTapering*>(this) != nullptr) return EModelProperty::TAPE;
 
   if (dynamic_cast<const CovLMCConvolution*>(this) != nullptr)
     return EModelProperty::CONV;
 
   if (dynamic_cast<const CovLMCAnamorphosis*>(this) != nullptr)
     return EModelProperty::ANAM;
- 
-  if (dynamic_cast<const CovLMGradient*>(this) != nullptr)
-    return EModelProperty::GRAD;
+
+  if (dynamic_cast<const CovLMGradient*>(this) != nullptr) return EModelProperty::GRAD;
 
   return EModelProperty::NONE;
 }

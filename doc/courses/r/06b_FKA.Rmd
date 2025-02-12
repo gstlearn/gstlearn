@@ -178,7 +178,7 @@ The **image** neighborhood is based on $(2*10+1)^2=441$ pixels (centered on the 
 During the estimation, only the contribution of second and third basic structures are kept (Nugget Effect is filtered out): ** Factorial Kriging Analysis**.
 
 ```{r Performing_monovariate_FKA}
-modelP$setCovaFiltered(0, TRUE)
+modelP$setCovFiltered(0, TRUE)
 means = dbStatisticsMono(grid,"Fill.P",EStatOption_fromKeys("MEAN"))$getValues()
 modelP$setMeans(means)
 modelP
@@ -248,7 +248,7 @@ multi.varmod(varioM,modelM)
 \frametitle{Multivariable Factorial Kriging Analysis}
 
 ```{r Performing_Multivariate_FKA}
-modelM$setCovaFiltered(0, TRUE)
+modelM$setCovFiltered(0, TRUE)
 means = dbStatisticsMono(grid,flagIso=TRUE, 
                          names=c("Fill.P","Cr","Ni"),
                          EStatOption_fromKeys("MEAN"))$getValues()

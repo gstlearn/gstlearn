@@ -14,7 +14,6 @@
 #include "Model/ModelGeneric.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
 
 /**
  * \brief
@@ -42,8 +41,6 @@ public:
   FORWARD_METHOD(getCovList, getSill, TEST)
   FORWARD_METHOD(getCovList, getTotalSill)
   FORWARD_METHOD(getCovList, getTotalSills)
-  FORWARD_METHOD(getCovList, getActiveCovList)
-  FORWARD_METHOD(getCovList, getAllActiveCovList)
   FORWARD_METHOD(getCovList, isAllActiveCovList)
   
   void setCovList(CovList* covs);
