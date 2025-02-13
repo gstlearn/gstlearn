@@ -214,9 +214,10 @@ MatrixSquareGeneral ACov::eval0MatByTarget(const Db* db, int iech, const KrigOpt
   const CovCalcMode mode = CovCalcMode(ECalcMember::VAR);
 
   SpacePoint p0(getSpace());
-  p0.setTarget(true);
-  db->getSampleAsSPInPlace(p0, iech);
+  db->getSampleAsSPInPlace(p0, iech, true);
   optimizationSetTarget(p0);
+
+  // Modify the covariance (if non stationary)
   updateCovByPoints(2, iech, 2, iech);
 
   if (!flagBlock)
@@ -637,8 +638,9 @@ VectorDouble ACov::evalPointToDbAsSP(const std::vector<SpacePoint> &p1s,
 
   for (int iech1 = 0; iech1 < nech1; iech1++)
   {
-    p1s[iech1].setIech(iech1);
-    values[iech1] = eval(p1s[iech1], p2, ivar, jvar, mode);
+    const SpacePoint& p1 = p1s[iech1];
+    p1.setIech(iech1);
+    values[iech1] = eval(p1, p2, ivar, jvar, mode);
   }
   return values;
 }
@@ -1024,7 +1026,6 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
   KrigOpt krigopt;
   krigopt.setMode(mode);
 
-  // Loop on the first variable
   for (int jvar1 = 0, irow = 0, nvar1 = (int)ivars.size(); jvar1 < nvar1; jvar1++)
   {
     int ivar1 = ivars[jvar1];
@@ -1032,12 +1033,9 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
     for (int jech1 = 0, nech1s = index1i.size(); jech1 < nech1s; jech1++, irow++)
     {
       int iech1 = index1i[jech1];
-      db1->getSampleAsSPInPlace(p1, iech1);
-      p1.setTarget(false);
-      p1.setIech(iech1);
+      db1->getSampleAsSPInPlace(p1, iech1, false);
       load(p1, true);
 
-      // Loop on Target
       _loopOnPointTarget(db2, index2, jvars, ivar1, iech1, irow, p1, p2, false, krigopt, mat);
     }
   }
@@ -1058,33 +1056,46 @@ void ACov::_loopOnPointTarget(const Db* db2,
                               const KrigOpt& krigopt,
                               MatrixRectangular& mat) const
 {
+  double value;
   int icas = (flagSym) ? 1 : 2;
-  for (int jvar2 = 0, icol = 0, nvar2 = (int)jvars.size(); jvar2 < nvar2; jvar2++)
+  const CovCalcMode& mode = krigopt.getMode();
+  bool isNoStatLocal      = isNoStat();
+
+  int icol = 0;
+  VectorInt::const_iterator iv2i(jvars.begin());
+  while (iv2i < jvars.end())
   {
-    int ivar2 = jvars[jvar2];
+    // Get variable index
+    int ivar2 = *iv2i;
+    iv2i++;
+
     const VectorInt& index2i = index2[ivar2];
-    for (int jech2 = 0, nech2s = index2i.size(); jech2 < nech2s; jech2++, icol++)
+    VectorInt::const_iterator it2i(index2i.begin());
+    while (it2i < index2i.end())
     {
+      // Get the sample index
+      int iech2 = *it2i;
+      it2i++;
+
       // Perform calculation only in upper triangle of the Symmetric Matrix
-      if (flagSym && icol < irow) continue;
+      if (!flagSym || icol >= irow)
+      {
+        // Identify the sample
+        db2->getSampleAsSPInPlace(p2, iech2, !flagSym);
+        if (!flagSym) optimizationSetTarget(p2);
+        load(p2, false);
 
-      int iech2 = index2i[jech2];
-      db2->getSampleAsSPInPlace(p2, iech2);
-      if (!flagSym) optimizationSetTarget(p2);
-      p2.setTarget(!flagSym);
-      p2.setIech(iech2);
-      load(p2, false);
+        // Modify the covariance (if non stationary)
+        if (isNoStatLocal) updateCovByPoints(1, iech1, icas, iech2);
 
-      // Modify the covariance (if non stationary)
-      updateCovByPoints(1, iech1, icas, iech2);
-
-      /* Loop on the dimension of the space */
-      double value;
-      if (flagSym && iech1 == iech2)
-        value = eval0(ivar1, ivar2, &krigopt.getMode());
-      else
-        value = eval(p1, p2, ivar1, ivar2, &krigopt.getMode());
-      mat.setValue(irow, icol, value);
+        // Calculate the covariance between two points
+        if (flagSym && iech1 == iech2)
+          value = eval0(ivar1, ivar2, &mode);
+        else
+          value = eval(p1, p2, ivar1, ivar2, &mode);
+        mat.setValue(irow, icol, value);
+      }
+      icol++;
     }
   }
 }
@@ -1102,25 +1113,35 @@ void ACov::_loopOnBlockTarget(const Db* db2,
 {
   int ndisc = krigopt.getNDisc();
   SpacePoint p2aux(getSpace());
-  for (int jvar2 = 0, icol = 0, nvar2 = (int)jvars.size(); jvar2 < nvar2; jvar2++)
+  const CovCalcMode& mode = krigopt.getMode();
+  bool isNoStatLocal      = isNoStat();
+
+  int icol = 0;
+  VectorInt::const_iterator iv2i(jvars.begin());
+  while (iv2i < jvars.end())
   {
-    int ivar2 = jvars[jvar2];
+    // Get the variable index
+    int ivar2 = *iv2i;
+    iv2i++;
+
     const VectorInt& index2i = index2[ivar2];
-    for (int jech2 = 0, nech2s = index2i.size(); jech2 < nech2s; jech2++, icol++)
+    VectorInt::const_iterator it2i(index2i.begin());
+    while (it2i < index2i.end())
     {
-      int iech2 = index2i[jech2];
-      db2->getSampleAsSPInPlace(p2, iech2);
+      // Get the sample index
+      int iech2 = *it2i;
+      it2i++;
+
+      // Identify the sample
+      db2->getSampleAsSPInPlace(p2, iech2, true);
 
       // Discretize the block if adapted to the cell dimensions
-      if (krigopt.isFlagCell())
-        krigopt.blockDiscretize(iech2);
+      if (krigopt.isFlagCell()) krigopt.blockDiscretize(iech2);
 
-      p2.setTarget(true);
-      p2.setIech(iech2);
       load(p2, false);
 
       // Modify the covariance (if non stationary)
-      updateCovByPoints(1, iech1, 2, iech2);
+      if (isNoStatLocal) updateCovByPoints(1, iech1, 2, iech2);
 
       // Loop on the discretization points
       double covcum = 0.;
@@ -1130,11 +1151,12 @@ void ACov::_loopOnBlockTarget(const Db* db2,
         p2aux = p2;
         p2aux.move(krigopt.getDisc1VD(i));
         optimizationSetTarget(p2aux);
-        covcum += eval(p1, p2aux, ivar1, ivar2, &krigopt.getMode());
+        covcum += eval(p1, p2aux, ivar1, ivar2, &mode);
       }
-      double value = covcum / (double) ndisc;
+      double value = covcum / (double)ndisc;
       mat.setValue(irow, icol, value);
     }
+    icol++;
   }
 }
 
@@ -1222,9 +1244,7 @@ MatrixRectangular ACov::evalCovMatByTarget(const Db* db1,
     for (int jech1 = 0, nech1s = index1i.size(); jech1 < nech1s; jech1++, irow++)
     {
       int iech1 = index1i[jech1];
-      db1->getSampleAsSPInPlace(p1, iech1);
-      p1.setTarget(false);
-      p1.setIech(iech1);
+      db1->getSampleAsSPInPlace(p1, iech1, false);
       load(p1, true);
 
       // Loop on Target
@@ -1344,10 +1364,22 @@ void ACov::load(const SpacePoint& p,bool case1) const
   _load(p, case1);
 }
 
-void ACov::_load(const SpacePoint& p, bool case1) const
+void ACov::_load(const SpacePoint& p, bool option) const
 {
-  const SpacePoint** pp = case1 ? &_pw1 : &_pw2;
-  *pp                   = p.isTarget() ? &_p2A : &_p1As[p.getIech()];
+  if (option)
+  {
+    if (p.isTarget())
+      _pw1 = &_p2A;
+    else
+      _pw1 = &_p1As[p.getIech()];
+  }
+  else
+  {
+    if (p.isTarget())
+      _pw2 = &_p2A;
+    else
+      _pw2 = &_p1As[p.getIech()];
+  }
 }
 
 /****************************************************************************/
@@ -1434,9 +1466,7 @@ MatrixSquareSymmetric ACov::evalCovMatSymByRanks(const Db* db1,
     for (int jech1 = 0, nech1s = index1i.size(); jech1 < nech1s; jech1++, irow++)
     {
       int iech1 = index1i[jech1];
-      db1->getSampleAsSPInPlace(p1, iech1);
-      p1.setTarget(false);
-      p1.setIech(iech1);
+      db1->getSampleAsSPInPlace(p1, iech1, false);
       load(p1, true);
 
       // Loop on Target
@@ -1472,6 +1502,7 @@ void ACov::setContext(const CovContext &ctxt)
  ** \param[in]  nbgh1   Array giving ranks of selected samples (optional)
  ** \param[in]  nbgh2   Array giving ranks of selected samples (optional)
  ** \param[in]  mode    CovCalcMode structure
+ ** \param[in]  cleanOptim When True, clean optimization internal when ended
  ** \param[in]  eps     Tolerance for discarding a covariance value
  **
  ** \remarks The covariance matrix (returned) must be freed by calling routine
@@ -1488,6 +1519,7 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
                                      const VectorInt& nbgh1,
                                      const VectorInt& nbgh2,
                                      const CovCalcMode* mode,
+                                     bool cleanOptim,
                                      double eps) const
 {
   MatrixSparse* mat = nullptr;
@@ -1500,8 +1532,11 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
   if (jvars.empty()) return mat;
 
   // Play the non-stationarity (if needed)
-
+  bool isNoStatLocal = isNoStat();
   manage(db1, db2);
+
+  // Prepare the Optimization for covariance calculation
+  optimizationPreProcess(db1);
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1, true, true, flagSameDb);
@@ -1537,7 +1572,8 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
     for (int jech1 = 0, nech1s = index1i.size(); jech1 < nech1s; jech1++, irow++)
     {
       int iech1 = index1i[jech1];
-      db1->getSampleAsSPInPlace(p1, iech1);
+      db1->getSampleAsSPInPlace(p1, iech1, false);
+      load(p1, true);
 
       // Loop on the second variable
       for (int jvar2 = 0, icol = 0; jvar2 < nvar2; jvar2++)
@@ -1548,9 +1584,11 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
         {
           int iech2 = index2i[jech2];
           db2->getSampleAsSPInPlace(p2, iech2);
+          optimizationSetTarget(p2);
+          load(p2, false);
 
           // Modify the covariance (if non stationary)
-          updateCovByPoints(1, iech1, 2, iech2);
+          if (isNoStatLocal) updateCovByPoints(1, iech1, 2, iech2);
 
           /* Loop on the dimension of the space */
           double value = eval(p1, p2, ivar1, jvar2, mode);
@@ -1569,6 +1607,8 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
   // Update the matrix due to presence of Variance of Measurement Error
   if (flagSameDb)
     _updateCovMatrixSymmetricVerr(db1, mat, ivars, index1);
+
+  if (cleanOptim) optimizationPostProcess();
   return mat;
 }
 
@@ -1803,10 +1843,8 @@ double ACov::evaluateOneGeneric(const CovInternal *covint,
   // Load the non-stationary parameters if needed
 
   if (covint != nullptr)
-  {
     updateCovByPoints(covint->getIcas1(), covint->getIech1(),
                       covint->getIcas2(), covint->getIech2());
-  }
 
   // Return the (weighted) Model value
 
@@ -1926,15 +1964,11 @@ void ACov::evaluateMatInPlace(const CovInternal *covint,
                                const CovCalcMode *mode) const
 {
   // Load the non-stationary parameters if needed
-
   if (isNoStat() && covint != nullptr)
-  {
     updateCovByPoints(covint->getIcas1(), covint->getIech1(),
                       covint->getIcas2(), covint->getIech2());
-  }
 
   // Evaluate the Model
-
   MatrixSquareGeneral mat = evalNvarIpas(1., d1, mode);
 
   int nvar = getNVar();

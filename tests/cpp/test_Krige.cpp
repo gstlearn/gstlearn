@@ -22,7 +22,6 @@
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/OptCustom.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
@@ -147,9 +146,7 @@ int main(int argc, char* argv[])
   int ndim     = 2;
   int nvar     = 1;
   int mode     = 0;
-  int oldstyle = 0.;
   law_set_random_seed(32131);
-  OptCustom::define("oldStyle", oldstyle);
 
   defineDefaultSpace(ESpaceType::RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS);

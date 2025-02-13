@@ -18,7 +18,6 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
-#include "Basic/OptCustom.hpp"
 #include "Neigh/NeighBench.hpp"
 #include "Estimation/CalcKriging.hpp"
 
@@ -37,7 +36,6 @@ int main(int argc, char *argv[])
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("BenchKrigingB-");
-  OptCustom::define("oldStyle", 0.);
 
   // Global parameters
   int ndim = 2;

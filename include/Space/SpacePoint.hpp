@@ -21,9 +21,7 @@ class GSTLEARN_EXPORT SpacePoint : public ASpaceObject
 {
 public:
   SpacePoint(const ASpaceSharedPtr& space = ASpaceSharedPtr());
-
   SpacePoint(const SpacePoint& r);
-
   SpacePoint(const VectorDouble& coord, int iech = -1,
              const ASpaceSharedPtr& space = ASpaceSharedPtr());
   SpacePoint& operator=(const SpacePoint& r);

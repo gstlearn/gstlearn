@@ -19,7 +19,6 @@
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/OptCustom.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
@@ -50,9 +49,7 @@ int main(int argc, char *argv[])
   DbStringFormat dbfmt(FLAG_STATS);
 
   // General parameters
-  double oldstyle = 0.;
   bool verbose    = true;
-  OptCustom::define("oldStyle", oldstyle);
 
   // Generate initial grid
   DbGrid* grid = DbGrid::create({100,100}, {0.01,0.01});

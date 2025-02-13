@@ -114,6 +114,7 @@ bool CovList::isNoStat() const
   }
   return nostat;
 }
+
 void CovList::setFiltered(int icov, bool filtered)
 {
   if (! _isCovarianceIndexValid(icov)) return;

@@ -16,8 +16,6 @@
 #include "Db/Db.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Basic/VectorHelper.hpp"
-#include "Basic/OptCustom.hpp"
 #include "Model/Model.hpp"
 
 #include <math.h>
@@ -108,103 +106,56 @@ int CalcGlobal::_globalKriging()
   Db* dbout     = getDbout();
   int nvar      = model->getNVar();
   int ng        = 0;
-  double estim  = 0.;
-  double cv0    = 0.;
   VectorDouble wgt;
-  bool oldStyle = OptCustom::query("oldStyle", 0.) == 1.;
 
-  if (oldStyle)
+  KrigOpt krigopt;
+
+  // Get the Covariance between data (Unique Neighborhood)
+  CovCalcMode mode            = CovCalcMode(ECalcMember::LHS);
+  VectorVectorInt sampleRanks = dbin->getSampleRanks({_ivar0});
+  VectorDouble Z =
+    dbin->getValuesByRanks(sampleRanks, model->getMeans(), !model->hasDrift());
+  MatrixSquareSymmetric Sigma =
+    model->evalCovMatSymByRanks(dbin, sampleRanks, -1, &mode, false);
+  MatrixRectangular X = model->evalDriftMatByRanks(dbin, sampleRanks);
+
+  KrigingAlgebra algebra;
+  algebra.resetNewData();
+  algebra.setData(&Z, &sampleRanks, &model->getMeans());
+  algebra.setLHS(&Sigma, &X);
+
+  // Prepare the cumulative matrices
+  MatrixRectangular Sigma0Cum(Sigma.getNRows(), 1);
+  MatrixRectangular X0Cum(1, X.getNCols());
+
+  /* Loop on the targets to be processed */
+  for (int iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
   {
-    // Initializations
+    mes_process("Kriging sample", dbout->getNSample(), iech);
+    if (!dbout->isActive(iech)) continue;
 
-    NeighUnique neighU = NeighUnique(false);
-    neighU.attach(dbin, dbout);
+    MatrixRectangular Sigma0 =
+      model->evalCovMatByTarget(dbin, dbout, sampleRanks, iech, krigopt, false);
+    MatrixRectangular X0 = model->evalDriftMatByTarget(dbout, iech, krigopt);
 
-    /* Setting options */
-
-    KrigingSystem ksys(dbin, dbout, model, &neighU);
-    if (ksys.setKrigOptFlagGlobal(true)) return 1;
-    if (!ksys.isReady()) return 1;
-
-    /* Loop on the targets to be processed */
-    for (int iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
-    {
-      mes_process("Kriging sample", dbout->getNSample(), iech);
-      if (!getDbout()->isActive(iech)) continue;
-      if (ksys.estimate(iech)) return 1;
-
-      // Cumulate the R.H.S.
-
-      VectorDouble rhs = ksys.getRHSC(_ivar0);
-      if (rhsCum.empty()) rhsCum.resize(rhs.size(), 0.);
-      VH::addInPlace(rhsCum, rhs);
-      ng++;
-    }
-
-    /* Derive the kriging weights */
-
-    VH::divideConstant(rhsCum, (double)ng);
-    int nred            = ksys.getNRed();
-    VectorDouble lhsinv = ksys.getLHSInvC();
-    VectorDouble zam    = ksys.getZamC();
-    wgt.resize(nred);
-    matrix_product_safe(nred, nred, nvar, lhsinv.data(), rhsCum.data(), wgt.data());
-    estim = VH::innerProduct(rhsCum, zam);
-    cv0   = VH::innerProduct(rhsCum, wgt);
-    ksys.conclusion();
+    // Cumulate the R.H.S.
+    Sigma0Cum.addMatInPlace(Sigma0);
+    X0Cum.addMatInPlace(X0);
+    ng++;
   }
-  else
-  {
-    KrigOpt krigopt;
 
-    // Get the Covariance between data (Unique Neighborhood)
-    CovCalcMode mode = CovCalcMode(ECalcMember::LHS);
-    VectorVectorInt sampleRanks = dbin->getSampleRanks({_ivar0});
-    VectorDouble Z =
-      dbin->getValuesByRanks(sampleRanks, model->getMeans(), !model->hasDrift());
-    MatrixSquareSymmetric Sigma =
-      model->evalCovMatSymByRanks(dbin, sampleRanks, -1, &mode, false);
-    MatrixRectangular X = model->evalDriftMatByRanks(dbin, sampleRanks);
+  // Normalize the cumulative R.H.S.
+  double oneOverNG = 1. / (double)ng;
+  Sigma0Cum.prodScalar(oneOverNG);
+  X0Cum.prodScalar(oneOverNG);
+  algebra.setRHS(&Sigma0Cum, &X0Cum);
 
-    KrigingAlgebra algebra;
-    algebra.resetNewData();
-    algebra.setData(&Z, &sampleRanks, &model->getMeans());
-    algebra.setLHS(&Sigma, &X);
+  MatrixSquareSymmetric Sigma00 = model->eval0MatByTarget(dbout, 0);
+  algebra.setVariance(&Sigma00);
 
-    // Prepare the cumulative matrices
-    MatrixRectangular Sigma0Cum(Sigma.getNRows(), 1);
-    MatrixRectangular X0Cum(1, X.getNCols());
-
-    /* Loop on the targets to be processed */
-    for (int iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
-    {
-      mes_process("Kriging sample", dbout->getNSample(), iech);
-      if (!dbout->isActive(iech)) continue;
-
-      MatrixRectangular Sigma0 =
-        model->evalCovMatByTarget(dbin, dbout, sampleRanks, iech,
-                                       krigopt, false);
-      MatrixRectangular X0 = model->evalDriftMatByTarget(dbout, iech, krigopt);
-
-      // Cumulate the R.H.S.
-      Sigma0Cum.addMatInPlace(Sigma0);
-      X0Cum.addMatInPlace(X0);
-      ng++;
-    }
-
-    // Normalize the cumulative R.H.S.
-    double oneOverNG = 1. / (double) ng;
-    Sigma0Cum.prodScalar(oneOverNG);
-    X0Cum.prodScalar(oneOverNG);
-    algebra.setRHS(&Sigma0Cum, &X0Cum);
-
-    MatrixSquareSymmetric Sigma00 = model->eval0MatByTarget(dbout, 0);
-    algebra.setVariance(&Sigma00);
-
-    estim = algebra.getEstimation()[0];
-    double stdv = algebra.getStdv()[0];
-    cv0 = model->getTotalSill(_ivar0, _ivar0) - stdv * stdv;
-  }
+  double estim = algebra.getEstimation()[0];
+  double stdv  = algebra.getStdv()[0];
+  double cv0   = model->getTotalSill(_ivar0, _ivar0) - stdv * stdv;
 
   /* Preliminary checks */
 

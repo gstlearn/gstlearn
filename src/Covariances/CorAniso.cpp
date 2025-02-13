@@ -408,7 +408,7 @@ double CorAniso::evalCor(const SpacePoint &p1,
                          int ivar,
                          int jvar) const
 {
-  DECLARE_UNUSED(ivar,jvar);
+  DECLARE_UNUSED(ivar, jvar);
   double h;
   if (!_isOptimizationPreProcessed || p1.getIech() == -1 || p2.getIech() == -1)
   {
@@ -653,7 +653,6 @@ void CorAniso::nostatUpdate(CovInternal *covint)
   updateCovByPoints(covint->getIcas1(), covint->getIech1(),
                     covint->getIcas2(), covint->getIech2());
 }
-
 
 VectorDouble CorAniso::getRanges() const
 {
@@ -946,7 +945,7 @@ void CorAniso::_optimizationPostProcess() const
 void CorAniso::optimizationTransformSP(const SpacePoint& ptin,
                                        SpacePoint& ptout) const
 {
-  if (_isOptimEnabled())
+  if (isOptimEnabled())
   {
     _aniso.applyInverseInPlace(ptin.getCoords(), ptout.getCoordRef());
     ptout.setIech(ptin.getIech());
