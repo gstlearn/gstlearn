@@ -184,8 +184,9 @@ public:
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setRangeIsotropic)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setMarkovCoeffs)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setCovFiltered)
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setOptimEnabled)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, normalize)
-  
+
   FORWARD_METHOD_NON_CONST(_castInCovLMCTapering, setTapeRange)
   FORWARD_METHOD(castInCovLMGradientConst, evalZAndGradients)
   

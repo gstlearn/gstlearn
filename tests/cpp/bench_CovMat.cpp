@@ -33,9 +33,9 @@ int main(int argc, char *argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Global parameters
+  int mode = 0;
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
-  int option = -1;
 
   // Generate the input data base
   int nall = 100;
@@ -62,15 +62,12 @@ int main(int argc, char *argv[])
   message("(For checking purpose, a Selection has been added)\n");
   message("Statistics are provided on the averaged RHS\n");
 
-  // Preparing a vector of SpacePoints for the active samples in 'data'
-  // for this usage, the list of SP can be reduced to the active samples only
-  std::vector<SpacePoint> p1s;
-  dbin->getSamplesAsSP(p1s,model->getSpace(),true);
+  // Core allocation of common variables
   SpacePoint p2(model->getSpace());
   VectorDouble cumul(ndat, 0.);
   Timer timer;
 
-  if (option < 0 || option == 1)
+  if (mode == 0 || mode == 1)
   {
     // Traditional solution
     // ====================
@@ -91,7 +88,7 @@ int main(int argc, char *argv[])
     VH::dumpRange("", cumul);
   }
 
-  if (option < 0 || option == 2)
+  if (mode == 0 || mode == 2)
   {
     // Semi-optimized solution
     // =======================
@@ -102,6 +99,12 @@ int main(int argc, char *argv[])
     VH::fill(cumul, 0.);
 
     timer.reset();
+
+    // Preparing a vector of SpacePoints for the active samples in 'data'
+    // for this usage, the list of SP can be reduced to the active samples only
+    std::vector<SpacePoint> p1s;
+    dbin->getSamplesAsSP(p1s, model->getSpace(), true);
+
     for (int i = 0; i < nout; i++)
     {
       dbout->getSampleAsSPInPlace(p2, i);
@@ -115,7 +118,7 @@ int main(int argc, char *argv[])
     VH::dumpRange("", cumul);
   }
 
-  if (option < 0 || option == 3)
+  if (mode == 0 || mode == 3)
   {
     // Optimized version
     // =================
@@ -124,31 +127,13 @@ int main(int argc, char *argv[])
     message("Input samples are pre-transformed into vector of (anisotropic) space points\n");
     message("Simple loop between each target and the previous vector\n");
     VH::fill(cumul, 0.);
+    model->setOptimEnabled(true);
 
     timer.reset();
     MatrixRectangular matvec = model->evalCovMat(dbin, dbout);
     for (int i = 0; i < nout; i++)
       VH::addInPlace(cumul, matvec.getColumn(i));
     timer.displayIntervalMilliseconds("Establishing RHS (optimized)", 300);
-
-    // Some printout for comparison
-    VH::divideConstant(cumul, nout);
-    VH::dumpRange("", cumul);
-  }
-  if (option < 0 || option == 4)
-  {
-    // Not Optimized version
-    // =================
-
-    mestitle(1, "Not Optimized solution");
-    message("Use of the default version\n");
-    VH::fill(cumul, 0.);
-
-    timer.reset();
-    MatrixRectangular matvec = model->evalCovMat(dbin, dbout);
-    for (int i = 0; i < nout; i++)
-      VH::addInPlace(cumul, matvec.getColumn(i));
-    timer.displayIntervalMilliseconds("Establishing RHS (not optimized)", 300);
 
     // Some printout for comparison
     VH::divideConstant(cumul, nout);

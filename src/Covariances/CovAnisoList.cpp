@@ -529,3 +529,11 @@ const EModelProperty& CovAnisoList::getCovMode() const
 
   return EModelProperty::NONE;
 }
+
+void CovAnisoList::setOptimEnabled(bool status)
+{
+  for (auto& e: _covAnisos)
+  {
+    e->setOptimEnabled(status);
+  }
+}
