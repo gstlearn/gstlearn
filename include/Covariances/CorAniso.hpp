@@ -107,7 +107,7 @@ public:
   void _optimizationSetTargetByIndex(int iech,
                                     const std::vector<SpacePoint> &p1As,
                                     SpacePoint & p2A) const;
-
+  void _optimizationSetTarget(const SpacePoint& pt) const override;
   void _optimizationPostProcess() const override;
   bool isNoStat() const override;
   bool isValidForTurningBand() const;
@@ -193,7 +193,7 @@ public:
   bool   hasRotation() const { return _aniso.hasRotation(); }
   const Tensor& getAniso() const { return _aniso; }
   void   setAniso(const Tensor& aniso) { _aniso = aniso; }
-  const ACovFunc* getCova() const { return _corfunc; }
+  const ACovFunc* getCorFunc() const { return _corfunc; }
   int    getNGradParam() const;
   bool   hasCovDerivative() const { return _corfunc->hasCovDerivative(); }
   bool   hasCovOnSphere() const { return _corfunc->hasCovOnSphere(); }

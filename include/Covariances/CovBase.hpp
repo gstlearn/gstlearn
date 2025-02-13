@@ -56,7 +56,7 @@ public:
   
   void   makeSillNoStatDb( const String &namecol, int ivar = 0, int jvar = 0,const Db* db = nullptr);
   void   makeSillStationary(int ivar = 0, int jvar = 0);
-  void   makeSillsStationary();
+  void   makeSillsStationary(bool silent = false);
   void   makeSillNoStatFunctional(  const AFunctional *func, int ivar = 0, int jvar = 0);
 
   void   makeStationary() override;

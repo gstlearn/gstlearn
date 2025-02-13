@@ -337,9 +337,9 @@ void CovBase::makeSillNoStatFunctional(const AFunctional  *func, int ivar, int j
 
 }
 
-void CovBase::makeSillsStationary()
+void CovBase::makeSillsStationary(bool silent)
 {
-  if (_tabNoStat.getNSills() == 0)
+  if (_tabNoStat.getNSills() == 0 && !silent)
   {
     messerr("All the sills are already stationary!");
     return;
@@ -509,7 +509,7 @@ void CovBase::updateCovByMesh(int imesh,bool aniso) const
 void CovBase::makeStationary()
 {
   _cor->makeStationary();
-  makeSillsStationary();
+  makeSillsStationary(true);
 }
 
 void CovBase::_manage(const Db* db1,const Db* db2) const

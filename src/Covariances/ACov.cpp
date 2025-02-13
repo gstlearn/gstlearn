@@ -1454,7 +1454,6 @@ MatrixSquareSymmetric ACov::evalCovMatSym(const Db* db1,
                                           const CovCalcMode* mode,
                                           bool cleanOptim) const
 {
-  DECLARE_UNUSED(cleanOptim)
   MatrixSquareSymmetric mat;
 
   // Preliminary checks

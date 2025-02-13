@@ -1174,8 +1174,7 @@ void ShiftOpMatrix::_buildLambda(const AMesh *amesh)
   bool flagSphere = (amesh->getVariety() == 1);
 
   double correc = cova->getCorrec();
-  //double sqdethh = 0.;
-
+  double factor = 1.;
  if (flagSphere)
   {
     const ASpace *space = getDefaultSpaceSh().get();
@@ -1187,13 +1186,13 @@ void ShiftOpMatrix::_buildLambda(const AMesh *amesh)
     if (_isGlobalHH())
     {
       _loadHH(amesh, hh, 0);
-      //factor = sqrt(hh.determinant());
+      factor = sqrt(hh.determinant());
     }
   }
 
   for (int ip = 0; ip < nvertex; ip++)
   {
-    _Lambda[ip] = sqrt(_TildeC[ip] * correc);
+    _Lambda[ip] = sqrt(_TildeC[ip] * correc * factor);
   }
 }
 

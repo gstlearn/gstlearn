@@ -169,7 +169,7 @@ void CovGradientNumerical::evalZAndGradients(const SpacePoint& p1,
 
   double covar = _evalZZ(0,0,p1,p2,mode);
   covVal += covar;
-  if (getCovFunc()->getType() == ECov::NUGGET) return;
+  if (getCorFunc()->getType() == ECov::NUGGET) return;
 
   //  Calculate covariance between point and gradient
 

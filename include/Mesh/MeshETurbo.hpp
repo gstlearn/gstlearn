@@ -33,7 +33,7 @@ public:
              const VectorDouble& dx = VectorDouble(),
              const VectorDouble& x0 = VectorDouble(),
              const VectorDouble& angles = VectorDouble(),
-             bool flag_polarized = false,
+             bool flag_polarized = true,
              bool verbose = false,
              int mode = 1);
   MeshETurbo(const DbGrid *dbgrid,
@@ -63,23 +63,23 @@ public:
                             const VectorDouble& dx = VectorDouble(),
                             const VectorDouble& x0 = VectorDouble(),
                             const VectorDouble& angles = VectorDouble(),
-                            bool flag_polarized = false,
+                            bool flag_polarized = true,
                             bool verbose = false);
   static MeshETurbo* createFromNF(const String &neutralFilename,
                                   bool verbose = true);
   static MeshETurbo* createFromGrid(const DbGrid *dbgrid,
-                                    bool flag_polarized = false,
+                                    bool flag_polarized = true,
                                     bool verbose = false,
                                     int mode = 1);
   static MeshETurbo* createFromGridInfo(const Grid *grid,
-                                        bool flag_polarized = false,
+                                        bool flag_polarized = true,
                                         bool verbose = false,
                                         int mode = 1);
   static MeshETurbo* createFromCova(const CovAniso &cova,
                                     const Db *field,
                                     double ratio,
                                     int nbExt = 0,
-                                    bool isPolarized = false,
+                                    bool isPolarized = true,
                                     bool useSel = true,
                                     bool flagNoStatRot = false,
                                     bool verbose = false);
@@ -88,21 +88,21 @@ public:
                      const VectorDouble& extendmax,
                      const VectorDouble& cellsize,
                      const VectorDouble& rotmat = VectorDouble(),
-                     bool flag_polarized = false,
+                     bool flag_polarized = true,
                      bool verbose = false);
   int initFromGridByMatrix(const VectorInt& nx,
                            const VectorDouble& dx     = VectorDouble(),
                            const VectorDouble& x0     = VectorDouble(),
                            const VectorDouble& rotmat = VectorDouble(),
                            const VectorDouble& sel    = VectorDouble(),
-                           bool flag_polarized        = false,
+                           bool flag_polarized        = true,
                            bool verbose               = false);
   int initFromGridByAngles(const VectorInt& nx,
                            const VectorDouble& dx     = VectorDouble(),
                            const VectorDouble& x0     = VectorDouble(),
                            const VectorDouble& angles = VectorDouble(),
                            const VectorDouble& sel    = VectorDouble(),
-                           bool flag_polarized        = false,
+                           bool flag_polarized        = true,
                            bool verbose               = false);
   int initFromCova(const CovAniso& cova,
                    const Db* field,
