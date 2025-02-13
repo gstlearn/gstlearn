@@ -273,11 +273,11 @@ public:
 
   void   _computeCorrec();
   double _getDetTensor() const;
+  double _scaleBySill(int ivar, int jvar, double cov, const CovCalcMode* mode) const;
 
 private:
-
   CorAniso* _corAniso;
-  
+
   mutable bool _optimEnabled;
   // These temporary information is used to speed up processing (optimization functions)
   // They are in a protected section as they may be modified by class hierarchy

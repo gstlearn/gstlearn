@@ -712,14 +712,16 @@ VectorDouble Db::getSampleCoordinates(int iech) const
 
 /**
  * @brief In the SpacePoint 'P', define the sample rank and coordinates
- * 
+ *
  * @param P SpacePoint reference (output)
  * @param iech Rank of the sample
+ * @param target Boolean value assigned to the Space Point
  */
-void Db::getSampleAsSPInPlace(SpacePoint& P, int iech) const
+void Db::getSampleAsSPInPlace(SpacePoint& P, int iech, bool target) const
 {
   P.setIech(iech);
-  getCoordinatesPerSampleInPlace(iech,P.getCoordRef());
+  P.setTarget(target);
+  getCoordinatesPerSampleInPlace(iech, P.getCoordRef());
 }
 
 VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& jechs) const
@@ -834,7 +836,7 @@ void Db::getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_
 
 void Db::getCoordinatesPerSampleInPlace(int iech, vect coor, bool flag_rotate) const
 {
-  for (int idim = 0; idim < getNDim(); idim++)
+  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
     coor[idim] = getCoordinate(iech, idim, flag_rotate);
 }
 

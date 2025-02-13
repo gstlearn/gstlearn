@@ -130,7 +130,8 @@ public:
   void copyCovContext(const CovContext& ctxt);
   bool hasNugget() const;
   int  getRankNugget() const;
-  const CovAnisoList* createReduce(const VectorInt &validVars) const;
+  const CovAnisoList* createReduce(const VectorInt& validVars) const;
+  void setOptimEnabled(bool status);
 
 private:
   void _setContext(const CovContext& ctxt) override;

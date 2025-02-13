@@ -281,14 +281,15 @@ public:
                               int ivar = 0,
                               int jvar = 0,
                               const CovCalcMode* mode = nullptr) const;
-  MatrixSparse* evalCovMatSparse(const Db *db1_arg,
-                                    const Db *db2_arg = nullptr,
-                                    int ivar0 = -1,
-                                    int jvar0 = -1,
-                                    const VectorInt &nbgh1 = VectorInt(),
-                                    const VectorInt &nbgh2 = VectorInt(),
-                                    const CovCalcMode *mode = nullptr,
-                                    double eps = EPSILON3) const;
+  MatrixSparse* evalCovMatSparse(const Db* db1_arg,
+                                 const Db* db2_arg       = nullptr,
+                                 int ivar0               = -1,
+                                 int jvar0               = -1,
+                                 const VectorInt& nbgh1  = VectorInt(),
+                                 const VectorInt& nbgh2  = VectorInt(),
+                                 const CovCalcMode* mode = nullptr,
+                                 bool cleanOptim         = true,
+                                 double eps              = EPSILON3) const;
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,
                            const VectorInt& ndisc,
@@ -422,7 +423,6 @@ public:
                             int iv1 = 0, int iv2 = 0) const;
   void informDbIn(const Db* dbin) const;
   void informDbOut(const Db* dbout) const;
-
   virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
   {
     DECLARE_UNUSED(icas1);
@@ -430,14 +430,14 @@ public:
     DECLARE_UNUSED(icas2);
     DECLARE_UNUSED(iech2);
   }
-
   int getNDim(int ispace = -1) const { return _ctxt.getNDim(ispace); }
+
 
 private:
   virtual void _setContext(const CovContext& ctxt) { DECLARE_UNUSED(ctxt); }
 
   virtual void _manage(const Db* db1, const Db* db2) const {DECLARE_UNUSED(db1) DECLARE_UNUSED(db2)}
-  virtual void _load(const SpacePoint& p, bool case1) const;
+  virtual void _load(const SpacePoint& p, bool option) const;
 
   void setNoStatDbIfNecessary(const Db*& db);
 
@@ -474,7 +474,6 @@ protected:
                                       const CovCalcMode* mode = nullptr) const;
   virtual void _optimizationSetTarget(const SpacePoint &pt) const;
 
-  void _setOptimEnabled(bool enabled){ _optimEnabled = enabled;}
   VectorInt _getActiveVariables(int ivar0) const;
   static void _updateCovMatrixSymmetricVerr(const Db* db1,
                                             AMatrix* mat,
@@ -492,9 +491,10 @@ protected:
                       int jvar                = 0,
                       const CovCalcMode* mode = nullptr) const;
   bool _checkDims(int idim, int jdim) const;
+  void _setOptimEnabled(bool enabled) { _optimEnabled = enabled; }
 
-  protected:
-    virtual void _initFromContext() {};
+protected:
+  virtual void _initFromContext() {};
 
 private:
   virtual void _copyCovContext(const CovContext& ctxt)

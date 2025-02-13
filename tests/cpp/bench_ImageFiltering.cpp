@@ -21,7 +21,6 @@
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCst.hpp"
-#include "Basic/OptCustom.hpp"
 #include "Neigh/NeighImage.hpp"
 #include "Estimation/CalcImage.hpp"
 
@@ -37,7 +36,6 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  double oldstyle = 0.;
   bool verbose    = true;
   int nx          = 5;
   int ny          = 5;
@@ -46,7 +44,6 @@ int main(int argc, char* argv[])
   bool flagSK     = false;
   bool flagFFT    = true;
   VectorInt radius = {1, 1};
-  OptCustom::define("oldStyle", oldstyle);
 
   // Generate the target file
   DbGrid* db = DbGrid::createFillRandom({nx, ny}, nvar);
