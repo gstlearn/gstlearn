@@ -50,7 +50,6 @@ public:
   KrigingSystem& operator=(const KrigingSystem &m) = delete;
   virtual ~KrigingSystem();
 
-  void setKrigingSystemNewStyle(bool status = false);
   int resetNewData();
   int  setKrigOptCalcul(const EKrigOpt& calcul,
                         const VectorInt& ndiscs = VectorInt(),
@@ -148,26 +147,14 @@ private:
   bool _isAuthorized();
   double _continuousMultiplier(int rank1,int rank2, double eps = EPSILON4);
   void _lhsCalcul();
-  void _lhsIsoToHetero();
-  void _lhsDump(int nbypas = 5);
-  int  _rhsCalcul();
-  void _rhsCalculPoint();
-  void _rhsCalculBlock();
-  void _rhsCalculDrift();
-  void _rhsCalculDGM();
   void _rhsStore(int iech);
-  void _rhsIsoToHetero();
   void _dumpOptions() const;
   void _rhsDump();
   void _wgtCalcul();
-  void _wgtDump(int status);
-  VectorInt _getRelativePosition();
+  void _wgtDump();
   int  _lhsInvert();
-  void _dualCalcul();
   int  _prepar();
   void _estimateCalcul(int status);
-  void _estimateCalculImage(int status);
-  void _estimateCalculXvalidUnique(int status);
   void _simulateCalcul(int status);
   void _neighCalcul(int status, const VectorDouble& tab);
   void _estimateVarZ(int status);
@@ -182,11 +169,8 @@ private:
   bool _preparNoStat();
 
   static void _checkAddress(const String& title, const String& theme, int ival, int nval);
-  bool   _prepareForImage(const NeighImage* neighI);
-  bool   _prepareForImageKriging(Db* dbaux, const NeighImage* neighI);
   int    _bayesPreCalculations();
   void   _bayesPreSimulate();
-  void   _bayesCorrectVariance();
   void   _transformGaussianToRaw();
   int    _getFlagAddress(int iech0, int ivar0);
 
@@ -242,7 +226,6 @@ private:
   bool _flagEst;
   bool _flagStd;
   bool _flagVarZ;
-  bool _flagGlobal;
   bool _flagDataChanged;
 
   /// Option for Calculation

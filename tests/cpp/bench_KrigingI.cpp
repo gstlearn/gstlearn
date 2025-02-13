@@ -17,7 +17,6 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
-#include "Basic/OptCustom.hpp"
 #include "Neigh/NeighImage.hpp"
 #include "Estimation/CalcImage.hpp"
 
@@ -53,9 +52,7 @@ int main(int argc, char *argv[])
   NeighImage* neighI = NeighImage::create({10,10}, 3);
   if (verbose) neighI->display();
 
-  double oldstyle  = 0.;
   bool flagFFT     = true;
-  OptCustom::define("oldStyle", oldstyle);
 
   Timer timer;
   krimage(image, model, neighI, flagFFT);

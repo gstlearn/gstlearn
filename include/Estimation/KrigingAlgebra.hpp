@@ -62,7 +62,7 @@ public:
                       const VectorInt* rankColCok = nullptr);
 
   void printStatus() const;
-  void dumpLHS(int nbypas) const;
+  void dumpLHS(int nbypas = 5) const;
   void dumpRHS() const;
   void dumpWGT();
   void dumpAux();

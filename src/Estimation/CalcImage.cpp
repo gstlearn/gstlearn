@@ -21,7 +21,6 @@
 #include "Basic/NamingConvention.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCst.hpp"
-#include "Basic/OptCustom.hpp"
 #include "Basic/Convolution.hpp"
 
 #include "geoslib_old_f.h"
@@ -221,35 +220,18 @@ bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelGeneric* modelgeneric)
   return (retcode == 0);
 }
 
-bool CalcImage::_filterImageOld(DbGrid* dbgrid, const ModelGeneric* modelgeneric)
-{
-  KrigingSystem ksys(dbgrid, dbgrid, modelgeneric, getNeigh());
-  if (ksys.updKrigOptEstim(_iattOut, -1, -1)) return false;
-  if (!ksys.isReady()) return false;
-
-  /* Loop on the targets to be processed */
-
-  for (int iech_out = 0; iech_out < dbgrid->getNSample(); iech_out++)
-  {
-    mes_process("Image filtering", dbgrid->getNSample(), iech_out);
-    if (ksys.estimate(iech_out)) return false;
-  }
-  ksys.conclusion();
-  return true;
-}
-
-  /**
-   * @brief Construct a regular DbGrid of correct dimension
-   * where the weights for the different variables are stored
-   *
-   * @param neigh NeighImage description
-   * @param ranks Vector of Vector of neighborhood ranks
-   * @param wgt   Matrix of weights
-   * @return DbGrid
-   */
-  DbGrid* CalcImage::_buildMarpat(const NeighImage* neigh,
-                                  const VectorVectorInt& ranks,
-                                  const MatrixRectangular& wgt)
+/**
+ * @brief Construct a regular DbGrid of correct dimension
+ * where the weights for the different variables are stored
+ *
+ * @param neigh NeighImage description
+ * @param ranks Vector of Vector of neighborhood ranks
+ * @param wgt   Matrix of weights
+ * @return DbGrid
+ */
+DbGrid* CalcImage::_buildMarpat(const NeighImage* neigh,
+                                const VectorVectorInt& ranks,
+                                const MatrixRectangular& wgt)
 {
   int nbneigh = ranks.size();
   int ndim = ranks[0].size();
@@ -295,15 +277,7 @@ bool CalcImage::_run()
   {
     const ModelGeneric* modelgeneric = dynamic_cast<const ModelGeneric*>(getModel());
 
-    bool _oldStyle = OptCustom::query("oldStyle", 0.) == 1.;
-    if (!_oldStyle)
-    {
-      if (!_filterImage(dbgrid, modelgeneric)) return false;
-    }
-    else
-    {
-      if (!_filterImageOld(dbgrid, modelgeneric)) return false;
-    }
+    if (!_filterImage(dbgrid, modelgeneric)) return false;
   }
 
   if (_flagMorpho)

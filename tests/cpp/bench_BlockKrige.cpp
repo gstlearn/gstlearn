@@ -24,7 +24,6 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/OptCustom.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Estimation/CalcKriging.hpp"
@@ -42,12 +41,10 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  double oldstyle = 0.;
   bool verbose    = true;
   int nech        = 4;
   int nvar        = 1;
   bool flagSK     = false;
-  OptCustom::define("oldStyle", oldstyle);
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, 0);

@@ -19,7 +19,6 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
-#include "Basic/OptCustom.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -43,14 +42,12 @@ int main(int argc, char *argv[])
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  double oldstyle = 0.;
   int ndat        = 3;
   int nvar        = 2;
   int nbsimu      = 4;
   int nbtuba      = 100;
   bool flagSK     = false;
   bool verbose    = true;
-  OptCustom::define("oldStyle", oldstyle);
 
   // Creating the data base
   Db* data = Db::createFillRandom(ndat, ndim, nvar);
