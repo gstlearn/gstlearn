@@ -5,6 +5,7 @@ import os
 
 
 def process_cpp_file(classname,header_file, output_file, first):
+    # Catch all functions named 'createFrom*' or 'createSomething*'
     pattern = re.compile(r'\w+\s*\*\s*(create\w+)')
     if first:
         mode = 'w'

@@ -855,15 +855,19 @@
   }
 };
 
+
+// Prevent memory leaks from 'create*' methods
+
+// The following file should contain all 'createFrom*' methods
+%include swig/newobject.i
+// This is for all 'create' methods
+%newobject *::create;
+// So bad that the following syntax doesn't work:
+// %newobject *::create*;
+
 %{
   #include <memory>
 %}
-
-
 %include <std_shared_ptr.i>
-
-%include swig/newobject.i
-
-
 %template(ASpaceSharedPtr)    std::shared_ptr<const ASpace>;
 %template(ASpaceSharedPtrVector)   std::vector< ASpaceSharedPtr>;
