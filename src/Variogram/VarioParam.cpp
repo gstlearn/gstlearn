@@ -113,8 +113,8 @@ bool VarioParam::_validDefinedFromGrid(const DirParam& dirparam) const
 /**
  * Create one Calculation Direction corresponding to the Omni-direction calculation
  * For details, see DirParam::createOmniDirection documentation
- * @param npas Number of lags
- * @param dpas Lag value
+ * @param nlag Number of lags
+ * @param dlag Lag value
  * @param toldis Tolerance on distance
  * @param opt_code Option for usage of the code
  * @param idate Reference date
@@ -127,8 +127,8 @@ bool VarioParam::_validDefinedFromGrid(const DirParam& dirparam) const
  * @param space Pointer to the space definition
  * @return
  */
-VarioParam* VarioParam::createOmniDirection(int npas,
-                                            double dpas,
+VarioParam* VarioParam::createOmniDirection(int nlag,
+                                            double dlag,
                                             double toldis,
                                             int opt_code,
                                             int idate,
@@ -140,7 +140,7 @@ VarioParam* VarioParam::createOmniDirection(int npas,
                                             const VectorDouble& dates,
                                             const ASpaceSharedPtr& space)
 {
-  DirParam* dir = DirParam::createOmniDirection(npas, dpas, toldis,
+  DirParam* dir = DirParam::createOmniDirection(nlag, dlag, toldis,
                                                 opt_code, idate, bench, cylrad,
                                                 tolcode, breaks, space);
   VarioParam* varioparam = new VarioParam(scale, dates);
@@ -150,15 +150,15 @@ VarioParam* VarioParam::createOmniDirection(int npas,
 }
 
 VarioParam* VarioParam::createMultiple(int ndir,
-                                       int npas,
-                                       double dpas,
+                                       int nlag,
+                                       double dlag,
                                        double toldis,
                                        double angref,
                                        double scale,
                                        const VectorDouble &dates,
                                        const ASpaceSharedPtr& space)
 {
-  std::vector<DirParam> dirs = DirParam::createMultiple(ndir, npas, dpas,
+  std::vector<DirParam> dirs = DirParam::createMultiple(ndir, nlag, dlag,
                                                         toldis, angref, space);
   if (dirs.empty()) return nullptr;
   VarioParam* varioparam = new VarioParam(scale, dates);
@@ -170,7 +170,7 @@ VarioParam* VarioParam::createMultiple(int ndir,
  * Automatically create several calculation directions from Grid information:
  * For details, see DirParam::createMultipleFromGrid documentation
  * @param dbgrid a DbGrid structure
- * @param npas Number of lags
+ * @param nlag Number of lags
  * @param scale Scaling factor
  * @param dates Range of dates
  * @param space Pointer to the Space definition
@@ -181,7 +181,7 @@ VarioParam* VarioParam::createMultiple(int ndir,
  * @note However, this number can be truncated to 'ndimax' (when defined)
  */
 VarioParam* VarioParam::createMultipleFromGrid(const DbGrid* dbgrid,
-                                               int npas,
+                                               int nlag,
                                                double scale,
                                                const VectorDouble& dates,
                                                const ASpaceSharedPtr& space,
@@ -195,7 +195,7 @@ VarioParam* VarioParam::createMultipleFromGrid(const DbGrid* dbgrid,
   {
     VH::fill(grincr,  0.);
     grincr[idim] = 1;
-    DirParam* dirparam = DirParam::createFromGrid(dbgrid, npas, grincr, space);
+    DirParam* dirparam = DirParam::createFromGrid(dbgrid, nlag, grincr, space);
     varioparam->addDir(*dirparam);
     delete dirparam;
   }
@@ -206,8 +206,8 @@ VarioParam* VarioParam::createMultipleFromGrid(const DbGrid* dbgrid,
  * Automatically create a set of calculation directions for a given Space Direction:
  * - one calculation direction per space direction
  * - the same parameters are used for each direction, such as:
- * @param npas Number of lags
- * @param dpas Value of the lag
+ * @param nlag Number of lags
+ * @param dlag Value of the lag
  * @param toldis Tolerance on distancecomputeFromDb
  * @param tolang Tolerance on angle
  * @param scale Scaling factor
@@ -215,8 +215,8 @@ VarioParam* VarioParam::createMultipleFromGrid(const DbGrid* dbgrid,
  * @param space Pointer to the Space definition
  * @return
  */
-VarioParam* VarioParam::createFromSpaceDimension(int npas,
-                                                 double dpas,
+VarioParam* VarioParam::createFromSpaceDimension(int nlag,
+                                                 double dlag,
                                                  double toldis,
                                                  double tolang,
                                                  double scale,
@@ -230,7 +230,7 @@ VarioParam* VarioParam::createFromSpaceDimension(int npas,
 
   for (int idim = 0; idim < ndim; idim++)
   {
-    DirParam dirparam(npas, dpas, toldis, tolang, 0, 0, TEST, TEST, 0.,
+    DirParam dirparam(nlag, dlag, toldis, tolang, 0, 0, TEST, TEST, 0.,
                       VectorDouble(), VectorDouble(), TEST, space);
 
     VectorDouble codir(ndim,0.);
@@ -242,15 +242,15 @@ VarioParam* VarioParam::createFromSpaceDimension(int npas,
 }
 
 VarioParam* VarioParam::createSeveral2D(const VectorDouble &angles,
-                                        int npas,
-                                        double dpas,
+                                        int nlag,
+                                        double dlag,
                                         double toldis,
                                         double tolang,
                                         double scale,
                                         const VectorDouble& dates,
                                         const ASpaceSharedPtr& space)
 {
-  std::vector<DirParam> dirs = DirParam::createSeveral2D(angles, npas, dpas,
+  std::vector<DirParam> dirs = DirParam::createSeveral2D(angles, nlag, dlag,
                                                          toldis, tolang, space);
   if (dirs.empty()) return nullptr;
   VarioParam* varioparam = new VarioParam(scale, dates);
@@ -498,8 +498,8 @@ Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam)
 
         /* Get the rank of the lag */
 
-        int ipas = dirparam.getLagRank(dist);
-        if (IFFFF(ipas)) continue;
+        int ilag = dirparam.getLagRank(dist);
+        if (IFFFF(ilag)) continue;
 
         // The pair is kept
 
@@ -509,8 +509,8 @@ Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam)
         ranks[1].push_back((double) iech);
         dirs.push_back((double) idir);
         dirs.push_back((double) idir);
-        lags.push_back((double) ipas);
-        lags.push_back((double) ipas);
+        lags.push_back((double) ilag);
+        lags.push_back((double) ilag);
         dists.push_back(dist);
         dists.push_back(dist);
       }

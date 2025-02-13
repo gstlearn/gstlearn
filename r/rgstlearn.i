@@ -1115,31 +1115,31 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   idir = 0
   ivar = 0
   jvar = 0
-  ipas = 0
+  ilag = 0
   if (nargs == 1)
   {
-    ipas = unlist(res[[1]])
+    ilag = unlist(res[[1]])
   }
   else if (nargs == 2)
   {
     idir = unlist(res[[1]])
-    ipas = unlist(res[[2]])
+    ilag = unlist(res[[2]])
   }
   else if (nargs == 3)
   {
     ivar = unlist(res[[1]])
     jvar = unlist(res[[2]])
-    ipas = unlist(res[[3]])
+    ilag = unlist(res[[3]])
   }
   else if (nargs == 4)
   {
     idir = unlist(res[[1]])
     ivar = unlist(res[[2]])
     jvar = unlist(res[[3]])
-    ipas = unlist(res[[4]])
+    ilag = unlist(res[[4]])
   }
 
-  res = list(idir=idir, ivar=ivar, jvar=jvar, ipas=ipas)
+  res = list(idir=idir, ivar=ivar, jvar=jvar, ilag=ilag)
   res
 }
 
@@ -1153,7 +1153,7 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   if (length(dots) > 0) args = append(args, dots)
   
   res = varioArguments(args)
-  values = vario$getGgs(res$idir, res$ivar, res$jvar, res$ipas)
+  values = vario$getGgs(res$idir, res$ivar, res$jvar, res$ilag)
   values
 }
 
@@ -1167,7 +1167,7 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   if (length(dots) > 0) args = append(args, dots)
   
   res = varioArguments(args)  
-  vario$setGgs(res$idir, res$ivar, res$jvar, res$ipas, as.numeric(unlist(value)))
+  vario$setGgs(res$idir, res$ivar, res$jvar, res$ilag, as.numeric(unlist(value)))
   vario
 }
 

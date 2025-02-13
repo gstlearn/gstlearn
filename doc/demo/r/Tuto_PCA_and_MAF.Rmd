@@ -94,8 +94,8 @@ varZ = var(data_Z)
 
 # Computing the experimental variogram
 nlag = 10
-lag  = 0.025
-varioparam = VarioParam_createOmniDirection(npas=nlag, dpas=lag)
+dlag  = 0.025
+varioparam = VarioParam_createOmniDirection(nlag=nlag, dlag=dlag)
 vario_raw  = Vario_computeFromDb(varioparam, db=data)
 
 # Fitting the variogram model on the experimental variogram

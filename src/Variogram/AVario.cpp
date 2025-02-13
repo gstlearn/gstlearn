@@ -39,7 +39,7 @@ AVario& AVario::operator=(const AVario& r)
 AVario::~AVario() {}
 
 void AVario::_evaluateVariogram(
-  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
+  Db* db, int nvar, int iech1, int iech2, int ilag, double dist, bool do_asym)
 {
   DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
@@ -58,13 +58,13 @@ void AVario::_evaluateVariogram(
       double z22 = _getIVAR(db, iech2, jvar);
       if (FFFF(z21) || FFFF(z22)) continue;
       double value = (z12 - z11) * (z22 - z21) / 2.;
-      _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
+      _setResult(iech1, iech2, nvar, ilag, ivar, jvar, 0, scale, dist, value);
     }
   }
 }
 
 void AVario::_evaluateMadogram(
-  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
+  Db* db, int nvar, int iech1, int iech2, int ilag, double dist, bool do_asym)
 {
   DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
@@ -83,13 +83,13 @@ void AVario::_evaluateMadogram(
       double z22 = _getIVAR(db, iech2, jvar);
       if (FFFF(z21) || FFFF(z22)) continue;
       double value = sqrt(ABS((z12 - z11) * (z22 - z21))) / 2.;
-      _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
+      _setResult(iech1, iech2, nvar, ilag, ivar, jvar, 0, scale, dist, value);
     }
   }
 }
 
 void AVario::_evaluateRodogram(
-  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
+  Db* db, int nvar, int iech1, int iech2, int ilag, double dist, bool do_asym)
 {
   DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
@@ -108,13 +108,13 @@ void AVario::_evaluateRodogram(
       double z22 = _getIVAR(db, iech2, jvar);
       if (FFFF(z21) || FFFF(z22)) continue;
       double value = pow(ABS((z12 - z11) * (z22 - z21)), 0.25) / 2.;
-      _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
+      _setResult(iech1, iech2, nvar, ilag, ivar, jvar, 0, scale, dist, value);
     }
   }
 }
 
 void AVario::_evaluatePoisson(
-  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
+  Db* db, int nvar, int iech1, int iech2, int ilag, double dist, bool do_asym)
 {
   DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
@@ -133,13 +133,13 @@ void AVario::_evaluatePoisson(
       double z22 = _getIVAR(db, iech2, jvar);
       if (FFFF(z21) || FFFF(z22)) continue;
       double value = (z12 - z11) * (z22 - z21) / 2.;
-      _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
+      _setResult(iech1, iech2, nvar, ilag, ivar, jvar, 0, scale, dist, value);
     }
   }
 }
 
 void AVario::_evaluateCovariance(
-  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
+  Db* db, int nvar, int iech1, int iech2, int ilag, double dist, bool do_asym)
 {
   double w1 = db->getWeight(iech1);
   double w2 = db->getWeight(iech2);
@@ -159,19 +159,19 @@ void AVario::_evaluateCovariance(
       if (!FFFF(z22))
       {
         double value = z11 * z22;
-        _setResult(iech1, iech2, nvar, ipas, ivar, jvar, orient, scale, dist, value);
+        _setResult(iech1, iech2, nvar, ilag, ivar, jvar, orient, scale, dist, value);
       }
       if (!FFFF(z21) && do_asym)
       {
         double value = z12 * z21;
-        _setResult(iech1, iech2, nvar, ipas, ivar, jvar, -orient, scale, dist, value);
+        _setResult(iech1, iech2, nvar, ilag, ivar, jvar, -orient, scale, dist, value);
       }
     }
   }
 }
 
 void AVario::_evaluateCovariogram(
-  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
+  Db* db, int nvar, int iech1, int iech2, int ilag, double dist, bool do_asym)
 {
   double w1 = db->getWeight(iech1);
   double w2 = db->getWeight(iech2);
@@ -191,19 +191,19 @@ void AVario::_evaluateCovariogram(
       if (!FFFF(z22))
       {
         double value = z11 * z22;
-        _setResult(iech1, iech2, nvar, ipas, ivar, jvar, orient, scale, dist, value);
+        _setResult(iech1, iech2, nvar, ilag, ivar, jvar, orient, scale, dist, value);
       }
       if (!FFFF(z21) && do_asym)
       {
         double value = z12 * z21;
-        _setResult(iech1, iech2, nvar, ipas, ivar, jvar, -orient, scale, dist, value);
+        _setResult(iech1, iech2, nvar, ilag, ivar, jvar, -orient, scale, dist, value);
       }
     }
   }
 }
 
 void AVario::_evaluateOrder4(
-  Db* db, int nvar, int iech1, int iech2, int ipas, double dist, bool do_asym)
+  Db* db, int nvar, int iech1, int iech2, int ilag, double dist, bool do_asym)
 {
   DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
@@ -223,7 +223,7 @@ void AVario::_evaluateOrder4(
       if (FFFF(z21) || FFFF(z22)) continue;
       double value = (z12 - z11) * (z22 - z21);
       value        = value * value / 2.;
-      _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
+      _setResult(iech1, iech2, nvar, ilag, ivar, jvar, 0, scale, dist, value);
     }
   }
 }

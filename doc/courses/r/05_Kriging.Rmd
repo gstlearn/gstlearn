@@ -68,7 +68,7 @@ grid$display(dbfmt)
 We compute the experimental variogram **vario2dir** (in 2 directions) (cf. [Variography](./04_Variography.Rmd) for more details).
 
 ```{r Preamble,message=FALSE, fig.show='hide'}
-varioParamMulti = VarioParam_createMultiple(ndir=2, npas=15, dpas=15.)
+varioParamMulti = VarioParam_createMultiple(ndir=2, nlag=15, dlag=15.)
 vario2dir = Vario(varioParamMulti)
 err = vario2dir$compute(dat)
 ```

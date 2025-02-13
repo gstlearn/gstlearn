@@ -334,7 +334,7 @@
 %include LithoRule/RuleProp.hpp
 
 %include Estimation/KrigingSystem.hpp
-%include Estimation/KrigingCalcul.hpp
+%include Estimation/KrigingAlgebra.hpp
 %include Estimation/CalcKriging.hpp
 %include Estimation/CalcKrigingFactors.hpp
 %include Estimation/CalcSimpleInterpolation.hpp

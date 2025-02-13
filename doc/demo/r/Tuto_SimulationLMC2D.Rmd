@@ -124,7 +124,7 @@ ggPrint(p)
 
 # variogram computations
 nlags = grid$getNXs()[1]/2
-varioparam = VarioParam_createMultipleFromGrid(grid, npas = nlags)
+varioparam = VarioParam_createMultipleFromGrid(grid, nlag = nlags)
 vario_list = list()
 for (i in 1:nsim) {
   vario = Vario(varioparam)

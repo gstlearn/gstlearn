@@ -59,7 +59,7 @@ We also compute an experimental variogram on the observations and fit a model on
 
 ```{r Fit_model_on_obervations}
 ## Define and compute experimental variogram
-varioparam = VarioParam_createOmniDirection(npas=40, dpas=10)
+varioparam = VarioParam_createOmniDirection(nlag=40, dlag=10)
 vario_raw2dir = Vario_create(varioparam)
 err = vario_raw2dir$compute(dat)
 

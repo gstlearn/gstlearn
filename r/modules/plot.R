@@ -1465,7 +1465,7 @@ plot.correlation <- function(db1, namex, namey, db2=NULL,
 #' @param namex Name of the variable (within 'db1') which will be displayed along the horizontal axis
 #' @param namey Name of the variable (within 'db2') which will be displayed along the vertical axis
 #' @param varioparam A VarioParam structure describing the calculation criteria
-#' @param ipas Rank of the lag to be used for calculations
+#' @param ilag Rank of the lag to be used for calculations
 #' @param idir Rank of the direction to be used for calculations
 #' @param asPoint Represent samples pointwise if TRUE, otherwise as a grid painted with occurrences
 #' @param flagDiag Represent the diagonal of the plot
@@ -1479,14 +1479,14 @@ plot.correlation <- function(db1, namex, namey, db2=NULL,
 #' @param legendNameRaster Name of the legend when representing grid of occurrences (asPoint = FALSE)
 #' @param ... List of arguments passed to plot.XY() or plot.hist2d()
 #' @return The ggplot object
-plot.hscatter <- function(db, namex, namey, varioparam, ipas=0, idir=0,
+plot.hscatter <- function(db, namex, namey, varioparam, ilag=0, idir=0,
     asPoint=FALSE, 
     flagDiag=FALSE, diagColor = "red", diagLinetype = "solid", 
     flagBiss=FALSE, bissColor = "green", bissLinetype = "solid", 
     flagSameAxes=FALSE, flagLegendRaster = FALSE, legendNameRaster = NULL,
     ...)
 {
-  res = hscatterPairs(db, namex, namey, varioparam, ipas, idir)
+  res = hscatterPairs(db, namex, namey, varioparam, ilag, idir)
   x = db$getValuesByNames(res[[1]], namex)
   y = db$getValuesByNames(res[[2]], namey)
  

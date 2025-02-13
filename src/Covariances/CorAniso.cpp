@@ -418,7 +418,6 @@ double CorAniso::evalCor(const SpacePoint &p1,
   {
     h = _pw2->getDistance(*_pw1);
   }
-
   return evalCorFromH(h, mode);
 }
 

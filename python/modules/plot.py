@@ -1903,17 +1903,17 @@ def __ax_correlation(ax, db, namex, namey, db2=None,
 
     return ax
 
-def hscatter(db, namex, namey, varioparam, ipas, *args, **kwargs):
+def hscatter(db, namex, namey, varioparam, ilag, *args, **kwargs):
     '''
     Plotting the scatter plot between two variables contained in a Db
     
     kwargs: additional arguments used in hist2d or scatter
     '''
     ax = __getNewAxes(None, 0)
-    return __ax_hscatter(ax, db=db, namex=namex, namey=namey, varioparam=varioparam, ipas=ipas, 
+    return __ax_hscatter(ax, db=db, namex=namex, namey=namey, varioparam=varioparam, ilag=ilag, 
                          *args, **kwargs)
     
-def __ax_hscatter(ax, db, namex, namey, varioparam, ipas=0, idir=0, 
+def __ax_hscatter(ax, db, namex, namey, varioparam, ilag=0, idir=0, 
                      asPoint = False,  flagSameAxes=False,
                      diagLine=False, diagColor="black", diagLineStyle='-',
                      bissLine=False, bissColor="red", bissLineStyle='-',
@@ -1921,7 +1921,7 @@ def __ax_hscatter(ax, db, namex, namey, varioparam, ipas=0, idir=0,
     if __isNotCorrect(object=db, types=["Db", "DbGrid"]):
         return None
         
-    res = gl.hscatterPairs(db, namex, namey, varioparam, ipas, idir)
+    res = gl.hscatterPairs(db, namex, namey, varioparam, ilag, idir)
     tabx = db.getValuesByNames(res[0], [namex])
     if len(tabx) == 0:
         return None

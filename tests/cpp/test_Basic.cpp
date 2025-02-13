@@ -69,9 +69,9 @@ int main(int argc, char *argv[])
 
   // We calculate a variogram along the two main directions of the Model, i.e. 30 and 120 degrees.
 
-  int npas = 25;
-  double dpas = 2.;
-  VarioParam* varioparam = VarioParam::createSeveral2D(angles, npas, dpas);
+  int nlag = 25;
+  double dlag = 2.;
+  VarioParam* varioparam = VarioParam::createSeveral2D(angles, nlag, dlag);
   Vario* myvario = Vario::computeFromDb(*varioparam, mypoints);
   myvario->display();
 

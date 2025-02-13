@@ -24,7 +24,7 @@
 #include "Basic/OptCst.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
-#include "Estimation/KrigingCalcul.hpp"
+#include "Estimation/KrigingAlgebra.hpp"
 
 static Db* _dataComplement(Db* data, Db* target, const VectorDouble& valuesTarget)
 {
@@ -96,7 +96,7 @@ static void _firstTest(Db* data,
   mestitle(0, "Bayes option");
   message("Compare:\n");
   message("- Kriging with traditional code\n");
-  message("- Estimation performed with 'KrigingCalcul'\n");
+  message("- Estimation performed with 'KrigingAlgebra'\n");
   message("Option: Bayesian\n");
 
   // Creating the data file
@@ -121,7 +121,7 @@ static void _firstTest(Db* data,
   VectorVectorInt sampleRanks   = data->getSampleRanks();
   VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
 
-  KrigingCalcul Kcalc;
+  KrigingAlgebra Kcalc;
   Kcalc.setData(&Z, &sampleRanks, &means);
   Kcalc.setLHS(&Sigma, &X);
   Kcalc.setVariance(&Sigma00);
@@ -164,9 +164,9 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
 
   // Title
   mestitle(0,"Collocated Option (in Unique Neighborhood):");
-  message("- using 'KrigingCalcul' on the Complemented Data Set\n");
+  message("- using 'KrigingAlgebra' on the Complemented Data Set\n");
   message(
-    "- using 'KrigingCalcul' on Standard Data Set adding Collocated Option\n");
+    "- using 'KrigingAlgebra' on Standard Data Set adding Collocated Option\n");
   VH::dump("- Collocated Variable ranks", varColCok, false);
 
   // Creating the Complemented Data Set
@@ -190,7 +190,7 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   VectorVectorInt sampleRanksP   = dataP->getSampleRanks();
   VectorDouble ZP                = dataP->getValuesByRanks(sampleRanksP, means);
 
-  KrigingCalcul KcalcP;
+  KrigingAlgebra KcalcP;
   KcalcP.setData(&ZP, &sampleRanksP, &means);
   KcalcP.setLHS(&SigmaP, &XP);
   KcalcP.setRHS(&Sigma0P, &X0P);
@@ -206,14 +206,14 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   mestitle(1, "With Collocated Option");
 
   MatrixSquareSymmetric Sigma00 = model->eval0Mat();
-  MatrixSquareSymmetric Sigma   = model->evalCovMatSymOptim(data);
+  MatrixSquareSymmetric Sigma   = model->evalCovMatSym(data);
   MatrixRectangular X           = model->evalDriftMat(data);
-  MatrixRectangular Sigma0      = model->evalCovMatOptim(data, target);
+  MatrixRectangular Sigma0      = model->evalCovMat(data, target);
   MatrixRectangular X0          = model->evalDriftMat(target);
   VectorVectorInt sampleRanks   = data->getSampleRanks();
   VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
 
-  KrigingCalcul Kcalc;
+  KrigingAlgebra Kcalc;
   Kcalc.setData(&Z, &sampleRanks, &means);
   Kcalc.setLHS(&Sigma, &X);
   Kcalc.setRHS(&Sigma0, &X0);
@@ -252,7 +252,7 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   mestitle(0, "Cross-Validation (in Unique Neighborhood)");
   message("Compare the Cross-validation Option (in Unique Neighborhood):\n");
   message("- using Standard Kriging on the Deplemented Data Set\n");
-  message("- using 'KrigingCalcul' on Initial Set with Cross-validation option\n");
+  message("- using 'KrigingAlgebra' on Initial Set with Cross-validation option\n");
 
   // Creating the Complemented Data Set
   Db* targetP = data->clone();
@@ -262,14 +262,14 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   mestitle(1, "With Deplemented input Data Base");
 
   MatrixSquareSymmetric Sigma00P = model->eval0Mat();
-  MatrixSquareSymmetric SigmaP   = model->evalCovMatSymOptim(dataP);
+  MatrixSquareSymmetric SigmaP   = model->evalCovMatSym(dataP);
   MatrixRectangular XP           = model->evalDriftMat(dataP);
-  MatrixRectangular Sigma0P      = model->evalCovMatOptim(dataP, targetP, -1, -1, VectorInt(), VectorInt({iech0}));
+  MatrixRectangular Sigma0P      = model->evalCovMat(dataP, targetP, -1, -1, VectorInt(), VectorInt({iech0}));
   MatrixRectangular X0P          = model->evalDriftMat(targetP, -1, VectorInt{iech0});
   VectorVectorInt sampleRanksP   = dataP->getSampleRanks();
   VectorDouble ZP                = dataP->getValuesByRanks(sampleRanksP, means);
 
-  KrigingCalcul KcalcP;
+  KrigingAlgebra KcalcP;
   KcalcP.setData(&ZP, &sampleRanksP, &means);
   KcalcP.setLHS(&SigmaP, &XP);
   KcalcP.setRHS(&Sigma0P, &X0P);
@@ -285,14 +285,14 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   mestitle(1, "With Cross-Validation Option");
 
   MatrixSquareSymmetric Sigma00 = model->eval0Mat();
-  MatrixSquareSymmetric Sigma   = model->evalCovMatSymOptim(data);
+  MatrixSquareSymmetric Sigma   = model->evalCovMatSym(data);
   MatrixRectangular X           = model->evalDriftMat(data);
-  MatrixRectangular Sigma0      = model->evalCovMatOptim(data, targetP);
+  MatrixRectangular Sigma0      = model->evalCovMat(data, targetP);
   MatrixRectangular X0          = model->evalDriftMat(targetP);
   VectorVectorInt sampleRanks   = data->getSampleRanks();
   VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
 
-  KrigingCalcul Kcalc;
+  KrigingAlgebra Kcalc;
   Kcalc.setData(&Z, &sampleRanks, &means);
   Kcalc.setLHS(&Sigma, &X);
   Kcalc.setVariance(&Sigma00);
@@ -323,14 +323,14 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   mestitle(1, "Without Dual option");
 
   MatrixSquareSymmetric Sigma00 = model->eval0Mat();
-  MatrixSquareSymmetric Sigma   = model->evalCovMatSymOptim(data);
+  MatrixSquareSymmetric Sigma   = model->evalCovMatSym(data);
   MatrixRectangular X           = model->evalDriftMat(data);
-  MatrixRectangular Sigma0      = model->evalCovMatOptim(data, target);
+  MatrixRectangular Sigma0      = model->evalCovMat(data, target);
   MatrixRectangular X0          = model->evalDriftMat(target);
   VectorVectorInt sampleRanks   = data->getSampleRanks();
   VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
 
-  KrigingCalcul Kcalc1(false);
+  KrigingAlgebra Kcalc1(false);
   Kcalc1.setData(&Z, &sampleRanks, &means);
   Kcalc1.setLHS(&Sigma, &X);
   Kcalc1.setRHS(&Sigma0, &X0);
@@ -343,7 +343,7 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   // ---------------------- With Dual Option -------------------------
   mestitle(1, "With Dual Option (only Estimation is available)");
 
-  KrigingCalcul Kcalc2(true);
+  KrigingAlgebra Kcalc2(true);
   Kcalc2.setData(&Z, &sampleRanks, &means);
   Kcalc2.setLHS(&Sigma, &X);
   Kcalc2.setRHS(&Sigma0, &X0);
@@ -357,7 +357,7 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
  **
  ** This test is composed of several parts, comparing the results of
  ** traditional Kriging with the results of the Algebraic calculations
- ** provided within 'KrigingCalcul'.
+ ** provided within 'KrigingAlgebra'.
  ** Different scenarios are elaborated:
  ** 1) Bayesian case
  ** 2) Test on Collocated CoKriging in Unique Neighborhood

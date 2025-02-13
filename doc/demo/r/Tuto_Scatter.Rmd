@@ -75,7 +75,7 @@ In this section, we represent samples distant by a given distance. This distance
 We first define the VarioParam set of calculation parameters: essentially, we define the lag and the number of lags.
 
 ```{r}
-varioparam = VarioParam_createOmniDirection(npas=10, dpas=0.1)
+varioparam = VarioParam_createOmniDirection(nlag=10, dlag=0.1)
 ```
 
 We represent the H-Scatter plot:
@@ -83,14 +83,14 @@ We represent the H-Scatter plot:
 - as a set of isolated symbols
 
 ```{r}
-ggplot() + plot.hscatter(db, "Simu.1", "Simu.2", varioparam, ipas=8, asPoint=TRUE, 
+ggplot() + plot.hscatter(db, "Simu.1", "Simu.2", varioparam, ilag=8, asPoint=TRUE, 
                  flagBiss=TRUE, flagSameAxes=TRUE)
 ```
 
 - as cells (of a fictitious grid) painted with color representing point density
 
 ```{r}
-ggplot() + plot.hscatter(db, "Simu.1", "Simu.2", varioparam, ipas=1, asPoint=FALSE, 
+ggplot() + plot.hscatter(db, "Simu.1", "Simu.2", varioparam, ilag=1, asPoint=FALSE, 
                     flagBiss=TRUE, flagSameAxes=TRUE, bins=20)
 ```
 

@@ -19,8 +19,6 @@
 #include "Db/DbStringFormat.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Basic/OptCustom.hpp"
 #include "Fractures/FracEnviron.hpp"
 #include "Fractures/FracFamily.hpp"
 #include "Fractures/FracFault.hpp"
@@ -107,7 +105,7 @@ int main(int argc, char *argv[])
   (void) grid->dumpToNF("Grid.ascii");
 
   // ====================== Free pointers ==================================
-  if (grid != nullptr) delete grid;
+  delete grid;
 
   return (0);
 }
