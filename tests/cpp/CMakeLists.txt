@@ -70,9 +70,9 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     # Trigger the build of the test with the target build_tests
     add_dependencies(build_tests ${TEST_NAME})
 
-    # test_nlopt.cpp explicitly calls NLopt so it must link with it (gstlearn::shared
+    # test_Nlopt.cpp explicitly calls NLopt so it must link with it (gstlearn::shared
     # links it as PRIVATE to hide it from projects using it).
-    if("${TEST_NAME}" STREQUAL "test_nlopt")
+    if("${TEST_NAME}" STREQUAL "test_Nlopt")
       target_link_libraries(${TEST_NAME} PRIVATE NLopt::nlopt)
     endif()
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
