@@ -33,11 +33,11 @@ public:
              const VectorDouble& dx = VectorDouble(),
              const VectorDouble& x0 = VectorDouble(),
              const VectorDouble& angles = VectorDouble(),
-             bool flag_polarized = true,
+             bool flag_polarized = false,
              bool verbose = false,
              int mode = 1);
   MeshETurbo(const DbGrid *dbgrid,
-             bool flag_polarized = true,
+             bool flag_polarized = false,
              bool verbose = false,
              int mode = 1);
   MeshETurbo(const MeshETurbo &r);

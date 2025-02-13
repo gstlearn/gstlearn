@@ -71,7 +71,7 @@ MeshETurbo::MeshETurbo(const MeshETurbo &r)
     : AMesh(r),
       _grid(),
       _nPerCell(0),
-      _isPolarized(false),
+      _isPolarized(r._isPolarized),
       _meshIndirect(r._meshIndirect),
       _gridIndirect(r._gridIndirect)
 {

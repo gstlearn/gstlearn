@@ -77,6 +77,7 @@ spdeop = gl.SPDEOp(Qtot,Atot,NoiseOp)
 
 # %%
 result = spdeop.simCond(Z)
+print(result.mean())
 
 # %%
 nt = grid.getNSample()

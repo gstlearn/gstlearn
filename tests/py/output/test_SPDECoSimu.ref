@@ -1,0 +1,21 @@
+
+Turbo Meshing
+=============
+
+Grid characteristics:
+---------------------
+Origin :    -20.000   -20.000
+Mesh   :      1.000     1.000
+Number :        141       141
+Euclidean Geometry
+Space Dimension           = 2
+Number of Apices per Mesh = 3
+Number of Meshes          = 39200
+Number of Apices          = 19881
+
+Bounding Box Extension
+----------------------
+Dim #1 - Min:-20 - Max:120
+Dim #2 - Min:-20 - Max:120
+
+0.5768640195794459
