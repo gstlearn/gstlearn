@@ -651,22 +651,17 @@ void KrigingSystem::_lhsCalcul()
 {
   _mustBeOldStyle("_lhsCalcul");
 
-  /* Establish the covariance part */
-  _p1.setTarget(false);
-  _p2.setTarget(false);
   for (int iech = 0; iech < _nech; iech++)
   {
     if (_nbgh[iech] >= 0)
     {
-      _p1.setIech(_nbgh[iech]);
-      _dbin->getSampleAsSPInPlace(_p1, _nbgh[iech]);
+      _dbin->getSampleAsSPInPlace(_p1, _nbgh[iech], false);
     }
     else
     {
       // Modification for fictitious sample (colocated option)
-      _p1.setTarget(true);
+      _dbout->getSampleAsSPInPlace(_p1, _iechOut, true);
       _p1.setIech(-1);
-      _dbout->getSampleAsSPInPlace(_p1, _iechOut);
     }
     _cova->optimizationSetTarget(_p1);
     for (int jech = 0; jech <= iech; jech++)
@@ -678,15 +673,13 @@ void KrigingSystem::_lhsCalcul()
       {
         if (_nbgh[jech] >= 0)
         {
-          _p2.setIech(_nbgh[jech]);
-          _dbin->getSampleAsSPInPlace(_p2, _nbgh[jech]);
+          _dbin->getSampleAsSPInPlace(_p2, _nbgh[jech], false);
         }
         else
         {
           // Modification for fictitious sample (colocated option)
-          _p2.setTarget(true);
+          _dbout->getSampleAsSPInPlace(_p2, _iechOut, true);
           _p2.setIech(-1);
-          _dbout->getSampleAsSPInPlace(_p2, _iechOut);
         }
         _cova->optimizationSetTarget(_p2);
 
@@ -993,8 +986,7 @@ void KrigingSystem::_neighCalcul(int status, const VectorDouble& tab)
  *****************************************************************************/
 void KrigingSystem::_variance0()
 {
-  _p0.setTarget(true);
-  _dbout->getSampleAsSPInPlace(_p0, _iechOut);
+  _dbout->getSampleAsSPInPlace(_p0, _iechOut, true);
   _cova->optimizationSetTarget(_p0);
   _cova->updateCovByPoints(2, _iechOut, 2, _iechOut);
 
