@@ -106,8 +106,6 @@ int CalcGlobal::_globalKriging()
   Db* dbout     = getDbout();
   int nvar      = model->getNVar();
   int ng        = 0;
-  double estim  = 0.;
-  double cv0    = 0.;
   VectorDouble wgt;
 
   KrigOpt krigopt;
@@ -144,20 +142,20 @@ int CalcGlobal::_globalKriging()
     Sigma0Cum.addMatInPlace(Sigma0);
     X0Cum.addMatInPlace(X0);
     ng++;
-
-    // Normalize the cumulative R.H.S.
-    double oneOverNG = 1. / (double)ng;
-    Sigma0Cum.prodScalar(oneOverNG);
-    X0Cum.prodScalar(oneOverNG);
-    algebra.setRHS(&Sigma0Cum, &X0Cum);
-
-    MatrixSquareSymmetric Sigma00 = model->eval0MatByTarget(dbout, 0);
-    algebra.setVariance(&Sigma00);
-
-    estim = algebra.getEstimation()[0];
-    double stdv = algebra.getStdv()[0];
-    cv0 = model->getTotalSill(_ivar0, _ivar0) - stdv * stdv;
   }
+
+  // Normalize the cumulative R.H.S.
+  double oneOverNG = 1. / (double)ng;
+  Sigma0Cum.prodScalar(oneOverNG);
+  X0Cum.prodScalar(oneOverNG);
+  algebra.setRHS(&Sigma0Cum, &X0Cum);
+
+  MatrixSquareSymmetric Sigma00 = model->eval0MatByTarget(dbout, 0);
+  algebra.setVariance(&Sigma00);
+
+  double estim = algebra.getEstimation()[0];
+  double stdv  = algebra.getStdv()[0];
+  double cv0   = model->getTotalSill(_ivar0, _ivar0) - stdv * stdv;
 
   /* Preliminary checks */
 
