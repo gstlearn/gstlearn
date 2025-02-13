@@ -20,7 +20,7 @@ mypoints
 
 #We calculate a variogram along the two main directions of the Model, i.e. 30 and 120 degrees.
 
-varioparam = VarioParam_createSeveral2D(angles=c(30,120), npas=25, dpas=2)
+varioparam = VarioParam_createSeveral2D(angles=c(30,120), nlag=25, dlag=2)
 myvario = Vario_computeFromDb(varioparam, mypoints)
 
 #In the next step, we consider that the initial model (mymodel) has been correctly rendered through the simulated information at the 100 samples, as demonstrated in the experimental variogram. This is the reason why we will use this initial model for the further steps of estimation and conditional simulations.

@@ -32,6 +32,13 @@ For using this Python package you only need Python 3.8 (or higher) (with numpy, 
 pip install gstlearn
 ```
 
+The `gstlearn.plot` Python module requires additional dependencies,
+those can be installed alongside gstlearn with the following command:
+
+``` python
+pip install gstlearn[plot]
+```
+
 ## Usage
 
 We refer the reader to this [course page](https://soft.mines-paristech.fr/gstlearn/courses-latest/python/01_gstlearn_start.html) for an introduction and important information about Python gstlearn package.

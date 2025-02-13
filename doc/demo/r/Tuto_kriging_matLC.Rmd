@@ -228,7 +228,7 @@ knitr::kable(tab, caption = "Statistics on the reference data set", digits = 4)
 ```{r vario_param, echo=TRUE, eval=TRUE}
 
 # Variogram parameters (omnidirectional)
-varioParam = VarioParam_createOmniDirection(npas=10, dpas=0.05)
+varioParam = VarioParam_createOmniDirection(nlag=10, dlag=0.05)
 # Variogram basic structures
 types = ECov_fromKeys(c("NUGGET", "EXPONENTIAL", "EXPONENTIAL"))
 # types = ECov_fromKeys(c("EXPONENTIAL"))

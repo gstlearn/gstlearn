@@ -80,7 +80,7 @@ Computing Variograms (Simple and Cross)
 
 ```{r}
 err = grid$setLocators("Z*",ELoc_Z())
-varioparam = VarioParam_createMultipleFromGrid(grid, npas=100)
+varioparam = VarioParam_createMultipleFromGrid(grid, nlag=100)
 vario = Vario_computeFromDb(varioparam, grid)
 
 p = ggDefault() + 

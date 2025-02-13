@@ -163,10 +163,10 @@ int CalcGlobal::_globalKriging()
     VectorDouble Z =
       dbin->getValuesByRanks(sampleRanks, model->getMeans(), !model->hasDrift());
     MatrixSquareSymmetric Sigma =
-      model->evalCovMatSymOptimByRanks(dbin, sampleRanks, -1, &mode, false);
+      model->evalCovMatSymByRanks(dbin, sampleRanks, -1, &mode, false);
     MatrixRectangular X = model->evalDriftMatByRanks(dbin, sampleRanks);
 
-    KrigingCalcul algebra;
+    KrigingAlgebra algebra;
     algebra.resetNewData();
     algebra.setData(&Z, &sampleRanks, &model->getMeans());
     algebra.setLHS(&Sigma, &X);
@@ -182,7 +182,7 @@ int CalcGlobal::_globalKriging()
       if (!dbout->isActive(iech)) continue;
 
       MatrixRectangular Sigma0 =
-        model->evalCovMatOptimByTarget(dbin, dbout, sampleRanks, iech,
+        model->evalCovMatByTarget(dbin, dbout, sampleRanks, iech,
                                        krigopt, false);
       MatrixRectangular X0 = model->evalDriftMatByTarget(dbout, iech, krigopt);
 

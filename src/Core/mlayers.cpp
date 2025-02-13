@@ -2353,7 +2353,7 @@ static int st_varioexp_chh(LMlayers *lmlayers,
 {
   double *atab, *btab, *sill, distsum;
   int *stat, error, nlayers, iadlag, nhalf, nhalf2, nval;
-  int ipas, number, ifirst, ilast, ilayer, jlayer, ijl;
+  int ilag, number, ifirst, ilast, ilayer, jlayer, ijl;
   VectorDouble phia;
   VectorDouble phib;
 
@@ -2381,9 +2381,9 @@ static int st_varioexp_chh(LMlayers *lmlayers,
 
   /* Loop on the lags */
 
-  for (ipas = 0; ipas < vario->getNLag(idir); ipas++)
+  for (ilag = 0; ilag < vario->getNLag(idir); ilag++)
   {
-    vario_order_get_bounds(vorder, idir, ipas, &ifirst, &ilast);
+    vario_order_get_bounds(vorder, idir, ilag, &ifirst, &ilast);
     number = ilast - ifirst;
     if (number <= 0) continue;
 
@@ -2395,14 +2395,14 @@ static int st_varioexp_chh(LMlayers *lmlayers,
 
     if (OptDbg::query(EDbg::VARIOGRAM))
     {
-      message("Lag %d\n", ipas + 1);
+      message("Lag %d\n", ilag + 1);
       print_matrix("L.H.S.", 0, 1, nhalf, nhalf, NULL, atab);
       print_matrix("R.H.S.", 0, 1, 1, nhalf, NULL, btab);
     }
 
     if (matrix_invert(atab, nhalf, -2))
     {
-      messerr("--> Inversion problem for lag %d", ipas + 1);
+      messerr("--> Inversion problem for lag %d", ilag + 1);
       if (verbose)
       {
         /* Matrix must be evaluated (as it has been destroyed by inversion) */
@@ -2431,11 +2431,11 @@ static int st_varioexp_chh(LMlayers *lmlayers,
     for (ilayer = 0; ilayer < nlayers; ilayer++)
       for (jlayer = 0; jlayer <= ilayer; jlayer++, ijl++)
       {
-        iadlag = vario->getDirAddress(idir, ilayer, jlayer, ipas, false, 1);
+        iadlag = vario->getDirAddress(idir, ilayer, jlayer, ilag, false, 1);
         vario->setGgByIndex(idir, iadlag, sill[ijl]);
         vario->setHhByIndex(idir, iadlag, distsum);
         vario->setSwByIndex(idir, iadlag, nval);
-        iadlag = vario->getDirAddress(idir, ilayer, jlayer, ipas, false, -1);
+        iadlag = vario->getDirAddress(idir, ilayer, jlayer, ilag, false, -1);
         vario->setGgByIndex(idir, iadlag, sill[ijl]);
         vario->setHhByIndex(idir, iadlag, -distsum);
         vario->setSwByIndex(idir, iadlag, nval);

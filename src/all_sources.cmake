@@ -306,7 +306,7 @@ set(SRC
   Neigh/NeighBench.cpp
   Neigh/NeighCell.cpp
   Estimation/KrigingSystem.cpp
-  Estimation/KrigingCalcul.cpp
+  Estimation/KrigingAlgebra.cpp
   Estimation/CalcKriging.cpp
   Estimation/CalcKrigingFactors.cpp
   Estimation/CalcSimpleInterpolation.cpp

@@ -51,7 +51,7 @@ typedef struct
 {
   int flag_trace;
   int idir;
-  int ipas;
+  int ilag;
   int nrow;
   int ncol;
   VectorDouble trace;
@@ -91,12 +91,12 @@ typedef struct
 #define MEMINT(ipair)   (local_pgs->memint[ipair])
 #define STAT_PROBA(i,j) (M_R(local_pgs->stat_proba,local_pgs->nfacies,i,j))
 #define STAT_THRESH(ifac,igrf,rank) (local_pgs->stat_thresh[2*(nfacies * (igrf) + (ifac))+(rank)])
-#define LAG_USED(idir, ipas)                                                   \
-  (vario->getSwByIndex(idir, vario->getNLag(idir) + ipas + 1) > 0 &&      \
-   vario->getUtilizeByIndex(idir, vario->getNLag(idir) + ipas + 1) != 0)
-#define LAG_UNUSED(idir, ipas)                                                   \
-  (vario->getSwByIndex(idir, vario->getNLag(idir) + ipas + 1) <= 0 ||      \
-   vario->getUtilizeByIndex(idir, vario->getNLag(idir) + ipas + 1) == 0)
+#define LAG_USED(idir, ilag)                                                   \
+  (vario->getSwByIndex(idir, vario->getNLag(idir) + ilag + 1) > 0 &&      \
+   vario->getUtilizeByIndex(idir, vario->getNLag(idir) + ilag + 1) != 0)
+#define LAG_UNUSED(idir, ilag)                                                   \
+  (vario->getSwByIndex(idir, vario->getNLag(idir) + ilag + 1) <= 0 ||      \
+   vario->getUtilizeByIndex(idir, vario->getNLag(idir) + ilag + 1) == 0)
 #define TABOUT(i,j)      tabout[(j)*neq+(i)]
 #define EIGVEC(i,j)      eigvec[(i)*neq+(j)]
 #define RULES(ir,i)     (rules[(ir)  * NRULE  + (i)])
@@ -965,7 +965,7 @@ static double st_func_search_stat(double correl, void *user_data)
   int iconf0 = 0;
 
   int nfacies = local_pgs->nfacies;
-  int ipas = local_pgs->ipascur;
+  int ilag = local_pgs->ipascur;
   int idir = local_pgs->idircur;
   int igrf = local_pgs->igrfcur;
   Vario *vario = local_pgs->varioind;
@@ -983,10 +983,10 @@ static double st_func_search_stat(double correl, void *user_data)
       double proba = st_get_proba_ind(correl, low, up, iconf0);
 
       double logp = (proba <= 0.) ? -1.e30 : log(proba);
-      int iad = vario->getDirAddress(idir, ifac1, ifac2, ipas, false, 1);
+      int iad = vario->getDirAddress(idir, ifac1, ifac2, ilag, false, 1);
       double sw = vario->getSwByIndex(idir, iad);
       double gg = vario->getGgByIndex(idir, iad);
-      iad = vario->getDirAddress(idir, ifac1, ifac2, ipas, false, -1);
+      iad = vario->getDirAddress(idir, ifac1, ifac2, ilag, false, -1);
       gg += vario->getGgByIndex(idir, iad);
       sum -= logp * gg * sw / 2.;
     }
@@ -1140,10 +1140,10 @@ static int st_varcalc_from_vario_stat(Vario *vario,
 
     /* Loop on the lags */
 
-    for (int ipas = 0; ipas < vario->getNLag(idir); ipas++)
+    for (int ilag = 0; ilag < vario->getNLag(idir); ilag++)
     {
-      mes_process("Inverting Variogram Lag", vario->getNLag(idir), ipas);
-      local_pgs->ipascur = ipas;
+      mes_process("Inverting Variogram Lag", vario->getNLag(idir), ilag);
+      local_pgs->ipascur = ilag;
       trace_add_row(local_pgs);
 
       /* Loop on the GRFs */
@@ -1153,19 +1153,19 @@ static int st_varcalc_from_vario_stat(Vario *vario,
         local_pgs->igrfcur = igrf;
         result = golden_search(st_func_search_stat, (void*) local_pgs,
                                GS_TOLSTOP, -1., 1., &testval, &niter);
-        trace_define(local_pgs, idir + 1, ipas + 1, 2 * igrf, 1, &testval);
-        trace_define(local_pgs, idir + 1, ipas + 1, 2 * igrf + 1, 1, &niter);
+        trace_define(local_pgs, idir + 1, ilag + 1, 2 * igrf, 1, &testval);
+        trace_define(local_pgs, idir + 1, ilag + 1, 2 * igrf + 1, 1, &niter);
 
         for (int jgrf = 0; jgrf <= igrf; jgrf++)
         {
           varloc = (igrf == jgrf) ? result : 0.;
-          iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, 1);
+          iad = vario->getDirAddress(idir, igrf, jgrf, ilag, false, 1);
           vario->setGgByIndex(idir, iad, varloc);
-          iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, -1);
+          iad = vario->getDirAddress(idir, igrf, jgrf, ilag, false, -1);
           vario->setGgByIndex(idir, iad, varloc);
 
           if (OptDbg::query(EDbg::CONVERGE))
-            message("Lag:%d - Grf:%d - Variogram(%d) = %lf\n", ipas, igrf, iad,
+            message("Lag:%d - Grf:%d - Variogram(%d) = %lf\n", ilag, igrf, iad,
                     varloc);
         }
       }
@@ -1230,7 +1230,7 @@ static void st_retrace_define(Local_Pgs *local_pgs)
  *****************************************************************************/
 static void st_varcalc_uncorrelated_grf(Local_Pgs *local_pgs, int idir)
 {
-  int ipas, iad, igrf, jgrf, ngrf;
+  int ilag, iad, igrf, jgrf, ngrf;
   double result, testval, niter, varloc;
   Vario *vario;
 
@@ -1239,13 +1239,13 @@ static void st_varcalc_uncorrelated_grf(Local_Pgs *local_pgs, int idir)
 
   /* Loop on the lags */
 
-  for (ipas = 0; ipas < vario->getNLag(idir); ipas++)
+  for (ilag = 0; ilag < vario->getNLag(idir); ilag++)
   {
-    mes_process("Inverting Variogram Lag", vario->getNLag(idir), ipas);
-    local_pgs->ipascur = ipas;
+    mes_process("Inverting Variogram Lag", vario->getNLag(idir), ilag);
+    local_pgs->ipascur = ilag;
     trace_add_row(local_pgs);
-    if (LAG_UNUSED(idir, ipas)) continue;
-    vario_order_get_bounds(local_pgs->vorder, idir, ipas, &local_pgs->ifirst,
+    if (LAG_UNUSED(idir, ilag)) continue;
+    vario_order_get_bounds(local_pgs->vorder, idir, ilag, &local_pgs->ifirst,
                            &local_pgs->ilast);
     if (local_pgs->ifirst >= local_pgs->ilast) continue;
 
@@ -1254,18 +1254,18 @@ static void st_varcalc_uncorrelated_grf(Local_Pgs *local_pgs, int idir)
       local_pgs->igrfcur = igrf;
       result = golden_search(st_func_search_nostat, (void*) local_pgs,
                              GS_TOLSTOP, -1., 1., &testval, &niter);
-      trace_define(local_pgs, idir + 1, ipas + 1, 2 * igrf, 1, &testval);
-      trace_define(local_pgs, idir + 1, ipas + 1, 2 * igrf + 1, 1, &niter);
+      trace_define(local_pgs, idir + 1, ilag + 1, 2 * igrf, 1, &testval);
+      trace_define(local_pgs, idir + 1, ilag + 1, 2 * igrf + 1, 1, &niter);
       for (jgrf = 0; jgrf <= igrf; jgrf++)
       {
         varloc = (igrf == jgrf) ? result : 0.;
-        iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, 1);
+        iad = vario->getDirAddress(idir, igrf, jgrf, ilag, false, 1);
         vario->setGgByIndex(idir, iad, varloc);
-        iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, -1);
+        iad = vario->getDirAddress(idir, igrf, jgrf, ilag, false, -1);
         vario->setGgByIndex(idir, iad, varloc);
 
         if (OptDbg::query(EDbg::CONVERGE))
-          message("Lag:%d - Grf:%d - Variogram(%d) = %lf\n", ipas, igrf, iad,
+          message("Lag:%d - Grf:%d - Variogram(%d) = %lf\n", ilag, igrf, iad,
                   varloc);
       }
     }
@@ -1833,7 +1833,7 @@ Vario_Order* vario_order_manage(int mode,
  ** \param[in]  jech        Rank of the second sample
  ** \param[in]  aux_iech    Auxiliary array for sample 'iech' (or NULL)
  ** \param[in]  aux_jech    Auxiliary array for sample 'jech' (or NULL)
- ** \param[in]  ipas        Rank of the lag
+ ** \param[in]  ilag        Rank of the lag
  ** \param[in]  idir        Rank of the direction (or 0)
  ** \param[in]  dist        Calculated distance (only stored if flag_dist == 1)
  **
@@ -1843,7 +1843,7 @@ int vario_order_add(Vario_Order *vorder,
                     int jech,
                     void *aux_iech,
                     void *aux_jech,
-                    int ipas,
+                    int ilag,
                     int idir,
                     double dist)
 {
@@ -1878,7 +1878,7 @@ int vario_order_add(Vario_Order *vorder,
 
   vorder->tab_iech[vorder->npair] = (dist > 0) ? iech : jech;
   vorder->tab_jech[vorder->npair] = (dist > 0) ? jech : iech;
-  vorder->tab_ipas[vorder->npair] = ipas + idir * QUANT_DIR;
+  vorder->tab_ipas[vorder->npair] = ilag + idir * QUANT_DIR;
   if (vorder->flag_dist) vorder->tab_dist[vorder->npair] = dist;
   if (vorder->size_aux > 0)
   {
@@ -1907,7 +1907,7 @@ void vario_order_print(Vario_Order *vorder,
                        int ipas_target,
                        int verbose)
 {
-  int i, j, ipas, idir, flag_first;
+  int i, j, ilag, idir, flag_first;
 
   if (vorder == (Vario_Order*) NULL) return;
 
@@ -1920,11 +1920,11 @@ void vario_order_print(Vario_Order *vorder,
   for (i = 0; i < vorder->npair; i++)
   {
     j = (vorder->tab_sort.empty()) ? i : vorder->tab_sort[i];
-    ipas = vorder->tab_ipas[j];
-    idir = ipas / QUANT_DIR;
-    ipas = ipas - QUANT_DIR * idir;
+    ilag = vorder->tab_ipas[j];
+    idir = ilag / QUANT_DIR;
+    ilag = ilag - QUANT_DIR * idir;
     if (idir_target >= 0 && idir != idir_target) continue;
-    if (ipas_target >= 0 && ipas != ipas_target) continue;
+    if (ipas_target >= 0 && ilag != ipas_target) continue;
 
     if (flag_first)
     {
@@ -1937,7 +1937,7 @@ void vario_order_print(Vario_Order *vorder,
 
     message("%5d", i + 1);
     message(" %5d", idir + 1);
-    message(" %5d", ipas + 1);
+    message(" %5d", ilag + 1);
     message(" %5d", vorder->tab_iech[j] + 1);
     message(" %5d", vorder->tab_jech[j] + 1);
     if (vorder->flag_dist) message(" %lf", vorder->tab_dist[j]);
@@ -2057,7 +2057,7 @@ void vario_order_get_auxiliary(Vario_Order *vorder,
  **
  ** \param[in]  vorder      Vario_Order structure
  ** \param[in]  idir        Rank of the target direction
- ** \param[in]  ipas        Rank of the target lag
+ ** \param[in]  ilag        Rank of the target lag
  **
  ** \param[out] ifirst      Rank of the first sample of the lag (included)
  ** \param[out] ilast       Rank of the last sample of the lag (excluded)
@@ -2065,13 +2065,13 @@ void vario_order_get_auxiliary(Vario_Order *vorder,
  *****************************************************************************/
 void vario_order_get_bounds(Vario_Order *vorder,
                             int idir,
-                            int ipas,
+                            int ilag,
                             int *ifirst,
                             int *ilast)
 {
   int ipair, jpair, ival;
 
-  ival = ipas + idir * QUANT_DIR;
+  ival = ilag + idir * QUANT_DIR;
   if (vorder->npair > 0 && vorder->tab_sort.empty())
     messageAbort("vario_order_get_bounds");
   *ifirst = vorder->npair;
@@ -3379,16 +3379,16 @@ static void st_variogram_geometry_pgs_correct(Local_Pgs *local_pgs,
   int iad;
 
   int ngrf = local_pgs->ngrf;
-  for (int ipas = 0; ipas < vario->getNLag(idir); ipas++)
+  for (int ilag = 0; ilag < vario->getNLag(idir); ilag++)
     for (int igrf = 0; igrf < ngrf; igrf++)
       for (int jgrf = 0; jgrf <= igrf; jgrf++)
       {
-        iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, 1);
+        iad = vario->getDirAddress(idir, igrf, jgrf, ilag, false, 1);
         vario->setGgByIndex(idir, iad, st_param_expand(local_pgs, igrf, jgrf, 1));
         if (vario->getSwByIndex(idir, iad) > 0.)
           vario->setHhByIndex(idir, iad,
                        vario->getHhByIndex(idir, iad) / vario->getSwByIndex(idir, iad));
-        iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, -1);
+        iad = vario->getDirAddress(idir, igrf, jgrf, ilag, false, -1);
         vario->setGgByIndex(idir, iad, st_param_expand(local_pgs, igrf, jgrf, -1));
         if (vario->getSwByIndex(idir, iad) > 0.)
           vario->setHhByIndex(idir, iad,
@@ -3457,13 +3457,13 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
 
       /* Get the rank of the lag */
 
-      int ipas = dirparam.getLagRank(dist);
-      if (IFFFF(ipas)) continue;
+      int ilag = dirparam.getLagRank(dist);
+      if (IFFFF(ilag)) continue;
 
       /* Add the sample (only positive lags are of interest) */
 
-      if (ipas < 0) ipas = -ipas;
-      if (vario_order_add(local_pgs->vorder, iech, jech, NULL, NULL, ipas, idir,
+      if (ilag < 0) ilag = -ilag;
+      if (vario_order_add(local_pgs->vorder, iech, jech, NULL, NULL, ilag, idir,
                           dist)) return 1;
       dist = ABS(dist);
 
@@ -3474,18 +3474,18 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
         {
           if (vario->getFlagAsym())
           {
-            iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
+            iad = vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
             vario->setGgByIndex(idir, iad, 0.);
             vario->setHhByIndex(idir, iad, vario->getHhByIndex(idir, iad) - dist);
             vario->setSwByIndex(idir, iad, vario->getSwByIndex(idir, iad) + 1);
-            iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, -1);
+            iad = vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
             vario->setGgByIndex(idir, iad, 0.);
             vario->setHhByIndex(idir, iad, vario->getHhByIndex(idir, iad) + dist);
             vario->setSwByIndex(idir, iad, vario->getSwByIndex(idir, iad) + 1);
           }
           else
           {
-            iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 0);
+            iad = vario->getDirAddress(idir, ivar, jvar, ilag, false, 0);
             vario->setGgByIndex(idir, iad, 0.);
             vario->setHhByIndex(idir, iad, vario->getHhByIndex(idir, iad) + dist);
             vario->setSwByIndex(idir, iad, vario->getSwByIndex(idir, iad) + 1);
@@ -3552,13 +3552,13 @@ static double st_varcalc_correlated_grf(Local_Pgs *local_pgs, int idir)
   double value = 0.;
   Vario* vario = local_pgs->vario;
 
-  for (int ipas = 0; ipas < vario->getNLag(idir); ipas++)
+  for (int ilag = 0; ilag < vario->getNLag(idir); ilag++)
   {
-    mes_process("Inverting Variogram Lag", vario->getNLag(idir), ipas);
-    local_pgs->ipascur = ipas;
+    mes_process("Inverting Variogram Lag", vario->getNLag(idir), ilag);
+    local_pgs->ipascur = ilag;
     trace_add_row(local_pgs);
-    if (LAG_UNUSED(idir, ipas)) continue;
-    vario_order_get_bounds(local_pgs->vorder, idir, ipas, &local_pgs->ifirst,
+    if (LAG_UNUSED(idir, ilag)) continue;
+    vario_order_get_bounds(local_pgs->vorder, idir, ilag, &local_pgs->ifirst,
                            &local_pgs->ilast);
     if (local_pgs->ifirst >= local_pgs->ilast) continue;
 
@@ -3566,15 +3566,15 @@ static double st_varcalc_correlated_grf(Local_Pgs *local_pgs, int idir)
 
     st_optim_onelag_pgs(local_pgs, 1e-3, 1);
     st_set_opt_correl(opt_temp, &local_pgs->corpgs);
-    value += (vario->getUtilizeByIndex(idir, vario->getNLag(idir) + ipas)
+    value += (vario->getUtilizeByIndex(idir, vario->getNLag(idir) + ilag)
         * st_optim_onelag_pgs(local_pgs, 1e-3, 0));
 
     for (int igrf = 0; igrf < local_pgs->ngrf; igrf++)
       for (int jgrf = 0; jgrf <= igrf; jgrf++)
       {
-        iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, 1);
+        iad = vario->getDirAddress(idir, igrf, jgrf, ilag, false, 1);
         vario->setGgByIndex(idir, iad, st_param_expand(local_pgs, igrf, jgrf, 1));
-        iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, -1);
+        iad = vario->getDirAddress(idir, igrf, jgrf, ilag, false, -1);
         vario->setGgByIndex(idir, iad, st_param_expand(local_pgs, igrf, jgrf, -1));
       }
   }
@@ -3610,7 +3610,7 @@ static void st_manage_trace(Local_TracePgs *local_tracepgs)
 {
   local_tracepgs->flag_trace = 0;
   local_tracepgs->idir = 0;
-  local_tracepgs->ipas = 0;
+  local_tracepgs->ilag = 0;
   local_tracepgs->nrow = 0;
   local_tracepgs->ncol = 0;
   local_tracepgs->trace = VectorDouble();
@@ -3785,8 +3785,8 @@ static int st_variopgs_calcul_norho(Vario *vario,
 static void st_make_some_lags_inactive(Vario *vario)
 {
   for (int idir = 0; idir < vario->getNDir(); idir++)
-    for (int ipas = 0; ipas < vario->getNLag(idir); ipas++)
-      vario->setUtilizeByIndex(idir, vario->getNLag(idir) + ipas, 1.);
+    for (int ilag = 0; ilag < vario->getNLag(idir); ilag++)
+      vario->setUtilizeByIndex(idir, vario->getNLag(idir) + ilag, 1.);
 }
 
 /****************************************************************************/
@@ -3799,8 +3799,8 @@ static void st_make_some_lags_inactive(Vario *vario)
 static void st_make_all_lags_active(Vario *vario)
 {
   for (int idir = 0; idir < vario->getNDir(); idir++)
-    for (int ipas = 0; ipas < vario->getNLag(idir); ipas++)
-      vario->setUtilizeByIndex(idir, vario->getNLag(idir) + ipas, 1.);
+    for (int ilag = 0; ilag < vario->getNLag(idir); ilag++)
+      vario->setUtilizeByIndex(idir, vario->getNLag(idir) + ilag, 1.);
 }
 
 /****************************************************************************/
@@ -4520,9 +4520,9 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
 
     /* Loop on the lags */
 
-    for (int ipas = 0; ipas < vario->getNLag(idir); ipas++)
+    for (int ilag = 0; ilag < vario->getNLag(idir); ilag++)
     {
-      vario_order_get_bounds(local_pgs->vorder, idir, ipas,
+      vario_order_get_bounds(local_pgs->vorder, idir, ilag,
                              &local_pgs->ifirst, &local_pgs->ilast);
       if (local_pgs->ifirst >= local_pgs->ilast) continue;
 
@@ -4544,12 +4544,12 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
           {
             if (local_pgs->vario->getFlagAsym())
             {
-              i = vario->getDirAddress(idir, ifac, jfac, ipas, false, 1);
+              i = vario->getDirAddress(idir, ifac, jfac, ilag, false, 1);
               vario->setGgByIndex(idir,i,
                   vario->getGgByIndex(idir, i) + st_get_value(local_pgs, flag_ind,
                                                               iech, jech, ifac, jfac,
                                                               iconf, cov));
-              i = vario->getDirAddress(idir, ifac, jfac, ipas, false, -1);
+              i = vario->getDirAddress(idir, ifac, jfac, ilag, false, -1);
               vario->setGgByIndex(idir,i,
                   vario->getGgByIndex(idir, i) + st_get_value(local_pgs, flag_ind,
                                                               jech, iech, ifac, jfac,
@@ -4557,7 +4557,7 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
             }
             else
             {
-              i = vario->getDirAddress(idir, ifac, jfac, ipas, false, 0);
+              i = vario->getDirAddress(idir, ifac, jfac, ilag, false, 0);
               vario->setGgByIndex(idir,i,
                   vario->getGgByIndex(idir, i) + st_get_value(local_pgs, flag_ind,
                                                               iech, jech, ifac, jfac,
@@ -4670,14 +4670,14 @@ static int st_vario_indic_model_stat(Local_Pgs *local_pgs)
 
     /* Loop on the lags */
 
-    for (int ipas = 0; ipas < vario->getNLag(idir); ipas++)
+    for (int ilag = 0; ilag < vario->getNLag(idir); ilag++)
     {
 
       /* Calculate the distance vector */
 
       for (int i = 0; i < vario->getNDim(); i++)
       {
-        int jpas = vario->getDirAddress(idir, 0, 0, ipas, false, 1);
+        int jpas = vario->getDirAddress(idir, 0, 0, ilag, false, 1);
         local_pgs->d1[i] = vario->getHhByIndex(idir, jpas) * vario->getCodir(idir, i);
       }
       st_calcul_covmatrix(local_pgs, &flag_ind, iconf, cov);
@@ -4689,16 +4689,16 @@ static int st_vario_indic_model_stat(Local_Pgs *local_pgs)
         {
           if (local_pgs->vario->getFlagAsym())
           {
-            iad = vario->getDirAddress(idir, ifac, jfac, ipas, false, 1);
+            iad = vario->getDirAddress(idir, ifac, jfac, ilag, false, 1);
             vario->setGgByIndex(idir,iad,
                 st_get_value(local_pgs, flag_ind, 0, 0, ifac, jfac, iconf, cov));
-            iad = vario->getDirAddress(idir, ifac, jfac, ipas, false, -1);
+            iad = vario->getDirAddress(idir, ifac, jfac, ilag, false, -1);
             vario->setGgByIndex(idir,iad,
                 st_get_value(local_pgs, flag_ind, 0, 0, jfac, ifac, iconf, cov));
           }
           else
           {
-            iad = vario->getDirAddress(idir, ifac, jfac, ipas, false, 0);
+            iad = vario->getDirAddress(idir, ifac, jfac, ilag, false, 0);
             vario->setGgByIndex(idir,iad,
                 st_get_value(local_pgs, flag_ind, 0, 0, ifac, jfac, iconf, cov));
           }

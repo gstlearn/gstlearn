@@ -34,14 +34,13 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Basic/OptCst.hpp"
 #include "Covariances/CovAnisoList.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Core/Keypair.hpp"
-#include "Estimation/KrigingCalcul.hpp"
+#include "Estimation/KrigingAlgebra.hpp"
 #include "Estimation/KrigOpt.hpp"
 #include "Basic/OptCustom.hpp"
 
@@ -1810,7 +1809,7 @@ int KrigingSystem::_prepar()
   {
     _sampleRanks = _dbin->getSampleRanks(VectorInt(), _nbgh);
     _Z           = _dbin->getValuesByRanks(_sampleRanks, _means, !_model->hasDrift());
-    _Sigma = _cova->evalCovMatSymOptimByRanks(_dbin, _sampleRanks, -1, &_calcModeLHS, false);
+    _Sigma = _cova->evalCovMatSymByRanks(_dbin, _sampleRanks, -1, &_calcModeLHS, false);
     _X = _model->evalDriftMatByRanks(_dbin, _sampleRanks);
     if (_algebra.resetNewData()) return 1;
     if (_algebra.setData(&_Z, &_sampleRanks, &_meansTarget)) return 1;
@@ -1824,8 +1823,7 @@ int KrigingSystem::resetNewData()
 {
   _sampleRanks = _dbin->getSampleRanks(VectorInt(), _nbgh);
   _Z           = _dbin->getValuesByRanks(_sampleRanks, _means, !_model->hasDrift());
-  _Sigma =
-    _cova->evalCovMatSymOptimByRanks(_dbin, _sampleRanks, -1, &_calcModeLHS, false);
+  _Sigma = _cova->evalCovMatSymByRanks(_dbin, _sampleRanks, -1, &_calcModeLHS, false);
   _X = _model->evalDriftMatByRanks(_dbin, _sampleRanks);
 
   if (_algebra.resetNewData()) return 1;
@@ -2069,7 +2067,7 @@ int KrigingSystem::estimate(int iech_out)
     }
     else
     {
-      _Sigma0 = _cova->evalCovMatOptimByTarget(_dbin, _dbout, _sampleRanks, iech_out, _krigopt, false);
+      _Sigma0 = _cova->evalCovMatByTarget(_dbin, _dbout, _sampleRanks, iech_out, _krigopt, false);
       _X0 = _model->evalDriftMatByTarget(_dbout, iech_out, _krigopt);
       if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
     };

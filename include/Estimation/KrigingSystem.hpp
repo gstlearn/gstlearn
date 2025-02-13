@@ -13,7 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Covariances/CovAnisoList.hpp"
-#include "Estimation/KrigingCalcul.hpp"
+#include "Estimation/KrigingAlgebra.hpp"
 #include "Estimation/KrigOpt.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "Space/SpaceRN.hpp"
@@ -36,7 +36,7 @@ class ECalcMember;
 class NeighImage;
 class AAnam;
 class ACov;
-class KrigingCalcul;
+class KrigingAlgebra;
 class KrigOpt;
 
 class GSTLEARN_EXPORT KrigingSystem
@@ -214,9 +214,9 @@ private:
   // Pointer to the Model currently used (must not be freed)
   ModelGeneric*        _model;
 
-  // Pointers used when plugging KrigingCalcul (not to be deleted)
+  // Pointers used when plugging KrigingAlgebra (not to be deleted)
   // Note that 'algebra' is mutable not to destroy constness when calling getLambda.
-  mutable KrigingCalcul _algebra;
+  mutable KrigingAlgebra _algebra;
   mutable KrigOpt       _krigopt;
   VectorVectorInt       _sampleRanks; // Vector of vector of sample indices
   MatrixSquareSymmetric _Sigma00; // Covariance part for variance

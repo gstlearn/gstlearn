@@ -66,15 +66,16 @@ int SPDEOp::getSizeSimu() const
 
 void SPDEOp::simCond(const constvect data, vect outv) const
 {
+  // Resize if necessary
   _workdat3.resize(_getNDat());
   _workdat4.resize(_getNDat());
   _workmesh.resize(getSizeSimu());
   _workNoiseMesh.resize(getSizeSimu());
   _workNoiseData.resize(_getNDat());
 
+  //Non conditional simulation on mesh
   VH::simulateGaussianInPlace(_workNoiseMesh);
-
-  _QSimu->evalSimulate(_workNoiseMesh, outv); //Non conditional simulation on mesh
+  _QSimu->evalSimulate(_workNoiseMesh, outv); 
   
   //Simulation at data locations (projection + noise)
   
@@ -82,11 +83,15 @@ void SPDEOp::simCond(const constvect data, vect outv) const
   VH::simulateGaussianInPlace(_workNoiseData);
   _invNoise->addSimulateToDest(_workNoiseData, _workdat3); //Add noise
   
+  //compute residual _workdat4 = data - outv
+  VH::subtractInPlace(_workdat3, data, _workdat4);
+
+  //Co-Kriging of the residual on the mesh
   _solver.setTolerance(1e-5);
-  VH::subtractInPlace(_workdat3, data, _workdat4);//compute residual
-  kriging(_workdat4,_workmesh); //Kriging of the residual
-  std::cout  << "Error " << _solver.getError() << std::endl;
-  VH::addInPlace(_workmesh,outv); //Add the kriging to the non conditional simulation
+  kriging(_workdat4,_workmesh); 
+  
+  //Add the kriging to the non conditional simulation
+  VH::addInPlace(_workmesh,outv); 
 }
 
 VectorDouble SPDEOp::kriging(const VectorDouble& dat) const

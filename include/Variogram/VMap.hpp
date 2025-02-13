@@ -50,7 +50,7 @@ public:
   void _setResult(int iech1,
                   int iech2,
                   int nvar,
-                  int ipas,
+                  int ilag,
                   int ivar,
                   int jvar,
                   int orient,

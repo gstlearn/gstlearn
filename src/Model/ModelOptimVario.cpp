@@ -140,7 +140,7 @@ int ModelOptimVario::_buildExperimental()
 
   for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
   {
-    for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++)
+    for (int ilag = 0, nlag = vario->getNLag(idir); ilag < nlag; ilag++)
     {
       int ijvar = 0;
       for (int ivar = ijvar = 0; ivar < nvar; ivar++)
@@ -153,8 +153,8 @@ int ModelOptimVario::_buildExperimental()
           double gg   = TEST;
           if (vario->getFlagAsym())
           {
-            int iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
-            int jad = vario->getDirAddress(idir, ivar, jvar, ipas, false, -1);
+            int iad = vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+            int jad = vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
             double c00 = vario->getC00(idir, ivar, jvar);
             double n1  = vario->getSwByIndex(idir, iad);
             double n2  = vario->getSwByIndex(idir, jad);
@@ -172,7 +172,7 @@ int ModelOptimVario::_buildExperimental()
           }
           else
           {
-            int iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
+            int iad = vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
             if (vario->isLagCorrect(idir, iad))
             {
               gg   = vario->getGgByIndex(idir, iad);
@@ -196,15 +196,13 @@ int ModelOptimVario::_buildExperimental()
   int ipadir      = 0;
 
   for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
-  {
-    for (int ipas = 0, npas = vario->getNLag(idir); ipas < npas; ipas++, ipadir++)
+    for (int ilag = 0, nlag = vario->getNLag(idir); ilag < nlag; ilag++, ipadir++)
     {
       int ijvar = 0;
       for (int ivar = ijvar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
           _varioPart._lags[ecr]._weight = WT(ijvar, ipadir);
     }
-  }
 
   return 0;
 }
@@ -254,9 +252,9 @@ double ModelOptimVario::evalCost(unsigned int nparams,
   int nlags = (int) varioPart._lags.size();
   double total = 0.;
   SpacePoint origin;
-  for (int ipas = 0; ipas < nlags; ipas++)
+  for (int ilag = 0; ilag < nlags; ilag++)
   {
-    const OneLag& lag = varioPart._lags[ipas];
+    const OneLag& lag = varioPart._lags[ilag];
     double vexp        = lag._gg;
     double vtheo = modelPart._model->eval(origin, lag._P, lag._ivar, lag._jvar, &modelPart._calcmode);
     double delta = vexp - vtheo;

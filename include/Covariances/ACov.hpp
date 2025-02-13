@@ -148,31 +148,6 @@ public:
 
   void optimizationPostProcess() const;
   virtual bool isOptimEnabled() const {return _isOptimEnabled();}
-  virtual MatrixRectangular evalCovMatOptim(const Db* db1,
-                                            const Db* db2,
-                                            int ivar0               = -1,
-                                            int jvar0               = -1,
-                                            const VectorInt& nbgh1  = VectorInt(),
-                                            const VectorInt& nbgh2  = VectorInt(),
-                                            const CovCalcMode* mode = nullptr,
-                                            bool cleanOptim         = true) const;
-  virtual MatrixRectangular evalCovMatOptimByTarget(const Db* db1,
-                                                    const Db* db2,
-                                                    const VectorVectorInt& sampleRanks1,
-                                                    int iech2              = -1,
-                                                    const KrigOpt& krigopt = KrigOpt(),
-                                                    bool cleanOptim        = true) const;
-  virtual MatrixSquareSymmetric evalCovMatSymOptim(const Db* db1,
-                                                   const VectorInt& nbgh1  = VectorInt(),
-                                                   int ivar0               = -1,
-                                                   const CovCalcMode* mode = nullptr,
-                                                   bool cleanOptim         = true) const;
-  virtual MatrixSquareSymmetric
-  evalCovMatSymOptimByRanks(const Db* db1,
-                            const VectorVectorInt& sampleRanks1,
-                            int ivar0               = -1,
-                            const CovCalcMode* mode = nullptr,
-                            bool cleanOptim         = true) const;
 
   VectorDouble eval(const std::vector<SpacePoint>& vec_p1,
                     const std::vector<SpacePoint>& vec_p2,
@@ -194,7 +169,7 @@ public:
                                bool cleanOptim         = true) const;
   MatrixRectangular evalCovMatByTarget(const Db* db1,
                                        const Db* db2,
-                                       const VectorVectorInt& sampleRanks1,
+                                       const VectorVectorInt& index1,
                                        const int iech2        = 0,
                                        const KrigOpt& krigopt = KrigOpt(),
                                        bool cleanOptim        = true) const;
@@ -204,7 +179,7 @@ public:
                                       const CovCalcMode* mode = nullptr,
                                       bool cleanOptim         = true) const;
   MatrixSquareSymmetric evalCovMatSymByRanks(const Db* db1,
-                                             const VectorVectorInt& sampleRanks1,
+                                             const VectorVectorInt& index1,
                                              int ivar0,
                                              const CovCalcMode* mode,
                                              bool cleanOptim) const;
@@ -217,7 +192,7 @@ public:
                           int ivar = 0,
                           int jvar = 0,
                           const CovCalcMode* mode = nullptr) const;
-  VectorDouble evalIvarNpas(const VectorDouble& vec_step,
+  VectorDouble evalIvarNlag(const VectorDouble& vec_step,
                             const VectorDouble& dir = VectorDouble(),
                             int ivar = 0,
                             int jvar = 0,
@@ -231,7 +206,7 @@ public:
                          int ivar = 0,
                          int jvar = 0,
                          const CovCalcMode* mode = nullptr) const;
-  VectorDouble evalIsoIvarNpas(const VectorDouble& vec_step,
+  VectorDouble evalIsoIvarNlag(const VectorDouble& vec_step,
                                int ivar = 0,
                                int jvar = 0,
                                const CovCalcMode* mode = nullptr) const;
@@ -467,7 +442,7 @@ private:
   void setNoStatDbIfNecessary(const Db*& db);
 
   void _loopOnPointTarget(const Db* db2,
-                          const VectorVectorInt& sampleRanks2,
+                          const VectorVectorInt& index2,
                           const VectorInt& jvars,
                           int ivar1,
                           int iech1,
@@ -479,7 +454,7 @@ private:
                           MatrixRectangular& mat) const;
 
   void _loopOnBlockTarget(const Db* db2,
-                          const VectorVectorInt& sampleRanks2,
+                          const VectorVectorInt& index2,
                           const VectorInt& jvars,
                           int ivar1,
                           int iech1,

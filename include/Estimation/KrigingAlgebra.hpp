@@ -30,19 +30,19 @@
  * - the vector *Z* must be centered by the drift beforehand
  * - the vector *beta* corresponds to the vector of Means.
  */
-class GSTLEARN_EXPORT KrigingCalcul
+class GSTLEARN_EXPORT KrigingAlgebra
 {
 public:
-  KrigingCalcul(bool flagDual = false,
+  KrigingAlgebra(bool flagDual = false,
                 const VectorVectorInt* sampleRanks   = nullptr,
                 const VectorDouble* Z                = nullptr,
                 const MatrixSquareSymmetric* Sigma   = nullptr,
                 const MatrixRectangular* X           = nullptr,
                 const MatrixSquareSymmetric* Sigma00 = nullptr,
                 const VectorDouble* Means            = nullptr);
-  KrigingCalcul(const KrigingCalcul& r)            = delete;
-  KrigingCalcul& operator=(const KrigingCalcul& r) = delete;
-  virtual ~KrigingCalcul();
+  KrigingAlgebra(const KrigingAlgebra& r)            = delete;
+  KrigingAlgebra& operator=(const KrigingAlgebra& r) = delete;
+  virtual ~KrigingAlgebra();
 
   void setDual(bool status);
   int resetNewData();

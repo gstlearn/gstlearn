@@ -21,7 +21,7 @@ ref = grid.getColumnsByLocator(gl.ELoc.Z)
 
 # %%
 nx1 = [140,140]
-mesh1 = gl.MeshETurbo(nx1,[1.,1.],[-20,-20])
+mesh1 = gl.MeshETurbo(nx1,[1.,1.],[-20,-20],[],False)
 meshes = gl.VectorMeshes([mesh1,mesh1])
 
 # %%

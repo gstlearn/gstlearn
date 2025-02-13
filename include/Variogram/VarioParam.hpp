@@ -56,8 +56,8 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Shortcuts
-  static VarioParam* createOmniDirection(int npas = 10,
-                                         double dpas = 1.,
+  static VarioParam* createOmniDirection(int nlag = 10,
+                                         double dlag = 1.,
                                          double toldis = 0.5,
                                          int opt_code = 0,
                                          int idate = 0,
@@ -69,8 +69,8 @@ public:
                                          const VectorDouble& dates = VectorDouble(),
                                          const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static VarioParam* createMultiple(int ndir,
-                                    int npas = 10,
-                                    double dpas = 1.,
+                                    int nlag = 10,
+                                    double dlag = 1.,
                                     double toldis = 0.5,
                                     double angref = 0.,
                                     double scale = 0.,
@@ -78,21 +78,21 @@ public:
                                     const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static VarioParam*
   createMultipleFromGrid(const DbGrid* dbgrid,
-                         int npas,
+                         int nlag,
                          double scale              = 0.,
                          const VectorDouble& dates = VectorDouble(),
                          const ASpaceSharedPtr& space       = ASpaceSharedPtr(),
                          int ndimax = 0);
-  static VarioParam* createFromSpaceDimension(int npas = 10,
-                                              double dpas = 1.,
+  static VarioParam* createFromSpaceDimension(int nlag = 10,
+                                              double dlag = 1.,
                                               double toldis = 0.5,
                                               double tolang = 45.,
                                               double scale = 0.,
                                               const VectorDouble &dates = VectorDouble(),
                                               const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static VarioParam* createSeveral2D(const VectorDouble &angles,
-                                     int npas = 10,
-                                     double dpas = 1.,
+                                     int nlag = 10,
+                                     double dlag = 1.,
                                      double toldis = 0.5,
                                      double tolang = TEST,
                                      double scale = 0.,

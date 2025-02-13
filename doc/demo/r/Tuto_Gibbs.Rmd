@@ -321,7 +321,7 @@ OptDbg_setReference(0)
 stat_keys = c("NUM","MINI","MAXI","MEAN","STDV")
 opers = EStatOption_fromKeys(stat_keys)
 # defining the variogram parameters
-varioParam = VarioParam_createOmniDirection(npas=10, dpas=0.05)
+varioParam = VarioParam_createOmniDirection(nlag=10, dlag=0.05)
 
 np = 1000 # total number of points
 n  = 50   # number of equality constraints

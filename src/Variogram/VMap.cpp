@@ -67,7 +67,7 @@ double VMap::_getIVAR(const Db *db, int iech, int ivar) const
  ** \param[in]  iech1       Rank of the first sample
  ** \param[in]  iech2       Rank of the second sample
  ** \param[in]  nvar        Number of variables
- ** \param[in]  ipas        Rank of the variogram lag
+ ** \param[in]  ilag        Rank of the variogram lag
  ** \param[in]  ivar        Index of the first variable
  ** \param[in]  jvar        Index of the second variable
  ** \param[in]  orient      Orientation
@@ -79,7 +79,7 @@ double VMap::_getIVAR(const Db *db, int iech, int ivar) const
 void VMap::_setResult(int iech1,
                       int iech2,
                       int nvar,
-                      int ipas,
+                      int ilag,
                       int ivar,
                       int jvar,
                       int orient,
@@ -92,8 +92,8 @@ void VMap::_setResult(int iech1,
   DECLARE_UNUSED(orient);
   DECLARE_UNUSED(dist);
   int ijvar = _get_variable_order(nvar, ivar, jvar);
-  _dbmap->updArray(ipas, IPTV + ijvar, EOperator::ADD, ww * value);
-  _dbmap->updArray(ipas, IPTW + ijvar, EOperator::ADD, ww);
+  _dbmap->updArray(ilag, IPTV + ijvar, EOperator::ADD, ww * value);
+  _dbmap->updArray(ilag, IPTW + ijvar, EOperator::ADD, ww);
 }
 
 /****************************************************************************/
