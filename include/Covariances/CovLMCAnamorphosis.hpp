@@ -70,6 +70,7 @@ protected:
   {
     ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
   }
+  
   void addEval0CovMatBiPointInPlace(MatrixSquareGeneral& mat,
                                     const CovCalcMode* mode) const override
   {
