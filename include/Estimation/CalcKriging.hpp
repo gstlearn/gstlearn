@@ -31,16 +31,19 @@ public:
   int ndim; // Space dimension
   int nvar; // Number of variables
   int nech; // Number of Neighboring samples
-  int neq;  // Number of Equations in the Kriging/CoKriging system
-  int nrhs; // Number of R.H.S. vectors (= nvar)
-  VectorInt nbgh;    // Ranks of the neighboring samples
+  int CSize; // Number of drift equations in the Drift part
+  int DSize; // Number of Equations of the Covariance part 
+  int nrhs; // Number of R.H.S. vectors
+  VectorInt nbgh;            // Ranks of the neighboring samples 
   VectorVectorDouble xyz;    // Coordinates of the neighboring samples [ndim][nech]
   VectorDouble data;         // Usable values at neighboring samples [neq]
-  MatrixSquareSymmetric lhs; // L.H.S. of the Kriging system (neq * neq)
-  MatrixRectangular rhs;     // R.H.S. of the Kriging system (neq * nvar)
-  MatrixRectangular wgt;     // Vector of weights [nvar][nech]
+  MatrixSquareSymmetric lhs; // L.H.S. Covariance part (neq * neq)
+  MatrixRectangular lhsF;    // L.H.S. Drift part 
+  MatrixRectangular rhs;     // R.H.S. Covariance part (neq * nrhs)
+  MatrixRectangular rhsF;    // R.H.S. Drift part  (nbfl * nrhs)
+  MatrixRectangular wgt;     // Vector of weights (neq * nrhs)
+  MatrixRectangular mu;      // Vector of Lagrange parameters (nbfl * nrhs)
   MatrixSquareGeneral var;   // Matrix of Target-Target Variance (nvar * nvar)
-  MatrixRectangular zam;     // Vector of pre-calculations
 
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;

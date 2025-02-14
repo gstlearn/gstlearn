@@ -45,7 +45,7 @@ public:
   virtual ~KrigingAlgebra();
 
   void setDual(bool status);
-  int resetNewData();
+  void resetNewData();
   int setData(const VectorDouble* Z = nullptr,
               const VectorVectorInt* indices = nullptr,
               const VectorDouble* Means = nullptr);

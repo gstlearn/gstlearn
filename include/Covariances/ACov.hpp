@@ -90,10 +90,6 @@ public:
                                            const SpacePoint& pwork2,
                                            const CovCalcMode* mode) const;
 
-  void evalCovKriging(MatrixSquareGeneral &mat,
-                      SpacePoint &pwork1,
-                      SpacePoint& pout, 
-                      const CovCalcMode *mode = nullptr) const;
   virtual double evalCovOnSphere(double alpha,
                                  int degree = 50,
                                  bool flagScaleDistance = false,

@@ -235,7 +235,8 @@ int main(int argc, char* argv[])
     message("\nTesting KrigTest facility\n");
     message("- Space Dimension = %d\n", ktest.ndim);
     message("- Number of Neighbors = %d\n", ktest.nech);
-    message("- Number of Kriging System equations = %d\n", ktest.neq);
+    message("- Number of Kriging System equations (covariance) = %d\n", ktest.CSize);
+    message("- Number of Kriging System equations (drift) = %d\n", ktest.DSize);
     VH::dump("- Neighboring Sample Indices", ktest.nbgh);
   }
 

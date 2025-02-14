@@ -395,10 +395,9 @@ void KrigingAlgebra::_deleteDual()
 /**
  * @brief Method to be used when the data has changed (e.g. Moving Neighborhood)
  */
-int KrigingAlgebra::resetNewData()
+void KrigingAlgebra::resetNewData()
 {
   _neq = 0;
-  return 0;
 }
 
 /**
@@ -1138,7 +1137,7 @@ int KrigingAlgebra::_needY0p()
 int KrigingAlgebra::_needMuUK()
 {
   if (_MuUK != nullptr) return 0;
-  if (_flagSK) return 0;
+  if (_flagSK) return 1;
   if (_needSigmac()) return 1;
   if (_needY0()) return 1;
 

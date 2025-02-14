@@ -225,23 +225,22 @@ void CalcKriging::_rollback()
 
 void CalcKriging::_storeResultsForExport(const KrigingSystem& ksys)
 {
-  int ndim = ksys.getNDim();
-
-  /* Extract relevant information */
-
-  _ktest.nvar = 1;
-  _ktest.ndim = ndim;
-  _ktest.nech = ksys.getNRed();
-  _ktest.nrhs = 1;
-  _ktest.neq  = ksys.getNeq();
-  _ktest.nbgh = ksys.getSampleNbgh();
-  _ktest.xyz  = ksys.getSampleCoordinates();
-  _ktest.data = ksys.getSampleData();
-  _ktest.zam  = ksys.getZam();
-  _ktest.lhs  = ksys.getLHSC();
-  _ktest.rhs  = ksys.getRHSC();
-  _ktest.wgt  = ksys.getWeights();
-  _ktest.var  = ksys.getVariance();
+  _ktest.ndim  = ksys.getNDim();
+  _ktest.nvar  = ksys.getNVar();
+  _ktest.nech  = ksys.getNech();
+  _ktest.CSize = ksys.getCovSize();
+  _ktest.DSize = ksys.getDriftSize();
+  _ktest.nrhs  = ksys.getNrhs();
+  _ktest.nbgh  = ksys.getSampleNbgh();
+  _ktest.xyz   = ksys.getSampleCoordinates();
+  _ktest.data  = ksys.getSampleData();
+  _ktest.lhs   = ksys.getLHS();
+  _ktest.lhsF  = ksys.getLHSF();
+  _ktest.rhs   = ksys.getRHS();
+  _ktest.rhsF  = ksys.getRHSF();
+  _ktest.wgt   = ksys.getWeights();
+  _ktest.mu    = ksys.getMu();
+  _ktest.var   = ksys.getVariance();
 }
 
 /****************************************************************************/
