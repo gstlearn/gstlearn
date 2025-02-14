@@ -63,7 +63,6 @@ public:
   void setPriorCov(const MatrixSquareSymmetric &priorCov) { _priorCov = priorCov; }
   void setPriorMean(const VectorDouble &priorMean) { _priorMean = priorMean; }
   void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
-  void setFlagProf(bool flagProf) { _flagProf = flagProf; }
   void setIechSingleTarget(int iechSingleTarget) { _iechSingleTarget = iechSingleTarget; }
   void setVerboseSingleTarget(bool verbose) { _verboseSingleTarget = verbose; }
   void setFlagPerCell(bool flagPerCell) { _flagPerCell = flagPerCell; }
@@ -103,8 +102,6 @@ private:
   bool _flagBayes;
   VectorDouble _priorMean;
   MatrixSquareSymmetric _priorCov;
-
-  bool _flagProf;
 
   int  _iechSingleTarget;
   bool _verboseSingleTarget;
@@ -161,13 +158,6 @@ GSTLEARN_EXPORT int kribayes(Db *dbin,
                              bool flag_est = true,
                              bool flag_std = true,
                              const NamingConvention& namconv = NamingConvention("Bayes"));
-GSTLEARN_EXPORT int krigprof(Db *dbin,
-                             Db *dbout,
-                             Model *model,
-                             ANeigh *neigh,
-                             bool flag_est = true,
-                             bool flag_std = true,
-                             const NamingConvention& namconv = NamingConvention("KrigProf"));
 GSTLEARN_EXPORT int kriggam(Db *dbin,
                             Db *dbout,
                             Model *model,

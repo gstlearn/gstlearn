@@ -1270,9 +1270,12 @@ void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
   // Check if the correction can take place at all
   if (! db1->hasLocVariable(ELoc::V)) return;
 
+  // Check if CODE must be checkd
+  bool flagCode = db1->hasLocVariable(ELoc::C);
+
   // Initializations
   int icolVerr = -1;
-  double verr = 0.;
+  double verr;
 
   // Loop on the first variable
   for (int jvar1 = 0, irow = 0, nvar1 = (int)ivars.size(); jvar1 < nvar1; jvar1++)
@@ -1283,13 +1286,23 @@ void ACov::_updateCovMatrixSymmetricVerr(const Db *db1,
     for (int jech1 = 0, nech1s = index1i.size(); jech1 < nech1s; jech1++, irow++)
     {
       int iech1 = index1i[jech1];
+      verr = 0.;
 
+      // Using the code conditionned variance of measurement error
+      if (flagCode)
+      {
+        int code1 = (int)db1->getLocVariable(ELoc::C, iech1, 0);
+        int code2 = (int)db1->getLocVariable(ELoc::C, iech1, 0);
+        if (code1 != 0 && code2 != 0 && code1 == code2)
+          verr = db1->getLocVariable(ELoc::V, iech1, 0);
+      }
+      
       // Update the Diagonal due to the presence of Variance of Measurement Error
       if (icolVerr >= 0)
-      {
         verr = db1->getValueByColIdx(iech1, icolVerr);
-        mat->updValue(irow, irow, EOperator::ADD, verr);
-      }
+
+      // Update the Covariance matrix
+      if (verr > 0) mat->updValue(irow, irow, EOperator::ADD, verr);
     }
   }
 }

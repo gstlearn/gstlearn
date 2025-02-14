@@ -76,17 +76,9 @@ public:
   const MatrixSquareSymmetric* getPostCov();
   const MatrixRectangular*     getLambda();
   const MatrixRectangular*     getLambda0();
-  const MatrixRectangular* getMu();
+  const MatrixRectangular*     getMu();
   double getLTerm();
   bool isDual() const { return _flagDual; }
-
-  // Some debugging functions. Should be deleted later
-  const MatrixRectangular* getX0();
-  const MatrixRectangular* getX0p();
-  const MatrixRectangular* getY0();
-  const MatrixRectangular* getY0p();
-  const MatrixRectangular* getSigma0();
-  const MatrixRectangular* getSigma0p();
 
 private:
   static bool _checkDimensionMatrix(const String& name, const AMatrix* mat, int* nrowsRef, int* ncolsRef);

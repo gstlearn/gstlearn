@@ -22,7 +22,6 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixRectangular.hpp"
-#include "Covariances/CovCalcMode.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Enum/EKrigOpt.hpp"
 
@@ -64,10 +63,8 @@ public:
                        const VectorDouble& prior_mean,
                        const MatrixSquareSymmetric& prior_cov,
                        int seed = 414371);
-  int  setKrigOptImage(int seed = 133271);
   int  setKrigOptDataWeights(int iptrWeights, bool flagSet = true);
   int  setKrigOptMatLC(const MatrixRectangular* matLC);
-  int  setKrigoptCode(bool flag_code);
   int  setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
   int  setKrigOptSaveWeights(bool flag_save);
   int  setKrigOptDGM(bool flag_dgm, double eps = EPSILON6);
@@ -80,7 +77,6 @@ public:
   int  updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ, bool forceNoDual = false);
   int  updKrigOptIclass(int index_class, int nclasses);
   int  updKrigOptNeighOnly(int iptrNeigh);
-
   bool isReady();
   int  estimate(int iech_out);
   void conclusion();
@@ -91,18 +87,13 @@ public:
   int  getNRed() const { return _nred; }
   VectorInt             getSampleNbgh() const { return _nbgh; }
   VectorVectorDouble    getSampleCoordinates() const;
-  VectorDouble          getSampleData() const;
+  VectorDouble          getSampleData() const { return _Z; };
   MatrixRectangular     getZam() const { return _zam; }
   MatrixSquareSymmetric getLHSC() const { return _lhsc; }
   MatrixRectangular     getRHSC() const { return _rhsc; }
-  MatrixSquareGeneral   getVariance() const { return _var0; }
+  MatrixSquareGeneral   getVariance() const;
   MatrixRectangular     getWeights() const;
-
-  double getLTerm() const { return _lterm; }
-
-  VectorDouble getRHSC(int ivar) const;
-  VectorDouble getZamC() const;
-  VectorDouble getLHSInvC() const { return _lhsinv.getValues(); }
+  double                getLTerm() const;
 
 private:
   int    _getNVar() const;
@@ -110,49 +101,22 @@ private:
   int    _getNbfl() const;
   int    _getNFeq() const;
   int    _getNFex() const;
-  int    _getNDisc() const;
   void   _setFlag(int iech, int ivar, int value);
-  int    _getFlag(int iech, int ivar);
   double _getIdim(int loc_rank, int idim) const;
   double _getFext(int rank, int ibfl) const;
   double _getIvar(int rank, int ivar) const;
-  double _getVerr(int rank, int ivar) const;
-  double _getMean(int ivar, bool flagLHS = false) const;
   int    _getFLAG(int iech,int ivar) const;
-  double _getCOVTAB(int ivar,int jvar) const;
-  void   _setRHSF(int iech, int ivar, int jvCL, double value);
-  double _getLHSF(int iech, int ivar, int jech, int jvar) const;
-  double _getLHSINV(int iech, int ivar, int jech, int jvar) const;
-  void   _setLHSF(int iech, int ivar, int jech, int jvar, double value);
-  void   _addLHSF(int iech, int ivar, int jech, int jvar, double value);
   double _getLHS(int i, int j) const;
-  double _getDISC1(int idisc, int idim) const;
-  VectorDouble _getDISC1Vec(int idisc) const;
-  VectorVectorDouble _getDISC1s() const;
-  double _getDISC2(int idisc,int idim) const;
-  VectorDouble _getDISC2Vec(int idisc) const;
-  VectorVectorDouble _getDISC2s() const;
-  double _getVAR0(int ivCL, int jvCL) const;
-  void   _setVAR0(int ivCL, int jvCL, double value);
 
   void _resetMemoryGeneral();
   void _resetMemoryFullPerNeigh();
   void _resetMemoryCompressedPerNeigh();
   void _flagDefine();
-  void _covtab0Calcul(int icas, int iech, const CovCalcMode *mode);
-  // void _covtabCalcul(int iech1,
-  //                    int iech2,
-  //                    const CovCalcMode* mode);
-  void _covCvvCalcul(const CovCalcMode* mode);
   bool _isAuthorized();
-  double _continuousMultiplier(int rank1,int rank2, double eps = EPSILON4);
-  void _lhsCalcul();
-  void _rhsStore(int iech);
+
   void _dumpOptions() const;
   void _rhsDump();
-  void _wgtCalcul();
   void _wgtDump();
-  int  _lhsInvert();
   int  _prepar();
   void _estimateCalcul(int status);
   void _simulateCalcul(int status);
@@ -160,43 +124,34 @@ private:
   void _estimateVarZ(int status);
   void _estimateStdv(int status);
   void _estimateEstim(int status);
-  void _variance0();
-  void _krigingDump(int status);
-  void _simulateDump(int status);
+  void _dumpKrigingResults(int status);
+  void _dumpSimulationResults(int status);
   void _saveWeights(int status);
-  void _blockDiscretize(int rank);
   bool _isCorrect();
   bool _preparNoStat();
 
-  static void _checkAddress(const String& title, const String& theme, int ival, int nval);
   int    _bayesPreCalculations();
   void   _bayesPreSimulate();
   void   _transformGaussianToRaw();
-  int    _getFlagAddress(int iech0, int ivar0);
 
-  void   _setLocalModel(ModelGeneric* model);
   void   _setInternalShortCutVariablesGeneral();
   void   _setInternalShortCutVariablesModel();
   int    _setInternalShortCutVariablesNeigh();
 
-  void _mustBeOldStyle(const String& title) const;
   Model* _castInOldModel();
   VectorInt _xvalidUniqueIndices() const;
   int  _updateForColCokMoving();
 
-private:
-  bool _oldStyle;
+  // Deprecated function
+  double _continuousMultiplier(int rank1, int rank2, double eps = EPSILON4);
 
+private:
   Db* _dbin;
   Db* _dbout;
-  ModelGeneric*        _modelInit; // Copy of the input ModelGeneric
-  Model*               _modelCovAniso; // Used to replace _model when used for covaniso explicitly
-  ANeigh*              _neigh;
-  const AAnam*         _anam;
-  bool                 _isReady;
-
-  // Pointer to the Model currently used (must not be freed)
-  ModelGeneric*        _model;
+  ModelGeneric* _model;
+  ANeigh*       _neigh;
+  const AAnam*  _anam;
+  bool          _isReady;
 
   // Pointers used when plugging KrigingAlgebra (not to be deleted)
   // Note that 'algebra' is mutable not to destroy constness when calling getLambda.
@@ -211,13 +166,6 @@ private:
   VectorDouble          _Z;       // Vector of Data
   VectorDouble _means;            // Means of the variables (used to center variables)
   VectorDouble _meansTarget;      // Means for target (possible using matLC)
-
-  // Calculation modes
-  CovCalcMode _calcModeLHS;
-  CovCalcMode _calcModeRHS;
-  CovCalcMode _calcModeVAR;
-
-  // Options
 
   /// UID for storage
   int  _iptrEst;
@@ -245,11 +193,7 @@ private:
   bool _flagCode;  // True when kriging by Code (Profile)
 
   /// Option for Block estimation
-  bool _flagPerCell;
-  int  _ndiscNumber;
   VectorInt _ndiscs;
-  VectorVectorDouble _disc1; // Dimension: ndiscNumber, ndim
-  VectorVectorDouble _disc2; // Dimension: ndiscNumber, ndim
 
   /// Option for Cross_validation
   bool _xvalidEstim;
@@ -285,14 +229,9 @@ private:
 
   /// Option for asking for Z * A-1 * Z
   bool   _flagLTerm;
-  double _lterm;
 
   /// Option for Gaussian Kriging
   bool   _flagAnam;
-
-  /// Option for Estimation based on Image
-  int     _seedForImage;
-  DbGrid* _dbaux;
 
   /// Option for saving the Weights using Keypair mechanism
   bool _flagKeypairWeights;
@@ -329,7 +268,6 @@ private:
   mutable MatrixRectangular      _wgt;
   mutable MatrixRectangular      _zam;
   mutable MatrixRectangular      _zext;
-  mutable MatrixSquareGeneral    _var0;
   mutable MatrixRectangular      _results;
   mutable VectorInt    _dbinUidToBeDeleted;
   mutable VectorInt    _dboutUidToBeDeleted;
@@ -347,3 +285,4 @@ private:
   mutable bool _flagNoStat;
   mutable CovAnisoList* _cova;
 };
+
