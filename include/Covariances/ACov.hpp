@@ -131,13 +131,15 @@ public:
   /////////////////////////////////////////////////////////////////////////////////
   ///
 
-  virtual void optimizationPreProcess(const std::vector<SpacePoint>& p,
-                                      std::vector<SpacePoint>& p1As) const
-  {
-    DECLARE_UNUSED(p,p1As)
-  }
+  virtual void
+  optimizationPreProcess(const std::vector<SpacePoint>& p,
+                         std::vector<SpacePoint>& p1As) const {DECLARE_UNUSED(p, p1As)}
 
-  void optimizationSetTarget(const SpacePoint &pt) const;
+  void evalCovKriging(MatrixSquareGeneral& mat,
+                      SpacePoint& pwork1,
+                      SpacePoint& pout,
+                      const CovCalcMode* mode) const;
+  void optimizationSetTarget(const SpacePoint& pt) const;
   virtual void optimizationSetTargetByIndex(int iech) const {DECLARE_UNUSED(iech)};
   void optimizationPreProcess(const Db* db) const;
   void optimizationPreProcess(const std::vector<SpacePoint>& p) const;
