@@ -32,7 +32,6 @@ Column = 2 - Name = x-2 - Locator = x2----
 
 Turbo Meshing
 =============
-Diamond construction is activated
 
 Grid characteristics:
 ---------------------
