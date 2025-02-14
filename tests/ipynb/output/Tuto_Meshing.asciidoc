@@ -32,6 +32,7 @@ Column = 2 - Name = x-2 - Locator = x2----
 
 Turbo Meshing
 =============
+Diamond construction is activated
 
 Grid characteristics:
 ---------------------
@@ -243,7 +244,6 @@ Known Mean(s)     0.000
 
 Turbo Meshing
 =============
-Diamond construction is activated
 
 Grid characteristics:
 ---------------------
