@@ -63,7 +63,7 @@ public:
                             const VectorDouble& dx = VectorDouble(),
                             const VectorDouble& x0 = VectorDouble(),
                             const VectorDouble& angles = VectorDouble(),
-                            bool flag_polarized = true,
+                            bool flag_polarized = false,
                             bool verbose = false);
   static MeshETurbo* createFromNF(const String &neutralFilename,
                                   bool verbose = true);
@@ -79,7 +79,7 @@ public:
                                     const Db *field,
                                     double ratio,
                                     int nbExt = 0,
-                                    bool isPolarized = true,
+                                    bool isPolarized = false,
                                     bool useSel = true,
                                     bool flagNoStatRot = false,
                                     bool verbose = false);
