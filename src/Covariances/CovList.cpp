@@ -162,24 +162,6 @@ double CovList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
   return cov;
 }
 
-/**
- * Calculate the Matrix of covariance for zero distance
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void CovList::addEval0CovMatBiPointInPlace(MatrixSquareGeneral& mat,
-                                           const CovCalcMode* mode) const
-{
-  const VectorInt& list = _getListActiveCovariances(mode);
-  for (int i = 0, n = (int)list.size(); i < n; i++)
-  {
-    int j = list[i];
-    _covs[j]->addEval0CovMatBiPointInPlace(mat, mode);
-  }
-}
-
 void CovList::_optimizationSetTarget(const SpacePoint& pt) const
 {
   for (int is = 0, ns = getNCov(); is < ns; is++)
@@ -243,19 +225,6 @@ void CovList::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
   {
     int j = list[i];
     _covs[j]->addEvalCovMatBiPointInPlace(mat, p1, p2, mode);
-  }
-}
-
-void CovList::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
-                                                  const SpacePoint& p1,
-                                                  const SpacePoint& p2,
-                                                  const CovCalcMode* mode) const
-{
-  const VectorInt& list = _getListActiveCovariances(mode);
-  for (int i = 0, n = (int)list.size(); i < n; i++)
-  {
-    int j = list[i];
-    _covs[j]->loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
   }
 }
 
