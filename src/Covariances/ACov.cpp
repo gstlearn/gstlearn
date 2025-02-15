@@ -1057,25 +1057,27 @@ void ACov::_loopOnPointTarget(const Db* db2,
                               MatrixRectangular& mat) const
 {
   double value;
-  int icas = (flagSym) ? 1 : 2;
+  int icas                = (flagSym) ? 1 : 2;
   const CovCalcMode& mode = krigopt.getMode();
   bool isNoStatLocal      = isNoStat();
 
-  int icol = 0;
-  VectorInt::const_iterator iv2i(jvars.begin());
-  while (iv2i < jvars.end())
+  int ivar2;
+  int iech2;
+
+  const int* ptr_jvar2 = jvars.data();
+  for (int jvar2 = 0, icol = 0, nvar2 = (int)jvars.size(); jvar2 < nvar2; jvar2++)
   {
     // Get variable index
-    int ivar2 = *iv2i;
-    iv2i++;
+    ivar2 = (*ptr_jvar2);
+    ptr_jvar2++;
 
     const VectorInt& index2i = index2[ivar2];
-    VectorInt::const_iterator it2i(index2i.begin());
-    while (it2i < index2i.end())
+    const int* ptr_jech2     = index2i.data();
+    for (int jech2 = 0, nech2 = (int)index2i.size(); jech2 < nech2; jech2++, icol++)
     {
       // Get the sample index
-      int iech2 = *it2i;
-      it2i++;
+      iech2 = (*ptr_jech2);
+      ptr_jech2++;
 
       // Perform calculation only in upper triangle of the Symmetric Matrix
       if (!flagSym || icol >= irow)
@@ -1095,7 +1097,6 @@ void ACov::_loopOnPointTarget(const Db* db2,
           value = eval(p1, p2, ivar1, ivar2, &mode);
         mat.setValue(irow, icol, value);
       }
-      icol++;
     }
   }
 }
@@ -1116,21 +1117,23 @@ void ACov::_loopOnBlockTarget(const Db* db2,
   const CovCalcMode& mode = krigopt.getMode();
   bool isNoStatLocal      = isNoStat();
 
-  int icol = 0;
-  VectorInt::const_iterator iv2i(jvars.begin());
-  while (iv2i < jvars.end())
+  int ivar2;
+  int iech2;
+
+  const int* ptr_jvar2 = jvars.data();
+  for (int jvar2 = 0, icol = 0, nvar2 = (int)jvars.size(); jvar2 < nvar2; jvar2++)
   {
     // Get the variable index
-    int ivar2 = *iv2i;
-    iv2i++;
+    ivar2 = (*ptr_jvar2);
+    ptr_jvar2++;
 
     const VectorInt& index2i = index2[ivar2];
-    VectorInt::const_iterator it2i(index2i.begin());
-    while (it2i < index2i.end())
+    const int* ptr_jech2     = index2i.data();
+    for (int jech2 = 0, nech2 = (int)index2i.size(); jech2 < nech2; jech2++, icol++)
     {
       // Get the sample index
-      int iech2 = *it2i;
-      it2i++;
+      iech2 = (*ptr_jech2);
+      ptr_jech2++;
 
       // Identify the sample
       db2->getSampleAsSPInPlace(p2, iech2, true);
@@ -1156,7 +1159,6 @@ void ACov::_loopOnBlockTarget(const Db* db2,
       double value = covcum / (double)ndisc;
       mat.setValue(irow, icol, value);
     }
-    icol++;
   }
 }
 
@@ -1325,15 +1327,6 @@ void ACov::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
       mat.addValue(ivar, jvar, eval(pwork1, pwork2, ivar, jvar, mode));
 }
 
-void ACov::evalCovKriging(MatrixSquareGeneral& mat,
-                          SpacePoint& pwork1,
-                          SpacePoint& pout,
-                          const CovCalcMode* mode) const
-{
-  mat.fill(0.);
-  loadAndAddEvalCovMatBiPointInPlace(mat, pwork1, pout, mode);
-}
-
 void ACov::loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
                                               const SpacePoint& p1,
                                               const SpacePoint& p2,
@@ -1471,20 +1464,28 @@ MatrixSquareSymmetric ACov::evalCovMatSymByRanks(const Db* db1,
   KrigOpt krigopt;
   krigopt.setMode(mode);
 
+  int ivar1;
+  int iech1;
+
   // Loop on Data
+  const int* ptr_jvar1 = ivars.data();
   for (int jvar1 = 0, irow = 0, nvar1 = (int)ivars.size(); jvar1 < nvar1; jvar1++)
   {
-    int ivar1 = ivars[jvar1];
+    ivar1 = (*ptr_jvar1);
+    ptr_jvar1++;
+
     const VectorInt& index1i = index1[ivar1];
-    for (int jech1 = 0, nech1s = index1i.size(); jech1 < nech1s; jech1++, irow++)
+    const int* ptr_jech1     = index1i.data();
+    for (int jech1 = 0, nech1 = index1i.size(); jech1 < nech1; jech1++, irow++)
     {
-      int iech1 = index1i[jech1];
+      iech1 = (*ptr_jech1);
+      ptr_jech1++;
+
       db1->getSampleAsSPInPlace(p1, iech1, false);
       load(p1, true);
 
       // Loop on Target
-      _loopOnPointTarget(db1, index1, ivars, ivar1, iech1, irow, p1, p2, true,
-                         krigopt, mat);
+      _loopOnPointTarget(db1, index1, ivars, ivar1, iech1, irow, p1, p2, true, krigopt, mat);
     }
   }
 

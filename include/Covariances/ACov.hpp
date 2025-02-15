@@ -127,26 +127,23 @@ public:
     DECLARE_UNUSED(icas2);
     DECLARE_UNUSED(iech2);
   }
-  void   attachNoStatDb(const Db* db);
+  void attachNoStatDb(const Db* db);
+
   /////////////////////////////////////////////////////////////////////////////////
-  ///
+  /// Functions linked to Optimization during Covariance calculations
 
-  virtual void
-  optimizationPreProcess(const std::vector<SpacePoint>& p,
+  virtual void optimizationPreProcess(const std::vector<SpacePoint>& p,
                          std::vector<SpacePoint>& p1As) const {DECLARE_UNUSED(p, p1As)}
-
-  void evalCovKriging(MatrixSquareGeneral& mat,
-                      SpacePoint& pwork1,
-                      SpacePoint& pout,
-                      const CovCalcMode* mode) const;
   void optimizationSetTarget(const SpacePoint& pt) const;
   virtual void optimizationSetTargetByIndex(int iech) const {DECLARE_UNUSED(iech)};
   void optimizationPreProcess(const Db* db) const;
   void optimizationPreProcess(const std::vector<SpacePoint>& p) const;
-
   void optimizationPostProcess() const;
-  virtual bool isOptimEnabled() const {return _isOptimEnabled();}
+  virtual bool isOptimEnabled() const { return _isOptimEnabled(); }
+  /////////////////////////////////////////////////////////////////////////////////
 
+  /////////////////////////////////////////////////////////////////////////////////
+  /// Functions for evaluating Covariances
   VectorDouble eval(const std::vector<SpacePoint>& vec_p1,
                     const std::vector<SpacePoint>& vec_p2,
                     int ivar                = 0,
@@ -181,6 +178,7 @@ public:
                                              int ivar0,
                                              const CovCalcMode* mode,
                                              bool cleanOptim) const;
+  
   double evalIvarIpas(double step,
                       const VectorDouble& dir = VectorDouble(),
                       int ivar                = 0,
