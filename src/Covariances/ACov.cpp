@@ -1205,7 +1205,7 @@ int ACov::evalCovMatByTarget(const Db* db1,
   if (ivars.empty()) return 1;
   VectorInt jvars = ivars;
 
-   // Create the sets of Vector of valid sample indices per variable
+  // Create the sets of Vector of valid sample indices per variable
   // (not masked and defined)
   VectorVectorInt index2 = db2->getSampleRanks(jvars, {iech2}, true, false, false);
 
@@ -1229,7 +1229,7 @@ int ACov::evalCovMatByTarget(const Db* db1,
   optimizationPreProcess(db1);
 
   // Particluar case of the Drift estimation, return a zero-filled RHS
-  if (krigopt.getCalcul() == EKrigOpt::DRIFT) return 1;
+  if (krigopt.getCalcul() == EKrigOpt::DRIFT) return 0;
   bool flagBlock = krigopt.getCalcul() == EKrigOpt::BLOCK;
 
   // Define the two space points

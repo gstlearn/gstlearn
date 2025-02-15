@@ -530,11 +530,6 @@ int DriftList::evalDriftMatByRanks(const Db* db,
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return 1;
 
-  int nvar  = getNVar();
-  int nbfl  = getNDrift();
-  int nfeq  = getNDriftEquation();
-  int ncols = (isFlagLinked()) ? nfeq : nvar * nbfl;
-
   // Creating the matrix
   int neq = VH::count(sampleRanks);
   if (neq <= 0)
@@ -542,6 +537,12 @@ int DriftList::evalDriftMatByRanks(const Db* db,
     messerr("The returned matrix has no valid sample and no valid variable");
     return 1;
   }
+
+  int nvar  = getNVar();
+  int nbfl  = getNDrift();
+  int nfeq  = getNDriftEquation();
+  int ncols = (isFlagLinked()) ? nfeq : nvar * nbfl;
+  if (ncols <= 0) return 0;
   mat.resize(neq, ncols);
   mat.fill(0.);
 
@@ -585,10 +586,6 @@ int DriftList::evalDriftMatByTarget(const Db* db,
                                     const KrigOpt& krigopt,
                                     MatrixRectangular& mat) const
 {
-  int nvar        = getNVar();
-  int nbfl        = getNDrift();
-  int nfeq        = getNDriftEquation();
-  int ncols       = (isFlagLinked()) ? nfeq : nvar * nbfl;
   VectorInt ivars = VH::sequence(getNVar());
   if (ivars.empty()) return 1;
 
@@ -603,7 +600,12 @@ int DriftList::evalDriftMatByTarget(const Db* db,
     messerr("The returned matrix has no valid sample and no valid variable");
     return 1;
   }
-  if (ncols <= 0) return 1;
+
+  int nvar  = getNVar();
+  int nbfl  = getNDrift();
+  int nfeq  = getNDriftEquation();
+  int ncols = (isFlagLinked()) ? nfeq : nvar * nbfl;
+  if (ncols <= 0) return 0;
   mat.resize(neq, ncols);
   mat.fill(0.);
 
