@@ -14,7 +14,6 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovList.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Space/ASpace.hpp"
 #include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -24,7 +23,6 @@
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Db/Db.hpp"
-#include "Space/SpacePoint.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 
 #include <math.h>

@@ -96,8 +96,12 @@ public:
   virtual bool isLine() const { return false; }
   virtual bool isMesh() const { return false; }
   virtual double getCoordinate(int iech, int idim, bool flag_rotate=true) const;
-  virtual void getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate = true) const;
-  virtual void getCoordinatesPerSampleInPlace(int iech, vect coor, bool flag_rotate = true) const;
+  virtual void getCoordinatesPerSampleInPlace(int iech,
+                                              VectorDouble& coor,
+                                              bool flag_rotate = true) const;
+  virtual void getCoordinatesPerSampleInPlace(int iech,
+                                              vect coor,
+                                              bool flag_rotate = true) const;
 
   virtual double getUnit(int idim = 0) const;
   virtual int getNDim() const;
@@ -487,8 +491,8 @@ public:
                         int locatorIndex,
                         double value);
 
-  double getValueByColIdx(int iech, int icol) const;
-  void   setValueByColIdx(int iech, int icol, double value);
+  double getValueByColIdx(int iech, int icol, bool flagCheck = true) const;
+  void   setValueByColIdx(int iech, int icol, double value, bool flagCheck = true);
   VectorDouble getValuesByNames(const VectorInt& iechs,
                                 const VectorString& names,
                                 bool bySample = false) const;

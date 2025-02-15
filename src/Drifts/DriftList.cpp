@@ -507,17 +507,28 @@ MatrixRectangular DriftList::evalDriftMat(const Db* db,
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index = db->getSampleRanks(ivars, nbgh, true, true, true);
 
-  return evalDriftMatByRanks(db, index, ivar0, member);
+  int error = evalDriftMatByRanks(db, index, ivar0, member, mat);
+  return (error == 0) ? mat : MatrixRectangular();
 }
 
-MatrixRectangular DriftList::evalDriftMatByRanks(const Db* db,
-                                                 const VectorVectorInt& sampleRanks,
-                                                 int ivar0,
-                                                 const ECalcMember& member) const
+/**
+ * @brief Calculate the Drift matrix
+ * 
+ * @param db Data Db
+ * @param sampleRanks Vector of sample ranks in 'db'
+ * @param ivar0 Rank of the variable (-1 for all)
+ * @param member CalcMember
+ * @param mat Drift matrix (possibly resized)
+ * @return int Error returned code
+ */
+int DriftList::evalDriftMatByRanks(const Db* db,
+                                   const VectorVectorInt& sampleRanks,
+                                   int ivar0,
+                                   const ECalcMember& member,
+                                   MatrixRectangular& mat) const
 {
-  MatrixRectangular mat;
   VectorInt ivars = _getActiveVariables(ivar0);
-  if (ivars.empty()) return mat;
+  if (ivars.empty()) return 1;
 
   int nvar  = getNVar();
   int nbfl  = getNDrift();
@@ -529,49 +540,10 @@ MatrixRectangular DriftList::evalDriftMatByRanks(const Db* db,
   if (neq <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
-    return mat;
+    return 1;
   }
   mat.resize(neq, ncols);
   mat.fill(0.);
-
-  // /* Loop on the variables */
-
-  // int irow = 0;
-  // for (int ivar = 0, nvars = (int)ivars.size(); ivar < nvars; ivar++)
-  // {
-  //   int ivar1 = ivars[ivar];
-
-  //   /* Loop on the samples */
-
-  //   int nechs = (int)sampleRanks[ivar].size();
-  //   for (int jech = 0; jech < nechs; jech++)
-  //   {
-  //     int iech = sampleRanks[ivar][jech];
-
-  //     /* Loop on the drift functions */
-
-  //     if (isFlagLinked())
-  //     {
-  //       VectorDouble drftab = evalDriftBySample(db, iech, member);
-  //       for (int ib = 0; ib < nfeq; ib++)
-  //       {
-  //         mat.setValue(irow, ib, drftab[ib]); // TODO: to be generalized
-  //       }
-  //     }
-  //     else
-  //     {
-  //       int icol = 0;
-  //       for (int jvar = 0; jvar < nvar; jvar++)
-  //         for (int jl = 0; jl < nbfl; jl++)
-  //         {
-  //           int jb = jl + jvar * nbfl;
-  //           lat.setValue(irow, icol, evalDriftValue(db, iech, ivar1, jb, member));
-  //           icol++;
-  //         }
-  //     }
-  //     irow++;
-  //   }
-  // }
 
   for (int ivar = 0, irow = 0, nvars = (int)ivars.size(); ivar < nvars; ivar++)
   {
@@ -592,7 +564,7 @@ MatrixRectangular DriftList::evalDriftMatByRanks(const Db* db,
       }
     }
   }
-  return mat;
+  return 0;
 }
 
 /****************************************************************************/
@@ -605,19 +577,20 @@ MatrixRectangular DriftList::evalDriftMatByRanks(const Db* db,
  ** \param[in]  db     Db structure
  ** \param[in]  iech2  Index of active samples in db
  ** \param[in]  krigopt KrigOpt structure
+ ** \param[in]  mat     Drift matrix (possibly resized)
  **
  *****************************************************************************/
-MatrixRectangular DriftList::evalDriftMatByTarget(const Db* db,
-                                                  int iech2,
-                                                  const KrigOpt& krigopt) const
+int DriftList::evalDriftMatByTarget(const Db* db,
+                                    int iech2,
+                                    const KrigOpt& krigopt,
+                                    MatrixRectangular& mat) const
 {
-  MatrixRectangular mat;
   int nvar        = getNVar();
   int nbfl        = getNDrift();
   int nfeq        = getNDriftEquation();
   int ncols       = (isFlagLinked()) ? nfeq : nvar * nbfl;
   VectorInt ivars = VH::sequence(getNVar());
-  if (ivars.empty()) return mat;
+  if (ivars.empty()) return 1;
 
   // Create the sets of Vector of valid sample indices per variable
   // (not masked and defined)
@@ -628,77 +601,11 @@ MatrixRectangular DriftList::evalDriftMatByTarget(const Db* db,
   if (neq <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
-    return mat;
+    return 1;
   }
-  if (ncols <= 0) return mat;
+  if (ncols <= 0) return 1;
   mat.resize(neq, ncols);
   mat.fill(0.);
-
-  // /* Loop on the variables */
-
-  // int irow = 0;
-  // for (int ivar = 0, nvars = (int)ivars.size(); ivar < nvars; ivar++)
-  // {
-  //   int ivar1 = ivars[ivar];
-
-  //   /* Loop on the samples */
-
-  //   int nechs = (int)index[ivar].size();
-  //   for (int jech = 0; jech < nechs; jech++)
-  //   {
-  //     int iech = index[ivar][jech];
-
-  //     /* Loop on the drift functions */
-
-  //     if (isFlagLinked())
-  //     {
-  //       VectorDouble drftab = evalDriftBySample(db, iech, member);
-  //       for (int ib = 0; ib < nfeq; ib++)
-  //       {
-  //         mat.setValue(irow, ib, drftab[ib]); // TODO: to be generalized
-  //       }
-  //     }
-  //     else
-  //     {
-  //       int icol = 0;
-  //       for (int jvar = 0; jvar < nvar; jvar++)
-  //         for (int jl = 0; jl < nbfl; jl++)
-  //         {
-  //           int jb = jl + jvar * nbfl;
-  //           mat.setValue(irow, icol, evalDriftValue(db, iech, ivar1, jb, member));
-  //           icol++;
-  //         }
-  //     }
-  //     irow++;
-  //   }
-  // }
-
-  // if (!krigopt.isMatLC())
-  // {
-  //   for (int ivar = 0; ivar < nvar; ivar++)
-  //     for (int ib = 0; ib < nfeq; ib++)
-  //     {
-  //       double value = evalDriftValue(db, iech2, ivar, ib, ECalcMember::RHS);
-  //       if (FFFF(value)) return 1;
-  //       mat.setValue(ivar, ib, value);
-  //     }
-  // }
-  // else
-  // {
-  //   int nvarCL = krigopt.getNvarCL();
-  //   for (int ivarCL = 0; ivarCL < nvarCL; ivarCL++)
-  //   {
-  //     int ib = 0;
-  //     for (int jvar = 0; jvar < nvar; jvar++)
-  //       for (int jl = 0; jl < nbfl; jl++, ib++)
-  //       {
-  //         double value = evalDriftValue(db, iech2, jvar, ib, ECalcMember::RHS);
-  //         if (FFFF(value)) return 1;
-  //         value *= krigopt.getMatCLValue(ivarCL, jvar);
-  //         mat.setValue(ivarCL, ib, value);
-  //       }
-  //   }
-  // }
 
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int ib = 0; ib < nfeq; ib++)
@@ -710,7 +617,7 @@ MatrixRectangular DriftList::evalDriftMatByTarget(const Db* db,
 
   // In case of combined R.H.S., modify the output matrix
   if (krigopt.isMatLC()) mat = mat.compressMatLC(*krigopt.getMatLC(), true);
-  return mat;
+  return 0;
 }
 
 VectorDouble

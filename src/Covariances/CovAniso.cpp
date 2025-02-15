@@ -369,9 +369,6 @@ String CovAniso::toString(const AStringFormat* strfmt) const
     {
       sstr << "- Sill         = " << toDouble(_sill.getValue(0, 0)) << std::endl;
     }
-
-    // Isotropy vs anisotropy
-
   }
   else if (_corAniso->hasRange() < 0)
   {
