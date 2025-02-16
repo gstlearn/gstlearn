@@ -507,25 +507,26 @@ MatrixRectangular DriftList::evalDriftMat(const Db* db,
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index = db->getSampleRanks(ivars, nbgh, true, true, true);
 
-  int error = evalDriftMatByRanks(db, index, ivar0, member, mat);
+  int error = evalDriftMatByRanks(mat, db, index, ivar0, member);
   return (error == 0) ? mat : MatrixRectangular();
 }
 
 /**
  * @brief Calculate the Drift matrix
- * 
+ *
+ * @param mat Drift matrix (possibly resized)
  * @param db Data Db
  * @param sampleRanks Vector of sample ranks in 'db'
  * @param ivar0 Rank of the variable (-1 for all)
  * @param member CalcMember
- * @param mat Drift matrix (possibly resized)
+ *
  * @return int Error returned code
  */
-int DriftList::evalDriftMatByRanks(const Db* db,
+int DriftList::evalDriftMatByRanks(MatrixRectangular& mat,
+                                   const Db* db,
                                    const VectorVectorInt& sampleRanks,
                                    int ivar0,
-                                   const ECalcMember& member,
-                                   MatrixRectangular& mat) const
+                                   const ECalcMember& member) const
 {
   VectorInt ivars = _getActiveVariables(ivar0);
   if (ivars.empty()) return 1;
@@ -575,16 +576,16 @@ int DriftList::evalDriftMatByRanks(const Db* db,
  ** \return Returned matrix
  ** (Dimension/ nrows = nvar * nech; ncols = nfeq * nvar)
  **
+ ** \param[in]  mat     Drift matrix (possibly resized)
  ** \param[in]  db     Db structure
  ** \param[in]  iech2  Index of active samples in db
  ** \param[in]  krigopt KrigOpt structure
- ** \param[in]  mat     Drift matrix (possibly resized)
  **
  *****************************************************************************/
-int DriftList::evalDriftMatByTarget(const Db* db,
+int DriftList::evalDriftMatByTarget(MatrixRectangular& mat,
+                                    const Db* db,
                                     int iech2,
-                                    const KrigOpt& krigopt,
-                                    MatrixRectangular& mat) const
+                                    const KrigOpt& krigopt) const
 {
   VectorInt ivars = VH::sequence(getNVar());
   if (ivars.empty()) return 1;

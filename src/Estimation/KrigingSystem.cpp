@@ -719,8 +719,8 @@ int KrigingSystem::resetData()
   const CovCalcMode calcmode(ECalcMember::LHS);
   _sampleRanks = _dbin->getSampleRanks(VectorInt(), _nbgh);
   _Z           = _dbin->getValuesByRanks(_sampleRanks, _means, !_model->hasDrift());
-  if (_cova->evalCovMatSymByRanks(_dbin, _sampleRanks, -1, &calcmode, false, _Sigma)) return 1;
-  if (_model->evalDriftMatByRanks(_dbin, _sampleRanks, -1, ECalcMember::LHS, _X)) return 1;
+  if (_cova->evalCovMatSymByRanks(_Sigma, _dbin, _sampleRanks, -1, &calcmode, false)) return 1;
+  if (_model->evalDriftMatByRanks(_X, _dbin, _sampleRanks, -1, ECalcMember::LHS)) return 1;
 
   if (! _isAuthorized()) return 1;
   _algebra.resetNewData();
@@ -753,8 +753,8 @@ bool KrigingSystem::isReady()
     if (_flagBayes)
     {
       const CovCalcMode calcmode(ECalcMember::LHS);
-      if (_cova->evalCovMatSymByRanks(_dbin, _sampleRanks, -1, &calcmode, false, _Sigma)) return false;
-      if (_model->evalDriftMatByRanks(_dbin, _sampleRanks, -1, ECalcMember::LHS, _X)) return false;
+      if (_cova->evalCovMatSymByRanks(_Sigma, _dbin, _sampleRanks, -1, &calcmode, false)) return false;
+      if (_model->evalDriftMatByRanks(_X, _dbin, _sampleRanks, -1, ECalcMember::LHS)) return false;
       if (_algebra.setLHS(&_Sigma, &_X)) return false;
     }
   }
@@ -869,8 +869,8 @@ int KrigingSystem::estimate(int iech_out)
   }
   else
   {
-    if (_cova->evalCovMatByTarget(_dbin, _dbout, _sampleRanks, iech_out, _krigopt, false, _Sigma0)) return 1;
-    if (_model->evalDriftMatByTarget(_dbout, iech_out, _krigopt, _X0)) return 1;
+    if (_cova->evalCovMatByTarget(_Sigma0, _dbin, _dbout, _sampleRanks, iech_out, _krigopt, false)) return 1;
+    if (_model->evalDriftMatByTarget(_X0, _dbout, iech_out, _krigopt)) return 1;
     if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
   };
 

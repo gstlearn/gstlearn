@@ -125,15 +125,15 @@ public:
                                  int ivar0                 = -1,
                                  const VectorInt& nbgh     = VectorInt(),
                                  const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-  int evalDriftMatByRanks(const Db* db,
+  int evalDriftMatByRanks(MatrixRectangular& mat,
+                          const Db* db,
                           const VectorVectorInt& sampleranks,
-                          int ivar0,
-                          const ECalcMember& member,
-                          MatrixRectangular& mat) const;
-  int evalDriftMatByTarget(const Db* db,
+                          int ivar0                 = 0,
+                          const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+  int evalDriftMatByTarget(MatrixRectangular& mat,
+                           const Db* db,
                            int iech2,
-                           const KrigOpt& krigopt,
-                           MatrixRectangular& mat) const;
+                           const KrigOpt& krigopt = KrigOpt()) const;
   double evalDriftValue(const Db *db,
                         int iech,
                         int ivar,

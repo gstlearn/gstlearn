@@ -1166,13 +1166,13 @@ void ACov::_loopOnBlockTarget(const Db* db2,
  **
  ** \return Dense matrix containing the covariance matrix
  **
+ ** \param[in]  mat Matrix (possibly resized)
  ** \param[in]  db1   First Db
  ** \param[in]  db2   Second Db
  ** \param[in]  index1 Vector of vector indices of active samples in db1
  ** \param[in]  iech2 Sample rank within db2
  ** \param[in]  krigopt KrigOpt structure
  ** \param[in]  cleanOptim When True, clean optimization internal when ended
- ** \param[in]  mat Matrix (possibly resized)  
  **
  ** \remarks If a Db does not contain any Z-variable defined, the covariance
  ** \remarks cannot treat possible heterotopy and therefore uses all samples
@@ -1185,13 +1185,13 @@ void ACov::_loopOnBlockTarget(const Db* db2,
  ** \note due to the presence of 'nostat'
  **
  *****************************************************************************/
-int ACov::evalCovMatByTarget(const Db* db1,
+int ACov::evalCovMatByTarget(MatrixRectangular& mat,
+                             const Db* db1,
                              const Db* db2,
                              const VectorVectorInt& index1,
                              int iech2,
                              const KrigOpt& krigopt,
-                             bool cleanOptim,
-                             MatrixRectangular& mat) const
+                             bool cleanOptim) const
 {
   // Preliminary checks
   if (db1 == nullptr || db2 == nullptr) return 1;
@@ -1424,16 +1424,16 @@ MatrixSquareSymmetric ACov::evalCovMatSym(const Db* db1,
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1, true, true, true);
 
-  int error = evalCovMatSymByRanks(db1, index1, ivar0, mode, cleanOptim, mat);
+  int error = evalCovMatSymByRanks(mat, db1, index1, ivar0, mode, cleanOptim);
   return (error == 0) ? mat : MatrixSquareSymmetric();
 }
 
-int ACov::evalCovMatSymByRanks(const Db* db1,
+int ACov::evalCovMatSymByRanks(MatrixSquareSymmetric& mat,
+                               const Db* db1,
                                const VectorVectorInt& index1,
                                int ivar0,
                                const CovCalcMode* mode,
-                               bool cleanOptim,
-                               MatrixSquareSymmetric& mat) const
+                               bool cleanOptim) const
 {
   // Preliminary checks
   if (db1 == nullptr) return 1;
