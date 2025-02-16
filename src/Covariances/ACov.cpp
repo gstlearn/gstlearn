@@ -979,21 +979,36 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
 {
   MatrixRectangular mat;
 
+  int error = evalCovMatInPlace(mat, db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
+  return (error) == 0 ? mat : MatrixRectangular();
+}
+
+int ACov::evalCovMatInPlace(MatrixRectangular& mat,
+                            const Db* db1,
+                            const Db* db2,
+                            int ivar0,
+                            int jvar0,
+                            const VectorInt& nbgh1,
+                            const VectorInt& nbgh2,
+                            const CovCalcMode* mode,
+                            bool cleanOptim) const
+{
   // Preliminary checks
   if (db2 == nullptr) db2 = db1;
-  if (db1 == nullptr || db2 == nullptr) return MatrixRectangular();
+  if (db1 == nullptr || db2 == nullptr) return 1;
   VectorInt ivars = _getActiveVariables(ivar0);
-  if (ivars.empty()) return mat;
+  if (ivars.empty()) return 1;
   VectorInt jvars = _getActiveVariables(jvar0);
-  if (jvars.empty()) return mat;
+  if (jvars.empty()) return 1;
 
   // Play the non-stationarity (if needed)
-  manage(db1,db2);
+  manage(db1, db2);
 
   // Prepare the Optimization for covariance calculation
   optimizationPreProcess(db1);
 
-  // Create the sets of Vector of valid sample indices per variable (not masked and defined)
+  // Create the sets of Vector of valid sample indices per variable (not masked and
+  // defined)
   VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1);
   VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2);
 
@@ -1003,7 +1018,7 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
   if (neq1 <= 0 || neq2 <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
-    return mat;
+    return 1;
   }
   mat.resize(neq1, neq2);
 
@@ -1039,7 +1054,7 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
   }
 
   if (cleanOptim) optimizationPostProcess();
-  return mat;
+  return 0;
 }
 
 void ACov::_loopOnPointTarget(const Db* db2,
