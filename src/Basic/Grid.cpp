@@ -12,6 +12,7 @@
 
 #include "Geometry/Rotation.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "geoslib_define.h"
@@ -1316,6 +1317,36 @@ bool Grid::_deserialize(std::istream& is, [[maybe_unused]] bool verbose)
   return ret;
 }
 
+bool Grid::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+{
+  VectorInt nx;
+  VectorDouble x0;
+  VectorDouble dx;
+  VectorDouble angles;
+
+  // Call SerializeHDF5::getGroup to get the subgroup of grp named
+  // "Grid" with some error handling
+  auto gr = SerializeHDF5::getGroup(grp, "Grid");
+  if (!gr)
+  {
+    return false;
+  }
+
+  /* Read the grid characteristics */
+  bool ret = true;
+  // deserialize vector members using SerializeHDF5::readVec
+  // (error handling is done in these methods)
+  ret = ret && SerializeHDF5::readVec(*gr, "NX", nx);
+  ret = ret && SerializeHDF5::readVec(*gr, "X0", x0);
+  ret = ret && SerializeHDF5::readVec(*gr, "DX", dx);
+  ret = ret && SerializeHDF5::readVec(*gr, "ANGLE", angles);
+
+  // reset the Grid
+  resetFromVector(nx, dx, x0, angles);
+
+  return ret;
+}
+
 bool Grid::_serialize(std::ostream& os, [[maybe_unused]] bool verbose) const
 {
   bool ret = true;
@@ -1335,6 +1366,23 @@ bool Grid::_serialize(std::ostream& os, [[maybe_unused]] bool verbose) const
     ret = ret && _recordWrite<double>(os, "", getRotAngle(idim));
     ret = ret && _commentWrite(os, "");
   }
+
+  return ret;
+}
+
+bool Grid::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+{
+  // create a new H5::Group every time we enter a _serialize method
+  // => easier to deserialize
+  auto gr = grp.createGroup("Grid");
+
+  bool ret = true;
+  // serialize vector members using SerializeHDF5::writeVec
+  // (error handling is done in these methods)
+  ret = ret && SerializeHDF5::writeVec(gr, "NX", getNXs());
+  ret = ret && SerializeHDF5::writeVec(gr, "X0", getX0s());
+  ret = ret && SerializeHDF5::writeVec(gr, "DX", getDXs());
+  ret = ret && SerializeHDF5::writeVec(gr, "ANGLE", getRotAngles());
 
   return ret;
 }

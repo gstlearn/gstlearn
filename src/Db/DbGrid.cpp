@@ -17,6 +17,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
@@ -751,6 +752,27 @@ bool DbGrid::_deserialize(std::istream& is, bool verbose)
   return ret;
 }
 
+bool DbGrid::_deserializeH5(H5::Group& grp, bool verbose)
+{
+  // Call SerializeHDF5::getGroup to get the subgroup of grp named
+  // "DbGrid" with some error handling
+  auto db = SerializeHDF5::getGroup(grp, "DbGrid");
+  if (!db)
+  {
+    return false;
+  }
+
+  bool ret = true;
+
+  // call _deserialize on each member with the current class Group
+  ret = ret && _grid._deserializeH5(*db, verbose);
+
+  // call _deserialize on the parent class with the current class Group
+  ret = ret && Db::_deserializeH5(*db, verbose);
+
+  return ret;
+}
+
 bool DbGrid::_serialize(std::ostream& os, bool verbose) const
 {
   bool ret = true;
@@ -762,6 +784,25 @@ bool DbGrid::_serialize(std::ostream& os, bool verbose) const
   /* Writing the tail of the file */
 
   ret = ret && Db::_serialize(os, verbose);
+
+  return ret;
+}
+
+bool DbGrid::_serializeH5(H5::Group& grp, bool verbose) const
+{
+  // create a new H5 group every time we enter a _serialize method
+  // => easier to deserialize
+  auto db = grp.createGroup("DbGrid");
+
+  bool ret = true;
+  // serialize vector members using SerializeHDF5::writeVec
+  // (error handling is done in these methods)
+
+  // call _serialize on each member with the current class Group
+  ret = ret && _grid._serializeH5(db, verbose);
+
+  // call _serialize on the parent class with the current class Group
+  ret = ret && Db::_serializeH5(db, verbose);
 
   return ret;
 }
@@ -799,6 +840,20 @@ DbGrid* DbGrid::createFromNF(const String& neutralFilename, bool verbose)
     success = dbgrid->deserialize(is, verbose);
   }
   if (! success)
+  {
+    delete dbgrid;
+    dbgrid = nullptr;
+  }
+  return dbgrid;
+}
+
+DbGrid* DbGrid::createFromH5(const String& H5Filename, bool verbose)
+{
+  auto* dbgrid = new DbGrid;
+  auto file    = SerializeHDF5::fileOpenRead(H5Filename);
+
+  bool success = dbgrid->_deserializeH5(file, verbose);
+  if (!success)
   {
     delete dbgrid;
     dbgrid = nullptr;
