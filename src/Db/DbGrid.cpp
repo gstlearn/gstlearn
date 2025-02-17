@@ -744,42 +744,9 @@ bool DbGrid::isConsistent() const
 
 bool DbGrid::_deserialize(std::istream& is, bool verbose)
 {
-  int ndim = 0;
-  VectorInt nx;
-  VectorString locators;
-  VectorString names;
-  VectorDouble x0;
-  VectorDouble dx;
-  VectorDouble angles;
-  VectorDouble values;
-  VectorDouble allvalues;
-
-  /* Initializations */
-
   bool ret = true;
-  ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
-
-  /* Core allocation */
-
-  nx.resize(ndim);
-  dx.resize(ndim);
-  x0.resize(ndim);
-  angles.resize(ndim);
-
-  /* Read the grid characteristics */
-
-  for (int idim = 0; ret && idim < ndim; idim++)
-  {
-    ret = ret && _recordRead<int>(is, "Grid Number of Nodes", nx[idim]);
-    ret = ret && _recordRead<double>(is, "Grid Origin", x0[idim]);
-    ret = ret && _recordRead<double>(is, "Grid Mesh", dx[idim]);
-    ret = ret && _recordRead<double>(is, "Grid Angles", angles[idim]);
-  }
-
-  // Create the Grid characteristics
-  (void) gridDefine(nx, dx, x0, angles);
-
-  ret && Db::_deserialize(is, verbose);
+  ret      = ret && _grid._deserialize(is, verbose);
+  ret      = ret && Db::_deserialize(is, verbose);
 
   return ret;
 }
@@ -788,25 +755,13 @@ bool DbGrid::_serialize(std::ostream& os, bool verbose) const
 {
   bool ret = true;
 
-  /* Writing the header */
-
-  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
-
   /* Writing the grid characteristics */
 
-  ret = ret && _commentWrite(os, "Grid characteristics (NX,X0,DX,ANGLE)");
-  for (int idim = 0; ret && idim < getNDim(); idim++)
-  {
-    ret = ret && _recordWrite<int>(os, "",  getNX(idim));
-    ret = ret && _recordWrite<double>(os, "", getX0(idim));
-    ret = ret && _recordWrite<double>(os, "", getDX(idim));
-    ret = ret && _recordWrite<double>(os, "", getAngle(idim));
-    ret = ret && _commentWrite(os, "");
-  }
+  ret = ret && _grid._serialize(os, verbose);
 
   /* Writing the tail of the file */
 
-  ret && Db::_serialize(os, verbose);
+  ret = ret && Db::_serialize(os, verbose);
 
   return ret;
 }

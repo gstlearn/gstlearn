@@ -13,13 +13,14 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 #include "Geometry/Rotation.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 
 class GridOld;
 class MatrixSquareGeneral;
 
-class GSTLEARN_EXPORT Grid : public AStringable
+class GSTLEARN_EXPORT Grid: public AStringable, public ASerializable
 {
 
 public:
@@ -162,6 +163,11 @@ public:
                VectorDouble& x0) const;
   int getMirrorIndex(int idim, int ix) const;
   bool isInside(const VectorInt& indices) const;
+
+  /// Interface for ASerializable
+  bool _deserialize(std::istream& is, bool verbose = false) override;
+  bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "Grid"; }
 
 private:
   const MatrixSquareGeneral& _getRotMat() const { return _rotation.getMatrixDirect(); }

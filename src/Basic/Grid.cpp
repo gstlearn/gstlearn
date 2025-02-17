@@ -107,6 +107,7 @@ Grid::Grid(int ndim,
 
 Grid::Grid(const Grid &r)
   : AStringable(r)
+  , ASerializable()
 {
   _recopy(r);
 }
@@ -1277,4 +1278,63 @@ bool Grid::sampleBelongsToCell(const VectorDouble &coor,
      }
   }
   return true;
+}
+
+bool Grid::_deserialize(std::istream& is, [[maybe_unused]] bool verbose)
+{
+  int ndim = 0;
+  VectorInt nx;
+  VectorDouble x0;
+  VectorDouble dx;
+  VectorDouble angles;
+
+  /* Initializations */
+
+  bool ret = true;
+  ret      = ret && _recordRead<int>(is, "Space Dimension", ndim);
+
+  /* Core allocation */
+
+  nx.resize(ndim);
+  dx.resize(ndim);
+  x0.resize(ndim);
+  angles.resize(ndim);
+
+  /* Read the grid characteristics */
+
+  for (int idim = 0; ret && idim < ndim; idim++)
+  {
+    ret = ret && _recordRead<int>(is, "Grid Number of Nodes", nx[idim]);
+    ret = ret && _recordRead<double>(is, "Grid Origin", x0[idim]);
+    ret = ret && _recordRead<double>(is, "Grid Mesh", dx[idim]);
+    ret = ret && _recordRead<double>(is, "Grid Angles", angles[idim]);
+  }
+
+  // reset the Grid
+  resetFromVector(nx, dx, x0, angles);
+
+  return ret;
+}
+
+bool Grid::_serialize(std::ostream& os, [[maybe_unused]] bool verbose) const
+{
+  bool ret = true;
+
+  /* Writing the header */
+
+  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
+
+  /* Writing the grid characteristics */
+
+  ret = ret && _commentWrite(os, "Grid characteristics (NX,X0,DX,ANGLE)");
+  for (int idim = 0; ret && idim < getNDim(); idim++)
+  {
+    ret = ret && _recordWrite<int>(os, "", getNX(idim));
+    ret = ret && _recordWrite<double>(os, "", getX0(idim));
+    ret = ret && _recordWrite<double>(os, "", getDX(idim));
+    ret = ret && _recordWrite<double>(os, "", getRotAngle(idim));
+    ret = ret && _commentWrite(os, "");
+  }
+
+  return ret;
 }
