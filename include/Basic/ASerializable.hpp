@@ -51,11 +51,11 @@ public:
   static bool createDirectory(const String& dir);
   static String getExecDirectory();
   static String getDirectory(const String& path);
+  virtual String _getNFName() const = 0;
 
 protected:
   virtual bool _deserialize(std::istream& is, bool verbose = false) = 0;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const = 0;
-  virtual String _getNFName() const = 0;
 
   bool _fileOpenWrite(const String& filename,
                       std::ofstream& os,
