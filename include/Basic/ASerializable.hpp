@@ -20,6 +20,11 @@
 #include <stdarg.h>
 #include <fstream>
 
+namespace H5
+{
+  class Group;
+};
+
 class GSTLEARN_EXPORT ASerializable
 {
 public:
@@ -31,6 +36,7 @@ public:
   bool deserialize(std::istream& is, bool verbose = true);
   bool serialize(std::ostream& os,bool verbose = true) const;
   bool dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  bool dumpToH5(const String& H5Filename, bool verbose = false) const;
 
   static String buildFileName(int status, const String& filename, bool ensureDirExist = false);
 
@@ -55,7 +61,19 @@ public:
 
 protected:
   virtual bool _deserialize(std::istream& is, bool verbose = false) = 0;
+  virtual bool _deserializeH5(H5::Group& /*grp*/, bool /*verbose*/ = false)
+  {
+    // TODO virtual pure
+    messerr("Not implemented yet");
+    return false;
+  }
   virtual bool _serialize(std::ostream& os, bool verbose = false) const = 0;
+  virtual bool _serializeH5(H5::Group& /*grp*/, bool /*verbose*/ = false) const
+  {
+    // TODO virtual pure
+    messerr("Not implemented yet");
+    return false;
+  }
 
   bool _fileOpenWrite(const String& filename,
                       std::ofstream& os,

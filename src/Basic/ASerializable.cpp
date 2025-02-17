@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/SerializeNeutralFile.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
@@ -89,6 +90,18 @@ bool ASerializable::dumpToNF(const String& neutralFilename, bool verbose) const
     }
     os.close();
   }
+  return ret;
+}
+
+bool ASerializable::dumpToH5(const String& H5Filename, bool verbose) const
+{
+  auto file = SerializeHDF5::fileOpenWrite(H5Filename);
+  bool ret  = _serializeH5(file, verbose);
+  if (!ret)
+  {
+    messerr("Problem writing in the netCDF File.");
+  }
+
   return ret;
 }
 
