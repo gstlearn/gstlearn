@@ -948,7 +948,7 @@ void db_polygon(Db *db,
     int selval = 0;
     if (! flag_sel || db->isActive(iech))
     {
-      db->getCoordinatesPerSampleInPlace(iech, coor);
+      db->getCoordinatesInPlace(coor, iech);
       selval = polygon->inside(coor, flag_nested);
 
       if (flag_period)
@@ -1010,7 +1010,7 @@ int db_selhull(Db *db1,
   VectorDouble coor(3, TEST);
   for (int iech = 0; iech < ntotal; iech++)
   {
-    db2->getCoordinatesPerSampleInPlace(iech, coor);
+    db2->getCoordinatesInPlace(coor, iech);
     if (!polygons->inside(coor, false))
     {
       db2->setArray(iech, isel, 0.);

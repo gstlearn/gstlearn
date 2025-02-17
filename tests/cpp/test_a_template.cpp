@@ -98,5 +98,18 @@ int main(int argc, char *argv[])
   }
   message("Valeur otenue = %lf\n", total);
   timer.displayIntervalMilliseconds("Avec les pointeurs");
+
+  // Avec les 'auto'
+  total = 0.;
+  for (const auto& vv1: v1)
+  {
+    for (const auto& vv2: v2)
+    {
+      total += vv1 * vv2;
+    }
+  }
+  message("Valeur otenue = %lf\n", total);
+  timer.displayIntervalMilliseconds("Avec les auto");
+
   return (0);
 }

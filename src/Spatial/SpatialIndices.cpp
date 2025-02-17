@@ -133,7 +133,7 @@ bool SpatialIndices::_discardData(bool flag_w,
 
   /* Check if the sample has defined coordinates */
 
-  _db->getCoordinatesPerSampleInPlace(iech, coor);
+  _db->getCoordinatesInPlace(coor, iech);
   for (int idim = 0, ndim = _db->getNDim(); idim < ndim; idim++)
     if (FFFF(coor[idim])) return true;
 

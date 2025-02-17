@@ -130,9 +130,10 @@ int CalcGlobal::_globalKriging()
   MatrixRectangular X0Cum(1, X.getNCols());
   MatrixRectangular Sigma0;
   MatrixRectangular X0;
+  MatrixSquareSymmetric Sigma00;
 
-  /* Loop on the targets to be processed */
-  for (int iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
+    /* Loop on the targets to be processed */
+    for (int iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
   {
     mes_process("Kriging sample", dbout->getNSample(), iech);
     if (!dbout->isActive(iech)) continue;
@@ -152,7 +153,7 @@ int CalcGlobal::_globalKriging()
   X0Cum.prodScalar(oneOverNG);
   algebra.setRHS(&Sigma0Cum, &X0Cum);
 
-  MatrixSquareSymmetric Sigma00 = model->eval0MatByTarget(dbout, 0);
+  if (model->evalCov0MatByTargetInPlace(Sigma00, dbout, 0)) return 1;
   algebra.setVariance(&Sigma00);
 
   double estim = algebra.getEstimation()[0];

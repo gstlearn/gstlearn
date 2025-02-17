@@ -138,7 +138,7 @@ public:
                                           const VectorDouble& angles = VectorDouble(),
                                           bool flagRange = true);
 
-  void setContext(const CovContext& ctxt);
+
   void setParam(double param);
   void setNoStatFactor(double noStatFactor) { _noStatFactor = noStatFactor; }
 
@@ -271,8 +271,9 @@ public:
 protected:
   /// Update internal parameters consistency with the context
   void _initFromContext() override;
-  
+
 private:
+  void _setContext(const CovContext& ctxt) override;
   TabNoStat* _createNoStatTab() override;
   void _copyCovContext(const CovContext &ctxt) override;
 

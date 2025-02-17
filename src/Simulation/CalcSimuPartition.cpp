@@ -166,7 +166,7 @@ bool CalcSimuPartition::_poisson()
   for (int iech = 0; iech < dbgrid->getNSample(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
-    dbgrid->getCoordinatesPerSampleInPlace(iech, cen);
+    dbgrid->getCoordinatesInPlace(cen, iech);
 
     /* Loop on the planes */
 

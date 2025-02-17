@@ -137,9 +137,9 @@ def ScatterOnDb(db, mode='lines', color='black', width=1,
         return None
                       
     meshing = dict(type='scatter3d',
-                   x=db.getCoordinates(0), 
-                   y=db.getCoordinates(1),
-                   z=db.getCoordinates(2),
+                   x=db.getOneCoordinate(0), 
+                   y=db.getOneCoordinate(1),
+                   z=db.getOneCoordinate(2),
                    mode=mode,marker_symbol=m_symbol,
                    marker_line_color=m_line, marker_color=m_color, 
                    marker_line_width=m_width, marker_size=m_size,
@@ -292,9 +292,9 @@ def IsoSurfaceOnDbGrid(grid, name, useSel=False, levels=None,
                       
     shape = list(grid.getNXs())
 
-    x = grid.getCoordinates(0, useSel).reshape(shape)
-    y = grid.getCoordinates(1, useSel).reshape(shape)
-    z = grid.getCoordinates(2, useSel).reshape(shape)
+    x = grid.getOneCoordinate(0, useSel).reshape(shape)
+    y = grid.getOneCoordinate(1, useSel).reshape(shape)
+    z = grid.getOneCoordinate(2, useSel).reshape(shape)
     values = grid.getColumn( name, useSel).reshape(shape)
     
     surfaces = go.Isosurface(x=x.flatten(), y=y.flatten(), z=z.flatten(), 
@@ -331,9 +331,9 @@ def PointDb(db, nameColor=None, nameSize=None, useSel=True,
     if __invalidFileDimension(db, 3):
         return None
                       
-    x = db.getCoordinates(posX, useSel)
-    y = db.getCoordinates(posY, useSel)
-    z = db.getCoordinates(posZ, useSel)
+    x = db.getOneCoordinate(posX, useSel)
+    y = db.getOneCoordinate(posY, useSel)
+    z = db.getOneCoordinate(posZ, useSel)
     
     if nameColor is not None:
         colors = db.getColumn(nameColor, useSel)
@@ -365,9 +365,9 @@ def GradientDb(db, useSel=True, colorscale='Blues', sizemode='absolute', size=2,
     if __invalidFileDimension(db, 3):
         return None
                       
-    x = db.getCoordinates(0, useSel)
-    y = db.getCoordinates(1, useSel)
-    z = db.getCoordinates(2, useSel)
+    x = db.getOneCoordinate(0, useSel)
+    y = db.getOneCoordinate(1, useSel)
+    z = db.getOneCoordinate(2, useSel)
     
     gx = db.getGradient(0, useSel)
     gy = db.getGradient(1, useSel)
@@ -396,9 +396,9 @@ def TangentDb(db, useSel=True, colorscale='Blues', sizemode='absolute', size=2,
     if __invalidFileDimension(db, 3):
         return None
                       
-    x = db.getCoordinates(0, useSel)
-    y = db.getCoordinates(1, useSel)
-    z = db.getCoordinates(2, useSel)
+    x = db.getOneCoordinate(0, useSel)
+    y = db.getOneCoordinate(1, useSel)
+    z = db.getOneCoordinate(2, useSel)
     
     tx = db.getTangent(0, useSel)
     ty = db.getTangent(1, useSel)

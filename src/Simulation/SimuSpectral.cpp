@@ -226,7 +226,7 @@ void SimuSpectral::_computeOnRn(Db *dbout, int iuid, bool verbose)
   for (int jech = 0; jech < nech; jech++)
   {
     int iech = ranks[jech];
-    dbout->getCoordinatesPerSampleInPlace(iech, coor);
+    dbout->getCoordinatesInPlace(coor, iech);
     VectorDouble u = res->prodMatVec(coor);
 
     double value = 0.;
@@ -416,8 +416,8 @@ void SimuSpectral::_computeOnSphere(Db* dbout, int iuid, bool verbose)
   }
 
   // Simulation
-  VectorDouble phi = dbout->getCoordinates(0);
-  VectorDouble theta = dbout->getCoordinates(1);
+  VectorDouble phi = dbout->getOneCoordinate(0);
+  VectorDouble theta = dbout->getOneCoordinate(1);
   VectorDouble sim(np, 0.);
   VectorDouble x(np);
   VectorDouble w(np);

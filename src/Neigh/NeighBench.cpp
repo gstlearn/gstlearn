@@ -136,7 +136,7 @@ int NeighBench::getNSampleMax(const Db* db) const
   if (db->getNDim() <= 2) return nech;
 
   /* Read the vector of the last coordinates */
-  VectorDouble vec = db->getCoordinates(ndim-1, useSel);
+  VectorDouble vec = db->getOneCoordinate(ndim-1, useSel);
 
   /* Sort the third coordinate vector */
   VectorDouble tab = VH::sort(vec, true);

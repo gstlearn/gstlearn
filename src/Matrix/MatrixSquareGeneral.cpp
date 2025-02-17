@@ -290,20 +290,3 @@ int MatrixSquareGeneral::decomposeLU(MatrixSquareGeneral& tls,
   return 0;
 }
 
-MatrixSquareGeneral MatrixSquareGeneral::compress0MatLC(const MatrixRectangular& matLC)
-{
-  int nvar                  = getNCols();
-  int nvarCL                = matLC.getNRows();
-  MatrixSquareGeneral mat = MatrixSquareGeneral(nvarCL);
-  for (int jvarCL = 0; jvarCL < nvarCL; jvarCL++)
-    for (int ivarCL = 0; ivarCL < nvarCL; ivarCL++)
-    {
-      double value = 0.;
-      for (int jvar = 0; jvar < nvar; jvar++)
-        for (int ivar = 0; ivar < nvar; ivar++)
-          value += matLC.getValue(jvarCL, jvar) * matLC.getValue(ivarCL, ivar) *
-                   getValue(ivar, jvar);
-      mat.setValue(ivarCL, jvarCL, value);
-    }
-  return mat;
-}

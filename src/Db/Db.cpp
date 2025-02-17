@@ -706,7 +706,7 @@ void Db::updArrayVec(const VectorInt& iechs, int iuid, const EOperator& oper, Ve
 VectorDouble Db::getSampleCoordinates(int iech) const
 {
   VectorDouble coor(getNDim());
-  getCoordinatesPerSampleInPlace(iech, coor);
+  getCoordinatesInPlace(coor, iech);
   return coor;
 }
 
@@ -721,13 +721,10 @@ void Db::getSampleAsSPInPlace(SpacePoint& P, int iech, bool target) const
 {
   P.setIech(iech);
   P.setTarget(target);
-
-  int ndim = getNDim();
-  for (int idim = 0; idim < ndim; idim++)
-  {
-    double coor = getCoordinate(iech, idim);
-    P.setCoord(idim, coor);
-  }
+  // Next line is unsafe: it directly loads the coordinates extracted from the Db
+  // into the VectorDouble 'coord' of the Space Point 'P'
+  // Dimensions should match!!!
+  getCoordinatesInPlace(P.getCoordUnprotected(), iech);
 }
 
 VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& jechs) const
@@ -774,7 +771,8 @@ void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
   // Load the code (optional)
   if (P.checkCode())
   {
-    if (hasLocVariable(ELoc::C)) P.setCode(getLocVariable(ELoc::C, iech, 0));
+    if (hasLocVariable(ELoc::C))
+      P.setCode(getLocVariable(ELoc::C, iech, 0));
   }
 
   // Load the Date (optional)
@@ -828,22 +826,38 @@ VectorDouble Db::getSampleLocators(const ELoc& locatorType, int iech) const
  * @param flag_rotate Use the rotation (only for Grid)
  * @return
  */
-double Db::getCoordinate(int iech, int idim, bool /*flag_rotate*/) const
+double Db::getCoordinate(int iech, int idim, bool flag_rotate) const
 {
+  DECLARE_UNUSED(flag_rotate);
   if (idim >= getNDim()) return TEST;
   return getFromLocator(ELoc::X, iech, idim);
 }
 
-void Db::getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate) const
+/**
+ * @brief Update the vector of coordinates (optimized manner)
+ * No check is done with respect to the dimension of the returned vector
+ * 
+ * @param coor Returned vector of coordinates (should be dimensionned beforehand)
+ * @param iech Rank of the target
+ * @param flag_rotate True if Grid rotation must be taken into account
+ */
+void Db::getCoordinatesInPlace(VectorDouble& coor, int iech, bool flag_rotate) const
 {
-  for (int idim = 0; idim < getNDim(); idim++)
-    coor[idim] = getCoordinate(iech, idim, flag_rotate);
-}
-
-void Db::getCoordinatesPerSampleInPlace(int iech, vect coor, bool flag_rotate) const
-{
+  DECLARE_UNUSED(flag_rotate);
   for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
-    coor[idim] = getCoordinate(iech, idim, flag_rotate);
+  {
+    int icol   = getColIdxByLocator(ELoc::X, idim);
+    coor[idim] = _array[_getAddress(iech, icol)];
+  }
+}
+void Db::getCoordinatesInPlace(vect coor, int iech, bool flag_rotate) const
+{
+  DECLARE_UNUSED(flag_rotate);
+  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
+  {
+    int icol   = getColIdxByLocator(ELoc::X, idim);
+    coor[idim] = _array[_getAddress(iech, icol)];
+  }
 }
 
 double Db::getDistance1D(int iech, int jech, int idim, bool flagAbs) const
@@ -886,11 +900,11 @@ int Db::getDistanceVecInPlace(int iech, int jech, VectorDouble& dd, const Db* db
   VectorDouble v1(ndim);
   VectorDouble v2(ndim);
 
-  getCoordinatesPerSampleInPlace(iech, v1);
+  getCoordinatesInPlace(v1, iech);
   if (db2 == nullptr)
-    getCoordinatesPerSampleInPlace(jech, v2);
+    getCoordinatesInPlace(v2, jech);
   else
-    db2->getCoordinatesPerSampleInPlace(jech, v2);
+    db2->getCoordinatesInPlace(v2, jech);
   for (int idim = 0; idim < ndim; idim++)
     dd[idim] = v1[idim] - v2[idim];
   return 0;
@@ -908,7 +922,7 @@ VectorVectorDouble Db::getAllCoordinates(bool useSel) const
   VectorVectorDouble result;
   for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
   {
-    VectorDouble local = getCoordinates(idim, useSel);
+    VectorDouble local = getOneCoordinate(idim, useSel);
     result.push_back(local);
   }
   return result;
@@ -1980,7 +1994,7 @@ VectorDouble Db::getExtrema(int idim, bool useSel) const
 {
   VectorDouble ext;
   if (!isDimensionIndexValid(idim)) return ext;
-  VectorDouble coor = getCoordinates(idim, useSel);
+  VectorDouble coor = getOneCoordinate(idim, useSel);
   ext.push_back(VH::minimum(coor));
   ext.push_back(VH::maximum(coor));
   return ext;
@@ -2007,7 +2021,7 @@ VectorDouble Db::getCoorMinimum(bool useSel) const
   VectorDouble ext;
   for (int idim = 0; idim < getNDim(); idim++)
   {
-    VectorDouble coor = getCoordinates(idim, useSel);
+    VectorDouble coor = getOneCoordinate(idim, useSel);
     ext.push_back(VH::minimum(coor));
   }
   return ext;
@@ -2022,7 +2036,7 @@ VectorDouble Db::getCoorMaximum(bool useSel) const
   VectorDouble ext;
   for (int idim = 0; idim < getNDim(); idim++)
   {
-    VectorDouble coor = getCoordinates(idim, useSel);
+    VectorDouble coor = getOneCoordinate(idim, useSel);
     ext.push_back(VH::maximum(coor));
   }
   return ext;
@@ -2048,7 +2062,7 @@ VectorDouble Db::getCenters(bool useSel) const
 double Db::getCenter(int idim, bool useSel) const
 {
   if (!isDimensionIndexValid(idim)) return TEST;
-  VectorDouble coor = getCoordinates(idim, useSel);
+  VectorDouble coor = getOneCoordinate(idim, useSel);
   double mini = VH::minimum(coor);
   double maxi = VH::maximum(coor);
   return ((mini + maxi) / 2.);
@@ -2061,7 +2075,7 @@ double Db::getCenter(int idim, bool useSel) const
 double Db::getExtension(int idim, bool useSel) const
 {
   if (!isDimensionIndexValid(idim)) return 0.;
-  VectorDouble coor = getCoordinates(idim, useSel);
+  VectorDouble coor = getOneCoordinate(idim, useSel);
   double mini = VH::minimum(coor);
   double maxi = VH::maximum(coor);
   return maxi - mini;
@@ -2109,7 +2123,7 @@ void Db::getExtensionInPlace(VectorDouble& mini,
 
   for (int idim = 0; idim < getNDim(); idim++)
   {
-    VectorDouble coor = getCoordinates(idim, useSel);
+    VectorDouble coor = getOneCoordinate(idim, useSel);
     double vmin = VH::minimum(coor);
     double vmax = VH::maximum(coor);
     if (FFFF(mini[idim]) || vmin < mini[idim]) mini[idim] = vmin;
@@ -3221,7 +3235,7 @@ String Db::_summaryExtensions(void) const
   sstr << toTitle(1, "Data Base Extension");
   for (int idim = 0; idim < ndim; idim++)
   {
-    VectorDouble coor = getCoordinates(idim, true);
+    VectorDouble coor = getOneCoordinate(idim, true);
     double vmin = VH::minimum(coor);
     double vmax = VH::maximum(coor);
 
@@ -4204,7 +4218,7 @@ MatrixRectangular Db::getColumnsAsMatrix(const VectorString& names,
  * @param flag_rotate Flag for rotation (only for Grid)
  * @return
  */
-VectorDouble Db::getCoordinates(int idim, bool useSel, bool flag_rotate) const
+VectorDouble Db::getOneCoordinate(int idim, bool useSel, bool flag_rotate) const
 {
   int nech = getNSample();
   VectorDouble tab, sel;

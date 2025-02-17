@@ -128,6 +128,7 @@ void SpaceRN::_getIncrementInPlace(const SpacePoint& p1,
   int j = 0;
   unsigned int offset = getOffset();
   unsigned int ndim   = getNDim();
-  for (unsigned int i = offset; i < ndim + offset; i++)
+  unsigned int maxlength = ndim + offset;
+  for (unsigned int i = offset; i < maxlength; i++)
     ptemp[j++] = p2.getCoord(i) - p1.getCoord(i);
 }

@@ -211,7 +211,7 @@ double DbMeshStandard::getCoor(int imesh, int rank, int idim) const
 {
   return getCoordinate(_mesh.getApex(imesh, rank), idim);
 }
-void DbMeshStandard::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const
+void DbMeshStandard::getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const
 {
   for (int idim = 0; idim < getNDim(); idim++)
     coords[idim] = getCoor(imesh, rank, idim);

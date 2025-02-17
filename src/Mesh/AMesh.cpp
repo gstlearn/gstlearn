@@ -99,7 +99,7 @@ String AMesh::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-void AMesh::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const
+void AMesh::getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const
 {
   for (int idim = 0; idim < getNDim(); idim++)
     coords[idim] = getCoor(imesh, rank, idim);
@@ -182,7 +182,7 @@ void AMesh::_recopy(const AMesh &m)
   _extendMax = m._extendMax;
 }
 
-VectorDouble AMesh::getCoordinates(int idim) const
+VectorDouble AMesh::getCoordinatesPerApex(int idim) const
 {
   if (! _isSpaceDimensionValid(idim)) return VectorDouble();
   int np = getNApices();
@@ -386,7 +386,7 @@ VectorDouble AMesh::getCoordinatesPerMesh(int imesh, int idim, bool flagClose) c
  */
 void AMesh::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const
 {
-  getCoordinatesInPlace(imesh, ic, coords);
+  getCoordinatesPerMeshInPlace(imesh, ic, coords);
 }
 
 /**

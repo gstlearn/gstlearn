@@ -719,7 +719,7 @@ int KrigingSystem::resetData()
   const CovCalcMode calcmode(ECalcMember::LHS);
   _sampleRanks = _dbin->getSampleRanks(VectorInt(), _nbgh);
   _Z           = _dbin->getValuesByRanks(_sampleRanks, _means, !_model->hasDrift());
-  if (_cova->evalCovMatSymByRanks(_Sigma, _dbin, _sampleRanks, -1, &calcmode, false)) return 1;
+  if (_model->evalCovMatSymByRanks(_Sigma, _dbin, _sampleRanks, -1, &calcmode, false)) return 1;
   if (_model->evalDriftMatByRanks(_X, _dbin, _sampleRanks, -1, ECalcMember::LHS)) return 1;
 
   if (! _isAuthorized()) return 1;
@@ -753,7 +753,7 @@ bool KrigingSystem::isReady()
     if (_flagBayes)
     {
       const CovCalcMode calcmode(ECalcMember::LHS);
-      if (_cova->evalCovMatSymByRanks(_Sigma, _dbin, _sampleRanks, -1, &calcmode, false)) return false;
+      if (_model->evalCovMatSymByRanks(_Sigma, _dbin, _sampleRanks, -1, &calcmode, false)) return false;
       if (_model->evalDriftMatByRanks(_X, _dbin, _sampleRanks, -1, ECalcMember::LHS)) return false;
       if (_algebra.setLHS(&_Sigma, &_X)) return false;
     }
@@ -763,7 +763,7 @@ bool KrigingSystem::isReady()
   if (_flagStd)
   {
     _iechOut = 0;
-    _Sigma00 = _cova->eval0MatByTarget(_dbout, _iechOut, _krigopt);
+    if (_model->evalCov0MatByTargetInPlace(_Sigma00, _dbout, _iechOut, _krigopt)) return false;
     if (_algebra.setVariance(&_Sigma00)) return false;
   }
 
@@ -869,7 +869,7 @@ int KrigingSystem::estimate(int iech_out)
   }
   else
   {
-    if (_cova->evalCovMatByTarget(_Sigma0, _dbin, _dbout, _sampleRanks, iech_out, _krigopt, false)) return 1;
+    if (_model->evalCovMatByTarget(_Sigma0, _dbin, _dbout, _sampleRanks, iech_out, _krigopt, false)) return 1;
     if (_model->evalDriftMatByTarget(_X0, _dbout, iech_out, _krigopt)) return 1;
     if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
   };
@@ -982,13 +982,11 @@ int KrigingSystem::_updateForColCokMoving()
   // Indices are 1-based values (to allow negative and positive distinction) 
   VectorInt adds(newSize);
   int ecr = 0;
-  int lec = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (int ivar = 0, lec = 0; ivar < nvar; ivar++)
   {
-    for (int i = 0, n = (int)_sampleRanks[ivar].size(); i < n; i++)
-      adds[ecr++] = 1 + lec++;
-    if (FFFF(newValues[ivar])) continue;
-    adds[ecr++] = -1 - ivar;
+    for (int i = 0, n = (int)_sampleRanks[ivar].size(); i < n; i++, lec++)
+      adds[ecr++] = 1 + lec;
+    if (! FFFF(newValues[ivar])) adds[ecr++] = -1 - ivar;
   }
 
   // Update _sampleRanks
@@ -1665,7 +1663,7 @@ int KrigingSystem::updKrigOptIclass(int index_class, int nclasses)
   // Update C00 if the variance calculation is required
   if (_flagStd)
   {
-    _Sigma00 = _cova->eval0MatByTarget(_dbout, 0, _krigopt);
+    if (_model->evalCov0MatByTargetInPlace(_Sigma00, _dbout, 0, _krigopt)) return 1;
     if (_algebra.setVariance(&_Sigma00)) return 1;
   }
 
