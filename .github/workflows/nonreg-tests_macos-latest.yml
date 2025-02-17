@@ -38,6 +38,7 @@ jobs:
         brew install boost
         brew install eigen
         brew install nlopt
+        brew install hdf5
 
     - name: Setup Python Version
       uses: actions/setup-python@v5

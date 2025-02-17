@@ -49,6 +49,7 @@ jobs:
         pacman -Sy --noconfirm mingw-w64-x86_64-boost
         pacman -Sy --noconfirm mingw-w64-x86_64-eigen3
         pacman -Sy --noconfirm mingw-w64-x86_64-nlopt
+        pacman -Sy --noconfirm mingw-w64-x86_64-hdf5
 
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-windows-action@v2
@@ -63,6 +64,7 @@ jobs:
           -DBUILD_TESTING=ON `
           -DBUILD_R=ON `
           -DBUILD_PYTHON=OFF `
+          -DHDF5_USE_STATIC_LIBRARIES=ON `
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
     - name: Build the package
