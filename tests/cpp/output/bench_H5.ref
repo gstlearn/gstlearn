@@ -1,0 +1,2 @@
+#NO_DIFF# Serialize + Deserialize + Serialize Neutral File: 2519 ms. (Ref = 2500 ms.)
+#NO_DIFF# Serialize + Deserialize + Serialize HDF5: 83 ms. (Ref = 80 ms.)
