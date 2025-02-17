@@ -395,10 +395,9 @@ void KrigingAlgebra::_deleteDual()
 /**
  * @brief Method to be used when the data has changed (e.g. Moving Neighborhood)
  */
-int KrigingAlgebra::resetNewData()
+void KrigingAlgebra::resetNewData()
 {
   _neq = 0;
-  return 0;
 }
 
 /**
@@ -781,42 +780,6 @@ const MatrixSquareSymmetric* KrigingAlgebra::getPostCov()
   return _Sigmac;
 }
 
-const MatrixRectangular* KrigingAlgebra::getX0()
-{
-  if (_needX0()) return nullptr;
-  return _X0;
-}
-
-const MatrixRectangular* KrigingAlgebra::getX0p()
-{
-  if (_needX0p()) return nullptr;
-  return _X0p;
-}
-
-const MatrixRectangular* KrigingAlgebra::getY0()
-{
-  if (_needY0()) return nullptr;
-  return _Y0;
-}
-
-const MatrixRectangular* KrigingAlgebra::getY0p()
-{
-  if (_needY0p()) return nullptr;
-  return _Y0p;
-}
-
-const MatrixRectangular* KrigingAlgebra::getSigma0()
-{
-  if (_needSigma0()) return nullptr;
-  return _Sigma0;
-}
-
-const MatrixRectangular* KrigingAlgebra::getSigma0p()
-{
-  if (_needSigma0p()) return nullptr;
-  return _Sigma0p;
-}
-
 int KrigingAlgebra::_needInvSigma()
 {
   if (_InvSigma != nullptr) return 0;
@@ -1174,7 +1137,7 @@ int KrigingAlgebra::_needY0p()
 int KrigingAlgebra::_needMuUK()
 {
   if (_MuUK != nullptr) return 0;
-  if (_flagSK) return 0;
+  if (_flagSK) return 1;
   if (_needSigmac()) return 1;
   if (_needY0()) return 1;
 

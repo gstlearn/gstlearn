@@ -58,7 +58,6 @@ public:
 
   // Forwarding the methods from _cova
   FORWARD_METHOD(getCov, evalCovMatBiPointInPlace)
-  FORWARD_METHOD(getCov, eval0CovMatBiPointInPlace)
   FORWARD_METHOD(getCov, evalCovMat)
   FORWARD_METHOD(getCov, evalCovMatSym)
   FORWARD_METHOD(getCov, evalCovMatSymByRanks)

@@ -53,18 +53,6 @@ public:
                          bool flagGrad = false) const;
 
 protected:
-  void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
-                                           const SpacePoint& p1,
-                                           const SpacePoint& p2,
-                                           const CovCalcMode *mode = nullptr) const override
-  {
-    ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
-  }
-  void addEval0CovMatBiPointInPlace(MatrixSquareGeneral& mat,
-                                    const CovCalcMode* mode) const override
-  {
-    ACov::addEval0CovMatBiPointInPlace(mat, mode);
-  }
   void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
                                     const SpacePoint& pwork1,
                                     const SpacePoint& pwork2,

@@ -251,8 +251,9 @@ Statistics after Declustering
 
 Testing KrigTest facility
 - Space Dimension = 2
-- Number of Neighbors = 26
-- Number of Kriging System equations = 26
+- Number of Neighbors = 25
+- Number of Kriging System equations (covariance) = 25
+- Number of Kriging System equations (drift) = 1
 - Neighboring Sample Indices
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]         4         5        21        22        30        32        33
@@ -350,25 +351,25 @@ Data Base Statistics
 6 - Name SimBayes.Var.1 - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =    -16.563
- Maximum value       =     16.778
- Mean value          =      1.066
+ Minimum value       =    -16.829
+ Maximum value       =     16.512
+ Mean value          =      0.800
  Standard Deviation  =      4.618
  Variance            =     21.330
 7 - Name SimBayes.Var.2 - Locator z2
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =    -17.256
- Maximum value       =     12.892
- Mean value          =     -1.936
+ Minimum value       =    -17.096
+ Maximum value       =     13.052
+ Mean value          =     -1.776
  Standard Deviation  =      4.910
  Variance            =     24.106
 8 - Name SimBayes.Var.3 - Locator z3
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =    -16.458
- Maximum value       =     14.146
- Mean value          =     -0.546
+ Minimum value       =    -16.244
+ Maximum value       =     14.361
+ Mean value          =     -0.332
  Standard Deviation  =      4.696
  Variance            =     22.051
 

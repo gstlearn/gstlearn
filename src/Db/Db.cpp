@@ -721,7 +721,13 @@ void Db::getSampleAsSPInPlace(SpacePoint& P, int iech, bool target) const
 {
   P.setIech(iech);
   P.setTarget(target);
-  getCoordinatesPerSampleInPlace(iech, P.getCoordRef());
+
+  int ndim = getNDim();
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    double coor = getCoordinate(iech, idim);
+    P.setCoord(idim, coor);
+  }
 }
 
 VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& jechs) const
@@ -1005,9 +1011,9 @@ double Db::getFromLocator(const ELoc& locatorType,
                           int iech,
                           int locatorIndex) const
 {
-  if (!isSampleIndexValid(iech)) return (TEST);
+  if (!isSampleIndexValid(iech)) return TEST;
   int icol = getColIdxByLocator(locatorType, locatorIndex);
-  if (!isColIdxValid(icol)) return (TEST);
+  if (!isColIdxValid(icol)) return TEST;
   return (_array[_getAddress(iech, icol)]);
 }
 
@@ -2333,9 +2339,12 @@ void Db::switchLocator(const ELoc& locatorType_in, const ELoc& locatorType_out)
   p_in.clear();
 }
 
-double Db::getValueByColIdx(int iech, int icol) const
+double Db::getValueByColIdx(int iech, int icol, bool flagCheck) const
 {
-  if (!isColIdxValid(icol)) return TEST;
+  if (flagCheck)
+  {
+    if (!isColIdxValid(icol)) return TEST;
+  }
   return (_array[_getAddress(iech, icol)]);
 }
 
@@ -2380,10 +2389,13 @@ VectorDouble Db::getValuesByColIdx(const VectorInt &iechs,
   return vec;
 }
 
-void Db::setValueByColIdx(int iech, int icol, double value)
+void Db::setValueByColIdx(int iech, int icol, double value, bool flagCheck)
 {
-  if (!isColIdxValid(icol)) return;
-  if (!isSampleIndexValid(iech)) return;
+  if (flagCheck)
+  {
+    if (!isColIdxValid(icol)) return;
+    if (!isSampleIndexValid(iech)) return;
+  }
   _array[_getAddress(iech, icol)] = value;
 }
 

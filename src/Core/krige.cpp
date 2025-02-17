@@ -3090,7 +3090,7 @@ int krigsum(Db *dbin,
   {
     dbin->clearLocators(ELoc::Z);
     dbin->setLocatorByUID(iuids[ivar], ELoc::Z, 0);
-    if (ksys.resetNewData()) return 1;
+    if (ksys.resetData()) return 1;
     if (ksys.updKrigOptEstim(iptr_est + ivar, -1, -1)) return 1;
     (void) gslSPrintf(string, "Kriging of variable #%d at sample", ivar + 1);
 

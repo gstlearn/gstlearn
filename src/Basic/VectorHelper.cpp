@@ -2939,3 +2939,14 @@ bool VectorHelper::isEqualExtended(const VectorDouble& v1,
   }
   return true;
 }
+
+bool VectorHelper::isIsotropic(const VectorVectorInt& sampleRanks)
+{
+  int nvar = (int)sampleRanks.size();
+  if (nvar <= 0) return true;
+
+  int refSize = (int)sampleRanks[0].size();
+  for (int ivar = 1; ivar < nvar; ivar++)
+    if (refSize != (int)sampleRanks[ivar].size()) return false;
+  return true;
+}

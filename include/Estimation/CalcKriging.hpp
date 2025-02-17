@@ -31,16 +31,19 @@ public:
   int ndim; // Space dimension
   int nvar; // Number of variables
   int nech; // Number of Neighboring samples
-  int neq;  // Number of Equations in the Kriging/CoKriging system
-  int nrhs; // Number of R.H.S. vectors (= nvar)
-  VectorInt nbgh;    // Ranks of the neighboring samples
+  int CSize; // Number of drift equations in the Drift part
+  int DSize; // Number of Equations of the Covariance part 
+  int nrhs; // Number of R.H.S. vectors
+  VectorInt nbgh;            // Ranks of the neighboring samples 
   VectorVectorDouble xyz;    // Coordinates of the neighboring samples [ndim][nech]
   VectorDouble data;         // Usable values at neighboring samples [neq]
-  MatrixSquareSymmetric lhs; // L.H.S. of the Kriging system (neq * neq)
-  MatrixRectangular rhs;     // R.H.S. of the Kriging system (neq * nvar)
-  MatrixRectangular wgt;     // Vector of weights [nvar][nech]
+  MatrixSquareSymmetric lhs; // L.H.S. Covariance part (neq * neq)
+  MatrixRectangular lhsF;    // L.H.S. Drift part 
+  MatrixRectangular rhs;     // R.H.S. Covariance part (neq * nrhs)
+  MatrixRectangular rhsF;    // R.H.S. Drift part  (nbfl * nrhs)
+  MatrixRectangular wgt;     // Vector of weights (neq * nrhs)
+  MatrixRectangular mu;      // Vector of Lagrange parameters (nbfl * nrhs)
   MatrixSquareGeneral var;   // Matrix of Target-Target Variance (nvar * nvar)
-  MatrixRectangular zam;     // Vector of pre-calculations
 
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
@@ -63,7 +66,6 @@ public:
   void setPriorCov(const MatrixSquareSymmetric &priorCov) { _priorCov = priorCov; }
   void setPriorMean(const VectorDouble &priorMean) { _priorMean = priorMean; }
   void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
-  void setFlagProf(bool flagProf) { _flagProf = flagProf; }
   void setIechSingleTarget(int iechSingleTarget) { _iechSingleTarget = iechSingleTarget; }
   void setVerboseSingleTarget(bool verbose) { _verboseSingleTarget = verbose; }
   void setFlagPerCell(bool flagPerCell) { _flagPerCell = flagPerCell; }
@@ -103,8 +105,6 @@ private:
   bool _flagBayes;
   VectorDouble _priorMean;
   MatrixSquareSymmetric _priorCov;
-
-  bool _flagProf;
 
   int  _iechSingleTarget;
   bool _verboseSingleTarget;
@@ -161,13 +161,6 @@ GSTLEARN_EXPORT int kribayes(Db *dbin,
                              bool flag_est = true,
                              bool flag_std = true,
                              const NamingConvention& namconv = NamingConvention("Bayes"));
-GSTLEARN_EXPORT int krigprof(Db *dbin,
-                             Db *dbout,
-                             Model *model,
-                             ANeigh *neigh,
-                             bool flag_est = true,
-                             bool flag_std = true,
-                             const NamingConvention& namconv = NamingConvention("KrigProf"));
 GSTLEARN_EXPORT int kriggam(Db *dbin,
                             Db *dbout,
                             Model *model,

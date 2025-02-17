@@ -31,7 +31,6 @@ CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
     _flagBayes(false),
     _priorMean(),
     _priorCov(),
-    _flagProf(false),
     _iechSingleTarget(-1),
     _verboseSingleTarget(false),
     _flagPerCell(false),
@@ -226,23 +225,22 @@ void CalcKriging::_rollback()
 
 void CalcKriging::_storeResultsForExport(const KrigingSystem& ksys)
 {
-  int ndim = ksys.getNDim();
-
-  /* Extract relevant information */
-
-  _ktest.ndim = ndim;
-  _ktest.nvar = 1;
-  _ktest.nech = ksys.getNRed();
-  _ktest.nrhs = 1;
-  _ktest.neq  = ksys.getNeq();
-  _ktest.nbgh = ksys.getSampleNbgh();
-  _ktest.xyz  = ksys.getSampleCoordinates();
-  _ktest.data = ksys.getSampleData();
-  _ktest.zam  = ksys.getZam();
-  _ktest.lhs  = ksys.getLHSC();
-  _ktest.rhs  = ksys.getRHSC();
-  _ktest.wgt  = ksys.getWeights();
-  _ktest.var  = ksys.getVariance();
+  _ktest.ndim  = ksys.getNDim();
+  _ktest.nvar  = ksys.getNVar();
+  _ktest.nech  = ksys.getNech();
+  _ktest.CSize = ksys.getCovSize();
+  _ktest.DSize = ksys.getDriftSize();
+  _ktest.nrhs  = ksys.getNrhs();
+  _ktest.nbgh  = ksys.getSampleNbgh();
+  _ktest.xyz   = ksys.getSampleCoordinates();
+  _ktest.data  = ksys.getSampleData();
+  _ktest.lhs   = ksys.getLHS();
+  _ktest.lhsF  = ksys.getLHSF();
+  _ktest.rhs   = ksys.getRHS();
+  _ktest.rhsF  = ksys.getRHSF();
+  _ktest.wgt   = ksys.getWeights();
+  _ktest.mu    = ksys.getMu();
+  _ktest.var   = ksys.getVariance();
 }
 
 /****************************************************************************/
@@ -268,10 +266,6 @@ bool CalcKriging::_run()
   if (_flagBayes)
   {
     ksys.setKrigOptBayes(true, _priorMean, _priorCov);
-  }
-  if (_flagProf)
-  {
-    if (ksys.setKrigoptCode(true)) return false;
   }
   if (_flagGam)
   {
@@ -457,43 +451,6 @@ int kribayes(Db* dbin,
   krige.setFlagBayes(true);
   krige.setPriorMean(prior_mean);
   krige.setPriorCov(prior_cov);
-
-  // Run the calculator
-  int error = (krige.run()) ? 0 : 1;
-  return error;
-}
-
-/****************************************************************************/
-/*!
- **  Punctual Kriging based on profiles
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       input Db structure
- ** \param[in]  dbout      output Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neigh      ANeigh structure
- ** \param[in]  flag_est   Option for the storing the estimation
- ** \param[in]  flag_std   Option for the storing the standard deviation
- ** \param[in]  namconv    Naming convention
- **
- *****************************************************************************/
-int krigprof(Db* dbin,
-             Db* dbout,
-             Model* model,
-             ANeigh* neigh,
-             bool flag_est,
-             bool flag_std,
-             const NamingConvention& namconv)
-{
-  CalcKriging krige(flag_est, flag_std, false);
-  krige.setDbin(dbin);
-  krige.setDbout(dbout);
-  krige.setModel(model);
-  krige.setNeigh(neigh);
-  krige.setNamingConvention(namconv);
-
-  krige.setFlagProf(true);
 
   // Run the calculator
   int error = (krige.run()) ? 0 : 1;
