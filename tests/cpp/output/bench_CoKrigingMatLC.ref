@@ -1,0 +1,228 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                 rank       x-1       x-2       z-1       z-2
+     [  0,]     1.000     0.652     0.015     0.753    -0.454
+     [  1,]     2.000     0.483     0.557       N/A    -0.872
+     [  2,]     3.000     0.762     0.433     0.793     0.744
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 2
+Number of basic structure(s) = 1
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 2
+
+Covariance Part
+---------------
+Exponential
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     4.708    -3.586
+     [  1,]    -3.586     3.084
+- Range        =      0.500
+- Theo. Range  =      0.167
+Total Sill
+               [,  0]    [,  1]
+     [  0,]     4.708    -3.586
+     [  1,]    -3.586     3.084
+
+
+Drift Part
+----------
+Universality_Condition
+
+Without MATLC
+=============
+
+Target location
+---------------
+Sample #1 (from 1)
+Coordinate #1 = 0.652223
+Coordinate #2 = 0.483448
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2     Sector
+          1          1      0.652      0.015          1
+          2          2      0.483      0.557          1
+          3          3      0.762      0.433          1
+
+LHS of Kriging matrix
+=====================
+Dimension of the Covariance Matrix  = 5
+Dimension of the Drift Matrix       = 2
+
+       Rank          1          2          3          4          5
+          1      4.708      0.352     -3.586     -0.120     -0.268
+          2      0.352      4.708     -0.268     -0.578     -3.586
+          3     -3.586     -0.268      3.084      0.103      0.231
+          4     -0.120     -0.578      0.103      3.084      0.497
+          5     -0.268     -3.586      0.231      0.497      3.084
+          6      1.000      1.000      0.000      0.000      0.000
+          7      0.000      0.000      1.000      1.000      1.000
+
+       Rank          6          7
+          1      1.000      0.000
+          2      1.000      0.000
+          3      0.000      1.000
+          4      0.000      1.000
+          5      0.000      1.000
+          6      0.000      0.000
+          7      0.000      0.000
+
+RHS of Kriging matrix
+=====================
+Number of active samples    = 3
+Total number of equations   = 8
+Number of right-hand sides  = 2
+Punctual Estimation
+
+       Rank          1          2
+          1      0.284     -0.216
+          2      2.284     -1.740
+          3     -0.216      0.186
+          4     -1.191      1.025
+          5     -1.740      1.496
+          6      1.000      0.000
+          7      0.000      1.000
+
+(Co-) Kriging weights
+=====================
+       Rank       Data        Z1*        Z2*
+Using variable Z1 
+          1      0.753      0.270      0.000
+          2      0.793      0.730      0.000
+Sum of weights              1.000      0.000
+Using variable Z2 
+          3     -0.454      0.177      0.118
+          4     -0.872     -0.410      0.353
+          5      0.744      0.233      0.529
+Sum of weights              0.000      1.000
+
+Drift or Mean Information
+=========================
+       Rank       Mu1*       Mu2*      Coeff
+          1      0.599     -0.393      1.195
+          2     -0.393      0.338     -0.218
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =       1.233
+ - Std. Dev. =       1.876
+ - Variance  =       3.520
+ - Cov(h=0)  =       4.708
+Variable Z2 
+ - Estimate  =       0.032
+ - Std. Dev. =       1.499
+ - Variance  =       2.247
+ - Cov(h=0)  =       3.084
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+       1.000       0.652       0.483       1.233       0.032       1.876       1.499
+
+With MATLC
+==========
+- Number of rows    = 1
+- Number of columns = 2
+     1.000    -3.000
+
+Target location
+---------------
+Sample #1 (from 1)
+Coordinate #1 = 0.652223
+Coordinate #2 = 0.483448
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2     Sector
+          1          1      0.652      0.015          1
+          2          2      0.483      0.557          1
+          3          3      0.762      0.433          1
+
+LHS of Kriging matrix
+=====================
+Dimension of the Covariance Matrix  = 5
+Dimension of the Drift Matrix       = 2
+
+       Rank          1          2          3          4          5
+          1      4.708      0.352     -3.586     -0.120     -0.268
+          2      0.352      4.708     -0.268     -0.578     -3.586
+          3     -3.586     -0.268      3.084      0.103      0.231
+          4     -0.120     -0.578      0.103      3.084      0.497
+          5     -0.268     -3.586      0.231      0.497      3.084
+          6      1.000      1.000      0.000      0.000      0.000
+          7      0.000      0.000      1.000      1.000      1.000
+
+       Rank          6          7
+          1      1.000      0.000
+          2      1.000      0.000
+          3      0.000      1.000
+          4      0.000      1.000
+          5      0.000      1.000
+          6      0.000      0.000
+          7      0.000      0.000
+
+RHS of Kriging matrix
+=====================
+Number of active samples    = 3
+Total number of equations   = 8
+Number of right-hand sides  = 1
+Punctual Estimation
+
+       Rank          1
+          1      0.933
+          2      7.503
+          3     -0.775
+          4     -4.265
+          5     -6.228
+          6      1.000
+          7     -3.000
+
+(Co-) Kriging weights
+=====================
+       Rank       Data        Z1*
+Using variable Z1 
+          1      0.753      0.270
+          2      0.793      0.730
+Sum of weights              1.000
+Using variable Z2 
+          3     -0.454     -0.179
+          4     -0.872     -1.468
+          5      0.744     -1.354
+Sum of weights             -3.000
+
+Drift or Mean Information
+=========================
+       Rank       Mu1*      Coeff
+          1      1.777      1.195
+          2     -1.406     -0.218
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =       1.136
+ - Std. Dev. =       5.354
+ - Variance  =      28.662
+ - Cov(h=0)  =      43.220
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                   rank         x-1         x-2 *.z-1.estim *.z-2.estim *.z-1.stdev *.z-2.stdev
+     [  0,]       1.000       0.652       0.483       1.233       0.032       1.876       1.499
+            *g.LC.estim *g.LC.stdev
+     [  0,]       1.136       5.354

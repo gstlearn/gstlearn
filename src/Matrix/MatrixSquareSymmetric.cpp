@@ -901,11 +901,11 @@ MatrixSquareSymmetric MatrixSquareSymmetric::compress0MatLC(const MatrixRectangu
   int nvarCL              = matLC.getNRows();
   MatrixSquareSymmetric mat = MatrixSquareSymmetric(nvarCL);
   for (int jvarCL = 0; jvarCL < nvarCL; jvarCL++)
-    for (int ivarCL = 0; ivarCL < nvarCL; ivarCL++)
+    for (int ivarCL = 0; ivarCL <= nvarCL; ivarCL++)
     {
       double value = 0.;
       for (int jvar = 0; jvar < nvar; jvar++)
-        for (int ivar = 0; ivar <= jvar; ivar++)
+        for (int ivar = 0; ivar < nvar; ivar++)
           value += matLC.getValue(jvarCL, jvar) * matLC.getValue(ivarCL, ivar) *
                    getValue(ivar, jvar);
       mat.setValue(ivarCL, jvarCL, value);
