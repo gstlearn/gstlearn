@@ -75,10 +75,14 @@ jobs:
     - name: Build & install NLopt static libraries
       uses: ./.github/actions/nlopt_static_unix
 
+    - name: Build & install HDF5 static libraries
+      uses: ./.github/actions/hdf5_static_unix
+
     - name : Configure build directory
       run : |
         cmake \
           -B${{ env.BUILD_DIR }} \
+          -DHDF5_USE_STATIC_LIBRARIES=ON \
           -DBUILD_PYTHON=OFF \
           -DBUILD_R=ON \
           -DBUILD_DOXYGEN=ON \
