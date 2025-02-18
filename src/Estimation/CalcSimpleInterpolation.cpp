@@ -616,14 +616,14 @@ void CalcSimpleInterpolation::_pointInvdist(Db *dbin, Db *dbout)
     }
     VectorInt nbgh;
     VectorDouble weights;
-    dbout->getCoordinatesPerSampleInPlace(iech, cooref);
+    dbout->getCoordinatesInPlace(cooref, iech);
 
     /* Loop on the data points */
 
     for (int iech_in = 0; iech_in < dbin->getNSample(); iech_in++)
     {
       if (!dbin->isActive(iech_in)) continue;
-      dbin->getCoordinatesPerSampleInPlace(iech_in, coor);
+      dbin->getCoordinatesInPlace(coor, iech_in);
       double val_neigh = dbin->getZVariable(iech_in, 0);
       if (FFFF(val_neigh)) continue;
 
@@ -684,7 +684,7 @@ void CalcSimpleInterpolation::_gridInvdist(DbGrid *dbin, Db *dbout)
 
     /* Find the grid index corresponding to the target */
 
-    dbout->getCoordinatesPerSampleInPlace(iech, cooref);
+    dbout->getCoordinatesInPlace(cooref, iech);
     if (dbin->coordinateToIndicesInPlace(cooref, indref))
     {
       if (_flagEst)
@@ -806,16 +806,17 @@ double CalcSimpleInterpolation::_stdevCalc(Db* dbin,
 {
   int ndim = dbin->getNDim();
   VectorDouble coor(ndim);
+  VectorDouble M0x;
   SpacePoint pout;
 
-  dbout->getCoordinatesPerSampleInPlace(iechout, coor);
+  dbout->getCoordinatesInPlace(coor, iechout);
   pout.setCoords(coor);
 
   // Point Covariance at target
   double c00 = getModel()->eval(pout, pout);
 
   // Vector of Covariances between Data and Target
-  VectorDouble M0x = getModel()->evalPointToDb(pout, dbin, 0, 0, true, nbgh);
+  getModel()->evalPointToDb(M0x, pout, dbin, 0, 0, true, nbgh);
   double c0x       = VH::innerProduct(M0x, weights);
 
   // Covariance between Data and Data

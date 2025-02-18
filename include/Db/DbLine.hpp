@@ -103,7 +103,7 @@ public:
   int getNTotal() const;
   int getLineBySample(int iech) const;
   VectorDouble _getHeaderCoordinate(int idim) const;
-  VectorDouble getCoordinates(int iline, int idim) const;
+  VectorDouble getCoordinatesPerLine(int iline, int idim) const;
   VectorDouble getLineLengths() const;
   int getLineSampleRank(int iline, int isample) const;
 

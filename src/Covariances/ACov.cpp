@@ -187,10 +187,10 @@ void ACov::_optimizationPostProcess() const
 
 }
 
-MatrixSquareGeneral ACov::eval0Mat(const CovCalcMode* mode) const
+MatrixSquareSymmetric ACov::eval0Mat(const CovCalcMode* mode) const
 {
   int nvar = getNVar();
-  MatrixSquareGeneral mat(nvar);
+  MatrixSquareSymmetric mat(nvar);
   mat.fill(0.);
   eval0CovMatBiPointInPlace(mat,mode);
   return mat;
@@ -203,33 +203,43 @@ MatrixSquareGeneral ACov::eval0Mat(const CovCalcMode* mode) const
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void ACov::eval0CovMatBiPointInPlace(MatrixSquareGeneral& mat,
+void ACov::eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat,
                                      const CovCalcMode* mode) const
 {
   int nvar = getNVar();
 
   for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
+    for (int jvar = 0; jvar <= ivar; jvar++)
     {
       double value = eval0(ivar, jvar, mode);
       mat.addValue(ivar, jvar, value);
     }
 }
 
-// TODO should return a MatrixSquareSymmetric instead... but difficult due implication into other methods
-MatrixSquareGeneral ACov::eval0MatByTarget(const Db* db, int iech, const KrigOpt& krigopt) const
+MatrixSquareSymmetric ACov::evalCov0MatByTarget(const Db* db, int iech, const KrigOpt& krigopt) const
+{
+  MatrixSquareSymmetric mat;
+
+  int error = evalCov0MatByTargetInPlace(mat, db, iech, krigopt);
+  return (error == 0) ? mat : MatrixSquareSymmetric();
+}
+
+int ACov::evalCov0MatByTargetInPlace(MatrixSquareSymmetric& mat,
+                                     const Db* db,
+                                     int iech,
+                                     const KrigOpt& krigopt) const
 {
   if (krigopt.getCalcul() == EKrigOpt::DGM)
   {
     messerr("This method is not designed for DGM Krigopt option");
-    return MatrixSquareGeneral();
+    return 1;
   }
 
   int nvar = getNVar();
-  MatrixSquareGeneral mat(nvar);
+  mat.resize(nvar, nvar);
   mat.fill(0.);
 
-  if (krigopt.getCalcul() == EKrigOpt::DRIFT) return mat;
+  if (krigopt.getCalcul() == EKrigOpt::DRIFT) return 1;
   bool flagBlock = krigopt.getCalcul() == EKrigOpt::BLOCK;
 
   const CovCalcMode mode = CovCalcMode(ECalcMember::VAR);
@@ -251,14 +261,14 @@ MatrixSquareGeneral ACov::eval0MatByTarget(const Db* db, int iech, const KrigOpt
     VectorVectorDouble d2 = krigopt.getDisc2VVD();
 
     for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
+      for (int jvar = 0; jvar <= ivar; jvar++)
         mat.setValue(ivar, jvar, evalAverageIncrToIncr(d1, d2, ivar, jvar, &mode));
   };
 
   // In case of combined R.H.S., modify the output matrix
   if (krigopt.isMatLC()) mat = mat.compress0MatLC(*krigopt.getMatLC());
 
-  return mat;
+  return 0;
 }
 
 VectorDouble ACov::eval(const std::vector<SpacePoint>& vec_p1,
@@ -612,14 +622,15 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
   return total;
 }
 
-VectorDouble ACov::evalPointToDbAsSP(const std::vector<SpacePoint> &p1s,
-                                     const SpacePoint &p2,
-                                     int ivar,
-                                     int jvar,
-                                     const CovCalcMode *mode) const
+void ACov::evalPointToDbAsSP(VectorDouble& values,
+                            const std::vector<SpacePoint>& p1s,
+                            const SpacePoint& p2,
+                            int ivar,
+                            int jvar,
+                            const CovCalcMode* mode) const
 {
-  int nech1 = (int) p1s.size();
-  VectorDouble values(nech1);
+  int nech1 = (int)p1s.size();
+  if (nech1 != (int) values.size()) values.resize(nech1);
 
   /* Loop on the second sample */
 
@@ -629,12 +640,12 @@ VectorDouble ACov::evalPointToDbAsSP(const std::vector<SpacePoint> &p1s,
     p1.setIech(iech1);
     values[iech1] = eval(p1, p2, ivar, jvar, mode);
   }
-  return values;
 }
 
 /**
  * Calculate the Covariance vector between a Point and all the samples
  * of a Db, for a pair of variables
+ * @param values Array of returned values (possible resized)
  * @param p1   Point location
  * @param db2  Pointer to the second Db
  * @param ivar Rank of the first variables
@@ -643,31 +654,27 @@ VectorDouble ACov::evalPointToDbAsSP(const std::vector<SpacePoint> &p1s,
  *               Otherwise, returns TEST for masked samples
  * @param nbgh2 Vector of indices of active samples in db2 (optional)
  * @param mode CovCalcMode structure
- * @return
  */
-VectorDouble ACov::evalPointToDb(const SpacePoint& p1,
-                                 const Db* db2,
-                                 int ivar,
-                                 int jvar,
-                                 bool useSel,
-                                 const VectorInt& nbgh2,
-                                 const CovCalcMode* mode) const
+void ACov::evalPointToDb(VectorDouble& values,
+                         const SpacePoint& p1,
+                         const Db* db2,
+                         int ivar,
+                         int jvar,
+                         bool useSel,
+                         const VectorInt& nbgh2,
+                         const CovCalcMode* mode) const
 {
   VectorVectorInt index2 = db2->getSampleRanks(jvar, nbgh2, useSel);
-
-  /* Loop on the second sample */
-
   SpacePoint p2(getSpace());
   const VectorInt& index2i = index2[jvar];
-  int nech2 = (int) index2i.size();
-  VectorDouble values(nech2);
+  int nech2                = (int)index2i.size();
+  if (nech2 != (int) values.size()) values.resize(nech2);
   for (int jech2 = 0; jech2 < nech2; jech2++)
   {
     int iech2 = index2i[jech2];
     db2->getSampleAsSPInPlace(p2, iech2, false);
     values[jech2] = eval(p1, p2, ivar, jvar, mode);
   }
-  return values;
 }
 
 /**
@@ -916,7 +923,7 @@ Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid, int seed) const
   for (int idim = 0; idim < ndim; idim++)
   {
     double taille = dbgrid->getDX(idim);
-    VectorDouble vec = dbgrid->getCoordinates(idim, false);
+    VectorDouble vec = dbgrid->getOneCoordinate(idim, false);
     for (int i = 0; i < (int) vec.size(); i++)
       vec[i] += taille * law_uniform(-0.5, 0.5);
     db->addColumns(vec, names[idim], ELoc::X, idim);
@@ -979,21 +986,36 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
 {
   MatrixRectangular mat;
 
+  int error = evalCovMatInPlace(mat, db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
+  return (error) == 0 ? mat : MatrixRectangular();
+}
+
+int ACov::evalCovMatInPlace(MatrixRectangular& mat,
+                            const Db* db1,
+                            const Db* db2,
+                            int ivar0,
+                            int jvar0,
+                            const VectorInt& nbgh1,
+                            const VectorInt& nbgh2,
+                            const CovCalcMode* mode,
+                            bool cleanOptim) const
+{
   // Preliminary checks
   if (db2 == nullptr) db2 = db1;
-  if (db1 == nullptr || db2 == nullptr) return MatrixRectangular();
+  if (db1 == nullptr || db2 == nullptr) return 1;
   VectorInt ivars = _getActiveVariables(ivar0);
-  if (ivars.empty()) return mat;
+  if (ivars.empty()) return 1;
   VectorInt jvars = _getActiveVariables(jvar0);
-  if (jvars.empty()) return mat;
+  if (jvars.empty()) return 1;
 
   // Play the non-stationarity (if needed)
-  manage(db1,db2);
+  manage(db1, db2);
 
   // Prepare the Optimization for covariance calculation
   optimizationPreProcess(db1);
 
-  // Create the sets of Vector of valid sample indices per variable (not masked and defined)
+  // Create the sets of Vector of valid sample indices per variable (not masked and
+  // defined)
   VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1);
   VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2);
 
@@ -1003,7 +1025,7 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
   if (neq1 <= 0 || neq2 <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
-    return mat;
+    return 1;
   }
   mat.resize(neq1, neq2);
 
@@ -1039,7 +1061,7 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
   }
 
   if (cleanOptim) optimizationPostProcess();
-  return mat;
+  return 0;
 }
 
 void ACov::_loopOnPointTarget(const Db* db2,
@@ -1954,7 +1976,7 @@ VectorDouble ACov::evaluateFromDb(Db *db,
   for (int iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    db->getCoordinatesPerSampleInPlace(iech, d1);
+    db->getCoordinatesInPlace(d1, iech);
     evaluateMatInPlace(nullptr, d1, covtab, true, 1., mode);
     gg[iech] = covtab.getValue(ivar, jvar);
   }

@@ -287,7 +287,7 @@ bool CalcKriging::_run()
   /* Loop on the targets to be processed */
   /***************************************/
 
-  for (int iech_out = 0; iech_out < getDbout()->getNSample(); iech_out++)
+  for (int iech_out = 0, nech_out = getDbout()->getNSample(); iech_out < nech_out; iech_out++)
   {
     if (_iechSingleTarget > 0)
     {

@@ -860,9 +860,9 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
 .readPointCoor <- function(db, useSel=TRUE, posX=0, posY=1)
 {
   if (db$getNDim() > 0) 
-    x = db$getCoordinates(posX,useSel)
+    x = db$getOneCoordinate(posX,useSel)
   if (db$getNDim() > 1)
-    y = db$getCoordinates(posY,useSel)
+    y = db$getOneCoordinate(posY,useSel)
   df = data.frame(x,y)
   df
 }

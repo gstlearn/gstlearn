@@ -42,10 +42,6 @@
 
 #include <math.h>
 
-#define FF(ib,il)         (ff [(il) * shift + (ib)])
-#define FF0(ib,iv)        (ff0 [(ib) + _nfeq * (iv)])
-#define IND(iech, ivar)   ((iech) + (ivar) * _nech)
-
 KrigingSystem::KrigingSystem(Db* dbin,
                              Db* dbout,
                              const ModelGeneric* model,
@@ -81,7 +77,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _flagSimu(false)
   , _nbsimu(0)
   , _rankPGS(-1)
-  , _flagCode(false)
   , _ndiscs()
   , _xvalidEstim(true)
   , _xvalidStdev(true)
@@ -110,11 +105,9 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _nvarCL(0)
   , _nech(0)
   , _nfeq(0)
-  , _nfex(0)
   , _neq(0)
   , _nred(0)
   , _nbgh()
-  , _flag()
   , _dbinUidToBeDeleted()
   , _dboutUidToBeDeleted()
   , _space(SpaceRN::create(2))
@@ -224,21 +217,10 @@ int KrigingSystem::_getNFeq() const
   return _model->getNDriftEquation();
 }
 
-int KrigingSystem::_getNFex() const
-{
-  if (_model == nullptr) return 0;
-  return _model->getNExtDrift();
-}
-
 int KrigingSystem::_getNeq() const
 {
   int neq = _nvar * _nech + _nfeq;
   return neq;
-}
-
-void KrigingSystem::_resetMemoryFullPerNeigh()
-{
-  _flag.resize(_neq);
 }
 
 void KrigingSystem::_resetMemoryGeneral()
@@ -250,143 +232,6 @@ void KrigingSystem::_resetMemoryGeneral()
   _p1 = SpacePoint(_space);
   _p2 = SpacePoint(_space);
   _p0_memo = SpacePoint(_space);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the coordinate of the data (at rank if rank >= 0)
- **  or of the target (if rank < 0)
- **
- ** \param[in]  loc_rank   Rank of the sample
- ** \param[in]  idim   Rank of the coordinate
- **
- *****************************************************************************/
-double KrigingSystem::_getIdim(int loc_rank, int idim) const
-{
-  if (loc_rank >= 0) return _dbin->getCoordinate(loc_rank, idim);
-  return _dbout->getCoordinate(_iechOut, idim);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the value of the external drift "rank" (if rank >= 0)
- **  or of the target (if rank < 0)
- **
- ** \param[in]  rank   Rank of the sample
- ** \param[in]  ibfl   Rank of the external drift
- **
- *****************************************************************************/
-double KrigingSystem::_getFext(int rank, int ibfl) const
-{
-  if (rank >= 0) return _dbin->getLocVariable(ELoc::F, rank, ibfl);
-  return _dbout->getLocVariable(ELoc::F, _iechOut, ibfl);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the value of the variable (at rank if rank >= 0)
- **  or of the target (if rank < 0)
- **
- ** \param[in]  rank   Rank of the sample
- ** \param[in]  ivar   Rank of the variable
- **
- ** \remarks   In case of simulation, the variable of the first simulation
- ** \remarks   is systematically returned. This has no influence on the rest
- ** \remarks   of the calculations
- **
- *****************************************************************************/
-double KrigingSystem::_getIvar(int rank, int ivar) const
-{
-  if (rank >= 0)
-  {
-
-    // Variable in the Input file
-
-    if (!_flagSimu)
-      // Case of the traditional kriging based on Z-variables
-      return _dbin->getZVariable( rank, ivar);
-
-    // Case of simulations
-    return _dbin->getSimvar(ELoc::SIMU, rank, 0, ivar, 0, _nbsimu, _nvar);
-  }
-
-  // Variable in the Output file: colocated case
-
-  int jvar = (_rankColCok.empty()) ? -1 : _rankColCok[ivar];
-  if (jvar < 0 || jvar >= _dbout->getNLoc(ELoc::Z)) return TEST;
-  return _dbout->getZVariable(_iechOut, jvar);
-}
-
-void KrigingSystem::_setFlag(int iech, int ivar, int value)
-{
-  _flag[iech + ivar * _nech] = value;
-}
-
-/****************************************************************************/
-/*!
- **  Define the array flag to convert from isotropic to heterotopic case
- **  Stores the reduced number of equations in member '_nred'
- **
- *****************************************************************************/
-void KrigingSystem::_flagDefine()
-{
-  for (int i = 0; i < _neq; i++) _flag[i] = 1;
-
-  /* Check on the coordinates */
-
-  for (int iech = 0; iech < _nech; iech++)
-  {
-    int nbgh_iech = _nbgh[iech];
-    bool valid = true;
-    for (int idim = 0; idim < _ndim; idim++)
-      if (FFFF(_getIdim(nbgh_iech, idim))) valid = false;
-    if (! valid)
-      for (int ivar = 0; ivar < _nvar; ivar++)
-        _setFlag(iech,ivar,0);
-  }
-
-  /* Check on the data values */
-
-  for (int iech = 0; iech < _nech; iech++)
-  {
-    int nbgh_iech = _nbgh[iech];
-    for (int ivar = 0; ivar < _nvar; ivar++)
-    {
-      if (FFFF(_getIvar(nbgh_iech, ivar)))
-        _setFlag(iech,ivar,0);
-    }
-  }
-
-  /* Check on the external drifts */
-
-  if (_nfex > 0)
-  {
-    for (int iech = 0; iech < _nech; iech++)
-    {
-      int nbgh_iech = _nbgh[iech];
-      for (int ibfl = 0; ibfl < _nfex; ibfl++)
-        if (FFFF(_getFext(nbgh_iech, ibfl)))
-          for (int ivar = 0; ivar < _nvar; ivar++)
-            _setFlag(iech, ivar, 0);
-    }
-  }
-
-  /* Check is a drift equation must be suppressed (if it is systematically undefined for all samples) */
-
-  for (int ib = 0; ib < _nfeq; ib++)
-  {
-    if (!_model->isDriftSampleDefined(_dbin, ib, _nech, _nbgh, ELoc::Z))
-      _setFlag(_nech + ib, _nvar - 1, 0);
-  }
-
-  /* Calculate the new number of equations */
-
-  int count = 0;
-  for (int i = 0; i < _neq; i++)
-  {
-    if (_flag[i] != 0) count++;
-  }
-  _nred = count;
 }
 
 /*****************************************************************************/
@@ -477,7 +322,6 @@ void KrigingSystem::_rhsDump()
   mestitle(0, "RHS of Kriging matrix");
   if (_nech > 0) message("Number of active samples    = %d\n", _nech);
   message("Total number of equations   = %d\n", _neq);
-  message("Reduced number of equations = %d\n", _nred);
   message("Number of right-hand sides  = %d\n", _nvarCL);
   _dumpOptions();
   _algebra.dumpRHS();
@@ -692,34 +536,12 @@ void KrigingSystem::_estimateVarZ(int status)
     _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, local[ivarCL]);
 }
 
-/****************************************************************************/
-/*!
- **  Define the array flag[] and the kriging L.H.S.
- **
- ** \return The status for the preparation
- **
- *****************************************************************************/
-int KrigingSystem::_prepar()
-{
-  // Resize the internal working arrays
-
-  _resetMemoryFullPerNeigh();
-
-  /* Define the array flag */
-
-  _flagDefine();
-
-  /* Establish the Kriging L.H.S. */
-
-  return resetData();
-}
-
 int KrigingSystem::resetData()
 {
   const CovCalcMode calcmode(ECalcMember::LHS);
   _sampleRanks = _dbin->getSampleRanks(VectorInt(), _nbgh);
   _Z           = _dbin->getValuesByRanks(_sampleRanks, _means, !_model->hasDrift());
-  if (_cova->evalCovMatSymByRanks(_Sigma, _dbin, _sampleRanks, -1, &calcmode, false)) return 1;
+  if (_model->evalCovMatSymByRanks(_Sigma, _dbin, _sampleRanks, -1, &calcmode, false)) return 1;
   if (_model->evalDriftMatByRanks(_X, _dbin, _sampleRanks, -1, ECalcMember::LHS)) return 1;
 
   if (! _isAuthorized()) return 1;
@@ -753,7 +575,7 @@ bool KrigingSystem::isReady()
     if (_flagBayes)
     {
       const CovCalcMode calcmode(ECalcMember::LHS);
-      if (_cova->evalCovMatSymByRanks(_Sigma, _dbin, _sampleRanks, -1, &calcmode, false)) return false;
+      if (_model->evalCovMatSymByRanks(_Sigma, _dbin, _sampleRanks, -1, &calcmode, false)) return false;
       if (_model->evalDriftMatByRanks(_X, _dbin, _sampleRanks, -1, ECalcMember::LHS)) return false;
       if (_algebra.setLHS(&_Sigma, &_X)) return false;
     }
@@ -763,7 +585,7 @@ bool KrigingSystem::isReady()
   if (_flagStd)
   {
     _iechOut = 0;
-    _Sigma00 = _cova->eval0MatByTarget(_dbout, _iechOut, _krigopt);
+    if (_model->evalCov0MatByTargetInPlace(_Sigma00, _dbout, _iechOut, _krigopt)) return false;
     if (_algebra.setVariance(&_Sigma00)) return false;
   }
 
@@ -842,7 +664,7 @@ int KrigingSystem::estimate(int iech_out)
 
   if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || OptDbg::force())
   {
-    status = _prepar();
+    status = resetData();
     if (status) goto label_store;
   }
 
@@ -869,7 +691,7 @@ int KrigingSystem::estimate(int iech_out)
   }
   else
   {
-    if (_cova->evalCovMatByTarget(_Sigma0, _dbin, _dbout, _sampleRanks, iech_out, _krigopt, false)) return 1;
+    if (_model->evalCovMatByTarget(_Sigma0, _dbin, _dbout, _sampleRanks, iech_out, _krigopt, false)) return 1;
     if (_model->evalDriftMatByTarget(_X0, _dbout, iech_out, _krigopt)) return 1;
     if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
   };
@@ -982,13 +804,11 @@ int KrigingSystem::_updateForColCokMoving()
   // Indices are 1-based values (to allow negative and positive distinction) 
   VectorInt adds(newSize);
   int ecr = 0;
-  int lec = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (int ivar = 0, lec = 0; ivar < nvar; ivar++)
   {
-    for (int i = 0, n = (int)_sampleRanks[ivar].size(); i < n; i++)
-      adds[ecr++] = 1 + lec++;
-    if (FFFF(newValues[ivar])) continue;
-    adds[ecr++] = -1 - ivar;
+    for (int i = 0, n = (int)_sampleRanks[ivar].size(); i < n; i++, lec++)
+      adds[ecr++] = 1 + lec;
+    if (! FFFF(newValues[ivar])) adds[ecr++] = -1 - ivar;
   }
 
   // Update _sampleRanks
@@ -1665,7 +1485,7 @@ int KrigingSystem::updKrigOptIclass(int index_class, int nclasses)
   // Update C00 if the variance calculation is required
   if (_flagStd)
   {
-    _Sigma00 = _cova->eval0MatByTarget(_dbout, 0, _krigopt);
+    if (_model->evalCov0MatByTargetInPlace(_Sigma00, _dbout, 0, _krigopt)) return 1;
     if (_algebra.setVariance(&_Sigma00)) return 1;
   }
 
@@ -1900,7 +1720,13 @@ VectorVectorDouble KrigingSystem::getSampleCoordinates() const
   {
     xyz[idim].resize(_nech);
     for (int iech = 0; iech < _nech; iech++)
-      xyz[idim][iech] = _getIdim(_nbgh[iech], idim);
+    {
+      int jech = _nbgh[iech];
+      if (jech >= 0)
+        xyz[idim][iech] = _dbin->getCoordinate(jech, idim);
+      else
+        xyz[idim][iech] = _dbout->getCoordinate(_iechOut, idim);
+    }
   }
   return xyz;
 }
@@ -1943,6 +1769,7 @@ void KrigingSystem::_bayesPreSimulate()
 {
   if (_nfeq <= 0) return;
   int memo = law_get_random_seed();
+  CholeskyDense postCovChol;
 
   // Dimension '_postSimu' to store simulated posterior mean
   _postSimu.resize(_nfeq, _nbsimu);
@@ -1954,7 +1781,7 @@ void KrigingSystem::_bayesPreSimulate()
 
   /* Cholesky decomposition */
 
-  if (_postCovChol.setMatrix(&_postCov))
+  if (postCovChol.setMatrix(&_postCov))
   {
     messerr("Error in the Cholesky Decomposition of the covariance matrix");
     messerr("The Drift coefficients have been set to their posterior mean");
@@ -1964,7 +1791,7 @@ void KrigingSystem::_bayesPreSimulate()
   }
   else
   {
-    VectorDouble trimat = _postCovChol.getLowerTriangle();
+    VectorDouble trimat = postCovChol.getLowerTriangle();
     for (int isimu = 0; isimu < _nbsimu; isimu++)
     {
 
@@ -1975,7 +1802,7 @@ void KrigingSystem::_bayesPreSimulate()
 
       /* Product of the Lower triangular matrix by the random vector */
 
-      _postCovChol.matProductInPlace(1, rndmat, simu);
+      postCovChol.matProductInPlace(1, rndmat, simu);
 
       /* Add the mean */
 
@@ -2038,7 +1865,6 @@ void KrigingSystem::_setInternalShortCutVariablesModel()
 {
   _nvar = _getNVar();
   _nfeq = _getNFeq();
-  _nfex = _getNFex();
   _neq  =  _getNeq(); // reset as it depends on nech and Model
 }
 /**

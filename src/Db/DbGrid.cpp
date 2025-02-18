@@ -710,10 +710,15 @@ double DbGrid::getCoordinate(int iech, int idim, bool flag_rotate) const
   return _grid.getCoordinate(iech, idim, flag_rotate);
 }
 
-void DbGrid::getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate) const
+void DbGrid::getCoordinatesInPlace(VectorDouble& coor, int iech, bool flag_rotate) const
 {
   VectorDouble vec = _grid.getCoordinatesByRank(iech, flag_rotate);
-  coor = vec;
+  coor             = vec;
+}
+void DbGrid::getCoordinatesInPlace(vect coor, int iech, bool flag_rotate) const
+{
+  VectorDouble vec = _grid.getCoordinatesByRank(iech, flag_rotate);
+  coor             = vec;
 }
 
 int DbGrid::getNDim() const
@@ -1137,7 +1142,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
         indices[1] = i1;
         indices[2] = i2;
         int iech = indiceToRank(indices);
-        getCoordinatesPerSampleInPlace(iech, coor);
+        getCoordinatesInPlace(coor, iech);
         tab[0][ecr] = coor[0];
         tab[1][ecr] = coor[1];
         tab[2][ecr] = coor[2];
@@ -1166,7 +1171,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
         indices[0] = i1;
         indices[2] = i2;
         int iech = indiceToRank(indices);
-        getCoordinatesPerSampleInPlace(iech, coor);
+        getCoordinatesInPlace(coor, iech);
         tab[0][ecr] = coor[0];
         tab[1][ecr] = coor[1];
         tab[2][ecr] = coor[2];
@@ -1194,7 +1199,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
         indices[0] = i1;
         indices[1] = i2;
         int iech = indiceToRank(indices);
-        getCoordinatesPerSampleInPlace(iech, coor);
+        getCoordinatesInPlace(coor, iech);
         tab[0][ecr] = coor[0];
         tab[1][ecr] = coor[1];
         tab[2][ecr] = coor[2];
@@ -2416,7 +2421,7 @@ VectorDouble DbGrid::getDistanceToOrigin(const VectorInt& origin,
   VectorDouble distvec(nech, 0.);
   for (int iech = 0; iech < nech; iech++)
   {
-    getCoordinatesPerSampleInPlace(iech, coor);
+    getCoordinatesInPlace(coor, iech);
     double dist = 0.;
     for (int idim = 0; idim < ndim; idim++)
     {

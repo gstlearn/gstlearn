@@ -106,10 +106,11 @@ public:
                                        const VectorDouble& tabimat,
                                        VectorDouble& tabout);
   static int _constraintsCount(int nai, VectorInt& active);
-  int _terminateEigen(const VectorDouble &eigenValues,
-                      const VectorDouble &eigenVectors,
+  int _terminateEigen(const VectorDouble& eigenValues,
+                      const VectorDouble& eigenVectors,
                       bool optionPositive = true,
-                      bool changeOrder = false);
+                      bool changeOrder    = false);
+  MatrixSquareSymmetric compress0MatLC(const MatrixRectangular& matLC);
 
 private:
   int _getTriangleSize() const;

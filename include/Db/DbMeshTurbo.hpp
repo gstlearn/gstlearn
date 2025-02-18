@@ -77,9 +77,9 @@ public:
   {
     return _mesh.getCoor(imesh, rank, idim);
   }
-  void getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const
+  void getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const
   {
-    _mesh.getCoordinatesInPlace(imesh, rank, coords);
+    _mesh.getCoordinatesPerMeshInPlace(imesh, rank, coords);
   }
   double getApexCoor(int i, int idim) const
   {

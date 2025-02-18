@@ -105,21 +105,13 @@ private:
   int    _getNbfl() const;
   int    _getNeq() const;
   int    _getNFeq() const;
-  int    _getNFex() const;
-  void   _setFlag(int iech, int ivar, int value);
-  double _getIdim(int loc_rank, int idim) const;
-  double _getFext(int rank, int ibfl) const;
-  double _getIvar(int rank, int ivar) const;
 
   void _resetMemoryGeneral();
-  void _resetMemoryFullPerNeigh();
-  void _flagDefine();
   bool _isAuthorized() const;
 
   void _dumpOptions() const;
   void _rhsDump();
   void _wgtDump();
-  int  _prepar();
   void _estimateCalcul(int status);
   void _simulateCalcul(int status);
   void _neighCalcul(int status, const VectorDouble& tab);
@@ -190,9 +182,6 @@ private:
   int  _nbsimu;
   int  _rankPGS;
 
-  /// Options complement for neighborhood
-  bool _flagCode;  // True when kriging by Code (Profile)
-
   /// Option for Block estimation
   VectorInt _ndiscs;
 
@@ -211,7 +200,6 @@ private:
   MatrixSquareSymmetric _priorCov;  
   VectorDouble          _postMean;
   MatrixSquareSymmetric _postCov;
-  CholeskyDense         _postCovChol;
   MatrixRectangular     _postSimu; 
   MatrixSquareSymmetric _varCorrec;
 
@@ -220,8 +208,8 @@ private:
 
   /// Option for (Disjunctive) Kriging of Factor
   bool _flagFactorKriging;
-  int _nclasses;
-  int _factorClass;
+  int  _nclasses;
+  int  _factorClass;
 
   /// Option for Estimating the Linear Combination of Variables
   const MatrixRectangular* _matLC;
@@ -243,13 +231,11 @@ private:
   int _nvarCL;
   int _nech;
   int _nfeq;
-  int _nfex;
   int _neq;
   int _nred;
 
   /// Working arrays
   mutable VectorInt    _nbgh;
-  mutable VectorInt    _flag;
   mutable VectorInt    _dbinUidToBeDeleted;
   mutable VectorInt    _dboutUidToBeDeleted;
 

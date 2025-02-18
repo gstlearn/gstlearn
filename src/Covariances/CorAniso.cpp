@@ -145,9 +145,9 @@ void CorAniso::computeMarkovCoeffs()
   _covfunc->computeMarkovCoeffs(getNDim());
 }
 
-void CorAniso::setContext(const CovContext &ctxt)
+void CorAniso::_setContext(const CovContext &ctxt)
 {
-  ACov::setContext(ctxt);
+  DECLARE_UNUSED(ctxt);
   updateFromContext();
 }
 

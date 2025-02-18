@@ -43,7 +43,7 @@ public:
   /*! Returns coordinate 'idim' of apex 'rank' of mesh 'imesh' */
   virtual double getCoor(int imesh, int rank, int idim) const = 0;
   /*! Returns coordinate 'idim' of apex 'rank' of mesh 'imesh' */
-  virtual void getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const;
+  virtual void getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const;
   /*! Returns coordinate 'idim' of apex 'i' */
   virtual double getApexCoor(int i, int idim) const = 0;
   /*! Returns coordinates of apex 'i' */
@@ -80,7 +80,7 @@ public:
   void printMesh(int imesh0) const;
   void printMeshes(int level=0, int nline_max=-1) const;
   /*! Returns Vector of Apex coordinates for space index */
-  VectorDouble getCoordinates(int idim) const;
+  VectorDouble getCoordinatesPerApex(int idim) const;
   /*! Returns the list of indices of Meshes sharing the same Apex */
   VectorInt getMeshByApexPair(int apex1, int apex2) const;
   /*! Returns the vector of coordinates for a mesh */

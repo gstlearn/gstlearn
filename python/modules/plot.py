@@ -726,13 +726,13 @@ def __readCoorPoint(db, nameCoorX=None, nameCoorY=None, useSel=True, posX=0, pos
         tabx = db.getColumn(nameCoorX, useSel)
     else:
         if db.getNDim() > 0:
-            tabx = db.getCoordinates(posX,useSel)
+            tabx = db.getOneCoordinate(posX,useSel)
             
     if nameCoorY is not None:
         taby = db.getColumn(nameCoorY, useSel)
     else:
         if db.getNDim() > 1:
-            taby = db.getCoordinates(posY,useSel)
+            taby = db.getOneCoordinate(posY,useSel)
     
     if len(tabx) <= 0 or len(taby) <= 0:
         return None
@@ -1300,8 +1300,8 @@ def __ax_line(ax, dbline, color = 'blue', colorPoint='black', colorHeader='red',
     nbline = dbline.getNLine()
     
     for iline in range(nbline):
-        x = dbline.getCoordinates(iline, 0)
-        y = dbline.getCoordinates(iline, 1)
+        x = dbline.getCoordinatesPerLine(iline, 0)
+        y = dbline.getCoordinatesPerLine(iline, 1)
         
         ax.plot(x, y, color=color, **kwargs)
 
@@ -1335,8 +1335,8 @@ def __ax_graphO(ax, dbgraphO, name = None, color = 'blue', colorPoint='black', f
         return None
     
     if flagSample:
-        x = dbgraphO.getCoordinates(0)
-        y = dbgraphO.getCoordinates(1)
+        x = dbgraphO.getOneCoordinate(0)
+        y = dbgraphO.getOneCoordinate(1)
         ax.plot(x, y, marker='.', color=colorPoint, linestyle='None')
     
     narcs = dbgraphO.getNArc()

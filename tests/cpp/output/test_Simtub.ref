@@ -40,7 +40,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 4
 Total number of equations   = 8
-Reduced number of equations = 5
 Number of right-hand sides  = 2
 Punctual Estimation
 
@@ -112,7 +111,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 4
 Total number of equations   = 8
-Reduced number of equations = 5
 Number of right-hand sides  = 2
 Punctual Estimation
 
@@ -316,4 +314,4 @@ Data Base Statistics
  Mean value          =     -0.147
  Standard Deviation  =      0.974
  Variance            =      0.949
-#NO_DIFF# Turning Band Simulations: 248 ms. (Ref = 773 ms.)
+#NO_DIFF# Turning Band Simulations: 314 ms. (Ref = 773 ms.)

@@ -45,7 +45,6 @@ public:
   int decomposeLU(MatrixSquareGeneral& tls,
                   MatrixSquareGeneral& tus,
                   double eps = EPSILON20);
-  MatrixSquareGeneral compress0MatLC(const MatrixRectangular& matLC);
 
 private:
   int _invertLU();

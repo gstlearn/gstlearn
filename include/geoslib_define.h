@@ -146,13 +146,13 @@ using vectint = std::span<int>;
         } else {                                                               \
             return ReturnType(__VA_ARGS__);                                    \
         }                                                                      \
-    }                                                              \
+    }                                                                          \
 
-#define FORWARD_METHOD(obj, name, ...)                                  \
-    template <typename... Args>                                               \
-    auto name(Args&&... args) const -> decltype(auto) {                       \
-        if (obj() != nullptr) {                                               \
-            return obj()->name(std::forward<Args>(args)...);                  \
+#define FORWARD_METHOD(obj, name, ...)                                         \
+    template <typename... Args>                                                \
+    auto name(Args&&... args) const -> decltype(auto) {                        \
+        if (obj() != nullptr) {                                                \
+            return obj()->name(std::forward<Args>(args)...);                   \
         }                                                                      \
         using ReturnType = decltype(obj()->name(std::forward<Args>(args)...)); \
         if constexpr (std::is_void_v<ReturnType>) {                            \

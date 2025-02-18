@@ -542,7 +542,9 @@ void AMatrix::prodVecMatInPlacePtr(const double* x, double* y, bool transpose) c
 
 /**
  * @brief Resize the matrix to new dimensions
- *        (this method doesn't change the storage type)
+ * This method:
+ * - doesn't change the storage type
+ * - doesn't keep the previous contents
  * 
  * @param nrows New number of rows
  * @param ncols New number of columns

@@ -46,7 +46,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 3
 Total number of equations   = 8
-Reduced number of equations = 8
 Number of right-hand sides  = 2
 Punctual Estimation
 
@@ -90,7 +89,7 @@ Simulation #3 of Z1  :  =       0.302
 Simulation #3 of Z2  :  =       1.943
 Simulation #4 of Z1  :  =      -0.797
 Simulation #4 of Z2  :  =      -1.507
-#NO_DIFF# Non-conditional Simulation on Grid: 65 ms. (Ref = 6800 ms.)
+#NO_DIFF# Non-conditional Simulation on Grid: 32 ms. (Ref = 6800 ms.)
 
 Data Base Grid Characteristics
 ==============================
