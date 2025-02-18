@@ -213,9 +213,9 @@ Drift or Mean Information
 Target Sample = 1
 Variable Z1 
  - Estimate  =       1.136
- - Std. Dev. =       5.354
- - Variance  =      28.662
- - Cov(h=0)  =      43.220
+ - Std. Dev. =       6.278
+ - Variance  =      39.419
+ - Cov(h=0)  =      53.977
 
 Data Base Characteristics
 =========================
@@ -225,4 +225,4 @@ Data Base Contents
                    rank         x-1         x-2 *.z-1.estim *.z-2.estim *.z-1.stdev *.z-2.stdev
      [  0,]       1.000       0.652       0.483       1.233       0.032       1.876       1.499
             *g.LC.estim *g.LC.stdev
-     [  0,]       1.136       5.354
+     [  0,]       1.136       6.278
