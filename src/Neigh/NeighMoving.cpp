@@ -317,7 +317,7 @@ VectorVectorDouble NeighMoving::getEllipsoid(const VectorDouble& target, int cou
   double rx, ry, theta, cosp, sinp;
   if (! _getAnisotropyElements(&rx, &ry, &theta, &cosp, &sinp)) return VectorVectorDouble();
 
-  return GH::getEllipse(target, theta, rx, ry, count);
+  return GH::getEllipse(target, rx, ry, theta, count);
 }
 
 VectorVectorDouble NeighMoving::getZoomLimits(const VectorDouble& target, double percent) const

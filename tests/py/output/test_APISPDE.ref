@@ -65,4 +65,3 @@ Column = 1 - Name = x1 - Locator = NA
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Simu - Locator = x1
 Column = 4 - Name = spde - Locator = z1
- 

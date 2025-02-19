@@ -103,7 +103,8 @@ int Convolution::ConvolveSparse(int iatt,
       // Target is not estimated when one neighborhood sample is out of grid
       if (!correct) continue;
 
-      // Load the values at location 'jech' for all variables and skip
+      // Load the mutlivariate set of values at location 'jech'
+      // Variable 'valid' is set to false if one data value is undefined 
       bool valid = true;
       int jech   = _dbgrid->indiceToRank(current);
       for (int ivar = 0; ivar < nvar && valid; ivar++)

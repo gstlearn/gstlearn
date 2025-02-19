@@ -177,10 +177,6 @@ bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelGeneric* modelgeneric)
   int ndim = dbgrid->getNDim();
   int nvar = _getNVar();
 
-  int optref = OptDbg::getReference();
-  OptDbg::setReference(0);
-  OptCst::define(ECst::NTROW, -1);
-
   const NeighImage* neighI = dynamic_cast<const NeighImage*>(getNeigh());
   DbGrid* dblocal          = neighI->buildImageGrid(dbgrid, _seed);
   VectorVectorInt ranks    = _getActiveRanks(dblocal);
@@ -200,7 +196,6 @@ bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelGeneric* modelgeneric)
   // Cleaning
   delete target;
   delete neighU;
-  OptDbg::setReference(optref);
 
   // Perform the Sparse convolution
   Convolution conv(dbgrid);

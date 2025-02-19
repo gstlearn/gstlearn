@@ -75,12 +75,13 @@ public:
                                         bool flag_polarized = false,
                                         bool verbose = false,
                                         int mode = 1);
-  static MeshETurbo* createFromCova(const CovAniso &cova,
-                                    const Db *field,
+  static MeshETurbo* createFromCova(const CovAniso& cova,
+                                    const Db* field,
                                     double ratio,
-                                    int nbExt = 0,
-                                    bool useSel = true,
+                                    int nbExt          = 0,
+                                    bool useSel        = true,
                                     bool flagNoStatRot = false,
+                                    int nxmax = 300,
                                     bool verbose = false);
 
   int initFromExtend(const VectorDouble& extendmin,
@@ -106,9 +107,10 @@ public:
   int initFromCova(const CovAniso& cova,
                    const Db* field,
                    double ratio,
-                   int nbExt = 0,
-                   bool useSel = true,
+                   int nbExt          = 0,
+                   bool useSel        = true,
                    bool flagNoStatRot = false,
+                   int nxmax = 300,
                    bool verbose = false);
   const Grid& getGrid() const { return _grid; }
 

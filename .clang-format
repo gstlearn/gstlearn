@@ -1,35 +1,40 @@
 ---
+# This requires a version of clang-format above 19
 AlignAfterOpenBracket: Align
-AlignConsecutiveAssignments: AcrossComments
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: false
 AlignConsecutiveMacros: AcrossComments
 AlignEscapedNewlines: Right
 AlignTrailingComments: true
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: Never
 AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: WithoutElse
 AllowShortLoopsOnASingleLine: true
 AllowShortCaseLabelsOnASingleLine: true
+#AlwaysBreakAfterReturnType: None
+AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakTemplateDeclarations: 'Yes'
 AlignOperands: AlignAfterOperator
-# AlignConsecutiveShortCaseStatements: # clang-format 17
-#  Enabled: true
-#  AcrossEmptyLines: false
-#  AcrossComments: true
-#  AlignCaseColons: false
-AlwaysBreakAfterReturnType: None
 BinPackArguments: true
 BinPackParameters: false
-BreakBeforeBraces: Allman
+BreakBeforeBinaryOperators: None
+BreakAfterReturnType: None
+BreakBeforeBraces: Attach
 BreakConstructorInitializers: BeforeComma
 ConstructorInitializerIndentWidth: 2
 ContinuationIndentWidth: 2
-ColumnLimit: 90 # Give the maxsize of a line before breaking list of arguments
+ColumnLimit: 0 # To prevent automatic line breaking
+DerivePointerAlignment: false
 EmptyLineBeforeAccessModifier: Always
 IndentCaseLabels: true
 IndentWidth: 2
 IndentPPDirectives: AfterHash
 NamespaceIndentation: All
 PackConstructorInitializers: Never
-PenaltyReturnTypeOnItsOwnLine: 10
+PenaltyReturnTypeOnItsOwnLine: 10  # Strongly discourages breaking return type
+PenaltyBreakBeforeFirstCallParameter: 100  # Keeps function name & first parameter together
 PPIndentWidth: 2
 PointerAlignment: Left
 ReferenceAlignment: Left
@@ -46,6 +51,7 @@ SpaceBeforeRangeBasedForLoopColon: false
 SpaceBeforeSquareBrackets: false
 SpaceInEmptyBlock: false
 SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 1
 SpacesInAngles: Never
 SpacesInCStyleCastParentheses: false
 SpacesInConditionalStatement: false

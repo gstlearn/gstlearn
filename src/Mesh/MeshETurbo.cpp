@@ -426,16 +426,17 @@ MeshETurbo* MeshETurbo::createFromGridInfo(const Grid *grid,
   return mesh;
 }
 
-MeshETurbo* MeshETurbo::createFromCova(const CovAniso &cova,
-                                       const Db *field,
+MeshETurbo* MeshETurbo::createFromCova(const CovAniso& cova,
+                                       const Db* field,
                                        double ratio,
                                        int nbExt,
                                        bool useSel,
                                        bool flagNoStatRot,
+                                       int nxmax,
                                        bool verbose)
 {
   MeshETurbo* mesh = new MeshETurbo();
-  if (mesh->initFromCova(cova, field, ratio, nbExt, useSel, flagNoStatRot, verbose))
+  if (mesh->initFromCova(cova, field, ratio, nbExt, useSel, flagNoStatRot, nxmax, verbose))
     return nullptr;
   return mesh;
 }
@@ -809,6 +810,7 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
                              int nbExt,
                              bool useSel,
                              bool flagNoStatRot,
+                             int nxmax,
                              bool verbose)
 {
   // Initializations
@@ -878,7 +880,6 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
   VectorDouble x0(ndim);
 
   double dxmin = 1.e30;
-  int nxmax = 300;
   for (int idim = 0; idim < ndim; idim++)
   {
     double delta = extendMaxRot[idim] - extendMinRot[idim];
