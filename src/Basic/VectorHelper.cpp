@@ -1516,6 +1516,16 @@ void VectorHelper::subtractInPlace(VectorInt &dest, const VectorInt &src)
   }
 }
 
+void VectorHelper::subtractInPlace(const constvect in1,
+                                   const constvect in2,
+                                   vect  outv)
+{
+  for (int is = 0, ns = (int) in1.size(); is < ns; is++)
+  {
+    outv[is] = in2[is] - in1[is];
+  }
+}
+
 void VectorHelper::subtractInPlace(const VectorVectorDouble &in1,
                                    const VectorVectorDouble &in2,
                                    VectorVectorDouble &outv)

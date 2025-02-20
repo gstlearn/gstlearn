@@ -16,7 +16,7 @@ nx = 3
 print("(Based on the Turbo Mahing derived from a", nx ,"x", nx, "grid)")
 
 # Creating the environment
-mesh = gl.MeshETurbo([nx, nx])
+mesh = gl.MeshETurbo([nx, nx],[],[],[],False)
 model = gl.Model.createFromParam(gl.ECov.MATERN, param=1, range=nx/2)
 print("Number of apices = ", mesh.getNApices())
 
@@ -54,7 +54,7 @@ nx = 350
 print("(Based on the Turbo Meshing derived from a", nx ,"x", nx, "grid)")
 
 # Creating the environment
-mesh = gl.MeshETurbo([nx, nx])
+mesh = gl.MeshETurbo([nx, nx],[],[],[],False)
 model = gl.Model.createFromParam(gl.ECov.MATERN, param=1, range=nx/2)
 print("Number of apices = ", mesh.getNApices())
 
@@ -88,7 +88,7 @@ print("(Based on the Turbo Meshing derived from a", nx ,"x", nx, "x", nx, "grid)
 
 # Creating the environment
 gl.defineDefaultSpace(gl.ESpaceType.RN, 3)
-mesh = gl.MeshETurbo([nx, nx, nx])
+mesh = gl.MeshETurbo([nx, nx, nx],[],[],[],False)
 model = gl.Model.createFromParam(gl.ECov.MATERN, param=0.5, range=nx/2)
 print("Number of apices = ", mesh.getNApices())
 

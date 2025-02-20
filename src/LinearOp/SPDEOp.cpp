@@ -14,22 +14,27 @@
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "geoslib_define.h"
+#include <vector>
 
-SPDEOp::SPDEOp(const PrecisionOpMulti* const pop,
+SPDEOp::SPDEOp(const PrecisionOpMulti* const popkriging,
                const ProjMulti* const proj,
                const ASimulable* const invNoise,
+               const PrecisionOpMulti* const popsimu,
+                const ProjMulti* const projSimu,
                bool todelete)
-  : _Q(pop)
-  , _Proj(proj)
+  : _QKriging(popkriging)
+  , _projKriging(proj)
   , _invNoise(invNoise)
+  , _QSimu(popsimu == nullptr?_QKriging:popsimu)
+  , _projSimu(projSimu == nullptr?_projKriging:projSimu)
   , _noiseToDelete(todelete)
   , _ndat(0)
   , _solver(this)
 {
-   if (_Proj == nullptr) return;
+   if (_projKriging == nullptr) return;
    if (_invNoise == nullptr) return;
-   if (_Q == nullptr) return;
-   _ndat = _Proj->getNPoint();
+   if (_QKriging == nullptr) return;
+   _ndat = _projKriging->getNPoint();
   _prepare(true, true);
 }
 
@@ -40,7 +45,7 @@ SPDEOp::~SPDEOp()
 
 int SPDEOp::getSize() const
 {
-  return _Q->getSize();
+  return _QKriging->getSize();
 }
 
 void SPDEOp::_prepare(bool w1, bool w2) const
@@ -54,20 +59,57 @@ int SPDEOp::_addToDest(const constvect inv, vect outv) const
   return _addToDestImpl(inv, outv);
 }
 
-int SPDEOp::_addSimulateToDest(const constvect whitenoise, vect outv) const
+int SPDEOp::getSizeSimu() const
 {
-  DECLARE_UNUSED(whitenoise);
-  DECLARE_UNUSED(outv);
-  return 1;
+  return _QSimu->getSize();
+}
+
+void SPDEOp::simCond(const constvect data, vect outv) const
+{
+  // Resize if necessary
+  _workdat3.resize(_getNDat());
+  _workdat4.resize(_getNDat());
+  _workmesh.resize(getSizeSimu());
+  _workNoiseMesh.resize(getSizeSimu());
+  _workNoiseData.resize(_getNDat());
+
+  //Non conditional simulation on mesh
+  VH::simulateGaussianInPlace(_workNoiseMesh);
+  _QSimu->evalSimulate(_workNoiseMesh, outv); 
+  
+  //Simulation at data locations (projection + noise)
+  
+  _projSimu->mesh2point(outv, _workdat3); //Projection on data locations
+  VH::simulateGaussianInPlace(_workNoiseData);
+  _invNoise->addSimulateToDest(_workNoiseData, _workdat3); //Add noise
+  
+  //compute residual _workdat4 = data - outv
+  VH::subtractInPlace(_workdat3, data, _workdat4);
+
+  //Co-Kriging of the residual on the mesh
+  _solver.setTolerance(1e-5);
+  kriging(_workdat4,_workmesh); 
+  
+  //Add the kriging to the non conditional simulation
+  VH::addInPlace(_workmesh,outv); 
 }
 
 VectorDouble SPDEOp::kriging(const VectorDouble& dat) const
 {
   constvect datm(dat.data(), dat.size());
-  VectorDouble outv(_Q->getSize());
+  VectorDouble outv(_QKriging->getSize());
   vect outvs(outv);
   int err = kriging(datm, outvs);
   if (err) return VectorDouble();
+  return outv;
+}
+
+VectorDouble SPDEOp::simCond(const VectorDouble& dat) const
+{
+  constvect datm(dat.data(), dat.size());
+  VectorDouble outv(_QSimu->getSize());
+  vect outvs(outv);
+  simCond(datm, outvs);
   return outv;
 }
 
@@ -77,7 +119,7 @@ VectorDouble SPDEOp::krigingWithGuess(const VectorDouble& dat,
   constvect datm(dat.data(), dat.size());
   constvect guessm(guess.data(), guess.size());
 
-  VectorDouble outv(_Q->getSize());
+  VectorDouble outv(_QKriging->getSize());
   vect outvs(outv);
   int err = krigingWithGuess(datm, guessm, outvs);
   if (err) return VectorDouble();
@@ -114,10 +156,10 @@ int SPDEOp::_solveWithGuess(const constvect in,
 
 int SPDEOp::_buildRhs(const constvect inv) const
 {
-  _rhs.resize(_Q->getSize());
+  _rhs.resize(_QKriging->getSize());
   vect w1(_workdat1);
   _invNoise->evalDirect(inv, w1);
-  _Proj->point2mesh(_workdat1, _rhs);
+  _projKriging->point2mesh(_workdat1, _rhs);
   return 0;
 }
 
@@ -136,10 +178,10 @@ int SPDEOp::_addToDestImpl(const constvect inv, vect outv) const
   _prepare();
   vect w1s(_workdat1);
   vect w2s(_workdat2);
-  _Proj->mesh2point(inv, w1s);
+  _projKriging->mesh2point(inv, w1s);
   _invNoise->evalDirect(w1s, w2s);
-  _Proj->addPoint2mesh(w2s, outv);
-  return _Q->addToDest(inv, outv);
+  _projKriging->addPoint2mesh(w2s, outv);
+  return _QKriging->addToDest(inv, outv);
 }
 
 void SPDEOp::evalInvCov(const constvect inv, vect result) const
@@ -154,9 +196,9 @@ void SPDEOp::evalInvCov(const constvect inv, vect result) const
   vect w2s(_workdat2);
 
   _invNoise->evalDirect(inv,result);
-  _Proj->point2mesh(result,rhss);
+  _projKriging->point2mesh(result,rhss);
   _solve(rhss,wms);
-  _Proj->mesh2point(wms,w2s);
+  _projKriging->mesh2point(wms,w2s);
   //VectorHelper::multiplyConstant(w2s,-1);
   _invNoise->addToDest(w2s,result);
 

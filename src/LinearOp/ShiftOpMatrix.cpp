@@ -836,7 +836,7 @@ int ShiftOpMatrix::_buildS(const AMesh *amesh, double tol)
   if (_S == nullptr) goto label_end;
 
   /* Loop on the active meshes */
-
+  
   for (int imesh = 0; imesh < nmeshes; imesh++)
   {
     OptDbg::setCurrentIndex(imesh + 1);
@@ -993,7 +993,8 @@ int ShiftOpMatrix::_buildSGrad(const AMesh *amesh, double tol)
     OptDbg::setCurrentIndex(imesh + 1);
 
     // Prepare M matrix
-    _loadHH(amesh, hh, imesh);
+    if (_cova->isNoStatForAnisotropy())
+      _loadHH(amesh, hh, imesh);
     bool flagSphere = (amesh->getVariety() == 1);
     flagSphere = false; // Modif DR a valider
     if (! flagSphere)
@@ -1173,9 +1174,7 @@ void ShiftOpMatrix::_buildLambda(const AMesh *amesh)
   bool flagSphere = (amesh->getVariety() == 1);
 
   double correc = cova->getCorrec();
-  //double sqdethh = 0.;
   double factor = 1.;
-
  if (flagSphere)
   {
     const ASpace *space = getDefaultSpaceSh().get();
@@ -1190,46 +1189,6 @@ void ShiftOpMatrix::_buildLambda(const AMesh *amesh)
       factor = sqrt(hh.determinant());
     }
   }
-  /* Fill the array */
-
-  // if (_isNoStat())
-  // {
-  //   VectorDouble cum(nvertex, 0.);
-  //   for (int imesh = 0; imesh < nmeshes; imesh++)
-  //   {
-  //     // if (flagSphere && cova->isNoStatForAnisotropy())
-  //     // {
-  //     //   _loadHH(amesh, hh, imesh);
-  //     //   sqdethh = sqrt(hh.determinant());
-  //     //   factor = pow(sqdethh, - (2. * param  - 1.)/3.); //TODO probably wrong
-  //     // }
- 
-  //     for (int ic = 0, ncorner = amesh->getNApexPerMesh(); ic < ncorner; ic++)
-  //     {
-  //       int ip = amesh->getApex(imesh, ic);
-  //       _Lambda[ip] += 1 / factor;
-  //       cum[ip]++;
-  //     }
-  //   }
-
-  //   for (int ip = 0; ip < nvertex; ip++)
-  //   {
-  //     if (cum[ip] > 0.) _Lambda[ip] /= cum[ip];
-  //     _Lambda[ip] = sqrt(_TildeC[ip] * correc / _Lambda[ip]);
-  //   }
-  // }
-  // else
-  // {
-  //   for (int ip = 0; ip < nvertex; ip++)
-  //    {
-  //     _Lambda[ip] = sqrt(_TildeC[ip] * correc * factor);
-  //    }
-  // }
-
-  //   for (int ip = 0; ip < nvertex; ip++)
-  //    {
-  //     _Lambda[ip] = sqrt(_TildeC[ip] * correc * factor);
-  //    }
 
   for (int ip = 0; ip < nvertex; ip++)
   {

@@ -245,7 +245,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         {
           mesh        = MeshETurbo::createFromCova(*cova, domain, _params.getRefineS(),
                                                    _params.getBorder(), useSel, 
-                                                   flagNoStatRot, _params.getNxMax(), 
+                                            _params.isPolarized(),        flagNoStatRot, _params.getNxMax(), 
                                                    verbose);
           _deleteMesh = true;
         }
@@ -270,7 +270,8 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         if (meshUser == nullptr)
         {
           mesh = MeshETurbo::createFromCova(*cova, domain, _params.getRefineK(),
-                                            _params.getBorder(), useSel, flagNoStatRot,
+                                            _params.getBorder(), _params.isPolarized(),
+                                            useSel, flagNoStatRot,
                                             _params.getNxMax(), verbose);
          
           _deleteMesh = true;

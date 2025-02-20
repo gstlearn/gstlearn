@@ -71,7 +71,7 @@ MeshETurbo::MeshETurbo(const MeshETurbo &r)
     : AMesh(r),
       _grid(),
       _nPerCell(0),
-      _isPolarized(false),
+      _isPolarized(r._isPolarized),
       _meshIndirect(r._meshIndirect),
       _gridIndirect(r._gridIndirect)
 {
@@ -430,13 +430,14 @@ MeshETurbo* MeshETurbo::createFromCova(const CovAniso& cova,
                                        const Db* field,
                                        double ratio,
                                        int nbExt,
+                                       bool isPolarized,
                                        bool useSel,
                                        bool flagNoStatRot,
                                        int nxmax,
                                        bool verbose)
 {
   MeshETurbo* mesh = new MeshETurbo();
-  if (mesh->initFromCova(cova, field, ratio, nbExt, useSel, flagNoStatRot, nxmax, verbose))
+  if (mesh->initFromCova(cova, field, ratio, nbExt, isPolarized, useSel, flagNoStatRot, nxmax, verbose))
     return nullptr;
   return mesh;
 }
@@ -808,6 +809,7 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
                              const Db* field,
                              double ratio,
                              int nbExt,
+                             bool isPolarized,
                              bool useSel,
                              bool flagNoStatRot,
                              int nxmax,
@@ -918,7 +920,7 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
   rot.rotateDirect(extendMinRot, x0);
   VH::addInPlace(x0, cornerRef);
 
-  initFromGridByMatrix(nx,dx,x0,rot.getMatrixDirectVec(),VectorDouble(),true,verbose);
+  initFromGridByMatrix(nx,dx,x0,rot.getMatrixDirectVec(),VectorDouble(),isPolarized,verbose);
   return 0;
 }
 

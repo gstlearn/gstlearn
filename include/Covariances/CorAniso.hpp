@@ -97,7 +97,7 @@ public:
                               int jvar = 0) const override;
 
   virtual double getIntegralRange(int ndisc, double hmax) const;
-  virtual String getFormula() const { return _covfunc->getFormula(); }
+  virtual String getFormula() const { return _corfunc->getFormula(); }
   virtual double getBallRadius() const { return TEST; }
 
   static bool isOptimizationInitialized(const std::vector<SpacePoint> &p1As,
@@ -107,7 +107,7 @@ public:
   void _optimizationSetTargetByIndex(int iech,
                                     const std::vector<SpacePoint> &p1As,
                                     SpacePoint & p2A) const;
-
+  void _optimizationSetTarget(const SpacePoint& pt) const override;
   void _optimizationPostProcess() const override;
   bool isNoStat() const override;
   bool isValidForTurningBand() const;
@@ -137,7 +137,6 @@ public:
                                           double param = 1.,
                                           const VectorDouble& angles = VectorDouble(),
                                           bool flagRange = true);
-
 
   void setParam(double param);
   void setNoStatFactor(double noStatFactor) { _noStatFactor = noStatFactor; }
@@ -178,29 +177,29 @@ public:
   double getAnisoAngles(int idim) const { return getAnisoAngles()[idim]; }
   double getAnisoRotMat(int idim, int jdim) const { return _aniso.getMatrixDirect().getValue(idim,jdim); }
   double getAnisoCoeffs(int idim) const { return getAnisoCoeffs()[idim]; }
-  const ECov& getType() const { return _covfunc->getType(); }
+  const ECov& getType() const { return _corfunc->getType(); }
   double getParam() const;
-  double getScadef() const { return _covfunc->getScadef(); }
-  double getParMax() const { return _covfunc->getParMax(); }
-  int    getMaxNDim() const { return _covfunc->getMaxNDim(); }
-  int    getMinOrder() const { return _covfunc->getMinOrder(); }
-  bool   hasInt1D() const { return _covfunc->hasInt1D(); }
-  bool   hasInt2D() const { return _covfunc->hasInt2D(); }
-  int    hasRange() const { return _covfunc->hasRange(); }
-  int    hasParam() const  { return _covfunc->hasParam(); }
-  String getCovName() const { return _covfunc->getCovName(); }
+  double getScadef() const { return _corfunc->getScadef(); }
+  double getParMax() const { return _corfunc->getParMax(); }
+  int    getMaxNDim() const { return _corfunc->getMaxNDim(); }
+  int    getMinOrder() const { return _corfunc->getMinOrder(); }
+  bool   hasInt1D() const { return _corfunc->hasInt1D(); }
+  bool   hasInt2D() const { return _corfunc->hasInt2D(); }
+  int    hasRange() const { return _corfunc->hasRange(); }
+  int    hasParam() const  { return _corfunc->hasParam(); }
+  String getCovName() const { return _corfunc->getCovName(); }
   bool   isIsotropic() const { return _aniso.isIsotropic(); }
   bool   isAsymptotic() const { return getScadef() != 1.; }
   bool   hasRotation() const { return _aniso.hasRotation(); }
   const Tensor& getAniso() const { return _aniso; }
   void   setAniso(const Tensor& aniso) { _aniso = aniso; }
-  const ACovFunc* getCovFunc() const { return _covfunc; }
+  const ACovFunc* getCorFunc() const { return _corfunc; }
   int    getNGradParam() const;
-  bool   hasCovDerivative() const { return _covfunc->hasCovDerivative(); }
-  bool   hasCovOnSphere() const { return _covfunc->hasCovOnSphere(); }
-  bool   hasSpectrumOnSphere() const { return _covfunc->hasSpectrumOnSphere(); }
-  bool   hasMarkovCoeffs() const { return _covfunc->hasMarkovCoeffs(); }
-  bool   hasSpectrumOnRn() const { return _covfunc->hasSpectrumOnRn(); }
+  bool   hasCovDerivative() const { return _corfunc->hasCovDerivative(); }
+  bool   hasCovOnSphere() const { return _corfunc->hasCovOnSphere(); }
+  bool   hasSpectrumOnSphere() const { return _corfunc->hasSpectrumOnSphere(); }
+  bool   hasMarkovCoeffs() const { return _corfunc->hasMarkovCoeffs(); }
+  bool   hasSpectrumOnRn() const { return _corfunc->hasSpectrumOnRn(); }
   double normalizeOnSphere(int n = 50) const;
   //////////////////////// New NoStat methods //////////////////////////
 
@@ -288,20 +287,21 @@ bool _checkTensor() const;
 bool _checkRotation() const;
 bool _checkParam() const;
 
-bool _isVariableValid(int ivar) const;
-
-void _updateFromContext() override;
-void _optimizationSetTarget(const SpacePoint& pt) const override;
+  bool   _isVariableValid(int ivar) const;
+  
+  void _updateFromContext() override;
 
 private:
-ACovFunc* _covfunc;    /// Covariance basic function
-mutable Tensor _aniso; /// Anisotropy parameters
-TabNoStatCovAniso* _tabNoStatCovAniso;
-mutable double _noStatFactor; /// Correcting factor for non-stationarity
-const std::array<EConsElem, 4> _listaniso = {EConsElem::RANGE, EConsElem::SCALE,
-                                             EConsElem::TENSOR, EConsElem::ANGLE};
-mutable bool _isOptimizationPreProcessed;
-mutable bool _optimEnabled;
-// These temporary information is used to speed up processing (optimization functions)
-// They are in a protected section as they may be modified by class hierarchy
+  ACovFunc *_corfunc;                  /// Basic correlation function
+  mutable Tensor _aniso;               /// Anisotropy parameters
+  TabNoStatCovAniso* _tabNoStatCovAniso;
+  mutable double _noStatFactor;        /// Correcting factor for non-stationarity
+  const std::array<EConsElem,4> _listaniso = {EConsElem::RANGE,
+                                              EConsElem::SCALE,
+                                              EConsElem::TENSOR,
+                                              EConsElem::ANGLE};
+  mutable bool _isOptimizationPreProcessed;
+  mutable bool _optimEnabled;
+  // These temporary information is used to speed up processing (optimization functions)
+  // They are in a protected section as they may be modified by class hierarchy
 };

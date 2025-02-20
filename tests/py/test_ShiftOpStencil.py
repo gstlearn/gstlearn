@@ -9,12 +9,12 @@ seltab = np.ones(ncell)
 middle = int(ncell / 2)
 seltab[middle] = 0
 flagSel = True
-meshref = gl.MeshETurbo(dbg)
+meshref = gl.MeshETurbo(dbg, False)
 if flagSel:
     dbg.addColumns(seltab, "sel", gl.ELoc.SEL)
     print("Pixel", middle, "has been masked off")
 
-meshsel = gl.MeshETurbo(dbg)
+meshsel = gl.MeshETurbo(dbg, False)
 model = gl.Model.createFromParam(gl.ECov.MATERN,ranges = [3.,4.],param=1)
 cova = model.getCova(0)
 
@@ -43,3 +43,5 @@ resultNew = Ssten.evalDirect(newvar)
 
 # %%
 print("Difference =", np.max(np.abs(resultNew-result)))
+
+

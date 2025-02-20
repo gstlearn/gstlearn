@@ -48,7 +48,7 @@ static int COVWGT[4][5] = { { 2, -2, 0, 0, 0 },
 
 CorAniso::CorAniso(const ECov &type, const CovContext &ctxt)
     : ACov(ctxt), /// TODO : shared pointer
-      _covfunc(CovFactory::createCovFunc(type, ctxt)),
+      _corfunc(CovFactory::createCovFunc(type, ctxt)),
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
       _noStatFactor(1.),
@@ -60,7 +60,7 @@ CorAniso::CorAniso(const ECov &type, const CovContext &ctxt)
 
 CorAniso::CorAniso(const String &symbol, const CovContext &ctxt)
     : ACov(ctxt), /// TODO : shared pointer
-      _covfunc(),
+      _corfunc(),
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
       _noStatFactor(1.),
@@ -68,7 +68,7 @@ CorAniso::CorAniso(const String &symbol, const CovContext &ctxt)
       _optimEnabled(true)
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
-  _covfunc = CovFactory::createCovFunc(covtype, ctxt);
+  _corfunc = CovFactory::createCovFunc(covtype, ctxt);
   initFromContext();
 }
 
@@ -78,7 +78,7 @@ CorAniso::CorAniso(const ECov &type,
                    const CovContext &ctxt,
                    bool flagRange)
     : ACov(ctxt),
-      _covfunc(CovFactory::createCovFunc(type, ctxt)),
+      _corfunc(CovFactory::createCovFunc(type, ctxt)),
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
       _noStatFactor(1.),
@@ -99,7 +99,7 @@ CorAniso::CorAniso(const ECov &type,
 
 CorAniso::CorAniso(const CorAniso &r)
     : ACov(r),
-      _covfunc(CovFactory::duplicateCovFunc(*r._covfunc)),
+      _corfunc(CovFactory::duplicateCovFunc(*r._corfunc)),
       _aniso(r._aniso),
       _tabNoStatCovAniso(new TabNoStatCovAniso(*r._tabNoStatCovAniso)),
       _noStatFactor(r._noStatFactor),
@@ -114,7 +114,7 @@ CorAniso& CorAniso::operator=(const CorAniso &r)
   if (this != &r)
   {
     ACov::operator =(r);
-    _covfunc = CovFactory::duplicateCovFunc(*r._covfunc);
+    _corfunc = CovFactory::duplicateCovFunc(*r._corfunc);
     _aniso = r._aniso;
     _tabNoStatCovAniso = new TabNoStatCovAniso(*_tabNoStatCovAniso);
     _noStatFactor = r._noStatFactor;
@@ -127,7 +127,7 @@ CorAniso& CorAniso::operator=(const CorAniso &r)
 
 CorAniso::~CorAniso()
 {
-  delete _covfunc;
+  delete _corfunc;
 }
 
 TabNoStat* CorAniso::_createNoStatTab()
@@ -137,24 +137,24 @@ TabNoStat* CorAniso::_createNoStatTab()
 }
 void CorAniso::computeCorrec()
 {
-  _covfunc->computeCorrec(getNDim());
+  _corfunc->computeCorrec(getNDim());
 }
 
 void CorAniso::computeMarkovCoeffs()
 {
-  _covfunc->computeMarkovCoeffs(getNDim());
+  _corfunc->computeMarkovCoeffs(getNDim());
 }
 
 void CorAniso::_setContext(const CovContext &ctxt)
 {
-  DECLARE_UNUSED(ctxt);
+  DECLARE_UNUSED(ctxt)
   updateFromContext();
 }
 
 void CorAniso::setParam(double param)
 {
-  if (!_covfunc->hasParam()) return;
-  _covfunc->setParam(param);
+  if (!_corfunc->hasParam()) return;
+  _corfunc->setParam(param);
   updateFromContext();
 }
 
@@ -166,7 +166,7 @@ void CorAniso::setRangeIsotropic(double range)
     messerr("Range is too small (%lf). It has been replaced by 1.", range);
     range = 1;
   }
-  double scadef = _covfunc->getScadef();
+  double scadef = _corfunc->getScadef();
   setScale(range / scadef);
 }
 
@@ -186,7 +186,7 @@ void CorAniso::setRanges(const VectorDouble &ranges)
     }
   }
   VectorDouble scales = ranges;
-  double scadef = _covfunc->getScadef();
+  double scadef = _corfunc->getScadef();
   VH::divideConstant(scales, scadef);
   setScales(scales);
 }
@@ -199,7 +199,7 @@ void CorAniso::setRange(int idim, double range)
     messerr("The range should not be too small");
     return;
   }
-  double scadef = _covfunc->getScadef();
+  double scadef = _corfunc->getScadef();
   setScale(idim, range / scadef);
 }
 
@@ -212,8 +212,8 @@ void CorAniso::setScale(double scale)
     return;
   }
   _aniso.setRadiusIsotropic(scale);
-  double scadef = _covfunc->getScadef();
-  _covfunc->setField(scadef * scale);
+  double scadef = _corfunc->getScadef();
+  _corfunc->setField(scadef * scale);
 }
 
 void CorAniso::setScales(const VectorDouble &scales)
@@ -228,8 +228,8 @@ void CorAniso::setScales(const VectorDouble &scales)
     }
   }
   _aniso.setRadiusVec(scales);
-  double scadef = _covfunc->getScadef();
-  _covfunc->setField(scadef * VH::maximum(scales));
+  double scadef = _corfunc->getScadef();
+  _corfunc->setField(scadef * VH::maximum(scales));
 }
 
 void CorAniso::setScale(int idim, double scale)
@@ -240,8 +240,8 @@ void CorAniso::setScale(int idim, double scale)
     return;
   }
   _aniso.setRadiusDir(idim, scale);
-  double scadef = _covfunc->getScadef();
-  _covfunc->setField(scadef * VH::maximum(_aniso.getRadius()));
+  double scadef = _corfunc->getScadef();
+  _corfunc->setField(scadef * VH::maximum(_aniso.getRadius()));
 }
 
 void CorAniso::setAnisoRotation(const Rotation &rot)
@@ -324,7 +324,7 @@ void CorAniso::setRotationAnglesAndRadius(const VectorDouble &angles,
       }
     }
     scales_local = ranges;
-    double scadef = _covfunc->getScadef();
+    double scadef = _corfunc->getScadef();
     VH::divideConstant(scales_local, scadef);
   }
 
@@ -335,28 +335,28 @@ void CorAniso::setRotationAnglesAndRadius(const VectorDouble &angles,
 
 bool CorAniso::isValidForTurningBand() const
 {
-  return _covfunc->isValidForTurningBand();
+  return _corfunc->isValidForTurningBand();
 }
 double CorAniso::simulateTurningBand(double t0, TurningBandOperate &operTB) const
 {
-  return _covfunc->simulateTurningBand(t0, operTB);
+  return _corfunc->simulateTurningBand(t0, operTB);
 }
 bool CorAniso::isValidForSpectral() const
 {
-  return _covfunc->isValidForSpectral();
+  return _corfunc->isValidForSpectral();
 }
 MatrixRectangular CorAniso::simulateSpectralOmega(int nb) const
 {
-  return _covfunc->simulateSpectralOmega(nb);
+  return _corfunc->simulateSpectralOmega(nb);
 }
 bool CorAniso::isConsistent(const ASpace* space) const
 {
   // Check against the Space Type
-  if (space->getType() == ESpaceType::RN && ! _covfunc->getCompatibleSpaceR()) return false;
-  if (space->getType() == ESpaceType::SN && ! _covfunc->getCompatibleSpaceS()) return false;
+  if (space->getType() == ESpaceType::RN && ! _corfunc->getCompatibleSpaceR()) return false;
+  if (space->getType() == ESpaceType::SN && ! _corfunc->getCompatibleSpaceS()) return false;
 
   // Check against the space dimension
-  unsigned int maxndim = _covfunc->getMaxNDim();
+  unsigned int maxndim = _corfunc->getMaxNDim();
   return maxndim <= 0 || (maxndim >= space->getNDim());
 }
 
@@ -377,10 +377,10 @@ double CorAniso::evalCorFromH(double h, const CovCalcMode *mode) const
     {
 
       // Traditional Covariance or Variogram
-      cov = _covfunc->evalCov(h) * _noStatFactor;
+      cov = _corfunc->evalCov(h) * _noStatFactor;
 
       // Convert into a variogram
-      if (mode->getAsVario()) cov = _covfunc->evalCov(0) - cov;
+      if (mode->getAsVario()) cov = _corfunc->evalCov(0) - cov;
     }
     else
     {
@@ -390,14 +390,14 @@ double CorAniso::evalCorFromH(double h, const CovCalcMode *mode) const
       for (int iwgt = 1, nwgt = NWGT[norder]; iwgt < nwgt; iwgt++)
       {
         double hp = h * (1. + iwgt);
-        covcum += COVWGT[norder][iwgt] * _covfunc->evalCov(hp);
+        covcum += COVWGT[norder][iwgt] * _corfunc->evalCov(hp);
       }
       cov = covcum / NORWGT[norder];
     }
   }
   else
   {
-    cov =  _covfunc->evalCov(h) * _noStatFactor;
+    cov =  _corfunc->evalCov(h) * _noStatFactor;
   }
   return cov;
 }
@@ -437,7 +437,7 @@ double CorAniso::evalCovOnSphere(double alpha,
                                  bool flagScaleDistance,
                                  const CovCalcMode* mode) const
 {
-  if (!_covfunc->hasCovOnSphere()) return TEST;
+  if (!_corfunc->hasCovOnSphere()) return TEST;
   const ASpace* space = getDefaultSpaceSh().get();
   const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
   if (spaceSn == nullptr) return TEST;
@@ -450,17 +450,17 @@ double CorAniso::evalCovOnSphere(double alpha,
     alpha = alpha / radius;
   }
 
-  double value = _covfunc->evalCovOnSphere(alpha, scale, degree);
+  double value = _corfunc->evalCovOnSphere(alpha, scale, degree);
 
   if (mode != nullptr && mode->getAsVario())
-    value = _covfunc->evalCovOnSphere(0., scale, degree) - value;
+    value = _corfunc->evalCovOnSphere(0., scale, degree) - value;
 
   return value;
 }
 
 VectorDouble CorAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool flagCumul) const
 {
-  if (!_covfunc->hasSpectrumOnSphere()) return VectorDouble();
+  if (!_corfunc->hasSpectrumOnSphere()) return VectorDouble();
   const ASpace* space = getDefaultSpaceSh().get();
   const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
   if (spaceSn == nullptr) return VectorDouble();
@@ -471,14 +471,14 @@ VectorDouble CorAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool f
     double radius = spaceSn->getRadius();
     scale /= radius;
   }
-  VectorDouble vec = _covfunc->evalSpectrumOnSphere(n, scale);
+  VectorDouble vec = _corfunc->evalSpectrumOnSphere(n, scale);
   if (flagCumul) VH::cumulateInPlace(vec);
   return vec;
 }
 
 void CorAniso::setMarkovCoeffs(const VectorDouble& coeffs)
 {
-  _covfunc->setMarkovCoeffs(coeffs);
+  _corfunc->setMarkovCoeffs(coeffs);
   computeCorrec();
 }
 
@@ -514,12 +514,12 @@ void CorAniso::setMarkovCoeffsBySquaredPolynomials(VectorDouble coeffs1,
 
 double CorAniso::getCorrec() const
 {
-  return _covfunc->getCorrec();
+  return _corfunc->getCorrec();
 }
 
 double CorAniso::getFullCorrec() const
 {
-  return  _covfunc->getCorrec() / getDetTensor();
+  return  _corfunc->getCorrec() / getDetTensor();
 }
 
 double CorAniso::getDetTensor() const
@@ -536,13 +536,13 @@ double CorAniso::getDetTensor() const
 double CorAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) const
 {
   DECLARE_UNUSED(ivar,jvar)
-  if (!_covfunc->hasSpectrumOnRn()) return TEST;
+  if (!_corfunc->hasSpectrumOnRn()) return TEST;
 
   SpacePoint p1;
   SpacePoint p2;
   p2.setCoords(freq);
   double freqnorm = getSpace()->getFrequentialDistance(p1, p2, _aniso);
-  double val = _covfunc->evaluateSpectrum(freqnorm * freqnorm);
+  double val = _corfunc->evaluateSpectrum(freqnorm * freqnorm);
   return   val / getCorrec();
 }
 
@@ -553,14 +553,14 @@ double CorAniso::normalizeOnSphere(int n) const
   double scale = getScale();
   double radius = spaceSn->getRadius();
   scale = scale / radius;
-  return _covfunc->normalizeOnSphere(n,scale);
+  return _corfunc->normalizeOnSphere(n,scale);
 }
 
 VectorDouble CorAniso::getMarkovCoeffs() const
 {
-  if (!_covfunc->hasMarkovCoeffs()) return VectorDouble();
+  if (!_corfunc->hasMarkovCoeffs()) return VectorDouble();
 
-  return _covfunc->getMarkovCoeffs();
+  return _corfunc->getMarkovCoeffs();
 }
 
 VectorDouble CorAniso::evalCovOnSphereVec(const VectorDouble &alpha,
@@ -580,7 +580,7 @@ String CorAniso::toStringParams(const AStringFormat* strfmt) const
   DECLARE_UNUSED(strfmt)
   std::stringstream sstr;
   
-  if (_covfunc->hasRange() > 0)
+  if (_corfunc->hasRange() > 0)
   {
 
     // A sill is defined
@@ -607,7 +607,7 @@ String CorAniso::toStringParams(const AStringFormat* strfmt) const
       }
     }
   }
-  else if (_covfunc->hasRange() < 0)
+  else if (_corfunc->hasRange() < 0)
   {
     if (!_aniso.isIsotropic())
     {
@@ -628,7 +628,7 @@ String CorAniso::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   // Covariance Name
-  sstr << _covfunc->toString(strfmt);
+  sstr << _corfunc->toString(strfmt);
   sstr << toStringParams(strfmt);
   
    
@@ -657,7 +657,7 @@ void CorAniso::nostatUpdate(CovInternal *covint)
 VectorDouble CorAniso::getRanges() const
 {
   VectorDouble range = getScales();
-  double scadef = _covfunc->getScadef();
+  double scadef = _corfunc->getScadef();
   if (!hasRange()) scadef = 0.;
   VH::multiplyConstant(range, scadef);
   return range;
@@ -665,8 +665,8 @@ VectorDouble CorAniso::getRanges() const
 
 void CorAniso::setType(const ECov &type)
 {
-  delete _covfunc;
-  _covfunc = CovFactory::createCovFunc(type, getContext());
+  delete _corfunc;
+  _corfunc = CovFactory::createCovFunc(type, getContext());
 }
 
 /**
@@ -712,7 +712,7 @@ double CorAniso::getParam() const
 {
   if (!hasParam())
     return 0.;
-  return _covfunc->getParam();
+  return _corfunc->getParam();
 }
 
 void CorAniso::_initFromContext()
@@ -894,7 +894,7 @@ CorAniso* CorAniso::createAnisotropicMulti(const CovContext &ctxt,
 
 void CorAniso::_copyCovContext(const CovContext &ctxt)
 {
-  if (_covfunc != nullptr) _covfunc->copyCovContext(ctxt);
+  if (_corfunc != nullptr) _corfunc->copyCovContext(ctxt);
 }
 
 Array CorAniso::evalCovFFT(const VectorDouble& hmax,

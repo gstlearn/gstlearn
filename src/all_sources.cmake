@@ -219,6 +219,7 @@ set(SRC
   Variogram/Vario.cpp
   Variogram/VarioParam.cpp
   Variogram/DirParam.cpp
+  Basic/ParamInfo.cpp
   Basic/Limits.cpp
   Basic/AStringable.cpp
   Basic/AStringFormat.cpp

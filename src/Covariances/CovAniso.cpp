@@ -69,13 +69,13 @@ CovAniso::CovAniso(const ECov &type,
 
   // Sill
   if (ctxt.getNVar() == 1)
-    _sill.setValue(0, 0, sill);
+    _sillCur.setValue(0, 0, sill);
   else
   {
     int nvar = ctxt.getNVar();
-    _sill.fill(0);
+    _sillCur.fill(0);
     for (int ivar = 0; ivar < nvar; ivar++)
-      _sill.setValue(ivar, ivar, sill);
+      _sillCur.setValue(ivar, ivar, sill);
   }
 
   // Param
@@ -89,7 +89,7 @@ CovAniso::CovAniso(const ECov &type,
 }
 
 CovAniso::CovAniso(const CovAniso &r)
-    : CovProportional(new CorAniso(*r._corAniso),r._sill), /// TODO : shared pointer
+    : CovProportional(new CorAniso(*r._corAniso),r._sillCur), /// TODO : shared pointer
       _corAniso((CorAniso*)getCor()),
       _optimEnabled(r._optimEnabled)
 {
@@ -103,7 +103,7 @@ CovAniso& CovAniso::operator=(const CovAniso &r)
      setCor(new CorAniso(*r._corAniso));
     _corAniso = (CorAniso*)getCor();
     _ctxt = r._ctxt;
-    _sill = r._sill;
+    _sillCur = r._sillCur;
     _optimEnabled = r._optimEnabled;
   }
   return *this;
@@ -257,7 +257,7 @@ void CovAniso::evalOptimInPlace(MatrixRectangular& res,
   {
     int ivar1 = ivars[rvar1];
     if (mode == nullptr || ! mode->getUnitary())
-      sill = _sill.getValue(ivar1, ivar2);
+      sill = _sillCur.getValue(ivar1, ivar2);
 
     // Loop on the first sample
     int nech1s = (int) index1[rvar1].size();
@@ -324,7 +324,7 @@ double CovAniso::_getDetTensor() const
 double CovAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) const
 {
   if (!_corAniso->hasSpectrumOnRn()) return TEST;
-  return _sill.getValue(ivar, jvar) * _corAniso->evalSpectrum(freq, ivar, jvar);
+  return _sillCur.getValue(ivar, jvar) * _corAniso->evalSpectrum(freq, ivar, jvar);
 }
 
 double CovAniso::normalizeOnSphere(int n) const
@@ -353,7 +353,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
  
-  sstr << _corAniso->getCovFunc()->toString();
+  sstr << _corAniso->getCorFunc()->toString();
 
   // Sill - Factor / Slope information
   if (_corAniso->hasRange() > 0)
@@ -363,11 +363,11 @@ String CovAniso::toString(const AStringFormat* strfmt) const
     if (getNVar() > 1)
     {
       sstr << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
-                      getNVar(), getNVar(), _sill.getValues());
+                      getNVar(), getNVar(), _sillCur.getValues());
     }
     else
     {
-      sstr << "- Sill         = " << toDouble(_sill.getValue(0, 0)) << std::endl;
+      sstr << "- Sill         = " << toDouble(_sillCur.getValue(0, 0)) << std::endl;
     }
   }
   else if (_corAniso->hasRange() < 0)
@@ -376,11 +376,11 @@ String CovAniso::toString(const AStringFormat* strfmt) const
 
     if (getNVar() > 1)
     {
-      MatrixSquareGeneral slopes = _sill;
+      MatrixSquareGeneral slopes = _sillCur;
       double range = getRange(0);
       for (int ivar = 0; ivar < getNVar(); ivar++)
         for (int jvar = 0; jvar < getNVar(); jvar++)
-          slopes.setValue(ivar, jvar, _sill.getValue(ivar, jvar) / range);
+          slopes.setValue(ivar, jvar, _sillCur.getValue(ivar, jvar) / range);
       sstr << toMatrix("- Slope matrix:", VectorString(), VectorString(), 0,
                       getNVar(), getNVar(), slopes.getValues());
     }
@@ -396,11 +396,11 @@ String CovAniso::toString(const AStringFormat* strfmt) const
     if (getNVar() > 1)
     {
       sstr << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
-                      getNVar(), getNVar(), _sill.getValues());
+                      getNVar(), getNVar(), _sillCur.getValues());
     }
     else
     {
-      sstr << "- Sill         = " << toDouble(_sill.getValue(0, 0)) << std::endl;
+      sstr << "- Sill         = " << toDouble(_sillCur.getValue(0, 0)) << std::endl;
     }
   }
 
@@ -431,7 +431,7 @@ double CovAniso::getSlope(int ivar, int jvar) const
 {
   if (hasRange() == 0) return TEST;
   double range = getRange(0);
-  return _sill.getValue(ivar, jvar) / range;
+  return _sillCur.getValue(ivar, jvar) / range;
 }
 
 VectorDouble CovAniso::getRanges() const
@@ -480,7 +480,7 @@ double CovAniso::getParam() const
  */
 double CovAniso::getIntegralRange(int ndisc, double hmax) const
 {
-  return _sill.getValue(0, 0) * _corAniso->getIntegralRange(ndisc, hmax);
+  return _sillCur.getValue(0, 0) * _corAniso->getIntegralRange(ndisc, hmax);
 }
 
 
@@ -623,7 +623,7 @@ CovAniso* CovAniso::createReduce(const VectorInt &validVars) const
 
   // Modify the Matrix of sills
   newCovAniso->setContext(ctxt);
-  MatrixSquareSymmetric* newsill = dynamic_cast<MatrixSquareSymmetric*>(MatrixFactory::createReduce(&_sill, validVars, validVars));
+  MatrixSquareSymmetric* newsill = dynamic_cast<MatrixSquareSymmetric*>(MatrixFactory::createReduce(&_sillCur, validVars, validVars));
   newCovAniso->setSill(*newsill);
   return newCovAniso;
 }

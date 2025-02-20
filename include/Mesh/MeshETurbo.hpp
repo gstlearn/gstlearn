@@ -78,8 +78,9 @@ public:
   static MeshETurbo* createFromCova(const CovAniso& cova,
                                     const Db* field,
                                     double ratio,
-                                    int nbExt          = 0,
-                                    bool useSel        = true,
+                                    int nbExt = 0,
+                                    bool isPolarized = false,
+                                    bool useSel = true,
                                     bool flagNoStatRot = false,
                                     int nxmax = 300,
                                     bool verbose = false);
@@ -107,8 +108,9 @@ public:
   int initFromCova(const CovAniso& cova,
                    const Db* field,
                    double ratio,
-                   int nbExt          = 0,
-                   bool useSel        = true,
+                   int nbExt = 0,
+                   bool isPolarized = false,
+                   bool useSel = true,
                    bool flagNoStatRot = false,
                    int nxmax = 300,
                    bool verbose = false);

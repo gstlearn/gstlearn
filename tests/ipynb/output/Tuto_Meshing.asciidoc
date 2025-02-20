@@ -243,7 +243,6 @@ Known Mean(s)     0.000
 
 Turbo Meshing
 =============
-Diamond construction is activated
 
 Grid characteristics:
 ---------------------

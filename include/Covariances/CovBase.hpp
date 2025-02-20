@@ -12,12 +12,14 @@
 #include "Basic/AFunctional.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStat.hpp"
+#include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Model/CovInternal.hpp"
 #include "geoslib_define.h"
-
+#include "Matrix/MatrixT.hpp"
+#include "Basic/ParamInfo.hpp"
 class AFunctional;
 class CovInternal;
 
@@ -30,27 +32,31 @@ public:
   CovBase& operator=(const CovBase &r) = delete;
   virtual ~CovBase();
 
+  ParamInfo createParamInfoForCholSill(int ivar = 0, int jvar = 0);
+
   virtual bool isConsistent(const ASpace* space) const override;
   virtual int getNVar() const override { return _ctxt.getNVar(); }
   bool isOptimizationInitialized(const Db* db = nullptr) const;
   
   void optimizationSetTargetByIndex(int iech) const override;
-
+  void loadInfoValues() override;
+  void setCholSill(int ivar, int jvar, double val) const;
   void setSill(double sill) const; /// Only valid when there is only one variable (in the context)
   void setSill(const MatrixSquareSymmetric& sill) const;
   void setSill(const VectorDouble& sill) const;
   void setSill(int ivar, int jvar, double sill) const;
   void initSill(double value = 0.);
 
-  const MatrixSquareSymmetric& getSill() const { return _sill; }
+  const MatrixSquareSymmetric& getSill() const { return _sillCur; }
   virtual void setCor(ACov* cor);
   const ACov* getCor() const { return _cor; }
   
   double getSill(int ivar, int jvar) const;
   void   attachNoStatDb(const Db* db);
   
-  void   makeSillNoStatDb(  const String &namecol, int ivar = 0, int jvar = 0,const Db* db = nullptr);
-  void   makeSillStationary( int ivar = 0, int jvar = 0);
+  void   makeSillNoStatDb( const String &namecol, int ivar = 0, int jvar = 0,const Db* db = nullptr);
+  void   makeSillStationary(int ivar = 0, int jvar = 0);
+  void   makeSillsStationary(bool silent = false);
   void   makeSillNoStatFunctional(  const AFunctional *func, int ivar = 0, int jvar = 0);
 
   void   makeStationary() override;
@@ -119,10 +125,11 @@ private:
   void _optimizationSetTarget(const SpacePoint& pt) const override;
 
 protected:
-  TabNoStat _tabNoStat;
-  mutable MatrixSquareSymmetric _sill;
-  mutable MatrixSquareGeneral _workMat;
-
-private:
-  ACov* _cor;
+    MatrixT<ParamInfo> _cholSillsInfo;
+    mutable MatrixSquareGeneral _cholSills;
+    TabNoStat _tabNoStat;
+    mutable MatrixSquareSymmetric _sillCur;
+    mutable MatrixSquareGeneral _workMat;
+private :
+    ACov* _cor;
 };
