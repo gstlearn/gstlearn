@@ -200,14 +200,15 @@ static int* st_relative_position_array(int mode, int neq, int *rel_arg)
 
     /* Creation */
 
-    rel = (int*) st_icore(neq, 1);
+    rel = (int*)st_icore(neq, 1);
     if (rel == nullptr) return (rel);
-    for (i = j = 0; i < neq; i++)
-    {
-      if (flag_global != NULL && flag_global[i])
-        rel[j++] = i + 1;
-      else
-        rel[j++] = i + 1;
+    for (i = j = 0; i < neq; i++) {
+      // Comment: the next code has been commented out as it seems to be unused
+      // The whole function should probably disappear soon.
+      // if (flag_global != NULL && flag_global[i])
+      //   rel[j++] = i + 1;
+      // else
+      rel[j++] = i + 1;
     }
   }
   else

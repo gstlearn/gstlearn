@@ -42,10 +42,7 @@ bool OptDbg::query(const EDbg& option, bool discardForce)
   DECLARE_UNUSED(discardForce);
 
   if (force()) return true;
-  for (const auto& e: _dbg)
-  {
-    if (e == option) return true;
-  }
+  return std::ranges::any_of(_dbg, [&option](const auto& e) { return e == option; });
   return false;
 }
 

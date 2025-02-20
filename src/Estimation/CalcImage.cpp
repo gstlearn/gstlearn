@@ -19,8 +19,6 @@
 #include "Morpho/Morpho.hpp"
 #include "Model/Model.hpp"
 #include "Basic/NamingConvention.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Basic/OptCst.hpp"
 #include "Basic/Convolution.hpp"
 
 #include "geoslib_old_f.h"
