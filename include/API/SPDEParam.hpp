@@ -14,6 +14,16 @@
 
 class ALinearOp;
 
+/**
+ * @brief Definition of the parameters used within SPDE
+ *
+ * refineK Discretization factor used for Kriging
+ * refineS Discretization factor used for Simulation
+ * border  Border size
+ * nxmax   Maximum number of vertices in the internal mesh (0 : no limit)
+ * epsNugget Nugget effect
+ * cgparams Parameters for the Conjugate Gradient method
+ */
 class GSTLEARN_EXPORT SPDEParam {
 
 public:

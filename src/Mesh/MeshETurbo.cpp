@@ -885,7 +885,8 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
     double delta = extendMaxRot[idim] - extendMinRot[idim];
     dx[idim] = cova.getRange(idim) / ratio;
     nx[idim] = (int) ceil(delta / dx[idim]) + 2 * nbExt + 1;
-    if (nx[idim] > nxmax)
+    // Adapt the number of nodes if too large (compared to 'nxmax' if defined)
+    if (nxmax > 0 && nx[idim] > nxmax)
     {
       nx[idim] = nxmax;
       dx[idim] = delta / (nxmax - 2 * nbExt);
