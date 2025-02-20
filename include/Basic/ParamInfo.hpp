@@ -1,12 +1,16 @@
 #pragma once
 
-#include <string>
-#include "Basic/AStringable.hpp"
-#include "Basic/AStringFormat.hpp"
-#include <functional>
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
+
+#include "Basic/AStringable.hpp"
+#include "Basic/AStringFormat.hpp"
+
+#include <array>
 #include <limits>
+#include <string>
+
+
 #define INF std::numeric_limits<double>::infinity()
 
 // Définition d'un type générique pour les paramètres
