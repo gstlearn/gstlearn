@@ -270,8 +270,9 @@ public:
 protected:
   /// Update internal parameters consistency with the context
   void _initFromContext() override;
-  
+
 private:
+  void _setContext(const CovContext& ctxt) override;
   TabNoStat* _createNoStatTab() override;
   void _copyCovContext(const CovContext &ctxt) override;
 

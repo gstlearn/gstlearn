@@ -32,8 +32,8 @@ Projection::Projection(bool flag_mean, Db* db)
     return;
   }
 
-  VectorDouble x = db->getCoordinates(0, true);
-  VectorDouble y = db->getCoordinates(1, true);
+  VectorDouble x = db->getOneCoordinate(0, true);
+  VectorDouble y = db->getOneCoordinate(1, true);
 
   _xcenter = VH::mean(x);
   _ycenter = VH::mean(y);
@@ -146,8 +146,8 @@ int Projection::operateOnDb(Db *db) const
   }
 
   // Extract the vector of coordinates
-  VectorDouble x = db->getCoordinates(0, true);
-  VectorDouble y = db->getCoordinates(1, true);
+  VectorDouble x = db->getOneCoordinate(0, true);
+  VectorDouble y = db->getOneCoordinate(1, true);
 
   // Perform the projection
   if (operateVecInPlace(x, y)) return 1;

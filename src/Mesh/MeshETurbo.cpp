@@ -185,7 +185,7 @@ double MeshETurbo::getCoor(int imesh, int rank, int idim) const
   return _grid.indiceToCoordinate(idim, indg);
 }
 
-void MeshETurbo::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const
+void MeshETurbo::getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const
 {
   indg.resize(getNDim());
 

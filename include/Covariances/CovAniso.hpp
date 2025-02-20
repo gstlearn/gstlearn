@@ -75,9 +75,6 @@ public:
                       int jvar = 0,
                       const CovCalcMode* mode = nullptr) const override;
  
-  virtual void addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                               const CovCalcMode *mode = nullptr) const override;
- 
   virtual double evalCovOnSphere(double alpha,
                                  int degree = 50,
                                  bool flagScaleDistance = true,

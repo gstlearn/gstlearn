@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovCalcMode.hpp"
+#include "Enum/ECalcMember.hpp"
 #include "geoslib_old_f.h"
 
 #include "Estimation/CalcGlobal.hpp"
@@ -109,15 +110,15 @@ int CalcGlobal::_globalKriging()
   VectorDouble wgt;
 
   KrigOpt krigopt;
+  MatrixSquareSymmetric Sigma;
+  MatrixRectangular X;
 
   // Get the Covariance between data (Unique Neighborhood)
-  CovCalcMode mode            = CovCalcMode(ECalcMember::LHS);
+  CovCalcMode mode = CovCalcMode(ECalcMember::LHS);
   VectorVectorInt sampleRanks = dbin->getSampleRanks({_ivar0});
-  VectorDouble Z =
-    dbin->getValuesByRanks(sampleRanks, model->getMeans(), !model->hasDrift());
-  MatrixSquareSymmetric Sigma =
-    model->evalCovMatSymByRanks(dbin, sampleRanks, -1, &mode, false);
-  MatrixRectangular X = model->evalDriftMatByRanks(dbin, sampleRanks);
+  VectorDouble Z = dbin->getValuesByRanks(sampleRanks, model->getMeans(), !model->hasDrift());
+  if (model->evalCovMatSymByRanks(Sigma, dbin, sampleRanks, -1, &mode, false)) return 1;
+  if (model->evalDriftMatByRanks(X, dbin, sampleRanks, -1, ECalcMember::LHS)) return 1;
 
   KrigingAlgebra algebra;
   algebra.resetNewData();
@@ -127,16 +128,18 @@ int CalcGlobal::_globalKriging()
   // Prepare the cumulative matrices
   MatrixRectangular Sigma0Cum(Sigma.getNRows(), 1);
   MatrixRectangular X0Cum(1, X.getNCols());
+  MatrixRectangular Sigma0;
+  MatrixRectangular X0;
+  MatrixSquareSymmetric Sigma00;
 
-  /* Loop on the targets to be processed */
-  for (int iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
+    /* Loop on the targets to be processed */
+    for (int iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
   {
     mes_process("Kriging sample", dbout->getNSample(), iech);
     if (!dbout->isActive(iech)) continue;
 
-    MatrixRectangular Sigma0 =
-      model->evalCovMatByTarget(dbin, dbout, sampleRanks, iech, krigopt, false);
-    MatrixRectangular X0 = model->evalDriftMatByTarget(dbout, iech, krigopt);
+    if (model->evalCovMatByTarget(Sigma0, dbin, dbout, sampleRanks, iech, krigopt, false)) return 1;
+    if (model->evalDriftMatByTarget(X0, dbout, iech, krigopt)) return 1;
 
     // Cumulate the R.H.S.
     Sigma0Cum.addMatInPlace(Sigma0);
@@ -150,7 +153,7 @@ int CalcGlobal::_globalKriging()
   X0Cum.prodScalar(oneOverNG);
   algebra.setRHS(&Sigma0Cum, &X0Cum);
 
-  MatrixSquareSymmetric Sigma00 = model->eval0MatByTarget(dbout, 0);
+  if (model->evalCov0MatByTargetInPlace(Sigma00, dbout, 0)) return 1;
   algebra.setVariance(&Sigma00);
 
   double estim = algebra.getEstimation()[0];

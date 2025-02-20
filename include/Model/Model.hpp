@@ -206,7 +206,6 @@ public:
                  int icov = 0,
                  const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
 
-
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of Context)
   void setField(double field);

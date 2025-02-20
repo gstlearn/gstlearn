@@ -29,12 +29,13 @@ public:
 
   SpacePoint spacePointOnSubspace(int ispace = -1) const;
 
-  /// TODO : should aslo test the space definition
+  /// TODO : should also test the space definition
   bool operator==(const SpacePoint& v) const { return (_coord == v._coord); }
 
   constvect getCoords() const;
-  
+
   vect getCoordRef() { return vect(_coord.data(), getNDim()); }
+  VectorDouble& getCoordUnprotected() { return _coord; }
   double getCoord(int idim) const; 
   void setCoord(double coord);
   void setCoord(int i, double val) { _coord[i] = val; }

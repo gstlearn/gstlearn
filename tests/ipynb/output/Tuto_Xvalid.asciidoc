@@ -114,7 +114,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 10
 Total number of equations   = 11
-Reduced number of equations = 11
 Number of right-hand sides  = 1
 Punctual Estimation
 
@@ -218,7 +217,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 9
 Total number of equations   = 10
-Reduced number of equations = 10
 Number of right-hand sides  = 1
 Punctual Estimation
 
@@ -342,7 +340,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 10
 Total number of equations   = 11
-Reduced number of equations = 11
 Number of right-hand sides  = 1
 Punctual Estimation
 
@@ -519,7 +516,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 10
 Total number of equations   = 11
-Reduced number of equations = 11
 Number of right-hand sides  = 1
 Punctual Estimation
 

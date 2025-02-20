@@ -77,7 +77,7 @@ public:
   int getNMeshes() const { return _mesh.getNMeshes(); }
   int getApex(int imesh, int rank) const { return _mesh.getApex(imesh, rank); }
   double getCoor(int imesh, int rank, int idim) const;
-  void getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const;
+  void getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const;
   double getApexCoor(int i, int idim) const;
   void getApexCoordinatesInPlace(int i, VectorDouble& coords) const;
   VectorDouble getCoordinatesPerMesh(int imesh, int idim, bool flagClose = false) const;

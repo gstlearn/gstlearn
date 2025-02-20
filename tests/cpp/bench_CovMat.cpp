@@ -24,7 +24,7 @@
  ** Main Program
  **
  *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   bool verbose = false;
 
@@ -65,6 +65,7 @@ int main(int argc, char *argv[])
   // Core allocation of common variables
   SpacePoint p2(model->getSpace());
   VectorDouble cumul(ndat, 0.);
+  VectorDouble rhs1;
   Timer timer;
 
   if (mode == 0 || mode == 1)
@@ -78,7 +79,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < nout; i++)
     {
       dbout->getSampleAsSPInPlace(p2, i);
-      VectorDouble rhs1 = model->evalPointToDb(p2, dbin);
+      model->evalPointToDb(rhs1, p2, dbin);
       VH::addInPlace(cumul, rhs1);
     }
     timer.displayIntervalMilliseconds("Establishing RHS", 3900);
@@ -104,11 +105,12 @@ int main(int argc, char *argv[])
     // for this usage, the list of SP can be reduced to the active samples only
     std::vector<SpacePoint> p1s;
     dbin->getSamplesAsSP(p1s, model->getSpace(), true);
+    VectorDouble rhs2;
 
     for (int i = 0; i < nout; i++)
     {
       dbout->getSampleAsSPInPlace(p2, i);
-      VectorDouble rhs2 = model->evalPointToDbAsSP(p1s, p2);
+      model->evalPointToDbAsSP(rhs2, p1s, p2);
       VH::addInPlace(cumul, rhs2);
     }
     timer.displayIntervalMilliseconds("Establishing RHS (semi-optimized)", 600);
@@ -130,9 +132,10 @@ int main(int argc, char *argv[])
     model->setOptimEnabled(true);
 
     timer.reset();
-    MatrixRectangular matvec = model->evalCovMat(dbin, dbout);
+    MatrixRectangular mat;
+    (void) model->evalCovMatInPlace(mat, dbin, dbout);
     for (int i = 0; i < nout; i++)
-      VH::addInPlace(cumul, matvec.getColumn(i));
+      VH::addInPlace(cumul, mat.getColumn(i));
     timer.displayIntervalMilliseconds("Establishing RHS (optimized)", 300);
 
     // Some printout for comparison

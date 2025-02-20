@@ -580,7 +580,7 @@ int CalcMigrate::_migrateGridToPoint(DbGrid* db_grid,
 
   /* Define the default values for 'coor'*/
 
-  db_point->getCoordinatesPerSampleInPlace(0, coor);
+  db_point->getCoordinatesInPlace(coor, 0);
 
   /* Locate the samples on the grid */
 
@@ -1818,7 +1818,7 @@ int CalcMigrate::_migratePointToGrid(Db *db_point,
   VectorDouble local(db_point->getNSample());
   VectorDouble dvect(ndim_max);
   VectorDouble coor(ndim_max);
-  db_grid->getCoordinatesPerSampleInPlace(0, coor);
+  db_grid->getCoordinatesInPlace(coor, 0);
 
   /* Locate the samples on the grid */
 
@@ -1906,7 +1906,7 @@ int CalcMigrate::_expandPointToPointBall(Db *db1,
   for (int inode = 0; inode < db2->getNSample(); inode++)
   {
     if (! db2->isActive(inode)) continue;
-    db2->getCoordinatesPerSampleInPlace(inode, coor);
+    db2->getCoordinatesInPlace(coor, inode);
     int iech = ball.queryClosest(coor);
 
     if (! dmax.empty())
@@ -2150,7 +2150,7 @@ int CalcMigrate::_interpolateGridToPoint(DbGrid *db_grid,
   for (int iech = 0; iech < db_point->getNSample(); iech++)
   {
     if (!db_point->isActive(iech)) continue;
-    db_point->getCoordinatesPerSampleInPlace(iech, coor);
+    db_point->getCoordinatesInPlace(coor, iech);
     tab[iech] = st_multilinear_interpolation(db_grid, iatt, distType, dmax, coor);
   }
   return 0;

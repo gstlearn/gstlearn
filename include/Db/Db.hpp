@@ -95,9 +95,9 @@ public:
   virtual bool isGrid() const { return false; }
   virtual bool isLine() const { return false; }
   virtual bool isMesh() const { return false; }
-  virtual double getCoordinate(int iech, int idim, bool flag_rotate=true) const;
-  virtual void getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate = true) const;
-  virtual void getCoordinatesPerSampleInPlace(int iech, vect coor, bool flag_rotate = true) const;
+  virtual double getCoordinate(int iech, int idim, bool flag_rotate = true) const;
+  virtual void getCoordinatesInPlace(VectorDouble& coor, int iech, bool flag_rotate = true) const;
+  virtual void getCoordinatesInPlace(vect coor, int iech, bool flag_rotate = true) const;
 
   virtual double getUnit(int idim = 0) const;
   virtual int getNDim() const;
@@ -450,7 +450,7 @@ public:
   VectorDouble getSampleLocators(const ELoc& locatorType, int iech) const;
   VectorVectorDouble getIncrements(const VectorInt& iechs, const VectorInt& jechs) const;
 
-  VectorDouble getCoordinates(int idim, bool useSel = false, bool flag_rotate = true) const;
+  VectorDouble getOneCoordinate(int idim, bool useSel = false, bool flag_rotate = true) const;
   VectorVectorDouble getAllCoordinates(bool useSel = false) const;
   MatrixRectangular getAllCoordinatesMat(const MatrixRectangular& box = MatrixRectangular()) const;
   void setCoordinate(int iech, int idim, double value);
@@ -487,8 +487,8 @@ public:
                         int locatorIndex,
                         double value);
 
-  double getValueByColIdx(int iech, int icol) const;
-  void   setValueByColIdx(int iech, int icol, double value);
+  double getValueByColIdx(int iech, int icol, bool flagCheck = true) const;
+  void   setValueByColIdx(int iech, int icol, double value, bool flagCheck = true);
   VectorDouble getValuesByNames(const VectorInt& iechs,
                                 const VectorString& names,
                                 bool bySample = false) const;

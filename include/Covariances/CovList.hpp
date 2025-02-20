@@ -59,8 +59,6 @@ public:
                        int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  virtual void addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                               const CovCalcMode *mode = nullptr) const override;
   virtual void _addEvalCovMatBiPointInPlace(
                               MatrixSquareGeneral &mat,
                               const SpacePoint &p1,
@@ -111,10 +109,6 @@ public:
 protected:
   bool _isCovarianceIndexValid(int icov) const;
   void _load(const SpacePoint& p, bool case1) const override;
-  void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
-                                      const SpacePoint& p1,
-                                      const SpacePoint& p2,
-                                      const CovCalcMode* mode = nullptr) const override;
   double _loadAndEval(const SpacePoint& p1,
                           const SpacePoint&p2,
                           int ivar,

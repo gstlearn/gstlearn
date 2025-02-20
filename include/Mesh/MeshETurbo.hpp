@@ -52,7 +52,7 @@ public:
   int     getNMeshes() const override;
   int     getApex(int imesh, int rank) const override;
   double  getCoor(int imesh, int rank, int idim) const override;
-  void    getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const override;
+  void    getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const override;
   double  getApexCoor(int i, int idim) const override;
   void    getApexCoordinatesInPlace(int i, VectorDouble& coords) const override;
   double  getMeshSize(int imesh) const override;

@@ -227,26 +227,6 @@ double CovAniso::eval(const SpacePoint &p1,
 }
 
 /**
- * Calculate the Matrix of covariance for zero distance
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void CovAniso::addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                                            const CovCalcMode *mode) const
-{
-  double cov = _corAniso->evalCorFromH(0, mode); 
-
-  if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatInPlace(_sillCur, 1., cov);
-  else
-  {
-    mat.addMatInPlace(_workMat, 1., cov);
-  }
-}
-
-/**
  * Fill the vector of covariances between each valid SpacePoint (recorded in _p1As)
  * and the target (recorded in _p2A)
  * @param res  Vector of covariances
@@ -389,9 +369,6 @@ String CovAniso::toString(const AStringFormat* strfmt) const
     {
       sstr << "- Sill         = " << toDouble(_sillCur.getValue(0, 0)) << std::endl;
     }
-
-    // Isotropy vs anisotropy
-
   }
   else if (_corAniso->hasRange() < 0)
   {

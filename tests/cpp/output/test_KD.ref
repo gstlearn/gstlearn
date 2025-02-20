@@ -436,7 +436,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 5
 Total number of equations   = 5
-Reduced number of equations = 5
 Number of right-hand sides  = 1
 Punctual Estimation
 
@@ -502,7 +501,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 5
 Total number of equations   = 5
-Reduced number of equations = 5
 Number of right-hand sides  = 1
 Punctual Estimation
 
@@ -568,7 +566,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 5
 Total number of equations   = 5
-Reduced number of equations = 5
 Number of right-hand sides  = 1
 Punctual Estimation
 
@@ -672,7 +669,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 5
 Total number of equations   = 5
-Reduced number of equations = 5
 Number of right-hand sides  = 1
 Block Estimation : Discretization = 5 x 5
 
@@ -738,7 +734,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 5
 Total number of equations   = 5
-Reduced number of equations = 5
 Number of right-hand sides  = 1
 Block Estimation : Discretization = 5 x 5
 
@@ -804,7 +799,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 5
 Total number of equations   = 5
-Reduced number of equations = 5
 Number of right-hand sides  = 1
 Block Estimation : Discretization = 5 x 5
 
@@ -914,7 +908,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 5
 Total number of equations   = 5
-Reduced number of equations = 5
 Number of right-hand sides  = 1
 Block Estimation : Discretization = 10 x 10
 
@@ -980,7 +973,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 5
 Total number of equations   = 5
-Reduced number of equations = 5
 Number of right-hand sides  = 1
 Block Estimation : Discretization = 10 x 10
 
@@ -1046,7 +1038,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 5
 Total number of equations   = 5
-Reduced number of equations = 5
 Number of right-hand sides  = 1
 Block Estimation : Discretization = 10 x 10
 
@@ -1160,7 +1151,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 5
 Total number of equations   = 5
-Reduced number of equations = 5
 Number of right-hand sides  = 1
 Punctual Estimation
 
@@ -1367,7 +1357,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 5
 Total number of equations   = 5
-Reduced number of equations = 5
 Number of right-hand sides  = 1
 Punctual Estimation
 
@@ -1489,7 +1478,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 5
 Total number of equations   = 5
-Reduced number of equations = 5
 Number of right-hand sides  = 1
 Block Estimation : Discretization = 5 x 5
 
@@ -1640,7 +1628,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 5
 Total number of equations   = 5
-Reduced number of equations = 5
 Number of right-hand sides  = 1
 Punctual Estimation
 
@@ -1764,7 +1751,6 @@ RHS of Kriging matrix
 =====================
 Number of active samples    = 5
 Total number of equations   = 5
-Reduced number of equations = 5
 Number of right-hand sides  = 1
 Block Estimation : Discretization = 5 x 5
 

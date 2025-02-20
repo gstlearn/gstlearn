@@ -1334,7 +1334,7 @@ DbGrid* DbHelper::dbgrid_sampling(DbGrid *dbin, const VectorInt &nmult)
   for (iech = 0; iech < dbout->getNSample(); iech++)
   {
     if (!dbout->isActive(iech)) continue;
-    dbout->getCoordinatesPerSampleInPlace(iech, coor);
+    dbout->getCoordinatesInPlace(coor, iech);
     iad = dbin->coordinateToRank(coor);
     if (iad < 0) continue;
 

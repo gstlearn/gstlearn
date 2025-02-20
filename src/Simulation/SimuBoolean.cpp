@@ -216,7 +216,7 @@ int SimuBoolean::_generatePrimary(Db* dbin,
     int rank = (int) (draw_more * law_uniform(0., 1.));
     int iref = _getRankUncovered(dbin, rank);
     if (iref < 0) return 1;
-    dbin->getCoordinatesPerSampleInPlace(iref, cdgrain);
+    dbin->getCoordinatesInPlace(cdgrain, iref);
 
     /* Generate an object covering the grain(x,y,z) */
 

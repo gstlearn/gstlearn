@@ -75,8 +75,7 @@ public:
   static double median(const VectorDouble& vec);
   static double normDistance(const VectorDouble& veca, const VectorDouble& vecb);
   static double correlation(const VectorDouble &veca, const VectorDouble &vecb);
-  static VectorDouble quantiles(const VectorDouble& vec,
-                                const VectorDouble& probas);
+  static VectorDouble quantiles(const VectorDouble& vec, const VectorDouble& probas);
 
   static bool isConstant(const VectorDouble& vect, double refval = TEST);
   static bool isConstant(const VectorInt& vect, int refval = ITEST);
@@ -320,7 +319,8 @@ public:
   static int whereMinimum(const VectorDouble& tab);
   static int whereMaximum(const VectorDouble& tab);
   static int whereElement(const VectorInt& tab, int target);
-  static double norm(const std::vector<double> &vec);
+  static double norm(const std::vector<double>& vec);
+  static bool isIsotropic(const VectorVectorInt& sampleRanks);
 
   static VectorDouble reduceOne(const VectorDouble &vecin, int index);
   static VectorDouble reduce(const VectorDouble &vecin, const VectorInt& vindex);

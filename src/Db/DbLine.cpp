@@ -554,7 +554,7 @@ VectorDouble DbLine::_getHeaderCoordinate(int idim) const
   return vec;
 }
 
-VectorDouble DbLine::getCoordinates(int iline, int idim) const
+VectorDouble DbLine::getCoordinatesPerLine(int iline, int idim) const
 {
   VectorDouble vec;
   if (!_isLineNumberValid(iline)) return vec;

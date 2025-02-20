@@ -1423,7 +1423,7 @@ int db_streamline(DbGrid *dbgrid,
   {
     if (!dbpoint->isActive(iech)) continue;
     if (iech % nbyech != 0) continue;
-    dbpoint->getCoordinatesPerSampleInPlace(iech, coor);
+    dbpoint->getCoordinatesInPlace(coor, iech);
     if (st_get_next(dbgrid, iptr_grad, coor, &knd, &surf)) break;
 
     /* Store the new point in the Streamline */

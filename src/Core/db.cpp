@@ -305,7 +305,7 @@ int db_center(Db* db, double* center)
 
   for (int idim = 0; idim < db->getNDim(); idim++)
   {
-    VectorDouble tab = db->getCoordinates(idim);
+    VectorDouble tab = db->getOneCoordinate(idim);
     StatResults stats =
       ut_statistics(db->getNSample(), tab.data(), sel.data(), wgt.data());
     center[idim] = stats.mean;

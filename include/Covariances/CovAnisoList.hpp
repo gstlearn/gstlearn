@@ -20,7 +20,6 @@
 #include "Basic/ICloneable.hpp"
 #include "Covariances/CovList.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 
 #include <vector>
 
@@ -65,14 +64,6 @@ public:
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  
-  virtual void addEval0CovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                               const CovCalcMode *mode = nullptr) const override;
-  virtual void _addEvalCovMatBiPointInPlace(
-                              MatrixSquareGeneral &mat,
-                              const SpacePoint &p1,
-                              const SpacePoint &p2,
-                              const CovCalcMode *mode = nullptr) const override;
 
   /// Interface for AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
