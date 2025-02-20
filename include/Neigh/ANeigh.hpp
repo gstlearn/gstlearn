@@ -84,7 +84,6 @@ public:
   void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
   void setFlagKFold(bool flagKFold)   { _flagKFold = flagKFold; }
   void setFlagSimu(bool flagSimu)     { _flagSimu = flagSimu; }
-  void setRankColCok(const VectorInt& rankColCok) { _rankColCok = rankColCok; }
 
   void setBallSearch(bool status, int leaf_size = 10);
   void attachBall(double (*dist_function)(const double* x1,
@@ -108,14 +107,12 @@ protected:
 private:
   bool _isSameTarget(int iech_out);
   void _checkUnchanged(int iech_out, const VectorInt &ranks);
-  void _updateColCok(VectorInt& ranks, int iech_out);
 
 protected:
   const Db* _dbin;
   const Db* _dbout;
   const DbGrid* _dbgrid; // Equivalent to dbout, defined only for grid
 
-  VectorInt _rankColCok;
   int  _iechMemo;
   bool _flagSimu;
   bool _flagXvalid;    /* True to suppress the target */

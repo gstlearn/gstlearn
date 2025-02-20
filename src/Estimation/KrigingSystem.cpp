@@ -450,11 +450,11 @@ void KrigingSystem::_estimateCalcul(int status)
   {
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
     {
-      for (int i = 0; i < _nech; i++)
+      for (int jech = 0; jech < _nech; jech++)
       {
         if (status != 0) continue;
-        double wgt = _algebra.getLambda()->getValue(i, ivarCL);
-        int iech = _nbgh[i];
+        double wgt = _algebra.getLambda()->getValue(jech, ivarCL);
+        int iech = _nbgh[jech];
         if (_flagSet)
           _dbin->setArray(iech, _iptrWeights + ivarCL, wgt);
         else
