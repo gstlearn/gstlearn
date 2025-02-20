@@ -290,7 +290,6 @@ bool _checkParam() const;
   bool   _isVariableValid(int ivar) const;
   
   void _updateFromContext() override;
-  void _setContext(const CovContext &ctxt) override;
 
 private:
   ACovFunc *_corfunc;                  /// Basic correlation function

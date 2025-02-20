@@ -30,25 +30,24 @@
  * - the vector *Z* must be centered by the drift beforehand
  * - the vector *beta* corresponds to the vector of Means.
  */
-class GSTLEARN_EXPORT KrigingAlgebra
-{
+class GSTLEARN_EXPORT KrigingAlgebra {
 public:
-  KrigingAlgebra(bool flagDual = false,
-                const VectorVectorInt* sampleRanks   = nullptr,
-                const VectorDouble* Z                = nullptr,
-                const MatrixSquareSymmetric* Sigma   = nullptr,
-                const MatrixRectangular* X           = nullptr,
-                const MatrixSquareSymmetric* Sigma00 = nullptr,
-                const VectorDouble* Means            = nullptr);
+  KrigingAlgebra(bool flagDual                        = false,
+                 const VectorVectorInt* sampleRanks   = nullptr,
+                 const VectorDouble* Z                = nullptr,
+                 const MatrixSquareSymmetric* Sigma   = nullptr,
+                 const MatrixRectangular* X           = nullptr,
+                 const MatrixSquareSymmetric* Sigma00 = nullptr,
+                 const VectorDouble* Means            = nullptr);
   KrigingAlgebra(const KrigingAlgebra& r)            = delete;
   KrigingAlgebra& operator=(const KrigingAlgebra& r) = delete;
   virtual ~KrigingAlgebra();
 
   void setDual(bool status);
   void resetNewData();
-  int setData(const VectorDouble* Z = nullptr,
+  int setData(const VectorDouble* Z          = nullptr,
               const VectorVectorInt* indices = nullptr,
-              const VectorDouble* Means = nullptr);
+              const VectorDouble* Means      = nullptr);
   int setLHS(const MatrixSquareSymmetric* Sigma = nullptr,
              const MatrixRectangular* X         = nullptr);
   int setRHS(const MatrixRectangular* Sigma0 = nullptr,
@@ -197,23 +196,23 @@ private:
   const VectorInt* _rankXvalidVars;       // Ranks of the cross-validated Variables
   const VectorVectorInt* _sampleRanks;    // Vector of Vector of sampl indices per variable
 
-  // Following elements can be retrieved by Interface functions  
-  VectorDouble _Zstar;                  // Estimated values (Dim: _nrhs)
-  VectorDouble _Beta;                   // Drift coefficients (Dim: _nbfl)
-  MatrixRectangular* _LambdaSK;         // Weights for SK (Dim: _neq * _nrhs)
-  MatrixRectangular* _LambdaUK;         // Weights for UK (Dim: _neq * _nrhs)
-  MatrixRectangular* _MuUK;             // Lagrange multipliers (Dim: _nbfl * _nrhs)
-  MatrixSquareSymmetric* _Stdv;         // Estimation stdv. (Dim: _nrhs * _nrhs)
-  MatrixSquareSymmetric* _VarZSK;       // Estimator variance in SK (Dim: _nrhs * _nrhs)
-  MatrixSquareSymmetric* _VarZUK;       // Estimator variance in UK (Dim: _nrhs * _nrhs)
+  // Following elements can be retrieved by Interface functions
+  VectorDouble _Zstar;            // Estimated values (Dim: _nrhs)
+  VectorDouble _Beta;             // Drift coefficients (Dim: _nbfl)
+  MatrixRectangular* _LambdaSK;   // Weights for SK (Dim: _neq * _nrhs)
+  MatrixRectangular* _LambdaUK;   // Weights for UK (Dim: _neq * _nrhs)
+  MatrixRectangular* _MuUK;       // Lagrange multipliers (Dim: _nbfl * _nrhs)
+  MatrixSquareSymmetric* _Stdv;   // Estimation stdv. (Dim: _nrhs * _nrhs)
+  MatrixSquareSymmetric* _VarZSK; // Estimator variance in SK (Dim: _nrhs * _nrhs)
+  MatrixSquareSymmetric* _VarZUK; // Estimator variance in UK (Dim: _nrhs * _nrhs)
 
   // Following elements are defined for internal storage
-  MatrixRectangular* _XtInvSigma;       // X^t * Inv{Sigma} (Dim: _nbfl * _neq);
-  MatrixRectangular* _Y0;               // X0 - LambdaSK * X^t (Dim: _nrhs * _nbfl)
-  MatrixRectangular* _InvSigmaSigma0;   // Inv{Sigma} * Sigma0 (Dim: _neq * _nrhs)
-  MatrixSquareSymmetric* _InvSigma;     // Inv{Sigma} (Dim: _neq * _neq)
-  MatrixSquareSymmetric* _Sigmac;       // Inv{X^t * Inv{Sigma} * X} (Dim: _nbfl * _nbfl)
-  MatrixSquareSymmetric* _InvPriorCov;  // Inv{PriorCov} (Dim: _nbfl * _nbfl)
+  MatrixRectangular* _XtInvSigma;      // X^t * Inv{Sigma} (Dim: _nbfl * _neq);
+  MatrixRectangular* _Y0;              // X0 - LambdaSK * X^t (Dim: _nrhs * _nbfl)
+  MatrixRectangular* _InvSigmaSigma0;  // Inv{Sigma} * Sigma0 (Dim: _neq * _nrhs)
+  MatrixSquareSymmetric* _InvSigma;    // Inv{Sigma} (Dim: _neq * _neq)
+  MatrixSquareSymmetric* _Sigmac;      // Inv{X^t * Inv{Sigma} * X} (Dim: _nbfl * _nbfl)
+  MatrixSquareSymmetric* _InvPriorCov; // Inv{PriorCov} (Dim: _nbfl * _nbfl)
 
   // Following elements are defined for internal storage (collocated case in UN)
   MatrixSquareSymmetric* _Sigma00pp; // ColCok Variance T-T (Dim: _ncck * _ncck)
@@ -226,20 +225,20 @@ private:
   MatrixRectangular* _Lambda0;       // Collocated weights (Dim: _ncck * _nrhs)
 
   // Following elements are defined for Dual programming
-  VectorDouble _bDual;               // Fake Covariance part in Dual (Dim: _neq)
-  VectorDouble _cDual;               // Fake Drift part in Dual (Dim: _nbfl) 
-   
+  VectorDouble _bDual; // Fake Covariance part in Dual (Dim: _neq)
+  VectorDouble _cDual; // Fake Drift part in Dual (Dim: _nbfl)
+
   // Following elements are defined for internal storage (Cross-validation in UN)
-  MatrixRectangular* _C_RHS;         // Fictitious Right-hand side (covariance part)
-  MatrixRectangular* _X_RHS;         // Fictitious Right-hand side (drift part)
+  MatrixRectangular* _C_RHS; // Fictitious Right-hand side (covariance part)
+  MatrixRectangular* _X_RHS; // Fictitious Right-hand side (drift part)
 
   // Additional parameters
   int _nvar;
   int _neq;
   int _nbfl;
   int _nrhs;
-  int _ncck;      // Number of additional samples for ColCok in Unique Neighborhood
-  int _nxvalid;   // Number of samples in XValid in Unique Neighborhood
+  int _ncck;    // Number of additional samples for ColCok in Unique Neighborhood
+  int _nxvalid; // Number of samples in XValid in Unique Neighborhood
   bool _flagSK;
   bool _flagBayes;
   bool _flagDual;

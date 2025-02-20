@@ -243,8 +243,10 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
       {
         if (meshUser == nullptr)
         {
-          mesh = MeshETurbo::createFromCova(*cova, domain, _params.getRefineS(), _params.getBorder(),
-                                            _params.isPolarized(), useSel, flagNoStatRot, verbose);
+          mesh        = MeshETurbo::createFromCova(*cova, domain, _params.getRefineS(),
+                                                   _params.getBorder(), useSel, 
+                                            _params.isPolarized(),        flagNoStatRot, _params.getNxMax(), 
+                                                   verbose);
           _deleteMesh = true;
         }
         _meshingSimu.push_back(mesh);
@@ -269,7 +271,8 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         {
           mesh = MeshETurbo::createFromCova(*cova, domain, _params.getRefineK(),
                                             _params.getBorder(), _params.isPolarized(),
-                                            useSel, flagNoStatRot, verbose);
+                                            useSel, flagNoStatRot,
+                                            _params.getNxMax(), verbose);
          
           _deleteMesh = true;
         }

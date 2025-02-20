@@ -25,7 +25,6 @@ ANeigh::ANeigh(const ASpaceSharedPtr& space)
   , _dbin(nullptr)
   , _dbout(nullptr)
   , _dbgrid(nullptr)
-  , _rankColCok()
   , _iechMemo(-1)
   , _flagSimu(false)
   , _flagXvalid(false)
@@ -44,7 +43,6 @@ ANeigh::ANeigh(const ANeigh& r)
   , _dbin(r._dbin)
   , _dbout(r._dbout)
   , _dbgrid(r._dbgrid)
-  , _rankColCok(r._rankColCok)
   , _iechMemo(r._iechMemo)
   , _flagSimu(r._flagSimu)
   , _flagXvalid(r._flagXvalid)
@@ -65,7 +63,6 @@ ANeigh& ANeigh::operator=(const ANeigh &r)
     _dbin = r._dbin;
     _dbout = r._dbout;
     _dbgrid = r._dbgrid;
-    _rankColCok = r._rankColCok;
     _iechMemo = r._iechMemo;
     _flagSimu = r._flagSimu;
     _flagXvalid = r._flagXvalid;
@@ -122,7 +119,6 @@ void ANeigh::reset()
 {
   _flagIsUnchanged = false;
   _nbghMemo.clear();
-  _rankColCok.clear();
   _iechMemo   = -1;
   _flagSimu   = false;
   _flagXvalid = false;
@@ -176,10 +172,6 @@ void ANeigh::select(int iech_out, VectorInt& ranks)
 
   // Stop the neighborhood search if not enough point is available
   if ((int) ranks.size() <= 0) return;
-
-  // Update in case of Colocated option
-
-  _updateColCok(ranks, iech_out);
 }
 
 /**
@@ -223,55 +215,6 @@ void ANeigh::_checkUnchanged(int iech_out, const VectorInt &ranks)
 
   _iechMemo = iech_out;
   _nbghMemo = rsorted;
-}
-
-/**
- * Update the set of selected samples in case of colocated option
- * This is done only if:
- * - the colocation option is ON (vector of colocated variable is defined)
- * - at least one of the colocated variables at the target is valid
- * - the target does not coincide with a sample already selected
- * If the colocation option is validated, an additional member is added to 'ranks':
- * its value is conventionally set to -1.
- * @param ranks      Vector of samples already selected
- * @param iech_out   Rank of the target site (in dbout)
- */
-void ANeigh::_updateColCok(VectorInt &ranks, int iech_out)
-{
-  if (_rankColCok.empty()) return;
-  int nvarin = (int) _rankColCok.size();
-
-  /* Do not add the target if no variable is defined */
-  bool found = false;
-  for (int ivar = 0; ivar < nvarin && !found; ivar++)
-  {
-    int jvar = _rankColCok[ivar];
-    if (jvar < 0) continue;
-    if (!FFFF(_dbout->getArray(iech_out, jvar))) found = true;
-  }
-  if (! found) return;
-
-  /* Do not add the target if it coincides with an already selected sample */
-  int nsel = (int) ranks.size();
-  for (int iech = 0; iech < nsel; iech++)
-  {
-    if (distance_inter(_dbin, _dbout, ranks[iech], iech_out, NULL) <= 0.)
-      return;
-  }
-
-  /* Add the target */
-
-  ranks.push_back(-1);
-  _flagIsUnchanged = false;
-}
-
-void ANeigh::_neighCompress(VectorInt& ranks)
-{
-  int necr = 0;
-  int number = (int) ranks.size();
-  for (int i = 0; i < number; i++)
-    if (ranks[i] >= 0) ranks[necr++] = i;
-  ranks.resize(necr);
 }
 
 /****************************************************************************/
@@ -459,4 +402,12 @@ void ANeigh::setBallSearch(bool status, int leaf_size)
 {
   _useBallSearch = status;
   _ballLeafSize = leaf_size;
+}
+
+void ANeigh::_neighCompress(VectorInt& ranks) {
+  int necr   = 0;
+  int number = (int)ranks.size();
+  for (int i = 0; i < number; i++)
+    if (ranks[i] >= 0) ranks[necr++] = i;
+  ranks.resize(necr);
 }

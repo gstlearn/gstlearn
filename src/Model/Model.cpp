@@ -1347,8 +1347,7 @@ int Model::standardize(bool verbose)
 
 void Model::gofDisplay(double gof,
                        bool byValue,
-                      const VectorDouble& thresholds)
-{
+                       const VectorDouble& thresholds) {
   ACov::gofDisplay(gof, byValue, thresholds);
 }
 
@@ -1366,19 +1365,24 @@ int Model::getNVar() const
     return nvar;
 }
 
-Model* Model::createFillRandom(
-  int ndim, int nvar, const std::vector<ECov>& types, double hmax, int order)
-{
+Model* Model::createFillRandom(int ndim,
+                               int nvar,
+                               const std::vector<ECov>& types,
+                               double hmax,
+                               int order,
+                               int seed) {
   // Create the Covariance Part
   Model* model = Model::create(CovContext(nvar, ndim));
   int ncov     = (int)types.size();
+  int seed_local = seed;
   for (int icov = 0; icov < ncov; icov++)
   {
     MatrixSquareSymmetric* sill =
-      MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
+      MatrixSquareSymmetric::createRandomDefinitePositive(nvar, seed_local);
     double range = (hmax * (1. + icov)) / (2. * ncov);
     model->addCovFromParam(types[icov], range, 0., 1., VectorDouble(), *sill);
     delete sill;
+    seed_local = 0;
   }
 
   // Create the Drift part

@@ -146,7 +146,6 @@ void CorAniso::computeMarkovCoeffs()
 }
 
 void CorAniso::_setContext(const CovContext &ctxt)
-void CorAniso::_setContext(const CovContext &ctxt)
 {
   DECLARE_UNUSED(ctxt)
   updateFromContext();

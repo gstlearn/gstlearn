@@ -130,10 +130,11 @@ public:
                   const Option_AutoFit& mauto    = Option_AutoFit(),
                   bool verbose                   = false);
   static Model* createFillRandom(int ndim,
-                   int nvar,
-                   const std::vector<ECov>& types = ECov::fromKeys({"SPHERICAL"}),
-                   double hmax = 1,
-                   int order   = -1);
+                                 int nvar,
+                                 const std::vector<ECov>& types = ECov::fromKeys({"SPHERICAL"}),
+                                 double hmax                    = 1,
+                                 int order                      = -1,
+                                 int seed                       = 13242);
   void setCovAnisoList(const CovAnisoList* covalist);
   void addCov(const CovAniso* cov);
   void addCovFromParam(const ECov& type,
