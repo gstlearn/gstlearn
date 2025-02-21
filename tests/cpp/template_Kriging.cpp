@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
   int nout    = 20;
   int seedout = 134484;
   Db* dbout   = Db::createFillRandom(nout, ndim, 0, nfex, 0, 0., 0.,
-                                     VectorDouble(), VectorDouble(), VectorDouble(), seedin);
+                                     VectorDouble(), VectorDouble(), VectorDouble(), seedout);
   if (verbose) dbout->display();
 
   // Create the Model
@@ -81,8 +81,11 @@ int main(int argc, char* argv[])
   // Perform Kriging 'by hand'
   mestitle(0, "Kriging constructed 'by hand'");
   MatrixSquareSymmetric Sigma00 = model->eval0Mat();
+  if (verbose) Sigma00.dumpStatistics("C00 Matrix");
   MatrixSquareSymmetric Sigma   = model->evalCovMatSym(dbin);
+  if (verbose) Sigma.dumpStatistics("LHS: Covariance part");
   MatrixRectangular X           = model->evalDriftMat(dbin);
+  if (verbose) X.dumpStatistics("LHS: Drift part");
 
   VectorVectorInt sampleRanks   = dbin->getSampleRanks();
   VectorDouble Z                = dbin->getValuesByRanks(sampleRanks);
@@ -100,14 +103,16 @@ int main(int argc, char* argv[])
   for (int iout = 0; iout < nout; iout++)
   {
     if (model->evalCovMatByTarget(Sigma0, dbin, dbout, sampleRanks, iout, krigopt, false)) break;
+    if (verbose && iout == 0) Sigma0.dumpStatistics("RHS(target:1): Covariance part");  
     if (model->evalDriftMatByTarget(X0, dbout, iout, krigopt)) break;
+    if (verbose && iout == 0) X0.dumpStatistics("RHS(target:1): Drift part");
 
     Kcalc.setRHS(&Sigma0, &X0);
     result.clear();
     VH::concatenateInPlace(result, Kcalc.getEstimation());
     VH::concatenateInPlace(result, Kcalc.getStdv());
     VH::concatenateInPlace(result, Kcalc.getVarianceZstar()); 
-    VH::dump("Sample" + std::to_string(iout+1), result, false); // Print results at all target sites
+    VH::dump("Sample " + std::to_string(iout+1), result, false); // Print results at all target sites
   }
 
   // Free classes
