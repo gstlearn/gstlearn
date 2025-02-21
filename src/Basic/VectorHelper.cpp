@@ -1076,6 +1076,11 @@ VectorDouble VectorHelper::concatenate(const VectorDouble &veca,
   return res;
 }
 
+void VectorHelper::concatenateInPlace(VectorDouble& veca, const VectorDouble& vecb)
+{
+  for (const auto& e: vecb) veca.push_back(e);
+}
+
 void VectorHelper::cumulateInPlace(VectorDouble& vec)
 {
   VectorDouble::iterator it(vec.begin());

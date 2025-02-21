@@ -197,7 +197,8 @@ public:
                                   const VectorDouble& wt = VectorDouble());
   static VectorDouble qnormVec(const VectorDouble& vec);
   static VectorDouble pnormVec(const VectorDouble& vec);
-  static VectorDouble concatenate(const VectorDouble &veca, const VectorDouble &vecb);
+  static VectorDouble concatenate(const VectorDouble& veca, const VectorDouble& vecb);
+  static void concatenateInPlace(VectorDouble& veca, const VectorDouble& vecb);
   static VectorDouble power(const VectorDouble& vec, double power);
   static VectorDouble inverse(const VectorDouble& vec);
 

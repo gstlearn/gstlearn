@@ -134,6 +134,7 @@ public:
                                  const std::vector<ECov>& types = ECov::fromKeys({"SPHERICAL"}),
                                  double hmax                    = 1,
                                  int order                      = -1,
+                                 int nfex                       = 0,
                                  int seed                       = 13242);
   void setCovAnisoList(const CovAnisoList* covalist);
   void addCov(const CovAniso* cov);

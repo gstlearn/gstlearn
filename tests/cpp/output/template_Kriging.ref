@@ -1,0 +1,127 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 7
+Total number of samples      = 10
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = f-1 - Locator = f1
+Column = 4 - Name = f-2 - Locator = f2
+Column = 5 - Name = z-1 - Locator = z1
+Column = 6 - Name = z-2 - Locator = z2
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 20
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = f-1 - Locator = f1
+Column = 4 - Name = f-2 - Locator = f2
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 2
+Number of basic structure(s) = 2
+Number of drift function(s)  = 3
+Number of drift equation(s)  = 6
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     4.708    -3.586
+     [  1,]    -3.586     3.084
+Spherical
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     1.206     2.500
+     [  1,]     2.500     5.651
+- Range        =      0.500
+Total Sill
+               [,  0]    [,  1]
+     [  0,]     5.914    -1.086
+     [  1,]    -1.086     8.735
+
+
+Drift Part
+----------
+Universality_Condition
+External_Drift:0
+External_Drift:1
+
+Unique Neighborhood
+===================
+
+Kriging using API
+=================
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+            *.z-1.estim *.z-2.estim *.z-1.stdev *.z-2.stdev *g.z-1.varz *g.z-2.varz
+     [  0,]       0.982       0.675       2.564       3.006       1.279       3.320
+     [  1,]       0.989       0.495       2.669       3.285       1.363       2.812
+     [  2,]       0.820       0.459       2.636       3.131       1.445       3.045
+     [  3,]       0.911       0.163       2.572       2.988       1.212       2.663
+     [  4,]      -0.251       0.148       2.644       3.032       1.495       2.455
+     [  5,]       1.411       0.413       2.749       3.024       2.380       3.944
+     [  6,]       0.534       0.352       2.678       3.325       1.273       2.404
+     [  7,]       0.342       0.387       2.587       3.140       0.928       1.842
+     [  8,]       0.020       0.079       2.877       3.015       3.684       6.581
+     [  9,]       0.497       0.233       2.614       2.945       1.500       2.686
+     [ 10,]       0.965      -0.172       2.650       2.656       2.629       5.719
+     [ 11,]       0.617       0.123       2.567       3.130       0.840       1.858
+     [ 12,]       0.981      -0.023       2.526       2.602       1.834       4.664
+     [ 13,]       0.420       0.568       2.511       2.904       0.914       2.204
+     [ 14,]       0.305       0.429       2.796       3.428       1.936       3.179
+     [ 15,]       1.296       0.492       2.671       3.191       1.579       3.181
+     [ 16,]       0.268       0.134       2.536       2.973       0.906       1.987
+     [ 17,]      -0.618       0.251       2.971       3.467       3.050       3.920
+     [ 18,]       1.865       0.023       3.091       3.484       4.126       5.788
+     [ 19,]      -0.301       0.080       2.504       2.456       1.846       4.446
+
+Kriging constructed 'by hand'
+=============================
+Sample1:     0.982     0.675     2.564     3.006     1.279     3.320
+Sample2:     0.989     0.495     2.669     3.285     1.363     2.812
+Sample3:     0.820     0.459     2.636     3.131     1.445     3.045
+Sample4:     0.911     0.163     2.572     2.988     1.212     2.663
+Sample5:    -0.251     0.148     2.644     3.032     1.495     2.455
+Sample6:     1.411     0.413     2.749     3.024     2.380     3.944
+Sample7:     0.534     0.352     2.678     3.325     1.273     2.404
+Sample8:     0.342     0.387     2.587     3.140     0.928     1.842
+Sample9:     0.020     0.079     2.877     3.015     3.684     6.581
+Sample10:     0.497     0.233     2.614     2.945     1.500     2.686
+Sample11:     0.965    -0.172     2.650     2.656     2.629     5.719
+Sample12:     0.617     0.123     2.567     3.130     0.840     1.858
+Sample13:     0.981    -0.023     2.526     2.602     1.834     4.664
+Sample14:     0.420     0.568     2.511     2.904     0.914     2.204
+Sample15:     0.305     0.429     2.796     3.428     1.936     3.179
+Sample16:     1.296     0.492     2.671     3.191     1.579     3.181
+Sample17:     0.268     0.134     2.536     2.973     0.906     1.987
+Sample18:    -0.618     0.251     2.971     3.467     3.050     3.920
+Sample19:     1.865     0.023     3.091     3.484     4.126     5.788
+Sample20:    -0.301     0.080     2.504     2.456     1.846     4.446
