@@ -135,38 +135,37 @@ GSTLEARN_EXPORT std::map<int, std::map<int, int>>contingencyTable2(const VectorI
 GSTLEARN_EXPORT MatrixSquareSymmetric dbVarianceMatrix(const Db* db);
 
 #ifndef SWIG
-  // All the following functions assume that the variables in the output Db used
-  // to store the results are already created. This is the reason why they are
-  // not supposed to be presented to the Target Language.
+// All the following functions assume that the variables in the output Db used
+// to store the results are already created. This is the reason why they are
+// not supposed to be presented to the Target Language.
 
-  /** @addtogroup STATS_2 Statistics stored in already created variables
-   * \ingroup STATS
-   *
-   * @param db Input Data Base
-   * @param names List of target variables
-   * @param opers List of statistical operators
-   * @param iptr0 Starting address for storage
-   * @param proba Probability (used for calculations)
-   * @param vmin Minimum threshold (or TEST)
-   * @param vmax Maximum threshold (or TEST)
-   *
-   * @{
-   *
-   */
-  GSTLEARN_EXPORT
-  void dbStatisticsVariables(Db* db,
-                             const VectorString& names,
-                             const std::vector<EStatOption>& opers,
-                             int iptr0,
-                             double proba = TEST,
-                             double vmin  = TEST,
-                             double vmax  = TEST);
+/** @addtogroup STATS_2 Statistics stored in already created variables
+ * \ingroup STATS
+ *
+ * @param db Input Data Base
+ * @param names List of target variables
+ * @param opers List of statistical operators
+ * @param iptr0 Starting address for storage
+ * @param proba Probability (used for calculations)
+ * @param vmin Minimum threshold (or TEST)
+ * @param vmax Maximum threshold (or TEST)
+ *
+ * @{
+ *
+ */
+GSTLEARN_EXPORT void dbStatisticsVariables(Db* db,
+                                           const VectorString& names,
+                                           const std::vector<EStatOption>& opers,
+                                           int iptr0,
+                                           double proba = TEST,
+                                           double vmin  = TEST,
+                                           double vmax  = TEST);
 /**@}*/
 
-GSTLEARN_EXPORT int dbStatisticsInGridTool(Db *db,
-                                           DbGrid *dbgrid,
-                                           const VectorString &names,
-                                           const EStatOption &oper,
+GSTLEARN_EXPORT int dbStatisticsInGridTool(Db* db,
+                                           DbGrid* dbgrid,
+                                           const VectorString& names,
+                                           const EStatOption& oper,
                                            int radius,
                                            int iptr0);
 

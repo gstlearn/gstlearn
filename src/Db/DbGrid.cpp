@@ -1458,8 +1458,8 @@ DbGrid* DbGrid::createGrid2D(const ELoadBy &order,
  * @param ncode Number of codes (no code when 0)
  * @param varmax Maximum value for the measurement error
  * @param selRatio Percentage of samples that must be masked off (between 0 and 1)
- * @param heteroRatio Vector of proportions of NA to be generated per
- * variable
+ * @param heteroRatio Vector of proportions of NA to be generated per variable
+ * @param means Vector of means per variable (optional)
  * @param seed Value for the Random Generator seed
  * @return A pointer to the newly created DbGrid
  *
@@ -1477,6 +1477,7 @@ DbGrid* DbGrid::createFillRandom(const VectorInt& nx,
                                  double varmax,
                                  double selRatio,
                                  const VectorDouble& heteroRatio,
+                                 const VectorDouble& means,
                                  int seed)
 {
   // Set the seed
@@ -1520,7 +1521,8 @@ DbGrid* DbGrid::createFillRandom(const VectorInt& nx,
   VectorVectorDouble vars(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    vars[ivar] = VH::simulateGaussian(ndat);
+    double mean = (means.empty()) ? 0. : means[ivar];
+    vars[ivar] = VH::simulateGaussian(ndat, mean);
     if (flag_hetero)
     {
       VectorDouble rnd = VH::simulateUniform(ndat);

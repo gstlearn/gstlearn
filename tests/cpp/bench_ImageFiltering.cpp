@@ -34,26 +34,32 @@ int main(int argc, char* argv[])
   int ndim = 2;
   law_set_random_seed(32131);
   defineDefaultSpace(ESpaceType::RN, ndim);
+  DbStringFormat* dbfmt;
+  OptCst::define(ECst::NTROW, -1);
 
   // Parameters
-  bool verbose    = true;
-  int nx          = 5;
-  int ny          = 5;
-  int nvar        = 2;
-  int skip        = 0;
-  bool flagSK     = false;
-  bool flagFFT    = true;
-  VectorInt radius = {1, 1};
+  bool debug         = false;
+  bool verbose       = true;
+  int nx             = 100;
+  int ny             = 100;
+  int nvar           = 3;
+  int skip           = 0;
+  bool flagSK        = true;
+  bool flagFFT       = true;
+  VectorInt radius   = {10, 10};
+  VectorDouble means = {0., 100., -50.}; // Must be adapted to the number of variables
 
   // Generate the target file
-  DbGrid* db = DbGrid::createFillRandom({nx, ny}, nvar);
+  DbGrid* db = DbGrid::createFillRandom({nx, ny}, nvar, 0, 0, 0., 0., VectorDouble(), means);
   db->display();
 
   // Create the Model
-  int order = (flagSK) ? -1 : 0;
-  Model* model = Model::createFillRandom(ndim, nvar, {ECov::NUGGET, ECov::SPHERICAL},
+  int order    = (flagSK) ? -1 : 0;
+  Model* model = Model::createFillRandom(ndim, nvar,
+                                         {ECov::NUGGET, ECov::SPHERICAL},
                                          1., order);
   model->setCovFiltered(0, true);
+  if (flagSK) model->setMeans(means);
   model->display();
 
   // Neighborhood
@@ -61,12 +67,11 @@ int main(int argc, char* argv[])
   neigh->display();
 
   // Define the verbose option
-  if (verbose) OptDbg::setReference(1);
+  if (debug) OptDbg::setReference(1);
 
   // Test on Collocated CoKriging in Unique Neighborhood
-  (void) krimage(db, model, neigh, flagFFT);
-  DbStringFormat* dbfmt = DbStringFormat::create(FLAG_ARRAY, {"Filtering*"});
-  OptCst::define(ECst::NTROW, -1);
+  (void) krimage(db, model, neigh, flagFFT, verbose);
+  dbfmt = DbStringFormat::create(FLAG_STATS, {"Filtering*"});
   db->display(dbfmt);
 
   // Free pointers

@@ -1165,6 +1165,17 @@ VectorDouble AMatrix::getColumn(int icol) const
   return vect;
 }
 
+VectorDouble AMatrix::getColumnByRowRange(int icol, int rowFrom, int rowTo) const
+{
+  if (icol < 0 || icol >= getNCols())
+    my_throw("Incorrect argument 'icol'");
+
+  VectorDouble vect;
+  for (int irow = rowFrom; irow < rowTo; irow++)
+    vect.push_back(getValue(irow, icol));
+  return vect;
+}
+
 /*! Set the contents of a Column */
 void AMatrix::setColumn(int icol, const VectorDouble& tab, bool flagCheck)
 {

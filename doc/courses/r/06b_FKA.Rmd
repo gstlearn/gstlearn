@@ -13,6 +13,8 @@ output:
 fontsize: 8pt
 theme: Boadilla
 colortheme: beaver
+editor_options: 
+  chunk_output_type: console
 ---
 
 <!-- SUMMARY: Filtering images using Factorial Kriging Analysis. Example on a multivariate acquisition  -->
@@ -141,9 +143,8 @@ varioparam = VarioParam_createMultipleFromGrid(grid,nlag=100)
 varioP = Vario(varioparam)
 err = varioP$compute(grid)
 modelP = Model()
-err = modelP$fit(varioP, 
-                 types=ECov_fromKeys(c("NUGGET", "SPHERICAL", "POWER")),
-                 optvar=Option_VarioFit(TRUE, FALSE))
+types = ECov_fromKeys(c("NUGGET", "SPHERICAL"))
+err = modelP$fit(varioP, types=types, optvar=Option_VarioFit(TRUE, FALSE))
 modelP$setDriftIRF(0,0)
 ```
 
@@ -175,7 +176,7 @@ neigh = NeighImage(c(10,10))
 
 The **image** neighborhood is based on $(2*10+1)^2=441$ pixels (centered on the target pixel).
 
-During the estimation, only the contribution of second and third basic structures are kept (Nugget Effect is filtered out): ** Factorial Kriging Analysis**.
+During the estimation, only the contribution of second and third basic structures are kept (Nugget Effect is filtered out): **Factorial Kriging Analysis**.
 
 ```{r Performing_monovariate_FKA}
 modelP$setCovFiltered(0, TRUE)
@@ -183,7 +184,7 @@ means = dbStatisticsMono(grid,"Fill.P",EStatOption_fromKeys("MEAN"))$getValues()
 modelP$setMeans(means)
 modelP
 
-err = krimage(grid,modelP,neigh,namconv=NamingConvention("Mono"))
+err = krimage(grid,modelP,neigh,flagFFT=TRUE, verbose=TRUE, namconv=NamingConvention("Mono"))
 ```
 
 ---
@@ -216,14 +217,13 @@ ggPrint(p)
 
 
 ```{r Locate_Multivariate, fig.align='center', fig.height=5}
-grid$setLocators(c("Fill.P", "Cr", "Ni"), ELoc_Z())
+varnames = c("Fill.P", "Cr", "Ni")
+grid$setLocators(varnames, ELoc_Z())
 
 varioM = Vario(varioparam)
 err = varioM$compute(grid)
 modelM = Model()
-err = modelM$fit(varioM, 
-                 types= ECov_fromKeys(c("NUGGET", "SPHERICAL", "POWER")),
-                 optvar=Option_VarioFit(TRUE, FALSE))
+err = modelM$fit(varioM, types= types, optvar=Option_VarioFit(TRUE, FALSE))
 modelM$setDriftIRF(0,0)
 ```
 
@@ -249,12 +249,11 @@ multi.varmod(varioM,modelM)
 
 ```{r Performing_Multivariate_FKA}
 modelM$setCovFiltered(0, TRUE)
-means = dbStatisticsMono(grid,flagIso=TRUE, 
-                         names=c("Fill.P","Cr","Ni"),
+means = dbStatisticsMono(grid,flagIso=TRUE, names=varnames,
                          EStatOption_fromKeys("MEAN"))$getValues()
 modelM$setMeans(means)
 
-err  = krimage(grid,modelM,neigh,namconv=NamingConvention("Multi"))
+err  = krimage(grid,modelM,neigh,flagFFT=TRUE, verbose=TRUE, namconv=NamingConvention("Multi"))
 ```
 
 Note that, using the same **neigh** as in monovariate, the dimension of the Kriging System is now $3 * 441 = 1323$

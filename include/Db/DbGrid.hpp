@@ -157,6 +157,7 @@ public:
                                   double varmax                   = 0.,
                                   double selRatio                 = 0.,
                                   const VectorDouble& heteroRatio = VectorDouble(),
+                                  const VectorDouble& means       = VectorDouble(),
                                   int seed                        = 1367843);
 
   int reset(const VectorInt& nx,

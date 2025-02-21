@@ -166,6 +166,8 @@ public:
   int getNColDefined() const;
   /*! Define the number of defined rows */
   int getNRowDefined() const;
+  /*! Extract a portion of a Column */
+  VectorDouble getColumnByRowRange(int icol, int rowFrom, int rowTo) const;
   /*! Check if the matrix does not contain any negative element */
   bool isNonNegative(bool verbose = false) const;
 

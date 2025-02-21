@@ -19,9 +19,11 @@ AlwaysBreakTemplateDeclarations: 'Yes'
 AlignOperands: AlignAfterOperator
 BinPackArguments: true
 BinPackParameters: false
+BraceWrapping:
+  AfterControlStatement: Always
 BreakBeforeBinaryOperators: None
 BreakAfterReturnType: None
-BreakBeforeBraces: Attach
+BreakBeforeBraces: Allman
 BreakConstructorInitializers: BeforeComma
 ConstructorInitializerIndentWidth: 2
 ContinuationIndentWidth: 2
