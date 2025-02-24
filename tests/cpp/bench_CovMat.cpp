@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Global parameters
-  int mode = 0;
+  int mode = 3;
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
     timer.reset();
     for (int i = 0; i < nout; i++)
     {
-      dbout->getSampleAsSPInPlace(p2, i);
+      dbout->getSampleAsSPInPlace(p2, i, 1);
       model->evalPointToDb(rhs1, p2, dbin);
       VH::addInPlace(cumul, rhs1);
     }
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
 
     for (int i = 0; i < nout; i++)
     {
-      dbout->getSampleAsSPInPlace(p2, i);
+      dbout->getSampleAsSPInPlace(p2, i, 1);
       model->evalPointToDbAsSP(rhs2, p1s, p2);
       VH::addInPlace(cumul, rhs2);
     }

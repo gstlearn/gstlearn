@@ -102,10 +102,10 @@ double DbLine::getLineLength(int iline) const
   double total = 0.;
   SpacePoint P1;
   SpacePoint P2;
-  getSampleAsSPInPlace(P1, _lineAdds[iline][0]);
+  getSampleAsSPInPlace(P1, _lineAdds[iline][0], 1);
   for (int iech = 1, nech = getNSamplePerLine(iline); iech < nech; iech++)
   {
-    getSampleAsSPInPlace(P2, _lineAdds[iline][iech]);
+    getSampleAsSPInPlace(P2, _lineAdds[iline][iech], 1);
     total += P2.getDistance(P1);
     P1 = P2;
   }

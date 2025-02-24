@@ -270,7 +270,7 @@ public:
 
   void   _computeCorrec();
   double _getDetTensor() const;
-  double _scaleBySill(int ivar, int jvar, double cov, const CovCalcMode* mode) const;
+  double _scaleBySill(int ivar, int jvar, const CovCalcMode* mode) const;
 
 private:
   CorAniso* _corAniso;

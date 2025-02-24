@@ -80,8 +80,9 @@ void CorGneiting::optimizationSetTargetByIndex(int iech) const
   //_covTemp->optimizationSetTargetByIndex(iech);
 }
 
-void CorGneiting::_optimizationPreProcess(const std::vector<SpacePoint>& p) const 
+void CorGneiting::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& p) const 
 {
+  DECLARE_UNUSED(mode)
   DECLARE_UNUSED(p)
  // _covS->_optimizationPreProcess(p);
  // _covTemp->_optimizationPreProcess(p);

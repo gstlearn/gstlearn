@@ -715,12 +715,12 @@ VectorDouble Db::getSampleCoordinates(int iech) const
  *
  * @param P SpacePoint reference (output)
  * @param iech Rank of the sample
- * @param target Boolean value assigned to the Space Point
+ * @param mode 1 for Data and 2 for Target
  */
-void Db::getSampleAsSPInPlace(SpacePoint& P, int iech, bool target) const
+void Db::getSampleAsSPInPlace(SpacePoint& P, int iech, int mode) const
 {
   P.setIech(iech);
-  P.setTarget(target);
+  P.setMode(mode);
   // Next line is unsafe: it directly loads the coordinates extracted from the Db
   // into the VectorDouble 'coord' of the Space Point 'P'
   // Dimensions should match!!!
@@ -748,8 +748,8 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
 
   for (int ip = 0; ip < number; ip++)
   {
-    getSampleAsSPInPlace(P1, iechs[ip]);
-    getSampleAsSPInPlace(P2, jechs[ip]);
+    getSampleAsSPInPlace(P1, iechs[ip], 1);
+    getSampleAsSPInPlace(P2, jechs[ip], 1);
     VectorDouble vect = P2.getIncrement(P1);
 
     for (int idim = 0; idim < ndim; idim++)
@@ -766,7 +766,7 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
 void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
 {
   // Load the coordinates
-  getSampleAsSPInPlace(P, iech);
+  getSampleAsSPInPlace(P, iech, 1);
 
   // Load the code (optional)
   if (P.checkCode())
@@ -795,7 +795,7 @@ void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,const std::shared_ptr<
     {
       pvec.push_back(SpacePoint(space));
       SpacePoint& p = pvec[iechcur++];
-      getSampleAsSPInPlace(p, iech);
+      getSampleAsSPInPlace(p, iech, 1);
     }
     else
     {
@@ -805,6 +805,19 @@ void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,const std::shared_ptr<
       p.setIech(iech);
       p.setFFFF();
     }
+  }
+}
+
+void Db::getSamplesFromNbghAsSP(std::vector<SpacePoint>& pvec,
+                                const VectorInt& nbgh,
+                                const ASpaceSharedPtr& space) const
+{
+  pvec.clear();
+  for (int iech = 0, nech = (int)nbgh.size(); iech < nech; iech++)
+  {
+    pvec.push_back(SpacePoint(space));
+    SpacePoint& p = pvec[iech];
+    getSampleAsSPInPlace(p, nbgh[iech], 1);
   }
 }
 

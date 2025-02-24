@@ -190,22 +190,6 @@ double CovList::eval(const SpacePoint& p1,
   return cov;
 }
 
-double CovList::_loadAndEval(const SpacePoint& p1,
-                             const SpacePoint& p2,
-                             int ivar,
-                             int jvar,
-                             const CovCalcMode* mode) const
-{
-  double res      = 0.;
-  const VectorInt& list = _getListActiveCovariances(mode);
-  for (int i = 0, n = (int)list.size(); i < n; i++)
-  {
-    int j = list[i];
-    res += _covs[j]->loadAndEval(p1, p2, ivar, jvar, mode);
-  }
-  return res;
-}
-
 /**
  * Calculate the Matrix of covariance between two space points
  * @param p1 Reference of the first space point
@@ -346,11 +330,11 @@ bool CovList::_isCovarianceIndexValid(int icov) const
   return checkArg("Covariance Index", icov, getNCov());
 }
 
-void CovList::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
+void CovList::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& p) const
 {
   for (const auto &e :_covs)
   {
-    e->optimizationPreProcess(p);
+    e->optimizationPreProcess(mode, p);
   }
 }
 

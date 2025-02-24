@@ -445,7 +445,7 @@ public:
   // Accessing elements of the contents
 
   VectorDouble getSampleCoordinates(int iech) const;
-  void getSampleAsSPInPlace(SpacePoint& P, int iech, bool target = false) const;
+  void getSampleAsSPInPlace(SpacePoint& P, int iech, int mode = 1) const;
   virtual void getSampleAsSTInPlace(int iech, SpaceTarget& P) const;
   VectorDouble getSampleLocators(const ELoc& locatorType, int iech) const;
   VectorVectorDouble getIncrements(const VectorInt& iechs, const VectorInt& jechs) const;
@@ -478,6 +478,9 @@ public:
   void getSamplesAsSP(std::vector<SpacePoint>& pvec,
                       const ASpaceSharedPtr& space,
                       bool useSel = false) const;
+  void getSamplesFromNbghAsSP(std::vector<SpacePoint>& pvec,
+                              const VectorInt& nbgh,
+                              const ASpaceSharedPtr& space) const;
 
   bool   hasLocator(const ELoc& locatorType) const;
   int    getNFromLocator(const ELoc& locatorType) const;

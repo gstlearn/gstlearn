@@ -101,15 +101,62 @@ int main(int argc, char *argv[])
 
   // Avec les 'auto'
   total = 0.;
-  for (const auto& vv1: v1)
-  {
-    for (const auto& vv2: v2)
-    {
+  for (const auto& vv1: v1) {
+    for (const auto& vv2: v2) {
       total += vv1 * vv2;
     }
   }
   message("Valeur otenue = %lf\n", total);
   timer.displayIntervalMilliseconds("Avec les auto");
+
+  // Avec span
+  timer.reset();
+  total           = 0.;
+  const auto v1sp = std::span(v1);
+  const auto v2sp = std::span(v2);
+  for (const auto vv1: v1sp) {
+    for (const auto vv2: v2sp) {
+      total += vv1 * vv2;
+    }
+  }
+  message("Valeur otenue = %lf\n", total);
+  timer.displayIntervalMilliseconds("Avec span");
+
+  // auto + getVector
+  total = 0.;
+  for (const auto vv1: v1.getVector()) {
+    for (const auto vv2: v2.getVector()) {
+      total += vv1 * vv2;
+    }
+  }
+  message("Valeur otenue = %lf\n", total);
+  timer.displayIntervalMilliseconds("Avec auto + getVector");
+
+  // Auto + iterateur
+  total          = 0.;
+  const auto beg = v2.cbegin();
+  const auto end = v2.cend();
+  for (const auto vv1: v1) {
+    for (auto it = beg; it != end; ++it) {
+      total += vv1 * *it;
+    }
+  }
+  message("Valeur otenue = %lf\n", total);
+  timer.displayIntervalMilliseconds("Avec auto + const iterator");
+
+  // Avec data() + size()
+  total           = 0.;
+  const auto v1s  = v1.size();
+  const auto* v1d = v1.data();
+  const auto v2s  = v2.size();
+  const auto* v2d = v2.data();
+  for (size_t i = 0; i < v1s; ++i) {
+    for (size_t j = 0; j < v2s; ++j) {
+      total += v1d[i] * v2d[j];
+    }
+  }
+  message("Valeur otenue = %lf\n", total);
+  timer.displayIntervalMilliseconds("Avec data() + size()");
 
   return (0);
 }

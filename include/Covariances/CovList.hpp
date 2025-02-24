@@ -97,7 +97,7 @@ public:
   double             getSill(int icov, int ivar, int jvar) const;
 
   // Methods necessary for Optimization
-  void _optimizationPreProcess(const std::vector<SpacePoint> &p) const override;
+  void _optimizationPreProcess(int mode, const std::vector<SpacePoint> &p) const override;
   void _optimizationPostProcess() const override ;
   void _optimizationSetTarget(const SpacePoint &pt) const override;
   void optimizationSetTargetByIndex(int iech) const override;
@@ -109,11 +109,6 @@ public:
 protected:
   bool _isCovarianceIndexValid(int icov) const;
   void _load(const SpacePoint& p, bool case1) const override;
-  double _loadAndEval(const SpacePoint& p1,
-                          const SpacePoint&p2,
-                          int ivar,
-                          int jvar,
-                          const CovCalcMode *mode) const;
 
 protected:
   const VectorInt& _getListActiveCovariances(const CovCalcMode* mode) const;

@@ -103,7 +103,7 @@ public:
   static bool isOptimizationInitialized(const std::vector<SpacePoint> &p1As,
                                         const Db* db = nullptr);
 
-  void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
+  void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& p) const override;
   void _optimizationSetTargetByIndex(int iech,
                                     const std::vector<SpacePoint> &p1As,
                                     SpacePoint & p2A) const;

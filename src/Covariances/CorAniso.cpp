@@ -410,14 +410,10 @@ double CorAniso::evalCor(const SpacePoint &p1,
 {
   DECLARE_UNUSED(ivar, jvar);
   double h;
-  if (!_isOptimizationPreProcessed || p1.getIech() == -1 || p2.getIech() == -1)
-  {
-    h = getSpace()->getDistance(p1, p2, _aniso);
-  }
-  else
-  {
+  if (p1.isProjected() && p2.isProjected())
     h = _pw2->getDistance(*_pw1);
-  }
+  else
+    h = getSpace()->getDistance(p1, p2, _aniso);
   return evalCorFromH(h, mode);
 }
 
@@ -929,7 +925,7 @@ void CorAniso::_optimizationSetTargetByIndex(int iech,
   if (_isOptimizationPreProcessed)
   {
     p2A = p1As[iech];
-    p2A.setTarget(true);
+    p2A.setMode(2);
   }
 }
 
@@ -945,52 +941,49 @@ void CorAniso::_optimizationPostProcess() const
 void CorAniso::optimizationTransformSP(const SpacePoint& ptin,
                                        SpacePoint& ptout) const
 {
+  ptout.setIech(ptin.getIech());
+  ptout.setMode(ptin.getMode());
+
   if (isOptimEnabled())
   {
     _aniso.applyInverseInPlace(ptin.getCoords(), ptout.getCoordRef());
-    ptout.setIech(ptin.getIech());
-    ptout.setTarget(ptin.isTarget());
-    return;
-  }
-
-  bool isTarget = ptin.isTarget();
-  if (!isTarget)
-  {
-    ptout.setIech(ptin.getIech());
+    ptout.setProjected(true);
   }
 }
 
 /**
  * Transform a set of Space Points using the anisotropy tensor
  * The set of resulting Space Points are stored as private member of this.
- * Note that ALL samples are processed, independently from the presence of a
-selection
- * or checking for heterotopy.
+ * Note that ALL samples are processed, regardless from the selection
+ * @param mode 1 for _p1As and 2 for _p2As
  * @param p Vector of SpacePoints
  */
 
-void CorAniso::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
+void CorAniso::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& p) const
 {
   if (!isOptimEnabled())
   {
-    ACov::_optimizationPreProcess(p);
+    ACov::_optimizationPreProcess(mode, p);
     return;
   }
 
-  int n = (int)p.size();
   SpacePoint pt(getSpace());
-  for (int i = 0; i < n; i++)
+  for (int i = 0, n = (int)p.size(); i < n; i++)
   {
+    // Assert that the Space Point has been transformed
     pt.setIech(p[i].getIech());
+
+    // Perform the projection
     if (!p[i].isFFFF())
-    {
       optimizationTransformSP(p[i], pt);
-    }
     else
-    {
       pt.setFFFF();
-    }
-    _p1As.push_back(pt);
+
+    // Stack the Space point in _p1As or _p2As
+    if (mode == 1)
+      _p1As.push_back(pt);
+    else
+      _p2As.push_back(pt);
   }
   _isOptimizationPreProcessed = true;
 }

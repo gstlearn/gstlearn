@@ -21,7 +21,7 @@ BinPackArguments: true
 BinPackParameters: false
 BreakBeforeBinaryOperators: None
 BreakAfterReturnType: None
-BreakBeforeBraces: Attach
+BreakBeforeBraces: Allman
 BreakConstructorInitializers: BeforeComma
 ConstructorInitializerIndentWidth: 2
 ContinuationIndentWidth: 2
