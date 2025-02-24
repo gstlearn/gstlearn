@@ -53,7 +53,8 @@ bool Convolution::_isDbGridDefined() const
 int Convolution::ConvolveSparse(int iatt,
                                 const VectorVectorInt& ranks,
                                 const MatrixRectangular& wgt,
-                                const VectorDouble& means)
+                                const VectorDouble& means,
+                                int optionVerbose)
 {
   if (! _isDbGridDefined()) return 1;
   int ndim    = _dbgrid->getNDim();
@@ -79,6 +80,32 @@ int Convolution::ConvolveSparse(int iatt,
     messerr("The number of columns in the weight matrix (%d)", wgt.getNCols());
     messerr(" must be equal to the number of variables (%d)", nvar);
     return 1;
+  }
+
+  // Optional printout
+  if (optionVerbose)
+  {
+    mestitle(1, "Convolution weights");
+    if (optionVerbose == 1)
+    {
+      Table table(nvar * nvar, 2);
+      table.setColumnName(0, "Minimum");
+      table.setColumnName(1, "Maximum");
+      for (int ivar = 0, irow = 0; ivar < nvar; ivar++)
+      {
+        for (int jvar = 0; jvar < nvar; jvar++, irow++)
+        {
+          VectorDouble vect = wgt.getColumnByRowRange(ivar, nbneigh * jvar, nbneigh * (jvar + 1));
+          table.setRowName(irow, "Weight of Z" + std::to_string(jvar + 1) +
+                                   " for Z*" + std::to_string(ivar + 1));
+          table.setValue(irow, 0, VH::minimum(vect));
+          table.setValue(irow, 1, VH::maximum(vect));
+        }
+      }
+      table.display();
+    }
+    else
+      wgt.display();
   }
 
   VectorInt indTarget(ndim);

@@ -526,7 +526,7 @@ private:
   double _getVolume(const VectorDouble& ext) const;
 
 protected:
-  CovContext _ctxt;         /* Context */
+  CovContext _ctxt;        ///< Covariance Context 
   bool _optimEnabled;
   mutable bool _isOptimPreProcessed;
   mutable std::vector<SpacePoint> _p1As;

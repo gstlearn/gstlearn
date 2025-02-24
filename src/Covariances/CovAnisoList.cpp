@@ -307,6 +307,11 @@ void CovAnisoList::setSill(int icov, int ivar, int jvar, double value)
   if (!_isCovarianceIndexValid(icov)) return;
   _covs[icov]->setSill(ivar, jvar, value);
 }
+void CovAnisoList::setSills(int icov, const MatrixSquareSymmetric& sills)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  _covs[icov]->setSill(sills);
+}
 void CovAnisoList::setRangeIsotropic(int icov, double range)
 {
   if (!_isCovarianceIndexValid(icov)) return;

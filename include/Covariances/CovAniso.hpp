@@ -280,7 +280,6 @@ private:
   // They are in a protected section as they may be modified by class hierarchy
 };
 
-
 GSTLEARN_EXPORT double scale2range(const ECov& type, double scale, double param = 1.);
 GSTLEARN_EXPORT double range2scale(const ECov& type, double range, double param = 1.);
 

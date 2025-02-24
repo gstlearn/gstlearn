@@ -935,6 +935,11 @@ void AMatrix::dumpElements(const String& title, int ifrom, int ito) const
   }
 }
 
+void AMatrix::dumpStatistics(const String& title) const
+{
+  message("%s : %d rows and %d columns\n", title.c_str(), _nRows, _nCols);
+}
+
 /**
  * Check that a set of matrices (or vectors) has the correct linkage
  * @param nrow1       Number of rows in the first matrix
@@ -1162,6 +1167,17 @@ VectorDouble AMatrix::getColumn(int icol) const
   VectorDouble vect;
   for (int irow = 0; irow < getNRows(); irow++)
     vect.push_back(getValue(irow,icol));
+  return vect;
+}
+
+VectorDouble AMatrix::getColumnByRowRange(int icol, int rowFrom, int rowTo) const
+{
+  if (icol < 0 || icol >= getNCols())
+    my_throw("Incorrect argument 'icol'");
+
+  VectorDouble vect;
+  for (int irow = rowFrom; irow < rowTo; irow++)
+    vect.push_back(getValue(irow, icol));
   return vect;
 }
 

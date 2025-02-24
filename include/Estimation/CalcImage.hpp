@@ -54,7 +54,8 @@ private:
   bool _filterImage(DbGrid* dbgrid, const ModelGeneric* modelgeneric);
   static DbGrid* _buildMarpat(const NeighImage* neigh,
                               const VectorVectorInt& ranks,
-                              const MatrixRectangular& wgt);
+                              const MatrixRectangular& wgt,
+                              int optionVerbose = 0);
   static VectorVectorInt _getActiveRanks(const DbGrid* dblocal);
 
 private:
@@ -83,6 +84,7 @@ GSTLEARN_EXPORT int krimage(DbGrid* dbgrid,
                             Model* model,
                             ANeigh* neigh,
                             bool flagFFT                    = false,
+                            bool verbose                    = false,
                             int seed                        = 13431,
                             const NamingConvention& namconv = NamingConvention("Filtering"));
 GSTLEARN_EXPORT int dbMorpho(DbGrid* dbgrid,

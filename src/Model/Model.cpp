@@ -1370,6 +1370,7 @@ Model* Model::createFillRandom(int ndim,
                                const std::vector<ECov>& types,
                                double hmax,
                                int order,
+                               int nfex,
                                int seed) {
   // Create the Covariance Part
   Model* model = Model::create(CovContext(nvar, ndim));
@@ -1393,7 +1394,7 @@ Model* Model::createFillRandom(int ndim,
   }
   else
   {
-    model->setDriftIRF(order, 0);
+    model->setDriftIRF(order, nfex);
   }
   return model;
 }

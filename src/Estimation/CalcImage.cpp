@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_f_private.h"
+#include "Enum/EStatOption.hpp"
 
 #include "Calculators/ACalcInterpolator.hpp"
 #include "Estimation/CalcImage.hpp"
@@ -16,10 +17,12 @@
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Model/Model.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Convolution.hpp"
+#include "Stats/Classical.hpp"
 
 #include "geoslib_old_f.h"
 
@@ -201,11 +204,11 @@ bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelGeneric* modelgeneric)
   int retcode = 0;
   if (!_flagFFT)
   {
-    retcode = conv.ConvolveSparse(_iattOut, ranks, wgt, means);
+    retcode = conv.ConvolveSparse(_iattOut, ranks, wgt, means, (int) _verbose);
   }
   else
   {
-    DbGrid* marpat = _buildMarpat(neighI, ranks, wgt);
+    DbGrid* marpat = _buildMarpat(neighI, ranks, wgt, (int) _verbose);
     retcode        = conv.ConvolveFFT(_iattOut, nvar, marpat, means);
     delete marpat;
   }
@@ -220,11 +223,13 @@ bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelGeneric* modelgeneric)
  * @param neigh NeighImage description
  * @param ranks Vector of Vector of neighborhood ranks
  * @param wgt   Matrix of weights
+ * @param optionVerbose Verbose option (0: silent; 1: statistics; 2: whole display)
  * @return DbGrid
  */
 DbGrid* CalcImage::_buildMarpat(const NeighImage* neigh,
                                 const VectorVectorInt& ranks,
-                                const MatrixRectangular& wgt)
+                                const MatrixRectangular& wgt,
+                                int optionVerbose)
 {
   int nbneigh = ranks.size();
   int ndim = ranks[0].size();
@@ -251,6 +256,29 @@ DbGrid* CalcImage::_buildMarpat(const NeighImage* neigh,
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++, ecr++)
         dbgrid->setArray(iadd, iuid + ecr, wgt.getValue(nbneigh * jvar + ineigh, ivar));
+  }
+
+  // Optional printout
+  if (optionVerbose)
+  {
+    mestitle(1, "Convolution Pattern");
+    if (optionVerbose == 1)
+    {
+      Table table = dbStatisticsMono(dbgrid, {"Weights*"},
+                                     {EStatOption::MINI, EStatOption::MAXI});
+      for (int ivar = 0, irow = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar < nvar; jvar++, irow++)
+          table.setRowName(irow, "Weight of Z" + std::to_string(jvar + 1) +
+                                   " for Z*" + std::to_string(ivar + 1));
+      table.display();
+    }
+    else
+    {
+      DbStringFormat* dbfmt = DbStringFormat::createFromFlags(false, false, false,
+                                                              false, true, false,
+                                                              {"Weights*"});
+      dbgrid->display(dbfmt);
+    }
   }
   return dbgrid;
 }
@@ -298,6 +326,7 @@ bool CalcImage::_run()
  ** \param[in]  model      Model structure
  ** \param[in]  neigh      ANeigh structure
  ** \param[in]  flagFFT    True if the FFT version is to be used
+ ** \param[in]  verbose    Verbose flag
  ** \param[in]  seed       Seed used for random number generation
  ** \param[in]  namconv    Naming Convention
  **
@@ -306,6 +335,7 @@ int krimage(DbGrid* dbgrid,
             Model* model,
             ANeigh* neigh,
             bool flagFFT,
+            bool verbose,
             int seed,
             const NamingConvention& namconv)
 {
@@ -317,6 +347,7 @@ int krimage(DbGrid* dbgrid,
   image.setNeigh(neigh);
   image.setFlagFFT(flagFFT);
   image.setSeed(seed);
+  image.setVerbose(verbose);
   image.setNamingConvention(namconv);
 
   image.setFlagFilter(true);
