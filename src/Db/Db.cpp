@@ -23,6 +23,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
@@ -4593,6 +4594,40 @@ bool Db::_serialize(std::ostream& os, bool /*verbose*/) const
   return ret;
 }
 
+bool Db::_serializeH5(H5::Group& grp, bool /*verbose*/) const
+{
+  // create a new Group every time we enter a _serialize method
+  // => easier to deserialize
+  auto db = grp.createGroup("Db");
+
+  // HDF5 DataSpace should be manually created and passed to
+  // SerializeHDF5::writeVec or directly to Group::createDataSet()
+
+  // here the DataSpace is the number of rows in the Db (number of
+  // samples) and every Db column corresponds to a DataSet
+  const hsize_t dim = getNSample();
+  const H5::DataSpace ds {1, &dim};
+
+  int ncol              = getNColumn();
+  VectorString locators = getLocators(true);
+  VectorString names    = getName("*");
+
+  for (int i = 0; i < ncol; ++i)
+  {
+    // here we create H5::DataSet by hand to augment them with
+    // attributes
+    auto data = db.createDataSet(names[i], H5::PredType::NATIVE_DOUBLE, ds);
+    // Locators are semantically close to Db columns and H5::Attribute has a
+    // nicer API than string H5::DataSets. Putting Locators inside Attribute
+    // also avoids checking array sizes during deserialization
+    // (Locators DataSet size vs. number of columns)
+    SerializeHDF5::createAttribute(data, "Locators", locators[i]);
+    data.write(getColumnByColIdx(i).data(), H5::PredType::NATIVE_DOUBLE);
+  }
+
+  return true;
+}
+
 bool Db::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int ncol = 0;
@@ -4637,6 +4672,82 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
 
     // Load the values
     _loadData(ELoadBy::SAMPLE, false, allvalues);
+
+    // Update the column names and locators
+    for (int i = 0; i < ncol; i++)
+    {
+      setNameByUID(i, names[i]);
+      setLocatorByUID(i, tabloc[i], tabnum[i]);
+    }
+  }
+  return ret;
+}
+
+bool Db::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+{
+  VectorString locators;
+  VectorString names;
+
+  // we get the H5::Group that has the name of the current class
+
+  // Call SerializeHDF5::getGroup to get the subgroup of grp named
+  // "Db" with some error handling
+  auto db = SerializeHDF5::getGroup(grp, "Db");
+  if (!db)
+  {
+    return false;
+  }
+
+  // a DataSet == a Db column
+  int ncol {};
+  for (hsize_t i = 0; i < db->getNumObjs(); ++i)
+  {
+    if (db->getObjTypeByIdx(i) == H5G_DATASET)
+    {
+      ncol++;
+      names.push_back(db->getObjnameByIdx(i));
+    }
+  }
+
+  // assume every DataSet has the same DataSpace
+  hsize_t nech {};
+  {
+    const auto data = db->openDataSet(names.front());
+    const auto ds   = data.getSpace();
+    ds.getSimpleExtentDims(&nech);
+  }
+
+  bool ret = true;
+  if (ncol > 0)
+  {
+    locators.resize(ncol);
+  }
+
+  // Initialize the Db
+  resetDims(ncol, nech);
+
+  for (size_t i = 0; i < names.size(); ++i)
+  {
+    const auto data = db->openDataSet(names[i]);
+    // read the column locator (H5::Attribute)
+    locators[i] = SerializeHDF5::readAttribute(data, "Locators");
+    // read the column values from H5::DataSet
+    data.read(&_array[_getAddress(0, i)], H5::PredType::NATIVE_DOUBLE);
+  }
+
+  if (ret)
+  {
+    // Decode the locators
+    std::vector<ELoc> tabloc;
+    VectorInt tabnum;
+    int inum = 0, mult = 0;
+    ELoc iloc;
+    for (const auto& loc: locators)
+    {
+      if (locatorIdentify(loc, &iloc, &inum, &mult) != 0) return true;
+      tabloc.push_back(iloc);
+      tabnum.push_back(inum);
+    }
 
     // Update the column names and locators
     for (int i = 0; i < ncol; i++)

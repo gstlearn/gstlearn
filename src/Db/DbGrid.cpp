@@ -17,6 +17,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
@@ -744,42 +745,30 @@ bool DbGrid::isConsistent() const
 
 bool DbGrid::_deserialize(std::istream& is, bool verbose)
 {
-  int ndim = 0;
-  VectorInt nx;
-  VectorString locators;
-  VectorString names;
-  VectorDouble x0;
-  VectorDouble dx;
-  VectorDouble angles;
-  VectorDouble values;
-  VectorDouble allvalues;
-
-  /* Initializations */
-
   bool ret = true;
-  ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
+  ret      = ret && _grid._deserialize(is, verbose);
+  ret      = ret && Db::_deserialize(is, verbose);
 
-  /* Core allocation */
+  return ret;
+}
 
-  nx.resize(ndim);
-  dx.resize(ndim);
-  x0.resize(ndim);
-  angles.resize(ndim);
-
-  /* Read the grid characteristics */
-
-  for (int idim = 0; ret && idim < ndim; idim++)
+bool DbGrid::_deserializeH5(H5::Group& grp, bool verbose)
+{
+  // Call SerializeHDF5::getGroup to get the subgroup of grp named
+  // "DbGrid" with some error handling
+  auto db = SerializeHDF5::getGroup(grp, "DbGrid");
+  if (!db)
   {
-    ret = ret && _recordRead<int>(is, "Grid Number of Nodes", nx[idim]);
-    ret = ret && _recordRead<double>(is, "Grid Origin", x0[idim]);
-    ret = ret && _recordRead<double>(is, "Grid Mesh", dx[idim]);
-    ret = ret && _recordRead<double>(is, "Grid Angles", angles[idim]);
+    return false;
   }
 
-  // Create the Grid characteristics
-  (void) gridDefine(nx, dx, x0, angles);
+  bool ret = true;
 
-  ret && Db::_deserialize(is, verbose);
+  // call _deserialize on each member with the current class Group
+  ret = ret && _grid._deserializeH5(*db, verbose);
+
+  // call _deserialize on the parent class with the current class Group
+  ret = ret && Db::_deserializeH5(*db, verbose);
 
   return ret;
 }
@@ -788,25 +777,32 @@ bool DbGrid::_serialize(std::ostream& os, bool verbose) const
 {
   bool ret = true;
 
-  /* Writing the header */
-
-  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
-
   /* Writing the grid characteristics */
 
-  ret = ret && _commentWrite(os, "Grid characteristics (NX,X0,DX,ANGLE)");
-  for (int idim = 0; ret && idim < getNDim(); idim++)
-  {
-    ret = ret && _recordWrite<int>(os, "",  getNX(idim));
-    ret = ret && _recordWrite<double>(os, "", getX0(idim));
-    ret = ret && _recordWrite<double>(os, "", getDX(idim));
-    ret = ret && _recordWrite<double>(os, "", getAngle(idim));
-    ret = ret && _commentWrite(os, "");
-  }
+  ret = ret && _grid._serialize(os, verbose);
 
   /* Writing the tail of the file */
 
-  ret && Db::_serialize(os, verbose);
+  ret = ret && Db::_serialize(os, verbose);
+
+  return ret;
+}
+
+bool DbGrid::_serializeH5(H5::Group& grp, bool verbose) const
+{
+  // create a new H5 group every time we enter a _serialize method
+  // => easier to deserialize
+  auto db = grp.createGroup("DbGrid");
+
+  bool ret = true;
+  // serialize vector members using SerializeHDF5::writeVec
+  // (error handling is done in these methods)
+
+  // call _serialize on each member with the current class Group
+  ret = ret && _grid._serializeH5(db, verbose);
+
+  // call _serialize on the parent class with the current class Group
+  ret = ret && Db::_serializeH5(db, verbose);
 
   return ret;
 }
@@ -844,6 +840,20 @@ DbGrid* DbGrid::createFromNF(const String& neutralFilename, bool verbose)
     success = dbgrid->deserialize(is, verbose);
   }
   if (! success)
+  {
+    delete dbgrid;
+    dbgrid = nullptr;
+  }
+  return dbgrid;
+}
+
+DbGrid* DbGrid::createFromH5(const String& H5Filename, bool verbose)
+{
+  auto* dbgrid = new DbGrid;
+  auto file    = SerializeHDF5::fileOpenRead(H5Filename);
+
+  bool success = dbgrid->_deserializeH5(file, verbose);
+  if (!success)
   {
     delete dbgrid;
     dbgrid = nullptr;

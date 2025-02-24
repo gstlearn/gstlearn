@@ -69,8 +69,8 @@ For **compiling and installing** *gstlearn* C++ library, the following tools mus
 * Boost header files 1.65 or higher
 * Eigen3 header files 3.4 or higher
 * NLopt library 2.7 or higher
+* HDF5 C++ library and header files 1.8 or higher
 * Doxygen [Optional] 1.8.3 or higher with LaTeX and Ghostscripts
-* HDF5 [Optional] C++ library and header files 1.8 or higher
 
 See [required tools installation](#required-tools-installation) instructions below
 
@@ -213,9 +213,9 @@ brew install cmake
 brew install texlive-latex-recommended
 brew install texlive-science
 brew install doxygen
-brew install libboost-all-dev
-brew install libeigen3-dev
-brew install libhdf5-dev
+brew install boost
+brew install eigen
+brew install hdf5
 brew install nlopt
 ```
 
@@ -272,6 +272,18 @@ cd C:\NLopt_src\nlopt
 mkdir build
 cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=C:/NLopt -DBUILD_SHARED_LIBS=OFF -DNLOPT_GUILE=OFF -DNLOPT_MATLAB=OFF -DNLOPT_OCTAVE=OFF -DNLOPT_PYTHON=OFF -DNLOPT_SWIG=OFF -DNLOPT_TESTS=OFF
+cmake --build . --config Release --target install
+```
+
+##### Install HDF5 using CMake
+
+Assume that you have fetched the sources from version 1.14.6 from the [HDF5 GitHub repository](https://github.com/HDFGroup/hdf5) in the following folder: `C:\HDF5_src\hdf5`. Open a command prompt by running `cmd.exe` and execute the following commands (adapt the HDF5 source code path in the first command and the HDF5 version in the INSTALL_PREFIX below):
+
+```
+cd C:\HDF5_src\hdf5
+mkdir build
+cd build
+cmake .. -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF -DHDF5_BUILD_EXAMPLES=OFF -DHDF5_BUILD_HL_LIB=OFF -DHDF5_BUILD_CPP_LIB=ON -DHDF_PACKAGE_NAMESPACE=hdf5:: -DHDF5_INSTALL_MOD_FORTRAN=NO -DHDF5_BUILD_GENERATORS=ON -DHDF5_ENABLE_ALL_WARNINGS=ON -DHDF5_MINGW_STATIC_GCC_LIBS=ON -DHDF5_ALLOW_EXTERNAL_SUPPORT=TGZ -DTGZPATH=../temp -DZLIB_PACKAGE_NAME=zlib -DZLIB_TGZ_ORIGPATH=https://github.com/madler/zlib/releases/download/v1.3.1 -DZLIB_TGZ_NAME=zlib-1.3.1.tar.gz -DLIBAEC_PACKAGE_NAME=libaec -DLIBAEC_TGZ_ORIGPATH=https://github.com/MathisRosenhauer/libaec/releases/download/v1.1.3 -DLIBAEC_TGZ_NAME=libaec-1.1.3.tar.gz -DHDF5_PACKAGE_EXTLIBS=ON -DHDF5_USE_ZLIB_NG=OFF -DZLIB_USE_LOCALCONTENT=OFF -DLIBAEC_USE_LOCALCONTENT=OFF -DHDF5_USE_ZLIB_STATIC=ON -DHDF5_USE_LIBAEC_STATIC=ON
 cmake --build . --config Release --target install
 ```
 
@@ -336,6 +348,7 @@ pacman -Sy mingw-w64-x86_64-texlive-latex-recommended
 pacman -Sy mingw-w64-x86_64-texlive-science
 pacman -Sy mingw-w64-x86_64-doxygen
 pacman -Sy mingw-w64-x86_64-nlopt
+pacman -Sy mingw-w64-x86_64-hdf5
 ````
 
 ### Important Notes

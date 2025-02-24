@@ -101,16 +101,10 @@ else()
 endif()
 
 # Look for HDF5
-if (USE_HDF5)
-  # Use static library for HDF5 under Windows (no more issue with DLL location)
-  if (WIN32)
-    set(HDF5_USE_STATIC_LIBRARIES ON)
-  endif()
-  
-  # Look for HDF5
-  # https://stackoverflow.com/questions/41529774/cmakelists-txt-for-compiling-hdf5
-  find_package(HDF5 REQUIRED COMPONENTS CXX)
-  # TODO : If HDF5 not found, fetch it from the web ?
+# use MODULE to use CMake's FindHDF5.cmake instead of HDF5 config files
+find_package(HDF5 MODULE REQUIRED COMPONENTS C CXX)
+if(NOT HDF5_FOUND)
+  message(FATAL_ERROR "HDF5 not found")
 endif()
 
 # Shared and Static libraries
@@ -179,11 +173,9 @@ foreach(FLAVOR ${FLAVORS})
   target_link_libraries(${FLAVOR} PRIVATE NLopt::nlopt)
 
   # Link to HDF5
-  if (USE_HDF5)
-    # Define _USE_HDF5 macro
-    target_compile_definitions(${FLAVOR} PUBLIC _USE_HDF5) 
-    target_link_libraries(${FLAVOR} PUBLIC hdf5::hdf5_cpp)
-  endif()
+  target_compile_definitions(${FLAVOR} PRIVATE ${HDF5_DEFINITIONS})
+  target_include_directories(${FLAVOR} PRIVATE ${HDF5_INCLUDE_DIRS})
+  target_link_libraries(${FLAVOR} PRIVATE ${HDF5_LIBRARIES})
   
   # Exclude [L]GPL features from Eigen
   #target_compile_definitions(${FLAVOR} PUBLIC EIGEN_MPL2_ONLY) 

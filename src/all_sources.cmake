@@ -251,6 +251,7 @@ set(SRC
   Basic/OptCustom.cpp
   Basic/Plane.cpp
   Basic/FFT.cpp
+  Basic/SerializeNeutralFile.cpp
   Basic/PolyLine2D.cpp
   Basic/Convolution.cpp
   Geometry/GeometryHelper.cpp
