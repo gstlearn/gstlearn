@@ -497,7 +497,7 @@ Table dbStatisticsMono(Db *db,
   VectorDouble tab;
   VectorDouble local(nech, 0.);
   VectorBool accept(nech, true);
-  for (int iech = 0; iech < db->getNSample(); iech++)
+  for (int iech = 0; iech < nech; iech++)
   {
     accept[iech] = false;
     if (! db->isActive(iech)) continue;
@@ -529,7 +529,7 @@ Table dbStatisticsMono(Db *db,
 
     /* Loop on the samples */
 
-    for (int iech = 0; iech < db->getNSample(); iech++)
+    for (int iech = 0; iech < nech; iech++)
     {
       if (! accept[iech]) continue;
       double value = db->getArray(iech, iuids[iuid]);

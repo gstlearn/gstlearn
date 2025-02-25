@@ -104,6 +104,7 @@ public:
   void               setType(int icov, const ECov& type);
   void               setParam(int icov, double value);
   void               setSill(int icov, int ivar, int jvar, double value);
+  void               setSills(int icov, const MatrixSquareSymmetric& sills);
   void               setMarkovCoeffs(int icov, const VectorDouble& coeffs);
   double             getParam(int icov) const;
   double             getRange(int icov) const;

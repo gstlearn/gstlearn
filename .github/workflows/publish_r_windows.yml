@@ -78,6 +78,9 @@ jobs:
         swig-root: ${{env.SWIG_ROOT}}
         generator: "Visual Studio 17 2022"
 
+    - name: Build & install HDF5 static libraries
+      uses: ./.github/actions/hdf5_static_windows
+
     - name : Configure build directory
       run : |
         cmake `
@@ -85,6 +88,7 @@ jobs:
           -DBUILD_PYTHON=OFF `
           -DBUILD_R=ON `
           -DBUILD_DOXYGEN=ON `
+          -DHDF5_USE_STATIC_LIBRARIES=ON `
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig `
           -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}}
 

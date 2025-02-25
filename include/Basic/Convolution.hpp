@@ -28,7 +28,8 @@ public:
   int ConvolveSparse(int iatt,
                      const VectorVectorInt& ranks,
                      const MatrixRectangular& wgt,
-                     const VectorDouble& means = VectorDouble());
+                     const VectorDouble& means = VectorDouble(),
+                     int optionVerbose         = 0);
   int ConvolveFFT(int iatt,
                   int nvar,
                   const DbGrid* marpat,

@@ -47,8 +47,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq \
           doxygen \
-          libhdf5-dev \
-          libopenmpi-dev \
           libboost-dev \
           libeigen3-dev
 
@@ -72,6 +70,9 @@ jobs:
     - name: Build & install NLopt static libraries
       uses: ./.github/actions/nlopt_static_unix
 
+    - name: Build & install HDF5 static libraries
+      uses: ./.github/actions/hdf5_static_unix
+
     - name : Configure build directory
       run : |
         cmake \
@@ -79,6 +80,7 @@ jobs:
           -DBUILD_PYTHON=OFF \
           -DBUILD_R=ON \
           -DBUILD_DOXYGEN=ON \
+          -DHDF5_USE_STATIC_LIBRARIES=ON \
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
       env:
         CC: gcc-10

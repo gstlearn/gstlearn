@@ -892,7 +892,9 @@ public:
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os,bool verbose = false) const override;
+  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
   String _getNFName() const override { return "Db"; }
 
   void _clear();

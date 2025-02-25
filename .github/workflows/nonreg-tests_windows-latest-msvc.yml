@@ -45,7 +45,7 @@ jobs:
         pixi init
         pixi add python==${{env.PYTHON_VERSION}}
         pixi add pip numpy pandas scipy mlxtend
-        pixi add libboost-devel eigen ninja
+        pixi add libboost-devel eigen ninja hdf5
 
     - name: Run sccache-cache
       uses: mozilla-actions/sccache-action@v0.0.5
@@ -73,7 +73,7 @@ jobs:
 
     - name: Install packages and execute non-regression tests
       run: |
-        cmake --build ${{env.BUILD_DIR}} --target check
+        pixi run cmake --build ${{env.BUILD_DIR}} --target check
 
     - name: Compress output logs and neutral files
       if: success() || failure()

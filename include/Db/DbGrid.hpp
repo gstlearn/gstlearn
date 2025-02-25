@@ -85,6 +85,7 @@ public:
 
   static DbGrid* createFromNF(const String& neutralFilename,
                               bool verbose = true);
+  static DbGrid* createFromH5(const String& H5Filename, bool verbose = true);
   static DbGrid* create(const VectorInt& nx,
                         const VectorDouble& dx = VectorDouble(),
                         const VectorDouble& x0 = VectorDouble(),
@@ -157,6 +158,7 @@ public:
                                   double varmax                   = 0.,
                                   double selRatio                 = 0.,
                                   const VectorDouble& heteroRatio = VectorDouble(),
+                                  const VectorDouble& means       = VectorDouble(),
                                   int seed                        = 1367843);
 
   int reset(const VectorInt& nx,
@@ -378,7 +380,9 @@ public:
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
   String _getNFName() const override { return "DbGrid"; }
 
 private:

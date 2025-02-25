@@ -54,20 +54,18 @@ Model characteristics
 =====================
 Space dimension              = 2
 Number of variable(s)        = 1
-Number of basic structure(s) = 3
+Number of basic structure(s) = 2
 Number of drift function(s)  = 1
 Number of drift equation(s)  = 1
 
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =    274.569
+- Sill         =    356.014
 Spherical
-- Sill         =     56.138
-- Range        =      3.599
-Power (Third Parameter = 0.0893916)
-- Slope        =      1.172
-
+- Sill         =     75.975
+- Range        =      5.705
+Total Sill     =    431.989
 
 Drift Part
 ----------
@@ -79,25 +77,28 @@ Model characteristics
 =====================
 Space dimension              = 2
 Number of variable(s)        = 1
-Number of basic structure(s) = 3
+Number of basic structure(s) = 2
 Number of drift function(s)  = 1
 Number of drift equation(s)  = 1
 
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =    274.569
+- Sill         =    356.014
   (This component is Filtered)
 Spherical
-- Sill         =     56.138
-- Range        =      3.599
-Power (Third Parameter = 0.0893916)
-- Slope        =      1.172
-
+- Sill         =     75.975
+- Range        =      5.705
+Total Sill     =    431.989
 
 Drift Part
 ----------
 Universality_Condition
+
+Convolution Pattern
+-------------------
+                        Minimum    Maximum
+Weight of Z1 for Z*1     -0.004      0.099
 NULL
 NULL
 
@@ -105,7 +106,7 @@ Model characteristics
 =====================
 Space dimension              = 2
 Number of variable(s)        = 3
-Number of basic structure(s) = 3
+Number of basic structure(s) = 2
 Number of drift function(s)  = 1
 Number of drift equation(s)  = 3
 
@@ -114,22 +115,21 @@ Covariance Part
 Nugget Effect
 - Sill matrix:
                [,  0]    [,  1]    [,  2]
-     [  0,]   376.846   453.172  -476.592
-     [  1,]   453.172194188.109-11524.845
-     [  2,]  -476.592-11524.845145939.572
+     [  0,]   389.529  1513.801 -1479.786
+     [  1,]  1513.801325227.614-133555.049
+     [  2,] -1479.786-133555.049273226.914
 Spherical
 - Sill matrix:
                [,  0]    [,  1]    [,  2]
-     [  0,]    57.516  5031.714 -4488.216
-     [  1,]  5031.714636076.559-583291.704
-     [  2,] -4488.216-583291.704616673.997
-- Range        =     12.375
-Power (Third Parameter = 1.99)
-- Slope matrix:
+     [  0,]    52.325  4340.380 -3648.747
+     [  1,]  4340.380558573.145-505121.489
+     [  2,] -3648.747-505121.489541429.895
+- Range        =     24.750
+Total Sill
                [,  0]    [,  1]    [,  2]
-     [  0,]     0.262    -0.416     6.127
-     [  1,]    -0.416   145.976    44.478
-     [  2,]     6.127    44.478   163.446
+     [  0,]   441.854  5854.181 -5128.533
+     [  1,]  5854.181883800.759-638676.538
+     [  2,] -5128.533-638676.538814656.809
 
 
 Drift Part
@@ -137,3 +137,16 @@ Drift Part
 Universality_Condition
 NULL
 NULL
+
+Convolution Pattern
+-------------------
+                        Minimum    Maximum
+Weight of Z1 for Z*1      0.000      0.015
+Weight of Z2 for Z*1      0.000      0.001
+Weight of Z3 for Z*1      0.000      0.000
+Weight of Z1 for Z*2     -0.007      0.178
+Weight of Z2 for Z*2     -0.001      0.098
+Weight of Z3 for Z*2     -0.076      0.003
+Weight of Z1 for Z*3     -0.004      0.048
+Weight of Z2 for Z*3     -0.056      0.002
+Weight of Z3 for Z*3      0.000      0.119
