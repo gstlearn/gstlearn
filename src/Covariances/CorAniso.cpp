@@ -922,10 +922,14 @@ void CorAniso::_optimizationSetTargetByIndex(int iech,
                                             const std::vector<SpacePoint> &p1As,
                                             SpacePoint &p2A) const
 {
+  // TODO: should not exist anymore
+  DECLARE_UNUSED(iech)
+  DECLARE_UNUSED(p1As)
+  DECLARE_UNUSED(p2A)
   if (_isOptimizationPreProcessed)
   {
-    p2A = p1As[iech];
-    p2A.setMode(2);
+    // p2A = p1As[iech];
+    // p2A.setMode(2);
   }
 }
 
@@ -942,7 +946,6 @@ void CorAniso::optimizationTransformSP(const SpacePoint& ptin,
                                        SpacePoint& ptout) const
 {
   ptout.setIech(ptin.getIech());
-  ptout.setMode(ptin.getMode());
 
   if (isOptimEnabled())
   {

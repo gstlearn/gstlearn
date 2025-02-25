@@ -25,7 +25,6 @@ SpacePoint::SpacePoint(const ASpaceSharedPtr& space)
   : ASpaceObject(space)
   , _coord()
   , _iech(-1)
-  , _mode(1)
   , _isProjected(false)
 {
 
@@ -38,7 +37,6 @@ SpacePoint::SpacePoint(const SpacePoint& r)
   : ASpaceObject(r)
   , _coord(r._coord)
   , _iech(r._iech)
-  , _mode(r._mode)
   , _isProjected(r._isProjected)
 {
 }
@@ -47,7 +45,6 @@ SpacePoint::SpacePoint(const VectorDouble& coord, int iech, const ASpaceSharedPt
   : ASpaceObject(space)
   , _coord(coord)
   , _iech(iech)
-  , _mode(1)
   , _isProjected(false)
 {
   if (coord.size() == 0 || coord.size() != getNDim())
@@ -77,7 +74,6 @@ SpacePoint& SpacePoint::operator=(const SpacePoint& r)
     ASpaceObject::operator=(r);
     _coord       = r._coord;
     _iech        = r._iech;
-    _mode        = r._mode;
     _isProjected = r._isProjected;
   }
   return *this;
@@ -110,7 +106,6 @@ SpacePoint SpacePoint::spacePointOnSubspace(int ispace) const
   VectorDouble vec = getSpace()->projCoord(_coord, ispace);
   const auto sp = getSpace()->getComponent(ispace);
   SpacePoint p(vec, _iech, sp);
-  p.setMode(_mode);
   return p;
 }
 

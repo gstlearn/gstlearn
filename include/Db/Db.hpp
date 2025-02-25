@@ -445,7 +445,7 @@ public:
   // Accessing elements of the contents
 
   VectorDouble getSampleCoordinates(int iech) const;
-  void getSampleAsSPInPlace(SpacePoint& P, int iech, int mode = 1) const;
+  void getSampleAsSPInPlace(SpacePoint& P, int iabs) const;
   virtual void getSampleAsSTInPlace(int iech, SpaceTarget& P) const;
   VectorDouble getSampleLocators(const ELoc& locatorType, int iech) const;
   VectorVectorDouble getIncrements(const VectorInt& iechs, const VectorInt& jechs) const;

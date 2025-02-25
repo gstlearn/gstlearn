@@ -114,6 +114,7 @@ private:
   void _setContext(const CovContext& ctxt) override;
 
   void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& p) const override;
+  void _optimizationLoadInPlace(SpacePoint* pt, int iech, int mode, int rank) const override;
   void _optimizationPostProcess() const override;
 
   void _evalOptim(SpacePoint* p1A,

@@ -57,8 +57,8 @@ int main(int argc, char* argv[])
 
   // Printout
   message("RHS between:\n");
-  message("- each one of the %d target sites\n",nout);
-  message("- all (active) samples (%d) of the input data base\n",ndat);
+  message("- all (active) samples (%d/%d) of the input data base\n",ndat, nall);
+  message("- each one of the %d target sites\n", nout);
   message("(For checking purpose, a Selection has been added)\n");
   message("Statistics are provided on the averaged RHS\n");
 
@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
     timer.reset();
     for (int i = 0; i < nout; i++)
     {
-      dbout->getSampleAsSPInPlace(p2, i, 1);
+      dbout->getSampleAsSPInPlace(p2, i);
       model->evalPointToDb(rhs1, p2, dbin);
       VH::addInPlace(cumul, rhs1);
     }
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
 
     for (int i = 0; i < nout; i++)
     {
-      dbout->getSampleAsSPInPlace(p2, i, 1);
+      dbout->getSampleAsSPInPlace(p2, i);
       model->evalPointToDbAsSP(rhs2, p1s, p2);
       VH::addInPlace(cumul, rhs2);
     }

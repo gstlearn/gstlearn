@@ -218,10 +218,11 @@ void CovBase::_copyCovContext(const CovContext &ctxt)
  */
 void CovBase::optimizationSetTargetByIndex(int iech) const
 {
-  if (_isOptimPreProcessed)
+  // TODO: this function should not exist anymore
+  if (_isOptimEnabled())
   {
     _p2A = _p1As[iech];
-    _p2A.setMode(2);
+    // _p2A.setMode(2);
   }
 }
 
@@ -236,6 +237,11 @@ void CovBase::optimizationSetTargetByIndex(int iech) const
 void CovBase::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& p) const
 {
   _cor->optimizationPreProcess(mode, p);
+}
+
+void CovBase::_optimizationLoadInPlace(SpacePoint* pt, int iech, int mode, int rank) const
+{
+  _cor->optimizationLoadInPlace(pt, iech, mode, rank);
 }
 
 /**

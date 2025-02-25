@@ -14,7 +14,6 @@
 #include "Basic/File.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Timer.hpp"
-#include "Basic/Law.hpp"
 
 /**
  * This file is meant to perform any test that needs to be coded for a quick trial

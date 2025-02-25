@@ -715,17 +715,15 @@ VectorDouble Db::getSampleCoordinates(int iech) const
  * @brief In the SpacePoint 'P', define the sample rank and coordinates
  *
  * @param P SpacePoint reference (output)
- * @param iech Rank of the sample
- * @param mode 1 for Data and 2 for Target
+ * @param iabs Rank of the sample
  */
-void Db::getSampleAsSPInPlace(SpacePoint& P, int iech, int mode) const
+void Db::getSampleAsSPInPlace(SpacePoint& P, int iabs) const
 {
-  P.setIech(iech);
-  P.setMode(mode);
+  P.setIech(iabs);
   // Next line is unsafe: it directly loads the coordinates extracted from the Db
   // into the VectorDouble 'coord' of the Space Point 'P'
   // Dimensions should match!!!
-  getCoordinatesInPlace(P.getCoordUnprotected(), iech);
+  getCoordinatesInPlace(P.getCoordUnprotected(), iabs);
 }
 
 VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& jechs) const
@@ -749,8 +747,8 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
 
   for (int ip = 0; ip < number; ip++)
   {
-    getSampleAsSPInPlace(P1, iechs[ip], 1);
-    getSampleAsSPInPlace(P2, jechs[ip], 1);
+    getSampleAsSPInPlace(P1, iechs[ip]);
+    getSampleAsSPInPlace(P2, jechs[ip]);
     VectorDouble vect = P2.getIncrement(P1);
 
     for (int idim = 0; idim < ndim; idim++)
@@ -767,7 +765,7 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
 void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
 {
   // Load the coordinates
-  getSampleAsSPInPlace(P, iech, 1);
+  getSampleAsSPInPlace(P, iech);
 
   // Load the code (optional)
   if (P.checkCode())
@@ -784,28 +782,25 @@ void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
   }
 }
 
-void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,const std::shared_ptr<
-                        const ASpace> &space,
+void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,
+                        const std::shared_ptr<const ASpace>& space,
                         bool useSel) const
 {
   pvec.clear();
-  int iechcur = 0;
-  for (int iech = 0, nech = getNSample(); iech < nech; iech++)
+  SpacePoint p(space);
+  for (int iabs = 0, nech = getNSample(); iabs < nech; iabs++)
   {
-    if (isActive(iech))
+    if (isActive(iabs))
     {
-      pvec.push_back(SpacePoint(space));
-      SpacePoint& p = pvec[iechcur++];
-      getSampleAsSPInPlace(p, iech, 1);
+      getSampleAsSPInPlace(p, iabs);
     }
     else
     {
       if (useSel) continue;
-      pvec.push_back(SpacePoint(space));
-      SpacePoint& p = pvec[iechcur++];
-      p.setIech(iech);
+      p.setIech(iabs);
       p.setFFFF();
     }
+    pvec.push_back(p);
   }
 }
 
@@ -814,11 +809,11 @@ void Db::getSamplesFromNbghAsSP(std::vector<SpacePoint>& pvec,
                                 const ASpaceSharedPtr& space) const
 {
   pvec.clear();
-  for (int iech = 0, nech = (int)nbgh.size(); iech < nech; iech++)
+  for (int irel = 0, nech = (int)nbgh.size(); irel < nech; irel++)
   {
     pvec.push_back(SpacePoint(space));
-    SpacePoint& p = pvec[iech];
-    getSampleAsSPInPlace(p, nbgh[iech], 1);
+    SpacePoint& p = pvec[irel];
+    getSampleAsSPInPlace(p, nbgh[irel]);
   }
 }
 
@@ -3541,7 +3536,11 @@ VectorInt Db::getMultipleSelectedVariables(const VectorVectorInt& index,
 
 /**
  * Returns the list of indices 'index' for valid samples for the set of
- * variables 'ivars' as well as the count of samples (per variable)
+ * variables 'ivars'.
+ * Note: each address is RELATIVE to the target set of available samples, 
+ * e.g. and depending on the availability of 'nbgh';
+ * - not provided: the whole set of samples (mask or heterotopy are not taken into account)
+ * - provided: the subset of samples defined by 'nbgh'
  *
  * @param ivars   Vector giving the indices of the variables of interest
  * @param nbgh    Vector giving the ranks of the elligible samples (optional)
@@ -3551,6 +3550,9 @@ VectorInt Db::getMultipleSelectedVariables(const VectorVectorInt& index,
  *
  * @note: if the current 'db' has some Z-variable defined, only samples
  * @note: where a variable is defined is considered (search for heterotopy).
+ *
+ * @note: if 'nbgh' is not provided, the absolute and relative indices
+ * @note: returned by this function are similar.
  */
 VectorVectorInt Db::getSampleRanks(const VectorInt& ivars,
                                    const VectorInt& nbgh,
@@ -3582,11 +3584,8 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh,
 
   // Create a vector of ranks of samples to be searched (using input 'nbgh'
   // or not)
-  VectorInt nbgh_init;
-  if (nbgh.empty())
-    nbgh_init = VH::sequence(nech_tot);
-  else
-    nbgh_init = nbgh;
+  VectorInt nbgh_init = nbgh;
+  if (nbgh_init.empty()) nbgh_init = VH::sequence(nech_tot);
   int nech_init = (int)nbgh_init.size();
 
   // Create the column index for the selection (only if 'useSel')
@@ -3604,21 +3603,21 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh,
 
   // Constitute the resulting vector osf selected sample ranks
   VectorInt ranks;
-  for (int jech = 0; jech < nech_init; jech++)
+  for (int irel = 0; irel < nech_init; irel++)
   {
-    int iech = nbgh_init[jech];
+    int iabs = nbgh_init[irel];
 
     // Check against a possible selection
     if (icol >= 0)
     {
-      value = getValueByColIdx(iech, icol);
+      value = getValueByColIdx(iabs, icol);
       if (value <= 0) continue;
     }
 
     // Check against the existence of a target variable
     if (useZ && item >= 0)
     {
-      value = getZVariable(iech, item);
+      value = getZVariable(iabs, item);
       if (FFFF(value)) continue;
     }
 
@@ -3626,12 +3625,12 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh,
     // variable
     if (useV)
     {
-      value = getLocVariable(ELoc::V, iech, item);
+      value = getLocVariable(ELoc::V, iabs, item);
       if (FFFF(value) || value < 0) continue;
     }
 
-    // The sample is finally accepted
-    ranks.push_back(iech);
+    // The sample is finally accepted: its relative index is stored
+    ranks.push_back(irel);
   }
   return ranks;
 }

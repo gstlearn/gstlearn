@@ -338,10 +338,18 @@ void CovList::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& p
   }
 }
 
+void CovList::_optimizationLoadInPlace(SpacePoint* pt, int iech, int mode, int rank) const
+{
+  for (const auto& e: _covs)
+  {
+    e->optimizationLoadInPlace(pt, iech, mode, rank);
+  }
+}
+
 void CovList::_optimizationPostProcess() const
 {
-	for (int is = 0, ns = getNCov(); is < ns; is++)
-		_covs[is]->optimizationPostProcess();
+  for (int is = 0, ns = getNCov(); is < ns; is++)
+    _covs[is]->optimizationPostProcess();
 }
 
 void CovList::_manage(const Db* db1,const Db* db2)  const
