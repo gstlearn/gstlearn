@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Global parameters
-  int mode = 3;
+  int mode = 0;
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 
   // Printout
   message("RHS between:\n");
-  message("- all (active) samples (%d/%d) of the input data base\n",ndat, nall);
+  message("- each active sample (%d out of %d) of the input data base\n",ndat, nall);
   message("- each one of the %d target sites\n", nout);
   message("(For checking purpose, a Selection has been added)\n");
   message("Statistics are provided on the averaged RHS\n");

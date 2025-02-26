@@ -132,9 +132,9 @@ void ACov::optimizationPreProcess(int mode, const std::vector<SpacePoint>& p) co
   _optimizationPreProcess(mode, p);
 }
 
-void ACov::optimizationLoadInPlace(SpacePoint* pt, int iech, int mode, int rank) const
+SpacePoint& ACov::optimizationLoadInPlace(int iech, int mode, int rank) const
 {
-  _optimizationLoadInPlace(pt, iech, mode, rank);
+  return _optimizationLoadInPlace(iech, mode, rank);
 }
 
 void ACov::optimizationSetTarget(const SpacePoint& pt) const
@@ -334,8 +334,8 @@ double ACov::eval0(int ivar,
                    int jvar,
                    const CovCalcMode* mode) const
 {
-  SpacePoint p1(getSpace()->getOrigin(),-1);
-  return eval(p1,p1,ivar,jvar,mode); // pure virtual method
+  SpacePoint p1(getSpace()->getOrigin(), -1);
+  return eval(p1, p1, ivar, jvar, mode); // pure virtual method
 }
 
 MatrixSquareGeneral ACov::evalMat(const SpacePoint& p1,
@@ -1076,7 +1076,6 @@ int ACov::evalCovMatInPlace(MatrixRectangular& mat,
   mat.resize(neq1, neq2);
 
   // Define the two space points
-  SpacePoint* p1;
   KrigOpt krigopt;
   krigopt.setMode(mode);
 
@@ -1087,7 +1086,7 @@ int ACov::evalCovMatInPlace(MatrixRectangular& mat,
     const VectorInt& index1i = index1[ivar1];
     for (const auto irel1: index1i.getVector())
     {
-      optimizationLoadInPlace(p1, irel1, 1, 1);
+      SpacePoint& p1 = optimizationLoadInPlace(irel1, 1, 1);
 
       _loopOnPointTarget(index2, jvars, ivar1, irow, p1, false, krigopt, mat);
       irow++;
@@ -1099,33 +1098,47 @@ int ACov::evalCovMatInPlace(MatrixRectangular& mat,
 }
 
 /**
- * @brief Store the references in 'pt' and set the local pointer '_pw2'
+ * @brief Returns the references in 'pt' and set the local pointer '_pw2'
  * 
- * @param pt   Returned SpacePoint characteristics
  * @param iech Relative index of the target sample (within 'pXAs')
  * @param mode 1 for _p1As and 2 for _p2As
  * @param rank 1 for the first point and 2 for the second
  */
-void ACov::_optimizationLoadInPlace(SpacePoint* pt,
-                                    int iech,
-                                    int mode,
-                                    int rank) const
+SpacePoint& ACov::_optimizationLoadInPlace(int iech,
+                                           int mode,
+                                           int rank) const
 {
   if (mode == 1)
   {
-    pt = &_p1As[iech];
     if (rank == 1)
-      _pw1 = pt;
+    {
+      if (iech < 0 || iech >= (int) _p1As.size())
+        throw std::out_of_range("Index out of range in _optimizationLoadInPlace"); 
+      _pw1 = &_p1As[iech];
+    }
     else
-      _pw2 = pt;
+    {
+      if (iech < 0 || iech >= (int) _p1As.size())
+        throw std::out_of_range("Index out of range in _optimizationLoadInPlace");
+      _pw2 = &_p1As[iech];
+    }
+    return _p1As[iech];
   }
   else
   {
-    pt = &_p2As[iech];
     if (rank == 1)
-      _pw1 = pt;
+    {
+      if (iech < 0 || iech >= (int) _p2As.size())
+        throw std::out_of_range("Index out of range in _optimizationLoadInPlace");
+      _pw1 = &_p2As[iech];
+    }
     else
-      _pw2 = pt;
+    {
+      if (iech < 0 || iech >= (int) _p2As.size())
+        throw std::out_of_range("Index out of range in _optimizationLoadInPlace");
+      _pw2 = &_p2As[iech];
+    }
+    return _p2As[iech];
   }
 }
 
@@ -1133,15 +1146,13 @@ void ACov::_loopOnPointTarget(const VectorVectorInt& index2,
                               const VectorInt& jvars,
                               int ivar1,
                               int irow,
-                              SpacePoint* p1,
+                              SpacePoint& p1,
                               bool flagSym,
                               const KrigOpt& krigopt,
                               MatrixRectangular& mat) const
 {
   double value;
-  SpacePoint* p2 = nullptr;
-
-  int iabs1               = p1->getIech();
+  int iabs1               = p1.getIech();
   int icas                = (flagSym) ? 1 : 2;
   const CovCalcMode& mode = krigopt.getMode();
   bool isNoStatLocal      = isNoStat();
@@ -1155,20 +1166,17 @@ void ACov::_loopOnPointTarget(const VectorVectorInt& index2,
       // Perform calculation only in upper triangle of the Symmetric Matrix
       if (!flagSym || icol >= irow)
       {
-        if (flagSym)
-          optimizationLoadInPlace(p2, irel2, 1, 2);
-        else
-          optimizationLoadInPlace(p2, irel2, 2, 2);
+        SpacePoint& p2 = optimizationLoadInPlace(irel2, flagSym ? 1 : 2, 2);
 
         // Modify the covariance (if non stationary)
         if (isNoStatLocal) 
-          updateCovByPoints(1, iabs1, icas, p2->getIech());
+          updateCovByPoints(1, iabs1, icas, p2.getIech());
 
         // Calculate the covariance between two points
-        if (flagSym && iabs1 == p2->getIech())
+        if (flagSym && iabs1 == p2.getIech())
           value = eval0(ivar1, ivar2, &mode);
         else
-          value = eval(*p1, *p2, ivar1, ivar2, &mode);
+          value = eval(p1, p2, ivar1, ivar2, &mode);
         mat.setValue(irow, icol, value);
       }
       icol++;
@@ -1190,15 +1198,13 @@ void ACov::_loopOnBlockTarget(const VectorVectorInt& index2,
   bool isNoStatLocal      = isNoStat();
   int iabs1               = p1.getIech();
 
-  SpacePoint p2(getSpace());
-
   int icol = 0;
   for (const auto ivar2: jvars.getVector())
   {
     const VectorInt& index2i = index2[ivar2];
     for (const auto irel2: index2i.getVector())
     {
-      optimizationLoadInPlace(p2, irel2, 2, 2);
+      SpacePoint& p2 = optimizationLoadInPlace(irel2, 2, 2);
 
       // Discretize the block if adapted to the cell dimensions
       if (krigopt.isFlagCell()) krigopt.blockDiscretize(p2.getIech());
@@ -1295,9 +1301,6 @@ int ACov::evalCovMatByTarget(MatrixRectangular& mat,
   if (krigopt.getCalcul() == EKrigOpt::DRIFT) return 0;
   bool flagBlock = krigopt.getCalcul() == EKrigOpt::BLOCK;
 
-  // Define the two space points
-  SpacePoint* p1 = nullptr;
-
   // Loop on Data
   int irow = 0;
   for (auto const ivar1: ivars.getVector())
@@ -1305,7 +1308,7 @@ int ACov::evalCovMatByTarget(MatrixRectangular& mat,
     const VectorInt& index1i = index1[ivar1];
     for (const auto irel1: index1i.getVector())
     {
-      optimizationLoadInPlace(p1, irel1, 1, 1);
+      SpacePoint& p1 = optimizationLoadInPlace(irel1, 1, 1);
 
       // Loop on Target
       if (flagBlock)
@@ -1473,7 +1476,6 @@ int ACov::evalCovMatSymByRanks(MatrixSquareSymmetric& mat,
   _optimizationPreProcessFromDbs(db1);
 
   // Define the two space points
-  SpacePoint* p1 = nullptr;
   KrigOpt krigopt;
   krigopt.setMode(mode);
 
@@ -1484,7 +1486,7 @@ int ACov::evalCovMatSymByRanks(MatrixSquareSymmetric& mat,
     const VectorInt& index1i = index1[ivar1];
     for (const auto irel1: index1i.getVector())
     {
-      optimizationLoadInPlace(p1, irel1, 1, 1);
+      SpacePoint& p1 = optimizationLoadInPlace(irel1, 1, 1);
 
       // Loop on Target
       _loopOnPointTarget(index1, ivars, ivar1, irow, p1, true, krigopt, mat);
@@ -1578,10 +1580,6 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
   // Constitute the triplet
   NF_Triplet NF_T;
 
-  // Define the two space points
-  SpacePoint p1(getSpace());
-  SpacePoint p2(getSpace());
-
   // Loop on Data
   int irow = 0;
   for (const auto ivar1: ivars.getVector())
@@ -1589,7 +1587,7 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
     const VectorInt& index1i = index1[ivar1];
     for (const auto irel1: index1i.getVector())
     {
-      optimizationLoadInPlace(p1, irel1, 1, 1);
+      SpacePoint& p1 = optimizationLoadInPlace(irel1, 1, 1);
       int iabs1 = p1.getIech();
 
       // Loop on the second variable
@@ -1599,7 +1597,7 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
         const VectorInt& index2i = index2[ivar2];
         for (const auto irel2: index2i.getVector())
         {
-          optimizationLoadInPlace(p2, irel2, 2, 2);
+          SpacePoint& p2 = optimizationLoadInPlace(irel2, 2, 2);
 
           // Modify the covariance (if non stationary)
           if (isNoStatLocal)

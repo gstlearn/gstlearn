@@ -129,7 +129,7 @@ public:
   /// Functions linked to Optimization during Covariance calculations
   virtual bool isOptimEnabled() const { return _isOptimEnabled(); }
   void optimizationPreProcess(int mode, const std::vector<SpacePoint>& p) const;
-  void optimizationLoadInPlace(SpacePoint* pt, int iech, int mode, int rank) const;
+  SpacePoint& optimizationLoadInPlace(int iech, int mode, int rank) const;
   void optimizationPostProcess() const;
   void optimizationSetTarget(const SpacePoint& pt) const;
   virtual void optimizationSetTargetByIndex(int iech) const {DECLARE_UNUSED(iech)};
@@ -454,7 +454,7 @@ private:
                           const VectorInt& jvars,
                           int ivar1,
                           int irow,
-                          SpacePoint* p1,
+                          SpacePoint& p1,
                           bool flagSym,
                           const KrigOpt& krigopt,
                           MatrixRectangular& mat) const;
@@ -463,7 +463,7 @@ private:
                           const VectorInt& jvars,
                           int ivar1,
                           int irow,
-                          SpacePoint* p1,
+                          SpacePoint& p1,
                           const KrigOpt& krigopt,
                           MatrixRectangular& mat) const;
 
@@ -484,10 +484,9 @@ protected:
                                             const SpacePoint& pwork1, 
                                             const SpacePoint& pwork2,
                                             const CovCalcMode *mode) const;
-  virtual void _optimizationLoadInPlace(SpacePoint* pt,
-                                        int iech,
-                                        int mode,
-                                        int rank) const;
+  virtual SpacePoint& _optimizationLoadInPlace(int iech,
+                                               int mode,
+                                               int rank) const;
   bool _checkDims(int idim, int jdim) const;
   void _setOptimEnabled(bool enabled) { _optimEnabled = enabled; }
 

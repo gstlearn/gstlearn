@@ -239,9 +239,9 @@ void CovBase::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& p
   _cor->optimizationPreProcess(mode, p);
 }
 
-void CovBase::_optimizationLoadInPlace(SpacePoint* pt, int iech, int mode, int rank) const
+SpacePoint& CovBase::_optimizationLoadInPlace(int iech, int mode, int rank) const
 {
-  _cor->optimizationLoadInPlace(pt, iech, mode, rank);
+  return _cor->optimizationLoadInPlace(iech, mode, rank);
 }
 
 /**

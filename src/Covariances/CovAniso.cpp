@@ -204,7 +204,7 @@ MatrixRectangular CovAniso::simulateSpectralOmega(int nb) const
   return _corAniso->simulateSpectralOmega(nb);
 }
 
-double CovAniso::_scaleBySill(int ivar, int jvar, const CovCalcMode* mode) const
+double CovAniso::_getSillValue(int ivar, int jvar, const CovCalcMode* mode) const
 {
   if (mode != nullptr && mode->getUnitary()) return 1.;
   return getSill(ivar, jvar);
@@ -213,7 +213,7 @@ double CovAniso::_scaleBySill(int ivar, int jvar, const CovCalcMode* mode) const
 double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
   double cov = _corAniso->evalCorFromH(0, mode);
-  return cov * _scaleBySill(ivar, jvar, mode);
+  return cov * _getSillValue(ivar, jvar, mode);
 }
 
 double CovAniso::eval(const SpacePoint &p1,
@@ -223,7 +223,7 @@ double CovAniso::eval(const SpacePoint &p1,
                       const CovCalcMode* mode) const
 {
   double cov = _corAniso->evalCor(p1, p2, mode);
-  return cov * _scaleBySill(ivar, jvar, mode);
+  return cov * _getSillValue(ivar, jvar, mode);
 }
 
 /**
@@ -281,7 +281,7 @@ double CovAniso::evalCovOnSphere(double alpha,
                                  const CovCalcMode* mode) const
 {
   double value = _corAniso->evalCovOnSphere(alpha, degree, flagScaleDistance, mode);
-  return value * _scaleBySill(0, 0, mode);
+  return value * _getSillValue(0, 0, mode);
 }
 
 VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool flagCumul) const

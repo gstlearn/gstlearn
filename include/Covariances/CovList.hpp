@@ -99,7 +99,7 @@ public:
   // Methods necessary for Optimization
   void _optimizationPreProcess(int mode, const std::vector<SpacePoint> &p) const override;
   void _optimizationPostProcess() const override;
-  void _optimizationLoadInPlace(SpacePoint* pt, int iech, int mode, int rank) const override;
+  SpacePoint& _optimizationLoadInPlace(int iech, int mode, int rank) const override;
   void _optimizationSetTarget(const SpacePoint& pt) const override;
   void optimizationSetTargetByIndex(int iech) const override;
 
