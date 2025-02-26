@@ -4,6 +4,7 @@ a = ECov_CUBIC()
 
 key = a$getKey()
 key
+class(key)
 
 descr = a$getDescr()
 descr
