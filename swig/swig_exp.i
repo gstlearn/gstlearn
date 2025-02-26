@@ -341,6 +341,7 @@
 %include Estimation/CalcSimpleInterpolation.hpp
 %include Estimation/CalcImage.hpp
 %include Estimation/CalcGlobal.hpp
+%include Estimation/KrigOpt.hpp
 
 %include OutputFormat/AOF.hpp
 %include OutputFormat/FileLAS.hpp
