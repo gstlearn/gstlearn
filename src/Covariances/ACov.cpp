@@ -40,10 +40,9 @@ ACov::ACov(const CovContext& ctxt)
   : ASpaceObject(ctxt.getSpace())
   , _ctxt(ctxt)
   , _optimEnabled(true)
-  , _optimPreProcessed(false)
+  , _optimPreProcessedData(false)
   , _p1As()
   , _p2As()
-  , _p2A(ctxt.getSpace())
   , _tabNoStat(nullptr) {
   createNoStatTab();
 }
@@ -52,10 +51,9 @@ ACov::ACov(const ACov& r)
   : ASpaceObject(r)
   , _ctxt(r._ctxt)
   , _optimEnabled(r._optimEnabled)
-  , _optimPreProcessed(r._optimPreProcessed)
+  , _optimPreProcessedData(r._optimPreProcessedData)
   , _p1As(r._p1As)
   , _p2As(r._p2As)
-  , _p2A(r.getSpace())
   , _pw1(r._pw1)
   , _pw2(r._pw2)
 
@@ -67,17 +65,14 @@ ACov& ACov::operator=(const ACov &r)
   if (this != &r)
   {
     ASpaceObject::operator=(r);
-    _ctxt                = r._ctxt;
-    _optimEnabled        = r._optimEnabled;
-    _optimPreProcessed   = r._optimPreProcessed;
-    _p1As                = r._p1As;
-    _p2As                = r._p2As;
-    _p2A                 = r._p2A;
-    _pw1                 = r._pw1;
-    _pw2                 = r._pw2;
-
-    _p2A = SpacePoint(r.getSpace());
-    _tabNoStat = r._tabNoStat->clone();
+    _ctxt                  = r._ctxt;
+    _optimEnabled          = r._optimEnabled;
+    _optimPreProcessedData = r._optimPreProcessedData;
+    _p1As                  = r._p1As;
+    _p2As                  = r._p2As;
+    _pw1                   = r._pw1;
+    _pw2                   = r._pw2;
+    _tabNoStat             = r._tabNoStat->clone();
   }
   return *this;
 }
@@ -91,45 +86,48 @@ void ACov::optimizationPostProcess() const
   _p1As.clear();
   _p2As.clear();
   _optimizationPostProcess();
-  _optimPreProcessed = false;
+  _optimPreProcessedData = false;
 }
 
-void ACov::_optimizationPreProcessFromDbs(const Db* db1,
-                                          const Db* db2,
-                                          const VectorInt& nbgh2) const
+void ACov::_optimizationPreProcessForData(const Db* db1) const
 {
   // Do not proceed to optimization when this is forbidden
   if (! _optimEnabled) return;
 
   // Do not proceed if already done
-  if (_optimPreProcessed) return;
+  if (_optimPreProcessedData) return;
 
-  std::vector<SpacePoint> p;
+  std::vector<SpacePoint> ps;
 
   // Add projected samples from db1 (optional)
   if (db1 != nullptr)
   {
-    db1->getSamplesAsSP(p, getSpace());
-    _optimizationPreProcess(1, p);
+    db1->getSamplesAsSP(ps, getSpace());
+    _optimizationPreProcess(1, ps);
   }
 
-  // Add projected samples from db2 (optional)
-  if (db2 != nullptr)
-  {
-    if (nbgh2.empty())
-      db2->getSamplesAsSP(p, getSpace());
-    else
-      db2->getSamplesFromNbghAsSP(p, nbgh2, getSpace());
-    _optimizationPreProcess(2, p);
-  }
-
-  _optimPreProcessed = true;
+  _optimPreProcessedData = true;
 }
 
-void ACov::optimizationPreProcess(int mode, const std::vector<SpacePoint>& p) const
+void ACov::_optimizationPreProcessForTarget(const Db* db2,
+                                            const VectorInt& nbgh2) const
 {
-  if (_optimPreProcessed) return;
-  _optimizationPreProcess(mode, p);
+  // Do not proceed to optimization when this is forbidden
+  if (!_optimEnabled) return;
+
+  std::vector<SpacePoint> ps;
+
+  // Add projected samples from db2 (optional)
+  if (nbgh2.empty())
+    db2->getSamplesAsSP(ps, getSpace());
+  else
+    db2->getSamplesFromNbghAsSP(ps, nbgh2, getSpace());
+  _optimizationPreProcess(2, ps);
+}
+
+void ACov::optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const
+{
+  _optimizationPreProcess(mode, ps);
 }
 
 SpacePoint& ACov::optimizationLoadInPlace(int iech, int mode, int rank) const
@@ -137,14 +135,14 @@ SpacePoint& ACov::optimizationLoadInPlace(int iech, int mode, int rank) const
   return _optimizationLoadInPlace(iech, mode, rank);
 }
 
-void ACov::optimizationSetTarget(const SpacePoint& pt) const
+void ACov::optimizationSetTarget(SpacePoint& pt) const
 {
   _optimizationSetTarget(pt);
 }
 
-void ACov::_optimizationSetTarget(const SpacePoint& pt) const
+void ACov::_optimizationSetTarget(SpacePoint& pt) const
 {
-  _p2A = pt;
+  DECLARE_UNUSED(pt);
 }
 
 /**
@@ -155,20 +153,18 @@ void ACov::_optimizationSetTarget(const SpacePoint& pt) const
  * @param mode 1 for p1As, 2 for p2As
  * @param p Set of SpacePoints to be copied
  */
-void ACov::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& p) const
+void ACov::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const
 {
   if (mode == 1)
   {
-    if (!_p1As.empty()) return;
     _p1As.clear();
-    for (const auto& e: p)
+    for (const auto& e: ps)
       _p1As.push_back(e);
   }
   else
   {
-    if (!_p2As.empty()) return;
     _p2As.clear();
-    for (const auto& e: p)
+    for (const auto& e: ps)
       _p2As.push_back(e);
   }
 }
@@ -252,7 +248,6 @@ void ACov::eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat,
                                      const CovCalcMode* mode) const
 {
   int nvar = getNVar();
-
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++)
     {
@@ -286,12 +281,10 @@ int ACov::evalCov0MatByTargetInPlace(MatrixSquareSymmetric& mat,
 
   if (krigopt.getCalcul() == EKrigOpt::DRIFT) return 1;
   bool flagBlock = krigopt.getCalcul() == EKrigOpt::BLOCK;
-
   const CovCalcMode mode = CovCalcMode(ECalcMember::VAR);
 
   SpacePoint p0(getSpace());
   db->getSampleAsSPInPlace(p0, iech);
-  optimizationSetTarget(p0);
 
   // Modify the covariance (if non stationary)
   updateCovByPoints(2, iech, 2, iech);
@@ -344,9 +337,10 @@ MatrixSquareGeneral ACov::evalMat(const SpacePoint& p1,
 {
   int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
-  evalCovMatBiPointInPlace(mat,p1, p2,mode);
+  evalCovMatBiPointInPlace(mat, p1, p2, mode);
   return mat;
 }
+
 /**
  * Calculate the Matrix of covariance between two space points
  * @param p1 Reference of the first space point
@@ -716,9 +710,9 @@ void ACov::evalPointToDb(VectorDouble& values,
   if (nech2 != (int)values.size()) values.resize(nech2);
 
   int irow = 0;
-  for (const auto irel2: index2.getVector())
+  for (const auto i: index2.getVector())
   {
-    int iabs2 = (nbgh2.empty()) ? irel2 : nbgh2[irel2];
+    int iabs2 = (nbgh2.empty()) ? i : nbgh2[i];
     db2->getSampleAsSPInPlace(p2, iabs2);
     values[irow++] = eval(p1, p2, ivar, jvar, mode);
   }
@@ -1059,7 +1053,8 @@ int ACov::evalCovMatInPlace(MatrixRectangular& mat,
   manage(db1, db2);
 
   // Prepare Optimization for covariance calculation (if not forbidden or already done)
-  _optimizationPreProcessFromDbs(db1, db2, nbgh2);
+  _optimizationPreProcessForData(db1);
+  _optimizationPreProcessForTarget(db2, nbgh2);
 
   // Create sets of Vectors of valid sample indices per variable 
   VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1);
@@ -1084,11 +1079,11 @@ int ACov::evalCovMatInPlace(MatrixRectangular& mat,
   for (const auto ivar1: ivars.getVector())
   {
     const VectorInt& index1i = index1[ivar1];
-    for (const auto irel1: index1i.getVector())
+    for (const auto iabs1: index1i.getVector())
     {
-      SpacePoint& p1 = optimizationLoadInPlace(irel1, 1, 1);
+      SpacePoint& p1 = optimizationLoadInPlace(iabs1, 1, 1);
 
-      _loopOnPointTarget(index2, jvars, ivar1, irow, p1, false, krigopt, mat);
+      _loopOnPointTarget(index2, jvars, ivar1, iabs1, irow, p1, false, krigopt, mat);
       irow++;
     }
   }
@@ -1111,40 +1106,23 @@ SpacePoint& ACov::_optimizationLoadInPlace(int iech,
   if (mode == 1)
   {
     if (rank == 1)
-    {
-      if (iech < 0 || iech >= (int) _p1As.size())
-        throw std::out_of_range("Index out of range in _optimizationLoadInPlace"); 
       _pw1 = &_p1As[iech];
-    }
     else
-    {
-      if (iech < 0 || iech >= (int) _p1As.size())
-        throw std::out_of_range("Index out of range in _optimizationLoadInPlace");
       _pw2 = &_p1As[iech];
-    }
     return _p1As[iech];
   }
+
+  if (rank == 1)
+    _pw1 = &_p2As[iech];
   else
-  {
-    if (rank == 1)
-    {
-      if (iech < 0 || iech >= (int) _p2As.size())
-        throw std::out_of_range("Index out of range in _optimizationLoadInPlace");
-      _pw1 = &_p2As[iech];
-    }
-    else
-    {
-      if (iech < 0 || iech >= (int) _p2As.size())
-        throw std::out_of_range("Index out of range in _optimizationLoadInPlace");
-      _pw2 = &_p2As[iech];
-    }
-    return _p2As[iech];
-  }
+    _pw2 = &_p2As[iech];
+  return _p2As[iech];
 }
 
 void ACov::_loopOnPointTarget(const VectorVectorInt& index2,
                               const VectorInt& jvars,
                               int ivar1,
+                              int iabs1,
                               int irow,
                               SpacePoint& p1,
                               bool flagSym,
@@ -1152,7 +1130,6 @@ void ACov::_loopOnPointTarget(const VectorVectorInt& index2,
                               MatrixRectangular& mat) const
 {
   double value;
-  int iabs1               = p1.getIech();
   int icas                = (flagSym) ? 1 : 2;
   const CovCalcMode& mode = krigopt.getMode();
   bool isNoStatLocal      = isNoStat();
@@ -1161,19 +1138,28 @@ void ACov::_loopOnPointTarget(const VectorVectorInt& index2,
   for (const auto ivar2: jvars.getVector())
   {
     const VectorInt& index2i = index2[ivar2];
-    for (const auto irel2: index2i.getVector())
+    const int* ptr2          = index2i.data();
+    for (int irel2 = 0, n2 = (int)index2i.size(); irel2 < n2; irel2++)
     {
+      int iabs2 = *ptr2++;
+
       // Perform calculation only in upper triangle of the Symmetric Matrix
       if (!flagSym || icol >= irow)
       {
-        SpacePoint& p2 = optimizationLoadInPlace(irel2, flagSym ? 1 : 2, 2);
+        // Next, we load the information regarding the second sample
+        // When used for symmetric matrix (LHS rather than LHS), two main remarks:
+        // - 3rd arg (mode) must be set to 1 (instead of 2) to retreive information 
+        //   from '_pw1' (rather then '_pw2') for optimized covariance calculations
+        // - 2nd arg (iech) must be the absolute address (rather then the relative)
+        //   to get the address within internal array '_p2As'
+        SpacePoint& p2 = optimizationLoadInPlace(flagSym ? iabs2: irel2, flagSym ? 1 : 2, 2);
 
         // Modify the covariance (if non stationary)
-        if (isNoStatLocal) 
-          updateCovByPoints(1, iabs1, icas, p2.getIech());
+        if (isNoStatLocal)
+          updateCovByPoints(1, iabs1, icas, iabs2);
 
         // Calculate the covariance between two points
-        if (flagSym && iabs1 == p2.getIech())
+        if (flagSym && iabs1 == iabs2)
           value = eval0(ivar1, ivar2, &mode);
         else
           value = eval(p1, p2, ivar1, ivar2, &mode);
@@ -1184,34 +1170,40 @@ void ACov::_loopOnPointTarget(const VectorVectorInt& index2,
   }
 }
 
-void ACov::_loopOnBlockTarget(const VectorVectorInt& index2,
+void ACov::_loopOnBlockTarget(const Db* db2,
+                              const VectorVectorInt& index2,
                               const VectorInt& jvars,
                               int ivar1,
+                              int iabs1,
                               int irow,
                               SpacePoint& p1,
                               const KrigOpt& krigopt,
                               MatrixRectangular& mat) const
 {
   int ndisc = krigopt.getNDisc();
+  SpacePoint p2(getSpace());
   SpacePoint p2aux(getSpace());
   const CovCalcMode& mode = krigopt.getMode();
   bool isNoStatLocal      = isNoStat();
-  int iabs1               = p1.getIech();
 
   int icol = 0;
   for (const auto ivar2: jvars.getVector())
   {
     const VectorInt& index2i = index2[ivar2];
-    for (const auto irel2: index2i.getVector())
+    const int* ptr2          = index2i.data();
+    for (int irel2 = 0, n2 = (int)index2i.size(); irel2 < n2; irel2++)
     {
-      SpacePoint& p2 = optimizationLoadInPlace(irel2, 2, 2);
+      int iabs2      = *ptr2++;
+
+      // SpacePoint& p2 = optimizationLoadInPlace(irel2, 2, 2);
+      db2->getSampleAsSPInPlace(p2, iabs2);
 
       // Discretize the block if adapted to the cell dimensions
       if (krigopt.isFlagCell()) krigopt.blockDiscretize(p2.getIech());
 
       // Modify the covariance (if non stationary)
       if (isNoStatLocal)
-        updateCovByPoints(1, iabs1, 2, p2.getIech());
+        updateCovByPoints(1, iabs1, 2, iabs2);
 
       // Loop on the discretization points
       double covcum = 0.;
@@ -1219,8 +1211,8 @@ void ACov::_loopOnBlockTarget(const VectorVectorInt& index2,
       {
         // Move the target to the discretization point
         p2aux = p2;
-        p2aux.setProjected(false);
         p2aux.move(krigopt.getDisc1VD(i));
+        optimizationSetTarget(p2aux);
         covcum += eval(p1, p2aux, ivar1, ivar2, &mode);
       }
       double value = covcum / (double)ndisc;
@@ -1276,7 +1268,8 @@ int ACov::evalCovMatByTarget(MatrixRectangular& mat,
 
   // Create the sets of Vector of valid sample indices per variable
   // (not masked and defined)
-  VectorVectorInt index2 = db2->getSampleRanks(ivars, {iech2}, true, false, false);
+  VectorInt nbgh2 = {iech2};
+  VectorVectorInt index2 = db2->getSampleRanks(ivars, nbgh2, true, false, false);
 
   // Creating the matrix
   int neq1 = VH::count(index1);
@@ -1295,7 +1288,8 @@ int ACov::evalCovMatByTarget(MatrixRectangular& mat,
   manage(db1, db2);
 
   // Prepare the Optimization for covariance calculation
-  _optimizationPreProcessFromDbs(db1, db2, {iech2});
+  _optimizationPreProcessForData(db1);
+  _optimizationPreProcessForTarget(db2, nbgh2);
 
   // Particluar case of the Drift estimation, return a zero-filled RHS
   if (krigopt.getCalcul() == EKrigOpt::DRIFT) return 0;
@@ -1306,15 +1300,15 @@ int ACov::evalCovMatByTarget(MatrixRectangular& mat,
   for (auto const ivar1: ivars.getVector())
   {
     const VectorInt& index1i = index1[ivar1];
-    for (const auto irel1: index1i.getVector())
+    for (const auto iabs1: index1i.getVector())
     {
-      SpacePoint& p1 = optimizationLoadInPlace(irel1, 1, 1);
+      SpacePoint& p1 = optimizationLoadInPlace(iabs1, 1, 1);
 
       // Loop on Target
       if (flagBlock)
-        _loopOnBlockTarget(index2, ivars, ivar1, irow, p1, krigopt, mat);
+        _loopOnBlockTarget(db2, index2, ivars, ivar1, iabs1, irow, p1, krigopt, mat);
       else
-        _loopOnPointTarget(index2, ivars, ivar1, irow, p1, false, krigopt, mat);
+        _loopOnPointTarget(index2, ivars, ivar1, iabs1, irow, p1, false, krigopt, mat);
 
       irow++;
     }
@@ -1330,39 +1324,24 @@ int ACov::evalCovMatByTarget(MatrixRectangular& mat,
 void ACov::_updateCovMatrixSymmetricForVerr(const Db* db1,
                                             AMatrix* mat,
                                             const VectorInt& ivars,
-                                            const VectorVectorInt& index1) {
+                                            const VectorVectorInt& index1)
+{
   // Check if the correction can take place at all
-  if (! db1->hasLocVariable(ELoc::V)) return;
-
-  // Check if CODE must be checkd
-  bool flagCode = db1->hasLocVariable(ELoc::C);
-
-  // Initializations
-  int icolVerr = -1;
-  double verr;
+  if (!db1->hasLocVariable(ELoc::V)) return;
 
   // Loop on Data
   int irow = 0;
   for (const auto ivar1: ivars.getVector())
   {
-    icolVerr = db1->getColIdxByLocator(ELoc::V, ivar1);
+    int icolVerr = db1->getColIdxByLocator(ELoc::V, ivar1);
     const VectorInt& index1i = index1[ivar1];
-    for (const auto irel1: index1i.getVector())
+    for (const auto iabs1: index1i.getVector())
     {
-      verr = 0.;
+      double verr = 0.;
 
-      // Using the code conditionned variance of measurement error
-      if (flagCode)
-      {
-        int code1 = (int)db1->getLocVariable(ELoc::C, irel1, 0);
-        int code2 = (int)db1->getLocVariable(ELoc::C, irel1, 0);
-        if (code1 != 0 && code2 != 0 && code1 == code2)
-          verr = db1->getLocVariable(ELoc::V, irel1, 0);
-      }
-      
       // Update the Diagonal due to the presence of Variance of Measurement Error
       if (icolVerr >= 0)
-        verr = db1->getValueByColIdx(irel1, icolVerr);
+        verr = db1->getValueByColIdx(iabs1, icolVerr);
 
       // Update the Covariance matrix
       if (verr > 0) mat->updValue(irow, irow, EOperator::ADD, verr);
@@ -1398,11 +1377,6 @@ void ACov::_load(const SpacePoint& p, bool option) const
 {
   DECLARE_UNUSED(p);
   DECLARE_UNUSED(option);
-  // int iech = p.getIech();
-  // if (option)
-  //   _pw1 = (p.getMode() == 1) ? &_p1As[iech] : &_p2As[iech];
-  // else
-  //   _pw2 = (p.getMode() == 1) ? &_p1As[iech] : &_p2As[iech];
 }
 
 /****************************************************************************/
@@ -1473,7 +1447,7 @@ int ACov::evalCovMatSymByRanks(MatrixSquareSymmetric& mat,
   manage(db1, nullptr);
 
   // Prepare the Optimization for covariance calculation
-  _optimizationPreProcessFromDbs(db1);
+  _optimizationPreProcessForData(db1);
 
   // Define the two space points
   KrigOpt krigopt;
@@ -1484,12 +1458,12 @@ int ACov::evalCovMatSymByRanks(MatrixSquareSymmetric& mat,
   for (const auto ivar1: ivars.getVector())
   {
     const VectorInt& index1i = index1[ivar1];
-    for (const auto irel1: index1i.getVector())
+    for (const auto iabs1: index1i.getVector())
     {
-      SpacePoint& p1 = optimizationLoadInPlace(irel1, 1, 1);
+      SpacePoint& p1 = optimizationLoadInPlace(iabs1, 1, 1);
 
       // Loop on Target
-      _loopOnPointTarget(index1, ivars, ivar1, irow, p1, true, krigopt, mat);
+      _loopOnPointTarget(index1, ivars, ivar1, iabs1, irow, p1, true, krigopt, mat);
 
       irow++;
     }
@@ -1556,7 +1530,8 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
   manage(db1, db2);
 
   // Prepare the Optimization for covariance calculation
-  _optimizationPreProcessFromDbs(db1, db2, nbgh2);
+  _optimizationPreProcessForData(db1);
+  _optimizationPreProcessForTarget(db2, nbgh2);
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1, true, true, flagSameDb);
@@ -1585,23 +1560,24 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
   for (const auto ivar1: ivars.getVector())
   {
     const VectorInt& index1i = index1[ivar1];
-    for (const auto irel1: index1i.getVector())
+    for (const auto iabs1: index1i.getVector())
     {
-      SpacePoint& p1 = optimizationLoadInPlace(irel1, 1, 1);
-      int iabs1 = p1.getIech();
+      SpacePoint& p1 = optimizationLoadInPlace(iabs1, 1, 1);
 
       // Loop on the second variable
       int icol = 0;
       for (const auto ivar2: jvars.getVector())
       {
         const VectorInt& index2i = index2[ivar2];
-        for (const auto irel2: index2i.getVector())
+        const int* ptr2          = index2i.data();
+        for (int irel2 = 0, n2 = (int)index2i.size(); irel2 < n2; irel2++)
         {
+          int iabs2      = *ptr2++;
           SpacePoint& p2 = optimizationLoadInPlace(irel2, 2, 2);
 
           // Modify the covariance (if non stationary)
           if (isNoStatLocal)
-            updateCovByPoints(1, iabs1, 2, p2.getIech());
+            updateCovByPoints(1, iabs1, 2, iabs2);
 
           /* Loop on the dimension of the space */
           double value = eval(p1, p2, ivar1, ivar2, mode);

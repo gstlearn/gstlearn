@@ -229,31 +229,47 @@ void ANeigh::_checkUnchanged(int iech_out, const VectorInt &ranks)
 void ANeigh::_display(const VectorInt& ranks)
 {
   String string;
-  int ndim = _dbin->getNDim();
-  int nech = _dbin->getNSample();
-  int nerr = _dbin->getNLoc(ELoc::V);
-  bool flag_code = _dbin->getNLoc(ELoc::C) > 0;
-  bool flag_verr = _dbin->getNLoc(ELoc::V) > 0;
-  bool flag_ext  = _dbin->getNLoc(ELoc::BLEX) > 0;
+  int ndim  = _dbin->getNDim();
+  int nech  = _dbin->getNSample();
+  int nerr  = _dbin->getNLoc(ELoc::V);
+  int ncode = _dbin->getNLoc(ELoc::C);
+  int nblex = _dbin->getNLoc(ELoc::BLEX);
+  int nvar  = _dbin->getNLoc(ELoc::Z);
+  nvar = 0;
 
   /* Title */
 
   mestitle(1, "Data selected in neighborhood");
+
   // Rank
   tab_prints(NULL, "Rank");
+
   // Sample number
   tab_prints(NULL, "Sample");
+
   // Code
-  if (flag_code)
+  if (ncode > 0)
     tab_prints(NULL, "Code");
+
   // Coordinates
   for (int idim = 0; idim < ndim; idim++)
   {
     string = getLocatorName(ELoc::X, idim);
     tab_prints(NULL, string.c_str());
   }
+
+  // Variables
+  if (nvar > 0)
+  {
+    for (int ivar = 0; ivar < nvar; ivar++)
+    {
+      string = getLocatorName(ELoc::Z, ivar);
+      tab_prints(NULL, string.c_str());
+    }
+  }
+
   // Variance of measurement errors
-  if (flag_verr)
+  if (nerr > 0)
   {
     for (int ierr = 0; ierr < nerr; ierr++)
     {
@@ -261,8 +277,9 @@ void ANeigh::_display(const VectorInt& ranks)
       tab_prints(NULL, string.c_str());
     }
   }
+
   // Variable Block extensions
-  if (flag_ext)
+  if (nblex > 0)
   {
     for (int idim = 0; idim < ndim; idim++)
     {
@@ -270,6 +287,7 @@ void ANeigh::_display(const VectorInt& ranks)
       tab_prints(NULL, string.c_str());
     }
   }
+
   // Sector
   if (getType() == ENeigh::MOVING)
     tab_prints(NULL, "Sector");
@@ -284,30 +302,37 @@ void ANeigh::_display(const VectorInt& ranks)
 
     // Rank
     tab_printi(NULL, nsel + 1);
+
     // Sample number
     tab_printi(NULL, iech + 1);
+
     // Code
-    if (flag_code)
-      tab_printi(NULL,
-                 static_cast<int>(_dbin->getLocVariable(ELoc::C, iech, 0)));
+    if (ncode > 0)
+      tab_printi(NULL, static_cast<int>(_dbin->getLocVariable(ELoc::C, iech, 0)));
+
     // Coordinates
     for (int idim = 0; idim < ndim; idim++)
       tab_printg(NULL, _dbin->getCoordinate(iech, idim));
+
+    // Variables
+    for (int ivar = 0; ivar < nvar; ivar++)
+      tab_printg(NULL, _dbin->getLocVariable(ELoc::Z, iech, ivar));
+
     // Variance of measurement errors
-    if (flag_verr)
-    {
-      for (int ierr = 0; ierr < nerr; ierr++)
-        tab_printg(NULL, _dbin->getLocVariable(ELoc::V, iech, ierr));
-    }
+    for (int ierr = 0; ierr < nerr; ierr++)
+      tab_printg(NULL, _dbin->getLocVariable(ELoc::V, iech, ierr));
+
     // Variable block extension
-    if (flag_ext)
+    if (nblex > 0)
     {
       for (int idim = 0; idim < ndim; idim++)
         tab_printg(NULL, _dbin->getLocVariable(ELoc::BLEX,iech, idim));
     }
+
     // Sector
     if (getType() == ENeigh::MOVING)
       tab_printi(NULL, ranks[iech] + 1);
+
     message("\n");
     nsel++;
   }

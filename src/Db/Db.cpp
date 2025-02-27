@@ -809,11 +809,11 @@ void Db::getSamplesFromNbghAsSP(std::vector<SpacePoint>& pvec,
                                 const ASpaceSharedPtr& space) const
 {
   pvec.clear();
+  SpacePoint p(space);
   for (int irel = 0, nech = (int)nbgh.size(); irel < nech; irel++)
   {
-    pvec.push_back(SpacePoint(space));
-    SpacePoint& p = pvec[irel];
     getSampleAsSPInPlace(p, nbgh[irel]);
+    pvec.push_back(p);
   }
 }
 
@@ -3537,10 +3537,7 @@ VectorInt Db::getMultipleSelectedVariables(const VectorVectorInt& index,
 /**
  * Returns the list of indices 'index' for valid samples for the set of
  * variables 'ivars'.
- * Note: each address is RELATIVE to the target set of available samples, 
- * e.g. and depending on the availability of 'nbgh';
- * - not provided: the whole set of samples (mask or heterotopy are not taken into account)
- * - provided: the subset of samples defined by 'nbgh'
+ * Note: each address is ABSOLUTE to the target set of available samples.
  *
  * @param ivars   Vector giving the indices of the variables of interest
  * @param nbgh    Vector giving the ranks of the elligible samples (optional)
@@ -3629,8 +3626,8 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh,
       if (FFFF(value) || value < 0) continue;
     }
 
-    // The sample is finally accepted: its relative index is stored
-    ranks.push_back(irel);
+    // The sample is finally accepted: its ABSOLUTE index is stored
+    ranks.push_back(iabs);
   }
   return ranks;
 }

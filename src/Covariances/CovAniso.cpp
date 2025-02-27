@@ -226,55 +226,6 @@ double CovAniso::eval(const SpacePoint &p1,
   return cov * _getSillValue(ivar, jvar, mode);
 }
 
-/**
- * Fill the vector of covariances between each valid SpacePoint (recorded in _p1As)
- * and the target (recorded in _p2A)
- * @param res  Vector of covariances
- * @param ivars Arrays of ranks for the first point
- * @param index1 Arrays of sample indices for the first point
- * @param ivar2 Rank of the variable for the second point
- * @param icol  Rank of the column (variable + sample) for the second point
- * @param mode CovCalcMode structure
- * @param flagSym True if used for a Symmetric matrix (should only fill upper triangle)
- *
- * @remark: The optimized version is not compatible with non-stationarity (except sills).
- * Then no correction must be applied to cov(h)
- */
-void CovAniso::evalOptimInPlace(MatrixRectangular& res,
-                                const VectorInt& ivars,
-                                const VectorVectorInt& index1,
-                                int ivar2,
-                                int icol,
-                                const CovCalcMode *mode,
-                                bool flagSym) const
-{
-  double cov, hoptim;
-  double sill = 1.;
-
-  // Loop on the first variable
-  int irow = 0;
-  for (int rvar1 = 0, nvar1 = (int) ivars.size(); rvar1 < nvar1; rvar1++)
-  {
-    int ivar1 = ivars[rvar1];
-    if (mode == nullptr || ! mode->getUnitary())
-      sill = _sillCur.getValue(ivar1, ivar2);
-
-    // Loop on the first sample
-    int nech1s = (int) index1[rvar1].size();
-    for (int rech1 = 0; rech1 < nech1s; rech1++)
-    {
-      if (!flagSym || irow <= icol)
-      {
-        int iech1 = index1[rvar1][rech1];
-        hoptim = _p2A.getDistance(_p1As[iech1]);
-        cov = _corAniso->evalCorFromH(hoptim, mode);
-        res.updValue(irow, icol, EOperator::ADD, sill * cov);
-      }
-      irow++;
-    }
-  }
-}
-
 double CovAniso::evalCovOnSphere(double alpha,
                                  int degree,
                                  bool flagScaleDistance,

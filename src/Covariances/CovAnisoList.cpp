@@ -162,12 +162,6 @@ double CovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
   return cov;
 }
 
-void CovAnisoList::optimizationSetTargetByIndex(int iech) const
-{
-  for (int is = 0, ns = getNCov(); is < ns; is++)
-    _covs[is]->optimizationSetTargetByIndex(iech);
-}
-
 String CovAnisoList::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;

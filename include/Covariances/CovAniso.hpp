@@ -89,15 +89,7 @@ public:
   virtual double getIntegralRange(int ndisc, double hmax) const;
   virtual String getFormula() const { return _corAniso->getFormula(); }
   virtual double getBallRadius() const { return TEST; }
-
-  void evalOptimInPlace(MatrixRectangular& res,
-                        const VectorInt& ivars,
-                        const VectorVectorInt& index,
-                        int ivar2 = 0,
-                        int icol = 0,
-                        const CovCalcMode *mode = nullptr,
-                        bool flagSym = false) const;
-  
+ 
   bool isValidForTurningBand() const;
   double simulateTurningBand(double t0, TurningBandOperate &operTB) const;
   bool isValidForSpectral() const ;

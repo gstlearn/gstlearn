@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
       total += vv1 * vv2;
     }
   }
-  message("Valeur otenue = %lf\n", total);
+  message("Valeur obtenue = %lf\n", total);
   timer.displayIntervalMilliseconds("Avec les pointeurs sur les data() des vecteur doubles");
 
   // Avec les 'auto'
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
       total += vv1 * vv2;
     }
   }
-  message("Valeur otenue = %lf\n", total);
+  message("Valeur obtenue = %lf\n", total);
   timer.displayIntervalMilliseconds("Avec les auto");
 
   // Avec span
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
       total += vv1 * vv2;
     }
   }
-  message("Valeur otenue = %lf\n", total);
+  message("Valeur obtenue = %lf\n", total);
   timer.displayIntervalMilliseconds("Avec span");
 
   // auto + getVector
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
       total += vv1 * vv2;
     }
   }
-  message("Valeur otenue = %lf\n", total);
+  message("Valeur obtenue = %lf\n", total);
   timer.displayIntervalMilliseconds("Avec auto + getVector");
 
   // Auto + iterateur
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
       total += vv1 * *it;
     }
   }
-  message("Valeur otenue = %lf\n", total);
+  message("Valeur obtenue = %lf\n", total);
   timer.displayIntervalMilliseconds("Avec auto + const iterator");
 
   // Avec data() + size()
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
       total += v1d[i] * v2d[j];
     }
   }
-  message("Valeur otenue = %lf\n", total);
+  message("Valeur obtenue = %lf\n", total);
   timer.displayIntervalMilliseconds("Avec data() + size()");
 
   return (0);

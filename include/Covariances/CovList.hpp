@@ -97,11 +97,10 @@ public:
   double             getSill(int icov, int ivar, int jvar) const;
 
   // Methods necessary for Optimization
-  void _optimizationPreProcess(int mode, const std::vector<SpacePoint> &p) const override;
+  void _optimizationPreProcess(int mode, const std::vector<SpacePoint> &ps) const override;
   void _optimizationPostProcess() const override;
   SpacePoint& _optimizationLoadInPlace(int iech, int mode, int rank) const override;
-  void _optimizationSetTarget(const SpacePoint& pt) const override;
-  void optimizationSetTargetByIndex(int iech) const override;
+  void _optimizationSetTarget(SpacePoint& pt) const override;
 
   void setActiveCovListFromOne(int keepOnlyCovIdx) const;
   void setActiveCovListFromInterval(int inddeb, int indto) const;

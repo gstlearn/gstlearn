@@ -159,6 +159,7 @@
     
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
+    if (obj == R_NilValue) return SWIG_NullReferenceError;
     if (TYPEOF(obj) == EXTPTRSXP) return SWIG_TypeError;
 
     // Conversion
@@ -191,6 +192,7 @@
     
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
+    if (obj == R_NilValue) return SWIG_NullReferenceError;
     if (TYPEOF(obj) == EXTPTRSXP) return SWIG_TypeError;
 
     // Conversion

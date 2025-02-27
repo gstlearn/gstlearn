@@ -159,16 +159,10 @@ double CovList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
   return cov;
 }
 
-void CovList::_optimizationSetTarget(const SpacePoint& pt) const
+void CovList::_optimizationSetTarget(SpacePoint& pt) const
 {
-  for (int is = 0, ns = getNCov(); is < ns; is++)
-    _covs[is]->optimizationSetTarget(pt);
-}
-
-void CovList::optimizationSetTargetByIndex(int iech) const
-{
-  for (int is = 0, ns = getNCov(); is < ns; is++)
-    _covs[is]->optimizationSetTargetByIndex(iech);
+  for (const auto& e: _covs)
+    e->optimizationSetTarget(pt);
 }
 
 double CovList::eval(const SpacePoint& p1,
@@ -318,12 +312,10 @@ bool CovList::_isCovarianceIndexValid(int icov) const
   return checkArg("Covariance Index", icov, getNCov());
 }
 
-void CovList::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& p) const
+void CovList::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const
 {
   for (const auto &e :_covs)
-  {
-    e->optimizationPreProcess(mode, p);
-  }
+    e->optimizationPreProcess(mode, ps);
 }
 
 SpacePoint& CovList::_optimizationLoadInPlace(int iech, int mode, int rank) const
@@ -335,16 +327,14 @@ SpacePoint& CovList::_optimizationLoadInPlace(int iech, int mode, int rank) cons
 
 void CovList::_optimizationPostProcess() const
 {
-  for (int is = 0, ns = getNCov(); is < ns; is++)
-    _covs[is]->optimizationPostProcess();
+  for (const auto& e: _covs)
+    e->optimizationPostProcess();
 }
 
-void CovList::_manage(const Db* db1,const Db* db2)  const
+void CovList::_manage(const Db* db1, const Db* db2) const
 {
-  for (const auto &e : _covs)
-  {
-    e->manage(db1,db2);
-  }
+  for (const auto& e: _covs)
+    e->manage(db1, db2);
 }
 
 /**

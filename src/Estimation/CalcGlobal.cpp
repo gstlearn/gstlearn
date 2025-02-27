@@ -114,9 +114,10 @@ int CalcGlobal::_globalKriging()
   MatrixRectangular X;
 
   // Get the Covariance between data (Unique Neighborhood)
-  CovCalcMode mode = CovCalcMode(ECalcMember::LHS);
+  CovCalcMode mode            = CovCalcMode(ECalcMember::LHS);
   VectorVectorInt sampleRanks = dbin->getSampleRanks({_ivar0});
-  VectorDouble Z = dbin->getValuesByRanks(sampleRanks, model->getMeans(), !model->hasDrift());
+  VectorDouble Z              = dbin->getValuesByRanks(sampleRanks,
+                                                       model->getMeans(), !model->hasDrift());
   if (model->evalCovMatSymByRanks(Sigma, dbin, sampleRanks, -1, &mode, false)) return 1;
   if (model->evalDriftMatByRanks(X, dbin, sampleRanks, -1, ECalcMember::LHS)) return 1;
 

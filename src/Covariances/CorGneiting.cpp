@@ -66,24 +66,15 @@ CorGneiting::~CorGneiting()
 {
 }
 
-void CorGneiting::_optimizationSetTarget(const SpacePoint &pt) const 
+void CorGneiting::_optimizationSetTarget(SpacePoint &pt) const 
 {
   DECLARE_UNUSED(pt)
-  //_covS->optimizationSetTarget(pt.spacePointOnSubspace(0));
-  //_covTemp->optimizationSetTarget(pt.spacePointOnSubspace(1));
 }
   
-void CorGneiting::optimizationSetTargetByIndex(int iech) const 
-{
-  DECLARE_UNUSED(iech)
-  //_covS->optimizationSetTargetByIndex(iech);
-  //_covTemp->optimizationSetTargetByIndex(iech);
-}
-
-void CorGneiting::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& p) const 
+void CorGneiting::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const 
 {
   DECLARE_UNUSED(mode)
-  DECLARE_UNUSED(p)
+  DECLARE_UNUSED(ps)
  // _covS->_optimizationPreProcess(p);
  // _covTemp->_optimizationPreProcess(p);
 }
