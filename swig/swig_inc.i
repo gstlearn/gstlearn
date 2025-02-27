@@ -543,7 +543,6 @@
   int errcode = vectorToCpp($input, vec);
   if (errcode == SWIG_NullReferenceError)
   {
-    std::cout << "nullptr detected for VD" << std::endl;
     $1 = nullptr;
   }
   else if (!SWIG_IsOK(errcode))
@@ -583,7 +582,6 @@
   int errcode = vectorToCpp($input, vec);
   if (errcode == SWIG_NullReferenceError)
   {
-    std::cout << "nullptr detected for VD" << std::endl;
     $1 = nullptr;
   }
   else if (!SWIG_IsOK(errcode))
@@ -614,7 +612,7 @@
 }
 
 // Special case for pointer to VectorDouble
-// TODO: All the special cases for ponters are based upon a volunteer memory leak
+// TODO: All the special cases for pointers are based upon a volunteer memory leak
 // (in order to ensure that the local pointer is not immediately deleted).
 // It could be solved by using a share_memory type of pointer as ...
 // auto vec = std::make_shared<VectorDouble>(); A ameliorer
@@ -622,7 +620,6 @@
 %typemap(in, fragment="ToCpp") const VectorDouble* (void *argp)
 {
   // Try to convert from any target language vector
-
   VectorDouble* vec = new VectorDouble();
   int errcode = vectorToCpp($input, *vec);
   if (errcode == SWIG_NullReferenceError)
@@ -661,7 +658,7 @@
 {
   // Try to convert from any target language vector
   VectorInt* vec = new VectorInt();
-  int errcode = vectorVectorToCpp($input, *vec);
+  int errcode = vectorToCpp($input, *vec);
   if (errcode == SWIG_NullReferenceError)
   {
     $1 = nullptr;
@@ -698,8 +695,6 @@
 %typemap(in, fragment="ToCpp") const VectorVectorInt*    (void *argp, VectorVectorInt vec)
 {
   // Try to convert from any target language vector
-  // TODO: Attention on cree une fuite memoire volontairement
-  // (seule maniere de pereniser le pointeur).
   VectorVectorInt* vec = new VectorVectorInt();
   int errcode = vectorVectorToCpp($input, *vec);
   if (errcode == SWIG_NullReferenceError)
@@ -784,7 +779,6 @@
   int errcode = vectorVectorToCpp($input, vec);
   if (errcode == SWIG_NullReferenceError)
   {
-    std::cout << "nullptr detected for VD" << std::endl;
     $1 = nullptr;
   }
   else if (!SWIG_IsOK(errcode))

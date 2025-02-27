@@ -1427,7 +1427,7 @@ void CorAniso::_manage(const Db* db1,const Db* db2) const
 /**
  * @brief Define the argument 'p' as the current target and project it if needed 
  * 
- * @param pt Current space point
+ * @param p Current space point
  *
  * @note: The target is stored in first position of '_p2As'
  * @note: Its pointer is stored in '_pw2' for quick covariance evaluation.

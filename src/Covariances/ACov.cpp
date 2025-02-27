@@ -119,7 +119,7 @@ void ACov::_optimizationPreProcessForTarget(const Db* db2,
 
   // Add projected samples from db2 (optional)
   if (nbgh2.empty())
-    db2->getSamplesAsSP(ps, getSpace());
+    db2->getSamplesAsSP(ps, getSpace(), true);
   else
     db2->getSamplesFromNbghAsSP(ps, nbgh2, getSpace());
   _optimizationPreProcess(2, ps);
@@ -151,7 +151,7 @@ void ACov::_optimizationSetTarget(SpacePoint& pt) const
  * In the Anisoptric version, the samples are projected along with the Covariance
  *
  * @param mode 1 for p1As, 2 for p2As
- * @param p Set of SpacePoints to be copied
+ * @param ps Set of SpacePoints to be copied
  */
 void ACov::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const
 {
@@ -356,7 +356,7 @@ void ACov::evalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                     const CovCalcMode* mode) const
 {
   mat.fill(0.);
-  addEvalCovMatBiPointInPlace(mat,p1,p2,mode);
+  addEvalCovMatBiPointInPlace(mat, p1, p2, mode);
 }
 
 /**
@@ -2298,47 +2298,3 @@ void ACov::gofDisplay(double gof, bool byValue, const VectorDouble& thresholds)
     }
   }
 }
-
-/**
- * \defgroup Model Model: Set of classes for processing Model contents
- *
- **/
-
-/** @addtogroup Model_0 Calculating Covariance Matrix
- * \ingroup Model
- *
- * These functions are meant to calculate the covariance Matrix between two Dbs
- * or between a Db and itself.
- * They take into account the presence of a possible selection
- * They also account for heterotopy (if Z-variables are defined in the Db(s)
- *
- * @param  db1   First Db
- * @param  db2   (Optional second Db)
- * @param  ivar0 Rank of the selected variable in the first Db (-1 for all variables)
- * @param  jvar0 Rank of the selected variable in the second Db (-1 for all variables)
- * @param  nbgh1 Vector of indices of active samples in first Db (optional)
- * @param  nbgh2 Vector of indices of active samples in second Db (optional)
- * @param  mode  CovCalcMode structure
- *
- * @remarks The returned matrix if dimension to nrows * ncols where
- * @remarks each term is the product of the number of active samples
- * @remarks by the number of samples where the variable is defined
- *
- * @note 'dbin' and 'dbout' cannot be made 'const' as they can be updated
- * @note due to the presence of 'nostat'
- *
- * @return A Matrix either in Dense or Sparse format
- *
- *  @{
- */
-VectorDouble ACov::evalCovMatV(Db* db1,
-                               Db* db2,
-                               int ivar0,
-                               int jvar0,
-                               const VectorInt& nbgh1,
-                               const VectorInt& nbgh2,
-                               const CovCalcMode* mode) const
-{
-  return evalCovMat(db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode).getValues();
-}
-/**@}*/

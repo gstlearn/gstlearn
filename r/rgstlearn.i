@@ -329,6 +329,10 @@
 %typemap(rtypecheck, noblock=1) const VectorVectorDouble&, VectorVectorDouble { length($arg) == 0 || (length($arg) > 0 && 
                                                                                (length($arg[[1]]) == 0 || (length($arg[[1]]) > 0 && is.numeric(unlist($arg[[1]]))))) }
 
+%typemap(out) void {
+  $result = R_NilValue; // Returns an empty value ... not a NULL
+}
+
 %fragment("FromCpp", "header")
 {  
   template <typename InputType> struct OutTraits;

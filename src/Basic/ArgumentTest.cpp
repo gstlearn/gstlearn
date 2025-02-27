@@ -234,7 +234,7 @@ VectorInt argumentReturnVectorInt(const VectorInt& values)
   return values;
 }
 
-GSTLEARN_EXPORT VectorDouble argumentReturnVectorDouble(const VectorDouble& values)
+VectorDouble argumentReturnVectorDouble(const VectorDouble& values)
 {
   _introduction("VectorDouble");
   _printVectorDouble(values);
@@ -242,7 +242,7 @@ GSTLEARN_EXPORT VectorDouble argumentReturnVectorDouble(const VectorDouble& valu
   return values;
 }
 
-GSTLEARN_EXPORT VectorVectorInt argumentReturnVectorVectorInt(const VectorVectorInt& values)
+VectorVectorInt argumentReturnVectorVectorInt(const VectorVectorInt& values)
 {
   _introduction("VectorVectorInt", true);
   _printVectorVectorInt(values);
@@ -250,7 +250,7 @@ GSTLEARN_EXPORT VectorVectorInt argumentReturnVectorVectorInt(const VectorVector
   return values;
 }
 
-GSTLEARN_EXPORT VectorVectorDouble argumentReturnVectorVectorDouble(const VectorVectorDouble& values)
+VectorVectorDouble argumentReturnVectorVectorDouble(const VectorVectorDouble& values)
 {
   _introduction("VectorVectorDouble", true);
   _printVectorVectorDouble(values);
@@ -258,87 +258,87 @@ GSTLEARN_EXPORT VectorVectorDouble argumentReturnVectorVectorDouble(const Vector
   return values;
 }
 
-GSTLEARN_EXPORT void argumentDefTestInt(int argInt)
+void argumentDefTestInt(int argInt)
 {
   _introduction("Integer");
   _printInt(argInt);
   _endOfLine();
 }
 
-GSTLEARN_EXPORT void argumentDefTestDbl(double argDbl)
+void argumentDefTestDbl(double argDbl)
 {
   _introduction("Double");
    _printDouble(argDbl);
    _endOfLine();
 }
 
-GSTLEARN_EXPORT void argumentDefTestStr(const String& argstr)
+void argumentDefTestStr(const String& argstr)
 {
   _introduction("String");
    _printString(argstr);
    _endOfLine();
 }
 
-GSTLEARN_EXPORT void argumentDefTestVInt(const VectorInt& argVInt)
+void argumentDefTestVInt(const VectorInt& argVInt)
 {
   _introduction("Vector Int");
   if (argVInt.empty()) _printEmpty();
 }
 
-GSTLEARN_EXPORT void argumentDefTestVDbl(const VectorDouble& argVDbl)
+void argumentDefTestVDbl(const VectorDouble& argVDbl)
 {
   _introduction("Vector Double");
   if (argVDbl.empty()) _printEmpty();
 }
 
-GSTLEARN_EXPORT void argumentDefTestVString(const VectorString& argVString)
+void argumentDefTestVString(const VectorString& argVString)
 {
   _introduction("Vector String");
   if (argVString.empty()) _printEmpty();
 }
 
-GSTLEARN_EXPORT void argumentDefTestVVDbl(VectorVectorDouble argVVDbl)
+void argumentDefTestVVDbl(VectorVectorDouble argVVDbl)
 {
   _introduction("Vector Vector Double");
   if (argVVDbl.empty() || argVVDbl[0].empty()) _printEmpty();
 }
 
-GSTLEARN_EXPORT void argumentDefTestVVInt(VectorVectorInt argVVInt)
+void argumentDefTestVVInt(VectorVectorInt argVVInt)
 {
   _introduction("Vector Vector Int");
   if (argVVInt.empty() || argVVInt[0].empty()) _printEmpty();
 }
 
-GSTLEARN_EXPORT void argumentTestMatrixRectangular(const MatrixRectangular& mat)
+void argumentTestMatrixRectangular(const MatrixRectangular& mat)
 {
   if (!mat.empty()) mat.display();
 }
-GSTLEARN_EXPORT void argumentTestMatrixSquareGeneral(const MatrixSquareGeneral& mat)
+void argumentTestMatrixSquareGeneral(const MatrixSquareGeneral& mat)
 {
   if (!mat.empty()) mat.display();
 }
-GSTLEARN_EXPORT void argumentTestMatrixSquareSymmetric(const MatrixSquareSymmetric& mat)
+void argumentTestMatrixSquareSymmetric(const MatrixSquareSymmetric& mat)
 {
   if (!mat.empty()) mat.display();
 }
-GSTLEARN_EXPORT MatrixRectangular argumentReturnMatrix(int nrows,
-                                                       int ncols,
-                                                       int seed)
+MatrixRectangular argumentReturnMatrix(int nrows,
+                                       int ncols,
+                                       int seed)
 {
   MatrixRectangular mat(nrows, ncols);
   mat.fillRandom(seed);
   return mat;
 }
 
-GSTLEARN_EXPORT void argumentTestMatrixSparse(const MatrixSparse& mat)
+void argumentTestMatrixSparse(const MatrixSparse& mat)
 {
   if (!mat.empty()) mat.display();
 }
 
-GSTLEARN_EXPORT MatrixSparse argumentReturnMatrixSparse(int nrows,
-                                                        int ncols,
-                                                        double zeroPercent,
-                                                        int seed)
+MatrixSparse argumentReturnMatrixSparse(int nrows,
+                                        int ncols,
+                                        double zeroPercent,
+                                        int seed)
 {
   MatrixSparse mat(nrows, ncols);
   mat.fillRandom(seed, zeroPercent);
