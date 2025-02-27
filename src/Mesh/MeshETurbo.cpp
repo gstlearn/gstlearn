@@ -486,7 +486,7 @@ int MeshETurbo::initFromExtend(const VectorDouble &extendmin,
 }
 
 static std::vector<int> indices;
-static std::vector<double> lambda;
+static std::vector<double> lambdas;
 
 bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
                                       int iech,
@@ -496,18 +496,58 @@ bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
 {
   int ncorner = getNApexPerMesh();
   indices.resize(ncorner);
-  lambda.resize(ncorner);
+  lambdas.resize(ncorner);
 
   for (int icas = 0; icas < _nPerCell; icas++)
   {
-    if (_addWeights(icas, indg0, coor, indices, lambda, verbose) == 0)
+    if (_addWeights(icas, indg0, coor, indices, lambdas, verbose) == 0)
     {
       for (int icorner = 0; icorner < ncorner; icorner++)
-        NF_T.add(iech, indices[icorner], lambda[icorner]);
+        NF_T.add(iech, indices[icorner], lambdas[icorner]);
       return true;
     }
   }
   return false;
+}
+
+/**
+ * @brief Given the coordinates of a point, return the corresponding mesh index
+ * and updates the apex indices
+ * 
+ * @param coor Input coordinates
+ * @param indices Returned vector of apex indices
+ * @param lambdas Returned vector of weights (barycenter coordinates)
+ * @return Rank of the mesh (-1 if point does not belong to the meshing)
+ */
+int MeshETurbo::getMeshFromCoordinates(const VectorDouble& coor,
+                                       VectorInt& indices,
+                                       VectorDouble& lambdas) const
+{
+  int ndim = getNDim();
+  VectorInt indg0(ndim);
+  if (_grid.coordinateToIndicesInPlace(coor, indg0) != 0)
+  {
+    messerr("The target coordinate does not belong to the Meshing");
+    return -1;
+  }
+  int ncorner = getNApexPerMesh();
+  indices.resize(ncorner);
+  lambdas.resize(ncorner);
+
+  VectorInt nx = _grid.getNXs();
+  VH::addConstant(nx, -1);
+
+  int iref = MAX(0, indg0[ndim - 1]);
+  for (int idim = ndim - 2; idim >= 0; idim--)
+    iref = iref * nx[idim] + MAX(0, indg0[idim] );
+  iref *= _nPerCell;
+
+  for (int icas = 0; icas < _nPerCell; icas++)
+  {
+    if (_addWeights(icas, indg0, coor, indices, lambdas) == 0)
+      return iref + icas;
+  }
+  return -1;
 }
 
 /****************************************************************************/
@@ -523,7 +563,10 @@ bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
 **          - the value of the corresponding variable is defined
 **          - the sample is covered by the grid of the Turbo Meshing
 *****************************************************************************/
-void MeshETurbo::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool verbose) const
+void MeshETurbo::resetProjMatrix(ProjMatrix* m,
+                                 const Db* db,
+                                 int rankZ,
+                                 bool verbose) const
 {
   int ndim = getNDim();
   VectorInt indg0(ndim);
@@ -711,13 +754,12 @@ static std::vector<int> indgg;
  * @remark - the grid node corresponding to a mesh apex is outside the grid
  * @remark - the grid node corresponding to a mesh apex is not active
  */
-int MeshETurbo::_addWeights(
-  int icas,
-  const constvectint indg0,
-  const constvect coor,
-  const vectint indices, // Returned indices (active grid nodes)
-  const vect lambda,
-  bool verbose) const
+int MeshETurbo::_addWeights(int icas,
+                            const constvectint indg0,
+                            const constvect coor,
+                            const vectint indices,
+                            const vect lambda,
+                            bool verbose) const
 {
   int ndim    =  getNDim();
   int ncorner =  getNApexPerMesh();
