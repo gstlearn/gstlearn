@@ -39,20 +39,20 @@ public:
     return true; 
   }
   /// ACov Interface
- 
+
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
-                      int ivar = 0,
-                      int jvar = 0,
+                      int ivar                = 0,
+                      int jvar                = 0,
                       const CovCalcMode* mode = nullptr) const override;
 
   virtual int getNVar() const override { return 1; }
-  void optimizationSetTargetByIndex(int iech) const override;
+
 protected:
-    void _optimizationSetTarget(const SpacePoint &pt) const override;
+  void _optimizationSetTarget(SpacePoint& pt) const override;
 
 private:
-  void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
+  void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
   void _optimizationPostProcess() const override;
 
 private:

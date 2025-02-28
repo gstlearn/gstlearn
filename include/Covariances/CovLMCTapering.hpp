@@ -78,7 +78,7 @@ protected:
   {
     ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
   }
-  void _optimizationSetTarget(const SpacePoint& pt) const override
+  void _optimizationSetTarget(SpacePoint& pt) const override
   {
     ACov::_optimizationSetTarget(pt); 
   }

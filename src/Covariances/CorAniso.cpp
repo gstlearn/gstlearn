@@ -52,7 +52,6 @@ CorAniso::CorAniso(const ECov &type, const CovContext &ctxt)
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
       _noStatFactor(1.),
-      _isOptimizationPreProcessed(false),
       _optimEnabled(true)
 {
   initFromContext();
@@ -64,7 +63,6 @@ CorAniso::CorAniso(const String &symbol, const CovContext &ctxt)
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
       _noStatFactor(1.),
-      _isOptimizationPreProcessed(false),
       _optimEnabled(true)
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
@@ -82,7 +80,6 @@ CorAniso::CorAniso(const ECov &type,
       _aniso(ctxt.getSpace()->getNDim()),
       _tabNoStatCovAniso(nullptr),
       _noStatFactor(1.),
-      _isOptimizationPreProcessed(false),
       _optimEnabled(true)
 {
   initFromContext();
@@ -103,7 +100,6 @@ CorAniso::CorAniso(const CorAniso &r)
       _aniso(r._aniso),
       _tabNoStatCovAniso(new TabNoStatCovAniso(*r._tabNoStatCovAniso)),
       _noStatFactor(r._noStatFactor),
-      _isOptimizationPreProcessed(r._isOptimizationPreProcessed),
       _optimEnabled(r._optimEnabled)
 {
   _tabNoStat = _tabNoStatCovAniso;
@@ -118,7 +114,6 @@ CorAniso& CorAniso::operator=(const CorAniso &r)
     _aniso = r._aniso;
     _tabNoStatCovAniso = new TabNoStatCovAniso(*_tabNoStatCovAniso);
     _noStatFactor = r._noStatFactor;
-    _isOptimizationPreProcessed = r._isOptimizationPreProcessed;
     _optimEnabled = r._optimEnabled;
     _tabNoStat = _tabNoStatCovAniso;
   }
@@ -410,14 +405,10 @@ double CorAniso::evalCor(const SpacePoint &p1,
 {
   DECLARE_UNUSED(ivar, jvar);
   double h;
-  if (!_isOptimizationPreProcessed || p1.getIech() == -1 || p2.getIech() == -1)
-  {
-    h = getSpace()->getDistance(p1, p2, _aniso);
-  }
-  else
-  {
+  if (p1.isProjected() && p2.isProjected())
     h = _pw2->getDistance(*_pw1);
-  }
+  else
+    h = getSpace()->getDistance(p1, p2, _aniso);
   return evalCorFromH(h, mode);
 }
 
@@ -912,31 +903,10 @@ Array CorAniso::evalCovFFT(const VectorDouble& hmax,
   return evalCovFFTSpatial(hmax, N, funcSpectrum);
 }
 
-/**
- * Define the Second Space Point as coinciding with the Input Space Point
-'iech'.
- * Note that, as the Input Space Points are already transformed in the basis
- * of the current structure, it is just an assignment.
- *
- * @param iech Rank of the sample among the recorded Space Points
- * @param p1As Vector of Space Points after projection (Data points)
- * @param p2A Space Point for Target
- */
-void CorAniso::_optimizationSetTargetByIndex(int iech,
-                                            const std::vector<SpacePoint> &p1As,
-                                            SpacePoint &p2A) const
-{
-  if (_isOptimizationPreProcessed)
-  {
-    p2A = p1As[iech];
-    p2A.setTarget(true);
-  }
-}
-
 void CorAniso::_optimizationPostProcess() const
 {
-  _isOptimizationPreProcessed = false;
 }
+
 /**
  * Transform a space point using the anisotropy tensor
  * @param ptin  Input Space Point
@@ -945,54 +915,54 @@ void CorAniso::_optimizationPostProcess() const
 void CorAniso::optimizationTransformSP(const SpacePoint& ptin,
                                        SpacePoint& ptout) const
 {
+  ptout.setIech(ptin.getIech());
+
   if (isOptimEnabled())
   {
     _aniso.applyInverseInPlace(ptin.getCoords(), ptout.getCoordRef());
-    ptout.setIech(ptin.getIech());
-    ptout.setTarget(ptin.isTarget());
-    return;
-  }
-
-  bool isTarget = ptin.isTarget();
-  if (!isTarget)
-  {
-    ptout.setIech(ptin.getIech());
+    ptout.setProjected(true);
   }
 }
 
 /**
  * Transform a set of Space Points using the anisotropy tensor
  * The set of resulting Space Points are stored as private member of this.
- * Note that ALL samples are processed, independently from the presence of a
-selection
- * or checking for heterotopy.
- * @param p Vector of SpacePoints
+ * Note that ALL samples are processed, regardless from the selection
+ * @param mode 1 for _p1As and 2 for _p2As
+ * @param ps Vector of SpacePoints
  */
 
-void CorAniso::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
+void CorAniso::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const
 {
   if (!isOptimEnabled())
   {
-    ACov::_optimizationPreProcess(p);
+    ACov::_optimizationPreProcess(mode, ps);
     return;
   }
 
-  int n = (int)p.size();
+  if (mode == 1)
+    _p1As.clear();
+  else
+    _p2As.clear();
+
   SpacePoint pt(getSpace());
-  for (int i = 0; i < n; i++)
+  for (int i = 0, n = (int)ps.size(); i < n; i++)
   {
-    pt.setIech(p[i].getIech());
-    if (!p[i].isFFFF())
-    {
-      optimizationTransformSP(p[i], pt);
-    }
+    // Assert that the Space Point has been transformed
+    pt.setIech(ps[i].getIech());
+
+    // Perform the projection
+    if (!ps[i].isFFFF())
+      optimizationTransformSP(ps[i], pt);
     else
-    {
       pt.setFFFF();
-    }
-    _p1As.push_back(pt);
+
+    // Stack the Space point in _p1As or _p2As
+    if (mode == 1)
+      _p1As.push_back(pt);
+    else
+      _p2As.push_back(pt);
   }
-  _isOptimizationPreProcessed = true;
 }
 
 /**
@@ -1454,12 +1424,19 @@ void CorAniso::_manage(const Db* db1,const Db* db2) const
     informDbOut(db2);
 }
 
-void CorAniso::_optimizationSetTarget(const SpacePoint& pt) const
+/**
+ * @brief Define the argument 'p' as the current target and project it if needed 
+ * 
+ * @param p Current space point
+ *
+ * @note: The target is stored in first position of '_p2As'
+ * @note: Its pointer is stored in '_pw2' for quick covariance evaluation.
+ */
+void CorAniso::_optimizationSetTarget(SpacePoint& p) const
 {
-  if (!isOptimEnabled())
-  {
-    ACov::_optimizationSetTarget(pt);
-    return;
-  }
-  optimizationTransformSP(pt, _p2A);
+  if (!isOptimEnabled()) return;
+  int iech = 0;
+  optimizationTransformSP(p, _p2As[0]);
+  p.setProjected(true);
+  _pw2 = &_p2As[iech];
 }

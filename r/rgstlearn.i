@@ -159,6 +159,7 @@
     
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
+    if (obj == R_NilValue) return SWIG_NullReferenceError;
     if (TYPEOF(obj) == EXTPTRSXP) return SWIG_TypeError;
 
     // Conversion
@@ -191,6 +192,7 @@
     
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
+    if (obj == R_NilValue) return SWIG_NullReferenceError;
     if (TYPEOF(obj) == EXTPTRSXP) return SWIG_TypeError;
 
     // Conversion
@@ -326,6 +328,10 @@
                                                                                (length($arg[[1]]) == 0 || (length($arg[[1]]) > 0 && (is.integer(unlist($arg[[1]])) || is.numeric(unlist($arg[[1]])))))) }
 %typemap(rtypecheck, noblock=1) const VectorVectorDouble&, VectorVectorDouble { length($arg) == 0 || (length($arg) > 0 && 
                                                                                (length($arg[[1]]) == 0 || (length($arg[[1]]) > 0 && is.numeric(unlist($arg[[1]]))))) }
+
+%typemap(out) void {
+  $result = R_NilValue; // Returns an empty value ... not a NULL
+}
 
 %fragment("FromCpp", "header")
 {  

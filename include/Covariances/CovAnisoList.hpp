@@ -117,7 +117,6 @@ public:
   int                hasExternalCov() const;
   bool               isChangeSupportDefined() const;
   // Methods necessary for Optimization
-  void optimizationSetTargetByIndex(int iech) const override;
 
   void copyCovContext(const CovContext& ctxt);
   bool hasNugget() const;

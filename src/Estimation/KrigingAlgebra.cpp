@@ -1208,11 +1208,11 @@ void KrigingAlgebra::_printVector(const String& name, const VectorDouble* vec) {
 void KrigingAlgebra::printStatus() const {
   mestitle(1, "List of arrays used in 'KrigingAlgebra'");
   message("\nGeneral Parameters\n");
-  message("Number of Covariance Rows = %d\n", _neq);
-  message("Number of Drift equations = %d\n", _nbfl);
-  message("Number of Right_Hand sides = %d\n", _nrhs);
+  message("Number of Covariance Rows ('_neq') = %d\n", _neq);
+  message("Number of Drift equations ('_nbfl') = %d\n", _nbfl);
+  message("Number of Right_Hand sides ('_nrhs') = %d\n", _nrhs);
   if (_ncck > 0) {
-    message("Number of Collocated Variables = %d\n", _ncck);
+    message("Number of Collocated Variables ('_ncck') = %d\n", _ncck);
     VH::dump("Rank of Collocated Variables", _rankColVars, false);
   }
   if (_flagSK)
@@ -1449,18 +1449,21 @@ void KrigingAlgebra::dumpWGT() {
   // Matrix lines
   VectorDouble sum(_nrhs);
   int lec = 0;
-  for (int ivar = 0; ivar < _nvar; ivar++) {
+  for (int ivar = 0; ivar < _nvar; ivar++)
+  {
     if (_nvar > 1) message("Using variable Z%-2d\n", ivar + 1);
     int nbyvar = (*_sampleRanks)[ivar].size();
     sum.fill(0.);
 
-    for (int j = 0; j < nbyvar; j++) {
+    for (int j = 0; j < nbyvar; j++)
+    {
       tab_printi(NULL, lec + 1);
       double value = (*_Z)[lec];
       // Correct printout by the mean locally in case of SK
       if (_flagSK && !_Means->empty()) value += (*_Means)[ivar];
       tab_printg(NULL, value);
-      for (int irhs = 0; irhs < _nrhs; irhs++) {
+      for (int irhs = 0; irhs < _nrhs; irhs++)
+      {
         double value = lambda->getValue(lec, irhs, false);
         tab_printg(NULL, value);
         sum[irhs] += value;

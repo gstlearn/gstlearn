@@ -42,9 +42,9 @@ public:
   void setCoords(const VectorDouble& coord);
   void setCoords(const double* coord, int size);
   void setIech(int iech) const { _iech = iech; }
+  void setProjected(bool status) { _isProjected = status; }
   int getIech() const { return _iech; }
-  void setTarget(bool target) const { _target = target; }
-  bool isTarget() const { return _target; }
+  bool isProjected() const { return _isProjected; }
   /// Return true if the point is consistent with the provided space
   virtual bool isConsistent(const ASpace* space) const override;
 
@@ -75,7 +75,7 @@ public:
 
 protected:
   /// Points coordinates (whatever the space context)
-  VectorDouble _coord;
-  mutable int  _iech;
-  mutable bool _target;
+  VectorDouble _coord; // Coordinates (initial or projected)
+  mutable int _iech;   // Absolute rank of the sample within the Db
+  mutable bool _isProjected; // True if the coordinates are projected
 };

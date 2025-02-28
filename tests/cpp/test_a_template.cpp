@@ -14,7 +14,6 @@
 #include "Basic/File.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Timer.hpp"
-#include "Basic/Law.hpp"
 
 /**
  * This file is meant to perform any test that needs to be coded for a quick trial
@@ -90,39 +89,67 @@ int main(int argc, char *argv[])
       total += vv1 * vv2;
     }
   }
-  message("Valeur otenue = %lf\n", total);
+  message("Valeur obtenue = %lf\n", total);
   timer.displayIntervalMilliseconds("Avec les pointeurs sur les data() des vecteur doubles");
 
   // Avec les 'auto'
   total = 0.;
-  for (const auto& vv1: v1)
-  {
-    for (const auto& vv2: v2)
-    {
-      total += vv1 * vv2;
-    }
-  }
-  message("Valeur otenue = %lf\n", total);
-  timer.displayIntervalMilliseconds("Avec les auto");
-
-  // Avec les std::vector
-  std::vector<double> vd1(n1);
-  for (int i1 = 0; i1 < n1; i1++) vd1[i1] = v1[i1];
-  std::vector<double> vd2(n2);
-  for (int i2 = 0; i2 < n2; i2++) vd2[i2] = v2[i2];
-
-  total   = 0.;
-  for (int i1 = 0; i1 < n1; i1++)
-  {
-    vv1 = v1[i1];
-    for (int i2 = 0; i2 < n2; i2++)
-    {
-      vv2 = v2[i2];
+  for (const auto& vv1: v1) {
+    for (const auto& vv2: v2) {
       total += vv1 * vv2;
     }
   }
   message("Valeur obtenue = %lf\n", total);
-  timer.displayIntervalMilliseconds("Avec std::vector au lieu des VectorDouble");
+  timer.displayIntervalMilliseconds("Avec les auto");
+
+  // Avec span
+  timer.reset();
+  total           = 0.;
+  const auto v1sp = std::span(v1);
+  const auto v2sp = std::span(v2);
+  for (const auto vv1: v1sp) {
+    for (const auto vv2: v2sp) {
+      total += vv1 * vv2;
+    }
+  }
+  message("Valeur obtenue = %lf\n", total);
+  timer.displayIntervalMilliseconds("Avec span");
+
+  // auto + getVector
+  total = 0.;
+  for (const auto vv1: v1.getVector()) {
+    for (const auto vv2: v2.getVector()) {
+      total += vv1 * vv2;
+    }
+  }
+  message("Valeur obtenue = %lf\n", total);
+  timer.displayIntervalMilliseconds("Avec auto + getVector");
+
+  // Auto + iterateur
+  total          = 0.;
+  const auto beg = v2.cbegin();
+  const auto end = v2.cend();
+  for (const auto vv1: v1) {
+    for (auto it = beg; it != end; ++it) {
+      total += vv1 * *it;
+    }
+  }
+  message("Valeur obtenue = %lf\n", total);
+  timer.displayIntervalMilliseconds("Avec auto + const iterator");
+
+  // Avec data() + size()
+  total           = 0.;
+  const auto v1s  = v1.size();
+  const auto* v1d = v1.data();
+  const auto v2s  = v2.size();
+  const auto* v2d = v2.data();
+  for (size_t i = 0; i < v1s; ++i) {
+    for (size_t j = 0; j < v2s; ++j) {
+      total += v1d[i] * v2d[j];
+    }
+  }
+  message("Valeur obtenue = %lf\n", total);
+  timer.displayIntervalMilliseconds("Avec data() + size()");
 
   return (0);
 }

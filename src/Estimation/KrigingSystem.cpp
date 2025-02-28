@@ -569,7 +569,8 @@ bool KrigingSystem::isReady()
   if ((_neigh != nullptr && _neigh->getType() == ENeigh::UNIQUE) || _flagBayes)
   {
     _sampleRanks = _dbin->getSampleRanks();
-    _Z           = _dbin->getValuesByRanks(_sampleRanks, _means, !_model->hasDrift());
+    _Z           = _dbin->getValuesByRanks(_sampleRanks, 
+                                           _means, !_model->hasDrift());
     if (_algebra.setData(&_Z, &_sampleRanks, &_meansTarget)) return false;
 
     if (_flagBayes)
@@ -678,7 +679,7 @@ int KrigingSystem::estimate(int iech_out)
   {
     // For XValid in Unique Neighborhood:
     // - no need to define the RHS information (it will be extracted from LHS°)
-    // - only define the indices of the XValidated columns
+    // - only define the indices of the cross_validated columns
     VectorInt xvalidEqs = _xvalidUniqueIndices();
     if (xvalidEqs.size() <= 0)
     {
@@ -890,7 +891,7 @@ int KrigingSystem::_updateForColCokMoving()
 /**
  * @brief Identify the list of equations involving the target sample
  *        within the vector of vector of data indices.
- *        THis is used to mask off equations in the Xvalidation in Unique Neighborhood
+ *        THis is used to mask off equations in the cross_validation in Unique Neighborhood
  * 
  * @return VectorInt Vector of indices to be masked in the Co-Kriging system due to XValid
  */
