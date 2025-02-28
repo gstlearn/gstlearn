@@ -89,8 +89,7 @@ public:
   {
     _mesh.getApexCoordinatesInPlace(i, coords);
   }
-  VectorDouble
-  getCoordinatesPerMesh(int imesh, int idim, bool flagClose = false) const
+  VectorDouble getCoordinatesPerMesh(int imesh, int idim, bool flagClose = false) const
   {
     return _mesh.getCoordinatesPerMesh(imesh, idim, flagClose);
   }

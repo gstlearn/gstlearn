@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.7.0
 =============
+- in MeshETurbo, add a method to retreive mesh index from the coordinates of a Target Point
 - Parameter 'nxmax' for dimensioning automatic meshing is now parametrized in SPDEParam()
 - Create a new method to generate a Model with random values
 - Major renaming of variables, such as getxxxNumber() into getNxxx().
