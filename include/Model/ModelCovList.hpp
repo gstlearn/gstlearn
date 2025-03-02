@@ -47,5 +47,4 @@ public:
 
 protected:
   CovList* _covList;
-
 };

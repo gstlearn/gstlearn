@@ -145,7 +145,6 @@ public:
   FORWARD_METHOD(getContext, getNDim, -1)
   FORWARD_METHOD(getContext, getSpace)
 
-  
   FORWARD_METHOD(getContext, getCovar0)
   FORWARD_METHOD(getContext, getField, TEST)
 

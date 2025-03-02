@@ -535,15 +535,12 @@ void Model::addCovFromParam(const ECov& type,
       cov.setSill(locsills);
     }
   }
-
  
   _ctxt.setNVar(cov.getNVar());
   _copyCovContext();
   if (!angles.empty()) cov.setAnisoAngles(angles);
   addCov(&cov);
 }
-
-
 
 double Model::evalCov(const VectorDouble &incr,
                       int icov,

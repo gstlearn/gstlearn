@@ -1,1 +1,7 @@
+Space Type      = COMPOSITE
+Space Dimension = 3
+Space Type      [0] = RN
+Space Dimension [0] = 1
+Space Type      [1] = RN
+Space Dimension [1] = 2
 Value of Gneiting 0.020676

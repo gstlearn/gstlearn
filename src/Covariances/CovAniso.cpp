@@ -28,6 +28,7 @@
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpacePoint.hpp"
+#include "Space/SpaceRN.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
@@ -275,8 +276,6 @@ void CovAniso::evalOptimInPlace(MatrixRectangular& res,
   }
 }
 
-
-
 double CovAniso::evalCovOnSphere(double alpha,
                                  int degree,
                                  bool flagScaleDistance,
@@ -418,8 +417,6 @@ String CovAniso::toString(const AStringFormat* strfmt) const
   }
   return sstr.str();
 }
-
-
 
 /**
  * Return the Slope calculated as the sill / range(idim=0)
@@ -597,6 +594,119 @@ CovAniso* CovAniso::createAnisotropicMulti(const CovContext &ctxt,
   return cov;
 }
 
+CovAniso* CovAniso::createFromParam(const ECov& type,
+                                    double range,
+                                    double sill,
+                                    double param,
+                                    const VectorDouble& ranges,
+                                    const MatrixSquareSymmetric& sills,
+                                    const VectorDouble& angles,
+                                    const ASpaceSharedPtr& space,
+                                    bool flagRange)
+{
+  // Check consistency with parameters of the model
+
+  int ndim = 0;
+  if (!ranges.empty())
+  {
+    if (ndim > 0 && (int)ranges.size() != ndim)
+    {
+      messerr("Mismatch between the dimension of 'ranges' (%d)",
+              (int)ranges.size());
+      messerr("and the Space dimension stored in the Model (%d)", ndim);
+      messerr("Operation is cancelled");
+      return nullptr;
+    }
+    ndim = (int)ranges.size();
+  }
+  if (!angles.empty())
+  {
+    if (ndim > 0 && (int)angles.size() != ndim)
+    {
+      messerr("Mismatch between the dimension of 'angles' (%d)",
+              (int)angles.size());
+      messerr("and the Space dimension stored in the Model (%d)", ndim);
+      messerr("Operation is cancelled");
+      return nullptr;
+    }
+    ndim = (int)angles.size();
+  }
+  if (space != nullptr)
+  {
+    if (ndim > 0 && (int)space->getNDim() != ndim)
+    {
+      messerr("Mismatch between the space dimension in 'space' (%d)",
+              (int)space->getNDim());
+      messerr("and the Space dimension stored in the Model (%d)", ndim);
+      messerr("Operation is cancelled");
+      return nullptr;
+    }
+    ndim = (int)space->getNDim();
+  }
+  if (ndim <= 0)
+  {
+    messerr("You must define the SPace dimension");
+    return nullptr;
+  }
+
+  int nvar = 0;
+  if (!sills.empty())
+  {
+    if (nvar > 0 && nvar != sills.getNCols())
+    {
+      messerr("Mismatch between the number of rows 'sills' (%d)", sills.getNRows());
+      messerr("and the Number of variables stored in the Model (%d)", nvar);
+      messerr("Operation is cancelled");
+      return nullptr;
+    }
+    nvar = (int)sqrt((double)sills.size());
+  }
+  if (nvar <= 0) nvar = 1;
+
+  // Define the covariance
+
+  const CovContext& ctxt = CovContext(nvar, space);
+  CovAniso* cov          = new CovAniso(type, ctxt);
+
+  // Define the Third parameter
+  double parmax = cov->getParMax();
+  if (param > parmax) param = parmax;
+  cov->setParam(param);
+
+  // Define the range
+  if (!ranges.empty())
+  {
+    if (flagRange)
+      cov->setRanges(ranges);
+    else
+      cov->setScales(ranges);
+  }
+  else
+  {
+    if (flagRange)
+      cov->setRangeIsotropic(range);
+    else
+      cov->setScale(range);
+  }
+
+  // Define the sill
+  if (!sills.empty())
+    cov->setSill(sills);
+  else
+  {
+    if (nvar <= 1)
+      cov->setSill(sill);
+    else
+    {
+      MatrixSquareSymmetric locsills(nvar);
+      locsills.setIdentity(sill);
+      cov->setSill(locsills);
+    }
+  }
+
+  if (!angles.empty()) cov->setAnisoAngles(angles);
+  return cov;
+}
 
 Array CovAniso::evalCovFFT(const VectorDouble& hmax,
                            int N,

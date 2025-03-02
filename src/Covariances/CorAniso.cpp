@@ -631,12 +631,9 @@ String CorAniso::toString(const AStringFormat* strfmt) const
   sstr << _corfunc->toString(strfmt);
   sstr << toStringParams(strfmt);
   
-   
   // Non-stationary parameters
-
   return sstr.str();
 }
-
 
 /*****************************************************************************/
 /*!

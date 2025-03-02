@@ -111,41 +111,42 @@ public:
                   const VectorDouble& angles         = VectorDouble(),
                   const ASpaceSharedPtr& space       = ASpaceSharedPtr(),
                   bool flagRange                     = true);
-  static Model* createFromParamOldStyle(const ECov& type = ECov::fromKey("NUGGET"),
-                          double range               = 1.,
-                          double sill                = 1.,
-                          double param               = 1.,
-                          const VectorDouble& ranges = VectorDouble(),
-                          const VectorDouble& sills  = VectorDouble(),
-                          const VectorDouble& angles = VectorDouble(),
-                          const ASpaceSharedPtr& space = ASpaceSharedPtr(),
-                          bool flagRange             = true);
+  static Model* createFromParamOldStyle(const ECov& type             = ECov::fromKey("NUGGET"),
+                                        double range                 = 1.,
+                                        double sill                  = 1.,
+                                        double param                 = 1.,
+                                        const VectorDouble& ranges   = VectorDouble(),
+                                        const VectorDouble& sills    = VectorDouble(),
+                                        const VectorDouble& angles   = VectorDouble(),
+                                        const ASpaceSharedPtr& space = ASpaceSharedPtr(),
+                                        bool flagRange               = true);
   static Model* createFromDb(const Db* db);
   static Model* createFromNF(const String& neutralFilename,
                              bool verbose = true);
   static Model* createFromVario(Vario* vario,
-                  const VectorECov& types = ECov::fromKeys({"SPHERICAL"}),
-                  const Constraints& constraints = Constraints(),
-                  const Option_VarioFit& optvar  = Option_VarioFit(),
-                  const Option_AutoFit& mauto    = Option_AutoFit(),
-                  bool verbose                   = false);
+                                const VectorECov& types        = ECov::fromKeys({"SPHERICAL"}),
+                                const Constraints& constraints = Constraints(),
+                                const Option_VarioFit& optvar  = Option_VarioFit(),
+                                const Option_AutoFit& mauto    = Option_AutoFit(),
+                                bool verbose                   = false);
   static Model* createFillRandom(int ndim,
                                  int nvar,
                                  const std::vector<ECov>& types = ECov::fromKeys({"SPHERICAL"}),
                                  double hmax                    = 1,
-                                 int order                      = -1,
+                                 int order                      = -1,test_gneiting
+                                 
                                  int nfex                       = 0,
                                  int seed                       = 13242);
   void setCovAnisoList(const CovAnisoList* covalist);
   void addCov(const CovAniso* cov);
   void addCovFromParam(const ECov& type,
-                  double range                       = EPSILON6,
-                  double sill                        = 1.,
-                  double param                       = 1.,
-                  const VectorDouble& ranges         = VectorDouble(),
-                  const MatrixSquareSymmetric& sills = MatrixSquareSymmetric(),
-                  const VectorDouble& angles         = VectorDouble(),
-                  bool flagRange                     = true);
+                       double range                       = EPSILON6,
+                       double sill                        = 1.,
+                       double param                       = 1.,
+                       const VectorDouble& ranges         = VectorDouble(),
+                       const MatrixSquareSymmetric& sills = MatrixSquareSymmetric(),
+                       const VectorDouble& angles         = VectorDouble(),
+                       bool flagRange                     = true);
   void addCovFromParamOldStyle(const ECov& type,
                                double range               = EPSILON6,
                                double sill                = 1.,
@@ -154,7 +155,7 @@ public:
                                const VectorDouble& sills  = VectorDouble(),
                                const VectorDouble& angles = VectorDouble(),
                                bool flagRange             = true);
- 
+
   FORWARD_METHOD(castInCovAnisoListConst, getActiveFactor,ITEST)
   FORWARD_METHOD(castInCovAnisoListConst, getCova)
   FORWARD_METHOD(castInCovAnisoListConst, getNCov,ITEST)
@@ -242,7 +243,6 @@ public:
   int stabilize(double percent, bool verbose = false);
   int standardize(bool verbose = false);
 
-  
   static void gofDisplay(double gof,
                          bool byValue                   = true,
                          const VectorDouble& thresholds = {2., 5., 10., 100});
