@@ -98,6 +98,7 @@ public:
   FORWARD_METHOD(getCov, sampleUnitary)
   FORWARD_METHOD(getCov, envelop)
   FORWARD_METHOD(getCov, gofToVario, TEST)
+  FORWARD_METHOD(getCov, isNoStat)
 
   FORWARD_METHOD_NON_CONST(_getCovModify, setContext)
 

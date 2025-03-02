@@ -32,7 +32,6 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Covariances/CovAnisoList.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Calculators/CalcMigrate.hpp"
@@ -118,19 +117,12 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _flagNoMatLC(true)
   , _flagVerr(false)
   , _flagNoStat(false)
-  , _cova(nullptr)
 {
   // _model is a copy of input model to allow modification (still used???)
   if (model != nullptr) _model = (ModelGeneric*) model->clone();
 
-  // Store the pointer casting the input ModelGeneric* into Model*
-  // in order to avoid too many dynamic casts in the code
-  // _cova = model->getCovAnisoListModify();
-  ACov* cov = _model->_getCovModify();
-  _cova = dynamic_cast<CovAnisoList*>(cov);
-  
   if (model != nullptr)
-    _flagNoStat = _cova->isNoStat();
+    _flagNoStat = _model->isNoStat();
 
   // Reset the neighborhood
   if (neigh != nullptr)
@@ -606,8 +598,9 @@ bool KrigingSystem::isReady()
  */
 void KrigingSystem::conclusion()
 {
-  if (_cova != nullptr)
-    _cova->optimizationPostProcess();
+  const ACov* cova = _model->getCov();
+  if (cova != nullptr)
+    cova->optimizationPostProcess();
 }
 
 /**
@@ -644,7 +637,11 @@ int KrigingSystem::estimate(int iech_out)
   if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
   {
     if (_flagFactorKriging)
-      message("\nProcessing Factor %d / %d\n", _cova->getActiveFactor(), _nclasses);
+    {
+      CovLMCAnamorphosis* cova = dynamic_cast<CovLMCAnamorphosis*>(_model->_getCovModify());
+      if (cova != nullptr)
+        message("\nProcessing Factor %d / %d\n", cova->getActiveFactor(), _nclasses);
+    }
 
     mestitle(1, "Target location");
     if (_rankColCok.empty())
@@ -1449,7 +1446,7 @@ int KrigingSystem::setKrigOptFactorKriging(bool flag_factor_kriging)
   }
   else
   {
-    CovLMCAnamorphosis* covAnam = dynamic_cast<CovLMCAnamorphosis*>(_cova);
+    CovLMCAnamorphosis* covAnam = dynamic_cast<CovLMCAnamorphosis*>(_model->_getCovModify());
     if (covAnam == nullptr)
     {
       messerr("Your Model should contain a CovLMCAnamorphosis covariance item");
@@ -1473,7 +1470,7 @@ int KrigingSystem::updKrigOptIclass(int index_class, int nclasses)
     messerr("Use 'setKrigOptFactorKriging()' beforehand");
     return 1;
   }
-  CovLMCAnamorphosis* covAnam = dynamic_cast<CovLMCAnamorphosis*>(_cova);
+  CovLMCAnamorphosis* covAnam = dynamic_cast<CovLMCAnamorphosis*>(_model->_getCovModify());
   if (covAnam == nullptr)
   {
     messerr("Your Model should contain a CovLMCAnamorphosis covariance item");
@@ -1700,10 +1697,10 @@ bool KrigingSystem::_isCorrect()
 bool KrigingSystem::_preparNoStat()
 {
   if (!_flagNoStat) return true;
-  CovAnisoList* cova = dynamic_cast<CovAnisoList*>(_cova);
+  ACov* cova = _model->_getCovModify();
   if (cova == nullptr)
   {
-    messerr("Your Model should contain a CovAnisoList covariance item");
+    messerr("Your Model should contain an ACov item");
     return false;
   }
   cova->manage(_dbin, _dbout);
