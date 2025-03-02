@@ -119,6 +119,9 @@ public:
   const Indirection& getGridIndirect() const { return _gridIndirect; }
   const Indirection& getMeshIndirect() const { return _meshIndirect; }
   void getApexIndicesInPlace(int i, VectorInt& indg) const;
+  int getMeshFromCoordinates(const VectorDouble& coor,
+                             VectorInt& indices,
+                             VectorDouble& lambdas) const;
 
 private:
   int _defineGrid(const VectorDouble& cellsize);
@@ -131,7 +134,7 @@ private:
                   const vect lambda,
                   bool verbose = false) const;
   void _deallocate();
-  void _getGridFromMesh(int imesh, int *node, int *icas) const;
+  void _getGridFromMesh(int imesh, int* node, int* icas) const;
   void _buildMaskInMeshing(const VectorDouble& sel);
   int  _nmeshInCompleteGrid() const;
   bool _addElementToTriplet(NF_Triplet& NF_T,

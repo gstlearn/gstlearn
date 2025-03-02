@@ -205,16 +205,16 @@ MatrixRectangular CovAniso::simulateSpectralOmega(int nb) const
   return _corAniso->simulateSpectralOmega(nb);
 }
 
-double CovAniso::_scaleBySill(int ivar, int jvar, double cov, const CovCalcMode* mode) const
+double CovAniso::_getSillValue(int ivar, int jvar, const CovCalcMode* mode) const
 {
-  if (mode != nullptr && mode->getUnitary()) return cov;
-  return (cov * getSill(ivar, jvar));
+  if (mode != nullptr && mode->getUnitary()) return 1.;
+  return getSill(ivar, jvar);
 }
 
 double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
   double cov = _corAniso->evalCorFromH(0, mode);
-  return _scaleBySill(ivar, jvar, cov, mode);
+  return cov * _getSillValue(ivar, jvar, mode);
 }
 
 double CovAniso::eval(const SpacePoint &p1,
@@ -224,56 +224,7 @@ double CovAniso::eval(const SpacePoint &p1,
                       const CovCalcMode* mode) const
 {
   double cov = _corAniso->evalCor(p1, p2, mode);
-  return _scaleBySill(ivar, jvar, cov, mode);
-}
-
-/**
- * Fill the vector of covariances between each valid SpacePoint (recorded in _p1As)
- * and the target (recorded in _p2A)
- * @param res  Vector of covariances
- * @param ivars Arrays of ranks for the first point
- * @param index1 Arrays of sample indices for the first point
- * @param ivar2 Rank of the variable for the second point
- * @param icol  Rank of the column (variable + sample) for the second point
- * @param mode CovCalcMode structure
- * @param flagSym True if used for a Symmetric matrix (should only fill upper triangle)
- *
- * @remark: The optimized version is not compatible with non-stationarity (except sills).
- * Then no correction must be applied to cov(h)
- */
-void CovAniso::evalOptimInPlace(MatrixRectangular& res,
-                                const VectorInt& ivars,
-                                const VectorVectorInt& index1,
-                                int ivar2,
-                                int icol,
-                                const CovCalcMode *mode,
-                                bool flagSym) const
-{
-  double cov, hoptim;
-  double sill = 1.;
-
-  // Loop on the first variable
-  int irow = 0;
-  for (int rvar1 = 0, nvar1 = (int) ivars.size(); rvar1 < nvar1; rvar1++)
-  {
-    int ivar1 = ivars[rvar1];
-    if (mode == nullptr || ! mode->getUnitary())
-      sill = _sillCur.getValue(ivar1, ivar2);
-
-    // Loop on the first sample
-    int nech1s = (int) index1[rvar1].size();
-    for (int rech1 = 0; rech1 < nech1s; rech1++)
-    {
-      if (!flagSym || irow <= icol)
-      {
-        int iech1 = index1[rvar1][rech1];
-        hoptim = _p2A.getDistance(_p1As[iech1]);
-        cov = _corAniso->evalCorFromH(hoptim, mode);
-        res.updValue(irow, icol, EOperator::ADD, sill * cov);
-      }
-      irow++;
-    }
-  }
+  return cov * _getSillValue(ivar, jvar, mode);
 }
 
 double CovAniso::evalCovOnSphere(double alpha,
@@ -281,8 +232,8 @@ double CovAniso::evalCovOnSphere(double alpha,
                                  bool flagScaleDistance,
                                  const CovCalcMode* mode) const
 {
-  double value = _corAniso->evalCovOnSphere(alpha, degree, flagScaleDistance,mode);
-  return _scaleBySill(0, 0, value, mode);
+  double value = _corAniso->evalCovOnSphere(alpha, degree, flagScaleDistance, mode);
+  return value * _getSillValue(0, 0, mode);
 }
 
 VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool flagCumul) const

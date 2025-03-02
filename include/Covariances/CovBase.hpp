@@ -38,7 +38,6 @@ public:
   virtual int getNVar() const override { return _ctxt.getNVar(); }
   bool isOptimizationInitialized(const Db* db = nullptr) const;
   
-  void optimizationSetTargetByIndex(int iech) const override;
   void loadInfoValues() override;
   void setCholSill(int ivar, int jvar, double val) const;
   void setSill(double sill) const; /// Only valid when there is only one variable (in the context)
@@ -113,7 +112,8 @@ protected:
 private:
   void _setContext(const CovContext& ctxt) override;
 
-  void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
+  void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
+  SpacePoint& _optimizationLoadInPlace(int iech, int mode, int rank) const override;
   void _optimizationPostProcess() const override;
 
   void _evalOptim(SpacePoint* p1A,
@@ -122,7 +122,7 @@ private:
                   const CovCalcMode* mode) const;
 
   void _load(const SpacePoint& p, bool case1) const override;
-  void _optimizationSetTarget(const SpacePoint& pt) const override;
+  void _optimizationSetTarget(SpacePoint& pt) const override;
 
 protected:
     MatrixT<ParamInfo> _cholSillsInfo;

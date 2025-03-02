@@ -40,8 +40,11 @@ public:
   }
   /// ACov Interface
 
+
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
+                      int ivar                = 0,
+                      int jvar                = 0,
                       int ivar                = 0,
                       int jvar                = 0,
                       const CovCalcMode* mode = nullptr) const override;
@@ -53,7 +56,7 @@ protected:
   void _optimizationSetTarget(const SpacePoint& pt) const override;
 
 private:
-  void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
+  void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
   void _optimizationPostProcess() const override;
 
 private:

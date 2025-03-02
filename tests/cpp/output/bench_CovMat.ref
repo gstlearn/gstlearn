@@ -1,13 +1,13 @@
 RHS between:
+- each active sample (90 out of 100) of the input data base
 - each one of the 100000 target sites
-- all (active) samples (90) of the input data base
 (For checking purpose, a Selection has been added)
 Statistics are provided on the averaged RHS
 
 Traditional solution
 --------------------
 Double loop on the input and output points
-#NO_DIFF# Establishing RHS: 2221 ms. (Ref = 3900 ms.)
+#NO_DIFF# Establishing RHS: 1324 ms. (Ref = 3900 ms.)
 - Number of samples = 90 / 90
 - Minimum  = 0.087682
 - Maximum  = 0.269929
@@ -16,7 +16,7 @@ Semi_optimized solution
 -----------------------
 Input samples are pre-transformed into vector of space points
 Simple loop between each target and the previous vector
-#NO_DIFF# Establishing RHS (semi-optimized): 419 ms. (Ref = 600 ms.)
+#NO_DIFF# Establishing RHS (semi-optimized): 703 ms. (Ref = 600 ms.)
 - Number of samples = 90 / 90
 - Minimum  = 0.087682
 - Maximum  = 0.269929
@@ -25,7 +25,7 @@ Optimized solution
 ------------------
 Input samples are pre-transformed into vector of (anisotropic) space points
 Simple loop between each target and the previous vector
-#NO_DIFF# Establishing RHS (optimized): 310 ms. (Ref = 300 ms.)
+#NO_DIFF# Establishing RHS (optimized): 880 ms. (Ref = 300 ms.)
 - Number of samples = 90 / 90
 - Minimum  = 0.087682
 - Maximum  = 0.269929

@@ -57,8 +57,8 @@ int main(int argc, char* argv[])
 
   // Printout
   message("RHS between:\n");
-  message("- each one of the %d target sites\n",nout);
-  message("- all (active) samples (%d) of the input data base\n",ndat);
+  message("- each active sample (%d out of %d) of the input data base\n",ndat, nall);
+  message("- each one of the %d target sites\n", nout);
   message("(For checking purpose, a Selection has been added)\n");
   message("Statistics are provided on the averaged RHS\n");
 

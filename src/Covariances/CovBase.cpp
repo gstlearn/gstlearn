@@ -210,31 +210,21 @@ void CovBase::_copyCovContext(const CovContext &ctxt)
 }
 
 /**
- * Define the Second Space Point as coinciding with the Input Space Point 'iech'.
- * Note that, as the Input Space Points are already transformed in the basis
- * of the current structure, it is just an assignment.
- *
- * @param iech Rank of the sample among the recorded Space Points
- */
-void CovBase::optimizationSetTargetByIndex(int iech) const
-{
-  if (_isOptimPreProcessed)
-  {
-    _p2A = _p1As[iech];
-    _p2A.setTarget(true);
-  }
-}
-
-/**
  * Transform a set of Space Points using the anisotropy tensor
  * The set of resulting Space Points are stored as private member of this.
  * Note that ALL samples are processed, independently from the presence of a selection
  * or checking for heterotopy.
- * @param p vector of SpacePoints
+ * @param mode 1 for p1As; 2for p2As
+ * @param ps vector of SpacePoints
  */
-void CovBase::_optimizationPreProcess(const std::vector<SpacePoint>& p) const
+void CovBase::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const
 {
-  _cor->optimizationPreProcess(p);
+  _cor->optimizationPreProcess(mode, ps);
+}
+
+SpacePoint& CovBase::_optimizationLoadInPlace(int iech, int mode, int rank) const
+{
+  return _cor->optimizationLoadInPlace(iech, mode, rank);
 }
 
 /**
@@ -560,7 +550,7 @@ void CovBase::_load(const SpacePoint& p, bool case1) const
   _cor->load(p, case1);
 }
 
-void CovBase::_optimizationSetTarget(const SpacePoint& pt) const
+void CovBase::_optimizationSetTarget(SpacePoint& pt) const
 {
   _cor->optimizationSetTarget(pt);
 }

@@ -56,10 +56,10 @@ void CovProportional::setCor(ACov* cor)
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void CovProportional::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                                          const SpacePoint &p1,
-                                          const SpacePoint &p2,
-                                          const CovCalcMode *mode) const
+void CovProportional::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                                   const SpacePoint& p1,
+                                                   const SpacePoint& p2,
+                                                   const CovCalcMode* mode) const
 {
   double cor = getCor()->eval(p1, p2, 0, 0, mode);
 

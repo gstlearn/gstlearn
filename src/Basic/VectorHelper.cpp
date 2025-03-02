@@ -321,7 +321,6 @@ double VectorHelper::maximum(const std::vector<std::vector<double>> &vec, bool f
   for (int i = 1, n = (int) vec.size(); i < n; i++)
     val = MAX(val,  VH::maximum(vec[i], flagAbs));
   return val;
-
 }
 
 double VectorHelper::maximum(const VectorVectorDouble& vect, bool flagAbs)

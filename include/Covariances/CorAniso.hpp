@@ -103,11 +103,8 @@ public:
   static bool isOptimizationInitialized(const std::vector<SpacePoint> &p1As,
                                         const Db* db = nullptr);
 
-  void _optimizationPreProcess(const std::vector<SpacePoint>& p) const override;
-  void _optimizationSetTargetByIndex(int iech,
-                                    const std::vector<SpacePoint> &p1As,
-                                    SpacePoint & p2A) const;
-  void _optimizationSetTarget(const SpacePoint& pt) const override;
+  void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
+  void _optimizationSetTarget(SpacePoint& p) const override;
   void _optimizationPostProcess() const override;
   bool isNoStat() const override;
   bool isValidForTurningBand() const;
@@ -300,7 +297,6 @@ private:
                                               EConsElem::SCALE,
                                               EConsElem::TENSOR,
                                               EConsElem::ANGLE};
-  mutable bool _isOptimizationPreProcessed;
   mutable bool _optimEnabled;
   // These temporary information is used to speed up processing (optimization functions)
   // They are in a protected section as they may be modified by class hierarchy

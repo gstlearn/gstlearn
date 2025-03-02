@@ -22,22 +22,22 @@
 #include <math.h>
 
 SpacePoint::SpacePoint(const ASpaceSharedPtr& space)
-: ASpaceObject(space),
-  _coord(),
-  _iech(-1),
-  _target(false)
+  : ASpaceObject(space)
+  , _coord()
+  , _iech(-1)
+  , _isProjected(false)
 {
-  
+
   // Initialize the point to the space origin
   // TODO : Not true whatever the space
   _coord = getOrigin();
 }
 
 SpacePoint::SpacePoint(const SpacePoint& r)
-: ASpaceObject(r)
-,_coord(r._coord)
-,_iech(r._iech)
-,_target(r._target)
+  : ASpaceObject(r)
+  , _coord(r._coord)
+  , _iech(r._iech)
+  , _isProjected(r._isProjected)
 {
 }
 
@@ -45,7 +45,7 @@ SpacePoint::SpacePoint(const VectorDouble& coord, int iech, const ASpaceSharedPt
   : ASpaceObject(space)
   , _coord(coord)
   , _iech(iech)
-  , _target(false)
+  , _isProjected(false)
 {
   if (coord.size() == 0 || coord.size() != getNDim())
   {
@@ -72,9 +72,9 @@ SpacePoint& SpacePoint::operator=(const SpacePoint& r)
   if (this != &r)
   {
     ASpaceObject::operator=(r);
-    _coord  = r._coord;
-    _iech   = r._iech;
-    _target = r._target;
+    _coord       = r._coord;
+    _iech        = r._iech;
+    _isProjected = r._isProjected;
   }
   return *this;
 }
@@ -106,15 +106,13 @@ SpacePoint SpacePoint::spacePointOnSubspace(int ispace) const
   VectorDouble vec = getSpace()->projCoord(_coord, ispace);
   const auto sp = getSpace()->getComponent(ispace);
   SpacePoint p(vec, _iech, sp);
-  p.setTarget(_target);
   return p;
 }
 
 void SpacePoint::setCoords(const double* coord, int size)
 {
   if ((int)getNDim() != size)
-    std::cout << "Error: Wrong number of coordinates. Point not modified."
-              << std::endl;
+    std::cout << "Error: Wrong number of coordinates. Point not modified." << std::endl;
   else
     for (int idim = 0; idim < size; idim++)
      _coord[idim] = coord[idim];
