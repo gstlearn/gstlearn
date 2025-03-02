@@ -149,7 +149,7 @@ bool ACalcInterpolator::_check()
 
   if (_model != nullptr)
   {
-    if (_model->getNCov() <= 0)
+    if (_model->getCov() == nullptr)
     {
       messerr("The number of covariance must be positive");
       return false;

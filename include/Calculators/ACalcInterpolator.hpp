@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Model/ModelGeneric.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Calculators/ACalcDbToDb.hpp"

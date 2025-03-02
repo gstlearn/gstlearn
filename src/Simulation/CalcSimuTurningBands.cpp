@@ -95,8 +95,8 @@ bool CalcSimuTurningBands::_resize()
 
 int CalcSimuTurningBands::_getAddressBand(int ivar, int is, int ib, int isimu)
 {
+  int nvar  = _getNVar();
   int ncova = _getNCov();
-  int nvar = _getNVar();
   return ivar+nvar*((is)+ncova*((ib)+_nbtuba*(isimu)));
 }
 
@@ -124,8 +124,8 @@ int CalcSimuTurningBands::_getSeedBand(int ivar, int is, int ib, int isimu)
 int CalcSimuTurningBands::_generateDirections(const Db* dbout)
 {
   double x[2];
-  int ndim = _getNDim();
-  int ncova = _getNCov();
+  int ndim   = _getNDim();
+  int ncova  = _getNCov();
   int nbsimu = getNbSimu();
   int nbands = getNDirs();
 
@@ -410,9 +410,9 @@ int CalcSimuTurningBands::_initializeSeedBands()
   /* Initializations */
 
   _setDensity();
-  int ncova  = _getNCov();
-  int nvar   = _getNVar();
-  int nbsimu = getNbSimu();
+  int ncova     = _getNCov();
+  int nvar      = _getNVar();
+  int nbsimu    = getNbSimu();
   double theta1 = 1. / _theta;
 
   /* Loop on the turning bands */
@@ -900,7 +900,6 @@ VectorDouble CalcSimuTurningBands::_createAIC()
 {
   int ncova = _getNCov();
   int nvar  = _getNVar();
-
   VectorDouble aic(ncova * nvar * nvar);
 
   /* Calculate the eigen values and vectors of the coregionalization matrix */
@@ -1071,12 +1070,12 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
                                           int icase,
                                           int shift)
 {
-  int nech   = db->getNSample();
-  int ncova  = _getNCov();
-  int nvar   = _getNVar();
-  int nbsimu = getNbSimu();
+  int nech      = db->getNSample();
+  int ncova     = _getNCov();
+  int nvar      = _getNVar();
+  int nbsimu    = getNbSimu();
   double theta1 = 1. / _theta;
-  double norme = sqrt(1. / _nbtuba);
+  double norme  = sqrt(1. / _nbtuba);
 
   /* Core allocation */
 
@@ -1219,16 +1218,16 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                                          int icase,
                                          int shift)
 {
-  int nbsimu = getNbSimu();
-  double theta1 = 1. / _theta;
-  int nvar   = _getNVar();
-  int ncova  = _getNCov();
-  int ndim   = db->getNDim();
-  int nx     = (ndim >= 1) ? db->getNX(0) : 1;
-  int ny     = (ndim >= 2) ? db->getNX(1) : 1;
-  int nz     = (ndim >= 3) ? db->getNX(2) : 1;
-  int nech   = nx * ny * nz;
-  double norme  = sqrt(1. / _nbtuba);
+  int nbsimu             = getNbSimu();
+  double theta1          = 1. / _theta;
+  int nvar               = _getNVar();
+  int ncova              = _getNCov();
+  int ndim               = db->getNDim();
+  int nx                 = (ndim >= 1) ? db->getNX(0) : 1;
+  int ny                 = (ndim >= 2) ? db->getNX(1) : 1;
+  int nz                 = (ndim >= 3) ? db->getNX(2) : 1;
+  int nech               = nx * ny * nz;
+  double norme           = sqrt(1. / _nbtuba);
   VectorBool activeArray = db->getActiveArray();
 
   /* Core allocation */
@@ -1552,12 +1551,14 @@ void CalcSimuTurningBands::_getOmegaPhi(int ibs,
  ** \param[in]  icase      Rank of PGS or GRF
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int icase)
+void CalcSimuTurningBands::_simulateNugget(Db* db,
+                                           const VectorDouble& aic,
+                                           int icase)
 {
-  int nech = db->getNSample();
-  int ncova = _getNCov();
-  int nvar = _getNVar();
-  int nbsimu = getNbSimu();
+  int nech               = db->getNSample();
+  int ncova              = _getNCov();
+  int nvar               = _getNVar();
+  int nbsimu             = getNbSimu();
   VectorBool activeArray = db->getActiveArray();
 
   /* Do nothing if there is no nugget effect in the model */
