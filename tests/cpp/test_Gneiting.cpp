@@ -83,8 +83,8 @@ int main(int argc, char* argv[])
   NeighUnique* neigh = NeighUnique::create();
 
   // Create the Model
-  ModelGeneric* model;
-  // model->addCov(covGneiting);
+  // ModelGeneric* model = new ModelGeneric();
+  // model->setCov(&covGneiting);
 
   delete covT;
   delete covS;
