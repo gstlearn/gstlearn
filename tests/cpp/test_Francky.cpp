@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
 
-  model->getCova(0)->makeAngleNoStatFunctional(&spirale);
+  model->getCovAniso(0)->makeAngleNoStatFunctional(&spirale);
 
   // Simulating variable at data location (using SPDE)
   int useCholesky = 0;

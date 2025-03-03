@@ -568,7 +568,7 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
     hmax = 0
     for (icova in 1:model$getNCov())
     {
-      range_max = max(model$getCova(icova-1)$getRanges())
+      range_max = max(model$getCovAniso(icova-1)$getRanges())
       if (3*range_max > hmax)
         hmax = 3*range_max
     }

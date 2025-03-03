@@ -137,7 +137,7 @@ public:
                                  int nfex                       = 0,
                                  int seed                       = 13242);
   void setCovAnisoList(const CovAnisoList* covalist);
-  void addCov(const CovAniso* cov);
+  void addCov(const CovBase* cov) override;
   void addCovFromParam(const ECov& type,
                        double range                       = EPSILON6,
                        double sill                        = 1.,
@@ -156,7 +156,7 @@ public:
                                bool flagRange             = true);
 
   FORWARD_METHOD(castInCovAnisoListConst, getActiveFactor,ITEST)
-  FORWARD_METHOD(castInCovAnisoListConst, getCova)
+  FORWARD_METHOD(castInCovAnisoListConst, getCovAniso)
   FORWARD_METHOD(castInCovAnisoListConst, getNCov,ITEST)
   FORWARD_METHOD(castInCovAnisoListConst, getCovType, ECov::UNKNOWN)
   FORWARD_METHOD(castInCovAnisoListConst, getRange, TEST)
@@ -181,7 +181,7 @@ public:
   FORWARD_METHOD(castInCovAnisoListConst, getCovMode, EModelProperty::NONE)
 
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setActiveFactor)
-  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, getCova)
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, getCovAniso)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setSill)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setSills)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setRangeIsotropic)

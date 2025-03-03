@@ -67,6 +67,31 @@ CovBase::CovBase(ACov* cor,
 
 }
 
+CovBase::CovBase(const CovBase& r)
+  : ACov(r)
+{
+  _cholSillsInfo = r._cholSillsInfo;
+  _cholSills     = r._cholSills;
+  _tabNoStat     = r._tabNoStat;
+  _sillCur       = r._sillCur;
+  _workMat       = r._workMat;
+  _cor           = (ACov*) r._cor->clone();
+}
+
+CovBase& CovBase::operator=(const CovBase& r)
+{
+  if (this != &r)
+  {
+    _cholSillsInfo = r._cholSillsInfo;
+    _cholSills     = r._cholSills;
+    _tabNoStat     = r._tabNoStat;
+    _sillCur       = r._sillCur;
+    _workMat       = r._workMat;
+    _cor           = (ACov*)r._cor->clone();
+  }
+  return *this;
+}
+
 CovBase::~CovBase()
 {
 

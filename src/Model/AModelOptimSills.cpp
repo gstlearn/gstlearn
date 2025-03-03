@@ -1030,7 +1030,7 @@ void AModelOptimSills::_printResults(double crit) const
     int ncov           = model->getNCov();
     for (int icov = 0; icov < ncov; icov++)
     {
-      const CovAniso* cova = model->getCova(icov);
+      const CovAniso* cova = model->getCovAniso(icov);
       message("Cost Function (Sill Fitting) (");
       for (int ivar = 0; ivar < _nvar; ivar++)
         for (int jvar = 0; jvar < _nvar; jvar++)

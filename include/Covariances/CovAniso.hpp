@@ -42,7 +42,7 @@ class CovInternal;
  * All these parameters are processed and stored as a **tensor** in order to avoid repetitive calculations.
  * - the **sill**. This comes as a square symmetric matrix whose dimension is equal to the number of variables.
  */
-class GSTLEARN_EXPORT CovAniso: public CovProportional, public ICloneable
+class GSTLEARN_EXPORT CovAniso: public CovProportional
 {
 public:
   CovAniso(const ECov& type, const CovContext& ctxt);

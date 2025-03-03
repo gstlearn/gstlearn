@@ -33,6 +33,22 @@ ParamInfo::ParamInfo(const ParamInfo& other)
 {
 }
 
+ParamInfo& ParamInfo::operator=(const ParamInfo& other)
+{
+  if (this != &other)
+  {
+    AStringable::operator=(other);
+    _name           = other._name;
+    _value          = other._value;
+    _currentValue   = other._currentValue;
+    _absoluteBounds = other._absoluteBounds;
+    _userBounds     = other._userBounds;
+    _isFixed        = other._isFixed;
+    _description    = other._description;
+  }
+  return *this;
+}
+
 ParamInfo::~ParamInfo()
 {
 

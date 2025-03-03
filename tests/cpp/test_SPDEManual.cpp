@@ -58,12 +58,12 @@ int main(int argc, char *argv[])
   // Creating the Model
   Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 45.});
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  model->getCova(0)->makeAngleNoStatFunctional(&spirale);
+  model->getCovAniso(0)->makeAngleNoStatFunctional(&spirale);
 
   /////////////////////////////////////////////////
   // Creating the Precision Operator for simulation
   
-  CovAniso* cova = model->getCova(0);
+  CovAniso* cova = model->getCovAniso(0);
   ShiftOpMatrix S(&mesh, cova, workingDbc);
   PrecisionOp Qsimu(&S, cova);
 

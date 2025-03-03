@@ -73,9 +73,9 @@ CovLMCAnamorphosis::~CovLMCAnamorphosis()
 
 int CovLMCAnamorphosis::init(const VectorInt& anam_strcnt)
 {
-  for (auto &e: _covAnisos)
+  for (auto &e: _covs)
   {
-    e->setOptimEnabled(false);
+    ((CovAniso*)e)->setOptimEnabled(false);
   }
   if (_anam == nullptr)
   {
@@ -579,7 +579,7 @@ EAnam CovLMCAnamorphosis::getAnamType() const
   return _anam->getType();
 }
 
-void CovLMCAnamorphosis::addCovAniso(const CovAniso* cov)
+void CovLMCAnamorphosis::addCov(const CovBase* cov)
 {
   // In this context, check that the Covariance is monovariate
 

@@ -183,7 +183,7 @@ int CalcSimuTurningBands::_generateDirections(const Db* dbout)
     for (int is = 0; is < ncova; is++)
       for (int ib = 0; ib < _nbtuba; ib++, ibs++)
       {
-        const CovAniso* cova = getModel()->getCova(is);
+        const CovAniso* cova = getModel()->getCovAniso(is);
 
         // If the covariance has no Range (i.e. Nugget Effect), the rest is non-sense.
         // Nevertheless this code is maintained in order not to disorganize
@@ -942,7 +942,7 @@ void CalcSimuTurningBands::_spreadRegularOnGrid(int nx,
                                                 const VectorBool &activeArray,
                                                 VectorDouble &tab)
 {
-  CovAniso* cova = getModel()->getCova(is);
+  CovAniso* cova = getModel()->getCovAniso(is);
   double t0y, t0z, t0;
 
   ECov type = getModel()->getCovType(is);
@@ -983,7 +983,7 @@ void CalcSimuTurningBands::_spreadSpectralOnGrid(int nx,
                                                  const VectorBool &activeArray,
                                                  VectorDouble &tab)
 {
-  CovAniso* cova = getModel()->getCova(is);
+  CovAniso* cova = getModel()->getCovAniso(is);
   double c1, s1, c0x, s0x, c0y, s0y, c0z, s0z, cxp, sxp, cyp, syp, czp, szp;
 
   _getOmegaPhi(ibs, operTB, &cxp, &sxp, &cyp, &syp, &czp, &szp, &c0z, &s0z);
@@ -1027,7 +1027,7 @@ void CalcSimuTurningBands::_spreadRegularOnPoint(const Db *db,
                                                  const VectorBool &activeArray,
                                                  VectorDouble &tab)
 {
-  CovAniso* cova = getModel()->getCova(is);
+  CovAniso* cova = getModel()->getCovAniso(is);
   double t0;
   for (int iech = 0, nech = db->getNSample(); iech < nech; iech++)
   {
@@ -1044,7 +1044,7 @@ void CalcSimuTurningBands::_spreadSpectralOnPoint(const Db* db,
                                                   const VectorBool &activeArray,
                                                   VectorDouble &tab)
 {
-  CovAniso* cova = getModel()->getCova(is);
+  CovAniso* cova = getModel()->getCovAniso(is);
   double t0;
   for (int iech = 0, nech = db->getNSample(); iech < nech; iech++)
   {
@@ -2089,7 +2089,7 @@ bool CalcSimuTurningBands::isValidForTurningBands(const Model *model)
 
   for (int is = 0; is < model->getNCov(); is++)
   {
-    if (! model->getCova(is)->isValidForTurningBand()) return false;
+    if (! model->getCovAniso(is)->isValidForTurningBand()) return false;
   }
   return true;
 }

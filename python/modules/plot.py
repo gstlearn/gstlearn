@@ -667,7 +667,7 @@ def __ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
     if hmax is None:
         hmax = 0
         for icova in range(modelobj.getNCov()):
-            range_max = np.max(modelobj.getCova(icova).getRanges())
+            range_max = np.max(modelobj.getCovAniso(icova).getRanges())
             if 3*range_max > hmax:
                 hmax = 3*range_max
     if hmax == 0: # if the model has no range defined

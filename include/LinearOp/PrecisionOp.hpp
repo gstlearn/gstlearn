@@ -111,7 +111,6 @@ public:
 
 protected:
   APolynomial*     getPoly(const EPowerPT& power);
-  const CovAniso*  getCova() const {return _cova;}
 
 #ifndef SWIG
 

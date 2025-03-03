@@ -52,9 +52,9 @@ CovLMCTapering::~CovLMCTapering()
 
 int CovLMCTapering::init(const ETape& tapetype, double taperange)
 {
-  for (auto &e: _covAnisos)
+  for (auto &e: _covs)
   {
-    e->setOptimEnabled(false);
+    ((CovAniso*)e)->setOptimEnabled(false);
   }
   /* Preliminary check */
 

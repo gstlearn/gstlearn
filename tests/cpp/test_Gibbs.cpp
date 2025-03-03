@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
   // Creating the meshing for extracting Q
 
   MeshETurbo mesh(dbgrid);
-  auto P = PrecisionOpMatrix(&mesh, model1->getCova(0));
+  auto P = PrecisionOpMatrix(&mesh, model1->getCovAniso(0));
   const MatrixSparse* Qref = P.getQ();
   MatrixSparse* Q = new MatrixSparse(*Qref);
   int nvertex = mesh.getNApices();

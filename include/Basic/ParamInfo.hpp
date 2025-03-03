@@ -22,7 +22,7 @@ public:
               const std::array<double,2>& absoluteBounds = {-INF, INF},
               const std::string& description = "");
     ParamInfo(const ParamInfo& other);
-    ParamInfo& operator=(const ParamInfo& other) = delete;
+    ParamInfo& operator=(const ParamInfo& other);
     virtual ~ParamInfo();
 
     void setValueDefault(double val) {_value = val;};
@@ -37,12 +37,12 @@ public:
     String toString(const AStringFormat* strfmt = nullptr) const override;
 
 private:
-    String _name;
-    double _value;
-    mutable double _currentValue;
-    const std::array<double,2> _absoluteBounds;
-          std::array<double,2> _userBounds;
-    bool  _isFixed;
-    const String _description;
+  String _name;
+  double _value;
+  mutable double _currentValue;
+  std::array<double, 2> _absoluteBounds;
+  std::array<double, 2> _userBounds;
+  bool _isFixed;
+  String _description;
 };
 

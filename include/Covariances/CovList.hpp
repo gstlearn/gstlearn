@@ -41,8 +41,8 @@ class GSTLEARN_EXPORT CovList : public ACov
 {
 public:
   CovList(const CovContext& ctxt = CovContext());
-  CovList(const CovList &r) = delete;
-  CovList& operator= (const CovList &r) = delete;
+  CovList(const CovList &r);
+  CovList& operator= (const CovList &r);
   virtual ~CovList();
 
   /// Interface for ASpaceObject
@@ -80,21 +80,22 @@ public:
   // Filter a covariance
   void setFiltered(int icov, bool filtered);
 
-  int             getNCov() const;
-  bool            isFiltered(int icov) const;
-  virtual double  getTotalSill(int ivar = 0, int jvar = 0) const;
+  int getNCov() const;
+  bool isFiltered(int icov) const;
+  virtual double getTotalSill(int ivar = 0, int jvar = 0) const;
   MatrixSquareSymmetric getTotalSills() const;
-  bool            isAllActiveCovList() const;
-  bool            isNoStat() const override;
+  bool isAllActiveCovList() const;
+  bool isNoStat() const override;
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
-  const CovBase*    getCova(int icov) const;
+  const CovBase* getCov(int icov) const;
   virtual String getCovName(int icov) const;
   virtual const ECov& getCovType(int icov) const;
-  virtual void      setCova(int icov, const CovBase* covs);
-  void               setSill(int icov, int ivar, int jvar, double value);
+  virtual void setCov(int icov, const CovBase* covs);
+  void setSill(int icov, int ivar, int jvar, double value);
+  void setSills(int icov, const MatrixSquareSymmetric& sills);
   const MatrixSquareSymmetric& getSills(int icov) const;
-  double             getSill(int icov, int ivar, int jvar) const;
+  double getSill(int icov, int ivar, int jvar) const;
 
   // Methods necessary for Optimization
   void _optimizationPreProcess(int mode, const std::vector<SpacePoint> &ps) const override;
@@ -106,6 +107,9 @@ public:
   void setActiveCovListFromInterval(int inddeb, int indto) const;
   void setActiveCovList(const VectorInt& activeCovList, bool allActiveCov) const;
 
+  void copyCovContext(const CovContext& ctxt) override;
+  void normalize(double sill = 1., int ivar = 0, int jvar = 0);
+
 protected:
   bool _isCovarianceIndexValid(int icov) const;
   void _load(const SpacePoint& p, bool case1) const override;
@@ -115,6 +119,7 @@ protected:
   void _updateLists();
 
 private:
+  void _setContext(const CovContext& ctxt) override;
   virtual void _delCov(int icov) { DECLARE_UNUSED(icov) };
   // Remove all elementary covariance structures
   virtual void _delAllCov(){};
@@ -123,7 +128,7 @@ private:
 #ifndef SWIG
 
 protected:
-  std::vector<const CovBase*> _covs;   /// Vector of elementary covariances
+  std::vector<CovBase*> _covs;         /// Vector of elementary covariances
   VectorBool _filtered;                /// Vector of filtered flags (size is nb. cova)
   mutable bool _allActiveCov;          /*! True if all covariances are active */
   mutable VectorInt _allActiveCovList; /*! List of indices of all covariances */

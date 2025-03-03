@@ -24,7 +24,7 @@ class CorAniso;
  * This class describes the Gneiting correlation function.
  *
  */
-class GSTLEARN_EXPORT CorGneiting: public ACov, public ICloneable
+class GSTLEARN_EXPORT CorGneiting: public ACov
 {
 public:
   CorGneiting(const CorAniso* covS, const CorAniso* covTemp, double separability = 1.0);
@@ -39,8 +39,6 @@ public:
     return true;
   }
   /// ACov Interface
-
-
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
                       int ivar                = 0,

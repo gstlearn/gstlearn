@@ -280,7 +280,7 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
 
     for (int icov = 0; icov < model->getNCov(); icov++)
     {
-      ACov* cova = model->getCova(icov);
+      ACov* cova = model->getCovAniso(icov);
       for (int idim = 0; idim < _ndim; idim++) d1[idim] = 0.;
 
       /* Loop on the experiments */

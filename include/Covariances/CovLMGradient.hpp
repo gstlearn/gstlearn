@@ -34,7 +34,7 @@ public:
   IMPLEMENT_CLONING(CovLMGradient)
 
   // Add an elementary covariance structure
-  virtual void addCovAniso(const CovAniso* cov) override;
+  virtual void addCov(const CovBase* cov) override;
 
   /// ACov interface
   

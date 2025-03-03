@@ -327,30 +327,6 @@ void Model::setCovAnisoList(const CovAnisoList* covalist)
   ModelCovList::setCovList(covalist->clone());
 }
 
-void Model::addCov(const CovAniso *cov)
-{
-  if (cov == nullptr) 
-  {
-    messerr("Error: Covariance is nullptr");
-    return;
-  }
-    
-  if (! cov->getContext().isEqual(_ctxt))
-  {
-    messerr("Error: Covariance should share the same Context as 'Model'");
-    messerr("Operation is cancelled");
-    return;
-  }
-  if (_covList == nullptr)
-  {
-    messerr("Error: Covariance List is nullptr");
-    return;
-  }
-  CovAnisoList* covalist = _castInCovAnisoList();
-  if (covalist == nullptr) return;
-  covalist->addCovAniso(cov);
-}
-
 void Model::addCovFromParamOldStyle(const ECov& type,
                                     double range,
                                     double sill,
@@ -552,7 +528,7 @@ double Model::evalCov(const VectorDouble &incr,
 
   if (member != ECalcMember::LHS && covalist->isFiltered(icov))
     return (0.);
-  return getCova(icov)->evalIvarIpas(1., incr);
+  return getCovAniso(icov)->evalIvarIpas(1., incr);
 }
 
 
@@ -856,7 +832,7 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
     }
     else
       cova.setRangeIsotropic(range);
-    covs.addCovAniso(&cova);
+    covs.addCov(&cova);
   }
   setCovAnisoList(&covs);
 
@@ -926,7 +902,7 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
 
   for (int icova = 0; ret && icova < getNCov(); icova++)
   {
-    const CovAniso *cova = getCova(icova);
+    const CovAniso *cova = getCovAniso(icova);
     ret = ret && _recordWrite<int>(os, "", cova->getType().getValue());
     ret = ret && _recordWrite<double>(os, "", cova->getRange());
     ret = ret && _recordWrite<double>(os, "Covariance characteristics", cova->getParam());
@@ -1005,6 +981,15 @@ void Model::_create()
   _driftList = new DriftList(_ctxt);
 }
 
+void Model::addCov(const CovBase* cov)
+{
+  if (dynamic_cast<const CovAniso*>(cov) == nullptr)
+  {
+    messerr("The argument should be of type 'CovAniso*'");
+    return;
+  }
+  ModelCovList::addCov(cov);
+}
 
 Model* Model::duplicate() const
 {
@@ -1057,7 +1042,7 @@ bool Model::isFlagGradientNumerical() const
   // Check is performed on the first covariance
   const CovAnisoList* covalist = castInCovAnisoListConst(0);
   if (covalist == nullptr) return false;
-  const CovGradientNumerical* cova = dynamic_cast<const CovGradientNumerical*>(covalist->getCova(0));
+  const CovGradientNumerical* cova = dynamic_cast<const CovGradientNumerical*>(covalist->getCovAniso(0));
   return (cova != nullptr);
 }
 
@@ -1068,7 +1053,7 @@ bool Model::isFlagGradientFunctional() const
   // Check is performed on the first covariance
   const CovAnisoList* covalist = castInCovAnisoListConst(0);
   if (covalist == nullptr) return false;
-  const CovGradientFunctional* cova = dynamic_cast<const CovGradientFunctional*>(covalist->getCova(0));
+  const CovGradientFunctional* cova = dynamic_cast<const CovGradientFunctional*>(covalist->getCovAniso(0));
   return (cova != nullptr);
 }
 
@@ -1270,7 +1255,7 @@ int Model::stabilize(double percent, bool verbose)
   double total = 0.;
   for (int icov = 0; icov < ncov; icov++)
   {
-    if (getCova(icov)->getType() != ECov::GAUSSIAN) return (0);
+    if (getCovAniso(icov)->getType() != ECov::GAUSSIAN) return (0);
     total += getSill(icov, 0, 0);
   }
   total = total * percent / 100.;

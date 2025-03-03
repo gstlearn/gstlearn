@@ -125,7 +125,7 @@ void AModelOptim::_updateModelParamList(double distmax_def,
   {
     OneParam& param      = _modelPart._params[iparam];
     int icov             = param._icov;
-    const CovAniso* cova = model->getCova(icov);
+    const CovAniso* cova = model->getCovAniso(icov);
 
     value = 1.;
     scale = 1.;
@@ -260,7 +260,7 @@ int AModelOptim::_buildModelParamList()
 
   for (int icov = 0, ncov = model->getNCov(); icov < ncov; icov++)
   {
-    const CovAniso* cova = model->getCova(icov);
+    const CovAniso* cova = model->getCovAniso(icov);
     bool flagSill        = true;
     bool flagRange       = cova->hasRange() > 0;
     bool flagAniso       = cova->hasRange() != 0 && _modelPart._optvar.getAuthAniso();
@@ -381,7 +381,7 @@ int AModelOptim::_buildModelParamList()
       int icov              = param._icov;
       int rank              = param._rank;
       double scale          = param._scale;
-      CovAniso* cova        = modelPart._model->getCova(icov);
+      CovAniso* cova        = modelPart._model->getCovAniso(icov);
 
       if (param._type == EConsElem::RANGE)
       {
@@ -403,7 +403,7 @@ int AModelOptim::_buildModelParamList()
           // Export the Anisotropy Rotation information to all covariances
           for (int jcov = 0; jcov < ncov; jcov++)
           {
-            CovAniso* mcova = modelPart._model->getCova(jcov);
+            CovAniso* mcova = modelPart._model->getCovAniso(jcov);
             if (mcova->hasRange() > 0) mcova->setAnisoAngle(rank, angle);
           }
         }

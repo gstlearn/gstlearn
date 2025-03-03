@@ -50,9 +50,9 @@ public:
   const DriftList*  getDriftList()       const { return  _driftList;}
 
 public:
-  ACov* _getCovModify() { return _cova; }
+  ACov*       _getCovModify() { return _cova; }
   CovContext* _getContextModify() { return &_ctxt; }
-  DriftList* _getDriftListModify() { return _driftList; }
+  DriftList*  _getDriftListModify() { return _driftList; }
 
 public:
 

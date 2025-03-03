@@ -121,7 +121,7 @@ void SimuSpectral::_simulateOnRn()
   _gamma = VectorDouble(_ns);
   for (int ib = 0; ib < _ns; ib++)
     _gamma[ib] = sqrt(-log(law_uniform()));
-  _omega = _model->getCova(0)->simulateSpectralOmega(_ns);
+  _omega = _model->getCovAniso(0)->simulateSpectralOmega(_ns);
 }
 
 /**
@@ -137,7 +137,7 @@ void SimuSpectral::_simulateOnSphere(int nd, bool verbose)
   VH::sortInPlace(U);
   double maxU = VH::maximum(U);
 
-  VectorDouble spectrum = _model->getCova(0)->evalSpectrumOnSphere(nd);
+  VectorDouble spectrum = _model->getCovAniso(0)->evalSpectrumOnSphere(nd);
 
   // Simulate vector N
   int n = 0;
@@ -207,7 +207,7 @@ void SimuSpectral::_computeOnRn(Db *dbout, int iuid, bool verbose)
   int nech = dbout->getNSample(true);
 
   // Preparation
-  MatrixSquareGeneral tensor = _model->getCova(0)->getAniso().getTensorInverse();
+  MatrixSquareGeneral tensor = _model->getCovAniso(0)->getAniso().getTensorInverse();
   double scale = sqrt(2. / _ns);
   AMatrix *res = MatrixFactory::prodMatMat(&_omega, &tensor);
 
@@ -542,7 +542,7 @@ bool SimuSpectral::isValidForSpectral(const Model* model)
 
   for (int is = 0; is < model->getNCov(); is++)
   {
-    const CovAniso* cova = model->getCova(is);
+    const CovAniso* cova = model->getCovAniso(is);
     if (! cova->isValidForSpectral())
     {
       messerr("The current structure is not valid for Spectral Simulation on Rn");
