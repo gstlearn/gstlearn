@@ -14,12 +14,12 @@
 // - in Moving and Unique Neighborhood
 // A printout is provided
 
-#include "Basic/NamingConvention.hpp"
-
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Basic/NamingConvention.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"

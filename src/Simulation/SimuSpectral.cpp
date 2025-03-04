@@ -15,6 +15,8 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Model/Model.hpp"
+#include "Covariances/CorAniso.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 
 #include <math.h>

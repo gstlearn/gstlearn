@@ -133,8 +133,8 @@ int CalcGlobal::_globalKriging()
   MatrixRectangular X0;
   MatrixSquareSymmetric Sigma00;
 
-    /* Loop on the targets to be processed */
-    for (int iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
+  /* Loop on the targets to be processed */
+  for (int iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
   {
     mes_process("Kriging sample", dbout->getNSample(), iech);
     if (!dbout->isActive(iech)) continue;
@@ -147,6 +147,7 @@ int CalcGlobal::_globalKriging()
     X0Cum.addMatInPlace(X0);
     ng++;
   }
+
 
   // Normalize the cumulative R.H.S.
   double oneOverNG = 1. / (double)ng;
@@ -218,6 +219,7 @@ int CalcGlobal::_globalKriging()
       message("Q (Estimation * Surface)         = %lf\n", estim * surface);
     message("\n");
   }
+  model->optimizationPostProcess();
   return 0;
 }
 

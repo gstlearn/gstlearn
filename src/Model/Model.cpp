@@ -25,7 +25,6 @@
 #include "Drifts/DriftFactory.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Variogram/Vario.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAnisoList.hpp"

@@ -10,12 +10,15 @@
 /******************************************************************************/
 #include "Model/AModelOptimSills.hpp"
 
+#include "Basic/MathFunc.hpp"
+#include "Covariances/CovAniso.hpp"
+
 #include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
-#include "Basic/MathFunc.hpp"
+
 
 #define IJDIR(ijvar, ipadir) ((ijvar) * _npadir + (ipadir))
 #define WT(ijvar, ipadir)       wt[IJDIR(ijvar, ipadir)]

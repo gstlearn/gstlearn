@@ -46,6 +46,7 @@ CovList::CovList(const CovList& r)
   _allActiveCov = r._allActiveCov;
   _allActiveCovList = r._allActiveCovList;
   _activeCovList = r._activeCovList;
+  _updateLists();
 }
 
 CovList& CovList::operator=(const CovList& r)
@@ -62,6 +63,7 @@ CovList& CovList::operator=(const CovList& r)
     _allActiveCov     = r._allActiveCov;
     _allActiveCovList = r._allActiveCovList;
     _activeCovList    = r._activeCovList;
+    _updateLists();
   }
   return *this;
 }

@@ -21,6 +21,7 @@
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"

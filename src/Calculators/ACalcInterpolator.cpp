@@ -15,6 +15,7 @@
 #include "Db/DbHelper.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeigh.hpp"
+#include "Basic/VectorHelper.hpp"
 
 ACalcInterpolator::ACalcInterpolator()
   : ACalcDbToDb()

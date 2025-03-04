@@ -51,7 +51,7 @@ private:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
 
-  bool _filterImage(DbGrid* dbgrid, const ModelGeneric* modelgeneric);
+  bool _filterImage(DbGrid* dbgrid, const ModelCovList* model);
   static DbGrid* _buildMarpat(const NeighImage* neigh,
                               const VectorVectorInt& ranks,
                               const MatrixRectangular& wgt,

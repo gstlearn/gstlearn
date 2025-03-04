@@ -11,6 +11,7 @@
 #include "Model/AModelOptim.hpp"
 
 #include "Basic/AStringable.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Enum/EConsElem.hpp"
 #include "geoslib_define.h"
 

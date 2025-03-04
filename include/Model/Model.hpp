@@ -28,10 +28,11 @@
 
 #include "Drifts/DriftList.hpp"
 
+#include "Matrix/MatrixSquareSymmetric.hpp"
+
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
-#include "Covariances/CovAniso.hpp"
 
 #include "Anamorphosis/AAnam.hpp"
 
@@ -44,7 +45,6 @@ class CovLMCTapering;
 class CovLMCAnamorphosis;
 class CovLMGradient;
 class CovInternal;
-class MatrixSquareSymmetric;
 class CovCalcMode;
 class Vario;
 class ADrift;
