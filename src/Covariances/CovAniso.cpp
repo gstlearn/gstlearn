@@ -36,7 +36,6 @@
 #include <math.h>
 #include <functional>
 #include <ostream>
-#include <vector>
 
 CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
     : CovProportional(nullptr, MatrixSquareSymmetric(ctxt.getNVar())), /// TODO : shared pointer
@@ -306,7 +305,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
   sstr << _corAniso->getCorFunc()->toString();
 
   // Sill - Factor / Slope information
-  if (_corAniso->hasRange() > 0)
+  if (_corAniso->hasRange() >= 0)
   {
     // A sill is defined
 
@@ -320,7 +319,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
       sstr << "- Sill         = " << toDouble(_sillCur.getValue(0, 0)) << std::endl;
     }
   }
-  else if (_corAniso->hasRange() < 0)
+  else
   {
     // The sill is not defined: use slope instead
 
@@ -339,21 +338,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
       sstr << "- Slope        = " << toDouble(getSlope(0, 0)) << std::endl;
     }
   }
-  else
-  {
-    // Only sill is defined
-
-    if (getNVar() > 1)
-    {
-      sstr << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
-                      getNVar(), getNVar(), _sillCur.getValues());
-    }
-    else
-    {
-      sstr << "- Sill         = " << toDouble(_sillCur.getValue(0, 0)) << std::endl;
-    }
-  }
-
+  
    // Covariance Parameters
   sstr << _corAniso->toStringParams(strfmt);
 
