@@ -38,9 +38,20 @@ else()
   endif()
 endif()
 
-# For sanitizer
-#add_compile_options(-fsanitize=address -O0 -ggdb)
-#add_link_options(-fsanitize=address)
+# Address Sanitizer (GCC/Clang)
+option(BUILD_ASAN "Build with Address Sanitizer enabled" OFF)
+mark_as_advanced(BUILD_ASAN)
+
+if(BUILD_ASAN AND MSVC)
+  message(WARNING "Cannot use BUILD_ASAN option with Microsoft Visual Studio compilers")
+  set(BUILD_ASAN OFF)
+endif()
+
+if(BUILD_ASAN)
+  add_compile_options(-fsanitize=address)
+  add_link_options(-fsanitize=address)
+endif()
+
 # For valgrind usage (use Debug)
 #add_compile_options(-O0)
 
