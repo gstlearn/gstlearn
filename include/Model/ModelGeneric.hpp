@@ -40,8 +40,8 @@ class GSTLEARN_EXPORT ModelGeneric : public ICloneable
 {
 public:
   ModelGeneric(const CovContext& ctxt = CovContext());
-  ModelGeneric(const ModelGeneric &m) = delete;
-  ModelGeneric& operator= (const ModelGeneric &m) = delete;
+  ModelGeneric(const ModelGeneric &r);
+  ModelGeneric& operator= (const ModelGeneric &r);
   virtual ~ModelGeneric();
 
   //getters for member pointers
@@ -50,12 +50,14 @@ public:
   const DriftList*  getDriftList()       const { return  _driftList;}
 
 public:
+  /// ICloneable interface
+  IMPLEMENT_CLONING(ModelGeneric)
+
   ACov*       _getCovModify() { return _cova; }
   CovContext* _getContextModify() { return &_ctxt; }
   DriftList*  _getDriftListModify() { return _driftList; }
 
 public:
-
   // Forwarding the methods from _cova
   FORWARD_METHOD(getCov, evalCovMatBiPointInPlace)
   FORWARD_METHOD(getCov, evalCovMat)
@@ -156,11 +158,13 @@ public:
   void setField(double field);
   bool isValid() const;
 
-  void   setDriftList(const DriftList* driftlist);
-  void   setDriftIRF(int order = 0, int nfex = 0);
-  void   addDrift(const ADrift* drift);  // TODO: check that the same driftM has not been already defined
-  void   setDrifts(const VectorString& driftSymbols);
+  void setCov(ACov* cova);
   
+  void setDriftList(const DriftList* driftlist);
+  void setDriftIRF(int order = 0, int nfex = 0);
+  void addDrift(const ADrift* drift); // TODO: check that the same driftM has not been already defined
+  void setDrifts(const VectorString& driftSymbols);
+
   double computeLogLikelihood(const Db* db, bool verbose = false);  
 
 private :

@@ -19,14 +19,14 @@ class Db;
 class GSTLEARN_EXPORT CovContext : public ASpaceObject
 {
 public:
-  CovContext(int nvar = 1 , const ASpaceSharedPtr& space = ASpaceSharedPtr());
+  CovContext(int nvar = 1, const ASpaceSharedPtr& space = ASpaceSharedPtr());
   CovContext(int nvar,
              int ndim,
              const VectorDouble& covar0 = VectorDouble());
-  CovContext(const Db *db, const ASpaceSharedPtr& space = ASpaceSharedPtr());
-  CovContext(const Vario *vario, const ASpaceSharedPtr& space = ASpaceSharedPtr());
-  CovContext(const CovContext &r);
-  CovContext& operator= (const CovContext &r);
+  CovContext(const Db* db, const ASpaceSharedPtr& space = ASpaceSharedPtr());
+  CovContext(const Vario* vario, const ASpaceSharedPtr& space = ASpaceSharedPtr());
+  CovContext(const CovContext& r);
+  CovContext& operator=(const CovContext& r);
   virtual ~CovContext();
 
   /// AStringable interface

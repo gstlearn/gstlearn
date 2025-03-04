@@ -19,6 +19,7 @@
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Space/SpaceComposite.hpp"
+#include "Estimation/CalcKriging.hpp"
 /**
  * This file is meant to test Kriging with Gneiting Model
  */
@@ -57,6 +58,7 @@ int main(int argc, char* argv[])
 
   double sep           = 1.;
   CorGneiting covGneiting = CorGneiting(covS->getCorAniso(), covT->getCorAniso(), sep);
+  message("Space dimension of Gneiting Covariance = %d\n", covGneiting.getNDim());
 
   // Testing the covariance calculation between two points
   VectorDouble coords1 = {12., 3., 1.};
@@ -66,7 +68,7 @@ int main(int argc, char* argv[])
   p1.setCoords(coords1);
   p2.setCoords(coords2);
   double cres = covGneiting.eval(p1,p2);
-  std::cout << "Value of Gneiting " << cres <<std::endl;
+  std::cout << "Value of Gneiting (by Covariance) = " << cres <<std::endl;
 
   // Create the Data Base
   int ndim = 3;
@@ -83,15 +85,22 @@ int main(int argc, char* argv[])
   NeighUnique* neigh = NeighUnique::create();
 
   // Create the Model
-  // ModelGeneric* model = new ModelGeneric();
-  // model->setCov(&covGneiting);
+  ModelGeneric* model = new ModelGeneric();
+  model->setCov(&covGneiting);
+  model->eval(p1,p2);
+  message("Model dimension = %d\n", model->getNDim());
+  std::cout << "Value of Gneiting (by Model) = " << cres << std::endl;
+
+  // Launch Kriging
+
+  // (void) kriging(data, grid, (Model*) model, neigh);
 
   delete covT;
   delete covS;
   delete data;
   delete grid;
   delete neigh;
-  // delete model;
+  delete model;
 
   return(0);
 }

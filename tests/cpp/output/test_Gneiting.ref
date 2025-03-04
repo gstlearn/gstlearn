@@ -4,4 +4,7 @@ Space Type      [0] = RN
 Space Dimension [0] = 1
 Space Type      [1] = RN
 Space Dimension [1] = 2
-Value of Gneiting 0.020676
+Space dimension of Gneiting Covariance = 2
+Value of Gneiting (by Covariance) = 0.020676
+Model dimension = 2
+Value of Gneiting (by Model) = 0.020676
