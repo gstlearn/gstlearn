@@ -29,7 +29,7 @@ class AAnam;
 
 /**
  * \brief
- * This class describes the **Covariance** as a list of elementary covariances (see CovAniso.hpp for more details)
+ * This class describes the **Covariance** as a list of elementary covariances (see CovBase.hpp for more details)
  * where the calculation rule is simple: the returned value is the **sum** of each elementary (active) covariance function.
  *
  * This class also carry two other important informations:
@@ -77,8 +77,9 @@ public:
   void delCov(int icov);
   // Remove all elementary covariance structures
   void delAllCov();
+
   // Filter a covariance
-  void setFiltered(int icov, bool filtered);
+  void setCovFiltered(int icov, bool filtered);
 
   int getNCov() const;
   bool isFiltered(int icov) const;

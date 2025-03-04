@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
   CovAnisoList covs(ctxt);
   double range1 = 0.2;
   CovAniso cova1(ECov::MATERN,range1,1.,1.,ctxt);
-  covs.addCovAniso(&cova1);
+  covs.addCov(&cova1);
   models.setCovAnisoList(&covs);
   models.display();
 

@@ -100,12 +100,7 @@ bool CovAnisoList::isNoStat() const
   }
   return nostat;
 }
-void CovAnisoList::setCovFiltered(int icov, bool filtered)
-{
-  if (! _isCovarianceIndexValid(icov)) return;
-  _filtered[icov] = filtered;
-  _updateLists();
-}
+
 
 bool CovAnisoList::isConsistent(const ASpace* /*space*/) const
 {
@@ -169,12 +164,6 @@ int CovAnisoList::getNCov(bool skipNugget) const
     if (getCovAniso(icov)->getType() != ECov::NUGGET) nstruc++;
   }
   return nstruc;
-}
-
-bool CovAnisoList::isFiltered(int icov) const
-{
-  if (!_isCovarianceIndexValid(icov)) return false;
-  return _filtered[icov];
 }
 
 bool CovAnisoList::hasRange() const

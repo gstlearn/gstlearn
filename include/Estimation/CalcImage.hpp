@@ -80,7 +80,7 @@ private:
   double _smoothRange;
 };
 
-GSTLEARN_EXPORT int krimage(DbGrid* dbgrid,
+GSTLEARN_EXPORT int   krimage(DbGrid* dbgrid,
                             Model* model,
                             ANeigh* neigh,
                             bool flagFFT                    = false,

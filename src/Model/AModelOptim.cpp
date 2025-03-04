@@ -105,7 +105,7 @@ void AModelOptim::_addOneModelParam(int icov,
 }
 
 void AModelOptim::_updateModelParamList(double distmax_def,
-                                       const MatrixSquareSymmetric& vars_def)
+                                        const MatrixSquareSymmetric& vars_def)
 {
   double value = TEST;
   double scale = 1.;
@@ -281,12 +281,7 @@ int AModelOptim::_buildModelParamList()
       else
       {
         // Add the 'Anisotropic Range' (vectorial)
-        if (ndim == 2)
-        {
-          // For anisotropy in 2-D, one value is sufficient
-          _addOneModelParam(icov, EConsElem::RANGE, 0, EPSILON2, TEST);
-        }
-        else if (ndim == 3)
+        if (ndim == 3)
         {
           // For anisotropy in 3-D, vectorial definition is needed
           if (_modelPart._optvar.getLockIso2d())
@@ -303,6 +298,7 @@ int AModelOptim::_buildModelParamList()
         }
         else
         {
+          // For anisotropy in 2-D, one value is sufficient
           // For other space dimension, consider Isotropic Range
           _addOneModelParam(icov, EConsElem::RANGE, 0, EPSILON2, TEST);
         }

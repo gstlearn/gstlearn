@@ -146,13 +146,6 @@ bool CovList::isNoStat() const
   return nostat;
 }
 
-void CovList::setFiltered(int icov, bool filtered)
-{
-  if (! _isCovarianceIndexValid(icov)) return;
-  _filtered[icov] = filtered;
-  _updateLists();
-}
-
 bool CovList::isConsistent(const ASpace* /*space*/) const
 {
   /// TODO : CovList::isConsistent
@@ -250,7 +243,6 @@ String CovList::toString(const AStringFormat* /*strfmt*/) const
  
   return sstr.str();
 }
-
 
 int  CovList::getNCov() const
 {
@@ -441,4 +433,11 @@ void CovList::normalize(double sill, int ivar, int jvar)
 
   for (int i = 0, n = getNCov(); i < n; i++)
     _covs[i]->setSill(_covs[i]->getSill(ivar, jvar) * ratio);
+}
+
+void CovList::setCovFiltered(int icov, bool filtered)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  _filtered[icov] = filtered;
+  _updateLists();
 }

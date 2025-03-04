@@ -36,7 +36,6 @@
 #include "Anamorphosis/AAnam.hpp"
 
 #include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
 
 class Model;
@@ -186,7 +185,6 @@ public:
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setSills)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setRangeIsotropic)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setMarkovCoeffs)
-  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setCovFiltered)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setOptimEnabled)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, normalize)
 

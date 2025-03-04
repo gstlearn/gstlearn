@@ -21,8 +21,6 @@
 #include "Covariances/CovList.hpp"
 #include "Covariances/CovCalcMode.hpp"
 
-#include <vector>
-
 class ASpace;
 class SpacePoint;
 class MatrixSquareGeneral;
@@ -35,13 +33,9 @@ class EModelProperty;
 
 /**
  * \brief
- * This class describes the **Covariance** as a list of elementary covariances (see CovAniso.hpp for more details)
+ * This class describes the **Covariance** as a list of elementary covariances 
+ * (see CovAniso.hpp for more details)
  * where the calculation rule is simple: the returned value is the **sum** of each elementary (active) covariance function.
- *
- * This class also carry two other important informations:
- * - a vector giving the status of each elementary covariance item: it may be *active* or *filtered*
- * - a complex structure allowing each parameter (range, sill, anisotropy angle, ...) of each of the elementary covariances
- * to be non-stationary (to have a value which depends on the location). For more details, see ANoStat.hpp.
  */
 class GSTLEARN_EXPORT CovAnisoList : public CovList
 // TODO : rename CovAnisoList (this is not an abstract class)
@@ -81,11 +75,7 @@ public:
 
   void addCovList(const CovAnisoList* covs);
 
-  // Filter a covariance
-  void setCovFiltered(int icov, bool filtered);
-
   int             getNCov(bool skipNugget = false) const;
-  bool            isFiltered(int icov) const;
   bool            hasRange() const;
   bool            isStationary() const;
   double          getMaximumDistance() const;
