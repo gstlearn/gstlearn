@@ -81,18 +81,17 @@ int main(int argc, char* argv[])
   VectorDouble dx = {1. / nx[0], 1. / nx[1], 1. / nx[2]};
   DbGrid* grid = DbGrid::create(nx, dx);
 
-  // Create the Unique neighborhood
-  NeighUnique* neigh = NeighUnique::create();
-
   // Create the Model
   ModelGeneric* model = new ModelGeneric();
   model->setCov(&covGneiting);
-  model->eval(p1,p2);
+  model->eval(p1, p2);
   message("Model dimension = %d\n", model->getNDim());
   std::cout << "Value of Gneiting (by Model) = " << cres << std::endl;
 
-  // Launch Kriging
+  // Create the Unique neighborhood
+  NeighUnique* neigh = NeighUnique::create(false, sp);
 
+  // Launch Kriging
   // (void) kriging(data, grid, (Model*) model, neigh);
 
   delete covT;

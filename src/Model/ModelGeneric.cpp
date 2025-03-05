@@ -211,8 +211,18 @@ void ModelGeneric::setCov(ACov* cova)
   delete _cova;
   _cova = cova;
 
-  // Check that the ACov has the same type of CovContext as the Model
-  _cova->copyCovContext(_ctxt);
+  // Set the Context of ModelGeneric (cross_check with DriftList)
+  if (_driftList != nullptr)
+  {
+    if (! _driftList->getContext().isEqual(cova->getContext()))
+    {
+      messerr("Cova and DriftList do not share the same CovContext");
+      messerr("Operation cancelled");
+      return;
+    }
+  }
+
+  _ctxt = cova->getContext();
 }
 
 /**

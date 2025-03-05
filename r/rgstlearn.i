@@ -159,7 +159,6 @@
     
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
-    if (obj == R_NilValue) return SWIG_NullReferenceError;
     if (TYPEOF(obj) == EXTPTRSXP) return SWIG_TypeError;
 
     // Conversion
@@ -192,7 +191,6 @@
     
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
-    if (obj == R_NilValue) return SWIG_NullReferenceError;
     if (TYPEOF(obj) == EXTPTRSXP) return SWIG_TypeError;
 
     // Conversion
@@ -328,10 +326,6 @@
                                                                                (length($arg[[1]]) == 0 || (length($arg[[1]]) > 0 && (is.integer(unlist($arg[[1]])) || is.numeric(unlist($arg[[1]])))))) }
 %typemap(rtypecheck, noblock=1) const VectorVectorDouble&, VectorVectorDouble { length($arg) == 0 || (length($arg) > 0 && 
                                                                                (length($arg[[1]]) == 0 || (length($arg[[1]]) > 0 && is.numeric(unlist($arg[[1]]))))) }
-
-%typemap(out) void {
-  $result = R_NilValue; // Returns an empty value ... not a NULL
-}
 
 %fragment("FromCpp", "header")
 {  
@@ -768,8 +762,10 @@ function(x, i, value)
   )
 }
 
+# Add methods to derived class (list classes must be ordered from
+# the most abstract to the most concrete)
 "addMethods" <- function(derived,listclasses) {
-  listfull = c(derived,listclasses)
+  listfull = c(listclasses,derived)
   addMethodsFromNames(derived, generateListMethods(listfull))
 }
 
@@ -1270,7 +1266,7 @@ setMethod("plot", signature(x="_p_AAnam"), function(x,y="missing",...) plot.anam
 
 #Add methods of ModelCovList (base) to Model (derived) (in case inheritance didn t work)
 
-addMethods("Model",c("ModelCovList","ModelGeneric"))
+addMethods("Model",c("ModelGeneric","ModelCovList"))
 
 addMethods("Db", c("ASerializable"))
 addMethods("DbGrid", c("ASerializable"))

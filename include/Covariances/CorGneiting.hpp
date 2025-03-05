@@ -55,7 +55,6 @@ private:
   void _optimizationPostProcess() const override;
 
 private:
-  CovContext _ctxt;                   // TODO : Really store a copy ?
   const CorAniso* _covS;
   const CorAniso* _covTemp;
   double _separability;

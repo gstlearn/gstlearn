@@ -218,7 +218,9 @@ const CovAniso* CovAnisoList::getCovAniso(int icov) const
   if (!_isCovarianceIndexValid(icov)) return nullptr;
   return _getCovAniso(icov);
 }
-void CovAnisoList::setCov(int icov, const CovBase* covs)
+void CovAnisoList::setCov(int icov, const CovBase* covs) 
+// TODO rename into setOneCov
+// to be different from the one in ModelGeneric
 {
   if (dynamic_cast<const CovAniso*>(covs) == nullptr)
   {
