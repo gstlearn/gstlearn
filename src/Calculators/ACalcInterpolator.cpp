@@ -198,7 +198,11 @@ bool ACalcInterpolator::_preprocess()
 
   if (_model != nullptr)
   {
-     if (!_setNCov(_model->getNCov())) return false;
+    const ModelCovList* modelcovlist = dynamic_cast<const ModelCovList*>(_model);
+    if (modelcovlist != nullptr)
+    {
+      if (!_setNCov(modelcovlist->getNCov())) return false;
+    }
   }
 
   // Expand information amongst Db if necessary

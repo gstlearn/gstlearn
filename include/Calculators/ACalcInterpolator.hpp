@@ -14,7 +14,6 @@
 #include "gstlearn_export.hpp"
 
 #include "Calculators/ACalcDbToDb.hpp"
-#include "Model/Model.hpp"
 
 class ELoc;
 // class Model;
@@ -29,10 +28,10 @@ public:
   ACalcInterpolator& operator=(const ACalcInterpolator &r) = delete;
   virtual ~ACalcInterpolator();
 
-  void setModel(Model* model) { _model = model; }
+  void setModel(ModelGeneric* model) { _model = model; }
   void setNeigh(ANeigh* neigh) { _neigh = neigh; }
 
-  Model*  getModel() const { return _model; }
+  ModelGeneric*  getModel() const { return _model; }
   ANeigh* getNeigh() const { return _neigh; }
 
   bool hasModel(bool verbose = true) const;
@@ -47,7 +46,7 @@ protected:
   int _centerDataToGrid(DbGrid* dbgrid);
 
 private:
-  Model*  _model;
+  ModelGeneric*  _model;
   ANeigh* _neigh;
   int _ncova;
 };

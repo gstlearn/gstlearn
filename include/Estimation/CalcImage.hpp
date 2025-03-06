@@ -20,6 +20,7 @@
 class DbGrid;
 class ANeigh;
 class NeighImage;
+class ModelCovList;
 
 class GSTLEARN_EXPORT CalcImage: public ACalcInterpolator {
 public:

@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
-#include "Model/Model.hpp"
+#include "Model/ModelGeneric.hpp"
 #include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/SimuFFTParam.hpp"
 #include "Simulation/CalcSimuFFT.hpp"
@@ -380,7 +380,7 @@ bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble &xyz,
                                 double percent)
 {
   int ndim = _getNDim();
-  Model* model = getModel();
+  ModelGeneric* model = getModel();
 
   /* Calculate the reference C(0) value */
 
@@ -416,7 +416,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
   VectorInt jnd(3);
   VectorVectorDouble xyz1(3);
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  Model* model = getModel();
+  ModelGeneric* model = getModel();
 
   /* Initializations */
 
@@ -1142,7 +1142,7 @@ VectorDouble CalcSimuFFT::changeSupport(const VectorDouble &sigma)
  ** \return  Error return code
  **
  ** \param[in]  db      Db structure
- ** \param[in]  model   Model structure
+ ** \param[in]  model   ModelGeneric structure
  ** \param[in]  param   SimuFFTParam structure
  ** \param[in]  nbsimu  Number of simulations
  ** \param[in]  seed    Value of the seed
@@ -1151,7 +1151,7 @@ VectorDouble CalcSimuFFT::changeSupport(const VectorDouble &sigma)
  **
  *****************************************************************************/
 int simfft(DbGrid *db,
-           Model *model,
+           ModelGeneric *model,
            SimuFFTParam& param,
            int nbsimu,
            int seed,
@@ -1176,7 +1176,7 @@ int simfft(DbGrid *db,
  ** \return  r^2 coefficients for the different logarithmic variances
  **
  ** \param[in]  db      Db structure
- ** \param[in]  model   Model structure
+ ** \param[in]  model   ModelGeneric structure
  ** \param[in]  param   SimuFFTParam structure
  ** \param[in]  sigma   Array of logarithmic variances
  ** \param[in]  seed    Seed for random number generator
@@ -1184,7 +1184,7 @@ int simfft(DbGrid *db,
  **
  *****************************************************************************/
 VectorDouble getChangeSupport(DbGrid *db,
-                              Model *model,
+                              ModelGeneric *model,
                               const SimuFFTParam &param,
                               const VectorDouble &sigma,
                               int seed,

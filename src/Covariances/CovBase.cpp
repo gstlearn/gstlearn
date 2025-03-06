@@ -121,10 +121,9 @@ void CovBase::setCor(ACov* cor)
 }
 void CovBase::_setContext(const CovContext &ctxt)
 {
-  DECLARE_UNUSED(ctxt)
+  _cor->setContext(ctxt);
   _updateFromContext();
 }
-
 
 void CovBase::setSill(double sill) const
 {

@@ -38,6 +38,7 @@ public:
   FORWARD_METHOD_NON_CONST(getCovListModify, delAllCov)
   FORWARD_METHOD_NON_CONST(getCovListModify, setCovFiltered);
 
+  FORWARD_METHOD(getCovList, getNCov)
   FORWARD_METHOD(getCovList, getSills)
   FORWARD_METHOD(getCovList, getSill, TEST)
   FORWARD_METHOD(getCovList, getTotalSill)

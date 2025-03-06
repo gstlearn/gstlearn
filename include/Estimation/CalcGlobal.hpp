@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Model/ModelGeneric.hpp"
 #include "gstlearn_export.hpp"
 
 #include "geoslib_define.h"
@@ -66,17 +67,18 @@ private:
   bool _flagKriging;
   int    _ivar0;
   bool   _verbose;
+  Model* _modelLocal;
 
   Global_Result _gRes;
 };
 
 GSTLEARN_EXPORT Global_Result global_arithmetic(Db *dbin,
                                                 DbGrid *dbgrid,
-                                                Model *model,
+                                                ModelGeneric *model,
                                                 int ivar0,
                                                 bool verbose);
 GSTLEARN_EXPORT Global_Result global_kriging(Db *dbin,
                                              Db *dbout,
-                                             Model *model,
+                                             ModelGeneric *model,
                                              int ivar0,
                                              bool verbose);

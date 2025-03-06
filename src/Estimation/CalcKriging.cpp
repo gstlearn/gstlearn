@@ -95,12 +95,18 @@ bool CalcKriging::_check()
       messerr("For DGM option, the argument 'dbout'  should be a Grid");
       return false;
     }
-    if (! getModel()->hasAnam())
+    const Model* model = dynamic_cast<const Model*>(getModel());
+    if (model == nullptr)
+    {
+      messerr("The 'model' must be a Model (not a ModelGeneric)");
+      return false;
+    }
+    if (! model->hasAnam())
     {
       messerr("For DGM option, the Model must have an Anamorphosis attached");
       return false;
     }
-    if (! getModel()->isChangeSupportDefined())
+    if (! model->isChangeSupportDefined())
     {
       messerr("DGM option requires a Change of Support to be defined");
       return false;
@@ -325,7 +331,7 @@ bool CalcKriging::_run()
  **
  ** \param[in]  dbin        Input Db structure
  ** \param[in]  dbout       Output Db structure
- ** \param[in]  model       Model structure
+ ** \param[in]  model       ModelGeneric structure
  ** \param[in]  neigh       ANeigh structure
  ** \param[in]  calcul      Kriging calculation option (EKrigOpt)
  ** \param[in]  ndiscs      Array giving the discretization counts
@@ -341,7 +347,7 @@ bool CalcKriging::_run()
  *****************************************************************************/
 int kriging(Db* dbin,
             Db* dbout,
-            Model* model,
+            ModelGeneric* model,
             ANeigh* neigh,
             const EKrigOpt& calcul,
             bool flag_est,
@@ -377,7 +383,7 @@ int kriging(Db* dbin,
  **
  ** \param[in]  dbin        Input Db structure
  ** \param[in]  dbout       Output Db structure
- ** \param[in]  model       Model structure
+ ** \param[in]  model       ModelGeneric structure
  ** \param[in]  neigh       ANeigh structure
  ** \param[in]  ndiscs      Array giving the discretization counts
  ** \param[in]  flag_est    Option for the storing the estimation
@@ -388,7 +394,7 @@ int kriging(Db* dbin,
  *****************************************************************************/
 int krigcell(Db* dbin,
              Db* dbout,
-             Model* model,
+             ModelGeneric* model,
              ANeigh* neigh,
              bool flag_est,
              bool flag_std,
@@ -421,7 +427,7 @@ int krigcell(Db* dbin,
  **
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
- ** \param[in]  model      Model structure
+ ** \param[in]  model      ModelGeneric structure
  ** \param[in]  neigh      ANeigh structure
  ** \param[in]  prior_mean Array giving the prior means for the drift terms
  ** \param[in]  prior_cov  Array containing the prior covariance matrix
@@ -433,7 +439,7 @@ int krigcell(Db* dbin,
  *****************************************************************************/
 int kribayes(Db* dbin,
              Db* dbout,
-             Model* model,
+             ModelGeneric* model,
              ANeigh* neigh,
              const VectorDouble& prior_mean,
              const MatrixSquareSymmetric& prior_cov,
@@ -465,7 +471,7 @@ int kribayes(Db* dbin,
  **
  ** \param[in]  dbin        input Db structure
  ** \param[in]  dbout       output Db structure
- ** \param[in]  model       Model structure
+ ** \param[in]  model       ModelGeneric structure
  ** \param[in]  neigh       ANeigh structure
  ** \param[in]  iech0       Rank of the target sample
  ** \param[in]  calcul      Kriging calculation option (EKrigOpt)
@@ -477,7 +483,7 @@ int kribayes(Db* dbin,
  *****************************************************************************/
 Krigtest_Res krigtest(Db* dbin,
                       Db* dbout,
-                      Model* model,
+                      ModelGeneric* model,
                       ANeigh* neigh,
                       int iech0,
                       const EKrigOpt& calcul,
@@ -510,7 +516,7 @@ Krigtest_Res krigtest(Db* dbin,
  **
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
- ** \param[in]  model      Model structure
+ ** \param[in]  model      ModelGeneric structure
  ** \param[in]  neigh      ANeigh structure
  ** \param[in]  anam       AAnam structure
  ** \param[in]  namconv    Naming convention
@@ -518,7 +524,7 @@ Krigtest_Res krigtest(Db* dbin,
  *****************************************************************************/
 int kriggam(Db* dbin,
             Db* dbout,
-            Model* model,
+            ModelGeneric* model,
             ANeigh* neigh,
             AAnam* anam,
             const NamingConvention& namconv)
@@ -542,7 +548,7 @@ int kriggam(Db* dbin,
  * Standard Cross-Validation
  *
  * @param db Db structure
- * @param model Model structure
+ * @param model ModelGeneric structure
  * @param neigh ANeigh structure
  * @param flag_kfold True if a code (K-FOLD) is used
  * @param flag_xvalid_est Option for storing the estimation: 1 for Z*-Z; -1 for
@@ -556,7 +562,7 @@ int kriggam(Db* dbin,
  * @return Error return code
  */
 int xvalid(Db* db,
-           Model* model,
+           ModelGeneric* model,
            ANeigh* neigh,
            bool flag_kfold,
            int flag_xvalid_est,
@@ -593,7 +599,7 @@ int xvalid(Db* db,
  **
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
- ** \param[in]  model      Model structure (optional)
+ ** \param[in]  model      ModelGeneric structure (optional)
  ** \param[in]  neigh      ANeigh structure
  ** \param[in]  namconv    Naming Convention
  **
@@ -607,7 +613,7 @@ int xvalid(Db* db,
  *****************************************************************************/
 int test_neigh(Db* dbin,
                Db* dbout,
-               Model* model,
+               ModelGeneric* model,
                ANeigh* neigh,
                const NamingConvention& namconv)
 {

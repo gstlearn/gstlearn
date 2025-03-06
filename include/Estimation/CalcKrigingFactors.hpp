@@ -56,6 +56,8 @@ private:
   int _iptrStd;
 
   VectorInt _iuidFactors;
+
+  Model* _modelLocal;
 };
 
 GSTLEARN_EXPORT int krigingFactors(Db *dbin,

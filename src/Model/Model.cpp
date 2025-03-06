@@ -631,12 +631,6 @@ void Model::_copyCovContext()
   if (_driftList != nullptr) _driftList->copyCovContext(_ctxt);
 }
 
-void Model::setField(double field)
-{
-  _ctxt.setField(field);
-  _copyCovContext();
-}
-
 /**
  * Automatic Fitting procedure
  *

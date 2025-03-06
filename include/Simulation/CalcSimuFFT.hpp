@@ -85,14 +85,14 @@ private:
 };
 
 GSTLEARN_EXPORT int simfft(DbGrid *db,
-                           Model *model,
+                           ModelGeneric *model,
                            SimuFFTParam& param,
                            int nbsimu = 1,
                            int seed = 432431,
                            int verbose = false,
                            const NamingConvention& namconv = NamingConvention("FFT"));
 GSTLEARN_EXPORT VectorDouble getChangeSupport(DbGrid *db,
-                                              Model *model,
+                                              ModelGeneric *model,
                                               const SimuFFTParam &param,
                                               const VectorDouble &sigma = VectorDouble(),
                                               int seed = 14333,

@@ -16,15 +16,16 @@
 #include "Model/Model.hpp"
 
 CalcKrigingFactors::CalcKrigingFactors(bool flag_est, bool flag_std)
-    : ACalcInterpolator(),
-      _flagEst(flag_est),
-      _flagStd(flag_std),
-      _calcul(EKrigOpt::POINT),
-      _ndiscs(),
-      _nameCoord(),
-      _iptrEst(-1),
-      _iptrStd(-1),
-      _iuidFactors()
+  : ACalcInterpolator()
+  , _flagEst(flag_est)
+  , _flagStd(flag_std)
+  , _calcul(EKrigOpt::POINT)
+  , _ndiscs()
+  , _nameCoord()
+  , _iptrEst(-1)
+  , _iptrStd(-1)
+  , _iuidFactors()
+  , _modelLocal(nullptr)
 {
 }
 
@@ -50,12 +51,19 @@ bool CalcKrigingFactors::_check()
     messerr("This tool cannot function with an IMAGE neighborhood");
     return false;
   }
-  if (getModel()->getNVar() != 1)
+
+  _modelLocal = dynamic_cast<Model*>(getModel());
+  if (_modelLocal == nullptr)
+  {
+    messerr("The model must be of type Model (not ModelGeneric)");
+    return false;
+  }
+  if (_modelLocal->getNVar() != 1)
   {
     messerr("This application is limited to the monovariate Model case");
     return false;
   }
-  if (! getModel()->hasAnam())
+  if (! _modelLocal->hasAnam())
   {
     messerr("Argument 'model' should has an Anamorphosis attached");
     return false;
@@ -73,7 +81,7 @@ bool CalcKrigingFactors::_check()
 
 bool CalcKrigingFactors::_hasChangeSupport() const
 {
-  const AAnam* anam = getModel()->getAnam();
+  const AAnam* anam = _modelLocal->getAnam();
   if (anam == nullptr) return false;
 
   // Check if the change of support is defined in the Anamorphosis
