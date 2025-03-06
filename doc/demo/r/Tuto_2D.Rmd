@@ -33,17 +33,20 @@ err = OptCst_define(ECst_NTCOL(),6)
 # Reading data
 
 The data are stored in a CSV format in the file called Pollution.dat
+It is loaded from the gstlearn distribution but it can be also downloaded
+from the Internet.
 
 **
 At this stage:
 - it is not possible to pass the list of variable names *c("X","Y")*.
-- to pass the FLAGS for *DbStringFormat* (they are not an ENUM)
+- to pass the FLAGS for *DbStringFormat* (they is no ENUM)
 **
 
 ```{r}
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Pollution/Pollution.dat"
-filepath = "Pollution.dat"
-download.file(dlfile, filepath, quiet=TRUE)
+#dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Pollution/Pollution.dat"
+#filepath = "Pollution.dat"
+#download.file(dlfile, filepath, quiet=TRUE)
+filepath = loadData("Pollution", "Pollution.dat")
 mydb = Db_createFromCSV(filepath,CSVformat())
 err = mydb$setLocator("X",ELoc_X(),0)
 err = mydb$setLocator("Y",ELoc_X(),1)
