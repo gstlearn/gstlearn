@@ -27,11 +27,12 @@ target = "Var12"
 ```
 
 Next lines are built to reference the absolute path of the target files.
-To be adapted according your local source folder.
+GSTLEARN_DIR environment variable must exist and must correspond to the
+folder containing 'gstlearn' github repo.
 
 ```{r}
-dirhome = Sys.getenv('HOME')
-dirloc = file.path(dirhome,"project_gstlearn","gstlearn","tests","data")
+gstdir = Sys.getenv('GSTLEARN_DIR')
+dirloc = file.path(gstdir,"gstlearn","tests","data")
 ```
 
 THe next chunk is there in order to test if the experimental variogram calculation is part of the test or not
