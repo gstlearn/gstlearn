@@ -70,6 +70,7 @@ def locateFile(filename, where='references', directory=None, verbose=False, vers
     Return the absolute path of a file:
     - it is assumed to be present locally in '.' ('where' and 'directory' are ignored)
     - if not, it is assumed to be present locally in './doc/<where>', '../../doc/<where>' or '../../<where>'
+    - if not, if the GSTLEARN_DIR environment variable is defined, it is assumed to be present in '<GSTLEARN_DIR>/gstlearn/doc/<where>'
     - if not, if Internet is available, the file is downloaded from the gstlearn website in a temporary file
     
     filename: Name of the file to be located
@@ -88,7 +89,7 @@ def locateFile(filename, where='references', directory=None, verbose=False, vers
     if os.path.isfile(localname):
         fullname = os.path.abspath(localname)
         if (verbose):
-            print(localname, "found... Full path is", fullname)
+            print(filename, "found... Full path is", fullname)
         return fullname
     elif (verbose):
         print(localname, "not found...")
@@ -108,11 +109,25 @@ def locateFile(filename, where='references', directory=None, verbose=False, vers
         if os.path.isfile(localname):
             fullname = os.path.abspath(localname)
             if (verbose):
-                print(localname, "found... Full path is", fullname)
+                print(filename, "found... Full path is", fullname)
             return fullname
         elif (verbose):
             print(localname, "not found...")
-                
+
+    # Test in GSTLEARN_DIR environment variable
+    if os.environ.get('GSTLEARN_DIR') is not None:
+        gstlearn_dir = os.environ.get('GSTLEARN_DIR')
+        if gstlearn_dir is not None:
+            localname = os.path.join(gstlearn_dir, 'gstlearn', 'doc', where, filename)
+            if os.path.isfile(localname):
+                fullname = os.path.abspath(localname)
+                if (verbose):
+                    print(filename, "found... Full path is", fullname)
+                return fullname
+            elif (verbose):
+                print(localname, "not found...")
+
+    # Test on the web
     if not internetAvailable():
         print("Error: Cannot access to", filename, "(no Internet)!")
         return None
