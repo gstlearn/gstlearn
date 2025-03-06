@@ -229,7 +229,7 @@ endforeach()
 ######################################
 # INSTALLATION
 
-# By default, python pip look for dependencies from Internet
+# By default, python pip looks for dependencies from Internet
 option(NO_INTERNET "Do not try to connect to Internet" OFF)
 message(STATUS "NO_INTERNET=" ${NO_INTERNET})
 
