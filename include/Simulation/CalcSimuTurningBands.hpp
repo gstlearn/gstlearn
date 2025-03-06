@@ -138,11 +138,10 @@ private:
 
   static double _computeScale(double alpha, double scale);
   static double _computeScaleKB(double param, double scale);
-
   void _migrationInit(int ibs,
                       int is,
                       double scale,
-                      TurningBandOperate &operTB,
+                      TurningBandOperate& operTB,
                       double eps = EPSILON5);
   double _dilutionInit(int ibs, int is, TurningBandOperate &operTB);
   double _spectralInit(int ibs, int is, TurningBandOperate &operTB);
@@ -209,6 +208,7 @@ private:
   double _theta;
   VectorInt _seedBands;
   std::vector<TurningBandDirection> _codirs;
+  Model* _modelLocal; // Conversion of getModel() into a Model (more than ModelGeneric)
 };
 
 GSTLEARN_EXPORT int simtub(Db *dbin = nullptr,

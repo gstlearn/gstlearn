@@ -116,7 +116,7 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
 
   for (int icov = 0; icov < ncov; icov++)
   {    
-    bool nostaticov =  _model->getCova(icov)->isNoStatForVariance();
+    bool nostaticov =  _model->getCovAniso(icov)->isNoStatForVariance();
     _isNoStatForVariance[icov] = nostaticov;
     _allStat = _allStat && !nostaticov;
   }
@@ -149,7 +149,7 @@ void PrecisionOpMulti::_buildQop(bool stencil)
 {
   for (int i = 0, number = _getNCov(); i < number; i++)
   {
-     CovAniso* cova = _model->getCova(_covList[i]);
+     CovAniso* cova = _model->getCovAniso(_covList[i]);
     _pops.push_back(PrecisionOp::create(_meshes[i], cova, stencil));
   }
 }
@@ -262,7 +262,7 @@ int PrecisionOpMulti::_buildGlobalMatricesStationary(int icov)
 
 int PrecisionOpMulti::_buildLocalMatricesNoStat(int icov)
 {
-  CovAniso* cova = _model->getCova(icov);
+  CovAniso* cova = _model->getCovAniso(icov);
   int nvar = _getNVar();
   cova->informMeshByApexForSills(_meshes[icov]);
   int nvertex =  (int)_meshes[icov]->getNApices();

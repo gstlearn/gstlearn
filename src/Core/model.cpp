@@ -100,7 +100,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
   int lec = 0;
   for (int icov = 0; icov < ncova; icov++)
   {
-    cova = model->getCova(icov);
+    cova = model->getCovAniso(icov);
     sill = model->getSill(icov, 0, 0);
     for (int ifact = 0; ifact < nfact; ifact++, lec++)
     {
@@ -211,7 +211,7 @@ void model_covupdt(Model *model,
   rank_nugget = -1;
   for (icov = 0; icov < ncova; icov++)
   {
-    cova = model->getCova(icov);
+    cova = model->getCovAniso(icov);
     if (cova->getType() == ECov::NUGGET) rank_nugget = icov;
     rank[icov] = icov;
     range[icov] = cova->getRange();
@@ -226,7 +226,7 @@ void model_covupdt(Model *model,
   for (jcov = 0; jcov < ncova && rank_exceed < 0; jcov++)
   {
     icov = rank[ncova - 1 - jcov];
-    cova = model->getCova(icov);
+    cova = model->getCovAniso(icov);
     if (cova->getType() == ECov::NUGGET) continue;
     for (ivar = 0; ivar < nvar; ivar++)
     {
@@ -267,7 +267,7 @@ void model_covupdt(Model *model,
     for (jcov = rank_exceed; jcov < ncova; jcov++)
     {
       icov = rank[ncova - 1 - jcov];
-      cova = model->getCova(icov);
+      cova = model->getCovAniso(icov);
       if (cova->getType() == ECov::NUGGET) continue;
       for (ivar = 0; ivar < nvar; ivar++)
         for (jvar = 0; jvar < nvar; jvar++)
@@ -281,7 +281,7 @@ void model_covupdt(Model *model,
     for (jcov = 0; jcov < ncova; jcov++)
     {
       icov = rank[ncova - 1 - jcov];
-      cova = model->getCova(icov);
+      cova = model->getCovAniso(icov);
       if (cova->getType() == ECov::NUGGET) continue;
       for (ivar = 0; ivar < nvar; ivar++)
         silltot[AD(ivar, ivar)] += model->getSill(icov, ivar, ivar);
@@ -441,7 +441,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
 
   for (int i = 0; i < model1->getNCov(); i++)
   {
-    const CovAniso* cova = model1->getCova(i);
+    const CovAniso* cova = model1->getCovAniso(i);
     sill.setValue(0, 0, cova->getSill(0, 0));
     sill.setValue(1, 0, r * cova->getSill(0, 0));
     sill.setValue(1, 1, r * r * cova->getSill(0, 0));
@@ -453,7 +453,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
 
   for (int i = 0; i < model2->getNCov(); i++)
   {
-    const CovAniso* cova = model2->getCova(i);
+    const CovAniso* cova = model2->getCovAniso(i);
     sill.setValue(0,0, 0.);
     sill.setValue(0,1, 0.);
     sill.setValue(1,1, (1. - r * r) * cova->getSill(0, 0));

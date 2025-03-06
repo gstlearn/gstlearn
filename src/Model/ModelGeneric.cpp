@@ -23,10 +23,29 @@ ModelGeneric::ModelGeneric(const CovContext &ctxt)
 {
 }
 
+ModelGeneric::ModelGeneric(const ModelGeneric& r)
+
+{
+  _cova      = (ACov*)r._cova->clone();
+  _driftList = (DriftList*)r._driftList->clone();
+  _ctxt      = r._ctxt;
+}
+
+ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
+
+{
+  if (this != &r)
+  {
+    _cova      = (ACov*)r._cova->clone();
+    _driftList = (DriftList*)r._driftList->clone();
+    _ctxt      = r._ctxt;
+  }
+  return *this;
+}
+
 ModelGeneric::~ModelGeneric()
 {
 }
-
 
 void ModelGeneric::setField(double field)
 {
@@ -184,6 +203,26 @@ void ModelGeneric::setDriftList(const DriftList* driftlist)
 
   // Check that the DriftList has the same type of CovContext as the Model
   _driftList->copyCovContext(_ctxt);
+}
+
+void ModelGeneric::setCov(ACov* cova)
+{
+  if (cova == nullptr) return;
+  delete _cova;
+  _cova = cova;
+
+  // Set the Context of ModelGeneric (cross_check with DriftList)
+  if (_driftList != nullptr)
+  {
+    if (! _driftList->getContext().isEqual(cova->getContext()))
+    {
+      messerr("Cova and DriftList do not share the same CovContext");
+      messerr("Operation cancelled");
+      return;
+    }
+  }
+
+  _ctxt = cova->getContext();
 }
 
 /**

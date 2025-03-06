@@ -25,7 +25,7 @@ dat.addColumns(coords[:,1],"Y",gl.ELoc.X,1)
 model = gl.Model.createFromParam(type = gl.ECov.MATERN, ranges = [4., 45.])
 spirale = gl.FunctionalSpirale(0., -1.4, 1., 1., 50., 50.)
 nostat = gl.NoStatFunctionalCov(spirale)
-model.getCova(0).addNoStat(nostat)
+model.getCovAniso(0).addNoStat(nostat)
 
 # Create turbo meshing
 
@@ -33,8 +33,8 @@ workingDb = gl.DbGrid.create([101,101],[1,1])
 mesh = gl.MeshETurbo(workingDb)
 
 # Create shift operator
-S = gl.ShiftOpMatrix(mesh, model.getCova(0), resultDb)
-S.initGradFromMesh(mesh,model.getCova(0))
+S = gl.ShiftOpMatrix(mesh, model.getCovAniso(0), resultDb)
+S.initGradFromMesh(mesh,model.getCovAniso(0))
 S.getSGrad(0,0)
 
 print("Test successfully performed")

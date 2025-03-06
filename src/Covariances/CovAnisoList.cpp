@@ -28,36 +28,22 @@
 #include <math.h>
 #include <vector>
 
-
 CovAnisoList::CovAnisoList(const CovContext& ctxt)
-: CovList(ctxt),
-  _covAnisos()
+  : CovList(ctxt)
 {
 }
 
-CovAnisoList::CovAnisoList(const CovAnisoList &r)
-: CovList(r.getContext()),
-  _covAnisos()
+CovAnisoList::CovAnisoList(const CovAnisoList& r)
+  : CovList(r)
 {
-  for (auto* e: r._covAnisos)
-  {
-    _pushCov(e->clone());
-  }
-  _filtered = r._filtered;
-  _updateLists();
 }
 
 CovAnisoList& CovAnisoList::operator=(const CovAnisoList &r)
 {
+
   if (this != &r)
   {
-    _ctxt = r._ctxt;
-    for (auto *e: r._covAnisos)
-    {
-     _pushCov(e->clone());
-    }
-    _filtered = r._filtered;
-    _updateLists();
+    CovList::operator=(r);
   }
   return *this;
 }
@@ -70,57 +56,39 @@ CovAnisoList::~CovAnisoList()
 void CovAnisoList::addCovList(const CovAnisoList* covs)
 {
   for (int icov = 0, ncov = covs->getNCov(); icov < ncov; icov++)
-    addCov(covs->getCova(icov));
+    addCov(covs->getCovAniso(icov));
 }
 
-void CovAnisoList::addCov(const CovBase* cov)
+void CovAnisoList::addCov(const CovBase* cov) 
 {
-  const CovAniso* covaniso = dynamic_cast<const CovAniso*>(cov);
-  if (covaniso != nullptr)
-    addCovAniso(covaniso);
-  else
-    messerr("Error: CovAnisoList::addCov: Covariance is not of type CovAniso");
-}
-
-void CovAnisoList::addCovAniso(const CovAniso* cov)
-{
-  if (getNCov() == 0)
+  if (dynamic_cast<const CovAniso*>(cov) == nullptr)
   {
-    setNVar(cov->getNVar());
+    messerr("The argument should be of type 'CovAniso*'");
+    return;
   }
-  else
+  CovList::addCov(cov);
+}
+
+const CovAniso* CovAnisoList::_getCovAniso(int icov) const
+{
+  if (!_isCovarianceIndexValid(icov)) return nullptr;
+  const CovAniso* covaniso = dynamic_cast<const CovAniso*>(_covs[icov]);
+  if (covaniso == nullptr)
   {
-    // A covariance has already been considered.
-    // Check that the current Context is similar to the one of the newly
-    // added covariance
-
-    if (! cov->getContext().isEqual(_covs[0]->getContext()))
-    {
-      messerr("Error: Covariances in the same CovAnisoList should share the same Context");
-      messerr("Operation is cancelled");
-      return;
-    }
+    messerr("The element 'icov' is not a CovAniso");
   }
-  _pushCov(cov);
-  _filtered.push_back(false);
-  _updateLists();
+  return covaniso;
 }
 
-void CovAnisoList::_pushCov(const CovAniso* cov)
+CovAniso* CovAnisoList::_getCovAnisoModify(int icov)
 {
-   CovAniso* covcopy = cov->clone();
-  _covs.push_back(covcopy);
-  _covAnisos.push_back(covcopy);
-}
-
-void CovAnisoList::_delCov(int icov)
-{
-   _covAnisos.erase(_covAnisos.begin() + icov);
-}
-
-void CovAnisoList::_delAllCov()
-{
-  _covAnisos.clear();
+  if (!_isCovarianceIndexValid(icov)) return nullptr;
+  CovAniso* covaniso = dynamic_cast<CovAniso*>(_covs[icov]);
+  if (covaniso == nullptr)
+  {
+    messerr("The element 'icov' is not a CovAniso");
+  }
+  return covaniso;
 }
 
 bool CovAnisoList::isNoStat() const
@@ -132,12 +100,7 @@ bool CovAnisoList::isNoStat() const
   }
   return nostat;
 }
-void CovAnisoList::setCovFiltered(int icov, bool filtered)
-{
-  if (! _isCovarianceIndexValid(icov)) return;
-  _filtered[icov] = filtered;
-  _updateLists();
-}
+
 
 bool CovAnisoList::isConsistent(const ASpace* /*space*/) const
 {
@@ -151,7 +114,6 @@ int CovAnisoList::getNVar() const
     return _covs[0]->getNVar();
   return 0;
 }
-
 
 double CovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
@@ -169,7 +131,7 @@ String CovAnisoList::toString(const AStringFormat* /*strfmt*/) const
 
   for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
   {
-    sstr << getCova(icov)->toString();
+    sstr << getCovAniso(icov)->toString();
     if (isFiltered(icov)) sstr << "  (This component is Filtered)" << std::endl;
   }
 
@@ -199,22 +161,16 @@ int CovAnisoList::getNCov(bool skipNugget) const
   int nstruc = 0;
   for (int icov = 0; icov < ncov; icov++)
   {
-    if (getCova(icov)->getType() != ECov::NUGGET) nstruc++;
+    if (getCovAniso(icov)->getType() != ECov::NUGGET) nstruc++;
   }
   return nstruc;
-}
-
-bool CovAnisoList::isFiltered(int icov) const
-{
-  if (!_isCovarianceIndexValid(icov)) return false;
-  return _filtered[icov];
 }
 
 bool CovAnisoList::hasRange() const
 {
   for (int i = 0, n = getNCov(); i < n; i++)
   {
-    if (!getCova(i)->hasRange()) return false;
+    if (!getCovAniso(i)->hasRange()) return false;
   }
   return true;
 }
@@ -223,14 +179,17 @@ bool CovAnisoList::isStationary() const
 {
   for (int i = 0, n = getNCov(); i < n; i++)
   {
-    if (getCova(i)->getMinOrder() >= 0) return false;
+    if (getCovAniso(i)->getMinOrder() >= 0) return false;
   }
   return true;
 }
 
 CovAniso CovAnisoList::extractCova(int icov) const
 {
-  return *(_covAnisos[icov]);
+  const CovAniso* covaniso = _getCovAniso(icov);
+  if (covaniso == nullptr)
+    return CovAniso(ECov::NUGGET, CovContext());
+  return *_getCovAniso(icov);
 }
 
 /**
@@ -241,93 +200,157 @@ int CovAnisoList::getCovMinIRFOrder() const
   int nmini = -1;
   for (unsigned i = 0, n = getNCov(); i < n; i++)
   {
-    int locmini = _covAnisos[i]->getMinOrder();
+    const CovAniso* covaniso = _getCovAniso(i);
+    if (covaniso == nullptr) continue; 
+    int locmini = covaniso->getMinOrder();
     if (locmini > nmini) nmini = locmini;
   }
   return nmini;
 }
 
-const CovAniso* CovAnisoList::getCova(int icov) const
+CovAniso* CovAnisoList::getCovAniso(int icov) 
 {
   if (!_isCovarianceIndexValid(icov)) return nullptr;
-  return _covAnisos[icov];
+  return _getCovAnisoModify(icov);
 }
-CovAniso* CovAnisoList::getCova(int icov)
+const CovAniso* CovAnisoList::getCovAniso(int icov) const
 {
   if (!_isCovarianceIndexValid(icov)) return nullptr;
-  return _covAnisos[icov];
+  return _getCovAniso(icov);
 }
-void CovAnisoList::setCovAniso(int icov, CovAniso* covs)
+void CovAnisoList::setCov(int icov, const CovBase* covs) 
+// TODO rename into setOneCov
+// to be different from the one in ModelGeneric
 {
-  if (!_isCovarianceIndexValid(icov)) return;
-  _covAnisos[icov] = covs;
-  _covs[icov]      = covs;
+  if (dynamic_cast<const CovAniso*>(covs) == nullptr)
+  {
+    messerr("The argument should be of type 'CovAniso*'");
+    return;
+  }
+  CovList::setCov(icov, covs);
 }
 const ECov& CovAnisoList::getCovType(int icov) const
 {
   if (!_isCovarianceIndexValid(icov)) return ECov::UNKNOWN;
-  return _covAnisos[icov]->getType();
+  const CovAniso* covaniso = _getCovAniso(icov);
+  if (covaniso == nullptr)
+  {
+    messerr("The argument should be of type 'CovAniso*'");
+    return CovList::getCovType(icov);
+  }
+  return covaniso->getType();
 }
+
 String CovAnisoList::getCovName(int icov) const
 {
   if (!_isCovarianceIndexValid(icov)) return String();
-  return _covAnisos[icov]->getCovName();
+  const CovAniso* covaniso = _getCovAniso(icov);
+  if (covaniso == nullptr)
+  {
+    messerr("The argument should be of type 'CovAniso*'");
+    return CovList::getCovName(icov);
+  }
+  return covaniso->getCovName();
 }
 double CovAnisoList::getParam(int icov) const
 {
   if (!_isCovarianceIndexValid(icov)) return 0.;
-  return _covAnisos[icov]->getParam();
+  const CovAniso* covaniso = _getCovAniso(icov);
+  if (covaniso == nullptr)
+  {
+    messerr("The argument should be of type 'CovAniso*'");
+    return 1.;
+  }
+  return covaniso->getParam();
 }
 double CovAnisoList::getRange(int icov) const
 {
   if (!_isCovarianceIndexValid(icov)) return 0.;
-  return _covAnisos[icov]->getRange();
+  const CovAniso* covaniso = _getCovAniso(icov);
+  if (covaniso == nullptr)
+  {
+    messerr("The argument should be of type 'CovAniso*'");
+    return 0.;
+  }
+  return covaniso->getRange();
 }
 VectorDouble CovAnisoList::getRanges(int icov) const
 {
-  if (!_isCovarianceIndexValid(icov)) return 0.;
-  return _covAnisos[icov]->getRanges();
+  if (!_isCovarianceIndexValid(icov)) return VectorDouble();
+  const CovAniso* covaniso = _getCovAniso(icov);
+  if (covaniso == nullptr)
+  {
+    messerr("The argument should be of type 'CovAniso*'");
+    return VectorDouble();
+  }
+  return covaniso->getRanges();
 }
 VectorDouble CovAnisoList::getAngles(int icov) const
 {
-  if (!_isCovarianceIndexValid(icov)) return 0.;
-  return _covAnisos[icov]->getAnisoAngles();
-}
-void CovAnisoList::setSill(int icov, int ivar, int jvar, double value)
-{
-  if (!_isCovarianceIndexValid(icov)) return;
-  _covs[icov]->setSill(ivar, jvar, value);
-}
-void CovAnisoList::setSills(int icov, const MatrixSquareSymmetric& sills)
-{
-  if (!_isCovarianceIndexValid(icov)) return;
-  _covs[icov]->setSill(sills);
+  if (!_isCovarianceIndexValid(icov)) return VectorDouble();
+  const CovAniso* covaniso = _getCovAniso(icov);
+  if (covaniso == nullptr)
+  {
+    messerr("The argument should be of type 'CovAniso*'");
+    return VectorDouble();
+  }
+  return covaniso->getAnisoAngles();
 }
 void CovAnisoList::setRangeIsotropic(int icov, double range)
 {
   if (!_isCovarianceIndexValid(icov)) return;
-  _covAnisos[icov]->setRangeIsotropic(range);
+  CovAniso* covaniso = _getCovAnisoModify(icov);
+  if (covaniso == nullptr)
+  {
+    messerr("The argument should be of type 'CovAniso*'");
+    return;
+  }
+  covaniso->setRangeIsotropic(range);
 }
 void CovAnisoList::setParam(int icov, double value)
 {
   if (!_isCovarianceIndexValid(icov)) return;
-  _covAnisos[icov]->setParam(value);
+  CovAniso* covaniso = _getCovAnisoModify(icov);
+  if (covaniso == nullptr)
+  {
+    messerr("The argument should be of type 'CovAniso*'");
+    return;
+  }
+  covaniso->setParam(value);
 }
 void CovAnisoList::setMarkovCoeffs(int icov, const VectorDouble& coeffs)
 {
   if (!_isCovarianceIndexValid(icov)) return;
-  _covAnisos[icov]->setMarkovCoeffs(coeffs);
+  CovAniso* covaniso = _getCovAnisoModify(icov);
+  if (covaniso == nullptr)
+  {
+    messerr("The argument should be of type 'CovAniso*'");
+    return;
+  }
+  covaniso->setMarkovCoeffs(coeffs);
 }
 void CovAnisoList::setType(int icov, const ECov& type)
 {
   if (!_isCovarianceIndexValid(icov)) return;
-  _covAnisos[icov]->setType(type);
+  CovAniso* covaniso = _getCovAnisoModify(icov);
+  if (covaniso == nullptr)
+  {
+    messerr("The argument should be of type 'CovAniso*'");
+    return;
+  }
+  covaniso->setType(type);
 }
 
 int CovAnisoList::getNGradParam(int icov) const
 {
   if (!_isCovarianceIndexValid(icov)) return 0;
-  return _covAnisos[icov]->getNGradParam();
+  const CovAniso* covaniso = _getCovAniso(icov);
+  if (covaniso == nullptr)
+  {
+    messerr("The argument should be of type 'CovAniso*'");
+    return 0;
+  }
+  return covaniso->getNGradParam();
 }
 
 /**
@@ -341,7 +364,7 @@ double CovAnisoList::getTotalSill(int ivar, int jvar) const
   double sill_total = 0.;
   for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
   {
-    const CovAniso* cova = getCova(icov);
+    const CovAniso* cova = getCovAniso(icov);
     if (cova->getMinOrder() >= 0) return TEST;
     sill_total += cova->getSill(ivar, jvar);
   }
@@ -363,41 +386,12 @@ double CovAnisoList::getMaximumDistance() const
   double maxdist = 0.;
   for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
   {
-    const CovAniso* cova = getCova(icov);
+    const CovAniso* cova = getCovAniso(icov);
     if (!cova->hasRange()) continue;
     double range = cova->getRange();
     if (range > maxdist) maxdist = range;
   }
   return maxdist;
-}
-
-void CovAnisoList::_setContext(const CovContext& ctxt)
-{
-  for (auto& e: _covAnisos)
-  {
-    e->setContext(ctxt);
-  }
-}
-
-void CovAnisoList::copyCovContext(const CovContext& ctxt)
-{
-  int number = (int)_covAnisos.size();
-  for (int i = 0; i < number; i++) _covAnisos[i]->copyCovContext(ctxt);
-}
-
-void CovAnisoList::normalize(double sill, int ivar, int jvar)
-{
-  double covval = 0.;
-  for (int i = 0, n = getNCov(); i < n; i++) covval += _covs[i]->eval0(ivar, jvar);
-
-  if (covval <= 0. || isEqual(covval, sill)) return;
-  double ratio = sill / covval;
-
-  for (int i = 0, n = getNCov(); i < n; i++)
-  {
-    CovAniso* cov = _covAnisos[i];
-    cov->setSill(cov->getSill(ivar, jvar) * ratio);
-  }
 }
 
 bool CovAnisoList::hasNugget() const
@@ -424,8 +418,8 @@ const CovAnisoList* CovAnisoList::createReduce(const VectorInt& validVars) const
 
   for (int is = 0, ns = getNCov(); is < ns; is++)
   {
-    CovAniso* covs = newcovlist->getCova(is);
-    newcovlist->setCovAniso(is, covs->createReduce(validVars));
+    CovAniso* covs = newcovlist->getCovAniso(is);
+    newcovlist->setCov(is, covs->createReduce(validVars));
   }
   return newcovlist;
 }
@@ -437,7 +431,7 @@ const CovAnisoList* CovAnisoList::createReduce(const VectorInt& validVars) const
 double CovAnisoList::getBallRadius() const
 {
   // Check is performed on the first covariance
-  const CovAniso* cova = getCova(0);
+  const CovAniso* cova = getCovAniso(0);
   double ball_radius   = cova->getBallRadius();
   if (!FFFF(ball_radius)) return ball_radius;
   return 0.;
@@ -486,8 +480,8 @@ const EModelProperty& CovAnisoList::getCovMode() const
 
 void CovAnisoList::setOptimEnabled(bool status)
 {
-  for (auto& e: _covAnisos)
+  for (auto& e: _covs)
   {
-    e->setOptimEnabled(status);
+    ((CovAniso*)e)->setOptimEnabled(status);
   }
 }

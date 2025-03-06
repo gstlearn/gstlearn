@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/AStringFormat.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Enum/ESpaceType.hpp"
 
 #include "Matrix/MatrixRectangular.hpp"

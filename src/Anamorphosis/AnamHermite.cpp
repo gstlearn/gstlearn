@@ -10,12 +10,13 @@
 /******************************************************************************/
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
-#include "Polynomials/Hermite.hpp"
 #include "Basic/Interval.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
+#include "Polynomials/Hermite.hpp"
 #include "Stats/Selectivity.hpp"
 
 #include <math.h>

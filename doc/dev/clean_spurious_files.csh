@@ -4,7 +4,10 @@
 # It can be used to suppress all files given their names (exact matching)
 #
 # The search is performed from the current directory
+# This script requires the environment variable GSTLEARN_DIR
 #
+set DIR = $GSTLEARN_DIR/gstlearn
+cd $DIR
 
 # Check the list of targeted files:
 find . -type f -name 2 

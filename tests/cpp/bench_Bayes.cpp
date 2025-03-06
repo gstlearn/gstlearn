@@ -25,6 +25,7 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Estimation/CalcKriging.hpp"

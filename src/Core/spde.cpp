@@ -462,7 +462,7 @@ static CovAniso* st_get_nugget(void)
   model = st_get_model();
   for (int is = 0; is < model->getNCov(); is++)
   {
-    cova = model->getCova(is);
+    cova = model->getCovAniso(is);
     if (cova->getType() == ECov::NUGGET) return (cova);
   }
   return (nullptr);
@@ -485,7 +485,7 @@ static CovAniso* st_get_cova(void)
 
   for (int icov = jcov = 0; icov < model->getNCov(); icov++)
   {
-    cova = model->getCova(icov);
+    cova = model->getCovAniso(icov);
     if (cova->getType() == ECov::NUGGET) continue;
     if (is0 == jcov) return (cova);
     jcov++;
@@ -934,7 +934,7 @@ static int st_get_ncova(void)
   if (model == nullptr) return (ncova);
   for (int is = 0; is < model->getNCov(); is++)
   {
-    cova = model->getCova(is);
+    cova = model->getCovAniso(is);
     if (cova->getType() != ECov::NUGGET) ncova++;
   }
   return (ncova);
@@ -1349,7 +1349,7 @@ int spde_attach_model(Model *model)
 
   for (int icov = 0; icov < model->getNCov(); icov++)
   {
-    cova = model->getCova(icov);
+    cova = model->getCovAniso(icov);
     if (cova->getType() == ECov::MATERN)
     {
       continue;
@@ -1361,7 +1361,7 @@ int spde_attach_model(Model *model)
     }
     if (cova->getType() == ECov::NUGGET)
     {
-      if (model->getCova(icov)->getSill(0, 0) > 0)
+      if (model->getCovAniso(icov)->getSill(0, 0) > 0)
         st_set_filnug(model->getCovAnisoList()->isFiltered(icov));
     }
     else
@@ -1469,7 +1469,7 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
   flag_nugget = 0;
   for (int icov = 0; icov < model->getNCov(); icov++)
   {
-    cova = model->getCova(icov);
+    cova = model->getCovAniso(icov);
     silltot += cova->getSill(0, 0);
     if (cova->getType() == ECov::MATERN)
     {

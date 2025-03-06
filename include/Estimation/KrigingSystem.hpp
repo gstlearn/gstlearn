@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Covariances/CovAnisoList.hpp"
 #include "Estimation/KrigingAlgebra.hpp"
 #include "Estimation/KrigOpt.hpp"
 #include "Model/ModelGeneric.hpp"
@@ -250,6 +249,4 @@ private:
   mutable bool _flagNoMatLC;
   mutable bool _flagVerr;
   mutable bool _flagNoStat;
-  mutable CovAnisoList* _cova;
 };
-

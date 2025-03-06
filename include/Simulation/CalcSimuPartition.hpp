@@ -57,6 +57,7 @@ private:
   bool _verbose;
   int  _iattOut;
   SimuPartitionParam _parparam;
+  Model* _modelLocal;
 };
 
 GSTLEARN_EXPORT int tessellation_voronoi(DbGrid *dbgrid,

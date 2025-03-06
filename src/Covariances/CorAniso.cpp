@@ -142,7 +142,7 @@ void CorAniso::computeMarkovCoeffs()
 
 void CorAniso::_setContext(const CovContext &ctxt)
 {
-  DECLARE_UNUSED(ctxt)
+  _corfunc->setContext(ctxt);
   updateFromContext();
 }
 
@@ -622,12 +622,9 @@ String CorAniso::toString(const AStringFormat* strfmt) const
   sstr << _corfunc->toString(strfmt);
   sstr << toStringParams(strfmt);
   
-   
   // Non-stationary parameters
-
   return sstr.str();
 }
-
 
 /*****************************************************************************/
 /*!
@@ -718,10 +715,8 @@ void CorAniso::_initFromContext()
 
 void CorAniso::_updateFromContext()
 {
-  
   computeMarkovCoeffs();
   computeCorrec();
-
 }
 
 /**

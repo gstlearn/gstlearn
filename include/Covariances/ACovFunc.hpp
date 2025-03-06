@@ -87,6 +87,7 @@ public:
 
   void setParam(double param);
   void setField(double field);
+  void setContext(const CovContext& ctxt) {_ctxt = ctxt; }
   double evalCov(double h) const;
   double evalCovDerivative(int degree, double h) const;
   double evalCovOnSphere(double alpha,

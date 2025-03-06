@@ -10,10 +10,10 @@ db["angles"]  = (20+10*np.arange(1,5))*1
 
 # Creating the non-stationary Model
 m = gl.Model.createFromParam(gl.ECov.EXPONENTIAL)
-m.getCova(0).attachNoStatDb(db)
-m.getCova(0).makeScaleNoStatDb("scales1",0)
-m.getCova(0).makeScaleNoStatDb("scales2",1)
-m.getCova(0).makeAngleNoStatDb("angles")
+m.getCovAniso(0).attachNoStatDb(db)
+m.getCovAniso(0).makeScaleNoStatDb("scales1",0)
+m.getCovAniso(0).makeScaleNoStatDb("scales2",1)
+m.getCovAniso(0).makeAngleNoStatDb("angles")
 
 # Calculating the data covariance matrix (using gstlearn)
 covmat_gstlearn = m.evalCovMat(db,db).toTL()
@@ -51,8 +51,8 @@ print(str(gt.checkEqualityVector(covmat_gstlearn, covmat_hand)))
 
 ####
 m = gl.Model.createFromParam(gl.ECov.EXPONENTIAL)
-m.getCova(0).attachNoStatDb(db)
-m.getCova(0).makeAngleNoStatDb("angles")
+m.getCovAniso(0).attachNoStatDb(db)
+m.getCovAniso(0).makeAngleNoStatDb("angles")
 
 # Calculating the data covariance matrix (using gstlearn)
 covmat_gstlearn = m.evalCovMatSym(db).toTL()
@@ -66,8 +66,8 @@ def rotmat(theta):
     thp = theta/180 * np.pi
     return np.array([[np.cos(thp),-np.sin(thp)],[np.sin(thp),np.cos(thp)]])
 
-scale1 = m.getCova(0).getScale(0)
-scale2 = m.getCova(0).getScale(1)
+scale1 = m.getCovAniso(0).getScale(0)
+scale2 = m.getCovAniso(0).getScale(1)
 for i in range(4):
     R = rotmat(db["angles"][i])
     Sigmai = R@np.diag([scale1**2,scale2**2])@R.T
@@ -92,11 +92,11 @@ print(str(gt.checkEqualityVector(covmat_gstlearn, covmat_hand)))
 
 # Creating the non-stationary Model
 m = gl.Model.createFromParam(gl.ECov.MATERN)
-covfunc = m.getCova(0).getCorFunc().evalCov
-m.getCova(0).attachNoStatDb(db)
-m.getCova(0).makeScaleNoStatDb("scales1",0)
-m.getCova(0).makeScaleNoStatDb("scales2",1)
-m.getCova(0).makeAngleNoStatDb("angles")
+covfunc = m.getCovAniso(0).getCorFunc().evalCov
+m.getCovAniso(0).attachNoStatDb(db)
+m.getCovAniso(0).makeScaleNoStatDb("scales1",0)
+m.getCovAniso(0).makeScaleNoStatDb("scales2",1)
+m.getCovAniso(0).makeAngleNoStatDb("angles")
 
 # Calculating the data covariance matrix (using gstlearn)
 covmat_gstlearn = m.evalCovMatSym(db).toTL()

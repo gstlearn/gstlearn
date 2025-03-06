@@ -103,7 +103,7 @@ def startingIndex(dat):
 def IsoStat(dat,model):
 
     #On calcule l'inverse de la matrice de Sills
-    sillmat = model.getCova(0).getSill().toTL()
+    sillmat = model.getCovAniso(0).getSill().toTL()
     update(dat,sillmat,0)
     invAic = np.linalg.inv(sillmat) 
     
@@ -160,7 +160,7 @@ def GeneralCase(dat,model):
 
     triplet = gl.NF_Triplet()
 
-    sillMat = model.getCova(0).getSill().toTL()
+    sillMat = model.getCovAniso(0).getSill().toTL()
 
     if measurementErrorAllEquals(dat):
        update(dat,sillMat,0) ##### ATTENTION, je n'ai pas traité le cas où le premier échantillon
@@ -172,7 +172,7 @@ def GeneralCase(dat,model):
         isdefined = heterobool(dat,iech) #privilegier un proto heterobool(const &db, int, &vector<int>)
         indexdefined = np.where(isdefined)[0]
 
-        if ~model.getCova(0).isNoStat() and measurementErrorAllEquals(dat):
+        if ~model.getCovAniso(0).isNoStat() and measurementErrorAllEquals(dat):
             hetero = codeHetero(isdefined)
             #Si on n'a pas encore trouvé cette configuration d'hétérotopie,
             #on inverse la sous matrice des AIC correspondante et on la stocke
@@ -193,7 +193,7 @@ def GeneralCase(dat,model):
 def computeInvNoise(dat,model,verbose=True, debug=False):
   
     #Si le modèle est stationnaire et qu'il n'y a pas d'hétérotopie
-    if not model.getCova(0).isNoStat() and dat.isAllIsotopic() and measurementErrorAllEquals(dat):
+    if not model.getCovAniso(0).isNoStat() and dat.isAllIsotopic() and measurementErrorAllEquals(dat):
         if verbose:
             print("---------------------------------------------------------")
             print(f"Isotopic and Stationary and Measurement error identical:")
@@ -234,9 +234,9 @@ def createDb(ndat,hetero,measurement_error,measurement_error_all_equal,nostat=Fa
         dat["v11"] =  np.abs(np.random.normal(size=ndat)) 
         dat["v22"] =  np.abs(np.random.normal(size=ndat)) 
         dat["v12"] =  np.abs(np.random.uniform(size=ndat))*np.sqrt(dat["v11"]*dat["v22"])
-        model.getCova(0).makeSillNoStatDb("v11",0,0,dat)
-        model.getCova(0).makeSillNoStatDb("v12",0,1,dat)
-        model.getCova(0).makeSillNoStatDb("v22",1,1,dat)
+        model.getCovAniso(0).makeSillNoStatDb("v11",0,0,dat)
+        model.getCovAniso(0).makeSillNoStatDb("v12",0,1,dat)
+        model.getCovAniso(0).makeSillNoStatDb("v22",1,1,dat)
 
 
     if hetero:

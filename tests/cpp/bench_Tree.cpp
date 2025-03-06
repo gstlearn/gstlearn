@@ -15,6 +15,7 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Tree/Ball.hpp"
 

@@ -24,7 +24,7 @@ class CorAniso;
  * This class describes the Gneiting correlation function.
  *
  */
-class GSTLEARN_EXPORT CorGneiting: public ACov, public ICloneable//, public ICloneable
+class GSTLEARN_EXPORT CorGneiting: public ACov
 {
 public:
   CorGneiting(const CorAniso* covS, const CorAniso* covTemp, double separability = 1.0);
@@ -33,13 +33,12 @@ public:
   virtual ~CorGneiting();
   IMPLEMENT_CLONING(CorGneiting)
 
-  bool isConsistent(const ASpace* space) const override 
+  bool isConsistent(const ASpace* space) const override
   {
     DECLARE_UNUSED(space)
-    return true; 
+    return true;
   }
   /// ACov Interface
-
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
                       int ivar                = 0,
@@ -56,7 +55,6 @@ private:
   void _optimizationPostProcess() const override;
 
 private:
-  CovContext _ctxt;                    /// Context (space, number of variables, ...) // TODO : Really store a copy ?
   const CorAniso* _covS;
   const CorAniso* _covTemp;
   double _separability;

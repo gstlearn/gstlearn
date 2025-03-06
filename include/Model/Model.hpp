@@ -28,15 +28,15 @@
 
 #include "Drifts/DriftList.hpp"
 
+#include "Matrix/MatrixSquareSymmetric.hpp"
+
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
-#include "Covariances/CovAniso.hpp"
 
 #include "Anamorphosis/AAnam.hpp"
 
 #include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
 
 class Model;
@@ -45,7 +45,6 @@ class CovLMCTapering;
 class CovLMCAnamorphosis;
 class CovLMGradient;
 class CovInternal;
-class MatrixSquareSymmetric;
 class CovCalcMode;
 class Vario;
 class ADrift;
@@ -111,24 +110,24 @@ public:
                   const VectorDouble& angles         = VectorDouble(),
                   const ASpaceSharedPtr& space       = ASpaceSharedPtr(),
                   bool flagRange                     = true);
-  static Model* createFromParamOldStyle(const ECov& type = ECov::fromKey("NUGGET"),
-                          double range               = 1.,
-                          double sill                = 1.,
-                          double param               = 1.,
-                          const VectorDouble& ranges = VectorDouble(),
-                          const VectorDouble& sills  = VectorDouble(),
-                          const VectorDouble& angles = VectorDouble(),
-                          const ASpaceSharedPtr& space = ASpaceSharedPtr(),
-                          bool flagRange             = true);
+  static Model* createFromParamOldStyle(const ECov& type             = ECov::fromKey("NUGGET"),
+                                        double range                 = 1.,
+                                        double sill                  = 1.,
+                                        double param                 = 1.,
+                                        const VectorDouble& ranges   = VectorDouble(),
+                                        const VectorDouble& sills    = VectorDouble(),
+                                        const VectorDouble& angles   = VectorDouble(),
+                                        const ASpaceSharedPtr& space = ASpaceSharedPtr(),
+                                        bool flagRange               = true);
   static Model* createFromDb(const Db* db);
   static Model* createFromNF(const String& neutralFilename,
                              bool verbose = true);
   static Model* createFromVario(Vario* vario,
-                  const VectorECov& types = ECov::fromKeys({"SPHERICAL"}),
-                  const Constraints& constraints = Constraints(),
-                  const Option_VarioFit& optvar  = Option_VarioFit(),
-                  const Option_AutoFit& mauto    = Option_AutoFit(),
-                  bool verbose                   = false);
+                                const VectorECov& types        = ECov::fromKeys({"SPHERICAL"}),
+                                const Constraints& constraints = Constraints(),
+                                const Option_VarioFit& optvar  = Option_VarioFit(),
+                                const Option_AutoFit& mauto    = Option_AutoFit(),
+                                bool verbose                   = false);
   static Model* createFillRandom(int ndim,
                                  int nvar,
                                  const std::vector<ECov>& types = ECov::fromKeys({"SPHERICAL"}),
@@ -137,15 +136,15 @@ public:
                                  int nfex                       = 0,
                                  int seed                       = 13242);
   void setCovAnisoList(const CovAnisoList* covalist);
-  void addCov(const CovAniso* cov);
+  void addCov(const CovBase* cov) override;
   void addCovFromParam(const ECov& type,
-                  double range                       = EPSILON6,
-                  double sill                        = 1.,
-                  double param                       = 1.,
-                  const VectorDouble& ranges         = VectorDouble(),
-                  const MatrixSquareSymmetric& sills = MatrixSquareSymmetric(),
-                  const VectorDouble& angles         = VectorDouble(),
-                  bool flagRange                     = true);
+                       double range                       = EPSILON6,
+                       double sill                        = 1.,
+                       double param                       = 1.,
+                       const VectorDouble& ranges         = VectorDouble(),
+                       const MatrixSquareSymmetric& sills = MatrixSquareSymmetric(),
+                       const VectorDouble& angles         = VectorDouble(),
+                       bool flagRange                     = true);
   void addCovFromParamOldStyle(const ECov& type,
                                double range               = EPSILON6,
                                double sill                = 1.,
@@ -154,9 +153,9 @@ public:
                                const VectorDouble& sills  = VectorDouble(),
                                const VectorDouble& angles = VectorDouble(),
                                bool flagRange             = true);
- 
+
   FORWARD_METHOD(castInCovAnisoListConst, getActiveFactor,ITEST)
-  FORWARD_METHOD(castInCovAnisoListConst, getCova)
+  FORWARD_METHOD(castInCovAnisoListConst, getCovAniso)
   FORWARD_METHOD(castInCovAnisoListConst, getNCov,ITEST)
   FORWARD_METHOD(castInCovAnisoListConst, getCovType, ECov::UNKNOWN)
   FORWARD_METHOD(castInCovAnisoListConst, getRange, TEST)
@@ -181,12 +180,11 @@ public:
   FORWARD_METHOD(castInCovAnisoListConst, getCovMode, EModelProperty::NONE)
 
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setActiveFactor)
-  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, getCova)
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, getCovAniso)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setSill)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setSills)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setRangeIsotropic)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setMarkovCoeffs)
-  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setCovFiltered)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setOptimEnabled)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, normalize)
 
@@ -208,11 +206,6 @@ public:
   double evalCov(const VectorDouble& incr,
                  int icov = 0,
                  const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-
-  ////////////////////////////////////////////////
-  /// TODO : to be removed (encapsulation of Context)
-  void setField(double field);
-  /////////////////////////////////////////////////
 
   Model* duplicate() const;
   Model* createReduce(const VectorInt& validVars) const;
@@ -242,7 +235,6 @@ public:
   int stabilize(double percent, bool verbose = false);
   int standardize(bool verbose = false);
 
-  
   static void gofDisplay(double gof,
                          bool byValue                   = true,
                          const VectorDouble& thresholds = {2., 5., 10., 100});

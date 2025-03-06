@@ -21,8 +21,6 @@
 #include "Covariances/CovList.hpp"
 #include "Covariances/CovCalcMode.hpp"
 
-#include <vector>
-
 class ASpace;
 class SpacePoint;
 class MatrixSquareGeneral;
@@ -35,15 +33,11 @@ class EModelProperty;
 
 /**
  * \brief
- * This class describes the **Covariance** as a list of elementary covariances (see CovAniso.hpp for more details)
+ * This class describes the **Covariance** as a list of elementary covariances 
+ * (see CovAniso.hpp for more details)
  * where the calculation rule is simple: the returned value is the **sum** of each elementary (active) covariance function.
- *
- * This class also carry two other important informations:
- * - a vector giving the status of each elementary covariance item: it may be *active* or *filtered*
- * - a complex structure allowing each parameter (range, sill, anisotropy angle, ...) of each of the elementary covariances
- * to be non-stationary (to have a value which depends on the location). For more details, see ANoStat.hpp.
  */
-class GSTLEARN_EXPORT CovAnisoList : public CovList, public ICloneable
+class GSTLEARN_EXPORT CovAnisoList : public CovList
 // TODO : rename CovAnisoList (this is not an abstract class)
 {
 public:
@@ -69,7 +63,6 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// CovAnisoList Interface
-  virtual void addCovAniso(const CovAniso* cov);
   void addCov(const CovBase* cov) override;
   const AnamHermite* getAnamHermite() const;
 
@@ -82,29 +75,22 @@ public:
 
   void addCovList(const CovAnisoList* covs);
 
-  // Filter a covariance
-  void setCovFiltered(int icov, bool filtered);
-
   int             getNCov(bool skipNugget = false) const;
-  bool            isFiltered(int icov) const;
   bool            hasRange() const;
   bool            isStationary() const;
   double          getMaximumDistance() const;
   double          getTotalSill(int ivar = 0, int jvar = 0) const override;
-  void            normalize(double sill = 1., int ivar=0, int jvar=0);
   bool            isNoStat() const override;
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
-  const CovAniso*    getCova(int icov) const;
-  CovAniso*          getCova(int icov); // TODO : beurk :(
-  void               setCovAniso(int icov, CovAniso* covs);
+  const CovAniso*    getCovAniso(int icov) const;
+  CovAniso*          getCovAniso(int icov); // TODO : beurk :(
+  void               setCov(int icov, const CovBase* cov) override;
   const ECov&        getCovType(int icov) const override;
   String             getCovName(int icov) const override;
   void               setRangeIsotropic(int icov, double range);
   void               setType(int icov, const ECov& type);
   void               setParam(int icov, double value);
-  void               setSill(int icov, int ivar, int jvar, double value);
-  void               setSills(int icov, const MatrixSquareSymmetric& sills);
   void               setMarkovCoeffs(int icov, const VectorDouble& coeffs);
   double             getParam(int icov) const;
   double             getRange(int icov) const;
@@ -118,25 +104,16 @@ public:
   bool               isChangeSupportDefined() const;
   // Methods necessary for Optimization
 
-  void copyCovContext(const CovContext& ctxt);
   bool hasNugget() const;
   int  getRankNugget() const;
   const CovAnisoList* createReduce(const VectorInt& validVars) const;
   void setOptimEnabled(bool status);
 
 private:
-  void _setContext(const CovContext& ctxt) override;
-  // Remove an elementary covariance structure
-  void _delCov(int icov) override;
-  // Remove all elementary covariance structures
-  void _delAllCov() override;
+  // Returns a pointer on an existing Cov and cast it to CovAniso
+  const CovAniso* _getCovAniso(int icov) const;
+  CovAniso* _getCovAnisoModify(int icov);
 
 protected:
-  void _pushCov(const CovAniso* cov);
   bool _isCovarianceIndexValid(int icov) const;
-  
-#ifndef SWIG
-protected:
- std::vector<CovAniso*> _covAnisos;     /// Vector of elementary covariances
-#endif
 };

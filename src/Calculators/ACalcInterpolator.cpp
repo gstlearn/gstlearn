@@ -15,6 +15,7 @@
 #include "Db/DbHelper.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeigh.hpp"
+#include "Basic/VectorHelper.hpp"
 
 ACalcInterpolator::ACalcInterpolator()
   : ACalcDbToDb()
@@ -149,7 +150,7 @@ bool ACalcInterpolator::_check()
 
   if (_model != nullptr)
   {
-    if (_model->getNCov() <= 0)
+    if (_model->getCov() == nullptr)
     {
       messerr("The number of covariance must be positive");
       return false;
@@ -197,7 +198,11 @@ bool ACalcInterpolator::_preprocess()
 
   if (_model != nullptr)
   {
-     if (!_setNCov(_model->getNCov())) return false;
+    const ModelCovList* modelcovlist = dynamic_cast<const ModelCovList*>(_model);
+    if (modelcovlist != nullptr)
+    {
+      if (!_setNCov(modelcovlist->getNCov())) return false;
+    }
   }
 
   // Expand information amongst Db if necessary

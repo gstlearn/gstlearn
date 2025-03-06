@@ -62,10 +62,10 @@ int main(int argc, char *argv[])
   CovAniso cov1 = CovAniso(ECov::CUBIC,ctxt);
   cov1.setRanges({1.2,2.1});
   cov1.setSill(1.5);
-  covlmc.addCovAniso(&cov1);
+  covlmc.addCov(&cov1);
   CovAniso cov2 = CovAniso(ECov::NUGGET,ctxt);
   cov2.setSill(0.5);
-  covlmc.addCovAniso(&cov2);
+  covlmc.addCov(&cov2);
   // Assembling the Model
   modellmc.setCovAnisoList(&covlmc);
   modellmc.display();
@@ -84,8 +84,8 @@ int main(int argc, char *argv[])
   // Creating the Tapered Model
   CovLMCTapering covtape = CovLMCTapering(ETape::STORKEY, 4., ctxt);
   // Build the Covariance list
-  covtape.addCovAniso(&cov1);
-  covtape.addCovAniso(&cov2);
+  covtape.addCov(&cov1);
+  covtape.addCov(&cov2);
   // Building the Model
   Model modeltape = Model(ctxt);
   modeltape.setCovAnisoList(&covtape);
@@ -98,8 +98,8 @@ int main(int argc, char *argv[])
   // Creating the Convoluted Model
   CovLMCConvolution covconv = CovLMCConvolution(EConvType::EXPONENTIAL, EConvDir::X, 1., 10, ctxt);
   // Build the Covariance list
-  covconv.addCovAniso(&cov1);
-  covconv.addCovAniso(&cov2);
+  covconv.addCov(&cov1);
+  covconv.addCov(&cov2);
   // Building the Model
   Model modelconv = Model(ctxt);
   modelconv.setCovAnisoList(&covconv);
@@ -244,8 +244,8 @@ int main(int argc, char *argv[])
   Model *modelSph = Model::createFromParam(ECov::MATERN, 1./kappa, 1., mu,
                                            VectorDouble(), MatrixSquareSymmetric(),
                                            VectorDouble(), nullptr, false);
-  VH::dump("Spectrum", modelSph->getCova(0)->evalSpectrumOnSphere(ns));
-  VH::dump("Covariance", modelSph->getCova(0)->evalCovOnSphereVec(incr));
+  VH::dump("Spectrum", modelSph->getCovAniso(0)->evalSpectrumOnSphere(ns));
+  VH::dump("Covariance", modelSph->getCovAniso(0)->evalCovOnSphereVec(incr));
 
 
   delete workingDbc;

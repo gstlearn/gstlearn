@@ -54,7 +54,7 @@ def create(nvar = 1, multistruct = True, nostatType = "Fake",nx1 = [4,4],nx2 = [
     if multistruct:
         modelMulti2 = gl.Model.createFromParam(gl.ECov.MATERN,param=2,
                                                sills = sills2,range = 10)
-        modelMulti.addCov(modelMulti2.getCova(0))
+        modelMulti.addCov(modelMulti2.getCovAniso(0))
 
     if nostat:
         grid  = gl.DbGrid.create(nx1)
@@ -65,21 +65,21 @@ def create(nvar = 1, multistruct = True, nostatType = "Fake",nx1 = [4,4],nx2 = [
             rho1 = eps + (grid["x1"]-np.min(grid["x1"])+eps) / (eps + np.max(grid["x1"])-np.min(grid["x1"]))
             rho2 = eps + (grid["x2"]-np.min(grid["x2"])+eps) / (eps + np.max(grid["x2"])-np.min(grid["x2"]))
             grid["rho1"] = p * rho1 + (1-p) * sills1
-            modelMulti.getCova(0).attachNoStatDb(grid)
-            modelMulti.getCova(0).makeSillNoStatDb("rho1")
+            modelMulti.getCovAniso(0).attachNoStatDb(grid)
+            modelMulti.getCovAniso(0).makeSillNoStatDb("rho1")
             if multistruct :
                 grid2["rho2"] = p * rho2 + (1-p) * sills2
-                modelMulti.getCova(1).attachNoStatDb(grid2)
-                modelMulti.getCova(1).makeSillNoStatDb("rho2")
+                modelMulti.getCovAniso(1).attachNoStatDb(grid2)
+                modelMulti.getCovAniso(1).makeSillNoStatDb("rho2")
 
         if nvar == 2:
             rho = (eps + grid["x1"]-np.min(grid["x1"])) / (eps + np.max(grid["x1"])-np.min(grid["x1"]))
             rho = logit(rho,20,10)
             grid["rho"] = rho * np.sqrt(s11*s21) * p + s121 * (1-p)
-            modelMulti.getCova(0).makeSillNoStatDb("rho",0,1,grid)
+            modelMulti.getCovAniso(0).makeSillNoStatDb("rho",0,1,grid)
         if nvar == 3:
             grid["rho"] = sills1[0,1] * np.ones_like(grid["rank"])
-            modelMulti.getCova(0).makeSillNoStatDb("rho",0,1,grid)
+            modelMulti.getCovAniso(0).makeSillNoStatDb("rho",0,1,grid)
        
     return modelMulti,meshes
 
@@ -103,7 +103,7 @@ class PrecisionOpMultiLocal:
         self.ncovar = modelC.getNCov()
         
         for i in range(self.ncovar):
-            cova = modelC.getCova(i)
+            cova = modelC.getCovAniso(i)
  
             self.sills += [cova.getSill().toTL()]
             self.invsill += [np.linalg.inv(self.sills[i])]
@@ -116,7 +116,7 @@ class PrecisionOpMultiLocal:
                                                  param = cova.getParam(),
                                                  range = cova.getRange(),
                                                  sill = 1)
-            covatemp = modelMono.getCova(0)
+            covatemp = modelMono.getCovAniso(0)
             self.Qop += [createQ(meshes[i],covatemp)]
             self.temp += [gl.VectorDouble(np.zeros(shape=self.nvertex[i]))]  
         

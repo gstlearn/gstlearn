@@ -2690,7 +2690,7 @@ int simsph(DbGrid *db,
   }
   for (int icova = 0; icova < model->getNCov(); icova++)
   {
-    if (model->getCova(icova)->getFlagAniso())
+    if (model->getCovAniso(icova)->getFlagAniso())
     {
       messerr("Only Isotropic Models may be used for Spherical Simulations");
       return 1;
@@ -2737,7 +2737,7 @@ VectorDouble simsph_mesh(MeshSpherical *mesh,
   }
   for (int icova = 0; icova < model->getNCov(); icova++)
   {
-    if (model->getCova(icova)->getFlagAniso())
+    if (model->getCovAniso(icova)->getFlagAniso())
     {
       messerr("Only Isotropic Models may be used for Spherical Simulations");
       return simu;

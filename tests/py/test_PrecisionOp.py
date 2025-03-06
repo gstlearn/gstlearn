@@ -21,7 +21,7 @@ model = gl.Model.createFromParam(gl.ECov.MATERN, param=1, range=nx/2)
 print("Number of apices = ", mesh.getNApices())
 
 # Creating the PrecisionOp with Sparse matrix implemented
-QOpCs = gl.PrecisionOpMatrix(mesh, model.getCova(0))
+QOpCs = gl.PrecisionOpMatrix(mesh, model.getCovAniso(0))
 
 # Printing the complete Precision Matrix to visualize the Diagonal
 Qmat = QOpCs.getQ()
@@ -32,7 +32,7 @@ print("Using the version with explicit Matrix")
 print(ref1)
 
 # Creating the PrecisionOp without Sparse matrix implemented
-Qop = gl.PrecisionOp(mesh, model.getCova(0))
+Qop = gl.PrecisionOp(mesh, model.getCovAniso(0))
 ref2 = Qop.extractDiag()
 print("Using the Matrix-free version")
 print(ref2)
@@ -60,7 +60,7 @@ print("Number of apices = ", mesh.getNApices())
 
 # Creating the PrecisionOpMatrix with Sparse matrix implemented
 start_time = time.time()
-QOpCs = gl.PrecisionOpMatrix(mesh, model.getCova(0))
+QOpCs = gl.PrecisionOpMatrix(mesh, model.getCovAniso(0))
 ref1 = QOpCs.extractDiag()
 checkpointOpCs = str((time.time() - start_time))
 if print_Time:
@@ -68,7 +68,7 @@ if print_Time:
 
 # Creating the Matrix-free PrecisionOp
 start_time = time.time()
-Qop = gl.PrecisionOp(mesh, model.getCova(0))
+Qop = gl.PrecisionOp(mesh, model.getCovAniso(0))
 ref2 = Qop.extractDiag()
 checkpointOp = str((time.time() - start_time))
 if print_Time:
@@ -94,7 +94,7 @@ print("Number of apices = ", mesh.getNApices())
 
 # Creating the Matrix-free PrecisionOp
 start_time = time.time()
-Qop = gl.PrecisionOp(mesh, model.getCova(0))
+Qop = gl.PrecisionOp(mesh, model.getCovAniso(0))
 ref = Qop.extractDiag()
 checkpointOp3D = str((time.time() - start_time))
 if print_Time:

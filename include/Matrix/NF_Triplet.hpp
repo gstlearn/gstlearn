@@ -34,7 +34,7 @@ class cs;
  * The format is adapter to Eigen or to csparse
  */
 
-class GSTLEARN_EXPORT NF_Triplet
+class GSTLEARN_EXPORT NF_Triplet                                                                     
 {
 public:
   NF_Triplet();

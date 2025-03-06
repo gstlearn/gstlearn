@@ -16,8 +16,9 @@
 #include "Model/Option_VarioFit.hpp"
 #include "Model/ModelOptimVario.hpp"
 #include "Model/Constraints.hpp"
+#include "Covariances/CovAniso.hpp"
 
-#define IJDIR(ijvar, ipadir)    ((ijvar)*_npadir + (ipadir))
+#define IJDIR(ijvar, ipadir)    ((ijvar) * _npadir + (ipadir))
 #define _WT(ijvar, ipadir)      _wt[IJDIR(ijvar, ipadir)]
 #define _GG(ijvar, ipadir)      _gg[IJDIR(ijvar, ipadir)]
 #define _WT2(ijvar, ipadir)     _wt2[IJDIR(ijvar, ipadir)]
@@ -280,14 +281,13 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
 
     for (int icov = 0; icov < model->getNCov(); icov++)
     {
-      ACov* cova = model->getCova(icov);
+      CovAniso* cova = model->getCovAniso(icov);
       for (int idim = 0; idim < _ndim; idim++) d1[idim] = 0.;
 
       /* Loop on the experiments */
 
       int ipadir = 0;
-      for (int idir = 0, ndir = vario->getNDir(); idir < ndir;
-           idir++)
+      for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
       {
         for (int ilag = 0, nlag = vario->getNLag(idir); ilag < nlag;
              ilag++, ipadir++)

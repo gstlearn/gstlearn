@@ -35,6 +35,39 @@ CovList::CovList(const CovContext& ctxt)
 {
 }
 
+CovList::CovList(const CovList& r)
+: ACov(r)
+{
+  for (const auto* e: r._covs)
+  {
+    _covs.push_back((CovBase*)e->clone());
+  }
+  _filtered = r._filtered;
+  _allActiveCov = r._allActiveCov;
+  _allActiveCovList = r._allActiveCovList;
+  _activeCovList = r._activeCovList;
+  _updateLists();
+}
+
+CovList& CovList::operator=(const CovList& r)
+
+{
+  if (this != &r)
+  {
+    ACov::operator=(r);
+    for (const auto* e: r._covs)
+    {
+      _covs.push_back((CovBase*)e->clone());
+    }
+    _filtered         = r._filtered;
+    _allActiveCov     = r._allActiveCov;
+    _allActiveCovList = r._allActiveCovList;
+    _activeCovList    = r._activeCovList;
+    _updateLists();
+  }
+  return *this;
+}
+
 CovList::~CovList()
 {
   delAllCov();
@@ -43,7 +76,7 @@ CovList::~CovList()
 void CovList::addCovList(const CovList* covs)
 {
   for (int icov = 0, ncov = covs->getNCov(); icov < ncov; icov++)
-    addCov(covs->getCova(icov));
+    addCov(covs->getCov(icov));
 }
 
 void CovList::addCov(const CovBase* cov)
@@ -65,7 +98,7 @@ void CovList::addCov(const CovBase* cov)
       return;
     }
   }
-  _covs.push_back(cov);
+  _covs.push_back((CovBase*) cov->clone());
   _filtered.push_back(false);
   _updateLists();
 }
@@ -113,13 +146,6 @@ bool CovList::isNoStat() const
     nostat = nostat || e->isNoStat();
   }
   return nostat;
-}
-
-void CovList::setFiltered(int icov, bool filtered)
-{
-  if (! _isCovarianceIndexValid(icov)) return;
-  _filtered[icov] = filtered;
-  _updateLists();
 }
 
 bool CovList::isConsistent(const ASpace* /*space*/) const
@@ -211,7 +237,7 @@ String CovList::toString(const AStringFormat* /*strfmt*/) const
 
   for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
   {
-    sstr << getCova(icov)->toString();
+    sstr << getCov(icov)->toString();
     if (isFiltered(icov))
       sstr << "  (This component is Filtered)" << std::endl;
   }
@@ -219,7 +245,6 @@ String CovList::toString(const AStringFormat* /*strfmt*/) const
  
   return sstr.str();
 }
-
 
 int  CovList::getNCov() const
 {
@@ -242,17 +267,19 @@ bool CovList::isAllActiveCovList() const
   return true;
 }
 
-const CovBase* CovList::getCova(int icov) const
+const CovBase* CovList::getCov(int icov) const
 {
   if (! _isCovarianceIndexValid(icov)) return nullptr;
   return _covs[icov];
 }
 
-void CovList::setCova(int icov,const CovBase* covs)
+void CovList::setCov(int icov,const CovBase* covs)
 {
   if (! _isCovarianceIndexValid(icov)) return;
-  _covs[icov] = covs;
+  delete _covs[icov];
+  _covs[icov] = (CovBase*) covs->clone();
 }
+
 const ECov& CovList::getCovType(int icov) const
 {
     DECLARE_UNUSED(icov)
@@ -280,7 +307,11 @@ void CovList::setSill(int icov, int ivar, int jvar, double value)
   if (! _isCovarianceIndexValid(icov)) return;
   _covs[icov]->setSill(ivar, jvar, value);
 }
-
+void CovList::setSills(int icov, const MatrixSquareSymmetric& sills)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  _covs[icov]->setSill(sills);
+}
 /**
  * Calculate the total sill of the model for given pair of variables
  * @param ivar Rank of the first variable
@@ -291,7 +322,7 @@ double CovList::getTotalSill(int ivar, int jvar) const
   double sill_total = 0.;
   for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
   {
-    const CovBase* cova = getCova(icov);
+    const CovBase* cova = getCov(icov);
     sill_total += cova->getSill(ivar, jvar);
   }
   return sill_total;
@@ -378,4 +409,37 @@ void CovList::setActiveCovList(const VectorInt& activeCovList, bool allActiveCov
 {
   _activeCovList = activeCovList;
   _allActiveCov  = allActiveCov;
+}
+
+void CovList::_setContext(const CovContext& ctxt)
+{
+  for (auto& e: _covs)
+  {
+    e->setContext(ctxt);
+  }
+}
+
+void CovList::copyCovContext(const CovContext& ctxt)
+{
+  int number = (int)_covs.size();
+  for (int i = 0; i < number; i++) _covs[i]->copyCovContext(ctxt);
+}
+
+void CovList::normalize(double sill, int ivar, int jvar)
+{
+  double covval = 0.;
+  for (int i = 0, n = getNCov(); i < n; i++) covval += _covs[i]->eval0(ivar, jvar);
+
+  if (covval <= 0. || isEqual(covval, sill)) return;
+  double ratio = sill / covval;
+
+  for (int i = 0, n = getNCov(); i < n; i++)
+    _covs[i]->setSill(_covs[i]->getSill(ivar, jvar) * ratio);
+}
+
+void CovList::setCovFiltered(int icov, bool filtered)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  _filtered[icov] = filtered;
+  _updateLists();
 }

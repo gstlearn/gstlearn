@@ -28,8 +28,8 @@ class GSTLEARN_EXPORT CovBase: public ACov
 public:
     
   CovBase(ACov* cor = nullptr,const MatrixSquareSymmetric &sills = MatrixSquareSymmetric());
-  CovBase(const CovBase &r) = delete;
-  CovBase& operator=(const CovBase &r) = delete;
+  CovBase(const CovBase &r);
+  CovBase& operator=(const CovBase &r);
   virtual ~CovBase();
 
   ParamInfo createParamInfoForCholSill(int ivar = 0, int jvar = 0);

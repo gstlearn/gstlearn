@@ -473,7 +473,7 @@ static StrMod* st_model_auto_strmod_alloc(Model *model1,
     {
       // Set the default range
 
-      CovAniso *cova = model->getCova(icov);
+      CovAniso *cova = model->getCovAniso(icov);
       cova->setRangeIsotropic(hmax);
 
       // Set the default values for the sill matrix
@@ -978,7 +978,7 @@ static void st_load_ge(const Vario *vario,
 
   for (int icov = 0; icov < model->getNCov(); icov++)
   {
-    ACov *cova = model->getCova(icov);
+    ACov *cova = model->getCovAniso(icov);
     for (int idim = 0; idim < ndim; idim++)
       d1[idim] = 0.;
 
@@ -2075,7 +2075,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
     if ((imod != imod_mem || icov != icov_mem) && (imod_mem >= 0
         && icov_mem >= 0))
     {
-      cova = strmod->models[imod_mem]->getCova(icov_mem);
+      cova = strmod->models[imod_mem]->getCovAniso(icov_mem);
       if (optvar.getAuthAniso())
         cova->setRanges(ranges);
       else
@@ -2091,7 +2091,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
     }
 
     model = strmod->models[imod];
-    cova = model->getCova(icov);
+    cova = model->getCovAniso(icov);
 
     // Load the parameters of the current model / structure
 
@@ -2148,7 +2148,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
 
   if (imod_mem >= 0 && icov_mem >= 0)
   {
-    cova = strmod->models[imod_mem]->getCova(icov_mem);
+    cova = strmod->models[imod_mem]->getCovAniso(icov_mem);
     if (optvar.getAuthAniso())
       cova->setRanges(ranges);
     else
@@ -2176,15 +2176,15 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       int found = -1;
       for (int jcov = 0; jcov < model->getNCov() && found < 0; jcov++)
       {
-        if (model->getCova(jcov)->hasRange()) found = jcov;
+        if (model->getCovAniso(jcov)->hasRange()) found = jcov;
       }
       if (found < 0) continue;
-      cova1 = model->getCova(found);
+      cova1 = model->getCovAniso(found);
 
       for (int jcov = 1; jcov < model->getNCov(); jcov++)
       {
         if (jcov == found) continue;
-        cova = model->getCova(jcov);
+        cova = model->getCovAniso(jcov);
         if (!cova->getAnisoRotMat().empty())
           cova->setAnisoAngles(cova1->getAnisoAngles());
       }
@@ -3747,7 +3747,7 @@ static int st_model_define(Model *model, const Option_VarioFit &optvar)
 
   for (int jcov = 0; jcov < model->getNCov(); jcov++)
   {
-    CovAniso* cova = model->getCova(jcov);
+    CovAniso* cova = model->getCovAniso(jcov);
     model_cova_characteristics(cova->getType(), cov_name, &flag_range,
                                &flag_param, &min_order, &max_ndim, &flag_int_1d,
                                &flag_int_2d, &flag_aniso, &flag_rotation,
@@ -4280,7 +4280,7 @@ static void st_model_post_update(StrMod *strmod, const Option_VarioFit &optvar)
 
     for (int icov = 0; icov < model->getNCov(); icov++)
     {
-      CovAniso *cova = model->getCova(icov);
+      CovAniso *cova = model->getCovAniso(icov);
       if (!cova->hasRange()) continue;
       if (cova->getAnisoCoeffs().empty()) continue;
 

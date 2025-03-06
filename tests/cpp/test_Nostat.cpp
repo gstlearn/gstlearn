@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
   Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 45.});
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  CovAniso* cova = model->getCova(0);
+  CovAniso* cova = model->getCovAniso(0);
 
   bool flagDirect  = true;
   bool flagByAngle = false;

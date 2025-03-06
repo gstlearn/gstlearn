@@ -73,6 +73,7 @@ public:
   bool hasExternalDrift() const;
   bool isValid() const;
   int  getNExtDrift() const;
+  const CovContext& getContext() const { return _ctxt; }
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////

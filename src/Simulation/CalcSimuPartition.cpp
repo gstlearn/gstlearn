@@ -25,11 +25,12 @@ CalcSimuPartition::CalcSimuPartition(int mode,
                                      int nbsimu,
                                      int seed,
                                      bool verbose)
-    : ACalcSimulation(nbsimu, seed),
-      _mode(mode),
-      _verbose(verbose),
-      _iattOut(-1),
-      _parparam()
+  : ACalcSimulation(nbsimu, seed)
+  , _mode(mode)
+  , _verbose(verbose)
+  , _iattOut(-1)
+  , _parparam()
+  , _modelLocal(nullptr)
 {
 }
 
@@ -87,7 +88,7 @@ bool CalcSimuPartition::_voronoi()
   VectorDouble simpoint(dbpoint->getNSample());
 
   /* Perform the simulation at the seed points */
-  if (simtub(NULL, dbpoint, getModel(), NULL, 1,
+  if (simtub(NULL, dbpoint, _modelLocal, NULL, 1,
              getSeed(), _parparam.getNbtuba())) return false;
 
   /* Expand the data values over the grid nodes */
@@ -137,7 +138,7 @@ bool CalcSimuPartition::_poisson()
   /* Simulation of the Gaussian field */
   /************************************/
 
-  if (simtub(NULL, dbgrid, getModel(), NULL, 1, getSeed(), _parparam.getNbtuba()))
+  if (simtub(NULL, dbgrid, _modelLocal, NULL, 1, getSeed(), _parparam.getNbtuba()))
     return false;
   iattg = dbgrid->getNColumn() - 1;
 
@@ -262,6 +263,13 @@ bool CalcSimuPartition::_check()
     messerr(" 2 for Poisson Hyperplanes");
     return false;
   }
+
+  _modelLocal = dynamic_cast<Model*>(getModel());
+  if (_modelLocal == nullptr)
+  {
+    messerr("The model must be of type 'Model' (not ModelGeneric)");
+    return false;
+  }
   return true;
 }
 
@@ -281,6 +289,7 @@ bool CalcSimuPartition::_run()
 
   if (_mode == 1)
     return (_voronoi());
+
   return (_poisson());
 }
 

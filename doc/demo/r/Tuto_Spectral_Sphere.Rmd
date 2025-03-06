@@ -172,7 +172,7 @@ err = defineDefaultSpace(ESpaceType_SN())
 # modelSph = Model_createFromParam(ECov_EXPONENTIAL(), nu, 1., 0., flagRange=TRUE)
 modelSph = Model_createFromParam(ECov_MATERN(), 1./kappa, 1., mu, flagRange=FALSE)
 
-cova = modelSph$getCova(0)
+cova = modelSph$getCovAniso(0)
 covname = cova$getCovName()
 ```
 

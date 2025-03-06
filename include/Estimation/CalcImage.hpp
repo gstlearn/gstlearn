@@ -20,6 +20,7 @@
 class DbGrid;
 class ANeigh;
 class NeighImage;
+class ModelCovList;
 
 class GSTLEARN_EXPORT CalcImage: public ACalcInterpolator {
 public:
@@ -51,7 +52,7 @@ private:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
 
-  bool _filterImage(DbGrid* dbgrid, const ModelGeneric* modelgeneric);
+  bool _filterImage(DbGrid* dbgrid, const ModelCovList* model);
   static DbGrid* _buildMarpat(const NeighImage* neigh,
                               const VectorVectorInt& ranks,
                               const MatrixRectangular& wgt,
@@ -80,7 +81,7 @@ private:
   double _smoothRange;
 };
 
-GSTLEARN_EXPORT int krimage(DbGrid* dbgrid,
+GSTLEARN_EXPORT int   krimage(DbGrid* dbgrid,
                             Model* model,
                             ANeigh* neigh,
                             bool flagFFT                    = false,

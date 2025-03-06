@@ -78,9 +78,9 @@ int CovLMCConvolution::init(const EConvType& conv_type,
                             double conv_range,
                             int conv_ndisc)
 {
-  for (auto &e: _covAnisos)
+  for (auto &e: _covs)
   {
-    e->setOptimEnabled(false);
+    ((CovAniso*)e)->setOptimEnabled(false);
   }
   if (conv_ndisc < 1)
   {

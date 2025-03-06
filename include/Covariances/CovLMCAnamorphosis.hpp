@@ -51,7 +51,7 @@ public:
                       int ivar = 0,
                       int jvar = 0,
                       const CovCalcMode* mode = nullptr) const override;                   
-  void addCovAniso(const CovAniso* cov) override;
+  void addCov(const CovBase* cov) override;
   bool hasAnam() const override { return true; }
   const AAnam* getAnam() const override { return _anam; }
   void setActiveFactor(int iclass) override;

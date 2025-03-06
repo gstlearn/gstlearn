@@ -24,6 +24,7 @@
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Core/Potential.hpp"
+#include "Covariances/CovAniso.hpp"
 
 /****************************************************************************/
 /*!

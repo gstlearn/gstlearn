@@ -16,6 +16,7 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
 #include "Calculators/CalcMigrate.hpp"

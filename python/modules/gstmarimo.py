@@ -67,8 +67,8 @@ def WdefineCovariance(ic = 0, ncovmax = 1, distmax = 100, varmax = 100, defmodel
         distRef   = defmodel.getRange(ic)
         varRef    = defmodel.getSill(ic,0,0)
         distAux   = defmodel.getRanges(ic)[1]
-        angRef    = defmodel.getCova(ic).getAnisoAngles(1)
-        flagAniso = defmodel.getCova(ic).getFlagAniso()
+        angRef    = defmodel.getCovAniso(ic).getAnisoAngles(1)
+        flagAniso = defmodel.getCovAniso(ic).getFlagAniso()
 
     WUsed   = mo.ui.switch(True, label="Basic Structure Used")
     WType   = mo.ui.dropdown(options=_getCovarianceDict(), value = typeRef, label="Structure")

@@ -46,7 +46,7 @@ class CovInternal;
  * structure, ...
  * All these parameters are processed and stored as a **tensor** in order to avoid repetitive calculations.
  */
-class GSTLEARN_EXPORT CorAniso: public ACov, public ICloneable
+class GSTLEARN_EXPORT CorAniso: public ACov
 {
 public:
   CorAniso(const ECov& type, const CovContext& ctxt);

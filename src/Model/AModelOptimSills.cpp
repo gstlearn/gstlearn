@@ -10,12 +10,15 @@
 /******************************************************************************/
 #include "Model/AModelOptimSills.hpp"
 
+#include "Basic/MathFunc.hpp"
+#include "Covariances/CovAniso.hpp"
+
 #include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
-#include "Basic/MathFunc.hpp"
+
 
 #define IJDIR(ijvar, ipadir) ((ijvar) * _npadir + (ipadir))
 #define WT(ijvar, ipadir)       wt[IJDIR(ijvar, ipadir)]
@@ -1030,7 +1033,7 @@ void AModelOptimSills::_printResults(double crit) const
     int ncov           = model->getNCov();
     for (int icov = 0; icov < ncov; icov++)
     {
-      const CovAniso* cova = model->getCova(icov);
+      const CovAniso* cova = model->getCovAniso(icov);
       message("Cost Function (Sill Fitting) (");
       for (int ivar = 0; ivar < _nvar; ivar++)
         for (int jvar = 0; jvar < _nvar; jvar++)

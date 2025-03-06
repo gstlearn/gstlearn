@@ -11,6 +11,7 @@
 #include "Model/AModelOptim.hpp"
 
 #include "Basic/AStringable.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Enum/EConsElem.hpp"
 #include "geoslib_define.h"
 
@@ -105,7 +106,7 @@ void AModelOptim::_addOneModelParam(int icov,
 }
 
 void AModelOptim::_updateModelParamList(double distmax_def,
-                                       const MatrixSquareSymmetric& vars_def)
+                                        const MatrixSquareSymmetric& vars_def)
 {
   double value = TEST;
   double scale = 1.;
@@ -125,7 +126,7 @@ void AModelOptim::_updateModelParamList(double distmax_def,
   {
     OneParam& param      = _modelPart._params[iparam];
     int icov             = param._icov;
-    const CovAniso* cova = model->getCova(icov);
+    const CovAniso* cova = model->getCovAniso(icov);
 
     value = 1.;
     scale = 1.;
@@ -260,7 +261,7 @@ int AModelOptim::_buildModelParamList()
 
   for (int icov = 0, ncov = model->getNCov(); icov < ncov; icov++)
   {
-    const CovAniso* cova = model->getCova(icov);
+    const CovAniso* cova = model->getCovAniso(icov);
     bool flagSill        = true;
     bool flagRange       = cova->hasRange() > 0;
     bool flagAniso       = cova->hasRange() != 0 && _modelPart._optvar.getAuthAniso();
@@ -281,12 +282,7 @@ int AModelOptim::_buildModelParamList()
       else
       {
         // Add the 'Anisotropic Range' (vectorial)
-        if (ndim == 2)
-        {
-          // For anisotropy in 2-D, one value is sufficient
-          _addOneModelParam(icov, EConsElem::RANGE, 0, EPSILON2, TEST);
-        }
-        else if (ndim == 3)
+        if (ndim == 3)
         {
           // For anisotropy in 3-D, vectorial definition is needed
           if (_modelPart._optvar.getLockIso2d())
@@ -303,6 +299,7 @@ int AModelOptim::_buildModelParamList()
         }
         else
         {
+          // For anisotropy in 2-D, one value is sufficient
           // For other space dimension, consider Isotropic Range
           _addOneModelParam(icov, EConsElem::RANGE, 0, EPSILON2, TEST);
         }
@@ -381,7 +378,7 @@ int AModelOptim::_buildModelParamList()
       int icov              = param._icov;
       int rank              = param._rank;
       double scale          = param._scale;
-      CovAniso* cova        = modelPart._model->getCova(icov);
+      CovAniso* cova        = modelPart._model->getCovAniso(icov);
 
       if (param._type == EConsElem::RANGE)
       {
@@ -403,7 +400,7 @@ int AModelOptim::_buildModelParamList()
           // Export the Anisotropy Rotation information to all covariances
           for (int jcov = 0; jcov < ncov; jcov++)
           {
-            CovAniso* mcova = modelPart._model->getCova(jcov);
+            CovAniso* mcova = modelPart._model->getCovAniso(jcov);
             if (mcova->hasRange() > 0) mcova->setAnisoAngle(rank, angle);
           }
         }

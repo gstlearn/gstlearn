@@ -42,7 +42,7 @@ class CovInternal;
  * All these parameters are processed and stored as a **tensor** in order to avoid repetitive calculations.
  * - the **sill**. This comes as a square symmetric matrix whose dimension is equal to the number of variables.
  */
-class GSTLEARN_EXPORT CovAniso: public CovProportional, public ICloneable
+class GSTLEARN_EXPORT CovAniso: public CovProportional
 {
 public:
   CovAniso(const ECov& type, const CovContext& ctxt);
@@ -95,19 +95,28 @@ public:
   bool isValidForSpectral() const ;
   MatrixRectangular simulateSpectralOmega(int nb) const;
 
+  static CovAniso* createFromParam(const ECov& type,
+                                   double range,
+                                   double sill,
+                                   double param,
+                                   const VectorDouble& ranges,
+                                   const MatrixSquareSymmetric& sills,
+                                   const VectorDouble& angles,
+                                   const ASpaceSharedPtr& space,
+                                   bool flagRange);
   static CovAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,
                                    double range,
-                                   double sill = 1.,
-                                   double param = 1.,
+                                   double sill    = 1.,
+                                   double param   = 1.,
                                    bool flagRange = true);
   static CovAniso* createAnisotropic(const CovContext& ctxt,
                                      const ECov& type,
                                      const VectorDouble& ranges,
-                                     double sill = 1.,
-                                     double param = 1.,
+                                     double sill                = 1.,
+                                     double param               = 1.,
                                      const VectorDouble& angles = VectorDouble(),
-                                     bool flagRange = true);
+                                     bool flagRange             = true);
   static CovAniso* createIsotropicMulti(const CovContext& ctxt,
                                         const ECov& type,
                                         double range,
@@ -141,8 +150,6 @@ public:
   void setRotationAnglesAndRadius(const VectorDouble& angles = VectorDouble(),
                                   const VectorDouble& ranges = VectorDouble(),
                                   const VectorDouble& scales = VectorDouble());
-
-
   
   const CorAniso* getCorAniso() const { return dynamic_cast<const CorAniso*>(getCor()); } 
 

@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 
   // Creating the MeshTurbo which contains the Db
   MeshETurbo mesh;
-  mesh.initFromCova(*model->getCova(0),grid,10,2,true, true,false,300,true);
+  mesh.initFromCova(*model->getCovAniso(0),grid,10,2,true, true,false,300,true);
 
   /////////////////////////
   // Testing the selections

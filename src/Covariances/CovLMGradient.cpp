@@ -32,7 +32,7 @@ CovLMGradient::CovLMGradient(const CovAnisoList& r)
 
   for (int icov = r.getNCov()-1; icov >= 0; icov--)
   {
-    const CovAniso *cov = r.getCova(icov);
+    const CovAniso *cov = r.getCovAniso(icov);
     if (!cov->hasCovDerivative())
     {
       messerr("The covariance %s is not compatible with Gradients",
@@ -45,9 +45,9 @@ CovLMGradient::CovLMGradient(const CovAnisoList& r)
       delete newcov;
     }
   }
-  for (auto &e: _covAnisos)
+  for (auto &e: _covs)
   {
-    e->setOptimEnabled(false);
+    ((CovAniso*)e)->setOptimEnabled(false);
   }
 }
 
@@ -77,7 +77,7 @@ void CovLMGradient::evalZAndGradients(const SpacePoint& p1,
 
   for (unsigned int i = 0, n = getNCov(); i < n; i++)
   {
-    ACovGradient* covloc = dynamic_cast<ACovGradient *>(_covAnisos[i]);
+    ACovGradient* covloc = dynamic_cast<ACovGradient *>(_covs[i]);
     if (covloc != nullptr)
       covloc->evalZAndGradients(p1, p2, covVal, covGp, covGG, mode, flagGrad);
   }
@@ -98,7 +98,7 @@ void CovLMGradient::evalZAndGradients(const VectorDouble& vec,
   evalZAndGradients(p1, p2, covVal, covGp, covGG, mode, flagGrad);
 }
 
-void CovLMGradient::addCovAniso(const CovAniso* cov)
+void CovLMGradient::addCov(const CovBase* cov)
 {
   // TODO This should be checked for some cases of Gradient (probably non numerical)
   const ACovGradient* covgrad = dynamic_cast<const ACovGradient*>(cov);
@@ -107,8 +107,8 @@ void CovLMGradient::addCovAniso(const CovAniso* cov)
     messerr("This covariance cannot be added");
     return;
   }
-  cov->setOptimEnabled(false);
-  CovAnisoList::addCovAniso(cov);
+  ((CovAniso*)cov)->setOptimEnabled(false);
+  CovAnisoList::addCov(cov);
 }
 
 /**

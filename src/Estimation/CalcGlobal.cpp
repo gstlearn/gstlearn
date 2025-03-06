@@ -22,12 +22,12 @@
 #include <math.h>
 
 CalcGlobal::CalcGlobal(int ivar0, bool verbose)
-    :
-    ACalcInterpolator(),
-    _flagArithmetic(false),
-    _flagKriging(false),
-    _ivar0(ivar0),
-    _verbose(verbose)
+  : ACalcInterpolator()
+  , _flagArithmetic(false)
+  , _flagKriging(false)
+  , _ivar0(ivar0)
+  , _verbose(verbose)
+  , _modelLocal(nullptr)
 {
 }
 
@@ -43,6 +43,13 @@ bool CalcGlobal::_check()
   if (! hasDbout()) return false;
   if (! hasModel()) return false;
 
+  _modelLocal = dynamic_cast<Model*>(getModel());
+  if (_modelLocal == nullptr)
+  {
+    messerr("This method requires the model to be a 'Model' (not a ModelGeneric)");
+    return false;
+  }
+
   if (_flagArithmetic)
   {
     if (! getDbout()->isGrid())
@@ -51,6 +58,7 @@ bool CalcGlobal::_check()
       return false;
     }
   }
+
   if (_ivar0 < 0 || _ivar0 >= getDbin()->getNLoc(ELoc::Z))
   {
     messerr("The target variable (%d) must lie between 1 and the number of variables (%d)",
@@ -102,11 +110,10 @@ bool CalcGlobal::_run()
 int CalcGlobal::_globalKriging()
 {
   VectorDouble rhsCum;
-  Model* model = getModel();
-  Db* dbin      = getDbin();
-  Db* dbout     = getDbout();
-  int nvar      = model->getNVar();
-  int ng        = 0;
+  Db* dbin            = getDbin();
+  Db* dbout           = getDbout();
+  int nvar            = _modelLocal->getNVar();
+  int ng              = 0;
   VectorDouble wgt;
 
   KrigOpt krigopt;
@@ -117,13 +124,14 @@ int CalcGlobal::_globalKriging()
   CovCalcMode mode            = CovCalcMode(ECalcMember::LHS);
   VectorVectorInt sampleRanks = dbin->getSampleRanks({_ivar0});
   VectorDouble Z              = dbin->getValuesByRanks(sampleRanks,
-                                                       model->getMeans(), !model->hasDrift());
-  if (model->evalCovMatSymByRanks(Sigma, dbin, sampleRanks, -1, &mode, false)) return 1;
-  if (model->evalDriftMatByRanks(X, dbin, sampleRanks, -1, ECalcMember::LHS)) return 1;
+                                                       _modelLocal->getMeans(), 
+                                                       !_modelLocal->hasDrift());
+  if (_modelLocal->evalCovMatSymByRanks(Sigma, dbin, sampleRanks, -1, &mode, false)) return 1;
+  if (_modelLocal->evalDriftMatByRanks(X, dbin, sampleRanks, -1, ECalcMember::LHS)) return 1;
 
   KrigingAlgebra algebra;
   algebra.resetNewData();
-  algebra.setData(&Z, &sampleRanks, &model->getMeans());
+  algebra.setData(&Z, &sampleRanks, &_modelLocal->getMeans());
   algebra.setLHS(&Sigma, &X);
 
   // Prepare the cumulative matrices
@@ -133,14 +141,14 @@ int CalcGlobal::_globalKriging()
   MatrixRectangular X0;
   MatrixSquareSymmetric Sigma00;
 
-    /* Loop on the targets to be processed */
-    for (int iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
+  /* Loop on the targets to be processed */
+  for (int iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
   {
     mes_process("Kriging sample", dbout->getNSample(), iech);
     if (!dbout->isActive(iech)) continue;
 
-    if (model->evalCovMatByTarget(Sigma0, dbin, dbout, sampleRanks, iech, krigopt, false)) return 1;
-    if (model->evalDriftMatByTarget(X0, dbout, iech, krigopt)) return 1;
+    if (_modelLocal->evalCovMatByTarget(Sigma0, dbin, dbout, sampleRanks, iech, krigopt, false)) return 1;
+    if (_modelLocal->evalDriftMatByTarget(X0, dbout, iech, krigopt)) return 1;
 
     // Cumulate the R.H.S.
     Sigma0Cum.addMatInPlace(Sigma0);
@@ -154,12 +162,12 @@ int CalcGlobal::_globalKriging()
   X0Cum.prodScalar(oneOverNG);
   algebra.setRHS(&Sigma0Cum, &X0Cum);
 
-  if (model->evalCov0MatByTargetInPlace(Sigma00, dbout, 0)) return 1;
+  if (_modelLocal->evalCov0MatByTargetInPlace(Sigma00, dbout, 0)) return 1;
   algebra.setVariance(&Sigma00);
 
   double estim = algebra.getEstimation()[0];
   double stdv  = algebra.getStdv()[0];
-  double cv0   = model->getTotalSill(_ivar0, _ivar0) - stdv * stdv;
+  double cv0   = _modelLocal->getTotalSill(_ivar0, _ivar0) - stdv * stdv;
 
   /* Preliminary checks */
 
@@ -172,7 +180,7 @@ int CalcGlobal::_globalKriging()
 
   /* Average covariance over the territory */
 
-  double cvv = model->evalAverageDbToDb(dbout, dbout, _ivar0, _ivar0,
+  double cvv = _modelLocal->evalAverageDbToDb(dbout, dbout, _ivar0, _ivar0,
                                         dbin->getExtensionDiagonal() / 1.e3, 0);
 
   /* Perform the estimation */
@@ -218,12 +226,12 @@ int CalcGlobal::_globalKriging()
       message("Q (Estimation * Surface)         = %lf\n", estim * surface);
     message("\n");
   }
+  _modelLocal->optimizationPostProcess();
   return 0;
 }
 
 int CalcGlobal::_globalArithmetic()
 {
-  Model* model = getModel();
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   int ntot = getDbin()->getNSample(false);
   int np = getDbin()->getNSample(true);
@@ -233,16 +241,16 @@ int CalcGlobal::_globalArithmetic()
   /* Average covariance over the data */
 
   double cxx =
-    model->evalAverageDbToDb(getDbin(), getDbin(), _ivar0, _ivar0, 0., 0);
+    _modelLocal->evalAverageDbToDb(getDbin(), getDbin(), _ivar0, _ivar0, 0., 0);
 
   /* Average covariance between the data and the territory */
 
   double cxv =
-    model->evalAverageDbToDb(getDbin(), dbgrid, _ivar0, _ivar0, 0., 0);
+    _modelLocal->evalAverageDbToDb(getDbin(), dbgrid, _ivar0, _ivar0, 0., 0);
 
   /* Average covariance over the territory */
 
-  double cvv = model->evalAverageDbToDb(dbgrid, dbgrid, _ivar0, _ivar0,
+  double cvv = _modelLocal->evalAverageDbToDb(dbgrid, dbgrid, _ivar0, _ivar0,
                                         dbgrid->getExtensionDiagonal() / 1.e3, 0);
 
   /* Calculating basic statistics */
@@ -308,7 +316,7 @@ int CalcGlobal::_globalArithmetic()
 
 Global_Result global_arithmetic(Db *dbin,
                                 DbGrid *dbgrid,
-                                Model *model,
+                                ModelGeneric *model,
                                 int ivar0,
                                 bool verbose)
 {
@@ -326,7 +334,7 @@ Global_Result global_arithmetic(Db *dbin,
 
 Global_Result global_kriging(Db *dbin,
                             Db *dbout,
-                            Model *model,
+                            ModelGeneric *model,
                             int ivar0,
                             bool verbose)
 {

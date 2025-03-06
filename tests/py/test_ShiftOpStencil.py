@@ -16,7 +16,7 @@ if flagSel:
 
 meshsel = gl.MeshETurbo(dbg, False)
 model = gl.Model.createFromParam(gl.ECov.MATERN,ranges = [3.,4.],param=1)
-cova = model.getCova(0)
+cova = model.getCovAniso(0)
 
 # %%
 newvar = np.random.normal(size=dbg.getNSample())

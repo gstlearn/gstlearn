@@ -50,7 +50,7 @@ model = gl.Model.createFromParam(gl.ECov.MATERN, 1., 1., 1., [4.,45.])
 workingDb = gl.DbGrid.create([101,101],[1.,1.]) 
 mesh = gl.MeshETurbo(workingDb, False)
 
-cova = model.getCova(0)
+cova = model.getCovAniso(0)
 cova.makeAngleNoStatDb("theta",0,resultDb)
 S = gl.ShiftOpMatrix(mesh, cova, resultDb)
 

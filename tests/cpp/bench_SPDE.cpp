@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
       for (int icov = 0; icov <= ncov; icov++)
       {
         timer.reset();
-        ShiftOpMatrix shiftop(&mesh, model->getCova(icov), nullptr);
+        ShiftOpMatrix shiftop(&mesh, model->getCovAniso(icov), nullptr);
         timer.displayIntervalMilliseconds("Establishing S", 150);
       }
     }

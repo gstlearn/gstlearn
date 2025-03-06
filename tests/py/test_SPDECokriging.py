@@ -12,7 +12,7 @@ model = gl.Model.createFromParam(gl.ECov.MATERN,param = 1, range=10,
                                  sills = np.array([[50,10],[10,40]]))
 model.addCovFromParam(gl.ECov.MATERN,param = 1, range=20,
                       sills = ([[30,-10],[-10,10]]))
-model.addCov(modelNugg.getCova(0))
+model.addCov(modelNugg.getCovAniso(0))
 totalSill = np.max(model.getTotalSills().toTL())
 
 gl.simtub(None,dat,model)

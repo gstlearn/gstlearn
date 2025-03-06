@@ -12,6 +12,7 @@
 
 #include "Basic/AFunctional.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Model/CovInternal.hpp"
@@ -45,7 +46,7 @@ class CovInternal;
  *
  * It is mainly implemented in CovAniso.hpp or CovAnisoList.hpp
  */
-class GSTLEARN_EXPORT ACov : public ASpaceObject
+class GSTLEARN_EXPORT ACov : public ASpaceObject, public ICloneable
 {
 public:
   ACov(const CovContext& ctxt = CovContext());
@@ -61,7 +62,7 @@ public:
   const CovContext& getContext() const { return _ctxt; }
   void setContext(const CovContext& ctxt);
   void updateFromContext() { _updateFromContext(); }
-  void copyCovContext(const CovContext& ctxt){ _copyCovContext(ctxt);}
+  virtual void copyCovContext(const CovContext& ctxt){ _copyCovContext(ctxt);}
   void initFromContext(){   _initFromContext(); }
   CovContext  getContextCopy() const { return CovContext(_ctxt); }
   /// Calculate the covariance between two variables for 0-distance (stationary case)

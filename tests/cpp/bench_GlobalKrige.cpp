@@ -13,6 +13,8 @@
 
 #include "Basic/AStringFormat.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Basic/File.hpp"
 #include "Enum/ESpaceType.hpp"
 
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -22,7 +24,7 @@
 #include "Db/DbStringFormat.hpp"
 #include "Basic/Law.hpp"
 #include "Model/Model.hpp"
-#include "Basic/File.hpp"
+
 #include "Estimation/CalcGlobal.hpp"
 
 int main(int argc, char* argv[])

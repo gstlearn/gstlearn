@@ -225,7 +225,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
   // Loop on the basic structures
   for (int icov = 0, ncov = _model->getNCov(); icov < ncov; icov++)
   {
-    CovAniso* cova = _model->getCova(icov);
+    CovAniso* cova = _model->getCovAniso(icov);
     double sill = cova->getSill(0,0);
     bool flagNoStatRot = false;
     
@@ -940,9 +940,9 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
 
   for (int icov = 0; icov < model->getNCov(); icov++)
   {
-    if (model->getCova(icov)->getType() == ECov::NUGGET)
+    if (model->getCovAniso(icov)->getType() == ECov::NUGGET)
     {
-      cova = model->getCova(icov);
+      cova = model->getCovAniso(icov);
       hasnugget = true;
       break;
     }

@@ -134,7 +134,7 @@ void PrecisionOpMultiMatrix::_buildQop(bool stencil)
   }
   for (int icov = 0, number = _getNCov(); icov < number; icov++)
   {
-    CovAniso* cova = _model->getCova(_getCovInd(icov));
+    CovAniso* cova = _model->getCovAniso(_getCovInd(icov));
     _pops.push_back(new PrecisionOpMatrix(_meshes[icov], cova));
   }
 }
