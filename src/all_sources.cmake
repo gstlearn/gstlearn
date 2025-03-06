@@ -228,7 +228,6 @@ set(SRC
   Basic/Utilities.cpp
   Basic/ArgumentTest.cpp
   Basic/File.cpp
-  Basic/HDF5format.cpp
   Basic/Memory.cpp
   Basic/VectorHelper.cpp
   Basic/FunctionalSpirale.cpp

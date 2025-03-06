@@ -14,7 +14,6 @@
 
 #include "Gibbs/GibbsMulti.hpp"
 #include "LinearOp/CholeskySparse.hpp"
-#include "Basic/HDF5format.hpp"
 
 class MatrixSparse;
 class Db;
@@ -62,7 +61,6 @@ private:
   bool            _flagStoreInternal;
 
   VectorVectorDouble _areas;
-  HDF5format         _hdf5;
   MatrixSparse*      _matWgt;
 
   mutable VectorDouble _weights;

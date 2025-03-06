@@ -25,9 +25,6 @@ on:
 env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
-#  HDF5_ROOT : hdf5 #do not use "." in the name
-#  HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1.tar.gz/?wpdmdl=15722"
-#  HDF5_VERSION : hdf5-1.12.1
 
 jobs:
   build:
