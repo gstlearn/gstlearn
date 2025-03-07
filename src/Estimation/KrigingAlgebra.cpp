@@ -457,7 +457,7 @@ bool KrigingAlgebra::_checkDimensionVD(const String& name,
                                        const VectorDouble* vec,
                                        int* sizeRef) {
   int size = (int)vec->size();
-  if (*sizeRef > 0 && size != *sizeRef) {
+  if (*sizeRef > 0 && size > 0 && size != *sizeRef) {
     messerr("Dimension of %s (%d) incorrect: it should be (%d)",
             name.c_str(), size, *sizeRef);
     return false;

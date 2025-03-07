@@ -536,7 +536,7 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
   else
     _dbout->getSampleAsSTInPlace(iech_out, _T1);
 
-  // Select the elligible points when using Ball Tree serach
+  // Select the elligible points when using Ball Tree search
   VectorInt elligibles;
   if (_useBallSearch)
   {

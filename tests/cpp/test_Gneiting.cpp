@@ -13,6 +13,7 @@
 #include "Covariances/CorGneiting.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Space/ASpaceObject.hpp"
@@ -33,6 +34,7 @@ int main(int argc, char* argv[])
   auto space2d = SpaceRN::create(2);
   auto sp      = SpaceComposite::create({space1d, space2d});
   sp->display();
+  setDefaultSpace(sp);
 
   double scaleT  = 5.3;
   CovAniso* covT = CovAniso::createFromParam(ECov::EXPONENTIAL,
@@ -63,8 +65,8 @@ int main(int argc, char* argv[])
   // Testing the covariance calculation between two points
   VectorDouble coords1 = {12., 3., 1.};
   VectorDouble coords2 = { 4., 5., 2.};
-  SpacePoint p1(covGneiting.getSpace());
-  SpacePoint p2(covGneiting.getSpace());
+  SpacePoint p1(sp);
+  SpacePoint p2(sp);
   p1.setCoords(coords1);
   p2.setCoords(coords2);
   double cres = covGneiting.eval(p1,p2);
@@ -92,7 +94,11 @@ int main(int argc, char* argv[])
   NeighUnique* neigh = NeighUnique::create(false, sp);
 
   // Launch Kriging
-  // (void) kriging(data, grid, (Model*) model, neigh);
+  (void) kriging(data, grid, model, neigh);
+
+  // Display a summary of the results
+  DbStringFormat dbfmtKriging(FLAG_STATS);
+  grid->display(&dbfmtKriging);
 
   delete covT;
   delete covS;

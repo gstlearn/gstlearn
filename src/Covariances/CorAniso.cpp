@@ -420,7 +420,7 @@ double CorAniso::eval(const SpacePoint &p1,
 {
   DECLARE_UNUSED(ivar, jvar)
   double cov = evalCor(p1, p2, mode);
-  return (cov);
+  return cov;
 }
 
 double CorAniso::evalCovOnSphere(double alpha,

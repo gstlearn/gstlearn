@@ -16,7 +16,6 @@
 #include "Space/SpaceComposite.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "geoslib_define.h"
 #include <vector>
 
 CorGneiting::CorGneiting(const CorAniso* covS, const CorAniso* covTemp, double separability)
@@ -32,6 +31,9 @@ CorGneiting::CorGneiting(const CorAniso* covS, const CorAniso* covTemp, double s
     messerr("CorGneiting: Separability must be in [0,1]");
     messerr("It has been set to 0");
   }
+  _covS->setOptimEnabled(false);
+  _covSCopy.setOptimEnabled(false);
+  _covTemp->setOptimEnabled(false);
 
   // Define the Context
   auto space = SpaceComposite::create();
@@ -72,21 +74,25 @@ CorGneiting::~CorGneiting()
 
 void CorGneiting::_optimizationSetTarget(SpacePoint& pt) const
 {
-  DECLARE_UNUSED(pt)
+  _covS->optimizationSetTarget(pt);
+  _covSCopy.optimizationSetTarget(pt);
+  _covTemp->optimizationSetTarget(pt);
 }
 
-void CorGneiting::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const
-{
-  DECLARE_UNUSED(mode)
-  DECLARE_UNUSED(ps)
-  // _covS->_optimizationPreProcess(p);
-  // _covTemp->_optimizationPreProcess(p);
-}
+// void CorGneiting::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const
+// {
+//   // DECLARE_UNUSED(mode)
+//   // DECLARE_UNUSED(ps)
+//   _covS->optimizationPreProcess(mode, ps);
+//   _covSCopy.optimizationPreProcess(mode, ps);
+//   _covTemp->optimizationPreProcess(mode, ps);
+// }
 
 void CorGneiting::_optimizationPostProcess() const
 {
-  //_covS->optimizationPostProcess();
-  //_covTemp->optimizationPostProcess();
+  _covS->optimizationPostProcess();
+  _covSCopy.optimizationPostProcess();
+  _covTemp->optimizationPostProcess();
 }
 
 double CorGneiting::eval(const SpacePoint& p1,
