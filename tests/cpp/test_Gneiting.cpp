@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
   NeighUnique* neigh = NeighUnique::create(false, sp);
 
   // Launch Kriging
-  (void) kriging(data, grid, model, neigh);
+  // (void) kriging(data, grid, model, neigh);
 
   // Display a summary of the results
   DbStringFormat dbfmtKriging(FLAG_STATS);
