@@ -161,6 +161,14 @@ int Ball::queryOneInPlace(const VectorDouble& test,
                                  distances);
 }
 
+/**
+ * @brief Ask for information regarding the Ball Tree organization
+ * 
+ * @param level Level of details
+ *              -1 Just the general volumetry information
+ *               0 List of the different nodes
+ *               1 List of Leaves and attached list of samples
+ */
 void Ball::display(int level) const
 {
   btree_display(_tree, level);

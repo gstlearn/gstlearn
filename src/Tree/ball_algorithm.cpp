@@ -373,6 +373,7 @@ void btree_display(const t_btree *tree, int level)
 {
   if (tree == nullptr) return;
 
+  mestitle(0, "Ball Tree");
   message("- Number of samples = %d\n", tree->n_samples);
   message("- Number of Features = %d\n", tree->n_features);
   message("- Number of levels = %d\n", tree->n_levels);
@@ -382,6 +383,7 @@ void btree_display(const t_btree *tree, int level)
 
   // Loop on the nodes
 
+  mestitle(1, "List of nodes");
   for (int i_node = 0; i_node < tree->n_nodes; i_node++)
   {
     t_nodedata* info = &tree->node_data[i_node];
@@ -398,11 +400,11 @@ void btree_display(const t_btree *tree, int level)
 
     if (level > 0)
     {
-      VH::dump("Centroid = ", centroid, 0);
+      VH::dump("- Centroid = ", centroid, 0);
 
-      if (level > 1 && info->is_leaf)
+      if (info->is_leaf)
       {
-        message("  Sample indices = ");
+        message("- Sample indices = ");
         for (int is = info->idx_start; is < info->idx_end; is++)
           message(" %d", tree->idx_array[is]);
         message("\n");
