@@ -1,13 +1,13 @@
 Space Type      = COMPOSITE
 Space Dimension = 3
 Space Type      [0] = RN
-Space Dimension [0] = 1
+Space Dimension [0] = 2
 Space Type      [1] = RN
-Space Dimension [1] = 2
+Space Dimension [1] = 1
 Space dimension of Gneiting Covariance = 3
-Value of Gneiting (by Covariance) = 0.0249828
+Value of Gneiting (by Covariance) = 0.020676
 Model dimension = 3
-Value of Gneiting (by Model) = 0.0249828
+Value of Gneiting (by Model) = 0.020676
 
 Data Base Grid Characteristics
 ==============================
