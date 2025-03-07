@@ -23,7 +23,10 @@ void ModelCovList::setCovList(CovList* covs)
   _cova    = _covList;
 }
 
-ModelCovList::~ModelCovList() {}
+ModelCovList::~ModelCovList() 
+{
+
+}
 
 void ModelCovList::addCov(const CovBase* cov)
 {

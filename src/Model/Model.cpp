@@ -970,7 +970,8 @@ void Model::_create()
   // model::addCov() and model::addDrift
   // The defaulted types of CovAnisoList and DriftList are assumed
 
-  setCovAnisoList(new CovAnisoList(_ctxt));
+  CovAnisoList tmp(_ctxt);
+  setCovAnisoList(&tmp);
   _driftList = new DriftList(_ctxt);
 }
 

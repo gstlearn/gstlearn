@@ -98,6 +98,7 @@ set(SRC
   Covariances/CovLMCAnamorphosis.cpp
   Covariances/ACovGradient.cpp
   Covariances/CorGneiting.cpp
+  Covariances/CorMatern.cpp
   Covariances/CovGCspline2.cpp
   Covariances/CovGC3.cpp
   Covariances/CovGCspline.cpp
