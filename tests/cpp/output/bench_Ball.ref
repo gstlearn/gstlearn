@@ -1,0 +1,53 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z - Locator = z1
+
+Ball Tree
+=========
+- Number of samples = 100
+- Number of Features = 2
+- Number of levels = 4
+- Number of nodes = 15
+- Size of leaf = 10
+
+List of nodes
+-------------
+Node #  0/ 15 - Indices [    0;   100[ - Radius = 0.672398
+Node #  1/ 15 - Indices [    0;    50[ - Radius = 0.536611
+Node #  2/ 15 - Indices [   50;   100[ - Radius = 0.519983
+Node #  3/ 15 - Indices [    0;    25[ - Radius = 0.321284
+Node #  4/ 15 - Indices [   25;    50[ - Radius = 0.351910
+Node #  5/ 15 - Indices [   50;    75[ - Radius = 0.288735
+Node #  6/ 15 - Indices [   75;   100[ - Radius = 0.313949
+Node #  7/ 15 - Indices [    0;    12[ - Radius = 0.267657 - Terminal Leaf
+Node #  8/ 15 - Indices [   12;    25[ - Radius = 0.238104 - Terminal Leaf
+Node #  9/ 15 - Indices [   25;    37[ - Radius = 0.341608 - Terminal Leaf
+Node # 10/ 15 - Indices [   37;    50[ - Radius = 0.291171 - Terminal Leaf
+Node # 11/ 15 - Indices [   50;    62[ - Radius = 0.193888 - Terminal Leaf
+Node # 12/ 15 - Indices [   62;    75[ - Radius = 0.265604 - Terminal Leaf
+Node # 13/ 15 - Indices [   75;    87[ - Radius = 0.335488 - Terminal Leaf
+Node # 14/ 15 - Indices [   87;   100[ - Radius = 0.243679 - Terminal Leaf
+
+Various ways of inquiring the Ball Tree
+=======================================
+The closest sample to the Target is : 84
+Indices of the target neighbors
+        84         4        79        42        10
+Indices of the target neighbors
+        84         4        79        42        10
+Distances to the target
+     0.084     0.095     0.125     0.156     0.162

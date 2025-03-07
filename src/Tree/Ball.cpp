@@ -157,8 +157,7 @@ int Ball::queryOneInPlace(const VectorDouble& test,
   int n_features         = (int)test.size();
   const double* internal = test.data();
   return knn.btree_query_inPlace(_tree, (const double**)&internal, 1,
-                                 n_features, n_neighbors, rank, indices,
-                                 distances);
+                                 n_features, n_neighbors, rank, indices, distances);
 }
 
 /**
