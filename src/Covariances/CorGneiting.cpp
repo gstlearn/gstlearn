@@ -101,16 +101,16 @@ double CorGneiting::eval(const SpacePoint& p1,
                          int jvar,
                          const CovCalcMode* mode) const
 {
-  auto p1_0 = p1.spacePointOnSubspace(0);
-  auto p2_0 = p2.spacePointOnSubspace(0);
-  auto p1_1 = p1.spacePointOnSubspace(1);
-  auto p2_1 = p2.spacePointOnSubspace(1);
-  double ct = _covTemp->eval(p1_1, p2_1, ivar, jvar, mode);
+  auto p1_S = p1.spacePointOnSubspace(0);
+  auto p2_S = p2.spacePointOnSubspace(0);
+  auto p1_T = p1.spacePointOnSubspace(1);
+  auto p2_T = p2.spacePointOnSubspace(1);
+  double ct = _covTemp->eval(p1_T, p2_T, ivar, jvar, mode);
 
   double scale = pow(ct, _separability / _covSCopy.getNDim(0));
   for (int i = 0; i < (int)_covSCopy.getNDim(); i++)
     _covSCopy.setScale(i, _covS->getScale(i) / scale);
-  double cs = _covSCopy.eval(p1_0, p2_0, ivar, jvar, mode);
+  double cs = _covSCopy.eval(p1_S, p2_S, ivar, jvar, mode);
 
   return cs * ct;
 }

@@ -79,6 +79,7 @@ ACov& ACov::operator=(const ACov &r)
 
 ACov::~ACov()
 {
+  delete _tabNoStat;
 }
 
 void ACov::optimizationPostProcess() const

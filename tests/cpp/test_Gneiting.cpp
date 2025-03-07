@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 
   auto space1d = SpaceRN::create(1);
   auto space2d = SpaceRN::create(2);
-  auto sp      = SpaceComposite::create({space1d, space2d});
+  auto sp      = SpaceComposite::create({space2d, space1d});
   sp->display();
   setDefaultSpace(sp);
 
