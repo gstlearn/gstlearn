@@ -14,9 +14,7 @@ set(SWIG_PACKAGE_DESTINATION_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 set(GENERATED_FILE1 ${CMAKE_CURRENT_BINARY_DIR}/newobject.i)
 set(GENERATED_FILE2 ${CMAKE_CURRENT_BINARY_DIR}/toString.i)
 
-
-
-# Définition d'une cible qui exécute le script Python une seule fois
+# Execute the "classanalysis" python script only one time
 add_custom_command(
     OUTPUT ${GENERATED_FILE1}
     COMMAND ${Python3_EXECUTABLE} ${PYTHON_SCRIPT} ${FILE_TO_READ}
@@ -26,6 +24,7 @@ add_custom_command(
     VERBATIM
 )
 
+# Execute the "toString" python script only one time
 add_custom_command(
     OUTPUT  ${GENERATED_FILE2}
     COMMAND ${Python3_EXECUTABLE} ${PYTHON_SCRIPT2} 
@@ -35,7 +34,7 @@ add_custom_command(
     VERBATIM
 )
 
-# Création d'une cible dédiée pour la génération du fichier
+# Create one target for both generations
 add_custom_target(generate_output DEPENDS ${GENERATED_FILE1} ${GENERATED_FILE2})
 
 set(CMAKE_SWIG_FLAGS "-I${CMAKE_CURRENT_BINARY_DIR}")

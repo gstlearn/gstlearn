@@ -71,7 +71,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        hdf5: [USE_HDF5=ON, USE_HDF5=OFF]
         opt: [Debug, Release]
 
     steps:
@@ -97,7 +96,6 @@ jobs:
         cmake \
           -DCMAKE_BUILD_TYPE=${{ matrix.opt }} \
           -DBUILD_TESTING=ON \
-          -D${{ matrix.hdf5 }} \
           $GITHUB_WORKSPACE
 
     - name: Use clang-check for compiler warnings

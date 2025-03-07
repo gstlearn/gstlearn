@@ -12,7 +12,6 @@
 #include "Gibbs/AGibbs.hpp"
 #include "Model/Model.hpp"
 #include "Basic/Timer.hpp"
-#include "Basic/HDF5format.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -32,7 +31,6 @@ GibbsMMulti::GibbsMMulti()
   , _eps(EPSILON6)
   , _flagStoreInternal(true)
   , _areas()
-  , _hdf5("Gibbs.hdf5","GibbsSet")
   , _matWgt()
   , _weights()
 {
@@ -46,7 +44,6 @@ GibbsMMulti::GibbsMMulti(Db* db, Model* model)
   , _eps(EPSILON6)
   , _flagStoreInternal(true)
   , _areas()
-  , _hdf5("Gibbs.hdf5","GibbsSet")
   , _matWgt()
   , _weights()
 {
@@ -60,7 +57,6 @@ GibbsMMulti::GibbsMMulti(const GibbsMMulti& r)
   , _eps(r._eps)
   , _flagStoreInternal(r._flagStoreInternal)
   , _areas(r._areas)
-  , _hdf5(r._hdf5)
   , _matWgt(r._matWgt)
   , _weights()
 {
@@ -77,7 +73,6 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
     _eps = r._eps;
     _flagStoreInternal = r._flagStoreInternal;
     _areas = r._areas;
-    _hdf5 = r._hdf5;
     _matWgt = r._matWgt;
     _weights = r._weights;
   }
@@ -303,7 +298,7 @@ int GibbsMMulti::_storeAllWeights(bool verbose)
 
   if (! _flagStoreInternal)
   {
-#ifdef _USE_HDF5
+#ifdef TODO
     std::vector<hsize_t> dims(2);
     dims[0] = nrow;
     dims[1] = nrow;
@@ -363,7 +358,7 @@ void GibbsMMulti::_storeWeights(int icol)
   else
   {
     // Store in hdf5 file
-#ifdef _USE_HDF5
+#ifdef TODO
     _hdf5.writeDataDoublePartial(icol, _weights);
 #else
     DECLARE_UNUSED(icol);
@@ -388,26 +383,21 @@ void GibbsMMulti::_getWeights(int icol) const
   else
   {
     // Read from the external file
+#ifdef TODO
     _weights = HDF5format::getDataDoublePartial(icol);
+#endif
   }
 }
 
 void GibbsMMulti::cleanup()
 {
-  _hdf5.closeDataSet();
-  _hdf5.closeFile();
-  _hdf5.deleteFile();
 }
 
 void GibbsMMulti::setFlagStoreInternal(bool flagStoreInternal)
 {
-#ifndef _USE_HDF5
   if (!flagStoreInternal)
     messerr("No HDF5 support: Cannot use External Storing of weights option!");
   _flagStoreInternal = true;
-#else
-  _flagStoreInternal = flagStoreInternal;
-#endif
 }
 
 double GibbsMMulti::_getEstimate(int ipgs,

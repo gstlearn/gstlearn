@@ -53,9 +53,11 @@
 # You can use the following variables:
 #
 #  - DEBUG=1            Build the debug version of the library and tests (default =0)
+#  - ASAN=1             Build with Address Sanitizer
 #  - N_PROC=N           Use more CPUs for building procedure (default =1)
 #  - BUILD_DIR=<path>   Define a specific build directory (default =build[_msys])
-#  - USE_HDF5=0         To remove HDF5 support (default =0)
+#  - NO_INTERNET=0      To prevent python pip from looking for dependencies through Internet
+#                       (useful when there is no Internet available) (default =0)
 #  - TEST=<test-target> Name of the test target to be launched (e.g. test_Model_py or test_simTub)
 #  - EIGEN3_ROOT=<path> Path to Eigen3 library (optional)
 #  - BOOST_ROOT=<path>  Path to Boost library (optional)
@@ -68,13 +70,10 @@
 #  make check N_PROC=2
 #
 
-ifdef USE_HDF5
-  USE_HDF5 = 1
-endif
-ifeq ($(USE_HDF5), 1)
-  USE_HDF5 = ON
+ifeq ($(NO_INTERNET), 1)
+  NO_INTERNET = ON
  else
-  USE_HDF5 = OFF 
+  NO_INTERNET = OFF 
 endif
 
 ifeq ($(OS),Windows_NT)
@@ -108,6 +107,12 @@ ifeq ($(DEBUG), 1)
   BUILD_TYPE = Release
 endif
 
+ifeq ($(ASAN), 1)
+  BUILD_ASAN = ON
+ else
+  BUILD_ASAN = OFF
+endif
+
 ifndef BUILD_DIR
   ifeq ($(OS),Windows_NT)
     # Assume MinGW (via RTools) => so MSYS build folder
@@ -130,7 +135,7 @@ endif
 # Add  "| tee /dev/null" because Ninja prints output in a single line :
 # https://stackoverflow.com/questions/46970462/how-to-enable-multiline-logs-instead-of-single-line-progress-logs
 
-CMAKE_DEFINES := -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5)
+CMAKE_DEFINES := -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DBUILD_ASAN=$(BUILD_ASAN) -DNO_INTERNET=$(NO_INTERNET)
 ifdef SWIG_EXEC
   CMAKE_DEFINES := $(CMAKE_DEFINES) -DSWIG_EXECUTABLE=$(SWIG_EXEC)
 endif

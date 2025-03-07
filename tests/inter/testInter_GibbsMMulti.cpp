@@ -52,9 +52,7 @@ int main()
     nburn = askInt("Number of burning steps",nburn);
     eps   = askDouble("Epsilon",eps);
     range = askDouble("Isotropic Range",range);
-#ifdef _USE_HDF5
     storeInternal = askBool("Store Internal", storeInternal);
-#endif
   }
 
   int seed     = 5452;

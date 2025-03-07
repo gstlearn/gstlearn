@@ -325,8 +325,8 @@ void ASerializable::setContainerName(bool useDefault,
 {
   if (useDefault)
   {
-    // Default is first set to PYGSTLEARN_DIR (if defined)
-    String pygst(gslGetEnv("PYGSTLEARN_DIR"));
+    // Default is first set to GSTLEARN_OUTPUT_DIR (if defined)
+    String pygst(gslGetEnv("GSTLEARN_OUTPUT_DIR"));
     if (pygst.empty())
     {
       // Otherwise, it is set to HOME/gstlearn_dir
@@ -336,7 +336,7 @@ void ASerializable::setContainerName(bool useDefault,
     else
     {
       if (verbose)
-        message("Results are stored in PYGSTLEARN_DIR\n");
+        message("Results are stored in GSTLEARN_OUTPUT_DIR\n");
     }
     _myContainerName = pygst;
   }

@@ -11,13 +11,6 @@ project(gstlearn
 ####################################################
 ## CONFIGURATION
 
-# By default, do not activate HDF5 support
-option(USE_HDF5 "Using HDF5 support" OFF)
-
-# TODO : USE_NETCDF in CMake (mimicking USE_HDF5)
-# By default, do not activate NetCDF support
-#option(USE_NETCDF "Using NetCDF support" OFF)
-
 # Extract Git commit timestamp, hash
 find_package(Git)
 execute_process(
@@ -69,13 +62,9 @@ option(BUILD_TESTING "Build tests"                 OFF)
 option(BUILD_DOXYGEN "Build Doxygen documentation" OFF)
 if (MINGW)
   set(BUILD_PYTHON OFF)
-  # TODO : Reactivate HDF5 support for MinGW (currently: link error against szip)
-  set(USE_HDF5 OFF)
 endif()
 if (MSVC)
   set(BUILD_R OFF)
-  # TODO : Reactivate HDF5 support for MSVC (currently: hdf5::sz-static target is not found)
-  set(USE_HDF5 OFF)
 endif()
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   # Clang compiler detected (define the shortcut variable)
@@ -85,7 +74,6 @@ message(STATUS "BUILD_PYTHON="  ${BUILD_PYTHON})
 message(STATUS "BUILD_R="       ${BUILD_R})
 message(STATUS "BUILD_TESTING=" ${BUILD_TESTING})
 message(STATUS "BUILD_DOXYGEN=" ${BUILD_DOXYGEN})
-message(STATUS "USE_HDF5="      ${USE_HDF5})
 
 # Create gstlearn cmake file path in the build tree
 cmake_path(APPEND GSTLEARN_CMAKE_FILE ${PROJECT_BINARY_DIR} "gstlearn.cmake")
