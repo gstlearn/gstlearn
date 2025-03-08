@@ -23,7 +23,7 @@
 /*!
  ** Main Program
  ** This is meant to test the time improvement using BallTree search or not.
- ** It is illustrated within the 'ligrate' algorithm.
+ ** It is illustrated within the 'migrate' algorithm.
  **
  *****************************************************************************/
 int main(int argc, char *argv[])

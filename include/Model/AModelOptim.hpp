@@ -23,6 +23,36 @@
 class Model;
 class Constraints;
 
+typedef struct
+{
+  int _icov;
+  EConsElem _type;
+  int _rank;
+  double _scale;
+} OneParam;
+
+typedef struct
+{
+  // Pointer to the Model structure
+  Model* _model;
+
+  // Model fitting options
+  Option_VarioFit _optvar;
+
+  // Model parametrization
+  std::vector<OneParam> _params;
+
+  // Model parametrization
+  VectorDouble _tabval;
+  VectorDouble _tablow;
+  VectorDouble _tabupp;
+
+  // Verbosity flag
+  bool _verbose;
+  int _niter;
+  CovCalcMode _calcmode;
+} Model_Part;
+
 /**
  * \brief
  * Class which, starting from an experimental variogram, enables fitting the
@@ -39,35 +69,7 @@ public:
   AModelOptim& operator=(const AModelOptim& m);
   virtual ~AModelOptim();
 
-  typedef struct
-  {
-    int _icov;
-    EConsElem _type;
-    int _rank;
-    double _scale;
-  } OneParam;
 
-  typedef struct
-  {
-    // Pointer to the Model structure
-    Model* _model;
-
-    // Model fitting options
-    Option_VarioFit _optvar;
-
-    // Model parametrization
-    std::vector<OneParam> _params;
-
-    // Model parametrization
-    VectorDouble _tabval;
-    VectorDouble _tablow;
-    VectorDouble _tabupp;
-
-    // Verbosity flag
-    bool _verbose;
-    int  _niter;
-    CovCalcMode _calcmode;
-  } Model_Part;
 
 protected:
   int _buildModelParamList();

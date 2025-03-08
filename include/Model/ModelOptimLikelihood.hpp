@@ -54,7 +54,7 @@ private:
   typedef struct
   {
     // Part of the structure dedicated to the Model
-    AModelOptim::Model_Part& _modelPart;
+    Model_Part& _modelPart;
 
     // Part relative to the Experimental variograms
     ModelOptimLikelihood::Db_Part& _dbPart;
