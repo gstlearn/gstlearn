@@ -21,6 +21,7 @@ ModelGeneric::ModelGeneric(const CovContext &ctxt)
       _driftList(nullptr),
       _ctxt(ctxt)
 {
+  _driftList = new DriftList(_ctxt);
 }
 
 ModelGeneric::ModelGeneric(const ModelGeneric& r)

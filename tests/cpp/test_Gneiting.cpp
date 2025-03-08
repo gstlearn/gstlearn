@@ -92,7 +92,6 @@ int main(int argc, char* argv[])
 
   // Create the Unique neighborhood
   NeighUnique* neigh = NeighUnique::create(false, sp);
-
   // Launch Kriging
   (void) kriging(data, grid, model, neigh);
 
