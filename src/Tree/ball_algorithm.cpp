@@ -60,6 +60,14 @@ double **copy_double_arr(const double **arr, int row, int col)
 	return (copy);
 }
 
+bool* init_bool_arr(int col, bool status)
+{
+  bool* copy = (bool*)malloc(sizeof(bool) * col);
+  for (int j = 0; j < col; j++)
+    copy[j] = status;
+  return copy;
+}
+
 VectorVectorDouble copy_double_toVVD(const double** arr, int row, int col)
 {
   VectorVectorDouble copy(row);
@@ -105,6 +113,7 @@ void swap(int *arr, int i1, int i2)
 void btree_zero(t_btree *b)
 {
 	b->data = NULL;
+  b->accept = NULL;
 	b->idx_array = NULL;
 	b->node_data = NULL;
 	b->node_bounds = NULL;
@@ -251,23 +260,26 @@ void define_dist_function(double (*dist_function)(const double* x1,
 t_btree* btree_init(const double** data,
                     int n_samples,
                     int n_features,
+                    bool has_constraints,
                     double (*dist_function)(const double* x1,
                                             const double* x2,
                                             int size),
                     int leaf_size,
                     int default_distance_function)
 {
-	t_btree* b = (t_btree*)malloc(sizeof(t_btree));
-	btree_zero(b);
+  t_btree* b = (t_btree*)malloc(sizeof(t_btree));
+  btree_zero(b);
 
-	b->data = copy_double_arr(data, n_samples, n_features);
-	b->leaf_size = leaf_size;
-	
-	if (leaf_size < 1)
-	{
-		messerr("leaf_size must be greater than or equal to 1\n");
-		return nullptr;
-	}
+  b->data = copy_double_arr(data, n_samples, n_features);
+  if (has_constraints)
+    b->accept = init_bool_arr(n_samples, false);
+  b->leaf_size = leaf_size;
+
+  if (leaf_size < 1)
+  {
+    messerr("leaf_size must be greater than or equal to 1\n");
+    return nullptr;
+  }
 
   // Define the relevant distance function
   define_dist_function(dist_function, default_distance_function);
@@ -295,6 +307,15 @@ t_btree* btree_init(const double** data,
 	return (b);
 }
 
+/**
+ * @brief Calculate the distance between the current 'pt' and the centroid of node 'i_node'
+ * Returns 0 if 'pt' belongs to the node
+ * 
+ * @param tree t_btree structure
+ * @param i_node Rank of the target node
+ * @param pt     Characteristics of the target SpacePoint
+ * @return double Minimum distance or 0
+ */
 double min_dist(t_btree *tree, int i_node, const double *pt)
 {
   double dist_pt = st_distance_function(pt, tree->node_bounds[0][i_node], tree->n_features);
@@ -317,13 +338,15 @@ int query_depth_first(t_btree *b, int i_node, const double *pt, int i_pt, t_nhea
   {
     for (int i = node_info.idx_start; i < node_info.idx_end; i++)
     {
-      dist_pt = st_distance_function(pt, b->data[b->idx_array[i]], b->n_features);
+      int j = b->idx_array[i];
+      if (b->accept != nullptr && !b->accept[j]) 
+        continue;
+      dist_pt = st_distance_function(pt, b->data[j], b->n_features);
       if (dist_pt < nheap_largest(heap, i_pt))
-        nheap_push(heap, i_pt, dist_pt, b->idx_array[i]);
+        nheap_push(heap, i_pt, dist_pt, j);
     }
   }
-  // case 3: Node is not a leaf, Recursively query sub-nodes starting with the
-  // closest
+  // case 3: Node is not a leaf, Recursively query sub-nodes starting with the closest
   else
   {
     i1    = 2 * i_node + 1;
@@ -387,28 +410,19 @@ void btree_display(const t_btree *tree, int level)
   for (int i_node = 0; i_node < tree->n_nodes; i_node++)
   {
     t_nodedata* info = &tree->node_data[i_node];
-    VectorDouble centroid(tree->n_features);
-    for (int j = 0; j < tree->n_features; j++)
-      centroid[j] = tree->node_bounds[0][i_node][j];
 
-    message("Node #%3d/%3d - Indices [%5d; %5d[ - Radius = %lf",
+    message("Node #%3d/%3d - Indices [%5d; %5d[ - Radius = %lf - Centroid = ",
             i_node, tree->n_nodes, info->idx_start, info->idx_end, info->radius);
-    if (info->is_leaf)
-      message(" - Terminal Leaf\n");
-    else
-      message("\n");
+    for (int j = 0; j < tree->n_features; j++)
+      message("%lf ", tree->node_bounds[0][i_node][j]);
+    message("\n");
 
-    if (level > 0)
+    if (level > 0 && info->is_leaf)
     {
-      VH::dump("- Centroid = ", centroid, 0);
-
-      if (info->is_leaf)
-      {
-        message("- Sample indices = ");
-        for (int is = info->idx_start; is < info->idx_end; is++)
-          message(" %d", tree->idx_array[is]);
-        message("\n");
-      }
+      message(" Sample indices = ");
+      for (int is = info->idx_start; is < info->idx_end; is++)
+        message(" %d", tree->idx_array[is]);
+      message("\n");
     }
   }
 }

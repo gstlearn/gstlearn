@@ -39,6 +39,7 @@ public:
                                const double* x2,
                                int size) = nullptr,
        int leaf_size                     = 10,
+       bool has_constraints              = false,
        int default_distance_function     = 1,
        bool useSel                       = false);
   Ball(const Ball& p)            = delete;
@@ -69,11 +70,19 @@ public:
                       VectorDouble& distances,
                       int rank = 0);
   void display(int level = -1) const;
+  int  setConstraint(int rank, bool status);
+  int  resetConstraints(bool status);
 
 protected:
-  int _getFeatureNumber() const { return _tree->n_features; }
+  int _getFeatureNumber() const
+  {
+    return _tree->n_features;
+  }
   int _getLeafSize() const { return _tree->leaf_size; }
   int _getNSample() const { return _tree->n_samples; }
+
+private:
+  bool _isConstraintDefined() const;
 
 private:
   t_btree* _tree;

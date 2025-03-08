@@ -40,8 +40,9 @@ int main(int argc, char *argv[])
   ASerializable::setPrefixName("Tree-");
 
   // Global parameters
-  int ndim = 2;
   bool verbose = true;
+  int ndim = 2;
+  int mode = 0;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Constructing the Data Set
@@ -51,29 +52,70 @@ int main(int argc, char *argv[])
                                   VectorDouble(), 131343);
   if (verbose) data->display();
 
-  // Constructing the Ball Tree
-  Ball ball(data);
-  if (verbose) ball.display(0);
-
-  // Inquiring the Ball tree
-  mestitle(0, "Various ways of inquiring the Ball Tree");
-
-  // - for the closest sample
-  VectorDouble coor = {0.4, 0.2};
-  int ineigh = ball.queryClosest(coor);
-  message("The closest sample to the Target is : %d\n", ineigh);
-
-  // - for a set of neighboring samples
   int nb_neigh = 5;
-  SpacePoint pt(coor);
-  VectorInt neighs = ball.getIndices(pt, nb_neigh);
-  VH::dump("Indices of the target neighbors", neighs);
-
-  // -for a more complete output (in place)
+  VectorInt neighs;
   VectorDouble distances;
-  (void)ball.queryOneInPlace(coor, nb_neigh, neighs, distances);
-  VH::dump("Indices of the target neighbors", neighs);
-  VH::dump("Distances to the target", distances);
+
+  if (mode == 0 || mode == 1)
+  {
+    // ================
+    // Traditional Ball
+    // ================
+    mestitle(0, "Traditional use of the Ball Tree");
+
+    // Constructing the Ball Tree
+    Ball ball1(data, nullptr, 10, false);
+    if (verbose) ball1.display(0);
+
+    // My target sample
+    VectorDouble target = {0.4, 0.2};
+    SpacePoint pt1(target);
+
+    // Inquiring the Ball tree
+    mestitle(0, "Various ways of inquiring the Ball Tree");
+
+    // - for the closest sample
+    int ineigh = ball1.queryClosest(target);
+    message("The closest sample to the Target is : %d\n", ineigh);
+
+    // - for a set of neighboring samples
+
+    neighs = ball1.getIndices(pt1, nb_neigh);
+    VH::dump("Indices of the target neighbors", neighs);
+
+    // -for a more complete output (in place)
+    (void)ball1.queryOneInPlace(target, nb_neigh, neighs, distances);
+    VH::dump("Indices of the neighbors", neighs);
+    VH::dump("Distances to the target", distances);
+  }
+
+  if (mode == 0 || mode == 2)
+  {
+    // =====================
+    // Ball with constraints
+    // =====================
+    mestitle(0, "Use of the Ball Tree with Constraints (FNN search)");
+    bool has_constraints = true;
+    verbose              = true;
+
+    // Constructing the Ball Tree
+    Ball ball2(data, nullptr, 10, has_constraints);
+    if (verbose) ball2.display(1);
+
+    // Loop on the samples for the FNN search
+    SpacePoint pt2;
+    // VectorInt ranks = law_random_path(nech);
+    VectorInt ranks = VH::sequence(nech);
+    for (int jech = 0; jech < nech; jech++)
+    {
+      int iech = ranks[jech];
+      message("Target Sample = %d -> Absolute Rank = %d\n", jech, iech);
+      data->getSampleAsSPInPlace(pt2, iech);
+      ball2.setConstraint(iech, true);
+      (void)ball2.queryOneInPlace(pt2.getCoordUnprotected(), nb_neigh, neighs, distances);
+      VH::dump("Indices of the neighbors", neighs);
+    }
+  }
 
   // Cleaning
   delete data;
