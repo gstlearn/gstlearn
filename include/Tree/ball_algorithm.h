@@ -59,6 +59,7 @@ typedef struct
 struct t_btree
 {
   double **data;
+  bool *accept;
   int *idx_array;
   t_nodedata *node_data;
   double ***node_bounds;
@@ -75,8 +76,9 @@ struct t_btree
 ** ball.c
 */
 
-GSTLEARN_EXPORT double **copy_double_arrAsVVD(const VectorVectorDouble& arr);
+GSTLEARN_EXPORT double** copy_double_arrAsVVD(const VectorVectorDouble& arr);
 GSTLEARN_EXPORT double** copy_double_arr(const double** arr, int row, int col);
+GSTLEARN_EXPORT bool* init_bool_arr(int col, bool status);
 GSTLEARN_EXPORT VectorVectorDouble copy_double_toVVD(const double** arr,
                                                      int row,
                                                      int col);
@@ -87,6 +89,7 @@ GSTLEARN_EXPORT int** copy_int_arr(const int** arr, int row, int col);
 GSTLEARN_EXPORT t_btree* btree_init(const double** data,
                                     int n_samples,
                                     int n_features,
+                                    bool has_constraints,
                                     double (*dist_function)(const double* x1,
                                                             const double* x2,
                                                             int size),

@@ -315,13 +315,11 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
  */
 void Model::setCovAnisoList(const CovAnisoList* covalist)
 {
-  
   if (covalist == nullptr)
   {
     messerr("Warning, the covariance is nullptr.");
     return;
   }
-  
   delete _covList;
   ModelCovList::setCovList(covalist->clone());
 }
