@@ -51,7 +51,7 @@ protected:
   void _optimizationSetTarget(SpacePoint& pt) const override;
 
 private:
-  void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
+  // void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
   void _optimizationPostProcess() const override;
 
 private:

@@ -79,6 +79,7 @@ ACov& ACov::operator=(const ACov &r)
 
 ACov::~ACov()
 {
+  delete _tabNoStat;
 }
 
 void ACov::optimizationPostProcess() const
@@ -282,12 +283,14 @@ int ACov::evalCov0MatByTargetInPlace(MatrixSquareSymmetric& mat,
   if (krigopt.getCalcul() == EKrigOpt::DRIFT) return 1;
   bool flagBlock = krigopt.getCalcul() == EKrigOpt::BLOCK;
   const CovCalcMode mode = CovCalcMode(ECalcMember::VAR);
+  bool isNoStatLocal     = isNoStat();
 
   SpacePoint p0(getSpace());
   db->getSampleAsSPInPlace(p0, iech);
 
   // Modify the covariance (if non stationary)
-  updateCovByPoints(2, iech, 2, iech);
+  if (isNoStatLocal)
+    updateCovByPoints(2, iech, 2, iech);
 
   if (!flagBlock)
     eval0CovMatBiPointInPlace(mat, &mode);

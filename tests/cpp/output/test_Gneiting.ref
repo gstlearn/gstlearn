@@ -1,10 +1,64 @@
 Space Type      = COMPOSITE
 Space Dimension = 3
 Space Type      [0] = RN
-Space Dimension [0] = 1
+Space Dimension [0] = 2
 Space Type      [1] = RN
-Space Dimension [1] = 2
+Space Dimension [1] = 1
 Space dimension of Gneiting Covariance = 3
 Value of Gneiting (by Covariance) = 0.020676
 Model dimension = 3
 Value of Gneiting (by Model) = 0.020676
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =         50
+ Nb of active values =         50
+ Minimum value       =      1.000
+ Maximum value       =     50.000
+ Mean value          =     25.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
+2 - Name x1 - Locator x1
+ Nb of data          =         50
+ Nb of active values =         50
+ Minimum value       =      0.000
+ Maximum value       =      0.800
+ Mean value          =      0.400
+ Standard Deviation  =      0.283
+ Variance            =      0.080
+3 - Name x2 - Locator x2
+ Nb of data          =         50
+ Nb of active values =         50
+ Minimum value       =      0.000
+ Maximum value       =      0.800
+ Mean value          =      0.400
+ Standard Deviation  =      0.283
+ Variance            =      0.080
+4 - Name x3 - Locator x3
+ Nb of data          =         50
+ Nb of active values =         50
+ Minimum value       =      0.000
+ Maximum value       =      0.500
+ Mean value          =      0.250
+ Standard Deviation  =      0.250
+ Variance            =      0.062
+5 - Name Kriging.z.estim - Locator z1
+ Nb of data          =         50
+ Nb of active values =         50
+ Minimum value       =     -1.635
+ Maximum value       =      0.826
+ Mean value          =     -0.364
+ Standard Deviation  =      0.589
+ Variance            =      0.347
+6 - Name Kriging.z.stdev - Locator NA
+ Nb of data          =         50
+ Nb of active values =         50
+ Minimum value       =      0.218
+ Maximum value       =      0.528
+ Mean value          =      0.387
+ Standard Deviation  =      0.068
+ Variance            =      0.005
