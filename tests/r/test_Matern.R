@@ -1,4 +1,4 @@
-library(gstlearn)
+suppressWarnings(suppressMessages(library(gstlearn)))
 
 #Tensor for the first variable
 ranges = c(1,3)
