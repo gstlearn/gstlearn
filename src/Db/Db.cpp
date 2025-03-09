@@ -29,6 +29,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/GlobalEnvironment.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Stats/Classical.hpp"
 #include "Matrix/Table.hpp"
 #include "Matrix/MatrixRectangular.hpp"
@@ -5609,4 +5610,24 @@ void Db::copyByCol(int icolIn, int icolOut)
 
   for (int iech = 0, nech = getNSample(); iech < nech; iech++)
     _array[_getAddress(iech, icolOut)] = _array[_getAddress(iech, icolIn)];
+}
+
+void Db::dumpGeometry(int iech, int jech) const
+{
+  int ndim = getNDim();
+  SpacePoint P1(ndim);
+  SpacePoint P2(ndim);
+  getSampleAsSPInPlace(P1, iech);
+  getSampleAsSPInPlace(P2, jech);
+
+  message("Comparing samples #%d and #%d\n", iech, jech);
+
+  double dist = P1.getDistance(P2);
+  message("- Distance = %lf\n", dist);
+
+  VectorDouble incr = P1.getIncrement(P2);
+  VH::dump("- Increments = ", incr, false);
+
+  VectorDouble angles = GH::rotationFromIncrements(incr, true);
+  VH::dump("- Angles (deg) = ", angles, false);
 }

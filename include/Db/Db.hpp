@@ -888,6 +888,8 @@ public:
                        bool excludeCoordinates   = true,
                        bool skipTitle            = false) const;
 
+  void dumpGeometry(int iech, int jech) const;
+
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
@@ -972,3 +974,4 @@ private:
   /// factor allocations
   mutable std::vector<int> uids;
 };
+
