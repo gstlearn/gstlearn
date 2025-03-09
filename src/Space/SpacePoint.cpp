@@ -51,8 +51,8 @@ SpacePoint::SpacePoint(const VectorDouble& coord, int iech, const ASpaceSharedPt
   {
     // Use a valid default SpacePoint (origin ?)
     // TODO : Not true whatever the space
-    messerr("Problem with the number of coordinates. \n");
-    messerr("Point not created.\n");
+    messerr("Problem with the number of coordinates.");
+    messerr("Point not created.");
     _coord = getOrigin();
   }
 }

@@ -1,7 +1,7 @@
 This document describes how to upgrade VSCODE (for dummy user)
 
 When a new upgrade is available (bouton left button witho VSCODE):
-- press the "wheel"
+- press the "wheel" button
 - follow the link and upload the DEB file
 - log out from Vscode
 - login as a sudoer and type:

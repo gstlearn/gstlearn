@@ -40,7 +40,7 @@ public:
 
   FORWARD_METHOD(getCovList, getNCov)
   FORWARD_METHOD(getCovList, getSills)
-  FORWARD_METHOD(getCovList, getSill, TEST)
+  FORWARD_METHOD(getCovList, getSill, TEST) 
   FORWARD_METHOD(getCovList, getTotalSill)
   FORWARD_METHOD(getCovList, getTotalSills)
   FORWARD_METHOD(getCovList, isAllActiveCovList)

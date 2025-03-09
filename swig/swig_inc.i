@@ -208,6 +208,7 @@
   #include "Covariances/CovAniso.hpp"
   #include "Covariances/ACovGradient.hpp"
   #include "Covariances/CorGneiting.hpp"
+  #include "Covariances/CorMatern.hpp"
   #include "Covariances/CovLMCTapering.hpp"
   #include "Covariances/CovLMCConvolution.hpp"
   #include "Covariances/CovLMCAnamorphosis.hpp"

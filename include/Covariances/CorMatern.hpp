@@ -10,7 +10,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/Tensor.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Covariances/CorAniso.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 #include "Basic/ICloneable.hpp"
@@ -24,14 +27,18 @@ class CorAniso;
  * This class describes the Gneiting correlation function.
  *
  */
-class GSTLEARN_EXPORT CorGneiting: public ACov
+class GSTLEARN_EXPORT CorMatern: public ACov
 {
 public:
-  CorGneiting(const CorAniso* covS, const CorAniso* covTemp, double separability = 1.0);
-  CorGneiting(const CorGneiting& r);
-  CorGneiting& operator=(const CorGneiting& r);
-  virtual ~CorGneiting();
-  IMPLEMENT_CLONING(CorGneiting)
+  CorMatern(const VectorDouble &ranges = VectorDouble(),
+            const VectorDouble &angle = VectorDouble(),
+            const VectorDouble& coeffScales = VectorDouble(), 
+            const VectorDouble& params = VectorDouble(),
+            bool flagRange = true);
+  CorMatern(const CorMatern& r);
+  CorMatern& operator=(const CorMatern& r);
+  virtual ~CorMatern();
+  IMPLEMENT_CLONING(CorMatern)
 
   bool isConsistent(const ASpace* space) const override
   {
@@ -46,18 +53,27 @@ public:
                       const CovCalcMode* mode = nullptr) const override;
 
   virtual int getNVar() const override { return 1; }
-
+  double getCorMax(int ivar, int jvar) const { return _corMax.getValue(ivar, jvar); }
 protected:
   void _optimizationSetTarget(SpacePoint& pt) const override;
 
 private:
-  // void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
+  void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
   void _optimizationPostProcess() const override;
-
+  double _computeScale(int ivar, int jvar) const; 
+  double _computeParam(int ivar, int jvar) const;   
+  double _computeRatio(int ivar, int jvar) const;  
 private:
-  const CorAniso* _covS;
-  const CorAniso* _covTemp;
-  double _separability;
-  mutable CorAniso _covSCopy;
+    int _nvar;
+    const CorAniso* _corRef;
+    mutable CorAniso _corMatern;
+    VectorDouble _coeffScales; //scale factor for each variable 
+                               //starting from the second one 
+                               //(first one is guided by the tensor of 
+                               //_corMatern)
+    VectorDouble _params; //parameters of the Matern correlation function
+    
+    MatrixSquareSymmetric _corMax;
+
 };
 
