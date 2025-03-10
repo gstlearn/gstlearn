@@ -23,7 +23,7 @@ newvar = np.random.normal(size=dbg.getNSample())
 newvar[dbg["x1"]==00] = 0
 newvar[dbg["x1"]==10] = 0
 newvar[dbg["x2"]==00] = 0
-newvar[dbg["x2"]==10] = 0
+newvar[dbg["x2"]==10] = 0
 if flagSel:
     newvar[middle]    = 0
 
