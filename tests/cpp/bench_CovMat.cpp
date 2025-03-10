@@ -17,6 +17,7 @@
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/Law.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
 
@@ -142,6 +143,34 @@ int main(int argc, char* argv[])
     // Some printout for comparison
     VH::divideConstant(cumul, nout);
     VH::dumpRange("", cumul);
+
+    // Measure the difference between consecutive access vs. random access
+
+    int nrows = mat.getNRows();
+    int ncols = mat.getNCols();
+
+    // consecutive writes: loop in row then col
+    timer.reset();
+    for (int irow = 0; irow < nrows; irow++)
+      for (int icol = 0; icol < ncols; icol++)
+        mat.setValue(irow, icol, 12.);
+    timer.displayIntervalMilliseconds("Writing in mat by row then by col");
+
+    // consecutive writes: loop in col then row
+    timer.reset();
+    for (int icol = 0; icol < ncols; icol++)
+      for (int irow = 0; irow < nrows; irow++)
+        mat.setValue(irow, icol, 12.);
+    timer.displayIntervalMilliseconds("Writing in mat by col then by row");
+
+    // Writing ar random
+    VectorInt rowRand = law_random_path(nrows);
+    VectorInt colRand = law_random_path(ncols);
+    timer.reset();
+    for (int icol = 0; icol < ncols; icol++)
+      for (int irow = 0; irow < nrows; irow++)
+        mat.setValue(rowRand[irow], colRand[icol], 12.);
+    timer.displayIntervalMilliseconds("Writing at random");
   }
 
   // Cleaning

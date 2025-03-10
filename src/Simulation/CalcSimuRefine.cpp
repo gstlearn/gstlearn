@@ -24,10 +24,9 @@
 #define LHS(i,j) (lhs[(i) * neq + (j)])
 #define RHS(i)   (rhs[(i)])
 
-CalcSimuRefine::CalcSimuRefine(int nbsimu, int seed, bool verbose)
+CalcSimuRefine::CalcSimuRefine(int nbsimu, int seed)
   : ACalcSimulation(nbsimu, seed)
   , _param()
-  , _verbose(verbose)
   , _nx1(3)
   , _dx1(3)
   , _x01(3)
@@ -579,10 +578,9 @@ DbGrid* simulation_refine(DbGrid* dbin,
                           Model* model,
                           const SimuRefineParam& param,
                           int seed,
-                          bool verbose,
                           const NamingConvention& namconv)
 {
-  CalcSimuRefine simfine(1, seed, verbose);
+  CalcSimuRefine simfine(1, seed);
   simfine.setDbin(dbin);
   simfine.setModel(model);
   simfine.setNamingConvention(namconv);

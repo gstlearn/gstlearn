@@ -254,13 +254,6 @@ int ModelOptimSillsVario::loadEnvironment(Vario* vario, int wmode, bool verbose)
    **  Calculates the values of a generic covariance model corresponding
    **  to the lags of an experimental variogram
    **
-   ** \param[in]  vario   Vario structure
-   ** \param[in]  model   Model structure
-   ** \param[in]  npadir  Total number of lags
-   **
-   ** \param[out] dd      Array of distances (optional)
-   ** \param[out] ge      Array of generic covariance values (optional)
-   **
    *****************************************************************************/
   void ModelOptimSillsVario::updateFromModel()
   {
