@@ -31,18 +31,18 @@ CorMatern::CorMatern(const VectorDouble &ranges,
                      const VectorDouble& params ,
                      bool flagRange)
   : ACov()
-  , _nvar(params.size())
+  , _nVar(params.size())
   , _corRef(CorAniso::createAnisotropic(CovContext(1, ranges.size()),ECov::MATERN, ranges, params[1], angles, flagRange))
   , _corMatern(*_corRef)
   , _coeffScales(coeffScales)
   , _params(params)
-  , _corMax(_nvar)
+  , _corMax(_nVar)
 {
-  if ((int)_coeffScales.size() != _nvar - 1)
+  if ((int)_coeffScales.size() != _nVar - 1)
   {
     messerr("CorMatern: inconsistent size between coeffScales and params");
-    messerr("CorMatern: coeffScales size = %d, params size = %d", _coeffScales.size(), _nvar);
-    _nvar = 0;
+    messerr("CorMatern: coeffScales size = %d, params size = %d", _coeffScales.size(), _nVar);
+    _nVar = 0;
     _corMax = MatrixSquareSymmetric(0);
     _coeffScales = VectorDouble();
     _params = VectorDouble();
@@ -50,11 +50,11 @@ CorMatern::CorMatern(const VectorDouble &ranges,
   }
   _coeffScales.push_front(1.);
   setContext(_corMatern.getContext());
-  _ctxt.setNVar(_nvar);
-  for (int ivar = 0; ivar < _nvar; ivar++)
+  _ctxt.setNVar(_nVar);
+  for (int ivar = 0; ivar < _nVar; ivar++)
   {
     _corMax.setValue(ivar, ivar, 1.);
-    for (int jvar = ivar + 1; jvar < _nvar; jvar++)
+    for (int jvar = ivar + 1; jvar < _nVar; jvar++)
     {
       double scalei = _coeffScales[ivar];
       double scalej = _coeffScales[jvar];
@@ -78,7 +78,7 @@ CorMatern::CorMatern(const CorMatern& r)
   : ACov(r)
   , _corMatern(r._corMatern)
 {   
-    _nvar = r._nvar;
+    _nVar = r._nVar;
     _corRef = r._corRef;
     _coeffScales = r._coeffScales;
     _params = r._params;
@@ -90,7 +90,7 @@ CorMatern& CorMatern::operator=(const CorMatern& r)
   if (this != &r)
   {
     ACov::operator=(r);
-    _nvar = r._nvar;
+    _nVar = r._nVar;
     _corMatern = r._corMatern;
     _coeffScales = r._coeffScales;
     _params = r._params;
@@ -156,12 +156,13 @@ double CorMatern::eval(const SpacePoint& p1,
     VectorDouble angles = _corRef->getAnisoAngles();
     VectorDouble scales = _corRef->getScales();
   
+    double correcScale = _computeScale(ivar, jvar);
     for (int idim = 0; idim < (int)_space->getNDim(); idim++)
     {
-        scales[idim] *= _computeScale(ivar, jvar);
+        scales[idim] *= correcScale;
     }
     _corMatern.setRotationAnglesAndRadius(angles,VectorDouble(),scales);
     
-    return _corMatern.eval(p1, p2, 0 , 0 , mode);
+    return _corMax.getValue(ivar, jvar) * _corMatern.eval(p1, p2, 0 , 0 , mode);
 }
 
