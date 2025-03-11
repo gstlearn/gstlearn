@@ -10,7 +10,7 @@ rescale = c(3., 2.)
 #Smoothness parameters
 params = c(1.,2.,3.)
 
-cov = CorMatern(ranges,angles,rescale,params)
+cov = CorMatern(ranges,angles,rescale,params,flagRange = F)
 
 #Print the maximum possible correlation (h = 0)
 for (i in 0:2)

@@ -153,11 +153,14 @@ double CorMatern::eval(const SpacePoint& p1,
 {
     _corMatern.setParam(_computeParam(ivar, jvar));
 
+    VectorDouble angles = _corRef->getAnisoAngles();
+    VectorDouble scales = _corRef->getScales();
+  
     for (int idim = 0; idim < (int)_space->getNDim(); idim++)
     {
-        double scale = _corRef->getScale(idim);
-        _corMatern.setScale(scale * _computeScale(ivar, jvar));
+        scales[idim] *= _computeScale(ivar, jvar);
     }
+    _corMatern.setRotationAnglesAndRadius(angles,VectorDouble(),scales);
     
     return _corMatern.eval(p1, p2, 0 , 0 , mode);
 }
