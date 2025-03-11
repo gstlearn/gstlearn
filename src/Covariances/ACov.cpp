@@ -1072,9 +1072,6 @@ int ACov::evalCovMatInPlace2(MatrixRectangular& mat,
   mat.resize(neq1, neq2);
 
   // Define the two space points
-  KrigOpt krigopt;
-  krigopt.setMode(mode);
-  double value;
   bool isNoStatLocal = isNoStat();
 
   // Loop on Data
@@ -1102,7 +1099,7 @@ int ACov::evalCovMatInPlace2(MatrixRectangular& mat,
 
           // Calculate the covariance between two points
 
-          value = eval(p1, p2, ivar1, ivar2, mode);
+          double value = eval(p1, p2, ivar1, ivar2, mode);
           mat.setValue(irow, icol, value);
         }
         irow++;

@@ -24,6 +24,7 @@
 
 void st_bench_writing_in_matrix(MatrixRectangular& mat, Timer& timer)
 {
+  mestitle(1, "Writing into the Rectangular Covariance Matrix");
   int nrows = mat.getNRows();
   int ncols = mat.getNCols();
 
