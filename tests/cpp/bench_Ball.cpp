@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
   // Global parameters
   bool verbose = false;
   int ndim = 2;
-  int mode = 3;
+  int mode = 0;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Constructing the Data Set
@@ -109,7 +109,6 @@ int main(int argc, char *argv[])
     for (int jech = 0; jech < nech; jech++)
     {
       int iech = ranks[jech];
-      message("Target Sample = %d -> Absolute Rank = %d\n", jech, iech);
       data->getSampleAsSPInPlace(pt2, iech);
       ball2.setConstraint(iech, true);
       (void)ball2.queryOneInPlace(pt2.getCoordUnprotected(), nb_neigh, neighs, distances);
@@ -119,6 +118,7 @@ int main(int argc, char *argv[])
 
   if (mode == 0 || mode == 3)
   {
+    mestitle(0, "Demonstrating the findNN algorithm");
     bool flagShuffle = true;
 
     int nech = 20;
