@@ -1,4 +1,4 @@
-library(gstlearn)
+suppressWarnings(suppressMessages(library(gstlearn)))
 rm(list = ls())
 
 flag.range = FALSE
