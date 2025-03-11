@@ -156,8 +156,6 @@
 %include Matrix/MatrixFactory.hpp
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
-%include Matrix/CholeskyDense.hpp
-%include Matrix/CholeskySparse.hpp
 
 %include Skin/ISkinFunctions.hpp
 %include Skin/Skin.hpp
@@ -199,6 +197,9 @@
 %include LinearOp/OptimCostBinary.hpp
 %include LinearOp/OptimCostColored.hpp
 %include LinearOp/MatrixSquareSymmetricSim.hpp
+%include LinearOp/ACholesky.hpp
+%include LinearOp/CholeskyDense.hpp
+%include LinearOp/CholeskySparse.hpp
 
 %include Neigh/ANeigh.hpp
 %include Neigh/NeighUnique.hpp

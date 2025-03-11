@@ -1049,7 +1049,7 @@ MatrixSparse* prodNormDiagVec(const MatrixSparse* a,
 {
   int nrow = a->getNRows();
   int ncol = a->getNCols();
-  MatrixSparse *mat = new MatrixSparse(nrow, ncol, a->isFlagEigen() ? 1 : 0);
+  MatrixSparse *mat = new MatrixSparse(nrow, ncol, -1, a->isFlagEigen() ? 1 : 0);
 
   if (a->isFlagEigen())
   {

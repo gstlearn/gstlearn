@@ -164,6 +164,9 @@
   #include "LinearOp/SPDEOp.hpp"
   #include "LinearOp/SPDEOpMatrix.hpp"
   #include "LinearOp/MatrixSquareSymmetricSim.hpp"
+  #include "LinearOp/ACholesky.hpp"
+  #include "LinearOp/CholeskyDense.hpp"
+  #include "LinearOp/CholeskySparse.hpp"
 
   #include "Neigh/ANeigh.hpp"
   #include "Neigh/NeighUnique.hpp"
@@ -265,8 +268,6 @@
   #include "Matrix/MatrixSquareGeneral.hpp"
   #include "Matrix/MatrixSquareSymmetric.hpp"
   #include "Matrix/MatrixFactory.hpp"
-  #include "Matrix/CholeskyDense.hpp"
-  #include "Matrix/CholeskySparse.hpp"
   #include "Matrix/MatrixInt.hpp"
   #include "Matrix/Table.hpp"
   
