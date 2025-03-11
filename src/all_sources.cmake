@@ -183,6 +183,7 @@ set(SRC
   LinearOp/ProjMulti.cpp
   LinearOp/ProjMultiMatrix.cpp
   LinearOp/ProjComposition.cpp
+  LinearOp/ProjZero.cpp
   LinearOp/PrecisionOpMatrix.cpp
   LinearOp/ALinearOpMulti.cpp
   LinearOp/ALinearOp.cpp
