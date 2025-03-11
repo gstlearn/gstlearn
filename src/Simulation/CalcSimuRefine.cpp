@@ -566,7 +566,6 @@ bool CalcSimuRefine::_run()
  ** \param[in]  model      Model structure
  ** \param[in]  param      SimuRefineParam structure
  ** \param[in]  seed       Seed for the random number generator
- ** \param[in]  verbose    Verbosity flag
  ** \param[in]  namconv    Naming convention
  **
  ** \remark For each dimension of the space, if N stands for the number of

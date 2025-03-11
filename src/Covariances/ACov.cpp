@@ -26,6 +26,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Timer.hpp"
 #include "Basic/OptCustom.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
@@ -122,7 +123,7 @@ void ACov::_optimizationPreProcessForTarget(const Db* db2,
   if (nbgh2.empty())
     db2->getSamplesAsSP(ps, getSpace(), true);
   else
-    db2->getSamplesFromNbghAsSP(ps, nbgh2, getSpace());
+    db2->getSamplesFromNbghAsSP(ps, nbgh2);
   _optimizationPreProcess(2, ps);
 }
 
@@ -1042,6 +1043,7 @@ int ACov::evalCovMatInPlace2(MatrixRectangular& mat,
                              const CovCalcMode* mode,
                              bool cleanOptim) const
 {
+  Timer timer;
   // Preliminary checks
   if (db2 == nullptr) db2 = db1;
   if (db1 == nullptr || db2 == nullptr) return 1;
@@ -1098,7 +1100,6 @@ int ACov::evalCovMatInPlace2(MatrixRectangular& mat,
             updateCovByPoints(1, iabs1, 2, iabs2);
 
           // Calculate the covariance between two points
-
           double value = eval(p1, p2, ivar1, ivar2, mode);
           mat.setValue(irow, icol, value);
         }
