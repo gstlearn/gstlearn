@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Global parameters
-  int mode = 3;
+  int mode = 0;
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
