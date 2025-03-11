@@ -4052,8 +4052,6 @@ static int st_model_auto_count(const Vario *vario,
 /*!
  **  Evaluate the model for an experiment
  **
- ** \return  Value of the model
- **
  ** \param[in]  nbexp        Number of experimental conditions
  ** \param[in]  npar         Number of parameters
  ** \param[in]  param        Current values for parameters
@@ -4141,19 +4139,19 @@ static void st_prepar_goulard_vmap(int imod)
 /*!
  **  Evaluate the model for an experiment
  **
- ** \return  Value of the model
- **
  ** \param[in]  npar         Number of parameters
+ ** \param[in]  nbexp        Number of experiments
  ** \param[in]  param        Current values for parameters
  **
  ** \param[out] tabge        Array of resulting values
  **
  *****************************************************************************/
-static void st_strmod_vmap_evaluate(int /*nbexp*/,
+static void st_strmod_vmap_evaluate(int nbexp,
                                     int npar,
                                     VectorDouble &param,
                                     VectorDouble &tabge)
 {
+  DECLARE_UNUSED(nbexp)
   /* Define the current values of the parameters */
 
   st_model_auto_strmod_define(STRMOD, npar, param);

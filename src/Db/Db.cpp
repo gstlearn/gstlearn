@@ -805,16 +805,12 @@ void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,
 }
 
 void Db::getSamplesFromNbghAsSP(std::vector<SpacePoint>& pvec,
-                                const VectorInt& nbgh,
-                                const ASpaceSharedPtr& space) const
+                                const VectorInt& nbgh) const
 {
-  pvec.clear();
-  SpacePoint p(space);
-  for (int irel = 0, nech = (int)nbgh.size(); irel < nech; irel++)
-  {
-    getSampleAsSPInPlace(p, nbgh[irel]);
-    pvec.push_back(p);
-  }
+  int nbsize = (int) nbgh.size();
+  pvec.resize(nbsize);
+  for (int irel = 0; irel < nbsize; irel++)
+    getSampleAsSPInPlace(pvec[irel], nbgh[irel]);
 }
 
 VectorDouble Db::getSampleLocators(const ELoc& locatorType, int iech) const
@@ -1015,7 +1011,7 @@ void Db::setSampleCoordinates(int iech, const VectorDouble& coor)
     messerr("Nothing is done");
     return;
   }
-  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
+  for (int idim = 0; idim < ndim; idim++)
     setCoordinate(iech, idim, coor[idim]);
 }
 

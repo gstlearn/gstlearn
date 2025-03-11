@@ -42,8 +42,11 @@ bool OptDbg::query(const EDbg& option, bool discardForce)
   DECLARE_UNUSED(discardForce);
 
   if (force()) return true;
+#ifdef USE_BOOST_SPAN
+  return std::any_of(_dbg.cbegin(), _dbg.cend(), [&option](const auto& e) { return e == option; });
+#else
   return std::ranges::any_of(_dbg, [&option](const auto& e) { return e == option; });
-  return false;
+#endif
 }
 
 bool OptDbg::queryByKey(const String& name)

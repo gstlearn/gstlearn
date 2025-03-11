@@ -54,7 +54,7 @@ To report a bug or contact us:
 ### Requirements
 
 This library has been successfully tested with Ubuntu 18/20/22 LTS, Windows 10 and MacOS 12/14 ([see here](https://github.com/gstlearn/gstlearn/actions/workflows/coverage-tests.yml)).
-For **compiling and installing** *gstlearn* C++ library, the following tools must be available (See [required tools installation](#required-tools-installation) instructions below):
+For **compiling and installing** *gstlearn* C++ library, the following tools must be available (See [Required Tools Installation](#required-tools-installation) instructions below):
 
 * Git client 2.30 or higher
 * CMake tool 3.20 or higher
@@ -72,7 +72,7 @@ For **compiling and installing** *gstlearn* C++ library, the following tools mus
 * HDF5 C++ library and header files 1.8 or higher
 * Doxygen [Optional] 1.8.3 or higher with LaTeX and Ghostscripts
 
-See [required tools installation](#required-tools-installation) instructions below
+See [Required Tools Installation](#required-tools-installation) instructions below
 
 ### Get the sources
 
@@ -113,7 +113,7 @@ make
 
 Notes:
 
-* Under MacOS, if you experience "Could NOT find OpenMP_C" error message, you should use the appropriate clang compiler (see [required tools installation](#required-tools-installation) instructions below)
+* Under MacOS, if you experience "Could NOT find OpenMP_C" error message, you should use the appropriate clang compiler (see [Required Tools Installation](#required-tools-installation) instructions below)
 
 #### Microsoft Visual Studio, ...
 

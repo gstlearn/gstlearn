@@ -479,8 +479,7 @@ public:
                       const ASpaceSharedPtr& space,
                       bool useSel = false) const;
   void getSamplesFromNbghAsSP(std::vector<SpacePoint>& pvec,
-                              const VectorInt& nbgh,
-                              const ASpaceSharedPtr& space) const;
+                              const VectorInt& nbgh) const;
 
   bool   hasLocator(const ELoc& locatorType) const;
   int    getNFromLocator(const ELoc& locatorType) const;

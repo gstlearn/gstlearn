@@ -22,7 +22,7 @@ class DbGrid;
 class GSTLEARN_EXPORT CalcSimuRefine: public ACalcSimulation
 {
 public:
-  CalcSimuRefine(int nbsimu = 0, int seed = 4324324, bool verbose = false);
+  CalcSimuRefine(int nbsimu = 0, int seed = 4324324);
   CalcSimuRefine(const CalcSimuRefine &r) = delete;
   CalcSimuRefine& operator=(const CalcSimuRefine &r) = delete;
   virtual ~CalcSimuRefine();
@@ -54,7 +54,6 @@ private:
 
 private:
   SimuRefineParam _param;
-  bool _verbose;
   VectorInt _nx1;
   VectorDouble _dx1;
   VectorDouble _x01;
@@ -69,10 +68,8 @@ private:
   double _STDV[2][2];
 };
 
-GSTLEARN_EXPORT DbGrid*
-simulation_refine(DbGrid* dbin,
-                  Model* model,
-                  const SimuRefineParam& param,
-                  int seed                        = 432432,
-                  bool verbose                    = false,
-                  const NamingConvention& namconv = NamingConvention("Refine"));
+GSTLEARN_EXPORT DbGrid* simulation_refine(DbGrid* dbin,
+                                          Model* model,
+                                          const SimuRefineParam& param,
+                                          int seed                        = 432432,
+                                          const NamingConvention& namconv = NamingConvention("Refine"));

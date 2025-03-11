@@ -264,13 +264,6 @@ void PrecisionOpMatrix::_buildQ()
 /*!
  **  Construct the final sparse matrix Q from the Model
  **
- ** \return Error return code
- **
- ** \param[in] S        Shift operator
- ** \param[in] Lambda   Lambda vector
- ** \param[in] nblin    Number of blin coeffbuicients
- ** \param[in] blin     Array of coefficients for Linear combinaison
- **
  *****************************************************************************/
 MatrixSparse* PrecisionOpMatrix::_build_Q()
 {
