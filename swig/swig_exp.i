@@ -156,6 +156,8 @@
 %include Matrix/MatrixFactory.hpp
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
+%include Matrix/CholeskyDense.hpp
+%include Matrix/CholeskySparse.hpp
 
 %include Skin/ISkinFunctions.hpp
 %include Skin/Skin.hpp

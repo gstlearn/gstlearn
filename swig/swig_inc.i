@@ -265,6 +265,8 @@
   #include "Matrix/MatrixSquareGeneral.hpp"
   #include "Matrix/MatrixSquareSymmetric.hpp"
   #include "Matrix/MatrixFactory.hpp"
+  #include "Matrix/CholeskyDense.hpp"
+  #include "Matrix/CholeskySparse.hpp"
   #include "Matrix/MatrixInt.hpp"
   #include "Matrix/Table.hpp"
   

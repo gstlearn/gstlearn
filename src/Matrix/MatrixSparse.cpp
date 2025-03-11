@@ -590,7 +590,7 @@ MatrixSparse* MatrixSparse::createFromTriplet(const NF_Triplet &NF_T,
     nrow = NF_T.getNRows() + 1;
     ncol = NF_T.getNCols() + 1;
   }
-  MatrixSparse* mat = new MatrixSparse(nrow, ncol, opt_eigen);
+  MatrixSparse* mat = new MatrixSparse(nrow, ncol, -1, opt_eigen);
 
   mat->resetFromTriplet(NF_T);
 
