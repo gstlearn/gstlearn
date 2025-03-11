@@ -4766,8 +4766,6 @@ static void st_update_variance_stat(Local_Pgs *local_pgs)
  **  Establish the theoretical variance of the simple and
  **  cross-variograms of the indicators in the non-stationary case
  **
- ** \return  Error return code
- **
  ** \param[in]  local_pgs  Local_Pgs structure
  **
  *****************************************************************************/

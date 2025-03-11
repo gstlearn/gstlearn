@@ -18,8 +18,46 @@
 #include "Basic/Timer.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
+
+void st_bench_writing_in_matrix(MatrixRectangular& mat, Timer& timer)
+{
+  int nrows = mat.getNRows();
+  int ncols = mat.getNCols();
+
+  // consecutive writes: loop in row then col
+  timer.reset();
+  for (int irow = 0; irow < nrows; irow++)
+    for (int icol = 0; icol < ncols; icol++)
+      mat.setValue(irow, icol, 12.);
+  timer.displayIntervalMilliseconds("Writing consecutively by row then by col");
+
+  // consecutive writes: loop in col then row
+  timer.reset();
+  for (int icol = 0; icol < ncols; icol++)
+    for (int irow = 0; irow < nrows; irow++)
+      mat.setValue(irow, icol, 12.);
+  timer.displayIntervalMilliseconds("Writing consecutively by col then by row");
+
+  VectorInt rowRand = law_random_path(nrows);
+  VectorInt colRand = law_random_path(ncols);
+
+  // Writing ar random
+  timer.reset();
+  for (int irow = 0; irow < nrows; irow++)
+    for (int icol = 0; icol < ncols; icol++)
+      mat.setValue(rowRand[irow], colRand[icol], 12.);
+  timer.displayIntervalMilliseconds("Writing randomly by row then by col");
+
+  // Writing ar random
+  timer.reset();
+  for (int icol = 0; icol < ncols; icol++)
+    for (int irow = 0; irow < nrows; irow++)
+      mat.setValue(rowRand[irow], colRand[icol], 12.);
+  timer.displayIntervalMilliseconds("Writing randomly by col then by row");
+}
 
 /****************************************************************************/
 /*!
@@ -35,7 +73,7 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Global parameters
-  int mode = 0;
+  int mode = 3;
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
@@ -130,10 +168,10 @@ int main(int argc, char* argv[])
     mestitle(1, "Optimized solution");
     message("Input samples are pre-transformed into vector of (anisotropic) space points\n");
     message("Simple loop between each target and the previous vector\n");
-    VH::fill(cumul, 0.);
     model->setOptimEnabled(true);
 
     timer.reset();
+    VH::fill(cumul, 0.);
     MatrixRectangular mat;
     (void) model->evalCovMatInPlace(mat, dbin, dbout);
     for (int i = 0; i < nout; i++)
@@ -144,33 +182,21 @@ int main(int argc, char* argv[])
     VH::divideConstant(cumul, nout);
     VH::dumpRange("", cumul);
 
+    // Comparison with the new evalCovMatInPlace with the new ordering for writing
+    timer.reset();
+    VH::fill(cumul, 0.);
+    OptCustom::define("OptimCovMat", 2.);
+    (void)model->evalCovMatInPlace(mat, dbin, dbout);
+    for (int i = 0; i < nout; i++)
+      VH::addInPlace(cumul, mat.getColumn(i));
+    timer.displayIntervalMilliseconds("Establishing RHS (optimized V2)", 300);
+
+    // Some printout for comparison
+    VH::divideConstant(cumul, nout);
+    VH::dumpRange("", cumul);
+
     // Measure the difference between consecutive access vs. random access
-
-    int nrows = mat.getNRows();
-    int ncols = mat.getNCols();
-
-    // consecutive writes: loop in row then col
-    timer.reset();
-    for (int irow = 0; irow < nrows; irow++)
-      for (int icol = 0; icol < ncols; icol++)
-        mat.setValue(irow, icol, 12.);
-    timer.displayIntervalMilliseconds("Writing in mat by row then by col");
-
-    // consecutive writes: loop in col then row
-    timer.reset();
-    for (int icol = 0; icol < ncols; icol++)
-      for (int irow = 0; irow < nrows; irow++)
-        mat.setValue(irow, icol, 12.);
-    timer.displayIntervalMilliseconds("Writing in mat by col then by row");
-
-    // Writing ar random
-    VectorInt rowRand = law_random_path(nrows);
-    VectorInt colRand = law_random_path(ncols);
-    timer.reset();
-    for (int icol = 0; icol < ncols; icol++)
-      for (int irow = 0; irow < nrows; irow++)
-        mat.setValue(rowRand[irow], colRand[icol], 12.);
-    timer.displayIntervalMilliseconds("Writing at random");
+    st_bench_writing_in_matrix(mat, timer);
   }
 
   // Cleaning
