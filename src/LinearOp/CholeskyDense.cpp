@@ -76,50 +76,6 @@ int CholeskyDense::addInvLtX(const constvect vecin, vect vecout) const
   return 0;             
 }
 
-VectorDouble CholeskyDense::invLtX(const VectorDouble& vecin) const
-{
-  constvect spin(vecin);
-  VectorDouble vecout(_size,0);
-  vect spout(vecout);
-  addInvLtX(spin, spout);
-  return vecout;
-}
-
-VectorDouble CholeskyDense::LtX(const VectorDouble& vecin) const
-{
-  constvect spin(vecin);
-  VectorDouble vecout(_size,0);
-  vect spout(vecout);
-  addLtX(spin, spout);
-  return vecout;
-}
-
-VectorDouble CholeskyDense::LX(const VectorDouble& vecin) const
-{
-  constvect spin(vecin);
-  VectorDouble vecout(_size,0);
-  vect spout(vecout);
-  addLX(spin, spout);
-  return vecout;
-}
-
-VectorDouble CholeskyDense::invLX(const VectorDouble& vecin) const
-{
-  constvect spin(vecin);
-  VectorDouble vecout(_size,0);
-  vect spout(vecout);
-  addInvLX(spin, spout);
-  return vecout;
-}
-VectorDouble CholeskyDense::solveX(const VectorDouble& vecin) const
-{
-  constvect spin(vecin);
-  VectorDouble vecout(_size,0);
-  vect spout(vecout);
-  addSolveX(spin, spout);
-  return vecout;
-}
-
 int CholeskyDense::addLtX(const constvect vecin, vect vecout) const
 {
   if (! isReady()) return 1;

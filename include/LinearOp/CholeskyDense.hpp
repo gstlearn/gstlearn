@@ -46,12 +46,6 @@ public:
   int addLX(const constvect vecin, vect vecout) const override;
   int addInvLX(const constvect vecin, vect vecout) const override;
 
-  VectorDouble invLtX(const VectorDouble& vecin) const;
-  VectorDouble LtX(const VectorDouble& vecin) const;
-  VectorDouble LX(const VectorDouble& vecin) const;
-  VectorDouble invLX(const VectorDouble& vecin) const;
-  VectorDouble solveX(const VectorDouble& vecin) const;
-  
   void matProductInPlace(int mode,
                          const MatrixRectangular& a,
                          MatrixRectangular& x);
