@@ -1,393 +1,120 @@
-
-Data Base Characteristics
-=========================
-
-Data Base Summary
------------------
-File is organized as a set of isolated points
-Space dimension              = 2
-Number of Columns            = 4
-Total number of samples      = 100
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x-1 - Locator = x1
-Column = 2 - Name = x-2 - Locator = x2
-Column = 3 - Name = z - Locator = z1
-
-Traditional use of the Ball Tree
-================================
-
-Ball Tree
-=========
-- Number of samples = 100
-- Number of Features = 2
-- Number of levels = 4
-- Number of nodes = 15
-- Size of leaf = 10
-
-List of nodes
--------------
-Node #  0/ 15 - Indices [    0;   100[ - Radius = 0.672398 - Centroid = 0.494917 0.472237 
-Node #  1/ 15 - Indices [    0;    50[ - Radius = 0.536611 - Centroid = 0.235466 0.472111 
-Node #  2/ 15 - Indices [   50;   100[ - Radius = 0.519983 - Centroid = 0.754368 0.472362 
-Node #  3/ 15 - Indices [    0;    25[ - Radius = 0.321284 - Centroid = 0.233000 0.182463 
-Node #  4/ 15 - Indices [   25;    50[ - Radius = 0.351910 - Centroid = 0.237932 0.761759 
-Node #  5/ 15 - Indices [   50;    75[ - Radius = 0.288735 - Centroid = 0.752393 0.185644 
-Node #  6/ 15 - Indices [   75;   100[ - Radius = 0.313949 - Centroid = 0.756343 0.759080 
-Node #  7/ 15 - Indices [    0;    12[ - Radius = 0.267657 - Centroid = 0.109285 0.163326 
-Node #  8/ 15 - Indices [   12;    25[ - Radius = 0.238104 - Centroid = 0.347198 0.200128 
-Node #  9/ 15 - Indices [   25;    37[ - Radius = 0.341608 - Centroid = 0.120574 0.789332 
-Node # 10/ 15 - Indices [   37;    50[ - Radius = 0.291171 - Centroid = 0.346262 0.736306 
-Node # 11/ 15 - Indices [   50;    62[ - Radius = 0.193888 - Centroid = 0.650736 0.232257 
-Node # 12/ 15 - Indices [   62;    75[ - Radius = 0.265604 - Centroid = 0.846230 0.142617 
-Node # 13/ 15 - Indices [   75;    87[ - Radius = 0.335488 - Centroid = 0.626359 0.750789 
-Node # 14/ 15 - Indices [   87;   100[ - Radius = 0.243679 - Centroid = 0.876327 0.766733 
-
-Various ways of inquiring the Ball Tree
-=======================================
-The closest sample to the Target is : 84
-Indices of the target neighbors
-        84         4        79        42        10
-Indices of the neighbors
-        84         4        79        42        10
-Distances to the target
-     0.084     0.095     0.125     0.156     0.162
-
-Use of the Ball Tree with Constraints (FNN search)
-==================================================
-
-Ball Tree
-=========
-- Number of samples = 100
-- Number of Features = 2
-- Number of levels = 4
-- Number of nodes = 15
-- Size of leaf = 10
-
-List of nodes
--------------
-Node #  0/ 15 - Indices [    0;   100[ - Radius = 0.672398 - Centroid = 0.494917 0.472237 
-Node #  1/ 15 - Indices [    0;    50[ - Radius = 0.536611 - Centroid = 0.235466 0.472111 
-Node #  2/ 15 - Indices [   50;   100[ - Radius = 0.519983 - Centroid = 0.754368 0.472362 
-Node #  3/ 15 - Indices [    0;    25[ - Radius = 0.321284 - Centroid = 0.233000 0.182463 
-Node #  4/ 15 - Indices [   25;    50[ - Radius = 0.351910 - Centroid = 0.237932 0.761759 
-Node #  5/ 15 - Indices [   50;    75[ - Radius = 0.288735 - Centroid = 0.752393 0.185644 
-Node #  6/ 15 - Indices [   75;   100[ - Radius = 0.313949 - Centroid = 0.756343 0.759080 
-Node #  7/ 15 - Indices [    0;    12[ - Radius = 0.267657 - Centroid = 0.109285 0.163326 
- Sample indices =  56 48 66 5 15 82 89 60 12 11 31 67
-Node #  8/ 15 - Indices [   12;    25[ - Radius = 0.238104 - Centroid = 0.347198 0.200128 
- Sample indices =  2 58 99 47 10 4 77 79 55 84 94 42 34
-Node #  9/ 15 - Indices [   25;    37[ - Radius = 0.341608 - Centroid = 0.120574 0.789332 
- Sample indices =  65 93 61 40 43 46 19 7 37 30 88 70
-Node # 10/ 15 - Indices [   37;    50[ - Radius = 0.291171 - Centroid = 0.346262 0.736306 
- Sample indices =  44 29 63 53 86 36 97 18 74 25 1 87 52
-Node # 11/ 15 - Indices [   50;    62[ - Radius = 0.193888 - Centroid = 0.650736 0.232257 
- Sample indices =  35 62 80 95 59 38 54 8 6 33 13 27
-Node # 12/ 15 - Indices [   62;    75[ - Radius = 0.265604 - Centroid = 0.846230 0.142617 
- Sample indices =  57 24 81 76 28 23 78 51 16 91 73 83 72
-Node # 13/ 15 - Indices [   75;    87[ - Radius = 0.335488 - Centroid = 0.626359 0.750789 
- Sample indices =  69 41 32 96 92 75 0 9 85 64 45 17
-Node # 14/ 15 - Indices [   87;   100[ - Radius = 0.243679 - Centroid = 0.876327 0.766733 
- Sample indices =  14 39 98 90 3 49 50 68 21 26 22 20 71
-Target Sample = 0 -> Absolute Rank = 0
-Indices of the neighbors
-         0       N/A       N/A       N/A       N/A
-Target Sample = 1 -> Absolute Rank = 1
-Indices of the neighbors
-         1         0       N/A       N/A       N/A
-Target Sample = 2 -> Absolute Rank = 2
-Indices of the neighbors
-         2         1         0       N/A       N/A
-Target Sample = 3 -> Absolute Rank = 3
-Indices of the neighbors
-         3         0         1         2       N/A
-Target Sample = 4 -> Absolute Rank = 4
-Indices of the neighbors
-         4         2         1         3         0
-Target Sample = 5 -> Absolute Rank = 5
-Indices of the neighbors
-         5         4         2         1         3
-Target Sample = 6 -> Absolute Rank = 6
-Indices of the neighbors
-         6         3         1         4         2
-Target Sample = 7 -> Absolute Rank = 7
-Indices of the neighbors
-         7         1         2         4         0
-Target Sample = 8 -> Absolute Rank = 8
-Indices of the neighbors
-         8         6         4         1         3
-Target Sample = 9 -> Absolute Rank = 9
-Indices of the neighbors
-         9         0         1         3         7
-Target Sample = 10 -> Absolute Rank = 10
-Indices of the neighbors
-        10         1         2         4         6
-Target Sample = 11 -> Absolute Rank = 11
-Indices of the neighbors
-        11         2         4        10         5
-Target Sample = 12 -> Absolute Rank = 12
-Indices of the neighbors
-        12         4        11         2         5
-Target Sample = 13 -> Absolute Rank = 13
-Indices of the neighbors
-        13         6         3         1         8
-Target Sample = 14 -> Absolute Rank = 14
-Indices of the neighbors
-        14         0         9         3        13
-Target Sample = 15 -> Absolute Rank = 15
-Indices of the neighbors
-        15         5        12        11         4
-Target Sample = 16 -> Absolute Rank = 16
-Indices of the neighbors
-        16         6         8        13         3
-Target Sample = 17 -> Absolute Rank = 17
-Indices of the neighbors
-        17        13         3         6        16
-Target Sample = 18 -> Absolute Rank = 18
-Indices of the neighbors
-        18         7         9         1         0
-Target Sample = 19 -> Absolute Rank = 19
-Indices of the neighbors
-        19         7        18         9         1
-Target Sample = 20 -> Absolute Rank = 20
-Indices of the neighbors
-        20         3        14         0        17
-Target Sample = 21 -> Absolute Rank = 21
-Indices of the neighbors
-        21         3        20        17         0
-Target Sample = 22 -> Absolute Rank = 22
-Indices of the neighbors
-        22         0        20        14        21
-Target Sample = 23 -> Absolute Rank = 23
-Indices of the neighbors
-        23        16         8         6        13
-Target Sample = 24 -> Absolute Rank = 24
-Indices of the neighbors
-        24        16        23         6        13
-Target Sample = 25 -> Absolute Rank = 25
-Indices of the neighbors
-        25         1        18        10        13
-Target Sample = 26 -> Absolute Rank = 26
-Indices of the neighbors
-        26        20        22        21         0
-Target Sample = 27 -> Absolute Rank = 27
-Indices of the neighbors
-        27         6        13        24        17
-Target Sample = 28 -> Absolute Rank = 28
-Indices of the neighbors
-        28        23         8        16        24
-Target Sample = 29 -> Absolute Rank = 29
-Indices of the neighbors
-        29        19        18         7         9
-Target Sample = 30 -> Absolute Rank = 30
-Indices of the neighbors
-        30        19        29         7        18
-Target Sample = 31 -> Absolute Rank = 31
-Indices of the neighbors
-        31        11         2        12        10
-Target Sample = 32 -> Absolute Rank = 32
-Indices of the neighbors
-        32         9        25         0        18
-Target Sample = 33 -> Absolute Rank = 33
-Indices of the neighbors
-        33        13        27         6        17
-Target Sample = 34 -> Absolute Rank = 34
-Indices of the neighbors
-        34         4        12        15         5
-Target Sample = 35 -> Absolute Rank = 35
-Indices of the neighbors
-        35         8        34        28        24
-Target Sample = 36 -> Absolute Rank = 36
-Indices of the neighbors
-        36        18        25        32         1
-Target Sample = 37 -> Absolute Rank = 37
-Indices of the neighbors
-        37         7        19        30        29
-Target Sample = 38 -> Absolute Rank = 38
-Indices of the neighbors
-        38         8        35        28        23
-Target Sample = 39 -> Absolute Rank = 39
-Indices of the neighbors
-        39        14        22         0        26
-Target Sample = 40 -> Absolute Rank = 40
-Indices of the neighbors
-        40        19        29        30        18
-Target Sample = 41 -> Absolute Rank = 41
-Indices of the neighbors
-        41         0        32         9        22
-Target Sample = 42 -> Absolute Rank = 42
-Indices of the neighbors
-        42        34        35         4        38
-Target Sample = 43 -> Absolute Rank = 43
-Indices of the neighbors
-        43        19        40         7        29
-Target Sample = 44 -> Absolute Rank = 44
-Indices of the neighbors
-        44        29        40        19        43
-Target Sample = 45 -> Absolute Rank = 45
-Indices of the neighbors
-        45         0        14        39        22
-Target Sample = 46 -> Absolute Rank = 46
-Indices of the neighbors
-        46        43         7        19        37
-Target Sample = 47 -> Absolute Rank = 47
-Indices of the neighbors
-        47        34        42        35         4
-Target Sample = 48 -> Absolute Rank = 48
-Indices of the neighbors
-        48         5        15        12        11
-Target Sample = 49 -> Absolute Rank = 49
-Indices of the neighbors
-        49        21         3        20        26
-Target Sample = 50 -> Absolute Rank = 50
-Indices of the neighbors
-        50        22        26        20        45
-Target Sample = 51 -> Absolute Rank = 51
-Indices of the neighbors
-        51        28        23        16         8
-Target Sample = 52 -> Absolute Rank = 52
-Indices of the neighbors
-        52        32        36        18        25
-Target Sample = 53 -> Absolute Rank = 53
-Indices of the neighbors
-        53        44        29        40        19
-Target Sample = 54 -> Absolute Rank = 54
-Indices of the neighbors
-        54         6        27        24        33
-Target Sample = 55 -> Absolute Rank = 55
-Indices of the neighbors
-        55        42        47        34        35
-Target Sample = 56 -> Absolute Rank = 56
-Indices of the neighbors
-        56        31        11         2        48
-Target Sample = 57 -> Absolute Rank = 57
-Indices of the neighbors
-        57         8        38        28        23
-Target Sample = 58 -> Absolute Rank = 58
-Indices of the neighbors
-        58         2        10        11         1
-Target Sample = 59 -> Absolute Rank = 59
-Indices of the neighbors
-        59        57        38         8        35
-Target Sample = 60 -> Absolute Rank = 60
-Indices of the neighbors
-        60        15         5        48        12
-Target Sample = 61 -> Absolute Rank = 61
-Indices of the neighbors
-        61        46         7        43        37
-Target Sample = 62 -> Absolute Rank = 62
-Indices of the neighbors
-        62        59        35        38        57
-Target Sample = 63 -> Absolute Rank = 63
-Indices of the neighbors
-        63        18        53        36        44
-Target Sample = 64 -> Absolute Rank = 64
-Indices of the neighbors
-        64         9        41         0        45
-Target Sample = 65 -> Absolute Rank = 65
-Indices of the neighbors
-        65        31        56        58        11
-Target Sample = 66 -> Absolute Rank = 66
-Indices of the neighbors
-        66        48         5        15        60
-Target Sample = 67 -> Absolute Rank = 67
-Indices of the neighbors
-        67        12        60        15        34
-Target Sample = 68 -> Absolute Rank = 68
-Indices of the neighbors
-        68        49        21        20        26
-Target Sample = 69 -> Absolute Rank = 69
-Indices of the neighbors
-        69        52        25        32        36
-Target Sample = 70 -> Absolute Rank = 70
-Indices of the neighbors
-        70        29        40        44        53
-Target Sample = 71 -> Absolute Rank = 71
-Indices of the neighbors
-        71        26        20        22        50
-Target Sample = 72 -> Absolute Rank = 72
-Indices of the neighbors
-        72        23        16        51        28
-Target Sample = 73 -> Absolute Rank = 73
-Indices of the neighbors
-        73        72        51        23        28
-Target Sample = 74 -> Absolute Rank = 74
-Indices of the neighbors
-        74         9        64        32        53
-Target Sample = 75 -> Absolute Rank = 75
-Indices of the neighbors
-        75         0        41        50        22
-Target Sample = 76 -> Absolute Rank = 76
-Indices of the neighbors
-        76        28         8        51        57
-Target Sample = 77 -> Absolute Rank = 77
-Indices of the neighbors
-        77        34        47        42        55
-Target Sample = 78 -> Absolute Rank = 78
-Indices of the neighbors
-        78        23        16        24        28
-Target Sample = 79 -> Absolute Rank = 79
-Indices of the neighbors
-        79        10         1         4         2
-Target Sample = 80 -> Absolute Rank = 80
-Indices of the neighbors
-        80        79        54         6        62
-Target Sample = 81 -> Absolute Rank = 81
-Indices of the neighbors
-        81        76        28         8        57
-Target Sample = 82 -> Absolute Rank = 82
-Indices of the neighbors
-        82        48        66        60        12
-Target Sample = 83 -> Absolute Rank = 83
-Indices of the neighbors
-        83        73        51        28        76
-Target Sample = 84 -> Absolute Rank = 84
-Indices of the neighbors
-        84         4        42        77        34
-Target Sample = 85 -> Absolute Rank = 85
-Indices of the neighbors
-        85        64         0        41        45
-Target Sample = 86 -> Absolute Rank = 86
-Indices of the neighbors
-        86        63        18        36        53
-Target Sample = 87 -> Absolute Rank = 87
-Indices of the neighbors
-        87        74        29        70        53
-Target Sample = 88 -> Absolute Rank = 88
-Indices of the neighbors
-        88        30        70        40        19
-Target Sample = 89 -> Absolute Rank = 89
-Indices of the neighbors
-        89        12        67        82        60
-Target Sample = 90 -> Absolute Rank = 90
-Indices of the neighbors
-        90        22        39        14        50
-Target Sample = 91 -> Absolute Rank = 91
-Indices of the neighbors
-        91        72         3        49        17
-Target Sample = 92 -> Absolute Rank = 92
-Indices of the neighbors
-        92        32        52        69        41
-Target Sample = 93 -> Absolute Rank = 93
-Indices of the neighbors
-        93        61        46         7        37
-Target Sample = 94 -> Absolute Rank = 94
-Indices of the neighbors
-        94         1        10        79        58
-Target Sample = 95 -> Absolute Rank = 95
-Indices of the neighbors
-        95        33        13         6        27
-Target Sample = 96 -> Absolute Rank = 96
-Indices of the neighbors
-        96        17        13        95        33
-Target Sample = 97 -> Absolute Rank = 97
-Indices of the neighbors
-        97         1        94        10        25
-Target Sample = 98 -> Absolute Rank = 98
-Indices of the neighbors
-        98        22        50        45        90
-Target Sample = 99 -> Absolute Rank = 99
-Indices of the neighbors
-        99        58         2        10        97
+   23   NA   NA   NA   NA
+   60   23   NA   NA   NA
+   91   23   60   NA   NA
+   94   60   23   91   NA
+    2   94   60   23   91
+   84    2   60   94   23
+   83   23   91   84   94
+   27   23   91   94   84
+   63   94    2   27   84
+   98   91   27   63   94
+   35   84   23   27   94
+   11    2   84   60   94
+   12   11    2   84   60
+   87   63   98   94    2
+   19   63   87   94    2
+   86   63   19   87   94
+   22   98   91   27   87
+   16   23   27   91   83
+    8   35   23   16   27
+   17   27   91   16   23
+   41   98   22   87   86
+   82   60   12   11    2
+   47   84   35   12   60
+   37   19   63   86   87
+    0   41   98   22   87
+   48   82   60   12   11
+   15   60   48   82   12
+   79   94   84    2   27
+    9   41    0   87   98
+   88   19   87   37   63
+   50   22   98    0   41
+   93   37   63   86   19
+   26   50   22   98    0
+   55   47   35   84    8
+   20   26   50   22   98
+   75    0   98   41   50
+   67   12   60   82   84
+   65   11   93    2   12
+   25   94   86   63   79
+    4   84   12    2   67
+   36   86   63   25   93
+   70   88   19   87   63
+   92   41    9   25   36
+   21   26   20   50   22
+   81    8   23   16   83
+   64    9   41    0   92
+   44   19   70   63   87
+   32   92   41    9   64
+   62   35    8   81   27
+   38    8   81   35   62
+   95   27   17   79   94
+   61   93   63   86   37
+   28   81   23    8   16
+   80   79   62   95   27
+   42   55   47   84   35
+   73   83   23   28   16
+   56   65   11   93    2
+   46   61   19   93   37
+   13   95   27   17   80
+   53   44   70   19   63
+   90   22   98   50   26
+    1   94   25   79   36
+   14   90   98    0   22
+   49   21   20   26   91
+   68   49   21   20   26
+   45    0   98   14   90
+    5   15   60   48   82
+   96   17   13   95   75
+   24   16   23   27   13
+   18   86   63   36   53
+   40   19   44   70   53
+   78   23   16   24   28
+   43   19   46   40   44
+   89   12   67   82   60
+   58    2   11   94    1
+   34   47   42   55   84
+   69   25   32   92   36
+    3   17   21   49   96
+   97    1   94   25   58
+   54   27   24   13   95
+   52   92   32   69   36
+    6   54   27   13   95
+   71   26   90   20   22
+   74    9   87   64   92
+   51   28   81   23   78
+   99   58    2   97    1
+   33   13   95   27    6
+   59   38   62    8   35
+   66   48    5   82   15
+   39   14   90   45   98
+   77   34   47   42   55
+   85   64    0   41   45
+    7   37   46   61   43
+   76   81   28    8   51
+   10   94   79   97    1
+   57   59    8   38   81
+   30   88   19   40   70
+   29   44   53   40   70
+   72   73   91   23   16
+   31   65   56   11   58
+  105   93   65   61    7
+  112   93   61  105   46
+  101    6   27   54   33
+  119   36   86   25   18
+  111    8   38   57   81
+  114   53   29   44   87
+  108   50   22   98   75
+  103   69   32   92   96
+  100   31   65   11   56
+  117   24   16   23   78
+  116   72   73   51   23
+  115   48   66   82    5
+  109   43   19   30   40
+  106   89   82   67   12
+  118  108   50   22   26
+  107   18   86   63   36
+  110   58   99    2   10
+  104   18  107   63   86
+  102   40   19   44   29
+  113   20   26   68   71

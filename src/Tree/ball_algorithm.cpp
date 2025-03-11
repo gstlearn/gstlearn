@@ -28,7 +28,6 @@ License: BSD 3-clause
 #include "Tree/ball_algorithm.h"
 #include "Tree/KNN.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Space/SpacePoint.hpp"
 
 static double (*st_distance_function)(const double*, const double*, int) = euclidean_distance;
@@ -45,7 +44,25 @@ double **copy_double_arrAsVVD(const VectorVectorDouble& arr)
     for (int j = 0; j < col; j++)
       copy[i][j] = arr[j][i];
   }
-  return (copy);
+  return copy;
+}
+
+void append_double_arrAsVVD(const VectorVectorDouble& arr, double*** copyarg, int old_row)
+{
+  int col = (int)arr.size();
+  int row = (int)arr[0].size();
+  int new_row = row + old_row;
+
+  double** copy = *copyarg;
+  copy = (double**) realloc((char*)copy, sizeof(double*) * new_row);
+  for (int i = 0; i < row; i++)
+  {
+    int ip = i + old_row;
+    copy[ip] = (double*)malloc(sizeof(double) * col);
+    for (int j = 0; j < col; j++)
+      copy[ip][j] = arr[j][i];
+  }
+  *copyarg = copy;
 }
 
 double **copy_double_arr(const double **arr, int row, int col)

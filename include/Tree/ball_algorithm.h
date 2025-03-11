@@ -86,6 +86,8 @@ GSTLEARN_EXPORT VectorVectorInt copy_int_toVVI(const int** arr,
                                                int row,
                                                int col);
 GSTLEARN_EXPORT int** copy_int_arr(const int** arr, int row, int col);
+GSTLEARN_EXPORT void append_double_arrAsVVD(const VectorVectorDouble& arr, double*** copy, int old_row);
+
 GSTLEARN_EXPORT t_btree* btree_init(const double** data,
                                     int n_samples,
                                     int n_features,

@@ -12,6 +12,8 @@
 #include "Tree/ball_algorithm.h"
 #include "Db/Db.hpp"
 #include "Space/SpacePoint.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Basic/Law.hpp"
 
 Ball::Ball(const double** data,
            int n_samples,
@@ -43,7 +45,8 @@ Ball::Ball(const VectorVectorDouble& data,
   free_2d_double(internal, n_features);
 }
 
-Ball::Ball(const Db* db,
+Ball::Ball(const Db* dbin,
+           const Db* dbout,
            double (*dist_function)(const double* x1,
                                    const double* x2,
                                    int size),
@@ -53,13 +56,21 @@ Ball::Ball(const Db* db,
            bool useSel)
   : _tree(nullptr)
 {
-  VectorVectorDouble data = db->getAllCoordinates(useSel);
+ 
+  VectorVectorDouble data = dbin->getAllCoordinates(useSel);
+  double** internal       = copy_double_arrAsVVD(data);
   int n_samples           = (int)data[0].size();
   int n_features          = (int)data.size();
-  double** internal       = copy_double_arrAsVVD(data);
+
+  if (dbout != nullptr)
+  {
+    VectorVectorDouble aux = dbout->getAllCoordinates(useSel);
+    append_double_arrAsVVD(aux, &internal, n_samples);
+    n_samples += (int)aux[0].size();
+  }
+
   _tree = btree_init((const double**)internal, n_samples, n_features, has_constraints,
                      dist_function, leaf_size, default_distance_function);
-  //free_2d_double(internal, n_features);
   free_2d_double(internal, n_samples);
 }
 
@@ -200,4 +211,66 @@ int Ball::resetConstraints(bool status)
   for (int i = 0, n = _tree->n_samples; i < n; i++)
     _tree->accept[i] = status;
   return 0;
+}
+
+MatrixT<int> findNN(Db* dbin,
+                    Db* dbout,
+                    int nb_neigh,
+                    bool flagShuffle,
+                    bool verbose,
+                    double (*dist_function)(const double* x1,
+                                            const double* x2,
+                                            int size),
+                    int leaf_size,
+                    int default_distance_function)
+{
+  MatrixT<int> mat;
+
+  // Preliminary checks
+  int ndim = dbin->getNDim();
+  if (dbout != nullptr && ndim != dbout->getNDim())
+  {
+    messerr("Dbin(%d) and Dbout(%d) should have the same dimension",
+            ndim, dbout->getNDim());
+    return mat;
+  }
+
+  // Creating the Ball tree
+  Ball ball(dbin, dbout, dist_function, leaf_size, true, default_distance_function);
+  if (verbose) ball.display(1);
+
+  // Dimensioning the output matrix
+  int n1 = dbin->getNSample(true);
+  int n2 = (dbout != nullptr) ? dbout->getNSample(true) : 0;
+  mat.resize(n1 + n2, nb_neigh);
+
+  // Loop on the samples for the FNN search
+  SpacePoint pt;
+  VectorInt ranks;
+  VectorInt neighs(nb_neigh);
+  VectorDouble distances(nb_neigh);
+
+  ranks = (flagShuffle) ? law_random_path(n1) : VH::sequence(n1);
+  for (int jech = 0; jech < n1; jech++)
+  {
+    int iech = ranks[jech];
+    dbin->getSampleAsSPInPlace(pt, iech);
+    ball.setConstraint(iech, true);
+    (void)ball.queryOneInPlace(pt.getCoordUnprotected(), nb_neigh, neighs, distances);
+    for (int i = 0; i < nb_neigh; i++) mat(jech, i) = neighs[i];
+  }
+
+  if (dbout != nullptr)
+  {
+    ranks = (flagShuffle) ? law_random_path(n2) : VH::sequence(n2);
+    for (int jech = 0; jech < n2; jech++)
+    {
+      int iech = ranks[jech];
+      dbout->getSampleAsSPInPlace(pt, iech);
+      ball.setConstraint(iech + n1, true);
+      (void)ball.queryOneInPlace(pt.getCoordUnprotected(), nb_neigh, neighs, distances);
+      for (int i = 0; i < nb_neigh; i++) mat(n1 + jech, i) = neighs[i];
+    }
+  }
+  return mat;
 }
