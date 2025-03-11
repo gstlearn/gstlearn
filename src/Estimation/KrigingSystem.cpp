@@ -105,7 +105,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _nech(0)
   , _nfeq(0)
   , _neq(0)
-  , _nred(0)
   , _nbgh()
   , _dbinUidToBeDeleted()
   , _dboutUidToBeDeleted()

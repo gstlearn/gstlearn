@@ -1070,7 +1070,6 @@ static int st_identify_trace_rank(DbGrid* surfaces,
  * @param iaux_bot Attribute index of the Auxiliary Bottom variable (or -1)
  * @param iaux_top Attribute index of the Auxiliary Top variable (or -1)
  * @param refstats RefStats structure
- * @return
  */
 static void st_auxiliary(Db* surfaces,
                          int rank,

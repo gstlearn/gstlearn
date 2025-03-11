@@ -231,7 +231,6 @@ private:
   int _nech;
   int _nfeq;
   int _neq;
-  int _nred;
 
   /// Working arrays
   mutable VectorInt    _nbgh;
