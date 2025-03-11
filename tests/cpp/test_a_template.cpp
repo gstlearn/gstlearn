@@ -105,8 +105,8 @@ int main(int argc, char *argv[])
   // Avec span
   timer.reset();
   total           = 0.;
-  const auto v1sp = std::span(v1);
-  const auto v2sp = std::span(v2);
+  const auto v1sp = vect(v1);
+  const auto v2sp = vect(v2);
   for (const auto vv1: v1sp) {
     for (const auto vv2: v2sp) {
       total += vv1 * vv2;
