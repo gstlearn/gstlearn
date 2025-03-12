@@ -1,34 +1,34 @@
-pt  1  cov = 0.4060058 
-pt  2  cov = 0.1424004 
-pt  3  cov = 0.5161087 
-pt  4  cov = 0.334244 
+pt  1  cov = 0.406 
+pt  2  cov = 0.1424 
+pt  3  cov = 0.5161 
+pt  4  cov = 0.3342 
 [1] "Mono-variable test is ok."
       [,1]  [,2]  [,3]
 [1,] 1.000 0.920 0.866
 [2,] 0.920 1.000 0.897
 [3,] 0.866 0.897 1.000
-ivar  1  jvar  1  pt:  1  res  0.4060058 
-ivar  1  jvar  1  pt:  2  res  0.1424004 
-ivar  1  jvar  1  pt:  3  res  0.5161087 
-ivar  1  jvar  1  pt:  4  res  0.334244 
-ivar  1  jvar  2  pt:  1  res  0.4999669 
-ivar  1  jvar  2  pt:  2  res  0.2011578 
-ivar  1  jvar  2  pt:  3  res  0.6064212 
-ivar  1  jvar  2  pt:  4  res  0.4250448 
-ivar  1  jvar  3  pt:  1  res  0.7377868 
-ivar  1  jvar  3  pt:  2  res  0.5093953 
-ivar  1  jvar  3  pt:  3  res  0.7866973 
-ivar  1  jvar  3  pt:  4  res  0.6954275 
-ivar  2  jvar  2  pt:  1  res  0.6442724 
-ivar  2  jvar  2  pt:  2  res  0.29154 
-ivar  2  jvar  2  pt:  3  res  0.7530779 
-ivar  2  jvar  2  pt:  4  res  0.562393 
-ivar  2  jvar  3  pt:  1  res  0.7962196 
-ivar  2  jvar  3  pt:  2  res  0.5836656 
-ivar  2  jvar  3  pt:  3  res  0.8371317 
-ivar  2  jvar  3  pt:  4  res  0.7592213 
-ivar  3  jvar  3  pt:  1  res  0.9536094 
-ivar  3  jvar  3  pt:  2  res  0.8200467 
-ivar  3  jvar  3  pt:  3  res  0.974149 
-ivar  3  jvar  3  pt:  4  res  0.9335121 
+ivar  1  jvar  1  pt:  1  res  0.406 
+ivar  1  jvar  1  pt:  2  res  0.1424 
+ivar  1  jvar  1  pt:  3  res  0.5161 
+ivar  1  jvar  1  pt:  4  res  0.3342 
+ivar  1  jvar  2  pt:  1  res  0.5 
+ivar  1  jvar  2  pt:  2  res  0.2012 
+ivar  1  jvar  2  pt:  3  res  0.6064 
+ivar  1  jvar  2  pt:  4  res  0.425 
+ivar  1  jvar  3  pt:  1  res  0.7378 
+ivar  1  jvar  3  pt:  2  res  0.5094 
+ivar  1  jvar  3  pt:  3  res  0.7867 
+ivar  1  jvar  3  pt:  4  res  0.6954 
+ivar  2  jvar  2  pt:  1  res  0.6443 
+ivar  2  jvar  2  pt:  2  res  0.2915 
+ivar  2  jvar  2  pt:  3  res  0.7531 
+ivar  2  jvar  2  pt:  4  res  0.5624 
+ivar  2  jvar  3  pt:  1  res  0.7962 
+ivar  2  jvar  3  pt:  2  res  0.5837 
+ivar  2  jvar  3  pt:  3  res  0.8371 
+ivar  2  jvar  3  pt:  4  res  0.7592 
+ivar  3  jvar  3  pt:  1  res  0.9536 
+ivar  3  jvar  3  pt:  2  res  0.82 
+ivar  3  jvar  3  pt:  3  res  0.9741 
+ivar  3  jvar  3  pt:  4  res  0.9335 
 [1] "All tests are ok."
