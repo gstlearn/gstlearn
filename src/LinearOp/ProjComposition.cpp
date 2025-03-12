@@ -23,7 +23,7 @@ ProjComposition::ProjComposition(std::vector<const IProj*> projs) : IProj()
   // Check compatibility and allocate work arrays. Use raw pointers to make
   // iterating easier then if everything is OK convert to std::unique_ptr<>.
   _works.resize(projs.size()-1);
-  int idx = 0;
+  size_t idx = 0;
   const IProj* p1 = projs[idx++];
   while (idx < projs.size())
   {
