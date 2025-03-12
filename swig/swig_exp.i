@@ -197,6 +197,9 @@
 %include LinearOp/OptimCostBinary.hpp
 %include LinearOp/OptimCostColored.hpp
 %include LinearOp/MatrixSquareSymmetricSim.hpp
+%include LinearOp/ACholesky.hpp
+%include LinearOp/CholeskyDense.hpp
+%include LinearOp/CholeskySparse.hpp
 
 %include Neigh/ANeigh.hpp
 %include Neigh/NeighUnique.hpp

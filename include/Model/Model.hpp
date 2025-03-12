@@ -136,7 +136,7 @@ public:
                                  int nfex                       = 0,
                                  int seed                       = 13242);
   void setCovAnisoList(const CovAnisoList* covalist);
-  void addCov(const CovBase* cov) override;
+  void addCovAniso(const CovAniso* cov);
   void addCovFromParam(const ECov& type,
                        double range                       = EPSILON6,
                        double sill                        = 1.,

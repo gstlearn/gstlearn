@@ -37,13 +37,13 @@ public:
   virtual bool isConsistent(const ASpace* space) const override;
   virtual int getNVar() const override { return _ctxt.getNVar(); }
   bool isOptimizationInitialized(const Db* db = nullptr) const;
-  
+   
   void loadInfoValues() override;
   void setCholSill(int ivar, int jvar, double val) const;
-  void setSill(double sill) const; /// Only valid when there is only one variable (in the context)
-  void setSill(const MatrixSquareSymmetric& sill) const;
-  void setSill(const VectorDouble& sill) const;
-  void setSill(int ivar, int jvar, double sill) const;
+  virtual void setSill(double sill) const; /// Only valid when there is only one variable (in the context)
+  virtual void setSill(const MatrixSquareSymmetric& sill) const;
+  virtual void setSill(const VectorDouble& sill) const;
+  virtual void setSill(int ivar, int jvar, double sill) const;
   void initSill(double value = 0.);
 
   const MatrixSquareSymmetric& getSill() const { return _sillCur; }

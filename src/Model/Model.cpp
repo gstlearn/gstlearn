@@ -512,7 +512,7 @@ void Model::addCovFromParam(const ECov& type,
   _ctxt.setNVar(cov.getNVar());
   _copyCovContext();
   if (!angles.empty()) cov.setAnisoAngles(angles);
-  addCov(&cov);
+  addCovAniso(&cov);
 }
 
 double Model::evalCov(const VectorDouble &incr,
@@ -973,7 +973,7 @@ void Model::_create()
   _driftList = new DriftList(_ctxt);
 }
 
-void Model::addCov(const CovBase* cov)
+void Model::addCovAniso(const CovAniso* cov)
 {
   if (dynamic_cast<const CovAniso*>(cov) == nullptr)
   {
