@@ -1,1 +1,8 @@
+
+Attachement du package : ‘gstlearn’
+
+Les objets suivants sont masqués depuis ‘package:base’:
+
+    message, toString
+
 [1] "All tests are ok."
