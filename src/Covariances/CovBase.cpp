@@ -202,7 +202,14 @@ bool CovBase::isConsistent(const ASpace* space) const
   return _cor->isConsistent(space);
 }
 
-
+double CovBase::_eval(const SpacePoint& p1, 
+                      const SpacePoint& p2,
+                      int ivar, 
+                      int jvar, 
+                      const CovCalcMode* mode) const
+{
+  return getSill(ivar,jvar) * _cor->evalCov(p1, p2,ivar, jvar, mode);
+}
 
 double CovBase::getSill(int ivar, int jvar) const
 {
@@ -554,7 +561,7 @@ void CovBase::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
-      double cor = _cor->eval(p1,p2,ivar,jvar,mode);
+      double cor = _cor->evalCov(p1,p2,ivar,jvar,mode);
       mat.addValue(ivar, jvar, _sillCur.getValue(ivar, jvar) * cor);
     }
 }

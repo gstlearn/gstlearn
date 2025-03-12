@@ -4,8 +4,8 @@ rm(list = ls())
 flag.range = FALSE
 ranges  = c(1,2)
 angles  = c(30, 0) # en degrés
-rescale = c(1/2, 2); rr = c(1.0, rescale)  #on va multiplier les ranges par 3. et 2.
-params  = c(1/2, 1, 2)
+rescale = c(1, 2); rr = c(1.0, rescale)  #on va multiplier les ranges par 3. et 2.
+params  = c(1/2, 1., 2.)
 
 p0 = SpacePoint(c(0,0))
 p1 = SpacePoint(c(1,0))
@@ -25,17 +25,22 @@ mod_mono = Model_createFromParam(type = ECov_MATERN(),
                              sill = 1.0, param = params[ivar],
                              flagRange = flag.range)
 
-stopifnot(cor_mono$eval(p0, p1, ivar = ivar-1, jvar = ivar-1) == mod_mono$getCovAnisoList()$eval(p0, p1))
-stopifnot(cor_mono$eval(p0, p2, ivar = ivar-1, jvar = ivar-1) == mod_mono$getCovAnisoList()$eval(p0, p2))
-stopifnot(cor_mono$eval(p0, p3, ivar = ivar-1, jvar = ivar-1) == mod_mono$getCovAnisoList()$eval(p0, p3))
-stopifnot(cor_mono$eval(p0, p4, ivar = ivar-1, jvar = ivar-1) == mod_mono$getCovAnisoList()$eval(p0, p4))
+pts = list(p1,p2,p3,p4)
+for (i in 1:4)
+{
+ pcur = pts[[i]]
+ res = cor_mono$evalCov(p0, pcur, ivar = ivar-1, jvar = ivar-1)
+ cat("pt ", i, " cov =", round(res,4),"\n")
+ stopifnot(abs(res - mod_mono$evalCov(p0, pcur)) < 1.e-12)
+ }
+ 
 print("Mono-variable test is ok.")
 #' Test tri-variable
 cor_tri = CorMatern(ranges = ranges, angle = angles, 
                     coeffScales = rescale, params = params, flagRange = flag.range)
 
 nvar = cor_tri$getNVar()
-# nvar = 3 # TODO: it does not work!
+# nvar = 3 # 
 stopifnot(nvar == 3) 
 
 #' Test de la correlation maximale
@@ -62,6 +67,7 @@ for (i in 1:nvar) {
     corMax[j,i] = corMax[i,j]
   }
 }
+print(round(corMax,3))
 stopifnot(all(abs(corMax - tau) < 1.e-12))
 
 # compute the correlations
@@ -72,10 +78,13 @@ for (ivar in 1:nvar) {
                                     sill = tau[ivar,jvar],
                                     param = nu_ij[ivar, jvar],
                                     flagRange = flag.range)
-    stopifnot(abs(cor_tri$eval(p0, p1, ivar = ivar-1, jvar = jvar-1) - mod_mat$getCovAnisoList()$eval(p0, p1)) < 1.e-12)
-    stopifnot(abs(cor_tri$eval(p0, p2, ivar = ivar-1, jvar = jvar-1) - mod_mat$getCovAnisoList()$eval(p0, p2)) < 1.e-12)
-    stopifnot(abs(cor_tri$eval(p0, p3, ivar = ivar-1, jvar = jvar-1) - mod_mat$getCovAnisoList()$eval(p0, p3)) < 1.e-12)
-    stopifnot(abs(cor_tri$eval(p0, p4, ivar = ivar-1, jvar = jvar-1) - mod_mat$getCovAnisoList()$eval(p0, p4)) < 1.e-12)   
+    for (i in 1:4)
+    {
+ 	    pcur = pts[[i]]
+ 	    res = cor_tri$evalCov(p0, pcur, ivar = ivar-1, jvar = jvar-1)
+ 	    cat("ivar ",ivar," jvar ", jvar," pt: ", i," res ", round(res,4),"\n")
+ 	    stopifnot(abs(res - mod_mat$evalCov(p0, pcur)) < 1.e-12)
+    }
   }
 }
 

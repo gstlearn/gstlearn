@@ -813,7 +813,7 @@ double CalcSimpleInterpolation::_stdevCalc(Db* dbin,
   pout.setCoords(coor);
 
   // Point Covariance at target
-  double c00 = getModel()->eval(pout, pout);
+  double c00 = getModel()->evalCov(pout, pout);
 
   // Vector of Covariances between Data and Target
   getModel()->evalPointToDb(M0x, pout, dbin, 0, 0, true, nbgh);

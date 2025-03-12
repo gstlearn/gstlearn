@@ -203,9 +203,9 @@ public:
   const CovAnisoList* getCovAnisoList() const;
   CovAnisoList* getCovAnisoListModify();  
   
-  double evalCov(const VectorDouble& incr,
-                 int icov = 0,
-                 const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+  double evalCovFromIncr(const VectorDouble& incr,
+                         int icov = 0,
+                         const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
 
   Model* duplicate() const;
   Model* createReduce(const VectorInt& validVars) const;

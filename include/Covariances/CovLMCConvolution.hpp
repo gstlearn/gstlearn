@@ -62,11 +62,7 @@ public:
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  virtual double eval(const SpacePoint& p1,
-                      const SpacePoint& p2,
-                      int ivar = 0,
-                      int jvar = 0,
-                      const CovCalcMode* mode = nullptr) const override;
+  
   
   int init(const EConvType& conv_type, const EConvDir& conv_idir, double conv_range, int conv_ndisc);
 
@@ -89,6 +85,12 @@ protected:
     ACov::_optimizationSetTarget(pt); 
   }
 
+private:
+virtual double _eval(const SpacePoint& p1,
+                     const SpacePoint& p2,
+                     int ivar = 0,
+                     int jvar = 0,
+                     const CovCalcMode* mode = nullptr) const override;
 private:
   EConvType _convType; /* Convolution type */
   EConvDir  _convDir;  /* Convolution direction: 0:X, 1:Y, 2:Z, 3:XY, 4:XYZ */

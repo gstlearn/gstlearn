@@ -76,12 +76,12 @@ Model& Model::operator=(const Model &m)
 {
   if (this != &m)
   { 
-    AStringable::operator=(m);
-    ASerializable::operator=(m);
+   AStringable::operator=(m);
+   ASerializable::operator=(m);
    setCovAnisoList(dynamic_cast<CovAnisoList*>(m._covList));
-    if (m._driftList != nullptr)
+   if (m._driftList != nullptr)
       _driftList = m._driftList->clone();
-    _ctxt = m._ctxt;
+   _ctxt = m._ctxt;
   }
   return (*this);
 }
@@ -515,7 +515,7 @@ void Model::addCovFromParam(const ECov& type,
   addCovAniso(&cov);
 }
 
-double Model::evalCov(const VectorDouble &incr,
+double Model::evalCovFromIncr(const VectorDouble &incr,
                       int icov,
                       const ECalcMember &member) const
 {

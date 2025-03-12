@@ -46,11 +46,7 @@ public:
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  virtual double eval(const SpacePoint& p1,
-                      const SpacePoint& p2,
-                      int ivar = 0,
-                      int jvar = 0,
-                      const CovCalcMode* mode = nullptr) const override;                   
+  
   void addCov(const CovBase* cov) override;
   bool hasAnam() const override { return true; }
   const AAnam* getAnam() const override { return _anam; }
@@ -76,7 +72,11 @@ protected:
   }
 
 private:
-  
+virtual double _eval(const SpacePoint& p1,
+                     const SpacePoint& p2,
+                     int ivar = 0,
+                     int jvar = 0,
+                     const CovCalcMode* mode = nullptr) const override;                   
   double _evalHermite(int ivar,
                       int jvar,
                       double h,

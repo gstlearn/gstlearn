@@ -70,7 +70,7 @@ public:
   FORWARD_METHOD(getCov, evalCovMatByTarget)
   FORWARD_METHOD(getCov, evalCovMatSparse)
   FORWARD_METHOD(getCov, eval0)
-  FORWARD_METHOD(getCov, eval)
+  FORWARD_METHOD(getCov, evalCov)
   FORWARD_METHOD(getCov, evalNvarIpas)
   FORWARD_METHOD(getCov, evalMat)
   FORWARD_METHOD(getCov, evalNvarIpasIncr)

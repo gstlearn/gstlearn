@@ -1268,7 +1268,12 @@ setMethod("plot", signature(x="_p_AAnam"), function(x,y="missing",...) plot.anam
 
 #Add methods of ModelCovList (base) to Model (derived) (in case inheritance didn t work)
 
+addMethods("ModelCovList",c("ModelGeneric"))
 addMethods("Model",c("ModelGeneric","ModelCovList"))
+
+addMethods("CovAniso", c("ACov", "CovBase", "CovProportional"))
+addMethods("CovList", c("ACov"))
+addMethods("CovAnisoList", c("ACov","CovList"))
 
 addMethods("Db", c("ASerializable"))
 addMethods("DbGrid", c("ASerializable"))

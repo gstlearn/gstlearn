@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
   SpacePoint p2(sp);
   p1.setCoords(coords1);
   p2.setCoords(coords2);
-  double cres = covGneiting.eval(p1,p2);
+  double cres = covGneiting.evalCov(p1,p2);
   std::cout << "Value of Gneiting (by Covariance) = " << cres <<std::endl;
 
   // Create the Data Base
@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
   // Create the Model
   ModelGeneric* model = new ModelGeneric();
   model->setCov(&covGneiting);
-  model->eval(p1, p2);
+  model->evalCov(p1, p2);
   message("Model dimension = %d\n", model->getNDim());
   std::cout << "Value of Gneiting (by Model) = " << cres << std::endl;
 

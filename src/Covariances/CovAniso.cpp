@@ -216,11 +216,11 @@ double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
   return cov * _getSillValue(ivar, jvar, mode);
 }
 
-double CovAniso::eval(const SpacePoint &p1,
-                      const SpacePoint &p2,
-                      int ivar,
-                      int jvar,
-                      const CovCalcMode* mode) const
+double CovAniso::_eval(const SpacePoint &p1,
+                       const SpacePoint &p2,
+                       int ivar,
+                       int jvar,
+                       const CovCalcMode* mode) const
 {
   double cov = _corAniso->evalCor(p1, p2, mode);
   return cov * _getSillValue(ivar, jvar, mode);

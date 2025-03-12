@@ -46,23 +46,25 @@ public:
     return true;
   }
   /// ACov Interface
-  virtual double eval(const SpacePoint& p1,
-                      const SpacePoint& p2,
-                      int ivar                = 0,
-                      int jvar                = 0,
-                      const CovCalcMode* mode = nullptr) const override;
+ 
 
   virtual int getNVar() const override { return _nVar; }
   double getCorMax(int ivar, int jvar) const { return _corMax.getValue(ivar, jvar); }
-protected:
+  double computeScale(int ivar, int jvar) const; 
+  double computeParam(int ivar, int jvar) const;   
+  protected:
+  virtual double _eval(const SpacePoint& p1,
+                     const SpacePoint& p2,
+                     int ivar                = 0,
+                     int jvar                = 0,
+                     const CovCalcMode* mode = nullptr) const override;
   void _optimizationSetTarget(SpacePoint& pt) const override;
 
+ 
 private:
   void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
   void _optimizationPostProcess() const override;
-  double _computeScale(int ivar, int jvar) const; 
-  double _computeParam(int ivar, int jvar) const;   
-  double _computeRatio(int ivar, int jvar) const;  
+  
 private:
     int _nVar;
     const CorAniso* _corRef;
@@ -74,6 +76,8 @@ private:
     VectorDouble _params; //parameters of the Matern correlation function
     
     MatrixSquareSymmetric _corMax;
+    VectorDouble _angles; 
+  
 
 };
 

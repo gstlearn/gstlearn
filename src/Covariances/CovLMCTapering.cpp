@@ -188,11 +188,11 @@ double CovLMCTapering::eval0(int ivar,
   return cov0;
 }
 
-double CovLMCTapering::eval(const SpacePoint& p1,
-                            const SpacePoint& p2,
-                            int ivar,
-                            int jvar,
-                            const CovCalcMode* mode) const
+double CovLMCTapering::_eval(const SpacePoint& p1,
+                             const SpacePoint& p2,
+                             int ivar,
+                             int jvar,
+                             const CovCalcMode* mode) const
 {
   // The calculation flag 'as.Vario' must be treated here rather than relying on calculation
   // performed in generic 'eval' method
@@ -201,15 +201,15 @@ double CovLMCTapering::eval(const SpacePoint& p1,
   bool asVario = false;
   if (mode == nullptr)
   {
-    cov = CovAnisoList::eval(p1, p2, ivar, jvar);
+    cov = CovAnisoList::_eval(p1, p2, ivar, jvar);
   }
   else
   {
     CovCalcMode modeloc(*mode);
     asVario = mode->getAsVario();
     modeloc.setAsVario(false);
-    cov = CovAnisoList::eval(p1, p2, ivar, jvar, &modeloc);
-    cov0 = CovAnisoList::eval(p1, p1, ivar, jvar, &modeloc); // or eval0 if stationary
+    cov = CovAnisoList::_eval(p1, p2, ivar, jvar, &modeloc);
+    cov0 = CovAnisoList::_eval(p1, p1, ivar, jvar, &modeloc); // or eval0 if stationary
   }
 
   double h = getSpace()->getDistance(p1, p2) / _tapeRange;
