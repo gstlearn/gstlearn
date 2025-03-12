@@ -29,7 +29,7 @@ stopifnot(cor_mono$eval(p0, p1, ivar = ivar-1, jvar = ivar-1) == mod_mono$getCov
 stopifnot(cor_mono$eval(p0, p2, ivar = ivar-1, jvar = ivar-1) == mod_mono$getCovAnisoList()$eval(p0, p2))
 stopifnot(cor_mono$eval(p0, p3, ivar = ivar-1, jvar = ivar-1) == mod_mono$getCovAnisoList()$eval(p0, p3))
 stopifnot(cor_mono$eval(p0, p4, ivar = ivar-1, jvar = ivar-1) == mod_mono$getCovAnisoList()$eval(p0, p4))
-
+print("Mono-variable test is ok.")
 #' Test tri-variable
 cor_tri = CorMatern(ranges = ranges, angle = angles, 
                     coeffScales = rescale, params = params, flagRange = flag.range)
