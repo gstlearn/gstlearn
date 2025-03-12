@@ -22,7 +22,7 @@ stopifnot(cor_mono$getNVar() == 1)
 
 mod_mono = Model_createFromParam(type = ECov_MATERN(), 
                              ranges = ranges*rr[ivar], angles = angles, 
-                             sill = 1.0, param = params[ivar],
+                             sill = 1.0, param = c(params[ivar]),
                              flagRange = flag.range)
 
 stopifnot(cor_mono$eval(p0, p1, ivar = ivar-1, jvar = ivar-1) == mod_mono$getCovAnisoList()$eval(p0, p1))
