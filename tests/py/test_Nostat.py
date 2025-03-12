@@ -92,7 +92,7 @@ print(str(gt.checkEqualityVector(covmat_gstlearn, covmat_hand)))
 
 # Creating the non-stationary Model
 m = gl.Model.createFromParam(gl.ECov.MATERN)
-covfunc = m.getCovAniso(0).getCorFunc().evalCov
+covfunc = m.getCovAniso(0).getCorFunc().evalCorFunc
 m.getCovAniso(0).attachNoStatDb(db)
 m.getCovAniso(0).makeScaleNoStatDb("scales1",0)
 m.getCovAniso(0).makeScaleNoStatDb("scales2",1)
