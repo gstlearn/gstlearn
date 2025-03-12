@@ -164,6 +164,9 @@
   #include "LinearOp/SPDEOp.hpp"
   #include "LinearOp/SPDEOpMatrix.hpp"
   #include "LinearOp/MatrixSquareSymmetricSim.hpp"
+  #include "LinearOp/ACholesky.hpp"
+  #include "LinearOp/CholeskyDense.hpp"
+  #include "LinearOp/CholeskySparse.hpp"
 
   #include "Neigh/ANeigh.hpp"
   #include "Neigh/NeighUnique.hpp"

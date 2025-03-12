@@ -1291,12 +1291,13 @@ void MatrixSparse::_allocate()
 {
   if (isFlagEigen())
   {
+    _eigenMatrix = Eigen::SparseMatrix<double, Eigen::ColMajor>(getNRows(),getNCols());
+
     if (_nRowMax > 0)
     {
       _eigenMatrix.reserve(Eigen::VectorXi::Constant(getNRows(), _nRowMax));
     }
     if (isMultiThread()) omp_set_num_threads(getMultiThread());
-    _eigenMatrix = Eigen::SparseMatrix<double, Eigen::ColMajor>(getNRows(),getNCols());
   }
   else
   {
