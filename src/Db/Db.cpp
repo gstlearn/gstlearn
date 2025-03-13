@@ -651,8 +651,6 @@ void Db::setArrayByUID(const VectorDouble& tab, int iuid)
   }
 }
 
-static std::vector<int> uids;
-
 void Db::getArrayBySample(std::vector<double>& vals, int iech) const
 {
   getAllUIDs(uids);

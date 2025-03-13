@@ -138,8 +138,6 @@ double MeshETurbo::getMeshSize(int /*imesh*/) const
   return size;
 }
 
-static std::vector<int> indg;
-
 /****************************************************************************/
 /*!
 ** Returns the Apex 'rank' of the Mesh 'imesh'
@@ -485,9 +483,6 @@ int MeshETurbo::initFromExtend(const VectorDouble &extendmin,
   return 0;
 }
 
-static std::vector<int> indices;
-static std::vector<double> lambdas;
-
 bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
                                       int iech,
                                       const VectorDouble &coor,
@@ -736,9 +731,6 @@ void MeshETurbo::_setNElementPerCell()
   else if (ndim == 3)
     _nPerCell = 6;
 }
-
-static std::vector<double> rhs;
-static std::vector<int> indgg;
 
 /**
  * Return the weights assigned to the corners
