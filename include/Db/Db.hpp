@@ -966,4 +966,7 @@ private:
   std::vector<int> _uidcol;   //!< UID to Column
   VectorString _colNames;    //!< Names of the variables
   std::vector<PtrGeos> _p;   //!< Locator characteristics
+
+  /// factor allocations
+  mutable std::vector<int> uids;
 };
