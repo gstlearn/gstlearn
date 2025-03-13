@@ -93,6 +93,7 @@ bool ASerializable::dumpToNF(const String& neutralFilename, bool verbose) const
   return ret;
 }
 
+#ifdef HDF5
 bool ASerializable::dumpToH5(const String& H5Filename, bool verbose) const
 {
   auto file = SerializeHDF5::fileOpenWrite(H5Filename);
@@ -104,6 +105,7 @@ bool ASerializable::dumpToH5(const String& H5Filename, bool verbose) const
 
   return ret;
 }
+#endif
 
 bool ASerializable::_fileOpenWrite(const String& filename,
                                    std::ofstream& os,

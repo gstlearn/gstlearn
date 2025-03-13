@@ -112,10 +112,13 @@ else()
 endif()
 
 # Look for HDF5
-# use MODULE to use CMake's FindHDF5.cmake instead of HDF5 config files
-find_package(HDF5 MODULE REQUIRED COMPONENTS C CXX)
-if(NOT HDF5_FOUND)
-  message(FATAL_ERROR "HDF5 not found")
+if(USE_HDF5)
+  # use MODULE to use CMake's FindHDF5.cmake instead of HDF5 config files
+  find_package(HDF5 MODULE REQUIRED COMPONENTS C CXX)
+  if(NOT HDF5_FOUND)
+    message(FATAL_ERROR "HDF5 not found")
+  endif()
+  add_definitions(-DHDF5)
 endif()
 
 # Shared and Static libraries
@@ -184,9 +187,11 @@ foreach(FLAVOR ${FLAVORS})
   target_link_libraries(${FLAVOR} PRIVATE NLopt::nlopt)
 
   # Link to HDF5
-  target_compile_definitions(${FLAVOR} PRIVATE ${HDF5_DEFINITIONS})
-  target_include_directories(${FLAVOR} PRIVATE ${HDF5_INCLUDE_DIRS})
-  target_link_libraries(${FLAVOR} PRIVATE ${HDF5_LIBRARIES})
+  if(USE_HDF5)
+    target_compile_definitions(${FLAVOR} PRIVATE ${HDF5_DEFINITIONS})
+    target_include_directories(${FLAVOR} PRIVATE ${HDF5_INCLUDE_DIRS})
+    target_link_libraries(${FLAVOR} PRIVATE ${HDF5_LIBRARIES})
+  endif()
   
   # Exclude [L]GPL features from Eigen
   #target_compile_definitions(${FLAVOR} PUBLIC EIGEN_MPL2_ONLY) 

@@ -14,6 +14,11 @@ file(GLOB TEST_SOURCES *.cpp)
 # Exclude one test from output comparison
 set(EXCLUDE_FROM_DIFF "test_a_template")
 
+# Deactivate HDF5 test if not used
+if(NOT USE_HDF5)
+  list(FILTER TEST_SOURCES EXCLUDE REGEX "bench_H5.cpp")
+endif()
+
 # Generation folder
 if (IS_MULTI_CONFIG)
   cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR $<CONFIG>

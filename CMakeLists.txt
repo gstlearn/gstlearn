@@ -11,6 +11,9 @@ project(gstlearn
 ####################################################
 ## CONFIGURATION
 
+# By default, activate HDF5 support
+option(USE_HDF5 "Using HDF5 support" ON)
+
 # Extract Git commit timestamp, hash
 find_package(Git)
 execute_process(
@@ -74,6 +77,7 @@ message(STATUS "BUILD_PYTHON="  ${BUILD_PYTHON})
 message(STATUS "BUILD_R="       ${BUILD_R})
 message(STATUS "BUILD_TESTING=" ${BUILD_TESTING})
 message(STATUS "BUILD_DOXYGEN=" ${BUILD_DOXYGEN})
+message(STATUS "USE_HDF5="      ${USE_HDF5})
 
 # Create gstlearn cmake file path in the build tree
 cmake_path(APPEND GSTLEARN_CMAKE_FILE ${PROJECT_BINARY_DIR} "gstlearn.cmake")

@@ -1317,6 +1317,30 @@ bool Grid::_deserialize(std::istream& is, [[maybe_unused]] bool verbose)
   return ret;
 }
 
+bool Grid::_serialize(std::ostream& os, [[maybe_unused]] bool verbose) const
+{
+  bool ret = true;
+
+  /* Writing the header */
+
+  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
+
+  /* Writing the grid characteristics */
+
+  ret = ret && _commentWrite(os, "Grid characteristics (NX,X0,DX,ANGLE)");
+  for (int idim = 0; ret && idim < getNDim(); idim++)
+  {
+    ret = ret && _recordWrite<int>(os, "", getNX(idim));
+    ret = ret && _recordWrite<double>(os, "", getX0(idim));
+    ret = ret && _recordWrite<double>(os, "", getDX(idim));
+    ret = ret && _recordWrite<double>(os, "", getRotAngle(idim));
+    ret = ret && _commentWrite(os, "");
+  }
+
+  return ret;
+}
+
+#ifdef HDF5
 bool Grid::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
 {
   VectorInt nx;
@@ -1347,29 +1371,6 @@ bool Grid::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 
-bool Grid::_serialize(std::ostream& os, [[maybe_unused]] bool verbose) const
-{
-  bool ret = true;
-
-  /* Writing the header */
-
-  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
-
-  /* Writing the grid characteristics */
-
-  ret = ret && _commentWrite(os, "Grid characteristics (NX,X0,DX,ANGLE)");
-  for (int idim = 0; ret && idim < getNDim(); idim++)
-  {
-    ret = ret && _recordWrite<int>(os, "", getNX(idim));
-    ret = ret && _recordWrite<double>(os, "", getX0(idim));
-    ret = ret && _recordWrite<double>(os, "", getDX(idim));
-    ret = ret && _recordWrite<double>(os, "", getRotAngle(idim));
-    ret = ret && _commentWrite(os, "");
-  }
-
-  return ret;
-}
-
 bool Grid::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
 {
   // create a new H5::Group every time we enter a _serialize method
@@ -1386,3 +1387,4 @@ bool Grid::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
 
   return ret;
 }
+#endif
