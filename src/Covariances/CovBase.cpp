@@ -542,30 +542,6 @@ void CovBase::_manage(const Db* db1,const Db* db2) const
   _cor->manage(db1,db2);
 }
 
-
-/**
- * Calculate the Matrix of covariance between two space points
- * @param p1 Reference of the first space point
- * @param p2 Reference of the second space point
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void CovBase::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                                          const SpacePoint &p1,
-                                          const SpacePoint &p2,
-                                          const CovCalcMode *mode) const
-{
-  int nvar = getNVar();
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
-    {
-      double cor = _cor->evalCov(p1,p2,ivar,jvar,mode);
-      mat.addValue(ivar, jvar, _sillCur.getValue(ivar, jvar) * cor);
-    }
-}
-
 void CovBase::_optimizationPostProcess() const 
 {
   _cor->optimizationPostProcess();

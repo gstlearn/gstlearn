@@ -102,10 +102,6 @@ protected:
   bool   _isVariableValid(int ivar) const;
 
   /// Update internal parameters consistency with the context
-  virtual void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
-                                            const SpacePoint& p1,
-                                            const SpacePoint& p2,
-                                            const CovCalcMode* mode = nullptr) const override;
   virtual void _updateFromContext() override;
   virtual void _initFromContext() override;
   void _copyCovContext(const CovContext& ctxt) override;

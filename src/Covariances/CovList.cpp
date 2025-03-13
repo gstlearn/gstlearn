@@ -204,25 +204,6 @@ double CovList::_eval(const SpacePoint& p1,
   return cov;
 }
 
-/**
- * Calculate the Matrix of covariance between two space points
- * @param p1 Reference of the first space point
- * @param p2 Reference of the second space point
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void CovList::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
-                                           const SpacePoint& p1,
-                                           const SpacePoint& p2,
-                                           const CovCalcMode* mode) const
-{
-  const VectorInt& list = _getListActiveCovariances(mode);
-  for (const auto& j: list.getVector())
-    _covs[j]->addEvalCovMatBiPointInPlace(mat, p1, p2, mode);
-}
-
 void CovList::_load(const SpacePoint& p, bool case1) const
 {
   const VectorInt& list = _getListActiveCovariances(nullptr);

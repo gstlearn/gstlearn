@@ -59,13 +59,6 @@ public:
   void setAnam(const AAnam*& anam) { _anam = anam; }
 
 protected:
-  void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
-                                    const SpacePoint& pwork1,
-                                    const SpacePoint& pwork2,
-                                    const CovCalcMode* mode = nullptr) const override
-  {
-    ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
-  }
   void _optimizationSetTarget(SpacePoint& pt) const override
   {
     ACov::_optimizationSetTarget(pt); 

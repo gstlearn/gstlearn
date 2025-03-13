@@ -77,16 +77,7 @@ public:
               int jvar = 0,
               const CovCalcMode* mode = nullptr) const;
   
-  /// Calculate the matrix of covariances between two points (general case)
-  virtual void evalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                                        const SpacePoint &p1,
-                                        const SpacePoint &p2,
-                                        const CovCalcMode *mode = nullptr) const;
 
-  virtual void addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
-                                           const SpacePoint& pwork1,
-                                           const SpacePoint& pwork2,
-                                           const CovCalcMode* mode) const;
 
   virtual double evalCovOnSphere(double alpha,
                                  int degree = 50,
@@ -144,9 +135,7 @@ public:
                     int jvar                = 0,
                     const CovCalcMode* mode = nullptr) const;
   MatrixSquareSymmetric eval0Mat(const CovCalcMode* mode = nullptr) const;
-  MatrixSquareGeneral evalMat(const SpacePoint& p1,
-                              const SpacePoint& p2,
-                              const CovCalcMode* mode = nullptr) const;
+
   /////////////////////////////////////////////////////////////////////////////////
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -485,10 +474,6 @@ protected:
                                                const VectorInt& ivars,
                                                const VectorVectorInt& index1);
 
-  virtual void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                                            const SpacePoint& pwork1, 
-                                            const SpacePoint& pwork2,
-                                            const CovCalcMode *mode) const;
   virtual SpacePoint& _optimizationLoadInPlace(int iech,
                                                int mode,
                                                int rank) const;
