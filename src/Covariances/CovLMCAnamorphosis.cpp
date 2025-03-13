@@ -168,11 +168,11 @@ double CovLMCAnamorphosis::eval0(int ivar,
   return value;
 }
 
-double CovLMCAnamorphosis::eval(const SpacePoint& p1,
-                                const SpacePoint& p2,
-                                int ivar,
-                                int jvar,
-                                const CovCalcMode* mode) const
+double CovLMCAnamorphosis::_eval(const SpacePoint& p1,
+                                 const SpacePoint& p2,
+                                 int ivar,
+                                 int jvar,
+                                 const CovCalcMode* mode) const
 {
   if (_anam == nullptr) return TEST;
 
@@ -221,7 +221,7 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
 
   double rho = 1.;
   if (getDistance(p1, p2) > 0.)
-    rho = CovAnisoList::eval(p1, p2, ivar, jvar, &modeloc);
+    rho = CovAnisoList::_eval(p1, p2, ivar, jvar, &modeloc);
   double r = 1.;
   if (anamH->isChangeSupportDefined()) r = anamH->getRCoef();
 
@@ -362,8 +362,8 @@ double CovLMCAnamorphosis::_evalDiscreteDD(int ivar,
   double gamma = 0.;
   if (getDistance(p1, p2) > 0.)
   {
-    gamma = CovAnisoList::eval(p1, p1, ivar, jvar, mode) -
-            CovAnisoList::eval(p1, p2, ivar, jvar, mode);
+    gamma = CovAnisoList::_eval(p1, p1, ivar, jvar, mode) -
+            CovAnisoList::_eval(p1, p2, ivar, jvar, mode);
   }
 
   if (iclass == 0)
@@ -508,7 +508,7 @@ double CovLMCAnamorphosis::_evalDiscreteIR(int ivar,
       double bi = anamIR->getIRStatB(jclass);
       cov1 = cov2;
       _transformCovCalcModeIR(iclass);
-      cov2 = pow(1. + CovAnisoList::eval(p1, p2, ivar, jvar, &modeloc) * anamIR->getIRStatR(jclass),r);
+      cov2 = pow(1. + CovAnisoList::_eval(p1, p2, ivar, jvar, &modeloc) * anamIR->getIRStatR(jclass),r);
       cov += bi * bi * (cov2 - cov1);
     }
     return cov;
@@ -517,11 +517,11 @@ double CovLMCAnamorphosis::_evalDiscreteIR(int ivar,
   // Structure for the factor 'iclass´
 
   _transformCovCalcModeIR(iclass - 1);
-  double cov1 = pow(1. + CovAnisoList::eval(p1, p2, ivar, jvar, &modeloc) *
+  double cov1 = pow(1. + CovAnisoList::_eval(p1, p2, ivar, jvar, &modeloc) *
                            anamIR->getIRStatR(iclass - 1),
                     r);
   _transformCovCalcModeIR(iclass);
-  double cov2 = pow(1. + CovAnisoList::eval(p1, p2, ivar, jvar, &modeloc) *
+  double cov2 = pow(1. + CovAnisoList::_eval(p1, p2, ivar, jvar, &modeloc) *
                            anamIR->getIRStatR(iclass),
                     r);
   return (cov2 - cov1);

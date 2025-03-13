@@ -73,11 +73,7 @@ public:
   virtual int getNVar() const override { return 1; }
 
   /// ACov Interface
-  virtual double eval(const SpacePoint& p1,
-                      const SpacePoint& p2,
-                      int ivar = 0,
-                      int jvar = 0,
-                      const CovCalcMode* mode = nullptr) const override;
+  
   double evalCor(const SpacePoint &p1,
                  const SpacePoint &p2,
                  const CovCalcMode* mode = nullptr,
@@ -284,10 +280,14 @@ bool _checkTensor() const;
 bool _checkRotation() const;
 bool _checkParam() const;
 
-  bool   _isVariableValid(int ivar) const;
-  
-  void _updateFromContext() override;
+bool   _isVariableValid(int ivar) const;
+void _updateFromContext() override;
 
+virtual double _eval(const SpacePoint& p1,
+                     const SpacePoint& p2,
+                     int ivar = 0,
+                     int jvar = 0,
+                     const CovCalcMode* mode = nullptr) const override;
 private:
   ACovFunc *_corfunc;                  /// Basic correlation function
   mutable Tensor _aniso;               /// Anisotropy parameters

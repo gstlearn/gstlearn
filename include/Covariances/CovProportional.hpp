@@ -31,7 +31,11 @@ protected:
                                     const SpacePoint& p1,
                                     const SpacePoint& p2,
                                     const CovCalcMode* mode = nullptr) const override;
- 
+  double _eval(const SpacePoint& p1, 
+               const SpacePoint& p2,
+               int ivar = 0, 
+               int jvar = 0, 
+               const CovCalcMode* mode = nullptr) const override;
 protected:
     mutable MatrixSquareGeneral _workMat;
 };

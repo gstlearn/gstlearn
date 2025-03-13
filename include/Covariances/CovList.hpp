@@ -54,11 +54,7 @@ public:
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  virtual double eval(const SpacePoint& p1,
-                       const SpacePoint& p2,
-                       int ivar = 0,
-                       int jvar = 0,
-                       const CovCalcMode* mode = nullptr) const override;
+  
   virtual void _addEvalCovMatBiPointInPlace(
                               MatrixSquareGeneral &mat,
                               const SpacePoint &p1,
@@ -80,7 +76,6 @@ public:
 
   // Filter a covariance
   void setCovFiltered(int icov, bool filtered);
-
   int getNCov() const;
   bool isFiltered(int icov) const;
   virtual double getTotalSill(int ivar = 0, int jvar = 0) const;
@@ -118,6 +113,13 @@ protected:
 protected:
   const VectorInt& _getListActiveCovariances(const CovCalcMode* mode) const;
   void _updateLists();
+
+
+  virtual double _eval(const SpacePoint& p1,
+                       const SpacePoint& p2,
+                       int ivar = 0,
+                       int jvar = 0,
+                       const CovCalcMode* mode = nullptr) const override;
 
 private:
   void _setContext(const CovContext& ctxt) override;

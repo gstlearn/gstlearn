@@ -66,7 +66,7 @@ void ACovFunc::setField(double field)
   _ctxt.setField(field);
 }
 
-double ACovFunc::evalCov(double h) const
+double ACovFunc::evalCorFunc(double h) const
 {
   return _evaluateCov(h);
 }
@@ -91,7 +91,7 @@ VectorDouble ACovFunc::evalCovVec(const VectorDouble& vech) const
 {
   VectorDouble vec;
   for (const auto& h : vech)
-    vec.push_back(evalCov(h));
+    vec.push_back(evalCorFunc(h));
   return vec;
 }
 VectorDouble ACovFunc::evalCovDerivativeVec(int degree,

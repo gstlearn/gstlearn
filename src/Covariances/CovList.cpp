@@ -191,16 +191,16 @@ void CovList::_optimizationSetTarget(SpacePoint& pt) const
     e->optimizationSetTarget(pt);
 }
 
-double CovList::eval(const SpacePoint& p1,
-                     const SpacePoint& p2,
-                     int ivar,
-                     int jvar,
-                     const CovCalcMode* mode) const
+double CovList::_eval(const SpacePoint& p1,
+                      const SpacePoint& p2,
+                      int ivar,
+                      int jvar,
+                      const CovCalcMode* mode) const
 {
   double cov            = 0.;
   const VectorInt& list = _getListActiveCovariances(mode);
   for (const auto& j: list.getVector())
-    cov += _covs[j]->eval(p1, p2, ivar, jvar, mode);
+    cov += _covs[j]->evalCov(p1, p2, ivar, jvar, mode);
   return cov;
 }
 

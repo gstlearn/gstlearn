@@ -4,6 +4,11 @@ This file contains the logs between consecutive releases
 
 Release 1.7.0
 =============
+- evalCov is now a concrete method of ACov and it calls _eval which is pure virtual and has to be implemented in new covariance classes.
+- eval is renamed evalCov in ACov (the version which takes const SpacePoint& in arguments) 
+- evalCov is renamed evalCorFunc in CovFunc class
+- evalCov is renamed computeCov in PrecisionOp class
+- evalCov is renamed evalCovFromIncr in Model
 - in MeshETurbo, add a method to retreive mesh index from the coordinates of a Target Point
 - Parameter 'nxmax' for dimensioning automatic meshing is now parametrized in SPDEParam()
 - Create a new method to generate a Model with random values

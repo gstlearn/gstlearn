@@ -18,7 +18,7 @@ p1 = gl.SpacePoint(gneiting.getSpace())
 p2 = gl.SpacePoint(gneiting.getSpace())
 p1.setCoords(coords1)
 p2.setCoords(coords2)
-cres = gneiting.eval(p1,p2)
+cres = gneiting.evalCov(p1,p2)
 print("Gneiting eval " + str(cres))
 
 # %%
@@ -45,7 +45,7 @@ print("Displaying the last coordinate (temporal) of the second space point")
 p2_1.display()
 
 # %%
-ct = covtemp.eval(p1_1,p2_1) 
+ct = covtemp.evalCov(p1_1,p2_1) 
 print("Difference for temporal covariance " + str(ct - np.exp(-np.abs(coords1[2]-coords2[2])/scaleT)))
 
 # %%
@@ -55,7 +55,7 @@ covspatCopy = gl.CovAniso(covspat)
 covspatCopy.setScale(0,covspat.getScale(0)/ct**al)
 covspatCopy.setScale(1,covspat.getScale(1)/ct**al)
 
-cs = covspatCopy.eval(p1_0,p2_0)
+cs = covspatCopy.evalCov(p1_0,p2_0)
 
 delta = [np.abs(coords1[0]-coords2[0]),np.abs(coords1[1]-coords2[1])]
 diff = cs - np.exp(-np.sqrt((ct**al * delta[0]/scales[0])**2 

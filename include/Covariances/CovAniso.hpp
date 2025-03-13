@@ -69,11 +69,7 @@ public:
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  virtual double eval(const SpacePoint& p1,
-                      const SpacePoint& p2,
-                      int ivar = 0,
-                      int jvar = 0,
-                      const CovCalcMode* mode = nullptr) const override;
+  
  
   virtual double evalCovOnSphere(double alpha,
                                  int degree = 50,
@@ -270,7 +266,12 @@ public:
   void   _computeCorrec();
   double _getDetTensor() const;
   double _getSillValue(int ivar, int jvar, const CovCalcMode* mode) const;
-
+  
+  virtual double _eval(const SpacePoint& p1,
+                       const SpacePoint& p2,
+                       int ivar = 0,
+                       int jvar = 0,
+                       const CovCalcMode* mode = nullptr) const override;
 private:
   CorAniso* _corAniso;
 

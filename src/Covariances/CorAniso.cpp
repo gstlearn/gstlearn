@@ -372,10 +372,10 @@ double CorAniso::evalCorFromH(double h, const CovCalcMode *mode) const
     {
 
       // Traditional Covariance or Variogram
-      cov = _corfunc->evalCov(h) * _noStatFactor;
+      cov = _corfunc->evalCorFunc(h) * _noStatFactor;
 
       // Convert into a variogram
-      if (mode->getAsVario()) cov = _corfunc->evalCov(0) - cov;
+      if (mode->getAsVario()) cov = _corfunc->evalCorFunc(0) - cov;
     }
     else
     {
@@ -385,14 +385,14 @@ double CorAniso::evalCorFromH(double h, const CovCalcMode *mode) const
       for (int iwgt = 1, nwgt = NWGT[norder]; iwgt < nwgt; iwgt++)
       {
         double hp = h * (1. + iwgt);
-        covcum += COVWGT[norder][iwgt] * _corfunc->evalCov(hp);
+        covcum += COVWGT[norder][iwgt] * _corfunc->evalCorFunc(hp);
       }
       cov = covcum / NORWGT[norder];
     }
   }
   else
   {
-    cov =  _corfunc->evalCov(h) * _noStatFactor;
+    cov =  _corfunc->evalCorFunc(h) * _noStatFactor;
   }
   return cov;
 }
@@ -412,11 +412,11 @@ double CorAniso::evalCor(const SpacePoint &p1,
   return evalCorFromH(h, mode);
 }
 
-double CorAniso::eval(const SpacePoint &p1,
-                      const SpacePoint &p2,
-                      int ivar,
-                      int jvar,
-                      const CovCalcMode* mode) const
+double CorAniso::_eval(const SpacePoint &p1,
+                       const SpacePoint &p2,
+                       int ivar,
+                       int jvar,
+                       const CovCalcMode* mode) const
 {
   DECLARE_UNUSED(ivar, jvar)
   double cov = evalCor(p1, p2, mode);
@@ -735,7 +735,7 @@ double CorAniso::getIntegralRange(int ndisc, double hmax) const
       for (int j1 = -ndisc; j1 <= ndisc; j1++)
       {
         dd.setCoord(0, delta * j1);
-        total += delta * eval(dd, SpacePoint());
+        total += delta * evalCov(dd, SpacePoint());
       }
       break;
 
@@ -745,7 +745,7 @@ double CorAniso::getIntegralRange(int ndisc, double hmax) const
         {
           dd.setCoord(0 , delta * j1);
           dd.setCoord(1, delta * j2);
-          total += delta * delta * eval(dd, SpacePoint());
+          total += delta * delta * evalCov(dd, SpacePoint());
         }
       break;
 
@@ -757,7 +757,7 @@ double CorAniso::getIntegralRange(int ndisc, double hmax) const
             dd.setCoord(0, delta * j1);
             dd.setCoord(1, delta * j2);
             dd.setCoord(2, delta * j3);
-            total += delta * delta * delta * eval(dd, SpacePoint());
+            total += delta * delta * delta * evalCov(dd, SpacePoint());
           }
       break;
 

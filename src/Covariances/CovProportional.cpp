@@ -61,7 +61,7 @@ void CovProportional::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
                                                    const SpacePoint& p2,
                                                    const CovCalcMode* mode) const
 {
-  double cor = getCor()->eval(p1, p2, 0, 0, mode);
+  double cor = getCor()->evalCov(p1, p2, 0, 0, mode);
 
   if (mode == nullptr || ! mode->getUnitary())
     mat.addMatInPlace(_sillCur, 1., cor);
@@ -69,4 +69,13 @@ void CovProportional::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
   {
     mat.addMatInPlace(_workMat, 1., cor);
   }
+}
+
+double CovProportional::_eval(const SpacePoint& p1, 
+  const SpacePoint& p2,
+  int ivar, 
+  int jvar, 
+  const CovCalcMode* mode) const
+{
+return _sillCur.getValue(ivar,jvar) * getCor()->evalCov(p1, p2,0, 0, mode);
 }

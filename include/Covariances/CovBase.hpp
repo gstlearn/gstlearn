@@ -17,6 +17,7 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Model/CovInternal.hpp"
+#include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
 #include "Matrix/MatrixT.hpp"
 #include "Basic/ParamInfo.hpp"
@@ -123,7 +124,11 @@ private:
 
   void _load(const SpacePoint& p, bool case1) const override;
   void _optimizationSetTarget(SpacePoint& pt) const override;
-
+  virtual double _eval(const SpacePoint& p1, 
+                       const SpacePoint& p2,
+                       int ivar = 0, 
+                       int jvar = 0, 
+                       const CovCalcMode* mode = nullptr) const override;
 protected:
     MatrixT<ParamInfo> _cholSillsInfo;
     mutable MatrixSquareGeneral _cholSills;
