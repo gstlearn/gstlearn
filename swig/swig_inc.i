@@ -154,6 +154,8 @@
   #include "LinearOp/ProjMatrix.hpp"
   #include "LinearOp/ProjMulti.hpp"
   #include "LinearOp/ProjMultiMatrix.hpp"
+  #include "LinearOp/ProjZero.hpp"
+  #include "LinearOp/ProjComposition.hpp"
   #include "LinearOp/PrecisionOpMulti.hpp"
   #include "LinearOp/PrecisionOpMultiMatrix.hpp"
   #include "LinearOp/PrecisionOpMultiConditional.hpp"
