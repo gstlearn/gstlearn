@@ -187,12 +187,24 @@ public:
                          const VectorInt& nbgh2  = VectorInt(),
                          const CovCalcMode* mode = nullptr,
                          bool cleanOptim         = true) const;
+
+  int evalCovMatInPlace3(MatrixRectangular& mat,
+                         const Db* db1,
+                         const Db* db2           = nullptr,
+                         int ivar0               = -1,
+                         int jvar0               = -1,
+                         const VectorInt& nbgh1  = VectorInt(),
+                         const VectorInt& nbgh2  = VectorInt(),
+                         const CovCalcMode* mode = nullptr,
+                         bool cleanOptim         = true) const;
+  
   int evalCovMatSymByRanks(MatrixSquareSymmetric& mat,
                            const Db* db1,
                            const VectorVectorInt& index1,
                            int ivar0 = -1,
                            const CovCalcMode* mode = nullptr,
                            bool cleanOptim = true) const;
+                           
   int evalCovMatByTarget(MatrixRectangular& mat,
                          const Db* db1,
                          const Db* db2,

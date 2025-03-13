@@ -41,7 +41,7 @@
 ACov::ACov(const CovContext& ctxt)
   : ASpaceObject(ctxt.getSpace())
   , _ctxt(ctxt)
-  , _optimEnabled(true)
+  , _optimEnabled(false)
   , _optimPreProcessedData(false)
   , _p1As()
   , _p2As()
@@ -103,7 +103,7 @@ void ACov::optimizationPostProcess() const
 void ACov::_optimizationPreProcessForData(const Db* db1) const
 {
   // Do not proceed to optimization when this is forbidden
-  if (! _optimEnabled) return;
+  //if (! _optimEnabled) return;
 
   // Do not proceed if already done
   if (_optimPreProcessedData) return;
@@ -123,9 +123,6 @@ void ACov::_optimizationPreProcessForData(const Db* db1) const
 void ACov::_optimizationPreProcessForTarget(const Db* db2,
                                             const VectorInt& nbgh2) const
 {
-  // Do not proceed to optimization when this is forbidden
-  if (!_optimEnabled) return;
-
   std::vector<SpacePoint> ps;
 
   // Add projected samples from db2 (optional)
@@ -1096,6 +1093,85 @@ int ACov::evalCovMatInPlace2(MatrixRectangular& mat,
   return 0;
 }
 
+int ACov::evalCovMatInPlace3(MatrixRectangular& mat,
+                             const Db* db1,
+                             const Db* db2,
+                             int ivar0,
+                             int jvar0,
+                             const VectorInt& nbgh1,
+                             const VectorInt& nbgh2,
+                             const CovCalcMode* mode,
+                             bool cleanOptim) const
+{
+  // Preliminary checks
+  if (db2 == nullptr) db2 = db1;
+  if (db1 == nullptr || db2 == nullptr) return 1;
+  VectorInt ivars = _getActiveVariables(ivar0);
+  if (ivars.empty()) return 1;
+  VectorInt jvars = _getActiveVariables(jvar0);
+  if (jvars.empty()) return 1;
+
+  // Prepare Non-stationarity (if needed)
+     manage(db1, db2);
+
+  // Prepare Optimization for covariance calculation (if not forbidden or already done)
+     _optimizationPreProcessForData(db1);
+     _optimizationPreProcessForTarget(db2, nbgh2);
+
+  // Create sets of Vectors of valid sample indices per variable
+     //VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1);
+     //VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2);
+
+  // Creating the matrix
+     //int neq1 = VH::count(index1);
+     //int neq2 = VH::count(index2);
+     //if (neq1 <= 0 || neq2 <= 0)
+    //{
+     // messerr("The returned matrix has no valid sample and no valid variable");
+     // return 1;
+    //}
+    //mat.resize(neq1, neq2);
+
+   // Define the two space points
+    bool isNoStatLocal = isNoStat();
+
+//   // Loop on Data
+//   int icol = 0;
+//   for (const auto ivar2: jvars.getVector())
+//   {
+//     const VectorInt& index2i = index2[ivar2];
+//     const int* ptr2          = index2i.data();
+//     for (int irel2 = 0, n2 = (int)index2i.size(); irel2 < n2; irel2++)
+//     {
+//       int iabs2      = *ptr2++;
+//       SpacePoint& p2 = optimizationLoadInPlace(irel2, 2, 2);
+
+//       int irow = 0;
+//       for (const auto ivar1: ivars.getVector())
+//       {
+//         const VectorInt& index1i = index1[ivar1];
+//         for (const auto iabs1: index1i.getVector())
+//         {
+//           SpacePoint& p1 = optimizationLoadInPlace(iabs1, 1, 1);
+
+//           // Modify the covariance (if non stationary)
+//           if (isNoStatLocal)
+//             updateCovByPoints(1, iabs1, 2, iabs2);
+
+//           // Calculate the covariance between two points
+//           double value = evalCov(p1, p2, ivar1, ivar2, mode);
+//           mat.setValue(irow, icol, value);
+//         }
+//         irow++;
+//       }
+//       icol++;
+//     }
+//   }
+
+  if (cleanOptim) optimizationPostProcess();
+  return 0;
+}
+
 int ACov::evalCovMatInPlace(MatrixRectangular& mat,
                             const Db* db1,
                             const Db* db2,
@@ -1116,6 +1192,8 @@ int ACov::evalCovMatInPlace(MatrixRectangular& mat,
   if (OptCustom::query("OptimCovMat", 0) == 2)
     return evalCovMatInPlace2(mat, db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
 
+  if (OptCustom::query("OptimCovMat", 0) == 3)
+    return evalCovMatInPlace3(mat, db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
   // Prepare Non-stationarity (if needed)
   manage(db1, db2);
 
