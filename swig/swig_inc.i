@@ -1,4 +1,5 @@
 %feature(director) IProj;
+%feature(director) ACov;
 %feature(director) AFunctional;
 
 //%feature(director) ICLoneable;

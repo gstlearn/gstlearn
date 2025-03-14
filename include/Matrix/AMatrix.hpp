@@ -166,6 +166,8 @@ public:
   int getNColDefined() const;
   /*! Define the number of defined rows */
   int getNRowDefined() const;
+    /*! Extract a portion of a Column */
+    VectorDouble getColumnByRowRange(int icol, int rowFrom, int rowTo) const;
   /*! Check if the matrix does not contain any negative element */
   bool isNonNegative(bool verbose = false) const;
 
@@ -187,6 +189,8 @@ public:
   int solve(const VectorDouble& b, VectorDouble& x) const;
   /*! Dump a specific range of samples from the internal storage */
   void dumpElements(const String& title, int ifrom, int ito) const;
+  /*! Dump statistics on the Matrix */
+  void dumpStatistics(const String& title) const;
   /*! Sets the matrix as Identity */
   void setIdentity(double value = 1.);
   void fillRandom(int seed = 432432, double zeroPercent = 0);
@@ -218,7 +222,8 @@ public:
   double  operator()(int row, int col) const { return getValue(row, col); }
   /*! Set value operator override */
   double &operator()(int row, int col)       { return _getValueRef(row, col); }
-
+  
+  virtual bool    needToReset(int nrows, int ncols);
 protected:
   virtual void    _allocate() = 0;
   virtual void    _deallocate() = 0;
