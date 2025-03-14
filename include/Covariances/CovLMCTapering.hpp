@@ -59,11 +59,7 @@ public:
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  virtual double eval(const SpacePoint& p1,
-                      const SpacePoint& p2,
-                      int ivar,
-                      int jvar,
-                      const CovCalcMode* mode = nullptr) const override;
+  
   int init(const ETape& tapetype, double taperange);
 
   std::string_view getName() const;
@@ -83,6 +79,12 @@ protected:
     ACov::_optimizationSetTarget(pt); 
   }
 
+private:
+virtual double _eval(const SpacePoint& p1,
+                     const SpacePoint& p2,
+                     int ivar,
+                     int jvar,
+                     const CovCalcMode* mode = nullptr) const override;
 private:
   ETape  _tapeType;
   double _tapeRange;

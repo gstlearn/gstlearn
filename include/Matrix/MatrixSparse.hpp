@@ -40,7 +40,7 @@ class EOperator;
 class GSTLEARN_EXPORT MatrixSparse : public AMatrix, public ALinearOp {
 
 public:
-  MatrixSparse(int nrow = 0, int ncol = 0, int opt_eigen = -1);
+  MatrixSparse(int nrow = 0, int ncol = 0, int nrowmax = -1, int opt_eigen = -1);
 #ifndef SWIG
   MatrixSparse(const cs* A);
 #endif
@@ -270,6 +270,7 @@ private:
   Eigen::SparseMatrix<double> _eigenMatrix; // Eigen storage in Eigen Library (always stored Eigen::ColMajor)
 #endif
   bool _flagEigen;
+  int _nRowMax;
 };
 
 /*! Transform any matrix into a Sparse format */

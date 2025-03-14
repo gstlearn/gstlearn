@@ -108,7 +108,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _nbgh()
   , _dbinUidToBeDeleted()
   , _dboutUidToBeDeleted()
-  , _space(SpaceRN::create(2))
+  , _space(model == nullptr ? nullptr : model->getSpace())
   , _p0()
   , _p1()
   , _p2()
@@ -218,7 +218,7 @@ void KrigingSystem::_resetMemoryGeneral()
 {
   _setInternalShortCutVariablesGeneral();
 
-  _space = SpaceRN::create(_ndim);
+  _space = _model->getSpace();
   _p0 = SpacePoint(_space);
   _p1 = SpacePoint(_space);
   _p2 = SpacePoint(_space);

@@ -99,3 +99,48 @@ int ACholesky::solveMatrix(const MatrixRectangular& b, MatrixRectangular& x) con
   }
   return 0;
 }
+
+
+VectorDouble ACholesky::invLtX(const VectorDouble& vecin) const
+{
+  constvect spin(vecin);
+  VectorDouble vecout(_size,0);
+  vect spout(vecout);
+  addInvLtX(spin, spout);
+  return vecout;
+}
+
+VectorDouble ACholesky::LtX(const VectorDouble& vecin) const
+{
+  constvect spin(vecin);
+  VectorDouble vecout(_size,0);
+  vect spout(vecout);
+  addLtX(spin, spout);
+  return vecout;
+}
+
+VectorDouble ACholesky::LX(const VectorDouble& vecin) const
+{
+  constvect spin(vecin);
+  VectorDouble vecout(_size,0);
+  vect spout(vecout);
+  addLX(spin, spout);
+  return vecout;
+}
+
+VectorDouble ACholesky::invLX(const VectorDouble& vecin) const
+{
+  constvect spin(vecin);
+  VectorDouble vecout(_size,0);
+  vect spout(vecout);
+  addInvLX(spin, spout);
+  return vecout;
+}
+VectorDouble ACholesky::solveX(const VectorDouble& vecin) const
+{
+  constvect spin(vecin);
+  VectorDouble vecout(_size,0);
+  vect spout(vecout);
+  addSolveX(spin, spout);
+  return vecout;
+}

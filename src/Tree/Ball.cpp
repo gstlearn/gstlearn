@@ -23,7 +23,7 @@ Ball::Ball(const double** data,
            int default_distance_function)
   : _tree(nullptr)
 {
-  _tree = btree_init(data, n_samples, n_features, dist_function, leaf_size,
+  _tree = btree_init(data, n_samples, n_features, false, dist_function, leaf_size,
                      default_distance_function);
 }
 
@@ -38,7 +38,7 @@ Ball::Ball(const VectorVectorDouble& data,
   int n_samples     = (int)data[0].size();
   int n_features    = (int)data.size();
   double** internal = copy_double_arrAsVVD(data);
-  _tree = btree_init((const double**)internal, n_samples, n_features,
+  _tree = btree_init((const double**)internal, n_samples, n_features, false,
                      dist_function, leaf_size, default_distance_function);
   free_2d_double(internal, n_features);
 }
@@ -48,6 +48,7 @@ Ball::Ball(const Db* db,
                                    const double* x2,
                                    int size),
            int leaf_size,
+           bool has_constraints,
            int default_distance_function,
            bool useSel)
   : _tree(nullptr)
@@ -56,7 +57,7 @@ Ball::Ball(const Db* db,
   int n_samples           = (int)data[0].size();
   int n_features          = (int)data.size();
   double** internal       = copy_double_arrAsVVD(data);
-  _tree = btree_init((const double**)internal, n_samples, n_features,
+  _tree = btree_init((const double**)internal, n_samples, n_features, has_constraints,
                      dist_function, leaf_size, default_distance_function);
   //free_2d_double(internal, n_features);
   free_2d_double(internal, n_samples);
@@ -75,7 +76,7 @@ void Ball::init(const Db* db,
   int n_samples           = (int)data[0].size();
   int n_features          = (int)data.size();
   double** internal       = copy_double_arrAsVVD(data);
-  _tree = btree_init((const double**)internal, n_samples, n_features,
+  _tree = btree_init((const double**)internal, n_samples, n_features, false,
                      dist_function, leaf_size, default_distance_function);
   // free_2d_double(internal, n_features);
   free_2d_double(internal, n_samples);
@@ -157,11 +158,46 @@ int Ball::queryOneInPlace(const VectorDouble& test,
   int n_features         = (int)test.size();
   const double* internal = test.data();
   return knn.btree_query_inPlace(_tree, (const double**)&internal, 1,
-                                 n_features, n_neighbors, rank, indices,
-                                 distances);
+                                 n_features, n_neighbors, rank, indices, distances);
 }
 
+/**
+ * @brief Ask for information regarding the Ball Tree organization
+ * 
+ * @param level Level of details
+ *              -1 Just the general volumetry information
+ *               0 List of the different nodes
+ *               1 List of Leaves and attached list of samples
+ */
 void Ball::display(int level) const
 {
   btree_display(_tree, level);
+}
+
+bool Ball::_isConstraintDefined() const
+{
+  if (_tree->accept == nullptr)
+  {
+    messerr("You may not set one Constraint if not initialized in Ball constructor");
+    return false;
+  }
+  return true;
+}
+
+int Ball::setConstraint(int rank, bool status)
+{
+  if (_tree == nullptr) return 1;
+  if (! _isConstraintDefined()) return 1;
+  if (rank < 0 || rank >= _tree->n_samples) return 1;
+  _tree->accept[rank] = status;
+  return 0;
+}
+
+int Ball::resetConstraints(bool status)
+{
+  if (_tree == nullptr) return 1;
+  if (!_isConstraintDefined()) return 1;
+  for (int i = 0, n = _tree->n_samples; i < n; i++)
+    _tree->accept[i] = status;
+  return 0;
 }

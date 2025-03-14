@@ -651,8 +651,6 @@ void Db::setArrayByUID(const VectorDouble& tab, int iuid)
   }
 }
 
-static std::vector<int> uids;
-
 void Db::getArrayBySample(std::vector<double>& vals, int iech) const
 {
   getAllUIDs(uids);
@@ -1011,7 +1009,7 @@ void Db::setSampleCoordinates(int iech, const VectorDouble& coor)
     messerr("Nothing is done");
     return;
   }
-  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
+  for (int idim = 0; idim < ndim; idim++)
     setCoordinate(iech, idim, coor[idim]);
 }
 

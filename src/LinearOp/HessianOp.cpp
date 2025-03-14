@@ -163,7 +163,6 @@ int HessianOp::_addToDest(const constvect inv, vect outv) const
   {
     for (int i=0; i<_projSeis->getNApex(); i++) 
       _workv[i] = law_cdf_gaussian(_lambda[i]);
-    vect wvs(_workv);
     vect wss(_works);
     _projSeis->mesh2point(wvs, wss);
     for (int i=0; i<_projSeis->getNPoint(); i++) 

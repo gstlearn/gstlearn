@@ -21,23 +21,23 @@ ModelGeneric::ModelGeneric(const CovContext &ctxt)
       _driftList(nullptr),
       _ctxt(ctxt)
 {
+  _driftList = new DriftList(_ctxt);
 }
 
 ModelGeneric::ModelGeneric(const ModelGeneric& r)
-
 {
-  _cova      = (ACov*)r._cova->clone();
-  _driftList = (DriftList*)r._driftList->clone();
-  _ctxt      = r._ctxt;
+  if (r._cova != nullptr) _cova = (ACov*)r._cova->clone();
+  if (r._driftList != nullptr) _driftList = r._driftList->clone();
+
+  _ctxt = r._ctxt;
 }
 
 ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
-
 {
   if (this != &r)
   {
     _cova      = (ACov*)r._cova->clone();
-    _driftList = (DriftList*)r._driftList->clone();
+    _driftList = r._driftList->clone();
     _ctxt      = r._ctxt;
   }
   return *this;

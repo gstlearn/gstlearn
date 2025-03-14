@@ -8,44 +8,28 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Model/ModelCovList.hpp"
-#include "Covariances/CovBase.hpp"
+#pragma once
 
-ModelCovList::ModelCovList(const CovContext& ctxt)
-  : ModelGeneric(ctxt)
+#include "gstlearn_export.hpp"
+#include "LinearOp/IProj.hpp"
+
+class GSTLEARN_EXPORT ProjZero : public IProj
 {
-  _cova = _covList = nullptr;
-}
+public:
+  ProjZero(int npoint, int napex) : IProj(), _npoint(npoint), _napex(napex) {}
+  ProjZero(const ProjZero&) = default;
+  ProjZero& operator=(const ProjZero&) = default;
+  ~ProjZero() override = default;
 
-void ModelCovList::setCovList(CovList* covs)
-{
-  _covList = covs;
-  _cova    = _covList;
-}
+#ifndef SWIG
+protected:
+  int _addPoint2mesh(const constvect, vect) const override { return 0; }
+  int _addMesh2point(const constvect, vect) const override { return 0; }
+#endif
+public:
+  int getNApex() const override { return _napex; }
+  int getNPoint() const override { return _npoint; }
 
-ModelCovList::~ModelCovList() 
-{
-
-}
-
-void ModelCovList::addCov(const CovBase* cov)
-{
-  if (cov == nullptr)
-  {
-    messerr("Error: Covariance is nullptr");
-    return;
-  }
-
-  if (!cov->getContext().isEqual(_ctxt))
-  {
-    messerr("Error: Covariance should share the same Context as 'Model'");
-    messerr("Operation is cancelled");
-    return;
-  }
-  if (_covList == nullptr)
-  {
-    messerr("Error: Covariance List is nullptr");
-    return;
-  }
-  _covList->addCov(cov);
-}
+private:
+  int _npoint, _napex;
+};

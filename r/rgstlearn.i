@@ -315,6 +315,7 @@
 %typemap(rtypecheck, noblock=1) const int&, int                               { length($arg) == 1 && (is.integer(unlist($arg)) || is.numeric(unlist($arg))) }
 %typemap(rtypecheck, noblock=1) const double&, double                         { length($arg) == 1 &&  is.numeric(unlist($arg)) }
 %typemap(rtypecheck, noblock=1) const String&, String                         { length($arg) == 1 &&  is.character(unlist($arg)) }
+%typemap(rtypecheck, noblock=1) const std::string_view, std::string_view      { length($arg) == 1 &&  is.character(unlist($arg)) }
 %typemap(rtypecheck, noblock=1) const float&, float                           { length($arg) == 1 &&  is.numeric(unlist($arg)) }
 %typemap(rtypecheck, noblock=1) const UChar&, UChar                           { length($arg) == 1 && (is.integer(unlist($arg)) || is.numeric(unlist($arg))) }
 %typemap(rtypecheck, noblock=1) const bool&, bool                             { length($arg) == 1 &&  is.logical(unlist($arg)) }
@@ -389,10 +390,6 @@
   template <> SEXP objectFromCpp(const String& value)
   {
     return Rf_ScalarString(Rf_mkChar(convertFromCpp(value).c_str()));
-  }
-  template <> SEXP objectFromCpp(const std::string_view& value)
-  {
-    return Rf_ScalarString(Rf_mkChar(convertFromCpp(String{value}).c_str()));
   }
   template <> SEXP objectFromCpp(const float& value)
   {
@@ -546,6 +543,9 @@
                      VectorVectorDouble, VectorVectorDouble*, VectorVectorDouble&,
                      VectorVectorFloat,  VectorVectorFloat*,  VectorVectorFloat&
  %{    %}
+
+%typemap(scoerceout) std::string_view, const std::string_view
+%{    %}
 
 //%typemap(scoerceout) MatrixRectangular,     MatrixRectangular*,     MatrixRectangular&,
 //                     MatrixSquareGeneral,   MatrixSquareGeneral*,   MatrixSquareGeneral&,
@@ -1268,7 +1268,12 @@ setMethod("plot", signature(x="_p_AAnam"), function(x,y="missing",...) plot.anam
 
 #Add methods of ModelCovList (base) to Model (derived) (in case inheritance didn t work)
 
+addMethods("ModelCovList",c("ModelGeneric"))
 addMethods("Model",c("ModelGeneric","ModelCovList"))
+
+addMethods("CovAniso", c("ACov", "CovBase", "CovProportional"))
+addMethods("CovList", c("ACov"))
+addMethods("CovAnisoList", c("ACov","CovList"))
 
 addMethods("Db", c("ASerializable"))
 addMethods("DbGrid", c("ASerializable"))

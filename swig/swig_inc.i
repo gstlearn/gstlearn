@@ -154,6 +154,8 @@
   #include "LinearOp/ProjMatrix.hpp"
   #include "LinearOp/ProjMulti.hpp"
   #include "LinearOp/ProjMultiMatrix.hpp"
+  #include "LinearOp/ProjZero.hpp"
+  #include "LinearOp/ProjComposition.hpp"
   #include "LinearOp/PrecisionOpMulti.hpp"
   #include "LinearOp/PrecisionOpMultiMatrix.hpp"
   #include "LinearOp/PrecisionOpMultiConditional.hpp"
@@ -164,6 +166,9 @@
   #include "LinearOp/SPDEOp.hpp"
   #include "LinearOp/SPDEOpMatrix.hpp"
   #include "LinearOp/MatrixSquareSymmetricSim.hpp"
+  #include "LinearOp/ACholesky.hpp"
+  #include "LinearOp/CholeskyDense.hpp"
+  #include "LinearOp/CholeskySparse.hpp"
 
   #include "Neigh/ANeigh.hpp"
   #include "Neigh/NeighUnique.hpp"
@@ -208,6 +213,7 @@
   #include "Covariances/CovAniso.hpp"
   #include "Covariances/ACovGradient.hpp"
   #include "Covariances/CorGneiting.hpp"
+  #include "Covariances/CorMatern.hpp"
   #include "Covariances/CovLMCTapering.hpp"
   #include "Covariances/CovLMCConvolution.hpp"
   #include "Covariances/CovLMCAnamorphosis.hpp"
@@ -434,11 +440,10 @@
     messerr("Error while converting argument #$argnum of type '$type' in '$symname' function");
   }
 }
-%typemap(in, fragment="ToCpp") std::string_view
+%typemap(in, fragment="ToCpp") std::string_view (String tmp)
 {
   try
   {
-    static String tmp;
     int errcode = convertToCpp($input, tmp);
     $1 = tmp;
     if (!SWIG_IsOK(errcode))
@@ -917,8 +922,6 @@
 %typemap(out, fragment="FromCpp") int*,    const int*,    int&,    const int&,
                                   double*, const double*, double&, const double&,
                                   String*, const String*, String&, const String&,
-                                  std::string_view*, const std::string_view*,
-                                  std::string_view&, const std::string_view&,
                                   float*,  const float*,  float&,  const float&,
                                   UChar*,  const UChar*,  UChar&,  const UChar&,
                                   bool*,   const bool*,   bool&,   const bool&

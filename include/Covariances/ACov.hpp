@@ -71,11 +71,12 @@ public:
                        const CovCalcMode* mode = nullptr) const;
 
   /// Calculate the covariance between two variables and two points (general case)
-  virtual double eval(const SpacePoint& p1,
-                      const SpacePoint& p2,
-                      int ivar = 0,
-                      int jvar = 0,
-                      const CovCalcMode* mode = nullptr) const = 0;
+  double evalCov(const SpacePoint& p1,
+              const SpacePoint& p2,
+              int ivar = 0,
+              int jvar = 0,
+              const CovCalcMode* mode = nullptr) const;
+  
   /// Calculate the matrix of covariances between two points (general case)
   virtual void evalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                         const SpacePoint &p1,
@@ -506,7 +507,11 @@ protected:
 protected:
   virtual void _initFromContext() {};
   virtual bool _isOptimEnabled() const { return _optimEnabled; }
-
+  virtual double _eval(const SpacePoint& p1,
+                       const SpacePoint& p2,
+                       int ivar = 0,
+                       int jvar = 0,
+                       const CovCalcMode* mode = nullptr) const = 0;
 private:
   virtual void _copyCovContext(const CovContext& ctxt)
   {
@@ -522,7 +527,7 @@ private:
                            const VectorDouble& x0 = VectorDouble()) const;
   Db* _discretizeBlockRandom(const DbGrid* dbgrid, int seed = 34131) const;
   double _getVolume(const VectorDouble& ext) const;
-
+  
 protected:
   CovContext _ctxt; 
   bool _optimEnabled;

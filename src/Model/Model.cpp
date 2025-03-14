@@ -76,12 +76,12 @@ Model& Model::operator=(const Model &m)
 {
   if (this != &m)
   { 
-    AStringable::operator=(m);
-    ASerializable::operator=(m);
+   AStringable::operator=(m);
+   ASerializable::operator=(m);
    setCovAnisoList(dynamic_cast<CovAnisoList*>(m._covList));
-    if (m._driftList != nullptr)
+   if (m._driftList != nullptr)
       _driftList = m._driftList->clone();
-    _ctxt = m._ctxt;
+   _ctxt = m._ctxt;
   }
   return (*this);
 }
@@ -315,13 +315,11 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
  */
 void Model::setCovAnisoList(const CovAnisoList* covalist)
 {
-  
   if (covalist == nullptr)
   {
     messerr("Warning, the covariance is nullptr.");
     return;
   }
-  
   delete _covList;
   ModelCovList::setCovList(covalist->clone());
 }
@@ -514,10 +512,10 @@ void Model::addCovFromParam(const ECov& type,
   _ctxt.setNVar(cov.getNVar());
   _copyCovContext();
   if (!angles.empty()) cov.setAnisoAngles(angles);
-  addCov(&cov);
+  addCovAniso(&cov);
 }
 
-double Model::evalCov(const VectorDouble &incr,
+double Model::evalCovFromIncr(const VectorDouble &incr,
                       int icov,
                       const ECalcMember &member) const
 {
@@ -970,11 +968,12 @@ void Model::_create()
   // model::addCov() and model::addDrift
   // The defaulted types of CovAnisoList and DriftList are assumed
 
-  setCovAnisoList(new CovAnisoList(_ctxt));
+  CovAnisoList tmp{_ctxt};
+  setCovAnisoList(&tmp);
   _driftList = new DriftList(_ctxt);
 }
 
-void Model::addCov(const CovBase* cov)
+void Model::addCovAniso(const CovAniso* cov)
 {
   if (dynamic_cast<const CovAniso*>(cov) == nullptr)
   {

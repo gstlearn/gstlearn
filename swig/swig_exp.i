@@ -186,6 +186,8 @@
 %include LinearOp/SPDEOpMatrix.hpp
 %include LinearOp/TurboOptimizer.hpp
 %include LinearOp/IProj.hpp
+%include LinearOp/ProjZero.hpp
+%include LinearOp/ProjComposition.hpp
 %include LinearOp/ProjMatrix.hpp
 %include LinearOp/ProjMulti.hpp
 %include LinearOp/ProjMultiMatrix.hpp
@@ -197,6 +199,9 @@
 %include LinearOp/OptimCostBinary.hpp
 %include LinearOp/OptimCostColored.hpp
 %include LinearOp/MatrixSquareSymmetricSim.hpp
+%include LinearOp/ACholesky.hpp
+%include LinearOp/CholeskyDense.hpp
+%include LinearOp/CholeskySparse.hpp
 
 %include Neigh/ANeigh.hpp
 %include Neigh/NeighUnique.hpp
@@ -242,6 +247,7 @@
 %include Covariances/CovAniso.hpp
 %include Covariances/ACovGradient.hpp
 %include Covariances/CorGneiting.hpp
+%include Covariances/CorMatern.hpp
 %include Covariances/CovLMCTapering.hpp
 %include Covariances/CovLMCConvolution.hpp
 %include Covariances/CovLMCAnamorphosis.hpp

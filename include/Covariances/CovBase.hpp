@@ -17,6 +17,7 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Model/CovInternal.hpp"
+#include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
 #include "Matrix/MatrixT.hpp"
 #include "Basic/ParamInfo.hpp"
@@ -37,13 +38,13 @@ public:
   virtual bool isConsistent(const ASpace* space) const override;
   virtual int getNVar() const override { return _ctxt.getNVar(); }
   bool isOptimizationInitialized(const Db* db = nullptr) const;
-  
+   
   void loadInfoValues() override;
   void setCholSill(int ivar, int jvar, double val) const;
-  void setSill(double sill) const; /// Only valid when there is only one variable (in the context)
-  void setSill(const MatrixSquareSymmetric& sill) const;
-  void setSill(const VectorDouble& sill) const;
-  void setSill(int ivar, int jvar, double sill) const;
+  virtual void setSill(double sill) const; /// Only valid when there is only one variable (in the context)
+  virtual void setSill(const MatrixSquareSymmetric& sill) const;
+  virtual void setSill(const VectorDouble& sill) const;
+  virtual void setSill(int ivar, int jvar, double sill) const;
   void initSill(double value = 0.);
 
   const MatrixSquareSymmetric& getSill() const { return _sillCur; }
@@ -123,7 +124,11 @@ private:
 
   void _load(const SpacePoint& p, bool case1) const override;
   void _optimizationSetTarget(SpacePoint& pt) const override;
-
+  virtual double _eval(const SpacePoint& p1, 
+                       const SpacePoint& p2,
+                       int ivar = 0, 
+                       int jvar = 0, 
+                       const CovCalcMode* mode = nullptr) const override;
 protected:
     MatrixT<ParamInfo> _cholSillsInfo;
     mutable MatrixSquareGeneral _cholSills;

@@ -138,7 +138,7 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
 
   //  Calculate the covariance
 
-  double covar = getSill(0,0) * getCorFunc()->evalCov(h);
+  double covar = getSill(0,0) * getCorFunc()->evalCorFunc(h);
   covVal += covar;
   if (getCorFunc()->getType() == ECov::NUGGET) return;
 

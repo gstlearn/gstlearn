@@ -264,17 +264,17 @@ double CovLMCConvolution::eval0(int ivar,
     {
       double w2 = _convWeight[i2];
       p22.move(_convIncr.getColumn(i2));
-      cov0 += CovAnisoList::eval(p11, p22, ivar, jvar, mode) * w1 * w2;
+      cov0 += CovAnisoList::_eval(p11, p22, ivar, jvar, mode) * w1 * w2;
     }
   }
   return cov0;
 }
 
-double CovLMCConvolution::eval(const SpacePoint& p1,
-                               const SpacePoint& p2,
-                               int ivar,
-                               int jvar,
-                               const CovCalcMode* mode) const
+double CovLMCConvolution::_eval(const SpacePoint& p1,
+                                const SpacePoint& p2,
+                                int ivar,
+                                int jvar,
+                                const CovCalcMode* mode) const
 {
   SpacePoint p11;
   SpacePoint p22;
@@ -304,9 +304,9 @@ double CovLMCConvolution::eval(const SpacePoint& p1,
       p22.move(_convIncr.getColumn(i2));
       double covloc = 0.;
       if (mode == nullptr)
-        covloc = CovAnisoList::eval(p11, p22, ivar, jvar);
+        covloc = CovAnisoList::_eval(p11, p22, ivar, jvar);
       else
-        covloc = CovAnisoList::eval(p11, p22, ivar, jvar, &modeloc);
+        covloc = CovAnisoList::_eval(p11, p22, ivar, jvar, &modeloc);
       cov += covloc * w1 * w2;
     }
   }
@@ -326,10 +326,10 @@ double CovLMCConvolution::eval(const SpacePoint& p1,
         p22.move(_convIncr.getColumn(i2));
         double covloc = 0.;
         if (mode == nullptr)
-          covloc = CovAnisoList::eval(p11, p22, ivar, jvar);
+          covloc = CovAnisoList::_eval(p11, p22, ivar, jvar);
         else
         {
-          covloc = CovAnisoList::eval(p11, p22, ivar, jvar, &modeloc);
+          covloc = CovAnisoList::_eval(p11, p22, ivar, jvar, &modeloc);
         }
         cov0 += covloc * w1 * w2;
       }

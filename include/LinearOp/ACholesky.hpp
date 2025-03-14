@@ -36,6 +36,13 @@ public:
   int solveMatrix(const MatrixRectangular& b, MatrixRectangular& x) const;
   bool isReady() const { return _ready; }
 
+
+  VectorDouble invLtX(const VectorDouble& vecin) const;
+  VectorDouble LtX(const VectorDouble& vecin) const;
+  VectorDouble LX(const VectorDouble& vecin) const;
+  VectorDouble invLX(const VectorDouble& vecin) const;
+  VectorDouble solveX(const VectorDouble& vecin) const;
+  
   virtual double computeLogDeterminant() const                    = 0;
   virtual int addSolveX(const constvect vecin, vect vecout) const = 0;
   virtual int addInvLtX(const constvect vecin, vect vecout) const = 0;

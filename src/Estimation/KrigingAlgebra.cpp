@@ -457,7 +457,7 @@ bool KrigingAlgebra::_checkDimensionVD(const String& name,
                                        const VectorDouble* vec,
                                        int* sizeRef) {
   int size = (int)vec->size();
-  if (*sizeRef > 0 && size != *sizeRef) {
+  if (*sizeRef > 0 && size > 0 && size != *sizeRef) {
     messerr("Dimension of %s (%d) incorrect: it should be (%d)",
             name.c_str(), size, *sizeRef);
     return false;
@@ -831,9 +831,9 @@ int KrigingAlgebra::_needStdv() {
 
     if (_ncck > 0) {
       if (_needSigma00p()) return 1;
-      MatrixSquareSymmetric p1(_nrhs);
-      p1.prodMatMatInPlace(_Sigma00p, _Lambda0, true);
-      _Stdv->linearCombination(1., _Stdv, -1., &p1);
+      MatrixSquareSymmetric p3(_nrhs);
+      p3.prodMatMatInPlace(_Sigma00p, _Lambda0, true);
+      _Stdv->linearCombination(1., _Stdv, -1., &p3);
     }
   }
 
@@ -1464,7 +1464,7 @@ void KrigingAlgebra::dumpWGT() {
       tab_printg(NULL, value);
       for (int irhs = 0; irhs < _nrhs; irhs++)
       {
-        double value = lambda->getValue(lec, irhs, false);
+        value = lambda->getValue(lec, irhs, false);
         tab_printg(NULL, value);
         sum[irhs] += value;
       }

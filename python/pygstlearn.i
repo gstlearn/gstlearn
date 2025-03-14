@@ -548,10 +548,6 @@
   {
     return PyUnicode_FromString(convertFromCpp(value));
   }
-  template <> PyObject* objectFromCpp(const std::string_view& value)
-  {
-    return PyUnicode_FromString(convertFromCpp(String{value}));
-  }
   template <> PyObject* objectFromCpp(const float& value)
   {
     return PyFloat_FromDouble(static_cast<double>(convertFromCpp(value)));

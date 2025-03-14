@@ -136,7 +136,7 @@ public:
                                  int nfex                       = 0,
                                  int seed                       = 13242);
   void setCovAnisoList(const CovAnisoList* covalist);
-  void addCov(const CovBase* cov) override;
+  void addCovAniso(const CovAniso* cov);
   void addCovFromParam(const ECov& type,
                        double range                       = EPSILON6,
                        double sill                        = 1.,
@@ -203,9 +203,9 @@ public:
   const CovAnisoList* getCovAnisoList() const;
   CovAnisoList* getCovAnisoListModify();  
   
-  double evalCov(const VectorDouble& incr,
-                 int icov = 0,
-                 const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+  double evalCovFromIncr(const VectorDouble& incr,
+                         int icov = 0,
+                         const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
 
   Model* duplicate() const;
   Model* createReduce(const VectorInt& validVars) const;

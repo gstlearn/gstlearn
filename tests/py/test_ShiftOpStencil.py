@@ -39,6 +39,7 @@ if flagSel:
 
 # %%
 Ssten = gl.ShiftOpStencil(meshsel,cova)
+Ssten.getSize()
 resultNew = Ssten.evalDirect(newvar)
 
 # %%

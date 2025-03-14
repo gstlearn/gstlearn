@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "geoslib_define.h"
 #include <Eigen/src/Core/Matrix.h>
 
 #define TRI(i)        (((i) * ((i) + 1)) / 2)

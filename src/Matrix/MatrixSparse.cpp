@@ -37,11 +37,12 @@ DISABLE_WARNING_POP
  */
 static bool globalFlagEigen = true;
 
-MatrixSparse::MatrixSparse(int nrow, int ncol, int opt_eigen)
+MatrixSparse::MatrixSparse(int nrow, int ncol, int nrowmax, int opt_eigen)
   : AMatrix(nrow, ncol),
     _csMatrix(nullptr),
     _eigenMatrix(),
-    _flagEigen(false)
+    _flagEigen(false),
+    _nRowMax(nrowmax)
 {
   _flagEigen = _defineFlagEigen(opt_eigen);
   _allocate();
@@ -589,7 +590,7 @@ MatrixSparse* MatrixSparse::createFromTriplet(const NF_Triplet &NF_T,
     nrow = NF_T.getNRows() + 1;
     ncol = NF_T.getNCols() + 1;
   }
-  MatrixSparse* mat = new MatrixSparse(nrow, ncol, opt_eigen);
+  MatrixSparse* mat = new MatrixSparse(nrow, ncol, -1, opt_eigen);
 
   mat->resetFromTriplet(NF_T);
 
@@ -1048,7 +1049,7 @@ MatrixSparse* prodNormDiagVec(const MatrixSparse* a,
 {
   int nrow = a->getNRows();
   int ncol = a->getNCols();
-  MatrixSparse *mat = new MatrixSparse(nrow, ncol, a->isFlagEigen() ? 1 : 0);
+  MatrixSparse *mat = new MatrixSparse(nrow, ncol, -1, a->isFlagEigen() ? 1 : 0);
 
   if (a->isFlagEigen())
   {
@@ -1290,8 +1291,13 @@ void MatrixSparse::_allocate()
 {
   if (isFlagEigen())
   {
-    if (isMultiThread()) omp_set_num_threads(getMultiThread());
     _eigenMatrix = Eigen::SparseMatrix<double, Eigen::ColMajor>(getNRows(),getNCols());
+
+    if (_nRowMax > 0)
+    {
+      _eigenMatrix.reserve(Eigen::VectorXi::Constant(getNRows(), _nRowMax));
+    }
+    if (isMultiThread()) omp_set_num_threads(getMultiThread());
   }
   else
   {

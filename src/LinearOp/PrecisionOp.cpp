@@ -444,7 +444,7 @@ void PrecisionOp::evalInverse(const constvect vecin,
   _shiftOp->prodLambda(works, vecouts, EPowerPT::MINUSONE);
 }
 
-VectorDouble PrecisionOp::evalCov(int imesh)
+VectorDouble PrecisionOp::computeCov(int imesh)
 {
 
   int n = getSize();

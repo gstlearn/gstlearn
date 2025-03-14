@@ -256,7 +256,7 @@ double ModelOptimVario::evalCost(unsigned int nparams,
   {
     const OneLag& lag = varioPart._lags[ilag];
     double vexp        = lag._gg;
-    double vtheo = modelPart._model->eval(origin, lag._P, lag._ivar, lag._jvar, &modelPart._calcmode);
+    double vtheo = modelPart._model->evalCov(origin, lag._P, lag._ivar, lag._jvar, &modelPart._calcmode);
     double delta = vexp - vtheo;
     total += lag._weight * delta * delta;
   }

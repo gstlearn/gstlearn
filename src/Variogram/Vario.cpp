@@ -5037,9 +5037,8 @@ VectorDouble Vario::computeWeightsFromVario(int wmode) const
           total += WT(ijvar, ipadir);
       }
       if (isZero(total)) continue;
-      ipadir -= getNLag(idir);
-      for (int ilag = 0, nlag = getNLag(idir); ilag < nlag;
-           ilag++, ipadir++)
+      ipadir -= nlag;
+      for (int ilag = 0; ilag < nlag; ilag++, ipadir++)
       {
         if (isZero(count[idir])) continue;
         if (WT(ijvar, ipadir) > 0 && !FFFF(WT(ijvar, ipadir)))

@@ -95,7 +95,7 @@ public:
                  vect outm,
                  const EPowerPT& power = EPowerPT::fromKey("ONE"));
 #endif
-  VectorDouble evalCov(int imesh);
+  VectorDouble computeCov(int imesh);
   VectorDouble simulateOne();
 
   int  getSize() const override { return _shiftOp->getSize(); }

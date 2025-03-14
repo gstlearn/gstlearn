@@ -36,11 +36,7 @@ public:
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  virtual double eval(const SpacePoint& p1,
-                      const SpacePoint& p2,
-                      int ivar = 0,
-                      int jvar = 0,
-                      const CovCalcMode* mode = nullptr) const override;
+
 
   virtual double getBallRadius() const override { return _ballRadius; }
 
@@ -52,6 +48,13 @@ public:
                          const CovCalcMode* mode = nullptr,
                          bool flagGrad = false) const override;
 
+protected:
+
+virtual double _eval(const SpacePoint& p1,
+                     const SpacePoint& p2,
+                     int ivar = 0,
+                     int jvar = 0,
+                     const CovCalcMode* mode = nullptr) const override;
 private:
   double _evalZZ(int ivar,
                  int jvar,

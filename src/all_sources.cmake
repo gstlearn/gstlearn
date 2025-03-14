@@ -98,6 +98,7 @@ set(SRC
   Covariances/CovLMCAnamorphosis.cpp
   Covariances/ACovGradient.cpp
   Covariances/CorGneiting.cpp
+  Covariances/CorMatern.cpp
   Covariances/CovGCspline2.cpp
   Covariances/CovGC3.cpp
   Covariances/CovGCspline.cpp
@@ -181,6 +182,8 @@ set(SRC
   LinearOp/ProjMatrix.cpp
   LinearOp/ProjMulti.cpp
   LinearOp/ProjMultiMatrix.cpp
+  LinearOp/ProjComposition.cpp
+  LinearOp/ProjZero.cpp
   LinearOp/PrecisionOpMatrix.cpp
   LinearOp/ALinearOpMulti.cpp
   LinearOp/ALinearOp.cpp
