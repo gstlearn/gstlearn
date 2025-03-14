@@ -8,7 +8,7 @@ ncell = dbg.getNSample()
 seltab = np.ones(ncell)
 middle = int(ncell / 2)
 seltab[middle] = 0
-flagSel = True
+flagSel = False                 # TODO flagSel = True makes a read out-of-bounds
 meshref = gl.MeshETurbo(dbg, False)
 if flagSel:
     dbg.addColumns(seltab, "sel", gl.ELoc.SEL)
