@@ -1126,7 +1126,7 @@ int ACov::evalCovMatInPlace2(MatrixRectangular& mat,
 
       // Calculate the covariance between two points
 
-      double value = eval(p1, p2, ivar1, ivar2, mode);
+      double value = evalCov(p1, p2, ivar1, ivar2, mode);
       mat.setValue(irank1, irank2, value);
     }
   }
