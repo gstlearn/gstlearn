@@ -72,11 +72,11 @@ public:
 
   /// Calculate the covariance between two variables and two points (general case)
   double evalCov(const SpacePoint& p1,
-              const SpacePoint& p2,
-              int ivar = 0,
-              int jvar = 0,
-              const CovCalcMode* mode = nullptr) const;
-  
+                 const SpacePoint& p2,
+                 int ivar                = 0,
+                 int jvar                = 0,
+                 const CovCalcMode* mode = nullptr) const;
+
   /// Calculate the matrix of covariances between two points (general case)
   virtual void evalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
                                         const SpacePoint &p1,
@@ -190,6 +190,15 @@ public:
                         const CovCalcMode* mode = nullptr,
                         bool cleanOptim         = true) const;
   int evalCovMatInPlace2(MatrixRectangular& mat,
+                         const Db* db1,
+                         const Db* db2           = nullptr,
+                         int ivar0               = -1,
+                         int jvar0               = -1,
+                         const VectorInt& nbgh1  = VectorInt(),
+                         const VectorInt& nbgh2  = VectorInt(),
+                         const CovCalcMode* mode = nullptr,
+                         bool cleanOptim         = true) const;
+  int evalCovMatInPlace3(MatrixRectangular& mat,
                          const Db* db1,
                          const Db* db2           = nullptr,
                          int ivar0               = -1,

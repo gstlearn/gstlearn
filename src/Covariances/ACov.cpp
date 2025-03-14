@@ -35,6 +35,7 @@
 #include "Covariances/NoStatFunctional.hpp"
 #include "Variogram/Vario.hpp"
 #include "Estimation/KrigOpt.hpp"
+
 #include <vector>
 #include <math.h>
 
@@ -1055,6 +1056,8 @@ int ACov::evalCovMatInPlace2(MatrixRectangular& mat,
                              bool cleanOptim) const
 {
   Timer timer;
+  timer.reset();
+
   // Preliminary checks
   if (db2 == nullptr) db2 = db1;
   if (db1 == nullptr || db2 == nullptr) return 1;
@@ -1069,12 +1072,16 @@ int ACov::evalCovMatInPlace2(MatrixRectangular& mat,
   // Prepare Optimization for covariance calculation (if not forbidden or already done)
   _optimizationPreProcessForData(db1);
   _optimizationPreProcessForTarget(db2, nbgh2);
+  timer.displayIntervalMilliseconds("- Optimization on db1 and target");
 
   // Create sets of Vectors of valid sample indices per variable
+  timer.reset();
   VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1);
   VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2);
+  timer.displayIntervalMilliseconds("- Calculation of VVI");
 
   // Creating the matrix
+  timer.reset();
   int neq1 = VH::count(index1);
   int neq2 = VH::count(index2);
   if (neq1 <= 0 || neq2 <= 0)
@@ -1083,11 +1090,107 @@ int ACov::evalCovMatInPlace2(MatrixRectangular& mat,
     return 1;
   }
   mat.resize(neq1, neq2);
+  timer.displayIntervalMilliseconds("- Resizing of output matrix");
+
+  // Define the two space points
+  bool isNoStatLocal = isNoStat();
+
+  // Transfer index to std::vector<int>
+  const int* iadd1;
+  const int* iadd2 = index2[0].data();
+  const int* jadd1 = index1[0].data();
+
+  // Loop on Data
+  int ivar1 = 0;
+  int ivar2 = 0;
+  int iabs1;
+  int iabs2;
+  timer.reset();
+  for (int irank2 = 0; irank2 < neq2; irank2++)
+  {
+    iabs2 = (*iadd2);
+    iadd2++;
+
+    SpacePoint& p2 = optimizationLoadInPlace(iabs2, 2, 2);
+
+    iadd1 = jadd1;
+    for (int irank1 = 0; irank1 < neq1; irank1++)
+    {
+      iabs1 = (*iadd1);
+      iadd1++;
+      SpacePoint& p1 = optimizationLoadInPlace(iabs1, 1, 1);
+
+      // Modify the covariance (if non stationary)
+      if (isNoStatLocal)
+        updateCovByPoints(1, iabs1, 2, iabs2);
+
+      // Calculate the covariance between two points
+
+      double value = evalCov(p1, p2, ivar1, ivar2, mode);
+      mat.setValue(irank1, irank2, value);
+    }
+  }
+  timer.displayIntervalMilliseconds("- Double loop");
+
+  timer.reset();
+  if (cleanOptim) optimizationPostProcess();
+  timer.displayIntervalMilliseconds("- Cleaning optim");
+
+  return 0;
+}
+
+int ACov::evalCovMatInPlace3(MatrixRectangular& mat,
+                             const Db* db1,
+                             const Db* db2,
+                             int ivar0,
+                             int jvar0,
+                             const VectorInt& nbgh1,
+                             const VectorInt& nbgh2,
+                             const CovCalcMode* mode,
+                             bool cleanOptim) const
+{
+  Timer timer;
+  timer.reset();
+
+  // Preliminary checks
+  if (db2 == nullptr) db2 = db1;
+  if (db1 == nullptr || db2 == nullptr) return 1;
+  VectorInt ivars = _getActiveVariables(ivar0);
+  if (ivars.empty()) return 1;
+  VectorInt jvars = _getActiveVariables(jvar0);
+  if (jvars.empty()) return 1;
+
+  // Prepare Non-stationarity (if needed)
+  manage(db1, db2);
+
+  // Prepare Optimization for covariance calculation (if not forbidden or already done)
+  _optimizationPreProcessForData(db1);
+  _optimizationPreProcessForTarget(db2, nbgh2);
+  timer.displayIntervalMilliseconds("- Optimization on db1 and target");
+
+  // Create sets of Vectors of valid sample indices per variable
+  timer.reset();
+  VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1);
+  VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2);
+  timer.displayIntervalMilliseconds("- Calculation of VVI");
+
+  // Creating the matrix
+  timer.reset();
+  int neq1 = VH::count(index1);
+  int neq2 = VH::count(index2);
+  if (neq1 <= 0 || neq2 <= 0)
+  {
+    messerr("The returned matrix has no valid sample and no valid variable");
+    return 1;
+  }
+  mat.resize(neq1, neq2);
+  timer.displayIntervalMilliseconds("- Resizing of output matrix");
 
   // Define the two space points
   bool isNoStatLocal = isNoStat();
 
   // Loop on Data
+  timer.reset();
   int icol = 0;
   for (const auto ivar2: jvars.getVector())
   {
@@ -1113,14 +1216,18 @@ int ACov::evalCovMatInPlace2(MatrixRectangular& mat,
           // Calculate the covariance between two points
           double value = evalCov(p1, p2, ivar1, ivar2, mode);
           mat.setValue(irow, icol, value);
+
+          irow++;
         }
-        irow++;
       }
       icol++;
     }
   }
+  timer.displayIntervalMilliseconds("- Double loop");
 
+  timer.reset();
   if (cleanOptim) optimizationPostProcess();
+  timer.displayIntervalMilliseconds("- Cleaning optim");
   return 0;
 }
 
@@ -1143,6 +1250,8 @@ int ACov::evalCovMatInPlace(MatrixRectangular& mat,
   if (jvars.empty()) return 1;
   if (OptCustom::query("OptimCovMat", 0) == 2)
     return evalCovMatInPlace2(mat, db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
+  if (OptCustom::query("OptimCovMat", 0) == 3)
+    return evalCovMatInPlace3(mat, db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
 
   // Prepare Non-stationarity (if needed)
   manage(db1, db2);
