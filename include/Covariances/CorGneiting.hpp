@@ -44,15 +44,15 @@ public:
   virtual int getNVar() const override { return 1; }
 
 protected:
-  void _optimizationSetTarget(SpacePoint& pt) const override;
+  //void _optimizationSetTarget(SpacePoint& pt) const override;
   virtual double _eval(const SpacePoint& p1,
                        const SpacePoint& p2,
                        int ivar                = 0,
                        int jvar                = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  private:
+  //private:
   // void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
-  void _optimizationPostProcess() const override;
+  //void _optimizationPostProcess() const override;
 
 private:
   const CorAniso* _covS;

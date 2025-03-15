@@ -58,12 +58,6 @@ public:
   EAnam getAnamType() const;
   void setAnam(const AAnam*& anam) { _anam = anam; }
 
-protected:
-  void _optimizationSetTarget(SpacePoint& pt) const override
-  {
-    ACov::_optimizationSetTarget(pt); 
-  }
-
 private:
 virtual double _eval(const SpacePoint& p1,
                      const SpacePoint& p2,

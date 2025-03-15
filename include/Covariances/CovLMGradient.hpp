@@ -53,10 +53,10 @@ public:
                          bool flagGrad = false) const;
 
 protected:
-  void _optimizationSetTarget(SpacePoint& pt) const override
-  {
-    ACov::_optimizationSetTarget(pt); 
-  }
+  // void _optimizationSetTarget(SpacePoint& pt) const override
+  // {
+  //   ACov::_optimizationSetTarget(pt); 
+  // }
 
 private:
   static void _initGradients(double& covVal,

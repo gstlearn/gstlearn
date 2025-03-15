@@ -31,15 +31,19 @@
 CovAnisoList::CovAnisoList(const CovContext& ctxt)
   : CovList(ctxt)
 {
+  setOptimEnabled(true);
 }
 
 CovAnisoList::CovAnisoList(const CovAnisoList& r)
   : CovList(r)
 {
+  setOptimEnabled(true);
 }
 
 CovAnisoList& CovAnisoList::operator=(const CovAnisoList &r)
 {
+
+  setOptimEnabled(r.isOptimEnabled());
 
   if (this != &r)
   {

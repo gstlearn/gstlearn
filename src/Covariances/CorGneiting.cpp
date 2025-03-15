@@ -72,12 +72,12 @@ CorGneiting::~CorGneiting()
 {
 }
 
-void CorGneiting::_optimizationSetTarget(SpacePoint& pt) const
-{
-  _covS->optimizationSetTarget(pt);
-  _covSCopy.optimizationSetTarget(pt);
-  _covTemp->optimizationSetTarget(pt);
-}
+// void CorGneiting::_optimizationSetTarget(SpacePoint& pt) const
+// {
+//   _covS->optimizationSetTarget(pt);
+//   _covSCopy.optimizationSetTarget(pt);
+//   _covTemp->optimizationSetTarget(pt);
+// }
 
 // void CorGneiting::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const
 // {
@@ -88,12 +88,12 @@ void CorGneiting::_optimizationSetTarget(SpacePoint& pt) const
 //   _covTemp->optimizationPreProcess(mode, ps);
 // }
 
-void CorGneiting::_optimizationPostProcess() const
-{
-  _covS->optimizationPostProcess();
-  _covSCopy.optimizationPostProcess();
-  _covTemp->optimizationPostProcess();
-}
+// void CorGneiting::_optimizationPostProcess() const
+// {
+//   _covS->optimizationPostProcess();
+//   _covSCopy.optimizationPostProcess();
+//   _covTemp->optimizationPostProcess();
+// }
 
 double CorGneiting::_eval(const SpacePoint& p1,
                           const SpacePoint& p2,

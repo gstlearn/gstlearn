@@ -45,6 +45,7 @@ CovLMCAnamorphosis::CovLMCAnamorphosis(const CovAnisoList& lmc,
   , _anam(anam)
 {
   init(strcnt);
+  setOptimEnabled(false);
 }
 
 CovLMCAnamorphosis::CovLMCAnamorphosis(const CovLMCAnamorphosis& r)
@@ -53,10 +54,12 @@ CovLMCAnamorphosis::CovLMCAnamorphosis(const CovLMCAnamorphosis& r)
   , _anamStrCount(r._anamStrCount)
   , _anam(r._anam)
 {
+  setOptimEnabled(false);
 }
 
 CovLMCAnamorphosis& CovLMCAnamorphosis::operator=(const CovLMCAnamorphosis& r)
 {
+  setOptimEnabled(false);
   if (this != &r)
   {
     CovAnisoList::operator=(r);
