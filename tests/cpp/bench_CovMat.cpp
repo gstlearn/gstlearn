@@ -60,23 +60,6 @@ void st_bench_writing_in_matrix(int nrows, int ncols, Timer& timer)
   timer.displayIntervalMilliseconds("Writing randomly by col then by row");
 }
 
-void try_covmat(double mode, const Model* model, const Db* dbin, const Db* dbout, int nout, VectorDouble& cumul, Timer& timer)
-{
-  message("\n");
-  timer.reset();
-  MatrixRectangular mat;
-  OptCustom::define("OptimCovMat", mode);
-  (void)model->evalCovMatInPlace(mat, dbin, dbout);
-  timer.displayIntervalMilliseconds("Establishing RHS V" + std::to_string(int(mode)));
-
-  // Some printout for comparison
-  VH::fill(cumul, 0.);
-  for (int i = 0; i < nout; i++)
-    VH::addInPlace(cumul, mat.getColumn(i));
-  VH::divideConstant(cumul, nout);
-  VH::dumpRange("", cumul);
-}
-
   /****************************************************************************/
   /*!
    ** Main Program
@@ -188,11 +171,18 @@ void try_covmat(double mode, const Model* model, const Db* dbin, const Db* dbout
       message("Simple loop between each target and the previous vector\n");
       model->setOptimEnabled(true);
 
-      // Initial version
-      try_covmat(1., model, dbin, dbout, nout, cumul, timer);
+      timer.reset();
+      MatrixRectangular mat;
+      OptCustom::define("OptimCovMat", mode);
+      (void)model->evalCovMatInPlace(mat, dbin, dbout);
+      timer.displayIntervalMilliseconds("Establishing RHS V" + std::to_string(int(mode)));
 
-      // Comparison with the new evalCovMatInPlace with the new ordering for writing
-      try_covmat(2., model, dbin, dbout, nout, cumul, timer);
+      // Some printout for comparison
+      VH::fill(cumul, 0.);
+      for (int i = 0; i < nout; i++)
+        VH::addInPlace(cumul, mat.getColumn(i));
+      VH::divideConstant(cumul, nout);
+      VH::dumpRange("", cumul);
     }
 
     if (mode == 0 || mode == 4)
