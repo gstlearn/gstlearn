@@ -154,6 +154,10 @@ public:
   // class cannot be invoked because of looping inclusion of headers
   inline void display(const AStringFormat* strfmt = nullptr) const;
 
+  /// Has a specific implementation in the Target language
+  //DECLARE_TOTL; // don't know why the macro doesn't work here through SWIG R
+  inline void toTL() const {};
+
 protected:
   std::shared_ptr<Vector> _v;
 
