@@ -158,4 +158,11 @@ private:
   bool  _isPolarized;
   Indirection _meshIndirect;
   Indirection _gridIndirect;
+
+  /// factor allocations
+  mutable std::vector<int> indg;
+  mutable std::vector<int> indices;
+  mutable std::vector<double> lambdas;
+  mutable std::vector<double> rhs;
+  mutable std::vector<int> indgg;
 };

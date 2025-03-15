@@ -72,12 +72,11 @@ public:
 
   /// Calculate the covariance between two variables and two points (general case)
   double evalCov(const SpacePoint& p1,
-              const SpacePoint& p2,
-              int ivar = 0,
-              int jvar = 0,
-              const CovCalcMode* mode = nullptr) const;
+                 const SpacePoint& p2,
+                 int ivar                = 0,
+                 int jvar                = 0,
+                 const CovCalcMode* mode = nullptr) const;
   
-
 
   virtual double evalCovOnSphere(double alpha,
                                  int degree = 50,
@@ -116,6 +115,7 @@ public:
     DECLARE_UNUSED(icas2);
     DECLARE_UNUSED(iech2);
   }
+
   void attachNoStatDb(const Db* db);
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -187,7 +187,6 @@ public:
                          const VectorInt& nbgh2  = VectorInt(),
                          const CovCalcMode* mode = nullptr,
                          bool cleanOptim         = true) const;
-
   int evalCovMatInPlace3(MatrixRectangular& mat,
                          const Db* db1,
                          const Db* db2           = nullptr,
@@ -197,7 +196,15 @@ public:
                          const VectorInt& nbgh2  = VectorInt(),
                          const CovCalcMode* mode = nullptr,
                          bool cleanOptim         = true) const;
-  
+  int evalCovMatInPlace4(MatrixRectangular& mat,
+                          const Db* db1,
+                          const Db* db2           = nullptr,
+                          int ivar0               = -1,
+                          int jvar0               = -1,
+                          const VectorInt& nbgh1  = VectorInt(),
+                          const VectorInt& nbgh2  = VectorInt(),
+                          const CovCalcMode* mode = nullptr,
+                          bool cleanOptim         = true) const;
   int evalCovMatSymByRanks(MatrixSquareSymmetric& mat,
                            const Db* db1,
                            const VectorVectorInt& index1,
