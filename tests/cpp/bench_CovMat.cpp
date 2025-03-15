@@ -193,9 +193,6 @@ void try_covmat(double mode, const Model* model, const Db* dbin, const Db* dbout
 
       // Comparison with the new evalCovMatInPlace with the new ordering for writing
       try_covmat(2., model, dbin, dbout, nout, cumul, timer);
-
-      // Comparison with the new evalCovMatInPlace with the new ordering for writing
-      try_covmat(3., model, dbin, dbout, nout, cumul, timer);
     }
 
     if (mode == 0 || mode == 4)

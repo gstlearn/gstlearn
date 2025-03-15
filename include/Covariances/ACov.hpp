@@ -151,9 +151,9 @@ public:
 
   /////////////////////////////////////////////////////////////////////////////////
   /// Functions for evaluating Covariance Matrices
-  MatrixSquareSymmetric evalCov0MatByTarget(const Db* db,
-                                            int iech,
-                                            const KrigOpt& krigopt = KrigOpt()) const;
+  MatrixSquareSymmetric evalCovMat0(const Db* db,
+                                    int iech,
+                                    const KrigOpt& krigopt = KrigOpt()) const;
   MatrixRectangular evalCovMat(const Db* db1,
                                const Db* db2           = nullptr,
                                int ivar0               = -1,
@@ -176,10 +176,10 @@ public:
                                  const CovCalcMode* mode = nullptr,
                                  bool cleanOptim         = true,
                                  double eps              = EPSILON3) const;
-  int evalCov0MatByTargetInPlace(MatrixSquareSymmetric& mat,
-                                 const Db* db,
-                                 int iech,
-                                 const KrigOpt& krigopt = KrigOpt()) const;
+  int evalCovMat0InPlace(MatrixSquareSymmetric& mat,
+                         const Db* db,
+                         int iech,
+                         const KrigOpt& krigopt = KrigOpt()) const;
   int evalCovMatInPlace(MatrixRectangular& mat,
                         const Db* db1,
                         const Db* db2           = nullptr,
@@ -189,37 +189,20 @@ public:
                         const VectorInt& nbgh2  = VectorInt(),
                         const CovCalcMode* mode = nullptr,
                         bool cleanOptim         = true) const;
-  int evalCovMatInPlace2(MatrixRectangular& mat,
-                         const Db* db1,
-                         const Db* db2           = nullptr,
-                         int ivar0               = -1,
-                         int jvar0               = -1,
-                         const VectorInt& nbgh1  = VectorInt(),
-                         const VectorInt& nbgh2  = VectorInt(),
-                         const CovCalcMode* mode = nullptr,
-                         bool cleanOptim         = true) const;
-  int evalCovMatInPlace3(MatrixRectangular& mat,
-                         const Db* db1,
-                         const Db* db2           = nullptr,
-                         int ivar0               = -1,
-                         int jvar0               = -1,
-                         const VectorInt& nbgh1  = VectorInt(),
-                         const VectorInt& nbgh2  = VectorInt(),
-                         const CovCalcMode* mode = nullptr,
-                         bool cleanOptim         = true) const;
-  int evalCovMatSymByRanks(MatrixSquareSymmetric& mat,
+  int evalCovMatSymInPlace(MatrixSquareSymmetric& mat,
                            const Db* db1,
                            const VectorVectorInt& index1,
                            int ivar0 = -1,
                            const CovCalcMode* mode = nullptr,
                            bool cleanOptim = true) const;
-  int evalCovMatByTarget(MatrixRectangular& mat,
-                         const Db* db1,
-                         const Db* db2,
-                         const VectorVectorInt& index1,
-                         const int iech2 = -1,
-                         const KrigOpt& krigopt = KrigOpt(),
-                         bool cleanOptim = true) const;
+  int evalCovMatRHSInPlace(MatrixRectangular& mat,
+                           const Db* db1,
+                           const Db* db2,
+                           const VectorVectorInt& index1,
+                           const int iech2        = -1,
+                           const KrigOpt& krigopt = KrigOpt(),
+                           bool cleanOptim        = true) const;
+  
   /////////////////////////////////////////////////////////////////////////////////
   void eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat, const CovCalcMode* mode) const;
 
@@ -461,31 +444,33 @@ private:
                                         const VectorInt& nbgh2 = VectorInt()) const;
   void setNoStatDbIfNecessary(const Db*& db);
 
-  void _loopOnPointTarget(const VectorVectorInt& index2,
-                          const VectorInt& jvars,
-                          int ivar1,
-                          int iabs1,
-                          int irow,
-                          SpacePoint& p1,
-                          bool flagSym,
-                          const KrigOpt& krigopt,
-                          MatrixRectangular& mat) const;
-
-  void _loopOnBlockTarget(const Db* db2,
-                          const VectorVectorInt& index2,
-                          const VectorInt& jvars,
-                          int ivar1,
-                          int iabs1,
-                          int irow,
-                          SpacePoint& p1,
-                          const KrigOpt& krigopt,
-                          MatrixRectangular& mat) const;
-
+  void _loopOnData(MatrixRectangular& mat,
+                   const SpacePoint& p2,
+                   int ivar2,
+                   int iabs2,
+                   int icol,
+                   bool flagUpdate,
+                   bool flagNoStat,
+                   const VectorInt& ivars,
+                   const VectorVectorInt& index1,
+                   const CovCalcMode& mode) const;
+  static void _scaleOnData(MatrixRectangular& mat, int icol, int ndisc);
+  int _evalCovMatRHSInPlaceBlock(MatrixRectangular& mat,
+                                 const Db* db2,
+                                 const VectorInt& ivars,
+                                 const VectorVectorInt& index1,
+                                 const VectorVectorInt& index2,
+                                 const KrigOpt& krigopt = KrigOpt()) const;
+  int _evalCovMatRHSInPlacePoint(MatrixRectangular& mat,
+                                 const VectorInt& ivars,
+                                 const VectorVectorInt& index1,
+                                 const VectorVectorInt& index2,
+                                 const KrigOpt& krigopt = KrigOpt()) const;
   virtual TabNoStat* _createNoStatTab();
 
 protected:
   void setNVar(int nvar) { _ctxt.setNVar(nvar); }
-  virtual void _optimizationSetTarget(SpacePoint &pt) const;
+  virtual void _optimizationSetTarget(SpacePoint& pt) const;
   virtual void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const;
 
   VectorInt _getActiveVariables(int ivar0) const;
@@ -494,10 +479,10 @@ protected:
                                                const VectorInt& ivars,
                                                const VectorVectorInt& index1);
 
-  virtual void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                                            const SpacePoint& pwork1, 
+  virtual void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
+                                            const SpacePoint& pwork1,
                                             const SpacePoint& pwork2,
-                                            const CovCalcMode *mode) const;
+                                            const CovCalcMode* mode) const;
   virtual SpacePoint& _optimizationLoadInPlace(int iech,
                                                int mode,
                                                int rank) const;
