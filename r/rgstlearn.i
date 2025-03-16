@@ -676,45 +676,36 @@
 %insert(s)
 %{
 
-# Add automatic display for all AStringable objects (see onAttach comment below)
-setMethod(f = "show", signature = "_p_AStringable", definition = function(object){ AStringable_display(object) })
+##
+## Add automatic display for all AStringable objects and vectors
+## ------------------------------------------------------------- ##
+
+setMethod(f = "show", signature = "_p_AStringable",                     definition = function(object){ AStringable_display(object) })
+
+setMethod(f = "show", signature = "_p_VectorTT_double_t",               definition = function(object){ VectorTDouble_display(object) })
+setMethod(f = "show", signature = "_p_VectorNumTT_double_t",            definition = function(object){ VectorTDouble_display(object) })
+
+setMethod(f = "show", signature = "_p_VectorTT_int_t",                  definition = function(object){ VectorTInt_display(object) })
+setMethod(f = "show", signature = "_p_VectorNumTT_int_t",               definition = function(object){ VectorTInt_display(object) })
+
+setMethod(f = "show", signature = "_p_VectorTT_float_t",                definition = function(object){ VectorTFloat_display(object) })
+setMethod(f = "show", signature = "_p_VectorNumTT_float_t",             definition = function(object){ VectorTFloat_display(object) })
+
+setMethod(f = "show", signature = "_p_VectorTT_UChar_t",                definition = function(object){ VectorTUChar_display(object) })          
+setMethod(f = "show", signature = "_p_VectorNumTT_UChar_t",             definition = function(object){ VectorTUChar_display(object) })          
+
+setMethod(f = "show", signature = "_p_VectorTT_string_t",               definition = function(object){ VectorTString_display(object) })
+
+setMethod(f = "show", signature = "_p_VectorTT_VectorNumTT_int_t_t",    definition = function(object){ VectorVectorInt_display(object) })
+
+setMethod(f = "show", signature = "_p_VectorTT_VectorNumTT_double_t_t", definition = function(object){ VectorVectorDouble_display(object) })
+
+setMethod(f = "show", signature = "_p_VectorTT_VectorNumTT_float_t_t",  definition = function(object){ VectorVectorFloat_display(object) })
 
 ##
-## Add operator [] to VectorXXX R class [1-based index] ##
+## Add function for fixing inheritance issue (known caveat):
+## https://github.com/gstlearn/gstlearn/issues/308
 ## ---------------------------------------------------- ##
-
-"getVitem" <-
-function(x, i)
-{
-  idx = as.integer(i)
-  if (length(idx) > 1) {
-    sapply(idx, function(n) {
-      if (n < 1 || n > x$length())
-        stop("Index out of range")
-      x$getAt(n-1)
-    }) 
-  }
-  else {
-    x$getAt(idx-1)
-  }
-}
-
-"setVitem" <-
-function(x, i, value)
-{
-  idx = as.integer(i)
-  if (length(idx) > 1) {
-    sapply(1:length(i), function(n) {
-      if (i[n] < 1 || i[n] > x$length())
-        stop("Index out of range")
-      x$setAt(i[n]-1, value[n])
-    })
-  }
-  else {
-    x$setAt(idx-1, value)
-  }
-  x
-}
 
 "getMethodsOfClass" <- function(name)
 {
@@ -771,6 +762,43 @@ function(x, i, value)
   addMethodsFromNames(derived, generateListMethods(listfull))
 }
 
+##
+## Add operator [] to VectorXXX R class [1-based index]
+## ---------------------------------------------------- ##
+
+"getVitem" <-
+function(x, i)
+{
+  idx = as.integer(i)
+  if (length(idx) > 1) {
+    sapply(idx, function(n) {
+      if (n < 1 || n > x$length())
+        stop("Index out of range")
+      x$getAt(n-1)
+    }) 
+  }
+  else {
+    x$getAt(idx-1)
+  }
+}
+
+"setVitem" <-
+function(x, i, value)
+{
+  idx = as.integer(i)
+  if (length(idx) > 1) {
+    sapply(1:length(i), function(n) {
+      if (i[n] < 1 || i[n] > x$length())
+        stop("Index out of range")
+      x$setAt(i[n]-1, value[n])
+    })
+  }
+  else {
+    x$setAt(idx-1, value)
+  }
+  x
+}
+
 setMethod('[',    '_p_VectorTT_int_t',                  getVitem)
 setMethod('[<-',  '_p_VectorTT_int_t',                  setVitem)
 setMethod('[',    '_p_VectorTT_double_t',               getVitem)
@@ -797,7 +825,22 @@ setMethod('[[',   '_p_VectorTT_VectorNumTT_float_t_t',  getVitem)
 setMethod('[[<-', '_p_VectorTT_VectorNumTT_float_t_t',  setVitem)
 
 ##
-## Add operator [] to Db R class ##
+## Add toTL for Vector* R classes
+## ----------------------------- ##
+
+"Vector_toTL" <- function(x)
+{
+  unlist(lapply(seq(1,x$size()), getVitem, x=x))
+}
+
+"VectorTDouble_toTL" <- function(x) { Vector_toTL(x) }
+"VectorTInt_toTL"    <- function(x) { Vector_toTL(x) }
+"VectorTFloat_toTL"  <- function(x) { Vector_toTL(x) }
+"VectorTUChar_toTL"  <- function(x) { Vector_toTL(x) }
+"VectorTString_toTL" <- function(x) { Vector_toTL(x) }
+
+##
+## Add operator [] to Db R class
 ## ----------------------------- ##
 
 "is.undef" <- function(x)
@@ -952,6 +995,27 @@ setMethod('[<-',  '_p_Db',               setDbitem)
 setMethod('[',    '_p_DbGrid',           getDbitem)
 setMethod('[<-',  '_p_DbGrid',           setDbitem)
 
+##
+## Add toTL to Db R class
+## ----------------------------- ##
+
+"Db_toTL" <- function(x)
+{
+  names = x$getAllNames()
+  nc = x$getNColumn()
+  vals = NULL
+  for (i in seq(0,nc-1)) {
+    vals = cbind(vals,x$getColumnsByColIdx(i))
+  }
+  df = data.frame(vals)
+  names(df) = names
+  df
+}
+
+##
+## Add toTL to Matrix* R classes
+## ----------------------------- ##
+
 "matrix_toTL" <- function(x)
 {
   Q = NULL
@@ -976,26 +1040,9 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
 "MatrixSparse_toTL" <- function(x) { matrix_toTL(x) }
 "ProjMatrix_toTL" <- function(x) { matrix_toTL(x) }
 
-"Table_toTL" <- function(tab)
-{
-  nrow = tab$getNRows()
-  ncol = tab$getNCols()
-  mat <- matrix(tab$getValues(), byrow = FALSE, nrow=nrow, ncol=ncol)
-  df = data.frame(mat)
-  if (nrow > 0 && ncol > 0)
-  {
- 	names(df) = tab$getColumnNames()
-  	if (length(tab$getColumnNames()) > 0) 
-  		colnames(df) <- tab$getColumnNames()
- 	else
-  		colnames(df) = seq(1, ncol)
-  	if (length(tab$getRowNames()) > 0)    
-  		rownames(df) <- tab$getRowNames()
-  	else
-  		rownames(df) = seq(1, nrow)
-  }
-  df
-}
+##
+## Add operator [] to Table R class
+## -------------------------------- ##
 
 "getTableitem" <-
 function (x,i,j,...,drop=TRUE)
@@ -1032,6 +1079,35 @@ function (x,i,j,...,drop=TRUE)
 setMethod('[',    '_p_Table',               getTableitem)
 setMethod('[<-',  '_p_Table',               setTableitem)
 
+##
+## Add toTL to Table R class
+## ----------------------------- ##
+
+"Table_toTL" <- function(tab)
+{
+  nrow = tab$getNRows()
+  ncol = tab$getNCols()
+  mat <- matrix(tab$getValues(), byrow = FALSE, nrow=nrow, ncol=ncol)
+  df = data.frame(mat)
+  if (nrow > 0 && ncol > 0)
+  {
+ 	names(df) = tab$getColumnNames()
+  	if (length(tab$getColumnNames()) > 0) 
+  		colnames(df) <- tab$getColumnNames()
+ 	else
+  		colnames(df) = seq(1, ncol)
+  	if (length(tab$getRowNames()) > 0)    
+  		rownames(df) <- tab$getRowNames()
+  	else
+  		rownames(df) = seq(1, nrow)
+  }
+  df
+}
+
+##
+## Add toTL to Triplet R class
+## ----------------------------- ##
+
 "Triplet_toTL" <- function(x)
 {
   Q = NULL
@@ -1045,18 +1121,10 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   Q
 }
 
-"Db_toTL" <- function(x)
-{
-  names = x$getAllNames()
-  nc = x$getNColumn()
-  vals = NULL
-  for (i in seq(0,nc-1)) {
-    vals = cbind(vals,x$getColumnsByColIdx(i))
-  }
-  df = data.frame(vals)
-  names(df) = names
-  df
-}
+
+##
+## Add toTL to Vario R class
+## ----------------------------- ##
 
 #' Convert a variogram into a data.frame
 #'
@@ -1092,6 +1160,11 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 	vario
 }
 
+
+##
+## Add toTL to Krigtest_Res R class
+## -------------------------------- ##
+
 "Krigtest_Res_toTL" <- function(x)
 {
   res = list(
@@ -1111,6 +1184,32 @@ setMethod('[<-',  '_p_Table',               setTableitem)
       )
   res
 }
+
+
+##
+## Add toTL to Global_Result R class
+## -------------------------------- ##
+
+"Global_Result_toTL" <- function(x)
+{
+  res = list(
+      ntot = x$ntot,
+      np = x$np,
+      ng = x$ng,
+      surface  = x$surface,
+      zest = x$zest,
+      sse = x$sse,
+      cvgeo = x$cvgeo,
+      cvv = x$cvv,
+      weights = x$weights$toTL()
+      )
+  res
+}
+
+
+##
+## Add operator [] to Vario R class
+## -------------------------------- ##
 
 "varioArguments" <- function(res)
 {
@@ -1203,6 +1302,11 @@ setMethod('[<-',  '_p_Vario',               setVarioitem)
 #attr(`MatrixSparse_create`, 'returnType') = '_p_MatrixSparse'
 #attr(`MatrixSparse_create`, "inputTypes") = c('_p_MatrixSparse')
 #class(`MatrixSparse_create`) = c("SWIGFunction", class('MatrixSparse_create'))
+
+
+##
+## Add fromTL to a some R classes
+## -------------------------------- ##
 
 "MatrixRectangular_fromTL" <- function(Robj)
 {

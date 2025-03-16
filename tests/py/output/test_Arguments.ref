@@ -19,6 +19,15 @@ Testing for VectorVectorDouble :
 [1][2] : 1.000000 
 [2][2] : 5.000000 
 
+Testing for VectorString : 
+toto titi 
+None
+Testing for VectorInt : 12 13 
+[12 13]
+
+Testing for VectorDouble : 12.000000 13.000000 
+[12 13]
+
 Testing for Integer : NA 
 Testing for Double : NA 
 Testing for VectorInt : NA 
