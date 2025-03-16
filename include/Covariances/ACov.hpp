@@ -192,7 +192,6 @@ public:
   int evalCovMatSymInPlace(MatrixSquareSymmetric& mat,
                            const Db* db1,
                            const VectorVectorInt& index1,
-                           int ivar0 = -1,
                            const CovCalcMode* mode = nullptr,
                            bool cleanOptim = true) const;
   int evalCovMatRHSInPlace(MatrixRectangular& mat,
@@ -451,18 +450,15 @@ private:
                    int icol,
                    bool flagUpdate,
                    bool flagNoStat,
-                   const VectorInt& ivars,
                    const VectorVectorInt& index1,
                    const CovCalcMode& mode) const;
   static void _scaleOnData(MatrixRectangular& mat, int icol, int ndisc);
   int _evalCovMatRHSInPlaceBlock(MatrixRectangular& mat,
                                  const Db* db2,
-                                 const VectorInt& ivars,
                                  const VectorVectorInt& index1,
                                  const VectorVectorInt& index2,
                                  const KrigOpt& krigopt = KrigOpt()) const;
   int _evalCovMatRHSInPlacePoint(MatrixRectangular& mat,
-                                 const VectorInt& ivars,
                                  const VectorVectorInt& index1,
                                  const VectorVectorInt& index2,
                                  const KrigOpt& krigopt = KrigOpt()) const;
@@ -476,7 +472,6 @@ protected:
   VectorInt _getActiveVariables(int ivar0) const;
   static void _updateCovMatrixSymmetricForVerr(const Db* db1,
                                                AMatrix* mat,
-                                               const VectorInt& ivars,
                                                const VectorVectorInt& index1);
 
   virtual void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,

@@ -1074,6 +1074,8 @@ int ACov::evalCovMatInPlace(MatrixRectangular& mat,
   VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2);
 
   // Creating the matrix
+  int nvar1 = (int) index1.size();
+  int nvar2 = (int) index2.size();
   int neq1 = VH::count(index1);
   int neq2 = VH::count(index2);
   if (neq1 <= 0 || neq2 <= 0)
@@ -1088,7 +1090,7 @@ int ACov::evalCovMatInPlace(MatrixRectangular& mat,
 
   // Loop on Data
   int icol = 0;
-  for (const auto ivar2: jvars.getVector())
+  for (int ivar2 = 0; ivar2 < nvar2; ivar2++)
   {
     const VectorInt& index2i = index2[ivar2];
     const int* ptr2          = index2i.data();
@@ -1098,7 +1100,7 @@ int ACov::evalCovMatInPlace(MatrixRectangular& mat,
       SpacePoint& p2 = optimizationLoadInPlace(irel2, 2, 2);
 
       int irow = 0;
-      for (const auto ivar1: ivars.getVector())
+      for (int ivar1 = 0; ivar1 < nvar1; ivar1++)
       {
         const VectorInt& index1i = index1[ivar1];
         for (const auto iabs1: index1i.getVector())
@@ -1227,9 +1229,9 @@ int ACov::evalCovMatRHSInPlace(MatrixRectangular& mat,
 
   // Dispatch according to the type of estimation
   if (calcul == EKrigOpt::POINT)
-    _evalCovMatRHSInPlacePoint(mat, ivars, index1, index2, krigopt);
+    _evalCovMatRHSInPlacePoint(mat, index1, index2, krigopt);
   else if (calcul == EKrigOpt::BLOCK)
-    _evalCovMatRHSInPlaceBlock(mat, db2, ivars, index1, index2, krigopt);
+    _evalCovMatRHSInPlaceBlock(mat, db2, index1, index2, krigopt);
   else if (calcul == EKrigOpt::DRIFT)
   {
     // No calculation needed for Large scale drift estimation
@@ -1249,7 +1251,6 @@ int ACov::evalCovMatRHSInPlace(MatrixRectangular& mat,
 
 int ACov::_evalCovMatRHSInPlaceBlock(MatrixRectangular& mat,
                                      const Db* db2,
-                                     const VectorInt& ivars,
                                      const VectorVectorInt& index1,
                                      const VectorVectorInt& index2,
                                      const KrigOpt& krigopt) const
@@ -1263,7 +1264,7 @@ int ACov::_evalCovMatRHSInPlaceBlock(MatrixRectangular& mat,
     // Loop on Data
 
   int icol = 0;
-  for (const auto ivar2: ivars.getVector())
+  for (int ivar2 = 0, nvar2 = (int) index2.size(); ivar2 < nvar2; ivar2++)
   {
     const VectorInt& index2i = index2[ivar2];
     const int* ptr2          = index2i.data();
@@ -1287,7 +1288,7 @@ int ACov::_evalCovMatRHSInPlaceBlock(MatrixRectangular& mat,
 
         _loopOnData(mat, p2aux, ivar2, iabs2, icol,
                     true, isNoStatLocal && idisc == 0,
-                    ivars, index1, mode);
+                    index1, mode);
       }
 
       // Scale the matrix
@@ -1300,7 +1301,6 @@ int ACov::_evalCovMatRHSInPlaceBlock(MatrixRectangular& mat,
 }
 
 int ACov::_evalCovMatRHSInPlacePoint(MatrixRectangular& mat,
-                                     const VectorInt& ivars,
                                      const VectorVectorInt& index1,
                                      const VectorVectorInt& index2,
                                      const KrigOpt& krigopt) const
@@ -1311,7 +1311,7 @@ int ACov::_evalCovMatRHSInPlacePoint(MatrixRectangular& mat,
 
   // Loop on Target
   int icol = 0;
-  for (const auto ivar2: ivars.getVector())
+  for (int ivar2 = 0, nvar2 = (int) index2.size(); ivar2 < nvar2; ivar2++)
   {
     const VectorInt& index2i = index2[ivar2];
     const int* ptr2          = index2i.data();
@@ -1322,8 +1322,7 @@ int ACov::_evalCovMatRHSInPlacePoint(MatrixRectangular& mat,
       SpacePoint& p2 = optimizationLoadInPlace(irel2, 2, 2);
 
       _loopOnData(mat, p2, ivar2, iabs2, icol,
-                  false, isNoStatLocal,
-                  ivars, index1, mode);
+                  false, isNoStatLocal, index1, mode);
       icol++;
     }
   }
@@ -1337,14 +1336,13 @@ void ACov::_loopOnData(MatrixRectangular& mat,
                        int icol,
                        bool flagUpdate,
                        bool flagNoStat,
-                       const VectorInt& ivars,
                        const VectorVectorInt& index1,
                        const CovCalcMode& mode) const
 {
   double value;
 
   int irow = 0;
-  for (auto const ivar1: ivars.getVector())
+  for (int ivar1 = 0, nvar1 = (int) index1.size(); ivar1 < nvar1; ivar1++)
   {
     const VectorInt& index1i = index1[ivar1];
     for (const auto iabs1: index1i.getVector())
@@ -1380,7 +1378,6 @@ void ACov::_scaleOnData(MatrixRectangular& mat, int icol, int ndisc)
 
 void ACov::_updateCovMatrixSymmetricForVerr(const Db* db1,
                                             AMatrix* mat,
-                                            const VectorInt& ivars,
                                             const VectorVectorInt& index1)
 {
   // Check if the correction can take place at all
@@ -1388,7 +1385,7 @@ void ACov::_updateCovMatrixSymmetricForVerr(const Db* db1,
 
   // Loop on Data
   int irow = 0;
-  for (const auto ivar1: ivars.getVector())
+  for (int ivar1 = 0, nvar1 = (int) index1.size(); ivar1 < nvar1; ivar1++)
   {
     int icolVerr = db1->getColIdxByLocator(ELoc::V, ivar1);
     const VectorInt& index1i = index1[ivar1];
@@ -1475,21 +1472,16 @@ MatrixSquareSymmetric ACov::evalCovMatSym(const Db* db1,
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1, true, true, true);
 
-  int error = evalCovMatSymInPlace(mat, db1, index1, ivar0, mode, cleanOptim);
+  int error = evalCovMatSymInPlace(mat, db1, index1, mode, cleanOptim);
   return (error == 0) ? mat : MatrixSquareSymmetric();
 }
 
 int ACov::evalCovMatSymInPlace(MatrixSquareSymmetric& mat,
                                const Db* db1,
                                const VectorVectorInt& index1,
-                               int ivar0,
                                const CovCalcMode* mode,
                                bool cleanOptim) const
 {
-  // Preliminary checks
-  VectorInt ivars = _getActiveVariables(ivar0);
-  if (ivars.empty()) return 1;
-
   // Creating the matrix
   int neq1 = VH::count(index1);
   if (neq1 <= 0)
@@ -1511,7 +1503,7 @@ int ACov::evalCovMatSymInPlace(MatrixSquareSymmetric& mat,
   // Loop on Data
   double value;
   int icol = 0;
-  for (const auto ivar2: ivars.getVector())
+  for (int ivar2 = 0, nvar2 = (int) index1.size(); ivar2 < nvar2; ivar2++)
   {
     const VectorInt& index2i = index1[ivar2];
     for (const auto iabs2: index2i.getVector())
@@ -1519,7 +1511,7 @@ int ACov::evalCovMatSymInPlace(MatrixSquareSymmetric& mat,
       SpacePoint& p2 = optimizationLoadInPlace(iabs2, 1, 2);
 
       int irow = 0;
-      for (const auto ivar1: ivars.getVector())
+      for (int ivar1 = 0, nvar1 = (int) index1.size(); ivar1 < nvar1; ivar1++)
       {
         const VectorInt& index1i = index1[ivar1];
         for (const auto iabs1: index1i.getVector())
@@ -1547,7 +1539,7 @@ int ACov::evalCovMatSymInPlace(MatrixSquareSymmetric& mat,
   }
 
   // Update the matrix due to presence of Variance of Measurement Error
-  _updateCovMatrixSymmetricForVerr(db1, &mat, ivars, index1);
+  _updateCovMatrixSymmetricForVerr(db1, &mat, index1);
 
   if (cleanOptim) optimizationPostProcess();
   return 0;
@@ -1628,7 +1620,7 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
 
   // Loop on Data
   int icol = 0;
-  for (const auto ivar2: jvars.getVector())
+  for (int ivar2 = 0, nvar2 = (int) index2.size(); ivar2 < nvar2; ivar2++)
   {
     const VectorInt& index2i = index2[ivar2];
     const int* ptr2          = index2i.data();
@@ -1638,7 +1630,7 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
       SpacePoint& p2 = optimizationLoadInPlace(irel2, 2, 2);
 
       int irow = 0;
-      for (const auto ivar1: ivars.getVector())
+      for (int ivar1 = 0, nvar1 = (int) index1.size(); ivar1 < nvar1; ivar1++)
       {
         const VectorInt& index1i = index1[ivar1];
         for (const auto iabs1: index1i.getVector())
@@ -1668,7 +1660,7 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
 
   // Update the matrix due to presence of Variance of Measurement Error
   if (flagSameDb)
-    _updateCovMatrixSymmetricForVerr(db1, mat, ivars, index1);
+    _updateCovMatrixSymmetricForVerr(db1, mat, index1);
 
   if (cleanOptim) optimizationPostProcess();
   return mat;

@@ -223,7 +223,7 @@ int main(int argc, char *argv[])
   covM.display();
 
   message("Drift Matrix (selection & heterotopic multivariate & sampling)\n");
-  driftM = modelM->evalDriftMat(workingDbc, -1, nbgh);
+  driftM = modelM->evalDriftMat(workingDbc, nbgh);
   driftM.display();
 
   // Testing Models on the Sphere
