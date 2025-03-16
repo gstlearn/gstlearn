@@ -515,7 +515,6 @@ MatrixRectangular DriftList::evalDriftMat(const Db* db,
  * @param mat Drift matrix (possibly resized)
  * @param db Data Db
  * @param sampleRanks Vector of sample ranks in 'db'
- * @param ivar0 Rank of the variable (-1 for all)
  * @param member CalcMember
  *
  * @return int Error returned code

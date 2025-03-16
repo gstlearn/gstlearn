@@ -172,9 +172,8 @@ void st_bench_writing_in_matrix(int nrows, int ncols, Timer& timer)
       model->setOptimEnabled(true);
 
       timer.reset();
-      MatrixRectangular mat;
       OptCustom::define("OptimCovMat", mode);
-      (void)model->evalCovMatInPlace(mat, dbin, dbout);
+      MatrixRectangular mat = model->evalCovMat(dbin, dbout);
       timer.displayIntervalMilliseconds("Establishing RHS V" + std::to_string(int(mode)));
 
       // Some printout for comparison

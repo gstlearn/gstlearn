@@ -182,10 +182,9 @@ public:
                          const KrigOpt& krigopt = KrigOpt()) const;
   int evalCovMatInPlace(MatrixRectangular& mat,
                         const Db* db1,
-                        const Db* db2           = nullptr,
-                        int ivar0               = -1,
-                        int jvar0               = -1,
-                        const VectorInt& nbgh1  = VectorInt(),
+                        const Db* db2,
+                        const VectorVectorInt& index1,
+                        const VectorVectorInt& index2,
                         const VectorInt& nbgh2  = VectorInt(),
                         const CovCalcMode* mode = nullptr,
                         bool cleanOptim         = true) const;

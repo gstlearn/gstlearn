@@ -119,8 +119,7 @@ void ACov::_optimizationPreProcessForData(const Db* db1) const
   _optimPreProcessedData = true;
 }
 
-void ACov::_optimizationPreProcessForTarget(const Db* db2,
-                                            const VectorInt& nbgh2) const
+void ACov::_optimizationPreProcessForTarget(const Db* db2, const VectorInt& nbgh2) const
 {
   // Do not proceed to optimization when this is forbidden
   if (!_optimEnabled) return;
@@ -1040,38 +1039,36 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
 {
   MatrixRectangular mat;
 
-  int error = evalCovMatInPlace(mat, db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
+  // Preliminary checks
+  if (db2 == nullptr) db2 = db1;
+  if (db1 == nullptr || db2 == nullptr) return mat;
+  VectorInt ivars = _getActiveVariables(ivar0);
+  if (ivars.empty()) return mat;
+  VectorInt jvars = _getActiveVariables(jvar0);
+  if (jvars.empty()) return mat;
+
+  VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1);
+  VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2);
+
+  int error = evalCovMatInPlace(mat, db1, db2, index1, index2, nbgh2, mode, cleanOptim);
   return (error) == 0 ? mat : MatrixRectangular();
 }
 
 int ACov::evalCovMatInPlace(MatrixRectangular& mat,
                             const Db* db1,
                             const Db* db2,
-                            int ivar0,
-                            int jvar0,
-                            const VectorInt& nbgh1,
+                            const VectorVectorInt& index1,
+                            const VectorVectorInt& index2,
                             const VectorInt& nbgh2,
                             const CovCalcMode* mode,
                             bool cleanOptim) const
 {
-  // Preliminary checks
-  if (db2 == nullptr) db2 = db1;
-  if (db1 == nullptr || db2 == nullptr) return 1;
-  VectorInt ivars = _getActiveVariables(ivar0);
-  if (ivars.empty()) return 1;
-  VectorInt jvars = _getActiveVariables(jvar0);
-  if (jvars.empty()) return 1;
-
   // Prepare Non-stationarity (if needed)
   manage(db1, db2);
 
   // Prepare Optimization for covariance calculation (if not forbidden or already done)
   _optimizationPreProcessForData(db1);
   _optimizationPreProcessForTarget(db2, nbgh2);
-
-  // Create sets of Vectors of valid sample indices per variable
-  VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1);
-  VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2);
 
   // Creating the matrix
   int nvar1 = (int) index1.size();
