@@ -79,6 +79,7 @@ jobs:
         cmake \
           -B${{ env.BUILD_DIR }} \
           -DBUILD_TESTING=ON \
+          -DBUILD_ASAN=ON \
           -DBUILD_PYTHON=ON \
           -DBUILD_R=ON \
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
@@ -95,6 +96,9 @@ jobs:
     - name: Install packages and execute non-regression tests
       run: |
         cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check
+      env:
+        ASAN_OPTIONS: abort_on_error=1:detect_leaks=0
+        LD_PRELOAD: "/usr/lib/x86_64-linux-gnu/libasan.so.8 /usr/lib/x86_64-linux-gnu/libstdc++.so.6"
 
     - name: Compress output logs and neutral files
       if: success() || failure()
