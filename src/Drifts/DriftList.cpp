@@ -490,24 +490,22 @@ VectorInt DriftList::_getActiveVariables(int ivar0) const
  ** \return Returned matrix (Dimension/ nrows = nvar * nech; ncols = nfeq * nvar)
  **
  ** \param[in]  db     Db structure
- ** \param[in]  ivar0  Rank of the variable (-1 for all variables)
  ** \param[in]  nbgh   Vector of indices of active samples in db (optional)
  ** \param[in]  member Member of the Kriging System (ECalcMember)
  **
  *****************************************************************************/
 MatrixRectangular DriftList::evalDriftMat(const Db* db,
-                                          int ivar0,
                                           const VectorInt& nbgh,
                                           const ECalcMember& member) const
 {
   MatrixRectangular mat;
-  VectorInt ivars = _getActiveVariables(ivar0);
+  VectorInt ivars = _getActiveVariables(-1);
   if (ivars.empty()) return mat;
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index = db->getSampleRanks(ivars, nbgh, true, true, true);
 
-  int error = evalDriftMatByRanks(mat, db, index, ivar0, member);
+  int error = evalDriftMatByRanks(mat, db, index, member);
   return (error == 0) ? mat : MatrixRectangular();
 }
 
@@ -517,7 +515,6 @@ MatrixRectangular DriftList::evalDriftMat(const Db* db,
  * @param mat Drift matrix (possibly resized)
  * @param db Data Db
  * @param sampleRanks Vector of sample ranks in 'db'
- * @param ivar0 Rank of the variable (-1 for all)
  * @param member CalcMember
  *
  * @return int Error returned code
@@ -525,12 +522,8 @@ MatrixRectangular DriftList::evalDriftMat(const Db* db,
 int DriftList::evalDriftMatByRanks(MatrixRectangular& mat,
                                    const Db* db,
                                    const VectorVectorInt& sampleRanks,
-                                   int ivar0,
                                    const ECalcMember& member) const
 {
-  VectorInt ivars = _getActiveVariables(ivar0);
-  if (ivars.empty()) return 1;
-
   // Creating the matrix
   int neq = VH::count(sampleRanks);
   if (neq <= 0)
@@ -547,13 +540,12 @@ int DriftList::evalDriftMatByRanks(MatrixRectangular& mat,
   mat.resize(neq, ncols);
   mat.fill(0.);
 
-  for (int ivar = 0, irow = 0, nvars = (int)ivars.size(); ivar < nvars; ivar++)
+  for (int ivar = 0, irow = 0, nvar = (int)sampleRanks.size(); ivar < nvar; ivar++)
   {
-    int ivar1 = ivars[ivar];
 
     /* Loop on the samples */
 
-    int nechs = (int)sampleRanks[ivar1].size();
+    int nechs = (int)sampleRanks[ivar].size();
     for (int jech = 0; jech < nechs; jech++, irow++)
     {
       int iech = sampleRanks[ivar][jech];

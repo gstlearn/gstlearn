@@ -123,13 +123,11 @@ public:
                                 const ECalcMember &member,
                                 VectorDouble &drftab) const;
   MatrixRectangular evalDriftMat(const Db* db,
-                                 int ivar0                 = -1,
                                  const VectorInt& nbgh     = VectorInt(),
                                  const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
   int evalDriftMatByRanks(MatrixRectangular& mat,
                           const Db* db,
                           const VectorVectorInt& sampleranks,
-                          int ivar0                 = 0,
                           const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
   int evalDriftMatByTarget(MatrixRectangular& mat,
                            const Db* db,
