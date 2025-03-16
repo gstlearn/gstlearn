@@ -1210,6 +1210,7 @@ int ACov::evalCovMatInPlace4(MatrixRectangular& mat,
                              const CovCalcMode* mode,
                              bool cleanOptim) const
 {
+  DECLARE_UNUSED(nbgh1, nbgh2, mode, mat)
   // Preliminary checks
   if (db2 == nullptr) db2 = db1;
   if (db1 == nullptr || db2 == nullptr) return 1;
