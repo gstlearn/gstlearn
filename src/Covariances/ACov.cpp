@@ -1573,6 +1573,89 @@ int ACov::evalCovMatByTarget(MatrixRectangular& mat,
   return 0;
 }
 
+/****************************************************************************/
+/*!
+ **  Establish covariance matrix between one Db and one sample of a Target Db
+ **
+ ** \return Dense matrix containing the covariance matrix
+ **
+ ** \param[in]  mat Matrix (possibly resized)
+ ** \param[in]  db1   First Db
+ ** \param[in]  db2   Second Db
+ ** \param[in]  index1 Vector of vector indices of active samples in db1
+ ** \param[in]  iech2 Sample rank within db2
+ ** \param[in]  krigopt KrigOpt structure
+ ** \param[in]  cleanOptim When True, clean optimization internal when ended
+ **
+ ** \remarks If a Db does not contain any Z-variable defined, the covariance
+ ** \remarks cannot treat possible heterotopy and therefore uses all samples
+ **
+ ** \remarks The returned matrix if dimension to nrows * 1 where
+ ** \remarks each 'nrows' is the number of active samples
+ ** \remarks by the number of samples where the variable is defined
+ **
+ ** \note 'dbin' and 'dbout' cannot be made 'const' as they can be updated
+ ** \note due to the presence of 'nostat'
+ **
+ *****************************************************************************/
+ int ACov::evalCovMatForSingleTarget(MatrixRectangular& mat,
+                                     const Db* db1,
+                                     const Db* db2,
+                                     const VectorVectorInt& index1,
+                                     int iech2,
+                                     const KrigOpt& krigopt) const
+{
+// Preliminary checks
+  if (db1 == nullptr || db2 == nullptr) return 1;
+
+  VectorInt ivars = VH::sequence(getNVar());
+  if (ivars.empty()) return 1;
+
+  // Create the sets of Vector of valid sample indices per variable
+  // (not masked and defined)
+  VectorInt nbgh2 = {iech2};
+  VectorVectorInt index2 = db2->getSampleRanks(ivars, nbgh2, true, false, false);
+
+// Creating the matrix
+  int neq1 = VH::count(index1);
+  int neq2 = VH::count(index2);
+  if (neq1 <= 0 || neq2 <= 0)
+  {
+    messerr("The returned matrix has no valid sample and no valid variable");
+    return 1;
+  }
+
+// Dimension the returned matrix
+  mat.resize(neq1, neq2);
+  mat.fill(0.);
+
+// Play the non-stationarity (if needed)
+  manage(db1, db2);
+
+// Prepare the Optimization for covariance calculation
+  _optimizationPreProcessForData(db1);
+  _optimizationPreProcessForTarget(db2, nbgh2);
+
+// Particluar case of the Drift estimation, return a zero-filled RHS
+  if (krigopt.getCalcul() == EKrigOpt::DRIFT) return 0;
+
+  // Loop on Data
+  int irow = 0;
+  for (auto const ivar1: ivars.getVector())
+  {
+    const VectorInt& index1i = index1[ivar1];
+    for (const auto iabs1: index1i.getVector())
+    {
+      SpacePoint& p1 = optimizationLoadInPlace(iabs1, 1, 1);
+      _loopOnPointTarget(index2, ivars, ivar1, iabs1, irow, p1, false, krigopt, mat);
+      irow++;
+    }
+  }
+
+  return 0;
+}
+
+
 void ACov::_updateCovMatrixSymmetricForVerr(const Db* db1,
                                             AMatrix* mat,
                                             const VectorInt& ivars,

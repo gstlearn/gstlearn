@@ -67,6 +67,7 @@ public:
   FORWARD_METHOD(getCov, evalCov0MatByTarget)
   FORWARD_METHOD(getCov, evalCov0MatByTargetInPlace)
   FORWARD_METHOD(getCov, evalCovMatByTarget)
+  FORWARD_METHOD(getCov, evalCovMatForSingleTarget)
   FORWARD_METHOD(getCov, evalCovMatSparse)
   FORWARD_METHOD(getCov, eval0)
   FORWARD_METHOD(getCov, evalCov)

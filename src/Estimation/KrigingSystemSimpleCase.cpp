@@ -428,6 +428,7 @@ void KrigingSystemSimpleCase::conclusion()
 
  int KrigingSystemSimpleCase::estimate(int iech_out)
  {
+   if (! _dbout->isActive(iech_out)) return 0;
    if (! _isReady)
    {
      messerr("You must call 'isReady' before launching 'estimate'");
@@ -444,7 +445,7 @@ void KrigingSystemSimpleCase::conclusion()
    int status = 0;
    if (skipCalculAll) goto label_store;
  
-   if (! _dbout->isActive(_iechOut)) return 0;
+   
    OptDbg::setCurrentIndex(_iechOut + 1);
    if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
    {
@@ -469,7 +470,7 @@ void KrigingSystemSimpleCase::conclusion()
  
 
    /* Establish the Kriging R.H.S. */
-   if (_model->evalCovMatByTarget(_Sigma0, _dbin, _dbout, _sampleRanks, iech_out, _krigopt, false)) return 1;
+   if (_model->evalCovMatForSingleTarget(_Sigma0, _dbin, _dbout, _sampleRanks, iech_out, _krigopt)) return 1;
    if (_model->evalDriftMatByTarget(_X0, _dbout, iech_out, _krigopt)) return 1;
    if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
   

@@ -502,7 +502,7 @@ bool AMatrixDense::_needToReset(int nrows, int ncols)
 {
   int newsize = nrows * ncols;
   
-  return newsize > _maxSize;
+  if (newsize > _maxSize)
   {
     _maxSize = newsize;
     return true;

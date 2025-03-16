@@ -219,6 +219,14 @@ public:
                          const int iech2 = -1,
                          const KrigOpt& krigopt = KrigOpt(),
                          bool cleanOptim = true) const;
+  
+  int evalCovMatForSingleTarget(MatrixRectangular& mat,
+                                const Db* db1,
+                                const Db* db2,
+                                const VectorVectorInt& index1,
+                                int iech2,
+                                const KrigOpt& krigopt) const;
+  
   /////////////////////////////////////////////////////////////////////////////////
   void eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat, const CovCalcMode* mode) const;
 
