@@ -21,7 +21,7 @@
 #include "Estimation/CalcKriging.hpp"
 class Db;
 class DbGrid;
-class KrigingSystem;
+class KrigingSystemSimpleCase;
 
 // TODO : Create KrigingParam which inherits from InterpolatorParam
 class GSTLEARN_EXPORT CalcKrigingSimpleCase: public ACalcInterpolator
@@ -41,7 +41,7 @@ private:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
 
-  void _storeResultsForExport(const KrigingSystem& ksys);
+  void _storeResultsForExport(const KrigingSystemSimpleCase& ksys);
 
 private:
   bool _flagEst;

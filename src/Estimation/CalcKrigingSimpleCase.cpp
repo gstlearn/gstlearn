@@ -13,6 +13,7 @@
 #include "Estimation/CalcKrigingSimpleCase.hpp"
 #include "Enum/EKrigOpt.hpp"
 #include "Estimation/KrigingSystem.hpp"
+#include "Estimation/KrigingSystemSimpleCase.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
@@ -131,7 +132,7 @@ void CalcKrigingSimpleCase::_rollback()
   _cleanVariableDb(1);
 }
 
-void CalcKrigingSimpleCase::_storeResultsForExport(const KrigingSystem& ksys)
+void CalcKrigingSimpleCase::_storeResultsForExport(const KrigingSystemSimpleCase& ksys)
 {
   _ktest.ndim  = ksys.getNDim();
   _ktest.nvar  = ksys.getNVar();
@@ -162,9 +163,9 @@ bool CalcKrigingSimpleCase::_run()
 {
   /* Setting options */
 
-  KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh());
+  KrigingSystemSimpleCase ksys(getDbin(), getDbout(), getModel(), getNeigh());
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
-  if (ksys.setKrigOptCalcul(_calcul, 0, false)) return false;
+  if (ksys.setKrigOptCalcul(_calcul)) return false;
 
   if (_flagNeighOnly)
   {
