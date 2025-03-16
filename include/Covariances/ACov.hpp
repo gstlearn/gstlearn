@@ -150,7 +150,7 @@ public:
   /////////////////////////////////////////////////////////////////////////////////
 
   /////////////////////////////////////////////////////////////////////////////////
-  /// Functions for evaluating Covariance Matrices
+  /// Functions for evaluating Covariance Matrices either in place or not
   MatrixSquareSymmetric evalCovMat0(const Db* db,
                                     int iech,
                                     const KrigOpt& krigopt = KrigOpt()) const;
