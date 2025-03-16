@@ -13,6 +13,7 @@
 #include "Estimation/CalcKriging.hpp"
 #include "Enum/EKrigOpt.hpp"
 #include "Estimation/CalcKrigingSimpleCase.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Model/Model.hpp"
@@ -364,7 +365,7 @@ int kriging(Db* dbin,
   NeighUnique* neighUnique = dynamic_cast<NeighUnique*>(neigh);
   if (calcul == EKrigOpt::POINT && rank_colcok.empty() && 
       matLC == nullptr && neighUnique != nullptr &&
-      model->getNVar() == 1)
+      model->getNVar() == 1 && OptCustom::query("NotOptimSimpleCase", 0) == 0)
   { 
   CalcKrigingSimpleCase krige(flag_est, flag_std, flag_varz);
   krige.setDbin(dbin);

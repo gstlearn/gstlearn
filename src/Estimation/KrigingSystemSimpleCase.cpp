@@ -85,10 +85,6 @@ KrigingSystemSimpleCase::KrigingSystemSimpleCase(Db* dbin,
   , _dbinUidToBeDeleted()
   , _dboutUidToBeDeleted()
   , _space(model == nullptr ? nullptr : model->getSpace())
-  , _p0()
-  , _p1()
-  , _p2()
-  , _p0_memo()
   , _flagVerr(false)
   , _flagNoStat(false)
 {
@@ -176,10 +172,7 @@ void KrigingSystemSimpleCase::_resetMemoryGeneral()
   _setInternalShortCutVariablesGeneral();
 
   _space = _model->getSpace();
-  _p0 = SpacePoint(_space);
-  _p1 = SpacePoint(_space);
-  _p2 = SpacePoint(_space);
-  _p0_memo = SpacePoint(_space);
+
 }
 
 /*****************************************************************************/
@@ -444,7 +437,6 @@ void KrigingSystemSimpleCase::conclusion()
    // In case of Image Neighborhood, the neighboring samples have already
    // been selected in isReady(). No need to compute them again.
    bool skipCalculAll = false;
-   if (_neigh->getType() == ENeigh::IMAGE) skipCalculAll = true;
  
    // Store the Rank of the Target sample
    _iechOut = iech_out;

@@ -176,21 +176,20 @@ bool CalcKrigingSimpleCase::_run()
   /***************************************/
   /* Loop on the targets to be processed */
   /***************************************/
-
   for (int iech_out = 0, nech_out = getDbout()->getNSample(); iech_out < nech_out; iech_out++)
   {
-    if (_iechSingleTarget > 0)
-    {
-      if (iech_out != _iechSingleTarget) continue;
-    }
-    else
-    {
-      mes_process("Kriging sample", getDbout()->getNSample(), iech_out);
-    }
+    // if (_iechSingleTarget > 0)
+    // {
+    //   if (iech_out != _iechSingleTarget) continue;
+    // }
+    // else
+    // {
+    //   mes_process("Kriging sample", getDbout()->getNSample(), iech_out);
+    // }
 
-    bool error = ksys.estimate(iech_out);
+    ksys.estimate(iech_out);
 
-    if (error) return false;
+    //if (error) return false;
   }
 
   // Store the results in an API structure (only if flagSingleTarget)
