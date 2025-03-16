@@ -17,8 +17,6 @@
 #include "Enum/EKrigOpt.hpp"
 
 #include "Calculators/ACalcInterpolator.hpp"
-#include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
 
 #include "Estimation/CalcKriging.hpp"
 class Db;

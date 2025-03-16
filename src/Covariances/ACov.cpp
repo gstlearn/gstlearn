@@ -1241,7 +1241,7 @@ int ACov::evalCovMatInPlace4(MatrixRectangular& mat,
     //mat.resize(neq1, neq2);
 
    // Define the two space points
-    bool isNoStatLocal = isNoStat();
+    //bool isNoStatLocal = isNoStat();
 
 //   // Loop on Data
 //   int icol = 0;
