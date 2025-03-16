@@ -17,19 +17,20 @@
 CovLMGradient::CovLMGradient(const CovContext& ctxt)
 : CovAnisoList(ctxt)
 {
+  setOptimEnabled(false);
 }
 
 
 CovLMGradient::CovLMGradient(const CovLMGradient &r)
 : CovAnisoList(r)
 {
-
+  setOptimEnabled(false);
 }
 
 CovLMGradient::CovLMGradient(const CovAnisoList& r)
     : CovAnisoList(r.getContext())
 {
-
+  setOptimEnabled(false);
   for (int icov = r.getNCov()-1; icov >= 0; icov--)
   {
     const CovAniso *cov = r.getCovAniso(icov);
@@ -57,6 +58,7 @@ CovLMGradient& CovLMGradient::operator=(const CovLMGradient &r)
   {
     CovAnisoList::operator=(r);
   }
+  setOptimEnabled(false);
   return *this;
 }
 
