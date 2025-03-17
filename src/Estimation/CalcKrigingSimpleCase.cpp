@@ -28,7 +28,6 @@ CalcKrigingSimpleCase::CalcKrigingSimpleCase(bool flag_est, bool flag_std, bool 
     _calcul(EKrigOpt::POINT),
     _nameCoord(),
     _iechSingleTarget(-1),
-    _flagNeighOnly(false),
     _nbNeigh(5),
     _iptrEst(-1),
     _iptrStd(-1),
@@ -90,11 +89,6 @@ bool CalcKrigingSimpleCase::_preprocess()
     _iptrVarZ = _addVariableDb(2, status, ELoc::UNKNOWN, 0, _getNVar(), TEST);
     if (_iptrVarZ < 0) return false;
   }
-  if (_flagNeighOnly)
-  {
-    _iptrNeigh = _addVariableDb(2, status, ELoc::UNKNOWN, 0, _nbNeigh, TEST);
-    if (_iptrNeigh < 0) return false;
-  }
 
   return true;
 }
@@ -106,24 +100,11 @@ bool CalcKrigingSimpleCase::_postprocess()
 
   int nvar = _getNVar();
   
-  if (_flagNeighOnly)
-  {
-    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh, "Number", 1);
-    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh + 1, "MaxDist",
-                    1);
-    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh + 2, "MinDist",
-                    1);
-    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh + 3, "NbNESect",
-                    1);
-    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh + 4, "NbCESect",
-                    1);
-  }
-  else
-  {
-      _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
-      _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);
-      _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrEst, "estim", 1);
-  }
+  
+  _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
+  _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);
+  _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrEst, "estim", 1);
+  
   return true;
 }
 
@@ -167,10 +148,6 @@ bool CalcKrigingSimpleCase::_run()
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
   if (ksys.setKrigOptCalcul(_calcul)) return false;
 
-  if (_flagNeighOnly)
-  {
-    if (ksys.updKrigOptNeighOnly(_iptrNeigh)) return false;
-  }
   if (!ksys.isReady()) return false;
 
   /***************************************/
@@ -178,18 +155,9 @@ bool CalcKrigingSimpleCase::_run()
   /***************************************/
   for (int iech_out = 0, nech_out = getDbout()->getNSample(); iech_out < nech_out; iech_out++)
   {
-    // if (_iechSingleTarget > 0)
-    // {
-    //   if (iech_out != _iechSingleTarget) continue;
-    // }
-    // else
-    // {
-    //   mes_process("Kriging sample", getDbout()->getNSample(), iech_out);
-    // }
 
     ksys.estimate(iech_out);
 
-    //if (error) return false;
   }
 
   // Store the results in an API structure (only if flagSingleTarget)

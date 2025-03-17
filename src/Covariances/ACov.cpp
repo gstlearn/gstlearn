@@ -44,6 +44,8 @@ ACov::ACov(const CovContext& ctxt)
   , _optimPreProcessedData(false)
   , _p1As()
   , _p2As()
+  , _p2A(ctxt.getSpace())
+  , _pAux(ctxt.getSpace())
   , _tabNoStat(nullptr) {
   createNoStatTab();
 }
@@ -55,6 +57,8 @@ ACov::ACov(const ACov& r)
   , _optimPreProcessedData(r._optimPreProcessedData)
   , _p1As(r._p1As)
   , _p2As(r._p2As)
+  , _p2A(r._p2A)
+  , _pAux(r._pAux)
   , _pw1(r._pw1)
   , _pw2(r._pw2)
 
@@ -71,6 +75,8 @@ ACov& ACov::operator=(const ACov &r)
     _optimPreProcessedData = r._optimPreProcessedData;
     _p1As                  = r._p1As;
     _p2As                  = r._p2As;
+    _p2A                   = r._p2A;
+    _pAux                  = r._pAux;
     _pw1                   = r._pw1;
     _pw2                   = r._pw2;
     _tabNoStat             = r._tabNoStat->clone();
@@ -99,7 +105,7 @@ void ACov::optimizationPostProcess() const
   _optimPreProcessedData = false;
 }
 
-void ACov::_optimizationPreProcessForData(const Db* db1) const
+void ACov::optimizationPreProcessForData(const Db* db1) const
 {
   // Do not proceed to optimization when this is forbidden
   //if (! _optimEnabled) return;
@@ -148,7 +154,7 @@ void ACov::optimizationSetTarget(SpacePoint& pt) const
 
 void ACov::_optimizationSetTarget(SpacePoint& pt) const
 {
-  DECLARE_UNUSED(pt);
+  _pw2 = &pt;
 }
 
 /**
@@ -1036,7 +1042,7 @@ int ACov::evalCovMatInPlace(MatrixRectangular& mat,
   manage(db1, db2);
 
   // Prepare Optimization for covariance calculation (if not forbidden or already done)
-  _optimizationPreProcessForData(db1);
+  optimizationPreProcessForData(db1);
   _optimizationPreProcessForTarget(db2, nbgh2);
 
   // Creating the matrix
@@ -1189,7 +1195,7 @@ int ACov::evalCovMatRHSInPlace(MatrixRectangular& mat,
     manage(db1, db2);
 
     // Prepare the Optimization for covariance calculation
-    _optimizationPreProcessForData(db1);
+    optimizationPreProcessForData(db1);
     _optimizationPreProcessForTarget(db2, nbgh2);
   }
 
@@ -1215,6 +1221,52 @@ int ACov::evalCovMatRHSInPlace(MatrixRectangular& mat,
   return 0;
 }
 
+/****************************************************************************/
+/*!
+ **  Establish covariance matrix between one Db and one sample of a Target Db
+ **
+ ** \return Dense matrix containing the covariance matrix
+ **
+ ** \param[in]  mat Matrix (possibly resized)
+ ** \param[in]  db1   First Db
+ ** \param[in]  db2   Second Db
+ ** \param[in]  index1 Vector of vector indices of active samples in db1
+ ** \param[in]  iech2 Sample rank within db2
+ ** \param[in]  krigopt KrigOpt structure
+ ** \param[in]  cleanOptim When True, clean optimization internal when ended
+ **
+ ** \remarks If a Db does not contain any Z-variable defined, the covariance
+ ** \remarks cannot treat possible heterotopy and therefore uses all samples
+ **
+ ** \remarks The returned matrix if dimension to nrows * 1 where
+ ** \remarks each 'nrows' is the number of active samples
+ ** \remarks by the number of samples where the variable is defined
+ **
+ ** \note 'dbin' and 'dbout' cannot be made 'const' as they can be updated
+ ** \note due to the presence of 'nostat'
+ **
+ *****************************************************************************/
+ int ACov::evalCovVecRHSInPlace(vect vect,
+                                const Db* db2,
+                                const VectorInt& index1,
+                                int iech2) const
+{
+  bool flagNoStat = isNoStat();
+  int neq1 = (int) index1.size();
+  db2->getSampleAsSPInPlace(_pAux, iech2);
+  optimizationSetTarget(_pAux);
+  for (int i = 0; i < neq1; i++)
+  {
+    SpacePoint& p1 = optimizationLoadInPlace(i, 1, 1);
+    if (flagNoStat)
+        updateCovByPoints(1, i, 2, iech2);
+
+      // Loop on the discretization points
+    vect[i] = evalCov(p1, _p2A, 0, 0);
+  }
+
+  return 0;
+}
 int ACov::_evalCovMatRHSInPlaceBlock(MatrixRectangular& mat,
                                      const Db* db2,
                                      const VectorVectorInt& index1,
@@ -1443,7 +1495,7 @@ int ACov::evalCovMatSymInPlace(MatrixSquareSymmetric& mat,
   manage(db1, nullptr);
 
   // Prepare Optimization for covariance calculation (if not forbidden or already done)
-  _optimizationPreProcessForData(db1);
+  optimizationPreProcessForData(db1);
 
   // Define the two space points
   bool isNoStatLocal = isNoStat();
@@ -1541,7 +1593,7 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
   manage(db1, db2);
 
   // Prepare the Optimization for covariance calculation
-  _optimizationPreProcessForData(db1);
+  optimizationPreProcessForData(db1);
   _optimizationPreProcessForTarget(db2, nbgh2);
 
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)

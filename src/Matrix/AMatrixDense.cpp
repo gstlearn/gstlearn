@@ -452,6 +452,11 @@ constvect AMatrixDense::getViewOnColumn(int icol) const
   return res;
 }
 
+vect AMatrixDense::getViewOnColumnModify(int icol) const
+{
+  vect res(_eigenMatrix->col(icol).data(),getNRows());
+  return res;
+}
 int AMatrixDense::_terminateEigen(const Eigen::VectorXd &eigenValues,
                                   const Eigen::MatrixXd &eigenVectors,
                                   bool optionPositive,

@@ -1430,8 +1430,7 @@ void CorAniso::_manage(const Db* db1,const Db* db2) const
 void CorAniso::_optimizationSetTarget(SpacePoint& p) const
 {
   if (!isOptimEnabled()) return;
-  int iech = 0;
-  optimizationTransformSP(p, _p2As[0]);
-  p.setProjected(true);
-  _pw2 = &_p2As[iech];
+  optimizationTransformSP(p, _p2A);
+  _p2A.setProjected(true);
+  _pw2 = &_p2A;
 }

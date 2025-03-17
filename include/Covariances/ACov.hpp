@@ -190,6 +190,11 @@ public:
                            const KrigOpt& krigopt = KrigOpt(),
                            bool cleanOptim        = true) const;
   
+  int evalCovVecRHSInPlace(vect  vect,
+                           const Db* db2,
+                           const VectorInt& index1,
+                           const int iech2        = -1) const;
+
   /////////////////////////////////////////////////////////////////////////////////
   void eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat, const CovCalcMode* mode) const;
 
@@ -421,12 +426,12 @@ public:
     DECLARE_UNUSED(iech2);
   }
   int getNDim(int ispace = -1) const { return _ctxt.getNDim(ispace); }
-
+  void optimizationPreProcessForData(const Db* db1 = nullptr) const;
 private:
   virtual void _setContext(const CovContext& ctxt) { DECLARE_UNUSED(ctxt); }
   virtual void _manage(const Db* db1, const Db* db2) const {DECLARE_UNUSED(db1) DECLARE_UNUSED(db2)}
   virtual void _load(const SpacePoint& p, bool option) const;
-  void _optimizationPreProcessForData(const Db* db1 = nullptr) const;
+ 
   void _optimizationPreProcessForTarget(const Db* db2,
                                         const VectorInt& nbgh2 = VectorInt()) const;
   void setNoStatDbIfNecessary(const Db*& db);
@@ -499,6 +504,8 @@ protected:
   mutable bool _optimPreProcessedData; // True if Data have been pre-processed for optimization
   mutable std::vector<SpacePoint> _p1As;
   mutable std::vector<SpacePoint> _p2As;
+  mutable SpacePoint _p2A;
+  mutable SpacePoint _pAux;
   mutable SpacePoint* _pw1;
   mutable SpacePoint* _pw2;
   

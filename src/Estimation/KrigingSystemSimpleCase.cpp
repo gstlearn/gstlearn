@@ -380,6 +380,7 @@ bool KrigingSystemSimpleCase::isReady()
 {
   if (!_isCorrect()) return false;
 
+  _neigh->select(0, _nbgh);
   // Define the means of each variable
   _means       = _model->getMeans();
   // Possible adjust the means in case of presence of 'matLC'
@@ -391,6 +392,8 @@ bool KrigingSystemSimpleCase::isReady()
     _Z           = _dbin->getValuesByRanks(_sampleRanks, 
                                            _means, !_model->hasDrift());
     if (_algebra.setData(&_Z, &_sampleRanks, &_meansTarget)) return false;
+    resetData();
+    _Sigma0.resize(_Z.size(), 1);
   }
 
   // Perform some pre-calculation when variance of estimator is requested
@@ -405,6 +408,8 @@ bool KrigingSystemSimpleCase::isReady()
   _neigh->attach(_dbin, _dbout);
 
   _isReady = true;
+  _model->getCov()->optimizationPreProcessForData(_dbin);
+  _model->getCov()->manage(_dbin,_dbout);
   return _isReady;
 }
 
@@ -455,22 +460,12 @@ void KrigingSystemSimpleCase::conclusion()
  
    // Elaborate the Neighborhood
    // For XValid in Unique Neighborhood, turn the Xvalid option OFF during neighborhood search
-   _neigh->select(_iechOut, _nbgh);
    status = _setInternalShortCutVariablesNeigh();
-   if (_flagNeighOnly) goto label_store;
+   
    if (status) goto label_store;
  
-   /* Establish the Kriging L.H.S. */
- 
-   if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || OptDbg::force())
-   {
-     status = resetData();
-     if (status) goto label_store;
-   }
- 
-
    /* Establish the Kriging R.H.S. */
-   if (_model->evalCovMatRHSInPlace(_Sigma0, _dbin, _dbout, _sampleRanks, iech_out, _krigopt, false)) return 1;
+   if (_model->getCov()->evalCovVecRHSInPlace(_Sigma0.getViewOnColumnModify(0), _dbout, _sampleRanks[0], iech_out)) return 1;
    if (_model->evalDriftMatByTarget(_X0, _dbout, iech_out, _krigopt)) return 1;
    if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
   
@@ -496,16 +491,8 @@ void KrigingSystemSimpleCase::conclusion()
  
    // Store the results in the output Db
  
-   if (_flagNeighOnly)
-   {
-     VectorDouble tab = _neigh->summary(_iechOut);
-     _neighCalcul(status, tab);
-   }
-   else 
-   {
-     // Unique Neighborhood case
-      _estimateCalcul(status);
-   }
+   _estimateCalcul(status);
+   
  
    // Final printout
    if (OptDbg::query(EDbg::RESULTS))

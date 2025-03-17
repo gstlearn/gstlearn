@@ -713,7 +713,8 @@ double KrigingAlgebra::getLTerm() {
 
 int KrigingAlgebra::_needZstar() {
   if (!_Zstar.empty()) return 0;
-  if (_flagDual) {
+  if (_flagDual) 
+  {
     // Particular Dual case
     if (_needDual()) return 1;
     if (_needSigma0()) return 1;

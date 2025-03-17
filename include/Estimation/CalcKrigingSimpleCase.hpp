@@ -52,8 +52,6 @@ private:
 
   VectorString _nameCoord;
   int _iechSingleTarget;
-  bool _flagNeighOnly;
-
 
   int  _nbNeigh;
 

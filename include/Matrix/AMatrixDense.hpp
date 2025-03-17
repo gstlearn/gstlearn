@@ -155,6 +155,7 @@ private:
 #ifndef SWIG
   public:
   constvect getViewOnColumn(int icol) const;
+  vect getViewOnColumnModify(int icol) const;
 #endif
 #ifndef SWIG
   public:
