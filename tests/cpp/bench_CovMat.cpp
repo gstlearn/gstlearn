@@ -171,9 +171,10 @@ void st_bench_writing_in_matrix(int nrows, int ncols, Timer& timer)
       message("Simple loop between each target and the previous vector\n");
       model->setOptimEnabled(true);
 
+      MatrixRectangular mat;
       timer.reset();
       OptCustom::define("OptimCovMat", mode);
-      MatrixRectangular mat = model->evalCovMat(dbin, dbout);
+      (void) model->evalCovMatInPlace(mat, dbin, dbout);
       timer.displayIntervalMilliseconds("Establishing RHS V" + std::to_string(int(mode)));
 
       // Some printout for comparison

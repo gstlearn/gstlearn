@@ -1039,29 +1039,42 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
 {
   MatrixRectangular mat;
 
-  // Preliminary checks
-  if (db2 == nullptr) db2 = db1;
-  if (db1 == nullptr || db2 == nullptr) return mat;
-  VectorInt ivars = _getActiveVariables(ivar0);
-  if (ivars.empty()) return mat;
-  VectorInt jvars = _getActiveVariables(jvar0);
-  if (jvars.empty()) return mat;
-
-  VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1);
-  VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2);
-
-  int error = evalCovMatInPlace(mat, db1, db2, index1, index2, nbgh2, mode, cleanOptim);
+  int error = evalCovMatInPlace(mat, db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
   return (error) == 0 ? mat : MatrixRectangular();
 }
 
 int ACov::evalCovMatInPlace(MatrixRectangular& mat,
                             const Db* db1,
                             const Db* db2,
-                            const VectorVectorInt& index1,
-                            const VectorVectorInt& index2,
+                            int ivar0,
+                            int jvar0,
+                            const VectorInt& nbgh1,
                             const VectorInt& nbgh2,
                             const CovCalcMode* mode,
                             bool cleanOptim) const
+{
+  // Preliminary checks
+  if (db2 == nullptr) db2 = db1;
+  if (db1 == nullptr || db2 == nullptr) return 1;
+  VectorInt ivars = _getActiveVariables(ivar0);
+  if (ivars.empty()) return 1;
+  VectorInt jvars = _getActiveVariables(jvar0);
+  if (jvars.empty()) return 1;
+
+  VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1);
+  VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2);
+
+  return evalCovMatInPlaceFromIdx(mat, db1, db2, index1, index2, nbgh2, mode, cleanOptim);
+}
+
+  int ACov::evalCovMatInPlaceFromIdx(MatrixRectangular& mat,
+                                     const Db* db1,
+                                     const Db* db2,
+                                     const VectorVectorInt& index1,
+                                     const VectorVectorInt& index2,
+                                     const VectorInt& nbgh2,
+                                     const CovCalcMode* mode,
+                                     bool cleanOptim) const
 {
   // Prepare Non-stationarity (if needed)
   manage(db1, db2);
@@ -1176,13 +1189,13 @@ SpacePoint& ACov::_optimizationLoadInPlace(int iech,
  ** \note due to the presence of 'nostat'
  **
  *****************************************************************************/
-int ACov::evalCovMatRHSInPlace(MatrixRectangular& mat,
-                               const Db* db1,
-                               const Db* db2,
-                               const VectorVectorInt& index1,
-                               int iech2,
-                               const KrigOpt& krigopt,
-                               bool cleanOptim) const
+int ACov::evalCovMatRHSInPlaceFromIdx(MatrixRectangular& mat,
+                                      const Db* db1,
+                                      const Db* db2,
+                                      const VectorVectorInt& index1,
+                                      int iech2,
+                                      const KrigOpt& krigopt,
+                                      bool cleanOptim) const
 {
   // Preliminary checks
   if (db1 == nullptr || db2 == nullptr) return 1;
@@ -1461,23 +1474,33 @@ MatrixSquareSymmetric ACov::evalCovMatSym(const Db* db1,
 {
   MatrixSquareSymmetric mat;
 
-  // Preliminary checks
-  if (db1 == nullptr) return mat;
-  VectorInt ivars = _getActiveVariables(ivar0);
-  if (ivars.empty()) return mat;
-
-  // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1, true, true, true);
-
-  int error = evalCovMatSymInPlace(mat, db1, index1, mode, cleanOptim);
+  int error = evalCovMatSymInPlace(mat, db1, nbgh1, ivar0, mode, cleanOptim);
   return (error == 0) ? mat : MatrixSquareSymmetric();
 }
 
 int ACov::evalCovMatSymInPlace(MatrixSquareSymmetric& mat,
                                const Db* db1,
-                               const VectorVectorInt& index1,
+                               const VectorInt& nbgh1,
+                               int ivar0,
                                const CovCalcMode* mode,
                                bool cleanOptim) const
+{
+  // Preliminary checks
+  if (db1 == nullptr) return 1;
+  VectorInt ivars = _getActiveVariables(ivar0);
+  if (ivars.empty()) return 1;
+
+  // Create the sets of Vector of valid sample indices per variable (not masked and defined)
+  VectorVectorInt index1 = db1->getSampleRanks(ivars, nbgh1, true, true, true);
+
+  return evalCovMatSymInPlaceFromIdx(mat, db1, index1, mode, cleanOptim);
+}
+
+int ACov::evalCovMatSymInPlaceFromIdx(MatrixSquareSymmetric& mat,
+                                      const Db* db1,
+                                      const VectorVectorInt& index1,
+                                      const CovCalcMode* mode,
+                                      bool cleanOptim) const
 {
   // Creating the matrix
   int neq1 = VH::count(index1);
