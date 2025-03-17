@@ -200,10 +200,13 @@
     int size = (int)Rf_length(obj);
     if (size == 1)
     {
-      // Not a vector (or a single value)
       InputVector vec;
+      SEXP item = getElem(obj,0);
       // Try to convert
-      myres = vectorToCpp(obj, vec);
+      if (TYPEOF(item) == NILSXP) 
+        myres = vectorToCpp(obj, vec);
+      else
+        myres = vectorToCpp(item, vec);
       if (SWIG_IsOK(myres))
         vvec.push_back(vec);
     }

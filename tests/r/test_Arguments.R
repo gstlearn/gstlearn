@@ -66,6 +66,8 @@ print(argumentReturnVectorDouble(c(1., 2., 3.)))
 print(argumentReturnVectorInt(c(3,2,8)))
 print(argumentReturnVectorVectorInt(list(c(1,2),c(3,4))))
 print(argumentReturnVectorVectorDouble(list(c(1,2),c(3,4))))
+print(argumentReturnVectorVectorInt(list(c(5,6))))
+print(argumentReturnVectorVectorDouble(list(c(5,6))))
 
 # Testing assessors (instead of relevant functions)
 # to access the elements of a class

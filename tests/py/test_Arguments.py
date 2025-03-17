@@ -70,6 +70,8 @@ print(gl.argumentReturnVectorDouble([1., 2., 3.]))
 print(gl.argumentReturnVectorInt([3,2,8]))
 print(gl.argumentReturnVectorVectorInt([[1,2],[3,4]]))
 print(gl.argumentReturnVectorVectorDouble([[1,2],[3,4]]))
+print(gl.argumentReturnVectorVectorInt([[5,6]]))
+print(gl.argumentReturnVectorVectorDouble([[5,6]]))
 
 # Testing assessors to the elements of a class
 

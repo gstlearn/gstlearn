@@ -105,7 +105,7 @@ For people who were using [RGeostats](http://cg.ensmp.fr/rgeostats), here is the
 
 * The objects manipulated through *gstlearn* R package (Database, Variograms, Polygons, etc...) are now **external pointers**.
 
-* If you need to duplicate your objects, a simple assignment (e.g. `db2 = db1`) is not possible. You must use the `clone` method by doing this: `db2 = db1$clone()`. All classes that inherits from `iCloneable` have this capability ([see here](https://soft.mines-paristech.fr/gstlearn/doxygen-latest/classICloneable.html)).
+* If you need to duplicate your objects, a simple assignment (e.g. `db2 = db1`) is not possible. You must use the `clone` method by doing this: `db2 = db1$clone()`. All classes that inherits from `ICloneable` have this capability ([see here](https://soft.mines-paristech.fr/gstlearn/doxygen-latest/classICloneable.html)).
 
 * The *gstlearn* objects memory content is not stored in the R workspace anymore. This means that saving the R workspace (`.RData`) is dangerous because it stores only memory pointers that won't be valid when loading the workspace in a future R session.
 
