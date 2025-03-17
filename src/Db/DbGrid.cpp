@@ -752,6 +752,22 @@ bool DbGrid::_deserialize(std::istream& is, bool verbose)
   return ret;
 }
 
+bool DbGrid::_serialize(std::ostream& os, bool verbose) const
+{
+  bool ret = true;
+
+  /* Writing the grid characteristics */
+
+  ret = ret && _grid._serialize(os, verbose);
+
+  /* Writing the tail of the file */
+
+  ret = ret && Db::_serialize(os, verbose);
+
+  return ret;
+}
+
+#ifdef HDF5
 bool DbGrid::_deserializeH5(H5::Group& grp, bool verbose)
 {
   // Call SerializeHDF5::getGroup to get the subgroup of grp named
@@ -769,21 +785,6 @@ bool DbGrid::_deserializeH5(H5::Group& grp, bool verbose)
 
   // call _deserialize on the parent class with the current class Group
   ret = ret && Db::_deserializeH5(*db, verbose);
-
-  return ret;
-}
-
-bool DbGrid::_serialize(std::ostream& os, bool verbose) const
-{
-  bool ret = true;
-
-  /* Writing the grid characteristics */
-
-  ret = ret && _grid._serialize(os, verbose);
-
-  /* Writing the tail of the file */
-
-  ret = ret && Db::_serialize(os, verbose);
 
   return ret;
 }
@@ -806,6 +807,7 @@ bool DbGrid::_serializeH5(H5::Group& grp, bool verbose) const
 
   return ret;
 }
+#endif
 
 double DbGrid::getUnit(int idim) const
 {
@@ -847,6 +849,7 @@ DbGrid* DbGrid::createFromNF(const String& neutralFilename, bool verbose)
   return dbgrid;
 }
 
+#ifdef HDF5
 DbGrid* DbGrid::createFromH5(const String& H5Filename, bool verbose)
 {
   auto* dbgrid = new DbGrid;
@@ -860,6 +863,7 @@ DbGrid* DbGrid::createFromH5(const String& H5Filename, bool verbose)
   }
   return dbgrid;
 }
+#endif
 
 VectorDouble DbGrid::getColumnSubGrid(const String& name,
                                      int idim0,
