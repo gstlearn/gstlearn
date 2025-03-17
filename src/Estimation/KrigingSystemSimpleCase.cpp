@@ -364,7 +364,7 @@ int KrigingSystemSimpleCase::resetData()
   const CovCalcMode calcmode(ECalcMember::LHS);
   _sampleRanks = _dbin->getSampleRanks(VectorInt(), _nbgh);
   _Z           = _dbin->getValuesByRanks(_sampleRanks, _means, !_model->hasDrift());
-  if (_model->evalCovMatSymInPlace(_Sigma, _dbin, _sampleRanks, &calcmode, false)) return 1;
+  if (_model->evalCovMatSymInPlaceFromIdx(_Sigma, _dbin, _sampleRanks, &calcmode, false)) return 1;
   if (_model->evalDriftMatByRanks(_X, _dbin, _sampleRanks, ECalcMember::LHS)) return 1;
 
   if (! _isAuthorized()) return 1;
