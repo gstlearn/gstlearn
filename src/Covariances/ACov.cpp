@@ -692,7 +692,7 @@ void ACov::evalPointToDb(VectorDouble& values,
 {
   SpacePoint p2(getSpace());
 
-  VectorInt index2 = db2->getRanksActive(nbgh2, jvar, useSel);
+  VectorInt index2 = db2->getSampleRanksPerVariable(nbgh2, jvar, useSel);
   int nech2        = (int)index2.size();
   if (nech2 != (int)values.size()) values.resize(nech2);
 

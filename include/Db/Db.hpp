@@ -559,11 +559,11 @@ public:
 
   int          getSelection(int iech) const;
   VectorDouble getSelections(void) const;
-  VectorInt getRanksActive(const VectorInt& nbgh = VectorInt(),
-                           int item              = -1,
-                           bool useSel           = true,
-                           bool useZ             = true,
-                           bool useVerr          = false) const;
+  VectorInt getSampleRanksPerVariable(const VectorInt& nbgh = VectorInt(),
+                                      int item              = -1,
+                                      bool useSel           = true,
+                                      bool useZ             = true,
+                                      bool useVerr          = false) const;
   VectorVectorInt getSampleRanks(const VectorInt& ivars = VectorInt(),
                                  const VectorInt& nbgh  = VectorInt(),
                                  bool useSel            = true,

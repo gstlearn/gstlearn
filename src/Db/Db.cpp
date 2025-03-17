@@ -334,9 +334,8 @@ int Db::getUIDByLocator(const ELoc& locatorType, int locatorIndex) const
 int Db::getColIdxByLocator(const ELoc& locatorType, int locatorIndex) const
 {
   const PtrGeos& p = _p[locatorType.getValue()];
-  int number = p.getNLoc();
-  if (number <= 0 || locatorIndex >= number)
-    return -1;
+  int number       = p.getNLoc();
+  if (number <= 0 || locatorIndex >= number) return -1;
   int icol = getColIdxByUID(p.getLocatorByIndex(locatorIndex));
   return (icol);
 }
@@ -943,7 +942,7 @@ MatrixRectangular Db::getAllCoordinatesMat(const MatrixRectangular& box) const
   int nech = getNSample(true);
   int ndim = getNDim();
 
-  VectorInt ranks = getRanksActive();
+  VectorInt ranks = getSampleRanksPerVariable();
 
   // Suppress some data due to bounds
   int nechValid = 0;
@@ -3560,16 +3559,16 @@ VectorVectorInt Db::getSampleRanks(const VectorInt& ivars,
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int jvar    = jvars[ivar];
-    index[ivar] = getRanksActive(nbgh, jvar, useSel, useZ, useVerr);
+    index[ivar] = getSampleRanksPerVariable(nbgh, jvar, useSel, useZ, useVerr);
   }
   return index;
 }
 
-VectorInt Db::getRanksActive(const VectorInt& nbgh,
-                             int item,
-                             bool useSel,
-                             bool useZ,
-                             bool useVerr) const
+VectorInt Db::getSampleRanksPerVariable(const VectorInt& nbgh,
+                                        int item,
+                                        bool useSel,
+                                        bool useZ,
+                                        bool useVerr) const
 {
   double value;
   int nech_tot = getNSample();
@@ -3609,15 +3608,14 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh,
     // Check against the existence of a target variable
     if (useZ && item >= 0)
     {
-      value = getZVariable(iabs, item);
+      value = getFromLocator(ELoc::Z, iabs, item);
       if (FFFF(value)) continue;
     }
 
     // Check against the validity of the Variance of Measurement Error
-    // variable
     if (useV)
     {
-      value = getLocVariable(ELoc::V, iabs, item);
+      value = getFromLocator(ELoc::V, iabs, item);
       if (FFFF(value) || value < 0) continue;
     }
 
@@ -5047,7 +5045,7 @@ int Db::resetReduce(const Db* dbin,
   if (ranksel.empty())
   {
     if (dbin->hasLocVariable(ELoc::SEL))
-      ranksel = dbin->getRanksActive();
+      ranksel = dbin->getSampleRanksPerVariable();
     else
       ranksel = VH::sequence(dbin->getNSample());
   }
