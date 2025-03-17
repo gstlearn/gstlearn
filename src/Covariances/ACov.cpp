@@ -1474,7 +1474,8 @@ MatrixSquareSymmetric ACov::evalCovMatSym(const Db* db1,
 {
   MatrixSquareSymmetric mat;
 
-  return evalCovMatSymInPlace(mat, db1, nbgh1, ivar0, mode, cleanOptim);
+  int error = evalCovMatSymInPlace(mat, db1, nbgh1, ivar0, mode, cleanOptim);
+  return (error == 0) ? mat : MatrixSquareSymmetric();
 }
 
 int ACov::evalCovMatSymInPlace(MatrixSquareSymmetric& mat,
