@@ -16,9 +16,9 @@
 #include "Matrix/MatrixSparse.hpp"
 #include "Model/Model.hpp"
 
-Vecchia::Vecchia(const Db* dbin,
-                 const Db* dbout,
-                 const Model* model)
+Vecchia::Vecchia(const Model* model,
+                 const Db* dbin,
+                 const Db* dbout)
   : _dbin(dbin)
   , _dbout(dbout)
   , _model(model)

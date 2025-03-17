@@ -20,7 +20,7 @@ class Model;
 class GSTLEARN_EXPORT Vecchia
 {
 public:
-  Vecchia(const Db* dbin, const Db* dbout, const Model* model);
+  Vecchia(const Model* model, const Db* dbin, const Db* dbout = nullptr);
   Vecchia(const Vecchia &r) = delete;
   Vecchia& operator=(const Vecchia &r) = delete;
   virtual ~Vecchia();
