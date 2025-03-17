@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Enum/ESpaceType.hpp"
@@ -79,6 +80,12 @@ public:
   virtual VectorDouble getDistances(const SpacePoint& p1,
                                     const SpacePoint& p2) const;
 
+  virtual void getDistancePointVectInPlace(const SpacePoint& p1,
+                                           const std::vector<SpacePoint>& p2,
+                                           VectorDouble& res) const
+  {
+    DECLARE_UNUSED(p1, p2, res)                                      
+  };
   ///////////////////////////////////////////////
   /// Not to be overriden
   
