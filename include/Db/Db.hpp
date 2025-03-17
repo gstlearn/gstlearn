@@ -221,6 +221,14 @@ public:
                               const VectorDouble& coormax     = VectorDouble(),
                               int seed                        = 124234,
                               bool flagAddSampleRank          = true);
+  static Db* createEmpty(int ndat,
+                         int ndim               = 2,
+                         int nvar               = 1,
+                         int nfex               = 0,
+                         int ncode              = 0,
+                         bool flagVerr          = false,
+                         bool flagSel           = false,
+                         bool flagAddSampleRank = true);
   static Db* createFromGridRandomized(DbGrid* dbgrid,
                                       double randperc        = 0.,
                                       bool flagAddSampleRank = true);

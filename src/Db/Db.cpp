@@ -5566,6 +5566,70 @@ Db* Db::createFillRandom(int ndat,
   return db;
 }
 
+Db* Db::createEmpty(int ndat,
+                    int ndim,
+                    int nvar,
+                    int nfex,
+                    int ncode,
+                    bool flagVerr,
+                    bool flagSel,
+                    bool flagAddSampleRank)
+{
+  // Create the Db
+  Db* db = Db::create();
+
+  // Add the sample rank attribute
+  if (flagAddSampleRank) db->_addRank(ndat);
+
+  // Generate the vector of coordinates
+  VectorVectorDouble coor(ndim);
+  for (int idim = 0; idim < ndim; idim++)
+    coor[idim] = VectorDouble(ndat, 0.);
+  db->addColumnsByVVD(coor, "x", ELoc::X);
+
+  // Generate the Vectors of Variance of measurement error (optional)
+  if (flagVerr)
+  {
+    VectorVectorDouble varm(nvar);
+    for (int ivar = 0; ivar < nvar; ivar++)
+      varm[ivar] = VectorDouble(ndat, 0.);
+    db->addColumnsByVVD(varm, "v", ELoc::V);
+  }
+
+  // Generate the External Drift functions (optional)
+  if (nfex > 0)
+  {
+    VectorVectorDouble fex(nfex);
+    for (int ifex = 0; ifex < nfex; ifex++)
+      fex[ifex] = VectorDouble(ndat, 0.);
+    db->addColumnsByVVD(fex, "f", ELoc::F);
+  }
+
+  // Generate the selection (optional)
+  if (flagSel)
+  {
+    VectorDouble sel(ndat);
+    sel.fill(1.);
+    db->addColumns(sel, "sel", ELoc::SEL);
+  }
+
+  // Generate the variables
+  VectorVectorDouble vars(nvar);
+  for (int ivar = 0; ivar < nvar; ivar++)
+    vars[ivar] = VectorDouble(ndat, 0.);
+  db->addColumnsByVVD(vars, "z", ELoc::Z);
+
+  // Generate the code (optional)
+  if (ncode > 0)
+  {
+    VectorDouble codes(ndat);
+    codes.fill(0.);
+    db->addColumns(codes, "code", ELoc::C);
+  }
+
+  return db;
+}
+
 Table Db::printOneSample(int iech,
                          const VectorString& names,
                          bool excludeCoordinates,

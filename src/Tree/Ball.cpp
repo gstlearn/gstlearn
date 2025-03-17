@@ -261,8 +261,8 @@ MatrixT<int> findNN(Db* dbin,
 
     if (verbose)
     {
-      message("Sample %d\n", iech);
-      VH::dump("Neighs", neighs);
+      message("Sample %3d :", iech);
+      VH::dump(" ", neighs, false);
     }
   }
 
