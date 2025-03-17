@@ -258,6 +258,12 @@ MatrixT<int> findNN(Db* dbin,
     ball.setConstraint(iech, true);
     (void)ball.queryOneInPlace(pt.getCoordUnprotected(), nb_neigh, neighs, distances);
     for (int i = 0; i < nb_neigh; i++) mat(jech, i) = neighs[i];
+
+    if (verbose)
+    {
+      message("Sample %d\n", iech);
+      VH::dump("Neighs", neighs);
+    }
   }
 
   if (dbout != nullptr)
@@ -270,6 +276,12 @@ MatrixT<int> findNN(Db* dbin,
       ball.setConstraint(iech + n1, true);
       (void)ball.queryOneInPlace(pt.getCoordUnprotected(), nb_neigh, neighs, distances);
       for (int i = 0; i < nb_neigh; i++) mat(n1 + jech, i) = neighs[i];
+
+      if (verbose)
+      {
+        message("Sample %d\n", iech);
+        VH::dump("Neighs", neighs);
+      }
     }
   }
   return mat;
