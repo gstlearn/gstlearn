@@ -20,6 +20,26 @@ gl.argumentTestVectorString(["my_String1","my_String2","my_String3"])
 gl.argumentTestVectorVectorInt([ [2,3],[1, 5 ] ])
 gl.argumentTestVectorVectorDouble([ [2.,3.], [1., 5 ] ])
 
+# Testing Vector arguments using external factory
+
+a = gl.VectorString()
+a.push_back("toto")
+a.push_back("titi")
+gl.argumentTestVectorString(a)
+print(a.toTL())
+
+a = gl.VectorInt()
+a.push_back(12)
+a.push_back(13)
+gl.argumentTestVectorInt(a)
+print(a.toTL())
+
+a = gl.VectorDouble()
+a.push_back(12.)
+a.push_back(13.)
+gl.argumentTestVectorDouble(a)
+print(a.toTL())
+          
 # Testing missing arguments
 
 gl.argumentTestInt(np.nan)
@@ -50,6 +70,8 @@ print(gl.argumentReturnVectorDouble([1., 2., 3.]))
 print(gl.argumentReturnVectorInt([3,2,8]))
 print(gl.argumentReturnVectorVectorInt([[1,2],[3,4]]))
 print(gl.argumentReturnVectorVectorDouble([[1,2],[3,4]]))
+print(gl.argumentReturnVectorVectorInt([[5,6]]))
+print(gl.argumentReturnVectorVectorDouble([[5,6]]))
 
 # Testing assessors to the elements of a class
 

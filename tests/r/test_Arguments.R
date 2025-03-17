@@ -7,7 +7,7 @@
 suppressWarnings(suppressMessages(library(gstlearn)))
 suppressWarnings(suppressMessages(library(Matrix)))
 
-# Ta.Resting direct argument of main type
+# Testing direct argument of main type
 invisible(argumentTestInt(12))
 invisible(argumentTestDouble(2.3))
 invisible(argumentTestVectorInt(c(1,2,3)))
@@ -24,14 +24,19 @@ a = VectorString()
 invisible(a$push_back("toto"))
 invisible(a$push_back("titi"))
 invisible(argumentTestVectorString(a))
+print(a$toTL())
 
 a = VectorInt()
 a$push_back(12)
+a$push_back(13)
 argumentTestVectorInt(a)
+print(a$toTL())
 
 a = VectorDouble()
 invisible(a$push_back(12.))
+invisible(a$push_back(13.))
 invisible(argumentTestVectorDouble(a))
+print(a$toTL())
 
 # Testing missing arguments
 
@@ -61,6 +66,8 @@ print(argumentReturnVectorDouble(c(1., 2., 3.)))
 print(argumentReturnVectorInt(c(3,2,8)))
 print(argumentReturnVectorVectorInt(list(c(1,2),c(3,4))))
 print(argumentReturnVectorVectorDouble(list(c(1,2),c(3,4))))
+print(argumentReturnVectorVectorInt(list(c(5,6))))
+print(argumentReturnVectorVectorDouble(list(c(5,6))))
 
 # Testing assessors (instead of relevant functions)
 # to access the elements of a class

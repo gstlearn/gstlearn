@@ -1,7 +1,5 @@
 %feature(director) IProj;
 %feature(director) AFunctional;
-
-//%feature(director) ICLoneable;
 %feature(director) ABiTargetCheck;
 
 %{

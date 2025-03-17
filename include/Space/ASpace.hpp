@@ -29,8 +29,7 @@ class Tensor;
   * _offset is used. Otherwise it is set to 0.
   * Example : if I am RN(1) in RN(2)+RN(1), offset is 2
   */
-class GSTLEARN_EXPORT ASpace: public AStringable,
-                              public ICloneable
+class GSTLEARN_EXPORT ASpace: public AStringable, public ICloneable
 {
 protected:
   ASpace(unsigned int ndim);

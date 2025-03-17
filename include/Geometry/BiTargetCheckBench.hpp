@@ -27,7 +27,7 @@ public:
   virtual bool isValid(const Db* dbin, const Db* dbout) override;
 
   /// ICloneable Interface
-  //IMPLEMENT_CLONING(BiTargetCheckBench)
+  IMPLEMENT_CLONING(BiTargetCheckBench)
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
