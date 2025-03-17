@@ -436,7 +436,7 @@ void KrigingSystemSimpleCase::conclusion()
 
  int KrigingSystemSimpleCase::estimate(int iech_out)
  {
-  //  if (! _dbout->isActive(iech_out)) return 0;
+    if (! _dbout->isActive(iech_out)) return 0;
   //  if (! _isReady)
   //  {
   //    messerr("You must call 'isReady' before launching 'estimate'");

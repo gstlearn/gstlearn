@@ -132,3 +132,25 @@ void SpaceRN::_getIncrementInPlace(const SpacePoint& p1,
   for (unsigned int i = offset; i < maxlength; i++)
     ptemp[j++] = p2.getCoord(i) - p1.getCoord(i);
 }
+
+
+void SpaceRN::getDistancePointVectInPlace(const SpacePoint& p1,
+										  const std::vector<SpacePoint>& p2,
+	                                      VectorDouble& res) const
+{
+	double ti;
+	double s;
+	int nbp = res.size();
+	for(int i = 0; i<nbp;i++)
+	{
+		s = 0.;
+
+		for(unsigned int idim = 0;idim<_nDim;idim++)
+		{
+			ti = p1.getCoord(idim) - p2[i].getCoord(idim);
+			s+= ti * ti;
+		}
+
+		res[i] = sqrt(s);
+	}
+}
