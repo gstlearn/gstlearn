@@ -126,7 +126,7 @@ int CalcGlobal::_globalKriging()
   VectorDouble Z              = dbin->getValuesByRanks(sampleRanks,
                                                        _modelLocal->getMeans(), 
                                                        !_modelLocal->hasDrift());
-  if (_modelLocal->evalCovMatSymInPlace(Sigma, dbin, sampleRanks, &mode, false)) return 1;
+  if (_modelLocal->evalCovMatSymInPlaceFromIdx(Sigma, dbin, sampleRanks, &mode, false)) return 1;
   if (_modelLocal->evalDriftMatByRanks(X, dbin, sampleRanks, ECalcMember::LHS)) return 1;
 
   KrigingAlgebra algebra;
@@ -147,7 +147,7 @@ int CalcGlobal::_globalKriging()
     mes_process("Kriging sample", dbout->getNSample(), iech);
     if (!dbout->isActive(iech)) continue;
 
-    if (_modelLocal->evalCovMatRHSInPlace(Sigma0, dbin, dbout, sampleRanks, iech, krigopt, false)) return 1;
+    if (_modelLocal->evalCovMatRHSInPlaceFromIdx(Sigma0, dbin, dbout, sampleRanks, iech, krigopt, false)) return 1;
     if (_modelLocal->evalDriftMatByTarget(X0, dbout, iech, krigopt)) return 1;
 
     // Cumulate the R.H.S.

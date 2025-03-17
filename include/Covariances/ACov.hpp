@@ -176,31 +176,48 @@ public:
                                  const CovCalcMode* mode = nullptr,
                                  bool cleanOptim         = true,
                                  double eps              = EPSILON3) const;
+
   int evalCovMat0InPlace(MatrixSquareSymmetric& mat,
                          const Db* db,
                          int iech,
                          const KrigOpt& krigopt = KrigOpt()) const;
   int evalCovMatInPlace(MatrixRectangular& mat,
                         const Db* db1,
-                        const Db* db2,
-                        const VectorVectorInt& index1,
-                        const VectorVectorInt& index2,
+                        const Db* db2           = nullptr,
+                        int ivar0               = -1,
+                        int jvar0               = -1,
+                        const VectorInt& nbgh1  = VectorInt(),
                         const VectorInt& nbgh2  = VectorInt(),
                         const CovCalcMode* mode = nullptr,
                         bool cleanOptim         = true) const;
   int evalCovMatSymInPlace(MatrixSquareSymmetric& mat,
                            const Db* db1,
-                           const VectorVectorInt& index1,
+                           const VectorInt& nbgh1  = VectorInt(),
+                           int ivar0               = -1,
                            const CovCalcMode* mode = nullptr,
-                           bool cleanOptim = true) const;
-  int evalCovMatRHSInPlace(MatrixRectangular& mat,
-                           const Db* db1,
-                           const Db* db2,
-                           const VectorVectorInt& index1,
-                           const int iech2        = -1,
-                           const KrigOpt& krigopt = KrigOpt(),
-                           bool cleanOptim        = true) const;
-  
+                           bool cleanOptim         = true) const;
+
+  int evalCovMatInPlaceFromIdx(MatrixRectangular& mat,
+                               const Db* db1,
+                               const Db* db2,
+                               const VectorVectorInt& index1,
+                               const VectorVectorInt& index2,
+                               const VectorInt& nbgh2  = VectorInt(),
+                               const CovCalcMode* mode = nullptr,
+                               bool cleanOptim         = true) const;
+  int evalCovMatSymInPlaceFromIdx(MatrixSquareSymmetric& mat,
+                                  const Db* db1,
+                                  const VectorVectorInt& index1,
+                                  const CovCalcMode* mode = nullptr,
+                                  bool cleanOptim         = true) const;
+  int evalCovMatRHSInPlaceFromIdx(MatrixRectangular& mat,
+                                  const Db* db1,
+                                  const Db* db2,
+                                  const VectorVectorInt& index1,
+                                  const int iech2        = -1,
+                                  const KrigOpt& krigopt = KrigOpt(),
+                                  bool cleanOptim        = true) const;
+
   /////////////////////////////////////////////////////////////////////////////////
   void eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat, const CovCalcMode* mode) const;
 
