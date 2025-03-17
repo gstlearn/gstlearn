@@ -839,6 +839,9 @@ void exit_f(void)
 %}
 
 // Do not use VectorInt here
+%extend VectorT<String> {
+  std::string __repr__() {  return $self->toString(); }
+}
 %extend VectorNumT<int> {
   std::string __repr__() {  return $self->toString(); }
 }
@@ -849,6 +852,12 @@ void exit_f(void)
   std::string __repr__() {  return $self->toString(); }
 }
 %extend VectorNumT<UChar> {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend VectorT<VectorNumT<int> > {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend VectorT<VectorNumT<double> >{
   std::string __repr__() {  return $self->toString(); }
 }
 
