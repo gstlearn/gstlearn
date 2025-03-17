@@ -1258,26 +1258,39 @@ int ACov::evalCovMatRHSInPlace(MatrixRectangular& mat,
  int ACov::evalCovVecRHSInPlace(vect vect,
                                 const Db* db2,
                                 const VectorInt& index1,
-                                SpacePoint& ptemp,
+                                SpacePoint& pin,
+                                SpacePoint& pout,
                                 int iech2) const
 {
-  bool flagNoStat = isNoStat();
-  int neq1 = (int) index1.size();
-  db2->getSampleAsSPInPlace(_pAux, iech2);
-  optimizationSetTarget(_pAux);
-  SpacePoint& p2 = optimizationLoadInPlace(0,3,2);
-  for (int i = 0; i < neq1; i++)
-  {
-    SpacePoint& p1 = optimizationLoadInPlace(i, 1, 1);
-    if (flagNoStat)
-        updateCovByPoints(1, i, 2, iech2);
+  
+  db2->getSampleAsSPInPlace(pin, iech2);
+  
+  evalCovPointVec(pin,_p1As, pout,iech2,vect);
 
-      // Loop on the discretization points
-    vect[i] = evalCov(p1, p2, 0, 0);
-  }
 
   return 0;
 }
+
+void ACov::evalCovPointVec(SpacePoint& pin,
+                           std::vector<SpacePoint>& p1s,
+                           SpacePoint& pout,
+                           int iech2,
+                           vect vect) const
+{
+  bool flagNoStat = isNoStat();
+  for (int i = 0, n =  (int)p1s.size(); i < n; i++)
+  {
+    if (flagNoStat)
+        updateCovByPoints(1, i, 2, iech2);
+
+    // Loop on the discretization points
+     vect[i] = 0;
+  }
+
+}
+
+
+
 int ACov::_evalCovMatRHSInPlaceBlock(MatrixRectangular& mat,
                                      const Db* db2,
                                      const VectorVectorInt& index1,

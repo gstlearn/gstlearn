@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
+#include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
 
@@ -435,7 +436,8 @@ void KrigingSystemSimpleCase::conclusion()
 
  int KrigingSystemSimpleCase::estimate(int iech_out)
  {
-    SpacePoint ptemp(_model->getSpace());
+    SpacePoint pin(_model->getSpace());
+    SpacePoint pout(_model->getSpace());
     if (! _dbout->isActive(iech_out)) return 0;
   //  if (! _isReady)
   //  {
@@ -448,7 +450,7 @@ void KrigingSystemSimpleCase::conclusion()
     bool skipCalculAll = false;
  
   //  // Store the Rank of the Target sample
-  //  _iechOut = iech_out;
+    _iechOut = iech_out;
  
    int status = 0;
    //if (skipCalculAll) goto label_store;
@@ -468,7 +470,7 @@ void KrigingSystemSimpleCase::conclusion()
    //if (status) goto label_store;
  
    /* Establish the Kriging R.H.S. */
-   if (_model->evalCovVecRHSInPlace(_Sigma0.getViewOnColumnModify(0), _dbout, _sampleRanks[0], ptemp, iech_out)) return 1;
+   if (_model->evalCovVecRHSInPlace(_Sigma0.getViewOnColumnModify(0), _dbout, _sampleRanks[0], pin, pout, iech_out)) return 1;
    if (_model->evalDriftMatByTarget(_X0, _dbout, iech_out, _krigopt)) return 1;
    if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
   

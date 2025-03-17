@@ -189,13 +189,18 @@ public:
                            const int iech2        = -1,
                            const KrigOpt& krigopt = KrigOpt(),
                            bool cleanOptim        = true) const;
-  
+  void evalCovPointVec(SpacePoint& pin,
+                       std::vector<SpacePoint>& p1,
+                       SpacePoint& pout,
+                       int iech2,
+                       vect vect) const;
   int evalCovVecRHSInPlace(vect  vect,
                            const Db* db2,
                            const VectorInt& index1,
-                           SpacePoint& ptemp,
+                           SpacePoint& pin,
+                           SpacePoint& pout,
                            const int iech2        = -1) const;
-
+  
   /////////////////////////////////////////////////////////////////////////////////
   void eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat, const CovCalcMode* mode) const;
 
