@@ -1151,6 +1151,7 @@ def Db_toTL(self, flagLocate=False):
       dat[i].locator = self.getLocators()[j] 
   return dat
 
+# TODO : This below (and all other setattr for toTL) overrides DECLARE_TOTL usage (not needed in python ?)
 setattr(gl.Db, "toTL", Db_toTL)
 
 def Db_fromPanda(pf):

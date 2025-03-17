@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Timer.hpp"
 #include "Basic/Memory.hpp"
 #include "Core/Keypair.hpp"
 

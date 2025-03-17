@@ -361,8 +361,8 @@ int KrigingSystemSimpleCase::resetData()
   const CovCalcMode calcmode(ECalcMember::LHS);
   _sampleRanks = _dbin->getSampleRanks(VectorInt(), _nbgh);
   _Z           = _dbin->getValuesByRanks(_sampleRanks, _means, !_model->hasDrift());
-  if (_model->evalCovMatSymByRanks(_Sigma, _dbin, _sampleRanks, -1, &calcmode, false)) return 1;
-  if (_model->evalDriftMatByRanks(_X, _dbin, _sampleRanks, -1, ECalcMember::LHS)) return 1;
+  if (_model->evalCovMatSymInPlace(_Sigma, _dbin, _sampleRanks, &calcmode, false)) return 1;
+  if (_model->evalDriftMatByRanks(_X, _dbin, _sampleRanks, ECalcMember::LHS)) return 1;
 
   if (! _isAuthorized()) return 1;
   _algebra.resetNewData();
@@ -397,7 +397,7 @@ bool KrigingSystemSimpleCase::isReady()
   if (_flagStd)
   {
     _iechOut = 0;
-    if (_model->evalCov0MatByTargetInPlace(_Sigma00, _dbout, _iechOut, _krigopt)) return false;
+    if (_model->evalCovMat0InPlace(_Sigma00, _dbout, _iechOut, _krigopt)) return false;
     if (_algebra.setVariance(&_Sigma00)) return false;
   }
 
@@ -470,7 +470,7 @@ void KrigingSystemSimpleCase::conclusion()
  
 
    /* Establish the Kriging R.H.S. */
-   if (_model->evalCovMatForSingleTarget(_Sigma0, _dbin, _dbout, _sampleRanks, iech_out, _krigopt)) return 1;
+   if (_model->evalCovMatRHSInPlace(_Sigma0, _dbin, _dbout, _sampleRanks, iech_out, _krigopt, false)) return 1;
    if (_model->evalDriftMatByTarget(_X0, _dbout, iech_out, _krigopt)) return 1;
    if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
   

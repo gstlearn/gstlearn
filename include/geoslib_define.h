@@ -46,11 +46,11 @@ typedef unsigned char UChar;
 #define DECLARE_UNUSED(...) EXPAND(REPEAT(DECLARE_UNUSED_, __VA_ARGS__))
 
 // Declare the function which has a specific implementation
-// in the Target language.
+// in the Target language (TODO: only needed for R ?).
 // This function must be:
 // - declared in rgstlearn.i or pygstlearn.i
 // - be called as 'classname'_toTL
-#define DECLARE_TOTL void toTL() const {};
+#define DECLARE_TOTL inline void toTL() const {};
 
 // No need to this stuff through SWIG (using target language NAs)
 // => Not really : Using customized SWIG 4.2.0b, TEST is often a default argument value!

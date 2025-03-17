@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
   VectorDouble result;
   for (int iout = 0; iout < nout; iout++)
   {
-    if (model->evalCovMatByTarget(Sigma0, dbin, dbout, sampleRanks, iout, krigopt, false)) break;
+    if (model->evalCovMatRHSInPlace(Sigma0, dbin, dbout, sampleRanks, iout, krigopt, false)) break;
     if (verbose && iout == 0) Sigma0.dumpStatistics("RHS(target:1): Covariance part");  
     if (model->evalDriftMatByTarget(X0, dbout, iout, krigopt)) break;
     if (verbose && iout == 0) X0.dumpStatistics("RHS(target:1): Drift part");
