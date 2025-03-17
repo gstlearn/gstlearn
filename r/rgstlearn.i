@@ -691,10 +691,7 @@ setMethod(f = "show", signature = "_p_VectorNumTT_int_t",               definiti
 setMethod(f = "show", signature = "_p_VectorTT_float_t",                definition = function(object){ VectorTFloat_display(object) })
 setMethod(f = "show", signature = "_p_VectorNumTT_float_t",             definition = function(object){ VectorTFloat_display(object) })
 
-setMethod(f = "show", signature = "_p_VectorTT_UChar_t",                definition = function(object){ VectorTUChar_display(object) })          
-setMethod(f = "show", signature = "_p_VectorNumTT_UChar_t",             definition = function(object){ VectorTUChar_display(object) })          
-
-setMethod(f = "show", signature = "_p_VectorTT_string_t",               definition = function(object){ VectorTString_display(object) })
+setMethod(f = "show", signature = "_p_VectorTT_String_t",               definition = function(object){ VectorString_display(object) })
 
 setMethod(f = "show", signature = "_p_VectorTT_VectorNumTT_int_t_t",    definition = function(object){ VectorVectorInt_display(object) })
 
