@@ -89,8 +89,11 @@ KrigingSystemSimpleCase::KrigingSystemSimpleCase(Db* dbin,
   , _flagNoStat(false)
 {
   // _model is a copy of input model to allow modification (still used???)
-  if (model != nullptr) _model = (ModelGeneric*) model->clone();
-
+  if (model != nullptr)
+  {
+     _model = (ModelGeneric*) model->clone();
+     _cova = _model->getCov();
+  }
   if (model != nullptr)
     _flagNoStat = _model->isNoStat();
 
@@ -361,7 +364,7 @@ int KrigingSystemSimpleCase::resetData()
   const CovCalcMode calcmode(ECalcMember::LHS);
   _sampleRanks = _dbin->getSampleRanks(VectorInt(), _nbgh);
   _Z           = _dbin->getValuesByRanks(_sampleRanks, _means, !_model->hasDrift());
-  if (_model->evalCovMatSymInPlace(_Sigma, _dbin, _sampleRanks, &calcmode, false)) return 1;
+  if (_cova->evalCovMatSymInPlace(_Sigma, _dbin, _sampleRanks, &calcmode, false)) return 1;
   if (_model->evalDriftMatByRanks(_X, _dbin, _sampleRanks, ECalcMember::LHS)) return 1;
 
   if (! _isAuthorized()) return 1;
@@ -400,7 +403,7 @@ bool KrigingSystemSimpleCase::isReady()
   if (_flagStd)
   {
     _iechOut = 0;
-    if (_model->evalCovMat0InPlace(_Sigma00, _dbout, _iechOut, _krigopt)) return false;
+    if (_cova->evalCovMat0InPlace(_Sigma00, _dbout, _iechOut, _krigopt)) return false;
     if (_algebra.setVariance(&_Sigma00)) return false;
   }
 
@@ -433,72 +436,72 @@ void KrigingSystemSimpleCase::conclusion()
 
  int KrigingSystemSimpleCase::estimate(int iech_out)
  {
-   if (! _dbout->isActive(iech_out)) return 0;
-   if (! _isReady)
-   {
-     messerr("You must call 'isReady' before launching 'estimate'");
-     return 1;
-   }
+  //  if (! _dbout->isActive(iech_out)) return 0;
+  //  if (! _isReady)
+  //  {
+  //    messerr("You must call 'isReady' before launching 'estimate'");
+  //    return 1;
+  //  }
  
    // In case of Image Neighborhood, the neighboring samples have already
    // been selected in isReady(). No need to compute them again.
-   bool skipCalculAll = false;
+  //  bool skipCalculAll = false;
  
-   // Store the Rank of the Target sample
-   _iechOut = iech_out;
+  //  // Store the Rank of the Target sample
+  //  _iechOut = iech_out;
  
    int status = 0;
-   if (skipCalculAll) goto label_store;
+   //if (skipCalculAll) goto label_store;
  
    
-   OptDbg::setCurrentIndex(_iechOut + 1);
-   if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
-   {
-     mestitle(1, "Target location");
-     db_sample_print(_dbout, _iechOut, 1, 0, 0, 0);
-   }
+  //  OptDbg::setCurrentIndex(_iechOut + 1);
+  //  if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
+  //  {
+  //    mestitle(1, "Target location");
+  //    db_sample_print(_dbout, _iechOut, 1, 0, 0, 0);
+  //  }
  
    // Elaborate the Neighborhood
    // For XValid in Unique Neighborhood, turn the Xvalid option OFF during neighborhood search
-   status = _setInternalShortCutVariablesNeigh();
+   //status = _setInternalShortCutVariablesNeigh();
    
-   if (status) goto label_store;
+   //if (status) goto label_store;
  
    /* Establish the Kriging R.H.S. */
-   if (_model->getCov()->evalCovVecRHSInPlace(_Sigma0.getViewOnColumnModify(0), _dbout, _sampleRanks[0], iech_out)) return 1;
-   if (_model->evalDriftMatByTarget(_X0, _dbout, iech_out, _krigopt)) return 1;
-   if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
+   if (_cova->evalCovVecRHSInPlace(_Sigma0.getViewOnColumnModify(0), _dbout, _sampleRanks[0], iech_out)) return 1;
+   //if (_model->evalDriftMatByTarget(_X0, _dbout, iech_out, _krigopt)) return 1;
+   //if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
   
    // Printout for debugging case
  
-   if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || OptDbg::force())
-   {
-     // LHS is not printed systematically... only when it has been modified
-     if (OptDbg::query(EDbg::KRIGING)) _algebra.dumpLHS();
-   }
+  //  if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || OptDbg::force())
+  //  {
+  //    // LHS is not printed systematically... only when it has been modified
+  //    if (OptDbg::query(EDbg::KRIGING)) _algebra.dumpLHS();
+  //  }
  
-   if (OptDbg::query(EDbg::KRIGING))
-   {
-     _rhsDump();
-     _wgtDump();
-   }
+  //  if (OptDbg::query(EDbg::KRIGING))
+  //  {
+  //    _rhsDump();
+  //    _wgtDump();
+  //  }
  
    /* Perform the final estimation */
  
-   label_store:
+   //label_store:
    // If status is not zero, cancel the current Neighborhood search status
-   if (status) _neigh->setIsChanged();
+   //if (status) _neigh->setIsChanged();
  
    // Store the results in the output Db
  
-   _estimateCalcul(status);
+   //_estimateCalcul(status);
    
  
    // Final printout
-   if (OptDbg::query(EDbg::RESULTS))
-   {
-     _dumpKrigingResults(status);
-   }
+  //  if (OptDbg::query(EDbg::RESULTS))
+  //  {
+  //    _dumpKrigingResults(status);
+  //  }
    return 0;
  }
 /*****************************************************************....*********/

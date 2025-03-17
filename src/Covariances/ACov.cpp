@@ -1103,7 +1103,7 @@ int ACov::evalCovMatInPlace(MatrixRectangular& mat,
  * @brief Returns the references in 'pt' and set the local pointer '_pw2'
  * 
  * @param iech Relative index of the target sample (within 'pXAs')
- * @param mode 1 for _p1As and 2 for _p2As
+ * @param mode 1 for _p1As, 2 for _p2As and 3 for _p2A
  * @param rank 1 for the first point and 2 for the second
  */
 SpacePoint& ACov::_optimizationLoadInPlace(int iech,
@@ -1119,11 +1119,20 @@ SpacePoint& ACov::_optimizationLoadInPlace(int iech,
     return _p1As[iech];
   }
 
+  if (mode == 2)
+  {
+    if (rank == 1)
+      _pw1 = &_p2As[iech];
+    else
+      _pw2 = &_p2As[iech];
+    return _p2As[iech];
+  }
+  
   if (rank == 1)
-    _pw1 = &_p2As[iech];
+    _pw1 = &_p2A;
   else
-    _pw2 = &_p2As[iech];
-  return _p2As[iech];
+    _pw2 = &_p2A;
+  return _p2A;
 }
 
 /****************************************************************************/
@@ -1255,6 +1264,7 @@ int ACov::evalCovMatRHSInPlace(MatrixRectangular& mat,
   int neq1 = (int) index1.size();
   db2->getSampleAsSPInPlace(_pAux, iech2);
   optimizationSetTarget(_pAux);
+  SpacePoint& p2 = optimizationLoadInPlace(0,3,2);
   for (int i = 0; i < neq1; i++)
   {
     SpacePoint& p1 = optimizationLoadInPlace(i, 1, 1);
@@ -1262,7 +1272,7 @@ int ACov::evalCovMatRHSInPlace(MatrixRectangular& mat,
         updateCovByPoints(1, i, 2, iech2);
 
       // Loop on the discretization points
-    vect[i] = evalCov(p1, _p2A, 0, 0);
+    vect[i] = evalCov(p1, p2, 0, 0);
   }
 
   return 0;
