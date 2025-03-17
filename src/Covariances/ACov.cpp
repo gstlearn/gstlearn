@@ -1258,6 +1258,7 @@ int ACov::evalCovMatRHSInPlace(MatrixRectangular& mat,
  int ACov::evalCovVecRHSInPlace(vect vect,
                                 const Db* db2,
                                 const VectorInt& index1,
+                                SpacePoint& ptemp,
                                 int iech2) const
 {
   bool flagNoStat = isNoStat();

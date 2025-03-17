@@ -193,6 +193,7 @@ public:
   int evalCovVecRHSInPlace(vect  vect,
                            const Db* db2,
                            const VectorInt& index1,
+                           SpacePoint& ptemp,
                            const int iech2        = -1) const;
 
   /////////////////////////////////////////////////////////////////////////////////

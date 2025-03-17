@@ -92,7 +92,6 @@ KrigingSystemSimpleCase::KrigingSystemSimpleCase(Db* dbin,
   if (model != nullptr)
   {
      _model = (ModelGeneric*) model->clone();
-     _cova = _model->getCov();
   }
   if (model != nullptr)
     _flagNoStat = _model->isNoStat();
@@ -364,7 +363,7 @@ int KrigingSystemSimpleCase::resetData()
   const CovCalcMode calcmode(ECalcMember::LHS);
   _sampleRanks = _dbin->getSampleRanks(VectorInt(), _nbgh);
   _Z           = _dbin->getValuesByRanks(_sampleRanks, _means, !_model->hasDrift());
-  if (_cova->evalCovMatSymInPlace(_Sigma, _dbin, _sampleRanks, &calcmode, false)) return 1;
+  if (_model->evalCovMatSymInPlace(_Sigma, _dbin, _sampleRanks, &calcmode, false)) return 1;
   if (_model->evalDriftMatByRanks(_X, _dbin, _sampleRanks, ECalcMember::LHS)) return 1;
 
   if (! _isAuthorized()) return 1;
@@ -403,7 +402,7 @@ bool KrigingSystemSimpleCase::isReady()
   if (_flagStd)
   {
     _iechOut = 0;
-    if (_cova->evalCovMat0InPlace(_Sigma00, _dbout, _iechOut, _krigopt)) return false;
+    if (_model->evalCovMat0InPlace(_Sigma00, _dbout, _iechOut, _krigopt)) return false;
     if (_algebra.setVariance(&_Sigma00)) return false;
   }
 
@@ -436,6 +435,7 @@ void KrigingSystemSimpleCase::conclusion()
 
  int KrigingSystemSimpleCase::estimate(int iech_out)
  {
+    SpacePoint ptemp(_model->getSpace());
     if (! _dbout->isActive(iech_out)) return 0;
   //  if (! _isReady)
   //  {
@@ -445,7 +445,7 @@ void KrigingSystemSimpleCase::conclusion()
  
    // In case of Image Neighborhood, the neighboring samples have already
    // been selected in isReady(). No need to compute them again.
-  //  bool skipCalculAll = false;
+    bool skipCalculAll = false;
  
   //  // Store the Rank of the Target sample
   //  _iechOut = iech_out;
@@ -468,9 +468,9 @@ void KrigingSystemSimpleCase::conclusion()
    //if (status) goto label_store;
  
    /* Establish the Kriging R.H.S. */
-   if (_cova->evalCovVecRHSInPlace(_Sigma0.getViewOnColumnModify(0), _dbout, _sampleRanks[0], iech_out)) return 1;
-   //if (_model->evalDriftMatByTarget(_X0, _dbout, iech_out, _krigopt)) return 1;
-   //if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
+   if (_model->evalCovVecRHSInPlace(_Sigma0.getViewOnColumnModify(0), _dbout, _sampleRanks[0], ptemp, iech_out)) return 1;
+   if (_model->evalDriftMatByTarget(_X0, _dbout, iech_out, _krigopt)) return 1;
+   if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
   
    // Printout for debugging case
  
@@ -490,11 +490,11 @@ void KrigingSystemSimpleCase::conclusion()
  
    //label_store:
    // If status is not zero, cancel the current Neighborhood search status
-   //if (status) _neigh->setIsChanged();
+   if (status) _neigh->setIsChanged();
  
    // Store the results in the output Db
  
-   //_estimateCalcul(status);
+   _estimateCalcul(status);
    
  
    // Final printout
