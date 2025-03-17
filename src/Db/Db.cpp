@@ -4597,40 +4597,6 @@ bool Db::_serialize(std::ostream& os, bool /*verbose*/) const
   return ret;
 }
 
-bool Db::_serializeH5(H5::Group& grp, bool /*verbose*/) const
-{
-  // create a new Group every time we enter a _serialize method
-  // => easier to deserialize
-  auto db = grp.createGroup("Db");
-
-  // HDF5 DataSpace should be manually created and passed to
-  // SerializeHDF5::writeVec or directly to Group::createDataSet()
-
-  // here the DataSpace is the number of rows in the Db (number of
-  // samples) and every Db column corresponds to a DataSet
-  const hsize_t dim = getNSample();
-  const H5::DataSpace ds {1, &dim};
-
-  int ncol              = getNColumn();
-  VectorString locators = getLocators(true);
-  VectorString names    = getName("*");
-
-  for (int i = 0; i < ncol; ++i)
-  {
-    // here we create H5::DataSet by hand to augment them with
-    // attributes
-    auto data = db.createDataSet(names[i], H5::PredType::NATIVE_DOUBLE, ds);
-    // Locators are semantically close to Db columns and H5::Attribute has a
-    // nicer API than string H5::DataSets. Putting Locators inside Attribute
-    // also avoids checking array sizes during deserialization
-    // (Locators DataSet size vs. number of columns)
-    SerializeHDF5::createAttribute(data, "Locators", locators[i]);
-    data.write(getColumnByColIdx(i).data(), H5::PredType::NATIVE_DOUBLE);
-  }
-
-  return true;
-}
-
 bool Db::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int ncol = 0;
@@ -4684,6 +4650,41 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
     }
   }
   return ret;
+}
+
+#ifdef HDF5
+bool Db::_serializeH5(H5::Group& grp, bool /*verbose*/) const
+{
+  // create a new Group every time we enter a _serialize method
+  // => easier to deserialize
+  auto db = grp.createGroup("Db");
+
+  // HDF5 DataSpace should be manually created and passed to
+  // SerializeHDF5::writeVec or directly to Group::createDataSet()
+
+  // here the DataSpace is the number of rows in the Db (number of
+  // samples) and every Db column corresponds to a DataSet
+  const hsize_t dim = getNSample();
+  const H5::DataSpace ds {1, &dim};
+
+  int ncol              = getNColumn();
+  VectorString locators = getLocators(true);
+  VectorString names    = getName("*");
+
+  for (int i = 0; i < ncol; ++i)
+  {
+    // here we create H5::DataSet by hand to augment them with
+    // attributes
+    auto data = db.createDataSet(names[i], H5::PredType::NATIVE_DOUBLE, ds);
+    // Locators are semantically close to Db columns and H5::Attribute has a
+    // nicer API than string H5::DataSets. Putting Locators inside Attribute
+    // also avoids checking array sizes during deserialization
+    // (Locators DataSet size vs. number of columns)
+    SerializeHDF5::createAttribute(data, "Locators", locators[i]);
+    data.write(getColumnByColIdx(i).data(), H5::PredType::NATIVE_DOUBLE);
+  }
+
+  return true;
 }
 
 bool Db::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
@@ -4761,6 +4762,7 @@ bool Db::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   }
   return ret;
 }
+#endif
 
 void Db::_loadData(const ELoadBy& order,
                    bool flagAddSampleRank,

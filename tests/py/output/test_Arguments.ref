@@ -67,6 +67,16 @@ Testing for VectorVectorDouble :
 
 [[1. 2.]
  [3. 4.]]
+ Testing for VectorVectorInt : 
+[1][1] : 5 
+[2][1] : 6 
+
+[[5 6]]
+Testing for VectorVectorDouble : 
+[1][1] : 5.000000 
+[2][1] : 6.000000 
+
+[[5. 6.]]
 Integer = -1 - Real = -1.100000 - String = NA
 Integer = 2 - Real = -1.100000 - String = NA
 Testing for Integer : 2 

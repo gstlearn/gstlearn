@@ -10,6 +10,8 @@
 /******************************************************************************/
 #pragma once
 
+#ifdef HDF5
+
 #include "geoslib_define.h"
 
 #include "Basic/AStringable.hpp"
@@ -358,3 +360,5 @@ bool SerializeHDF5::writeValue(H5::Group& grp, const String& name, const T& valu
 
   return true;
 }
+
+#endif // HDF5

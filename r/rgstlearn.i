@@ -200,10 +200,13 @@
     int size = (int)Rf_length(obj);
     if (size == 1)
     {
-      // Not a vector (or a single value)
       InputVector vec;
+      SEXP item = getElem(obj,0);
       // Try to convert
-      myres = vectorToCpp(obj, vec);
+      if (TYPEOF(item) == NILSXP) 
+        myres = vectorToCpp(obj, vec);
+      else
+        myres = vectorToCpp(item, vec);
       if (SWIG_IsOK(myres))
         vvec.push_back(vec);
     }
@@ -691,10 +694,7 @@ setMethod(f = "show", signature = "_p_VectorNumTT_int_t",               definiti
 setMethod(f = "show", signature = "_p_VectorTT_float_t",                definition = function(object){ VectorTFloat_display(object) })
 setMethod(f = "show", signature = "_p_VectorNumTT_float_t",             definition = function(object){ VectorTFloat_display(object) })
 
-setMethod(f = "show", signature = "_p_VectorTT_UChar_t",                definition = function(object){ VectorTUChar_display(object) })          
-setMethod(f = "show", signature = "_p_VectorNumTT_UChar_t",             definition = function(object){ VectorTUChar_display(object) })          
-
-setMethod(f = "show", signature = "_p_VectorTT_string_t",               definition = function(object){ VectorTString_display(object) })
+setMethod(f = "show", signature = "_p_VectorTT_String_t",               definition = function(object){ VectorString_display(object) })
 
 setMethod(f = "show", signature = "_p_VectorTT_VectorNumTT_int_t_t",    definition = function(object){ VectorVectorInt_display(object) })
 

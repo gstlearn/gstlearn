@@ -69,7 +69,7 @@ For **compiling and installing** *gstlearn* C++ library, the following tools mus
 * Boost header files 1.65 or higher
 * Eigen3 header files 3.4 or higher
 * NLopt library 2.7 or higher
-* HDF5 C++ library and header files 1.8 or higher
+* HDF5 [Optional] C++ library and header files 1.8 or higher
 * Doxygen [Optional] 1.8.3 or higher with LaTeX and Ghostscripts
 
 See [Required Tools Installation](#required-tools-installation) instructions below
@@ -357,6 +357,7 @@ pacman -Sy mingw-w64-x86_64-hdf5
 * You may need to reconnect to your session after installing some requirements
 * If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
 * If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
+* HDF5 support is enabled by default, add `-DUSE_HDF5=OFF` in the first cmake command above to disable it.
 * Currently, **HDF5 is not supported** when compiling *gstlearn* C++ library **under Windows and MacOS**. *gstlearn* won't link against HDF5 and GibbsMMulti::setFlagStoreInternal(false) feature won't be available.
 * The default installation directory named *gstlearn_install* is located in your *Home*. If you want to change it, you can add `-DCMAKE_INSTALL_PREFIX="path/of/gstlearn/install/dir"` to the first cmake command above.
 * Only the *shared* library (built by default) is installed when compiling *gstlearn* C++ library. If you want to compile the *static* version, you must replace *shared* by *static* target above.
