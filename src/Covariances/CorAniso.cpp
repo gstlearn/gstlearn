@@ -415,9 +415,15 @@ int CorAniso::addEvalCovVecRHSInPlace(vect vect,
                                       SpacePoint& pout,
                                       const int iech2) const
 {
-  //if (!isOptimEnabled()) 
-  return ACov::addEvalCovVecRHSInPlace(vect, index1, pin, pout, iech2);
-  //return 0;
+  if (!isOptimEnabled()) 
+    return ACov::addEvalCovVecRHSInPlace(vect, index1, pin, pout, iech2);
+  for (int i = 0; i < (int)vect.size(); i++)
+  { 
+    optimizationTransformSP(pin, pout);
+    double h = pout.getDistance(_p1As[i]);
+    vect[i] += evalCorFromH(h,nullptr);
+  }
+  return 0;
 }
 double CorAniso::_eval(const SpacePoint& p1,
                        const SpacePoint& p2,
