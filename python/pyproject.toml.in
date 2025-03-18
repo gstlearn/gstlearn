@@ -26,8 +26,6 @@ dependencies = [
     # from the oldest supported numpy to the next major version of the
     # numpy install used in building gstlearn
     "numpy>=1.24,<@Python3_NumPy_NEXT_MAJOR@",
-    "scipy",
-    "pandas",
 ]
 
 [project.optional-dependencies]
@@ -37,6 +35,11 @@ plot = [
      "plotly",
      "shapely",
 ]
+conv = [
+     "pandas",
+     "scipy",
+]
+all = ["gstlearn[plot,conv]"]
 
 [project.urls]
 Homepage = "@PROJECT_HOMEPAGE_URL@"
