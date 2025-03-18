@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/VectorNumT.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Estimation/KrigingAlgebra.hpp"
@@ -58,7 +59,7 @@ public:
   int  updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ, bool forceNoDual = false);
   int  updKrigOptNeighOnly(int iptrNeigh);
   bool isReady();
-  int  estimate(int iech_out);
+  int  estimate(int iech_out,SpacePoint& pin, SpacePoint& pout, VectorDouble& tabwork);
   void conclusion();
 
   // Methods used to return algebraic internal information

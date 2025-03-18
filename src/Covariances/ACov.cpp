@@ -1271,28 +1271,33 @@ int ACov::evalCovMatRHSInPlaceFromIdx(MatrixRectangular& mat,
 int ACov::evalCovVecRHSInPlace(vect vect,
                                const Db* db2,
                                const VectorInt& index1,
+                               int iech2,
                                SpacePoint& pin,
                                SpacePoint& pout,
-                               int iech2) const
+                               VectorDouble& tabwork,
+                               double lambda) const
 {
   db2->getSampleAsSPInPlace(pin, iech2);
   for (int i = 0; i < (int)vect.size(); i++)
     vect[i] = 0.;
-  return addEvalCovVecRHSInPlace(vect, index1, pin, pout, iech2);
+  return addEvalCovVecRHSInPlace(vect, index1, iech2, pin, pout, tabwork, lambda);
 }
 
 int ACov::addEvalCovVecRHSInPlace(vect vect,
                                   const VectorInt& index1,
+                                  int iech2,
                                   SpacePoint& pin,
                                   SpacePoint& pout,
-                                  int iech2) const
-{
+                                  VectorDouble& tabwork,
+                                  double lambda) const
+{ 
+  DECLARE_UNUSED(pout,index1,tabwork);
   bool flagNoStat = isNoStat();
   for (int i = 0; i < (int)vect.size();i++)
   {
     if (flagNoStat)
         updateCovByPoints(1, i, 2, iech2);
-    vect[i] += evalCov(_p1As[i], pin);
+    vect[i] += lambda * evalCov(_p1As[i], pin);
   }
   return 0;
 }

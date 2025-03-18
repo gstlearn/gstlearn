@@ -43,9 +43,9 @@
 #include <math.h>
 
 KrigingSystemSimpleCase::KrigingSystemSimpleCase(Db* dbin,
-                             Db* dbout,
-                             const ModelGeneric* model,
-                             ANeigh* neigh)
+                                                 Db* dbout,
+                                                 const ModelGeneric* model,
+                                                 ANeigh* neigh)
   : _dbin(dbin)
   , _dbout(dbout)
   , _model(nullptr)
@@ -92,7 +92,7 @@ KrigingSystemSimpleCase::KrigingSystemSimpleCase(Db* dbin,
   // _model is a copy of input model to allow modification (still used???)
   if (model != nullptr)
   {
-     _model = (ModelGeneric*) model->clone();
+    _model = (ModelGeneric*)model->clone();
   }
   if (model != nullptr)
     _flagNoStat = _model->isNoStat();
@@ -102,7 +102,7 @@ KrigingSystemSimpleCase::KrigingSystemSimpleCase(Db* dbin,
     neigh->reset();
 
   // Define local constants
-  _flagVerr    = _dbin->hasLocVariable(ELoc::V);
+  _flagVerr = _dbin->hasLocVariable(ELoc::V);
 
   _resetMemoryGeneral();
 }
@@ -118,7 +118,7 @@ KrigingSystemSimpleCase::~KrigingSystemSimpleCase()
   {
     if (!_dbinUidToBeDeleted.empty())
     {
-      (void) _dbin->deleteColumnsByUID(_dbinUidToBeDeleted);
+      (void)_dbin->deleteColumnsByUID(_dbinUidToBeDeleted);
     }
   }
 
@@ -148,7 +148,7 @@ int KrigingSystemSimpleCase::_getNVar() const
 
   // In the case of factor kriging, the number of Z-variables in the Data file
   // does not give the number of variables. Check should be avoided
-  
+
   return nvar;
 }
 
@@ -175,7 +175,6 @@ void KrigingSystemSimpleCase::_resetMemoryGeneral()
   _setInternalShortCutVariablesGeneral();
 
   _space = _model->getSpace();
-
 }
 
 /*****************************************************************************/
@@ -188,7 +187,7 @@ void KrigingSystemSimpleCase::_resetMemoryGeneral()
  *****************************************************************************/
 bool KrigingSystemSimpleCase::_isAuthorized() const
 {
-  int ncov = getCovSize();
+  int ncov   = getCovSize();
   int ndrift = getDriftSize();
   return ncov > 0 && ncov >= ndrift;
 }
@@ -196,16 +195,15 @@ bool KrigingSystemSimpleCase::_isAuthorized() const
 void KrigingSystemSimpleCase::_dumpOptions()
 {
   /* Kriging option */
-  message("Punctual Estimation\n"); 
+  message("Punctual Estimation\n");
   message("\n");
 }
-
 
 void KrigingSystemSimpleCase::_setInternalShortCutVariablesModel()
 {
   _nvar = _getNVar();
   _nfeq = _getNFeq();
-  _neq  =  _getNeq(); // reset as it depends on nech and Model
+  _neq  = _getNeq(); // reset as it depends on nech and Model
 }
 /**
  * Assign the values to local variables used as shortcuts
@@ -219,7 +217,7 @@ int KrigingSystemSimpleCase::_setInternalShortCutVariablesNeigh()
 }
 void KrigingSystemSimpleCase::_setInternalShortCutVariablesGeneral()
 {
-  _ndim   = getNDim();
+  _ndim = getNDim();
   _setInternalShortCutVariablesModel();
 }
 void KrigingSystemSimpleCase::_rhsDump()
@@ -265,8 +263,6 @@ void KrigingSystemSimpleCase::_estimateCalcul(int status)
   if (_flagVarZ != 0)
     _estimateVarZ(status);
 
- 
-
   /* Kriging weights (stored in _dbin) */
 
   if (_flagWeights != 0)
@@ -277,7 +273,7 @@ void KrigingSystemSimpleCase::_estimateCalcul(int status)
       {
         if (status != 0) continue;
         double wgt = _algebra.getLambda()->getValue(jech, ivarCL);
-        int iech = _nbgh[jech];
+        int iech   = _nbgh[jech];
         if (_flagSet)
           _dbin->setArray(iech, _iptrWeights + ivarCL, wgt);
         else
@@ -289,7 +285,7 @@ void KrigingSystemSimpleCase::_estimateCalcul(int status)
 
 void KrigingSystemSimpleCase::_neighCalcul(int status, const VectorDouble& tab)
 {
-  int ntab = (int) tab.size();
+  int ntab = (int)tab.size();
   for (int i = 0; i < ntab; i++)
   {
 
@@ -303,11 +299,11 @@ void KrigingSystemSimpleCase::_neighCalcul(int status, const VectorDouble& tab)
   {
     mestitle(0, "Neighborhood Parameters");
 
-    message("Number of selected samples          = %d\n", (int) tab[0]);
+    message("Number of selected samples          = %d\n", (int)tab[0]);
     message("Maximum neighborhood distance       = %lf\n", tab[1]);
     message("Minimum neighborhood distance       = %lf\n", tab[2]);
-    message("Number of non-empty sectors         = %d\n", (int) tab[3]);
-    message("Number of consecutive empty sectors = %d\n", (int) tab[4]);
+    message("Number of non-empty sectors         = %d\n", (int)tab[3]);
+    message("Number of consecutive empty sectors = %d\n", (int)tab[4]);
   }
 }
 
@@ -367,7 +363,7 @@ int KrigingSystemSimpleCase::resetData()
   if (_model->evalCovMatSymInPlaceFromIdx(_Sigma, _dbin, _sampleRanks, &calcmode, false)) return 1;
   if (_model->evalDriftMatByRanks(_X, _dbin, _sampleRanks, ECalcMember::LHS)) return 1;
 
-  if (! _isAuthorized()) return 1;
+  if (!_isAuthorized()) return 1;
   _algebra.resetNewData();
   if (_algebra.setData(&_Z, &_sampleRanks, &_meansTarget)) return 1;
   if (_algebra.setLHS(&_Sigma, &_X)) return 1;
@@ -385,14 +381,14 @@ bool KrigingSystemSimpleCase::isReady()
 
   _neigh->select(0, _nbgh);
   // Define the means of each variable
-  _means       = _model->getMeans();
+  _means = _model->getMeans();
   // Possible adjust the means in case of presence of 'matLC'
   _meansTarget = _means;
- 
+
   if ((_neigh != nullptr && _neigh->getType() == ENeigh::UNIQUE))
   {
     _sampleRanks = _dbin->getSampleRanks();
-    _Z           = _dbin->getValuesByRanks(_sampleRanks, 
+    _Z           = _dbin->getValuesByRanks(_sampleRanks,
                                            _means, !_model->hasDrift());
     if (_algebra.setData(&_Z, &_sampleRanks, &_meansTarget)) return false;
     resetData();
@@ -412,7 +408,7 @@ bool KrigingSystemSimpleCase::isReady()
 
   _isReady = true;
   _model->getCov()->optimizationPreProcessForData(_dbin);
-  _model->getCov()->manage(_dbin,_dbout);
+  _model->getCov()->manage(_dbin, _dbout);
   return _isReady;
 }
 
@@ -426,7 +422,6 @@ void KrigingSystemSimpleCase::conclusion()
     cova->optimizationPostProcess();
 }
 
-
 /**
  * Perform the Kriging of target
  *
@@ -434,78 +429,82 @@ void KrigingSystemSimpleCase::conclusion()
  * @return
  */
 
- int KrigingSystemSimpleCase::estimate(int iech_out)
- {
-    SpacePoint pin(_model->getSpace());
-    SpacePoint pout(_model->getSpace());
-    if (! _dbout->isActive(iech_out)) return 0;
-  //  if (! _isReady)
-  //  {
-  //    messerr("You must call 'isReady' before launching 'estimate'");
-  //    return 1;
-  //  }
- 
-   // In case of Image Neighborhood, the neighboring samples have already
-   // been selected in isReady(). No need to compute them again.
-    bool skipCalculAll = false;
- 
+int KrigingSystemSimpleCase::estimate(int iech_out,
+                                      SpacePoint& pin,
+                                      SpacePoint& pout,
+                                      VectorDouble& tabwork)
+{
+
+  if (!_dbout->isActive(iech_out)) return 0;
+  // if (!_isReady)
+  // {
+  //   messerr("You must call 'isReady' before launching 'estimate'");
+  //   return 1;
+  // }
+
+  // In case of Image Neighborhood, the neighboring samples have already
+  // been selected in isReady(). No need to compute them again.
+  // bool skipCalculAll = false;
+
   //  // Store the Rank of the Target sample
-    _iechOut = iech_out;
- 
-   int status = 0;
-   //if (skipCalculAll) goto label_store;
- 
-   
+  _iechOut = iech_out;
+
+  int status = 0;
+  // if (skipCalculAll) goto label_store;
+
   //  OptDbg::setCurrentIndex(_iechOut + 1);
-  //  if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
-  //  {
-  //    mestitle(1, "Target location");
-  //    db_sample_print(_dbout, _iechOut, 1, 0, 0, 0);
-  //  }
- 
-   // Elaborate the Neighborhood
-   // For XValid in Unique Neighborhood, turn the Xvalid option OFF during neighborhood search
-   status = _setInternalShortCutVariablesNeigh();
-   
-   //if (status) goto label_store;
- 
-   /* Establish the Kriging R.H.S. */
-   if (_model->evalCovVecRHSInPlace(_Sigma0.getViewOnColumnModify(0), _dbout, _sampleRanks[0], pin, pout, iech_out)) return 1;
-   if (_model->evalDriftMatByTarget(_X0, _dbout, iech_out, _krigopt)) return 1;
-   if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
-  
-   // Printout for debugging case
- 
+  // if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
+  // {
+  //   mestitle(1, "Target location");
+  //   db_sample_print(_dbout, _iechOut, 1, 0, 0, 0);
+  // }
+
+  // status = _setInternalShortCutVariablesNeigh();
+
+  // if (status) goto label_store;
+
+  /* Establish the Kriging R.H.S. */
+  if (_model->evalCovVecRHSInPlace(_Sigma0.getViewOnColumnModify(0),
+                                   _dbout,
+                                   _sampleRanks[0],
+                                   iech_out, 
+                                   pin,
+                                   pout,
+                                   tabwork)) return 1;
+  //if (_model->evalDriftMatByTarget(_X0, _dbout, iech_out, _krigopt)) return 1;
+  //if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
+
+  // Printout for debugging case
+
   //  if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || OptDbg::force())
   //  {
   //    // LHS is not printed systematically... only when it has been modified
   //    if (OptDbg::query(EDbg::KRIGING)) _algebra.dumpLHS();
   //  }
- 
-  //  if (OptDbg::query(EDbg::KRIGING))
-  //  {
-  //    _rhsDump();
-  //    _wgtDump();
-  //  }
- 
-   /* Perform the final estimation */
- 
-   //label_store:
-   // If status is not zero, cancel the current Neighborhood search status
-   if (status) _neigh->setIsChanged();
- 
-   // Store the results in the output Db
- 
-   _estimateCalcul(status);
-   
- 
-   // Final printout
-  //  if (OptDbg::query(EDbg::RESULTS))
-  //  {
-  //    _dumpKrigingResults(status);
-  //  }
-   return 0;
- }
+
+  // if (OptDbg::query(EDbg::KRIGING))
+  // {
+  //   _rhsDump();
+  //   _wgtDump();
+  // }
+
+  /* Perform the final estimation */
+
+  // label_store:
+  //  If status is not zero, cancel the current Neighborhood search status
+  // if (status) _neigh->setIsChanged();
+
+  // Store the results in the output Db
+
+  //_estimateCalcul(status);
+
+  // Final printout
+  // if (OptDbg::query(EDbg::RESULTS))
+  // {
+  //   _dumpKrigingResults(status);
+  // }
+  return 0;
+}
 /*****************************************************************....*********/
 /*!
  **  Print the results
@@ -523,7 +522,6 @@ void KrigingSystemSimpleCase::_dumpKrigingResults(int status)
 
   for (int ivar = 0; ivar < 1; ivar++)
   {
-    
 
     // Printout of the Estimation
 
@@ -565,15 +563,15 @@ void KrigingSystemSimpleCase::_dumpKrigingResults(int status)
  * @remark If a term must not be calculated, its UID must be negative
  */
 int KrigingSystemSimpleCase::updKrigOptEstim(int iptrEst,
-                                   int iptrStd,
-                                   int iptrVarZ,
-                                   bool forceNoDual)
+                                             int iptrStd,
+                                             int iptrVarZ,
+                                             bool forceNoDual)
 {
   _iptrEst  = iptrEst;
   _iptrStd  = iptrStd;
   _iptrVarZ = iptrVarZ;
 
-  _flagEst  = _iptrEst >= 0 ;
+  _flagEst  = _iptrEst >= 0;
   _flagStd  = (_iptrStd >= 0);
   _flagVarZ = (_iptrVarZ >= 0);
 
@@ -600,7 +598,7 @@ int KrigingSystemSimpleCase::updKrigOptNeighOnly(int iptrNeigh)
     messerr("UID for storing Neighborhood variable must be defined");
     return 1;
   }
-  _iptrNeigh = iptrNeigh;
+  _iptrNeigh     = iptrNeigh;
   _flagNeighOnly = true;
   return 0;
 }
@@ -616,14 +614,14 @@ int KrigingSystemSimpleCase::setKrigOptDataWeights(int iptrWeights, bool flagSet
   }
   _iptrWeights = iptrWeights;
   _flagWeights = true;
-  _flagSet = flagSet;
+  _flagSet     = flagSet;
   return 0;
 }
 
 int KrigingSystemSimpleCase::setKrigOptCalcul(const EKrigOpt& calcul)
 {
-  _isReady = false;
-  _calcul  = calcul;
+  _isReady         = false;
+  _calcul          = calcul;
   bool flagPerCell = false;
   DbGrid* dbgrid   = dynamic_cast<DbGrid*>(_dbout);
 
@@ -631,7 +629,6 @@ int KrigingSystemSimpleCase::setKrigOptCalcul(const EKrigOpt& calcul)
   _krigopt.setKrigingOption(calcul, dbgrid, 1, flagPerCell);
   return 0;
 }
-
 
 int KrigingSystemSimpleCase::setKrigOptFlagGlobal(bool flag_global)
 {
@@ -650,11 +647,10 @@ int KrigingSystemSimpleCase::setKrigOptFlagGlobal(bool flag_global)
 
 int KrigingSystemSimpleCase::setKrigOptFlagLTerm(bool flag_lterm)
 {
-  _isReady = false;
+  _isReady   = false;
   _flagLTerm = flag_lterm;
   return 0;
 }
-
 
 bool KrigingSystemSimpleCase::_isCorrect()
 {
@@ -740,7 +736,7 @@ bool KrigingSystemSimpleCase::_isCorrect()
   /* Checking the Validity of the Model */
   /**************************************/
 
-  if (_model != nullptr && ! _model->isValid()) return false;
+  if (_model != nullptr && !_model->isValid()) return false;
 
   /******************************************/
   /* Checking the Number of External Drifts */
@@ -797,8 +793,8 @@ bool KrigingSystemSimpleCase::_isCorrect()
   {
     VectorDouble db_mini;
     VectorDouble db_maxi;
-    db_mini.resize(ndim,TEST);
-    db_maxi.resize(ndim,TEST);
+    db_mini.resize(ndim, TEST);
+    db_maxi.resize(ndim, TEST);
 
     /* Input Db structure */
 
@@ -830,9 +826,9 @@ bool KrigingSystemSimpleCase::_isCorrect()
 
     if (_neigh->getType() == ENeigh::UNIQUE && _neigh->getFlagXvalid() && nvar > 1)
     {
-     messerr("The algorithm for Cross-Validation in Unique Neighborhood");
-     messerr("is restricted to a single variable");
-     return false;
+      messerr("The algorithm for Cross-Validation in Unique Neighborhood");
+      messerr("is restricted to a single variable");
+      return false;
     }
   }
 

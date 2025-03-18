@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/VectorNumT.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Estimation/CalcKrigingSimpleCase.hpp"
@@ -153,10 +154,13 @@ bool CalcKrigingSimpleCase::_run()
   /***************************************/
   /* Loop on the targets to be processed */
   /***************************************/
+  SpacePoint pin(getModel()->getSpace());
+  SpacePoint pout(getModel()->getSpace());
+  VectorDouble tabwork(getDbin()->getNSample());
   for (int iech_out = 0, nech_out = getDbout()->getNSample(); iech_out < nech_out; iech_out++)
   {
 
-    ksys.estimate(iech_out);
+    ksys.estimate(iech_out,pin,pout,tabwork);
 
   }
 

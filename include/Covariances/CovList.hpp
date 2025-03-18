@@ -9,6 +9,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/VectorNumT.hpp"
 #include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
@@ -71,9 +72,11 @@ public:
   #ifndef SWIG
   int addEvalCovVecRHSInPlace(vect vect,
                               const VectorInt& index1,
+                              int iech2,
                               SpacePoint& pin,
                               SpacePoint& pout,
-                              const int iech2 = -1) const override;
+                              VectorDouble& tabwork,
+                              double lambda = 1) const override;
   #endif
   void setCovFiltered(int icov, bool filtered);
   int getNCov() const;

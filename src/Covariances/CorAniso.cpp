@@ -411,17 +411,21 @@ double CorAniso::evalCor(const SpacePoint& p1,
 
 int CorAniso::addEvalCovVecRHSInPlace(vect vect,
                                       const VectorInt& index1,
+                                      int iech2,
                                       SpacePoint& pin,
                                       SpacePoint& pout,
-                                      const int iech2) const
+                                      VectorDouble& tabwork,
+                                      double lambda) const
 {
-  if (!isOptimEnabled()) 
-    return ACov::addEvalCovVecRHSInPlace(vect, index1, pin, pout, iech2);
+  if (!isOptimEnabled())
+    return ACov::addEvalCovVecRHSInPlace(vect, index1, iech2, pin, pout, tabwork, lambda);
+  auto space = pin.getSpace();
+  optimizationTransformSPNew(pin, pout);
+  space->getDistancePointVectInPlace(pout, _p1As, tabwork);
+  
   for (int i = 0; i < (int)vect.size(); i++)
-  { 
-    optimizationTransformSP(pin, pout);
-    double h = pout.getDistance(_p1As[i]);
-    vect[i] += evalCorFromH(h,nullptr);
+  {
+    vect[i] += lambda * evalCorFromH(tabwork[i], nullptr);
   }
   return 0;
 }
@@ -931,6 +935,11 @@ void CorAniso::optimizationTransformSP(const SpacePoint& ptin,
   }
 }
 
+void CorAniso::optimizationTransformSPNew(const SpacePoint& ptin,
+                                          SpacePoint& ptout) const
+{
+  _aniso.applyInverseInPlace(ptin.getCoords(), ptout.getCoordRef());
+}
 /**
  * Transform a set of Space Points using the anisotropy tensor
  * The set of resulting Space Points are stored as private member of this.

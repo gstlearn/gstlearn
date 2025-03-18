@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovList.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovBase.hpp"
 #include "Covariances/CovCalcMode.hpp"
@@ -179,14 +180,16 @@ const VectorInt& CovList::_getListActiveCovariances(const CovCalcMode* mode) con
 
 int CovList::addEvalCovVecRHSInPlace(vect vect,
                                      const VectorInt& index1,
+                                     int iech2,
                                      SpacePoint& pin,
                                      SpacePoint& pout,
-                                     const int iech2) const
+                                     VectorDouble& tabwork,
+                                     double lambda) const
 {
   CovCalcMode mode(ECalcMember::RHS);
   const VectorInt& list = _getListActiveCovariances(&mode);
   for (const auto& j: list.getVector())
-    _covs[j]->addEvalCovVecRHSInPlace(vect, index1, pin, pout, iech2);
+    _covs[j]->addEvalCovVecRHSInPlace(vect, index1, iech2, pin, pout, tabwork, lambda);
   return 0;
 }
 

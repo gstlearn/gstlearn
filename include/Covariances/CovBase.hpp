@@ -87,9 +87,11 @@ public:
   #ifndef SWIG
   int addEvalCovVecRHSInPlace(vect vect,
                               const VectorInt& index1,
+                              int iech2,
                               SpacePoint& pin,
                               SpacePoint& pout,
-                              const int iech2 = -1) const override;
+                              VectorDouble& tabwork,
+                              double lambda = 1.) const override;
   #endif
   void setOptimEnabled(bool flag) const override
   {

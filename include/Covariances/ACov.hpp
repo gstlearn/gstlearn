@@ -13,6 +13,7 @@
 #include "Basic/AFunctional.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Model/CovInternal.hpp"
@@ -210,14 +211,18 @@ public:
   int evalCovVecRHSInPlace(vect vect,
                            const Db* db2,
                            const VectorInt& index1,
+                           int iech2,
                            SpacePoint& pin,
                            SpacePoint& pout,
-                           const int iech2 = -1) const;
+                           VectorDouble& tabwork,
+                           double lambda = 1.) const;
   virtual int addEvalCovVecRHSInPlace(vect vect,
                                       const VectorInt& index1,
+                                      const int iech2,
                                       SpacePoint& pin,
                                       SpacePoint& pout,
-                                      const int iech2 = -1) const;
+                                      VectorDouble& tabwork,
+                                      double lambda = 1.) const;
   #endif
   /////////////////////////////////////////////////////////////////////////////////
   void eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat, const CovCalcMode* mode) const;

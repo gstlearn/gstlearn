@@ -252,15 +252,18 @@ public:
   double getDetTensor() const;
 
   void optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
+  void optimizationTransformSPNew(const SpacePoint& ptin, SpacePoint& ptout) const;
   String toStringParams(const AStringFormat* strfmt = nullptr) const;
   String toStringNoStat(const AStringFormat* strfmt = nullptr, int i = 0) const;
   
   #ifndef SWIG
   int addEvalCovVecRHSInPlace(vect vect,
                               const VectorInt& index1,
+                              int iech2,
                               SpacePoint& pin,
                               SpacePoint& pout,
-                              const int iech2 = -1) const override;
+                              VectorDouble& tabwork,
+                              double lambda = 1.) const override;
   #endif
 protected:
   /// Update internal parameters consistency with the context

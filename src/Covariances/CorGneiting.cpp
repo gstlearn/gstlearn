@@ -16,7 +16,6 @@
 #include "Space/SpaceComposite.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include <vector>
 
 CorGneiting::CorGneiting(const CorAniso* covS, const CorAniso* covTemp, double separability)
   : ACov()
