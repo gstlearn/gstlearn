@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
+#include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
@@ -461,13 +462,14 @@ int KrigingSystemSimpleCase::estimate(int iech_out,
 
   status = _setInternalShortCutVariablesNeigh();
 
-  // if (status) goto label_store;
+  if (status) goto label_store;
 
   /* Establish the Kriging R.H.S. */
   if (_model->evalCovVecRHSInPlace(_Sigma0.getViewOnColumnModify(0),
                                    _dbout,
                                    _sampleRanks[0],
                                    iech_out, 
+                                   _krigopt,
                                    pin,
                                    pout,
                                    tabwork)) return 1;

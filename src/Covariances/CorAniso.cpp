@@ -412,20 +412,23 @@ double CorAniso::evalCor(const SpacePoint& p1,
 int CorAniso::addEvalCovVecRHSInPlace(vect vect,
                                       const VectorInt& index1,
                                       int iech2,
+                                      const KrigOpt& krigopt,
                                       SpacePoint& pin,
                                       SpacePoint& pout,
                                       VectorDouble& tabwork,
                                       double lambda) const
 {
   if (!isOptimEnabled())
-    return ACov::addEvalCovVecRHSInPlace(vect, index1, iech2, pin, pout, tabwork, lambda);
+    return ACov::addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda);
   auto space = pin.getSpace();
+  const CovCalcMode& mode = krigopt.getMode();
   optimizationTransformSPNew(pin, pout);
   space->getDistancePointVectInPlace(pout, _p1As, tabwork);
-  
-  for (int i = 0; i < (int)vect.size(); i++)
+  int neq = index1.size();
+  const int* ind = index1.data();
+  for (int i = 0; i < neq; i++)
   {
-    vect[i] += lambda * evalCorFromH(tabwork[i], nullptr);
+    vect[i] += lambda * evalCorFromH(tabwork[*ind++], &mode);
   }
   return 0;
 }

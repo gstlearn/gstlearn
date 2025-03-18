@@ -181,6 +181,7 @@ const VectorInt& CovList::_getListActiveCovariances(const CovCalcMode* mode) con
 int CovList::addEvalCovVecRHSInPlace(vect vect,
                                      const VectorInt& index1,
                                      int iech2,
+                                     const KrigOpt& krigopt,
                                      SpacePoint& pin,
                                      SpacePoint& pout,
                                      VectorDouble& tabwork,
@@ -189,7 +190,7 @@ int CovList::addEvalCovVecRHSInPlace(vect vect,
   CovCalcMode mode(ECalcMember::RHS);
   const VectorInt& list = _getListActiveCovariances(&mode);
   for (const auto& j: list.getVector())
-    _covs[j]->addEvalCovVecRHSInPlace(vect, index1, iech2, pin, pout, tabwork, lambda);
+    _covs[j]->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda);
   return 0;
 }
 

@@ -1272,6 +1272,7 @@ int ACov::evalCovVecRHSInPlace(vect vect,
                                const Db* db2,
                                const VectorInt& index1,
                                int iech2,
+                               const KrigOpt& krigopt,
                                SpacePoint& pin,
                                SpacePoint& pout,
                                VectorDouble& tabwork,
@@ -1280,12 +1281,13 @@ int ACov::evalCovVecRHSInPlace(vect vect,
   db2->getSampleAsSPInPlace(pin, iech2);
   for (int i = 0; i < (int)vect.size(); i++)
     vect[i] = 0.;
-  return addEvalCovVecRHSInPlace(vect, index1, iech2, pin, pout, tabwork, lambda);
+  return addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda);
 }
 
 int ACov::addEvalCovVecRHSInPlace(vect vect,
                                   const VectorInt& index1,
                                   int iech2,
+                                  const KrigOpt& krigopt,
                                   SpacePoint& pin,
                                   SpacePoint& pout,
                                   VectorDouble& tabwork,
@@ -1293,11 +1295,12 @@ int ACov::addEvalCovVecRHSInPlace(vect vect,
 { 
   DECLARE_UNUSED(pout,index1,tabwork);
   bool flagNoStat = isNoStat();
+  const CovCalcMode& mode = krigopt.getMode();
   for (int i = 0; i < (int)vect.size();i++)
   {
     if (flagNoStat)
         updateCovByPoints(1, i, 2, iech2);
-    vect[i] += lambda * evalCov(_p1As[i], pin);
+    vect[i] += lambda * evalCov(_p1As[i], pin, 0, 0, &mode);
   }
   return 0;
 }

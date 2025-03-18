@@ -88,6 +88,7 @@ public:
   int addEvalCovVecRHSInPlace(vect vect,
                               const VectorInt& index1,
                               int iech2,
+                              const KrigOpt& krigopt,
                               SpacePoint& pin,
                               SpacePoint& pout,
                               VectorDouble& tabwork,
