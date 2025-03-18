@@ -420,6 +420,7 @@ int CorAniso::addEvalCovVecRHSInPlace(vect vect,
 {
   if (!isOptimEnabled())
     return ACov::addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda);
+  
   auto space = pin.getSpace();
   const CovCalcMode& mode = krigopt.getMode();
   optimizationTransformSPNew(pin, pout);
