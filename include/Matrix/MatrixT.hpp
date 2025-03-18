@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstddef>
 #include <vector>
 
@@ -56,6 +57,7 @@ public:
   size_t getSize() const { return _nrow * _ncol; }
   size_t getNRows() const { return _nrow; }
   size_t getNCols() const { return _ncol; }
+  const std::vector<T>& getData() const { return _data; }
 
 private:
   size_t _nrow; 

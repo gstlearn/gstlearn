@@ -11,18 +11,22 @@
 #include "Estimation/Vecchia.hpp"
 
 #include "Basic/VectorHelper.hpp"
+#include "Tree/Ball.hpp"
 #include "Db/Db.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include "Model/Model.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixT.hpp"
+#include "Model/ModelGeneric.hpp"
 
-Vecchia::Vecchia(const Model* model,
-                 const Db* dbin,
-                 const Db* dbout)
-  : _dbin(dbin)
-  , _dbout(dbout)
+Vecchia::Vecchia(const ModelGeneric* model,
+                 const Db* db1,
+                 const Db* db2)
+  : _db1(db1)
+  , _db2(db2)
   , _model(model)
-  , _m()
+  , _DFull()
+  , _LFull()
   , _Dmat()
 {
 }
@@ -35,6 +39,7 @@ Vecchia::~Vecchia()
  * @brief Construct the Vecchia approximation starting from 'Ranks'
  * 
  * @param Ranks MatrixT<int> which the ranks of the sample indices for each target
+ * @param verbose Verbose flag
  * @return int Error returned code
  *
  * @note The dimension of 'Rank' is:
@@ -46,76 +51,144 @@ Vecchia::~Vecchia()
  * - if larger, its value (after subtracting N_dbin) gives the sample absolute
  *   rank in 'dbout'
  */
-int Vecchia::computeLower(const MatrixT<int>& Ranks)
+int Vecchia::computeLower(const MatrixT<int>& Ranks, bool verbose)
 {
   int ndim     = _model->getNDim();
   int ntot     = Ranks.getNRows();
-  int nb_neigh = Ranks.getNCols();
-  int Ndbin    = _dbin->getNSample();
-  VectorDouble D(ntot);
+  int nb_neigh = Ranks.getNCols() - 1;
+  int Ndb1     = _db1->getNSample();
+  double varK  = _model->eval0();
   double value;
 
   // Resizing
-  _m = MatrixSparse(ntot, ntot, nb_neigh+1);
+  _DFull.resize(ntot);
+  _LFull = MatrixSparse(ntot, ntot, nb_neigh+1);
   _Dmat = MatrixSparse(ntot, ntot);
 
   // Creating empty Dbs
   Db* Dbtemp = Db::createEmpty(nb_neigh, ndim, 0, 0, 0, false, true);
-  Dbtemp->setLocVariable(ELoc::SEL, 0, 0, 0.);
   Db* DbOnePoint = Db::createEmpty(1, ndim, 0);
 
-  // Loop on the samples
+    // Loop on the samples
   for (int ind = 0; ind < ntot; ind++)
   {
-    int icur = 1;
+    int icur = 0;
     int iabs = Ranks(ind, 0);
     for (int idim = 0; idim < ndim; idim++)
     {
-      if (iabs < Ndbin)
-        value = _dbin->getCoordinate(iabs, idim);
+      if (iabs < Ndb1)
+        value = _db1->getCoordinate(iabs, idim);
       else
-        value = _dbout->getCoordinate(iabs - Ndbin, idim);
+        value = _db2->getCoordinate(iabs - Ndb1, idim);
       DbOnePoint->setCoordinate(0, idim, value);
     }
 
-    for (int jp = nb_neigh-1; jp >= 1; jp--)
+    for (int jp = nb_neigh; jp >= 1; jp--)
     {
-      int ip = Ranks(ind,jp);
+      int ip = Ranks(ind, jp);
       if (IFFFF(ip))
       {
         Dbtemp->setLocVariable(ELoc::SEL, icur, 0, 0.);
-        continue;
       }
-      for (int idim = 0; idim < ndim; idim++)
+      else
       {
-        if (ip < Ndbin)
-          value = _dbin->getCoordinate(ip, idim);
-        else
-          value = _dbout->getCoordinate(ip - Ndbin, idim);
-        Dbtemp->setCoordinate(icur, idim, value);
+        Dbtemp->setLocVariable(ELoc::SEL, icur, 0, 1.);
+        for (int idim = 0; idim < ndim; idim++)
+        {
+          if (ip < Ndb1)
+            value = _db1->getCoordinate(ip, idim);
+          else
+            value = _db2->getCoordinate(ip - Ndb1, idim);
+          Dbtemp->setCoordinate(icur, idim, value);
+        }
       }
-      Dbtemp->setLocVariable(ELoc::SEL, icur, 0, 1.);
       icur++;
     }
 
-    MatrixSquareSymmetric mat = _model->evalCovMatSym(Dbtemp);
-    CholeskyDense chol = CholeskyDense(&mat);
-    MatrixRectangular crossmat = _model->evalCovMat(Dbtemp, DbOnePoint);
-    VectorDouble vect = crossmat.getColumn(0);
-    VectorDouble res = chol.solveX(vect);
-
-    icur = 0;
-    _m.setValue(ind, ind, 1.);
-    for (int jp = nb_neigh-1; jp >= 1; jp--)
+    if (Dbtemp->getNSample(true) <= 0)
     {
-      int ip = Ranks(ind,jp);
-      if (IFFFF(ip)) continue;
-      _m.setValue(ind, ip, -res[icur]);
-      icur++;
+      _LFull.setValue(ind, ind, 1.);
+      _DFull[ind] = 1. / varK;
     }
-    D[ind] = 1. / (1. - VH::innerProduct(res, vect));
-  }
-  _Dmat.setDiagonal(D);
+    else
+    {
+      MatrixSquareSymmetric mat = _model->evalCovMatSym(Dbtemp);
+      CholeskyDense chol         = CholeskyDense(&mat);
+      MatrixRectangular crossmat = _model->evalCovMat(Dbtemp, DbOnePoint);
+      VectorDouble vect = crossmat.getColumn(0);
+      VectorDouble res  = chol.solveX(vect);
 
+      icur = 0;
+      _LFull.setValue(ind, ind, 1.);
+      for (int jp = nb_neigh; jp >= 1; jp--)
+      {
+        int ip = Ranks(ind, jp);
+        if (IFFFF(ip)) continue;
+        _LFull.setValue(ind, ip, -res[icur]);
+        icur++;
+      }
+      _DFull[ind] = 1. / (varK - VH::innerProduct(res, vect));
+    }
+  }
+  _Dmat.setDiagonal(_DFull);
+
+  // Optional printout
+  if (verbose)
+  {
+    message("Matrix L\n");
+    _LFull.display();
+    VH::dump("Diagonal D", _DFull);
+  }
+  return 0;
+}
+
+int krigingVecchia(Db* dbin,
+                   Db* dbout,
+                   ModelGeneric* model,
+                   int nb_neigh,
+                   bool verbose,
+                   const NamingConvention& namconv) 
+{
+  MatrixT<int> Ranks = findNN(dbout, dbin, nb_neigh+1, false, verbose);
+
+  Vecchia V = Vecchia(model, dbout, dbin);
+  if (V.computeLower(Ranks, verbose)) return 1;
+
+  int nd         = dbin->getNSample();
+  int nt         = dbout->getNSample();
+  VectorDouble Y = dbin->getColumnByLocator(ELoc::Z, 0);
+
+  // Calculate LdY = Ldat %*% Y
+  VectorDouble LdY(nd);
+  for (int id = 0; id < nd; id++)
+  {
+    double value = 0.;
+    for (int jd = 0; jd < nd; jd++)
+      value += V.getLFull(id + nt, jd + nt) * Y[jd];
+    LdY[id] = value;
+  }
+
+  // Calculate FtLdY = Ft %*% Ldat %*% Y
+  VectorDouble FtLdY(nt);
+  for (int it = 0; it < nt; it++)
+  {
+    double value = 0.;
+    for (int id = 0; id < nd; id++)
+      value += V.getLFull(id + nt, it) * LdY[id];
+    FtLdY[it] = value;
+  }
+
+  VectorInt ranksToKeep = VectorInt(nt + nd, -1);
+  for (int it = 0; it < nt; it++) ranksToKeep[it] = it;
+  MatrixSparse* L = V.getLFull().extractSubmatrixByRanks(ranksToKeep, ranksToKeep);
+
+  VectorDouble x(nt);
+  VectorDouble res(nt);
+  L->forwardLU(FtLdY, x, true);
+  L->forwardLU(x, res, false);
+  delete L;
+
+  int iptr = dbout->addColumns(res, String(), ELoc::UNKNOWN, 0, true);
+  namconv.setNamesAndLocators(dbout, iptr, "Estim", 1);
   return 0;
 }

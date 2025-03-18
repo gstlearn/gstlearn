@@ -250,6 +250,9 @@ MatrixT<int> findNN(Db* dbin,
   VectorInt neighs(nb_neigh);
   VectorDouble distances(nb_neigh);
 
+  if (verbose)
+    mestitle(1, "List of Neighborhoors for NN search");
+
   ranks = (flagShuffle) ? law_random_path(n1) : VH::sequence(n1);
   for (int jech = 0; jech < n1; jech++)
   {
@@ -261,7 +264,7 @@ MatrixT<int> findNN(Db* dbin,
 
     if (verbose)
     {
-      message("Sample %3d :", iech);
+      message("Sample_1 %3d", iech);
       VH::dump(" ", neighs, false);
     }
   }
@@ -279,8 +282,8 @@ MatrixT<int> findNN(Db* dbin,
 
       if (verbose)
       {
-        message("Sample %d\n", iech);
-        VH::dump("Neighs", neighs);
+        message("Sample_2 %3d", n1 + iech);
+        VH::dump(" ", neighs, false);
       }
     }
   }

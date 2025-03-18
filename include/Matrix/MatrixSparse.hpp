@@ -210,7 +210,7 @@ public:
   
   MatrixSparse* extractSubmatrixByRanks(const VectorInt &rank_rows,
                                         const VectorInt &rank_cols) const;
-  MatrixSparse* extractSubmatrixByColor(const VectorInt &colors,
+  MatrixSparse* extractSubmatrixByColor(const VectorInt& colors,
                                         int ref_color,
                                         bool row_ok,
                                         bool col_ok);
@@ -218,16 +218,21 @@ public:
   int getNonZeros() const { return _getMatrixPhysicalSize(); }
   void gibbs(int iech, const VectorDouble& zcur, double* yk, double* sk);
 
+  int forwardLU(const VectorDouble& b, VectorDouble& x, bool flagLower = true) const;
+
 #ifndef SWIG
-  protected:
-    virtual int _addToDest(const constvect inv, vect outv) const override;
+
+protected:
+  virtual int _addToDest(const constvect inv, vect outv) const override;
 #endif
 
 #ifndef SWIG
-  public :
+
+public:
   void setDiagonal(const Eigen::Map<const Eigen::VectorXd>& tab);
   void setDiagonal(const constvect tab);
 #endif
+
 protected:
   /// Interface for AMatrix
   bool _isPhysicallyPresent(int irow, int icol) const override

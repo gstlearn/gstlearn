@@ -1700,3 +1700,23 @@ Eigen::SparseMatrix<double> AtMA(const Eigen::SparseMatrix<double>& A,
   return A.transpose() * M * A;
 }
 
+int MatrixSparse::forwardLU(const VectorDouble& b, VectorDouble& x, bool flagLower) const
+{
+  if (!isFlagEigen()) return 1;
+
+  Eigen::Map<const Eigen::VectorXd> bm(b.data(), b.size());
+  Eigen::Map<Eigen::VectorXd> xm(x.data(), x.size());
+
+  if (! flagLower)
+  {
+    const Eigen::SparseMatrix<double>& Lx = _eigenMatrix.transpose();
+    xm                                    = Lx.triangularView<Eigen::Upper>().solve(bm);
+  }
+  else
+  {
+    const Eigen::SparseMatrix<double>& Lx = _eigenMatrix;
+    xm                                    = Lx.triangularView<Eigen::Lower>().solve(bm);
+  }
+
+  return 0;
+}
