@@ -95,12 +95,14 @@ CovAniso::CovAniso(const CovAniso& r)
   _corAniso((CorAniso*)getCor())
 {
   _ctxt.setNVar(r.getNVar());
+  _initFromContext();
 }
 
 CovAniso& CovAniso::operator=(const CovAniso& r)
 {
   if (this != &r)
   {
+    ACov::operator=(r);
     setCor(new CorAniso(*r._corAniso));
     _corAniso     = (CorAniso*)getCor();
     _ctxt         = r._ctxt;
