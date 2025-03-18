@@ -365,9 +365,7 @@ int kriging(Db* dbin,
   NeighUnique* neighUnique = dynamic_cast<NeighUnique*>(neigh);
   if (calcul == EKrigOpt::POINT && rank_colcok.empty() && 
       matLC == nullptr && neighUnique != nullptr &&
-      model->getNVar() == 1 && OptCustom::query("NotOptimSimpleCase", 0) == 1 &&
-      dbin->getNSample() == dbin->getNSample(true) &&
-      dbin->getNSampleActiveAndDefined(dbin->getNameByLocator(ELoc::Z)) == dbin->getNSample())
+      model->getNVar() == 1 && OptCustom::query("NotOptimSimpleCase", 0) == 0)
   { 
   CalcKrigingSimpleCase krige(flag_est, flag_std, flag_varz);
   krige.setDbin(dbin);
