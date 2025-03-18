@@ -1268,14 +1268,17 @@ int ACov::addEvalCovVecRHSInPlace(vect vect,
                                   VectorDouble& tabwork,
                                   double lambda) const
 { 
-  DECLARE_UNUSED(pout,index1,tabwork);
+  DECLARE_UNUSED(pout,tabwork);
+  optimizationSetTarget(pin);
   bool flagNoStat = isNoStat();
   const CovCalcMode& mode = krigopt.getMode();
+  const int* inds = index1.data();
   for (int i = 0; i < (int)vect.size();i++)
   {
+    SpacePoint& p1 = optimizationLoadInPlace(*inds, 1, 1);
     if (flagNoStat)
-        updateCovByPoints(1, i, 2, iech2);
-    vect[i] += lambda * evalCov(_p1As[i], pin, 0, 0, &mode);
+        updateCovByPoints(1, *inds++, 2, iech2);
+    vect[i] += lambda * evalCov(p1, pin, 0, 0, &mode);
   }
   return 0;
 }

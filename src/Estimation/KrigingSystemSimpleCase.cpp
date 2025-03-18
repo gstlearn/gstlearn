@@ -450,8 +450,11 @@ int KrigingSystemSimpleCase::estimate(int iech_out,
     db_sample_print(_dbout, _iechOut, 1, 0, 0, 0);
   }
 
-  status = _setInternalShortCutVariablesNeigh();
-
+  if (_iechOut == 0)
+  {
+    _neigh->select(_iechOut, _nbgh);
+    status = _setInternalShortCutVariablesNeigh();
+  }
   if (status) goto label_store;
 
   /* Establish the Kriging R.H.S. */
