@@ -73,22 +73,22 @@ public:
   virtual int getNVar() const override { return 1; }
 
   /// ACov Interface
-  
-  double evalCor(const SpacePoint &p1,
-                 const SpacePoint &p2,
+
+  double evalCor(const SpacePoint& p1,
+                 const SpacePoint& p2,
                  const CovCalcMode* mode = nullptr,
-                 int ivar = 0,
-                 int jvar = 0) const; // let ivar and jvar for the future where the
+                 int ivar                = 0,
+                 int jvar                = 0) const; // let ivar and jvar for the future where the
                                       // correlation will be different for multivariate
- 
+
   virtual double evalCovOnSphere(double alpha,
-                                 int degree = 50,
-                                 bool flagScaleDistance = true,
+                                 int degree              = 50,
+                                 bool flagScaleDistance  = true,
                                  const CovCalcMode* mode = nullptr) const override;
   virtual VectorDouble evalSpectrumOnSphere(int n,
                                             bool flagNormDistance = false,
-                                            bool flagCumul = false) const override;
-  virtual double evalSpectrum(const VectorDouble &freq,
+                                            bool flagCumul        = false) const override;
+  virtual double evalSpectrum(const VectorDouble& freq,
                               int ivar = 0,
                               int jvar = 0) const override;
 
@@ -96,7 +96,7 @@ public:
   virtual String getFormula() const { return _corfunc->getFormula(); }
   virtual double getBallRadius() const { return TEST; }
 
-  static bool isOptimizationInitialized(const std::vector<SpacePoint> &p1As,
+  static bool isOptimizationInitialized(const std::vector<SpacePoint>& p1As,
                                         const Db* db = nullptr);
 
   void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
@@ -104,32 +104,32 @@ public:
   void _optimizationPostProcess() const override;
   bool isNoStat() const override;
   bool isValidForTurningBand() const;
-  double simulateTurningBand(double t0, TurningBandOperate &operTB) const;
-  bool isValidForSpectral() const ;
+  double simulateTurningBand(double t0, TurningBandOperate& operTB) const;
+  bool isValidForSpectral() const;
   MatrixRectangular simulateSpectralOmega(int nb) const;
 
   static CorAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,
                                    double range,
-                                   double param = 1.,
+                                   double param   = 1.,
                                    bool flagRange = true);
   static CorAniso* createAnisotropic(const CovContext& ctxt,
                                      const ECov& type,
                                      const VectorDouble& ranges,
-                                     double param = 1.,
+                                     double param               = 1.,
                                      const VectorDouble& angles = VectorDouble(),
-                                     bool flagRange = true);
+                                     bool flagRange             = true);
   static CorAniso* createIsotropicMulti(const CovContext& ctxt,
                                         const ECov& type,
                                         double range,
-                                        double param = 1.,
+                                        double param   = 1.,
                                         bool flagRange = true);
   static CorAniso* createAnisotropicMulti(const CovContext& ctxt,
                                           const ECov& type,
                                           const VectorDouble& ranges,
-                                          double param = 1.,
+                                          double param               = 1.,
                                           const VectorDouble& angles = VectorDouble(),
-                                          bool flagRange = true);
+                                          bool flagRange             = true);
 
   void setParam(double param);
   void setNoStatFactor(double noStatFactor) { _noStatFactor = noStatFactor; }
@@ -156,11 +156,11 @@ public:
   const Rotation& getAnisoRotation() const { return _aniso.getRotation(); }
   const VectorDouble& getScales() const { return _aniso.getRadius(); }
 
-  void   setType(const ECov& type);
+  void setType(const ECov& type);
   double getRange() const;
   double getScale() const;
-  bool   getFlagAniso() const { return !isIsotropic(); }
-  bool   getFlagRotation() const { return hasRotation(); }
+  bool getFlagAniso() const { return !isIsotropic(); }
+  bool getFlagRotation() const { return hasRotation(); }
   double getRange(int idim) const { return getRanges()[idim]; }
   double getScale(int idim) const { return getScales()[idim]; }
   VectorDouble getAnisoAngles() const { return _aniso.getAngles(); }
@@ -168,67 +168,64 @@ public:
   const MatrixSquareGeneral& getAnisoInvMat() const { return _aniso.getMatrixInverse(); }
   VectorDouble getAnisoCoeffs() const;
   double getAnisoAngles(int idim) const { return getAnisoAngles()[idim]; }
-  double getAnisoRotMat(int idim, int jdim) const { return _aniso.getMatrixDirect().getValue(idim,jdim); }
+  double getAnisoRotMat(int idim, int jdim) const { return _aniso.getMatrixDirect().getValue(idim, jdim); }
   double getAnisoCoeffs(int idim) const { return getAnisoCoeffs()[idim]; }
   const ECov& getType() const { return _corfunc->getType(); }
   double getParam() const;
   double getScadef() const { return _corfunc->getScadef(); }
   double getParMax() const { return _corfunc->getParMax(); }
-  int    getMaxNDim() const { return _corfunc->getMaxNDim(); }
-  int    getMinOrder() const { return _corfunc->getMinOrder(); }
-  bool   hasInt1D() const { return _corfunc->hasInt1D(); }
-  bool   hasInt2D() const { return _corfunc->hasInt2D(); }
-  int    hasRange() const { return _corfunc->hasRange(); }
-  int    hasParam() const  { return _corfunc->hasParam(); }
+  int getMaxNDim() const { return _corfunc->getMaxNDim(); }
+  int getMinOrder() const { return _corfunc->getMinOrder(); }
+  bool hasInt1D() const { return _corfunc->hasInt1D(); }
+  bool hasInt2D() const { return _corfunc->hasInt2D(); }
+  int hasRange() const { return _corfunc->hasRange(); }
+  int hasParam() const { return _corfunc->hasParam(); }
   String getCovName() const { return _corfunc->getCovName(); }
-  bool   isIsotropic() const { return _aniso.isIsotropic(); }
-  bool   isAsymptotic() const { return getScadef() != 1.; }
-  bool   hasRotation() const { return _aniso.hasRotation(); }
+  bool isIsotropic() const { return _aniso.isIsotropic(); }
+  bool isAsymptotic() const { return getScadef() != 1.; }
+  bool hasRotation() const { return _aniso.hasRotation(); }
   const Tensor& getAniso() const { return _aniso; }
-  void   setAniso(const Tensor& aniso) { _aniso = aniso; }
+  void setAniso(const Tensor& aniso) { _aniso = aniso; }
   const ACovFunc* getCorFunc() const { return _corfunc; }
-  int    getNGradParam() const;
-  bool   hasCovDerivative() const { return _corfunc->hasCovDerivative(); }
-  bool   hasCovOnSphere() const { return _corfunc->hasCovOnSphere(); }
-  bool   hasSpectrumOnSphere() const { return _corfunc->hasSpectrumOnSphere(); }
-  bool   hasMarkovCoeffs() const { return _corfunc->hasMarkovCoeffs(); }
-  bool   hasSpectrumOnRn() const { return _corfunc->hasSpectrumOnRn(); }
+  int getNGradParam() const;
+  bool hasCovDerivative() const { return _corfunc->hasCovDerivative(); }
+  bool hasCovOnSphere() const { return _corfunc->hasCovOnSphere(); }
+  bool hasSpectrumOnSphere() const { return _corfunc->hasSpectrumOnSphere(); }
+  bool hasMarkovCoeffs() const { return _corfunc->hasMarkovCoeffs(); }
+  bool hasSpectrumOnRn() const { return _corfunc->hasSpectrumOnRn(); }
   double normalizeOnSphere(int n = 50) const;
   //////////////////////// New NoStat methods //////////////////////////
 
- 
-  void   makeRangeNoStatDb( const String &namecol, int idim = 0,              const Db* db = nullptr);
-  void   makeScaleNoStatDb( const String &namecol, int idim = 0,              const Db* db = nullptr);
-  void   makeAngleNoStatDb( const String &namecol, int idim = 0,              const Db* db = nullptr);
-  void   makeTensorNoStatDb(const String &namecol, int idim = 0, int jdim = 0,const Db* db = nullptr);
-  void   makeParamNoStatDb( const String &namecol,                            const Db* db = nullptr);
-  
-  void   makeRangeNoStatFunctional( const AFunctional *func, int idim = 0);
-  void   makeScaleNoStatFunctional( const AFunctional *func, int idim = 0);
-  void   makeAngleNoStatFunctional( const AFunctional *func, int idim = 0);
-  void   makeTensorNoStatFunctional(const AFunctional *func, int idim = 0, int jdim = 0);
-  void   makeParamNoStatFunctional( const AFunctional *func);
-  
+  void makeRangeNoStatDb(const String& namecol, int idim = 0, const Db* db = nullptr);
+  void makeScaleNoStatDb(const String& namecol, int idim = 0, const Db* db = nullptr);
+  void makeAngleNoStatDb(const String& namecol, int idim = 0, const Db* db = nullptr);
+  void makeTensorNoStatDb(const String& namecol, int idim = 0, int jdim = 0, const Db* db = nullptr);
+  void makeParamNoStatDb(const String& namecol, const Db* db = nullptr);
 
-  void   makeRangeStationary(int idim = 0);
-  void   makeScaleStationary(int idim = 0);
-  void   makeAngleStationary(int idim = 0);
-  void   makeTensorStationary(int idim, int jdim);
-  void   makeParamStationary();
+  void makeRangeNoStatFunctional(const AFunctional* func, int idim = 0);
+  void makeScaleNoStatFunctional(const AFunctional* func, int idim = 0);
+  void makeAngleNoStatFunctional(const AFunctional* func, int idim = 0);
+  void makeTensorNoStatFunctional(const AFunctional* func, int idim = 0, int jdim = 0);
+  void makeParamNoStatFunctional(const AFunctional* func);
 
-  int getNAngles() const {return _tabNoStatCovAniso->getNAngles();}
-  int getNRanges() const {return _tabNoStatCovAniso->getNRanges();}
-  int getNScales() const {return _tabNoStatCovAniso->getNScales();}
-  bool isNoStatForParam()   const {return _tabNoStatCovAniso->isParam();}
-  bool isNoStatForTensor()  const {return _tabNoStatCovAniso->isDefinedForTensor();}
-  bool isNoStatForAnisotropy() const { return _tabNoStatCovAniso->isDefinedForAnisotropy();}
-  bool isNoStatForVariance()   const { return _tabNoStatCovAniso->isDefinedForVariance();}
-  bool isNoStatForRotation()   const { return _tabNoStatCovAniso->isDefinedForRotation();}
+  void makeRangeStationary(int idim = 0);
+  void makeScaleStationary(int idim = 0);
+  void makeAngleStationary(int idim = 0);
+  void makeTensorStationary(int idim, int jdim);
+  void makeParamStationary();
 
-  
-  VectorDouble evalCovOnSphereVec(const VectorDouble &alpha,
-                                  int degree = 50,
-                                  bool flagScaleDistance = false,
+  int getNAngles() const { return _tabNoStatCovAniso->getNAngles(); }
+  int getNRanges() const { return _tabNoStatCovAniso->getNRanges(); }
+  int getNScales() const { return _tabNoStatCovAniso->getNScales(); }
+  bool isNoStatForParam() const { return _tabNoStatCovAniso->isParam(); }
+  bool isNoStatForTensor() const { return _tabNoStatCovAniso->isDefinedForTensor(); }
+  bool isNoStatForAnisotropy() const { return _tabNoStatCovAniso->isDefinedForAnisotropy(); }
+  bool isNoStatForVariance() const { return _tabNoStatCovAniso->isDefinedForVariance(); }
+  bool isNoStatForRotation() const { return _tabNoStatCovAniso->isDefinedForRotation(); }
+
+  VectorDouble evalCovOnSphereVec(const VectorDouble& alpha,
+                                  int degree              = 50,
+                                  bool flagScaleDistance  = false,
                                   const CovCalcMode* mode = nullptr) const;
   Array evalCovFFT(const VectorDouble& hmax, int N = 128, int ivar = 0, int jvar = 0) const;
   VectorDouble getMarkovCoeffs() const;
@@ -238,9 +235,8 @@ public:
   void computeMarkovCoeffs();
   double getCorrec() const;
   double getFullCorrec() const;
-  void nostatUpdate(CovInternal *covint);
+  void nostatUpdate(CovInternal* covint);
 
-  
   void informMeshByMeshForAnisotropy(const AMesh* amesh) const;
   void informMeshByApexForAnisotropy(const AMesh* amesh) const;
   void informDbInForAnisotropy(const Db* dbin) const;
@@ -249,17 +245,23 @@ public:
   /// Tell if the use of Optimization is enabled or not
 
   void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
-  void updateCovByMesh(int imesh,bool aniso = true) const override;
-  double getValue(const EConsElem &econs,int iv1,int iv2) const override;
-  void setOptimEnabled(bool flag) const { _optimEnabled = flag; }
+  void updateCovByMesh(int imesh, bool aniso = true) const override;
+  double getValue(const EConsElem& econs, int iv1, int iv2) const override;
   void computeCorrec();
-  double evalCorFromH(double h, const CovCalcMode *mode) const;
+  double evalCorFromH(double h, const CovCalcMode* mode) const;
   double getDetTensor() const;
 
   void optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
   String toStringParams(const AStringFormat* strfmt = nullptr) const;
-  String toStringNoStat(const AStringFormat* strfmt = nullptr,int i = 0) const;
+  String toStringNoStat(const AStringFormat* strfmt = nullptr, int i = 0) const;
   
+  #ifndef SWIG
+  int addEvalCovVecRHSInPlace(vect vect,
+                              const VectorInt& index1,
+                              SpacePoint& pin,
+                              SpacePoint& pout,
+                              const int iech2 = -1) const override;
+  #endif
 protected:
   /// Update internal parameters consistency with the context
   void _initFromContext() override;
@@ -267,37 +269,37 @@ protected:
 private:
   void _setContext(const CovContext& ctxt) override;
   TabNoStat* _createNoStatTab() override;
-  void _copyCovContext(const CovContext &ctxt) override;
+  void _copyCovContext(const CovContext& ctxt) override;
 
-bool _isOptimEnabled() const override
-{ 
-  return _optimEnabled && !isNoStatForAnisotropy(); 
-}
+  bool _isOptimEnabled() const override
+  {
+    return _optimEnabled && !isNoStatForAnisotropy();
+  }
 
-void _manage(const Db* db1, const Db* db2) const override;
+  void _manage(const Db* db1, const Db* db2) const override;
 
-bool _checkTensor() const;
-bool _checkRotation() const;
-bool _checkParam() const;
+  bool _checkTensor() const;
+  bool _checkRotation() const;
+  bool _checkParam() const;
 
-bool   _isVariableValid(int ivar) const;
-void _updateFromContext() override;
+  bool _isVariableValid(int ivar) const;
+  void _updateFromContext() override;
 
-virtual double _eval(const SpacePoint& p1,
-                     const SpacePoint& p2,
-                     int ivar = 0,
-                     int jvar = 0,
-                     const CovCalcMode* mode = nullptr) const override;
+  virtual double _eval(const SpacePoint& p1,
+                       const SpacePoint& p2,
+                       int ivar                = 0,
+                       int jvar                = 0,
+                       const CovCalcMode* mode = nullptr) const override;
+
 private:
-  ACovFunc *_corfunc;                  /// Basic correlation function
-  mutable Tensor _aniso;               /// Anisotropy parameters
+  ACovFunc* _corfunc;    /// Basic correlation function
+  mutable Tensor _aniso; /// Anisotropy parameters
   TabNoStatCovAniso* _tabNoStatCovAniso;
-  mutable double _noStatFactor;        /// Correcting factor for non-stationarity
-  const std::array<EConsElem,4> _listaniso = {EConsElem::RANGE,
-                                              EConsElem::SCALE,
-                                              EConsElem::TENSOR,
-                                              EConsElem::ANGLE};
-  mutable bool _optimEnabled;
+  mutable double _noStatFactor; /// Correcting factor for non-stationarity
+  const std::array<EConsElem, 4> _listaniso = {EConsElem::RANGE,
+                                               EConsElem::SCALE,
+                                               EConsElem::TENSOR,
+                                               EConsElem::ANGLE};
   // These temporary information is used to speed up processing (optimization functions)
   // They are in a protected section as they may be modified by class hierarchy
 };

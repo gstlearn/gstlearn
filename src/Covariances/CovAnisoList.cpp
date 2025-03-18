@@ -37,13 +37,13 @@ CovAnisoList::CovAnisoList(const CovContext& ctxt)
 CovAnisoList::CovAnisoList(const CovAnisoList& r)
   : CovList(r)
 {
-  setOptimEnabled(true);
+  
 }
 
 CovAnisoList& CovAnisoList::operator=(const CovAnisoList &r)
 {
 
-  setOptimEnabled(r.isOptimEnabled());
+  
 
   if (this != &r)
   {
@@ -482,10 +482,3 @@ const EModelProperty& CovAnisoList::getCovMode() const
   return EModelProperty::NONE;
 }
 
-void CovAnisoList::setOptimEnabled(bool status)
-{
-  for (auto& e: _covs)
-  {
-    ((CovAniso*)e)->setOptimEnabled(status);
-  }
-}

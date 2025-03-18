@@ -46,7 +46,8 @@ ACov::ACov(const CovContext& ctxt)
   , _p2As()
   , _p2A(ctxt.getSpace())
   , _pAux(ctxt.getSpace())
-  , _tabNoStat(nullptr) {
+  , _tabNoStat(nullptr)
+{
   createNoStatTab();
 }
 
@@ -62,10 +63,11 @@ ACov::ACov(const ACov& r)
   , _pw1(r._pw1)
   , _pw2(r._pw2)
 
-  , _tabNoStat(r._tabNoStat == nullptr ? nullptr : new TabNoStat(*r._tabNoStat)) {
+  , _tabNoStat(r._tabNoStat == nullptr ? nullptr : new TabNoStat(*r._tabNoStat))
+{
 }
 
-ACov& ACov::operator=(const ACov &r)
+ACov& ACov::operator=(const ACov& r)
 {
   if (this != &r)
   {
@@ -90,10 +92,10 @@ ACov::~ACov()
 }
 
 double ACov::evalCov(const SpacePoint& p1,
-                  const SpacePoint& p2,
-                  int ivar,
-                  int jvar,
-                  const CovCalcMode* mode) const
+                     const SpacePoint& p2,
+                     int ivar,
+                     int jvar,
+                     const CovCalcMode* mode) const
 {
   return _eval(p1, p2, ivar, jvar, mode);
 }
@@ -108,7 +110,7 @@ void ACov::optimizationPostProcess() const
 void ACov::optimizationPreProcessForData(const Db* db1) const
 {
   // Do not proceed to optimization when this is forbidden
-  //if (! _optimEnabled) return;
+  // if (! _optimEnabled) return;
 
   // Do not proceed if already done
   if (_optimPreProcessedData) return;
@@ -124,7 +126,7 @@ void ACov::optimizationPreProcessForData(const Db* db1) const
 
   _optimPreProcessedData = true;
 }
- 
+
 void ACov::_optimizationPreProcessForTarget(const Db* db2, const VectorInt& nbgh2) const
 {
   std::vector<SpacePoint> ps;
@@ -154,7 +156,7 @@ void ACov::optimizationSetTarget(SpacePoint& pt) const
 
 void ACov::_optimizationSetTarget(SpacePoint& pt) const
 {
-  _pw2 = &pt;
+  DECLARE_UNUSED(pt);
 }
 
 /**
@@ -192,13 +194,13 @@ void ACov::attachNoStatDb(const Db* db)
   _tabNoStat->setDbNoStatRef(db);
 }
 
-VectorDouble ACov::informCoords(const VectorVectorDouble& coords, 
-                                    const EConsElem& econs,
-                                    int iv1,
-                                    int iv2) const
+VectorDouble ACov::informCoords(const VectorVectorDouble& coords,
+                                const EConsElem& econs,
+                                int iv1,
+                                int iv2) const
 {
-  VectorDouble result(coords[0].size(),getValue(econs,iv1,iv2));
-  _tabNoStat->informCoords(coords,econs,iv1,iv2,result);
+  VectorDouble result(coords[0].size(), getValue(econs, iv1, iv2));
+  _tabNoStat->informCoords(coords, econs, iv1, iv2, result);
   return result;
 }
 
@@ -229,7 +231,7 @@ bool ACov::_checkDims(int idim, int jdim) const
   int ndim = getNDim();
   if ((idim > ndim) || (jdim > ndim))
   {
-    messerr("Your model is only in dimension %d.",ndim);
+    messerr("Your model is only in dimension %d.", ndim);
     return false;
   }
   return true;
@@ -237,7 +239,6 @@ bool ACov::_checkDims(int idim, int jdim) const
 
 void ACov::_optimizationPostProcess() const
 {
-
 }
 
 MatrixSquareSymmetric ACov::eval0Mat(const CovCalcMode* mode) const
@@ -245,7 +246,7 @@ MatrixSquareSymmetric ACov::eval0Mat(const CovCalcMode* mode) const
   int nvar = getNVar();
   MatrixSquareSymmetric mat(nvar);
   mat.fill(0.);
-  eval0CovMatBiPointInPlace(mat,mode);
+  eval0CovMatBiPointInPlace(mat, mode);
   return mat;
 }
 
@@ -255,7 +256,7 @@ MatrixSquareSymmetric ACov::eval0Mat(const CovCalcMode* mode) const
  * @param mode  Calculation Options
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */  
+ */
 void ACov::eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat,
                                      const CovCalcMode* mode) const
 {
@@ -277,9 +278,9 @@ MatrixSquareSymmetric ACov::evalCovMat0(const Db* db, int iech, const KrigOpt& k
 }
 
 int ACov::evalCovMat0InPlace(MatrixSquareSymmetric& mat,
-                                     const Db* db,
-                                     int iech,
-                                     const KrigOpt& krigopt) const
+                             const Db* db,
+                             int iech,
+                             const KrigOpt& krigopt) const
 {
   const EKrigOpt& calcul = krigopt.getCalcul();
   if (calcul == EKrigOpt::DGM)
@@ -293,7 +294,7 @@ int ACov::evalCovMat0InPlace(MatrixSquareSymmetric& mat,
   mat.fill(0.);
 
   if (calcul == EKrigOpt::DRIFT) return 1;
-  bool flagBlock = calcul == EKrigOpt::BLOCK;
+  bool flagBlock         = calcul == EKrigOpt::BLOCK;
   const CovCalcMode mode = CovCalcMode(ECalcMember::VAR);
   bool isNoStatLocal     = isNoStat();
 
@@ -332,8 +333,8 @@ VectorDouble ACov::eval(const std::vector<SpacePoint>& vec_p1,
 {
   VectorDouble vec;
   if (vec_p1.size() != vec_p2.size())
-    my_throw ("Error: 'p1' and 'p2' should have same dimension");
-  for (int i=0, n=static_cast<int> (vec_p1.size()); i < n; i++)
+    my_throw("Error: 'p1' and 'p2' should have same dimension");
+  for (int i = 0, n = static_cast<int>(vec_p1.size()); i < n; i++)
     vec.push_back(evalCov(vec_p1[i], vec_p2[i], ivar, jvar, mode)); // pure virtual method
   return vec;
 }
@@ -368,7 +369,7 @@ double ACov::evalIvarIpas(double step,
 
   if (dir.empty())
   {
-    VectorDouble vec(getNDim(),0.);
+    VectorDouble vec(getNDim(), 0.);
     vec[0] = 1.;
     VH::multiplyConstant(vec, step);
     p2.move(vec);
@@ -389,12 +390,11 @@ double ACov::evalIvarIpasIncr(const VectorDouble& dincr,
                               const CovCalcMode* mode) const
 {
   // Define the point in the ACov space (center will be checked)
-  SpacePoint p1(VectorDouble(_space->getNDim()),-1,getSpace());
-  SpacePoint p2(VectorDouble(_space->getNDim()),-1,getSpace());
+  SpacePoint p1(VectorDouble(_space->getNDim()), -1, getSpace());
+  SpacePoint p2(VectorDouble(_space->getNDim()), -1, getSpace());
   p2.move(dincr);
   return evalCov(p1, p2, ivar, jvar, mode); // pure virtual method
 }
-
 
 /**
  * Covariance vector from a given point (center) in a given direction (dir * steps)
@@ -413,7 +413,7 @@ VectorDouble ACov::evalIvarNlag(const VectorDouble& vec_step,
                                 const CovCalcMode* mode) const
 {
   VectorDouble vec;
-  for (int i=0, n=static_cast<int> (vec_step.size()); i < n; i++)
+  for (int i = 0, n = static_cast<int>(vec_step.size()); i < n; i++)
     vec.push_back(evalIvarIpas(vec_step[i], dir, ivar, jvar, mode));
   return vec;
 }
@@ -432,8 +432,8 @@ MatrixSquareGeneral ACov::evalNvarIpas(double step,
 {
   int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
-  for (int ivar=0; ivar<nvar; ivar++)
-    for (int jvar=0; jvar<nvar; jvar++)
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
       mat.setValue(ivar, jvar, evalIvarIpas(step, dir, ivar, jvar, mode));
   return mat;
 }
@@ -443,8 +443,8 @@ MatrixSquareGeneral ACov::evalNvarIpasIncr(const VectorDouble& dincr,
 {
   int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
-  for (int ivar=0; ivar<nvar; ivar++)
-    for (int jvar=0; jvar<nvar; jvar++)
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
       mat.setValue(ivar, jvar, evalIvarIpasIncr(dincr, ivar, jvar, mode));
   return mat;
 }
@@ -465,7 +465,7 @@ double ACov::evalIsoIvarIpas(double step,
 {
   /// TODO : Not true whatever the space
   VectorDouble center = getOrigin();
-  VectorDouble dir = getUnitaryVector();
+  VectorDouble dir    = getUnitaryVector();
   return evalIvarIpas(step, dir, ivar, jvar, mode);
 }
 
@@ -485,7 +485,7 @@ VectorDouble ACov::evalIsoIvarNlag(const VectorDouble& vec_step,
 {
   VectorDouble vec;
   VectorDouble dir = getUnitaryVector();
-  for (const auto& h : vec_step)
+  for (const auto& h: vec_step)
     vec.push_back(evalIvarIpas(h, dir, ivar, jvar, mode));
   return vec;
 }
@@ -500,11 +500,11 @@ VectorDouble ACov::evalIsoIvarNlag(const VectorDouble& vec_step,
 MatrixSquareGeneral ACov::evalIsoNvarIpas(double step,
                                           const CovCalcMode* mode) const
 {
-  int nvar = getNVar();
+  int nvar         = getNVar();
   VectorDouble dir = getUnitaryVector();
   MatrixSquareGeneral mat(nvar);
-  for (int ivar=0; ivar<nvar; ivar++)
-    for (int jvar=0; jvar<nvar; jvar++)
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
       mat.setValue(ivar, jvar, evalIvarIpas(step, dir, ivar, jvar, mode));
   return mat;
 }
@@ -555,7 +555,7 @@ double ACov::evalAverageDbToDb(const Db* db1,
       if (eps > 0)
       {
         for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
-          coord2[idim] += eps * law_uniform(-0.5,  0.5);
+          coord2[idim] += eps * law_uniform(-0.5, 0.5);
       }
       SpacePoint p2(coord2);
 
@@ -575,33 +575,33 @@ double ACov::evalAverageDbToDb(const Db* db1,
   return total;
 }
 
-double ACov::evalAverageIncrToIncr(const VectorVectorDouble &d1,
-                                   const VectorVectorDouble &d2,
+double ACov::evalAverageIncrToIncr(const VectorVectorDouble& d1,
+                                   const VectorVectorDouble& d2,
                                    int ivar,
                                    int jvar,
-                                   const CovCalcMode *mode) const
+                                   const CovCalcMode* mode) const
 {
-  int nincr1 = (int) d1.size();
-  int nincr2 = (int) d2.size();
+  int nincr1 = (int)d1.size();
+  int nincr2 = (int)d2.size();
 
   /* Loop on the first sample */
 
   double total = 0.;
   for (int incr1 = 0; incr1 < nincr1; incr1++)
   {
-    SpacePoint p1(d1[incr1],-1,getSpace());
+    SpacePoint p1(d1[incr1], -1, getSpace());
 
     /* Loop on the second sample */
 
     for (int incr2 = 0; incr2 < nincr2; incr2++)
     {
-      SpacePoint p2(d2[incr2],-1,getSpace());
+      SpacePoint p2(d2[incr2], -1, getSpace());
       total += evalCov(p1, p2, ivar, jvar, mode);
     }
   }
 
   // Scaling
-  total /= (double) (nincr1 * nincr2);
+  total /= (double)(nincr1 * nincr2);
 
   return total;
 }
@@ -634,7 +634,7 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
     if (!db2->isActive(iech2)) continue;
     double w2 = db2->getWeight(iech2);
     if (isZero(w2)) continue;
-    SpacePoint p2(db2->getSampleCoordinates(iech2),iech2,getSpace());
+    SpacePoint p2(db2->getSampleCoordinates(iech2), iech2, getSpace());
 
     /* Loop on the dimension of the space */
 
@@ -649,14 +649,14 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
 }
 
 void ACov::evalPointToDbAsSP(VectorDouble& values,
-                            const std::vector<SpacePoint>& p1s,
-                            const SpacePoint& p2,
-                            int ivar,
-                            int jvar,
-                            const CovCalcMode* mode) const
+                             const std::vector<SpacePoint>& p1s,
+                             const SpacePoint& p2,
+                             int ivar,
+                             int jvar,
+                             const CovCalcMode* mode) const
 {
   int nech1 = (int)p1s.size();
-  if (nech1 != (int) values.size()) values.resize(nech1);
+  if (nech1 != (int)values.size()) values.resize(nech1);
 
   /* Loop on the second sample */
 
@@ -723,16 +723,16 @@ double ACov::evalCvv(const VectorDouble& ext,
                      const CovCalcMode* mode) const
 {
   int ndim = getNDim();
-  if (ndim != (int) ext.size())
+  if (ndim != (int)ext.size())
   {
     messerr("Block Extension (%d) should have same dimension as the Model %d)",
-            (int) ext.size(),ndim);
+            (int)ext.size(), ndim);
     return TEST;
   }
-  if (ndim != (int) ndisc.size())
+  if (ndim != (int)ndisc.size())
   {
     messerr("Discretization (%d) should have same dimension as the Model (%d)",
-            (int) ndisc.size(), ndim);
+            (int)ndisc.size(), ndim);
     return TEST;
   }
 
@@ -741,7 +741,7 @@ double ACov::evalCvv(const VectorDouble& ext,
   Db* db = _discretizeBlockRandom(dbgrid);
   if (db == nullptr) return TEST;
 
-  double total = evalAverageDbToDb(dbgrid,  db, ivar, jvar, 0., 0, mode);
+  double total = evalAverageDbToDb(dbgrid, db, ivar, jvar, 0., 0, mode);
   delete dbgrid;
   return total;
 }
@@ -766,22 +766,22 @@ double ACov::evalCvvShift(const VectorDouble& ext,
                           const CovCalcMode* mode) const
 {
   int ndim = getNDim();
-  if (ndim != (int) ext.size())
+  if (ndim != (int)ext.size())
   {
     messerr("Block Extension (%d) should have same dimension as the Model %d)",
-            (int) ext.size(),ndim);
+            (int)ext.size(), ndim);
     return TEST;
   }
-  if (ndim != (int) ndisc.size())
+  if (ndim != (int)ndisc.size())
   {
     messerr("Discretization (%d) should have same dimension as the Model (%d)",
-            (int) ndisc.size(), ndim);
+            (int)ndisc.size(), ndim);
     return TEST;
   }
-  if (ndim != (int) shift.size())
+  if (ndim != (int)shift.size())
   {
     messerr("Shift (%d) should have the same dimension as the Model (%d)",
-            (int) shift.size(), ndim);
+            (int)shift.size(), ndim);
     return TEST;
   }
 
@@ -790,7 +790,7 @@ double ACov::evalCvvShift(const VectorDouble& ext,
   DbGrid* dbgrid2 = _discretizeBlock(ext, ndisc, angles, shift);
   if (dbgrid2 == nullptr) return TEST;
 
-  double total = evalAverageDbToDb(dbgrid1,  dbgrid2, ivar, jvar, 0., 0, mode);
+  double total = evalAverageDbToDb(dbgrid1, dbgrid2, ivar, jvar, 0., 0, mode);
   delete dbgrid1;
   delete dbgrid2;
   return total;
@@ -803,8 +803,8 @@ MatrixSquareGeneral ACov::evalCvvM(const VectorDouble& ext,
 {
   int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
-  for (int ivar=0; ivar<nvar; ivar++)
-    for (int jvar=0; jvar<nvar; jvar++)
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
       mat.setValue(ivar, jvar, evalCvv(ext, ndisc, angles, ivar, jvar, mode));
   return mat;
 }
@@ -831,20 +831,20 @@ double ACov::evalCxv(const SpacePoint& p1,
                      const CovCalcMode* mode) const
 {
   int ndim = getNDim();
-  if (ndim != (int) ext.size())
+  if (ndim != (int)ext.size())
   {
     messerr("Block Extension (%d) should have same dimension as the Model %d)",
-            (int) ext.size(),ndim);
+            (int)ext.size(), ndim);
     return TEST;
   }
-  if (ndim != (int) ndisc.size())
+  if (ndim != (int)ndisc.size())
   {
     messerr("Discretization (%d) should have same dimension as the Model (%d)",
-            (int) ndisc.size(), ndim);
+            (int)ndisc.size(), ndim);
     return TEST;
   }
 
-  double total = TEST;
+  double total   = TEST;
   DbGrid* dbgrid = _discretizeBlock(ext, ndisc, angles, x0);
   if (dbgrid != nullptr)
     total = evalAveragePointToDb(p1, dbgrid, ivar, jvar, mode);
@@ -874,20 +874,20 @@ double ACov::evalCxv(const Db* db,
             db->getNDim(), ndim);
     return TEST;
   }
-  if (ndim != (int) ext.size())
+  if (ndim != (int)ext.size())
   {
     messerr("Block Extension (%d) should have same dimension as the Model %d)",
-            (int) ext.size(),ndim);
+            (int)ext.size(), ndim);
     return TEST;
   }
-  if (ndim != (int) ndisc.size())
+  if (ndim != (int)ndisc.size())
   {
     messerr("Discretization (%d) should have same dimension as the Model (%d)",
-            (int) ndisc.size(), ndim);
+            (int)ndisc.size(), ndim);
     return TEST;
   }
 
-  double total = TEST;
+  double total   = TEST;
   DbGrid* dbgrid = _discretizeBlock(ext, ndisc, angles, x0);
   if (dbgrid != nullptr)
     total = evalAverageDbToDb(db, dbgrid, ivar, jvar, 0., 0, mode);
@@ -905,8 +905,8 @@ MatrixSquareGeneral ACov::evalCxvM(const SpacePoint& p1,
 {
   int nvar = getNVar();
   MatrixSquareGeneral mat(nvar);
-  for (int ivar=0; ivar<nvar; ivar++)
-    for (int jvar=0; jvar<nvar; jvar++)
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
       mat.setValue(ivar, jvar, evalCxv(p1, ext, ndisc, angles, x0, ivar, jvar, mode));
   return mat;
 }
@@ -927,9 +927,9 @@ DbGrid* ACov::_discretizeBlock(const VectorDouble& ext,
                                const VectorDouble& angles,
                                const VectorDouble& x0) const
 {
-  int ndim = getNDim();
+  int ndim           = getNDim();
   VectorDouble x0loc = x0;
-  if (x0loc.empty() || ndim != (int) x0loc.size())
+  if (x0loc.empty() || ndim != (int)x0loc.size())
     x0loc.resize(ndim, 0.);
   for (int idim = 0; idim < ndim; idim++)
     x0loc[idim] -= ext[idim] / 2.;
@@ -942,17 +942,17 @@ DbGrid* ACov::_discretizeBlock(const VectorDouble& ext,
 
 Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid, int seed) const
 {
-  int ndim = getNDim();
-  int nech = dbgrid->getNSample();
-  Db* db = Db::createFromSamples(nech);
-  VectorString names = generateMultipleNames("x",ndim);
+  int ndim           = getNDim();
+  int nech           = dbgrid->getNSample();
+  Db* db             = Db::createFromSamples(nech);
+  VectorString names = generateMultipleNames("x", ndim);
   law_set_random_seed(seed);
 
   for (int idim = 0; idim < ndim; idim++)
   {
-    double taille = dbgrid->getDX(idim);
+    double taille    = dbgrid->getDX(idim);
     VectorDouble vec = dbgrid->getOneCoordinate(idim, false);
-    for (int i = 0; i < (int) vec.size(); i++)
+    for (int i = 0; i < (int)vec.size(); i++)
       vec[i] += taille * law_uniform(-0.5, 0.5);
     db->addColumns(vec, names[idim], ELoc::X, idim);
   }
@@ -1042,14 +1042,14 @@ int ACov::evalCovMatInPlace(MatrixRectangular& mat,
   return evalCovMatInPlaceFromIdx(mat, db1, db2, index1, index2, nbgh2, mode, cleanOptim);
 }
 
-  int ACov::evalCovMatInPlaceFromIdx(MatrixRectangular& mat,
-                                     const Db* db1,
-                                     const Db* db2,
-                                     const VectorVectorInt& index1,
-                                     const VectorVectorInt& index2,
-                                     const VectorInt& nbgh2,
-                                     const CovCalcMode* mode,
-                                     bool cleanOptim) const
+int ACov::evalCovMatInPlaceFromIdx(MatrixRectangular& mat,
+                                   const Db* db1,
+                                   const Db* db2,
+                                   const VectorVectorInt& index1,
+                                   const VectorVectorInt& index2,
+                                   const VectorInt& nbgh2,
+                                   const CovCalcMode* mode,
+                                   bool cleanOptim) const
 {
   // Prepare Non-stationarity (if needed)
   manage(db1, db2);
@@ -1059,10 +1059,10 @@ int ACov::evalCovMatInPlace(MatrixRectangular& mat,
   _optimizationPreProcessForTarget(db2, nbgh2);
 
   // Creating the matrix
-  int nvar1 = (int) index1.size();
-  int nvar2 = (int) index2.size();
-  int neq1 = VH::count(index1);
-  int neq2 = VH::count(index2);
+  int nvar1 = (int)index1.size();
+  int nvar2 = (int)index2.size();
+  int neq1  = VH::count(index1);
+  int neq2  = VH::count(index2);
   if (neq1 <= 0 || neq2 <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
@@ -1114,7 +1114,7 @@ int ACov::evalCovMatInPlace(MatrixRectangular& mat,
 
 /**
  * @brief Returns the references in 'pt' and set the local pointer '_pw2'
- * 
+ *
  * @param iech Relative index of the target sample (within 'pXAs')
  * @param mode 1 for _p1As, 2 for _p2As and 3 for _p2A
  * @param rank 1 for the first point and 2 for the second
@@ -1140,7 +1140,7 @@ SpacePoint& ACov::_optimizationLoadInPlace(int iech,
       _pw2 = &_p2As[iech];
     return _p2As[iech];
   }
-  
+
   if (rank == 1)
     _pw1 = &_p2A;
   else
@@ -1181,7 +1181,7 @@ int ACov::evalCovMatRHSInPlaceFromIdx(MatrixRectangular& mat,
                                       const KrigOpt& krigopt,
                                       bool cleanOptim) const
 {
-// Preliminary checks
+  // Preliminary checks
   if (db1 == nullptr || db2 == nullptr) return 1;
   const EKrigOpt& calcul = krigopt.getCalcul();
   if (calcul == EKrigOpt::DGM)
@@ -1197,7 +1197,7 @@ int ACov::evalCovMatRHSInPlaceFromIdx(MatrixRectangular& mat,
   VectorInt nbgh2        = {iech2};
   VectorVectorInt index2 = db2->getSampleRanks(ivars, nbgh2, true, false, false);
 
-// Creating the matrix
+  // Creating the matrix
   int neq1 = VH::count(index1);
   int neq2 = VH::count(index2);
   if (neq1 <= 0 || neq2 <= 0)
@@ -1206,7 +1206,7 @@ int ACov::evalCovMatRHSInPlaceFromIdx(MatrixRectangular& mat,
     return 1;
   }
 
-// Dimension the returned matrix
+  // Dimension the returned matrix
   mat.resize(neq1, neq2);
   mat.fill(0.);
 
@@ -1268,41 +1268,34 @@ int ACov::evalCovMatRHSInPlaceFromIdx(MatrixRectangular& mat,
  ** \note due to the presence of 'nostat'
  **
  *****************************************************************************/
- int ACov::evalCovVecRHSInPlace(vect vect,
-                                const Db* db2,
-                                const VectorInt& index1,
-                                SpacePoint& pin,
-                                SpacePoint& pout,
-                                int iech2) const
+int ACov::evalCovVecRHSInPlace(vect vect,
+                               const Db* db2,
+                               const VectorInt& index1,
+                               SpacePoint& pin,
+                               SpacePoint& pout,
+                               int iech2) const
 {
-  
   db2->getSampleAsSPInPlace(pin, iech2);
-  
-  evalCovPointVec(pin,_p1As, pout,iech2,vect);
-
-
-  return 0;
+  for (int i = 0; i < (int)vect.size(); i++)
+    vect[i] = 0.;
+  return addEvalCovVecRHSInPlace(vect, index1, pin, pout, iech2);
 }
 
-void ACov::evalCovPointVec(SpacePoint& pin,
-                           std::vector<SpacePoint>& p1s,
-                           SpacePoint& pout,
-                           int iech2,
-                           vect vect) const
+int ACov::addEvalCovVecRHSInPlace(vect vect,
+                                  const VectorInt& index1,
+                                  SpacePoint& pin,
+                                  SpacePoint& pout,
+                                  int iech2) const
 {
   bool flagNoStat = isNoStat();
-  for (int i = 0, n =  (int)p1s.size(); i < n; i++)
+  for (int i = 0; i < (int)vect.size();i++)
   {
     if (flagNoStat)
         updateCovByPoints(1, i, 2, iech2);
-
-    // Loop on the discretization points
-     vect[i] = 0;
+    vect[i] += evalCov(_p1As[i], pin);
   }
-
+  return 0;
 }
-
-
 
 int ACov::_evalCovMatRHSInPlaceBlock(MatrixRectangular& mat,
                                      const Db* db2,
@@ -1316,10 +1309,10 @@ int ACov::_evalCovMatRHSInPlaceBlock(MatrixRectangular& mat,
   const CovCalcMode& mode = krigopt.getMode();
   bool isNoStatLocal      = isNoStat();
 
-    // Loop on Data
+  // Loop on Data
 
   int icol = 0;
-  for (int ivar2 = 0, nvar2 = (int) index2.size(); ivar2 < nvar2; ivar2++)
+  for (int ivar2 = 0, nvar2 = (int)index2.size(); ivar2 < nvar2; ivar2++)
   {
     const VectorInt& index2i = index2[ivar2];
     const int* ptr2          = index2i.data();
@@ -1362,11 +1355,11 @@ int ACov::_evalCovMatRHSInPlacePoint(MatrixRectangular& mat,
 {
   // Local shortcuts for parameters
   const CovCalcMode& mode = krigopt.getMode();
-  bool isNoStatLocal = isNoStat();
+  bool isNoStatLocal      = isNoStat();
 
   // Loop on Target
   int icol = 0;
-  for (int ivar2 = 0, nvar2 = (int) index2.size(); ivar2 < nvar2; ivar2++)
+  for (int ivar2 = 0, nvar2 = (int)index2.size(); ivar2 < nvar2; ivar2++)
   {
     const VectorInt& index2i = index2[ivar2];
     const int* ptr2          = index2i.data();
@@ -1397,7 +1390,7 @@ void ACov::_loopOnData(MatrixRectangular& mat,
   double value;
 
   int irow = 0;
-  for (int ivar1 = 0, nvar1 = (int) index1.size(); ivar1 < nvar1; ivar1++)
+  for (int ivar1 = 0, nvar1 = (int)index1.size(); ivar1 < nvar1; ivar1++)
   {
     const VectorInt& index1i = index1[ivar1];
     for (const auto iabs1: index1i.getVector())
@@ -1440,9 +1433,9 @@ void ACov::_updateCovMatrixSymmetricForVerr(const Db* db1,
 
   // Loop on Data
   int irow = 0;
-  for (int ivar1 = 0, nvar1 = (int) index1.size(); ivar1 < nvar1; ivar1++)
+  for (int ivar1 = 0, nvar1 = (int)index1.size(); ivar1 < nvar1; ivar1++)
   {
-    int icolVerr = db1->getColIdxByLocator(ELoc::V, ivar1);
+    int icolVerr             = db1->getColIdxByLocator(ELoc::V, ivar1);
     const VectorInt& index1i = index1[ivar1];
     for (const auto iabs1: index1i.getVector())
     {
@@ -1474,7 +1467,7 @@ void ACov::_load(const SpacePoint& p, bool option) const
 /*!
  **  Establish the covariance matrix within a Db
  **  Takes into account selection and heterotopy
- **  This method takes advantage of calculating covariance between 
+ **  This method takes advantage of calculating covariance between
  **  a Db and itself
  **
  ** \return Dense matrix containing the covariance matrix
@@ -1483,7 +1476,7 @@ void ACov::_load(const SpacePoint& p, bool option) const
  ** \param[in]  ivar0 Rank of the first variable (-1 for all variables)
  ** \param[in]  nbgh1 Vector of indices of active samples in db1 (optional)
  ** \param[in]  mode  CovCalcMode structure
- ** \param[in]  cleanOptim When True, clean optimization internal arrays at end 
+ ** \param[in]  cleanOptim When True, clean optimization internal arrays at end
  **
  ** \remarks If a Db does not contain any Z-variable defined, the covariance
  ** \remarks cannot treat possible heterotopy and therefore uses all samples
@@ -1550,7 +1543,7 @@ int ACov::evalCovMatSymInPlaceFromIdx(MatrixSquareSymmetric& mat,
   // Loop on Data
   double value;
   int icol = 0;
-  for (int ivar2 = 0, nvar2 = (int) index1.size(); ivar2 < nvar2; ivar2++)
+  for (int ivar2 = 0, nvar2 = (int)index1.size(); ivar2 < nvar2; ivar2++)
   {
     const VectorInt& index2i = index1[ivar2];
     for (const auto iabs2: index2i.getVector())
@@ -1558,7 +1551,7 @@ int ACov::evalCovMatSymInPlaceFromIdx(MatrixSquareSymmetric& mat,
       SpacePoint& p2 = optimizationLoadInPlace(iabs2, 1, 2);
 
       int irow = 0;
-      for (int ivar1 = 0, nvar1 = (int) index1.size(); ivar1 < nvar1; ivar1++)
+      for (int ivar1 = 0, nvar1 = (int)index1.size(); ivar1 < nvar1; ivar1++)
       {
         const VectorInt& index1i = index1[ivar1];
         for (const auto iabs1: index1i.getVector())
@@ -1648,15 +1641,15 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
   VectorVectorInt index2 = db2->getSampleRanks(jvars, nbgh2, true, true, flagSameDb);
 
   // Evaluate the matrix of sills
-  int nvar1 = (int) ivars.size();
-  int nvar2 = (int) jvars.size();
+  int nvar1 = (int)ivars.size();
+  int nvar2 = (int)jvars.size();
   MatrixRectangular mat0(nvar1, nvar2);
   for (int ivar = 0; ivar < nvar1; ivar++)
   {
     int ivar1 = ivars[ivar];
     for (int jvar = 0; jvar < nvar2; jvar++)
     {
-      int jvar2 = jvars[jvar];
+      int jvar2    = jvars[jvar];
       double value = eval0(ivar1, jvar2, mode);
       mat0.setValue(ivar1, jvar2, value);
     }
@@ -1667,7 +1660,7 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
 
   // Loop on Data
   int icol = 0;
-  for (int ivar2 = 0, nvar2 = (int) index2.size(); ivar2 < nvar2; ivar2++)
+  for (int ivar2 = 0, nvar2 = (int)index2.size(); ivar2 < nvar2; ivar2++)
   {
     const VectorInt& index2i = index2[ivar2];
     const int* ptr2          = index2i.data();
@@ -1677,7 +1670,7 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
       SpacePoint& p2 = optimizationLoadInPlace(irel2, 2, 2);
 
       int irow = 0;
-      for (int ivar1 = 0, nvar1 = (int) index1.size(); ivar1 < nvar1; ivar1++)
+      for (int ivar1 = 0, nvar1 = (int)index1.size(); ivar1 < nvar1; ivar1++)
       {
         const VectorInt& index1i = index1[ivar1];
         for (const auto iabs1: index1i.getVector())
@@ -1726,20 +1719,20 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
  */
 double ACov::extensionVariance(const Db* db,
                                const VectorDouble& ext,
-                               const VectorInt&    ndisc,
+                               const VectorInt& ndisc,
                                const VectorDouble& angles,
                                const VectorDouble& x0,
                                int ivar,
                                int jvar) const
 {
-  double sigmaE = TEST;
+  double sigmaE  = TEST;
   DbGrid* dbgrid = _discretizeBlock(ext, ndisc, angles, x0);
   if (dbgrid != nullptr)
   {
     double GxV = evalAverageDbToDb(db, dbgrid, ivar, jvar);
     double Gxx = evalAverageDbToDb(db, db, ivar, jvar);
     double GVV = evalAverageDbToDb(dbgrid, dbgrid, ivar, jvar);
-    sigmaE = -2. * GxV + Gxx + GVV;
+    sigmaE     = -2. * GxV + Gxx + GVV;
   }
   delete dbgrid;
 
@@ -1757,11 +1750,11 @@ double ACov::extensionVariance(const Db* db,
  * @param jvar    Rank of the second variable
  * @return
  */
-double ACov::samplingDensityVariance(const Db *db,
-                                     const VectorDouble &ext,
-                                     const VectorInt &ndisc,
-                                     const VectorDouble &angles,
-                                     const VectorDouble &x0,
+double ACov::samplingDensityVariance(const Db* db,
+                                     const VectorDouble& ext,
+                                     const VectorInt& ndisc,
+                                     const VectorDouble& angles,
+                                     const VectorDouble& x0,
                                      int ivar,
                                      int jvar) const
 {
@@ -1782,12 +1775,12 @@ double ACov::samplingDensityVariance(const Db *db,
  * @param jvar   Rank of the second variable
  * @return
  */
-double ACov::specificVolume(const Db *db,
+double ACov::specificVolume(const Db* db,
                             double mean,
-                            const VectorDouble &ext,
-                            const VectorInt &ndisc,
-                            const VectorDouble &angles,
-                            const VectorDouble &x0,
+                            const VectorDouble& ext,
+                            const VectorInt& ndisc,
+                            const VectorDouble& angles,
+                            const VectorDouble& x0,
                             int ivar,
                             int jvar) const
 {
@@ -1796,8 +1789,7 @@ double ACov::specificVolume(const Db *db,
     messerr("Argument 'mean'  must be defined and positive");
     return TEST;
   }
-  return samplingDensityVariance(db, ext, ndisc, angles, x0, ivar, jvar)
-      / (mean * mean);
+  return samplingDensityVariance(db, ext, ndisc, angles, x0, ivar, jvar) / (mean * mean);
 }
 
 /**
@@ -1813,13 +1805,13 @@ double ACov::specificVolume(const Db *db,
  * @param jvar   Rank of the second variable
  * @return
  */
-double ACov::coefficientOfVariation(const Db *db,
+double ACov::coefficientOfVariation(const Db* db,
                                     double volume,
                                     double mean,
-                                    const VectorDouble &ext,
-                                    const VectorInt &ndisc,
-                                    const VectorDouble &angles,
-                                    const VectorDouble &x0,
+                                    const VectorDouble& ext,
+                                    const VectorInt& ndisc,
+                                    const VectorDouble& angles,
+                                    const VectorDouble& x0,
                                     int ivar,
                                     int jvar) const
 {
@@ -1850,13 +1842,13 @@ double ACov::coefficientOfVariation(const Db *db,
  * @param jvar   Rank of the second variable
  * @return
  */
-double ACov::specificVolumeFromCoV(Db *db,
+double ACov::specificVolumeFromCoV(Db* db,
                                    double cov,
                                    double mean,
-                                   const VectorDouble &ext,
-                                   const VectorInt &ndisc,
-                                   const VectorDouble &angles,
-                                   const VectorDouble &x0,
+                                   const VectorDouble& ext,
+                                   const VectorInt& ndisc,
+                                   const VectorDouble& angles,
+                                   const VectorDouble& x0,
                                    int ivar,
                                    int jvar) const
 {
@@ -1867,12 +1859,10 @@ double ACov::specificVolumeFromCoV(Db *db,
 double ACov::_getVolume(const VectorDouble& ext) const
 {
   double maille = 1.;
-  int ndim = getNDim();
+  int ndim      = getNDim();
   for (int idim = 0; idim < ndim; idim++) maille *= ext[idim];
   return maille;
 }
-
-
 
 /////////////  Functions to attach no stat information on various supports ////////
 void ACov::informMeshByMesh(const AMesh* amesh) const
@@ -1892,7 +1882,6 @@ void ACov::informDbOut(const Db* dbout) const
   _tabNoStat->informDbOut(dbout);
 }
 
-
 void ACov::setNoStatDbIfNecessary(const Db*& db)
 {
   if (_tabNoStat->getDbNoStatRef() == nullptr)
@@ -1905,22 +1894,20 @@ void ACov::makeStationary()
 {
   _tabNoStat->clear();
 }
-int ACov::makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AFunctional* func, const Db* db, const String& namecol)
+int ACov::makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func, const Db* db, const String& namecol)
 {
   std::shared_ptr<ANoStat> ns;
   if (func == nullptr)
   {
-    if(!checkAndManageNoStatDb(db,namecol)) return 1;
-    ns = std::shared_ptr<ANoStat>(new NoStatArray(db,namecol));
+    if (!checkAndManageNoStatDb(db, namecol)) return 1;
+    ns = std::shared_ptr<ANoStat>(new NoStatArray(db, namecol));
   }
-  else 
+  else
   {
     ns = std::unique_ptr<ANoStat>(new NoStatFunctional(func));
   }
-   return _tabNoStat->addElem(ns, econs,iv1,iv2);
-  
+  return _tabNoStat->addElem(ns, econs, iv1, iv2);
 }
-
 
 /*****************************************************************************/
 /*!
@@ -1935,10 +1922,10 @@ int ACov::makeElemNoStat(const EConsElem &econs, int iv1, int iv2,const AFunctio
  ** \param[in]  d1           Distance vector
  **
  *****************************************************************************/
-double ACov::evaluateOneGeneric(const CovInternal *covint,
-                                 const VectorDouble &d1,
-                                 double weight,
-                                 const CovCalcMode *mode) const
+double ACov::evaluateOneGeneric(const CovInternal* covint,
+                                const VectorDouble& d1,
+                                double weight,
+                                const CovCalcMode* mode) const
 {
   // Load the non-stationary parameters if needed
 
@@ -1965,13 +1952,13 @@ double ACov::evaluateOneGeneric(const CovInternal *covint,
  ** \param[in]  mode        CovCalcMode structure
  **
  *****************************************************************************/
-double ACov::calculateStDev(Db *db1,
-                             int iech1,
-                             Db *db2,
-                             int iech2,
-                             bool verbose,
-                             double factor,
-                             const CovCalcMode *mode) const
+double ACov::calculateStDev(Db* db1,
+                            int iech1,
+                            Db* db2,
+                            int iech2,
+                            bool verbose,
+                            double factor,
+                            const CovCalcMode* mode) const
 {
 
   /* Covariance at origin */
@@ -1983,7 +1970,7 @@ double ACov::calculateStDev(Db *db1,
   /* Covariance at increment */
 
   if (db1->getDistanceVecInPlace(iech1, iech2, dd, db2) != 0) return TEST;
-  double cov = evaluateOneGeneric(nullptr, dd, 1., mode);
+  double cov   = evaluateOneGeneric(nullptr, dd, 1., mode);
   double stdev = factor * sqrt(c00 - cov);
 
   if (verbose)
@@ -1997,7 +1984,6 @@ double ACov::calculateStDev(Db *db1,
   return stdev;
 }
 
-
 /****************************************************************************/
 /*!
  **  Evaluate the model on a Db
@@ -2008,10 +1994,10 @@ double ACov::calculateStDev(Db *db1,
  ** \param[in]  mode       CovCalcMode structure
  **
  *****************************************************************************/
-VectorDouble ACov::evaluateFromDb(Db *db,
-                                   int ivar,
-                                   int jvar,
-                                   const CovCalcMode *mode) const
+VectorDouble ACov::evaluateFromDb(Db* db,
+                                  int ivar,
+                                  int jvar,
+                                  const CovCalcMode* mode) const
 {
   if ((int)getNDim() != db->getNDim())
   {
@@ -2025,7 +2011,7 @@ VectorDouble ACov::evaluateFromDb(Db *db,
 
   /* Core allocation */
 
-  VectorDouble d1(ndim,0.);
+  VectorDouble d1(ndim, 0.);
   MatrixSquareGeneral covtab(nvar);
   VectorDouble gg(nech, TEST);
 
@@ -2056,12 +2042,12 @@ VectorDouble ACov::evaluateFromDb(Db *db,
  ** \param[out] covtab       Covariance array
  **
  *****************************************************************************/
-void ACov::evaluateMatInPlace(const CovInternal *covint,
-                               const VectorDouble &d1,
-                               MatrixSquareGeneral &covtab,
-                               bool flag_init,
-                               double weight,
-                               const CovCalcMode *mode) const
+void ACov::evaluateMatInPlace(const CovInternal* covint,
+                              const VectorDouble& d1,
+                              MatrixSquareGeneral& covtab,
+                              bool flag_init,
+                              double weight,
+                              const CovCalcMode* mode) const
 {
   // Load the non-stationary parameters if needed
   if (isNoStat() && covint != nullptr)
@@ -2077,12 +2063,11 @@ void ACov::evaluateMatInPlace(const CovInternal *covint,
     {
       double value = weight * mat.getValue(ivar, jvar);
       if (flag_init)
-        covtab.setValue(ivar,jvar,value);
+        covtab.setValue(ivar, jvar, value);
       else
-        covtab.updValue(ivar,jvar, EOperator::ADD, value);
-      }
+        covtab.updValue(ivar, jvar, EOperator::ADD, value);
+    }
 }
-
 
 /****************************************************************************/
 /*!
@@ -2095,7 +2080,7 @@ void ACov::evaluateMatInPlace(const CovInternal *covint,
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-int ACov::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv) const
+int ACov::buildVmapOnDbGrid(DbGrid* dbgrid, const NamingConvention& namconv) const
 {
   if (dbgrid == nullptr) return 1;
 
@@ -2120,7 +2105,7 @@ int ACov::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv) con
   MatrixSquareGeneral mat;
   for (int iech = 0; iech < dbgrid->getNSample(); iech++)
   {
-    if (! dbgrid->isActive(iech)) continue;
+    if (!dbgrid->isActive(iech)) continue;
     dbgrid->rankToIndice(iech, indices);
 
     for (int idim = 0; idim < ndim; idim++)
@@ -2132,7 +2117,7 @@ int ACov::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv) con
     int ecr = 0;
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ecr++)
-        dbgrid->setArray(iech, iptr+ecr, mat.getValue(ivar, jvar));
+        dbgrid->setArray(iech, iptr + ecr, mat.getValue(ivar, jvar));
   }
 
   /* Set the error return code */
@@ -2155,10 +2140,10 @@ int ACov::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv) con
  **
  *****************************************************************************/
 double ACov::evaluateOneIncr(double hh,
-                              const VectorDouble &codir,
-                              int ivar,
-                              int jvar,
-                              const CovCalcMode *mode) const
+                             const VectorDouble& codir,
+                             int ivar,
+                             int jvar,
+                             const CovCalcMode* mode) const
 {
   int ndim = getNDim();
   int nvar = getNVar();
@@ -2175,7 +2160,7 @@ double ACov::evaluateOneIncr(double hh,
   VectorDouble codir_loc = codir;
   if (codir_loc.empty())
   {
-    (void) GH::rotationGetDirectionDefault(ndim, codir_loc);
+    (void)GH::rotationGetDirectionDefault(ndim, codir_loc);
   }
   else
   {
@@ -2202,14 +2187,14 @@ double ACov::evaluateOneIncr(double hh,
  ** \param[in]  covint     Non-stationary parameters
  **
  *****************************************************************************/
-VectorDouble ACov::sample(const VectorDouble &h,
-                           const VectorDouble &codir,
-                           int ivar,
-                           int jvar,
-                           const CovCalcMode *mode,
-                           const CovInternal *covint) const
+VectorDouble ACov::sample(const VectorDouble& h,
+                          const VectorDouble& codir,
+                          int ivar,
+                          int jvar,
+                          const CovCalcMode* mode,
+                          const CovInternal* covint) const
 {
-  int nh   = (int) h.size();
+  int nh   = (int)h.size();
   int ndim = getNDim();
   int nvar = getNVar();
 
@@ -2223,7 +2208,7 @@ VectorDouble ACov::sample(const VectorDouble &h,
   VectorDouble codir_loc = codir;
   if (codir_loc.empty())
   {
-    (void) GH::rotationGetDirectionDefault(ndim, codir_loc);
+    (void)GH::rotationGetDirectionDefault(ndim, codir_loc);
   }
   else
   {
@@ -2254,11 +2239,11 @@ VectorDouble ACov::sample(const VectorDouble &h,
  * @param mode  CovCalcMode structure
  * @return
  */
-VectorDouble ACov::sampleUnitary(const VectorDouble &hh,
-                                  int ivar,
-                                  int jvar,
-                                  VectorDouble codir,
-                                  const CovCalcMode* mode) const
+VectorDouble ACov::sampleUnitary(const VectorDouble& hh,
+                                 int ivar,
+                                 int jvar,
+                                 VectorDouble codir,
+                                 const CovCalcMode* mode) const
 {
   if (ivar < 0 || ivar >= getNVar()) return VectorDouble();
   if (jvar < 0 || jvar >= getNVar()) return VectorDouble();
@@ -2266,13 +2251,13 @@ VectorDouble ACov::sampleUnitary(const VectorDouble &hh,
   int ndim = getNDim();
   if (codir.empty())
   {
-    (void) GH::rotationGetDirectionDefault(ndim, codir);
+    (void)GH::rotationGetDirectionDefault(ndim, codir);
   }
-  int nh = (int) hh.size();
+  int nh = (int)hh.size();
 
-  double c00 = eval0(ivar, ivar, mode);
-  double c11 = eval0(jvar, jvar, mode);
-  c00 = sqrt(c00 * c11);
+  double c00      = eval0(ivar, ivar, mode);
+  double c11      = eval0(jvar, jvar, mode);
+  c00             = sqrt(c00 * c11);
   VectorDouble gg = sample(hh, codir, ivar, jvar, mode);
 
   for (int i = 0; i < nh; i++)
@@ -2281,12 +2266,12 @@ VectorDouble ACov::sampleUnitary(const VectorDouble &hh,
   return gg;
 }
 
-VectorDouble ACov::envelop(const VectorDouble &hh,
-                            int ivar,
-                            int jvar,
-                            int isign,
-                            VectorDouble codir,
-                            const CovCalcMode* mode) const
+VectorDouble ACov::envelop(const VectorDouble& hh,
+                           int ivar,
+                           int jvar,
+                           int isign,
+                           VectorDouble codir,
+                           const CovCalcMode* mode) const
 {
   if (ivar < 0 || ivar >= getNVar()) return VectorDouble();
   if (jvar < 0 || jvar >= getNVar()) return VectorDouble();
@@ -2295,9 +2280,9 @@ VectorDouble ACov::envelop(const VectorDouble &hh,
   int ndim = getNDim();
   if (codir.empty())
   {
-    (void) GH::rotationGetDirectionDefault(ndim, codir);
+    (void)GH::rotationGetDirectionDefault(ndim, codir);
   }
-  int nh = (int) hh.size();
+  int nh = (int)hh.size();
   VectorDouble gg(nh);
   VectorDouble g1 = sample(hh, codir, ivar, ivar, mode);
   VectorDouble g2 = sample(hh, codir, jvar, jvar, mode);
@@ -2319,7 +2304,7 @@ VectorDouble ACov::envelop(const VectorDouble &hh,
 
  * @return Value for the Goodness-of_fit (as percentage of the total sill)
  */
-double ACov::gofToVario(const Vario *vario, bool verbose) const
+double ACov::gofToVario(const Vario* vario, bool verbose) const
 {
   int nvar = getNVar();
   int ndir = vario->getNDir();
@@ -2352,34 +2337,34 @@ double ACov::gofToVario(const Vario *vario, bool verbose) const
         // Read information from Experimental Variogram
 
         VectorDouble codir = vario->getCodirs(idir);
-        VectorDouble sw = vario->getSwVec(idir, ivar, jvar);
-        VectorDouble hh = vario->getHhVec(idir, ivar, jvar);
-        VectorDouble gexp = vario->getGgVec(idir, ivar, jvar);
+        VectorDouble sw    = vario->getSwVec(idir, ivar, jvar);
+        VectorDouble hh    = vario->getHhVec(idir, ivar, jvar);
+        VectorDouble gexp  = vario->getGgVec(idir, ivar, jvar);
 
         // Evaluate the Model
 
-        int nlag = (int) gexp.size();
+        int nlag          = (int)gexp.size();
         VectorDouble gmod = sample(hh, codir, ivar, jvar, &mode);
 
         // Evaluate the score
 
         double totpas = 0;
-        double scale = 0.;
+        double scale  = 0.;
         for (int ilag = 0; ilag < nlag; ilag++)
         {
           if (sw[ilag] <= 0 || hh[ilag] <= 0.) continue;
           double ecart = sw[ilag] * ABS(gexp[ilag] - gmod[ilag]) / hh[ilag];
           totpas += ecart;
-          scale  += sw[ilag] / hh[ilag];
+          scale += sw[ilag] / hh[ilag];
         }
-        totpas  = totpas / scale;
+        totpas = totpas / scale;
         totdir += totpas;
       }
-      totdir /= (double) ndir;
+      totdir /= (double)ndir;
       totdir /= varij;
-      total  += ABS(totdir);
+      total += ABS(totdir);
     }
-  total = 100. * total / (double) (nvar * nvar);
+  total = 100. * total / (double)(nvar * nvar);
   return total;
 }
 

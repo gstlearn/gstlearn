@@ -465,7 +465,7 @@ void KrigingSystemSimpleCase::conclusion()
  
    // Elaborate the Neighborhood
    // For XValid in Unique Neighborhood, turn the Xvalid option OFF during neighborhood search
-   //status = _setInternalShortCutVariablesNeigh();
+   status = _setInternalShortCutVariablesNeigh();
    
    //if (status) goto label_store;
  

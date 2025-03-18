@@ -107,7 +107,6 @@ public:
   bool hasNugget() const;
   int  getRankNugget() const;
   const CovAnisoList* createReduce(const VectorInt& validVars) const;
-  void setOptimEnabled(bool status);
 
 private:
   // Returns a pointer on an existing Cov and cast it to CovAniso
