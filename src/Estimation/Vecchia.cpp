@@ -11,6 +11,7 @@
 #include "Estimation/Vecchia.hpp"
 
 #include "Basic/VectorHelper.hpp"
+#include "LinearOp/CholeskySparse.hpp"
 #include "Tree/Ball.hpp"
 #include "Db/Db.hpp"
 #include "LinearOp/CholeskyDense.hpp"
@@ -157,6 +158,18 @@ int krigingVecchia(Db* dbin,
   int nd         = dbin->getNSample();
   int nt         = dbout->getNSample();
   VectorDouble Y = dbin->getColumnByLocator(ELoc::Z, 0);
+  if (verbose) VH::dump("Data", Y);
+
+  // Extract sub-part of 'DFull'
+  VectorDouble DFull = V.getDFull();
+  VectorDouble D_tt(nt);
+  VectorDouble D_dd(nd);
+  VectorDouble D_dd3(nd);
+
+  VH::extractInPlace(DFull, D_tt, 0);
+  VH::extractInPlace(DFull, D_dd3, nt);
+  VH::extractInPlace(DFull, D_dd, nt);
+  VH::transformVD(D_dd3, 3);
 
   // Calculate LdY = Ldat %*% Y
   VectorDouble LdY(nd);
@@ -167,6 +180,7 @@ int krigingVecchia(Db* dbin,
       value += V.getLFull(id + nt, jd + nt) * Y[jd];
     LdY[id] = value;
   }
+  VH::multiplyInPlace(LdY, D_dd);
 
   // Calculate FtLdY = Ft %*% Ldat %*% Y
   VectorDouble FtLdY(nt);
@@ -177,18 +191,23 @@ int krigingVecchia(Db* dbin,
       value += V.getLFull(id + nt, it) * LdY[id];
     FtLdY[it] = value;
   }
+  LdY.clear();
 
-  VectorInt ranksToKeep = VectorInt(nt + nd, -1);
-  for (int it = 0; it < nt; it++) ranksToKeep[it] = it;
-  MatrixSparse* L = V.getLFull().extractSubmatrixByRanks(ranksToKeep, ranksToKeep);
+  VectorInt indT = VectorInt(nt + nd, -1);
+  for (int it = 0; it < nt; it++) indT[it] = it;
+  VectorInt indD = VectorInt(nt + nd, -1);
+  for (int id = 0; id < nd; id++) indD[id + nt] = id;
+  MatrixSparse* Ltt = V.getLFull().extractSubmatrixByRanks(indT, indT);
+  MatrixSparse* Ldt = V.getLFull().extractSubmatrixByRanks(indD, indT);
 
-  VectorDouble x(nt);
-  VectorDouble res(nt);
-  L->forwardLU(FtLdY, x, true);
-  L->forwardLU(x, res, false);
-  delete L;
+  /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' */
+  MatrixSparse* mat1 = prodNormMat(Ltt, D_tt, true);
+  MatrixSparse* mat2 = prodNormMat(Ldt, D_dd, true);
+  MatrixSparse* W = MatrixSparse::addMatMat(mat1, mat2);
+  CholeskySparse cholW(W);
+  VectorDouble result = cholW.solveX(FtLdY);
 
-  int iptr = dbout->addColumns(res, String(), ELoc::UNKNOWN, 0, true);
+  int iptr = dbout->addColumns(result, String(), ELoc::UNKNOWN, 0, true);
   namconv.setNamesAndLocators(dbout, iptr, "Estim", 1);
   return 0;
 }

@@ -14,6 +14,7 @@
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
+#include "Basic/OptCst.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighImage.hpp"
@@ -41,20 +42,23 @@ int main(int argc, char* argv[])
   // Global parameters
   int nb_neigh = 3;
   int mode     = 0;
-  bool verbose = true;
+  bool verbose = false;
+  OptCst::define(ECst::NTCOL, -1);
+  OptCst::define(ECst::NTROW, -1);
 
-  int ndat = 7;
+  int ndat = 4;
   Db* db = Db::createFillRandom(ndat, 2, 1);
 
-  double range = 0.3;
+  double range = 0.5;
   Model* model = Model::createFromParam(ECov::EXPONENTIAL, range);
 
-  int nx = 10;
+  int nx = 2;
   DbGrid* grid = DbGrid::create({nx, nx}, {1. / nx, 1. / nx});
 
   if (mode == 0 || mode == 1)
   {
-    // Checking the Vecchia class
+    mestitle(0, "Checking Vecchia Class");
+    verbose = true;
     Vecchia V          = Vecchia(model, db);
     MatrixT<int> Ranks = findNN(db, nullptr, nb_neigh+1, false, verbose);
     (void)V.computeLower(Ranks, verbose);
@@ -62,7 +66,7 @@ int main(int argc, char* argv[])
 
   if (mode == 0 || mode == 2)
   {
-    // Kriging with Vecchia approximation
+    mestitle(0, "Kriging with Vecchia approximation");
     krigingVecchia(db, grid, model, nb_neigh);
 
     // Get some statistics for check printout
