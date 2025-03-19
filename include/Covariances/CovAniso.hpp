@@ -241,12 +241,6 @@ public:
   void informDbInForAnisotropy(const Db* dbin) const;
   void informDbOutForAnisotropy(const Db* dbout) const;
 
-  void setOptimEnabled(bool flag) const
-  {
-    _optimEnabled = flag;
-    _corAniso->setOptimEnabled(flag);
-  }
-
   void informMeshByMeshForAnisotropy(const AMesh* amesh) const;
   void informMeshByApexForAnisotropy(const AMesh* amesh) const;
  
@@ -274,8 +268,6 @@ public:
                        const CovCalcMode* mode = nullptr) const override;
 private:
   CorAniso* _corAniso;
-
-  mutable bool _optimEnabled;
   // These temporary information is used to speed up processing (optimization functions)
   // They are in a protected section as they may be modified by class hierarchy
 };

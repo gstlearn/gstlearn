@@ -1,4 +1,20 @@
 #NO_DIFF#XXX
 ----
 Number of Apices: 12
-Number of Points: 12 ----
+Number of Points: 12----
+
+
+#NO_DIFF#XXX
+----
+False
+0.7021885013265594----
+
+
+#NO_DIFF#XXX
+----0----
+
+
+#NO_DIFF#XXX
+----
+0.0
+----

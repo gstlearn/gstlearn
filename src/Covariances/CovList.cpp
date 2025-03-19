@@ -9,6 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovList.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Covariances/ACov.hpp"
 #include "Covariances/CovBase.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
@@ -36,16 +38,16 @@ CovList::CovList(const CovContext& ctxt)
 }
 
 CovList::CovList(const CovList& r)
-: ACov(r)
+  : ACov(r)
 {
   for (const auto* e: r._covs)
   {
     _covs.push_back((CovBase*)e->clone());
   }
-  _filtered = r._filtered;
-  _allActiveCov = r._allActiveCov;
+  _filtered         = r._filtered;
+  _allActiveCov     = r._allActiveCov;
   _allActiveCovList = r._allActiveCovList;
-  _activeCovList = r._activeCovList;
+  _activeCovList    = r._activeCovList;
   _updateLists();
 }
 
@@ -91,21 +93,21 @@ void CovList::addCov(const CovBase* cov)
     // Check that the current Context is similar to the one of the newly
     // added covariance
 
-    if (! cov->getContext().isEqual(_covs[0]->getContext()))
+    if (!cov->getContext().isEqual(_covs[0]->getContext()))
     {
       messerr("Error: Covariances in the same CovList should share the same Context");
       messerr("Operation is cancelled");
       return;
     }
   }
-  _covs.push_back((CovBase*) cov->clone());
+  _covs.push_back((CovBase*)cov->clone());
   _filtered.push_back(false);
   _updateLists();
 }
 
 void CovList::_updateLists()
 {
-  int ncov = getNCov();
+  int ncov          = getNCov();
   _allActiveCovList = VH::sequence(ncov);
 
   _activeCovList.clear();
@@ -117,7 +119,7 @@ void CovList::_updateLists()
 
 void CovList::delCov(int icov)
 {
-  if (! _isCovarianceIndexValid(icov)) return;
+  if (!_isCovarianceIndexValid(icov)) return;
   delete _covs[icov];
   _covs.erase(_covs.begin() + icov);
   _filtered.erase(_filtered.begin() + icov);
@@ -127,7 +129,7 @@ void CovList::delCov(int icov)
 
 void CovList::delAllCov()
 {
-  for (auto &e: _covs)
+  for (auto& e: _covs)
   {
     delete e;
   }
@@ -141,7 +143,7 @@ void CovList::delAllCov()
 bool CovList::isNoStat() const
 {
   bool nostat = false;
-  for (const auto &e :_covs)
+  for (const auto& e: _covs)
   {
     nostat = nostat || e->isNoStat();
   }
@@ -166,7 +168,7 @@ int CovList::getNVar() const
  *
  * @param mode  CovCalcMode structure
  * @return True  all covariances should be treated;
- * @return False only the non-filtered ones are returned 
+ * @return False only the non-filtered ones are returned
  */
 const VectorInt& CovList::_getListActiveCovariances(const CovCalcMode* mode) const
 {
@@ -176,9 +178,25 @@ const VectorInt& CovList::_getListActiveCovariances(const CovCalcMode* mode) con
   return _allActiveCovList;
 }
 
+int CovList::addEvalCovVecRHSInPlace(vect vect,
+                                     const VectorInt& index1,
+                                     int iech2,
+                                     const KrigOpt& krigopt,
+                                     SpacePoint& pin,
+                                     SpacePoint& pout,
+                                     VectorDouble& tabwork,
+                                     double lambda) const
+{
+  CovCalcMode mode(ECalcMember::RHS);
+  const VectorInt& list = _getListActiveCovariances(&mode);
+  for (const auto& j: list.getVector())
+    _covs[j]->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda);
+  return 0;
+}
+
 double CovList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
-  double cov      = 0.;
+  double cov            = 0.;
   const VectorInt& list = _getListActiveCovariances(mode);
   for (const auto& j: list.getVector())
     cov += _covs[j]->eval0(ivar, jvar, mode);
@@ -189,6 +207,13 @@ void CovList::_optimizationSetTarget(SpacePoint& pt) const
 {
   for (const auto& e: _covs)
     e->optimizationSetTarget(pt);
+}
+
+void CovList::setOptimEnabled(bool flag) const
+{
+  ACov::setOptimEnabled(flag);
+  for (const auto& e: _covs)
+    e->setOptimEnabled(flag);
 }
 
 double CovList::_eval(const SpacePoint& p1,
@@ -202,25 +227,6 @@ double CovList::_eval(const SpacePoint& p1,
   for (const auto& j: list.getVector())
     cov += _covs[j]->evalCov(p1, p2, ivar, jvar, mode);
   return cov;
-}
-
-/**
- * Calculate the Matrix of covariance between two space points
- * @param p1 Reference of the first space point
- * @param p2 Reference of the second space point
- * @param mat   Covariance matrix (Dimension: nvar * nvar)
- * @param mode  Calculation Options
- *
- * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
- */
-void CovList::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
-                                           const SpacePoint& p1,
-                                           const SpacePoint& p2,
-                                           const CovCalcMode* mode) const
-{
-  const VectorInt& list = _getListActiveCovariances(mode);
-  for (const auto& j: list.getVector())
-    _covs[j]->addEvalCovMatBiPointInPlace(mat, p1, p2, mode);
 }
 
 void CovList::_load(const SpacePoint& p, bool case1) const
@@ -242,25 +248,25 @@ String CovList::toString(const AStringFormat* /*strfmt*/) const
       sstr << "  (This component is Filtered)" << std::endl;
   }
   sstr << std::endl;
- 
+
   return sstr.str();
 }
 
-int  CovList::getNCov() const
+int CovList::getNCov() const
 {
-  int ncov = (int) _covs.size();
+  int ncov = (int)_covs.size();
   return ncov;
 }
 
 bool CovList::isFiltered(int icov) const
 {
-  if (! _isCovarianceIndexValid(icov)) return false;
+  if (!_isCovarianceIndexValid(icov)) return false;
   return _filtered[icov];
 }
 
 bool CovList::isAllActiveCovList() const
 {
-  for (int i=0, n=getNCov(); i<n; i++)
+  for (int i = 0, n = getNCov(); i < n; i++)
   {
     if (_filtered[i]) return false;
   }
@@ -269,42 +275,42 @@ bool CovList::isAllActiveCovList() const
 
 const CovBase* CovList::getCov(int icov) const
 {
-  if (! _isCovarianceIndexValid(icov)) return nullptr;
+  if (!_isCovarianceIndexValid(icov)) return nullptr;
   return _covs[icov];
 }
 
-void CovList::setCov(int icov,const CovBase* covs)
+void CovList::setCov(int icov, const CovBase* covs)
 {
-  if (! _isCovarianceIndexValid(icov)) return;
+  if (!_isCovarianceIndexValid(icov)) return;
   delete _covs[icov];
-  _covs[icov] = (CovBase*) covs->clone();
+  _covs[icov] = (CovBase*)covs->clone();
 }
 
 const ECov& CovList::getCovType(int icov) const
 {
-    DECLARE_UNUSED(icov)
-    return ECov::UNKNOWN;
+  DECLARE_UNUSED(icov)
+  return ECov::UNKNOWN;
 }
 
 String CovList::getCovName(int icov) const
-{ 
+{
   DECLARE_UNUSED(icov)
   ECov unknown = ECov::UNKNOWN;
   return std::string(unknown.getKey());
 }
-  
+
 const MatrixSquareSymmetric& CovList::getSills(int icov) const
 {
   return _covs[icov]->getSill();
 }
 double CovList::getSill(int icov, int ivar, int jvar) const
 {
-  if(! _isCovarianceIndexValid(icov)) return 0.;
+  if (!_isCovarianceIndexValid(icov)) return 0.;
   return _covs[icov]->getSill(ivar, jvar);
 }
 void CovList::setSill(int icov, int ivar, int jvar, double value)
 {
-  if (! _isCovarianceIndexValid(icov)) return;
+  if (!_isCovarianceIndexValid(icov)) return;
   _covs[icov]->setSill(ivar, jvar, value);
 }
 void CovList::setSills(int icov, const MatrixSquareSymmetric& sills)
@@ -334,7 +340,7 @@ MatrixSquareSymmetric CovList::getTotalSills() const
   MatrixSquareSymmetric mat(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++)
-      mat.setValue(ivar,jvar,getTotalSill(ivar,jvar));
+      mat.setValue(ivar, jvar, getTotalSill(ivar, jvar));
   return mat;
 }
 
@@ -345,7 +351,7 @@ bool CovList::_isCovarianceIndexValid(int icov) const
 
 void CovList::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const
 {
-  for (const auto &e :_covs)
+  for (const auto& e: _covs)
     e->optimizationPreProcess(mode, ps);
 }
 
@@ -378,8 +384,8 @@ void CovList::_manage(const Db* db1, const Db* db2) const
 
 void CovList::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const
 {
-  for (const auto &e : _covs)
-    e->updateCovByPoints(icas1,iech1,icas2,iech2);
+  for (const auto& e: _covs)
+    e->updateCovByPoints(icas1, iech1, icas2, iech2);
 }
 
 void CovList::setActiveCovListFromOne(int keepOnlyCovIdx) const

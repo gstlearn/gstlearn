@@ -158,7 +158,7 @@ double CholeskyDense::getUpperTriangleInverse(int i, int j) const
 int CholeskyDense::_prepare() const
 {
   if (_mat == nullptr) return 1;
-  const Eigen::MatrixXd* a = ((AMatrixDense*)_mat)->getTab();
+  const auto* a = ((AMatrixDense*)_mat)->getTab();
   _factor                  = new Eigen::LLT<Eigen::MatrixXd>();
   *_factor                 = a->llt();
   if (_factor == nullptr)

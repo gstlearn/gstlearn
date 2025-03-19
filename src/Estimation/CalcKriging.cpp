@@ -11,9 +11,13 @@
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Estimation/CalcKriging.hpp"
+#include "Enum/EKrigOpt.hpp"
+#include "Estimation/CalcKrigingSimpleCase.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Model/Model.hpp"
+#include "Neigh/NeighUnique.hpp"
 
 #include <math.h>
 
@@ -358,6 +362,23 @@ int kriging(Db* dbin,
             const MatrixRectangular* matLC,
             const NamingConvention& namconv)
 {
+  NeighUnique* neighUnique = dynamic_cast<NeighUnique*>(neigh);
+  if (calcul == EKrigOpt::POINT && rank_colcok.empty() && 
+      matLC == nullptr && neighUnique != nullptr &&
+      model->getNVar() == 1 && OptCustom::query("NotOptimSimpleCase", 0) == 1 &&
+      dbin->getNSample() == dbin->getNSample(true) &&
+      dbin->getNSampleActiveAndDefined(dbin->getNameByLocator(ELoc::Z)) == dbin->getNSample())
+  { 
+  CalcKrigingSimpleCase krige(flag_est, flag_std, flag_varz);
+  krige.setDbin(dbin);
+  krige.setDbout(dbout);
+  krige.setModel(model);
+  krige.setNeigh(neigh);
+  krige.setCalcul(calcul);
+  krige.setNamingConvention(namconv);
+  return 1 - krige.run();
+  }
+
   CalcKriging krige(flag_est, flag_std, flag_varz);
   krige.setDbin(dbin);
   krige.setDbout(dbout);
@@ -371,7 +392,8 @@ int kriging(Db* dbin,
   krige.setMatLC(matLC);
 
   // Run the calculator
-  int error = (krige.run()) ? 0 : 1;
+  int error = 1 - krige.run();
+
   return error;
 }
 

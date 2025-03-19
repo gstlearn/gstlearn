@@ -9,6 +9,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/VectorNumT.hpp"
 #include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
@@ -37,29 +38,24 @@ class AAnam;
  * - a complex structure allowing each parameter (range, sill, anisotropy angle, ...) of each of the elementary covariances
  * to be non-stationary (to have a value which depends on the location). For more details, see ANoStat.hpp.
  */
-class GSTLEARN_EXPORT CovList : public ACov
+class GSTLEARN_EXPORT CovList: public ACov
 {
 public:
   CovList(const CovContext& ctxt = CovContext());
-  CovList(const CovList &r);
-  CovList& operator= (const CovList &r);
+  CovList(const CovList& r);
+  CovList& operator=(const CovList& r);
   virtual ~CovList();
 
   /// Interface for ASpaceObject
   virtual bool isConsistent(const ASpace* space) const override;
 
   /// Interface for ACov
-  virtual int    getNVar() const override;
-  virtual bool   isIndexable() const override { return true; }
-  virtual double eval0(int ivar = 0,
-                       int jvar = 0,
+  virtual int getNVar() const override;
+  virtual bool isIndexable() const override { return true; }
+  virtual double eval0(int ivar                = 0,
+                       int jvar                = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  
-  virtual void _addEvalCovMatBiPointInPlace(
-                              MatrixSquareGeneral &mat,
-                              const SpacePoint &p1,
-                              const SpacePoint &p2,
-                              const CovCalcMode *mode = nullptr) const override;
+
   virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const override;
 
   /// Interface for AStringable Interface
@@ -73,8 +69,16 @@ public:
   void delCov(int icov);
   // Remove all elementary covariance structures
   void delAllCov();
-
-  // Filter a covariance
+  #ifndef SWIG
+  int addEvalCovVecRHSInPlace(vect vect,
+                              const VectorInt& index1,
+                              int iech2,
+                              const KrigOpt& krigopt,
+                              SpacePoint& pin,
+                              SpacePoint& pout,
+                              VectorDouble& tabwork,
+                              double lambda = 1) const override;
+  #endif
   void setCovFiltered(int icov, bool filtered);
   int getNCov() const;
   bool isFiltered(int icov) const;
@@ -82,6 +86,7 @@ public:
   MatrixSquareSymmetric getTotalSills() const;
   bool isAllActiveCovList() const;
   bool isNoStat() const override;
+  void setOptimEnabled(bool flag) const override;
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
   const CovBase* getCov(int icov) const;
@@ -94,7 +99,7 @@ public:
   double getSill(int icov, int ivar, int jvar) const;
 
   // Methods necessary for Optimization
-  void _optimizationPreProcess(int mode, const std::vector<SpacePoint> &ps) const override;
+  void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
   void _optimizationPostProcess() const override;
   SpacePoint& _optimizationLoadInPlace(int iech, int mode, int rank) const override;
   void _optimizationSetTarget(SpacePoint& pt) const override;
@@ -114,18 +119,17 @@ protected:
   const VectorInt& _getListActiveCovariances(const CovCalcMode* mode) const;
   void _updateLists();
 
-
   virtual double _eval(const SpacePoint& p1,
                        const SpacePoint& p2,
-                       int ivar = 0,
-                       int jvar = 0,
+                       int ivar                = 0,
+                       int jvar                = 0,
                        const CovCalcMode* mode = nullptr) const override;
 
 private:
   void _setContext(const CovContext& ctxt) override;
   virtual void _delCov(int icov) { DECLARE_UNUSED(icov) };
   // Remove all elementary covariance structures
-  virtual void _delAllCov(){};
+  virtual void _delAllCov() {};
   void _manage(const Db* db1, const Db* db2) const override;
 
 #ifndef SWIG

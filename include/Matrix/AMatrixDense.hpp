@@ -39,13 +39,12 @@ class EOperator;
  * Square and Symmetric.
  */
 
-class GSTLEARN_EXPORT AMatrixDense : public AMatrix 
-{
+class GSTLEARN_EXPORT AMatrixDense : public AMatrix {
 
 public:
   AMatrixDense(int nrow = 0, int ncol = 0);
   AMatrixDense(const AMatrixDense &r);
-  AMatrixDense(const AMatrix &m);
+  AMatrixDense(const AMatrix &r);
   AMatrixDense& operator= (const AMatrixDense &r);
 	virtual ~AMatrixDense();
 
@@ -145,31 +144,31 @@ protected:
 
   int             _computeEigen(bool optionPositive = true);
   int             _computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
-
 private:
   void _recopy(const AMatrixDense &r);
   int  _terminateEigen(const Eigen::VectorXd &eigenValues,
                        const Eigen::MatrixXd &eigenVectors,
                        bool optionPositive = true,
                        bool changeOrder = false);
+  bool _needToReset(int nrows, int ncols) override;
 
 #ifndef SWIG
   public:
   constvect getViewOnColumn(int icol) const;
+  vect getViewOnColumnModify(int icol) const;
 #endif
 #ifndef SWIG
   public:
-  const Eigen::MatrixXd* getTab() const
+  const Eigen::Map<Eigen::MatrixXd>* getTab() const
   {
-    return &_eigenMatrix;
+    return _eigenMatrix.get();
   }
 #endif
 protected:
   bool _flagEigenDecompose;
   VectorDouble         _eigenValues;  // Used only when ! flag_eigen()
   MatrixSquareGeneral* _eigenVectors; // Used only when ! flag_eigen()
-
+  int _maxSize;
 protected:
-  Eigen::MatrixXd _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
+  std::unique_ptr<Eigen::Map<Eigen::MatrixXd> > _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
 };
-

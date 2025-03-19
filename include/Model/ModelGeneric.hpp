@@ -59,7 +59,6 @@ public:
 
 public:
   // Forwarding the methods from _cova
-  FORWARD_METHOD(getCov, evalCovMatBiPointInPlace)
   FORWARD_METHOD(getCov, evalCovMat)
   FORWARD_METHOD(getCov, evalCovMatInPlace)
   FORWARD_METHOD(getCov, evalCovMatInPlaceFromIdx)
@@ -69,12 +68,12 @@ public:
   FORWARD_METHOD(getCov, eval0Mat)
   FORWARD_METHOD(getCov, evalCovMat0)
   FORWARD_METHOD(getCov, evalCovMat0InPlace)
+  FORWARD_METHOD(getCov, evalCovVecRHSInPlace)
   FORWARD_METHOD(getCov, evalCovMatRHSInPlaceFromIdx)
   FORWARD_METHOD(getCov, evalCovMatSparse)
   FORWARD_METHOD(getCov, eval0)
   FORWARD_METHOD(getCov, evalCov)
   FORWARD_METHOD(getCov, evalNvarIpas)
-  FORWARD_METHOD(getCov, evalMat)
   FORWARD_METHOD(getCov, evalNvarIpasIncr)
   FORWARD_METHOD(getCov, evalIvarNlag)
   FORWARD_METHOD(getCov, evalIvarIpas)
@@ -104,6 +103,7 @@ public:
   FORWARD_METHOD(getCov, gofToVario, TEST)
   FORWARD_METHOD(getCov, isNoStat)
   FORWARD_METHOD(getCov, optimizationPostProcess)
+  FORWARD_METHOD_NON_CONST(getCov, setOptimEnabled)
 
   FORWARD_METHOD_NON_CONST(_getCovModify, setContext)
 

@@ -713,7 +713,8 @@ double KrigingAlgebra::getLTerm() {
 
 int KrigingAlgebra::_needZstar() {
   if (!_Zstar.empty()) return 0;
-  if (_flagDual) {
+  if (_flagDual) 
+  {
     // Particular Dual case
     if (_needDual()) return 1;
     if (_needSigma0()) return 1;
@@ -766,6 +767,7 @@ int KrigingAlgebra::_patchColCokVarianceZstar(MatrixSquareSymmetric* varZK) {
   if (_needSigma0p()) return 1;
   if (_needSigma00pp()) return 1;
   MatrixSquareSymmetric L0tCL0(_nrhs);
+  //TODO check dims
   L0tCL0.prodNormMatMatInPlace(_Lambda0, _Sigma00pp, true);
 
   MatrixRectangular p2(_nrhs, _ncck);

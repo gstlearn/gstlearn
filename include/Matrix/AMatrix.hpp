@@ -63,7 +63,8 @@ public:
   /*! Check if the matrix is square and Identity */
   virtual bool isIdentity(bool printWhyNot = false) const;
   /*! Check if the input matrix is (non empty and square) symmetric */
-  virtual bool isSymmetric(double eps = EPSILON10, bool printWhyNot = false) const;
+  virtual bool
+  isSymmetric(double eps = EPSILON10, bool printWhyNot = false) const;
   /*! Say if the matrix must be symmetric */
   virtual bool mustBeSymmetric() const { return false; }
 
@@ -165,8 +166,8 @@ public:
   int getNColDefined() const;
   /*! Define the number of defined rows */
   int getNRowDefined() const;
-  /*! Extract a portion of a Column */
-  VectorDouble getColumnByRowRange(int icol, int rowFrom, int rowTo) const;
+    /*! Extract a portion of a Column */
+    VectorDouble getColumnByRowRange(int icol, int rowFrom, int rowTo) const;
   /*! Check if the matrix does not contain any negative element */
   bool isNonNegative(bool verbose = false) const;
 
@@ -202,6 +203,7 @@ public:
                   const VectorInt &validRows,
                   const VectorInt &validCols);
   void copyElements(const AMatrix &m, double factor = 1.);
+  void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
 
   void makePositiveColumn();
   void linearCombination(double val1,
@@ -210,28 +212,23 @@ public:
                          const AMatrix* mat2 = nullptr,
                          double val3         = 1.,
                          const AMatrix* mat3 = nullptr);
-  void power(double value);
+                      
 
-  static void setFlagMatrixCheckAddress(bool flagCheckAddress)
-  {
-    _flagCheckAddress = flagCheckAddress;
-  }
-
-  static bool _getFlagMatrixCheckAddress()
-  {
-    return _flagCheckAddress;
-  }
 #ifndef SWIG
-  virtual int addProdMatVecInPlace(const constvect x, vect y, bool transpose = false) const;
+  virtual int
+  addProdMatVecInPlace(const constvect x, vect y, bool transpose = false) const;
 
   /*! Get value operator override */
   double  operator()(int row, int col) const { return getValue(row, col); }
   /*! Set value operator override */
   double &operator()(int row, int col)       { return _getValueRef(row, col); }
-
+  
+  virtual bool    needToReset(int nrows, int ncols);
 protected:
   virtual void    _allocate() = 0;
   virtual void    _deallocate() = 0;
+  virtual bool    _needToReset(int nrows, int ncols);
+
 
   /*! Say if (irow, icol) is stored physically or not */
   virtual bool    _isPhysicallyPresent(int /*irow*/, int /*icol*/) const { return true; }
@@ -271,6 +268,8 @@ protected:
   bool _isRankValid(int rank) const;
   void _fillFromVVD(const VectorVectorDouble& X);
 
+  bool _getFlagCheckAddress() const { return _flagCheckAddress; }
+
   bool _checkLink(int nrow1,
                   int ncol1,
                   bool transpose1,
@@ -284,7 +283,7 @@ protected:
 private:
   int  _nRows;
   int  _nCols;
-  static bool _flagCheckAddress;
+  bool _flagCheckAddress;
   double _nullTerm; // Used for returning a null constant address
 #endif
 };

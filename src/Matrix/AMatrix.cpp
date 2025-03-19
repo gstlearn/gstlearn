@@ -16,16 +16,17 @@
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "geoslib_define.h"
 
 #include <iostream>
 
-static int globalMultiThread = 0;
-bool AMatrix::_flagCheckAddress = false;
+static int  globalMultiThread = 0;
 
 AMatrix::AMatrix(int nrow, int ncol)
   : AStringable(),
     _nRows(nrow),
     _nCols(ncol),
+    _flagCheckAddress(false),
     _nullTerm(0.)
 {
 }
@@ -34,6 +35,7 @@ AMatrix::AMatrix(const AMatrix &m)
   : AStringable(m),
     _nRows(m._nRows),
     _nCols(m._nCols),
+    _flagCheckAddress(m._flagCheckAddress),
     _nullTerm(m._nullTerm)
 {
 }
@@ -45,6 +47,7 @@ AMatrix& AMatrix::operator=(const AMatrix &m)
     AStringable::operator=(m);
     _nRows = m._nRows;
     _nCols = m._nCols;
+    _flagCheckAddress = m._flagCheckAddress;
     _nullTerm = m._nullTerm;
   }
   return *this;
@@ -311,19 +314,6 @@ void AMatrix::fill(double value)
     _setValueByRank(rank, value);
 }
 
-/**
- * Raise all elements of 'this' to the 'power'
- * @param value Value for power
- */
-void AMatrix::power(double value)
-{
-  for (int rank = 0, n = _getMatrixPhysicalSize(); rank < n; rank++)
-  {
-    double local = _getValueByRank(rank);
-    _setValueByRank(rank, pow(local, value));
-  }
-}
-
 int AMatrix::_getMatrixPhysicalSize() const
 {
   return (getNRows() * getNCols());
@@ -540,11 +530,19 @@ void AMatrix::prodVecMatInPlacePtr(const double* x, double* y, bool transpose) c
   _prodVecMatInPlacePtr(x, y, transpose);
 }
 
+bool AMatrix::needToReset(int nrows, int ncols)
+{
+  return nrows != getNRows() || ncols != getNCols() || _needToReset(nrows, ncols);
+}
+
+bool AMatrix::_needToReset(int nrows, int ncols)
+{
+  DECLARE_UNUSED(nrows,ncols)
+  return false;
+}
 /**
  * @brief Resize the matrix to new dimensions
- * This method:
- * - doesn't change the storage type
- * - doesn't keep the previous contents
+ *        (this method doesn't change the storage type)
  * 
  * @param nrows New number of rows
  * @param ncols New number of columns
@@ -552,7 +550,8 @@ void AMatrix::prodVecMatInPlacePtr(const double* x, double* y, bool transpose) c
 void AMatrix::resize(int nrows, int ncols)
 {
   // Check if nothing is to be done
-  if (nrows == getNRows() && ncols == getNCols()) return;
+  if (!needToReset(nrows, ncols)) 
+    return;
 
   // Reset the sizes (clear values)
   reset(nrows, ncols);
@@ -939,7 +938,6 @@ void AMatrix::dumpStatistics(const String& title) const
 {
   message("%s : %d rows and %d columns\n", title.c_str(), _nRows, _nCols);
 }
-
 /**
  * Check that a set of matrices (or vectors) has the correct linkage
  * @param nrow1       Number of rows in the first matrix
@@ -967,7 +965,7 @@ bool AMatrix::_checkLink(int nrow1,
                          int ncol3,
                          bool transpose3) const
 {
-  if (! _flagCheckAddress) return true;
+  if (! _getFlagCheckAddress()) return true;
   int level = 0;
   int ncur = getNRows();
 
@@ -1180,7 +1178,6 @@ VectorDouble AMatrix::getColumnByRowRange(int icol, int rowFrom, int rowTo) cons
     vect.push_back(getValue(irow, icol));
   return vect;
 }
-
 /*! Set the contents of a Column */
 void AMatrix::setColumn(int icol, const VectorDouble& tab, bool flagCheck)
 {

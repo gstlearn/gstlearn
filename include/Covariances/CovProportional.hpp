@@ -27,10 +27,6 @@ public:
   void setCor(ACov* cor) override;
 
 protected:
-  void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral& mat,
-                                    const SpacePoint& p1,
-                                    const SpacePoint& p2,
-                                    const CovCalcMode* mode = nullptr) const override;
   double _eval(const SpacePoint& p1, 
                const SpacePoint& p2,
                int ivar = 0, 
