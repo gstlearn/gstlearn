@@ -26,7 +26,6 @@ dependencies = [
     # from the oldest supported numpy to the next major version of the
     # numpy install used in building gstlearn
     "numpy>=1.24,<@Python3_NumPy_NEXT_MAJOR@",
-    "matplotlib",
     "scipy",
     "pandas",
 ]
@@ -34,6 +33,7 @@ dependencies = [
 [project.optional-dependencies]
 plot = [
      "geopandas",
+     "matplotlib",
      "plotly",
      "shapely",
 ]
