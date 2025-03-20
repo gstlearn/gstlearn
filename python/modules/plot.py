@@ -1484,7 +1484,6 @@ def __ax_histogram(ax, db, name, useSel=True, **kwargs):
     ax.decoration(title = db.getName(name)[0], xlabel="Values", ylabel="Count")
         
     return ax
-
 def sortedcurve(tabx, taby, *args, **kwargs):
     '''
     Plotting a set of points after they have been sorted in increasing X

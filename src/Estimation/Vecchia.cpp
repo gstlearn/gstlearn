@@ -153,14 +153,15 @@ int krigingVecchia(Db* dbin,
   MatrixT<int> Ranks = findNN(dbout, dbin, nb_neigh+1, false, verbose);
 
   Vecchia V = Vecchia(model, dbout, dbin);
+
   if (V.computeLower(Ranks, verbose)) return 1;
 
+  // Main dimensions
   int nd         = dbin->getNSample();
   int nt         = dbout->getNSample();
   VectorDouble Y = dbin->getColumnByLocator(ELoc::Z, 0);
-  if (verbose) VH::dump("Data", Y);
 
-  // Extract sub-part of 'DFull'
+  // Extract sub-part of 'Diagonal' vector
   VectorDouble DFull = V.getDFull();
   VectorDouble D_tt(nt);
   VectorDouble D_dd(nd);
@@ -193,6 +194,7 @@ int krigingVecchia(Db* dbin,
   }
   LdY.clear();
 
+  // Extracting information from 'LFull'
   VectorInt indT = VectorInt(nt + nd, -1);
   for (int it = 0; it < nt; it++) indT[it] = it;
   VectorInt indD = VectorInt(nt + nd, -1);
@@ -203,11 +205,25 @@ int krigingVecchia(Db* dbin,
   /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' */
   MatrixSparse* mat1 = prodNormMat(Ltt, D_tt, true);
   MatrixSparse* mat2 = prodNormMat(Ldt, D_dd, true);
+  mat1->forceDimension(nt, nt);
+  mat2->forceDimension(nt, nt);
   MatrixSparse* W = MatrixSparse::addMatMat(mat1, mat2);
   CholeskySparse cholW(W);
   VectorDouble result = cholW.solveX(FtLdY);
+  for (int i = 0; i < nt; i++) result[i] = -result[i];
+
+  // Cleaning stage
+  indT.clear();
+  indD.clear();
+  FtLdY.clear();
+  delete Ltt;
+  delete Ldt;
+  delete mat1;
+  delete mat2;
+  delete W;
 
   int iptr = dbout->addColumns(result, String(), ELoc::UNKNOWN, 0, true);
-  namconv.setNamesAndLocators(dbout, iptr, "Estim", 1);
+  namconv.setNamesAndLocators(dbout, iptr, "estim", 1);
+
   return 0;
 }

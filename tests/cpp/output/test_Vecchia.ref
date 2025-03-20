@@ -42,11 +42,11 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-4 - Name Vecchia.Estim - Locator z1
+4 - Name Vecchia.estim - Locator z1
  Nb of data          =          4
  Nb of active values =          4
- Minimum value       =     -0.315
- Maximum value       =      0.371
- Mean value          =      0.034
+ Minimum value       =     -0.371
+ Maximum value       =      0.315
+ Mean value          =     -0.034
  Standard Deviation  =      0.245
  Variance            =      0.060
