@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
   // We use a Tim Davis sparse matrix cs as long as Qchol
   // stdev calculation is not available with eigen underlying matrix
   MatrixSparse* M2 = MatrixSparse::createFromTriplet(
-    M->getMatrixToTriplet(), M->getNRows(), M->getNCols(), 0);
+    M->getMatrixToTriplet(), M->getNRows(), M->getNCols(), -1, 0);
   CholeskySparse Qchol(M2);
   Qchol.stdev(vecout2, false);
 
