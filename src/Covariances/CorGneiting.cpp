@@ -52,6 +52,7 @@ CorGneiting::CorGneiting(const CorGneiting& r)
   , _separability(r._separability)
   , _covSCopy(*r._covS)
 {
+
 }
 
 CorGneiting& CorGneiting::operator=(const CorGneiting& r)

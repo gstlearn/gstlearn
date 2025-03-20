@@ -95,17 +95,6 @@ CovAniso* CovAnisoList::_getCovAnisoModify(int icov)
   return covaniso;
 }
 
-bool CovAnisoList::isNoStat() const
-{
-  bool nostat = false;
-  for (const auto &e :_covs)
-  {
-    nostat = nostat || e->isNoStat();
-  }
-  return nostat;
-}
-
-
 bool CovAnisoList::isConsistent(const ASpace* /*space*/) const
 {
   /// TODO : CovAnisoList::isConsistent
@@ -425,6 +414,7 @@ const CovAnisoList* CovAnisoList::createReduce(const VectorInt& validVars) const
     CovAniso* covs = newcovlist->getCovAniso(is);
     newcovlist->setCov(is, covs->createReduce(validVars));
   }
+  newcovlist->setNVar(validVars.size());
   return newcovlist;
 }
 

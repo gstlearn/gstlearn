@@ -45,6 +45,8 @@ ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
 
 ModelGeneric::~ModelGeneric()
 {
+  delete _cova;
+  delete _driftList;
 }
 
 void ModelGeneric::setField(double field)
@@ -208,8 +210,7 @@ void ModelGeneric::setDriftList(const DriftList* driftlist)
 void ModelGeneric::setCov(ACov* cova)
 {
   if (cova == nullptr) return;
-  delete _cova;
-  _cova = cova;
+  
 
   // Set the Context of ModelGeneric (cross_check with DriftList)
   if (_driftList != nullptr)
@@ -221,6 +222,8 @@ void ModelGeneric::setCov(ACov* cova)
       return;
     }
   }
+  delete _cova;
+  _cova = (ACov*)cova->clone();
 
   _ctxt = cova->getContext();
 }

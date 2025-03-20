@@ -62,8 +62,7 @@ ACov::ACov(const ACov& r)
   , _pAux(r._pAux)
   , _pw1(r._pw1)
   , _pw2(r._pw2)
-
-  , _tabNoStat(r._tabNoStat == nullptr ? nullptr : new TabNoStat(*r._tabNoStat))
+  , _tabNoStat(r._tabNoStat == nullptr ? nullptr : r._tabNoStat->clone())
 {
 }
 
@@ -1300,9 +1299,10 @@ int ACov::addEvalCovVecRHSInPlace(vect vect,
   const int* inds = index1.data();
   for (int i = 0; i < (int)vect.size();i++)
   {
-    SpacePoint& p1 = optimizationLoadInPlace(*inds, 1, 1);
     if (flagNoStat)
-        updateCovByPoints(1, *inds++, 2, iech2);
+        updateCovByPoints(1, *inds, 2, iech2);
+    SpacePoint& p1 = optimizationLoadInPlace(*inds++, 1, 1);
+
     vect[i] += lambda * evalCov(p1, pin, 0, 0, &mode);
   }
   return 0;

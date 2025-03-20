@@ -63,22 +63,18 @@ Model::Model(int nvar, int ndim)
 Model::Model(const Model &m)
     : AStringable(m),
       ASerializable(m),
-      ModelCovList(m._ctxt)
+      ModelCovList(m)
 {
-  CovAnisoList* mcovalist = dynamic_cast<CovAnisoList*>(m._covList);
-  if (mcovalist != nullptr)
-    ModelCovList::setCovList(dynamic_cast<CovAnisoList*>(mcovalist->clone()));
-  if (m._driftList != nullptr)
-    _driftList = m._driftList->clone();
 }
 
 Model& Model::operator=(const Model &m)
 {
   if (this != &m)
   { 
+   ModelCovList::operator=(m);
    AStringable::operator=(m);
    ASerializable::operator=(m);
-   setCovAnisoList(dynamic_cast<CovAnisoList*>(m._covList));
+   setCovAnisoList(dynamic_cast<CovAnisoList*>(m.getCovAnisoList()->clone()));
    if (m._driftList != nullptr)
       _driftList = m._driftList->clone();
    _ctxt = m._ctxt;
@@ -106,7 +102,7 @@ int Model::resetFromDb(const Db *db)
 bool Model::_isValid() const
 {
   // Covariances: there should be some defined
-  if (_covList == nullptr)
+  if (getCovAnisoList() == nullptr)
   {
     messerr("Model is not valid: no covariance has been defined");
     return false;
@@ -291,7 +287,7 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   if (ncov > 0)
   {
     sstr << toTitle(1, "Covariance Part");
-    sstr << _covList->toString();
+    sstr << getCovAnisoList()->toString();
   }
 
   /* Drift part */
@@ -320,7 +316,6 @@ void Model::setCovAnisoList(const CovAnisoList* covalist)
     messerr("Warning, the covariance is nullptr.");
     return;
   }
-  delete _covList;
   ModelCovList::setCovList(covalist->clone());
 }
 
@@ -578,7 +573,7 @@ int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
   }
   else
   {
-    CovAnisoList* cov = dynamic_cast<CovAnisoList*>(_covList);
+    CovAnisoList* cov = dynamic_cast<CovAnisoList*>(getCovAnisoListModify());
     if (cov == nullptr)
     {
       messerr("Impossible to add 'anam' to the covariance part of the Model");
@@ -957,7 +952,6 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
 void Model::_clear()
 {
   _cova = nullptr;
-  _covList = nullptr;
   delete _driftList;
   _driftList = nullptr;
 }
@@ -968,9 +962,11 @@ void Model::_create()
   // model::addCov() and model::addDrift
   // The defaulted types of CovAnisoList and DriftList are assumed
 
-  CovAnisoList tmp{_ctxt};
-  setCovAnisoList(&tmp);
+  CovAnisoList tmp(_ctxt);
+  delete _driftList;
   _driftList = new DriftList(_ctxt);
+  setCovAnisoList(&tmp);
+
 }
 
 void Model::addCovAniso(const CovAniso* cov)
@@ -1008,15 +1004,16 @@ Model* Model::createReduce(const VectorInt& validVars) const
     return nullptr;
   }
 
-  Model* model = new Model(*_ctxt.createReduce(validVars));
+  Model* model = new Model(*_ctxt.createReduce(validVars)); //TODO LEAK
+
+   /* Add the list of Drifts */
+
+   model->setDriftList(getDriftList());
+
 
   /* Add the list of Covariances */
 
   model->setCovAnisoList(getCovAnisoList()->createReduce(validVars));
-
-  /* Add the list of Drifts */
-
-  model->setDriftList(getDriftList());
 
   return model;
 }
@@ -1201,10 +1198,10 @@ CovLMCAnamorphosis* Model::_castInCovLMCAnamorphosis()
 CovAnisoList* Model::_castInCovAnisoList(int icov)
 {
   // Check the cast procedure
-  CovAnisoList* covalist = dynamic_cast<CovAnisoList*>(_covList);
+  CovAnisoList* covalist = dynamic_cast<CovAnisoList*>(_getCovModify());
   if (covalist == nullptr)
   {
-    messerr("The member '_covList' in this model cannot be converted into a pointer to CovAnisoList");
+    messerr("The member '_cova' in this model cannot be converted into a pointer to CovAnisoList");
     return nullptr;
   }
   if (icov < 0) return covalist;

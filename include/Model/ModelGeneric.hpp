@@ -56,7 +56,7 @@ public:
   ACov*       _getCovModify() { return _cova; }
   CovContext* _getContextModify() { return &_ctxt; }
   DriftList*  _getDriftListModify() { return _driftList; }
-
+  
 public:
   // Forwarding the methods from _cova
   FORWARD_METHOD(getCov, evalCovMat)

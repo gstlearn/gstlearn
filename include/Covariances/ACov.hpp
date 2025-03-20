@@ -58,7 +58,7 @@ public:
   /// ACov Interface
   virtual int getNVar() const { return _ctxt.getNVar(); };
   virtual bool isIndexable() const { return false; }
-  virtual bool isNoStat() const { return false; }
+  bool isNoStat() const { return _isNoStat(); }
   virtual void loadInfoValues() {}
   const CovContext& getContext() const { return _ctxt; }
   void setContext(const CovContext& ctxt);
@@ -533,7 +533,7 @@ private:
                            const VectorDouble& x0     = VectorDouble()) const;
   Db* _discretizeBlockRandom(const DbGrid* dbgrid, int seed = 34131) const;
   double _getVolume(const VectorDouble& ext) const;
-
+  virtual bool _isNoStat() const { return false;}
 protected:
   CovContext _ctxt;
   mutable bool _optimEnabled;
@@ -545,6 +545,5 @@ protected:
   mutable SpacePoint _pAux;
   mutable SpacePoint* _pw1;
   mutable SpacePoint* _pw2;
-
   TabNoStat* _tabNoStat;
 };
