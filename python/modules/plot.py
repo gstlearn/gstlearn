@@ -1138,6 +1138,11 @@ def __readGrid(dbgrid, name, useSel=True, posX=0, posY=1, corner=None, shading =
 
     tr = transform.Affine2D().rotate_deg_around(x0,y0,angle)
     
+    Xrot = dbgrid.getColumnByLocator(gl.ELoc.X, posX)
+    Xrot = np.reshape(Xrot, (ny,nx))
+    Yrot = dbgrid.getColumnByLocator(gl.ELoc.X, posY)
+    Yrot = np.reshape(Yrot, (ny,nx))
+
     if shading == "nearest":
         X = np.linspace(x0, x0 + (nx-1)*dx, nx)
         Y = np.linspace(y0, y0 + (ny-1)*dy, ny)
@@ -1148,7 +1153,7 @@ def __readGrid(dbgrid, name, useSel=True, posX=0, posY=1, corner=None, shading =
         print("The argument shading should be either 'nearest' for cells centered on (x,y)"
               " or 'flat' for cells with low-left corner in (x,y)")
         
-    return x0, y0, X, Y, data, tr
+    return x0, y0, X, Y, Xrot, Yrot, data, tr
 
 def cell(dbgrid, *args, **kwargs):
     '''
@@ -1225,7 +1230,7 @@ def __ax_raster(ax, dbgrid, name=None, useSel = True, posX=0, posY=1, corner=Non
     if len(ax.get_title()) <= 0:
         ax.decoration(title = dbgrid.getName(name)[0])
     
-    x0, y0, X, Y, data, tr = __readGrid(dbgrid, name, useSel, posX=posX, posY=posY, corner=corner)
+    x0, y0, X, Y, Xrot, Yrot, data, tr = __readGrid(dbgrid, name, useSel, posX=posX, posY=posY, corner=corner)
     
     res = ax.pcolormesh(X, Y, data, transform=tr + ax.transData, **kwargs)
     
@@ -1262,11 +1267,12 @@ def __ax_isoline(ax, dbgrid, name=None, useSel = True,
     if len(ax.get_title()) <= 0:
         ax.decoration(title = dbgrid.getName(name)[0])
     
-    x0, y0, X, Y, data, tr = __readGrid(dbgrid, name, useSel, posX=posX, posY=posY, 
+    x0, y0, X, Y, Xrot, Yrot, data, tr = __readGrid(dbgrid, name, useSel, posX=posX, posY=posY, 
                                         corner=corner, shading="nearest")
+
     trans_data = tr + ax.transData
     
-    res = ax.contour(X, Y, data, levels, **kwargs)
+    res = ax.contour(Xrot, Yrot, data, levels, **kwargs)
     
     if flagLegend:
         h1,l1 = res.legend_elements()

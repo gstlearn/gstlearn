@@ -507,7 +507,6 @@ protected:
                                                int mode,
                                                int rank) const;
   bool _checkDims(int idim, int jdim) const;
-  
 
 protected:
   virtual void _initFromContext() {};
