@@ -85,7 +85,7 @@ public:
   virtual double getTotalSill(int ivar = 0, int jvar = 0) const;
   MatrixSquareSymmetric getTotalSills() const;
   bool isAllActiveCovList() const;
-  bool isNoStat() const override;
+  
   void setOptimEnabled(bool flag) const override;
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
@@ -126,6 +126,7 @@ protected:
                        const CovCalcMode* mode = nullptr) const override;
 
 private:
+  bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;
   virtual void _delCov(int icov) { DECLARE_UNUSED(icov) };
   // Remove all elementary covariance structures

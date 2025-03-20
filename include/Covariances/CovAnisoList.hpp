@@ -80,7 +80,6 @@ public:
   bool            isStationary() const;
   double          getMaximumDistance() const;
   double          getTotalSill(int ivar = 0, int jvar = 0) const override;
-  bool            isNoStat() const override;
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
   const CovAniso*    getCovAniso(int icov) const;

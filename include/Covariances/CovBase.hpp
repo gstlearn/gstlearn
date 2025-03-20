@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 #include "Basic/AFunctional.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "LinearOp/CholeskyDense.hpp"
@@ -32,6 +33,7 @@ public:
   CovBase& operator=(const CovBase& r);
   virtual ~CovBase();
 
+  IMPLEMENT_CLONING(CovBase)
   ParamInfo createParamInfoForCholSill(int ivar = 0, int jvar = 0);
 
   virtual bool isConsistent(const ASpace* space) const override;
@@ -60,9 +62,9 @@ public:
 
   void makeStationary() override;
 
-  int getNSills() const { return _tabNoStat.getNSills(); }
+  int getNSills() const { return _tabNoStat->getNSills(); }
 
-  bool isNoStatForVariance() const { return _tabNoStat.isDefinedForVariance(); }
+  bool isNoStatForVariance() const { return _tabNoStat->isDefinedForVariance(); }
 
   void informMeshByMesh(const AMesh* amesh) const;
   void informMeshByApex(const AMesh* amesh) const;
@@ -117,6 +119,7 @@ protected:
   void _copyCovContext(const CovContext& ctxt) override;
 
 private:
+  bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;
 
   void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
@@ -139,7 +142,6 @@ private:
 protected:
   MatrixT<ParamInfo> _cholSillsInfo;
   mutable MatrixSquareGeneral _cholSills;
-  TabNoStat _tabNoStat;
   mutable MatrixSquareSymmetric _sillCur;
   mutable MatrixSquareGeneral _workMat;
 

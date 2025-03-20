@@ -69,7 +69,6 @@ CovBase::CovBase(const CovBase& r)
 {
   _cholSillsInfo = r._cholSillsInfo;
   _cholSills     = r._cholSills;
-  _tabNoStat     = r._tabNoStat;
   _sillCur       = r._sillCur;
   _workMat       = r._workMat;
   _cor           = (ACov*)r._cor->clone();
@@ -81,7 +80,6 @@ CovBase& CovBase::operator=(const CovBase& r)
   {
     _cholSillsInfo = r._cholSillsInfo;
     _cholSills     = r._cholSills;
-    _tabNoStat     = r._tabNoStat;
     _sillCur       = r._sillCur;
     _workMat       = r._workMat;
     _cor           = (ACov*)r._cor->clone();
@@ -281,7 +279,7 @@ bool CovBase::isOptimizationInitialized(const Db* db) const
 }
 
 // Set of functions to make parameters no stationary (or to make them back stationary).
-// There is to types of non stationarities : NoStatDb in which the parameters are read in a
+// There is two types of non stationarities : NoStatDb in which the parameters are read in a
 // DbGrid or NoStatFunctional for which you have to provide a function of the coordinates.
 // Each parameter can have its own type of No stationarity and its own DbGrid in case
 // of NoStatDb.
@@ -290,13 +288,13 @@ bool CovBase::isOptimizationInitialized(const Db* db) const
 
 void CovBase::attachNoStatDb(const Db* db)
 {
-  _tabNoStat.setDbNoStatRef(db);
+  _tabNoStat->setDbNoStatRef(db);
   _cor->attachNoStatDb(db);
 }
 
 bool CovBase::_checkAndManageNoStatDb(const Db*& db, const String& namecol)
 {
-  if (_tabNoStat.getDbNoStatRef() == nullptr && db == nullptr)
+  if (_tabNoStat->getDbNoStatRef() == nullptr && db == nullptr)
   {
     messerr("You have to define a Db (with attachNoStatDb or by specifying a Db here)");
     return false;
@@ -313,10 +311,10 @@ bool CovBase::_checkAndManageNoStatDb(const Db*& db, const String& namecol)
 
 void CovBase::_setNoStatDbIfNecessary(const Db*& db)
 {
-  if (_tabNoStat.getDbNoStatRef() == nullptr)
+  if (_tabNoStat->getDbNoStatRef() == nullptr)
     attachNoStatDb(db);
   if (db == nullptr)
-    db = _tabNoStat.getDbNoStatRef();
+    db = _tabNoStat->getDbNoStatRef();
 }
 
 void CovBase::_makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func, const Db* db, const String& namecol)
@@ -342,7 +340,7 @@ void CovBase::_makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AF
     ns = std::unique_ptr<ANoStat>(new NoStatFunctional(func));
   }
 
-  _tabNoStat.addElem(ns, econs, iv1, iv2);
+  _tabNoStat->addElem(ns, econs, iv1, iv2);
 }
 
 ///////////////////// Sill ////////////////////////
@@ -362,17 +360,17 @@ void CovBase::makeSillNoStatFunctional(const AFunctional* func, int ivar, int jv
 
 void CovBase::makeSillsStationary(bool silent)
 {
-  if (_tabNoStat.getNSills() == 0 && !silent)
+  if (_tabNoStat->getNSills() == 0 && !silent)
   {
     messerr("All the sills are already stationary!");
     return;
   }
-  _tabNoStat.clear();
+  _tabNoStat->clear();
 }
 void CovBase::makeSillStationary(int ivar, int jvar)
 {
   if (!_checkSill(ivar, jvar)) return;
-  if (_tabNoStat.removeElem(EConsElem::SILL, ivar, jvar) == 0)
+  if (_tabNoStat->removeElem(EConsElem::SILL, ivar, jvar) == 0)
   {
     messerr("This parameter was already stationary!");
   }
@@ -405,22 +403,22 @@ bool CovBase::_checkDims(int idim, int jdim) const
 /////////////  Functions to attach no stat information on various supports ////////
 void CovBase::informMeshByMesh(const AMesh* amesh) const
 {
-  _tabNoStat.informMeshByMesh(amesh);
+  _tabNoStat->informMeshByMesh(amesh);
   _cor->informMeshByMesh(amesh);
 }
 void CovBase::informMeshByApex(const AMesh* amesh) const
 {
-  _tabNoStat.informMeshByApex(amesh);
+  _tabNoStat->informMeshByApex(amesh);
   _cor->informMeshByApex(amesh);
 }
 void CovBase::informDbIn(const Db* dbin) const
 {
-  _tabNoStat.informDbIn(dbin);
+  _tabNoStat->informDbIn(dbin);
   _cor->informDbIn(dbin);
 }
 void CovBase::informDbOut(const Db* dbout) const
 {
-  _tabNoStat.informDbOut(dbout);
+  _tabNoStat->informDbOut(dbout);
   _cor->informDbOut(dbout);
 }
 
@@ -443,7 +441,7 @@ VectorDouble CovBase::informCoords(const VectorVectorDouble& coords,
   if (econs == EConsElem::SILL)
   {
     VectorDouble result(coords[0].size(), getValue(econs, iv1, iv2));
-    _tabNoStat.informCoords(coords, econs, iv1, iv2, result);
+    _tabNoStat->informCoords(coords, econs, iv1, iv2, result);
     return result;
   }
 
@@ -452,22 +450,22 @@ VectorDouble CovBase::informCoords(const VectorVectorDouble& coords,
 
 void CovBase::informMeshByMeshForSills(const AMesh* amesh) const
 {
-  _tabNoStat.informMeshByMesh(amesh, EConsElem::SILL);
+  _tabNoStat->informMeshByMesh(amesh, EConsElem::SILL);
 }
 
 void CovBase::informMeshByApexForSills(const AMesh* amesh) const
 {
-  _tabNoStat.informMeshByApex(amesh, EConsElem::SILL);
+  _tabNoStat->informMeshByApex(amesh, EConsElem::SILL);
 }
 
 void CovBase::informDbInForSills(const Db* dbin) const
 {
-  _tabNoStat.informDbIn(dbin, EConsElem::SILL);
+  _tabNoStat->informDbIn(dbin, EConsElem::SILL);
 }
 
 void CovBase::informDbOutForSills(const Db* dbout) const
 {
-  _tabNoStat.informDbOut(dbout, EConsElem::SILL);
+  _tabNoStat->informDbOut(dbout, EConsElem::SILL);
 }
 
 /**
@@ -483,7 +481,7 @@ void CovBase::updateCovByPoints(int icas1, int iech1, int icas2, int iech2) cons
   if (!isNoStat()) return;
   double val1, val2;
 
-  const auto paramsnostat = _tabNoStat.getTable();
+  const auto paramsnostat = _tabNoStat->getTable();
   // Loop on the elements that can be updated one-by-one
 
   for (const auto& e: paramsnostat)
@@ -509,7 +507,7 @@ void CovBase::updateCovByMesh(int imesh, bool aniso) const
   // Loop on the elements that can be updated one-by-one
   if (!aniso)
   {
-    const auto paramsnostat = _tabNoStat.getTable();
+    const auto paramsnostat = _tabNoStat->getTable();
     for (const auto& e: paramsnostat)
     {
       EConsElem type = e.first.getType();
@@ -558,4 +556,9 @@ void CovBase::_load(const SpacePoint& p, bool case1) const
 void CovBase::_optimizationSetTarget(SpacePoint& pt) const
 {
   _cor->optimizationSetTarget(pt);
+}
+
+bool CovBase::_isNoStat() const
+{
+  return _cor->isNoStat() || isNoStatForVariance();
 }

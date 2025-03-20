@@ -18,10 +18,10 @@ TabNoStat::TabNoStat()
 TabNoStat::TabNoStat(const TabNoStat& m)
   : AStringable(m)
 {
-  this->_nSills             = m._nSills;
-  this->_dbNoStatRef        = m._dbNoStatRef;
-  this->_definedForVariance = m._definedForVariance;
-  this->_items              = m._items;
+  _nSills             = m._nSills;
+  _dbNoStatRef        = m._dbNoStatRef;
+  _definedForVariance = m._definedForVariance;
+  _items              = m._items;
 }
 
 TabNoStat& TabNoStat::operator=(const TabNoStat& m)

@@ -51,7 +51,6 @@ CorAniso::CorAniso(const ECov& type, const CovContext& ctxt)
   , /// TODO : shared pointer
   _corfunc(CovFactory::createCovFunc(type, ctxt))
   , _aniso(ctxt.getSpace()->getNDim())
-  , _tabNoStatCovAniso(nullptr)
   , _noStatFactor(1.)
 {
   initFromContext();
@@ -62,7 +61,6 @@ CorAniso::CorAniso(const String& symbol, const CovContext& ctxt)
   , /// TODO : shared pointer
   _corfunc()
   , _aniso(ctxt.getSpace()->getNDim())
-  , _tabNoStatCovAniso(nullptr)
   , _noStatFactor(1.)
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
@@ -78,7 +76,6 @@ CorAniso::CorAniso(const ECov& type,
   : ACov(ctxt)
   , _corfunc(CovFactory::createCovFunc(type, ctxt))
   , _aniso(ctxt.getSpace()->getNDim())
-  , _tabNoStatCovAniso(nullptr)
   , _noStatFactor(1.)
 {
   initFromContext();
@@ -97,10 +94,8 @@ CorAniso::CorAniso(const CorAniso& r)
   : ACov(r)
   , _corfunc(CovFactory::duplicateCovFunc(*r._corfunc))
   , _aniso(r._aniso)
-  , _tabNoStatCovAniso(new TabNoStatCovAniso(*r._tabNoStatCovAniso))
   , _noStatFactor(r._noStatFactor)
 {
-  _tabNoStat = _tabNoStatCovAniso;
 }
 
 CorAniso& CorAniso::operator=(const CorAniso& r)
@@ -110,9 +105,7 @@ CorAniso& CorAniso::operator=(const CorAniso& r)
     ACov::operator=(r);
     _corfunc           = CovFactory::duplicateCovFunc(*r._corfunc);
     _aniso             = r._aniso;
-    _tabNoStatCovAniso = new TabNoStatCovAniso(*_tabNoStatCovAniso);
     _noStatFactor      = r._noStatFactor;
-    _tabNoStat         = _tabNoStatCovAniso;
   }
   return *this;
 }
@@ -124,8 +117,8 @@ CorAniso::~CorAniso()
 
 TabNoStat* CorAniso::_createNoStatTab()
 {
-  _tabNoStatCovAniso = new TabNoStatCovAniso();
-  return _tabNoStatCovAniso;
+  _tabNoStat= new TabNoStatCovAniso();
+  return _tabNoStat;
 }
 void CorAniso::computeCorrec()
 {
@@ -420,7 +413,6 @@ int CorAniso::addEvalCovVecRHSInPlace(vect vect,
 {
   if (!isOptimEnabled())
     return ACov::addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda);
-  
   auto space = pin.getSpace();
   const CovCalcMode& mode = krigopt.getMode();
   optimizationTransformSPNew(pin, pout);
@@ -1001,14 +993,15 @@ bool CorAniso::isOptimizationInitialized(const std::vector<SpacePoint>& p1As,
   return n == db->getNSample();
 }
 
-bool CorAniso::isNoStat() const
+bool CorAniso::_isNoStat() const
 {
   return isNoStatForAnisotropy() || isNoStatForParam();
 }
+
 String CorAniso::toStringNoStat(const AStringFormat* strfmt, int i) const
 {
   String sstr;
-  sstr = _tabNoStatCovAniso->toStringInside(strfmt, i);
+  sstr = getTabNoStatCovAniso()->toStringInside(strfmt, i);
   return sstr;
 }
 ///////////////////// Range ////////////////////////
@@ -1026,8 +1019,8 @@ void CorAniso::makeRangeNoStatFunctional(const AFunctional* func, int idim)
 
 void CorAniso::makeRangeStationary(int idim)
 {
-  if (_tabNoStatCovAniso->removeElem(EConsElem::RANGE, idim) == 0 &&
-      _tabNoStatCovAniso->removeElem(EConsElem::SCALE, idim) == 0)
+  if (getTabNoStatCovAniso()->removeElem(EConsElem::RANGE, idim) == 0 &&
+      getTabNoStatCovAniso()->removeElem(EConsElem::SCALE, idim) == 0)
   {
     messerr("This parameter was already stationary!");
   }
@@ -1068,7 +1061,7 @@ void CorAniso::makeAngleNoStatFunctional(const AFunctional* func, int idim)
 
 void CorAniso::makeAngleStationary(int idim)
 {
-  if (_tabNoStatCovAniso->removeElem(EConsElem::ANGLE, idim) == 0)
+  if (getTabNoStatCovAniso()->removeElem(EConsElem::ANGLE, idim) == 0)
   {
     messerr("This parameter was already stationary!");
   }
@@ -1092,7 +1085,7 @@ void CorAniso::makeTensorNoStatFunctional(const AFunctional* func, int idim, int
 void CorAniso::makeTensorStationary(int idim, int jdim)
 {
   if (!_checkDims(idim, jdim)) return;
-  if (_tabNoStatCovAniso->removeElem(EConsElem::TENSOR, idim, jdim) == 0)
+  if (getTabNoStatCovAniso()->removeElem(EConsElem::TENSOR, idim, jdim) == 0)
   {
     messerr("This parameter was already stationary!");
   }
@@ -1115,7 +1108,7 @@ void CorAniso::makeParamNoStatFunctional(const AFunctional* func)
 void CorAniso::makeParamStationary()
 {
   if (!_checkParam()) return;
-  if (_tabNoStatCovAniso->removeElem(EConsElem::PARAM) == 0)
+  if (getTabNoStatCovAniso()->removeElem(EConsElem::PARAM) == 0)
   {
     messerr("This parameter was already stationary!");
   }
@@ -1176,26 +1169,26 @@ void CorAniso::informMeshByMeshForAnisotropy(const AMesh* amesh) const
 {
   for (const auto& e: _listaniso)
   {
-    _tabNoStatCovAniso->informMeshByMesh(amesh, e);
+    getTabNoStatCovAniso()->informMeshByMesh(amesh, e);
   }
 }
 
 void CorAniso::informMeshByApexForAnisotropy(const AMesh* amesh) const
 {
   for (const auto& e: _listaniso)
-    _tabNoStatCovAniso->informMeshByApex(amesh, e);
+    getTabNoStatCovAniso()->informMeshByApex(amesh, e);
 }
 
 void CorAniso::informDbInForAnisotropy(const Db* dbin) const
 {
   for (const auto& e: _listaniso)
-    _tabNoStatCovAniso->informDbIn(dbin, e);
+    getTabNoStatCovAniso()->informDbIn(dbin, e);
 }
 
 void CorAniso::informDbOutForAnisotropy(const Db* dbout) const
 {
   for (const auto& e: _listaniso)
-    _tabNoStatCovAniso->informDbOut(dbout, e);
+    getTabNoStatCovAniso()->informDbOut(dbout, e);
 }
 
 /**
@@ -1208,12 +1201,12 @@ void CorAniso::informDbOutForAnisotropy(const Db* dbout) const
 void CorAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
 {
   // If no non-stationary parameter is defined, simply skip
-  if (!_tabNoStatCovAniso->isNoStat()) return;
+  if (!getTabNoStatCovAniso()->isNoStat()) return;
   double val1, val2;
 
   int ndim = getNDim();
 
-  const auto paramsnostat = _tabNoStatCovAniso->getTable();
+  const auto paramsnostat = getTabNoStatCovAniso()->getTable();
   // Loop on the elements that can be updated one-by-one
 
   for (const auto& e: paramsnostat)
@@ -1250,9 +1243,9 @@ void CorAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
     angle2 = angle1;
     for (int idim = 0; idim < ndim; idim++)
     {
-      if (_tabNoStatCovAniso->isElemDefined(EConsElem::ANGLE, idim))
+      if (getTabNoStatCovAniso()->isElemDefined(EConsElem::ANGLE, idim))
       {
-        auto noStat = _tabNoStatCovAniso->getElem(EConsElem::ANGLE, idim);
+        auto noStat = getTabNoStatCovAniso()->getElem(EConsElem::ANGLE, idim);
         flagRotOne  = true;
         if (noStat->getValuesOnDb(icas1, iech1, &angle1[idim], icas2, iech2, &angle2[idim]))
           flagRotTwo = true;
@@ -1270,9 +1263,9 @@ void CorAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
     scale2 = scale1;
     for (int idim = 0; idim < ndim; idim++)
     {
-      if (_tabNoStatCovAniso->isElemDefined(EConsElem::SCALE, idim))
+      if (getTabNoStatCovAniso()->isElemDefined(EConsElem::SCALE, idim))
       {
-        auto noStat  = _tabNoStatCovAniso->getElem(EConsElem::SCALE, idim);
+        auto noStat  = getTabNoStatCovAniso()->getElem(EConsElem::SCALE, idim);
         flagScaleOne = true;
         if (noStat->getValuesOnDb(icas1, iech1, &scale1[idim], icas2, iech2, &scale2[idim]))
           flagScaleTwo = true;
@@ -1290,9 +1283,9 @@ void CorAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
     range2 = range1;
     for (int idim = 0; idim < ndim; idim++)
     {
-      if (_tabNoStatCovAniso->isElemDefined(EConsElem::RANGE, idim))
+      if (getTabNoStatCovAniso()->isElemDefined(EConsElem::RANGE, idim))
       {
-        auto noStat  = _tabNoStatCovAniso->getElem(EConsElem::RANGE, idim);
+        auto noStat  = getTabNoStatCovAniso()->getElem(EConsElem::RANGE, idim);
         flagRangeOne = true;
         if (noStat->getValuesOnDb(icas1, iech1, &range1[idim], icas2, iech2, &range2[idim]))
           flagRangeTwo = true;
@@ -1335,14 +1328,14 @@ void CorAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
 void CorAniso::updateCovByMesh(int imesh, bool aniso) const
 {
   // If no non-stationary parameter is defined, simply skip
-  if (!_tabNoStatCovAniso->isNoStat()) return;
+  if (!getTabNoStatCovAniso()->isNoStat()) return;
 
   int ndim = getNDim();
 
   // Loop on the elements that can be updated one-by-one
   if (!aniso)
   {
-    const auto paramsnostat = _tabNoStatCovAniso->getTable();
+    const auto paramsnostat = getTabNoStatCovAniso()->getTable();
     for (const auto& e: paramsnostat)
     {
       EConsElem type = e.first.getType();
@@ -1364,9 +1357,9 @@ void CorAniso::updateCovByMesh(int imesh, bool aniso) const
 
     for (int idim = 0; idim < ndim; idim++)
     {
-      if (_tabNoStatCovAniso->isElemDefined(EConsElem::ANGLE, idim))
+      if (getTabNoStatCovAniso()->isElemDefined(EConsElem::ANGLE, idim))
       {
-        auto noStat  = _tabNoStatCovAniso->getElem(EConsElem::ANGLE, idim);
+        auto noStat  = getTabNoStatCovAniso()->getElem(EConsElem::ANGLE, idim);
         angles[idim] = noStat->getValueOnMeshByMesh(imesh);
       }
     }
@@ -1378,9 +1371,9 @@ void CorAniso::updateCovByMesh(int imesh, bool aniso) const
     scales = getScales();
     for (int idim = 0; idim < ndim; idim++)
     {
-      if (_tabNoStatCovAniso->isElemDefined(EConsElem::SCALE, idim))
+      if (getTabNoStatCovAniso()->isElemDefined(EConsElem::SCALE, idim))
       {
-        auto noStat  = _tabNoStatCovAniso->getElem(EConsElem::SCALE, idim);
+        auto noStat  = getTabNoStatCovAniso()->getElem(EConsElem::SCALE, idim);
         scales[idim] = noStat->getValueOnMeshByMesh(imesh);
       }
     }
@@ -1392,9 +1385,9 @@ void CorAniso::updateCovByMesh(int imesh, bool aniso) const
 
     for (int idim = 0; idim < ndim; idim++)
     {
-      if (_tabNoStatCovAniso->isElemDefined(EConsElem::RANGE, idim))
+      if (getTabNoStatCovAniso()->isElemDefined(EConsElem::RANGE, idim))
       {
-        auto noStat  = _tabNoStatCovAniso->getElem(EConsElem::RANGE, idim);
+        auto noStat  = getTabNoStatCovAniso()->getElem(EConsElem::RANGE, idim);
         ranges[idim] = noStat->getValueOnMeshByMesh(imesh);
       }
     }
@@ -1407,9 +1400,9 @@ void CorAniso::updateCovByMesh(int imesh, bool aniso) const
     for (int idim = 0; idim < ndim; idim++)
     {
       for (int jdim = 0; jdim < ndim; jdim++)
-        if (_tabNoStatCovAniso->isElemDefined(EConsElem::TENSOR, idim, jdim))
+        if (getTabNoStatCovAniso()->isElemDefined(EConsElem::TENSOR, idim, jdim))
         {
-          auto noStat = _tabNoStatCovAniso->getElem(EConsElem::TENSOR, idim, jdim);
+          auto noStat = getTabNoStatCovAniso()->getElem(EConsElem::TENSOR, idim, jdim);
         }
     }
   }
@@ -1435,7 +1428,7 @@ void CorAniso::_optimizationSetTarget(SpacePoint& p) const
 {
   if (!isOptimEnabled()) return;
   int iech = 0;
-  optimizationTransformSP(p, _p2As[0]);
+  optimizationTransformSP(p, _p2As[iech]);
   p.setProjected(true);
   _pw2 = &_p2As[iech];
 }

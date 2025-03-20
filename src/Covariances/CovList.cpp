@@ -35,6 +35,7 @@ CovList::CovList(const CovContext& ctxt)
   , _allActiveCovList()
   , _activeCovList()
 {
+  _updateLists();
 }
 
 CovList::CovList(const CovList& r)
@@ -65,8 +66,8 @@ CovList& CovList::operator=(const CovList& r)
     _allActiveCov     = r._allActiveCov;
     _allActiveCovList = r._allActiveCovList;
     _activeCovList    = r._activeCovList;
-    _updateLists();
   }
+  _updateLists();
   return *this;
 }
 
@@ -140,14 +141,10 @@ void CovList::delAllCov()
   _delAllCov();
 }
 
-bool CovList::isNoStat() const
+bool CovList::_isNoStat() const
 {
-  bool nostat = false;
-  for (const auto& e: _covs)
-  {
-    nostat = nostat || e->isNoStat();
-  }
-  return nostat;
+  // return true if any of the covariances is not stationary
+  return std::ranges::any_of(_covs, [](const auto& e) { return e->isNoStat(); });
 }
 
 bool CovList::isConsistent(const ASpace* /*space*/) const

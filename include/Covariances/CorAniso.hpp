@@ -102,7 +102,7 @@ public:
   void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
   void _optimizationSetTarget(SpacePoint& p) const override;
   void _optimizationPostProcess() const override;
-  bool isNoStat() const override;
+
   bool isValidForTurningBand() const;
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const;
   bool isValidForSpectral() const;
@@ -214,14 +214,16 @@ public:
   void makeTensorStationary(int idim, int jdim);
   void makeParamStationary();
 
-  int getNAngles() const { return _tabNoStatCovAniso->getNAngles(); }
-  int getNRanges() const { return _tabNoStatCovAniso->getNRanges(); }
-  int getNScales() const { return _tabNoStatCovAniso->getNScales(); }
-  bool isNoStatForParam() const { return _tabNoStatCovAniso->isParam(); }
-  bool isNoStatForTensor() const { return _tabNoStatCovAniso->isDefinedForTensor(); }
-  bool isNoStatForAnisotropy() const { return _tabNoStatCovAniso->isDefinedForAnisotropy(); }
-  bool isNoStatForVariance() const { return _tabNoStatCovAniso->isDefinedForVariance(); }
-  bool isNoStatForRotation() const { return _tabNoStatCovAniso->isDefinedForRotation(); }
+  TabNoStatCovAniso* getTabNoStatCovAniso() const { return (TabNoStatCovAniso*)_tabNoStat; }
+
+  int getNAngles() const { return getTabNoStatCovAniso()->getNAngles(); }
+  int getNRanges() const { return getTabNoStatCovAniso()->getNRanges(); }
+  int getNScales() const { return getTabNoStatCovAniso()->getNScales(); }
+  bool isNoStatForParam() const { return getTabNoStatCovAniso()->isParam(); }
+  bool isNoStatForTensor() const { return getTabNoStatCovAniso()->isDefinedForTensor(); }
+  bool isNoStatForAnisotropy() const { return getTabNoStatCovAniso()->isDefinedForAnisotropy(); }
+  bool isNoStatForVariance() const { return getTabNoStatCovAniso()->isDefinedForVariance(); }
+  bool isNoStatForRotation() const { return getTabNoStatCovAniso()->isDefinedForRotation(); }
 
   VectorDouble evalCovOnSphereVec(const VectorDouble& alpha,
                                   int degree              = 50,
@@ -271,6 +273,7 @@ protected:
   void _initFromContext() override;
 
 private:
+  bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;
   TabNoStat* _createNoStatTab() override;
   void _copyCovContext(const CovContext& ctxt) override;
@@ -298,7 +301,6 @@ private:
 private:
   ACovFunc* _corfunc;    /// Basic correlation function
   mutable Tensor _aniso; /// Anisotropy parameters
-  TabNoStatCovAniso* _tabNoStatCovAniso;
   mutable double _noStatFactor; /// Correcting factor for non-stationarity
   const std::array<EConsElem, 4> _listaniso = {EConsElem::RANGE,
                                                EConsElem::SCALE,

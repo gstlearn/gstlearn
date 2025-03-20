@@ -14,13 +14,26 @@
 ModelCovList::ModelCovList(const CovContext& ctxt)
   : ModelGeneric(ctxt)
 {
-  _cova = _covList = nullptr;
+  _cova = nullptr;
+}
+
+ModelCovList::ModelCovList(const ModelCovList &m)
+  : ModelGeneric(m)
+{
+
+}
+ModelCovList& ModelCovList:: operator= (const ModelCovList &m)
+{
+  if (this != &m)
+  {
+    ModelGeneric::operator=(m);
+  }
+  return *this;
 }
 
 void ModelCovList::setCovList(CovList* covs)
 {
-  _covList = covs;
-  _cova    = _covList;
+  setCov(covs);
 }
 
 ModelCovList::~ModelCovList() 
@@ -42,10 +55,10 @@ void ModelCovList::addCov(const CovBase* cov)
     messerr("Operation is cancelled");
     return;
   }
-  if (_covList == nullptr)
+  if (getCovList() == nullptr)
   {
     messerr("Error: Covariance List is nullptr");
     return;
   }
-  _covList->addCov(cov);
+  getCovListModify()->addCov(cov);
 }
