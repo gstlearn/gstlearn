@@ -29,7 +29,7 @@ def Db_toTL(self, flagLocate=False):
 setattr(gl.Db, "toTL", Db_toTL)
 
 
-def Db_fromPanda(df):
+def Db_fromPandas(df):
     # Create an empty Db
     dat = gl.Db()
     # And import all columns in one a loop using [] operator
@@ -40,7 +40,7 @@ def Db_fromPanda(df):
     return dat
 
 
-gl.Db.fromTL = staticmethod(Db_fromPanda)
+gl.Db.fromTL = staticmethod(Db_fromPandas)
 
 
 def table_toTL(self):
