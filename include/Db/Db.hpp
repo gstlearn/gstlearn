@@ -560,15 +560,17 @@ public:
   int          getSelection(int iech) const;
   VectorDouble getSelections(void) const;
   VectorInt getRanksActive(const VectorInt& nbgh = VectorInt(),
-                           int item              = -1,
+                           int ivar              = -1,
                            bool useSel           = true,
                            bool useZ             = true,
-                           bool useVerr          = false) const;
+                           bool useVerr          = false,
+                           bool useExtD          = true) const;
   VectorVectorInt getSampleRanks(const VectorInt& ivars = VectorInt(),
                                  const VectorInt& nbgh  = VectorInt(),
                                  bool useSel            = true,
                                  bool useZ              = true,
-                                 bool useVerr           = false) const;
+                                 bool useVerr           = false,
+                                 bool useExtD           = true) const;
   VectorDouble getValuesByRanks(const VectorVectorInt& sampleRanks,
                                 const VectorDouble& means = VectorDouble(),
                                 bool subtractMean         = true) const;
