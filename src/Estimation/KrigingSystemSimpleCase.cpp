@@ -423,13 +423,6 @@ void KrigingSystemSimpleCase::conclusion()
     cova->optimizationPostProcess();
 }
 
-/**
- * Perform the Kriging of target
- *
- * @param iech_out Rank of the target
- * @return
- */
-
 int KrigingSystemSimpleCase::estimate(int iech_out,
                                       SpacePoint& pin,
                                       SpacePoint& pout,
