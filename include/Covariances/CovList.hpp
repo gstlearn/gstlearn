@@ -126,6 +126,7 @@ protected:
                        const CovCalcMode* mode = nullptr) const override;
 
 private:
+  virtual void _attachNoStatDb(const Db* db) override;
   bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;
   virtual void _delCov(int icov) { DECLARE_UNUSED(icov) };

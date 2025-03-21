@@ -13,13 +13,13 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Db/Db.hpp"
 #include "Covariances/ANoStat.hpp"
 #include "Covariances/ParamId.hpp"
 #include "Enum/EConsElem.hpp"
 #include <memory>
 #include <unordered_map>
 
-class Db;
 typedef std::unordered_map<ParamId,std::shared_ptr<ANoStat>,ParamIdHash,ParamIdEqual> mapNoStat;
 
 class GSTLEARN_EXPORT TabNoStat : public AStringable, public ICloneable
@@ -47,8 +47,8 @@ class GSTLEARN_EXPORT TabNoStat : public AStringable, public ICloneable
   virtual int removeElem(const EConsElem &econs, int iv1=0, int iv2 = 0);
   virtual ~TabNoStat();
   void clear();
-  void setDbNoStatRef(const Db* dbref){ _dbNoStatRef = dbref;}
-  const Db* getDbNoStatRef() const {return _dbNoStatRef;}
+  void setDbNoStatRef(const Db* dbref){ _dbNoStatRef = std::shared_ptr<const Db>((Db*)dbref->clone());}
+  const Db* getDbNoStatRef() const {return _dbNoStatRef.get();}
   void informCoords(const VectorVectorDouble &coords,
                     const EConsElem &econs,
                     int iv1, 
@@ -65,7 +65,7 @@ private:
   virtual bool _isValid(const EConsElem &econs) const;
 private :
   mapNoStat _items;
-  const Db* _dbNoStatRef;
+  std::shared_ptr<const Db> _dbNoStatRef;
   bool _definedForVariance;
   int  _nSills;
 };

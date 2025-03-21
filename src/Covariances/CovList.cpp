@@ -147,6 +147,14 @@ bool CovList::_isNoStat() const
   return std::ranges::any_of(_covs, [](const auto& e) { return e->isNoStat(); });
 }
 
+void CovList::_attachNoStatDb(const Db* db) 
+{
+  for (auto &e:_covs)
+  {
+    e->attachNoStatDb(db);
+  }
+}
+
 bool CovList::isConsistent(const ASpace* /*space*/) const
 {
   /// TODO : CovList::isConsistent

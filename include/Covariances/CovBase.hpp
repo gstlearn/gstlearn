@@ -53,7 +53,7 @@ public:
   const ACov* getCor() const { return _cor; }
 
   double getSill(int ivar, int jvar) const;
-  void attachNoStatDb(const Db* db);
+  
 
   void makeSillNoStatDb(const String& namecol, int ivar = 0, int jvar = 0, const Db* db = nullptr);
   void makeSillStationary(int ivar = 0, int jvar = 0);
@@ -102,6 +102,7 @@ public:
     _cor->setOptimEnabled(flag);
   }
 protected:
+  void _attachNoStatDb(const Db* db) override;
   void _makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String());
 
   void _manage(const Db* db1, const Db* db2) const override;
@@ -109,8 +110,6 @@ protected:
   bool _checkSill(int ivar = 0, int jvar = 0) const;
   bool _checkDims(int idim, int jdim) const;
 
-  void _setNoStatDbIfNecessary(const Db*& db);
-  bool _checkAndManageNoStatDb(const Db*& db, const String& namecol);
   bool _isVariableValid(int ivar) const;
 
   /// Update internal parameters consistency with the context

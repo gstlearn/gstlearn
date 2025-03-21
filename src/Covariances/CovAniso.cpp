@@ -688,10 +688,7 @@ double range2scale(const ECov& type, double range, double param)
 ///////////////////// Range ////////////////////////
 void CovAniso::makeRangeNoStatDb(const String& namecol, int idim, const Db* db)
 {
-  if (_checkAndManageNoStatDb(db, namecol))
-  {
     getCorAniso()->makeRangeNoStatDb(namecol, idim, db);
-  }
 }
 
 void CovAniso::makeRangeNoStatFunctional(const AFunctional* func, int idim)
@@ -708,10 +705,7 @@ void CovAniso::makeRangeStationary(int idim)
 
 void CovAniso::makeScaleNoStatDb(const String& namecol, int idim, const Db* db)
 {
-  if (_checkAndManageNoStatDb(db, namecol))
-  {
     getCorAniso()->makeScaleNoStatDb(namecol, idim, db);
-  }
 }
 
 void CovAniso::makeScaleNoStatFunctional(const AFunctional* func, int idim)
@@ -728,10 +722,7 @@ void CovAniso::makeScaleStationary(int idim)
 
 void CovAniso::makeAngleNoStatDb(const String& namecol, int idim, const Db* db)
 {
-  if (_checkAndManageNoStatDb(db, namecol))
-  {
     getCorAniso()->makeAngleNoStatDb(namecol, idim, db);
-  }
 }
 
 void CovAniso::makeAngleNoStatFunctional(const AFunctional* func, int idim)
@@ -747,10 +738,7 @@ void CovAniso::makeAngleStationary(int idim)
 
 void CovAniso::makeTensorNoStatDb(const String& namecol, int idim, int jdim, const Db* db)
 {
-  if (_checkAndManageNoStatDb(db, namecol))
-  {
-    getCorAniso()->makeTensorNoStatDb(namecol, idim, jdim, db);
-  }
+  getCorAniso()->makeTensorNoStatDb(namecol, idim, jdim, db);
 }
 
 void CovAniso::makeTensorNoStatFunctional(const AFunctional* func, int idim, int jdim)
@@ -767,10 +755,7 @@ void CovAniso::makeTensorStationary(int idim, int jdim)
 
 void CovAniso::makeParamNoStatDb(const String& namecol, const Db* db)
 {
-  if (_checkAndManageNoStatDb(db, namecol))
-  {
-    getCorAniso()->makeParamNoStatDb(namecol, db);
-  }
+  getCorAniso()->makeParamNoStatDb(namecol, db);
 }
 
 void CovAniso::makeParamNoStatFunctional(const AFunctional* func)

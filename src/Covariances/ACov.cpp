@@ -191,16 +191,7 @@ void ACov::createNoStatTab()
 void ACov::attachNoStatDb(const Db* db)
 {
   _tabNoStat->setDbNoStatRef(db);
-}
-
-VectorDouble ACov::informCoords(const VectorVectorDouble& coords,
-                                const EConsElem& econs,
-                                int iv1,
-                                int iv2) const
-{
-  VectorDouble result(coords[0].size(), getValue(econs, iv1, iv2));
-  _tabNoStat->informCoords(coords, econs, iv1, iv2, result);
-  return result;
+  _attachNoStatDb(db);
 }
 
 bool ACov::checkAndManageNoStatDb(const Db*& db, const String& namecol)
@@ -210,7 +201,7 @@ bool ACov::checkAndManageNoStatDb(const Db*& db, const String& namecol)
     messerr("You have to define a Db (with attachNoStatDb or by specifying a Db here)");
     return false;
   }
-  setNoStatDbIfNecessary(db);
+  _setNoStatDbIfNecessary(db);
 
   if (db->getUID(namecol) < 0)
   {
@@ -218,6 +209,27 @@ bool ACov::checkAndManageNoStatDb(const Db*& db, const String& namecol)
     return false;
   }
   return true;
+}
+
+void ACov::_setNoStatDbIfNecessary(const Db*& db)
+{
+  if (_tabNoStat->getDbNoStatRef() == nullptr)
+    attachNoStatDb(db);
+  if (db == nullptr)
+    db = _tabNoStat->getDbNoStatRef();
+}
+void ACov::_attachNoStatDb(const Db* db)
+{
+  DECLARE_UNUSED(db)
+}
+VectorDouble ACov::informCoords(const VectorVectorDouble& coords,
+                                const EConsElem& econs,
+                                int iv1,
+                                int iv2) const
+{
+  VectorDouble result(coords[0].size(), getValue(econs, iv1, iv2));
+  _tabNoStat->informCoords(coords, econs, iv1, iv2, result);
+  return result;
 }
 
 TabNoStat* ACov::_createNoStatTab()
