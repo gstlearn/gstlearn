@@ -223,7 +223,7 @@ void SimuSpectral::_computeOnRn(Db *dbout, int iuid, bool verbose)
   }
 
   // Loop on the active samples
-  VectorInt ranks = dbout->getRanksActive();
+  VectorInt ranks = dbout->getSampleRanksPerVariable();
   VectorDouble coor(_ndim);
   for (int jech = 0; jech < nech; jech++)
   {

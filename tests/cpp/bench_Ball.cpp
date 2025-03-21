@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
   ASerializable::setPrefixName("Tree-");
 
   // Global parameters
-  bool verbose = true;
+  bool verbose = false;
   int ndim = 2;
   int mode = 0;
   defineDefaultSpace(ESpaceType::RN, ndim);
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     mestitle(0, "Traditional use of the Ball Tree");
 
     // Constructing the Ball Tree
-    Ball ball1(data, nullptr, 10, false);
+    Ball ball1(data, nullptr, nullptr, 10, false);
     if (verbose) ball1.display(0);
 
     // My target sample
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     verbose              = true;
 
     // Constructing the Ball Tree
-    Ball ball2(data, nullptr, 10, has_constraints);
+    Ball ball2(data, nullptr, nullptr, 10, has_constraints);
     if (verbose) ball2.display(1);
 
     // Loop on the samples for the FNN search
@@ -109,11 +109,36 @@ int main(int argc, char *argv[])
     for (int jech = 0; jech < nech; jech++)
     {
       int iech = ranks[jech];
-      message("Target Sample = %d -> Absolute Rank = %d\n", jech, iech);
       data->getSampleAsSPInPlace(pt2, iech);
       ball2.setConstraint(iech, true);
       (void)ball2.queryOneInPlace(pt2.getCoordUnprotected(), nb_neigh, neighs, distances);
       VH::dump("Indices of the neighbors", neighs);
+    }
+  }
+
+  if (mode == 0 || mode == 3)
+  {
+    mestitle(0, "Demonstrating the findNN algorithm");
+    bool flagShuffle = true;
+
+    int nech = 20;
+    Db* aux = Db::createFillRandom(nech, ndim, 1, 0, 0, 0., 0.,
+                                    VectorDouble(), VectorDouble(),
+                                    VectorDouble(), 24813);
+    MatrixT<int> mat = findNN(data, aux, nb_neigh, flagShuffle);
+    int nrows        = mat.getNRows();
+    int ncols        = mat.getNCols();
+    for (int irow = 0; irow < nrows; irow++)
+    {
+      for (int icol = 0; icol < ncols; icol++)
+      {
+        int value = mat(irow, icol);
+        if (IFFFF(value))
+          message("   NA");
+        else
+          message(" %4d", mat(irow, icol));
+      }
+      message("\n");
     }
   }
 

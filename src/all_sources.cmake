@@ -318,6 +318,7 @@ set(SRC
   Estimation/CalcImage.cpp
   Estimation/CalcGlobal.cpp
   Estimation/KrigOpt.cpp
+  Estimation/Vecchia.cpp
   OutputFormat/AOF.cpp
   OutputFormat/GridIfpEn.cpp
   OutputFormat/GridEclipse.cpp

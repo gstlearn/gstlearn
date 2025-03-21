@@ -221,6 +221,14 @@ public:
                               const VectorDouble& coormax     = VectorDouble(),
                               int seed                        = 124234,
                               bool flagAddSampleRank          = true);
+  static Db* createEmpty(int ndat,
+                         int ndim               = 2,
+                         int nvar               = 1,
+                         int nfex               = 0,
+                         int ncode              = 0,
+                         bool flagVerr          = false,
+                         bool flagSel           = false,
+                         bool flagAddSampleRank = true);
   static Db* createFromGridRandomized(DbGrid* dbgrid,
                                       double randperc        = 0.,
                                       bool flagAddSampleRank = true);
@@ -559,11 +567,11 @@ public:
 
   int          getSelection(int iech) const;
   VectorDouble getSelections(void) const;
-  VectorInt getRanksActive(const VectorInt& nbgh = VectorInt(),
-                           int item              = -1,
-                           bool useSel           = true,
-                           bool useZ             = true,
-                           bool useVerr          = false) const;
+  VectorInt getSampleRanksPerVariable(const VectorInt& nbgh = VectorInt(),
+                                      int item              = -1,
+                                      bool useSel           = true,
+                                      bool useZ             = true,
+                                      bool useVerr          = false) const;
   VectorVectorInt getSampleRanks(const VectorInt& ivars = VectorInt(),
                                  const VectorInt& nbgh  = VectorInt(),
                                  bool useSel            = true,
@@ -888,6 +896,8 @@ public:
                        bool excludeCoordinates   = true,
                        bool skipTitle            = false) const;
 
+  void dumpGeometry(int iech, int jech) const;
+
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
@@ -972,3 +982,4 @@ private:
   /// factor allocations
   mutable std::vector<int> uids;
 };
+

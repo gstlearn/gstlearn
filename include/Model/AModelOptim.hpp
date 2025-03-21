@@ -23,15 +23,15 @@
 class Model;
 class Constraints;
 
-typedef struct
+struct OneParam
 {
   int _icov;
   EConsElem _type;
   int _rank;
   double _scale;
-} OneParam;
+};
 
-typedef struct
+struct Model_Part
 {
   // Pointer to the Model structure
   Model* _model;
@@ -51,7 +51,7 @@ typedef struct
   bool _verbose;
   int _niter;
   CovCalcMode _calcmode;
-} Model_Part;
+};
 
 /**
  * \brief
@@ -68,8 +68,6 @@ public:
   AModelOptim(const AModelOptim& m);
   AModelOptim& operator=(const AModelOptim& m);
   virtual ~AModelOptim();
-
-
 
 protected:
   int _buildModelParamList();

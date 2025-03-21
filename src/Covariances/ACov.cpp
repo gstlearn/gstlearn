@@ -692,7 +692,7 @@ void ACov::evalPointToDb(VectorDouble& values,
 {
   SpacePoint p2(getSpace());
 
-  VectorInt index2 = db2->getRanksActive(nbgh2, jvar, useSel);
+  VectorInt index2 = db2->getSampleRanksPerVariable(nbgh2, jvar, useSel);
   int nech2        = (int)index2.size();
   if (nech2 != (int)values.size()) values.resize(nech2);
 
@@ -1243,31 +1243,6 @@ int ACov::evalCovMatRHSInPlaceFromIdx(MatrixRectangular& mat,
   return 0;
 }
 
-/****************************************************************************/
-/*!
- **  Establish covariance matrix between one Db and one sample of a Target Db
- **
- ** \return Dense matrix containing the covariance matrix
- **
- ** \param[in]  mat Matrix (possibly resized)
- ** \param[in]  db1   First Db
- ** \param[in]  db2   Second Db
- ** \param[in]  index1 Vector of vector indices of active samples in db1
- ** \param[in]  iech2 Sample rank within db2
- ** \param[in]  krigopt KrigOpt structure
- ** \param[in]  cleanOptim When True, clean optimization internal when ended
- **
- ** \remarks If a Db does not contain any Z-variable defined, the covariance
- ** \remarks cannot treat possible heterotopy and therefore uses all samples
- **
- ** \remarks The returned matrix if dimension to nrows * 1 where
- ** \remarks each 'nrows' is the number of active samples
- ** \remarks by the number of samples where the variable is defined
- **
- ** \note 'dbin' and 'dbout' cannot be made 'const' as they can be updated
- ** \note due to the presence of 'nostat'
- **
- *****************************************************************************/
 int ACov::evalCovVecRHSInPlace(vect vect,
                                const Db* db2,
                                const VectorInt& index1,

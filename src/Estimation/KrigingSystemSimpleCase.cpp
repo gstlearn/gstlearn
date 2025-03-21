@@ -32,9 +32,7 @@
 #include "Neigh/NeighUnique.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Polynomials/Hermite.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Space/SpaceRN.hpp"
@@ -423,19 +421,11 @@ void KrigingSystemSimpleCase::conclusion()
     cova->optimizationPostProcess();
 }
 
-/**
- * Perform the Kriging of target
- *
- * @param iech_out Rank of the target
- * @return
- */
-
 int KrigingSystemSimpleCase::estimate(int iech_out,
                                       SpacePoint& pin,
                                       SpacePoint& pout,
                                       VectorDouble& tabwork)
 {
-
   if (!_dbout->isActive(iech_out)) return 0;
   if (!_isReady)
   {

@@ -1,0 +1,52 @@
+
+Checking Vecchia Class
+======================
+
+Ball Tree
+=========
+- Number of samples = 4
+- Number of Features = 2
+- Number of levels = 1
+- Number of nodes = 1
+- Size of leaf = 10
+
+List of nodes
+-------------
+Node #  0/  1 - Indices [    0;     4[ - Radius = 0.534435 - Centroid = 0.478135 0.406664 
+ Sample indices =  0 1 2 3
+
+List of Neighborhoors for NN search
+-----------------------------------
+Sample_1   0 :         0       N/A       N/A       N/A
+Sample_1   1 :         1         0       N/A       N/A
+Sample_1   2 :         2         0         1       N/A
+Sample_1   3 :         3         1         0         2
+Matrix L
+- Number of rows    = 4
+- Number of columns = 4
+- Sparse Format
+               [,  0]    [,  1]    [,  2]    [,  3]
+     [  0,]     1.000         .         .         .
+     [  1,]    -0.286     1.000         .         .
+     [  2,]    -0.458    -0.049     1.000         .
+     [  3,]     0.000    -0.036    -0.001     1.000
+
+Diagonal D
+     1.000     1.089     1.291     1.001
+
+Kriging with Vecchia approximation
+==================================
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+4 - Name Vecchia.estim - Locator z1
+ Nb of data          =          4
+ Nb of active values =          4
+ Minimum value       =     -0.371
+ Maximum value       =      0.315
+ Mean value          =     -0.034
+ Standard Deviation  =      0.245
+ Variance            =      0.060
