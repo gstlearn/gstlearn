@@ -177,7 +177,6 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
     int jvar = varColCok[ivar];
     if (jvar >= 0) valuesTarget[varColCok[jvar]] = law_gaussian();
   }
-
   Db* dataP = _dataComplement(data, target, valuesTarget);
 
   // ---------------------- With complemented Data Base ---------------------
