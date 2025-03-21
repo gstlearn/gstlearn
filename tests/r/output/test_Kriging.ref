@@ -1,7 +1,7 @@
 
-Attachement du package : ‘gstlearn’
+Attaching package: ‘gstlearn’
 
-Les objets suivants sont masqués depuis ‘package:base’:
+The following objects are masked from ‘package:base’:
 
     message, toString
 
