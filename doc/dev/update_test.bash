@@ -3,6 +3,10 @@
 # This script is meant to update the reference output file
 # starting from the resulting test output file (in Release mode only)
 
+if [ -z "$GSTLEARN_DIR" ]; then
+    echo "GSTLEARN_DIR is not defined"
+    exit
+fi
 DIR="$GSTLEARN_DIR/gstlearn"
 
 nargs=$#

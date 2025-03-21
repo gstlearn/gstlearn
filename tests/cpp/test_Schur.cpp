@@ -177,7 +177,6 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
     int jvar = varColCok[ivar];
     if (jvar >= 0) valuesTarget[varColCok[jvar]] = law_gaussian();
   }
-
   Db* dataP = _dataComplement(data, target, valuesTarget);
 
   // ---------------------- With complemented Data Base ---------------------
@@ -225,7 +224,7 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
 
   VH::dump("Kriging Value(s)", Kcalc.getEstimation());
   VH::dump("Standard Deviation of Estimation Error", Kcalc.getStdv());
-  //VH::dump("Variance of Estimator", Kcalc.getVarianceZstar());
+  VH::dump("Variance of Estimator", Kcalc.getVarianceZstar());
 
   if (debugSchur) Kcalc.printStatus();
 
