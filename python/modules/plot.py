@@ -6,11 +6,18 @@
 # License: BSD 3-clause                                                        #
 #                                                                              #
 ################################################################################
-import matplotlib
-import matplotlib.pyplot     as plt
-import matplotlib.patches    as ptc
-import matplotlib.transforms as transform
-import matplotlib.colors     as mcolors
+
+try:
+    import matplotlib
+    import matplotlib.pyplot     as plt
+    import matplotlib.patches    as ptc
+    import matplotlib.transforms as transform
+    import matplotlib.colors     as mcolors
+except ModuleNotFoundError as ex:
+    msg = ("Python dependency 'matplotlib' not found.\n"
+          "To install it alongside gstlearn, please run `pip install gstlearn[plot]'")
+    raise ModuleNotFoundError(msg) from ex
+
 import numpy                 as np
 import numpy.ma              as ma
 import gstlearn              as gl
