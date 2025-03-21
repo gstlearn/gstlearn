@@ -426,7 +426,6 @@ public:
   void load(const SpacePoint& p, bool case1) const;
 
   // Functions to be deleted when possible
-  bool checkAndManageNoStatDb(const Db*& db, const String& namecol);
 
   virtual void updateCovByMesh(int imesh, bool aniso = true) const
   {
@@ -458,7 +457,10 @@ public:
   int getNDim(int ispace = -1) const { return _ctxt.getNDim(ispace); }
   void optimizationPreProcessForData(const Db* db1 = nullptr) const;
   virtual void setOptimEnabled(bool enabled) const { _optimEnabled = enabled; }
-private:
+  
+  bool checkAndManageNoStatDb(const Db*& db, const String& namecol);
+
+  private:
   virtual void _setContext(const CovContext& ctxt) { DECLARE_UNUSED(ctxt); }
   virtual void _manage(const Db* db1, const Db* db2) const
   {
@@ -467,6 +469,7 @@ private:
   }
   
   virtual void _load(const SpacePoint& p, bool option) const;
+  virtual void _attachNoStatDb(const Db* db);
 
   void _optimizationPreProcessForTarget(const Db* db2,
                                         const VectorInt& nbgh2 = VectorInt()) const;
@@ -494,6 +497,7 @@ private:
   virtual TabNoStat* _createNoStatTab();
 
 protected:
+ void _setNoStatDbIfNecessary(const Db*& db);
   void setNVar(int nvar) { _ctxt.setNVar(nvar); }
   virtual void _optimizationSetTarget(SpacePoint& pt) const;
   virtual void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const;

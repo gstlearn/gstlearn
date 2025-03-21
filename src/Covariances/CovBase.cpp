@@ -286,42 +286,16 @@ bool CovBase::isOptimizationInitialized(const Db* db) const
 // For specifying the NoStat DbGrid, you can first attach it by using attachNoStatDb.
 // If not, you have to specify the DbGrid when you make the first parameter non stationary.
 
-void CovBase::attachNoStatDb(const Db* db)
+void CovBase::_attachNoStatDb(const Db* db)
 {
-  _tabNoStat->setDbNoStatRef(db);
   _cor->attachNoStatDb(db);
-}
-
-bool CovBase::_checkAndManageNoStatDb(const Db*& db, const String& namecol)
-{
-  if (_tabNoStat->getDbNoStatRef() == nullptr && db == nullptr)
-  {
-    messerr("You have to define a Db (with attachNoStatDb or by specifying a Db here)");
-    return false;
-  }
-  _setNoStatDbIfNecessary(db);
-
-  if (db->getUID(namecol) < 0)
-  {
-    messerr("You have to specified a name of a column of the reference Db");
-    return false;
-  }
-  return true;
-}
-
-void CovBase::_setNoStatDbIfNecessary(const Db*& db)
-{
-  if (_tabNoStat->getDbNoStatRef() == nullptr)
-    attachNoStatDb(db);
-  if (db == nullptr)
-    db = _tabNoStat->getDbNoStatRef();
 }
 
 void CovBase::_makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func, const Db* db, const String& namecol)
 {
   if (func == nullptr)
   {
-    if (!_checkAndManageNoStatDb(db, namecol)) return;
+    if (!checkAndManageNoStatDb(db, namecol)) return;
   }
 
   if (econs != EConsElem::SILL)
@@ -349,7 +323,7 @@ void CovBase::makeSillNoStatDb(const String& namecol, int ivar, int jvar, const 
 {
   if (!_checkSill(ivar, jvar)) return;
   _makeElemNoStat(EConsElem::SILL, ivar, jvar, nullptr, db, namecol);
-  _cor->checkAndManageNoStatDb(db, namecol);
+  //_cor->checkAndManageNoStatDb(db, namecol);
 }
 
 void CovBase::makeSillNoStatFunctional(const AFunctional* func, int ivar, int jvar)
