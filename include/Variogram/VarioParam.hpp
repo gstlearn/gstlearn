@@ -76,8 +76,7 @@ public:
                                     double scale = 0.,
                                     const VectorDouble& dates = VectorDouble(),
                                     const ASpaceSharedPtr& space = ASpaceSharedPtr());
-  static VarioParam*
-  createMultipleFromGrid(const DbGrid* dbgrid,
+  static VarioParam* createMultipleFromGrid(const DbGrid* dbgrid,
                          int nlag,
                          double scale              = 0.,
                          const VectorDouble& dates = VectorDouble(),
