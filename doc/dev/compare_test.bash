@@ -3,6 +3,11 @@
 # This script is meant to compare a resulting test file to its reference (Release mode only)
 # This script requires the environment variable GSTLEARN_DIR
 #
+
+if [ -z "$GSTLEARN_DIR" ]; then
+    echo "GSTLEARN_DIR is not defined"
+    exit
+fi
 DIR="$GSTLEARN_DIR/gstlearn"
 
 nargs=$#
@@ -14,6 +19,8 @@ if [ $nargs -lt 2 ]; then
     echo "   ajout    : additional parameters for diff"
     echo "              'full' for comparing side by side"
     echo "              'large' for comparing side-by-side with larger output (200)"
+    echo ""
+    echo "( Current number of arguments =" $nargs ")"
     exit
 fi
 

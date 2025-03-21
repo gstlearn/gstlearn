@@ -1,0 +1,775 @@
+
+Attachement du package : ‘gstlearn’
+
+Les objets suivants sont masqués depuis ‘package:base’:
+
+    message, toString
+
+
+SK Nvar:1 Order:-1 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+------------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:1 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:2 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+SK Nvar:2 Order:-1 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+------------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:1 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:2 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+SK Nvar:3 Order:-1 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+------------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:1 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:2 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+SK Nvar:1 Order:-1 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:1 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:2 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+SK Nvar:2 Order:-1 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:1 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:2 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+SK Nvar:3 Order:-1 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:1 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:2 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+SK Nvar:1 Order:-1 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:1 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:2 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+SK Nvar:2 Order:-1 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:1 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:2 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+SK Nvar:3 Order:-1 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:1 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:2 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+SK Nvar:1 Order:-1 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:1 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:2 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:2 Order:-1 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:1 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:2 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:3 Order:-1 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:1 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:2 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:1 Order:-1 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:1 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:2 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+SK Nvar:2 Order:-1 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:1 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:2 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+SK Nvar:3 Order:-1 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:1 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:2 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+SK Nvar:1 Order:-1 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:1 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:2 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:2 Order:-1 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:1 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:2 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:3 Order:-1 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:1 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:2 Unique:FALSE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:1 Order:-1 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:1 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:2 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:2 Order:-1 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:1 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:2 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:3 Order:-1 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:1 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:2 Unique:TRUE Hetero:FALSE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:1 Order:-1 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:1 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:2 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+SK Nvar:2 Order:-1 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:1 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:2 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+SK Nvar:3 Order:-1 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:1 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:2 Unique:TRUE Hetero:TRUE in_sel:FALSE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+SK Nvar:1 Order:-1 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:1 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:2 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+SK Nvar:2 Order:-1 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:1 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:2 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+SK Nvar:3 Order:-1 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+-----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:1 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:2 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+SK Nvar:1 Order:-1 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:1 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:2 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:2 Order:-1 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:1 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:2 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:3 Order:-1 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:1 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:2 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:1 Order:-1 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:1 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:2 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:2 Order:-1 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:1 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:2 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:3 Order:-1 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:1 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:2 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:1 Order:-1 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:1 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:2 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+--------------------------------------------------------------------------
+Test passed
+
+SK Nvar:2 Order:-1 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:1 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:2 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+--------------------------------------------------------------------------
+Test passed
+
+SK Nvar:3 Order:-1 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:1 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:2 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:FALSE
+--------------------------------------------------------------------------
+Test passed
+
+SK Nvar:1 Order:-1 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:1 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:2 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:2 Order:-1 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:1 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:2 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:3 Order:-1 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+----------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:1 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:2 Unique:FALSE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+SK Nvar:1 Order:-1 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:1 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:2 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+SK Nvar:2 Order:-1 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:1 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:2 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+SK Nvar:3 Order:-1 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:0 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:1 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:2 Unique:FALSE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+SK Nvar:1 Order:-1 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:1 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:2 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+SK Nvar:2 Order:-1 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:1 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:2 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+SK Nvar:3 Order:-1 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+---------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:0 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:1 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:2 Unique:TRUE Hetero:FALSE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+SK Nvar:1 Order:-1 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+-------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:1 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+-------------------------------------------------------------------------
+Test passed
+
+UK Nvar:1 Order:0 Nfex:2 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+-------------------------------------------------------------------------
+Test passed
+
+SK Nvar:2 Order:-1 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+-------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:1 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+-------------------------------------------------------------------------
+Test passed
+
+UK Nvar:2 Order:0 Nfex:2 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+-------------------------------------------------------------------------
+Test passed
+
+SK Nvar:3 Order:-1 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+--------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:0 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+-------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:1 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+-------------------------------------------------------------------------
+Test passed
+
+UK Nvar:3 Order:0 Nfex:2 Unique:TRUE Hetero:TRUE in_sel:TRUE out_sel:TRUE
+-------------------------------------------------------------------------
+Test passed
