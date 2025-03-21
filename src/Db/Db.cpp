@@ -3545,6 +3545,9 @@ VectorInt Db::getMultipleSelectedVariables(const VectorVectorInt& index,
  *
  * @note: if 'nbgh' is not provided, the absolute and relative indices
  * @note: returned by this function are similar.
+ *
+ * @note: if 'useExtD' is ON, each sample for each variable is tested against
+ * @note: all the values of External Drift functions.
  */
 VectorVectorInt Db::getSampleRanks(const VectorInt& ivars,
                                    const VectorInt& nbgh,
