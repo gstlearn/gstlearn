@@ -1,14 +1,11 @@
 #pragma once
+
 #include <cstddef>
 #include <vector>
 
 template<typename T>
-class MatrixT {
-private:
-  size_t _nrow; // Nombre de lignes et colonnes (matrice carrée)
-  size_t _ncol;
-  std::vector<T> _data; // Stockage contigu en 1D
-
+class MatrixT
+{
 public:
   MatrixT(size_t nrow = 0, size_t ncol = 0, T defaultValue = T())
     : _nrow(nrow)
@@ -58,4 +55,12 @@ public:
     std::fill(_data.begin(), _data.end(), value);
   }
   size_t getSize() const { return _nrow * _ncol; }
+  size_t getNRows() const { return _nrow; }
+  size_t getNCols() const { return _ncol; }
+  const std::vector<T>& getData() const { return _data; }
+
+private:
+  size_t _nrow; 
+  size_t _ncol;
+  std::vector<T> _data; // Stockage contigu en 1D
 };

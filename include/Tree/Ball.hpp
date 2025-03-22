@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Tree/ball_algorithm.h"
+#include "Matrix/MatrixT.hpp"
 
 class Db;
 class SpacePoint;
@@ -34,7 +35,8 @@ public:
                                int size) = nullptr,
        int leaf_size                     = 10,
        int default_distance_function     = 1);
-  Ball(const Db* db,
+  Ball(const Db* dbin,
+       const Db* dbout                   = nullptr,
        double (*dist_function)(const double* x1,
                                const double* x2,
                                int size) = nullptr,
@@ -72,12 +74,10 @@ public:
   void display(int level = -1) const;
   int  setConstraint(int rank, bool status);
   int  resetConstraints(bool status);
+  bool empty() const { return _tree == nullptr; }
 
 protected:
-  int _getFeatureNumber() const
-  {
-    return _tree->n_features;
-  }
+  int _getFeatureNumber() const { return _tree->n_features; }
   int _getLeafSize() const { return _tree->leaf_size; }
   int _getNSample() const { return _tree->n_samples; }
 
@@ -87,3 +87,14 @@ private:
 private:
   t_btree* _tree;
 };
+
+GSTLEARN_EXPORT MatrixT<int> findNN(Db* dbin,
+                                    Db* dbout                         = nullptr,
+                                    int nb_neigh                      = 3,
+                                    bool flagShuffle                  = false,
+                                    bool verbose                      = false,
+                                    double (*dist_function)(const double* x1,
+                                                            const double* x2,
+                                                            int size) = nullptr,
+                                    int leaf_size                     = 10,
+                                    int default_distance_function     = 1);

@@ -27,12 +27,12 @@ class GSTLEARN_EXPORT ModelCovList : public ModelGeneric
 {
 public:
   ModelCovList(const CovContext& ctxt = CovContext());
-  ModelCovList(const ModelCovList &m) = delete;
-  ModelCovList& operator= (const ModelCovList &m) = delete;
+  ModelCovList(const ModelCovList &m);
+  ModelCovList& operator= (const ModelCovList &m);
   virtual ~ModelCovList();
 
-  const CovList* getCovList() const { return _covList; }
-  CovList* getCovListModify() { return _covList; }
+  const CovList* getCovList() const { return (const CovList*)getCov(); }
+  CovList* getCovListModify() const { return  (CovList*)getCov(); }
 
   FORWARD_METHOD_NON_CONST(getCovListModify, delCov)
   FORWARD_METHOD_NON_CONST(getCovListModify, delAllCov)
@@ -48,6 +48,4 @@ public:
   void setCovList(CovList* covs);
   virtual void addCov(const CovBase* cov);
 
-protected:
-  CovList* _covList;
 };

@@ -48,7 +48,6 @@ ACov::ACov(const CovContext& ctxt)
   , _pAux(ctxt.getSpace())
   , _tabNoStat(nullptr)
 {
-  createNoStatTab();
 }
 
 ACov::ACov(const ACov& r)
@@ -62,8 +61,7 @@ ACov::ACov(const ACov& r)
   , _pAux(r._pAux)
   , _pw1(r._pw1)
   , _pw2(r._pw2)
-
-  , _tabNoStat(r._tabNoStat == nullptr ? nullptr : new TabNoStat(*r._tabNoStat))
+  , _tabNoStat(r._tabNoStat == nullptr ? nullptr : r._tabNoStat->clone())
 {
 }
 
@@ -192,16 +190,7 @@ void ACov::createNoStatTab()
 void ACov::attachNoStatDb(const Db* db)
 {
   _tabNoStat->setDbNoStatRef(db);
-}
-
-VectorDouble ACov::informCoords(const VectorVectorDouble& coords,
-                                const EConsElem& econs,
-                                int iv1,
-                                int iv2) const
-{
-  VectorDouble result(coords[0].size(), getValue(econs, iv1, iv2));
-  _tabNoStat->informCoords(coords, econs, iv1, iv2, result);
-  return result;
+  _attachNoStatDb(db);
 }
 
 bool ACov::checkAndManageNoStatDb(const Db*& db, const String& namecol)
@@ -211,7 +200,7 @@ bool ACov::checkAndManageNoStatDb(const Db*& db, const String& namecol)
     messerr("You have to define a Db (with attachNoStatDb or by specifying a Db here)");
     return false;
   }
-  setNoStatDbIfNecessary(db);
+  _setNoStatDbIfNecessary(db);
 
   if (db->getUID(namecol) < 0)
   {
@@ -219,6 +208,27 @@ bool ACov::checkAndManageNoStatDb(const Db*& db, const String& namecol)
     return false;
   }
   return true;
+}
+
+void ACov::_setNoStatDbIfNecessary(const Db*& db)
+{
+  if (_tabNoStat->getDbNoStatRef() == nullptr)
+    attachNoStatDb(db);
+  if (db == nullptr)
+    db = _tabNoStat->getDbNoStatRef();
+}
+void ACov::_attachNoStatDb(const Db* db)
+{
+  DECLARE_UNUSED(db)
+}
+VectorDouble ACov::informCoords(const VectorVectorDouble& coords,
+                                const EConsElem& econs,
+                                int iv1,
+                                int iv2) const
+{
+  VectorDouble result(coords[0].size(), getValue(econs, iv1, iv2));
+  _tabNoStat->informCoords(coords, econs, iv1, iv2, result);
+  return result;
 }
 
 TabNoStat* ACov::_createNoStatTab()
@@ -692,7 +702,7 @@ void ACov::evalPointToDb(VectorDouble& values,
 {
   SpacePoint p2(getSpace());
 
-  VectorInt index2 = db2->getRanksActive(nbgh2, jvar, useSel);
+  VectorInt index2 = db2->getSampleRanksPerVariable(nbgh2, jvar, useSel);
   int nech2        = (int)index2.size();
   if (nech2 != (int)values.size()) values.resize(nech2);
 
@@ -1243,31 +1253,6 @@ int ACov::evalCovMatRHSInPlaceFromIdx(MatrixRectangular& mat,
   return 0;
 }
 
-/****************************************************************************/
-/*!
- **  Establish covariance matrix between one Db and one sample of a Target Db
- **
- ** \return Dense matrix containing the covariance matrix
- **
- ** \param[in]  mat Matrix (possibly resized)
- ** \param[in]  db1   First Db
- ** \param[in]  db2   Second Db
- ** \param[in]  index1 Vector of vector indices of active samples in db1
- ** \param[in]  iech2 Sample rank within db2
- ** \param[in]  krigopt KrigOpt structure
- ** \param[in]  cleanOptim When True, clean optimization internal when ended
- **
- ** \remarks If a Db does not contain any Z-variable defined, the covariance
- ** \remarks cannot treat possible heterotopy and therefore uses all samples
- **
- ** \remarks The returned matrix if dimension to nrows * 1 where
- ** \remarks each 'nrows' is the number of active samples
- ** \remarks by the number of samples where the variable is defined
- **
- ** \note 'dbin' and 'dbout' cannot be made 'const' as they can be updated
- ** \note due to the presence of 'nostat'
- **
- *****************************************************************************/
 int ACov::evalCovVecRHSInPlace(vect vect,
                                const Db* db2,
                                const VectorInt& index1,
@@ -1293,14 +1278,18 @@ int ACov::addEvalCovVecRHSInPlace(vect vect,
                                   VectorDouble& tabwork,
                                   double lambda) const
 { 
-  DECLARE_UNUSED(pout,index1,tabwork);
+  DECLARE_UNUSED(pout,tabwork);
+  optimizationSetTarget(pin);
   bool flagNoStat = isNoStat();
   const CovCalcMode& mode = krigopt.getMode();
+  const int* inds = index1.data();
   for (int i = 0; i < (int)vect.size();i++)
   {
     if (flagNoStat)
-        updateCovByPoints(1, i, 2, iech2);
-    vect[i] += lambda * evalCov(_p1As[i], pin, 0, 0, &mode);
+        updateCovByPoints(1, *inds, 2, iech2);
+    SpacePoint& p1 = optimizationLoadInPlace(*inds++, 1, 1);
+
+    vect[i] += lambda * evalCov(p1, pin, 0, 0, &mode);
   }
   return 0;
 }
@@ -1901,8 +1890,20 @@ void ACov::setNoStatDbIfNecessary(const Db*& db)
 void ACov::makeStationary()
 {
   _tabNoStat->clear();
+  _tabNoStat->setDbNoStatRef(nullptr);
+  _makeStationary();
 }
+
+void ACov::_makeStationary()
+{
+}
+
 int ACov::makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func, const Db* db, const String& namecol)
+{
+  return _makeElemNoStat(econs, iv1, iv2, func, db, namecol);
+}
+
+int ACov::_makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func, const Db* db, const String& namecol)
 {
   std::shared_ptr<ANoStat> ns;
   if (func == nullptr)

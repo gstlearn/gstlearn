@@ -50,15 +50,15 @@ public:
 #endif
 
 private:
-  typedef struct
+  struct VMap_Part
   {
     const DbGrid* _dbmap;
     VectorInt _indg1;
     VectorInt _indg2;
     int _npadir;
-  } VMap_Part;
+  };
 
-  typedef struct
+  struct AlgorithmVMap
   {
     // Part of the structure dedicated to the Model
     Model_Part& _modelPart;
@@ -68,7 +68,7 @@ private:
 
     // Only used for Goulard Option
     ModelOptimSillsVMap& _goulardPart;
-  } AlgorithmVMap;
+  };
 
   void _copyVMapPart(const VMap_Part& vmapPart);
   bool _checkConsistency();

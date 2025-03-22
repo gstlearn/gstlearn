@@ -39,6 +39,20 @@ those can be installed alongside gstlearn with the following command:
 pip install gstlearn[plot]
 ```
 
+Converting several gstlearn C++ types through `toTL` methods to, e.g.,
+Pandas DataFrames also require additional dependencies. These are
+available through the `conv` optional dependency group:
+
+``` python
+pip install gstlearn[conv]
+```
+
+All optional dependencies can be installed with the following command:
+
+``` python
+pip install gstlearn[all]
+```
+
 ## Usage
 
 We refer the reader to this [course page](https://soft.mines-paristech.fr/gstlearn/courses-latest/python/01_gstlearn_start.html) for an introduction and important information about Python gstlearn package.

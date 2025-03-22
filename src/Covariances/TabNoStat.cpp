@@ -10,197 +10,185 @@
 TabNoStat::TabNoStat()
   : _items()
   , _dbNoStatRef(nullptr)
-  , _definedForVariance(false)
-  , _nSills(0)
 {
 }
 
 TabNoStat::TabNoStat(const TabNoStat& m)
   : AStringable(m)
 {
-  this->_nSills             = m._nSills;
-  this->_dbNoStatRef        = m._dbNoStatRef;
-  this->_definedForVariance = m._definedForVariance;
-  this->_items              = m._items;
+  _dbNoStatRef        = m._dbNoStatRef;
+  _items              = m._items;
 }
 
 TabNoStat& TabNoStat::operator=(const TabNoStat& m)
 {
   if (this != &m)
   {
-    _nSills             = m._nSills;
     _dbNoStatRef        = m._dbNoStatRef;
-    _definedForVariance = m._definedForVariance;
     _items              = m._items;
   }
   return *this;
 }
 
-int TabNoStat::removeElem(const EConsElem &econs, int iv1, int iv2)
+int TabNoStat::removeElem(const EConsElem& econs, int iv1, int iv2)
 {
-    ParamId param(econs,iv1,iv2);
-    int res = _items.erase(param);
-    if (econs == EConsElem::SILL)
-        _nSills -= res;
-    updateDescription();
-    return res;
-
+  ParamId param(econs, iv1, iv2);
+  int res = _items.erase(param);
+  updateDescription();
+  return res;
 }
 
 void TabNoStat::clear()
 {
-    _items.clear();
-    _nSills = 0;
-    _clear();
+  _items.clear();
+  _clear();
 }
 bool TabNoStat::isValid(const EConsElem& econs) const
 {
-    bool res = _isValid(econs);
-    if (!res)
-    {   
-        messerr("%s is an invalid parameter for this covariance structure",
+  bool res = _isValid(econs);
+  if (!res)
+  {
+    messerr("%s is an invalid parameter for this covariance structure",
             std::string(econs.getKey()).c_str());
-    }
-    return res ;
-}
-bool TabNoStat::_isValid(const EConsElem& econs) const
-{
-     return (econs == EConsElem::SILL);
+  }
+  return res;
 }
 
 void TabNoStat::updateDescription()
 {
-    _definedForVariance = _nSills > 0;
-    _updateDescription();
+  _updateDescription();
 }
 
-bool TabNoStat::isElemDefined(const EConsElem &econs, int iv1, int iv2) const
+bool TabNoStat::isElemDefined(const EConsElem& econs, int iv1, int iv2) const
 {
-    ParamId conselem(econs,iv1,iv2);
-    return _items.count(conselem) > 0;
+  ParamId conselem(econs, iv1, iv2);
+  return _items.count(conselem) > 0; //Warning : use count for C++17 compatibility
 }
 
-std::shared_ptr<ANoStat> TabNoStat::getElem(const EConsElem &econs, int iv1, int iv2)
+std::shared_ptr<ANoStat> TabNoStat::getElem(const EConsElem& econs, int iv1, int iv2)
 {
-    ParamId conselem(econs,iv1,iv2);
-    return _items[conselem];
+  ParamId conselem(econs, iv1, iv2);
+  return _items[conselem];
 }
 
 String TabNoStat::toString(const AStringFormat* strfmt) const
 {
-    return toStringInside(strfmt,0);
+  return toStringInside(strfmt, 0);
 }
-String TabNoStat::toStringInside(const AStringFormat* strfmt,int i) const
+String TabNoStat::toStringInside(const AStringFormat* strfmt, int i) const
 {
-    std::stringstream sstr;
-    if (_items.empty()) return sstr.str();
-    
-    for (const auto &e: getTable())
-    {
-        sstr << std::to_string(i+1) << " - ";
-        sstr << e.first.toString(strfmt);
-        sstr << e.second->toString(strfmt);
-        i++;
-    }
-    return sstr.str();
+  std::stringstream sstr;
+  if (_items.empty()) return sstr.str();
+
+  for (const auto& e: getTable())
+  {
+    sstr << std::to_string(i + 1) << " - ";
+    sstr << e.first.toString(strfmt);
+    sstr << e.second->toString(strfmt);
+    i++;
+  }
+  return sstr.str();
 }
 
-void TabNoStat::informCoords(const VectorVectorDouble &coords,
-                             const EConsElem &econs,
-                             int iv1, 
-                             int iv2, 
+void TabNoStat::informCoords(const VectorVectorDouble& coords,
+                             const EConsElem& econs,
+                             int iv1,
+                             int iv2,
                              VectorDouble& result) const
 {
-    ParamId conselem(econs,iv1,iv2);
-    if (isElemDefined(econs, iv1,iv2))
-        _items.at(conselem)->informField(coords,result);
+  ParamId conselem(econs, iv1, iv2);
+  if (isElemDefined(econs, iv1, iv2))
+    _items.at(conselem)->informField(coords, result);
 }
 
-int TabNoStat::addElem(std::shared_ptr<ANoStat> &nostat, const EConsElem &econs, int iv1, int iv2)
+int TabNoStat::addElem(std::shared_ptr<ANoStat>& nostat, const EConsElem& econs, int iv1, int iv2)
 {
-    if (!isValid(econs))
-        return 0;
-    ParamId param(econs,iv1,iv2);
-    int res = _items.count(param);
-    _items[param] = nostat;
-    if (res == 1)
-    {
-        messerr("Warning, this non stationarity was already specified. It has been replaced");
-        messerr("with the new specifications.");
-    }
-    res = 1 - res;
-    if (econs == EConsElem::SILL)
-        _nSills += res;
-    updateDescription();
-    return res;
+  if (!isValid(econs))
+    return 0;
+  ParamId param(econs, iv1, iv2);
+  int res       = _items.count(param);
+  _items[param] = nostat;
+  if (res == 1)
+  {
+    messerr("Warning, this non stationarity was already specified. It has been replaced");
+    messerr("with the new specifications.");
+  }
+  res = 1 - res;
+  updateDescription();
+  return res;
+}
+
+void TabNoStat::setDbNoStatRef(const Db* dbref)
+{
+  if (dbref != nullptr)
+    _dbNoStatRef = std::shared_ptr<const Db>((Db*)dbref->clone());
+  else
+    _dbNoStatRef = nullptr;
 }
 
 void TabNoStat::informMeshByMesh(const AMesh* amesh) const
 {
-    for (const auto &e : _items)
-    {
-        e.second->informMeshByMesh(amesh);
-    }
+  for (const auto& e: _items)
+  {
+    e.second->informMeshByMesh(amesh);
+  }
 }
 void TabNoStat::informMeshByApex(const AMesh* amesh) const
 {
-    for (const auto &e : _items)
-    {
-        e.second->informMeshByApex(amesh);
-    }
-
+  for (const auto& e: _items)
+  {
+    e.second->informMeshByApex(amesh);
+  }
 }
 void TabNoStat::informDbIn(const Db* dbin) const
 {
-    for (const auto &e : _items)
-    {
-        e.second->informDbIn(dbin);
-    }
+  for (const auto& e: _items)
+  {
+    e.second->informDbIn(dbin);
+  }
 }
-void TabNoStat::informDbOut(const Db* dbout) const 
+void TabNoStat::informDbOut(const Db* dbout) const
 {
-    for (const auto &e : _items)
-    {
-        e.second->informDbOout(dbout);
-    }
-}
-
-void TabNoStat::informMeshByMesh(const AMesh* amesh, const EConsElem & econs) const
-{
-    for (const auto &e : _items)
-    {
-        if (e.first.getType() == econs)
-            e.second->informMeshByMesh(amesh);
-    }
+  for (const auto& e: _items)
+  {
+    e.second->informDbOout(dbout);
+  }
 }
 
-void TabNoStat::informMeshByApex(const AMesh* amesh, const EConsElem & econs) const
+void TabNoStat::informMeshByMesh(const AMesh* amesh, const EConsElem& econs) const
 {
-    for (const auto &e : _items)
-    {
-        if (e.first.getType() == econs)
-            e.second->informMeshByApex(amesh);
-    }
+  for (const auto& e: _items)
+  {
+    if (e.first.getType() == econs)
+      e.second->informMeshByMesh(amesh);
+  }
+}
 
-}
-void TabNoStat::informDbIn(const Db* dbin, const EConsElem & econs) const
+void TabNoStat::informMeshByApex(const AMesh* amesh, const EConsElem& econs) const
 {
-    for (const auto &e : _items)
-    {
-        if (e.first.getType() == econs)
-            e.second->informDbIn(dbin);
-    }
+  for (const auto& e: _items)
+  {
+    if (e.first.getType() == econs)
+      e.second->informMeshByApex(amesh);
+  }
 }
-void TabNoStat::informDbOut(const Db* dbout, const EConsElem & econs) const
+void TabNoStat::informDbIn(const Db* dbin, const EConsElem& econs) const
 {
-    for (const auto &e : _items)
-    {
-        if (e.first.getType() == econs)
-            e.second->informDbOout(dbout);
-    }
+  for (const auto& e: _items)
+  {
+    if (e.first.getType() == econs)
+      e.second->informDbIn(dbin);
+  }
+}
+void TabNoStat::informDbOut(const Db* dbout, const EConsElem& econs) const
+{
+  for (const auto& e: _items)
+  {
+    if (e.first.getType() == econs)
+      e.second->informDbOout(dbout);
+  }
 }
 
 TabNoStat::~TabNoStat()
 {
-
 }

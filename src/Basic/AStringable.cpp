@@ -568,12 +568,27 @@ String toMatrix(const String& title,
                 bool bycol,
                 int nrows,
                 int ncols,
-                const VectorDouble &tab,
+                const VectorDouble& tab,
                 bool flagOverride,
                 bool flagSkipZero)
 {
   std::stringstream sstr;
   if (tab.empty() || ncols <= 0 || nrows <= 0) return sstr.str();
+
+  return toMatrix(title, colnames, rownames, bycol, nrows, ncols, tab.data(),
+                  flagOverride, flagSkipZero);
+}
+  String toMatrix(const String& title,
+                  const VectorString& colnames,
+                  const VectorString& rownames,
+                  bool bycol,
+                  int nrows,
+                  int ncols,
+                  const double* tab,
+                  bool flagOverride,
+                  bool flagSkipZero)
+{
+  std::stringstream sstr;
 
   /* Initializations */
 

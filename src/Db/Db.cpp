@@ -29,6 +29,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/GlobalEnvironment.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Stats/Classical.hpp"
 #include "Matrix/Table.hpp"
 #include "Matrix/MatrixRectangular.hpp"
@@ -333,9 +334,8 @@ int Db::getUIDByLocator(const ELoc& locatorType, int locatorIndex) const
 int Db::getColIdxByLocator(const ELoc& locatorType, int locatorIndex) const
 {
   const PtrGeos& p = _p[locatorType.getValue()];
-  int number = p.getNLoc();
-  if (number <= 0 || locatorIndex >= number)
-    return -1;
+  int number       = p.getNLoc();
+  if (number <= 0 || locatorIndex >= number) return -1;
   int icol = getColIdxByUID(p.getLocatorByIndex(locatorIndex));
   return (icol);
 }
@@ -942,7 +942,7 @@ MatrixRectangular Db::getAllCoordinatesMat(const MatrixRectangular& box) const
   int nech = getNSample(true);
   int ndim = getNDim();
 
-  VectorInt ranks = getRanksActive();
+  VectorInt ranks = getSampleRanksPerVariable();
 
   // Suppress some data due to bounds
   int nechValid = 0;
@@ -3559,16 +3559,16 @@ VectorVectorInt Db::getSampleRanks(const VectorInt& ivars,
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int jvar    = jvars[ivar];
-    index[ivar] = getRanksActive(nbgh, jvar, useSel, useZ, useVerr);
+    index[ivar] = getSampleRanksPerVariable(nbgh, jvar, useSel, useZ, useVerr);
   }
   return index;
 }
 
-VectorInt Db::getRanksActive(const VectorInt& nbgh,
-                             int item,
-                             bool useSel,
-                             bool useZ,
-                             bool useVerr) const
+VectorInt Db::getSampleRanksPerVariable(const VectorInt& nbgh,
+                                        int item,
+                                        bool useSel,
+                                        bool useZ,
+                                        bool useVerr) const
 {
   double value;
   int nech_tot = getNSample();
@@ -3608,15 +3608,14 @@ VectorInt Db::getRanksActive(const VectorInt& nbgh,
     // Check against the existence of a target variable
     if (useZ && item >= 0)
     {
-      value = getZVariable(iabs, item);
+      value = getFromLocator(ELoc::Z, iabs, item);
       if (FFFF(value)) continue;
     }
 
     // Check against the validity of the Variance of Measurement Error
-    // variable
     if (useV)
     {
-      value = getLocVariable(ELoc::V, iabs, item);
+      value = getFromLocator(ELoc::V, iabs, item);
       if (FFFF(value) || value < 0) continue;
     }
 
@@ -5046,7 +5045,7 @@ int Db::resetReduce(const Db* dbin,
   if (ranksel.empty())
   {
     if (dbin->hasLocVariable(ELoc::SEL))
-      ranksel = dbin->getRanksActive();
+      ranksel = dbin->getSampleRanksPerVariable();
     else
       ranksel = VH::sequence(dbin->getNSample());
   }
@@ -5567,6 +5566,70 @@ Db* Db::createFillRandom(int ndat,
   return db;
 }
 
+Db* Db::createEmpty(int ndat,
+                    int ndim,
+                    int nvar,
+                    int nfex,
+                    int ncode,
+                    bool flagVerr,
+                    bool flagSel,
+                    bool flagAddSampleRank)
+{
+  // Create the Db
+  Db* db = Db::create();
+
+  // Add the sample rank attribute
+  if (flagAddSampleRank) db->_addRank(ndat);
+
+  // Generate the vector of coordinates
+  VectorVectorDouble coor(ndim);
+  for (int idim = 0; idim < ndim; idim++)
+    coor[idim] = VectorDouble(ndat, 0.);
+  db->addColumnsByVVD(coor, "x", ELoc::X);
+
+  // Generate the Vectors of Variance of measurement error (optional)
+  if (flagVerr)
+  {
+    VectorVectorDouble varm(nvar);
+    for (int ivar = 0; ivar < nvar; ivar++)
+      varm[ivar] = VectorDouble(ndat, 0.);
+    db->addColumnsByVVD(varm, "v", ELoc::V);
+  }
+
+  // Generate the External Drift functions (optional)
+  if (nfex > 0)
+  {
+    VectorVectorDouble fex(nfex);
+    for (int ifex = 0; ifex < nfex; ifex++)
+      fex[ifex] = VectorDouble(ndat, 0.);
+    db->addColumnsByVVD(fex, "f", ELoc::F);
+  }
+
+  // Generate the selection (optional)
+  if (flagSel)
+  {
+    VectorDouble sel(ndat);
+    sel.fill(1.);
+    db->addColumns(sel, "sel", ELoc::SEL);
+  }
+
+  // Generate the variables
+  VectorVectorDouble vars(nvar);
+  for (int ivar = 0; ivar < nvar; ivar++)
+    vars[ivar] = VectorDouble(ndat, 0.);
+  db->addColumnsByVVD(vars, "z", ELoc::Z);
+
+  // Generate the code (optional)
+  if (ncode > 0)
+  {
+    VectorDouble codes(ndat);
+    codes.fill(0.);
+    db->addColumns(codes, "code", ELoc::C);
+  }
+
+  return db;
+}
+
 Table Db::printOneSample(int iech,
                          const VectorString& names,
                          bool excludeCoordinates,
@@ -5609,4 +5672,24 @@ void Db::copyByCol(int icolIn, int icolOut)
 
   for (int iech = 0, nech = getNSample(); iech < nech; iech++)
     _array[_getAddress(iech, icolOut)] = _array[_getAddress(iech, icolIn)];
+}
+
+void Db::dumpGeometry(int iech, int jech) const
+{
+  int ndim = getNDim();
+  SpacePoint P1(ndim);
+  SpacePoint P2(ndim);
+  getSampleAsSPInPlace(P1, iech);
+  getSampleAsSPInPlace(P2, jech);
+
+  message("Comparing samples #%d and #%d\n", iech, jech);
+
+  double dist = P1.getDistance(P2);
+  message("- Distance = %lf\n", dist);
+
+  VectorDouble incr = P1.getIncrement(P2);
+  VH::dump("- Increments = ", incr, false);
+
+  VectorDouble angles = GH::rotationFromIncrements(incr, true);
+  VH::dump("- Angles (deg) = ", angles, false);
 }

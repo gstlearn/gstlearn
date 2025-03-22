@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovList.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovBase.hpp"
@@ -35,6 +36,7 @@ CovList::CovList(const CovContext& ctxt)
   , _allActiveCovList()
   , _activeCovList()
 {
+  _updateLists();
 }
 
 CovList::CovList(const CovList& r)
@@ -65,8 +67,8 @@ CovList& CovList::operator=(const CovList& r)
     _allActiveCov     = r._allActiveCov;
     _allActiveCovList = r._allActiveCovList;
     _activeCovList    = r._activeCovList;
-    _updateLists();
   }
+  _updateLists();
   return *this;
 }
 
@@ -140,14 +142,29 @@ void CovList::delAllCov()
   _delAllCov();
 }
 
-bool CovList::isNoStat() const
+bool CovList::_isNoStat() const
 {
-  bool nostat = false;
-  for (const auto& e: _covs)
-  {
-    nostat = nostat || e->isNoStat();
-  }
-  return nostat;
+  // return true if any of the covariances is not stationary
+  return std::ranges::any_of(_covs, [](const auto& e) { return e->isNoStat(); });
+}
+
+void CovList::_makeStationary()
+{
+  for (auto& e: _covs)
+    e->makeStationary();
+}
+
+int CovList::_makeElemNoStat(const EConsElem& econs,
+                             int iv1,
+                             int iv2,
+                             const AFunctional* func,
+                             const Db* db,
+                             const String& namecol)
+{
+  DECLARE_UNUSED(econs, iv1, iv2, func, db, namecol)
+  messerr("Error: CovList::_makeElemNoStat is not impemented for this classe");
+  messerr("Non-stationarities have to be specified to each elementary covariance");
+  return 1;
 }
 
 bool CovList::isConsistent(const ASpace* /*space*/) const
@@ -190,7 +207,12 @@ int CovList::addEvalCovVecRHSInPlace(vect vect,
   CovCalcMode mode(ECalcMember::RHS);
   const VectorInt& list = _getListActiveCovariances(&mode);
   for (const auto& j: list.getVector())
-    _covs[j]->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda);
+  {
+    if (_covs[j]->isOptimEnabled())
+      _covs[j]->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda);
+    else
+      _covs[j]->ACov::addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda);
+  }
   return 0;
 }
 

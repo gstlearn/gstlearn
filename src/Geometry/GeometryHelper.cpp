@@ -405,6 +405,49 @@ VectorDouble GeometryHelper::rotationGetAngles(const VectorDouble &codir,
   return angles;
 }
 
+/**
+ * @brief Returns the set of angles for the rotation (in radians)
+ * 
+ * @param incr Vector of increment values along main space axes
+ * @param flagDegree when TRUE, convert into degrees; otherwise in radians
+ * @return VectorDouble 
+ */
+VectorDouble GeometryHelper::rotationFromIncrements(const VectorDouble& incr, bool flagDegree)
+{
+  VectorDouble angles;
+  int ndim = (int) incr.size();
+  if (ndim == 1 || ndim > 3)
+  {
+    messerr("This function only makes sense when NDIM (%d) = 2 or 3", ndim);
+    return angles;
+  }
+
+  if (ndim == 2)
+  {
+    double theta = atan2(incr[1], incr[0]);
+    if (flagDegree) theta = ut_rad2deg(theta);
+    angles.push_back(theta);
+    angles.push_back(0.); // To make the number of returned values equal to 2 for 2D
+  }
+  else
+  {
+    // Yaw (ψ) - Rotation autour de Z
+    double yaw = atan2(incr[1], incr[0]);
+    if (flagDegree) yaw = ut_rad2deg(yaw);
+    angles.push_back(yaw);
+
+    // Pitch (θ) - Rotation autour de Y
+    double pitch = atan2(-incr[2], sqrt(incr[0] * incr[0] + incr[1] * incr[1]));
+    if (flagDegree) pitch = ut_rad2deg(pitch);
+    angles.push_back(pitch);
+
+    // Roll (φ) - Rotation autour de X (fixé à 0 car non défini pour un simple vecteur)
+    double roll = 0.0;
+    angles.push_back(roll);
+  }
+  return angles;
+}
+
 /****************************************************************************/
 /*!
  **   Convert angles to a set of Directions

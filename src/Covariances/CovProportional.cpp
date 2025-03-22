@@ -32,6 +32,22 @@ CovProportional::CovProportional(ACov* cor,
     }
 }
 
+CovProportional::CovProportional(const CovProportional &r)
+: CovBase(r)
+{
+  _workMat = r._workMat;
+}
+
+CovProportional& CovProportional::operator=(const CovProportional &r)
+{
+  if (this != &r)
+  {
+    CovBase::operator=(r);
+    _workMat = r._workMat;
+  }
+  return *this;
+}
+
 CovProportional::~CovProportional()
 {
 
@@ -46,6 +62,7 @@ void CovProportional::setCor(ACov* cor)
   }
   CovBase::setCor(cor);
 }
+
 
 double CovProportional::_eval(const SpacePoint& p1, 
   const SpacePoint& p2,

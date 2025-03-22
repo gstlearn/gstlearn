@@ -9,30 +9,28 @@
 /*                                                                            */
 /******************************************************************************/
 #pragma once
+
 #include "Basic/ICloneable.hpp"
-#include "Covariances/CovBase.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
-class ACor;
-class AFunctional;
-class CovInternal;
+#include "Covariances/TabNoStat.hpp"
+#include "Enum/EConsElem.hpp"
 
-class GSTLEARN_EXPORT CovProportional: public CovBase
+class GSTLEARN_EXPORT TabNoStatSills : public TabNoStat
 {
-public:
-  CovProportional(ACov* cor = nullptr,const MatrixSquareSymmetric &sills = MatrixSquareSymmetric());
-  CovProportional(const CovProportional &r);
-  CovProportional& operator=(const CovProportional &r);
-  virtual ~CovProportional();
+  public:
+  TabNoStatSills();
+  TabNoStatSills(const TabNoStatSills &m);
+  TabNoStatSills& operator= (const TabNoStatSills &m);
+  virtual ~TabNoStatSills();
 
-  void setCor(ACov* cor) override;
-  IMPLEMENT_CLONING(CovProportional)
+  IMPLEMENT_CLONING(TabNoStatSills)
+
+  bool isDefinedForVariance() const;
+  int getNSills()  const;
+ 
+  String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toStringInside(const AStringFormat* strfmt = nullptr,int i = 0) const;
 protected:
-  double _eval(const SpacePoint& p1, 
-               const SpacePoint& p2,
-               int ivar = 0, 
-               int jvar = 0, 
-               const CovCalcMode* mode = nullptr) const override;
-protected:
-    mutable MatrixSquareGeneral _workMat;
+private:
+  bool _isValid(const EConsElem &econs) const override;
+
 };

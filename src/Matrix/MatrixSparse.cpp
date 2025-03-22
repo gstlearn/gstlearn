@@ -582,6 +582,7 @@ MatrixSparse* MatrixSparse::create(int nrow, int ncol)
 MatrixSparse* MatrixSparse::createFromTriplet(const NF_Triplet &NF_T,
                                               int nrow,
                                               int ncol,
+                                              int nrowmax, 
                                               int opt_eigen)
 {
   // If 'nrow' a  nd 'ncol' are not defined, derive them from NF_T
@@ -590,7 +591,7 @@ MatrixSparse* MatrixSparse::createFromTriplet(const NF_Triplet &NF_T,
     nrow = NF_T.getNRows() + 1;
     ncol = NF_T.getNCols() + 1;
   }
-  MatrixSparse* mat = new MatrixSparse(nrow, ncol, -1, opt_eigen);
+  MatrixSparse* mat = new MatrixSparse(nrow, ncol, nrowmax, opt_eigen);
 
   mat->resetFromTriplet(NF_T);
 
@@ -601,7 +602,7 @@ MatrixSparse* MatrixSparse::addMatMat(const MatrixSparse *x,
                                       const MatrixSparse *y,
                                       double cx, double cy)
 {
-  MatrixSparse* mat = new MatrixSparse(x->getNRows(), x->getNCols(), x->isFlagEigen());
+  MatrixSparse* mat = new MatrixSparse(x->getNRows(), x->getNCols(), -1, x->isFlagEigen());
   if (x->isFlagEigen() && y->isFlagEigen())
   {
     mat->_eigenMatrix = cx * x->_eigenMatrix + cy * y->_eigenMatrix;
@@ -1373,7 +1374,7 @@ MatrixSparse* createFromAnyMatrix(const AMatrix* matin, int opt_eigen)
   return MatrixSparse::createFromTriplet(matin->getMatrixToTriplet(),
                                          matin->getNRows(),
                                          matin->getNCols(),
-                                         opt_eigen);
+                                         -1, opt_eigen);
 }
 
 void setUpdateNonZeroValue(int status)
@@ -1485,15 +1486,15 @@ MatrixSparse* MatrixSparse::glue(const MatrixSparse *A1,
   int nrow = (flagShiftRow) ? A1->getNRows() + A2->getNRows() : MAX(A1->getNRows(), A2->getNRows());
   int ncol = (flagShiftCol) ? A1->getNCols() + A2->getNCols() : MAX(A1->getNCols(), A2->getNCols());
 
-  return MatrixSparse::createFromTriplet(T1, nrow, ncol, A1->isFlagEigen() ? 1 : 0);
+  return MatrixSparse::createFromTriplet(T1, nrow, ncol, -1, A1->isFlagEigen() ? 1 : 0);
 }
 
 /* Extract a sparse sub-matrix */
 /* 'rank_rows' and 'rank_cols' must have same dimension as C */
 /* The arrays 'rank_rows' and 'rank_cols' may be absent */
 /* Their value gives the rank of the saved element or -1 */
-MatrixSparse* MatrixSparse::extractSubmatrixByRanks(const VectorInt &rank_rows,
-                                                    const VectorInt &rank_cols) const
+MatrixSparse* MatrixSparse::extractSubmatrixByRanks(const VectorInt& rank_rows,
+                                                    const VectorInt& rank_cols) const
 {
   int old_row, old_col, new_row, new_col;
 
@@ -1570,7 +1571,7 @@ MatrixSparse* MatrixSparse::extractSubmatrixByColor(const VectorInt &colors,
     NF_Tout.add(ir, ic, NF_Tin.getValue(i));
   }
 
-  return MatrixSparse::createFromTriplet(NF_Tout,0,0, isFlagEigen() ? 1 : 0);
+  return MatrixSparse::createFromTriplet(NF_Tout, 0, 0, -1, isFlagEigen() ? 1 : 0);
 }
 
 /**
@@ -1700,3 +1701,33 @@ Eigen::SparseMatrix<double> AtMA(const Eigen::SparseMatrix<double>& A,
   return A.transpose() * M * A;
 }
 
+int MatrixSparse::forwardLU(const VectorDouble& b, VectorDouble& x, bool flagLower) const
+{
+  if (!isFlagEigen()) return 1;
+
+  Eigen::Map<const Eigen::VectorXd> bm(b.data(), b.size());
+  Eigen::Map<Eigen::VectorXd> xm(x.data(), x.size());
+
+  if (! flagLower)
+  {
+    const Eigen::SparseMatrix<double>& Lx = _eigenMatrix.transpose();
+    xm                                    = Lx.triangularView<Eigen::Upper>().solve(bm);
+  }
+  else
+  {
+    const Eigen::SparseMatrix<double>& Lx = _eigenMatrix;
+    xm                                    = Lx.triangularView<Eigen::Lower>().solve(bm);
+  }
+
+  return 0;
+}
+
+void MatrixSparse::forceDimension(int maxRows, int maxCols)
+{
+  // Redimensionner les matrices si nécessaire
+  if (_eigenMatrix.rows() < maxRows || _eigenMatrix.cols() < maxCols)
+  {
+    _eigenMatrix.conservativeResize(maxRows, maxCols);
+    _eigenMatrix.insert(maxRows - 1, maxCols - 1) = 0.0; // Élément fictif
+  }
+} 

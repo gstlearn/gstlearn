@@ -14,8 +14,6 @@
 #include "Basic/OptCst.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovAnisoList.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"

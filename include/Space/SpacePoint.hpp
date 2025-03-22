@@ -50,11 +50,11 @@ public:
 
   /// Move me by the given vector
   void move(const VectorDouble& vec);
-  /// Return the distance between me and another point
+  /// Return the distance between 'this' and another point
   double getDistance(const SpacePoint& pt, int ispace = -1) const;
-  /// Return all the distance (space composits) between me and another point
+  /// Return all the distance (space composits) between 'this' and another point
   VectorDouble getDistances(const SpacePoint& pt) const;
-  /// Return the increment vector between me and another point
+  /// Return the increment vector between 'this' and another point
   VectorDouble getIncrement(const SpacePoint& pt, int ispace = -1) const;
   /// Fill with TEST values to simulate a missing Space Point
   void setFFFF();

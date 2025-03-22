@@ -67,6 +67,7 @@ set(SRC
   Calculators/CalcSimuPostDemo.cpp
   Calculators/CalcSimuPostPropByLayer.cpp
   Covariances/TabNoStatCovAniso.cpp
+  Covariances/TabNoStatSills.cpp
   Covariances/TabNoStat.cpp
   Covariances/ParamId.cpp
   Covariances/CovBase.cpp
@@ -318,6 +319,7 @@ set(SRC
   Estimation/CalcImage.cpp
   Estimation/CalcGlobal.cpp
   Estimation/KrigOpt.cpp
+  Estimation/Vecchia.cpp
   OutputFormat/AOF.cpp
   OutputFormat/GridIfpEn.cpp
   OutputFormat/GridEclipse.cpp

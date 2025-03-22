@@ -52,8 +52,8 @@ private:
                const MatrixSquareGeneral& tls,
                const double* b,
                double* x);
-  int     _forwardLU(const MatrixSquareGeneral& tls, const double *b, double *x, double eps = EPSILON20);
-  int     _backwardLU(const MatrixSquareGeneral& tus, const double *b, double *x, double eps = EPSILON20);
+  int _forwardLU(const MatrixSquareGeneral& tls, const double* b, double* x, double eps = EPSILON20);
+  int _backwardLU(const MatrixSquareGeneral& tus, const double* b, double* x, double eps = EPSILON20);
 };
 
 /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' */
