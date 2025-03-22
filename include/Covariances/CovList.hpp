@@ -69,7 +69,7 @@ public:
   void delCov(int icov);
   // Remove all elementary covariance structures
   void delAllCov();
-  #ifndef SWIG
+#ifndef SWIG
   int addEvalCovVecRHSInPlace(vect vect,
                               const VectorInt& index1,
                               int iech2,
@@ -78,14 +78,14 @@ public:
                               SpacePoint& pout,
                               VectorDouble& tabwork,
                               double lambda = 1) const override;
-  #endif
+#endif
   void setCovFiltered(int icov, bool filtered);
   int getNCov() const;
   bool isFiltered(int icov) const;
   virtual double getTotalSill(int ivar = 0, int jvar = 0) const;
   MatrixSquareSymmetric getTotalSills() const;
   bool isAllActiveCovList() const;
-  
+
   void setOptimEnabled(bool flag) const override;
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
@@ -126,7 +126,15 @@ protected:
                        const CovCalcMode* mode = nullptr) const override;
 
 private:
-  virtual void _attachNoStatDb(const Db* db) override;
+  void _makeStationary() override;
+
+  int _makeElemNoStat(const EConsElem& econs,
+                      int iv1,
+                      int iv2,
+                      const AFunctional* func = nullptr,
+                      const Db* db            = nullptr,
+                      const String& namecol   = String()) override;
+
   bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;
   virtual void _delCov(int icov) { DECLARE_UNUSED(icov) };

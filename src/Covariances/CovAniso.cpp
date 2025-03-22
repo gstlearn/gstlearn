@@ -342,7 +342,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
   {
     sstr << toTitle(1, "Non-Stationary Parameters");
     sstr << _tabNoStat->toString(strfmt);
-    int i = _tabNoStat->getNSills();
+    int i = getTabNoStatSills()->getNSills();
     sstr << getCorAniso()->toStringNoStat(strfmt, i);
   }
   return sstr.str();

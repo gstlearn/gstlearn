@@ -206,8 +206,8 @@ public:
                                   const int iech2        = -1,
                                   const KrigOpt& krigopt = KrigOpt(),
                                   bool cleanOptim        = true) const;
-  
-  #ifndef SWIG              
+
+#ifndef SWIG
   int evalCovVecRHSInPlace(vect vect,
                            const Db* db2,
                            const VectorInt& index1,
@@ -225,7 +225,7 @@ public:
                                       SpacePoint& pout,
                                       VectorDouble& tabwork,
                                       double lambda = 1.) const;
-  #endif
+#endif
   /////////////////////////////////////////////////////////////////////////////////
   void eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat, const CovCalcMode* mode) const;
 
@@ -436,8 +436,8 @@ public:
     DECLARE_UNUSED(econs, iv1, iv2)
     return TEST;
   }
-  virtual void makeStationary();
-  virtual int makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String());
+  void makeStationary();
+  int makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String());
   void createNoStatTab();
   void informMeshByMesh(const AMesh* amesh) const;
   void informMeshByApex(const AMesh* amesh) const;
@@ -457,17 +457,17 @@ public:
   int getNDim(int ispace = -1) const { return _ctxt.getNDim(ispace); }
   void optimizationPreProcessForData(const Db* db1 = nullptr) const;
   virtual void setOptimEnabled(bool enabled) const { _optimEnabled = enabled; }
-  
+
   bool checkAndManageNoStatDb(const Db*& db, const String& namecol);
 
-  private:
+private:
   virtual void _setContext(const CovContext& ctxt) { DECLARE_UNUSED(ctxt); }
   virtual void _manage(const Db* db1, const Db* db2) const
   {
     DECLARE_UNUSED(db1)
     DECLARE_UNUSED(db2)
   }
-  
+
   virtual void _load(const SpacePoint& p, bool option) const;
   virtual void _attachNoStatDb(const Db* db);
 
@@ -497,7 +497,7 @@ public:
   virtual TabNoStat* _createNoStatTab();
 
 protected:
- void _setNoStatDbIfNecessary(const Db*& db);
+  void _setNoStatDbIfNecessary(const Db*& db);
   void setNVar(int nvar) { _ctxt.setNVar(nvar); }
   virtual void _optimizationSetTarget(SpacePoint& pt) const;
   virtual void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const;
@@ -522,6 +522,13 @@ protected:
                        const CovCalcMode* mode = nullptr) const = 0;
 
 private:
+  virtual void _makeStationary();
+  virtual int _makeElemNoStat(const EConsElem& econs,
+                              int iv1,
+                              int iv2,
+                              const AFunctional* func = nullptr,
+                              const Db* db            = nullptr,
+                              const String& namecol   = String());
   virtual void _copyCovContext(const CovContext& ctxt)
   {
     DECLARE_UNUSED(ctxt)
@@ -536,7 +543,8 @@ private:
                            const VectorDouble& x0     = VectorDouble()) const;
   Db* _discretizeBlockRandom(const DbGrid* dbgrid, int seed = 34131) const;
   double _getVolume(const VectorDouble& ext) const;
-  virtual bool _isNoStat() const { return false;}
+  virtual bool _isNoStat() const { return false; }
+
 protected:
   CovContext _ctxt;
   mutable bool _optimEnabled;

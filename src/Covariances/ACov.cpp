@@ -48,7 +48,6 @@ ACov::ACov(const CovContext& ctxt)
   , _pAux(ctxt.getSpace())
   , _tabNoStat(nullptr)
 {
-  createNoStatTab();
 }
 
 ACov::ACov(const ACov& r)
@@ -1891,8 +1890,20 @@ void ACov::setNoStatDbIfNecessary(const Db*& db)
 void ACov::makeStationary()
 {
   _tabNoStat->clear();
+  _tabNoStat->setDbNoStatRef(nullptr);
+  _makeStationary();
 }
+
+void ACov::_makeStationary()
+{
+}
+
 int ACov::makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func, const Db* db, const String& namecol)
+{
+  return _makeElemNoStat(econs, iv1, iv2, func, db, namecol);
+}
+
+int ACov::_makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func, const Db* db, const String& namecol)
 {
   std::shared_ptr<ANoStat> ns;
   if (func == nullptr)

@@ -13,6 +13,7 @@
 #include "Basic/ICloneable.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStat.hpp"
+#include "Covariances/TabNoStatSills.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -60,11 +61,11 @@ public:
   void makeSillsStationary(bool silent = false);
   void makeSillNoStatFunctional(const AFunctional* func, int ivar = 0, int jvar = 0);
 
-  void makeStationary() override;
+  TabNoStatSills* getTabNoStatSills() const { return (TabNoStatSills*)_tabNoStat; }
 
-  int getNSills() const { return _tabNoStat->getNSills(); }
+  int getNSills() const { return getTabNoStatSills()->getNSills(); }
 
-  bool isNoStatForVariance() const { return _tabNoStat->isDefinedForVariance(); }
+  bool isNoStatForVariance() const { return getTabNoStatSills()->isDefinedForVariance(); }
 
   void informMeshByMesh(const AMesh* amesh) const;
   void informMeshByApex(const AMesh* amesh) const;
@@ -103,7 +104,7 @@ public:
   }
 protected:
   void _attachNoStatDb(const Db* db) override;
-  void _makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String());
+  int _makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String()) override;
 
   void _manage(const Db* db1, const Db* db2) const override;
 
@@ -118,6 +119,9 @@ protected:
   void _copyCovContext(const CovContext& ctxt) override;
 
 private:
+  void _makeStationary() override;
+  TabNoStat* _createNoStatTab() override;
+
   bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;
 

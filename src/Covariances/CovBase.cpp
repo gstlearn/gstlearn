@@ -14,6 +14,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Covariances/TabNoStatSills.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Db/Db.hpp"
@@ -43,6 +44,8 @@ CovBase::CovBase(ACov* cor,
   , _sillCur(sill)
   , _cor(cor)
 {
+  createNoStatTab();
+
   _ctxt.setNVar(sill.getNSize());
   for (size_t i = 0, n = getNVar(); i < n; i++)
   {
@@ -291,17 +294,18 @@ void CovBase::_attachNoStatDb(const Db* db)
   _cor->attachNoStatDb(db);
 }
 
-void CovBase::_makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func, const Db* db, const String& namecol)
+int CovBase::_makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func, const Db* db, const String& namecol)
 {
+  _cor->attachNoStatDb(db);
   if (func == nullptr)
   {
-    if (!checkAndManageNoStatDb(db, namecol)) return;
+    if (!checkAndManageNoStatDb(db, namecol)) return 1;
   }
 
   if (econs != EConsElem::SILL)
   {
     _cor->makeElemNoStat(econs, iv1, iv2, func, db, namecol);
-    return;
+    return 0;
   }
 
   std::shared_ptr<ANoStat> ns;
@@ -315,6 +319,7 @@ void CovBase::_makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AF
   }
 
   _tabNoStat->addElem(ns, econs, iv1, iv2);
+  return 0;
 }
 
 ///////////////////// Sill ////////////////////////
@@ -334,7 +339,7 @@ void CovBase::makeSillNoStatFunctional(const AFunctional* func, int ivar, int jv
 
 void CovBase::makeSillsStationary(bool silent)
 {
-  if (_tabNoStat->getNSills() == 0 && !silent)
+  if (getTabNoStatSills()->empty() && !silent)
   {
     messerr("All the sills are already stationary!");
     return;
@@ -497,10 +502,13 @@ void CovBase::updateCovByMesh(int imesh, bool aniso) const
   _cor->updateCovByMesh(imesh, aniso);
 }
 
-void CovBase::makeStationary()
+TabNoStat* CovBase::_createNoStatTab()
+{
+  return new TabNoStatSills();
+}
+void CovBase::_makeStationary()
 {
   _cor->makeStationary();
-  makeSillsStationary(true);
 }
 
 void CovBase::_manage(const Db* db1, const Db* db2) const

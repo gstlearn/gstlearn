@@ -12,7 +12,6 @@
 #include "Basic/AFunctional.hpp"
 #include "Basic/AStringFormat.hpp"
 #include "Covariances/ACov.hpp"
-#include "Covariances/TabNoStat.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/NoStatArray.hpp"
@@ -721,8 +720,8 @@ void CorAniso::_initFromContext()
   int ndim = getNDim();
   _aniso.init(ndim);
   updateFromContext();
-  createNoStatTab();
   setOptimEnabled(true);
+  _createNoStatTab();
 }
 
 void CorAniso::_updateFromContext()

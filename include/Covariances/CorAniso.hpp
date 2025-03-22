@@ -222,7 +222,6 @@ public:
   bool isNoStatForParam() const { return getTabNoStatCovAniso()->isParam(); }
   bool isNoStatForTensor() const { return getTabNoStatCovAniso()->isDefinedForTensor(); }
   bool isNoStatForAnisotropy() const { return getTabNoStatCovAniso()->isDefinedForAnisotropy(); }
-  bool isNoStatForVariance() const { return getTabNoStatCovAniso()->isDefinedForVariance(); }
   bool isNoStatForRotation() const { return getTabNoStatCovAniso()->isDefinedForRotation(); }
 
   VectorDouble evalCovOnSphereVec(const VectorDouble& alpha,

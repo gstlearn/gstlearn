@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovList.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovBase.hpp"
@@ -147,12 +148,23 @@ bool CovList::_isNoStat() const
   return std::ranges::any_of(_covs, [](const auto& e) { return e->isNoStat(); });
 }
 
-void CovList::_attachNoStatDb(const Db* db) 
+void CovList::_makeStationary()
 {
-  for (auto &e:_covs)
-  {
-    e->attachNoStatDb(db);
-  }
+  for (auto& e: _covs)
+    e->makeStationary();
+}
+
+int CovList::_makeElemNoStat(const EConsElem& econs,
+                             int iv1,
+                             int iv2,
+                             const AFunctional* func,
+                             const Db* db,
+                             const String& namecol)
+{
+  DECLARE_UNUSED(econs, iv1, iv2, func, db, namecol)
+  messerr("Error: CovList::_makeElemNoStat is not impemented for this classe");
+  messerr("Non-stationarities have to be specified to each elementary covariance");
+  return 1;
 }
 
 bool CovList::isConsistent(const ASpace* /*space*/) const
