@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.10.9"
+__generated_with = "0.11.25"
 app = marimo.App()
 
 
@@ -27,17 +27,38 @@ def _(gmo):
     return (WidgetDb,)
 
 
+@app.cell
+def _(mo):
+    mo.sidebar(
+        [
+            mo.md("# mon menu"),
+            mo.nav_menu(
+                {
+                    "#/home": f"{mo.icon('lucide:home')} Home",
+                    "#/about": f"{mo.icon('lucide:user')} About",
+                    "#/contact": f"{mo.icon('lucide:phone')} Contact",
+                    "Links": {
+                        "https://twitter.com/marimo_io": "Twitter",
+                        "https://github.com/marimo-team/marimo": "GitHub",
+                    },
+                },
+                orientation="vertical",
+            ),
+        ]
+    )
+    return
+
+
 @app.cell(hide_code=True)
 def _(WidgetDb, gmo):
-    WDbLayout = gmo.WshowDb(WidgetDb)
-    WDbLayout
-    return (WDbLayout,)
+    gmo.WshowDb(WidgetDb)
+    return
 
 
 @app.cell(hide_code=True)
-def _(WDbLayout, WidgetDb, gmo, gp):
+def _(WidgetDb, gmo, gp):
     def myplot():
-        db = gmo.WgetDb(WidgetDb, WDbLayout.value)
+        db = gmo.WgetDb(WidgetDb)
 
         fig = None
         if db is not None:

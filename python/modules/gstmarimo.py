@@ -401,7 +401,7 @@ def WgetDb(WAll):
         db = None
 
     if db is None:
-        print("You must define a valid Db")
+        print("You must define a valid Db beforehand")
 
     return db
 
