@@ -76,10 +76,12 @@ def create(nvar = 1, multistruct = True, nostatType = "Fake",nx1 = [4,4],nx2 = [
             rho = (eps + grid["x1"]-np.min(grid["x1"])) / (eps + np.max(grid["x1"])-np.min(grid["x1"]))
             rho = logit(rho,20,10)
             grid["rho"] = rho * np.sqrt(s11*s21) * p + s121 * (1-p)
-            modelMulti.getCovAniso(0).makeSillNoStatDb("rho",0,1,grid)
+            modelMulti.getCovAniso(0).attachNoStatDb(grid)
+            modelMulti.getCovAniso(0).makeSillNoStatDb("rho",0,1)
         if nvar == 3:
             grid["rho"] = sills1[0,1] * np.ones_like(grid["rank"])
-            modelMulti.getCovAniso(0).makeSillNoStatDb("rho",0,1,grid)
+            modelMulti.getCovAniso(0).attachNoStatDb(grid)
+            modelMulti.getCovAniso(0).makeSillNoStatDb("rho",0,1)
        
     return modelMulti,meshes
 
