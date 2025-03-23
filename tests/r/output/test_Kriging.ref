@@ -1,11 +1,3 @@
-
-Attaching package: ‘gstlearn’
-
-The following objects are masked from ‘package:base’:
-
-    message, toString
-
-
 SK Nvar:1 Order:-1 Nfex:0 Unique:FALSE Hetero:FALSE in_sel:FALSE out_sel:FALSE
 ------------------------------------------------------------------------------
 Test passed

@@ -3,14 +3,14 @@
 #' Test of the kriging template
 #' -----------------------------------------------------------------------------
 rm(list = ls())
-library(gstlearn)
+suppressWarnings(suppressMessages(library(gstlearn)))
 #' -----------------------------------------------------------------------------
 #' Function for kriging by hand:
 #' -----------------------------------------------------------------------------
-test_kriging <- function(dbin, dbout, model, neigh, 
-    calcul = EKrigOpt_POINT(), order, 
-    flag_est = TRUE, flag_std = TRUE, flag_varz = FALSE,
-    prefix = "test_kriging") {
+test_kriging <- function(dbin, dbout, model, neigh,
+                         calcul = EKrigOpt_POINT(), order,
+                         flag_est = TRUE, flag_std = TRUE, flag_varz = FALSE,
+                         prefix = "test_kriging") {
 
   nm_var = dbin$getNamesByLocator(ELoc_Z())
   nvar = length(nm_var)
@@ -28,21 +28,21 @@ test_kriging <- function(dbin, dbout, model, neigh,
     res_varz = matrix(NaN, nrow = dbout$getNSample(useSel = FALSE), ncol = nvar)
   }
   # --------------------------
-  # Initialization 
+  # Initialization
   # --------------------------
-  err     = neigh$attach(dbin, dbout)
-  Sigma   = MatrixSquareSymmetric()
-  X       = MatrixRectangular()
-  Z       = VectorDouble()
-  Sigma0  = MatrixRectangular()
-  X0      = MatrixRectangular()
-  Kcalc   = KrigingAlgebra()
-  krigopt = KrigOpt()
-  id_neigh = VectorInt()
+  err         = neigh$attach(dbin, dbout)
+  Sigma       = MatrixSquareSymmetric()
+  X           = MatrixRectangular()
+  Z           = VectorDouble()
+  Sigma0      = MatrixRectangular()
+  X0          = MatrixRectangular()
+  Kcalc       = KrigingAlgebra()
+  krigopt     = KrigOpt()
+  id_neigh    = VectorInt()
   sampleRanks = VectorVectorInt()
 
-  Sigma00 = model$eval0Mat()
-  err     = Kcalc$setVariance(Sigma00)
+  Sigma00     = model$eval0Mat()
+  err         = Kcalc$setVariance(Sigma00)
   # --------------------------
   # Loop on the target sites
   # --------------------------
@@ -53,41 +53,41 @@ test_kriging <- function(dbin, dbout, model, neigh,
     # ----------------------
     if ((iout == 1)|(neigh$getType()$getDescr() != "Unique Neighborhood")) {
       err = neigh$getNeigh(iech_out = iech_out[iout]-1, ranks = id_neigh)
-      sampleRanks = dbin$getSampleRanks(nbgh = id_neigh)
+                           sampleRanks = dbin$getSampleRanks(nbgh = id_neigh)
       Z = dbin$getValuesByRanks(sampleRanks, means = model$getMeans(),
-          subtractMean = !model$hasDrift())
+                                subtractMean = !model$hasDrift())
       err = model$evalCovMatSymInPlaceFromIdx(mat = Sigma, db1 = dbin,
-          index1 = sampleRanks)
+                                              index1 = sampleRanks)
       err = Kcalc$resetNewData()
       if (order == -1) {
         err = Kcalc$setData(Z = Z, indices = sampleRanks,
-	   Means = model$getMeans())
+                            Means = model$getMeans())
         err = Kcalc$setLHS(Sigma)
       } else {
         err = Kcalc$setData(Z = Z, indices = sampleRanks)
-	err = model$evalDriftMatByRanks(mat = X, db = dbin, sampleRanks,
-	         member = ECalcMember_fromKey("LHS"))
+        err = model$evalDriftMatByRanks(mat = X, db = dbin, sampleRanks,
+                                        member = ECalcMember_fromKey("LHS"))
         err = Kcalc$setLHS(Sigma, X)
       }
     }
-    
+
     # ----------------------
     # computing RHS
     # ----------------------
-    err = model$evalCovMatRHSInPlaceFromIdx(mat=Sigma0, db1=dbin, db2 = dbout, 
-                                   index1 = sampleRanks,
-				   iech2 = iech_out[iout]-1, 
-                                   krigopt = krigopt, 
-                                   cleanOptim = FALSE)
+    err = model$evalCovMatRHSInPlaceFromIdx(mat=Sigma0, db1=dbin, db2 = dbout,
+                                            index1 = sampleRanks,
+                                            iech2 = iech_out[iout]-1,
+                                            krigopt = krigopt,
+                                            cleanOptim = FALSE)
     if (order == -1) {
       err = Kcalc$setRHS(Sigma0 = Sigma0)
     } else {
       err = model$evalDriftMatByTarget(mat = X0, db = dbout,
                                        iech2 = iech_out[iout]-1,
-   				       krigopt = krigopt)
+                                       krigopt = krigopt)
       err = Kcalc$setRHS(Sigma0 = Sigma0, X0 = X0)
     }
-    if(flag_est){
+    if (flag_est) {
       res_est[iech_out[iout],] = Kcalc$getEstimation()
     }
     if (flag_std) {
@@ -105,21 +105,21 @@ test_kriging <- function(dbin, dbout, model, neigh,
     nm = paste(prefix, nm_var, "estim", sep = ".")
     for (ivar in 1:nvar) {
       err = dbout$setColumn(tab = res_est[,ivar], name = nm[ivar],
-      useSel = FALSE)
+                            useSel = FALSE)
     }
   }
   if (flag_std) {
     nm = paste(prefix, nm_var, "stdev", sep = ".")
     for (ivar in 1:nvar) {
       err = dbout$setColumn(tab = res_std[,ivar], name = nm[ivar],
-      useSel = FALSE)
+                            useSel = FALSE)
     }
   }
   if (flag_varz) {
     nm = paste(prefix, nm_var, "varz", sep = ".")
     for (ivar in 1:nvar) {
       err = dbout$setColumn(tab = res_varz[,ivar], name = nm[ivar],
-      useSel = FALSE)
+                            useSel = FALSE)
     }
   }
   err
@@ -128,12 +128,12 @@ test_kriging <- function(dbin, dbout, model, neigh,
 #' -----------------------------------------------------------------------------
 #' Function for the tests
 #' -----------------------------------------------------------------------------
-performTest = function (ndim, cas, k, nvar, 
-                        flag.NA, flag.unique, flag.sel.out, flag.sel.in, verbose)
+performTest = function(ndim, cas, k, nvar,
+                      flag.NA, flag.unique, flag.sel.out, flag.sel.in, verbose)
 {
   order = cas[[k]]$order
   nfex  = cas[[k]]$nfex
-  
+
   # --------------------------------------------------------------------------
   # Do the test
   # --------------------------------------------------------------------------
@@ -144,18 +144,18 @@ performTest = function (ndim, cas, k, nvar,
   }
   err = mestitle(1, paste0(prefix,
                            " Nvar:", nvar, " Order:", order, " Nfex:", nfex,
-                           " Unique:", flag.unique, 
-                           " Hetero:", flag.NA, 
-                           " in_sel:", flag.sel.in, 
+                           " Unique:", flag.unique,
+                           " Hetero:", flag.NA,
+                           " in_sel:", flag.sel.in,
                            " out_sel:", flag.sel.out))
-  
+
   heteroRatio = 0.0; selRatio.in = 0.0; selRatio.out = 0.0
   if (flag.NA) {heteroRatio = 0.1}       # 10% of the samples per variables are note defined
   if (flag.sel.in) {selRatio.in = 0.1}   # 10% of the input samples are NOT selected
   if (flag.sel.out) {selRatio.out = 0.1} # 10% of the target are NOT selected
   # CreateGenerate the Input data set
   dbin   = Db_createFillRandom(ndat = ndat, ndim = ndim, nvar = nvar, nfex = nfex,
-                               ncode = 0, varmax = 0., 
+                               ncode = 0, varmax = 0.,
                                selRatio = selRatio.in,
                                heteroRatio = rep(heteroRatio, nvar),
                                coormin = VectorDouble(), coormax = VectorDouble(),
@@ -164,24 +164,24 @@ performTest = function (ndim, cas, k, nvar,
     err = dbin$display()
   }
   #  Generate the output data set
-  dbout   = Db_createFillRandom(ndat = nout, ndim = ndim, nvar = 0, nfex = nfex,
-                                ncode = 0, varmax = 0., 
-                                selRatio = selRatio.out,
-                                heteroRatio = 0.0,
-                                coormin = VectorDouble(), coormax = VectorDouble(),
-                                seed = seedout)
+  dbout = Db_createFillRandom(ndat = nout, ndim = ndim, nvar = 0, nfex = nfex,
+                              ncode = 0, varmax = 0.,
+                              selRatio = selRatio.out,
+                              heteroRatio = 0.0,
+                              coormin = VectorDouble(), coormax = VectorDouble(),
+                              seed = seedout)
   if (verbose) {
     err = dbout$display()
   }
-  
+
   #  Create the Model
-  model = Model_createFillRandom(ndim = ndim, nvar = nvar, 
+  model = Model_createFillRandom(ndim = ndim, nvar = nvar,
                                  types = ECov_fromKeys(c("NUGGET", "EXPONENTIAL")), 
                                  order = order, nfex = nfex)
   if (verbose) {
     err = model$display()
   }
-  
+
   #  Creating the Neighborhood
   if (flag.unique) {
     neigh = NeighUnique_create(flag_xvalid = FALSE)
@@ -191,19 +191,19 @@ performTest = function (ndim, cas, k, nvar,
   if (verbose) {
     err = neigh$display()
   }
-  
+
   title = paste0(prefix, ": nvar = ", nvar, " nf = ", nfex)
-  
+
   #  Perform Kriging using the API
   prefix_1 = paste0(prefix,"_ini")
-  err = kriging(dbin = dbin, dbout = dbout, model = model, neigh = neigh, 
+  err = kriging(dbin = dbin, dbout = dbout, model = model, neigh = neigh,
                 calcul = EKrigOpt_POINT(),
                 flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz,
                 namconv = NamingConvention(prefix_1))
   if (verbose) {
     err = dbout$display() 
   }
-  
+
   #  Perform Kriging *by hand*
   prefix_2 = paste0(prefix,"_test")
   err = test_kriging(dbin = dbin, dbout = dbout, model = model, neigh = neigh,
@@ -211,22 +211,22 @@ performTest = function (ndim, cas, k, nvar,
                      flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz,
                      prefix = prefix_2)
   if (verbose) {
-    err = dbout$display() 
+    err = dbout$display()
   }
-  
+
   # QC
   if (flag.sel.out) {
     sel = (dbout["sel"] == 1)
   } else {
-    sel = rep(TRUE, dbout$getNSample(useSel = FALSE))  
+    sel = rep(TRUE, dbout$getNSample(useSel = FALSE))
   }
   for (ivar in 1:nvar) {
     if (nvar == 1) {
       nm_var_1 = paste0(prefix_1, ".z")
       nm_var_2 = paste0(prefix_2, ".z")
     } else {
-      nm_var_1 = paste0(prefix_1, ".z.", ivar)      
-      nm_var_2 = paste0(prefix_2, ".z.", ivar)      
+      nm_var_1 = paste0(prefix_1, ".z.", ivar)
+      nm_var_2 = paste0(prefix_2, ".z.", ivar)
     }
     for (k in 1:3) {
       nm_estim_1 = paste0(nm_var_1, ".", c("estim", "stdev", "varz")[k])
@@ -240,12 +240,12 @@ performTest = function (ndim, cas, k, nvar,
       }
     }
   }
-  
+
   # --------------------------------------------------------------------------
   # Test OK
   # --------------------------------------------------------------------------
   err = message("Test passed\n")
-  
+
   invisible()
 }
 
@@ -261,10 +261,10 @@ flag_est = TRUE
 flag_std = TRUE
 flag_varz = TRUE
 #  Generate the input data (in the 1x1 square) with 'nvar' variables and 'nfex' external drifts
-ndat   = 10
-seedin = 13227
-nout    = 10
-seedout = 134484
+ndat     = 10
+seedin   = 13227
+nout     = 10
+seedout  = 134484
 nvar_min = 1
 nvar_max = 3
 cas = list()
