@@ -4209,7 +4209,7 @@ int declustering(Db *dbin,
     {
       if (model == nullptr)
       {
-        messerr("A Model is neede for this declustering method");
+        messerr("A Model is needed for this declustering method");
         return 1;
       }
       if (st_declustering_2(dbin, model, neigh, iptr)) return 1;
@@ -4220,7 +4220,7 @@ int declustering(Db *dbin,
     {
       if (model == nullptr)
       {
-        messerr("A Model is neede for this declustering method");
+        messerr("A Model is needed for this declustering method");
         return 1;
       }
       if (st_declustering_3(dbin, dbgrid, model, neigh, ndiscs, iptr))

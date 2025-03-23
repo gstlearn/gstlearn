@@ -336,6 +336,11 @@ public:
   int addSelection(const VectorDouble& tab = VectorDouble(),
                    const String& name = "NewSel",
                    const String& combine = "set");
+  int addSelectionByVariable(const String& varname,
+                             double lower = TEST,
+                             double upper = TEST,
+                             const String& name = "NewSel",
+                             const String& selName = "");
   int addSelectionByRanks(const VectorInt &ranks,
                           const String &name = "NewSel",
                           const String &combine = "set");
@@ -352,6 +357,7 @@ public:
                          int seed = 138213,
                          const String& name = "NewSel",
                          const String& combine = "set");
+
 
   int addSamples(int nadd, double valinit = TEST);
   int deleteSample(int e_del);
