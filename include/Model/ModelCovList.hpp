@@ -27,16 +27,20 @@ class GSTLEARN_EXPORT ModelCovList : public ModelGeneric
 {
 public:
   ModelCovList(const CovContext& ctxt = CovContext());
-  ModelCovList(const ModelCovList &m) = delete;
-  ModelCovList& operator= (const ModelCovList &m) = delete;
+  ModelCovList(const ModelCovList &m);
+  ModelCovList& operator= (const ModelCovList &m);
   virtual ~ModelCovList();
 
-  const CovList* getCovList() const { return _covList; }
-  CovList* getCovListModify() { return _covList; }
+  const CovList* getCovList() const { return (const CovList*)getCov(); }
+  CovList* getCovListModify() const { return  (CovList*)getCov(); }
 
   FORWARD_METHOD_NON_CONST(getCovListModify, delCov)
   FORWARD_METHOD_NON_CONST(getCovListModify, delAllCov)
   FORWARD_METHOD_NON_CONST(getCovListModify, setCovFiltered);
+  FORWARD_METHOD_NON_CONST(getCovListModify, makeSillNoStatDb)
+  FORWARD_METHOD_NON_CONST(getCovListModify, makeSillStationary)
+  FORWARD_METHOD_NON_CONST(getCovListModify, makeSillsStationary)
+  FORWARD_METHOD_NON_CONST(getCovListModify, makeSillNoStatFunctional)
 
   FORWARD_METHOD(getCovList, getNCov)
   FORWARD_METHOD(getCovList, getSills)
@@ -45,9 +49,8 @@ public:
   FORWARD_METHOD(getCovList, getTotalSills)
   FORWARD_METHOD(getCovList, isAllActiveCovList)
 
+
   void setCovList(CovList* covs);
   virtual void addCov(const CovBase* cov);
 
-protected:
-  CovList* _covList;
 };

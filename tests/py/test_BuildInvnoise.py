@@ -224,20 +224,14 @@ def createDb(ndat,hetero,measurement_error,measurement_error_all_equal,nostat=Fa
     dat["z2"] = np.random.normal(size=ndat)
     dat["z3"] = np.random.normal(size=ndat)
 
+    dat.setLocators(["x*"],gl.ELoc.X)
+    dat.setLocators(["z*"],gl.ELoc.Z)
+    
     if measurement_error:
         dat["err1"] = np.random.uniform(size=ndat)
         if measurement_error_all_equal:
             dat["err1"] = 0 * dat["err1"] + 0.5
         dat.setLocator("err1",gl.ELoc.V)
-
-    if nostat:
-        dat["v11"] =  np.abs(np.random.normal(size=ndat)) 
-        dat["v22"] =  np.abs(np.random.normal(size=ndat)) 
-        dat["v12"] =  np.abs(np.random.uniform(size=ndat))*np.sqrt(dat["v11"]*dat["v22"])
-        model.getCovAniso(0).makeSillNoStatDb("v11",0,0,dat)
-        model.getCovAniso(0).makeSillNoStatDb("v12",0,1,dat)
-        model.getCovAniso(0).makeSillNoStatDb("v22",1,1,dat)
-
 
     if hetero:
         # Ranks of undefined variables have been reduced to allow smaller data set
@@ -250,8 +244,13 @@ def createDb(ndat,hetero,measurement_error,measurement_error_all_equal,nostat=Fa
         dat.setValue("z3",6,gl.TEST)
         dat.setValue("z3",8,gl.TEST)
 
-    dat.setLocators(["x*"],gl.ELoc.X)
-    dat.setLocators(["z*"],gl.ELoc.Z)
+    if nostat:
+        dat["v11"] =  np.abs(np.random.normal(size=ndat)) 
+        dat["v22"] =  np.abs(np.random.normal(size=ndat)) 
+        dat["v12"] =  np.abs(np.random.uniform(size=ndat))*np.sqrt(dat["v11"]*dat["v22"])
+        model.getCovAniso(0).makeSillNoStatDb("v11",0,0,dat)
+        model.getCovAniso(0).makeSillNoStatDb("v12",0,1,dat)
+        model.getCovAniso(0).makeSillNoStatDb("v22",1,1,dat)
     return dat
 
 # %%

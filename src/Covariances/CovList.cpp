@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovList.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovBase.hpp"
@@ -25,6 +26,7 @@
 #include "geoslib_define.h"
 
 #include <math.h>
+#include <memory>
 #include <vector>
 
 CovList::CovList(const CovContext& ctxt)
@@ -35,6 +37,7 @@ CovList::CovList(const CovContext& ctxt)
   , _allActiveCovList()
   , _activeCovList()
 {
+  _updateLists();
 }
 
 CovList::CovList(const CovList& r)
@@ -65,8 +68,8 @@ CovList& CovList::operator=(const CovList& r)
     _allActiveCov     = r._allActiveCov;
     _allActiveCovList = r._allActiveCovList;
     _activeCovList    = r._activeCovList;
-    _updateLists();
   }
+  _updateLists();
   return *this;
 }
 
@@ -140,14 +143,58 @@ void CovList::delAllCov()
   _delAllCov();
 }
 
-bool CovList::isNoStat() const
+bool CovList::_isNoStat() const
 {
-  bool nostat = false;
+  // return true if any of the covariances is not stationary
+  return std::ranges::any_of(_covs, [](const auto& e)
+                             { return e->isNoStat(); });
+}
+
+void CovList::_makeStationary()
+{
+  for (auto& e: _covs)
+    e->makeStationary();
+}
+
+void CovList::_attachNoStatDb(const Db* db) 
+{
+  DECLARE_UNUSED(db)
+  std::shared_ptr<const Db> dbptr = _tabNoStat->getDbNoStatRef();
   for (const auto& e: _covs)
-  {
-    nostat = nostat || e->isNoStat();
-  }
-  return nostat;
+    e->setNoStatDbIfNecessary(dbptr);
+}
+int CovList::makeElemNoStat(const EConsElem& econs,
+                            int iv1,
+                            int iv2,
+                            const AFunctional* func,
+                            const Db* db,
+                            const String& namecol)
+{
+  DECLARE_UNUSED(econs, iv1, iv2, func, db, namecol)
+  messerr("Error: CovList::_makeElemNoStat is not impemented for this classe");
+  messerr("Non-stationarities have to be specified to each elementary covariance");
+  return 1;
+}
+
+void CovList::makeSillNoStatDb(int icov, const String& namecol, int ivar, int jvar)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovModify(icov)->makeSillNoStatDb(namecol, ivar, jvar);
+}
+void CovList::makeSillStationary(int icov, int ivar, int jvar)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovModify(icov)->makeSillStationary(ivar, jvar);
+}
+void CovList::makeSillsStationary(int icov,bool silent)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovModify(icov)->makeSillsStationary(silent);
+}
+void CovList::makeSillNoStatFunctional(int icov, const AFunctional* func, int ivar, int jvar)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovModify(icov)->makeSillNoStatFunctional(func, ivar, jvar);
 }
 
 bool CovList::isConsistent(const ASpace* /*space*/) const
@@ -190,7 +237,12 @@ int CovList::addEvalCovVecRHSInPlace(vect vect,
   CovCalcMode mode(ECalcMember::RHS);
   const VectorInt& list = _getListActiveCovariances(&mode);
   for (const auto& j: list.getVector())
-    _covs[j]->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda);
+  {
+    if (_covs[j]->isOptimEnabled())
+      _covs[j]->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda);
+    else
+      _covs[j]->ACov::addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda);
+  }
   return 0;
 }
 
@@ -274,6 +326,13 @@ bool CovList::isAllActiveCovList() const
 }
 
 const CovBase* CovList::getCov(int icov) const
+{
+  if (!_isCovarianceIndexValid(icov)) return nullptr;
+  return _covs[icov];
+}
+
+
+CovBase* CovList::getCovModify(int icov)
 {
   if (!_isCovarianceIndexValid(icov)) return nullptr;
   return _covs[icov];

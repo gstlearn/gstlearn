@@ -56,7 +56,7 @@ public:
   ACov*       _getCovModify() { return _cova; }
   CovContext* _getContextModify() { return &_ctxt; }
   DriftList*  _getDriftListModify() { return _driftList; }
-
+  
 public:
   // Forwarding the methods from _cova
   FORWARD_METHOD(getCov, evalCovMat)
@@ -104,6 +104,8 @@ public:
   FORWARD_METHOD(getCov, isNoStat)
   FORWARD_METHOD(getCov, optimizationPostProcess)
   FORWARD_METHOD_NON_CONST(getCov, setOptimEnabled)
+  FORWARD_METHOD_NON_CONST(getCov, attachNoStatDb)
+  FORWARD_METHOD_NON_CONST(getCov, makeStationary)
 
   FORWARD_METHOD_NON_CONST(_getCovModify, setContext)
 

@@ -80,7 +80,6 @@ public:
   bool            isStationary() const;
   double          getMaximumDistance() const;
   double          getTotalSill(int ivar = 0, int jvar = 0) const override;
-  bool            isNoStat() const override;
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
   const CovAniso*    getCovAniso(int icov) const;
@@ -108,6 +107,24 @@ public:
   int  getRankNugget() const;
   const CovAnisoList* createReduce(const VectorInt& validVars) const;
 
+  //Non-stationary parameters
+  void makeRangeNoStatDb(int icov, const String& namecol, int idim = 0);
+  void makeScaleNoStatDb(int icov, const String& namecol, int idim = 0);
+  void makeAngleNoStatDb(int icov, const String& namecol, int idim = 0);
+
+  void makeTensorNoStatDb(int icov, const String& namecol, int idim = 0, int jdim = 0);
+  void makeParamNoStatDb(int icov, const String& namecol);
+  void makeRangeNoStatFunctional(int icov, const AFunctional* func, int idim = 0);
+  void makeScaleNoStatFunctional(int icov, const AFunctional* func, int idim = 0);
+  void makeAngleNoStatFunctional(int icov, const AFunctional* func, int idim = 0);
+  void makeTensorNoStatFunctional(int icov, const AFunctional* func, int idim = 0, int jdim = 0);
+  void makeParamNoStatFunctional(int icov, const AFunctional* func);
+  void makeRangeStationary(int icov, int idim = 0);
+  void makeScaleStationary(int icov, int idim = 0);
+  void makeAngleStationary(int icov, int idim = 0);
+
+  void makeTensorStationary(int icov, int idim, int jdim);
+  void makeParamStationary(int icov);
 private:
   // Returns a pointer on an existing Cov and cast it to CovAniso
   const CovAniso* _getCovAniso(int icov) const;

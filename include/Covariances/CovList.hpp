@@ -69,7 +69,7 @@ public:
   void delCov(int icov);
   // Remove all elementary covariance structures
   void delAllCov();
-  #ifndef SWIG
+#ifndef SWIG
   int addEvalCovVecRHSInPlace(vect vect,
                               const VectorInt& index1,
                               int iech2,
@@ -78,18 +78,19 @@ public:
                               SpacePoint& pout,
                               VectorDouble& tabwork,
                               double lambda = 1) const override;
-  #endif
+#endif
   void setCovFiltered(int icov, bool filtered);
   int getNCov() const;
   bool isFiltered(int icov) const;
   virtual double getTotalSill(int ivar = 0, int jvar = 0) const;
   MatrixSquareSymmetric getTotalSills() const;
   bool isAllActiveCovList() const;
-  bool isNoStat() const override;
+
   void setOptimEnabled(bool flag) const override;
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
   const CovBase* getCov(int icov) const;
+  CovBase* getCovModify(int icov);
   virtual String getCovName(int icov) const;
   virtual const ECov& getCovType(int icov) const;
   virtual void setCov(int icov, const CovBase* covs);
@@ -111,6 +112,17 @@ public:
   void copyCovContext(const CovContext& ctxt) override;
   void normalize(double sill = 1., int ivar = 0, int jvar = 0);
 
+  int makeElemNoStat(const EConsElem& econs,
+                     int iv1,
+                     int iv2,
+                     const AFunctional* func = nullptr,
+                     const Db* db            = nullptr,
+                     const String& namecol   = String()) override;
+  void makeSillNoStatDb(int icov, const String& namecol, int ivar = 0, int jvar = 0);
+  void makeSillStationary(int icov, int ivar = 0, int jvar = 0);
+  void makeSillsStationary(int icov,bool silent = false);
+  void makeSillNoStatFunctional(int icov, const AFunctional* func, int ivar = 0, int jvar = 0);
+
 protected:
   bool _isCovarianceIndexValid(int icov) const;
   void _load(const SpacePoint& p, bool case1) const override;
@@ -126,6 +138,11 @@ protected:
                        const CovCalcMode* mode = nullptr) const override;
 
 private:
+  void _attachNoStatDb(const Db* db) override;
+
+  void _makeStationary() override;
+
+  bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;
   virtual void _delCov(int icov) { DECLARE_UNUSED(icov) };
   // Remove all elementary covariance structures

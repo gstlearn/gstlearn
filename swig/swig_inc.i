@@ -199,6 +199,7 @@
   #include "Covariances/ParamId.hpp"
   #include "Covariances/TabNoStat.hpp"
   #include "Covariances/TabNoStatCovAniso.hpp"
+  #include "Covariances/TabNoStatSills.hpp"
   #include "Covariances/ANoStat.hpp"
   #include "Covariances/NoStatArray.hpp"
   #include "Covariances/NoStatFunctional.hpp"

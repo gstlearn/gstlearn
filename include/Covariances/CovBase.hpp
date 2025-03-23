@@ -10,8 +10,10 @@
 /******************************************************************************/
 #pragma once
 #include "Basic/AFunctional.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStat.hpp"
+#include "Covariances/TabNoStatSills.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -32,6 +34,7 @@ public:
   CovBase& operator=(const CovBase& r);
   virtual ~CovBase();
 
+  IMPLEMENT_CLONING(CovBase)
   ParamInfo createParamInfoForCholSill(int ivar = 0, int jvar = 0);
 
   virtual bool isConsistent(const ASpace* space) const override;
@@ -51,18 +54,18 @@ public:
   const ACov* getCor() const { return _cor; }
 
   double getSill(int ivar, int jvar) const;
-  void attachNoStatDb(const Db* db);
+  
 
   void makeSillNoStatDb(const String& namecol, int ivar = 0, int jvar = 0, const Db* db = nullptr);
   void makeSillStationary(int ivar = 0, int jvar = 0);
   void makeSillsStationary(bool silent = false);
   void makeSillNoStatFunctional(const AFunctional* func, int ivar = 0, int jvar = 0);
 
-  void makeStationary() override;
+  TabNoStatSills* getTabNoStatSills() const { return (TabNoStatSills*)_tabNoStat; }
 
-  int getNSills() const { return _tabNoStat.getNSills(); }
+  int getNSills() const { return getTabNoStatSills()->getNSills(); }
 
-  bool isNoStatForVariance() const { return _tabNoStat.isDefinedForVariance(); }
+  bool isNoStatForVariance() const { return getTabNoStatSills()->isDefinedForVariance(); }
 
   void informMeshByMesh(const AMesh* amesh) const;
   void informMeshByApex(const AMesh* amesh) const;
@@ -99,16 +102,16 @@ public:
     _optimEnabled = flag;
     _cor->setOptimEnabled(flag);
   }
+  int makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String()) override;
 protected:
-  void _makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String());
+  void _attachNoStatDb(const Db* db) override;
+  
 
   void _manage(const Db* db1, const Db* db2) const override;
 
   bool _checkSill(int ivar = 0, int jvar = 0) const;
   bool _checkDims(int idim, int jdim) const;
 
-  void _setNoStatDbIfNecessary(const Db*& db);
-  bool _checkAndManageNoStatDb(const Db*& db, const String& namecol);
   bool _isVariableValid(int ivar) const;
 
   /// Update internal parameters consistency with the context
@@ -117,6 +120,10 @@ protected:
   void _copyCovContext(const CovContext& ctxt) override;
 
 private:
+  void _makeStationary() override;
+  TabNoStat* _createNoStatTab() override;
+
+  bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;
 
   void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
@@ -139,7 +146,6 @@ private:
 protected:
   MatrixT<ParamInfo> _cholSillsInfo;
   mutable MatrixSquareGeneral _cholSills;
-  TabNoStat _tabNoStat;
   mutable MatrixSquareSymmetric _sillCur;
   mutable MatrixSquareGeneral _workMat;
 

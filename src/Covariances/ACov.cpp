@@ -62,8 +62,7 @@ ACov::ACov(const ACov& r)
   , _pAux(r._pAux)
   , _pw1(r._pw1)
   , _pw2(r._pw2)
-
-  , _tabNoStat(r._tabNoStat == nullptr ? nullptr : new TabNoStat(*r._tabNoStat))
+  , _tabNoStat(r._tabNoStat == nullptr ? nullptr : r._tabNoStat->clone())
 {
 }
 
@@ -192,8 +191,46 @@ void ACov::createNoStatTab()
 void ACov::attachNoStatDb(const Db* db)
 {
   _tabNoStat->setDbNoStatRef(db);
+  _attachNoStatDb(db);
 }
 
+std::shared_ptr<const Db> ACov::getDbNoStat() const
+{
+  return _tabNoStat->getDbNoStatRef();
+}
+
+
+const Db* ACov::getDbNoStatRaw() const
+{
+  return _tabNoStat->getDbNoStatRefRaw();
+}
+
+bool ACov::checkAndManageNoStatDb(const Db* db, const String& namecol)
+{
+  if (_tabNoStat->getDbNoStatRef() == nullptr && db == nullptr)
+  {
+    messerr("You have to define a Db (with attachNoStatDb or by specifying a Db here)");
+    return false;
+  }
+  _setNoStatDbIfNecessary(db);
+
+  if (_tabNoStat->getDbNoStatRef()->getUID(namecol) < 0)
+  {
+    messerr("You have to specify a name of a column of the reference Db");
+    return false;
+  }
+  return true;
+}
+
+void ACov::_setNoStatDbIfNecessary(const Db* db)
+{
+  if (_tabNoStat->getDbNoStatRef() == nullptr)
+    attachNoStatDb(db);
+}
+void ACov::_attachNoStatDb(const Db* db)
+{
+  DECLARE_UNUSED(db)
+}
 VectorDouble ACov::informCoords(const VectorVectorDouble& coords,
                                 const EConsElem& econs,
                                 int iv1,
@@ -202,23 +239,6 @@ VectorDouble ACov::informCoords(const VectorVectorDouble& coords,
   VectorDouble result(coords[0].size(), getValue(econs, iv1, iv2));
   _tabNoStat->informCoords(coords, econs, iv1, iv2, result);
   return result;
-}
-
-bool ACov::checkAndManageNoStatDb(const Db*& db, const String& namecol)
-{
-  if (_tabNoStat->getDbNoStatRef() == nullptr && db == nullptr)
-  {
-    messerr("You have to define a Db (with attachNoStatDb or by specifying a Db here)");
-    return false;
-  }
-  setNoStatDbIfNecessary(db);
-
-  if (db->getUID(namecol) < 0)
-  {
-    messerr("You have to specified a name of a column of the reference Db");
-    return false;
-  }
-  return true;
 }
 
 TabNoStat* ACov::_createNoStatTab()
@@ -1268,14 +1288,18 @@ int ACov::addEvalCovVecRHSInPlace(vect vect,
                                   VectorDouble& tabwork,
                                   double lambda) const
 { 
-  DECLARE_UNUSED(pout,index1,tabwork);
+  DECLARE_UNUSED(pout,tabwork);
+  optimizationSetTarget(pin);
   bool flagNoStat = isNoStat();
   const CovCalcMode& mode = krigopt.getMode();
+  const int* inds = index1.data();
   for (int i = 0; i < (int)vect.size();i++)
   {
     if (flagNoStat)
-        updateCovByPoints(1, i, 2, iech2);
-    vect[i] += lambda * evalCov(_p1As[i], pin, 0, 0, &mode);
+        updateCovByPoints(1, *inds, 2, iech2);
+    SpacePoint& p1 = optimizationLoadInPlace(*inds++, 1, 1);
+
+    vect[i] += lambda * evalCov(p1, pin, 0, 0, &mode);
   }
   return 0;
 }
@@ -1865,25 +1889,38 @@ void ACov::informDbOut(const Db* dbout) const
   _tabNoStat->informDbOut(dbout);
 }
 
-void ACov::setNoStatDbIfNecessary(const Db*& db)
+void ACov::setNoStatDbIfNecessary(const Db* db)
 {
   if (_tabNoStat->getDbNoStatRef() == nullptr)
     attachNoStatDb(db);
-  if (db == nullptr)
-    db = _tabNoStat->getDbNoStatRef();
+
+}
+
+void ACov::setNoStatDbIfNecessary(std::shared_ptr<const Db>& db)
+{
+  if (_tabNoStat->getDbNoStatRef() == nullptr)
+    _tabNoStat->setDbNoStatRef(db);
+
 }
 
 void ACov::makeStationary()
 {
   _tabNoStat->clear();
+  _tabNoStat->setDbNoStatRef(nullptr);
+  _makeStationary();
 }
+
+void ACov::_makeStationary()
+{
+}
+
 int ACov::makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func, const Db* db, const String& namecol)
 {
   std::shared_ptr<ANoStat> ns;
   if (func == nullptr)
   {
     if (!checkAndManageNoStatDb(db, namecol)) return 1;
-    ns = std::shared_ptr<ANoStat>(new NoStatArray(db, namecol));
+    ns = std::shared_ptr<ANoStat>(new NoStatArray(_tabNoStat->getDbNoStatRef(), namecol));
   }
   else
   {

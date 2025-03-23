@@ -186,7 +186,22 @@ public:
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setRangeIsotropic)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setMarkovCoeffs)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, normalize)
-
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeRangeNoStatDb);
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeScaleNoStatDb);
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeAngleNoStatDb);
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeTensorNoStatDb);
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeParamNoStatDb);
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeRangeNoStatFunctional);
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeScaleNoStatFunctional);
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeAngleNoStatFunctional);
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeTensorNoStatFunctional);
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeParamNoStatFunctional);
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeRangeStationary);
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeScaleStationary);
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeAngleStationary);
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeTensorStationary);
+  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeParamStationary);
+  
   FORWARD_METHOD_NON_CONST(_castInCovLMCTapering, setTapeRange)
   FORWARD_METHOD(castInCovLMGradientConst, evalZAndGradients)
   
