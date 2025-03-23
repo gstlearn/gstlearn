@@ -157,6 +157,7 @@ bool CalcKrigingSimpleCase::_run()
   SpacePoint pin(getModel()->getSpace());
   SpacePoint pout(getModel()->getSpace());
   VectorDouble tabwork(getDbin()->getNSample());
+  
   for (int iech_out = 0, nech_out = getDbout()->getNSample(); iech_out < nech_out; iech_out++)
   {
 
