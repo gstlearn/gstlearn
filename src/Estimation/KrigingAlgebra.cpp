@@ -770,7 +770,7 @@ int KrigingAlgebra::_patchColCokVarianceZstar(MatrixSquareSymmetric* varZK) {
   //TODO check dims
   L0tCL0.prodNormMatMatInPlace(_Lambda0, _Sigma00pp, true);
 
-  MatrixRectangular p2(_nrhs, _ncck);
+  MatrixRectangular p2(_nrhs, _neq);
   p2.prodMatMatInPlace(_Lambda0, _Sigma0p, true, true);
   MatrixSquareSymmetric L0tCLK(_nrhs);
 

@@ -11,6 +11,7 @@
 #include "Estimation/Vecchia.hpp"
 
 #include "Basic/VectorHelper.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "LinearOp/CholeskySparse.hpp"
 #include "Tree/Ball.hpp"
 #include "Db/Db.hpp"
@@ -19,6 +20,7 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixT.hpp"
 #include "Model/ModelGeneric.hpp"
+#include "geoslib_define.h"
 
 Vecchia::Vecchia(const ModelGeneric* model,
                  const Db* db1,
@@ -71,6 +73,12 @@ int Vecchia::computeLower(const MatrixT<int>& Ranks, bool verbose)
   Db* DbOnePoint = Db::createEmpty(1, ndim, 0);
 
     // Loop on the samples
+  MatrixSquareSymmetric mat(nb_neigh);
+  MatrixRectangular crossmat(nb_neigh,1);
+  constvect vectc = crossmat.getColumnPtr(0);
+  VectorDouble res(nb_neigh);
+  vect resv(res);
+
   for (int ind = 0; ind < ntot; ind++)
   {
     int icur = 0;
@@ -113,11 +121,10 @@ int Vecchia::computeLower(const MatrixT<int>& Ranks, bool verbose)
     }
     else
     {
-      MatrixSquareSymmetric mat = _model->evalCovMatSym(Dbtemp);
+      _model->evalCovMatSymInPlace(mat,Dbtemp);
       CholeskyDense chol         = CholeskyDense(&mat);
-      MatrixRectangular crossmat = _model->evalCovMat(Dbtemp, DbOnePoint);
-      VectorDouble vect = crossmat.getColumn(0);
-      VectorDouble res  = chol.solveX(vect);
+      _model->evalCovMatInPlace(crossmat, Dbtemp, DbOnePoint);
+      chol.solve(vectc,resv);
 
       icur = 0;
       _LFull.setValue(ind, ind, 1.);
@@ -128,7 +135,7 @@ int Vecchia::computeLower(const MatrixT<int>& Ranks, bool verbose)
         _LFull.setValue(ind, ip, -res[icur]);
         icur++;
       }
-      _DFull[ind] = 1. / (varK - VH::innerProduct(res, vect));
+      _DFull[ind] = 1. / (varK - VH::innerProduct(res, vectc));
     }
   }
   _Dmat.setDiagonal(_DFull);
