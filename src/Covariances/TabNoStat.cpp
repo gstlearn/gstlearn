@@ -16,16 +16,16 @@ TabNoStat::TabNoStat()
 TabNoStat::TabNoStat(const TabNoStat& m)
   : AStringable(m)
 {
-  _dbNoStatRef        = m._dbNoStatRef;
-  _items              = m._items;
+  _dbNoStatRef = m._dbNoStatRef;
+  _items       = m._items;
 }
 
 TabNoStat& TabNoStat::operator=(const TabNoStat& m)
 {
   if (this != &m)
   {
-    _dbNoStatRef        = m._dbNoStatRef;
-    _items              = m._items;
+    _dbNoStatRef = m._dbNoStatRef;
+    _items       = m._items;
   }
   return *this;
 }
@@ -62,7 +62,7 @@ void TabNoStat::updateDescription()
 bool TabNoStat::isElemDefined(const EConsElem& econs, int iv1, int iv2) const
 {
   ParamId conselem(econs, iv1, iv2);
-  return _items.count(conselem) > 0; //Warning : use count for C++17 compatibility
+  return _items.count(conselem) > 0; // Warning : use count for C++17 compatibility
 }
 
 std::shared_ptr<ANoStat> TabNoStat::getElem(const EConsElem& econs, int iv1, int iv2)
@@ -126,6 +126,11 @@ void TabNoStat::setDbNoStatRef(const Db* dbref)
     _dbNoStatRef = nullptr;
 }
 
+void TabNoStat::setDbNoStatRef(std::shared_ptr<const Db>& dbref)
+{
+  _dbNoStatRef = dbref;
+}
+
 void TabNoStat::informMeshByMesh(const AMesh* amesh) const
 {
   for (const auto& e: _items)
@@ -153,6 +158,16 @@ void TabNoStat::informDbOut(const Db* dbout) const
   {
     e.second->informDbOout(dbout);
   }
+}
+
+std::shared_ptr<const Db> TabNoStat::getDbNoStatRef() const
+{
+  return _dbNoStatRef;
+}
+
+const Db* TabNoStat::getDbNoStatRefRaw() const
+{
+  return _dbNoStatRef.get();
 }
 
 void TabNoStat::informMeshByMesh(const AMesh* amesh, const EConsElem& econs) const

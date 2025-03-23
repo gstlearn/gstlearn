@@ -102,9 +102,10 @@ public:
     _optimEnabled = flag;
     _cor->setOptimEnabled(flag);
   }
+  int makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String()) override;
 protected:
   void _attachNoStatDb(const Db* db) override;
-  int _makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String()) override;
+  
 
   void _manage(const Db* db1, const Db* db2) const override;
 

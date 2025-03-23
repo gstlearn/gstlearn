@@ -111,6 +111,13 @@ public:
   void copyCovContext(const CovContext& ctxt) override;
   void normalize(double sill = 1., int ivar = 0, int jvar = 0);
 
+  int makeElemNoStat(const EConsElem& econs,
+                     int iv1,
+                     int iv2,
+                     const AFunctional* func = nullptr,
+                     const Db* db            = nullptr,
+                     const String& namecol   = String()) override;
+
 protected:
   bool _isCovarianceIndexValid(int icov) const;
   void _load(const SpacePoint& p, bool case1) const override;
@@ -127,13 +134,6 @@ protected:
 
 private:
   void _makeStationary() override;
-
-  int _makeElemNoStat(const EConsElem& econs,
-                      int iv1,
-                      int iv2,
-                      const AFunctional* func = nullptr,
-                      const Db* db            = nullptr,
-                      const String& namecol   = String()) override;
 
   bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;

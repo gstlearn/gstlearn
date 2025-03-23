@@ -437,7 +437,7 @@ public:
     return TEST;
   }
   void makeStationary();
-  int makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String());
+  virtual int makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String());
   void createNoStatTab();
   void informMeshByMesh(const AMesh* amesh) const;
   void informMeshByApex(const AMesh* amesh) const;
@@ -458,7 +458,11 @@ public:
   void optimizationPreProcessForData(const Db* db1 = nullptr) const;
   virtual void setOptimEnabled(bool enabled) const { _optimEnabled = enabled; }
 
-  bool checkAndManageNoStatDb(const Db*& db, const String& namecol);
+  bool checkAndManageNoStatDb(const Db* db, const String& namecol);
+  std::shared_ptr<const Db> getDbNoStat() const;
+  const Db* getDbNoStatRaw() const;
+  void setNoStatDbIfNecessary(const Db* db);
+  void setNoStatDbIfNecessary(std::shared_ptr<const Db>& db);
 
 private:
   virtual void _setContext(const CovContext& ctxt) { DECLARE_UNUSED(ctxt); }
@@ -473,7 +477,6 @@ private:
 
   void _optimizationPreProcessForTarget(const Db* db2,
                                         const VectorInt& nbgh2 = VectorInt()) const;
-  void setNoStatDbIfNecessary(const Db*& db);
 
   void _loopOnData(MatrixRectangular& mat,
                    const SpacePoint& p2,
@@ -497,7 +500,7 @@ private:
   virtual TabNoStat* _createNoStatTab();
 
 protected:
-  void _setNoStatDbIfNecessary(const Db*& db);
+  void _setNoStatDbIfNecessary(const Db* db);
   void setNVar(int nvar) { _ctxt.setNVar(nvar); }
   virtual void _optimizationSetTarget(SpacePoint& pt) const;
   virtual void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const;
@@ -523,12 +526,6 @@ protected:
 
 private:
   virtual void _makeStationary();
-  virtual int _makeElemNoStat(const EConsElem& econs,
-                              int iv1,
-                              int iv2,
-                              const AFunctional* func = nullptr,
-                              const Db* db            = nullptr,
-                              const String& namecol   = String());
   virtual void _copyCovContext(const CovContext& ctxt)
   {
     DECLARE_UNUSED(ctxt)

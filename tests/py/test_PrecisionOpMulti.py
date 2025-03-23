@@ -80,8 +80,7 @@ def create(nvar = 1, multistruct = True, nostatType = "Fake",nx1 = [4,4],nx2 = [
             modelMulti.getCovAniso(0).makeSillNoStatDb("rho",0,1)
         if nvar == 3:
             grid["rho"] = sills1[0,1] * np.ones_like(grid["rank"])
-            modelMulti.getCovAniso(0).attachNoStatDb(grid)
-            modelMulti.getCovAniso(0).makeSillNoStatDb("rho",0,1)
+            modelMulti.getCovAniso(0).makeSillNoStatDb("rho",0,1,grid)
        
     return modelMulti,meshes
 

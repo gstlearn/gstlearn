@@ -193,7 +193,18 @@ void ACov::attachNoStatDb(const Db* db)
   _attachNoStatDb(db);
 }
 
-bool ACov::checkAndManageNoStatDb(const Db*& db, const String& namecol)
+std::shared_ptr<const Db> ACov::getDbNoStat() const
+{
+  return _tabNoStat->getDbNoStatRef();
+}
+
+
+const Db* ACov::getDbNoStatRaw() const
+{
+  return _tabNoStat->getDbNoStatRefRaw();
+}
+
+bool ACov::checkAndManageNoStatDb(const Db* db, const String& namecol)
 {
   if (_tabNoStat->getDbNoStatRef() == nullptr && db == nullptr)
   {
@@ -202,7 +213,7 @@ bool ACov::checkAndManageNoStatDb(const Db*& db, const String& namecol)
   }
   _setNoStatDbIfNecessary(db);
 
-  if (db->getUID(namecol) < 0)
+  if (_tabNoStat->getDbNoStatRef()->getUID(namecol) < 0)
   {
     messerr("You have to specified a name of a column of the reference Db");
     return false;
@@ -210,12 +221,10 @@ bool ACov::checkAndManageNoStatDb(const Db*& db, const String& namecol)
   return true;
 }
 
-void ACov::_setNoStatDbIfNecessary(const Db*& db)
+void ACov::_setNoStatDbIfNecessary(const Db* db)
 {
   if (_tabNoStat->getDbNoStatRef() == nullptr)
     attachNoStatDb(db);
-  if (db == nullptr)
-    db = _tabNoStat->getDbNoStatRef();
 }
 void ACov::_attachNoStatDb(const Db* db)
 {
@@ -1879,12 +1888,18 @@ void ACov::informDbOut(const Db* dbout) const
   _tabNoStat->informDbOut(dbout);
 }
 
-void ACov::setNoStatDbIfNecessary(const Db*& db)
+void ACov::setNoStatDbIfNecessary(const Db* db)
 {
   if (_tabNoStat->getDbNoStatRef() == nullptr)
     attachNoStatDb(db);
-  if (db == nullptr)
-    db = _tabNoStat->getDbNoStatRef();
+
+}
+
+void ACov::setNoStatDbIfNecessary(std::shared_ptr<const Db>& db)
+{
+  if (_tabNoStat->getDbNoStatRef() == nullptr)
+    _tabNoStat->setDbNoStatRef(db);
+
 }
 
 void ACov::makeStationary()
@@ -1900,16 +1915,11 @@ void ACov::_makeStationary()
 
 int ACov::makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func, const Db* db, const String& namecol)
 {
-  return _makeElemNoStat(econs, iv1, iv2, func, db, namecol);
-}
-
-int ACov::_makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func, const Db* db, const String& namecol)
-{
   std::shared_ptr<ANoStat> ns;
   if (func == nullptr)
   {
     if (!checkAndManageNoStatDb(db, namecol)) return 1;
-    ns = std::shared_ptr<ANoStat>(new NoStatArray(db, namecol));
+    ns = std::shared_ptr<ANoStat>(new NoStatArray(_tabNoStat->getDbNoStatRef(), namecol));
   }
   else
   {

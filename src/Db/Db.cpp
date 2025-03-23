@@ -39,6 +39,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <vector>
 
 Db::Db()
     : AStringable(),
@@ -4290,7 +4291,7 @@ VectorInt Db::getColIdxsByLocator(const ELoc& locatorType) const
  */
 int Db::getUID(const String& name) const
 {
-  VectorInt iuids = _ids(name, true);
+  std::vector<int> iuids = _ids(name, true);
   if (iuids.empty()) return -1;
   int icol = getColIdxByUID(iuids[0]);
   return getUIDByColIdx(icol);

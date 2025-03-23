@@ -50,7 +50,9 @@ public:
   virtual int removeElem(const EConsElem& econs, int iv1 = 0, int iv2 = 0);
   void clear();
   void setDbNoStatRef(const Db* dbref);
-  const Db* getDbNoStatRef() const { return _dbNoStatRef.get(); }
+  void setDbNoStatRef(std::shared_ptr<const Db>& dbref);
+  std::shared_ptr<const Db> getDbNoStatRef() const;
+  const Db* getDbNoStatRefRaw() const;
   void informCoords(const VectorVectorDouble& coords,
                     const EConsElem& econs,
                     int iv1,

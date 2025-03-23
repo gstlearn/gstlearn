@@ -145,7 +145,8 @@ void CovList::delAllCov()
 bool CovList::_isNoStat() const
 {
   // return true if any of the covariances is not stationary
-  return std::ranges::any_of(_covs, [](const auto& e) { return e->isNoStat(); });
+  return std::ranges::any_of(_covs, [](const auto& e)
+                             { return e->isNoStat(); });
 }
 
 void CovList::_makeStationary()
@@ -154,12 +155,12 @@ void CovList::_makeStationary()
     e->makeStationary();
 }
 
-int CovList::_makeElemNoStat(const EConsElem& econs,
-                             int iv1,
-                             int iv2,
-                             const AFunctional* func,
-                             const Db* db,
-                             const String& namecol)
+int CovList::makeElemNoStat(const EConsElem& econs,
+                            int iv1,
+                            int iv2,
+                            const AFunctional* func,
+                            const Db* db,
+                            const String& namecol)
 {
   DECLARE_UNUSED(econs, iv1, iv2, func, db, namecol)
   messerr("Error: CovList::_makeElemNoStat is not impemented for this classe");

@@ -291,50 +291,37 @@ bool CovBase::isOptimizationInitialized(const Db* db) const
 
 void CovBase::_attachNoStatDb(const Db* db)
 {
-  _cor->attachNoStatDb(db);
+  DECLARE_UNUSED(db)
+  if (_cor->getDbNoStat() == nullptr)
+  {
+    std::shared_ptr<const Db> dbptr = _tabNoStat->getDbNoStatRef();
+    _cor->setNoStatDbIfNecessary(dbptr);
+  }
 }
 
-int CovBase::_makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func, const Db* db, const String& namecol)
+int CovBase::makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func, const Db* db, const String& namecol)
 {
-  _cor->attachNoStatDb(db);
-  if (func == nullptr)
-  {
-    if (!checkAndManageNoStatDb(db, namecol)) return 1;
-  }
-
-  if (econs != EConsElem::SILL)
-  {
-    _cor->makeElemNoStat(econs, iv1, iv2, func, db, namecol);
-    return 0;
-  }
-
-  std::shared_ptr<ANoStat> ns;
-  if (func == nullptr)
-  {
-    ns = std::shared_ptr<ANoStat>(new NoStatArray(db, namecol));
-  }
-  else
-  {
-    ns = std::unique_ptr<ANoStat>(new NoStatFunctional(func));
-  }
-
-  _tabNoStat->addElem(ns, econs, iv1, iv2);
-  return 0;
+  int a = ACov::makeElemNoStat(econs, iv1, iv2, func, db, namecol);
+  if (a) return 1;
+  
+  return _cor->makeElemNoStat(econs, iv1, iv2, func, db, namecol);
+  
 }
+
 
 ///////////////////// Sill ////////////////////////
 
 void CovBase::makeSillNoStatDb(const String& namecol, int ivar, int jvar, const Db* db)
 {
   if (!_checkSill(ivar, jvar)) return;
-  _makeElemNoStat(EConsElem::SILL, ivar, jvar, nullptr, db, namecol);
+  makeElemNoStat(EConsElem::SILL, ivar, jvar, nullptr, db, namecol);
   //_cor->checkAndManageNoStatDb(db, namecol);
 }
 
 void CovBase::makeSillNoStatFunctional(const AFunctional* func, int ivar, int jvar)
 {
   if (!_checkSill(ivar, jvar)) return;
-  _makeElemNoStat(EConsElem::SILL, ivar, jvar, func);
+  makeElemNoStat(EConsElem::SILL, ivar, jvar, func);
 }
 
 void CovBase::makeSillsStationary(bool silent)
