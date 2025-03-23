@@ -49,6 +49,7 @@ public:
   virtual ~KrigingSystem();
 
   int resetData();
+  int setKrigOpt(const KrigOpt& krigopt);
   int setKrigOptCalcul(const EKrigOpt& calcul,
                        const VectorInt& ndiscs = VectorInt(),
                        bool flag_per_cell      = false);
@@ -108,7 +109,6 @@ private:
   void _resetMemoryGeneral();
   bool _isAuthorized() const;
 
-  void _dumpOptions() const;
   void _rhsDump();
   void _wgtDump();
   void _estimateCalcul(int status);
@@ -181,16 +181,12 @@ private:
   int  _nbsimu;
   int  _rankPGS;
 
-  /// Option for Block estimation
-  VectorInt _ndiscs;
-
   /// Option for Cross_validation
   bool _xvalidEstim;
   bool _xvalidStdev;
   bool _xvalidVarZ;
 
   /// Option for Colocation
-  VectorInt _rankColCok;
   VectorDouble _valuesColCok;
 
   /// Option for Bayesian

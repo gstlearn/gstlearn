@@ -76,11 +76,9 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _flagSimu(false)
   , _nbsimu(0)
   , _rankPGS(-1)
-  , _ndiscs()
   , _xvalidEstim(true)
   , _xvalidStdev(true)
   , _xvalidVarZ(false)
-  , _rankColCok()
   , _valuesColCok()
   , _flagBayes(false)
   , _priorMean()
@@ -283,38 +281,13 @@ double KrigingSystem::_continuousMultiplier(int rank1,int rank2, double eps)
   return (var);
 }
 
-void KrigingSystem::_dumpOptions() const
-{
-  /* Kriging option */
-
-  switch (_calcul.toEnum())
-  {
-    case EKrigOpt::E_POINT: message("Punctual Estimation\n"); break;
-
-    case EKrigOpt::E_BLOCK:
-      message("Block Estimation : Discretization = ");
-      for (int idim = 0; idim < _ndim; idim++)
-      {
-        if (idim != 0) message(" x ");
-        message("%d", _ndiscs[idim]);
-      }
-      message("\n");
-      break;
-
-    case EKrigOpt::E_DRIFT: message("Drift Estimation\n"); break;
-
-    case EKrigOpt::E_DGM: message("Discrete Gaussian Model\n"); break;
-  }
-  message("\n");
-}
-
 void KrigingSystem::_rhsDump()
 {
   mestitle(0, "RHS of Kriging matrix");
   if (_nech > 0) message("Number of active samples    = %d\n", _nech);
   message("Total number of equations   = %d\n", _neq);
   message("Number of right-hand sides  = %d\n", _nvarCL);
-  _dumpOptions();
+  _krigopt.dumpOptions();
   _algebra.dumpRHS();
 }
 
@@ -643,7 +616,7 @@ int KrigingSystem::estimate(int iech_out)
     }
 
     mestitle(1, "Target location");
-    if (_rankColCok.empty())
+    if (! _krigopt.hasColcok())
       db_sample_print(_dbout, _iechOut, 1, 0, 0, 0);
     else
       db_sample_print(_dbout, _iechOut, 1, 1, 0, 0);
@@ -694,7 +667,7 @@ int KrigingSystem::estimate(int iech_out)
   };
 
   // Special patch for Colocated CoKriging
-  if (!_rankColCok.empty())
+  if (_krigopt.hasColcok())
   {
     if (_neigh->getType() == ENeigh::MOVING)
     {
@@ -704,7 +677,7 @@ int KrigingSystem::estimate(int iech_out)
     {
       _valuesColCok = _dbout->getLocVariables(ELoc::Z, _iechOut);
       if (_X.empty()) VH::subtractInPlace(_valuesColCok, _means);
-      if (_algebra.setColCokUnique(&_valuesColCok, &_rankColCok)) return 1;
+      if (_algebra.setColCokUnique(&_valuesColCok, &_krigopt.getRankColcok())) return 1;
     }
   }
 
@@ -785,7 +758,7 @@ int KrigingSystem::_updateForColCokMoving()
   VectorDouble newValues(nvar, TEST);
   for (int jvar = 0; jvar < nvar; jvar++)
   {
-    int ivar = _rankColCok[jvar];
+    int ivar = _krigopt.getRankColcok(jvar);
     if (ivar < 0 || ivar >= _dbout->getNLoc(ELoc::Z)) continue;
     double value = _dbout->getZVariable(_iechOut, ivar);
     if (FFFF(value)) continue;
@@ -1099,6 +1072,12 @@ int KrigingSystem::setKrigOptDataWeights(int iptrWeights, bool flagSet)
   return 0;
 }
 
+int KrigingSystem::setKrigOpt(const KrigOpt& krigopt)
+{
+  _krigopt = krigopt;
+  return 0;
+}
+
 int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
                                     const VectorInt& ndiscs,
                                     bool flag_per_cell)
@@ -1133,14 +1112,6 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
       messerr("i.e. a vector (dimension equal Space Dimension) filled with positive numbers");
       return 1;
     }
-
-    // Discretization is stored
-
-    _ndiscs = ndiscs;
-  }
-  else
-  {
-    _ndiscs.clear();
   }
 
   // New style operation
@@ -1217,14 +1188,13 @@ int KrigingSystem::setKrigOptColCok(const VectorInt& rank_colcok)
 
   _isReady = false;
   int nvar    = _getNVar();
-  _rankColCok = rank_colcok;
   _valuesColCok.resize(nvar);
 
   /* Loop on the ranks of the colocated variables */
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int jvar = _rankColCok[ivar];
+    int jvar = rank_colcok[ivar];
     if (jvar < 0) continue;
     if (jvar > _dbout->getNLoc(ELoc::Z))
     {
@@ -1236,6 +1206,9 @@ int KrigingSystem::setKrigOptColCok(const VectorInt& rank_colcok)
       return (1);
     }
   }
+
+  // New style operation
+  _krigopt.setRankColCok(rank_colcok);
   return 0;
 }
 
