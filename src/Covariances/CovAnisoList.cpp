@@ -472,3 +472,84 @@ const EModelProperty& CovAnisoList::getCovMode() const
   return EModelProperty::NONE;
 }
 
+
+void CovAnisoList::makeRangeNoStatDb(int icov, const String& namecol, int idim)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovAniso(icov)->makeRangeNoStatDb(namecol, idim);
+}
+
+void CovAnisoList::makeScaleNoStatDb(int icov, const String& namecol, int idim)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovAniso(icov)->makeScaleNoStatDb(namecol, idim, nullptr);
+
+}
+void CovAnisoList::makeAngleNoStatDb(int icov, const String& namecol, int idim)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovAniso(icov)->makeAngleNoStatDb(namecol, idim);
+}
+
+void CovAnisoList::makeTensorNoStatDb(int icov, const String& namecol, int idim, int jdim)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovAniso(icov)->makeTensorNoStatDb(namecol, idim, jdim);
+
+}
+void CovAnisoList::makeParamNoStatDb(int icov, const String& namecol)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovAniso(icov)->makeParamNoStatDb(namecol);
+}
+void CovAnisoList::makeRangeNoStatFunctional(int icov, const AFunctional* func, int idim)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovAniso(icov)->makeRangeNoStatFunctional(func, idim);
+}
+void CovAnisoList::makeScaleNoStatFunctional(int icov, const AFunctional* func, int idim)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovAniso(icov)->makeScaleNoStatFunctional(func, idim);
+}
+void CovAnisoList::makeAngleNoStatFunctional(int icov, const AFunctional* func, int idim)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovAniso(icov)->makeAngleNoStatFunctional(func, idim);
+}
+void CovAnisoList::makeTensorNoStatFunctional(int icov, const AFunctional* func, int idim, int jdim)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovAniso(icov)->makeTensorNoStatFunctional(func, idim, jdim);
+}
+void CovAnisoList::makeParamNoStatFunctional(int icov, const AFunctional* func)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovAniso(icov)->makeParamNoStatFunctional(func);
+}
+void CovAnisoList::makeRangeStationary(int icov, int idim)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovAniso(icov)->makeRangeStationary(idim);
+}
+void CovAnisoList::makeScaleStationary(int icov, int idim)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovAniso(icov)->makeScaleStationary(idim);
+}
+void CovAnisoList::makeAngleStationary(int icov, int idim)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovAniso(icov)->makeAngleStationary(idim);
+}
+
+void CovAnisoList::makeTensorStationary(int icov, int idim, int jdim)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovAniso(icov)->makeTensorStationary(idim, jdim);
+}
+void CovAnisoList::makeParamStationary(int icov)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovAniso(icov)->makeParamStationary();
+}

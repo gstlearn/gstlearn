@@ -121,7 +121,10 @@ int TabNoStat::addElem(std::shared_ptr<ANoStat>& nostat, const EConsElem& econs,
 void TabNoStat::setDbNoStatRef(const Db* dbref)
 {
   if (dbref != nullptr)
-    _dbNoStatRef = std::shared_ptr<const Db>((Db*)dbref->clone());
+  {
+    //Db* db       = dynamic_cast<Db*>(dbref->clone());
+    _dbNoStatRef = std::shared_ptr<const Db>(dynamic_cast<Db*>(dbref->clone()));
+  }
   else
     _dbNoStatRef = nullptr;
 }

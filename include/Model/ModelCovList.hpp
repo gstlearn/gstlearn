@@ -37,6 +37,10 @@ public:
   FORWARD_METHOD_NON_CONST(getCovListModify, delCov)
   FORWARD_METHOD_NON_CONST(getCovListModify, delAllCov)
   FORWARD_METHOD_NON_CONST(getCovListModify, setCovFiltered);
+  FORWARD_METHOD_NON_CONST(getCovListModify, makeSillNoStatDb)
+  FORWARD_METHOD_NON_CONST(getCovListModify, makeSillStationary)
+  FORWARD_METHOD_NON_CONST(getCovListModify, makeSillsStationary)
+  FORWARD_METHOD_NON_CONST(getCovListModify, makeSillNoStatFunctional)
 
   FORWARD_METHOD(getCovList, getNCov)
   FORWARD_METHOD(getCovList, getSills)
@@ -44,6 +48,7 @@ public:
   FORWARD_METHOD(getCovList, getTotalSill)
   FORWARD_METHOD(getCovList, getTotalSills)
   FORWARD_METHOD(getCovList, isAllActiveCovList)
+
 
   void setCovList(CovList* covs);
   virtual void addCov(const CovBase* cov);

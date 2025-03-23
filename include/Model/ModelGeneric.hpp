@@ -104,6 +104,8 @@ public:
   FORWARD_METHOD(getCov, isNoStat)
   FORWARD_METHOD(getCov, optimizationPostProcess)
   FORWARD_METHOD_NON_CONST(getCov, setOptimEnabled)
+  FORWARD_METHOD_NON_CONST(getCov, attachNoStatDb)
+  FORWARD_METHOD_NON_CONST(getCov, makeStationary)
 
   FORWARD_METHOD_NON_CONST(_getCovModify, setContext)
 

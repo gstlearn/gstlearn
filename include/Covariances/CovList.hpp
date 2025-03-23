@@ -90,6 +90,7 @@ public:
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
   const CovBase* getCov(int icov) const;
+  CovBase* getCovModify(int icov);
   virtual String getCovName(int icov) const;
   virtual const ECov& getCovType(int icov) const;
   virtual void setCov(int icov, const CovBase* covs);
@@ -117,6 +118,10 @@ public:
                      const AFunctional* func = nullptr,
                      const Db* db            = nullptr,
                      const String& namecol   = String()) override;
+  void makeSillNoStatDb(int icov, const String& namecol, int ivar = 0, int jvar = 0);
+  void makeSillStationary(int icov, int ivar = 0, int jvar = 0);
+  void makeSillsStationary(int icov,bool silent = false);
+  void makeSillNoStatFunctional(int icov, const AFunctional* func, int ivar = 0, int jvar = 0);
 
 protected:
   bool _isCovarianceIndexValid(int icov) const;
@@ -133,6 +138,8 @@ protected:
                        const CovCalcMode* mode = nullptr) const override;
 
 private:
+  void _attachNoStatDb(const Db* db) override;
+
   void _makeStationary() override;
 
   bool _isNoStat() const override;

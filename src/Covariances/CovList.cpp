@@ -26,6 +26,7 @@
 #include "geoslib_define.h"
 
 #include <math.h>
+#include <memory>
 #include <vector>
 
 CovList::CovList(const CovContext& ctxt)
@@ -155,6 +156,13 @@ void CovList::_makeStationary()
     e->makeStationary();
 }
 
+void CovList::_attachNoStatDb(const Db* db) 
+{
+  DECLARE_UNUSED(db)
+  std::shared_ptr<const Db> dbptr = _tabNoStat->getDbNoStatRef();
+  for (const auto& e: _covs)
+    e->setNoStatDbIfNecessary(dbptr);
+}
 int CovList::makeElemNoStat(const EConsElem& econs,
                             int iv1,
                             int iv2,
@@ -166,6 +174,27 @@ int CovList::makeElemNoStat(const EConsElem& econs,
   messerr("Error: CovList::_makeElemNoStat is not impemented for this classe");
   messerr("Non-stationarities have to be specified to each elementary covariance");
   return 1;
+}
+
+void CovList::makeSillNoStatDb(int icov, const String& namecol, int ivar, int jvar)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovModify(icov)->makeSillNoStatDb(namecol, ivar, jvar);
+}
+void CovList::makeSillStationary(int icov, int ivar, int jvar)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovModify(icov)->makeSillStationary(ivar, jvar);
+}
+void CovList::makeSillsStationary(int icov,bool silent)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovModify(icov)->makeSillsStationary(silent);
+}
+void CovList::makeSillNoStatFunctional(int icov, const AFunctional* func, int ivar, int jvar)
+{
+  if (!_isCovarianceIndexValid(icov)) return;
+  getCovModify(icov)->makeSillNoStatFunctional(func, ivar, jvar);
 }
 
 bool CovList::isConsistent(const ASpace* /*space*/) const
@@ -297,6 +326,13 @@ bool CovList::isAllActiveCovList() const
 }
 
 const CovBase* CovList::getCov(int icov) const
+{
+  if (!_isCovarianceIndexValid(icov)) return nullptr;
+  return _covs[icov];
+}
+
+
+CovBase* CovList::getCovModify(int icov)
 {
   if (!_isCovarianceIndexValid(icov)) return nullptr;
   return _covs[icov];

@@ -48,6 +48,7 @@ ACov::ACov(const CovContext& ctxt)
   , _pAux(ctxt.getSpace())
   , _tabNoStat(nullptr)
 {
+  createNoStatTab();
 }
 
 ACov::ACov(const ACov& r)
@@ -215,7 +216,7 @@ bool ACov::checkAndManageNoStatDb(const Db* db, const String& namecol)
 
   if (_tabNoStat->getDbNoStatRef()->getUID(namecol) < 0)
   {
-    messerr("You have to specified a name of a column of the reference Db");
+    messerr("You have to specify a name of a column of the reference Db");
     return false;
   }
   return true;
