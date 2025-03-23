@@ -1059,7 +1059,7 @@
 };
 
 
-// Prevent memory leaks from 'create*' methods
+// Prevent memory leaks from 'create*' anc 'clone' methods
 
 // The following file should contain all 'createFrom*' methods
 %include swig/newobject.i
@@ -1067,6 +1067,8 @@
 %newobject *::create;
 // So bad that the following syntax doesn't work:
 // %newobject *::create*;
+// This is for all 'clone' methods
+%newobject *::clone;
 
 %{
   #include <memory>
