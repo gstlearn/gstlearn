@@ -3624,7 +3624,7 @@ VectorVectorInt Db::getSampleRanks(const VectorInt& ivars,
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int jvar    = jvars[ivar];
-    index[ivar] = getRanksActive(nbgh, jvar, useSel, useZ, useVerr, useExtD);
+    index[ivar] = getSampleRanksPerVariable(nbgh, jvar, useSel, useZ, useVerr, useExtD);
   }
   return index;
 }
@@ -3640,12 +3640,12 @@ VectorVectorInt Db::getSampleRanks(const VectorInt& ivars,
  * @param useExtD True if the definition of the External Drift must be checked
  * @return VectorInt 
  */
-VectorInt Db::getRanksActive(const VectorInt& nbgh,
-                             int ivar,
-                             bool useSel,
-                             bool useZ,
-                             bool useVerr,
-                             bool useExtD) const
+VectorInt Db::getSampleRanksPerVariable(const VectorInt& nbgh,
+                                        int ivar,
+                                        bool useSel,
+                                        bool useZ,
+                                        bool useVerr,
+                                        bool useExtD) const
 {
   double value;
   int nech_tot = getNSample();

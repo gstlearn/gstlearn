@@ -577,12 +577,14 @@ public:
                                       int item              = -1,
                                       bool useSel           = true,
                                       bool useZ             = true,
-                                      bool useVerr          = false) const;
+                                      bool useVerr          = false,
+                                      bool useExtD          = false) const;
   VectorVectorInt getSampleRanks(const VectorInt& ivars = VectorInt(),
                                  const VectorInt& nbgh  = VectorInt(),
                                  bool useSel            = true,
                                  bool useZ              = true,
-                                 bool useVerr           = false) const;
+                                 bool useVerr           = false,
+                                 bool useExtD           = false) const;
   VectorDouble getValuesByRanks(const VectorVectorInt& sampleRanks,
                                 const VectorDouble& means = VectorDouble(),
                                 bool subtractMean         = true) const;
