@@ -3586,7 +3586,7 @@ VectorInt Db::getSampleRanksPerVariable(const VectorInt& nbgh,
                                         bool useSel,
                                         bool useZ,
                                         bool useVerr,
-                             bool useExtD) const
+                                        bool useExtD) const
 {
   double value;
   int nech_tot = getNSample();
@@ -3628,14 +3628,14 @@ VectorInt Db::getSampleRanksPerVariable(const VectorInt& nbgh,
     // Check against the existence of a target variable
     if (useZ && ivar >= 0)
     {
-      value = getFromLocator(ELoc::Z, iabs, item);
+      value = getFromLocator(ELoc::Z, iabs, ivar);
       if (FFFF(value)) continue;
     }
 
     // Check against the validity of the Variance of Measurement Error
     if (useV)
     {
-      value = getFromLocator(ELoc::V, iabs, item);
+      value = getFromLocator(ELoc::V, iabs, ivar);
       if (FFFF(value) || value < 0) continue;
     }
 
