@@ -64,5 +64,5 @@ private:
 private:
   mutable VectorDouble _tl; // Lower triangular matrix
   mutable VectorDouble _xl; // Lower triangular matrix
-  mutable Eigen::LLT<Eigen::MatrixXd>* _factor; // Cholesky decomposition (Eigen format)
+  mutable Eigen::LLT<Eigen::MatrixXd> _factor; // Cholesky decomposition (Eigen format)
 };

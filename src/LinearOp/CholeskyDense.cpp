@@ -22,7 +22,7 @@ CholeskyDense::CholeskyDense(const MatrixSquareSymmetric* mat)
   : ACholesky(mat)
   , _tl()
   , _xl()
-  , _factor(nullptr)
+  , _factor()
 {
   (void) _prepare();
 }
@@ -31,13 +31,8 @@ CholeskyDense::CholeskyDense(const CholeskyDense& m)
   : ACholesky(m)
   , _tl(m._tl)
   , _xl(m._xl)
-  , _factor()
+  , _factor(m._factor)
 {
-  if (m._factor != nullptr)
-  {
-    _factor = new Eigen::LLT<Eigen::MatrixXd>();
-    _factor = m._factor;
-  }
 }
 
 CholeskyDense& CholeskyDense::operator=(const CholeskyDense& m)
@@ -47,11 +42,7 @@ CholeskyDense& CholeskyDense::operator=(const CholeskyDense& m)
     ACholesky::operator=(m);
     _tl   = m._tl;
     _xl   = m._xl;
-    if (m._factor != nullptr)
-    {
-      _factor = new Eigen::LLT<Eigen::MatrixXd>();
-      _factor = m._factor;
-    }
+    _factor = m._factor;
   }
   return *this;
 }
@@ -63,8 +54,6 @@ CholeskyDense::~CholeskyDense()
 
 void CholeskyDense::_clear()
 {
-  delete _factor;
-  _factor = nullptr;
 }
 
 int CholeskyDense::addInvLtX(const constvect vecin, vect vecout) const
@@ -72,7 +61,7 @@ int CholeskyDense::addInvLtX(const constvect vecin, vect vecout) const
   if (! isReady()) return 1;
   Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(),vecin.size());
   Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
-  mvecout.noalias() += _factor->matrixL().transpose().solve(mvecin);
+  mvecout.noalias() += _factor.matrixL().transpose().solve(mvecin);
   return 0;             
 }
 
@@ -81,7 +70,7 @@ int CholeskyDense::addLtX(const constvect vecin, vect vecout) const
   if (! isReady()) return 1;
   Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
   Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
-  mvecout.noalias() += _factor->matrixL().transpose() * mvecin;
+  mvecout.noalias() += _factor.matrixL().transpose() * mvecin;
   return 0;
 }
 
@@ -90,7 +79,7 @@ int CholeskyDense::addLX(const constvect vecin, vect vecout) const
   if (! isReady()) return 1;
   Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(),vecin.size());
   Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
-  mvecout.noalias() += _factor->matrixL() * mvecin;
+  mvecout.noalias() += _factor.matrixL() * mvecin;
   return 0;
 }
 
@@ -99,7 +88,7 @@ int CholeskyDense::addInvLX(const constvect vecin, vect vecout) const
   if (! isReady()) return 1;
   Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
   Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
-  mvecout.noalias() += _factor->matrixL().solve(mvecin);
+  mvecout.noalias() += _factor.matrixL().solve(mvecin);
   return 0;
 }
 
@@ -109,7 +98,7 @@ int CholeskyDense::addSolveX(const constvect vecin, vect vecout) const
   int size = (int)vecin.size();
   Eigen::Map<const Eigen::VectorXd> bm(vecin.data(), size);
   Eigen::Map<Eigen::VectorXd> xm(vecout.data(), size);
-  xm += _factor->solve(bm);
+  xm += _factor.solve(bm);
   return 0;
 }
 
@@ -123,9 +112,9 @@ int CholeskyDense::_getTriangleSize() const
 double CholeskyDense::computeLogDeterminant() const
 {
   if (! isReady()) return TEST;
-  auto diag  = _factor->matrixLLT().diagonal();
+  auto diag  = _factor.matrixLLT().diagonal();
   double det = 0.;
-  for (int i = 0; i < _factor->rows(); i++) det += log(diag[i]);
+  for (int i = 0; i < _factor.rows(); i++) det += log(diag[i]);
   return 2. * det;
 }
 
@@ -159,13 +148,7 @@ int CholeskyDense::_prepare() const
 {
   if (_mat == nullptr) return 1;
   const auto a = ((AMatrixDense*)_mat)->getEigenMat();
-  _factor                  = new Eigen::LLT<Eigen::MatrixXd>();
-  *_factor                 = a.llt();
-  if (_factor == nullptr)
-  {
-    messerr("Error when computing the Cholesky Decmposition");
-    return 1;
-  }
+  _factor                 = a.llt();
   _setReady();
   return 0;
 }
@@ -184,7 +167,7 @@ int CholeskyDense::_computeTL() const
   int neq = _size;
 
   _tl.resize(_getTriangleSize());
-  Eigen::MatrixXd mymat = _factor->matrixL();
+  Eigen::MatrixXd mymat = _factor.matrixL();
   for (int ip = 0; ip < neq; ip++)
     for (int jp = 0; jp <= ip; jp++) _TL(ip, jp) = mymat(ip, jp);
   return 0;
