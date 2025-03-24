@@ -155,13 +155,17 @@ private:
 #ifndef SWIG
   public:
   constvect getViewOnColumn(int icol) const;
-  vect getViewOnColumnModify(int icol) const;
+  vect getViewOnColumnModify(int icol);
 #endif
 #ifndef SWIG
   public:
-  const Eigen::Map<Eigen::MatrixXd>* getTab() const
+  Eigen::Map<const Eigen::MatrixXd> getEigenMat() const
   {
-    return _eigenMatrix.get();
+    return Eigen::Map<const Eigen::MatrixXd>(_eigenMatrix.data(), getNRows(), getNCols());
+  }
+  Eigen::Map<Eigen::MatrixXd> getEigenMat()
+  {
+    return Eigen::Map<Eigen::MatrixXd>(_eigenMatrix.data(), getNRows(), getNCols());
   }
 #endif
 protected:
@@ -170,5 +174,5 @@ protected:
   MatrixSquareGeneral* _eigenVectors; // Used only when ! flag_eigen()
   int _maxSize;
 protected:
-  std::unique_ptr<Eigen::Map<Eigen::MatrixXd> > _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
+  VectorDouble _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
 };
