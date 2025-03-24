@@ -17,9 +17,6 @@
 #include "Neigh/ANeigh.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "Model/Model.hpp"
-#include "Neigh/ANeigh.hpp"
-#include "Model/ModelGeneric.hpp"
-#include "Model/Model.hpp"
 
 KrigOpt::KrigOpt(const EKrigOpt& calcul)
   : _calcul(calcul)
