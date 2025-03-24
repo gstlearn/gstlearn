@@ -44,6 +44,7 @@ private:
   struct Db_Part
   {
     // Use SPDE approach (TRUE); use the Covariance Matrix approach (FALSE°
+    // Use SPDE approach (TRUE); use the Covariance Matrix approach (FALSE°
     bool _flagSPDE;
     Db* _db;
   };
@@ -51,11 +52,9 @@ private:
   struct AlgorithmLikelihood
   {
     Model_Part& _modelPart;
-
-    // Part relative to the Experimental variograms
-    ModelOptimLikelihood::Db_Part& _dbPart;
+    Db_Part& _dbPart;
   };
-
+private:
 private:
   void _copyDbPart(const Db_Part& dbPart);
   bool _checkConsistency();

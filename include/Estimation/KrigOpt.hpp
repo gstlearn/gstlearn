@@ -36,6 +36,7 @@ public:
   int setKrigingDGM(bool flag_dgm);
   int setRankColCok(const VectorInt& rank_colcok);
   int setMatLC(const MatrixRectangular* matLC, int nvar);
+  int setRankColCok(const VectorInt& rank_colcok);
   void setMode(const CovCalcMode* mode);
 
   const CovCalcMode& getMode() const { return _mode; }
@@ -90,7 +91,14 @@ private:
   VectorInt _rankColcok;
 
   // Matrix used for variable combination
+  // Colocated Kriging option
+  bool _flagColcok;
+  VectorInt _rankColcok;
+  mutable VectorDouble _valuesColcok;
+
+  // Matrix used for variable combination
   const MatrixRectangular* _matLC; // Pointer not to be deleted
+
 
   DbGrid* _dbgrid; // Pointer to the DbGrid (not to be deleted)
 };

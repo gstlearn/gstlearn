@@ -1083,6 +1083,12 @@ int KrigingSystem::setKrigOpt(const KrigOpt& krigopt)
   return 0;
 }
 
+int KrigingSystem::setKrigOpt(const KrigOpt& krigopt)
+{
+  _krigopt = krigopt;
+  return 0;
+}
+
 int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
                                     const VectorInt& ndiscs,
                                     bool flag_per_cell)

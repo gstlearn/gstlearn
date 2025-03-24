@@ -50,6 +50,7 @@ public:
 
   int resetData();
   int setKrigOpt(const KrigOpt& krigopt);
+  int setKrigOpt(const KrigOpt& krigopt);
   int setKrigOptCalcul(const EKrigOpt& calcul,
                        const VectorInt& ndiscs = VectorInt(),
                        bool flag_per_cell      = false);

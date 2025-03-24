@@ -68,7 +68,6 @@ protected:
     int _wmode;
     std::vector<OneLag> _lags;
   };
-
   struct AlgorithmVario
   {
     Model_Part& _modelPart;
