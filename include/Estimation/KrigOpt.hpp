@@ -29,13 +29,13 @@ public:
   KrigOpt& operator=(const KrigOpt &m);
   virtual ~KrigOpt();
 
-  int setMatLC(const MatrixRectangular* matLC, int nvar);
   int setKrigingOption(const EKrigOpt& calcul  = EKrigOpt::POINT,
-                       DbGrid* dbgrid          = nullptr,
+                       Db* dbout               = nullptr,
                        const VectorInt& ndiscs = VectorInt(),
                        bool flag_per_cell      = false);
   int setKrigingDGM(bool flag_dgm);
   int setRankColCok(const VectorInt& rank_colcok);
+  int setMatLC(const MatrixRectangular* matLC, int nvar);
   void setMode(const CovCalcMode* mode);
 
   const CovCalcMode& getMode() const { return _mode; }
@@ -64,6 +64,10 @@ public:
 private:
   double _getDisc1(int idisc, int idim) const;
   double _getDisc2(int idisc, int idim) const;
+  bool _isValidCalcul(const Db* dbout, const ANeigh* neigh) const;
+  bool _isValidColcok(const Db* dbout, const ModelGeneric* model) const;
+  bool _isValidMatLC(const ModelGeneric* model) const;
+  bool _isValidDGM(const ModelGeneric* model) const;
 
 private:
   // General information
@@ -84,7 +88,6 @@ private:
   // Colocated Kriging option
   bool _flagColcok;
   VectorInt _rankColcok;
-  mutable VectorDouble _valuesColcok;
 
   // Matrix used for variable combination
   const MatrixRectangular* _matLC; // Pointer not to be deleted

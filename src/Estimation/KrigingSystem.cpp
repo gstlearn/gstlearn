@@ -79,7 +79,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _xvalidEstim(true)
   , _xvalidStdev(true)
   , _xvalidVarZ(false)
-  , _valuesColCok()
+  , _valuesColcok()
   , _flagBayes(false)
   , _priorMean()
   , _priorCov()
@@ -524,6 +524,9 @@ bool KrigingSystem::isReady()
 {
   if (!_isCorrect()) return false;
 
+  // Check the internal class '_krigopt'
+  if (_krigopt.isValid(_dbout, _neigh, _model)) return false;
+
   // Define the means of each variable
   _means       = _model->getMeans();
   // Possible adjust the means in case of presence of 'matLC'
@@ -675,9 +678,11 @@ int KrigingSystem::estimate(int iech_out)
     }
     else
     {
-      _valuesColCok = _dbout->getLocVariables(ELoc::Z, _iechOut);
-      if (_X.empty()) VH::subtractInPlace(_valuesColCok, _means);
-      if (_algebra.setColCokUnique(&_valuesColCok, &_krigopt.getRankColcok())) return 1;
+      int nvar = _model->getNVar();
+      _valuesColcok.resize(nvar);
+      _valuesColcok = _dbout->getLocVariables(ELoc::Z, _iechOut);
+      if (_X.empty()) VH::subtractInPlace(_valuesColcok, _means);
+      if (_algebra.setColCokUnique(&_valuesColcok, &_krigopt.getRankColcok())) return 1;
     }
   }
 
@@ -1084,38 +1089,7 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
 {
   _isReady = false;
   _calcul  = calcul;
-  bool flagPerCell = false;
-  DbGrid* dbgrid   = dynamic_cast<DbGrid*>(_dbout);
-
-  if (_calcul == EKrigOpt::BLOCK)
-  {
-    if (dbgrid == nullptr)
-    {
-      messerr("Block Estimation is only possible for Grid '_dbout'");
-      return 1;
-    }
-
-    // Block support is defined per sample
-    if (flag_per_cell)
-    {
-      flagPerCell = true;
-    }
-    if (_neigh->getType() == ENeigh::CELL)
-    {
-      flagPerCell = true;
-    }
-
-    // Check that discretization is defined
-    if (ndiscs.empty())
-    {
-      messerr("In case of BLOCK kriging, you must define the discretization coefficients");
-      messerr("i.e. a vector (dimension equal Space Dimension) filled with positive numbers");
-      return 1;
-    }
-  }
-
-  // New style operation
-  _krigopt.setKrigingOption(calcul, dbgrid, ndiscs, flagPerCell);
+  _krigopt.setKrigingOption(calcul, _dbout, ndiscs, flag_per_cell);
   return 0;
 }
 
@@ -1187,27 +1161,6 @@ int KrigingSystem::setKrigOptColCok(const VectorInt& rank_colcok)
   if (rank_colcok.empty()) return 0;
 
   _isReady = false;
-  int nvar    = _getNVar();
-  _valuesColCok.resize(nvar);
-
-  /* Loop on the ranks of the colocated variables */
-
-  for (int ivar = 0; ivar < nvar; ivar++)
-  {
-    int jvar = rank_colcok[ivar];
-    if (jvar < 0) continue;
-    if (jvar > _dbout->getNLoc(ELoc::Z))
-    {
-      messerr("Error in the Colocation array:");
-      messerr("Input variable (#%d): rank of the colocated variable is %d",
-              ivar + 1, jvar);
-      messerr("But the Output file only contains %d attributes(s)",
-              _dbout->getNColumn());
-      return (1);
-    }
-  }
-
-  // New style operation
   _krigopt.setRankColCok(rank_colcok);
   return 0;
 }
@@ -1312,36 +1265,9 @@ int KrigingSystem::setKrigOptFlagSimu(bool flagSimu, int nbsimu, int rankPGS)
 }
 
 
-int KrigingSystem::setKrigOptDGM(bool flag_dgm, double eps)
+int KrigingSystem::setKrigOptDGM(bool flag_dgm)
 {
   _isReady = false;
-  if (! flag_dgm)
-  {
-    _flagDGM = flag_dgm;
-    return 0;
-  }
-
-  const Model* model = dynamic_cast<const Model*>(_model);
-  if (model->getCovMinIRFOrder() != -1)
-  {
-    messerr("The option DGM is limited to Stationary Covariances");
-    return 1;
-  }
-  if (_model->getNVar() != 1)
-  {
-    messerr("The DGM option is limited to the Monovariate case");
-    return 1;
-  }
-  Model* model_old = _castInOldModel();
-  if (model_old == nullptr) return 1;
-  if (ABS(model_old->getTotalSill(0,0) - 1.) > eps)
-  {
-    messerr("The DGM option requires a Model with Total Sill equal to 1.");
-    return 1;
-  }
-  _flagDGM = flag_dgm;
-
-  // New style assignment
   _krigopt.setKrigingDGM(flag_dgm);
   return 0;
 }
@@ -1654,15 +1580,6 @@ bool KrigingSystem::_isCorrect()
     if (!_preparNoStat()) return false;
   }
 
-  /**************************/
-  /* Checking cross-options */
-  /**************************/
-
-  if (_flagDGM && (_calcul == EKrigOpt::BLOCK || _calcul == EKrigOpt::DRIFT))
-  {
-    messerr("The DGM option is incompatible with 'Block' calculation option");
-    return false;
-  }
   return true;
 }
 

@@ -65,7 +65,7 @@ public:
   int setKrigOptDataWeights(int iptrWeights, bool flagSet = true);
   int setKrigOptMatLC(const MatrixRectangular* matLC);
   int setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
-  int setKrigOptDGM(bool flag_dgm, double eps = EPSILON6);
+  int setKrigOptDGM(bool flag_dgm);
   int setKrigOptFlagGlobal(bool flag_global);
   int setKrigOptFlagLTerm(bool flag_lterm);
   int setKrigOptAnamophosis(AAnam* anam);
@@ -187,7 +187,7 @@ private:
   bool _xvalidVarZ;
 
   /// Option for Colocation
-  VectorDouble _valuesColCok;
+  VectorDouble _valuesColcok;
 
   /// Option for Bayesian
   bool _flagBayes;

@@ -30,7 +30,6 @@ KrigOpt::KrigOpt(const EKrigOpt& calcul)
   , _flagDGM(false)
   , _flagColcok(false)
   , _rankColcok()
-  , _valuesColcok()
   , _matLC()
   , _dbgrid()
 {
@@ -49,7 +48,6 @@ KrigOpt::KrigOpt(const KrigOpt& m)
   , _flagDGM(m._flagDGM)
   , _flagColcok(m._flagColcok)
   , _rankColcok(m._rankColcok)
-  , _valuesColcok(m._valuesColcok)
   , _matLC(m._matLC)
   , _dbgrid(m._dbgrid)
 {
@@ -70,7 +68,6 @@ KrigOpt& KrigOpt::operator=(const KrigOpt& m)
     _flagDGM      = m._flagDGM;
     _flagColcok   = m._flagColcok;
     _rankColcok   = m._rankColcok;
-    _valuesColcok = m._valuesColcok;
     _matLC        = m._matLC;
     _dbgrid       = m._dbgrid;
   }
@@ -124,7 +121,7 @@ int KrigOpt::setMatLC(const MatrixRectangular* matLC, int nvar)
 }
 
 int KrigOpt::setKrigingOption(const EKrigOpt& calcul,
-                              DbGrid* dbgrid,
+                              Db* dbout,
                               const VectorInt& ndiscs,
                               bool flag_per_cell)
 {
@@ -147,6 +144,7 @@ int KrigOpt::setKrigingOption(const EKrigOpt& calcul,
       messerr("i.e. a vector (dimension: Space Dimension) filled with positive numbers");
       return 1;
     }
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
     if (dbgrid == nullptr)
     {
       messerr("For Block Kriging, the output must be a DbGrid");
@@ -236,14 +234,12 @@ void KrigOpt::setMode(const CovCalcMode* mode)
     _mode = CovCalcMode(ECalcMember::RHS);
 }
 
-bool KrigOpt::isValid(const Db* dbout, const ANeigh* neigh, const ModelGeneric* model) const
+bool KrigOpt::_isValidCalcul(const Db* dbout, const ANeigh* neigh) const
 {
-  const DbGrid* dbgrid   = dynamic_cast<const DbGrid*>(dbout);
-  int nvar               = model->getNVar();
-
   // Check the Block calculation
   if (_calcul == EKrigOpt::BLOCK)
   {
+    const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(dbout);
     if (dbgrid == nullptr)
     {
       messerr("Block Estimation is only possible for Grid '_dbout'");
@@ -264,74 +260,105 @@ bool KrigOpt::isValid(const Db* dbout, const ANeigh* neigh, const ModelGeneric* 
       return false;
     }
   }
+  return true;
+}
 
-  // Check the validity of Colocated CoKriging
-  if (_flagColcok) 
+bool KrigOpt::_isValidColcok(const Db* dbout, const ModelGeneric* model) const
+{
+  if (!_flagColcok) return true;
+
+  int nvar = model->getNVar();
+
+  /* Loop on the ranks of the colocated variables */
+
+  for (int ivar = 0; ivar < nvar; ivar++)
   {
-    _valuesColcok.resize(nvar);
-
-    /* Loop on the ranks of the colocated variables */
-
-    for (int ivar = 0; ivar < nvar; ivar++)
+    int jvar = _rankColcok[ivar];
+    if (jvar < 0) continue;
+    if (jvar > dbout->getNLoc(ELoc::Z))
     {
-      int jvar = _rankColcok[ivar];
-      if (jvar < 0) continue;
-      if (jvar > dbout->getNLoc(ELoc::Z))
-      {
-        messerr("Error in the Colocation array:");
-        messerr("Input variable (#%d): rank of the colocated variable is %d",
-                ivar + 1, jvar);
-        messerr("But the Output file only contains %d attributes(s)",
-                dbout->getNColumn());
-        return false;
-      }
-    }
-  }
-
-  if (!_matLC->empty())
-  {
-    int n1   = (int)_matLC->getNRows();
-    int n2   = (int)_matLC->getNCols();
-
-    if (n1 > nvar)
-    {
-      messerr("First dimension of 'matLC' (%d)", (int)n1);
-      messerr("should be smaller than the number of variables in the model (%d)",nvar);
-      return false;
-    }
-    if (n2 != nvar)
-    {
-      messerr("Second dimension of 'matLC' (%d)", (int)n2);
-      messerr("should be equal to the number of variables in the model (%d)", nvar);
+      messerr("Error in the Colocation array:");
+      messerr("Input variable (#%d): rank of the colocated variable is %d",
+              ivar + 1, jvar);
+      messerr("But the Output file only contains %d attributes(s)",
+              dbout->getNColumn());
       return false;
     }
   }
+  return true;
+}
 
-  // Check the validity for Discrete Gaussian Model
-  if (_flagDGM)
+bool KrigOpt::_isValidMatLC(const ModelGeneric* model) const
+{
+  if (_matLC == nullptr) return true;
+  if (_matLC->empty()) return true;
+  int nvar = model->getNVar();
+  int n1   = (int)_matLC->getNRows();
+  int n2   = (int)_matLC->getNCols();
+
+  if (n1 > nvar)
   {
-    const Model* modelAniso = dynamic_cast<const Model*>(model);
-    if (modelAniso == nullptr)
-    {
-      messerr("The option DGM is limited to model Aniso");
-      return false; 
-    }
-    if (modelAniso->getCovMinIRFOrder() != -1)
-    {
-      messerr("The option DGM is limited to Stationary Covariances");
-      return false;
-    }
-    if (nvar != 1)
-    {
-      messerr("The DGM option is limited to the Monovariate case");
-      return false;
-    }
-    if (ABS(modelAniso->getTotalSill(0, 0) - 1.) > 1.e-6)
-    {
-      messerr("The DGM option requires a Model with Total Sill equal to 1.");
-      return false;
-    }
+    messerr("First dimension of 'matLC' (%d)", (int)n1);
+    messerr("should be smaller than the number of variables in the model (%d)", nvar);
+    return false;
   }
+  if (n2 != nvar)
+  {
+    messerr("Second dimension of 'matLC' (%d)", (int)n2);
+    messerr("should be equal to the number of variables in the model (%d)", nvar);
+    return false;
+  }
+  return true;
+}
+
+bool KrigOpt::_isValidDGM(const ModelGeneric* model) const
+{
+  if (!_flagDGM) return false;
+  int nvar                = model->getNVar();
+  const Model* modelAniso = dynamic_cast<const Model*>(model);
+  if (modelAniso == nullptr)
+  {
+    messerr("The option DGM is limited to model Aniso");
+    return false;
+  }
+  if (modelAniso->getCovMinIRFOrder() != -1)
+  {
+    messerr("The option DGM is limited to Stationary Covariances");
+    return false;
+  }
+  if (nvar != 1)
+  {
+    messerr("The DGM option is limited to the Monovariate case");
+    return false;
+  }
+  if (ABS(modelAniso->getTotalSill(0, 0) - 1.) > 1.e-6)
+  {
+    messerr("The DGM option requires a Model with Total Sill equal to 1.");
+    return false;
+  }
+
+  if (_calcul == EKrigOpt::BLOCK || _calcul == EKrigOpt::DRIFT)
+  {
+    messerr("The DGM option is incompatible with 'Block' calculation option");
+    return false;
+  }
+  return true;
+}
+
+  bool KrigOpt::isValid(const Db* dbout, const ANeigh* neigh, const ModelGeneric* model) const
+{
+  // Check against Block calculation options
+  if (! _isValidCalcul(dbout, neigh)) return false;
+
+  // Check against Colocated CoKriging options
+  if (!_isValidColcok(dbout, model)) return false;
+
+  // Check against the matLC option
+  if (!_isValidMatLC(model)) return false;
+
+   // Check the validity for Discrete Gaussian Model
+  if (!_isValidDGM(model)) return false;
+ 
   return true;
 }
 
