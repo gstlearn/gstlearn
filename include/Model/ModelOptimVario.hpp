@@ -64,20 +64,13 @@ protected:
 
   struct Vario_Part
   {
-    // Pointer to the Vario structure
     Vario* _vario;
     int _wmode;
-
-    // Experimental quantities
     std::vector<OneLag> _lags;
   };
-
   struct AlgorithmVario
   {
-    // Part of the structure dedicated to the Model
     Model_Part& _modelPart;
-
-    // Part relative to the Experimental variograms
     Vario_Part& _varioPart;
 
     // Part relative to Sill fitting procedure

@@ -76,12 +76,10 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _flagSimu(false)
   , _nbsimu(0)
   , _rankPGS(-1)
-  , _ndiscs()
   , _xvalidEstim(true)
   , _xvalidStdev(true)
   , _xvalidVarZ(false)
-  , _rankColCok()
-  , _valuesColCok()
+  , _valuesColcok()
   , _flagBayes(false)
   , _priorMean()
   , _priorCov()
@@ -283,38 +281,13 @@ double KrigingSystem::_continuousMultiplier(int rank1,int rank2, double eps)
   return (var);
 }
 
-void KrigingSystem::_dumpOptions() const
-{
-  /* Kriging option */
-
-  switch (_calcul.toEnum())
-  {
-    case EKrigOpt::E_POINT: message("Punctual Estimation\n"); break;
-
-    case EKrigOpt::E_BLOCK:
-      message("Block Estimation : Discretization = ");
-      for (int idim = 0; idim < _ndim; idim++)
-      {
-        if (idim != 0) message(" x ");
-        message("%d", _ndiscs[idim]);
-      }
-      message("\n");
-      break;
-
-    case EKrigOpt::E_DRIFT: message("Drift Estimation\n"); break;
-
-    case EKrigOpt::E_DGM: message("Discrete Gaussian Model\n"); break;
-  }
-  message("\n");
-}
-
 void KrigingSystem::_rhsDump()
 {
   mestitle(0, "RHS of Kriging matrix");
   if (_nech > 0) message("Number of active samples    = %d\n", _nech);
   message("Total number of equations   = %d\n", _neq);
   message("Number of right-hand sides  = %d\n", _nvarCL);
-  _dumpOptions();
+  _krigopt.dumpOptions();
   _algebra.dumpRHS();
 }
 
@@ -551,6 +524,9 @@ bool KrigingSystem::isReady()
 {
   if (!_isCorrect()) return false;
 
+  // Check the internal class '_krigopt'
+  if (_krigopt.isValid(_dbout, _neigh, _model)) return false;
+
   // Define the means of each variable
   _means       = _model->getMeans();
   // Possible adjust the means in case of presence of 'matLC'
@@ -643,7 +619,7 @@ int KrigingSystem::estimate(int iech_out)
     }
 
     mestitle(1, "Target location");
-    if (_rankColCok.empty())
+    if (! _krigopt.hasColcok())
       db_sample_print(_dbout, _iechOut, 1, 0, 0, 0);
     else
       db_sample_print(_dbout, _iechOut, 1, 1, 0, 0);
@@ -694,7 +670,7 @@ int KrigingSystem::estimate(int iech_out)
   };
 
   // Special patch for Colocated CoKriging
-  if (!_rankColCok.empty())
+  if (_krigopt.hasColcok())
   {
     if (_neigh->getType() == ENeigh::MOVING)
     {
@@ -702,9 +678,11 @@ int KrigingSystem::estimate(int iech_out)
     }
     else
     {
-      _valuesColCok = _dbout->getLocVariables(ELoc::Z, _iechOut);
-      if (_X.empty()) VH::subtractInPlace(_valuesColCok, _means);
-      if (_algebra.setColCokUnique(&_valuesColCok, &_rankColCok)) return 1;
+      int nvar = _model->getNVar();
+      _valuesColcok.resize(nvar);
+      _valuesColcok = _dbout->getLocVariables(ELoc::Z, _iechOut);
+      if (_X.empty()) VH::subtractInPlace(_valuesColcok, _means);
+      if (_algebra.setColCokUnique(&_valuesColcok, &_krigopt.getRankColcok())) return 1;
     }
   }
 
@@ -785,7 +763,7 @@ int KrigingSystem::_updateForColCokMoving()
   VectorDouble newValues(nvar, TEST);
   for (int jvar = 0; jvar < nvar; jvar++)
   {
-    int ivar = _rankColCok[jvar];
+    int ivar = _krigopt.getRankColcok(jvar);
     if (ivar < 0 || ivar >= _dbout->getNLoc(ELoc::Z)) continue;
     double value = _dbout->getZVariable(_iechOut, ivar);
     if (FFFF(value)) continue;
@@ -1099,52 +1077,19 @@ int KrigingSystem::setKrigOptDataWeights(int iptrWeights, bool flagSet)
   return 0;
 }
 
+int KrigingSystem::setKrigOpt(const KrigOpt& krigopt)
+{
+  _krigopt = krigopt;
+  return 0;
+}
+
 int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
                                     const VectorInt& ndiscs,
                                     bool flag_per_cell)
 {
   _isReady = false;
   _calcul  = calcul;
-  bool flagPerCell = false;
-  DbGrid* dbgrid   = dynamic_cast<DbGrid*>(_dbout);
-
-  if (_calcul == EKrigOpt::BLOCK)
-  {
-    if (dbgrid == nullptr)
-    {
-      messerr("Block Estimation is only possible for Grid '_dbout'");
-      return 1;
-    }
-
-    // Block support is defined per sample
-    if (flag_per_cell)
-    {
-      flagPerCell = true;
-    }
-    if (_neigh->getType() == ENeigh::CELL)
-    {
-      flagPerCell = true;
-    }
-
-    // Check that discretization is defined
-    if (ndiscs.empty())
-    {
-      messerr("In case of BLOCK kriging, you must define the discretization coefficients");
-      messerr("i.e. a vector (dimension equal Space Dimension) filled with positive numbers");
-      return 1;
-    }
-
-    // Discretization is stored
-
-    _ndiscs = ndiscs;
-  }
-  else
-  {
-    _ndiscs.clear();
-  }
-
-  // New style operation
-  _krigopt.setKrigingOption(calcul, dbgrid, ndiscs, flagPerCell);
+  _krigopt.setKrigingOption(calcul, _dbout, ndiscs, flag_per_cell);
   return 0;
 }
 
@@ -1216,26 +1161,7 @@ int KrigingSystem::setKrigOptColCok(const VectorInt& rank_colcok)
   if (rank_colcok.empty()) return 0;
 
   _isReady = false;
-  int nvar    = _getNVar();
-  _rankColCok = rank_colcok;
-  _valuesColCok.resize(nvar);
-
-  /* Loop on the ranks of the colocated variables */
-
-  for (int ivar = 0; ivar < nvar; ivar++)
-  {
-    int jvar = _rankColCok[ivar];
-    if (jvar < 0) continue;
-    if (jvar > _dbout->getNLoc(ELoc::Z))
-    {
-      messerr("Error in the Colocation array:");
-      messerr("Input variable (#%d): rank of the colocated variable is %d",
-              ivar + 1, jvar);
-      messerr("But the Output file only contains %d attributes(s)",
-              _dbout->getNColumn());
-      return (1);
-    }
-  }
+  _krigopt.setRankColCok(rank_colcok);
   return 0;
 }
 
@@ -1339,36 +1265,9 @@ int KrigingSystem::setKrigOptFlagSimu(bool flagSimu, int nbsimu, int rankPGS)
 }
 
 
-int KrigingSystem::setKrigOptDGM(bool flag_dgm, double eps)
+int KrigingSystem::setKrigOptDGM(bool flag_dgm)
 {
   _isReady = false;
-  if (! flag_dgm)
-  {
-    _flagDGM = flag_dgm;
-    return 0;
-  }
-
-  const Model* model = dynamic_cast<const Model*>(_model);
-  if (model->getCovMinIRFOrder() != -1)
-  {
-    messerr("The option DGM is limited to Stationary Covariances");
-    return 1;
-  }
-  if (_model->getNVar() != 1)
-  {
-    messerr("The DGM option is limited to the Monovariate case");
-    return 1;
-  }
-  Model* model_old = _castInOldModel();
-  if (model_old == nullptr) return 1;
-  if (ABS(model_old->getTotalSill(0,0) - 1.) > eps)
-  {
-    messerr("The DGM option requires a Model with Total Sill equal to 1.");
-    return 1;
-  }
-  _flagDGM = flag_dgm;
-
-  // New style assignment
   _krigopt.setKrigingDGM(flag_dgm);
   return 0;
 }
@@ -1681,15 +1580,6 @@ bool KrigingSystem::_isCorrect()
     if (!_preparNoStat()) return false;
   }
 
-  /**************************/
-  /* Checking cross-options */
-  /**************************/
-
-  if (_flagDGM && (_calcul == EKrigOpt::BLOCK || _calcul == EKrigOpt::DRIFT))
-  {
-    messerr("The DGM option is incompatible with 'Block' calculation option");
-    return false;
-  }
   return true;
 }
 

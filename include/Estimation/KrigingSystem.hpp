@@ -49,6 +49,7 @@ public:
   virtual ~KrigingSystem();
 
   int resetData();
+  int setKrigOpt(const KrigOpt& krigopt);
   int setKrigOptCalcul(const EKrigOpt& calcul,
                        const VectorInt& ndiscs = VectorInt(),
                        bool flag_per_cell      = false);
@@ -64,7 +65,7 @@ public:
   int setKrigOptDataWeights(int iptrWeights, bool flagSet = true);
   int setKrigOptMatLC(const MatrixRectangular* matLC);
   int setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
-  int setKrigOptDGM(bool flag_dgm, double eps = EPSILON6);
+  int setKrigOptDGM(bool flag_dgm);
   int setKrigOptFlagGlobal(bool flag_global);
   int setKrigOptFlagLTerm(bool flag_lterm);
   int setKrigOptAnamophosis(AAnam* anam);
@@ -108,7 +109,6 @@ private:
   void _resetMemoryGeneral();
   bool _isAuthorized() const;
 
-  void _dumpOptions() const;
   void _rhsDump();
   void _wgtDump();
   void _estimateCalcul(int status);
@@ -181,17 +181,13 @@ private:
   int  _nbsimu;
   int  _rankPGS;
 
-  /// Option for Block estimation
-  VectorInt _ndiscs;
-
   /// Option for Cross_validation
   bool _xvalidEstim;
   bool _xvalidStdev;
   bool _xvalidVarZ;
 
   /// Option for Colocation
-  VectorInt _rankColCok;
-  VectorDouble _valuesColCok;
+  VectorDouble _valuesColcok;
 
   /// Option for Bayesian
   bool _flagBayes;

@@ -1724,6 +1724,65 @@ int Db::addSelection(const VectorDouble &tab,
 }
 
 /**
+ * @brief Create a selection by testing a target variable against 'lower' and 'upper'
+ * 
+ * @param varname Name of the target variable
+ * @param lower Lower bound (included) or TEST for no lower bound
+ * @param upper Upper bound (included) or TEST for no upper bound
+ * @param name  Name given to the newly created selection
+ * @param selName If defined, the current selection is combined with the existing one
+ * @return int 
+ */
+int Db::addSelectionByVariable(const String& varname,
+                               double lower,
+                               double upper,
+                               const String& name,
+                               const String& selName)
+{
+  VectorDouble var = getColumn(varname, false);
+  if (var.empty())
+  {
+    messerr("The variable '%s' does not exist", varname.c_str());
+    return 1;
+  }
+
+  int nech = getNSample(false);
+  VectorDouble sel(nech);
+  for (int iech = 0; iech < nech; iech++)
+  {
+    double value = var[iech];
+    double answer = 1;
+    if (FFFF(value))
+    {
+      answer = 0;
+    }
+    else
+    {
+      if (! FFFF(lower) && value < lower) answer = 0;
+      if (! FFFF(upper) && value > upper) answer = 0;
+    }
+    sel[iech] = answer;
+  }
+
+  // Intersection with an already existing selection (optional)
+  if (selName != "")
+  {
+    VectorDouble selOld = getColumn(selName, false);
+    if (selOld.empty())
+    {
+      messerr("The previous selection '%s' does not exist", selName.c_str());
+      return 1;
+    }
+    for (int iech = 0; iech < nech; iech++)
+      sel[iech] = sel[iech] * selOld[iech];
+  }
+
+  // Store the newly createed selection
+  int iuid = addColumns(sel, name, ELoc::SEL);
+  return iuid;
+}
+
+/**
  * Add a Selection by considering the input 'ranks' vector which give the ranks
  * of the active samples (starting from 0)
  * @param ranks   Vector of ranks of active samples
@@ -3539,18 +3598,23 @@ VectorInt Db::getMultipleSelectedVariables(const VectorVectorInt& index,
  * @param useSel  Discard the masked samples (if True)
  * @param useZ    Discard samples when Z is not defined
  * @param useVerr Discard the samples where Verr (optional) is not defined
+ * @param useExtD True if the definition of the External Drift must be checked
  *
  * @note: if the current 'db' has some Z-variable defined, only samples
  * @note: where a variable is defined is considered (search for heterotopy).
  *
  * @note: if 'nbgh' is not provided, the absolute and relative indices
  * @note: returned by this function are similar.
+ *
+ * @note: if 'useExtD' is ON, each sample for each variable is tested against
+ * @note: all the values of External Drift functions.
  */
 VectorVectorInt Db::getSampleRanks(const VectorInt& ivars,
                                    const VectorInt& nbgh,
                                    bool useSel,
                                    bool useZ,
-                                   bool useVerr) const
+                                   bool useVerr,
+                                   bool useExtD) const
 {
   VectorInt jvars = ivars;
   if (jvars.empty()) jvars = VH::sequence(getNLoc(ELoc::Z));
@@ -3560,22 +3624,33 @@ VectorVectorInt Db::getSampleRanks(const VectorInt& ivars,
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int jvar    = jvars[ivar];
-    index[ivar] = getSampleRanksPerVariable(nbgh, jvar, useSel, useZ, useVerr);
+    index[ivar] = getSampleRanksPerVariable(nbgh, jvar, useSel, useZ, useVerr, useExtD);
   }
   return index;
 }
 
+/**
+ * @brief Create the vector of elligible sample ranks for the variable 'ivar'
+ * 
+ * @param nbgh Set of potentiel sample ranks
+ * @param ivar Target variable rank 
+ * @param useSel True if the selection must be taken into account
+ * @param useZ   True if the definition of the target variable must be checked
+ * @param useVerr True if the definition of the Variance of Measurement Error must be checked
+ * @param useExtD True if the definition of the External Drift must be checked
+ * @return VectorInt 
+ */
 VectorInt Db::getSampleRanksPerVariable(const VectorInt& nbgh,
-                                        int item,
+                                        int ivar,
                                         bool useSel,
                                         bool useZ,
-                                        bool useVerr) const
+                                        bool useVerr,
+                                        bool useExtD) const
 {
   double value;
   int nech_tot = getNSample();
 
-  // Create a vector of ranks of samples to be searched (using input 'nbgh'
-  // or not)
+  // Create vector of sample ranks to be searched (using input 'nbgh' or not)
   VectorInt nbgh_init = nbgh;
   if (nbgh_init.empty()) nbgh_init = VH::sequence(nech_tot);
   int nech_init = (int)nbgh_init.size();
@@ -3584,16 +3659,19 @@ VectorInt Db::getSampleRanksPerVariable(const VectorInt& nbgh,
   int icol = (useSel) ? getColIdxByLocator(ELoc::SEL, 0) : -1;
 
   // Update the search for variable, if no variable is defined
-  if (getNLoc(ELoc::Z) <= 0) item = -1;
+  if (getNLoc(ELoc::Z) <= 0) ivar = -1;
+
+  // Count the number of external drifts
+  int nExtD = (useExtD) ? getNLoc(ELoc::F) : 0;
 
   // Check the presence of variance of measurement error (when 'useVerr')
   bool useV = false;
-  if (useVerr && item >= 0)
+  if (useVerr && ivar >= 0)
   {
-    if (getColIdxByLocator(ELoc::V, item) >= 0) useV = true;
+    if (getColIdxByLocator(ELoc::V, ivar) >= 0) useV = true;
   }
 
-  // Constitute the resulting vector osf selected sample ranks
+  // Constitute the resulting vector of selected sample ranks
   VectorInt ranks;
   for (int irel = 0; irel < nech_init; irel++)
   {
@@ -3607,17 +3685,29 @@ VectorInt Db::getSampleRanksPerVariable(const VectorInt& nbgh,
     }
 
     // Check against the existence of a target variable
-    if (useZ && item >= 0)
+    if (useZ && ivar >= 0)
     {
-      value = getFromLocator(ELoc::Z, iabs, item);
+      value = getZVariable(iabs, ivar);
       if (FFFF(value)) continue;
     }
 
-    // Check against the validity of the Variance of Measurement Error
+    // Check against validity of the Variance of Measurement Error variable
     if (useV)
     {
-      value = getFromLocator(ELoc::V, iabs, item);
+      value = getLocVariable(ELoc::V, iabs, ivar);
       if (FFFF(value) || value < 0) continue;
+    }
+
+    // Check against the validity of ALL external drifts
+    if (useExtD && nExtD > 0)
+    {
+      bool valid = true;
+      for (int iext = 0; iext < nExtD; iext++)
+      {
+        value = getLocVariable(ELoc::F, iabs, iext);
+        if (FFFF(value)) { valid = false; break; }
+      }
+      if (!valid) continue;
     }
 
     // The sample is finally accepted: its ABSOLUTE index is stored
@@ -3724,8 +3814,7 @@ VectorDouble Db::getColumnByLocator(const ELoc& locatorType,
  * Returns the contents of one Column identified by its name
  *
  */
-VectorDouble
-Db::getColumn(const String& name, bool useSel, bool flagCompress) const
+VectorDouble Db::getColumn(const String& name, bool useSel, bool flagCompress) const
 {
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return VectorDouble();

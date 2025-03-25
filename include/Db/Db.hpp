@@ -336,6 +336,11 @@ public:
   int addSelection(const VectorDouble& tab = VectorDouble(),
                    const String& name = "NewSel",
                    const String& combine = "set");
+  int addSelectionByVariable(const String& varname,
+                             double lower = TEST,
+                             double upper = TEST,
+                             const String& name = "NewSel",
+                             const String& selName = "");
   int addSelectionByRanks(const VectorInt &ranks,
                           const String &name = "NewSel",
                           const String &combine = "set");
@@ -352,6 +357,7 @@ public:
                          int seed = 138213,
                          const String& name = "NewSel",
                          const String& combine = "set");
+
 
   int addSamples(int nadd, double valinit = TEST);
   int deleteSample(int e_del);
@@ -571,12 +577,14 @@ public:
                                       int item              = -1,
                                       bool useSel           = true,
                                       bool useZ             = true,
-                                      bool useVerr          = false) const;
+                                      bool useVerr          = false,
+                                      bool useExtD          = false) const;
   VectorVectorInt getSampleRanks(const VectorInt& ivars = VectorInt(),
                                  const VectorInt& nbgh  = VectorInt(),
                                  bool useSel            = true,
                                  bool useZ              = true,
-                                 bool useVerr           = false) const;
+                                 bool useVerr           = false,
+                                 bool useExtD           = false) const;
   VectorDouble getValuesByRanks(const VectorVectorInt& sampleRanks,
                                 const VectorDouble& means = VectorDouble(),
                                 bool subtractMean         = true) const;

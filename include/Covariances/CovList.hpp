@@ -16,7 +16,6 @@
 #include "Enum/ECov.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 
 #include <vector>
 
