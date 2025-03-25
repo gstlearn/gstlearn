@@ -59,10 +59,6 @@ public:
   virtual ~CalcKriging();
 
   void setCalcul(const EKrigOpt& calcul);
-  void setMatLC(const MatrixRectangular* matLC) { _matLC = matLC; }
-  void setNdisc(const VectorInt& ndiscs) { _ndiscs = ndiscs; }
-  void setRankColCok(const VectorInt& rankColCok) { _rankColCok = rankColCok; }
-  void setFlagDgm(bool flagDgm) { _flagDGM = flagDgm; }
   void setPriorCov(const MatrixSquareSymmetric& priorCov) { _priorCov = priorCov; }
   void setPriorMean(const VectorDouble& priorMean) { _priorMean = priorMean; }
   void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
@@ -94,12 +90,8 @@ private:
   bool _flagStd;
   bool _flagVarZ;
 
-  EKrigOpt  _calcul;
-  VectorInt _ndiscs;
-  VectorInt _rankColCok;
-  const MatrixRectangular* _matLC;
+  EKrigOpt _calcul;
 
-  bool _flagDGM;
   VectorString _nameCoord;
 
   bool _flagBayes;

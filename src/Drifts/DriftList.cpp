@@ -611,7 +611,7 @@ int DriftList::evalDriftMatByTarget(MatrixRectangular& mat,
     }
 
   // In case of combined R.H.S., modify the output matrix
-  if (krigopt.isMatLC()) mat = mat.compressMatLC(*krigopt.getMatLC(), true);
+  if (krigopt.hasMatLC()) mat = mat.compressMatLC(*krigopt.getMatLC(), true);
   return 0;
 }
 

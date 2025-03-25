@@ -13,44 +13,41 @@
 #include "Estimation/CalcKriging.hpp"
 #include "Enum/EKrigOpt.hpp"
 #include "Estimation/CalcKrigingSimpleCase.hpp"
-#include "Basic/OptCustom.hpp"
+#include "Estimation/KrigOpt.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
 
 #include <math.h>
 
 CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
-    : ACalcInterpolator(),
-    _flagEst(flag_est),
-    _flagStd(flag_std),
-    _flagVarZ(flag_varZ),
-    _calcul(EKrigOpt::POINT),
-    _ndiscs(),
-    _rankColCok(),
-    _matLC(nullptr),
-    _flagDGM(false),
-    _nameCoord(),
-    _flagBayes(false),
-    _priorMean(),
-    _priorCov(),
-    _iechSingleTarget(-1),
-    _verboseSingleTarget(false),
-    _flagPerCell(false),
-    _flagGam(false),
-    _anam(nullptr),
-    _flagXvalid(false),
-    _flagKfold(false),
-    _flagXvalidEst(0),
-    _flagXvalidStd(0),
-    _flagXvalidVarZ(0),
-    _flagNeighOnly(false),
-    _nbNeigh(5),
-    _iptrEst(-1),
-    _iptrStd(-1),
-    _iptrVarZ(-1),
-    _iptrNeigh(-1)
+  : ACalcInterpolator()
+  , _flagEst(flag_est)
+  , _flagStd(flag_std)
+  , _flagVarZ(flag_varZ)
+  , _calcul(EKrigOpt::POINT)
+  , _nameCoord()
+  , _flagBayes(false)
+  , _priorMean()
+  , _priorCov()
+  , _iechSingleTarget(-1)
+  , _verboseSingleTarget(false)
+  , _flagPerCell(false)
+  , _flagGam(false)
+  , _anam(nullptr)
+  , _flagXvalid(false)
+  , _flagKfold(false)
+  , _flagXvalidEst(0)
+  , _flagXvalidStd(0)
+  , _flagXvalidVarZ(0)
+  , _flagNeighOnly(false)
+  , _nbNeigh(5)
+  , _iptrEst(-1)
+  , _iptrStd(-1)
+  , _iptrVarZ(-1)
+  , _iptrNeigh(-1)
 {
 }
 
@@ -61,13 +58,6 @@ CalcKriging::~CalcKriging()
 void CalcKriging::setCalcul(const EKrigOpt &calcul)
 {
   _calcul = calcul;
-
-  // Temporary code for incorporating DGM as a EKrigOpt option
-
-  if (_calcul == EKrigOpt::DGM)
-    setFlagDgm(true);
-  else
-    setFlagDgm(false);
 }
 
 bool CalcKriging::_check()
@@ -92,30 +82,6 @@ bool CalcKriging::_check()
       return false;
     }
   }
-  if (_flagDGM)
-  {
-    if (! getDbout()->isGrid())
-    {
-      messerr("For DGM option, the argument 'dbout'  should be a Grid");
-      return false;
-    }
-    const Model* model = dynamic_cast<const Model*>(getModel());
-    if (model == nullptr)
-    {
-      messerr("The 'model' must be a Model (not a ModelGeneric)");
-      return false;
-    }
-    if (! model->hasAnam())
-    {
-      messerr("For DGM option, the Model must have an Anamorphosis attached");
-      return false;
-    }
-    if (! model->isChangeSupportDefined())
-    {
-      messerr("DGM option requires a Change of Support to be defined");
-      return false;
-    }
-  }
   return true;
 }
 
@@ -123,7 +89,7 @@ bool CalcKriging::_preprocess()
 {
   if (!ACalcInterpolator::_preprocess()) return false;
 
-  if (_matLC != nullptr) _setNvar(_matLC->getNRows(), true);
+  if (getKrigopt().hasMatLC()) _setNvar(getKrigopt().getMatLCNRows(), true);
 
   int status = 1;
   if (_iechSingleTarget >= 0) status = 2;
@@ -149,9 +115,9 @@ bool CalcKriging::_preprocess()
     if (_iptrNeigh < 0) return false;
   }
 
-  // Centering the Data (for DGM)
+  // Centering the Data (for DGM only)
 
-  if (_flagDGM)
+  if (getKrigopt().hasFlagDGM())
   {
     // Centering (only if the output file is a Grid)
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
@@ -201,7 +167,7 @@ bool CalcKriging::_postprocess()
     _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh + 4, "NbCESect",
                     1);
   }
-  else if (_flagDGM)
+  else if (getKrigopt().hasFlagDGM())
   {
     if (!_nameCoord.empty()) getDbin()->setLocators(_nameCoord, ELoc::X, 0);
 
@@ -211,7 +177,7 @@ bool CalcKriging::_postprocess()
   }
   else
   {
-    if (_matLC == nullptr)
+    if (! getKrigopt().hasMatLC())
     {
       _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
       _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);
@@ -262,17 +228,8 @@ void CalcKriging::_storeResultsForExport(const KrigingSystem& ksys)
  *****************************************************************************/
 bool CalcKriging::_run()
 {
-  /* Setting options */
-
-  KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh());
+  KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh(), getKrigopt());
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
-  if (ksys.setKrigOptCalcul(_calcul, _ndiscs, _flagPerCell)) return false;
-  if (ksys.setKrigOptColCok(_rankColCok)) return false;
-  if (ksys.setKrigOptMatLC(_matLC)) return false;
-  if (_flagDGM)
-  {
-    if (ksys.setKrigOptDGM(true)) return false;
-  }
   if (_flagBayes)
   {
     ksys.setKrigOptBayes(true, _priorMean, _priorCov);
@@ -374,7 +331,6 @@ int kriging(Db* dbin,
     krige.setDbout(dbout);
     krige.setModel(model);
     krige.setNeigh(neigh);
-    krige.setCalcul(calcul);
     krige.setNamingConvention(namconv);
     return 1 - krige.run();
   }
@@ -386,10 +342,11 @@ int kriging(Db* dbin,
   krige.setNeigh(neigh);
   krige.setNamingConvention(namconv);
 
-  krige.setCalcul(calcul);
-  krige.setNdisc(ndiscs);
-  krige.setRankColCok(rank_colcok);
-  krige.setMatLC(matLC);
+  KrigOpt krigopt;
+  krigopt.setKrigingOption(calcul, dbout, ndiscs, false);
+  krigopt.setMatLC(matLC, model->getNVar());
+  krigopt.setRankColCok(rank_colcok);
+  krige.setKrigopt(krigopt);
 
   // Run the calculator
   int error = 1 - krige.run();
@@ -431,10 +388,10 @@ int krigcell(Db* dbin,
   krige.setNeigh(neigh);
   krige.setNamingConvention(namconv);
 
-  krige.setCalcul(EKrigOpt::BLOCK);
-  krige.setNdisc(ndiscs);
-  krige.setRankColCok(rank_colcok);
-  krige.setFlagPerCell(true);
+  KrigOpt krigopt;
+  krigopt.setKrigingOption(EKrigOpt::BLOCK, dbout, ndiscs, true);
+  krigopt.setRankColCok(rank_colcok);
+  krige.setKrigopt(krigopt);
 
   // Run the calculator
   int error = (krige.run()) ? 0 : 1;
@@ -519,11 +476,12 @@ Krigtest_Res krigtest(Db* dbin,
   krige.setModel(model);
   krige.setNeigh(neigh);
 
-  krige.setCalcul(calcul);
-  krige.setNdisc(ndiscs);
+  KrigOpt krigopt;
+  krigopt.setKrigingOption(calcul, dbout, ndiscs, flagPerCell);
+  krige.setKrigopt(krigopt);
+
   krige.setIechSingleTarget(iech0);
   krige.setVerboseSingleTarget(verbose);
-  krige.setFlagPerCell(flagPerCell);
 
   (void)krige.run();
 
@@ -606,7 +564,10 @@ int xvalid(Db* db,
   krige.setFlagXvalidStd(flag_xvalid_std);
   krige.setFlagXvalidVarZ(flag_xvalid_varz);
   krige.setFlagKfold(flag_kfold);
-  krige.setRankColCok(rank_colcok);
+
+  KrigOpt krigopt;
+  krigopt.setRankColCok(rank_colcok);
+  krige.setKrigopt(krigopt);
 
   // Run the calculator
   int error = (krige.run()) ? 0 : 1;

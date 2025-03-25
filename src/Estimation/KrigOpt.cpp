@@ -78,13 +78,13 @@ KrigOpt::~KrigOpt()
 {
 }
 
-int KrigOpt::getNvarCL() const
+int KrigOpt::getNvarLC() const
 {
   if (_matLC == nullptr) return 0;
   return _matLC->getNRows();
 }
 
-double KrigOpt::getMatCLValue(int ivarcl, int ivar) const
+double KrigOpt::getMatLCValue(int ivarcl, int ivar) const
 {
   if (_matLC == nullptr) return TEST;
   return _matLC->getValue(ivarcl, ivar);
@@ -169,12 +169,9 @@ int KrigOpt::setKrigingOption(const EKrigOpt& calcul,
     if (!_flagPerCell) blockDiscretize(0, true);
   }
 
-  return 0;
-}
+  if (calcul == EKrigOpt::DGM)
+    _flagDGM = true;
 
-int KrigOpt::setKrigingDGM(bool flag_dgm)
-{
-  _flagDGM = flag_dgm;
   return 0;
 }
 
@@ -224,6 +221,12 @@ VectorVectorDouble KrigOpt::getDisc2VVD() const
   VectorVectorDouble vecvec(_nDiscNumber);
   for (int idisc = 0; idisc < _nDiscNumber; idisc++) vecvec[idisc] = getDisc2VD(idisc);
   return vecvec;
+}
+
+void KrigOpt::setKrigingDGM(bool flag_dgm)
+{
+  if (flag_dgm)
+    _calcul = EKrigOpt::DGM;
 }
 
 void KrigOpt::setMode(const CovCalcMode* mode)
@@ -311,14 +314,25 @@ bool KrigOpt::_isValidMatLC(const ModelGeneric* model) const
   return true;
 }
 
-bool KrigOpt::_isValidDGM(const ModelGeneric* model) const
+bool KrigOpt::_isValidDGM(const Db* dbout, const ModelGeneric* model) const
 {
-  if (!_flagDGM) return false;
-  int nvar                = model->getNVar();
+  if (!_flagDGM) return true;
+  int nvar = model->getNVar();
+
+  if (!dbout->isGrid())
+  {
+    messerr("For DGM option, the argument 'dbout'  should be a Grid");
+    return false;
+  }
   const Model* modelAniso = dynamic_cast<const Model*>(model);
   if (modelAniso == nullptr)
   {
     messerr("The option DGM is limited to model Aniso");
+    return false;
+  }
+  if (!modelAniso->hasAnam())
+  {
+    messerr("For DGM option, the Model must have an Anamorphosis attached");
     return false;
   }
   if (modelAniso->getCovMinIRFOrder() != -1)
@@ -336,7 +350,11 @@ bool KrigOpt::_isValidDGM(const ModelGeneric* model) const
     messerr("The DGM option requires a Model with Total Sill equal to 1.");
     return false;
   }
-
+  if (!modelAniso->isChangeSupportDefined())
+  {
+    messerr("DGM option requires a Change of Support to be defined");
+    return false;
+  }
   if (_calcul == EKrigOpt::BLOCK || _calcul == EKrigOpt::DRIFT)
   {
     messerr("The DGM option is incompatible with 'Block' calculation option");
@@ -345,7 +363,7 @@ bool KrigOpt::_isValidDGM(const ModelGeneric* model) const
   return true;
 }
 
-  bool KrigOpt::isValid(const Db* dbout, const ANeigh* neigh, const ModelGeneric* model) const
+  bool KrigOpt::isCorrect(const Db* dbout, const ANeigh* neigh, const ModelGeneric* model) const
 {
   // Check against Block calculation options
   if (! _isValidCalcul(dbout, neigh)) return false;
@@ -357,7 +375,7 @@ bool KrigOpt::_isValidDGM(const ModelGeneric* model) const
   if (!_isValidMatLC(model)) return false;
 
    // Check the validity for Discrete Gaussian Model
-  if (!_isValidDGM(model)) return false;
+  if (!_isValidDGM(dbout, model)) return false;
  
   return true;
 }

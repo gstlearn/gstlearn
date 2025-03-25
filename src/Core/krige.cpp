@@ -1577,11 +1577,13 @@ int _krigsim(Db* dbin,
 
   /* Setting options */
 
-  KrigingSystem ksys(dbin, dbout, model, neigh);
+  KrigOpt krigopt;
+  krigopt.setKrigingDGM(flag_dgm);
+
+  KrigingSystem ksys(dbin, dbout, model, neigh, krigopt);
   if (ksys.setKrigOptFlagSimu(true, nbsimu, icase)) return 1;
   if (ksys.updKrigOptEstim(iptr_est, -1, -1, true)) return 1;
   if (ksys.setKrigOptBayes(flag_bayes, dmean, dcov)) return 1;
-  if (ksys.setKrigOptDGM(flag_dgm)) return 1;
   if (! ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */
