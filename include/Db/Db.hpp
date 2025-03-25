@@ -574,7 +574,7 @@ public:
   int          getSelection(int iech) const;
   VectorDouble getSelections(void) const;
   VectorInt getSampleRanksPerVariable(const VectorInt& nbgh = VectorInt(),
-                                      int item              = -1,
+                                      int ivar              = -1,
                                       bool useSel           = true,
                                       bool useZ             = true,
                                       bool useVerr          = false,

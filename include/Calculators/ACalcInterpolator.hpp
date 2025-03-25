@@ -30,9 +30,11 @@ public:
 
   void setModel(ModelGeneric* model) { _model = model; }
   void setNeigh(ANeigh* neigh) { _neigh = neigh; }
+  void setKrigopt(const KrigOpt& krigopt) { _krigopt = krigopt; }
 
   ModelGeneric*  getModel() const { return _model; }
   ANeigh* getNeigh() const { return _neigh; }
+  const KrigOpt& getKrigopt() const { return _krigopt; }
 
   bool hasModel(bool verbose = true) const;
   bool hasNeigh(bool verbose = true) const;
@@ -48,5 +50,6 @@ protected:
 private:
   ModelGeneric*  _model;
   ANeigh* _neigh;
+  KrigOpt _krigopt;
   int _ncova;
 };

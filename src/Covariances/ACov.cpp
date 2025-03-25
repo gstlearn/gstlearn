@@ -329,7 +329,7 @@ int ACov::evalCovMat0InPlace(MatrixSquareSymmetric& mat,
     eval0CovMatBiPointInPlace(mat, &mode);
   else
   {
-    if (krigopt.isFlagCell()) krigopt.blockDiscretize(0, true);
+    if (krigopt.hasFlagPerCell()) krigopt.blockDiscretize(0, true);
 
     VectorVectorDouble d1 = krigopt.getDisc1VVD();
     VectorVectorDouble d2 = krigopt.getDisc2VVD();
@@ -340,7 +340,7 @@ int ACov::evalCovMat0InPlace(MatrixSquareSymmetric& mat,
   };
 
   // In case of combined R.H.S., modify the output matrix
-  if (krigopt.isMatLC()) mat = mat.compress0MatLC(*krigopt.getMatLC());
+  if (krigopt.hasMatLC()) mat = mat.compress0MatLC(*krigopt.getMatLC());
 
   return 0;
 }
@@ -1257,7 +1257,7 @@ int ACov::evalCovMatRHSInPlaceFromIdx(MatrixRectangular& mat,
   }
 
   // In case of combined R.H.S., modify the output matrix
-  if (krigopt.isMatLC()) mat = mat.compressMatLC(*krigopt.getMatLC());
+  if (krigopt.hasMatLC()) mat = mat.compressMatLC(*krigopt.getMatLC());
 
   if (cleanOptim) optimizationPostProcess();
   return 0;
@@ -1331,7 +1331,7 @@ int ACov::_evalCovMatRHSInPlaceBlock(MatrixRectangular& mat,
       db2->getSampleAsSPInPlace(p2, iabs2);
 
       // Discretize the block if adapted to the cell dimensions
-      if (krigopt.isFlagCell()) krigopt.blockDiscretize(p2.getIech());
+      if (krigopt.hasFlagPerCell()) krigopt.blockDiscretize(p2.getIech());
 
       // Loop on the discretization points
       for (int idisc = 0; idisc < ndisc; idisc++)
