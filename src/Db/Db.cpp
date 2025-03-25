@@ -3687,14 +3687,14 @@ VectorInt Db::getSampleRanksPerVariable(const VectorInt& nbgh,
     // Check against the existence of a target variable
     if (useZ && ivar >= 0)
     {
-      value = getZVariable(iabs, ivar);
+      value = getFromLocator(ELoc::Z, iabs, ivar);
       if (FFFF(value)) continue;
     }
 
     // Check against validity of the Variance of Measurement Error variable
     if (useV)
     {
-      value = getLocVariable(ELoc::V, iabs, ivar);
+      value = getFromLocator(ELoc::V, iabs, ivar);
       if (FFFF(value) || value < 0) continue;
     }
 
