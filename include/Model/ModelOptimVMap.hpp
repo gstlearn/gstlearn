@@ -60,13 +60,8 @@ private:
 
   struct AlgorithmVMap
   {
-    // Part of the structure dedicated to the Model
     Model_Part& _modelPart;
-
-    // Part relative to the Experimental variograms
     VMap_Part& _vmapPart;
-
-    // Only used for Goulard Option
     ModelOptimSillsVMap& _goulardPart;
   };
 

@@ -16,7 +16,6 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Enum/ECalcMember.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Space/ASpace.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovLMGradient.hpp"

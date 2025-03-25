@@ -1724,6 +1724,65 @@ int Db::addSelection(const VectorDouble &tab,
 }
 
 /**
+ * @brief Create a selection by testing a target variable against 'lower' and 'upper'
+ * 
+ * @param varname Name of the target variable
+ * @param lower Lower bound (included) or TEST for no lower bound
+ * @param upper Upper bound (included) or TEST for no upper bound
+ * @param name  Name given to the newly created selection
+ * @param selName If defined, the current selection is combined with the existing one
+ * @return int 
+ */
+int Db::addSelectionByVariable(const String& varname,
+                               double lower,
+                               double upper,
+                               const String& name,
+                               const String& selName)
+{
+  VectorDouble var = getColumn(varname, false);
+  if (var.empty())
+  {
+    messerr("The variable '%s' does not exist", varname.c_str());
+    return 1;
+  }
+
+  int nech = getNSample(false);
+  VectorDouble sel(nech);
+  for (int iech = 0; iech < nech; iech++)
+  {
+    double value = var[iech];
+    double answer = 1;
+    if (FFFF(value))
+    {
+      answer = 0;
+    }
+    else
+    {
+      if (! FFFF(lower) && value < lower) answer = 0;
+      if (! FFFF(upper) && value > upper) answer = 0;
+    }
+    sel[iech] = answer;
+  }
+
+  // Intersection with an already existing selection (optional)
+  if (selName != "")
+  {
+    VectorDouble selOld = getColumn(selName, false);
+    if (selOld.empty())
+    {
+      messerr("The previous selection '%s' does not exist", selName.c_str());
+      return 1;
+    }
+    for (int iech = 0; iech < nech; iech++)
+      sel[iech] = sel[iech] * selOld[iech];
+  }
+
+  // Store the newly createed selection
+  int iuid = addColumns(sel, name, ELoc::SEL);
+  return iuid;
+}
+
+/**
  * Add a Selection by considering the input 'ranks' vector which give the ranks
  * of the active samples (starting from 0)
  * @param ranks   Vector of ranks of active samples
@@ -3632,7 +3691,7 @@ VectorInt Db::getSampleRanksPerVariable(const VectorInt& nbgh,
       if (FFFF(value)) continue;
     }
 
-    // Check against the validity of the Variance of Measurement Error
+    // Check against validity of the Variance of Measurement Error variable
     if (useV)
     {
       value = getFromLocator(ELoc::V, iabs, ivar);
@@ -3755,8 +3814,7 @@ VectorDouble Db::getColumnByLocator(const ELoc& locatorType,
  * Returns the contents of one Column identified by its name
  *
  */
-VectorDouble
-Db::getColumn(const String& name, bool useSel, bool flagCompress) const
+VectorDouble Db::getColumn(const String& name, bool useSel, bool flagCompress) const
 {
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return VectorDouble();

@@ -43,23 +43,19 @@ public:
 private:
   struct Db_Part
   {
-    // If TRUE: use SPDE approach
-    // otherwise: use the Covariance Matrix approach
+    // Use SPDE approach (TRUE); use the Covariance Matrix approach (FALSE°
+    // Use SPDE approach (TRUE); use the Covariance Matrix approach (FALSE°
     bool _flagSPDE;
-
-    // Pointer to the Vario structure
     Db* _db;
   };
 
   struct AlgorithmLikelihood
   {
-    // Part of the structure dedicated to the Model
     Model_Part& _modelPart;
-
-    // Part relative to the Experimental variograms
-    ModelOptimLikelihood::Db_Part& _dbPart;
+    Db_Part& _dbPart;
   };
-
+private:
+private:
   void _copyDbPart(const Db_Part& dbPart);
   bool _checkConsistency();
 
