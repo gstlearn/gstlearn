@@ -139,9 +139,6 @@ private:
   bool _flagVarZ;
   bool _flagDataChanged;
 
-  /// Option for Calculation
-  EKrigOpt _calcul;
-
   /// Option for Weights at Data locations
   int  _iptrWeights;
   bool _flagWeights;

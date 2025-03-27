@@ -143,9 +143,9 @@ int main(int argc, char *argv[])
 
   // Estimating the Gaussian Variable on the nodes of the Blocks
   data->display();
-  (void) kriging(data, blocs, model, neighM, EKrigOpt::POINT,
-                 true, true, false, VectorInt(), VectorInt(),
-                 nullptr, NamingConvention("G_PTS"));
+  (void) kriging(data, blocs, model, neighM, 
+                 true, true, false, KrigOpt(),
+                 NamingConvention("G_PTS"));
 
   // Calculating the Conditional Expectation
   (void) ConditionalExpectation(blocs, anam, selectivity, "G_PTS*estim",
@@ -167,20 +167,23 @@ int main(int argc, char *argv[])
   data->display();
 
   // Simple Point Kriging over the blocks
-  (void) krigingFactors(data, blocs, model, neighM, EKrigOpt::POINT, VectorInt(),
-                        true, true, NamingConvention("DK_Pts"));
+  (void) krigingFactors(data, blocs, model, neighM,
+                        true, true, KrigOpt(), NamingConvention("DK_Pts"));
   blocs->display();
 
   // Simple Block Kriging over the blocks
   VectorInt ndisc_B = { 5, 5 };
-  (void) krigingFactors(data, blocs, model, neighM, EKrigOpt::BLOCK, ndisc_B,
-                        true, true, NamingConvention("DK_Blk"));
+  KrigOpt krigopt;
+  krigopt.setOptionCalcul(EKrigOpt::BLOCK, ndisc_B);
+  (void)krigingFactors(data, blocs, model, neighM,
+                       true, true, krigopt, NamingConvention("DK_Blk"));
   blocs->display();
 
   // Simple Block Kriging over the panel(s)
   VectorInt ndisc_P = { 10, 10 };
-  (void) krigingFactors(data, panel, model, neighM, EKrigOpt::BLOCK, ndisc_P,
-                        true, true, NamingConvention("DK_Blk"));
+  krigopt.setOptionCalcul(EKrigOpt::BLOCK, ndisc_P);
+  (void) krigingFactors(data, panel, model, neighM, 
+                        true, true, krigopt, NamingConvention("DK_Blk"));
   panel->display();
 
   // ====================== Uniform Conditioning ==================================
@@ -189,9 +192,9 @@ int main(int argc, char *argv[])
   data->clearLocators(ELoc::Z);
   data->setLocator("Z",ELoc::Z, 0);
   data->display();
-  (void) kriging(data, blocs, model, neighM, EKrigOpt::POINT,
-                 true, true, false, VectorInt(), VectorInt(),
-                 nullptr, NamingConvention("Z_PTS"));
+  (void) kriging(data, blocs, model, neighM, 
+                 true, true, false, KrigOpt(), 
+                 NamingConvention("Z_PTS"));
   blocs->display();
 
   // Perform the Uniform Conditioning over Blocks
@@ -226,14 +229,15 @@ int main(int argc, char *argv[])
   model_b1_Y->display();
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
-  (void) krigingFactors(data, blocs, model_b1_Y, neighM, EKrigOpt::POINT,
-                        VectorInt(), true, true, NamingConvention("DK_DGM1"));
+  (void) krigingFactors(data, blocs, model_b1_Y, neighM, 
+                        true, true, KrigOpt(), NamingConvention("DK_DGM1"));
   blocs->display();
 
   // Simple Point Kriging over the panel(s) with Model with Change of Support
   VectorInt ndisc_Bc = { nx_B, nx_B };
-  (void) krigingFactors(data, panel, model_b1_Y, neighM, EKrigOpt::BLOCK,
-                        ndisc_Bc, true, true, NamingConvention("DK_DGM1"));
+  krigopt.setOptionCalcul(EKrigOpt::BLOCK, ndisc_Bc);
+  (void) krigingFactors(data, panel, model_b1_Y, neighM, 
+                        true, true, krigopt, NamingConvention("DK_DGM1"));
   panel->display();
 
   // ====================== Block Disjunctive Kriging (DGM-2) =====================
@@ -264,13 +268,14 @@ int main(int argc, char *argv[])
   model_b2_Y->display();
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
-  (void) krigingFactors(data, blocs, model_b2_Y, neighM, EKrigOpt::POINT,
-                        VectorInt(), true, true, NamingConvention("DK_DGM2"));
+  (void) krigingFactors(data, blocs, model_b2_Y, neighM, 
+                        true, true, KrigOpt(), NamingConvention("DK_DGM2"));
   blocs->display();
 
   // Simple Point Kriging over the panel(s) with Model with Change of Support
-  (void) krigingFactors(data, panel, model_b2_Y, neighM, EKrigOpt::BLOCK,
-                        ndisc_Bc, true, true, NamingConvention("DK_DGM2"));
+  krigopt.setOptionCalcul(EKrigOpt::BLOCK, ndisc_Bc);
+  (void) krigingFactors(data, panel, model_b2_Y, neighM, 
+                        true, true, krigopt, NamingConvention("DK_DGM2"));
   panel->display();
 
   // ====================== Selectivity Function ==================================

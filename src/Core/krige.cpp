@@ -1578,7 +1578,7 @@ int _krigsim(Db* dbin,
   /* Setting options */
 
   KrigOpt krigopt;
-  krigopt.setKrigingDGM(flag_dgm);
+  krigopt.setOptionDGM(flag_dgm);
 
   KrigingSystem ksys(dbin, dbout, model, neigh, krigopt);
   if (ksys.setKrigOptFlagSimu(true, nbsimu, icase)) return 1;
@@ -4081,9 +4081,10 @@ static int st_declustering_2(Db *db,
                              ANeigh* neigh,
                              int iptr)
 {
-  KrigingSystem ksys(db, db, model, neigh);
+  KrigOpt krigopt;
+  krigopt.setOptionCalcul(EKrigOpt::DRIFT);
+  KrigingSystem ksys(db, db, model, neigh, krigopt);
   if (ksys.setKrigOptDataWeights(iptr,  true)) return 1;
-  if (ksys.setKrigOptCalcul(EKrigOpt::DRIFT)) return 1;
   if (! ksys.isReady()) return 1;
   if (ksys.estimate(0)) return 1;
   ksys.conclusion();
@@ -4137,9 +4138,10 @@ static int st_declustering_3(Db *db,
 
   /* Setting options */
 
-  KrigingSystem ksys(db, dbgrid, model, neigh);
+  KrigOpt krigopt;
+  krigopt.setOptionCalcul(EKrigOpt::BLOCK, ndiscs);
+  KrigingSystem ksys(db, dbgrid, model, neigh, krigopt);
   if (ksys.setKrigOptDataWeights(iptr,  false)) return 1;
-  if (ksys.setKrigOptCalcul(EKrigOpt::BLOCK, ndiscs)) return 1;
   if (! ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */

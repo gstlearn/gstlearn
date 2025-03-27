@@ -205,7 +205,7 @@ int main(int argc, char* argv[])
     message("\n<----- Cross-Validation in Moving Neighborhood ----->\n");
     delete data_res;
     data_res = data->clone();
-    xvalid(data_res, model, neighM, 0, -1, -1, 0);
+    xvalid(data_res, model, neighM, false, -1, -1, 0);
     data_res->display(&dbfmtXvalid);
   }
 
@@ -246,7 +246,7 @@ int main(int argc, char* argv[])
     message("\n<----- Cross-Validation in Unique Neighborhood ----->\n");
     delete data_res;
     data_res = data->clone();
-    xvalid(data_res, model, neighU, 0, -1, -1, 0);
+    xvalid(data_res, model, neighU, false, -1, -1, 0);
     data_res->display(&dbfmtXvalid);
   }
 
@@ -306,7 +306,9 @@ int main(int argc, char* argv[])
     message("\n<----- Block Kriging (fixed size) ----->\n");
     delete grid_res;
     grid_res = grid->clone();
-    kriging(data, grid_res, model, neighU, EKrigOpt::BLOCK, 1, 1, 0, ndiscs);
+    KrigOpt krigopt;
+    krigopt.setOptionCalcul(EKrigOpt::BLOCK, ndiscs);
+    kriging(data, grid_res, model, neighU, 1, 1, 0, krigopt);
     grid_res->display(&dbfmtKriging);
   }
 
@@ -315,7 +317,9 @@ int main(int argc, char* argv[])
     message("\n<----- Block Kriging (variable size) ----->\n");
     delete grid_res;
     grid_res = grid->clone();
-    krigcell(data, grid_res, model, neighU, 1, 1, ndiscs);
+    KrigOpt krigopt;
+    krigopt.setOptionCalcul(EKrigOpt::BLOCK, ndiscs, true);
+    krigcell(data, grid_res, model, neighU, true, true, krigopt);
     grid_res->display(&dbfmtKriging);
   }
 
@@ -429,8 +433,9 @@ int main(int argc, char* argv[])
     grid_res = grid->clone();
     MatrixRectangular* matLC =
       MatrixRectangular::createFromVD({2., 2., 1., 1., 0., 1.}, 2, 3);
-    kriging(data, grid_res, model, neighU, EKrigOpt::POINT, true, true, false,
-            VectorInt(), VectorInt(), matLC);
+    KrigOpt krigopt;
+    krigopt.setMatLC(matLC);
+    kriging(data, grid_res, model, neighU, true, true, false, krigopt);
     grid_res->display(&dbfmtKriging);
   }
 

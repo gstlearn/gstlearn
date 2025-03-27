@@ -304,6 +304,7 @@ Column = 25 - Name = DK_Pts.F.1.stdev - Locator = NA
 Column = 26 - Name = DK_Pts.F.2.stdev - Locator = NA
 Column = 27 - Name = DK_Pts.F.3.stdev - Locator = NA
 NULL
+[1] 0
 
 Data Base Grid Characteristics
 ==============================
@@ -359,6 +360,7 @@ Column = 32 - Name = DK_Blk.F.2.stdev - Locator = NA
 Column = 33 - Name = DK_Blk.F.3.stdev - Locator = NA
 NULL
 NULL
+[1] 0
 
 Data Base Grid Characteristics
 ==============================

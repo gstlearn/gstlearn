@@ -87,7 +87,9 @@ int main(int argc, char* argv[])
   VectorInt ndisc = {3, 3};
   data->display();
   target->display();
-  kriging(data, target, model, neigh, EKrigOpt::BLOCK, true, true, false, ndisc);
+  KrigOpt krigopt;
+  krigopt.setOptionCalcul(EKrigOpt::BLOCK, ndisc);
+  kriging(data, target, model, neigh, true, true, false, krigopt);
   dbfmt = DbStringFormat::create(FLAG_STATS, {"Kriging.*"});
   target->display(dbfmt);
 

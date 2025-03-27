@@ -403,7 +403,6 @@ err = model$delDrift(0)
 err = model$setMean(0.)
 data$setLocator("Gaussian.Z", ELoc_Z(), cleanSameLocator=TRUE)
 err = kriging(data, blocs, model, neigh, 
-              calcul = EKrigOpt_POINT(),
               namconv= NamingConvention("G_Pts"))
 
 p = ggplot()
@@ -583,7 +582,7 @@ What is performed? Compute the (simple) kriging of the factors. Simple Kriging i
 ```{r dk_pts_estim, echo=TRUE, eval=TRUE}
 err = krigingFactors(dbin   = data,   # Input data set (a Db structure)
                      dbout  = blocs,  # Output data set (a DbGrid structure)
-                     model  = model, neigh, calcul= EKrigOpt_POINT(),
+                     model  = model, neigh, 
                      namconv = NamingConvention("DK_Pts"))
 blocs$display()
 ```
@@ -668,12 +667,14 @@ $$
 The post-processing is identical using **DisjunctiveKriging**.
 
 ```{r dk_blk_estim, echo=TRUE, eval=TRUE}
-# The number of estimated factors is defined by the number of selected variables 
+# The number of estimated factors is defined by the number of selected variables
 # in the input data base
 ndisc_B = c(5, 5)
+krigopt = KrigOpt()
+krigopt$setOptionCalcul(EKrigOpt_BLOCK(), ndisc_B)
 err = krigingFactors(dbin   = data,   # Input data set (a Db structure)
                      dbout  = blocs,  # Output data set (a DbGrid structure)
-                     model  = model, neigh, calcul= EKrigOpt_BLOCK(), ndisc = ndisc_B,
+                     model  = model, neigh, krigopt = krigopt,
                      namconv = NamingConvention("DK_Blk"))
 blocs$display()
 ```
@@ -713,10 +714,13 @@ XF: factors should be used instead if DK has to be computed.
 # The number of estimated factors is defined by the number of selected variables 
 # in the input data base
 ndisc_P = c(10, 10)
-data$setLocator("Gaussian.Z", ELoc_Z(), cleanSameLocator=TRUE)
+data$setLocator("Gaussian.Z", ELoc_Z(), cleanSameLocator = TRUE)
+krigopt = KrigOpt()
+krigopt$setOptionCalcul(calcul= EKrigOpt_BLOCK(), ndisc = ndisc_P)
 err = kriging(dbin   = data,   # Input data set (a Db structure).
               dbout  = panels, # Output data set (a DbGrid structure)
-              model  = model, neigh, calcul= EKrigOpt_BLOCK(), ndisc = ndisc_P,
+              model  = model, neigh = neigh, 
+              krigopt = krigopt,
               namconv = NamingConvention("DK_Blk"))
 panels$display()
 ```
@@ -777,7 +781,6 @@ err = model_raw$delDrift(0)
 err = model_raw$setMean(mean(data["Z"]))
 data$setLocator("Z", ELoc_Z(), cleanSameLocator=TRUE)
 err = kriging(data, grid, model_raw, neigh, 
-              calcul = EKrigOpt_POINT(),
               namconv= NamingConvention("SK"))
 
 # Conditional expectation
@@ -785,7 +788,6 @@ err = model_Y$delDrift(0)
 err = model_Y$setMean(0.)
 data$setLocator("Gaussian.Z", ELoc_Z(), cleanSameLocator=TRUE)
 err = kriging(data, grid, model_Y, neigh, 
-              calcul = EKrigOpt_POINT(),
               namconv= NamingConvention("SK"))
 err = ConditionalExpectation(db = grid, 
                              anam = anam, 
@@ -800,7 +802,7 @@ grid$setName("CE.Z-stdev", "CE.Z.stdev")
 data$setLocator("F.*", ELoc_Z(), cleanSameLocator=TRUE)
 err = krigingFactors(dbin   = data,   # Input data set (a Db structure)
                      dbout  = grid,  # Ouput data set (a DbGrid structure)
-                     model  = model, neigh, calcul= EKrigOpt_POINT(),
+                     model  = model, neigh, 
                      namconv = NamingConvention("SK"))
 
 ```
@@ -887,7 +889,6 @@ legend("topleft", legend = c("Hermite", "Theoretical"),
 # plot(psi.metal, psi.metal.qc)
 # abline(a = 0, b = 1, col = "red")
 
-
 # generic function to test DK
 compute_DK <- function(psi, name) {
 N   <- length(psi)
@@ -944,9 +945,7 @@ psi <- hermiteCoefMetal(yc = ycuts[1], phi = anam$getPsiHns())
 grid$setName(paste0("DK.Q-estim-", zcuts[1]), "DK.Q1.estim")
 grid$setName(paste0("DK.Q-stdev-", zcuts[1]), "DK.Q1.stdev")
 compute_DK(psi = psi, name = "DK.Q1")
-
 ```
-
 
 ## Scores of the estimators
 

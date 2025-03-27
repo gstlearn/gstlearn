@@ -193,7 +193,7 @@ bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelCovList* model)
 
   // We perform a Kriging of the center 'dbaux' in Unique Neighborhood
   NeighUnique* neighU = NeighUnique::create();
-  KrigingSystem ksys(dblocal, target, model, neighU);
+  KrigingSystem ksys(dblocal, target, model, neighU, getKrigopt());
   if (ksys.updKrigOptEstim(iuid, -1, -1, true)) return false;
   if (!ksys.isReady()) return false;
   if (ksys.estimate(0)) return false;
