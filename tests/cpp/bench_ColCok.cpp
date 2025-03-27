@@ -73,9 +73,10 @@ int main(int argc, char* argv[])
   if (debug) OptDbg::setReference(1);
 
   // Test on Collocated CoKriging in Unique Neighborhood
-  VectorInt varColCok = {0, -1, 2};
-  kriging(data, target, model, neigh, EKrigOpt::POINT, true, true, false, VectorInt(),
-          varColCok);
+  VectorInt rank_colcok = {0, -1, 2};
+  KrigOpt krigopt;
+  krigopt.setColCok(rank_colcok);
+  kriging(data, target, model, neigh, true, true, false, krigopt);
   dbfmt = DbStringFormat::create(FLAG_STATS, {"Kriging.*"});
   target->display(dbfmt);
 

@@ -61,7 +61,6 @@ int main(int argc, char* argv[])
   int order = (flagSK) ? -1 : 0;
   Model* model = Model::createFillRandom(ndim, nvar, {ECov::EXPONENTIAL}, 1., order);
   model->display();
-  
 
   // Neighborhood
   ANeigh* neigh;
@@ -77,15 +76,15 @@ int main(int argc, char* argv[])
 
   // Test on Collocated CoKriging in Unique Neighborhood
   mestitle(0, "Without MATLC");
-  kriging(data, target, model, neigh, EKrigOpt::POINT, true, true, false, VectorInt(),
-          VectorInt());
+  kriging(data, target, model, neigh, true, true, false);
   target->display(dbfmt);
 
   mestitle(0, "With MATLC");
   MatrixRectangular* matLC = MatrixRectangular::createFromVD({1, -3.}, 1, nvar);
   matLC->display();
-  kriging(data, target, model, neigh, EKrigOpt::POINT, true, true, false, VectorInt(),
-          VectorInt(), matLC);
+  KrigOpt krigopt;
+  krigopt.setMatLC(matLC);
+  kriging(data, target, model, neigh, true, true, false, krigopt);
   target->display(dbfmt);
 
   // Free pointers

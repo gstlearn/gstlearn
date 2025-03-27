@@ -29,19 +29,19 @@ public:
   KrigOpt& operator=(const KrigOpt &m);
   virtual ~KrigOpt();
 
-  int setKrigingOption(const EKrigOpt& calcul  = EKrigOpt::POINT,
-                       Db* dbout               = nullptr,
-                       const VectorInt& ndiscs = VectorInt(),
-                       bool flag_per_cell      = false);
-  int setRankColCok(const VectorInt& rank_colcok);
-  int setMatLC(const MatrixRectangular* matLC, int nvar);
+  int setOptionCalcul(const EKrigOpt& calcul  = EKrigOpt::POINT,
+                      const VectorInt& ndiscs = VectorInt(),
+                      bool flag_per_cell      = false);
+  int setColCok(const VectorInt& rank_colcok);
+  int setMatLC(const MatrixRectangular* matLC);
   void setMode(const CovCalcMode* mode);
-  void setKrigingDGM(bool flag_dgm);
+  void setOptionDGM(bool flag_dgm);
 
   const CovCalcMode& getMode() const { return _mode; }
   const EKrigOpt& getCalcul() const { return _calcul; }
 
   int getNDisc() const { return _nDiscNumber; }
+  bool hasDiscs() const { return ! _ndiscs.empty(); }
   const VectorInt& getDiscs() const { return _ndiscs; }
   int getDisc(int idim) const { return _ndiscs[idim]; }
   bool hasFlagPerCell() const { return _flagPerCell; }
@@ -94,5 +94,5 @@ private:
   // Matrix used for variable combination
   const MatrixRectangular* _matLC; // Pointer not to be deleted
 
-  DbGrid* _dbgrid; // Pointer to the DbGrid (not to be deleted)
+  mutable const DbGrid* _dbgrid; // Pointer to the DbGrid (not to be deleted)
 };

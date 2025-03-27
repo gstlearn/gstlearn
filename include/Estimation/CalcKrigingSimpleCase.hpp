@@ -30,8 +30,6 @@ public:
   CalcKrigingSimpleCase& operator=(const CalcKrigingSimpleCase &r) = delete;
   virtual ~CalcKrigingSimpleCase();
 
-  void setCalcul(const EKrigOpt& calcul);
-
 private:
   virtual bool _check() override;
   virtual bool _preprocess() override;
@@ -45,8 +43,6 @@ private:
   bool _flagEst;
   bool _flagStd;
   bool _flagVarZ;
-
-  EKrigOpt  _calcul;
 
   VectorString _nameCoord;
   int _iechSingleTarget;

@@ -59,12 +59,10 @@ public:
                        bool optionXValidEstim = false,
                        bool optionXValidStdev = false,
                        bool optionXValidVarZ  = false);
-  int setKrigOptColCok(const VectorInt& rank_colcok);
   int setKrigOptBayes(bool flag_bayes,
                       const VectorDouble& prior_mean,
                       const MatrixSquareSymmetric& prior_cov);
   int setKrigOptDataWeights(int iptrWeights, bool flagSet = true);
-  int setKrigOptMatLC(const MatrixRectangular* matLC);
   int setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
   int setKrigOptFlagGlobal(bool flag_global);
   int setKrigOptFlagLTerm(bool flag_lterm);

@@ -51,8 +51,6 @@ private:
   struct AlgorithmLikelihood
   {
     Model_Part& _modelPart;
-
-    // Part relative to the Experimental variograms
     ModelOptimLikelihood::Db_Part& _dbPart;
   };
 

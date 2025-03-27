@@ -68,7 +68,6 @@ KrigingSystemSimpleCase::KrigingSystemSimpleCase(Db* dbin,
   , _flagStd(false)
   , _flagVarZ(false)
   , _flagDataChanged(false)
-  , _calcul(EKrigOpt::POINT)
   , _iptrWeights(-1)
   , _flagWeights(false)
   , _flagSet(true)
@@ -616,12 +615,7 @@ int KrigingSystemSimpleCase::setKrigOptDataWeights(int iptrWeights, bool flagSet
 int KrigingSystemSimpleCase::setKrigOptCalcul(const EKrigOpt& calcul)
 {
   _isReady         = false;
-  _calcul          = calcul;
-  bool flagPerCell = false;
-  DbGrid* dbgrid   = dynamic_cast<DbGrid*>(_dbout);
-
-  // New style operation
-  _krigopt.setKrigingOption(calcul, dbgrid, 1, flagPerCell);
+  _krigopt.setOptionCalcul(calcul);
   return 0;
 }
 

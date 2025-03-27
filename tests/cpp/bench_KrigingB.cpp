@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
-#include "Enum/EKrigOpt.hpp"
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
@@ -69,7 +68,7 @@ int main(int argc, char *argv[])
   message("  . Bench width = %lf\n", width);
 
   Timer timer;
-  kriging(data, grid, model, neighB, EKrigOpt::POINT, true, false);
+  kriging(data, grid, model, neighB, true, false);
   timer.displayIntervalMilliseconds("Kriging in Bench Neighborhood", 1800);
   // Produce some stats for comparison
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"*estim"});

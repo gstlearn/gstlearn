@@ -14,8 +14,6 @@
 
 #include "geoslib_define.h"
 
-#include "Enum/EKrigOpt.hpp"
-
 #include "Calculators/ACalcInterpolator.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -58,13 +56,11 @@ public:
   CalcKriging& operator=(const CalcKriging &r) = delete;
   virtual ~CalcKriging();
 
-  void setCalcul(const EKrigOpt& calcul);
   void setPriorCov(const MatrixSquareSymmetric& priorCov) { _priorCov = priorCov; }
   void setPriorMean(const VectorDouble& priorMean) { _priorMean = priorMean; }
   void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
   void setIechSingleTarget(int iechSingleTarget) { _iechSingleTarget = iechSingleTarget; }
   void setVerboseSingleTarget(bool verbose) { _verboseSingleTarget = verbose; }
-  void setFlagPerCell(bool flagPerCell) { _flagPerCell = flagPerCell; }
   void setAnam(AAnam* anam) { _anam = anam; }
   void setFlagGam(bool flagGam) { _flagGam = flagGam; }
   void setFlagXvalidEst(int flagXvalidEst) { _flagXvalidEst = flagXvalidEst; }
@@ -90,8 +86,6 @@ private:
   bool _flagStd;
   bool _flagVarZ;
 
-  EKrigOpt _calcul;
-
   VectorString _nameCoord;
 
   bool _flagBayes;
@@ -100,8 +94,6 @@ private:
 
   int  _iechSingleTarget;
   bool _verboseSingleTarget;
-
-  bool _flagPerCell;
 
   bool _flagGam;
   AAnam* _anam;
@@ -127,13 +119,10 @@ GSTLEARN_EXPORT int kriging(Db* dbin,
                             Db* dbout,
                             ModelGeneric* model,
                             ANeigh* neigh,
-                            const EKrigOpt& calcul          = EKrigOpt::fromKey("POINT"),
                             bool flag_est                   = true,
                             bool flag_std                   = true,
                             bool flag_varz                  = false,
-                            const VectorInt& ndiscs         = VectorInt(),
-                            const VectorInt& rank_colcok    = VectorInt(),
-                            const MatrixRectangular* matLC  = nullptr,
+                            const KrigOpt& krigopt          = KrigOpt(),
                             const NamingConvention& namconv = NamingConvention("Kriging"));
 GSTLEARN_EXPORT int krigcell(Db* dbin,
                              Db* dbout,
@@ -141,8 +130,7 @@ GSTLEARN_EXPORT int krigcell(Db* dbin,
                              ANeigh* neigh,
                              bool flag_est                   = true,
                              bool flag_std                   = true,
-                             const VectorInt& ndiscs         = VectorInt(),
-                             const VectorInt& rank_colcok    = VectorInt(),
+                             const KrigOpt& krigopt          = KrigOpt(),
                              const NamingConvention& namconv = NamingConvention("KrigCell"));
 GSTLEARN_EXPORT int kribayes(Db* dbin,
                              Db* dbout,
@@ -163,11 +151,9 @@ GSTLEARN_EXPORT Krigtest_Res krigtest(Db* dbin,
                                       Db* dbout,
                                       ModelGeneric* model,
                                       ANeigh* neigh,
-                                      int iech0               = 0,
-                                      const EKrigOpt& calcul  = EKrigOpt::fromKey("POINT"),
-                                      const VectorInt& ndiscs = VectorInt(),
-                                      bool flagPerCell        = false,
-                                      bool verbose            = true);
+                                      int iech0              = 0,
+                                      const KrigOpt& krigopt = KrigOpt(),
+                                      bool verbose           = true);
 GSTLEARN_EXPORT int xvalid(Db* db,
                            ModelGeneric* model,
                            ANeigh* neigh,
@@ -175,7 +161,7 @@ GSTLEARN_EXPORT int xvalid(Db* db,
                            int flag_xvalid_est             = 1,
                            int flag_xvalid_std             = 1,
                            int flag_xvalid_varz            = 0,
-                           const VectorInt& rank_colcok    = VectorInt(),
+                           const KrigOpt& krigopt          = KrigOpt(),
                            const NamingConvention& namconv = NamingConvention("Xvalid"));
 GSTLEARN_EXPORT int test_neigh(Db* dbin,
                                Db* dbout,

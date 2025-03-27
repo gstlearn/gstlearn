@@ -591,7 +591,6 @@ for (s in 1:nbsimu) {
    # simple kriging of the Gaussian variable
     err = data$setLocators(s_nm, locatorType = ELoc_Z(), cleanSameLocator = TRUE)
     err = kriging(dbin = data, dbout = grid, model = model, neigh = neigh, 
-                  calcul = EKrigOpt_POINT(),
                   flag_est = TRUE, flag_std = TRUE, flag_varz = FALSE,
                   namconv = NamingConvention("sk"))
     # conditional expectation

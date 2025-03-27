@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
-#include "Enum/EKrigOpt.hpp"
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
@@ -70,7 +69,7 @@ int main(int argc, char *argv[])
   message("- the Unique Neighborhood is required\n");
 
   Timer timer;
-  kriging(data, grid, model, neighU, EKrigOpt::POINT, true, false, false);
+  kriging(data, grid, model, neighU, true, false, false);
   timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 700);
 
   // Produce some statistics for comparison

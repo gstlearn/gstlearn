@@ -37,6 +37,7 @@ Table: Statistics on the grid for Ordinary Kriging with the LC model
 |OK.Z1.stdev    |  10000|  0.0443|  0.2663|  0.2206|   0.0273|
 |OK-LC.Z1.stdev |  10000|  0.0443|  0.2663|  0.2206|   0.0273|
 |OK-LC.LC.stdev |  10000|  2.1581|  3.9132|  2.7951|   0.2130|
+[1] 0
 
 
 Table: Statistics on the grid for Ordinary Kriging of LC
@@ -73,6 +74,7 @@ Table: Statistics on the grid for Simple Kriging with the LC model
 |SK.Z1.stdev    |  10000|  0.0443|  0.2466|  0.2177|   0.0257|
 |SK-LC.Z1.stdev |  10000|  0.0443|  0.2466|  0.2177|   0.0257|
 |SK-LC.LC.stdev |  10000|  2.1580|  3.8860|  2.7909|   0.2096|
+[1] 0
 
 
 Table: Statistics on the grid for Simple Kriging of LC
@@ -94,6 +96,7 @@ Table: Statistics on the heterotopic data
 |Z1_miss |     40|  0.7668|  1.6995| 1.1455|   0.2535|
 |Z2      |     50|  0.2648|  4.6042| 1.6170|   1.1103|
 |Z2_miss |     26|  0.2648|  4.1471| 1.6766|   1.0977|
+[1] 0
 
 
 Table: Statistics on the grid for Ordinary Kriging with heterotopic data
@@ -105,6 +108,7 @@ Table: Statistics on the grid for Ordinary Kriging with heterotopic data
 |LC.OK.estim     |  10000|  -9.3628|  0.7857| -4.0043|   1.9728|
 |dOK_He.LC.stdev |  10000|   2.2084|  3.9516|  2.9518|   0.2158|
 |dOK.LC.stdev    |  10000|   2.1581|  3.9132|  2.7951|   0.2130|
+[1] 0
 
 
 Table: Statistics on the grid for simple coKriging with heterotopic data

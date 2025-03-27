@@ -1084,7 +1084,7 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
                                     bool flag_per_cell)
 {
   _isReady = false;
-  return _krigopt.setKrigingOption(calcul, _dbout, ndiscs, flag_per_cell);
+  return _krigopt.setOptionCalcul(calcul, ndiscs, flag_per_cell);
 }
 
 /**
@@ -1133,27 +1133,6 @@ int KrigingSystem::setKrigOptXValid(bool flag_xvalid,
   _xvalidStdev = optionXValidStdev;
   _xvalidVarZ  = optionXValidVarZ;
   return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Check the consistency of the Colocation specification
- **
- ** \return  Error return code
- **
- ** \param[in]  rank_colcok   Array of ranks of colocated variables
- **
- ** \remarks The array 'rank_colcok' (if present) must be dimensioned
- ** \remarks to the number of variables in Dbin.
- ** \remarks Each element gives the rank of the colocated variable within Dbout
- ** \remarks or -1 if not colocated
- ** \remarks If the array 'rank_colcok' is absent, colocation option is OFF.
- **
- *****************************************************************************/
-int KrigingSystem::setKrigOptColCok(const VectorInt& rank_colcok)
-{
-  _isReady = false;
-  return _krigopt.setRankColCok(rank_colcok);
 }
 
 int KrigingSystem::setKrigOptBayes(bool flag_bayes,
@@ -1205,18 +1184,6 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
   }
   _flagBayes = flag_bayes;
   return 0;
-}
-
-/**
- * Define the output as Linear Combinations of the Input Variables
- * @param matLC Vector of Vectors of weights (see remarks)
- * @return
- * @remarks The first dimension of 'matLC' is the number of Output variables
- * @remarks The second dimension is the number of input Variables.
- */
-int KrigingSystem::setKrigOptMatLC(const MatrixRectangular* matLC)
-{
-  return _krigopt.setMatLC(matLC, _getNVar());
 }
 
 int KrigingSystem::setKrigOptFlagSimu(bool flagSimu, int nbsimu, int rankPGS)

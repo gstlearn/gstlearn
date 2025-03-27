@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 
   // Perform Kriging using the API
   mestitle(0, "Kriging using API");
-  (void)kriging(dbin, dbout, model, neigh, EKrigOpt::POINT, true, true, true);
+  (void)kriging(dbin, dbout, model, neigh, true, true, true);
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_ARRAY, {"Kriging*"});
   dbout->display(dbfmt); // Always print the results at all target sites
 

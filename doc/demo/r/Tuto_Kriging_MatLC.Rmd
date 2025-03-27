@@ -413,10 +413,11 @@ if(flag.verbose) {
 # fromTL(matrix(beta, nrow=1, ncol=length(beta)))
 
 # kriging LC variables
-err = data$setLocators(nm_var, ELoc_Z(), cleanSameLocator=TRUE)
+err = data$setLocators(nm_var, ELoc_Z(), cleanSameLocator = TRUE)
+krigopt = KrigOpt()
+krigopt$setMatLC(fromTL(matrix(beta, nrow = 1, ncol = length(beta))))
 err = kriging(data, grd, mod_Z_IRF0, neigh, 
-              matLC = fromTL(matrix(beta, nrow=1, ncol=length(beta))),
-              flag_est = TRUE, flag_std = TRUE,
+              flag_est = TRUE, flag_std = TRUE, krigopt=krigopt,
               namconv = NamingConvention("dOK"))
 
 # statistics
@@ -592,10 +593,11 @@ if(flag.verbose) {
 # fromTL(matrix(beta, nrow=1, ncol=length(beta)))
 
 # kriging LC variables
-err = data$setLocators(nm_var, ELoc_Z(), cleanSameLocator=TRUE)
+err = data$setLocators(nm_var, ELoc_Z(), cleanSameLocator = TRUE)
+krigopt = KrigOpt()
+krigopt$setMatLC(fromTL(matrix(beta, nrow = 1, ncol = length(beta))))
 err = kriging(data, grd, mod_Z_SOS, neigh, 
-              matLC = fromTL(matrix(beta, nrow=1, ncol=length(beta))),
-              flag_est = TRUE, flag_std = TRUE,
+              flag_est = TRUE, flag_std = TRUE, krigopt=krigopt,
               namconv = NamingConvention("dSK"))
 
 # statistics
@@ -651,9 +653,10 @@ if(flag.verbose) {
 }
 
 # kriging LC variables
-err = data$setLocators(paste(nm_var, "miss", sep = "_"), ELoc_Z(), cleanSameLocator=TRUE)
-err = kriging(data, grd, mod_Z_IRF0, neigh, 
-              matLC = fromTL(matrix(beta, nrow=1, ncol=length(beta))),
+err = data$setLocators(paste(nm_var, "miss", sep = "_"), ELoc_Z(), cleanSameLocator = TRUE)
+krigopt = KrigOpt()
+krigopt$setMatLC(fromTL(matrix(beta, nrow = 1, ncol = length(beta))))
+err = kriging(data, grd, mod_Z_IRF0, neigh, krigopt=krigopt,
               flag_est = TRUE, flag_std = TRUE,
               namconv = NamingConvention("dOK_He"))
 
@@ -719,9 +722,10 @@ if(flag.verbose) {
 }
 
 # kriging LC variables
-err = data$setLocators(paste(nm_var, "miss", sep = "_"), ELoc_Z(), cleanSameLocator=TRUE)
-err = kriging(data, grd, mod_Z_SOS, neigh, 
-              matLC = fromTL(matrix(beta, nrow=1, ncol=length(beta))),
+err = data$setLocators(paste(nm_var, "miss", sep = "_"), ELoc_Z(), cleanSameLocator = TRUE)
+krigopt = KrigOpt()
+krigopt$setMatLC(fromTL(matrix(beta, nrow = 1, ncol = length(beta))))
+err = kriging(data, grd, mod_Z_SOS, neigh, krigopt=krigopt,
               flag_est = TRUE, flag_std = TRUE,
               namconv = NamingConvention("dSK_He"))
 
