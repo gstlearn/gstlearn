@@ -4,7 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.7.0
 =============
-- Essential modificaiton: API functions such as kriging, xvalid, ... are now using KrigOpt 
+- Essential modification: API functions such as kriging, xvalid, ... are now using KrigOpt 
   argument to carry all the options used while kriging (calcul, ndisc for block, matLC, DGM, ...)
 
 - evalCov is now a concrete method of ACov and it calls _eval which is pure virtual and has to be implemented in new covariance classes.
