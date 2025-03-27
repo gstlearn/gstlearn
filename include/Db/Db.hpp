@@ -578,13 +578,13 @@ public:
                                       bool useSel           = true,
                                       bool useZ             = true,
                                       bool useVerr          = false,
-                                      bool useExtD          = false) const;
+                                      bool useExtD          = true) const;
   VectorVectorInt getSampleRanks(const VectorInt& ivars = VectorInt(),
                                  const VectorInt& nbgh  = VectorInt(),
                                  bool useSel            = true,
                                  bool useZ              = true,
                                  bool useVerr           = false,
-                                 bool useExtD           = false) const;
+                                 bool useExtD           = true) const;
   VectorDouble getValuesByRanks(const VectorVectorInt& sampleRanks,
                                 const VectorDouble& means = VectorDouble(),
                                 bool subtractMean         = true) const;
