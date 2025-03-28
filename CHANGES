@@ -4,6 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.7.0
 =============
+- adding the new class RankHandler which translates the samples selected in neighborhood search
+into a list of variables / samples useable within a CoKriging system.
 - Essential modification: API functions such as kriging, xvalid, ... are now using KrigOpt 
   argument to carry all the options used while kriging (calcul, ndisc for block, matLC, DGM, ...)
 

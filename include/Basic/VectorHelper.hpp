@@ -90,11 +90,12 @@ public:
                               bool flagAbsolute    = false,
                               const String& string = "");
 
+  static void sequenceInPlace(int n, VectorInt& vec);
   static VectorInt sequence(int number, int ideb = 0, int step = 1);
   static VectorDouble sequence(double valFrom,
                                double valTo,
                                double valStep = 1.,
-                               double ratio = 1.);
+                               double ratio   = 1.);
   static void fill(VectorDouble& vec, double v, int size = 0);
   static void fill(VectorInt& vec, int v, int size = 0);
   static void fill(VectorVectorDouble &vec, double value);

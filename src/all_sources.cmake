@@ -176,6 +176,7 @@ set(SRC
   Db/DbStringFormat.cpp
   Db/PtrGeos.cpp
   Db/DbHelper.cpp
+  Db/RankHandler.cpp
   LinearOp/LogStats.cpp
   LinearOp/CGParam.cpp
   LinearOp/PrecisionOp.cpp
