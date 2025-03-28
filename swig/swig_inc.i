@@ -287,6 +287,7 @@
   #include "Db/DbMeshStandard.hpp"
   #include "Db/DbStringFormat.hpp"
   #include "Db/DbHelper.hpp"
+  #include "Db/RankHandler.hpp"
   
   #include "Anamorphosis/CalcAnamTransform.hpp"
   #include "Anamorphosis/AAnam.hpp"

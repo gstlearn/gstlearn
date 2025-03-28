@@ -960,6 +960,12 @@ void VectorHelper::fillUndef(VectorDouble& vec, double repl)
   }
 }
 
+void VectorHelper::sequenceInPlace(int n, VectorInt& vec)
+{
+  vec.resize(n);
+  for (int i = 0; i < n; i++)
+    vec[i] = i;
+}
 /**
  * Create an output vector containing the 'number' consecutive numbers starting from 'ideb'
  *
