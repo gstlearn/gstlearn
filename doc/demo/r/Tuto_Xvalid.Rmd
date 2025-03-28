@@ -242,8 +242,11 @@ We perform the cross-validation (using Ordinary Kriging) without the folds: it i
 err = dbin$deleteColumns(names = "*.xval.*")
 
 err = dbin$setLocators("Y", locatorType = ELoc_Z(), cleanSameLocator = TRUE)
-err = xvalid(db = dbin, model = model, neigh = neigh, flag_kfold = FALSE, 
-             flag_xvalid_est = 1, flag_xvalid_std = 1, namconv = NamingConvention("OK.xval.LOO"))
+err = xvalid(
+  db = dbin, model = model, neigh = neigh, flag_kfold = FALSE,
+  flag_xvalid_est = 1, flag_xvalid_std = 1,
+  namconv = NamingConvention("OK.xval.LOO")
+)
 ```
 
 We now perform the same task but with K-Fold option
@@ -251,8 +254,11 @@ We now perform the same task but with K-Fold option
 ```{r}
 err = dbin$setLocators("Y", locatorType = ELoc_Z(), cleanSameLocator = TRUE)
 err = dbin$setLocator("folds", locatorType = ELoc_C(), cleanSameLocator = TRUE)
-err = xvalid(db = dbin, model = model, neigh = neigh, flag_kfold = TRUE, 
-             flag_xvalid_est = 1, flag_xvalid_std = 1, namconv = NamingConvention("OK.xval.kfold"))
+err = xvalid(
+  db = dbin, model = model, neigh = neigh, flag_kfold = TRUE,
+  flag_xvalid_est = 1, flag_xvalid_std = 1,
+  namconv = NamingConvention("OK.xval.kfold")
+)
 ```
 
 ```{r}

@@ -9,13 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/VectorNumT.hpp"
-#include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Estimation/CalcKrigingSimpleCase.hpp"
 #include "Enum/EKrigOpt.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Estimation/KrigingSystemSimpleCase.hpp"
-#include "Basic/OptDbg.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
 
@@ -26,7 +24,6 @@ CalcKrigingSimpleCase::CalcKrigingSimpleCase(bool flag_est, bool flag_std, bool 
     _flagEst(flag_est),
     _flagStd(flag_std),
     _flagVarZ(flag_varZ),
-    _calcul(EKrigOpt::POINT),
     _nameCoord(),
     _iechSingleTarget(-1),
     _nbNeigh(5),
@@ -39,11 +36,6 @@ CalcKrigingSimpleCase::CalcKrigingSimpleCase(bool flag_est, bool flag_std, bool 
 
 CalcKrigingSimpleCase::~CalcKrigingSimpleCase()
 {
-}
-
-void CalcKrigingSimpleCase::setCalcul(const EKrigOpt &calcul)
-{
-  _calcul = calcul;
 }
 
 bool CalcKrigingSimpleCase::_check()
@@ -147,7 +139,6 @@ bool CalcKrigingSimpleCase::_run()
 
   KrigingSystemSimpleCase ksys(getDbin(), getDbout(), getModel(), getNeigh());
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
-  if (ksys.setKrigOptCalcul(_calcul)) return false;
 
   if (!ksys.isReady()) return false;
 

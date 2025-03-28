@@ -197,7 +197,6 @@ performTest = function(ndim, cas, k, nvar,
   #  Perform Kriging using the API
   prefix_1 = paste0(prefix,"_ini")
   err = kriging(dbin = dbin, dbout = dbout, model = model, neigh = neigh,
-                calcul = EKrigOpt_POINT(),
                 flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz,
                 namconv = NamingConvention(prefix_1))
   if (verbose) {

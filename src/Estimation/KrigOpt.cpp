@@ -78,13 +78,13 @@ KrigOpt::~KrigOpt()
 {
 }
 
-int KrigOpt::getNvarCL() const
+int KrigOpt::getNvarLC() const
 {
   if (_matLC == nullptr) return 0;
   return _matLC->getNRows();
 }
 
-double KrigOpt::getMatCLValue(int ivarcl, int ivar) const
+double KrigOpt::getMatLCValue(int ivarcl, int ivar) const
 {
   if (_matLC == nullptr) return TEST;
   return _matLC->getValue(ivarcl, ivar);
@@ -93,42 +93,24 @@ double KrigOpt::getMatCLValue(int ivarcl, int ivar) const
 /**
  * Define the output as Linear Combinations of the Input Variables
  * @param matLC Vector of Vectors of weights (see remarks)
- * @param nvar  Number of Input variables
  * @return
- * @remarks The number of Rows of d'matLC' is the number of Output variables
+ * @remarks The number of Rows of 'matLC' is the number of Output variables
  * @remarks The number of Columns of 'matLC' is the number of input Variables.
  */
-int KrigOpt::setMatLC(const MatrixRectangular* matLC, int nvar)
+int KrigOpt::setMatLC(const MatrixRectangular* matLC)
 {
-  if (matLC == nullptr) return 0;
-  int n1 = (int)matLC->getNRows();
-  int n2 = (int)matLC->getNCols();
-
-  if (n1 > nvar)
-  {
-    messerr("Number of Rows of 'matLC' (%d)", (int)n1);
-    messerr("should be smaller than the number of variables (%d)", nvar);
-    return 1;
-  }
-  if (n2 != nvar)
-  {
-    messerr("Number of Columns of 'matLC' (%d)", (int)n2);
-    messerr("should be equal to the number of variables (%d)", nvar);
-    return 1;
-  }
   _matLC = matLC;
   return 0;
 }
 
-int KrigOpt::setKrigingOption(const EKrigOpt& calcul,
-                              Db* dbout,
-                              const VectorInt& ndiscs,
-                              bool flag_per_cell)
+int KrigOpt::setOptionCalcul(const EKrigOpt& calcul,
+                             const VectorInt& ndiscs,
+                             bool flag_per_cell)
 {
   _calcul = calcul;
 
   // Clear all parameters
-  _dbgrid = nullptr;
+
   _nDiscNumber = 0;
   _ndiscs.clear();
   _disc1.clear();
@@ -144,18 +126,11 @@ int KrigOpt::setKrigingOption(const EKrigOpt& calcul,
       messerr("i.e. a vector (dimension: Space Dimension) filled with positive numbers");
       return 1;
     }
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
-    if (dbgrid == nullptr)
-    {
-      messerr("For Block Kriging, the output must be a DbGrid");
-      return 1;
-    }
     _ndiscs = ndiscs;
-    _dbgrid = dbgrid;
     _flagPerCell = flag_per_cell;
 
     // Prepare auxiliary storage
-    _nDiscDim        = (int)ndiscs.size();
+    _nDiscDim    = (int)ndiscs.size();
     _nDiscNumber = VH::product(_ndiscs);
     _disc1.resize(_nDiscNumber);
     _disc2.resize(_nDiscNumber);
@@ -164,21 +139,15 @@ int KrigOpt::setKrigingOption(const EKrigOpt& calcul,
       _disc1[i].resize(_nDiscDim);
       _disc2[i].resize(_nDiscDim);
     }
-
-    // For constant discretization, calculate discretization coordinates
-    if (!_flagPerCell) blockDiscretize(0, true);
   }
 
+  if (calcul == EKrigOpt::DGM)
+    _flagDGM = true;
+
   return 0;
 }
 
-int KrigOpt::setKrigingDGM(bool flag_dgm)
-{
-  _flagDGM = flag_dgm;
-  return 0;
-}
-
-int KrigOpt::setRankColCok(const VectorInt& rank_colcok)
+int KrigOpt::setColCok(const VectorInt& rank_colcok)
 {
   _rankColcok = rank_colcok;
   _flagColcok = ! rank_colcok.empty();
@@ -226,6 +195,12 @@ VectorVectorDouble KrigOpt::getDisc2VVD() const
   return vecvec;
 }
 
+void KrigOpt::setOptionDGM(bool flag_dgm)
+{
+  if (flag_dgm)
+    _calcul = EKrigOpt::DGM;
+}
+
 void KrigOpt::setMode(const CovCalcMode* mode)
 {
   if (mode != nullptr)
@@ -236,10 +211,13 @@ void KrigOpt::setMode(const CovCalcMode* mode)
 
 bool KrigOpt::_isValidCalcul(const Db* dbout, const ANeigh* neigh) const
 {
+  _dbgrid = nullptr;
+
   // Check the Block calculation
   if (_calcul == EKrigOpt::BLOCK)
   {
     const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(dbout);
+    _dbgrid = dbgrid;
     if (dbgrid == nullptr)
     {
       messerr("Block Estimation is only possible for Grid '_dbout'");
@@ -259,6 +237,9 @@ bool KrigOpt::_isValidCalcul(const Db* dbout, const ANeigh* neigh) const
       messerr("i.e. a vector (dimension equal Space Dimension) filled with positive numbers");
       return false;
     }
+
+    // For constant discretization, calculate discretization coordinates
+    if (!_flagPerCell) blockDiscretize(0, true);
   }
   return true;
 }
@@ -292,33 +273,44 @@ bool KrigOpt::_isValidMatLC(const ModelGeneric* model) const
 {
   if (_matLC == nullptr) return true;
   if (_matLC->empty()) return true;
-  int nvar = model->getNVar();
-  int n1   = (int)_matLC->getNRows();
-  int n2   = (int)_matLC->getNCols();
+  int nvar  = model->getNVar();
+  int nrows = (int)_matLC->getNRows();
+  int ncols = (int)_matLC->getNCols();
 
-  if (n1 > nvar)
+  if (nrows > nvar)
   {
-    messerr("First dimension of 'matLC' (%d)", (int)n1);
+    messerr("First dimension of 'matLC' (%d)", (int)nrows);
     messerr("should be smaller than the number of variables in the model (%d)", nvar);
     return false;
   }
-  if (n2 != nvar)
+  if (ncols != nvar)
   {
-    messerr("Second dimension of 'matLC' (%d)", (int)n2);
+    messerr("Second dimension of 'matLC' (%d)", (int)ncols);
     messerr("should be equal to the number of variables in the model (%d)", nvar);
     return false;
   }
   return true;
 }
 
-bool KrigOpt::_isValidDGM(const ModelGeneric* model) const
+bool KrigOpt::_isValidDGM(const Db* dbout, const ModelGeneric* model) const
 {
-  if (!_flagDGM) return false;
-  int nvar                = model->getNVar();
+  if (!_flagDGM) return true;
+  int nvar = model->getNVar();
+
+  if (!dbout->isGrid())
+  {
+    messerr("For DGM option, the argument 'dbout'  should be a Grid");
+    return false;
+  }
   const Model* modelAniso = dynamic_cast<const Model*>(model);
   if (modelAniso == nullptr)
   {
     messerr("The option DGM is limited to model Aniso");
+    return false;
+  }
+  if (!modelAniso->hasAnam())
+  {
+    messerr("For DGM option, the Model must have an Anamorphosis attached");
     return false;
   }
   if (modelAniso->getCovMinIRFOrder() != -1)
@@ -336,7 +328,11 @@ bool KrigOpt::_isValidDGM(const ModelGeneric* model) const
     messerr("The DGM option requires a Model with Total Sill equal to 1.");
     return false;
   }
-
+  if (!modelAniso->isChangeSupportDefined())
+  {
+    messerr("DGM option requires a Change of Support to be defined");
+    return false;
+  }
   if (_calcul == EKrigOpt::BLOCK || _calcul == EKrigOpt::DRIFT)
   {
     messerr("The DGM option is incompatible with 'Block' calculation option");
@@ -345,7 +341,7 @@ bool KrigOpt::_isValidDGM(const ModelGeneric* model) const
   return true;
 }
 
-  bool KrigOpt::isValid(const Db* dbout, const ANeigh* neigh, const ModelGeneric* model) const
+  bool KrigOpt::isCorrect(const Db* dbout, const ANeigh* neigh, const ModelGeneric* model) const
 {
   // Check against Block calculation options
   if (! _isValidCalcul(dbout, neigh)) return false;
@@ -357,7 +353,7 @@ bool KrigOpt::_isValidDGM(const ModelGeneric* model) const
   if (!_isValidMatLC(model)) return false;
 
    // Check the validity for Discrete Gaussian Model
-  if (!_isValidDGM(model)) return false;
+  if (!_isValidDGM(dbout, model)) return false;
  
   return true;
 }

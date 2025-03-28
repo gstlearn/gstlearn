@@ -44,7 +44,8 @@
 KrigingSystem::KrigingSystem(Db* dbin,
                              Db* dbout,
                              const ModelGeneric* model,
-                             ANeigh* neigh)
+                             ANeigh* neigh,
+                             const KrigOpt& krigopt)
   : _dbin(dbin)
   , _dbout(dbout)
   , _model(nullptr)
@@ -52,7 +53,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _anam(nullptr)
   , _isReady(false)
   , _algebra()
-  , _krigopt()
+  , _krigopt(krigopt)
   , _sampleRanks()
   , _Sigma00()
   , _Sigma()
@@ -69,7 +70,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _flagStd(false)
   , _flagVarZ(false)
   , _flagDataChanged(false)
-  , _calcul(EKrigOpt::POINT)
   , _iptrWeights(-1)
   , _flagWeights(false)
   , _flagSet(true)
@@ -87,11 +87,9 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _postCov()
   , _postSimu()
   , _varCorrec()
-  , _flagDGM(false)
   , _flagFactorKriging(false)
   , _nclasses(0)
   , _factorClass(0)
-  , _matLC(nullptr)
   , _flagLTerm(false)
   , _flagAnam(false)
   , _flagNeighOnly(false)
@@ -111,7 +109,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _p1()
   , _p2()
   , _p0_memo()
-  , _flagNoMatLC(true)
   , _flagVerr(false)
   , _flagNoStat(false)
 {
@@ -126,7 +123,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
     neigh->reset();
 
   // Define local constants
-  _flagNoMatLC = _matLC == nullptr;
   _flagVerr    = _dbin->hasLocVariable(ELoc::V);
 
   _resetMemoryGeneral();
@@ -190,8 +186,8 @@ int KrigingSystem::_getNVar() const
 
 int KrigingSystem::_getNVarCL() const
 {
-  if (_flagNoMatLC) return _getNVar();
-  return (int)_matLC->getNRows();
+  if (!_krigopt.hasMatLC()) return _getNVar();
+  return _krigopt.getMatLCNRows();
 }
 
 int KrigingSystem::_getNbfl() const
@@ -525,13 +521,13 @@ bool KrigingSystem::isReady()
   if (!_isCorrect()) return false;
 
   // Check the internal class '_krigopt'
-  if (_krigopt.isValid(_dbout, _neigh, _model)) return false;
+  if (!_krigopt.isCorrect(_dbout, _neigh, _model)) return false;
 
   // Define the means of each variable
   _means       = _model->getMeans();
   // Possible adjust the means in case of presence of 'matLC'
   _meansTarget = _means;
-  if (_matLC != nullptr) _meansTarget = _matLC->prodMatVec(_means);
+  if (_krigopt.hasMatLC()) _meansTarget = _krigopt.getMatLC()->prodMatVec(_means);
 
   if ((_neigh != nullptr && _neigh->getType() == ENeigh::UNIQUE) || _flagBayes)
   {
@@ -1088,9 +1084,7 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
                                     bool flag_per_cell)
 {
   _isReady = false;
-  _calcul  = calcul;
-  _krigopt.setKrigingOption(calcul, _dbout, ndiscs, flag_per_cell);
-  return 0;
+  return _krigopt.setOptionCalcul(calcul, ndiscs, flag_per_cell);
 }
 
 /**
@@ -1138,30 +1132,6 @@ int KrigingSystem::setKrigOptXValid(bool flag_xvalid,
   _xvalidEstim = optionXValidEstim;
   _xvalidStdev = optionXValidStdev;
   _xvalidVarZ  = optionXValidVarZ;
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Check the consistency of the Colocation specification
- **
- ** \return  Error return code
- **
- ** \param[in]  rank_colcok   Array of ranks of colocated variables
- **
- ** \remarks The array 'rank_colcok' (if present) must be dimensioned
- ** \remarks to the number of variables in Dbin.
- ** \remarks Each element gives the rank of the colocated variable within Dbout
- ** \remarks or -1 if not colocated
- ** \remarks If the array 'rank_colcok' is absent, colocation option is OFF.
- **
- *****************************************************************************/
-int KrigingSystem::setKrigOptColCok(const VectorInt& rank_colcok)
-{
-  if (rank_colcok.empty()) return 0;
-
-  _isReady = false;
-  _krigopt.setRankColCok(rank_colcok);
   return 0;
 }
 
@@ -1216,44 +1186,6 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
   return 0;
 }
 
-/**
- * Define the output as Linear Combinations of the Input Variables
- * @param matLC Vector of Vectors of weights (see remarks)
- * @return
- * @remarks The first dimension of 'matLC' is the number of Output variables
- * @remarks The second dimension is the number of input Variables.
- */
-int KrigingSystem::setKrigOptMatLC(const MatrixRectangular* matLC)
-{
-  if (matLC == nullptr) return 0;
-  _isReady = false;
-  int n1 = (int) matLC->getNRows();
-  int n2 = (int) matLC->getNCols();
-
-  if (n1 > _getNVar())
-  {
-    messerr("First dimension of 'matLC' (%d)",(int) n1);
-    messerr("should be smaller than the number of variables in the model (%d)",
-            _getNVar());
-    return 1;
-  }
-  if (n2 != _getNVar())
-  {
-    messerr("Second dimension of 'matLC' (%d)",(int) n2);
-    messerr("should be equal to the number of variables in the model (%d)",
-            _getNVar());
-    return 1;
-  }
-  _matLC = matLC;
-  _flagNoMatLC = false;
-  _resetMemoryGeneral();
-
-  
-  // New style assignment
-  _krigopt.setMatLC(matLC, _getNVar());
-  return 0;
-}
-
 int KrigingSystem::setKrigOptFlagSimu(bool flagSimu, int nbsimu, int rankPGS)
 {
   _isReady = false;
@@ -1262,14 +1194,6 @@ int KrigingSystem::setKrigOptFlagSimu(bool flagSimu, int nbsimu, int rankPGS)
  _rankPGS = rankPGS;
  _neigh->setFlagSimu(flagSimu);
  return 0;
-}
-
-
-int KrigingSystem::setKrigOptDGM(bool flag_dgm)
-{
-  _isReady = false;
-  _krigopt.setKrigingDGM(flag_dgm);
-  return 0;
 }
 
 int KrigingSystem::setKrigOptFlagGlobal(bool flag_global)

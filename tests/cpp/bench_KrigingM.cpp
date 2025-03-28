@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
-#include "Enum/EKrigOpt.hpp"
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
@@ -60,7 +59,7 @@ void st_test(Db* grid, Model* model, int nech, int leaf_size, bool verbose)
   }
 
   Timer timer;
-  kriging(data, grid, model, neighM, EKrigOpt::POINT, true, false);
+  kriging(data, grid, model, neighM, true, false);
 
   if (verbose)
     timer.displayIntervalMilliseconds("Kriging in Moving Neighborhood", 1500);

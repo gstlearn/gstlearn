@@ -43,9 +43,10 @@ public:
   KrigingSystem(Db* dbin,
                 Db* dbout,
                 const ModelGeneric* model,
-                ANeigh* neigh);
-  KrigingSystem(const KrigingSystem &m) = delete;
-  KrigingSystem& operator=(const KrigingSystem &m) = delete;
+                ANeigh* neigh,
+                const KrigOpt& krigopt = KrigOpt());
+  KrigingSystem(const KrigingSystem& m)            = delete;
+  KrigingSystem& operator=(const KrigingSystem& m) = delete;
   virtual ~KrigingSystem();
 
   int resetData();
@@ -58,14 +59,11 @@ public:
                        bool optionXValidEstim = false,
                        bool optionXValidStdev = false,
                        bool optionXValidVarZ  = false);
-  int setKrigOptColCok(const VectorInt& rank_colcok);
   int setKrigOptBayes(bool flag_bayes,
                       const VectorDouble& prior_mean,
                       const MatrixSquareSymmetric& prior_cov);
   int setKrigOptDataWeights(int iptrWeights, bool flagSet = true);
-  int setKrigOptMatLC(const MatrixRectangular* matLC);
   int setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
-  int setKrigOptDGM(bool flag_dgm);
   int setKrigOptFlagGlobal(bool flag_global);
   int setKrigOptFlagLTerm(bool flag_lterm);
   int setKrigOptAnamophosis(AAnam* anam);
@@ -168,9 +166,6 @@ private:
   bool _flagVarZ;
   bool _flagDataChanged;
 
-  /// Option for Calculation
-  EKrigOpt _calcul;
-
   /// Option for Weights at Data locations
   int  _iptrWeights;
   bool _flagWeights;
@@ -198,16 +193,10 @@ private:
   MatrixRectangular     _postSimu; 
   MatrixSquareSymmetric _varCorrec;
 
-  /// Option for Discrete Gaussian case
-  bool _flagDGM;
-
   /// Option for (Disjunctive) Kriging of Factor
   bool _flagFactorKriging;
   int  _nclasses;
   int  _factorClass;
-
-  /// Option for Estimating the Linear Combination of Variables
-  const MatrixRectangular* _matLC;
 
   /// Option for asking for Z * A-1 * Z
   bool _flagLTerm;
@@ -241,7 +230,6 @@ private:
   mutable SpacePoint _p0_memo;
 
   /// Some local flags defined in order to speed up the process
-  mutable bool _flagNoMatLC;
   mutable bool _flagVerr;
   mutable bool _flagNoStat;
 };

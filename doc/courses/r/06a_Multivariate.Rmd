@@ -213,8 +213,7 @@ We perform a cross-validation of the fitted model using Ordinary Kriging, and ca
 
 ```{r Cross-validation_Ordinary_kriging, results=FALSE}
 ## Compute cross-validation
-err = xvalid(dat, model=fitmod_raw, 
-             neigh=uniqueNeigh,
+err = xvalid(dat, model=fitmod_raw, neigh=uniqueNeigh,
              namconv=NamingConvention_create(prefix="CV_OK",flag_locator=FALSE))
 ```
 
@@ -329,8 +328,7 @@ movingNeigh = NeighMoving_create(radius = 1000, nmaxi = 10)
 To perform a cross-validation of the bivariate model using co-kriging, we use the  same commands as in the univariate case. Then cross-validation errors are computed for each variable of the multivariate model (hence for both the Temperature and the Elevation in our case).
 
 ```{r Cross-validation_Cokriging, echo=TRUE}
-err = xvalid(dat, model=fitmod2var,
-             neigh=movingNeigh,
+err = xvalid(dat, model=fitmod2var, neigh=movingNeigh,
              namconv=NamingConvention_create(prefix="CV_COK",flag_locator=FALSE))
 ```
 
@@ -635,8 +633,7 @@ dbStatisticsPrint(target, names=c("OK.T*estim", "UK.T*estim"), opers=opers,
 To perform cross-validation using Universal Kriging, we simply call the `xvalid` function with the model we fitted on the residuals. 
 
 ```{r Cross-validation_Universal_Kriging}
-err = xvalid(dat, model=polDriftModel, 
-             neigh=uniqueNeigh,
+err = xvalid(dat, model=polDriftModel, neigh=uniqueNeigh,
              namconv=NamingConvention_create(prefix="CV_UK",flag_locator=FALSE))
 ```
 
@@ -767,8 +764,7 @@ Note that negative Estimates are present when using External Drift.
 To perform a cross-validation, we simply call the `xvalid` function. 
 
 ```{r Cross-Validation_External_Drift}
-err = xvalid(dat, model=EDmodel, 
-             neigh=uniqueNeigh,
+err = xvalid(dat, model=EDmodel, neigh=uniqueNeigh,
              namconv=NamingConvention_create(prefix="CV_KED",flag_locator=FALSE))
 ```
 

@@ -12,8 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "geoslib_define.h"
-
 #include "Enum/EKrigOpt.hpp"
 
 #include "Calculators/ACalcInterpolator.hpp"
@@ -32,8 +30,6 @@ public:
   CalcKrigingSimpleCase& operator=(const CalcKrigingSimpleCase &r) = delete;
   virtual ~CalcKrigingSimpleCase();
 
-  void setCalcul(const EKrigOpt& calcul);
-
 private:
   virtual bool _check() override;
   virtual bool _preprocess() override;
@@ -47,8 +43,6 @@ private:
   bool _flagEst;
   bool _flagStd;
   bool _flagVarZ;
-
-  EKrigOpt  _calcul;
 
   VectorString _nameCoord;
   int _iechSingleTarget;

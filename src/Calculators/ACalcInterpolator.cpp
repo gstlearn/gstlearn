@@ -21,6 +21,7 @@ ACalcInterpolator::ACalcInterpolator()
   : ACalcDbToDb()
   , _model(nullptr)
   , _neigh(nullptr)
+  , _krigopt()
   , _ncova(0)
 {
 }
@@ -144,9 +145,9 @@ bool ACalcInterpolator::_check()
     }
   }
 
-  /**************************************/
+  /***************************************/
   /* Checking the Validity of the _model */
-  /**************************************/
+  /***************************************/
 
   if (_model != nullptr)
   {
@@ -156,6 +157,12 @@ bool ACalcInterpolator::_check()
       return false;
     }
   }
+
+  /******************************/
+  /* Cross-checking the Krigopt */
+  /******************************/
+
+  if (!_krigopt.isCorrect(getDbout(), _neigh, _model)) return false;
 
   /*********************************/
   /* Calculate the field extension */
