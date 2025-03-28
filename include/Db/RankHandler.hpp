@@ -37,7 +37,6 @@ public:
 
   void defineSampleRanks(const VectorInt& nbgh = VectorInt());
 
-  const VectorInt& getTotalSampleRanks() const { return _nbgh; }
   const VectorInt& getSampleRanks(int ivar) const { return _index[ivar]; }
   const VectorVectorInt& getSampleRanks() const { return _index; }
   const VectorInt& getSampleRanksByVariable(int ivar) const { return _index[ivar]; }
