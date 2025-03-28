@@ -53,7 +53,7 @@ jobs:
     - name: Install python dependencies
       run: |
         uv pip install numpy
-        uv pip install pandas scipy mlxtend
+        uv pip install mlxtend
 
     - name: Setup R Version
       uses: r-lib/actions/setup-r@v2
