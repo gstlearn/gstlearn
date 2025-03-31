@@ -58,6 +58,13 @@ def _selectiItems(nvalues, sitem=-1):
         nout = 1
     return outs, nout
 
+def _getArgument(arg, default, *args, **kwargs):
+    if arg in kwargs:
+        return kwargs[arg]
+    elif arg in args:
+        return arg
+    return default
+
 def _isNotCorrect(object, types):
     if object is None:
         print("Argument 'object' must be provided")
@@ -80,22 +87,12 @@ def _getDefaultVariableName(db, name):
             name = db.getLastName()
     return name
 
-def _fig_geometry(fig, dims=None):
-    '''
-    Set the default values for the geometric parameters for a Figure
-    
-    fig: matplotlib.Figure
-    dims: Extension of graphic Axes
-    '''
-    if dims is not None:
-        plt.figure(dims[0], dims[1])
-
 def _ax_geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
     '''
     Set the default values for the geometric parameters for one Axes
     
     ax: matplotlib.Axes
-    dims: Extension of graphic Axes
+    dims: Extension of ALL graphic Axes (even if attached to one Axes in particular)
     xlim: Range of values along the X-axis
     ylim: Range of values along the Y-axis
     aspect: Y/X ratio
@@ -139,24 +136,22 @@ def _ax_decoration(ax, xlabel=None, ylabel=None, title=None, **kwargs):
     if ylabel is not None:
         ax.set_ylabel(ylabel)
 
-def _getNewAxes(ax=None, nx=1, ny=1):
+def _getNewAxes(nx=1, ny=1):
     ''' Creates a new figure (possibly containing multiple subplots)
-        ax: Axes description. See remarks.
         nx, ny:     Number of subplots along X and Y
 
         Remarks
         If 'ax' does not exist, a new figure is created. 
         Otherwise, the input argument is simply returned.
     '''
-    if ax is None:
-        if len(plt.get_fignums()) <= 0:
-            fig, ax = plt.subplots(nx, ny, squeeze=False)
-        else:
-            fig = plt.gcf()
-            ax = fig.get_axes()
+    if len(plt.get_fignums()) <= 0:
+        fig, ax = plt.subplots(nx, ny, squeeze=False)
+    else:
+        fig = plt.gcf()
+        ax = fig.get_axes()
     
+    if len(ax) <= 1:
         ax = _getFirstElement(ax)
-    
     return ax
 
 def _getFirstElement(tab):
@@ -180,13 +175,13 @@ def _legendContinuous(ax, im, legendName = None):
     return cbar
 
 def _legendDiscrete(ax, sizmin, sizmax, sizvmin, sizvmax, color, 
-                    legendName = None, loc='upper right', num = 5):
+                    legendName = None, loc='upper right', num = 5, ndec=3):
 
-    indices = np.arange(1, num)
+    indices = np.arange(num)
     sizes = sizmin  + indices * (sizmax - sizmin)
     values = sizvmin + indices * (sizvmax - sizvmin)
-    size_handles = [plt.scatter([], [], s=size, color=color, alpha=0.6, edgecolors='k', 
-                                label=f"{size}") for size in sizes]
+    size_handles = [plt.scatter([], [], s=sizes[i], color=color, alpha=0.6, edgecolors='k', 
+                                label=f"{round(values[i],ndec)}") for i in indices]
     ax.legend(handles=size_handles, title=legendName, loc=loc)
 
 def _getCoordinates(db, useSel=True, posX=0, posY=1):
@@ -273,38 +268,11 @@ def _getGridVariable(dbgrid, name, useSel=True, posX=0, posY=1, corner=None, sha
     else:
         print("The argument shading should be either 'nearest' for cells centered on (x,y)"
               " or 'flat' for cells with low-left corner in (x,y)")
-        
+    
     return x0, y0, X, Y, Xrot, Yrot, data, tr
 
-def varioElem(vario, ivar=0, jvar=0, *args, **kwargs):
-    """
-    Plot a single experimental variogram (one direction and fixed pair of variable(s)).
-    
-    Parameters
-    ----------
-    ax: matplotlib.Axes (necessary when used as a method of the class)
-    vario : experimental variogram to be represented (gstlearn.Vario).
-    ivar, jvar : Indices of the variables for the variogram to be represented (the default is 0).
-    idir : Index of the direction of the variogram to be represented (the default is 0).
-    hmax : Maximum distance to be represented.
-    showPairs : Flag for annotating the number of pairs for each lag on the plot (the default is False).
-    varColor : color of the horizontal line representing the sill (the default is 'black').
-    varLinestyle : linestyle of the horizontal line representing the sill (the default is 'dashed').
-    label : Label to be drawn (constructed if not provided)
-    flagDrawVariance : Flag to add the variance (default is True)    
-    flagLabelDir : Encode the direction in the label (when constructed)
-    flagLegend : Flag to display the axes legend.
-    **kwargs : arguments passed to matplotlib.pyplot.plot
-
-    Returns
-    -------
-    ax : axes where the variogram is represented
-    """
-    ax = _getNewAxes()
-    return __ax_varioElem(ax, vario, ivar=ivar, jvar=jvar, *args, **kwargs)
-
 def __ax_varioElem(ax, vario, ivar=0, jvar=0, idir=0, hmax=None, showPairs = False,
-                   varColor='black', varLinestyle='dashed', 
+                   varColor='black', varLinestyle='dotted', 
                    flagDrawVariance = True, flagLabelDir=False, flagLegend=False, 
                    label=None, **kwargs):
     if label is None:
@@ -325,10 +293,6 @@ def __ax_varioElem(ax, vario, ivar=0, jvar=0, idir=0, hmax=None, showPairs = Fal
     
     # Representing the variogram
     res = ax.plot(hh, gg, label = label, **kwargs)
-    
-    # Maximum distance to be represented
-    if hmax is None:
-        hmax = np.nanmax(hh)
     
     # Adding the Y=0 axis in multivariate case
     if ivar != jvar:
@@ -357,9 +321,9 @@ def __ax_varioElem(ax, vario, ivar=0, jvar=0, idir=0, hmax=None, showPairs = Fal
         
     return res
 
-def varmod(vario, model=None, ivar=-1, jvar=-1, axsOld=None, *args, **kwargs):
+def varmod(vario=None, model=None, ivar=-1, jvar=-1, *args, **kwargs):
     """
-    Construct a figure for plotting experimental variogram(s) and model.
+    Construct a figure for plotting experimental variogram(s) and model. Both of them are optional
     
     Parameters
     ----------
@@ -378,20 +342,17 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, axsOld=None, *args, **kwargs):
     hmax : Maximum distance to be represented.
     cmap : Optional Color scale
     flagLegend : Flag to display the axes legend.
-    axsOld : Reference for the plot(s) within the figure. If None (default),
-          it creates a new figure (with multiple axes for multivariate variograms).
-
-    **kwargs : arguments passed to matplotlib.pyplot.plot for all variograms plotted (not models!)
+    **kwargs : arguments passed to _ax_varmod.
     """
     nvar = vario.getNVar()
     ivarUtil, ivarN = _selectiItems(nvar, ivar)
     jvarUtil, jvarN = _selectiItems(nvar, jvar)
-    axs = _getNewAxes(axsOld, nx=ivarN, ny=jvarN)
+    axs = _getNewAxes(nx=ivarN, ny=jvarN)
 
-    return __ax_varmod(axs, vario=vario, model=model, ivar=ivar, jvar=jvar, 
+    return _ax_varmod(axs, vario=vario, model=model, ivar=ivar, jvar=jvar, 
                        *args, **kwargs)
 
-def __ax_varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
+def _ax_varmod(axs, vario=None, model=None, ivar=-1, jvar=-1, idir=-1,
                 nh = 100, hmax = None, showPairs=False, asCov=False, 
                 flagDrawVariance = True,
                 varioLinestyle = 'dashed', modelLinestyle = 'solid',
@@ -399,17 +360,53 @@ def __ax_varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
                 envColor='black', envLinestyle="dotted",
                 cmap=None, flagLegend=False,
                 **kwargs):
-    if _isNotCorrect(object=vario, types=["Vario"]):
+    """
+    Construct a figure for plotting experimental variogram(s) and model. Both of them are optional
+    
+    axs : matplotlib.Axes
+    vario : experimental variogram to be represented
+    model : optional, variogram model
+    ivar, jvar : Indices of the variables for the variogram to be represented. If -1 (default), all 
+                 variables are selected and all the simple and crossed variograms are represented.
+    idir : Index of the direction of the variogram to be represented. If -1 (default) all available
+           directions are selected and multi-directional variograms are represented.
+    nh : number of points between 0 and hmax where the model variogram is calculated (default is 100).
+    hmax : Maximum distance to be represented.
+    showPairs : True to show the number of pairs per lag
+    flagDrawVariance : Flag to add the variance (default is True)  
+    varioLinestyle: Linestyle for representing the experimental variogram
+    modelLinestyle: Linestyle for representing the Model
+    varColor, varLinestyle: parameters for representing variance-covariance line
+    envColor, envLinestyle: parameters for representing coregionalization envelop
+    cmap : Optional Color scale
+    flagLegend : Flag to display the axes legend.
+    **kwargs : arguments passed to matplotlib.pyplot.plot for all variograms plotted (not models!)
+    """
+    flagDef = False
+    if vario is not None:
+        if _isNotCorrect(object=vario, types=["Vario"]):
+            return None
+        flagDef = True
+    if model is not None:
+        if _isNotCorrect(object=model, types=["Model"]):
+            return None
+        flagDef = True
+    if not flagDef:
+        print("You must define either 'vario' or 'model' or both")
         return None
 
     color_in_kwargs = 'color' in kwargs
-    
-    if hmax is None:
-        hmax = vario.getHmax(ivar, jvar, idir)
-        
-    ndir = vario.getNDir()
-    nvar = vario.getNVar()
+
+    ndir = 1
+    if vario is not None:
+        ndir = vario.getNDir()
+    nvar = 0
+    if vario is not None:
+        nvar = vario.getNVar()
+    if model is not None:
+        nvar = model.getNVar() 
     cols = getColorMap(ndir,cmap)
+    hmax = _getHmax(hmax, vario, model)
     
     ndirUtil, ivarD = _selectiItems(ndir, idir)
     ivarUtil, ivarN = _selectiItems(nvar, ivar)
@@ -449,20 +446,22 @@ def __ax_varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
                     kwargs.update({'color':cols(idirUtil)})
                 if varioLinestyle is not None:
                     kwargs.update({'linestyle': varioLinestyle})
+                codir = _getCodir(idirUtil, vario, model)
                 
-                __ax_varioElem(ax, vario, iv, jv, idirUtil, 
-                               showPairs=showPairs, hmax=hmax,
-                               flagDrawVariance = flagDrawVariance,
-                               varColor=varColor, varLinestyle=varLinestyle,  
-                               flagLabelDir=flagLabelDir, flagLegend=flagLegend, 
-                               **kwargs)
+                # Plotting the Variogram (optional)
+                if vario is not None:
+                    __ax_varioElem(ax, vario, iv, jv, idirUtil, 
+                                   showPairs=showPairs, hmax=hmax,
+                                   flagDrawVariance = flagDrawVariance,
+                                   varColor=varColor, varLinestyle=varLinestyle,  
+                                   flagLabelDir=flagLabelDir, flagLegend=flagLegend, 
+                                   **kwargs)
 
                 # Plotting the Model (optional)
                 if model is not None:
-                    codir = vario.getCodirs(idirUtil)
                     if modelLinestyle is not None:
                         kwargs.update({'linestyle': modelLinestyle})
-                    __ax_modelElem(ax, model, ivar=iv, jvar=jv, codir=codir, 
+                    _ax_modelElem(ax, model, ivar=iv, jvar=jv, codir=codir, 
                                    hmax=hmax, nh=nh, asCov=asCov,
                                    envColor=envColor, envLinestyle=envLinestyle, 
                                    flagLabelDir=flagLabelDir, flagLegend=flagLegend, 
@@ -470,54 +469,75 @@ def __ax_varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
 
             ax.autoscale(True)
             
-            if vario.drawOnlyPositiveX(iv, jv):
-                ax.set_xlim(left=0)
-            if vario.drawOnlyPositiveY(iv, jv):
-                ax.set_ylim(bottom=0)
+            if vario is not None:
+                if vario.drawOnlyPositiveX(iv, jv):
+                    ax.set_xlim(left=0)
+                if vario.drawOnlyPositiveY(iv, jv):
+                    ax.set_ylim(bottom=0)
     
     return axs
 
-def variogram(vario, ivar=0, jvar=0, axsOld=None, *args, **kwargs):
+def variogram(vario, ivar=0, jvar=0, *args, **kwargs):
     """
     Plot experimental variogram(s) (can be multidirectional and multivariable or selected ones).
     
-    Parameters
-    ----------
-    axs : matplotlib.Axes or matplotlib.Figure
+    vario : experimental variogram to be represented (gstlearn.Vario).
+    ivar, jvar : Indices of the variables for the variogram to be represented. If -1 (default), all 
+                 variables are selected and all the simple and crossed variograms are represented.
+    **kwargs : arguments passed to _ax_variogram.
+    """
+    nvar = vario.getNVar()
+    ivarUtil, ivarN = _selectiItems(nvar, ivar)
+    jvarUtil, jvarN = _selectiItems(nvar, jvar)
+    axs = _getNewAxes(nx=ivarN, ny=jvarN)
+    
+    return _ax_variogram(axs, vario, ivar=ivar, jvar=jvar, *args, **kwargs)
+    
+def _getCodir(idir, vario, model):
+    if vario is not None:
+        return vario.getCodirs(idir)
+    else:
+        codir = [0] * model.getNDim()
+        codir[0] = 1
+        return codir
+        
+def _getHmax(hmax, vario, model):
+    if hmax is not None:
+        return hmax
+    
+    hmax = 0
+    if vario is not None:
+        hmax = vario.getHmax()
+    if model is not None:
+        for icova in range(model.getNCov()):
+            range_max = np.max(model.getCovAniso(icova).getRanges())
+            if 3*range_max > hmax:
+                hmax = 3*range_max
+    if hmax == 0: # if the model has no range defined
+        hmax = 1
+    return hmax
+
+def _ax_variogram(axs, vario, ivar=0, jvar=0, idir=0, *args, **kwargs):
+    """
+    Plot experimental variogram(s) (can be multidirectional and multivariable or selected ones).
+    
     vario : experimental variogram to be represented (gstlearn.Vario).
     ivar, jvar : Indices of the variables for the variogram to be represented. If -1 (default), all 
                  variables are selected and all the simple and crossed variograms are represented.
     idir : Index of the direction of the variogram to be represented. If -1 (default) all available
            directions are selected and multidirectional variograms are represented.
-    varColor, varLinestyle : parameters for representing variance-covariance line
-    hmax : Maximum distance to be represented.
-    cmap : Optional Color scale
-    flagLegend : Flag to display the axes legend.
-    axs : Reference for the plot(s) within the figure. If None (default),
-          it creates a new figure (with multiple axes for multivariate variograms).
-    **kwargs : arguments passed to matplotlib.pyplot.plot for all variograms plotted
-
-    Returns
-    -------
-    axs : axes where the variograms are represented
+    **kwargs : arguments passed to _ax_varmod
     """
-    nvar = vario.getNVar()
-    ivarUtil, ivarN = _selectiItems(nvar, ivar)
-    jvarUtil, jvarN = _selectiItems(nvar, jvar)
-    axs = _getNewAxes(axsOld, nx=ivarN, ny=jvarN)
-    
-    return __ax_variogram(axs, vario, ivar=ivar, jvar=jvar, *args, **kwargs)
-    
-def __ax_variogram(axs, vario, ivar=0, jvar=0, idir=0,
-                   varColor='black', varLinestyle='dotted', hmax=None,  
-                   cmap = None, flagLegend=False, 
-                   *args, **kwargs):
-    return __ax_varmod(axs, vario, ivar=ivar, jvar=jvar, idir=idir, 
-                       varColor=varColor, varLinestyle=varLinestyle, 
-                       hmax=hmax, cmap=cmap, flagLegend=flagLegend, 
-                       *args, **kwargs)
+    varioLineStyle = _getArgument("varioLineStyle", "solid", *args, **kwargs)
+    return _ax_varmod(axs, vario, ivar=ivar, jvar=jvar, idir=idir, 
+                      varioLinestyle = varioLineStyle, 
+                      *args, **kwargs)
 
-def modelElem(modelobj, ivar=0, jvar=0, *args, **kwargs):
+def _ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
+                   nh = 100, hmax = None, asCov=False,
+                   envColor='black', envLinestyle='dashed',
+                   label=None, flagLabelDir=False, flagEnvelop = True, flagLegend=False, 
+                   **kwargs):
     """
     Construct a Layer for plotting a model
     
@@ -539,34 +559,9 @@ def modelElem(modelobj, ivar=0, jvar=0, *args, **kwargs):
     flagEnvelop: Represent the coregionalization envelop (in multivariate case only)
     flagLegend : Flag to display the axes legend.
     """
-    ax = _getNewAxes()
-    return __ax_modelElem(ax, modelobj, ivar=ivar, jvar=jvar, *args, **kwargs)
-
-def __ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
-                   nh = 100, hmax = None, asCov=False,
-                   envColor='black', envLinestyle='dashed',
-                   label=None, flagLabelDir=False, flagEnvelop = True, flagLegend=False, 
-                   **kwargs):
     if _isNotCorrect(object=modelobj, types=["Model"]):
         return None
-    
-    if codir is None:
-        if vario is None:
-            codir = [0] * modelobj.getNDim()
-            codir[0] = 1
-        else:
-            codir = vario.getCodirs(idir)
-            
-    # if hmax not specified = 3*maximum range of the model's basic structures
-    if hmax is None:
-        hmax = 0
-        for icova in range(modelobj.getNCov()):
-            range_max = np.max(modelobj.getCovAniso(icova).getRanges())
-            if 3*range_max > hmax:
-                hmax = 3*range_max
-    if hmax == 0: # if the model has no range defined
-        hmax = 1
-            
+             
     if label is None:
         if flagLabelDir:
             angles = gl.GeometryHelper.rotationGetAngles(codir,True)
@@ -604,14 +599,38 @@ def __ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
         
     return res
 
-def model(modelobj, *args, **kwargs):
-    ax = _getNewAxes()
-    return __ax_model(ax, modelobj, *args, **kwargs)
+def model(modelobj, ivar=0, jvar=0, *args, **kwargs):
+    """
+    Construct a figure for plotting a model.
     
-def __ax_model(ax, modelobj = None, **kwargs):
-    __ax_modelElem(ax, modelobj = modelobj, **kwargs)
+    Parameters
+    ----------
+    modelobj : the variogram model
+    ivar, jvar : Indices of the variables for the variogram to be represented. If -1 (default), all 
+                 variables are selected and all the simple and crossed variograms are represented.
+    **kwargs : arguments passed to _ax_model.
+    """
+    nvar = modelobj.getNVar()
+    ivarUtil, ivarN = _selectiItems(nvar, ivar)
+    jvarUtil, jvarN = _selectiItems(nvar, jvar)
+    axs = _getNewAxes(nx=ivarN, ny=jvarN)
+    return _ax_model(axs, modelobj, ivar=ivar, jvar=jvar, *args, **kwargs)
     
-    return ax
+def _ax_model(axs, modelobj, ivar=0, jvar=0, 
+              *args, **kwargs):
+    """
+    Construct a figure for plotting a Model.
+    
+    Parameters
+    ----------
+    axs : current matplotlib.Axes
+    modelobj : variogram model
+    ivar, jvar : Indices of the variables for the variogram to be represented. If -1 (default), all 
+                 variables are selected and all the simple and crossed variograms are represented.
+    *args, **kwargs : arguments passed to _ax_varmod
+    """
+    return _ax_varmod(axs, model=modelobj, ivar=ivar, jvar=jvar,  
+                      *args, **kwargs)
 
 def symbol(db, nameColor=None, nameSize=None, *args, **kwargs):
     '''
@@ -980,6 +999,7 @@ def isoline(dbgrid, *args, **kwargs):
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     useSel : Boolean to indicate if the selection has to be considered
     levels: Vector of isovalues to be represented
+    nlevel: Number of levels for automatic generation of 'labels' (if not provided)
     flagLegend: Flag for representing the Color Bar (not represented if alpha=0)
     legendName: Name given to the Legend (set to 'name' if not defined)
     ax: Reference for the plot within the figure
@@ -990,15 +1010,17 @@ def isoline(dbgrid, *args, **kwargs):
     return _ax_isoline(ax, dbgrid, *args, **kwargs)
 
 def _ax_isoline(ax, dbgrid, name=None, useSel = True, 
-                 posX=0, posY=1, corner=None, levels=None,
+                 posX=0, posY=1, corner=None, levels=None, nlevel=5,
                  flagLegend=False, legendName=None, **kwargs):
     
     x0, y0, X, Y, Xrot, Yrot, data, tr = _getGridVariable(dbgrid, name, useSel, posX=posX, posY=posY, corner=corner, shading="nearest")
+    ax.set_xlim(np.nanmin(Xrot), np.nanmax(Xrot))
+    ax.set_ylim(np.nanmin(Yrot), np.nanmax(Yrot))
 
     trans_data = tr + ax.transData
     
     if levels is None:
-        levels = np.linspace(np.nanmin(data), np.nanmax(data), 10)
+        levels = np.linspace(np.nanmin(data), np.nanmax(data), nlevel)
 
     res = ax.contour(Xrot, Yrot, data, levels, **kwargs)
     
@@ -2058,10 +2080,10 @@ setattr(plt.Axes, "correlation",   gp2._ax_correlation)
 setattr(plt.Axes, "hscatter",      gp2._ax_hscatter)
 setattr(plt.Axes, "table",         gp2._ax_table)
 
-setattr(plt.Axes, "model",         gp2.__ax_model)
+setattr(plt.Axes, "model",         gp2._ax_model)
 setattr(plt.Axes, "mesh",          gp2._ax_mesh)
-setattr(plt.Axes, "variogram",     gp2.__ax_variogram)
-setattr(plt.Axes, "varmod",        gp2.__ax_varmod)
+setattr(plt.Axes, "variogram",     gp2._ax_variogram)
+setattr(plt.Axes, "varmod",        gp2._ax_varmod)
 
 setattr(plt.Axes, "neigh",         gp2._ax_neigh)
 setattr(plt.Axes, "neighWeights",  gp2._ax_neighWeights)
@@ -2077,8 +2099,8 @@ setattr(plt.Axes, "cell",          gp2._ax_cell)
 setattr(plt.Axes, "box",           gp2._ax_box)
 setattr(plt.Axes, "XY",            gp2._ax_XY)
 
-setattr(plt.Figure, "varmod",      gp2.__ax_varmod)
-setattr(plt.Figure, "variogram",   gp2.__ax_variogram)
-setattr(plt.Figure, "model",       gp2.__ax_model)
+setattr(plt.Figure, "varmod",      gp2._ax_varmod)
+setattr(plt.Figure, "variogram",   gp2._ax_variogram)
+setattr(plt.Figure, "model",       gp2._ax_model)
 
 setattr(plt.Figure, "decoration",  gp2._fig_decoration)
