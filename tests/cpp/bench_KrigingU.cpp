@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/OptCustom.hpp"
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
 
@@ -34,7 +35,11 @@ int main(int argc, char *argv[])
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("BenchKrigingU-");
-
+  
+  OptCustom::define("NotOptimSimpleCase",0);
+  OptCustom::define("Cholesky",0);
+  OptCustom::define("ompthreads",10);
+  bool flag_std = false;
   // Global parameters
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
@@ -69,7 +74,7 @@ int main(int argc, char *argv[])
   message("- the Unique Neighborhood is required\n");
 
   Timer timer;
-  kriging(data, grid, model, neighU, true, false, false);
+  kriging(data, grid, model, neighU, true, flag_std, false, EKrigOpt::POINT);
   timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 700);
 
   // Produce some statistics for comparison

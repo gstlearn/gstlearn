@@ -819,6 +819,11 @@ String AMatrix::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
+void AMatrix::clear()
+{
+  _clear();
+}
+
 void AMatrix::_clear()
 {
   _setNRows(0);

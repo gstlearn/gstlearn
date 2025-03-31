@@ -127,6 +127,7 @@ public:
 
   VectorDouble               getEigenValues()  const { return _eigenValues; }
   const MatrixSquareGeneral* getEigenVectors() const { return _eigenVectors; }
+  int invert2(AMatrixDense& res) const;
 
 protected:
   virtual void    _allocate() override;

@@ -64,6 +64,7 @@ ACov::ACov(const ACov& r)
   , _pw2(r._pw2)
   , _tabNoStat(r._tabNoStat == nullptr ? nullptr : r._tabNoStat->clone())
 {
+  
 }
 
 ACov& ACov::operator=(const ACov& r)
@@ -1273,9 +1274,12 @@ int ACov::evalCovVecRHSInPlace(vect vect,
                                VectorDouble& tabwork,
                                double lambda) const
 {
-  db2->getSampleAsSPInPlace(pin, iech2);
+  DECLARE_UNUSED(db2)
   for (int i = 0; i < (int)vect.size(); i++)
     vect[i] = 0.;
+  
+  //db2->getSampleAsSPInPlace(pin, iech2);
+  
   return addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda);
 }
 

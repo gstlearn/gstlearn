@@ -708,7 +708,12 @@ bool DbGrid::isGridRotated() const
 double DbGrid::getCoordinate(int iech, int idim, bool flag_rotate) const
 {
   if (idim >= getNDim()) return TEST;
-  return _grid.getCoordinate(iech, idim, flag_rotate);
+  double ret{};
+  #pragma omp critical
+  {
+    ret = _grid.getCoordinate(iech, idim, flag_rotate);
+  }
+  return ret;
 }
 
 void DbGrid::getCoordinatesInPlace(VectorDouble& coor, int iech, bool flag_rotate) const

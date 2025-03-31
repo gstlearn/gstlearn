@@ -102,6 +102,8 @@ public:
   FORWARD_METHOD(getCov, envelop)
   FORWARD_METHOD(getCov, gofToVario, TEST)
   FORWARD_METHOD(getCov, isNoStat)
+  FORWARD_METHOD(getCov, manage)
+  FORWARD_METHOD(getCov, optimizationPreProcessForData)
   FORWARD_METHOD(getCov, optimizationPostProcess)
   FORWARD_METHOD_NON_CONST(getCov, setOptimEnabled)
   FORWARD_METHOD_NON_CONST(getCov, attachNoStatDb)

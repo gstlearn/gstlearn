@@ -415,6 +415,7 @@ int CorAniso::addEvalCovVecRHSInPlace(vect vect,
   auto space = pin.getSpace();
   const CovCalcMode& mode = krigopt.getMode();
   optimizationTransformSPNew(pin, pout);
+  //TODO adapt to Moving
   space->getDistancePointVectInPlace(pout, _p1As, tabwork);
   double* dists = tabwork.data();
   const int* ind = index1.data();

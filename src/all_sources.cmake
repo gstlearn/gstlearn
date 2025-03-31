@@ -313,6 +313,7 @@ set(SRC
   Estimation/KrigingSystem.cpp
   Estimation/KrigingSystemSimpleCase.cpp
   Estimation/KrigingAlgebra.cpp
+  Estimation/KrigingAlgebraSimpleCase.cpp
   Estimation/CalcKriging.cpp
   Estimation/CalcKrigingSimpleCase.cpp
   Estimation/CalcKrigingFactors.cpp

@@ -13,7 +13,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "gstlearn_export.hpp"
 
-#include "Estimation/KrigingAlgebra.hpp"
+#include "Estimation/KrigingAlgebraSimpleCase.hpp"
 #include "Estimation/KrigOpt.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "Space/SpaceRN.hpp"
@@ -59,8 +59,10 @@ public:
   int  updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ, bool forceNoDual = false);
   int  updKrigOptNeighOnly(int iptrNeigh);
   bool isReady();
-  int  estimate(int iech_out,SpacePoint& pin, SpacePoint& pout, VectorDouble& tabwork);
+  int  estimate(int iechout,SpacePoint& pin, SpacePoint& pout, VectorDouble& tabwork, KrigingAlgebraSimpleCase& algebra, ModelGeneric& model);
   void conclusion();
+
+  KrigingAlgebraSimpleCase& getAlgebra() { return _algebra; }  
 
   // Methods used to return algebraic internal information
   int getNDim() const { return (_model != nullptr) ? _model->getNDim() : 0; }
@@ -71,17 +73,17 @@ public:
   int getNrhs() const { return (!_Sigma0.empty()) ? _Sigma0.getNCols() : 0; }
 
   VectorInt             getSampleNbgh() const { return _nbgh; }
-  VectorVectorDouble    getSampleCoordinates() const;
+  VectorVectorDouble    getSampleCoordinates(KrigingAlgebraSimpleCase& algebra, int iechout) const;
   VectorDouble          getSampleData() const { return _Z; };
   MatrixSquareSymmetric getLHS() const { return _Sigma; }
   MatrixRectangular     getLHSF() const { return _Sigma0; }
   MatrixRectangular     getRHS() const { return _Sigma0; }
   MatrixRectangular     getRHSF() const { return _X0; }
   MatrixSquareGeneral   getVariance() const { return _Sigma00; }
-  MatrixRectangular     getWeights() const;
-  MatrixRectangular     getMu() const;
+  MatrixRectangular     getWeights(KrigingAlgebraSimpleCase& algebra) const;
+  MatrixRectangular     getMu(KrigingAlgebraSimpleCase& algebra) const;
   double                getLTerm() const { return _algebra.getLTerm(); }
-
+  ModelGeneric*         getModel() const { return _model; }
 private:
   int    _getNVar() const;
   int    _getNbfl() const;
@@ -92,15 +94,15 @@ private:
   bool _isAuthorized() const;
 
   static void _dumpOptions();
-  void _rhsDump();
-  void _wgtDump();
-  void _estimateCalcul(int status);
+  void _rhsDump(KrigingAlgebraSimpleCase& algebra);
+  void _wgtDump(KrigingAlgebraSimpleCase& algebra);
+  void _estimateCalcul(int status, KrigingAlgebraSimpleCase& algebra, int iechout) const;
   void _simulateCalcul(int status);
-  void _neighCalcul(int status, const VectorDouble& tab);
-  void _estimateVarZ(int status);
-  void _estimateStdv(int status);
-  void _estimateEstim(int status);
-  void _dumpKrigingResults(int status);
+  void _neighCalcul(int status, const VectorDouble& tab, int iechout);
+  void _estimateVarZ(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const; 
+  void _estimateStdv(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const;
+  void _estimateEstim(int status, KrigingAlgebraSimpleCase& algebra, int iechout) const;
+  void _dumpKrigingResults(int status, int iechout);
   bool _isCorrect();
   bool _preparNoStat();
 
@@ -118,7 +120,7 @@ private:
 
   // Pointers used when plugging KrigingAlgebra (not to be deleted)
   // Note that 'algebra' is mutable not to destroy constness when calling getLambda.
-  mutable KrigingAlgebra _algebra;
+  mutable KrigingAlgebraSimpleCase _algebra;
   mutable KrigOpt        _krigopt;
   VectorVectorInt        _sampleRanks; // Vector of vector of sample indices
   MatrixSquareSymmetric  _Sigma00; // Covariance part for variance
@@ -153,7 +155,6 @@ private:
   int _iptrNeigh;
 
   /// Local variables
-  int _iechOut;
   int _ndim;
   int _nvar;
   int _nech;
@@ -161,14 +162,14 @@ private:
   int _neq;
 
   /// Working arrays
-  mutable VectorInt    _nbgh;
-  mutable VectorInt    _dbinUidToBeDeleted;
-  mutable VectorInt    _dboutUidToBeDeleted;
+  VectorInt    _nbgh;
+  VectorInt    _dbinUidToBeDeleted;
+  VectorInt    _dboutUidToBeDeleted;
 
   /// Some Space Point allocated once for all
-  mutable ASpaceSharedPtr    _space;
+  //ASpaceSharedPtr    _space;
 
   /// Some local flags defined in order to speed up the process
-  mutable bool _flagVerr;
-  mutable bool _flagNoStat;
+  bool _flagVerr;
+  bool _flagNoStat;
 };

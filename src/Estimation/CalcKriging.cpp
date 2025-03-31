@@ -308,7 +308,7 @@ int kriging(Db* dbin,
   NeighUnique* neighUnique = dynamic_cast<NeighUnique*>(neigh);
   if (krigopt.getCalcul() == EKrigOpt::POINT && ! krigopt.hasColcok() &&
       !krigopt.hasMatLC() && neighUnique != nullptr &&
-      model->getNVar() == 1 && OptCustom::query("NotOptimSimpleCase", 0) == 1 &&
+      model->getNVar() == 1 && OptCustom::query("NotOptimSimpleCase", 0) == 0 &&
       dbin->getNSample() == dbin->getNSample(true) &&
       dbin->getNSampleActiveAndDefined(dbin->getNameByLocator(ELoc::Z)) == dbin->getNSample())
   {

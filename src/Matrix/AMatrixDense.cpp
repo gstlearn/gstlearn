@@ -168,8 +168,10 @@ void AMatrixDense::_addProdMatVecInPlaceToDestPtr(const double *x,double *y, boo
 //TODO supress this method and implement it in the virtual class AMatrix
 void AMatrixDense::_prodMatVecInPlacePtr(const double *x, double *y, bool transpose) const
 {
-  Eigen::Map<const Eigen::VectorXd> xm(x, getNCols());
-  Eigen::Map<Eigen::VectorXd> ym(y, getNRows());
+  int nc = transpose? getNRows() : getNCols();
+  int nr = transpose? getNCols() : getNRows();
+  Eigen::Map<const Eigen::VectorXd> xm(x, nc);
+  Eigen::Map<Eigen::VectorXd> ym(y, nr);
   if (transpose)
     ym.noalias() = getEigenMat().transpose() * xm;
   else
@@ -193,6 +195,12 @@ int AMatrixDense::_invert()
   return 0;
 }
 
+int AMatrixDense::invert2(AMatrixDense& res) const
+{
+  /// TODO : check beforehand if matrix is invertible ?
+  res.getEigenMat() = getEigenMat().inverse();
+  return 0;
+}
 int AMatrixDense::_solve(const VectorDouble &b, VectorDouble &x) const
 {
   /// TODO : check beforehand if matrix is invertible ?
