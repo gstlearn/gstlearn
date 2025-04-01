@@ -91,6 +91,8 @@ jobs:
           -DHDF5_USE_STATIC_LIBRARIES=ON `
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig `
           -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}}
+      env:
+        HDF5_ROOT: "C:/Program Files/HDF5/cmake/"
 
     - name : Build the package and save generated file name in the environment
       run : |

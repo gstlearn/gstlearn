@@ -38,7 +38,7 @@ runs:
           -DHDF5_USE_ZLIB_STATIC=ON \
           -DHDF5_USE_LIBAEC_STATIC=ON \
           ..
-        cmake --build . --config Release --parallel 3 --target install
+        cmake --build . --config Release --parallel 3
+        cmake --install . --prefix /c/"Program Files"/HDF5
       env:
         CMAKE_BUILD_TYPE: Release
-        CMAKE_INSTALL_PREFIX: C:\Program Files\HDF5
