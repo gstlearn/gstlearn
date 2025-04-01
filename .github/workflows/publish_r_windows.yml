@@ -62,7 +62,7 @@ jobs:
       run: |
         echo '{
           "dependencies": [ "boost-math", "eigen3", "nlopt" ],
-          "builtin-baseline": "bcf3d00d2116056fda0ce47615f6074ffecb7524"
+          "builtin-baseline": "d5ec528843d29e3a52d745a64b469f810b2cedbf"
         }' > vcpkg.json
         vcpkg install
 
