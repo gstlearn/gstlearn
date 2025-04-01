@@ -71,7 +71,7 @@ jobs:
         generator: "Unix Makefiles"
 
     - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.5
+      uses: mozilla-actions/sccache-action@v0.0.9
 
     - name: Configure build directory
       run: |
