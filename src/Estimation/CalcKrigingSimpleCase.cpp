@@ -162,7 +162,7 @@ bool CalcKrigingSimpleCase::_run()
   SpacePoint pout(getModel()->getSpace());
   ModelGeneric model(*ksys.getModel());
   int ndim = getModel()->getSpace()->getNDim();
-  VectorVectorDouble coords = getDbout()->getAllCoordinates();
+  const VectorVectorDouble coords = getDbout()->getAllCoordinates();
   
   #pragma omp parallel for firstprivate(pin,pout,tabwork,algebra,model) schedule(guided) if(use_parallel)
   for (int iech_out = 0; iech_out < nech_out; iech_out++)

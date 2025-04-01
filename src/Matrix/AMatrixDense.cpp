@@ -72,7 +72,6 @@ void AMatrixDense::_allocate()
 {
   _maxSize = getNRows() * getNCols();
   _deallocate();
-  if (isMultiThread()) omp_set_num_threads(getMultiThread()); // TODO Move to multithread handling class
   _eigenMatrix.resize(getNRows() * getNCols());
 }
 

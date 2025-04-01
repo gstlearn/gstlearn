@@ -44,7 +44,7 @@ public:
                            const MatrixSquareSymmetric* Sigma00 = nullptr,
                            const VectorDouble& Means            = VectorDouble(),
                            int flagchol = false,
-                           bool neighUnique = OptCustom::query("unique",0));
+                           bool neighUnique = OptCustom::query("unique",1));
   KrigingAlgebraSimpleCase(KrigingAlgebraSimpleCase& r);
   KrigingAlgebraSimpleCase& operator=(const KrigingAlgebraSimpleCase& r) = delete;
   virtual ~KrigingAlgebraSimpleCase();
