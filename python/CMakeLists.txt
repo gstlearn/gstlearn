@@ -242,7 +242,7 @@ endif()
 # Add a custom target for python package installation
 # TODO: Do also installation each time setup.py.in or README.md is modified
 add_custom_target(python_install
-  COMMAND ${Python3_EXECUTABLE} -m pip install ${NO_INTERNET_ARG} "${PYTHON_PACKAGE_ROOT_FOLDER}[plot,conv]"
+  COMMAND ${Python3_EXECUTABLE} -m pip install ${NO_INTERNET_ARG} "${PYTHON_PACKAGE_ROOT_FOLDER}[plot,conv,doc]"
   COMMENT "Installing python package"
   )
  

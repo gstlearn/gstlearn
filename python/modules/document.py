@@ -13,12 +13,19 @@
 
 import urllib.request
 import urllib.error
-import requests
 import os
 import re
 import base64
+
 import gstlearn as gl
-from IPython.display import display, Javascript, Markdown
+
+try:
+    from IPython.display import display, Javascript, Markdown
+    import requests
+except ModuleNotFoundError as ex:
+    msg = ("Python dependencies 'IPython' and 'requests' not found.\n"
+          "To install them alongside gstlearn, please run `pip install gstlearn[doc]'")
+    raise ModuleNotFoundError(msg) from ex
 
 # The various pieces of documentation are supposed to be located
 # at the following URL

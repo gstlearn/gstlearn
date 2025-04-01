@@ -39,7 +39,11 @@ conv = [
      "pandas",
      "scipy",
 ]
-all = ["gstlearn[plot,conv]"]
+doc = [
+    "requests",
+    "IPython",
+]
+all = ["gstlearn[plot,conv,doc]"]
 
 [project.urls]
 Homepage = "@PROJECT_HOMEPAGE_URL@"
