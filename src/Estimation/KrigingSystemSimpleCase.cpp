@@ -453,8 +453,9 @@ int KrigingSystemSimpleCase::estimate(int iechout,
 
   if (iechout == 0)
   {
-    //_neigh->select(iechout, algebra.getSampleRanks()->at(0));
-    // status = _setInternalShortCutVariablesNeigh();
+    _neigh->displayDebug(algebra.getSampleRanks()->at(0));
+   // _neigh->select(iechout, algebra.getSampleRanks()->at(0));
+     status = _setInternalShortCutVariablesNeigh();
   }
   
   

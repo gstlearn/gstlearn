@@ -8,6 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Neigh/NeighUnique.hpp"
+#include "Basic/OptDbg.hpp"
 #include "geoslib_old_f.h"
 
 #include "Neigh/ANeigh.hpp"
@@ -217,6 +219,11 @@ void ANeigh::_checkUnchanged(int iech_out, const VectorInt &ranks)
   _nbghMemo = rsorted;
 }
 
+void ANeigh::displayDebug(VectorInt& ranks) const
+{
+  if (OptDbg::query(EDbg::NBGH))
+    _display(ranks);
+}
 /****************************************************************************/
 /*!
  **  Print the information selected in the neighborhood
@@ -226,7 +233,7 @@ void ANeigh::_checkUnchanged(int iech_out, const VectorInt &ranks)
  ** \li                   >=0 gives the angular sector in ENeigh::MOVING
  **
  *****************************************************************************/
-void ANeigh::_display(const VectorInt& ranks)
+void ANeigh::_display(const VectorInt& ranks) const
 {
   String string;
   int ndim  = _dbin->getNDim();
