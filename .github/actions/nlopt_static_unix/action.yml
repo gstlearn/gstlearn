@@ -7,9 +7,9 @@ runs:
     - name: Build & install nlopt static libraries
       shell: bash
       run: |
-        curl -OL https://github.com/stevengj/nlopt/archive/v2.7.1.tar.gz
-        tar xvfz v2.7.1.tar.gz
-        cd nlopt-2.7.1
+        curl -OL https://github.com/stevengj/nlopt/archive/v2.10.0.tar.gz
+        tar xvfz v2.10.0.tar.gz
+        cd nlopt-2.10.0
         mkdir build && cd build
         cmake \
           -DBUILD_SHARED_LIBS=OFF \

@@ -43,6 +43,7 @@ jobs:
           libopenmpi-dev \
           libboost-dev \
           libeigen3-dev \
+          libhdf5-dev \
           libnlopt-dev
 
     - name: Get project version
