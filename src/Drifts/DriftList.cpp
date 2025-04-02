@@ -131,7 +131,7 @@ void DriftList::delAllDrifts()
   _betaHat.clear();
   _driftCL.clear();
   _mean.resize(0);
-
+  _update();
 }
 
 bool DriftList::isDriftFiltered(int i) const
