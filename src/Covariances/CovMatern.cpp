@@ -82,7 +82,7 @@ double CovMatern::_newMatern(double h) const
 
 double CovMatern::_oldMatern(double h) const
 { 
-  static double TAB[MAXTAB];
+  double TAB[MAXTAB];
   double cov = 0.;
   double third = getParam();
   int nb = (int) floor(third);
