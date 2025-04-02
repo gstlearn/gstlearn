@@ -719,7 +719,11 @@ void DriftList::setMeans(const VectorDouble& mean)
 
 double DriftList::getMean(int ivar) const
 {
-  if (ivar < 0 || ivar >= (int)_mean.size()) my_throw("Invalid argument in _getMean");
+  if (ivar < 0 || ivar >= (int)_mean.size())
+  {
+    messerr("Invalid argument in DriftList::getMean");
+    return TEST;
+  }
   return _mean[ivar];
 }
 
@@ -730,7 +734,11 @@ double DriftList::getMean(int ivar) const
  */
 void DriftList::setMean(const double mean, int ivar)
 {
-  if (ivar < 0 || ivar >= (int)_mean.size()) my_throw("Invalid argument in _setMean");
+  if (ivar < 0 || ivar >= (int)_mean.size())
+  {
+    messerr("Invalid argument in DriftList::setMean - nothing changed");
+    return;
+  }
   _mean[ivar] = mean;
 }
 
