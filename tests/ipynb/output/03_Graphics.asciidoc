@@ -4,21 +4,6 @@
 
 #NO_DIFF#XXX
 ----
-Non geographical defaults:
-- Figure dimensions = [6, 6]
-- Limits along X (not defined)
-- Limits along Y (not defined)
-- Aspect = auto
-Geographical defaults:
-- Figure dimensions = [8, 8]
-- Limits along X (not defined)
-- Limits along Y (not defined)
-- Aspect = 1
-----
-
-
-#NO_DIFF#XXX
-----
 Data Base Characteristics
 =========================
 
@@ -37,78 +22,6 @@ Column = 2 - Name = x-2 - Locator = x2
 Column = 3 - Name = z-1 - Locator = z1
 Column = 4 - Name = z-2 - Locator = z2
 Column = 5 - Name = z-3 - Locator = z3----
-
-
-#NO_DIFF#XXX
-----
-#NO_DIFF#XXX
-----
-
-
-#NO_DIFF#XXX
-----
-Help on function point in module gstlearn.plot:
-
-point(db, *args, **kwargs)
-    Construct a figure for plotting a point data base
-    
-    ax: matplotlib.Axes
-    db: Db containing the variable to be plotted
-    nameColor: Name of the variable containing the color per sample
-    nameSize: Name of the variable containing the size per sample
-    nameLabel: Name of the variable containing the label per sample
-    nameCoorX: Name of the variable standing for X coordinate 
-    nameCoorY: Name of the variable standing for Y coordinate 
-    useSel : Boolean to indicate if the selection has to be considered
-    color: Constant color (used if 'nameColor' is not defined)
-    size: Constant size (used if 'nameSize' is not defined)
-    sizmin: Size corresponding to the smallest value (used if 'nameSize' is defined)
-    sizmax: Size corresponding to the largest value (used if 'nameSize' is defined)
-    flagAbsSize: Represent the Absolute value in Size representation
-    flagCst: When True, the size is kept constant (equel to 's')
-    cmap: Optional Color scale
-    flagGradient: Draw Gradient (if Gradients are defined)
-    colorGradient: Color attached to the Gradient representation
-    scaleGradient: Scale of the Gradient representation
-    flagTangent: Draw Tangent (if Tangents are defined)
-    colorTangent: Color attached to the Tangent representation
-    scaleTangent: Scale of the Tangent representation
-    flagLegendColor: Flag for representing the Color Legend (only if name-color is defined)
-    flagLegendSize: Flag for representing the Size legend (only if nameSize is defined)
-    flagLegendLabel: Flag for representing the Label Legend (only if nameLabel is defined)
-    legendNameColor: Title for the Color Legend (set to 'nameColor' if not defined)
-    legendNameSize: Title for the Size legend (set to 'nameSize' if not defined)
-    legendNameLabel: Title for the Label Legend (set to 'nameLabel' if not defined)
-    posX: rank of the first coordinate
-    posY: rank of the second coordinate
-    
-    **kwargs : arguments passed to matplotllib.pyplot.scatter
-
-----
-
-
-#NO_DIFF#XXX
-----
-#NO_DIFF#XXX
-----
-
-
-#NO_DIFF#XXX
-----
-#NO_DIFF#XXX
-----
-
-
-#NO_DIFF#XXX
-----
-#NO_DIFF#XXX
-----
-
-
-#NO_DIFF#XXX
-----
-#NO_DIFF#XXX
-----
 
 
 #NO_DIFF#XXX
@@ -141,69 +54,7 @@ point(db, *args, **kwargs)
 
 #NO_DIFF#XXX
 ----
-
-Data Base Grid Characteristics
-==============================
-
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 5
-Total number of samples      = 1750
-
-Grid characteristics:
----------------------
-Origin :    -40.000    20.000
-Mesh   :      1.000     2.000
-Number :         70        25
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = Simu.1 - Locator = z1
-Column = 4 - Name = Simu.2 - Locator = z2
- ----
-
-
 #NO_DIFF#XXX
-----
-#NO_DIFF#XXX
-----
-
-
-#NO_DIFF#XXX
-----
-#NO_DIFF#XXX
-----
-
-
-#NO_DIFF#XXX
-----
-#NO_DIFF#XXX
-----
-
-
-#NO_DIFF#XXX
-----
-#NO_DIFF#XXX
-----
-
-
-#NO_DIFF#XXX
-----
-Non geographical defaults:
-- Figure dimensions = [6, 6]
-- Limits along X (not defined)
-- Limits along Y (not defined)
-- Aspect = auto
-Geographical defaults:
-- Figure dimensions = [8, 8]
-- Limits along X (not defined)
-- Limits along Y (not defined)
-- Aspect = 1
 ----
 
 
@@ -272,7 +123,7 @@ Column = 3 - Name = x2 - Locator = x2
 Column = 4 - Name = Simu.1 - Locator = z1
 Column = 5 - Name = Simu.2 - Locator = z2
 Column = 6 - Name = sel - Locator = sel
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -331,7 +182,7 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x - Locator = x1
 Column = 2 - Name = y - Locator = x2
 Column = 3 - Name = z - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX

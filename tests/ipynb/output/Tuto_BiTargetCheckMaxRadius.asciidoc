@@ -45,7 +45,7 @@ Column = 3 - Name = January_temp - Locator = z1----
 
 
 #NO_DIFF#XXX
-----
+XXX
 #NO_DIFF#XXX
 ----
 
@@ -120,7 +120,7 @@ Moving Neighborhood
 Minimum number of samples           = 1
 Maximum number of samples           = 3
 Maximum horizontal distance         = 300
-This is my Max Radius checker: 30 ----
+This is my Max Radius checker: 30----
 
 
 #NO_DIFF#XXX

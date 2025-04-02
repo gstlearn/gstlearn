@@ -228,16 +228,16 @@ bool DbGraphO::_deserialize(std::istream& is, bool verbose)
 
 bool DbGraphO::_serialize(std::ostream& os, bool verbose) const
 {
-  bool ret       = true;
+  bool ret = true;
 
   /* Writing the header */
 
-  ret            = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
+  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
 
   // Writing the set of arcs for the Oriented Graph organization
 
   NF_Triplet nft = _downArcs.getMatrixToTriplet();
-  ret = ret && _recordWrite<int>(os, "Number of arcs", getNArc());
+  ret            = ret && _recordWrite<int>(os, "Number of arcs", getNArc());
 
   VectorDouble tab(3);
   for (int i = 0, n = getNArc(); i < n; i++)
