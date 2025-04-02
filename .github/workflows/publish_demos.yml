@@ -51,6 +51,7 @@ jobs:
           libboost-dev \
           libeigen3-dev \
           libpng-dev \
+          libhdf5-dev \
           libnlopt-dev
 
     - name: Setup Python Version
