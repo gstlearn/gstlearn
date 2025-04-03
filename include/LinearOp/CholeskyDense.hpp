@@ -39,7 +39,7 @@ public:
   double getLowerTriangle(int i, int j) const;
   VectorDouble getUpperTriangleInverse() const;
   double getUpperTriangleInverse(int i, int j) const;
-
+  void solveMatInPlace(const MatrixRectangular& mat, MatrixRectangular& res) const;
   int addSolveX(const constvect vecin, vect vecout) const override;
   int addInvLtX(const constvect vecin, vect vecout) const override;
   int addLtX(const constvect vecin, vect vecout) const override;
@@ -53,7 +53,8 @@ public:
                       int neq,
                       const MatrixSquareSymmetric& a,
                       MatrixSquareSymmetric& b);
-
+  void clear();
+  bool empty() const;
 private:
   void _clear();
   int _prepare() const;

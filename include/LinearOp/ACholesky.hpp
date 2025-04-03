@@ -51,14 +51,15 @@ public:
   virtual int addInvLX(const constvect vecin, vect vecout) const  = 0;
 
 protected:
-  void _setReady() const { _ready = true; }
+  void _setReady() const { _ready = true; _empty = false; }
 
 private:
   int _addToDest(const constvect vecin, vect vecout) const override;
   int _addSimulateToDest(const constvect whitenoise, vect vecout) const override;
 
 protected:
-  const AMatrix* _mat; // Pointer to original matrix (not to be deleted)
+  const AMatrix* _mat; // Pointer to original matrix (not to be deleted) TODO Suppress this pointer (useless)
   int _size;
   mutable bool _ready;
+  mutable bool _empty;
 };

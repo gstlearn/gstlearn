@@ -1,7 +1,4 @@
-# %% [markdown]
-#         
-
-# %%
+        
 import gstlearn as gl
 import numpy as np
 dig = 13
@@ -21,34 +18,28 @@ p2.setCoords(coords2)
 cres = gneiting.evalCov(p1,p2)
 print("Gneiting eval " + str(cres))
 
-# %%
 p1_0 = p1.spacePointOnSubspace(0) 
 print("Displaying the first two coordinates (spatial) of the first space point")
 p1_0.display() #Problem, it should display only the first two coordinates
 
 
-# %%
 p1_1 = p1.spacePointOnSubspace(1)
 print("Displaying the last coordinate (temporal) of the first space point")
 
 p1_1.display()
 
-# %%
 p2_0 = p2.spacePointOnSubspace(0)
 print("Displaying the first two coordinates (spatial) of the second space point")
 p2_0.display()  #Problem, it should display only the first two coordinates
 
-# %%
 p2_1 = p2.spacePointOnSubspace(1)
 print("Displaying the last coordinate (temporal) of the second space point")
 
 p2_1.display()
 
-# %%
 ct = covtemp.evalCov(p1_1,p2_1) 
 print("Difference for temporal covariance " + str(ct - np.exp(-np.abs(coords1[2]-coords2[2])/scaleT)))
 
-# %%
 al = sep/2
 
 covspatCopy = gl.CovAniso(covspat)
@@ -63,7 +54,6 @@ diff = cs - np.exp(-np.sqrt((ct**al * delta[0]/scales[0])**2
 print("Difference for spatial covariance (corrected) " 
       + str(np.round(diff,dig)))
 
-# %%
 print("Difference for Gneiting cov " +str(cres - cs * ct))
 
 

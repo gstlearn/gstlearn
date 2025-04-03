@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/OptCustom.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CorGneiting.hpp"
@@ -26,6 +27,7 @@
  */
 int main(int argc, char* argv[])
 {
+  OptCustom::define("ompthreads",1);
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);

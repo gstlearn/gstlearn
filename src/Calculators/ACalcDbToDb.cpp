@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Calculators/ACalcDbToDb.hpp"
 #include "Calculators/ACalculator.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Db/Db.hpp"

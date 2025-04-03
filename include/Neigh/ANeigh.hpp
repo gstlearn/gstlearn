@@ -60,7 +60,6 @@ public:
   ANeigh(const ANeigh& r);
   ANeigh& operator=(const ANeigh& r);
   virtual ~ANeigh();
-
   /// ASpaceObject Interface
   virtual bool isConsistent(const ASpace* space) const override { DECLARE_UNUSED(space); return true; }
 
@@ -73,6 +72,7 @@ public:
   virtual ENeigh getType() const { return ENeigh::fromKey("UNKNOWN"); }
   virtual bool getFlagContinuous() const { return false; }
 
+  void displayDebug(VectorInt& ranks) const;
   void select(int iech_out, VectorInt& ranks);
   bool isUnchanged() const { return _flagIsUnchanged; }
   void setIsChanged(bool status = false);
@@ -93,7 +93,7 @@ public:
 protected:
   bool _isNbghMemoEmpty() const { return _nbghMemo.empty(); }
   static void _neighCompress(VectorInt& ranks);
-  void _display(const VectorInt& ranks);
+  void _display(const VectorInt& ranks) const;
   bool _discardUndefined(int iech);
   int  _xvalid(int iech_in, int iech_out, double eps = EPSILON9);
   bool _isDimensionValid(int idim) const;

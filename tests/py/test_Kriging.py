@@ -1,6 +1,9 @@
 import gstlearn as gl
 import gstlearn.test as gt
 import numpy as np
+
+
+
 from scipy.spatial import distance_matrix
 
 def cova(x,sills=1):
@@ -9,7 +12,6 @@ def cova(x,sills=1):
 np.random.seed(1234)
 A = np.random.normal(size=(3,3))
 sills = (A@A.T)
-model = gl.Model.createFromParam(gl.ECov.EXPONENTIAL,range = 2.,flagRange=False,sills=sills)
 
 nx = [10,10]
 
@@ -93,23 +95,25 @@ def createDbIn(ndat,nvar,percent,ndim=2,selDbin=False,measurement_error=False,nd
     return db,indF
 
 
-def test_kriging_internal(ndat,nx,nvar,percent,model,cova,
+def test_kriging_internal(ndat,nx,nvar,percent,cova,
                  irf=None,drift=False,measurement_error=False,compute_vars = True,
                  selDbin = True, selDbout = True,flag_isotopic=True,
-                 seed=1234,tol=1e-12,eps=1e-3,test = True,verbose=False):
-    
+                 seed=1234,tol=1e-12,eps=1e-3,test = True,verbose=False,nametest = ""):
+    model = gl.Model.createFromParam(gl.ECov.EXPONENTIAL,range = 2.,flagRange=False,sills=sills)
     np.random.seed(seed)
     ndrift = 1 if drift else 0
     modeln = modelReduce(model,range(nvar))
     #### Create the description of the case #####
-    casetxt = "case:\n"
+    casetxt = "Test" + str(nametest) + "\n"
+    casetxt += "case:\n" 
     
     inter = ""
     if nvar > 1:
         inter = "co-"
         
-    if irf is None and drift:
-        return
+    #if irf is None and drift:
+    #    print("If drit is True, irf must be set to an integer value")
+    #    return None,None,None,None,None,False
     
     if irf is None and not drift:
         casetxt += "- simple "+ inter+ "kriging\n"
@@ -225,28 +229,28 @@ def test_kriging_internal(ndat,nx,nvar,percent,model,cova,
             status = gt.checkEqualityVector(stdref, std, tolerance=tol, message=casetxt)
             if not status:
                 print("Standard Deviation")
-                print("- Reference",stdref)
-                print("- Calculation",std)
+                #print("- Reference",stdref)
+                #print("- Calculation",std)
 
             varestref = target["*varz"][indOut].T.reshape(-1,)
             status = gt.checkEqualityVector(varestref, varest, tolerance=tol, message=casetxt)
             if not status:
                 print("Variance of Estimate")
-                print("- Reference",varestref)
-                print("- Calculation", varest)
+                #print("- Reference",varestref)
+                #print("- Calculation", varest)
 
         else:
             krigref = target["*estim"][indOut].T.reshape(-1,)
             status = gt.checkEqualityVector(krigref, krig, tolerance=tol, message=casetxt)
             if not status:
                 print("Estimation")
-                print("- Reference",krigref)
-                print("- Calculation",krig)
+                #print("- Reference",krigref)
+                #print("- Calculation",krig)
 
     if verbose and status:
         print("Test Ok")
         
-    return krig,target,indOut,db,varest
+    return krig,target,indOut,db,varest,status
 
 
 #################################################################
@@ -254,14 +258,18 @@ def test_kriging_internal(ndat,nx,nvar,percent,model,cova,
 
 percent = [0.5,0.9,1.]
 ndat = 40
-nbtests = 0
+
 verbose = False
 general = True
+gl.OptCustom.define("ompthreads",10)
+gl.OptCustom.define("unique",0)
 
 if general:
+    nbtests = 0
+    ok = 0
     for irf in [None,0,1]:
         for drift in [False,True]:
-            for measurement_error in [True, False]:
+            for measurement_error in [True,False]:
                 for selDbin in [True, False]:
                     for selDbout in [True, False]:
                         for nx in [[5,5]]:
@@ -271,33 +279,35 @@ if general:
                                     isolist = [True,False]
                                 for iso in isolist:
                                     for cv in [False,True]:
-                                        a = test_kriging_internal(ndat,nx,nvar,percent,
-                                                         model,cova,compute_vars=cv,
+                                        _,_,_,_,_,good = test_kriging_internal(ndat,nx,nvar,percent,
+                                                         cova,compute_vars=cv,
                                                          irf=irf,drift=drift,
                                                          measurement_error=measurement_error,
                                                          selDbin=selDbin,selDbout=selDbout,
                                                          flag_isotopic = iso,
-                                                         seed=1234,tol=1e-6,eps=1e-3,verbose=verbose)
+                                                         seed=1234,tol=1e-6,eps=1e-3,verbose=verbose,
+                                                         nametest = str(nbtests))
                                         nbtests += 1
-
+                                        ok += good
+    print(f"Number of tests validated = {ok}")
     print(f"Number of tests performed = {nbtests}")
-
+    
 # Individual test
 
 if not general:
-    irf = 0
+    irf = None
     drift = False
     measurement_error = True
     compute_vars = True
-    selDbin = True
+    selDbin = False
     selDbout = True
     nx = [5,5]
     nvar = 1
     iso = True
-    cv = True
-                                    
+    cv = False
+    verbose = True                        
     a = test_kriging_internal(ndat,nx,nvar,percent,
-                     model,cova,compute_vars=cv,
+                     cova,compute_vars=cv,
                      irf=irf,drift=drift,
                      measurement_error=measurement_error,
                      selDbin=selDbin,selDbout=selDbout,

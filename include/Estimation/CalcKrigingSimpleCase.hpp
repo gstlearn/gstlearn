@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Estimation/KrigingAlgebraSimpleCase.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Enum/EKrigOpt.hpp"
@@ -26,8 +27,8 @@ class GSTLEARN_EXPORT CalcKrigingSimpleCase: public ACalcInterpolator
 {
 public:
   CalcKrigingSimpleCase(bool flag_est = true, bool flag_std = true, bool flag_varZ = false);
-  CalcKrigingSimpleCase(const CalcKrigingSimpleCase &r) = delete;
-  CalcKrigingSimpleCase& operator=(const CalcKrigingSimpleCase &r) = delete;
+  CalcKrigingSimpleCase(const CalcKrigingSimpleCase& r)            = delete;
+  CalcKrigingSimpleCase& operator=(const CalcKrigingSimpleCase& r) = delete;
   virtual ~CalcKrigingSimpleCase();
 
 private:
@@ -37,17 +38,21 @@ private:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
 
-  void _storeResultsForExport(const KrigingSystemSimpleCase& ksys);
+  void _storeResultsForExport(const KrigingSystemSimpleCase& ksys,
+                              KrigingAlgebraSimpleCase& algebra,
+                              int iechout);
 
 private:
   bool _flagEst;
   bool _flagStd;
   bool _flagVarZ;
 
+  EKrigOpt _calcul;
+
   VectorString _nameCoord;
   int _iechSingleTarget;
 
-  int  _nbNeigh;
+  int _nbNeigh;
 
   int _iptrEst;
   int _iptrStd;
@@ -56,4 +61,3 @@ private:
 
   Krigtest_Res _ktest;
 };
-

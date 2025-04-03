@@ -12,12 +12,15 @@
 #include "Db/Db.hpp"
 #include "Estimation/CalcKrigingSimpleCase.hpp"
 #include "Enum/EKrigOpt.hpp"
+#include "Estimation/KrigingAlgebraSimpleCase.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Estimation/KrigingSystemSimpleCase.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
 
 #include <math.h>
+#include <omp.h>
 
 CalcKrigingSimpleCase::CalcKrigingSimpleCase(bool flag_est, bool flag_std, bool flag_varZ)
     : ACalcInterpolator(),
@@ -106,7 +109,9 @@ void CalcKrigingSimpleCase::_rollback()
   _cleanVariableDb(1);
 }
 
-void CalcKrigingSimpleCase::_storeResultsForExport(const KrigingSystemSimpleCase& ksys)
+void CalcKrigingSimpleCase::_storeResultsForExport(const KrigingSystemSimpleCase& ksys, 
+                                                   KrigingAlgebraSimpleCase& algebra,
+                                                   int iechout)
 {
   _ktest.ndim  = ksys.getNDim();
   _ktest.nvar  = ksys.getNVar();
@@ -115,14 +120,14 @@ void CalcKrigingSimpleCase::_storeResultsForExport(const KrigingSystemSimpleCase
   _ktest.DSize = ksys.getDriftSize();
   _ktest.nrhs  = ksys.getNrhs();
   _ktest.nbgh  = ksys.getSampleNbgh();
-  _ktest.xyz   = ksys.getSampleCoordinates();
+  _ktest.xyz   = ksys.getSampleCoordinates(algebra, iechout);
   _ktest.data  = ksys.getSampleData();
   _ktest.lhs   = ksys.getLHS();
   _ktest.lhsF  = ksys.getLHSF();
   _ktest.rhs   = ksys.getRHS();
   _ktest.rhsF  = ksys.getRHSF();
-  _ktest.wgt   = ksys.getWeights();
-  _ktest.mu    = ksys.getMu();
+  _ktest.wgt   = ksys.getWeights(algebra);
+  _ktest.mu    = ksys.getMu(algebra);
   _ktest.var   = ksys.getVariance();
 }
 
@@ -145,20 +150,37 @@ bool CalcKrigingSimpleCase::_run()
   /***************************************/
   /* Loop on the targets to be processed */
   /***************************************/
+ 
+  VectorDouble tabwork(getDbin()->getNSample());
+  KrigingAlgebraSimpleCase algebra(ksys.getAlgebra());
+  bool use_parallel = !getModel()->isNoStat();
+  int nech_out = getDbout()->getNSample();
+  int nbthread = OptCustom::query("ompthreads", 5);
+  omp_set_num_threads(nbthread);
+  
   SpacePoint pin(getModel()->getSpace());
   SpacePoint pout(getModel()->getSpace());
-  VectorDouble tabwork(getDbin()->getNSample());
+  ModelGeneric model(*ksys.getModel());
+  int ndim = getModel()->getSpace()->getNDim();
+  const VectorVectorDouble coords = getDbout()->getAllCoordinates();
   
-  for (int iech_out = 0, nech_out = getDbout()->getNSample(); iech_out < nech_out; iech_out++)
-  {
+  #pragma omp parallel for firstprivate(pin,pout,tabwork,algebra,model) schedule(guided) if(use_parallel)
+  for (int iech_out = 0; iech_out < nech_out; iech_out++)
+  { 
+    if (!getDbout()->isActive(iech_out))  continue;
 
-    ksys.estimate(iech_out,pin,pout,tabwork);
-
+    // TODO : encapsulate in Db.
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      pin.setCoord(idim,coords[idim][iech_out]);
+    }
+   
+    ksys.estimate(iech_out,pin,pout,tabwork,algebra,model);
+    
+    if (_iechSingleTarget >= 0) _storeResultsForExport(ksys,algebra, iech_out);
   }
 
-  // Store the results in an API structure (only if flagSingleTarget)
-
-  if (_iechSingleTarget >= 0) _storeResultsForExport(ksys);
+  // Store the results in an API structure (only if flagSingleTarget)  
 
   ksys.conclusion();
 
