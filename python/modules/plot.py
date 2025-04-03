@@ -220,7 +220,7 @@ def _getCurrentAx(fig):
 def _getNewAxes(nx=1, ny=1):
     ''' 
     Creates a new figure (possibly containing multiple subplots)
-    nx, ny:     Number of subplots along X and Y
+    nx, ny: Number of subplots along X and Y
 
     Remarks
         If 'ax' does not exist, a new figure is created. 
