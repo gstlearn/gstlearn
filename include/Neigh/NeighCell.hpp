@@ -11,6 +11,7 @@
 #pragma once
 
 #include <Geometry/BiTargetCheckCell.hpp>
+#include "Basic/ICloneable.hpp"
 #include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
@@ -43,6 +44,7 @@ public:
   NeighCell& operator=(const NeighCell& r);
   virtual ~NeighCell();
 
+  IMPLEMENT_CLONING(NeighCell)
   /// Interface for ANeigh
   virtual int attach(const Db *dbin, const Db *dbout = nullptr) override;
   virtual void getNeigh(int iech_out, VectorInt& ranks) override;

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/ICloneable.hpp"
 #include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 
@@ -53,7 +54,7 @@ class Ball;
  * - Possibility to exclude the target (or samples sharing some characteristics with
  * the Target). This is the cross-validation option.
  */
-class GSTLEARN_EXPORT ANeigh:  public ASpaceObject, public ASerializable
+class GSTLEARN_EXPORT ANeigh:  public ASpaceObject, public ASerializable, public ICloneable
 {
 public:
   ANeigh(const ASpaceSharedPtr& space = ASpaceSharedPtr());

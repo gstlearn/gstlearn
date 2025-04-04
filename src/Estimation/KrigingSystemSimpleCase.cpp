@@ -103,6 +103,7 @@ KrigingSystemSimpleCase::KrigingSystemSimpleCase(Db* dbin,
   _flagVerr = _dbin->hasLocVariable(ELoc::V);
 
   _resetMemoryGeneral();
+  _algebra.setNeighUnique(dynamic_cast<NeighUnique*>(_neigh) != nullptr);
 }
 
 KrigingSystemSimpleCase::~KrigingSystemSimpleCase()
@@ -375,7 +376,10 @@ bool KrigingSystemSimpleCase::isReady()
 {
   if (!_isCorrect()) return false;
 
-  _neigh->select(0, _nbgh);
+  // Attach the Input and Output Db
+  _neigh->attach(_dbin, _dbout);
+
+  
   // Define the means of each variable
   _means = _model->getMeans();
   // Possible adjust the means in case of presence of 'matLC'
@@ -383,6 +387,7 @@ bool KrigingSystemSimpleCase::isReady()
 
   if ((_neigh != nullptr && _neigh->getType() == ENeigh::UNIQUE))
   {
+    _neigh->select(0, _nbgh);
     _sampleRanks = _dbin->getSampleRanks();
     _Z           = _dbin->getValuesByRanks(_sampleRanks,
                                            _means, !_model->hasDrift());
@@ -399,8 +404,6 @@ bool KrigingSystemSimpleCase::isReady()
     if (_algebra.setVariance(&_Sigma00)) return false;
   }
 
-  // Attach the Input and Output Db
-  _neigh->attach(_dbin, _dbout);
 
   _isReady = true;
   _model->optimizationPreProcessForData(_dbin);
@@ -422,7 +425,9 @@ int KrigingSystemSimpleCase::estimate(int iechout,
                                       SpacePoint& pout,
                                       VectorDouble& tabwork,
                                       KrigingAlgebraSimpleCase& algebra,
-                                      ModelGeneric& model)
+                                      ModelGeneric& model,
+                                      VectorInt& nbgh,
+                                      ANeigh* neigh)
 {
 
   if (!_dbout->isActive(iechout)) return 0;
@@ -451,11 +456,24 @@ int KrigingSystemSimpleCase::estimate(int iechout,
     }
   }
 
-  if (iechout == 0)
+  if (dynamic_cast<NeighUnique*>(neigh) != nullptr)
   {
-    _neigh->displayDebug(algebra.getSampleRanks()->at(0));
-   // _neigh->select(iechout, algebra.getSampleRanks()->at(0));
-     status = _setInternalShortCutVariablesNeigh();
+    if (iechout == 0)
+    {
+      neigh->displayDebug(algebra.getSampleRanks()->at(0));
+      status = _setInternalShortCutVariablesNeigh();
+    }
+
+  }
+  else 
+  {
+    VectorVectorInt* sampleRanks = algebra.getSampleRanks();
+    VectorDouble* Z = algebra.getZ();
+    neigh->select(iechout, nbgh);
+    _dbin->getSampleRanksInPlace(sampleRanks,VectorInt(), nbgh);
+    _dbin->getValuesByRanksInPlace(Z, *sampleRanks, _means, !_model->hasDrift());
+    neigh->select(iechout, sampleRanks->at(0));
+    status = _setInternalShortCutVariablesNeigh();
   }
   
   

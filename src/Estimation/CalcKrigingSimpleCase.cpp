@@ -17,6 +17,7 @@
 #include "Estimation/KrigingSystemSimpleCase.hpp"
 #include "Basic/OptCustom.hpp"
 #include "Model/Model.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Neigh/NeighUnique.hpp"
 
 #include <math.h>
@@ -155,7 +156,7 @@ bool CalcKrigingSimpleCase::_run()
   KrigingAlgebraSimpleCase algebra(ksys.getAlgebra());
   bool use_parallel = !getModel()->isNoStat();
   int nech_out = getDbout()->getNSample();
-  int nbthread = OptCustom::query("ompthreads", 5);
+  int nbthread = OptCustom::query("ompthreads", 1);
   omp_set_num_threads(nbthread);
   
   SpacePoint pin(getModel()->getSpace());
@@ -163,25 +164,39 @@ bool CalcKrigingSimpleCase::_run()
   ModelGeneric model(*ksys.getModel());
   int ndim = getModel()->getSpace()->getNDim();
   const VectorVectorDouble coords = getDbout()->getAllCoordinates();
-  
-  #pragma omp parallel for firstprivate(pin,pout,tabwork,algebra,model) schedule(guided) if(use_parallel)
-  for (int iech_out = 0; iech_out < nech_out; iech_out++)
-  { 
-    if (!getDbout()->isActive(iech_out))  continue;
-
+  VectorInt nbgh;
+  static ANeigh* neigh = nullptr;
+  #pragma omp threadprivate(neigh)
+    #pragma omp parallel for firstprivate(pin,pout,tabwork,algebra,model,nbgh) schedule(guided) if(use_parallel)
+    for (int iech_out = 0; iech_out < nech_out; iech_out++)
+    { 
+      if (!getDbout()->isActive(iech_out))  continue;
+      if (neigh == nullptr)
+      {
+        neigh = (ANeigh*)getNeigh()->clone();
+      }
+      else
+      {
+        neigh->reset();
+      }
     // TODO : encapsulate in Db.
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      pin.setCoord(idim,coords[idim][iech_out]);
-    }
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        pin.setCoord(idim,coords[idim][iech_out]);
+      }
    
-    ksys.estimate(iech_out,pin,pout,tabwork,algebra,model);
+      ksys.estimate(iech_out,pin,pout,tabwork,algebra,model,nbgh,neigh);
     
-    if (_iechSingleTarget >= 0) _storeResultsForExport(ksys,algebra, iech_out);
-  }
-
+      if (_iechSingleTarget >= 0) _storeResultsForExport(ksys,algebra, iech_out);
+    }
+  
   // Store the results in an API structure (only if flagSingleTarget)  
 
+  #pragma omp parallel
+  {
+      delete neigh;  // ✅ Chaque thread supprime son propre ptr
+      neigh = nullptr;
+  }
   ksys.conclusion();
 
   return true;

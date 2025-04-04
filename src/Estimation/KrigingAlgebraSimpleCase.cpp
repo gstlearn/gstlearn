@@ -449,6 +449,10 @@ int KrigingAlgebraSimpleCase::setData(const VectorDouble* Z,
     if (!_checkDimensionVD("Z", Z, &_neq)) return 1;
     _Z = std::make_shared<VectorDouble>(*Z);
   }
+  else 
+  {
+    _Z = std::make_shared<VectorDouble>();
+  }
 
   // Argument indices
   if (indices != nullptr)
@@ -456,7 +460,10 @@ int KrigingAlgebraSimpleCase::setData(const VectorDouble* Z,
     if (!_checkDimensionVVI("sampleRanks", indices, &_nvar, &_neq)) return 1;
     _sampleRanks = std::make_shared<VectorVectorInt>(*indices);
   }
-
+  else 
+  {
+    _sampleRanks = std::make_shared<VectorVectorInt>();
+  }
   // Argument Means
 
   if (!_checkDimensionVD("Means", &Means, &_nrhs)) return 1;
@@ -708,7 +715,6 @@ int KrigingAlgebraSimpleCase::_needInvSigma()
   }
   else
   {
-    _InvSigma = std::make_shared<MatrixSquareSymmetric>();
     _InvSigma->resize(_Sigma->getNRows(), _Sigma->getNCols());
     _Sigma->invert2(*_InvSigma);
   }
@@ -797,6 +803,7 @@ int KrigingAlgebraSimpleCase::_needZstar()
     return _computeZstarSK();
 
   if (_needLambdaUK()) return 1;
+
     _LambdaUK.prodVecMatInPlace(*_Z, _Zstar);
   return 0;
 }
@@ -994,7 +1001,9 @@ int KrigingAlgebraSimpleCase::_needLambdaUK()
   _LambdaUK.resize(_neq, _nrhs);
 
   _needXtInvSigma();
+
   _needLambdaSK();
+
   _needMuUK();
 
   _invSigmaXMuUK.resize(_neq, _nrhs);
@@ -1002,7 +1011,9 @@ int KrigingAlgebraSimpleCase::_needLambdaUK()
     _invSigmaXMuUK.prodMatMatInPlace(_invSigmaX.get(), &_MuUK);
   else
     _invSigmaXMuUK.prodMatMatInPlace(_XtInvSigma.get(), &_MuUK, true);
-  _LambdaUK.linearCombination(1., _LambdaSK.get(), 1., &_invSigmaXMuUK);
+
+  MatrixRectangular::sum(_LambdaSK.get(), &_invSigmaXMuUK, &_LambdaUK);
+ // _LambdaUK.linearCombination(1., _LambdaSK.get(), 1., &_invSigmaXMuUK);
 
   return 0;
 }

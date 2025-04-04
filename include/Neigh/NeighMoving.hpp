@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/ICloneable.hpp"
 #include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
@@ -58,6 +59,8 @@ public:
   NeighMoving& operator=(const NeighMoving& r);
   virtual ~NeighMoving();
 
+  IMPLEMENT_CLONING(NeighMoving)
+  
   /// Interface for ANeigh
   virtual int attach(const Db *dbin, const Db *dbout = nullptr) override;
   virtual void getNeigh(int iech_out, VectorInt& ranks) override;

@@ -50,6 +50,7 @@ public:
   virtual ~KrigingAlgebraSimpleCase();
   int prepare();
   void setDual(bool status);
+  void setNeighUnique(bool nu = false){ _neighUnique = nu; }
   void resetNewData();
   int setData(const VectorDouble* Z          = nullptr,
               const VectorVectorInt* indices = nullptr,
@@ -79,6 +80,7 @@ public:
   int updateRHS();
 
   bool isDual() const { return _flagDual; }
+  VectorDouble* getZ() { return _Z.get(); }
   MatrixRectangular* getSigma0() { return _Sigma0.get(); }
   MatrixRectangular* getX0() { return _X0.get(); }
   VectorVectorInt* getSampleRanks() { return _sampleRanks.get(); }

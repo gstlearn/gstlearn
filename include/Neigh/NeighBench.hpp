@@ -44,6 +44,7 @@ public:
   NeighBench& operator=(const NeighBench& r);
   virtual ~NeighBench();
 
+  IMPLEMENT_CLONING(NeighBench)
   /// Interface for ANeigh
   virtual int attach(const Db *dbin, const Db *dbout = nullptr) override;
   virtual void getNeigh(int iech_out, VectorInt& ranks) override;

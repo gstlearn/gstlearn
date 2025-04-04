@@ -18,17 +18,17 @@ MatrixRectangular::MatrixRectangular(int nrows, int ncols)
 {
 }
 
-MatrixRectangular::MatrixRectangular(const MatrixRectangular &r)
+MatrixRectangular::MatrixRectangular(const MatrixRectangular& r)
   : AMatrixDense(r)
 {
 }
 
-MatrixRectangular::MatrixRectangular(const AMatrix &m)
+MatrixRectangular::MatrixRectangular(const AMatrix& m)
   : AMatrixDense(m)
 {
 }
 
-MatrixRectangular& MatrixRectangular::operator= (const MatrixRectangular &r)
+MatrixRectangular& MatrixRectangular::operator=(const MatrixRectangular& r)
 {
   if (this != &r)
   {
@@ -39,6 +39,13 @@ MatrixRectangular& MatrixRectangular::operator= (const MatrixRectangular &r)
 
 MatrixRectangular::~MatrixRectangular()
 {
+}
+
+void MatrixRectangular::sum(const MatrixRectangular* mat1,
+                            const MatrixRectangular* mat2,
+                            MatrixRectangular* mat3)
+{
+  mat3->getEigenMat().noalias() = mat1->getEigenMat() + mat2->getEigenMat();
 }
 
 MatrixRectangular* MatrixRectangular::create(const MatrixRectangular* mat)
@@ -60,24 +67,24 @@ MatrixRectangular* MatrixRectangular::create(int nrow, int ncol)
  */
 MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X)
 {
-  int nrow = (int) X.size();
-  int ncol = (int) X[0].size();
+  int nrow = (int)X.size();
+  int ncol = (int)X[0].size();
 
   MatrixRectangular* mat = new MatrixRectangular(nrow, ncol);
   mat->_fillFromVVD(X);
   return mat;
 }
 
-MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
+MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble& X,
                                                    int nrow,
                                                    int ncol,
                                                    bool byCol,
                                                    bool invertColumnOrder)
 {
-  if (nrow * ncol != (int) X.size())
+  if (nrow * ncol != (int)X.size())
   {
     messerr("Inconsistency between arguments 'nrow'(%d) and 'ncol'(%d)", nrow, ncol);
-    messerr("and the dimension of the input Vector (%d)", (int) X.size());
+    messerr("and the dimension of the input Vector (%d)", (int)X.size());
   }
   MatrixRectangular* mat = new MatrixRectangular(nrow, ncol);
 
@@ -103,8 +110,8 @@ MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
   return mat;
 }
 
-MatrixRectangular* MatrixRectangular::glue(const AMatrix *A1,
-                                           const AMatrix *A2,
+MatrixRectangular* MatrixRectangular::glue(const AMatrix* A1,
+                                           const AMatrix* A2,
                                            bool flagShiftRow,
                                            bool flagShiftCol)
 {
@@ -139,9 +146,9 @@ void MatrixRectangular::addRow(int nrow_added)
   int ncols = getNCols();
 
   AMatrix* statsSave = this->clone();
-  reset(nrows+nrow_added, ncols);
-  for (int irow=0; irow< nrows; irow++)
-    for (int icol=0; icol<ncols; icol++)
+  reset(nrows + nrow_added, ncols);
+  for (int irow = 0; irow < nrows; irow++)
+    for (int icol = 0; icol < ncols; icol++)
       setValue(irow, icol, statsSave->getValue(irow, icol));
   delete statsSave;
 }
@@ -152,9 +159,9 @@ void MatrixRectangular::addColumn(int ncolumn_added)
   int ncols = getNCols();
 
   AMatrix* statsSave = this->clone();
-  reset(nrows, ncols+ncolumn_added);
-  for (int irow=0; irow< nrows; irow++)
-    for (int icol=0; icol<ncols; icol++)
+  reset(nrows, ncols + ncolumn_added);
+  for (int irow = 0; irow < nrows; irow++)
+    for (int icol = 0; icol < ncols; icol++)
       setValue(irow, icol, statsSave->getValue(irow, icol));
   delete statsSave;
 }
@@ -176,8 +183,8 @@ MatrixRectangular* MatrixRectangular::sample(const AMatrix* A,
                                              bool flagInvertRow,
                                              bool flagInvertCol)
 {
-  int nrowtotal = A->getNRows();
-  int ncoltotal = A->getNCols();
+  int nrowtotal  = A->getNRows();
+  int ncoltotal  = A->getNCols();
   VectorInt rows = rowKeep;
   if (rows.empty()) rows = VH::sequence(nrowtotal);
   if (flagInvertRow) rows = VH::complement(VH::sequence(nrowtotal), rows);
@@ -220,8 +227,8 @@ void MatrixRectangular::unsample(const AMatrix* A,
                                  bool flagInvertRow,
                                  bool flagInvertCol)
 {
-  int nrowtotal = getNRows();
-  int ncoltotal = getNCols();
+  int nrowtotal  = getNRows();
+  int ncoltotal  = getNCols();
   VectorInt rows = rowFetch;
   if (rows.empty()) rows = VH::sequence(nrowtotal);
   if (flagInvertRow) rows = VH::complement(VH::sequence(nrowtotal), rows);
@@ -253,16 +260,16 @@ void MatrixRectangular::unsample(const AMatrix* A,
  * @brief Perform the compressing product, according to 'transpose'
  * - False: 'this'[nrows,ncols] %*% t('matLC')[ncolsCL,nrowsCL] -> mat[nrows,ncolsCL]
  * - True:  t('matLC')[ncolsCL,nrowsCL] %*% 'this'[nrows,ncols] -> mat[ncolsCL,ncols]
- * 
- * @param matLC 
- * @param transpose 
- * @return MatrixRectangular 
+ *
+ * @param matLC
+ * @param transpose
+ * @return MatrixRectangular
  */
 MatrixRectangular MatrixRectangular::compressMatLC(const MatrixRectangular& matLC,
                                                    bool transpose)
 {
-  int nrows = getNRows();
-  int ncols = getNCols();
+  int nrows  = getNRows();
+  int ncols  = getNCols();
   int nrowCL = matLC.getNRows();
   int ncolCL = matLC.getNCols();
   MatrixRectangular mat;
