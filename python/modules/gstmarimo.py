@@ -265,7 +265,28 @@ def WgetDbFromNF(WAll):
     filename = WFile.name()
     if filename is None:
         return None
+        
     return gl.Db.createFromNF(filename)
+
+def WdefineDbFromCSV():
+    '''
+    Inquiry to load a file from a CSV File
+    '''
+    WFile = mo.ui.file_browser(label="Select a CSV File", multiple=False)
+
+    return mo.ui.array([WFile])
+
+def WgetDbFromCSV(WAll, flagHeader=True, charSep=";", charDec=","):
+    '''
+    Create the gstlearn Db 
+    '''
+    [WFile] = WAll
+    filename = WFile.name()
+    if filename is None:
+        return None
+    
+    csvformat = gl.CSVformat.create(flagHeader=flagHeader, charSep=charSep, charDec=charDec)
+    return gl.Db.createFromCSV(filename, csvformat)
 
 def WdefineDbFromGrid(nxdef = 10):
     '''
@@ -277,8 +298,7 @@ def WdefineDbFromGrid(nxdef = 10):
     WDY = mo.ui.number(start=1, stop=None, value = 1,  label="DY")
     WX0 = mo.ui.number(start=0, stop=None, value = 0,  label="X0")
     WY0 = mo.ui.number(start=0, stop=None, value = 0,  label="Y0")
-    WPerc = mo.ui.number(start=0, stop=100, value=10, 
-                         label="Randomization percentage")
+    WPerc = mo.ui.number(start=0, stop=100, value=10,  label="Rand. Percent.")
     return mo.ui.array([WNX, WNY, WDX, WDY, WX0, WY0, WPerc])
 
 def WgetDbFromGrid(WAll):
@@ -358,22 +378,26 @@ def WdefineDb(nech = 100, nvar = 1, xmin = 0, ymin = 0, xmax = 100, ymax = 100,
                                   xmin = xmin, ymin = ymin, 
                                   xmax = xmax, ymax = ymax, seed = seed)
 
+    WidgetDbFromGrid = WdefineDbFromGrid(nxdef = nxdef)
+
     WidgetDbFromNF = WdefineDbFromNF()
 
-    WidgetDbFromGrid = WdefineDbFromGrid(nxdef = nxdef)
+    WidgetDbFromCSV = WdefineDbFromCSV()
 
     WidgetDbChoice = mo.ui.radio(
         options = {
             "From Box":  1,
             "From Grid": 2,
-            "From NF": 3
+            "From NF":   3,
+            "From CSV":  4
         },
         value = valdef)
     
-    return mo.ui.array([WidgetDbChoice, WidgetDbFromBox, WidgetDbFromGrid, WidgetDbFromNF])
+    return mo.ui.array([WidgetDbChoice, WidgetDbFromBox, WidgetDbFromGrid, 
+                        WidgetDbFromNF, WidgetDbFromCSV])
 
 def WshowDb(WAll, flagTitle=True):
-    [WidgetDbChoice, WidgetDbFromBox, WidgetDbFromGrid, WidgetDbFromNF] = WAll
+    [WidgetDbChoice, WidgetDbFromBox, WidgetDbFromGrid, WidgetDbFromNF, WidgetDbFromCSV] = WAll
 
     WTitle = WgetTitle("Data Base Parameters", flagTitle)
     option = WidgetDbChoice.value
@@ -383,11 +407,13 @@ def WshowDb(WAll, flagTitle=True):
         return mo.vstack([WTitle, WidgetDbChoice, *WidgetDbFromGrid])
     elif option == 3:
         return mo.vstack([WTitle, WidgetDbChoice, *WidgetDbFromNF])
+    elif option == 4:
+        return mo.vstack([WTitle, WidgetDbChoice, *WidgetDbFromCSV])
     else:
         return None
 
 def WgetDb(WAll):
-    [WidgetDbChoice, WidgetDbFromBox, WidgetDbFromGrid, WidgetDbFromNF] = WAll
+    [WidgetDbChoice, WidgetDbFromBox, WidgetDbFromGrid, WidgetDbFromNF, WidgetDbFromCSV] = WAll
 
     option = WidgetDbChoice.value
     db = None
@@ -397,6 +423,8 @@ def WgetDb(WAll):
         db = WgetDbFromGrid(WidgetDbFromGrid)
     elif option == 3:
         db = WgetDbFromNF(WidgetDbFromNF)
+    elif option == 4:
+        db = WgetDbFromCSV(WidgetDbFromCSV)
     else:
         db = None
 
@@ -548,22 +576,22 @@ def WgetCovList(WAll, vario):
     return model
 
 def WdefineBox(db = None):
-    if db is not None:
+    if db is not None and db.getNLoc(gl.ELoc.Z) == 2:
         box = db.getExtremas()
-        longmin = box[0,0]
-        longmax = box[0,1]
-        latmin  = box[1,0]
-        latmax  = box[1,1]
+        longmin = box[0][0]
+        longmax = box[1][0]
+        latmin  = box[0][1]
+        latmax  = box[1][1]
     else:
         longmin = -180
         longmax =  180
         latmin  =  -90
         latmax  =   90
 
-    WLongMin = mo.ui.number(start=-180, stop=180, value=longmin)
-    WLongMax = mo.ui.number(start=-180, stop=180, value=longmax)
-    WLatMin  = mo.ui.number(start=-90,  stop=90,  value=latmin)
-    WLatMax  = mo.ui.number(start=-90,  stop=90,  value=latmax)
+    WLongMin = mo.ui.number(start=None, stop=None, value=longmin)
+    WLongMax = mo.ui.number(start=None, stop=None, value=longmax)
+    WLatMin  = mo.ui.number(start=None, stop=None, value=latmin)
+    WLatMax  = mo.ui.number(start=None, stop=None, value=latmax)
 
     return mo.ui.array([WLongMin, WLongMax, WLatMin, WLatMax])
 

@@ -27,34 +27,6 @@ def _(gmo):
     return (WidgetDb,)
 
 
-@app.cell
-def _(mo):
-    mo.sidebar(
-        [
-            mo.md("# mon menu"),
-            mo.nav_menu(
-                {
-                    "#/home": f"{mo.icon('lucide:home')} Home",
-                    "#/about": f"{mo.icon('lucide:user')} About",
-                    "#/contact": f"{mo.icon('lucide:phone')} Contact",
-                    "Links": {
-                        "https://twitter.com/marimo_io": "Twitter",
-                        "https://github.com/marimo-team/marimo": "GitHub",
-                    },
-                },
-                orientation="vertical",
-            ),
-        ]
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def _(WidgetDb, gmo):
-    gmo.WshowDb(WidgetDb)
-    return
-
-
 @app.cell(hide_code=True)
 def _(WidgetDb, gmo, gp):
     def myplot():
@@ -62,16 +34,30 @@ def _(WidgetDb, gmo, gp):
 
         fig = None
         if db is not None:
-            fig, ax = gp.initGeographic(figsize=[4,4])
+            fig, ax = gp.init(figsize=[4,4])
             ax.symbol(db)
         return fig
     return (myplot,)
 
 
 @app.cell(hide_code=True)
-def _(mo, myplot):
-    mo.md(f"Plot of the Db {mo.as_html(myplot())}")
-    return
+def _(WidgetDb, gmo, mo, myplot):
+    param = mo.ui.tabs(
+        {
+            "Data":       gmo.WshowDb(WidgetDb),
+        }
+    ).style({"minWidth": "350px", "width": "350px"})
+
+    simu = mo.vstack(
+        [
+             mo.md(""),
+             mo.md(f"Plotting the Data Base:{mo.as_html(myplot())}")
+        ],
+        gap = 4
+    )
+
+    mo.hstack([param, simu], gap=4)
+    return param, simu
 
 
 if __name__ == "__main__":
