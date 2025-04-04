@@ -1074,15 +1074,16 @@ double AMatrix::compare(const AMatrix& mat) const
   return diff;
 }
 
-VectorDouble AMatrix::getDiagonal(int shift) const
+const VectorDouble &AMatrix::getDiagonal(int shift) const
 {
+  _diagonal.clear();
   if (! isSquare())
   {
     messerr("This function is only valid for Square matrices");
-    return VectorDouble();
+    return this->_diagonal;
   }
 
-  VectorDouble vect;
+  _diagonal.reserve(getNRows());
   for (int rank = 0; rank < getNRows(); rank++)
   {
     int irow = rank;
@@ -1091,9 +1092,9 @@ VectorDouble AMatrix::getDiagonal(int shift) const
     int icol = rank;
     if (shift > 0) icol += shift;
     if (icol < 0 || icol >= getNCols()) continue;
-    vect.push_back(getValue(irow,icol));
+    _diagonal.push_back(getValue(irow,icol));
   }
-  return vect;
+  return _diagonal;
 }
 
 /**

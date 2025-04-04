@@ -161,7 +161,7 @@ public:
   /*! Returns the contents of the whole matrix as a VectorDouble */
   VectorDouble getValues(bool byCol = true) const;
   /*! Extract a Diagonal (main or secondary) of this */
-  VectorDouble getDiagonal(int shift = 0) const;
+  const VectorDouble &getDiagonal(int shift = 0) const;
   /*! Checks if a Column is valid (contains a non TEST value) */
   bool isColumnDefined(int icol) const;
   /*! Checks if a Row is valid (contains a non TEST value) */
@@ -285,6 +285,7 @@ protected:
                   bool transpose3 = false) const;
 
 private:
+  mutable VectorDouble _diagonal;
   int  _nRows;
   int  _nCols;
   bool _flagCheckAddress;
