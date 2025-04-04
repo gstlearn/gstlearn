@@ -652,7 +652,7 @@ int DriftList::evalDriftMatByTargetInPlace(MatrixDense& mat,
 
   // Create the sets of Vector of valid sample indices per variable
   // (not masked and defined)
-  VectorVectorInt index = db->getSampleRanks(ivars, {iech2}, true, false, false);
+  const VectorVectorInt &index = db->getSampleRanks(ivars, {iech2}, true, false, false);
 
   // Creating the matrix
   int neq = VH::count(index);
