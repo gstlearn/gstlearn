@@ -629,6 +629,9 @@ VectorDouble DriftList::evalMeanVecByRanks(const Db* db,
   return vec;
 }
 
+thread_local VectorInt viech2(1);
+thread_local VectorInt ivars;
+
 /****************************************************************************/
 /*!
  **  Establish the drift rectangular matrix for a given Db
@@ -647,12 +650,13 @@ int DriftList::evalDriftMatByTargetInPlace(MatrixDense& mat,
                                            int iech2,
                                            const KrigOpt& krigopt) const
 {
-  VectorInt ivars = VH::sequence(getNVar());
+  VH::sequenceInPlace(getNVar(), ivars);
   if (ivars.empty()) return 1;
 
   // Create the sets of Vector of valid sample indices per variable
   // (not masked and defined)
-  const VectorVectorInt &index = db->getSampleRanks(ivars, {iech2}, true, false, false);
+  viech2[0] = iech2;
+  const VectorVectorInt &index = db->getSampleRanks(ivars, viech2, true, false, false);
 
   // Creating the matrix
   int neq = VH::count(index);
