@@ -101,7 +101,7 @@ jobs:
           -DBUILD_R=OFF `
           -DPython3_ROOT_DIR="${{env.pythonLocation}}" `
           -DHDF5_USE_STATIC_LIBRARIES=ON `
-          -DBUILD_DOXYGEN=ON
+          -DBUILD_DOC=ON
 
     - name : Build the package
       run : |

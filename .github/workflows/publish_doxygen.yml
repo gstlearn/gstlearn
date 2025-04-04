@@ -53,7 +53,7 @@ jobs:
           -B${{ env.BUILD_DIR }} \
           -DBUILD_PYTHON=OFF \
           -DBUILD_R=OFF \
-          -DBUILD_DOXYGEN=ON
+          -DBUILD_DOC=ON
           
     - name: Build doxygen documentation and save generated folder name in the environment
       id: main_step

@@ -1061,7 +1061,7 @@
 };
 
 
-// Prevent memory leaks from 'create*' anc 'clone' methods
+// Prevent memory leaks from 'create*' and 'clone' methods
 
 // The following file should contain all 'createFrom*' methods
 %include swig/newobject.i

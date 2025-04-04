@@ -25,7 +25,7 @@ on:
 env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
-  SWIG_ROOT : ${{github.workspace}}/swig_420b
+  SWIG_ROOT : ${{github.workspace}}/swig
 
 jobs:
   build:
@@ -87,7 +87,7 @@ jobs:
           -DHDF5_USE_STATIC_LIBRARIES=ON \
           -DBUILD_PYTHON=OFF \
           -DBUILD_R=ON \
-          -DBUILD_DOXYGEN=ON \
+          -DBUILD_DOC=ON \
           -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
       env:
         CC: ${{matrix.arch.pat}}/opt/llvm/bin/clang
