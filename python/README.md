@@ -280,7 +280,7 @@ cmake --build build --target check_ipynb --config Release
 
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 * You may need to reconnect to your session after installing some requirements
-* If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
+* If you plan to generate the documentation, add `-DBUILD_DOC=ON` to the first cmake command above.
 * If you don't know how to execute github commands, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * Using Visual Studio on a Windows where MinGW is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
 * The Windows C++ Compiler used must be the same that the one used for compiling Python (Visual C++). Using another compiler than Visual C++ is not supported.

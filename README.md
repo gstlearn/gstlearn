@@ -355,7 +355,7 @@ pacman -Sy mingw-w64-x86_64-hdf5
 
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 * You may need to reconnect to your session after installing some requirements
-* If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
+* If you plan to generate the documentation, add `-DBUILD_DOC=ON` to the first cmake command above.
 * If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * HDF5 support is enabled by default, add `-DUSE_HDF5=OFF` in the first cmake command above to disable it.
 * Currently, **HDF5 is not supported** when compiling *gstlearn* C++ library **under Windows and MacOS**. *gstlearn* won't link against HDF5 and GibbsMMulti::setFlagStoreInternal(false) feature won't be available.
@@ -391,7 +391,7 @@ make uninstall
 The Doxygen HTML documentation is optional (not included in the installation by default). If you want to generate it, execute the command:
 
 ```
-cmake -Bbuild -S. -DBUILD_DOXYGEN=ON
+cmake -Bbuild -S. -DBUILD_DOC=ON
 cmake --build build --target doxygen
 ```
 

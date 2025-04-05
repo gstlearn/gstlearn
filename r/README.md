@@ -280,7 +280,7 @@ make check_r
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 * You may need to reconnect to your session after installing some requirements
 * If you experience the following issue: `Error: ERROR: no permission to install to directory...`, we suggest you to run the `install.packages` command (at least one time). This will create a *personal R library folder* having writing permissions.
-* If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above. Then users will be able to execute `make doxygen`.
+* If you plan to generate the documentation, add `-DBUILD_DOC=ON` to the first cmake command above. Then users will be able to execute `make doxygen`.
 * If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * Under Windows, using RTools is mandatory for compiling R packages
 * Under Windows, you may need to add `-G "MSYS Makefiles"` to the first cmake command above

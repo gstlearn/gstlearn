@@ -1,4 +1,4 @@
-if(NOT BUILD_DOXYGEN)
+if (NOT BUILD_DOC)
   return()
 endif()
 

@@ -21,7 +21,7 @@ env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
   R_VERSION : "4.3.2"
-  SWIG_ROOT : ${{github.workspace}}/swig_420b
+  SWIG_ROOT : ${{github.workspace}}/swig
   SCCACHE_IDLE_TIMEOUT: 0
 
 jobs:
