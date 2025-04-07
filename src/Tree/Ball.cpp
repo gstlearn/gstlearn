@@ -20,7 +20,7 @@ Ball::Ball(const double** data,
            int n_features,
            double (*dist_function)(const double* x1,
                                    const double* x2,
-                                   int size),
+                                   int n_features),
            int leaf_size,
            int default_distance_function)
   : _tree(nullptr)
@@ -29,45 +29,21 @@ Ball::Ball(const double** data,
                      default_distance_function);
 }
 
-Ball::Ball(const VectorVectorDouble& data,
-           double (*dist_function)(const double* x1,
-                                   const double* x2,
-                                   int size),
-           int leaf_size,
-           int default_distance_function)
-  : _tree(nullptr)
-{
-  int n_samples     = (int)data[0].size();
-  int n_features    = (int)data.size();
-  double** internal = copy_double_arrAsVVD(data);
-  _tree = btree_init((const double**)internal, n_samples, n_features, false,
-                     dist_function, leaf_size, default_distance_function);
-  free_2d_double(internal, n_features);
-}
-
 Ball::Ball(const Db* dbin,
            const Db* dbout,
            double (*dist_function)(const double* x1,
                                    const double* x2,
-                                   int size),
+                                   int n_features),
            int leaf_size,
            bool has_constraints,
            int default_distance_function,
            bool useSel)
   : _tree(nullptr)
 {
- 
-  VectorVectorDouble data = dbin->getAllCoordinates(useSel);
-  double** internal       = copy_double_arrAsVVD(data);
-  int n_samples           = (int)data[0].size();
-  int n_features          = (int)data.size();
-
-  if (dbout != nullptr)
-  {
-    VectorVectorDouble aux = dbout->getAllCoordinates(useSel);
-    append_double_arrAsVVD(aux, &internal, n_samples);
-    n_samples += (int)aux[0].size();
-  }
+  int n_samples;
+  int n_features;
+  double** internal = _getInformationFromDb(dbin, dbout, useSel, &n_samples, &n_features);
+  if (internal == nullptr) return;
 
   _tree = btree_init((const double**)internal, n_samples, n_features, has_constraints,
                      dist_function, leaf_size, default_distance_function);
@@ -77,19 +53,20 @@ Ball::Ball(const Db* dbin,
 void Ball::init(const Db* db,
                 double (*dist_function)(const double* x1,
                                         const double* x2,
-                                        int size),
+                                        int n_features),
                 int leaf_size,
                 int default_distance_function,
                 bool useSel)
 {
   if (_tree != nullptr) free_tree(_tree);
-  VectorVectorDouble data = db->getAllCoordinates(useSel);
-  int n_samples           = (int)data[0].size();
-  int n_features          = (int)data.size();
-  double** internal       = copy_double_arrAsVVD(data);
+
+  int n_samples;
+  int n_features;
+  double** internal = _getInformationFromDb(db, nullptr, useSel, &n_samples, &n_features);
+  if (internal == nullptr) return;
+
   _tree = btree_init((const double**)internal, n_samples, n_features, false,
                      dist_function, leaf_size, default_distance_function);
-  // free_2d_double(internal, n_features);
   free_2d_double(internal, n_samples);
 }
 
@@ -220,7 +197,7 @@ MatrixT<int> findNN(Db* dbin,
                     bool verbose,
                     double (*dist_function)(const double* x1,
                                             const double* x2,
-                                            int size),
+                                            int n_features),
                     int leaf_size,
                     int default_distance_function)
 {
@@ -288,4 +265,60 @@ MatrixT<int> findNN(Db* dbin,
     }
   }
   return mat;
+}
+
+double** Ball::_getInformationFromDb(const Db* dbin,
+                                     const Db* dbout,
+                                     bool useSel,
+                                     int* n_samples,
+                                     int* n_features)
+{
+  VectorDouble oneColumn;
+  int ncol    = dbin->getNLoc(ELoc::X);
+  int nrowtot = dbin->getNSample(useSel);
+  if (dbout != nullptr)
+  {
+    if (ncol != dbout->getNLoc(ELoc::X))
+    {
+      messerr("'dbin' and 'dbout' should share the same space dimension");
+      return nullptr;
+    }
+    nrowtot += dbout->getNSample(useSel);
+  }
+
+  // Core allocation
+  double** internal = (double**)malloc(sizeof(double*) * nrowtot);
+  for (int irow = 0; irow < nrowtot; irow++)
+    internal[irow] = (double*)malloc(sizeof(double) * ncol);
+
+  // Loading the information from dbin
+  int ns = 0;
+  if (dbin != nullptr)
+  {
+    int nrow = dbin->getNSample(useSel);
+    for (int icol = 0; icol < ncol; icol++)
+    {
+      oneColumn = dbin->getOneCoordinate(icol, useSel);
+      for (int irow = 0; irow < nrow; irow++)
+        internal[ns + irow][icol] = oneColumn[irow];
+    }
+    ns += nrow;
+  }
+
+  // Loading information from dbout
+  if (dbout != nullptr)
+  {
+    int nrow = dbout->getNSample(useSel);
+    for (int icol = 0; icol < ncol; icol++)
+    {
+      oneColumn = dbout->getOneCoordinate(icol, useSel);
+      for (int irow = 0; irow < nrow; irow++)
+        internal[ns + irow][icol] = oneColumn[irow];
+    }
+    ns += nrow;
+  }
+
+  *n_samples  = ns;
+  *n_features = ncol;
+  return internal;
 }
