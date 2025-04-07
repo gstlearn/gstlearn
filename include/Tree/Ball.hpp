@@ -21,25 +21,19 @@ class SpacePoint;
 class GSTLEARN_EXPORT Ball
 {
 public:
-  Ball(const double** data               = nullptr,
-       int n_samples                     = 0,
-       int n_features                    = 0,
+  Ball(const double** data                     = nullptr,
+       int n_samples                           = 0,
+       int n_features                          = 0,
        double (*dist_function)(const double* x1,
                                const double* x2,
-                               int size) = nullptr,
-       int leaf_size                     = 10,
-       int default_distance_function     = 1);
-  Ball(const VectorVectorDouble& data,
-       double (*dist_function)(const double* x1,
-                               const double* x2,
-                               int size) = nullptr,
-       int leaf_size                     = 10,
-       int default_distance_function     = 1);
+                               int n_features) = euclidean_distance,
+       int leaf_size                           = 10,
+       int default_distance_function           = 1);
   Ball(const Db* dbin,
        const Db* dbout                   = nullptr,
        double (*dist_function)(const double* x1,
                                const double* x2,
-                               int size) = nullptr,
+                               int n_features) = euclidean_distance,
        int leaf_size                     = 10,
        bool has_constraints              = false,
        int default_distance_function     = 1,
@@ -51,12 +45,12 @@ public:
   void init(const Db* db,
             double (*dist_function)(const double* x1,
                                     const double* x2,
-                                    int size) = nullptr,
+                                    int n_features) = euclidean_distance,
             int leaf_size                     = 10,
             int default_distance_function     = 1,
             bool useSel                       = false);
 
-  KNN query(const double** test,
+            KNN query(const double** test,
             int n_samples,
             int n_features,
             int n_neighbors = 1);
@@ -83,6 +77,11 @@ protected:
 
 private:
   bool _isConstraintDefined() const;
+  double** _getInformationFromDb(const Db* dbin,
+                                 const Db* dbout,
+                                 bool useSel,
+                                 int* n_samples,
+                                 int* n_features);
 
 private:
   t_btree* _tree;
@@ -95,6 +94,6 @@ GSTLEARN_EXPORT MatrixT<int> findNN(Db* dbin,
                                     bool verbose                      = false,
                                     double (*dist_function)(const double* x1,
                                                             const double* x2,
-                                                            int size) = nullptr,
+                                                            int n_features) = euclidean_distance,
                                     int leaf_size                     = 10,
                                     int default_distance_function     = 1);

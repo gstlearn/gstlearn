@@ -1,22 +1,20 @@
 This test is meant to test Kriging Efficiency using Moving Neighborhood
 - the Output Grid contains 10000 nodes
+- the Neighborhood is fixed at nmaxi=20 nsect=8 radius=1.000000
 - Various number of samples in the Data Set
-- Leaf size for the Ball Tree search (0: no Ball Tree search)
-Nsample =     300 - Leaf =  30 - Time =        478 ms
-Nsample =     300 - Leaf =   0 - Time =        998 ms
-Nsample =    1000 - Leaf =  30 - Time =        656 ms
-Nsample =    1000 - Leaf =   0 - Time =       2943 ms
-Nsample =   10000 - Leaf =  30 - Time =       1028 ms
-Nsample =  100000 - Leaf =  30 - Time =       2799 ms
-
-Moving Neighborhood
-===================
-Minimum number of samples           = 2
-Maximum number of samples           = 20
-Number of angular sectors           = 8
-Maximum number of points per sector = 3
-Maximum horizontal distance         = 1
-#NO_DIFF# Kriging in Moving Neighborhood: 2569 ms. (Ref = 1500 ms.)
+- Leaf size for the Ball Tree search (when used) = 30
+Nsample =     300 - Leaf =  30
+#NO_DIFF# Kriging in Moving Neighborhood: 447 ms. (Ref = 460 ms.)
+Nsample =     300 - Leaf =   0
+#NO_DIFF# Kriging in Moving Neighborhood: 910 ms. (Ref = 900 ms.)
+Nsample =    1000 - Leaf =  30
+#NO_DIFF# Kriging in Moving Neighborhood: 495 ms. (Ref = 490 ms.)
+Nsample =    1000 - Leaf =   0
+#NO_DIFF# Kriging in Moving Neighborhood: 2675 ms. (Ref = 2540 ms.)
+Nsample =   10000 - Leaf =  30
+#NO_DIFF# Kriging in Moving Neighborhood: 940 ms. (Ref = 730 ms.)
+Nsample =  100000 - Leaf =  30
+#NO_DIFF# Kriging in Moving Neighborhood: 2357 ms. (Ref = 2100 ms.)
 
 Data Base Grid Characteristics
 ==============================
