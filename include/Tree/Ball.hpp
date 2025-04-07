@@ -22,9 +22,9 @@ class SpacePoint;
 class GSTLEARN_EXPORT Ball
 {
 public:
-  Ball(const double** data                     = nullptr,
-       int n_samples                           = 0,
-       int n_features                          = 0,
+  Ball(const double** data                           = nullptr,
+       int n_samples                                 = 0,
+       int n_features                                = 0,
        double (*dist_function)(const double* x1,
                                const double* x2,
                                int n_features) = nullptr,
@@ -58,7 +58,7 @@ public:
             int default_distance_function           = 1,
             bool useSel                             = false);
 
-  KNN query(const double** test,
+            KNN query(const double** test,
             int n_samples,
             int n_features,
             int n_neighbors = 1);
