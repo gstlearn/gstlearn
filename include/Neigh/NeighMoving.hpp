@@ -53,6 +53,8 @@ public:
               int nsmax = ITEST,
               const VectorDouble& coeffs = VectorDouble(),
               const VectorDouble& angles = VectorDouble(),
+              bool useBallTree = false,
+              int leaf_size = 10,
               const ASpaceSharedPtr& space = ASpaceSharedPtr());
   NeighMoving(const NeighMoving& r);
   NeighMoving& operator=(const NeighMoving& r);
@@ -78,6 +80,8 @@ public:
                              int nsmax = ITEST,
                              const VectorDouble& coeffs = VectorDouble(),
                              const VectorDouble& angles = VectorDouble(),
+                             bool useBallTree = false,
+                             int leaf_size = 10,
                              const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = true);
 
