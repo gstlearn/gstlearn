@@ -1,14 +1,22 @@
-This test is meant to test Kriging using Moving Neighborhood
-- the Data Set contains 1000 samples
+This test is meant to test Kriging Efficiency using Moving Neighborhood
 - the Output Grid contains 10000 nodes
-- the Moving Neighborhood is required:
-  . Radius dimension = 1.000000
-  . Maximum number of neighbors = 20
-  . Minimum number of neiNumber of Rowsghbors = 2
-  . Number of angular sectors   = 8
-  . Maxmimum number of neighbors per sector = 3
-  . Leaf Size for Ball Tree algorithm = 30
-#NO_DIFF# Kriging in Moving Neighborhood: 807 ms. (Ref = 1500 ms.)
+- Various number of samples in the Data Set
+- Leaf size for the Ball Tree search (0: no Ball Tree search)
+Nsample =     300 - Leaf =  30 - Time =        478 ms
+Nsample =     300 - Leaf =   0 - Time =        998 ms
+Nsample =    1000 - Leaf =  30 - Time =        656 ms
+Nsample =    1000 - Leaf =   0 - Time =       2943 ms
+Nsample =   10000 - Leaf =  30 - Time =       1028 ms
+Nsample =  100000 - Leaf =  30 - Time =       2799 ms
+
+Moving Neighborhood
+===================
+Minimum number of samples           = 2
+Maximum number of samples           = 20
+Number of angular sectors           = 8
+Maximum number of points per sector = 3
+Maximum horizontal distance         = 1
+#NO_DIFF# Kriging in Moving Neighborhood: 2569 ms. (Ref = 1500 ms.)
 
 Data Base Grid Characteristics
 ==============================
@@ -18,8 +26,8 @@ Data Base Statistics
 4 - Name Kriging.z.estim - Locator z1
  Nb of data          =      10000
  Nb of active values =      10000
- Minimum value       =     -2.624
- Maximum value       =      2.620
- Mean value          =     -0.044
- Standard Deviation  =      0.654
- Variance            =      0.427
+ Minimum value       =     -2.546
+ Maximum value       =      3.010
+ Mean value          =      0.015
+ Standard Deviation  =      0.660
+ Variance            =      0.435
