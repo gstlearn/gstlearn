@@ -73,8 +73,8 @@ int main(int argc, char *argv[])
   NeighMoving* neigh1 = NeighMoving::create(false, nmaxi, radius);
   neigh1->attach(data, target);
 
-  NeighMoving* neigh2 = NeighMoving::create(false, nmaxi, radius);
-  neigh2->setBallSearch(true, leaf_size);
+  NeighMoving* neigh2 = NeighMoving::create(false, nmaxi, radius, 1, 1, ITEST,
+                                            VectorDouble(), VectorDouble(), true, leaf_size);
   neigh2->attach(data, target);
 
   // General printout

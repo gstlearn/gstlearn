@@ -243,13 +243,17 @@ void KrigingSystemSimpleCase::_wgtDump(KrigingAlgebraSimpleCase& algebra)
  **  Calculate the final estimation and storage
  **
  ** \param[in] status   Kriging error status
+ ** \param[in] iechout  Rank of the target in the output Db structure
+ ** \param[in] algebra  Kriging algebra
  **
  *****************************************************************************/
-void KrigingSystemSimpleCase::_estimateCalcul(int status, KrigingAlgebraSimpleCase& algebra, int iechout) const
+void KrigingSystemSimpleCase::_estimateCalcul(int status,
+                                              int iechout,
+                                              KrigingAlgebraSimpleCase& algebra) const
 {
 
   if (_flagEst)
-    _estimateEstim(status, algebra, iechout);
+    _estimateEstim(status, iechout, algebra);
 
   /* Variance of the estimation error */
 
@@ -310,9 +314,11 @@ void KrigingSystemSimpleCase::_neighCalcul(int status, const VectorDouble& tab, 
  **  Establish the calculation of estimation
  **
  ** \param[in]  status  Kriging error code
+ ** \param[in]  iechout  Rank of the target in the output Db structure
+ ** \param[in]  algebra  Kriging algebra
  **
  *****************************************************************************/
-void KrigingSystemSimpleCase::_estimateEstim(int status, KrigingAlgebraSimpleCase& algebra, int iechout) const
+void KrigingSystemSimpleCase::_estimateEstim(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const
 {
   VectorDouble& local = algebra.getEstimation();
   if (local.size() <= 0) return;
@@ -326,6 +332,8 @@ void KrigingSystemSimpleCase::_estimateEstim(int status, KrigingAlgebraSimpleCas
  **  Establish the calculation of standard deviation
  **
  ** \param[in]  status  Kriging error code
+ ** \param[in]  iechout  Rank of the target in the output Db structure
+ ** \param[in]  algebra  Kriging algebra
  **
  *****************************************************************************/
 void KrigingSystemSimpleCase::_estimateStdv(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const
@@ -342,6 +350,8 @@ void KrigingSystemSimpleCase::_estimateStdv(int status, int iechout, KrigingAlge
  **  Establish the variance of the estimator
  **
  ** \param[in]  status  Kriging error code
+ ** \param[in]  iechout  Rank of the target in the output Db structure
+ ** \param[in]  algebra  Kriging algebra
  **
  *****************************************************************************/
 void KrigingSystemSimpleCase::_estimateVarZ(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const
@@ -499,7 +509,7 @@ int KrigingSystemSimpleCase::estimate(int iechout,
 
   // Store the results in the output Db
 
-  _estimateCalcul(status, algebra,iechout);
+  _estimateCalcul(status, iechout, algebra);
 
   // Final printout
   if (iechout + 1 == OptDbg::getReference())
@@ -514,6 +524,7 @@ int KrigingSystemSimpleCase::estimate(int iechout,
  **  Print the results
  **
  ** \param[in] status   Kriging error status
+ ** \param[in] iechout  Rank of the target in the output Db structure
  **
  *****************************************************************************/
 void KrigingSystemSimpleCase::_dumpKrigingResults(int status, int iechout)

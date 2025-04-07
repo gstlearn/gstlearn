@@ -13,14 +13,16 @@
 #include "Db/DbGrid.hpp"
 #include "Basic/OptDbg.hpp"
 
-NeighCell::NeighCell(bool flag_xvalid, int nmini, const ASpaceSharedPtr& space)
-    : ANeigh(space),
-      _nMini(nmini),
-      _biPtCell(),
-      _T1(space),
-      _T2(space)
+NeighCell::NeighCell(bool flag_xvalid, int nmini, bool useBallTree, int leaf_size, const ASpaceSharedPtr& space)
+  : ANeigh(space)
+  , _nMini(nmini)
+  , _biPtCell()
+  , _T1(space)
+  , _T2(space)
 {
   setFlagXvalid (flag_xvalid);
+
+  setBallSearch(useBallTree, leaf_size);
 
   _biPtCell = BiTargetCheckCell::create();
 }
@@ -90,9 +92,13 @@ bool NeighCell::_serialize(std::ostream& os, bool verbose) const
   return ret;
 }
 
-NeighCell* NeighCell::create(bool flag_xvalid, int nmini, const ASpaceSharedPtr& space)
+NeighCell* NeighCell::create(bool flag_xvalid,
+                             int nmini,
+                             bool useBallTree,
+                             int leaf_size,
+                             const ASpaceSharedPtr& space)
 {
-  return new NeighCell(flag_xvalid, nmini, space);
+  return new NeighCell(flag_xvalid, nmini, useBallTree, leaf_size, space);
 }
 
 /**
