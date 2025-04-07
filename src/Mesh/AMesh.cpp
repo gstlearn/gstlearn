@@ -751,6 +751,7 @@ void AMesh::getBarycenterInPlace(int imesh, VectorDouble& coord) const
     coord[idim] = local / ncorner;
   }
 }
+
 /****************************************************************************/
 /*!
 ** Returns the Sparse Matrix used to project a Db onto the Meshing

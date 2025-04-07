@@ -38,8 +38,6 @@ public:
   double  getCoor(int imesh, int rank, int idim) const override;
   double  getApexCoor(int i, int idim) const override;
   double  getMeshSize(int imesh) const override;
-  // TODO: ti be deleted after validation
-  void    resetProjFromDbbis(ProjMatrix* m, const Db *db, int rankZ = -1, bool verbose = false) const;
   static MeshEStandard* createFromNF(const String& neutralFilename,
                                      bool verbose = true);
   static MeshEStandard* createFromExternal(const MatrixRectangular& apices,
@@ -70,26 +68,10 @@ protected:
   void _defineBoundingBox(void);
 
 private:
-  VectorDouble _defineUnits() const;
-  VectorDouble _defineContainers() const;
-  bool _coorInMeshContainer(const VectorDouble& coor,
-                            int imesh,
-                            const VectorDouble& container) const;
   bool _coorInMesh(const VectorDouble& coor,
                    int imesh,
                    double meshsize,
                    VectorDouble& weights) const;
-  void _setContainer(VectorDouble &container,
-                     int imesh,
-                     int idim,
-                     double vmin,
-                     double vmax) const;
-  void _getContainer(const VectorDouble& container,
-                     int imesh,
-                     int idim,
-                     double* vmin,
-                     double* vmax) const;
-  void _printContainers(const VectorDouble& container) const;
   void _deallocate();
   int  _recopy(const MeshEStandard &m);
   void _checkConsistency() const;

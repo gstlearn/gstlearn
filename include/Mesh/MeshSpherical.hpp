@@ -52,7 +52,6 @@ public:
             const VectorInt &meshes,
             bool byCol,
             bool verbose = false);
-  // void resetProjFromDb(ProjMatrix* m, const Db *db, int rankZ = -1, bool verbose = false) const override;
   int  getVariety() const override { return 1; }
 
   const MatrixRectangular& getApices() const { return _apices; }
@@ -71,10 +70,6 @@ private:
   int _recopy(const MeshSpherical &m);
   static double _closestValue(double ref, double coor, double period);
   void _checkConsistency() const;
-  // int _findBarycenter(const VectorDouble& target,
-  //                     int nb_neigh,
-  //                     VectorInt& neighs,
-  //                     VectorDouble& weight) const;
   bool _weightsInMesh(const VectorDouble& coor,
                       const VectorVectorDouble& corners,
                       double meshsize,
