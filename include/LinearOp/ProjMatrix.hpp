@@ -59,6 +59,7 @@ public:
                           const AMesh* a_mesh,
                           int rankZ = -1,
                           bool verbose = false);
+  void dumpVerticesUsed() const;
 //  int resetFromDbByNeigh(const Db *db,   // currently unused feature
 //                         AMesh *amesh,
 //                         double radius,

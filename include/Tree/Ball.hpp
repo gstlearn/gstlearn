@@ -16,6 +16,7 @@
 #include "Matrix/MatrixT.hpp"
 
 class Db;
+class AMesh;
 class SpacePoint;
 
 class GSTLEARN_EXPORT Ball
@@ -38,6 +39,13 @@ public:
        bool has_constraints              = false,
        int default_distance_function     = 1,
        bool useSel                       = false);
+  Ball(const AMesh* mesh,
+       double (*dist_function)(const double* x1,
+                               const double* x2,
+                               int n_features) = nullptr,
+       int leaf_size                           = 10,
+       bool has_constraints                    = false,
+       int default_distance_function           = 1);
   Ball(const Ball& p)            = delete;
   Ball& operator=(const Ball& p) = delete;
   virtual ~Ball();
@@ -77,11 +85,14 @@ protected:
 
 private:
   bool _isConstraintDefined() const;
-  double** _getInformationFromDb(const Db* dbin,
-                                 const Db* dbout,
-                                 bool useSel,
-                                 int* n_samples,
-                                 int* n_features);
+  static double** _getInformationFromDb(const Db* dbin,
+                                        const Db* dbout,
+                                        bool useSel,
+                                        int* n_samples,
+                                        int* n_features);
+  static double** _getInformationFromMesh(const AMesh* mesh,
+                                          int* n_samples,
+                                          int* n_features);
 
 private:
   t_btree* _tree;

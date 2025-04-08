@@ -325,7 +325,7 @@ void MeshEStandard::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool
       {
         int ip = getApex(imesh,icorn);
         if (ip > ip_max) ip_max = ip;
-        if (verbose) message(" %4d (%4.2lf)",ip,weight[icorn]);
+        if (verbose) message(" %4d (%4.2lf)", ip, weight[icorn]);
         NF_T.add(iech,ip,weight[icorn]);
       }
       if (verbose) message("\n");

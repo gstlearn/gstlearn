@@ -430,7 +430,7 @@ void btree_display(const t_btree *tree, int level)
  * Returns the Manhattan distance between two points
  * @param x1 Vector of coordinates for the first point
  * @param x2 Vector of coordinates for the second point
- * @param size Number of coordinates
+ * @param n_features Number of coordinates
  * @return
  */
 double manhattan_distance(const double* x1, const double* x2, int n_features)
@@ -449,7 +449,7 @@ double manhattan_distance(const double* x1, const double* x2, int n_features)
  * Returns the Standard Euclidean distance between two points
  * @param x1 Vector of coordinates for the first point
  * @param x2 Vector of coordinates for the second point
- * @param size Number of coordinates
+ * @param n_features Number of coordinates
  * @return
  */
 double euclidean_distance(const double* x1, const double* x2, int n_features)

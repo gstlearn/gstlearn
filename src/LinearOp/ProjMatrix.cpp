@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
-#include "LinearOp/ALinearOp.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 
@@ -72,7 +71,6 @@ void ProjMatrix::resetFromMeshAndDb(const Db* db, const AMesh* a_mesh, int rankZ
     _setNRows(0);
     _setNCols(a_mesh->getNApices());
   }
-
 }
 
 //int ProjMatrix::resetFromDbByNeigh(const Db *db,
@@ -171,4 +169,19 @@ int ProjMatrix::_addPoint2mesh(const constvect inv, vect outv) const
 String ProjMatrix::toString(const AStringFormat* strfmt) const
 {
   return MatrixSparse::toString(strfmt);
+}
+
+void ProjMatrix::dumpVerticesUsed() const
+{
+  mestitle(1, "Vertices used in the projection matrix");
+  for (int ip = 0, np = getNPoint(); ip < np; ip++)
+  {
+    message("Sample %3d: ", ip);
+    for (int ic = 0, nc = getNApex(); ic < nc; ic++)
+    {
+      if (getValue(ip, ic) > 0)
+        message(" %3d", ic);
+    }
+    message("\n");
+  }
 }

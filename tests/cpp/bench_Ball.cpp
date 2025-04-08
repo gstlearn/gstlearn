@@ -10,8 +10,11 @@
 /******************************************************************************/
 #include "Enum/ESpaceType.hpp"
 
+#include "LinearOp/ProjMatrix.hpp"
+#include "Mesh/MeshSphericalExt.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
@@ -42,7 +45,7 @@ int main(int argc, char *argv[])
   // Global parameters
   bool verbose = false;
   int ndim = 2;
-  int mode = 0;
+  int mode = 4;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Constructing the Data Set
@@ -118,6 +121,9 @@ int main(int argc, char *argv[])
 
   if (mode == 0 || mode == 3)
   {
+    // ================
+    // FindNN algorithm
+    // ================
     mestitle(0, "Demonstrating the findNN algorithm");
     bool flagShuffle = true;
 
@@ -145,5 +151,40 @@ int main(int argc, char *argv[])
   // Cleaning
   delete data;
 
+  if (mode == 0 || mode == 4)
+  {
+    // ===================
+    // Working on a Sphere
+    // ===================
+    mestitle(0, "Demonstrating BallTree algorithm on a Sphere");
+
+    // Global parameters
+    bool verbose = true;
+    int ndim     = 2;
+    defineDefaultSpace(ESpaceType::SN, ndim);
+
+    // Constructing the Data Set
+    int nech = 20;
+    VectorDouble coormin = {0., -90.};
+    VectorDouble coormax = {360., 90.};
+    Db* data             = Db::createFillRandom(nech, ndim, 1, 0, 0, 0., 0., VectorDouble(),
+                                                coormin, coormax, 131343);
+    if (verbose)
+    {
+      DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"x*"});
+      data->display(dbfmt);
+      delete dbfmt;
+    }
+
+    // Constructing the Meshing on the Sphere
+    MeshSphericalExt mesh = MeshSphericalExt();
+    mesh.resetFromDb(NULL, NULL, "-r3");
+    mesh.display();
+
+    // Projecting the Db on the Mesh
+    ProjMatrix proj = ProjMatrix();
+    proj.resetFromMeshAndDb(data, &mesh, -1, true);
+    proj.dumpVerticesUsed();
+  }
   return (0);
 }

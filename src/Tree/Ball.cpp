@@ -14,6 +14,7 @@
 #include "Space/SpacePoint.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
+#include "Mesh/AMesh.hpp"
 
 Ball::Ball(const double** data,
            int n_samples,
@@ -43,6 +44,24 @@ Ball::Ball(const Db* dbin,
   int n_samples;
   int n_features;
   double** internal = _getInformationFromDb(dbin, dbout, useSel, &n_samples, &n_features);
+  if (internal == nullptr) return;
+
+  _tree = btree_init((const double**)internal, n_samples, n_features, has_constraints,
+                     dist_function, leaf_size, default_distance_function);
+  free_2d_double(internal, n_samples);
+}
+
+Ball::Ball(const AMesh* mesh,
+           double (*dist_function)(const double* x1,
+                                   const double* x2,
+                                   int n_features),
+           int leaf_size,
+           bool has_constraints,
+           int default_distance_function)
+{
+  int n_samples;
+  int n_features;
+  double **internal = _getInformationFromMesh(mesh, &n_samples, &n_features);
   if (internal == nullptr) return;
 
   _tree = btree_init((const double**)internal, n_samples, n_features, has_constraints,
@@ -320,5 +339,28 @@ double** Ball::_getInformationFromDb(const Db* dbin,
 
   *n_samples  = ns;
   *n_features = ncol;
+  return internal;
+}
+
+double** Ball::_getInformationFromMesh(const AMesh* mesh,
+                                       int* n_samples,
+                                       int* n_features)
+{
+  VectorDouble oneColumn;
+  int ndim = mesh->getNDim();
+  int napices = mesh->getNApices();
+
+  // Core allocation
+  double** internal = (double**)malloc(sizeof(double*) * napices);
+  for (int ip = 0; ip < napices; ip++)
+    internal[ip] = (double*)malloc(sizeof(double) * ndim);
+
+  // Loading the information from mesh
+  for (int ip = 0; ip < napices; ip++)
+    for (int idim = 0; idim < ndim; idim++)
+      internal[ip][idim] = mesh->getApexCoor(ip, idim);
+
+  *n_samples  = napices;
+  *n_features = ndim;
   return internal;
 }

@@ -210,7 +210,11 @@ void MeshSpherical::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool
   NF_Triplet NF_T;
   VectorDouble weight(ncorner,0);
   VectorDouble units = _defineUnits();
-  
+
+  /* Optional title */
+
+  if (verbose) mestitle(0, "Mesh Barycenter");
+
   /* Loop on the samples */
 
   int ip_max = 0;
@@ -238,12 +242,15 @@ void MeshSpherical::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool
 
       /* Store the items in the sparse matrix */
 
+      if (verbose) message("Sample %4d in Mesh %4d :", jech + 1, imesh + 1);
       for (int icorn=0; icorn<ncorner; icorn++)
       {
         int ip = getApex(imesh,icorn);
         if (ip > ip_max) ip_max = ip;
+        if (verbose) message(" %4d (%4.2lf)", ip, weight[icorn]);
         NF_T.add(iech,ip,weight[icorn]);
       }
+      if (verbose) message("\n");
       found = imesh;
     }
 
@@ -253,7 +260,7 @@ void MeshSpherical::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool
     {
       nout++;
       if (verbose)
-        messerr("Point %d does not belong to any mesh",jech+1);
+        messerr("Point %d does not belong to any mesh", jech + 1);
     }
     iech++;
   }
