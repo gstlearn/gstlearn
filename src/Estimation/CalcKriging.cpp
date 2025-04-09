@@ -311,10 +311,7 @@ int kriging(Db* dbin,
       !krigopt.hasMatLC() && 
       neighUnique != nullptr &&
       model->getNVar() == 1 && 
-      OptCustom::query("NotOptimSimpleCase", 0) == 0// &&
-    //  dbin->getNSample() == dbin->getNSample(true) &&
-    //  dbin->getNSampleActiveAndDefined(dbin->getNameByLocator(ELoc::Z)) == dbin->getNSample()
-    )
+      OptCustom::query("NotOptimSimpleCase", 0) == 0)
   {
     CalcKrigingSimpleCase krige(flag_est, flag_std, flag_varz);
     krige.setDbin(dbin);

@@ -38,8 +38,8 @@ int main(int argc, char *argv[])
   
   OptCustom::define("NotOptimSimpleCase",0);
   OptCustom::define("Cholesky",0);
-  OptCustom::define("ompthreads",10);
-  bool flag_std = false;
+  OptCustom::define("ompthreads",1);
+  bool flag_std = true;
   // Global parameters
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);

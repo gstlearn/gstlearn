@@ -39,18 +39,15 @@ public:
   KrigingAlgebraSimpleCase(bool flagDual                        = false,
                            const VectorVectorInt* sampleRanks   = nullptr,
                            const VectorDouble* Z                = nullptr,
-                           const MatrixSquareSymmetric* Sigma   = nullptr,
-                           const MatrixRectangular* X           = nullptr,
-                           const MatrixSquareSymmetric* Sigma00 = nullptr,
                            const VectorDouble& Means            = VectorDouble(),
-                           int flagchol = false,
-                           bool neighUnique = OptCustom::query("unique",1));
+                           int flagchol                         = false,
+                           bool neighUnique                     = OptCustom::query("unique", 1));
   KrigingAlgebraSimpleCase(KrigingAlgebraSimpleCase& r);
   KrigingAlgebraSimpleCase& operator=(const KrigingAlgebraSimpleCase& r) = delete;
   virtual ~KrigingAlgebraSimpleCase();
   int prepare();
   void setDual(bool status);
-  void setNeighUnique(bool nu = false){ _neighUnique = nu; }
+  void setNeighUnique(bool nu = false) { _neighUnique = nu; }
   void resetNewData();
   int setData(const VectorDouble* Z          = nullptr,
               const VectorVectorInt* indices = nullptr,
@@ -81,9 +78,15 @@ public:
 
   bool isDual() const { return _flagDual; }
   VectorDouble* getZ() { return _Z.get(); }
+  MatrixSquareSymmetric* getSigma() { return _Sigma.get(); }
+  MatrixSquareSymmetric* getSigma00() { return _Sigma00.get(); }
+  MatrixRectangular* getX() { return _X.get(); }
   MatrixRectangular* getSigma0() { return _Sigma0.get(); }
+  void updateSampleRanks();
   MatrixRectangular* getX0() { return _X0.get(); }
   VectorVectorInt* getSampleRanks() { return _sampleRanks.get(); }
+  VectorInt* getNbgh() { return _nbgh.get(); }
+  void setMeans(const VectorDouble& means);
 
 private:
   void _copyPtrForUniqueNeigh(KrigingAlgebraSimpleCase& r);
@@ -112,9 +115,8 @@ private:
   bool _notFindSigma();
   bool _notFindSigma0();
   bool _notFindSigma00();
-  
-  bool _notFindSampleRanks();
 
+  bool _notFindSampleRanks();
 
   void _resetLinkedToZ();
   void _resetLinkedToX();
@@ -138,10 +140,9 @@ private:
   int _needStdv();
   int _needVarZSK();
   int _needVarZUK();
-  
+
   int _computeZstarWithDual();
   int _computeZstarSK();
-
 
   void _deleteBeta();
   void _deleteInvSigma();
@@ -149,7 +150,6 @@ private:
   void _deleteLambdaUK();
   void _deleteMuUK();
   void _deleteSigmac();
-  void _deleteZstar();
   void _deleteXtInvSigma();
   void _deleteXtInvSigmaZ();
   void _deleteStdv();
@@ -165,8 +165,9 @@ private:
 
 private:
   // Quantities to be defined by the user
-  std::shared_ptr<VectorDouble> _Z;                // Data [flattened] (Dim: _neq)
-  std::shared_ptr<VectorVectorInt> _sampleRanks;   // Vector of Vector of sampl indices per variable
+  std::shared_ptr<VectorDouble> _Z;              // Data [flattened] (Dim: _neq)
+  std::shared_ptr<VectorVectorInt> _sampleRanks; // Vector of Vector of sampl indices per variable
+  std::shared_ptr<VectorInt> _nbgh;
   std::shared_ptr<MatrixRectangular> _X;           // Drift at Data (Dim: _neq * _nbfl)
   std::shared_ptr<MatrixSquareSymmetric> _Sigma;   // Covariance Matrix (Dim: _neq * _neq)
   std::shared_ptr<MatrixSquareSymmetric> _Sigma00; // Variance at Target (Dim: _nrhs * _nrhs)
@@ -177,14 +178,14 @@ private:
 
   std::shared_ptr<MatrixSquareSymmetric> _InvSigma; // Inv{Sigma} (Dim: _neq * _neq)
   std::shared_ptr<CholeskyDense> _cholSigma;
-  std::shared_ptr<MatrixRectangular> _XtInvSigma; // X^t * Inv{Sigma} (Dim: _nbfl * _neq);
-  std::shared_ptr<MatrixRectangular> _invSigmaX;  // Inv{Sigma} X (Dim: _neq * _nbfl);
-  std::shared_ptr<VectorDouble> _XtInvSigmaZ;     // X^t * Inv{Sigma} Z (Dim: _nbfl * _nvar);
+  std::shared_ptr<MatrixRectangular> _XtInvSigma;    // X^t * Inv{Sigma} (Dim: _nbfl * _neq);
+  std::shared_ptr<MatrixRectangular> _invSigmaX;     // Inv{Sigma} X (Dim: _neq * _nbfl);
+  std::shared_ptr<VectorDouble> _XtInvSigmaZ;        // X^t * Inv{Sigma} Z (Dim: _nbfl * _nvar);
   std::shared_ptr<MatrixSquareSymmetric> _invSigmac; // Inv{X^t * Inv{Sigma} * X} (Dim: _nbfl * _nbfl)
-  std::shared_ptr<VectorDouble> _Beta;            // Drift coefficients (Dim: _nbfl)
-  std::shared_ptr<MatrixRectangular> _LambdaSK;   // Weights for SK (Dim: _neq * _nrhs)
-                                                // Following elements are defined for Dual programming
-  std::shared_ptr<VectorDouble> _bDual; // Fake Covariance part in Dual (Dim: _neq)
+  std::shared_ptr<VectorDouble> _Beta;               // Drift coefficients (Dim: _nbfl)
+  std::shared_ptr<MatrixRectangular> _LambdaSK;      // Weights for SK (Dim: _neq * _nrhs)
+                                                     // Following elements are defined for Dual programming
+  std::shared_ptr<VectorDouble> _bDual;              // Fake Covariance part in Dual (Dim: _neq)
   std::shared_ptr<VectorDouble> _invSigmaXBeta;
 
   VectorDouble _Zstar; // Estimated values (Dim: _nrhs)

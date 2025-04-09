@@ -419,7 +419,7 @@ int CorAniso::addEvalCovVecRHSInPlace(vect vect,
   space->getDistancePointVectInPlace(pout, _p1As, tabwork);
   double* dists = tabwork.data();
   const int* ind = index1.data();
-  for (int i = 0; i < (int)vect.size(); i++)
+  for (int i = 0; i < (int)index1.size(); i++)
   {
     vect[i] += lambda * evalCorFromH(dists[*ind++], &mode);
   }

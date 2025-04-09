@@ -49,7 +49,6 @@ public:
   KrigingSystemSimpleCase& operator=(const KrigingSystemSimpleCase& m) = delete;
   virtual ~KrigingSystemSimpleCase();
 
-  int resetData();
   int setKrigOptCalcul(const EKrigOpt& calcul);
   int setKrigOptDataWeights(int iptrWeights, bool flagSet = true);
   int setKrigOptFlagGlobal(bool flag_global);
@@ -57,15 +56,14 @@ public:
 
   // The subsequent methods do not require isReady() validation
   int updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ, bool forceNoDual = false);
-  int updKrigOptNeighOnly(int iptrNeigh);
   bool isReady();
+  void updateLHS(KrigingAlgebraSimpleCase& algebra);
   int estimate(int iechout,
                SpacePoint& pin,
                SpacePoint& pout,
                VectorDouble& tabwork,
                KrigingAlgebraSimpleCase& algebra,
                ModelGeneric& model,
-               VectorInt& nbgh,
                ANeigh* neigh = nullptr);
   void conclusion();
 
@@ -74,19 +72,8 @@ public:
   // Methods used to return algebraic internal information
   int getNDim() const { return (_model != nullptr) ? _model->getNDim() : 0; }
   int getNVar() const { return (_model != nullptr) ? _model->getNVar() : 0; }
-  int getNech() const { return (int)_nbgh.size(); }
-  int getCovSize() const { return (!_Sigma.empty()) ? _Sigma.getNRows() : 0; }
-  int getDriftSize() const { return (!_X.empty()) ? _X.getNCols() : 0; }
-  int getNrhs() const { return (!_Sigma0.empty()) ? _Sigma0.getNCols() : 0; }
 
-  VectorInt getSampleNbgh() const { return _nbgh; }
   VectorVectorDouble getSampleCoordinates(KrigingAlgebraSimpleCase& algebra, int iechout) const;
-  VectorDouble getSampleData() const { return _Z; };
-  MatrixSquareSymmetric getLHS() const { return _Sigma; }
-  MatrixRectangular getLHSF() const { return _Sigma0; }
-  MatrixRectangular getRHS() const { return _Sigma0; }
-  MatrixRectangular getRHSF() const { return _X0; }
-  MatrixSquareGeneral getVariance() const { return _Sigma00; }
   MatrixRectangular getWeights(KrigingAlgebraSimpleCase& algebra) const;
   MatrixRectangular getMu(KrigingAlgebraSimpleCase& algebra) const;
   double getLTerm() const { return _algebra.getLTerm(); }
@@ -99,7 +86,6 @@ private:
   int _getNFeq() const;
 
   void _resetMemoryGeneral();
-  bool _isAuthorized() const;
 
   static void _dumpOptions();
   void _rhsDump(KrigingAlgebraSimpleCase& algebra);
@@ -110,13 +96,13 @@ private:
   void _estimateVarZ(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const;
   void _estimateStdv(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const;
   void _estimateEstim(int status, KrigingAlgebraSimpleCase& algebra, int iechout) const;
-  void _dumpKrigingResults(int status, int iechout);
+  void _dumpKrigingResults(int status, int iechout, KrigingAlgebraSimpleCase* algebra) const;
   bool _isCorrect();
   bool _preparNoStat();
 
   void _setInternalShortCutVariablesGeneral();
   void _setInternalShortCutVariablesModel();
-  int _setInternalShortCutVariablesNeigh();
+  int _setInternalShortCutVariablesNeigh(VectorInt& nbgh);
 
 private:
   Db* _dbin;
@@ -129,13 +115,6 @@ private:
   // Note that 'algebra' is mutable not to destroy constness when calling getLambda.
   mutable KrigingAlgebraSimpleCase _algebra;
   mutable KrigOpt _krigopt;
-  VectorVectorInt _sampleRanks;   // Vector of vector of sample indices
-  MatrixSquareSymmetric _Sigma00; // Covariance part for variance
-  MatrixSquareSymmetric _Sigma;   // Covariance part for LHS
-  MatrixRectangular _X;           // Drift part for LHS
-  MatrixRectangular _Sigma0;      // Covariance part for RHS
-  MatrixRectangular _X0;          // Drift par for RHS
-  VectorDouble _Z;                // Vector of Data
   VectorDouble _means;            // Means of the variables (used to center variables)
   VectorDouble _meansTarget;      // Means for target (possible using matLC)
 
@@ -157,7 +136,7 @@ private:
   bool _flagLTerm;
 
   /// Option for Neighboring test
-  bool _flagNeighOnly;
+  bool _neighUnique;
   int _iptrNeigh;
 
   /// Local variables
@@ -168,7 +147,6 @@ private:
   int _neq;
 
   /// Working arrays
-  VectorInt _nbgh;
   VectorInt _dbinUidToBeDeleted;
   VectorInt _dboutUidToBeDeleted;
 

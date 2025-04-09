@@ -61,6 +61,7 @@ NeighMoving::NeighMoving(const NeighMoving& r)
   , _movingIsect(r._movingIsect)
   , _movingNsect(r._movingNsect)
   , _movingDst(r._movingDst)
+  , _dbgrid(r._dbgrid)
   , _T1(r._T1)
   , _T2(r._T2)
 {

@@ -24,17 +24,17 @@
 #include <omp.h>
 
 CalcKrigingSimpleCase::CalcKrigingSimpleCase(bool flag_est, bool flag_std, bool flag_varZ)
-    : ACalcInterpolator(),
-    _flagEst(flag_est),
-    _flagStd(flag_std),
-    _flagVarZ(flag_varZ),
-    _nameCoord(),
-    _iechSingleTarget(-1),
-    _nbNeigh(5),
-    _iptrEst(-1),
-    _iptrStd(-1),
-    _iptrVarZ(-1),
-    _iptrNeigh(-1)
+  : ACalcInterpolator()
+  , _flagEst(flag_est)
+  , _flagStd(flag_std)
+  , _flagVarZ(flag_varZ)
+  , _nameCoord()
+  , _iechSingleTarget(-1)
+  , _nbNeigh(5)
+  , _iptrEst(-1)
+  , _iptrStd(-1)
+  , _iptrVarZ(-1)
+  , _iptrNeigh(-1)
 {
 }
 
@@ -44,13 +44,12 @@ CalcKrigingSimpleCase::~CalcKrigingSimpleCase()
 
 bool CalcKrigingSimpleCase::_check()
 {
-  if (! ACalcInterpolator::_check()) return false;
+  if (!ACalcInterpolator::_check()) return false;
 
-  if (! hasDbin()) return false;
-  if (! hasDbout()) return false;
-  if (! hasModel()) return false;
-  if (! hasNeigh()) return false;
-
+  if (!hasDbin()) return false;
+  if (!hasDbout()) return false;
+  if (!hasModel()) return false;
+  if (!hasNeigh()) return false;
 
   if (_flagVarZ)
   {
@@ -60,7 +59,7 @@ bool CalcKrigingSimpleCase::_check()
       return false;
     }
   }
- 
+
   return true;
 }
 
@@ -96,12 +95,11 @@ bool CalcKrigingSimpleCase::_postprocess()
   _cleanVariableDb(2);
 
   int nvar = _getNVar();
-  
-  
+
   _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
   _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);
   _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrEst, "estim", 1);
-  
+
   return true;
 }
 
@@ -110,26 +108,17 @@ void CalcKrigingSimpleCase::_rollback()
   _cleanVariableDb(1);
 }
 
-void CalcKrigingSimpleCase::_storeResultsForExport(const KrigingSystemSimpleCase& ksys, 
+void CalcKrigingSimpleCase::_storeResultsForExport(const KrigingSystemSimpleCase& ksys,
                                                    KrigingAlgebraSimpleCase& algebra,
                                                    int iechout)
 {
-  _ktest.ndim  = ksys.getNDim();
-  _ktest.nvar  = ksys.getNVar();
-  _ktest.nech  = ksys.getNech();
-  _ktest.CSize = ksys.getCovSize();
-  _ktest.DSize = ksys.getDriftSize();
-  _ktest.nrhs  = ksys.getNrhs();
-  _ktest.nbgh  = ksys.getSampleNbgh();
-  _ktest.xyz   = ksys.getSampleCoordinates(algebra, iechout);
-  _ktest.data  = ksys.getSampleData();
-  _ktest.lhs   = ksys.getLHS();
-  _ktest.lhsF  = ksys.getLHSF();
-  _ktest.rhs   = ksys.getRHS();
-  _ktest.rhsF  = ksys.getRHSF();
-  _ktest.wgt   = ksys.getWeights(algebra);
-  _ktest.mu    = ksys.getMu(algebra);
-  _ktest.var   = ksys.getVariance();
+  _ktest.ndim = ksys.getNDim();
+  _ktest.nvar = ksys.getNVar();
+  _ktest.xyz  = ksys.getSampleCoordinates(algebra, iechout);
+  //_ktest.lhs   = ksys.getLHS();
+  _ktest.wgt = ksys.getWeights(algebra);
+  _ktest.mu  = ksys.getMu(algebra);
+  // _ktest.var   = ksys.getVariance();
 }
 
 /****************************************************************************/
@@ -151,51 +140,49 @@ bool CalcKrigingSimpleCase::_run()
   /***************************************/
   /* Loop on the targets to be processed */
   /***************************************/
- 
+
   VectorDouble tabwork(getDbin()->getNSample());
   KrigingAlgebraSimpleCase algebra(ksys.getAlgebra());
   bool use_parallel = !getModel()->isNoStat();
-  int nech_out = getDbout()->getNSample();
-  int nbthread = OptCustom::query("ompthreads", 1);
+  int nech_out      = getDbout()->getNSample();
+  int nbthread      = OptCustom::query("ompthreads", 5);
   omp_set_num_threads(nbthread);
-  
+
   SpacePoint pin(getModel()->getSpace());
   SpacePoint pout(getModel()->getSpace());
   ModelGeneric model(*ksys.getModel());
-  int ndim = getModel()->getSpace()->getNDim();
+  int ndim                        = getModel()->getSpace()->getNDim();
   const VectorVectorDouble coords = getDbout()->getAllCoordinates();
-  VectorInt nbgh;
   static ANeigh* neigh = nullptr;
-  #pragma omp threadprivate(neigh)
-    #pragma omp parallel for firstprivate(pin,pout,tabwork,algebra,model,nbgh) schedule(guided) if(use_parallel)
-    for (int iech_out = 0; iech_out < nech_out; iech_out++)
-    { 
-      if (!getDbout()->isActive(iech_out))  continue;
-      if (neigh == nullptr)
-      {
-        neigh = (ANeigh*)getNeigh()->clone();
-      }
-      else
-      {
-        neigh->reset();
-      }
-    // TODO : encapsulate in Db.
-      for (int idim = 0; idim < ndim; idim++)
-      {
-        pin.setCoord(idim,coords[idim][iech_out]);
-      }
-   
-      ksys.estimate(iech_out,pin,pout,tabwork,algebra,model,nbgh,neigh);
-    
-      if (_iechSingleTarget >= 0) _storeResultsForExport(ksys,algebra, iech_out);
-    }
-  
-  // Store the results in an API structure (only if flagSingleTarget)  
-
-  #pragma omp parallel
+#pragma omp threadprivate(neigh)
+#pragma omp parallel for firstprivate(pin, pout, tabwork, algebra, model) schedule(guided) if (use_parallel)
+  for (int iech_out = 0; iech_out < nech_out; iech_out++)
   {
-      delete neigh;  // ✅ Chaque thread supprime son propre ptr
-      neigh = nullptr;
+    if (!getDbout()->isActive(iech_out)) continue;
+    if (neigh == nullptr)
+    {
+      neigh = (ANeigh*)getNeigh()->clone();
+    }
+    else
+    {
+      neigh->reset();
+    }
+    // TODO : encapsulate in Db (threadsafe)
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      pin.setCoord(idim, coords[idim][iech_out]);
+    }
+
+    ksys.estimate(iech_out, pin, pout, tabwork, algebra, model, neigh);
+
+    // Store the results in an API structure (only if flagSingleTarget)
+    if (_iechSingleTarget >= 0) _storeResultsForExport(ksys, algebra, iech_out);
+  }
+
+#pragma omp parallel
+  {
+    delete neigh; // ✅ Chaque thread supprime son propre ptr
+    neigh = nullptr;
   }
   ksys.conclusion();
 
