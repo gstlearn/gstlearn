@@ -146,7 +146,7 @@ Column = 7 - Name = Simu.2 - Locator = z2----
 
 
 #NO_DIFF#XXX
-XXX
+----
 #NO_DIFF#XXX
 ----
 
@@ -173,7 +173,7 @@ Log-likelihood = -271.354901
 
 
 #NO_DIFF#XXX
-XXX
+----
 #NO_DIFF#XXX
 ----
 
@@ -185,7 +185,7 @@ a0=0.5 and b0=1.5 [ 0.5       3.177797  1.5      -1.482825]
 
 
 #NO_DIFF#XXX
-XXX
+----
 #NO_DIFF#XXX
 ----
 
@@ -212,7 +212,7 @@ Log-likelihood = -293.672891
 
 
 #NO_DIFF#XXX
-XXX
+----
 #NO_DIFF#XXX
 ----
 
@@ -224,7 +224,7 @@ a0=b0 [0.361879 3.371714 0.361879 0.11506 ]
 
 
 #NO_DIFF#XXX
-XXX
+----
 #NO_DIFF#XXX
 ----
 
