@@ -1252,8 +1252,8 @@ void ShiftOpMatrix::_projectMesh(const AMesh *amesh,
   for (int icorn = 0; icorn < (int) amesh->getNApexPerMesh(); icorn++)
   {
     GH::convertSph2Cart(amesh->getCoor(imesh, icorn, 0),
-                        amesh->getCoor(imesh, icorn, 1), &xyz[icorn][0],
-                        &xyz[icorn][1], &xyz[icorn][2]);
+                        amesh->getCoor(imesh, icorn, 1), 
+                        &xyz[icorn][0], &xyz[icorn][1], &xyz[icorn][2]);
     for (int i = 0; i < 3; i++)
       center[i] += xyz[icorn][i];
   }

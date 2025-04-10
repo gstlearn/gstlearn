@@ -121,21 +121,25 @@ public:
                                              double *ptsc,
                                              double *wgts,
                                              double eps = EPSILON6);
-  static VectorVectorDouble convertLongLat(const VectorDouble &longitude,
-                                           const VectorDouble &latitude,
-                                           double dilate = 1.,
-                                           double radius_arg = 1.);
+  static VectorVectorDouble convertLongLatTo3D(const VectorDouble& longitude,
+                                               const VectorDouble& latitude,
+                                               double dilate     = 1.,
+                                               double radius_arg = 1.);
+  static VectorVectorDouble convert3DToLongLat(const VectorDouble& x,
+                                               const VectorDouble& y,
+                                               const VectorDouble& z,
+                                               double radius_arg = 1.);
   static void convertCart2Sph(double x,
                               double y,
                               double z,
-                              double *rlong,
-                              double *rlat,
+                              double* rlong,
+                              double* rlat,
                               double radius_arg = 1.);
   static void convertSph2Cart(double rlong,
                               double rlat,
-                              double *x,
-                              double *y,
-                              double *z,
+                              double* x,
+                              double* y,
+                              double* z,
                               double radius_arg = 1.);
   static MatrixSquareGeneral gradXYToRotmat(double dzoverdx, double dzoverdy);
   static MatrixRectangular* getDirectionsInR3(const MatrixRectangular *U);

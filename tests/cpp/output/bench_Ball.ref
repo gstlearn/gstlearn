@@ -3,7 +3,7 @@ Traditional use of the Ball Tree
 ================================
 
 Various ways of inquiring the Ball Tree
-=======================================
+---------------------------------------
 The closest sample to the Target is : 84
 Indices of the target neighbors
         84         4        79        42        10
@@ -371,3 +371,14 @@ Demonstrating the findNN algorithm
   104   18  107   63   86
   102   40   19   44   29
   113   20   26   68   71
+
+Demonstrating BallTree algorithm on a Sphere
+============================================
+
+Various ways of inquiring the Ball Tree
+---------------------------------------
+The closest sample to the Target is : 439
+Indices of the neighbors
+       439       371       814       781       372
+Distances to the target
+   413.556   454.902   480.938   563.529   702.225

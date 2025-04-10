@@ -51,6 +51,15 @@ Ball::Ball(const Db* dbin,
   free_2d_double(internal, n_samples);
 }
 
+/**
+ * @brief Construct a new Ball object based on the barycenters of the meshes
+ * 
+ * @param mesh  AMesh description
+ * @param dist_function template distance function
+ * @param leaf_size Number of elements in the leafs of the Ball tree
+ * @param has_constraints True if constraints are applied on the Ball Tree
+ * @param default_distance_function 1 for Euclidean distance, 2 for Manhattan
+ */
 Ball::Ball(const AMesh* mesh,
            double (*dist_function)(const double* x1,
                                    const double* x2,
@@ -347,20 +356,24 @@ double** Ball::_getInformationFromMesh(const AMesh* mesh,
                                        int* n_features)
 {
   VectorDouble oneColumn;
-  int ndim = mesh->getNDim();
-  int napices = mesh->getNApices();
+  int ndim    = mesh->getNDim();
+  int nmesh   = mesh->getNMeshes();
+  VectorDouble center(ndim);
 
   // Core allocation
-  double** internal = (double**)malloc(sizeof(double*) * napices);
-  for (int ip = 0; ip < napices; ip++)
-    internal[ip] = (double*)malloc(sizeof(double) * ndim);
+  double** internal = (double**)malloc(sizeof(double*) * nmesh);
+  for (int imesh = 0; imesh < nmesh; imesh++)
+    internal[imesh] = (double*)malloc(sizeof(double) * ndim);
 
   // Loading the information from mesh
-  for (int ip = 0; ip < napices; ip++)
+  for (int imesh = 0; imesh < nmesh; imesh++)
+  {
+    mesh->getBarycenterInPlace(imesh, center);
     for (int idim = 0; idim < ndim; idim++)
-      internal[ip][idim] = mesh->getApexCoor(ip, idim);
+      internal[imesh][idim] = center[idim];
+  }
 
-  *n_samples  = napices;
+  *n_samples  = nmesh;
   *n_features = ndim;
   return internal;
 }

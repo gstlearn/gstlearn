@@ -403,10 +403,9 @@ void AMesh::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const
 ProjMatrix* AMesh::createProjMatrix(const Db* db, int rankZ, bool verbose) const
 {
   ProjMatrix* m = new ProjMatrix();
-  resetProjMatrix(m, db, rankZ, verbose);
+  resetProjFromDb(m, db, rankZ, verbose);
   return m;
 }
-
 
 /**
  * Fill the array of coordinates of all apices of a mesh in embedded space
@@ -735,3 +734,18 @@ void AMesh::_printMeshListByIndices(int nline_max) const
   }
 }
 
+void AMesh::getBarycenterInPlace(int imesh, VectorDouble& coord) const
+{
+  int ndim    = getNDim();
+  int ncorner = getNApexPerMesh();
+
+  VectorVectorDouble coords = getCoordinatesPerMesh(imesh);
+
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    double local = 0.;
+    for (int ic = 0; ic < ncorner; ic++)
+      local += coords[ic][idim];
+    coord[idim] = local / ncorner;
+  }
+}

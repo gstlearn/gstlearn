@@ -50,17 +50,18 @@ public:
   virtual void getApexCoordinatesInPlace(int i, VectorDouble& coords) const;
   /*! Returns the mesh size */
   virtual double getMeshSize(int imesh) const = 0;
-  /*! Initialize the Sparse Matrix for projecting the Mesh to a Db */
-  virtual void resetProjMatrix(ProjMatrix* m, const Db* db, int rankZ = -1, bool verbose = false) const = 0;
+  /*! Initialize the Sparse Matrix for projecting the Db on a Mesh */
+  virtual void resetProjFromDb(ProjMatrix* m, const Db* db, int rankZ = -1, bool verbose = false) const = 0;
 
   /*! Returns the space variety */
   virtual int  getVariety() const { return 0; }
   virtual int  getEmbeddedNDim() const { return _nDim; }
   virtual void getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const;
   virtual void getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const;
+  virtual void getBarycenterInPlace(int imesh, VectorDouble& coord) const;
 
-  /*! Returns the Sparse Matrix for projecting the Mesh to a Db */
-  ProjMatrix* createProjMatrix(const Db* db, int rankZ = -1, bool verbose = false) const;
+    /*! Returns the Sparse Matrix for projecting the Mesh to a Db */
+    ProjMatrix* createProjMatrix(const Db* db, int rankZ = -1, bool verbose = false) const;
 
   /*! Returns the space dimension */
   int getNDim() const { return _nDim; }

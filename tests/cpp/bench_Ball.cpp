@@ -13,8 +13,8 @@
 #include "LinearOp/ProjMatrix.hpp"
 #include "Mesh/MeshSphericalExt.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Space/SpaceSN.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
   // Global parameters
   bool verbose = false;
   int ndim = 2;
-  int mode = 4;
+  int mode = 0;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Constructing the Data Set
@@ -67,27 +67,26 @@ int main(int argc, char *argv[])
     mestitle(0, "Traditional use of the Ball Tree");
 
     // Constructing the Ball Tree
-    Ball ball1(data, nullptr, nullptr, 10, false);
-    if (verbose) ball1.display(0);
+    Ball ball(data, nullptr, nullptr, 10, false);
+    if (verbose) ball.display(0);
 
     // My target sample
     VectorDouble target = {0.4, 0.2};
     SpacePoint pt1(target);
 
     // Inquiring the Ball tree
-    mestitle(0, "Various ways of inquiring the Ball Tree");
+    mestitle(1, "Various ways of inquiring the Ball Tree");
 
     // - for the closest sample
-    int ineigh = ball1.queryClosest(target);
+    int ineigh = ball.queryClosest(target);
     message("The closest sample to the Target is : %d\n", ineigh);
 
     // - for a set of neighboring samples
-
-    neighs = ball1.getIndices(pt1, nb_neigh);
+    neighs = ball.getIndices(pt1, nb_neigh);
     VH::dump("Indices of the target neighbors", neighs);
 
-    // -for a more complete output (in place)
-    (void)ball1.queryOneInPlace(target, nb_neigh, neighs, distances);
+    // - for a more complete output (in place)
+    (void)ball.queryOneInPlace(target, nb_neigh, neighs, distances);
     VH::dump("Indices of the neighbors", neighs);
     VH::dump("Distances to the target", distances);
   }
@@ -101,9 +100,9 @@ int main(int argc, char *argv[])
     bool has_constraints = true;
     verbose              = true;
 
-    // Constructing the Ball Tree
-    Ball ball2(data, nullptr, nullptr, 10, has_constraints);
-    if (verbose) ball2.display(1);
+    // Constructing the Ball Tree from Db(s)
+    Ball ball(data, nullptr, nullptr, 10, has_constraints);
+    if (verbose) ball.display(1);
 
     // Loop on the samples for the FNN search
     SpacePoint pt2;
@@ -113,8 +112,8 @@ int main(int argc, char *argv[])
     {
       int iech = ranks[jech];
       data->getSampleAsSPInPlace(pt2, iech);
-      ball2.setConstraint(iech, true);
-      (void)ball2.queryOneInPlace(pt2.getCoordUnprotected(), nb_neigh, neighs, distances);
+      ball.setConstraint(iech, true);
+      (void)ball.queryOneInPlace(pt2.getCoordUnprotected(), nb_neigh, neighs, distances);
       VH::dump("Indices of the neighbors", neighs);
     }
   }
@@ -159,32 +158,33 @@ int main(int argc, char *argv[])
     mestitle(0, "Demonstrating BallTree algorithm on a Sphere");
 
     // Global parameters
-    bool verbose = true;
-    int ndim     = 2;
-    defineDefaultSpace(ESpaceType::SN, ndim);
-
-    // Constructing the Data Set
-    int nech = 20;
-    VectorDouble coormin = {0., -90.};
-    VectorDouble coormax = {360., 90.};
-    Db* data             = Db::createFillRandom(nech, ndim, 1, 0, 0, 0., 0., VectorDouble(),
-                                                coormin, coormax, 131343);
-    if (verbose)
-    {
-      DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"x*"});
-      data->display(dbfmt);
-      delete dbfmt;
-    }
+    bool verbose = false;
+    defineDefaultSpace(ESpaceType::SN, 2);
 
     // Constructing the Meshing on the Sphere
     MeshSphericalExt mesh = MeshSphericalExt();
     mesh.resetFromDb(NULL, NULL, "-r3");
-    mesh.display();
+    if (verbose) mesh.display();
 
-    // Projecting the Db on the Mesh
-    ProjMatrix proj = ProjMatrix();
-    proj.resetFromMeshAndDb(data, &mesh, -1, true);
-    proj.dumpVerticesUsed();
+    // Define the Ball Tree starting from the mesh
+    Ball ball(&mesh);
+    if (verbose) ball.display(1);
+
+    // Defining a Target point in Longitude / Latitude
+    VectorDouble target = {70., 70.};
+    SpacePoint pt1(target);
+
+    // Inquiring the Ball tree
+    mestitle(1, "Various ways of inquiring the Ball Tree");
+
+    // - for the closest sample
+    int ineigh = ball.queryClosest(target);
+    message("The closest sample to the Target is : %d\n", ineigh);
+
+    // - for a set of neighboring samples
+    (void)ball.queryOneInPlace(target, nb_neigh, neighs, distances);
+    VH::dump("Indices of the neighbors", neighs);
+    VH::dump("Distances to the target", distances);
   }
   return (0);
 }

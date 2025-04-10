@@ -11,7 +11,6 @@
 #include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
 #include "Estimation/CalcKrigingSimpleCase.hpp"
-#include "Enum/EKrigOpt.hpp"
 #include "Estimation/KrigingAlgebraSimpleCase.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Estimation/KrigingSystemSimpleCase.hpp"

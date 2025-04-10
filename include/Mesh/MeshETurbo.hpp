@@ -56,7 +56,7 @@ public:
   double  getApexCoor(int i, int idim) const override;
   void    getApexCoordinatesInPlace(int i, VectorDouble& coords) const override;
   double  getMeshSize(int imesh) const override;
-  void    resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ = -1, bool verbose = false) const override;
+  void    resetProjFromDb(ProjMatrix* m, const Db *db, int rankZ = -1, bool verbose = false) const override;
   void    setPolarized(bool flag) { _isPolarized = flag; }
 
   static MeshETurbo* create(const VectorInt& nx,
