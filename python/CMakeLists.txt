@@ -41,7 +41,7 @@ add_custom_target(python_doc
 )
 
 # Doxygen is optional
-if (BUILD_DOXYGEN)
+if (BUILD_DOC)
   add_dependencies(python_doc doxygen)
 endif()
 

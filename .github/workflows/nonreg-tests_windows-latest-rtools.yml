@@ -23,7 +23,7 @@ env:
   BUILD_DIR : build
   CMAKE_GENERATOR : "MSYS Makefiles"
   R_VERSION : "4.3.2"
-  SWIG_ROOT : ${{github.workspace}}\swig_420b
+  SWIG_ROOT : ${{github.workspace}}\swig
 
 jobs:
 

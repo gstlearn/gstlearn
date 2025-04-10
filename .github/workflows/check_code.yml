@@ -143,7 +143,7 @@ jobs:
         cmake \
           -DCMAKE_BUILD_TYPE=Debug \
           -DBUILD_TESTING=ON \
-          -DBUILD_DOXYGEN=ON \
+          -DBUILD_DOC=ON \
           $GITHUB_WORKSPACE
 
     - name: Use clang-tidy to lint code

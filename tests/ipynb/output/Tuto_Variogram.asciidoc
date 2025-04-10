@@ -48,19 +48,19 @@ In **gstlearn**, variogram clouds are computed as grids.
 #NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>
 
-(0.0, 11.109000000000002)----
+----
 
 
 #NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>
 
-(0.0, 5.0)----
+----
 
 
 #NO_DIFF#XXX
 ----<IPython.core.display.Javascript object>
 
-(0.0, 11.109000000000002)----
+----
 
 
 #NO_DIFF#XXX
