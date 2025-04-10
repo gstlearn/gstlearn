@@ -178,6 +178,23 @@ int MeshSpherical::reset(int ndim,
   return(0);
 }
 
+int MeshSpherical::_findBarycenter(const VectorDouble& target,
+                                   int nb_neigh,
+                                   VectorInt& neighs,
+                                   VectorDouble& weight) const
+{
+  for (int jm = 0; jm < nb_neigh; jm++)
+  {
+    int im                     = neighs[jm];
+    VectorVectorDouble corners = getCoordinatesPerMesh(im);
+    if (!GH::isInSphericalTriangleOptimized(target.data(),
+                                            corners[0].data(), corners[1].data(), corners[2].data(),
+                                            weight.data())) continue;
+    return im;
+  }
+  return -1;
+}
+
 /****************************************************************************/
 /*!
 **  Check if a point, defined by its coordinates, belongs to a Mesh

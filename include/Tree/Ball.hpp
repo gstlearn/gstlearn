@@ -54,11 +54,11 @@ public:
             double (*dist_function)(const double* x1,
                                     const double* x2,
                                     int n_features) = nullptr,
-            int leaf_size                     = 10,
-            int default_distance_function     = 1,
-            bool useSel                       = false);
+            int leaf_size                           = 10,
+            int default_distance_function           = 1,
+            bool useSel                             = false);
 
-            KNN query(const double** test,
+  KNN query(const double** test,
             int n_samples,
             int n_features,
             int n_neighbors = 1);
