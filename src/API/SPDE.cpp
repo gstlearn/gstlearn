@@ -723,6 +723,7 @@ void SPDE::_computeDriftCoeffs() const
     }
     _isCoeffsComputed = true;
   }
+  _model->setBetaHat(_driftCoeffs);
 }
 
 void SPDE::setDriftCoeffs(const VectorDouble& coeffs)
