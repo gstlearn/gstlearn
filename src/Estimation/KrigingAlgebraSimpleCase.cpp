@@ -351,6 +351,7 @@ void KrigingAlgebraSimpleCase::_deleteBeta()
 }
 void KrigingAlgebraSimpleCase::_deleteInvSigma()
 {
+  _deleteDual();
   _deleteLambdaSK();
   _deleteXtInvSigma();
   _invSigmaHasChanged = true;

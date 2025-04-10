@@ -336,7 +336,7 @@ void KrigingSystemSimpleCase::_estimateVarZ(int status, int iechout, KrigingAlge
 }
 
 
-void KrigingSystemSimpleCase::updateLHS(KrigingAlgebraSimpleCase& algebra)
+void KrigingSystemSimpleCase::updateLHS(KrigingAlgebraSimpleCase& algebra, ModelGeneric& model)
 {
 
   auto* Sigma       = algebra.getSigma();
@@ -345,10 +345,10 @@ void KrigingSystemSimpleCase::updateLHS(KrigingAlgebraSimpleCase& algebra)
   auto* sampleRanks = algebra.getSampleRanks();
   auto* nbgh        = algebra.getNbgh();
   _dbin->getSampleRanksInPlace(sampleRanks, VectorInt(), *nbgh);
-  _dbin->getValuesByRanksInPlace(Z, *sampleRanks, _means, !_model->hasDrift());
+  _dbin->getValuesByRanksInPlace(Z, *sampleRanks, _means, !model.hasDrift());
   _setInternalShortCutVariablesNeigh(*nbgh);
-  if (_model->evalCovMatSymInPlaceFromIdx(*Sigma, _dbin, *sampleRanks, nullptr, false)) return;
-  if (_model->evalDriftMatByRanks(*X, _dbin, *sampleRanks, ECalcMember::LHS)) return;
+  if (model.evalCovMatSymInPlaceFromIdx(*Sigma, _dbin, *sampleRanks, nullptr, false)) return;
+  if (model.evalDriftMatByRanks(*X, _dbin, *sampleRanks, ECalcMember::LHS)) return;
   algebra.updateSampleRanks();
   // if (algebra.setData(Z, sampleRanks, _meansTarget)) return;
 }
@@ -365,6 +365,7 @@ bool KrigingSystemSimpleCase::isReady()
 
   // Define the means of each variable
   _means = _model->getMeans();
+  _algebra.setMeans(_means);
   // Possible adjust the means in case of presence of 'matLC'
   _meansTarget = _means;
 
@@ -374,7 +375,7 @@ bool KrigingSystemSimpleCase::isReady()
   {
     auto* nbgh = _algebra.getNbgh();
     _neigh->select(0, *nbgh);
-    updateLHS(_algebra);
+    updateLHS(_algebra, *_model);
     _algebra.prepare();
   }
 
@@ -448,8 +449,13 @@ int KrigingSystemSimpleCase::estimate(int iechout,
   {
     auto* nbgh = algebra.getNbgh();
     neigh->select(iechout, *nbgh);
-    updateLHS(algebra);
-    status = _setInternalShortCutVariablesNeigh(*nbgh);
+    if (nbgh->size() <= 0)
+      return 0;
+    if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || OptDbg::force())
+    {
+      updateLHS(algebra,model);
+      status = _setInternalShortCutVariablesNeigh(*nbgh);
+    }
   }
 
   model.evalCovVecRHSInPlace(Sigma0->getViewOnColumnModify(0),
@@ -466,7 +472,7 @@ int KrigingSystemSimpleCase::estimate(int iechout,
 
   // Printout for debugging case
 
-  // if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || OptDbg::force())
+   //if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || OptDbg::force())
   if (OptDbg::force())
   {
     // LHS is not printed systematically... only when it has been modified

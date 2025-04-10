@@ -1172,8 +1172,8 @@ int KrigingAlgebra::_needLambdaUK() {
 
   MatrixRectangular p1(_neq, _nrhs);
   p1.prodMatMatInPlace(_XtInvSigma, _MuUK, true, false);
-  MatrixRectangular::sum(_LambdaSK, &p1, _LambdaUK);
-  //_LambdaUK->linearCombination(1., _LambdaSK, 1., &p1);
+  //MatrixRectangular::sum(_LambdaSK, &p1, _LambdaUK);
+  _LambdaUK->linearCombination(1., _LambdaSK, 1., &p1);
 
   return 0;
 }

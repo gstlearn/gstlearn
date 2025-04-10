@@ -66,7 +66,9 @@ public:
   // Adding a Row or a Column (at the bottom or right of Rectangular Matrix)
   void addRow(int nrow_added = 1);
   void addColumn(int ncolumn_added = 1);
+  #ifndef SWIG
   static void sum(const MatrixRectangular* mat1,
                    const MatrixRectangular* mat2,
                    MatrixRectangular* mat3);
+  #endif
 };

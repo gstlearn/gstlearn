@@ -74,6 +74,20 @@ Ball::Ball(const Db* dbin,
   free_2d_double(internal, n_samples);
 }
 
+Ball::Ball(const Ball& r)
+  : _tree(r._tree)
+{
+
+}
+
+Ball& Ball::operator=(const Ball& p)
+{
+  if (this != &p)
+  {
+    _tree = p._tree;
+  }
+  return *this;
+}
 void Ball::init(const Db* db,
                 double (*dist_function)(const double* x1,
                                         const double* x2,

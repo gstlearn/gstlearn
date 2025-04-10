@@ -3536,6 +3536,7 @@ void Db::getValuesByRanksInPlace(VectorDouble* values,
 {
   int nvar        = getNLoc(ELoc::Z);
   VectorInt jvars = VH::sequence(nvar);
+  values->clear();
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int jvar               = jvars[ivar];

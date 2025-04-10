@@ -309,7 +309,7 @@ int kriging(Db* dbin,
   if (krigopt.getCalcul() == EKrigOpt::POINT && 
       !krigopt.hasColcok() &&
       !krigopt.hasMatLC() && 
-      neighUnique != nullptr &&
+      //neighUnique != nullptr &&
       model->getNVar() == 1 && 
       OptCustom::query("NotOptimSimpleCase", 0) == 0)
   {

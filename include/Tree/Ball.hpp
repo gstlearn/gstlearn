@@ -44,8 +44,8 @@ public:
        bool has_constraints              = false,
        int default_distance_function     = 1,
        bool useSel                       = false);
-  Ball(const Ball& p)            = delete;
-  Ball& operator=(const Ball& p) = delete;
+  Ball(const Ball& r);
+  Ball& operator=(const Ball& p);
   virtual ~Ball();
 
   void init(const Db* db,

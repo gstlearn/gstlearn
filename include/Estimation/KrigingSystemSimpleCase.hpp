@@ -57,7 +57,7 @@ public:
   // The subsequent methods do not require isReady() validation
   int updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ, bool forceNoDual = false);
   bool isReady();
-  void updateLHS(KrigingAlgebraSimpleCase& algebra);
+  void updateLHS(KrigingAlgebraSimpleCase& algebra, ModelGeneric& model);
   int estimate(int iechout,
                SpacePoint& pin,
                SpacePoint& pout,
