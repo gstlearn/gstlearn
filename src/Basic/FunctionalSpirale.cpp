@@ -12,7 +12,7 @@
 
 #include "Db/Db.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/AFunctional.hpp"
@@ -105,10 +105,10 @@ double FunctionalSpirale::getFunctionValue(const VectorDouble& coor) const
  * @param coor 2-D coordinates of the target
  * @return
  */
-MatrixSquareGeneral FunctionalSpirale::getFunctionMatrix(const VectorDouble& coor) const
+MatrixSquare FunctionalSpirale::getFunctionMatrix(const VectorDouble& coor) const
 {
   int ndim = 2;
-  MatrixSquareGeneral dirs = MatrixSquareGeneral(ndim);
+  MatrixSquare dirs = MatrixSquare(ndim);
 
   double angle = getFunctionValue(coor) * GV_PI / 180.;
   double u1 = cos(angle);
@@ -143,7 +143,7 @@ VectorVectorDouble FunctionalSpirale::getFunctionVectors(const Db *db, const Cov
   for (int iech = 0; iech < nech; iech++)
   {
     VectorDouble coor = db->getSampleCoordinates(iech);
-    MatrixSquareGeneral rotmat = getFunctionMatrix(coor);
+    MatrixSquare rotmat = getFunctionMatrix(coor);
     hh.normMatrix(rotmat, temp);
 
     vec[0][iech] = hh.getValue(0,0);

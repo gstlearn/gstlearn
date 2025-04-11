@@ -449,7 +449,7 @@ private:
                                     const VectorDouble& x,
                                     const VectorDouble& y,
                                     double x0);
-  MatrixSquareGeneral _evalAverageDbIncr(Model *model,
+  MatrixSquare _evalAverageDbIncr(Model *model,
                                          const Db &db,
                                          const VectorDouble &incr = VectorDouble(),
                                          const CovCalcMode *mode = nullptr) const;
@@ -481,7 +481,7 @@ private:
   mutable MatrixDense   _DRFXA;
   mutable MatrixDense   _DRFGX;
   mutable MatrixDense   _DRFTAB;
-  mutable MatrixSquareGeneral _DRFXGX;
+  mutable MatrixSquare _DRFXGX;
 };
 
 GSTLEARN_EXPORT Vario_Order*

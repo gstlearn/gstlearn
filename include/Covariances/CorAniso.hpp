@@ -32,7 +32,7 @@
 #include <vector>
 
 class Rotation;
-class MatrixSquareGeneral;
+class MatrixSquare;
 class MatrixDense;
 class CovInternal;
 /**
@@ -164,8 +164,8 @@ public:
   double getRange(int idim) const { return getRanges()[idim]; }
   double getScale(int idim) const { return getScales()[idim]; }
   VectorDouble getAnisoAngles() const { return _aniso.getAngles(); }
-  const MatrixSquareGeneral& getAnisoRotMat() const { return _aniso.getMatrixDirect(); }
-  const MatrixSquareGeneral& getAnisoInvMat() const { return _aniso.getMatrixInverse(); }
+  const MatrixSquare& getAnisoRotMat() const { return _aniso.getMatrixDirect(); }
+  const MatrixSquare& getAnisoInvMat() const { return _aniso.getMatrixInverse(); }
   VectorDouble getAnisoCoeffs() const;
   double getAnisoAngles(int idim) const { return getAnisoAngles()[idim]; }
   double getAnisoRotMat(int idim, int jdim) const { return _aniso.getMatrixDirect().getValue(idim, jdim); }

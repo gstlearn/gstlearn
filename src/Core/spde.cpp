@@ -15,7 +15,7 @@
 #include "Enum/ELoadBy.hpp"
 
 #include "Matrix/MatrixFactory.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/NF_Triplet.hpp"
@@ -1182,8 +1182,8 @@ static void st_compute_blin(void)
 
     VectorDouble v1(ndimp, 0);
     VectorDouble v2(ndimp, 0);
-    MatrixSquareGeneral m(ndimp);
-    MatrixSquareGeneral tp = ut_pascal(ndimp);
+    MatrixSquare m(ndimp);
+    MatrixSquare tp = ut_pascal(ndimp);
 
     for (int idim = 0; idim < ndimp; idim++)
     {
@@ -2800,7 +2800,7 @@ MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, const double *units)
   flag_nostat=false;
   //flag_nostat = model->isNoStat();
   if (!flag_nostat) st_calcul_update();
-  MatrixSquareGeneral matu(4);
+  MatrixSquare matu(4);
   VectorDouble matw(16);
   VectorDouble matinvw(16);
 

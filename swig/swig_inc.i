@@ -264,9 +264,8 @@
   #include "Matrix/MatrixDense.hpp"
   #include "Matrix/MatrixSparse.hpp"
   #include "Matrix/LinkMatrixSparse.hpp"
-  #include "Matrix/AMatrixSquare.hpp"
+  #include "Matrix/MatrixSquare.hpp"
   #include "Matrix/NF_Triplet.hpp"
-  #include "Matrix/MatrixSquareGeneral.hpp"
   #include "Matrix/MatrixSymmetric.hpp"
   #include "Matrix/MatrixFactory.hpp"
   #include "Matrix/MatrixInt.hpp"
@@ -817,8 +816,8 @@
 
 %typemap(in, fragment="ToCpp") const MatrixDense&     (void *argp, MatrixDense mat),
                                const MatrixDense*     (void *argp, MatrixDense mat),
-                               const MatrixSquareGeneral&   (void *argp, MatrixSquareGeneral mat),
-                               const MatrixSquareGeneral*   (void *argp, MatrixSquareGeneral mat),
+                               const MatrixSquare&   (void *argp, MatrixSquare mat),
+                               const MatrixSquare*   (void *argp, MatrixSquare mat),
                                const MatrixSymmetric& (void *argp, MatrixSymmetric mat),
                                const MatrixSymmetric* (void *argp, MatrixSymmetric mat)
 {
@@ -973,7 +972,7 @@
 }
 
 //%typemap(out, fragment="FromCpp") MatrixDense, 
-//                                  MatrixSquareGeneral, 
+//                                  MatrixSquare, 
 //                                  MatrixSymmetric
 //{
 //  int errcode = matrixDenseFromCpp(&($result), $1);
@@ -996,7 +995,7 @@
 //}
 
 //%typemap(out, fragment="FromCpp") MatrixDense*,     MatrixDense&,
-//                                  MatrixSquareGeneral*,   MatrixSquareGeneral&,
+//                                  MatrixSquare*,   MatrixSquare&,
 //                                  MatrixSymmetric*, MatrixSymmetric&
 //{
 //  int errcode = matrixDenseFromCpp(&($result), *$1);

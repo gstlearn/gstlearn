@@ -15,7 +15,7 @@
 #include "Covariances/TabNoStat.hpp"
 #include "Covariances/TabNoStatSills.hpp"
 #include "LinearOp/CholeskyDense.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Model/CovInternal.hpp"
@@ -132,7 +132,7 @@ private:
 
   void _evalOptim(SpacePoint* p1A,
                   SpacePoint* p2A,
-                  MatrixSquareGeneral& mat,
+                  MatrixSquare& mat,
                   const CovCalcMode* mode) const;
 
   void _load(const SpacePoint& p, bool case1) const override;
@@ -145,9 +145,9 @@ private:
 
 protected:
   MatrixT<ParamInfo> _cholSillsInfo;
-  mutable MatrixSquareGeneral _cholSills;
+  mutable MatrixSquare _cholSills;
   mutable MatrixSymmetric _sillCur;
-  mutable MatrixSquareGeneral _workMat;
+  mutable MatrixSquare _workMat;
 
 private:
   ACov* _cor;

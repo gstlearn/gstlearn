@@ -15,7 +15,7 @@
 #include "geoslib_define.h"
 #include "Basic/AStringable.hpp"
 
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 
 class GSTLEARN_EXPORT Rotation: public AStringable /// TODO : public ASpaceObject
 {
@@ -25,18 +25,18 @@ public:
   Rotation& operator=(const Rotation& r);
   virtual ~Rotation();
 
-  static bool isMatrixRotation(const MatrixSquareGeneral& rotmat, bool verbose);
+  static bool isMatrixRotation(const MatrixSquare& rotmat, bool verbose);
 
   unsigned int getNDim() const { return _nDim; }
   bool isRotated() const { return _flagRot; }
-  const MatrixSquareGeneral& getMatrixDirect() const { return _rotMat; }
-  const MatrixSquareGeneral& getMatrixInverse() const { return _rotInv; }
+  const MatrixSquare& getMatrixDirect() const { return _rotMat; }
+  const MatrixSquare& getMatrixInverse() const { return _rotInv; }
   const VectorDouble& getAngles() const { return _angles; }
   double getAngle(int idim) const { return _angles[idim]; }
 
   void resetFromSpaceDimension(unsigned int ndim);
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  int setMatrixDirect(const MatrixSquareGeneral& rotmat);
+  int setMatrixDirect(const MatrixSquare& rotmat);
   int setMatrixDirectVec(const VectorDouble& rotmat);
   int setAngles(const VectorDouble& angles);
   void setIdentity();
@@ -65,6 +65,6 @@ private:
   unsigned int _nDim;
   bool _flagRot; // true if a Rotation is defined other than Identity
   VectorDouble    _angles;
-  MatrixSquareGeneral _rotMat;
-  MatrixSquareGeneral _rotInv;
+  MatrixSquare _rotMat;
+  MatrixSquare _rotInv;
 };

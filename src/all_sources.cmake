@@ -13,9 +13,8 @@ set(SRC
   Matrix/MatrixSparse.cpp
   Matrix/MatrixInt.cpp
   Matrix/MatrixDense.cpp
-  Matrix/AMatrixSquare.cpp
+  Matrix/MatrixSquare.cpp
   Matrix/MatrixSymmetric.cpp
-  Matrix/MatrixSquareGeneral.cpp
   Matrix/MatrixFactory.cpp
   Matrix/Table.cpp
   Matrix/NF_Triplet.cpp

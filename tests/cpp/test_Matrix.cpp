@@ -11,7 +11,7 @@
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixInt.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixFactory.hpp"
@@ -42,7 +42,7 @@ void st_invgen()
 
 void reset_to_initial_contents(AMatrix* M,
                                MatrixDense& MRR,
-                               MatrixSquareGeneral& MSG,
+                               MatrixSquare& MSG,
                                MatrixSymmetric& MSS,
                                MatrixSparse* MSP)
 {
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
   MRR.display();
 
   // To a square general matrix
-  MatrixSquareGeneral MSG(*M);
+  MatrixSquare MSG(*M);
   message("Matrix MSG\n");
   MSG.display();
 
@@ -327,7 +327,7 @@ int main(int argc, char *argv[])
   message("Calculate B=A^{-1}. Compute A*B and compare to Identity\n");
 
   AMatrix* Res;
-  MatrixSquareGeneral MSGref = MSG; // Used to perform A*A-1 and check Identity
+  MatrixSquare MSGref = MSG; // Used to perform A*A-1 and check Identity
   message("Reference Matrix\n");
   MSGref.display();
   MSG.invert();
@@ -395,7 +395,7 @@ int main(int argc, char *argv[])
   cx = 1.2;
   cy = -2.3;
   message("Making the linear combination of the matrix (multiplied by %f) and itself (multiplied by %lf)\n", cx, cy);
-  MatrixSquareGeneral MSG3(MSG);
+  MatrixSquare MSG3(MSG);
   MSG.addMatInPlace(MSG3, cx, cy);
   MSG.display();
 
@@ -443,7 +443,7 @@ int main(int argc, char *argv[])
   VH::dump("Resulting Vector", myColRes);
 
   message("Making the product of the matrix by itself\n");
-  MatrixSquareGeneral MSG2(MSG);
+  MatrixSquare MSG2(MSG);
   MSG.prodMatMatInPlace(&MSG2, &MSG2);
   MSG.display();
 
@@ -553,10 +553,10 @@ int main(int argc, char *argv[])
 
   int neq = 3;
   int neq2 = neq * neq;
-  MatrixSquareGeneral mat(neq);
+  MatrixSquare mat(neq);
   VectorDouble tab(neq2);
 
-  MatrixSquareGeneral a(neq);
+  MatrixSquare a(neq);
   a(0,0) = -1;
   a(0,1) =  0;
   a(0,2) =  3;
@@ -567,18 +567,18 @@ int main(int argc, char *argv[])
   a(2,1) =  0;
   a(2,2) = 20;
   a.display();
-  MatrixSquareGeneral ai(a);
+  MatrixSquare ai(a);
 
   // LU decomposition
-  MatrixSquareGeneral tl(neq);
-  MatrixSquareGeneral tu(neq);
+  MatrixSquare tl(neq);
+  MatrixSquare tu(neq);
 
   a.decomposeLU(tl, tu);
 
   tl.display();
   tu.display();
 
-  MatrixSquareGeneral res(neq);
+  MatrixSquare res(neq);
   res.prodMatMatInPlace(&tl, &tu);
   message("\nChecking the product\n");
   res.display();
@@ -613,13 +613,13 @@ int main(int argc, char *argv[])
   (void) MEig->computeEigen();
   VectorDouble eigVal = MEig->getEigenValues();
   VH::dump("Eigen Values (Eigen Library)", eigVal);
-  const MatrixSquareGeneral* eigVec = MEig->getEigenVectors();
+  const MatrixSquare* eigVec = MEig->getEigenVectors();
   eigVec->display();
 
   (void) MNoEig->computeEigen();
   VectorDouble eigNoVal = MNoEig->getEigenValues();
   VH::dump("Eigen Values (no Eigen Library)", eigNoVal);
-  const MatrixSquareGeneral* eigNoVec = MNoEig->getEigenVectors();
+  const MatrixSquare* eigNoVec = MNoEig->getEigenVectors();
   eigNoVec->display();
 
   // *********************
@@ -749,7 +749,7 @@ int main(int argc, char *argv[])
   // Extract the Generalized Eigen values and vectors (both matrix types)
   (void) MEig->computeGeneralizedEigen(*BEig);
   VectorDouble genEigVal = MEig->getEigenValues();
-  const MatrixSquareGeneral* genEigVec = MEig->getEigenVectors();
+  const MatrixSquare* genEigVec = MEig->getEigenVectors();
   VH::dump("Generalized Eigen Values (Eigen Library)", genEigVal);
   genEigVec->display();
   delete BEig;
@@ -762,7 +762,7 @@ int main(int argc, char *argv[])
 
   (void) MNoEig->computeGeneralizedEigen(*BNoEig);
   VectorDouble genEigNoVal = MNoEig->getEigenValues();
-  const MatrixSquareGeneral* genEigNoVec = MNoEig->getEigenVectors();
+  const MatrixSquare* genEigNoVec = MNoEig->getEigenVectors();
   VH::dump("Generalized Eigen Values (no Eigen Library)", genEigNoVal);
   genEigNoVec->display();
   delete BNoEig;

@@ -20,7 +20,7 @@
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Enum/EConsElem.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"

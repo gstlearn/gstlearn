@@ -13,7 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Matrix/AMatrixSquare.hpp"
+#include "Matrix/MatrixSquare.hpp"
 
 class AMatrix;
 class EOperator;
@@ -21,7 +21,7 @@ class EOperator;
 /**
  * Square Symmetric matrices
  */
-class GSTLEARN_EXPORT MatrixSymmetric : public AMatrixSquare {
+class GSTLEARN_EXPORT MatrixSymmetric : public MatrixSquare {
 
 public:
   MatrixSymmetric(int nrow = 0);
@@ -46,7 +46,7 @@ public:
   }
   void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true) override;
 
-  void normMatrix(const AMatrix& y, const AMatrixSquare& x = AMatrixSquare(), bool transpose = false);
+  void normMatrix(const AMatrix& y, const MatrixSquare& x = MatrixSquare(), bool transpose = false);
 
   static MatrixSymmetric* createFromVVD(const VectorVectorDouble &X);
   static MatrixSymmetric* createFromVD(const VectorDouble &X);

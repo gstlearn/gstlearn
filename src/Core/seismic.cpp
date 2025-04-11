@@ -39,7 +39,7 @@
 #define RHS(i,iv,jv)      (rhs [IND(i,iv) + neqmax * (jv)])
 /*! \endcond */
 
-static MatrixSquareGeneral covtab;
+static MatrixSquare covtab;
 static double DX, DZ;
 static int NX, NY, NZ, NVAR, NTRACE;
 static double VFACT = 1000.;
@@ -3069,7 +3069,7 @@ int seismic_estimate_XZ(DbGrid *db,
   if (ngh_cur == nullptr) goto label_end;
   ngh_old = st_estimate_neigh_management(1, nvois, ngh_old);
   if (ngh_old == nullptr) goto label_end;
-  covtab = MatrixSquareGeneral(NVAR);
+  covtab = MatrixSquare(NVAR);
   lhs = (double*) mem_alloc(sizeof(double) * size * size, 0);
   if (lhs == nullptr) goto label_end;
   rhs = (double*) mem_alloc(sizeof(double) * size * NVAR, 0);
@@ -3330,7 +3330,7 @@ int seismic_simulate_XZ(DbGrid *db,
   if (ngh_cur == nullptr) goto label_end;
   ngh_old = st_estimate_neigh_management(1, nvois, ngh_old);
   if (ngh_old == nullptr) goto label_end;
-  covtab = MatrixSquareGeneral(NVAR);
+  covtab = MatrixSquare(NVAR);
   lhs = (double*) mem_alloc(sizeof(double) * size * size, 0);
   if (lhs == nullptr) goto label_end;
   rhs = (double*) mem_alloc(sizeof(double) * size * NVAR, 0);

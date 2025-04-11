@@ -101,7 +101,7 @@ GSTLEARN_EXPORT int statisticsTransition(DbGrid *dbin,
 GSTLEARN_EXPORT VectorDouble dbStatisticsFacies(Db *db);
 GSTLEARN_EXPORT double dbStatisticsIndicator(Db *db);
 
-GSTLEARN_EXPORT MatrixSquareGeneral* sphering(const AMatrix* X);
+GSTLEARN_EXPORT MatrixSquare* sphering(const AMatrix* X);
 
 GSTLEARN_EXPORT VectorVectorInt correlationPairs(Db *db1,
                                                  Db *db2,

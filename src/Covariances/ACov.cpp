@@ -13,7 +13,7 @@
 #include "Covariances/CovContext.hpp"
 #include "Enum/ECalcMember.hpp"
 #include "Enum/EKrigOpt.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
@@ -447,23 +447,23 @@ VectorDouble ACov::evalIvarNlag(const VectorDouble& vec_step,
  * @param mode   CovCalcMode structure
  * @return
  */
-MatrixSquareGeneral ACov::evalNvarIpas(double step,
+MatrixSquare ACov::evalNvarIpas(double step,
                                        const VectorDouble& dir,
                                        const CovCalcMode* mode) const
 {
   int nvar = getNVar();
-  MatrixSquareGeneral mat(nvar);
+  MatrixSquare mat(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
       mat.setValue(ivar, jvar, evalIvarIpas(step, dir, ivar, jvar, mode));
   return mat;
 }
 
-MatrixSquareGeneral ACov::evalNvarIpasIncr(const VectorDouble& dincr,
+MatrixSquare ACov::evalNvarIpasIncr(const VectorDouble& dincr,
                                            const CovCalcMode* mode) const
 {
   int nvar = getNVar();
-  MatrixSquareGeneral mat(nvar);
+  MatrixSquare mat(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
       mat.setValue(ivar, jvar, evalIvarIpasIncr(dincr, ivar, jvar, mode));
@@ -518,12 +518,12 @@ VectorDouble ACov::evalIsoIvarNlag(const VectorDouble& vec_step,
  * @param mode CovCalcMode structure
  * @return
  */
-MatrixSquareGeneral ACov::evalIsoNvarIpas(double step,
+MatrixSquare ACov::evalIsoNvarIpas(double step,
                                           const CovCalcMode* mode) const
 {
   int nvar         = getNVar();
   VectorDouble dir = getUnitaryVector();
-  MatrixSquareGeneral mat(nvar);
+  MatrixSquare mat(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
       mat.setValue(ivar, jvar, evalIvarIpas(step, dir, ivar, jvar, mode));
@@ -817,13 +817,13 @@ double ACov::evalCvvShift(const VectorDouble& ext,
   return total;
 }
 
-MatrixSquareGeneral ACov::evalCvvM(const VectorDouble& ext,
+MatrixSquare ACov::evalCvvM(const VectorDouble& ext,
                                    const VectorInt& ndisc,
                                    const VectorDouble& angles,
                                    const CovCalcMode* mode) const
 {
   int nvar = getNVar();
-  MatrixSquareGeneral mat(nvar);
+  MatrixSquare mat(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
       mat.setValue(ivar, jvar, evalCvv(ext, ndisc, angles, ivar, jvar, mode));
@@ -917,7 +917,7 @@ double ACov::evalCxv(const Db* db,
   return total;
 }
 
-MatrixSquareGeneral ACov::evalCxvM(const SpacePoint& p1,
+MatrixSquare ACov::evalCxvM(const SpacePoint& p1,
                                    const VectorDouble& ext,
                                    const VectorInt& ndisc,
                                    const VectorDouble& angles,
@@ -925,7 +925,7 @@ MatrixSquareGeneral ACov::evalCxvM(const SpacePoint& p1,
                                    const CovCalcMode* mode) const
 {
   int nvar = getNVar();
-  MatrixSquareGeneral mat(nvar);
+  MatrixSquare mat(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
       mat.setValue(ivar, jvar, evalCxv(p1, ext, ndisc, angles, x0, ivar, jvar, mode));
@@ -2036,7 +2036,7 @@ VectorDouble ACov::evaluateFromDb(Db* db,
   /* Core allocation */
 
   VectorDouble d1(ndim, 0.);
-  MatrixSquareGeneral covtab(nvar);
+  MatrixSquare covtab(nvar);
   VectorDouble gg(nech, TEST);
 
   /* Loop on the lags */
@@ -2068,7 +2068,7 @@ VectorDouble ACov::evaluateFromDb(Db* db,
  *****************************************************************************/
 void ACov::evaluateMatInPlace(const CovInternal* covint,
                               const VectorDouble& d1,
-                              MatrixSquareGeneral& covtab,
+                              MatrixSquare& covtab,
                               bool flag_init,
                               double weight,
                               const CovCalcMode* mode) const
@@ -2079,7 +2079,7 @@ void ACov::evaluateMatInPlace(const CovInternal* covint,
                       covint->getIcas2(), covint->getIech2());
 
   // Evaluate the Model
-  MatrixSquareGeneral mat = evalNvarIpas(1., d1, mode);
+  MatrixSquare mat = evalNvarIpas(1., d1, mode);
 
   int nvar = getNVar();
   for (int ivar = 0; ivar < nvar; ivar++)
@@ -2126,7 +2126,7 @@ int ACov::buildVmapOnDbGrid(DbGrid* dbgrid, const NamingConvention& namconv) con
   VectorInt center = dbgrid->getCenterIndices();
   VectorDouble dincr(ndim);
   VectorInt indices(ndim);
-  MatrixSquareGeneral mat;
+  MatrixSquare mat;
   for (int iech = 0; iech < dbgrid->getNSample(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
@@ -2175,7 +2175,7 @@ double ACov::evaluateOneIncr(double hh,
   /* Core allocation */
 
   VectorDouble d1(ndim);
-  MatrixSquareGeneral covtab(nvar);
+  MatrixSquare covtab(nvar);
 
   /* Normalize the direction vector codir */
 
@@ -2225,7 +2225,7 @@ VectorDouble ACov::sample(const VectorDouble& h,
   /* Core allocation */
 
   VectorDouble d1(ndim);
-  MatrixSquareGeneral covtab(nvar);
+  MatrixSquare covtab(nvar);
 
   /* Get the normalized direction vector */
 

@@ -12,7 +12,7 @@
 #include "Basic/Timer.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 
 /****************************************************************************/
 /*!
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   int nx = 10000;
   int naffect = 5000000;
   VectorDouble vecS = VH::simulateUniform(nx * nx);
-  MatrixSquareGeneral matS(nx);
+  MatrixSquare matS(nx);
   matS.resetFromVD(nx, nx, vecS);
 
   mestitle(1, "Assigning values into a storage");

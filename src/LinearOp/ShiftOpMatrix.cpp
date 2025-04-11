@@ -13,7 +13,7 @@
 #include "Enum/EConsElem.hpp"
 #include "LinearOp/AShiftOp.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
@@ -489,7 +489,7 @@ void ShiftOpMatrix::_loadHHRegular(MatrixSymmetric &hh, int imesh)
   _updateCova(_getCovAniso(), imesh);
 
   // Calculate the current HH matrix (using local covariance parameters)
-  const MatrixSquareGeneral &rotmat = _getCovAniso()->getAnisoInvMat();
+  const MatrixSquare &rotmat = _getCovAniso()->getAnisoInvMat();
 
   VectorDouble diag = VH::power(_getCovAniso()->getScales(), 2.);
   MatrixSymmetric temp(ndim);
@@ -553,7 +553,7 @@ void ShiftOpMatrix::_loadHHGrad(const AMesh *amesh,
     // Locally update the covariance for non-stationarity (if necessary)
 
     _updateCova(_getCovAniso(), ipref);
-    const MatrixSquareGeneral &rotmat = _getCovAniso()->getAnisoRotMat();
+    const MatrixSquare &rotmat = _getCovAniso()->getAnisoRotMat();
     VectorDouble diag = VH::power(_getCovAniso()->getScales(), 2.);
 
     MatrixSymmetric temp(ndim);
@@ -572,7 +572,7 @@ void ShiftOpMatrix::_loadHHGrad(const AMesh *amesh,
       auto covaderiv = cloneAndCast(covini);
       _updateCova(covaderiv, ipref);
       _getCovAniso()->setAnisoAngle(ir, covaderiv->getAnisoAngles(ir) + 90.);
-      const MatrixSquareGeneral &drotmat = covaderiv->getAnisoRotMat();
+      const MatrixSquare &drotmat = covaderiv->getAnisoRotMat();
 
       VH::divideConstant(diag, 180. / GV_PI); // Necessary as angles are provided in degrees. Factor 2 is for derivative
       temp.setDiagonal(diag);
@@ -597,7 +597,7 @@ double ShiftOpMatrix::_computeGradLogDetHH(const AMesh *amesh,
   if (igparam < ndim)
   {
     _updateCova(_getCovAniso(), ipref);
-    const MatrixSquareGeneral &rotmat = _getCovAniso()->getAnisoRotMat();
+    const MatrixSquare &rotmat = _getCovAniso()->getAnisoRotMat();
     MatrixSymmetric temp(ndim);
     temp.setDiagonal(_getCovAniso()->getScales());
     for (int idim = 0; idim < ndim; idim++)
@@ -662,7 +662,7 @@ void ShiftOpMatrix::_loadAux(VectorDouble &tab, const EConsElem &type, int imesh
 
 int ShiftOpMatrix::_preparMatrices(const AMesh *amesh,
                                int imesh,
-                               MatrixSquareGeneral& matu,
+                               MatrixSquare& matu,
                                MatrixDense& matw) const
 {
   int ndim = _ndim;
@@ -758,7 +758,7 @@ int ShiftOpMatrix::_prepareMatricesSVariety(const AMesh *amesh,
 int ShiftOpMatrix::_prepareMatricesSphere(const AMesh *amesh,
                                       int imesh,
                                       VectorVectorDouble &coords,
-                                      AMatrixSquare &matMs,
+                                      MatrixSquare &matMs,
                                       double *deter) const
 {
   int ndim = getNDim();
@@ -813,7 +813,7 @@ int ShiftOpMatrix::_buildS(const AMesh *amesh, double tol)
   MatrixSymmetric matMtM(ncorner-1);
   MatrixDense matP(ncorner-1,ndim);
   MatrixDense matM(ndim, ncorner - 1);
-  MatrixSquareGeneral matMs(ndim);
+  MatrixSquare matMs(ndim);
   MatrixSymmetric matPinvHPt(ncorner-1);
   VectorVectorDouble coords = amesh->getEmbeddedCoordinatesPerMesh();
   double detMtM = 0.;
@@ -973,7 +973,7 @@ int ShiftOpMatrix::_buildSGrad(const AMesh *amesh, double tol)
   MatrixDense matM(ndim, ncorner - 1);
   MatrixSymmetric matMtM(ncorner-1);
   MatrixDense matP(ncorner-1,ndim);
-  MatrixSquareGeneral matMs(ndim);
+  MatrixSquare matMs(ndim);
   MatrixSymmetric matPGradHPt(ncorner-1);
   MatrixSymmetric matPHHPt(ncorner-1);
 

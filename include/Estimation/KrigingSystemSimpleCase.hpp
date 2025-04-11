@@ -19,7 +19,7 @@
 #include "Space/SpaceRN.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Neigh/ANeigh.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "LinearOp/CholeskyDense.hpp"
@@ -79,7 +79,7 @@ public:
   MatrixDense     getLHSF() const { return _Sigma0; }
   MatrixDense     getRHS() const { return _Sigma0; }
   MatrixDense     getRHSF() const { return _X0; }
-  MatrixSquareGeneral   getVariance() const { return _Sigma00; }
+  MatrixSquare   getVariance() const { return _Sigma00; }
   static MatrixDense     getWeights(KrigingAlgebraSimpleCase& algebra);
   static MatrixDense     getMu(KrigingAlgebraSimpleCase& algebra);
   double                getLTerm() const { return _algebra.getLTerm(); }
