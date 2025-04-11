@@ -164,7 +164,7 @@
   #include "LinearOp/ProjConvolution.hpp"
   #include "LinearOp/SPDEOp.hpp"
   #include "LinearOp/SPDEOpMatrix.hpp"
-  #include "LinearOp/MatrixSquareSymmetricSim.hpp"
+  #include "LinearOp/MatrixSymmetricSim.hpp"
   #include "LinearOp/ACholesky.hpp"
   #include "LinearOp/CholeskyDense.hpp"
   #include "LinearOp/CholeskySparse.hpp"
@@ -261,14 +261,13 @@
   #include "Drifts/DriftFactory.hpp"
   
   #include "Matrix/AMatrix.hpp"
-  #include "Matrix/AMatrixDense.hpp"
+  #include "Matrix/MatrixDense.hpp"
   #include "Matrix/MatrixSparse.hpp"
   #include "Matrix/LinkMatrixSparse.hpp"
   #include "Matrix/AMatrixSquare.hpp"
   #include "Matrix/NF_Triplet.hpp"
-  #include "Matrix/MatrixRectangular.hpp"
   #include "Matrix/MatrixSquareGeneral.hpp"
-  #include "Matrix/MatrixSquareSymmetric.hpp"
+  #include "Matrix/MatrixSymmetric.hpp"
   #include "Matrix/MatrixFactory.hpp"
   #include "Matrix/MatrixInt.hpp"
   #include "Matrix/Table.hpp"
@@ -816,12 +815,12 @@
   }
 }
 
-%typemap(in, fragment="ToCpp") const MatrixRectangular&     (void *argp, MatrixRectangular mat),
-                               const MatrixRectangular*     (void *argp, MatrixRectangular mat),
+%typemap(in, fragment="ToCpp") const MatrixDense&     (void *argp, MatrixDense mat),
+                               const MatrixDense*     (void *argp, MatrixDense mat),
                                const MatrixSquareGeneral&   (void *argp, MatrixSquareGeneral mat),
                                const MatrixSquareGeneral*   (void *argp, MatrixSquareGeneral mat),
-                               const MatrixSquareSymmetric& (void *argp, MatrixSquareSymmetric mat),
-                               const MatrixSquareSymmetric* (void *argp, MatrixSquareSymmetric mat)
+                               const MatrixSymmetric& (void *argp, MatrixSymmetric mat),
+                               const MatrixSymmetric* (void *argp, MatrixSymmetric mat)
 {
   // Try to convert from any target language vector
   int errcode = matrixDenseToCpp($input, mat);
@@ -973,32 +972,32 @@
     SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 }
 
-//%typemap(out, fragment="FromCpp") MatrixRectangular, 
+//%typemap(out, fragment="FromCpp") MatrixDense, 
 //                                  MatrixSquareGeneral, 
-//                                  MatrixSquareSymmetric
+//                                  MatrixSymmetric
 //{
 //  int errcode = matrixDenseFromCpp(&($result), $1);
 //  if (!SWIG_IsOK(errcode))
 //    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 //}
 
-//%typemap(out, fragment="FromCpp") MatrixRectangular* MatrixRectangular::create
+//%typemap(out, fragment="FromCpp") MatrixDense* MatrixDense::create
 //{
 //  int errcode = matrixDenseFromCppCreate(&($result), *$1);
 //  if (!SWIG_IsOK(errcode))
 //    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 //}
 
-//%typemap(out, fragment="FromCpp") MatrixRectangular& MatrixRectangular::create
+//%typemap(out, fragment="FromCpp") MatrixDense& MatrixDense::create
 //{
 //  int errcode = matrixDenseFromCppCreate(&($result), *$1);
 //  if (!SWIG_IsOK(errcode))
 //    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 //}
 
-//%typemap(out, fragment="FromCpp") MatrixRectangular*,     MatrixRectangular&,
+//%typemap(out, fragment="FromCpp") MatrixDense*,     MatrixDense&,
 //                                  MatrixSquareGeneral*,   MatrixSquareGeneral&,
-//                                  MatrixSquareSymmetric*, MatrixSquareSymmetric&
+//                                  MatrixSymmetric*, MatrixSymmetric&
 //{
 //  int errcode = matrixDenseFromCpp(&($result), *$1);
 //  if (!SWIG_IsOK(errcode))

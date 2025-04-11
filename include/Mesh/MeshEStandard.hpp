@@ -12,7 +12,7 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixInt.hpp"
 
 class MeshETurbo;
@@ -38,16 +38,15 @@ public:
   double  getCoor(int imesh, int rank, int idim) const override;
   double  getApexCoor(int i, int idim) const override;
   double  getMeshSize(int imesh) const override;
-  void    resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ = -1, bool verbose = false) const override;
   static MeshEStandard* createFromNF(const String& neutralFilename,
                                      bool verbose = true);
-  static MeshEStandard* createFromExternal(const MatrixRectangular& apices,
+  static MeshEStandard* createFromExternal(const MatrixDense& apices,
                                            const MatrixInt& meshes,
                                            bool verbose = false);
 
   VectorInt    getMeshList() const { return _meshes.getValues(); }
   VectorDouble getPointList(bool byCol = true) const;
-  int reset(const MatrixRectangular& apices,
+  int reset(const MatrixDense& apices,
             const MatrixInt& meshes,
             bool verbose = false);
   int reset(int ndim,
@@ -58,7 +57,7 @@ public:
             bool verbose = false);
   int resetFromTurbo(const MeshETurbo &turbo, bool verbose = false);
 
-  const MatrixRectangular& getApices() const { return _apices; }
+  const MatrixDense& getApices() const { return _apices; }
   const MatrixInt& getMeshes() const { return _meshes; }
 
 protected:
@@ -69,26 +68,10 @@ protected:
   void _defineBoundingBox(void);
 
 private:
-  VectorDouble _defineUnits() const;
-  VectorDouble _defineContainers() const;
-  bool _coorInMeshContainer(const VectorDouble& coor,
-                            int imesh,
-                            const VectorDouble& container) const;
   bool _coorInMesh(const VectorDouble& coor,
                    int imesh,
                    double meshsize,
                    VectorDouble& weights) const;
-  void _setContainer(VectorDouble &container,
-                     int imesh,
-                     int idim,
-                     double vmin,
-                     double vmax) const;
-  void _getContainer(const VectorDouble& container,
-                     int imesh,
-                     int idim,
-                     double* vmin,
-                     double* vmax) const;
-  void _printContainers(const VectorDouble& container) const;
   void _deallocate();
   int  _recopy(const MeshEStandard &m);
   void _checkConsistency() const;
@@ -96,6 +79,6 @@ private:
   void _validate();
 
 private:
-  MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim
+  MatrixDense _apices; // Dimension: NRow=napices; Ncol=Ndim
   MatrixInt         _meshes; // Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
 };

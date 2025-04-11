@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 
   // Creating the Model
   Model* model = Model::createFromParam(ECov::CUBIC, 0., 1., 1., {10., 45.},
-                                        MatrixSquareSymmetric(), {30., 0.});
+                                        MatrixSymmetric(), {30., 0.});
   model->display();
 
   // Creating the MeshTurbo which contains the Db

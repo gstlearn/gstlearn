@@ -11,8 +11,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/AMatrix.hpp"
 
 /**
@@ -35,9 +35,9 @@ public:
   KrigingAlgebra(bool flagDual                        = false,
                  const VectorVectorInt* sampleRanks   = nullptr,
                  const VectorDouble* Z                = nullptr,
-                 const MatrixSquareSymmetric* Sigma   = nullptr,
-                 const MatrixRectangular* X           = nullptr,
-                 const MatrixSquareSymmetric* Sigma00 = nullptr,
+                 const MatrixSymmetric* Sigma   = nullptr,
+                 const MatrixDense* X           = nullptr,
+                 const MatrixSymmetric* Sigma00 = nullptr,
                  const VectorDouble* Means            = nullptr);
   KrigingAlgebra(const KrigingAlgebra& r)            = delete;
   KrigingAlgebra& operator=(const KrigingAlgebra& r) = delete;
@@ -48,13 +48,13 @@ public:
   int setData(const VectorDouble* Z          = nullptr,
               const VectorVectorInt* indices = nullptr,
               const VectorDouble* Means      = nullptr);
-  int setLHS(const MatrixSquareSymmetric* Sigma = nullptr,
-             const MatrixRectangular* X         = nullptr);
-  int setRHS(const MatrixRectangular* Sigma0 = nullptr,
-             const MatrixRectangular* X0     = nullptr);
-  int setVariance(const MatrixSquareSymmetric* Sigma00 = nullptr);
+  int setLHS(const MatrixSymmetric* Sigma = nullptr,
+             const MatrixDense* X         = nullptr);
+  int setRHS(const MatrixDense* Sigma0 = nullptr,
+             const MatrixDense* X0     = nullptr);
+  int setVariance(const MatrixSymmetric* Sigma00 = nullptr);
   int setBayes(const VectorDouble* PriorMean         = nullptr,
-               const MatrixSquareSymmetric* PriorCov = nullptr);
+               const MatrixSymmetric* PriorCov = nullptr);
   int setXvalidUnique(const VectorInt* rankXvalidEqs  = nullptr,
                       const VectorInt* rankXvalidVars = nullptr);
   int setColCokUnique(const VectorDouble* Zp      = nullptr,
@@ -70,12 +70,12 @@ public:
   VectorDouble getStdv();
   VectorDouble getVarianceZstar();
   VectorDouble getPostMean();
-  const MatrixSquareSymmetric* getStdvMat();
-  const MatrixSquareSymmetric* getVarianceZstarMat();
-  const MatrixSquareSymmetric* getPostCov();
-  const MatrixRectangular*     getLambda();
-  const MatrixRectangular*     getLambda0();
-  const MatrixRectangular*     getMu();
+  const MatrixSymmetric* getStdvMat();
+  const MatrixSymmetric* getVarianceZstarMat();
+  const MatrixSymmetric* getPostCov();
+  const MatrixDense*     getLambda();
+  const MatrixDense*     getLambda0();
+  const MatrixDense*     getMu();
   double getLTerm();
   bool isDual() const { return _flagDual; }
 
@@ -135,7 +135,7 @@ private:
   int _needDual();
 
   int _patchRHSForXvalidUnique();
-  int _patchColCokVarianceZstar(MatrixSquareSymmetric* varZK);
+  int _patchColCokVarianceZstar(MatrixSymmetric* varZK);
 
   void _deleteX();
   void _deleteX0();
@@ -181,12 +181,12 @@ private:
 
 private:
   // Following information should not be removed in destructor
-  const MatrixSquareSymmetric* _Sigma00;  // Variance at Target (Dim: _nrhs * _nrhs)
-  const MatrixSquareSymmetric* _Sigma;    // Covariance Matrix (Dim: _neq * _neq)
-  const MatrixRectangular* _Sigma0;       // Covariance at Target (Dim: _neq * _nrhs)
-  const MatrixRectangular* _X;            // Drift at Data (Dim: _neq * _nbfl)
-  const MatrixRectangular* _X0;           // Drift at Target (Dim: _nrhs * _nbfl)
-  const MatrixSquareSymmetric* _PriorCov; // Bayesian Prior Covariance (Dim: _nbfl * _nbfl)
+  const MatrixSymmetric* _Sigma00;  // Variance at Target (Dim: _nrhs * _nrhs)
+  const MatrixSymmetric* _Sigma;    // Covariance Matrix (Dim: _neq * _neq)
+  const MatrixDense* _Sigma0;       // Covariance at Target (Dim: _neq * _nrhs)
+  const MatrixDense* _X;            // Drift at Data (Dim: _neq * _nbfl)
+  const MatrixDense* _X0;           // Drift at Target (Dim: _nrhs * _nbfl)
+  const MatrixSymmetric* _PriorCov; // Bayesian Prior Covariance (Dim: _nbfl * _nbfl)
   const VectorDouble* _Z;                 // Data [flattened] (Dim: _neq)
   const VectorDouble* _PriorMean;         // Prior Bayesian Mean (Dim: _nbfl)
   const VectorDouble* _Means;             // Fixed drift coefficients
@@ -199,38 +199,38 @@ private:
   // Following elements can be retrieved by Interface functions
   VectorDouble _Zstar;            // Estimated values (Dim: _nrhs)
   VectorDouble _Beta;             // Drift coefficients (Dim: _nbfl)
-  MatrixRectangular* _LambdaSK;   // Weights for SK (Dim: _neq * _nrhs)
-  MatrixRectangular* _LambdaUK;   // Weights for UK (Dim: _neq * _nrhs)
-  MatrixRectangular* _MuUK;       // Lagrange multipliers (Dim: _nbfl * _nrhs)
-  MatrixSquareSymmetric* _Stdv;   // Estimation stdv. (Dim: _nrhs * _nrhs)
-  MatrixSquareSymmetric* _VarZSK; // Estimator variance in SK (Dim: _nrhs * _nrhs)
-  MatrixSquareSymmetric* _VarZUK; // Estimator variance in UK (Dim: _nrhs * _nrhs)
+  MatrixDense* _LambdaSK;   // Weights for SK (Dim: _neq * _nrhs)
+  MatrixDense* _LambdaUK;   // Weights for UK (Dim: _neq * _nrhs)
+  MatrixDense* _MuUK;       // Lagrange multipliers (Dim: _nbfl * _nrhs)
+  MatrixSymmetric* _Stdv;   // Estimation stdv. (Dim: _nrhs * _nrhs)
+  MatrixSymmetric* _VarZSK; // Estimator variance in SK (Dim: _nrhs * _nrhs)
+  MatrixSymmetric* _VarZUK; // Estimator variance in UK (Dim: _nrhs * _nrhs)
 
   // Following elements are defined for internal storage
-  MatrixRectangular* _XtInvSigma;      // X^t * Inv{Sigma} (Dim: _nbfl * _neq);
-  MatrixRectangular* _Y0;              // X0 - LambdaSK * X^t (Dim: _nrhs * _nbfl)
-  MatrixRectangular* _InvSigmaSigma0;  // Inv{Sigma} * Sigma0 (Dim: _neq * _nrhs)
-  MatrixSquareSymmetric* _InvSigma;    // Inv{Sigma} (Dim: _neq * _neq)
-  MatrixSquareSymmetric* _Sigmac;      // Inv{X^t * Inv{Sigma} * X} (Dim: _nbfl * _nbfl)
-  MatrixSquareSymmetric* _InvPriorCov; // Inv{PriorCov} (Dim: _nbfl * _nbfl)
+  MatrixDense* _XtInvSigma;      // X^t * Inv{Sigma} (Dim: _nbfl * _neq);
+  MatrixDense* _Y0;              // X0 - LambdaSK * X^t (Dim: _nrhs * _nbfl)
+  MatrixDense* _InvSigmaSigma0;  // Inv{Sigma} * Sigma0 (Dim: _neq * _nrhs)
+  MatrixSymmetric* _InvSigma;    // Inv{Sigma} (Dim: _neq * _neq)
+  MatrixSymmetric* _Sigmac;      // Inv{X^t * Inv{Sigma} * X} (Dim: _nbfl * _nbfl)
+  MatrixSymmetric* _InvPriorCov; // Inv{PriorCov} (Dim: _nbfl * _nbfl)
 
   // Following elements are defined for internal storage (collocated case in UN)
-  MatrixSquareSymmetric* _Sigma00pp; // ColCok Variance T-T (Dim: _ncck * _ncck)
-  MatrixRectangular* _Sigma00p;      // ColCok Variance D-T (Dim: _ncck * _nrhs)
-  MatrixRectangular* _Sigma0p;       // Collocated Covariance (Dim: _neq * _ncck)
-  MatrixRectangular* _X0p;           // Collocated Drift (Dim: _ncck * _nbfl)
-  MatrixRectangular* _Y0p;           // X0p - Sigma0p^t * Inv{Sigma} * X (Dim: _ncck *_nbfl)
+  MatrixSymmetric* _Sigma00pp; // ColCok Variance T-T (Dim: _ncck * _ncck)
+  MatrixDense* _Sigma00p;      // ColCok Variance D-T (Dim: _ncck * _nrhs)
+  MatrixDense* _Sigma0p;       // Collocated Covariance (Dim: _neq * _ncck)
+  MatrixDense* _X0p;           // Collocated Drift (Dim: _ncck * _nbfl)
+  MatrixDense* _Y0p;           // X0p - Sigma0p^t * Inv{Sigma} * X (Dim: _ncck *_nbfl)
   VectorInt _rankColVars;            // Ranks of active collocated variables
   VectorDouble _Z0p;                 // Vector of (active) collocated values
-  MatrixRectangular* _Lambda0;       // Collocated weights (Dim: _ncck * _nrhs)
+  MatrixDense* _Lambda0;       // Collocated weights (Dim: _ncck * _nrhs)
 
   // Following elements are defined for Dual programming
   VectorDouble _bDual; // Fake Covariance part in Dual (Dim: _neq)
   VectorDouble _cDual; // Fake Drift part in Dual (Dim: _nbfl)
 
   // Following elements are defined for internal storage (Cross-validation in UN)
-  MatrixRectangular* _C_RHS; // Fictitious Right-hand side (covariance part)
-  MatrixRectangular* _X_RHS; // Fictitious Right-hand side (drift part)
+  MatrixDense* _C_RHS; // Fictitious Right-hand side (covariance part)
+  MatrixDense* _X_RHS; // Fictitious Right-hand side (drift part)
 
   // Additional parameters
   int _nvar;

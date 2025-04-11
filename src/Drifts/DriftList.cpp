@@ -494,11 +494,11 @@ VectorInt DriftList::_getActiveVariables(int ivar0) const
  ** \param[in]  member Member of the Kriging System (ECalcMember)
  **
  *****************************************************************************/
-MatrixRectangular DriftList::evalDriftMat(const Db* db,
+MatrixDense DriftList::evalDriftMat(const Db* db,
                                           const VectorInt& nbgh,
                                           const ECalcMember& member) const
 {
-  MatrixRectangular mat;
+  MatrixDense mat;
   VectorInt ivars = _getActiveVariables(-1);
   if (ivars.empty()) return mat;
 
@@ -506,7 +506,7 @@ MatrixRectangular DriftList::evalDriftMat(const Db* db,
   VectorVectorInt index = db->getSampleRanks(ivars, nbgh, true, true, true);
 
   int error = evalDriftMatByRanks(mat, db, index, member);
-  return (error == 0) ? mat : MatrixRectangular();
+  return (error == 0) ? mat : MatrixDense();
 }
 
 /**
@@ -519,7 +519,7 @@ MatrixRectangular DriftList::evalDriftMat(const Db* db,
  *
  * @return int Error returned code
  */
-int DriftList::evalDriftMatByRanks(MatrixRectangular& mat,
+int DriftList::evalDriftMatByRanks(MatrixDense& mat,
                                    const Db* db,
                                    const VectorVectorInt& sampleRanks,
                                    const ECalcMember& member) const
@@ -574,7 +574,7 @@ int DriftList::evalDriftMatByRanks(MatrixRectangular& mat,
  ** \param[in]  krigopt KrigOpt structure
  **
  *****************************************************************************/
-int DriftList::evalDriftMatByTarget(MatrixRectangular& mat,
+int DriftList::evalDriftMatByTarget(MatrixDense& mat,
                                     const Db* db,
                                     int iech2,
                                     const KrigOpt& krigopt) const

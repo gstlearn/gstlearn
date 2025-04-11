@@ -238,7 +238,7 @@ static int st_grid_fill_calculate(int ipos,
       int neq = ndim + 1;
       VectorInt indg(ndim, 0);
       VectorDouble coor(ndim, 0.);
-      MatrixSquareSymmetric a(neq);
+      MatrixSymmetric a(neq);
       VectorDouble b(neq);
       VectorDouble sol(neq);
       VectorDouble f(neq, 0.);

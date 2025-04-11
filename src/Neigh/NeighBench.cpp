@@ -14,14 +14,21 @@
 #include "Db/DbGrid.hpp"
 #include "Basic/OptDbg.hpp"
 
-NeighBench::NeighBench(bool flag_xvalid, double width, const ASpaceSharedPtr& space)
-    : ANeigh(space),
-      _width(width),
-      _biPtBench(),
-      _T1(space),
-      _T2(space)
+NeighBench::NeighBench(bool flag_xvalid,
+                       double width,
+                       bool useBallTree,
+                       int leaf_size,
+                       const ASpaceSharedPtr& space)
+  : ANeigh(space)
+  , _width(width)
+  , _biPtBench()
+  , _T1(space)
+  , _T2(space)
 {
   setFlagXvalid (flag_xvalid);
+
+  setBallSearch(useBallTree, leaf_size);
+
   _biPtBench = BiTargetCheckBench::create(-1, _width);
 }
 
@@ -94,9 +101,13 @@ bool NeighBench::_serialize(std::ostream& os, bool verbose) const
   return ret;
 }
 
-NeighBench* NeighBench::create(bool flag_xvalid, double width, const ASpaceSharedPtr& space)
+NeighBench* NeighBench::create(bool flag_xvalid,
+                               double width,
+                               bool useBallTree,
+                               int leaf_size,
+                               const ASpaceSharedPtr& space)
 {
-  return new NeighBench(flag_xvalid, width, space);
+  return new NeighBench(flag_xvalid, width, useBallTree, leaf_size, space);
 }
 
 /**

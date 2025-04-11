@@ -8,12 +8,10 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "LinearOp/ProjMatrix.hpp"
-#include "Matrix/NF_Triplet.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "Db/Db.hpp"
 #include "Basic/AException.hpp"
 
 MeshEStandard::MeshEStandard()
@@ -88,7 +86,7 @@ int MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
 
   // Dimension the members
 
-  _apices = MatrixRectangular(napices, ndim);
+  _apices = MatrixDense(napices, ndim);
   _meshes = MatrixInt(nmeshes, npermesh);
 
   // Load the apices;
@@ -129,7 +127,7 @@ int MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
 ** \param[in]  verbose         Verbose flag
 **
 *****************************************************************************/
-int MeshEStandard::reset(const MatrixRectangular& apices,
+int MeshEStandard::reset(const MatrixDense& apices,
                          const MatrixInt& meshes,
                          bool verbose)
 {
@@ -256,108 +254,6 @@ String MeshEStandard::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-/****************************************************************************/
-/*!
-** Returns the Sparse Matrix used to project a Db onto the Meshing
-**
-** \param[out] m         Projection matrix to be initialized
-** \param[in]  db        Db structure
-** \param[in]  rankZ     Rank of the Z-locator to be tested (see remarks)
-** \param[in]  verbose   Verbose flag
-**
-** \remarks If rankZ>=0, a sample is only considered if the value
-** \remarks of the corresponding variable is defined
-**
-*****************************************************************************/
-void MeshEStandard::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool verbose) const
-{
-  int nmeshes       = getNMeshes();
-  int ncorner       = getNApexPerMesh();
-
-  // Preliminary checks 
-
-  if (isCompatibleDb(db)) return;
-
-  /* Core allocation */
-
-  NF_Triplet NF_T;
-  VectorDouble weight(ncorner,0);
-  VectorDouble container = _defineContainers();
-  VectorDouble units = _defineUnits();
-  
-  /* Optional title */
-
-  if (verbose) mestitle(0,"Mesh Barycenter");
-
-  /* Loop on the samples */
-
-  int imesh0 = 0;
-  int ip_max = 0;
-  int iech = 0;
-  int nout = 0;
-  int nvalid = 0;
-  for (int jech=0; jech<db->getNSample(); jech++)
-  {
-    if (! db->isActive(jech)) continue;
-    if (rankZ >= 0)
-    {
-      double testval = db->getFromLocator(ELoc::Z, jech, rankZ);
-      if (FFFF(testval)) continue;
-    }
-
-    nvalid++;
-    VectorDouble coor = db->getSampleCoordinates(jech);
-    
-    /* Loop on the meshes */
-    
-    int found = -1;
-    for (int jmesh=0; jmesh<nmeshes; jmesh++)
-    {
-      int imesh = imesh0 + jmesh;
-      if (imesh >= nmeshes) imesh -= nmeshes;
-      if (! _coorInMeshContainer(coor,imesh,container)) continue;
-      if (! _coorInMesh(coor,imesh,units[imesh],weight)) continue;
-
-      /* Store the items in the sparse matrix */
-
-      if (verbose) message("Sample %4d in Mesh %4d :",jech+1,imesh+1);
-      for (int icorn=0; icorn<ncorner; icorn++)
-      {
-        int ip = getApex(imesh,icorn);
-        if (ip > ip_max) ip_max = ip;
-        if (verbose) message(" %4d (%4.2lf)",ip,weight[icorn]);
-        NF_T.add(iech,ip,weight[icorn]);
-      }
-      if (verbose) message("\n");
-      imesh0 = found = imesh;
-      break;
-    }
-
-    /* Printout if a point does not belong to any mesh */
-
-    if (found < 0)
-    {
-      nout++;
-      if (verbose)
-        messerr("Point %d does not belong to any mesh",jech+1);
-    }
-    iech++;
-  }
-  
-  /* Add the extreme value to force dimension */
-
-  if (ip_max < getNApices() - 1)
-    NF_T.force(nvalid, getNApices());
-  
-  /* Convert the triplet into a sparse matrix */
-
-  if (verbose && nout > 0)
-    messerr("%d / %d samples which do not belong to the Meshing",
-            nout, db->getNSample(true));
-
-  return m->resetFromTriplet(NF_T);
-}
-
 /**
  * Create a MeshEStandard by loading the contents of a Neutral File
  *
@@ -382,7 +278,7 @@ MeshEStandard* MeshEStandard::createFromNF(const String& neutralFilename, bool v
   return mesh;
 }
 
-MeshEStandard* MeshEStandard::createFromExternal(const MatrixRectangular &apices,
+MeshEStandard* MeshEStandard::createFromExternal(const MatrixDense &apices,
                                                  const MatrixInt &meshes,
                                                  bool verbose)
 {
@@ -426,86 +322,6 @@ double MeshEStandard::getApexCoor(int i, int idim) const
   return _apices(i, idim);
 }
 
-VectorDouble MeshEStandard::_defineUnits(void) const
-{
-  int nmeshes = getNMeshes();
-  VectorDouble units(nmeshes);
-  for (int imesh=0; imesh<nmeshes; imesh++)
-    units[imesh ] = getMeshSize(imesh);
-  return units;
-}
-
-/****************************************************************************/
-/*!
-**  Define the container for each mesh
-**
-** \return Pointer to the array containing the containers
-**
-*****************************************************************************/
-VectorDouble MeshEStandard::_defineContainers() const
-
-{
-  int ndim    = getNDim();
-  int nmesh   = getNMeshes();
-  int ncorner = getNApexPerMesh();
-  
-  /* Allocation */
-
-  VectorDouble container(2 * ndim * nmesh,0);
-  
-  /* Loop on the meshes */
-
-  for (int imesh=0; imesh<nmesh; imesh++)
-  {
-
-    /* Loop on the dimensions */
-    
-    for (int idim=0; idim<ndim; idim++)
-    {
-      double vmin =  1.e30;
-      double vmax = -1.e30;
-
-      /* Loop on the corners */
-      
-      for (int icorn=0; icorn<ncorner; icorn++)
-      {
-        double value = getCoor(imesh,icorn,idim);
-        if (value < vmin) vmin = value;
-        if (value > vmax) vmax = value;
-      }
-      _setContainer(container,imesh,idim,vmin,vmax);
-    }
-  }
-  return(container);  
-}
-
-/****************************************************************************/
-/*!
-**  Check if a point, defined by its coordinates, belong to the container
-**  of a Mesh
-**
-** \return true if the point belongs to the container; false otherwise
-**
-** \param[in]  coor      Array of target coordinates
-** \param[in]  imesh     Mesh Index
-** \param[in]  container Array of containers
-**
-*****************************************************************************/
-bool MeshEStandard::_coorInMeshContainer(const VectorDouble& coor,
-                                         int     imesh,
-                                         const VectorDouble& container) const
-{
-  double vmin,vmax;
-  
-  for (int idim=0; idim<getNDim(); idim++)
-  {
-    double center = coor[idim];
-    _getContainer(container,imesh,idim,&vmin,&vmax);
-    if ((center - vmin) * (center - vmax) > 0) return false;
-  }
-  return true;  
-}
-
 /****************************************************************************/
 /*!
 **  Check if a point, defined by its coordinates, belong to a Mesh
@@ -528,65 +344,6 @@ bool MeshEStandard::_coorInMesh(const VectorDouble& coor,
 {
   VectorVectorDouble corners = getCoordinatesPerMesh(imesh);
   return _weightsInMesh(coor, corners, meshsize, weights);
-}
-
-void MeshEStandard::_setContainer(VectorDouble& container,
-                                  int     imesh,
-                                  int     idim,
-                                  double  vmin,
-                                  double  vmax) const
-{
-  int ndim = getNDim();
-  container[(0) + 2*((idim) + ndim * (imesh))] = vmin;
-  container[(1) + 2*((idim) + ndim * (imesh))] = vmax;
-}
-
-void MeshEStandard::_getContainer(const VectorDouble& container,
-                                  int     imesh,
-                                  int     idim,
-                                  double *vmin,
-                                  double *vmax) const
-{
-  int ndim = getNDim();
-  *vmin = container[(0) + 2*((idim) + ndim * (imesh))];
-  *vmax = container[(1) + 2*((idim) + ndim * (imesh))];
-}
-
-void MeshEStandard::_printContainers(const VectorDouble& container) const
-{
-  int    ndim,nmesh,ncorner;
-  double vmin,vmax;
-
-  /* Initializations */
-
-  ndim    = getNDim();
-  nmesh   = getNMeshes();
-  ncorner = getNApexPerMesh();
-  
-  /* Loop on the meshes */
-
-  for (int imesh=0; imesh<nmesh; imesh++)
-  {
-    
-    /* Printing the mesh */
-    
-    message("Mesh #%d/%d\n",imesh+1,nmesh);
-    for (int icorn=0; icorn<ncorner; icorn++)
-    {
-      for (int idim=0; idim<ndim; idim++)
-        message(" %lf",getCoor(imesh,icorn,idim));
-      message("\n");
-    }
-          
-    /* Printing the container */
-    
-    message(" Container\n");
-    for (int idim=0; idim<ndim; idim++)
-    {
-      _getContainer(container,imesh,idim,&vmin,&vmax);
-      message(" %lf - %lf\n",vmin,vmax);
-    }
-  }
 }
 
 void MeshEStandard::_deallocate()
@@ -639,7 +396,7 @@ bool MeshEStandard::_deserialize(std::istream& is, bool verbose)
   {
     VectorDouble apices_local;
     ret = ret && _recordReadVec<double>(is, "Apices", apices_local, napices * ndim);
-    _apices = MatrixRectangular(napices, ndim);
+    _apices = MatrixDense(napices, ndim);
     _apices.setValues(apices_local);
   }
 

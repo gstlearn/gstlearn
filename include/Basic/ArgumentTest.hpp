@@ -13,9 +13,9 @@
 #include "gstlearn_export.hpp"
 #include "Enum/AEnum.hpp"
 #include "Basic/Utilities.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
 #define ENUM_TESTS ETests, CASE0,\
@@ -85,13 +85,13 @@ GSTLEARN_EXPORT void argumentDefTestVString(const VectorString& argVString = Vec
 GSTLEARN_EXPORT void argumentDefTestVVInt(VectorVectorInt argVVInt = VectorVectorInt());
 GSTLEARN_EXPORT void argumentDefTestVVDbl(VectorVectorDouble argVVDbl = VectorVectorDouble());
 
-GSTLEARN_EXPORT void argumentTestMatrixRectangular(const MatrixRectangular& mat = MatrixRectangular());
+GSTLEARN_EXPORT void argumentTestMatrixDense(const MatrixDense& mat = MatrixDense());
 GSTLEARN_EXPORT void argumentTestMatrixSquareGeneral(const MatrixSquareGeneral& mat = MatrixSquareGeneral());
-GSTLEARN_EXPORT void argumentTestMatrixSquareSymmetric(const MatrixSquareSymmetric& mat = MatrixSquareSymmetric());
+GSTLEARN_EXPORT void argumentTestMatrixSymmetric(const MatrixSymmetric& mat = MatrixSymmetric());
 
-GSTLEARN_EXPORT MatrixRectangular argumentReturnMatrix(int nrows = 2,
-                                                       int ncols = 3,
-                                                       int seed  = 1312);
+GSTLEARN_EXPORT MatrixDense argumentReturnMatrix(int nrows = 2,
+                                                 int ncols = 3,
+                                                 int seed  = 1312);
 
 GSTLEARN_EXPORT void argumentTestMatrixSparse(const MatrixSparse& mat = MatrixSparse());
 GSTLEARN_EXPORT MatrixSparse argumentReturnMatrixSparse(int nrows = 2,

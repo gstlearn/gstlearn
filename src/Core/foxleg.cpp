@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
@@ -60,7 +60,7 @@ static void st_gradient(VectorDouble &param,
                         VectorDouble &upper,
                         VectorDouble &scale,
                         VectorDouble &tabwgt,
-                        MatrixRectangular& Jr,
+                        MatrixDense& Jr,
                         VectorDouble &param1,
                         VectorDouble &param2,
                         VectorDouble &tabmod1,
@@ -146,7 +146,7 @@ static double st_residuals(VectorDouble &param,
  ** \param[out] gauss     Gaussian matrix
  **
  *****************************************************************************/
-static void st_determine_gauss(MatrixRectangular& Jr, MatrixSquareGeneral& gauss)
+static void st_determine_gauss(MatrixDense& Jr, MatrixSquareGeneral& gauss)
 {
   for (int ipar = 0; ipar < NPAR; ipar++)
     for (int jpar = 0; jpar < NPAR; jpar++)
@@ -220,7 +220,7 @@ static int st_solve_hgnc(int npar,
 {
   VectorDouble tempMatVD(npar * npar,0.);
   VectorDouble tempVec(npar,0.);
-  MatrixSquareSymmetric tempMat(npar);
+  MatrixSymmetric tempMat(npar);
   double eps = EPSILON10;
 
   double signe = (flaginvsign) ? -1 : 1.;
@@ -269,7 +269,7 @@ static int st_solve_hgnc(int npar,
  ** \param[out] gauss      matrix of the system
  **
  *****************************************************************************/
-static void st_fill_constraints(const MatrixRectangular& acont,
+static void st_fill_constraints(const MatrixDense& acont,
                                 VectorDouble &grad,
                                 MatrixSquareGeneral& gauss)
 {
@@ -311,10 +311,10 @@ static int st_calcul0(VectorDouble &param,
                       VectorDouble &lower,
                       VectorDouble &upper,
                       VectorDouble &scale,
-                      const MatrixRectangular& acont,
+                      const MatrixDense& acont,
                       VectorDouble &tabwgt,
                       VectorDouble &residuals,
-                      MatrixRectangular& Jr,
+                      MatrixDense& Jr,
                       VectorDouble &grad,
                       MatrixSquareGeneral& gauss,
                       VectorDouble &hgnc,
@@ -346,7 +346,7 @@ static int st_calcul0(VectorDouble &param,
  **
  *****************************************************************************/
 static int st_possibilities(int npar,
-                            MatrixRectangular &bords,
+                            MatrixDense &bords,
                             VectorDouble &ai,
                             VectorDouble &hgnc,
                             VectorInt &flag,
@@ -386,10 +386,10 @@ static int st_possibilities(int npar,
  **
  *****************************************************************************/
 static int st_define_constraints(int mode,
-                                 MatrixRectangular &bords_red,
+                                 MatrixDense &bords_red,
                                  VectorDouble &ai_red,
                                  VectorDouble &hgnc,
-                                 MatrixRectangular &consts,
+                                 MatrixDense &consts,
                                  VectorInt &flag,
                                  VectorDouble &temp)
 {
@@ -458,7 +458,7 @@ static int st_define_constraints(int mode,
 *****************************************************************************/
 static void st_minimum(VectorInt& /*ind_util*/,
                        VectorInt& flag,
-                       MatrixRectangular& bords_red,
+                       MatrixDense& bords_red,
                        const VectorDouble& top,
                        const VectorDouble& bot,
                        VectorDouble& hgnc,
@@ -503,9 +503,9 @@ static void st_minimum(VectorInt& /*ind_util*/,
  ** \param[out]  bords_red Reduced Bounds array
  **
  *****************************************************************************/
-static void st_update_bords(MatrixRectangular &bords,
+static void st_update_bords(MatrixDense &bords,
                             VectorInt &ind_util,
-                            MatrixRectangular &bords_red)
+                            MatrixDense &bords_red)
 {
   for (int ic = 0; ic < 2; ic++)
   {
@@ -542,13 +542,13 @@ static void st_update_bords(MatrixRectangular &bords,
  ** \param[out]  temp       Working array
  **
  *****************************************************************************/
-static int st_suppress_unused_constraints(MatrixRectangular &bords,
+static int st_suppress_unused_constraints(MatrixDense &bords,
                                           VectorDouble &ai,
                                           VectorDouble &grad,
                                           MatrixSquareGeneral& gauss,
                                           VectorDouble &hgnc,
                                           VectorInt &ind_util,
-                                          MatrixRectangular &bords_red,
+                                          MatrixDense &bords_red,
                                           VectorDouble &ai_red,
                                           VectorDouble &grad_red,
                                           MatrixSquareGeneral& gauss_red,
@@ -670,7 +670,7 @@ static int st_suppress_unused_constraints(MatrixRectangular &bords,
 static int st_establish_minimization(int nactive,
                                      VectorInt& ind_util,
                                      VectorInt &flag_active,
-                                     MatrixRectangular &bords_red,
+                                     MatrixDense &bords_red,
                                      VectorDouble &ai_red,
                                      VectorDouble &grad_red,
                                      MatrixSquareGeneral &gauss_red,
@@ -751,7 +751,7 @@ static int st_establish_minimization(int nactive,
  *****************************************************************************/
 static void st_check(VectorInt &ind_util,
                      VectorDouble &hgnc,
-                     const MatrixRectangular& acont)
+                     const MatrixDense& acont)
 {
   double temp;
   int ipar, icont, iparac;
@@ -796,11 +796,11 @@ static void st_check(VectorInt &ind_util,
  **
  *****************************************************************************/
 static int st_minimization_under_constraints(VectorInt &ind_util,
-                                             MatrixRectangular &bords_red,
+                                             MatrixDense &bords_red,
                                              VectorDouble &ai_red,
                                              VectorDouble &grad_red,
                                              MatrixSquareGeneral& gauss_red,
-                                             MatrixRectangular &consts,
+                                             MatrixDense &consts,
                                              VectorDouble &hgnc,
                                              VectorDouble &hgnadm,
                                              VectorInt &flag_active,
@@ -810,7 +810,7 @@ static int st_minimization_under_constraints(VectorInt &ind_util,
                                              VectorDouble &b2,
                                              VectorDouble &b3,
                                              VectorDouble &temp,
-                                             const MatrixRectangular& acont)
+                                             const MatrixDense& acont)
 {
   int iparac, nactaux, sortie, nactive, lambda_neg;
   double min_adm_cur, min_adm_best;
@@ -941,7 +941,7 @@ static void st_define_bounds(VectorDouble &param,
                              VectorDouble &upper,
                              VectorDouble &scale,
                              double delta,
-                             MatrixRectangular &bords)
+                             MatrixDense &bords)
 {
   double dloc, diff;
   int ipar;
@@ -1067,10 +1067,10 @@ static void st_foxleg_score(const Option_AutoFit &mauto,
  *****************************************************************************/
 static void st_linear_interpolate(double mscur,
                                   VectorDouble &param,
-                                  const MatrixRectangular& acont,
+                                  const MatrixDense& acont,
                                   VectorDouble &tabexp,
                                   VectorDouble &tabwgt,
-                                  MatrixRectangular &bords,
+                                  MatrixDense &bords,
                                   VectorDouble &grad,
                                   double *msaux,
                                   VectorDouble &paramaux,
@@ -1198,7 +1198,7 @@ static int st_check_param(VectorDouble &param,
 int foxleg_f(int ndat,
              int npar,
              int ncont,
-             const MatrixRectangular& acont,
+             const MatrixDense& acont,
              VectorDouble &param,
              VectorDouble &lower,
              VectorDouble &upper,
@@ -1254,10 +1254,10 @@ int foxleg_f(int ndat,
   MatrixSquareGeneral a(NPCT2);
   MatrixSquareGeneral gauss(NPCT);
   MatrixSquareGeneral gauss_red(NPCT);
-  MatrixRectangular Jr(NDAT, NPAR);
-  MatrixRectangular consts(2,NPAR);
-  MatrixRectangular bords(2,NPAR);
-  MatrixRectangular bords_red(2,NPAR);
+  MatrixDense Jr(NDAT, NPAR);
+  MatrixDense consts(2,NPAR);
+  MatrixDense bords(2,NPAR);
+  MatrixDense bords_red(2,NPAR);
 
   /* Preliminary check */
 

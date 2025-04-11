@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Estimation/KrigOpt.hpp"
 #include "Enum/EKrigOpt.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/DbGrid.hpp"
@@ -97,7 +97,7 @@ double KrigOpt::getMatLCValue(int ivarcl, int ivar) const
  * @remarks The number of Rows of 'matLC' is the number of Output variables
  * @remarks The number of Columns of 'matLC' is the number of input Variables.
  */
-int KrigOpt::setMatLC(const MatrixRectangular* matLC)
+int KrigOpt::setMatLC(const MatrixDense* matLC)
 {
   _matLC = matLC;
   return 0;

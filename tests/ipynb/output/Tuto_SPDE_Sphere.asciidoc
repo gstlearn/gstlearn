@@ -93,18 +93,97 @@ For more details on the covariances on sphere, see
 #NO_DIFF#XXX
 ----
 #NO_DIFF#XXX
+
+Theoretical variance = 1.9943
 ----
 
 
 #NO_DIFF#XXX
 ----
-#NO_DIFF#XXX
+Data Base Characteristics
+=========================
 
-Theoretical variance 1.994317114145671
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 4000
+
+Variables
+---------
+Column = 0 - Name = x - Locator = x1
+Column = 1 - Name = y - Locator = x2
+Column = 2 - Name = sizes - Locator = NA
+Column = 3 - Name = colors - Locator = NA
+Column = 4 - Name = simu - Locator = z1----
+
+
+#NO_DIFF#XXX
+----
+
 ----
 
 
 #NO_DIFF#XXX
 ----
+
+Ball Tree
+=========
+- Number of samples = 320
+- Number of Features = 2
+- Number of levels = 5
+- Number of nodes = 31
+- Size of leaf = 10
+----
+
+
 #NO_DIFF#XXX
+----
+
+----
+
+
+#NO_DIFF#XXX
+----
+
+----
+
+
+#NO_DIFF#XXX
+----
+
+Vertices used in the projection matrix
+--------------------------------------
+(Display is limited to 30 samples)
+Sample   0:   94 [ 0.37]  96 [ 0.50] 141 [ 0.12]
+Sample   1:   24 [ 0.38]  83 [ 0.50] 110 [ 0.12]
+Sample   2:   45 [ 0.25] 111 [ 0.12] 146 [ 0.62]
+Sample   3:  109 [ 0.37] 133 [ 0.25] 144 [ 0.38]
+Sample   4:   44 [ 0.13]  95 [ 0.25] 121 [ 0.62]
+Sample   5:   31 [ 0.62] 143 [ 0.38]
+Sample   6:   60 [ 0.25] 126 [ 0.50] 138 [ 0.25]
+Sample   7:   91 [ 0.13] 108 [ 0.75] 113 [ 0.13]
+Sample   8:   37 [ 0.50] 116 [ 0.25] 133 [ 0.25]
+Sample   9:   55 [ 0.25]  79 [ 0.25]  81 [ 0.50]
+Sample  10:    8 [ 0.62]  96 [ 0.25] 141 [ 0.12]
+Sample  11:  116 [ 0.62] 133 [ 0.12] 148 [ 0.25]
+Sample  12:   27 [ 0.12]  74 [ 0.25] 158 [ 0.62]
+Sample  13:    5 [ 0.37]  27 [ 0.50] 101 [ 0.13]
+Sample  14:  138 [ 1.00]
+Sample  15:    5 [ 0.62]  27 [ 0.25]  56 [ 0.13]
+Sample  16:   75 [ 0.00] 114 [ 0.75] 118 [ 0.25]
+Sample  17:   44 [ 0.38]  95 [ 0.62] 121 [ 0.00]
+Sample  18:   32 [ 0.62]  75 [ 0.38]
+Sample  19:   25 [ 0.12]  30 [ 0.25]  66 [ 0.63]
+Sample  20:   52 [ 0.37]  54 [ 0.50]  97 [ 0.12]
+Sample  21:  125 [ 0.00] 142 [ 0.37] 161 [ 0.63]
+Sample  22:   46 [ 0.13] 105 [ 0.75] 137 [ 0.13]
+Sample  23:   16 [ 0.25]  19 [ 0.37]  57 [ 0.38]
+Sample  24:    1 [ 0.12]  51 [ 0.12]  76 [ 0.75]
+Sample  25:    3 [ 0.25]  63 [ 0.12]  83 [ 0.63]
+Sample  26:    3 [ 0.38]  12 [ 0.37]  24 [ 0.25]
+Sample  27:   10 [ 0.25]  23 [ 0.62]  51 [ 0.13]
+Sample  28:   28 [ 0.50]  68 [ 0.12]  94 [ 0.37]
+Sample  29:   52 [ 0.25]  67 [ 0.75]
 ----

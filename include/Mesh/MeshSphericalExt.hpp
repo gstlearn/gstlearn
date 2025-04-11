@@ -24,10 +24,10 @@ public:
   MeshSphericalExt& operator=(const MeshSphericalExt &m);
   virtual ~MeshSphericalExt();
 
-  int resetFromDb(Db *dbin,
-                  Db *dbout,
-                  const String &triswitch = "nqQ",
-                  bool verbose = false);
+  int resetFromDb(Db* dbin,
+                   Db* dbout,
+                   const String& triswitch = "nqQ",
+                   bool verbose            = false);
   static AMesh* spde_mesh_load(Db* dbin,
                                Db* dbout                = nullptr,
                                const VectorDouble& gext = VectorDouble(),

@@ -144,11 +144,11 @@ int main(int argc, char *argv[])
     message("Results are different: Result = %lf; Ref = %lf\n",result, result_ref);
 
   message("- using matrix algebra\n");
-  MatrixRectangular mata;
+  MatrixDense mata;
   mata.resetFromVD(1, nsize, a);
-  MatrixRectangular matb;
+  MatrixDense matb;
   matb.resetFromVD(nsize, 1, b);
-  MatrixRectangular res(1,1);
+  MatrixDense res(1,1);
   timer.reset();
   for (int itime = 0; itime < ntimes; itime++)
   {

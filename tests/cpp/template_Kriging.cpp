@@ -80,11 +80,11 @@ int main(int argc, char* argv[])
 
   // Perform Kriging 'by hand'
   mestitle(0, "Kriging constructed 'by hand'");
-  MatrixSquareSymmetric Sigma00 = model->eval0Mat();
+  MatrixSymmetric Sigma00 = model->eval0Mat();
   if (verbose) Sigma00.dumpStatistics("C00 Matrix");
-  MatrixSquareSymmetric Sigma   = model->evalCovMatSym(dbin);
+  MatrixSymmetric Sigma   = model->evalCovMatSym(dbin);
   if (verbose) Sigma.dumpStatistics("LHS: Covariance part");
-  MatrixRectangular X           = model->evalDriftMat(dbin);
+  MatrixDense X           = model->evalDriftMat(dbin);
   if (verbose) X.dumpStatistics("LHS: Drift part");
 
   VectorVectorInt sampleRanks   = dbin->getSampleRanks();
@@ -94,8 +94,8 @@ int main(int argc, char* argv[])
   Kcalc.setData(&Z, &sampleRanks);
   Kcalc.setLHS(&Sigma, &X);
   Kcalc.setVariance(&Sigma00);
-  MatrixRectangular Sigma0;
-  MatrixRectangular X0;
+  MatrixDense Sigma0;
+  MatrixDense X0;
   KrigOpt krigopt;
 
   // Loop on the target sites

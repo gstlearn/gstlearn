@@ -15,7 +15,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include <vector>
 
 #define EVALOP(IN,OUT,TAB,getmat,OP,IY,COMPUTEOP,XORY,START,END,IVAR,JVAR) \
@@ -278,7 +278,7 @@ int PrecisionOpMulti::_buildLocalMatricesNoStat(int icov)
   for (int imesh = 0; imesh < nvertex; imesh++)
   {
     cova->updateCovByMesh(imesh,false);
-    MatrixSquareSymmetric sills = cova->getSill();
+    MatrixSymmetric sills = cova->getSill();
     CholeskyDense sillsChol(&sills);
     if (! sillsChol.isReady()) return 1;
 

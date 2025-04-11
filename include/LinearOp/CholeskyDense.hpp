@@ -21,25 +21,25 @@
   #include <Eigen/src/Core/Matrix.h>
 #endif
 
-class MatrixSquareSymmetric;
-class MatrixRectangular;
+class MatrixSymmetric;
+class MatrixDense;
 
 class GSTLEARN_EXPORT CholeskyDense: public ACholesky
 {
 public:
-  CholeskyDense(const MatrixSquareSymmetric* mat = nullptr);
+  CholeskyDense(const MatrixSymmetric* mat = nullptr);
   CholeskyDense(const CholeskyDense &m);
   CholeskyDense& operator=(const CholeskyDense &m);
   virtual ~CholeskyDense();
 
-  int setMatrix(const MatrixSquareSymmetric* mat);
+  int setMatrix(const MatrixSymmetric* mat);
   double computeLogDeterminant() const override;
 
   VectorDouble getLowerTriangle() const;
   double getLowerTriangle(int i, int j) const;
   VectorDouble getUpperTriangleInverse() const;
   double getUpperTriangleInverse(int i, int j) const;
-  void solveMatInPlace(const MatrixRectangular& mat, MatrixRectangular& res) const;
+  void solveMatInPlace(const MatrixDense& mat, MatrixDense& res) const;
   int addSolveX(const constvect vecin, vect vecout) const override;
   int addInvLtX(const constvect vecin, vect vecout) const override;
   int addLtX(const constvect vecin, vect vecout) const override;
@@ -47,12 +47,12 @@ public:
   int addInvLX(const constvect vecin, vect vecout) const override;
 
   void matProductInPlace(int mode,
-                         const MatrixRectangular& a,
-                         MatrixRectangular& x);
+                         const MatrixDense& a,
+                         MatrixDense& x);
   void normMatInPlace(int mode,
                       int neq,
-                      const MatrixSquareSymmetric& a,
-                      MatrixSquareSymmetric& b);
+                      const MatrixSymmetric& a,
+                      MatrixSymmetric& b);
   void clear();
   bool empty() const;
 private:

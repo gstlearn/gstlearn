@@ -503,7 +503,7 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh) const
   int ndrift = drft->getNDrift();
   VectorDouble X(ndrift);
   VectorDouble B(ndrift);
-  MatrixSquareSymmetric A(ndrift);
+  MatrixSymmetric A(ndrift);
 
   /* Loop on the targets to be processed */
 
@@ -820,7 +820,7 @@ double CalcSimpleInterpolation::_stdevCalc(Db* dbin,
   double c0x       = VH::innerProduct(M0x, weights);
 
   // Covariance between Data and Data
-  MatrixRectangular Mxx = getModel()->evalCovMat(dbin, dbin, 0, 0, nbgh, nbgh);
+  MatrixDense Mxx = getModel()->evalCovMat(dbin, dbin, 0, 0, nbgh, nbgh);
   double cxx = Mxx.quadraticMatrix(weights, weights);
 
   double result = sqrt(c00 - 2. * c0x + cxx);

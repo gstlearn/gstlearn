@@ -27,7 +27,7 @@ class Selectivity;
 class DbGrid;
 class NeighImage;
 class EMorpho;
-class MatrixSquareSymmetric;
+class MatrixSymmetric;
 class MatrixSparse;
 
 /****************************************/
@@ -40,7 +40,7 @@ int _krigsim(Db* dbin,
              ANeigh* neigh,
              bool flag_bayes,
              const VectorDouble& dmean,
-             const MatrixSquareSymmetric& dcov,
+             const MatrixSymmetric& dcov,
              int icase,
              int nbsimu,
              bool flag_dgm);

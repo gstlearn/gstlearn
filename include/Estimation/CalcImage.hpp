@@ -55,7 +55,7 @@ private:
   bool _filterImage(DbGrid* dbgrid, const ModelCovList* model);
   static DbGrid* _buildMarpat(const NeighImage* neigh,
                               const VectorVectorInt& ranks,
-                              const MatrixRectangular& wgt,
+                              const MatrixDense& wgt,
                               int optionVerbose = 0);
   static VectorVectorInt _getActiveRanks(const DbGrid* dblocal);
 

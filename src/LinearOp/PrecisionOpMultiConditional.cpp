@@ -11,7 +11,7 @@
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "geoslib_define.h"
 #include <functional>
@@ -377,7 +377,7 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, c
   _allocate(4);
   int xsize = static_cast<int>(X.size());
   VectorDouble XtInvSigmaZ(static_cast<int>(xsize));
-  MatrixSquareSymmetric XtInvSigmaX(xsize);
+  MatrixSymmetric XtInvSigmaX(xsize);
   VectorDouble result(xsize);
 
   for(int i = 0; i< xsize; i++)

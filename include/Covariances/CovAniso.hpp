@@ -19,7 +19,7 @@
 #include "Enum/ECov.hpp"
 #include "Covariances/CorAniso.hpp"
 #include "Basic/ICloneable.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/Tensor.hpp"
 #include "Covariances/ACovFunc.hpp"
 #include "Covariances/CovContext.hpp"
@@ -28,7 +28,7 @@
 
 class Rotation;
 class MatrixSquareGeneral;
-class MatrixRectangular;
+class MatrixDense;
 class CovInternal;
 /**
  * \brief
@@ -88,14 +88,14 @@ public:
   bool isValidForTurningBand() const;
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const;
   bool isValidForSpectral() const;
-  MatrixRectangular simulateSpectralOmega(int nb) const;
+  MatrixDense simulateSpectralOmega(int nb) const;
 
   static CovAniso* createFromParam(const ECov& type,
                                    double range,
                                    double sill,
                                    double param,
                                    const VectorDouble& ranges,
-                                   const MatrixSquareSymmetric& sills,
+                                   const MatrixSymmetric& sills,
                                    const VectorDouble& angles,
                                    const ASpaceSharedPtr& space,
                                    bool flagRange);
@@ -115,13 +115,13 @@ public:
   static CovAniso* createIsotropicMulti(const CovContext& ctxt,
                                         const ECov& type,
                                         double range,
-                                        const MatrixSquareSymmetric& sills,
+                                        const MatrixSymmetric& sills,
                                         double param   = 1.,
                                         bool flagRange = true);
   static CovAniso* createAnisotropicMulti(const CovContext& ctxt,
                                           const ECov& type,
                                           const VectorDouble& ranges,
-                                          const MatrixSquareSymmetric& sills,
+                                          const MatrixSymmetric& sills,
                                           double param               = 1.,
                                           const VectorDouble& angles = VectorDouble(),
                                           bool flagRange             = true);

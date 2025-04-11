@@ -276,7 +276,7 @@
     return myres;
   }
 
-  int matrixDenseToCpp(PyObject* obj, MatrixRectangular& mat)
+  int matrixDenseToCpp(PyObject* obj, MatrixDense& mat)
   {
     mat.resize(0, 0);
     if (obj == NULL) return SWIG_TypeError;
@@ -665,7 +665,7 @@
     return myres;
   }
 
-  int matrixDenseFromCpp(PyObject** obj, const AMatrixDense& mat)
+  int matrixDenseFromCpp(PyObject** obj, const MatrixDense& mat)
   {
     // Conversion to a 2D numpy array
     npy_intp dims[2] = { mat.getNRows(), mat.getNCols() };
@@ -684,9 +684,9 @@
     return SWIG_OK;
   }
 
-  int matrixDenseFromCppCreate(PyObject** obj, const MatrixRectangular& mat)
+  int matrixDenseFromCppCreate(PyObject** obj, const MatrixDense& mat)
   {
-    *obj = SWIG_NewPointerObj((void*) new MatrixRectangular(mat), SWIGTYPE_p_MatrixRectangular, 0);
+    *obj = SWIG_NewPointerObj((void*) new MatrixDense(mat), SWIGTYPE_p_MatrixDense, 0);
     int myres = (*obj) == NULL ? SWIG_TypeError : SWIG_OK;
     return myres;
   }

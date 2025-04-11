@@ -11,7 +11,7 @@
 #include "geoslib_old_f.h"
 
 #include "Basic/Utilities.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Memory.hpp"
 #include "Core/Keypair.hpp"
@@ -114,7 +114,7 @@ static int st_reference_define(Db *db, int *iptr_init, Surf_Def *surf_reference)
 {
   double x, y, z;
   VectorDouble gg(3, 0.);
-  MatrixSquareSymmetric mat(3);
+  MatrixSymmetric mat(3);
 
   /* Calculate the center of gravity */
 

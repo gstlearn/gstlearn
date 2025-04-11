@@ -11,7 +11,7 @@
 #pragma once
 
 #include "Mesh/AMesh.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixInt.hpp"
 
 /**
@@ -20,7 +20,7 @@
 class GSTLEARN_EXPORT MeshSpherical : public AMesh
 {
 public:
-  MeshSpherical(const MatrixRectangular& apices = MatrixRectangular(),
+  MeshSpherical(const MatrixDense& apices = MatrixDense(),
                 const MatrixInt& meshes = MatrixInt());
   MeshSpherical(const MeshSpherical &m);
   MeshSpherical& operator= (const MeshSpherical &m);
@@ -39,11 +39,12 @@ public:
   int     getEmbeddedNDim() const override { return 3; }
   void    getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const override;
   void    getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const override;
+  void    getBarycenterInPlace(int imesh, VectorDouble& coord) const override;
 
-  static MeshSpherical* createFromNF(const String &neutralFilename,
+  static MeshSpherical* createFromNF(const String& neutralFilename,
                                      bool verbose = true);
-  static MeshSpherical* create(const MatrixRectangular &apices = MatrixRectangular(),
-                               const MatrixInt &meshes = MatrixInt());
+  static MeshSpherical* create(const MatrixDense& apices = MatrixDense(),
+                               const MatrixInt& meshes         = MatrixInt());
 
   int reset(int ndim,
             int napexpermesh,
@@ -51,10 +52,9 @@ public:
             const VectorInt &meshes,
             bool byCol,
             bool verbose = false);
-  void resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ = -1, bool verbose = false) const override;
   int  getVariety() const override { return 1; }
 
-  const MatrixRectangular& getApices() const { return _apices; }
+  const MatrixDense& getApices() const { return _apices; }
   const MatrixInt& getMeshes() const { return _meshes; }
   VectorVectorInt getMeshesAsVVI() const {return _meshes.getMatrix();}
 
@@ -67,16 +67,19 @@ protected:
 private:
   void _defineBoundingBox();
   VectorDouble _defineUnits() const;
-  bool _coorInMesh(const VectorDouble& coor,
-                   int imesh,
-                   double meshsize,
-                   VectorDouble& weights,
-                   bool flag_approx = true) const;
   int _recopy(const MeshSpherical &m);
   static double _closestValue(double ref, double coor, double period);
   void _checkConsistency() const;
+  bool _weightsInMesh(const VectorDouble& coor,
+                      const VectorVectorDouble& corners,
+                      double meshsize,
+                      VectorDouble& weights,
+                      double eps = EPSILON5) const override;
+  static void _getCoordOnSphere(double longitude,
+                                double latitude,
+                                VectorDouble& coords);
 
 private:
-  MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim(=2)
+  MatrixDense _apices; // Dimension: NRow=napices; Ncol=Ndim(=2)
   MatrixInt         _meshes; // Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
 };

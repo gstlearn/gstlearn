@@ -851,7 +851,7 @@ int simpgs(Db* dbin,
     situba.setFlagAllocationAlreadyDone(true);
     local_seed = 0;
     if (situba.simulate(dbin, dbout, models[igrf], neigh, icase, false,
-                        VectorDouble(), MatrixSquareSymmetric(), true)) goto label_end;
+                        VectorDouble(), MatrixSymmetric(), true)) goto label_end;
   }
 
   /* Convert gaussian to facies at target point */
@@ -1279,7 +1279,7 @@ int simbipgs(Db *dbin,
       situba.setFlagAllocationAlreadyDone(true);
       local_seed = 0;
       if (situba.simulate(dbin, dbout, models[ipgs][igrf], neigh, icase, false,
-                          VectorDouble(), MatrixSquareSymmetric(), true)) goto label_end;
+                          VectorDouble(), MatrixSymmetric(), true)) goto label_end;
     }
 
     /* Convert gaussian to facies at target point */
@@ -2612,7 +2612,7 @@ int simcond(Db *dbin,
   {
     CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
     if (situba.simulate(dbin, dbout, model, neighU, 0, false,
-                        VectorDouble(), MatrixSquareSymmetric(), false, true)) goto label_end;
+                        VectorDouble(), MatrixSymmetric(), false, true)) goto label_end;
   }
 
   /* Free the temporary variables not used anymore */
@@ -2830,7 +2830,7 @@ static int st_getFLUID(const DbGrid* dbgrid, int nfluids, int indFluid, int iech
 ** \param[in]  verbose       1 for a verbose option
 **
 *****************************************************************************/
-MatrixRectangular fluid_extract(DbGrid *dbgrid,
+MatrixDense fluid_extract(DbGrid *dbgrid,
                                 const String& name_facies,
                                 const String& name_fluid,
                                 const String& name_poro,
@@ -2844,7 +2844,7 @@ MatrixRectangular fluid_extract(DbGrid *dbgrid,
                                 double dtime,
                                 bool verbose)
 {
-  MatrixRectangular tab;
+  MatrixDense tab;
   if (! dbgrid->isGrid())
   {
     messerr("The Fluid Propagation is restricted to regular grid");
@@ -2886,7 +2886,7 @@ MatrixRectangular fluid_extract(DbGrid *dbgrid,
 
   /* Initialize the array */
 
-  tab = MatrixRectangular(ntime, 4);
+  tab = MatrixDense(ntime, 4);
   int nxyz    = dbgrid->getNSample();
   for (int itime = 0; itime < ntime; itime++)
   {

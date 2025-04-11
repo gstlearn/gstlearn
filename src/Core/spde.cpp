@@ -1506,7 +1506,7 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
   if (S_DECIDE.flag_mesh_dbin && !flag_nugget)
   {
     nugval = silltot / 1000.;
-    MatrixSquareSymmetric sill(nvar);
+    MatrixSymmetric sill(nvar);
     for (int ivar = 0; ivar < nvar; ivar++)
       sill.setValue(ivar, ivar, nugval);
     model->addCovFromParam(ECov::NUGGET, 0., 0., 0., VectorDouble(), sill);
@@ -2669,8 +2669,8 @@ static void st_triangle_center(AMesh *amesh,
   for (int icorn = 0; icorn < ncorner; icorn++)
   {
     GH::convertSph2Cart(amesh->getCoor(imesh, icorn, 0),
-                        amesh->getCoor(imesh, icorn, 1), &xyz[icorn][0],
-                        &xyz[icorn][1], &xyz[icorn][2]);
+                        amesh->getCoor(imesh, icorn, 1), 
+                        &xyz[icorn][0], &xyz[icorn][1], &xyz[icorn][2]);
     for (int i = 0; i < 3; i++)
       center[i] += xyz[icorn][i];
   }
@@ -5273,7 +5273,7 @@ void spde_mesh_assign(AMesh *amesh,
 
   delete amesh;
 
-  MatrixRectangular apices;
+  MatrixDense apices;
   apices.reset(nvertex,ndim);
   apices.setValues(arg_points, true);
 

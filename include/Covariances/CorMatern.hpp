@@ -10,10 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Tensor.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CorAniso.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 #include "Basic/ICloneable.hpp"
@@ -75,7 +74,7 @@ private:
                                //_corMatern)
     VectorDouble _params; //parameters of the Matern correlation function
     
-    MatrixSquareSymmetric _corMax;
+    MatrixSymmetric _corMax;
     VectorDouble _angles; 
   
 

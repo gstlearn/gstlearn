@@ -79,7 +79,7 @@ typedef struct
   VectorInt indg;
   VectorInt indg0;
   VectorDouble data; // Dimension: nech
-  MatrixRectangular weight; // Dimension: nech * 4
+  MatrixDense weight; // Dimension: nech * 4
 } Pot_Ext;
 
 static int TAB_DRF[9];
@@ -345,7 +345,7 @@ static int st_extdrift_create_model(Pot_Ext *pot_ext)
  ** \param[out] number     Matrix dimension
  **
  *****************************************************************************/
-static MatrixRectangular st_extdrift_establish(Pot_Ext *pot_ext, int number)
+static MatrixDense st_extdrift_establish(Pot_Ext *pot_ext, int number)
 {
   double covar = 0.;
   VectorDouble covGp(3, 0.);
@@ -353,7 +353,7 @@ static MatrixRectangular st_extdrift_establish(Pot_Ext *pot_ext, int number)
 
   /* Establish the kriging matrix */
 
-  MatrixRectangular b(number,4);
+  MatrixDense b(number,4);
 
   /* Establish the Right-Hand side */
 
@@ -399,10 +399,10 @@ static int st_extdrift_calc_init(DbGrid *dbout, Pot_Ext *pot_ext)
 
   /* Solve the kriging system */
 
-  MatrixSquareSymmetric a = pot_ext->model->evalCovMatSym(pot_ext->db);
+  MatrixSymmetric a = pot_ext->model->evalCovMatSym(pot_ext->db);
   if (a.invert()) return 1;
 
-  MatrixRectangular b = st_extdrift_establish(pot_ext, number);
+  MatrixDense b = st_extdrift_establish(pot_ext, number);
 
   a.prodMatMatInPlace(&b, &pot_ext->weight);
 
@@ -952,7 +952,7 @@ static double setMatUAV(int ndim,
  ** \param[in] value    Value to be assigned to this cell
  **
  *****************************************************************************/
-static void setRhs(MatrixRectangular& rhs, int i, int isol, double value)
+static void setRhs(MatrixDense& rhs, int i, int isol, double value)
 {
   if (i < 0 || isol < 0) return;
   rhs.setValue(i, isol, value);
@@ -968,7 +968,7 @@ static void setRhs(MatrixRectangular& rhs, int i, int isol, double value)
  ** \param[in] value    Value to be assigned to this cell
  **
  *****************************************************************************/
-static void setLhs(MatrixSquareSymmetric& lhs, int i, int j, double value)
+static void setLhs(MatrixSymmetric& lhs, int i, int j, double value)
 {
   if (i < 0 || j < 0) return;
   lhs.setValue(i, j, value);
@@ -985,7 +985,7 @@ static void setLhs(MatrixSquareSymmetric& lhs, int i, int j, double value)
  ** \param[in] j        Column number
  **
  *****************************************************************************/
-static double getLhs(MatrixSquareSymmetric& lhs, int i, int j)
+static double getLhs(MatrixSymmetric& lhs, int i, int j)
 {
   if (i < 0 || j < 0) return (0.);
   return lhs.getValue(i,j);
@@ -1135,7 +1135,7 @@ static int st_build_lhs(Pot_Env *pot_env,
                         Model *model,
                         double nugget_grd,
                         double nugget_tgt,
-                        MatrixSquareSymmetric& lhs)
+                        MatrixSymmetric& lhs)
 {
   double extval, extval1, extval2;
 
@@ -1547,7 +1547,7 @@ static void st_fill_dual_simulation(Pot_Env *pot_env,
                                     Db *dbgrd,
                                     Db *dbtgt,
                                     int nbsimu,
-                                    MatrixRectangular& zvals)
+                                    MatrixDense& zvals)
 {
   int ndim = dbgrd->getNDim();
   zvals.fill(0.);
@@ -1609,7 +1609,7 @@ static void st_fill_dual_simulation(Pot_Env *pot_env,
  ** \param[in,out] rhs        Array for the R.H.S.
  **
  *****************************************************************************/
-static void st_rhs_part(Pot_Env *pot_env, MatrixRectangular& rhs)
+static void st_rhs_part(Pot_Env *pot_env, MatrixDense& rhs)
 {
   int nequa = pot_env->nequa;
   int opt_part = pot_env->opt_part;
@@ -1682,7 +1682,7 @@ static void st_build_rhs(Pot_Env *pot_env,
                          DbGrid *dbgrid,
                          Model *model,
                          VectorDouble& coor,
-                         MatrixRectangular& rhs)
+                         MatrixDense& rhs)
 {
   double extval = 0.;
   double covar = 0.;
@@ -1876,7 +1876,7 @@ static void st_calc_point(Pot_Env *pot_env,
                           DbGrid *dbgrid,
                           Model *model,
                           VectorDouble& zdual,
-                          MatrixRectangular& rhs,
+                          MatrixDense& rhs,
                           Db *db_target,
                           int iech0,
                           VectorDouble& result)
@@ -1981,7 +1981,7 @@ static void st_estimate_result(Pot_Env *pot_env,
                                Model *model,
                                double refpot,
                                VectorDouble& zdual,
-                               MatrixRectangular& rhs,
+                               MatrixDense& rhs,
                                double *potval)
 {
   VectorDouble result(4);
@@ -2030,7 +2030,7 @@ static void st_estimate_data(Pot_Env *pot_env,
                              Model *model,
                              double refpot,
                              VectorDouble& zdual,
-                             MatrixRectangular& rhs,
+                             MatrixDense& rhs,
                              Db *db_target,
                              VectorInt& uid_pot,
                              VectorInt& uid_grad)
@@ -2101,8 +2101,8 @@ static void st_dist_convert(Pot_Env *pot_env,
                             int ic0,
                             int j0,
                             VectorDouble& zval,
-                            MatrixSquareSymmetric& lhs_orig_arg,
-                            MatrixRectangular& rhs_arg,
+                            MatrixSymmetric& lhs_orig_arg,
+                            MatrixDense& rhs_arg,
                             double *dist_euc,
                             double *dist_geo)
 {
@@ -2122,12 +2122,12 @@ static void st_dist_convert(Pot_Env *pot_env,
 
   VectorDouble lhs_orig = lhs_orig_arg.getValues();
   VectorDouble rhs;
-  MatrixSquareSymmetric* lhs_aux = nullptr;
-  MatrixRectangular* rhs_red = nullptr;
+  MatrixSymmetric* lhs_aux = nullptr;
+  MatrixDense* rhs_red = nullptr;
 
   /* Update the L.H.S. by dropping the current data point */
 
-  lhs_aux = dynamic_cast<MatrixSquareSymmetric*>
+  lhs_aux = dynamic_cast<MatrixSymmetric*>
     (MatrixFactory::createReduceOne(&lhs_orig_arg, icol0, icol0, false, false));
 
   /* Invert the new LHS */
@@ -2146,7 +2146,7 @@ static void st_dist_convert(Pot_Env *pot_env,
   for (int idim = 0; idim < pot_env->ndim; idim++)
     coor0[idim] = ISO_COO(ic0, 0, idim);
   st_build_rhs(pot_env, pot_ext, 0, nullptr, model, coor0, rhs_arg);
-  rhs_red = dynamic_cast<MatrixRectangular*>
+  rhs_red = dynamic_cast<MatrixDense*>
     (MatrixFactory::createReduceOne(&rhs_arg,icol0, -1, false, false));
   rhs_red->prodVecMatInPlace(zdual_red, result);
 //  double potval = result[0]; // TODO: check why is potval not used
@@ -2157,7 +2157,7 @@ static void st_dist_convert(Pot_Env *pot_env,
   for (int idim = 0; idim < pot_env->ndim; idim++)
     coor0[idim] = coor[idim] = ISO_COO(ic0, j0, idim);
   st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor0, rhs_arg);
-  rhs_red = dynamic_cast<MatrixRectangular*>
+  rhs_red = dynamic_cast<MatrixDense*>
     (MatrixFactory::createReduceOne(&rhs_arg,icol0, -1, false, false));
   rhs_red->prodVecMatInPlace(zdual_red, result);
   delete rhs_red;
@@ -2184,7 +2184,7 @@ static void st_dist_convert(Pot_Env *pot_env,
       dgeo[idim] += delta * delta;
     }
     st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor, rhs_arg);
-    rhs_red = dynamic_cast<MatrixRectangular*>
+    rhs_red = dynamic_cast<MatrixDense*>
       (MatrixFactory::createReduceOne(&rhs_arg,icol0, -1, false, false));
     rhs_red->prodVecMatInPlace(zdual_red, result);
     delete rhs_red;
@@ -2245,11 +2245,11 @@ static void st_xvalid_potential(Pot_Env *pot_env,
                                 Db *dbgrd,
                                 Db *dbtgt,
                                 Model *model,
-                                MatrixSquareSymmetric& lhs,
+                                MatrixSymmetric& lhs,
                                 bool flag_dist_conv,
                                 VectorDouble& zval,
-                                MatrixSquareSymmetric& lhs_orig,
-                                MatrixRectangular& rhs,
+                                MatrixSymmetric& lhs_orig,
+                                MatrixDense& rhs,
                                 VectorDouble& zdual)
 {
   DECLARE_UNUSED(zdual);
@@ -2465,8 +2465,8 @@ static void st_simcond(Pot_Env *pot_env,
                        double refpot,
                        double *potsim,
                        VectorDouble& zdual,
-                       MatrixRectangular& zduals,
-                       MatrixRectangular& rhs)
+                       MatrixDense& zduals,
+                       MatrixDense& rhs)
 {
   VectorDouble resest(4), result(4);
 
@@ -2587,7 +2587,7 @@ static void st_check_data(Pot_Env *pot_env,
                           int nbsimu,
                           double refpot,
                           VectorDouble& zdual,
-                          MatrixRectangular& rhs)
+                          MatrixDense& rhs)
 {
   VectorDouble result(4);
 
@@ -2734,7 +2734,7 @@ static double st_evaluate_refpot(Pot_Env *pot_env,
                                  DbGrid *dbgrid,
                                  Model *model,
                                  VectorDouble& zdual,
-                                 MatrixRectangular& rhs)
+                                 MatrixDense& rhs)
 {
   if (dbiso == nullptr) return (TEST);
   VectorDouble result(4);
@@ -2779,7 +2779,7 @@ static void st_evaluate_potval(Pot_Env *pot_env,
                                int isimu,
                                int nbsimu,
                                VectorDouble& zdual,
-                               MatrixRectangular& rhs,
+                               MatrixDense& rhs,
                                double *potval)
 {
   if (dbiso == nullptr) return;
@@ -2900,8 +2900,8 @@ int potential_kriging(Db *dbiso,
   Pot_Ext pot_ext;
   VectorDouble zval;
   VectorDouble zdual;
-  MatrixRectangular rhs;
-  MatrixSquareSymmetric lhs;
+  MatrixDense rhs;
+  MatrixSymmetric lhs;
 
   // Initialization
 
@@ -3096,10 +3096,10 @@ int potential_simulate(Db *dbiso,
   VectorInt uid_tgt_pot, uid_tgt_grad;
   VectorDouble zval;
   VectorDouble zdual;
-  MatrixRectangular zvals;
-  MatrixRectangular zduals;
-  MatrixRectangular rhs;
-  MatrixSquareSymmetric lhs;
+  MatrixDense zvals;
+  MatrixDense zduals;
+  MatrixDense rhs;
+  MatrixSymmetric lhs;
 
   // Initialization
 
@@ -3288,10 +3288,10 @@ int potential_xvalid(Db *dbiso,
   Pot_Ext pot_ext;
   VectorDouble zval;
   VectorDouble zdual;
-  MatrixRectangular rhs;
-  MatrixSquareSymmetric lhs;
-  MatrixSquareSymmetric lhs_orig;
-  MatrixSquareSymmetric lhs_aux;
+  MatrixDense rhs;
+  MatrixSymmetric lhs;
+  MatrixSymmetric lhs_orig;
+  MatrixSymmetric lhs_aux;
 
   // Initialization
 

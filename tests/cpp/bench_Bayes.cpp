@@ -16,7 +16,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "Enum/ESpaceType.hpp"
 
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
@@ -57,8 +57,8 @@ int main(int argc, char* argv[])
 
   // Create the Model
   double scale = 0.7;
-  MatrixSquareSymmetric* sills =
-    MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
+  MatrixSymmetric* sills =
+    MatrixSymmetric::createRandomDefinitePositive(nvar);
   Model* model =
     Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
                            *sills, VectorDouble(), ASpaceSharedPtr(), false);
@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 
   // Create the Bayesian Priors for Drift coefficients
   VectorDouble PriorMean = VH::simulateGaussian(nvar);
-  MatrixSquareSymmetric PriorCov(nvar);
+  MatrixSymmetric PriorCov(nvar);
   PriorCov.setDiagonal(VH::simulateUniform(nvar, 0.1, 0.5));
 
   // Define the verbose option

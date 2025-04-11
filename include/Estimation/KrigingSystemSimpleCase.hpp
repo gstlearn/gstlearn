@@ -20,8 +20,8 @@
 #include "Space/SpacePoint.hpp"
 #include "Neigh/ANeigh.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Enum/EKrigOpt.hpp"
 
@@ -75,13 +75,13 @@ public:
   VectorInt             getSampleNbgh() const { return _nbgh; }
   VectorVectorDouble    getSampleCoordinates(KrigingAlgebraSimpleCase& algebra, int iechout) const;
   VectorDouble          getSampleData() const { return _Z; };
-  MatrixSquareSymmetric getLHS() const { return _Sigma; }
-  MatrixRectangular     getLHSF() const { return _Sigma0; }
-  MatrixRectangular     getRHS() const { return _Sigma0; }
-  MatrixRectangular     getRHSF() const { return _X0; }
+  MatrixSymmetric getLHS() const { return _Sigma; }
+  MatrixDense     getLHSF() const { return _Sigma0; }
+  MatrixDense     getRHS() const { return _Sigma0; }
+  MatrixDense     getRHSF() const { return _X0; }
   MatrixSquareGeneral   getVariance() const { return _Sigma00; }
-  MatrixRectangular     getWeights(KrigingAlgebraSimpleCase& algebra) const;
-  MatrixRectangular     getMu(KrigingAlgebraSimpleCase& algebra) const;
+  static MatrixDense     getWeights(KrigingAlgebraSimpleCase& algebra);
+  static MatrixDense     getMu(KrigingAlgebraSimpleCase& algebra);
   double                getLTerm() const { return _algebra.getLTerm(); }
   ModelGeneric*         getModel() const { return _model; }
 private:
@@ -94,18 +94,17 @@ private:
   bool _isAuthorized() const;
 
   static void _dumpOptions();
-  void _rhsDump(KrigingAlgebraSimpleCase& algebra);
-  void _wgtDump(KrigingAlgebraSimpleCase& algebra);
-  void _estimateCalcul(int status, KrigingAlgebraSimpleCase& algebra, int iechout) const;
+  void _rhsDump(KrigingAlgebraSimpleCase& algebra) const;
+  static void _wgtDump(KrigingAlgebraSimpleCase& algebra);
+  void _estimateCalcul(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const;
   void _simulateCalcul(int status);
   void _neighCalcul(int status, const VectorDouble& tab, int iechout);
   void _estimateVarZ(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const; 
   void _estimateStdv(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const;
-  void _estimateEstim(int status, KrigingAlgebraSimpleCase& algebra, int iechout) const;
+  void _estimateEstim(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const;
   void _dumpKrigingResults(int status, int iechout);
   bool _isCorrect();
   bool _preparNoStat();
-
 
   void   _setInternalShortCutVariablesGeneral();
   void   _setInternalShortCutVariablesModel();
@@ -123,11 +122,11 @@ private:
   mutable KrigingAlgebraSimpleCase _algebra;
   mutable KrigOpt        _krigopt;
   VectorVectorInt        _sampleRanks; // Vector of vector of sample indices
-  MatrixSquareSymmetric  _Sigma00; // Covariance part for variance
-  MatrixSquareSymmetric  _Sigma;   // Covariance part for LHS
-  MatrixRectangular      _X;       // Drift part for LHS
-  MatrixRectangular      _Sigma0;  // Covariance part for RHS
-  MatrixRectangular      _X0;      // Drift par for RHS
+  MatrixSymmetric  _Sigma00; // Covariance part for variance
+  MatrixSymmetric  _Sigma;   // Covariance part for LHS
+  MatrixDense      _X;       // Drift part for LHS
+  MatrixDense      _Sigma0;  // Covariance part for RHS
+  MatrixDense      _X0;      // Drift par for RHS
   VectorDouble           _Z;       // Vector of Data
   VectorDouble _means;            // Means of the variables (used to center variables)
   VectorDouble _meansTarget;      // Means for target (possible using matLC)

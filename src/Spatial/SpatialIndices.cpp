@@ -14,7 +14,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Enum/ECalcVario.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Space/SpacePoint.hpp"
@@ -186,7 +186,7 @@ int SpatialIndices::computeCGI(const String &name)
   /* Calculate the inertia and the weighted PCA */
 
   _inertia = 0.;
-  MatrixSquareSymmetric mm(ndim);
+  MatrixSymmetric mm(ndim);
   for (int iech = 0; iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue)) continue;
@@ -216,7 +216,7 @@ int SpatialIndices::computeCGI(const String &name)
   e2 = e2 * e2;
   _iso = 1. / sqrt(r);
 
-  MatrixRectangular axes = getMatrixInertia();
+  MatrixDense axes = getMatrixInertia();
   double dx1 = axes.getValue(1, 0) - axes.getValue(0, 0);
   double dy1 = axes.getValue(1, 1) - axes.getValue(0, 1);
   double dx2 = axes.getValue(3, 0) - axes.getValue(2, 0);
@@ -293,7 +293,7 @@ VectorVectorDouble SpatialIndices::getAxes() const
     return vec;
   }
 
-  MatrixRectangular axes = getMatrixInertia();
+  MatrixDense axes = getMatrixInertia();
   vec[0] = {axes.getValue(0, 0), axes.getValue(1, 0)};
   vec[1] = {axes.getValue(0, 1), axes.getValue(1, 1)};
   vec[2] = {axes.getValue(2, 0), axes.getValue(3, 0)};
@@ -314,9 +314,9 @@ VectorDouble SpatialIndices::getAxe(int rank) const
   return axes[rank];
 }
 
-MatrixRectangular SpatialIndices::getMatrixEllipse() const
+MatrixDense SpatialIndices::getMatrixEllipse() const
 {
-  MatrixRectangular axes(4, 2);
+  MatrixDense axes(4, 2);
   if (_mvalues.empty())
   {
     messerr("You must use 'computeCGI() beforehand");
@@ -344,9 +344,9 @@ MatrixRectangular SpatialIndices::getMatrixEllipse() const
   return axes;
 }
 
-MatrixRectangular SpatialIndices::getMatrixInertia() const
+MatrixDense SpatialIndices::getMatrixInertia() const
 {
-  MatrixRectangular axes(4, 2);
+  MatrixDense axes(4, 2);
   if (_mvalues.empty())
   {
     messerr("You must use 'computeCGI() beforehand");

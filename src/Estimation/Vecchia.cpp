@@ -16,7 +16,7 @@
 #include "Db/Db.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixT.hpp"
 #include "Model/ModelGeneric.hpp"
 
@@ -113,9 +113,9 @@ int Vecchia::computeLower(const MatrixT<int>& Ranks, bool verbose)
     }
     else
     {
-      MatrixSquareSymmetric mat = _model->evalCovMatSym(Dbtemp);
+      MatrixSymmetric mat = _model->evalCovMatSym(Dbtemp);
       CholeskyDense chol         = CholeskyDense(&mat);
-      MatrixRectangular crossmat = _model->evalCovMat(Dbtemp, DbOnePoint);
+      MatrixDense crossmat = _model->evalCovMat(Dbtemp, DbOnePoint);
       VectorDouble vect = crossmat.getColumn(0);
       VectorDouble res  = chol.solveX(vect);
 

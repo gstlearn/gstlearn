@@ -197,7 +197,7 @@ bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelCovList* model)
   if (ksys.updKrigOptEstim(iuid, -1, -1, true)) return false;
   if (!ksys.isReady()) return false;
   if (ksys.estimate(0)) return false;
-  MatrixRectangular wgt = ksys.getWeights();
+  MatrixDense wgt = ksys.getWeights();
   ksys.conclusion();
 
   // Cleaning
@@ -234,7 +234,7 @@ bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelCovList* model)
  */
 DbGrid* CalcImage::_buildMarpat(const NeighImage* neigh,
                                 const VectorVectorInt& ranks,
-                                const MatrixRectangular& wgt,
+                                const MatrixDense& wgt,
                                 int optionVerbose)
 {
   int nbneigh = ranks.size();

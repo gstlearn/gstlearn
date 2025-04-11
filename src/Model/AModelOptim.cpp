@@ -16,7 +16,7 @@
 #include "geoslib_define.h"
 
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Variogram/Vario.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Model/Model.hpp"
@@ -106,7 +106,7 @@ void AModelOptim::_addOneModelParam(int icov,
 }
 
 void AModelOptim::_updateModelParamList(double distmax_def,
-                                        const MatrixSquareSymmetric& vars_def)
+                                        const MatrixSymmetric& vars_def)
 {
   double value = TEST;
   double scale = 1.;
@@ -218,7 +218,7 @@ void AModelOptim::_performOptimization(double (*optim_func)(unsigned n,
                                                             void* func_data),
                                        void* f_data,
                                        double distmax_def,
-                                       const MatrixSquareSymmetric& vars_def)
+                                       const MatrixSymmetric& vars_def)
 {
   // Define the optimization criterion
   int npar      = _getNParam();
@@ -416,7 +416,7 @@ int AModelOptim::_buildModelParamList()
             aic.setValue(ivar, jvar, scale * current[iparam++]);
         if (ijvar == nvs2)
         {
-          MatrixSquareSymmetric sills(nvar);
+          MatrixSymmetric sills(nvar);
           sills.prodNormMatVecInPlace(aic, VectorDouble());
           cova->setSill(sills);
         }

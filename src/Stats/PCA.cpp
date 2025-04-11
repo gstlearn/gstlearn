@@ -15,7 +15,7 @@
 #include "Stats/PCAStringFormat.hpp"
 #include "Stats/Classical.hpp"
 #include "Db/Db.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Variogram/Vario.hpp"
 
@@ -853,7 +853,7 @@ VectorDouble PCA::mafOfIndex() const
   int nclass = (int) w.size();
 
   // Normalize the indicator of intervals
-  MatrixRectangular i_norm_val(nclass, ncut);
+  MatrixDense i_norm_val(nclass, ncut);
   for (int iclass = 0 ; iclass < ncut; iclass++)
   {
     for (int jclass = 0; jclass < nclass; jclass++)

@@ -73,7 +73,7 @@ vec = VectorHelper_simulateUniform(nrow * ncol)
 
 # Creating the Rectangular Matrix (standard format)
 print("Case of a Standard Matrix")
-mat = MatrixRectangular_createFromVD(vec, nrow, ncol)
+mat = MatrixDense_createFromVD(vec, nrow, ncol)
 mat$display()
 print(class(mat))
 

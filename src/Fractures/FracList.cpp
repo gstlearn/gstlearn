@@ -19,7 +19,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 
@@ -152,7 +152,7 @@ int FracList::simulate(const FracEnviron& envir,
 
   int np1 = _nlayers + 1;
   VectorDouble denstab(_ndisc);
-  _layinfo = MatrixRectangular(np1, ninfos);
+  _layinfo = MatrixDense(np1, ninfos);
 
   /* Define the layers */
 
@@ -1036,10 +1036,10 @@ int FracList::_getDiscretizedRank(double cumdens, const VectorDouble& denstab) c
  **  Export the Fractures
  **
  *****************************************************************************/
-MatrixRectangular FracList::fractureExport() const
+MatrixDense FracList::fractureExport() const
 {
   int ntotal = _getEndPointCount();
-  MatrixRectangular segs(ntotal, NBYFRAC);
+  MatrixDense segs(ntotal, NBYFRAC);
 
   /* Loading the fractures */
 

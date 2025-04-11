@@ -83,12 +83,12 @@ typedef struct
   VectorDouble wt2;
   VectorDouble dd;
   VectorDouble gg2;
-  std::vector<MatrixRectangular> ge;
-  std::vector<MatrixRectangular> ge1;
-  std::vector<MatrixRectangular> ge2;
-  std::vector<MatrixSquareSymmetric> alphau;
-  std::vector<MatrixSquareSymmetric> sill1;
-  std::vector<MatrixSquareSymmetric> sill;
+  std::vector<MatrixDense> ge;
+  std::vector<MatrixDense> ge1;
+  std::vector<MatrixDense> ge2;
+  std::vector<MatrixSymmetric> alphau;
+  std::vector<MatrixSymmetric> sill1;
+  std::vector<MatrixSymmetric> sill;
 } Recint;
 
 typedef struct
@@ -899,7 +899,7 @@ static void st_prepar_goulard_vario(int imod)
   int nvar = model->getNVar();
   int nvs2 = nvar * (nvar + 1) / 2;
   VectorDouble &dd = RECINT.dd;
-  std::vector<MatrixRectangular> &ge = RECINT.ge;
+  std::vector<MatrixDense> &ge = RECINT.ge;
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
   CovCalcMode mode(ECalcMember::RHS); // to allow selecting individual structures
@@ -958,7 +958,7 @@ static void st_load_ge(const Vario *vario,
                        Model *model,
                        int npadir,
                        VectorDouble &dd,
-                       std::vector<MatrixRectangular> &ge)
+                       std::vector<MatrixDense> &ge)
 {
   int ndim = model->getNDim();
   int ndir = vario->getNDir();
@@ -1346,7 +1346,7 @@ static void st_keypair_results(int mode,
  *****************************************************************************/
 static void st_sill_reset(int nvar,
                           int ncova,
-                          std::vector<MatrixSquareSymmetric>& sill)
+                          std::vector<MatrixSymmetric>& sill)
 {
   for (int icov = 0; icov < ncova; icov++)
     for (int ivar = 0; ivar < nvar; ivar++)
@@ -1378,8 +1378,8 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
                                          int npadir,
                                          VectorDouble &wt,
                                          VectorDouble &gg,
-                                         std::vector<MatrixRectangular> &ge,
-                                         std::vector<MatrixSquareSymmetric> &sill,
+                                         std::vector<MatrixDense> &ge,
+                                         std::vector<MatrixSymmetric> &sill,
                                          double *crit_arg)
 {
   int allpos;
@@ -1398,23 +1398,23 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
 
   /* Core allocation */
 
-  MatrixSquareSymmetric cc(nvar);
-  MatrixRectangular mp(nvs2, npadir);
+  MatrixSymmetric cc(nvar);
+  MatrixDense mp(nvs2, npadir);
 
-  std::vector<MatrixRectangular> fk;
+  std::vector<MatrixDense> fk;
   fk.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
-    fk.push_back(MatrixRectangular(nvs2, npadir));
+    fk.push_back(MatrixDense(nvs2, npadir));
 
-  std::vector<MatrixSquareSymmetric> aic;
+  std::vector<MatrixSymmetric> aic;
   aic.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
-    aic.push_back(MatrixSquareSymmetric(nvar));
+    aic.push_back(MatrixSymmetric(nvar));
 
-  std::vector<MatrixSquareSymmetric> alphak;
+  std::vector<MatrixSymmetric> alphak;
   alphak.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
-    alphak.push_back(MatrixSquareSymmetric(nvar));
+    alphak.push_back(MatrixSymmetric(nvar));
 
   /********************/
   /* Pre-calculations */
@@ -2083,7 +2083,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       if (flag_rot) cova->setAnisoAngles(angles);
       if (flag_aic)
       {
-        MatrixSquareSymmetric* mat = MatrixSquareSymmetric::createFromTLTU(nvar, tritab);
+        MatrixSymmetric* mat = MatrixSymmetric::createFromTLTU(nvar, tritab);
         cova->setSill(*mat);
         delete mat;
       }
@@ -2156,7 +2156,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
     if (flag_rot) cova->setAnisoAngles(angles);
     if (flag_aic)
     {
-      MatrixSquareSymmetric* mat = MatrixSquareSymmetric::createFromTLTU(nvar, tritab);
+      MatrixSymmetric* mat = MatrixSymmetric::createFromTLTU(nvar, tritab);
       cova->setSill(*mat);
       delete mat;
     }
@@ -2365,7 +2365,7 @@ static int st_parid_match(StrMod *strmod,
 static int st_check_definite_positive(Model *model)
 {
   int nvar = model->getNVar();
-  MatrixSquareSymmetric cc(nvar);
+  MatrixSymmetric cc(nvar);
 
   /* Loop on the basic structures */
 
@@ -2401,11 +2401,11 @@ static int st_check_definite_positive(Model *model)
  *****************************************************************************/
 static int st_truncate_negative_eigen(int nvar,
                                       int icov0,
-                                      std::vector<MatrixSquareSymmetric> &matcor,
-                                      std::vector<MatrixSquareSymmetric> &matcoru)
+                                      std::vector<MatrixSymmetric> &matcor,
+                                      std::vector<MatrixSymmetric> &matcoru)
 
 {
-  MatrixSquareSymmetric cc(nvar);
+  MatrixSymmetric cc(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++)
       cc.setValue(ivar, jvar, matcor[icov0].getValue(ivar, jvar));
@@ -2460,7 +2460,7 @@ static int st_truncate_negative_eigen(int nvar,
  *****************************************************************************/
 static double st_sum_sills(int ivar0,
                            int ncova,
-                           std::vector<MatrixSquareSymmetric>& alpha)
+                           std::vector<MatrixSymmetric>& alpha)
 {
   double Sr = 0;
   for (int icov = 0; icov < ncova; icov++)
@@ -2488,8 +2488,8 @@ static double st_score(int nvar,
                        int npadir,
                        VectorDouble &wt,
                        VectorDouble &gg,
-                       std::vector<MatrixRectangular> &ge,
-                       std::vector<MatrixSquareSymmetric> &matcor)
+                       std::vector<MatrixDense> &ge,
+                       std::vector<MatrixSymmetric> &matcor)
 {
   double score = 0.;
   int ijvar = 0;
@@ -2550,10 +2550,10 @@ static double st_minimize_P4(int icov0,
                              int npadir,
                              double xrmax,
                              VectorDouble &xr,
-                             std::vector<MatrixSquareSymmetric> &alpha,
+                             std::vector<MatrixSymmetric> &alpha,
                              VectorDouble &wt,
                              VectorDouble &gg,
-                             std::vector<MatrixRectangular> &ge,
+                             std::vector<MatrixDense> &ge,
                              const VectorDouble &consSill)
 {
   double retval, a, c, d, s;
@@ -2563,8 +2563,8 @@ static double st_minimize_P4(int icov0,
   VectorDouble Nir_v(nvar);
   VectorDouble Mrr_v(npadir);
   VectorDouble Crr_v(npadir);
-  MatrixRectangular Airk_v(npadir, nvar);
-  MatrixRectangular Birk_v(npadir, nvar);
+  MatrixDense Airk_v(npadir, nvar);
+  MatrixDense Birk_v(npadir, nvar);
   VectorDouble xx(2);
   VectorDouble xt(2);
   VectorDouble xest(2);
@@ -2712,7 +2712,7 @@ void st_updateAlphaDiag(int icov0,
                         int ivar0,
                         int ncova,
                         VectorDouble &xr,
-                        std::vector<MatrixSquareSymmetric> &alpha,
+                        std::vector<MatrixSymmetric> &alpha,
                         const VectorDouble &consSill)
 {
   double srm = st_sum_sills(ivar0, ncova, alpha) - alpha[icov0].getValue(ivar0, ivar0);
@@ -2737,9 +2737,9 @@ static void st_updateOtherSills(int icov0,
                                 int ivar0,
                                 int ncova,
                                 int nvar,
-                                std::vector<MatrixSquareSymmetric> &alpha,
+                                std::vector<MatrixSymmetric> &alpha,
                                 VectorDouble &xr,
-                                std::vector<MatrixSquareSymmetric> &matcor)
+                                std::vector<MatrixSymmetric> &matcor)
 {
   for (int jcov = 0; jcov < ncova; jcov++)
   {
@@ -2776,10 +2776,10 @@ static void st_updateCurrentSillGoulard(int icov0,
                                         int nvar,
                                         int ncova,
                                         VectorDouble &wt,
-                                        std::vector<MatrixRectangular> &ge,
+                                        std::vector<MatrixDense> &ge,
                                         VectorDouble &gg,
                                         const VectorDouble &consSill,
-                                        std::vector<MatrixSquareSymmetric> &matcor)
+                                        std::vector<MatrixSymmetric> &matcor)
 {
   VectorDouble mv(npadir);
 
@@ -2839,8 +2839,8 @@ static void st_updateAlphaNoDiag(int icov0,
                                  int nvar,
                                  VectorDouble &xr,
                                  const VectorDouble &consSill,
-                                 std::vector<MatrixSquareSymmetric> &matcor,
-                                 std::vector<MatrixSquareSymmetric> &alpha)
+                                 std::vector<MatrixSymmetric> &matcor,
+                                 std::vector<MatrixSymmetric> &alpha)
 {
   for (int ivar = 0; ivar < nvar; ivar++)
   {
@@ -2864,9 +2864,9 @@ static void st_updateAlphaNoDiag(int icov0,
  ****************************************************************************/
 static void st_updateCurrentSillDiag(int icov0,
                                      int ivar0,
-                                     std::vector<MatrixSquareSymmetric> &alpha,
+                                     std::vector<MatrixSymmetric> &alpha,
                                      VectorDouble &xr,
-                                     std::vector<MatrixSquareSymmetric> &matcor)
+                                     std::vector<MatrixSymmetric> &matcor)
 {
   double value = xr[ivar0] * xr[ivar0] * alpha[icov0].getValue(ivar0, ivar0);
   if (value < 0.) value = 0.;
@@ -2887,7 +2887,7 @@ static void st_updateCurrentSillDiag(int icov0,
 static int st_makeDefinitePositive(int icov0,
                                    int nvar,
                                    const VectorDouble &consSill,
-                                   std::vector<MatrixSquareSymmetric> &matcor)
+                                   std::vector<MatrixSymmetric> &matcor)
 {
   VectorDouble muold(nvar);
   VectorDouble norme1(nvar);
@@ -2946,8 +2946,8 @@ static int st_optimize_under_constraints(int nvar,
                                          const Option_AutoFit &mauto,
                                          VectorDouble &wt,
                                          VectorDouble &gg,
-                                         std::vector<MatrixRectangular> &ge,
-                                         std::vector<MatrixSquareSymmetric> &matcor,
+                                         std::vector<MatrixDense> &ge,
+                                         std::vector<MatrixSymmetric> &matcor,
                                          double *score)
 {
   double score_old, xrmax;
@@ -2955,10 +2955,10 @@ static int st_optimize_under_constraints(int nvar,
   /* Core allocation */
 
   VectorDouble xr(nvar);
-  std::vector<MatrixSquareSymmetric> alpha;
+  std::vector<MatrixSymmetric> alpha;
   alpha.reserve(ncova);
 for (int icova = 0; icova < ncova; icova++)
-    alpha.push_back(MatrixSquareSymmetric(nvar));
+    alpha.push_back(MatrixSymmetric(nvar));
   int iter = 0;
 
   /* Calculate the initial score */
@@ -3077,15 +3077,15 @@ static int st_initialize_goulard(int nvar,
                                  int npadir,
                                  VectorDouble &wt,
                                  VectorDouble &gg,
-                                 std::vector<MatrixRectangular> &ge,
+                                 std::vector<MatrixDense> &ge,
                                  const VectorDouble &consSill,
-                                 std::vector<MatrixSquareSymmetric> &matcor)
+                                 std::vector<MatrixSymmetric> &matcor)
 {
-  MatrixSquareSymmetric aa(ncova);
+  MatrixSymmetric aa(ncova);
   VectorDouble bb(ncova);
-  MatrixRectangular Ae(ncova, 1);
+  MatrixDense Ae(ncova, 1);
   VectorDouble be(1);
-  MatrixRectangular Ai(ncova, ncova);
+  MatrixDense Ai(ncova, ncova);
   VectorDouble bi(ncova);
   VectorDouble res(ncova);
 
@@ -3136,8 +3136,8 @@ static int st_initialize_goulard(int nvar,
       else
       {
         retcode = aa.minimizeWithConstraintsInPlace(bb,
-                                                    MatrixRectangular(), VectorDouble(),
-                                                    MatrixRectangular(), VectorDouble(),
+                                                    MatrixDense(), VectorDouble(),
+                                                    MatrixDense(), VectorDouble(),
                                                     res);
       }
 
@@ -3176,7 +3176,7 @@ static int st_initialize_goulard(int nvar,
  *****************************************************************************/
 static void st_goulard_sill_to_model(int nvar,
                                      int ncova,
-                                     std::vector<MatrixSquareSymmetric> &sill,
+                                     std::vector<MatrixSymmetric> &sill,
                                      Model *model)
 {
   for (int icov = 0; icov < ncova; icov++)
@@ -3215,17 +3215,17 @@ static int st_goulard_with_constraints(const VectorDouble& consSill,
                                        int npadir,
                                        VectorDouble &wt,
                                        VectorDouble &gg,
-                                       std::vector<MatrixRectangular> &ge,
-                                       std::vector<MatrixSquareSymmetric> &sill)
+                                       std::vector<MatrixDense> &ge,
+                                       std::vector<MatrixSymmetric> &sill)
 {
   double crit;
 
   /* Core allocation */
 
-  std::vector<MatrixSquareSymmetric> matcor;
+  std::vector<MatrixSymmetric> matcor;
   matcor.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
-    matcor.push_back((MatrixSquareSymmetric(nvar)));
+    matcor.push_back((MatrixSymmetric(nvar)));
 
   /* Initialize the Goulard system */
 
@@ -3291,13 +3291,13 @@ static int st_sill_fitting_intrinsic(Model* model,
                                      int npadir,
                                      VectorDouble& wt,
                                      VectorDouble& gg,
-                                     std::vector<MatrixRectangular>& ge,
+                                     std::vector<MatrixDense>& ge,
                                      VectorDouble& wt2,
-                                     std::vector<MatrixRectangular>& ge1,
-                                     std::vector<MatrixRectangular>& ge2,
+                                     std::vector<MatrixDense>& ge1,
+                                     std::vector<MatrixDense>& ge2,
                                      VectorDouble& gg2,
-                                     std::vector<MatrixSquareSymmetric>& alphau,
-                                     std::vector<MatrixSquareSymmetric>& sill1)
+                                     std::vector<MatrixSymmetric>& alphau,
+                                     std::vector<MatrixSymmetric>& sill1)
 {
   double newval, crit;
 
@@ -4096,7 +4096,7 @@ static void st_prepar_goulard_vmap(int imod)
 
 {
   Model *model = STRMOD->models[imod];
-  std::vector<MatrixRectangular> &ge = RECINT.ge;
+  std::vector<MatrixDense> &ge = RECINT.ge;
   int ndim = model->getNDim();
   int nvar = model->getNVar();
   int ncova = model->getNCov();
@@ -4194,7 +4194,7 @@ static void st_vario_varchol_manage(const Vario *vario,
   int ndim = model->getNDim();
   int nvar = vario->getNVar();
 
-  MatrixSquareSymmetric mat(nvar);
+  MatrixSymmetric mat(nvar);
 
   /* Particular case of Properties attached to the Model */
 
@@ -4250,7 +4250,7 @@ static void st_vmap_varchol_manage(const Db *dbmap, VectorDouble &varchol)
 
   /* Allocation */
 
-  MatrixSquareSymmetric aux(nvar);
+  MatrixSymmetric aux(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     String name = dbmap->getNameByLocator(ELoc::Z, ivar);
@@ -4323,10 +4323,10 @@ static int st_manage_recint(const Option_VarioFit& optvar,
   RECINT.gg.fill(TEST, npadir * nvs2);
   RECINT.ge.clear();
   for (int icova = 0; icova < ncova; icova++)
-    RECINT.ge.push_back(MatrixRectangular(nvs2, npadir));
+    RECINT.ge.push_back(MatrixDense(nvs2, npadir));
   RECINT.sill.clear();
   for (int icova = 0; icova < ncova; icova++)
-    RECINT.sill.push_back(MatrixSquareSymmetric(nvar));
+    RECINT.sill.push_back(MatrixSymmetric(nvar));
 
   if (flag_exp)
   {
@@ -4339,15 +4339,15 @@ static int st_manage_recint(const Option_VarioFit& optvar,
   {
     RECINT.alphau.clear();
     for (int icova = 0; icova < ncova; icova++)
-      RECINT.alphau.push_back(MatrixSquareSymmetric(1));
+      RECINT.alphau.push_back(MatrixSymmetric(1));
     RECINT.alphau.clear();
     for (int icova = 0; icova < ncova; icova++)
-      RECINT.alphau.push_back(MatrixSquareSymmetric(nvar));
+      RECINT.alphau.push_back(MatrixSymmetric(nvar));
     RECINT.ge1.clear();
-    RECINT.ge1.push_back(MatrixRectangular(nvs2, npadir));
+    RECINT.ge1.push_back(MatrixDense(nvs2, npadir));
     RECINT.ge2.clear();
     for (int icova = 0; icova < ncova; icova++)
-      RECINT.ge2.push_back(MatrixRectangular(nvs2, npadir));
+      RECINT.ge2.push_back(MatrixDense(nvs2, npadir));
     RECINT.wt2.fill(TEST, nvs2 * npadir);
     RECINT.gg2.fill(TEST, nvs2 * npadir);
   }
@@ -4525,7 +4525,7 @@ int model_auto_fit(Vario *vario,
                                upper, npar, nbexp);
     if (npar > 0)
     {
-      status = foxleg_f(nbexp, npar, 0, MatrixRectangular(), param, lower, upper,
+      status = foxleg_f(nbexp, npar, 0, MatrixDense(), param, lower, upper,
                         scale, mauto, 0, st_strmod_vario_evaluate, RECINT.ggc, RECINT.wtc);
     }
     else
@@ -4952,7 +4952,7 @@ int vmap_auto_fit(const DbGrid* dbmap,
   {
     st_model_auto_strmod_print(1, strmod, constraints, mauto, param, lower,
                                upper, npar, nbexp);
-    status = foxleg_f(nbexp, npar, 0, MatrixRectangular(), param, lower, upper,
+    status = foxleg_f(nbexp, npar, 0, MatrixDense(), param, lower, upper,
                       scale, mauto, 0, st_strmod_vmap_evaluate, RECINT.gg, RECINT.wt);
     if (status > 0) goto label_end;
 

@@ -15,7 +15,7 @@
 
 class CovContext;
 class TurningBandOperate;
-class MatrixRectangular;
+class MatrixDense;
 
 class GSTLEARN_EXPORT CovGaussian : public ACovFunc
 {
@@ -36,7 +36,7 @@ public:
   double simulateTurningBand(double t0, TurningBandOperate &operTB) const override;
 
   bool isValidForSpectral() const override { return true; }
-  MatrixRectangular simulateSpectralOmega(int nb) const override;
+  MatrixDense simulateSpectralOmega(int nb) const override;
 
 protected:
   double _evaluateCov(double h)  const override;

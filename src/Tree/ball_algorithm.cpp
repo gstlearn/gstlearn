@@ -47,24 +47,6 @@ double **copy_double_arrAsVVD(const VectorVectorDouble& arr)
   return copy;
 }
 
-void append_double_arrAsVVD(const VectorVectorDouble& arr, double*** copyarg, int old_row)
-{
-  int col = (int)arr.size();
-  int row = (int)arr[0].size();
-  int new_row = row + old_row;
-
-  double** copy = *copyarg;
-  copy = (double**) realloc((char*)copy, sizeof(double*) * new_row);
-  for (int i = 0; i < row; i++)
-  {
-    int ip = i + old_row;
-    copy[ip] = (double*)malloc(sizeof(double) * col);
-    for (int j = 0; j < col; j++)
-      copy[ip][j] = arr[j][i];
-  }
-  *copyarg = copy;
-}
-
 double **copy_double_arr(const double **arr, int row, int col)
 {
 	double** copy = (double**)malloc(sizeof(double*) * row);
@@ -258,7 +240,7 @@ void recursive_build(t_btree *b, int i_node, int idx_start, int idx_end)
 
 void define_dist_function(double (*dist_function)(const double* x1,
                                                   const double* x2,
-                                                  int size),
+                                                  int n_features),
                           int default_distance_function)
 {
   if (dist_function != nullptr)
@@ -280,7 +262,7 @@ t_btree* btree_init(const double** data,
                     bool has_constraints,
                     double (*dist_function)(const double* x1,
                                             const double* x2,
-                                            int size),
+                                            int n_features),
                     int leaf_size,
                     int default_distance_function)
 {
@@ -448,14 +430,14 @@ void btree_display(const t_btree *tree, int level)
  * Returns the Manhattan distance between two points
  * @param x1 Vector of coordinates for the first point
  * @param x2 Vector of coordinates for the second point
- * @param size Number of coordinates
+ * @param n_features Number of coordinates
  * @return
  */
-double manhattan_distance(const double* x1, const double* x2, int size)
+double manhattan_distance(const double* x1, const double* x2, int n_features)
 {
   double delta;
   double d1 = 0.;
-  for (int i = 0; i < size; i++)
+  for (int i = 0; i < n_features; i++)
   {
     delta = fabs(x1[i] - x2[i]);
     d1 += delta;
@@ -464,17 +446,17 @@ double manhattan_distance(const double* x1, const double* x2, int size)
 }
 
 /**
- * Returns the Standard distance between two points
+ * Returns the Standard Euclidean distance between two points
  * @param x1 Vector of coordinates for the first point
  * @param x2 Vector of coordinates for the second point
- * @param size Number of coordinates
+ * @param n_features Number of coordinates
  * @return
  */
-double euclidean_distance(const double* x1, const double* x2, int size)
+double euclidean_distance(const double* x1, const double* x2, int n_features)
 {
   SpacePoint p1;
   SpacePoint p2;
-  p1.setCoords(x1, size);
-  p2.setCoords(x2, size);
+  p1.setCoords(x1, n_features);
+  p2.setCoords(x2, n_features);
   return p1.getDistance(p2);
 }

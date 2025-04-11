@@ -77,7 +77,7 @@ vec = gl.VectorHelper.simulateUniform(nrow * ncol)
 
 # Creating the Rectangular Matrix (standard format)
 print("Case of a Standard Matrix")
-mat = gl.MatrixRectangular.createFromVD(vec, nrow, ncol)
+mat = gl.MatrixDense.createFromVD(vec, nrow, ncol)
 mat.display()
 print(type(mat))
 

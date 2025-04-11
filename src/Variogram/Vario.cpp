@@ -1088,9 +1088,9 @@ double Vario::getVar(int ivar, int jvar) const
   return _vars[iad];
 }
 
-MatrixSquareSymmetric Vario::getVarMatrix() const
+MatrixSymmetric Vario::getVarMatrix() const
 {
-  MatrixSquareSymmetric mat(_nVar);
+  MatrixSymmetric mat(_nVar);
   for (int ivar = 0; ivar < _nVar; ivar++)
     for (int jvar = 0; jvar < _nVar; jvar++)
       mat.setValue(ivar, jvar, getVar(ivar, jvar));

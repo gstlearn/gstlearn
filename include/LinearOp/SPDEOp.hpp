@@ -10,24 +10,21 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/ALinearOpEigenCG.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ASimulable.hpp"
 
 #ifndef SWIG
-#include "LinearOp/ASimulableEigenCG.hpp"
+#  include "LinearOp/ASimulableEigenCG.hpp"
 DECLARE_EIGEN_TRAITS(SPDEOp)
 #endif
 
 #include "LinearOp/LinearOpCGSolver.hpp"
 
-
 class PrecisionOpMulti;
 class ProjMulti;
-
 
 class GSTLEARN_EXPORT SPDEOp:
 #ifndef SWIG
@@ -55,7 +52,7 @@ public:
   int  getIterations() const { return _solver.getIterations();}
   double getError() const { return  _solver.getError();}
   VectorDouble computeDriftCoeffs(const VectorDouble& Z, 
-                                  const MatrixRectangular& drifts) const;
+                                  const MatrixDense& drifts) const;
   VectorDouble simCond(const VectorDouble& dat) const;
 
 #ifndef SWIG

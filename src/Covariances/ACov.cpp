@@ -14,9 +14,9 @@
 #include "Enum/ECalcMember.hpp"
 #include "Enum/EKrigOpt.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Db/Db.hpp"
 #include "Geometry/GeometryHelper.hpp"
@@ -262,10 +262,10 @@ void ACov::_optimizationPostProcess() const
 {
 }
 
-MatrixSquareSymmetric ACov::eval0Mat(const CovCalcMode* mode) const
+MatrixSymmetric ACov::eval0Mat(const CovCalcMode* mode) const
 {
   int nvar = getNVar();
-  MatrixSquareSymmetric mat(nvar);
+  MatrixSymmetric mat(nvar);
   mat.fill(0.);
   eval0CovMatBiPointInPlace(mat, mode);
   return mat;
@@ -278,7 +278,7 @@ MatrixSquareSymmetric ACov::eval0Mat(const CovCalcMode* mode) const
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void ACov::eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat,
+void ACov::eval0CovMatBiPointInPlace(MatrixSymmetric& mat,
                                      const CovCalcMode* mode) const
 {
   int nvar = getNVar();
@@ -290,15 +290,15 @@ void ACov::eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat,
     }
 }
 
-MatrixSquareSymmetric ACov::evalCovMat0(const Db* db, int iech, const KrigOpt& krigopt) const
+MatrixSymmetric ACov::evalCovMat0(const Db* db, int iech, const KrigOpt& krigopt) const
 {
-  MatrixSquareSymmetric mat;
+  MatrixSymmetric mat;
 
   int error = evalCovMat0InPlace(mat, db, iech, krigopt);
-  return (error == 0) ? mat : MatrixSquareSymmetric();
+  return (error == 0) ? mat : MatrixSymmetric();
 }
 
-int ACov::evalCovMat0InPlace(MatrixSquareSymmetric& mat,
+int ACov::evalCovMat0InPlace(MatrixSymmetric& mat,
                              const Db* db,
                              int iech,
                              const KrigOpt& krigopt) const
@@ -1024,7 +1024,7 @@ VectorInt ACov::_getActiveVariables(int ivar0) const
  ** \note due to the presence of 'nostat'
  **
  *****************************************************************************/
-MatrixRectangular ACov::evalCovMat(const Db* db1,
+MatrixDense ACov::evalCovMat(const Db* db1,
                                    const Db* db2,
                                    int ivar0,
                                    int jvar0,
@@ -1033,13 +1033,13 @@ MatrixRectangular ACov::evalCovMat(const Db* db1,
                                    const CovCalcMode* mode,
                                    bool cleanOptim) const
 {
-  MatrixRectangular mat;
+  MatrixDense mat;
 
   int error = evalCovMatInPlace(mat, db1, db2, ivar0, jvar0, nbgh1, nbgh2, mode, cleanOptim);
-  return (error) == 0 ? mat : MatrixRectangular();
+  return (error) == 0 ? mat : MatrixDense();
 }
 
-int ACov::evalCovMatInPlace(MatrixRectangular& mat,
+int ACov::evalCovMatInPlace(MatrixDense& mat,
                             const Db* db1,
                             const Db* db2,
                             int ivar0,
@@ -1063,7 +1063,7 @@ int ACov::evalCovMatInPlace(MatrixRectangular& mat,
   return evalCovMatInPlaceFromIdx(mat, db1, db2, index1, index2, nbgh2, mode, cleanOptim);
 }
 
-int ACov::evalCovMatInPlaceFromIdx(MatrixRectangular& mat,
+int ACov::evalCovMatInPlaceFromIdx(MatrixDense& mat,
                                    const Db* db1,
                                    const Db* db2,
                                    const VectorVectorInt& index1,
@@ -1194,7 +1194,7 @@ SpacePoint& ACov::_optimizationLoadInPlace(int iech,
  ** \note due to the presence of 'nostat'
  **
  *****************************************************************************/
-int ACov::evalCovMatRHSInPlaceFromIdx(MatrixRectangular& mat,
+int ACov::evalCovMatRHSInPlaceFromIdx(MatrixDense& mat,
                                       const Db* db1,
                                       const Db* db2,
                                       const VectorVectorInt& index1,
@@ -1308,7 +1308,7 @@ int ACov::addEvalCovVecRHSInPlace(vect vect,
   return 0;
 }
 
-int ACov::_evalCovMatRHSInPlaceBlock(MatrixRectangular& mat,
+int ACov::_evalCovMatRHSInPlaceBlock(MatrixDense& mat,
                                      const Db* db2,
                                      const VectorVectorInt& index1,
                                      const VectorVectorInt& index2,
@@ -1359,7 +1359,7 @@ int ACov::_evalCovMatRHSInPlaceBlock(MatrixRectangular& mat,
   return 0;
 }
 
-int ACov::_evalCovMatRHSInPlacePoint(MatrixRectangular& mat,
+int ACov::_evalCovMatRHSInPlacePoint(MatrixDense& mat,
                                      const VectorVectorInt& index1,
                                      const VectorVectorInt& index2,
                                      const KrigOpt& krigopt) const
@@ -1388,7 +1388,7 @@ int ACov::_evalCovMatRHSInPlacePoint(MatrixRectangular& mat,
   return 0;
 }
 
-void ACov::_loopOnData(MatrixRectangular& mat,
+void ACov::_loopOnData(MatrixDense& mat,
                        const SpacePoint& p2,
                        int ivar2,
                        int iabs2,
@@ -1423,7 +1423,7 @@ void ACov::_loopOnData(MatrixRectangular& mat,
   }
 }
 
-void ACov::_scaleOnData(MatrixRectangular& mat, int icol, int ndisc)
+void ACov::_scaleOnData(MatrixDense& mat, int icol, int ndisc)
 {
   int nrows = mat.getNRows();
   double value;
@@ -1497,19 +1497,19 @@ void ACov::_load(const SpacePoint& p, bool option) const
  ** \remarks by the number of samples where the variable is defined
  **
  *****************************************************************************/
-MatrixSquareSymmetric ACov::evalCovMatSym(const Db* db1,
+MatrixSymmetric ACov::evalCovMatSym(const Db* db1,
                                           const VectorInt& nbgh1,
                                           int ivar0,
                                           const CovCalcMode* mode,
                                           bool cleanOptim) const
 {
-  MatrixSquareSymmetric mat;
+  MatrixSymmetric mat;
 
   int error = evalCovMatSymInPlace(mat, db1, nbgh1, ivar0, mode, cleanOptim);
-  return (error == 0) ? mat : MatrixSquareSymmetric();
+  return (error == 0) ? mat : MatrixSymmetric();
 }
 
-int ACov::evalCovMatSymInPlace(MatrixSquareSymmetric& mat,
+int ACov::evalCovMatSymInPlace(MatrixSymmetric& mat,
                                const Db* db1,
                                const VectorInt& nbgh1,
                                int ivar0,
@@ -1527,7 +1527,7 @@ int ACov::evalCovMatSymInPlace(MatrixSquareSymmetric& mat,
   return evalCovMatSymInPlaceFromIdx(mat, db1, index1, mode, cleanOptim);
 }
 
-int ACov::evalCovMatSymInPlaceFromIdx(MatrixSquareSymmetric& mat,
+int ACov::evalCovMatSymInPlaceFromIdx(MatrixSymmetric& mat,
                                       const Db* db1,
                                       const VectorVectorInt& index1,
                                       const CovCalcMode* mode,
@@ -1654,7 +1654,7 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
   // Evaluate the matrix of sills
   int nvar1 = (int)ivars.size();
   int nvar2 = (int)jvars.size();
-  MatrixRectangular mat0(nvar1, nvar2);
+  MatrixDense mat0(nvar1, nvar2);
   for (int ivar = 0; ivar < nvar1; ivar++)
   {
     int ivar1 = ivars[ivar];
