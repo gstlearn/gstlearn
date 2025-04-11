@@ -99,15 +99,15 @@ def geometry(dims=None, xlim=None, ylim=None, aspect=None):
     ylim: Range of values along the Y-axis
     aspect: Y/X ratio
     '''
-    ax = plt.gca()
+    fig = plt.gcf()
+    ax  = _getCurrentAx(fig)
     if ax is not None:
         _ax_geometry(ax, dims=dims, xlim=xlim, ylim=ylim, aspect=aspect)
         return
     
-    fig = plt.gcf()
     if fig is not None:
         axes = fig.get_axes()
-        for ax in axes.flat():
+        for ax in axes:
             _ax_geometry(ax, dims=dims, xlim=xlim, ylim=ylim, aspect=aspect)
         return
     
@@ -142,12 +142,11 @@ def decoration(xlabel=None, ylabel=None, title=None, **kwargs):
     if fig is None:
         return
     
-    axes = fig.get_axes()
-    if len(axes) > 1:
+    if _isMultiAxes(fig):
         _fig_decoration(fig, title=title, **kwargs)
         return
     else:
-        ax = plt.gca()
+        ax  = _getCurrentAx(fig)
         if ax is not None:
             _ax_decoration(ax, xlabel=xlabel, ylabel=ylabel, title=title, **kwargs)
         return
@@ -176,20 +175,52 @@ def _ax_decoration(ax, xlabel=None, ylabel=None, title=None, **kwargs):
     if ylabel is not None:
         ax.set_ylabel(ylabel)
 
-def _getAxesFromFigure(fig):
+def _isMultiAxes(fig):
     axs = fig.get_axes()
 
-    # if several axes are returned, turn 'ax' back to the numpy array
-    if len(axs) > 1:
-        grid_spec = axs[0].get_subplotspec().get_gridspec()
-        nrows, ncols = grid_spec.get_geometry() 
-        axs = np.array(axs).reshape(nrows, ncols)
+    if len(axs) <= 1:
+        return False
+    
+    # Find the number of Axes in the initial subplots definition of the Figure
+    grid_spec = axs[0].get_subplotspec().get_gridspec()
+    nrows, ncols = grid_spec.get_geometry()
+    return nrows * ncols > 1
+
+def _getAxesFromFigureSubplots(fig):
+    axs = fig.get_axes()
+
+    # Find the number of Axes in the initial subplots definition of the Figure
+    grid_spec = axs[0].get_subplotspec().get_gridspec()
+    nrows, ncols = grid_spec.get_geometry()
+
+    # If nrows * ncols > 1, turn 'axs' back to the numpy array
+    if nrows * ncols > 1:
+        axs = np.array(axs[:nrows*ncols]).reshape(nrows, ncols)
     return axs
+
+def _getCurrentAx(fig):
+    '''
+    Returns the current Axes.
+    Note that if an Axes has been dedicated to Legend, the previous one is returned
+    '''
+    axs = fig.get_axes()
+    ax  = plt.gca()
+    index = axs.index(ax)
+
+    # Find the initial number of subplots in the figure
+    grid_spec = axs[0].get_subplotspec().get_gridspec()
+    nrows, ncols = grid_spec.get_geometry()
+    ninit = nrows * ncols
+
+    if index >= ninit:
+        return axs[ninit-1]
+    else:
+        return ax
 
 def _getNewAxes(nx=1, ny=1):
     ''' 
     Creates a new figure (possibly containing multiple subplots)
-    nx, ny:     Number of subplots along X and Y
+    nx, ny: Number of subplots along X and Y
 
     Remarks
         If 'ax' does not exist, a new figure is created. 
@@ -199,9 +230,9 @@ def _getNewAxes(nx=1, ny=1):
         fig, ax = plt.subplots(nx, ny, squeeze=False)
     else:
         fig = plt.gcf()
-        ax = _getAxesFromFigure(fig)
+        ax = _getAxesFromFigureSubplots(fig)
     
-    if len(ax) <= 1:
+    if not _isMultiAxes(fig):
         ax = _getFirstElement(ax)
     return ax
 
@@ -216,6 +247,35 @@ def _getFirstElement(tab):
             return first[0]
         return first
     return None  # Return None if `tab` is empty or not subscriptable.
+
+def close():
+    ''' 
+    General procedure for closing a graphic with matplotlib.pyplot.
+    It allows suppressing the dependency to matplotlib in your scripts
+    '''
+    plt.show()
+
+def init(nx=1, ny=1, figsize=None, flagEqual=False):
+    ''' 
+    General procedure for initializing a new graphic with matplotlib.pyplot.
+    It allows suppressing the dependency to matplotlib in your scripts
+    nx, ny:     Number of subplots along X and Y
+    figsize: When defined, this dictates the dimension of all Axes 
+    flagEqual: When True, all subsequent Axes have an 'aspect' set to 1
+    '''
+    fig, axs = plt.subplots(nrows=nx, ncols=ny)
+
+    aspect = None
+    if flagEqual:
+        aspect = 1
+
+    if nx * ny > 1:
+        for ax in axs.flat:
+            _ax_geometry(ax, dims=figsize, aspect=aspect)
+    else:
+        _ax_geometry(axs, dims=figsize, aspect=aspect)
+
+    return fig, axs
 
 def _legendContinuous(ax, im, legendName = None):
     '''
@@ -435,7 +495,7 @@ def varmod(vario=None, model=None, ivar=-1, jvar=-1, *args, **kwargs):
                        *args, **kwargs)
 
 def _fig_varmod(fig, vario=None, model=None, **kwargs):
-    axs = _getAxesFromFigure(fig)
+    axs = _getAxesFromFigureSubplots(fig)
     return _ax_varmod(axs, vario=vario, model=model, **kwargs)
 
 def _ax_varmod(axs, vario=None, model=None, ivar=-1, jvar=-1, idir=-1,
@@ -597,7 +657,7 @@ def _getHmax(hmax, vario, model):
     return hmax
 
 def _fig_variogram(fig, vario, **kwargs):
-    axs = _getAxesFromFigure(fig)
+    axs = _getAxesFromFigureSubplots(fig)
     return _ax_variogram(axs, vario=vario, **kwargs)
 
 def _ax_variogram(axs, vario, ivar=0, jvar=0, idir=0, *args, **kwargs):
@@ -698,7 +758,7 @@ def model(modelobj, ivar=0, jvar=0, *args, **kwargs):
     return _ax_model(axs, modelobj, ivar=ivar, jvar=jvar, *args, **kwargs)
     
 def _fig_model(fig, modelobj, **kwargs):
-    axs = _getAxesFromFigure(fig)
+    axs = _getAxesFromFigureSubplots(fig)
     return _ax_model(axs, modelobj=modelobj, **kwargs)
 
 def _ax_model(axs, modelobj, ivar=0, jvar=0, *args, **kwargs):
@@ -793,7 +853,7 @@ def _ax_symbol(ax, db, nameColor=None, nameSize=None,
                         np.interp(sizval, [sizvmin, sizvmax], [sizmin, sizmax]), s)
     else:
         sizval = np.full(nb, s)
-    
+
     res = ax.scatter(x = tabx[valid], y = taby[valid], 
                      s = sizval[valid], c = colval[valid], **kwargs)
 
@@ -801,13 +861,9 @@ def _ax_symbol(ax, db, nameColor=None, nameSize=None,
         ax.decoration(title = name)
 
     if flagLegendColor and nameColor is not None:
-        if legendNameColor is None:
-            legendNameColor = nameColor
         _legendContinuous(ax, res, legendNameColor)
     
     if flagLegendSize and nameSize is not None:
-        if legendNameSize is None:
-            legendNameSize = nameSize
         _legendDiscrete(ax, sizmin, sizmax, sizvmin, sizvmax, c, legendNameSize)
          
     return res
@@ -858,9 +914,6 @@ def _ax_literal(ax, db, name=None,
     if len(ax.get_title()) <= 0:
         ax.decoration(title = db.getName(name)[0])
 
-    if legendName is None:
-        legendName = name
-        
     return res
 
 def gradient(db, *args, **kwargs):
@@ -1104,8 +1157,6 @@ def _ax_raster(ax, dbgrid, name=None, useSel = True, posX=0, posY=1, corner=None
     res = ax.pcolormesh(X, Y, data, transform=tr + ax.transData, **kwargs)
     
     if flagLegend:
-        if legendName is None:
-            legendName = name
         _legendContinuous(ax, res, legendName)
             
     if len(ax.get_title()) <= 0:
@@ -1160,8 +1211,6 @@ def _ax_isoline(ax, dbgrid, name=None, useSel = True,
 
     if flagLegend:
         h1,l1 = res.legend_elements()
-        if legendName is None:
-            legendName = name
         ax.legend([h1[0]], [legendName])
         
     return res
