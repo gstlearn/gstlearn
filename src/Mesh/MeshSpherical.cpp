@@ -178,21 +178,6 @@ int MeshSpherical::reset(int ndim,
   return(0);
 }
 
-// int MeshSpherical::_findBarycenter(const VectorDouble& target,
-//                                    int nb_neigh,
-//                                    VectorInt& neighs,
-//                                    VectorDouble& weight) const
-// {
-//   for (int jm = 0; jm < nb_neigh; jm++)
-//   {
-//     int im                     = neighs[jm];
-//     VectorVectorDouble corners = getCoordinatesPerMesh(im);
-//     if (!_weightsInMesh(target, corners, TEST, weight, TEST)) continue;
-//     return im;
-//   }
-//   return -1;
-// }
-
 /****************************************************************************/
 /*!
 **  Check if a point, defined by its coordinates, belongs to a Mesh
