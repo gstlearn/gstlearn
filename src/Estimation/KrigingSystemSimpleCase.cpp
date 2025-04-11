@@ -217,7 +217,7 @@ void KrigingSystemSimpleCase::_setInternalShortCutVariablesGeneral()
   _ndim = getNDim();
   _setInternalShortCutVariablesModel();
 }
-void KrigingSystemSimpleCase::_rhsDump(KrigingAlgebraSimpleCase& algebra)
+void KrigingSystemSimpleCase::_rhsDump(KrigingAlgebraSimpleCase& algebra) const
 {
   mestitle(0, "RHS of Kriging matrix");
   if (_nech > 0) message("Number of active samples    = %d\n", _nech);
@@ -889,13 +889,13 @@ VectorVectorDouble KrigingSystemSimpleCase::getSampleCoordinates(KrigingAlgebraS
   return xyz;
 }
 
-MatrixDense KrigingSystemSimpleCase::getWeights(KrigingAlgebraSimpleCase& algebra) const
+MatrixDense KrigingSystemSimpleCase::getWeights(KrigingAlgebraSimpleCase& algebra)
 {
   const MatrixDense* lambda = algebra.getLambda();
   if (lambda == nullptr) return MatrixDense();
   return *lambda;
 }
-MatrixDense KrigingSystemSimpleCase::getMu(KrigingAlgebraSimpleCase& algebra) const
+MatrixDense KrigingSystemSimpleCase::getMu(KrigingAlgebraSimpleCase& algebra)
 {
   const MatrixDense* mu = algebra.getMu();
   if (mu == nullptr) return MatrixDense();

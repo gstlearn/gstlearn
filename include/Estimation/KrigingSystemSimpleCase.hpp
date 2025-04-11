@@ -80,8 +80,8 @@ public:
   MatrixDense     getRHS() const { return _Sigma0; }
   MatrixDense     getRHSF() const { return _X0; }
   MatrixSquareGeneral   getVariance() const { return _Sigma00; }
-  MatrixDense     getWeights(KrigingAlgebraSimpleCase& algebra) const;
-  MatrixDense     getMu(KrigingAlgebraSimpleCase& algebra) const;
+  static MatrixDense     getWeights(KrigingAlgebraSimpleCase& algebra);
+  static MatrixDense     getMu(KrigingAlgebraSimpleCase& algebra);
   double                getLTerm() const { return _algebra.getLTerm(); }
   ModelGeneric*         getModel() const { return _model; }
 private:
@@ -94,8 +94,8 @@ private:
   bool _isAuthorized() const;
 
   static void _dumpOptions();
-  void _rhsDump(KrigingAlgebraSimpleCase& algebra);
-  void _wgtDump(KrigingAlgebraSimpleCase& algebra);
+  void _rhsDump(KrigingAlgebraSimpleCase& algebra) const;
+  static void _wgtDump(KrigingAlgebraSimpleCase& algebra);
   void _estimateCalcul(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const;
   void _simulateCalcul(int status);
   void _neighCalcul(int status, const VectorDouble& tab, int iechout);

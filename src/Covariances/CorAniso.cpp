@@ -1017,7 +1017,7 @@ void CorAniso::makeRangeNoStatFunctional(const AFunctional* func, int idim)
   makeElemNoStat(EConsElem::RANGE, idim, 0, func);
 }
 
-void CorAniso::makeRangeStationary(int idim)
+void CorAniso::makeRangeStationary(int idim) const
 {
   if (getTabNoStatCovAniso()->removeElem(EConsElem::RANGE, idim) == 0 &&
       getTabNoStatCovAniso()->removeElem(EConsElem::SCALE, idim) == 0)
@@ -1040,7 +1040,7 @@ void CorAniso::makeScaleNoStatFunctional(const AFunctional* func, int idim)
   makeElemNoStat(EConsElem::SCALE, idim, 0, func);
 }
 
-void CorAniso::makeScaleStationary(int idim)
+void CorAniso::makeScaleStationary(int idim) const
 {
   makeRangeStationary(idim);
 }
@@ -1059,7 +1059,7 @@ void CorAniso::makeAngleNoStatFunctional(const AFunctional* func, int idim)
   makeElemNoStat(EConsElem::ANGLE, idim, 0, func);
 }
 
-void CorAniso::makeAngleStationary(int idim)
+void CorAniso::makeAngleStationary(int idim) const
 {
   if (getTabNoStatCovAniso()->removeElem(EConsElem::ANGLE, idim) == 0)
   {

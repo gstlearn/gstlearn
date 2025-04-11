@@ -208,9 +208,9 @@ public:
   void makeTensorNoStatFunctional(const AFunctional* func, int idim = 0, int jdim = 0);
   void makeParamNoStatFunctional(const AFunctional* func);
 
-  void makeRangeStationary(int idim = 0);
-  void makeScaleStationary(int idim = 0);
-  void makeAngleStationary(int idim = 0);
+  void makeRangeStationary(int idim = 0) const;
+  void makeScaleStationary(int idim = 0) const;
+  void makeAngleStationary(int idim = 0) const;
   void makeTensorStationary(int idim, int jdim);
   void makeParamStationary();
 
