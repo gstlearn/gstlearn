@@ -178,22 +178,20 @@ int MeshSpherical::reset(int ndim,
   return(0);
 }
 
-int MeshSpherical::_findBarycenter(const VectorDouble& target,
-                                   int nb_neigh,
-                                   VectorInt& neighs,
-                                   VectorDouble& weight) const
-{
-  for (int jm = 0; jm < nb_neigh; jm++)
-  {
-    int im                     = neighs[jm];
-    VectorVectorDouble corners = getCoordinatesPerMesh(im);
-    if (!GH::isInSphericalTriangleOptimized(target.data(),
-                                            corners[0].data(), corners[1].data(), corners[2].data(),
-                                            weight.data())) continue;
-    return im;
-  }
-  return -1;
-}
+// int MeshSpherical::_findBarycenter(const VectorDouble& target,
+//                                    int nb_neigh,
+//                                    VectorInt& neighs,
+//                                    VectorDouble& weight) const
+// {
+//   for (int jm = 0; jm < nb_neigh; jm++)
+//   {
+//     int im                     = neighs[jm];
+//     VectorVectorDouble corners = getCoordinatesPerMesh(im);
+//     if (!_weightsInMesh(target, corners, TEST, weight, TEST)) continue;
+//     return im;
+//   }
+//   return -1;
+// }
 
 /****************************************************************************/
 /*!
@@ -224,6 +222,120 @@ bool MeshSpherical::_weightsInMesh(const VectorDouble& coor,
                                             corners[0].data(), corners[1].data(), corners[2].data(),
                                             weights.data());
 }
+
+// /****************************************************************************/
+// /*!
+// ** Returns the Sparse Matrix used to project a Db onto the Meshing
+// **
+// ** \param[out] m         Projection matrix to be initialized
+// ** \param[in]  db        Db structure
+// ** \param[in]  rankZ     Rank of the Z-locator to be tested (see remarks)
+// ** \param[in]  verbose   Verbose flag
+// **
+// ** \remarks If rankZ>=0, a sample is only considered if the value
+// ** \remarks of the corresponding variable is defined
+// **
+// *****************************************************************************/
+// void MeshSpherical::resetProjFromDb(ProjMatrix* m,
+//                                     const Db* db,
+//                                     int rankZ,
+//                                     bool verbose) const
+// {
+//   int ndim     = getNDim();
+//   int nvertex  = getNApices();
+//   int ncorner  = getNApexPerMesh();
+//   int nech     = db->getNSample();
+
+//   // Preliminary checks
+//   if (isCompatibleDb(db)) return;
+
+//   /* Instantiate a Ball Tree for quick search */
+//   // Note: this Ball tree is defined in 3D despite the space dimension of mesh 
+//   Ball ball(this, nullptr, 10, false, 1);
+//   if (verbose) ball.display(1);
+
+//   /* Instantiate a Sparse matrix structrue (Triplets) */
+//   NF_Triplet NF_T;
+
+//   /* Optional title */
+//   if (verbose) mestitle(0, "Mesh Barycenter");
+
+//   /* Loop on the samples */
+//   int ip_max = 0;
+//   int iech = 0;
+//   int nout = 0;
+//   int nvalid = 0;
+//   VectorInt neighs;
+//   VectorDouble distances;
+//   VectorDouble target(ndim);
+//   VectorDouble weight(ncorner, 0);
+//   for (int jech=0; jech<nech; jech++)
+//   {
+//     if (! db->isActive(jech)) continue;
+//     if (rankZ >= 0)
+//     {
+//       double testval = db->getFromLocator(ELoc::Z, jech, rankZ);
+//       if (FFFF(testval)) continue;
+//     }
+//     nvalid++;
+
+//     // Identification of the target point
+//     db->getCoordinatesInPlace(target, jech);
+
+//     /* Loop on the elligible meshes */
+//     int nb_neigh = 5;
+//     (void)ball.queryOneInPlace(target, nb_neigh, neighs, distances);
+//     int found = _findBarycenter(target, nb_neigh, neighs, weight);
+
+//     // If search has failed with a small number of neighbors, try with a larger one
+//     if (found < 0)
+//     {
+//       nb_neigh = 50;
+//       (void)ball.queryOneInPlace(target, nb_neigh, neighs, distances);
+//       found = _findBarycenter(target, nb_neigh, neighs, weight);
+//     }
+
+//     if (found >= 0)
+//     {
+//       /* Store the items in the sparse matrix */
+
+//       if (verbose) message("Sample %4d in Mesh %4d :", jech + 1, found + 1);
+//       for (int icorn=0; icorn<ncorner; icorn++)
+//       {
+//         int ip = getApex(found,icorn);
+//         if (ip > ip_max) ip_max = ip;
+//         if (verbose) message(" %4d (%4.2lf)", ip, weight[icorn]);
+//         NF_T.add(iech,ip,weight[icorn]);
+//       }
+//       if (verbose) message("\n");
+//     }
+//     else
+//     {
+
+//       /* Printout if a point does not belong to any mesh */
+
+//       nout++;
+//       messerr("Point %d (%lf %lf) does not belong to any mesh (nb_neigh=%d)", 
+//         jech + 1, target[0], target[1], nb_neigh);
+//     }
+//     iech++;
+//   }
+  
+//   /* Add the extreme value to force dimension */
+
+//   if (ip_max < nvertex - 1)
+//   {
+//     NF_T.force(nvalid,nvertex);
+//   }
+  
+//   /* Convert the triplet into a sparse matrix */
+
+//   if (verbose && nout > 0)
+//     messerr("%d / %d samples which do not belong to the Meshing",
+//             nout, db->getNSample(true));
+
+//   return m->resetFromTriplet(NF_T);
+// }
 
 /****************************************************************************/
 /*!
