@@ -13,7 +13,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Enum/ESpaceType.hpp"
 
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
@@ -116,9 +116,9 @@ static void _firstTest(Db* data,
 
   MatrixSquareSymmetric Sigma00 = model->eval0Mat();
   MatrixSquareSymmetric Sigma   = model->evalCovMatSym(data);
-  MatrixRectangular X           = model->evalDriftMat(data);
-  MatrixRectangular Sigma0      = model->evalCovMat(data, target);
-  MatrixRectangular X0          = model->evalDriftMat(target);
+  MatrixDense X           = model->evalDriftMat(data);
+  MatrixDense Sigma0      = model->evalCovMat(data, target);
+  MatrixDense X0          = model->evalDriftMat(target);
   VectorVectorInt sampleRanks   = data->getSampleRanks();
   VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
 
@@ -184,9 +184,9 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
 
   MatrixSquareSymmetric Sigma00P = model->eval0Mat();
   MatrixSquareSymmetric SigmaP   = model->evalCovMatSym(dataP);
-  MatrixRectangular XP           = model->evalDriftMat(dataP);
-  MatrixRectangular Sigma0P      = model->evalCovMat(dataP, target);
-  MatrixRectangular X0P          = model->evalDriftMat(target);
+  MatrixDense XP           = model->evalDriftMat(dataP);
+  MatrixDense Sigma0P      = model->evalCovMat(dataP, target);
+  MatrixDense X0P          = model->evalDriftMat(target);
   VectorVectorInt sampleRanksP   = dataP->getSampleRanks();
   VectorDouble ZP                = dataP->getValuesByRanks(sampleRanksP, means);
 
@@ -207,9 +207,9 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
 
   MatrixSquareSymmetric Sigma00 = model->eval0Mat();
   MatrixSquareSymmetric Sigma   = model->evalCovMatSym(data);
-  MatrixRectangular X           = model->evalDriftMat(data);
-  MatrixRectangular Sigma0      = model->evalCovMat(data, target);
-  MatrixRectangular X0          = model->evalDriftMat(target);
+  MatrixDense X           = model->evalDriftMat(data);
+  MatrixDense Sigma0      = model->evalCovMat(data, target);
+  MatrixDense X0          = model->evalDriftMat(target);
   VectorVectorInt sampleRanks   = data->getSampleRanks();
   VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
 
@@ -263,9 +263,9 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
 
   MatrixSquareSymmetric Sigma00P = model->eval0Mat();
   MatrixSquareSymmetric SigmaP   = model->evalCovMatSym(dataP);
-  MatrixRectangular XP           = model->evalDriftMat(dataP);
-  MatrixRectangular Sigma0P      = model->evalCovMat(dataP, targetP, -1, -1, VectorInt(), VectorInt({iech0}));
-  MatrixRectangular X0P          = model->evalDriftMat(targetP, VectorInt{iech0});
+  MatrixDense XP           = model->evalDriftMat(dataP);
+  MatrixDense Sigma0P      = model->evalCovMat(dataP, targetP, -1, -1, VectorInt(), VectorInt({iech0}));
+  MatrixDense X0P          = model->evalDriftMat(targetP, VectorInt{iech0});
   VectorVectorInt sampleRanksP   = dataP->getSampleRanks();
   VectorDouble ZP                = dataP->getValuesByRanks(sampleRanksP, means);
 
@@ -286,9 +286,9 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
 
   MatrixSquareSymmetric Sigma00 = model->eval0Mat();
   MatrixSquareSymmetric Sigma   = model->evalCovMatSym(data);
-  MatrixRectangular X           = model->evalDriftMat(data);
-  MatrixRectangular Sigma0      = model->evalCovMat(data, targetP);
-  MatrixRectangular X0          = model->evalDriftMat(targetP);
+  MatrixDense X           = model->evalDriftMat(data);
+  MatrixDense Sigma0      = model->evalCovMat(data, targetP);
+  MatrixDense X0          = model->evalDriftMat(targetP);
   VectorVectorInt sampleRanks   = data->getSampleRanks();
   VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
 
@@ -324,9 +324,9 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
 
   MatrixSquareSymmetric Sigma00 = model->eval0Mat();
   MatrixSquareSymmetric Sigma   = model->evalCovMatSym(data);
-  MatrixRectangular X           = model->evalDriftMat(data);
-  MatrixRectangular Sigma0      = model->evalCovMat(data, target);
-  MatrixRectangular X0          = model->evalDriftMat(target);
+  MatrixDense X           = model->evalDriftMat(data);
+  MatrixDense Sigma0      = model->evalCovMat(data, target);
+  MatrixDense X0          = model->evalDriftMat(target);
   VectorVectorInt sampleRanks   = data->getSampleRanks();
   VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
 

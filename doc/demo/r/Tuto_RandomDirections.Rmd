@@ -128,7 +128,7 @@ plot_dir <- function(np, nd = 3, meth = "vdc", ix = 1, iy = 2, seed=13364)
   } else {
     U = matrix(runif(np*nd), nrow = np, ncol = nd)
   }
-  Umat = MatrixRectangular_createFromVD(U, np, nd)
+  Umat = MatrixDense_createFromVD(U, np, nd)
   xmat = GeometryHelper_getDirectionsInRn(Umat)
   x = matrix(xmat$getValues(), nrow=xmat$getNRows())
   points(x[,ix], x[,iy], pch = 20, cex = 0.5)

@@ -99,7 +99,7 @@ invisible(argumentDefTestVString(c()))
 # Testing Matrix typemaps
 
 mat = matrix(c(1,2,3,4,5,6), nrow=3, ncol=2)
-invisible(argumentTestMatrixRectangular(mat)) 
+invisible(argumentTestMatrixDense(mat)) 
 invisible(argumentTestMatrixSquareGeneral(mat)) # Should provoke an error
 invisible(argumentTestMatrixSquareSymmetric(mat)) # Should provoke an error
 

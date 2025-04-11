@@ -468,8 +468,8 @@ VectorDouble AnamDiscreteDD::factors_mod()
   VectorDouble q2_s(nclass);
   VectorDouble tri2(ntri);
   MatrixSquareSymmetric c_s(nclass);
-  MatrixRectangular ptab(nclass, nclass);
-  MatrixRectangular q_s(nclass * nclass);
+  MatrixDense ptab(nclass, nclass);
+  MatrixDense q_s(nclass * nclass);
   CholeskyDense c_sChol;
 
   VectorDouble veca(nclass);

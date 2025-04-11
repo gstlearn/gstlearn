@@ -15,7 +15,7 @@
 #include "Basic/VectorNumT.hpp"
 
 class DbGrid;
-class MatrixRectangular;
+class MatrixDense;
 
 class GSTLEARN_EXPORT Convolution
 {
@@ -27,7 +27,7 @@ public:
 
   int ConvolveSparse(int iatt,
                      const VectorVectorInt& ranks,
-                     const MatrixRectangular& wgt,
+                     const MatrixDense& wgt,
                      const VectorDouble& means = VectorDouble(),
                      int optionVerbose         = 0);
   int ConvolveFFT(int iatt,

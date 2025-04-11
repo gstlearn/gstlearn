@@ -57,10 +57,10 @@ private:
 };
 
 /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' */
-GSTLEARN_EXPORT MatrixSquareGeneral* prodNormMatMat(const AMatrixDense* a,
-                                                    const AMatrixDense* m,
+GSTLEARN_EXPORT MatrixSquareGeneral* prodNormMatMat(const MatrixDense* a,
+                                                    const MatrixDense* m,
                                                     bool transpose = false);
 /*! Product 't(A)' %*% 'A' or 'A' %*% 't(A)' */
-GSTLEARN_EXPORT MatrixSquareGeneral* prodNormMat(const AMatrixDense &a,
+GSTLEARN_EXPORT MatrixSquareGeneral* prodNormMat(const MatrixDense &a,
                                                  const VectorDouble& vec = VectorDouble(),
                                                  bool transpose = false);

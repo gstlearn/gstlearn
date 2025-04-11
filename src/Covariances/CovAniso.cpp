@@ -193,7 +193,7 @@ bool CovAniso::isValidForSpectral() const
 {
   return getCorAniso()->isValidForSpectral();
 }
-MatrixRectangular CovAniso::simulateSpectralOmega(int nb) const
+MatrixDense CovAniso::simulateSpectralOmega(int nb) const
 {
   return getCorAniso()->simulateSpectralOmega(nb);
 }

@@ -19,10 +19,10 @@ temp = np.ravel(A.toTL().todense())
 
 B = gl.MatrixSquareGeneral(4)
 B.setValues(temp)
-C = gl.MatrixRectangular(4,4)
+C = gl.MatrixDense(4,4)
 C.setValues(temp)
 D = gl.MatrixSquareSymmetric(C)
-E = gl.MatrixRectangular(4,5)
+E = gl.MatrixDense(4,5)
 E.fillRandom()
 
 def test(A,inverse,name= ""):

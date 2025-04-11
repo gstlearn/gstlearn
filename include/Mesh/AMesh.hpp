@@ -14,7 +14,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
-class MatrixRectangular;
+class MatrixDense;
 class ProjMatrix;
 class MatrixInt;
 class Db;
@@ -72,7 +72,7 @@ public:
   /*! Returns the Vector of Extrema of the Bounding Box */
   VectorDouble getExtrema(int idim) const;
   /*! Returns the list of apexes and meshes */
-  void getElements(MatrixRectangular& apices, MatrixInt& meshes) const;
+  void getElements(MatrixDense& apices, MatrixInt& meshes) const;
 
   int  isCompatibleDb(const Db *db) const;
   VectorDouble getMeshSizes() const;
@@ -97,7 +97,7 @@ public:
   VectorDouble getDistances(int iapex0, const VectorInt& japices = VectorInt()) const;
 
   VectorVectorDouble getAllCoordinates() const;
-  MatrixRectangular getAllApices() const;
+  MatrixDense getAllApices() const;
   MatrixInt getAllMeshes() const;
 
   double getCenterCoordinate(int imesh, int idim) const;

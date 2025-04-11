@@ -146,9 +146,8 @@
 %include LinearOp/ALinearOp.hpp
 %include LinearOp/ASimulable.hpp
 %include Matrix/AMatrix.hpp
-%include Matrix/AMatrixDense.hpp
+%include Matrix/MatrixDense.hpp
 %include Matrix/MatrixSparse.hpp
-%include Matrix/MatrixRectangular.hpp
 %include Matrix/AMatrixSquare.hpp
 %include Matrix/NF_Triplet.hpp
 %include Matrix/MatrixSquareGeneral.hpp

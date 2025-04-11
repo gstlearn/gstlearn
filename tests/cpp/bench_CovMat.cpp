@@ -26,7 +26,7 @@
 void st_bench_writing_in_matrix(int nrows, int ncols, Timer& timer)
 {
   mestitle(1, "Writing into the Rectangular Covariance Matrix");
-  MatrixRectangular mat(nrows, ncols);
+  MatrixDense mat(nrows, ncols);
 
   // consecutive writes: loop in row then col
   timer.reset();
@@ -171,7 +171,7 @@ void st_bench_writing_in_matrix(int nrows, int ncols, Timer& timer)
       message("Simple loop between each target and the previous vector\n");
       model->setOptimEnabled(true);
 
-      MatrixRectangular mat;
+      MatrixDense mat;
       timer.reset();
       OptCustom::define("OptimCovMat", mode);
       (void) model->evalCovMatInPlace(mat, dbin, dbout);

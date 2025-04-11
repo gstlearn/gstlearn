@@ -18,7 +18,7 @@
 #include "Spatial/Projection.hpp"
 
 class Db;
-class MatrixRectangular;
+class MatrixDense;
 
 class GSTLEARN_EXPORT SpatialIndices : public AStringable
 {
@@ -36,8 +36,8 @@ public:
   double getLIC(const String &name1, const String &name2);
   double getGIC(const String &name1, const String &name2);
 
-  MatrixRectangular getMatrixEllipse() const;
-  MatrixRectangular getMatrixInertia() const;
+  MatrixDense getMatrixEllipse() const;
+  MatrixDense getMatrixInertia() const;
   VectorVectorDouble getAxes() const;
   VectorDouble getAxe(int rank) const;
   const VectorDouble& getCenter() const { return _center; }
@@ -64,7 +64,7 @@ private:
   Db *_db;                     // Not to be deleted
   VectorDouble _center;        // Vector for the center of gravity
   VectorDouble _mvalues;       // Vector of eigen values (normalized)
-  MatrixRectangular _mvectors; // Array of eigen vectors
+  MatrixDense _mvectors; // Array of eigen vectors
   double _inertia;             // Value of the inertia
   double _wztot;               // Sum of weights
   double _iso;                 // Iso index

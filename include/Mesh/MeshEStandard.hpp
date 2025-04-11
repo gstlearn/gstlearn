@@ -12,7 +12,7 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixInt.hpp"
 
 class MeshETurbo;
@@ -40,13 +40,13 @@ public:
   double  getMeshSize(int imesh) const override;
   static MeshEStandard* createFromNF(const String& neutralFilename,
                                      bool verbose = true);
-  static MeshEStandard* createFromExternal(const MatrixRectangular& apices,
+  static MeshEStandard* createFromExternal(const MatrixDense& apices,
                                            const MatrixInt& meshes,
                                            bool verbose = false);
 
   VectorInt    getMeshList() const { return _meshes.getValues(); }
   VectorDouble getPointList(bool byCol = true) const;
-  int reset(const MatrixRectangular& apices,
+  int reset(const MatrixDense& apices,
             const MatrixInt& meshes,
             bool verbose = false);
   int reset(int ndim,
@@ -57,7 +57,7 @@ public:
             bool verbose = false);
   int resetFromTurbo(const MeshETurbo &turbo, bool verbose = false);
 
-  const MatrixRectangular& getApices() const { return _apices; }
+  const MatrixDense& getApices() const { return _apices; }
   const MatrixInt& getMeshes() const { return _meshes; }
 
 protected:
@@ -79,6 +79,6 @@ private:
   void _validate();
 
 private:
-  MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim
+  MatrixDense _apices; // Dimension: NRow=napices; Ncol=Ndim
   MatrixInt         _meshes; // Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
 };

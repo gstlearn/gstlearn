@@ -11,7 +11,7 @@
 #include "geoslib_define.h"
 #include "geoslib_d.h"
 
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/WarningMacro.hpp"
@@ -54,7 +54,7 @@ static VectorDouble _corputVector(int n, int b)
   VectorDouble un(L,0.);
   un[0] = 1.;
 
-  MatrixRectangular d(n, L);
+  MatrixDense d(n, L);
 
   if (L == 1)
   {
@@ -2366,11 +2366,11 @@ VectorDouble ut_legendreVec(int n, const VectorDouble& vecin, bool flagNorm)
   return vecout;
 }
 
-MatrixRectangular ut_legendreMatNorm(int n, const VectorDouble& v)
+MatrixDense ut_legendreMatNorm(int n, const VectorDouble& v)
 {
   int nrow = (int) v.size();
   int ncol = n + 1;
-  MatrixRectangular res(nrow, ncol);
+  MatrixDense res(nrow, ncol);
 
   VectorDouble P0(nrow, 0.);
   VectorDouble P1(nrow, 0.);
@@ -2438,11 +2438,11 @@ MatrixRectangular ut_legendreMatNorm(int n, const VectorDouble& v)
  **       P_l^m (x) for 0 <= m <= l
  **
  *****************************************************************************/
-MatrixRectangular ut_legendreAssociatedMat(int l, const VectorDouble& v, bool flagNorm)
+MatrixDense ut_legendreAssociatedMat(int l, const VectorDouble& v, bool flagNorm)
 {
   int nrow = (int) v.size();
   int ncol = l + 1;
-  MatrixRectangular res(nrow, ncol);
+  MatrixDense res(nrow, ncol);
 
   VectorDouble w(nrow);
   VectorDouble Pmm(nrow);
@@ -3172,7 +3172,7 @@ DISABLE_WARNING_POP
  * @return A matrix of dimensions [n,nd] with the sequence values (between 0 and 1)
  * @note The dimension nd should be lower or equal to 50.
  */
-MatrixRectangular* vanDerCorput(int n, int nd)
+MatrixDense* vanDerCorput(int n, int nd)
 {
   VectorDouble primes = { 2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,
                           73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,
@@ -3185,7 +3185,7 @@ MatrixRectangular* vanDerCorput(int n, int nd)
     return nullptr;
   }
 
-  MatrixRectangular* res = new MatrixRectangular(n, nd);
+  MatrixDense* res = new MatrixDense(n, nd);
   for (int k = 0; k < nd; k++)
   {
     VectorDouble local = _corputVector(n, primes[k]);
@@ -3194,11 +3194,11 @@ MatrixRectangular* vanDerCorput(int n, int nd)
   return res;
 }
 
-MatrixRectangular fillLegendreMatrix(const VectorDouble &r, int legendreOrder)
+MatrixDense fillLegendreMatrix(const VectorDouble &r, int legendreOrder)
 {
   int nrow = (int) r.size();
   int ncol = legendreOrder + 1;
-  MatrixRectangular lp(nrow, ncol);
+  MatrixDense lp(nrow, ncol);
 
   // Initialization
 

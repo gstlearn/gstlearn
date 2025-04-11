@@ -143,7 +143,7 @@ public:
   MatrixSquareSymmetric evalCovMat0(const Db* db,
                                     int iech,
                                     const KrigOpt& krigopt = KrigOpt()) const;
-  MatrixRectangular evalCovMat(const Db* db1,
+  MatrixDense evalCovMat(const Db* db1,
                                const Db* db2           = nullptr,
                                int ivar0               = -1,
                                int jvar0               = -1,
@@ -170,7 +170,7 @@ public:
                          const Db* db,
                          int iech,
                          const KrigOpt& krigopt = KrigOpt()) const;
-  int evalCovMatInPlace(MatrixRectangular& mat,
+  int evalCovMatInPlace(MatrixDense& mat,
                         const Db* db1,
                         const Db* db2           = nullptr,
                         int ivar0               = -1,
@@ -186,7 +186,7 @@ public:
                            const CovCalcMode* mode = nullptr,
                            bool cleanOptim         = true) const;
 
-  int evalCovMatInPlaceFromIdx(MatrixRectangular& mat,
+  int evalCovMatInPlaceFromIdx(MatrixDense& mat,
                                const Db* db1,
                                const Db* db2,
                                const VectorVectorInt& index1,
@@ -199,7 +199,7 @@ public:
                                   const VectorVectorInt& index1,
                                   const CovCalcMode* mode = nullptr,
                                   bool cleanOptim         = true) const;
-  int evalCovMatRHSInPlaceFromIdx(MatrixRectangular& mat,
+  int evalCovMatRHSInPlaceFromIdx(MatrixDense& mat,
                                   const Db* db1,
                                   const Db* db2,
                                   const VectorVectorInt& index1,
@@ -478,7 +478,7 @@ private:
   void _optimizationPreProcessForTarget(const Db* db2,
                                         const VectorInt& nbgh2 = VectorInt()) const;
 
-  void _loopOnData(MatrixRectangular& mat,
+  void _loopOnData(MatrixDense& mat,
                    const SpacePoint& p2,
                    int ivar2,
                    int iabs2,
@@ -487,13 +487,13 @@ private:
                    bool flagNoStat,
                    const VectorVectorInt& index1,
                    const CovCalcMode& mode) const;
-  static void _scaleOnData(MatrixRectangular& mat, int icol, int ndisc);
-  int _evalCovMatRHSInPlaceBlock(MatrixRectangular& mat,
+  static void _scaleOnData(MatrixDense& mat, int icol, int ndisc);
+  int _evalCovMatRHSInPlaceBlock(MatrixDense& mat,
                                  const Db* db2,
                                  const VectorVectorInt& index1,
                                  const VectorVectorInt& index2,
                                  const KrigOpt& krigopt = KrigOpt()) const;
-  int _evalCovMatRHSInPlacePoint(MatrixRectangular& mat,
+  int _evalCovMatRHSInPlacePoint(MatrixDense& mat,
                                  const VectorVectorInt& index1,
                                  const VectorVectorInt& index2,
                                  const KrigOpt& krigopt = KrigOpt()) const;

@@ -10,9 +10,8 @@
 /******************************************************************************/
 #include "Mesh/MeshSpherical.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixInt.hpp"
-#include "Matrix/NF_Triplet.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
 #include "Geometry/GeometryHelper.hpp"
@@ -20,7 +19,7 @@
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
 
-MeshSpherical::MeshSpherical(const MatrixRectangular &apices,
+MeshSpherical::MeshSpherical(const MatrixDense &apices,
                              const MatrixInt &meshes)
     : AMesh(),
       _apices(apices),
@@ -125,7 +124,7 @@ MeshSpherical* MeshSpherical::createFromNF(const String& neutralFilename, bool v
   return mesh;
 }
 
-MeshSpherical* MeshSpherical::create(const MatrixRectangular &apices,
+MeshSpherical* MeshSpherical::create(const MatrixDense &apices,
                                      const MatrixInt &meshes)
 {
   return new MeshSpherical(apices, meshes);
@@ -350,7 +349,7 @@ bool MeshSpherical::_deserialize(std::istream& is, bool /*verbose*/)
   {
     VectorDouble apices_local;
     ret = ret && _recordReadVec<double>(is, "Apices", apices_local, ndim * napices);
-    _apices = MatrixRectangular(napices, ndim);
+    _apices = MatrixDense(napices, ndim);
     _apices.setValues(apices_local);
   }
 

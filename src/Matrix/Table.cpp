@@ -16,7 +16,7 @@
 #include "Basic/ASerializable.hpp"
 
 Table::Table(int nrow, int ncol, bool skip_title, bool skip_description)
-  : MatrixRectangular(nrow, ncol),
+  : MatrixDense(nrow, ncol),
     ASerializable(),
     _title(),
     _rowNames(),
@@ -28,7 +28,7 @@ Table::Table(int nrow, int ncol, bool skip_title, bool skip_description)
 }
 
 Table::Table(const Table &m)
-    : MatrixRectangular(m),
+    : MatrixDense(m),
       ASerializable(m),
       _title(m._title),
       _rowNames(m._rowNames),
@@ -43,7 +43,7 @@ Table& Table::operator=(const Table &m)
 {
   if (this != &m)
   {
-    MatrixRectangular::operator=(m);
+    MatrixDense::operator=(m);
     ASerializable::operator=(m);
     _title = m._title;
     _rowNames = m._rowNames;
@@ -60,7 +60,7 @@ Table::~Table()
 
 void Table::reset(int nrows, int ncols)
 {
-  AMatrixDense::reset(nrows, ncols);
+  MatrixDense::reset(nrows, ncols);
   _clearDecoration();
 }
 

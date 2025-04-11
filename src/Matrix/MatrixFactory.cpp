@@ -12,13 +12,12 @@
 #include "Matrix/AMatrixSquare.hpp"
 #include "Matrix/MatrixFactory.hpp"
 
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
 #include "Basic/VectorHelper.hpp"
-#include "Basic/AException.hpp"
 
 /****************************************************************************/
 /*!
@@ -92,7 +91,7 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
 
       // Case of a resulting Rectangular matrix
 
-      res = new MatrixRectangular();
+      res = new MatrixDense();
     }
   }
 
@@ -185,7 +184,7 @@ AMatrix* MatrixFactory::createReduce(const AMatrix *x,
 
   /// TODO : use typeinfo
   AMatrix* res = nullptr;
-  const MatrixRectangular*        mxrg  = dynamic_cast<const MatrixRectangular*>(x);
+  const MatrixDense*        mxrg  = dynamic_cast<const MatrixDense*>(x);
   const MatrixSquareGeneral*      mxsg  = dynamic_cast<const MatrixSquareGeneral*>(x);
   const MatrixSquareSymmetric*    mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
 
@@ -195,7 +194,7 @@ AMatrix* MatrixFactory::createReduce(const AMatrix *x,
     if (flagSame)
       res = new MatrixSquareSymmetric(newNRows);
     else
-      res = new MatrixRectangular(newNRows, newNCols);
+      res = new MatrixDense(newNRows, newNCols);
   }
   else if (mxsg != nullptr)
   {
@@ -203,12 +202,12 @@ AMatrix* MatrixFactory::createReduce(const AMatrix *x,
     if (flagSame)
       res = new MatrixSquareGeneral(newNRows);
     else
-      res = new MatrixRectangular(newNRows, newNCols);
+      res = new MatrixDense(newNRows, newNCols);
   }
   else if (mxrg != nullptr)
   {
     // Case of a rectangular input matrix
-    res = new MatrixRectangular(newNRows, newNCols);
+    res = new MatrixDense(newNRows, newNCols);
   }
   else
     messageAbort("CreateReduce cannot be called for such matrix. This should never happen");
@@ -310,7 +309,7 @@ AMatrix* MatrixFactory::createGlue(const AMatrix* a1,
   }
   else
   {
-    a = MatrixRectangular::glue(a1, a2, flagShiftRow, flagShiftCol);
+    a = MatrixDense::glue(a1, a2, flagShiftRow, flagShiftCol);
   }
   return a;
 }

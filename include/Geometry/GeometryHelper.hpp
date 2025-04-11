@@ -14,7 +14,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixInt.hpp"
 
 class GSTLEARN_EXPORT GeometryHelper
@@ -142,8 +142,8 @@ public:
                               double* z,
                               double radius_arg = 1.);
   static MatrixSquareGeneral gradXYToRotmat(double dzoverdx, double dzoverdy);
-  static MatrixRectangular* getDirectionsInR3(const MatrixRectangular *U);
-  static MatrixRectangular* getDirectionsInRn(const MatrixRectangular *U);
+  static MatrixDense* getDirectionsInR3(const MatrixDense *U);
+  static MatrixDense* getDirectionsInRn(const MatrixDense *U);
 
   static double formatAngle(double anglein, double basis = 360.);
   static VectorDouble formatAngles(const VectorDouble &anglesin, double basis = 360.);
@@ -153,7 +153,7 @@ public:
                                            const VectorDouble &v1,
                                            const VectorDouble &v2);
   static VectorVectorDouble sphBarCoord(const VectorVectorDouble &sphPts,
-                                        const MatrixRectangular &apices,
+                                        const MatrixDense &apices,
                                         const MatrixInt &meshes);
 
   static double getCosineAngularTolerance(double tolang);

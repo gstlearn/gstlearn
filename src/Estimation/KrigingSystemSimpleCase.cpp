@@ -13,7 +13,7 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Estimation/KrigingAlgebraSimpleCase.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
@@ -448,8 +448,8 @@ int KrigingSystemSimpleCase::estimate(int iechout,
   //  // Store the Rank of the Target sample
 
   int status = 0;
-  MatrixRectangular* Sigma0 = nullptr;
-  MatrixRectangular* X0     = nullptr;
+  MatrixDense* Sigma0 = nullptr;
+  MatrixDense* X0     = nullptr;
   
   if (iechout + 1 == OptDbg::getReference())
   {  
@@ -889,15 +889,15 @@ VectorVectorDouble KrigingSystemSimpleCase::getSampleCoordinates(KrigingAlgebraS
   return xyz;
 }
 
-MatrixRectangular KrigingSystemSimpleCase::getWeights(KrigingAlgebraSimpleCase& algebra) const
+MatrixDense KrigingSystemSimpleCase::getWeights(KrigingAlgebraSimpleCase& algebra) const
 {
-  const MatrixRectangular* lambda = algebra.getLambda();
-  if (lambda == nullptr) return MatrixRectangular();
+  const MatrixDense* lambda = algebra.getLambda();
+  if (lambda == nullptr) return MatrixDense();
   return *lambda;
 }
-MatrixRectangular KrigingSystemSimpleCase::getMu(KrigingAlgebraSimpleCase& algebra) const
+MatrixDense KrigingSystemSimpleCase::getMu(KrigingAlgebraSimpleCase& algebra) const
 {
-  const MatrixRectangular* mu = algebra.getMu();
-  if (mu == nullptr) return MatrixRectangular();
+  const MatrixDense* mu = algebra.getMu();
+  if (mu == nullptr) return MatrixDense();
   return *mu;
 }

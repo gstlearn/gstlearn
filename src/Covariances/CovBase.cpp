@@ -15,11 +15,10 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/TabNoStatSills.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/NoStatArray.hpp"
-#include "Covariances/NoStatFunctional.hpp"
 #include "geoslib_define.h"
 #include <cstddef>
 #include <functional>
@@ -40,7 +39,7 @@ CovBase::CovBase(ACov* cor,
                  const MatrixSquareSymmetric& sill)
   : ACov(cor == nullptr ? CovContext() : cor->getContext())
   , _cholSillsInfo(MatrixT<ParamInfo>(sill.getNRows(), sill.getNCols(), createParamInfoForCholSill()))
-  , _cholSills(MatrixRectangular(sill.getNRows(), sill.getNCols()))
+  , _cholSills(MatrixDense(sill.getNRows(), sill.getNCols()))
   , _sillCur(sill)
   , _cor(cor)
 {

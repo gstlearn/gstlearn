@@ -20,7 +20,7 @@
 #include "Simulation/ACalcSimulation.hpp"
 
 class Skin;
-class MatrixRectangular;
+class MatrixDense;
 
 /**
  * Multivariate multiphase propagation into a set of components

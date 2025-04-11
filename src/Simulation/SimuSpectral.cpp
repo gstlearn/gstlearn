@@ -12,7 +12,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Stats/Classical.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CorAniso.hpp"

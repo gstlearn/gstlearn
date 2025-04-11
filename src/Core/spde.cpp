@@ -5273,7 +5273,7 @@ void spde_mesh_assign(AMesh *amesh,
 
   delete amesh;
 
-  MatrixRectangular apices;
+  MatrixDense apices;
   apices.reset(nvertex,ndim);
   apices.setValues(arg_points, true);
 

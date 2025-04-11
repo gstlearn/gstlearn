@@ -105,7 +105,7 @@ void AModelOptimSills::_allocateInternalArrays(bool flag_exp)
   _gg.fill(TEST, _npadir * nvs2);
   _ge.clear();
   for (int icova = 0; icova < _ncova; icova++)
-    _ge.push_back(MatrixRectangular(nvs2, _npadir));
+    _ge.push_back(MatrixDense(nvs2, _npadir));
   _sill.clear();
   for (int icova = 0; icova < _ncova; icova++)
     _sill.push_back(MatrixSquareSymmetric(_nvar));
@@ -125,10 +125,10 @@ void AModelOptimSills::_allocateInternalArrays(bool flag_exp)
     for (int icova = 0; icova < _ncova; icova++)
       _alphau.push_back(MatrixSquareSymmetric(1));
     _ge1.clear();
-    _ge1.push_back(MatrixRectangular(nvs2, _npadir));
+    _ge1.push_back(MatrixDense(nvs2, _npadir));
     _ge2.clear();
     for (int icova = 0; icova < _ncova; icova++)
-      _ge2.push_back(MatrixRectangular(nvs2, _npadir));
+      _ge2.push_back(MatrixDense(nvs2, _npadir));
     _wt2.fill(TEST, nvs2 * _npadir);
     _gg2.fill(TEST, nvs2 * _npadir);
   }
@@ -186,9 +186,9 @@ void AModelOptimSills::_initializeGoulard()
 {
   MatrixSquareSymmetric aa(_ncova);
   VectorDouble bb(_ncova);
-  MatrixRectangular Ae(_ncova, 1);
+  MatrixDense Ae(_ncova, 1);
   VectorDouble be(1);
-  MatrixRectangular Ai(_ncova, _ncova);
+  MatrixDense Ai(_ncova, _ncova);
   VectorDouble bi(_ncova);
   VectorDouble res(_ncova);
   VectorDouble consSill = _constraints->getConstantSills();
@@ -240,7 +240,7 @@ void AModelOptimSills::_initializeGoulard()
       else
       {
         retcode = aa.minimizeWithConstraintsInPlace(
-          bb, MatrixRectangular(), VectorDouble(), MatrixRectangular(),
+          bb, MatrixDense(), VectorDouble(), MatrixDense(),
           VectorDouble(), res);
       }
 
@@ -499,8 +499,8 @@ double AModelOptimSills::_minimizeP4(int icov0,
   VectorDouble Nir_v(_nvar);
   VectorDouble Mrr_v(_npadir);
   VectorDouble Crr_v(_npadir);
-  MatrixRectangular Airk_v(_npadir, _nvar);
-  MatrixRectangular Birk_v(_npadir, _nvar);
+  MatrixDense Airk_v(_npadir, _nvar);
+  MatrixDense Birk_v(_npadir, _nvar);
   VectorDouble xx(2);
   VectorDouble xt(2);
   VectorDouble xest(2);
@@ -827,7 +827,7 @@ int AModelOptimSills::_goulardWithoutConstraint(
   int npadir,
   VectorDouble& wt,
   VectorDouble& gg,
-  std::vector<MatrixRectangular>& ge,
+  std::vector<MatrixDense>& ge,
   std::vector<MatrixSquareSymmetric>& sill,
   double* crit_arg) const
 {
@@ -847,11 +847,11 @@ int AModelOptimSills::_goulardWithoutConstraint(
 
   /* Core allocation */
 
-  MatrixRectangular mp(nvs2, npadir);
-  std::vector<MatrixRectangular> fk;
+  MatrixDense mp(nvs2, npadir);
+  std::vector<MatrixDense> fk;
   fk.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
-    fk.push_back(MatrixRectangular(nvs2, npadir));
+    fk.push_back(MatrixDense(nvs2, npadir));
   MatrixSquareSymmetric cc(nvar);
 
   std::vector<MatrixSquareSymmetric> aic;

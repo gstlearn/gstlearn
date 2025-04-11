@@ -14,7 +14,7 @@
 #include "LinearOp/AShiftOp.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/NF_Triplet.hpp"
@@ -663,7 +663,7 @@ void ShiftOpMatrix::_loadAux(VectorDouble &tab, const EConsElem &type, int imesh
 int ShiftOpMatrix::_preparMatrices(const AMesh *amesh,
                                int imesh,
                                MatrixSquareGeneral& matu,
-                               MatrixRectangular& matw) const
+                               MatrixDense& matw) const
 {
   int ndim = _ndim;
   int ncorner = amesh->getNApexPerMesh();
@@ -717,7 +717,7 @@ MatrixSparse* ShiftOpMatrix::_BuildTildeCGradfromMap(std::map< int, double> &tab
 int ShiftOpMatrix::_prepareMatricesSVariety(const AMesh *amesh,
                                         int imesh,
                                         VectorVectorDouble &coords,
-                                        MatrixRectangular& matM,
+                                        MatrixDense& matM,
                                         MatrixSquareSymmetric &matMtM,
                                         AMatrix &matP,
                                         double *deter) const
@@ -811,8 +811,8 @@ int ShiftOpMatrix::_buildS(const AMesh *amesh, double tol)
   VectorDouble srot(2);
   MatrixSquareSymmetric hh(ndim);
   MatrixSquareSymmetric matMtM(ncorner-1);
-  MatrixRectangular matP(ncorner-1,ndim);
-  MatrixRectangular matM(ndim, ncorner - 1);
+  MatrixDense matP(ncorner-1,ndim);
+  MatrixDense matM(ndim, ncorner - 1);
   MatrixSquareGeneral matMs(ndim);
   MatrixSquareSymmetric matPinvHPt(ncorner-1);
   VectorVectorDouble coords = amesh->getEmbeddedCoordinatesPerMesh();
@@ -970,9 +970,9 @@ int ShiftOpMatrix::_buildSGrad(const AMesh *amesh, double tol)
   MatrixSquareSymmetric work(ndim);
   MatrixSquareSymmetric work2(ndim);
   MatrixSquareSymmetric hhGrad(ndim);
-  MatrixRectangular matM(ndim, ncorner - 1);
+  MatrixDense matM(ndim, ncorner - 1);
   MatrixSquareSymmetric matMtM(ncorner-1);
-  MatrixRectangular matP(ncorner-1,ndim);
+  MatrixDense matP(ncorner-1,ndim);
   MatrixSquareGeneral matMs(ndim);
   MatrixSquareSymmetric matPGradHPt(ncorner-1);
   MatrixSquareSymmetric matPHHPt(ncorner-1);

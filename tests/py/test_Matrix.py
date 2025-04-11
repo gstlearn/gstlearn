@@ -18,7 +18,7 @@ mati2 = mati.clone()
 mati2.display()
 
 print("Cloning Matrix of doubles")
-matd = gl.MatrixRectangular(2,3)
+matd = gl.MatrixDense(2,3)
 matd.setValues([1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
 matd.display()
 matd2 = matd.clone()
@@ -31,7 +31,7 @@ proba = 0.4 # Probability to set values to 0 (making matrix sparse)
 
 # We create a square symmetrical matrix (not necessarily sparse)
 
-MR = gl.MatrixRectangular(nrow, ncol)
+MR = gl.MatrixDense(nrow, ncol)
 for icol in range(ncol):
   for irow in range(nrow):
     value = gl.law_gaussian()
@@ -52,7 +52,7 @@ M.display()
 # Create the different matrix formats (by conversion or extraction)
 
 # To a rectangular matrix
-MRR = gl.MatrixRectangular(nrow,ncol)
+MRR = gl.MatrixDense(nrow,ncol)
 MRR.setValues(M.getValues())
 print("Matrix MRR")
 MRR.display()

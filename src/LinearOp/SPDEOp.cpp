@@ -12,9 +12,8 @@
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/ProjMulti.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "geoslib_define.h"
-#include <vector>
 
 SPDEOp::SPDEOp(const PrecisionOpMulti* const popkriging,
                const ProjMulti* const proj,
@@ -207,7 +206,7 @@ void SPDEOp::evalInvCov(const constvect inv, vect result) const
 
 
 VectorDouble SPDEOp::computeDriftCoeffs(const VectorDouble& Z,
-                                        const MatrixRectangular& drifts) const
+                                        const MatrixDense& drifts) const
 {
   int xsize = (int)(drifts.size());
   VectorDouble XtInvSigmaZ(xsize);

@@ -20,7 +20,7 @@
 class Model;
 class DbGrid;
 class Constraints;
-class MatrixRectangular;
+class MatrixDense;
 class MatrixSquareSYmmetric;
 
 /**

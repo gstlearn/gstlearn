@@ -14,7 +14,7 @@
 #include "Core/fftn.hpp"
 #include "Basic/FFT.hpp"
 #include "Db/DbGrid.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 
 Convolution::Convolution(DbGrid* dbgrid)
   : _dbgrid(dbgrid)
@@ -52,7 +52,7 @@ bool Convolution::_isDbGridDefined() const
 
 int Convolution::ConvolveSparse(int iatt,
                                 const VectorVectorInt& ranks,
-                                const MatrixRectangular& wgt,
+                                const MatrixDense& wgt,
                                 const VectorDouble& means,
                                 int optionVerbose)
 {

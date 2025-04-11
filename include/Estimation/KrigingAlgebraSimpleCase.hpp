@@ -14,7 +14,7 @@
 #include "gstlearn_export.hpp"
 #include "Basic/OptCustom.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/AMatrix.hpp"
 #include <memory>
 
@@ -40,7 +40,7 @@ public:
                            const VectorVectorInt* sampleRanks   = nullptr,
                            const VectorDouble* Z                = nullptr,
                            const MatrixSquareSymmetric* Sigma   = nullptr,
-                           const MatrixRectangular* X           = nullptr,
+                           const MatrixDense* X           = nullptr,
                            const MatrixSquareSymmetric* Sigma00 = nullptr,
                            const VectorDouble& Means            = VectorDouble(),
                            int flagchol = false,
@@ -55,9 +55,9 @@ public:
               const VectorVectorInt* indices = nullptr,
               const VectorDouble& Means      = VectorDouble());
   int setLHS(const MatrixSquareSymmetric* Sigma = nullptr,
-             const MatrixRectangular* X         = nullptr);
-  int setRHS(MatrixRectangular* Sigma0 = nullptr,
-             MatrixRectangular* X0     = nullptr);
+             const MatrixDense* X         = nullptr);
+  int setRHS(MatrixDense* Sigma0 = nullptr,
+             MatrixDense* X0     = nullptr);
   int setVariance(const MatrixSquareSymmetric* Sigma00 = nullptr);
 
   void printStatus() const;
@@ -72,15 +72,15 @@ public:
   VectorDouble getVarianceZstar();
   const MatrixSquareSymmetric* getStdvMat();
   const MatrixSquareSymmetric* getVarianceZstarMat();
-  const MatrixRectangular* getLambda();
-  const MatrixRectangular* getLambda0();
-  const MatrixRectangular* getMu();
+  const MatrixDense* getLambda();
+  const MatrixDense* getLambda0();
+  const MatrixDense* getMu();
   double getLTerm();
   int updateRHS();
 
   bool isDual() const { return _flagDual; }
-  MatrixRectangular* getSigma0() { return _Sigma0.get(); }
-  MatrixRectangular* getX0() { return _X0.get(); }
+  MatrixDense* getSigma0() { return _Sigma0.get(); }
+  MatrixDense* getX0() { return _X0.get(); }
   VectorVectorInt* getSampleRanks() { return _sampleRanks.get(); }
 
 private:
@@ -165,42 +165,42 @@ private:
   // Quantities to be defined by the user
   std::shared_ptr<VectorDouble> _Z;                // Data [flattened] (Dim: _neq)
   std::shared_ptr<VectorVectorInt> _sampleRanks;   // Vector of Vector of sampl indices per variable
-  std::shared_ptr<MatrixRectangular> _X;           // Drift at Data (Dim: _neq * _nbfl)
+  std::shared_ptr<MatrixDense> _X;           // Drift at Data (Dim: _neq * _nbfl)
   std::shared_ptr<MatrixSquareSymmetric> _Sigma;   // Covariance Matrix (Dim: _neq * _neq)
   std::shared_ptr<MatrixSquareSymmetric> _Sigma00; // Variance at Target (Dim: _nrhs * _nrhs)
-  std::shared_ptr<MatrixRectangular> _Sigma0;      // Covariance at Target (Dim: _neq * _nrhs)
-  std::shared_ptr<MatrixRectangular> _X0;          // Drift at Target (Dim: _nrhs * _nbfl)
+  std::shared_ptr<MatrixDense> _Sigma0;      // Covariance at Target (Dim: _neq * _nrhs)
+  std::shared_ptr<MatrixDense> _X0;          // Drift at Target (Dim: _nrhs * _nbfl)
 
   VectorDouble _Means; // Fixed drift coefficients
 
   std::shared_ptr<MatrixSquareSymmetric> _InvSigma; // Inv{Sigma} (Dim: _neq * _neq)
   std::shared_ptr<CholeskyDense> _cholSigma;
-  std::shared_ptr<MatrixRectangular> _XtInvSigma; // X^t * Inv{Sigma} (Dim: _nbfl * _neq);
-  std::shared_ptr<MatrixRectangular> _invSigmaX;  // Inv{Sigma} X (Dim: _neq * _nbfl);
+  std::shared_ptr<MatrixDense> _XtInvSigma; // X^t * Inv{Sigma} (Dim: _nbfl * _neq);
+  std::shared_ptr<MatrixDense> _invSigmaX;  // Inv{Sigma} X (Dim: _neq * _nbfl);
   std::shared_ptr<VectorDouble> _XtInvSigmaZ;     // X^t * Inv{Sigma} Z (Dim: _nbfl * _nvar);
   std::shared_ptr<MatrixSquareSymmetric> _invSigmac; // Inv{X^t * Inv{Sigma} * X} (Dim: _nbfl * _nbfl)
   std::shared_ptr<VectorDouble> _Beta;            // Drift coefficients (Dim: _nbfl)
-  std::shared_ptr<MatrixRectangular> _LambdaSK;   // Weights for SK (Dim: _neq * _nrhs)
+  std::shared_ptr<MatrixDense> _LambdaSK;   // Weights for SK (Dim: _neq * _nrhs)
                                                 // Following elements are defined for Dual programming
   std::shared_ptr<VectorDouble> _bDual; // Fake Covariance part in Dual (Dim: _neq)
   std::shared_ptr<VectorDouble> _invSigmaXBeta;
 
   VectorDouble _Zstar; // Estimated values (Dim: _nrhs)
 
-  MatrixRectangular _LambdaSKtX;
-  MatrixRectangular _LambdaUK;   // Weights for UK (Dim: _neq * _nrhs)
-  MatrixRectangular _MuUK;       // Lagrange multipliers (Dim: _nbfl * _nrhs)
+  MatrixDense _LambdaSKtX;
+  MatrixDense _LambdaUK;   // Weights for UK (Dim: _neq * _nrhs)
+  MatrixDense _MuUK;       // Lagrange multipliers (Dim: _nbfl * _nrhs)
   MatrixSquareSymmetric _Stdv;   // Estimation stdv. (Dim: _nrhs * _nrhs)
   MatrixSquareSymmetric _VarZSK; // Estimator variance in SK (Dim: _nrhs * _nrhs)
   MatrixSquareSymmetric _VarZUK; // Estimator variance in UK (Dim: _nrhs * _nrhs)
   MatrixSquareSymmetric _Sigmac;
   // Following elements are defined for internal storage
 
-  MatrixRectangular _Y0; // X0 - LambdaSK * X^t (Dim: _nrhs * _nbfl)
+  MatrixDense _Y0; // X0 - LambdaSK * X^t (Dim: _nrhs * _nbfl)
 
-  MatrixRectangular _LambdaUKtSigma0;
-  MatrixRectangular _MuUKtX0t;
-  MatrixRectangular _invSigmaXMuUK;
+  MatrixDense _LambdaUKtSigma0;
+  MatrixDense _MuUKtX0t;
+  MatrixDense _invSigmaXMuUK;
   VectorDouble _X0Beta;
 
   // Additional parameters

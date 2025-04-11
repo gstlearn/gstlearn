@@ -11,7 +11,7 @@
 #include "Covariances/CovGaussian.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Simulation/TurningBandOperate.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Basic/Law.hpp"
 
 #include "math.h"
@@ -90,10 +90,10 @@ double CovGaussian::simulateTurningBand(double t0, TurningBandOperate &operTB) c
   return operTB.cosineOne(t0);
 }
 
-MatrixRectangular CovGaussian::simulateSpectralOmega(int nb) const
+MatrixDense CovGaussian::simulateSpectralOmega(int nb) const
 {
   int ndim = getContext().getNDim();
-  MatrixRectangular mat(nb, ndim);
+  MatrixDense mat(nb, ndim);
   for (int irow = 0; irow < nb; irow++)
     for (int icol = 0; icol < ndim; icol++)
       mat.setValue(irow, icol, law_gaussian());

@@ -405,8 +405,8 @@ if(flag.verbose) {
   print(paste0(">>> Direct computation of linear combination kriging"))
 }
 
-# the R matrix matLC has to be converted into a gstlearn MatrixRectangular:
-# MatrixRectangular_createFromVD(beta, nrow=1, ncol=length(beta))
+# the R matrix matLC has to be converted into a gstlearn MatrixDense:
+# MatrixDense_createFromVD(beta, nrow=1, ncol=length(beta))
 # OR
 # beta |> matrix(nrow=1, ncol=length(beta)) |> fromTL()
 # OR
@@ -585,8 +585,8 @@ if(flag.verbose) {
   print(paste0(">>> Direct computation of linear combination kriging"))
 }
 
-# the R matrix matLC has to be converted into a gstlearn MatrixRectangular:
-# MatrixRectangular_createFromVD(beta, nrow=1, ncol=length(beta))
+# the R matrix matLC has to be converted into a gstlearn MatrixDense:
+# MatrixDense_createFromVD(beta, nrow=1, ncol=length(beta))
 # OR
 # beta |> matrix(nrow=1, ncol=length(beta)) |> fromTL()
 # OR

@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
   // Building the Covariance and Drift Matrices
   // (selection and heterotopy)
   MatrixSquareSymmetric covM;
-  MatrixRectangular driftM;
+  MatrixDense driftM;
 
   Model* modelM = Model::createFromEnvironment(2, 2);
   MatrixSquareSymmetric* sills =

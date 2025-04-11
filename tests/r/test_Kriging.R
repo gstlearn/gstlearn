@@ -32,10 +32,10 @@ test_kriging <- function(dbin, dbout, model, neigh,
   # --------------------------
   err         = neigh$attach(dbin, dbout)
   Sigma       = MatrixSquareSymmetric()
-  X           = MatrixRectangular()
+  X           = MatrixDense()
   Z           = VectorDouble()
-  Sigma0      = MatrixRectangular()
-  X0          = MatrixRectangular()
+  Sigma0      = MatrixDense()
+  X0          = MatrixDense()
   Kcalc       = KrigingAlgebra()
   krigopt     = KrigOpt()
   id_neigh    = VectorInt()

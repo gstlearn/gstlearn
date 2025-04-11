@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/AMatrixSquare.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -83,7 +83,7 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVD(const VectorDouble &X
   int nrow = ncol;
 
   // Check symmetry
-  MatrixRectangular* mattemp = MatrixRectangular::createFromVD(X, nrow, ncol);
+  MatrixDense* mattemp = MatrixDense::createFromVD(X, nrow, ncol);
   if (! mattemp->isSymmetric())
   {
     messerr("The input matrix does not seem to be Square and symmetric");
@@ -123,12 +123,12 @@ void MatrixSquareSymmetric::_setValues(const double* values, bool byCol)
       }
     }
 
-  AMatrixDense::_setValues(values, byCol);
+  MatrixDense::_setValues(values, byCol);
 }
 
 int MatrixSquareSymmetric::_invert()
 {
-  return AMatrixDense::_invert();
+  return MatrixDense::_invert();
 }
 
 bool MatrixSquareSymmetric::_isPhysicallyPresent(int irow, int icol) const
@@ -140,7 +140,7 @@ void MatrixSquareSymmetric::resetFromVVD(const VectorVectorDouble& tab, bool byC
   if (tab.empty()) return;
   // First load into a temporary rectangular matrix,
   // in order to check if it is square and symmetric
-  MatrixRectangular local;
+  MatrixDense local;
   local.resetFromVVD(tab, byCol);
   if (!local.isSquare() || !local.isSymmetric())
   {
@@ -236,12 +236,12 @@ void MatrixSquareSymmetric::normMatrix(const AMatrix& y, const AMatrixSquare& x,
 
 int MatrixSquareSymmetric::computeEigen(bool optionPositive)
 {
-  return AMatrixDense::_computeEigen(optionPositive);
+  return MatrixDense::_computeEigen(optionPositive);
 }
 
 int MatrixSquareSymmetric::computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive)
 {
-  return AMatrixDense::_computeGeneralizedEigen(b, optionPositive);
+  return MatrixDense::_computeGeneralizedEigen(b, optionPositive);
 }
 
 int MatrixSquareSymmetric::_terminateEigen(const VectorDouble &eigenValues,
@@ -412,7 +412,7 @@ int MatrixSquareSymmetric::_matrix_qo(const VectorDouble& gmat, VectorDouble& xm
 int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
                                        const VectorDouble& gmat,
                                        int na,
-                                       const MatrixRectangular& amat,
+                                       const MatrixDense& amat,
                                        const VectorDouble& bmat,
                                        VectorDouble& xmat,
                                        VectorDouble& lambda)
@@ -515,9 +515,9 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
  **
  *****************************************************************************/
 int MatrixSquareSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gmat,
-                                                          const MatrixRectangular& aemat,
+                                                          const MatrixDense& aemat,
                                                           const VectorDouble& bemat,
-                                                          const MatrixRectangular& aimat,
+                                                          const MatrixDense& aimat,
                                                           const VectorDouble& bimat,
                                                           VectorDouble& xmat)
 {
@@ -547,7 +547,7 @@ int MatrixSquareSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gm
   VectorDouble lambda(namax);
   VectorDouble vmat(namax);
   VectorDouble beimat(namax);
-  MatrixRectangular aeimat(neq, namax);
+  MatrixDense aeimat(neq, namax);
 
   /* We first perform the optimization with equality constraints only */
 
@@ -652,7 +652,7 @@ int MatrixSquareSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gm
  **
  *****************************************************************************/
 int MatrixSquareSymmetric::_constraintsError(const VectorInt& active,
-                                             const MatrixRectangular& aimat,
+                                             const MatrixDense& aimat,
                                              const VectorDouble& bimat,
                                              const VectorDouble& xmat,
                                              VectorDouble& vmat,
@@ -709,9 +709,9 @@ int MatrixSquareSymmetric::_constraintsConcatenateMat(int nae,
                                                       int nai,
                                                       int neq,
                                                       const VectorInt& active,
-                                                      const MatrixRectangular &tabemat,
-                                                      const MatrixRectangular &tabimat,
-                                                      MatrixRectangular &tabout)
+                                                      const MatrixDense &tabemat,
+                                                      const MatrixDense &tabimat,
+                                                      MatrixDense &tabout)
 {
   /* Copy the equalities */
 
@@ -895,7 +895,7 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createRandomDefinitePositive(int n
   return mat;
 }
 
-MatrixSquareSymmetric MatrixSquareSymmetric::compress0MatLC(const MatrixRectangular& matLC)
+MatrixSquareSymmetric MatrixSquareSymmetric::compress0MatLC(const MatrixDense& matLC)
 {
   int nvar                = getNCols();
   int nvarCL              = matLC.getNRows();

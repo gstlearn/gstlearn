@@ -11,7 +11,7 @@
 #pragma once
 
 #include "Mesh/AMesh.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixInt.hpp"
 
 /**
@@ -20,7 +20,7 @@
 class GSTLEARN_EXPORT MeshSpherical : public AMesh
 {
 public:
-  MeshSpherical(const MatrixRectangular& apices = MatrixRectangular(),
+  MeshSpherical(const MatrixDense& apices = MatrixDense(),
                 const MatrixInt& meshes = MatrixInt());
   MeshSpherical(const MeshSpherical &m);
   MeshSpherical& operator= (const MeshSpherical &m);
@@ -43,7 +43,7 @@ public:
 
   static MeshSpherical* createFromNF(const String& neutralFilename,
                                      bool verbose = true);
-  static MeshSpherical* create(const MatrixRectangular& apices = MatrixRectangular(),
+  static MeshSpherical* create(const MatrixDense& apices = MatrixDense(),
                                const MatrixInt& meshes         = MatrixInt());
 
   int reset(int ndim,
@@ -54,7 +54,7 @@ public:
             bool verbose = false);
   int  getVariety() const override { return 1; }
 
-  const MatrixRectangular& getApices() const { return _apices; }
+  const MatrixDense& getApices() const { return _apices; }
   const MatrixInt& getMeshes() const { return _meshes; }
   VectorVectorInt getMeshesAsVVI() const {return _meshes.getMatrix();}
 
@@ -80,6 +80,6 @@ private:
                                 VectorDouble& coords);
 
 private:
-  MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim(=2)
+  MatrixDense _apices; // Dimension: NRow=napices; Ncol=Ndim(=2)
   MatrixInt         _meshes; // Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
 };

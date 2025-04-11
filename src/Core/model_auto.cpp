@@ -83,9 +83,9 @@ typedef struct
   VectorDouble wt2;
   VectorDouble dd;
   VectorDouble gg2;
-  std::vector<MatrixRectangular> ge;
-  std::vector<MatrixRectangular> ge1;
-  std::vector<MatrixRectangular> ge2;
+  std::vector<MatrixDense> ge;
+  std::vector<MatrixDense> ge1;
+  std::vector<MatrixDense> ge2;
   std::vector<MatrixSquareSymmetric> alphau;
   std::vector<MatrixSquareSymmetric> sill1;
   std::vector<MatrixSquareSymmetric> sill;
@@ -899,7 +899,7 @@ static void st_prepar_goulard_vario(int imod)
   int nvar = model->getNVar();
   int nvs2 = nvar * (nvar + 1) / 2;
   VectorDouble &dd = RECINT.dd;
-  std::vector<MatrixRectangular> &ge = RECINT.ge;
+  std::vector<MatrixDense> &ge = RECINT.ge;
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
   CovCalcMode mode(ECalcMember::RHS); // to allow selecting individual structures
@@ -958,7 +958,7 @@ static void st_load_ge(const Vario *vario,
                        Model *model,
                        int npadir,
                        VectorDouble &dd,
-                       std::vector<MatrixRectangular> &ge)
+                       std::vector<MatrixDense> &ge)
 {
   int ndim = model->getNDim();
   int ndir = vario->getNDir();
@@ -1378,7 +1378,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
                                          int npadir,
                                          VectorDouble &wt,
                                          VectorDouble &gg,
-                                         std::vector<MatrixRectangular> &ge,
+                                         std::vector<MatrixDense> &ge,
                                          std::vector<MatrixSquareSymmetric> &sill,
                                          double *crit_arg)
 {
@@ -1399,12 +1399,12 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
   /* Core allocation */
 
   MatrixSquareSymmetric cc(nvar);
-  MatrixRectangular mp(nvs2, npadir);
+  MatrixDense mp(nvs2, npadir);
 
-  std::vector<MatrixRectangular> fk;
+  std::vector<MatrixDense> fk;
   fk.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
-    fk.push_back(MatrixRectangular(nvs2, npadir));
+    fk.push_back(MatrixDense(nvs2, npadir));
 
   std::vector<MatrixSquareSymmetric> aic;
   aic.reserve(ncova);
@@ -2488,7 +2488,7 @@ static double st_score(int nvar,
                        int npadir,
                        VectorDouble &wt,
                        VectorDouble &gg,
-                       std::vector<MatrixRectangular> &ge,
+                       std::vector<MatrixDense> &ge,
                        std::vector<MatrixSquareSymmetric> &matcor)
 {
   double score = 0.;
@@ -2553,7 +2553,7 @@ static double st_minimize_P4(int icov0,
                              std::vector<MatrixSquareSymmetric> &alpha,
                              VectorDouble &wt,
                              VectorDouble &gg,
-                             std::vector<MatrixRectangular> &ge,
+                             std::vector<MatrixDense> &ge,
                              const VectorDouble &consSill)
 {
   double retval, a, c, d, s;
@@ -2563,8 +2563,8 @@ static double st_minimize_P4(int icov0,
   VectorDouble Nir_v(nvar);
   VectorDouble Mrr_v(npadir);
   VectorDouble Crr_v(npadir);
-  MatrixRectangular Airk_v(npadir, nvar);
-  MatrixRectangular Birk_v(npadir, nvar);
+  MatrixDense Airk_v(npadir, nvar);
+  MatrixDense Birk_v(npadir, nvar);
   VectorDouble xx(2);
   VectorDouble xt(2);
   VectorDouble xest(2);
@@ -2776,7 +2776,7 @@ static void st_updateCurrentSillGoulard(int icov0,
                                         int nvar,
                                         int ncova,
                                         VectorDouble &wt,
-                                        std::vector<MatrixRectangular> &ge,
+                                        std::vector<MatrixDense> &ge,
                                         VectorDouble &gg,
                                         const VectorDouble &consSill,
                                         std::vector<MatrixSquareSymmetric> &matcor)
@@ -2946,7 +2946,7 @@ static int st_optimize_under_constraints(int nvar,
                                          const Option_AutoFit &mauto,
                                          VectorDouble &wt,
                                          VectorDouble &gg,
-                                         std::vector<MatrixRectangular> &ge,
+                                         std::vector<MatrixDense> &ge,
                                          std::vector<MatrixSquareSymmetric> &matcor,
                                          double *score)
 {
@@ -3077,15 +3077,15 @@ static int st_initialize_goulard(int nvar,
                                  int npadir,
                                  VectorDouble &wt,
                                  VectorDouble &gg,
-                                 std::vector<MatrixRectangular> &ge,
+                                 std::vector<MatrixDense> &ge,
                                  const VectorDouble &consSill,
                                  std::vector<MatrixSquareSymmetric> &matcor)
 {
   MatrixSquareSymmetric aa(ncova);
   VectorDouble bb(ncova);
-  MatrixRectangular Ae(ncova, 1);
+  MatrixDense Ae(ncova, 1);
   VectorDouble be(1);
-  MatrixRectangular Ai(ncova, ncova);
+  MatrixDense Ai(ncova, ncova);
   VectorDouble bi(ncova);
   VectorDouble res(ncova);
 
@@ -3136,8 +3136,8 @@ static int st_initialize_goulard(int nvar,
       else
       {
         retcode = aa.minimizeWithConstraintsInPlace(bb,
-                                                    MatrixRectangular(), VectorDouble(),
-                                                    MatrixRectangular(), VectorDouble(),
+                                                    MatrixDense(), VectorDouble(),
+                                                    MatrixDense(), VectorDouble(),
                                                     res);
       }
 
@@ -3215,7 +3215,7 @@ static int st_goulard_with_constraints(const VectorDouble& consSill,
                                        int npadir,
                                        VectorDouble &wt,
                                        VectorDouble &gg,
-                                       std::vector<MatrixRectangular> &ge,
+                                       std::vector<MatrixDense> &ge,
                                        std::vector<MatrixSquareSymmetric> &sill)
 {
   double crit;
@@ -3291,10 +3291,10 @@ static int st_sill_fitting_intrinsic(Model* model,
                                      int npadir,
                                      VectorDouble& wt,
                                      VectorDouble& gg,
-                                     std::vector<MatrixRectangular>& ge,
+                                     std::vector<MatrixDense>& ge,
                                      VectorDouble& wt2,
-                                     std::vector<MatrixRectangular>& ge1,
-                                     std::vector<MatrixRectangular>& ge2,
+                                     std::vector<MatrixDense>& ge1,
+                                     std::vector<MatrixDense>& ge2,
                                      VectorDouble& gg2,
                                      std::vector<MatrixSquareSymmetric>& alphau,
                                      std::vector<MatrixSquareSymmetric>& sill1)
@@ -4096,7 +4096,7 @@ static void st_prepar_goulard_vmap(int imod)
 
 {
   Model *model = STRMOD->models[imod];
-  std::vector<MatrixRectangular> &ge = RECINT.ge;
+  std::vector<MatrixDense> &ge = RECINT.ge;
   int ndim = model->getNDim();
   int nvar = model->getNVar();
   int ncova = model->getNCov();
@@ -4323,7 +4323,7 @@ static int st_manage_recint(const Option_VarioFit& optvar,
   RECINT.gg.fill(TEST, npadir * nvs2);
   RECINT.ge.clear();
   for (int icova = 0; icova < ncova; icova++)
-    RECINT.ge.push_back(MatrixRectangular(nvs2, npadir));
+    RECINT.ge.push_back(MatrixDense(nvs2, npadir));
   RECINT.sill.clear();
   for (int icova = 0; icova < ncova; icova++)
     RECINT.sill.push_back(MatrixSquareSymmetric(nvar));
@@ -4344,10 +4344,10 @@ static int st_manage_recint(const Option_VarioFit& optvar,
     for (int icova = 0; icova < ncova; icova++)
       RECINT.alphau.push_back(MatrixSquareSymmetric(nvar));
     RECINT.ge1.clear();
-    RECINT.ge1.push_back(MatrixRectangular(nvs2, npadir));
+    RECINT.ge1.push_back(MatrixDense(nvs2, npadir));
     RECINT.ge2.clear();
     for (int icova = 0; icova < ncova; icova++)
-      RECINT.ge2.push_back(MatrixRectangular(nvs2, npadir));
+      RECINT.ge2.push_back(MatrixDense(nvs2, npadir));
     RECINT.wt2.fill(TEST, nvs2 * npadir);
     RECINT.gg2.fill(TEST, nvs2 * npadir);
   }
@@ -4525,7 +4525,7 @@ int model_auto_fit(Vario *vario,
                                upper, npar, nbexp);
     if (npar > 0)
     {
-      status = foxleg_f(nbexp, npar, 0, MatrixRectangular(), param, lower, upper,
+      status = foxleg_f(nbexp, npar, 0, MatrixDense(), param, lower, upper,
                         scale, mauto, 0, st_strmod_vario_evaluate, RECINT.ggc, RECINT.wtc);
     }
     else
@@ -4952,7 +4952,7 @@ int vmap_auto_fit(const DbGrid* dbmap,
   {
     st_model_auto_strmod_print(1, strmod, constraints, mauto, param, lower,
                                upper, npar, nbexp);
-    status = foxleg_f(nbexp, npar, 0, MatrixRectangular(), param, lower, upper,
+    status = foxleg_f(nbexp, npar, 0, MatrixDense(), param, lower, upper,
                       scale, mauto, 0, st_strmod_vmap_evaluate, RECINT.gg, RECINT.wt);
     if (status > 0) goto label_end;
 

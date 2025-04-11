@@ -100,7 +100,7 @@ DbMeshStandard* DbMeshStandard::create(int ndim,
 }
 
 DbMeshStandard*
-DbMeshStandard::createFromExternal(const MatrixRectangular& apices,
+DbMeshStandard::createFromExternal(const MatrixDense& apices,
                                    const MatrixInt& meshes,
                                    const ELoadBy& order,
                                    const VectorDouble& tab,

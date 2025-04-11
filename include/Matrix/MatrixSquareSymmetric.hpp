@@ -67,9 +67,9 @@ public:
                                 double eps = EPSILON20);
   bool isDefinitePositive();
   int minimizeWithConstraintsInPlace(const VectorDouble& gmat,
-                                     const MatrixRectangular& aemat,
+                                     const MatrixDense& aemat,
                                      const VectorDouble& bemat,
-                                     const MatrixRectangular& aimat,
+                                     const MatrixDense& aimat,
                                      const VectorDouble& bimat,
                                      VectorDouble& xmat);
 
@@ -82,12 +82,12 @@ public:
   int _matrix_qoc(bool flag_invert,
                   const VectorDouble& gmat,
                   int na,
-                  const MatrixRectangular& amat,
+                  const MatrixDense& amat,
                   const VectorDouble& bmat,
                   VectorDouble& xmat,
                   VectorDouble& lambda);
   int _constraintsError(const VectorInt& active,
-                        const MatrixRectangular& aimat,
+                        const MatrixDense& aimat,
                         const VectorDouble& bimat,
                         const VectorDouble& xmat,
                         VectorDouble& vmat,
@@ -96,9 +96,9 @@ public:
                                         int nai,
                                         int neq,
                                         const VectorInt& active,
-                                        const MatrixRectangular& tabemat,
-                                        const MatrixRectangular& tabimat,
-                                        MatrixRectangular& tabout);
+                                        const MatrixDense& tabemat,
+                                        const MatrixDense& tabimat,
+                                        MatrixDense& tabout);
   static int _constraintsConcatenateVD(int nae,
                                        int nai,
                                        const VectorInt& active,
@@ -110,7 +110,7 @@ public:
                       const VectorDouble& eigenVectors,
                       bool optionPositive = true,
                       bool changeOrder    = false);
-  MatrixSquareSymmetric compress0MatLC(const MatrixRectangular& matLC);
+  MatrixSquareSymmetric compress0MatLC(const MatrixDense& matLC);
 
 private:
   int _getTriangleSize() const;

@@ -12,8 +12,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixFactory.hpp"
-#include "Matrix/AMatrixDense.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/String.hpp"
@@ -27,7 +26,7 @@ KrigingAlgebraSimpleCase::KrigingAlgebraSimpleCase(bool flagDual,
                                                    const VectorVectorInt* sampleRanks,
                                                    const VectorDouble* Z,
                                                    const MatrixSquareSymmetric* Sigma,
-                                                   const MatrixRectangular* X,
+                                                   const MatrixDense* X,
                                                    const MatrixSquareSymmetric* Sigma00,
                                                    const VectorDouble& Means,
                                                    int flagchol,
@@ -81,18 +80,18 @@ KrigingAlgebraSimpleCase::KrigingAlgebraSimpleCase(bool flagDual,
   if (_flagCholesky)
   {
     _cholSigma = std::make_shared<CholeskyDense>(_Sigma.get());
-    _invSigmaX = std::make_shared<MatrixRectangular>();
+    _invSigmaX = std::make_shared<MatrixDense>();
   }
   else
   {
     _InvSigma   = std::make_shared<MatrixSquareSymmetric>();
-    _XtInvSigma = std::make_shared<MatrixRectangular>();
+    _XtInvSigma = std::make_shared<MatrixDense>();
   }
 
   _XtInvSigmaZ = std::make_shared<VectorDouble>();
   _invSigmac      = std::make_shared<MatrixSquareSymmetric>();
   _Beta        = std::make_shared<VectorDouble>();
-  _LambdaSK    = std::make_shared<MatrixRectangular>(); // Weights for SK (Dim: _neq * _nrhs)
+  _LambdaSK    = std::make_shared<MatrixDense>(); // Weights for SK (Dim: _neq * _nrhs)
 
   // Following elements are defined for Dual programming
   _bDual         = std::make_shared<VectorDouble>(); // Fake Covariance part in Dual (Dim: _neq)
@@ -159,9 +158,9 @@ void KrigingAlgebraSimpleCase::_copyContentForMovingNeigh(const KrigingAlgebraSi
     _sampleRanks = std::shared_ptr<VectorVectorInt>(new VectorVectorInt(*r._sampleRanks));
 
   if (r._X == nullptr)
-    _X = std::make_shared<MatrixRectangular>();
+    _X = std::make_shared<MatrixDense>();
   else
-    _X = std::shared_ptr<MatrixRectangular>(r._X->clone());
+    _X = std::shared_ptr<MatrixDense>(r._X->clone());
 
   if (r._Sigma == nullptr)
     _Sigma = std::make_shared<MatrixSquareSymmetric>();
@@ -176,9 +175,9 @@ void KrigingAlgebraSimpleCase::_copyContentForMovingNeigh(const KrigingAlgebraSi
       _cholSigma = std::shared_ptr<CholeskyDense>(new CholeskyDense(r._Sigma.get()));
 
     if (r._invSigmaX == nullptr)
-      _invSigmaX = std::make_shared<MatrixRectangular>();
+      _invSigmaX = std::make_shared<MatrixDense>();
     else
-      _invSigmaX = std::shared_ptr<MatrixRectangular>(_invSigmaX->clone());
+      _invSigmaX = std::shared_ptr<MatrixDense>(_invSigmaX->clone());
   }
   else
   {
@@ -188,9 +187,9 @@ void KrigingAlgebraSimpleCase::_copyContentForMovingNeigh(const KrigingAlgebraSi
       _InvSigma = std::shared_ptr<MatrixSquareSymmetric>(r._InvSigma->clone());
 
     if (r._XtInvSigma == nullptr)
-      _XtInvSigma = std::make_shared<MatrixRectangular>();
+      _XtInvSigma = std::make_shared<MatrixDense>();
     else
-      _XtInvSigma = std::shared_ptr<MatrixRectangular>(r._XtInvSigma->clone());
+      _XtInvSigma = std::shared_ptr<MatrixDense>(r._XtInvSigma->clone());
   }
 
   if (r._XtInvSigmaZ == nullptr)
@@ -227,19 +226,19 @@ void KrigingAlgebraSimpleCase::_copyOtherContent(const KrigingAlgebraSimpleCase&
     _Sigma00 = std::shared_ptr<MatrixSquareSymmetric>(r._Sigma00->clone());
 
   if (r._Sigma0 == nullptr)
-    _Sigma0 = std::make_shared<MatrixRectangular>();
+    _Sigma0 = std::make_shared<MatrixDense>();
   else
-    _Sigma0 = std::shared_ptr<MatrixRectangular>(r._Sigma0->clone());
+    _Sigma0 = std::shared_ptr<MatrixDense>(r._Sigma0->clone());
 
   if (r._X0 == nullptr)
-    _X0 = std::make_shared<MatrixRectangular>();
+    _X0 = std::make_shared<MatrixDense>();
   else
-    _X0 = std::shared_ptr<MatrixRectangular>(r._X0->clone());
+    _X0 = std::shared_ptr<MatrixDense>(r._X0->clone());
 
   if (r._LambdaSK == nullptr)
-    _LambdaSK = std::make_shared<MatrixRectangular>();
+    _LambdaSK = std::make_shared<MatrixDense>();
   else
-    _LambdaSK = std::shared_ptr<MatrixRectangular>(r._LambdaSK->clone());
+    _LambdaSK = std::shared_ptr<MatrixDense>(r._LambdaSK->clone());
 }
 
 void KrigingAlgebraSimpleCase::_copyMatsAndVecs(const KrigingAlgebraSimpleCase& r)
@@ -476,7 +475,7 @@ int KrigingAlgebraSimpleCase::setData(const VectorDouble* Z,
  * @note kept unchanged (even if its contents may have been updated)
  */
 int KrigingAlgebraSimpleCase::setLHS(const MatrixSquareSymmetric* Sigma,
-                                     const MatrixRectangular* X)
+                                     const MatrixDense* X)
 {
   _resetLinkedToLHS();
 
@@ -496,7 +495,7 @@ int KrigingAlgebraSimpleCase::setLHS(const MatrixSquareSymmetric* Sigma,
   else
   {
     if (!_checkDimensionMatrix("X", X, &_neq, &_nbfl)) return 1;
-    _X      = std::make_shared<MatrixRectangular>(*X);
+    _X      = std::make_shared<MatrixDense>(*X);
     _flagSK = (_nbfl <= 0);
   }
 
@@ -513,8 +512,8 @@ int KrigingAlgebraSimpleCase::setVariance(const MatrixSquareSymmetric* Sigma00)
   return 0;
 }
 
-int KrigingAlgebraSimpleCase::setRHS(MatrixRectangular* Sigma0,
-                                     MatrixRectangular* X0)
+int KrigingAlgebraSimpleCase::setRHS(MatrixDense* Sigma0,
+                                     MatrixDense* X0)
 {
   _resetLinkedToRHS();
 
@@ -526,10 +525,10 @@ int KrigingAlgebraSimpleCase::setRHS(MatrixRectangular* Sigma0,
   else
   {
     if (!_checkDimensionMatrix("Sigma0", Sigma0, &_neq, &_nrhs)) return 1;
-    _Sigma0 = std::make_shared<MatrixRectangular>(*Sigma0);
+    _Sigma0 = std::make_shared<MatrixDense>(*Sigma0);
   }
 
-  _X0 = std::make_shared<MatrixRectangular>(*X0);
+  _X0 = std::make_shared<MatrixDense>(*X0);
   return 0;
 }
 
@@ -680,7 +679,7 @@ const MatrixSquareSymmetric* KrigingAlgebraSimpleCase::getVarianceZstarMat()
   return &_VarZUK;
 }
 
-const MatrixRectangular* KrigingAlgebraSimpleCase::getLambda()
+const MatrixDense* KrigingAlgebraSimpleCase::getLambda()
 {
   if (!_forbiddenWhenDual()) return nullptr;
   if (_flagSK)
@@ -692,7 +691,7 @@ const MatrixRectangular* KrigingAlgebraSimpleCase::getLambda()
   return &_LambdaUK;
 }
 
-const MatrixRectangular* KrigingAlgebraSimpleCase::getMu()
+const MatrixDense* KrigingAlgebraSimpleCase::getMu()
 {
   if (_needMuUK()) return nullptr;
   return &_MuUK;
@@ -1212,7 +1211,7 @@ void KrigingAlgebraSimpleCase::dumpRHS() const
 // This method cannot be const as it may compute _lambda internally upon request
 void KrigingAlgebraSimpleCase::dumpWGT()
 {
-  MatrixRectangular* lambda;
+  MatrixDense* lambda;
   if (_flagSK)
   {
     if (_needLambdaSK()) return;

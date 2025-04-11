@@ -8,12 +8,10 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "LinearOp/ProjMatrix.hpp"
-#include "Matrix/NF_Triplet.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "Db/Db.hpp"
 #include "Basic/AException.hpp"
 
 MeshEStandard::MeshEStandard()
@@ -88,7 +86,7 @@ int MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
 
   // Dimension the members
 
-  _apices = MatrixRectangular(napices, ndim);
+  _apices = MatrixDense(napices, ndim);
   _meshes = MatrixInt(nmeshes, npermesh);
 
   // Load the apices;
@@ -129,7 +127,7 @@ int MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
 ** \param[in]  verbose         Verbose flag
 **
 *****************************************************************************/
-int MeshEStandard::reset(const MatrixRectangular& apices,
+int MeshEStandard::reset(const MatrixDense& apices,
                          const MatrixInt& meshes,
                          bool verbose)
 {
@@ -280,7 +278,7 @@ MeshEStandard* MeshEStandard::createFromNF(const String& neutralFilename, bool v
   return mesh;
 }
 
-MeshEStandard* MeshEStandard::createFromExternal(const MatrixRectangular &apices,
+MeshEStandard* MeshEStandard::createFromExternal(const MatrixDense &apices,
                                                  const MatrixInt &meshes,
                                                  bool verbose)
 {
@@ -398,7 +396,7 @@ bool MeshEStandard::_deserialize(std::istream& is, bool verbose)
   {
     VectorDouble apices_local;
     ret = ret && _recordReadVec<double>(is, "Apices", apices_local, napices * ndim);
-    _apices = MatrixRectangular(napices, ndim);
+    _apices = MatrixDense(napices, ndim);
     _apices.setValues(apices_local);
   }
 

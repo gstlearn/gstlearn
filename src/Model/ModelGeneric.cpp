@@ -120,10 +120,10 @@ double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
   if (nDrift > 0)
   {
     // Extract the matrix of drifts at samples X
-    MatrixRectangular X = evalDriftMat(db);
+    MatrixDense X = evalDriftMat(db);
 
     // Calculate Cm1X = Cm1 * X
-    MatrixRectangular Cm1X;
+    MatrixDense Cm1X;
     if (covChol.solveMatrix(X, Cm1X))
     {
       messerr("Problem when solving a Linear System after Cholesky decomposition");

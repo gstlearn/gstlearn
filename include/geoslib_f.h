@@ -16,7 +16,7 @@
 
 #include "Basic/NamingConvention.hpp"
 #include "Db/DbGrid.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Model/Model.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
@@ -153,7 +153,7 @@ GSTLEARN_EXPORT VectorDouble simsph_mesh(MeshSpherical *mesh,
                                          const SimuSphericalParam& sphepar,
                                          int seed = 54523,
                                          int verbose = false);
-GSTLEARN_EXPORT MatrixRectangular fluid_extract(DbGrid *dbgrid,
+GSTLEARN_EXPORT MatrixDense fluid_extract(DbGrid *dbgrid,
                                                 const String& name_facies,
                                                 const String& name_fluid,
                                                 const String& name_poro,

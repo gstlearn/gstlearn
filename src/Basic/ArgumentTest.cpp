@@ -309,7 +309,7 @@ void argumentDefTestVVInt(VectorVectorInt argVVInt)
   if (argVVInt.empty() || argVVInt[0].empty()) _printEmpty();
 }
 
-void argumentTestMatrixRectangular(const MatrixRectangular& mat)
+void argumentTestMatrixDense(const MatrixDense& mat)
 {
   if (!mat.empty()) mat.display();
 }
@@ -321,11 +321,11 @@ void argumentTestMatrixSquareSymmetric(const MatrixSquareSymmetric& mat)
 {
   if (!mat.empty()) mat.display();
 }
-MatrixRectangular argumentReturnMatrix(int nrows,
+MatrixDense argumentReturnMatrix(int nrows,
                                        int ncols,
                                        int seed)
 {
-  MatrixRectangular mat(nrows, ncols);
+  MatrixDense mat(nrows, ncols);
   mat.fillRandom(seed);
   return mat;
 }

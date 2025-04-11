@@ -11,7 +11,7 @@
 #include "Covariances/CovMatern.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Simulation/TurningBandOperate.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/Utilities.hpp"
@@ -147,11 +147,11 @@ double CovMatern::simulateTurningBand(double t0, TurningBandOperate &operTB) con
   return operTB.spectralOne(t0);
 }
 
-MatrixRectangular CovMatern::simulateSpectralOmega(int nb) const
+MatrixDense CovMatern::simulateSpectralOmega(int nb) const
 {
   int ndim = getContext().getNDim();
   double param = getParam();
-  MatrixRectangular mat(nb, ndim);
+  MatrixDense mat(nb, ndim);
 
   for (int irow = 0; irow < nb; irow++)
   {

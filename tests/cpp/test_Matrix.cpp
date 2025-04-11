@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixInt.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -41,7 +41,7 @@ void st_invgen()
 }
 
 void reset_to_initial_contents(AMatrix* M,
-                               MatrixRectangular& MRR,
+                               MatrixDense& MRR,
                                MatrixSquareGeneral& MSG,
                                MatrixSquareSymmetric& MSS,
                                MatrixSparse* MSP)
@@ -87,11 +87,11 @@ int main(int argc, char *argv[])
   mati(1,2) = imemo; // set back to initial value
 
   message("Cloning Matrix of doubles\n");
-  MatrixRectangular matd(2,3);
+  MatrixDense matd(2,3);
   matd.setValues({1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
   matd.display();
   AMatrix* pmat = &matd;
-  MatrixRectangular* matd2(dynamic_cast<MatrixRectangular*>(pmat->clone())); // dynamic_cast cannot be avoided here
+  MatrixDense* matd2(dynamic_cast<MatrixDense*>(pmat->clone())); // dynamic_cast cannot be avoided here
   matd2->display();
 
   VectorDouble V1,V2,V3,Vref;
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
 
   // We create a square symmetrical matrix (not necessarily sparse)
   
-  MatrixRectangular MR(nrow, ncol);
+  MatrixDense MR(nrow, ncol);
   for (int icol = 0; icol < ncol; icol++)
     for (int irow = 0; irow < nrow; irow++)
     {
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
   // Create the different matrix formats (by conversion or extraction)
  
   // To a rectangular matrix
-  MatrixRectangular MRR(nrow,ncol);
+  MatrixDense MRR(nrow,ncol);
   MRR.setValues(M->getValues());
   message("Matrix MRR\n");
   MRR.display();
@@ -687,8 +687,8 @@ int main(int argc, char *argv[])
   mestitle(0,"Solving a Linear system after Cholesky decomposition (matrix RHS)");
   int nrows = MEig->getNRows();
   int ncols = 5;
-  MatrixRectangular Bmat(nrows, ncols);
-  MatrixRectangular Bres(nrows, ncols);
+  MatrixDense Bmat(nrows, ncols);
+  MatrixDense Bres(nrows, ncols);
   for (int icol = 0; icol < ncols; icol++)
     Bmat.setColumn(icol, B);
   message("Input Matrix B =\n");
@@ -697,7 +697,7 @@ int main(int argc, char *argv[])
   message("Result Matrix X =\n");
   Bres.display();
 
-  MatrixRectangular* Bcheck = MatrixFactory::prodMatMat<MatrixRectangular>(MEig, &Bres);
+  MatrixDense* Bcheck = MatrixFactory::prodMatMat<MatrixDense>(MEig, &Bres);
   message("Is M * X = B: %d\n", (int) Bmat.isSame(*Bcheck));
   delete Bcheck;
 
@@ -736,7 +736,7 @@ int main(int argc, char *argv[])
   // We must construct another square symmetric matrix (B)
   VectorDouble vbh = VH::simulateGaussian(nrow * ncol);
 
-  MatrixRectangular* MREig = MatrixRectangular::createFromVD(vbh, nrow, ncol, false);
+  MatrixDense* MREig = MatrixDense::createFromVD(vbh, nrow, ncol, false);
   AMatrix* MREigt = MREig->transpose();
   MatrixSquareSymmetric* BEig = MatrixFactory::prodMatMat<MatrixSquareSymmetric>(MREig, MREigt);
   delete MREig;
@@ -754,7 +754,7 @@ int main(int argc, char *argv[])
   genEigVec->display();
   delete BEig;
 
-  MatrixRectangular* MRNoEig = MatrixRectangular::createFromVD(vbh, nrow, ncol, false);
+  MatrixDense* MRNoEig = MatrixDense::createFromVD(vbh, nrow, ncol, false);
   AMatrix* MRNoEigt = MRNoEig->transpose();
   MatrixSquareSymmetric* BNoEig = MatrixFactory::prodMatMat<MatrixSquareSymmetric>(MRNoEig, MRNoEigt);
   delete MRNoEig;

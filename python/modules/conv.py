@@ -105,7 +105,7 @@ def matrix_toTL(self):
         return np.array(self.getValues(False)).reshape(self.getNRows(), self.getNCols())
 
 
-setattr(gl.MatrixRectangular, "toTL", matrix_toTL)
+setattr(gl.MatrixDense, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareGeneral, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareSymmetric, "toTL", matrix_toTL)
 setattr(gl.MatrixSparse, "toTL", matrix_toTL)

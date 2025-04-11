@@ -52,7 +52,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   void clear();
   /// Interface to AMatrix
-  /*! Returns if the matrix belongs to the AMatrixDense class (avoids dynamic_cast) */
+  /*! Returns if the matrix belongs to the MatrixDense class (avoids dynamic_cast) */
   virtual bool isDense() const = 0;
   /*! Returns if the current matrix is Sparse */
   virtual bool isSparse() const = 0;

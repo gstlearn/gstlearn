@@ -14,7 +14,7 @@
 #include "Variogram/VarioParam.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/NamingConvention.hpp"
 
@@ -35,7 +35,7 @@ public:
 
   const VectorDouble& getEigVals() const { return _eigval; }
   double getEigVal(int ivar) const { return _eigval[ivar]; }
-  const MatrixRectangular& getEigVecs() const { return _eigvec; }
+  const MatrixDense& getEigVecs() const { return _eigvec; }
   double getEigVec(int ivar, int jvar) const { return _eigvec.getValue(ivar,jvar); }
   VectorDouble getVarianceRatio() const;
   const VectorDouble& getMeans() const { return _mean; }
@@ -54,7 +54,7 @@ public:
 
   void setEigVals(VectorDouble& eigval) { _eigval = eigval; }
   void setEigVal(int ivar, double eigval) { _eigval[ivar] = eigval; }
-  void setEigVecs(const MatrixRectangular& eigvec) { _eigvec = eigvec; }
+  void setEigVecs(const MatrixDense& eigvec) { _eigvec = eigvec; }
   void setEigVec(int ivar, int jvar, double eigvec) { _eigvec.setValue(ivar,jvar,eigvec); }
 
   int pca_compute(const Db *db, bool verbose = false, bool optionPositive = true);
@@ -133,7 +133,7 @@ private:
   VectorDouble _mean;
   VectorDouble _sigma;
   VectorDouble          _eigval;
-  MatrixRectangular     _eigvec;
+  MatrixDense     _eigvec;
   MatrixSquareSymmetric _c0;
   MatrixSquareSymmetric _gh;
   MatrixSquareGeneral   _Z2F;

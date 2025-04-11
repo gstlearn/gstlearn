@@ -2830,7 +2830,7 @@ static int st_getFLUID(const DbGrid* dbgrid, int nfluids, int indFluid, int iech
 ** \param[in]  verbose       1 for a verbose option
 **
 *****************************************************************************/
-MatrixRectangular fluid_extract(DbGrid *dbgrid,
+MatrixDense fluid_extract(DbGrid *dbgrid,
                                 const String& name_facies,
                                 const String& name_fluid,
                                 const String& name_poro,
@@ -2844,7 +2844,7 @@ MatrixRectangular fluid_extract(DbGrid *dbgrid,
                                 double dtime,
                                 bool verbose)
 {
-  MatrixRectangular tab;
+  MatrixDense tab;
   if (! dbgrid->isGrid())
   {
     messerr("The Fluid Propagation is restricted to regular grid");
@@ -2886,7 +2886,7 @@ MatrixRectangular fluid_extract(DbGrid *dbgrid,
 
   /* Initialize the array */
 
-  tab = MatrixRectangular(ntime, 4);
+  tab = MatrixDense(ntime, 4);
   int nxyz    = dbgrid->getNSample();
   for (int itime = 0; itime < ntime; itime++)
   {

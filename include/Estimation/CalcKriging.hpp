@@ -15,7 +15,7 @@
 #include "geoslib_define.h"
 
 #include "Calculators/ACalcInterpolator.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Anamorphosis/AAnam.hpp"
 
@@ -36,11 +36,11 @@ public:
   VectorVectorDouble xyz;    // Coordinates of the neighboring samples [ndim][nech]
   VectorDouble data;         // Usable values at neighboring samples [neq]
   MatrixSquareSymmetric lhs; // L.H.S. Covariance part (neq * neq)
-  MatrixRectangular lhsF;    // L.H.S. Drift part 
-  MatrixRectangular rhs;     // R.H.S. Covariance part (neq * nrhs)
-  MatrixRectangular rhsF;    // R.H.S. Drift part  (nbfl * nrhs)
-  MatrixRectangular wgt;     // Vector of weights (neq * nrhs)
-  MatrixRectangular mu;      // Vector of Lagrange parameters (nbfl * nrhs)
+  MatrixDense lhsF;    // L.H.S. Drift part 
+  MatrixDense rhs;     // R.H.S. Covariance part (neq * nrhs)
+  MatrixDense rhsF;    // R.H.S. Drift part  (nbfl * nrhs)
+  MatrixDense wgt;     // Vector of weights (neq * nrhs)
+  MatrixDense mu;      // Vector of Lagrange parameters (nbfl * nrhs)
   MatrixSquareGeneral var;   // Matrix of Target-Target Variance (nvar * nvar)
 
   /// Has a specific implementation in the Target language

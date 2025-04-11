@@ -28,7 +28,7 @@
 
 class Rotation;
 class MatrixSquareGeneral;
-class MatrixRectangular;
+class MatrixDense;
 class CovInternal;
 /**
  * \brief
@@ -88,7 +88,7 @@ public:
   bool isValidForTurningBand() const;
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const;
   bool isValidForSpectral() const;
-  MatrixRectangular simulateSpectralOmega(int nb) const;
+  MatrixDense simulateSpectralOmega(int nb) const;
 
   static CovAniso* createFromParam(const ECov& type,
                                    double range,

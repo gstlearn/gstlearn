@@ -15,7 +15,6 @@
 #include "Basic/Grid.hpp"
 #include "Mesh/AMesh.hpp"
 
-class MatrixRectangular;
 class DbGrid;
 class CovAniso;
 class cs;

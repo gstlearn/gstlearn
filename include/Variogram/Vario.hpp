@@ -478,9 +478,9 @@ private:
   mutable Model*              _model;  // Model pointer (not to be deleted) for drift removal
   mutable VectorDouble        _BETA;
   mutable VectorDouble        _DRFDIAG;
-  mutable MatrixRectangular   _DRFXA;
-  mutable MatrixRectangular   _DRFGX;
-  mutable MatrixRectangular   _DRFTAB;
+  mutable MatrixDense   _DRFXA;
+  mutable MatrixDense   _DRFGX;
+  mutable MatrixDense   _DRFTAB;
   mutable MatrixSquareGeneral _DRFXGX;
 };
 

@@ -329,7 +329,7 @@ bool CorAniso::isValidForSpectral() const
 {
   return _corfunc->isValidForSpectral();
 }
-MatrixRectangular CorAniso::simulateSpectralOmega(int nb) const
+MatrixDense CorAniso::simulateSpectralOmega(int nb) const
 {
   return _corfunc->simulateSpectralOmega(nb);
 }

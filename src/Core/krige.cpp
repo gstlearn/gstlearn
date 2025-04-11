@@ -3289,9 +3289,9 @@ static int st_sampling_krige_data(Db *db,
 
     VectorDouble xl = mat_s_Chol.getUpperTriangleInverse();
 
-    MatrixRectangular mat_c = model->evalCovMat(db, db, -1, -1, ranks2, rother);
+    MatrixDense mat_c = model->evalCovMat(db, db, -1, -1, ranks2, rother);
 
-    MatrixRectangular v;
+    MatrixDense v;
     mat_s_Chol.matProductInPlace(4, mat_c, v);
     MatrixSquareSymmetric tn1;
     mat_s_Chol.normMatInPlace(1, nsize2, MatrixSquareSymmetric(), tn1);
@@ -3306,7 +3306,7 @@ static int st_sampling_krige_data(Db *db,
     MatrixSquareGeneral* eigvec = tn1.getEigenVectors()->clone();
 
     eigvec->prodByDiagInPlace(3, eigval);
-    MatrixRectangular* spart = dynamic_cast<MatrixRectangular*>
+    MatrixDense* spart = dynamic_cast<MatrixDense*>
       (MatrixFactory::createGlue(sq, &v, true, false));
     spart->prodMatMatInPlace(spart, eigvec);
     delete eigvec;

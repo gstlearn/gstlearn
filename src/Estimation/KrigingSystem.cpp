@@ -822,7 +822,7 @@ int KrigingSystem::_updateForColCokMoving()
   _Sigma = newS;
 
   // Update X
-  MatrixRectangular newX = MatrixRectangular(newSize, nbfl);
+  MatrixDense newX = MatrixDense(newSize, nbfl);
   for (int i = 0; i < newSize; i++)
     for (int j = 0; j < nbfl; j++)
     {
@@ -836,7 +836,7 @@ int KrigingSystem::_updateForColCokMoving()
   _X = newX;
 
   // Update Sigma0
-  MatrixRectangular newS0 = MatrixRectangular(newSize, nrhs);
+  MatrixDense newS0 = MatrixDense(newSize, nrhs);
   for (int i = 0; i < newSize; i++)
     for (int j = 0; j < nrhs; j++)
     {
@@ -1587,8 +1587,8 @@ void KrigingSystem::_bayesPreSimulate()
 
   /* Core allocation */
 
-  MatrixRectangular rndmat(_nfeq, 1);
-  MatrixRectangular simu(_nfeq, 1);
+  MatrixDense rndmat(_nfeq, 1);
+  MatrixDense simu(_nfeq, 1);
 
   /* Cholesky decomposition */
 
@@ -1694,15 +1694,15 @@ void KrigingSystem::_setInternalShortCutVariablesGeneral()
   _nvarCL = _getNVarCL();
   _setInternalShortCutVariablesModel();
 }
-MatrixRectangular KrigingSystem::getWeights() const
+MatrixDense KrigingSystem::getWeights() const
 {
-  const MatrixRectangular* lambda = _algebra.getLambda();
-  if (lambda == nullptr) return MatrixRectangular();
+  const MatrixDense* lambda = _algebra.getLambda();
+  if (lambda == nullptr) return MatrixDense();
   return *lambda;
 }
-MatrixRectangular KrigingSystem::getMu() const
+MatrixDense KrigingSystem::getMu() const
 {
-  const MatrixRectangular* mu = _algebra.getMu();
-  if (mu == nullptr) return MatrixRectangular();
+  const MatrixDense* mu = _algebra.getMu();
+  if (mu == nullptr) return MatrixDense();
   return *mu;
 }

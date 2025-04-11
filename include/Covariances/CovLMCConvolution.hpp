@@ -17,7 +17,7 @@
 #include "Enum/EConvType.hpp"
 
 #include "Covariances/CovAnisoList.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 
 #include "Space/ASpace.hpp"
 
@@ -68,7 +68,7 @@ public:
 
   double getConvRange() const { return _convRange; }
   const VectorDouble& getConvWeight() const { return _convWeight; }
-  const MatrixRectangular& getConvIncr() const { return _convIncr; }
+  const MatrixDense& getConvIncr() const { return _convIncr; }
   VectorDouble getConvIncr(int rank) const { return _convIncr.getColumn(rank); }
   int getNConv() const { return _convNumber; }
 
@@ -90,6 +90,6 @@ private:
   int _convDiscNumber; /* Number of discretization per direction */
   double _convRange; /* Convolution Range */
   int _convNumber;
-  MatrixRectangular _convIncr; /* Discretization lags */
+  MatrixDense _convIncr; /* Discretization lags */
   VectorDouble      _convWeight; /* Weights for convolution */
 };

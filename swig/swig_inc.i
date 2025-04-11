@@ -261,12 +261,11 @@
   #include "Drifts/DriftFactory.hpp"
   
   #include "Matrix/AMatrix.hpp"
-  #include "Matrix/AMatrixDense.hpp"
+  #include "Matrix/MatrixDense.hpp"
   #include "Matrix/MatrixSparse.hpp"
   #include "Matrix/LinkMatrixSparse.hpp"
   #include "Matrix/AMatrixSquare.hpp"
   #include "Matrix/NF_Triplet.hpp"
-  #include "Matrix/MatrixRectangular.hpp"
   #include "Matrix/MatrixSquareGeneral.hpp"
   #include "Matrix/MatrixSquareSymmetric.hpp"
   #include "Matrix/MatrixFactory.hpp"
@@ -816,8 +815,8 @@
   }
 }
 
-%typemap(in, fragment="ToCpp") const MatrixRectangular&     (void *argp, MatrixRectangular mat),
-                               const MatrixRectangular*     (void *argp, MatrixRectangular mat),
+%typemap(in, fragment="ToCpp") const MatrixDense&     (void *argp, MatrixDense mat),
+                               const MatrixDense*     (void *argp, MatrixDense mat),
                                const MatrixSquareGeneral&   (void *argp, MatrixSquareGeneral mat),
                                const MatrixSquareGeneral*   (void *argp, MatrixSquareGeneral mat),
                                const MatrixSquareSymmetric& (void *argp, MatrixSquareSymmetric mat),
@@ -973,7 +972,7 @@
     SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 }
 
-//%typemap(out, fragment="FromCpp") MatrixRectangular, 
+//%typemap(out, fragment="FromCpp") MatrixDense, 
 //                                  MatrixSquareGeneral, 
 //                                  MatrixSquareSymmetric
 //{
@@ -982,21 +981,21 @@
 //    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 //}
 
-//%typemap(out, fragment="FromCpp") MatrixRectangular* MatrixRectangular::create
+//%typemap(out, fragment="FromCpp") MatrixDense* MatrixDense::create
 //{
 //  int errcode = matrixDenseFromCppCreate(&($result), *$1);
 //  if (!SWIG_IsOK(errcode))
 //    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 //}
 
-//%typemap(out, fragment="FromCpp") MatrixRectangular& MatrixRectangular::create
+//%typemap(out, fragment="FromCpp") MatrixDense& MatrixDense::create
 //{
 //  int errcode = matrixDenseFromCppCreate(&($result), *$1);
 //  if (!SWIG_IsOK(errcode))
 //    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 //}
 
-//%typemap(out, fragment="FromCpp") MatrixRectangular*,     MatrixRectangular&,
+//%typemap(out, fragment="FromCpp") MatrixDense*,     MatrixDense&,
 //                                  MatrixSquareGeneral*,   MatrixSquareGeneral&,
 //                                  MatrixSquareSymmetric*, MatrixSquareSymmetric&
 //{

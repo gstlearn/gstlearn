@@ -1415,7 +1415,7 @@ MatrixSquareGeneral GeometryHelper::EulerToRotation(const VectorDouble& angles,
   return M;
 }
 
-MatrixRectangular* GeometryHelper::getDirectionsInR3(const MatrixRectangular* U)
+MatrixDense* GeometryHelper::getDirectionsInR3(const MatrixDense* U)
 {
   int np = U->getNRows();
   int nd = U->getNCols();
@@ -1430,7 +1430,7 @@ MatrixRectangular* GeometryHelper::getDirectionsInR3(const MatrixRectangular* U)
     return nullptr;
   }
 
-  MatrixRectangular* X = new MatrixRectangular(np, 3);
+  MatrixDense* X = new MatrixDense(np, 3);
   for (int ip = 0; ip < np; ip++)
   {
     double u1 = U->getValue(ip, 0);
@@ -1449,7 +1449,7 @@ MatrixRectangular* GeometryHelper::getDirectionsInR3(const MatrixRectangular* U)
  * @return A vector of a matrix [n, d] of the coordinates of the 'n' directions
  * in the Euclidean space Rd.
  */
-MatrixRectangular* GeometryHelper::getDirectionsInRn(const MatrixRectangular* U)
+MatrixDense* GeometryHelper::getDirectionsInRn(const MatrixDense* U)
 {
   int np = U->getNRows();
   int nd = U->getNCols();
@@ -1471,7 +1471,7 @@ MatrixRectangular* GeometryHelper::getDirectionsInRn(const MatrixRectangular* U)
     return nullptr;
   }
 
-  MatrixRectangular* Y = new MatrixRectangular(np, nd);
+  MatrixDense* Y = new MatrixDense(np, nd);
   for (int ip = 0; ip < np; ip++)
   {
     double total = 0.;
@@ -1565,7 +1565,7 @@ VectorDouble GeometryHelper::rayTriangleIntersect(const VectorDouble& dir,
  * - 2, 3, 4: barycentric coordinates
  */
 VectorVectorDouble GeometryHelper::sphBarCoord(const VectorVectorDouble& sphPts,
-                                               const MatrixRectangular& apices,
+                                               const MatrixDense& apices,
                                                const MatrixInt& meshes)
 {
   int np      = (int)sphPts.size();

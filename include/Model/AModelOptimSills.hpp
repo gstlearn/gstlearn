@@ -12,7 +12,7 @@
 
 #include "geoslib_define.h"
 
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
@@ -22,7 +22,7 @@
 
 class Model;
 class Constraints;
-class MatrixRectangular;
+class MatrixDense;
 class MatrixSquareSYmmetric;
 
 /**
@@ -56,7 +56,7 @@ private:
                                 int npadir,
                                 VectorDouble& wt,
                                 VectorDouble& gg,
-                                std::vector<MatrixRectangular>& ge,
+                                std::vector<MatrixDense>& ge,
                                 std::vector<MatrixSquareSymmetric>& sill,
                                 double* crit_arg) const;
   void _storeSillsInModel() const;
@@ -107,9 +107,9 @@ protected:
   VectorDouble _wt2;
   VectorDouble _gg2;
   std::vector<VectorDouble> _dd;
-  std::vector<MatrixRectangular> _ge;
-  std::vector<MatrixRectangular> _ge1;
-  std::vector<MatrixRectangular> _ge2;
+  std::vector<MatrixDense> _ge;
+  std::vector<MatrixDense> _ge1;
+  std::vector<MatrixDense> _ge2;
   std::vector<MatrixSquareSymmetric> _alphau;
   std::vector<MatrixSquareSymmetric> _sill1;
   std::vector<MatrixSquareSymmetric> _sill;

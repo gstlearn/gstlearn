@@ -32,7 +32,7 @@ class EConsElem;
 class AMatrix;
 class AMatrixSquare;
 class MatrixSquareGeneral;
-class MatrixRectangular;
+class MatrixDense;
 class MatrixSquareSymmetric;
 
 
@@ -131,12 +131,12 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
                              int imesh,
                              double coeff[3][2]);
     int _preparMatrices(const AMesh* amesh, int imesh,
-                        MatrixSquareGeneral& matu, MatrixRectangular& matw)
+                        MatrixSquareGeneral& matu, MatrixDense& matw)
       const;
     int _prepareMatricesSVariety(const AMesh* amesh,
                                  int imesh,
                                  VectorVectorDouble& coords,
-                                 MatrixRectangular& matM,
+                                 MatrixDense& matM,
                                  MatrixSquareSymmetric& matMtM,
                                  AMatrix& matP,
                                  double* deter) const;

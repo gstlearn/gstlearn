@@ -21,7 +21,7 @@
 #include "Neigh/ANeigh.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Enum/EKrigOpt.hpp"
 
@@ -76,12 +76,12 @@ public:
   VectorVectorDouble    getSampleCoordinates(KrigingAlgebraSimpleCase& algebra, int iechout) const;
   VectorDouble          getSampleData() const { return _Z; };
   MatrixSquareSymmetric getLHS() const { return _Sigma; }
-  MatrixRectangular     getLHSF() const { return _Sigma0; }
-  MatrixRectangular     getRHS() const { return _Sigma0; }
-  MatrixRectangular     getRHSF() const { return _X0; }
+  MatrixDense     getLHSF() const { return _Sigma0; }
+  MatrixDense     getRHS() const { return _Sigma0; }
+  MatrixDense     getRHSF() const { return _X0; }
   MatrixSquareGeneral   getVariance() const { return _Sigma00; }
-  MatrixRectangular     getWeights(KrigingAlgebraSimpleCase& algebra) const;
-  MatrixRectangular     getMu(KrigingAlgebraSimpleCase& algebra) const;
+  MatrixDense     getWeights(KrigingAlgebraSimpleCase& algebra) const;
+  MatrixDense     getMu(KrigingAlgebraSimpleCase& algebra) const;
   double                getLTerm() const { return _algebra.getLTerm(); }
   ModelGeneric*         getModel() const { return _model; }
 private:
@@ -124,9 +124,9 @@ private:
   VectorVectorInt        _sampleRanks; // Vector of vector of sample indices
   MatrixSquareSymmetric  _Sigma00; // Covariance part for variance
   MatrixSquareSymmetric  _Sigma;   // Covariance part for LHS
-  MatrixRectangular      _X;       // Drift part for LHS
-  MatrixRectangular      _Sigma0;  // Covariance part for RHS
-  MatrixRectangular      _X0;      // Drift par for RHS
+  MatrixDense      _X;       // Drift part for LHS
+  MatrixDense      _Sigma0;  // Covariance part for RHS
+  MatrixDense      _X0;      // Drift par for RHS
   VectorDouble           _Z;       // Vector of Data
   VectorDouble _means;            // Means of the variables (used to center variables)
   VectorDouble _meansTarget;      // Means for target (possible using matLC)

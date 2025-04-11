@@ -18,17 +18,17 @@
 #include <math.h>
 
 AMatrixSquare::AMatrixSquare(int nrow)
-  : MatrixRectangular(nrow, nrow)
+  : MatrixDense(nrow, nrow)
 {
 }
 
 AMatrixSquare::AMatrixSquare(const AMatrixSquare &r)
-  : MatrixRectangular(r)
+  : MatrixDense(r)
 {
 }
 
 AMatrixSquare::AMatrixSquare(const AMatrix &m)
-  : MatrixRectangular(m)
+  : MatrixDense(m)
 {
   if (!m.isSquare())
   {
@@ -42,7 +42,7 @@ AMatrixSquare& AMatrixSquare::operator= (const AMatrixSquare &r)
 {
   if (this != &r)
   {
-    MatrixRectangular::operator=(r);
+    MatrixDense::operator=(r);
   }
   return *this;
 }

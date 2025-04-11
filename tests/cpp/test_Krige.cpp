@@ -431,8 +431,8 @@ int main(int argc, char* argv[])
   {
     delete grid_res;
     grid_res = grid->clone();
-    MatrixRectangular* matLC =
-      MatrixRectangular::createFromVD({2., 2., 1., 1., 0., 1.}, 2, 3);
+    MatrixDense* matLC =
+      MatrixDense::createFromVD({2., 2., 1., 1., 0., 1.}, 2, 3);
     KrigOpt krigopt;
     krigopt.setMatLC(matLC);
     kriging(data, grid_res, model, neighU, true, true, false, krigopt);

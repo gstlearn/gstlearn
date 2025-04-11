@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
@@ -69,7 +69,7 @@ private:
   bool _isPrepared;
   VectorDouble _phi;
   VectorDouble _gamma;
-  MatrixRectangular _omega; // Matrix nrows=_ns, ncols=ndim
+  MatrixDense _omega; // Matrix nrows=_ns, ncols=ndim
   std::vector<spSim> _spSims;
 
   const Model* _model; // Storing the pointer (not to be deleted)

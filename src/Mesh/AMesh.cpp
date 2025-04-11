@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Mesh/AMesh.hpp"
 #include "Matrix/NF_Triplet.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixInt.hpp"
 #include "LinearOp/ProjMatrix.hpp"
@@ -89,7 +89,7 @@ String AMesh::toString(const AStringFormat* strfmt) const
   if (strfmt != nullptr) sf = *strfmt;
   if (sf.getLevel() > 1)
   {
-    MatrixRectangular apices;
+    MatrixDense apices;
     MatrixInt meshes;
     getElements(apices, meshes);
 
@@ -277,10 +277,10 @@ VectorVectorDouble AMesh::getAllCenterCoordinates() const
  * - the second dimension if the space dimension (ncol)
  * @return
  */
-MatrixRectangular AMesh::getAllApices() const
+MatrixDense AMesh::getAllApices() const
 {
   int napices = getNApices();
-  MatrixRectangular apices(napices, _nDim);
+  MatrixDense apices(napices, _nDim);
   for (int ip = 0; ip < napices; ip++)
     for (int idim = 0; idim < _nDim; idim++)
       apices.setValue(ip, idim, getApexCoor(ip, idim));
@@ -321,7 +321,7 @@ VectorInt AMesh::getMeshByApexPair(int apex1, int apex2) const
 ** \param[out]  meshes  Pointer on the array of Meshes
 **
 *****************************************************************************/
-void AMesh::getElements(MatrixRectangular& apices, MatrixInt& meshes) const
+void AMesh::getElements(MatrixDense& apices, MatrixInt& meshes) const
 {
   int nmeshes = getNMeshes();
   int ndim    = getNDim();

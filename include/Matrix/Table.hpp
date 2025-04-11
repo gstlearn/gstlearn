@@ -13,15 +13,15 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Basic/ASerializable.hpp"
 
 /**
- * Stores an array of values as a Table, i.e. a MatrixRectangular
+ * Stores an array of values as a Table, i.e. a MatrixDense
  * where rows and columns can be optionally decorated
  */
 
-class GSTLEARN_EXPORT Table : public MatrixRectangular, public ASerializable {
+class GSTLEARN_EXPORT Table : public MatrixDense, public ASerializable {
 
 public:
   Table(int nrow = 0, int ncol = 0, bool skip_title = false, bool skip_description = false);
@@ -33,7 +33,7 @@ public:
   DECLARE_TOTL;
 
   /// Cloneable interface
-  IMPLEMENT_CLONING(MatrixRectangular)
+  IMPLEMENT_CLONING(MatrixDense)
 
   virtual void reset(int nrows, int ncols) override;
 

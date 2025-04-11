@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/CholeskyDense.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "geoslib_define.h"
 #include <Eigen/src/Core/Matrix.h>
@@ -68,7 +68,7 @@ bool CholeskyDense::empty() const
   return _empty;
 }
 
-void CholeskyDense::solveMatInPlace(const MatrixRectangular& mat, MatrixRectangular& res) const
+void CholeskyDense::solveMatInPlace(const MatrixDense& mat, MatrixDense& res) const
 {
   if (!isReady()) return;
   res.getEigenMat() = _factor.solve(mat.getEigenMat());
@@ -165,7 +165,7 @@ double CholeskyDense::getUpperTriangleInverse(int i, int j) const
 int CholeskyDense::_prepare() const
 {
   if (_mat == nullptr) return 1;
-  const auto a = dynamic_cast<const AMatrixDense*>(_mat)->getEigenMat();
+  const auto a = dynamic_cast<const MatrixDense*>(_mat)->getEigenMat();
   _factor      = a.llt();
   _setReady();
   return 0;
@@ -233,8 +233,8 @@ int CholeskyDense::_computeXL() const
  **
  *****************************************************************************/
 void CholeskyDense::matProductInPlace(int mode,
-                                      const MatrixRectangular& a,
-                                      MatrixRectangular& x)
+                                      const MatrixDense& a,
+                                      MatrixDense& x)
 {
   if (_computeTL()) return;
   int n1 = a.getNRows();

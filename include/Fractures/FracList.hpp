@@ -14,7 +14,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/NamingConvention.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 
 #include "Fractures/FracDesc.hpp"
 #include "Fractures/FracEnviron.hpp"
@@ -50,8 +50,8 @@ public:
                const VectorDouble& elevations = VectorDouble());
   void addDescription(const FracDesc& description = FracDesc());
 
-  MatrixRectangular fractureExport() const;
-  MatrixRectangular layinfoExport() const { return _layinfo; };
+  MatrixDense fractureExport() const;
+  MatrixDense layinfoExport() const { return _layinfo; };
   static FracList* fractureImport(const VectorDouble& frac_segs,
                                   const VectorDouble& layinfo = VectorDouble(),
                                   int nfamilies = 0);
@@ -180,7 +180,7 @@ private:
 private:
   // Array of fracture descriptions
   std::vector<FracDesc> _descs;
-  MatrixRectangular _layinfo;
+  MatrixDense _layinfo;
   int _nlayers;
   // The number of discretization steps used to establish the fracture density
   int _ndisc;
