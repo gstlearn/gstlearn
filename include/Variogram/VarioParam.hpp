@@ -77,11 +77,11 @@ public:
                                     const VectorDouble& dates = VectorDouble(),
                                     const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static VarioParam* createMultipleFromGrid(const DbGrid* dbgrid,
-                         int nlag,
-                         double scale              = 0.,
-                         const VectorDouble& dates = VectorDouble(),
-                         const ASpaceSharedPtr& space       = ASpaceSharedPtr(),
-                         int ndimax = 0);
+                                            int nlag,
+                                            double scale                 = 0.,
+                                            const VectorDouble& dates    = VectorDouble(),
+                                            const ASpaceSharedPtr& space = ASpaceSharedPtr(),
+                                            int ndimax                   = 0);
   static VarioParam* createFromSpaceDimension(int nlag = 10,
                                               double dlag = 1.,
                                               double toldis = 0.5,
