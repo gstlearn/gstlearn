@@ -774,7 +774,9 @@ void AMesh::resetProjFromDb(ProjMatrix* m,
   int nvertex = getNApices();
   int ncorner = getNApexPerMesh();
   int nech    = db->getNSample();
-  VectorDouble units = _defineUnits();
+  VectorDouble units;
+  if (getVariety() != 1)
+    units = _defineUnits();
 
   // Preliminary checks
   if (isCompatibleDb(db)) return;
