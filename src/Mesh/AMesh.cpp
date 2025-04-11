@@ -774,7 +774,8 @@ void AMesh::resetProjFromDb(ProjMatrix* m,
   int nvertex = getNApices();
   int ncorner = getNApexPerMesh();
   int nech    = db->getNSample();
-  VectorDouble units;
+  int nmeshes = getNMeshes();
+  VectorDouble units(nmeshes, 0.);
   if (getVariety() != 1)
     units = _defineUnits();
 
