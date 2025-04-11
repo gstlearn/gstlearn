@@ -86,6 +86,7 @@ private:
 
 private:
   t_btree* _tree;
+  bool _master;
 };
 
 GSTLEARN_EXPORT MatrixT<int> findNN(Db* dbin,

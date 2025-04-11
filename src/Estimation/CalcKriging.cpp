@@ -18,6 +18,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
 #include "Model/Model.hpp"
+#include "Neigh/NeighBench.hpp"
 #include "Neigh/NeighUnique.hpp"
 
 #include <math.h>
@@ -306,10 +307,13 @@ int kriging(Db* dbin,
             const NamingConvention& namconv)
 {
   NeighUnique* neighUnique = dynamic_cast<NeighUnique*>(neigh);
+  NeighBench* neighBench = dynamic_cast<NeighBench*>(neigh);
+
   if (krigopt.getCalcul() == EKrigOpt::POINT && 
       !krigopt.hasColcok() &&
       !krigopt.hasMatLC() && 
       //neighUnique != nullptr &&
+      neighBench == nullptr &&
       model->getNVar() == 1 && 
       OptCustom::query("NotOptimSimpleCase", 0) == 0)
   {

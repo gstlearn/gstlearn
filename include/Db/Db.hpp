@@ -246,7 +246,7 @@ public:
   String getNameByLocator(const ELoc& locatorType, int locatorIndex = 0) const;
   String getNameByColIdx(int icol) const;
   String getNameByUID(int iuid) const;
-
+  virtual void initThread() const {}
   VectorString getName(const String& name) const;
   VectorString getNames(const VectorString& names) const;
   VectorString getNamesByLocator(const ELoc& locatorType) const;

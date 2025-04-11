@@ -81,9 +81,10 @@ public:
 
   virtual void getDistancePointVectInPlace(const SpacePoint& p1,
                                            const std::vector<SpacePoint>& p2,
-                                           VectorDouble& res) const
+                                           VectorDouble& res,
+                                           const VectorInt& ranks) const
   {
-    DECLARE_UNUSED(p1, p2, res)                                      
+    DECLARE_UNUSED(p1, p2, res, ranks)                                      
   };
   ///////////////////////////////////////////////
   /// Not to be overriden

@@ -25,6 +25,7 @@ Ball::Ball(const double** data,
            int default_distance_function)
   : _tree(nullptr)
 {
+  _master = true;
   _tree = btree_init(data, n_samples, n_features, false, dist_function, leaf_size,
                      default_distance_function);
 }
@@ -40,6 +41,7 @@ Ball::Ball(const VectorVectorDouble& data,
   int n_samples     = (int)data[0].size();
   int n_features    = (int)data.size();
   double** internal = copy_double_arrAsVVD(data);
+  _master = true;
   _tree = btree_init((const double**)internal, n_samples, n_features, false,
                      dist_function, leaf_size, default_distance_function);
   free_2d_double(internal, n_features);
@@ -69,6 +71,7 @@ Ball::Ball(const Db* dbin,
     n_samples += (int)aux[0].size();
   }
 
+  _master = true;
   _tree = btree_init((const double**)internal, n_samples, n_features, has_constraints,
                      dist_function, leaf_size, default_distance_function);
   free_2d_double(internal, n_samples);
@@ -77,7 +80,7 @@ Ball::Ball(const Db* dbin,
 Ball::Ball(const Ball& r)
   : _tree(r._tree)
 {
-
+  _master = false;
 }
 
 Ball& Ball::operator=(const Ball& p)
@@ -85,6 +88,7 @@ Ball& Ball::operator=(const Ball& p)
   if (this != &p)
   {
     _tree = p._tree;
+    _master = false;
   }
   return *this;
 }
@@ -109,7 +113,8 @@ void Ball::init(const Db* db,
 
 Ball::~Ball()
 {
-  free_tree(_tree);
+  if (_master)
+    free_tree(_tree);
 }
 
 KNN Ball::query(const double **test, int n_samples, int n_features, int n_neighbors)

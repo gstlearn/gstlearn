@@ -82,7 +82,7 @@ public:
 private:
   int _getNVar() const;
   int _getNbfl() const;
-  int _getNeq() const;
+  int _getNeq(int nech) const;
   int _getNFeq() const;
 
   void _resetMemoryGeneral();
@@ -102,7 +102,6 @@ private:
 
   void _setInternalShortCutVariablesGeneral();
   void _setInternalShortCutVariablesModel();
-  int _setInternalShortCutVariablesNeigh(VectorInt& nbgh);
 
 private:
   Db* _dbin;
@@ -142,16 +141,11 @@ private:
   /// Local variables
   int _ndim;
   int _nvar;
-  int _nech;
   int _nfeq;
-  int _neq;
 
   /// Working arrays
   VectorInt _dbinUidToBeDeleted;
   VectorInt _dboutUidToBeDeleted;
-
-  /// Some Space Point allocated once for all
-  // ASpaceSharedPtr    _space;
 
   /// Some local flags defined in order to speed up the process
   bool _flagVerr;

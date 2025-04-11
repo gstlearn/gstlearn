@@ -564,6 +564,7 @@ void MeshETurbo::resetProjMatrix(ProjMatrix* m,
                                  bool verbose) const
 {
   int ndim = getNDim();
+  _grid.initThread();
   VectorInt indg0(ndim);
   VectorDouble coor(ndim);
 

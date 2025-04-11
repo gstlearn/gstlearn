@@ -416,12 +416,12 @@ int CorAniso::addEvalCovVecRHSInPlace(vect vect,
   const CovCalcMode& mode = krigopt.getMode();
   optimizationTransformSPNew(pin, pout);
   //TODO adapt to Moving
-  space->getDistancePointVectInPlace(pout, _p1As, tabwork);
+  space->getDistancePointVectInPlace(pout, _p1As, tabwork, index1);
   double* dists = tabwork.data();
-  const int* ind = index1.data();
+  //const int* ind = index1.data();
   for (int i = 0; i < (int)index1.size(); i++)
   {
-    vect[i] += lambda * evalCorFromH(dists[*ind++], &mode);
+    vect[i] += lambda * evalCorFromH(dists[i], &mode);
   }
   return 0;
 }

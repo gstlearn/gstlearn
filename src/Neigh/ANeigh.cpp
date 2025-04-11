@@ -53,7 +53,9 @@ ANeigh::ANeigh(const ANeigh& r)
   , _ballLeafSize(r._ballLeafSize)
   , _flagIsUnchanged(r._flagIsUnchanged)
   , _nbghMemo(r._nbghMemo)
+  , _ball(r._ball)
 {
+
 }
 
 ANeigh& ANeigh::operator=(const ANeigh &r)

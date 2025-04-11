@@ -135,14 +135,14 @@ void SpaceRN::_getIncrementInPlace(const SpacePoint& p1,
 
 void SpaceRN::getDistancePointVectInPlace(const SpacePoint& p1,
                                           const std::vector<SpacePoint>& p2,
-                                          VectorDouble& res) const
+                                          VectorDouble& res,
+                                          const VectorInt& ranks) const
 {
   double ti;
   double s;
-  int nbp = res.size();
   double* ptr = res.data();
   auto pt1 = p1.getCoords();
-  for (int i = 0; i < nbp; i++)
+  for (const auto &i : ranks)
   {
     s = 0.;
     auto pt = p2[i].getCoords();
