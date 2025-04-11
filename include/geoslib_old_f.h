@@ -60,7 +60,7 @@ class QChol;
 GSTLEARN_EXPORT int foxleg_f(int ndat,
                              int npar,
                              int ncont,
-                             const MatrixRectangular& acont,
+                             const MatrixDense& acont,
                              VectorDouble &param,
                              VectorDouble &lower,
                              VectorDouble &upper,

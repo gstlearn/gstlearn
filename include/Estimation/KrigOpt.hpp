@@ -14,7 +14,7 @@
 
 #include "Enum/EKrigOpt.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 
 class Db;
 class DbGrid;
@@ -33,7 +33,7 @@ public:
                       const VectorInt& ndiscs = VectorInt(),
                       bool flag_per_cell      = false);
   int setColCok(const VectorInt& rank_colcok);
-  int setMatLC(const MatrixRectangular* matLC);
+  int setMatLC(const MatrixDense* matLC);
   void setMode(const CovCalcMode* mode);
   void setOptionDGM(bool flag_dgm);
 
@@ -50,7 +50,7 @@ public:
   VectorDouble getDisc2VD(int idisc) const;
   VectorVectorDouble getDisc1VVD() const;
   VectorVectorDouble getDisc2VVD() const;
-  const MatrixRectangular* getMatLC() const { return _matLC; }
+  const MatrixDense* getMatLC() const { return _matLC; }
   double getMatLCValue(int ivarcl, int ivar) const;
   bool hasMatLC() const { return _matLC != nullptr; }
   int getMatLCNRows() const { return _matLC->getNRows(); }
@@ -92,7 +92,7 @@ private:
   VectorInt _rankColcok;
 
   // Matrix used for variable combination
-  const MatrixRectangular* _matLC; // Pointer not to be deleted
+  const MatrixDense* _matLC; // Pointer not to be deleted
 
   mutable const DbGrid* _dbgrid; // Pointer to the DbGrid (not to be deleted)
 };

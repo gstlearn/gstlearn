@@ -11,7 +11,7 @@
 #include "LinearOp/CholeskySparse.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -44,10 +44,10 @@ MatrixSparse* _createSparseMatrix(int n, double proba)
   return Q;
 }
 
-MatrixSquareSymmetric* _createDenseMatrix(int n, const MatrixSparse* Q)
+MatrixSymmetric* _createDenseMatrix(int n, const MatrixSparse* Q)
 {
   // Create the corresponding Symmetric matrix
-  MatrixSquareSymmetric* M = new MatrixSquareSymmetric(n);
+  MatrixSymmetric* M = new MatrixSymmetric(n);
   for (int icol = 0; icol < n; icol++)
     for (int irow = 0; irow < n; irow++)
     {
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
   int size                 = 10;
   double proba             = 0.05;
   MatrixSparse* Q          = _createSparseMatrix(size, proba);
-  MatrixSquareSymmetric* M = _createDenseMatrix(size, Q);
+  MatrixSymmetric* M = _createDenseMatrix(size, Q);
 
   // Create a vector random gaussian values
   VectorDouble vecin = VH::simulateGaussian(size);
@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
   }
 
   // Checking the Stdev vector
-  MatrixSquareSymmetric MP(*M);
+  MatrixSymmetric MP(*M);
   (void)MP.invert();
   VectorDouble vecout1b = MP.getDiagonal();
 

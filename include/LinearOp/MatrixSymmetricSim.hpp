@@ -22,13 +22,13 @@ class Cholesky;
 /**
  * Square Symmetric matrices
  */
-class GSTLEARN_EXPORT MatrixSquareSymmetricSim : public ASimulable
+class GSTLEARN_EXPORT MatrixSymmetricSim : public ASimulable
 {
 public:
-  MatrixSquareSymmetricSim(const AMatrix* m, bool inverse = true);
-  MatrixSquareSymmetricSim(const MatrixSquareSymmetricSim &m) = delete;
-  MatrixSquareSymmetricSim& operator=(const MatrixSquareSymmetricSim &m) = delete;
-  virtual ~MatrixSquareSymmetricSim();
+  MatrixSymmetricSim(const AMatrix* m, bool inverse = true);
+  MatrixSymmetricSim(const MatrixSymmetricSim &m) = delete;
+  MatrixSymmetricSim& operator=(const MatrixSymmetricSim &m) = delete;
+  virtual ~MatrixSymmetricSim();
 
   const AMatrix* getMatrix() const;
   int  getSize() const override;

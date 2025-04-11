@@ -435,6 +435,7 @@ bool ANeigh::_serialize(std::ostream& os, bool /*verbose*/) const
 
 void ANeigh::setBallSearch(bool status, int leaf_size)
 {
+  if (leaf_size <= 0) status = false;
   _useBallSearch = status;
   _ballLeafSize = leaf_size;
 }

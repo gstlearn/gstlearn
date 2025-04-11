@@ -13,7 +13,7 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Estimation/KrigingAlgebraSimpleCase.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
@@ -182,7 +182,7 @@ void KrigingSystemSimpleCase::_setInternalShortCutVariablesGeneral()
   _ndim = getNDim();
   _setInternalShortCutVariablesModel();
 }
-void KrigingSystemSimpleCase::_rhsDump(KrigingAlgebraSimpleCase& algebra)
+void KrigingSystemSimpleCase::_rhsDump(KrigingAlgebraSimpleCase& algebra) const
 {
   int nech = algebra.getSampleRanks()->at(0).size();
   mestitle(0, "RHS of Kriging matrix");
@@ -209,13 +209,17 @@ void KrigingSystemSimpleCase::_wgtDump(KrigingAlgebraSimpleCase& algebra)
  **  Calculate the final estimation and storage
  **
  ** \param[in] status   Kriging error status
+ ** \param[in] iechout  Rank of the target in the output Db structure
+ ** \param[in] algebra  Kriging algebra
  **
  *****************************************************************************/
-void KrigingSystemSimpleCase::_estimateCalcul(int status, KrigingAlgebraSimpleCase& algebra, int iechout) const
+void KrigingSystemSimpleCase::_estimateCalcul(int status,
+                                              int iechout,
+                                              KrigingAlgebraSimpleCase& algebra) const
 {
   int nech = algebra.getSampleRanks()->at(0).size();
   if (_flagEst)
-    _estimateEstim(status, algebra, iechout);
+    _estimateEstim(status, iechout, algebra);
 
   /* Variance of the estimation error */
 
@@ -276,9 +280,11 @@ void KrigingSystemSimpleCase::_neighCalcul(int status, const VectorDouble& tab, 
  **  Establish the calculation of estimation
  **
  ** \param[in]  status  Kriging error code
+ ** \param[in]  iechout  Rank of the target in the output Db structure
+ ** \param[in]  algebra  Kriging algebra
  **
  *****************************************************************************/
-void KrigingSystemSimpleCase::_estimateEstim(int status, KrigingAlgebraSimpleCase& algebra, int iechout) const
+void KrigingSystemSimpleCase::_estimateEstim(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const
 {
   VectorDouble& local = algebra.getEstimation();
   if (local.size() <= 0) return;
@@ -297,6 +303,8 @@ void KrigingSystemSimpleCase::_estimateEstim(int status, KrigingAlgebraSimpleCas
  **  Establish the calculation of standard deviation
  **
  ** \param[in]  status  Kriging error code
+ ** \param[in]  iechout  Rank of the target in the output Db structure
+ ** \param[in]  algebra  Kriging algebra
  **
  *****************************************************************************/
 void KrigingSystemSimpleCase::_estimateStdv(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const
@@ -313,6 +321,8 @@ void KrigingSystemSimpleCase::_estimateStdv(int status, int iechout, KrigingAlge
  **  Establish the variance of the estimator
  **
  ** \param[in]  status  Kriging error code
+ ** \param[in]  iechout  Rank of the target in the output Db structure
+ ** \param[in]  algebra  Kriging algebra
  **
  *****************************************************************************/
 void KrigingSystemSimpleCase::_estimateVarZ(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const
@@ -492,6 +502,7 @@ int KrigingSystemSimpleCase::estimate(int iechout,
  **  Print the results
  **
  ** \param[in] status   Kriging error status
+ ** \param[in] iechout  Rank of the target in the output Db structure
  **
  *****************************************************************************/
 void KrigingSystemSimpleCase::_dumpKrigingResults(int status, int iechout, KrigingAlgebraSimpleCase* algebra) const
@@ -844,15 +855,15 @@ VectorVectorDouble KrigingSystemSimpleCase::getSampleCoordinates(KrigingAlgebraS
   return xyz;
 }
 
-MatrixRectangular KrigingSystemSimpleCase::getWeights(KrigingAlgebraSimpleCase& algebra) const
+MatrixDense KrigingSystemSimpleCase::getWeights(KrigingAlgebraSimpleCase& algebra)
 {
-  const MatrixRectangular* lambda = algebra.getLambda();
-  if (lambda == nullptr) return MatrixRectangular();
+  const MatrixDense* lambda = algebra.getLambda();
+  if (lambda == nullptr) return MatrixDense();
   return *lambda;
 }
-MatrixRectangular KrigingSystemSimpleCase::getMu(KrigingAlgebraSimpleCase& algebra) const
+MatrixDense KrigingSystemSimpleCase::getMu(KrigingAlgebraSimpleCase& algebra)
 {
-  const MatrixRectangular* mu = algebra.getMu();
-  if (mu == nullptr) return MatrixRectangular();
+  const MatrixDense* mu = algebra.getMu();
+  if (mu == nullptr) return MatrixDense();
   return *mu;
 }

@@ -82,7 +82,7 @@ public:
   int getNCov() const;
   bool isFiltered(int icov) const;
   virtual double getTotalSill(int ivar = 0, int jvar = 0) const;
-  MatrixSquareSymmetric getTotalSills() const;
+  MatrixSymmetric getTotalSills() const;
   bool isAllActiveCovList() const;
 
   void setOptimEnabled(bool flag) const override;
@@ -94,8 +94,8 @@ public:
   virtual const ECov& getCovType(int icov) const;
   virtual void setCov(int icov, const CovBase* covs);
   void setSill(int icov, int ivar, int jvar, double value);
-  void setSills(int icov, const MatrixSquareSymmetric& sills);
-  const MatrixSquareSymmetric& getSills(int icov) const;
+  void setSills(int icov, const MatrixSymmetric& sills);
+  const MatrixSymmetric& getSills(int icov) const;
   double getSill(int icov, int ivar, int jvar) const;
 
   // Methods necessary for Optimization

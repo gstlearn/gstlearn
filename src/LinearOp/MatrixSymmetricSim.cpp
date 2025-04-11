@@ -9,17 +9,17 @@
 /*                                                                            */
 /******************************************************************************/
 
-#include "LinearOp/MatrixSquareSymmetricSim.hpp"
+#include "LinearOp/MatrixSymmetricSim.hpp"
 #include "Basic/AStringable.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "LinearOp/CholeskySparse.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "LinearOp/ACholesky.hpp"
 #include <Eigen/src/Core/Matrix.h>
 
-MatrixSquareSymmetricSim::MatrixSquareSymmetricSim(const AMatrix* m,
-                                                   bool inverse)
+MatrixSymmetricSim::MatrixSymmetricSim(const AMatrix* m,
+                                       bool inverse)
   : ASimulable()
   , _inverse(inverse)
   , _factor(nullptr)
@@ -38,7 +38,7 @@ MatrixSquareSymmetricSim::MatrixSquareSymmetricSim(const AMatrix* m,
   }
   else
   {
-    const MatrixSquareSymmetric* matSym = dynamic_cast<const MatrixSquareSymmetric*>(m);
+    const MatrixSymmetric* matSym = dynamic_cast<const MatrixSymmetric*>(m);
     if (matSym != nullptr) _factor = new CholeskyDense(matSym);
   }
   if (_factor == nullptr)
@@ -46,37 +46,37 @@ MatrixSquareSymmetricSim::MatrixSquareSymmetricSim(const AMatrix* m,
     messerr("The Input matrix is not valid");
     messerr("It should be either:");
     messerr("- a MatrixSparse");
-    messerr("- a MatrixSquareSymmetric");
+    messerr("- a MatrixSymmetric");
     return;
   }
 }
 
-MatrixSquareSymmetricSim::~MatrixSquareSymmetricSim()
+MatrixSymmetricSim::~MatrixSymmetricSim()
 {
   delete _factor;
   _factor = nullptr;
 }
 
-int MatrixSquareSymmetricSim::_addToDest(const constvect inv, vect outv) const
+int MatrixSymmetricSim::_addToDest(const constvect inv, vect outv) const
 {
   if (_inverse) return _factor->getMatrix()->addProdMatVecInPlace(inv, outv);
   return _factor->addSolveX(inv, outv);
 }
 
-int MatrixSquareSymmetricSim::_addSimulateToDest(const constvect whitenoise,
+int MatrixSymmetricSim::_addSimulateToDest(const constvect whitenoise,
                                                  vect outv) const
 {
   if (_inverse) return _factor->addInvLtX(whitenoise, outv);
   return _factor->addLX(whitenoise, outv);
 }
 
-const AMatrix* MatrixSquareSymmetricSim::getMatrix() const
+const AMatrix* MatrixSymmetricSim::getMatrix() const
 {
   if (_factor == nullptr) return nullptr;
   return _factor->getMatrix();
 }
 
-int MatrixSquareSymmetricSim::getSize() const
+int MatrixSymmetricSim::getSize() const
 {
   if (_factor == nullptr) return 0;
   return _factor->getSize();

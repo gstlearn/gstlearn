@@ -117,8 +117,8 @@ int CalcGlobal::_globalKriging()
   VectorDouble wgt;
 
   KrigOpt krigopt;
-  MatrixSquareSymmetric Sigma;
-  MatrixRectangular X;
+  MatrixSymmetric Sigma;
+  MatrixDense X;
 
   // Get the Covariance between data (Unique Neighborhood)
   CovCalcMode mode            = CovCalcMode(ECalcMember::LHS);
@@ -135,11 +135,11 @@ int CalcGlobal::_globalKriging()
   algebra.setLHS(&Sigma, &X);
 
   // Prepare the cumulative matrices
-  MatrixRectangular Sigma0Cum(Sigma.getNRows(), 1);
-  MatrixRectangular X0Cum(1, X.getNCols());
-  MatrixRectangular Sigma0;
-  MatrixRectangular X0;
-  MatrixSquareSymmetric Sigma00;
+  MatrixDense Sigma0Cum(Sigma.getNRows(), 1);
+  MatrixDense X0Cum(1, X.getNCols());
+  MatrixDense Sigma0;
+  MatrixDense X0;
+  MatrixSymmetric Sigma00;
 
   /* Loop on the targets to be processed */
   for (int iech = 0, nech = dbout->getNSample(); iech < nech; iech++)

@@ -18,7 +18,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Enum/ESpaceType.hpp"
 
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -60,8 +60,8 @@ int main(int argc, char* argv[])
 
   // Create the Model
   double scale = 0.7;
-  MatrixSquareSymmetric* sills =
-    MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
+  MatrixSymmetric* sills =
+    MatrixSymmetric::createRandomDefinitePositive(nvar);
   Model* model = Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
                                  *sills, VectorDouble(), nullptr, false);
   if (flagSK)

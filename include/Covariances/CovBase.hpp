@@ -16,7 +16,7 @@
 #include "Covariances/TabNoStatSills.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Model/CovInternal.hpp"
 #include "Space/SpacePoint.hpp"
@@ -29,7 +29,7 @@ class CovInternal;
 class GSTLEARN_EXPORT CovBase: public ACov
 {
 public:
-  CovBase(ACov* cor = nullptr, const MatrixSquareSymmetric& sills = MatrixSquareSymmetric());
+  CovBase(ACov* cor = nullptr, const MatrixSymmetric& sills = MatrixSymmetric());
   CovBase(const CovBase& r);
   CovBase& operator=(const CovBase& r);
   virtual ~CovBase();
@@ -44,12 +44,12 @@ public:
   void loadInfoValues() override;
   void setCholSill(int ivar, int jvar, double val) const;
   virtual void setSill(double sill) const; /// Only valid when there is only one variable (in the context)
-  virtual void setSill(const MatrixSquareSymmetric& sill) const;
+  virtual void setSill(const MatrixSymmetric& sill) const;
   virtual void setSill(const VectorDouble& sill) const;
   virtual void setSill(int ivar, int jvar, double sill) const;
   void initSill(double value = 0.);
 
-  const MatrixSquareSymmetric& getSill() const { return _sillCur; }
+  const MatrixSymmetric& getSill() const { return _sillCur; }
   virtual void setCor(ACov* cor);
   const ACov* getCor() const { return _cor; }
 
@@ -146,7 +146,7 @@ private:
 protected:
   MatrixT<ParamInfo> _cholSillsInfo;
   mutable MatrixSquareGeneral _cholSills;
-  mutable MatrixSquareSymmetric _sillCur;
+  mutable MatrixSymmetric _sillCur;
   mutable MatrixSquareGeneral _workMat;
 
 private:

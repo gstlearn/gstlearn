@@ -12,13 +12,12 @@
 #include "Matrix/AMatrixSquare.hpp"
 #include "Matrix/MatrixFactory.hpp"
 
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
 #include "Basic/VectorHelper.hpp"
-#include "Basic/AException.hpp"
 
 /****************************************************************************/
 /*!
@@ -64,8 +63,8 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
 
     // Case of a resulting Dense matrix
 
-    const MatrixSquareSymmetric* mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
-    const MatrixSquareSymmetric* mysym = dynamic_cast<const MatrixSquareSymmetric*>(y);
+    const MatrixSymmetric* mxsym = dynamic_cast<const MatrixSymmetric*>(x);
+    const MatrixSymmetric* mysym = dynamic_cast<const MatrixSymmetric*>(y);
 
     if (nrow1 == ncol2)
     {
@@ -77,7 +76,7 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
 
         // Cas of a resulting Square Symmetric matrix
 
-        res = new MatrixSquareSymmetric();
+        res = new MatrixSymmetric();
       }
       else
       {
@@ -92,7 +91,7 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
 
       // Case of a resulting Rectangular matrix
 
-      res = new MatrixRectangular();
+      res = new MatrixDense();
     }
   }
 
@@ -117,7 +116,7 @@ AMatrixSquare* MatrixFactory::createMatrixSquare(const AMatrixSquare *x,
 {
   /// TODO : use typeinfo
   const MatrixSquareGeneral*     mxsg  = dynamic_cast<const MatrixSquareGeneral*>(x);
-  const MatrixSquareSymmetric*   mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
+  const MatrixSymmetric*   mxsym = dynamic_cast<const MatrixSymmetric*>(x);
 
   AMatrixSquare* res = nullptr;
   if (mxsg != nullptr)
@@ -126,7 +125,7 @@ AMatrixSquare* MatrixFactory::createMatrixSquare(const AMatrixSquare *x,
   }
   else if (mxsym != nullptr)
   {
-    res = new MatrixSquareSymmetric(nrow);
+    res = new MatrixSymmetric(nrow);
   }
   return res;
 }
@@ -185,17 +184,17 @@ AMatrix* MatrixFactory::createReduce(const AMatrix *x,
 
   /// TODO : use typeinfo
   AMatrix* res = nullptr;
-  const MatrixRectangular*        mxrg  = dynamic_cast<const MatrixRectangular*>(x);
+  const MatrixDense*        mxrg  = dynamic_cast<const MatrixDense*>(x);
   const MatrixSquareGeneral*      mxsg  = dynamic_cast<const MatrixSquareGeneral*>(x);
-  const MatrixSquareSymmetric*    mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
+  const MatrixSymmetric*    mxsym = dynamic_cast<const MatrixSymmetric*>(x);
 
   if (mxsym != nullptr)
   {
     // Case of a square symmetric input matrix
     if (flagSame)
-      res = new MatrixSquareSymmetric(newNRows);
+      res = new MatrixSymmetric(newNRows);
     else
-      res = new MatrixRectangular(newNRows, newNCols);
+      res = new MatrixDense(newNRows, newNCols);
   }
   else if (mxsg != nullptr)
   {
@@ -203,12 +202,12 @@ AMatrix* MatrixFactory::createReduce(const AMatrix *x,
     if (flagSame)
       res = new MatrixSquareGeneral(newNRows);
     else
-      res = new MatrixRectangular(newNRows, newNCols);
+      res = new MatrixDense(newNRows, newNCols);
   }
   else if (mxrg != nullptr)
   {
     // Case of a rectangular input matrix
-    res = new MatrixRectangular(newNRows, newNCols);
+    res = new MatrixDense(newNRows, newNCols);
   }
   else
     messageAbort("CreateReduce cannot be called for such matrix. This should never happen");
@@ -310,7 +309,7 @@ AMatrix* MatrixFactory::createGlue(const AMatrix* a1,
   }
   else
   {
-    a = MatrixRectangular::glue(a1, a2, flagShiftRow, flagShiftCol);
+    a = MatrixDense::glue(a1, a2, flagShiftRow, flagShiftCol);
   }
   return a;
 }

@@ -12,7 +12,7 @@
 
 #include "Enum/EMorpho.hpp"
 
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Morpho/Morpho.hpp"
@@ -871,7 +871,7 @@ void db_morpho_angle2D(DbGrid *dbgrid, const VectorInt &radius, int iptr0)
 {
   int iad;
   double result;
-  MatrixSquareSymmetric a(2);
+  MatrixSymmetric a(2);
   VectorDouble b(2);
   VectorDouble x(2);
 

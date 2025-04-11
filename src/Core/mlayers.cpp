@@ -2621,8 +2621,8 @@ static int st_get_prior(int nech,
                         double *mean,
                         double *vars)
 {
-  MatrixSquareSymmetric atab(npar);
-  MatrixSquareSymmetric atab0(npar);
+  MatrixSymmetric atab(npar);
+  MatrixSymmetric atab0(npar);
   VectorDouble btab(npar);
   VectorDouble btab0(npar);
   VectorDouble result(npar);

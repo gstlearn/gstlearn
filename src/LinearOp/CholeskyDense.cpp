@@ -9,8 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/CholeskyDense.hpp"
-#include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixDense.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
 #include <Eigen/src/Core/Matrix.h>
 
@@ -19,7 +19,7 @@
 #define _TL(i, j)     _tl[SQ(i, j, neq) - TRI(j)] /* for i >= j */
 #define _XL(i, j)     _xl[SQ(i, j, neq) - TRI(j)] /* for i >= j */
 
-CholeskyDense::CholeskyDense(const MatrixSquareSymmetric* mat)
+CholeskyDense::CholeskyDense(const MatrixSymmetric* mat)
   : ACholesky(mat)
   , _tl()
   , _xl()
@@ -68,7 +68,7 @@ bool CholeskyDense::empty() const
   return _empty;
 }
 
-void CholeskyDense::solveMatInPlace(const MatrixRectangular& mat, MatrixRectangular& res) const
+void CholeskyDense::solveMatInPlace(const MatrixDense& mat, MatrixDense& res) const
 {
   if (!isReady()) return;
   res.getEigenMat() = _factor.solve(mat.getEigenMat());
@@ -165,13 +165,13 @@ double CholeskyDense::getUpperTriangleInverse(int i, int j) const
 int CholeskyDense::_prepare() const
 {
   if (_mat == nullptr) return 1;
-  const auto a = dynamic_cast<const AMatrixDense*>(_mat)->getEigenMat();
+  const auto a = dynamic_cast<const MatrixDense*>(_mat)->getEigenMat();
   _factor      = a.llt();
   _setReady();
   return 0;
 }
 
-int CholeskyDense::setMatrix(const MatrixSquareSymmetric* mat)
+int CholeskyDense::setMatrix(const MatrixSymmetric* mat)
 {
   _mat  = mat;
   _size = mat->getNRows();
@@ -233,8 +233,8 @@ int CholeskyDense::_computeXL() const
  **
  *****************************************************************************/
 void CholeskyDense::matProductInPlace(int mode,
-                                      const MatrixRectangular& a,
-                                      MatrixRectangular& x)
+                                      const MatrixDense& a,
+                                      MatrixDense& x)
 {
   if (_computeTL()) return;
   int n1 = a.getNRows();
@@ -340,8 +340,8 @@ void CholeskyDense::matProductInPlace(int mode,
  *****************************************************************************/
 void CholeskyDense::normMatInPlace(int mode,
                                    int neq,
-                                   const MatrixSquareSymmetric& a,
-                                   MatrixSquareSymmetric& b)
+                                   const MatrixSymmetric& a,
+                                   MatrixSymmetric& b)
 {
   if (_computeTL()) return;
   b.resize(neq, neq);

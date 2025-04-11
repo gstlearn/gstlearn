@@ -730,7 +730,7 @@ double law_gaussian_between_bounds(double binf, double bsup)
  *****************************************************************************/
 double law_df_bigaussian(VectorDouble &vect,
                          VectorDouble &mean,
-                         MatrixSquareSymmetric& correl)
+                         MatrixSymmetric& correl)
 {
   VectorDouble xc(2);
   xc[0] = vect[0] - mean[0];
@@ -752,7 +752,7 @@ double law_df_bigaussian(VectorDouble &vect,
  ** \param[in]  correl Correlation matrix (Dimension: nvar*nvar)
  **
  *****************************************************************************/
-double law_df_quadgaussian(VectorDouble& vect, MatrixSquareSymmetric& correl)
+double law_df_quadgaussian(VectorDouble& vect, MatrixSymmetric& correl)
 {
   int nvar = (int) vect.size();
   double density = -2. * log(2 * GV_PI);
@@ -763,7 +763,7 @@ double law_df_quadgaussian(VectorDouble& vect, MatrixSquareSymmetric& correl)
   for (int ivar = 0; ivar < nvar; ivar++)
     density -= 0.5 * log(eigval[ivar]);
 
-  MatrixSquareSymmetric invcor = correl;
+  MatrixSymmetric invcor = correl;
   if (invcor.invert()) return TEST;
 
   density -= 0.5 * invcor.normVec(vect);
@@ -781,7 +781,7 @@ double law_df_quadgaussian(VectorDouble& vect, MatrixSquareSymmetric& correl)
  ** \param[in]  correl Correlation matrix (Dimension: nvar*nvar)
  **
  *****************************************************************************/
-double law_df_multigaussian(VectorDouble& vect, MatrixSquareSymmetric& correl)
+double law_df_multigaussian(VectorDouble& vect, MatrixSymmetric& correl)
 
 {
   int nvar = (int) vect.size();
@@ -793,7 +793,7 @@ double law_df_multigaussian(VectorDouble& vect, MatrixSquareSymmetric& correl)
   for (int i = 0; i < nvar; i++)
     density -= 0.5 * log(eigval[i]);
 
-  MatrixSquareSymmetric invcor(correl);
+  MatrixSymmetric invcor(correl);
   if (invcor.invert()) return TEST;
 
   density -= invcor.normVec(vect);

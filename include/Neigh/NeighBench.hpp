@@ -39,7 +39,11 @@ class Db;
 class GSTLEARN_EXPORT NeighBench: public ANeigh
 {
 public:
-  NeighBench(bool flag_xvalid = false, double width = 0., const ASpaceSharedPtr& space = ASpaceSharedPtr());
+  NeighBench(bool flag_xvalid             = false,
+             double width                 = 0.,
+             bool useBallTree             = false,
+             int leaf_size                = 10,
+             const ASpaceSharedPtr& space = ASpaceSharedPtr());
   NeighBench(const NeighBench& r);
   NeighBench& operator=(const NeighBench& r);
   virtual ~NeighBench();
@@ -55,8 +59,10 @@ public:
   /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static NeighBench* create(bool flag_xvalid = false,
-                            double width = 0,
+  static NeighBench* create(bool flag_xvalid             = false,
+                            double width                 = 0,
+                            bool useBallTree             = false,
+                            int leaf_size                = 10,
                             const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static NeighBench* createFromNF(const String& neutralFilename, bool verbose = true);
 

@@ -907,7 +907,7 @@ VectorDouble CalcSimuTurningBands::_createAIC()
 
   for (int icov = 0; icov < ncova; icov++)
   {
-    MatrixSquareSymmetric mat = _modelLocal->getSills(icov);
+    MatrixSymmetric mat = _modelLocal->getSills(icov);
     if (! mat.isDefinitePositive())
     {
       messerr("Warning: the model is not authorized");
@@ -1970,7 +1970,7 @@ int CalcSimuTurningBands::simulate(Db* dbin,
                                    int icase,
                                    int flag_bayes,
                                    const VectorDouble& dmean,
-                                   const MatrixSquareSymmetric& dcov,
+                                   const MatrixSymmetric& dcov,
                                    bool flag_pgs,
                                    bool flag_gibbs,
                                    bool flag_dgm)
@@ -2373,7 +2373,7 @@ int simbayes(Db *dbin,
              int nbsimu,
              int seed,
              const VectorDouble& dmean,
-             const MatrixSquareSymmetric& dcov,
+             const MatrixSymmetric& dcov,
              int nbtuba,
              bool flag_check,
              const NamingConvention& namconv)

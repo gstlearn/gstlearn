@@ -12,11 +12,11 @@
 #include "Enum/ECov.hpp"
 
 #include "API/SPDE.hpp"
-#include "LinearOp/MatrixSquareSymmetricSim.hpp"
+#include "LinearOp/MatrixSymmetricSim.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "LinearOp/SPDEOp.hpp"
 #include "LinearOp/SPDEOpMatrix.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Mesh/MeshETurbo.hpp"
@@ -874,7 +874,7 @@ static int _loadPositions(int iech,
   return ndef;
 }
 
-static void _addVerrConstant(MatrixSquareSymmetric& sills, const VectorDouble& verrDef)
+static void _addVerrConstant(MatrixSymmetric& sills, const VectorDouble& verrDef)
 {
   int nverr = (int) verrDef.size();
   if (nverr > 0)
@@ -884,7 +884,7 @@ static void _addVerrConstant(MatrixSquareSymmetric& sills, const VectorDouble& v
   }
 }
 
-static void _checkMinNugget(MatrixSquareSymmetric& sills, const VectorDouble& minNug)
+static void _checkMinNugget(MatrixSymmetric& sills, const VectorDouble& minNug)
 {
   int nvar = (int) minNug.size();
 
@@ -893,17 +893,17 @@ static void _checkMinNugget(MatrixSquareSymmetric& sills, const VectorDouble& mi
     sills.setValue(ivar,ivar, MAX(sills.getValue(ivar,ivar), minNug[ivar]));
 }
 
-static MatrixSquareSymmetric _buildSillPartialMatrix(const MatrixSquareSymmetric &sillsRef,
+static MatrixSymmetric _buildSillPartialMatrix(const MatrixSymmetric &sillsRef,
                                                      int nvar,
                                                      int ndef,
                                                      const VectorInt &identity)
 {
-  MatrixSquareSymmetric sills;
+  MatrixSymmetric sills;
   if (ndef == nvar)
     sills = sillsRef;
   else
   {
-    sills = MatrixSquareSymmetric(ndef);
+    sills = MatrixSymmetric(ndef);
     for (int idef = 0; idef < ndef; idef++)
       for (int jdef = 0; jdef <= idef; jdef++)
         sills.setValue(idef, jdef, sillsRef.getValue(identity[idef], identity[jdef]));
@@ -949,7 +949,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   }
   if (!hasnugget)
   {
-    MatrixSquareSymmetric sills(model->getNVar());
+    MatrixSymmetric sills(model->getNVar());
     cova = CovAniso::createIsotropicMulti(*model->getContext(), ECov::NUGGET, 0, sills);
   }
   VectorInt ivars = VH::sequence(nvar);
@@ -994,9 +994,9 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   bool flag_constant = (! flag_nostat_sill && (! flag_verr || flag_uniqueVerr));
 
   // Elaborate the Sill matrix for the Nugget Effect component
-  MatrixSquareSymmetric sillsRef = cova->getSill();
+  MatrixSymmetric sillsRef = cova->getSill();
   int count = (int) pow(2, nvar);
-  std::vector<MatrixSquareSymmetric> sillsInv(count);
+  std::vector<MatrixSymmetric> sillsInv(count);
 
   // Pre-calculate the inverse of the sill matrix (if constant)
 
@@ -1048,7 +1048,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
       }
 
       // Establish a local matrix
-      MatrixSquareSymmetric local(ndef);
+      MatrixSymmetric local(ndef);
       for (int idef = 0; idef < ndef; idef++)
         for (int jdef = 0; jdef <= idef; jdef++)
         {
@@ -1137,7 +1137,7 @@ VectorDouble krigingSPDENew(Db* dbin,
   else
   {
     PrecisionOpMulti Qop(model, meshes);
-    MatrixSquareSymmetricSim invnoisep(invnoise);
+    MatrixSymmetricSim invnoisep(invnoise);
     SPDEOp spdeop(&Qop, &AM, &invnoisep);
     spdeop.setMaxIterations(1000);
     spdeop.setTolerance(1e-5);

@@ -15,7 +15,7 @@
 #include "LinearOp/ASimulable.hpp"
 #include "Matrix/AMatrix.hpp"
 
-class MatrixRectangular;
+class MatrixDense;
 
 class GSTLEARN_EXPORT ACholesky: public ASimulable
 {
@@ -33,7 +33,7 @@ public:
   int LtX(const constvect whitenoise, vect vecout) const;
   int LX(const constvect whitenoise, vect vecout) const;
   int InvLX(const constvect whitenoise, vect vecout) const;
-  int solveMatrix(const MatrixRectangular& b, MatrixRectangular& x) const;
+  int solveMatrix(const MatrixDense& b, MatrixDense& x) const;
   bool isReady() const { return _ready; }
 
 

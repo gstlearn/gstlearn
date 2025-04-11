@@ -13,7 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 #include "Anamorphosis/AAnam.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 
 class Selectivity;
 
@@ -77,7 +77,7 @@ public:
   void setIRStatR (int iclass, double value);
   void setIRStatRV(int iclass, double value);
 
-  const MatrixRectangular& getStats() const { return _stats; }
+  const MatrixDense& getStats() const { return _stats; }
 
 protected:
   /// Interface for ASerializable
@@ -94,5 +94,5 @@ private:
   double _mean;
   double _variance;
   VectorDouble _zCut;
-  MatrixRectangular _stats;
+  MatrixDense _stats;
 };

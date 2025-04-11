@@ -401,7 +401,7 @@ int kribayes(Db* dbin,
              ModelGeneric* model,
              ANeigh* neigh,
              const VectorDouble& prior_mean,
-             const MatrixSquareSymmetric& prior_cov,
+             const MatrixSymmetric& prior_cov,
              bool flag_est,
              bool flag_std,
              const NamingConvention& namconv)

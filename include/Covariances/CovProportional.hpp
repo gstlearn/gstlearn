@@ -12,7 +12,7 @@
 #include "Basic/ICloneable.hpp"
 #include "Covariances/CovBase.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 class ACor;
 class AFunctional;
 class CovInternal;
@@ -20,7 +20,7 @@ class CovInternal;
 class GSTLEARN_EXPORT CovProportional: public CovBase
 {
 public:
-  CovProportional(ACov* cor = nullptr,const MatrixSquareSymmetric &sills = MatrixSquareSymmetric());
+  CovProportional(ACov* cor = nullptr,const MatrixSymmetric &sills = MatrixSymmetric());
   CovProportional(const CovProportional &r);
   CovProportional& operator=(const CovProportional &r);
   virtual ~CovProportional();

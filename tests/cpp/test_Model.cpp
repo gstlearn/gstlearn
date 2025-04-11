@@ -23,7 +23,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/OptCst.hpp"
 #include "Enum/ESpaceType.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 
 /****************************************************************************/
 /*!
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
   modellmc.display();
 
   // Building the Covariance Matrix
-  MatrixSquareSymmetric result = modellmc.evalCovMatSym(workingDbc);
+  MatrixSymmetric result = modellmc.evalCovMatSym(workingDbc);
   result.display();
 
   // Sample the Model at regular steps
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
   Model* modelS = Model::createFromEnvironment(1, 3);
   modelS->addCovFromParam(ECov::CUBIC, 10., 12.);
   modelS->addCovFromParam(ECov::SPHERICAL, TEST, 23., TEST, {2., 3., 4.},
-                          MatrixSquareSymmetric(), {10., 20., 30.});
+                          MatrixSymmetric(), {10., 20., 30.});
   DriftM FF;
   modelS->addDrift(&FF);
   FF = DriftM(VectorInt({1}));
@@ -130,12 +130,12 @@ int main(int argc, char *argv[])
   /////////////////////////////////////////////
   // Building the Covariance and Drift Matrices
   // (selection and heterotopy)
-  MatrixSquareSymmetric covM;
-  MatrixRectangular driftM;
+  MatrixSymmetric covM;
+  MatrixDense driftM;
 
   Model* modelM = Model::createFromEnvironment(2, 2);
-  MatrixSquareSymmetric* sills =
-    MatrixSquareSymmetric::createFromVD({2., 1., 1., 4.});
+  MatrixSymmetric* sills =
+    MatrixSymmetric::createFromVD({2., 1., 1., 4.});
   modelM->addCovFromParam(ECov::CUBIC, 10., TEST, 0., VectorDouble(), *sills);
   delete sills;
   FF = DriftM(); // Universality Condition
@@ -168,11 +168,11 @@ int main(int argc, char *argv[])
 
   // Complete Matrices on the whole grid
   message("Covariance Matrix (complete)\n");
-  MatrixSquareSymmetric covMS = modelM->evalCovMatSym(workingDbc);
+  MatrixSymmetric covMS = modelM->evalCovMatSym(workingDbc);
   covMS.display();
 
   message("Covariance Matrix Optimal (complete)\n");
-  MatrixSquareSymmetric covMO = modelM->evalCovMatSym(workingDbc);
+  MatrixSymmetric covMO = modelM->evalCovMatSym(workingDbc);
   covMO.display();
 
   message("Covariance Matrix Sparse (complete)\n");
@@ -239,10 +239,10 @@ int main(int argc, char *argv[])
 //  Model* modelSph = Model::createFromParam(ECov::GEOMETRIC, 0.9);
 //  Model* modelSph = Model::createFromParam(ECov::POISSON, 1., 1., 10.);
 //  Model* modelSph = Model::createFromParam(ECov::EXPONENTIAL, 5.0, 1., 0.,
-//                                           VectorDouble(), MatrixSquareSymmetric(), VectorDouble(),
+//                                           VectorDouble(), MatrixSymmetric(), VectorDouble(),
 //                                           nullptr, true);
   Model *modelSph = Model::createFromParam(ECov::MATERN, 1./kappa, 1., mu,
-                                           VectorDouble(), MatrixSquareSymmetric(),
+                                           VectorDouble(), MatrixSymmetric(),
                                            VectorDouble(), nullptr, false);
   VH::dump("Spectrum", modelSph->getCovAniso(0)->evalSpectrumOnSphere(ns));
   VH::dump("Covariance", modelSph->getCovAniso(0)->evalCovOnSphereVec(incr));

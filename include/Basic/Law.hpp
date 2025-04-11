@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/VectorNumT.hpp"
 
 GSTLEARN_EXPORT void law_set_old_style(bool style);
@@ -48,11 +48,11 @@ GSTLEARN_EXPORT double law_invcdf_gaussian(double value);
 GSTLEARN_EXPORT double law_gaussian_between_bounds(double binf, double bsup);
 GSTLEARN_EXPORT double law_df_bigaussian(VectorDouble& vect,
                                          VectorDouble& mean,
-                                         MatrixSquareSymmetric& correl);
+                                         MatrixSymmetric& correl);
 GSTLEARN_EXPORT double law_df_quadgaussian(VectorDouble &vect,
-                                           MatrixSquareSymmetric &correl);
+                                           MatrixSymmetric &correl);
 GSTLEARN_EXPORT double law_df_multigaussian(VectorDouble &vect,
-                                            MatrixSquareSymmetric& correl);
+                                            MatrixSymmetric& correl);
 GSTLEARN_EXPORT VectorInt law_random_path(int nech);
 GSTLEARN_EXPORT VectorDouble law_exp_sample(const double* tabin,
                                             int mode,

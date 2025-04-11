@@ -13,7 +13,7 @@
 #include "Db/Db.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/AFunctional.hpp"
 #include <math.h>
@@ -135,8 +135,8 @@ VectorVectorDouble FunctionalSpirale::getFunctionVectors(const Db *db, const Cov
   vec[1].resize(nech);
   vec[2].resize(nech);
 
-  MatrixSquareSymmetric temp(2);
-  MatrixSquareSymmetric hh(2);
+  MatrixSymmetric temp(2);
+  MatrixSymmetric hh(2);
   VectorDouble diag = VH::power(cova->getScales(), 2.);
   temp.setDiagonal(diag);
 

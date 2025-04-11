@@ -17,7 +17,7 @@
 #include "Basic/AStringable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 
 class TurningBandOperate;
 
@@ -77,10 +77,10 @@ public:
 
   // Specific for Spectral Simulation Method
   virtual bool isValidForSpectral() const { return false; }
-  virtual MatrixRectangular simulateSpectralOmega(int nb) const
+  virtual MatrixDense simulateSpectralOmega(int nb) const
   {
     DECLARE_UNUSED(nb);
-    return MatrixRectangular();
+    return MatrixDense();
   }
 
   ///////////////////////////////////////////////////

@@ -32,7 +32,7 @@
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Geometry/GeometryHelper.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
 #include <math.h>
 #include <functional>
@@ -329,7 +329,7 @@ bool CorAniso::isValidForSpectral() const
 {
   return _corfunc->isValidForSpectral();
 }
-MatrixRectangular CorAniso::simulateSpectralOmega(int nb) const
+MatrixDense CorAniso::simulateSpectralOmega(int nb) const
 {
   return _corfunc->simulateSpectralOmega(nb);
 }
@@ -1017,7 +1017,7 @@ void CorAniso::makeRangeNoStatFunctional(const AFunctional* func, int idim)
   makeElemNoStat(EConsElem::RANGE, idim, 0, func);
 }
 
-void CorAniso::makeRangeStationary(int idim)
+void CorAniso::makeRangeStationary(int idim) const
 {
   if (getTabNoStatCovAniso()->removeElem(EConsElem::RANGE, idim) == 0 &&
       getTabNoStatCovAniso()->removeElem(EConsElem::SCALE, idim) == 0)
@@ -1040,7 +1040,7 @@ void CorAniso::makeScaleNoStatFunctional(const AFunctional* func, int idim)
   makeElemNoStat(EConsElem::SCALE, idim, 0, func);
 }
 
-void CorAniso::makeScaleStationary(int idim)
+void CorAniso::makeScaleStationary(int idim) const
 {
   makeRangeStationary(idim);
 }
@@ -1059,7 +1059,7 @@ void CorAniso::makeAngleNoStatFunctional(const AFunctional* func, int idim)
   makeElemNoStat(EConsElem::ANGLE, idim, 0, func);
 }
 
-void CorAniso::makeAngleStationary(int idim)
+void CorAniso::makeAngleStationary(int idim) const
 {
   if (getTabNoStatCovAniso()->removeElem(EConsElem::ANGLE, idim) == 0)
   {
@@ -1299,12 +1299,12 @@ void CorAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
   {
     // Extract the direct tensor at first point and square it
     setRotationAnglesAndRadius(angle1, range1, scale1);
-    MatrixSquareSymmetric direct1 = getAniso().getTensorDirect2();
+    MatrixSymmetric direct1 = getAniso().getTensorDirect2();
     double det1                   = pow(direct1.determinant(), 0.25);
 
     // Extract the direct tensor at second point and square it
     setRotationAnglesAndRadius(angle2, range2, scale2);
-    MatrixSquareSymmetric direct2 = getAniso().getTensorDirect2();
+    MatrixSymmetric direct2 = getAniso().getTensorDirect2();
     double det2                   = pow(direct2.determinant(), 0.25);
 
     // Calculate average squared tensor

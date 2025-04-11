@@ -14,7 +14,7 @@
 
 #include "Enum/EStatOption.hpp"
 
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/NamingConvention.hpp"
 
@@ -132,7 +132,7 @@ GSTLEARN_EXPORT VectorVectorDouble condexp(Db *db1,
 
 GSTLEARN_EXPORT std::map<int, int> contingencyTable(const VectorInt& values);
 GSTLEARN_EXPORT std::map<int, std::map<int, int>>contingencyTable2(const VectorInt& values, const VectorInt& bins);
-GSTLEARN_EXPORT MatrixSquareSymmetric dbVarianceMatrix(const Db* db);
+GSTLEARN_EXPORT MatrixSymmetric dbVarianceMatrix(const Db* db);
 
 #ifndef SWIG
 // All the following functions assume that the variables in the output Db used

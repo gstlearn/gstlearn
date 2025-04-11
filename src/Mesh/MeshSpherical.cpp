@@ -10,16 +10,16 @@
 /******************************************************************************/
 #include "Mesh/MeshSpherical.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixInt.hpp"
-#include "Matrix/NF_Triplet.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include "Tree/Ball.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
 
-MeshSpherical::MeshSpherical(const MatrixRectangular &apices,
+MeshSpherical::MeshSpherical(const MatrixDense &apices,
                              const MatrixInt &meshes)
     : AMesh(),
       _apices(apices),
@@ -124,7 +124,7 @@ MeshSpherical* MeshSpherical::createFromNF(const String& neutralFilename, bool v
   return mesh;
 }
 
-MeshSpherical* MeshSpherical::create(const MatrixRectangular &apices,
+MeshSpherical* MeshSpherical::create(const MatrixDense &apices,
                                      const MatrixInt &meshes)
 {
   return new MeshSpherical(apices, meshes);
@@ -179,99 +179,32 @@ int MeshSpherical::reset(int ndim,
 
 /****************************************************************************/
 /*!
-** Returns the Sparse Matrix used to project a Db onto the Meshing
+**  Check if a point, defined by its coordinates, belongs to a Mesh
+**  The geometry is expressed on the Sphere where ndim=2 and ndimEmbedded=3
 **
-** \param[out] m         Projection matrix to be initialized
-** \param[in]  db        Db structure
-** \param[in]  rankZ     Rank of the Z-locator to be tested (see remarks)
-** \param[in]  verbose   Verbose flag
+** \return true if the point belongs to the Mesh; false otherwise
 **
-** \remarks If rankZ>=0, a sample is only considered if the value
-** \remarks of the corresponding variable is defined
+** \param[in]  coor      Vector of target coordinates
+** \param[in]  corners   Vector of coordinates of mesh apices
+** \param[in]  meshsize  Dimension of the mesh
+** \param[in]  eps       Tolerance
+**
+** \param[out] weights   Array of barycentric weights (Dim: NApexPerMesh)
+**
+** \remarks The argument 'meshsize' is used to speed the calculations
 **
 *****************************************************************************/
-void MeshSpherical::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool verbose) const
+bool MeshSpherical::_weightsInMesh(const VectorDouble& coor,
+                                   const VectorVectorDouble& corners,
+                                   double meshsize,
+                                   VectorDouble& weights,
+                                   double eps) const
 {
-  bool flag_approx = true;
- 
-  /* Initializations */
-  
-  int nmeshes     = getNMeshes();
-  int nvertex     = getNApices();
-  int ncorner     = getNApexPerMesh();
-  int nech        = db->getNSample();
-
-  // Preliminary checks 
-
-  if (isCompatibleDb(db)) return;
-
-  /* Core allocation */
-
-  NF_Triplet NF_T;
-  VectorDouble weight(ncorner,0);
-  VectorDouble units = _defineUnits();
-  
-  /* Loop on the samples */
-
-  int ip_max = 0;
-  int iech = 0;
-  int nout = 0;
-  int nvalid = 0;
-  for (int jech=0; jech<nech; jech++)
-  {
-    if (! db->isActive(jech)) continue;
-    if (rankZ >= 0)
-    {
-      double testval = db->getFromLocator(ELoc::Z, jech, rankZ);
-      if (FFFF(testval)) continue;
-    }
-    nvalid++;
-
-    VectorDouble coorLongLat = db->getSampleCoordinates(jech);
-    
-    /* Loop on the meshes */
-    
-    int found = -1;
-    for (int imesh=0; imesh<nmeshes && found < 0; imesh++)
-    {
-      if (! _coorInMesh(coorLongLat,imesh,units[imesh],weight,flag_approx)) continue;
-
-      /* Store the items in the sparse matrix */
-
-      for (int icorn=0; icorn<ncorner; icorn++)
-      {
-        int ip = getApex(imesh,icorn);
-        if (ip > ip_max) ip_max = ip;
-        NF_T.add(iech,ip,weight[icorn]);
-      }
-      found = imesh;
-    }
-
-    /* Printout if a point does not belong to any mesh */
-
-    if (found < 0)
-    {
-      nout++;
-      if (verbose)
-        messerr("Point %d does not belong to any mesh",jech+1);
-    }
-    iech++;
-  }
-  
-  /* Add the extreme value to force dimension */
-
-  if (ip_max < nvertex - 1)
-  {
-    NF_T.force(nvalid,nvertex);
-  }
-  
-  /* Convert the triplet into a sparse matrix */
-
-  if (verbose && nout > 0)
-    messerr("%d / %d samples which do not belong to the Meshing",
-            nout, db->getNSample(true));
-
-  return m->resetFromTriplet(NF_T);
+  DECLARE_UNUSED(meshsize);
+  DECLARE_UNUSED(eps);
+  return GH::isInSphericalTriangleOptimized(coor.data(),
+                                            corners[0].data(), corners[1].data(), corners[2].data(),
+                                            weights.data());
 }
 
 /****************************************************************************/
@@ -310,44 +243,29 @@ double MeshSpherical::getApexCoor(int i, int idim) const
   return _apices(i,idim);
 }
 
+void MeshSpherical::_getCoordOnSphere(double longitude,
+                                      double latitude,
+                                      VectorDouble& coords)
+{
+  double radius = EARTH_RADIUS;
+  if (isDefaultSpaceSphere())
+  {
+    const ASpace* space    = getDefaultSpaceSh().get();
+    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    if (spaceSn != nullptr) radius = spaceSn->getRadius();
+  }
+  GH::convertSph2Cart(longitude, latitude,
+                      &coords.at(0), &coords.at(1), &coords.at(2), radius);
+}
+
 void MeshSpherical::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const
 {
-  /* The Variety is defined in the Global Environment */
-  /* The required radius is set to the radius of Earth (6371m) */
-
-  double r = 0.;
-  bool variety_sphere = isDefaultSpaceSphere();
-
-  if (variety_sphere)
-  {
-    const ASpace* space = getDefaultSpaceSh().get();
-    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
-    if (spaceSn != nullptr) r = spaceSn->getRadius();
-  }
-  else
-  {
-    r = EARTH_RADIUS;
-  }
-  GH::convertSph2Cart(getCoor(imesh, ic, 0) - 180., getCoor(imesh, ic, 1),
-                      &coords[0], &coords[1], &coords[2], r);
+  _getCoordOnSphere(getCoor(imesh, ic, 0), getCoor(imesh, ic, 1), coords);
 }
 
 void MeshSpherical::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const
 {
-  double r = 0.;
-  bool variety_sphere = isDefaultSpaceSphere();
-  if (variety_sphere)
-  {
-    const ASpace* space = getDefaultSpaceSh().get();
-    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
-    if (spaceSn != nullptr) r = spaceSn->getRadius();
-  }
-  else
-  {
-    r = EARTH_RADIUS;
-  }
-  GH::convertSph2Cart(getApexCoor(iapex, 0) - 180., getApexCoor(iapex, 1),
-                      &coords[0], &coords[1], &coords[2], r);
+  _getCoordOnSphere(getApexCoor(iapex, 0), getApexCoor(iapex, 1), coords);
 }
 
 /**
@@ -398,47 +316,6 @@ void MeshSpherical::_defineBoundingBox(void)
   (void) _setExtend(extendmin,extendmax);
 }
 
-/****************************************************************************/
-/*!
-**  Check if a point, defined by its coordinates, belong to a Mesh
-**
-** \return true if the point belongs to the Mesh; false otherwise
-**
-** \param[in]  coor      Array of target coordinates
-** \param[in]  imesh     Mesh Index
-** \param[in]  meshsize  Dimension of the mesh (approx)
-** \param[in]  flag_approx Approcimation flag
-**
-** \param[out] weights   Array of barycentric weights (Dim: NApexPerMesh)
-** 
-** \remark If flag_approx is False, calculations are performed with geodetic
-** \remark distances
-** \remark Otherwise calculations are performed by simply interpolating
-** \remark in the longitude-latitude space
-**
-*****************************************************************************/
-bool MeshSpherical::_coorInMesh(const VectorDouble& coor,
-                                int imesh,
-                                double meshsize,
-                                VectorDouble& weights,
-                                bool flag_approx) const
-{
-  VectorVectorDouble corners = getCoordinatesPerMesh(imesh);
-
-  if (!flag_approx)
-  {
-    return (GH::isInSphericalTriangleOptimized(
-      coor.data(), corners[0].data(), corners[1].data(), corners[2].data(),
-      weights.data()));
-  }
-
-  // Round the angles with respect to the target coordinates
-
-  for (int i = 0; i < 3; i++)
-    corners[i][0] = _closestValue(coor[0], corners[i][0], 360.);
-  return _weightsInMesh(coor, corners, meshsize, weights);
-}
-
 double MeshSpherical::_closestValue(double ref, double coor, double period)
 {
   double dref = ABS(coor - ref);
@@ -472,7 +349,7 @@ bool MeshSpherical::_deserialize(std::istream& is, bool /*verbose*/)
   {
     VectorDouble apices_local;
     ret = ret && _recordReadVec<double>(is, "Apices", apices_local, ndim * napices);
-    _apices = MatrixRectangular(napices, ndim);
+    _apices = MatrixDense(napices, ndim);
     _apices.setValues(apices_local);
   }
 
@@ -513,4 +390,26 @@ void MeshSpherical::_checkConsistency() const
         my_throw("Mesh indices are not compatible with the Points");
       }
     }
+}
+
+void MeshSpherical::getBarycenterInPlace(int imesh, VectorDouble& coord) const
+{
+  int ndimE   = getEmbeddedNDim();
+  int ncorner = getNApexPerMesh();
+
+  // Calculate the center of gravity (in the Embedded space)
+  VectorVectorDouble coordE = getEmbeddedCoordinatesPerMesh(imesh);
+  VectorDouble centerE(ndimE);
+
+  for (int idimE = 0; idimE < ndimE; idimE++)
+  {
+    double local = 0.;
+    for (int ic = 0; ic < ncorner; ic++)
+      local += coordE[ic][idimE];
+    centerE[idimE] = local / ncorner;
+  }
+
+  // Turn the gravity center from embedded to long/lat coordinates
+  GH::convertCart2Sph(centerE[0], centerE[1], centerE[2],
+                      &coord.at(0), &coord.at(1), TEST);
 }

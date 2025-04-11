@@ -27,6 +27,8 @@ NeighMoving::NeighMoving(bool flag_xvalid,
                          int nsmax,
                          const VectorDouble& coeffs,
                          const VectorDouble& angles,
+                         bool useBallTree,
+                         int leaf_size,
                          const ASpaceSharedPtr& space)
     : ANeigh(space),
       _nMini(nmini),
@@ -44,6 +46,8 @@ NeighMoving::NeighMoving(bool flag_xvalid,
       _T2(space)
 {
   setFlagXvalid(flag_xvalid);
+
+  setBallSearch(useBallTree, leaf_size);
 
   _biPtDist = BiTargetCheckDistance::create(radius, coeffs, angles);
 }
@@ -244,10 +248,12 @@ NeighMoving* NeighMoving::create(bool flag_xvalid,
                                  int nsmax,
                                  const VectorDouble& coeffs,
                                  const VectorDouble& angles,
+                                 bool useBallTree,
+                                 int leaf_size,
                                  const ASpaceSharedPtr& space)
 {
   return new NeighMoving(flag_xvalid, nmaxi, radius, nmini, nsect, nsmax,
-                         coeffs, angles, space);
+                         coeffs, angles, useBallTree, leaf_size, space);
 }
 
 /**

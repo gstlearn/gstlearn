@@ -17,7 +17,7 @@
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 
 #include <math.h>
 
@@ -143,7 +143,7 @@ int CovLMCConvolution::init(const EConvType& conv_type,
   for (int i = 0; i < 3; i++)
     _convNumber *= 2 * navail[i] + 1;
 
-  _convIncr = MatrixRectangular(ndim,_convNumber);
+  _convIncr = MatrixDense(ndim,_convNumber);
   _convWeight.resize(_convNumber);
 
   double delta, weight;

@@ -32,8 +32,8 @@ class EConsElem;
 class AMatrix;
 class AMatrixSquare;
 class MatrixSquareGeneral;
-class MatrixRectangular;
-class MatrixSquareSymmetric;
+class MatrixDense;
+class MatrixSymmetric;
 
 
 class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
@@ -113,15 +113,15 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
     bool _buildLambdaGrad(const AMesh* amesh);
 
     static void _loadAux(VectorDouble & tab, const EConsElem& type, int imesh = 0);
-    void _loadHH(const AMesh* amesh, MatrixSquareSymmetric& hh, int imesh = 0);
-    void _loadHHRegular(MatrixSquareSymmetric & hh, int imesh);
-    void _loadHHVariety(MatrixSquareSymmetric & hh, int imesh);
-    void _loadHHGrad(const AMesh* amesh, MatrixSquareSymmetric& hh, int igparam,
+    void _loadHH(const AMesh* amesh, MatrixSymmetric& hh, int imesh = 0);
+    void _loadHHRegular(MatrixSymmetric & hh, int imesh);
+    void _loadHHVariety(MatrixSymmetric & hh, int imesh);
+    void _loadHHGrad(const AMesh* amesh, MatrixSymmetric& hh, int igparam,
                      int ipref);
     double _computeGradLogDetHH(const AMesh* amesh, int igparam, int ipref,
-                                const MatrixSquareSymmetric& HH,
-                                MatrixSquareSymmetric& work,
-                                MatrixSquareSymmetric& work2);
+                                const MatrixSymmetric& HH,
+                                MatrixSymmetric& work,
+                                MatrixSymmetric& work2);
 
     void _reset();
     int _resetGrad();
@@ -131,13 +131,13 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
                              int imesh,
                              double coeff[3][2]);
     int _preparMatrices(const AMesh* amesh, int imesh,
-                        MatrixSquareGeneral& matu, MatrixRectangular& matw)
+                        MatrixSquareGeneral& matu, MatrixDense& matw)
       const;
     int _prepareMatricesSVariety(const AMesh* amesh,
                                  int imesh,
                                  VectorVectorDouble& coords,
-                                 MatrixRectangular& matM,
-                                 MatrixSquareSymmetric& matMtM,
+                                 MatrixDense& matM,
+                                 MatrixSymmetric& matMtM,
                                  AMatrix& matP,
                                  double* deter) const;
     int _prepareMatricesSphere(const AMesh* amesh,
@@ -165,7 +165,7 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
 
     static bool _cond(int indref, int igparam, int ipref);
     void _determineFlagNoStatByHH();
-    void _updateHH(MatrixSquareSymmetric & hh, int imesh);
+    void _updateHH(MatrixSymmetric & hh, int imesh);
     static MatrixSparse* _prepareSparse(const AMesh* amesh);
 
   private:

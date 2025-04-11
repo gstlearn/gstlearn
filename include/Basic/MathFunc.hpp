@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 
 class Cheb_Elem;
 
@@ -54,8 +54,8 @@ GSTLEARN_EXPORT double loggamma(double parameter);
 
 GSTLEARN_EXPORT double ut_legendre(int n, double v, bool flagNorm = true);
 GSTLEARN_EXPORT VectorDouble ut_legendreVec(int n, const VectorDouble& vecin, bool flagNorm);
-GSTLEARN_EXPORT MatrixRectangular ut_legendreMatNorm(int n, const VectorDouble& v);
-GSTLEARN_EXPORT MatrixRectangular ut_legendreAssociatedMat(int l,
+GSTLEARN_EXPORT MatrixDense ut_legendreMatNorm(int n, const VectorDouble& v);
+GSTLEARN_EXPORT MatrixDense ut_legendreAssociatedMat(int l,
                                                            const VectorDouble &v,
                                                            bool flagNorm = true);
 
@@ -92,8 +92,8 @@ GSTLEARN_EXPORT void ut_vandercorput(int n,
 GSTLEARN_EXPORT int ut_icosphere(int n, int flag_rot, int *ntri_arg, double **coor_arg);
 GSTLEARN_EXPORT double ut_factorial(int k);
 GSTLEARN_EXPORT void ut_log_factorial(int nbpoly, double *factor);
-GSTLEARN_EXPORT MatrixRectangular* vanDerCorput(int n, int nd);
-GSTLEARN_EXPORT MatrixRectangular fillLegendreMatrix(const VectorDouble &r,
+GSTLEARN_EXPORT MatrixDense* vanDerCorput(int n, int nd);
+GSTLEARN_EXPORT MatrixDense fillLegendreMatrix(const VectorDouble &r,
                                                      int legendreOrder);
 GSTLEARN_EXPORT int solve_P2(double a, double b, double c, VectorDouble& x);
 GSTLEARN_EXPORT int solve_P3(double a, double b, double c, double d, VectorDouble& x);

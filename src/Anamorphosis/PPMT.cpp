@@ -13,7 +13,7 @@
 #include "Anamorphosis/PPMT.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Matrix/AMatrix.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Db/Db.hpp"
 #include "Stats/Classical.hpp"
 #include "Geometry/GeometryHelper.hpp"
@@ -363,7 +363,7 @@ void PPMT::_generateAllDirections()
 {
   int ndir = getNdir();
 
-  MatrixRectangular* Umat;
+  MatrixDense* Umat;
   if (getMethodDir() == EDirGen::VDC)
   {
     Umat = vanDerCorput(ndir, _ndim);
@@ -371,7 +371,7 @@ void PPMT::_generateAllDirections()
   else
   {
     VectorDouble X = VH::simulateUniform(ndir * _ndim);
-    Umat = MatrixRectangular::createFromVD(X, ndir, _ndim);
+    Umat = MatrixDense::createFromVD(X, ndir, _ndim);
   }
   _dirmat = GeometryHelper::getDirectionsInRn(Umat);
   delete Umat;
@@ -455,7 +455,7 @@ int PPMT::fit(Db *db,
               const NamingConvention &namconv)
 {
   VectorString exp_names = db->expandNameList(names);
-  MatrixRectangular Y = db->getColumnsAsMatrix(exp_names, true);
+  MatrixDense Y = db->getColumnsAsMatrix(exp_names, true);
   if (Y.empty())
   {
     messerr("This Multivariate Transform requires several variables to be defined");
@@ -488,7 +488,7 @@ int PPMT::rawToGaussian(Db *db,
     return 1;
   }
   VectorString exp_names = db->expandNameList(names);
-  MatrixRectangular Y = db->getColumnsAsMatrix(exp_names, true);
+  MatrixDense Y = db->getColumnsAsMatrix(exp_names, true);
   if (Y.empty())
   {
     messerr("This Multivariate Transform requires several variables to be defined");
@@ -537,7 +537,7 @@ int PPMT::gaussianToRaw(Db *db,
     return 1;
   }
   VectorString exp_names = db->expandNameList(names);
-  MatrixRectangular Y = db->getColumnsAsMatrix(exp_names, true);
+  MatrixDense Y = db->getColumnsAsMatrix(exp_names, true);
   if (Y.empty())
   {
     messerr("This Multivariate Back-Transform requires several variables to be defined");

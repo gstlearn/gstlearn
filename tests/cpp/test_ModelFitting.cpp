@@ -117,9 +117,9 @@ static void _fourthTest(DbGrid* dbgrid, Model* model, const ECalcVario& calcul, 
   delete optvar;
 }
 
-static MatrixSquareSymmetric _buildSillMatrix(int nvar, double value)
+static MatrixSymmetric _buildSillMatrix(int nvar, double value)
 {
-  MatrixSquareSymmetric mat(nvar);
+  MatrixSymmetric mat(nvar);
   for (int ivar = 0; ivar < nvar; ivar++) mat.setValue(ivar, ivar, value);
   return mat;
 }
@@ -138,14 +138,14 @@ int main(int argc, char* argv[])
     bool verbose            = false;
 
     // Creating the Model used to simulate the Data
-    MatrixSquareSymmetric sill_nugget = _buildSillMatrix(nvar, 2.);
+    MatrixSymmetric sill_nugget = _buildSillMatrix(nvar, 2.);
     Model* model_simu  = new Model(nvar);
     model_simu->addCovFromParam(ECov::NUGGET, 0., 0., 0., VectorDouble(),
                                 sill_nugget);
 
     double range1 = 0.25;
     double param1 = 1.;
-    MatrixSquareSymmetric sill1 = _buildSillMatrix(nvar, 3.);
+    MatrixSymmetric sill1 = _buildSillMatrix(nvar, 3.);
     model_simu->addCovFromParam(ECov::SPHERICAL, range1, 0., param1,
                                 VectorDouble(), sill1);
     if (verbose)

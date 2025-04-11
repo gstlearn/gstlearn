@@ -18,7 +18,7 @@
 #include "Drifts/ADrift.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Estimation/KrigOpt.hpp"
 
 class ASpace;
@@ -122,14 +122,14 @@ public:
                                 int iech,
                                 const ECalcMember &member,
                                 VectorDouble &drftab) const;
-  MatrixRectangular evalDriftMat(const Db* db,
+  MatrixDense evalDriftMat(const Db* db,
                                  const VectorInt& nbgh     = VectorInt(),
                                  const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-  int evalDriftMatByRanks(MatrixRectangular& mat,
+  int evalDriftMatByRanks(MatrixDense& mat,
                           const Db* db,
                           const VectorVectorInt& sampleranks,
                           const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-  int evalDriftMatByTarget(MatrixRectangular& mat,
+  int evalDriftMatByTarget(MatrixDense& mat,
                            const Db* db,
                            int iech2,
                            const KrigOpt& krigopt = KrigOpt()) const;

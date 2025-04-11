@@ -11,12 +11,12 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 
 /**
  * Square Matrix
  */
-class GSTLEARN_EXPORT AMatrixSquare : public MatrixRectangular {
+class GSTLEARN_EXPORT AMatrixSquare : public MatrixDense {
 
 public:
   AMatrixSquare(int nrow = 0);

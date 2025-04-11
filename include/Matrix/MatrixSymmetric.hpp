@@ -21,20 +21,20 @@ class EOperator;
 /**
  * Square Symmetric matrices
  */
-class GSTLEARN_EXPORT MatrixSquareSymmetric : public AMatrixSquare {
+class GSTLEARN_EXPORT MatrixSymmetric : public AMatrixSquare {
 
 public:
-  MatrixSquareSymmetric(int nrow = 0);
-  MatrixSquareSymmetric(const MatrixSquareSymmetric &m);
-  MatrixSquareSymmetric(const AMatrix &m);
-  MatrixSquareSymmetric& operator= (const MatrixSquareSymmetric &m);
-	virtual ~MatrixSquareSymmetric();
+  MatrixSymmetric(int nrow = 0);
+  MatrixSymmetric(const MatrixSymmetric &m);
+  MatrixSymmetric(const AMatrix &m);
+  MatrixSymmetric& operator= (const MatrixSymmetric &m);
+	virtual ~MatrixSymmetric();
 
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
 
   /// ICloneable interface
-  IMPLEMENT_CLONING(MatrixSquareSymmetric)
+  IMPLEMENT_CLONING(MatrixSymmetric)
 
   /// Interface to AMatrix
   bool mustBeSymmetric() const final { return true; }
@@ -48,28 +48,28 @@ public:
 
   void normMatrix(const AMatrix& y, const AMatrixSquare& x = AMatrixSquare(), bool transpose = false);
 
-  static MatrixSquareSymmetric* createFromVVD(const VectorVectorDouble &X);
-  static MatrixSquareSymmetric* createFromVD(const VectorDouble &X);
-  static MatrixSquareSymmetric* createFromTLTU(int neq,
+  static MatrixSymmetric* createFromVVD(const VectorVectorDouble &X);
+  static MatrixSymmetric* createFromVD(const VectorDouble &X);
+  static MatrixSymmetric* createFromTLTU(int neq,
                                                const VectorDouble &tl);
-  static MatrixSquareSymmetric* createFromTriangle(int mode,
+  static MatrixSymmetric* createFromTriangle(int mode,
                                                    int neq,
                                                    const VectorDouble &tl);
-  static MatrixSquareSymmetric* createRandomDefinitePositive(int neq, int seed = 13242);
-  static MatrixSquareSymmetric* sample(const MatrixSquareSymmetric* A,
+  static MatrixSymmetric* createRandomDefinitePositive(int neq, int seed = 13242);
+  static MatrixSymmetric* sample(const MatrixSymmetric* A,
                                        const VectorInt& rowKeep,
                                        bool flagInvert = false);
 
   int computeEigen(bool optionPositive = true);
-  int computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
-  int computeGeneralizedInverse(MatrixSquareSymmetric &tabout,
+  int computeGeneralizedEigen(const MatrixSymmetric& b, bool optionPositive = true);
+  int computeGeneralizedInverse(MatrixSymmetric &tabout,
                                 double maxicond = 1.e20,
                                 double eps = EPSILON20);
   bool isDefinitePositive();
   int minimizeWithConstraintsInPlace(const VectorDouble& gmat,
-                                     const MatrixRectangular& aemat,
+                                     const MatrixDense& aemat,
                                      const VectorDouble& bemat,
-                                     const MatrixRectangular& aimat,
+                                     const MatrixDense& aimat,
                                      const VectorDouble& bimat,
                                      VectorDouble& xmat);
 
@@ -82,12 +82,12 @@ public:
   int _matrix_qoc(bool flag_invert,
                   const VectorDouble& gmat,
                   int na,
-                  const MatrixRectangular& amat,
+                  const MatrixDense& amat,
                   const VectorDouble& bmat,
                   VectorDouble& xmat,
                   VectorDouble& lambda);
   int _constraintsError(const VectorInt& active,
-                        const MatrixRectangular& aimat,
+                        const MatrixDense& aimat,
                         const VectorDouble& bimat,
                         const VectorDouble& xmat,
                         VectorDouble& vmat,
@@ -96,9 +96,9 @@ public:
                                         int nai,
                                         int neq,
                                         const VectorInt& active,
-                                        const MatrixRectangular& tabemat,
-                                        const MatrixRectangular& tabimat,
-                                        MatrixRectangular& tabout);
+                                        const MatrixDense& tabemat,
+                                        const MatrixDense& tabimat,
+                                        MatrixDense& tabout);
   static int _constraintsConcatenateVD(int nae,
                                        int nai,
                                        const VectorInt& active,
@@ -110,7 +110,7 @@ public:
                       const VectorDouble& eigenVectors,
                       bool optionPositive = true,
                       bool changeOrder    = false);
-  MatrixSquareSymmetric compress0MatLC(const MatrixRectangular& matLC);
+  MatrixSymmetric compress0MatLC(const MatrixDense& matLC);
 
 private:
   int _getTriangleSize() const;

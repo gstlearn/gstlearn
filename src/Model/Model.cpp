@@ -150,7 +150,7 @@ Model* Model::createFromParam(const ECov& type,
                               double sill,
                               double param,
                               const VectorDouble& ranges,
-                              const MatrixSquareSymmetric& sills,
+                              const MatrixSymmetric& sills,
                               const VectorDouble& angles,
                               const ASpaceSharedPtr& space,
                               bool flagRange)
@@ -402,7 +402,7 @@ void Model::addCovFromParamOldStyle(const ECov& type,
       cov.setSill(sill);
     else
     {
-      MatrixSquareSymmetric locsills(nvar);
+      MatrixSymmetric locsills(nvar);
       locsills.setIdentity(sill);
       cov.setSill(locsills);
     }
@@ -418,7 +418,7 @@ void Model::addCovFromParam(const ECov& type,
                             double sill,
                             double param,
                             const VectorDouble& ranges,
-                            const MatrixSquareSymmetric& sills,
+                            const MatrixSymmetric& sills,
                             const VectorDouble& angles,
                             bool flagRange)
 {
@@ -498,7 +498,7 @@ void Model::addCovFromParam(const ECov& type,
       cov.setSill(sill);
     else
     {
-      MatrixSquareSymmetric locsills(nvar);
+      MatrixSymmetric locsills(nvar);
       locsills.setIdentity(sill);
       cov.setSill(locsills);
     }
@@ -1349,8 +1349,8 @@ Model* Model::createFillRandom(int ndim,
   int seed_local = seed;
   for (int icov = 0; icov < ncov; icov++)
   {
-    MatrixSquareSymmetric* sill =
-      MatrixSquareSymmetric::createRandomDefinitePositive(nvar, seed_local);
+    MatrixSymmetric* sill =
+      MatrixSymmetric::createRandomDefinitePositive(nvar, seed_local);
     double range = (hmax * (1. + icov)) / (2. * ncov);
     model->addCovFromParam(types[icov], range, 0., 1., VectorDouble(), *sill);
     delete sill;

@@ -14,7 +14,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CorAniso.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceComposite.hpp"
 #include "Space/SpacePoint.hpp"
@@ -44,7 +44,7 @@ CorMatern::CorMatern(const VectorDouble &ranges,
     messerr("CorMatern: inconsistent size between coeffScales and params");
     messerr("CorMatern: coeffScales size = %d, params size = %d", _coeffScales.size(), _nVar);
     _nVar = 0;
-    _corMax = MatrixSquareSymmetric(0);
+    _corMax = MatrixSymmetric(0);
     _coeffScales = VectorDouble();
     _params = VectorDouble();
     return;

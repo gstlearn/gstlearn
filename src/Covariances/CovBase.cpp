@@ -15,11 +15,10 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/TabNoStatSills.hpp"
-#include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixDense.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/NoStatArray.hpp"
-#include "Covariances/NoStatFunctional.hpp"
 #include "geoslib_define.h"
 #include <cstddef>
 #include <functional>
@@ -37,10 +36,10 @@ ParamInfo CovBase::createParamInfoForCholSill(int ivar, int jvar)
   return pinf;
 }
 CovBase::CovBase(ACov* cor,
-                 const MatrixSquareSymmetric& sill)
+                 const MatrixSymmetric& sill)
   : ACov(cor == nullptr ? CovContext() : cor->getContext())
   , _cholSillsInfo(MatrixT<ParamInfo>(sill.getNRows(), sill.getNCols(), createParamInfoForCholSill()))
-  , _cholSills(MatrixRectangular(sill.getNRows(), sill.getNCols()))
+  , _cholSills(MatrixDense(sill.getNRows(), sill.getNCols()))
   , _sillCur(sill)
   , _cor(cor)
 {
@@ -133,7 +132,7 @@ void CovBase::setSill(double sill) const
   _sillCur.resetFromValue(1, 1, sill);
 }
 
-void CovBase::setSill(const MatrixSquareSymmetric& sill) const
+void CovBase::setSill(const MatrixSymmetric& sill) const
 {
   int nvar = getNVar();
   if (nvar > 0 && nvar != sill.getNCols())

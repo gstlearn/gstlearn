@@ -20,8 +20,8 @@
 class Model;
 class Vario;
 class Constraints;
-class MatrixRectangular;
-class MatrixSquareSYmmetric;
+class MatrixDense;
+class MatrixSymmetric;
 
 /**
  * \brief

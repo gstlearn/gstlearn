@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
   target->display(dbfmt);
 
   mestitle(0, "With MATLC");
-  MatrixRectangular* matLC = MatrixRectangular::createFromVD({1, -3.}, 1, nvar);
+  MatrixDense* matLC = MatrixDense::createFromVD({1, -3.}, 1, nvar);
   matLC->display();
   KrigOpt krigopt;
   krigopt.setMatLC(matLC);

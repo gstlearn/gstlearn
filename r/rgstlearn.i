@@ -225,7 +225,7 @@
     return myres;
   }
 
-  int matrixDenseToCpp(SEXP obj, MatrixRectangular& mat)
+  int matrixDenseToCpp(SEXP obj, MatrixDense& mat)
   {
     mat.resize(0, 0);
     if (obj == NULL) return SWIG_TypeError;
@@ -452,7 +452,7 @@
     return myres;
   }
 
-  int matrixDenseFromCpp(SEXP* obj, const MatrixRectangular& mat)
+  int matrixDenseFromCpp(SEXP* obj, const MatrixDense& mat)
   {
     // Local definitions
     int nrows = mat.getNRows();
@@ -470,9 +470,9 @@
     return SWIG_OK;
   }
 
-  int matrixDenseFromCppCreate(SEXP* obj, const MatrixRectangular& mat)
+  int matrixDenseFromCppCreate(SEXP* obj, const MatrixDense& mat)
   {
-    *obj = SWIG_R_NewPointerObj(SWIG_as_voidptr(&mat), SWIGTYPE_p_MatrixRectangular, 0 |  0 );
+    *obj = SWIG_R_NewPointerObj(SWIG_as_voidptr(&mat), SWIGTYPE_p_MatrixDense, 0 |  0 );
     int myres = (*obj) == NULL ? SWIG_TypeError : SWIG_OK;
     return myres;
   }
@@ -550,9 +550,9 @@
 %typemap(scoerceout) std::string_view, const std::string_view
 %{    %}
 
-//%typemap(scoerceout) MatrixRectangular,     MatrixRectangular*,     MatrixRectangular&,
+//%typemap(scoerceout) MatrixDense,     MatrixDense*,     MatrixDense&,
 //                     MatrixSquareGeneral,   MatrixSquareGeneral*,   MatrixSquareGeneral&,
-//                     MatrixSquareSymmetric, MatrixSquareSymmetric*, MatrixSquareSymmetric&,
+//                     MatrixSymmetric, MatrixSymmetric*, MatrixSymmetric&,
 //                     MatrixSparse,          MatrixSparse*,          MatrixSparse&
 // %{    %}
 
@@ -1034,9 +1034,9 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
   Q
 }
 
-"MatrixRectangular_toTL" <- function(x) { matrix_toTL(x) }
+"MatrixDense_toTL" <- function(x) { matrix_toTL(x) }
 "MatrixSquareGeneral_toTL" <- function(x) { matrix_toTL(x) }
-"MatrixSquareSymmetric_toTL" <- function(x) { matrix_toTL(x) }
+"MatrixSymmetric_toTL" <- function(x) { matrix_toTL(x) }
 "MatrixSparse_toTL" <- function(x) { matrix_toTL(x) }
 "ProjMatrix_toTL" <- function(x) { matrix_toTL(x) }
 
@@ -1277,18 +1277,18 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 setMethod('[',    '_p_Vario',               getVarioitem)
 setMethod('[<-',  '_p_Vario',               setVarioitem)
 
-#"MatrixRectangular_create" <- function(mat)
+#"MatrixDense_create" <- function(mat)
 #{
 #  if (inherits(mat, "ExternalReference")) mat = slot(mat,"ref"); 
-#  ;ans = .Call('R_swig_MatrixRectangular_create', mat, PACKAGE='gstlearn');
+#  ;ans = .Call('R_swig_MatrixDense_create', mat, PACKAGE='gstlearn');
 #  ans <- if (is.null(ans)) ans
 #  else new("_p_Plane", ref=ans);
 #  
 #  ans
 #}
-#attr(`MatrixRectangular_create`, 'returnType') = '_p_MatrixRectangular'
-#attr(`MatrixRectangular_create`, "inputTypes") = c('_p_MatrixRectangular')
-#class(`MatrixRectangular_create`) = c("SWIGFunction", class('MatrixRectangular_create'))
+#attr(`MatrixDense_create`, 'returnType') = '_p_MatrixDense'
+#attr(`MatrixDense_create`, "inputTypes") = c('_p_MatrixDense')
+#class(`MatrixDense_create`) = c("SWIGFunction", class('MatrixDense_create'))
 
 #"MatrixSparse_create" <- function(mat)
 #{
@@ -1308,12 +1308,12 @@ setMethod('[<-',  '_p_Vario',               setVarioitem)
 ## Add fromTL to a some R classes
 ## -------------------------------- ##
 
-"MatrixRectangular_fromTL" <- function(Robj)
+"MatrixDense_fromTL" <- function(Robj)
 {
 	ncol = ncol(Robj)
 	nrow = nrow(Robj)
 	values = as.vector(Robj)
-	gstobj = MatrixRectangular_createFromVD(values, nrow=nrow, ncol=ncol)
+	gstobj = MatrixDense_createFromVD(values, nrow=nrow, ncol=ncol)
 	gstobj
 }
 
@@ -1348,7 +1348,7 @@ setMethod('[<-',  '_p_Vario',               setVarioitem)
 	gstobj = NULL
 	if ("matrix" %in% class(Robj))
 	{
-		gstobj = MatrixRectangular_fromTL(Robj)
+		gstobj = MatrixDense_fromTL(Robj)
 	}
 	else if ("data.frame" %in% class(Robj))
 	{

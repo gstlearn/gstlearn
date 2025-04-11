@@ -108,8 +108,8 @@ MatrixSquareGeneral* MatrixSquareGeneral::createFromVD(const VectorDouble &X,
   return mat;
 }
 
-MatrixSquareGeneral* prodNormMatMat(const AMatrixDense* a,
-                                    const AMatrixDense* m,
+MatrixSquareGeneral* prodNormMatMat(const MatrixDense* a,
+                                    const MatrixDense* m,
                                     bool transpose)
 {
   int nrow = (transpose) ? a->getNCols() : a->getNRows();
@@ -118,7 +118,7 @@ MatrixSquareGeneral* prodNormMatMat(const AMatrixDense* a,
   return mat;
 }
 
-MatrixSquareGeneral* prodNormMat(const AMatrixDense &a, const VectorDouble& vec, bool transpose)
+MatrixSquareGeneral* prodNormMat(const MatrixDense &a, const VectorDouble& vec, bool transpose)
 {
   int nsym = (transpose) ? a.getNCols() : a.getNRows();
   MatrixSquareGeneral *mat = new MatrixSquareGeneral(nsym);

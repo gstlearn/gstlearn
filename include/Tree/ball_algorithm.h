@@ -75,7 +75,6 @@ struct t_btree
 /*
 ** ball.c
 */
-
 GSTLEARN_EXPORT double** copy_double_arrAsVVD(const VectorVectorDouble& arr);
 GSTLEARN_EXPORT double** copy_double_arr(const double** arr, int row, int col);
 GSTLEARN_EXPORT bool* init_bool_arr(int col, bool status);
@@ -86,7 +85,6 @@ GSTLEARN_EXPORT VectorVectorInt copy_int_toVVI(const int** arr,
                                                int row,
                                                int col);
 GSTLEARN_EXPORT int** copy_int_arr(const int** arr, int row, int col);
-GSTLEARN_EXPORT void append_double_arrAsVVD(const VectorVectorDouble& arr, double*** copy, int old_row);
 
 GSTLEARN_EXPORT t_btree* btree_init(const double** data,
                                     int n_samples,
@@ -94,7 +92,7 @@ GSTLEARN_EXPORT t_btree* btree_init(const double** data,
                                     bool has_constraints,
                                     double (*dist_function)(const double* x1,
                                                             const double* x2,
-                                                            int size),
+                                                            int n_features),
                                     int leaf_size,
                                     int default_distance_function);
 GSTLEARN_EXPORT void free_2d_double(double **arr, int row);
@@ -106,14 +104,12 @@ GSTLEARN_EXPORT void btree_display(const t_btree* tree, int level = -1);
 /*
 ** metrics.c
 */
-
-double manhattan_distance(const double* x1, const double* x2, int size);
-double euclidean_distance(const double* x1, const double* x2, int size);
+double manhattan_distance(const double* x1, const double* x2, int n_features);
+double euclidean_distance(const double* x1, const double* x2, int n_features);
 
 /*
 ** neighbors_heap.c
 */
-
 t_nheap* nheap_init(int n_pts, int n_nbrs);
 t_nheap* nheap_free(t_nheap* heap);
 double   nheap_largest(t_nheap* h, int row);

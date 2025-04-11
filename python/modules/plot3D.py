@@ -40,10 +40,10 @@ def getCscale():
         ]
     return cscale
 
-def __invalidFileDimension(grid, ndim):
+def __invalidFileDimension(db, ndim):
     
-    if grid.getNDim() != ndim:
-        print("This representation is only designed for Grid of dimension", ndim)
+    if db.getNDim() != ndim:
+        print("This representation is only designed for Db of dimension", ndim)
         return True
     return False
 
@@ -182,8 +182,7 @@ def ScatterOnSphere(long, lat, mode='lines', color='black', width=1,
     
     plot_args Arguments passed to Scatter()
     '''
-
-    tab = np.array(gl.GH.convertLongLat(long, lat, dilate, np.nan))
+    tab = np.array(gl.GH.convertLongLatTo3D(long, lat, dilate, np.nan))
     meshing = Scatter(tab[0,:], tab[1,:], tab[2,:], mode=mode, 
                       color=color, width=width,
                       m_symbol=m_symbol, m_color=m_color, m_line=m_line, 
@@ -200,7 +199,6 @@ def Line(x, y, z, color='black', width=1,
     
     plot_args Arguments passed to dict(type='scatter3d')
     '''
-
     line = dict(type='scatter3d',x=x, y=y, z=z, mode='lines',
                 line=dict(color=color, width=width),
                 **plot_args
@@ -223,7 +221,7 @@ def PolygonOnSphere(poly, flagClose=False,
     for i in range(poly.getNPolyElem()):
         a = poly.getX(i)
         b = poly.getY(i)
-        tab = np.array(gl.GH.convertLongLat(a, b, dilate, np.nan))
+        tab = np.array(gl.GH.convertLongLatTo3D(a, b, dilate, np.nan))
         xp = tab[0,:]
         yp = tab[1,:]
         zp = tab[2,:]
@@ -321,20 +319,29 @@ def SurfaceOnDbGrid(grid, name, useSel=False, showscale=False, **plot_args):
     
 def PointDb(db, nameColor=None, nameSize=None, useSel=True, 
             color='black', size=3, opacity=1, posX=0, posY=1, posZ=2,
+            fromLongLat = False, dilate = 1,
             **plot_args): 
     '''
     Represent a set of Points contained in a Db
     
     plot_args Arguments passed to Scatter3d()
     '''
+    if fromLongLat:
+        if __invalidFileDimension(db, 2):
+            return None
+        long = db.getOneCoordinate(0, useSel)
+        lat  = db.getOneCoordinate(1, useSel)
+        tab = np.array(gl.GH.convertLongLatTo3D(long, lat, dilate, np.nan))
+        x = tab[0,:]
+        y = tab[1,:]
+        z = tab[2,:]
+    else:
+        if __invalidFileDimension(db, 3):
+            return None
+        x = db.getOneCoordinate(posX, useSel)
+        y = db.getOneCoordinate(posY, useSel)
+        z = db.getOneCoordinate(posZ, useSel)
 
-    if __invalidFileDimension(db, 3):
-        return None
-                      
-    x = db.getOneCoordinate(posX, useSel)
-    y = db.getOneCoordinate(posY, useSel)
-    z = db.getOneCoordinate(posZ, useSel)
-    
     if nameColor is not None:
         colors = db.getColumn(nameColor, useSel)
     else:
@@ -424,7 +431,7 @@ def TangentDb(db, useSel=True, colorscale='Blues', sizemode='absolute', size=2,
                     
     return objects
 
-def Equator(ndisc = 360, color='black', width=3, dilate=1., 
+def Equator(ndisc = 360, color='black', width=3, dilate=1, 
             **plot_args):
     '''
     Represent the Ecuador on a Sphere
@@ -435,7 +442,7 @@ def Equator(ndisc = 360, color='black', width=3, dilate=1.,
     long = np.arange(0,ndisc+1) * 360. / ndisc
     lat  = np.zeros(ndisc+1)
     
-    tab = np.array(gl.GH.convertLongLat(long, lat, dilate, np.nan))
+    tab = np.array(gl.GH.convertLongLatTo3D(long, lat, dilate, np.nan))
     line = Line(tab[0,:], tab[1,:], tab[2,:], color=color, width=width,
                 **plot_args
                 )
@@ -459,7 +466,7 @@ def Meridians(angle=10, ndisc=360, color = 'black', width=1, dilate=1.,
         lat = (np.arange(0,ndisc+1) - ndisc / 2.) * 180. / ndisc
         long = np.zeros(ndisc+1)
         long.fill(i * angle)
-        tab = np.array(gl.GH.convertLongLat(long, lat, dilate, np.nan))
+        tab = np.array(gl.GH.convertLongLatTo3D(long, lat, dilate, np.nan))
         xp = tab[0,:]
         yp = tab[1,:]
         zp = tab[2,:]
@@ -486,7 +493,7 @@ def Parallels(angle = 10, ndisc=360, color='black', width=1, dilate=1.):
         long = np.arange(0,ndisc+1) * 360. / ndisc
         lat  = np.zeros(ndisc+1)
         lat.fill((i - number/2) * angle)
-        tab = np.array(gl.GH.convertLongLat(long, lat, dilate, np.nan))
+        tab = np.array(gl.GH.convertLongLatTo3D(long, lat, dilate, np.nan))
         xp = tab[0,:]
         yp = tab[1,:]
         zp = tab[2,:]
@@ -505,7 +512,7 @@ def Pole(sizeref = 1000, dilate=1.3):
     
     long = np.zeros(1)
     lat = np.ones(1) * 90
-    tab = np.array(gl.GH.convertLongLat(long, lat, dilate, np.nan))
+    tab = np.array(gl.GH.convertLongLatTo3D(long, lat, dilate, np.nan))
     pole = go.Cone(
         u=[0],v=[0],w=[1],
         x=tab[0,:],y=tab[1,:],z=tab[2,:],
@@ -521,7 +528,7 @@ def PolarAxis(color='black', width=3, dilate=1.2):
     lat = np.zeros(2)
     lat[0] = -90.
     lat[1] = 90.
-    tab = np.array(gl.GH.convertLongLat(long, lat, dilate, np.nan))
+    tab = np.array(gl.GH.convertLongLatTo3D(long, lat, dilate, np.nan))
     
     line = Line(tab[0,:], tab[1,:], tab[2,:], color=color, width=width)
 

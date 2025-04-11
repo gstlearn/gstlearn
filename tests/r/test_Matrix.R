@@ -25,7 +25,7 @@ mati2 = mati$clone()
 err   = mati2$display()
 
 print("Cloning Matrix of doubles")
-matd  = MatrixRectangular(2,3)
+matd  = MatrixDense(2,3)
 err   = matd$setValues(c(1.0, 2.0, 3.0, 4.0, 5.0, 6.0))
 err   = matd$display()
 matd2 = matd$clone()
@@ -38,7 +38,7 @@ proba = 0.4 # Probability to set values to 0 (making matrix sparse)
 
 # We create a square symmetrical matrix (not necessarily sparse)
 
-MR = MatrixRectangular(nrow, ncol)
+MR = MatrixDense(nrow, ncol)
 for (icol in 1:ncol) {
   for (irow in 1:nrow) {
    value = rnorm(n = 1, mean = 0, sd = 1.0)
@@ -63,7 +63,7 @@ err = M$display()
 # Create the different matrix formats (by conversion or extraction)
 
 # To a rectangular matrix
-MRR = MatrixRectangular(nrow, ncol)
+MRR = MatrixDense(nrow, ncol)
 err = MRR$setValues(M$getValues())
 print("Matrix MRR")
 err = MRR$display()
@@ -74,7 +74,7 @@ print("Matrix MSG")
 err = MSG$display()
 
 # To a square symmetric matrix
-MSS = MatrixSquareSymmetric(M)
+MSS = MatrixSymmetric(M)
 print("Matrix MSS")
 err = MSS$display()
 

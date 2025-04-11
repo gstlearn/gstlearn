@@ -22,8 +22,8 @@
 #include "Basic/NamingConvention.hpp"
 
 class Db;
-class MatrixSquareSymmetric;
-class MatrixRectangular;
+class MatrixSymmetric;
+class MatrixDense;
 class AMatrix;
 
 class GSTLEARN_EXPORT PPMT : public AStringable, public ICloneable
@@ -122,9 +122,9 @@ private:
   mutable int _ndim;
   mutable VectorDouble _serieAngle;
   mutable VectorDouble _serieScore;
-  mutable MatrixRectangular*   _dirmat;
+  mutable MatrixDense*   _dirmat;
   mutable std::vector<AnamHermite*> _anams;
   mutable std::vector<AnamHermite*> _initAnams;
-  mutable MatrixRectangular* _initSphering;
+  mutable MatrixDense* _initSphering;
 };
 

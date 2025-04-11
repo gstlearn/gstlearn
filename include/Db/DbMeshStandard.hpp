@@ -65,7 +65,7 @@ public:
   static DbMeshStandard* createFromNF(const String& neutralFilename,
                                       bool verbose = true);
   static DbMeshStandard*
-  createFromExternal(const MatrixRectangular& apices,
+  createFromExternal(const MatrixDense& apices,
                      const MatrixInt& meshes,
                      const ELoadBy& order      = ELoadBy::fromKey("SAMPLE"),
                      const VectorDouble& tab   = VectorDouble(),

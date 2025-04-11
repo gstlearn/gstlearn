@@ -32,7 +32,7 @@
 #include "Geometry/GeometryHelper.hpp"
 #include "Stats/Classical.hpp"
 #include "Matrix/Table.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceTarget.hpp"
 #include "Core/CSV.hpp"
@@ -938,7 +938,7 @@ VectorVectorDouble Db::getAllCoordinates(bool useSel) const
  * - one column by Space Dimension
  * @return
  */
-MatrixRectangular Db::getAllCoordinatesMat(const MatrixRectangular& box) const
+MatrixDense Db::getAllCoordinatesMat(const MatrixDense& box) const
 {
   int nech = getNSample(true);
   int ndim = getNDim();
@@ -972,7 +972,7 @@ MatrixRectangular Db::getAllCoordinatesMat(const MatrixRectangular& box) const
     nechValid = nech;
   }
 
-  MatrixRectangular mat(nechValid, ndim);
+  MatrixDense mat(nechValid, ndim);
 
   int kech = 0;
   for (int jech = 0; jech < nech; jech++)
@@ -4340,16 +4340,16 @@ VectorVectorDouble Db::getColumnsAsVVD(const VectorString& names,
 /**
  * Returns the contents of the columns specified by their names
  */
-MatrixRectangular Db::getColumnsAsMatrix(const VectorString& names,
+MatrixDense Db::getColumnsAsMatrix(const VectorString& names,
                                          bool useSel,
                                          bool flagCompress) const
 {
-  if (names.empty()) return MatrixRectangular();
+  if (names.empty()) return MatrixDense();
   VectorInt iuids = _ids(names, false);
   int nvar        = (int)iuids.size();
   int nech        = getNSample(useSel && flagCompress);
 
-  MatrixRectangular mat(nech, nvar);
+  MatrixDense mat(nech, nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     VectorDouble X = getColumnByUID(iuids[ivar], useSel, flagCompress);

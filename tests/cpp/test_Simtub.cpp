@@ -89,7 +89,7 @@ int st_mini_test()
   DbStringFormat* dbfmt = DbStringFormat::createFromFlags(false, false, false, false, true);
   db->display(dbfmt);
 
-  MatrixSquareSymmetric* sills = MatrixSquareSymmetric::createFromVD({3,1,1,2});
+  MatrixSymmetric* sills = MatrixSymmetric::createFromVD({3,1,1,2});
   Model* model = Model::createFromParam(ECov::SPHERICAL, 1, 1, 1, VectorDouble(), *sills);
   delete sills;
   model->setMeans(means);

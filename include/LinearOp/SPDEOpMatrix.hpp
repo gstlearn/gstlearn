@@ -19,7 +19,6 @@ class PrecisionOpMultiMatrix;
 class ProjMultiMatrix;
 class MatrixSparse;
 
-
 class GSTLEARN_EXPORT SPDEOpMatrix : public SPDEOp
 {
 public:

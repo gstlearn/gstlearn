@@ -558,7 +558,7 @@ int MeshETurbo::getMeshFromCoordinates(const VectorDouble& coor,
 **          - the value of the corresponding variable is defined
 **          - the sample is covered by the grid of the Turbo Meshing
 *****************************************************************************/
-void MeshETurbo::resetProjMatrix(ProjMatrix* m,
+void MeshETurbo::resetProjFromDb(ProjMatrix* m,
                                  const Db* db,
                                  int rankZ,
                                  bool verbose) const

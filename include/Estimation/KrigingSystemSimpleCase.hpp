@@ -20,8 +20,8 @@
 #include "Space/SpacePoint.hpp"
 #include "Neigh/ANeigh.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Enum/EKrigOpt.hpp"
 
@@ -88,9 +88,9 @@ private:
   void _resetMemoryGeneral();
 
   static void _dumpOptions();
-  void _rhsDump(KrigingAlgebraSimpleCase& algebra);
-  void _wgtDump(KrigingAlgebraSimpleCase& algebra);
-  void _estimateCalcul(int status, KrigingAlgebraSimpleCase& algebra, int iechout) const;
+  void _rhsDump(KrigingAlgebraSimpleCase& algebra) const;
+  static void _wgtDump(KrigingAlgebraSimpleCase& algebra);
+  void _estimateCalcul(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const;
   void _simulateCalcul(int status);
   void _neighCalcul(int status, const VectorDouble& tab, int iechout);
   void _estimateVarZ(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const;

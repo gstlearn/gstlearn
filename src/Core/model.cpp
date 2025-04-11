@@ -423,7 +423,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
 
   VectorDouble mean(2);
   VectorDouble cova0(4);
-  MatrixSquareSymmetric sill(2);
+  MatrixSymmetric sill(2);
   mean[0] = model1->getMean(0);
   mean[1] = model2->getMean(0);
   cova0[0] = 1.;

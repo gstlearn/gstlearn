@@ -357,7 +357,7 @@ String CovList::getCovName(int icov) const
   return std::string(unknown.getKey());
 }
 
-const MatrixSquareSymmetric& CovList::getSills(int icov) const
+const MatrixSymmetric& CovList::getSills(int icov) const
 {
   return _covs[icov]->getSill();
 }
@@ -371,7 +371,7 @@ void CovList::setSill(int icov, int ivar, int jvar, double value)
   if (!_isCovarianceIndexValid(icov)) return;
   _covs[icov]->setSill(ivar, jvar, value);
 }
-void CovList::setSills(int icov, const MatrixSquareSymmetric& sills)
+void CovList::setSills(int icov, const MatrixSymmetric& sills)
 {
   if (!_isCovarianceIndexValid(icov)) return;
   _covs[icov]->setSill(sills);
@@ -392,10 +392,10 @@ double CovList::getTotalSill(int ivar, int jvar) const
   return sill_total;
 }
 
-MatrixSquareSymmetric CovList::getTotalSills() const
+MatrixSymmetric CovList::getTotalSills() const
 {
   int nvar = getNVar();
-  MatrixSquareSymmetric mat(nvar);
+  MatrixSymmetric mat(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++)
       mat.setValue(ivar, jvar, getTotalSill(ivar, jvar));

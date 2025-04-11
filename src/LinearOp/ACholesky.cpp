@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ACholesky.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 
 ACholesky::ACholesky(const AMatrix* mat)
   : _mat(mat)
@@ -82,7 +82,7 @@ int ACholesky::LtX(const constvect whitenoise, vect vecout) const
   return addLtX(whitenoise, vecout);
 }
 
-int ACholesky::solveMatrix(const MatrixRectangular& b, MatrixRectangular& x) const
+int ACholesky::solveMatrix(const MatrixDense& b, MatrixDense& x) const
 {
   if (!isReady()) return 1;
 
