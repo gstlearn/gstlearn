@@ -13,7 +13,7 @@
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
@@ -25,9 +25,9 @@
 KrigingAlgebraSimpleCase::KrigingAlgebraSimpleCase(bool flagDual,
                                                    const VectorVectorInt* sampleRanks,
                                                    const VectorDouble* Z,
-                                                   const MatrixSquareSymmetric* Sigma,
+                                                   const MatrixSymmetric* Sigma,
                                                    const MatrixDense* X,
-                                                   const MatrixSquareSymmetric* Sigma00,
+                                                   const MatrixSymmetric* Sigma00,
                                                    const VectorDouble& Means,
                                                    int flagchol,
                                                    bool neighUnique)
@@ -84,12 +84,12 @@ KrigingAlgebraSimpleCase::KrigingAlgebraSimpleCase(bool flagDual,
   }
   else
   {
-    _InvSigma   = std::make_shared<MatrixSquareSymmetric>();
+    _InvSigma   = std::make_shared<MatrixSymmetric>();
     _XtInvSigma = std::make_shared<MatrixDense>();
   }
 
   _XtInvSigmaZ = std::make_shared<VectorDouble>();
-  _invSigmac      = std::make_shared<MatrixSquareSymmetric>();
+  _invSigmac      = std::make_shared<MatrixSymmetric>();
   _Beta        = std::make_shared<VectorDouble>();
   _LambdaSK    = std::make_shared<MatrixDense>(); // Weights for SK (Dim: _neq * _nrhs)
 
@@ -163,9 +163,9 @@ void KrigingAlgebraSimpleCase::_copyContentForMovingNeigh(const KrigingAlgebraSi
     _X = std::shared_ptr<MatrixDense>(r._X->clone());
 
   if (r._Sigma == nullptr)
-    _Sigma = std::make_shared<MatrixSquareSymmetric>();
+    _Sigma = std::make_shared<MatrixSymmetric>();
   else
-    _Sigma = std::shared_ptr<MatrixSquareSymmetric>(r._Sigma->clone());
+    _Sigma = std::shared_ptr<MatrixSymmetric>(r._Sigma->clone());
 
   if (r._flagCholesky)
   {
@@ -182,9 +182,9 @@ void KrigingAlgebraSimpleCase::_copyContentForMovingNeigh(const KrigingAlgebraSi
   else
   {
     if (r._InvSigma == nullptr)
-      _InvSigma = std::make_shared<MatrixSquareSymmetric>();
+      _InvSigma = std::make_shared<MatrixSymmetric>();
     else
-      _InvSigma = std::shared_ptr<MatrixSquareSymmetric>(r._InvSigma->clone());
+      _InvSigma = std::shared_ptr<MatrixSymmetric>(r._InvSigma->clone());
 
     if (r._XtInvSigma == nullptr)
       _XtInvSigma = std::make_shared<MatrixDense>();
@@ -198,9 +198,9 @@ void KrigingAlgebraSimpleCase::_copyContentForMovingNeigh(const KrigingAlgebraSi
     _XtInvSigmaZ = std::shared_ptr<VectorDouble>(new VectorDouble(*r._XtInvSigmaZ));
 
   if (r._invSigmac == nullptr)
-    _invSigmac = std::make_shared<MatrixSquareSymmetric>();
+    _invSigmac = std::make_shared<MatrixSymmetric>();
   else
-    _invSigmac = std::shared_ptr<MatrixSquareSymmetric>(r._invSigmac->clone());
+    _invSigmac = std::shared_ptr<MatrixSymmetric>(r._invSigmac->clone());
 
   if (r._Beta == nullptr)
     _Beta = std::make_shared<VectorDouble>();
@@ -221,9 +221,9 @@ void KrigingAlgebraSimpleCase::_copyContentForMovingNeigh(const KrigingAlgebraSi
 void KrigingAlgebraSimpleCase::_copyOtherContent(const KrigingAlgebraSimpleCase& r)
 {
   if (r._Sigma00 == nullptr)
-    _Sigma00 = std::make_shared<MatrixSquareSymmetric>();
+    _Sigma00 = std::make_shared<MatrixSymmetric>();
   else
-    _Sigma00 = std::shared_ptr<MatrixSquareSymmetric>(r._Sigma00->clone());
+    _Sigma00 = std::shared_ptr<MatrixSymmetric>(r._Sigma00->clone());
 
   if (r._Sigma0 == nullptr)
     _Sigma0 = std::make_shared<MatrixDense>();
@@ -474,7 +474,7 @@ int KrigingAlgebraSimpleCase::setData(const VectorDouble* Z,
  * @note If one element is not provided, its address (if already defined) is
  * @note kept unchanged (even if its contents may have been updated)
  */
-int KrigingAlgebraSimpleCase::setLHS(const MatrixSquareSymmetric* Sigma,
+int KrigingAlgebraSimpleCase::setLHS(const MatrixSymmetric* Sigma,
                                      const MatrixDense* X)
 {
   _resetLinkedToLHS();
@@ -483,7 +483,7 @@ int KrigingAlgebraSimpleCase::setLHS(const MatrixSquareSymmetric* Sigma,
   if (Sigma != nullptr)
   {
     if (!_checkDimensionMatrix("Sigma", Sigma, &_neq, &_neq)) return 1;
-    _Sigma = std::make_shared<MatrixSquareSymmetric>(*Sigma);
+    _Sigma = std::make_shared<MatrixSymmetric>(*Sigma);
   }
 
   // Argument X
@@ -502,12 +502,12 @@ int KrigingAlgebraSimpleCase::setLHS(const MatrixSquareSymmetric* Sigma,
   return 0;
 }
 
-int KrigingAlgebraSimpleCase::setVariance(const MatrixSquareSymmetric* Sigma00)
+int KrigingAlgebraSimpleCase::setVariance(const MatrixSymmetric* Sigma00)
 {
   if (Sigma00 != nullptr)
   {
     if (!_checkDimensionMatrix("Sigma00", Sigma00, &_nrhs, &_nrhs)) return 1;
-    _Sigma00 = std::make_shared<MatrixSquareSymmetric>(*Sigma00);
+    _Sigma00 = std::make_shared<MatrixSymmetric>(*Sigma00);
   }
   return 0;
 }
@@ -636,7 +636,7 @@ VectorDouble KrigingAlgebraSimpleCase::getStdv()
   return _Stdv.getDiagonal();
 }
 
-const MatrixSquareSymmetric* KrigingAlgebraSimpleCase::getStdvMat()
+const MatrixSymmetric* KrigingAlgebraSimpleCase::getStdvMat()
 {
   if (!_forbiddenWhenDual()) return nullptr;
   if (_needStdv()) return nullptr;
@@ -667,7 +667,7 @@ VectorDouble KrigingAlgebraSimpleCase::getVarianceZstar()
   return _VarZUK.getDiagonal();
 }
 
-const MatrixSquareSymmetric* KrigingAlgebraSimpleCase::getVarianceZstarMat()
+const MatrixSymmetric* KrigingAlgebraSimpleCase::getVarianceZstarMat()
 {
   if (!_forbiddenWhenDual()) return nullptr;
   if (_flagSK)
@@ -707,7 +707,7 @@ int KrigingAlgebraSimpleCase::_needInvSigma()
   }
   else
   {
-    _InvSigma = std::make_shared<MatrixSquareSymmetric>();
+    _InvSigma = std::make_shared<MatrixSymmetric>();
     _InvSigma->resize(_Sigma->getNRows(), _Sigma->getNCols());
     _Sigma->invert2(*_InvSigma);
   }

@@ -8,7 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -253,7 +253,7 @@ void Tensor::_fillTensors()
   _tensorInverse.divideRow(_radius);
 
   // Square of the Direct tensor
-  _tensorDirect2 = MatrixSquareSymmetric(_nDim);
+  _tensorDirect2 = MatrixSymmetric(_nDim);
   _tensorDirect2.prodMatMatInPlace(&_tensorDirect, &_tensorDirect, false, true);
 
   _tensorDirectSwap = _rotation.getMatrixDirect();
@@ -269,7 +269,7 @@ void Tensor::_direct2ToInverse2()
   _tensorInverse2.invert();
 }
 
-void Tensor::setTensorDirect2(const MatrixSquareSymmetric& tensor)
+void Tensor::setTensorDirect2(const MatrixSymmetric& tensor)
 {
   _tensorDirect2 = tensor;
   _direct2ToInverse2();

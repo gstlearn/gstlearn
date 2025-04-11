@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 
   // Creating the Non-stationary Model
   Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 40.},
-                                        MatrixSquareSymmetric(), {30., 0.});
+                                        MatrixSymmetric(), {30., 0.});
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
 

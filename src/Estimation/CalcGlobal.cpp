@@ -117,7 +117,7 @@ int CalcGlobal::_globalKriging()
   VectorDouble wgt;
 
   KrigOpt krigopt;
-  MatrixSquareSymmetric Sigma;
+  MatrixSymmetric Sigma;
   MatrixDense X;
 
   // Get the Covariance between data (Unique Neighborhood)
@@ -139,7 +139,7 @@ int CalcGlobal::_globalKriging()
   MatrixDense X0Cum(1, X.getNCols());
   MatrixDense Sigma0;
   MatrixDense X0;
-  MatrixSquareSymmetric Sigma00;
+  MatrixSymmetric Sigma00;
 
   /* Loop on the targets to be processed */
   for (int iech = 0, nech = dbout->getNSample(); iech < nech; iech++)

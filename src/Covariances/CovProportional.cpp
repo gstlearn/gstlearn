@@ -13,10 +13,10 @@
 #include "Basic/AStringable.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovBase.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 
 CovProportional::CovProportional(ACov* cor,
-                const MatrixSquareSymmetric &sill)
+                const MatrixSymmetric &sill)
 : CovBase(cor,sill)
 {
   _ctxt.setNVar(sill.getNCols());

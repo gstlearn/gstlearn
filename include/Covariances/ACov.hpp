@@ -134,13 +134,13 @@ public:
                     int ivar                = 0,
                     int jvar                = 0,
                     const CovCalcMode* mode = nullptr) const;
-  MatrixSquareSymmetric eval0Mat(const CovCalcMode* mode = nullptr) const;
+  MatrixSymmetric eval0Mat(const CovCalcMode* mode = nullptr) const;
 
   /////////////////////////////////////////////////////////////////////////////////
 
   /////////////////////////////////////////////////////////////////////////////////
   /// Functions for evaluating Covariance Matrices either in place or not
-  MatrixSquareSymmetric evalCovMat0(const Db* db,
+  MatrixSymmetric evalCovMat0(const Db* db,
                                     int iech,
                                     const KrigOpt& krigopt = KrigOpt()) const;
   MatrixDense evalCovMat(const Db* db1,
@@ -151,7 +151,7 @@ public:
                                const VectorInt& nbgh2  = VectorInt(),
                                const CovCalcMode* mode = nullptr,
                                bool cleanOptim         = true) const;
-  MatrixSquareSymmetric evalCovMatSym(const Db* db1,
+  MatrixSymmetric evalCovMatSym(const Db* db1,
                                       const VectorInt& nbgh1  = VectorInt(),
                                       int ivar0               = -1,
                                       const CovCalcMode* mode = nullptr,
@@ -166,7 +166,7 @@ public:
                                  bool cleanOptim         = true,
                                  double eps              = EPSILON3) const;
 
-  int evalCovMat0InPlace(MatrixSquareSymmetric& mat,
+  int evalCovMat0InPlace(MatrixSymmetric& mat,
                          const Db* db,
                          int iech,
                          const KrigOpt& krigopt = KrigOpt()) const;
@@ -179,7 +179,7 @@ public:
                         const VectorInt& nbgh2  = VectorInt(),
                         const CovCalcMode* mode = nullptr,
                         bool cleanOptim         = true) const;
-  int evalCovMatSymInPlace(MatrixSquareSymmetric& mat,
+  int evalCovMatSymInPlace(MatrixSymmetric& mat,
                            const Db* db1,
                            const VectorInt& nbgh1  = VectorInt(),
                            int ivar0               = -1,
@@ -194,7 +194,7 @@ public:
                                const VectorInt& nbgh2  = VectorInt(),
                                const CovCalcMode* mode = nullptr,
                                bool cleanOptim         = true) const;
-  int evalCovMatSymInPlaceFromIdx(MatrixSquareSymmetric& mat,
+  int evalCovMatSymInPlaceFromIdx(MatrixSymmetric& mat,
                                   const Db* db1,
                                   const VectorVectorInt& index1,
                                   const CovCalcMode* mode = nullptr,
@@ -227,7 +227,7 @@ public:
                                       double lambda = 1.) const;
 #endif
   /////////////////////////////////////////////////////////////////////////////////
-  void eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat, const CovCalcMode* mode) const;
+  void eval0CovMatBiPointInPlace(MatrixSymmetric& mat, const CovCalcMode* mode) const;
 
   double evalIvarIpas(double step,
                       const VectorDouble& dir = VectorDouble(),

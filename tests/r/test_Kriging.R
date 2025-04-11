@@ -31,7 +31,7 @@ test_kriging <- function(dbin, dbout, model, neigh,
   # Initialization
   # --------------------------
   err         = neigh$attach(dbin, dbout)
-  Sigma       = MatrixSquareSymmetric()
+  Sigma       = MatrixSymmetric()
   X           = MatrixDense()
   Z           = VectorDouble()
   Sigma0      = MatrixDense()

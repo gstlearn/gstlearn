@@ -78,7 +78,7 @@ void AModelOptimSills::_storeSillsInModel() const
   }
 }
 
-void AModelOptimSills::_resetSill(int ncova, std::vector<MatrixSquareSymmetric>& sill) const
+void AModelOptimSills::_resetSill(int ncova, std::vector<MatrixSymmetric>& sill) const
 {
   for (int icova = 0; icova < ncova; icova++)
   {
@@ -108,7 +108,7 @@ void AModelOptimSills::_allocateInternalArrays(bool flag_exp)
     _ge.push_back(MatrixDense(nvs2, _npadir));
   _sill.clear();
   for (int icova = 0; icova < _ncova; icova++)
-    _sill.push_back(MatrixSquareSymmetric(_nvar));
+    _sill.push_back(MatrixSymmetric(_nvar));
 
   if (flag_exp)
   {
@@ -123,7 +123,7 @@ void AModelOptimSills::_allocateInternalArrays(bool flag_exp)
   {
     _alphau.clear();
     for (int icova = 0; icova < _ncova; icova++)
-      _alphau.push_back(MatrixSquareSymmetric(1));
+      _alphau.push_back(MatrixSymmetric(1));
     _ge1.clear();
     _ge1.push_back(MatrixDense(nvs2, _npadir));
     _ge2.clear();
@@ -140,10 +140,10 @@ int AModelOptimSills::_goulardWithConstraints(double *crit_arg)
   VectorDouble consSill = _constraints->getConstantSills();
 
   /* Core allocation */
-  std::vector<MatrixSquareSymmetric> matcor;
+  std::vector<MatrixSymmetric> matcor;
   matcor.reserve(_ncova);
   for (int icova = 0; icova < _ncova; icova++)
-    matcor.push_back((MatrixSquareSymmetric(_nvar)));
+    matcor.push_back((MatrixSymmetric(_nvar)));
 
   /* Initialize the Goulard system */
 
@@ -184,7 +184,7 @@ int AModelOptimSills::_goulardWithConstraints(double *crit_arg)
  *****************************************************************************/
 void AModelOptimSills::_initializeGoulard()
 {
-  MatrixSquareSymmetric aa(_ncova);
+  MatrixSymmetric aa(_ncova);
   VectorDouble bb(_ncova);
   MatrixDense Ae(_ncova, 1);
   VectorDouble be(1);
@@ -314,11 +314,11 @@ void AModelOptimSills::_optimizeUnderConstraints(double* score)
   /* Core allocation */
 
   VectorDouble xr(_nvar);
-  std::vector<MatrixSquareSymmetric> alpha;
+  std::vector<MatrixSymmetric> alpha;
   VectorDouble consSill = _constraints->getConstantSills();
   alpha.reserve(_ncova);
   for (int icova = 0; icova < _ncova; icova++)
-    alpha.push_back(MatrixSquareSymmetric(_nvar));
+    alpha.push_back(MatrixSymmetric(_nvar));
   int iter = 0;
 
   /* Calculate the initial score */
@@ -411,7 +411,7 @@ void AModelOptimSills::_optimizeUnderConstraints(double* score)
 
 int AModelOptimSills::_truncateNegativeEigen(int icov0)
 {
-  MatrixSquareSymmetric cc(_nvar);
+  MatrixSymmetric cc(_nvar);
   for (int ivar = 0; ivar < _nvar; ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++)
       cc.setValue(ivar, jvar, _sill[icov0].getValue(ivar, jvar));
@@ -465,7 +465,7 @@ double AModelOptimSills::_score()
 }
 
 double AModelOptimSills::_sumSills(int ivar0,
-                                  std::vector<MatrixSquareSymmetric>& alpha) const
+                                  std::vector<MatrixSymmetric>& alpha) const
 {
   double Sr = 0;
   for (int icov = 0; icov < _ncova; icov++)
@@ -490,7 +490,7 @@ double AModelOptimSills::_minimizeP4(int icov0,
                                     int ivar0,
                                     double xrmax,
                                     VectorDouble& xr,
-                                    std::vector<MatrixSquareSymmetric>& alpha)
+                                    std::vector<MatrixSymmetric>& alpha)
 {
   double retval, a, c, d, s;
 
@@ -639,7 +639,7 @@ double AModelOptimSills::_minimizeP4(int icov0,
 void AModelOptimSills::_updateAlphaDiag(int icov0,
                                        int ivar0,
                                        VectorDouble& xr,
-                                       std::vector<MatrixSquareSymmetric>& alpha)
+                                       std::vector<MatrixSymmetric>& alpha)
 {
   VectorDouble consSill = _constraints->getConstantSills();
   double srm   = _sumSills(ivar0, alpha) - alpha[icov0].getValue(ivar0, ivar0);
@@ -649,7 +649,7 @@ void AModelOptimSills::_updateAlphaDiag(int icov0,
 
 void AModelOptimSills::_updateOtherSills(int icov0,
                                         int ivar0,
-                                        std::vector<MatrixSquareSymmetric>& alpha,
+                                        std::vector<MatrixSymmetric>& alpha,
                                         VectorDouble& xr)
 {
   for (int jcov = 0; jcov < _ncova; jcov++)
@@ -710,7 +710,7 @@ void AModelOptimSills::_updateCurrentSillGoulard(int icov0, int ivar0)
 
 void AModelOptimSills::_updateCurrentSillDiag(int icov0,
                                              int ivar0,
-                                             std::vector<MatrixSquareSymmetric>& alpha,
+                                             std::vector<MatrixSymmetric>& alpha,
                                              VectorDouble& xr)
 {
   double value = xr[ivar0] * xr[ivar0] * alpha[icov0].getValue(ivar0, ivar0);
@@ -721,7 +721,7 @@ void AModelOptimSills::_updateCurrentSillDiag(int icov0,
 void AModelOptimSills::_updateAlphaNoDiag(int icov0,
                                          int ivar0,
                                          VectorDouble& xr,
-                                         std::vector<MatrixSquareSymmetric>& alpha)
+                                         std::vector<MatrixSymmetric>& alpha)
 {
   VectorDouble consSill = _constraints->getConstantSills();
   for (int ivar = 0; ivar < _nvar; ivar++)
@@ -828,7 +828,7 @@ int AModelOptimSills::_goulardWithoutConstraint(
   VectorDouble& wt,
   VectorDouble& gg,
   std::vector<MatrixDense>& ge,
-  std::vector<MatrixSquareSymmetric>& sill,
+  std::vector<MatrixSymmetric>& sill,
   double* crit_arg) const
 {
   int allpos;
@@ -852,16 +852,16 @@ int AModelOptimSills::_goulardWithoutConstraint(
   fk.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
     fk.push_back(MatrixDense(nvs2, npadir));
-  MatrixSquareSymmetric cc(nvar);
+  MatrixSymmetric cc(nvar);
 
-  std::vector<MatrixSquareSymmetric> aic;
+  std::vector<MatrixSymmetric> aic;
   aic.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
-    aic.push_back(MatrixSquareSymmetric(nvar));
-  std::vector<MatrixSquareSymmetric> alphak;
+    aic.push_back(MatrixSymmetric(nvar));
+  std::vector<MatrixSymmetric> alphak;
   alphak.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
-    alphak.push_back(MatrixSquareSymmetric(nvar));
+    alphak.push_back(MatrixSymmetric(nvar));
 
   /********************/
   /* Pre-calculations */

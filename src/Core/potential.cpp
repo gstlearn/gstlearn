@@ -399,7 +399,7 @@ static int st_extdrift_calc_init(DbGrid *dbout, Pot_Ext *pot_ext)
 
   /* Solve the kriging system */
 
-  MatrixSquareSymmetric a = pot_ext->model->evalCovMatSym(pot_ext->db);
+  MatrixSymmetric a = pot_ext->model->evalCovMatSym(pot_ext->db);
   if (a.invert()) return 1;
 
   MatrixDense b = st_extdrift_establish(pot_ext, number);
@@ -968,7 +968,7 @@ static void setRhs(MatrixDense& rhs, int i, int isol, double value)
  ** \param[in] value    Value to be assigned to this cell
  **
  *****************************************************************************/
-static void setLhs(MatrixSquareSymmetric& lhs, int i, int j, double value)
+static void setLhs(MatrixSymmetric& lhs, int i, int j, double value)
 {
   if (i < 0 || j < 0) return;
   lhs.setValue(i, j, value);
@@ -985,7 +985,7 @@ static void setLhs(MatrixSquareSymmetric& lhs, int i, int j, double value)
  ** \param[in] j        Column number
  **
  *****************************************************************************/
-static double getLhs(MatrixSquareSymmetric& lhs, int i, int j)
+static double getLhs(MatrixSymmetric& lhs, int i, int j)
 {
   if (i < 0 || j < 0) return (0.);
   return lhs.getValue(i,j);
@@ -1135,7 +1135,7 @@ static int st_build_lhs(Pot_Env *pot_env,
                         Model *model,
                         double nugget_grd,
                         double nugget_tgt,
-                        MatrixSquareSymmetric& lhs)
+                        MatrixSymmetric& lhs)
 {
   double extval, extval1, extval2;
 
@@ -2101,7 +2101,7 @@ static void st_dist_convert(Pot_Env *pot_env,
                             int ic0,
                             int j0,
                             VectorDouble& zval,
-                            MatrixSquareSymmetric& lhs_orig_arg,
+                            MatrixSymmetric& lhs_orig_arg,
                             MatrixDense& rhs_arg,
                             double *dist_euc,
                             double *dist_geo)
@@ -2122,12 +2122,12 @@ static void st_dist_convert(Pot_Env *pot_env,
 
   VectorDouble lhs_orig = lhs_orig_arg.getValues();
   VectorDouble rhs;
-  MatrixSquareSymmetric* lhs_aux = nullptr;
+  MatrixSymmetric* lhs_aux = nullptr;
   MatrixDense* rhs_red = nullptr;
 
   /* Update the L.H.S. by dropping the current data point */
 
-  lhs_aux = dynamic_cast<MatrixSquareSymmetric*>
+  lhs_aux = dynamic_cast<MatrixSymmetric*>
     (MatrixFactory::createReduceOne(&lhs_orig_arg, icol0, icol0, false, false));
 
   /* Invert the new LHS */
@@ -2245,10 +2245,10 @@ static void st_xvalid_potential(Pot_Env *pot_env,
                                 Db *dbgrd,
                                 Db *dbtgt,
                                 Model *model,
-                                MatrixSquareSymmetric& lhs,
+                                MatrixSymmetric& lhs,
                                 bool flag_dist_conv,
                                 VectorDouble& zval,
-                                MatrixSquareSymmetric& lhs_orig,
+                                MatrixSymmetric& lhs_orig,
                                 MatrixDense& rhs,
                                 VectorDouble& zdual)
 {
@@ -2901,7 +2901,7 @@ int potential_kriging(Db *dbiso,
   VectorDouble zval;
   VectorDouble zdual;
   MatrixDense rhs;
-  MatrixSquareSymmetric lhs;
+  MatrixSymmetric lhs;
 
   // Initialization
 
@@ -3099,7 +3099,7 @@ int potential_simulate(Db *dbiso,
   MatrixDense zvals;
   MatrixDense zduals;
   MatrixDense rhs;
-  MatrixSquareSymmetric lhs;
+  MatrixSymmetric lhs;
 
   // Initialization
 
@@ -3289,9 +3289,9 @@ int potential_xvalid(Db *dbiso,
   VectorDouble zval;
   VectorDouble zdual;
   MatrixDense rhs;
-  MatrixSquareSymmetric lhs;
-  MatrixSquareSymmetric lhs_orig;
-  MatrixSquareSymmetric lhs_aux;
+  MatrixSymmetric lhs;
+  MatrixSymmetric lhs_orig;
+  MatrixSymmetric lhs_aux;
 
   // Initialization
 

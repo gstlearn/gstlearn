@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Model/ModelGeneric.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Db/Db.hpp"
@@ -88,7 +88,7 @@ double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
   int nDrift = getNDriftEquation();
  
   // Calculate the covariance matrix C and perform its Cholesky decomposition
-  MatrixSquareSymmetric cov = evalCovMatSym(db);
+  MatrixSymmetric cov = evalCovMatSym(db);
   CholeskyDense covChol(&cov);
   if (! covChol.isReady())
   {
@@ -131,8 +131,8 @@ double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
     }
 
     // Calculate XtCm1X = Xt * Cm1 * X
-    MatrixSquareSymmetric* XtCm1X =
-      MatrixFactory::prodMatMat<MatrixSquareSymmetric>(&X, &Cm1X, true, false);
+    MatrixSymmetric* XtCm1X =
+      MatrixFactory::prodMatMat<MatrixSymmetric>(&X, &Cm1X, true, false);
    
     // Construct ZtCm1X = Zt * Cm1 * X and perform its Cholesky decomposition
     VectorDouble ZtCm1X = Cm1X.prodVecMat(Z);

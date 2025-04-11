@@ -14,7 +14,7 @@
 
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
 #include "Basic/VectorHelper.hpp"
@@ -63,8 +63,8 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
 
     // Case of a resulting Dense matrix
 
-    const MatrixSquareSymmetric* mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
-    const MatrixSquareSymmetric* mysym = dynamic_cast<const MatrixSquareSymmetric*>(y);
+    const MatrixSymmetric* mxsym = dynamic_cast<const MatrixSymmetric*>(x);
+    const MatrixSymmetric* mysym = dynamic_cast<const MatrixSymmetric*>(y);
 
     if (nrow1 == ncol2)
     {
@@ -76,7 +76,7 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
 
         // Cas of a resulting Square Symmetric matrix
 
-        res = new MatrixSquareSymmetric();
+        res = new MatrixSymmetric();
       }
       else
       {
@@ -116,7 +116,7 @@ AMatrixSquare* MatrixFactory::createMatrixSquare(const AMatrixSquare *x,
 {
   /// TODO : use typeinfo
   const MatrixSquareGeneral*     mxsg  = dynamic_cast<const MatrixSquareGeneral*>(x);
-  const MatrixSquareSymmetric*   mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
+  const MatrixSymmetric*   mxsym = dynamic_cast<const MatrixSymmetric*>(x);
 
   AMatrixSquare* res = nullptr;
   if (mxsg != nullptr)
@@ -125,7 +125,7 @@ AMatrixSquare* MatrixFactory::createMatrixSquare(const AMatrixSquare *x,
   }
   else if (mxsym != nullptr)
   {
-    res = new MatrixSquareSymmetric(nrow);
+    res = new MatrixSymmetric(nrow);
   }
   return res;
 }
@@ -186,13 +186,13 @@ AMatrix* MatrixFactory::createReduce(const AMatrix *x,
   AMatrix* res = nullptr;
   const MatrixDense*        mxrg  = dynamic_cast<const MatrixDense*>(x);
   const MatrixSquareGeneral*      mxsg  = dynamic_cast<const MatrixSquareGeneral*>(x);
-  const MatrixSquareSymmetric*    mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
+  const MatrixSymmetric*    mxsym = dynamic_cast<const MatrixSymmetric*>(x);
 
   if (mxsym != nullptr)
   {
     // Case of a square symmetric input matrix
     if (flagSame)
-      res = new MatrixSquareSymmetric(newNRows);
+      res = new MatrixSymmetric(newNRows);
     else
       res = new MatrixDense(newNRows, newNCols);
   }

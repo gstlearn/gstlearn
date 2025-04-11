@@ -15,7 +15,7 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include <vector>
@@ -83,11 +83,11 @@ protected:
                                                  void* func_data),
                             void* f_data,
                             double distmax_def = TEST,
-                            const MatrixSquareSymmetric& vars_def = MatrixSquareSymmetric());
+                            const MatrixSymmetric& vars_def = MatrixSymmetric());
 
 private:
   void _updateModelParamList(double distmax_def = TEST,
-                             const MatrixSquareSymmetric& vars_def = MatrixSquareSymmetric());
+                             const MatrixSymmetric& vars_def = MatrixSymmetric());
   void _dumpParamList() const;
   static void _dumpOneModelParam(const OneParam& param, double value);
   void _addOneModelParam(int icov,

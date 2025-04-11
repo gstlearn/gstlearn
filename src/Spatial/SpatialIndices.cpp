@@ -14,7 +14,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Enum/ECalcVario.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Space/SpacePoint.hpp"
@@ -186,7 +186,7 @@ int SpatialIndices::computeCGI(const String &name)
   /* Calculate the inertia and the weighted PCA */
 
   _inertia = 0.;
-  MatrixSquareSymmetric mm(ndim);
+  MatrixSymmetric mm(ndim);
   for (int iech = 0; iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue)) continue;

@@ -210,7 +210,7 @@ VectorDouble SPDEOp::computeDriftCoeffs(const VectorDouble& Z,
 {
   int xsize = (int)(drifts.size());
   VectorDouble XtInvSigmaZ(xsize);
-  MatrixSquareSymmetric XtInvSigmaX(xsize);
+  MatrixSymmetric XtInvSigmaX(xsize);
   VectorDouble result(xsize);
   _workdat1.resize(_getNDat());
   vect w1s(_workdat1);

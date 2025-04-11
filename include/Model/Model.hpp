@@ -28,7 +28,7 @@
 
 #include "Drifts/DriftList.hpp"
 
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
@@ -106,7 +106,7 @@ public:
                   double sill                        = 1.,
                   double param                       = 1.,
                   const VectorDouble& ranges         = VectorDouble(),
-                  const MatrixSquareSymmetric& sills = MatrixSquareSymmetric(),
+                  const MatrixSymmetric& sills = MatrixSymmetric(),
                   const VectorDouble& angles         = VectorDouble(),
                   const ASpaceSharedPtr& space       = ASpaceSharedPtr(),
                   bool flagRange                     = true);
@@ -142,7 +142,7 @@ public:
                        double sill                        = 1.,
                        double param                       = 1.,
                        const VectorDouble& ranges         = VectorDouble(),
-                       const MatrixSquareSymmetric& sills = MatrixSquareSymmetric(),
+                       const MatrixSymmetric& sills = MatrixSymmetric(),
                        const VectorDouble& angles         = VectorDouble(),
                        bool flagRange                     = true);
   void addCovFromParamOldStyle(const ECov& type,

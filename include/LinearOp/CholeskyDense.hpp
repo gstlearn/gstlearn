@@ -21,18 +21,18 @@
   #include <Eigen/src/Core/Matrix.h>
 #endif
 
-class MatrixSquareSymmetric;
+class MatrixSymmetric;
 class MatrixDense;
 
 class GSTLEARN_EXPORT CholeskyDense: public ACholesky
 {
 public:
-  CholeskyDense(const MatrixSquareSymmetric* mat = nullptr);
+  CholeskyDense(const MatrixSymmetric* mat = nullptr);
   CholeskyDense(const CholeskyDense &m);
   CholeskyDense& operator=(const CholeskyDense &m);
   virtual ~CholeskyDense();
 
-  int setMatrix(const MatrixSquareSymmetric* mat);
+  int setMatrix(const MatrixSymmetric* mat);
   double computeLogDeterminant() const override;
 
   VectorDouble getLowerTriangle() const;
@@ -51,8 +51,8 @@ public:
                          MatrixDense& x);
   void normMatInPlace(int mode,
                       int neq,
-                      const MatrixSquareSymmetric& a,
-                      MatrixSquareSymmetric& b);
+                      const MatrixSymmetric& a,
+                      MatrixSymmetric& b);
   void clear();
   bool empty() const;
 private:

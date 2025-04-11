@@ -14,7 +14,7 @@
 #include "LinearOp/PrecisionOpMatrix.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 
 PrecisionOpMultiMatrix::PrecisionOpMultiMatrix(Model* model,
                                    const VectorMeshes& meshes)
@@ -27,7 +27,7 @@ PrecisionOpMultiMatrix::PrecisionOpMultiMatrix(Model* model,
 
 MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixStationary(int icov, const MatrixSparse* Q) const
 {
-  MatrixSquareSymmetric sills = *_invCholSillsStat[icov].getMatrix();
+  MatrixSymmetric sills = *_invCholSillsStat[icov].getMatrix();
   sills.invert();
     
   MatrixSparse current = MatrixSparse(0,0);

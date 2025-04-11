@@ -107,7 +107,7 @@ def matrix_toTL(self):
 
 setattr(gl.MatrixDense, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareGeneral, "toTL", matrix_toTL)
-setattr(gl.MatrixSquareSymmetric, "toTL", matrix_toTL)
+setattr(gl.MatrixSymmetric, "toTL", matrix_toTL)
 setattr(gl.MatrixSparse, "toTL", matrix_toTL)
 setattr(gl.ProjMatrix, "toTL", matrix_toTL)
 setattr(gl.PrecisionOpMultiMatrix, "toTL", matrix_toTL)

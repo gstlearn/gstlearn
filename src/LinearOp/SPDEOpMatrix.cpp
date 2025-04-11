@@ -11,18 +11,18 @@
 #include "LinearOp/SPDEOpMatrix.hpp"
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include "LinearOp/ProjMultiMatrix.hpp"
-#include "LinearOp/MatrixSquareSymmetricSim.hpp"
+#include "LinearOp/MatrixSymmetricSim.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
-SPDEOpMatrix::SPDEOpMatrix(const PrecisionOpMultiMatrix* pop, 
-                           const ProjMultiMatrix* A, 
+SPDEOpMatrix::SPDEOpMatrix(const PrecisionOpMultiMatrix* pop,
+                           const ProjMultiMatrix* A,
                            const MatrixSparse* invNoise)
-: SPDEOp(pop,A,new MatrixSquareSymmetricSim(invNoise),nullptr,nullptr,1)
-, _QpAinvNoiseAt(MatrixSparse(0,0))
-, _chol(nullptr)
+  : SPDEOp(pop, A, new MatrixSymmetricSim(invNoise), nullptr, nullptr, 1)
+  , _QpAinvNoiseAt(MatrixSparse(0, 0))
+  , _chol(nullptr)
 {
   _QpAinvNoiseAt.resize(pop->getSize(), pop->getSize());
-  _QpAinvNoiseAt.prodNormMatMatInPlace(A->getProj(),invNoise,true);
+  _QpAinvNoiseAt.prodNormMatMatInPlace(A->getProj(), invNoise, true);
   _QpAinvNoiseAt.addMatInPlace(*pop->getQ());
 }
 

@@ -28,7 +28,7 @@ DISABLE_WARNING_POP
 #endif
 
 class MatrixSquareGeneral;
-class MatrixSquareSymmetric;
+class MatrixSymmetric;
 class EOperator;
 
 /**
@@ -167,6 +167,12 @@ public:
   void addRow(int nrow_added = 1);
   void addColumn(int ncolumn_added = 1);
 
+#ifndef SWIG
+  static void sum(const MatrixDense* mat1,
+                  const MatrixDense* mat2,
+                  MatrixDense* mat3);
+#endif
+
 protected:
   virtual void _allocate() override;
   virtual void _deallocate() override;
@@ -184,7 +190,7 @@ protected:
   virtual int _solve(const VectorDouble& b, VectorDouble& x) const override;
 
   int _computeEigen(bool optionPositive = true);
-  int _computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
+  int _computeGeneralizedEigen(const MatrixSymmetric& b, bool optionPositive = true);
 
 private:
   void _recopy(const MatrixDense& r);

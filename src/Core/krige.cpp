@@ -1557,7 +1557,7 @@ int _krigsim(Db* dbin,
              ANeigh* neigh,
              bool flag_bayes,
              const VectorDouble& dmean,
-             const MatrixSquareSymmetric& dcov,
+             const MatrixSymmetric& dcov,
              int icase,
              int nbsimu,
              bool flag_dgm)
@@ -3245,7 +3245,7 @@ static int st_sampling_krige_data(Db *db,
   int ntot = nsize1 + nsize2;
   int npart = ndat - nsize1;
   int nutil = 0;
-  MatrixSquareSymmetric mat_s;
+  MatrixSymmetric mat_s;
 
   utab = tutil = invsig = nullptr;
 
@@ -3285,7 +3285,7 @@ static int st_sampling_krige_data(Db *db,
     if (! mat_s_Chol.isReady()) goto label_end;
     VectorDouble tl = mat_s_Chol.getLowerTriangle();
 
-    MatrixSquareSymmetric* sq = MatrixSquareSymmetric::createFromTriangle(0, nsize2, tl);
+    MatrixSymmetric* sq = MatrixSymmetric::createFromTriangle(0, nsize2, tl);
 
     VectorDouble xl = mat_s_Chol.getUpperTriangleInverse();
 
@@ -3293,10 +3293,10 @@ static int st_sampling_krige_data(Db *db,
 
     MatrixDense v;
     mat_s_Chol.matProductInPlace(4, mat_c, v);
-    MatrixSquareSymmetric tn1;
-    mat_s_Chol.normMatInPlace(1, nsize2, MatrixSquareSymmetric(), tn1);
+    MatrixSymmetric tn1;
+    mat_s_Chol.normMatInPlace(1, nsize2, MatrixSymmetric(), tn1);
 
-    MatrixSquareSymmetric* tn2 = dynamic_cast<MatrixSquareSymmetric*>
+    MatrixSymmetric* tn2 = dynamic_cast<MatrixSymmetric*>
       (MatrixFactory::prodMatMat(&v, &v, true, false));
 
     tn1.linearCombination(1, &tn1, 1, tn2);

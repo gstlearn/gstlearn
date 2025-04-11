@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
 #include <Eigen/src/Core/Matrix.h>
 
@@ -19,7 +19,7 @@
 #define _TL(i, j)     _tl[SQ(i, j, neq) - TRI(j)] /* for i >= j */
 #define _XL(i, j)     _xl[SQ(i, j, neq) - TRI(j)] /* for i >= j */
 
-CholeskyDense::CholeskyDense(const MatrixSquareSymmetric* mat)
+CholeskyDense::CholeskyDense(const MatrixSymmetric* mat)
   : ACholesky(mat)
   , _tl()
   , _xl()
@@ -171,7 +171,7 @@ int CholeskyDense::_prepare() const
   return 0;
 }
 
-int CholeskyDense::setMatrix(const MatrixSquareSymmetric* mat)
+int CholeskyDense::setMatrix(const MatrixSymmetric* mat)
 {
   _mat  = mat;
   _size = mat->getNRows();
@@ -340,8 +340,8 @@ void CholeskyDense::matProductInPlace(int mode,
  *****************************************************************************/
 void CholeskyDense::normMatInPlace(int mode,
                                    int neq,
-                                   const MatrixSquareSymmetric& a,
-                                   MatrixSquareSymmetric& b)
+                                   const MatrixSymmetric& a,
+                                   MatrixSymmetric& b)
 {
   if (_computeTL()) return;
   b.resize(neq, neq);

@@ -8,7 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/AMatrixSquare.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
@@ -20,17 +20,17 @@
 #define TL(i,j)        tl[SQ(i,j,neq)-TRI(j)] /* for i >= j */
 #define HA(i,j)        ha[SQ(i,j,neq)]
 
-MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow)
+MatrixSymmetric::MatrixSymmetric(int nrow)
   : AMatrixSquare(nrow)
 {
 }
 
-MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric& m)
+MatrixSymmetric::MatrixSymmetric(const MatrixSymmetric& m)
   : AMatrixSquare(m)
 {
 }
 
-MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix& m)
+MatrixSymmetric::MatrixSymmetric(const AMatrix& m)
   : AMatrixSquare(m)
 {
   if (!m.isSymmetric())
@@ -42,7 +42,7 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix& m)
   copyElements(m);
 }
 
-MatrixSquareSymmetric& MatrixSquareSymmetric::operator= (const MatrixSquareSymmetric &m)
+MatrixSymmetric& MatrixSymmetric::operator= (const MatrixSymmetric &m)
 {
   if (this != &m)
   {
@@ -51,7 +51,7 @@ MatrixSquareSymmetric& MatrixSquareSymmetric::operator= (const MatrixSquareSymme
   return *this;
 }
 
-MatrixSquareSymmetric::~MatrixSquareSymmetric()
+MatrixSymmetric::~MatrixSymmetric()
 {
 }
 
@@ -63,7 +63,7 @@ MatrixSquareSymmetric::~MatrixSquareSymmetric()
  *
  * @remark: the matrix is transposed implicitly while reading
  */
-MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDouble& X)
+MatrixSymmetric* MatrixSymmetric::createFromVVD(const VectorVectorDouble& X)
 {
   int nrow = (int) X.size();
   int ncol = (int) X[0].size();
@@ -72,12 +72,12 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDo
     messerr("The matrix does not seem to be square");
     return nullptr;
   }
-  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrow);
+  MatrixSymmetric* mat = new MatrixSymmetric(nrow);
   mat->_fillFromVVD(X);
   return mat;
 }
 
-MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVD(const VectorDouble &X)
+MatrixSymmetric* MatrixSymmetric::createFromVD(const VectorDouble &X)
 {
   int ncol = sqrt((int)X.size());
   int nrow = ncol;
@@ -92,7 +92,7 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVD(const VectorDouble &X
   }
   delete mattemp;
 
-  MatrixSquareSymmetric *mat = new MatrixSquareSymmetric(nrow);
+  MatrixSymmetric *mat = new MatrixSymmetric(nrow);
 
   int lec = 0;
   for (int irow = 0; irow < nrow; irow++)
@@ -104,7 +104,7 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVD(const VectorDouble &X
 /**
  * \warning : values is provided as a square complete matrix
  */
-void MatrixSquareSymmetric::_setValues(const double* values, bool byCol)
+void MatrixSymmetric::_setValues(const double* values, bool byCol)
 {
   // Check that the input argument corresponds to a square symmetric matrix
   for (int icol = 0; icol < getNCols(); icol++)
@@ -126,16 +126,16 @@ void MatrixSquareSymmetric::_setValues(const double* values, bool byCol)
   MatrixDense::_setValues(values, byCol);
 }
 
-int MatrixSquareSymmetric::_invert()
+int MatrixSymmetric::_invert()
 {
   return MatrixDense::_invert();
 }
 
-bool MatrixSquareSymmetric::_isPhysicallyPresent(int irow, int icol) const
+bool MatrixSymmetric::_isPhysicallyPresent(int irow, int icol) const
 {
   return (icol <= irow);
 }
-void MatrixSquareSymmetric::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
+void MatrixSymmetric::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
 {
   if (tab.empty()) return;
   // First load into a temporary rectangular matrix,
@@ -159,7 +159,7 @@ void MatrixSquareSymmetric::resetFromVVD(const VectorVectorDouble& tab, bool byC
  * \remarks The number of rows of Y must be equal to the dimension of X
  * \remarks The output matrix is square with dimension equal to the number of columns of Y
  */
-void MatrixSquareSymmetric::normMatrix(const AMatrix& y, const AMatrixSquare& x, bool transpose)
+void MatrixSymmetric::normMatrix(const AMatrix& y, const AMatrixSquare& x, bool transpose)
 {
   bool xEmpty = x.empty();
   int n = 0;
@@ -234,17 +234,17 @@ void MatrixSquareSymmetric::normMatrix(const AMatrix& y, const AMatrixSquare& x,
     }
 }
 
-int MatrixSquareSymmetric::computeEigen(bool optionPositive)
+int MatrixSymmetric::computeEigen(bool optionPositive)
 {
   return MatrixDense::_computeEigen(optionPositive);
 }
 
-int MatrixSquareSymmetric::computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive)
+int MatrixSymmetric::computeGeneralizedEigen(const MatrixSymmetric& b, bool optionPositive)
 {
   return MatrixDense::_computeGeneralizedEigen(b, optionPositive);
 }
 
-int MatrixSquareSymmetric::_terminateEigen(const VectorDouble &eigenValues,
+int MatrixSymmetric::_terminateEigen(const VectorDouble &eigenValues,
                                            const VectorDouble &eigenVectors,
                                            bool optionPositive,
                                            bool changeOrder)
@@ -274,7 +274,7 @@ int MatrixSquareSymmetric::_terminateEigen(const VectorDouble &eigenValues,
  ** \return  True if the matrix is definite positive; False otherwise
  **
  *****************************************************************************/
-bool MatrixSquareSymmetric::isDefinitePositive()
+bool MatrixSymmetric::isDefinitePositive()
 {
   /* Calculate the eigen values and vectors */
 
@@ -306,10 +306,10 @@ bool MatrixSquareSymmetric::isDefinitePositive()
  ** \param[in]  tl     Lower triangular matrix defined by column (Dimension; neq*(neq+1)/2)
  **
  *****************************************************************************/
-MatrixSquareSymmetric* MatrixSquareSymmetric::createFromTLTU(int neq,
+MatrixSymmetric* MatrixSymmetric::createFromTLTU(int neq,
                                                              const VectorDouble &tl)
 {
-  MatrixSquareSymmetric *mat = new MatrixSquareSymmetric(neq);
+  MatrixSymmetric *mat = new MatrixSymmetric(neq);
 
   for (int i = 0; i < neq; i++)
     for (int j = 0; j < neq; j++)
@@ -334,11 +334,11 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromTLTU(int neq,
  ** \param[in]  tl     Triangular matrix (any part)
  **
  *****************************************************************************/
-MatrixSquareSymmetric* MatrixSquareSymmetric::createFromTriangle(int mode,
+MatrixSymmetric* MatrixSymmetric::createFromTriangle(int mode,
                                                                  int neq,
                                                                  const VectorDouble &tl)
 {
-  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(neq);
+  MatrixSymmetric* mat = new MatrixSymmetric(neq);
 
   mat->fill(0.);
 
@@ -357,7 +357,7 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromTriangle(int mode,
   return mat;
 }
 
-int MatrixSquareSymmetric::_getTriangleSize() const
+int MatrixSymmetric::_getTriangleSize() const
 {
   int neq = getNRows();
   int size = neq * (neq + 1) / 2;
@@ -377,7 +377,7 @@ int MatrixSquareSymmetric::_getTriangleSize() const
  ** \remark In output, 'this' contains the inverse matrix
  **
  *****************************************************************************/
-int MatrixSquareSymmetric::_matrix_qo(const VectorDouble& gmat, VectorDouble& xmat)
+int MatrixSymmetric::_matrix_qo(const VectorDouble& gmat, VectorDouble& xmat)
 {
   if (computeGeneralizedInverse(*this) != 0) return 1;
   prodMatVecInPlace(gmat, xmat);
@@ -409,7 +409,7 @@ int MatrixSquareSymmetric::_matrix_qo(const VectorDouble& gmat, VectorDouble& xm
  ** \remark In output, H contains the inverse matrix
  **
  *****************************************************************************/
-int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
+int MatrixSymmetric::_matrix_qoc(bool flag_invert,
                                        const VectorDouble& gmat,
                                        int na,
                                        const MatrixDense& amat,
@@ -427,7 +427,7 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
 
   VectorDouble ha(neq * na);
   VectorDouble evec(na);
-  MatrixSquareSymmetric temp(na);
+  MatrixSymmetric temp(na);
 
   /* Preliminary solution of the linear system with no constraint */
 
@@ -514,7 +514,7 @@ int MatrixSquareSymmetric::_matrix_qoc(bool flag_invert,
  ** REMARKS:    The initial xmat has to be satisfied by all the constraints.
  **
  *****************************************************************************/
-int MatrixSquareSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gmat,
+int MatrixSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gmat,
                                                           const MatrixDense& aemat,
                                                           const VectorDouble& bemat,
                                                           const MatrixDense& aimat,
@@ -651,7 +651,7 @@ int MatrixSquareSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gm
  ** \param[out] flag     array specifying if constraint is active (if not NULL)
  **
  *****************************************************************************/
-int MatrixSquareSymmetric::_constraintsError(const VectorInt& active,
+int MatrixSymmetric::_constraintsError(const VectorInt& active,
                                              const MatrixDense& aimat,
                                              const VectorDouble& bimat,
                                              const VectorDouble& xmat,
@@ -705,7 +705,7 @@ int MatrixSquareSymmetric::_constraintsError(const VectorInt& active,
  ** \param[out] tabout   Output array
  **
  *****************************************************************************/
-int MatrixSquareSymmetric::_constraintsConcatenateMat(int nae,
+int MatrixSymmetric::_constraintsConcatenateMat(int nae,
                                                       int nai,
                                                       int neq,
                                                       const VectorInt& active,
@@ -754,7 +754,7 @@ int MatrixSquareSymmetric::_constraintsConcatenateMat(int nae,
  ** \param[out] tabout   Output array
  **
  *****************************************************************************/
-int MatrixSquareSymmetric::_constraintsConcatenateVD(int nae,
+int MatrixSymmetric::_constraintsConcatenateVD(int nae,
                                                      int nai,
                                                      const VectorInt &active,
                                                      const VectorDouble &tabemat,
@@ -791,7 +791,7 @@ int MatrixSquareSymmetric::_constraintsConcatenateVD(int nae,
  ** \param[in]  active Array of constraint status
  **
  *****************************************************************************/
-int MatrixSquareSymmetric::_constraintsCount(int nai, VectorInt& active)
+int MatrixSymmetric::_constraintsCount(int nai, VectorInt& active)
 {
   int number = 0;
   for (int i = 0; i < nai; i++)
@@ -813,7 +813,7 @@ int MatrixSquareSymmetric::_constraintsCount(int nai, VectorInt& active)
  ** \remark The input and output matrices can match
  **
  *****************************************************************************/
-int MatrixSquareSymmetric::computeGeneralizedInverse(MatrixSquareSymmetric &tabout,
+int MatrixSymmetric::computeGeneralizedInverse(MatrixSymmetric &tabout,
                                                      double maxicond,
                                                      double eps)
 {
@@ -861,8 +861,8 @@ columns)
  * @param flagInvert when True, transform 'rowKeep' into 'rowDrop' 
  * @return Pointer to the newly created Square Symmetric Matrix
  */
-MatrixSquareSymmetric*
-MatrixSquareSymmetric::sample(const MatrixSquareSymmetric* A,
+MatrixSymmetric*
+MatrixSymmetric::sample(const MatrixSymmetric* A,
                               const VectorInt& rowKeep,
                               bool flagInvert)
 {
@@ -879,27 +879,27 @@ MatrixSquareSymmetric::sample(const MatrixSquareSymmetric* A,
     if (!checkArg("Selected Row index", rows[irow], ntotal)) return nullptr;
   }
 
-  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrows);
+  MatrixSymmetric* mat = new MatrixSymmetric(nrows);
   for (int irow = 0; irow < nrows; irow++)
     for (int icol = 0; icol <= irow; icol++)
       mat->setValue(irow, icol, A->getValue(rows[irow], rows[icol]));
   return mat;
 }
 
-MatrixSquareSymmetric* MatrixSquareSymmetric::createRandomDefinitePositive(int neq, int seed)
+MatrixSymmetric* MatrixSymmetric::createRandomDefinitePositive(int neq, int seed)
 {
-  MatrixSquareSymmetric local(neq);
+  MatrixSymmetric local(neq);
   local.fillRandom(seed);
-  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(neq);
+  MatrixSymmetric* mat = new MatrixSymmetric(neq);
   mat->prodMatMatInPlace(&local, &local, true);
   return mat;
 }
 
-MatrixSquareSymmetric MatrixSquareSymmetric::compress0MatLC(const MatrixDense& matLC)
+MatrixSymmetric MatrixSymmetric::compress0MatLC(const MatrixDense& matLC)
 {
   int nvar                = getNCols();
   int nvarCL              = matLC.getNRows();
-  MatrixSquareSymmetric mat = MatrixSquareSymmetric(nvarCL);
+  MatrixSymmetric mat = MatrixSymmetric(nvarCL);
   for (int jvarCL = 0; jvarCL < nvarCL; jvarCL++)
     for (int ivarCL = 0; ivarCL <= jvarCL; ivarCL++)
     {

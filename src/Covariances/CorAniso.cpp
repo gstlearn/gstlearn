@@ -32,7 +32,7 @@
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Geometry/GeometryHelper.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
 #include <math.h>
 #include <functional>
@@ -1299,12 +1299,12 @@ void CorAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
   {
     // Extract the direct tensor at first point and square it
     setRotationAnglesAndRadius(angle1, range1, scale1);
-    MatrixSquareSymmetric direct1 = getAniso().getTensorDirect2();
+    MatrixSymmetric direct1 = getAniso().getTensorDirect2();
     double det1                   = pow(direct1.determinant(), 0.25);
 
     // Extract the direct tensor at second point and square it
     setRotationAnglesAndRadius(angle2, range2, scale2);
-    MatrixSquareSymmetric direct2 = getAniso().getTensorDirect2();
+    MatrixSymmetric direct2 = getAniso().getTensorDirect2();
     double det2                   = pow(direct2.determinant(), 0.25);
 
     // Calculate average squared tensor

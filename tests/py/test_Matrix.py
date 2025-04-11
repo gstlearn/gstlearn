@@ -63,7 +63,7 @@ print("Matrix MSG")
 MSG.display()
 
 # To a square symmetric matrix
-MSS = gl.MatrixSquareSymmetric(M)
+MSS = gl.MatrixSymmetric(M)
 print("Matrix MSS")
 MSS.display()
 

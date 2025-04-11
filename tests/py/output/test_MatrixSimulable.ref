@@ -6,13 +6,13 @@
 The Input matrix is not valid
 It should be either:
 - a MatrixSparse
-- a MatrixSquareSymmetric
+- a MatrixSymmetric
 ------------------
 -- Test --C with inverse True
 The Input matrix is not valid
 It should be either:
 - a MatrixSparse
-- a MatrixSquareSymmetric
+- a MatrixSymmetric
 ------------------
 -- Test --D with inverse True
 0.0
@@ -27,13 +27,13 @@ The matrix must be square!
 The Input matrix is not valid
 It should be either:
 - a MatrixSparse
-- a MatrixSquareSymmetric
+- a MatrixSymmetric
 ------------------
 -- Test --C with inverse False
 The Input matrix is not valid
 It should be either:
 - a MatrixSparse
-- a MatrixSquareSymmetric
+- a MatrixSymmetric
 ------------------
 -- Test --D with inverse False
 0.0

@@ -15,7 +15,7 @@
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
 #include "Enum/EOperator.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Model/Model.hpp"
 #include "Space/SpaceRN.hpp"
@@ -839,12 +839,12 @@ Table dbStatisticsCorrel(Db *db, const VectorString &names, bool flagIso, const 
  * 
  * @param db Target Data Base
  */
-MatrixSquareSymmetric dbVarianceMatrix(const Db* db)
+MatrixSymmetric dbVarianceMatrix(const Db* db)
 {
   int nvar = db->getNLoc(ELoc::Z);
   VectorDouble data(nvar, 0.);
   VectorDouble mean(nvar, 0.);
-  MatrixSquareSymmetric mat(nvar);
+  MatrixSymmetric mat(nvar);
 
   /* Loop on the samples */
 
@@ -1321,7 +1321,7 @@ MatrixSquareGeneral* sphering(const AMatrix* X)
 
   AMatrix* TX = X->transpose();
   AMatrix* prod = MatrixFactory::prodMatMat(TX, X);
-  MatrixSquareSymmetric* prodsym = dynamic_cast<MatrixSquareSymmetric*>(prod);
+  MatrixSymmetric* prodsym = dynamic_cast<MatrixSymmetric*>(prod);
   if (prodsym == nullptr) return nullptr;
 
   prodsym->prodScalar(1. / (double) nech);

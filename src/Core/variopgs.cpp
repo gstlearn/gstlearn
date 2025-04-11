@@ -26,7 +26,7 @@
 #include "LithoRule/PropDef.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Enum/EOperator.hpp"
 #include "Basic/Memory.hpp"
@@ -44,7 +44,7 @@ typedef struct
   int flag_rho;
   double rho;
   VectorDouble params;
-  MatrixSquareSymmetric modif;
+  MatrixSymmetric modif;
 } Local_CorPgs;
 
 typedef struct
@@ -2113,7 +2113,7 @@ void vario_order_get_bounds(Vario_Order *vorder,
  ** \param[out] tabout    Inverted matrix
  **
  *****************************************************************************/
-static int invgen(MatrixSquareSymmetric& a, MatrixSquareSymmetric& tabout)
+static int invgen(MatrixSymmetric& a, MatrixSymmetric& tabout)
 {
   int neq = a.getNRows();
   tabout.fill(0.);
@@ -2232,7 +2232,7 @@ static VectorDouble st_compute_params(Local_CorPgs *corpgs,
  *****************************************************************************/
 static void st_build_correl(Local_CorPgs *corpgs,
                             VectorDouble& params_in,
-                            MatrixSquareSymmetric& correl)
+                            MatrixSymmetric& correl)
 {
   VectorDouble params = st_compute_params(corpgs, params_in);
   double rho = corpgs->rho;
@@ -2261,9 +2261,9 @@ static void st_build_correl(Local_CorPgs *corpgs,
  *****************************************************************************/
 static void st_update_constraints(Local_CorPgs* corpgs,
                                   VectorDouble& Grad,
-                                  MatrixSquareSymmetric& Hess)
+                                  MatrixSymmetric& Hess)
 {
-  MatrixSquareSymmetric m;
+  MatrixSymmetric m;
   int npar = corpgs->npar;
 
   /* Update the Grad */
@@ -2301,8 +2301,8 @@ static void st_update_constraints(Local_CorPgs* corpgs,
  *****************************************************************************/
 static void st_update_constraints_with_JJ(Local_CorPgs *corpgs,
                                           VectorDouble &Grad,
-                                          MatrixSquareSymmetric &Hess,
-                                          MatrixSquareSymmetric &JJ)
+                                          MatrixSymmetric &Hess,
+                                          MatrixSymmetric &JJ)
 {
   int npar = corpgs->npar;
 
@@ -2312,7 +2312,7 @@ static void st_update_constraints_with_JJ(Local_CorPgs *corpgs,
 
   /* Update JJ */
 
-  MatrixSquareSymmetric m = JJ;
+  MatrixSymmetric m = JJ;
   JJ.fill(0.);
   for (int i = 0; i < npar; i++)
     for (int j = 0; j < npar; j++)
@@ -2338,11 +2338,11 @@ static void st_deriv_eigen(Local_CorPgs *corpgs,
                            double eigval,
                            const MatrixSquareGeneral* ev,
                            VectorDouble& d1,
-                           MatrixSquareSymmetric& d2)
+                           MatrixSymmetric& d2)
 {
-  MatrixSquareSymmetric temp(4);
+  MatrixSymmetric temp(4);
   temp.fill(0.);
-  MatrixSquareSymmetric invGn(4);
+  MatrixSymmetric invGn(4);
   d2.fill(0.);
   st_build_correl(corpgs, corpgs->params, temp);
   temp.linearCombination(-1., &temp);
@@ -2537,7 +2537,7 @@ static double st_rkl(int maxpts,
                      double y,
                      VectorDouble& lower,
                      VectorDouble& upper,
-                     MatrixSquareSymmetric& corr1,
+                     MatrixSymmetric& corr1,
                      MatrixSquareGeneral& covar,
                      MatrixSquareGeneral& temp)
 {
@@ -2582,7 +2582,7 @@ static double st_ikl(int maxpts,
                      int index2,
                      VectorDouble& lower,
                      VectorDouble& upper,
-                     MatrixSquareSymmetric& correl)
+                     MatrixSymmetric& correl)
 {
   double x, y;
 
@@ -2594,13 +2594,13 @@ static double st_ikl(int maxpts,
   // Build submatrices
   VectorDouble low = VH::reduce(lower, index);
   VectorDouble upp = VH::reduce(upper, index);
-  MatrixSquareSymmetric* corr1 = dynamic_cast<MatrixSquareSymmetric*>
+  MatrixSymmetric* corr1 = dynamic_cast<MatrixSymmetric*>
     (MatrixFactory::createReduce(&correl, index, index, true, true));
-  MatrixSquareSymmetric* corrc = dynamic_cast<MatrixSquareSymmetric*>
+  MatrixSymmetric* corrc = dynamic_cast<MatrixSymmetric*>
     (MatrixFactory::createReduce(&correl, index, index, false, true));
-  MatrixSquareSymmetric* corr2 = dynamic_cast<MatrixSquareSymmetric*>
+  MatrixSymmetric* corr2 = dynamic_cast<MatrixSymmetric*>
     (MatrixFactory::createReduce(&correl, index, index, false, false));
-  MatrixSquareSymmetric inv_corr1(*corr1);
+  MatrixSymmetric inv_corr1(*corr1);
   if (inv_corr1.invert()) messageAbort("st_ikl #1");
   MatrixSquareGeneral* temp = dynamic_cast<MatrixSquareGeneral*>
     (MatrixFactory::prodMatMat(corrc, &inv_corr1));
@@ -2682,9 +2682,9 @@ static double st_d2_dkldkl(int maxpts,
                            int index2,
                            VectorDouble& lower,
                            VectorDouble& upper,
-                           MatrixSquareSymmetric& correl)
+                           MatrixSymmetric& correl)
 {
-  MatrixSquareSymmetric corri;
+  MatrixSymmetric corri;
   double deltaparam = 1.e-6;
 
   corri = correl;
@@ -2712,7 +2712,7 @@ static double st_d2_dkldkl(int maxpts,
  *****************************************************************************/
 static double st_d2_dkldij(VectorDouble& lower,
                            VectorDouble& upper,
-                           MatrixSquareSymmetric& correl)
+                           MatrixSymmetric& correl)
 {
   int grid[4];
   VectorDouble u(4);
@@ -2755,20 +2755,20 @@ static double st_d2_dkldkj(int index1,
                            int index2,
                            VectorDouble& lower,
                            VectorDouble& upper,
-                           MatrixSquareSymmetric& correl)
+                           MatrixSymmetric& correl)
 {
-  MatrixSquareSymmetric* varcori = dynamic_cast<MatrixSquareSymmetric*>
+  MatrixSymmetric* varcori = dynamic_cast<MatrixSymmetric*>
         (MatrixFactory::createReduceOne(&correl,index2, index2, false, false));
-  MatrixSquareSymmetric invvarcor(correl);
+  MatrixSymmetric invvarcor(correl);
   if (invvarcor.invert()) messageAbort("st_d2_dkldkj #1");
   VectorDouble invvarcori = invvarcor.getRow(index1);
-  MatrixSquareSymmetric* corr1 = dynamic_cast<MatrixSquareSymmetric*>
+  MatrixSymmetric* corr1 = dynamic_cast<MatrixSymmetric*>
         (MatrixFactory::createReduceOne(&correl, index2, index2, false, false));
   VectorDouble crosscor = correl.getRow(index2);
   crosscor = VH::reduceOne(crosscor, index2);
   double corr2 = correl.getValue(index2, index2);
 
-  MatrixSquareSymmetric invcorr1(*corr1);
+  MatrixSymmetric invcorr1(*corr1);
   if (invcorr1.invert()) messageAbort("st_d2_dkldkj #2");
 
   VectorDouble temp = invcorr1.prodMatVec(crosscor);
@@ -2827,10 +2827,10 @@ static double st_d2_dkldkj(int index1,
 static double st_calcul_stat(Local_Pgs *local_pgs,
                              int flag_deriv,
                              int flag_reset,
-                             MatrixSquareSymmetric& correl,
+                             MatrixSymmetric& correl,
                              VectorDouble& Grad,
-                             MatrixSquareSymmetric& Hess,
-                             MatrixSquareSymmetric& JJ)
+                             MatrixSymmetric& Hess,
+                             MatrixSymmetric& JJ)
 {
   double s, rj2, erval, ggval;
   int inform;
@@ -2838,8 +2838,8 @@ static double st_calcul_stat(Local_Pgs *local_pgs,
   static double releps = 0.;
   static int maxpts4 = 10000;
   static int maxpts2 = 4000;
-  MatrixSquareSymmetric hess(4);
-  MatrixSquareSymmetric gradgrad(4);
+  MatrixSymmetric hess(4);
+  MatrixSymmetric gradgrad(4);
   VectorDouble grad(4);
   VectorDouble lower(4);
   VectorDouble upper(4);
@@ -2937,10 +2937,10 @@ static double st_calcul_stat(Local_Pgs *local_pgs,
 static double st_calcul_nostat(Local_Pgs *local_pgs,
                                int flag_deriv,
                                int flag_reset,
-                               MatrixSquareSymmetric& correl,
+                               MatrixSymmetric& correl,
                                VectorDouble& Grad,
-                               MatrixSquareSymmetric& Hess,
-                               MatrixSquareSymmetric& JJ)
+                               MatrixSymmetric& Hess,
+                               MatrixSymmetric& JJ)
 {
   double s, erval, dist;
   int i1, i2, inform;
@@ -2951,8 +2951,8 @@ static double st_calcul_nostat(Local_Pgs *local_pgs,
   VectorDouble grad(4);
   VectorDouble lower(4);
   VectorDouble upper(4);
-  MatrixSquareSymmetric hess(4);
-  MatrixSquareSymmetric gradgrad(4);
+  MatrixSymmetric hess(4);
+  MatrixSymmetric gradgrad(4);
 
   double S = 0.;
   grad.fill(0.);
@@ -3044,10 +3044,10 @@ static double st_calcul(Local_Pgs *local_pgs,
                         int flag_reset,
                         VectorDouble& params,
                         VectorDouble& Grad,
-                        MatrixSquareSymmetric& Hess,
-                        MatrixSquareSymmetric& JJ)
+                        MatrixSymmetric& Hess,
+                        MatrixSymmetric& JJ)
 {
-  MatrixSquareSymmetric correl(4);
+  MatrixSymmetric correl(4);
   double S = 0.;
 
   if (flag_deriv)
@@ -3115,12 +3115,12 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
                                   double tolsort,
                                   int new_val)
 {
-  MatrixSquareSymmetric invGn(4);
-  MatrixSquareSymmetric correl(4);
-  MatrixSquareSymmetric Hess(4);
-  MatrixSquareSymmetric Gn(4);
-  MatrixSquareSymmetric JJ(4);
-  MatrixSquareSymmetric d2(4);
+  MatrixSymmetric invGn(4);
+  MatrixSymmetric correl(4);
+  MatrixSymmetric Hess(4);
+  MatrixSymmetric Gn(4);
+  MatrixSymmetric JJ(4);
+  MatrixSymmetric d2(4);
   VectorDouble Grad(4);
   VectorDouble d1(4);
   VectorDouble gr(4);

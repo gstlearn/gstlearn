@@ -20,7 +20,7 @@
 #include "Space/SpacePoint.hpp"
 #include "Neigh/ANeigh.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Enum/EKrigOpt.hpp"
@@ -75,7 +75,7 @@ public:
   VectorInt             getSampleNbgh() const { return _nbgh; }
   VectorVectorDouble    getSampleCoordinates(KrigingAlgebraSimpleCase& algebra, int iechout) const;
   VectorDouble          getSampleData() const { return _Z; };
-  MatrixSquareSymmetric getLHS() const { return _Sigma; }
+  MatrixSymmetric getLHS() const { return _Sigma; }
   MatrixDense     getLHSF() const { return _Sigma0; }
   MatrixDense     getRHS() const { return _Sigma0; }
   MatrixDense     getRHSF() const { return _X0; }
@@ -122,8 +122,8 @@ private:
   mutable KrigingAlgebraSimpleCase _algebra;
   mutable KrigOpt        _krigopt;
   VectorVectorInt        _sampleRanks; // Vector of vector of sample indices
-  MatrixSquareSymmetric  _Sigma00; // Covariance part for variance
-  MatrixSquareSymmetric  _Sigma;   // Covariance part for LHS
+  MatrixSymmetric  _Sigma00; // Covariance part for variance
+  MatrixSymmetric  _Sigma;   // Covariance part for LHS
   MatrixDense      _X;       // Drift part for LHS
   MatrixDense      _Sigma0;  // Covariance part for RHS
   MatrixDense      _X0;      // Drift par for RHS

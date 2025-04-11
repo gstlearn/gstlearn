@@ -21,7 +21,7 @@ class Model;
 class DbGrid;
 class Constraints;
 class MatrixDense;
-class MatrixSquareSYmmetric;
+class MatrixSymmetric;
 
 /**
  * \brief

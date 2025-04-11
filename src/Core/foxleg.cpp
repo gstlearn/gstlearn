@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
@@ -220,7 +220,7 @@ static int st_solve_hgnc(int npar,
 {
   VectorDouble tempMatVD(npar * npar,0.);
   VectorDouble tempVec(npar,0.);
-  MatrixSquareSymmetric tempMat(npar);
+  MatrixSymmetric tempMat(npar);
   double eps = EPSILON10;
 
   double signe = (flaginvsign) ? -1 : 1.;

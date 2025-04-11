@@ -16,7 +16,7 @@ sills = (A@A.T)
 nx = [10,10]
 
 def matriceReduce(m,ind):
-    M = gl.MatrixSquareSymmetric(len(ind))
+    M = gl.MatrixSymmetric(len(ind))
     for i,j in enumerate(ind):
         for k in range(j,len(ind)):
             M.setValue(i,k,m.getValue(j,ind[k]))

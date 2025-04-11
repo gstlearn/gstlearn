@@ -292,7 +292,7 @@ Regression regression(Db *db1,
 
   VectorDouble x(size,0.);
   VectorDouble b(size,0.);
-  MatrixSquareSymmetric a(size);
+  MatrixSymmetric a(size);
 
   /* Loop on the samples */
 

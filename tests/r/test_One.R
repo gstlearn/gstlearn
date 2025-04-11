@@ -74,7 +74,7 @@ print("Matrix MSG")
 err = MSG$display()
 
 # To a square symmetric matrix
-MSS = MatrixSquareSymmetric(M)
+MSS = MatrixSymmetric(M)
 print("Matrix MSS")
 err = MSS$display()
 

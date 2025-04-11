@@ -151,7 +151,7 @@
 %include Matrix/AMatrixSquare.hpp
 %include Matrix/NF_Triplet.hpp
 %include Matrix/MatrixSquareGeneral.hpp
-%include Matrix/MatrixSquareSymmetric.hpp
+%include Matrix/MatrixSymmetric.hpp
 %include Matrix/MatrixFactory.hpp
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
@@ -197,7 +197,7 @@
 %include LinearOp/IOptimCost.hpp
 %include LinearOp/OptimCostBinary.hpp
 %include LinearOp/OptimCostColored.hpp
-%include LinearOp/MatrixSquareSymmetricSim.hpp
+%include LinearOp/MatrixSymmetricSim.hpp
 %include LinearOp/ACholesky.hpp
 %include LinearOp/CholeskyDense.hpp
 %include LinearOp/CholeskySparse.hpp

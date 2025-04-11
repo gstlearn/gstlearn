@@ -12,7 +12,7 @@
 #include "Matrix/MatrixInt.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/NF_Triplet.hpp"
@@ -25,8 +25,8 @@
 
 void st_invgen()
 {
-  MatrixSquareSymmetric aaa(4);
-  MatrixSquareSymmetric bbb(4);
+  MatrixSymmetric aaa(4);
+  MatrixSymmetric bbb(4);
 
   aaa.setValue(0, 0, 2.);
   aaa.setValue(1, 0, 1.);
@@ -43,7 +43,7 @@ void st_invgen()
 void reset_to_initial_contents(AMatrix* M,
                                MatrixDense& MRR,
                                MatrixSquareGeneral& MSG,
-                               MatrixSquareSymmetric& MSS,
+                               MatrixSymmetric& MSS,
                                MatrixSparse* MSP)
 {
   MRR.setValues(M->getValues());
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
   MSG.display();
 
   // To a square symmetric matrix
-  MatrixSquareSymmetric MSS(*M);
+  MatrixSymmetric MSS(*M);
   message("Matrix MSS\n");
   MSS.display();
 
@@ -604,9 +604,9 @@ int main(int argc, char *argv[])
   // Get a Dense matrix
   VectorDouble temp = MSS.getValues();
   int ntemp = MSS.getNRows();
-  MatrixSquareSymmetric* MEig   = MatrixSquareSymmetric::createFromVD(temp);
+  MatrixSymmetric* MEig   = MatrixSymmetric::createFromVD(temp);
   MEig->display();
-  MatrixSquareSymmetric* MNoEig = MatrixSquareSymmetric::createFromVD(temp);
+  MatrixSymmetric* MNoEig = MatrixSymmetric::createFromVD(temp);
   MNoEig->display();
 
   // Extract the Eigen values and vectors (both matrix types)
@@ -738,7 +738,7 @@ int main(int argc, char *argv[])
 
   MatrixDense* MREig = MatrixDense::createFromVD(vbh, nrow, ncol, false);
   AMatrix* MREigt = MREig->transpose();
-  MatrixSquareSymmetric* BEig = MatrixFactory::prodMatMat<MatrixSquareSymmetric>(MREig, MREigt);
+  MatrixSymmetric* BEig = MatrixFactory::prodMatMat<MatrixSymmetric>(MREig, MREigt);
   delete MREig;
   delete MREigt;
 
@@ -756,7 +756,7 @@ int main(int argc, char *argv[])
 
   MatrixDense* MRNoEig = MatrixDense::createFromVD(vbh, nrow, ncol, false);
   AMatrix* MRNoEigt = MRNoEig->transpose();
-  MatrixSquareSymmetric* BNoEig = MatrixFactory::prodMatMat<MatrixSquareSymmetric>(MRNoEig, MRNoEigt);
+  MatrixSymmetric* BNoEig = MatrixFactory::prodMatMat<MatrixSymmetric>(MRNoEig, MRNoEigt);
   delete MRNoEig;
   delete MRNoEigt;
 

@@ -16,7 +16,7 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Db/Db.hpp"
 #include "Geometry/GeometryHelper.hpp"
@@ -262,10 +262,10 @@ void ACov::_optimizationPostProcess() const
 {
 }
 
-MatrixSquareSymmetric ACov::eval0Mat(const CovCalcMode* mode) const
+MatrixSymmetric ACov::eval0Mat(const CovCalcMode* mode) const
 {
   int nvar = getNVar();
-  MatrixSquareSymmetric mat(nvar);
+  MatrixSymmetric mat(nvar);
   mat.fill(0.);
   eval0CovMatBiPointInPlace(mat, mode);
   return mat;
@@ -278,7 +278,7 @@ MatrixSquareSymmetric ACov::eval0Mat(const CovCalcMode* mode) const
  *
  * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
-void ACov::eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat,
+void ACov::eval0CovMatBiPointInPlace(MatrixSymmetric& mat,
                                      const CovCalcMode* mode) const
 {
   int nvar = getNVar();
@@ -290,15 +290,15 @@ void ACov::eval0CovMatBiPointInPlace(MatrixSquareSymmetric& mat,
     }
 }
 
-MatrixSquareSymmetric ACov::evalCovMat0(const Db* db, int iech, const KrigOpt& krigopt) const
+MatrixSymmetric ACov::evalCovMat0(const Db* db, int iech, const KrigOpt& krigopt) const
 {
-  MatrixSquareSymmetric mat;
+  MatrixSymmetric mat;
 
   int error = evalCovMat0InPlace(mat, db, iech, krigopt);
-  return (error == 0) ? mat : MatrixSquareSymmetric();
+  return (error == 0) ? mat : MatrixSymmetric();
 }
 
-int ACov::evalCovMat0InPlace(MatrixSquareSymmetric& mat,
+int ACov::evalCovMat0InPlace(MatrixSymmetric& mat,
                              const Db* db,
                              int iech,
                              const KrigOpt& krigopt) const
@@ -1497,19 +1497,19 @@ void ACov::_load(const SpacePoint& p, bool option) const
  ** \remarks by the number of samples where the variable is defined
  **
  *****************************************************************************/
-MatrixSquareSymmetric ACov::evalCovMatSym(const Db* db1,
+MatrixSymmetric ACov::evalCovMatSym(const Db* db1,
                                           const VectorInt& nbgh1,
                                           int ivar0,
                                           const CovCalcMode* mode,
                                           bool cleanOptim) const
 {
-  MatrixSquareSymmetric mat;
+  MatrixSymmetric mat;
 
   int error = evalCovMatSymInPlace(mat, db1, nbgh1, ivar0, mode, cleanOptim);
-  return (error == 0) ? mat : MatrixSquareSymmetric();
+  return (error == 0) ? mat : MatrixSymmetric();
 }
 
-int ACov::evalCovMatSymInPlace(MatrixSquareSymmetric& mat,
+int ACov::evalCovMatSymInPlace(MatrixSymmetric& mat,
                                const Db* db1,
                                const VectorInt& nbgh1,
                                int ivar0,
@@ -1527,7 +1527,7 @@ int ACov::evalCovMatSymInPlace(MatrixSquareSymmetric& mat,
   return evalCovMatSymInPlaceFromIdx(mat, db1, index1, mode, cleanOptim);
 }
 
-int ACov::evalCovMatSymInPlaceFromIdx(MatrixSquareSymmetric& mat,
+int ACov::evalCovMatSymInPlaceFromIdx(MatrixSymmetric& mat,
                                       const Db* db1,
                                       const VectorVectorInt& index1,
                                       const CovCalcMode* mode,

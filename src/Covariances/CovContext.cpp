@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovContext.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -171,7 +171,7 @@ void CovContext::_update()
 {
   if (_nVar * _nVar != (int) _covar0.size())
   {
-    MatrixSquareSymmetric Id(_nVar);
+    MatrixSymmetric Id(_nVar);
     Id.setIdentity();
     _covar0 = Id.getValues();
   }

@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -484,7 +484,7 @@ int MatrixDense::_terminateEigen(const Eigen::VectorXd &eigenValues,
   return 0;
 }
 
-int MatrixDense::_computeGeneralizedEigen(const MatrixSquareSymmetric &b, bool optionPositive)
+int MatrixDense::_computeGeneralizedEigen(const MatrixSymmetric &b, bool optionPositive)
 {
   Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> solver(getEigenMat(), b.getEigenMat());
   Eigen::VectorXd eigenValues  = solver.eigenvalues().real();
@@ -791,4 +791,11 @@ MatrixDense MatrixDense::compressMatLC(const MatrixDense& matLC,
   }
 
   return mat;
+}
+
+void MatrixDense::sum(const MatrixDense* mat1,
+                      const MatrixDense* mat2,
+                      MatrixDense* mat3)
+{
+  mat3->getEigenMat().noalias() = mat1->getEigenMat() + mat2->getEigenMat();
 }

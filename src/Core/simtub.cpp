@@ -851,7 +851,7 @@ int simpgs(Db* dbin,
     situba.setFlagAllocationAlreadyDone(true);
     local_seed = 0;
     if (situba.simulate(dbin, dbout, models[igrf], neigh, icase, false,
-                        VectorDouble(), MatrixSquareSymmetric(), true)) goto label_end;
+                        VectorDouble(), MatrixSymmetric(), true)) goto label_end;
   }
 
   /* Convert gaussian to facies at target point */
@@ -1279,7 +1279,7 @@ int simbipgs(Db *dbin,
       situba.setFlagAllocationAlreadyDone(true);
       local_seed = 0;
       if (situba.simulate(dbin, dbout, models[ipgs][igrf], neigh, icase, false,
-                          VectorDouble(), MatrixSquareSymmetric(), true)) goto label_end;
+                          VectorDouble(), MatrixSymmetric(), true)) goto label_end;
     }
 
     /* Convert gaussian to facies at target point */
@@ -2612,7 +2612,7 @@ int simcond(Db *dbin,
   {
     CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
     if (situba.simulate(dbin, dbout, model, neighU, 0, false,
-                        VectorDouble(), MatrixSquareSymmetric(), false, true)) goto label_end;
+                        VectorDouble(), MatrixSymmetric(), false, true)) goto label_end;
   }
 
   /* Free the temporary variables not used anymore */

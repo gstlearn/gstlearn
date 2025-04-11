@@ -14,7 +14,7 @@ set(SRC
   Matrix/MatrixInt.cpp
   Matrix/MatrixDense.cpp
   Matrix/AMatrixSquare.cpp
-  Matrix/MatrixSquareSymmetric.cpp
+  Matrix/MatrixSymmetric.cpp
   Matrix/MatrixSquareGeneral.cpp
   Matrix/MatrixFactory.cpp
   Matrix/Table.cpp
@@ -207,7 +207,7 @@ set(SRC
   LinearOp/SPDEOp.cpp
   LinearOp/SPDEOpMatrix.cpp
   LinearOp/ASimulable.cpp
-  LinearOp/MatrixSquareSymmetricSim.cpp
+  LinearOp/MatrixSymmetricSim.cpp
   Space/SpaceSN.cpp
   Space/SpaceRN.cpp
   Space/SpacePoint.cpp

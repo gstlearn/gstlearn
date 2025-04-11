@@ -30,7 +30,7 @@
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Space/SpaceSN.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 
 #include <math.h>
@@ -38,7 +38,7 @@
 #include <ostream>
 
 CovAniso::CovAniso(const ECov& type, const CovContext& ctxt)
-  : CovProportional(new CorAniso(type, ctxt), MatrixSquareSymmetric(ctxt.getNVar()))
+  : CovProportional(new CorAniso(type, ctxt), MatrixSymmetric(ctxt.getNVar()))
 {
   CovProportional::setCor(getCorAniso());
   _initFromContext();
@@ -58,7 +58,7 @@ CovAniso::CovAniso(const ECov& type,
                    double sill,
                    const CovContext& ctxt,
                    bool flagRange)
-  : CovProportional(new CorAniso(type, range, param, ctxt, flagRange), MatrixSquareSymmetric(ctxt.getNVar()))
+  : CovProportional(new CorAniso(type, range, param, ctxt, flagRange), MatrixSymmetric(ctxt.getNVar()))
 {
   _initFromContext();
 
@@ -465,7 +465,7 @@ CovAniso* CovAniso::createAnisotropic(const CovContext& ctxt,
 CovAniso* CovAniso::createIsotropicMulti(const CovContext& ctxt,
                                          const ECov& type,
                                          double range,
-                                         const MatrixSquareSymmetric& sills,
+                                         const MatrixSymmetric& sills,
                                          double param,
                                          bool flagRange)
 {
@@ -490,7 +490,7 @@ CovAniso* CovAniso::createIsotropicMulti(const CovContext& ctxt,
 CovAniso* CovAniso::createAnisotropicMulti(const CovContext& ctxt,
                                            const ECov& type,
                                            const VectorDouble& ranges,
-                                           const MatrixSquareSymmetric& sills,
+                                           const MatrixSymmetric& sills,
                                            double param,
                                            const VectorDouble& angles,
                                            bool flagRange)
@@ -528,7 +528,7 @@ CovAniso* CovAniso::createFromParam(const ECov& type,
                                     double sill,
                                     double param,
                                     const VectorDouble& ranges,
-                                    const MatrixSquareSymmetric& sills,
+                                    const MatrixSymmetric& sills,
                                     const VectorDouble& angles,
                                     const ASpaceSharedPtr& space,
                                     bool flagRange)
@@ -627,7 +627,7 @@ CovAniso* CovAniso::createFromParam(const ECov& type,
       cov->setSill(sill);
     else
     {
-      MatrixSquareSymmetric locsills(nvar);
+      MatrixSymmetric locsills(nvar);
       locsills.setIdentity(sill);
       cov->setSill(locsills);
     }
@@ -662,7 +662,7 @@ CovAniso* CovAniso::createReduce(const VectorInt& validVars) const
 
   // Modify the Matrix of sills
   newCovAniso->setContext(ctxt);
-  MatrixSquareSymmetric* newsill = dynamic_cast<MatrixSquareSymmetric*>(MatrixFactory::createReduce(&_sillCur, validVars, validVars));
+  MatrixSymmetric* newsill = dynamic_cast<MatrixSymmetric*>(MatrixFactory::createReduce(&_sillCur, validVars, validVars));
   newCovAniso->setSill(*newsill);
   return newCovAniso;
 }

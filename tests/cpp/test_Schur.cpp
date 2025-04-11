@@ -14,7 +14,7 @@
 #include "Enum/ESpaceType.hpp"
 
 #include "Matrix/MatrixDense.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -78,7 +78,7 @@ static void _firstTest(Db* data,
                        ANeigh* neigh,
                        const VectorDouble& means,
                        const VectorDouble& PriorMean,
-                       MatrixSquareSymmetric& PriorCov)
+                       MatrixSymmetric& PriorCov)
 {
   Model* modelc = dynamic_cast<Model*>(model);
   if (!modelc->hasDrift())
@@ -114,8 +114,8 @@ static void _firstTest(Db* data,
   // ---------------------- Using Schur Class ------------------------------
   mestitle(1, "Using Schur class");
 
-  MatrixSquareSymmetric Sigma00 = model->eval0Mat();
-  MatrixSquareSymmetric Sigma   = model->evalCovMatSym(data);
+  MatrixSymmetric Sigma00 = model->eval0Mat();
+  MatrixSymmetric Sigma   = model->evalCovMatSym(data);
   MatrixDense X           = model->evalDriftMat(data);
   MatrixDense Sigma0      = model->evalCovMat(data, target);
   MatrixDense X0          = model->evalDriftMat(target);
@@ -182,8 +182,8 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   // ---------------------- With complemented Data Base ---------------------
   mestitle(1, "With Complemented input Data Base");
 
-  MatrixSquareSymmetric Sigma00P = model->eval0Mat();
-  MatrixSquareSymmetric SigmaP   = model->evalCovMatSym(dataP);
+  MatrixSymmetric Sigma00P = model->eval0Mat();
+  MatrixSymmetric SigmaP   = model->evalCovMatSym(dataP);
   MatrixDense XP           = model->evalDriftMat(dataP);
   MatrixDense Sigma0P      = model->evalCovMat(dataP, target);
   MatrixDense X0P          = model->evalDriftMat(target);
@@ -205,8 +205,8 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   // ---------------------- With Collocated Option -------------------------
   mestitle(1, "With Collocated Option");
 
-  MatrixSquareSymmetric Sigma00 = model->eval0Mat();
-  MatrixSquareSymmetric Sigma   = model->evalCovMatSym(data);
+  MatrixSymmetric Sigma00 = model->eval0Mat();
+  MatrixSymmetric Sigma   = model->evalCovMatSym(data);
   MatrixDense X           = model->evalDriftMat(data);
   MatrixDense Sigma0      = model->evalCovMat(data, target);
   MatrixDense X0          = model->evalDriftMat(target);
@@ -261,8 +261,8 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   // ----------------------With Deplemented Data Base ---------------------
   mestitle(1, "With Deplemented input Data Base");
 
-  MatrixSquareSymmetric Sigma00P = model->eval0Mat();
-  MatrixSquareSymmetric SigmaP   = model->evalCovMatSym(dataP);
+  MatrixSymmetric Sigma00P = model->eval0Mat();
+  MatrixSymmetric SigmaP   = model->evalCovMatSym(dataP);
   MatrixDense XP           = model->evalDriftMat(dataP);
   MatrixDense Sigma0P      = model->evalCovMat(dataP, targetP, -1, -1, VectorInt(), VectorInt({iech0}));
   MatrixDense X0P          = model->evalDriftMat(targetP, VectorInt{iech0});
@@ -284,8 +284,8 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   // ---------------------- With Cross-validation Option -------------------------
   mestitle(1, "With Cross-Validation Option");
 
-  MatrixSquareSymmetric Sigma00 = model->eval0Mat();
-  MatrixSquareSymmetric Sigma   = model->evalCovMatSym(data);
+  MatrixSymmetric Sigma00 = model->eval0Mat();
+  MatrixSymmetric Sigma   = model->evalCovMatSym(data);
   MatrixDense X           = model->evalDriftMat(data);
   MatrixDense Sigma0      = model->evalCovMat(data, targetP);
   MatrixDense X0          = model->evalDriftMat(targetP);
@@ -322,8 +322,8 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   // ---------------------- Without Dual option ---------------------
   mestitle(1, "Without Dual option");
 
-  MatrixSquareSymmetric Sigma00 = model->eval0Mat();
-  MatrixSquareSymmetric Sigma   = model->evalCovMatSym(data);
+  MatrixSymmetric Sigma00 = model->eval0Mat();
+  MatrixSymmetric Sigma   = model->evalCovMatSym(data);
   MatrixDense X           = model->evalDriftMat(data);
   MatrixDense Sigma0      = model->evalCovMat(data, target);
   MatrixDense X0          = model->evalDriftMat(target);
@@ -404,8 +404,8 @@ int main(int argc, char* argv[])
   ModelGeneric* model;
   
   double scale = 0.7;
-  MatrixSquareSymmetric* sills =
-    MatrixSquareSymmetric::createRandomDefinitePositive(nvar);
+  MatrixSymmetric* sills =
+    MatrixSymmetric::createRandomDefinitePositive(nvar);
   model = Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
                                  *sills, VectorDouble(), nullptr, false);
   Model* modelc = dynamic_cast<Model*>(model);
@@ -414,7 +414,7 @@ int main(int argc, char* argv[])
 
   // Create the Bayesian Priors for Drift coefficients
   VectorDouble PriorMean = VH::simulateGaussian(nbfl);
-  MatrixSquareSymmetric PriorCov(nbfl);
+  MatrixSymmetric PriorCov(nbfl);
   PriorCov.setDiagonal(VH::simulateUniform(nbfl, 0.1, 0.5));
 
   // Unique Neighborhood

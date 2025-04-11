@@ -154,7 +154,7 @@ public:
   double getMean(int ivar) const;
 
   double getVar(int ivar, int jvar) const;
-  MatrixSquareSymmetric getVarMatrix() const;
+  MatrixSymmetric getVarMatrix() const;
   double getVarIndex(int ijvar) const;
   const VectorDouble& getVars() const { return _vars; }
   void setMeans(const VectorDouble& means);

@@ -317,7 +317,7 @@ void argumentTestMatrixSquareGeneral(const MatrixSquareGeneral& mat)
 {
   if (!mat.empty()) mat.display();
 }
-void argumentTestMatrixSquareSymmetric(const MatrixSquareSymmetric& mat)
+void argumentTestMatrixSymmetric(const MatrixSymmetric& mat)
 {
   if (!mat.empty()) mat.display();
 }

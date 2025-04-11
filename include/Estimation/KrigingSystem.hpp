@@ -19,7 +19,7 @@
 #include "Space/SpacePoint.hpp"
 #include "Neigh/ANeigh.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Enum/EKrigOpt.hpp"
@@ -61,7 +61,7 @@ public:
                        bool optionXValidVarZ  = false);
   int setKrigOptBayes(bool flag_bayes,
                       const VectorDouble& prior_mean,
-                      const MatrixSquareSymmetric& prior_cov);
+                      const MatrixSymmetric& prior_cov);
   int setKrigOptDataWeights(int iptrWeights, bool flagSet = true);
   int setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
   int setKrigOptFlagGlobal(bool flag_global);
@@ -88,7 +88,7 @@ public:
   VectorInt             getSampleNbgh() const { return _nbgh; }
   VectorVectorDouble    getSampleCoordinates() const;
   VectorDouble          getSampleData() const { return _Z; };
-  MatrixSquareSymmetric getLHS() const { return _Sigma; }
+  MatrixSymmetric getLHS() const { return _Sigma; }
   MatrixDense     getLHSF() const { return _Sigma0; }
   MatrixDense     getRHS() const { return _Sigma0; }
   MatrixDense     getRHSF() const { return _X0; }
@@ -148,8 +148,8 @@ private:
   mutable KrigingAlgebra _algebra;
   mutable KrigOpt        _krigopt;
   VectorVectorInt        _sampleRanks; // Vector of vector of sample indices
-  MatrixSquareSymmetric  _Sigma00; // Covariance part for variance
-  MatrixSquareSymmetric  _Sigma;   // Covariance part for LHS
+  MatrixSymmetric  _Sigma00; // Covariance part for variance
+  MatrixSymmetric  _Sigma;   // Covariance part for LHS
   MatrixDense      _X;       // Drift part for LHS
   MatrixDense      _Sigma0;  // Covariance part for RHS
   MatrixDense      _X0;      // Drift par for RHS
@@ -187,11 +187,11 @@ private:
   /// Option for Bayesian
   bool _flagBayes;
   VectorDouble          _priorMean; 
-  MatrixSquareSymmetric _priorCov;  
+  MatrixSymmetric _priorCov;  
   VectorDouble          _postMean;
-  MatrixSquareSymmetric _postCov;
+  MatrixSymmetric _postCov;
   MatrixDense     _postSimu; 
-  MatrixSquareSymmetric _varCorrec;
+  MatrixSymmetric _varCorrec;
 
   /// Option for (Disjunctive) Kriging of Factor
   bool _flagFactorKriging;

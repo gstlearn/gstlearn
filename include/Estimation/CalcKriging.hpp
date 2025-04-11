@@ -16,7 +16,7 @@
 
 #include "Calculators/ACalcInterpolator.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Anamorphosis/AAnam.hpp"
 
 class Db;
@@ -35,7 +35,7 @@ public:
   VectorInt nbgh;            // Ranks of the neighboring samples 
   VectorVectorDouble xyz;    // Coordinates of the neighboring samples [ndim][nech]
   VectorDouble data;         // Usable values at neighboring samples [neq]
-  MatrixSquareSymmetric lhs; // L.H.S. Covariance part (neq * neq)
+  MatrixSymmetric lhs; // L.H.S. Covariance part (neq * neq)
   MatrixDense lhsF;    // L.H.S. Drift part 
   MatrixDense rhs;     // R.H.S. Covariance part (neq * nrhs)
   MatrixDense rhsF;    // R.H.S. Drift part  (nbfl * nrhs)
@@ -56,7 +56,7 @@ public:
   CalcKriging& operator=(const CalcKriging &r) = delete;
   virtual ~CalcKriging();
 
-  void setPriorCov(const MatrixSquareSymmetric& priorCov) { _priorCov = priorCov; }
+  void setPriorCov(const MatrixSymmetric& priorCov) { _priorCov = priorCov; }
   void setPriorMean(const VectorDouble& priorMean) { _priorMean = priorMean; }
   void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
   void setIechSingleTarget(int iechSingleTarget) { _iechSingleTarget = iechSingleTarget; }
@@ -90,7 +90,7 @@ private:
 
   bool _flagBayes;
   VectorDouble _priorMean;
-  MatrixSquareSymmetric _priorCov;
+  MatrixSymmetric _priorCov;
 
   int  _iechSingleTarget;
   bool _verboseSingleTarget;
@@ -137,7 +137,7 @@ GSTLEARN_EXPORT int kribayes(Db* dbin,
                              ModelGeneric* model,
                              ANeigh* neigh,
                              const VectorDouble& prior_mean         = VectorDouble(),
-                             const MatrixSquareSymmetric& prior_cov = MatrixSquareSymmetric(),
+                             const MatrixSymmetric& prior_cov = MatrixSymmetric(),
                              bool flag_est                          = true,
                              bool flag_std                          = true,
                              const NamingConvention& namconv        = NamingConvention("Bayes"));

@@ -68,7 +68,7 @@ if nvar == 2:
 
 
 Qnoise = gl.buildInvNugget(dat,modelNugg)
-NoiseOp = gl.MatrixSquareSymmetricSim(Qnoise)
+NoiseOp = gl.MatrixSymmetricSim(Qnoise)
 
 
 # %%

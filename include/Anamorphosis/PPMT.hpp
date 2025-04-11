@@ -22,7 +22,7 @@
 #include "Basic/NamingConvention.hpp"
 
 class Db;
-class MatrixSquareSymmetric;
+class MatrixSymmetric;
 class MatrixDense;
 class AMatrix;
 

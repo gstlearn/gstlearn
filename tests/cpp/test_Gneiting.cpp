@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
                                              1.,
                                              1.,
                                              VectorDouble(),
-                                             MatrixSquareSymmetric(),
+                                             MatrixSymmetric(),
                                              VectorDouble(),
                                              space1d,
                                              false);
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
                                                   1.,
                                                   1.,
                                                   scales,
-                                                  MatrixSquareSymmetric(),
+                                                  MatrixSymmetric(),
                                                   VectorDouble(),
                                                   space2d,
                                                   false);
