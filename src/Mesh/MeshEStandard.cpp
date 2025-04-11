@@ -269,10 +269,10 @@ String MeshEStandard::toString(const AStringFormat* strfmt) const
 ** \remarks of the corresponding variable is defined
 **
 *****************************************************************************/
-void MeshEStandard::resetProjFromDb(ProjMatrix* m,
-                                    const Db* db,
-                                    int rankZ,
-                                    bool verbose) const
+void MeshEStandard::resetProjFromDbbis(ProjMatrix* m,
+                                       const Db* db,
+                                       int rankZ,
+                                       bool verbose) const
 {
   int nmeshes       = getNMeshes();
   int ncorner       = getNApexPerMesh();

@@ -51,7 +51,7 @@ public:
   /*! Returns the mesh size */
   virtual double getMeshSize(int imesh) const = 0;
   /*! Initialize the Sparse Matrix for projecting the Db on a Mesh */
-  virtual void resetProjFromDb(ProjMatrix* m, const Db* db, int rankZ = -1, bool verbose = false) const = 0;
+  virtual void resetProjFromDb(ProjMatrix* m, const Db* db, int rankZ = -1, bool verbose = false) const;
 
   /*! Returns the space variety */
   virtual int  getVariety() const { return 0; }
@@ -110,28 +110,33 @@ public:
 protected:
   void _setNDim(int ndim) { _nDim = ndim; }
   int  _setExtend(const VectorDouble& extendmin, const VectorDouble& extendmax);
-  bool _weightsInMesh(const VectorDouble& coor,
-                      const VectorVectorDouble& corners,
-                      double meshsize,
-                      VectorDouble& weights,
-                      double eps = EPSILON5) const;;
+  virtual bool _weightsInMesh(const VectorDouble& coor,
+                              const VectorVectorDouble& corners,
+                              double meshsize,
+                              VectorDouble& weights,
+                              double eps = EPSILON5) const;
   double _getMeshUnit(const VectorVectorDouble& corners) const;
 
 protected:
-  void _recopy(const AMesh &m);
+  void _recopy(const AMesh& m);
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
-  virtual bool _serialize(std::ostream& os,bool verbose = false) const override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "AMesh"; }
-
 
 private:
   bool _isSpaceDimensionValid(int idim) const;
   void _printMeshListByIndices(int nline_max = -1) const;
   void _printMeshListByCoordinates(int nline_max = -1) const;
+  int _findBarycenter(const VectorDouble& target,
+                      const VectorDouble& units,
+                      int nb_neigh,
+                      VectorInt& neighs,
+                      VectorDouble& weight) const;
+  VectorDouble _defineUnits(void) const;
 
 private:
-  int          _nDim;
+  int _nDim;
   VectorDouble _extendMin;
   VectorDouble _extendMax;
 };

@@ -38,7 +38,8 @@ public:
   double  getCoor(int imesh, int rank, int idim) const override;
   double  getApexCoor(int i, int idim) const override;
   double  getMeshSize(int imesh) const override;
-  void    resetProjFromDb(ProjMatrix* m, const Db *db, int rankZ = -1, bool verbose = false) const override;
+  // TODO: ti be deleted after validation
+  void    resetProjFromDbbis(ProjMatrix* m, const Db *db, int rankZ = -1, bool verbose = false) const;
   static MeshEStandard* createFromNF(const String& neutralFilename,
                                      bool verbose = true);
   static MeshEStandard* createFromExternal(const MatrixRectangular& apices,

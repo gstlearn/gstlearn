@@ -765,9 +765,9 @@ double GeometryHelper::geodeticTriangleSurface(double long1,
  **
  *****************************************************************************/
 bool GeometryHelper::isInSphericalTriangleOptimized(const double* coor,
-                                                    double* ptsa,
-                                                    double* ptsb,
-                                                    double* ptsc,
+                                                    const double* ptsa,
+                                                    const double* ptsb,
+                                                    const double* ptsc,
                                                     double* wgts,
                                                     double eps)
 {

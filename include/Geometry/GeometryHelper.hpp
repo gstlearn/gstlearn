@@ -116,9 +116,9 @@ public:
                                     double *wgts,
                                     double eps = EPSILON6);
   static bool isInSphericalTriangleOptimized(const double *coor,
-                                             double *ptsa,
-                                             double *ptsb,
-                                             double *ptsc,
+                                             const double *ptsa,
+                                             const double *ptsb,
+                                             const double *ptsc,
                                              double *wgts,
                                              double eps = EPSILON6);
   static VectorVectorDouble convertLongLatTo3D(const VectorDouble& longitude,
