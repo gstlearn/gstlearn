@@ -395,7 +395,7 @@ VectorDouble Grid::getCoordinatesByIndice(const VectorInt &indice,
  */
 VectorDouble Grid::getCoordinatesByCorner(const VectorInt& icorner) const
 {
-
+  initThread();
   VH::fill(_iwork0, 0);
   for (int idim = 0; idim < _nDim; idim++)
     if (icorner[idim] > 0) _iwork0[idim] = _nx[idim]-1;
@@ -577,9 +577,12 @@ void Grid::rankToIndice(int rank, vectint indices, bool minusOne) const
 
 void Grid::initThread() const
 {
-  _iwork0.resize(_nDim);
-  _work1.resize(_nDim);
-  _work2.resize(_nDim);
+  if (_nDim > (int)_iwork0.size())
+  {
+    _iwork0.resize(_nDim);
+    _work1.resize(_nDim);
+    _work2.resize(_nDim);
+  }
 }
 
 VectorInt& Grid::coordinateToIndices(const VectorDouble &coor,
@@ -659,9 +662,7 @@ bool Grid::_isSpaceDimensionValid(int idim) const
 
 void Grid::_allocate(void)
 {
-  _iwork0.resize(_nDim);
-  _work1.resize(_nDim);
-  _work2.resize(_nDim);
+  initThread();
   _nx.resize(_nDim);
   for (int i=0; i<_nDim; i++) _nx[i] = 1;
   _x0.resize(_nDim);

@@ -22,23 +22,25 @@ class SpacePoint;
 class GSTLEARN_EXPORT Ball
 {
 public:
-  Ball(const double** data                           = nullptr,
-       int n_samples                                 = 0,
-       int n_features                                = 0,
+
+  Ball(const double** data = nullptr,
+       int n_samples = 0,
+       int n_features = 0,
        double (*dist_function)(const double* x1,
                                const double* x2,
                                int n_features) = nullptr,
        int leaf_size                           = 10,
        int default_distance_function           = 1);
+
   Ball(const Db* dbin,
-       const Db* dbout                   = nullptr,
+       const Db* dbout                         = nullptr,
        double (*dist_function)(const double* x1,
                                const double* x2,
                                int n_features) = nullptr,
-       int leaf_size                     = 10,
-       bool has_constraints              = false,
-       int default_distance_function     = 1,
-       bool useSel                       = false);
+       int leaf_size                           = 10,
+       bool has_constraints                    = false,
+       int default_distance_function           = 1,
+       bool useSel                             = false);
   Ball(const AMesh* mesh,
        double (*dist_function)(const double* x1,
                                const double* x2,
@@ -74,8 +76,8 @@ public:
                       VectorDouble& distances,
                       int rank = 0);
   void display(int level = -1) const;
-  int  setConstraint(int rank, bool status);
-  int  resetConstraints(bool status);
+  int setConstraint(int rank, bool status);
+  int resetConstraints(bool status);
   bool empty() const { return _tree == nullptr; }
 
 protected:
@@ -100,12 +102,12 @@ private:
 };
 
 GSTLEARN_EXPORT MatrixT<int> findNN(Db* dbin,
-                                    Db* dbout                         = nullptr,
-                                    int nb_neigh                      = 3,
-                                    bool flagShuffle                  = false,
-                                    bool verbose                      = false,
+                                    Db* dbout                               = nullptr,
+                                    int nb_neigh                            = 3,
+                                    bool flagShuffle                        = false,
+                                    bool verbose                            = false,
                                     double (*dist_function)(const double* x1,
                                                             const double* x2,
                                                             int n_features) = nullptr,
-                                    int leaf_size                     = 10,
-                                    int default_distance_function     = 1);
+                                    int leaf_size                           = 10,
+                                    int default_distance_function           = 1);

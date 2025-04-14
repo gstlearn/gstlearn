@@ -78,9 +78,9 @@ public:
 
   bool isDual() const { return _flagDual; }
   VectorDouble* getZ() { return _Z.get(); }
-  MatrixSquareSymmetric* getSigma() { return _Sigma.get(); }
-  MatrixSquareSymmetric* getSigma00() { return _Sigma00.get(); }
-  MatrixRectangular* getX() { return _X.get(); }
+  MatrixSymmetric* getSigma() { return _Sigma.get(); }
+  MatrixSymmetric* getSigma00() { return _Sigma00.get(); }
+  MatrixDense* getX() { return _X.get(); }
   MatrixDense* getSigma0() { return _Sigma0.get(); }
   void updateSampleRanks();
   MatrixDense* getX0() { return _X0.get(); }

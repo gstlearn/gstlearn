@@ -147,7 +147,7 @@ int DbGrid::reset(const VectorInt& nx,
     setLocatorsByUID(ndim, jcol, ELoc::X, 0);
     _defineDefaultLocators(number, locatorNames);
   }
-
+  initThread();
   return 0;
 }
 
@@ -708,7 +708,6 @@ bool DbGrid::isGridRotated() const
 double DbGrid::getCoordinate(int iech, int idim, bool flag_rotate) const
 {
   if (idim >= getNDim()) return TEST;
-  double ret{};
   return _grid.getCoordinate(iech, idim, flag_rotate);
 }
 

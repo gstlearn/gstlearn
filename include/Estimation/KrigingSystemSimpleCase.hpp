@@ -74,8 +74,8 @@ public:
   int getNVar() const { return (_model != nullptr) ? _model->getNVar() : 0; }
 
   VectorVectorDouble getSampleCoordinates(KrigingAlgebraSimpleCase& algebra, int iechout) const;
-  MatrixRectangular getWeights(KrigingAlgebraSimpleCase& algebra) const;
-  MatrixRectangular getMu(KrigingAlgebraSimpleCase& algebra) const;
+  static MatrixDense getWeights(KrigingAlgebraSimpleCase& algebra);
+  static MatrixDense getMu(KrigingAlgebraSimpleCase& algebra);
   double getLTerm() const { return _algebra.getLTerm(); }
   ModelGeneric* getModel() const { return _model; }
 

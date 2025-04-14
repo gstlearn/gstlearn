@@ -219,7 +219,7 @@ void KrigingSystemSimpleCase::_estimateCalcul(int status,
 {
   int nech = algebra.getSampleRanks()->at(0).size();
   if (_flagEst)
-    _estimateEstim(status, iechout, algebra);
+    _estimateEstim(status, algebra, iechout);
 
   /* Variance of the estimation error */
 
@@ -284,7 +284,7 @@ void KrigingSystemSimpleCase::_neighCalcul(int status, const VectorDouble& tab, 
  ** \param[in]  algebra  Kriging algebra
  **
  *****************************************************************************/
-void KrigingSystemSimpleCase::_estimateEstim(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const
+void KrigingSystemSimpleCase::_estimateEstim(int status, KrigingAlgebraSimpleCase& algebra, int iechout) const
 {
   VectorDouble& local = algebra.getEstimation();
   if (local.size() <= 0) return;
@@ -420,8 +420,8 @@ int KrigingSystemSimpleCase::estimate(int iechout,
   int status = 0;
 
   /* Establish the Kriging R.H.S. */
-  MatrixRectangular* Sigma0 = algebra.getSigma0();
-  MatrixRectangular* X0     = algebra.getX0();
+  MatrixDense* Sigma0 = algebra.getSigma0();
+  MatrixDense* X0     = algebra.getX0();
   if (iechout + 1 == OptDbg::getReference())
   {
     OptDbg::setCurrentIndex(iechout + 1);
@@ -487,7 +487,7 @@ int KrigingSystemSimpleCase::estimate(int iechout,
 
   // Store the results in the output Db
 
-  _estimateCalcul(status, algebra, iechout);
+  _estimateCalcul(status, iechout, algebra);
 
   // Final printout
   if (iechout + 1 == OptDbg::getReference())
@@ -855,7 +855,7 @@ VectorVectorDouble KrigingSystemSimpleCase::getSampleCoordinates(KrigingAlgebraS
   return xyz;
 }
 
-MatrixDense KrigingSystemSimpleCase::getWeights(KrigingAlgebraSimpleCase& algebra)
+MatrixDense KrigingSystemSimpleCase::getWeights(KrigingAlgebraSimpleCase& algebra) 
 {
   const MatrixDense* lambda = algebra.getLambda();
   if (lambda == nullptr) return MatrixDense();

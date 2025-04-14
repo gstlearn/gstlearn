@@ -17,35 +17,17 @@
 #include "Mesh/AMesh.hpp"
 
 Ball::Ball(const double** data,
-           int n_samples,
-           int n_features,
-           double (*dist_function)(const double* x1,
-                                   const double* x2,
-                                   int n_features),
-           int leaf_size,
-           int default_distance_function)
-  : _tree(nullptr)
+  int n_samples,
+  int n_features,
+  double (*dist_function)(const double* x1,
+                          const double* x2,
+                          int n_features),
+  int leaf_size,
+  int default_distance_function)
+: _tree(nullptr)
 {
-  _master = true;
-  _tree = btree_init(data, n_samples, n_features, false, dist_function, leaf_size,
-                     default_distance_function);
-}
-
-Ball::Ball(const VectorVectorDouble& data,
-           double (*dist_function)(const double* x1,
-                                   const double* x2,
-                                   int size),
-           int leaf_size,
-           int default_distance_function)
-  : _tree(nullptr)
-{
-  int n_samples     = (int)data[0].size();
-  int n_features    = (int)data.size();
-  double** internal = copy_double_arrAsVVD(data);
-  _master = true;
-  _tree = btree_init((const double**)internal, n_samples, n_features, false,
-                     dist_function, leaf_size, default_distance_function);
-  free_2d_double(internal, n_features);
+_tree = btree_init(data, n_samples, n_features, false, dist_function, leaf_size,
+            default_distance_function);
 }
 
 Ball::Ball(const Db* dbin,
@@ -59,6 +41,7 @@ Ball::Ball(const Db* dbin,
            bool useSel)
   : _tree(nullptr)
 {
+  _master = true;
   int n_samples;
   int n_features;
   double** internal = _getInformationFromDb(dbin, dbout, useSel, &n_samples, &n_features);
@@ -86,6 +69,7 @@ Ball::Ball(const AMesh* mesh,
            bool has_constraints,
            int default_distance_function)
 {
+  _master = true;
   int n_samples;
   int n_features;
   double **internal = _getInformationFromMesh(mesh, &n_samples, &n_features);

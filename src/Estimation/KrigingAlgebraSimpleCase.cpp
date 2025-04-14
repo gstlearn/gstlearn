@@ -71,13 +71,13 @@ KrigingAlgebraSimpleCase::KrigingAlgebraSimpleCase(bool flagDual,
   , _invSigmaHasChanged(true)
   , _XtInvSigmaHasChanged(true)
 {
-  _Sigma0 = std::make_shared<MatrixRectangular>();
-  _X0     = std::make_shared<MatrixRectangular>();
+  _Sigma0 = std::make_shared<MatrixDense>();
+  _X0     = std::make_shared<MatrixDense>();
  
   (void)setData(Z, sampleRanks, Means);
   //(void)setLHS(Sigma, X);
   //(void)setVariance(Sigma00);
-  _Sigma00   = std::make_shared<MatrixSquareSymmetric>();
+  _Sigma00   = std::make_shared<MatrixSymmetric>();
   if (_flagCholesky)
   {
     _cholSigma = std::make_shared<CholeskyDense>(_Sigma.get());
@@ -98,8 +98,8 @@ KrigingAlgebraSimpleCase::KrigingAlgebraSimpleCase(bool flagDual,
   _bDual         = std::make_shared<VectorDouble>(); // Fake Covariance part in Dual (Dim: _neq)
   _invSigmaXBeta = std::make_shared<VectorDouble>();
 
-  _Sigma = std::make_shared<MatrixSquareSymmetric>();
-  _X = std::make_shared<MatrixRectangular>();
+  _Sigma = std::make_shared<MatrixSymmetric>();
+  _X = std::make_shared<MatrixDense>();
   _sampleRanks = std::make_shared<VectorVectorInt>();
   _nbgh = std::make_shared<VectorInt>();
 }
@@ -541,7 +541,7 @@ int KrigingAlgebraSimpleCase::setRHS(MatrixDense* Sigma0,
   // Argument Sigma0
   if (Sigma0 == nullptr)
   {
-    _Sigma0 = std::make_shared<MatrixRectangular>();
+    _Sigma0 = std::make_shared<MatrixDense>();
   }
   else
   {
@@ -1038,7 +1038,7 @@ int KrigingAlgebraSimpleCase::_needLambdaUK()
   else
     _invSigmaXMuUK.prodMatMatInPlace(_XtInvSigma.get(), &_MuUK, true);
 
-  MatrixRectangular::sum(_LambdaSK.get(), &_invSigmaXMuUK, &_LambdaUK);
+  MatrixDense::sum(_LambdaSK.get(), &_invSigmaXMuUK, &_LambdaUK);
  // _LambdaUK.linearCombination(1., _LambdaSK.get(), 1., &_invSigmaXMuUK);
 
   return 0;
