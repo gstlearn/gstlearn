@@ -21,7 +21,7 @@
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/FFT.hpp"
@@ -319,7 +319,7 @@ String CovAniso::toString(const AStringFormat* strfmt) const
 
     if (getNVar() > 1)
     {
-      MatrixSquareGeneral slopes = _sillCur;
+      MatrixSquare slopes = _sillCur;
       double range               = getRange(0);
       for (int ivar = 0; ivar < getNVar(); ivar++)
         for (int jvar = 0; jvar < getNVar(); jvar++)

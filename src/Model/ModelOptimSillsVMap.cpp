@@ -159,7 +159,7 @@ void ModelOptimSillsVMap::updateFromModel()
 {
   Model* model = _modelPart._model;
   VectorDouble d0(_ndim);
-  MatrixSquareGeneral tab(_nvar);
+  MatrixSquare tab(_nvar);
   _dbmap->rankToIndice(_nech / 2, _indg1);
   CovCalcMode mode(ECalcMember::RHS);
   const CovAnisoList* cova = model->getCovAnisoList();

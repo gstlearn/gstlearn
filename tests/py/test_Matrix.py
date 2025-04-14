@@ -58,7 +58,7 @@ print("Matrix MRR")
 MRR.display()
 
 # To a square general matrix
-MSG = gl.MatrixSquareGeneral(M)
+MSG = gl.MatrixSquare(M)
 print("Matrix MSG")
 MSG.display()
 

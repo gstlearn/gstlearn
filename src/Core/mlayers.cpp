@@ -458,7 +458,7 @@ static double st_get_drift_data(LMlayers *lmlayers,
 static void st_covariance_c00(LMlayers *lmlayers,
                               Model  *model,
                               const VectorDouble& prop1,
-                              MatrixSquareGeneral& covtab,
+                              MatrixSquare& covtab,
                               double *c00)
 {
   int nlayers, flag_interrupt;
@@ -517,7 +517,7 @@ static double st_cij(LMlayers *lmlayers,
                      int jlayer,
                      const VectorDouble& prop2,
                      const double *dd,
-                     MatrixSquareGeneral& covtab)
+                     MatrixSquare& covtab)
 {
   VectorDouble d1(2);
   st_check_layer("st_cij", lmlayers, ilayer);
@@ -566,7 +566,7 @@ static double st_ci0(LMlayers *lmlayers,
                      const VectorDouble& prop1,
                      int jlayer,
                      const double *dd,
-                     MatrixSquareGeneral& covtab)
+                     MatrixSquare& covtab)
 {
   VectorDouble d1(2);
   st_check_layer("st_ci0", lmlayers, ilayer);
@@ -678,7 +678,7 @@ static int st_lhs_one(LMlayers *lmlayers,
                       double *coor,
                       VectorDouble& prop0,
                       VectorDouble& prop2,
-                      MatrixSquareGeneral& covtab,
+                      MatrixSquare& covtab,
                       VectorDouble& b)
 {
   int jech, jjech, jfois, jlayer, nlayers, i;
@@ -753,7 +753,7 @@ static int st_rhs(LMlayers *lmlayers,
                   int ilayer0,
                   VectorDouble& prop0,
                   VectorDouble& prop2,
-                  MatrixSquareGeneral& covtab,
+                  MatrixSquare& covtab,
                   VectorDouble& b)
 {
   int jech, jjech, i, jlayer, ipos, ifois, nlayers, ideb;
@@ -839,7 +839,7 @@ static int st_lhs(LMlayers *lmlayers,
                   VectorInt& seltab,
                   VectorDouble& prop1,
                   VectorDouble& prop2,
-                  MatrixSquareGeneral& covtab,
+                  MatrixSquare& covtab,
                   double *a,
                   double *acov)
 {
@@ -1220,7 +1220,7 @@ static int st_collocated_prepare(LMlayers *lmlayers,
                                  VectorDouble& zval,
                                  VectorDouble& prop1,
                                  VectorDouble& prop2,
-                                 MatrixSquareGeneral& covtab,
+                                 MatrixSquare& covtab,
                                  double *b2,
                                  VectorDouble& baux,
                                  double *ratio)
@@ -1440,7 +1440,7 @@ static void st_estimate(LMlayers *lmlayers,
                         double *dual,
                         VectorDouble& prop1,
                         VectorDouble& prop2,
-                        MatrixSquareGeneral& covtab,
+                        MatrixSquare& covtab,
                         VectorDouble& b,
                         double *b2,
                         VectorDouble& baux,
@@ -2000,7 +2000,7 @@ int multilayers_kriging(Db* dbin,
   int nlayers, ilayer, nechmax, nech, iech, neq, nvar, npar, error;
   double *a, *b2, *dual, *c00, *wgt;
   double *acov, *atot, *a0, *cc, *ss, *gs, *post_mean, *post_S;
-  MatrixSquareGeneral covtab;
+  MatrixSquare covtab;
   bool flag_created;
   ELoc ptime;
   VectorInt seltab;
@@ -2142,7 +2142,7 @@ int multilayers_kriging(Db* dbin,
   zval.resize(neq);
   dual = (double*) mem_alloc(sizeof(double) * neq, 1);
   wgt = (double*) mem_alloc(sizeof(double) * neq, 1);
-  covtab = MatrixSquareGeneral(nlayers);
+  covtab = MatrixSquare(nlayers);
   c00 = (double*) mem_alloc(sizeof(double) * nlayers, 1);
   if (flag_bayes)
   {

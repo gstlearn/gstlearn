@@ -759,9 +759,9 @@ double ut_cnp(int n, int k)
  ** \remarks The calling function must free the returned matrix
  **
  *****************************************************************************/
-MatrixSquareGeneral ut_pascal(int ndim)
+MatrixSquare ut_pascal(int ndim)
 {
-  MatrixSquareGeneral m(ndim);
+  MatrixSquare m(ndim);
   m.fill(0.);
 
   /* Fill the matrix */

@@ -2122,7 +2122,7 @@ static int invgen(MatrixSymmetric& a, MatrixSymmetric& tabout)
 
   if (a.computeEigen()) return 1;
   VectorDouble eigval = a.getEigenValues();
-  const MatrixSquareGeneral* eigvec = a.getEigenVectors();
+  const MatrixSquare* eigvec = a.getEigenVectors();
 
   /* Calculate the generalized inverse */
 
@@ -2336,7 +2336,7 @@ static void st_update_constraints_with_JJ(Local_CorPgs *corpgs,
  *****************************************************************************/
 static void st_deriv_eigen(Local_CorPgs *corpgs,
                            double eigval,
-                           const MatrixSquareGeneral* ev,
+                           const MatrixSquare* ev,
                            VectorDouble& d1,
                            MatrixSymmetric& d2)
 {
@@ -2538,8 +2538,8 @@ static double st_rkl(int maxpts,
                      VectorDouble& lower,
                      VectorDouble& upper,
                      MatrixSymmetric& corr1,
-                     MatrixSquareGeneral& covar,
-                     MatrixSquareGeneral& temp)
+                     MatrixSquare& covar,
+                     MatrixSquare& temp)
 {
   double v2, error;
   int inform;
@@ -2602,11 +2602,11 @@ static double st_ikl(int maxpts,
     (MatrixFactory::createReduce(&correl, index, index, false, false));
   MatrixSymmetric inv_corr1(*corr1);
   if (inv_corr1.invert()) messageAbort("st_ikl #1");
-  MatrixSquareGeneral* temp = dynamic_cast<MatrixSquareGeneral*>
+  MatrixSquare* temp = dynamic_cast<MatrixSquare*>
     (MatrixFactory::prodMatMat(corrc, &inv_corr1));
 
   // Derive covar
-  MatrixSquareGeneral covar(2);
+  MatrixSquare covar(2);
   for (int i = 0; i < 2; i++)
     for (int j = 0; j < 2; j++)
     {
@@ -3130,7 +3130,7 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
   VectorDouble a(4);
   VectorDouble hgna(4);
   VectorDouble eigval(4);
-  const MatrixSquareGeneral* eigvec = nullptr;
+  const MatrixSquare* eigvec = nullptr;
 
   static double maxiter = 100;
   static double delta0 = 1;
@@ -4135,8 +4135,8 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
   const Rule *rule = local_pgs->rule;
   int nvar = local_pgs->model->getNVar();
   int ngrf = local_pgs->rule->getNGRF();
-  MatrixSquareGeneral cov0(nvar);
-  MatrixSquareGeneral covh(nvar);
+  MatrixSquare cov0(nvar);
+  MatrixSquare covh(nvar);
 
   /* Calculate the covariance for the zero distance */
   for (unsigned int i = 0; i < local_pgs->model->getNDim(); i++)

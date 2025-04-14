@@ -13,7 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 
 GSTLEARN_EXPORT VectorDouble hermitePolynomials(double y,
                                                 double r,
@@ -26,7 +26,7 @@ GSTLEARN_EXPORT VectorDouble hermiteCoefMetal(double yc,
                                               const VectorDouble &phi);
 GSTLEARN_EXPORT VectorDouble hermiteCoefLower(double y, int nbpoly);
 GSTLEARN_EXPORT VectorDouble hermiteIndicatorLower(double y, int nbpoly);
-GSTLEARN_EXPORT MatrixSquareGeneral hermiteIncompleteIntegral(double yc,
+GSTLEARN_EXPORT MatrixSquare hermiteIncompleteIntegral(double yc,
                                                               int nbpoly);
 GSTLEARN_EXPORT VectorDouble hermiteLognormal(double mean,
                                               double sigma,

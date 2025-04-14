@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Variogram/VarioParam.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Basic/AStringable.hpp"
@@ -42,15 +42,15 @@ public:
   double getMean(int ivar) const { return _mean[ivar]; }
   const MatrixSymmetric& getC0() const { return _c0; }
   int getNVar() const { return _nVar; }
-  const MatrixSquareGeneral& getF2Zs() const { return _F2Z; }
-  const MatrixSquareGeneral& getZ2Fs() const { return _Z2F; }
+  const MatrixSquare& getF2Zs() const { return _F2Z; }
+  const MatrixSquare& getZ2Fs() const { return _Z2F; }
   const VectorDouble& getSigmas() const { return _sigma; }
   double getSigma(int ivar) const { return _sigma[ivar]; }
 
   void setMeans(const VectorDouble &mean) { _mean = mean; }
   void setSigmas(const VectorDouble &sigma) { _sigma = sigma; }
-  void setZ2Fs(const MatrixSquareGeneral& z2f) { _Z2F = z2f; }
-  void setF2Zs(const MatrixSquareGeneral& f2z) { _F2Z = f2z; }
+  void setZ2Fs(const MatrixSquare& z2f) { _Z2F = z2f; }
+  void setF2Zs(const MatrixSquare& f2z) { _F2Z = f2z; }
 
   void setEigVals(VectorDouble& eigval) { _eigval = eigval; }
   void setEigVal(int ivar, double eigval) { _eigval[ivar] = eigval; }
@@ -136,6 +136,6 @@ private:
   MatrixDense     _eigvec;
   MatrixSymmetric _c0;
   MatrixSymmetric _gh;
-  MatrixSquareGeneral   _Z2F;
-  MatrixSquareGeneral   _F2Z;
+  MatrixSquare   _Z2F;
+  MatrixSquare   _F2Z;
 };

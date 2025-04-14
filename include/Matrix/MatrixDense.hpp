@@ -27,7 +27,7 @@ DISABLE_WARNING_DECLARATION_HIDE_GLOBAL
 DISABLE_WARNING_POP
 #endif
 
-class MatrixSquareGeneral;
+class MatrixSquare;
 class MatrixSymmetric;
 class EOperator;
 
@@ -143,7 +143,7 @@ public:
                                      bool transpose          = false);
 
   VectorDouble getEigenValues() const { return _eigenValues; }
-  const MatrixSquareGeneral* getEigenVectors() const { return _eigenVectors; }
+  const MatrixSquare* getEigenVectors() const { return _eigenVectors; }
   int invert2(MatrixDense& res) const;
 
   static MatrixDense* glue(const AMatrix* A1,
@@ -222,7 +222,7 @@ public:
 protected:
   bool _flagEigenDecompose;
   VectorDouble _eigenValues;          // Used only when ! flag_eigen()
-  MatrixSquareGeneral* _eigenVectors; // Used only when ! flag_eigen()
+  MatrixSquare* _eigenVectors; // Used only when ! flag_eigen()
   int _maxSize;
 
 protected:

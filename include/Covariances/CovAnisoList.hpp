@@ -23,7 +23,7 @@
 
 class ASpace;
 class SpacePoint;
-class MatrixSquareGeneral;
+class MatrixSquare;
 class CovAniso;
 class CovContext;
 class AStringFormat;

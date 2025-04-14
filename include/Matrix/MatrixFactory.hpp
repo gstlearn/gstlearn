@@ -14,7 +14,7 @@
 #include "Matrix/MatrixSymmetric.hpp"
 
 class AMatrix;
-class AMatrixSquare;
+class MatrixSquare;
 
 class GSTLEARN_EXPORT MatrixFactory {
 
@@ -29,7 +29,7 @@ public:
                        const AMatrix *y,
                        bool transposeX = false,
                        bool transposeY = false);
-  static AMatrixSquare* createMatrixSquare(const AMatrixSquare* x,int nrow);
+  static MatrixSquare* createMatrixSquare(const MatrixSquare* x,int nrow);
   static AMatrix* createReduce(const AMatrix *x,
                                const VectorInt &selRows = VectorInt(),
                                const VectorInt &selCols = VectorInt(),

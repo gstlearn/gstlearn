@@ -15,7 +15,7 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/TabNoStat.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Model/CovInternal.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
@@ -31,7 +31,7 @@
 
 class Db;
 class DbGrid;
-class MatrixSquareGeneral;
+class MatrixSquare;
 class MatrixSparse;
 class TabNoStat;
 class AFunctional;
@@ -243,10 +243,10 @@ public:
                             int ivar                = 0,
                             int jvar                = 0,
                             const CovCalcMode* mode = nullptr) const;
-  MatrixSquareGeneral evalNvarIpas(double step,
+  MatrixSquare evalNvarIpas(double step,
                                    const VectorDouble& dir = VectorDouble(),
                                    const CovCalcMode* mode = nullptr) const;
-  MatrixSquareGeneral evalNvarIpasIncr(const VectorDouble& dincr,
+  MatrixSquare evalNvarIpasIncr(const VectorDouble& dincr,
                                        const CovCalcMode* mode = nullptr) const;
   double evalIsoIvarIpas(double step,
                          int ivar                = 0,
@@ -256,7 +256,7 @@ public:
                                int ivar                = 0,
                                int jvar                = 0,
                                const CovCalcMode* mode = nullptr) const;
-  MatrixSquareGeneral evalIsoNvarIpas(double step,
+  MatrixSquare evalIsoNvarIpas(double step,
                                       const CovCalcMode* mode = nullptr) const;
 
   double evalCvv(const VectorDouble& ext,
@@ -272,7 +272,7 @@ public:
                       int ivar                   = 0,
                       int jvar                   = 0,
                       const CovCalcMode* mode    = nullptr) const;
-  MatrixSquareGeneral evalCvvM(const VectorDouble& ext,
+  MatrixSquare evalCvvM(const VectorDouble& ext,
                                const VectorInt& ndisc,
                                const VectorDouble& angles = VectorDouble(),
                                const CovCalcMode* mode    = nullptr) const;
@@ -292,7 +292,7 @@ public:
                  int ivar                   = 0,
                  int jvar                   = 0,
                  const CovCalcMode* mode    = nullptr) const;
-  MatrixSquareGeneral evalCxvM(const SpacePoint& p1,
+  MatrixSquare evalCxvM(const SpacePoint& p1,
                                const VectorDouble& ext,
                                const VectorInt& ndisc,
                                const VectorDouble& angles = VectorDouble(),
@@ -385,7 +385,7 @@ public:
 
   void evaluateMatInPlace(const CovInternal* covint,
                           const VectorDouble& d1,
-                          MatrixSquareGeneral& covtab,
+                          MatrixSquare& covtab,
                           bool flag_init          = false,
                           double weight           = 1.,
                           const CovCalcMode* mode = nullptr) const;

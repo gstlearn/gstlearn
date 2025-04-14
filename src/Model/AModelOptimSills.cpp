@@ -419,7 +419,7 @@ int AModelOptimSills::_truncateNegativeEigen(int icov0)
   if (cc.computeEigen()) messageAbort("st_truncate_negative_eigen");
 
   VectorDouble valpro               = cc.getEigenValues();
-  const MatrixSquareGeneral* vecpro = cc.getEigenVectors();
+  const MatrixSquare* vecpro = cc.getEigenVectors();
 
   /* Check positiveness */
 
@@ -834,7 +834,7 @@ int AModelOptimSills::_goulardWithoutConstraint(
   int allpos;
   double temp, crit, crit_mem, value;
   VectorDouble valpro;
-  const MatrixSquareGeneral* vecpro;
+  const MatrixSquare* vecpro;
 
   /*******************/
   /* Initializations */

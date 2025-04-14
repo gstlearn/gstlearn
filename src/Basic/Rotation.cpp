@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Geometry/Rotation.hpp"
 #include "Geometry/GeometryHelper.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -57,7 +57,7 @@ void Rotation::resetFromSpaceDimension(unsigned int ndim)
   _rotInv.setIdentity();
 }
 
-int Rotation::setMatrixDirect(const MatrixSquareGeneral& rotmat)
+int Rotation::setMatrixDirect(const MatrixSquare& rotmat)
 {
   if (! rotmat.empty())
   {
@@ -79,7 +79,7 @@ int Rotation::setMatrixDirectVec(const VectorDouble& rotmat)
   {
     if ((int) rotmat.size() != _rotMat.size())
       my_throw ("The argument 'rotmat' does not have same dimension as 'this'");
-    MatrixSquareGeneral local(_nDim);
+    MatrixSquare local(_nDim);
     local.setValues(rotmat);
     if (! Rotation::isMatrixRotation(local, true)) return 1;
     _rotMat = local;
@@ -218,7 +218,7 @@ bool Rotation::isSame(const Rotation& rot) const
  ** \remark  A rotation matrix must be orthogonal with determinant equal to 1
  **
  *****************************************************************************/
-bool Rotation::isMatrixRotation(const MatrixSquareGeneral& rotmat, bool verbose)
+bool Rotation::isMatrixRotation(const MatrixSquare& rotmat, bool verbose)
 {
 
   /* Check product of matrix by its transpose and compare to unity matrix */

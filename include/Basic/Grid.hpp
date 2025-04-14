@@ -18,7 +18,7 @@
 #include "Basic/VectorNumT.hpp"
 
 class GridOld;
-class MatrixSquareGeneral;
+class MatrixSquare;
 
 class GSTLEARN_EXPORT Grid: public AStringable, public ASerializable
 {
@@ -49,7 +49,7 @@ public:
   void    setX0(int idim,double value);
   void    setDX(int idim,double value);
   void    setNX(int idim,int    value);
-  void    setRotationByMatrix(const MatrixSquareGeneral& rotmat);
+  void    setRotationByMatrix(const MatrixSquare& rotmat);
   void    setRotationByVector(const VectorDouble& rotmat);
   void    setRotationByAngles(const VectorDouble& angles);
   void    setRotationByAngle(double angle);
@@ -174,8 +174,8 @@ public:
   String _getNFName() const override { return "Grid"; }
 
 private:
-  const MatrixSquareGeneral& _getRotMat() const { return _rotation.getMatrixDirect(); }
-  const MatrixSquareGeneral& _getRotInv() const { return _rotation.getMatrixInverse(); }
+  const MatrixSquare& _getRotMat() const { return _rotation.getMatrixDirect(); }
+  const MatrixSquare& _getRotInv() const { return _rotation.getMatrixInverse(); }
   void _allocate();
   void _recopy(const Grid &r);
   bool _isSpaceDimensionValid(int idim) const;

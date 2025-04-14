@@ -14,7 +14,7 @@
 #include "Enum/AEnum.hpp"
 #include "Basic/Utilities.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
@@ -86,7 +86,7 @@ GSTLEARN_EXPORT void argumentDefTestVVInt(VectorVectorInt argVVInt = VectorVecto
 GSTLEARN_EXPORT void argumentDefTestVVDbl(VectorVectorDouble argVVDbl = VectorVectorDouble());
 
 GSTLEARN_EXPORT void argumentTestMatrixDense(const MatrixDense& mat = MatrixDense());
-GSTLEARN_EXPORT void argumentTestMatrixSquareGeneral(const MatrixSquareGeneral& mat = MatrixSquareGeneral());
+GSTLEARN_EXPORT void argumentTestMatrixSquare(const MatrixSquare& mat = MatrixSquare());
 GSTLEARN_EXPORT void argumentTestMatrixSymmetric(const MatrixSymmetric& mat = MatrixSymmetric());
 
 GSTLEARN_EXPORT MatrixDense argumentReturnMatrix(int nrows = 2,

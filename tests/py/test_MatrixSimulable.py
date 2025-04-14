@@ -17,7 +17,7 @@ simudir = AChol@x
 logdet = np.log(np.linalg.det(Apython))
 temp = np.ravel(A.toTL().todense())
 
-B = gl.MatrixSquareGeneral(4)
+B = gl.MatrixSquare(4)
 B.setValues(temp)
 C = gl.MatrixDense(4,4)
 C.setValues(temp)

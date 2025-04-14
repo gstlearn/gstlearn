@@ -15,7 +15,7 @@
 #include "Enum/EConsElem.hpp"
 #include "geoslib_define.h"
 
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Variogram/Vario.hpp"
 #include "LinearOp/CholeskyDense.hpp"
@@ -409,7 +409,7 @@ int AModelOptim::_buildModelParamList()
       else if (param._type == EConsElem::SILL)
       {
         // Sill (through the AIC matrix)
-        MatrixSquareGeneral aic(nvar);
+        MatrixSquare aic(nvar);
         int ijvar = 0;
         for (int ivar = ijvar = 0; ivar < nvar; ivar++)
           for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)

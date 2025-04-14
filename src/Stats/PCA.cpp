@@ -16,7 +16,7 @@
 #include "Stats/Classical.hpp"
 #include "Db/Db.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Variogram/Vario.hpp"
 
 #include <math.h>
@@ -129,7 +129,7 @@ void PCA::_mafFunctions(bool verbose)
 
   // Construct F2Z
 
-  MatrixSquareGeneral A(_Z2F);
+  MatrixSquare A(_Z2F);
   A.invert();
   for (int ifac = 0; ifac < nvar; ifac++)
     for (int ivar = 0; ivar < nvar; ivar++)

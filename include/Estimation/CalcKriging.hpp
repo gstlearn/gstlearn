@@ -41,7 +41,7 @@ public:
   MatrixDense rhsF;    // R.H.S. Drift part  (nbfl * nrhs)
   MatrixDense wgt;     // Vector of weights (neq * nrhs)
   MatrixDense mu;      // Vector of Lagrange parameters (nbfl * nrhs)
-  MatrixSquareGeneral var;   // Matrix of Target-Target Variance (nvar * nvar)
+  MatrixSquare var;   // Matrix of Target-Target Variance (nvar * nvar)
 
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;

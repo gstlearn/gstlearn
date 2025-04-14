@@ -84,8 +84,8 @@ void AnamDiscreteDD::reset(int ncut,
                            double scoef,
                            double mu,
                            const VectorDouble &zcut,
-                           const MatrixSquareGeneral &pcaz2f,
-                           const MatrixSquareGeneral &pcaf2z,
+                           const MatrixSquare &pcaz2f,
+                           const MatrixSquare &pcaf2z,
                            const VectorDouble &stats)
 {
   setNCut(ncut);
@@ -564,11 +564,11 @@ VectorDouble AnamDiscreteDD::factors_mod()
 **  i.e. Indicator, Metal Quantity or Benefit (according to mode)
 **  (Diffusion Discrete)
  */
-MatrixSquareGeneral AnamDiscreteDD::chi2I(const VectorDouble& chi, int mode)
+MatrixSquare AnamDiscreteDD::chi2I(const VectorDouble& chi, int mode)
 {
   int nclass = getNClass();
-  MatrixSquareGeneral chi2i(nclass);
-  MatrixSquareGeneral mati(nclass);
+  MatrixSquare chi2i(nclass);
+  MatrixSquare mati(nclass);
   chi2i.fill(0.);
   mati.fill(0.);
 
@@ -618,7 +618,7 @@ bool AnamDiscreteDD::_serialize(std::ostream& os, bool verbose) const
 
 bool AnamDiscreteDD::_deserialize(std::istream& is, bool verbose)
 {
-  MatrixSquareGeneral pcaf2z, pcaz2f;
+  MatrixSquare pcaf2z, pcaz2f;
   double s = TEST;
   double mu = TEST;
 
@@ -861,9 +861,9 @@ int AnamDiscreteDD::factor2Selectivity(Db *db,
 
   VectorDouble chi = factors_mod();
   if (chi.empty()) return 1;
-  MatrixSquareGeneral ct = chi2I(chi, 1);
-  MatrixSquareGeneral cq = chi2I(chi, 2);
-  MatrixSquareGeneral cb = chi2I(chi, 3);
+  MatrixSquare ct = chi2I(chi, 1);
+  MatrixSquare cq = chi2I(chi, 2);
+  MatrixSquare cb = chi2I(chi, 3);
 
   /* Calculate the Recovery Functions from the factors */
 

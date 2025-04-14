@@ -13,7 +13,7 @@
 #include "Enum/ERotation.hpp"
 
 #include "gstlearn_export.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixInt.hpp"
 
@@ -39,7 +39,7 @@ public:
                                        VectorDouble &angles);
   static void rotationCopy(int ndim, const double *rotin, double *rotout);
   static bool rotationIsIdentity(int ndim, const double *rot, double eps = EPSILON10);
-  static MatrixSquareGeneral EulerToRotation(const VectorDouble &angles,
+  static MatrixSquare EulerToRotation(const VectorDouble &angles,
                                              const ERotation &convrot = ERotation::fromKey("SXYZ"));
   static void rotationGetRandomDirection(double ct,
                                          double st,
@@ -54,7 +54,7 @@ public:
                                         bool flagResize = false);
   static VectorDouble rotationFromIncrements(const VectorDouble& incr, bool flagDegree = false);
 
-  static VectorDouble rotationToEuler(const MatrixSquareGeneral &mat,
+  static VectorDouble rotationToEuler(const MatrixSquare &mat,
                                       const ERotation &convrot = ERotation::fromKey(
                                           "SXYZ"),
                                       double eps = EPSILON10);
@@ -141,7 +141,7 @@ public:
                               double* y,
                               double* z,
                               double radius_arg = 1.);
-  static MatrixSquareGeneral gradXYToRotmat(double dzoverdx, double dzoverdy);
+  static MatrixSquare gradXYToRotmat(double dzoverdx, double dzoverdy);
   static MatrixDense* getDirectionsInR3(const MatrixDense *U);
   static MatrixDense* getDirectionsInRn(const MatrixDense *U);
 

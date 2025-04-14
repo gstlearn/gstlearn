@@ -313,7 +313,7 @@ void argumentTestMatrixDense(const MatrixDense& mat)
 {
   if (!mat.empty()) mat.display();
 }
-void argumentTestMatrixSquareGeneral(const MatrixSquareGeneral& mat)
+void argumentTestMatrixSquare(const MatrixSquare& mat)
 {
   if (!mat.empty()) mat.display();
 }

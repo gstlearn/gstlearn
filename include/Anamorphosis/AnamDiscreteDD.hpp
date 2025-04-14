@@ -16,7 +16,7 @@
 #include "Enum/EAnam.hpp"
 
 #include "Anamorphosis/AnamDiscrete.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Stats/PCA.hpp"
 #include "Stats/Selectivity.hpp"
 
@@ -55,29 +55,29 @@ public:
   VectorDouble factors_exp(bool verbose = false);
   VectorDouble factors_maf(bool verbose = false);
   VectorDouble factors_mod();
-  MatrixSquareGeneral chi2I(const VectorDouble& chi, int mode);
+  MatrixSquare chi2I(const VectorDouble& chi, int mode);
 
   static AnamDiscreteDD* create(double mu = 1., double scoef = 0.);
   void reset(int ncut,
              double scoef,
              double mu,
              const VectorDouble &zcut,
-             const MatrixSquareGeneral &pcaz2f,
-             const MatrixSquareGeneral &pcaf2z,
+             const MatrixSquare &pcaz2f,
+             const MatrixSquare &pcaf2z,
              const VectorDouble &stats);
 
   PCA& getMAF() { return _maf; }
   double getMu() const { return _mu; }
   double getSCoef() const { return _sCoef; }
-  const MatrixSquareGeneral& getI2Chi() const { return _i2Chi; }
-  MatrixSquareGeneral getPcaZ2Fs() const { return _maf.getZ2Fs(); }
-  MatrixSquareGeneral getPcaF2Zs() const { return _maf.getF2Zs(); }
+  const MatrixSquare& getI2Chi() const { return _i2Chi; }
+  MatrixSquare getPcaZ2Fs() const { return _maf.getZ2Fs(); }
+  MatrixSquare getPcaF2Zs() const { return _maf.getF2Zs(); }
 
   void setMu(double mu) { _mu = mu; }
   void setRCoef(double rcoef) { _sCoef = rcoef; }
-  void setPcaZ2F(const MatrixSquareGeneral& pcaz2f) { _maf.setZ2Fs(pcaz2f); }
-  void setPcaF2Z(const MatrixSquareGeneral& pcaf2z) { _maf.setF2Zs(pcaf2z); }
-  void setI2Chi(const MatrixSquareGeneral& i2Chi) { _i2Chi = i2Chi; }
+  void setPcaZ2F(const MatrixSquare& pcaz2f) { _maf.setZ2Fs(pcaz2f); }
+  void setPcaF2Z(const MatrixSquare& pcaf2z) { _maf.setF2Zs(pcaf2z); }
+  void setI2Chi(const MatrixSquare& i2Chi) { _i2Chi = i2Chi; }
 
   int factor2Selectivity(Db *db,
                          Selectivity* selectivity,
@@ -106,7 +106,7 @@ private:
   double _mu;
   double _sCoef;
   PCA    _maf;
-  MatrixSquareGeneral _i2Chi; // Dimension: nclass * nfacies
+  MatrixSquare _i2Chi; // Dimension: nclass * nfacies
 
   friend class Selectivity;
 };

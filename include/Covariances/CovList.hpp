@@ -21,7 +21,7 @@
 
 class ASpace;
 class SpacePoint;
-class MatrixSquareGeneral;
+class MatrixSquare;
 class CovBase;
 class CovContext;
 class AStringFormat;

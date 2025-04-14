@@ -30,8 +30,7 @@
 class CovAniso;
 class EConsElem;
 class AMatrix;
-class AMatrixSquare;
-class MatrixSquareGeneral;
+class MatrixSquare;
 class MatrixDense;
 class MatrixSymmetric;
 
@@ -131,7 +130,7 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
                              int imesh,
                              double coeff[3][2]);
     int _preparMatrices(const AMesh* amesh, int imesh,
-                        MatrixSquareGeneral& matu, MatrixDense& matw)
+                        MatrixSquare& matu, MatrixDense& matw)
       const;
     int _prepareMatricesSVariety(const AMesh* amesh,
                                  int imesh,
@@ -143,7 +142,7 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
     int _prepareMatricesSphere(const AMesh* amesh,
                                int imesh,
                                VectorVectorDouble& coords,
-                               AMatrixSquare& matMs,
+                               MatrixSquare& matMs,
                                double* deter) const;
     static void _updateCova(std::shared_ptr<CovAniso> &cova, int imesh);
     VectorT<std::map<int, double>> _mapCreate() const;

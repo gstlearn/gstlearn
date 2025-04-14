@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/MatrixDense.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/AMatrix.hpp"
@@ -475,7 +475,7 @@ int MatrixDense::_terminateEigen(const Eigen::VectorXd &eigenValues,
   VectorDouble vec(nrows * ncols);
   Eigen::Map<Eigen::MatrixXd>(vec.data(), nrows, ncols) = eigenVectors;
 
-  _eigenVectors = MatrixSquareGeneral::createFromVD(vec, nrows, false, changeOrder);
+  _eigenVectors = MatrixSquare::createFromVD(vec, nrows, false, changeOrder);
 
   if (optionPositive) _eigenVectors->makePositiveColumn();
 
