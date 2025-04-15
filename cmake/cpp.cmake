@@ -38,6 +38,11 @@ else()
   endif()
 endif()
 
+if (MSVC)
+  # Enable parallel compilation automatically.
+  add_compile_options(/MP)
+endif()
+
 # Address Sanitizer (GCC/Clang)
 option(BUILD_ASAN "Build with Address Sanitizer enabled" OFF)
 mark_as_advanced(BUILD_ASAN)
