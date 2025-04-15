@@ -208,7 +208,7 @@ void SPDEOp::evalInvCov(const constvect inv, vect result) const
 VectorDouble SPDEOp::computeDriftCoeffs(const VectorDouble& Z,
                                         const MatrixDense& drifts) const
 {
-  int xsize = (int)(drifts.size());
+  int xsize = (int)(drifts.getNCols());
   VectorDouble XtInvSigmaZ(xsize);
   MatrixSymmetric XtInvSigmaX(xsize);
   VectorDouble result(xsize);
