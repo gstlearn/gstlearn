@@ -71,8 +71,8 @@ NeighMoving::NeighMoving(const NeighMoving& r)
   , _T2(r._T2)
 {
   for (int ipt = 0, npt = (int)r._bipts.size(); ipt < npt; ipt++)
-    //_bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
-    _bipts.push_back(r._bipts[ipt]);
+    _bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
+    //_bipts.push_back(r._bipts[ipt]);
 
   // _biPtDist = r._biPtDist;
   _biPtDist = new BiTargetCheckDistance(*r._biPtDist);
