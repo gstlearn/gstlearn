@@ -8,7 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Mesh/AMesh.hpp"
@@ -756,7 +756,7 @@ int MeshETurbo::_addWeights(int icas,
   int ndim    =  getNDim();
   int ncorner =  getNApexPerMesh();
   int ipol    = _getPolarized(indg0);
-  MatrixSquareGeneral lhs;
+  MatrixSquare lhs;
   rhs.resize(ncorner);
   indgg.resize(ndim);
 

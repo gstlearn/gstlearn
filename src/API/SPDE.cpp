@@ -721,6 +721,7 @@ void SPDE::_computeDriftCoeffs() const
       _driftCoeffs = _precisionsKrig->computeCoeffs(_data->getColumnByLocator(ELoc::Z,0,true),
                                                     _driftTab);
     }
+    _model->setBetaHat(_driftCoeffs);
     _isCoeffsComputed = true;
   }
 }

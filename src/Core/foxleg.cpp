@@ -146,7 +146,7 @@ static double st_residuals(VectorDouble &param,
  ** \param[out] gauss     Gaussian matrix
  **
  *****************************************************************************/
-static void st_determine_gauss(MatrixDense& Jr, MatrixSquareGeneral& gauss)
+static void st_determine_gauss(MatrixDense& Jr, MatrixSquare& gauss)
 {
   for (int ipar = 0; ipar < NPAR; ipar++)
     for (int jpar = 0; jpar < NPAR; jpar++)
@@ -190,7 +190,7 @@ static double st_norm_hgn(VectorDouble &hgn, VectorDouble &scale)
  *****************************************************************************/
 static double st_essai(VectorDouble &hgnadm,
                        VectorDouble &grad_red,
-                       MatrixSquareGeneral& gauss_red)
+                       MatrixSquare& gauss_red)
 {
   double v1 = VH::innerProduct(hgnadm, grad_red);
   double v2 = gauss_red.normVec(hgnadm);
@@ -214,7 +214,7 @@ static double st_essai(VectorDouble &hgnadm,
  *****************************************************************************/
 static int st_solve_hgnc(int npar,
                          const VectorDouble &grad,
-                         const MatrixSquareGeneral& gauss,
+                         const MatrixSquare& gauss,
                          VectorDouble &hgnc,
                          int flaginvsign)
 {
@@ -271,7 +271,7 @@ static int st_solve_hgnc(int npar,
  *****************************************************************************/
 static void st_fill_constraints(const MatrixDense& acont,
                                 VectorDouble &grad,
-                                MatrixSquareGeneral& gauss)
+                                MatrixSquare& gauss)
 {
   if (NCONT <= 0) return;
   for (int icont = 0; icont < NCONT; icont++)
@@ -316,7 +316,7 @@ static int st_calcul0(VectorDouble &param,
                       VectorDouble &residuals,
                       MatrixDense& Jr,
                       VectorDouble &grad,
-                      MatrixSquareGeneral& gauss,
+                      MatrixSquare& gauss,
                       VectorDouble &hgnc,
                       VectorDouble &param1,
                       VectorDouble &param2,
@@ -545,13 +545,13 @@ static void st_update_bords(MatrixDense &bords,
 static int st_suppress_unused_constraints(MatrixDense &bords,
                                           VectorDouble &ai,
                                           VectorDouble &grad,
-                                          MatrixSquareGeneral& gauss,
+                                          MatrixSquare& gauss,
                                           VectorDouble &hgnc,
                                           VectorInt &ind_util,
                                           MatrixDense &bords_red,
                                           VectorDouble &ai_red,
                                           VectorDouble &grad_red,
-                                          MatrixSquareGeneral& gauss_red,
+                                          MatrixSquare& gauss_red,
                                           VectorInt &flag1,
                                           VectorInt &flag2,
                                           VectorDouble &temp)
@@ -673,10 +673,10 @@ static int st_establish_minimization(int nactive,
                                      MatrixDense &bords_red,
                                      VectorDouble &ai_red,
                                      VectorDouble &grad_red,
-                                     MatrixSquareGeneral &gauss_red,
+                                     MatrixSquare &gauss_red,
                                      int *lambda_neg,
                                      VectorDouble &hgnc,
-                                     MatrixSquareGeneral &a,
+                                     MatrixSquare &a,
                                      VectorDouble &b,
                                      VectorDouble &temp)
 {
@@ -799,13 +799,13 @@ static int st_minimization_under_constraints(VectorInt &ind_util,
                                              MatrixDense &bords_red,
                                              VectorDouble &ai_red,
                                              VectorDouble &grad_red,
-                                             MatrixSquareGeneral& gauss_red,
+                                             MatrixSquare& gauss_red,
                                              MatrixDense &consts,
                                              VectorDouble &hgnc,
                                              VectorDouble &hgnadm,
                                              VectorInt &flag_active,
                                              VectorInt &flag_actaux,
-                                             MatrixSquareGeneral &a,
+                                             MatrixSquare &a,
                                              VectorDouble &b1,
                                              VectorDouble &b2,
                                              VectorDouble &b3,
@@ -1251,9 +1251,9 @@ int foxleg_f(int ndat,
   VectorDouble ai(NPAR * NPAR2, 0.);
   VectorDouble ai_red(NPAR * NPAR2, 0.);
 
-  MatrixSquareGeneral a(NPCT2);
-  MatrixSquareGeneral gauss(NPCT);
-  MatrixSquareGeneral gauss_red(NPCT);
+  MatrixSquare a(NPCT2);
+  MatrixSquare gauss(NPCT);
+  MatrixSquare gauss_red(NPCT);
   MatrixDense Jr(NDAT, NPAR);
   MatrixDense consts(2,NPAR);
   MatrixDense bords(2,NPAR);

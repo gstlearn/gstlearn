@@ -12,7 +12,7 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Geometry/Rotation.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -210,7 +210,7 @@ void Grid::setNX(int idim, int value)
   _nx[idim] = value;
 }
 
-void Grid::setRotationByMatrix(const MatrixSquareGeneral& rotmat)
+void Grid::setRotationByMatrix(const MatrixSquare& rotmat)
 {
   _rotation.resetFromSpaceDimension(_nDim);
   _rotation.setMatrixDirect(rotmat);

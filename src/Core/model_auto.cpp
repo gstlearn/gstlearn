@@ -31,7 +31,7 @@
 #include "Db/DbGrid.hpp"
 #include "Variogram/Vario.hpp"
 #include "Geometry/GeometryHelper.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Core/Keypair.hpp"
 
@@ -1385,7 +1385,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
   int allpos;
   double temp, crit, crit_mem, value;
   VectorDouble valpro;
-  const MatrixSquareGeneral* vecpro;
+  const MatrixSquare* vecpro;
 
   /*******************/
   /* Initializations */
@@ -2217,7 +2217,7 @@ static int st_structure_reduce(StrMod *strmod,
   int nvar = model->getNVar();
   int ndim = model->getNDim();
   VectorDouble d1(ndim, hmax);
-  MatrixSquareGeneral tab(nvar);
+  MatrixSquare tab(nvar);
   CovCalcMode mode(ECalcMember::RHS);
   mode.setAsVario(true);
   mode.setOrderVario(STRMOD->norder);
@@ -2414,7 +2414,7 @@ static int st_truncate_negative_eigen(int nvar,
     messageAbort("st_truncate_negative_eigen");
 
   VectorDouble valpro = cc.getEigenValues();
-  const MatrixSquareGeneral* vecpro = cc.getEigenVectors();
+  const MatrixSquare* vecpro = cc.getEigenVectors();
 
   /* Check positiveness */
 
@@ -4102,7 +4102,7 @@ static void st_prepar_goulard_vmap(int imod)
   int ncova = model->getNCov();
   int nech = DBMAP->getNSample();
   VectorDouble d0(ndim);
-  MatrixSquareGeneral tab(nvar);
+  MatrixSquare tab(nvar);
   DBMAP->rankToIndice(nech / 2, INDG1);
   CovCalcMode mode(ECalcMember::RHS);
   const CovAnisoList* cova = model->getCovAnisoList();
@@ -4201,7 +4201,7 @@ static void st_vario_varchol_manage(const Vario *vario,
   if (model->getCovMode() != EModelProperty::NONE)
   {
     Model* model_nugget = Model::createNugget(ndim, nvar);
-    MatrixSquareGeneral aux(nvar);
+    MatrixSquare aux(nvar);
     model->evaluateMatInPlace(nullptr, VectorDouble(), aux);
 
     for (int ivar = 0; ivar < nvar; ivar++)

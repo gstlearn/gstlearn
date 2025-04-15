@@ -11,7 +11,7 @@
 #pragma once
 #include "Basic/ICloneable.hpp"
 #include "Covariances/CovBase.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 class ACor;
 class AFunctional;
@@ -34,5 +34,5 @@ protected:
                int jvar = 0, 
                const CovCalcMode* mode = nullptr) const override;
 protected:
-    mutable MatrixSquareGeneral _workMat;
+    mutable MatrixSquare _workMat;
 };

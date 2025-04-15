@@ -551,7 +551,7 @@
 %{    %}
 
 //%typemap(scoerceout) MatrixDense,     MatrixDense*,     MatrixDense&,
-//                     MatrixSquareGeneral,   MatrixSquareGeneral*,   MatrixSquareGeneral&,
+//                     MatrixSquare,   MatrixSquare*,   MatrixSquare&,
 //                     MatrixSymmetric, MatrixSymmetric*, MatrixSymmetric&,
 //                     MatrixSparse,          MatrixSparse*,          MatrixSparse&
 // %{    %}
@@ -1035,7 +1035,7 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
 }
 
 "MatrixDense_toTL" <- function(x) { matrix_toTL(x) }
-"MatrixSquareGeneral_toTL" <- function(x) { matrix_toTL(x) }
+"MatrixSquare_toTL" <- function(x) { matrix_toTL(x) }
 "MatrixSymmetric_toTL" <- function(x) { matrix_toTL(x) }
 "MatrixSparse_toTL" <- function(x) { matrix_toTL(x) }
 "ProjMatrix_toTL" <- function(x) { matrix_toTL(x) }

@@ -148,9 +148,8 @@
 %include Matrix/AMatrix.hpp
 %include Matrix/MatrixDense.hpp
 %include Matrix/MatrixSparse.hpp
-%include Matrix/AMatrixSquare.hpp
+%include Matrix/MatrixSquare.hpp
 %include Matrix/NF_Triplet.hpp
-%include Matrix/MatrixSquareGeneral.hpp
 %include Matrix/MatrixSymmetric.hpp
 %include Matrix/MatrixFactory.hpp
 %include Matrix/MatrixInt.hpp

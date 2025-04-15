@@ -383,6 +383,7 @@ void KrigingAlgebraSimpleCase::_deleteSigmac()
   _deleteBeta();
   _deleteMuUK();
   _deleteDual();
+  _Sigmac.clear();
   if (_invSigmac == nullptr) return;
   _invSigmac->clear();
 }
@@ -401,6 +402,7 @@ void KrigingAlgebraSimpleCase::_deleteXtInvSigma()
 {
   _deleteLambdaUK();
   _deleteBeta();
+  _deleteSigmac();
 
   _XtInvSigmaHasChanged = true;
 }
@@ -990,9 +992,9 @@ void KrigingAlgebraSimpleCase::updateSampleRanks()
   _nrhs = _sampleRanks->size();
   _nvar = _sampleRanks->size();
   _Sigma0->resize(_neq, _nrhs);
-  _X0->resize(_neq, _nrhs);
   _resetLinkedToLHS();
   _nbfl = _X->getNCols();
+  _X0->resize(_nrhs, _nbfl);
   _flagSK = (_nbfl <= 0);
 
 }

@@ -748,7 +748,7 @@ int Vario::regularizeFromModel(const Model &model,
   return 0;
 }
 
-MatrixSquareGeneral Vario::_evalAverageDbIncr(Model *model,
+MatrixSquare Vario::_evalAverageDbIncr(Model *model,
                                               const Db &db,
                                               const VectorDouble &incr,
                                               const CovCalcMode *mode) const
@@ -758,9 +758,9 @@ MatrixSquareGeneral Vario::_evalAverageDbIncr(Model *model,
   int ndim = getNDim();
   int norme = nech * nech;
 
-  MatrixSquareGeneral mat(nvar);
+  MatrixSquare mat(nvar);
   VectorDouble dd(ndim);
-  MatrixSquareGeneral covtab(nvar);
+  MatrixSquare covtab(nvar);
 
   for (int iech = 0; iech < nech; iech++)
   {
@@ -806,7 +806,7 @@ int Vario::regularizeFromDbGrid(Model* model,
 
   /* Calculate the Cvv (for a zero-shift) */
 
-  MatrixSquareGeneral c00tab = _evalAverageDbIncr(model, db, VectorDouble(), mode);
+  MatrixSquare c00tab = _evalAverageDbIncr(model, db, VectorDouble(), mode);
 
   /* Initialize the variance array */
 
@@ -825,7 +825,7 @@ int Vario::regularizeFromDbGrid(Model* model,
       VectorDouble dd = getCodirs(idir);
       VH::multiplyConstant(dd, dist);
 
-      MatrixSquareGeneral covtab = _evalAverageDbIncr(model, db, dd, mode);
+      MatrixSquare covtab = _evalAverageDbIncr(model, db, dd, mode);
 
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++)
@@ -4453,7 +4453,7 @@ int Vario::_driftEstimateCoefficients(Db *db)
   int iiech;
   int nbfl = _model->getNDrift();
   VectorDouble b(nbfl, 0.);
-  MatrixSquareGeneral matdrf(nbfl);
+  MatrixSquare matdrf(nbfl);
 
   /* Calculate: t(X) %*% X */
 
@@ -4722,7 +4722,7 @@ int Vario::sampleModel(Model *model, const CovCalcMode*  mode)
   /* Core allocation */
 
   VectorDouble d1(ndim,0.);
-  MatrixSquareGeneral covtab(nvar);
+  MatrixSquare covtab(nvar);
 
   setNVar(nvar);
   internalVariableResize();

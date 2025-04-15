@@ -3303,7 +3303,7 @@ static int st_sampling_krige_data(Db *db,
 
     if (tn1.computeEigen()) goto label_end;
     VectorDouble eigval = tn1.getEigenValues();
-    MatrixSquareGeneral* eigvec = tn1.getEigenVectors()->clone();
+    MatrixSquare* eigvec = tn1.getEigenVectors()->clone();
 
     eigvec->prodByDiagInPlace(3, eigval);
     MatrixDense* spart = dynamic_cast<MatrixDense*>

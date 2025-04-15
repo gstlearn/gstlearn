@@ -19,7 +19,7 @@
 #include "Space/SpaceRN.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Neigh/ANeigh.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "LinearOp/CholeskyDense.hpp"

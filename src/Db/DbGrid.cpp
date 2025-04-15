@@ -718,6 +718,7 @@ void DbGrid::initThread() const
 void DbGrid::getCoordinatesInPlace(VectorDouble& coor, int iech, bool flag_rotate) const
 {
   VectorDouble vec = _grid.getCoordinatesByRank(iech, flag_rotate);
+  vec.resize(getNDim());
   coor             = vec;
 }
 void DbGrid::getCoordinatesInPlace(vect coor, int iech, bool flag_rotate) const

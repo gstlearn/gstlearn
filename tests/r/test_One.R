@@ -69,7 +69,7 @@ print("Matrix MRR")
 err = MRR$display()
 
 # To a square general matrix
-MSG = MatrixSquareGeneral(M)
+MSG = MatrixSquare(M)
 print("Matrix MSG")
 err = MSG$display()
 

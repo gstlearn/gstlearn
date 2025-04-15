@@ -16,7 +16,7 @@
 #include "Basic/Law.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 
 #include <math.h>
 
@@ -1212,7 +1212,7 @@ double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy)
  * @param dzoverdx Partial derivative along X
  * @param dzoverdy Partial derivative along Y
  */
-MatrixSquareGeneral GeometryHelper::gradXYToRotmat(double dzoverdx,
+MatrixSquare GeometryHelper::gradXYToRotmat(double dzoverdx,
                                                    double dzoverdy)
 {
   int ndim = 3;
@@ -1249,7 +1249,7 @@ MatrixSquareGeneral GeometryHelper::gradXYToRotmat(double dzoverdx,
   double c     = cos(angle);
   double s     = sin(angle);
 
-  MatrixSquareGeneral M(ndim);
+  MatrixSquare M(ndim);
   M.setValue(0, 0, axis[0] * axis[0] * (1 - c) + c);
   M.setValue(0, 1, axis[0] * axis[1] * (1 - c) - axis[2] * s);
   M.setValue(0, 2, axis[0] * axis[2] * (1 - c) + axis[1] * s);
@@ -1272,7 +1272,7 @@ MatrixSquareGeneral GeometryHelper::gradXYToRotmat(double dzoverdx,
  * @remark The code is coming from the following reference (BSD license)
  * @remark https://github.com/matthew-brett/transforms3d/blob/master/transforms3d/euler.py
  */
-VectorDouble GeometryHelper::rotationToEuler(const MatrixSquareGeneral& M,
+VectorDouble GeometryHelper::rotationToEuler(const MatrixSquare& M,
                                              const ERotation& convrot,
                                              double eps)
 {
@@ -1347,7 +1347,7 @@ VectorDouble GeometryHelper::rotationToEuler(const MatrixSquareGeneral& M,
  * @remark The code is coming from the following reference (BSD license)
  * @remark https://github.com/matthew-brett/transforms3d/blob/master/transforms3d/euler.py
  */
-MatrixSquareGeneral GeometryHelper::EulerToRotation(const VectorDouble& angles,
+MatrixSquare GeometryHelper::EulerToRotation(const VectorDouble& angles,
                                                     const ERotation& convrot)
 {
   int firstaxis, parity, repetition, frame;
@@ -1359,7 +1359,7 @@ MatrixSquareGeneral GeometryHelper::EulerToRotation(const VectorDouble& angles,
   int k               = next_axis[i - parity + 1];
 
   int ndim = 3;
-  MatrixSquareGeneral M(ndim);
+  MatrixSquare M(ndim);
 
   double ai = angles[0];
   double aj = angles[1];

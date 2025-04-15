@@ -12,6 +12,7 @@
 #include "Geometry/GeometryHelper.hpp"
 
 #include "Neigh/NeighMoving.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -503,7 +504,9 @@ void NeighMoving::getNeigh(int iech_out, VectorInt& ranks)
   }
 
   // In case of debug option, dump out neighborhood characteristics
-  if (OptDbg::query(EDbg::NBGH)) _display(ranks);
+  int optim = OptCustom::query("Optim", 0);
+  if (!optim ||(optim && (iech_out + 1 == OptDbg::getReference())))
+    if (OptDbg::query(EDbg::NBGH)) _display(ranks);
 
   // Compress the vector of returned sample ranks
   _neighCompress(ranks);

@@ -209,7 +209,7 @@ void SimuSpectral::_computeOnRn(Db *dbout, int iuid, bool verbose)
   int nech = dbout->getNSample(true);
 
   // Preparation
-  MatrixSquareGeneral tensor = _model->getCovAniso(0)->getAniso().getTensorInverse();
+  MatrixSquare tensor = _model->getCovAniso(0)->getAniso().getTensorInverse();
   double scale = sqrt(2. / _ns);
   AMatrix *res = MatrixFactory::prodMatMat(&_omega, &tensor);
 

@@ -11,7 +11,7 @@
 #include "Mesh/AMesh.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixInt.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
@@ -649,7 +649,7 @@ bool AMesh::_weightsInMesh(const VectorDouble& coor,
   {
 
     // Build the determinant
-    MatrixSquareGeneral mat(ndim);
+    MatrixSquare mat(ndim);
     int kcorn = 0;
     for (int jcorn=0; jcorn<ncorner; jcorn++)
     {
@@ -685,7 +685,7 @@ double AMesh::_getMeshUnit(const VectorVectorDouble& corners) const
   int ncorner = getNApexPerMesh();
 
   // Calculate the mesh size
-  MatrixSquareGeneral mat;
+  MatrixSquare mat;
   mat.reset(ndim,ndim);
   for (int icorn=1; icorn<ncorner; icorn++)
     for (int idim=0; idim<ndim; idim++)

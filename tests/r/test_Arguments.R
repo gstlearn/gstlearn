@@ -100,11 +100,11 @@ invisible(argumentDefTestVString(c()))
 
 mat = matrix(c(1,2,3,4,5,6), nrow=3, ncol=2)
 invisible(argumentTestMatrixDense(mat)) 
-invisible(argumentTestMatrixSquareGeneral(mat)) # Should provoke an error
+invisible(argumentTestMatrixSquare(mat)) # Should provoke an error
 invisible(argumentTestMatrixSymmetric(mat)) # Should provoke an error
 
 mat = matrix(c(1,2,3,4,5,6,7,8,9), nrow=3, ncol=3)
-invisible(argumentTestMatrixSquareGeneral(mat)) 
+invisible(argumentTestMatrixSquare(mat)) 
 invisible(argumentTestMatrixSymmetric(mat)) # Matrix auto. transformed
 
 mat = matrix(c(1,2,3,2,1,2,3,2,1), nrow=3, ncol=3)

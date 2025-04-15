@@ -1313,7 +1313,7 @@ void dbStatisticsPrint(const Db *db,
  * @remark When performing the (forward) sphering, you must perform the following operation
  * @remark        X <- prodMatMat(X, S)
  */
-MatrixSquareGeneral* sphering(const AMatrix* X)
+MatrixSquare* sphering(const AMatrix* X)
 {
   if (X->empty()) return nullptr;
   int nech = X->getNRows();
@@ -1327,7 +1327,7 @@ MatrixSquareGeneral* sphering(const AMatrix* X)
   prodsym->prodScalar(1. / (double) nech);
   if (prodsym->computeEigen()) return nullptr;
   VectorDouble eigen_values = prodsym->getEigenValues();
-  MatrixSquareGeneral* S = prodsym->getEigenVectors()->clone();
+  MatrixSquare* S = prodsym->getEigenVectors()->clone();
 
   // Invert the sign of the second Eigen vector (for compatibility with R output)
   for (int ivar = 0; ivar < nvar ; ivar++)

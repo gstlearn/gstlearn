@@ -100,11 +100,11 @@ gl.argumentDefTestVVDbl([])
 
 mat = np.array([[1,2,3],[4,5,6]])
 gl.argumentTestMatrixDense(mat) # Should be correct
-gl.argumentTestMatrixSquareGeneral(mat) # Should provoke an error
+gl.argumentTestMatrixSquare(mat) # Should provoke an error
 gl.argumentTestMatrixSymmetric(mat) # Should provoke an error
 
 mat = np.array([[1,2,3],[4,5,6],[7,8,9]])
-gl.argumentTestMatrixSquareGeneral(mat) # Should provoke an error
+gl.argumentTestMatrixSquare(mat) # Should provoke an error
 gl.argumentTestMatrixSymmetric(mat) # Should provoke an error
 
 mat = np.array([[1,2,3],[2,1,2],[3,2,1]])

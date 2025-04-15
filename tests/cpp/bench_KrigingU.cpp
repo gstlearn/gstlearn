@@ -36,9 +36,8 @@ int main(int argc, char *argv[])
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("BenchKrigingU-");
   
-  OptCustom::define("NotOptimSimpleCase",0);
   OptCustom::define("Cholesky",0);
-  OptCustom::define("ompthreads",1);
+  OptCustom::define("ompthreads",5);
   bool flag_std = true;
   // Global parameters
   int ndim = 2;

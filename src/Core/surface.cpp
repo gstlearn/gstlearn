@@ -160,7 +160,7 @@ static int st_reference_define(Db *db, int *iptr_init, Surf_Def *surf_reference)
     return (1);
   }
   VectorDouble eigval = mat.getEigenValues();
-  const MatrixSquareGeneral* eigvec = mat.getEigenVectors();
+  const MatrixSquare* eigvec = mat.getEigenVectors();
 
   /* Look for the smallest eigen value */
 

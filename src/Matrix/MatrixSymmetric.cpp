@@ -10,8 +10,7 @@
 /******************************************************************************/
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include "Matrix/AMatrixSquare.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
@@ -21,17 +20,17 @@
 #define HA(i,j)        ha[SQ(i,j,neq)]
 
 MatrixSymmetric::MatrixSymmetric(int nrow)
-  : AMatrixSquare(nrow)
+  : MatrixSquare(nrow)
 {
 }
 
 MatrixSymmetric::MatrixSymmetric(const MatrixSymmetric& m)
-  : AMatrixSquare(m)
+  : MatrixSquare(m)
 {
 }
 
 MatrixSymmetric::MatrixSymmetric(const AMatrix& m)
-  : AMatrixSquare(m)
+  : MatrixSquare(m)
 {
   if (!m.isSymmetric())
   {
@@ -46,7 +45,7 @@ MatrixSymmetric& MatrixSymmetric::operator= (const MatrixSymmetric &m)
 {
   if (this != &m)
   {
-    AMatrixSquare::operator=(m);
+    MatrixSquare::operator=(m);
   }
   return *this;
 }
@@ -148,7 +147,7 @@ void MatrixSymmetric::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
     messerr("Loading is not performed");
     return;
   }
-  AMatrixSquare::resetFromVVD(tab, byCol);
+  MatrixSquare::resetFromVVD(tab, byCol);
 }
 
 /**
@@ -159,7 +158,7 @@ void MatrixSymmetric::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
  * \remarks The number of rows of Y must be equal to the dimension of X
  * \remarks The output matrix is square with dimension equal to the number of columns of Y
  */
-void MatrixSymmetric::normMatrix(const AMatrix& y, const AMatrixSquare& x, bool transpose)
+void MatrixSymmetric::normMatrix(const AMatrix& y, const MatrixSquare& x, bool transpose)
 {
   bool xEmpty = x.empty();
   int n = 0;
@@ -258,7 +257,7 @@ int MatrixSymmetric::_terminateEigen(const VectorDouble &eigenValues,
   if (changeOrder)
     std::reverse(_eigenValues.begin(), _eigenValues.end());
 
-  _eigenVectors = MatrixSquareGeneral::createFromVD(eigenVectors, nrows, false, changeOrder);
+  _eigenVectors = MatrixSquare::createFromVD(eigenVectors, nrows, false, changeOrder);
 
   if (optionPositive) _eigenVectors->makePositiveColumn();
 
@@ -826,7 +825,7 @@ int MatrixSymmetric::computeGeneralizedInverse(MatrixSymmetric &tabout,
   // Calculate the Eigen vectors
   if (computeEigen() != 0) return 1;
   VectorDouble eigval = getEigenValues();
-  const MatrixSquareGeneral *eigvec = getEigenVectors();
+  const MatrixSquare *eigvec = getEigenVectors();
 
   // Compute the conditioning
 

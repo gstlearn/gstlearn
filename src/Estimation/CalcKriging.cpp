@@ -306,7 +306,7 @@ int kriging(Db* dbin,
             const KrigOpt& krigopt,
             const NamingConvention& namconv)
 {
-  NeighUnique* neighUnique = dynamic_cast<NeighUnique*>(neigh);
+  //NeighUnique* neighUnique = dynamic_cast<NeighUnique*>(neigh);
   NeighBench* neighBench = dynamic_cast<NeighBench*>(neigh);
 
   if (krigopt.getCalcul() == EKrigOpt::POINT && 
@@ -317,13 +317,16 @@ int kriging(Db* dbin,
       model->getNVar() == 1 && 
       OptCustom::query("NotOptimSimpleCase", 0) == 0)
   {
+    OptCustom::define("Optim", 1);
     CalcKrigingSimpleCase krige(flag_est, flag_std, flag_varz);
     krige.setDbin(dbin);
     krige.setDbout(dbout);
     krige.setModel(model);
     krige.setNeigh(neigh);
     krige.setNamingConvention(namconv);
-    return 1 - krige.run();
+    int result = krige.run();
+    OptCustom::undefine("Optim");
+    return 1 - result;
   }
 
   CalcKriging krige(flag_est, flag_std, flag_varz);

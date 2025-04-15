@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Polynomials/Hermite.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -75,7 +75,7 @@ void _calculateIn(VectorDouble &In,
  * @param hnYc Vector of Hermite polynomials at cutoff
  * @param phi
  */
-void _calculateJJ(MatrixSquareGeneral &JJ,
+void _calculateJJ(MatrixSquare &JJ,
                   VectorDouble &In,
                   double yk,
                   double sk,
@@ -249,7 +249,7 @@ double hermiteCondStdElement(double krigest,
                              double krigstd,
                              const VectorDouble &phi)
 {
-  MatrixSquareGeneral JJ;
+  MatrixSquare JJ;
   int nbpoly = static_cast<int>(phi.size());
   VectorDouble In(nbpoly);
   JJ.resetFromValue(nbpoly, nbpoly, TEST);
@@ -375,7 +375,7 @@ VectorDouble hermiteMetalStd(double yc,
                              VectorDouble krigstd,
                              const VectorDouble &phi)
 {
-  MatrixSquareGeneral JJ;
+  MatrixSquare JJ;
 
   int nech = static_cast<int>(krigest.size());
   int nbpoly = static_cast<int>(phi.size());
@@ -406,7 +406,7 @@ double hermiteMetalStdElement(double yc,
                               double krigstd,
                               const VectorDouble &phi)
 {
-  MatrixSquareGeneral JJ;
+  MatrixSquare JJ;
   int nbpoly = static_cast<int>(phi.size());
   VectorDouble In(nbpoly);
   JJ.resetFromValue(nbpoly, nbpoly, TEST);
@@ -456,7 +456,7 @@ VectorDouble hermiteCoefMetal(double yc, const VectorDouble &phi)
 {
   int nbpoly = static_cast<int>(phi.size());
   VectorDouble vect(nbpoly);
-  MatrixSquareGeneral TAU = hermiteIncompleteIntegral(yc, nbpoly);
+  MatrixSquare TAU = hermiteIncompleteIntegral(yc, nbpoly);
   TAU.prodMatVecInPlace(phi, vect);
   return vect;
 }
@@ -467,9 +467,9 @@ VectorDouble hermiteCoefMetal(double yc, const VectorDouble &phi)
  * @param nbpoly Number of Hermite polynomials
  * @return The matrix of Incomplete Integral (Dimension: nbpoly * nbpoly)
  */
-MatrixSquareGeneral hermiteIncompleteIntegral(double yc, int nbpoly)
+MatrixSquare hermiteIncompleteIntegral(double yc, int nbpoly)
 {
-  MatrixSquareGeneral TAU;
+  MatrixSquare TAU;
 
   TAU.resetFromValue(nbpoly, nbpoly, 0.);
   VectorDouble hn = hermitePolynomials(yc, 1., nbpoly);

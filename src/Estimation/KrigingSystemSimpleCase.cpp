@@ -460,8 +460,8 @@ int KrigingSystemSimpleCase::estimate(int iechout,
                              pin,
                              pout,
                              tabwork);
-
-  model.evalDriftMatByTarget(*X0, _dbout, iechout, _krigopt);
+  if (_getNbfl() > 0)
+    model.evalDriftMatByTarget(*X0, _dbout, iechout, _krigopt);
   algebra.updateRHS();
 
   // Printout for debugging case
