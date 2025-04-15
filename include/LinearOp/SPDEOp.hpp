@@ -55,6 +55,10 @@ public:
                                   const MatrixDense& drifts) const;
   VectorDouble simCond(const VectorDouble& dat) const;
 
+  const ASimulable* const invNoise() const { return _invNoise; }
+  const PrecisionOpMulti* const Qsimu() const { return _QSimu; }
+  const ProjMulti* const projSimu() const { return _projSimu; }
+
 #ifndef SWIG
 public:
   int kriging(const constvect inv, vect out) const;
