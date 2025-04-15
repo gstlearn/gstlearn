@@ -26,31 +26,27 @@ DECLARE_EIGEN_TRAITS(SPDEOp)
 class PrecisionOpMulti;
 class ProjMulti;
 
-class GSTLEARN_EXPORT SPDEOp:
-#ifndef SWIG
-  public ALinearOpEigenCG<SPDEOp>
-#else
-  public ALinearOp
-#endif
+
+class GSTLEARN_EXPORT ASPDEOp : public virtual ALinearOp
 {
 
 public:
-  SPDEOp(const PrecisionOpMulti* const popkrig  = nullptr, 
+  ASPDEOp(const PrecisionOpMulti* const popkrig  = nullptr, 
          const ProjMulti*        const proj     = nullptr,
          const ASimulable*       const invNoise = nullptr,
          const PrecisionOpMulti* const popsimu  = nullptr,
          const ProjMulti*        const projSimu = nullptr,
          bool  noiseToDelete                    = false);
-  virtual ~SPDEOp();
+  virtual ~ASPDEOp();
 
   int getSize() const override;
   int getSizeSimu() const;
   VectorDouble kriging(const VectorDouble& dat) const;
   VectorDouble krigingWithGuess(const VectorDouble& dat, const VectorDouble& guess) const;
-  void setMaxIterations(int n) {_solver.setMaxIterations(n);}
-  void setTolerance(double tol) {_solver.setTolerance(tol);}
-  int  getIterations() const { return _solver.getIterations();}
-  double getError() const { return  _solver.getError();}
+  void setMaxIterations(int n) {_solver->setMaxIterations(n);}
+  void setTolerance(double tol) {_solver->setTolerance(tol);}
+  int  getIterations() const { return _solver->getIterations();}
+  double getError() const { return  _solver->getError();}
   VectorDouble computeDriftCoeffs(const VectorDouble& Z, 
                                   const MatrixDense& drifts) const;
   VectorDouble simCond(const VectorDouble& dat) const;
@@ -90,8 +86,7 @@ protected:
   const ASimulable*       const _invNoise;
   const PrecisionOpMulti* const _QSimu;
   const ProjMulti*        const _projSimu;
-  
-  
+  ALinearOpCGSolver* _solver;
 
 private:
   bool    _noiseToDelete;
@@ -104,10 +99,86 @@ private:
   mutable VectorDouble _workNoiseData;
   mutable VectorDouble _rhs;
   mutable VectorDouble _workmesh;
-  mutable LinearOpCGSolver<SPDEOp> _solver;
+};
 
+/****************************************************************************/
+
+class GSTLEARN_EXPORT SPDEOp : public ASPDEOp,
+#ifndef SWIG
+  public ALinearOpEigenCG<SPDEOp>
+#else
+  public virtual ALinearOp
+#endif
+{
+public:
+  SPDEOp(const PrecisionOpMulti* const popkrig = nullptr,
+         const ProjMulti*        const proj = nullptr,
+         const ASimulable*       const invNoise = nullptr,
+         const PrecisionOpMulti* const popsimu = nullptr,
+         const ProjMulti*        const projSimu = nullptr,
+         bool  noiseToDelete = false
+  ) : ASPDEOp(popkrig, proj, invNoise, popsimu, projSimu, noiseToDelete)
+  {
+    _solver = new LinearOpCGSolver<SPDEOp>(this);
+  }
+  virtual ~SPDEOp() = default;
 };
 
 #ifndef SWIG
 DECLARE_EIGEN_PRODUCT(SPDEOp)
 #endif
+
+/****************************************************************************/
+
+#if 0
+// To change the algorithm used by SPDEOp, add a new class as below and use
+// it instead of SPDEOp:
+#ifndef SWIG
+#include "LinearOp/ASimulableEigenCG.hpp"
+DECLARE_EIGEN_TRAITS(ExampleSPDEOp)
+#endif
+
+namespace Eigen {
+  namespace internal {
+    template<>
+    //template<typename MatrixType, typename Rhs, typename Dest, typename Preconditioner>
+    /*EIGEN_DONT_INLINE*/ inline void conjugate_gradient(
+      const ExampleSPDEOp& /*mat*/,
+      const Eigen::Map<const Eigen::VectorXd, 0, Eigen::Stride<0, 0>>& /*rhs*/,
+      Eigen::Map<Eigen::VectorXd, 0, Eigen::Stride<0, 0>>& /*x*/,
+      const Eigen::IdentityPreconditioner& /*precond*/,
+      Index& /*iters*/,
+      typename Eigen::Map<Eigen::VectorXd, 0, Eigen::Stride<0, 0>>::RealScalar& /*tol_error*/
+    ) {
+      messerr("Solver for ExampleSPDEOp");
+    }
+  }
+}
+
+class GSTLEARN_EXPORT ExampleSPDEOp : public ASPDEOp,
+#ifndef SWIG
+  public ALinearOpEigenCG<ExampleSPDEOp>
+#else
+  public virtual ALinearOp
+#endif
+{
+public:
+  ExampleSPDEOp(const PrecisionOpMulti* const popkrig = nullptr,
+                const ProjMulti*        const proj = nullptr,
+                const ASimulable*       const invNoise = nullptr,
+                const PrecisionOpMulti* const popsimu = nullptr,
+                const ProjMulti*        const projSimu = nullptr,
+                bool  noiseToDelete = false
+  ) : ASPDEOp(popkrig, proj, invNoise, popsimu, projSimu, noiseToDelete)
+  {
+    _solver = new LinearOpCGSolver<ExampleSPDEOp>(this);
+  }
+  virtual ~ExampleSPDEOp() = default;
+};
+
+#ifndef SWIG
+DECLARE_EIGEN_PRODUCT(ExampleSPDEOp)
+#endif
+
+#endif
+

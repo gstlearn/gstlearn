@@ -53,7 +53,7 @@ struct Eigen::internal::generic_product_impl<TLinOP, Rhs, Eigen::SparseShape, Ei
 
 template<typename TLinOP>
 class ALinearOpEigenCG : public Eigen::EigenBase<TLinOP>, // No Export because it's a template
-                         public ALinearOp
+                         public virtual ALinearOp // virtual for ASPDEOp
 {
 public:
   virtual ~ALinearOpEigenCG() {};
