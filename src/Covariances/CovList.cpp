@@ -145,12 +145,7 @@ void CovList::delAllCov()
 bool CovList::_isNoStat() const
 {
   // return true if any of the covariances is not stationary
-#ifdef USE_BOOST_SPAN
   return std::any_of(_covs.cbegin(), _covs.cend(), [](const auto& e) { return e->isNoStat(); });
-#else
-  return std::ranges::any_of(_covs, [](const auto& e)
-                             { return e->isNoStat(); });
-#endif
 }
 
 void CovList::_makeStationary()
