@@ -23,26 +23,48 @@
 #  include <unsupported/Eigen/IterativeSolvers>
 #endif
 
+class ALinearOpCGSolver
+{
+public:
+  virtual ~ALinearOpCGSolver() = default;
+  virtual void solve(const VectorDouble& rhs, VectorDouble& out) = 0;
+  virtual void setMaxIterations(int n) = 0;
+  virtual void setTolerance(double tol) = 0;
+  virtual int  getIterations() const = 0;
+  virtual double getError() const = 0;
+#ifndef SWIG
+  virtual void solve(const constvect in, const vect out) = 0;
+  virtual void solve(const Eigen::Map<const Eigen::VectorXd>& rhs,
+                     Eigen::Map<Eigen::VectorXd>& out) = 0;
+
+  virtual void solveWithGuess(const constvect rhs, const constvect guess, vect out) = 0;
+  virtual void solveWithGuess(const Eigen::Map<const Eigen::VectorXd>& rhs,
+                              const Eigen::Map<const Eigen::VectorXd>& guess,
+                              Eigen::Map<Eigen::VectorXd>& out) = 0;
+#endif
+};
+
 template<typename TLinOP>
-class LinearOpCGSolver
+class LinearOpCGSolver : public ALinearOpCGSolver
 {
 public:
   LinearOpCGSolver(const TLinOP* linop);
+  virtual ~LinearOpCGSolver() = default;
 
-  void solve(const VectorDouble& rhs, VectorDouble& out);
-  void setMaxIterations(int n) {cg.setMaxIterations(n);}
-  void setTolerance(double tol) {cg.setTolerance(tol);}
-  int  getIterations() const { return cg.iterations();}
-  double getError() const { return  cg.error();}
+  void solve(const VectorDouble& rhs, VectorDouble& out) override;
+  void setMaxIterations(int n) override {cg.setMaxIterations(n);}
+  void setTolerance(double tol) override {cg.setTolerance(tol);}
+  int  getIterations() const override { return cg.iterations();}
+  double getError() const override { return  cg.error();}
 #ifndef SWIG
-  void solve(const constvect in, const vect out);
+  void solve(const constvect in, const vect out) override;
   void solve(const Eigen::Map<const Eigen::VectorXd>& rhs,
-             Eigen::Map<Eigen::VectorXd>& out);
+             Eigen::Map<Eigen::VectorXd>& out) override;
 
-  void solveWithGuess(const constvect rhs, const constvect guess, vect out);
+  void solveWithGuess(const constvect rhs, const constvect guess, vect out) override;
   void solveWithGuess(const Eigen::Map<const Eigen::VectorXd>& rhs,
                       const Eigen::Map<const Eigen::VectorXd>& guess,
-                      Eigen::Map<Eigen::VectorXd>& out);
+                      Eigen::Map<Eigen::VectorXd>& out) override;
 private:
   Eigen::ConjugateGradient<TLinOP,
                            Eigen::Lower | Eigen::Upper,
@@ -52,7 +74,7 @@ private:
 
 #ifndef SWIG
 template<typename TLinOP>
-LinearOpCGSolver<TLinOP>::LinearOpCGSolver(const TLinOP* linop)
+LinearOpCGSolver<TLinOP>::LinearOpCGSolver(const TLinOP* linop) : ALinearOpCGSolver()
 {
   if (linop == nullptr)
     throw("linop must be valid and inherit from ALinearOpEigenCG to use Eigen CG");

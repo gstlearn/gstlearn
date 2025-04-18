@@ -15,7 +15,7 @@
 #include "Matrix/MatrixDense.hpp"
 #include "geoslib_define.h"
 
-SPDEOp::SPDEOp(const PrecisionOpMulti* const popkriging,
+ASPDEOp::ASPDEOp(const PrecisionOpMulti* const popkriging,
                const ProjMulti* const proj,
                const ASimulable* const invNoise,
                const PrecisionOpMulti* const popsimu,
@@ -26,9 +26,9 @@ SPDEOp::SPDEOp(const PrecisionOpMulti* const popkriging,
   , _invNoise(invNoise)
   , _QSimu(popsimu == nullptr?_QKriging:popsimu)
   , _projSimu(projSimu == nullptr?_projKriging:projSimu)
+  , _solver(nullptr)
   , _noiseToDelete(todelete)
   , _ndat(0)
-  , _solver(this)
 {
    if (_projKriging == nullptr) return;
    if (_invNoise == nullptr) return;
@@ -37,33 +37,34 @@ SPDEOp::SPDEOp(const PrecisionOpMulti* const popkriging,
   _prepare(true, true);
 }
 
-SPDEOp::~SPDEOp()
+ASPDEOp::~ASPDEOp()
 {
   if (_noiseToDelete) delete _invNoise;
+  delete _solver;
 }
 
-int SPDEOp::getSize() const
+int ASPDEOp::getSize() const
 {
   return _QKriging->getSize();
 }
 
-void SPDEOp::_prepare(bool w1, bool w2) const
+void ASPDEOp::_prepare(bool w1, bool w2) const
 {
   if (w1) _workdat1.resize(_getNDat());
   if (w2) _workdat2.resize(_getNDat());
 }
 
-int SPDEOp::_addToDest(const constvect inv, vect outv) const
+int ASPDEOp::_addToDest(const constvect inv, vect outv) const
 {
   return _addToDestImpl(inv, outv);
 }
 
-int SPDEOp::getSizeSimu() const
+int ASPDEOp::getSizeSimu() const
 {
   return _QSimu->getSize();
 }
 
-void SPDEOp::simCond(const constvect data, vect outv) const
+void ASPDEOp::simCond(const constvect data, vect outv) const
 {
   // Resize if necessary
   _workdat3.resize(_getNDat());
@@ -86,14 +87,14 @@ void SPDEOp::simCond(const constvect data, vect outv) const
   VH::subtractInPlace(_workdat3, data, _workdat4);
 
   //Co-Kriging of the residual on the mesh
-  _solver.setTolerance(1e-5);
+  _solver->setTolerance(1e-5);
   kriging(_workdat4,_workmesh); 
   
   //Add the kriging to the non conditional simulation
   VH::addInPlace(_workmesh,outv); 
 }
 
-VectorDouble SPDEOp::kriging(const VectorDouble& dat) const
+VectorDouble ASPDEOp::kriging(const VectorDouble& dat) const
 {
   constvect datm(dat.data(), dat.size());
   VectorDouble outv(_QKriging->getSize());
@@ -103,7 +104,7 @@ VectorDouble SPDEOp::kriging(const VectorDouble& dat) const
   return outv;
 }
 
-VectorDouble SPDEOp::simCond(const VectorDouble& dat) const
+VectorDouble ASPDEOp::simCond(const VectorDouble& dat) const
 {
   constvect datm(dat.data(), dat.size());
   VectorDouble outv(_QSimu->getSize());
@@ -112,7 +113,7 @@ VectorDouble SPDEOp::simCond(const VectorDouble& dat) const
   return outv;
 }
 
-VectorDouble SPDEOp::krigingWithGuess(const VectorDouble& dat,
+VectorDouble ASPDEOp::krigingWithGuess(const VectorDouble& dat,
                                       const VectorDouble& guess) const
 {
   constvect datm(dat.data(), dat.size());
@@ -125,13 +126,13 @@ VectorDouble SPDEOp::krigingWithGuess(const VectorDouble& dat,
   return outv;
 }
 
-int SPDEOp::kriging(const constvect inv, vect out) const
+int ASPDEOp::kriging(const constvect inv, vect out) const
 {
   _buildRhs(inv);
   return _solve(_rhs, out);
 }
 
-int SPDEOp::krigingWithGuess(const constvect inv,
+int ASPDEOp::krigingWithGuess(const constvect inv,
                              const constvect guess,
                              vect out) const
 {
@@ -139,21 +140,21 @@ int SPDEOp::krigingWithGuess(const constvect inv,
   return _solveWithGuess(_rhs, guess, out);
 }
 
-int SPDEOp::_solve(const constvect in, vect out) const
+int ASPDEOp::_solve(const constvect in, vect out) const
 {
-  _solver.solve(in, out);
+  _solver->solve(in, out);
   return 0;
 }
 
-int SPDEOp::_solveWithGuess(const constvect in,
+int ASPDEOp::_solveWithGuess(const constvect in,
                             const constvect guess,
                             vect out) const
 {
-  _solver.solveWithGuess(in, guess, out);
+  _solver->solveWithGuess(in, guess, out);
   return 0;
 }
 
-int SPDEOp::_buildRhs(const constvect inv) const
+int ASPDEOp::_buildRhs(const constvect inv) const
 {
   _rhs.resize(_QKriging->getSize());
   vect w1(_workdat1);
@@ -172,7 +173,7 @@ int SPDEOp::_buildRhs(const constvect inv) const
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-int SPDEOp::_addToDestImpl(const constvect inv, vect outv) const
+int ASPDEOp::_addToDestImpl(const constvect inv, vect outv) const
 {
   _prepare();
   vect w1s(_workdat1);
@@ -183,7 +184,7 @@ int SPDEOp::_addToDestImpl(const constvect inv, vect outv) const
   return _QKriging->addToDest(inv, outv);
 }
 
-void SPDEOp::evalInvCov(const constvect inv, vect result) const
+void ASPDEOp::evalInvCov(const constvect inv, vect result) const
 {
   // InvNoise - InvNoise * Proj' * (Q + Proj * InvNoise * Proj')^-1 * Proj * InvNoise
   
@@ -205,7 +206,7 @@ void SPDEOp::evalInvCov(const constvect inv, vect result) const
 }
 
 
-VectorDouble SPDEOp::computeDriftCoeffs(const VectorDouble& Z,
+VectorDouble ASPDEOp::computeDriftCoeffs(const VectorDouble& Z,
                                         const MatrixDense& drifts) const
 {
   int xsize = (int)(drifts.size());
