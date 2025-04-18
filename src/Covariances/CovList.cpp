@@ -145,8 +145,7 @@ void CovList::delAllCov()
 bool CovList::_isNoStat() const
 {
   // return true if any of the covariances is not stationary
-  return std::ranges::any_of(_covs, [](const auto& e)
-                             { return e->isNoStat(); });
+  return std::any_of(_covs.cbegin(), _covs.cend(), [](const auto& e) { return e->isNoStat(); });
 }
 
 void CovList::_makeStationary()
