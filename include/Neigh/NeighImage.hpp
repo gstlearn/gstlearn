@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/ICloneable.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
@@ -44,6 +45,7 @@ public:
   NeighImage& operator=(const NeighImage& r);
   virtual ~NeighImage();
 
+  IMPLEMENT_CLONING(NeighImage)
   /// Interface for ANeigh
   virtual void getNeigh(int iech_out, VectorInt& ranks) override;
   virtual int getNSampleMax(const Db* db) const override;

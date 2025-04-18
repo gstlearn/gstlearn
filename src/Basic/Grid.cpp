@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/Grid.hpp"
 
+#include "Basic/VectorNumT.hpp"
 #include "Geometry/Rotation.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Basic/SerializeHDF5.hpp"
@@ -28,6 +29,10 @@ typedef struct
   VectorInt indg;
   VectorInt tab;
 } DimLoop;
+
+thread_local VectorInt _iwork0;
+thread_local VectorDouble _work1;
+thread_local VectorDouble _work2;
 
 /****************************************************************************/
 /*!
@@ -96,9 +101,6 @@ Grid::Grid(int ndim,
   , _counts()
   , _order()
   , _indices()
-  , _iwork0(ndim)
-  , _work1(ndim)
-  , _work2(ndim)
 {
   _allocate();
   if ((int) nx.size() == ndim) _nx = nx;
@@ -393,6 +395,7 @@ VectorDouble Grid::getCoordinatesByIndice(const VectorInt &indice,
  */
 VectorDouble Grid::getCoordinatesByCorner(const VectorInt& icorner) const
 {
+  initThread();
   VH::fill(_iwork0, 0);
   for (int idim = 0; idim < _nDim; idim++)
     if (icorner[idim] > 0) _iwork0[idim] = _nx[idim]-1;
@@ -411,6 +414,7 @@ VectorDouble Grid::getCellCoordinatesByCorner(int node,
                                               const VectorInt& shift,
                                               const VectorDouble& dxsPerCell) const
 {
+
   rankToIndice(node, _iwork0);
   return getCoordinatesByIndice(_iwork0, true, shift, dxsPerCell);
 }
@@ -424,7 +428,6 @@ VectorDouble Grid::getCellCoordinatesByCorner(int node,
 VectorDouble Grid::getCoordinatesByRank(int rank, bool flag_rotate) const
 {
   /* Convert a sample number into grid indices */
-
   rankToIndice(rank, _iwork0);
 
   /* Calculate the coordinates in the grid system */
@@ -490,6 +493,7 @@ void Grid::indicesToCoordinateInPlace(const constvectint indice,
 
   /* Calculate the coordinates in the grid system */
 
+
   for (int idim=0; idim<_nDim; idim++)
   {
     _work1[idim] = indice[idim];
@@ -512,12 +516,14 @@ void Grid::indicesToCoordinateInPlace(const constvectint indice,
 
 double Grid::rankToCoordinate(int idim0, int rank, const VectorDouble& percent) const
 {
+
   rankToIndice(rank, _iwork0);
   return indiceToCoordinate(idim0, _iwork0, percent);
 }
 
 VectorDouble Grid::rankToCoordinates(int rank, const VectorDouble& percent) const
 {
+
   rankToIndice(rank, _iwork0);
   return indicesToCoordinate(_iwork0,percent);
 }
@@ -569,11 +575,21 @@ void Grid::rankToIndice(int rank, vectint indices, bool minusOne) const
   }
 }
 
-VectorInt Grid::coordinateToIndices(const VectorDouble &coor,
+void Grid::initThread() const
+{
+  if (_nDim > (int)_iwork0.size())
+  {
+    _iwork0.resize(_nDim);
+    _work1.resize(_nDim);
+    _work2.resize(_nDim);
+  }
+}
+
+VectorInt& Grid::coordinateToIndices(const VectorDouble &coor,
                                     bool centered,
                                     double eps) const
 {
-  if (coordinateToIndicesInPlace(coor, _iwork0, centered, eps)) return VectorInt();
+  if (coordinateToIndicesInPlace(coor, _iwork0, centered, eps)) return _dummy;
   return _iwork0;
 }
 
@@ -646,6 +662,7 @@ bool Grid::_isSpaceDimensionValid(int idim) const
 
 void Grid::_allocate(void)
 {
+  initThread();
   _nx.resize(_nDim);
   for (int i=0; i<_nDim; i++) _nx[i] = 1;
   _x0.resize(_nDim);
@@ -655,9 +672,6 @@ void Grid::_allocate(void)
 
   _rotation.resetFromSpaceDimension(_nDim);
 
-  _iwork0.resize(_nDim);
-  _work1.resize(_nDim);
-  _work2.resize(_nDim);
 }
 
 void Grid::_recopy(const Grid &r)
@@ -679,11 +693,6 @@ void Grid::_recopy(const Grid &r)
   _order = r._order;
   _indices = r._indices;
 
-  // For working array, simply dimension but do not loose time in copying the contents
-
-  _iwork0 = VectorInt(_nDim);
-  _work1 = VectorDouble(_nDim);
-  _work2 = VectorDouble(_nDim);
 }
 
 /**
@@ -1178,6 +1187,7 @@ bool Grid::sampleBelongsToCell(constvect coor,
                                constvect center,
                                const VectorDouble& dxsPerCell) const
 {
+
   if (_rotation.isRotated())
   {
     // Convert Grid Node center into Grid coordinates
@@ -1232,6 +1242,7 @@ bool Grid::sampleBelongsToCell(const VectorDouble &coor,
                                int rank,
                                const VectorDouble &dxsPerCell) const
 {
+
   // Identify the coordinates of the center of the grid cell, referred by its 'rank' and
   // convert into Grid coordinates
   VectorDouble center = rankToCoordinates(rank);

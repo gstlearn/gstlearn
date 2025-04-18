@@ -315,13 +315,13 @@ t_btree* btree_init(const double** data,
  * @param pt     Characteristics of the target SpacePoint
  * @return double Minimum distance or 0
  */
-double min_dist(t_btree *tree, int i_node, const double *pt)
+double min_dist(const t_btree *tree, int i_node, const double *pt)
 {
   double dist_pt = st_distance_function(pt, tree->node_bounds[0][i_node], tree->n_features);
   return (fmax(0.0, dist_pt - tree->node_data[i_node].radius));
 }
 
-int query_depth_first(t_btree *b, int i_node, const double *pt, int i_pt, t_nheap *heap, double dist)
+int query_depth_first(const t_btree *b, int i_node, const double *pt, int i_pt, t_nheap *heap, double dist)
 {
   t_nodedata node_info = b->node_data[i_node];
   double dist_pt, dist1, dist2;

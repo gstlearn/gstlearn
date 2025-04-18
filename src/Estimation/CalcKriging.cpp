@@ -18,6 +18,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
 #include "Model/Model.hpp"
+#include "Neigh/NeighBench.hpp"
 #include "Neigh/NeighUnique.hpp"
 
 #include <math.h>
@@ -305,20 +306,27 @@ int kriging(Db* dbin,
             const KrigOpt& krigopt,
             const NamingConvention& namconv)
 {
-  NeighUnique* neighUnique = dynamic_cast<NeighUnique*>(neigh);
-  if (krigopt.getCalcul() == EKrigOpt::POINT && ! krigopt.hasColcok() &&
-      !krigopt.hasMatLC() && neighUnique != nullptr &&
-      model->getNVar() == 1 && OptCustom::query("NotOptimSimpleCase", 0) == 0 &&
-      dbin->getNSample() == dbin->getNSample(true) &&
-      dbin->getNSampleActiveAndDefined(dbin->getNameByLocator(ELoc::Z)) == dbin->getNSample())
+  //NeighUnique* neighUnique = dynamic_cast<NeighUnique*>(neigh);
+  NeighBench* neighBench = dynamic_cast<NeighBench*>(neigh);
+
+  if (krigopt.getCalcul() == EKrigOpt::POINT && 
+      !krigopt.hasColcok() &&
+      !krigopt.hasMatLC() && 
+      //neighUnique != nullptr &&
+      neighBench == nullptr &&
+      model->getNVar() == 1 && 
+      OptCustom::query("NotOptimSimpleCase", 0) == 0)
   {
+    OptCustom::define("Optim", 1);
     CalcKrigingSimpleCase krige(flag_est, flag_std, flag_varz);
     krige.setDbin(dbin);
     krige.setDbout(dbout);
     krige.setModel(model);
     krige.setNeigh(neigh);
     krige.setNamingConvention(namconv);
-    return 1 - krige.run();
+    int result = krige.run();
+    OptCustom::undefine("Optim");
+    return 1 - result;
   }
 
   CalcKriging krige(flag_est, flag_std, flag_varz);

@@ -116,5 +116,5 @@ double   nheap_largest(t_nheap* h, int row);
 int		   nheap_push(t_nheap *h, int row, double val, int i_val);
 void     nheap_sort(t_nheap *h);
 void     nheap_load(t_nheap *heap, t_btree *b, const double **x);
-double   min_dist(t_btree *tree, int i_node, const double *pt);
-int      query_depth_first(t_btree *b, int i_node, const double *pt, int i_pt, t_nheap *heap, double dist);
+double   min_dist(const t_btree *tree, int i_node, const double *pt);
+int      query_depth_first(const t_btree *b, int i_node, const double *pt, int i_pt, t_nheap *heap, double dist);

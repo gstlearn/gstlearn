@@ -566,7 +566,7 @@ void MeshETurbo::resetProjFromDb(ProjMatrix* m,
   int ndim = getNDim();
   VectorInt indg0(ndim);
   VectorDouble coor(ndim);
-
+  _grid.initThread();
   // Preliminary checks
 
   if (isCompatibleDb(db)) return;

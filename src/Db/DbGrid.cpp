@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/Grid.hpp"
 #include "geoslib_define.h"
 
 #include "Db/Db.hpp"
@@ -25,20 +26,19 @@
 #include "Estimation/CalcImage.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Space/SpaceTarget.hpp"
-
 #include <algorithm>
 #include <math.h>
 
 DbGrid::DbGrid()
-    : Db(),
-      _grid(0)
+    : Db()
+    , _grid()
 {
   _clear();
 }
 
 DbGrid::DbGrid(const DbGrid& r)
-    : Db(r),
-      _grid(r._grid)
+    : Db(r)
+    , _grid(r._grid)
 {
 }
 
@@ -147,7 +147,7 @@ int DbGrid::reset(const VectorInt& nx,
     setLocatorsByUID(ndim, jcol, ELoc::X, 0);
     _defineDefaultLocators(number, locatorNames);
   }
-
+  initThread();
   return 0;
 }
 
@@ -708,17 +708,17 @@ bool DbGrid::isGridRotated() const
 double DbGrid::getCoordinate(int iech, int idim, bool flag_rotate) const
 {
   if (idim >= getNDim()) return TEST;
-  double ret{};
-  #pragma omp critical
-  {
-    ret = _grid.getCoordinate(iech, idim, flag_rotate);
-  }
-  return ret;
+  return _grid.getCoordinate(iech, idim, flag_rotate);
 }
 
+void DbGrid::initThread() const
+{
+  _grid.initThread();
+}
 void DbGrid::getCoordinatesInPlace(VectorDouble& coor, int iech, bool flag_rotate) const
 {
   VectorDouble vec = _grid.getCoordinatesByRank(iech, flag_rotate);
+  vec.resize(getNDim());
   coor             = vec;
 }
 void DbGrid::getCoordinatesInPlace(vect coor, int iech, bool flag_rotate) const
@@ -824,7 +824,7 @@ int DbGrid::gridDefine(const VectorInt& nx,
                        const VectorDouble& x0,
                        const VectorDouble& angles)
 {
-  return (_grid.resetFromVector(nx, dx, x0, angles));
+  return _grid.resetFromVector(nx, dx, x0, angles);
 }
 
 /**

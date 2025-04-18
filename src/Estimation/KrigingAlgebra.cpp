@@ -27,9 +27,9 @@ KrigingAlgebra::KrigingAlgebra(bool flagDual,
   , _Sigma(nullptr)
   , _Sigma0(nullptr)
   , _X(nullptr)
-  , _X0(nullptr)
   , _PriorCov(nullptr)
   , _Z(nullptr)
+  , _X0(nullptr)
   , _PriorMean(nullptr)
   , _Means(nullptr)
   , _Zp(nullptr)
@@ -1171,6 +1171,7 @@ int KrigingAlgebra::_needLambdaUK() {
 
   MatrixDense p1(_neq, _nrhs);
   p1.prodMatMatInPlace(_XtInvSigma, _MuUK, true, false);
+  //MatrixRectangular::sum(_LambdaSK, &p1, _LambdaUK);
   _LambdaUK->linearCombination(1., _LambdaSK, 1., &p1);
 
   return 0;

@@ -185,9 +185,9 @@ private:
   const MatrixSymmetric* _Sigma;    // Covariance Matrix (Dim: _neq * _neq)
   const MatrixDense* _Sigma0;       // Covariance at Target (Dim: _neq * _nrhs)
   const MatrixDense* _X;            // Drift at Data (Dim: _neq * _nbfl)
-  const MatrixDense* _X0;           // Drift at Target (Dim: _nrhs * _nbfl)
   const MatrixSymmetric* _PriorCov; // Bayesian Prior Covariance (Dim: _nbfl * _nbfl)
   const VectorDouble* _Z;                 // Data [flattened] (Dim: _neq)
+  const MatrixDense* _X0;           // Drift at Target (Dim: _nrhs * _nbfl)
   const VectorDouble* _PriorMean;         // Prior Bayesian Mean (Dim: _nbfl)
   const VectorDouble* _Means;             // Fixed drift coefficients
   const VectorDouble* _Zp;                // Vector of values for collocation

@@ -17,17 +17,17 @@
 #include "Mesh/AMesh.hpp"
 
 Ball::Ball(const double** data,
-           int n_samples,
-           int n_features,
-           double (*dist_function)(const double* x1,
-                                   const double* x2,
-                                   int n_features),
-           int leaf_size,
-           int default_distance_function)
-  : _tree(nullptr)
+  int n_samples,
+  int n_features,
+  double (*dist_function)(const double* x1,
+                          const double* x2,
+                          int n_features),
+  int leaf_size,
+  int default_distance_function)
+: _tree(nullptr)
 {
-  _tree = btree_init(data, n_samples, n_features, false, dist_function, leaf_size,
-                     default_distance_function);
+_tree = btree_init(data, n_samples, n_features, false, dist_function, leaf_size,
+            default_distance_function);
 }
 
 Ball::Ball(const Db* dbin,
@@ -41,6 +41,7 @@ Ball::Ball(const Db* dbin,
            bool useSel)
   : _tree(nullptr)
 {
+  _master = true;
   int n_samples;
   int n_features;
   double** internal = _getInformationFromDb(dbin, dbout, useSel, &n_samples, &n_features);
@@ -68,16 +69,33 @@ Ball::Ball(const AMesh* mesh,
            bool has_constraints,
            int default_distance_function)
 {
+  _master = true;
   int n_samples;
   int n_features;
   double **internal = _getInformationFromMesh(mesh, &n_samples, &n_features);
   if (internal == nullptr) return;
 
+  _master = true;
   _tree = btree_init((const double**)internal, n_samples, n_features, has_constraints,
                      dist_function, leaf_size, default_distance_function);
   free_2d_double(internal, n_samples);
 }
 
+Ball::Ball(const Ball& r)
+  : _tree(r._tree)
+{
+  _master = false;
+}
+
+Ball& Ball::operator=(const Ball& p)
+{
+  if (this != &p)
+  {
+    _tree = p._tree;
+    _master = false;
+  }
+  return *this;
+}
 void Ball::init(const Db* db,
                 double (*dist_function)(const double* x1,
                                         const double* x2,
@@ -100,7 +118,8 @@ void Ball::init(const Db* db,
 
 Ball::~Ball()
 {
-  free_tree(_tree);
+  if (_master)
+    free_tree(_tree);
 }
 
 KNN Ball::query(const double **test, int n_samples, int n_features, int n_neighbors)

@@ -33,6 +33,7 @@ public:
   virtual ~Grid();
 
 public:
+  void initThread() const;
   static VectorInt gridIndices(const VectorInt &nx,
                                const String &string,
                                bool startFromZero = true,
@@ -104,7 +105,7 @@ public:
   int     indiceToRank(const constvectint indice) const;
   void    rankToIndice(int rank, vectint indices, bool minusOne = false) const;
 #endif // SWIG
-  VectorInt coordinateToIndices(const VectorDouble &coor,
+  VectorInt& coordinateToIndices(const VectorDouble &coor,
                                 bool centered = false,
                                 double eps = EPSILON6) const;
   int coordinateToIndicesInPlace(const VectorDouble &coor,
@@ -188,14 +189,14 @@ private:
   Rotation     _rotation;
 
   // Iterator
+
   int       _iter;
   int       _nprod;
   std::vector<int> _counts;
   VectorInt _order;
   VectorInt _indices;
-
+  mutable VectorInt _dummy;
   // Some working vectors, defined in order to avoid too many allocations
-  mutable VectorInt    _iwork0;
-  mutable VectorDouble _work1;
-  mutable std::vector<double> _work2;
+
+
 };

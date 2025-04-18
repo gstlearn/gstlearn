@@ -18,6 +18,7 @@
 #include "Basic/Grid.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/ICloneable.hpp"
+#include <omp.h>
 
 class Polygons;
 class EMorpho;
@@ -378,7 +379,7 @@ public:
                             const VectorDouble &vec);
   VectorDouble getDistanceToOrigin(const VectorInt& origin,
                                    const VectorDouble& radius = VectorDouble());
-  
+  void initThread() const override;
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;

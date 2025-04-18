@@ -88,7 +88,7 @@ library(ggnewscale)
 ```{r, echo=TRUE, eval=TRUE}
 # Set the Seed for the Random Number generator
 law_set_random_seed(32131)
-
+OptCustom_define("ompthreads", 1)
 # Defining the format for dumping statistics of variables in a Db
 dbfmt = DbStringFormat()
 dbfmt$setFlags(flag_resume=TRUE,flag_vars=FALSE,flag_locator=TRUE)

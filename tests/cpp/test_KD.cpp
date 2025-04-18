@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/OptCustom.hpp"
 #include "Enum/ECov.hpp"
 #include "Enum/ESpaceType.hpp"
 
@@ -188,6 +189,7 @@ int main(int argc, char *argv[])
 
   // ====================== Uniform Conditioning ==================================
 
+  OptCustom::define("ompthreads",1);
   // Perform the Point Kriging of the Raw Variable
   data->clearLocators(ELoc::Z);
   data->setLocator("Z",ELoc::Z, 0);

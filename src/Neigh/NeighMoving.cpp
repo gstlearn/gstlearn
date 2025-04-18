@@ -12,6 +12,7 @@
 #include "Geometry/GeometryHelper.hpp"
 
 #include "Neigh/NeighMoving.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -65,12 +66,13 @@ NeighMoving::NeighMoving(const NeighMoving& r)
   , _movingIsect(r._movingIsect)
   , _movingNsect(r._movingNsect)
   , _movingDst(r._movingDst)
+  , _dbgrid(r._dbgrid)
   , _T1(r._T1)
   , _T2(r._T2)
 {
   for (int ipt = 0, npt = (int)r._bipts.size(); ipt < npt; ipt++)
-    //_bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
-    _bipts.push_back(r._bipts[ipt]);
+    _bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
+    //_bipts.push_back(r._bipts[ipt]);
 
   // _biPtDist = r._biPtDist;
   _biPtDist = new BiTargetCheckDistance(*r._biPtDist);
@@ -502,7 +504,9 @@ void NeighMoving::getNeigh(int iech_out, VectorInt& ranks)
   }
 
   // In case of debug option, dump out neighborhood characteristics
-  if (OptDbg::query(EDbg::NBGH)) _display(ranks);
+  int optim = OptCustom::query("Optim", 0);
+  if (!optim ||(optim && (iech_out + 1 == OptDbg::getReference())))
+    if (OptDbg::query(EDbg::NBGH)) _display(ranks);
 
   // Compress the vector of returned sample ranks
   _neighCompress(ranks);

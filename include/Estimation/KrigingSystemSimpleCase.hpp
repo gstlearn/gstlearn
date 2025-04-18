@@ -42,56 +42,50 @@ class GSTLEARN_EXPORT KrigingSystemSimpleCase
 {
 public:
   KrigingSystemSimpleCase(Db* dbin,
-                Db* dbout,
-                const ModelGeneric* model,
-                ANeigh* neigh);
-  KrigingSystemSimpleCase(const KrigingSystemSimpleCase &m) = delete;
-  KrigingSystemSimpleCase& operator=(const KrigingSystemSimpleCase &m) = delete;
+                          Db* dbout,
+                          const ModelGeneric* model,
+                          ANeigh* neigh);
+  KrigingSystemSimpleCase(const KrigingSystemSimpleCase& m)            = delete;
+  KrigingSystemSimpleCase& operator=(const KrigingSystemSimpleCase& m) = delete;
   virtual ~KrigingSystemSimpleCase();
 
-  int resetData();
   int setKrigOptCalcul(const EKrigOpt& calcul);
   int setKrigOptDataWeights(int iptrWeights, bool flagSet = true);
   int setKrigOptFlagGlobal(bool flag_global);
   int setKrigOptFlagLTerm(bool flag_lterm);
 
   // The subsequent methods do not require isReady() validation
-  int  updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ, bool forceNoDual = false);
-  int  updKrigOptNeighOnly(int iptrNeigh);
+  int updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ, bool forceNoDual = false);
   bool isReady();
-  int  estimate(int iechout,SpacePoint& pin, SpacePoint& pout, VectorDouble& tabwork, KrigingAlgebraSimpleCase& algebra, ModelGeneric& model);
+  void updateLHS(KrigingAlgebraSimpleCase& algebra, ModelGeneric& model);
+  int estimate(int iechout,
+               SpacePoint& pin,
+               SpacePoint& pout,
+               VectorDouble& tabwork,
+               KrigingAlgebraSimpleCase& algebra,
+               ModelGeneric& model,
+               ANeigh* neigh = nullptr);
   void conclusion();
 
-  KrigingAlgebraSimpleCase& getAlgebra() { return _algebra; }  
+  KrigingAlgebraSimpleCase& getAlgebra() { return _algebra; }
 
   // Methods used to return algebraic internal information
   int getNDim() const { return (_model != nullptr) ? _model->getNDim() : 0; }
   int getNVar() const { return (_model != nullptr) ? _model->getNVar() : 0; }
-  int getNech() const { return (int)_nbgh.size(); }
-  int getCovSize() const { return (!_Sigma.empty()) ? _Sigma.getNRows() : 0; }
-  int getDriftSize() const { return (!_X.empty()) ? _X.getNCols() : 0; }
-  int getNrhs() const { return (!_Sigma0.empty()) ? _Sigma0.getNCols() : 0; }
 
-  VectorInt             getSampleNbgh() const { return _nbgh; }
-  VectorVectorDouble    getSampleCoordinates(KrigingAlgebraSimpleCase& algebra, int iechout) const;
-  VectorDouble          getSampleData() const { return _Z; };
-  MatrixSymmetric getLHS() const { return _Sigma; }
-  MatrixDense     getLHSF() const { return _Sigma0; }
-  MatrixDense     getRHS() const { return _Sigma0; }
-  MatrixDense     getRHSF() const { return _X0; }
-  MatrixSquare   getVariance() const { return _Sigma00; }
-  static MatrixDense     getWeights(KrigingAlgebraSimpleCase& algebra);
-  static MatrixDense     getMu(KrigingAlgebraSimpleCase& algebra);
-  double                getLTerm() const { return _algebra.getLTerm(); }
-  ModelGeneric*         getModel() const { return _model; }
+  VectorVectorDouble getSampleCoordinates(KrigingAlgebraSimpleCase& algebra, int iechout) const;
+  static MatrixDense getWeights(KrigingAlgebraSimpleCase& algebra);
+  static MatrixDense getMu(KrigingAlgebraSimpleCase& algebra);
+  double getLTerm() const { return _algebra.getLTerm(); }
+  ModelGeneric* getModel() const { return _model; }
+
 private:
-  int    _getNVar() const;
-  int    _getNbfl() const;
-  int    _getNeq() const;
-  int    _getNFeq() const;
+  int _getNVar() const;
+  int _getNbfl() const;
+  int _getNeq(int nech) const;
+  int _getNFeq() const;
 
   void _resetMemoryGeneral();
-  bool _isAuthorized() const;
 
   static void _dumpOptions();
   void _rhsDump(KrigingAlgebraSimpleCase& algebra) const;
@@ -99,74 +93,59 @@ private:
   void _estimateCalcul(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const;
   void _simulateCalcul(int status);
   void _neighCalcul(int status, const VectorDouble& tab, int iechout);
-  void _estimateVarZ(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const; 
+  void _estimateVarZ(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const;
   void _estimateStdv(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const;
-  void _estimateEstim(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const;
-  void _dumpKrigingResults(int status, int iechout);
+  void _estimateEstim(int status, KrigingAlgebraSimpleCase& algebra, int iechout) const;
+  void _dumpKrigingResults(int status, int iechout, KrigingAlgebraSimpleCase* algebra) const;
   bool _isCorrect();
   bool _preparNoStat();
 
-  void   _setInternalShortCutVariablesGeneral();
-  void   _setInternalShortCutVariablesModel();
-  int    _setInternalShortCutVariablesNeigh();
+  void _setInternalShortCutVariablesGeneral();
+  void _setInternalShortCutVariablesModel();
 
 private:
   Db* _dbin;
   Db* _dbout;
   ModelGeneric* _model;
-  ANeigh*       _neigh;
-  bool          _isReady;
+  ANeigh* _neigh;
+  bool _isReady;
 
   // Pointers used when plugging KrigingAlgebra (not to be deleted)
   // Note that 'algebra' is mutable not to destroy constness when calling getLambda.
   mutable KrigingAlgebraSimpleCase _algebra;
-  mutable KrigOpt        _krigopt;
-  VectorVectorInt        _sampleRanks; // Vector of vector of sample indices
-  MatrixSymmetric  _Sigma00; // Covariance part for variance
-  MatrixSymmetric  _Sigma;   // Covariance part for LHS
-  MatrixDense      _X;       // Drift part for LHS
-  MatrixDense      _Sigma0;  // Covariance part for RHS
-  MatrixDense      _X0;      // Drift par for RHS
-  VectorDouble           _Z;       // Vector of Data
+  mutable KrigOpt _krigopt;
   VectorDouble _means;            // Means of the variables (used to center variables)
   VectorDouble _meansTarget;      // Means for target (possible using matLC)
 
   /// UID for storage
-  int  _iptrEst;
-  int  _iptrStd;
-  int  _iptrVarZ;
+  int _iptrEst;
+  int _iptrStd;
+  int _iptrVarZ;
   bool _flagEst;
   bool _flagStd;
   bool _flagVarZ;
   bool _flagDataChanged;
 
   /// Option for Weights at Data locations
-  int  _iptrWeights;
+  int _iptrWeights;
   bool _flagWeights;
   bool _flagSet;
-
 
   /// Option for asking for Z * A-1 * Z
   bool _flagLTerm;
 
   /// Option for Neighboring test
-  bool _flagNeighOnly;
+  bool _neighUnique;
   int _iptrNeigh;
 
   /// Local variables
   int _ndim;
   int _nvar;
-  int _nech;
   int _nfeq;
-  int _neq;
 
   /// Working arrays
-  VectorInt    _nbgh;
-  VectorInt    _dbinUidToBeDeleted;
-  VectorInt    _dboutUidToBeDeleted;
-
-  /// Some Space Point allocated once for all
-  //ASpaceSharedPtr    _space;
+  VectorInt _dbinUidToBeDeleted;
+  VectorInt _dboutUidToBeDeleted;
 
   /// Some local flags defined in order to speed up the process
   bool _flagVerr;
