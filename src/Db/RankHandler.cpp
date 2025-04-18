@@ -10,8 +10,10 @@
 /******************************************************************************/
 #include "Db/RankHandler.hpp"
 
+#include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
 #include "Basic/VectorHelper.hpp"
+#include <memory>
 
 RankHandler::RankHandler(const Db* db,
                          bool useSel,
@@ -30,10 +32,11 @@ RankHandler::RankHandler(const Db* db,
   , _iptrExtD()
   , _nbgh()
   , _index()
-  , _Zflatten()
+  , _Zflatten(std::make_shared<VectorDouble>())
   , _db(db)
   , _workNbgh()
 {
+  if (_db == nullptr) return;
   _nvar = _db->getNLoc(ELoc::Z);
   if (_nvar <= 0) _nvar = 1;
 
@@ -42,7 +45,6 @@ RankHandler::RankHandler(const Db* db,
 
   // Column index for selection (if 'useSel' and if present)
   _iptrSel = (_useSel) ? _db->getColIdxByLocator(ELoc::SEL, 0) : -1;
-
   // Column indices for variables (if 'useZ' and if present)
   _iptrZ = VectorInt();
   if (useZ && _db->hasLocator(ELoc::Z))
@@ -86,7 +88,7 @@ RankHandler::RankHandler(const RankHandler& r)
   , _iptrExtD(r._iptrExtD)
   , _nbgh(r._nbgh)
   , _index(r._index)
-  , _Zflatten(r._Zflatten)
+  , _Zflatten(std::make_shared<VectorDouble>())
   , _db(r._db)
   , _workNbgh(r._workNbgh)
 {
@@ -141,7 +143,7 @@ void RankHandler::defineSampleRanks(const VectorInt& nbgh)
   int nech = (int)_nbgh.size();
 
   double value;
-  _Zflatten.clear();
+  _Zflatten->clear();
 
   // Loop on the variables
   for (int ivar = 0; ivar < _nvar; ivar++)
@@ -185,7 +187,7 @@ void RankHandler::defineSampleRanks(const VectorInt& nbgh)
         value = _db->getValueByColIdx(iabs, _iptrZ[ivar]);
         if (FFFF(value)) continue;
 
-        _Zflatten.push_back(value);
+        _Zflatten->push_back(value);
       }
 
       // The sample is finally accepted: its ABSOLUTE index is stored
@@ -284,7 +286,7 @@ void RankHandler::dump(bool flagFull) const
     message("Variable= %d: \n", ivar);
     int size = getCount(ivar);
     for (int i = 0; i < size; i++, lec++)
-      message("- Sample= %2d : Variable value= %lf\n", _index[ivar][i], _Zflatten[lec]);
+      message("- Sample= %2d : Variable value= %lf\n", _index[ivar][i], (*_Zflatten)[lec]);
     message("\n");
   }
 }
