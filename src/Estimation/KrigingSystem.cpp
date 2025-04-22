@@ -457,9 +457,12 @@ void KrigingSystem::_neighCalcul(int status, const VectorDouble& tab)
  *****************************************************************************/
 void KrigingSystem::_estimateEstim(int status)
 {
-  VectorDouble local = _algebra.getEstimation();
-  if (local.size() <= 0) return;
-  if (status) local.fill(TEST);
+  VectorDouble local(_nvarCL, TEST);
+  if (!status)
+  {
+    local = _algebra.getEstimation();
+    if ((int) local.size() < _nvarCL) return;
+  }
   for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
     _dbout->setArray(_iechOut, _iptrEst + ivarCL, local[ivarCL]);
 }
@@ -473,9 +476,12 @@ void KrigingSystem::_estimateEstim(int status)
  *****************************************************************************/
 void KrigingSystem::_estimateStdv(int status)
 {
-  VectorDouble local = _algebra.getStdv();
-  if (local.size() <= 0) return;
-  if (status) local.fill(TEST);
+  VectorDouble local(_nvarCL, TEST);
+  if (!status)
+  {
+    local = _algebra.getStdv();
+    if ((int)local.size() < _nvarCL) return;
+  }
   for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
     _dbout->setArray(_iechOut, _iptrStd + ivarCL, local[ivarCL]);
 }
@@ -489,9 +495,12 @@ void KrigingSystem::_estimateStdv(int status)
  *****************************************************************************/
 void KrigingSystem::_estimateVarZ(int status)
 {
-  VectorDouble local = _algebra.getVarianceZstar();
-  if (local.size() <= 0) return;
-  if (status) local.fill(TEST);
+  VectorDouble local(_nvarCL, TEST);
+  if (!status)
+  {
+    local = _algebra.getVarianceZstar();
+    if ((int)local.size() < _nvarCL) return;
+  }
   for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
     _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, local[ivarCL]);
 }
