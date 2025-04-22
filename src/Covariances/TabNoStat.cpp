@@ -33,7 +33,7 @@ TabNoStat& TabNoStat::operator=(const TabNoStat& m)
 int TabNoStat::removeElem(const EConsElem& econs, int iv1, int iv2)
 {
   ParamId param(econs, iv1, iv2);
-  int res = _items.erase(param);
+  int res = (int) _items.erase(param);
   updateDescription();
   return res;
 }
@@ -106,7 +106,7 @@ int TabNoStat::addElem(std::shared_ptr<ANoStat>& nostat, const EConsElem& econs,
   if (!isValid(econs))
     return 0;
   ParamId param(econs, iv1, iv2);
-  int res       = _items.count(param);
+  int res       = (int) _items.count(param);
   _items[param] = nostat;
   if (res == 1)
   {

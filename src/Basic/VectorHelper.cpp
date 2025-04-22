@@ -2359,7 +2359,7 @@ double VectorHelper::innerProduct(const std::vector<double> &veca, const std::ve
 
 double VectorHelper::innerProduct(const constvect veca, const constvect vecb)
 {
-    return innerProduct(veca.data(), vecb.data(), veca.size());
+  return innerProduct(veca.data(), vecb.data(), (int)veca.size());
 }
 
 double VectorHelper::innerProduct(const VectorDouble &veca,

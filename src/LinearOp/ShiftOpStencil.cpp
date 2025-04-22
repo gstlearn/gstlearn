@@ -179,7 +179,7 @@ void ShiftOpStencil::multiplyByValueAndAddDiagonal(double v1, double v2)
   _weightsSimu = VectorDouble(_weights.size());
   for (int i = 0; i < (int)_weights.size(); i++)
     _weightsSimu[i] = v1 * _weights[i];
-  int center = _relativeShifts.size() / 2;
+  int center = (int) _relativeShifts.size() / 2;
   _weightsSimu[center] += v2;
   _useModifiedShift = true;
 }

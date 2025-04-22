@@ -735,7 +735,7 @@ static void st_compress_array(const Vario *vario,
   int ecr = 0;
   int ipadir = 0;
   int sizein = (int)tabin.size();
-  int sizeout = tabout.size();
+  int sizeout = (int) tabout.size();
   for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
     for (int ilag = 0, nlag = vario->getNLag(idir); ilag < nlag; ilag++, ipadir++)
     {

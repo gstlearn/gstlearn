@@ -414,7 +414,7 @@ const CovAnisoList* CovAnisoList::createReduce(const VectorInt& validVars) const
     CovAniso* covs = newcovlist->getCovAniso(is);
     newcovlist->setCov(is, covs->createReduce(validVars));
   }
-  newcovlist->setNVar(validVars.size());
+  newcovlist->setNVar((int) validVars.size());
   return newcovlist;
 }
 
