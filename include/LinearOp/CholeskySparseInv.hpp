@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 // Taken from:
-// Simpson, Dan. 2024. “Random C++ Part 2: Sparse Partial Inverses in Eigen.” 
+// Simpson, Dan. 2024. "Random C++ Part 2: Sparse Partial Inverses in Eigen."
 // September 5, 2024. https://dansblog.netlify.app/posts/2024-05-08-laplace/laplace.html.
 //
 #pragma once
