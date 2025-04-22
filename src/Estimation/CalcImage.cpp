@@ -237,12 +237,12 @@ DbGrid* CalcImage::_buildMarpat(const NeighImage* neigh,
                                 const MatrixDense& wgt,
                                 int optionVerbose)
 {
-  int nbneigh = (int) ranks.size();
-  int ndim = (int) ranks[0].size();
+  int nbneigh = (int)ranks.size();
+  int ndim    = (int)ranks[0].size();
   int nvar    = wgt.getNCols();
   VectorInt nx(ndim);
   for (int i = 0; i < ndim; i++)
-    nx[i] = 2 * neigh->getImageRadius(i)+ 1;
+    nx[i] = 2 * neigh->getImageRadius(i) + 1;
 
   // Create the relevant DbGrid
   DbGrid* dbgrid   = DbGrid::create(nx);
