@@ -8,12 +8,11 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/VectorNumT.hpp"
-#include "Basic/VectorHelper.hpp"
 
 #include "Basic/File.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/Timer.hpp"
+
+#include <iostream>
+#include "LinearOp/CholeskySparseInv.hpp"
 
 /**
  * This file is meant to perform any test that needs to be coded for a quick trial
@@ -25,131 +24,38 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  // Testing the optimal way to program
-  int n1 = 10000;
-  int n2 = 10000;
-  VectorDouble v1 = VH::simulateGaussian(n1);
-  VectorDouble v2 = VH::simulateGaussian(n2);
-  double vv1;
-  double vv2;
-  double total;
+  using SparseMatrix = Eigen::SparseMatrix<double, Eigen::ColMajor>;
 
-  Timer timer;
+  int Q_inner[]  = {0, 1, 5, 0, 1, 2, 6, 1, 2, 3, 7, 2, 3, 4, 8, 3, 4, 9, 0, 5, 6, 10, 1, 5, 6, 7, 11, 2,
+                    6, 7, 8, 12, 3, 7, 8, 9, 13, 4, 8, 9, 14, 5, 10, 11, 15, 6, 10, 11, 12, 16, 7, 11,
+                    12, 13, 17, 8, 12, 13, 14, 18, 9, 13, 14, 19, 10, 15, 16, 20, 11, 15, 16, 17,
+                    21, 12, 16, 17, 18, 22, 13, 17, 18, 19, 23, 14, 18, 19, 24, 15, 20, 21, 16, 20,
+                    21, 22, 17, 21, 22, 23, 18, 22, 23, 24, 19, 23, 24};
+  int Q_outer[]  = {0, 3, 7, 11, 15, 18, 22, 27, 32, 37, 41, 45, 50, 55, 60, 64, 68, 73, 78, 83,
+                    87, 90, 94, 98, 102, 105};
+  double Q_val[] = {5.0, -1.0, -1.0, -1.0, 5.0, -1.0, -1.0, -1.0, 5.0, -1.0, -1.0, -1.0,
+                    5.0, -1.0, -1.0, -1.0, 5.0, -1.0, -1.0, 5.0, -1.0, -1.0, -1.0, -1.0, 5.0,
+                    -1.0, -1.0, -1.0, -1.0, 5.0, -1.0, -1.0, -1.0, -1.0, 5.0, -1.0, -1.0,
+                    -1.0, -1.0, 5.0, -1.0, -1.0, 5.0, -1.0, -1.0, -1.0, -1.0, 5.0, -1.0,
+                    -1.0, -1.0, -1.0, 5.0, -1.0, -1.0, -1.0, -1.0, 5.0, -1.0, -1.0, -1.0,
+                    -1.0, 5.0, -1.0, -1.0, 5.0, -1.0, -1.0, -1.0, -1.0, 5.0, -1.0, -1.0,
+                    -1.0, -1.0, 5.0, -1.0, -1.0, -1.0, -1.0, 5.0, -1.0, -1.0, -1.0, -1.0,
+                    5.0, -1.0, -1.0, 5.0, -1.0, -1.0, -1.0, 5.0, -1.0, -1.0, -1.0, 5.0, -1.0,
+                    -1.0, -1.0, 5.0, -1.0, -1.0, -1.0, 5.0};
+  Eigen::VectorXd Qinv_true(105);
+  Qinv_true << 0.220593295593296, 0.051483238983239, 0.051483238983239, 0.051483238983239, 0.233306970806971, 0.0547785547785548, 0.0602730602730603, 0.0547785547785548, 0.234139471639472, 0.0547785547785548, 0.0611402486402486, 0.0547785547785548, 0.233306970806971, 0.051483238983239, 0.0602730602730603, 0.051483238983239, 0.220593295593296, 0.051483238983239, 0.051483238983239, 0.233306970806971, 0.0602730602730603, 0.0547785547785548, 0.0602730602730603, 0.0602730602730603, 0.25021645021645, 0.0652680652680653, 0.0652680652680653, 0.0611402486402486, 0.0652680652680653, 0.251621989121989, 0.0652680652680653, 0.0664335664335664, 0.0602730602730603, 0.0652680652680653, 0.25021645021645, 0.0602730602730603, 0.0652680652680653, 0.051483238983239, 0.0602730602730603, 0.233306970806971, 0.0547785547785548, 0.0547785547785548, 0.234139471639472, 0.0611402486402486, 0.0547785547785548, 0.0652680652680653, 0.0611402486402486, 0.251621989121989, 0.0664335664335664, 0.0652680652680653, 0.0664335664335664, 0.0664335664335664, 0.253146853146853, 0.0664335664335664, 0.0664335664335664, 0.0652680652680653, 0.0664335664335664, 0.251621989121989, 0.0611402486402486, 0.0652680652680653, 0.0547785547785548, 0.0611402486402486, 0.234139471639472, 0.0547785547785548, 0.0547785547785548, 0.233306970806971, 0.0602730602730603, 0.051483238983239, 0.0652680652680653, 0.0602730602730603, 0.25021645021645, 0.0652680652680653, 0.0602730602730603, 0.0664335664335664, 0.0652680652680653, 0.251621989121989, 0.0652680652680653, 0.0611402486402486, 0.0652680652680653, 0.0652680652680653, 0.25021645021645, 0.0602730602730603, 0.0602730602730603, 0.0547785547785548, 0.0602730602730603, 0.233306970806971, 0.051483238983239, 0.051483238983239, 0.220593295593296, 0.051483238983239, 0.0602730602730603, 0.051483238983239, 0.233306970806971, 0.0547785547785548, 0.0611402486402486, 0.0547785547785548, 0.234139471639472, 0.0547785547785548, 0.0602730602730603, 0.0547785547785548, 0.233306970806971, 0.051483238983239, 0.051483238983239, 0.051483238983239, 0.220593295593296;
 
-  // Avec les iterateurs
-  timer.reset();
-  VectorDouble::const_iterator iv1(v1.begin());
+  int Q_ncol = 25;
+  int Q_nnz  = 105;
 
-  total = 0.;
-  while (iv1 < v1.end())
-  {
-    vv1 = *iv1;
-    iv1++;
+  SparseMatrix Q = Eigen::Map<SparseMatrix>(Q_ncol, Q_ncol, Q_nnz, Q_outer, Q_inner, Q_val);
 
-    VectorDouble::const_iterator iv2(v2.begin());
-    while (iv2 < v2.end())
-    {
-      vv2 = *iv2;
-      iv2++;
+  auto llt = Eigen::SimplicialLLT<SparseMatrix>(Q);
 
-      total += vv1 * vv2;
-    }
-  }
-  message("Valeur obtenue = %lf\n", total);
-  timer.displayIntervalMilliseconds("Avec les iterateurs begin() et end()");
+  SparseMatrix Qinv        = partial_inverse(llt, Q);
+  Eigen::VectorXd Qinv_val = Eigen::Map<Eigen::VectorXd>(Qinv.valuePtr(), Q_nnz);
 
-  // Avec les crochets
-  total   = 0.;
-  for (int i1 = 0; i1 < n1; i1++)
-  {
-    vv1 = v1[i1];
-    for (int i2 = 0; i2 < n2; i2++)
-    {
-      vv2 = v2[i2];
-      total += vv1 * vv2;
-    }
-  }
-  message("Valeur obtenue = %lf\n", total);
-  timer.displayIntervalMilliseconds("Avec les VectorDouble et les operateurs crochets");
-
-  // Avec les pointeurs
-  const double* ptr1_s = v1.data();
-  const double* ptr2_s = v2.data();
-  const double* ptr1;
-  const double* ptr2;
-  total                = 0.;
-  ptr1 = ptr1_s;
-  for (int i1 = 0; i1 < n1; i1++)
-  {
-    vv1 = *ptr1++;
-    ptr2 = ptr2_s;
-    for (int i2 = 0; i2 < n2; i2++)
-    {
-      vv2 = *ptr2++;
-      total += vv1 * vv2;
-    }
-  }
-  message("Valeur obtenue = %lf\n", total);
-  timer.displayIntervalMilliseconds("Avec les pointeurs sur les data() des vecteur doubles");
-
-  // Avec les 'auto'
-  total = 0.;
-  for (const auto& vv1: v1) {
-    for (const auto& vv2: v2) {
-      total += vv1 * vv2;
-    }
-  }
-  message("Valeur obtenue = %lf\n", total);
-  timer.displayIntervalMilliseconds("Avec les auto");
-
-  // Avec span
-  timer.reset();
-  total           = 0.;
-  const auto v1sp = vect(v1);
-  const auto v2sp = vect(v2);
-  for (const auto vv1: v1sp) {
-    for (const auto vv2: v2sp) {
-      total += vv1 * vv2;
-    }
-  }
-  message("Valeur obtenue = %lf\n", total);
-  timer.displayIntervalMilliseconds("Avec span");
-
-  // auto + getVector
-  total = 0.;
-  for (const auto vv1: v1.getVector()) {
-    for (const auto vv2: v2.getVector()) {
-      total += vv1 * vv2;
-    }
-  }
-  message("Valeur obtenue = %lf\n", total);
-  timer.displayIntervalMilliseconds("Avec auto + getVector");
-
-  // Auto + iterateur
-  total          = 0.;
-  const auto beg = v2.cbegin();
-  const auto end = v2.cend();
-  for (const auto vv1: v1) {
-    for (auto it = beg; it != end; ++it) {
-      total += vv1 * *it;
-    }
-  }
-  message("Valeur obtenue = %lf\n", total);
-  timer.displayIntervalMilliseconds("Avec auto + const iterator");
-
-  // Avec data() + size()
-  total           = 0.;
-  const auto v1s  = v1.size();
-  const auto* v1d = v1.data();
-  const auto v2s  = v2.size();
-  const auto* v2d = v2.data();
-  for (size_t i = 0; i < v1s; ++i) {
-    for (size_t j = 0; j < v2s; ++j) {
-      total += v1d[i] * v2d[j];
-    }
-  }
-  message("Valeur obtenue = %lf\n", total);
-  timer.displayIntervalMilliseconds("Avec data() + size()");
+  std::cout << "The error in the partial inverse is " << (Qinv_val - Qinv_true).norm() << "!" << std::endl;
 
   return (0);
 }
