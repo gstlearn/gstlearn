@@ -1671,7 +1671,7 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
 
   // Loop on Data
   int icol = 0;
-  for (int ivar2 = 0, nvar2 = (int)index2.size(); ivar2 < nvar2; ivar2++)
+  for (int ivar2 = 0; ivar2 < nvar2; ivar2++)
   {
     const VectorInt& index2i = index2[ivar2];
     const int* ptr2          = index2i.data();
@@ -1681,7 +1681,7 @@ MatrixSparse* ACov::evalCovMatSparse(const Db* db1,
       SpacePoint& p2 = optimizationLoadInPlace(irel2, 2, 2);
 
       int irow = 0;
-      for (int ivar1 = 0, nvar1 = (int)index1.size(); ivar1 < nvar1; ivar1++)
+      for (int ivar1 = 0; ivar1 < nvar1; ivar1++)
       {
         const VectorInt& index1i = index1[ivar1];
         for (const auto iabs1: index1i.getVector())
