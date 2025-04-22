@@ -218,7 +218,6 @@ bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelCovList* model)
     retcode        = conv.ConvolveFFT(_iattOut, nvar, marpat, means);
     delete marpat;
   }
-
   return (retcode == 0);
 }
 
