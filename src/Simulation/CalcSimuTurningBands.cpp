@@ -1862,6 +1862,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
 
     for (int ik = 0; ik < dbout->getNSample(); ik++)
     {
+      // Get coordinates of the active target point
       if (!activeArrayOut[ik]) continue;
       dbout->getCoordinatesInPlace(coor1, ik);
 
@@ -1870,6 +1871,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
       int ip_close = -1;
       for (int ip = 0; ip < dbin->getNSample() && ip_close < 0; ip++)
       {
+        // Get the coordinates of the active data point
         if (!activeArrayIn[ip]) continue;
         dbin->getCoordinatesInPlace(coor2, ip);
 
