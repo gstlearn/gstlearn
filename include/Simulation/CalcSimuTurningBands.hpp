@@ -105,13 +105,13 @@ private:
   void _checkGaussianData2Grid(Db *dbin, Db *dbout, Model *model) const;
 
   void _setCodirAng(int ibs, int idir, double value) { _codirs[ibs].setAng(idir, value); }
-  void _setCodirTmin(int ibs, double value) { _codirs[ibs].setTmin(value); }
-  void _setCodirTmax(int ibs, double value) { _codirs[ibs].setTmax(value); }
+  void _setCodirTmin(int ibs, double value)  { _codirs[ibs].setTmin(value); }
+  void _setCodirTmax(int ibs, double value)  { _codirs[ibs].setTmax(value); }
   void _setCodirScale(int ibs, double value) { _codirs[ibs].setScale(value); }
-  void _setCodirT00(int ibs, double value) { _codirs[ibs].setT00(value); }
-  void _setCodirDXP(int ibs, double value) { _codirs[ibs].setDXP(value); }
-  void _setCodirDYP(int ibs, double value) { _codirs[ibs].setDYP(value); }
-  void _setCodirDZP(int ibs, double value) { _codirs[ibs].setDZP(value); }
+  void _setCodirT00(int ibs, double value)   { _codirs[ibs].setT00(value); }
+  void _setCodirDXP(int ibs, double value)   { _codirs[ibs].setDXP(value); }
+  void _setCodirDYP(int ibs, double value)   { _codirs[ibs].setDYP(value); }
+  void _setCodirDZP(int ibs, double value)   { _codirs[ibs].setDZP(value); }
 
   VectorDouble _getCodirAng(int ibs) const { return _codirs[ibs].getAng(); }
   double _getCodirAng(int ibs, int idir) const { return _codirs[ibs].getAng(idir); }
@@ -123,9 +123,9 @@ private:
   double _getCodirTmin(int ibs) const { return _codirs[ibs].getTmin(); }
   double _getCodirTmax(int ibs) const { return _codirs[ibs].getTmax(); }
 
-  int  _getAddressBand(int ivar, int is, int ib, int isimu);
+  int  _getAddressBand(int ivar, int is, int ib, int isimu) const;
   void _setSeedBand(int ivar, int is, int ib, int isimu, int seed);
-  int  _getSeedBand(int ivar, int is, int ib, int isimu);
+  int  _getSeedBand(int ivar, int is, int ib, int isimu) const;
 
   void _rotateDirections(double a[3], double theta);
   int  _generateDirections(const Db* dbout);
@@ -181,14 +181,16 @@ private:
                              int ibs,
                              int is,
                              TurningBandOperate& operTB,
-                             const VectorBool &activeArray,
-                             VectorDouble &tab);
-  void _spreadSpectralOnPoint(const Db *db,
+                             const VectorBool& activeArray,
+                             VectorDouble& tab);
+  void _spreadSpectralOnPoint(const Db* db,
                               int ibs,
                               int is,
                               TurningBandOperate& operTB,
-                              const VectorBool &activeArray,
-                              VectorDouble &tab);
+                              const VectorBool& activeArray,
+                              VectorDouble& tab);
+  void _dumpBands() const;
+  void _dumpSeeds() const;
 
 private:
   int _nbtuba;

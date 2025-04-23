@@ -497,15 +497,19 @@ int KrigingSystemSimpleCase::estimate(int iechout,
     }
   return 0;
 }
-/*****************************************************************....*********/
+
+/******************************************************************************/
 /*!
  **  Print the results
  **
  ** \param[in] status   Kriging error status
  ** \param[in] iechout  Rank of the target in the output Db structure
+ ** \param[in] algebra  Pointer to KrigingAlgebraSimpleCase
  **
  *****************************************************************************/
-void KrigingSystemSimpleCase::_dumpKrigingResults(int status, int iechout, KrigingAlgebraSimpleCase* algebra) const
+void KrigingSystemSimpleCase::_dumpKrigingResults(int status,
+                                                  int iechout,
+                                                  KrigingAlgebraSimpleCase* algebra) const
 {
 
   mestitle(0, "(Co-) Kriging results");
