@@ -31,32 +31,54 @@ plot.initialize <- function()
 #' Check if an argument is defined
 #' @param arg Argument to be checked
 #' @noRd
-.isNotDef <- function(arg)
-{
-  if (is.null(arg)) return (TRUE)
+.isNotDef <- function(arg) {
+  if (is.null(arg)) {
+    return(TRUE)
+  }
   warn.old = options("warn")
   options(warn = -1)
-  if (length(arg) == 1)
-  {
-    if (is.na(arg)) 
-    {
+  if (length(arg) == 1) {
+    if (is.na(arg)) {
       options(warn.old)
-      return (TRUE)
+      return(TRUE)
     }
-  }
-  else
-  {
+  } else {
     for (i in 1:length(arg))
     {
-      if (is.na(arg[i])) 
-      {
+      if (is.na(arg[i])) {
         options(warn.old)
-        return (TRUE)
+        return(TRUE)
       }
     }
   }
   options(warn.old)
-  return (FALSE)
+  return(FALSE)
+}
+
+#' Initialize a new figure and define its environment
+#' This method replaces the initial call to ggplot()
+#'
+#' @param dims Vector giving the dimensions of the figure
+#' @param xlim Bounds of the figure along the horizontal axis (when left to NA, it will be adjusted to the figure contents)
+#' @param ylim Bounds of the figure along the vertical axis (when left to NA, it will be adjusted to the figure contents)
+#' @param asp Aspect ratio Y/X
+#' 
+plot.init(dims = NA, xlim = NA, ylim = NA, asp = NA)
+{
+  if (!require(ggplot2, quietly=TRUE))
+    stop("Package 'ggplot2' is mandatory to use this function!")
+
+  # Initialize the figure
+  p = plot.extension(dims = dims)
+  
+  # Set the geometry of the figure
+  p = append(p, plot.geometry(xlim=xlim, ylim=ylim, asp=asp))
+  
+  # Set the decoration of the figure
+  p = append(p, plot.decoration())
+  
+  # Return the ggplot object
+  p
 }
 
 #' Set the default values for all subsequent Geographical figures
@@ -393,23 +415,19 @@ plot.decoration <- function(xlab = NA, ylab = NA, title = NA)
   p
 }
 
-#' Set the Geometry for the current plot
+#' Set the Extension for the current plot
 #'
 #' @param dims Dimension of the figure
 #' @return The ggplot object
 plot.extension <- function(dims=NA)
 {
+  p = list()
 
-  if (! .isNotDef(dims[1]))
+  if (.isArray(dims, 2))
   {
-    if (.isArray(dims, 2))
-    {
-      options(repr.plot.width  = dims[1], repr.plot.height = dims[2])
-    }
-    else
-      cat("'dims' should be [a,b]. Ignored\n")
+    p <- append(p, options(repr.plot.width = dims[1], repr.plot.height = dims[2]))
   }
-  ggplot()
+  p
 }
 
 #' Set the Geometry for the current plot
