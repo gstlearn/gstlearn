@@ -222,12 +222,12 @@ knitr::kable(tab, digits = 6, caption = paste0("Statistics for simulation of ",
 Visualization 2D
 
 ```{r Visu2D}
-p = ggDefaultGeographic() +
+p = plot.init(asp=1) +
   plot.grid(grd, nameRaster = "Simu", flagLegendRaster = TRUE, legendNameRaster = "Y", 
             palette = "Spectral") +
   plot.decoration(xlab = "Longitude", ylab = "Colatitutde", 
                   title = paste0(covname, " model on S2"))
-ggPrint(p) 
+plot.end(p) 
 ```
 
 Visualization 3D

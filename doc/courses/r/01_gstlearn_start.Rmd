@@ -59,10 +59,10 @@ err = simtub(NULL, db, model, nbtuba=1000)
 The simulated result is plotted
 
 ```{r Display-the-grid}
-p = plot.init()
+p = plot.init(asp=1)
 p = p + plot.grid(db)
 p = p + plot.decoration(title="Check is successful!")
-ggPrint(p)
+plot.end(p)
 ```
 
 If you obtain a nice looking image corresponding to the simulation result on the grid ... the installation of **gstlearn** is successfull. Here is the description of your grid database content:

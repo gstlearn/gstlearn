@@ -63,11 +63,10 @@ Defining the internal function **plot.dat** used to visualize the data set with 
 Display Data
 
 ```{r Internal_Function}
-plot.setDefaultGeographic(dims=c(6,6))
-p = ggDefaultGeographic() +
+p = plot.init(dims=c(6,6)) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap) +
   plot.decoration(title="Conditioning Information")
-ggPrint(p)
+plot.end(p)
 ```
 
 Proportions and Lithotype Rule
@@ -76,10 +75,10 @@ Proportions and Lithotype Rule
 props = dbStatisticsFacies(data)
 rule = Rule_createFromNames(c("S","S","F1","F2","F3"))
 
-p = ggplot() +
+p = plot.init(dims=c(6,6)) +
   plot(rule, proportions = props, maxG=3, cols=cmap, legendName="Facies") +
   plot.decoration(title="Lithotype Rule")
-ggPrint(p)
+plot.end(p)
 ```
 
 # Variography
@@ -97,7 +96,7 @@ model_gaus = Model()
 err = model_gaus$fit(vario, types=ECov_fromKeys(c("CUBIC")), 
                      constraints=Constraints(1.))
 
-ggplot() + plot.varmod(vario, model_gaus, asCov=TRUE)
+plot.init(dims = c(6, 6)) + plot.varmod(vario, model_gaus, asCov = TRUE)
 ```
 
 # Simulations
@@ -112,16 +111,16 @@ err = simpgs(dbin=data, dbout=grid, ruleprop=ruleprop, model1=model_gaus,
 
 
 ```{r Show_several_simulation_outcome}
-p1 = ggDefaultGeographic() +
+p1 = plot.init(dims=c(6,6)) +
   plot(grid, nameRaster="SimuPGS.1", palette=cmap) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap)
-p2 = ggDefaultGeographic() +
+p2 = plot.init(dims=c(6,6)) +
   plot(grid, nameRaster="SimuPGS.2", palette=cmap) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap)
-p3 = ggDefaultGeographic() +
+p3 = plot.init(dims=c(6,6)) +
   plot(grid, nameRaster="SimuPGS.3", palette=cmap,) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap)
-p4 = ggDefaultGeographic() +
+p4 = plot.init(dims=c(6,6)) +
   plot(grid, nameRaster="SimuPGS.4", palette=cmap) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap)
 ggarrange(p1,p2,p3,p4, nrow=2, ncol=2)
@@ -212,10 +211,10 @@ grid$statisticsBySample(c("SimuPGS*"),EStatOption_fromKeys(c("MEAN")))
 Display
 
 ```{r}
-p = ggDefaultGeographic() +
+p = plot.init(dims=c(6,6)) +
   plot(grid,"Stats.MEAN") +
   plot(data,nameColor="facies", nameSize="connect", palette=cmap) +
   plot.decoration(title="Probability of Connecting Wells")
-ggPrint(p)
+plot.end(p)
 ```
 

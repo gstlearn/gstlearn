@@ -16,18 +16,6 @@
 # - ggrepel: used to take care of placing the labels to minimize overlap 
 #
 
-#' Define the global values in the given environment position (search)
-#
-plot.initialize <- function() 
-{
-  pos = match(paste0("package:", "gstlearn"), search())
-  assign("plot.defaultDims", list(c(8,8), c(8,8)), pos=pos)
-  assign("plot.defaultXlim", list(c(NA,NA), c(NA,NA)), pos=pos)
-  assign("plot.defaultYlim", list(c(NA,NA), c(NA,NA)), pos=pos)
-  assign("plot.defaultAspect",  c(0, 1), pos=pos)
-  invisible()
-}
-
 #' Check if an argument is defined
 #' @param arg Argument to be checked
 #' @noRd
@@ -56,124 +44,30 @@ plot.initialize <- function()
 }
 
 #' Initialize a new figure and define its environment
-#' This method replaces the initial call to ggplot()
+#' This method includes the initial call to ggplot()
 #'
 #' @param dims Vector giving the dimensions of the figure
 #' @param xlim Bounds of the figure along the horizontal axis (when left to NA, it will be adjusted to the figure contents)
 #' @param ylim Bounds of the figure along the vertical axis (when left to NA, it will be adjusted to the figure contents)
 #' @param asp Aspect ratio Y/X
 #' 
-plot.init(dims = NA, xlim = NA, ylim = NA, asp = NA)
+plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA)
 {
   if (!require(ggplot2, quietly=TRUE))
     stop("Package 'ggplot2' is mandatory to use this function!")
 
-  # Initialize the figure
-  p = plot.extension(dims = dims)
-  
+  # Define the size of the graphics
+  if (.isArray(dims, 2))
+    options(repr.plot.width = dims[1], repr.plot.height = dims[2])
+
+  # Initialize a new plot
+  p = ggplot()
+
   # Set the geometry of the figure
-  p = append(p, plot.geometry(xlim=xlim, ylim=ylim, asp=asp))
-  
-  # Set the decoration of the figure
-  p = append(p, plot.decoration())
+  p = p + plot.geometry(xlim=xlim, ylim=ylim, asp=asp)
   
   # Return the ggplot object
   p
-}
-
-#' Set the default values for all subsequent Geographical figures
-#'
-#' @param dims Vector giving the dimensions of the figure
-#' @param xlim Bounds of the figure along the horizontal axis (when left to NA, it will be adjusted to the figure contents)
-#' @param ylim Bounds of the figure along the vertical axis (when left to NA, it will be adjusted to the figure contents)
-#' @param asp Aspect ratio Y/X
-plot.setDefaultGeographic <- function(dims=NA, xlim=NA, ylim=NA, asp=NA)
-{
-  .plot.setDefaultInternal(2, dims=dims, xlim=xlim, ylim=ylim, asp=asp)
-}
-
-#' Set the default values for all subsequent non-Geographical figures
-#'
-#' @param dims Vector giving the dimensions of the figure
-#' @param xlim Bounds of the figure along the horizontal axis (when left to NA, it will be adjusted to the figure contents)
-#' @param ylim Bounds of the figure along the vertical axis (when left to NA, it will be adjusted to the figure contents)
-#' @param asp Aspect ratio Y/X
-plot.setDefault <- function(dims=NA, xlim=NA, ylim=NA, asp=NA)
-{
-  .plot.setDefaultInternal(1, dims=dims, xlim=xlim, ylim=ylim, asp=asp)
-}
-
-#' Set the default values for all subsequent Geographical figures
-#' @param mode 1 for Geographical and 2 for non-Geographical parameteres
-#' @param dims Dimensions of the figures
-#' @param xlim Bounds along the horizontal axis
-#' @param ylim Bounds along the vertical axis
-#' @param asp Aspect ratio Y/X
-#' @noRd
-.plot.setDefaultInternal <- function(mode=1, dims=NA, xlim=NA, ylim=NA, asp=NA)
-{
-  pos = match(paste0("package:", "gstlearn"), search())
-  gstlearnEnv = as.environment("package:gstlearn")
-  if (!.isNotDef(dims))
-  {
-    unlockBinding("plot.defaultDims", env=gstlearnEnv)
-    local.defaultDims = plot.defaultDims
-  	local.defaultDims[[mode]] <- dims
-    assign("plot.defaultDims", local.defaultDims, pos=pos)
-  }
-  if (!.isNotDef(xlim))
-  {
-    unlockBinding("plot.defaultXlim", env=gstlearnEnv)
-    local.defaultXlim = plot.defaultXlim
-    local.defaultXlim[[mode]] <- xlim
-    assign("plot.defaultXlim", local.defaultXlim, pos=pos)
-  }
-  if (!.isNotDef(ylim))
-  {
-    unlockBinding("plot.defaultYlim", env=gstlearnEnv)
-    local.defaultYlim = plot.defaultYlim
-    local.defaultYlim[[mode]] <- ylim
-    assign("plot.defaultYlim", local.defaultYlim, pos=pos)
-  }    
-  if (!.isNotDef(asp))
-  {
-    unlockBinding("plot.defaultAspect", env=gstlearnEnv)
-    local.defaultAspect = plot.defaultAspect
-    local.defaultAspect[[mode]] <- asp
-    assign("plot.defaultAspect",  local.defaultAspect, pos=pos)
-  }
-}
-
-#' Print the Default values for both Geographical and non-geographical subsequent figures
-plot.printDefault <- function()
-{
-  for (mode in 1:2)
-  {
-    if (mode == 1)
-      cat("Non geographical defaults (mode=1):\n")
-    else
-      cat("Geographical defaults (mode=2):\n")
-    
-    if (!.isNotDef(plot.defaultDims[[mode]]))
-      cat("- Figure dimensions =", plot.defaultDims[[mode]],"\n")
-    else
-      cat("- Figure dimensions (not defined)\n")
-    
-    if (!.isNotDef(plot.defaultXlim[[mode]]))
-      cat("- Limits along X =",plot.defaultXlim[[mode]],"\n")
-    else
-      cat("- Limits along X (not defined)\n")
-    
-    if (!.isNotDef(plot.defaultYlim[[mode]]))
-      cat("- Limits along Y =",plot.defaultYlim[[mode]],"\n")
-    else
-      cat("- Limits along Y (not defined)\n")
-    
-    if (plot.defaultAspect[mode] != 0)
-      cat("- Aspect =",plot.defaultAspect[mode],"\n")
-    else
-      cat("- Aspect (automatic)\n")
-  }  
 }
 
 #' Allow redefining a new aesthetic element (if already defined)
@@ -185,105 +79,150 @@ appendNewScale <- function(p, aestype)
 }
 
 #' Define the "colour" using input 'palette' definition
-#' @param p Already existing list of ggplot commands
 #' @param palette Reference palette used for defining the current color map
 #' @param naColor Color used for representing NA values
 #' @param flagDiscrete True for defining a Discrete Color scale
-#' @noRd
-.defineColour <- function(palette, naColor=NA, flagDiscrete=FALSE, ...)
+#' @param limits Limits for the color scale
+#' @param title Title of the color scale
+.defineColour <- function(palette, naColor="transparent", flagDiscrete=FALSE, limits=NULL, title=NA)
 {
   rcb <- c("Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu",
-      "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd",
-      "Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1", "Set2", "Set3",
-      "BrBG", "PiYG", "PRGn", "PuOr", "RdBu", "RdGy", "RdYlBu", "RdYlGn", "Spectral")
+           "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd",
+           "Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1", "Set2", "Set3",
+           "BrBG", "PiYG", "PRGn", "PuOr", "RdBu", "RdGy", "RdYlBu", "RdYlGn", "Spectral")
   v <- c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo",
-      "A", "B", "C", "D", "E", "F", "G", "H")
+         "A", "B", "C", "D", "E", "F", "G", "H")
   rcb_num <- 1:18
   
-  aes_list = c("colour")
+  aes_list = c("color")
+  
+  name=waiver()
+  if(!is.na(title)){
+    if(is.character(title)){
+      name=title
+    }
+  }
   
   if (flagDiscrete)
   {
-  	layer = scale_colour_manual(name="colors", values= palette, aesthetics=aes_list, 
-            na.value = naColor, ...)
+    layer = scale_colour_manual(name="colors", values= palette, aesthetics=aes_list,
+                                na.value = naColor,name=name)
   }
   else
   {
-  	if (length(palette) == 0) 
- 	{
- 		layer = scale_colour_gradient(na.value=naColor, aesthetics=aes_list,...)
- 	}
-	else if(length(palette) == 1) 
- 	{
- 	    if (any(palette == rcb) | any(palette == rcb_num)) 
- 	    {
- 	    	layer = scale_colour_distiller(palette=palette, aesthetics=aes_list, 
-  	                na.value=naColor, ...)
-  	    } 
- 	  	else if(any(palette == v)) 
- 	    {
-	        layer = scale_colour_viridis_c(option=palette, aesthetics=aes_list, 
-	                na.value = naColor, ...)
- 	    } 
- 	} 
- 	else 
-	{
- 	    layer = scale_colour_gradientn(colors=palette, aesthetics=aes_list, 
-  	            na.value=naColor, ...)
-  	} 
+    if (length(palette) == 0)
+    {
+      layer = scale_colour_viridis_c(option="viridis", aesthetics=aes_list,
+                                     na.value = naColor, limits=limits,name=name)
+      # layer = scale_colour_gradient(na.value=naColor, aesthetics=aes_list, limits=limits)
+    }
+    else if(length(palette) == 1)
+    {
+      if (any(palette == rcb) | any(palette == rcb_num))
+      {
+        layer = scale_colour_distiller(palette=palette, aesthetics=aes_list,
+                                       na.value=naColor,name=name)
+      }
+      else if(any(palette == v))
+      {
+        layer = scale_colour_viridis_c(option=palette, aesthetics=aes_list,
+                                       na.value = naColor, limits=limits,name=name)
+      }else{
+        layer = scale_colour_viridis_c(option="viridis", aesthetics=aes_list,
+                                       na.value = naColor, limits=limits,name=name)
+      }
+    }
+    else
+    {
+      layer = scale_colour_gradientn(colours=palette, aesthetics=aes_list,
+                                     na.value=naColor, limits=limits,name=name)
+    }
   }
-  layer
+  return(layer)
 }
 
+
 #' Define the "fill" using input 'palette' definition
-#' @param p Already existing list of ggplot commands
 #' @param palette Reference palette used for defining the current color map
 #' @param naColor Color used for representing NA values
 #' @param flagDiscrete True for defining a Discrete Color scale
+#' @param limits Limits for the color scale
+#' @param title Title of the color scale
 #' @noRd
-.defineFill <- function(palette, naColor=NA, flagDiscrete=FALSE, ...)
+.defineFill <- function(palette, naColor="transparent", flagDiscrete=FALSE, limits=NULL, title=NA)
 {
+  
   rcb <- c("Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu",
-      "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd",
-      "Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1", "Set2", "Set3",
-      "BrBG", "PiYG", "PRGn", "PuOr", "RdBu", "RdGy", "RdYlBu", "RdYlGn", "Spectral")
+           "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd",
+           "Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1", "Set2", "Set3",
+           "BrBG", "PiYG", "PRGn", "PuOr", "RdBu", "RdGy", "RdYlBu", "RdYlGn", "Spectral")
   v <- c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo",
-      "A", "B", "C", "D", "E", "F", "G", "H")
+         "A", "B", "C", "D", "E", "F", "G", "H")
   rcb_num <- 1:18
   
   aes_list = c("fill")
   
+  name=waiver()
+  if(!is.na(title)){
+    if(is.character(title)){
+      name=title
+    }
+  }
+  
   if (flagDiscrete)
   {
-  	layer = scale_fill_manual(name="colors", values= palette, aesthetics=aes_list, 
-            na.value = naColor, ...)
+    layer = scale_fill_manual(values= palette, 
+                              na.value = naColor,name=name)
   }
   else
   {
-  	if (length(palette) == 0) 
- 	{
- 		layer = scale_fill_gradient(na.value=naColor, aesthetics=aes_list,...)
- 	}
-	else if(length(palette) == 1) 
- 	{
- 	    if (any(palette == rcb) | any(palette == rcb_num)) 
- 	    {
- 	    	layer = scale_fill_distiller(palette=palette, aesthetics=aes_list, 
-  	                na.value=naColor, ...)
-  	    } 
- 	  	else if(any(palette == v)) 
- 	    {
-	        layer = scale_fill_viridis_c(option=palette, aesthetics=aes_list, 
-	                na.value = naColor, ...)
- 	    } 
- 	} 
- 	else 
-	{
- 	    layer = scale_fill_gradientn(colors=palette, aesthetics=aes_list, 
-  	            na.value=naColor, ...)
-  	} 
+    if (length(palette) == 0)
+    {
+      layer = scale_fill_viridis_c(option="viridis", aesthetics=aes_list,
+                                   na.value = naColor, limits=limits,name=name)
+    }
+    else if(length(palette) == 1)
+    {
+      if (any(palette == rcb) | any(palette == rcb_num))
+      {
+        layer = scale_fill_distiller(palette=palette, aesthetics=aes_list,
+                                     na.value=naColor, limits=limits,name=name)
+      }
+      else if(any(palette == v))
+      {
+        layer = scale_fill_viridis_c(option=palette, aesthetics=aes_list,
+                                     na.value = naColor, limits=limits,name=name)
+      }else{
+        layer = scale_fill_viridis_c(option="viridis", aesthetics=aes_list,
+                                     na.value = naColor, limits=limits,name=name)
+      }
+    }
+    else
+    {
+      layer = scale_fill_gradientn(colours=palette, aesthetics=aes_list,
+                                   na.value=naColor, limits=limits,name=name)
+    }
   }
-  layer
+  return(layer)
+}
+
+#' Print the list of predefined color palettes in \pkg{gstlearn}.
+#'
+#' @return Prints the list of color palette names and returns nothing.
+#'
+printAllPalettes <- function() 
+{
+  rcb <- c(
+    "Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu",
+    "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd",
+    "Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1", "Set2", "Set3",
+    "BrBG", "PiYG", "PRGn", "PuOr", "RdBu", "RdGy", "RdYlBu", "RdYlGn", "Spectral"
+  )
+  v <- c(
+    "magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo",
+    "A", "B", "C", "D", "E", "F", "G", "H"
+  )
+  print(c(rcb, v))
 }
 
 #' Define a series of distinct colors
@@ -297,7 +236,7 @@ appendNewScale <- function(p, aestype)
 #'
 #' @param p Current contents of the ggplot()
 #' @param flagSuppressWarnings TRUE to suppress informational warnings
-ggPrint <- function(p, flagSuppressWarnings = TRUE)
+plot.end <- function(p, flagSuppressWarnings = TRUE)
 {
   if (flagSuppressWarnings)
     suppressWarnings(plot(p))
@@ -306,59 +245,9 @@ ggPrint <- function(p, flagSuppressWarnings = TRUE)
   invisible()
 }
 
-#' Initiate a Geographical display (using the default values for parameters)
-#' @param figsize Optional parameter giving the dimensions of the figure
-#' @return The ggplot object
-#' @note When 'figsize' is defined, it overwrites the default dimensions 
-#' @note coming from the geographical and non-geographical environments
-#' @note Use printDefault() to visualize them and setDefaultGeographic() to modify them
-ggDefaultGeographic <- function(figsize=NA)
-{
-  if (!require(ggplot2, quietly=TRUE))
-    stop("Package 'ggplot2' is mandatory to use this function!")
-
-  mode = 2
-    
-  if (.isNotDef(figsize))
-     locdims = plot.defaultDims[[mode]]
-  else
-     locdims = figsize
-  
-  p <- plot.extension(dims = locdims)
-
-  p <- p + plot.geometry(xlim=plot.defaultXlim[[mode]], 
-                         ylim=plot.defaultYlim[[mode]], 
-                         asp=plot.defaultAspect[mode])
-  p
-}
-
-#' Initiate a non-geographical display (using the default values for parameters)
-#' @return The initiated ggplot object
-#' @param figsize Optional parameter giving the dimensions of the figure
-#' @note Use printDefault() to visualize them and setDefault() to modify them
-ggDefault <- function(figsize=NA)
-{
-  if (!require(ggplot2, quietly=TRUE))
-    stop("Package 'ggplot2' is mandatory to use this function!")
-  
-  mode = 1
-  
-  if (.isNotDef(figsize))
-     locdims = plot.defaultDims[[mode]]
-  else
-     locdims = figsize
-  
-  p <- plot.extension(dims = locdims)
-
-  p <- p + plot.geometry(xlim=plot.defaultXlim[[mode]], 
-                         ylim=plot.defaultYlim[[mode]], 
-                         asp=plot.defaultAspect[mode])
-  p
-}
-
-#' Check if the argument can be considered as an array (with possibly required dimensions)
+#' Check if the argument can be considered as an array (with possibly imposed dimensions)
 #' @param arg Input argument
-#' @param ndim Required dimension for the input argument (no check is performed if NA)
+#' @param ndim Imposed dimension for the input argument (no check is performed if NA)
 #' @noRd
 .isArray <- function(arg, ndim=NA)
 {
@@ -396,11 +285,11 @@ ggDefault <- function(figsize=NA)
 
 #' Draw the decoration of a figure (title, axis labels, ...)
 #'
+#' @param title Title of the figure
 #' @param xlab Label along the horizontal axis
 #' @param ylab Label along the vertical axis
-#' @param title Title of the figure
 #' @return The ggplot object
-plot.decoration <- function(xlab = NA, ylab = NA, title = NA)
+plot.decoration <- function(title=NA, xlab = NA, ylab = NA)
 {
   p = list()
   if (!.isNotDef(xlab))
@@ -411,21 +300,6 @@ plot.decoration <- function(xlab = NA, ylab = NA, title = NA)
   {
     p <- append(p, list(labs(title = title)))
     p <- append(p, list(theme(plot.title = element_text(hjust = 0.5))))
-  }
-  p
-}
-
-#' Set the Extension for the current plot
-#'
-#' @param dims Dimension of the figure
-#' @return The ggplot object
-plot.extension <- function(dims=NA)
-{
-  p = list()
-
-  if (.isArray(dims, 2))
-  {
-    p <- append(p, options(repr.plot.width = dims[1], repr.plot.height = dims[2]))
   }
   p
 }
@@ -816,8 +690,9 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
     envColor='black', envLinetype="dashed", envSize=0.5,
     ...)
 {
-  if (!require(ggpubr, quietly=TRUE))
+  if (!require(ggpubr, quietly = TRUE))
     stop("Package ggpubr is mandatory to use this function!")
+  
   nvar = vario$getNVar()
   
   ivarUtil = .selectItemsInList(nvar, ivar)
@@ -840,7 +715,7 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
       # Define the current plot
       index = index + 1
       
-      g = ggDefault()
+      g = plot.init()
       
       if (ivar < jvar)
       {
@@ -1022,8 +897,9 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
     legendNameColor=NULL, legendNameSize=NULL, legendNameLabel=NULL, 
     textColor="black", ...)
 {
-  if (!require(ggnewscale, quietly=TRUE))
+  if (!require(ggnewscale, quietly = TRUE))
     stop("Package ggnewscale is mandatory to use this function!")
+  
   p = list()
   title = ""
   
@@ -1177,8 +1053,9 @@ plot.grid <- function(dbgrid, nameRaster=NULL, nameContour=NULL,
     legendNameRaster=NULL, legendNameContour=NULL,
     ...)
 {
-  if (!require(ggnewscale, quietly=TRUE))
+  if (!require(ggnewscale, quietly = TRUE)) 
     stop("Package ggnewscale is mandatory to use this function!")
+  
   if (! dbgrid$isGrid())
   {
     cat("This function is restricted to Grid Db and cannot be used here\n")
@@ -1708,8 +1585,9 @@ plot.neigh <- function(neigh, grid, node=0, flagCell=FALSE, flagZoom=FALSE, ...)
 plot.covaOnGrid <- function(cova, dbgrid, useSel=TRUE, color='black', 
     flagOrtho=TRUE, scale=40, ...)
 {
-  if (!require(ggplot2, quietly=TRUE))
+  if (!require(ggplot2, quietly = TRUE))
     stop("Package ggplot2 is mandatory to use this function!")
+  
   # Extracting coordinates
   tab = dbgrid$getAllCoordinates(useSel)
   # Process the non-stationarity
@@ -1732,15 +1610,6 @@ plot.covaOnGrid <- function(cova, dbgrid, useSel=TRUE, color='black',
 p
 }
 
-# The following code has been moved in rgstlearn.i (to prevent roxygen from crashing
+# The following Method definitions has been moved in rgstlearn.i (to prevent roxygen from crashing
+# One example is provided next...
 #setMethod("plot", signature(x="_p_AMesh"), function(x,y=missing,...)   plot.mesh(x,...))
-#setMethod("plot", signature(x="_p_DbGrid"), function(x,y="missing",...)  plot.grid(x,...))
-
-#setMethod("plot", signature(x="_p_Db"), function(x,y=missing,...) plot.point(x,...))
-#setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))
-
-#setMethod("plot", signature(x="_p_Vario"), function(x,y=missing,...) plot.vario(x,...))
-#setMethod("plot", signature(x="_p_Model"), function(x,y="missing",...) plot.model(x,...))
-
-#setMethod("plot", signature(x="_p_Rule"), function(x,y="missing",...) plot.rule(x,...))
-#setMethod("plot", signature(x="_p_AAnam"), function(x,y="missing",...) plot.anam(x,...))

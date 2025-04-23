@@ -49,5 +49,5 @@ The grid is plotted (this uses a function provided in plot.r)
 p = ggplot()
 p = p + plot(mygrid, nameRaster="var1")
 p = p + plot.decoration(title="Test successfull")
-ggPrint(p)
+plot.end(p)
 ```

@@ -206,11 +206,11 @@ draw.matrix <- function(type,calcul,flag.est,params,flag.cut=TRUE)
 {
   title = get.title(type,calcul,flag.est,params)
   db = calculate.matrix(type,calcul,flag.est,params)
-  p = ggplot()
+  p = ggplot(asp=1)
   p = p + plot.grid(db,nameRaster="psi")
   p = p + plot.decoration(title=title)
   if (flag.cut) p <- p + geom_vline(xintercept = params$yc)
-  ggPrint(p)
+  plot.end(p)
 }
 
 # Representation of a scatter plot
@@ -222,7 +222,7 @@ draw.correlation <- function(calcul,flag.est,params,flag.iso=TRUE)
   p = ggplot()
   p = p + plot.correlation(db1,"psi","psi",db2, flagDiag=TRUE, bins=100)
   p = p + plot.decoration(title=title,xlab="Hermite",ylab="Monte Carlo")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -335,7 +335,7 @@ p = ggplot()
 p = p + plot.XY(yy, zz_theo, color = "red", flagLine=TRUE)
 p = p + plot.XY(yy, zz_hm, color = "blue", flagLine=TRUE, linetype="dashed")
 p = p + plot.decoration(xlab = "Y", ylab = "Z", title = "Lognormal transform")
-ggPrint(p)
+plot.end(p)
 ```
 
 
@@ -344,7 +344,7 @@ p = ggplot()
 p = p + plot.XY(zz_theo, zz_hm, color = "blue", flagLine=TRUE)
 p = p + plot.decoration(xlab = "theoretical", ylab = "Hermite pol.", 
                         title = "Lognormal transform")
-ggPrint(p)
+plot.end(p)
 ```
 
 Covariance
@@ -358,7 +358,7 @@ p = p + plot.XY(r, C_theo(r), color = "red", flagLine=TRUE)
 p = p + plot.XY(r,C_nh(r), color = "blue", linetype="dashed", flagLine=TRUE)
 p = p + plot.decoration(xlab = "Covariance of Y", ylab = "Covarariance of Z", 
                         title = "Lognormal transform")
-ggPrint(p)
+plot.end(p)
 ```
 
 ## Performing similar tests with gstlearn
@@ -379,7 +379,7 @@ p = ggplot()
 p = p + plot.anam(ana, aymin=aymin, aymax=aymax)
 p = p + plot.XY(yy, zz_theo, color="red", linetype="dashed", flagLine=TRUE)
 p = p + plot.decoration(title="Lognormal Transform")
-ggPrint(p)
+plot.end(p)
 
 #legend("topleft", legend = c("theoretical", "gstlearn"), col = c("red", "black"), lty = c(1,1))
 ```
@@ -389,7 +389,7 @@ ggPrint(p)
 zz_rg = ana$gaussianToRawVector(yy)
 p = plot.XY(zz_theo, zz_rg, flagLine=TRUE, color="blue")
 p = plot.decoration(xlab="theoretical", ylab="Hermite pol.", title="Lognormal Transform")
-ggPrint(p)
+plot.end(p)
 #legend("topleft", legend = c("transform", "Y=X"), col = c("blue", "red"), lty = c(1,2))
 ```
 
@@ -420,7 +420,7 @@ p = p + plot.XY(r, cov_theo, color = "red", flagLine=TRUE)
 p = p + plot.XY(r, cov_rg, color = "blue", linetype = "dashed", flagLine=TRUE)
 p = p + plot.decoration(xlab = "Covariance of Y", ylab = "Covariance of Z", 
                         title = "Lognormal transform")
-ggPrint(p)
+plot.end(p)
 
 #legend("topleft", legend = c("theoretical", "gstlearn"), col = c("red", "blue"), lty = c(1,2))
 ```
@@ -466,7 +466,7 @@ p = p + plot.XY(yy, pmax(yc, yy), color = "blue", linetype = "dashed", flagLine=
 p = p + plot.decoration(xlab = "Y", ylab = "Z", 
                         title = paste0("cut = ",round(yc,2), " nh = ", nh))
 p = p + plot.geometry(ylim=ylim)
-ggPrint(p)
+plot.end(p)
 
 #legend("topleft", legend = c("theoretical", "Hermit. pol."), col = c("blue", "red"), lty = #c(1,2))
 ```
@@ -483,7 +483,7 @@ p = p + plot.decoration(xlab = "Y", ylab = "Indicator",
                         title = paste0("cut = ",round(yc,2), " nh = ", nh)) 
 p = p + plot.geometry(ylim = range(-0.5, 1.5))
 p = p + plot.XY(yy, as.numeric(yy >= yc), color = "blue", linetype="dashed", flagLine=TRUE)
-ggPrint(p)
+plot.end(p)
 
 #legend("bottomright", legend = c("theoretical", "Hermit. pol."), col = c("blue", "red"), lty = #c(1,2))
 ```

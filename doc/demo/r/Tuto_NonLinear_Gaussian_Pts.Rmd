@@ -170,19 +170,19 @@ m_Z = 1.5
 s_Z = 0.5
 grid["Z"] = m_Z * exp(s_Z * grid["Y"] - 0.5*s_Z^2)
 
-p = ggplot()
+p = ggplot(asp=1)
 p = p + plot.grid(grid, "Z")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot.hist(grid, name = "Y", bins=100, col='gray', fill='skyblue')
 p = p + plot.decoration(xlab = "Y", title = "Simulated samples (Y variable)")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot.hist(grid, name = "Z", bins = 100, col = "gray", fill = "orange")
 p = p + plot.decoration(xlab = "Z", title = "Simulated samples (Z variable)")
-ggPrint(p)
+plot.end(p)
 
 opers = EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
 stats = dbStatisticsMono(grid, c("Y","Z"), opers=opers)
@@ -202,17 +202,17 @@ data$display()
 
 p = ggplot()
 p = p + plot.point(data, nameColor = "Z", nameSize = "Z", flagLegendSize = TRUE)
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot.hist(data, name = "Y", bins = 100, col = "gray", fill = "skyblue")
 p = p + plot.decoration(xlab = "Y", title = "Sampled data (Y variable)")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot.hist(data, name = "Z", bins = 100, col = "gray", fill = "orange")
 p = p + plot.decoration(xlab = "Z", title = "Sampled data (Z variable)")
-ggPrint(p)
+plot.end(p)
 
 stats = dbStatisticsMono(data, c("Y","Z"), opers=opers)
 knitr::kable(stats$toTL(), digits=2, 
@@ -257,7 +257,7 @@ data["Gaussian.Z"] <- VectorHelper_normalScore(data["Z"])
 p = ggplot()
 p = p + plot.hist(data, name = "Gaussian.Z", bins = 25, col = "gray", fill = "yellow") 
 p = p + plot.decoration(xlab = "Normal score")
-ggPrint(p)
+plot.end(p)
 
 data$display()
 ```
@@ -293,7 +293,7 @@ model_raw$display()
 p = ggplot()
 p = p + plot.varmod(vario_raw, model_raw)
 p = p + plot.decoration(title = "Raw variable")
-ggPrint(p)
+plot.end(p)
 ```
 
 # Variography of the Gaussian variable
@@ -313,7 +313,7 @@ model$display()
 p = ggplot()
 p = p + plot.varmod(vario, model)
 p = p + plot.decoration(title = "Gaussian variable")
-ggPrint(p)
+plot.end(p)
 
 model_Y = model$clone()
 
@@ -328,7 +328,7 @@ model$setActiveFactor(-1)
 p = ggplot()
 p = p + plot.varmod(vario_raw, model)
 p = p + plot.decoration(title = "Raw variable (model of the Gaussian)")
-ggPrint(p)
+plot.end(p)
 model$setActiveFactor(0)
 ```
 
@@ -409,13 +409,13 @@ p = ggplot()
 p = p + plot(blocs, nameRaster="G_Pts.Gaussian.Z.estim", 
          flagLegendRaster=TRUE, legendNameRaster = "Estimation")
 p = p + plot.decoration(title = "Punctual Simple Kriging of Y")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot(blocs, nameRaster="G_Pts.Gaussian.Z.stdev", 
          flagLegendRaster=TRUE, legendNameRaster = "Std. Dev.")
 p = p + plot.decoration(title = "Punctual Simple Kriging of Y")
-ggPrint(p)
+plot.end(p)
 ```
 
 ### Calculating the conditional expectation on blocs
@@ -451,20 +451,20 @@ p = ggplot()
 p = p + plot(blocs, nameRaster="Pts_Recovery.Q-estim-0",
          flagLegendRaster=TRUE, legendNameRaster= "Q(0.0)")
 p = p + plot.decoration(title = "Point conditional expectation")
-ggPrint(p)
+plot.end(p)
 
 # Tonnage (the anamorphosis is not used)
 p = ggplot()
 p = p + plot(blocs, nameRaster="Pts_Recovery.T-estim-0",
          flagLegendRaster = TRUE, legendNameRaster = "T(0.0)")
 p = p + plot.decoration(title = "Point conditional expectation")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot(blocs, nameRaster="Pts_Recovery.T-estim-1",
      flagLegendRaster=TRUE, legendNameRaster = "T(1.0)")
 p = p + plot.decoration(title = "Point conditional expectation")
-ggPrint(p)
+plot.end(p)
 ```
 
 **Values computed by the anamorphosis are invalid.... 
@@ -485,7 +485,7 @@ p = p + plot.correlation(blocs, namex="Pts_Recovery.T-estim-1", namey="T_1",
                          bins=100, flagDiag=TRUE)
 p = p + plot.decoration(xlab = "Computed value", ylab = "Theoretical value",
                 title = "Conditional Expectation: T(1.0)")
-ggPrint(p)
+plot.end(p)
 print(paste0(">>> Sum of differences for T(1.00): ",
              sum(blocs["T_1"] != blocs["Pts_Recovery.T-estim-1"], 
                  na.rm=TRUE)))
@@ -501,7 +501,7 @@ p = p + plot.correlation(blocs, namex="Pts_Recovery.T-estim-0.75", namey="T_0.75
                         bins=100, flagDiag=TRUE)
 p = p + plot.decoration(xlab = "Computed value", ylab = "Theoretical value",
                 title = "Conditional Expectation: T(0.75)")
-ggPrint(p)
+plot.end(p)
 print(paste0(">>> Sum of differences for T(0.75): ",
              sum(blocs["T_0.75"] != blocs["Pts_Recovery.T-estim-0.75"],
                  na.rm=TRUE)))
@@ -517,7 +517,7 @@ print(paste0(">>> Sum of differences for T(0.75): ",
 p = ggplot()
 p = p + plot.varmod(vario, model)
 p = p + plot.decoration(title = "Variogram of the Gaussian variable")
-ggPrint(p)
+plot.end(p)
 
 # attach the anamorphosis to the model
 err = model$setAnam(anam)
@@ -527,7 +527,7 @@ err = model$setActiveFactor(-1)
 p = ggplot()
 p = p + plot.varmod(vario_raw, model)
 p = p + plot.decoration(title = "Variogram of the raw variable")
-ggPrint(p)
+plot.end(p)
 err = model$setActiveFactor(0)
 ```
 
@@ -556,7 +556,7 @@ for (i in 1:nf)
 }
 p = p + geom_hline(yintercept = 1.0, colour = "red")
 p = p + plot.decoration(title = "Covariance of the different factors")
-ggPrint(p)
+plot.end(p)
 
 # model of the raw variable
 err = model$setActiveFactor(-1)
@@ -564,7 +564,7 @@ p = ggplot()
 p = p + plot.model(model, hmax=hmax, asCov = asCov)
 p = p + geom_hline(yintercept = varZ, colour = "red")
 p = p + plot.decoration(title = "Covariance of the raw variable")
-ggPrint(p)
+plot.end(p)
 ```
 
 Computation of the factors: H1, H2 et H3... They correspond to the Hermite polynomials. Their presence will dictate the number of terms used in the Hermite expansion in subsequent calculations.
@@ -601,7 +601,7 @@ p = p + geom_abline(intercept = 0, slope = -1, colour = "red")
 p = p + plot.decoration(xlab = "Gaussian variable",
                 ylab = "H_1 = -Y",
                 title = "Values of the Simple Kriging")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot.correlation(blocs, 
@@ -611,7 +611,7 @@ p = p + plot.correlation(blocs,
 p = p + plot.decoration(xlab = "Gaussian variable",
                 ylab = "H_1 = -Y",
                 title = "Standard Deviation of the Simple Kriging error")
-ggPrint(p)
+plot.end(p)
 ```
 
 ### Computation of the disjunctive kriging
@@ -687,21 +687,21 @@ p = p + plot.correlation(blocs, namex = "DK_Pts*1.estim", namey = "DK_Blk*1.esti
                      bins = 100, flagDiag=TRUE)
 p = p + plot.decoration(xlab = "Point estimation", ylab = "Block estimation", 
                 title = "First factor (Gaussian model)")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot.correlation(blocs, namex = "DK_Pts*2.estim", namey = "DK_Blk*2.estim",
                      bins = 100, flagDiag=TRUE)
 p = p + plot.decoration(xlab = "Point estimation", ylab = "Block estimation", 
                  title = "Second factor (Gaussian model)")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot.correlation(blocs, namex = "DK_Pts*3.estim", namey = "DK_Blk*3.estim",
                  bins=100, flagDiag = TRUE)
 p = p + plot.decoration(xlab = "Point estimation", ylab = "Block estimation", 
                  title = "Third factor (Gaussian model)")
-ggPrint(p)
+plot.end(p)
 ```
 
 ## Simple Block Kriging over the panels
@@ -730,13 +730,13 @@ p = ggplot()
 p = p + plot(panels, nameRaster="DK_Blk.*.estim", flagLegendRaster = TRUE) 
 p = p + plot.decoration(xlab = "Easting", ylab = "Northing", 
             title = "Estimate of the first factor (panels)")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot(panels, nameRaster="DK_Blk.*.stdev", flagLegendRaster = TRUE)
 p = p + plot.decoration(xlab = "Easting", ylab = "Northing", 
               title = "Std. of the first factor estimate (panels)")
-ggPrint(p)
+plot.end(p)
 ```
 
 ## Cross validation
@@ -909,14 +909,14 @@ p = p + plot.correlation(grid, namex = nm_estim, namey = nm_qc_estim,
                          bins=100, flagDiag=TRUE)
 p = p + plot.decoration(xlab = nm_estim, ylab = nm_qc_estim,
                 title = "Disjunctive Kriging - Estimation value")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot.correlation(grid, namex = nm_stdev, namey = nm_qc_stdev, 
                          bins=100, flagDiag=TRUE)
 p = p + plot.decoration(xlab = nm_stdev, ylab = nm_qc_stdev,
                 title = "Disjunctive Kriging - Standard deviation")
-ggPrint(p)
+plot.end(p)
 invisible()
 }
 ```
@@ -967,7 +967,7 @@ for (est in c("SK", "DK", "CE")) {
                            bins=100, flagDiag = TRUE)
   p = p + plot.decoration(xlab = "Estimated value", ylab = "Actual value",
                           title = paste(est, " of raw variable"))
-  ggPrint(p)
+  plot.end(p)
 }
 
 # Comparison of the estimators
@@ -976,14 +976,14 @@ p = p + plot.correlation(grid, namex="CE.Z.estim", namey="SK.Z.estim",
                          bins=100, flagDiag = TRUE)
 p = p + plot.decoration(xlab = "Conditional expectation", ylab = "Simple kriging",
                 title = "Point raw variable")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot.correlation(grid, namex="DK.Z.estim", namey="SK.Z.estim", 
                          bins=100, flagDiag = TRUE)
 p = p + plot.decoration(xlab = "Disjunctive Kriging", ylab = "Simple kriging",
                 title = "Point raw variable")
-ggPrint(p)
+plot.end(p)
 
 # Maps of the estimators
 for (est in c("SK", "DK", "CE")){
@@ -994,7 +994,7 @@ for (est in c("SK", "DK", "CE")){
                  flagLegendRaster=TRUE, legendNameRaster=type) 
     p = p + plot.decoration(xlab = "Easting", ylab = "Northing", 
                             title = paste("Estimator = ", est)) 
-    ggPrint(p)
+    plot.end(p)
     
     if (type == "estim") col_fill = "orange"
     if (type == "stdev") col_fill = "skyblue"
@@ -1004,7 +1004,7 @@ for (est in c("SK", "DK", "CE")){
                       col = "gray", fill = col_fill)
     p = p + plot.decoration(xlab = paste0(est, ".Z.", type),
                             title = paste("Estimator = ", est))
-    ggPrint(p)
+    plot.end(p)
   }
 }
 

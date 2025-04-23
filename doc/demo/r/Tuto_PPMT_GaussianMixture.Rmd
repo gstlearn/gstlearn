@@ -76,17 +76,17 @@ ggplot() + plot.hist(data, name = "x3", color = "gray", fill = "green")
 p = ggplot()
 p = p + plot.correlation(data, namex = "x1", namey = "x2", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Gaussian mixture (data)")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot.correlation(data, namex = "x1", namey = "x3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Gaussian mixture (data)")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot.correlation(data, namex = "x2", namey = "x3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Gaussian mixture (data)")
-ggPrint(p)
+plot.end(p)
 ```
 
 # Application of PPMT
@@ -169,17 +169,17 @@ abline(a = 0, b = 1, col = "red", lty = 3)
 p = ggplot()
 p = p + plot.correlation(data, namex = "Y1", namey = "Y2", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Initial Gaussian variables (data)")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot.correlation(data, namex = "Y1", namey = "Y3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Initial Gaussian variables (data)")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot.correlation(data, namex = "Y2", namey = "Y3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Initial Gaussian variables (data)")
-ggPrint(p)
+plot.end(p)
 ```
 
 ### Final Gaussian values
@@ -206,17 +206,17 @@ abline(a = 0, b = 1, col = "red", lty = 3)
 p = ggplot()
 p = p + plot.correlation(data, namex = "U-1", namey = "U-2", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Final Gaussian variables (data)")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot.correlation(data, namex = "U-1", namey = "U-3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Final Gaussian variables (data)")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot.correlation(data, namex = "U-2", namey = "U-3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Final Gaussian variables (data)")
-ggPrint(p)
+plot.end(p)
 ```
 
 # Back transform
@@ -280,15 +280,15 @@ ggplot() + plot.hist(simu, name = "x3", color = "gray", fill = "green")
 p = ggplot()
 p = p + plot.correlation(simu, namex = "x1", namey = "x2", bins=100, flagDiag = TRUE) 
 p = p + plot.decoration(title = "Gaussian mixture (simulation)")
-ggPrint(p)
+plot.end(p)
 p = ggplot()
 p = p + plot.correlation(simu, namex = "x1", namey = "x3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Gaussian mixture (simulation)")
-ggPrint(p)
+plot.end(p)
 p = ggplot()
 p = p + plot.correlation(simu, namex = "x2", namey = "x3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Gaussian mixture (simulation)")
-ggPrint(p)
+plot.end(p)
 
 # Functions
 fun_corr <- function(i1, i2){

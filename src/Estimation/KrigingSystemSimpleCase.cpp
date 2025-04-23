@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Estimation/KrigingAlgebraSimpleCase.hpp"
 #include "Matrix/MatrixDense.hpp"

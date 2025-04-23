@@ -70,10 +70,10 @@ knitr::kable(dbStatisticsMono(db = grid, names = "S.*", opers = opers)$toTL(),
              digits = 3, caption = title)
 
 # histogram
-p = ggDefault() + 
+p = plot.init() + 
   plot.hist(db = grid, name = "S.1", bins = 25, col = "skyblue") +
   plot.decoration(title = title)
-ggPrint(p)
+plot.end(p)
 
 # experimental variogram for the first simulation and simulated model
 nlag = 50
@@ -81,10 +81,10 @@ varioPar = VarioParam_createMultipleFromGrid(grid, nlag = nlag)
 err = grid$setLocator(name = "S.1", locatorType = ELoc_Z(), 
                       cleanSameLocator = TRUE)
 vario = Vario_computeFromDb(varioPar, grid)
-p = ggDefault() + 
+p = plot.init() + 
   plot.varmod(vario = vario, model = mod, flagLegend=TRUE) +
   plot.decoration(title = title)
-ggPrint(p)
+plot.end(p)
 
 # variograms on all simulations
 vl = list()
@@ -120,22 +120,21 @@ seed <- 3132
 err = simuSpectral(NULL, grid1, mod, 1, nb, seed=seed , namconv = NamingConvention("S1"))
 err = simuSpectral(NULL, grid2, mod, 1, nb, seed=seed , namconv = NamingConvention("S1"))
 
-
-p = ggDefaultGeographic() +
+p = plot.init(asp=1) +
   plot.grid(grid1, nameRaster = "S1", palette = "Spectral") +
   plot.grid(grid2, nameRaster = "S1", palette = "Spectral") + 
   plot.decoration(xlab = "Easting", ylab = "Northing", title = title)
-ggPrint(p)
+plot.end(p)
 
 # Control that the values on the intersection of the two grids are identical
 err = migrate(dbin = grid1, dbout = grid2, name = "S1", 
               namconv = NamingConvention("grid1"))
-p = ggDefault() +
+p = plot.init() +
   plot.correlation(grid2, namex = "S1", namey = "grid1.S1", asPoint = TRUE,
                    flagDiag = TRUE, flagSameAxes = TRUE) +
   plot.decoration(xlab = "simulation on grid1", ylab = "simulation on grid2",
                   title = title)
-ggPrint(p)
+plot.end(p)
 
 # computing the simulation on scattered points (extracted from grid1)
 grid1["sel"] <- VectorHelper_simulateBernoulli(grid1$getNSample(), proba=0.005)
@@ -151,14 +150,13 @@ err = grid1$clearSelection()
 # computing the simulation on scattered points
 err = simuSpectral(NULL, db, mod, 1, nb, seed=seed , namconv = NamingConvention("S1"))
 
-
-p1 = ggDefaultGeographic() +
+p1 = plot.init(asp=1) +
   plot.grid(grid1, nameRaster = "S1", palette = "Spectral") +
   plot.point(db, color = "red") + 
   plot.decoration(xlab = "Easting", ylab = "Norhting", title = title)
 
 # control that the values on the intersection of the two grids are identical
-p2 = ggDefault() +
+p2 = plot.init() +
   plot.correlation(db, namex = "S1", namey = "grid1.S1", asPoint = TRUE, 
                    flagDiag = TRUE, flagSameAxes = TRUE) +
   plot.decoration(xlab = "simulation on db", ylab = "simulation on grid1", 
@@ -186,10 +184,10 @@ varioPar = VarioParam_createMultipleFromGrid(grid1, nlag=nlag)
 # computing the experimental variogram  
 vario = Vario_computeFromDb(varioPar, grid1)
 
-p = ggDefault() + 
+p = plot.init() + 
   plot.varmod(vario = vario, model=mod, flagLegend=TRUE) + 
   plot.decoration(title = title)
-ggPrint(p)
+plot.end(p)
 ```
 
 ## 3D simulation of a random function
@@ -222,15 +220,15 @@ knitr::kable(dbStatisticsMono(db = grid, names = "S1", opers = opers)$toTL(),
              digits = 3, caption = title)
 
 # histogram
-p = ggDefault() + 
+p = plot.init() + 
   plot.hist(db = grid, name = "S1", bins = 25, col = "skyblue")
-ggPrint(p)
+plot.end(p)
 
 # map
-p = ggDefaultGeographic() + 
+p = plot.init(asp=1) + 
   plot.grid(grid, nameRaster = "S1", palette = "Spectral") +
   plot.decoration(xlab = "Easting", ylab = "Northing", title = title)
-ggPrint(p)
+plot.end(p)
 
 # variogram on the simulations
 nlag = 20
@@ -241,8 +239,8 @@ varioPar = VarioParam_createMultipleFromGrid(grid, nlag=nlag)
 # computing the experimental variogram  
 vario = Vario_computeFromDb(varioPar, grid)
 
-p = ggDefault() + 
+p = plot.init() + 
   plot.varmod(vario = vario, model=mod, flagLegend=TRUE) + 
   plot.decoration(title = title)
-ggPrint(p)
+plot.end(p)
 ```

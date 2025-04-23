@@ -56,7 +56,7 @@ mygrid = DbGrid_create(c(nx,ny), c(1,1))
 var = rnorm(nx * ny)
 mygrid$addColumns(var, "var1", ELoc_Z())
 # Display the field
-ggplot() + plot.grid(mygrid) + plot.decoration(title="Gaussian random field")
+plot.init(asp=1) + plot.grid(mygrid) + plot.decoration(title="Gaussian random field")
 ```
 
 Some tutorials (R Markdown) are provided in the *demo* directory [here](https://github.com/gstlearn/gstlearn/tree/main/doc/demo/r) and their HTML rendering is provided [here](https://soft.mines-paristech.fr/gstlearn/demos-latest/r/).

@@ -212,11 +212,11 @@ N     = 300
 K     = 10
 dbin  = Db_createFillRandom(ndat = N, nvar = 0, seed = 125)
 dbin["folds"] = sample(1:K, size = dbin$getNSample(TRUE), replace = TRUE)
-p <- ggDefaultGeographic() +
+p <- plot.init() +
   plot.point(dbin,  nameColor = "folds", palette = "Spectral", 
              flagLegendColor = TRUE, flagLegendLabel = "Folds") +
   plot.decoration(xlab = "X", ylab = "Z", title = "Simulated Folds")
-ggPrint(p)
+plot.end(p)
 ```
 
 We define a Model and simulate the variable at sample locations.
@@ -268,12 +268,12 @@ knitr::kable(dbStatisticsMono(dbin, names = c("Y", "OK.xval.LOO.Y.*", "OK.xval.k
 ```
 
 ```{r}
-p1 <- ggDefault() +
+p1 <- plot.init() +
   plot.hist(dbin,  name = "OK.xval.LOO.Y.stderr", bins = 20, fill = "orange") +
   plot.decoration(xlab = "Normalised estimation error (Z*-Z)/S", 
                   title = "Leave-One-Out cross validation")
 
-p2 <- ggDefault() +
+p2 <- plot.init() +
   plot.hist(dbin,  name = "OK.xval.kfold.Y.stderr", bins = 20, fill = "skyblue") +
   plot.decoration(xlab = "Normalised estimation error (Z*-Z)/S", 
                   title = paste0("K-fold cross validation (K = ", K, ")"))

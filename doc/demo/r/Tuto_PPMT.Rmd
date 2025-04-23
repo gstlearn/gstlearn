@@ -70,7 +70,7 @@ ggplot() + plot.hist(grd, name = "Y2", color = "gray", fill = "skyblue")
 p = ggplot()
 p = p + plot.correlation(grd, namex = "Y1", namey = "Y2", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Initial Gaussian variables (grid)")
-ggPrint(p)
+plot.end(p)
 
 # maps
 ggplot() + plot.grid(grd, "Y1")
@@ -92,7 +92,7 @@ ggplot() + plot.hist(grd, name = "Z2", color = "gray", fill = "skyblue")
 p = ggplot()
 p = p + plot.correlation(grd, namex = "Z1", namey = "Z2", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Initial lognormal variables (grid)")
-ggPrint(p)
+plot.end(p)
 
 # maps
 ggplot() + plot.grid(grd, "Z1")
@@ -113,20 +113,20 @@ ggplot() + plot.hist(data, name = "Z2", color = "gray", fill = "skyblue")
 p = ggplot()
 p = p + plot.correlation(data, namex = "Z1", namey = "Z2", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Initial lognormal variables (data)")
-ggPrint(p)
+plot.end(p)
 
 # maps
 p = ggplot()
 p = p + plot.grid(grd,"Z1")
 p = p + plot.point(data, nameColor = "Z1")
 p = p + plot.decoration(title = "Initial lognormal variable - Z1")
-ggPrint(p)
+plot.end(p)
 
 p = ggplot()
 p = p + plot.grid(grd,"Z2")
 p = p + plot.point(data, nameColor = "Z2")
 p = p + plot.decoration(title = "Initial lognormal variable - Z2")
-ggPrint(p)
+plot.end(p)
 ```
 
 # Implementing PPMT
@@ -188,7 +188,7 @@ abline(a = 0, b = 1, col = "red", lty = 3)
 p = ggplot()
 p = p + plot.correlation(data, namex = "Y1", namey = "Y2", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Initial Gaussian variables (data)")
-ggPrint(p)
+plot.end(p)
 
 # Final Gaussian variables
 
@@ -207,7 +207,7 @@ abline(a = 0, b = 1, col = "red", lty = 3)
 p = ggplot()
 p = p + plot.correlation(data, namex = "U-1", namey = "U-2", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Final Gaussian variables (data)")
-ggPrint(p)
+plot.end(p)
 ```
 
 # Back transform of simulated Gaussian variables
@@ -272,13 +272,13 @@ ppmt$gaussianToRaw(simu, names = c("Y1", "Y2"))
 p = ggplot()
 p = p + plot.correlation(simu, namex = "Y1", namey = "Y2", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Initial Gaussian variables (simulation)")
-ggPrint(p)
+plot.end(p)
 
 # Back-tranform of the simulated Gaussian variables
 p = ggplot()
 p = p + plot.correlation(simu, namex = "Z.Y1", namey = "Z.Y2", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Simulations of the raw variables")
-ggPrint(p)
+plot.end(p)
 ```
 
 # Discussion and further works

@@ -235,7 +235,7 @@ if (graphics)
   p = ggplot()
   p = p + plot(mygrid,nameRaster="Neigh*Number")
   p = p + plot.decoration(title="Number of Samples per Neighborhood")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -247,7 +247,7 @@ if (graphics)
   p = ggplot()
   p = p + plot(mygrid,nameRaster="Neigh*MaxDist")
   p = p + plot.decoration(title="Maximum Distance per Neighborhood")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -267,7 +267,7 @@ if (graphics)
   p = ggplot()
   p = p + plot.hist(mydb,"Xvalid.Pb.stderr")
   p = p + plot.decoration(title="Histogram of Stdandrdized Errors")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -295,7 +295,7 @@ if (graphics)
   p = p + plot(mygrid,nameRaster="Kriging.Pb.estim")
   p = p + plot(mydb,nameSize="Pb", color="yellow")
   p = p + plot.decoration(title="Estimate of Pb")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -306,7 +306,7 @@ if (graphics)
   p = p + plot(mygrid,nameRaster="Kriging.Pb.stdev", flagLegendRaster=TRUE)
   p = p + plot(mydb,nameSize="Pb", color="yellow", flagCst=TRUE)
   p = p + plot.decoration(title="St. Deviation of Pb")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -381,7 +381,7 @@ if (graphics)
     p = p + plot(mygrid,nameRaster="Simu.Y.Pb.1")
     p = p + plot(mydb,nameColor="Pb",size=3)
     p = p + plot.decoration(title="One Simulation of Pb in Gaussian Scale")
-    ggPrint(p)
+    plot.end(p)
 }
 ```
 
@@ -411,7 +411,7 @@ if (graphics)
   p = p + plot(mygrid,nameRaster="Z.Simu.Y.Pb.1")
   p = p + plot(mydb,nameColor="Pb")
   p = p + plot.decoration(title="One simulation of Pb in Raw Scale")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -433,7 +433,7 @@ if (graphics)
   p = p + plot(mygrid,nameRaster="Stats*MEAN")
   p = p + plot(mydb,nameColor="Pb")
   p = p + plot.decoration(title="Mean of Pb simulations")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -455,7 +455,7 @@ if (graphics)
   p = ggplot()
   p = p + plot(myanamZn)
   p = p + plot.decoration(title="Gaussian Anamorphosis for Zn")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 

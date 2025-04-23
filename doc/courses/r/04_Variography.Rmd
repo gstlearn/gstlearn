@@ -62,7 +62,7 @@ grid.cloud$display()
 p = ggplot()
 p = p + plot.grid(grid.cloud, "Cloud.January*")
 p = p + plot.geometry(asp=0)
-ggPrint(p)
+plot.end(p)
 ```
 
 ---

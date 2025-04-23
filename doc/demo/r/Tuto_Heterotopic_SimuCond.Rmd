@@ -107,11 +107,11 @@ knitr::kable(
 )
 
 # histogram and base map
-p1 = ggDefault() + plot.hist(grd, name = "homotopic.Z1")
-p2 = ggDefault() + plot.hist(grd, name = "homotopic.Z2")
-p3 = ggDefault() + plot.grid(grd, nameRaster = "homotopic.Z1", palette = "Spectral", 
+p1 = plot.init() + plot.hist(grd, name = "homotopic.Z1")
+p2 = plot.init() + plot.hist(grd, name = "homotopic.Z2")
+p3 = plot.init(asp=1) + plot.grid(grd, nameRaster = "homotopic.Z1", palette = "Spectral", 
                              flagLegendRaster = TRUE, legendNameRaster = "Z1")
-p4 = ggDefault() + plot.grid(grd, nameRaster = "homotopic.Z2", palette = "Spectral", 
+p4 = plot.init(asp=1) + plot.grid(grd, nameRaster = "homotopic.Z2", palette = "Spectral", 
                              flagLegendRaster = TRUE, legendNameRaster = "Z2")
 ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
 ```
@@ -134,12 +134,12 @@ knitr::kable(
 )
 
 # histogram and base map
-p1 = ggDefault() + plot.hist(grd, name = "heterotopic.Z1.heterotopic")
-p2 = ggDefault() + plot.hist(grd, name = "heterotopic.Z2.heterotopic")
-p3 = ggDefault() + plot.grid(grd, nameRaster = "heterotopic.Z1.heterotopic", 
+p1 = plot.init() + plot.hist(grd, name = "heterotopic.Z1.heterotopic")
+p2 = plot.init() + plot.hist(grd, name = "heterotopic.Z2.heterotopic")
+p3 = plot.init(asp=1) + plot.grid(grd, nameRaster = "heterotopic.Z1.heterotopic", 
                              palette = "Spectral", 
                              flagLegendRaster = TRUE, legendNameRaster = "Z1")
-p4 = ggDefault() + plot.grid(grd, nameRaster = "heterotopic.Z2.heterotopic", 
+p4 = plot.init(asp=1) + plot.grid(grd, nameRaster = "heterotopic.Z2.heterotopic", 
                              palette = "Spectral", 
                              flagLegendRaster = TRUE, legendNameRaster = "Z2")
 ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2)

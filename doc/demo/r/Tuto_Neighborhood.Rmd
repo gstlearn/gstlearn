@@ -57,7 +57,7 @@ Plotting the data
 (if needed for more control over the graph parameters, use ggplot instead)
 
 ```{r}
-ggDefaultGeographic()+
+plot.init()+
   plot.point(data, flagCst=True)+
   plot.decoration(xlab="Easting", ylab="Northing")
 ```
@@ -93,7 +93,7 @@ dum = dataSel$addSelectionByRanks(ranks)
 
 Plotting the result 
 ```{r}
-ggDefaultGeographic()+
+plot.init()+
   plot.point(data,
              color = "red")+
   plot.point(dataSel,
@@ -172,7 +172,7 @@ dum = dataSel$addSelectionByRanks(ranks)
 
 Plotting (TODO: this currently generates a warning message)
 ```{r}
-ggDefaultGeographic()+
+plot.init()+
   plot.point(data,
              color = "red")+
   plot.point(dataSel,
@@ -203,7 +203,7 @@ dum = dataSel$addSelectionByRanks(ranks)
 
 Plotting the result 
 ```{r}
- ggDefaultGeographic()+
+ plot.init()+
     plot.point(data,
              color = "red")+
    plot.point(dataSel,
@@ -227,7 +227,7 @@ grid = DbGrid_create(nx=c(20,100), dx=c(10,1))
 iuid = grid$addColumns(VectorHelper_simulateUniform(grid$getNSample()),"z", ELoc_Z())
 point = Db_createReduce(grid)
 
-ggDefaultGeographic()+
+plot.init()+
   plot.point(grid,size=0.3)
 ```
 
@@ -257,7 +257,7 @@ dum = pointSel$addSelectionByRanks(ranks)
 
 plotting the result
 ```{r}
-ggDefaultGeographic()+
+plot.init()+
   plot.point(point,
              color = "black")+
   plot.point(pointSel,
@@ -291,7 +291,7 @@ dum = pointSel$addSelectionByRanks(ranks)
 
 Plotting the result 
 ```{r}
-ggDefaultGeographic()+
+plot.init()+
   plot.point(point,
              size = 0.3,
              color = "black")+
@@ -324,7 +324,7 @@ dum = pointSel$addSelectionByRanks(ranks)
 
 Plotting the result 
 ```{r}
-ggDefaultGeographic()+
+plot.init()+
   plot.point(point,
              color = "red",
              size = 0.3)+
@@ -368,7 +368,7 @@ dum = pointSel$addSelectionByRanks(ranks)   #adding selection on these samples
 
 Plotting the result 
 ```{r}
-ggDefaultGeographic()+
+plot.init()+
   plot.point(point, 
              color = "red",
              size = 0.3)+
