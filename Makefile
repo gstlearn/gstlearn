@@ -57,11 +57,11 @@
 #  - BUILD_DIR=<path>   Define a specific build directory (default =build[_msys])
 #  - BUILD_PYTHON=1     Configure cmake to build python wrapper (default =0, see target python_*)
 #  - BUILD_R=1          Configure cmake to build R wrapper (default =0, see target r_*)
-#  - BUILD_DOC=1        Configure cmake to build documentation (default =1)
+#  - BUILD_DOC=1        Configure cmake to build documentation (default =0)
 #  - TEST=<test-target> Name of the test target to be launched (e.g. test_Model_py or test_simTub)
-#  - ASAN=1             Build with Address Sanitizer
+#  - ASAN=1             Build with Address Sanitizer (default =0)
 #  - USE_HDF5=0         To remove HDF5 support (default =1)
-#  - NO_INTERNET=0      To prevent python pip from looking for dependencies through Internet
+#  - NO_INTERNET=1      To prevent python pip from looking for dependencies through Internet
 #                       (useful when there is no Internet available) (default =0)
 #  - EIGEN3_ROOT=<path> Path to Eigen3 library (optional)
 #  - BOOST_ROOT=<path>  Path to Boost library (optional)
@@ -74,9 +74,6 @@
 #  make check N_PROC=2
 #
 
-ifndef BUILD_DOC
-  BUILD_DOC = 1
-endif
 ifeq ($(BUILD_DOC), 1)
   BUILD_DOC = ON
  else
