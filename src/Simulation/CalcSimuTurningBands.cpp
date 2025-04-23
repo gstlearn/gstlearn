@@ -94,7 +94,7 @@ bool CalcSimuTurningBands::_resize()
   return true;
 }
 
-int CalcSimuTurningBands::_getAddressBand(int ivar, int is, int ib, int isimu)
+int CalcSimuTurningBands::_getAddressBand(int ivar, int is, int ib, int isimu) const
 {
   int nvar  = _getNVar();
   int ncova = _getNCov();
@@ -107,10 +107,29 @@ void CalcSimuTurningBands::_setSeedBand(int ivar, int is, int ib, int isimu, int
   _seedBands[iad] = seed;
 }
 
-int CalcSimuTurningBands::_getSeedBand(int ivar, int is, int ib, int isimu)
+int CalcSimuTurningBands::_getSeedBand(int ivar, int is, int ib, int isimu) const
 {
   int iad = _getAddressBand(ivar, is, ib, isimu);
   return _seedBands[iad];
+}
+
+void CalcSimuTurningBands::_dumpSeeds() const
+{
+  int nvar   = _getNVar();
+  int ncova  = _getNCov();
+  int nbsimu = getNbSimu();
+  int nbtuba = getNBtuba();
+
+  mestitle(1, "Seeds");
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int isimu = 0; isimu < nbsimu; isimu++)
+      for (int is = 0; is < ncova; is++)
+        for (int ib = 0; ib < nbtuba; ib++)
+        {
+          int iad = _getAddressBand(ivar, is, ib, isimu);
+          message("Var=%d Simu=%d Is=%d Ib=%d iad=%d : %d\n",
+                  ivar, isimu, is, ib, iad, _seedBands[iad]);
+        }
 }
 
 /****************************************************************************/
@@ -245,7 +264,19 @@ int CalcSimuTurningBands::_generateDirections(const Db* dbout)
           }
         }
       }
+
   return 0;
+}
+
+void CalcSimuTurningBands::_dumpBands() const
+{
+  int nbands = getNDirs();
+  bool flagGrid = getDbout()->isGrid();
+  for (int ibs = 0; ibs < nbands; ibs++)
+  {
+    message("- Band %d/%d\n", ibs + 1, nbands);
+    _codirs[ibs].dump(flagGrid);
+  }
 }
 
 /*****************************************************************************/
@@ -1184,9 +1215,11 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
             for (int iech = 0; iech < nech; iech++)
               if (activeArray[iech])
                 for (int jvar = 0; jvar < nvar; jvar++)
+                {
                   db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase,
                                 nbsimu, nvar, EOperator::ADD,
                                 tab[iech] * correc * _getAIC(aic, is, jvar, ivar));
+                }
         }
   }
 
@@ -1829,14 +1862,16 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
 
     for (int ik = 0; ik < dbout->getNSample(); ik++)
     {
+      // Get coordinates of the active target point
       if (!activeArrayOut[ik]) continue;
-      dbin->getCoordinatesInPlace(coor1, ik);
+      dbout->getCoordinatesInPlace(coor1, ik);
 
       /* Look for the closest data point */
 
       int ip_close = -1;
       for (int ip = 0; ip < dbin->getNSample() && ip_close < 0; ip++)
       {
+        // Get the coordinates of the active data point
         if (!activeArrayIn[ip]) continue;
         dbin->getCoordinatesInPlace(coor2, ip);
 

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Simulation/TurningBandDirection.hpp"
 #include "Db/DbGrid.hpp"
+#include "Basic/VectorHelper.hpp"
 
 TurningBandDirection::TurningBandDirection()
     : _tmin(0.),
@@ -104,4 +105,12 @@ double TurningBandDirection::projectPoint(const Db *db, int iech) const
   for (int idim = 0; idim < db->getNDim(); idim++)
     t += db->getCoordinate(iech, idim) * _ang[idim];
   return (t);
+}
+
+void TurningBandDirection::dump(bool flagGrid) const
+{
+  message("  Tmin=%lf Tmax=%lf Scale=%lf\n", _tmin, _tmax, _scale);
+  if (flagGrid)
+    message("  T00=%lf DXP=%lf DYP=%lf DZP=%lf\n", _t00, _dxp, _dyp, _dzp);
+  VH::dump("  Angles=", _ang, false);
 }

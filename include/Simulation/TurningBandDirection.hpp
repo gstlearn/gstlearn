@@ -52,6 +52,8 @@ public:
   double projectPoint(const Db* db, int iech) const;
   double projectGrid(const DbGrid* db, int ix, int iy, int iz) const;
 
+  void dump(bool flagGrid = true) const;
+
 private:
   double _tmin; /* Minimum abscissa along line */
   double _tmax; /* Maximum abscissa along line */
