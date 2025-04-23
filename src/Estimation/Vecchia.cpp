@@ -55,8 +55,8 @@ Vecchia::~Vecchia()
 int Vecchia::computeLower(const MatrixT<int>& Ranks, bool verbose)
 {
   int ndim     = _model->getNDim();
-  int ntot     = Ranks.getNRows();
-  int nb_neigh = Ranks.getNCols() - 1;
+  int ntot     = (int) Ranks.getNRows();
+  int nb_neigh = (int) Ranks.getNCols() - 1;
   int Ndb1     = _db1->getNSample();
   double varK  = _model->eval0();
   double value;

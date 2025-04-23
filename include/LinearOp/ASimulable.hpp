@@ -29,7 +29,6 @@ public:
   int addSimulateToDest(const constvect whitenoise, vect outv) const;
 
 protected:
-  virtual int _addSimulateToDest(const constvect whitenoise,
-                                 vect outv) const = 0;
+  virtual int _addSimulateToDest(const constvect whitenoise, vect outv) const = 0;
 #endif
 };

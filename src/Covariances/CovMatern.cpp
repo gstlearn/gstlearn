@@ -22,19 +22,19 @@
 static bool bessel_Old_Style = false;
 
 CovMatern::CovMatern(const CovContext& ctxt)
-: ACovFunc(ECov::MATERN, ctxt)
-  ,_correc(1.)
-  ,_markovCoeffs(VectorDouble())
+  : ACovFunc(ECov::MATERN, ctxt)
+  , _correc(1.)
+  , _markovCoeffs(VectorDouble())
 {
   setParam(1);
   computeMarkovCoeffs(2);
-  //TODO compute blin (rapatrier de PrecisionOp.cpp
+  // TODO compute blin (rapatrier de PrecisionOp.cpp
 }
 
-CovMatern::CovMatern(const CovMatern &r)
-: ACovFunc(r)
-  ,_correc(r._correc)
-  ,_markovCoeffs(r._markovCoeffs)
+CovMatern::CovMatern(const CovMatern& r)
+  : ACovFunc(r)
+  , _correc(r._correc)
+  , _markovCoeffs(r._markovCoeffs)
 {
 }
 

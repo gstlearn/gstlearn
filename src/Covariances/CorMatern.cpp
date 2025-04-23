@@ -31,8 +31,8 @@ CorMatern::CorMatern(const VectorDouble &ranges,
                      const VectorDouble& params ,
                      bool flagRange)
   : ACov()
-  , _nVar(params.size())
-  , _corRef(CorAniso::createAnisotropic(CovContext(1, ranges.size()),ECov::MATERN, ranges, params[0], angles, flagRange))
+  , _nVar((int) params.size())
+  , _corRef(CorAniso::createAnisotropic(CovContext(1, (int) ranges.size()),ECov::MATERN, ranges, params[0], angles, flagRange))
   , _corMatern(*_corRef)
   , _coeffScales(coeffScales)
   , _params(params)

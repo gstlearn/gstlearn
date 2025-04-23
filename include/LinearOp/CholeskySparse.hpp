@@ -56,6 +56,8 @@ public:
 private:
   void _clean();
   int _prepare() const;
+  int _stdevOld(VectorDouble& vcur) const;
+  int _stdevEigen(VectorDouble& vcur) const;
 
 private:
   bool _flagEigen;
@@ -65,5 +67,5 @@ private:
   mutable csn* _N; // Cholesky decomposition (for Old-style Csparse storage)
 
   // Eigen storage
-  mutable Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > *_factor; // (Eigen library)
+  mutable Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > *_factor;
 };

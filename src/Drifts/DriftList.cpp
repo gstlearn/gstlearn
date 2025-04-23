@@ -540,7 +540,7 @@ int DriftList::evalDriftMatByRanks(MatrixDense& mat,
   mat.resize(neq, ncols);
   mat.fill(0.);
 
-  for (int ivar = 0, irow = 0, nvar = (int)sampleRanks.size(); ivar < nvar; ivar++)
+  for (int ivar = 0, irow = 0; ivar < nvar; ivar++)
   {
 
     /* Loop on the samples */

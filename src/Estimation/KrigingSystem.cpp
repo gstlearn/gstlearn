@@ -752,7 +752,7 @@ int KrigingSystem::_updateForColCokMoving()
   // If the target coincides with a data point, do not do anything
   // (otherwise the new CoKriging system will be regular)
   VectorDouble coor = _dbout->getSampleCoordinates(_iechOut);
-  for (int jech = 0, nech = _nbgh.size(); jech < nech; jech++)
+  for (int jech = 0, nech = (int) _nbgh.size(); jech < nech; jech++)
   {
     int iech          = _nbgh[jech];
     bool flagCoincide = true;

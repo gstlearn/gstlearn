@@ -1454,7 +1454,7 @@ void KrigingAlgebra::dumpWGT() {
   for (int ivar = 0; ivar < _nvar; ivar++)
   {
     if (_nvar > 1) message("Using variable Z%-2d\n", ivar + 1);
-    int nbyvar = (*_sampleRanks)[ivar].size();
+    int nbyvar = (int) (*_sampleRanks)[ivar].size();
     sum.fill(0.);
 
     for (int j = 0; j < nbyvar; j++)

@@ -36,7 +36,6 @@ public:
   int solveMatrix(const MatrixDense& b, MatrixDense& x) const;
   bool isReady() const { return _ready; }
 
-
   VectorDouble invLtX(const VectorDouble& vecin) const;
   VectorDouble LtX(const VectorDouble& vecin) const;
   VectorDouble LX(const VectorDouble& vecin) const;

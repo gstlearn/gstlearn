@@ -106,7 +106,7 @@ ProjMultiMatrix::~ProjMultiMatrix()
 
 std::vector<std::vector<const ProjMatrix*>> ProjMultiMatrix::create(std::vector<const ProjMatrix*> &vectproj, int nvariable)
 {
-    int nlatent = vectproj.size();
+    int nlatent = (int) vectproj.size();
     std::vector<std::vector<const ProjMatrix*>> result;
 
     
