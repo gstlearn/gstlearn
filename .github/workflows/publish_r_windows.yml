@@ -59,7 +59,7 @@ jobs:
     - name: Install dependencies
       run: |
         echo '{
-          "dependencies": [ "boost-math", "eigen3", "nlopt" ],
+          "dependencies": [ "boost-math", "eigen3" ],
           "builtin-baseline": "d5ec528843d29e3a52d745a64b469f810b2cedbf"
         }' > vcpkg.json
         vcpkg install
@@ -75,6 +75,9 @@ jobs:
       with:
         swig-root: ${{env.SWIG_ROOT}}
         generator: "Visual Studio 17 2022"
+
+    - name: Build & install nlopt static libraries
+      uses: ./.github/actions/nlopt_static_windows
 
     - name: Build & install HDF5 static libraries
       uses: ./.github/actions/hdf5_static_windows
