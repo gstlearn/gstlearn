@@ -65,9 +65,9 @@ Let us plot its content.
 
 ```{r Plot_elevation_grid}
 p = plot.init(asp=1)
-p = p + plot(target, nameRaster="Elevation",
-                             flagLegendRaster=TRUE,palette="Spectral",
-                             legendNameRaster="Elevation (m)")
+p = p + plot(target, name="Elevation",
+                             flagLegend=TRUE,palette="Spectral",
+                             legendName="Elevation (m)")
 plot.end(p)
 ```
 
@@ -122,13 +122,13 @@ To confirm that, we plot the points where the temperature is sampled on top of t
 
 ```{r Plot_temperature_observations_on_elevation_map}
 p = plot.init(asp=1)
-p = p + plot.grid(target, nameRaster="Elevation",
-                  flagLegendRaster=TRUE,
+p = p + plot.raster(target, name="Elevation",
+                  flagLegend=TRUE,
                   palette="Spectral",
-                  legendNameRaster="Elevation (m)")
-p = p + plot.point(dat, nameSize="Temperature",
+                  legendName="Elevation (m)")
+p = p + plot.symbol(dat, nameSize="Temperature",
                    sizmin = 0.5, sizmax = 3,
-                   flagLegendSize=TRUE,legendNameSize="°C")
+                   flagLegend=TRUE,legendNameSize="°C")
 plot.end(p)
 ```
 
@@ -192,9 +192,9 @@ err = kriging(dbin=dat, dbout=target, model=fitmod_raw,
 ```{r Plot_of_Ordinary_Kriging_prediction}
 ## Plot
 p = plot.init(asp=1)
-p = p + plot.grid(target,nameRaster = "OK*estim",
-                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C") 
-p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
+p = p + plot.raster(target,name = "OK*estim",
+                  flagLegend = TRUE, palette="Spectral",legendName="°C") 
+p = p + plot.symbol(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - Ordinary Kriging")
 plot.end(p)
 ```
@@ -281,10 +281,10 @@ We can then represent the cokriging predictor for the temperature.
 
 ```{r Cokriging_plot}
 p = plot.init(asp=1)
-p = p + plot.grid(target,nameRaster = "COK.Temp*estim",
-                  flagLegendRaster = TRUE, 
-                  palette="Spectral",legendNameRaster="°C") 
-p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
+p = p + plot.raster(target,name = "COK.Temp*estim",
+                  flagLegend = TRUE, 
+                  palette="Spectral",legendName="°C") 
+p = p + plot.symbol(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - CoKriging")
 plot.end(p)
 ```
@@ -458,9 +458,9 @@ err = kriging(dbin=dat, dbout=target, model=fitmodR,
 
 ```{r Plot_Kriging_of_residuals}
 p = plot.init(asp=1)
-p = p + plot.grid(target,nameRaster = "ROK*estim",
-                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C") 
-p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
+p = p + plot.raster(target,name = "ROK*estim",
+                  flagLegend = TRUE, palette="Spectral",legendName="°C") 
+p = p + plot.symbol(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature residuals - Ordinary Kriging")
 plot.end(p)
 ```
@@ -484,9 +484,9 @@ Let us plot the resulting temperature predictions.
 
 ```{r Plot_Predictor_from_Kriging_of_residuals}
 p = plot.init(asp=1)
-p = p + plot.grid(target,nameRaster = "KR.T*estim",
-                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C") 
-p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
+p = p + plot.raster(target,name = "KR.T*estim",
+                  flagLegend = TRUE, palette="Spectral",legendName="°C") 
+p = p + plot.symbol(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - Ordinary Kriging of the residuals")
 plot.end(p)
 ```
@@ -594,10 +594,10 @@ err = kriging(dbin=dat, dbout=target, model=polDriftModel,
 ```{r Plot_of_Universal_Kriging_prediction}
 ## Plot
 p = plot.init(asp=1)
-p = p + plot.grid(target,nameRaster = "UK*estim",
-                  flagLegendRaster = TRUE, 
-                  palette="Spectral",legendNameRaster="°C") 
-p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
+p = p + plot.raster(target,name = "UK*estim",
+                  flagLegend = TRUE, 
+                  palette="Spectral",legendName="°C") 
+p = p + plot.symbol(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - Universal Kriging")
 plot.end(p)
 ```
@@ -731,9 +731,9 @@ err = kriging(dbin=dat, dbout=target, model=EDmodel,
  
 ```{r Plot_of_KED_prediction}
 p = plot.init(asp=1)
-p = p + plot.grid(target,nameRaster = "KED*estim",
-                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C") 
-p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
+p = p + plot.raster(target,name = "KED*estim",
+                  flagLegend = TRUE, palette="Spectral",legendName="°C") 
+p = p + plot.symbol(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - Kriging with external drift")
 plot.end(p)
 ```

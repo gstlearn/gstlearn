@@ -123,7 +123,7 @@ cat("Trend coefficients:", coeffs)
 Represent the scatter plot of the Temperature given the Elevation and add the Global Trend (caledlated beforehand)
 
 ```{r Creating_Grid}
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(temperatures,namex="Elevation",namey="*temp", asPoint=TRUE)
 p = p + geom_segment(aes(x = 0, y = coeffs[1], xend = 400, yend = coeffs[1] + 400 * coeffs[2]))
 plot.end(p)
@@ -139,7 +139,7 @@ err = krigingSPDE(temperatures, grid, model)
 
 ```{r Plot_SPDE_KRIGING}
 p = plot.init(asp=1)
-p = p + plot.grid(grid)
+p = p + plot.raster(grid)
 p = p + plot.decoration(title="Temperature (using Elevation as global Trend)")
 plot.end(p)
 ```
@@ -153,7 +153,7 @@ err = kriging(temperatures, grid, model, neighU)
 
 ```{r Plot_Standard_Kriging}
 p = plot.init(asp=1)
-p = p + plot.grid(grid)
+p = p + plot.raster(grid)
 p = p + plot.decoration(title="Temperature (with Elevation as External Drift)")
 plot.end(p)
 ```
@@ -161,7 +161,7 @@ plot.end(p)
 Comparing both estimates
 
 ```{r}
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(grid,namex="Kriging.January_temp.estim",
                          namey="KrigingSPDE.January_temp.estim", asPoint=TRUE)
 p = p + plot.decoration(xlab="Kriging with External Drift", ylab="SPDE Kriging")

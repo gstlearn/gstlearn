@@ -63,8 +63,10 @@ Displaying the grid cells
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.grid(mygrid, nameRaster="Simu.1", nameContour="Simu.2", 
-              flagLegendRaster=TRUE, legendNameRaster="ma Legende")
+p = p + plot.raster(mygrid, flagLegend=TRUE, legendName="coucou", 
+                    palette="viridis")
+p = p + plot.contour(mygrid,  flagLegend=TRUE, legendName="isolines", bins=10, 
+                    palette = "inferno")
 p = p + plot.decoration(title="Display of Grid Cells")
 plot.end(p)
 ```
@@ -72,17 +74,18 @@ plot.end(p)
 Using another color scale. Among the different choices, one makes it possible to create a color scale on the fly, specifying the starting (yellow), middle (red) and ending (blue) colors. The color referred to as 'naColor' serves for encoding pixels whose values have been left undefined.
 
 ```{r}
+myPalette = c("yellow", "red", "blue")
 p = plot.init(asp=1)
-p = p +plot.grid(mygrid, palette = c("yellow", "red", "blue"), naColor = "white")
+p = p + plot.raster(mygrid, palette = myPalette, naColor = "yellow")
+plot.end(p)
 ```
 
 Displaying the grid nodes only
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.point(mygrid, nameColor="Simu.1",nameSize="Simu.2", 
-                   flagLegendColor = TRUE,
-                   legendNameColor="myColor")
+p = p + plot.symbol(mygrid, nameSize="Simu.1", nameColor="Simu.2", flagLegend = TRUE, 
+                   legendNameColor="myColor", legendNameSize="mySize")
 p = p + plot.decoration(title="Display of Grid Nodes")
 plot.end(p)
 ```
@@ -99,7 +102,7 @@ Displaying the cell contents in the rotated grid
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.grid(mygrid, nameRaster="Simu.1", flagLegendRaster=FALSE)
+p = p + plot.raster(mygrid, name="Simu.1")
 p = p + plot.decoration(title="Display of Rotated Grid")
 plot.end(p)
 ```
@@ -108,7 +111,7 @@ As a set of grid nodes
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.point(mygrid,nameColor="Simu.1", flagLegendColor = TRUE)
+p = p + plot.symbol(mygrid, nameSize="Simu.1", nameColor="Simu.2", flagLegend = TRUE)
 p = p + plot.decoration(title="Display of Rotated Grid Nodes")
 plot.end(p)
 ```
@@ -128,13 +131,14 @@ We create a polygon as the convex hull of the samples
 mypoly = Polygons_createFromDb(mypoint)
 ```
 
-We now display the points and the polygon on top of the grid: the overlay is ensured by using the argument 'p'.
+We now display the points and the polygon on top of the grid.
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot(mygrid)
-p = p + plot(mypoly, fill=NA, color='yellow', linewidth=1)
-p = p + plot(mypoint,color="black")
+p = p + plot.raster(mygrid)
+p = p + plot.polygon(mypoly, fill=NA, color='yellow', linewidth=1)
+p = p + plot.symbol(mypoint,color="black")
+p = p + plot.literal(mypoint)
 p = p + plot.decoration(title="mon titre", xlab="mon axe des X", ylab="Mon axe des Y")
 plot.end(p)
 ```
@@ -144,8 +148,8 @@ plot.end(p)
 We create two layers containing the Point and the Grid representation. We then use *ggarrange* to display them side-by-side.
 
 ```{r}
-p1 = plot.init(asp=1) + plot(mygrid)
-p2 = plot.init(asp=1) + plot(mypoint)
+p1 = plot.init(asp=1) + plot.raster(mygrid)
+p2 = plot.init(asp=1) + plot.symbol(mypoint)
 ggarrange(p1, p2, labels = c("Plot #1", "Plot #2"), ncol = 2, nrow = 1)
 ```
 
@@ -169,12 +173,14 @@ err = model$fit(vario,type=ECov_fromKeys(c("SPHERICAL", "CUBIC")))
 We display the experimental variogram for the first variable in the first direction.
 
 ```{r}
-ggplot() + plot(model)
+p = plot.init()
+p = p + plot.model(model)
+plot.end(p)
 ```
 
 ```{r}
 p = plot.init()
-p = p + plot(vario, ivar=0, jvar=0, idir=0, drawPsize=-1, color="red")
+p = p + plot.vario(vario, ivar=0, jvar=0, idir=0, drawPsize=-1, color="red")
 p = p + plot.decoration(title="First Variable - First Direction")
 plot.end(p)
 ```
@@ -183,7 +189,7 @@ We display the experimental variogram for the first variable in the second direc
 
 ```{r}
 p = plot.init()
-p = p + plot(vario, ivar=0, jvar=0, idir=1)
+p = p + plot.vario(vario, ivar=0, jvar=0, idir=1)
 p = p + plot.decoration(title="First Variable - Second Direction")
 plot.end(p)
 ```
@@ -192,8 +198,8 @@ We simply overlay the contents of the two previous plots.
 
 ```{r}
 p = plot.init()
-p = p + plot(vario, ivar=0, jvar=0, idir=0, color="black")
-p = p + plot(vario, ivar=0, jvar=0, idir=1, color='red')
+p = p + plot.vario(vario, ivar=0, jvar=0, idir=0, color="black")
+p = p + plot.vario(vario, ivar=0, jvar=0, idir=1, color='red')
 p = p + plot.decoration(title="First Variable - Two directions")
 plot.end(p)
 ```
@@ -202,7 +208,7 @@ We display the cross-variogram between both variables along both directions.
 
 ```{r}
 p = plot.init()
-p = p + plot(vario, ivar=1, jvar=0, idir=-1)
+p = p + plot.vario(vario, ivar=1, jvar=0, idir=-1)
 p = p + plot.decoration(title="Cross-variogram - All directions")
 plot.end(p)
 ```
@@ -211,7 +217,7 @@ We display the simple and cross variograms in both calculation directions.
 
 ```{r}
 p = plot.init()
-p = p + plot(vario, ivar=-1, jvar=-1, idir=-1)
+p = p + plot.vario(vario, ivar=-1, jvar=-1, idir=-1)
 p = p + plot.decoration(title="Simple and Cross Variograms in all directions")
 plot.end(p)
 ```
@@ -220,7 +226,7 @@ We display the Model as calculated in the first direction of the variogram
 
 ```{r}
 p = plot.init()
-p = p + plot(model, ivar=1, jvar=1, vario=vario, idir=0)
+p = p + plot.model(model, ivar=1, jvar=1, vario=vario, idir=0)
 p = p + plot.decoration(title="Model for the Second Variable in First Direction")
 plot.end(p)
 ```
@@ -249,7 +255,7 @@ Plot a horizontal slice:by default, this corresponds to the first level IZ=1
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.grid(g3D, "rank", flagLegendRaster=TRUE, legendNameRaster="Rank")
+p = p + plot.raster(g3D, "rank", flagLegend=TRUE, legendName="Rank")
 p = p + plot.decoration(title="Horizontal Slice (IZ=1)")
 plot.end(p)
 ```
@@ -258,7 +264,8 @@ Plot another horizontal slice (IZ=10): the color scale is adapter to the values 
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.grid(g3D, nameRaster="rank", flagLegendRaster=TRUE, legendNameRaster="Rank", corner=c(0,0,10))
+p = p + plot.raster(g3D, name="rank", flagLegend=TRUE, legendName="Rank",
+                    corner=c(0,0,10))
 p = p + plot.decoration(title="Horizontal Slice (IZ=10)")
 plot.end(p)
 ```
@@ -267,7 +274,7 @@ Display a vertical slice (XOZ) for the index IY=3
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.grid(g3D, nameRaster="rank", flagLegendRaster=TRUE, legendNameRaster="Rank", 
+p = p + plot.raster(g3D, name="rank", flagLegend=TRUE, legendName="Rank", 
                   posY=2, corner=c(0,3,0))
 p = p + plot.decoration(title="Vertical Slice XOZ (IY=3)")
 plot.end(p)

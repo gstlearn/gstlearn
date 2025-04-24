@@ -50,7 +50,7 @@ grid = DbGrid_createFromNF(fileNF)
 \frametitle{Histogram of the raw variable (temperature)}
 
 ```{r Histogram}
-p = ggplot()
+p = plot.init()
 p = p + plot.hist(dat,"January*")
 p = p + plot.decoration(title="Temperatures")
 plot.end(p)
@@ -72,7 +72,7 @@ anam
 \frametitle{Gaussian scores}
 
 ```{r Gaussian_Score_Plot}
-p = ggplot()
+p = plot.init()
 p = p + plot.XY(dat["Y.January_temp"], dat["January_temp"], flagLine=FALSE, flagPoint=TRUE)
 p = p + plot.decoration(xlab="Gaussian", ylab="Raw")
 plot.end(p)
@@ -83,7 +83,7 @@ plot.end(p)
 \frametitle{Gaussian scores}
 
 ```{r Gaussian_Score_Histogram}
-p = ggplot()
+p = plot.init()
 p = p + plot.hist(dat,"Y.January*")
 p = p + plot.decoration(title="Temperatures (Gaussian scale)")
 plot.end(p)
@@ -106,7 +106,7 @@ err = fitmodgauss$fit(vario_gauss2dir,
 ```
 
 ```{r}
-ggplot() + plot.varmod(vario_gauss2dir, fitmodgauss)
+plot.init() + plot.varmod(vario_gauss2dir, fitmodgauss)
 ```
 
 ---

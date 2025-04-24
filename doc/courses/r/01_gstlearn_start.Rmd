@@ -60,7 +60,7 @@ The simulated result is plotted
 
 ```{r Display-the-grid}
 p = plot.init(asp=1)
-p = p + plot.grid(db)
+p = p + plot.raster(db)
 p = p + plot.decoration(title="Check is successful!")
 plot.end(p)
 ```

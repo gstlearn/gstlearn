@@ -91,7 +91,7 @@ grid$display(dbfmt)
 \frametitle{Correlation between Cr and P}
 
 ```{r Correlation_Cr_P,results="hide"}
-ggplot() + plot.correlation(grid,namex="Cr",namey="P", bins=100)
+plot.init() + plot.correlation(grid,namex="Cr",namey="P", bins=100)
 ```
 
 ---
@@ -99,7 +99,7 @@ ggplot() + plot.correlation(grid,namex="Cr",namey="P", bins=100)
 \frametitle{Correlation between Ni and P}
 
 ```{r Correlation_Ni_P,results="hide"}
-ggplot() + plot.correlation(grid,namex="Ni",namey="P", bins=100)
+plot.init() + plot.correlation(grid,namex="Ni",namey="P", bins=100)
 ```
 
 ---
@@ -107,7 +107,7 @@ ggplot() + plot.correlation(grid,namex="Ni",namey="P", bins=100)
 \frametitle{Correlation between Ni and CR}
 
 ```{r Correlation_Ni_Cr,results="hide"}
-ggplot() + plot.correlation(grid,namex="Ni",namey="Cr", bins=100)
+plot.init() + plot.correlation(grid,namex="Ni",namey="Cr", bins=100)
 ```
 
 ---
@@ -161,7 +161,7 @@ modelP
 \frametitle{Variogram Model}
 
 ```{r Variogram_Model_Plot}
-ggplot() + plot.varmod(varioP,modelP)
+plot.init() + plot.varmod(varioP,modelP)
 ```
 
 ---
@@ -205,7 +205,7 @@ plot.end(p)
 Correlation for **P** variable between Initial image and its Filtered version (monovariate FKA)
 
 ```{r Correlation_P_denoised_monovariate}
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(grid,namex="Fill.P",namey="Mono.Fill.P", bins=100)
 p = p + plot.decoration(xlab="P Filled",ylab="P Filtered")
 plot.end(p)
@@ -276,7 +276,7 @@ plot.end(p)
 Correlation for **P** variable between Initial image and its Filtered version (multivariate FKA)
 
 ```{r Correlation_P_denoised_multivariate}
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(grid,namex="Fill.P",namey="Multi.Fill.P", bins=100)
 p = p + plot.decoration(xlab="P Filled",ylab="P Filtered (Multi)")
 plot.end(p)
@@ -285,7 +285,7 @@ plot.end(p)
 Correlation for **P** filtered variable between the Monovariate and the Multivariate case
 
 ```{r}
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(grid, namex="Mono.Fill.P", namey="Multi.Fill.P", bins=100)
 p = p + plot.decoration(xlab="P Filtered (Mono)",ylab="P Filtered (Multi)")
 plot.end(p)

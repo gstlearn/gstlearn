@@ -131,7 +131,7 @@ if (verbose)
     dbfmt$setFlags(flag_extend=TRUE, flag_stats=TRUE)
     grid$display(dbfmt)
 }
-plot.init(asp=1) + plot.grid(grid,nameRaster="fac",flagLegendRaster=TRUE)
+plot.init(asp=1) + plot.raster(grid,name="fac",flagLegend=TRUE)
 ```
 
 # Transform categorical variable into indicators
@@ -143,7 +143,7 @@ if (verbose) {
 }
 err = limits$toIndicator(grid, "fac")
 grid$display()
-plot.init(asp=1) + plot.grid(grid,nameRaster="Indicator.fac.Class.4",flagLegendRaster=TRUE)
+plot.init(asp=1) + plot.raster(grid,name="Indicator.fac.Class.4",flagLegend=TRUE)
 ```
 
 # Variogram of indicators

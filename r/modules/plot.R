@@ -43,6 +43,16 @@
   return(FALSE)
 }
 
+#' Function to create breaks (used to plot size legend
+#' @keywords internal
+#' 
+.getSeq <- function(v,n=4,nd=3)
+{
+  u=floor(seq(from=floor(v[1]*10**nd),to=ceiling(v[2]*10**nd),length.out=n))/10**nd
+  u=pretty(v,n)
+  return(u)
+}
+
 #' Initialize a new figure and define its environment
 #' This method includes the initial call to ggplot()
 #'
@@ -86,13 +96,12 @@ appendNewScale <- function(p, aestype)
 #' @param title Title of the color scale
 .defineColour <- function(palette, naColor="transparent", flagDiscrete=FALSE, limits=NULL, title=NA)
 {
-  rcb <- c("Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu",
-           "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd",
-           "Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1", "Set2", "Set3",
-           "BrBG", "PiYG", "PRGn", "PuOr", "RdBu", "RdGy", "RdYlBu", "RdYlGn", "Spectral")
+  if (!require(RColorBrewer, quietly=TRUE))
+    stop("Package 'RColorBrewer' is mandatory to use this function!")
+  rcb <- rownames(brewer.pal.info)
+  rcb_num <- 1:18
   v <- c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo",
          "A", "B", "C", "D", "E", "F", "G", "H")
-  rcb_num <- 1:18
   
   aes_list = c("color")
   
@@ -105,42 +114,43 @@ appendNewScale <- function(p, aestype)
   
   if (flagDiscrete)
   {
-    layer = scale_colour_manual(name="colors", values= palette, aesthetics=aes_list,
-                                na.value = naColor,name=name)
+    layer = scale_colour_manual(values= palette, aesthetics=aes_list,
+                                na.value = naColor, name=name)
   }
   else
   {
     if (length(palette) == 0)
     {
+      # Case where 'palette' is not provided
       layer = scale_colour_viridis_c(option="viridis", aesthetics=aes_list,
-                                     na.value = naColor, limits=limits,name=name)
-      # layer = scale_colour_gradient(na.value=naColor, aesthetics=aes_list, limits=limits)
+                                     na.value = naColor, limits=limits, name=name)
     }
     else if(length(palette) == 1)
     {
       if (any(palette == rcb) | any(palette == rcb_num))
       {
         layer = scale_colour_distiller(palette=palette, aesthetics=aes_list,
-                                       na.value=naColor,name=name)
+                                       na.value=naColor, name=name)
       }
       else if(any(palette == v))
       {
         layer = scale_colour_viridis_c(option=palette, aesthetics=aes_list,
-                                       na.value = naColor, limits=limits,name=name)
-      }else{
+                                       na.value = naColor, limits=limits, name=name)
+      }
+      else
+      {
         layer = scale_colour_viridis_c(option="viridis", aesthetics=aes_list,
-                                       na.value = naColor, limits=limits,name=name)
+                                       na.value = naColor, limits=limits, name=name)
       }
     }
     else
     {
       layer = scale_colour_gradientn(colours=palette, aesthetics=aes_list,
-                                     na.value=naColor, limits=limits,name=name)
+                                     na.value=naColor, limits=limits, name=name)
     }
   }
   return(layer)
 }
-
 
 #' Define the "fill" using input 'palette' definition
 #' @param palette Reference palette used for defining the current color map
@@ -149,16 +159,14 @@ appendNewScale <- function(p, aestype)
 #' @param limits Limits for the color scale
 #' @param title Title of the color scale
 #' @noRd
-.defineFill <- function(palette, naColor="transparent", flagDiscrete=FALSE, limits=NULL, title=NA)
+.defineFill <- function(palette=NULL, naColor="transparent", flagDiscrete=FALSE, limits=NULL, title=NA)
 {
-  
-  rcb <- c("Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu",
-           "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd",
-           "Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1", "Set2", "Set3",
-           "BrBG", "PiYG", "PRGn", "PuOr", "RdBu", "RdGy", "RdYlBu", "RdYlGn", "Spectral")
+  if (!require(RColorBrewer, quietly=TRUE))
+    stop("Package 'RColorBrewer' is mandatory to use this function!")
+  rcb <- rownames(brewer.pal.info)
+  rcb_num <- 1:18
   v <- c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo",
          "A", "B", "C", "D", "E", "F", "G", "H")
-  rcb_num <- 1:18
   
   aes_list = c("fill")
   
@@ -171,8 +179,7 @@ appendNewScale <- function(p, aestype)
   
   if (flagDiscrete)
   {
-    layer = scale_fill_manual(values= palette, 
-                              na.value = naColor,name=name)
+    layer = scale_fill_manual(values= palette, na.value = naColor,name=name)
   }
   else
   {
@@ -192,7 +199,9 @@ appendNewScale <- function(p, aestype)
       {
         layer = scale_fill_viridis_c(option=palette, aesthetics=aes_list,
                                      na.value = naColor, limits=limits,name=name)
-      }else{
+      }
+      else
+      {
         layer = scale_fill_viridis_c(option="viridis", aesthetics=aes_list,
                                      na.value = naColor, limits=limits,name=name)
       }
@@ -206,23 +215,19 @@ appendNewScale <- function(p, aestype)
   return(layer)
 }
 
-#' Print the list of predefined color palettes in \pkg{gstlearn}.
-#'
-#' @return Prints the list of color palette names and returns nothing.
-#'
-printAllPalettes <- function() 
+.defineSize <- function(sizval, sizeRange, title=NA)
 {
-  rcb <- c(
-    "Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu",
-    "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd",
-    "Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1", "Set2", "Set3",
-    "BrBG", "PiYG", "PRGn", "PuOr", "RdBu", "RdGy", "RdYlBu", "RdYlGn", "Spectral"
-  )
-  v <- c(
-    "magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo",
-    "A", "B", "C", "D", "E", "F", "G", "H"
-  )
-  print(c(rcb, v))
+  name=waiver()
+  if(!is.na(title)){
+    if(is.character(title)){
+      name=title
+    }
+  }
+  
+  breaks = .getSeq(range(sizval,na.rm=TRUE))
+  layer = scale_size(breaks = breaks,limits=range(breaks),range = sizeRange, name=name)
+
+  return(layer)
 }
 
 #' Define a series of distinct colors
@@ -232,18 +237,6 @@ printAllPalettes <- function()
 	c("blue", "red", "green", "brown", "orange", "purple", "yellow")
 }
 
-#' Print the contents of a ggplot, possibly without warnings
-#'
-#' @param p Current contents of the ggplot()
-#' @param flagSuppressWarnings TRUE to suppress informational warnings
-plot.end <- function(p, flagSuppressWarnings = TRUE)
-{
-  if (flagSuppressWarnings)
-    suppressWarnings(plot(p))
-  else
-    plot(p)
-  invisible()
-}
 
 #' Check if the argument can be considered as an array (with possibly imposed dimensions)
 #' @param arg Input argument
@@ -260,113 +253,35 @@ plot.end <- function(p, flagSuppressWarnings = TRUE)
 
 #' Define the variable used by default (when not explictly defined)
 #' @param db Data base from gstlearn
-#' @param name Proposed input name
+#' @param name1 Proposed input name
+#' @param name2 Auxiliary input variable name
 #'
 #' @note The defaulted variable is the first one attached to the locator-Z (if any);
 #' @note otherwise it is the last defined variable within 'db'.
 #' @return Name of the defaulted variable
 #' @noRd
-.defaultVariable <- function(db, name)
+.defaultVariable <- function(db, name1 = NULL, name2 = NULL)
 {
-  if (is.null(name))
-  {
-  	if (db$getNLoc(ELoc_Z()) > 0)
-		name = db$getNameByLocator(ELoc_Z(),0)
-  	else
-	    name = db$getLastName()
-  }
+  # If at least one variable name is defined, return 'name1 as is'
+  if (!is.null(name1) || !is.null(name2))
+    return(name1)
+
+  # If no variable is defined, return a variable name by default
+  if (db$getNLoc(ELoc_Z()) > 0)
+    # Use the first Z-Locator variable (if defined)
+		return(db$getNameByLocator(ELoc_Z(),0))
   else
-  {
-  	if (db$getUID(name) < 0)
-  		name = db$getLastName()
-  }
-  name
+    # Use the last defined variable
+	  return(db$getLastName())
+
+  # No solution is found, return an error
+  cat("No variable name is provided. Procedure is aborted")
+  stop()
 }
 
-#' Draw the decoration of a figure (title, axis labels, ...)
-#'
-#' @param title Title of the figure
-#' @param xlab Label along the horizontal axis
-#' @param ylab Label along the vertical axis
-#' @return The ggplot object
-plot.decoration <- function(title=NA, xlab = NA, ylab = NA)
-{
-  p = list()
-  if (!.isNotDef(xlab))
-    p <- append(p, list(labs(x = xlab)))
-  if (!.isNotDef(ylab))
-    p <- append(p, list(labs(y = ylab)))
-  if (!.isNotDef(title))
-  {
-    p <- append(p, list(labs(title = title)))
-    p <- append(p, list(theme(plot.title = element_text(hjust = 0.5))))
-  }
-  p
-}
-
-#' Set the Geometry for the current plot
-#'
-#' @param xlim Bounds along the horizontal axis
-#' @param ylim Bounds along the vertical axis
-#' @param asp  Aspect Ratio Y/X ("0" for an automatic aspect ratio)
-#' @param expand Adding padding around data
-#' @return The ggplot object
-plot.geometry <- function(xlim=NA, ylim=NA, asp=NA, expand=waiver())
-{
-  p = list()
-  
-  if (.isArray(xlim, 2))
-  {
-    p <- append(p, scale_x_continuous(limits=xlim, expand=expand))
-  }
-
-  if (.isArray(ylim, 2))
-  {
-    p <- append(p, scale_y_continuous(limits=ylim, expand=expand))
-  }
-  
-  if (!.isNotDef(asp))
-  {     
-    if (asp != 0)
-      p = append(p, coord_fixed(asp))
-    else
-      p = append(p, list(theme(aspect.ratio = 1)))
-  }
-  p
-}
-
-#' Function for representing a Model
-#' @param model An object of class Model from gstlearn
-#' @param ivar Rank of the variable to be represented (-1 for all variables)
-#' @param jvar Rank of the second variable to be represented in multivariate case (-1 for all variables
-#' @param vario An object of class Vario of gstlearn (optional)
-#' @param idir Rank of the direction
-#' @param ... Arguments passed to plot.varmod()
-#'
-#' If 'vario' is defined, the calculation direction is given by the definition of direction 'idir' within 'vario'
-#' 
-#' @return The ggplot object
-plot.model <- function(model, ivar=0, jvar=0, vario=NA, idir=0, ...)
-{
-  p = list()
-  p = append(p, plot.varmod(vario=vario, model=model, ivar=ivar, jvar=jvar, idir=idir,
-               drawVario=FALSE, ...))
-  p = append(p, plot.decoration(xlab = "Distance", ylab = "Variogram"))
-  p  
-}
-
-#' Function for representing the Experimental Variogram
-#' @param vario An object of the class Vario of gstlearn
-#' @param ivar Rank of the variable to be represented 
-#' @param jvar Rank of the second variable to be represented in multivariate case 
-#' @param idir Rank of the direction to be represented 
-#' @param ... Arguments passed to plot.varmod()
-#' @return The ggplot object
-plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
-{
-  p = list()
-  p = append(p, plot.varmod(vario=vario, ivar=ivar, jvar=jvar, idir=idir,...))
-  p
+.showLegend <- function(flagLegend) {
+  show = ifelse(!flagLegend, FALSE, NA)
+  show
 }
 
 #' Select a list of items
@@ -507,8 +422,203 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
     p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, 
             color = envColor, linetype = envLinetype, size=envSize))
   }
+
+  # Adding the vertical axis at X=0
+  p = append(p, geom_vline(xintercept = 0., color='black', size=0.5))
+  
+  # Adding the horizontal axis at Y=0
+  p = append(p, geom_hline(yintercept = 0., color = "black", size = 0.5))
+  
   p
 }
+
+#' Read a set of sample coordinates
+#' @param db Db item from the gstlearn library
+#' @param useSel Use of an optional selection (masking off samples)
+#' @param posX Rank of the coordinate which will serve as first coordinate
+#' @param posY Rank of the coordinate which will serve as the second coordinate
+#' @return a Dataframe containing the 2-D coordinates
+#' @noRd
+.readPointCoor <- function(db, useSel=TRUE, posX=0, posY=1)
+{
+  if (db$getNDim() > 0) 
+    x = db$getOneCoordinate(posX,useSel)
+  if (db$getNDim() > 1)
+    y = db$getOneCoordinate(posY,useSel)
+  df = data.frame(x,y)
+  df
+}
+
+#' Read the coordinates and one variable along a section of a Grid
+#' @param dbgrid Grid data base from the gstlearn library
+#' @param name Name of the target variable
+#' @param useSel Use of an optional selection
+#' @param posX rank of the coordinate which will serve as the first coordinate
+#' @param posY rank of the coordinate which will serve as the second coordinate
+#' @param corner A vector (same space dimension as 'dbgrid') which defines a pixel belonging to the extracted section
+#' @return A dataframe containing the 2-D coordinates and the target variable
+#' @note: setting useSel to FALSE enables having information for the whole grid (which remains a regular grid) even if a selection is defined.
+#' @noRd
+.readGridCoor <- function(dbgrid, name, useSel= FALSE, posX=0, posY=1, corner=NA)
+{
+  if (.isNotDef(corner))
+    corner = rep(0, dbgrid$getNDim())
+  
+  if (dbgrid$getNDim() == 1)
+  {
+      data = dbgrid$getColumn(name, useSel, FALSE)
+      x = dbgrid$getColumnByLocator(ELoc_X(), posX, FALSE, FALSE)
+      y = dbgrid$getColumnByLocator(ELoc_X(), posY, FALSE, FALSE)
+  }
+  else
+  {
+      data = dbgrid$getOneSlice(name, posX, posY, corner, useSel)
+      nameX = dbgrid$getNameByLocator(ELoc_X(), posX)
+      x = dbgrid$getOneSlice(nameX, posX, posY, corner, FALSE)
+      nameY = dbgrid$getNameByLocator(ELoc_X(), posY)
+      y = dbgrid$getOneSlice(nameY, posX, posY, corner, FALSE)
+  }
+      
+  if (length(data) != length(x))
+  {
+    cat("Variable",name,"does not exist or does not have correction dimension\n")
+    stop()
+  }
+  df = data.frame(x,y,data)
+  df
+}
+
+.isGrid <- function(dbgrid, flagNoRotate = FALSE) 
+{
+  if (!dbgrid$isGrid()) {
+    cat("This function is restricted to Grid Db and cannot be used here\n")
+    return(FALSE)
+  }
+  if (flagNoRotate) 
+  {
+    if (dbgrid$isGridRotated()) 
+    {
+      cat("This function cannot be used with rotated grids\n")
+      return(FALSE)
+    }
+  }
+  return(TRUE)
+}
+
+#' Print the list of predefined color palettes in \pkg{gstlearn}.
+#'
+#' @return Prints the list of color palette names and returns nothing.
+#'
+printAllPalettes <- function() 
+{
+  if (!require(RColorBrewer, quietly=TRUE))
+    stop("Package 'RColorBrewer' is mandatory to use this function!")
+  rcb <- rownames(brewer.pal.info)
+  rcb_num <- 1:18
+  v <- c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo",
+         "A", "B", "C", "D", "E", "F", "G", "H")
+  print(c(rcb, v, rcb_num))
+}
+
+#' Print the contents of a ggplot, possibly without warnings
+#'
+#' @param p Current contents of the ggplot()
+#' @param flagSuppressWarnings TRUE to suppress informational warnings
+plot.end <- function(p, flagSuppressWarnings = TRUE)
+{
+  if (flagSuppressWarnings)
+    suppressWarnings(plot(p))
+  else
+    plot(p)
+  invisible()
+}
+
+#' Draw the decoration of a figure (title, axis labels, ...)
+#'
+#' @param title Title of the figure
+#' @param xlab Label along the horizontal axis
+#' @param ylab Label along the vertical axis
+#' @return The ggplot object
+plot.decoration <- function(title=NA, xlab = NA, ylab = NA)
+{
+  p = list()
+  if (!.isNotDef(xlab))
+    p <- append(p, list(labs(x = xlab)))
+  if (!.isNotDef(ylab))
+    p <- append(p, list(labs(y = ylab)))
+  if (!.isNotDef(title))
+  {
+    p <- append(p, list(labs(title = title)))
+    p <- append(p, list(theme(plot.title = element_text(hjust = 0.5))))
+  }
+  p
+}
+
+#' Set the Geometry for the current plot
+#'
+#' @param xlim Bounds along the horizontal axis
+#' @param ylim Bounds along the vertical axis
+#' @param asp  Aspect Ratio Y/X ("0" for an automatic aspect ratio)
+#' @param expand Adding padding around data
+#' @return The ggplot object
+plot.geometry <- function(xlim=NA, ylim=NA, asp=NA, expand=waiver())
+{
+  p = list()
+  
+  if (.isArray(xlim, 2))
+  {
+    p <- append(p, scale_x_continuous(limits=xlim, expand=expand))
+  }
+
+  if (.isArray(ylim, 2))
+  {
+    p <- append(p, scale_y_continuous(limits=ylim, expand=expand))
+  }
+  
+  if (!.isNotDef(asp))
+  {     
+    if (asp != 0)
+      p = append(p, coord_fixed(asp))
+    else
+      p = append(p, list(theme(aspect.ratio = 1)))
+  }
+  p
+}
+
+#' Function for representing a Model
+#' @param model An object of class Model from gstlearn
+#' @param ivar Rank of the variable to be represented (-1 for all variables)
+#' @param jvar Rank of the second variable to be represented in multivariate case (-1 for all variables
+#' @param vario An object of class Vario of gstlearn (optional)
+#' @param idir Rank of the direction
+#' @param ... Arguments passed to plot.varmod()
+#'
+#' If 'vario' is defined, the calculation direction is given by the definition of direction 'idir' within 'vario'
+#' 
+#' @return The ggplot object
+plot.model <- function(model, ivar=0, jvar=0, vario=NA, idir=0, ...)
+{
+  p = list()
+  p = append(p, plot.varmod(vario=vario, model=model, ivar=ivar, jvar=jvar, idir=idir,
+               drawVario=FALSE, ...))
+  p = append(p, plot.decoration(xlab = "Distance", ylab = "Variogram"))
+  p  
+}
+
+#' Function for representing the Experimental Variogram
+#' @param vario An object of the class Vario of gstlearn
+#' @param ivar Rank of the variable to be represented 
+#' @param jvar Rank of the second variable to be represented in multivariate case 
+#' @param idir Rank of the direction to be represented 
+#' @param ... Arguments passed to plot.varmod()
+#' @return The ggplot object
+plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
+{
+  p = list()
+  p = append(p, plot.varmod(vario=vario, ivar=ivar, jvar=jvar, idir=idir,...))
+  p
+}
+
 
 #' Represent an experimental variogram and overlay the Model calculated in same conditions
 #' on a single figure
@@ -690,113 +800,59 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
     envColor='black', envLinetype="dashed", envSize=0.5,
     ...)
 {
-  if (!require(ggpubr, quietly = TRUE))
+  if (!require(ggpubr, quietly = TRUE)) {
     stop("Package ggpubr is mandatory to use this function!")
-  
+  }
+
   nvar = vario$getNVar()
-  
+
   ivarUtil = .selectItemsInList(nvar, ivar)
   jvarUtil = .selectItemsInList(nvar, jvar)
   ivarN = length(ivarUtil)
   jvarN = length(jvarUtil)
-  
-  if (.isNotDef(hmax))
+
+  if (.isNotDef(hmax)) {
     hmax = vario$getHmax(ivar, jvar, idir)
-  
+  }
+
   # Loop on the variables
-  
+
   index = 0
   plot_lst <- vector("list", length = ivarN * jvarN)
-  
-  for (ivar in ivarUtil)
+
+  for (ivar in ivarUtil) {
     for (jvar in jvarUtil)
     {
-      
       # Define the current plot
       index = index + 1
-      
+
       g = plot.init()
-      
-      if (ivar < jvar)
-      {
+
+      if (ivar < jvar) {
         g = g + theme(
-            panel.background = element_rect(fill='transparent'), #transparent panel bg
-            plot.background = element_rect(fill='transparent', color=NA), #transparent plot bg
-            panel.grid.major = element_blank(), #remove major gridlines
-            panel.grid.minor = element_blank(), #remove minor gridlines
-            legend.background = element_rect(fill='transparent'), #transparent legend bg
-            legend.box.background = element_rect(fill='transparent')) #transparent legend panel
-      }
-      else
-      {
-        g = g + plot.varmod(vario=vario, model=model, ivar=ivar, jvar=jvar, idir=-1,
-            nh = nh, hmax = hmax, drawPsize=drawPsize, drawPlabel=drawPlabel, 
-            asCov=asCov, drawVariance = drawVariance, flagEnvelop=flagEnvelop, 
-            varioLinetype=varioLinetype, modelLinetype=modelLinetype,
-            varColor=varColor, varLinetype=varLinetype, varSize=varSize, 
-            envColor=envColor, envLinetype=envLinetype, envSize=envSize,
-            ...)
+          panel.background = element_rect(fill = "transparent"), # transparent panel bg
+          plot.background = element_rect(fill = "transparent", color = NA), # transparent plot bg
+          panel.grid.major = element_blank(), # remove major gridlines
+          panel.grid.minor = element_blank(), # remove minor gridlines
+          legend.background = element_rect(fill = "transparent"), # transparent legend bg
+          legend.box.background = element_rect(fill = "transparent")
+        ) # transparent legend panel
+      } else {
+        g = g + plot.varmod(
+          vario = vario, model = model, ivar = ivar, jvar = jvar, idir = -1,
+          nh = nh, hmax = hmax, drawPsize = drawPsize, drawPlabel = drawPlabel,
+          asCov = asCov, drawVariance = drawVariance, flagEnvelop = flagEnvelop,
+          varioLinetype = varioLinetype, modelLinetype = modelLinetype,
+          varColor = varColor, varLinetype = varLinetype, varSize = varSize,
+          envColor = envColor, envLinetype = envLinetype, envSize = envSize,
+          ...
+        )
       }
       plot_lst[[index]] <- g
-    } 
-  p = ggarrange(plotlist=plot_lst, nrow=ivarN, ncol = jvarN)
+    }
+  }
+  p = ggarrange(plotlist = plot_lst, nrow = ivarN, ncol = jvarN)
   p
-}
-
-#' Read a set of sample coordinates
-#' @param db Db item from the gstlearn library
-#' @param useSel Use of an optional selection (masking off samples)
-#' @param posX Rank of the coordinate which will serve as first coordinate
-#' @param posY Rank of the coordinate which will serve as the second coordinate
-#' @return a Dataframe containing the 2-D coordinates
-#' @noRd
-.readPointCoor <- function(db, useSel=TRUE, posX=0, posY=1)
-{
-  if (db$getNDim() > 0) 
-    x = db$getOneCoordinate(posX,useSel)
-  if (db$getNDim() > 1)
-    y = db$getOneCoordinate(posY,useSel)
-  df = data.frame(x,y)
-  df
-}
-
-#' Read the coordinates and one variable along a section of a Grid
-#' @param dbgrid Grid data base from the gstlearn library
-#' @param name Name of the target variable
-#' @param useSel Use of an optional selection
-#' @param posX rank of the coordinate which will serve as the first coordinate
-#' @param posY rank of the coordinate which will serve as the second coordinate
-#' @param corner A vector (same space dimension as 'dbgrid') which defines a pixel belonging to the extracted section
-#' @return A dataframe containing the 2-D coordinates and the target variable
-#' @note: setting useSel to FALSE enables having information for the whole grid (which remains a regular grid) even if a selection is defined.
-#' @noRd
-.readGridCoor <- function(dbgrid, name, useSel= FALSE, posX=0, posY=1, corner=NA)
-{
-  if (.isNotDef(corner))
-    corner = rep(0, dbgrid$getNDim())
-  
-  if (dbgrid$getNDim() == 1)
-  {
-      data = dbgrid$getColumn(name, useSel, FALSE)
-      x = dbgrid$getColumnByLocator(ELoc_X(), posX, FALSE, FALSE)
-      y = dbgrid$getColumnByLocator(ELoc_X(), posY, FALSE, FALSE)
-  }
-  else
-  {
-      data = dbgrid$getOneSlice(name, posX, posY, corner, useSel)
-      nameX = dbgrid$getNameByLocator(ELoc_X(), posX)
-      x = dbgrid$getOneSlice(nameX, posX, posY, corner, FALSE)
-      nameY = dbgrid$getNameByLocator(ELoc_X(), posY)
-      y = dbgrid$getOneSlice(nameY, posX, posY, corner, FALSE)
-  }
-      
-  if (length(data) != length(x))
-  {
-    cat("Variable",name,"does not exist or does not have correction dimension\n")
-    stop()
-  }
-  df = data.frame(x,y,data)
-  df
 }
 
 #' Plotting a point data base where samples are displayed with different color and/or size
@@ -809,40 +865,63 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
 #' @param asFactor Transform color variable into factor to use discrete palette
 #' @param posX Rank of the coordinate used as the first coordinate
 #' @param posY Rank of the coordinate used as the second coordinate
+#' @param palette Name of the reference color map
+#' @param naColor Color assigned to undefined samples
+#' @param flagLegend Display the legend for point representation (color and size)
+#' @param legendNameColor Name of the Legend for point representation by color
+#' @param legendNameSize Name of the Legend for point representation by size
 #' @param ... List of arguments passed to geom_point()
 #' @return The description of the contents of the graphic layer
-pointSymbol <- function(db, nameColor=NULL, nameSize=NULL,
+plot.symbol <- function(db, nameColor=NULL, nameSize=NULL, 
     flagAbsSize = FALSE, flagCst=FALSE, useSel=TRUE, asFactor=FALSE, 
-    posX=0, posY=1,
-    ...) 
+    sizeRange=c(0.5, 3.), posX=0, posY=1,
+    palette=NULL, naColor="transparent", flagLegend=FALSE, 
+    legendNameColor=NA, legendNameSize=NA,  
+    ...)
 { 
+  p = list()
+
+  # Get the name of the variable to be displayed by default
+  nameSize = .defaultVariable(db, nameSize, nameColor)
+
   # Creating the necessary data frame
   df = .readPointCoor(db, useSel, posX, posY)
+  aes_plt = aes(x=x, y=y)
   
   # Color of symbol
-  colval = "constant"
   if (! is.null(nameColor)) {
     colval  = db$getColumn(nameColor, TRUE)
     if (asFactor) colval = factor(colval)
+
+    df["colour"] = colval
+    aes_plt$colour = substitute(colval)
   }
-  df["colval"] = colval 
   
   # Size of symbol
-  sizval = "constant"
   if (! is.null(nameSize) && ! flagCst) {
     sizval  = db$getColumn(nameSize, TRUE)
     if (flagAbsSize) sizval = abs(sizval)
+
+    df["size"] = sizval
+    aes_plt$size = substitute(sizval)
   }
-  df["sizval"] = sizval
-  
-  if (flagCst)
-      layer <- geom_point(data = df, mapping = aes(x=x, y=y), 
-              na.rm=TRUE, ...)
-  else
-       layer <- geom_point(data = df, mapping = aes(x=x, y=y, color=colval, size=sizval), 
-              na.rm=TRUE, ...)
-  
-  layer
+
+  layer <- geom_point(data = df, aes_plt, 
+              na.rm=TRUE, show.legend = .showLegend(flagLegend), ...)
+  p <- append(p, list(layer))
+
+  # Define the Legend
+  if (! is.null(nameColor)) {
+    p <- append(p, .defineColour(palette, naColor = naColor,
+      flagDiscrete = asFactor, title = legendNameColor))
+    p <- append(p, list(new_scale("colour")))
+  }
+  if (! is.null(nameSize) && ! flagCst) {
+    p <- append(p, .defineSize(sizval, sizeRange, title = legendNameSize))
+    p <- append(p, list(new_scale("size")))
+  }
+
+  p
 }
 
 #' Plotting a point data base where samples are displayed with a label
@@ -852,135 +931,32 @@ pointSymbol <- function(db, nameColor=NULL, nameSize=NULL,
 #' @param useSel Use of the optional selection
 #' @param posX Rank of the coordinate used as the first coordinate
 #' @param posY Rank of the coordinate used as the second coordinate
-#' @param ... List of arguments passed to geom_text()
+#' @param ... List of arguments passed to geom_text_repel()
 #' @return The description of the contents of the graphic layer
-pointLabel <- function(db, name, digit=2, useSel=TRUE, posX=0, posY=1, ...) 
+plot.literal <- function(db, name=NULL, digit=2, useSel=TRUE, posX=0, posY=1, 
+    ...)
 {
+  p = list()
+
   if (!require(ggrepel, quietly=TRUE))
     stop("Package ggrepel is mandatory to use this function!")
-  
+
+  # Get the name of the variable to be displayed by default
+  name = .defaultVariable(db, name)
+
   # Creating the necessary data frame
   df = .readPointCoor(db, useSel, posX, posY)
+  aes_plt = aes(x=x, y=y)
   
   # Label of symbols
   labval  = round(db$getColumn(name,TRUE),digit)
   df["labval"] = as.character(labval)
+  aes_plt$label = substitute(labval)
   
-  layer <- geom_text_repel(data = df, mapping=aes(x=x, y=y, label=labval, 
-           color=name), na.rm=TRUE, ...)
+  layer <- geom_text_repel(data = df, aes_plt, na.rm=TRUE, ...)
+  p <- append(p, list(layer))
   
   layer
-}
-
-#' Plotting a point data base
-#' @param db Data Base containing the information to be displayed
-#' @param nameColor Name of the variable to be represented in color
-#' @param nameSize Name of the variable to be represented in proportional symbols
-#' @param nameLabel Name of the variable to be represented in literal manner
-#' @param sizmin Minimum symbol size for proportional representation
-#' @param sizmax Maximum symbol size for proportional representation
-#' @param flagAbsSize Using the absolute value of the variable for graphic representation
-#' @param flagCst Represent the location of the active samples only
-#' @param palette Name of the reference color map
-#' @param asFactor Transform the color variable into factor in order to use discrete palette
-#' @param flagLegendColor Display the legend for Color representation
-#' @param flagLegendSize Display the legend for Size representation
-#' @param flagLegendLabel Display the legend for literal representation
-#' @param legendNameColor Name of the Legend for color representation (set to 'nameColor' if not defined)
-#' @param legendNameSize Name of the Legend for proportional representation (set to 'nameSize' if not defined)
-#' @param legendNameLabel Name of the Legend for Literal representation (set to 'nameLabel' if not defined)
-#' @param ... List of arguments passed to pointSymbol( ) and pointLabel() 
-#' @return The ggplot object
-plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
-    sizmin=1, sizmax=5, flagAbsSize = FALSE, flagCst=FALSE, palette=NULL, asFactor=FALSE, 
-    flagLegendColor=FALSE, flagLegendSize=FALSE, flagLegendLabel=FALSE, 
-    legendNameColor=NULL, legendNameSize=NULL, legendNameLabel=NULL, 
-    textColor="black", ...)
-{
-  if (!require(ggnewscale, quietly = TRUE))
-    stop("Package ggnewscale is mandatory to use this function!")
-  
-  p = list()
-  title = ""
-  
-  flagTitleDefault = FALSE
-  if (is.null(nameColor) && is.null(nameSize) && is.null(nameLabel))
-  {
-    nameSize = .defaultVariable(db, NULL)
-    flagCst = TRUE
-  }
-
-  if (! is.null(nameColor) || ! is.null(nameSize))
-  {
-    p <- append(p, pointSymbol(db, nameColor=nameColor, nameSize=nameSize,
-        flagAbsSize = flagAbsSize, flagCst=flagCst, asFactor=asFactor,
-        ...))
-    
-    if (! is.null(nameSize) && ! flagCst)
-    {
-      p <- append(p, scale_size_continuous(range = c(sizmin, sizmax)))
-    }
-      
-    # Palette definition (if defined)
-    if (! is.null(palette))
-    {
-      p <- appendNewScale(p, "colour")
-      p <- append(p, .defineColour(palette, ...))
-    }
-
-    # Set the default title
-    if (! is.null(nameColor))
-      title = paste(title, nameColor, "(color)", sep=" ")
-    if (! is.null(nameSize) && ! flagCst)
-      title = paste(title, nameSize, "(size)", sep=" ")
-    
-    # Set the Legend
-    if (flagLegendColor)
-    {
-        if (is.null(legendNameColor)) legendNameColor = nameColor
-        p <- append(p, list(labs(color = legendNameColor)))
-    }
-    else
-    {
-        p <- append(p, list(guides(color = "none")))
-    }
-    if (flagLegendSize && ! flagCst)
-    {
-        if (is.null(legendNameSize)) legendNameSize = nameSize
-        p <- append(p, list(labs(size = legendNameSize)))
-    }
-    else
-    {
-        p <- append(p, list(guides(size = "none")))
-    }
-  }
-  
-  if (! is.null(nameLabel))
-  {
-    p <- append(p, pointLabel(db, name=nameLabel, ...))
-    p <- appendNewScale(p, "colour")
-    p <- append(p, scale_color_manual(values = textColor))
-    
-    # Set the title              
-    title = paste(title, nameLabel, sep=" ")
-    
-    # Set the legend
-    if (flagLegendLabel)
-    {
-        if (is.null(legendNameLabel)) legendNameLabel = nameLabel
-        p <- append(p, list(labs(color = legendNameLabel)))
-    }
-        else
-    {
-        p <- append(p, list(guides(color = "none")))
-    }
-  }
-
-  # Decoration
-  if (flagTitleDefault) title = "Sample Location"
-  p <- append(p, plot.decoration(title = title))
-    
-  p
 }
 
 #' Represent the contents of a variable defined on a grid as an Image
@@ -990,28 +966,56 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
 #' @param posX rank of the coordinate which will serve as the first coordinate
 #' @param posY rank of the coordinate which will serve as the second coordinate
 #' @param corner A vector (same space dimension as 'dbgrid') which defines a pixel belonging to the extracted section
+#' @param palette Name of the reference color map
+#' @param naColor Color assigned to undefined samples
+#' @param limits Bounds applied to the variable to be represented
+#' @param legendName Name of the Legend for representation as an image
+#' @param flagLegend Display the legend for grid representation as an image
 #' @param ... Arguments passed to geom_tile() or geom_polygon()
 #' @return The description of the contents of the figure
-gridRaster <- function(dbgrid, name, useSel = TRUE, posX=0, posY=1, corner=NA, ...)
+plot.raster <- function(dbgrid, name = NULL, useSel = TRUE, posX=0, posY=1, corner=NA, 
+    palette=NULL, naColor="transparent", limits=NULL, legendName=NA, flagLegend=FALSE, ...)
 {
+  if (! .isGrid(dbgrid)) stop()
+
+  if (!require(ggnewscale, quietly = TRUE)) 
+    stop("Package ggnewscale is mandatory to use this function!")
+
+  p = list()
+
+  # Get the name of the variable to be displayed
+  name = .defaultVariable(dbgrid, name)
+
   # Reading the Grid information
   df = .readGridCoor(dbgrid, name, useSel, posX, posY, corner)
   
   # Define the contents
   if (dbgrid$getAngles()[1] == 0 && ! dbgrid$hasSingleBlock())
   {
-    layer <- geom_tile(data = df, mapping=aes(x = x, y = y, fill = data), ...)
+    layer <- geom_raster(
+      data = df, mapping = aes(x = x, y = y, fill = data),
+      show.legend = .showLegend(flagLegend), ...
+    )
   }
   else
   {
     ids = seq(1, dbgrid$getNTotal())
     coords = dbgrid$getAllCellsEdges()
-    positions = data.frame(id = rep(ids, each=4), x=coords[[1]], y=coords[[2]])
+    positions = data.frame(id = rep(ids, each = 4), x = coords[[1]], y = coords[[2]])
     values = data.frame(id = ids, value = df$data)
     df <- merge(values, positions, by = c("id"))
-    layer <- geom_polygon(data = df, mapping=aes(x = x, y = y, fill = value, group = id), ...)
+    layer <- geom_polygon(
+      data = df, mapping = aes(x = x, y = y, fill = value, group = id),
+      show.legend = .showLegend(flagLegend), ...
+    )
   }
-  layer
+  p <- append(p, list(layer))
+  
+  # Define the color Scale
+  p <- append(p, .defineFill(palette, naColor = naColor, limits = limits, title = legendName))
+  p <- append(p, list(new_scale("fill")))
+  
+  p
 }
 
 #' Represent the contents of a variable defined on a grid with isovalues 
@@ -1021,103 +1025,33 @@ gridRaster <- function(dbgrid, name, useSel = TRUE, posX=0, posY=1, corner=NA, .
 #' @param posX rank of the coordinate which will serve as the first coordinate
 #' @param posY rank of the coordinate which will serve as the second coordinate
 #' @param corner A vector (same space dimension as 'dbgrid') which defines a pixel belonging to the extracted section
+#' @param legendName Name of the Legend for representation as an image
+#' @param flagLegend Display the legend for grid representation as an image
 #' @param ... Arguments passed to geom_contour()
 #' @return The description of the contents of the figure
-gridContour <- function(dbgrid, name, useSel = TRUE, posX=0, posY=1, corner=NA, ...)
+plot.contour <- function(dbgrid, name=NULL, useSel = TRUE, posX=0, posY=1, corner=NA, 
+    palette=NULL, naColor="transparent", legendName=NA, flagLegend=FALSE, ...)
 {
+  if (!.isGrid(dbgrid, TRUE)) stop()
+
+  p = list()
+
+  # Get the name of the variable to be displayed
+  name = .defaultVariable(dbgrid, name)
+    
   # Reading the Grid information
   df = .readGridCoor(dbgrid, name, useSel, posX, posY, corner)
   
-  layer <- geom_contour(data = df, mapping=aes(x = x, y = y, z = data), ...)
+  # Define the contents
+  layer <- geom_contour(
+    data = df, mapping = aes(x = x, y = y, z = data, colour=after_stat(level)), na.rm = TRUE,
+    show.legend = .showLegend(flagLegend), ...
+  )
+  p <- append(p, list(layer))
   
-  layer
-}
-
-#' Plotting a grid data base
-#' @param dbgrid Grid Data Base containing the information to be displayed
-#' @param nameRaster Name of the variable to be represented as an image
-#' @param nameContour Name of the variable to be represented in isovalues
-#' @param useSel Use of an optional selection
-#' @param palette Name of the reference color map
-#' @param naColor Color assigned to undefined samples
-#' @param limits Bounds applied to the variable to be represented
-#' @param flagLegendRaster Display the legend for grid representation as an image
-#' @param flagLegendContour Display the legend for grid representation as contour lines
-#' @param legendNameRaster Name of the Legend for representation as an image (set to 'nameRaster' if not defined)
-#' @param legendNameContour Name of the Legend for representation as contour lines (set to 'nameContour' if not defined)
-#' @param ... Supplementary arguments
-#' @return The ggplot object
-plot.grid <- function(dbgrid, nameRaster=NULL, nameContour=NULL,
-    useSel = TRUE, palette=NULL, naColor = "white", limits = NULL, 
-    flagLegendRaster=FALSE, flagLegendContour=FALSE,
-    legendNameRaster=NULL, legendNameContour=NULL,
-    ...)
-{
-  if (!require(ggnewscale, quietly = TRUE)) 
-    stop("Package ggnewscale is mandatory to use this function!")
-  
-  if (! dbgrid$isGrid())
-  {
-    cat("This function is restricted to Grid Db and cannot be used here\n")
-    stop()
-  }
-  
-  p = list()
-  title = ""
-  
-  if (is.null(nameRaster) && is.null(nameContour))
-  {
-    nameRaster = .defaultVariable(dbgrid, NULL)
-  }
-  
-  # Allow redefining color and linetypes
-  p <- appendNewScale(p, "colour")
-  
-  # Raster representation
-  if (! is.null(nameRaster))
-  {
-    p <- append(p, gridRaster(dbgrid, name=nameRaster, useSel=useSel, ...))
-    
-    # Set the title
-    title = paste(title,nameRaster)
-    
-    # Set the Legend
-    if (flagLegendRaster)
-    {
-    if (is.null(legendNameRaster)) legendNameRaster = nameRaster
-      p <- append(p, list(guides(fill = guide_colorbar(title=legendNameRaster, reverse=FALSE))))
-    }
-    else
-      p <- append(p, list(theme(legend.position='none')))
-  }
-  
-  # Contour representation
-  if (! is.null(nameContour))
-  {
-    p = append(p, gridContour(dbgrid, name=nameContour, useSel=useSel, ...))
-    
-    # Set the title                    
-    title = paste(title, nameContour, sep=" ")
-    
-    # Set the Legend
-    if (flagLegendContour)
-    {
-      if (is.null(legendNameContour)) legendNameContour = nameContour
-      p <- append(p, list(labs(contour = legendNameContour)))
-    }
-    else
-      p <- append(p, list(guides(contour = "none")))
-  }  
-  
-  # Palette definition (if defined)
-  if (! is.null(palette))
-  {
-    p <- appendNewScale(p, "fill")
-    p <- append(p, .defineFill(palette, naColor=naColor, limits=limits, ...))
-  }
-  
-  # Decoration
-  p <- append(p, plot.decoration(title = title))
+  # Define the color Scale (only displayed if using various colors for)
+  p <- append(p, .defineColour(palette, naColor = naColor, title = legendName))
+  p <- append(p, list(new_scale("colour")))
   
   p
 }
@@ -1277,8 +1211,8 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10, ...)
 #' @param bissColor Color of the first bisector (Y=X)
 #' @param bissLinetype Line type of the first bisector (Y=X)
 #' @param flagSameAxes Define the same bounds for horizontal and vertical axes
-#' @param flagLegendRaster Show the legend when representing grid of occurrences (asPoint = FALSE)
-#' @param legendNameRaster Name of the legend when representing grid of occurrences (asPoint = FALSE)
+#' @param flagLegend Show the legend when representing grid of occurrences (asPoint = FALSE)
+#' @param legendName Name of the legend when representing grid of occurrences (asPoint = FALSE)
 #' @param ... List of arguments passed to plot.XY() or plot.hist2d()
 #' @return The ggplot object
 plot.correlation <- function(db1, namex, namey, db2=NULL,
@@ -1286,7 +1220,7 @@ plot.correlation <- function(db1, namex, namey, db2=NULL,
     flagDiag=FALSE, diagColor = "red", diagLinetype = "solid", 
     flagRegr=FALSE, regrColor = "blue", regrLinetype = "solid", 
     flagBiss=FALSE, bissColor = "green", bissLinetype = "solid", 
-    flagSameAxes=FALSE, flagLegendRaster = FALSE, legendNameRaster = NULL,
+    flagSameAxes=FALSE, flagLegend = FALSE, legendName = NA,
     ...)
 {
   if (is.null(db2)) db2 = db1
@@ -1342,10 +1276,10 @@ plot.correlation <- function(db1, namex, namey, db2=NULL,
   p = append(p, plot.decoration(xlab=namex, ylab=namey))
   
   # Set the Legend
-  if (flagLegendRaster)
+  if (flagLegend)
   {
-    if (is.null(legendNameRaster)) legendNameRaster = "Count"
-    p <- append(p, list(guides(fill = guide_colorbar(title=legendNameRaster, reverse=FALSE))))
+    if (is.null(legendName)) legendName = "Count"
+    p <- append(p, list(guides(fill = guide_colorbar(title=legendName, reverse=FALSE))))
   }
   else
   {
@@ -1370,15 +1304,15 @@ plot.correlation <- function(db1, namex, namey, db2=NULL,
 #' @param bissColor Color of the first bisector (Y=X)
 #' @param bissLinetype Line type of the first bisector (Y=X)
 #' @param flagSameAxes Define the same bounds for horizontal and vertical axes
-#' @param flagLegendRaster Show the legend when representing grid of occurrences (asPoint = FALSE)
-#' @param legendNameRaster Name of the legend when representing grid of occurrences (asPoint = FALSE)
+#' @param flagLegend Show the legend when representing grid of occurrences (asPoint = FALSE)
+#' @param legendName Name of the legend when representing grid of occurrences (asPoint = FALSE)
 #' @param ... List of arguments passed to plot.XY() or plot.hist2d()
 #' @return The ggplot object
 plot.hscatter <- function(db, namex, namey, varioparam, ilag=0, idir=0,
     asPoint=FALSE, 
     flagDiag=FALSE, diagColor = "red", diagLinetype = "solid", 
     flagBiss=FALSE, bissColor = "green", bissLinetype = "solid", 
-    flagSameAxes=FALSE, flagLegendRaster = FALSE, legendNameRaster = NULL,
+    flagSameAxes=FALSE, flagLegend = FALSE, legendName = NA,
     ...)
 {
   res = hscatterPairs(db, namex, namey, varioparam, ilag, idir)
@@ -1419,10 +1353,10 @@ plot.hscatter <- function(db, namex, namey, varioparam, ilag=0, idir=0,
   p = append(p, plot.decoration(xlab=namex, ylab=namey))
   
   # Set the Legend
-  if (flagLegendRaster)
+  if (flagLegend)
   {
-    if (is.null(legendNameRaster)) legendNameRaster = "Count"
-    p <- append(p, list(guides(fill = guide_colorbar(title=legendNameRaster, reverse=FALSE))))
+    if (is.null(legendName)) legendName = "Count"
+    p <- append(p, list(guides(fill = guide_colorbar(title=legendName, reverse=FALSE))))
   }
   else
   {

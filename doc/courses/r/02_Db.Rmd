@@ -236,7 +236,7 @@ Note: Non availalble values (NaN) are display in gray. This will be tunable in f
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.point(dat, nameColor="January_temp", flagLegendColor = TRUE,
+p = p + plot.symbol(dat, nameColor="January_temp", flagLegend = TRUE,
                    legendNameColor="Temperature")
 p = p + plot.decoration(title="January Temperature", xlab="Easting", ylab="Northing")
 plot.end(p)
@@ -246,7 +246,7 @@ A more elaborated graphic representation displays the samples with a symbol prop
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.point(dat, nameSize="Elevation", nameColor="January_temp", flagLegendColor = TRUE,
+p = p + plot.symbol(dat, nameSize="Elevation", nameColor="January_temp", flagLegend = TRUE,
                    legendNameColor="Temperature", legendNameSize="Elevation")
 p = p + plot.decoration(title="January Temperature", xlab="Easting", ylab="Northing")
 plot.end(p)
@@ -285,7 +285,7 @@ We can check the presence of a variable (called `inshore`) which is assigned to 
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.grid(grid, nameRaster="Elevation", flagLegendRaster=TRUE, legendNameRaster="Elevation")
+p = p + plot.raster(grid, name="Elevation", flagLegend=TRUE, legendName="Elevation")
 p = p + plot.decoration(title="Elevation", xlab="Easting", ylab="Northing")
 plot.end(p)
 ```
@@ -300,8 +300,8 @@ On this final plot, we combine grid and point representations.
 
 ```{r}
 p = plot.init(asp=1)
-p = p + plot.grid(grid, nameRaster="Elevation", flagLegendRaster=TRUE, legendNameRaster="Elevation")
-p = p + plot.point(dat, nameSize="January_temp", flagLegendSize=TRUE, legendNameSize="Temperature", sizmin=1, sizmax=3, color="yellow")
+p = p + plot.raster(grid, name="Elevation", flagLegend=TRUE, legendName="Elevation")
+p = p + plot.symbol(dat, nameSize="January_temp", flagLegend=TRUE, legendNameSize="Temperature", sizmin=1, sizmax=3, color="yellow")
 p = p + plot.decoration(title="Elevation and Temperatures", xlab="Easting", ylab="Northing")
 plot.end(p)
 ```

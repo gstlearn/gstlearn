@@ -70,13 +70,13 @@ surfaces = DbGrid_create(nx = nx_2d, dx = dx_2d, x0 = x0_2d, angles = angles_2d)
 
 # plots
 p = plot.init(asp=1) + 
-    plot.grid(grid, nameRaster = "rank", useSel = TRUE, flagLegendRaster = FALSE) +
+    plot.raster(grid, name = "rank", useSel = TRUE, flagLegend = FALSE) +
     plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
     plot.decoration(xlab = "Easting", ylab = "Northing", title = paste0("3D grid and limits"))
 plot.end(p)
 
 p = plot.init(asp=1) + 
-    plot.grid(surfaces, nameRaster = "rank", useSel = TRUE, flagLegendRaster = FALSE) +
+    plot.raster(surfaces, name = "rank", useSel = TRUE, flagLegend = FALSE) +
     plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
     plot.decoration(xlab = "Easting", ylab = "Northing", title = paste0("2D grid and limits"))
 plot.end(p)
@@ -106,8 +106,8 @@ val = grid$getOneSlice(name = var_nm, posx = posx - 1, posy = posy - 1 , corner 
                        useSel = TRUE)
 err   = slice$setColumn(tab = val, name = paste0("K = ", k))
 p = plot.init(asp=1) + 
-    plot.grid(slice, nameRaster = paste0("K = ", k), useSel = TRUE, legendNameRaster = var_nm,
-            flagLegendRaster = TRUE) +
+    plot.raster(slice, name = paste0("K = ", k), useSel = TRUE, legendName = var_nm,
+            flagLegend = TRUE) +
     plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
     plot.decoration(xlab = xlab, ylab = ylab, 
                   title = paste0("Slice K = ", k))
@@ -145,8 +145,8 @@ for (i in 1:N) {
 # plot of a variable
 var_nm = "Z_1.3"
 p = plot.init(asp=1) + 
-    plot.grid(surfaces, nameRaster = var_nm, useSel = TRUE, legendNameRaster = var_nm,
-            flagLegendRaster = TRUE) +
+    plot.raster(surfaces, name = var_nm, useSel = TRUE, legendName = var_nm,
+            flagLegend = TRUE) +
     plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = paste0("2D Surface: variable = ", var_nm))
@@ -236,8 +236,8 @@ err = surfaces$setLocator(name = "inBlock", locatorType = ELoc_SEL(),
                           cleanSameLocator = TRUE)
 var_nm = "Z_1.3"
 p = plot.init(asp=1) + 
-    plot.grid(surfaces, nameRaster = var_nm, useSel = TRUE, legendNameRaster = var_nm,
-            flagLegendRaster = TRUE) +
+    plot.raster(surfaces, name = var_nm, useSel = TRUE, legendName = var_nm,
+            flagLegend = TRUE) +
     plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = paste0("2D surface: variable = ", var_nm))

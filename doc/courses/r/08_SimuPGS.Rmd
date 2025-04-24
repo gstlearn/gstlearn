@@ -112,16 +112,16 @@ err = simpgs(dbin=data, dbout=grid, ruleprop=ruleprop, model1=model_gaus,
 
 ```{r Show_several_simulation_outcome}
 p1 = plot.init(dims=c(6,6)) +
-  plot(grid, nameRaster="SimuPGS.1", palette=cmap) +
+  plot(grid, name="SimuPGS.1", palette=cmap) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap)
 p2 = plot.init(dims=c(6,6)) +
-  plot(grid, nameRaster="SimuPGS.2", palette=cmap) +
+  plot(grid, name="SimuPGS.2", palette=cmap) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap)
 p3 = plot.init(dims=c(6,6)) +
-  plot(grid, nameRaster="SimuPGS.3", palette=cmap,) +
+  plot(grid, name="SimuPGS.3", palette=cmap,) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap)
 p4 = plot.init(dims=c(6,6)) +
-  plot(grid, nameRaster="SimuPGS.4", palette=cmap) +
+  plot(grid, name="SimuPGS.4", palette=cmap) +
   plot(data, nameColor="facies", nameSize="connect", palette=cmap)
 ggarrange(p1,p2,p3,p4, nrow=2, ncol=2)
 ```

@@ -1359,8 +1359,8 @@ setMethod('[<-',  '_p_Vario',               setVarioitem)
 
 # Special function overloaded for plot.R
 setMethod("plot", signature(x="_p_AMesh"),    function(x,y=missing,...) plot.mesh(x,...))
-setMethod("plot", signature(x="_p_DbGrid"),   function(x,y=missing,...) plot.grid(x,...))
-setMethod("plot", signature(x="_p_Db"),       function(x,y=missing,...) plot.point(x,...))
+setMethod("plot", signature(x="_p_DbGrid"),   function(x,y=missing,...) plot.raster(x,...))
+setMethod("plot", signature(x="_p_Db"),       function(x,y=missing,...) plot.symbol(x,...))
 setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))
 setMethod("plot", signature(x="_p_Vario"),    function(x,y=missing,...) plot.vario(x,...))
 setMethod("plot", signature(x="_p_Model"),    function(x,y=missing,...) plot.model(x,...))

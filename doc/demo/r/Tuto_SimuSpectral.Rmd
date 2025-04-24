@@ -121,8 +121,8 @@ err = simuSpectral(NULL, grid1, mod, 1, nb, seed=seed , namconv = NamingConventi
 err = simuSpectral(NULL, grid2, mod, 1, nb, seed=seed , namconv = NamingConvention("S1"))
 
 p = plot.init(asp=1) +
-  plot.grid(grid1, nameRaster = "S1", palette = "Spectral") +
-  plot.grid(grid2, nameRaster = "S1", palette = "Spectral") + 
+  plot.raster(grid1, name = "S1", palette = "Spectral") +
+  plot.raster(grid2, name = "S1", palette = "Spectral") + 
   plot.decoration(xlab = "Easting", ylab = "Northing", title = title)
 plot.end(p)
 
@@ -151,8 +151,8 @@ err = grid1$clearSelection()
 err = simuSpectral(NULL, db, mod, 1, nb, seed=seed , namconv = NamingConvention("S1"))
 
 p1 = plot.init(asp=1) +
-  plot.grid(grid1, nameRaster = "S1", palette = "Spectral") +
-  plot.point(db, color = "red") + 
+  plot.raster(grid1, name = "S1", palette = "Spectral") +
+  plot.symbol(db, color = "red") + 
   plot.decoration(xlab = "Easting", ylab = "Norhting", title = title)
 
 # control that the values on the intersection of the two grids are identical
@@ -226,7 +226,7 @@ plot.end(p)
 
 # map
 p = plot.init(asp=1) + 
-  plot.grid(grid, nameRaster = "S1", palette = "Spectral") +
+  plot.raster(grid, name = "S1", palette = "Spectral") +
   plot.decoration(xlab = "Easting", ylab = "Northing", title = title)
 plot.end(p)
 

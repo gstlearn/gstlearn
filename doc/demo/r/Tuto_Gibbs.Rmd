@@ -214,10 +214,10 @@ qc_simulations <- function(db, names, vario_param, vario_model, title, stat_keys
   # base map
   p = plot.init(asp=1)
   if (db$isGrid()) {
-    p = p + plot.grid(db, name_raster = names[i], show.legend.raster = TRUE,
-                    legend.name.raster = "Y",  palette = "Spectral")
+    p = p + plot.raster(db, name = names[i], flagLegend = TRUE,
+                      legendName = "Y",  palette = "Spectral")
   } else  {
-    p = p + plot.point(db, nameColor = names[i], flagLegendColor = TRUE, 
+    p = p + plot.symbol(db, nameColor = names[i], flagLegend = TRUE, 
                        palette = "Spectral")
   }
   p = p + plot.decoration(xlab = "Easting", ylab = "Northing", title = title)
@@ -337,7 +337,7 @@ err   = simtub(dbin = NULL, dbout = data, model = model, nbsimu = 1, seed = seed
 
 # plot
 p = plot.init() +
-  plot.point(data, color = "red") +
+  plot.symbol(data, color = "red") +
   plot.decoration(title = "Defined point constraints")
 plot.end(p)
 ```
@@ -511,7 +511,7 @@ for (s in 1:nbsimu) {
   
   # plots
   p = plot.init(asp=1) +
-    plot.grid(grid, i_nm, palette = "Spectral") +
+    plot.raster(grid, i_nm, palette = "Spectral") +
     plot.decoration(title = paste0("Simulation #", s)) 
   
   p_list[[1 + length(p_list)]] <- p
@@ -526,7 +526,7 @@ grid["Ind.mean"] <- apply(
 )
 
 p_mean <- plot.init(asp=1) +
-    plot.grid(grid, "Ind.mean", palette = "Spectral") +
+    plot.raster(grid, "Ind.mean", palette = "Spectral") +
     plot.decoration(title = 
     paste0("Mean of the ", nbsimu, " simulations")) 
 
@@ -624,11 +624,11 @@ grid["CE.cs.Z.stdev"] <- sqrt(apply(
 
 # final plots
 p_ce <- plot.init(asp=1) +
-    plot.grid(grid, "CE.cs.Z.estim", palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "estim") +
+    plot.raster(grid, "CE.cs.Z.estim", palette = "Spectral", flagLegend = TRUE, legendName = "estim") +
     plot.decoration(title = paste0("Conditional expectation")) 
 
 p_std <- plot.init(asp=1) +
-    plot.grid(grid, "CE.cs.Z.stdev", palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "Std.") +
+    plot.raster(grid, "CE.cs.Z.stdev", palette = "Spectral", flagLegend = TRUE, legendName = "Std.") +
     plot.decoration(title = paste0("Conditional Std.")) 
 
 ggarrange(p_ce, p_std, nrow = 1, ncol = 2)

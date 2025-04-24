@@ -184,15 +184,15 @@ err  = migrate(dbin = grd, name = "Z2", dbout = data, dmax = c(0.1, 0.1),
 
 # plots
 p1 = plot.init(asp=1) + 
-  plot.grid(grd, nameRaster = "Z1", palette = "Spectral") +
-  plot.point(data, colour = "red") +
+  plot.raster(grd, name = "Z1", palette = "Spectral") +
+  plot.symbol(data, colour = "red") +
   plot.decoration(title="Z1")
 p2 = plot.init() +
   plot.hist(grd, name='Z1',  bins = 25, bg = "orange", color= "gray") +
   plot.decoration(xlab = "Raw variable", title="Histogram of the initial variable Z1")
 p3 = plot.init(asp=1) + 
-  plot.grid(grd, nameRaster = "Z2", palette = "Spectral") +
-  plot.point(data, colour = "red") +
+  plot.raster(grd, name = "Z2", palette = "Spectral") +
+  plot.symbol(data, colour = "red") +
   plot.decoration(title="Z2")
 p4 = plot.init() +
   plot.hist(grd, name='Z2',  bins = 25, bg = "orange", color= "gray") +
@@ -311,20 +311,20 @@ knitr::kable(tab, caption = "Statistics on the grid for Ordinary Kriging with th
 
 # plot of estimated values
 p1 = plot.init(asp=1) + 
-    plot.grid(grd, nameRaster =  paste("OK", "Z1", "estim", sep = "."),
-            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "estim") +
+    plot.raster(grd, name =  paste("OK", "Z1", "estim", sep = "."),
+            palette = "Spectral", flagLegend = TRUE, legendName = "estim") +
     plot.decoration(xlab = "", ylab = "", title = paste0("Ordinary coK for Z1"))
 p2 = plot.init(asp=1) + 
-    plot.grid(grd, nameRaster =  paste("OK", "Z1", "stdev", sep = "."),
-            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "stdev") +
+    plot.raster(grd, name =  paste("OK", "Z1", "stdev", sep = "."),
+            palette = "Spectral", flagLegend = TRUE, legendName = "stdev") +
     plot.decoration(xlab = "", ylab = "", title = paste0("Std. of Ordinary coK for Z1"))
 p3 = plot.init(asp=1) + 
-    plot.grid(grd, nameRaster =  paste("OK", "Z2", "estim", sep = "."),
-            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "estim") +
+    plot.raster(grd, name =  paste("OK", "Z2", "estim", sep = "."),
+            palette = "Spectral", flagLegend = TRUE, legendName = "estim") +
     plot.decoration(xlab = "", ylab = "", title = paste0("Ordinary coK for Z2"))
 p4 = plot.init(asp=1) + 
-    plot.grid(grd, nameRaster =  paste("OK", "Z2", "stdev", sep = "."),
-            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "stdev") +
+    plot.raster(grd, name =  paste("OK", "Z2", "stdev", sep = "."),
+            palette = "Spectral", flagLegend = TRUE, legendName = "stdev") +
     plot.decoration(xlab = "", ylab = "", title = paste0("Std. of Ordinary coK for Z2"))
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 
@@ -496,20 +496,20 @@ knitr::kable(tab, caption = "Statistics on the grid for Simple Kriging with the 
 
 # plot of estimated values
 p1 = plot.init(asp=1) + 
-    plot.grid(grd, nameRaster =  paste("SK", "Z1", "estim", sep = "."),
-            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "estim") +
+    plot.raster(grd, name =  paste("SK", "Z1", "estim", sep = "."),
+            palette = "Spectral", flagLegend = TRUE, legendName = "estim") +
     plot.decoration(xlab = "", ylab = "", title = paste0("Simple coK for Z1"))
 p2 = plot.init(asp=1) + 
-    plot.grid(grd, nameRaster =  paste("SK", "Z1", "stdev", sep = "."),
-            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "stdev") +
+    plot.raster(grd, name =  paste("SK", "Z1", "stdev", sep = "."),
+            palette = "Spectral", flagLegend = TRUE, legendName = "stdev") +
     plot.decoration(xlab = "", ylab = "", title = paste0("Std. of Simple coK for Z1"))
 p3 = plot.init(asp=1) + 
-    plot.grid(grd, nameRaster =  paste("SK", "Z2", "estim", sep = "."),
-            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "estim") +
+    plot.raster(grd, name =  paste("SK", "Z2", "estim", sep = "."),
+            palette = "Spectral", flagLegend = TRUE, legendName = "estim") +
     plot.decoration(xlab = "", ylab = "", title = paste0("Simple coK for Z2"))
 p4 = plot.init(asp=1) + 
-    plot.grid(grd, nameRaster =  paste("SK", "Z2", "stdev", sep = "."),
-            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "stdev") +
+    plot.raster(grd, name =  paste("SK", "Z2", "stdev", sep = "."),
+            palette = "Spectral", flagLegend = TRUE, legendName = "stdev") +
     plot.decoration(xlab = "", ylab = "", title = paste0("Std. of Simple coK for Z2"))
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 
@@ -688,13 +688,13 @@ ggarrange(p1, p2, ncol = 2, nrow = 1)
 
 # estimate maps: Heterotopic data vs. Homotopic data
 p1 = plot.init(asp=1) + 
-  plot.grid(grd, nameRaster =  paste("dOK", "LC", "estim", sep = "."), 
-            flagLegendRaster = TRUE, legendNameRaster = "Z*", palette = "Spectral", 
+  plot.raster(grd, name =  paste("dOK", "LC", "estim", sep = "."), 
+            flagLegend = TRUE, legendName = "Z*", palette = "Spectral", 
             limits = c(-25,0)) +
   plot.decoration(title = "Estimate: homotopic data")
 p2 = plot.init(asp=1) + 
-  plot.grid(grd, nameRaster =  paste("dOK_He", "LC", "estim", sep = "."),
-            flagLegendRaster = TRUE, legendNameRaster = "Z*", palette = "Spectral", 
+  plot.raster(grd, name =  paste("dOK_He", "LC", "estim", sep = "."),
+            flagLegend = TRUE, legendName = "Z*", palette = "Spectral", 
             limits = c(-25, 0)) +
   plot.decoration(title = "Estimate: heterotopic data")
 ggarrange(p1, p2, ncol = 2, nrow = 1)
@@ -703,12 +703,12 @@ ggarrange(p1, p2, ncol = 2, nrow = 1)
 lim = range(c(grd[paste("dOK", "LC", "stdev", sep = ".")], grd[paste("dOK_He", "LC", "stdev", 
                                                                      sep = ".")]))
 p1 = plot.init(asp=1) + 
-  plot.grid(grd, nameRaster =  paste("dOK", "LC", "stdev", sep = "."), 
-            flagLegendRaster = TRUE, legendNameRaster = "Std.", palette = "Spectral", limits = lim) +
+  plot.raster(grd, name =  paste("dOK", "LC", "stdev", sep = "."), 
+            flagLegend = TRUE, legendName = "Std.", palette = "Spectral", limits = lim) +
   plot.decoration(title = "IRF-0: homotopic data")
 p2 = plot.init(asp=1) + 
-  plot.grid(grd, nameRaster =  paste("dOK_He", "LC", "stdev", sep = "."),
-            flagLegendRaster = TRUE, legendNameRaster = "Std.", palette = "Spectral", limits = lim) +
+  plot.raster(grd, name =  paste("dOK_He", "LC", "stdev", sep = "."),
+            flagLegend = TRUE, legendName = "Std.", palette = "Spectral", limits = lim) +
   plot.decoration(title = "IRF-0: heterotopic data")
 ggarrange(p1, p2, ncol = 2, nrow = 1)
 ```
@@ -757,13 +757,13 @@ ggarrange(p1, p2, ncol = 2, nrow = 1)
 
 # estimate maps: Heterotopic data vs. Homotopic data
 p1 = plot.init(asp=1) + 
-  plot.grid(grd, nameRaster =  paste("dSK", "LC", "estim", sep = "."), 
-            flagLegendRaster = TRUE, legendNameRaster = "Z*", palette = "Spectral", 
+  plot.raster(grd, name =  paste("dSK", "LC", "estim", sep = "."), 
+            flagLegend = TRUE, legendName = "Z*", palette = "Spectral", 
             limits = c(-25,0)) +
   plot.decoration(title = "SOS estimate: homotopic data")
 p2 = plot.init(asp=1) + 
-  plot.grid(grd, nameRaster =  paste("dSK_He", "LC", "estim", sep = "."),
-            flagLegendRaster = TRUE, legendNameRaster = "Z*", palette = "Spectral", 
+  plot.raster(grd, name =  paste("dSK_He", "LC", "estim", sep = "."),
+            flagLegend = TRUE, legendName = "Z*", palette = "Spectral", 
             limits = c(-25, 0)) +
   plot.decoration(title = "SOS estimate: heterotopic data")
 ggarrange(p1, p2, ncol = 2, nrow = 1)
@@ -772,12 +772,12 @@ ggarrange(p1, p2, ncol = 2, nrow = 1)
 lim = range(c(grd[paste("dSK", "LC", "stdev", sep = ".")], grd[paste("dSK_He", "LC", "stdev", 
                                                                      sep = ".")]))
 p1 = plot.init(asp=1) + 
-  plot.grid(grd, nameRaster =  paste("dSK", "LC", "stdev", sep = "."), 
-            flagLegendRaster = TRUE, legendNameRaster = "Std.", palette = "Spectral", limits = lim) +
+  plot.raster(grd, name =  paste("dSK", "LC", "stdev", sep = "."), 
+            flagLegend = TRUE, legendName = "Std.", palette = "Spectral", limits = lim) +
   plot.decoration(title = "SOS: homotopic data")
 p2 = plot.init(asp=1) + 
-  plot.grid(grd, nameRaster =  paste("dSK_He", "LC", "stdev", sep = "."),
-            flagLegendRaster = TRUE, legendNameRaster = "Std.", palette = "Spectral", limits = lim) +
+  plot.raster(grd, name =  paste("dSK_He", "LC", "stdev", sep = "."),
+            flagLegend = TRUE, legendName = "Std.", palette = "Spectral", limits = lim) +
   plot.decoration(title = "SOS: heterotopic data")
 ggarrange(p1, p2, ncol = 2, nrow = 1)
 ```

@@ -70,20 +70,20 @@ dbStatisticsMono(data, c("x*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN
 
 ```{r}
 # histograms and correlation
-ggplot() + plot.hist(data, name = "x1", color = "gray", fill = "orange")
-ggplot() + plot.hist(data, name = "x2", color = "gray", fill = "skyblue")
-ggplot() + plot.hist(data, name = "x3", color = "gray", fill = "green")
-p = ggplot()
+plot.init() + plot.hist(data, name = "x1", color = "gray", fill = "orange")
+plot.init() + plot.hist(data, name = "x2", color = "gray", fill = "skyblue")
+plot.init() + plot.hist(data, name = "x3", color = "gray", fill = "green")
+p = plot.init()
 p = p + plot.correlation(data, namex = "x1", namey = "x2", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Gaussian mixture (data)")
 plot.end(p)
 
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(data, namex = "x1", namey = "x3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Gaussian mixture (data)")
 plot.end(p)
 
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(data, namex = "x2", namey = "x3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Gaussian mixture (data)")
 plot.end(p)
@@ -166,17 +166,17 @@ plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "Second Initial Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(data, namex = "Y1", namey = "Y2", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Initial Gaussian variables (data)")
 plot.end(p)
 
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(data, namex = "Y1", namey = "Y3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Initial Gaussian variables (data)")
 plot.end(p)
 
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(data, namex = "Y2", namey = "Y3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Initial Gaussian variables (data)")
 plot.end(p)
@@ -203,17 +203,17 @@ plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "Second Final Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(data, namex = "U-1", namey = "U-2", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Final Gaussian variables (data)")
 plot.end(p)
 
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(data, namex = "U-1", namey = "U-3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Final Gaussian variables (data)")
 plot.end(p)
 
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(data, namex = "U-2", namey = "U-3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Final Gaussian variables (data)")
 plot.end(p)
@@ -274,18 +274,18 @@ dbStatisticsMono(simu, c("x*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN
 
 ```{r}
 # histograms and correlation
-ggplot() + plot.hist(simu, name = "x1", color = "gray", fill = "orange")
-ggplot() + plot.hist(simu, name = "x2", color = "gray", fill = "skyblue")
-ggplot() + plot.hist(simu, name = "x3", color = "gray", fill = "green")
-p = ggplot()
+plot.init() + plot.hist(simu, name = "x1", color = "gray", fill = "orange")
+plot.init() + plot.hist(simu, name = "x2", color = "gray", fill = "skyblue")
+plot.init() + plot.hist(simu, name = "x3", color = "gray", fill = "green")
+p = plot.init()
 p = p + plot.correlation(simu, namex = "x1", namey = "x2", bins=100, flagDiag = TRUE) 
 p = p + plot.decoration(title = "Gaussian mixture (simulation)")
 plot.end(p)
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(simu, namex = "x1", namey = "x3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Gaussian mixture (simulation)")
 plot.end(p)
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(simu, namex = "x2", namey = "x3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Gaussian mixture (simulation)")
 plot.end(p)

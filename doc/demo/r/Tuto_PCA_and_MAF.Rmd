@@ -72,7 +72,7 @@ grid$setColumn(Z[,3], name = "Z3")
 for (i in 1:nv) {
   nm_var = paste0("Z", i)
   p = ggplot(asp=1) + 
-    plot.grid(grid, nm_var) + 
+    plot.raster(grid, nm_var) + 
     plot.decoration(xlab = "Easting", ylab = "Northing", title = nm_var)
   plot.end(p)
 }
@@ -286,7 +286,7 @@ round(t(data_gsPCA) %*% data_gsPCA / (np-1), 8)
 for (i in 1:nv) {
   titre = paste0("PCA #", i)
   change_sign(data, paste0("PCA.",i), paste0("U",i))
-  p = ggplot() +
+  p = plot.init() +
     plot.correlation(data, 
                    namex = paste0("U",i), 
                    namey = paste0("PCA.", i), 
@@ -301,7 +301,7 @@ err = data$setLocators("PCA*", ELoc_Z())
 err = pca$dbF2Z(data, verbose = FALSE, namconv = NamingConvention(prefix = "ZZ.PCA", FALSE))
 for (i in 1:nv) {
   titre = paste0("Z", i)
-  p = ggplot() +
+  p = plot.init() +
     plot.correlation(data, 
                    namex = paste0("Z",i), 
                    namey = paste0("ZZ.PCA.", i), 
@@ -341,7 +341,7 @@ for (i in 1:nv) {
   j = sequence[i]
   titre = paste0("MAF #", i)
   change_sign(data, paste0("MAF.",i), paste0("F",j))
-  p = ggplot() +
+  p = plot.init() +
     plot.correlation(data, 
                    namex = paste0("F",j), 
                    namey = paste0("MAF.", i), 
@@ -357,7 +357,7 @@ err = maf$dbF2Z(data, verbose = FALSE, namconv = NamingConvention(prefix = "ZZ.M
 
 for (i in 1:nv) {
   titre = paste0("Z", i)
-  p = ggplot() +
+  p = plot.init() +
     plot.correlation(data, 
                    namex = paste0("Z",i), 
                    namey = paste0("ZZ.MAF.", i), 

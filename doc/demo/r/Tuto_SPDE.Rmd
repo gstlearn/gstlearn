@@ -110,14 +110,14 @@ pol_lim = Polygons()
 err     = pol_lim$addPolyElem(p_lim)
 
 p = plot.init(asp=1) + 
-    plot.grid(gridExt) +
+    plot.raster(gridExt) +
     plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Coarse grid used to compute the meshing")
 plot.end(p)
 
 p = plot.init(asp=1) + 
-    plot.grid(grid) +
+    plot.raster(grid) +
     plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Target grid")
@@ -199,8 +199,8 @@ The final result is aded to the grid *db*.
 err = grid$setColumn(tab = Y_g, name = "manual.simu", useSel = FALSE)
 # plot
 p = plot.init(asp=1) + 
-    plot.grid(grid, nameRaster = "manual.simu", useSel = TRUE, 
-            flagLegendRaster = TRUE, legendNameRaster = "NC Simu", palette = "Spectral") +
+    plot.raster(grid, name = "manual.simu", useSel = TRUE, 
+            flagLegend = TRUE, legendName = "NC Simu", palette = "Spectral") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Non conditional simulation")
 plot.end(p)
@@ -245,9 +245,9 @@ err = grid$setColumn(name = "manual.kriging", tab = kriging)
 
 # plot of kriging
 p = plot.init(asp=1) + 
-    plot.grid(grid, nameRaster = "manual.kriging", useSel = TRUE, palette = "Spectral", 
-            flagLegendRaster = TRUE, legendNameRaster = "Kriging") +
-    plot.point(dat, col = "red") +
+    plot.raster(grid, name = "manual.kriging", useSel = TRUE, palette = "Spectral", 
+            flagLegend = TRUE, legendNamer = "Kriging") +
+    plot.symbol(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Kriging")
 plot.end(p)
@@ -277,9 +277,9 @@ S_g = (A_g %*% Zc)[,1:nsim]
 # storing the results +  plot
 err = grid$setColumn(tab = S_g[,1], name = "manual.cond.simu", useSel = TRUE)
 p = plot.init(asp=1) + 
-    plot.grid(grid, nameRaster = "manual.cond.simu", useSel = TRUE, palette = "Spectral", 
-            flagLegendRaster = TRUE, legendNameRaster = "CD. Simu") +
-    plot.point(dat, col = "red") +
+    plot.raster(grid, name = "manual.cond.simu", useSel = TRUE, palette = "Spectral", 
+            flagLegend = TRUE, legendName = "CD. Simu") +
+    plot.symbol(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Conditional simulation")
 plot.end(p)
@@ -301,18 +301,18 @@ err = grid$setColumn(tab = ce, name = "manual.cond.std", useSel = TRUE)
 # plots
 
 p = plot.init(asp=1) + 
-    plot.grid(grid, nameRaster = "manual.cond.expectation", useSel = TRUE, 
+    plot.raster(grid, name = "manual.cond.expectation", useSel = TRUE, 
               palette = "Spectral", 
-              flagLegendRaster = TRUE, legendNameRaster = "CD. Exp.") +
-    # plot.point(dat, col = "red") +
+              flagLegend = TRUE, legendName = "CD. Exp.") +
+    # plot.symbol(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Conditional expectation")
 plot.end(p)
 
 p = plot.init(asp=1) + 
-    plot.grid(grid, nameRaster = "manual.cond.std", useSel = TRUE, palette = "Spectral", 
-              flagLegendRaster = TRUE, legendNameRaster = "CD. Std.") +
-    # plot.point(dat, col = "red") +
+    plot.raster(grid, name = "manual.cond.std", useSel = TRUE, palette = "Spectral", 
+              flagLegend = TRUE, legendName = "CD. Std.") +
+    # plot.symbol(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Conditional standard deviation")
 plot.end(p)
@@ -352,10 +352,10 @@ spde = SPDE(model = model, domain = gridExt, data = NULL,
 iuid = spde$compute(dbout = grid, nbsimu = nsim, namconv = NamingConvention("spde"))
 
 # plot
-p1 = plot.init(asp=1) + plot.grid(grid, nameRaster="spde.1", palette = "Spectral")
-p2 = plot.init(asp=1) + plot.grid(grid, nameRaster="spde.2", palette = "Spectral")
-p3 = plot.init(asp=1) + plot.grid(grid, nameRaster="spde.3", palette = "Spectral")
-p4 = plot.init(asp=1) + plot.grid(grid, nameRaster="spde.4", palette = "Spectral")
+p1 = plot.init(asp=1) + plot.raster(grid, name="spde.1", palette = "Spectral")
+p2 = plot.init(asp=1) + plot.raster(grid, name="spde.2", palette = "Spectral")
+p3 = plot.init(asp=1) + plot.raster(grid, name="spde.3", palette = "Spectral")
+p4 = plot.init(asp=1) + plot.raster(grid, name="spde.4", palette = "Spectral")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
 
@@ -374,10 +374,10 @@ spde_obs = SPDE(model = model_obs, domain = gridExt, data = dat,
 iuid = spde_obs$compute(dbout = grid, nbsimu = nsim, namconv = NamingConvention("spde"))
 
 # plot
-p1 = plot.init(asp=1) + plot.grid(grid, nameRaster="spde.Z.1", palette = "Spectral")
-p2 = plot.init(asp=1) + plot.grid(grid, nameRaster="spde.Z.2", palette = "Spectral")
-p3 = plot.init(asp=1) + plot.grid(grid, nameRaster="spde.Z.3", palette = "Spectral")
-p4 = plot.init(asp=1) + plot.grid(grid, nameRaster="spde.Z.4", palette = "Spectral")
+p1 = plot.init(asp=1) + plot.raster(grid, name="spde.Z.1", palette = "Spectral")
+p2 = plot.init(asp=1) + plot.raster(grid, name="spde.Z.2", palette = "Spectral")
+p3 = plot.init(asp=1) + plot.raster(grid, name="spde.Z.3", palette = "Spectral")
+p4 = plot.init(asp=1) + plot.raster(grid, name="spde.Z.4", palette = "Spectral")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
 
@@ -398,8 +398,8 @@ val_std = apply(X = tab, MARGIN = 1, FUN = sd)
 err = grid$setColumn(tab = val_std, name = "spdeK.Z.stdev", useSel = FALSE)
 
 # plot of Z* ans Std. of the kriging error (Z - Z*)
-p1 = plot.init(asp=1) + plot.grid(grid, nameRaster="spdeK.Z.estim", palette = "Spectral")
-p2 = plot.init(asp=1) + plot.grid(grid, nameRaster="spdeK.Z.stdev", palette = "Spectral")
+p1 = plot.init(asp=1) + plot.raster(grid, name="spdeK.Z.estim", palette = "Spectral")
+p2 = plot.init(asp=1) + plot.raster(grid, name="spdeK.Z.stdev", palette = "Spectral")
 ggarrange(p1, p2, ncol = 2, nrow = 2)
 
 # cross plot for kriging values
@@ -426,10 +426,10 @@ err  = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim,
                     namconv = NamingConvention("spde.fn"))
 
 # plot
-p1 = plot.init(asp=1) + plot.grid(grid, nameRaster="spde.fn.1", palette = "Spectral")
-p2 = plot.init(asp=1) + plot.grid(grid, nameRaster="spde.fn.2", palette = "Spectral")
-p3 = plot.init(asp=1) + plot.grid(grid, nameRaster="spde.fn.3", palette = "Spectral")
-p4 = plot.init(asp=1) + plot.grid(grid, nameRaster="spde.fn.4", palette = "Spectral")
+p1 = plot.init(asp=1) + plot.raster(grid, name="spde.fn.1", palette = "Spectral")
+p2 = plot.init(asp=1) + plot.raster(grid, name="spde.fn.2", palette = "Spectral")
+p3 = plot.init(asp=1) + plot.raster(grid, name="spde.fn.3", palette = "Spectral")
+p4 = plot.init(asp=1) + plot.raster(grid, name="spde.fn.4", palette = "Spectral")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
 
@@ -444,10 +444,10 @@ err  = simulateSPDE(dbin = dat, dbout = grid, model = model, nbsimu = nsim,
                     namconv = NamingConvention("spde.fn"))
 
 # plot
-p1 = plot.init(asp=1) + plot.grid(grid, nameRaster="spde.fn.Z.1", palette = "Spectral")
-p2 = plot.init(asp=1) + plot.grid(grid, nameRaster="spde.fn.Z.2", palette = "Spectral")
-p3 = plot.init(asp=1) + plot.grid(grid, nameRaster="spde.fn.Z.3", palette = "Spectral")
-p4 = plot.init(asp=1) + plot.grid(grid, nameRaster="spde.fn.Z.4", palette = "Spectral")
+p1 = plot.init(asp=1) + plot.raster(grid, name="spde.fn.Z.1", palette = "Spectral")
+p2 = plot.init(asp=1) + plot.raster(grid, name="spde.fn.Z.2", palette = "Spectral")
+p3 = plot.init(asp=1) + plot.raster(grid, name="spde.fn.Z.3", palette = "Spectral")
+p4 = plot.init(asp=1) + plot.raster(grid, name="spde.fn.Z.4", palette = "Spectral")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
 
