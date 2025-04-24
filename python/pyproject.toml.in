@@ -10,7 +10,7 @@ authors = [
 ]
 description = "@PROJECT_DESCRIPTION@"
 readme = "README.md"
-license = 'BSD-3-Clause'
+license = {text = 'BSD-3-Clause'}
 requires-python = '>=3.8'
 classifiers = [
     "Programming Language :: Python :: 3",
