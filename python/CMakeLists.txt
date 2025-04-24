@@ -21,7 +21,7 @@ math(EXPR Python3_NumPy_NEXT_MAJOR "${Python3_NumPy_VERSION_MAJOR} + 1")
 find_package(SWIG 4.0 REQUIRED)
 include(${SWIG_USE_FILE})
 
-######################################  
+######################################
 # DOCUMENTATION
 
 # Ensure documentation.i is existing
@@ -40,7 +40,7 @@ add_custom_target(python_doc
   COMMENT "Generate python documentation from doxygen output"
 )
 
-# Doxygen is optional
+# Tell that we need to generate doxymentation before building python package
 if (BUILD_DOC)
   add_dependencies(python_doc doxygen)
 endif()
@@ -160,6 +160,11 @@ if (MSVC OR APPLE)
   # Prefer using Python3::Module (which works for MacOS) in place of ${Python3_LIBRARIES}
   # https://gitlab.kitware.com/cmake/cmake/-/issues/17664
   target_link_libraries(python_build PRIVATE Python3::Module)
+endif()
+
+# Tell that we need to generate docstring files before building python package (if required)
+if (BUILD_DOC)
+  add_dependencies(python_build python_doc)
 endif()
 
 if(USE_BOOST_SPAN)

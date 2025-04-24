@@ -1,4 +1,4 @@
-name: publish_python_ubuntu
+name: publish_python_manylinux
 
 on:
   # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
@@ -25,48 +25,47 @@ on:
 env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
-  BUILD_PLAT : manylinux1_x86_64
 
 jobs:
   build:
-    runs-on: ${{matrix.os}}
+    runs-on: ubuntu-latest
+    container:
+      image: quay.io/pypa/${{ matrix.image }}
     strategy:
       matrix:
         # Python version
         python: [
           # Double quote for version is needed otherwise 3.10 => 3.1
-            {py: "3.9"},
-            {py: "3.10"},
-            {py: "3.11"},
-            {py: "3.12"},
-            {py: "3.13"}
+            "cp39-cp39",
+            "cp310-cp310",
+            "cp311-cp311",
+            "cp312-cp312",
+            "cp313-cp313"
           ]
-        # Only one "old" Linux and a generic platform name BUILD_PLAT
-        os: [ubuntu-20.04]
+        image: [
+           manylinux_2_28_x86_64
+        ]
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Install dependencies
       run: |
-        sudo rm /etc/apt/sources.list.d/microsoft-prod.list
-        sudo apt-get update
-        sudo apt-get install -yq \
+        dnf update -y
+        dnf install -y \
+          sudo \
           swig \
           doxygen \
-          libboost-dev \
-          libeigen3-dev
+          boost-devel \
+          eigen3-devel
 
-    - name: Setup Python Version
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{matrix.python.py}}
+    - name: Register the python version
+      run: |
+        echo "/opt/python/${{ matrix.python }}/bin" >> $GITHUB_PATH
 
     - name: Install Python dependencies
       run: |
-        python -m pip install --upgrade pip
         python -m pip install numpy
-        python -m pip install build
 
     - name: Build & install NLopt static libraries
       uses: ./.github/actions/nlopt_static_unix
@@ -82,57 +81,57 @@ jobs:
           -DBUILD_PYTHON=ON \
           -DBUILD_R=OFF \
           -DBUILD_DOC=ON
-      env:
-        CC: gcc-10
-        CXX: g++-10
 
     - name : Build the package
       run : |
-        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target python_build
+        cmake --build ${{ env.BUILD_DIR }} --parallel 3 --target python_build
 
     - name : Create Wheel
       run : |
-        cd ${{env.BUILD_DIR}}/python/${{env.CMAKE_BUILD_TYPE}}
-        # Note: wheel must be declared not pure (see setup.py)
-        python3 -m build --wheel -C="--build-option=--plat-name=${{env.BUILD_PLAT}}"
+        cd ${{ env.BUILD_DIR }}/python/${{ env.CMAKE_BUILD_TYPE }}
+        python3 -m build --wheel -C="--build-option=--plat-name=${{ matrix.image }}"
         cd ../../..
-        echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/python/${{env.CMAKE_BUILD_TYPE}}/dist/*)" >> "$GITHUB_ENV"
+        echo "MY_PKG=$(ls ${{ env.BUILD_DIR }}/python/${{ env.CMAKE_BUILD_TYPE }}/dist/*)" >> "$GITHUB_ENV"
 
     - uses: actions/upload-artifact@v4
       # Use specific artifact identifier for publishing all versions
       with:
-        name: ubuntu-python-package-${{matrix.os}}-${{matrix.python.py}}
+        name: ubuntu-python-package-${{ matrix.image }}-${{ matrix.python }}
         path: ${{env.MY_PKG}}
 
   test:
     needs: build
-    runs-on: ${{matrix.os}}
+    runs-on: ubuntu-latest
+    container:
+      image: quay.io/pypa/${{ matrix.image }}
     strategy:
       matrix:
+        # Python version
         python: [
-        # Double quote for version is needed otherwise 3.10 => 3.1
-            {py: "3.9"},
-            {py: "3.10"},
-            {py: "3.11"},
-            {py: "3.12"},
-            {py: "3.13"}
+          # Double quote for version is needed otherwise 3.10 => 3.1
+            "cp39-cp39",
+            "cp310-cp310",
+            "cp311-cp311",
+            "cp312-cp312",
+            "cp313-cp313"
           ]
-        os: [ubuntu-20.04]
+        image: [
+           manylinux_2_28_x86_64
+        ]
 
     steps:
     - uses: actions/checkout@v4
 
     - uses: actions/download-artifact@v4
       with:
-        name: ubuntu-python-package-${{matrix.os}}-${{matrix.python.py}}
+        name: ubuntu-python-package-${{ matrix.image }}-${{ matrix.python }}
 
-    - name: Setup Python Version
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{matrix.python.py}}
+    - name: Register the python version
+      run: |
+        echo "/opt/python/${{ matrix.python }}/bin" >> $GITHUB_PATH
 
     - name: Install Python package
-      run: pip install "./$(ls *.whl)[conv]"
+      run: python -m pip install "./$(ls *.whl)[conv]"
 
     - name: Test installed Python package
       run: |
@@ -154,7 +153,7 @@ jobs:
       with:
         repo: pypi
         username: __token__
-        password: ${{secrets.TWINE_PYPI_PWD}}
+        password: ${{ secrets.TWINE_PYPI_PWD }}
         pattern: ubuntu-python-package-*
 
     # Delete the artifacts (for freeing storage space under github)

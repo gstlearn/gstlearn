@@ -59,6 +59,7 @@ get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 #set(CMAKE_FIND_DEBUG_MODE TRUE)
 
 # Options
+# By default, deactivate R and python packages
 option(BUILD_PYTHON  "Build Python package"                     OFF)
 option(BUILD_R       "Build R package"                          OFF)
 option(BUILD_TESTING "Build tests"                              OFF)

@@ -50,7 +50,6 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
-    # pkgbuild needed for R < 4.2 under windows only
     - name: Install roxygen2
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
