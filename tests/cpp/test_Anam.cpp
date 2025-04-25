@@ -15,7 +15,6 @@
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
-#include "Basic/OptCst.hpp"
 #include "Basic/Law.hpp"
 
 /****************************************************************************/

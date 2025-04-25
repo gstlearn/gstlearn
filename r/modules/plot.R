@@ -598,6 +598,7 @@ plot.end <- function(p, flagSuppressWarnings = TRUE)
 #' Draw the decoration of a figure (title, axis labels, ...)
 #'
 #' @param title Title of the figure
+#' 
 #' @param xlab Label along the horizontal axis
 #' @param ylab Label along the vertical axis
 #' @return The ggplot object
