@@ -183,18 +183,18 @@ err  = migrate(dbin = grd, name = "Z2", dbout = data, dmax = c(0.1, 0.1),
                namconv = NamingConvention(""))
 
 # plots
-p1 = ggDefaultGeographic() + 
-  plot.grid(grd, nameRaster = "Z1", palette = "Spectral") +
-  plot.point(data, colour = "red") +
+p1 = plot.init(asp=1) + 
+  plot.raster(grd, name = "Z1", palette = "Spectral") +
+  plot.symbol(data, colour = "red") +
   plot.decoration(title="Z1")
-p2 = ggDefault() +
+p2 = plot.init() +
   plot.hist(grd, name='Z1',  bins = 25, bg = "orange", color= "gray") +
   plot.decoration(xlab = "Raw variable", title="Histogram of the initial variable Z1")
-p3 = ggDefaultGeographic() + 
-  plot.grid(grd, nameRaster = "Z2", palette = "Spectral") +
-  plot.point(data, colour = "red") +
+p3 = plot.init(asp=1) + 
+  plot.raster(grd, name = "Z2", palette = "Spectral") +
+  plot.symbol(data, colour = "red") +
   plot.decoration(title="Z2")
-p4 = ggDefault() +
+p4 = plot.init() +
   plot.hist(grd, name='Z2',  bins = 25, bg = "orange", color= "gray") +
   plot.decoration(xlab = "Raw variable", title="Histogram of the initial variable Z2")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
@@ -310,30 +310,30 @@ tab = dbStatisticsMono(grd, vn, opers = opers)$toTL()
 knitr::kable(tab, caption = "Statistics on the grid for Ordinary Kriging with the initial model", digits = 4)
 
 # plot of estimated values
-p1 = ggDefaultGeographic() + 
-    plot.grid(grd, nameRaster =  paste("OK", "Z1", "estim", sep = "."),
-            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "estim") +
+p1 = plot.init(asp=1) + 
+    plot.raster(grd, name =  paste("OK", "Z1", "estim", sep = "."),
+            palette = "Spectral", flagLegend = TRUE, legendName = "estim") +
     plot.decoration(xlab = "", ylab = "", title = paste0("Ordinary coK for Z1"))
-p2 = ggDefaultGeographic() + 
-    plot.grid(grd, nameRaster =  paste("OK", "Z1", "stdev", sep = "."),
-            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "stdev") +
+p2 = plot.init(asp=1) + 
+    plot.raster(grd, name =  paste("OK", "Z1", "stdev", sep = "."),
+            palette = "Spectral", flagLegend = TRUE, legendName = "stdev") +
     plot.decoration(xlab = "", ylab = "", title = paste0("Std. of Ordinary coK for Z1"))
-p3 = ggDefaultGeographic() + 
-    plot.grid(grd, nameRaster =  paste("OK", "Z2", "estim", sep = "."),
-            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "estim") +
+p3 = plot.init(asp=1) + 
+    plot.raster(grd, name =  paste("OK", "Z2", "estim", sep = "."),
+            palette = "Spectral", flagLegend = TRUE, legendName = "estim") +
     plot.decoration(xlab = "", ylab = "", title = paste0("Ordinary coK for Z2"))
-p4 = ggDefaultGeographic() + 
-    plot.grid(grd, nameRaster =  paste("OK", "Z2", "stdev", sep = "."),
-            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "stdev") +
+p4 = plot.init(asp=1) + 
+    plot.raster(grd, name =  paste("OK", "Z2", "stdev", sep = "."),
+            palette = "Spectral", flagLegend = TRUE, legendName = "stdev") +
     plot.decoration(xlab = "", ylab = "", title = paste0("Std. of Ordinary coK for Z2"))
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 
 # plot Z vs. Z*
-p1 = ggDefault() + 
+p1 = plot.init() + 
   plot.correlation(grd, namex = paste("OK", "Z1", "estim", sep = "."), namey = "Z1", asPoint = TRUE, 
                    flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
   plot.decoration(xlab = "Estimated values", ylab = "Actual values", title = "Ordinary coK of Z1")
-p2 = ggDefault() + 
+p2 = plot.init() + 
   plot.correlation(grd, namex = paste("OK", "Z2", "estim", sep = "."), namey = "Z2", asPoint = TRUE, 
                    flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
   plot.decoration(xlab = "Estimated values", ylab = "Actual values", title = "Ordinary coK of Z2")
@@ -380,14 +380,14 @@ knitr::kable(tab, caption = "Statistics on the grid for Ordinary Kriging with th
              digits = 4)
 
 # plot Z vs. Z*
-p1 = ggDefault() + 
+p1 = plot.init() + 
   plot.correlation(grd, 
                    namex = paste("OK", "Z1", "estim", sep = "."), 
                    namey = paste("OK-LC", "Z1", "estim", sep = "."), 
                    asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
   plot.decoration(xlab = "Initial estimate", ylab = "Estimate with the LC model", 
                   title = "Ordinary coK of Z1")
-p2 = ggDefault() + 
+p2 = plot.init() + 
   plot.correlation(grd, 
                    namey = paste("OK-LC", "LC", "estim", sep = "."), 
                    namex = paste("LC", "OK", "estim", sep = "."), 
@@ -429,14 +429,14 @@ tab = dbStatisticsMono(grd, names = vn, opers = opers, flagIso = FALSE)$toTL()
 knitr::kable(tab, caption = "Statistics on the grid for Ordinary Kriging of LC", digits = 4)
 
 # plot direct LC estimate vs. estimate using the LC model
-p1 = ggDefault() + 
+p1 = plot.init() + 
   plot.correlation(grd, 
                    namex = paste("OK-LC", "LC", "estim", sep = "."), 
                    namey = paste("dOK", "LC", "estim", sep = "."), 
                    asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
   plot.decoration(xlab = "Estimate using LC model", ylab = "Direct estimate of the LC", 
                   title = "Ordinary coK: estimated value")
-p2 = ggDefault() + 
+p2 = plot.init() + 
   plot.correlation(grd, 
                    namex = paste("OK-LC", "LC", "stdev", sep = "."), 
                    namey = paste("dOK", "LC", "stdev", sep = "."), 
@@ -495,30 +495,30 @@ knitr::kable(tab, caption = "Statistics on the grid for Simple Kriging with the 
              digits = 4)
 
 # plot of estimated values
-p1 = ggDefaultGeographic() + 
-    plot.grid(grd, nameRaster =  paste("SK", "Z1", "estim", sep = "."),
-            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "estim") +
+p1 = plot.init(asp=1) + 
+    plot.raster(grd, name =  paste("SK", "Z1", "estim", sep = "."),
+            palette = "Spectral", flagLegend = TRUE, legendName = "estim") +
     plot.decoration(xlab = "", ylab = "", title = paste0("Simple coK for Z1"))
-p2 = ggDefaultGeographic() + 
-    plot.grid(grd, nameRaster =  paste("SK", "Z1", "stdev", sep = "."),
-            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "stdev") +
+p2 = plot.init(asp=1) + 
+    plot.raster(grd, name =  paste("SK", "Z1", "stdev", sep = "."),
+            palette = "Spectral", flagLegend = TRUE, legendName = "stdev") +
     plot.decoration(xlab = "", ylab = "", title = paste0("Std. of Simple coK for Z1"))
-p3 = ggDefaultGeographic() + 
-    plot.grid(grd, nameRaster =  paste("SK", "Z2", "estim", sep = "."),
-            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "estim") +
+p3 = plot.init(asp=1) + 
+    plot.raster(grd, name =  paste("SK", "Z2", "estim", sep = "."),
+            palette = "Spectral", flagLegend = TRUE, legendName = "estim") +
     plot.decoration(xlab = "", ylab = "", title = paste0("Simple coK for Z2"))
-p4 = ggDefaultGeographic() + 
-    plot.grid(grd, nameRaster =  paste("SK", "Z2", "stdev", sep = "."),
-            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "stdev") +
+p4 = plot.init(asp=1) + 
+    plot.raster(grd, name =  paste("SK", "Z2", "stdev", sep = "."),
+            palette = "Spectral", flagLegend = TRUE, legendName = "stdev") +
     plot.decoration(xlab = "", ylab = "", title = paste0("Std. of Simple coK for Z2"))
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 
 # plot Z vs. Z*
-p1 = ggDefault() + 
+p1 = plot.init() + 
   plot.correlation(grd, namex = paste("SK", "Z1", "estim", sep = "."), namey = "Z1", asPoint = TRUE, 
                    flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
   plot.decoration(xlab = "Estimated values", ylab = "Actual values", title = "Simple coK of Z1")
-p2 = ggDefault() + 
+p2 = plot.init() + 
   plot.correlation(grd, namex = paste("SK", "Z2", "estim", sep = "."), namey = "Z2", asPoint = TRUE, 
                    flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
   plot.decoration(xlab = "Estimated values", ylab = "Actual values", title = "Simple coK of Z2")
@@ -560,14 +560,14 @@ tab = dbStatisticsMono(grd, names = vn, opers = opers)$toTL()
 knitr::kable(tab, caption = "Statistics on the grid for Simple Kriging with the LC model", digits = 4)
 
 # plot Z vs. Z*
-p1 = ggDefault() + 
+p1 = plot.init() + 
   plot.correlation(grd, 
                    namex = paste("SK", "Z1", "estim", sep = "."), 
                    namey = paste("SK-LC", "Z1", "estim", sep = "."), 
                    asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
   plot.decoration(xlab = "Initial estimate", ylab = "Estimate with the LC model", 
                   title = "Simple coK of Z1")
-p2 = ggDefault() + 
+p2 = plot.init() + 
   plot.correlation(grd, 
                    namey = paste("SK-LC", "LC", "estim", sep = "."), 
                    namex = paste("LC", "SK", "estim", sep = "."), 
@@ -609,14 +609,14 @@ tab = dbStatisticsMono(grd, names = vn, opers = opers, flagIso = FALSE)$toTL()
 knitr::kable(tab, caption = "Statistics on the grid for Simple Kriging of LC", digits = 4)
 
 # plot direct LC estimate vs. estimate using the LC model
-p1 = ggDefault() + 
+p1 = plot.init() + 
   plot.correlation(grd, 
                    namex = paste("SK-LC", "LC", "estim", sep = "."), 
                    namey = paste("dSK", "LC", "estim", sep = "."), 
                    asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
   plot.decoration(xlab = "Estimate using LC model", ylab = "Direct estimate of the LC", 
                   title = "Simple coK: estimated value")
-p2 = ggDefault() + 
+p2 = plot.init() + 
   plot.correlation(grd, 
                    namex = paste("SK-LC", "LC", "stdev", sep = "."), 
                    namey = paste("dSK", "LC", "stdev", sep = "."), 
@@ -670,14 +670,14 @@ knitr::kable(tab, caption = "Statistics on the grid for Ordinary Kriging with he
              digits = 4)
 
 # plot direct LC estimate: Heterotopic data vs. Homotopic data
-p1 = ggDefault() + 
+p1 = plot.init() + 
   plot.correlation(grd, 
                    namex = paste("dOK", "LC", "estim", sep = "."), 
                    namey = paste("dOK_He", "LC", "estim", sep = "."), 
                    asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
   plot.decoration(xlab = "Homotopic data", ylab = "Heterotopic data", 
                   title = "Ordinary coK of LC: estimated value")
-p2 = ggDefault() + 
+p2 = plot.init() + 
   plot.correlation(grd, 
                    namex = paste("dOK", "LC", "stdev", sep = "."), 
                    namey = paste("dOK_He", "LC", "stdev", sep = "."), 
@@ -687,14 +687,14 @@ p2 = ggDefault() +
 ggarrange(p1, p2, ncol = 2, nrow = 1)
 
 # estimate maps: Heterotopic data vs. Homotopic data
-p1 = ggDefaultGeographic() + 
-  plot.grid(grd, nameRaster =  paste("dOK", "LC", "estim", sep = "."), 
-            flagLegendRaster = TRUE, legendNameRaster = "Z*", palette = "Spectral", 
+p1 = plot.init(asp=1) + 
+  plot.raster(grd, name =  paste("dOK", "LC", "estim", sep = "."), 
+            flagLegend = TRUE, legendName = "Z*", palette = "Spectral", 
             limits = c(-25,0)) +
   plot.decoration(title = "Estimate: homotopic data")
-p2 = ggDefaultGeographic() + 
-  plot.grid(grd, nameRaster =  paste("dOK_He", "LC", "estim", sep = "."),
-            flagLegendRaster = TRUE, legendNameRaster = "Z*", palette = "Spectral", 
+p2 = plot.init(asp=1) + 
+  plot.raster(grd, name =  paste("dOK_He", "LC", "estim", sep = "."),
+            flagLegend = TRUE, legendName = "Z*", palette = "Spectral", 
             limits = c(-25, 0)) +
   plot.decoration(title = "Estimate: heterotopic data")
 ggarrange(p1, p2, ncol = 2, nrow = 1)
@@ -702,13 +702,13 @@ ggarrange(p1, p2, ncol = 2, nrow = 1)
 # Std. maps: Heterotopic data vs. Homotopic data
 lim = range(c(grd[paste("dOK", "LC", "stdev", sep = ".")], grd[paste("dOK_He", "LC", "stdev", 
                                                                      sep = ".")]))
-p1 = ggDefaultGeographic() + 
-  plot.grid(grd, nameRaster =  paste("dOK", "LC", "stdev", sep = "."), 
-            flagLegendRaster = TRUE, legendNameRaster = "Std.", palette = "Spectral", limits = lim) +
+p1 = plot.init(asp=1) + 
+  plot.raster(grd, name =  paste("dOK", "LC", "stdev", sep = "."), 
+            flagLegend = TRUE, legendName = "Std.", palette = "Spectral", limits = lim) +
   plot.decoration(title = "IRF-0: homotopic data")
-p2 = ggDefaultGeographic() + 
-  plot.grid(grd, nameRaster =  paste("dOK_He", "LC", "stdev", sep = "."),
-            flagLegendRaster = TRUE, legendNameRaster = "Std.", palette = "Spectral", limits = lim) +
+p2 = plot.init(asp=1) + 
+  plot.raster(grd, name =  paste("dOK_He", "LC", "stdev", sep = "."),
+            flagLegend = TRUE, legendName = "Std.", palette = "Spectral", limits = lim) +
   plot.decoration(title = "IRF-0: heterotopic data")
 ggarrange(p1, p2, ncol = 2, nrow = 1)
 ```
@@ -739,14 +739,14 @@ knitr::kable(tab, caption = "Statistics on the grid for simple coKriging with he
              digits = 4)
 
 # plot direct LC estimate: Heterotopic data vs. Homotopic data
-p1 = ggDefault() + 
+p1 = plot.init() + 
   plot.correlation(grd, 
                    namex = paste("dSK", "LC", "estim", sep = "."), 
                    namey = paste("dSK_He", "LC", "estim", sep = "."), 
                    asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
   plot.decoration(xlab = "Homotopic data", ylab = "Heterotopic data", 
                   title = "Simple coK of LC: estimated value")
-p2 = ggDefault() + 
+p2 = plot.init() + 
   plot.correlation(grd, 
                    namex = paste("dSK", "LC", "stdev", sep = "."), 
                    namey = paste("dSK_He", "LC", "stdev", sep = "."), 
@@ -756,14 +756,14 @@ p2 = ggDefault() +
 ggarrange(p1, p2, ncol = 2, nrow = 1)
 
 # estimate maps: Heterotopic data vs. Homotopic data
-p1 = ggDefaultGeographic() + 
-  plot.grid(grd, nameRaster =  paste("dSK", "LC", "estim", sep = "."), 
-            flagLegendRaster = TRUE, legendNameRaster = "Z*", palette = "Spectral", 
+p1 = plot.init(asp=1) + 
+  plot.raster(grd, name =  paste("dSK", "LC", "estim", sep = "."), 
+            flagLegend = TRUE, legendName = "Z*", palette = "Spectral", 
             limits = c(-25,0)) +
   plot.decoration(title = "SOS estimate: homotopic data")
-p2 = ggDefaultGeographic() + 
-  plot.grid(grd, nameRaster =  paste("dSK_He", "LC", "estim", sep = "."),
-            flagLegendRaster = TRUE, legendNameRaster = "Z*", palette = "Spectral", 
+p2 = plot.init(asp=1) + 
+  plot.raster(grd, name =  paste("dSK_He", "LC", "estim", sep = "."),
+            flagLegend = TRUE, legendName = "Z*", palette = "Spectral", 
             limits = c(-25, 0)) +
   plot.decoration(title = "SOS estimate: heterotopic data")
 ggarrange(p1, p2, ncol = 2, nrow = 1)
@@ -771,13 +771,13 @@ ggarrange(p1, p2, ncol = 2, nrow = 1)
 # Std. maps: Heterotopic data vs. Homotopic data
 lim = range(c(grd[paste("dSK", "LC", "stdev", sep = ".")], grd[paste("dSK_He", "LC", "stdev", 
                                                                      sep = ".")]))
-p1 = ggDefaultGeographic() + 
-  plot.grid(grd, nameRaster =  paste("dSK", "LC", "stdev", sep = "."), 
-            flagLegendRaster = TRUE, legendNameRaster = "Std.", palette = "Spectral", limits = lim) +
+p1 = plot.init(asp=1) + 
+  plot.raster(grd, name =  paste("dSK", "LC", "stdev", sep = "."), 
+            flagLegend = TRUE, legendName = "Std.", palette = "Spectral", limits = lim) +
   plot.decoration(title = "SOS: homotopic data")
-p2 = ggDefaultGeographic() + 
-  plot.grid(grd, nameRaster =  paste("dSK_He", "LC", "stdev", sep = "."),
-            flagLegendRaster = TRUE, legendNameRaster = "Std.", palette = "Spectral", limits = lim) +
+p2 = plot.init(asp=1) + 
+  plot.raster(grd, name =  paste("dSK_He", "LC", "stdev", sep = "."),
+            flagLegend = TRUE, legendName = "Std.", palette = "Spectral", limits = lim) +
   plot.decoration(title = "SOS: heterotopic data")
 ggarrange(p1, p2, ncol = 2, nrow = 1)
 ```
@@ -788,7 +788,7 @@ ggarrange(p1, p2, ncol = 2, nrow = 1)
 v = "Z1"
 
 # cross plot: SOS vs. IRF0
-p1 = ggDefault() + 
+p1 = plot.init() + 
   plot.correlation(grd, 
                    namex = paste("SK", v, "estim", sep = "."), 
                    namey = paste("OK", v, "estim", sep = "."), 
@@ -796,7 +796,7 @@ p1 = ggDefault() +
   plot.decoration(xlab = "SOS model (SK)", ylab = "IRF-0 model (OK)", 
                   title = paste0(v, " Estimation"))
 
-p2 = ggDefault() + 
+p2 = plot.init() + 
   plot.correlation(grd, 
                    namex = paste("SK", v, "stdev", sep = "."), 
                    namey = paste("OK", v, "stdev", sep = "."), 
@@ -807,7 +807,7 @@ ggarrange(p1, p2, ncol = 2, nrow = 1)
 
 v = "Z2"
 # cross plot: SOS vs. IRF0
-p1 = ggDefault() + 
+p1 = plot.init() + 
   plot.correlation(grd, 
                    namex = paste("SK", v, "estim", sep = "."), 
                    namey = paste("OK", v, "estim", sep = "."), 
@@ -815,7 +815,7 @@ p1 = ggDefault() +
   plot.decoration(xlab = "SOS model (SK)", ylab = "IRF-0 model (OK)", 
                   title = paste0(v, " Estimation"))
 
-p2 = ggDefault() + 
+p2 = plot.init() + 
   plot.correlation(grd, 
                    namex = paste("SK", v, "stdev", sep = "."), 
                    namey = paste("OK", v, "stdev", sep = "."), 
@@ -827,7 +827,7 @@ ggarrange(p1, p2, ncol = 2, nrow = 1)
 # direct kriging of LC
 v = "LC"
 # cross plot: SOS vs. IRF0
-p1 = ggDefault() + 
+p1 = plot.init() + 
   plot.correlation(grd, 
                    namex = paste("dSK", v, "estim", sep = "."), 
                    namey = paste("dOK", v, "estim", sep = "."), 
@@ -835,7 +835,7 @@ p1 = ggDefault() +
   plot.decoration(xlab = "SOS model (SK)", ylab = "IRF-0 model (OK)", 
                   title = "LC estimation (direct)")
 
-p2 = ggDefault() + 
+p2 = plot.init() + 
   plot.correlation(grd, 
                    namex = paste("dSK", v, "stdev", sep = "."), 
                    namey = paste("dOK", v, "stdev", sep = "."), 

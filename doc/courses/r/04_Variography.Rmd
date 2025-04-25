@@ -59,10 +59,10 @@ grid.cloud$display()
 ```
 
 ```{r Variogram_Cloud_Graphics}
-p = ggplot()
-p = p + plot.grid(grid.cloud, "Cloud.January*")
+p = plot.init()
+p = p + plot.raster(grid.cloud, "Cloud.January*")
 p = p + plot.geometry(asp=0)
-ggPrint(p)
+plot.end(p)
 ```
 
 ---
@@ -90,13 +90,13 @@ varioexp
 We now plot the experimental variogram. In the resulting figure, the experimental variogram is plotted in blue, and the dashed blacked line corresponds to the value of the variance of the data.
 
 ```{r Plot_Experimental_Variogram}
-ggplot() + plot.varmod(varioexp)
+plot.init() + plot.varmod(varioexp)
 ```
 
 We can also adapt the size of experimental variogram points in the plot so that it is proportional to the number of pairs of points used to compute the value. 
 
 ```{r Plot_Experimental_Variogram_continued}
-ggplot() + plot.varmod(varioexp,drawPsize=TRUE)
+plot.init() + plot.varmod(varioexp,drawPsize=TRUE)
 ```
 
 ---
@@ -116,7 +116,7 @@ err = fitmod$fit(varioexp)
 ```
 
 ```{r Variogam_Model_plot}
-ggplot() + plot.varmod(varioexp, fitmod)
+plot.init() + plot.varmod(varioexp, fitmod)
 ```
 
 We now print the content of our newly created model. As we can see, only one basic covariance structure is used to define the model (namely, a Spherical covariance function whose range and sill are printed).
@@ -145,7 +145,7 @@ err = fitmod$fit(varioexp, types=types)
 ```
 
 ```{r Model_Fitting_List1_plot}
-ggplot() + plot.varmod(varioexp, fitmod)
+plot.init() + plot.varmod(varioexp, fitmod)
 ```
 
 When printing the contents of the model, we now notice that it consists of a superposition of a Cubic covariance and a Spherical covariance, as intended. Note that the Nugget effect does not appear (it has been dropped by the fitting algorithm).
@@ -169,7 +169,7 @@ err = fitmod$fit(varioexp, types=types, constraints=constraints, optvar=Option_V
 ```
 
 ```{r Model_Fitting_Inequality_1_Plot}
-ggplot() + plot.varmod(varioexp, fitmod)
+plot.init() + plot.varmod(varioexp, fitmod)
 ```
 
 When printing the content of the fitted model, we see that the constraints are indeed satisfied (and that the three basic structures are present).
@@ -188,7 +188,7 @@ err = fitmod$fit(varioexp, types=types, constraints=constraints, optvar=Option_V
 ```
 
 ```{r Model_Fitting_Equality_1_Plot}
-ggplot() + plot.varmod(varioexp, fitmod)
+plot.init() + plot.varmod(varioexp, fitmod)
 ```
 
 When printing the content of the fitted model, we see that the constraints are once again satisfied (and that the three basic structures are present).
@@ -212,7 +212,7 @@ err = vario.4dir$compute(dat)
 ```
 
 ```{r Directional_Variograms_Plot}
-ggplot() + plot.varmod(vario.4dir)
+plot.init() + plot.varmod(vario.4dir)
 ```
 
 Then, fitting a model onto the resulting experimental variogram is done using the same commands as in the isotropic case.
@@ -223,7 +223,7 @@ err = model.4dir$fit(vario.4dir,types=types)
 ```
 
 ```{r Directional_Variograms_Fitting_Plot}
-ggplot() + plot.varmod(vario.4dir, model.4dir)
+plot.init() + plot.varmod(vario.4dir, model.4dir)
 ```
 
 ---
@@ -241,8 +241,8 @@ grid.vmap = db_vmap(dat)
 ```
 
 ```{r Variogram_Map_Plot}
-p1 = ggplot() + plot.grid(grid.vmap, flagLegendRaster=TRUE, legendNameRaster="T°C Var")
-p2 = ggplot() + plot.grid(grid.vmap, nameRaster="VMAP.January_temp.Nb", flagLegendRaster=TRUE, legendNameRaster="# pairs")
+p1 = plot.init() + plot.raster(grid.vmap, flagLegend=TRUE, legendName="T°C Var")
+p2 = plot.init() + plot.raster(grid.vmap, name="VMAP.January_temp.Nb", flagLegend=TRUE, legendName="# pairs")
 ggarrange(p1,p2,nrow=1,ncol=2)
 ```
 
@@ -264,14 +264,14 @@ grid.vmap
 ```
 
 ```{r Fitting_Variogram_Map_Draw_Plot}
-p1 = ggplot() + plot.grid(grid.vmap, nameRaster="VMAP.January_temp.Var")
-p2 = ggplot() + plot.grid(grid.vmap, nameRaster="VMAP.Model")
+p1 = plot.init() + plot.raster(grid.vmap, name="VMAP.January_temp.Var")
+p2 = plot.init() + plot.raster(grid.vmap, name="VMAP.Model")
 ggarrange(p1,p2,nrow=1,ncol=2)
 ```
 
 Finally, we plot together the experimental directional variograms and the model obtained from fitting the variogram map.
 
 ```{r Compare_Directional_Variograms_and_Variogram_Map}
-ggplot() + plot.varmod(vario.4dir, modelVM)
+plot.init() + plot.varmod(vario.4dir, modelVM)
 ```
 

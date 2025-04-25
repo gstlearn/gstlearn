@@ -575,7 +575,8 @@ int KrigingAlgebra::setColCokUnique(const VectorDouble* Zp, const VectorInt* ran
  * mean of the correct cross-validated variable (SK only). It is optional in OK
  */
 int KrigingAlgebra::setXvalidUnique(const VectorInt* rankXvalidEqs,
-                                    const VectorInt* rankXvalidVars) {
+                                    const VectorInt* rankXvalidVars)
+{
   if (rankXvalidEqs == nullptr || rankXvalidVars == nullptr) return 1;
   if (rankXvalidEqs->size() <= 0) return 1;
   _resetLinkedToXvalid();

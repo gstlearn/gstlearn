@@ -148,14 +148,14 @@ private:
   mutable KrigingAlgebra _algebra;
   mutable KrigOpt        _krigopt;
   VectorVectorInt        _sampleRanks; // Vector of vector of sample indices
-  MatrixSymmetric  _Sigma00; // Covariance part for variance
-  MatrixSymmetric  _Sigma;   // Covariance part for LHS
-  MatrixDense      _X;       // Drift part for LHS
-  MatrixDense      _Sigma0;  // Covariance part for RHS
-  MatrixDense      _X0;      // Drift par for RHS
-  VectorDouble           _Z;       // Vector of Data
-  VectorDouble _means;            // Means of the variables (used to center variables)
-  VectorDouble _meansTarget;      // Means for target (possible using matLC)
+  MatrixSymmetric        _Sigma00;     // Covariance part for variance
+  MatrixSymmetric        _Sigma;       // Covariance part for LHS
+  MatrixDense            _X;           // Drift part for LHS
+  MatrixDense            _Sigma0;      // Covariance part for RHS
+  MatrixDense            _X0;          // Drift par for RHS
+  VectorDouble           _Z;           // Vector of Data
+  VectorDouble           _means;       // Means of the variables (used to center variables)
+  VectorDouble           _meansTarget; // Means for target (possible using matLC)
 
   /// UID for storage
   int  _iptrEst;
@@ -232,4 +232,8 @@ private:
   /// Some local flags defined in order to speed up the process
   mutable bool _flagVerr;
   mutable bool _flagNoStat;
+
+  /// Some local variables for XValid
+  mutable VectorInt _rankXvalidEqs;
+  mutable VectorInt _rankXvalidVars;
 };

@@ -15,7 +15,6 @@
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
-#include "Basic/OptCst.hpp"
 #include "Basic/Law.hpp"
 
 /****************************************************************************/
@@ -33,8 +32,6 @@ int main(int argc, char *argv[])
   ASerializable::setPrefixName("Anam-");
   int seed = 10355;
   law_set_random_seed(seed);
-
-  OptCst::defineByKey("ASP",0);
 
   ///////////////////////
   // Creating the Db

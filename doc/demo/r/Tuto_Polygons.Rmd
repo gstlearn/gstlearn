@@ -42,7 +42,7 @@ err = simtub(NULL,mygrid,mymodel)
 The variable (called *Simu*) defined on the grid is visualized first.
 
 ```{r}
-ggplot() + plot.grid(mygrid, palette="inferno")
+plot.init(asp=1) + plot.raster(mygrid, palette="inferno")
 ```
 
 We now define the items of the PolyGon class.
@@ -84,10 +84,10 @@ polygon$getSurface()
 We can now overlay the polygon (filled in "yellow") on top of the grid
 
 ```{r}
-p = ggplot()
-p = p + plot.grid(mygrid, palette="inferno")
+p = plot.init(asp=1)
+p = p + plot.raster(mygrid, palette="inferno")
 p = p + plot.polygon(polygon, fill="yellow")
-ggPrint(p)
+plot.end(p)
 ```
 
 More interesting is to use this polygon in order to create a selection on the grid nodes. Then the only nodes lying within the polygon will be considered as active.
@@ -100,10 +100,10 @@ mygrid
 Displaying the grid (taking the selection into account) is performed now. Note that the polygon is overlaid again but in a transparent mode
 
 ```{r}
-p = ggplot()
-p = p + plot.grid(mygrid, palette="inferno")
+p = plot.init(asp=1)
+p = p + plot.raster(mygrid, palette="inferno")
 p = p + plot.polygon(polygon, fill=NA, color="yellow", linewidth=2)
-ggPrint(p)
+plot.end(p)
 ```
 
 Let us make the polygon more complex by adding other PolyElems which partly
@@ -120,7 +120,7 @@ polygon$display(AStringFormat(level=2))
 In the following figure, we display the edges of the different PolyElems
 
 ```{r}
-ggplot() + plot.polygon(polygon, fill=NA)
+plot.init() + plot.polygon(polygon, fill=NA)
 ```
 
 Obviously, the three olyElems of the polygon overlay. So the impact of using
@@ -132,7 +132,7 @@ PolyElems*
 
 ```{r}
 db_polygon(mygrid, polygon)
-ggplot() + plot.grid(mygrid, palette="inferno")
+plot.init(asp=1) + plot.raster(mygrid, palette="inferno")
 ```
 
 In the second example:
@@ -142,7 +142,7 @@ In the second example:
 
 ```{r}
 db_polygon(mygrid, polygon, flag_nested=TRUE)
-ggplot() + plot.grid(mygrid, palette="inferno")
+plot.init(asp=1) + plot.raster(mygrid, palette="inferno")
 ```
 
 An interesting function allows checking if a point (characterized by its 2-D coordinates) belongs to the polygon or not.

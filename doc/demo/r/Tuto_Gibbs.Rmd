@@ -180,6 +180,7 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+library(ggnewscale)
 ```
 
 ### Auxiliary functions
@@ -205,23 +206,23 @@ qc_simulations <- function(db, names, vario_param, vario_model, title, stat_keys
   # knitr::kable(tab, caption = title, digits = 4)
   # histogram of simulation  #1
   i = 1
-  p = ggDefault() +
+  p = plot.init() +
     plot.hist(db = db, name = names[i], useSel = TRUE, bins = 25, 
               col = "orange", bg = "gray") +
     plot.decoration(xlab = names[i], title = title)
-  ggPrint(p)
+  plot.end(p)
   
   # base map
-  p = ggDefaultGeographic()
+  p = plot.init(asp=1)
   if (db$isGrid()) {
-    p = p + plot.grid(db, name_raster = names[i], show.legend.raster = TRUE,
-                    legend.name.raster = "Y",  palette = "Spectral")
+    p = p + plot.raster(db, name = names[i], flagLegend = TRUE,
+                      legendName = "Y",  palette = "Spectral")
   } else  {
-    p = p + plot.point(db, nameColor = names[i], flagLegendColor = TRUE, 
+    p = p + plot.symbol(db, nameColor = names[i], flagLegend = TRUE, 
                        palette = "Spectral")
   }
   p = p + plot.decoration(xlab = "Easting", ylab = "Northing", title = title)
-  ggPrint(p)
+  plot.end(p)
   
   # variogram computations
   vario_list = list()
@@ -336,10 +337,10 @@ err   = model$setDriftIRF(order = -1)
 err   = simtub(dbin = NULL, dbout = data, model = model, nbsimu = 1, seed = seed)
 
 # plot
-p = ggDefaultGeographic() +
-  plot.point(data, color = "red") +
+p = plot.init() +
+  plot.symbol(data, color = "red") +
   plot.decoration(title = "Defined point constraints")
-ggPrint(p)
+plot.end(p)
 ```
 
 # Testing the Gibbs sampler
@@ -510,8 +511,8 @@ for (s in 1:nbsimu) {
   grid[i_nm] <- as.numeric(grid[s_nm] >= yc)
   
   # plots
-  p = ggDefaultGeographic() +
-    plot.grid(grid, i_nm, palette = "Spectral") +
+  p = plot.init(asp=1) +
+    plot.raster(grid, i_nm, palette = "Spectral") +
     plot.decoration(title = paste0("Simulation #", s)) 
   
   p_list[[1 + length(p_list)]] <- p
@@ -525,8 +526,8 @@ grid["Ind.mean"] <- apply(
   FUN = mean
 )
 
-p_mean <- ggDefaultGeographic() +
-    plot.grid(grid, "Ind.mean", palette = "Spectral") +
+p_mean <- plot.init(asp=1) +
+    plot.raster(grid, "Ind.mean", palette = "Spectral") +
     plot.decoration(title = 
     paste0("Mean of the ", nbsimu, " simulations")) 
 
@@ -623,12 +624,12 @@ grid["CE.cs.Z.stdev"] <- sqrt(apply(
 ))
 
 # final plots
-p_ce <- ggDefaultGeographic() +
-    plot.grid(grid, "CE.cs.Z.estim", palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "estim") +
+p_ce <- plot.init(asp=1) +
+    plot.raster(grid, "CE.cs.Z.estim", palette = "Spectral", flagLegend = TRUE, legendName = "estim") +
     plot.decoration(title = paste0("Conditional expectation")) 
 
-p_std <- ggDefaultGeographic() +
-    plot.grid(grid, "CE.cs.Z.stdev", palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "Std.") +
+p_std <- plot.init(asp=1) +
+    plot.raster(grid, "CE.cs.Z.stdev", palette = "Spectral", flagLegend = TRUE, legendName = "Std.") +
     plot.decoration(title = paste0("Conditional Std.")) 
 
 ggarrange(p_ce, p_std, nrow = 1, ncol = 2)

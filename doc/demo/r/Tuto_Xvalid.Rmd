@@ -5,6 +5,8 @@ date: '2023-11-30'
 output:
   html_document: default
   pdf_document: default
+editor_options: 
+  chunk_output_type: console
 ---
 
 loading libraries
@@ -14,8 +16,8 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+library(ggnewscale)
 
-OptCst_defineByKey("ASP",0)
 set.seed(43243)
 opers = EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
 ```
@@ -36,8 +38,8 @@ data = Db_createFromBox(nech, # number of samples
                         coormax = c(100,100))
 
 # Plotting the sampling locations generated 
-ggplot()+
-  plot.point(db = data, 
+plot.init()+
+  plot.symbol(db = data, 
              color = "red",
              size = 0.5) +
   plot.decoration(title = "Sampling locations")
@@ -54,8 +56,8 @@ err = simtub(NULL,
 data$setName("Simu","data")
 data
 
-ggplot()+
-  plot.point(data, nameSize="data",
+plot.init()+
+  plot.symbol(data, nameSize="data",
              color = "red")+
   plot.decoration(title = "Measurement values")
 
@@ -151,23 +153,23 @@ The next chunk displays the graphic outputs expected following a cross-validatio
 
 ```{r}
 # plotting absolute value of the standardized error
-ggplot()+
-  plot.point(data,
+plot.init()+
+  plot.symbol(data,
              nameSize = "Xvalid.data.stderr", 
              color = "red",
              flagAbsSize = TRUE)+
   plot.decoration(title="Standardized error (absolute value)")
 
 # plotting standardized error
-ggplot()+
-  plot.point(data,
+plot.init()+
+  plot.symbol(data,
              nameSize = "Xvalid.data.stderr", 
              color = "blue",
              flagAbsSize = FALSE)+
   plot.decoration(title = "Standardized error")
 
 # plotting the histogram of the standardized error 
-ggplot()+
+plot.init()+
   plot.hist(data,
             name = "Xvalid.data.stderr", 
             bins=30,
@@ -176,7 +178,7 @@ ggplot()+
   plot.decoration(xlab="Estimation Error", title="Cross-Validation")
 
 # plotting the correlation between the estimate and the standardized error
-ggplot()+
+plot.init()+
   plot.correlation(data,
                    namex = "Xvalid2.data.estim", 
                    namey = "Xvalid.data.stderr",
@@ -186,7 +188,7 @@ ggplot()+
                   ylab = "kriging error") 
 
 # plotting the correlation between the estimate and the standardized error
-ggplot()+
+plot.init()+
   plot.correlation(data,
                    namex = "Xvalid2.data.estim", 
                    namey = "data",
@@ -212,11 +214,11 @@ N     = 300
 K     = 10
 dbin  = Db_createFillRandom(ndat = N, nvar = 0, seed = 125)
 dbin["folds"] = sample(1:K, size = dbin$getNSample(TRUE), replace = TRUE)
-p <- ggDefaultGeographic() +
-  plot.point(dbin,  nameColor = "folds", palette = "Spectral", 
-             flagLegendColor = TRUE, flagLegendLabel = "Folds") +
+p <- plot.init() +
+  plot.symbol(dbin,  nameColor = "folds", palette = "Spectral", 
+             flagLegend = TRUE, legendNameColor = "Folds") +
   plot.decoration(xlab = "X", ylab = "Z", title = "Simulated Folds")
-ggPrint(p)
+plot.end(p)
 ```
 
 We define a Model and simulate the variable at sample locations.
@@ -268,12 +270,12 @@ knitr::kable(dbStatisticsMono(dbin, names = c("Y", "OK.xval.LOO.Y.*", "OK.xval.k
 ```
 
 ```{r}
-p1 <- ggDefault() +
+p1 <- plot.init() +
   plot.hist(dbin,  name = "OK.xval.LOO.Y.stderr", bins = 20, fill = "orange") +
   plot.decoration(xlab = "Normalised estimation error (Z*-Z)/S", 
                   title = "Leave-One-Out cross validation")
 
-p2 <- ggDefault() +
+p2 <- plot.init() +
   plot.hist(dbin,  name = "OK.xval.kfold.Y.stderr", bins = 20, fill = "skyblue") +
   plot.decoration(xlab = "Normalised estimation error (Z*-Z)/S", 
                   title = paste0("K-fold cross validation (K = ", K, ")"))

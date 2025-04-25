@@ -64,10 +64,10 @@ vario$display()
 ```
 
 ```{r}
-p = ggDefault()
+p = plot.init()
 p = p + plot.varmod(vario)
 p = p + plot.decoration(title="Variogram of Temperature (Raw)")
-ggPrint(p)
+plot.end(p)
 ```
 
 We calculate the variogram (using the same calculation parameters) based on the residuals after a trend has been removed. This trend is considered as a linear combination of the external drift information.
@@ -82,10 +82,10 @@ vario$display()
 ```
 
 ```{r}
-p = ggDefault()
+p = plot.init()
 p = p + plot.varmod(vario)
 p = p + plot.decoration(title="Variogram of Temperature (Residuals)")
-ggPrint(p)
+plot.end(p)
 ```
 
 Fit the variogram of residuals in a model having drifts. Some constraints have been added during the fitting step.
@@ -104,10 +104,10 @@ err = md$fit(vario,structs,constraints=const)
 ```
 
 ```{r}
-p = ggDefault()
+p = plot.init()
 p = p + plot.varmod(vario, model)
 p = p + plot.decoration(title="Variogram of Temperature (Residuals)")
-ggPrint(p)
+plot.end(p)
 ```
 
 # Identify the Drift
@@ -123,10 +123,10 @@ cat("Trend coefficients:", coeffs)
 Represent the scatter plot of the Temperature given the Elevation and add the Global Trend (caledlated beforehand)
 
 ```{r Creating_Grid}
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(temperatures,namex="Elevation",namey="*temp", asPoint=TRUE)
 p = p + geom_segment(aes(x = 0, y = coeffs[1], xend = 400, yend = coeffs[1] + 400 * coeffs[2]))
-ggPrint(p)
+plot.end(p)
 ```
 
 # Estimation 
@@ -138,10 +138,10 @@ err = krigingSPDE(temperatures, grid, model)
 ```
 
 ```{r Plot_SPDE_KRIGING}
-p = ggDefaultGeographic()
-p = p + plot.grid(grid)
+p = plot.init(asp=1)
+p = p + plot.raster(grid)
 p = p + plot.decoration(title="Temperature (using Elevation as global Trend)")
-ggPrint(p)
+plot.end(p)
 ```
 
 We also perform the Estimation by Kriging (using Elevation as External Drift). This estimation is performed in Unique Neighborhood.
@@ -152,18 +152,18 @@ err = kriging(temperatures, grid, model, neighU)
 ```
 
 ```{r Plot_Standard_Kriging}
-p = ggDefaultGeographic()
-p = p + plot.grid(grid)
+p = plot.init(asp=1)
+p = p + plot.raster(grid)
 p = p + plot.decoration(title="Temperature (with Elevation as External Drift)")
-ggPrint(p)
+plot.end(p)
 ```
 
 Comparing both estimates
 
 ```{r}
-p = ggplot()
+p = plot.init()
 p = p + plot.correlation(grid,namex="Kriging.January_temp.estim",
                          namey="KrigingSPDE.January_temp.estim", asPoint=TRUE)
 p = p + plot.decoration(xlab="Kriging with External Drift", ylab="SPDE Kriging")
-ggPrint(p)
+plot.end(p)
 ```

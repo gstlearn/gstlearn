@@ -24,7 +24,7 @@ db = Db_createFillRandom(nech, 2, 0)
 Representing the contents of the data base
 
 ```{r}
-ggplot() + plot(db) + plot.decoration(title="Data Set")
+plot.init() + plot(db) + plot.decoration(title="Data Set")
 ```
 
 We simulate two random variables linked by a joint model
@@ -35,7 +35,7 @@ sills  = matrix(c(2,1,1,2), nrow = 2, ncol = 2)
 err = model$addCovFromParam(ECov_EXPONENTIAL(), range = 0.8, sills = sills)
 sills  = matrix(c(1.1,-1,-1,1.1), nrow = 2, ncol = 2)
 err = model$addCovFromParam(ECov_EXPONENTIAL(),range=0.2,sills = sills)
-ggplot() + plot.model(model, ivar=0, jvar=1, hmax=1)
+plot.init() + plot.model(model, ivar=0, jvar=1, hmax=1)
 ```
 
 ```{r}
@@ -56,7 +56,7 @@ res = correlationPairs(db, db, "Simu.1", "Simu.2")
 
 
 ```{r}
-ggplot() + plot.correlation(db, "Simu.1", "Simu.2", asPoint=TRUE, 
+plot.init() + plot.correlation(db, "Simu.1", "Simu.2", asPoint=TRUE, 
                     flagBiss=TRUE, flagSameAxes=TRUE, flagRegr=TRUE)
 ```
 
@@ -64,7 +64,7 @@ ggplot() + plot.correlation(db, "Simu.1", "Simu.2", asPoint=TRUE,
 - as cells (of a fictitious grid) painted with color representing point density
 
 ```{r}
-ggplot() + plot.correlation(db, "Simu.1", "Simu.2", asPoint=FALSE, 
+plot.init() + plot.correlation(db, "Simu.1", "Simu.2", asPoint=FALSE, 
                     flagBiss=TRUE, flagSameAxes=TRUE, flagRegr=TRUE, bins=20)
 ```
 
@@ -83,14 +83,14 @@ We represent the H-Scatter plot:
 - as a set of isolated symbols
 
 ```{r}
-ggplot() + plot.hscatter(db, "Simu.1", "Simu.2", varioparam, ilag=8, asPoint=TRUE, 
+plot.init() + plot.hscatter(db, "Simu.1", "Simu.2", varioparam, ilag=8, asPoint=TRUE, 
                  flagBiss=TRUE, flagSameAxes=TRUE)
 ```
 
 - as cells (of a fictitious grid) painted with color representing point density
 
 ```{r}
-ggplot() + plot.hscatter(db, "Simu.1", "Simu.2", varioparam, ilag=1, asPoint=FALSE, 
+plot.init() + plot.hscatter(db, "Simu.1", "Simu.2", varioparam, ilag=1, asPoint=FALSE, 
                     flagBiss=TRUE, flagSameAxes=TRUE, bins=20)
 ```
 

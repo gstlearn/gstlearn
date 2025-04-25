@@ -184,7 +184,7 @@ alpha   = seq(from = 0, to = pi, length.out = 100)
 mode = CovCalcMode()
 mode$setAsVario(TRUE)
 covvec = cova$evalCovOnSphereVec(alpha,50, FALSE, mode=mode)
-ggplot() + 
+plot.init() + 
   plot.XY(alpha, covvec) +
   plot.decoration(title=paste0(covname, " model on S2"),
                   xlab = "Geodetic distance (rad)", ylab = "Variogram") 
@@ -195,7 +195,7 @@ ggplot() +
 ```{r spectrum, echo=TRUE, eval = TRUE}
 nd = 100
 spevec = cova$evalSpectrumOnSphere(nd, flagCumul=TRUE)
-ggplot() + 
+plot.init() + 
   plot.XY(seq(nd+1), spevec) +
   plot.decoration(title=paste0(covname, " spectrum on S2"),
                   xlab = "Degrees", ylab = "Cumulated spectrum") + 
@@ -222,12 +222,12 @@ knitr::kable(tab, digits = 6, caption = paste0("Statistics for simulation of ",
 Visualization 2D
 
 ```{r Visu2D}
-p = ggDefaultGeographic() +
-  plot.grid(grd, nameRaster = "Simu", flagLegendRaster = TRUE, legendNameRaster = "Y", 
+p = plot.init(asp=1) +
+  plot.raster(grd, name = "Simu", flagLegend = TRUE, legendName = "Y", 
             palette = "Spectral") +
   plot.decoration(xlab = "Longitude", ylab = "Colatitutde", 
                   title = paste0(covname, " model on S2"))
-ggPrint(p) 
+plot.end(p) 
 ```
 
 Visualization 3D

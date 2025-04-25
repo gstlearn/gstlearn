@@ -80,7 +80,7 @@ Display my Data (with samples represented by color and size)
 
 ```{r}
 if (graphics)
-    ggplot() + plot(mydb,nameColor="Pb") + plot.decoration(title="Data Set")
+    plot.init() + plot(mydb,nameColor="Pb") + plot.decoration(title="Data Set")
 ```
 
 # Variograms
@@ -103,7 +103,7 @@ We recall that the Variogram cloud is calculated by filling an underlying grid w
 
 ```{r}
 if (graphics)
-    ggplot() + plot(dbcloud,nameRaster="Cloud*") + plot.decoration(title="Variogram Cloud")
+    plot.init() + plot(dbcloud,name="Cloud*") + plot.decoration(title="Variogram Cloud")
 ```
 
 Calculating the experimental omni-directional variogram
@@ -119,7 +119,7 @@ The variogram is represented graphically for a quick check
 
 ```{r}
 if (graphics)
-    ggplot() + plot.varmod(myVarioOmni) + 
+    plot.init() + plot.varmod(myVarioOmni) + 
     plot.decoration(title="Omni-directional Variogram for Pb")
 ```
 
@@ -137,7 +137,7 @@ if (verbose)
 
 ```{r}
 if (graphics)
-    ggplot() + plot.varmod(myvario) + 
+    plot.init() + plot.varmod(myvario) + 
     plot.decoration(title="Multi-Directional Variogram of Pb")
 ```
 
@@ -151,7 +151,7 @@ if (verbose)
 
 ```{r}
 if (graphics)
-    ggplot() + plot(myvmap, nameRaster="*Var") + 
+    plot.init() + plot(myvmap, name="*Var") + 
     plot.decoration(title="Variogram Map")
 ```
 
@@ -168,7 +168,7 @@ Visualizing the resulting model, overlaid on the experimental variogram
 
 ```{r}
 if (graphics)
-    ggplot() + plot.varmod(myvario,mymodel) + plot.decoration(title="Model for Pb")
+    plot.init() + plot.varmod(myvario,mymodel) + plot.decoration(title="Model for Pb")
 ```
 
 ## Model with equality constraints
@@ -232,10 +232,10 @@ We can visualize some of the newly created variables, such as:
 ```{r}
 if (graphics)
 {
-  p = ggplot()
-  p = p + plot(mygrid,nameRaster="Neigh*Number")
+  p = plot.init()
+  p = p + plot(mygrid,name="Neigh*Number")
   p = p + plot.decoration(title="Number of Samples per Neighborhood")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -244,10 +244,10 @@ if (graphics)
 ```{r}
 if (graphics)
 {
-  p = ggplot()
-  p = p + plot(mygrid,nameRaster="Neigh*MaxDist")
+  p = plot.init()
+  p = p + plot(mygrid,name="Neigh*MaxDist")
   p = p + plot.decoration(title="Maximum Distance per Neighborhood")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -264,10 +264,10 @@ if (verbose)
 ```{r}
 if (graphics)
 {
-  p = ggplot()
+  p = plot.init()
   p = p + plot.hist(mydb,"Xvalid.Pb.stderr")
   p = p + plot.decoration(title="Histogram of Stdandrdized Errors")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -291,22 +291,22 @@ Visualizing the results
 ```{r}
 if (graphics)
 {
-  p = ggplot()
-  p = p + plot(mygrid,nameRaster="Kriging.Pb.estim")
+  p = plot.init()
+  p = p + plot(mygrid,name="Kriging.Pb.estim")
   p = p + plot(mydb,nameSize="Pb", color="yellow")
   p = p + plot.decoration(title="Estimate of Pb")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
 ```{r}
 if (graphics)
 {
-  p = ggplot()
-  p = p + plot(mygrid,nameRaster="Kriging.Pb.stdev", flagLegendRaster=TRUE)
+  p = plot.init()
+  p = p + plot(mygrid,name="Kriging.Pb.stdev", flagLegend=TRUE)
   p = p + plot(mydb,nameSize="Pb", color="yellow", flagCst=TRUE)
   p = p + plot.decoration(title="St. Deviation of Pb")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -325,7 +325,7 @@ We can produce the Gaussian Anamorphosis graphically within its definition domai
 
 ```{r}
 if (graphics)
-    ggplot() + plot(myanamPb)
+    plot.init() + plot(myanamPb)
 ```
 
 The next step consists in translating the target variable ('Pb') into its Gaussian transform
@@ -353,7 +353,7 @@ We fit the model by automatic fit (with the constraints that the total sill be e
 mymodelG = Model_createFromDb(mydb)
 err = mymodelG$fit(myvario,types=ECov_fromKeys(c("EXPONENTIAL")))
 if (graphics)
-    ggplot() + plot.varmod(myvario,mymodelG) + plot.decoration(title="Model for Gaussian Pb")
+    plot.init() + plot.varmod(myvario,mymodelG) + plot.decoration(title="Model for Gaussian Pb")
 ```
 
 We perform a set of 10 conditional simulations using the Turning Bands Method.
@@ -377,11 +377,11 @@ We visualize a conditional simulation in Gaussian scale
 ```{r}
 if (graphics)
 {
-    p = ggplot()
-    p = p + plot(mygrid,nameRaster="Simu.Y.Pb.1")
+    p = plot.init()
+    p = p + plot(mygrid,name="Simu.Y.Pb.1")
     p = p + plot(mydb,nameColor="Pb",size=3)
     p = p + plot.decoration(title="One Simulation of Pb in Gaussian Scale")
-    ggPrint(p)
+    plot.end(p)
 }
 ```
 
@@ -407,11 +407,11 @@ We visualize a Conditional Simulation in Raw Scale
 ```{r}
 if (graphics)
 {
-  p = ggplot()
-  p = p + plot(mygrid,nameRaster="Z.Simu.Y.Pb.1")
+  p = plot.init()
+  p = p + plot(mygrid,name="Z.Simu.Y.Pb.1")
   p = p + plot(mydb,nameColor="Pb")
   p = p + plot.decoration(title="One simulation of Pb in Raw Scale")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -429,11 +429,11 @@ Displaying the average of the Conditional Simulations
 ```{r}
 if (graphics)
 {
-  p = ggplot()
-  p = p + plot(mygrid,nameRaster="Stats*MEAN")
+  p = plot.init()
+  p = p + plot(mygrid,name="Stats*MEAN")
   p = p + plot(mydb,nameColor="Pb")
   p = p + plot.decoration(title="Mean of Pb simulations")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -452,10 +452,10 @@ if (verbose)
 ```{r}
 if (graphics)
 {
-  p = ggplot()
+  p = plot.init()
   p = p + plot(myanamZn)
   p = p + plot.decoration(title="Gaussian Anamorphosis for Zn")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
