@@ -42,16 +42,13 @@ jobs:
         pixi init
         pixi add python==${{env.PYTHON_VERSION}}
         pixi add pip numpy pandas scipy mlxtend
-        pixi add libboost-devel eigen ninja hdf5
+        pixi add libboost-devel eigen ninja hdf5 nlopt
 
     - name: Run sccache-cache
       uses: mozilla-actions/sccache-action@v0.0.9
 
     - name: Set up Visual Studio shell
       uses: egor-tensin/vs-shell@v2
-
-    - name: Build & install NLopt static libraries
-      uses: ./.github/actions/nlopt_static_windows
 
     - name: Configure build directory
       run: |

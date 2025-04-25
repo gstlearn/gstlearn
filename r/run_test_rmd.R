@@ -14,8 +14,6 @@ outscript = file.path(outdir, paste0(scriptname, ".", out_type))
 outpath   = file.path(outdir, paste0(scriptname, ".out"))
 
 if (out_type == 'R') {
-  
-  # Load dependency
   library(callr)
   
   # 1. Convert Rmd to R script (no documentation)
@@ -34,16 +32,11 @@ if (out_type == 'R') {
   writeLines(tx2, con=outpath)
   
 } else if (out_type == "html") {
-  
-  # Load dependency
   library(knitr)
   
   # Execute Rmd script and dump output in a html file (self_contained see html header in Rmd)
   rmarkdown::render(script, output_format='html_document', quiet=FALSE, output_dir=outdir)
-  
 } else {
-  
   stop("Hun ?\n")
-  
 }
 

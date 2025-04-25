@@ -25,8 +25,8 @@ jobs:
   call-python-windows:
     uses: ./.github/workflows/publish_python_windows.yml
     secrets: inherit
-  call-python-ubuntu:
-    uses: ./.github/workflows/publish_python_ubuntu.yml
+  call-python-linux:
+    uses: ./.github/workflows/publish_python_manylinux.yml
     secrets: inherit
   call-r-macos:
     uses: ./.github/workflows/publish_r_macos.yml
@@ -39,7 +39,7 @@ jobs:
     secrets: inherit
 
   call-python-publish:
-    needs: [call-python-macos, call-python-windows, call-python-ubuntu, call-r-macos, call-r-windows, call-r-ubuntu]
+    needs: [call-python-macos, call-python-windows, call-python-linux, call-r-macos, call-r-windows, call-r-ubuntu]
     if: ${{ (inputs.dry_publish == false) && (github.event_name != 'schedule') }}
 
     runs-on: ubuntu-latest
@@ -58,7 +58,7 @@ jobs:
           name: "*python-package*"
 
   call-r-publish:
-    needs: [call-python-macos, call-python-windows, call-python-ubuntu, call-r-macos, call-r-windows, call-r-ubuntu]
+    needs: [call-python-macos, call-python-windows, call-python-linux, call-r-macos, call-r-windows, call-r-ubuntu]
     if: ${{ (inputs.dry_publish == false) && (github.event_name != 'schedule') }}
     
     # Only ubuntu can upload to CRAN easily (ssh)
