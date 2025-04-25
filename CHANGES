@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.7.0
 =============
+- R plotting feature refactoring: see https://github.com/gstlearn/gstlearn/pull/516 for details.
 - class MatrixSquareGeneral has been merged into AMatrixSquare, which is renamed into MatrixSquare
 - class MatrixSquareSymmetricSim is renamed into MatrixSymmetricSim
 - class MatrixSquareSymmetric is renamed into MatrixSymmetric
