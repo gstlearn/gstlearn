@@ -89,6 +89,7 @@ jobs:
     - name : Create Wheel
       run : |
         cd ${{ env.BUILD_DIR }}/python/${{ env.CMAKE_BUILD_TYPE }}
+        # Note: wheel must be declared not pure (see setup.py)
         python3 -m build --wheel -C="--build-option=--plat-name=${{ matrix.image }}"
         cd ../../..
         echo "MY_PKG=$(ls ${{ env.BUILD_DIR }}/python/${{ env.CMAKE_BUILD_TYPE }}/dist/*)" >> "$GITHUB_ENV"
