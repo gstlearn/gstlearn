@@ -657,15 +657,15 @@ int KrigingSystem::estimate(int iech_out)
     // For XValid in Unique Neighborhood:
     // - no need to define the RHS information (it will be extracted from LHS°)
     // - only define the indices of the cross_validated columns
-    VectorInt xvalidEqs = _xvalidUniqueIndices();
-    if (xvalidEqs.size() <= 0)
+    _rankXvalidEqs = _xvalidUniqueIndices();
+    if (_rankXvalidEqs.size() <= 0)
     {
       // The sample to be cross-validated is not valid, skip
       status = 1;
       goto label_store;
     }
-    VectorInt xvalidVars = VH::sequence(_getNVar());
-    if (_algebra.setXvalidUnique(&xvalidEqs, &xvalidVars)) return 1;
+    _rankXvalidVars = VH::sequence(_getNVar());
+    if (_algebra.setXvalidUnique(&_rankXvalidEqs, &_rankXvalidVars)) return 1;
   }
   else
   {

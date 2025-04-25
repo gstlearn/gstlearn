@@ -34,8 +34,6 @@ int main(int argc, char *argv[])
   int seed = 10355;
   law_set_random_seed(seed);
 
-  OptCst::defineByKey("ASP",0);
-
   ///////////////////////
   // Creating the Db
   VectorInt nx_S = {100,100};

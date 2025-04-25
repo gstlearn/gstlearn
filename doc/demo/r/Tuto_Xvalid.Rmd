@@ -18,7 +18,6 @@ library(ggplot2)
 library(ggpubr)
 library(ggnewscale)
 
-OptCst_defineByKey("ASP",0)
 set.seed(43243)
 opers = EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
 ```

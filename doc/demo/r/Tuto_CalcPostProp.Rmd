@@ -21,7 +21,6 @@ This R Markdown document tests the utilities developed to compute the layer prop
 knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
 library(gstlearn)
-OptCst_defineByKey("ASP",0)
 library(ggplot2)
 library(ggpubr)
 library(ggnewscale)

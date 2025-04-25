@@ -13,11 +13,13 @@
 # plots easily.
 # It also requires the packages:
 # - ggnewscale: used to reset color scale
-# - ggrepel: used to take care of placing the labels to minimize overlap 
+# - ggrepel: used to take care of placing the labels to minimize overlap
 #
 
 #' Check if an argument is defined
 #' @param arg Argument to be checked
+#' 
+#' @keywords internal
 #' @noRd
 .isNotDef <- function(arg) {
   if (is.null(arg)) {
@@ -44,49 +46,79 @@
 }
 
 #' Function to create breaks (used to plot size legend
-#' @keywords internal
 #' 
-.getSeq <- function(v,n=4,nd=3)
-{
-  u=floor(seq(from=floor(v[1]*10**nd),to=ceiling(v[2]*10**nd),length.out=n))/10**nd
-  u=pretty(v,n)
+#' @keywords internal
+#' @noRd
+.getSeq <- function(v, n = 4, nd = 3) {
+  u = floor(seq(from = floor(v[1] * 10**nd), to = ceiling(v[2] * 10**nd), length.out = n)) / 10**nd
+  u = pretty(v, n)
   return(u)
 }
 
 #' Initialize a new figure and define its environment
-#' 
+#'
 #' Note: This method includes the initial call to ggplot()
 #'
 #' @param dims Vector giving the dimensions of the figure
 #' @param xlim Bounds of the figure along the horizontal axis (when left to NA, it will be adjusted to the figure contents)
 #' @param ylim Bounds of the figure along the vertical axis (when left to NA, it will be adjusted to the figure contents)
 #' @param asp Aspect ratio Y/X. A value of 1 means that the scales will be similar on the two axes of the figure.
-#' 
-plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA)
-{
-  if (!require(ggplot2, quietly=TRUE))
+#'
+plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
+  if (!require(ggplot2, quietly = TRUE)) {
     stop("Package 'ggplot2' is mandatory to use this function!")
+  }
 
   # Define the size of the graphics
-  if (.isArray(dims, 2))
+  if (.isArray(dims, 2)) {
     options(repr.plot.width = dims[1], repr.plot.height = dims[2])
+  }
 
   # Initialize a new plot
   p = ggplot()
 
   # Set the geometry of the figure
-  p = p + plot.geometry(xlim=xlim, ylim=ylim, asp=asp)
-  
+  p = p + plot.geometry(xlim = xlim, ylim = ylim, asp = asp)
+
   # Return the ggplot object
   p
 }
 
 #' Allow redefining a new aesthetic element (if already defined)
 #' @param aestype Should be "colour" or "fill" or "linetype" or "size"
-appendNewScale <- function(p, aestype)
-{
-	p <- append(p, list(new_scale(aestype)))
- 	p
+#' 
+#' @keywords internal
+#' @noRd
+.appendNewScale <- function(p, aestype) {
+  p <- append(p, list(new_scale(aestype)))
+  p
+}
+
+#' Generate the list of predefined color palettes
+#'
+#' @return A data Frame containing the names and origins or the different palettes
+#'
+#' @keywords internal
+#' @noRd
+.getAllPalettes <- function() {
+  if (!require(RColorBrewer, quietly = TRUE)) {
+    stop("Package 'RColorBrewer' is mandatory to use this function!")
+  }
+
+  rcb <- rownames(brewer.pal.info)
+  rcb_num <- 1:18
+  v <- c(
+    "magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo",
+    "A", "B", "C", "D", "E", "F", "G", "H"
+  )
+
+  mat = rbind(
+    cbind(rcb, "brewer"),
+    cbind(v, "viridis"),
+    cbind(rcb_num, "brewer")
+  )
+  df = data.frame(name = mat[, 1], origin = mat[, 2])
+  df
 }
 
 #' Define the "colour" using input 'palette' definition
@@ -95,55 +127,61 @@ appendNewScale <- function(p, aestype)
 #' @param flagDiscrete True for defining a Discrete Color scale
 #' @param limits Limits for the color scale
 #' @param title Title of the color scale
-.defineColour <- function(palette, naColor="transparent", flagDiscrete=FALSE, limits=NULL, title=NA)
-{
-  if (!require(RColorBrewer, quietly = TRUE)) {
-    stop("Package 'RColorBrewer' is mandatory to use this function!")
-  }
-  
-  rcb <- rownames(brewer.pal.info)
-  rcb_num <- 1:18
-  v <- c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo",
-         "A", "B", "C", "D", "E", "F", "G", "H")
-  
+#' 
+#' @keywords internal
+#' @noRd
+.defineColour <- function(palette, naColor = "transparent", flagDiscrete = FALSE, limits = NULL, title = NA) {
+  dfPalettes = .getAllPalettes()
   aes_list = c("color")
   name = .defineName(title)
-  
-  if (flagDiscrete)
-  {
-    layer = scale_colour_manual(values= palette, aesthetics=aes_list,
-                                na.value = naColor, name=name)
-  }
-  else
-  {
-    if (length(palette) == 0)
-    {
+
+  if (flagDiscrete) {
+    # Case of a Discrete color scale
+    layer = scale_colour_manual(
+      values = palette, aesthetics = aes_list,
+      na.value = naColor, name = name
+    )
+  } else {
+    # Case of a Continuous Color Scale
+    if (length(palette) == 0) {
       # Case where 'palette' is not provided
-      layer = scale_colour_viridis_c(option="viridis", aesthetics=aes_list,
-                                     na.value = naColor, limits=limits, name=name)
-    }
-    else if(length(palette) == 1)
-    {
-      if (any(palette == rcb) | any(palette == rcb_num))
-      {
-        layer = scale_colour_distiller(palette=palette, aesthetics=aes_list,
-                                       na.value=naColor, name=name)
+      layer = scale_colour_viridis_c(
+        option = "viridis", aesthetics = aes_list,
+        na.value = naColor, limits = limits, name = name
+      )
+    } else if (length(palette) == 1) {
+      # Palette is provided: find its rank in the list of recorded palettes
+      rank = which(dfPalettes$name == palette)
+
+      if (length(rank) == 0) {
+        # Case where 'palette' is not present in the palette list
+        layer = scale_colour_viridis_c(
+          option = "viridis", aesthetics = aes_list,
+          na.value = naColor, limits = limits, name = name
+        )
+      } else {
+        origin = dfPalettes$origin[rank]
+        if (origin == "brewer") {
+          # Case where 'palette' is a RColorBrewer palette
+          layer = scale_colour_distiller(
+            palette = palette, aesthetics = aes_list,
+            na.value = naColor, name = name
+          )
+        } else if (origin == "viridis") {
+          # Case where 'palette' is a viridis palette
+          layer = scale_colour_viridis_c(
+            option = palette, aesthetics = aes_list,
+            na.value = naColor, limits = limits, name = name
+          )
+        } else {
+          cat("Palette origin does not exist")
+        }
       }
-      else if(any(palette == v))
-      {
-        layer = scale_colour_viridis_c(option=palette, aesthetics=aes_list,
-                                       na.value = naColor, limits=limits, name=name)
-      }
-      else
-      {
-        layer = scale_colour_viridis_c(option="viridis", aesthetics=aes_list,
-                                       na.value = naColor, limits=limits, name=name)
-      }
-    }
-    else
-    {
-      layer = scale_colour_gradientn(colours=palette, aesthetics=aes_list,
-                                     na.value=naColor, limits=limits, name=name)
+    } else {
+      layer = scale_colour_gradientn(
+        colours = palette, aesthetics = aes_list,
+        na.value = naColor, limits = limits, name = name
+      )
     }
   }
   return(layer)
@@ -155,60 +193,64 @@ appendNewScale <- function(p, aestype)
 #' @param flagDiscrete True for defining a Discrete Color scale
 #' @param limits Limits for the color scale
 #' @param title Title of the color scale
+#' 
+#' @keywords internal
 #' @noRd
-.defineFill <- function(palette=NULL, naColor="transparent", flagDiscrete=FALSE, limits=NULL, title=NA)
-{
-  if (!require(RColorBrewer, quietly = TRUE)) {
-    stop("Package 'RColorBrewer' is mandatory to use this function!")
-  }
-  
-  rcb <- rownames(brewer.pal.info)
-  rcb_num <- 1:18
-  v <- c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo",
-         "A", "B", "C", "D", "E", "F", "G", "H")
-  
+.defineFill <- function(palette = NULL, naColor = "transparent", flagDiscrete = FALSE, limits = NULL, title = NA) {
+  dfPalettes = .getAllPalettes()
   aes_list = c("fill")
   name = .defineName(title)
-  
-  if (flagDiscrete)
-  {
-    layer = scale_fill_manual(values= palette, na.value = naColor,name=name)
-  }
-  else
-  {
-    if (length(palette) == 0)
-    {
-      layer = scale_fill_viridis_c(option="viridis", aesthetics=aes_list,
-                                   na.value = naColor, limits=limits,name=name)
-    }
-    else if(length(palette) == 1)
-    {
-      if (any(palette == rcb) | any(palette == rcb_num))
-      {
-        layer = scale_fill_distiller(palette=palette, aesthetics=aes_list,
-                                     na.value=naColor, limits=limits,name=name)
+
+  if (flagDiscrete) {
+    # Case of a Discrete color scale
+    layer = scale_fill_manual(values = palette, na.value = naColor, name = name)
+  } else {
+    # Case of a Continuous Color Scale
+    if (length(palette) == 0) {
+      # Case where 'palette' is not provided
+      layer = scale_fill_viridis_c(
+        option = "viridis", aesthetics = aes_list,
+        na.value = naColor, limits = limits, name = name
+      )
+    } else if (length(palette) == 1) {
+      # Palette is provided: find its rank in the list of recorded palettes
+      rank = which(dfPalettes$name == palette)
+
+      if (length(rank) == 0) {
+        # Case where 'palette' is not present in the palette list
+        layer = scale_fill_gradientn(
+          colours = palette, aesthetics = aes_list,
+          na.value = naColor, limits = limits, name = name
+        )
+      } else {
+        origin = dfPalettes$origin[rank]
+        if (origin == "brewer") {
+          layer = scale_fill_distiller(
+            palette = palette, aesthetics = aes_list,
+            na.value = naColor, limits = limits, name = name
+          )
+        } else if (origin == "viridis") {
+          layer = scale_fill_viridis_c(
+            option = palette, aesthetics = aes_list,
+            na.value = naColor, limits = limits, name = name
+          )
+        } else {
+          cat("Palette origin does not exist")
+        }
       }
-      else if(any(palette == v))
-      {
-        layer = scale_fill_viridis_c(option=palette, aesthetics=aes_list,
-                                     na.value = naColor, limits=limits,name=name)
-      }
-      else
-      {
-        layer = scale_fill_viridis_c(option="viridis", aesthetics=aes_list,
-                                     na.value = naColor, limits=limits,name=name)
-      }
-    }
-    else
-    {
-      layer = scale_fill_gradientn(colours=palette, aesthetics=aes_list,
-                                   na.value=naColor, limits=limits,name=name)
+    } else {
+      layer = scale_fill_gradientn(
+        colours = palette, aesthetics = aes_list,
+        na.value = naColor, limits = limits, name = name
+      )
     }
   }
   return(layer)
 }
 
 #' Define a name by default
+#' 
+#' @keywords internal
 #' @noRd
 .defineName <- function(title = NA) {
   name = waiver()
@@ -221,6 +263,8 @@ appendNewScale <- function(p, aestype)
 }
 
 #' Define a new scale
+#' 
+#' @keywords internal
 #' @noRd
 .defineSize <- function(sizval, sizeRange, title=NA)
 {
@@ -232,6 +276,8 @@ appendNewScale <- function(p, aestype)
 }
 
 #' Define a series of distinct colors
+#' 
+#' @keywords internal
 #' @noRd
 .getColors <- function()
 {
@@ -242,6 +288,8 @@ appendNewScale <- function(p, aestype)
 #' Check if the argument can be considered as an array (with possibly imposed dimensions)
 #' @param arg Input argument
 #' @param ndim Imposed dimension for the input argument (no check is performed if NA)
+#' 
+#' @keywords internal
 #' @noRd
 .isArray <- function(arg, ndim=NA)
 {
@@ -260,6 +308,8 @@ appendNewScale <- function(p, aestype)
 #' @note The defaulted variable is the first one attached to the locator-Z (if any);
 #' @note otherwise it is the last defined variable within 'db'.
 #' @return Name of the defaulted variable
+#' 
+#' @keywords internal
 #' @noRd
 .defaultVariable <- function(db, name1 = NULL, name2 = NULL)
 {
@@ -280,6 +330,12 @@ appendNewScale <- function(p, aestype)
   stop()
 }
 
+#' Check if the Legend must be defined or not
+#' 
+#' @param flagLegend Flag for displaying the legend
+#' 
+#' @keywords internal
+#' @noRd
 .showLegend <- function(flagLegend) {
   show = ifelse(!flagLegend, FALSE, NA)
   show
@@ -289,6 +345,9 @@ appendNewScale <- function(p, aestype)
 #' @param nvalues Number of items in the list
 #' @param sitem   Default value for the item withon this list (if non-negative)
 #' @return The returned list of items 
+#' 
+#' @keywords internal
+#' @noRd
 .selectItemsInList <- function(nvalues, sitem=-1)
 {
   if (sitem >= 0)
@@ -299,6 +358,8 @@ appendNewScale <- function(p, aestype)
 }
 
 #' Draw an elementary experimental variogram
+#' 
+#' @keywords internal
 #' @noRd
 .varioElementary <- function(vario, ivar=0, jvar=0, idir=0, 
     varColor='black', varLinetype="dashed", varSize=0.5, 
@@ -359,6 +420,8 @@ appendNewScale <- function(p, aestype)
 }
 
 #' Draw an elementary Model
+#' 
+#' @keywords internal
 #' @noRd
 .modelElementary <- function(model, ivar=0, jvar=0, codir=NA,
     nh = 100, hmax = NA, asCov=FALSE, flagEnvelop = TRUE, 
@@ -439,6 +502,8 @@ appendNewScale <- function(p, aestype)
 #' @param posX Rank of the coordinate which will serve as first coordinate
 #' @param posY Rank of the coordinate which will serve as the second coordinate
 #' @return a Dataframe containing the 2-D coordinates
+#' 
+#' @keywords internal
 #' @noRd
 .readPointCoor <- function(db, useSel=TRUE, posX=0, posY=1)
 {
@@ -459,6 +524,8 @@ appendNewScale <- function(p, aestype)
 #' @param corner A vector (same space dimension as 'dbgrid') which defines a pixel belonging to the extracted section
 #' @return A dataframe containing the 2-D coordinates and the target variable
 #' @note: setting useSel to FALSE enables having information for the whole grid (which remains a regular grid) even if a selection is defined.
+#'
+#' @keywords internal
 #' @noRd
 .readGridCoor <- function(dbgrid, name, useSel = FALSE, posX = 0, posY = 1, corner = NA) {
   if (.isNotDef(corner)) {
@@ -487,6 +554,8 @@ appendNewScale <- function(p, aestype)
 
 #' Check if the input 'dbgrid' is a DbGrid.
 #' Also check for rotation (optional)
+#' 
+#' @keywords internal
 #' @noRd
 .isGrid <- function(dbgrid, flagNoRotate = FALSE) 
 {
@@ -509,15 +578,8 @@ appendNewScale <- function(p, aestype)
 #'
 #' @return Prints the list of color palette names and returns nothing.
 #'
-printAllPalettes <- function() 
-{
-  if (!require(RColorBrewer, quietly=TRUE))
-    stop("Package 'RColorBrewer' is mandatory to use this function!")
-  rcb <- rownames(brewer.pal.info)
-  rcb_num <- 1:18
-  v <- c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo",
-         "A", "B", "C", "D", "E", "F", "G", "H")
-  print(c(rcb, v, rcb_num))
+printAllPalettes <- function() {
+  print(.getAllPalettes())
 }
 
 #' Print the contents of a ggplot, possibly without warnings
@@ -684,9 +746,9 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
       hhmax = 1
   }
 
-  p <- appendNewScale(p, "linetype")
+  p <- .appendNewScale(p, "linetype")
   p <- append(p, scale_linetype_manual(name="Types", values = linetypes))
-  p <- appendNewScale(p, "colour")
+  p <- .appendNewScale(p, "colour")
   p <- append(p, scale_color_manual(name="Directions", values = cols))
   
   # Loop on the variables
@@ -910,11 +972,11 @@ plot.symbol <- function(db, nameColor=NULL, nameSize=NULL,
   if (! is.null(nameColor)) {
     p <- append(p, .defineColour(palette, naColor = naColor,
       flagDiscrete = asFactor, title = legendNameColor))
-    p <- appendNewScale(p, "colour")
+    p <- .appendNewScale(p, "colour")
   }
   if (! is.null(nameSize) && ! flagCst) {
     p <- append(p, .defineSize(sizval, sizeRange, title = legendNameSize))
-    p <- appendNewScale(p, "size")
+    p <- .appendNewScale(p, "size")
   }
 
   p
@@ -1009,7 +1071,7 @@ plot.raster <- function(dbgrid, name = NULL, useSel = TRUE, posX=0, posY=1, corn
   
   # Define the color Scale
   p <- append(p, .defineFill(palette, naColor = naColor, limits = limits, title = legendName))
-  p <- appendNewScale(p, "fill")
+  p <- .appendNewScale(p, "fill")
   
   p
 }
@@ -1049,7 +1111,7 @@ plot.contour <- function(dbgrid, name=NULL, useSel = TRUE, posX=0, posY=1, corne
   
   # Define the color Scale (only displayed if using various colors for)
   p <- append(p, .defineColour(palette, naColor = naColor, title = legendName))
-  p <- appendNewScale(p, "colour")
+  p <- .appendNewScale(p, "colour")
   
   p
 }
@@ -1399,7 +1461,7 @@ plot.rule <- function(rule, proportions=NULL, maxG = 3., cols=NA,
              ymin = ymin, ymax = ymax, fill = as.factor(colors)), na.rm=TRUE, ...))
      
   p <- append(p, .defineFill(cols, flagDiscrete = TRUE, ...))
-  p <- appendNewScale(p, "fill")  
+  p <- .appendNewScale(p, "fill")  
   
   # Set the legend
   if (flagLegend)
