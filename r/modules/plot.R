@@ -155,6 +155,7 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
 
       if (length(rank) == 0) {
         # Case where 'palette' is not present in the palette list
+        cat("Palette (",palette,") is not defined in the list of palettes: 'viridis' is used instead")
         layer = scale_colour_viridis_c(
           option = "viridis", aesthetics = aes_list,
           na.value = naColor, limits = limits, name = name
@@ -747,10 +748,10 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
       hhmax = 1
   }
 
-  p <- .appendNewScale(p, "linetype")
   p <- append(p, scale_linetype_manual(name="Types", values = linetypes))
+  p <- .appendNewScale(p, "linetype")
+  p <- append(p, scale_color_manual(name = "Directions", values = cols))
   p <- .appendNewScale(p, "colour")
-  p <- append(p, scale_color_manual(name="Directions", values = cols))
   
   # Loop on the variables
   flag_allow_negative_X = FALSE
