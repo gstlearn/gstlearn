@@ -71,7 +71,8 @@ jobs:
           -DBUILD_PYTHON=OFF \
           -DBUILD_R=ON \
           -DHDF5_USE_STATIC_LIBRARIES=ON \
-          -DBUILD_DOC=ON
+          -DBUILD_DOC=ON \
+          -DHDF5_ROOT="/usr/local/HDF_Group/HDF5/1.14.6"
 
     - name : Build the package and save generated file name in the environment
       run : |
