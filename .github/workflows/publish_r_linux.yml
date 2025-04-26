@@ -74,13 +74,13 @@ jobs:
 
     - name: Install boost from the source
       run: |
-        wget https://boostorg.jfrog.io/artifactory/main/release/1.84.0/source/boost_1_84_0.tar.gz && \
-        tar xvf boost_1_84_0.tar.gz && \
-        cd boost_1_84_0 && \
+        wget https://archives.boost.io/release/1.88.0/source/boost_1_88_0.tar.gz && \
+        tar xvf boost_1_88_0.tar.gz && \
+        cd boost_1_88_0 && \
         ./bootstrap.sh --prefix=/usr/local --with-libraries=all && \
         ./b2 install -j$(nproc) && \
         cd .. && \
-        rm -rf boost_1_84_0*
+        rm -rf boost_1_88_0*
 
     - name : Configure build directory
       run : |
