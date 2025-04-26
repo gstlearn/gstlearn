@@ -9,6 +9,15 @@ on:
         type: boolean
         required: false
         default: true
+  # Activate the workflow at each push on old_linux_for_r branch
+  push:
+    branches: [ old_linux_for_r ]
+    inputs:
+      dry_publish:
+        description: 'Dry publish (no upload)'
+        type: boolean
+        required: false
+        default: true
   # Permit manual trigger
   workflow_dispatch:
     inputs:
