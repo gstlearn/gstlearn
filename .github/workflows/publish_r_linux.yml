@@ -39,10 +39,12 @@ jobs:
 
     - name: Install dependencies
       run: |
-        dnf install -y epel-release && \
+        dnf -y update && \
+        dnf -y install epel-release && \
+        dnf clean all && \
         dnf config-manager --set-enabled powertools && \
-        dnf update -y \
-        dnf install -y \
+        dnf -y update \
+        dnf -y install \
           sudo \
           boost-devel \
           eigen3-devel
