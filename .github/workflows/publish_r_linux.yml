@@ -82,10 +82,8 @@ jobs:
           -DBUILD_R=ON \
           -DHDF5_USE_STATIC_LIBRARIES=ON \
           -DHDF5_ROOT="/usr/local/HDF_Group/HDF5/1.14.6" \
-          -DBUILD_DOC=ON
-      env:
-        CC: gcc-10
-        CXX: g++-10
+          -DBUILD_DOC=ON \
+          -DUSE_BOOST_SPAN=ON
 
     - name : Build the package and save generated file name in the environment
       run : |
