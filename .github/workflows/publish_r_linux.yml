@@ -40,6 +40,7 @@ jobs:
     - name: Install dependencies
       run: |
         dnf -y install epel-release && \
+        dnf config-manager --set-enabled powertools && \
         dnf -y update \
         dnf -y install \
           sudo \
