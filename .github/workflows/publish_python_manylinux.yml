@@ -97,7 +97,7 @@ jobs:
     - uses: actions/upload-artifact@v4
       # Use specific artifact identifier for publishing all versions
       with:
-        name: ubuntu-python-package-${{ matrix.image }}-${{ matrix.python }}
+        name: linux-python-package-${{ matrix.image }}-${{ matrix.python }}
         path: ${{env.MY_PKG}}
 
   test:
@@ -125,7 +125,7 @@ jobs:
 
     - uses: actions/download-artifact@v4
       with:
-        name: ubuntu-python-package-${{ matrix.image }}-${{ matrix.python }}
+        name: linux-python-package-${{ matrix.image }}-${{ matrix.python }}
 
     - name: Register the python version
       run: |
@@ -155,10 +155,10 @@ jobs:
         repo: pypi
         username: __token__
         password: ${{ secrets.TWINE_PYPI_PWD }}
-        pattern: ubuntu-python-package-*
+        pattern: linux-python-package-*
 
     # Delete the artifacts (for freeing storage space under github)
     - uses: geekyeggo/delete-artifact@v5
       with:
-        name: ubuntu-python-package-*
+        name: linux-python-package-*
 

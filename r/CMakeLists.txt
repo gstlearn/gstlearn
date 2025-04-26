@@ -224,7 +224,7 @@ endforeach()
 # INSTALLATION
 
 # Add a custom target for R package installation
-# TODO: Do also installation each time above files are modified
+# TODO: Do also installation each time README and below files are modified
 if (MINGW)
   set(ARCHIVE_FILE_NAME     "${PROJECT_NAME}_${PROJECT_VERSION}.zip")
   set(DST_ARCHIVE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}.zip")

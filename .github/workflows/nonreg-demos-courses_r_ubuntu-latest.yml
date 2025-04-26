@@ -20,7 +20,7 @@ on:
 env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
-  R_VERSION : "4.3.2"
+  R_VERSION : "4.5.0"
   SWIG_ROOT : ${{github.workspace}}/swig
   SCCACHE_IDLE_TIMEOUT: 0
 
