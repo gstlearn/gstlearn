@@ -96,7 +96,7 @@ jobs:
     - name : Build the package and save generated file name in the environment
       run : |
         cmake --build ${{env.BUILD_DIR}} --parallel 3 --target r_install
-        echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/swigex_*.tar.gz)" >> "$GITHUB_ENV"
+        echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/gstlearn_*.tar.gz)" >> "$GITHUB_ENV"
 
     - uses: actions/upload-artifact@v4
       with:
