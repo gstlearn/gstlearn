@@ -168,6 +168,10 @@ if (BUILD_DOC)
   add_dependencies(r_build r_doc)
 endif()
 
+if(USE_BOOST_SPAN)
+  target_compile_definitions(r_build PUBLIC USE_BOOST_SPAN)
+endif()
+
 add_dependencies(r_build r_wrap_macro)
 
 add_dependencies(r_build generate_output)
