@@ -130,7 +130,7 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
 #' 
 #' @keywords internal
 #' @noRd
-.defineColour <- function(palette, naColor = "transparent", flagDiscrete = FALSE, limits = NULL, title = NA) {
+ur <- function(palette, naColor = "transparent", flagDiscrete = FALSE, limits = NULL, title = NA) {
   dfPalettes = .getAllPalettes()
   aes_list = c("color")
   name = .defineName(title)
@@ -602,8 +602,9 @@ plot.end <- function(p, flagSuppressWarnings = TRUE)
 #' 
 #' @param xlab Label along the horizontal axis
 #' @param ylab Label along the vertical axis
+#' @param flagDefaultTitle TRUE if argument 'title' must be set only if no title already defined
 #' @return The ggplot object
-plot.decoration <- function(title=NA, xlab = NA, ylab = NA)
+plot.decoration <- function(title=NA, xlab = NA, ylab = NA, flagDefaultTitle = FALSE)
 {
   p = list()
   if (!.isNotDef(xlab))
@@ -612,8 +613,13 @@ plot.decoration <- function(title=NA, xlab = NA, ylab = NA)
     p <- append(p, list(labs(y = ylab)))
   if (!.isNotDef(title))
   {
-    p <- append(p, list(labs(title = title)))
-    p <- append(p, list(theme(plot.title = element_text(hjust = 0.5))))
+    flagPlotTitle = TRUE
+    if (flagDefaultTitle && ! is.null(p$labels$title)) flagPlotTitle = FALSE
+    if (flagPlotTitle)
+    {
+        p <- append(p, list(labs(title = title)))
+    	p <- append(p, list(theme(plot.title = element_text(hjust = 0.5))))
+    }
   }
   p
 }
@@ -975,10 +981,12 @@ plot.symbol <- function(db, nameColor=NULL, nameSize=NULL,
     p <- append(p, .defineColour(palette, naColor = naColor,
       flagDiscrete = asFactor, title = legendNameColor))
     p <- .appendNewScale(p, "colour")
+    p <- append(p, plot.decoration(title = nameColor, flagDefaultTitle = TRUE))
   }
   if (! is.null(nameSize) && ! flagCst) {
     p <- append(p, .defineSize(sizval, sizeRange, title = legendNameSize))
     p <- .appendNewScale(p, "size")
+    p <- append(p, plot.decoration(title = nameSize, flagDefaultTitle = TRUE))
   }
 
   p
@@ -1114,7 +1122,9 @@ plot.contour <- function(dbgrid, name=NULL, useSel = TRUE, posX=0, posY=1, corne
   # Define the color Scale (only displayed if using various colors for)
   p <- append(p, .defineColour(palette, naColor = naColor, title = legendName))
   p <- .appendNewScale(p, "colour")
-  
+
+  p <- append(p, plot.decoration(title = name, flagDefaultTitle = TRUE))
+
   p
 }
 
