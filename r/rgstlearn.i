@@ -615,15 +615,6 @@
     buf.append(s, prevPos, s.size() - prevPos);
     s.swap(buf);
   }
-
-  // Use std::string for find/replace (because char* is annoying)
-  // TODO : See io.cpp (do not use const char* anymore in message function)
-  // https://stackoverflow.com/questions/779875/what-function-is-to-replace-a-substring-from-a-string-in-c
-  const char* escape(std::string& str)
-  {
-    replace_all(str, "%", "%%");
-    return str.c_str();
-  }
   
   void R_Write(const char *string)
   {
@@ -631,8 +622,7 @@
     int length = strlen(string);
     if (length > 0)
     {
-      std::string str(string);
-      Rprintf("%s", escape(str));
+      Rprintf("%s", string);
     }
   }
   
