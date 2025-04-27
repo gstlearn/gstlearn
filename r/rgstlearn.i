@@ -632,7 +632,7 @@
     if (length > 0)
     {
       std::string str(string);
-      Rprintf(escape(str));
+      Rprintf("%s", escape(str));
     }
   }
   
