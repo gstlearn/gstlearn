@@ -50,7 +50,6 @@ jobs:
       with:
         r-version: ${{env.R_VERSION}}
 
-    # Separate installation from roxygen2 (pak dependency conflicts)
     - name: Install R dependencies
       run: |
         Rscript -e "install.packages (
