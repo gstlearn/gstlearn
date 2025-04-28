@@ -121,7 +121,7 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
   df
 }
 
-#' Define the "colour" using input 'palette' definition
+#' Define the list of "colour" using input 'palette' definition
 #' @param palette Reference palette used for defining the current color map
 #' @param naColor Color used for representing NA values
 #' @param flagDiscrete True for defining a Discrete Color scale
