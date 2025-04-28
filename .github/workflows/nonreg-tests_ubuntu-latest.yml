@@ -21,8 +21,8 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
-  PYTHON_VERSION : "3.11"
-  R_VERSION : "4.3.2"
+  PYTHON_VERSION : "3.13"
+  R_VERSION : "4.5.0"
   SWIG_ROOT : ${{github.workspace}}/swig
 
 jobs:

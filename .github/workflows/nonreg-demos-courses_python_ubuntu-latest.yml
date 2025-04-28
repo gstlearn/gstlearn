@@ -20,7 +20,7 @@ on:
 env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
-  PYTHON_VERSION : "3.11"
+  PYTHON_VERSION : "3.13"
   SCCACHE_IDLE_TIMEOUT: 0
 
 jobs:
