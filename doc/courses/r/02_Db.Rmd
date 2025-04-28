@@ -29,9 +29,6 @@ In this preamble, we load the **gstlearn** package.
 ```{r Preamble, message=FALSE}
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
 ```
 
 ------------------------------------------------------------------------

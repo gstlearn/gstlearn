@@ -58,9 +58,6 @@ The estimated or simulated latent vector can be linearly interpolated to any tar
 knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
 library(Matrix)
 
 set.seed(43243)

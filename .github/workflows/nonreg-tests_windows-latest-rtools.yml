@@ -38,6 +38,12 @@ jobs:
       with:
         r-version: ${{env.R_VERSION}}
 
+    - name: Install R packages
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: ggpubr, ggplot2, ggnewscale
+        install-pandoc: false
+
     - name: Install dependencies
       run: |
         pacman -Syu --noconfirm

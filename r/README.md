@@ -47,7 +47,6 @@ Simply load the *gstlearn* and ggplot2 R package, then enjoy:
 ```
 # Load gstlearn package
 library(gstlearn)
-library(ggplot2)
 # Grid size
 nx = 60
 ny = 30

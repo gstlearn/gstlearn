@@ -121,7 +121,7 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
   df
 }
 
-#' Define the "colour" using input 'palette' definition
+#' Define the list of "colour" using input 'palette' definition
 #' @param palette Reference palette used for defining the current color map
 #' @param naColor Color used for representing NA values
 #' @param flagDiscrete True for defining a Discrete Color scale
@@ -155,6 +155,7 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
 
       if (length(rank) == 0) {
         # Case where 'palette' is not present in the palette list
+        cat("Palette (",palette,") is not defined in the list of palettes: 'viridis' is used instead")
         layer = scale_colour_viridis_c(
           option = "viridis", aesthetics = aes_list,
           na.value = naColor, limits = limits, name = name
@@ -601,8 +602,9 @@ plot.end <- function(p, flagSuppressWarnings = TRUE)
 #' 
 #' @param xlab Label along the horizontal axis
 #' @param ylab Label along the vertical axis
+#' @param flagDefaultTitle TRUE if argument 'title' must be set only if no title already defined
 #' @return The ggplot object
-plot.decoration <- function(title=NA, xlab = NA, ylab = NA)
+plot.decoration <- function(title=NA, xlab = NA, ylab = NA, flagDefaultTitle = FALSE)
 {
   p = list()
   if (!.isNotDef(xlab))
@@ -611,8 +613,13 @@ plot.decoration <- function(title=NA, xlab = NA, ylab = NA)
     p <- append(p, list(labs(y = ylab)))
   if (!.isNotDef(title))
   {
-    p <- append(p, list(labs(title = title)))
-    p <- append(p, list(theme(plot.title = element_text(hjust = 0.5))))
+    flagPlotTitle = TRUE
+    if (flagDefaultTitle && ! is.null(p$labels$title)) flagPlotTitle = FALSE
+    if (flagPlotTitle)
+    {
+        p <- append(p, list(labs(title = title)))
+    	p <- append(p, list(theme(plot.title = element_text(hjust = 0.5))))
+    }
   }
   p
 }
@@ -747,10 +754,10 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
       hhmax = 1
   }
 
-  p <- .appendNewScale(p, "linetype")
   p <- append(p, scale_linetype_manual(name="Types", values = linetypes))
+  p <- .appendNewScale(p, "linetype")
+  p <- append(p, scale_color_manual(name = "Directions", values = cols))
   p <- .appendNewScale(p, "colour")
-  p <- append(p, scale_color_manual(name="Directions", values = cols))
   
   # Loop on the variables
   flag_allow_negative_X = FALSE
@@ -974,10 +981,12 @@ plot.symbol <- function(db, nameColor=NULL, nameSize=NULL,
     p <- append(p, .defineColour(palette, naColor = naColor,
       flagDiscrete = asFactor, title = legendNameColor))
     p <- .appendNewScale(p, "colour")
+    p <- append(p, plot.decoration(title = nameColor, flagDefaultTitle = TRUE))
   }
   if (! is.null(nameSize) && ! flagCst) {
     p <- append(p, .defineSize(sizval, sizeRange, title = legendNameSize))
     p <- .appendNewScale(p, "size")
+    p <- append(p, plot.decoration(title = nameSize, flagDefaultTitle = TRUE))
   }
 
   p
@@ -1113,7 +1122,9 @@ plot.contour <- function(dbgrid, name=NULL, useSel = TRUE, posX=0, posY=1, corne
   # Define the color Scale (only displayed if using various colors for)
   p <- append(p, .defineColour(palette, naColor = naColor, title = legendName))
   p <- .appendNewScale(p, "colour")
-  
+
+  p <- append(p, plot.decoration(title = name, flagDefaultTitle = TRUE))
+
   p
 }
 

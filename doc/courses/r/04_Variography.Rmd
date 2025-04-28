@@ -32,9 +32,6 @@ In this preamble, we load the **gstlearn** library and clean the workspace.
 ```{r Preamble, message=FALSE}
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
 ```
 
 Then the necessary data set is downloaded and named **dat**: the target variable is **January_temp**

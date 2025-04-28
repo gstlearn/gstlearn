@@ -36,8 +36,6 @@ To install the **gstlearn** R Package, you need R 4.2 (or higher). You can then 
 
 ```{r setup, message=FALSE}
 library(gstlearn)
-library(ggplot2)
-library(ggnewscale)
 ```
 
 Calling the next function (*acknowledge_gstlearn*) at startup is a good practice in order to check the version of **gstlearn** you are currently running:

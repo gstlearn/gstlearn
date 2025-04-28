@@ -7,9 +7,6 @@ date: '2024-02-21'
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
 ```
 
 This script is meant to demonstrate the various possibilities offered by gstlearn and gstlearn.plot for calculating and representing scatter plots or h-scatter plots.

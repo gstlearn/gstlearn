@@ -119,8 +119,6 @@ ii)  compute the simulation values $Z(x) = \frac{1}{\sqrt{P}} \sum_{p \in 1:P} 2
 
 ```{r echo=FALSE, message=FALSE}
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
 library(rgl) # used for 3D vizualisation
 rm(list = ls())
 ```

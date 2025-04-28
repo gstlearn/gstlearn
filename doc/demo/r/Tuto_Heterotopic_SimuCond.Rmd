@@ -10,8 +10,6 @@ output: pdf_document
 ```{r setup, echo=FALSE, message=FALSE, eval=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 library(gstlearn) # loading gstlearn
-library(ggplot2)
-library(ggpubr)   # added for multiple plots
 ```
 
 ```{r init, echo=TRUE, eval=TRUE}
