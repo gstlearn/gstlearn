@@ -4,13 +4,13 @@ Version: @PROJECT_VERSION@
 Date: @PROJET_DATE@
 Author: Team gstlearn <gstlearn@groupes.mines-paristech.fr>,
 Depends:
-    R (>= 3.6)
+    R (>= 3.6),
+    ggplot2 (>= 3.5.1),
+    ggpubr, 
+    ggnewscale (>= 0.5.0)
 Suggests:
-    ggplot2,
     vctrs,
-    ggpubr,
     ggrepel,
-    ggnewscale,
     Matrix,
     lares,
 Description: @PROJECT_DESCRIPTION@
