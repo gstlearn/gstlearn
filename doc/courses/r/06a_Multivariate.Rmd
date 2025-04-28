@@ -32,9 +32,6 @@ In this preamble, we load the **gstlearn** library and clean the workspace.
 ```{r Loading_libraries, message=FALSE,results=FALSE}
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
 ```
 
 We load two data bases:

@@ -18,7 +18,6 @@ install.packages("flumy",repos="https://soft.mines-paristech.fr/cran")
 # Import package
 library(gstlearn)
 library(flumy)
-library(ggplot2)
 ```
 
 # Generate a Flumy simulation

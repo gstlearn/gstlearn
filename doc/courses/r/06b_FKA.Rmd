@@ -32,9 +32,6 @@ knitr::opts_chunk$set(fig.width=4, fig.height=4,
 ```{r Loading_Library, include=FALSE}
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
 # Increase the timeout for downloading large data file (slow internet connection)
 options(timeout=1000)
 ```

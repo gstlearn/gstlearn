@@ -178,9 +178,6 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(fig.align="center")
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
 ```
 
 ### Auxiliary functions

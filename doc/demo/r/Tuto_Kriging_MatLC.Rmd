@@ -136,8 +136,6 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(align="center")
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
 set.seed(1235)
 OptDbg_setReference(0)
 # Defining a set of statistics

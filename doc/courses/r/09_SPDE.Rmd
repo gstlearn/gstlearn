@@ -26,9 +26,6 @@ In this preamble, we load the **gstlearn** library, clean the workspace.
 ```{r loading_library, message=FALSE}
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
 ```
 
 # Getting the Data Bases from the repository.
