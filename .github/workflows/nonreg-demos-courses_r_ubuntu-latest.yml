@@ -1,7 +1,7 @@
 name: nonreg-demos-courses_r_ubuntu-latest
 
 on:
-  # Permit calling trigger
+  # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
   workflow_call:
   # Activate the workflow at each push on dev branch
   #push:
@@ -68,12 +68,6 @@ jobs:
             'callr'),
             repos='https://cloud.r-project.org/')"
 
-    - name: Install roxygen2
-      uses: r-lib/actions/setup-r-dependencies@v2
-      with:
-        packages: roxygen2
-        install-pandoc: false
-
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-unix-action@v1
       with:
@@ -83,7 +77,7 @@ jobs:
     - name: Run sccache-cache
       uses: mozilla-actions/sccache-action@v0.0.9
 
-    - name: Configure build directory
+    - name: Configure build directory for R package
       run: |
         cmake \
           -B${{ env.BUILD_DIR }} \
@@ -100,7 +94,6 @@ jobs:
         cmake --build ${{env.BUILD_DIR}} --parallel 3
 
     - name: Execute R demos and courses
-      if: success() || failure()
       run: |
         cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check_rmd
 

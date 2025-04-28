@@ -22,7 +22,7 @@ env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
   CMAKE_GENERATOR : "MSYS Makefiles"
-  R_VERSION : "4.3.2"
+  R_VERSION : "4.5.0"
   SWIG_ROOT : ${{github.workspace}}\swig
 
 jobs:
@@ -46,6 +46,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+        pacman -Syu --noconfirm
         pacman -Sy --noconfirm mingw-w64-x86_64-boost
         pacman -Sy --noconfirm mingw-w64-x86_64-eigen3
         pacman -Sy --noconfirm mingw-w64-x86_64-nlopt

@@ -57,11 +57,11 @@
 #  - BUILD_DIR=<path>   Define a specific build directory (default =build[_msys])
 #  - BUILD_PYTHON=1     Configure cmake to build python wrapper (default =0, see target python_*)
 #  - BUILD_R=1          Configure cmake to build R wrapper (default =0, see target r_*)
-#  - BUILD_DOC=1        Configure cmake to build documentation (default =1)
+#  - BUILD_DOC=1        Configure cmake to build documentation (default =0)
 #  - TEST=<test-target> Name of the test target to be launched (e.g. test_Model_py or test_simTub)
-#  - ASAN=1             Build with Address Sanitizer
+#  - ASAN=1             Build with Address Sanitizer (default =0)
 #  - USE_HDF5=0         To remove HDF5 support (default =1)
-#  - NO_INTERNET=0      To prevent python pip from looking for dependencies through Internet
+#  - NO_INTERNET=1      To prevent python pip from looking for dependencies through Internet
 #                       (useful when there is no Internet available) (default =0)
 #  - EIGEN3_ROOT=<path> Path to Eigen3 library (optional)
 #  - BOOST_ROOT=<path>  Path to Boost library (optional)
@@ -74,9 +74,6 @@
 #  make check N_PROC=2
 #
 
-ifndef BUILD_DOC
-  BUILD_DOC = 1
-endif
 ifeq ($(BUILD_DOC), 1)
   BUILD_DOC = ON
  else
@@ -184,7 +181,7 @@ cmake-r-doxygen:
 	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOC=ON -DBUILD_R=ON
 
 cmake-python-r-doxygen:
-	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOC=ON -DBUILD_PYTHON=ON              -DBUILD_R=ON         -DBUILD_DOC=ON
+	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOC=ON -DBUILD_PYTHON=ON -DBUILD_R=ON
 
 print_version: cmake
 	@cmake --build $(BUILD_DIR) --target print_version --
@@ -193,13 +190,12 @@ static shared build_tests doxygen install uninstall: cmake-doxygen
 	@cmake --build $(BUILD_DIR) --target $@ -- $(N_PROC_OPT)
 
 
-
 .PHONY: python_doc python_build python_install
 
 python_doc: cmake-python-doxygen
 	@cmake --build $(BUILD_DIR) --target python_doc -- $(N_PROC_OPT)
 
-python_build: cmake-python
+python_build: python_doc
 	@cmake --build $(BUILD_DIR) --target python_build -- $(N_PROC_OPT)
 
 python_install: python_build
@@ -211,7 +207,7 @@ python_install: python_build
 r_doc: cmake-r-doxygen
 	@cmake --build $(BUILD_DIR) --target r_doc -- $(N_PROC_OPT)
 
-r_build: cmake-r
+r_build: r_doc
 	@cmake --build $(BUILD_DIR) --target r_build -- $(N_PROC_OPT)
 
 r_install: r_build
@@ -232,13 +228,13 @@ check_py: cmake-python
 check_r: cmake-r
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_r -- $(N_PROC_OPT)
 
-check: cmake-python-r-doxygen
+check: cmake-python-r
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check -- $(N_PROC_OPT)
 
-check_ipynb: cmake-python-doxygen
+check_ipynb: cmake-python
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_ipynb -- $(N_PROC_OPT)
 
-check_rmd: cmake-r-doxygen
+check_rmd: cmake-r
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_rmd -- $(N_PROC_OPT)
 
 check_test_cpp: cmake
@@ -253,10 +249,10 @@ check_test_r: cmake-r
 dump_test_cpp: cmake
 	@cd $(BUILD_DIR); make $(TEST); "tests/cpp/$(BUILD_TYPE)/$(TEST)" dummy
 
-build_demos: cmake-python-r-doxygen
+build_demos: cmake-python-r
 	@cmake --build $(BUILD_DIR) --target build_demos -- $(N_PROC_OPT)
 
-build_courses: cmake-python-r-doxygen
+build_courses: cmake-python-r
 	@cmake --build $(BUILD_DIR) --target build_courses -- $(N_PROC_OPT)
 
 .PHONY: scan_build clang_tidy clang_check

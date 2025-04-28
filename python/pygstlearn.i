@@ -233,6 +233,7 @@
           vec.push_back(value);
       }
     }
+    // else size is zero (empty vector)
     return myres;
   }
 
@@ -585,7 +586,7 @@
         myres = SWIG_OK;
       }
     }
-    else // Convert to a tuple using standard std_vector (mandatory for string)
+    else // Convert to a tuple using standard std_vector
     {
       // Test NA values
       auto vec2 = vec.getVector();
