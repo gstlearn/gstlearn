@@ -130,7 +130,7 @@ plot.init <- function(dims = NA, xlim = NA, ylim = NA, asp = NA) {
 #' 
 #' @keywords internal
 #' @noRd
-ur <- function(palette, naColor = "transparent", flagDiscrete = FALSE, limits = NULL, title = NA) {
+.defineColour <- function(palette, naColor = "transparent", flagDiscrete = FALSE, limits = NULL, title = NA) {
   dfPalettes = .getAllPalettes()
   aes_list = c("color")
   name = .defineName(title)
