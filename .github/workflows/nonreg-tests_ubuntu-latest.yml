@@ -59,10 +59,10 @@ jobs:
       with:
         r-version: ${{env.R_VERSION}}
 
-    - name: Install roxygen2
+    - name: Install R packages
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
-        packages: roxygen2
+        packages: roxygen2, ggpubr, ggplot2, ggnewscale
         install-pandoc: false
 
     - name: Install the customized SWIG from source
