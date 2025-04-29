@@ -199,38 +199,38 @@ private:
   // Following elements can be retrieved by Interface functions
   VectorDouble _Zstar;            // Estimated values (Dim: _nrhs)
   VectorDouble _Beta;             // Drift coefficients (Dim: _nbfl)
-  MatrixDense* _LambdaSK;   // Weights for SK (Dim: _neq * _nrhs)
-  MatrixDense* _LambdaUK;   // Weights for UK (Dim: _neq * _nrhs)
-  MatrixDense* _MuUK;       // Lagrange multipliers (Dim: _nbfl * _nrhs)
-  MatrixSymmetric* _Stdv;   // Estimation stdv. (Dim: _nrhs * _nrhs)
-  MatrixSymmetric* _VarZSK; // Estimator variance in SK (Dim: _nrhs * _nrhs)
-  MatrixSymmetric* _VarZUK; // Estimator variance in UK (Dim: _nrhs * _nrhs)
+  MatrixDense _LambdaSK;          // Weights for SK (Dim: _neq * _nrhs)
+  MatrixDense _LambdaUK;          // Weights for UK (Dim: _neq * _nrhs)
+  MatrixDense _MuUK;              // Lagrange multipliers (Dim: _nbfl * _nrhs)
+  MatrixSymmetric _Stdv;          // Estimation stdv. (Dim: _nrhs * _nrhs)
+  MatrixSymmetric _VarZSK;        // Estimator variance in SK (Dim: _nrhs * _nrhs)
+  MatrixSymmetric _VarZUK;        // Estimator variance in UK (Dim: _nrhs * _nrhs)
 
   // Following elements are defined for internal storage
-  MatrixDense* _XtInvSigma;      // X^t * Inv{Sigma} (Dim: _nbfl * _neq);
-  MatrixDense* _Y0;              // X0 - LambdaSK * X^t (Dim: _nrhs * _nbfl)
-  MatrixDense* _InvSigmaSigma0;  // Inv{Sigma} * Sigma0 (Dim: _neq * _nrhs)
-  MatrixSymmetric* _InvSigma;    // Inv{Sigma} (Dim: _neq * _neq)
-  MatrixSymmetric* _Sigmac;      // Inv{X^t * Inv{Sigma} * X} (Dim: _nbfl * _nbfl)
-  MatrixSymmetric* _InvPriorCov; // Inv{PriorCov} (Dim: _nbfl * _nbfl)
+  MatrixDense _XtInvSigma;      // X^t * Inv{Sigma} (Dim: _nbfl * _neq);
+  MatrixDense _Y0;              // X0 - LambdaSK * X^t (Dim: _nrhs * _nbfl)
+  MatrixDense _InvSigmaSigma0;  // Inv{Sigma} * Sigma0 (Dim: _neq * _nrhs)
+  MatrixSymmetric _InvSigma;    // Inv{Sigma} (Dim: _neq * _neq)
+  MatrixSymmetric _Sigmac;      // Inv{X^t * Inv{Sigma} * X} (Dim: _nbfl * _nbfl)
+  MatrixSymmetric _InvPriorCov; // Inv{PriorCov} (Dim: _nbfl * _nbfl)
 
   // Following elements are defined for internal storage (collocated case in UN)
-  MatrixSymmetric* _Sigma00pp; // ColCok Variance T-T (Dim: _ncck * _ncck)
-  MatrixDense* _Sigma00p;      // ColCok Variance D-T (Dim: _ncck * _nrhs)
-  MatrixDense* _Sigma0p;       // Collocated Covariance (Dim: _neq * _ncck)
-  MatrixDense* _X0p;           // Collocated Drift (Dim: _ncck * _nbfl)
-  MatrixDense* _Y0p;           // X0p - Sigma0p^t * Inv{Sigma} * X (Dim: _ncck *_nbfl)
+  MatrixSymmetric _Sigma00pp;        // ColCok Variance T-T (Dim: _ncck * _ncck)
+  MatrixDense _Sigma00p;             // ColCok Variance D-T (Dim: _ncck * _nrhs)
+  MatrixDense _Sigma0p;              // Collocated Covariance (Dim: _neq * _ncck)
+  MatrixDense _X0p;                  // Collocated Drift (Dim: _ncck * _nbfl)
+  MatrixDense _Y0p;                  // X0p - Sigma0p^t * Inv{Sigma} * X (Dim: _ncck *_nbfl)
   VectorInt _rankColVars;            // Ranks of active collocated variables
   VectorDouble _Z0p;                 // Vector of (active) collocated values
-  MatrixDense* _Lambda0;       // Collocated weights (Dim: _ncck * _nrhs)
+  MatrixDense _Lambda0;              // Collocated weights (Dim: _ncck * _nrhs)
 
   // Following elements are defined for Dual programming
   VectorDouble _bDual; // Fake Covariance part in Dual (Dim: _neq)
   VectorDouble _cDual; // Fake Drift part in Dual (Dim: _nbfl)
 
   // Following elements are defined for internal storage (Cross-validation in UN)
-  MatrixDense* _C_RHS; // Fictitious Right-hand side (covariance part)
-  MatrixDense* _X_RHS; // Fictitious Right-hand side (drift part)
+  MatrixDense _C_RHS; // Fictitious Right-hand side (covariance part)
+  MatrixDense _X_RHS; // Fictitious Right-hand side (drift part)
 
   // Additional parameters
   int _nvar;

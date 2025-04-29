@@ -39,31 +39,31 @@ KrigingAlgebra::KrigingAlgebra(bool flagDual,
   , _sampleRanks(nullptr)
   , _Zstar()
   , _Beta()
-  , _LambdaSK(nullptr)
-  , _LambdaUK(nullptr)
-  , _MuUK(nullptr)
-  , _Stdv(nullptr)
-  , _VarZSK(nullptr)
-  , _VarZUK(nullptr)
-  , _XtInvSigma(nullptr)
-  , _Y0(nullptr)
-  , _InvSigmaSigma0(nullptr)
-  , _InvSigma(nullptr)
-  , _Sigmac(nullptr)
-  , _InvPriorCov(nullptr)
+  , _LambdaSK()
+  , _LambdaUK()
+  , _MuUK()
+  , _Stdv()
+  , _VarZSK()
+  , _VarZUK()
+  , _XtInvSigma()
+  , _Y0()
+  , _InvSigmaSigma0()
+  , _InvSigma()
+  , _Sigmac()
+  , _InvPriorCov()
 
-  , _Sigma00pp(nullptr)
-  , _Sigma00p(nullptr)
-  , _Sigma0p(nullptr)
-  , _X0p(nullptr)
-  , _Y0p(nullptr)
+  , _Sigma00pp()
+  , _Sigma00p()
+  , _Sigma0p()
+  , _X0p()
+  , _Y0p()
   , _rankColVars()
   , _Z0p()
-  , _Lambda0(nullptr)
+  , _Lambda0()
   , _bDual()
   , _cDual()
-  , _C_RHS(nullptr)
-  , _X_RHS(nullptr)
+  , _C_RHS()
+  , _X_RHS()
 
   , _nvar(0)
   , _neq(0)
@@ -167,31 +167,27 @@ void KrigingAlgebra::_deleteInvSigma() {
   _deleteLambda0();
   _deleteXtInvSigma();
 
-  delete _InvSigma;
-  _InvSigma = nullptr;
+  _InvSigma.clear();
 }
 void KrigingAlgebra::_deleteLambdaSK() {
   _deleteLambdaUK();
   _deleteZstar();
   _deleteVarZSK();
 
-  delete _LambdaSK;
-  _LambdaSK = nullptr;
+  _LambdaSK.clear();
 }
 void KrigingAlgebra::_deleteLambdaUK() {
   _deleteVarZUK();
   _deleteStdv();
   _deleteZstar();
 
-  delete _LambdaUK;
-  _LambdaUK = nullptr;
+  _LambdaUK.clear();
 }
 void KrigingAlgebra::_deleteMuUK() {
   _deleteLambdaUK();
   _deleteStdv();
 
-  delete _MuUK;
-  _MuUK = nullptr;
+  _MuUK.clear();
 }
 void KrigingAlgebra::_deleteSigmac() {
   _deleteLambda0();
@@ -199,8 +195,7 @@ void KrigingAlgebra::_deleteSigmac() {
   _deleteMuUK();
   _deleteDual();
 
-  delete _Sigmac;
-  _Sigmac = nullptr;
+  _Sigmac.clear();
 }
 void KrigingAlgebra::_deleteZstar() {
   _Zstar.clear();
@@ -210,8 +205,7 @@ void KrigingAlgebra::_deleteY0() {
   _deleteMuUK();
   _deleteLambda0();
 
-  delete _Y0;
-  _Y0 = nullptr;
+  _Y0.clear();
 }
 void KrigingAlgebra::_deleteXtInvSigma() {
   _deleteY0p();
@@ -219,29 +213,24 @@ void KrigingAlgebra::_deleteXtInvSigma() {
   _deleteSigmac();
   _deleteBeta();
 
-  delete _XtInvSigma;
-  _XtInvSigma = nullptr;
+  _XtInvSigma.clear();
 }
 void KrigingAlgebra::_deleteStdv() {
-  delete _Stdv;
-  _Stdv = nullptr;
+  _Stdv.clear();
 }
 void KrigingAlgebra::_deleteVarZSK() {
   _deleteStdv();
 
-  delete _VarZSK;
-  _VarZSK = nullptr;
+  _VarZSK.clear();
 }
 void KrigingAlgebra::_deleteVarZUK() {
-  delete _VarZUK;
-  _VarZUK = nullptr;
+  _VarZUK.clear();
 }
 void KrigingAlgebra::_deleteInvPriorCov() {
   _deleteSigmac();
   _deleteBeta();
 
-  delete _InvPriorCov;
-  _InvPriorCov = nullptr;
+  _InvPriorCov.clear();
 }
 void KrigingAlgebra::_deleteSigma0p() {
   _deleteY0p();
@@ -249,36 +238,31 @@ void KrigingAlgebra::_deleteSigma0p() {
   _deleteLambda0();
   _deleteVarZUK();
 
-  delete _Sigma0p;
-  _Sigma0p = nullptr;
+  _Sigma0p.clear();
 }
 void KrigingAlgebra::_deleteSigma00p() {
   _deleteLambda0();
   _deleteStdv();
 
-  delete _Sigma00p;
-  _Sigma00p = nullptr;
+  _Sigma00p.clear();
 }
 void KrigingAlgebra::_deleteSigma00pp() {
   _deleteLambda0();
   _deleteVarZUK();
 
-  delete _Sigma00pp;
-  _Sigma00pp = nullptr;
+  _Sigma00pp.clear();
 }
 void KrigingAlgebra::_deleteX0p() {
   _deleteY0p();
 
-  delete _X0p;
-  _X0p = nullptr;
+  _X0p.clear();
 }
 void KrigingAlgebra::_deleteY0p() {
   _deleteZstar();
   _deleteMuUK();
   _deleteLambda0();
 
-  delete _Y0;
-  _Y0 = nullptr;
+  _Y0.clear();
 }
 void KrigingAlgebra::_deleteZ0p() {
   _deleteZstar();
@@ -290,15 +274,13 @@ void KrigingAlgebra::_deleteLambda0() {
   _deleteMuUK();
   _deleteLambdaSK();
 
-  delete _Lambda0;
-  _Lambda0 = nullptr;
+  _Lambda0.clear();
 }
 void KrigingAlgebra::_deleteInvSigmaSigma0() {
   _deleteY0();
   _deleteLambdaSK();
 
-  delete _InvSigmaSigma0;
-  _InvSigmaSigma0 = nullptr;
+  _InvSigmaSigma0.clear();
 }
 
 void KrigingAlgebra::_deletePriorCov() {
@@ -334,10 +316,8 @@ void KrigingAlgebra::_deleteColCok() {
 void KrigingAlgebra::_deleteXvalid() {
   _nxvalid = 0;
   // Cannot delete _rankXvalidEqs or _rankXvalidVars due to constness
-  delete _C_RHS;
-  _C_RHS = nullptr;
-  delete _X_RHS;
-  _X_RHS = nullptr;
+  _C_RHS.clear();
+  _X_RHS.clear();
 }
 void KrigingAlgebra::_deleteDual() {
   if (!_flagDual) return;
@@ -628,75 +608,75 @@ bool KrigingAlgebra::_forbiddenWhenDual() const {
 VectorDouble KrigingAlgebra::getStdv() {
   if (!_forbiddenWhenDual()) return VectorDouble();
   if (_needStdv()) return VectorDouble();
-  return _Stdv->getDiagonal();
+  return _Stdv.getDiagonal();
 }
 
 const MatrixSymmetric* KrigingAlgebra::getStdvMat() {
   if (!_forbiddenWhenDual()) return nullptr;
   if (_needStdv()) return nullptr;
-  return _Stdv;
+  return &_Stdv;
 }
 
 VectorDouble KrigingAlgebra::getVarianceZstar() {
   if (!_forbiddenWhenDual()) return VectorDouble();
   if (_flagSK) {
     if (_needVarZSK()) return VectorDouble();
-    return _VarZSK->getDiagonal();
+    return _VarZSK.getDiagonal();
   }
   if (_needVarZUK()) return VectorDouble();
-  return _VarZUK->getDiagonal();
+  return _VarZUK.getDiagonal();
 }
 
 const MatrixSymmetric* KrigingAlgebra::getVarianceZstarMat() {
   if (!_forbiddenWhenDual()) return nullptr;
   if (_flagSK) {
     if (_needVarZSK()) return nullptr;
-    return _VarZSK;
+    return &_VarZSK;
   }
   if (_needVarZUK()) return nullptr;
-  return _VarZUK;
+  return &_VarZUK;
 }
 
 const MatrixDense* KrigingAlgebra::getLambda() {
   if (!_forbiddenWhenDual()) return nullptr;
   if (_flagSK) {
     if (_needLambdaSK()) return nullptr;
-    return _LambdaSK;
+    return &_LambdaSK;
   }
   if (_needLambdaUK()) return nullptr;
-  return _LambdaUK;
+  return &_LambdaUK;
 }
 
 const MatrixDense* KrigingAlgebra::getLambda0() {
   if (_needLambda0()) return nullptr;
-  return _Lambda0;
+  return &_Lambda0;
 }
 
 const MatrixDense* KrigingAlgebra::getMu() {
   if (_needMuUK()) return nullptr;
-  return _MuUK;
+  return &_MuUK;
 }
 
 const MatrixSymmetric* KrigingAlgebra::getPostCov() {
   // At this stage, the posterior covariance is contained in '_Sigmac'
   if (_needSigmac()) return nullptr;
-  return _Sigmac;
+  return &_Sigmac;
 }
 
 int KrigingAlgebra::_needInvSigma() {
-  if (_InvSigma != nullptr) return 0;
+  if (!_InvSigma.empty()) return 0;
   if (_needSigma()) return 1;
-  _InvSigma = _Sigma->clone();
+  _InvSigma = *_Sigma;
 
-  if (_InvSigma->invert()) return 1;
+  if (_InvSigma.invert()) return 1;
   return 0;
 }
 
 int KrigingAlgebra::_needInvPriorCov() {
-  if (_InvPriorCov != nullptr) return 0;
+  if (!_InvPriorCov.empty()) return 0;
   if (_needPriorCov()) return 1;
-  _InvPriorCov = _PriorCov->clone();
-  if (_InvPriorCov->invert()) return 1;
+  _InvPriorCov = *_PriorCov;
+  if (_InvPriorCov.invert()) return 1;
   return 0;
 }
 
@@ -733,7 +713,7 @@ int KrigingAlgebra::_needZstar() {
   if (_needZ()) return 1;
   if (_flagSK || _flagBayes) {
     if (_needLambdaSK()) return 1;
-    _Zstar = _LambdaSK->prodVecMat(*_Z, false);
+    _Zstar = _LambdaSK.prodVecMat(*_Z, false);
 
     // Adding Mean per Variable
     if (_flagSK && !_Means->empty()) {
@@ -745,18 +725,18 @@ int KrigingAlgebra::_needZstar() {
     if (_flagBayes) {
       if (_needY0()) return 1;
       if (_needBeta()) return 1;
-      VectorDouble mean = _Y0->prodMatVec(_Beta);
+      VectorDouble mean = _Y0.prodMatVec(_Beta);
       VH::linearCombinationInPlace(1., _Zstar, 1., mean, _Zstar);
     }
   } else {
     if (_needLambdaUK()) return 1;
-    _Zstar = _LambdaUK->prodVecMat(*_Z, false);
+    _Zstar = _LambdaUK.prodVecMat(*_Z, false);
   }
 
   // Collocated case
   if (_ncck > 0) {
     if (_needZ0p()) return 1;
-    VectorDouble Zstar0 = _Lambda0->prodMatVec(_Z0p, true);
+    VectorDouble Zstar0 = _Lambda0.prodMatVec(_Z0p, true);
     VH::linearCombinationInPlace(1., _Zstar, 1., Zstar0, _Zstar);
   }
   return 0;
@@ -768,18 +748,18 @@ int KrigingAlgebra::_patchColCokVarianceZstar(MatrixSymmetric* varZK) {
   if (_needSigma00pp()) return 1;
   MatrixSymmetric L0tCL0(_nrhs);
   //TODO check dims
-  L0tCL0.prodNormMatMatInPlace(_Lambda0, _Sigma00pp, true);
+  L0tCL0.prodNormMatMatInPlace(&_Lambda0, &_Sigma00pp, true);
 
   MatrixDense p2(_nrhs, _neq);
-  p2.prodMatMatInPlace(_Lambda0, _Sigma0p, true, true);
+  p2.prodMatMatInPlace(&_Lambda0, &_Sigma0p, true, true);
   MatrixSymmetric L0tCLK(_nrhs);
 
   if (_flagSK) {
     if (_needLambdaSK()) return 1;
-    L0tCLK.prodMatMatInPlace(&p2, _LambdaSK);
+    L0tCLK.prodMatMatInPlace(&p2, &_LambdaSK);
   } else {
     if (_needLambdaUK()) return 1;
-    L0tCLK.prodMatMatInPlace(&p2, _LambdaUK);
+    L0tCLK.prodMatMatInPlace(&p2, &_LambdaUK);
   }
 
   varZK->linearCombination(1., varZK, 2., &L0tCLK, 1., &L0tCL0);
@@ -787,55 +767,55 @@ int KrigingAlgebra::_patchColCokVarianceZstar(MatrixSymmetric* varZK) {
 }
 
 int KrigingAlgebra::_needVarZSK() {
-  if (_VarZSK != nullptr) return 0;
+  if (!_VarZSK.empty()) return 0;
   if (_needSigma0()) return 1;
   if (_needLambdaSK()) return 1;
-  _VarZSK = new MatrixSymmetric(_nrhs);
-  _VarZSK->prodMatMatInPlace(_LambdaSK, _Sigma0, true, false);
+  _VarZSK.resize(_nrhs, _nrhs);
+  _VarZSK.prodMatMatInPlace(&_LambdaSK, _Sigma0, true, false);
 
   if (_ncck > 0) {
-    if (_patchColCokVarianceZstar(_VarZSK)) return 1;
+    if (_patchColCokVarianceZstar(&_VarZSK)) return 1;
   }
   return 0;
 }
 
 int KrigingAlgebra::_needVarZUK() {
-  if (_VarZUK != nullptr) return 0;
+  if (!_VarZUK.empty()) return 0;
   if (_needSigma0()) return 1;
   if (_needLambdaUK()) return 1;
-  _VarZUK = new MatrixSymmetric(_nrhs);
-  _VarZUK->prodNormMatMatInPlace(_LambdaUK, _Sigma, true);
+  _VarZUK.resize(_nrhs, _nrhs);
+  _VarZUK.prodNormMatMatInPlace(&_LambdaUK, _Sigma, true);
 
   if (_ncck > 0) {
-    if (_patchColCokVarianceZstar(_VarZUK)) return 1;
+    if (_patchColCokVarianceZstar(&_VarZUK)) return 1;
   }
   return 0;
 }
 
 int KrigingAlgebra::_needStdv() {
-  if (_Stdv != nullptr) return 0;
+  if (!_Stdv.empty()) return 0;
   if (_needSigma00()) return 1;
-  _Stdv = new MatrixSymmetric(_nrhs);
+  _Stdv.resize(_nrhs, _nrhs);
 
   if (_flagSK) {
     if (_needVarZSK()) return 1;
-    _Stdv->linearCombination(1., _Sigma00, -1., _VarZSK);
+    _Stdv.linearCombination(1., _Sigma00, -1., &_VarZSK);
   } else {
     if (_needLambdaUK()) return 1;
     if (_needSigma0()) return 1;
     if (_needMuUK()) return 1;
-    _Stdv = _Sigma00->clone();
+    _Stdv = *_Sigma00;
     MatrixDense p1(_nrhs, _nrhs);
-    p1.prodMatMatInPlace(_LambdaUK, _Sigma0, true);
+    p1.prodMatMatInPlace(&_LambdaUK, _Sigma0, true);
     MatrixDense p2(_nrhs, _nrhs);
-    p2.prodMatMatInPlace(_MuUK, _X0, true, true);
-    _Stdv->linearCombination(1, _Stdv, -1., &p1, +1., &p2);
+    p2.prodMatMatInPlace(&_MuUK, _X0, true, true);
+    _Stdv.linearCombination(1, &_Stdv, -1., &p1, +1., &p2);
 
     if (_ncck > 0) {
       if (_needSigma00p()) return 1;
       MatrixSymmetric p3(_nrhs);
-      p3.prodMatMatInPlace(_Sigma00p, _Lambda0, true);
-      _Stdv->linearCombination(1., _Stdv, -1., &p3);
+      p3.prodMatMatInPlace(&_Sigma00p, &_Lambda0, true);
+      _Stdv.linearCombination(1., &_Stdv, -1., &p3);
     }
   }
 
@@ -844,9 +824,9 @@ int KrigingAlgebra::_needStdv() {
   for (int irow = 0; irow < _nrhs; irow++)
     for (int icol = 0; icol < _nrhs; icol++)
       if (irow >= icol) {
-        double value = _Stdv->getValue(irow, icol);
+        double value = _Stdv.getValue(irow, icol);
         value        = (value > 0.) ? sqrt(value) : 0.;
-        _Stdv->setValue(irow, icol, value);
+        _Stdv.setValue(irow, icol, value);
       }
   return 0;
 }
@@ -887,65 +867,65 @@ int KrigingAlgebra::_needZ0p() {
 }
 
 int KrigingAlgebra::_needXtInvSigma() {
-  if (_XtInvSigma != nullptr) return 0;
+  if (!_XtInvSigma.empty()) return 0;
   if (_needX()) return 1;
   if (_needInvSigma()) return 1;
 
-  _XtInvSigma = new MatrixDense(_nbfl, _neq);
-  _XtInvSigma->prodMatMatInPlace(_X, _InvSigma, true, false);
+  _XtInvSigma.resize(_nbfl, _neq);
+  _XtInvSigma.prodMatMatInPlace(_X, &_InvSigma, true, false);
   return 0;
 }
 
 int KrigingAlgebra::_needSigmac() {
-  if (_Sigmac != nullptr) return 0;
+  if (!_Sigmac.empty()) return 0;
   if (_needX()) return 1;
   if (_needXtInvSigma()) return 1;
 
-  _Sigmac = new MatrixSymmetric(_nbfl);
-  _Sigmac->prodMatMatInPlace(_XtInvSigma, _X);
+  _Sigmac.resize(_nbfl, _nbfl);
+  _Sigmac.prodMatMatInPlace(&_XtInvSigma, _X);
 
   // Bayesian case
   if (_flagBayes) {
     if (_needInvPriorCov()) return 1;
-    _Sigmac->linearCombination(1., _Sigmac, 1., _InvPriorCov);
+    _Sigmac.linearCombination(1., &_Sigmac, 1., &_InvPriorCov);
   }
 
   // Compute the inverse matrix
-  if (_Sigmac->invert()) return 1;
+  if (_Sigmac.invert()) return 1;
   return 0;
 }
 
 int KrigingAlgebra::_needSigma00p() {
-  if (_Sigma00p != nullptr) return 0;
+  if (!_Sigma00p.empty()) return 0;
   if (_needSigma00()) return 1;
   if (_needColCok()) return 1;
-  MatrixDense::sample(*_Sigma00p, *_Sigma00, _rankColVars, VectorInt());
+  MatrixDense::sample(_Sigma00p, *_Sigma00, _rankColVars, VectorInt());
   return 0;
 }
 
 int KrigingAlgebra::_needSigma00pp() {
-  if (_Sigma00pp != nullptr) return 0;
+  if (!_Sigma00pp.empty()) return 0;
   if (_needSigma00()) return 1;
   if (_needColCok()) return 1;
-  MatrixSymmetric::sample(*_Sigma00pp, *_Sigma00, _rankColVars);
+  MatrixSymmetric::sample(_Sigma00pp, *_Sigma00, _rankColVars);
   return 0;
 }
 
 int KrigingAlgebra::_needSigma0p() {
-  if (_Sigma0p != nullptr) return 0;
+  if (!_Sigma0p.empty()) return 0;
   if (_needSigma0()) return 1;
   if (_needColCok()) return 1;
 
-  MatrixDense::sample(*_Sigma0p, *_Sigma0, VectorInt(), _rankColVars);
+  MatrixDense::sample(_Sigma0p, *_Sigma0, VectorInt(), _rankColVars);
   return 0;
 }
 
 int KrigingAlgebra::_needX0p() {
-  if (_X0p != nullptr) return 0;
+  if (!_X0p.empty()) return 0;
   if (_needX0()) return 1;
   if (_needColCok()) return 1;
 
-  MatrixDense::sample(*_X0p, *_X0, _rankColVars, VectorInt());
+  MatrixDense::sample(_X0p, *_X0, _rankColVars, VectorInt());
   return 0;
 }
 
@@ -955,73 +935,73 @@ int KrigingAlgebra::_needBeta() {
   if (_needSigmac()) return 1;
   if (_needXtInvSigma()) return 1;
 
-  VectorDouble XtInvCZ = _XtInvSigma->prodMatVec(*_Z);
+  VectorDouble XtInvCZ = _XtInvSigma.prodMatVec(*_Z);
 
   if (_flagBayes) {
     if (_needPriorMean()) return 1;
     if (_needInvPriorCov()) return 1;
-    VectorDouble InvSMBayes = _InvPriorCov->prodMatVec(*_PriorMean);
+    VectorDouble InvSMBayes = _InvPriorCov.prodMatVec(*_PriorMean);
     VH::linearCombinationInPlace(1., XtInvCZ, 1., InvSMBayes, XtInvCZ);
   }
 
-  _Beta = _Sigmac->prodMatVec(XtInvCZ);
+  _Beta = _Sigmac.prodMatVec(XtInvCZ);
   return 0;
 }
 
 int KrigingAlgebra::_needY0() {
-  if (_Y0 != nullptr) return 0;
+  if (!_Y0.empty()) return 0;
   if (_needX0()) return 1;
   if (_needInvSigmaSigma0()) return 1;
 
   MatrixDense LambdaSKtX(_nrhs, _nbfl);
-  LambdaSKtX.prodMatMatInPlace(_InvSigmaSigma0, _X, true, false);
+  LambdaSKtX.prodMatMatInPlace(&_InvSigmaSigma0, _X, true, false);
 
-  _Y0 = new MatrixDense(_nrhs, _nbfl);
-  _Y0->linearCombination(1., _X0, -1., &LambdaSKtX);
+  _Y0.resize(_nrhs, _nbfl);
+  _Y0.linearCombination(1., _X0, -1., &LambdaSKtX);
   return 0;
 }
 
 int KrigingAlgebra::_needY0p() {
-  if (_Y0p != nullptr) return 0;
+  if (!_Y0p.empty()) return 0;
   if (_needX0p()) return 1;
   if (_needSigma0p()) return 1;
   if (_needXtInvSigma()) return 1;
 
-  _Y0p = new MatrixDense(_ncck, _nbfl);
-  _Y0p->prodMatMatInPlace(_Sigma0p, _XtInvSigma, true, true);
-  _Y0p->linearCombination(1., _X0p, -1., _Y0p);
+  _Y0p.resize(_ncck, _nbfl);
+  _Y0p.prodMatMatInPlace(&_Sigma0p, &_XtInvSigma, true, true);
+  _Y0p.linearCombination(1., &_X0p, -1., &_Y0p);
   return 0;
 }
 
 int KrigingAlgebra::_needMuUK() {
-  if (_MuUK != nullptr) return 0;
+  if (!_MuUK.empty()) return 0;
   if (_flagSK) return 1;
   if (_needSigmac()) return 1;
   if (_needY0()) return 1;
 
-  _MuUK = new MatrixDense(_nbfl, _nrhs);
+  _MuUK.resize(_nbfl, _nrhs);
 
   if (_ncck > 0) {
     if (_needY0p()) return 1;
     if (_needLambda0()) return 1;
 
     MatrixDense LtY(_nrhs, _nbfl);
-    LtY.prodMatMatInPlace(_Lambda0, _Y0p, true);
-    LtY.linearCombination(1., _Y0, -1., &LtY);
+    LtY.prodMatMatInPlace(&_Lambda0, &_Y0p, true);
+    LtY.linearCombination(1., &_Y0, -1., &LtY);
 
-    _MuUK->prodMatMatInPlace(_Sigmac, &LtY, false, true);
+    _MuUK.prodMatMatInPlace(&_Sigmac, &LtY, false, true);
   } else {
-    _MuUK->prodMatMatInPlace(_Sigmac, _Y0, false, true);
+    _MuUK.prodMatMatInPlace(&_Sigmac, &_Y0, false, true);
   }
   return 0;
 }
 
 int KrigingAlgebra::_needInvSigmaSigma0() {
-  if (_InvSigmaSigma0 != nullptr) return 0;
+  if (!_InvSigmaSigma0.empty()) return 0;
   if (_needSigma0()) return 1;
   if (_needInvSigma()) return 1;
-  _InvSigmaSigma0 = new MatrixDense(_neq, _nrhs);
-  _InvSigmaSigma0->prodMatMatInPlace(_InvSigma, _Sigma0);
+  _InvSigmaSigma0.resize(_neq, _nrhs);
+  _InvSigmaSigma0.prodMatMatInPlace(&_InvSigma, _Sigma0);
   return 0;
 }
 
@@ -1040,7 +1020,7 @@ int KrigingAlgebra::_patchRHSForXvalidUnique() {
 
   // Extract alpha and invert it
   MatrixSymmetric alpha;
-  MatrixSymmetric::sample(alpha, *_InvSigma, *_rankXvalidEqs);
+  MatrixSymmetric::sample(alpha, _InvSigma, *_rankXvalidEqs);
   MatrixSymmetric InvAlpha = alpha;
   InvAlpha.invert();
 
@@ -1051,11 +1031,11 @@ int KrigingAlgebra::_patchRHSForXvalidUnique() {
   if (_nbfl > 0) {
     // Extract beta
     MatrixDense beta;
-    MatrixDense::sample(beta, *_InvSigma, *_rankXvalidEqs, *_rankXvalidEqs, false, true);
+    MatrixDense::sample(beta, _InvSigma, *_rankXvalidEqs, *_rankXvalidEqs, false, true);
 
     // Extracting delta
     MatrixSymmetric delta;
-    MatrixSymmetric::sample(delta, *_InvSigma, *_rankXvalidEqs, true);
+    MatrixSymmetric::sample(delta, _InvSigma, *_rankXvalidEqs, true);
 
     // Extract Drift matrix at target point
     MatrixDense X0;
@@ -1089,14 +1069,14 @@ int KrigingAlgebra::_patchRHSForXvalidUnique() {
     omega.linearCombination(1., &omega, -1., &p4);
 
     // Patch the Right-hand side vector (Drift part)
-    MatrixDense::sample(*_X_RHS, *_X, *_rankXvalidEqs, VectorInt());
+    MatrixDense::sample(_X_RHS, *_X, *_rankXvalidEqs, VectorInt());
   }
 
   // Patch the Right-hand side vector (Covariance part)
-  MatrixDense::sample(*_C_RHS, *_Sigma, VectorInt(), *_rankXvalidEqs, false, false);
-  _C_RHS->unsample(&omega, *_rankXvalidEqs, VectorInt());
+  MatrixDense::sample(_C_RHS, *_Sigma, VectorInt(), *_rankXvalidEqs, false, false);
+  _C_RHS.unsample(&omega, *_rankXvalidEqs, VectorInt());
 
-  setRHS(_C_RHS, _X_RHS);
+  setRHS(&_C_RHS, &_X_RHS);
 
   setVariance(S00.clone());
 
@@ -1139,7 +1119,7 @@ int KrigingAlgebra::_needPriorMean() {
 }
 
 int KrigingAlgebra::_needLambdaSK() {
-  if (_LambdaSK != nullptr) return 0;
+  if (!_LambdaSK.empty()) return 0;
   // In the case of Xvalidation when drift is present, cannot return the vector of SK weights
 
   if (_ncck > 0) {
@@ -1148,29 +1128,29 @@ int KrigingAlgebra::_needLambdaSK() {
     if (_needLambda0()) return 1;
 
     MatrixDense S(_neq, _nrhs);
-    S.prodMatMatInPlace(_Sigma0p, _Lambda0);
+    S.prodMatMatInPlace(&_Sigma0p, &_Lambda0);
     S.linearCombination(1., _Sigma0, -1., &S);
-    _LambdaSK = new MatrixDense(_neq, _nrhs);
-    _LambdaSK->prodMatMatInPlace(_InvSigma, &S);
+    _LambdaSK.resize(_neq, _nrhs);
+    _LambdaSK.prodMatMatInPlace(&_InvSigma, &S);
   } else {
     if (_needInvSigmaSigma0()) return 1;
-    _LambdaSK = _InvSigmaSigma0->clone();
+    _LambdaSK = _InvSigmaSigma0;
   }
   return 0;
 }
 
 int KrigingAlgebra::_needLambdaUK() {
-  if (_LambdaUK != nullptr) return 0;
-  _LambdaUK = new MatrixDense(_neq, _nrhs);
+  if (!_LambdaUK.empty()) return 0;
+  _LambdaUK.resize(_neq, _nrhs);
 
   if (_needXtInvSigma()) return 1;
   if (_needLambdaSK()) return 1;
   if (_needMuUK()) return 1;
 
   MatrixDense p1(_neq, _nrhs);
-  p1.prodMatMatInPlace(_XtInvSigma, _MuUK, true, false);
+  p1.prodMatMatInPlace(&_XtInvSigma, &_MuUK, true, false);
   //MatrixRectangular::sum(_LambdaSK, &p1, _LambdaUK);
-  _LambdaUK->linearCombination(1., _LambdaSK, 1., &p1);
+  _LambdaUK.linearCombination(1., &_LambdaSK, 1., &p1);
 
   return 0;
 }
@@ -1180,15 +1160,15 @@ int KrigingAlgebra::_needDual() {
   if (_needZ()) return 1;
   if (_needInvSigma()) return 1;
 
-  _bDual = _InvSigma->prodMatVec(*_Z, true);
+  _bDual = _InvSigma.prodMatVec(*_Z, true);
   if (_nbfl > 0) {
     if (_needSigmac()) return 1;
     if (_needXtInvSigma()) return 1;
 
-    VectorDouble wp = _XtInvSigma->prodMatVec(*_Z, false);
-    _cDual          = _Sigmac->prodMatVec(wp, false);
+    VectorDouble wp = _XtInvSigma.prodMatVec(*_Z, false);
+    _cDual          = _Sigmac.prodMatVec(wp, false);
 
-    VectorDouble p1 = _XtInvSigma->prodMatVec(_cDual, true);
+    VectorDouble p1 = _XtInvSigma.prodMatVec(_cDual, true);
     VH::linearCombinationInPlace(1., _bDual, -1., p1, _bDual);
   }
   return 0;
@@ -1235,30 +1215,30 @@ void KrigingAlgebra::printStatus() const {
   message("\nInternal Memory (retrievable)\n");
   _printVector("Zstar", &_Zstar);
   _printVector("Beta", &_Beta);
-  _printMatrix("LambdaSK", _LambdaSK);
-  _printMatrix("LambdaUK", _LambdaUK);
-  _printMatrix("MuUK", _MuUK);
-  _printMatrix("Stdv", _Stdv);
-  _printMatrix("VarZSK", _VarZSK);
-  _printMatrix("VarZUK", _VarZUK);
+  _printMatrix("LambdaSK", &_LambdaSK);
+  _printMatrix("LambdaUK", &_LambdaUK);
+  _printMatrix("MuUK", &_MuUK);
+  _printMatrix("Stdv", &_Stdv);
+  _printMatrix("VarZSK", &_VarZSK);
+  _printMatrix("VarZUK", &_VarZUK);
 
   message("\nInternal Memory (hidden)\n");
-  _printMatrix("XtInvSigma", _XtInvSigma);
-  _printMatrix("Y0", _Y0);
-  _printMatrix("InvSigmaSigma0", _InvSigmaSigma0);
-  _printMatrix("InvSigma", _InvSigma);
-  _printMatrix("Sigmac", _Sigmac);
-  _printMatrix("InvPriorCov", _InvPriorCov);
+  _printMatrix("XtInvSigma", &_XtInvSigma);
+  _printMatrix("Y0", &_Y0);
+  _printMatrix("InvSigmaSigma0", &_InvSigmaSigma0);
+  _printMatrix("InvSigma", &_InvSigma);
+  _printMatrix("Sigmac", &_Sigmac);
+  _printMatrix("InvPriorCov", &_InvPriorCov);
 
   if (_ncck > 0) {
     message("\nInternal Memory (for Collocated Cokriging only)\n");
-    _printMatrix("Sigma00pp", _Sigma00pp);
-    _printMatrix("Sigma00p", _Sigma00p);
-    _printMatrix("Sigma0p", _Sigma0p);
-    _printMatrix("X0p", _X0p);
-    _printMatrix("Y0p", _Y0p);
+    _printMatrix("Sigma00pp", &_Sigma00pp);
+    _printMatrix("Sigma00p", &_Sigma00p);
+    _printMatrix("Sigma0p", &_Sigma0p);
+    _printMatrix("X0p", &_X0p);
+    _printMatrix("Y0p", &_Y0p);
     _printVector("Z0p", &_Z0p);
-    _printMatrix("Lambda0", _Lambda0);
+    _printMatrix("Lambda0", &_Lambda0);
   }
 }
 
@@ -1293,7 +1273,7 @@ bool KrigingAlgebra::_isPresentIIVector(const String& name, const VectorVectorIn
 }
 
 int KrigingAlgebra::_needLambda0() {
-  if (_Lambda0 != nullptr) return 0;
+  if (!_Lambda0.empty()) return 0;
 
   if (_ncck <= 0) return 1;
   if (_needSigma00()) return 1;
@@ -1308,31 +1288,31 @@ int KrigingAlgebra::_needLambda0() {
   }
 
   MatrixDense Sigma0ptInvSigma(_ncck, _neq);
-  Sigma0ptInvSigma.prodMatMatInPlace(_Sigma0p, _InvSigma, true);
+  Sigma0ptInvSigma.prodMatMatInPlace(&_Sigma0p, &_InvSigma, true);
 
   // Determine the Bottom part of the ratio
-  MatrixSymmetric bot = *_Sigma00pp;
+  MatrixSymmetric bot = _Sigma00pp;
 
   MatrixSymmetric bot1(_ncck);
-  bot1.prodMatMatInPlace(&Sigma0ptInvSigma, _Sigma0p);
+  bot1.prodMatMatInPlace(&Sigma0ptInvSigma, &_Sigma0p);
 
   MatrixDense Y0pSigmac;
   if (_nbfl > 0) {
     Y0pSigmac = MatrixDense(_ncck, _nbfl);
-    Y0pSigmac.prodMatMatInPlace(_Y0p, _Sigmac);
+    Y0pSigmac.prodMatMatInPlace(&_Y0p, &_Sigmac);
   }
 
   MatrixSymmetric bot2;
   if (_nbfl > 0) {
     bot2 = MatrixSymmetric(_ncck);
-    bot2.prodMatMatInPlace(&Y0pSigmac, _Y0p, false, true);
+    bot2.prodMatMatInPlace(&Y0pSigmac, &_Y0p, false, true);
   }
   bot.linearCombination(1., &bot, -1., &bot1, +1., (_nbfl > 0) ? &bot2 : nullptr);
 
   if (bot.invert()) return 1;
 
   // Determine the Top part of the ratio
-  MatrixDense top = *_Sigma00p;
+  MatrixDense top = _Sigma00p;
 
   MatrixDense top1(_ncck, _nrhs);
   top1.prodMatMatInPlace(&Sigma0ptInvSigma, _Sigma0);
@@ -1340,12 +1320,12 @@ int KrigingAlgebra::_needLambda0() {
   MatrixDense top2;
   if (_nbfl > 0) {
     top2 = MatrixDense(_ncck, _nrhs);
-    top2.prodMatMatInPlace(&Y0pSigmac, _Y0, false, true);
+    top2.prodMatMatInPlace(&Y0pSigmac, &_Y0, false, true);
   }
   top.linearCombination(1., &top, -1., &top1, +1., (_nbfl > 0) ? &top2 : nullptr);
 
-  _Lambda0 = new MatrixDense(_ncck, _nrhs);
-  _Lambda0->prodMatMatInPlace(&bot, &top);
+  _Lambda0.resize(_ncck, _nrhs);
+  _Lambda0.prodMatMatInPlace(&bot, &top);
 
   return 0;
 }
@@ -1428,10 +1408,10 @@ void KrigingAlgebra::dumpWGT() {
   const MatrixDense* lambda;
   if (_flagSK || _flagBayes) {
     if (_needLambdaSK()) return;
-    lambda = _LambdaSK;
+    lambda = &_LambdaSK;
   } else {
     if (_needLambdaUK()) return;
-    lambda = _LambdaUK;
+    lambda = &_LambdaUK;
   }
   if (_needSampleRanks()) return;
   char string[20];
@@ -1521,7 +1501,7 @@ void KrigingAlgebra::dumpAux() {
   for (int ibfl = 0; ibfl < _nbfl; ibfl++) {
     tab_printi(NULL, ibfl + 1);
     for (int irhs = 0; irhs < _nrhs; irhs++)
-      tab_printg(NULL, _MuUK->getValue(ibfl, irhs, false));
+      tab_printg(NULL, _MuUK.getValue(ibfl, irhs, false));
     tab_printg(NULL, _Beta[ibfl]);
     message("\n");
   }
