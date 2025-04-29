@@ -64,12 +64,10 @@ jobs:
         r-version: ${{matrix.r_version}}
 
     - name: Install R dependencies
-      run: |
-        Rscript -e "install.packages (
-          c('ggplot2', 
-            'ggpubr', 
-            'ggnewscale'),
-            repos='https://cloud.r-project.org/')"
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: ggpubr, ggplot2, ggnewscale
+        install-pandoc: false
 
     - name: Install roxygen2
       uses: r-lib/actions/setup-r-dependencies@v2
@@ -144,14 +142,20 @@ jobs:
       with:
         name: macos-r-package-${{matrix.arch.os}}-${{matrix.r_version}}
 
+    - name: Install macOS dependencies
+      run: brew install llvm
+
     - name: Setup R Version
       uses: r-lib/actions/setup-r@v2
       with:
         r-version: ${{matrix.r_version}}
 
-    - name: Install macOS dependencies
-      run: brew install llvm
-
+    - name: Install R dependencies
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: ggpubr, ggplot2, ggnewscale
+        install-pandoc: false
+        
     - name: Install R package
       run: Rscript -e "install.packages(\"$(ls *.tgz)\", repos=NULL, type='source')"
 

@@ -92,6 +92,14 @@ jobs:
       with:
         name: linux-r-package
 
+    - name: Install R dependencies
+      run: |
+        Rscript -e "install.packages (
+          c('ggplot2', 
+            'ggpubr', 
+            'ggnewscale'),
+            repos='https://cloud.r-project.org/')"
+            
     - name: Install R package
       run: Rscript -e "install.packages(\"$(ls *.tar.gz)\", repos=NULL, type='source')"
 

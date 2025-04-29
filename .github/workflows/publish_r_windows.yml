@@ -51,12 +51,10 @@ jobs:
         r-version: ${{matrix.r_version}}
 
     - name: Install R dependencies
-      run: |
-        Rscript -e "install.packages (
-          c('ggplot2', 
-            'ggpubr', 
-            'ggnewscale'),
-            repos='https://cloud.r-project.org/')"
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: ggpubr, ggplot2, ggnewscale
+        install-pandoc: false
 
     - name: Install roxygen2
       uses: r-lib/actions/setup-r-dependencies@v2
@@ -140,6 +138,12 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
+    - name: Install R dependencies
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: ggpubr, ggplot2, ggnewscale
+        install-pandoc: false
+        
     - name: Install R package
       run: Rscript -e "install.packages(""'""./$(ls *.zip)""'"", repos=NULL, type='source')"
       shell: bash
