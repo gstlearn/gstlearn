@@ -63,11 +63,11 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
-    - name: Install roxygen2
+    - name: Install R dependencies
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
-        packages: roxygen2, pkgbuild
-        install-pandoc: true
+        packages: roxygen2, pkgbuild, ggpubr, ggplot2, ggnewscale
+        install-pandoc: false
 
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-unix-action@v1
