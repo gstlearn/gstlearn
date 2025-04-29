@@ -76,6 +76,23 @@ jobs:
       with:
         r-version: ${{env.R_VERSION}}
 
+    - name: Install R dependencies
+      run: |
+        Rscript -e "install.packages (
+          c('ggplot2', 
+            'vctrs', 
+            'ggpubr', 
+            'ggrepel', 
+            'ggnewscale', 
+            'lares', 
+            'Matrix', 
+            'FNN', 
+            'rgl', 
+            'tidyr', 
+            'geigen', 
+            'callr'),
+            repos='https://cloud.r-project.org/')"
+            
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-unix-action@v1
       with:
