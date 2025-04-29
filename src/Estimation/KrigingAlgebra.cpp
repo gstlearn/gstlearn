@@ -919,7 +919,7 @@ int KrigingAlgebra::_needSigma00p() {
   if (_Sigma00p != nullptr) return 0;
   if (_needSigma00()) return 1;
   if (_needColCok()) return 1;
-  _Sigma00p = MatrixDense::sample(_Sigma00, _rankColVars, VectorInt());
+  MatrixDense::sample(*_Sigma00p, *_Sigma00, _rankColVars, VectorInt());
   return 0;
 }
 
@@ -927,7 +927,7 @@ int KrigingAlgebra::_needSigma00pp() {
   if (_Sigma00pp != nullptr) return 0;
   if (_needSigma00()) return 1;
   if (_needColCok()) return 1;
-  _Sigma00pp = MatrixSymmetric::sample(_Sigma00, _rankColVars);
+  MatrixSymmetric::sample(*_Sigma00pp, *_Sigma00, _rankColVars);
   return 0;
 }
 
@@ -936,7 +936,7 @@ int KrigingAlgebra::_needSigma0p() {
   if (_needSigma0()) return 1;
   if (_needColCok()) return 1;
 
-  _Sigma0p = MatrixDense::sample(_Sigma0, VectorInt(), _rankColVars);
+  MatrixDense::sample(*_Sigma0p, *_Sigma0, VectorInt(), _rankColVars);
   return 0;
 }
 
@@ -945,7 +945,7 @@ int KrigingAlgebra::_needX0p() {
   if (_needX0()) return 1;
   if (_needColCok()) return 1;
 
-  _X0p = MatrixDense::sample(_X0, _rankColVars, VectorInt());
+  MatrixDense::sample(*_X0p, *_X0, _rankColVars, VectorInt());
   return 0;
 }
 
@@ -1035,55 +1035,53 @@ int KrigingAlgebra::_patchRHSForXvalidUnique() {
   if (_needXvalid()) return 1;
 
   // Extract S00
-  MatrixSymmetric* S00 =
-    MatrixSymmetric::sample(_Sigma, *_rankXvalidEqs);
+  MatrixSymmetric S00;
+  MatrixSymmetric::sample(S00, *_Sigma, *_rankXvalidEqs);
 
   // Extract alpha and invert it
-  MatrixSymmetric* alpha =
-    MatrixSymmetric::sample(_InvSigma, *_rankXvalidEqs);
-  MatrixSymmetric InvAlpha = *alpha;
+  MatrixSymmetric alpha;
+  MatrixSymmetric::sample(alpha, *_InvSigma, *_rankXvalidEqs);
+  MatrixSymmetric InvAlpha = alpha;
   InvAlpha.invert();
 
   // Calculate a1 term
   MatrixSymmetric omega(_nxvalid);
-  omega.linearCombination(1., S00, -1., &InvAlpha);
+  omega.linearCombination(1., &S00, -1., &InvAlpha);
 
   if (_nbfl > 0) {
     // Extract beta
-    MatrixDense* beta = MatrixDense::sample(
-      _InvSigma, *_rankXvalidEqs, *_rankXvalidEqs, false, true);
+    MatrixDense beta;
+    MatrixDense::sample(beta, *_InvSigma, *_rankXvalidEqs, *_rankXvalidEqs, false, true);
 
     // Extracting delta
-    MatrixSymmetric* delta =
-      MatrixSymmetric::sample(_InvSigma, *_rankXvalidEqs, true);
+    MatrixSymmetric delta;
+    MatrixSymmetric::sample(delta, *_InvSigma, *_rankXvalidEqs, true);
 
     // Extract Drift matrix at target point
-    MatrixDense* X0 =
-      MatrixDense::sample(_X, *_rankXvalidEqs, VectorInt());
+    MatrixDense X0;
+    MatrixDense::sample(X0, *_X, *_rankXvalidEqs, VectorInt());
 
     // Extract Drift matrix at data point
-    MatrixDense* X =
-      MatrixDense::sample(_X, *_rankXvalidEqs, VectorInt(), true);
+    MatrixDense X;
+    MatrixDense::sample(X, *_X, *_rankXvalidEqs, VectorInt(), true);
 
     // Compute epsilon (up to its sign); inv(alpha) * beta
-    AMatrix* p1 = MatrixFactory::prodMatMat(&InvAlpha, beta);
+    AMatrix* p1 = MatrixFactory::prodMatMat(&InvAlpha, &beta);
     MatrixDense epsilon(_nxvalid, _nbfl);
-    epsilon.prodMatMatInPlace(p1, X);
+    epsilon.prodMatMatInPlace(p1, &X);
     delete p1;
 
     // Compute a3 (transpose)
     MatrixDense a3(_nxvalid, _nbfl);
-    a3.linearCombination(1., X0, 1., &epsilon);
+    a3.linearCombination(1., &X0, 1., &epsilon);
 
     // Compute a2 (inverted)
     MatrixSymmetric a2(_nbfl);
-    a2.prodNormMatMatInPlace(X, delta, true);
+    a2.prodNormMatMatInPlace(&X, &delta, true);
     MatrixSymmetric p3(_nbfl);
-    p3.prodNormMatMatInPlace(&epsilon, alpha, true);
+    p3.prodNormMatMatInPlace(&epsilon, &alpha, true);
     a2.linearCombination(1., &a2, -1., &p3);
     a2.invert();
-    delete delta;
-    delete X;
 
     // Compute omega
     MatrixSymmetric p4(_nxvalid);
@@ -1091,17 +1089,16 @@ int KrigingAlgebra::_patchRHSForXvalidUnique() {
     omega.linearCombination(1., &omega, -1., &p4);
 
     // Patch the Right-hand side vector (Drift part)
-    _X_RHS = MatrixDense::sample(_X, *_rankXvalidEqs, VectorInt());
+    MatrixDense::sample(*_X_RHS, *_X, *_rankXvalidEqs, VectorInt());
   }
 
   // Patch the Right-hand side vector (Covariance part)
-  _C_RHS = MatrixDense::sample(_Sigma, VectorInt(), *_rankXvalidEqs, false, false);
+  MatrixDense::sample(*_C_RHS, *_Sigma, VectorInt(), *_rankXvalidEqs, false, false);
   _C_RHS->unsample(&omega, *_rankXvalidEqs, VectorInt());
 
   setRHS(_C_RHS, _X_RHS);
 
-  setVariance(S00->clone());
-  delete alpha;
+  setVariance(S00.clone());
 
   return 0;
 }
