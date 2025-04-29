@@ -101,6 +101,11 @@ jobs:
         $PKG_PATH = Get-ChildItem -Path "${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/gstlearn_*.zip" -File
         echo "MY_PKG=$PKG_PATH" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
+    - name : Always show r_doc log
+      if: success() || failure()
+      run: |
+        cat ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/create_doc.out
+
     - uses: actions/upload-artifact@v4
       # Use specific artifact identifier for publishing all R versions
       with:

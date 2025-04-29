@@ -99,6 +99,11 @@ jobs:
         cmake --build ${{env.BUILD_DIR}} --parallel 3 --target r_install
         echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/gstlearn_*.tgz)" >> "$GITHUB_ENV"
 
+    - name : Always show r_doc log
+      if: success() || failure()
+      run: |
+        cat ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/create_doc.out
+
     - uses: actions/upload-artifact@v4
       # Use specific artifact identifier for publishing all versions
       with:
