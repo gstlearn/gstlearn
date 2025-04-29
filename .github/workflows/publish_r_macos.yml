@@ -67,7 +67,7 @@ jobs:
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
         packages: roxygen2, pkgbuild
-        install-pandoc: false
+        install-pandoc: true
 
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-unix-action@v1
