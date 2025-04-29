@@ -44,10 +44,12 @@ jobs:
         git config --global --add safe.directory $GITHUB_WORKSPACE
 
     - name: Install R dependencies
-      uses: r-lib/actions/setup-r-dependencies@v2
-      with:
-        packages: pkgbuild, ggpubr, ggplot2, ggnewscale
-        install-pandoc: false
+      run: |
+        Rscript -e "install.packages (
+          c('ggplot2', 
+            'ggpubr', 
+            'ggnewscale'),
+            repos='https://cloud.r-project.org/')"
 
     - name : Configure build directory
       run : |
