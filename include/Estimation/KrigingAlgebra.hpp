@@ -39,9 +39,6 @@ public:
                  const MatrixDense* X           = nullptr,
                  const MatrixSymmetric* Sigma00 = nullptr,
                  const VectorDouble* Means            = nullptr);
-  KrigingAlgebra(const KrigingAlgebra& r)            = delete;
-  KrigingAlgebra& operator=(const KrigingAlgebra& r) = delete;
-  virtual ~KrigingAlgebra();
 
   void setDual(bool status);
   void resetNewData();

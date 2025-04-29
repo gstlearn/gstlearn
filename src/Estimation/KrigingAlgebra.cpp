@@ -79,10 +79,6 @@ KrigingAlgebra::KrigingAlgebra(bool flagDual,
   (void)setVariance(Sigma00);
 }
 
-KrigingAlgebra::~KrigingAlgebra() {
-  _resetAll();
-}
-
 void KrigingAlgebra::_resetAll() {
   _resetLinkedToZ();
   _resetLinkedToLHS();
