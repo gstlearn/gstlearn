@@ -33,56 +33,75 @@ static std::vector<std::vector<const IProj*>> castToBase(const std::vector<std::
     return casted;
 }
 
-ProjMultiMatrix ProjMultiMatrix::createFromDbAndMeshes(const Db* db,const std::vector<const AMesh*> &meshes,bool verbose)
+/**
+ * @brief Construct the Projection Matrix starting from 'db' and 'meshes'
+ * 
+ * @param db  Target Db structure
+ * @param meshes List of target meshes
+ * @param nvar Number of variables (see notes)
+ * @param verbose Verbose flag
+ * @return ProjMultiMatrix 
+ * @note Argument 'nvar' is provided as it cannot be derived from 'db'
+ * (when 'db' refers to the output file for example, where no Z-variable is created)
+ */
+ProjMultiMatrix ProjMultiMatrix::createFromDbAndMeshes(const Db* db,
+                                                       const std::vector<const AMesh*>& meshes,
+                                                       int nvar,
+                                                       bool verbose)
 {
-    std::vector<std::vector<const ProjMatrix*>> stockerempty(0);
-    
-    ProjMultiMatrix empty(stockerempty,false,true);
+  std::vector<std::vector<const ProjMatrix*>> stockerempty(0);
 
-     if (db==nullptr)
-     {
-        messerr("db is null");
-        return empty;
-     }
-    
-    int nvar = db->getNLoc(ELoc::Z);
+  ProjMultiMatrix empty(stockerempty, false, true);
 
-    int nmeshes = (int)meshes.size();
-    if (nmeshes == 0)
+  if (db == nullptr)
+  {
+    messerr("db is null");
+    return empty;
+  }
+  if (nvar <= 0)
+  {
+    messerr("nvar should be > 0");
+    return empty;
+  }
+
+  int nmeshes = (int)meshes.size();
+  if (nmeshes == 0)
+  {
+    messerr("You have to provide at least one mesh");
+    return empty;
+  }
+  if (nmeshes != 1 && nmeshes != nvar)
+  {
+    messerr("Inconsistent number of meshes and variables");
+    return empty;
+  }
+
+  for (const auto& e: meshes)
+  {
+    if (e == nullptr)
     {
-        messerr("You have to provide at least one mesh");
-        return empty;
+      messerr("All the meshes have to be defined");
+      return empty;
     }
-    if (nmeshes != 1 && nmeshes!= nvar)
-    {
-        messerr("Inconsistent number of meshes and variables");
-        return empty;
-    }
+  }
+  std::vector<std::vector<const ProjMatrix*>> stocker;
 
-    for (const auto &e : meshes)
-    {
-        if (e == nullptr)
-        {
-            messerr("All the meshes have to be defined");
-            return empty;
-        }
-    }
-    std::vector<std::vector<const ProjMatrix*>> stocker;
-
-    int nmesh = (int)meshes.size();
-    for (int ivar = 0; ivar < nvar; ivar++)
-    {   
-        stocker.push_back(std::vector<const ProjMatrix*>());
-        for (int imesh = 0; imesh < nmesh; imesh++)
-            for (int jvar = 0; jvar < nvar; jvar ++)
-            {   
-                if (ivar != jvar)
-                    stocker[ivar].push_back(nullptr);
-                else
-                    stocker[ivar].push_back(new ProjMatrix(db,meshes[imesh],jvar,verbose));
-            }
-    }
-    return ProjMultiMatrix(stocker,true);
+  int nmesh = (int)meshes.size();
+  bool flagIsVar = db->hasLocator(ELoc::Z);
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    stocker.push_back(std::vector<const ProjMatrix*>());
+    for (int imesh = 0; imesh < nmesh; imesh++)
+      for (int jvar = 0; jvar < nvar; jvar++)
+      {
+        int kvar = (flagIsVar) ? jvar : -1;
+        if (ivar != jvar)
+          stocker[ivar].push_back(nullptr);
+        else
+          stocker[ivar].push_back(new ProjMatrix(db, meshes[imesh], kvar, verbose));
+      }
+  }
+  return ProjMultiMatrix(stocker, true);
 }
 
 void ProjMultiMatrix::_clear()

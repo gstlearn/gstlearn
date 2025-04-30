@@ -144,6 +144,12 @@ GSTLEARN_EXPORT int krigingSPDE(Db* dbin,
                                 bool verbose                    = false,
                                 bool showStats                  = false,
                                 const NamingConvention& namconv = NamingConvention("KrigingSPDE"));
+GSTLEARN_EXPORT VectorDouble krigingSPDENew(Db* dbin,
+                                            Db* dbout,
+                                            Model* model,
+                                            const VectorMeshes& meshes = VectorMeshes(),
+                                            int useCholesky            = -1,
+                                            const SPDEParam& params    = SPDEParam());
 GSTLEARN_EXPORT int simulateSPDE(Db* dbin,
                                  Db* dbout,
                                  Model* model,
@@ -155,6 +161,13 @@ GSTLEARN_EXPORT int simulateSPDE(Db* dbin,
                                  bool verbose                    = false,
                                  bool showStats                  = false,
                                  const NamingConvention& namconv = NamingConvention("SimuSPDE"));
+GSTLEARN_EXPORT VectorDouble simulateSPDENew(Db* dbin,
+                                             Db* dbout,
+                                             Model* model,
+                                             const VectorMeshes& meshes,
+                                             int nbsimu,
+                                             int useCholesky,
+                                             const SPDEParam& params = SPDEParam());
 GSTLEARN_EXPORT double logLikelihoodSPDE(Db* dbin,
                                          Model* model,
                                          Db* domain              = nullptr,
@@ -163,11 +176,4 @@ GSTLEARN_EXPORT double logLikelihoodSPDE(Db* dbin,
                                          int nbsimu              = 1,
                                          const SPDEParam& params = SPDEParam(),
                                          bool verbose            = false);
-GSTLEARN_EXPORT VectorDouble krigingSPDENew(Db* dbin,
-                                            Db* dbout,
-                                            Model* model,
-                                            const VectorMeshes& meshes      = VectorMeshes(),
-                                            int useCholesky                 = -1,
-                                            bool verbose                    = false,
-                                            const NamingConvention& namconv = NamingConvention("KrigingSPDE"));
 GSTLEARN_EXPORT MatrixSparse* buildInvNugget(Db* dbin, Model* model, const SPDEParam& params = SPDEParam());

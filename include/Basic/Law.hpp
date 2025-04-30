@@ -15,17 +15,17 @@
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/VectorNumT.hpp"
 
-GSTLEARN_EXPORT void law_set_old_style(bool style);
-GSTLEARN_EXPORT int law_get_random_seed(void);
-GSTLEARN_EXPORT void law_set_random_seed(int seed);
+GSTLEARN_EXPORT void   law_set_old_style(bool style);
+GSTLEARN_EXPORT int    law_get_random_seed(void);
+GSTLEARN_EXPORT void   law_set_random_seed(int seed);
 GSTLEARN_EXPORT double law_uniform(double mini=0., double maxi=1.);
-GSTLEARN_EXPORT int law_int_uniform(int mini, int maxi);
+GSTLEARN_EXPORT int    law_int_uniform(int mini, int maxi);
 GSTLEARN_EXPORT double law_gaussian(double mean = 0., double sigma = 1.);
 GSTLEARN_EXPORT double law_exponential(double lambda = 1.);
 GSTLEARN_EXPORT double law_gamma(double alpha, double beta = 1.);
 GSTLEARN_EXPORT double law_df_poisson(int i, double parameter);
 GSTLEARN_EXPORT VectorDouble law_df_poisson_vec(VectorInt is, double parameter);
-GSTLEARN_EXPORT int law_poisson(double parameter);
+GSTLEARN_EXPORT int    law_poisson(double parameter);
 GSTLEARN_EXPORT double law_stable_standard_agd(double alpha, double beta);
 GSTLEARN_EXPORT double law_stable_standard_a1gd(double beta);
 GSTLEARN_EXPORT double law_stable_standard_abgd(double alpha);
@@ -38,7 +38,7 @@ GSTLEARN_EXPORT double law_stable(double alpha,
                                   double beta,
                                   double gamma,
                                   double delta);
-GSTLEARN_EXPORT int law_binomial(int n, double p);
+GSTLEARN_EXPORT int    law_binomial(int n, double p);
 GSTLEARN_EXPORT double law_beta1(double parameter1, double parameter2);
 GSTLEARN_EXPORT double law_beta2(double parameter1, double parameter2);
 GSTLEARN_EXPORT double law_df_gaussian(double value);

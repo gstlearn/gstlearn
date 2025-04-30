@@ -38,13 +38,22 @@ public:
   SPDEParam& operator=(const SPDEParam& m);
   virtual ~SPDEParam();
 
+  static SPDEParam* create(int refineK             = 11,
+                           int refineS             = 18,
+                           int border              = 8,
+                           bool flag_polarized     = true,
+                           int nxmax               = 300,
+                           double epsNugget        = EPSILON2,
+                           const CGParam& cgparams = CGParam());
+                           
   int     getBorder() const { return _border; }
   CGParam getCGparams() const { return _CGparams; }
   double  getEpsNugget() const { return _epsNugget; }
   int     getRefineK() const { return _refineK; }
   int     getRefineS() const { return _refineS; }
-  bool isPolarized() const { return _flagPolarized; }
-  void setPolarized(bool flagPolarized) { _flagPolarized = flagPolarized; }  int     getNxMax() const { return _nxmax; }
+  bool    isPolarized() const { return _flagPolarized; }
+  void    setPolarized(bool flagPolarized) { _flagPolarized = flagPolarized; }  
+  int     getNxMax() const { return _nxmax; }
 
   void setBorder(int border) { _border = border; }
   void setCGparams(const CGParam& CGparams) { _CGparams = CGparams; }
@@ -57,7 +66,7 @@ private:
   int     _refineK;
   int     _refineS;
   int     _border;
-  bool _flagPolarized;
+  bool    _flagPolarized;
   int     _nxmax;
   double  _epsNugget;
   CGParam _CGparams;
