@@ -43,6 +43,11 @@ jobs:
       run: |
         git config --global --add safe.directory $GITHUB_WORKSPACE
 
+    - name: Install dependencies
+      run: |
+        dnf update -y
+        dnf install -y udunits2-devel
+
     - name: Install R dependencies
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
@@ -89,6 +94,11 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         name: linux-r-package
+
+    - name: Install dependencies
+      run: |
+        dnf update -y
+        dnf install -y udunits2-devel
 
     - name: Install R dependencies
       uses: r-lib/actions/setup-r-dependencies@v2
