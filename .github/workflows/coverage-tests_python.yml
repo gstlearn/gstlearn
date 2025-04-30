@@ -44,8 +44,7 @@ jobs:
     - name: Install gstlearn
       run: |
         python -m pip install --upgrade pip
-        python -m pip install gstlearn
-        python -m pip install scipy
+        python -m pip install gstlearn[conv]
 
     - name: Run the python tests
       run: |
