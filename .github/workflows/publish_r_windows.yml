@@ -40,7 +40,7 @@ jobs:
     strategy:
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
-        r_version: [4.0.5, 4.1.3, 4.2.3, 4.3.3, 4.4.3, 4.5.0]
+        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.0]
 
     steps:
     - uses: actions/checkout@v4
@@ -53,13 +53,7 @@ jobs:
     - name: Install R dependencies
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
-        packages: ggpubr, ggplot2, ggnewscale
-        install-pandoc: false
-
-    - name: Install roxygen2
-      uses: r-lib/actions/setup-r-dependencies@v2
-      with:
-        packages: roxygen2, pkgbuild
+        packages: ggpubr, ggplot2, ggnewscale, roxygen2, pkgbuild
         install-pandoc: false
 
     - name: Install dependencies
@@ -124,7 +118,7 @@ jobs:
     strategy:
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
-        r_version: [4.0.5, 4.1.3, 4.2.3, 4.3.3, 4.4.3, 4.5.0]
+        r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.0]
 
     steps:
     - uses: actions/checkout@v4
