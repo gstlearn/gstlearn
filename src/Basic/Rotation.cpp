@@ -139,11 +139,6 @@ String Rotation::toString(const AStringFormat* strfmt) const
 
 void Rotation::rotateDirect(const VectorDouble& inv, VectorDouble& outv) const
 {
-  this->rotateDirect(inv.getVector(), outv.getVector());
-}
-
-void Rotation::rotateDirect(const std::vector<double>& inv, std::vector<double>& outv) const
-{
   if (!_flagRot)
     outv = inv;
   else
@@ -151,11 +146,6 @@ void Rotation::rotateDirect(const std::vector<double>& inv, std::vector<double>&
 }
 
 void Rotation::rotateInverse(const VectorDouble& inv, VectorDouble& outv) const
-{
-  this->rotateInverse(inv.getVector(), outv.getVector());
-}
-
-void Rotation::rotateInverse(const std::vector<double>& inv, std::vector<double>& outv) const
 {
   if (!_flagRot)
     outv = inv;
