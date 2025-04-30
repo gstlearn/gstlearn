@@ -244,8 +244,8 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         if (meshUser == nullptr)
         {
           mesh        = MeshETurbo::createFromCova(*cova, domain, _params.getRefineS(),
-                                                   _params.getBorder(), useSel, 
-                                            _params.isPolarized(),        flagNoStatRot, _params.getNxMax(), 
+                                                   _params.getBorder(), useSel,
+                                                   _params.isPolarized(), flagNoStatRot, _params.getNxMax(),
                                                    verbose);
           _deleteMesh = true;
         }
@@ -1095,39 +1095,25 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
  * @param model Model definition
  * @param meshes Meshes description (optional)
  * @param useCholesky Define the choice regarding Cholesky
- * @param verbose Verbose flag
- * @param namconv Naming convention
- * @return Error return code
- *
- * @remarks You can provide an already existing mesh. Otherwise an optimal mesh
- * will be created
- * @remarks internally: one per structure constituting the Model for Kriging.
- * @remarks Each mesh is created using the Turbo Meshing facility... based on an
- * internal grid.
- * @remarks This internal grid is rotated according to the rotation of the
- * structure. Its mesh size
- * @remarks is derived from the range (per direction) by dividing it by the
- * refinement factor.
- *
+ * @param params Set of SPDE parameters
+ * @return Returned vector
  */
 VectorDouble krigingSPDENew(Db* dbin,
                             Db* dbout,
                             Model* model,
                             const VectorMeshes& meshes,
                             int useCholesky,
-                            bool verbose,
-                            const NamingConvention& namconv)
+                            const SPDEParam& params)
 {
-  DECLARE_UNUSED(verbose);
-  DECLARE_UNUSED(namconv);
-  if (dbin == nullptr) return 1;
+  if (dbin  == nullptr) return 1;
   if (dbout == nullptr) return 1;
   if (model == nullptr) return 1;
+  int nvar = model->getNVar();
   auto Z    = dbin->getColumnsActiveAndDefined(ELoc::Z);
-  auto AM   = ProjMultiMatrix::createFromDbAndMeshes(dbin, meshes);
-  auto Aout = ProjMultiMatrix::createFromDbAndMeshes(dbout, meshes);
-  MatrixSparse* invnoise = buildInvNugget(dbin, model);
-  VectorDouble result;
+  auto AM   = ProjMultiMatrix::createFromDbAndMeshes(dbin, meshes, nvar);
+  auto Aout = ProjMultiMatrix::createFromDbAndMeshes(dbout, meshes, nvar);
+  MatrixSparse* invnoise = buildInvNugget(dbin, model, params);
+  VectorDouble  result;
   if (useCholesky)
   {
     PrecisionOpMultiMatrix Qop(model, meshes);
@@ -1140,9 +1126,61 @@ VectorDouble krigingSPDENew(Db* dbin,
     PrecisionOpMulti Qop(model, meshes);
     MatrixSymmetricSim invnoisep(invnoise);
     SPDEOp spdeop(&Qop, &AM, &invnoisep);
-    spdeop.setMaxIterations(1000);
-    spdeop.setTolerance(1e-5);
+    spdeop.setMaxIterations(params.getNxMax());
+    spdeop.setTolerance(params.getEpsNugget());
     auto resultmesh = spdeop.kriging(Z);
+    Aout.mesh2point(resultmesh, result);
+  }
+  delete invnoise;
+  return result;
+}
+
+/**
+ * Perform the SIMULATIONs under the SPDE framework
+ *
+ * @param dbin Input Db (must contain the variable to be estimated)
+ * @param dbout Output Db where the estimation must be performed
+ * @param model Model definition
+ * @param meshes Meshes description (optional)
+ * @param nbsimu Number of simulations
+ * @param useCholesky Define the choice regarding Cholesky
+ * @param params Set of SPDE parameters
+ *
+ * @return Returned vector
+ */
+VectorDouble simulateSPDENew(Db* dbin,
+                             Db* dbout,
+                             Model* model,
+                             const VectorMeshes& meshes,
+                             int nbsimu,
+                             int useCholesky,
+                             const SPDEParam& params)
+{
+  DECLARE_UNUSED(nbsimu);
+  if (dbin  == nullptr) return 1;
+  if (dbout == nullptr) return 1;
+  if (model == nullptr) return 1;
+  int nvar               = model->getNVar();
+  auto Z                 = dbin->getColumnsActiveAndDefined(ELoc::Z);
+  auto AM                = ProjMultiMatrix::createFromDbAndMeshes(dbin, meshes, nvar);
+  auto Aout              = ProjMultiMatrix::createFromDbAndMeshes(dbout, meshes, nvar);
+  MatrixSparse* invnoise = buildInvNugget(dbin, model, params);
+  VectorDouble result;
+  if (useCholesky)
+  {
+    PrecisionOpMultiMatrix Qop(model, meshes);
+    SPDEOpMatrix spdeop(&Qop, &AM, invnoise);
+    auto resultmesh = spdeop.kriging(Z);
+    Aout.mesh2point(resultmesh, result);
+  }
+  else
+  {
+    PrecisionOpMulti Qop(model, meshes, true);
+    MatrixSymmetricSim invnoisep(invnoise);
+    SPDEOp spdeop(&Qop, &AM, &invnoisep);
+    spdeop.setMaxIterations(params.getNxMax());
+    spdeop.setTolerance(params.getEpsNugget());
+    auto resultmesh = spdeop.simCond(Z);
     Aout.mesh2point(resultmesh, result);
   }
   delete invnoise;

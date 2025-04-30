@@ -40,7 +40,7 @@ int IProj::addPoint2mesh(const constvect inv, vect outv) const
 int IProj::mesh2point(const constvect inv, vect outv) const
 {
   std::fill(outv.begin(),outv.end(),0.);
-  return _addMesh2point(inv,outv);
+  return _addMesh2point(inv, outv);
 }
 
 int IProj::point2mesh(const constvect inv, vect outv) const

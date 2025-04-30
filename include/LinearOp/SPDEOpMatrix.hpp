@@ -32,8 +32,6 @@ private:
 #endif
 
 private:
-  mutable MatrixSparse _QpAinvNoiseAt; //mutable is required to perform the Cholesky decompositions
-  mutable CholeskySparse* _chol;         // when needed, e.g in a const method.
+  mutable MatrixSparse _QpAinvNoiseAt; // mutable is required to perform the Cholesky decompositions
+  mutable CholeskySparse* _chol;       // when needed, e.g in a const method.
 };
-                               
-

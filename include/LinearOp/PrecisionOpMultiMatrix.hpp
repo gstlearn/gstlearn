@@ -22,15 +22,16 @@ class GSTLEARN_EXPORT PrecisionOpMultiMatrix : public PrecisionOpMulti
 public:
   PrecisionOpMultiMatrix(Model* model               = nullptr,
                          const VectorMeshes& meshes = VectorMeshes());
-  PrecisionOpMultiMatrix(const PrecisionOpMulti &m)= delete;
-  PrecisionOpMultiMatrix& operator= (const PrecisionOpMulti &m)= delete;
+  PrecisionOpMultiMatrix(const PrecisionOpMulti& m)            = delete;
+  PrecisionOpMultiMatrix& operator=(const PrecisionOpMulti& m) = delete;
   virtual ~PrecisionOpMultiMatrix();
 
   const MatrixSparse* getQ() const;
-  private:
-  #ifndef SWIG
-    virtual int _addToDest(const constvect vecin,
-                               vect vecout) const override;
+
+private:
+#ifndef SWIG
+  virtual int _addToDest(const constvect vecin,
+                         vect vecout) const override;
 #endif
   MatrixSparse _prepareMatrixNoStat(int icov, const MatrixSparse* Q) const;
   MatrixSparse _prepareMatrixStationary(int icov, const MatrixSparse* Q) const;

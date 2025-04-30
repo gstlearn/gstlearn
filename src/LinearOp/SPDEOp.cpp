@@ -15,25 +15,25 @@
 #include "Matrix/MatrixDense.hpp"
 #include "geoslib_define.h"
 
-ASPDEOp::ASPDEOp(const PrecisionOpMulti* const popkriging,
-               const ProjMulti* const proj,
-               const ASimulable* const invNoise,
-               const PrecisionOpMulti* const popsimu,
-                const ProjMulti* const projSimu,
-               bool todelete)
-  : _QKriging(popkriging)
-  , _projKriging(proj)
+ASPDEOp::ASPDEOp(const PrecisionOpMulti* const popKriging,
+                 const ProjMulti* const projKriging,
+                 const ASimulable* const invNoise,
+                 const PrecisionOpMulti* const popSimu,
+                 const ProjMulti* const projSimu,
+                 bool todelete)
+  : _QKriging(popKriging)
+  , _projKriging(projKriging)
   , _invNoise(invNoise)
-  , _QSimu(popsimu == nullptr?_QKriging:popsimu)
-  , _projSimu(projSimu == nullptr?_projKriging:projSimu)
+  , _QSimu(popSimu == nullptr ? popKriging : popSimu)
+  , _projSimu(projSimu == nullptr ? projKriging : projSimu)
   , _solver(nullptr)
   , _noiseToDelete(todelete)
   , _ndat(0)
 {
-   if (_projKriging == nullptr) return;
-   if (_invNoise == nullptr) return;
-   if (_QKriging == nullptr) return;
-   _ndat = _projKriging->getNPoint();
+  if (_projKriging == nullptr) return;
+  if (_invNoise == nullptr) return;
+  if (_QKriging == nullptr) return;
+  _ndat = _projKriging->getNPoint();
   _prepare(true, true);
 }
 
@@ -114,7 +114,7 @@ VectorDouble ASPDEOp::simCond(const VectorDouble& dat) const
 }
 
 VectorDouble ASPDEOp::krigingWithGuess(const VectorDouble& dat,
-                                      const VectorDouble& guess) const
+                                       const VectorDouble& guess) const
 {
   constvect datm(dat.data(), dat.size());
   constvect guessm(guess.data(), guess.size());
@@ -133,8 +133,8 @@ int ASPDEOp::kriging(const constvect inv, vect out) const
 }
 
 int ASPDEOp::krigingWithGuess(const constvect inv,
-                             const constvect guess,
-                             vect out) const
+                              const constvect guess,
+                              vect out) const
 {
   _buildRhs(inv);
   return _solveWithGuess(_rhs, guess, out);
@@ -147,8 +147,8 @@ int ASPDEOp::_solve(const constvect in, vect out) const
 }
 
 int ASPDEOp::_solveWithGuess(const constvect in,
-                            const constvect guess,
-                            vect out) const
+                             const constvect guess,
+                             vect out) const
 {
   _solver->solveWithGuess(in, guess, out);
   return 0;
@@ -201,10 +201,7 @@ void ASPDEOp::evalInvCov(const constvect inv, vect result) const
   _projKriging->mesh2point(wms,w2s);
   //VectorHelper::multiplyConstant(w2s,-1);
   _invNoise->addToDest(w2s,result);
-
-  
 }
-
 
 VectorDouble ASPDEOp::computeDriftCoeffs(const VectorDouble& Z,
                                          const MatrixDense& drifts) const

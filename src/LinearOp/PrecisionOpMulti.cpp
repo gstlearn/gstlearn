@@ -215,7 +215,13 @@ void PrecisionOpMulti::_popsClear()
 
 bool PrecisionOpMulti::_matchModelAndMeshes() const 
 {
-  return _getNCov() == _getNMesh();
+  if (_getNCov() != _getNMesh())
+  {
+    messerr("The number of meshes (%d) and the number of covariances (%d) do not match",
+            _getNMesh(), _getNCov());
+    return false;
+  }
+  return true;
 }
 
 int PrecisionOpMulti::_getNVar() const
