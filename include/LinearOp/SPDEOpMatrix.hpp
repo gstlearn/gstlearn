@@ -22,7 +22,9 @@ class MatrixSparse;
 class GSTLEARN_EXPORT SPDEOpMatrix : public SPDEOp
 {
 public:
-  SPDEOpMatrix(const PrecisionOpMultiMatrix* pop = nullptr, const ProjMultiMatrix* A = nullptr, const MatrixSparse* invNoise = nullptr);
+  SPDEOpMatrix(const PrecisionOpMultiMatrix* pop = nullptr,
+               const ProjMultiMatrix* A          = nullptr,
+               const MatrixSparse* invNoise      = nullptr);
   virtual ~SPDEOpMatrix();
 
 #ifndef SWIG
