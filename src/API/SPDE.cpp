@@ -925,7 +925,6 @@ static MatrixSymmetric _buildSillPartialMatrix(const MatrixSymmetric &sillsRef,
  */
 MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
 {
-
   MatrixSparse* mat = nullptr;
   if (db == nullptr) return mat;
   int nech = db->getNSample();
@@ -1108,37 +1107,39 @@ VectorDouble krigingSPDENew(Db* dbin,
   if (dbin  == nullptr) return 1;
   if (dbout == nullptr) return 1;
   if (model == nullptr) return 1;
-  int nvar = model->getNVar();
-  auto Z    = dbin->getColumnsActiveAndDefined(ELoc::Z);
-  auto AM   = ProjMultiMatrix::createFromDbAndMeshes(dbin, meshes, nvar);
-  auto Aout = ProjMultiMatrix::createFromDbAndMeshes(dbout, meshes, nvar);
+  int nvar               = model->getNVar();
+  VectorDouble Z         = dbin->getColumnsActiveAndDefined(ELoc::Z);
+  ProjMultiMatrix* AM    = ProjMultiMatrix::createFromDbAndMeshes(dbin, meshes, nvar);
+  ProjMultiMatrix* Aout  = ProjMultiMatrix::createFromDbAndMeshes(dbout, meshes, nvar);
   MatrixSparse* invnoise = buildInvNugget(dbin, model, params);
-  VectorDouble  result;
+  VectorDouble result;
   if (useCholesky)
   {
     PrecisionOpMultiMatrix Qop(model, meshes);
-    SPDEOpMatrix spdeop(&Qop, &AM, invnoise);
+    SPDEOpMatrix spdeop(&Qop, AM, invnoise);
     auto resultmesh = spdeop.kriging(Z);
-    Aout.mesh2point(resultmesh, result);
+    Aout->mesh2point(resultmesh, result);
   }
   else
   {
     PrecisionOpMulti Qop(model, meshes);
     MatrixSymmetricSim invnoisep(invnoise);
-    SPDEOp spdeop(&Qop, &AM, &invnoisep);
+    SPDEOp spdeop(&Qop, AM, &invnoisep);
     spdeop.setMaxIterations(params.getNxMax());
     spdeop.setTolerance(params.getEpsNugget());
     auto resultmesh = spdeop.kriging(Z);
-    Aout.mesh2point(resultmesh, result);
+    Aout->mesh2point(resultmesh, result);
   }
   delete invnoise;
+  delete AM;
+  delete Aout;
   return result;
 }
 
 /**
  * Perform the SIMULATIONs under the SPDE framework
  *
- * @param dbin Input Db (must contain the variable to be estimated)
+ * @param dbin Input Db (variable to be estimated). Only for conditional simulations
  * @param dbout Output Db where the estimation must be performed
  * @param model Model definition
  * @param meshes Meshes description (optional)
@@ -1148,41 +1149,61 @@ VectorDouble krigingSPDENew(Db* dbin,
  *
  * @return Returned vector
  */
-VectorDouble simulateSPDENew(Db* dbin,
-                             Db* dbout,
-                             Model* model,
-                             const VectorMeshes& meshes,
-                             int nbsimu,
-                             int useCholesky,
-                             const SPDEParam& params)
+VectorVectorDouble simulateSPDENew(Db* dbin,
+                                   Db* dbout,
+                                   Model* model,
+                                   const VectorMeshes& meshes,
+                                   int nbsimu,
+                                   int useCholesky,
+                                   const SPDEParam& params)
 {
-  DECLARE_UNUSED(nbsimu);
-  if (dbin  == nullptr) return 1;
+  bool flagCond = (dbin != nullptr);
   if (dbout == nullptr) return 1;
   if (model == nullptr) return 1;
-  int nvar               = model->getNVar();
-  auto Z                 = dbin->getColumnsActiveAndDefined(ELoc::Z);
-  auto AM                = ProjMultiMatrix::createFromDbAndMeshes(dbin, meshes, nvar);
-  auto Aout              = ProjMultiMatrix::createFromDbAndMeshes(dbout, meshes, nvar);
-  MatrixSparse* invnoise = buildInvNugget(dbin, model, params);
-  VectorDouble result;
+  int nvar = model->getNVar();
+  VectorDouble Z;
+  ProjMultiMatrix* AM           = nullptr;
+  MatrixSparse* invnoise        = nullptr;
+  MatrixSymmetricSim* invnoisep = nullptr;
+  if (flagCond)
+  {
+    Z         = dbin->getColumnsActiveAndDefined(ELoc::Z);
+    AM        = ProjMultiMatrix::createFromDbAndMeshes(dbin, meshes, nvar);
+    invnoise  = buildInvNugget(dbin, model, params);
+    invnoisep = new MatrixSymmetricSim(invnoise);
+   }
+  ProjMultiMatrix* Aout = ProjMultiMatrix::createFromDbAndMeshes(dbout, meshes, nvar);
+
+  VectorVectorDouble result(nbsimu);
   if (useCholesky)
   {
     PrecisionOpMultiMatrix Qop(model, meshes);
-    SPDEOpMatrix spdeop(&Qop, &AM, invnoise);
-    auto resultmesh = spdeop.kriging(Z);
-    Aout.mesh2point(resultmesh, result);
+    SPDEOpMatrix* spdeop = new SPDEOpMatrix(&Qop, AM, invnoise);
+
+    for (int isimu = 0; isimu < nbsimu; isimu++)
+    {
+      VectorDouble resultmesh = (flagCond) ? spdeop->simCond(Z) : spdeop->simNCond();
+      Aout->mesh2point(resultmesh, result[isimu]);
+    }
+    delete spdeop;
   }
   else
   {
     PrecisionOpMulti Qop(model, meshes, true);
-    MatrixSymmetricSim invnoisep(invnoise);
-    SPDEOp spdeop(&Qop, &AM, &invnoisep);
-    spdeop.setMaxIterations(params.getNxMax());
-    spdeop.setTolerance(params.getEpsNugget());
-    auto resultmesh = spdeop.simCond(Z);
-    Aout.mesh2point(resultmesh, result);
+    SPDEOp* spdeop = new SPDEOp(&Qop, AM, invnoisep);
+    spdeop->setMaxIterations(params.getNxMax());
+    spdeop->setTolerance(params.getEpsNugget());
+
+    for (int isimu = 0; isimu < nbsimu; isimu ++)
+    {
+      VectorDouble resultmesh = (flagCond) ? spdeop->simCond(Z) : spdeop->simNCond();
+      Aout->mesh2point(resultmesh, result[isimu]);
+    }
+    delete spdeop;
   }
+  delete AM;
+  delete Aout;
   delete invnoise;
+  delete invnoisep;
   return result;
 }

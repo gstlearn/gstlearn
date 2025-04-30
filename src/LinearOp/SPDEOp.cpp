@@ -78,7 +78,6 @@ void ASPDEOp::simCond(const constvect data, vect outv) const
   _QSimu->evalSimulate(_workNoiseMesh, outv); 
   
   //Simulation at data locations (projection + noise)
-  
   _projSimu->mesh2point(outv, _workdat3); //Projection on data locations
   VH::simulateGaussianInPlace(_workNoiseData);
   _invNoise->addSimulateToDest(_workNoiseData, _workdat3); //Add noise
@@ -92,6 +91,17 @@ void ASPDEOp::simCond(const constvect data, vect outv) const
   
   //Add the kriging to the non conditional simulation
   VH::addInPlace(_workmesh,outv); 
+}
+
+void ASPDEOp::simNCond(vect outv) const
+{
+  // Resize if necessary
+  _workmesh.resize(getSizeSimu());
+  _workNoiseMesh.resize(getSizeSimu());
+
+  // Non conditional simulation on mesh
+  VH::simulateGaussianInPlace(_workNoiseMesh);
+  _QSimu->evalSimulate(_workNoiseMesh, outv);
 }
 
 VectorDouble ASPDEOp::kriging(const VectorDouble& dat) const
@@ -110,6 +120,14 @@ VectorDouble ASPDEOp::simCond(const VectorDouble& dat) const
   VectorDouble outv(_QSimu->getSize());
   vect outvs(outv);
   simCond(datm, outvs);
+  return outv;
+}
+
+VectorDouble ASPDEOp::simNCond() const
+{
+  VectorDouble outv(_QSimu->getSize());
+  vect outvs(outv);
+  simNCond(outvs);
   return outv;
 }
 

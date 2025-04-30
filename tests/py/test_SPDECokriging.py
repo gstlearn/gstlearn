@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # %% General parameters
-flag_plot = True
+flag_plot = False
 ndim = 2
 nvar = 2
 dat  = gl.Db.createFillRandom(ndat=100, ndim = 2,nvar = 0,

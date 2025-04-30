@@ -17,7 +17,7 @@
 class GSTLEARN_EXPORT ProjMulti : public IProj
 {
 public:
-  ProjMulti(const std::vector<std::vector<const IProj*>> &projs,bool silent = false);
+  ProjMulti(const std::vector<std::vector<const IProj*>> &projs, bool silent = false);
   int getNApex() const override;
   int getNPoint() const override;
   int getNVariable() const { return _nvariable; }

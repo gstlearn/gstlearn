@@ -44,36 +44,32 @@ static std::vector<std::vector<const IProj*>> castToBase(const std::vector<std::
  * @note Argument 'nvar' is provided as it cannot be derived from 'db'
  * (when 'db' refers to the output file for example, where no Z-variable is created)
  */
-ProjMultiMatrix ProjMultiMatrix::createFromDbAndMeshes(const Db* db,
-                                                       const std::vector<const AMesh*>& meshes,
-                                                       int nvar,
-                                                       bool verbose)
+ProjMultiMatrix* ProjMultiMatrix::createFromDbAndMeshes(const Db* db,
+                                                        const std::vector<const AMesh*>& meshes,
+                                                        int nvar,
+                                                        bool verbose)
 {
-  std::vector<std::vector<const ProjMatrix*>> stockerempty(0);
-
-  ProjMultiMatrix empty(stockerempty, false, true);
-
-  if (db == nullptr)
+   if (db == nullptr)
   {
     messerr("db is null");
-    return empty;
+    return nullptr;
   }
   if (nvar <= 0)
   {
     messerr("nvar should be > 0");
-    return empty;
+    return nullptr;
   }
 
   int nmeshes = (int)meshes.size();
   if (nmeshes == 0)
   {
     messerr("You have to provide at least one mesh");
-    return empty;
+    return nullptr;
   }
   if (nmeshes != 1 && nmeshes != nvar)
   {
     messerr("Inconsistent number of meshes and variables");
-    return empty;
+    return nullptr;
   }
 
   for (const auto& e: meshes)
@@ -81,9 +77,10 @@ ProjMultiMatrix ProjMultiMatrix::createFromDbAndMeshes(const Db* db,
     if (e == nullptr)
     {
       messerr("All the meshes have to be defined");
-      return empty;
+      return nullptr;
     }
   }
+
   std::vector<std::vector<const ProjMatrix*>> stocker;
 
   int nmesh = (int)meshes.size();
@@ -101,7 +98,7 @@ ProjMultiMatrix ProjMultiMatrix::createFromDbAndMeshes(const Db* db,
           stocker[ivar].push_back(new ProjMatrix(db, meshes[imesh], kvar, verbose));
       }
   }
-  return ProjMultiMatrix(stocker, true);
+  return new ProjMultiMatrix(stocker, true);
 }
 
 void ProjMultiMatrix::_clear()
@@ -123,49 +120,52 @@ ProjMultiMatrix::~ProjMultiMatrix()
 {
 }
 
-std::vector<std::vector<const ProjMatrix*>> ProjMultiMatrix::create(std::vector<const ProjMatrix*> &vectproj, int nvariable)
+std::vector<std::vector<const ProjMatrix*>> ProjMultiMatrix::create(std::vector<const ProjMatrix*>& vectproj,
+                                                                    int nvariable)
 {
-    int nlatent = (int) vectproj.size();
-    std::vector<std::vector<const ProjMatrix*>> result;
+  int nlatent = (int)vectproj.size();
+  std::vector<std::vector<const ProjMatrix*>> result;
 
-    
-    for (int i = 0; i < nlatent; i++)
+  for (int i = 0; i < nlatent; i++)
+  {
+    if (vectproj[i] == nullptr)
     {
-        if (vectproj[i] == nullptr)
-        {
-            messerr("Projmatrix shouldn't be nullptr.");
-            return result;
-        }
+      messerr("Projmatrix shouldn't be nullptr.");
+      return result;
     }
+  }
 
-    int npoint = vectproj[0]->getNPoint();
+  int npoint = vectproj[0]->getNPoint();
 
-    for (int i = 1; i < nlatent; i++)
+  for (int i = 1; i < nlatent; i++)
+  {
+    if (vectproj[i]->getNPoint() != npoint)
     {
-        if (vectproj[i]->getNPoint() != npoint)
-        {
-            messerr("All the ProjMatrix should have the same number of Point.");
-            messerr("Element %d has %d Point instead of %d.",i,vectproj[i]->getNPoint(),npoint);
-            return result;
-        }
+      messerr("All the ProjMatrix should have the same number of Point.");
+      messerr("Element %d has %d Point instead of %d.", i, vectproj[i]->getNPoint(), npoint);
+      return result;
     }
-    result.resize(nvariable);
-    for (int i = 0; i < nvariable; i++)
+  }
+
+  result.resize(nvariable);
+  for (int i = 0; i < nvariable; i++)
+  {
+    std::vector<const ProjMatrix*> e(nlatent * nvariable, nullptr);
+    for (int j = 0; j < nlatent; j++)
     {
-        std::vector<const ProjMatrix*> e(nlatent * nvariable,nullptr);
-        for (int j = 0; j < nlatent; j++)
-        {   
-            e[j * nvariable + i] = vectproj[j];
-        }
-        result[i] = e;
+      e[j * nvariable + i] = vectproj[j];
     }
-    return result;
+    result[i] = e;
+  }
+  return result;
 }
 
-ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*>> &proj, bool toClean, bool silent)
-: ProjMulti(castToBase(proj),silent)
-, _Proj(MatrixSparse(0,0))
-, _toClean(toClean)
+ProjMultiMatrix::ProjMultiMatrix(const std::vector<std::vector<const ProjMatrix*>>& proj,
+                                 bool toClean,
+                                 bool silent)
+  : ProjMulti(castToBase(proj), silent)
+  , _Proj(MatrixSparse(0, 0))
+  , _toClean(toClean)
 {
   if (ProjMulti::empty()) return;
   const VectorInt& pointNumbers = getNPoints();
