@@ -43,6 +43,17 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
+    # https://stackoverflow.com/questions/69639782/installing-gfortran-on-macbook-with-apple-m1-chip-for-use-in-r
+    - name: Fix gfortran path for R
+      run: |
+        if [[ "${{ matrix.os }}" =~ ^"macos" ]]; then
+          mkdir -p ~/.R
+          echo "FC      = /usr/local/bin/gfortran" >> ~/.R/Makevars
+          echo "F77     = /usr/local/bin/gfortran" >> ~/.R/Makevars
+          echo "FLIBS   = -L/usr/local/bin/gfortran/lib" >> ~/.R/Makevars
+        fi
+      shell: bash
+      
     # Do not use r-lib/actions/setup-r-dependencies
     - name: Install R dependencies
       run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale'),
