@@ -15,12 +15,15 @@ jobs:
   build:
     runs-on: ${{matrix.os}}
     strategy:
+      fail-fast: false
       matrix:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
         r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.0]
         # See the list here: https://github.com/actions/runner-images#available-images
         os: [ubuntu-22.04, ubuntu-24.04, windows-2019, windows-2022, macos-13, macos-14, macos-15]
         exclude:
+          - os: ubuntu-22.04
+            r_version: 4.2.3  # ggpubr install fails
           - os: macos-13
             r_version: 4.3.3
           - os: macos-13
@@ -56,16 +59,9 @@ jobs:
 
     - name: Install R dependencies
       uses: r-lib/actions/setup-r-dependencies@v2
-      if: runner.os == 'macOS'
       with:
         packages: ggpubr, ggplot2, ggnewscale
         install-pandoc: false
-
-    # Do not use r-lib/actions/setup-r-dependencies
-    - name: Install R dependencies
-      if: runner.os != 'macOS'
-      run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale'),
-                                         repos='https://cran.rstudio.com/')"
         
     - name: Install gstlearn
       run: Rscript -e "install.packages(c('gstlearn'), repos='https://soft.mines-paristech.fr/cran/', dependencies = TRUE)"

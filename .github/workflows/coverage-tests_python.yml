@@ -15,6 +15,7 @@ jobs:
   build:
     runs-on: ${{matrix.os}}
     strategy:
+      fail-fast: false
       matrix:
         # Double quote for version is needed otherwise 3.10 => 3.1
         python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
