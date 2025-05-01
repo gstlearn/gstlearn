@@ -51,21 +51,10 @@ jobs:
         r-version: ${{env.R_VERSION}}
 
     - name: Install R dependencies
-      run: |
-        Rscript -e "install.packages (
-          c('ggplot2', 
-            'vctrs', 
-            'ggpubr', 
-            'ggrepel', 
-            'ggnewscale', 
-            'lares', 
-            'Matrix', 
-            'FNN', 
-            'rgl', 
-            'tidyr', 
-            'geigen', 
-            'callr'),
-            repos='https://cloud.r-project.org/')"
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: ggpubr, ggplot2, ggnewscale, vctrs, lares, rgl, Matrix, FNN, tidyr, geigen, callr, knitr, callr
+        install-pandoc: false
 
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-unix-action@v1
@@ -88,9 +77,9 @@ jobs:
         CMAKE_CC_COMPILER_LAUNCHER: sccache
         CMAKE_CXX_COMPILER_LAUNCHER: sccache
 
-    - name: Build the package
+    - name: Build and Install the package
       run: |
-        cmake --build ${{env.BUILD_DIR}} --parallel 3
+        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target r_install
 
     - name: Execute R demos and courses
       run: |

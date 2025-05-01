@@ -51,7 +51,8 @@ jobs:
           libeigen3-dev \
           libpng-dev \
           libhdf5-dev \
-          libnlopt-dev
+          libnlopt-dev \
+          pandoc
 
     - name: Setup Python Version
       uses: actions/setup-python@v5
@@ -77,21 +78,10 @@ jobs:
         r-version: ${{env.R_VERSION}}
 
     - name: Install R dependencies
-      run: |
-        Rscript -e "install.packages (
-          c('ggplot2', 
-            'vctrs', 
-            'ggpubr', 
-            'ggrepel', 
-            'ggnewscale', 
-            'lares', 
-            'Matrix', 
-            'FNN', 
-            'rgl', 
-            'tidyr', 
-            'geigen', 
-            'callr'),
-            repos='https://cloud.r-project.org/')"
+      uses: r-lib/actions/setup-r-dependencies@v2
+      with:
+        packages: ggpubr, ggplot2, ggnewscale, vctrs, lares, rgl, Matrix, FNN, tidyr, geigen, callr
+        install-pandoc: false
             
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-unix-action@v1

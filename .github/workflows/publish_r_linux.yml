@@ -42,7 +42,12 @@ jobs:
     - name: Fix dubious ownership
       run: |
         git config --global --add safe.directory $GITHUB_WORKSPACE
-        
+
+    # Do not use r-lib/actions/setup-r-dependencies
+    - name: Install R dependencies
+      run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale'),
+                                         repos='https://cran.rstudio.com/')"
+
     - name : Configure build directory
       run : |
         cmake \
@@ -58,6 +63,11 @@ jobs:
       run : |
         cmake --build ${{env.BUILD_DIR}} --parallel 3 --target r_install
         echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/gstlearn_*.tar.gz)" >> "$GITHUB_ENV"
+
+    - name : Always show r_doc log
+      if: success() || failure()
+      run: |
+        cat ${{env.BUILD_DIR}}/r/${{env.CMAKE_BUILD_TYPE}}/create_doc.out
 
     - uses: actions/upload-artifact@v4
       with:
@@ -79,6 +89,11 @@ jobs:
       with:
         name: linux-r-package
 
+    # Do not use r-lib/actions/setup-r-dependencies
+    - name: Install R dependencies
+      run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale'),
+                                         repos='https://cran.rstudio.com/')"
+            
     - name: Install R package
       run: Rscript -e "install.packages(\"$(ls *.tar.gz)\", repos=NULL, type='source')"
 
