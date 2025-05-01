@@ -1074,7 +1074,7 @@ def cell(dbgrid, *args, **kwargs):
     ax = _getNewAxes()
     return _ax_cell(ax, dbgrid, *args, **kwargs)
 
-def _ax_cell(ax, dbgrid, posX=0, posY=1, step=1, **kwargs):
+def _ax_cell(ax, dbgrid, posX=0, posY=1, corner=None, step=1, **kwargs):
     '''
     Plotting the cell edges from a DbGrid 
 
@@ -1085,22 +1085,25 @@ def _ax_cell(ax, dbgrid, posX=0, posY=1, step=1, **kwargs):
     step: step for representing the cell edge every 'step' values
     **kwargs : arguments passed to subsequent functions
     '''
-    indices = np.zeros(dbgrid.getNDim())
     shift = np.ones(dbgrid.getNDim()) * (-1)
+    if corner is None:
+        corner = np.zeros(dbgrid.getNDim())
+    indices = corner
+        
     for i in range(0,dbgrid.getNX(posX)+1,step):
         indices[posX] = i
         indices[posY] = 0
         tab1 = dbgrid.getCoordinatesByIndice(indices, True, shift)
         indices[posY] = dbgrid.getNX(posY)
         tab2 = dbgrid.getCoordinatesByIndice(indices, True, shift)
-        ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
+        ax.plot([tab1[posX],tab2[posX]],[tab1[posY],tab2[posY]], **kwargs)
     for i in range(0,dbgrid.getNX(posY)+1,step):
         indices[posX] = 0
         indices[posY] = i
         tab1 = dbgrid.getCoordinatesByIndice(indices, True, shift)
         indices[posX] = dbgrid.getNX(posX)
         tab2 = dbgrid.getCoordinatesByIndice(indices, True, shift)
-        ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
+        ax.plot([tab1[posX],tab2[posX]],[tab1[posY],tab2[posY]], **kwargs)
     return
 
 def _ax_box(ax, dbgrid, posX=0, posY=1, step=1, **kwargs):
