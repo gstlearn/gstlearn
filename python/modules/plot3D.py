@@ -318,7 +318,7 @@ def SurfaceOnDbGrid(grid, name, useSel=False, showscale=False, **plot_args):
     return surface
     
 def PointDb(db, nameColor=None, nameSize=None, useSel=True, 
-            color='black', size=3, opacity=1, posX=0, posY=1, posZ=2,
+            color='black', size=3, sizeCoef=1, opacity=1, posX=0, posY=1, posZ=2,
             fromLongLat = False, dilate = 1,
             **plot_args): 
     '''
@@ -348,10 +348,10 @@ def PointDb(db, nameColor=None, nameSize=None, useSel=True,
         colors = color
     
     if nameSize is not None:
-        sizes = db.getColumn(nameSize, useSel)
+        sizes = db.getColumn(nameSize, useSel) * sizeCoef
     else:
         sizes = size
-        
+    
     object = go.Scatter3d(x=x, y=y, z=z, mode='markers',
                           marker = dict(size = sizes,
                                         color = colors,
