@@ -24,6 +24,8 @@ jobs:
         exclude:
           - os: ubuntu-22.04
             r_version: 4.2.3  # ggpubr install fails
+          - os: ubuntu-24.04
+            r_version: 4.2.3  # ggpubr install fails
           - os: macos-13
             r_version: 4.3.3
           - os: macos-13
