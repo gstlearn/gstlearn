@@ -53,9 +53,17 @@ jobs:
           echo "FLIBS   = -L/usr/local/bin/gfortran/lib" >> ~/.R/Makevars
         fi
       shell: bash
-      
+
+    - name: Install R dependencies
+      uses: r-lib/actions/setup-r-dependencies@v2
+      if: runner.os == 'macOS'
+      with:
+        packages: ggpubr, ggplot2, ggnewscale
+        install-pandoc: false
+
     # Do not use r-lib/actions/setup-r-dependencies
     - name: Install R dependencies
+      if: runner.os != 'macOS'
       run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale'),
                                          repos='https://cran.rstudio.com/')"
         
