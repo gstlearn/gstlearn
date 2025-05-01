@@ -442,7 +442,7 @@ void KrigingAlgebraSimpleCase::setZ(std::shared_ptr<VectorDouble>& Z)
  * @brief Modify the Data Values (and Means)
  *
  * @param Z Data flattened vector (possibly multivariate)
- * @param indices Vector Of Vector of sample ranks
+ * @param rankhandler rank handler
  * @param Means  Vector of known Drift coefficients (optional)
  * @return int
  *
@@ -997,6 +997,14 @@ void KrigingAlgebraSimpleCase::updateSampleRanks()
   _nbfl = _X->getNCols();
   _X0->resize(_nrhs, _nbfl);
   _flagSK = (_nbfl <= 0);
+  if (_flagSK)
+  {
+    for (int i = 0; i < (int)_Z->size(); i++)
+    {
+      (*_Z)[i] -= _Means[0];
+    }
+
+  }
 
 }
 

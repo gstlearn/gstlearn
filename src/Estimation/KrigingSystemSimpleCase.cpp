@@ -344,7 +344,7 @@ void KrigingSystemSimpleCase::updateLHS(KrigingAlgebraSimpleCase& algebra, Model
   auto* nbgh        = algebra.getNbgh();
   auto* rkh = algebra.getRankHandler();
   rkh->defineSampleRanks(*nbgh);
-  _dbin->getSampleRanksInPlace(sampleRanks, VectorInt(), *nbgh);
+  //_dbin->getSampleRanksInPlace(sampleRanks, VectorInt(), *nbgh);
   if (model.evalCovMatSymInPlaceFromIdx(*Sigma, _dbin, *sampleRanks, nullptr, false)) return;
   if (model.evalDriftMatByRanks(*X, _dbin, *sampleRanks, ECalcMember::LHS)) return;
   algebra.updateSampleRanks();
