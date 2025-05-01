@@ -17,9 +17,6 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
 ```
 
 Global variables
@@ -33,17 +30,20 @@ err = OptCst_define(ECst_NTCOL(),6)
 # Reading data
 
 The data are stored in a CSV format in the file called Pollution.dat
+It is loaded from the gstlearn distribution but it can be also downloaded
+from the Internet.
 
 **
 At this stage:
 - it is not possible to pass the list of variable names *c("X","Y")*.
-- to pass the FLAGS for *DbStringFormat* (they are not an ENUM)
+- to pass the FLAGS for *DbStringFormat* (they is no ENUM)
 **
 
 ```{r}
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Pollution/Pollution.dat"
-filepath = "Pollution.dat"
-download.file(dlfile, filepath, quiet=TRUE)
+#dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Pollution/Pollution.dat"
+#filepath = "Pollution.dat"
+#download.file(dlfile, filepath, quiet=TRUE)
+filepath = loadData("Pollution", "Pollution.dat")
 mydb = Db_createFromCSV(filepath,CSVformat())
 err = mydb$setLocator("X",ELoc_X(),0)
 err = mydb$setLocator("Y",ELoc_X(),1)
@@ -77,7 +77,7 @@ Display my Data (with samples represented by color and size)
 
 ```{r}
 if (graphics)
-    ggplot() + plot(mydb,nameColor="Pb") + plot.decoration(title="Data Set")
+    plot.init() + plot(mydb,nameColor="Pb") + plot.decoration(title="Data Set")
 ```
 
 # Variograms
@@ -86,7 +86,7 @@ We first define the geometry of the variogram calculations
 
 ```{r}
 myVarioParamOmni = VarioParam()
-mydir = DirParam_create(npas=10,dpas=1.)
+mydir = DirParam_create(nlag=10,dlag=1.)
 myVarioParamOmni$addDir(mydir)
 ```
 
@@ -100,7 +100,7 @@ We recall that the Variogram cloud is calculated by filling an underlying grid w
 
 ```{r}
 if (graphics)
-    ggplot() + plot(dbcloud,nameRaster="Cloud*") + plot.decoration(title="Variogram Cloud")
+    plot.init() + plot(dbcloud,name="Cloud*") + plot.decoration(title="Variogram Cloud")
 ```
 
 Calculating the experimental omni-directional variogram
@@ -116,7 +116,7 @@ The variogram is represented graphically for a quick check
 
 ```{r}
 if (graphics)
-    ggplot() + plot.varmod(myVarioOmni) + 
+    plot.init() + plot.varmod(myVarioOmni) + 
     plot.decoration(title="Omni-directional Variogram for Pb")
 ```
 
@@ -124,7 +124,7 @@ Calculate a variogram in several directions
 
 ```{r}
 myvarioParam = VarioParam()
-mydirs = DirParam_createMultiple(ndir=4, npas=10, dpas=1.)
+mydirs = DirParam_createMultiple(ndir=4, nlag=10, dlag=1.)
 myvarioParam$addMultiDirs(mydirs)
 myvario = Vario(myvarioParam)
 myvario$compute(mydb, ECalcVario_VARIOGRAM())
@@ -134,7 +134,7 @@ if (verbose)
 
 ```{r}
 if (graphics)
-    ggplot() + plot.varmod(myvario) + 
+    plot.init() + plot.varmod(myvario) + 
     plot.decoration(title="Multi-Directional Variogram of Pb")
 ```
 
@@ -148,7 +148,7 @@ if (verbose)
 
 ```{r}
 if (graphics)
-    ggplot() + plot(myvmap, nameRaster="*Var") + 
+    plot.init() + plot(myvmap, name="*Var") + 
     plot.decoration(title="Variogram Map")
 ```
 
@@ -165,7 +165,7 @@ Visualizing the resulting model, overlaid on the experimental variogram
 
 ```{r}
 if (graphics)
-    ggplot() + plot.varmod(myvario,mymodel) + plot.decoration(title="Model for Pb")
+    plot.init() + plot.varmod(myvario,mymodel) + plot.decoration(title="Model for Pb")
 ```
 
 ## Model with equality constraints
@@ -229,10 +229,10 @@ We can visualize some of the newly created variables, such as:
 ```{r}
 if (graphics)
 {
-  p = ggplot()
-  p = p + plot(mygrid,nameRaster="Neigh*Number")
+  p = plot.init()
+  p = p + plot(mygrid,name="Neigh*Number")
   p = p + plot.decoration(title="Number of Samples per Neighborhood")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -241,10 +241,10 @@ if (graphics)
 ```{r}
 if (graphics)
 {
-  p = ggplot()
-  p = p + plot(mygrid,nameRaster="Neigh*MaxDist")
+  p = plot.init()
+  p = p + plot(mygrid,name="Neigh*MaxDist")
   p = p + plot.decoration(title="Maximum Distance per Neighborhood")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -261,10 +261,10 @@ if (verbose)
 ```{r}
 if (graphics)
 {
-  p = ggplot()
+  p = plot.init()
   p = p + plot.hist(mydb,"Xvalid.Pb.stderr")
   p = p + plot.decoration(title="Histogram of Stdandrdized Errors")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -288,22 +288,22 @@ Visualizing the results
 ```{r}
 if (graphics)
 {
-  p = ggplot()
-  p = p + plot(mygrid,nameRaster="Kriging.Pb.estim")
+  p = plot.init()
+  p = p + plot(mygrid,name="Kriging.Pb.estim")
   p = p + plot(mydb,nameSize="Pb", color="yellow")
   p = p + plot.decoration(title="Estimate of Pb")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
 ```{r}
 if (graphics)
 {
-  p = ggplot()
-  p = p + plot(mygrid,nameRaster="Kriging.Pb.stdev", flagLegendRaster=TRUE)
+  p = plot.init()
+  p = p + plot(mygrid,name="Kriging.Pb.stdev", flagLegend=TRUE)
   p = p + plot(mydb,nameSize="Pb", color="yellow", flagCst=TRUE)
   p = p + plot.decoration(title="St. Deviation of Pb")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -322,7 +322,7 @@ We can produce the Gaussian Anamorphosis graphically within its definition domai
 
 ```{r}
 if (graphics)
-    ggplot() + plot(myanamPb)
+    plot.init() + plot(myanamPb)
 ```
 
 The next step consists in translating the target variable ('Pb') into its Gaussian transform
@@ -338,7 +338,7 @@ We quickly calculate experimental (omni-directional) variograms using the alread
 
 ```{r}
 myvarioParam = VarioParam()
-mydir = DirParam_create(npas=10,dpas=1.)
+mydir = DirParam_create(nlag=10,dlag=1.)
 myvarioParam$addDir(mydir)
 myVario = Vario(myvarioParam)
 err = myvario$compute(mydb,ECalcVario_VARIOGRAM())
@@ -350,7 +350,7 @@ We fit the model by automatic fit (with the constraints that the total sill be e
 mymodelG = Model_createFromDb(mydb)
 err = mymodelG$fit(myvario,types=ECov_fromKeys(c("EXPONENTIAL")))
 if (graphics)
-    ggplot() + plot.varmod(myvario,mymodelG) + plot.decoration(title="Model for Gaussian Pb")
+    plot.init() + plot.varmod(myvario,mymodelG) + plot.decoration(title="Model for Gaussian Pb")
 ```
 
 We perform a set of 10 conditional simulations using the Turning Bands Method.
@@ -374,11 +374,11 @@ We visualize a conditional simulation in Gaussian scale
 ```{r}
 if (graphics)
 {
-    p = ggplot()
-    p = p + plot(mygrid,nameRaster="Simu.Y.Pb.1")
+    p = plot.init()
+    p = p + plot(mygrid,name="Simu.Y.Pb.1")
     p = p + plot(mydb,nameColor="Pb",size=3)
     p = p + plot.decoration(title="One Simulation of Pb in Gaussian Scale")
-    ggPrint(p)
+    plot.end(p)
 }
 ```
 
@@ -404,11 +404,11 @@ We visualize a Conditional Simulation in Raw Scale
 ```{r}
 if (graphics)
 {
-  p = ggplot()
-  p = p + plot(mygrid,nameRaster="Z.Simu.Y.Pb.1")
+  p = plot.init()
+  p = p + plot(mygrid,name="Z.Simu.Y.Pb.1")
   p = p + plot(mydb,nameColor="Pb")
   p = p + plot.decoration(title="One simulation of Pb in Raw Scale")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -426,11 +426,11 @@ Displaying the average of the Conditional Simulations
 ```{r}
 if (graphics)
 {
-  p = ggplot()
-  p = p + plot(mygrid,nameRaster="Stats*MEAN")
+  p = plot.init()
+  p = p + plot(mygrid,name="Stats*MEAN")
   p = p + plot(mydb,nameColor="Pb")
   p = p + plot.decoration(title="Mean of Pb simulations")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -449,10 +449,10 @@ if (verbose)
 ```{r}
 if (graphics)
 {
-  p = ggplot()
+  p = plot.init()
   p = p + plot(myanamZn)
   p = p + plot.decoration(title="Gaussian Anamorphosis for Zn")
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 

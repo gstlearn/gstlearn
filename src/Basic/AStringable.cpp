@@ -555,12 +555,12 @@ String toMatrix(const String &title,
  * @param title        Title of the printout
  * @param colnames     Names of the columns (optional)
  * @param rownames     Names of the rows (optional)
- * @param bycol        true if values as sorted by column; false otherwise
+ * @param bycol        True if values as sorted by column; false otherwise
  * @param nrows        Number of rows
  * @param ncols        Number of columns
  * @param tab          VectorDouble containing the values
- * @param flagOverride true to override printout limitations
- * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
+ * @param flagOverride True to override printout limitations
+ * @param flagSkipZero when True, skip the zero values (represented by a '.' as for sparse matrix)
  */
 String toMatrix(const String& title,
                 const VectorString& colnames,
@@ -568,12 +568,27 @@ String toMatrix(const String& title,
                 bool bycol,
                 int nrows,
                 int ncols,
-                const VectorDouble &tab,
+                const VectorDouble& tab,
                 bool flagOverride,
                 bool flagSkipZero)
 {
   std::stringstream sstr;
   if (tab.empty() || ncols <= 0 || nrows <= 0) return sstr.str();
+
+  return toMatrix(title, colnames, rownames, bycol, nrows, ncols, tab.data(),
+                  flagOverride, flagSkipZero);
+}
+  String toMatrix(const String& title,
+                  const VectorString& colnames,
+                  const VectorString& rownames,
+                  bool bycol,
+                  int nrows,
+                  int ncols,
+                  const double* tab,
+                  bool flagOverride,
+                  bool flagSkipZero)
+{
+  std::stringstream sstr;
 
   /* Initializations */
 
@@ -845,6 +860,33 @@ String toVector(const String& title, const VectorVectorDouble& tab, bool flagOve
 
   for (int i = 0; i < nrutil; i++)
     sstr << toVector(String(), tab[i], flagOverride);
+
+  // Print the trailer
+  sstr << _printTrailer(0, nrows, 0, nrutil);
+
+  return sstr.str();
+}
+
+/**
+ * Printout a list of vectors in a formatted manner
+ * @param title Title of the printout (or empty string)
+ * @param tab   Vector of vectors (integer values) to be printed
+ * @param flagOverride true to override printout limitations
+ * @return The string (terminated with a newline)
+ */
+String toVector(const String& title, const VectorVectorInt& tab, bool flagOverride)
+{
+  std::stringstream sstr;
+  if (tab.empty()) return sstr.str();
+
+  if (!title.empty()) sstr << title << std::endl;
+
+  int nrows  = (int)tab.size();
+  int nrutil = nrows;
+  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride)
+    nrutil = _getMaxNRows();
+
+  for (int i = 0; i < nrutil; i++) sstr << toVector(String(), tab[i], flagOverride);
 
   // Print the trailer
   sstr << _printTrailer(0, nrows, 0, nrutil);

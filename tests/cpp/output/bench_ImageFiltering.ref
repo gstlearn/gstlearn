@@ -1,0 +1,105 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 6
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.010     0.010
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = z-1 - Locator = z1
+Column = 4 - Name = z-2 - Locator = z2
+Column = 5 - Name = z-3 - Locator = z3
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 3
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     5.167    -3.000     1.843
+     [  1,]    -3.000     3.831     2.299
+     [  2,]     1.843     2.299     6.110
+  (This component is Filtered)
+Spherical
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     3.230    -2.296    -0.195
+     [  1,]    -2.296     2.850    -1.715
+     [  2,]    -0.195    -1.715     6.521
+- Range        =      0.500
+Total Sill
+               [,  0]    [,  1]    [,  2]
+     [  0,]     8.397    -5.296     1.648
+     [  1,]    -5.296     6.681     0.583
+     [  2,]     1.648     0.583    12.631
+
+Known Mean(s)     0.000   100.000   -50.000
+
+Image Neighborhood
+==================
+Skipping factor = 0
+Image radius :        10        10
+
+Convolution Pattern
+-------------------
+                        Minimum    Maximum
+Weight of Z1 for Z*1      0.000      0.090
+Weight of Z2 for Z*1     -0.007      0.052
+Weight of Z3 for Z*1     -0.042      0.000
+Weight of Z1 for Z*2     -0.011      0.237
+Weight of Z2 for Z*2      0.000      0.344
+Weight of Z3 for Z*2     -0.195      0.003
+Weight of Z1 for Z*3     -0.729      0.008
+Weight of Z2 for Z*3     -0.909      0.010
+Weight of Z3 for Z*3      0.000      0.579
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+7 - Name Filtering.z-1 - Locator z1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =     -0.560
+ Maximum value       =      0.572
+ Mean value          =     -0.005
+ Standard Deviation  =      0.156
+ Variance            =      0.024
+8 - Name Filtering.z-2 - Locator z2
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =     97.975
+ Maximum value       =    102.073
+ Mean value          =    100.010
+ Standard Deviation  =      0.467
+ Variance            =      0.218
+9 - Name Filtering.z-3 - Locator z3
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =    -55.791
+ Maximum value       =    -44.411
+ Mean value          =    -50.021
+ Standard Deviation  =      1.299
+ Variance            =      1.688

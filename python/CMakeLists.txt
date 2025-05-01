@@ -21,7 +21,7 @@ math(EXPR Python3_NumPy_NEXT_MAJOR "${Python3_NumPy_VERSION_MAJOR} + 1")
 find_package(SWIG 4.0 REQUIRED)
 include(${SWIG_USE_FILE})
 
-######################################  
+######################################
 # DOCUMENTATION
 
 # Ensure documentation.i is existing
@@ -40,10 +40,22 @@ add_custom_target(python_doc
   COMMENT "Generate python documentation from doxygen output"
 )
 
-# Doxygen is optional
-if (BUILD_DOXYGEN)
+# Tell that we need to generate doxymentation before building python package
+if (BUILD_DOC)
   add_dependencies(python_doc doxygen)
 endif()
+
+####CUSTOM WRAPPER
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/python/generated_python.i
+  COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/python/generated_python.i
+  COMMENT "Ensure that generated_python.i exists")
+  
+add_custom_target(python_wrap_macro
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../swig/macrogenerate.py
+  "python"
+  COMMENT "Generate macro wrapper package"
+  )
+
 
 ######################################
 # WRAPPER GENERATION & BUILD
@@ -150,9 +162,17 @@ if (MSVC OR APPLE)
   target_link_libraries(python_build PRIVATE Python3::Module)
 endif()
 
+# Tell that we need to generate docstring files before building python package (if required)
+if (BUILD_DOC)
+  add_dependencies(python_build python_doc)
+endif()
+
 if(USE_BOOST_SPAN)
   target_compile_definitions(python_build PUBLIC USE_BOOST_SPAN)
 endif()
+
+add_dependencies(python_build python_wrap_macro)
+add_dependencies(python_build generate_output)
 
 ########################################
 # PACKAGING (target independent)
@@ -214,13 +234,23 @@ endforeach()
 ######################################
 # INSTALLATION
 
+# By default, python pip looks for dependencies from Internet
+option(NO_INTERNET "Do not try to connect to Internet" OFF)
+message(STATUS "NO_INTERNET=" ${NO_INTERNET})
+
+if (NO_INTERNET)
+  set(NO_INTERNET_ARG "--no-build-isolation")
+else()
+  set(NO_INTERNET_ARG "")
+endif()
+
 # Add a custom target for python package installation
 # TODO: Do also installation each time setup.py.in or README.md is modified
 add_custom_target(python_install
-  COMMAND ${Python3_EXECUTABLE} -m pip install ${PYTHON_PACKAGE_ROOT_FOLDER}
+  COMMAND ${Python3_EXECUTABLE} -m pip install ${NO_INTERNET_ARG} "${PYTHON_PACKAGE_ROOT_FOLDER}[plot,conv,doc]"
   COMMENT "Installing python package"
-  VERBATIM
-)
-
+  )
+ 
 # Tell to CMake that python package must be built before installation [python_doc is optional]
+
 add_dependencies(python_install python_build)

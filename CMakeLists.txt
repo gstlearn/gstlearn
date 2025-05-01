@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 
 # Define project here
 project(gstlearn
-        VERSION      1.6.0 # Make it consistent with CHANGES
+        VERSION      1.7.0 # Make it consistent with CHANGES
         DESCRIPTION  "Geostatistics & Machine Learning toolbox"
         HOMEPAGE_URL "https://gstlearn.org"
         LANGUAGES    C CXX) # Enable C language for third party libraries
@@ -11,12 +11,8 @@ project(gstlearn
 ####################################################
 ## CONFIGURATION
 
-# By default, do not activate HDF5 support
-option(USE_HDF5 "Using HDF5 support" OFF)
-
-# TODO : USE_NETCDF in CMake (mimicking USE_HDF5)
-# By default, do not activate NetCDF support
-#option(USE_NETCDF "Using NetCDF support" OFF)
+# By default, activate HDF5 support
+option(USE_HDF5 "Using HDF5 support" ON)
 
 # Extract Git commit timestamp, hash
 find_package(Git)
@@ -63,19 +59,16 @@ get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 #set(CMAKE_FIND_DEBUG_MODE TRUE)
 
 # Options
-option(BUILD_PYTHON  "Build Python package"        OFF)
-option(BUILD_R       "Build R package"             OFF)
-option(BUILD_TESTING "Build tests"                 OFF)
-option(BUILD_DOXYGEN "Build Doxygen documentation" OFF)
+# By default, deactivate R and python packages
+option(BUILD_PYTHON  "Build Python package"                     OFF)
+option(BUILD_R       "Build R package"                          OFF)
+option(BUILD_TESTING "Build tests"                              OFF)
+option(BUILD_DOC     "Build Doxygen and packages documentation" OFF)
 if (MINGW)
   set(BUILD_PYTHON OFF)
-  # TODO : Reactivate HDF5 support for MinGW (currently: link error against szip)
-  set(USE_HDF5 OFF)
 endif()
 if (MSVC)
   set(BUILD_R OFF)
-  # TODO : Reactivate HDF5 support for MSVC (currently: hdf5::sz-static target is not found)
-  set(USE_HDF5 OFF)
 endif()
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   # Clang compiler detected (define the shortcut variable)
@@ -84,7 +77,7 @@ endif()
 message(STATUS "BUILD_PYTHON="  ${BUILD_PYTHON})
 message(STATUS "BUILD_R="       ${BUILD_R})
 message(STATUS "BUILD_TESTING=" ${BUILD_TESTING})
-message(STATUS "BUILD_DOXYGEN=" ${BUILD_DOXYGEN})
+message(STATUS "BUILD_DOC="     ${BUILD_DOC})
 message(STATUS "USE_HDF5="      ${USE_HDF5})
 
 # Create gstlearn cmake file path in the build tree
@@ -101,30 +94,36 @@ add_subdirectory(3rd-party/csparse)
 include(cmake/version.cmake)
 include(cmake/doc.cmake)
 # TODO : Add BUILD_CPP option (not needed for print_version or doxygen targets)
-#if(BUILD_CPP)
+#if (BUILD_CPP)
   include(cmake/cpp.cmake)
   include(cmake/install.cmake)
 #endif()
-if(BUILD_DOXYGEN)
+if (BUILD_DOC)
   include(cmake/doxygen.cmake)
 endif()
 
 ####################################################
 ## PACKAGES
 
-if(BUILD_PYTHON)
+if (BUILD_PYTHON)
   add_subdirectory(python)
+  set(SWIG ON)  
 endif()
 
-if(BUILD_R)
+if (BUILD_R)
   add_subdirectory(r)
+  set(SWIG ON)
+endif()
+
+if (SWIG)
+  add_subdirectory(swig)
 endif()
 
 ####################################################
 ## TESTING
 
 # Add non-regression test target
-if(BUILD_TESTING)
+if (BUILD_TESTING)
   include(CTest)
   enable_testing()
 

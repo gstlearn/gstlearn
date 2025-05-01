@@ -45,7 +45,7 @@ public:
                int icase,
                int flag_bayes = false,
                const VectorDouble& dmean = VectorDouble(),
-               const MatrixSquareSymmetric& dcov = MatrixSquareSymmetric(),
+               const MatrixSymmetric& dcov = MatrixSymmetric(),
                bool flag_pgs = false,
                bool flag_gibbs = false,
                bool flag_dgm = false);
@@ -58,8 +58,8 @@ public:
 
   static bool isValidForTurningBands(const Model *model);
 
-  const MatrixSquareSymmetric& getBayesCov() const { return _bayesCov; }
-  void setBayesCov(const MatrixSquareSymmetric &bayes_cov) { _bayesCov = bayes_cov; }
+  const MatrixSymmetric& getBayesCov() const { return _bayesCov; }
+  void setBayesCov(const MatrixSymmetric &bayes_cov) { _bayesCov = bayes_cov; }
   const VectorDouble& getBayesMean() const { return _bayesMean; }
   void setBayesMean(const VectorDouble &dmean) { _bayesMean = dmean; }
   bool isFlagCheck() const { return _flagCheck; }
@@ -105,13 +105,13 @@ private:
   void _checkGaussianData2Grid(Db *dbin, Db *dbout, Model *model) const;
 
   void _setCodirAng(int ibs, int idir, double value) { _codirs[ibs].setAng(idir, value); }
-  void _setCodirTmin(int ibs, double value) { _codirs[ibs].setTmin(value); }
-  void _setCodirTmax(int ibs, double value) { _codirs[ibs].setTmax(value); }
+  void _setCodirTmin(int ibs, double value)  { _codirs[ibs].setTmin(value); }
+  void _setCodirTmax(int ibs, double value)  { _codirs[ibs].setTmax(value); }
   void _setCodirScale(int ibs, double value) { _codirs[ibs].setScale(value); }
-  void _setCodirT00(int ibs, double value) { _codirs[ibs].setT00(value); }
-  void _setCodirDXP(int ibs, double value) { _codirs[ibs].setDXP(value); }
-  void _setCodirDYP(int ibs, double value) { _codirs[ibs].setDYP(value); }
-  void _setCodirDZP(int ibs, double value) { _codirs[ibs].setDZP(value); }
+  void _setCodirT00(int ibs, double value)   { _codirs[ibs].setT00(value); }
+  void _setCodirDXP(int ibs, double value)   { _codirs[ibs].setDXP(value); }
+  void _setCodirDYP(int ibs, double value)   { _codirs[ibs].setDYP(value); }
+  void _setCodirDZP(int ibs, double value)   { _codirs[ibs].setDZP(value); }
 
   VectorDouble _getCodirAng(int ibs) const { return _codirs[ibs].getAng(); }
   double _getCodirAng(int ibs, int idir) const { return _codirs[ibs].getAng(idir); }
@@ -123,9 +123,9 @@ private:
   double _getCodirTmin(int ibs) const { return _codirs[ibs].getTmin(); }
   double _getCodirTmax(int ibs) const { return _codirs[ibs].getTmax(); }
 
-  int  _getAddressBand(int ivar, int is, int ib, int isimu);
+  int  _getAddressBand(int ivar, int is, int ib, int isimu) const;
   void _setSeedBand(int ivar, int is, int ib, int isimu, int seed);
-  int  _getSeedBand(int ivar, int is, int ib, int isimu);
+  int  _getSeedBand(int ivar, int is, int ib, int isimu) const;
 
   void _rotateDirections(double a[3], double theta);
   int  _generateDirections(const Db* dbout);
@@ -138,11 +138,10 @@ private:
 
   static double _computeScale(double alpha, double scale);
   static double _computeScaleKB(double param, double scale);
-
   void _migrationInit(int ibs,
                       int is,
                       double scale,
-                      TurningBandOperate &operTB,
+                      TurningBandOperate& operTB,
                       double eps = EPSILON5);
   double _dilutionInit(int ibs, int is, TurningBandOperate &operTB);
   double _spectralInit(int ibs, int is, TurningBandOperate &operTB);
@@ -182,14 +181,16 @@ private:
                              int ibs,
                              int is,
                              TurningBandOperate& operTB,
-                             const VectorBool &activeArray,
-                             VectorDouble &tab);
-  void _spreadSpectralOnPoint(const Db *db,
+                             const VectorBool& activeArray,
+                             VectorDouble& tab);
+  void _spreadSpectralOnPoint(const Db* db,
                               int ibs,
                               int is,
                               TurningBandOperate& operTB,
-                              const VectorBool &activeArray,
-                              VectorDouble &tab);
+                              const VectorBool& activeArray,
+                              VectorDouble& tab);
+  void _dumpBands() const;
+  void _dumpSeeds() const;
 
 private:
   int _nbtuba;
@@ -203,12 +204,13 @@ private:
   bool _flagAllocationAlreadyDone;
   VectorString _nameCoord;
   VectorDouble _bayesMean;
-  MatrixSquareSymmetric _bayesCov;
+  MatrixSymmetric _bayesCov;
   int _npointSimulated;
   double _field;
   double _theta;
   VectorInt _seedBands;
   std::vector<TurningBandDirection> _codirs;
+  Model* _modelLocal; // Conversion of getModel() into a Model (more than ModelGeneric)
 };
 
 GSTLEARN_EXPORT int simtub(Db *dbin = nullptr,
@@ -228,7 +230,7 @@ GSTLEARN_EXPORT int simbayes(Db *dbin,
                              int nbsimu = 1,
                              int seed = 132141,
                              const VectorDouble& dmean = VectorDouble(),
-                             const MatrixSquareSymmetric& dcov = MatrixSquareSymmetric(),
+                             const MatrixSymmetric& dcov = MatrixSymmetric(),
                              int nbtuba = 100,
                              bool flag_check = false,
                              const NamingConvention& namconv = NamingConvention("SimBayes"));

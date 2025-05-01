@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
-#include "Enum/EKrigOpt.hpp"
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
@@ -62,14 +61,14 @@ int main(int argc, char *argv[])
   NeighBench* neighB = NeighBench::create(false, width);
 
   // Print the test environment
-  message("This test is mean to test Kriging using Moving Neighborhood\n");
-  message("- the Data Set contains %d samples\n", data->getSampleNumber(true));
-  message("- the Output Grid contains %d nodes\n", grid->getSampleNumber(true));
+  message("This test is meant to test Kriging using Moving Neighborhood\n");
+  message("- the Data Set contains %d samples\n", data->getNSample(true));
+  message("- the Output Grid contains %d nodes\n", grid->getNSample(true));
   message("- the Bench Neighborhood is required:\n");
   message("  . Bench width = %lf\n", width);
 
   Timer timer;
-  kriging(data, grid, model, neighB, EKrigOpt::POINT, true, false);
+  kriging(data, grid, model, neighB, true, false);
   timer.displayIntervalMilliseconds("Kriging in Bench Neighborhood", 1800);
   // Produce some stats for comparison
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"*estim"});

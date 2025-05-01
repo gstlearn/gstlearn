@@ -44,12 +44,10 @@ int main(int argc, char *argv[])
   VectorDouble dist(nsample);
   SpacePoint p0;
   SpacePoint p;
-  p0.setIech(0);
-  data->getSampleAsSPInPlace(p0);
+  data->getSampleAsSPInPlace(p0, 0);
   for (int i = 0; i < nsample; i++)
   {
-    p.setIech(i);
-    data->getSampleAsSPInPlace(p);
+    data->getSampleAsSPInPlace(p, i);
     dist[i] = p0.getDistance(p);
   }
   timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 310);

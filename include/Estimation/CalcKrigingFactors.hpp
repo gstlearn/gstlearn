@@ -15,7 +15,6 @@
 #include "geoslib_define.h"
 
 #include "Calculators/ACalcInterpolator.hpp"
-#include "Enum/EKrigOpt.hpp"
 
 class Db;
 class DbGrid;
@@ -29,8 +28,6 @@ public:
   CalcKrigingFactors& operator=(const CalcKrigingFactors &r) = delete;
   virtual ~CalcKrigingFactors();
 
-  void setCalcul(const EKrigOpt& calcul) { _calcul = calcul; }
-  void setNdisc(const VectorInt& ndiscs) { _ndiscs = ndiscs; }
   void setIuidFactors(const VectorInt& iuidFactors) { _iuidFactors = iuidFactors; }
 
 private:
@@ -40,7 +37,7 @@ private:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
 
-  int _getNFactors() const;
+  int  _getNFactors() const;
   void _storeResultsForExport(const KrigingSystem& ksys);
   bool _hasChangeSupport() const;
 
@@ -48,22 +45,21 @@ private:
   bool _flagEst;
   bool _flagStd;
 
-  EKrigOpt  _calcul;
-  VectorInt _ndiscs;
   VectorString _nameCoord;
 
   int _iptrEst;
   int _iptrStd;
 
   VectorInt _iuidFactors;
+
+  Model* _modelLocal;
 };
 
-GSTLEARN_EXPORT int krigingFactors(Db *dbin,
-                                   Db *dbout,
-                                   Model *model,
-                                   ANeigh *neigh,
-                                   const EKrigOpt &calcul = EKrigOpt::fromKey("POINT"),
-                                   const VectorInt& ndiscs = VectorInt(),
-                                   bool flag_est = true,
-                                   bool flag_std = true,
-                                   const NamingConvention &namconv = NamingConvention("KD"));
+GSTLEARN_EXPORT int krigingFactors(Db* dbin,
+                                   Db* dbout,
+                                   Model* model,
+                                   ANeigh* neigh,
+                                   bool flag_est                   = true,
+                                   bool flag_std                   = true,
+                                   const KrigOpt& krigopt          = KrigOpt(),
+                                   const NamingConvention& namconv = NamingConvention("KD"));

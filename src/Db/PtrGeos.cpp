@@ -67,7 +67,7 @@ void PtrGeos::erase(int locatorIndex)
 
 int PtrGeos::findUIDInLocator(int iuid) const
 {
-  for (int locatorIndex = 0; locatorIndex < getLocatorNumber(); locatorIndex++)
+  for (int locatorIndex = 0; locatorIndex < getNLoc(); locatorIndex++)
     if (getLocatorByIndex(locatorIndex) == iuid) return (locatorIndex);
   return -1;
 }
@@ -79,7 +79,7 @@ String PtrGeos::dumpLocator(int rank, const ELoc& locatorType) const
   int i = locatorType.getValue();
   sstr << rank+1 << " - Locator: " << DEF_LOCATOR[i].SREF << std::endl;
   sstr << "- Attributes = ";
-  for (int locatorIndex = 0; locatorIndex < getLocatorNumber(); locatorIndex++)
+  for (int locatorIndex = 0; locatorIndex < getNLoc(); locatorIndex++)
     sstr << _r[locatorIndex] << " ";
   sstr << std::endl;
 
@@ -88,7 +88,7 @@ String PtrGeos::dumpLocator(int rank, const ELoc& locatorType) const
 
 bool PtrGeos::isLocatorIndexValid(int locatorIndex) const
 {
-  return checkArg("Locator Index", locatorIndex, getLocatorNumber());
+  return checkArg("Locator Index", locatorIndex, getNLoc());
 }
 
 /**

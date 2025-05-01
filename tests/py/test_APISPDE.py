@@ -2,6 +2,7 @@ import numpy as np
 import sys
 import os
 import gstlearn as gl
+import matplotlib.pyplot as plt
 
 def fa(x,y,a,b):
     return a*x + b*y
@@ -47,9 +48,9 @@ dat.setLocators(['X','Y'],gl.ELoc.X)
 model = gl.Model.createFromParam(gl.ECov.MATERN, 1., 1., 1., [4.,45.])
 
 workingDb = gl.DbGrid.create([101,101],[1.,1.]) 
-mesh = gl.MeshETurbo(workingDb)
+mesh = gl.MeshETurbo(workingDb, False)
 
-cova = model.getCova(0)
+cova = model.getCovAniso(0)
 cova.makeAngleNoStatDb("theta",0,resultDb)
 S = gl.ShiftOpMatrix(mesh, cova, resultDb)
 
@@ -59,7 +60,7 @@ Qsimu = gl.PrecisionOp(S, cova, False)
 result = Qsimu.simulateOne()
 workingDb.addColumns(result,"Simu",gl.ELoc.X)
 
-ind = np.random.choice(workingDb.getActiveSampleNumber(), size=100, replace=False)
+ind = np.random.choice(workingDb.getNSampleActive(), size=100, replace=False)
 data = gl.Db()
 data['x1'] = workingDb['x1'][ind]
 data['x2'] = workingDb['x1'][ind]

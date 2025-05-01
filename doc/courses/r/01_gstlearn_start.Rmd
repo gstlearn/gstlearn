@@ -36,8 +36,6 @@ To install the **gstlearn** R Package, you need R 4.2 (or higher). You can then 
 
 ```{r setup, message=FALSE}
 library(gstlearn)
-library(ggplot2)
-library(ggnewscale)
 ```
 
 Calling the next function (*acknowledge_gstlearn*) at startup is a good practice in order to check the version of **gstlearn** you are currently running:
@@ -59,10 +57,10 @@ err = simtub(NULL, db, model, nbtuba=1000)
 The simulated result is plotted
 
 ```{r Display-the-grid}
-p = ggDefaultGeographic()
-p = p + plot.grid(db)
+p = plot.init(asp=1)
+p = p + plot.raster(db)
 p = p + plot.decoration(title="Check is successful!")
-ggPrint(p)
+plot.end(p)
 ```
 
 If you obtain a nice looking image corresponding to the simulation result on the grid ... the installation of **gstlearn** is successfull. Here is the description of your grid database content:
@@ -105,7 +103,7 @@ For people who were using [RGeostats](http://cg.ensmp.fr/rgeostats), here is the
 
 * The objects manipulated through *gstlearn* R package (Database, Variograms, Polygons, etc...) are now **external pointers**.
 
-* If you need to duplicate your objects, a simple assignment (e.g. `db2 = db1`) is not possible. You must use the `clone` method by doing this: `db2 = db1$clone()`. All classes that inherits from `iCloneable` have this capability ([see here](https://soft.mines-paristech.fr/gstlearn/doxygen-latest/classICloneable.html)).
+* If you need to duplicate your objects, a simple assignment (e.g. `db2 = db1`) is not possible. You must use the `clone` method by doing this: `db2 = db1$clone()`. All classes that inherits from `ICloneable` have this capability ([see here](https://soft.mines-paristech.fr/gstlearn/doxygen-latest/classICloneable.html)).
 
 * The *gstlearn* objects memory content is not stored in the R workspace anymore. This means that saving the R workspace (`.RData`) is dangerous because it stores only memory pointers that won't be valid when loading the workspace in a future R session.
 
@@ -136,6 +134,8 @@ base::message("Erreur dans validObject(.Object) :
 ```{r , eval=FALSE}
 ASerializable_dumpToNF(db, "mygrid.backup.nf")
 ```
+
+More details here: https://github.com/gstlearn/gstlearn/issues/308
 
 
 

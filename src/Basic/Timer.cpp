@@ -16,13 +16,12 @@ Timer::Timer()
   reset();
 }
 
-Timer::Timer(const Timer &m)
-    : _refTime(m._refTime)
+Timer::Timer(const Timer& m)
+  : _refTime(m._refTime)
 {
-
 }
 
-Timer& Timer::operator=(const Timer &m)
+Timer& Timer::operator=(const Timer& m)
 {
   if (this != &m)
   {
@@ -33,7 +32,6 @@ Timer& Timer::operator=(const Timer &m)
 
 Timer::~Timer()
 {
-
 }
 
 /**
@@ -61,7 +59,7 @@ void Timer::displayIntervalSeconds(const String& title,
 double Timer::getIntervalSeconds(bool flag_reset)
 {
   auto newTime = hrc::now();
-  sec fs = newTime - _refTime;
+  sec fs       = newTime - _refTime;
   if (flag_reset)
     _refTime = newTime;
   return fs.count();
@@ -93,10 +91,10 @@ void Timer::displayIntervalMilliseconds(const String& title,
 double Timer::getIntervalMilliseconds(bool flag_reset)
 {
   auto newTime = hrc::now();
-  sec fs = newTime - _refTime;
-  ms inter = std::chrono::duration_cast<ms>(fs);
+  sec fs       = newTime - _refTime;
+  ms inter     = std::chrono::duration_cast<ms>(fs);
   if (flag_reset) _refTime = newTime;
-  return ((double) inter.count());
+  return ((double)inter.count());
 }
 
 void Timer::displayMilliseconds(const String& title, double msec, int expected_time)

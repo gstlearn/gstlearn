@@ -12,9 +12,11 @@
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Stats/Classical.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Model/Model.hpp"
+#include "Covariances/CorAniso.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 
 #include <math.h>
@@ -91,7 +93,7 @@ int SimuSpectral::simulate(int ns, int seed, bool verbose, int nd)
     return 1;
   }
 
-  _ndim = _model->getDimensionNumber();
+  _ndim = _model->getNDim();
   _ns = ns;
 
   // Cleaning any previously allocated memory
@@ -121,7 +123,7 @@ void SimuSpectral::_simulateOnRn()
   _gamma = VectorDouble(_ns);
   for (int ib = 0; ib < _ns; ib++)
     _gamma[ib] = sqrt(-log(law_uniform()));
-  _omega = _model->getCova(0)->simulateSpectralOmega(_ns);
+  _omega = _model->getCovAniso(0)->simulateSpectralOmega(_ns);
 }
 
 /**
@@ -137,7 +139,7 @@ void SimuSpectral::_simulateOnSphere(int nd, bool verbose)
   VH::sortInPlace(U);
   double maxU = VH::maximum(U);
 
-  VectorDouble spectrum = _model->getCova(0)->evalSpectrumOnSphere(nd);
+  VectorDouble spectrum = _model->getCovAniso(0)->evalSpectrumOnSphere(nd);
 
   // Simulate vector N
   int n = 0;
@@ -204,10 +206,10 @@ void SimuSpectral::_simulateOnSphere(int nd, bool verbose)
 
 void SimuSpectral::_computeOnRn(Db *dbout, int iuid, bool verbose)
 {
-  int nech = dbout->getSampleNumber(true);
+  int nech = dbout->getNSample(true);
 
   // Preparation
-  MatrixSquareGeneral tensor = _model->getCova(0)->getAniso().getTensorInverse();
+  MatrixSquare tensor = _model->getCovAniso(0)->getAniso().getTensorInverse();
   double scale = sqrt(2. / _ns);
   AMatrix *res = MatrixFactory::prodMatMat(&_omega, &tensor);
 
@@ -221,12 +223,12 @@ void SimuSpectral::_computeOnRn(Db *dbout, int iuid, bool verbose)
   }
 
   // Loop on the active samples
-  VectorInt ranks = dbout->getRanksActive();
+  VectorInt ranks = dbout->getSampleRanksPerVariable();
   VectorDouble coor(_ndim);
   for (int jech = 0; jech < nech; jech++)
   {
     int iech = ranks[jech];
-    dbout->getCoordinatesPerSampleInPlace(iech, coor);
+    dbout->getCoordinatesInPlace(coor, iech);
     VectorDouble u = res->prodMatVec(coor);
 
     double value = 0.;
@@ -254,7 +256,7 @@ int SimuSpectral::compute(Db *dbout,
                           bool verbose,
                           const NamingConvention &namconv)
 {
-  int nech = dbout->getSampleNumber(true);
+  int nech = dbout->getNSample(true);
   int ndim = dbout->getNDim();
   bool flagNewVariable = (iuid <= 0);
 
@@ -391,7 +393,7 @@ void SimuSpectral::_printSpSims(int status)
 
 void SimuSpectral::_computeOnSphere(Db* dbout, int iuid, bool verbose)
 {
-  int np   = dbout->getSampleNumber(true);
+  int np   = dbout->getNSample(true);
 
   int nb = 0;
   int N_max = -9999;
@@ -416,8 +418,8 @@ void SimuSpectral::_computeOnSphere(Db* dbout, int iuid, bool verbose)
   }
 
   // Simulation
-  VectorDouble phi = dbout->getCoordinates(0);
-  VectorDouble theta = dbout->getCoordinates(1);
+  VectorDouble phi = dbout->getOneCoordinate(0);
+  VectorDouble theta = dbout->getOneCoordinate(1);
   VectorDouble sim(np, 0.);
   VectorDouble x(np);
   VectorDouble w(np);
@@ -532,7 +534,7 @@ void SimuSpectral::_computeOnSphere(Db* dbout, int iuid, bool verbose)
 bool SimuSpectral::isValidForSpectral(const Model* model)
 {
   ESpaceType type = getDefaultSpaceType();
-  if (model->getCovaNumber() != 1)
+  if (model->getNCov() != 1)
   {
     messerr("This method only considers Model with a single covariance structure");
     return false;
@@ -540,9 +542,9 @@ bool SimuSpectral::isValidForSpectral(const Model* model)
 
   /* Loop on the structures */
 
-  for (int is = 0; is < model->getCovaNumber(); is++)
+  for (int is = 0; is < model->getNCov(); is++)
   {
-    const CovAniso* cova = model->getCova(is);
+    const CovAniso* cova = model->getCovAniso(is);
     if (! cova->isValidForSpectral())
     {
       messerr("The current structure is not valid for Spectral Simulation on Rn");
@@ -587,10 +589,10 @@ int simuSpectral(Db *dbin,
     messerr("You must provide a positive number of simulations");
     return 1;
   }
-  if (dbout->getNDim() != model->getDimensionNumber())
+  if (dbout->getNDim() != (int)model->getNDim())
   {
     messerr("The Space dimension of 'dbout'(%d) should match the one of Model(%d)",
-            dbout->getNDim(), model->getDimensionNumber());
+            dbout->getNDim(), model->getNDim());
     return 1;
   }
 

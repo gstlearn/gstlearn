@@ -11,7 +11,6 @@
 #include "Covariances/CovGCspline.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Simulation/TurningBandOperate.hpp"
-#include "Basic/Law.hpp"
 
 #include <math.h>
 

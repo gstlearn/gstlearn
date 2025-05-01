@@ -19,9 +19,6 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(fig.align="center")
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
 library(parallel)
 set.seed(1235)
 ```
@@ -40,7 +37,7 @@ manual_centering <- function(data, target) {
     
     xy_nm = data$getNamesByLocator(ELoc_X())
     # initial coordinates
-    xy = matrix(NaN, nrow = data$getSampleNumber(), ncol = length(xy_nm))
+    xy = matrix(NaN, nrow = data$getNSample(), ncol = length(xy_nm))
     for (i in seq_along(xy_nm)) {
       xy[, i] = data$getColumns(xy_nm[i])
     }
@@ -154,26 +151,26 @@ data_ini1$setLocators("Y", ELoc_Z())
 
 # Second input data set (extracted from the target grid)
 data_ini2 = Db_createSamplingDb(target, number=nech, names=c("x1","x2"))
-data_ini2["Y"] = rnorm(data_ini2$getSampleNumber())
+data_ini2["Y"] = rnorm(data_ini2$getNSample())
 data_ini2$setLocators("Y", ELoc_Z())
 ```
 
 Display of the first data set
 
 ```{r Plotting_data1_initial}
-ggDefaultGeographic() + 
+plot.init() + 
   plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') + 
-  plot.point(target) +
-  plot.point(data_ini1, color = "grey", size=4) +
+  plot.symbol(target) +
+  plot.symbol(data_ini1, color = "grey", size=4) +
   plot.decoration(title="First Data Set")
 ```
 
 Display of the second data set
 
 ```{r Plotting_data2_initial}
-ggDefaultGeographic() + 
-  plot.point(target) +
-  plot.point(data_ini2, col = "grey", size=4) + 
+plot.init() + 
+  plot.symbol(target) +
+  plot.symbol(data_ini2, col = "grey", size=4) + 
   plot.decoration(title = "Second Data Set")
 ```
 
@@ -202,11 +199,11 @@ err = manual_centering(data_man1, target)
 Displaying the centered results
 
 ```{r Plotting_manual_centering_data1}
-ggDefaultGeographic() + 
+plot.init() + 
   plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') + 
-  plot.point(target) +
-  plot.point(data_ini1, col = "grey", size=4) +
-  plot.point(data_man1, col='red', size=2) + 
+  plot.symbol(target) +
+  plot.symbol(data_ini1, col = "grey", size=4) +
+  plot.symbol(data_man1, col='red', size=2) + 
   plot.decoration(title="First Data Set (centered manually)")
 ```
 
@@ -220,11 +217,11 @@ err = DbHelper_centerPointToGrid(data_auto1, target)
 Displaying the centered results
 
 ```{r Plotting_gstlearn_centering_data1}
-ggDefaultGeographic() + 
+plot.init() + 
   plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') + 
-  plot.point(target) +
-  plot.point(data_ini1, col = "grey", size=4) +
-  plot.point(data_auto1, col='red', size=2) + 
+  plot.symbol(target) +
+  plot.symbol(data_ini1, col = "grey", size=4) +
+  plot.symbol(data_auto1, col='red', size=2) + 
   plot.decoration(title="First Data Set (centered by gstlearn)")
 ```
 
@@ -240,10 +237,10 @@ err = manual_centering(data_man2, target)
 Displaying the centered results
 
 ```{r Plotting_manual_centering_data2}
-ggDefaultGeographic() + 
-  plot.point(target) +
-  plot.point(data_ini2, col = "grey", size=4) +
-  plot.point(data_man2, col='red', size=2) + 
+plot.init() + 
+  plot.symbol(target) +
+  plot.symbol(data_ini2, col = "grey", size=4) +
+  plot.symbol(data_man2, col='red', size=2) + 
   plot.decoration(title="Second Data Set (centered manually)")
 ```
 
@@ -257,10 +254,10 @@ err = DbHelper_centerPointToGrid(data_auto2, target)
 Displaying the centered results
 
 ```{r Plotting_gstlearn_centering_data2}
-ggDefaultGeographic() + 
-  plot.point(target) +
-  plot.point(data_ini2, col = "grey", size=4) +
-  plot.point(data_auto2, col='red', size=2) + 
+plot.init() + 
+  plot.symbol(target) +
+  plot.symbol(data_ini2, col = "grey", size=4) +
+  plot.symbol(data_auto2, col='red', size=2) + 
   plot.decoration(title="Second Data Set (centered by gstlearn)")
 ```
 

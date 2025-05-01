@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Space/ASpace.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
@@ -19,40 +20,41 @@
 class GSTLEARN_EXPORT SpacePoint : public ASpaceObject
 {
 public:
-  SpacePoint(const ASpace* space = nullptr);
+  SpacePoint(const ASpaceSharedPtr& space = ASpaceSharedPtr());
   SpacePoint(const SpacePoint& r);
   SpacePoint(const VectorDouble& coord, int iech = -1,
-             const ASpace* space = nullptr);
+             const ASpaceSharedPtr& space = ASpaceSharedPtr());
   SpacePoint& operator=(const SpacePoint& r);
   virtual ~SpacePoint();
 
   SpacePoint spacePointOnSubspace(int ispace = -1) const;
 
-  /// TODO : should aslo test the space definition
+  /// TODO : should also test the space definition
   bool operator==(const SpacePoint& v) const { return (_coord == v._coord); }
 
   constvect getCoords() const;
-  
+
   vect getCoordRef() { return vect(_coord.data(), getNDim()); }
+  VectorDouble& getCoordUnprotected() { return _coord; }
   double getCoord(int idim) const; 
   void setCoord(double coord);
   void setCoord(int i, double val) { _coord[i] = val; }
   void setCoords(const VectorDouble& coord);
   void setCoords(const double* coord, int size);
   void setIech(int iech) const { _iech = iech; }
+  void setProjected(bool status) { _isProjected = status; }
   int getIech() const { return _iech; }
-  void setTarget(bool target) const { _target = target; }
-  bool isTarget() const { return _target; }
+  bool isProjected() const { return _isProjected; }
   /// Return true if the point is consistent with the provided space
   virtual bool isConsistent(const ASpace* space) const override;
 
   /// Move me by the given vector
   void move(const VectorDouble& vec);
-  /// Return the distance between me and another point
+  /// Return the distance between 'this' and another point
   double getDistance(const SpacePoint& pt, int ispace = -1) const;
-  /// Return all the distance (space composits) between me and another point
+  /// Return all the distance (space composits) between 'this' and another point
   VectorDouble getDistances(const SpacePoint& pt) const;
-  /// Return the increment vector between me and another point
+  /// Return the increment vector between 'this' and another point
   VectorDouble getIncrement(const SpacePoint& pt, int ispace = -1) const;
   /// Fill with TEST values to simulate a missing Space Point
   void setFFFF();
@@ -73,7 +75,7 @@ public:
 
 protected:
   /// Points coordinates (whatever the space context)
-  VectorDouble _coord;
-  mutable int _iech;
-  mutable bool _target;
+  VectorDouble _coord; // Coordinates (initial or projected)
+  mutable int _iech;   // Absolute rank of the sample within the Db
+  mutable bool _isProjected; // True if the coordinates are projected
 };

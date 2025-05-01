@@ -8,25 +8,26 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Covariances/CovContext.hpp"
 #include "Enum/EConvDir.hpp"
 #include "Enum/EConvType.hpp"
 
 #include "Space/ASpace.hpp"
-#include "Basic/AException.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 
 #include <math.h>
+
 
 CovLMCConvolution::CovLMCConvolution(const EConvType& conv_type,
                                      const EConvDir&  conv_dir,
                                      double conv_range,
                                      int conv_ndisc,
-                                     const ASpace* space)
-    : ACovAnisoList(space),
+                                     const CovContext& ctxt)
+    : CovAnisoList(ctxt),
       _convType(conv_type),
       _convDir(conv_dir),
       _convDiscNumber(conv_ndisc),
@@ -39,7 +40,7 @@ CovLMCConvolution::CovLMCConvolution(const EConvType& conv_type,
 }
 
 CovLMCConvolution::CovLMCConvolution(const CovLMCConvolution &r)
-    : ACovAnisoList(r),
+    : CovAnisoList(r),
       _convType(r._convType),
       _convDir(r._convDir),
       _convDiscNumber(r._convDiscNumber),
@@ -54,7 +55,7 @@ CovLMCConvolution& CovLMCConvolution::operator=(const CovLMCConvolution &r)
 {
   if (this != &r)
   {
-    ACovAnisoList::operator=(r);
+    CovAnisoList::operator=(r);
     _convType = r._convType;
     _convDir = r._convDir;
     _convDiscNumber = r._convDiscNumber;
@@ -72,18 +73,6 @@ CovLMCConvolution::~CovLMCConvolution()
 {
 }
 
-void CovLMCConvolution::_loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode) const
-{
-  ACov::_loadAndAddEvalCovMatBiPointInPlace(mat, p1, p2, mode);
-}
-void CovLMCConvolution::_addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                                                     const SpacePoint &pwork1,
-                                                     const SpacePoint &pwork2,
-                                                     const CovCalcMode *mode) const
-{
-  ACov::_addEvalCovMatBiPointInPlace(mat, pwork1, pwork2, mode);
-}
 int CovLMCConvolution::init(const EConvType& conv_type,
                             const EConvDir&  conv_idir,
                             double conv_range,
@@ -91,7 +80,7 @@ int CovLMCConvolution::init(const EConvType& conv_type,
 {
   for (auto &e: _covs)
   {
-    e->setOptimEnabled(false);
+    ((CovAniso*)e)->setOptimEnabled(false);
   }
   if (conv_ndisc < 1)
   {
@@ -154,7 +143,7 @@ int CovLMCConvolution::init(const EConvType& conv_type,
   for (int i = 0; i < 3; i++)
     _convNumber *= 2 * navail[i] + 1;
 
-  _convIncr = MatrixRectangular(ndim,_convNumber);
+  _convIncr = MatrixDense(ndim,_convNumber);
   _convWeight.resize(_convNumber);
 
   double delta, weight;
@@ -250,7 +239,7 @@ String CovLMCConvolution::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  sstr << ACovAnisoList::toString(strfmt);
+  sstr << CovAnisoList::toString(strfmt);
 
   sstr << "Convolution type      = " << _convType.getDescr() << std::endl;
   sstr << "Convolution direction = " << _convDir.getDescr()   << std::endl;
@@ -275,17 +264,17 @@ double CovLMCConvolution::eval0(int ivar,
     {
       double w2 = _convWeight[i2];
       p22.move(_convIncr.getColumn(i2));
-      cov0 += ACovAnisoList::eval(p11, p22, ivar, jvar, mode) * w1 * w2;
+      cov0 += CovAnisoList::_eval(p11, p22, ivar, jvar, mode) * w1 * w2;
     }
   }
   return cov0;
 }
 
-double CovLMCConvolution::eval(const SpacePoint& p1,
-                               const SpacePoint& p2,
-                               int ivar,
-                               int jvar,
-                               const CovCalcMode* mode) const
+double CovLMCConvolution::_eval(const SpacePoint& p1,
+                                const SpacePoint& p2,
+                                int ivar,
+                                int jvar,
+                                const CovCalcMode* mode) const
 {
   SpacePoint p11;
   SpacePoint p22;
@@ -315,9 +304,9 @@ double CovLMCConvolution::eval(const SpacePoint& p1,
       p22.move(_convIncr.getColumn(i2));
       double covloc = 0.;
       if (mode == nullptr)
-        covloc = ACovAnisoList::eval(p11, p22, ivar, jvar);
+        covloc = CovAnisoList::_eval(p11, p22, ivar, jvar);
       else
-        covloc = ACovAnisoList::eval(p11, p22, ivar, jvar, &modeloc);
+        covloc = CovAnisoList::_eval(p11, p22, ivar, jvar, &modeloc);
       cov += covloc * w1 * w2;
     }
   }
@@ -337,10 +326,10 @@ double CovLMCConvolution::eval(const SpacePoint& p1,
         p22.move(_convIncr.getColumn(i2));
         double covloc = 0.;
         if (mode == nullptr)
-          covloc = ACovAnisoList::eval(p11, p22, ivar, jvar);
+          covloc = CovAnisoList::_eval(p11, p22, ivar, jvar);
         else
         {
-          covloc = ACovAnisoList::eval(p11, p22, ivar, jvar, &modeloc);
+          covloc = CovAnisoList::_eval(p11, p22, ivar, jvar, &modeloc);
         }
         cov0 += covloc * w1 * w2;
       }

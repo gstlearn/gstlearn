@@ -1,0 +1,45 @@
+name: 'HDF5 static Unix'
+description: 'Build & install HDF5 static libraries on Ubuntu & macOS'
+runs:
+  using: "composite"
+  steps:
+
+    - name: Build & install HDF5 static libraries
+      shell: bash
+      run: |
+        curl -OL https://github.com/HDFGroup/hdf5/releases/download/hdf5_1.14.6/hdf5-1.14.6.tar.gz
+        tar xvfz hdf5-1.14.6.tar.gz
+        cd hdf5-1.14.6
+        mkdir build && cd build
+        # extracted from hdf5's CMakePresets.json
+        cmake \
+          -DBUILD_SHARED_LIBS=OFF \
+          -DBUILD_TESTING=OFF \
+          -DHDF5_BUILD_EXAMPLES=OFF \
+          -DHDF5_BUILD_HL_LIB=OFF \
+          -DHDF5_BUILD_CPP_LIB=ON \
+          -DHDF_PACKAGE_NAMESPACE=hdf5:: \
+          -DHDF5_INSTALL_MOD_FORTRAN=NO \
+          -DHDF5_BUILD_GENERATORS=ON \
+          -DHDF5_ENABLE_ALL_WARNINGS=ON \
+          -DHDF5_MINGW_STATIC_GCC_LIBS=ON \
+          -DHDF5_ALLOW_EXTERNAL_SUPPORT=TGZ \
+          -DTGZPATH=../temp \
+          -DZLIB_PACKAGE_NAME=zlib \
+          -DZLIB_TGZ_ORIGPATH=https://github.com/madler/zlib/releases/download/v1.3.1 \
+          -DZLIB_TGZ_NAME=zlib-1.3.1.tar.gz \
+          -DLIBAEC_PACKAGE_NAME=libaec \
+          -DLIBAEC_TGZ_ORIGPATH=https://github.com/MathisRosenhauer/libaec/releases/download/v1.1.3 \
+          -DLIBAEC_TGZ_NAME=libaec-1.1.3.tar.gz \
+          -DHDF5_PACKAGE_EXTLIBS=ON \
+          -DHDF5_USE_ZLIB_NG=OFF \
+          -DZLIB_USE_LOCALCONTENT=OFF \
+          -DLIBAEC_USE_LOCALCONTENT=OFF \
+          -DHDF5_USE_ZLIB_STATIC=ON \
+          -DHDF5_USE_LIBAEC_STATIC=ON \
+          ..
+        cmake --build . --parallel 3
+        sudo cmake --build . --target install
+      env:
+        CMAKE_BUILD_TYPE: Release
+        CMAKE_INSTALL_PREFIX: /usr/local

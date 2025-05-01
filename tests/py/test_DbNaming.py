@@ -39,7 +39,7 @@ gl.mestitle(0,"Creating a data file")
 # to distinguish coordinates along first and second axes.
 
 grid = gl.DbGrid.create([5,5], [1,1], [10,20])
-nech = grid.getSampleNumber()
+nech = grid.getNSample()
 print(f"Number of sample = {nech}")
 grid
 

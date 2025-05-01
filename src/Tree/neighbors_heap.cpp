@@ -50,7 +50,10 @@ t_nheap* nheap_init(int n_pts, int n_nbrs)
   }
   h->indices = (int**)malloc(sizeof(int*) * n_pts);
   for (int i = 0; i < n_pts; i++)
+  {
     h->indices[i] = (int*)calloc(n_nbrs, sizeof(int));
+    for (int j = 0; j < n_nbrs; j++) h->indices[i][j] = ITEST;
+  }
   return (h);
 }
 

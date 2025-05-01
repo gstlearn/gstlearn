@@ -299,9 +299,9 @@ DriftList* DriftFactory::createDriftListForGradients(const DriftList* olddrifts,
   }
 
   // Copy the 'filter' status
-  for (int il = 0, ndrift = olddrifts->getDriftNumber(); il < ndrift; il++)
+  for (int il = 0, ndrift = olddrifts->getNDrift(); il < ndrift; il++)
   {
-    newdrifts->setFiltered(il, olddrifts->isFiltered(il));
+    newdrifts->setFiltered(il, olddrifts->isDriftFiltered(il));
   }
 
   return newdrifts;

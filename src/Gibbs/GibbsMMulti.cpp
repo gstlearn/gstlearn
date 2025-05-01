@@ -12,7 +12,6 @@
 #include "Gibbs/AGibbs.hpp"
 #include "Model/Model.hpp"
 #include "Basic/Timer.hpp"
-#include "Basic/HDF5format.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -32,7 +31,6 @@ GibbsMMulti::GibbsMMulti()
   , _eps(EPSILON6)
   , _flagStoreInternal(true)
   , _areas()
-  , _hdf5("Gibbs.hdf5","GibbsSet")
   , _matWgt()
   , _weights()
 {
@@ -46,7 +44,6 @@ GibbsMMulti::GibbsMMulti(Db* db, Model* model)
   , _eps(EPSILON6)
   , _flagStoreInternal(true)
   , _areas()
-  , _hdf5("Gibbs.hdf5","GibbsSet")
   , _matWgt()
   , _weights()
 {
@@ -60,7 +57,6 @@ GibbsMMulti::GibbsMMulti(const GibbsMMulti& r)
   , _eps(r._eps)
   , _flagStoreInternal(r._flagStoreInternal)
   , _areas(r._areas)
-  , _hdf5(r._hdf5)
   , _matWgt(r._matWgt)
   , _weights()
 {
@@ -77,7 +73,6 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
     _eps = r._eps;
     _flagStoreInternal = r._flagStoreInternal;
     _areas = r._areas;
-    _hdf5 = r._hdf5;
     _matWgt = r._matWgt;
     _weights = r._weights;
   }
@@ -114,9 +109,9 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
   if (verbose) mestitle(1,"Gibbs using Moving Neighborhood");
   Db* db = getDb();
   Model* model = getModel();
-  int nvar   = _getVariableNumber();
+  int nvar   = _getNVar();
   int nact   = _getSampleRankNumber();
-  int nvardb = db->getLocNumber(ELoc::Z);
+  int nvardb = db->getNLoc(ELoc::Z);
   bool flag_var_defined = nvardb > 0;
 
   // Consistency check
@@ -133,7 +128,7 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
   if (verbose)
     message("Building Covariance Sparse Matrix (Dimension = %d)\n",nact);
   Timer timer;
-  _Cmat = model->evalCovMatrixSparse(db, db, -1, -1, _getRanks(), _getRanks());
+  _Cmat = model->evalCovMatSparse(db, db, -1, -1, _getRanks(), _getRanks());
   if (_Cmat == nullptr) return 1;
   if (verboseTimer)
     timer.displayIntervalMilliseconds("Building Covariance");
@@ -180,7 +175,7 @@ void GibbsMMulti::update(VectorVectorDouble &y, int isimu, int ipgs, int iter)
 {
   double valsim, yk, vk;
 
-  int nvar = _getVariableNumber();
+  int nvar = _getNVar();
   int nact = _getSampleRankNumber();
 
   /* Print the title */
@@ -221,16 +216,16 @@ void GibbsMMulti::update(VectorVectorDouble &y, int isimu, int ipgs, int iter)
   _updateStats(y, ipgs, iter);
 }
 
-int GibbsMMulti::_getVariableNumber() const
+int GibbsMMulti::_getNVar() const
 {
   Model* model = getModel();
-  return model->getVariableNumber();
+  return model->getNVar();
 }
 
 int GibbsMMulti::_getSize() const
 {
   int nact = _getSampleRankNumber();
-  int nvar = _getVariableNumber();
+  int nvar = _getNVar();
   return nact * nvar;
 }
 
@@ -303,7 +298,7 @@ int GibbsMMulti::_storeAllWeights(bool verbose)
 
   if (! _flagStoreInternal)
   {
-#ifdef _USE_HDF5
+#ifdef TODO
     std::vector<hsize_t> dims(2);
     dims[0] = nrow;
     dims[1] = nrow;
@@ -363,7 +358,7 @@ void GibbsMMulti::_storeWeights(int icol)
   else
   {
     // Store in hdf5 file
-#ifdef _USE_HDF5
+#ifdef TODO
     _hdf5.writeDataDoublePartial(icol, _weights);
 #else
     DECLARE_UNUSED(icol);
@@ -388,26 +383,21 @@ void GibbsMMulti::_getWeights(int icol) const
   else
   {
     // Read from the external file
+#ifdef TODO
     _weights = HDF5format::getDataDoublePartial(icol);
+#endif
   }
 }
 
 void GibbsMMulti::cleanup()
 {
-  _hdf5.closeDataSet();
-  _hdf5.closeFile();
-  _hdf5.deleteFile();
 }
 
 void GibbsMMulti::setFlagStoreInternal(bool flagStoreInternal)
 {
-#ifndef _USE_HDF5
   if (!flagStoreInternal)
     messerr("No HDF5 support: Cannot use External Storing of weights option!");
   _flagStoreInternal = true;
-#else
-  _flagStoreInternal = flagStoreInternal;
-#endif
 }
 
 double GibbsMMulti::_getEstimate(int ipgs,
@@ -431,7 +421,7 @@ double GibbsMMulti::_getEstimate(int ipgs,
   }
   else
   {
-    int nvar = _getVariableNumber();
+    int nvar = _getNVar();
     int nact = _getSampleRankNumber();
     int irow = 0;
     for (jvar = 0; jvar < nvar; jvar++)

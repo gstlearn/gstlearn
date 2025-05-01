@@ -16,6 +16,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "geoslib_define.h"
 
 #include <iostream>
 
@@ -529,6 +530,16 @@ void AMatrix::prodVecMatInPlacePtr(const double* x, double* y, bool transpose) c
   _prodVecMatInPlacePtr(x, y, transpose);
 }
 
+bool AMatrix::needToReset(int nrows, int ncols)
+{
+  return nrows != getNRows() || ncols != getNCols() || _needToReset(nrows, ncols);
+}
+
+bool AMatrix::_needToReset(int nrows, int ncols)
+{
+  DECLARE_UNUSED(nrows,ncols)
+  return false;
+}
 /**
  * @brief Resize the matrix to new dimensions
  *        (this method doesn't change the storage type)
@@ -539,7 +550,8 @@ void AMatrix::prodVecMatInPlacePtr(const double* x, double* y, bool transpose) c
 void AMatrix::resize(int nrows, int ncols)
 {
   // Check if nothing is to be done
-  if (nrows == getNRows() && ncols == getNCols()) return;
+  if (!needToReset(nrows, ncols)) 
+    return;
 
   // Reset the sizes (clear values)
   reset(nrows, ncols);
@@ -807,6 +819,11 @@ String AMatrix::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
+void AMatrix::clear()
+{
+  _clear();
+}
+
 void AMatrix::_clear()
 {
   _setNRows(0);
@@ -922,6 +939,10 @@ void AMatrix::dumpElements(const String& title, int ifrom, int ito) const
   }
 }
 
+void AMatrix::dumpStatistics(const String& title) const
+{
+  message("%s : %d rows and %d columns\n", title.c_str(), _nRows, _nCols);
+}
 /**
  * Check that a set of matrices (or vectors) has the correct linkage
  * @param nrow1       Number of rows in the first matrix
@@ -1152,6 +1173,16 @@ VectorDouble AMatrix::getColumn(int icol) const
   return vect;
 }
 
+VectorDouble AMatrix::getColumnByRowRange(int icol, int rowFrom, int rowTo) const
+{
+  if (icol < 0 || icol >= getNCols())
+    my_throw("Incorrect argument 'icol'");
+
+  VectorDouble vect;
+  for (int irow = rowFrom; irow < rowTo; irow++)
+    vect.push_back(getValue(irow, icol));
+  return vect;
+}
 /*! Set the contents of a Column */
 void AMatrix::setColumn(int icol, const VectorDouble& tab, bool flagCheck)
 {
@@ -1191,7 +1222,7 @@ bool AMatrix::isRowDefined(int irow) const
 }
 
 /*! Define the number of defined columns */
-int AMatrix::getNumberColumnDefined() const
+int AMatrix::getNColDefined() const
 {
   int ncol = 0;
   for (int icol = 0; icol < getNCols(); icol++)
@@ -1202,7 +1233,7 @@ int AMatrix::getNumberColumnDefined() const
 }
 
 /*! Define the number of defined rows */
-int AMatrix::getNumberRowDefined() const
+int AMatrix::getNRowDefined() const
 {
   int nrow = 0;
   for (int irow = 0; irow < getNRows(); irow++)

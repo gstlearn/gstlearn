@@ -9,14 +9,16 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Mesh/AMesh.hpp"
-#include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/NF_Triplet.hpp"
+#include "Matrix/MatrixDense.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixInt.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AStringable.hpp"
 #include "Space/SpacePoint.hpp"
+#include "Tree/Ball.hpp"
 
 #include <algorithm>
 
@@ -87,7 +89,7 @@ String AMesh::toString(const AStringFormat* strfmt) const
   if (strfmt != nullptr) sf = *strfmt;
   if (sf.getLevel() > 1)
   {
-    MatrixRectangular apices;
+    MatrixDense apices;
     MatrixInt meshes;
     getElements(apices, meshes);
 
@@ -99,7 +101,7 @@ String AMesh::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-void AMesh::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const
+void AMesh::getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const
 {
   for (int idim = 0; idim < getNDim(); idim++)
     coords[idim] = getCoor(imesh, rank, idim);
@@ -182,7 +184,7 @@ void AMesh::_recopy(const AMesh &m)
   _extendMax = m._extendMax;
 }
 
-VectorDouble AMesh::getCoordinates(int idim) const
+VectorDouble AMesh::getCoordinatesPerApex(int idim) const
 {
   if (! _isSpaceDimensionValid(idim)) return VectorDouble();
   int np = getNApices();
@@ -275,10 +277,10 @@ VectorVectorDouble AMesh::getAllCenterCoordinates() const
  * - the second dimension if the space dimension (ncol)
  * @return
  */
-MatrixRectangular AMesh::getAllApices() const
+MatrixDense AMesh::getAllApices() const
 {
   int napices = getNApices();
-  MatrixRectangular apices(napices, _nDim);
+  MatrixDense apices(napices, _nDim);
   for (int ip = 0; ip < napices; ip++)
     for (int idim = 0; idim < _nDim; idim++)
       apices.setValue(ip, idim, getApexCoor(ip, idim));
@@ -319,7 +321,7 @@ VectorInt AMesh::getMeshByApexPair(int apex1, int apex2) const
 ** \param[out]  meshes  Pointer on the array of Meshes
 **
 *****************************************************************************/
-void AMesh::getElements(MatrixRectangular& apices, MatrixInt& meshes) const
+void AMesh::getElements(MatrixDense& apices, MatrixInt& meshes) const
 {
   int nmeshes = getNMeshes();
   int ndim    = getNDim();
@@ -386,7 +388,7 @@ VectorDouble AMesh::getCoordinatesPerMesh(int imesh, int idim, bool flagClose) c
  */
 void AMesh::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const
 {
-  getCoordinatesInPlace(imesh, ic, coords);
+  getCoordinatesPerMeshInPlace(imesh, ic, coords);
 }
 
 /**
@@ -403,10 +405,9 @@ void AMesh::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const
 ProjMatrix* AMesh::createProjMatrix(const Db* db, int rankZ, bool verbose) const
 {
   ProjMatrix* m = new ProjMatrix();
-  resetProjMatrix(m, db, rankZ, verbose);
+  resetProjFromDb(m, db, rankZ, verbose);
   return m;
 }
-
 
 /**
  * Fill the array of coordinates of all apices of a mesh in embedded space
@@ -592,7 +593,7 @@ void AMesh::dumpNeighborhood(std::vector<VectorInt>& Vmesh, int nline_max)
   if (nline_max > 0) nmax = MIN(nmax, nline_max);
   for (int irow = 0; irow < nmax; irow++)
   {
-    VH::display(String(), Vmesh[irow]);
+    VH::dump(String(), Vmesh[irow]);
   }
 }
 
@@ -648,7 +649,7 @@ bool AMesh::_weightsInMesh(const VectorDouble& coor,
   {
 
     // Build the determinant
-    MatrixSquareGeneral mat(ndim);
+    MatrixSquare mat(ndim);
     int kcorn = 0;
     for (int jcorn=0; jcorn<ncorner; jcorn++)
     {
@@ -684,7 +685,7 @@ double AMesh::_getMeshUnit(const VectorVectorDouble& corners) const
   int ncorner = getNApexPerMesh();
 
   // Calculate the mesh size
-  MatrixSquareGeneral mat;
+  MatrixSquare mat;
   mat.reset(ndim,ndim);
   for (int icorn=1; icorn<ncorner; icorn++)
     for (int idim=0; idim<ndim; idim++)
@@ -735,3 +736,161 @@ void AMesh::_printMeshListByIndices(int nline_max) const
   }
 }
 
+void AMesh::getBarycenterInPlace(int imesh, VectorDouble& coord) const
+{
+  int ndim    = getNDim();
+  int ncorner = getNApexPerMesh();
+
+  VectorVectorDouble coords = getCoordinatesPerMesh(imesh);
+
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    double local = 0.;
+    for (int ic = 0; ic < ncorner; ic++)
+      local += coords[ic][idim];
+    coord[idim] = local / ncorner;
+  }
+}
+
+/****************************************************************************/
+/*!
+** Returns the Sparse Matrix used to project a Db onto the Meshing
+**
+** \param[out] m         Projection matrix to be initialized
+** \param[in]  db        Db structure
+** \param[in]  rankZ     Rank of the Z-locator to be tested (see remarks)
+** \param[in]  verbose   Verbose flag
+**
+** \remarks If rankZ>=0, a sample is only considered if the value
+** \remarks of the corresponding variable is defined
+**
+*****************************************************************************/
+void AMesh::resetProjFromDb(ProjMatrix* m,
+                            const Db* db,
+                            int rankZ,
+                            bool verbose) const
+{
+  int ndim    = getNDim();
+  int nvertex = getNApices();
+  int ncorner = getNApexPerMesh();
+  int nech    = db->getNSample();
+  int nmeshes = getNMeshes();
+  VectorDouble units(nmeshes, 0.);
+  if (getVariety() != 1)
+    units = _defineUnits();
+
+  // Preliminary checks
+  if (isCompatibleDb(db)) return;
+
+  /* Instantiate a Ball Tree for quick search */
+  // Note: this Ball tree is defined in 3D despite the space dimension of mesh
+  Ball ball(this, nullptr, 10, false, 1);
+  if (verbose) ball.display(1);
+
+  /* Instantiate a Sparse matrix structrue (Triplets) */
+  NF_Triplet NF_T;
+
+  /* Optional title */
+  if (verbose) mestitle(0, "Mesh Barycenter");
+
+  /* Loop on the samples */
+  int ip_max = 0;
+  int iech   = 0;
+  int nout   = 0;
+  int nvalid = 0;
+  VectorInt neighs;
+  VectorDouble distances;
+  VectorDouble target(ndim);
+  VectorDouble weight(ncorner, 0);
+  for (int jech = 0; jech < nech; jech++)
+  {
+    if (!db->isActive(jech)) continue;
+    if (rankZ >= 0)
+    {
+      double testval = db->getFromLocator(ELoc::Z, jech, rankZ);
+      if (FFFF(testval)) continue;
+    }
+    nvalid++;
+
+    // Identification of the target point
+    db->getCoordinatesInPlace(target, jech);
+
+    /* Loop on the elligible meshes */
+    int nb_neigh = 5;
+    (void)ball.queryOneInPlace(target, nb_neigh, neighs, distances);
+    int found = _findBarycenter(target, units, nb_neigh, neighs, weight);
+
+    // If search has failed with a small number of neighbors, try with a larger one
+    if (found < 0)
+    {
+      nb_neigh = 50;
+      (void)ball.queryOneInPlace(target, nb_neigh, neighs, distances);
+      found = _findBarycenter(target, units, nb_neigh, neighs, weight);
+    }
+
+    if (found >= 0)
+    {
+      /* Store the items in the sparse matrix */
+
+      if (verbose) message("Sample %4d in Mesh %4d :", jech + 1, found + 1);
+      for (int icorn = 0; icorn < ncorner; icorn++)
+      {
+        int ip = getApex(found, icorn);
+        if (ip > ip_max) ip_max = ip;
+        if (verbose) message(" %4d (%4.2lf)", ip, weight[icorn]);
+        NF_T.add(iech, ip, weight[icorn]);
+      }
+      if (verbose) message("\n");
+    }
+    else
+    {
+
+      /* Printout if a point does not belong to any mesh */
+
+      nout++;
+      messerr("Point %d (%lf %lf) does not belong to any mesh (nb_neigh=%d)",
+              jech + 1, target[0], target[1], nb_neigh);
+    }
+    iech++;
+  }
+
+  /* Add the extreme value to force dimension */
+
+  if (ip_max < nvertex - 1)
+  {
+    NF_T.force(nvalid, nvertex);
+  }
+
+  /* Convert the triplet into a sparse matrix */
+
+  if (verbose && nout > 0)
+    messerr("%d / %d samples which do not belong to the Meshing",
+            nout, db->getNSample(true));
+
+  return m->resetFromTriplet(NF_T);
+}
+
+int AMesh::_findBarycenter(const VectorDouble& target,
+                           const VectorDouble& units,
+                           int nb_neigh,
+                           VectorInt& neighs,
+                           VectorDouble& weight) const
+{
+  for (int jm = 0; jm < nb_neigh; jm++)
+  {
+    int im                     = neighs[jm];
+    VectorVectorDouble corners = getCoordinatesPerMesh(im);
+    if (!_weightsInMesh(target, corners, units[im], weight)) continue;
+    return im;
+  }
+  return -1;
+}
+
+VectorDouble AMesh::_defineUnits(void) const
+{
+  int nmeshes = getNMeshes();
+  VectorDouble units(nmeshes);
+  for (int imesh = 0; imesh < nmeshes; imesh++)
+    units[imesh] = getMeshSize(imesh);
+  return units;
+}

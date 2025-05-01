@@ -11,11 +11,12 @@
 #include "Model/AModelOptim.hpp"
 
 #include "Basic/AStringable.hpp"
+#include "Covariances/CovAniso.hpp"
 #include "Enum/EConsElem.hpp"
 #include "geoslib_define.h"
 
-#include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSquare.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Variogram/Vario.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Model/Model.hpp"
@@ -105,13 +106,13 @@ void AModelOptim::_addOneModelParam(int icov,
 }
 
 void AModelOptim::_updateModelParamList(double distmax_def,
-                                       const MatrixSquareSymmetric& vars_def)
+                                        const MatrixSymmetric& vars_def)
 {
   double value = TEST;
   double scale = 1.;
-  int nparams  = _getParamNumber();
+  int nparams  = _getNParam();
   Model* model = _modelPart._model;
-  int ncov     = model->getCovaNumber(true);
+  int ncov     = model->getNCov(true);
 
   // Cholesky decomposition of the matrix of variances
   VectorDouble varchol;
@@ -125,7 +126,7 @@ void AModelOptim::_updateModelParamList(double distmax_def,
   {
     OneParam& param      = _modelPart._params[iparam];
     int icov             = param._icov;
-    const CovAniso* cova = model->getCova(icov);
+    const CovAniso* cova = model->getCovAniso(icov);
 
     value = 1.;
     scale = 1.;
@@ -179,7 +180,7 @@ void AModelOptim::_updateModelParamList(double distmax_def,
 void AModelOptim::_dumpParamList() const
 {
   mestitle(1, "List of the Model parameters to be infered");
-  int nparams = _getParamNumber();
+  int nparams = _getNParam();
   for (int iparam = 0; iparam < nparams; iparam++)
   {
     _dumpOneModelParam(_modelPart._params[iparam], _modelPart._tabval[iparam]);
@@ -217,10 +218,10 @@ void AModelOptim::_performOptimization(double (*optim_func)(unsigned n,
                                                             void* func_data),
                                        void* f_data,
                                        double distmax_def,
-                                       const MatrixSquareSymmetric& vars_def)
+                                       const MatrixSymmetric& vars_def)
 {
   // Define the optimization criterion
-  int npar      = _getParamNumber();
+  int npar      = _getNParam();
   nlopt_opt opt = nlopt_create(NLOPT_LN_NELDERMEAD, npar);
   nlopt_set_lower_bounds(opt, _modelPart._tablow.data());
   nlopt_set_upper_bounds(opt, _modelPart._tabupp.data());
@@ -254,13 +255,13 @@ int AModelOptim::_buildModelParamList()
 
   // Loop on the covariances
   const Model* model       = _modelPart._model;
-  int nvar                 = model->getVariableNumber();
-  int ndim                 = model->getDimensionNumber();
+  int nvar                 = model->getNVar();
+  int ndim                 = model->getNDim();
   bool flagRotationDefined = false;
 
-  for (int icov = 0, ncov = model->getCovaNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = model->getNCov(); icov < ncov; icov++)
   {
-    const CovAniso* cova = model->getCova(icov);
+    const CovAniso* cova = model->getCovAniso(icov);
     bool flagSill        = true;
     bool flagRange       = cova->hasRange() > 0;
     bool flagAniso       = cova->hasRange() != 0 && _modelPart._optvar.getAuthAniso();
@@ -281,12 +282,7 @@ int AModelOptim::_buildModelParamList()
       else
       {
         // Add the 'Anisotropic Range' (vectorial)
-        if (ndim == 2)
-        {
-          // For anisotropy in 2-D, one value is sufficient
-          _addOneModelParam(icov, EConsElem::RANGE, 0, EPSILON2, TEST);
-        }
-        else if (ndim == 3)
+        if (ndim == 3)
         {
           // For anisotropy in 3-D, vectorial definition is needed
           if (_modelPart._optvar.getLockIso2d())
@@ -303,6 +299,7 @@ int AModelOptim::_buildModelParamList()
         }
         else
         {
+          // For anisotropy in 2-D, one value is sufficient
           // For other space dimension, consider Isotropic Range
           _addOneModelParam(icov, EConsElem::RANGE, 0, EPSILON2, TEST);
         }
@@ -367,8 +364,8 @@ int AModelOptim::_buildModelParamList()
   void AModelOptim::_patchModel(Model_Part & modelPart, const double* current)
   {
     // Initializations
-    int ncov    = modelPart._model->getCovaNumber();
-    int nvar    = modelPart._model->getVariableNumber();
+    int ncov    = modelPart._model->getNCov();
+    int nvar    = modelPart._model->getNVar();
     int nvs2    = nvar * (nvar + 1) / 2;
     int nparams = (int)modelPart._params.size();
     bool samerot = modelPart._optvar.getLockSamerot();
@@ -381,7 +378,7 @@ int AModelOptim::_buildModelParamList()
       int icov              = param._icov;
       int rank              = param._rank;
       double scale          = param._scale;
-      CovAniso* cova        = modelPart._model->getCova(icov);
+      CovAniso* cova        = modelPart._model->getCovAniso(icov);
 
       if (param._type == EConsElem::RANGE)
       {
@@ -403,7 +400,7 @@ int AModelOptim::_buildModelParamList()
           // Export the Anisotropy Rotation information to all covariances
           for (int jcov = 0; jcov < ncov; jcov++)
           {
-            CovAniso* mcova = modelPart._model->getCova(jcov);
+            CovAniso* mcova = modelPart._model->getCovAniso(jcov);
             if (mcova->hasRange() > 0) mcova->setAnisoAngle(rank, angle);
           }
         }
@@ -412,14 +409,14 @@ int AModelOptim::_buildModelParamList()
       else if (param._type == EConsElem::SILL)
       {
         // Sill (through the AIC matrix)
-        MatrixSquareGeneral aic(nvar);
+        MatrixSquare aic(nvar);
         int ijvar = 0;
         for (int ivar = ijvar = 0; ivar < nvar; ivar++)
           for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
             aic.setValue(ivar, jvar, scale * current[iparam++]);
         if (ijvar == nvs2)
         {
-          MatrixSquareSymmetric sills(nvar);
+          MatrixSymmetric sills(nvar);
           sills.prodNormMatVecInPlace(aic, VectorDouble());
           cova->setSill(sills);
         }

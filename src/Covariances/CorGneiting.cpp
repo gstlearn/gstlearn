@@ -11,23 +11,18 @@
 
 #include "Covariances/CorGneiting.hpp"
 #include "Basic/AStringable.hpp"
-#include "Covariances/ACor.hpp"
-#include "Covariances/CovBase.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovBase.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceComposite.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include <vector>
 
-CorGneiting::CorGneiting(const CovAniso* covS,const CovAniso* covTemp, double separability)
-: ACor(CovContext())
-, _covS(covS)
-, _covTemp(covTemp)
-, _separability(separability)
-, _covSCopy(*covS)
+CorGneiting::CorGneiting(const CorAniso* covS, const CorAniso* covTemp, double separability)
+  : ACov()
+  , _covS(covS)
+  , _covTemp(covTemp)
+  , _separability(separability)
+  , _covSCopy(*covS)
 {
   if (separability < 0.0 || separability > 1.0)
   {
@@ -35,32 +30,39 @@ CorGneiting::CorGneiting(const CovAniso* covS,const CovAniso* covTemp, double se
     messerr("CorGneiting: Separability must be in [0,1]");
     messerr("It has been set to 0");
   }
-  delete _space;
-  SpaceComposite* space = new SpaceComposite();
+  _covS->setOptimEnabled(false);
+  _covSCopy.setOptimEnabled(false);
+  _covTemp->setOptimEnabled(false);
+
+  // Define the Context
+  auto space = SpaceComposite::create();
   space->addSpaceComponent(covS->getSpace());
-  space->addSpaceComponent(covTemp->getSpace()); 
+  space->addSpaceComponent(covTemp->getSpace());
   _space = space;
+
+  int nvar = covS->getNVar();
+  CovContext ctxt    = CovContext(nvar, space);
+  setContext(ctxt);
 }
 
-
-CorGneiting::CorGneiting(const CorGneiting& r):
-ACor(r)
-, _covS(r._covS)
-, _covTemp(r._covTemp)
-, _separability(r._separability)
-, _covSCopy(*r._covS)
+CorGneiting::CorGneiting(const CorGneiting& r)
+  : ACov(r)
+  , _covS(r._covS)
+  , _covTemp(r._covTemp)
+  , _separability(r._separability)
+  , _covSCopy(*r._covS)
 {
+
 }
 
-CorGneiting& CorGneiting::operator=(const CorGneiting &r)
+CorGneiting& CorGneiting::operator=(const CorGneiting& r)
 {
   if (this != &r)
   {
-    ACor::operator =(r);
-    _ctxt = r._ctxt;
-    _covS = r._covS;
-    _covTemp = r._covTemp;
-    _covSCopy = r._covSCopy;
+    ACov::operator=(r);
+    _covS         = r._covS;
+    _covTemp      = r._covTemp;
+    _covSCopy     = r._covSCopy;
     _separability = r._separability;
   }
   return *this;
@@ -70,48 +72,45 @@ CorGneiting::~CorGneiting()
 {
 }
 
-void CorGneiting::_optimizationSetTarget(const SpacePoint &pt) const 
-{
-  _covS->optimizationSetTarget(pt.spacePointOnSubspace(0));
-  _covTemp->optimizationSetTarget(pt.spacePointOnSubspace(1));
-}
-  
-void CorGneiting::optimizationSetTargetByIndex(int iech) const 
-{
-  _covS->optimizationSetTargetByIndex(iech);
-  _covTemp->optimizationSetTargetByIndex(iech);
-}
+// void CorGneiting::_optimizationSetTarget(SpacePoint& pt) const
+// {
+//   _covS->optimizationSetTarget(pt);
+//   _covSCopy.optimizationSetTarget(pt);
+//   _covTemp->optimizationSetTarget(pt);
+// }
 
-void CorGneiting::_optimizationPreProcess(const std::vector<SpacePoint>& p) const 
-{
-  _covS->_optimizationPreProcess(p);
-  _covTemp->_optimizationPreProcess(p);
-}
+// void CorGneiting::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const
+// {
+//   // DECLARE_UNUSED(mode)
+//   // DECLARE_UNUSED(ps)
+//   _covS->optimizationPreProcess(mode, ps);
+//   _covSCopy.optimizationPreProcess(mode, ps);
+//   _covTemp->optimizationPreProcess(mode, ps);
+// }
 
-void CorGneiting::optimizationPostProcess() const
-{
-  _covS->optimizationPostProcess();
-  _covTemp->optimizationPostProcess();
-}
+// void CorGneiting::_optimizationPostProcess() const
+// {
+//   _covS->optimizationPostProcess();
+//   _covSCopy.optimizationPostProcess();
+//   _covTemp->optimizationPostProcess();
+// }
 
-double CorGneiting::eval(const SpacePoint& p1,
-                    const SpacePoint& p2,
-                    int ivar,
-                    int jvar,
-                    const CovCalcMode* mode) const
+double CorGneiting::_eval(const SpacePoint& p1,
+                          const SpacePoint& p2,
+                          int ivar,
+                          int jvar,
+                          const CovCalcMode* mode) const
 {
-  auto p1_0 = p1.spacePointOnSubspace(0);
-  auto p2_0 = p2.spacePointOnSubspace(0);
-  auto p1_1 = p1.spacePointOnSubspace(1);
-  auto p2_1 = p2.spacePointOnSubspace(1);
-  double ct = _covTemp->eval(p1_1, p2_1, ivar, jvar, mode);
+  auto p1_S = p1.spacePointOnSubspace(0);
+  auto p2_S = p2.spacePointOnSubspace(0);
+  auto p1_T = p1.spacePointOnSubspace(1);
+  auto p2_T = p2.spacePointOnSubspace(1);
+  double ct = _covTemp->evalCov(p1_T, p2_T, ivar, jvar, mode);
 
-  double scale = pow(ct,_separability/_covSCopy.getNDim(0));
-  for (int i = 0; i < (int) _covSCopy.getNDim(); i++)
-  {
+  double scale = pow(ct, _separability / _covSCopy.getNDim(0));
+  for (int i = 0; i < (int)_covSCopy.getNDim(); i++)
     _covSCopy.setScale(i, _covS->getScale(i) / scale);
-  }
-  double cs = _covSCopy.eval(p1_0, p2_0, ivar, jvar, mode);
-  
-  return cs * ct; 
+  double cs = _covSCopy.evalCov(p1_S, p2_S, ivar, jvar, mode);
+
+  return cs * ct;
 }

@@ -28,7 +28,6 @@ License: BSD 3-clause
 #include "Tree/ball_algorithm.h"
 #include "Tree/KNN.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
 #include "Space/SpacePoint.hpp"
 
 static double (*st_distance_function)(const double*, const double*, int) = euclidean_distance;
@@ -45,7 +44,7 @@ double **copy_double_arrAsVVD(const VectorVectorDouble& arr)
     for (int j = 0; j < col; j++)
       copy[i][j] = arr[j][i];
   }
-  return (copy);
+  return copy;
 }
 
 double **copy_double_arr(const double **arr, int row, int col)
@@ -58,6 +57,14 @@ double **copy_double_arr(const double **arr, int row, int col)
 			copy[i][j] = arr[i][j];
 	}
 	return (copy);
+}
+
+bool* init_bool_arr(int col, bool status)
+{
+  bool* copy = (bool*)malloc(sizeof(bool) * col);
+  for (int j = 0; j < col; j++)
+    copy[j] = status;
+  return copy;
 }
 
 VectorVectorDouble copy_double_toVVD(const double** arr, int row, int col)
@@ -105,6 +112,7 @@ void swap(int *arr, int i1, int i2)
 void btree_zero(t_btree *b)
 {
 	b->data = NULL;
+  b->accept = NULL;
 	b->idx_array = NULL;
 	b->node_data = NULL;
 	b->node_bounds = NULL;
@@ -232,7 +240,7 @@ void recursive_build(t_btree *b, int i_node, int idx_start, int idx_end)
 
 void define_dist_function(double (*dist_function)(const double* x1,
                                                   const double* x2,
-                                                  int size),
+                                                  int n_features),
                           int default_distance_function)
 {
   if (dist_function != nullptr)
@@ -251,23 +259,26 @@ void define_dist_function(double (*dist_function)(const double* x1,
 t_btree* btree_init(const double** data,
                     int n_samples,
                     int n_features,
+                    bool has_constraints,
                     double (*dist_function)(const double* x1,
                                             const double* x2,
-                                            int size),
+                                            int n_features),
                     int leaf_size,
                     int default_distance_function)
 {
-	t_btree* b = (t_btree*)malloc(sizeof(t_btree));
-	btree_zero(b);
+  t_btree* b = (t_btree*)malloc(sizeof(t_btree));
+  btree_zero(b);
 
-	b->data = copy_double_arr(data, n_samples, n_features);
-	b->leaf_size = leaf_size;
-	
-	if (leaf_size < 1)
-	{
-		messerr("leaf_size must be greater than or equal to 1\n");
-		return nullptr;
-	}
+  b->data = copy_double_arr(data, n_samples, n_features);
+  if (has_constraints)
+    b->accept = init_bool_arr(n_samples, false);
+  b->leaf_size = leaf_size;
+
+  if (leaf_size < 1)
+  {
+    messerr("leaf_size must be greater than or equal to 1\n");
+    return nullptr;
+  }
 
   // Define the relevant distance function
   define_dist_function(dist_function, default_distance_function);
@@ -295,13 +306,22 @@ t_btree* btree_init(const double** data,
 	return (b);
 }
 
-double min_dist(t_btree *tree, int i_node, const double *pt)
+/**
+ * @brief Calculate the distance between the current 'pt' and the centroid of node 'i_node'
+ * Returns 0 if 'pt' belongs to the node
+ * 
+ * @param tree t_btree structure
+ * @param i_node Rank of the target node
+ * @param pt     Characteristics of the target SpacePoint
+ * @return double Minimum distance or 0
+ */
+double min_dist(const t_btree *tree, int i_node, const double *pt)
 {
   double dist_pt = st_distance_function(pt, tree->node_bounds[0][i_node], tree->n_features);
   return (fmax(0.0, dist_pt - tree->node_data[i_node].radius));
 }
 
-int query_depth_first(t_btree *b, int i_node, const double *pt, int i_pt, t_nheap *heap, double dist)
+int query_depth_first(const t_btree *b, int i_node, const double *pt, int i_pt, t_nheap *heap, double dist)
 {
   t_nodedata node_info = b->node_data[i_node];
   double dist_pt, dist1, dist2;
@@ -317,13 +337,15 @@ int query_depth_first(t_btree *b, int i_node, const double *pt, int i_pt, t_nhea
   {
     for (int i = node_info.idx_start; i < node_info.idx_end; i++)
     {
-      dist_pt = st_distance_function(pt, b->data[b->idx_array[i]], b->n_features);
+      int j = b->idx_array[i];
+      if (b->accept != nullptr && !b->accept[j]) 
+        continue;
+      dist_pt = st_distance_function(pt, b->data[j], b->n_features);
       if (dist_pt < nheap_largest(heap, i_pt))
-        nheap_push(heap, i_pt, dist_pt, b->idx_array[i]);
+        nheap_push(heap, i_pt, dist_pt, j);
     }
   }
-  // case 3: Node is not a leaf, Recursively query sub-nodes starting with the
-  // closest
+  // case 3: Node is not a leaf, Recursively query sub-nodes starting with the closest
   else
   {
     i1    = 2 * i_node + 1;
@@ -373,6 +395,7 @@ void btree_display(const t_btree *tree, int level)
 {
   if (tree == nullptr) return;
 
+  mestitle(0, "Ball Tree");
   message("- Number of samples = %d\n", tree->n_samples);
   message("- Number of Features = %d\n", tree->n_features);
   message("- Number of levels = %d\n", tree->n_levels);
@@ -382,31 +405,23 @@ void btree_display(const t_btree *tree, int level)
 
   // Loop on the nodes
 
+  mestitle(1, "List of nodes");
   for (int i_node = 0; i_node < tree->n_nodes; i_node++)
   {
     t_nodedata* info = &tree->node_data[i_node];
-    VectorDouble centroid(tree->n_features);
-    for (int j = 0; j < tree->n_features; j++)
-      centroid[j] = tree->node_bounds[0][i_node][j];
 
-    message("Node #%3d/%3d - Indices [%5d; %5d[ - Radius = %lf",
+    message("Node #%3d/%3d - Indices [%5d; %5d[ - Radius = %lf - Centroid = ",
             i_node, tree->n_nodes, info->idx_start, info->idx_end, info->radius);
-    if (info->is_leaf)
-      message(" - Terminal Leaf\n");
-    else
-      message("\n");
+    for (int j = 0; j < tree->n_features; j++)
+      message("%lf ", tree->node_bounds[0][i_node][j]);
+    message("\n");
 
-    if (level > 0)
+    if (level > 0 && info->is_leaf)
     {
-      VH::display("Centroid = ", centroid, 0);
-
-      if (level > 1 && info->is_leaf)
-      {
-        message("  Sample indices = ");
-        for (int is = info->idx_start; is < info->idx_end; is++)
-          message(" %d", tree->idx_array[is]);
-        message("\n");
-      }
+      message(" Sample indices = ");
+      for (int is = info->idx_start; is < info->idx_end; is++)
+        message(" %d", tree->idx_array[is]);
+      message("\n");
     }
   }
 }
@@ -415,14 +430,14 @@ void btree_display(const t_btree *tree, int level)
  * Returns the Manhattan distance between two points
  * @param x1 Vector of coordinates for the first point
  * @param x2 Vector of coordinates for the second point
- * @param size Number of coordinates
+ * @param n_features Number of coordinates
  * @return
  */
-double manhattan_distance(const double* x1, const double* x2, int size)
+double manhattan_distance(const double* x1, const double* x2, int n_features)
 {
   double delta;
   double d1 = 0.;
-  for (int i = 0; i < size; i++)
+  for (int i = 0; i < n_features; i++)
   {
     delta = fabs(x1[i] - x2[i]);
     d1 += delta;
@@ -431,17 +446,17 @@ double manhattan_distance(const double* x1, const double* x2, int size)
 }
 
 /**
- * Returns the Standard distance between two points
+ * Returns the Standard Euclidean distance between two points
  * @param x1 Vector of coordinates for the first point
  * @param x2 Vector of coordinates for the second point
- * @param size Number of coordinates
+ * @param n_features Number of coordinates
  * @return
  */
-double euclidean_distance(const double* x1, const double* x2, int size)
+double euclidean_distance(const double* x1, const double* x2, int n_features)
 {
   SpacePoint p1;
   SpacePoint p2;
-  p1.setCoords(x1, size);
-  p2.setCoords(x2, size);
+  p1.setCoords(x1, n_features);
+  p2.setCoords(x2, n_features);
   return p1.getDistance(p2);
 }

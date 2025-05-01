@@ -198,7 +198,7 @@ void AGibbs::_printInequalities(int iact,
   /* Print the simulated value */
 
   message("Sample (%3d/%3d) - Variable (%3d/%3d) = %8.4lf in ",
-          iech+1,_db->getSampleNumber(),ivar+1,nvar,simval);
+          iech+1,_db->getNSample(),ivar+1,nvar,simval);
 
   /* Print the bounds */
 
@@ -344,10 +344,10 @@ VectorInt AGibbs::_calculateSampleRanks() const
 {
 
   if (! _db->hasLocVariable(ELoc::SEL))
-    return VH::sequence(_db->getSampleNumber());
+    return VH::sequence(_db->getNSample());
 
   VectorInt ranks;
-  for (int iech = 0; iech < _db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < _db->getNSample(); iech++)
   {
     if (_db->isActive(iech)) ranks.push_back(iech);
   }
@@ -357,7 +357,7 @@ VectorInt AGibbs::_calculateSampleRanks() const
 int AGibbs::_getSampleRankNumber() const
 {
   if (_ranks.empty())
-    return _db->getSampleNumber();
+    return _db->getNSample();
   return static_cast<int>(_ranks.size());
 }
 
@@ -368,11 +368,11 @@ int AGibbs::getSampleRank(int i) const
   return _ranks[i];
 }
 
-int AGibbs::getSampleNumber() const
+int AGibbs::getNSample() const
 {
   if (_db == nullptr)
     return 0;
-  return _db->getSampleNumber();
+  return _db->getNSample();
 }
 
 void AGibbs::_updateStats(const VectorVectorDouble& y,
@@ -419,7 +419,7 @@ void AGibbs::_updateStats(const VectorVectorDouble& y,
  * This number is based on the number of iterations, exclusing the burnout
  * @return
  */
-int AGibbs::_getRowNumberStats() const
+int AGibbs::_getNRowStats() const
 {
   int nrows = _niter - _nburn;
   return nrows;
@@ -433,7 +433,7 @@ int AGibbs::_getRowNumberStats() const
  * - the storage of mean and standard deviation
  * @return
  */
-int AGibbs::_getColNumberStats() const
+int AGibbs::_getNColStats() const
 {
   int ncols = 2 * _getDimension();
   return ncols;
@@ -481,7 +481,7 @@ bool AGibbs::_isConstraintTight(int icase,
 void AGibbs::_statsInit()
 {
   if (_optionStats == 0) return;
-  _stats.reset(_getRowNumberStats(), _getColNumberStats());
+  _stats.reset(_getNRowStats(), _getNColStats());
 }
 
 /**

@@ -14,11 +14,9 @@
 
 #include "geoslib_define.h"
 
-#include "Enum/EKrigOpt.hpp"
-
 #include "Calculators/ACalcInterpolator.hpp"
-#include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixDense.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Anamorphosis/AAnam.hpp"
 
 class Db;
@@ -31,16 +29,19 @@ public:
   int ndim; // Space dimension
   int nvar; // Number of variables
   int nech; // Number of Neighboring samples
-  int neq;  // Number of Equations in the Kriging/CoKriging system
-  int nrhs; // Number of R.H.S. vectors (= nvar)
-  VectorInt nbgh;    // Ranks of the neighboring samples
+  int CSize; // Number of drift equations in the Drift part
+  int DSize; // Number of Equations of the Covariance part 
+  int nrhs; // Number of R.H.S. vectors
+  VectorInt nbgh;            // Ranks of the neighboring samples 
   VectorVectorDouble xyz;    // Coordinates of the neighboring samples [ndim][nech]
   VectorDouble data;         // Usable values at neighboring samples [neq]
-  MatrixSquareSymmetric lhs; // L.H.S. of the Kriging system (neq * neq)
-  MatrixRectangular rhs;     // R.H.S. of the Kriging system (neq * nvar)
-  MatrixRectangular wgt;     // Vector of weights [nvar][nech]
-  MatrixSquareGeneral var;   // Matrix of Target-Target Variance (nvar * nvar)
-  MatrixRectangular zam;     // Vector of pre-calculations
+  MatrixSymmetric lhs; // L.H.S. Covariance part (neq * neq)
+  MatrixDense lhsF;    // L.H.S. Drift part 
+  MatrixDense rhs;     // R.H.S. Covariance part (neq * nrhs)
+  MatrixDense rhsF;    // R.H.S. Drift part  (nbfl * nrhs)
+  MatrixDense wgt;     // Vector of weights (neq * nrhs)
+  MatrixDense mu;      // Vector of Lagrange parameters (nbfl * nrhs)
+  MatrixSquare var;   // Matrix of Target-Target Variance (nvar * nvar)
 
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
@@ -55,19 +56,12 @@ public:
   CalcKriging& operator=(const CalcKriging &r) = delete;
   virtual ~CalcKriging();
 
-  void setCalcul(const EKrigOpt &calcul);
-  void setMatLC(const MatrixRectangular* matLC) { _matLC = matLC; }
-  void setNdisc(const VectorInt& ndiscs) { _ndiscs = ndiscs; }
-  void setRankColCok(const VectorInt& rankColCok) { _rankColCok = rankColCok; }
-  void setFlagDgm(bool flagDgm) { _flagDGM = flagDgm; }
-  void setPriorCov(const MatrixSquareSymmetric &priorCov) { _priorCov = priorCov; }
-  void setPriorMean(const VectorDouble &priorMean) { _priorMean = priorMean; }
+  void setPriorCov(const MatrixSymmetric& priorCov) { _priorCov = priorCov; }
+  void setPriorMean(const VectorDouble& priorMean) { _priorMean = priorMean; }
   void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
-  void setFlagProf(bool flagProf) { _flagProf = flagProf; }
   void setIechSingleTarget(int iechSingleTarget) { _iechSingleTarget = iechSingleTarget; }
   void setVerboseSingleTarget(bool verbose) { _verboseSingleTarget = verbose; }
-  void setFlagPerCell(bool flagPerCell) { _flagPerCell = flagPerCell; }
-  void setAnam(AAnam *anam) { _anam = anam; }
+  void setAnam(AAnam* anam) { _anam = anam; }
   void setFlagGam(bool flagGam) { _flagGam = flagGam; }
   void setFlagXvalidEst(int flagXvalidEst) { _flagXvalidEst = flagXvalidEst; }
   void setFlagXvalidStd(int flagXvalidStd) { _flagXvalidStd = flagXvalidStd; }
@@ -92,24 +86,14 @@ private:
   bool _flagStd;
   bool _flagVarZ;
 
-  EKrigOpt  _calcul;
-  VectorInt _ndiscs;
-  VectorInt _rankColCok;
-  const MatrixRectangular* _matLC;
-
-  bool _flagDGM;
   VectorString _nameCoord;
 
   bool _flagBayes;
   VectorDouble _priorMean;
-  MatrixSquareSymmetric _priorCov;
-
-  bool _flagProf;
+  MatrixSymmetric _priorCov;
 
   int  _iechSingleTarget;
   bool _verboseSingleTarget;
-
-  bool _flagPerCell;
 
   bool _flagGam;
   AAnam* _anam;
@@ -131,69 +115,56 @@ private:
   Krigtest_Res _ktest;
 };
 
-GSTLEARN_EXPORT int kriging(Db *dbin,
-                            Db *dbout,
-                            Model *model,
-                            ANeigh *neigh,
-                            const EKrigOpt &calcul = EKrigOpt::fromKey("POINT"),
-                            bool flag_est = true,
-                            bool flag_std = true,
-                            bool flag_varz = false,
-                            const VectorInt& ndiscs = VectorInt(),
-                            const VectorInt& rank_colcok = VectorInt(),
-                            const MatrixRectangular* matLC = nullptr,
+GSTLEARN_EXPORT int kriging(Db* dbin,
+                            Db* dbout,
+                            ModelGeneric* model,
+                            ANeigh* neigh,
+                            bool flag_est                   = true,
+                            bool flag_std                   = true,
+                            bool flag_varz                  = false,
+                            const KrigOpt& krigopt          = KrigOpt(),
                             const NamingConvention& namconv = NamingConvention("Kriging"));
-GSTLEARN_EXPORT int krigcell(Db *dbin,
-                             Db *dbout,
-                             Model *model,
-                             ANeigh *neigh,
-                             bool flag_est = true,
-                             bool flag_std = true,
-                             const VectorInt& ndiscs = VectorInt(),
-                             const VectorInt& rank_colcok = VectorInt(),
+GSTLEARN_EXPORT int krigcell(Db* dbin,
+                             Db* dbout,
+                             ModelGeneric* model,
+                             ANeigh* neigh,
+                             bool flag_est                   = true,
+                             bool flag_std                   = true,
+                             const KrigOpt& krigopt          = KrigOpt(),
                              const NamingConvention& namconv = NamingConvention("KrigCell"));
-GSTLEARN_EXPORT int kribayes(Db *dbin,
-                             Db *dbout,
-                             Model *model,
-                             ANeigh *neigh,
-                             const VectorDouble& prior_mean = VectorDouble(),
-                             const MatrixSquareSymmetric& prior_cov = MatrixSquareSymmetric(),
-                             bool flag_est = true,
-                             bool flag_std = true,
-                             const NamingConvention& namconv = NamingConvention("Bayes"));
-GSTLEARN_EXPORT int krigprof(Db *dbin,
-                             Db *dbout,
-                             Model *model,
-                             ANeigh *neigh,
-                             bool flag_est = true,
-                             bool flag_std = true,
-                             const NamingConvention& namconv = NamingConvention("KrigProf"));
-GSTLEARN_EXPORT int kriggam(Db *dbin,
-                            Db *dbout,
-                            Model *model,
-                            ANeigh *neigh,
-                            AAnam *anam,
+GSTLEARN_EXPORT int kribayes(Db* dbin,
+                             Db* dbout,
+                             ModelGeneric* model,
+                             ANeigh* neigh,
+                             const VectorDouble& prior_mean         = VectorDouble(),
+                             const MatrixSymmetric& prior_cov = MatrixSymmetric(),
+                             bool flag_est                          = true,
+                             bool flag_std                          = true,
+                             const NamingConvention& namconv        = NamingConvention("Bayes"));
+GSTLEARN_EXPORT int kriggam(Db* dbin,
+                            Db* dbout,
+                            ModelGeneric* model,
+                            ANeigh* neigh,
+                            AAnam* anam,
                             const NamingConvention& namconv = NamingConvention("KrigGam"));
-GSTLEARN_EXPORT Krigtest_Res krigtest(Db *dbin,
-                                      Db *dbout,
-                                      Model *model,
-                                      ANeigh *neigh,
-                                      int iech0 = 0,
-                                      const EKrigOpt &calcul = EKrigOpt::fromKey("POINT"),
-                                      const VectorInt& ndiscs = VectorInt(),
-                                      bool flagPerCell = false,
-                                      bool verbose = true);
-GSTLEARN_EXPORT int xvalid(Db *db,
-                           Model *model,
-                           ANeigh *neigh,
-                           bool flag_kfold = false,
-                           int flag_xvalid_est = 1,
-                           int flag_xvalid_std = 1,
-                           int flag_xvalid_varz = 0,
-                           const VectorInt& rank_colcok = VectorInt(),
+GSTLEARN_EXPORT Krigtest_Res krigtest(Db* dbin,
+                                      Db* dbout,
+                                      ModelGeneric* model,
+                                      ANeigh* neigh,
+                                      int iech0              = 0,
+                                      const KrigOpt& krigopt = KrigOpt(),
+                                      bool verbose           = true);
+GSTLEARN_EXPORT int xvalid(Db* db,
+                           ModelGeneric* model,
+                           ANeigh* neigh,
+                           bool flag_kfold                 = false,
+                           int flag_xvalid_est             = 1,
+                           int flag_xvalid_std             = 1,
+                           int flag_xvalid_varz            = 0,
+                           const KrigOpt& krigopt          = KrigOpt(),
                            const NamingConvention& namconv = NamingConvention("Xvalid"));
-GSTLEARN_EXPORT int test_neigh(Db *dbin,
-                               Db *dbout,
-                               Model *model,
-                               ANeigh *neigh,
+GSTLEARN_EXPORT int test_neigh(Db* dbin,
+                               Db* dbout,
+                               ModelGeneric* model,
+                               ANeigh* neigh,
                                const NamingConvention& namconv = NamingConvention("Neigh"));

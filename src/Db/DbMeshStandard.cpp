@@ -100,7 +100,7 @@ DbMeshStandard* DbMeshStandard::create(int ndim,
 }
 
 DbMeshStandard*
-DbMeshStandard::createFromExternal(const MatrixRectangular& apices,
+DbMeshStandard::createFromExternal(const MatrixDense& apices,
                                    const MatrixInt& meshes,
                                    const ELoadBy& order,
                                    const VectorDouble& tab,
@@ -197,7 +197,7 @@ DbMeshStandard* DbMeshStandard::createFromNF(const String& neutralFilename, bool
 bool DbMeshStandard::isConsistent() const
 {
   // Check on the count of addresses
-  int nech = getSampleNumber();
+  int nech = getNSample();
   if (_mesh.getNApices() > nech)
   {
     messerr("Number of meshes (%d)", _mesh.getNApices());
@@ -211,7 +211,7 @@ double DbMeshStandard::getCoor(int imesh, int rank, int idim) const
 {
   return getCoordinate(_mesh.getApex(imesh, rank), idim);
 }
-void DbMeshStandard::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const
+void DbMeshStandard::getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const
 {
   for (int idim = 0; idim < getNDim(); idim++)
     coords[idim] = getCoor(imesh, rank, idim);

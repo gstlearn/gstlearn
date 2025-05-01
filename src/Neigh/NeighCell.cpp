@@ -13,14 +13,16 @@
 #include "Db/DbGrid.hpp"
 #include "Basic/OptDbg.hpp"
 
-NeighCell::NeighCell(bool flag_xvalid, int nmini, const ASpace *space)
-    : ANeigh(space),
-      _nMini(nmini),
-      _biPtCell(),
-      _T1(space),
-      _T2(space)
+NeighCell::NeighCell(bool flag_xvalid, int nmini, bool useBallTree, int leaf_size, const ASpaceSharedPtr& space)
+  : ANeigh(space)
+  , _nMini(nmini)
+  , _biPtCell()
+  , _T1(space)
+  , _T2(space)
 {
   setFlagXvalid (flag_xvalid);
+
+  setBallSearch(useBallTree, leaf_size);
 
   _biPtCell = BiTargetCheckCell::create();
 }
@@ -90,9 +92,13 @@ bool NeighCell::_serialize(std::ostream& os, bool verbose) const
   return ret;
 }
 
-NeighCell* NeighCell::create(bool flag_xvalid, int nmini, const ASpace* space)
+NeighCell* NeighCell::create(bool flag_xvalid,
+                             int nmini,
+                             bool useBallTree,
+                             int leaf_size,
+                             const ASpaceSharedPtr& space)
 {
-  return new NeighCell(flag_xvalid, nmini, space);
+  return new NeighCell(flag_xvalid, nmini, useBallTree, leaf_size, space);
 }
 
 /**
@@ -162,7 +168,7 @@ void NeighCell::getNeigh(int iech_out, VectorInt& ranks)
  *****************************************************************************/
 int NeighCell::_cell(int iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getSampleNumber();
+  int nech = _dbin->getNSample();
   ranks.resize(nech);
   ranks.fill(-1);
 

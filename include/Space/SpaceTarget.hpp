@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
@@ -19,7 +20,7 @@
 class GSTLEARN_EXPORT SpaceTarget : public SpacePoint
 {
 public:
-  SpaceTarget(const ASpace* space = nullptr,
+  SpaceTarget(const ASpaceSharedPtr& space = ASpaceSharedPtr(),
               bool checkExtend    = true,
               bool checkCode      = true,
               bool checkDate      = true);
@@ -31,7 +32,7 @@ public:
                              const VectorDouble &extend = VectorDouble(),
                              double code = TEST,
                              double date = TEST,
-                             const ASpace *space = nullptr);
+                             const ASpaceSharedPtr& space = ASpaceSharedPtr());
 
 //  SpacePoint& getCoordAsSP() { return _center; }
   const SpacePoint& getCoordAsSP() const { return *this; }

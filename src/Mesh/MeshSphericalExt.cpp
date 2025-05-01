@@ -53,9 +53,9 @@ MeshSphericalExt::~MeshSphericalExt()
 ** \param[in]  verbose         Verbose flag
 **
 *****************************************************************************/
-int MeshSphericalExt::resetFromDb(Db *dbin,
-                                  Db *dbout,
-                                  const String &triswitch,
+int MeshSphericalExt::resetFromDb(Db* dbin,
+                                  Db* dbout,
+                                  const String& triswitch,
                                   bool verbose)
 {
   SphTriangle in;

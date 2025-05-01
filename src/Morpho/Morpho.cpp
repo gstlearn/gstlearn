@@ -12,7 +12,7 @@
 
 #include "Enum/EMorpho.hpp"
 
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Morpho/Morpho.hpp"
@@ -812,7 +812,7 @@ VectorInt gridcell_neigh(int ndim,
 
   /* (Maximum) core allocation */
 
-  nech = grid->getSampleNumber();
+  nech = grid->getNSample();
   indret.resize(nech * ndim);
   VectorInt indg0(ndim, 0);
   VectorInt indg1(ndim, 0);
@@ -871,7 +871,7 @@ void db_morpho_angle2D(DbGrid *dbgrid, const VectorInt &radius, int iptr0)
 {
   int iad;
   double result;
-  MatrixSquareSymmetric a(2);
+  MatrixSymmetric a(2);
   VectorDouble b(2);
   VectorDouble x(2);
 
@@ -1028,7 +1028,7 @@ int db_morpho_calc(DbGrid *dbgrid,
                     bool flagDistErode,
                     bool verbose)
 {
-  int ntotal = dbgrid->getSampleNumber();
+  int ntotal = dbgrid->getNSample();
   VectorInt nxy = dbgrid->getNXs();
 
   VectorDouble tabin = dbgrid->getColumnByLocator(ELoc::Z);

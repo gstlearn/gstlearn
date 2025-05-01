@@ -17,52 +17,37 @@
 #include "Basic/AException.hpp"
 
 /// Unique default global space
-static ASpace* defaultSpace = nullptr;
+static ASpaceSharedPtr defaultSpace = nullptr;
 
-ASpaceObject::ASpaceObject(const ASpace* space)
-  : AStringable(),
-    _space(nullptr)
+ASpaceObject::ASpaceObject(const ASpaceSharedPtr& space)
+  : AStringable()
+  , _space(ASpace::getDefaultSpaceIfNull(space))
 {
-  if (nullptr == space)
-    // If the object is created without space, clone the global default space
-    _space = cloneDefaultSpace();
-  else
-    // else duplicate the provided pointer
-    _space = dynamic_cast<const ASpace*>(space->clone());
-}
-
-ASpaceObject::ASpaceObject(const ASpace& space)
-  : AStringable(),
-    _space(nullptr)
-{
-  _space = dynamic_cast<const ASpace*>(space.clone());
 }
 
 ASpaceObject::ASpaceObject(const ASpaceObject& r)
   : AStringable(r),
-    _space(nullptr)
+    _space(r._space)
 {
-  // Always duplicate
-  _space = dynamic_cast<const ASpace*>(r._space->clone());
 }
 
+bool ASpaceObject::isConsistent(const ASpaceSharedPtr& space) const
+{
+  return (isConsistent(space.get()));
+}
 ASpaceObject& ASpaceObject::operator=(const ASpaceObject& r)
 {
   if (this != &r)
   {
     AStringable::operator=(r);
-    // Delete the previous space
-    delete _space;
-    // Clone the space of the object to be copied
-    _space = dynamic_cast<const ASpace*>(r._space->clone());
+    _space = r._space;
   }
   return *this;
 }
 
 ASpaceObject::~ASpaceObject()
 {
-  // Always delete the space (always cloned before)
-  delete _space;
+
 }
 
 /// AStringable interface
@@ -80,7 +65,6 @@ VectorDouble ASpaceObject::getUnitaryVector() const
   return uni;
 }
 
-
 unsigned int ASpaceObject::getNDim(int ispace) const
 {
   return (_space->getNDim(ispace));
@@ -88,6 +72,8 @@ unsigned int ASpaceObject::getNDim(int ispace) const
 
 const VectorDouble& ASpaceObject::getOrigin(int ispace) const
 {
+  if (_space == nullptr)
+    return _dummy;
   return (_space->getOrigin(ispace));
 }
 
@@ -121,8 +107,7 @@ void ASpaceObject::setNDim(int ndim)
   if (_space->getType() != ESpaceType::RN)
     my_throw("Object is not in Space RN");
 
-  delete _space;
-  _space = new SpaceRN(ndim);
+  _space = SpaceRN::create(ndim);
 }
 
 /**
@@ -135,7 +120,6 @@ void ASpaceObject::setNDim(int ndim)
  */
 void defineDefaultSpace(const ESpaceType& type, unsigned int ndim, double param)
 {
-  delete defaultSpace;
 
   switch (type.getValue())
   {
@@ -143,12 +127,12 @@ void defineDefaultSpace(const ESpaceType& type, unsigned int ndim, double param)
     {
       ndim = 2;
       if (param <= 0.) param = EARTH_RADIUS;
-      defaultSpace = new SpaceSN(ndim, param);
+      defaultSpace = SpaceSN::create(ndim, param);
       break;
     }
     case ESpaceType::E_RN:
     {
-      defaultSpace = new SpaceRN(ndim);
+      defaultSpace = SpaceRN::create(ndim);
       break;
     }
     default:
@@ -160,41 +144,34 @@ void defineDefaultSpace(const ESpaceType& type, unsigned int ndim, double param)
 
 /**
  * @brief Defining the default space from another one
- * 
- * @param space 
+ *
+ * @param space
  */
-void setDefaultSpace(const ASpace* space)
+void setDefaultSpace(const ASpaceSharedPtr& space)
 {
-  delete defaultSpace;
-  defaultSpace = dynamic_cast<ASpace*>(space->clone());
-}
-
-const ASpace* cloneDefaultSpace()
-{
-  if (nullptr == defaultSpace)
-    defineDefaultSpace(ESpaceType::RN, 2);
-
-  return (dynamic_cast<const ASpace*>(defaultSpace->clone()));
+  defaultSpace = space;
 }
 
 ESpaceType getDefaultSpaceType()
 {
-  if (nullptr == defaultSpace)
-    defineDefaultSpace(ESpaceType::RN, 2);
+  if (nullptr == defaultSpace) defineDefaultSpace(ESpaceType::RN, 2);
   return defaultSpace->getType();
 }
 
 int getDefaultSpaceDimension()
 {
-  if (nullptr == defaultSpace)
-    defineDefaultSpace(ESpaceType::RN, 2);
+  if (nullptr == defaultSpace) defineDefaultSpace(ESpaceType::RN, 2);
   return defaultSpace->getNDim();
 }
 
 const ASpace* getDefaultSpace()
 {
-  if (nullptr == defaultSpace)
-    defineDefaultSpace(ESpaceType::RN, 2);
+  return getDefaultSpaceSh().get();
+}
+
+ASpaceSharedPtr getDefaultSpaceSh()
+{
+  if (nullptr == defaultSpace) defineDefaultSpace(ESpaceType::RN, 2);
   return defaultSpace;
 }
 
@@ -202,4 +179,3 @@ bool isDefaultSpaceSphere()
 {
   return (getDefaultSpaceType() == ESpaceType::SN);
 }
-

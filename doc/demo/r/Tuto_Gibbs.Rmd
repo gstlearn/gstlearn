@@ -178,8 +178,6 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(fig.align="center")
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
 ```
 
 ### Auxiliary functions
@@ -205,23 +203,23 @@ qc_simulations <- function(db, names, vario_param, vario_model, title, stat_keys
   # knitr::kable(tab, caption = title, digits = 4)
   # histogram of simulation  #1
   i = 1
-  p = ggDefault() +
+  p = plot.init() +
     plot.hist(db = db, name = names[i], useSel = TRUE, bins = 25, 
               col = "orange", bg = "gray") +
     plot.decoration(xlab = names[i], title = title)
-  ggPrint(p)
+  plot.end(p)
   
   # base map
-  p = ggDefaultGeographic()
+  p = plot.init(asp=1)
   if (db$isGrid()) {
-    p = p + plot.grid(db, name_raster = names[i], show.legend.raster = TRUE,
-                    legend.name.raster = "Y",  palette = "Spectral")
+    p = p + plot.raster(db, name = names[i], flagLegend = TRUE,
+                      legendName = "Y",  palette = "Spectral")
   } else  {
-    p = p + plot.point(db, nameColor = names[i], flagLegendColor = TRUE, 
+    p = p + plot.symbol(db, nameColor = names[i], flagLegend = TRUE, 
                        palette = "Spectral")
   }
   p = p + plot.decoration(xlab = "Easting", ylab = "Northing", title = title)
-  ggPrint(p)
+  plot.end(p)
   
   # variogram computations
   vario_list = list()
@@ -250,11 +248,11 @@ qc_simulations <- function(db, names, vario_param, vario_model, title, stat_keys
 #'  @values no returned value (invisible)
 qc_variogram <- function(vario_list, vario_param, vario_model, title) {
   nsim = length(vario_list)
-  ndir = vario_param$getDirectionNumber()
+  ndir = vario_param$getNDir()
   # variogram matrices
   res_gg = list()
   for (idir in 1:ndir) {
-    nlags = vario_param$getDirParam(idir-1)$getLagNumber()
+    nlags = vario_param$getDirParam(idir-1)$getNLag()
     gg_sim = matrix(NaN, nrow = nlags, ncol = nsim)
     for (i in 1:nsim) {
       gg_sim[,i] = vario_list[[i]]$getGgVec(idir = idir-1, ivar = 0, jvar = 0)
@@ -265,7 +263,7 @@ qc_variogram <- function(vario_list, vario_param, vario_model, title) {
   # plot for each direction
   for (idir in 1:ndir) {
     
-    nlags = vario_param$getDirParam(idir-1)$getLagNumber()
+    nlags = vario_param$getDirParam(idir-1)$getNLag()
     # hh = dx[idir]*(1:(nlags-1))
     hh     = vario_list[[i]]$getHhVec(idir = idir-1, ivar = 0, jvar = 0)
     v_mean = apply(X = res_gg[[idir]], MARGIN = 1, FUN = mean)
@@ -321,7 +319,7 @@ OptDbg_setReference(0)
 stat_keys = c("NUM","MINI","MAXI","MEAN","STDV")
 opers = EStatOption_fromKeys(stat_keys)
 # defining the variogram parameters
-varioParam = VarioParam_createOmniDirection(npas=10, dpas=0.05)
+varioParam = VarioParam_createOmniDirection(nlag=10, dlag=0.05)
 
 np = 1000 # total number of points
 n  = 50   # number of equality constraints
@@ -336,10 +334,10 @@ err   = model$setDriftIRF(order = -1)
 err   = simtub(dbin = NULL, dbout = data, model = model, nbsimu = 1, seed = seed)
 
 # plot
-p = ggDefaultGeographic() +
-  plot.point(data, color = "red") +
+p = plot.init() +
+  plot.symbol(data, color = "red") +
   plot.decoration(title = "Defined point constraints")
-ggPrint(p)
+plot.end(p)
 ```
 
 # Testing the Gibbs sampler
@@ -510,8 +508,8 @@ for (s in 1:nbsimu) {
   grid[i_nm] <- as.numeric(grid[s_nm] >= yc)
   
   # plots
-  p = ggDefaultGeographic() +
-    plot.grid(grid, i_nm, palette = "Spectral") +
+  p = plot.init(asp=1) +
+    plot.raster(grid, i_nm, palette = "Spectral") +
     plot.decoration(title = paste0("Simulation #", s)) 
   
   p_list[[1 + length(p_list)]] <- p
@@ -519,14 +517,14 @@ for (s in 1:nbsimu) {
 
 grid["Ind.mean"] <- apply(
   X = matrix(grid$getColumns(names = paste("Ind", 1:nbsimu, sep = ".")),
-      nrow = grid$getSampleNumber(FALSE),
+      nrow = grid$getNSample(FALSE),
       ncol = nbsimu),
   MARGIN = 1,
   FUN = mean
 )
 
-p_mean <- ggDefaultGeographic() +
-    plot.grid(grid, "Ind.mean", palette = "Spectral") +
+p_mean <- plot.init(asp=1) +
+    plot.raster(grid, "Ind.mean", palette = "Spectral") +
     plot.decoration(title = 
     paste0("Mean of the ", nbsimu, " simulations")) 
 
@@ -591,7 +589,6 @@ for (s in 1:nbsimu) {
    # simple kriging of the Gaussian variable
     err = data$setLocators(s_nm, locatorType = ELoc_Z(), cleanSameLocator = TRUE)
     err = kriging(dbin = data, dbout = grid, model = model, neigh = neigh, 
-                  calcul = EKrigOpt_POINT(),
                   flag_est = TRUE, flag_std = TRUE, flag_varz = FALSE,
                   namconv = NamingConvention("sk"))
     # conditional expectation
@@ -608,7 +605,7 @@ for (s in 1:nbsimu) {
 # computing the mean of CEs given the Gibbs values: estimation
 grid["CE.cs.Z.estim"] <- apply(
   X = matrix(grid$getColumns(names = paste("ce.cs.z", 1:nbsimu, "estim", sep = ".")),
-      nrow = grid$getSampleNumber(FALSE),
+      nrow = grid$getNSample(FALSE),
       ncol = nbsimu),
   MARGIN = 1,
   FUN = mean
@@ -617,19 +614,19 @@ grid["CE.cs.Z.estim"] <- apply(
 # computing the mean of CEs given the Gibbs values: Std.
 grid["CE.cs.Z.stdev"] <- sqrt(apply(
   X = matrix(grid$getColumns(names = paste("ce.cs.z", 1:nbsimu, "stdev", sep = "."))^2,
-      nrow = grid$getSampleNumber(FALSE),
+      nrow = grid$getNSample(FALSE),
       ncol = nbsimu),
   MARGIN = 1,
   FUN = mean
 ))
 
 # final plots
-p_ce <- ggDefaultGeographic() +
-    plot.grid(grid, "CE.cs.Z.estim", palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "estim") +
+p_ce <- plot.init(asp=1) +
+    plot.raster(grid, "CE.cs.Z.estim", palette = "Spectral", flagLegend = TRUE, legendName = "estim") +
     plot.decoration(title = paste0("Conditional expectation")) 
 
-p_std <- ggDefaultGeographic() +
-    plot.grid(grid, "CE.cs.Z.stdev", palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "Std.") +
+p_std <- plot.init(asp=1) +
+    plot.raster(grid, "CE.cs.Z.stdev", palette = "Spectral", flagLegend = TRUE, legendName = "Std.") +
     plot.decoration(title = paste0("Conditional Std.")) 
 
 ggarrange(p_ce, p_std, nrow = 1, ncol = 2)

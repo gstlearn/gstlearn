@@ -10,6 +10,8 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/ICloneable.hpp"
+#include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Enum/ENeigh.hpp"
@@ -52,26 +54,26 @@ class Ball;
  * - Possibility to exclude the target (or samples sharing some characteristics with
  * the Target). This is the cross-validation option.
  */
-class GSTLEARN_EXPORT ANeigh:  public ASpaceObject, public ASerializable
+class GSTLEARN_EXPORT ANeigh:  public ASpaceObject, public ASerializable, public ICloneable
 {
 public:
-  ANeigh(const ASpace* space = nullptr);
+  ANeigh(const ASpaceSharedPtr& space = ASpaceSharedPtr());
   ANeigh(const ANeigh& r);
   ANeigh& operator=(const ANeigh& r);
   virtual ~ANeigh();
-
   /// ASpaceObject Interface
   virtual bool isConsistent(const ASpace* space) const override { DECLARE_UNUSED(space); return true; }
 
   /// Interface for ANeigh
   virtual int attach(const Db *dbin, const Db *dbout);
   virtual void getNeigh(int iech_out, VectorInt& ranks) = 0;
-  virtual int getMaxSampleNumber(const Db* db) const = 0;
+  virtual int getNSampleMax(const Db* db) const = 0;
   virtual bool hasChanged(int iech_out) const { DECLARE_UNUSED(iech_out); return true; }
   virtual VectorDouble summary(int iech_out) { DECLARE_UNUSED(iech_out); return VectorDouble(); }
   virtual ENeigh getType() const { return ENeigh::fromKey("UNKNOWN"); }
   virtual bool getFlagContinuous() const { return false; }
 
+  void displayDebug(VectorInt& ranks) const;
   void select(int iech_out, VectorInt& ranks);
   bool isUnchanged() const { return _flagIsUnchanged; }
   void setIsChanged(bool status = false);
@@ -83,7 +85,6 @@ public:
   void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
   void setFlagKFold(bool flagKFold)   { _flagKFold = flagKFold; }
   void setFlagSimu(bool flagSimu)     { _flagSimu = flagSimu; }
-  void setRankColCok(const VectorInt& rankColCok) { _rankColCok = rankColCok; }
 
   void setBallSearch(bool status, int leaf_size = 10);
   void attachBall(double (*dist_function)(const double* x1,
@@ -93,7 +94,7 @@ public:
 protected:
   bool _isNbghMemoEmpty() const { return _nbghMemo.empty(); }
   static void _neighCompress(VectorInt& ranks);
-  void _display(const VectorInt& ranks);
+  void _display(const VectorInt& ranks) const;
   bool _discardUndefined(int iech);
   int  _xvalid(int iech_in, int iech_out, double eps = EPSILON9);
   bool _isDimensionValid(int idim) const;
@@ -107,14 +108,12 @@ protected:
 private:
   bool _isSameTarget(int iech_out);
   void _checkUnchanged(int iech_out, const VectorInt &ranks);
-  void _updateColCok(VectorInt& ranks, int iech_out);
 
 protected:
   const Db* _dbin;
   const Db* _dbout;
   const DbGrid* _dbgrid; // Equivalent to dbout, defined only for grid
 
-  VectorInt _rankColCok;
   int  _iechMemo;
   bool _flagSimu;
   bool _flagXvalid;    /* True to suppress the target */

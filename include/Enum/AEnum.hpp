@@ -31,7 +31,7 @@ public:
   inline int getValue() const { return _value; }
 
   //! Return the enum description as a string
-  inline const std::string_view& getDescr() const { return _descr; }
+  inline const std::string_view getDescr() const { return _descr; }
 
 #ifndef SWIG
   // Remove this: too much dangerous (implicit casts)

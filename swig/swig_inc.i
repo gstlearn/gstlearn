@@ -1,7 +1,6 @@
 %feature(director) IProj;
+%feature(director) ACov;
 %feature(director) AFunctional;
-
-//%feature(director) ICLoneable;
 %feature(director) ABiTargetCheck;
 
 %{
@@ -154,6 +153,8 @@
   #include "LinearOp/ProjMatrix.hpp"
   #include "LinearOp/ProjMulti.hpp"
   #include "LinearOp/ProjMultiMatrix.hpp"
+  #include "LinearOp/ProjZero.hpp"
+  #include "LinearOp/ProjComposition.hpp"
   #include "LinearOp/PrecisionOpMulti.hpp"
   #include "LinearOp/PrecisionOpMultiMatrix.hpp"
   #include "LinearOp/PrecisionOpMultiConditional.hpp"
@@ -163,7 +164,10 @@
   #include "LinearOp/ProjConvolution.hpp"
   #include "LinearOp/SPDEOp.hpp"
   #include "LinearOp/SPDEOpMatrix.hpp"
-  #include "LinearOp/MatrixSquareSymmetricSim.hpp"
+  #include "LinearOp/MatrixSymmetricSim.hpp"
+  #include "LinearOp/ACholesky.hpp"
+  #include "LinearOp/CholeskyDense.hpp"
+  #include "LinearOp/CholeskySparse.hpp"
 
   #include "Neigh/ANeigh.hpp"
   #include "Neigh/NeighUnique.hpp"
@@ -179,7 +183,9 @@
   #include "Variogram/VMap.hpp"
   #include "Variogram/VCloud.hpp"
   
+  #include "Basic/ParamInfo.hpp"
   #include "Model/ModelGeneric.hpp"
+  #include "Model/ModelCovList.hpp"
   #include "Model/Model.hpp"
   #include "Model/Option_AutoFit.hpp"
   #include "Model/Option_VarioFit.hpp"
@@ -187,22 +193,27 @@
   #include "Model/ConsItem.hpp"
   #include "Model/CovParamId.hpp"
   #include "Model/CovParamId.hpp"
+  #include "Model/AModelOptim.hpp"
+  #include "Model/ModelOptimLikelihood.hpp"
   
   #include "Covariances/ParamId.hpp"
   #include "Covariances/TabNoStat.hpp"
   #include "Covariances/TabNoStatCovAniso.hpp"
+  #include "Covariances/TabNoStatSills.hpp"
   #include "Covariances/ANoStat.hpp"
   #include "Covariances/NoStatArray.hpp"
   #include "Covariances/NoStatFunctional.hpp"
   #include "Covariances/ACov.hpp"
   #include "Covariances/CovBase.hpp"
-  #include "Covariances/ACor.hpp"
+  #include "Covariances/CovProportional.hpp"
   #include "Covariances/CorAniso.hpp"
   #include "Covariances/ACovFunc.hpp"
-  #include "Covariances/ACovAnisoList.hpp"
+  #include "Covariances/CovAnisoList.hpp"
+  #include "Covariances/CovAnisoList.hpp"
   #include "Covariances/CovAniso.hpp"
   #include "Covariances/ACovGradient.hpp"
   #include "Covariances/CorGneiting.hpp"
+  #include "Covariances/CorMatern.hpp"
   #include "Covariances/CovLMCTapering.hpp"
   #include "Covariances/CovLMCConvolution.hpp"
   #include "Covariances/CovLMCAnamorphosis.hpp"
@@ -250,14 +261,12 @@
   #include "Drifts/DriftFactory.hpp"
   
   #include "Matrix/AMatrix.hpp"
-  #include "Matrix/AMatrixDense.hpp"
+  #include "Matrix/MatrixDense.hpp"
   #include "Matrix/MatrixSparse.hpp"
   #include "Matrix/LinkMatrixSparse.hpp"
-  #include "Matrix/AMatrixSquare.hpp"
+  #include "Matrix/MatrixSquare.hpp"
   #include "Matrix/NF_Triplet.hpp"
-  #include "Matrix/MatrixRectangular.hpp"
-  #include "Matrix/MatrixSquareGeneral.hpp"
-  #include "Matrix/MatrixSquareSymmetric.hpp"
+  #include "Matrix/MatrixSymmetric.hpp"
   #include "Matrix/MatrixFactory.hpp"
   #include "Matrix/MatrixInt.hpp"
   #include "Matrix/Table.hpp"
@@ -276,6 +285,7 @@
   #include "Db/DbMeshStandard.hpp"
   #include "Db/DbStringFormat.hpp"
   #include "Db/DbHelper.hpp"
+  #include "Db/RankHandler.hpp"
   
   #include "Anamorphosis/CalcAnamTransform.hpp"
   #include "Anamorphosis/AAnam.hpp"
@@ -307,13 +317,15 @@
   #include "LithoRule/RuleProp.hpp"
   
   #include "Estimation/KrigingSystem.hpp"
-  #include "Estimation/KrigingCalcul.hpp"
+  #include "Estimation/KrigingAlgebra.hpp"
   #include "Estimation/CalcKriging.hpp"
   #include "Estimation/CalcKrigingFactors.hpp"
   #include "Estimation/CalcSimpleInterpolation.hpp"
   #include "Estimation/CalcImage.hpp"
   #include "Estimation/CalcGlobal.hpp"
-  
+  #include "Estimation/KrigOpt.hpp"
+  #include "Estimation/Vecchia.hpp"
+
   #include "OutputFormat/AOF.hpp"
   #include "OutputFormat/FileLAS.hpp"
   #include "OutputFormat/FileVTK.hpp"
@@ -428,11 +440,10 @@
     messerr("Error while converting argument #$argnum of type '$type' in '$symname' function");
   }
 }
-%typemap(in, fragment="ToCpp") std::string_view
+%typemap(in, fragment="ToCpp") std::string_view (String tmp)
 {
   try
   {
-    static String tmp;
     int errcode = convertToCpp($input, tmp);
     $1 = tmp;
     if (!SWIG_IsOK(errcode))
@@ -526,22 +537,217 @@
   }
 }
 
-%typemap(in, fragment="ToCpp") const VectorInt&    (void *argp, VectorInt vec),
-                               const VectorInt*    (void *argp, VectorInt vec),
-                               const VectorDouble& (void *argp, VectorDouble vec),
-                               const VectorDouble* (void *argp, VectorDouble vec),
-                               const VectorString& (void *argp, VectorString vec),
+// Typemap for VectorDouble* is treated separately below.
+%typemap(in, fragment="ToCpp") const VectorInt*    (void *argp, VectorInt vec),
                                const VectorString* (void *argp, VectorString vec),
-                               const VectorFloat&  (void *argp, VectorFloat vec),
                                const VectorFloat*  (void *argp, VectorFloat vec),
-                               const VectorUChar&  (void *argp, VectorUChar vec),
                                const VectorUChar*  (void *argp, VectorUChar vec),
-                               const VectorBool&   (void *argp, VectorBool vec),
                                const VectorBool*   (void *argp, VectorBool vec)
 {
   // Try to convert from any target language vector
   int errcode = vectorToCpp($input, vec);
-  if (!SWIG_IsOK(errcode))
+  if (errcode == SWIG_NullReferenceError)
+  {
+    $1 = nullptr;
+  }
+  else if (!SWIG_IsOK(errcode))
+  {
+    try
+    {
+      // Try direct conversion of Vectors by reference/pointer (see swigtypes.swg)
+      errcode = SWIG_ConvertPtr($input, &argp, $descriptor, %convertptr_flags);
+      if (SWIG_IsOK(errcode))
+      {
+        if (!argp) {
+          %argument_nullref("$type", $symname, $argnum);
+        }
+        $1 = %reinterpret_cast(argp, $ltype);
+      }
+      else {
+        %argument_fail(errcode, "$type", $symname, $argnum);
+      }
+    }
+    catch(...)
+    {
+      %argument_fail(errcode, "$type", $symname, $argnum);
+    }
+  }
+  else {
+    $1 = &vec;
+  }
+}
+
+// Typemap for missing pointer types are treated separately below.
+%typemap(in, fragment="ToCpp") const VectorString* (void *argp, VectorString vec),
+                               const VectorFloat*  (void *argp, VectorFloat vec),
+                               const VectorUChar*  (void *argp, VectorUChar vec),
+                               const VectorBool*   (void *argp, VectorBool vec)
+{
+  // Try to convert from any target language vector
+  int errcode = vectorToCpp($input, vec);
+  if (errcode == SWIG_NullReferenceError)
+  {
+    $1 = nullptr;
+  }
+  else if (!SWIG_IsOK(errcode))
+  {
+    try
+    {
+      // Try direct conversion of Vectors by reference/pointer (see swigtypes.swg)
+      errcode = SWIG_ConvertPtr($input, &argp, $descriptor, %convertptr_flags);
+      if (SWIG_IsOK(errcode))
+      {
+        if (!argp) {
+          %argument_nullref("$type", $symname, $argnum);
+        }
+        $1 = %reinterpret_cast(argp, $ltype);
+      }
+      else {
+        %argument_fail(errcode, "$type", $symname, $argnum);
+      }
+    }
+    catch(...)
+    {
+      %argument_fail(errcode, "$type", $symname, $argnum);
+    }
+  }
+  else {
+    $1 = &vec;
+  }
+}
+
+// Special case for pointer to VectorDouble
+// TODO: All the special cases for pointers are based upon a volunteer memory leak
+// (in order to ensure that the local pointer is not immediately deleted).
+// It could be solved by using a share_memory type of pointer as ...
+// auto vec = std::make_shared<VectorDouble>(); A ameliorer
+//
+%typemap(in, fragment="ToCpp") const VectorDouble* (void *argp)
+{
+  // Try to convert from any target language vector
+  VectorDouble* vec = new VectorDouble();
+  int errcode = vectorToCpp($input, *vec);
+  if (errcode == SWIG_NullReferenceError)
+  {
+    $1 = nullptr;
+  }
+  else if (!SWIG_IsOK(errcode))
+  {
+    try
+    {
+      // Try direct conversion of Vectors by reference/pointer (see swigtypes.swg)
+      errcode = SWIG_ConvertPtr($input, &argp, $descriptor, %convertptr_flags);
+      if (SWIG_IsOK(errcode))
+      {
+        if (!argp) {
+          %argument_nullref("$type", $symname, $argnum);
+        }
+        $1 = %reinterpret_cast(argp, $ltype);
+      }
+      else {
+        %argument_fail(errcode, "$type", $symname, $argnum);
+      }
+    }
+    catch(...)
+    {
+      %argument_fail(errcode, "$type", $symname, $argnum);
+    }
+  }
+  else {
+    $1 = vec;
+  }
+}
+
+// Special case for pointer to VectorInt
+%typemap(in, fragment="ToCpp") const VectorInt*    (void *argp, VectorInt vec)
+{
+  // Try to convert from any target language vector
+  VectorInt* vec = new VectorInt();
+  int errcode = vectorToCpp($input, *vec);
+  if (errcode == SWIG_NullReferenceError)
+  {
+    $1 = nullptr;
+  }
+  else if (!SWIG_IsOK(errcode))
+  {
+    try
+    {
+      // Try direct conversion of VectorVectors by reference/pointer (see swigtypes.swg)
+      errcode = SWIG_ConvertPtr($input, &argp, $descriptor, %convertptr_flags);
+      if (SWIG_IsOK(errcode))
+      {
+        if (!argp) {
+          %argument_nullref("$type", $symname, $argnum);
+        }
+        $1 = %reinterpret_cast(argp, $ltype);
+      }
+      else {
+        %argument_fail(errcode, "$type", $symname, $argnum);
+      }
+    }
+    catch(...)
+    {
+      %argument_fail(errcode, "$type", $symname, $argnum);
+    }
+  }
+  else
+  {
+    $1 = vec;
+  }
+}
+
+// Special case for pointer to VectorVectorInt
+%typemap(in, fragment="ToCpp") const VectorVectorInt*    (void *argp, VectorVectorInt vec)
+{
+  // Try to convert from any target language vector
+  VectorVectorInt* vec = new VectorVectorInt();
+  int errcode = vectorVectorToCpp($input, *vec);
+  if (errcode == SWIG_NullReferenceError)
+  {
+    $1 = nullptr;
+  }
+  else if (!SWIG_IsOK(errcode))
+  {
+    try
+    {
+      // Try direct conversion of VectorVectors by reference/pointer (see swigtypes.swg)
+      errcode = SWIG_ConvertPtr($input, &argp, $descriptor, %convertptr_flags);
+      if (SWIG_IsOK(errcode))
+      {
+        if (!argp) {
+          %argument_nullref("$type", $symname, $argnum);
+        }
+        $1 = %reinterpret_cast(argp, $ltype);
+      }
+      else {
+        %argument_fail(errcode, "$type", $symname, $argnum);
+      }
+    }
+    catch(...)
+    {
+      %argument_fail(errcode, "$type", $symname, $argnum);
+    }
+  }
+  else
+  {
+    $1 = vec;
+  }
+}
+
+%typemap(in, fragment="ToCpp") const VectorInt&    (void *argp, VectorInt vec),
+                               const VectorDouble& (void *argp, VectorDouble vec),
+                               const VectorString& (void *argp, VectorString vec),
+                               const VectorFloat&  (void *argp, VectorFloat vec),
+                               const VectorUChar&  (void *argp, VectorUChar vec),
+                               const VectorBool&   (void *argp, VectorBool vec)
+{
+  // Try to convert from any target language vector
+  int errcode = vectorToCpp($input, vec);
+  if (errcode == SWIG_NullReferenceError)
+  {
+    $1 = &vec;
+  }
+  else if (!SWIG_IsOK(errcode))
   {
     try
     {
@@ -569,7 +775,6 @@
 }
 
 %typemap(in, fragment="ToCpp") const VectorVectorInt&    (void *argp, VectorVectorInt vec),
-                               const VectorVectorInt*    (void *argp, VectorVectorInt vec),
                                const VectorVectorDouble& (void *argp, VectorVectorDouble vec),
                                const VectorVectorDouble* (void *argp, VectorVectorDouble vec),
                                const VectorVectorFloat&  (void *argp, VectorVectorFloat vec),
@@ -577,7 +782,11 @@
 {
   // Try to convert from any target language vector
   int errcode = vectorVectorToCpp($input, vec);
-  if (!SWIG_IsOK(errcode))
+  if (errcode == SWIG_NullReferenceError)
+  {
+    $1 = nullptr;
+  }
+  else if (!SWIG_IsOK(errcode))
   {
     try
     {
@@ -605,12 +814,12 @@
   }
 }
 
-%typemap(in, fragment="ToCpp") const MatrixRectangular&     (void *argp, MatrixRectangular mat),
-                               const MatrixRectangular*     (void *argp, MatrixRectangular mat),
-                               const MatrixSquareGeneral&   (void *argp, MatrixSquareGeneral mat),
-                               const MatrixSquareGeneral*   (void *argp, MatrixSquareGeneral mat),
-                               const MatrixSquareSymmetric& (void *argp, MatrixSquareSymmetric mat),
-                               const MatrixSquareSymmetric* (void *argp, MatrixSquareSymmetric mat)
+%typemap(in, fragment="ToCpp") const MatrixDense&     (void *argp, MatrixDense mat),
+                               const MatrixDense*     (void *argp, MatrixDense mat),
+                               const MatrixSquare&   (void *argp, MatrixSquare mat),
+                               const MatrixSquare*   (void *argp, MatrixSquare mat),
+                               const MatrixSymmetric& (void *argp, MatrixSymmetric mat),
+                               const MatrixSymmetric* (void *argp, MatrixSymmetric mat)
 {
   // Try to convert from any target language vector
   int errcode = matrixDenseToCpp($input, mat);
@@ -713,8 +922,6 @@
 %typemap(out, fragment="FromCpp") int*,    const int*,    int&,    const int&,
                                   double*, const double*, double&, const double&,
                                   String*, const String*, String&, const String&,
-                                  std::string_view*, const std::string_view*,
-                                  std::string_view&, const std::string_view&,
                                   float*,  const float*,  float&,  const float&,
                                   UChar*,  const UChar*,  UChar&,  const UChar&,
                                   bool*,   const bool*,   bool&,   const bool&
@@ -764,32 +971,32 @@
     SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 }
 
-//%typemap(out, fragment="FromCpp") MatrixRectangular, 
-//                                  MatrixSquareGeneral, 
-//                                  MatrixSquareSymmetric
+//%typemap(out, fragment="FromCpp") MatrixDense, 
+//                                  MatrixSquare, 
+//                                  MatrixSymmetric
 //{
 //  int errcode = matrixDenseFromCpp(&($result), $1);
 //  if (!SWIG_IsOK(errcode))
 //    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 //}
 
-//%typemap(out, fragment="FromCpp") MatrixRectangular* MatrixRectangular::create
+//%typemap(out, fragment="FromCpp") MatrixDense* MatrixDense::create
 //{
 //  int errcode = matrixDenseFromCppCreate(&($result), *$1);
 //  if (!SWIG_IsOK(errcode))
 //    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 //}
 
-//%typemap(out, fragment="FromCpp") MatrixRectangular& MatrixRectangular::create
+//%typemap(out, fragment="FromCpp") MatrixDense& MatrixDense::create
 //{
 //  int errcode = matrixDenseFromCppCreate(&($result), *$1);
 //  if (!SWIG_IsOK(errcode))
 //    SWIG_exception_fail(SWIG_ArgError(errcode), "in method $symname, wrong return value: $type");
 //}
 
-//%typemap(out, fragment="FromCpp") MatrixRectangular*,     MatrixRectangular&,
-//                                  MatrixSquareGeneral*,   MatrixSquareGeneral&,
-//                                  MatrixSquareSymmetric*, MatrixSquareSymmetric&
+//%typemap(out, fragment="FromCpp") MatrixDense*,     MatrixDense&,
+//                                  MatrixSquare*,   MatrixSquare&,
+//                                  MatrixSymmetric*, MatrixSymmetric&
 //{
 //  int errcode = matrixDenseFromCpp(&($result), *$1);
 //  if (!SWIG_IsOK(errcode))
@@ -850,3 +1057,22 @@
     return $self->indicesToCoordinateInPlace(indice, coor, percent, flag_rotate);
   }
 };
+
+
+// Prevent memory leaks from 'create*' and 'clone' methods
+
+// The following file should contain all 'createFrom*' methods
+%include swig/newobject.i
+// This is for all 'create' methods
+%newobject *::create;
+// So bad that the following syntax doesn't work:
+// %newobject *::create*;
+// This is for all 'clone' methods
+%newobject *::clone;
+
+%{
+  #include <memory>
+%}
+%include <std_shared_ptr.i>
+%template(ASpaceSharedPtr)    std::shared_ptr<const ASpace>;
+%template(ASpaceSharedPtrVector)   std::vector< ASpaceSharedPtr>;

@@ -13,7 +13,7 @@
 #include "Basic/File.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -24,7 +24,6 @@
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "LinearOp/ShiftOpMatrix.hpp"
 #include <vector>
 
 #define __USE_MATH_DEFINES
@@ -59,12 +58,12 @@ int main(int argc, char *argv[])
   // Creating the Model
   Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 45.});
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  model->getCova(0)->makeAngleNoStatFunctional(&spirale);
+  model->getCovAniso(0)->makeAngleNoStatFunctional(&spirale);
 
   /////////////////////////////////////////////////
   // Creating the Precision Operator for simulation
   
-  CovAniso* cova = model->getCova(0);
+  CovAniso* cova = model->getCovAniso(0);
   ShiftOpMatrix S(&mesh, cova, workingDbc);
   PrecisionOp Qsimu(&S, cova);
 

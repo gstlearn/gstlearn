@@ -15,5 +15,8 @@
 function(libname, pkgname)
 {
 	#OptDbg_reset() # Remove this as it is obvious and it makes roxygen crashing
-	plot.initialize()
+}
+
+".onLoad" <- function(libname, pkgname)
+{
 }

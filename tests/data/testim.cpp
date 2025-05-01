@@ -46,7 +46,7 @@ static Model *st_modify(Model *model,
 
   /* Modify the model */
 
-  if (db->getLocNumber(ELoc::G) > 0)
+  if (db->getNLoc(ELoc::G) > 0)
   {
     if (db_gradient_update(db)) return(new_model);
     new_model = model_duplicate_for_gradient(model,ball_radius);
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
 
   /* Conditional expectation */
 
-  if (dbin->getIntervalNumber() > 0)
+  if (dbin->getNInterval() > 0)
   {
     dbin->clearLocators(ELoc::Z);
     if (gibbs_sampler(dbin,new_model,
@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
                       5.,true,true,true))
       messageAbort("gibbs_sampler");
     /* Set the current variable to the conditional expectation */
-    dbin->setLocatorByUID(dbin->getColumnNumber()-1,ELoc::Z, 0);
+    dbin->setLocatorByUID(dbin->getNColumn()-1,ELoc::Z, 0);
   }
 
   /* Perform the estimation */
@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
         
         /* Cross-validation */
 
-        if (xvalid(dbin,new_model,neigh,0,1,0,0)) messageAbort("xvalid");
+        if (xvalid(dbin,new_model,neigh,false,1,0,0)) messageAbort("xvalid");
         dbfmt.setFlags(true, false, true, true, true);
         dbin->display(&dbfmt);
       }
@@ -215,7 +215,7 @@ int main(int argc, char *argv[])
 
         /* Estimation case */
 
-        if (kriging(dbin,dbout,new_model,neigh,EKrigOpt::POINT,
+        if (kriging(dbin,dbout,new_model,neigh,
                     1,1,0)) messageAbort("kriging");
         dbfmt.setFlags(true, false, true, true, true);
         dbout->display(&dbfmt);

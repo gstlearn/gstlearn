@@ -1,7 +1,7 @@
 name: nonreg-demos-courses_python_ubuntu-latest
 
 on:
-  # Permit calling trigger
+  # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
   workflow_call:
   # Activate the workflow at each push on dev branch
   #push:
@@ -20,7 +20,7 @@ on:
 env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
-  PYTHON_VERSION : "3.11"
+  PYTHON_VERSION : "3.13"
   SCCACHE_IDLE_TIMEOUT: 0
 
 jobs:
@@ -63,9 +63,9 @@ jobs:
         python -m pip install scikit-sparse
 
     - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.5
+      uses: mozilla-actions/sccache-action@v0.0.9
 
-    - name: Configure build directory
+    - name: Configure build directory for python package
       run: |
         cmake \
           -B${{ env.BUILD_DIR }} \
@@ -76,9 +76,9 @@ jobs:
         CMAKE_CC_COMPILER_LAUNCHER: sccache
         CMAKE_CXX_COMPILER_LAUNCHER: sccache
 
-    - name: Build the package
+    - name: Build and Install the package
       run: |
-        cmake --build ${{env.BUILD_DIR}} --parallel 3
+        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target python_install
 
     - name: Execute Python demos and courses
       run: |

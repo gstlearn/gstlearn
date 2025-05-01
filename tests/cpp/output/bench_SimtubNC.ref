@@ -1,0 +1,15 @@
+#NO_DIFF# Non-conditional Simulation on Grid: 1178 ms. (Ref = 6800 ms.)
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+4 - Name Simu - Locator z1
+ Nb of data          =      40000
+ Nb of active values =      40000
+ Minimum value       =     -3.647
+ Maximum value       =      2.918
+ Mean value          =     -0.136
+ Standard Deviation  =      0.992
+ Variance            =      0.984

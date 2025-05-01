@@ -10,6 +10,8 @@
 /******************************************************************************/
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/SerializeHDF5.hpp"
+#include "Basic/SerializeNeutralFile.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 
@@ -39,8 +41,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-String ASerializable::myContainerName = String();
-String ASerializable::myPrefixName = String();
+String ASerializable::_myContainerName = String();
+String ASerializable::_myPrefixName = String();
 
 ASerializable::ASerializable()
 {
@@ -79,7 +81,7 @@ bool ASerializable::dumpToNF(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
   bool ret = true;
-  if (_fileOpenWrite(neutralFilename, os, true))
+  if (SerializeNeutralFile::fileOpenWrite(*this, neutralFilename, os, true))
   {
     ret = _serialize(os, verbose);
     if (! ret)
@@ -91,65 +93,37 @@ bool ASerializable::dumpToNF(const String& neutralFilename, bool verbose) const
   return ret;
 }
 
+#ifdef HDF5
+bool ASerializable::dumpToH5(const String& H5Filename, bool verbose) const
+{
+  auto file = SerializeHDF5::fileOpenWrite(H5Filename);
+  bool ret  = _serializeH5(file, verbose);
+  if (!ret)
+  {
+    messerr("Problem writing in the netCDF File.");
+  }
+
+  return ret;
+}
+#endif
+
 bool ASerializable::_fileOpenWrite(const String& filename,
                                    std::ofstream& os,
                                    bool verbose) const
 {
-  // Close the stream if opened
-  if (os.is_open()) os.close();
-  // Build the multi-platform filename
-  String filepath = buildFileName(2, filename, true);
-  // Open new stream
-  os.open(filepath, std::ios::out | std::ios::trunc);
-  if (!os.is_open())
-  {
-    if (verbose) messerr("Error while opening %s", filepath.c_str());
-    return false;
-  }
-  // Write the file type (class name)
-  os << _getNFName() << std::endl;
-  return os.good();
+  return SerializeNeutralFile::fileOpenWrite(*this, filename, os, verbose);
 }
 
 bool ASerializable::_fileOpenRead(const String& filename,
                                   std::ifstream& is,
                                   bool verbose) const
 {
-  // Close the stream if opened
-  if (is.is_open()) is.close();
-  // Build the multi-platform filename
-  String filepath = buildFileName(1, filename, true);
-  // Open new stream
-  is.open(filepath, std::ios::in);
-  if (!is.is_open())
-  {
-    if (verbose) messerr("Error while opening %s", filepath.c_str());
-    return false;
-  }
-  // Read and check the file type (class name)
-  String type;
-  is >> type;
-  if (type != _getNFName())
-  {
-    if (verbose)
-      messerr("The file %s has the wrong type (read: %s, expected: %s)",
-              filepath.c_str(), type.c_str(), _getNFName().c_str());
-    is.close();
-    return false;
-  }
-  return is.good(); // Cannot be "end of file" already
+  return SerializeNeutralFile::fileOpenRead(*this, filename, is, verbose);
 }
 
 bool ASerializable::_commentWrite(std::ostream& os, const String& comment)
 {
-  if (os.good())
-  {
-    if (comment.empty())
-      os << std::endl;
-    else
-      os << "# " << comment << std::endl;
-  }
-  return os.good();
+  return SerializeNeutralFile::commentWrite(os, comment);
 }
 
 bool ASerializable::_tableWrite(std::ostream& os,
@@ -157,11 +131,7 @@ bool ASerializable::_tableWrite(std::ostream& os,
                                 int ntab,
                                 const VectorDouble& tab)
 {
-  bool ret = true;
-  VectorDouble loctab(ntab);
-  for (int i = 0; i < ntab; i++) loctab[i] = tab[i];
-  ret = ret && _recordWriteVec<double>(os, string, loctab);
-  return ret;
+  return SerializeNeutralFile::tableWrite(os, string, ntab, tab);
 }
 
 bool ASerializable::_tableRead(std::istream &is,
@@ -169,22 +139,7 @@ bool ASerializable::_tableRead(std::istream &is,
                                int ntab,
                                double *tab)
 {
-  bool ret = true;
-  VectorDouble loctab(ntab);
-  ret = ret && _recordReadVec<double>(is, string, loctab, ntab);
-  if (!ret) return 1;
-  for (int i = 0; i < ntab; i++) tab[i] = loctab[i];
-  return ret;
-}
-
-bool ASerializable::_onlyBlanks(char *string)
-{
-  int number = static_cast<int>(strlen(string));
-  for (int i = 0; i < number; i++)
-  {
-    if (string[i] != ' ') return false;
-  }
-  return true;
+  return SerializeNeutralFile::tableRead(is, string, ntab, tab);
 }
 
 /**
@@ -220,17 +175,17 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
   // - otherwise, add the 'containerName' and 'prefixName' (if defined)
   if (status == 2 || (filename.size() > 2 && filename[0] != '/' && filename[1] != ':'))
   {
-    if (!myContainerName.empty())
+    if (!_myContainerName.empty())
     {
-      fileLocal += myContainerName;
+      fileLocal += _myContainerName;
       if (ensureDirExist)
       {
         (void) createDirectory(fileLocal);
       }
     }
-    if (!myPrefixName.empty())
+    if (!_myPrefixName.empty())
     {
-      fileLocal += myPrefixName;
+      fileLocal += _myPrefixName;
     }
   }
   fileLocal += filename;
@@ -372,8 +327,8 @@ void ASerializable::setContainerName(bool useDefault,
 {
   if (useDefault)
   {
-    // Default is first set to PYGSTLEARN_DIR (if defined)
-    String pygst(gslGetEnv("PYGSTLEARN_DIR"));
+    // Default is first set to GSTLEARN_OUTPUT_DIR (if defined)
+    String pygst(gslGetEnv("GSTLEARN_OUTPUT_DIR"));
     if (pygst.empty())
     {
       // Otherwise, it is set to HOME/gstlearn_dir
@@ -383,13 +338,13 @@ void ASerializable::setContainerName(bool useDefault,
     else
     {
       if (verbose)
-        message("Results are stored in PYGSTLEARN_DIR\n");
+        message("Results are stored in GSTLEARN_OUTPUT_DIR\n");
     }
-    myContainerName = pygst;
+    _myContainerName = pygst;
   }
   else
   {
-    myContainerName = containerName;
+    _myContainerName = containerName;
   }
 }
 
@@ -398,27 +353,27 @@ void ASerializable::setContainerName(bool useDefault,
  */
 void ASerializable::unsetContainerName()
 {
-  myContainerName.erase();
+  _myContainerName.erase();
 }
 
 void ASerializable::setPrefixName(const String& prefixName)
 {
-  myPrefixName = prefixName;
+  _myPrefixName = prefixName;
 }
 
 void ASerializable::unsetPrefixName(void)
 {
-  myPrefixName.erase();
+  _myPrefixName.erase();
 }
 
 const String& ASerializable::getContainerName()
 {
-  return myContainerName;
+  return _myContainerName;
 }
 
 const String& ASerializable::getPrefixName()
 {
-  return myPrefixName;
+  return _myPrefixName;
 }
 
 /*!
@@ -434,13 +389,12 @@ bool ASerializable::createDirectory(const String& dir)
   {   // or Directory was existing
     return true;
   }
+  return false;
 #else
   struct stat sb;
-  if ((stat(dir.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode)) || // Directory exists
-      (mkdir(dir.c_str(), 0755) == 0))                        // or Creation
-    return true;
+  return ((stat(dir.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode)) || // Directory exists
+      (mkdir(dir.c_str(), 0755) == 0));                           // or Creation
 #endif
-  return false;
 }
 
 /*!

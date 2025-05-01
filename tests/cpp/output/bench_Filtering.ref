@@ -1,0 +1,147 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                 rank       x-1       x-2       z-1       z-2
+     [  0,]     1.000     0.652     0.015     0.753    -0.454
+     [  1,]     2.000     0.483     0.557       N/A    -0.872
+     [  2,]     3.000     0.762     0.433     0.793     0.744
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 2
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     4.708    -3.586
+     [  1,]    -3.586     3.084
+  (This component is Filtered)
+Spherical
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     1.206     2.500
+     [  1,]     2.500     5.651
+- Range        =      0.500
+Total Sill
+               [,  0]    [,  1]
+     [  0,]     5.914    -1.086
+     [  1,]    -1.086     8.735
+
+Known Mean(s)    -0.504    -1.222
+
+Target location
+---------------
+Sample #1 (from 1)
+Coordinate #1 = 0.652223
+Coordinate #2 = 0.014824
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2
+          1          1      0.652      0.015
+          2          2      0.483      0.557
+          3          3      0.762      0.433
+
+LHS of Kriging matrix
+=====================
+Dimension of the Covariance Matrix  = 5
+
+       Rank          1          2          3          4          5
+          1      5.914      0.031     -1.086      0.000      0.065
+          2      0.031      5.914      0.065      0.498     -1.086
+          3     -1.086      0.065      8.735      0.000      0.147
+          4      0.000      0.498      0.000      8.735      1.126
+          5      0.065     -1.086      0.147      1.126      8.735
+
+RHS of Kriging matrix
+=====================
+Number of active samples    = 3
+Total number of equations   = 6
+Number of right-hand sides  = 2
+Punctual Estimation
+
+       Rank          1          2
+          1      1.206      2.500
+          2      0.031      0.065
+          3      2.500      5.651
+          4      0.000      0.000
+          5      0.065      0.147
+
+(Co-) Kriging weights
+=====================
+       Rank       Data        Z1*        Z2*
+Using variable Z1 
+          1      0.753      0.263      0.554
+          2      0.793      0.000      0.000
+Sum of weights              0.263      0.554
+Using variable Z2 
+          3     -0.454      0.319      0.716
+          4     -0.872      0.000      0.000
+          5      0.744      0.000      0.001
+Sum of weights              0.319      0.716
+
+Drift or Mean Information
+=========================
+Mean for Variable Z1 = -0.503987
+Mean for Variable Z2 = -1.221932
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =       0.072
+ - Std. Dev. =       0.304
+ - Variance  =       0.093
+ - Cov(h=0)  =       1.206
+Variable Z2 
+ - Estimate  =       0.026
+ - Std. Dev. =       0.470
+ - Variance  =       0.220
+ - Cov(h=0)  =       5.651
+
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+4 - Name Kriging.z-1.estim - Locator z1
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      0.072
+ Maximum value       =      0.072
+ Mean value          =      0.072
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+5 - Name Kriging.z-2.estim - Locator z2
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      0.026
+ Maximum value       =      0.026
+ Mean value          =      0.026
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+6 - Name Kriging.z-1.stdev - Locator NA
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      0.304
+ Maximum value       =      0.304
+ Mean value          =      0.304
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+7 - Name Kriging.z-2.stdev - Locator NA
+ Nb of data          =          1
+ Nb of active values =          1
+ Minimum value       =      0.470
+ Maximum value       =      0.470
+ Mean value          =      0.470
+ Standard Deviation  =      0.000
+ Variance            =      0.000

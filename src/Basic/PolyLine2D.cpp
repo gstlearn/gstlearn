@@ -485,7 +485,7 @@ int dbUnfoldPolyline(Db *db,
 
   /* Loop on the samples of the Db */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     target[0] = db->getCoordinate(iech, 0);
@@ -559,7 +559,7 @@ int dbFoldPolyline(DbGrid *dbin,
   /* Loop on the samples of the output Db */
 
   VectorDouble target(2);
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
     if (!dbout->isActive(iech)) continue;
     target[0] = dbout->getCoordinate(iech, 0);
@@ -634,7 +634,7 @@ int dbFromPolylines(Db* db,
 
   // Loop on the active samples of the Data Base
 
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   for (int iech = 0; iech < nech; iech++)
   {
     if (! db->isActive(iech)) continue;

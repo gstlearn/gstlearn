@@ -103,7 +103,7 @@ int Constraints::isDefinedForSill() const
 
 void Constraints::modifyConstraintsForSill()
 {
-  for (int i=0; i<(int) getConsItemNumber(); i++)
+  for (int i=0; i<(int) getNConsItem(); i++)
   {
     const ConsItem* consitem = getConsItems(i);
     if (consitem->getType() != EConsElem::SILL) continue;
@@ -156,7 +156,7 @@ void constraints_print(const Constraints& constraints)
 int modify_constraints_on_sill(Constraints& constraints)
 
 {
-  int ncons = (int)constraints.getConsItemNumber();
+  int ncons = (int)constraints.getNConsItem();
   for (int i = 0; i < ncons; i++)
   {
     const ConsItem* consitem = constraints.getConsItems(i);
@@ -203,7 +203,7 @@ double constraints_get(const Constraints& constraints,
 {
   if (!constraints.isDefined()) return (TEST);
 
-  for (int i = 0; i < (int)constraints.getConsItemNumber(); i++)
+  for (int i = 0; i < (int)constraints.getNConsItem(); i++)
   {
     const ConsItem* item = constraints.getConsItems(i);
     if (item->getIGrf() != igrf || item->getICov() != icov ||

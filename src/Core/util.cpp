@@ -813,7 +813,7 @@ double ut_distance(int ndim, const double *tab1, const double *tab2)
     /* Case of the spherical coordinates */
     /* Longitude = 1st coord; Latitude = 2nd coord (in degrees) */
 
-    const ASpace* space = getDefaultSpace();
+    const ASpace* space = getDefaultSpaceSh().get();
     const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
     if (space == nullptr) return TEST;
     double R = spaceSn->getRadius();

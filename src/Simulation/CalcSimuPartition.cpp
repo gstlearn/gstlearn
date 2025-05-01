@@ -25,11 +25,12 @@ CalcSimuPartition::CalcSimuPartition(int mode,
                                      int nbsimu,
                                      int seed,
                                      bool verbose)
-    : ACalcSimulation(nbsimu, seed),
-      _mode(mode),
-      _verbose(verbose),
-      _iattOut(-1),
-      _parparam()
+  : ACalcSimulation(nbsimu, seed)
+  , _mode(mode)
+  , _verbose(verbose)
+  , _iattOut(-1)
+  , _parparam()
+  , _modelLocal(nullptr)
 {
 }
 
@@ -48,7 +49,7 @@ bool CalcSimuPartition::_voronoi()
 {
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   int ndim = _getNDim();
-  VectorDouble simgrid(dbgrid->getSampleNumber());
+  VectorDouble simgrid(dbgrid->getNSample());
 
   /************************************/
   /* Simulation of the Gaussian field */
@@ -84,15 +85,15 @@ bool CalcSimuPartition::_voronoi()
 
   Db* dbpoint = Db::createFromSamples(nbpoints, ELoadBy::SAMPLE, coor);
   dbpoint->setLocatorsByUID(ndim, 0, ELoc::X, 0);
-  VectorDouble simpoint(dbpoint->getSampleNumber());
+  VectorDouble simpoint(dbpoint->getNSample());
 
   /* Perform the simulation at the seed points */
-  if (simtub(NULL, dbpoint, getModel(), NULL, 1,
+  if (simtub(NULL, dbpoint, _modelLocal, NULL, 1,
              getSeed(), _parparam.getNbtuba())) return false;
 
   /* Expand the data values over the grid nodes */
 
-  int iattp = dbpoint->getColumnNumber() - 1;
+  int iattp = dbpoint->getNColumn() - 1;
   if (expandPointToGrid(dbpoint, dbgrid, iattp, -1, 0, -1, -1, -1, -1, 0,
                            VectorDouble(), simgrid)) return 1;
 
@@ -137,9 +138,9 @@ bool CalcSimuPartition::_poisson()
   /* Simulation of the Gaussian field */
   /************************************/
 
-  if (simtub(NULL, dbgrid, getModel(), NULL, 1, getSeed(), _parparam.getNbtuba()))
+  if (simtub(NULL, dbgrid, _modelLocal, NULL, 1, getSeed(), _parparam.getNbtuba()))
     return false;
-  iattg = dbgrid->getColumnNumber() - 1;
+  iattg = dbgrid->getNColumn() - 1;
 
   /***********************/
   /* Information process */
@@ -163,10 +164,10 @@ bool CalcSimuPartition::_poisson()
   /* Simulating the directing function */
 
   VectorDouble cen(ndim);
-  for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbgrid->getNSample(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
-    dbgrid->getCoordinatesPerSampleInPlace(iech, cen);
+    dbgrid->getCoordinatesInPlace(cen, iech);
 
     /* Loop on the planes */
 
@@ -191,7 +192,7 @@ bool CalcSimuPartition::_poisson()
   /* Coding process */
   /******************/
 
-  for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbgrid->getNSample(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
     double valref = dbgrid->getArray(iech, _iattOut);
@@ -262,6 +263,13 @@ bool CalcSimuPartition::_check()
     messerr(" 2 for Poisson Hyperplanes");
     return false;
   }
+
+  _modelLocal = dynamic_cast<Model*>(getModel());
+  if (_modelLocal == nullptr)
+  {
+    messerr("The model must be of type 'Model' (not ModelGeneric)");
+    return false;
+  }
   return true;
 }
 
@@ -281,6 +289,7 @@ bool CalcSimuPartition::_run()
 
   if (_mode == 1)
     return (_voronoi());
+
   return (_poisson());
 }
 

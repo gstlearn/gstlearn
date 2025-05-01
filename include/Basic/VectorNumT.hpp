@@ -88,7 +88,7 @@ T VectorNumT<T>::sum() const
   if (VectorNumT::size() <= 0) return T();
   T sum = 0;
   for (size_type i = 0, n = VectorNumT::size(); i < n; i++)
-    sum += VectorNumT::_v->at(i);
+    sum += VectorNumT::_v.at(i);
   return (sum);
 }
 
@@ -97,7 +97,7 @@ T VectorNumT<T>::maximum() const  // Prevent using max and min keywords (Visual)
 {
   if (VectorNumT::size() <= 0) return 0;
   T mymax = (std::numeric_limits<T>::min)(); // https://stackoverflow.com/a/27443191/3952924
-  for (auto v : *VectorNumT::_v)
+  for (auto v : VectorNumT::_v)
     if (v > mymax) mymax = v;
   return (mymax);
 }
@@ -107,7 +107,7 @@ T VectorNumT<T>::minimum() const  // Prevent using max and min keywords (Visual)
 {
   if (VectorNumT::size() <= 0) return 0;
   T mymin = (std::numeric_limits<T>::max)(); // https://stackoverflow.com/a/27443191/3952924
-  for (auto v : *VectorNumT::_v)
+  for (auto v : VectorNumT::_v)
     if (v < mymin) mymin = v;
   return (mymin);
 }
@@ -117,7 +117,7 @@ double VectorNumT<T>::mean() const
 {
   if (VectorNumT::size() <= 0) return static_cast<T>(NAN);
   double s = static_cast<double>(sum());
-  return (s / static_cast<double>(VectorNumT::_v->size()));
+  return (s / static_cast<double>(VectorNumT::_v.size()));
 }
 
 template <typename T>

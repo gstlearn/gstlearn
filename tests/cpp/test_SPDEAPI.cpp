@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 
   // Creating non-stationarity field (spiral) and attaching it to the Model
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  model->getCova(0)->makeAngleNoStatFunctional(&spirale);
+  model->getCovAniso(0)->makeAngleNoStatFunctional(&spirale);
   model->display();
 
   // Creating Data

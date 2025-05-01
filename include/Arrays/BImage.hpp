@@ -17,8 +17,8 @@ class GSTLEARN_EXPORT BImage : public AArray
 {
 public:
   BImage(const VectorInt& ndims = VectorInt());
-  BImage(const BImage &m);
-  BImage& operator=(const BImage &m);
+  BImage(const BImage &r);
+  BImage& operator=(const BImage &r);
   virtual ~BImage();
 
   /// Interface for AStringable

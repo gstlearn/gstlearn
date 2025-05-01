@@ -23,7 +23,7 @@ public:
   virtual ~BiTargetCheckCode();
 
   /// ICloneable Interface
-  //IMPLEMENT_CLONING(BiTargetCheckCode)
+  IMPLEMENT_CLONING(BiTargetCheckCode)
 
   virtual bool isOK(const SpaceTarget &T1, const SpaceTarget &T2) const override;
 

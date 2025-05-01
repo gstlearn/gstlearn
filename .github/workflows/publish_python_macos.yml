@@ -25,9 +25,6 @@ on:
 env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
-#  HDF5_ROOT : hdf5 #do not use "." in the name
-#  HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1.tar.gz/?wpdmdl=15722"
-#  HDF5_VERSION : hdf5-1.12.1
 
 jobs:
   build:
@@ -78,30 +75,18 @@ jobs:
     - name: Build & install NLopt static libraries
       uses: ./.github/actions/nlopt_static_unix
 
-#    - name : Download and install HDF5
-#      run : |
-#        mkdir ${{env.HDF5_ROOT}}
-#        curl --progress-bar --location --output ${{env.HDF5_ROOT}}/download.tar.gz ${{env.HDF5_URL}}
-#        7z  -o${{env.HDF5_ROOT}} x ${{env.HDF5_ROOT}}/download.tar.gz -y -bd
-#        7z  -o${{env.HDF5_ROOT}} x ${{env.HDF5_ROOT}}/download.tar -y -bd
-#        ls
-#        cd ${{env.HDF5_ROOT}}
-#        ls
-#        cd CMake-${{env.HDF5_VERSION}}
-#        mkdir build
-#        cd build
-#        cmake -DHDF5_GENERATE_HEADERS:BOOL=OFF -DBUILD_SHARED_LIBS:BOOL=OFF -DDEFAULT_API_VERSION:STRING=v110 -DCMAKE_BUILD_TYPE:STRING=Release -DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_CPP_LIB:BOOL=ON -DHDF5_BUILD_JAVA:BOOL=OFF -DCMAKE_INSTALL_PREFIX:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}} -DHDF5_ENABLE_SZIP_SUPPORT:BOOL=OFF -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=OFF -DBUILD_TESTING:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=OFF ../${{env.HDF5_VERSION}}
-#        cmake --build . --target all --config Release -- -j 3
-#        cmake --build . --target install --config Release
+    - name: Build & install HDF5 static libraries
+      uses: ./.github/actions/hdf5_static_unix
 
     - name : Configure build directory
       run : |
         cmake \
           -B${{ env.BUILD_DIR }} \
+          -DHDF5_USE_STATIC_LIBRARIES=ON \
           -DBUILD_PYTHON=ON \
           -DBUILD_R=OFF \
           -DPython3_ROOT_DIR="${{env.pythonLocation}}" \
-          -DBUILD_DOXYGEN=ON
+          -DBUILD_DOC=ON
       env:
         CC: ${{matrix.arch.pat}}/opt/llvm/bin/clang
         CXX: ${{matrix.arch.pat}}/opt/llvm/bin/clang++
@@ -164,7 +149,7 @@ jobs:
       run: brew install llvm
 
     - name: Install Python package
-      run: pip install ./$(ls *.whl)
+      run: pip install "./$(ls *.whl)[conv]"
 
     - name: Test installed Python package
       run: |

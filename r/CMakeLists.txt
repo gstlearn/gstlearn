@@ -64,9 +64,22 @@ add_custom_target(r_doc
   VERBATIM
 )
 
-# Tell that we need to generate doxymentation before building R package
-# (not yet)
-#add_dependencies(r_doc doxygen)
+####CUSTOM WRAPPER
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/r/generated_r.i
+COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/r/generated_r.i
+COMMENT "Ensure that generated_r.i exists")
+  
+add_custom_target(r_wrap_macro
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../swig/macrogenerate.py
+  "r"
+  COMMENT "Generate macro wrapper package"
+  )
+
+
+# Tell that we need to generate doxymentation before building R package (if required)
+if (BUILD_DOC)
+  add_dependencies(r_doc doxygen)
+endif()
 
 ######################################
 # WRAPPER GENERATION & BUILD
@@ -150,9 +163,18 @@ target_include_directories(r_build PRIVATE ${R_INCLUDE_DIRS})
 # Link to R's libraries (needed for MSYS and MacOS)
 target_link_libraries(r_build PRIVATE ${R_LIBRARIES})
 
-# Tell that we need to generate Rd files before building R package
-add_dependencies(r_build r_doc)
+# Tell that we need to generate Rd files before building R package (if required)
+if (BUILD_DOC)
+  add_dependencies(r_build r_doc)
+endif()
 
+if(USE_BOOST_SPAN)
+  target_compile_definitions(r_build PUBLIC USE_BOOST_SPAN)
+endif()
+
+add_dependencies(r_build r_wrap_macro)
+
+add_dependencies(r_build generate_output)
 ########################################
 # PACKAGING
 
@@ -206,7 +228,7 @@ endforeach()
 # INSTALLATION
 
 # Add a custom target for R package installation
-# TODO: Do also installation each time NAMESPACE.in or DESCRIPTION.in is modified
+# TODO: Do also installation each time README and below files are modified
 if (MINGW)
   set(ARCHIVE_FILE_NAME     "${PROJECT_NAME}_${PROJECT_VERSION}.zip")
   set(DST_ARCHIVE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}.zip")
@@ -220,6 +242,7 @@ else()
   endif()
 endif()
 add_custom_target(r_install
+  # Empty Makevars (compilation already done by r_build target) - only 64 bits (no multi arch)
   COMMAND ${CMAKE_COMMAND} -E touch ${R_PACKAGE_SRC_FOLDER}/Makevars
   COMMAND ${CMAKE_COMMAND} -E touch ${R_PACKAGE_SRC_FOLDER}/Makevars.win
   COMMAND ${CMAKE_COMMAND} -E touch ${R_PACKAGE_SRC_FOLDER}/Makevars.ucrt

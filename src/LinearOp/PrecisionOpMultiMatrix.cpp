@@ -14,7 +14,7 @@
 #include "LinearOp/PrecisionOpMatrix.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 
 PrecisionOpMultiMatrix::PrecisionOpMultiMatrix(Model* model,
                                    const VectorMeshes& meshes)
@@ -27,7 +27,7 @@ PrecisionOpMultiMatrix::PrecisionOpMultiMatrix(Model* model,
 
 MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixStationary(int icov, const MatrixSparse* Q) const
 {
-  MatrixSquareSymmetric sills = *_invCholSillsStat[icov].getMatrix();
+  MatrixSymmetric sills = *_invCholSillsStat[icov].getMatrix();
   sills.invert();
     
   MatrixSparse current = MatrixSparse(0,0);
@@ -102,7 +102,7 @@ void PrecisionOpMultiMatrix::_prepareMatrix()
   {
     const MatrixSparse* Q = ((PrecisionOpMatrix*)_pops[istruct])->getQ();
 
-    if (_model->getVariableNumber() == 1)
+    if (_model->getNVar() == 1)
     {
       MatrixSparse::glueInPlace(&_Q, Q, 1, 1);
     }
@@ -134,7 +134,7 @@ void PrecisionOpMultiMatrix::_buildQop(bool stencil)
   }
   for (int icov = 0, number = _getNCov(); icov < number; icov++)
   {
-    CovAniso* cova = _model->getCova(_getCovInd(icov));
+    CovAniso* cova = _model->getCovAniso(_getCovInd(icov));
     _pops.push_back(new PrecisionOpMatrix(_meshes[icov], cova));
   }
 }

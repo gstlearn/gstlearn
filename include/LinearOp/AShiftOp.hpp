@@ -16,6 +16,8 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorT.hpp"
 
+#include <memory>
+
 #ifndef SWIG
 
 #include <Eigen/Core>

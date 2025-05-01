@@ -13,8 +13,8 @@
 #include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
 #include "Geometry/Rotation.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSquare.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 
 class GSTLEARN_EXPORT Tensor : public AStringable /// TODO : public ASpaceObject
 {
@@ -28,7 +28,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void init(int ndim);
-  void setTensorDirect2(const MatrixSquareSymmetric& tensor);
+  void setTensorDirect2(const MatrixSymmetric& tensor);
 
   void setRadiusIsotropic(double radius);
   void setRadiusVec(const VectorDouble& radius);
@@ -42,13 +42,13 @@ public:
                                   const VectorDouble& radius = VectorDouble());
 
   const VectorDouble&          getAngles()         const { return  _rotation.getAngles(); }
-  const MatrixSquareGeneral&   getTensorDirect()   const { return  _tensorDirect; }
-  const MatrixSquareGeneral&   getTensorInverse()  const { return  _tensorInverse; }
-  const MatrixSquareSymmetric& getTensorDirect2()  const { return  _tensorDirect2; }
+  const MatrixSquare&   getTensorDirect()   const { return  _tensorDirect; }
+  const MatrixSquare&   getTensorInverse()  const { return  _tensorInverse; }
+  const MatrixSymmetric& getTensorDirect2()  const { return  _tensorDirect2; }
   const VectorDouble&          getRadius()         const { return  _radius; }
   const Rotation&              getRotation()       const { return  _rotation; }
-  const MatrixSquareGeneral&   getMatrixDirect()   const { return  _rotation.getMatrixDirect(); }
-  const MatrixSquareGeneral&   getMatrixInverse()  const { return  _rotation.getMatrixInverse(); }
+  const MatrixSquare&   getMatrixDirect()   const { return  _rotation.getMatrixDirect(); }
+  const MatrixSquare&   getMatrixInverse()  const { return  _rotation.getMatrixInverse(); }
   bool                         isIsotropic()       const { return  _isotropic; }
   bool                         hasRotation()       const { return !_rotation.isIdentity(); }
 
@@ -72,11 +72,11 @@ private:
 
 private:
   unsigned int _nDim;                      /// Number of dimensions
-  MatrixSquareGeneral   _tensorDirect;     /// Direct Tensor matrix (definite positive)
-  MatrixSquareGeneral   _tensorInverse;    /// Inverse Tensor matrix (definite positive)
-  MatrixSquareSymmetric _tensorDirect2;    /// Square of Direct tensor
-  MatrixSquareSymmetric _tensorInverse2;   /// Inverse of squared direct tensor
-  MatrixSquareGeneral   _tensorDirectSwap; /// If tensor = Radius x Rot, tensorSwap = Rot x Radius
+  MatrixSquare   _tensorDirect;     /// Direct Tensor matrix (definite positive)
+  MatrixSquare   _tensorInverse;    /// Inverse Tensor matrix (definite positive)
+  MatrixSymmetric _tensorDirect2;    /// Square of Direct tensor
+  MatrixSymmetric _tensorInverse2;   /// Inverse of squared direct tensor
+  MatrixSquare   _tensorDirectSwap; /// If tensor = Radius x Rot, tensorSwap = Rot x Radius
   VectorDouble _radius;                    /// Ellipsoid radius
   Rotation _rotation;                      /// Ellipsoid rotation
   bool _isotropic;                         /// True if the tensor is isotropic

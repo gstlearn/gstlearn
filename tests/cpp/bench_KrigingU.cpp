@@ -8,9 +8,9 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/OptCustom.hpp"
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
-#include "Enum/EKrigOpt.hpp"
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
@@ -18,6 +18,7 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
 
@@ -34,7 +35,10 @@ int main(int argc, char *argv[])
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("BenchKrigingU-");
-
+  
+  OptCustom::define("Cholesky",0);
+  OptCustom::define("ompthreads",5);
+  bool flag_std = true;
   // Global parameters
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
@@ -42,6 +46,7 @@ int main(int argc, char *argv[])
   // Generate the data base
   int nech = 100;
   int nvar = 1;
+  bool verbose = false;
   Db* data = Db::createFillRandom(nech, ndim, nvar);
 
   // Generate the output grid
@@ -58,14 +63,17 @@ int main(int argc, char *argv[])
   // Unique Neighborhood
   NeighUnique* neighU = NeighUnique::create();
 
+  // Set the verbose option
+  if (verbose) OptDbg::setReference(1);
+
   // Print the test environment
-  message("This test is mean to test Kriging using Unique Neighborhood\n");
-  message("- the Data Set contains %d samples\n", data->getSampleNumber(true));
-  message("- the output Grid contains %d nodes\n", grid->getSampleNumber(true));
+  message("This test is meant to test Kriging using Unique Neighborhood\n");
+  message("- the Data Set contains %d samples\n", data->getNSample(true));
+  message("- the output Grid contains %d nodes\n", grid->getNSample(true));
   message("- the Unique Neighborhood is required\n");
 
   Timer timer;
-  kriging(data, grid, model, neighU, EKrigOpt::POINT, true, false, false);
+  kriging(data, grid, model, neighU, true, flag_std, false, EKrigOpt::POINT);
   timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 700);
 
   // Produce some statistics for comparison

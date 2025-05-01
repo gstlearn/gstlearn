@@ -15,6 +15,7 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Tree/Ball.hpp"
 
@@ -22,7 +23,7 @@
 /*!
  ** Main Program
  ** This is meant to test the time improvement using BallTree search or not.
- ** It is illustrated within the 'ligrate' algorithm.
+ ** It is illustrated within the 'migrate' algorithm.
  **
  *****************************************************************************/
 int main(int argc, char *argv[])
@@ -65,7 +66,7 @@ int main(int argc, char *argv[])
 
     delete data1;
   }
-  if (flag_stats) VH::display("", times);
+  if (flag_stats) VH::dump("", times);
 
   message("- Migrate P2P: from Db1(n = %d * k) to Db2(n = %d) (in ms per k)\n", nech, nech);
 
@@ -85,7 +86,7 @@ int main(int argc, char *argv[])
     delete data1;
     delete data2;
   }
-  if (flag_stats) VH::display("", times);
+  if (flag_stats) VH::dump("", times);
 
   message("- Migrate P2P: from Db1(n = %d) to Db2(n = %d * k) (in ms per k)\n", nech, nech);
 
@@ -103,7 +104,7 @@ int main(int argc, char *argv[])
     delete data1;
     delete data2;
   }
-  if (flag_stats) VH::display("", times);
+  if (flag_stats) VH::dump("", times);
 
   return (0);
 }

@@ -8,7 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Mesh/AMesh.hpp"
@@ -71,7 +71,7 @@ MeshETurbo::MeshETurbo(const MeshETurbo &r)
     : AMesh(r),
       _grid(),
       _nPerCell(0),
-      _isPolarized(false),
+      _isPolarized(r._isPolarized),
       _meshIndirect(r._meshIndirect),
       _gridIndirect(r._gridIndirect)
 {
@@ -138,8 +138,6 @@ double MeshETurbo::getMeshSize(int /*imesh*/) const
   return size;
 }
 
-static std::vector<int> indg;
-
 /****************************************************************************/
 /*!
 ** Returns the Apex 'rank' of the Mesh 'imesh'
@@ -185,7 +183,7 @@ double MeshETurbo::getCoor(int imesh, int rank, int idim) const
   return _grid.indiceToCoordinate(idim, indg);
 }
 
-void MeshETurbo::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const
+void MeshETurbo::getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const
 {
   indg.resize(getNDim());
 
@@ -283,7 +281,7 @@ int MeshETurbo::_initFromGridInternal(const VectorDouble& sel,
 
   // Define the number of Elements per Cell
 
-  _setNumberElementPerCell();
+  _setNElementPerCell();
 
   // Set polarization
 
@@ -426,16 +424,18 @@ MeshETurbo* MeshETurbo::createFromGridInfo(const Grid *grid,
   return mesh;
 }
 
-MeshETurbo* MeshETurbo::createFromCova(const CovAniso &cova,
-                                       const Db *field,
+MeshETurbo* MeshETurbo::createFromCova(const CovAniso& cova,
+                                       const Db* field,
                                        double ratio,
                                        int nbExt,
+                                       bool isPolarized,
                                        bool useSel,
                                        bool flagNoStatRot,
+                                       int nxmax,
                                        bool verbose)
 {
   MeshETurbo* mesh = new MeshETurbo();
-  if (mesh->initFromCova(cova, field, ratio, nbExt, useSel, flagNoStatRot, verbose))
+  if (mesh->initFromCova(cova, field, ratio, nbExt, isPolarized, useSel, flagNoStatRot, nxmax, verbose))
     return nullptr;
   return mesh;
 }
@@ -470,7 +470,7 @@ int MeshETurbo::initFromExtend(const VectorDouble &extendmin,
 
   // Define the number of Elements per Cell
 
-  _setNumberElementPerCell();
+  _setNElementPerCell();
 
   // Set polarization
 
@@ -483,9 +483,6 @@ int MeshETurbo::initFromExtend(const VectorDouble &extendmin,
   return 0;
 }
 
-static std::vector<int> indices;
-static std::vector<double> lambda;
-
 bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
                                       int iech,
                                       const VectorDouble &coor,
@@ -494,18 +491,58 @@ bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
 {
   int ncorner = getNApexPerMesh();
   indices.resize(ncorner);
-  lambda.resize(ncorner);
+  lambdas.resize(ncorner);
 
   for (int icas = 0; icas < _nPerCell; icas++)
   {
-    if (_addWeights(icas, indg0, coor, indices, lambda, verbose) == 0)
+    if (_addWeights(icas, indg0, coor, indices, lambdas, verbose) == 0)
     {
       for (int icorner = 0; icorner < ncorner; icorner++)
-        NF_T.add(iech, indices[icorner], lambda[icorner]);
+        NF_T.add(iech, indices[icorner], lambdas[icorner]);
       return true;
     }
   }
   return false;
+}
+
+/**
+ * @brief Given the coordinates of a point, return the corresponding mesh index
+ * and updates the apex indices
+ * 
+ * @param coor Input coordinates
+ * @param indices Returned vector of apex indices
+ * @param lambdas Returned vector of weights (barycenter coordinates)
+ * @return Rank of the mesh (-1 if point does not belong to the meshing)
+ */
+int MeshETurbo::getMeshFromCoordinates(const VectorDouble& coor,
+                                       VectorInt& indices,
+                                       VectorDouble& lambdas) const
+{
+  int ndim = getNDim();
+  VectorInt indg0(ndim);
+  if (_grid.coordinateToIndicesInPlace(coor, indg0) != 0)
+  {
+    messerr("The target coordinate does not belong to the Meshing");
+    return -1;
+  }
+  int ncorner = getNApexPerMesh();
+  indices.resize(ncorner);
+  lambdas.resize(ncorner);
+
+  VectorInt nx = _grid.getNXs();
+  VH::addConstant(nx, -1);
+
+  int iref = MAX(0, indg0[ndim - 1]);
+  for (int idim = ndim - 2; idim >= 0; idim--)
+    iref = iref * nx[idim] + MAX(0, indg0[idim] );
+  iref *= _nPerCell;
+
+  for (int icas = 0; icas < _nPerCell; icas++)
+  {
+    if (_addWeights(icas, indg0, coor, indices, lambdas) == 0)
+      return iref + icas;
+  }
+  return -1;
 }
 
 /****************************************************************************/
@@ -521,12 +558,15 @@ bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
 **          - the value of the corresponding variable is defined
 **          - the sample is covered by the grid of the Turbo Meshing
 *****************************************************************************/
-void MeshETurbo::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool verbose) const
+void MeshETurbo::resetProjFromDb(ProjMatrix* m,
+                                 const Db* db,
+                                 int rankZ,
+                                 bool verbose) const
 {
   int ndim = getNDim();
   VectorInt indg0(ndim);
   VectorDouble coor(ndim);
-
+  _grid.initThread();
   // Preliminary checks
 
   if (isCompatibleDb(db)) return;
@@ -544,7 +584,7 @@ void MeshETurbo::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool ve
   int iech = 0;
   int nout = 0;
   int nvalid = 0;
-  for (int jech=0; jech<db->getSampleNumber(); jech++)
+  for (int jech=0; jech<db->getNSample(); jech++)
   {
     if (! db->isActive(jech)) continue;
     if (rankZ >= 0)
@@ -610,7 +650,7 @@ void MeshETurbo::resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ, bool ve
 
   if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
-            nout, db->getSampleNumber(true));
+            nout, db->getNSample(true));
 
   return m->resetFromTriplet(NF_T);
 }
@@ -680,7 +720,7 @@ int MeshETurbo::_defineGrid(const VectorDouble& cellsize)
   return 0;
 }
 
-void MeshETurbo::_setNumberElementPerCell()
+void MeshETurbo::_setNElementPerCell()
 {
   int ndim = getNDim();
 
@@ -691,9 +731,6 @@ void MeshETurbo::_setNumberElementPerCell()
   else if (ndim == 3)
     _nPerCell = 6;
 }
-
-static std::vector<double> rhs;
-static std::vector<int> indgg;
 
 /**
  * Return the weights assigned to the corners
@@ -709,18 +746,17 @@ static std::vector<int> indgg;
  * @remark - the grid node corresponding to a mesh apex is outside the grid
  * @remark - the grid node corresponding to a mesh apex is not active
  */
-int MeshETurbo::_addWeights(
-  int icas,
-  const constvectint indg0,
-  const constvect coor,
-  const vectint indices, // Returned indices (active grid nodes)
-  const vect lambda,
-  bool verbose) const
+int MeshETurbo::_addWeights(int icas,
+                            const constvectint indg0,
+                            const constvect coor,
+                            const vectint indices,
+                            const vect lambda,
+                            bool verbose) const
 {
   int ndim    =  getNDim();
   int ncorner =  getNApexPerMesh();
   int ipol    = _getPolarized(indg0);
-  MatrixSquareGeneral lhs;
+  MatrixSquare lhs;
   rhs.resize(ncorner);
   indgg.resize(ndim);
 
@@ -807,8 +843,10 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
                              const Db* field,
                              double ratio,
                              int nbExt,
+                             bool isPolarized,
                              bool useSel,
                              bool flagNoStatRot,
+                             int nxmax,
                              bool verbose)
 {
   // Initializations
@@ -878,13 +916,13 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
   VectorDouble x0(ndim);
 
   double dxmin = 1.e30;
-  int nxmax = 300;
   for (int idim = 0; idim < ndim; idim++)
   {
     double delta = extendMaxRot[idim] - extendMinRot[idim];
     dx[idim] = cova.getRange(idim) / ratio;
     nx[idim] = (int) ceil(delta / dx[idim]) + 2 * nbExt + 1;
-    if (nx[idim] > nxmax)
+    // Adapt the number of nodes if too large (compared to 'nxmax' if defined)
+    if (nxmax > 0 && nx[idim] > nxmax)
     {
       nx[idim] = nxmax;
       dx[idim] = delta / (nxmax - 2 * nbExt);
@@ -916,7 +954,7 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
   rot.rotateDirect(extendMinRot, x0);
   VH::addInPlace(x0, cornerRef);
 
-  initFromGridByMatrix(nx,dx,x0,rot.getMatrixDirectVec(),VectorDouble(),true,verbose);
+  initFromGridByMatrix(nx,dx,x0,rot.getMatrixDirectVec(),VectorDouble(),isPolarized,verbose);
   return 0;
 }
 

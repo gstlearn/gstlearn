@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Covariances/ACovAnisoList.hpp"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
@@ -18,7 +17,7 @@
 #include "Basic/ASerializable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
@@ -53,9 +52,7 @@ int main()
     nburn = askInt("Number of burning steps",nburn);
     eps   = askDouble("Epsilon",eps);
     range = askDouble("Isotropic Range",range);
-#ifdef _USE_HDF5
     storeInternal = askBool("Store Internal", storeInternal);
-#endif
   }
 
   int seed     = 5452;
@@ -94,12 +91,12 @@ int main()
 
   CovContext ctxt(nvar,2,1.); // use default space
   Model model(ctxt);
-  ACovAnisoList covs(ctxt.getSpace());
+  CovAnisoList covs(ctxt);
   CovAniso cova(ECov::SPHERICAL,ctxt);
   cova.setRanges(ranges);
   cova.setSill(sill);
   covs.addCov(&cova);
-  model.setCovList(&covs);
+  model.setCovAnisoList(&covs);
   model.display();
 
   // Initialize Gibbs

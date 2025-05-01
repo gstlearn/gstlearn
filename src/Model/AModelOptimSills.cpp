@@ -10,12 +10,15 @@
 /******************************************************************************/
 #include "Model/AModelOptimSills.hpp"
 
+#include "Basic/MathFunc.hpp"
+#include "Covariances/CovAniso.hpp"
+
 #include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
-#include "Basic/MathFunc.hpp"
+
 
 #define IJDIR(ijvar, ipadir) ((ijvar) * _npadir + (ipadir))
 #define WT(ijvar, ipadir)       wt[IJDIR(ijvar, ipadir)]
@@ -75,7 +78,7 @@ void AModelOptimSills::_storeSillsInModel() const
   }
 }
 
-void AModelOptimSills::_resetSill(int ncova, std::vector<MatrixSquareSymmetric>& sill) const
+void AModelOptimSills::_resetSill(int ncova, std::vector<MatrixSymmetric>& sill) const
 {
   for (int icova = 0; icova < ncova; icova++)
   {
@@ -102,10 +105,10 @@ void AModelOptimSills::_allocateInternalArrays(bool flag_exp)
   _gg.fill(TEST, _npadir * nvs2);
   _ge.clear();
   for (int icova = 0; icova < _ncova; icova++)
-    _ge.push_back(MatrixRectangular(nvs2, _npadir));
+    _ge.push_back(MatrixDense(nvs2, _npadir));
   _sill.clear();
   for (int icova = 0; icova < _ncova; icova++)
-    _sill.push_back(MatrixSquareSymmetric(_nvar));
+    _sill.push_back(MatrixSymmetric(_nvar));
 
   if (flag_exp)
   {
@@ -120,12 +123,12 @@ void AModelOptimSills::_allocateInternalArrays(bool flag_exp)
   {
     _alphau.clear();
     for (int icova = 0; icova < _ncova; icova++)
-      _alphau.push_back(MatrixSquareSymmetric(1));
+      _alphau.push_back(MatrixSymmetric(1));
     _ge1.clear();
-    _ge1.push_back(MatrixRectangular(nvs2, _npadir));
+    _ge1.push_back(MatrixDense(nvs2, _npadir));
     _ge2.clear();
     for (int icova = 0; icova < _ncova; icova++)
-      _ge2.push_back(MatrixRectangular(nvs2, _npadir));
+      _ge2.push_back(MatrixDense(nvs2, _npadir));
     _wt2.fill(TEST, nvs2 * _npadir);
     _gg2.fill(TEST, nvs2 * _npadir);
   }
@@ -137,10 +140,10 @@ int AModelOptimSills::_goulardWithConstraints(double *crit_arg)
   VectorDouble consSill = _constraints->getConstantSills();
 
   /* Core allocation */
-  std::vector<MatrixSquareSymmetric> matcor;
+  std::vector<MatrixSymmetric> matcor;
   matcor.reserve(_ncova);
   for (int icova = 0; icova < _ncova; icova++)
-    matcor.push_back((MatrixSquareSymmetric(_nvar)));
+    matcor.push_back((MatrixSymmetric(_nvar)));
 
   /* Initialize the Goulard system */
 
@@ -181,11 +184,11 @@ int AModelOptimSills::_goulardWithConstraints(double *crit_arg)
  *****************************************************************************/
 void AModelOptimSills::_initializeGoulard()
 {
-  MatrixSquareSymmetric aa(_ncova);
+  MatrixSymmetric aa(_ncova);
   VectorDouble bb(_ncova);
-  MatrixRectangular Ae(_ncova, 1);
+  MatrixDense Ae(_ncova, 1);
   VectorDouble be(1);
-  MatrixRectangular Ai(_ncova, _ncova);
+  MatrixDense Ai(_ncova, _ncova);
   VectorDouble bi(_ncova);
   VectorDouble res(_ncova);
   VectorDouble consSill = _constraints->getConstantSills();
@@ -237,7 +240,7 @@ void AModelOptimSills::_initializeGoulard()
       else
       {
         retcode = aa.minimizeWithConstraintsInPlace(
-          bb, MatrixRectangular(), VectorDouble(), MatrixRectangular(),
+          bb, MatrixDense(), VectorDouble(), MatrixDense(),
           VectorDouble(), res);
       }
 
@@ -311,11 +314,11 @@ void AModelOptimSills::_optimizeUnderConstraints(double* score)
   /* Core allocation */
 
   VectorDouble xr(_nvar);
-  std::vector<MatrixSquareSymmetric> alpha;
+  std::vector<MatrixSymmetric> alpha;
   VectorDouble consSill = _constraints->getConstantSills();
   alpha.reserve(_ncova);
   for (int icova = 0; icova < _ncova; icova++)
-    alpha.push_back(MatrixSquareSymmetric(_nvar));
+    alpha.push_back(MatrixSymmetric(_nvar));
   int iter = 0;
 
   /* Calculate the initial score */
@@ -408,7 +411,7 @@ void AModelOptimSills::_optimizeUnderConstraints(double* score)
 
 int AModelOptimSills::_truncateNegativeEigen(int icov0)
 {
-  MatrixSquareSymmetric cc(_nvar);
+  MatrixSymmetric cc(_nvar);
   for (int ivar = 0; ivar < _nvar; ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++)
       cc.setValue(ivar, jvar, _sill[icov0].getValue(ivar, jvar));
@@ -416,7 +419,7 @@ int AModelOptimSills::_truncateNegativeEigen(int icov0)
   if (cc.computeEigen()) messageAbort("st_truncate_negative_eigen");
 
   VectorDouble valpro               = cc.getEigenValues();
-  const MatrixSquareGeneral* vecpro = cc.getEigenVectors();
+  const MatrixSquare* vecpro = cc.getEigenVectors();
 
   /* Check positiveness */
 
@@ -462,7 +465,7 @@ double AModelOptimSills::_score()
 }
 
 double AModelOptimSills::_sumSills(int ivar0,
-                                  std::vector<MatrixSquareSymmetric>& alpha) const
+                                  std::vector<MatrixSymmetric>& alpha) const
 {
   double Sr = 0;
   for (int icov = 0; icov < _ncova; icov++)
@@ -487,7 +490,7 @@ double AModelOptimSills::_minimizeP4(int icov0,
                                     int ivar0,
                                     double xrmax,
                                     VectorDouble& xr,
-                                    std::vector<MatrixSquareSymmetric>& alpha)
+                                    std::vector<MatrixSymmetric>& alpha)
 {
   double retval, a, c, d, s;
 
@@ -496,8 +499,8 @@ double AModelOptimSills::_minimizeP4(int icov0,
   VectorDouble Nir_v(_nvar);
   VectorDouble Mrr_v(_npadir);
   VectorDouble Crr_v(_npadir);
-  MatrixRectangular Airk_v(_npadir, _nvar);
-  MatrixRectangular Birk_v(_npadir, _nvar);
+  MatrixDense Airk_v(_npadir, _nvar);
+  MatrixDense Birk_v(_npadir, _nvar);
   VectorDouble xx(2);
   VectorDouble xt(2);
   VectorDouble xest(2);
@@ -636,7 +639,7 @@ double AModelOptimSills::_minimizeP4(int icov0,
 void AModelOptimSills::_updateAlphaDiag(int icov0,
                                        int ivar0,
                                        VectorDouble& xr,
-                                       std::vector<MatrixSquareSymmetric>& alpha)
+                                       std::vector<MatrixSymmetric>& alpha)
 {
   VectorDouble consSill = _constraints->getConstantSills();
   double srm   = _sumSills(ivar0, alpha) - alpha[icov0].getValue(ivar0, ivar0);
@@ -646,7 +649,7 @@ void AModelOptimSills::_updateAlphaDiag(int icov0,
 
 void AModelOptimSills::_updateOtherSills(int icov0,
                                         int ivar0,
-                                        std::vector<MatrixSquareSymmetric>& alpha,
+                                        std::vector<MatrixSymmetric>& alpha,
                                         VectorDouble& xr)
 {
   for (int jcov = 0; jcov < _ncova; jcov++)
@@ -707,7 +710,7 @@ void AModelOptimSills::_updateCurrentSillGoulard(int icov0, int ivar0)
 
 void AModelOptimSills::_updateCurrentSillDiag(int icov0,
                                              int ivar0,
-                                             std::vector<MatrixSquareSymmetric>& alpha,
+                                             std::vector<MatrixSymmetric>& alpha,
                                              VectorDouble& xr)
 {
   double value = xr[ivar0] * xr[ivar0] * alpha[icov0].getValue(ivar0, ivar0);
@@ -718,7 +721,7 @@ void AModelOptimSills::_updateCurrentSillDiag(int icov0,
 void AModelOptimSills::_updateAlphaNoDiag(int icov0,
                                          int ivar0,
                                          VectorDouble& xr,
-                                         std::vector<MatrixSquareSymmetric>& alpha)
+                                         std::vector<MatrixSymmetric>& alpha)
 {
   VectorDouble consSill = _constraints->getConstantSills();
   for (int ivar = 0; ivar < _nvar; ivar++)
@@ -824,14 +827,14 @@ int AModelOptimSills::_goulardWithoutConstraint(
   int npadir,
   VectorDouble& wt,
   VectorDouble& gg,
-  std::vector<MatrixRectangular>& ge,
-  std::vector<MatrixSquareSymmetric>& sill,
+  std::vector<MatrixDense>& ge,
+  std::vector<MatrixSymmetric>& sill,
   double* crit_arg) const
 {
   int allpos;
   double temp, crit, crit_mem, value;
   VectorDouble valpro;
-  const MatrixSquareGeneral* vecpro;
+  const MatrixSquare* vecpro;
 
   /*******************/
   /* Initializations */
@@ -844,21 +847,21 @@ int AModelOptimSills::_goulardWithoutConstraint(
 
   /* Core allocation */
 
-  MatrixRectangular mp(nvs2, npadir);
-  std::vector<MatrixRectangular> fk;
+  MatrixDense mp(nvs2, npadir);
+  std::vector<MatrixDense> fk;
   fk.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
-    fk.push_back(MatrixRectangular(nvs2, npadir));
-  MatrixSquareSymmetric cc(nvar);
+    fk.push_back(MatrixDense(nvs2, npadir));
+  MatrixSymmetric cc(nvar);
 
-  std::vector<MatrixSquareSymmetric> aic;
+  std::vector<MatrixSymmetric> aic;
   aic.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
-    aic.push_back(MatrixSquareSymmetric(nvar));
-  std::vector<MatrixSquareSymmetric> alphak;
+    aic.push_back(MatrixSymmetric(nvar));
+  std::vector<MatrixSymmetric> alphak;
   alphak.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
-    alphak.push_back(MatrixSquareSymmetric(nvar));
+    alphak.push_back(MatrixSymmetric(nvar));
 
   /********************/
   /* Pre-calculations */
@@ -1027,10 +1030,10 @@ void AModelOptimSills::_printResults(double crit) const
   if (_modelPart._verbose)
   {
     const Model* model = _modelPart._model;
-    int ncov           = model->getCovaNumber();
+    int ncov           = model->getNCov();
     for (int icov = 0; icov < ncov; icov++)
     {
-      const CovAniso* cova = model->getCova(icov);
+      const CovAniso* cova = model->getCovAniso(icov);
       message("Cost Function (Sill Fitting) (");
       for (int ivar = 0; ivar < _nvar; ivar++)
         for (int jvar = 0; jvar < _nvar; jvar++)

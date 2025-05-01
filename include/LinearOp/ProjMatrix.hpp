@@ -48,8 +48,8 @@ public:
 #endif
   public:
 
-  int getApexNumber() const override { return getNCols(); }
-  int getPointNumber() const override { return getNRows(); }
+  int getNApex() const override { return getNCols(); }
+  int getNPoint() const override { return getNRows(); }
 
   static ProjMatrix* create(const Db *db,
                             const AMesh *a_mesh,
@@ -59,6 +59,7 @@ public:
                           const AMesh* a_mesh,
                           int rankZ = -1,
                           bool verbose = false);
+  void dumpVerticesUsed(int npmax = -1) const;
 //  int resetFromDbByNeigh(const Db *db,   // currently unused feature
 //                         AMesh *amesh,
 //                         double radius,

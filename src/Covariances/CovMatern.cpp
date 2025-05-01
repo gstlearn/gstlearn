@@ -11,7 +11,7 @@
 #include "Covariances/CovMatern.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Simulation/TurningBandOperate.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/Utilities.hpp"
@@ -22,19 +22,19 @@
 static bool bessel_Old_Style = false;
 
 CovMatern::CovMatern(const CovContext& ctxt)
-: ACovFunc(ECov::MATERN, ctxt)
-  ,_correc(1.)
-  ,_markovCoeffs(VectorDouble())
+  : ACovFunc(ECov::MATERN, ctxt)
+  , _correc(1.)
+  , _markovCoeffs(VectorDouble())
 {
   setParam(1);
   computeMarkovCoeffs(2);
-  //TODO compute blin (rapatrier de PrecisionOp.cpp
+  // TODO compute blin (rapatrier de PrecisionOp.cpp
 }
 
-CovMatern::CovMatern(const CovMatern &r)
-: ACovFunc(r)
-  ,_correc(r._correc)
-  ,_markovCoeffs(r._markovCoeffs)
+CovMatern::CovMatern(const CovMatern& r)
+  : ACovFunc(r)
+  , _correc(r._correc)
+  , _markovCoeffs(r._markovCoeffs)
 {
 }
 
@@ -82,7 +82,7 @@ double CovMatern::_newMatern(double h) const
 
 double CovMatern::_oldMatern(double h) const
 { 
-  static double TAB[MAXTAB];
+  double TAB[MAXTAB];
   double cov = 0.;
   double third = getParam();
   int nb = (int) floor(third);
@@ -147,11 +147,11 @@ double CovMatern::simulateTurningBand(double t0, TurningBandOperate &operTB) con
   return operTB.spectralOne(t0);
 }
 
-MatrixRectangular CovMatern::simulateSpectralOmega(int nb) const
+MatrixDense CovMatern::simulateSpectralOmega(int nb) const
 {
   int ndim = getContext().getNDim();
   double param = getParam();
-  MatrixRectangular mat(nb, ndim);
+  MatrixDense mat(nb, ndim);
 
   for (int irow = 0; irow < nb; irow++)
   {

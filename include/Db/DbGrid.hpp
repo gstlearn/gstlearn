@@ -18,6 +18,7 @@
 #include "Basic/Grid.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/ICloneable.hpp"
+#include <omp.h>
 
 class Polygons;
 class EMorpho;
@@ -72,7 +73,11 @@ public:
   /// Db Interface
   inline bool isGrid() const override { return true; }
   double getCoordinate(int iech, int idim, bool flag_rotate = true) const override;
-  void getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate=true) const override;
+  void getCoordinatesInPlace(VectorDouble& coor,
+                             int iech,
+                             bool flag_rotate = true) const override;
+  void getCoordinatesInPlace(vect coor, int iech, bool flag_rotate = true) const override;
+
   double getUnit(int idim = 0) const override;
   int getNDim() const override;
   bool mayChangeSampleNumber() const override { return false; }
@@ -81,6 +86,9 @@ public:
 
   static DbGrid* createFromNF(const String& neutralFilename,
                               bool verbose = true);
+#ifdef HDF5
+  static DbGrid* createFromH5(const String& H5Filename, bool verbose = true);
+#endif
   static DbGrid* create(const VectorInt& nx,
                         const VectorDouble& dx = VectorDouble(),
                         const VectorDouble& x0 = VectorDouble(),
@@ -146,6 +154,15 @@ public:
                                bool flagAddCoordinates = false);
   static DbGrid* createMultiple(DbGrid* dbin, const VectorInt& nmult, bool flagAddSampleRank);
   static DbGrid* createDivider(DbGrid* dbin, const VectorInt& nmult, bool flagAddSampleRank);
+  static DbGrid* createFillRandom(const VectorInt& nx,
+                                  int nvar                        = 1,
+                                  int nfex                        = 0,
+                                  int ncode                       = 0,
+                                  double varmax                   = 0.,
+                                  double selRatio                 = 0.,
+                                  const VectorDouble& heteroRatio = VectorDouble(),
+                                  const VectorDouble& means       = VectorDouble(),
+                                  int seed                        = 1367843);
 
   int reset(const VectorInt& nx,
             const VectorDouble& dx           = VectorDouble(),
@@ -236,9 +253,9 @@ public:
                                  VectorInt &indices,
                                  bool centered = false,
                                  double eps = EPSILON6) const;
-  VectorInt getCenterIndices() const
+  VectorInt getCenterIndices(bool flagSup = false) const
   {
-    return _grid.getCenterIndices();
+    return _grid.getCenterIndices(flagSup);
   }
   int indiceToRank(const VectorInt& indice) const
   {
@@ -362,11 +379,15 @@ public:
                             const VectorDouble &vec);
   VectorDouble getDistanceToOrigin(const VectorInt& origin,
                                    const VectorDouble& radius = VectorDouble());
-  
+  void initThread() const override;
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+#ifdef HDF5
+  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
+  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
+#endif
   String _getNFName() const override { return "DbGrid"; }
 
 private:

@@ -10,18 +10,22 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/VectorNumT.hpp"
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Enum/ECalcMember.hpp"
 #include "Drifts/ADrift.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
+#include "Estimation/KrigOpt.hpp"
 
 class ASpace;
 class SpacePoint;
 class Db;
 class ELoc;
+class CovCalcMode;
 
 /**
  * \brief
@@ -50,30 +54,32 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int getNVariables() const { return _ctxt.getNVar(); }
-  int getDriftNumber() const { return static_cast<int>(_drifts.size()); }
+  int getNVar() const { return _ctxt.getNVar(); }
+  int getNDrift() const { return static_cast<int>(_drifts.size()); }
   bool hasDrift() const { return !_drifts.empty(); }
 
   // Add one elementary drift structure
   void addDrift(const ADrift* drift);
   // Remove an elementary drift structure
-  void delDrift(unsigned int i);
+  void delDrift(unsigned int rank);
   // Remove all elementary drift structures
   void delAllDrifts();
 
   const VectorBool& getFiltered() const { return _filtered; }
   void setFiltered(const VectorBool& filtered) { _filtered = filtered; }
-  bool isFiltered(int i) const;
+  bool isDriftFiltered(int i) const;
   void setFiltered(int i, bool filter);
-  int  getDriftEquationNumber() const;
+  int  getNDriftEquation() const;
   bool hasExternalDrift() const;
   bool isValid() const;
+  int  getNExtDrift() const;
+  const CovContext& getContext() const { return _ctxt; }
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
-  const ADrift*  getDrift(int il) const;
-  int            getRankFex(int il) const;
-  String         getDriftName(int il) const;
+  const ADrift* getDrift(int il) const;
+  int getRankFex(int il) const;
+  String getDriftName(int il) const;
   ////////////////////////////////////////////////
 
   const VectorDouble& getBetaHats() const { return _betaHat; }
@@ -86,16 +92,16 @@ public:
                             int nech,
                             const VectorInt &nbgh,
                             const ELoc &loctype) const;
-  double getDrift(const Db* db, int ib, int iech) const;
+  double computeDrift(const Db* db, int ib, int iech) const;
 
   VectorVectorDouble getDrifts(const Db* db, bool useSel = true) const;
   bool isFlagLinked() const { return _flagLinked; }
   bool isFlagCombined() const { return _flagCombined; }
-  int getDriftMaxIRFOrder(void) const;
+  int getDriftMaxIRFOrder() const;
   bool isDriftDefined(const VectorInt &powers, int rank_fex = 0) const;
   bool isDriftDifferentDefined(const VectorInt &powers, int rank_fex = -1) const;
 
-  void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
+  void copyCovContext(const CovContext& ctxt);
 
   void setFlagLinked(bool flagLinked) { _flagLinked = flagLinked; }
   void setFlagCombined(bool flagCombined) { _flagCombined = flagCombined; }
@@ -116,27 +122,48 @@ public:
                                 int iech,
                                 const ECalcMember &member,
                                 VectorDouble &drftab) const;
-  MatrixRectangular evalDriftMatrix(const Db *db,
-                                    int ivar0 = -1,
-                                    const VectorInt &nbgh = VectorInt(),
-                                    const ECalcMember &member = ECalcMember::fromKey("LHS"));
+  MatrixDense evalDriftMat(const Db* db,
+                                 const VectorInt& nbgh     = VectorInt(),
+                                 const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+  int evalDriftMatByRanks(MatrixDense& mat,
+                          const Db* db,
+                          const VectorVectorInt& sampleranks,
+                          const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+  int evalDriftMatByTarget(MatrixDense& mat,
+                           const Db* db,
+                           int iech2,
+                           const KrigOpt& krigopt = KrigOpt()) const;
   double evalDriftValue(const Db *db,
                         int iech,
                         int ivar,
                         int ib,
                         const ECalcMember &member = ECalcMember::fromKey("LHS")) const;
-
+  
+  void setMeans(const VectorDouble& mean);
+  void setMean(const double mean,int ivar=0);
+  double getMean(int ivar) const;
+  const VectorDouble& getMeans() const { return _mean; }
+  const DriftList* createReduce(const VectorInt &validVars) const;
+  
+  double evalDriftVarCoef(const Db *db,
+                          int iech,
+                          int ivar,
+                          const VectorDouble &coeffs) const;
+  VectorDouble evalDriftVarCoefs(const Db *db,
+                                 const VectorDouble &coeffs,
+                                 bool useSel = false) const;
 private:
+  void _update();
   bool _isDriftIndexValid(int i) const;
   bool _isDriftEquationValid(int ib) const;
   int  _getAddress(int ivar, int il, int ib) const
   {
-    return (ib + getDriftEquationNumber() * (il + getDriftNumber() * ivar));
+    return (ib + getNDriftEquation() * (il + getNDrift() * ivar));
   }
   double _getDriftCL(int ivar, int il, int ib) const { return _driftCL[_getAddress(ivar,il,ib)]; }
   void   _setDriftCL(int ivar, int il, int ib, double value) { _driftCL[_getAddress(ivar,il,ib)] = value; }
   VectorInt _getActiveVariables(int ivar0) const;
-
+  
 #ifndef SWIG
 protected:
   bool                 _flagLinked;   /* True when Drift equations are linked */
@@ -146,5 +173,6 @@ protected:
   VectorDouble         _betaHat;      /* Drift coefficients by ML */
   VectorBool           _filtered;     /* Vector of filtered flags (Dimension: as _drifts) */
   CovContext           _ctxt;         /* Context (space, number of variables, ...) */
+  VectorDouble         _mean;         /*  Mean vector */
 #endif
 };

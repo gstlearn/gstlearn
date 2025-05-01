@@ -13,13 +13,14 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 #include "Geometry/Rotation.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 
 class GridOld;
-class MatrixSquareGeneral;
+class MatrixSquare;
 
-class GSTLEARN_EXPORT Grid : public AStringable
+class GSTLEARN_EXPORT Grid: public AStringable, public ASerializable
 {
 
 public:
@@ -32,6 +33,7 @@ public:
   virtual ~Grid();
 
 public:
+  void initThread() const;
   static VectorInt gridIndices(const VectorInt &nx,
                                const String &string,
                                bool startFromZero = true,
@@ -48,7 +50,7 @@ public:
   void    setX0(int idim,double value);
   void    setDX(int idim,double value);
   void    setNX(int idim,int    value);
-  void    setRotationByMatrix(const MatrixSquareGeneral& rotmat);
+  void    setRotationByMatrix(const MatrixSquare& rotmat);
   void    setRotationByVector(const VectorDouble& rotmat);
   void    setRotationByAngles(const VectorDouble& angles);
   void    setRotationByAngle(double angle);
@@ -61,7 +63,7 @@ public:
   double  getCellSize() const;
   double  getExtend(int idim, bool flagCell = false) const;
   double  getVolume(bool flagCell = false) const;
-  VectorDouble  getExtends(bool flagCell = false) const;
+  VectorDouble getExtends(bool flagCell = false) const;
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -103,7 +105,7 @@ public:
   int     indiceToRank(const constvectint indice) const;
   void    rankToIndice(int rank, vectint indices, bool minusOne = false) const;
 #endif // SWIG
-  VectorInt coordinateToIndices(const VectorDouble &coor,
+  VectorInt& coordinateToIndices(const VectorDouble &coor,
                                 bool centered = false,
                                 double eps = EPSILON6) const;
   int coordinateToIndicesInPlace(const VectorDouble &coor,
@@ -113,7 +115,7 @@ public:
   int coordinateToRank(const VectorDouble &coor,
                        bool centered = false,
                        double eps = EPSILON6) const;
-  VectorInt getCenterIndices() const;
+  VectorInt getCenterIndices(bool flagSup = false) const;
   VectorInt generateGridIndices(const String &string,
                                 bool startFromZero = true,
                                 bool invert = true,
@@ -161,10 +163,20 @@ public:
                VectorDouble& dx,
                VectorDouble& x0) const;
   int getMirrorIndex(int idim, int ix) const;
+  bool isInside(const VectorInt& indices) const;
+
+  /// Interface for ASerializable
+  bool _deserialize(std::istream& is, bool verbose = false) override;
+  bool _serialize(std::ostream& os, bool verbose = false) const override;
+#ifdef HDF5
+  bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
+  bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
+#endif
+  String _getNFName() const override { return "Grid"; }
 
 private:
-  const MatrixSquareGeneral& _getRotMat() const { return _rotation.getMatrixDirect(); }
-  const MatrixSquareGeneral& _getRotInv() const { return _rotation.getMatrixInverse(); }
+  const MatrixSquare& _getRotMat() const { return _rotation.getMatrixDirect(); }
+  const MatrixSquare& _getRotInv() const { return _rotation.getMatrixInverse(); }
   void _allocate();
   void _recopy(const Grid &r);
   bool _isSpaceDimensionValid(int idim) const;
@@ -177,14 +189,14 @@ private:
   Rotation     _rotation;
 
   // Iterator
+
   int       _iter;
   int       _nprod;
   std::vector<int> _counts;
   VectorInt _order;
   VectorInt _indices;
-
+  mutable VectorInt _dummy;
   // Some working vectors, defined in order to avoid too many allocations
-  mutable VectorInt    _iwork0;
-  mutable VectorDouble _work1;
-  mutable std::vector<double> _work2;
+
+
 };

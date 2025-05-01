@@ -29,9 +29,6 @@ In this preamble, we load the **gstlearn** package.
 ```{r Preamble, message=FALSE}
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
 ```
 
 ------------------------------------------------------------------------
@@ -235,27 +232,27 @@ Plot the contents of a Db using functions of the package (which relies on **ggpl
 Note: Non availalble values (NaN) are display in gray. This will be tunable in future versions.
 
 ```{r}
-p = ggDefaultGeographic()
-p = p + plot.point(dat, nameColor="January_temp", flagLegendColor = TRUE,
+p = plot.init(asp=1)
+p = p + plot.symbol(dat, nameColor="January_temp", flagLegend = TRUE,
                    legendNameColor="Temperature")
 p = p + plot.decoration(title="January Temperature", xlab="Easting", ylab="Northing")
-ggPrint(p)
+plot.end(p)
 ```
 
 A more elaborated graphic representation displays the samples with a symbol proportional to the Elevation (**nameSize**) and a color representing the Temperature (**nameColor**).
 
 ```{r}
-p = ggDefaultGeographic()
-p = p + plot.point(dat, nameSize="Elevation", nameColor="January_temp", flagLegendColor = TRUE,
+p = plot.init(asp=1)
+p = p + plot.symbol(dat, nameSize="Elevation", nameColor="January_temp", flagLegend = TRUE,
                    legendNameColor="Temperature", legendNameSize="Elevation")
 p = p + plot.decoration(title="January Temperature", xlab="Easting", ylab="Northing")
-ggPrint(p)
+plot.end(p)
 ```
 
 Of course, you can use your own graphical routines (for example, a direct call to **ggplot2**) by simply accessing to the *gstlearn* data base values (using '[ ]' accessor):
 
 ```{r}
-p = ggplot()
+p = plot.init(asp=1)
 p = p + geom_point(data=dat[], mapping=aes(x=dat["x1"], y=dat["x2"], color=dat["January_temp"]))
 p = p + labs(color = "Temperature")
 p = p + labs(x = "Easting", y = "Northing")
@@ -284,10 +281,10 @@ We can check that the grid is constituted of 81 columns and 137 rows, or 11097 g
 We can check the presence of a variable (called `inshore`) which is assigned to the `sel` locator: this corresponds to a *Selection* which acts as a binary filter: some grid cells are active and others are masked off. The count of active samples is given in the previous printout (3092). This selection remains active until it is replaced or deleted (there may not be more than one selection defined at a time per data base). This is what can be seen in the following display where we represent the `Elevation` only within the `inshore` selection.
 
 ```{r}
-p = ggDefaultGeographic()
-p = p + plot.grid(grid, nameRaster="Elevation", flagLegendRaster=TRUE, legendNameRaster="Elevation")
+p = plot.init(asp=1)
+p = p + plot.raster(grid, name="Elevation", flagLegend=TRUE, legendName="Elevation")
 p = p + plot.decoration(title="Elevation", xlab="Easting", ylab="Northing")
-ggPrint(p)
+plot.end(p)
 ```
 
 Note that any variable can be considered as a Selection: it must simply be assigned to the `sel` locator using the `setLocator` variable described earlier.
@@ -299,9 +296,9 @@ Note that any variable can be considered as a Selection: it must simply be assig
 On this final plot, we combine grid and point representations.
 
 ```{r}
-p = ggDefaultGeographic()
-p = p + plot.grid(grid, nameRaster="Elevation", flagLegendRaster=TRUE, legendNameRaster="Elevation")
-p = p + plot.point(dat, nameSize="January_temp", flagLegendSize=TRUE, legendNameSize="Temperature", sizmin=1, sizmax=3, color="yellow")
+p = plot.init(asp=1)
+p = p + plot.raster(grid, name="Elevation", flagLegend=TRUE, legendName="Elevation")
+p = p + plot.symbol(dat, nameSize="January_temp", flagLegend=TRUE, legendNameSize="Temperature", sizmin=1, sizmax=3, color="yellow")
 p = p + plot.decoration(title="Elevation and Temperatures", xlab="Easting", ylab="Northing")
-ggPrint(p)
+plot.end(p)
 ```

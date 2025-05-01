@@ -12,8 +12,9 @@
 #include "Mesh/AMesh.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
+#include "Space/ASpace.hpp"
 
-NeighUnique::NeighUnique(bool flag_xvalid, const ASpace* space)
+NeighUnique::NeighUnique(bool flag_xvalid,  const ASpaceSharedPtr& space)
     : ANeigh(space)
 {
   setFlagXvalid(flag_xvalid);
@@ -61,7 +62,7 @@ bool NeighUnique::_serialize(std::ostream& os, bool verbose) const
   return ret;
 }
 
-NeighUnique* NeighUnique::create(bool flag_xvalid, const ASpace* space)
+NeighUnique* NeighUnique::create(bool flag_xvalid, const ASpaceSharedPtr& space)
 {
   return new NeighUnique(flag_xvalid, space);
 }
@@ -95,9 +96,9 @@ NeighUnique* NeighUnique::createFromNF(const String& neutralFilename, bool verbo
  * @param db Pointer to the target Db
  * @return
  */
-int NeighUnique::getMaxSampleNumber(const Db* db) const
+int NeighUnique::getNSampleMax(const Db* db) const
 {
-  return db->getSampleNumber(true);
+  return db->getNSample(true);
 }
 
 bool NeighUnique::hasChanged(int iech_out) const
@@ -113,7 +114,7 @@ bool NeighUnique::hasChanged(int iech_out) const
  */
 void NeighUnique::getNeigh(int iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getSampleNumber();
+  int nech = _dbin->getNSample();
   ranks.resize(nech);
   ranks.fill(-1);
 
@@ -138,7 +139,7 @@ void NeighUnique::getNeigh(int iech_out, VectorInt& ranks)
  *****************************************************************************/
 void NeighUnique::_unique(int iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getSampleNumber();
+  int nech = _dbin->getNSample();
 
   /* Loop on samples */
 

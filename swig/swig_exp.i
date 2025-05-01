@@ -1,9 +1,13 @@
 // Sensitive file ! Keep Order
 
+
 // Global files to be wrapped from C++ library
 // Remind that swig %include doesn't follow #include inclusion.
+// You must cite below each single header file that you want to export!
 // Put low level headers in first positions (otherwise Syntax error in input(1).)
+
 %include gstlearn_export.hpp // Do not forget this file in priority (for SWIG preprocessor)
+
 
 // Export VectorXXX classes
 %include Basic/VectorT.hpp
@@ -143,13 +147,11 @@
 %include LinearOp/ALinearOp.hpp
 %include LinearOp/ASimulable.hpp
 %include Matrix/AMatrix.hpp
-%include Matrix/AMatrixDense.hpp
+%include Matrix/MatrixDense.hpp
 %include Matrix/MatrixSparse.hpp
-%include Matrix/MatrixRectangular.hpp
-%include Matrix/AMatrixSquare.hpp
+%include Matrix/MatrixSquare.hpp
 %include Matrix/NF_Triplet.hpp
-%include Matrix/MatrixSquareGeneral.hpp
-%include Matrix/MatrixSquareSymmetric.hpp
+%include Matrix/MatrixSymmetric.hpp
 %include Matrix/MatrixFactory.hpp
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
@@ -183,6 +185,8 @@
 %include LinearOp/SPDEOpMatrix.hpp
 %include LinearOp/TurboOptimizer.hpp
 %include LinearOp/IProj.hpp
+%include LinearOp/ProjZero.hpp
+%include LinearOp/ProjComposition.hpp
 %include LinearOp/ProjMatrix.hpp
 %include LinearOp/ProjMulti.hpp
 %include LinearOp/ProjMultiMatrix.hpp
@@ -193,7 +197,10 @@
 %include LinearOp/IOptimCost.hpp
 %include LinearOp/OptimCostBinary.hpp
 %include LinearOp/OptimCostColored.hpp
-%include LinearOp/MatrixSquareSymmetricSim.hpp
+%include LinearOp/MatrixSymmetricSim.hpp
+%include LinearOp/ACholesky.hpp
+%include LinearOp/CholeskyDense.hpp
+%include LinearOp/CholeskySparse.hpp
 
 %include Neigh/ANeigh.hpp
 %include Neigh/NeighUnique.hpp
@@ -210,7 +217,9 @@
 %include Variogram/VMap.hpp
 %include Variogram/VCloud.hpp
 
+%include Basic/ParamInfo.hpp
 %include Model/ModelGeneric.hpp
+%include Model/ModelCovList.hpp
 %include Model/Model.hpp
 %include Model/Option_AutoFit.hpp
 %include Model/Option_VarioFit.hpp
@@ -218,22 +227,27 @@
 %include Model/ConsItem.hpp
 %include Model/CovParamId.hpp
 %include Model/CovParamId.hpp
+%include Model/AModelOptim.hpp
+%include Model/ModelOptimLikelihood.hpp
 
 %include Covariances/ParamId.hpp
 %include Covariances/TabNoStat.hpp
 %include Covariances/TabNoStatCovAniso.hpp
+%include Covariances/TabNoStatSills.hpp
 %include Covariances/ANoStat.hpp
 %include Covariances/NoStatArray.hpp
 %include Covariances/NoStatFunctional.hpp
 %include Covariances/ACov.hpp
 %include Covariances/CovBase.hpp
-%include Covariances/ACor.hpp
+%include Covariances/CovProportional.hpp
 %include Covariances/CorAniso.hpp
 %include Covariances/ACovFunc.hpp
-%include Covariances/ACovAnisoList.hpp
+%include Covariances/CovList.hpp
+%include Covariances/CovAnisoList.hpp
 %include Covariances/CovAniso.hpp
 %include Covariances/ACovGradient.hpp
 %include Covariances/CorGneiting.hpp
+%include Covariances/CorMatern.hpp
 %include Covariances/CovLMCTapering.hpp
 %include Covariances/CovLMCConvolution.hpp
 %include Covariances/CovLMCAnamorphosis.hpp
@@ -294,6 +308,7 @@
 %include Db/DbMeshStandard.hpp
 %include Db/DbStringFormat.hpp
 %include Db/DbHelper.hpp
+%include Db/RankHandler.hpp
 
 %include Anamorphosis/CalcAnamTransform.hpp
 %include Anamorphosis/AAnam.hpp
@@ -327,12 +342,14 @@
 %include LithoRule/RuleProp.hpp
 
 %include Estimation/KrigingSystem.hpp
-%include Estimation/KrigingCalcul.hpp
+%include Estimation/KrigingAlgebra.hpp
 %include Estimation/CalcKriging.hpp
 %include Estimation/CalcKrigingFactors.hpp
 %include Estimation/CalcSimpleInterpolation.hpp
 %include Estimation/CalcImage.hpp
 %include Estimation/CalcGlobal.hpp
+%include Estimation/KrigOpt.hpp
+%include Estimation/Vecchia.hpp
 
 %include OutputFormat/AOF.hpp
 %include OutputFormat/FileLAS.hpp
@@ -391,3 +408,4 @@
 
 %template(LinearOpCGSolver) LinearOpCGSolver< ScaleOp >;
 %template(LinearSPDEOpCGSolver) LinearOpCGSolver< SPDEOp >;
+

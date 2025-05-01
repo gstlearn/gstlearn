@@ -11,9 +11,6 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
 ```
 
 ## Introduction
@@ -53,9 +50,9 @@ err = grid$setName("Simu","Nugget")
 Graphic representation
 
 ```{r}
-p1 = ggDefault() + plot.curve(grid["Nugget"]) + plot.decoration(xlab="Nugget")
-p2 = ggDefault() + plot.curve(grid["Short"]) + plot.decoration(xlab="Short Range")
-p3 = ggDefault() + plot.curve(grid["Long"]) + plot.decoration(xlab="Long Range")
+p1 = plot.init() + plot.curve(grid["Nugget"]) + plot.decoration(xlab="Nugget")
+p2 = plot.init() + plot.curve(grid["Short"]) + plot.decoration(xlab="Short Range")
+p3 = plot.init() + plot.curve(grid["Long"]) + plot.decoration(xlab="Long Range")
 ggarrange(p1, p2, p3, ncol = 3, nrow = 1)
 ```
 
@@ -69,26 +66,26 @@ grid["Z2"] = -3*grid["Short"] + 4*grid["Long"]
 Plotting the variables
 
 ```{r}
-p = ggDefault() + 
+p = plot.init() + 
   plot.curve(grid["Z1"], col="black") + 
   plot.curve(grid["Z2"], col="blue") + 
   plot.decoration(title="Z1 and Z2")
-ggPrint(p)
+plot.end(p)
 ```
 
 Computing Variograms (Simple and Cross)
 
 ```{r}
 err = grid$setLocators("Z*",ELoc_Z())
-varioparam = VarioParam_createMultipleFromGrid(grid, npas=100)
+varioparam = VarioParam_createMultipleFromGrid(grid, nlag=100)
 vario = Vario_computeFromDb(varioparam, grid)
 
-p = ggDefault() + 
+p = plot.init() + 
   plot(vario, ivar=0, jvar=0, col="black", cex=0, varioLinetype="solid") + 
   plot(vario, ivar=1, jvar=1, col="blue", cex=0, varioLinetype="solid") +
   plot(vario, ivar=0, jvar=1, col="red", cex=0, varioLinetype="solid") +
   plot.decoration(title="Simple and Cross-Variograms")
-ggPrint(p)
+plot.end(p)
 ```
 
 Computing Covariances (Simple and Cross)
@@ -97,12 +94,12 @@ Computing Covariances (Simple and Cross)
 err = grid$setLocators("Z*",ELoc_Z())
 covar = Vario_computeFromDb(varioparam, grid, calcul=ECalcVario_COVARIANCE())
 
-p = ggDefault() + 
+p = plot.init() + 
   plot(covar, ivar=0, jvar=0, col="black", cex=0, varioLinetype="solid") + 
   plot(covar, ivar=1, jvar=1, col="blue", cex=0, varioLinetype="solid") +
   plot(covar, ivar=0, jvar=1, col="red", cex=0, varioLinetype="solid") +
   plot.decoration(title="Simple and Cross-Covariances")
-ggPrint(p)
+plot.end(p)
 ```
 
 ## Covariance with delay
@@ -116,11 +113,11 @@ grid["Z3"] = c(v2[-{1:shift}],rep(NA,shift))
 Plotting the variables
 
 ```{r}
-p = ggDefault() + 
+p = plot.init() + 
   plot.curve(grid["Z2"], col="black") + 
   plot.curve(grid["Z3"], col="blue") + 
   plot.decoration(title="Z2 and Z3")
-ggPrint(p)
+plot.end(p)
 ```
 
 Calculate the cross-variogram
@@ -129,12 +126,12 @@ Calculate the cross-variogram
 grid$setLocators(c("Z2","Z3"),ELoc_Z(),cleanSameLocator=TRUE)
 covarh = Vario_computeFromDb(varioparam, grid, calcul=ECalcVario_VARIOGRAM())
 
-p = ggDefault() + 
+p = plot.init() + 
   plot(covarh, ivar=0, jvar=0, col="black", cex=0, varioLinetype="solid") + 
   plot(covarh, ivar=1, jvar=1, col="blue", cex=0, varioLinetype="solid") +
   plot(covarh, ivar=0, jvar=1, col="red", cex=0, varioLinetype="solid") +
   plot.decoration(title="Simple and Cross-Variograms (shift)")
-ggPrint(p)
+plot.end(p)
 ```
 
 Calculate the cross-covariance
@@ -142,10 +139,10 @@ Calculate the cross-covariance
 ```{r}
 covarh = Vario_computeFromDb(varioparam, grid, calcul=ECalcVario_COVARIANCE())
 
-p = ggDefault() + 
+p = plot.init() + 
   plot(covarh, ivar=0, jvar=0, col="black", cex=0, varioLinetype="solid") + 
   plot(covarh, ivar=1, jvar=1, col="blue", cex=0, varioLinetype="solid") +
   plot(covarh, ivar=0, jvar=1, col="red", cex=0, varioLinetype="solid") +
   plot.decoration(title="Simple and Cross-Covariances (shift)")
-ggPrint(p)
+plot.end(p)
 ```

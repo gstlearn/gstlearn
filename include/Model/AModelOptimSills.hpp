@@ -12,7 +12,7 @@
 
 #include "geoslib_define.h"
 
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
@@ -22,8 +22,8 @@
 
 class Model;
 class Constraints;
-class MatrixRectangular;
-class MatrixSquareSYmmetric;
+class MatrixDense;
+class MatrixSymmetric;
 
 /**
  * \brief
@@ -44,7 +44,7 @@ public:
   int fitPerform();
 
 protected:
-  void _resetSill(int ncova, std::vector<MatrixSquareSymmetric>& sill) const;
+  void _resetSill(int ncova, std::vector<MatrixSymmetric>& sill) const;
   void _allocateInternalArrays(bool flag_exp = true);
 
 private:
@@ -56,39 +56,39 @@ private:
                                 int npadir,
                                 VectorDouble& wt,
                                 VectorDouble& gg,
-                                std::vector<MatrixRectangular>& ge,
-                                std::vector<MatrixSquareSymmetric>& sill,
+                                std::vector<MatrixDense>& ge,
+                                std::vector<MatrixSymmetric>& sill,
                                 double* crit_arg) const;
   void _storeSillsInModel() const;
   void _optimizeUnderConstraints(double* score);
   int _makeDefinitePositive(int icov0, double eps = EPSILON12);
   void _initializeGoulard();
   int _truncateNegativeEigen(int icov0);
-  double _sumSills(int ivar0, std::vector<MatrixSquareSymmetric>& alpha) const;
+  double _sumSills(int ivar0, std::vector<MatrixSymmetric>& alpha) const;
   double _score();
   static int _combineVariables(int ivar0, int jvar0);
   double _minimizeP4(int icov0,
                      int ivar0,
                      double xrmax,
                      VectorDouble& xr,
-                     std::vector<MatrixSquareSymmetric>& alpha);
+                     std::vector<MatrixSymmetric>& alpha);
   void _updateAlphaDiag(int icov0,
                         int ivar0,
                         VectorDouble& xr,
-                        std::vector<MatrixSquareSymmetric>& alpha);
+                        std::vector<MatrixSymmetric>& alpha);
   void _updateOtherSills(int icov0,
                          int ivar0,
-                         std::vector<MatrixSquareSymmetric>& alpha,
+                         std::vector<MatrixSymmetric>& alpha,
                          VectorDouble& xr);
   void _updateCurrentSillGoulard(int icov0, int ivar0);
   void _updateCurrentSillDiag(int icov0,
                               int ivar0,
-                              std::vector<MatrixSquareSymmetric>& alpha,
+                              std::vector<MatrixSymmetric>& alpha,
                               VectorDouble& xr);
   void _updateAlphaNoDiag(int icov0,
                           int ivar0,
                           VectorDouble& xr,
-                          std::vector<MatrixSquareSymmetric>& alpha);
+                          std::vector<MatrixSymmetric>& alpha);
   static bool _convergenceReached(const Option_AutoFit& mauto,
                            double crit,
                            double crit_mem);
@@ -107,10 +107,10 @@ protected:
   VectorDouble _wt2;
   VectorDouble _gg2;
   std::vector<VectorDouble> _dd;
-  std::vector<MatrixRectangular> _ge;
-  std::vector<MatrixRectangular> _ge1;
-  std::vector<MatrixRectangular> _ge2;
-  std::vector<MatrixSquareSymmetric> _alphau;
-  std::vector<MatrixSquareSymmetric> _sill1;
-  std::vector<MatrixSquareSymmetric> _sill;
+  std::vector<MatrixDense> _ge;
+  std::vector<MatrixDense> _ge1;
+  std::vector<MatrixDense> _ge2;
+  std::vector<MatrixSymmetric> _alphau;
+  std::vector<MatrixSymmetric> _sill1;
+  std::vector<MatrixSymmetric> _sill;
 };

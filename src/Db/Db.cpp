@@ -23,43 +23,46 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/GlobalEnvironment.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Stats/Classical.hpp"
 #include "Matrix/Table.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceTarget.hpp"
 #include "Core/CSV.hpp"
 
 #include <math.h>
 #include <stdio.h>
+#include <vector>
 
 Db::Db()
-    : AStringable(),
-      ASerializable(),
-      _ncol(0),
-      _nech(0),
-      _array(),
-      _uidcol(),
-      _colNames(),
-      _p()
+  : AStringable()
+  , ASerializable()
+  , _ncol(0)
+  , _nech(0)
+  , _array()
+  , _uidcol()
+  , _colNames()
+  , _p()
 {
   _clear();
 }
 
 Db::Db(const Db& r)
-    : AStringable(r),
-      ASerializable(r),
-      _ncol(r._ncol),
-      _nech(r._nech),
-      _array(r._array),
-      _uidcol(r._uidcol),
-      _colNames(r._colNames),
-      _p(r._p)
+  : AStringable(r)
+  , ASerializable(r)
+  , _ncol(r._ncol)
+  , _nech(r._nech)
+  , _array(r._array)
+  , _uidcol(r._uidcol)
+  , _colNames(r._colNames)
+  , _p(r._p)
 {
 }
 
@@ -69,12 +72,12 @@ Db& Db::operator=(const Db& r)
   {
     AStringable::operator=(r);
     ASerializable::operator=(r);
-    _ncol = r._ncol;
-    _nech = r._nech;
-    _array = r._array;
-    _uidcol = r._uidcol;
+    _ncol     = r._ncol;
+    _nech     = r._nech;
+    _array    = r._array;
+    _uidcol   = r._uidcol;
     _colNames = r._colNames;
-    _p = r._p;
+    _p        = r._p;
   }
   return *this;
 }
@@ -91,15 +94,15 @@ int Db::resetFromSamples(int nech,
                          bool flagAddSampleRank)
 {
   _clear();
-  int ncol = (tab.empty()) ? 0 : (int) (tab.size() / nech);
-  _ncol = (flagAddSampleRank) ? ncol + 1 : ncol;
-  _nech = nech;
+  int ncol = (tab.empty()) ? 0 : (int)(tab.size() / nech);
+  _ncol    = (flagAddSampleRank) ? ncol + 1 : ncol;
+  _nech    = nech;
   resetDims(_ncol, _nech);
 
   // Load data (if defined)
 
   if (flagAddSampleRank) _createRank(0);
-  _loadData(tab, names, locatorNames, order, (int) flagAddSampleRank);
+  _loadData(tab, names, locatorNames, order, (int)flagAddSampleRank);
 
   return 0;
 }
@@ -128,14 +131,14 @@ int Db::resetFromCSV(const String& filename,
 
   /* Reading the CSV file */
 
-  if (csv_table_read(filename, csvfmt, (int) verbose, ncol_max, nrow_max,
+  if (csv_table_read(filename, csvfmt, (int)verbose, ncol_max, nrow_max,
                      &ncol, &nrow, names, tab) != 0)
   {
     messerr("Problem when reading CSV file");
     return 1;
   }
 
-  ncol = (tab.empty()) ? 0 : (int) (tab.size() / nrow);
+  ncol  = (tab.empty()) ? 0 : (int)(tab.size() / nrow);
   _ncol = (flagAddSampleRank) ? ncol + 1 : ncol;
   _nech = nrow;
   resetDims(_ncol, _nech);
@@ -143,13 +146,13 @@ int Db::resetFromCSV(const String& filename,
   // Load data (if defined)
 
   if (flagAddSampleRank) _createRank(0);
-  _loadData(tab, names, VectorString(), ELoadBy::SAMPLE, (int) flagAddSampleRank);
+  _loadData(tab, names, VectorString(), ELoadBy::SAMPLE, (int)flagAddSampleRank);
 
   // Set the names
-  _defineDefaultNames((int) flagAddSampleRank, names);
+  _defineDefaultNames((int)flagAddSampleRank, names);
 
   // Locators: Try to guess them from the Names
-  _defineDefaultLocatorsByNames((int) flagAddSampleRank, names);
+  _defineDefaultLocatorsByNames((int)flagAddSampleRank, names);
 
   return 0;
 }
@@ -174,8 +177,8 @@ int Db::resetFromBox(int nech,
                      bool flagAddSampleRank)
 {
   _clear();
-  if (! coormin.empty()) ndim = (int) coormin.size();
-  if (! coormax.empty()) ndim = MIN(ndim, (int) coormax.size());
+  if (!coormin.empty()) ndim = (int)coormin.size();
+  if (!coormax.empty()) ndim = MIN(ndim, (int)coormax.size());
   _ncol = (flagAddSampleRank) ? ndim + 1 : ndim;
   _nech = nech;
   resetDims(_ncol, _nech);
@@ -196,12 +199,12 @@ int Db::resetFromBox(int nech,
     message("idim=%d coormin=%lf mini=%lf coormax=%lf maxi=%lf\n",
             idim, coormin[idim], mini, coormax[idim], maxi);
     for (int iech = 0; iech < nech; iech++)
-      tab[ecr++] = law_uniform(mini,maxi);
+      tab[ecr++] = law_uniform(mini, maxi);
   }
 
   // Load the coordinates
   VectorString names = generateMultipleNames("x", ndim);
-  _loadData(tab, names, VectorString(), ELoadBy::COLUMN, (int) flagAddSampleRank);
+  _loadData(tab, names, VectorString(), ELoadBy::COLUMN, (int)flagAddSampleRank);
 
   int jcol = 0;
   if (flagAddSampleRank) jcol++;
@@ -219,19 +222,19 @@ int Db::resetFromOnePoint(const VectorDouble& tab, bool flagAddSampleRank)
 {
   _clear();
 
-  int ndim = static_cast<int> (tab.size());
-  _ncol = (flagAddSampleRank) ? ndim + 1 : ndim;
-  _nech = 1;
+  int ndim = static_cast<int>(tab.size());
+  _ncol    = (flagAddSampleRank) ? ndim + 1 : ndim;
+  _nech    = 1;
   resetDims(_ncol, _nech);
 
   // Generate the sample number
   if (flagAddSampleRank) _createRank(0);
 
   // Load the coordinates
-  VectorString names = generateMultipleNames("x", ndim);
+  VectorString names  = generateMultipleNames("x", ndim);
   VectorDouble tabloc = tab;
-  if (tabloc.empty()) tabloc.resize(ndim,0.);
-  _loadData(tabloc, names, VectorString(), ELoadBy::SAMPLE, (int) flagAddSampleRank);
+  if (tabloc.empty()) tabloc.resize(ndim, 0.);
+  _loadData(tabloc, names, VectorString(), ELoadBy::SAMPLE, (int)flagAddSampleRank);
 
   int jcol = 0;
   if (flagAddSampleRank) jcol++;
@@ -253,7 +256,7 @@ bool Db::isDimensionIndexValid(int idim) const
  */
 bool Db::isUIDValid(int iuid) const
 {
-  return checkArg("UID Index", iuid, getUIDMaxNumber());
+  return checkArg("UID Index", iuid, getNUIDMax());
 }
 
 /**
@@ -280,7 +283,7 @@ bool Db::isSampleIndicesValid(const VectorInt& iechs, bool useSel) const
   for (int i = 0; i < (int)iechs.size(); i++)
   {
     int iech = iechs[i];
-    if (!checkArg("Sample Index", iech, getSampleNumber(useSel))) return false;
+    if (!checkArg("Sample Index", iech, getNSample(useSel))) return false;
   }
   return true;
 }
@@ -312,7 +315,7 @@ VectorInt Db::getColIdxsByUID(const VectorInt& iuids) const
 int Db::getUIDByColIdx(int icol) const
 {
   if (!isColIdxValid(icol)) return -1;
-  for (int iuid = 0; iuid < getUIDMaxNumber(); iuid++)
+  for (int iuid = 0; iuid < getNUIDMax(); iuid++)
     if (_uidcol[iuid] == icol) return iuid;
   return -1;
 }
@@ -332,26 +335,17 @@ int Db::getUIDByLocator(const ELoc& locatorType, int locatorIndex) const
 int Db::getColIdxByLocator(const ELoc& locatorType, int locatorIndex) const
 {
   const PtrGeos& p = _p[locatorType.getValue()];
-  int number = p.getLocatorNumber();
-  if (number <= 0 || locatorIndex >= number)
-    return -1;
+  int number       = p.getNLoc();
+  if (number <= 0 || locatorIndex >= number) return -1;
   int icol = getColIdxByUID(p.getLocatorByIndex(locatorIndex));
   return (icol);
-}
-
-int Db::getLocatorNumber(const ELoc& locatorType) const
-{
-  int number = locatorType.getValue();
-  if (number < 0) return 0;
-  const PtrGeos& p = _p[locatorType.getValue()];
-  return p.getLocatorNumber();
 }
 
 int Db::_findUIDInLocator(const ELoc& locatorType, int iuid) const
 {
   const PtrGeos& p = _p[locatorType.getValue()];
   if (!isUIDValid(iuid)) return -1;
-  for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber(); locatorIndex++)
+  for (int locatorIndex = 0; locatorIndex < p.getNLoc(); locatorIndex++)
     if (p.getLocatorByIndex(locatorIndex) == iuid) return (locatorIndex);
   return -1;
 }
@@ -377,18 +371,18 @@ bool Db::getLocatorByColIdx(int icol,
   for (int iloc = 0; iloc < number; iloc++)
   {
     const PtrGeos& p = _p[iloc];
-    for (int i = 0; i < p.getLocatorNumber(); i++)
+    for (int i = 0; i < p.getNLoc(); i++)
     {
       int jcol = getColIdxByUID(p.getLocatorByIndex(i));
       if (icol == jcol)
       {
-        *ret_locatorType = ELoc::fromValue(iloc);
+        *ret_locatorType  = ELoc::fromValue(iloc);
         *ret_locatorIndex = i;
         return true;
       }
     }
   }
-  *ret_locatorType = ELoc::UNKNOWN;
+  *ret_locatorType  = ELoc::UNKNOWN;
   *ret_locatorIndex = -1;
   return false;
 }
@@ -410,8 +404,8 @@ bool Db::getLocatorByUID(int iuid,
  * @return
  */
 bool Db::getLocator(const String& name,
-                    ELoc *ret_locatorType,
-                    int *ret_locatorIndex) const
+                    ELoc* ret_locatorType,
+                    int* ret_locatorIndex) const
 {
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return false;
@@ -449,9 +443,9 @@ VectorString Db::getLocators(bool anyLocator, const ELoc& locatorType) const
 
   for (int icol = 0; icol < _ncol; icol++)
   {
-    if (! anyLocator)
+    if (!anyLocator)
     {
-      (void) getLocatorByColIdx(icol, &type, &item);
+      (void)getLocatorByColIdx(icol, &type, &item);
       if (type != locatorType) continue;
     }
     String string = _getLocatorNameByColIdx(icol);
@@ -481,31 +475,31 @@ VectorString Db::expandNameList(const String& names) const
 VectorInt Db::_ids(const String& name, bool flagOne, bool verbose) const
 {
   VectorString exp_names = expandNameList(name);
-  VectorInt iuids = _getUIDsBasic(exp_names);
-  if (! _isCountValid(iuids, flagOne, verbose)) return VectorInt();
+  VectorInt iuids        = _getUIDsBasic(exp_names);
+  if (!_isCountValid(iuids, flagOne, verbose)) return VectorInt();
   return iuids;
 }
 
 VectorInt Db::_ids(const VectorString& names, bool flagOne, bool verbose) const
 {
   VectorString exp_names = expandNameList(names);
-  VectorInt iuids = _getUIDsBasic(exp_names);
-  if (! _isCountValid(iuids, flagOne, verbose)) return VectorInt();
+  VectorInt iuids        = _getUIDsBasic(exp_names);
+  if (!_isCountValid(iuids, flagOne, verbose)) return VectorInt();
   return iuids;
 }
 
 VectorInt Db::_ids(const ELoc& locatorType, bool flagOne, bool verbose) const
 {
   VectorString exp_names = getNamesByLocator(locatorType);
-  VectorInt iuids = _getUIDsBasic(exp_names);
-  if (! _isCountValid(iuids, flagOne, verbose)) return VectorInt();
+  VectorInt iuids        = _getUIDsBasic(exp_names);
+  if (!_isCountValid(iuids, flagOne, verbose)) return VectorInt();
   return iuids;
 }
 
 VectorInt Db::_ids(const VectorInt& iuids, bool flagOne, bool verbose) const
 {
   VectorString exp_names = getNamesByUID(iuids);
-  if (! _isCountValid(iuids, flagOne, verbose)) return VectorInt();
+  if (!_isCountValid(iuids, flagOne, verbose)) return VectorInt();
   return iuids;
 }
 
@@ -564,7 +558,7 @@ void Db::setArrayVec(const VectorInt& iechs, int iuid, const VectorDouble& value
 {
   int icol = getColIdxByUID(iuid);
   if (!isColIdxValid(icol)) return;
-  for (int i = 0, n = (int) iechs.size(); i < n; i++)
+  for (int i = 0, n = (int)iechs.size(); i < n; i++)
     _array[_getAddress(iechs[i], icol)] = values[i];
 }
 
@@ -589,7 +583,7 @@ double Db::getValue(const String& name, int iech) const
  */
 void Db::setValue(const String& name, int iech, double value)
 {
-  int iuid  = getUID(name);
+  int iuid = getUID(name);
   if (iuid < 0) return;
   setArray(iech, iuid, value);
 }
@@ -619,7 +613,7 @@ void Db::getArrayVec(const VectorInt& iechs, int iuid, VectorDouble& values) con
 {
   int icol = getColIdxByUID(iuid);
   if (!isColIdxValid(icol)) return;
-  for (int i = 0, n = (int) iechs.size(); i < n; i++)
+  for (int i = 0, n = (int)iechs.size(); i < n; i++)
   {
     values[i] = _array[_getAddress(iechs[i], icol)];
   }
@@ -627,7 +621,7 @@ void Db::getArrayVec(const VectorInt& iechs, int iuid, VectorDouble& values) con
 
 VectorDouble Db::getArrayByUID(int iuid, bool useSel) const
 {
-  int nech = getSampleNumber();
+  int nech = getNSample();
   VectorDouble sel, tab;
   if (!isUIDValid(iuid)) return tab;
 
@@ -645,26 +639,37 @@ VectorDouble Db::getArrayByUID(int iuid, bool useSel) const
   return tab;
 }
 
-static std::vector<int> uids;
+void Db::setArrayByUID(const VectorDouble& tab, int iuid)
+{
+  int nech = getNSample();
+  if (!isUIDValid(iuid)) return;
+
+  int ecr = 0;
+  for (int iech = 0; iech < nech; iech++)
+  {
+    setArray(iech, iuid, tab[ecr]);
+    ecr++;
+  }
+}
 
 void Db::getArrayBySample(std::vector<double>& vals, int iech) const
 {
   getAllUIDs(uids);
   vals.resize(uids.size());
-  for (int iuid = 0; iuid < (int) uids.size(); iuid++)
+  for (int iuid = 0; iuid < (int)uids.size(); iuid++)
     vals[iuid] = getArray(iech, uids[iuid]);
 }
 
 void Db::setArrayBySample(int iech, const VectorDouble& vec)
 {
   VectorInt uids = getAllUIDs();
-  if ((int) uids.size() != (int) vec.size())
+  if ((int)uids.size() != (int)vec.size())
   {
     messerr("Dimension of 'vec'(%d) does not match number of columns(%)",
-            (int) vec.size(),(int) uids.size());
+            (int)vec.size(), (int)uids.size());
     return;
   }
-  for (int iuid = 0; iuid < (int) uids.size(); iuid++)
+  for (int iuid = 0; iuid < (int)uids.size(); iuid++)
     setArray(iech, uids[iuid], vec[iuid]);
 }
 
@@ -675,9 +680,9 @@ void Db::updArray(int iech, int iuid, const EOperator& oper, double value)
   int icol = getColIdxByUID(iuid);
   if (!isColIdxValid(icol)) return;
 
-  int internalAddress = _getAddress(iech, icol);
-  double oldval = _array[internalAddress];
-  double newval = modifyOperator(oper, oldval, value);
+  int internalAddress     = _getAddress(iech, icol);
+  double oldval           = _array[internalAddress];
+  double newval           = modifyOperator(oper, oldval, value);
   _array[internalAddress] = newval;
 }
 
@@ -689,11 +694,11 @@ void Db::updArrayVec(const VectorInt& iechs, int iuid, const EOperator& oper, Ve
   int iad;
   double oldval;
   double newval;
-  for (int i = 0, n = (int) iechs.size(); i < n; i++)
+  for (int i = 0, n = (int)iechs.size(); i < n; i++)
   {
-    iad = _getAddress(iechs[i], icol);
-    oldval = _array[iad];
-    newval = modifyOperator(oper, oldval, values[i]);
+    iad         = _getAddress(iechs[i], icol);
+    oldval      = _array[iad];
+    newval      = modifyOperator(oper, oldval, values[i]);
     _array[iad] = newval;
   }
 }
@@ -701,27 +706,37 @@ void Db::updArrayVec(const VectorInt& iechs, int iuid, const EOperator& oper, Ve
 VectorDouble Db::getSampleCoordinates(int iech) const
 {
   VectorDouble coor(getNDim());
-  getCoordinatesPerSampleInPlace(iech, coor);
+  getCoordinatesInPlace(coor, iech);
   return coor;
 }
 
-void Db::getSampleAsSPInPlace(SpacePoint& P) const
+/**
+ * @brief In the SpacePoint 'P', define the sample rank and coordinates
+ *
+ * @param P SpacePoint reference (output)
+ * @param iabs Rank of the sample
+ */
+void Db::getSampleAsSPInPlace(SpacePoint& P, int iabs) const
 {
-  getCoordinatesPerSampleInPlace(P.getIech(),P.getCoordRef());
+  P.setIech(iabs);
+  // Next line is unsafe: it directly loads the coordinates extracted from the Db
+  // into the VectorDouble 'coord' of the Space Point 'P'
+  // Dimensions should match!!!
+  getCoordinatesInPlace(P.getCoordUnprotected(), iabs);
 }
 
 VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& jechs) const
 {
   VectorVectorDouble tab;
   int ndim = getNDim();
-  SpacePoint P1(ndim,-1);
-  SpacePoint P2(ndim,-1);
+  SpacePoint P1(ndim, -1);
+  SpacePoint P2(ndim, -1);
 
-  int number = (int) iechs.size();
-  if ((int) jechs.size() != number)
+  int number = (int)iechs.size();
+  if ((int)jechs.size() != number)
   {
     messerr("Arguments 'iechs'(%d) and 'jechs'(%d) should share the same dimension",
-            (int) iechs.size(), (int) jechs.size());
+            (int)iechs.size(), (int)jechs.size());
     return tab;
   }
 
@@ -731,10 +746,8 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
 
   for (int ip = 0; ip < number; ip++)
   {
-    P1.setIech(iechs[ip]);
-    P2.setIech(jechs[ip]);
-    getSampleAsSPInPlace(P1);
-    getSampleAsSPInPlace(P2);
+    getSampleAsSPInPlace(P1, iechs[ip]);
+    getSampleAsSPInPlace(P2, jechs[ip]);
     VectorDouble vect = P2.getIncrement(P1);
 
     for (int idim = 0; idim < ndim; idim++)
@@ -751,13 +764,13 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
 void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
 {
   // Load the coordinates
-  P.setIech(iech);
-  getSampleAsSPInPlace(P);
+  getSampleAsSPInPlace(P, iech);
 
   // Load the code (optional)
   if (P.checkCode())
   {
-    if (hasLocVariable(ELoc::C)) P.setCode(getLocVariable(ELoc::C, iech, 0));
+    if (hasLocVariable(ELoc::C))
+      P.setCode(getLocVariable(ELoc::C, iech, 0));
   }
 
   // Load the Date (optional)
@@ -768,34 +781,41 @@ void Db::getSampleAsSTInPlace(int iech, SpaceTarget& P) const
   }
 }
 
-void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,const ASpace* space, bool useSel) const
+void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,
+                        const std::shared_ptr<const ASpace>& space,
+                        bool useSel) const
 {
-  int iechcur = 0;
-  for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
+  pvec.clear();
+  SpacePoint p(space);
+  for (int iabs = 0, nech = getNSample(); iabs < nech; iabs++)
   {
-    
-    if (isActive(iech))
+    if (isActive(iabs))
     {
-      pvec.push_back(SpacePoint(space));
-      SpacePoint &p = pvec[iechcur++];
-      p.setIech(iech);
-      getSampleAsSPInPlace(p);
+      getSampleAsSPInPlace(p, iabs);
     }
     else
     {
       if (useSel) continue;
-      pvec.push_back(SpacePoint(space));
-      SpacePoint &p = pvec[iechcur++];
-      p.setIech(iech);
+      p.setIech(iabs);
       p.setFFFF();
     }
+    pvec.push_back(p);
   }
+}
+
+void Db::getSamplesFromNbghAsSP(std::vector<SpacePoint>& pvec,
+                                const VectorInt& nbgh) const
+{
+  int nbsize = (int)nbgh.size();
+  pvec.resize(nbsize);
+  for (int irel = 0; irel < nbsize; irel++)
+    getSampleAsSPInPlace(pvec[irel], nbgh[irel]);
 }
 
 VectorDouble Db::getSampleLocators(const ELoc& locatorType, int iech) const
 {
   VectorDouble vec;
-  int number = getLocatorNumber(locatorType);
+  int number = getNLoc(locatorType);
   if (number <= 0) return vec;
   vec.resize(number);
   for (int i = 0; i < number; i++)
@@ -810,23 +830,40 @@ VectorDouble Db::getSampleLocators(const ELoc& locatorType, int iech) const
  * @param flag_rotate Use the rotation (only for Grid)
  * @return
  */
-double Db::getCoordinate(int iech, int idim, bool /*flag_rotate*/) const
+double Db::getCoordinate(int iech, int idim, bool flag_rotate) const
 {
+  DECLARE_UNUSED(flag_rotate);
   if (idim >= getNDim()) return TEST;
   return getFromLocator(ELoc::X, iech, idim);
 }
 
-void Db::getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate) const
+/**
+ * @brief Update the vector of coordinates (optimized manner)
+ * No check is done with respect to the dimension of the returned vector
+ *
+ * @param coor Returned vector of coordinates (should be dimensionned beforehand)
+ * @param iech Rank of the target
+ * @param flag_rotate True if Grid rotation must be taken into account
+ */
+void Db::getCoordinatesInPlace(VectorDouble& coor, int iech, bool flag_rotate) const
 {
-  for (int idim = 0; idim < getNDim(); idim++)
-    coor[idim] = getCoordinate(iech, idim, flag_rotate);
+  DECLARE_UNUSED(flag_rotate);
+  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
+  {
+    int icol   = getColIdxByLocator(ELoc::X, idim);
+    coor[idim] = _array[_getAddress(iech, icol)];
+  }
+}
+void Db::getCoordinatesInPlace(vect coor, int iech, bool flag_rotate) const
+{
+  DECLARE_UNUSED(flag_rotate);
+  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
+  {
+    int icol   = getColIdxByLocator(ELoc::X, idim);
+    coor[idim] = _array[_getAddress(iech, icol)];
+  }
 }
 
-void Db::getCoordinatesPerSampleInPlace(int iech, vect coor, bool flag_rotate) const
-{
-  for (int idim = 0; idim < getNDim(); idim++)
-    coor[idim] = getCoordinate(iech, idim, flag_rotate);
-}
 double Db::getDistance1D(int iech, int jech, int idim, bool flagAbs) const
 {
   double v1 = getCoordinate(iech, idim);
@@ -867,11 +904,11 @@ int Db::getDistanceVecInPlace(int iech, int jech, VectorDouble& dd, const Db* db
   VectorDouble v1(ndim);
   VectorDouble v2(ndim);
 
-  getCoordinatesPerSampleInPlace(iech, v1);
+  getCoordinatesInPlace(v1, iech);
   if (db2 == nullptr)
-    getCoordinatesPerSampleInPlace(jech, v2);
+    getCoordinatesInPlace(v2, jech);
   else
-    db2->getCoordinatesPerSampleInPlace(jech, v2);
+    db2->getCoordinatesInPlace(v2, jech);
   for (int idim = 0; idim < ndim; idim++)
     dd[idim] = v1[idim] - v2[idim];
   return 0;
@@ -889,7 +926,7 @@ VectorVectorDouble Db::getAllCoordinates(bool useSel) const
   VectorVectorDouble result;
   for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
   {
-    VectorDouble local = getCoordinates(idim, useSel);
+    VectorDouble local = getOneCoordinate(idim, useSel);
     result.push_back(local);
   }
   return result;
@@ -901,16 +938,16 @@ VectorVectorDouble Db::getAllCoordinates(bool useSel) const
  * - one column by Space Dimension
  * @return
  */
-MatrixRectangular Db::getAllCoordinatesMat(const MatrixRectangular& box) const
+MatrixDense Db::getAllCoordinatesMat(const MatrixDense& box) const
 {
-  int nech = getSampleNumber(true);
+  int nech = getNSample(true);
   int ndim = getNDim();
 
-  VectorInt ranks = getRanksActive();
+  VectorInt ranks = getSampleRanksPerVariable();
 
   // Suppress some data due to bounds
   int nechValid = 0;
-  if (! box.empty())
+  if (!box.empty())
   {
     for (int jech = 0; jech < nech; jech++)
     {
@@ -921,8 +958,8 @@ MatrixRectangular Db::getAllCoordinatesMat(const MatrixRectangular& box) const
       for (int idim = 0; idim < ndim && flagIn; idim++)
       {
         double coor = coors[idim];
-        if (coor < box.getValue(idim,0)) flagIn = false;
-        if (coor > box.getValue(idim,1)) flagIn = false;
+        if (coor < box.getValue(0, idim)) flagIn = false;
+        if (coor > box.getValue(1, idim)) flagIn = false;
       }
       if (flagIn)
         nechValid++;
@@ -935,7 +972,7 @@ MatrixRectangular Db::getAllCoordinatesMat(const MatrixRectangular& box) const
     nechValid = nech;
   }
 
-  MatrixRectangular mat(nechValid, ndim);
+  MatrixDense mat(nechValid, ndim);
 
   int kech = 0;
   for (int jech = 0; jech < nech; jech++)
@@ -973,7 +1010,7 @@ void Db::setSampleCoordinates(int iech, const VectorDouble& coor)
     messerr("Nothing is done");
     return;
   }
-  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
+  for (int idim = 0; idim < ndim; idim++)
     setCoordinate(iech, idim, coor[idim]);
 }
 
@@ -983,7 +1020,7 @@ void Db::setFromLocator(const ELoc& locatorType,
                         double value)
 {
   if (!isSampleIndexValid(iech)) return;
-  int icol = getColIdxByLocator(locatorType,locatorIndex);
+  int icol = getColIdxByLocator(locatorType, locatorIndex);
   if (!isColIdxValid(icol)) return;
   _array[_getAddress(iech, icol)] = value;
 }
@@ -992,9 +1029,9 @@ double Db::getFromLocator(const ELoc& locatorType,
                           int iech,
                           int locatorIndex) const
 {
-  if (!isSampleIndexValid(iech)) return (TEST);
+  if (!isSampleIndexValid(iech)) return TEST;
   int icol = getColIdxByLocator(locatorType, locatorIndex);
-  if (!isColIdxValid(icol)) return (TEST);
+  if (!isColIdxValid(icol)) return TEST;
   return (_array[_getAddress(iech, icol)]);
 }
 
@@ -1004,16 +1041,16 @@ bool Db::hasLocator(const ELoc& locatorType) const
   return p.hasLocator();
 }
 
-int Db::getFromLocatorNumber(const ELoc& locatorType) const
+int Db::getNFromLocator(const ELoc& locatorType) const
 {
   const PtrGeos& p = _p[locatorType.getValue()];
-  return p.getLocatorNumber();
+  return p.getNLoc();
 }
 
 int Db::getNEloc()
 {
   int number = 0;
-  auto it = ELoc::getIterator();
+  auto it    = ELoc::getIterator();
   while (it.hasNext())
   {
     if (*it != ELoc::UNKNOWN) number++;
@@ -1033,7 +1070,7 @@ void Db::_clear(void)
 
 int Db::_getUIDcol(int iuid) const
 {
-  if (! isUIDValid(iuid)) return ITEST;
+  if (!isUIDValid(iuid)) return ITEST;
   return _uidcol[iuid];
 }
 
@@ -1049,16 +1086,16 @@ String Db::_summaryLocators(void) const
   /* Loop on the pointers */
 
   sstr << toTitle(1, "List of locators");
-  int rank = 0;
+  int rank   = 0;
   int number = getNEloc();
   for (int iloc = 0; iloc < number; iloc++)
   {
     const PtrGeos& p = _p[iloc];
-    if (p.getLocatorNumber() > 0)
+    if (p.getNLoc() > 0)
     {
       sstr << p.dumpLocator(rank, ELoc::fromValue(iloc));
       sstr << "- Columns    = ";
-      for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber(); locatorIndex++)
+      for (int locatorIndex = 0; locatorIndex < p.getNLoc(); locatorIndex++)
         sstr << getColIdxByUID(p.getLocatorByIndex(locatorIndex)) << " ";
       sstr << std::endl;
       rank++;
@@ -1072,15 +1109,15 @@ String Db::_summaryUIDs(void) const
   std::stringstream sstr;
 
   sstr << toTitle(1, "List of unsorted UIDs");
-  sstr << "Maximum number of positions = " << getUIDMaxNumber() << std::endl;
-  sstr << "Number of Columns           = " << getColumnNumber() << std::endl;
+  sstr << "Maximum number of positions = " << getNUIDMax() << std::endl;
+  sstr << "Number of Columns           = " << getNColumn() << std::endl;
 
   /* Loop on the UIDs */
 
-  if (getUIDMaxNumber() <= 0) return sstr.str();
+  if (getNUIDMax() <= 0) return sstr.str();
 
   sstr << "UID = ";
-  for (int iuid = 0; iuid < getUIDMaxNumber(); iuid++)
+  for (int iuid = 0; iuid < getNUIDMax(); iuid++)
     sstr << _uidcol[iuid] << " ";
   sstr << std::endl;
   return sstr.str();
@@ -1094,7 +1131,7 @@ void Db::clearLocators(const ELoc& locatorType)
 
 int Db::_getNextLocator(const ELoc& locatorType) const
 {
-  int number = getLocatorNumber(locatorType);
+  int number = getNLoc(locatorType);
 
   return number;
 }
@@ -1107,7 +1144,7 @@ int Db::_getNextLocator(const ELoc& locatorType) const
  * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
  *
  */
-void Db::setLocators(const VectorString &names,
+void Db::setLocators(const VectorString& names,
                      const ELoc& locatorType,
                      int locatorIndex,
                      bool cleanSameLocator)
@@ -1130,7 +1167,7 @@ void Db::setLocators(const VectorString &names,
  * @param locatorIndex Locator Index (for the first variable) (starting from 0)
  * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
  */
-void Db::setLocator(const String &name,
+void Db::setLocator(const String& name,
                     const ELoc& locatorType,
                     int locatorIndex,
                     bool cleanSameLocator)
@@ -1176,9 +1213,9 @@ void Db::setLocatorByUID(int iuid,
   for (int iloc = 0; iloc < number; iloc++)
   {
     PtrGeos& p = _p[iloc];
-    int found = p.findUIDInLocator(iuid);
+    int found  = p.findUIDInLocator(iuid);
     if (found >= 0)
-        p.erase(found);
+      p.erase(found);
   }
 
   // Check if this locator already exists for the current pointer type
@@ -1189,7 +1226,7 @@ void Db::setLocatorByUID(int iuid,
   if (locatorType != ELoc::UNKNOWN)
   {
     PtrGeos& p = _p[locatorType.getValue()];
-    int nitem = p.getLocatorNumber();
+    int nitem  = p.getNLoc();
     if (locatorIndex >= nitem)
     {
       p.resize(locatorIndex + 1);
@@ -1213,7 +1250,7 @@ String Db::_getLocatorNameByColIdx(int icol) const
 {
   ELoc locatorType;
   int locatorIndex;
-  (void) getLocatorByColIdx(icol, &locatorType, &locatorIndex);
+  (void)getLocatorByColIdx(icol, &locatorType, &locatorIndex);
   return getLocatorName(locatorType, locatorIndex);
 }
 
@@ -1236,7 +1273,7 @@ void Db::setLocatorsByUID(int number,
   if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
 
   for (int i = 0; i < number; i++)
-    setLocatorByUID(iuid+i, locatorType, locatorIndex + i);
+    setLocatorByUID(iuid + i, locatorType, locatorIndex + i);
 }
 
 void Db::setLocatorsByUID(const VectorInt& iuids,
@@ -1248,20 +1285,20 @@ void Db::setLocatorsByUID(const VectorInt& iuids,
 
   if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
 
-  for (int i = 0, number = (int) iuids.size(); i < number; i++)
+  for (int i = 0, number = (int)iuids.size(); i < number; i++)
     setLocatorByUID(iuids[i], locatorType, locatorIndex + i);
 }
 
 void Db::setLocatorsByColIdx(const VectorInt& icols,
-                              const ELoc& locatorType,
-                              int locatorIndex,
-                              bool cleanSameLocator)
+                             const ELoc& locatorType,
+                             int locatorIndex,
+                             bool cleanSameLocator)
 {
   if (cleanSameLocator) clearLocators(locatorType);
 
   if (locatorIndex < 0) locatorIndex = _getNextLocator(locatorType);
 
-  for (int icol = 0, ncol = (int) icols.size(); icol < ncol; icol++)
+  for (int icol = 0, ncol = (int)icols.size(); icol < ncol; icol++)
   {
     int iuid = getUIDByColIdx(icol);
     setLocatorByUID(iuid, locatorType, locatorIndex + icol);
@@ -1281,13 +1318,13 @@ void Db::setLocatorsByColIdx(const VectorInt& icols,
  */
 int Db::addColumnsByConstant(int nadd,
                              double valinit,
-                             const String &radix,
-                             const ELoc &locatorType,
+                             const String& radix,
+                             const ELoc& locatorType,
                              int locatorIndex,
                              int nechInit)
 {
   int ncol = _ncol;
-  int nmax = getUIDMaxNumber();
+  int nmax = getNUIDMax();
   int nnew = ncol + nadd;
   if (nadd <= 0) return (-1);
 
@@ -1311,11 +1348,11 @@ int Db::addColumnsByConstant(int nadd,
     _colNames[ncol] = radix;
   else
   {
-    VectorString names = generateMultipleNames(radix,nadd);
+    VectorString names = generateMultipleNames(radix, nadd);
     for (int i = 0; i < nadd; i++)
       _colNames[ncol + i] = names[i];
   }
-  (void) correctNamesForDuplicates(_colNames);
+  (void)correctNamesForDuplicates(_colNames);
 
   // Initialize the variables with a given value
   _columnInit(nadd, ncol, true, valinit);
@@ -1341,14 +1378,14 @@ int Db::addColumnsByConstant(int nadd,
  * @return Rank of the first UID
  */
 int Db::addColumnsRandom(int nadd,
-                         const String &radix,
-                         const ELoc &locatorType,
+                         const String& radix,
+                         const ELoc& locatorType,
                          int locatorIndex,
                          int seed,
                          int nechInit)
 {
   int ncol = _ncol;
-  int nmax = getUIDMaxNumber();
+  int nmax = getNUIDMax();
   int nnew = ncol + nadd;
   if (nadd <= 0) return (-1);
 
@@ -1372,11 +1409,11 @@ int Db::addColumnsRandom(int nadd,
     _colNames[ncol] = radix;
   else
   {
-    VectorString names = generateMultipleNames(radix,nadd);
+    VectorString names = generateMultipleNames(radix, nadd);
     for (int i = 0; i < nadd; i++)
       _colNames[ncol + i] = names[i];
   }
-  (void) correctNamesForDuplicates(_colNames);
+  (void)correctNamesForDuplicates(_colNames);
 
   // Initialize the variables with a random value
   law_set_random_seed(seed);
@@ -1392,17 +1429,17 @@ int Db::addColumnsRandom(int nadd,
 }
 
 void Db::addColumnsByVVD(const VectorVectorDouble& tab,
-                         const String &radix,
-                         const ELoc &locatorType,
+                         const String& radix,
+                         const ELoc& locatorType,
                          int locatorIndex,
                          bool useSel)
 {
   VectorDouble tabv;
-  int nvar = (int) tab.size();
-  for(const auto &e : tab)
-    for(const auto &f : e)
+  int nvar = (int)tab.size();
+  for (const auto& e: tab)
+    for (const auto& f: e)
       tabv.push_back(f);
-  addColumns(tabv,radix,locatorType,locatorIndex,useSel,TEST,nvar);
+  addColumns(tabv, radix, locatorType, locatorIndex, useSel, TEST, nvar);
 }
 
 /**
@@ -1425,9 +1462,9 @@ void Db::addColumnsByVVD(const VectorVectorDouble& tab,
  * @remark When a vector 'tab' is provided, the number of variables 'nvar'
  * @remark is calculated as its size divided by the number of samples in the grid.
  */
-int Db::addColumns(const VectorDouble &tab,
-                   const String &radix,
-                   const ELoc &locatorType,
+int Db::addColumns(const VectorDouble& tab,
+                   const String& radix,
+                   const ELoc& locatorType,
                    int locatorIndex,
                    bool useSel,
                    double valinit,
@@ -1438,12 +1475,12 @@ int Db::addColumns(const VectorDouble &tab,
 
   // Particular case where the Db is empty.
   // Set its dimension to the number of samples of the input array 'tab'
-  if (_nech <= 0) _nech = static_cast<int> (tab.size()) / nvar;
+  if (_nech <= 0) _nech = static_cast<int>(tab.size()) / nvar;
 
   // Check dimensions
-  int nech = getSampleNumber(useSel);
-  nvar = (int) tab.size() / nech;
-  if ((int) tab.size() != nvar * nech)
+  int nech = getNSample(useSel);
+  nvar     = (int)tab.size() / nech;
+  if ((int)tab.size() != nvar * nech)
   {
     messerr("Db::addColumns : Incompatibility between 'tab'(%d) and 'nvar'(%d) * 'nech'(%d)",
             tab.size(), nvar, nech);
@@ -1469,7 +1506,7 @@ void Db::setColumnByColIdxOldStyle(const double* tab, int icol, bool useSel)
   if (useSel) sel = getSelections();
 
   int lec = 0;
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int iech = 0; iech < getNSample(); iech++)
   {
     bool defined = true;
     if (useSel && !sel.empty()) defined = (isOne(sel[iech]));
@@ -1493,19 +1530,19 @@ void Db::setColumnByColIdx(const VectorDouble& tab, int icol, bool useSel)
 
 void Db::setColumnsByColIdx(const VectorDouble& tabs, const VectorInt& icols, bool useSel)
 {
-  int nech = getSampleNumber(useSel);
-  if ((int) icols.size() * nech != (int) tabs.size())
+  int nech = getNSample(useSel);
+  if ((int)icols.size() * nech != (int)tabs.size())
   {
     messerr("Dimensions of 'icols'(%d), 'nech'(%d) and 'tabs'(%d) are inconsistent",
-            (int) icols.size(), nech, (int) tabs.size());
+            (int)icols.size(), nech, (int)tabs.size());
     return;
   }
   int lec = 0;
   VectorDouble tabloc(nech);
-  for (int i = 0; i < (int) icols.size(); i++)
+  for (int i = 0; i < (int)icols.size(); i++)
   {
     int icol = icols[i];
-    for (int j = 0; j < getSampleNumber(useSel); j++) tabloc[j] = tabs[lec++];
+    for (int j = 0; j < getNSample(useSel); j++) tabloc[j] = tabs[lec++];
     setColumnByColIdx(tabloc, icol, useSel);
   }
 }
@@ -1527,9 +1564,9 @@ void Db::setColumnByUIDOldStyle(const double* tab, int iuid, bool useSel)
 
   if (useSel) sel = getSelections();
 
-  int lec = 0;
+  int lec      = 0;
   bool defined = true;
-  for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
+  for (int iech = 0, nech = getNSample(); iech < nech; iech++)
   {
     defined = true;
     if (!sel.empty()) defined = (isOne(sel[iech]));
@@ -1556,13 +1593,12 @@ void Db::setColumnByUID(const VectorDouble& tab, int iuid, bool useSel)
  * @remark: Arguments 'locatorType'  and 'locatorIndex' are only used
  * @remark: for newly added variables
  */
-void Db::setColumn(const VectorDouble& tab, const String& name,
-                   const ELoc& locatorType, int locatorIndex, bool useSel)
+void Db::setColumn(const VectorDouble& tab, const String& name, const ELoc& locatorType, int locatorIndex, bool useSel)
 {
   VectorInt iuids = _ids(name, true, false);
   if (iuids.empty())
   {
-    (void) addColumns(tab, name, locatorType, locatorIndex, useSel);
+    (void)addColumns(tab, name, locatorType, locatorIndex, useSel);
   }
   else
   {
@@ -1574,7 +1610,7 @@ void Db::duplicateColumnByUID(int iuid_in, int iuid_out)
 {
   if (!isUIDValid(iuid_in)) return;
   if (!isUIDValid(iuid_out)) return;
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int iech = 0; iech < getNSample(); iech++)
   {
     double value = getArray(iech, iuid_in);
     setArray(iech, iuid_out, value);
@@ -1651,11 +1687,11 @@ void Db::deleteColumnsByUIDRange(int i_del, int n_del)
  * @remark If the dimension of 'tab' does not match the number of samples in the Db
  * @remark the action is cancelled (a message is issued)
  */
-int Db::addSelection(const VectorDouble &tab,
-                     const String &name,
-                     const String &combine)
+int Db::addSelection(const VectorDouble& tab,
+                     const String& name,
+                     const String& combine)
 {
-  int nech = getSampleNumber();
+  int nech = getNSample();
   VectorDouble sel(nech);
 
   if (tab.empty())
@@ -1665,23 +1701,82 @@ int Db::addSelection(const VectorDouble &tab,
   }
   else
   {
-    if (nech != (int) tab.size())
+    if (nech != (int)tab.size())
     {
       messerr("Dimension of 'tab' (%d) does not match the number of samples (%d)",
-              (int) tab.size(),nech);
+              (int)tab.size(), nech);
       messerr("Action is cancelled");
       return -1;
     }
 
     for (int iech = 0; iech < nech; iech++)
     {
-      sel[iech] = (! isZero(tab[iech])) ? 1. : 0.;
+      sel[iech] = (!isZero(tab[iech])) ? 1. : 0.;
     }
   }
 
   // Convert the input array into a selection (0 or 1)
 
   combineSelection(sel, combine);
+  int iuid = addColumns(sel, name, ELoc::SEL);
+  return iuid;
+}
+
+/**
+ * @brief Create a selection by testing a target variable against 'lower' and 'upper'
+ *
+ * @param varname Name of the target variable
+ * @param lower Lower bound (included) or TEST for no lower bound
+ * @param upper Upper bound (included) or TEST for no upper bound
+ * @param name  Name given to the newly created selection
+ * @param selName If defined, the current selection is combined with the existing one
+ * @return int
+ */
+int Db::addSelectionByVariable(const String& varname,
+                               double lower,
+                               double upper,
+                               const String& name,
+                               const String& selName)
+{
+  VectorDouble var = getColumn(varname, false);
+  if (var.empty())
+  {
+    messerr("The variable '%s' does not exist", varname.c_str());
+    return 1;
+  }
+
+  int nech = getNSample(false);
+  VectorDouble sel(nech);
+  for (int iech = 0; iech < nech; iech++)
+  {
+    double value  = var[iech];
+    double answer = 1;
+    if (FFFF(value))
+    {
+      answer = 0;
+    }
+    else
+    {
+      if (!FFFF(lower) && value < lower) answer = 0;
+      if (!FFFF(upper) && value > upper) answer = 0;
+    }
+    sel[iech] = answer;
+  }
+
+  // Intersection with an already existing selection (optional)
+  if (selName != "")
+  {
+    VectorDouble selOld = getColumn(selName, false);
+    if (selOld.empty())
+    {
+      messerr("The previous selection '%s' does not exist", selName.c_str());
+      return 1;
+    }
+    for (int iech = 0; iech < nech; iech++)
+      sel[iech] = sel[iech] * selOld[iech];
+  }
+
+  // Store the newly createed selection
   int iuid = addColumns(sel, name, ELoc::SEL);
   return iuid;
 }
@@ -1694,14 +1789,14 @@ int Db::addSelection(const VectorDouble &tab,
  * @param combine How to combine with an already existing selection (see combineSelection() for details)
  * @return
  */
-int Db::addSelectionByRanks(const VectorInt &ranks,
-                            const String &name,
-                            const String &combine)
+int Db::addSelectionByRanks(const VectorInt& ranks,
+                            const String& name,
+                            const String& combine)
 {
-  int nech = getSampleNumber();
+  int nech = getNSample();
   VectorDouble sel(nech, 0.);
 
-  for (int i = 0; i < (int) ranks.size(); i++)
+  for (int i = 0; i < (int)ranks.size(); i++)
     sel[ranks[i]] = 1.;
 
   // Convert the input array into a selection (0 or 1)
@@ -1724,20 +1819,20 @@ int Db::addSelectionByLimit(const String& testvar,
                             const String& name,
                             const String& combine)
 {
-  int nech = getSampleNumber();
+  int nech = getNSample();
   VectorDouble sel(nech);
 
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int iech = 0; iech < getNSample(); iech++)
   {
-    double value = getValue(testvar,iech);
+    double value  = getValue(testvar, iech);
     double answer = 1;
     if (FFFF(value))
     {
       answer = 0;
     }
-    else if (! limits.empty())
+    else if (!limits.empty())
     {
-      if (! limits.isInside(value)) answer = 0;
+      if (!limits.isInside(value)) answer = 0;
     }
     sel[iech] = answer;
   }
@@ -1755,10 +1850,10 @@ int Db::addSelectionByLimit(const String& testvar,
  * @param namconv  Naming Convention
  * @return
  */
-int Db::addSelectionFromDbByConvexHull(Db *db,
+int Db::addSelectionFromDbByConvexHull(Db* db,
                                        double dilate,
                                        bool verbose,
-                                       const NamingConvention &namconv)
+                                       const NamingConvention& namconv)
 {
   if (db == nullptr)
   {
@@ -1779,10 +1874,10 @@ int Db::addSelectionFromDbByConvexHull(Db *db,
  */
 int Db::addSelectionRandom(double prop,
                            int seed,
-                           const String &name,
-                           const String &combine)
+                           const String& name,
+                           const String& combine)
 {
-  VectorInt ranks = VH::sampleRanks(getSampleNumber(false),prop,-1,seed,1);
+  VectorInt ranks = VH::sampleRanks(getNSample(false), prop, -1, seed, 1);
   return addSelectionByRanks(ranks, name, combine);
 }
 
@@ -1794,7 +1889,7 @@ int Db::addSelectionRandom(double prop,
  */
 int Db::addSamples(int nadd, double valinit)
 {
-  if (! mayChangeSampleNumber())
+  if (!mayChangeSampleNumber())
   {
     messerr("This type of Data Base does not allow modifying the Count of Samples");
     return -1;
@@ -1814,14 +1909,14 @@ int Db::addSamples(int nadd, double valinit)
   for (int icol = 0; icol < _ncol; icol++)
     for (int iech = 0; iech < nech; iech++)
     {
-      int iad1 = iech + nnew * icol;
+      int iad1        = iech + nnew * icol;
       new_array[iad1] = _array[_getAddress(iech, icol)];
     }
 
   /* Core deallocation */
 
   _array = new_array;
-  _nech = nnew;
+  _nech  = nnew;
   return (nech);
 }
 
@@ -1845,7 +1940,7 @@ int Db::deleteSamples(const VectorInt& e_dels)
  */
 int Db::deleteSample(int e_del)
 {
-  if (! mayChangeSampleNumber())
+  if (!mayChangeSampleNumber())
   {
     messerr("This type of Data Base does not allow modifying the Count of Samples");
     return 1;
@@ -1864,15 +1959,15 @@ int Db::deleteSample(int e_del)
     for (int iech = 0; iech < nech; iech++)
     {
       if (iech == e_del) continue;
-      int jech = (iech < e_del) ? iech : iech - 1;
-      int iad1 = jech + nnew * icol;
+      int jech        = (iech < e_del) ? iech : iech - 1;
+      int iad1        = jech + nnew * icol;
       new_array[iad1] = _array[_getAddress(iech, icol)];
     }
 
   /* Core deallocation */
 
   _array = new_array;
-  _nech = nnew;
+  _nech  = nnew;
   return 0;
 }
 
@@ -1882,8 +1977,8 @@ int Db::deleteSample(int e_del)
  */
 void Db::deleteColumnByColIdx(int icol_del)
 {
-  if (! isColIdxValid(icol_del)) return;
-  VectorInt iuids = _ids(_colNames[icol_del],true);
+  if (!isColIdxValid(icol_del)) return;
+  VectorInt iuids = _ids(_colNames[icol_del], true);
   if (iuids.empty()) return;
   deleteColumnByUID(iuids[0]);
 }
@@ -1897,7 +1992,7 @@ void Db::deleteColumnByUID(int iuid_del)
 {
   int ncol = _ncol;
   int nech = _nech;
-  int nmax = getUIDMaxNumber();
+  int nmax = getNUIDMax();
   int nnew = ncol - 1;
   if (!isUIDValid(iuid_del)) return;
 
@@ -1925,7 +2020,7 @@ void Db::deleteColumnByUID(int iuid_del)
   for (int iloc = 0; iloc < number; iloc++)
   {
     PtrGeos& p = _p[iloc];
-    int found = p.findUIDInLocator(iuid_del);
+    int found  = p.findUIDInLocator(iuid_del);
     if (found >= 0) p.erase(found);
   }
 
@@ -1945,7 +2040,7 @@ void Db::deleteColumnByUID(int iuid_del)
 void Db::deleteColumnsByLocator(const ELoc& locatorType)
 {
   const PtrGeos& p = _p[locatorType.getValue()];
-  int nitem = p.getLocatorNumber();
+  int nitem        = p.getNLoc();
   // Loop is performed downwards as PtrGeos is modified by called routine
   for (int locatorIndex = nitem - 1; locatorIndex >= 0; locatorIndex--)
   {
@@ -1961,7 +2056,7 @@ VectorDouble Db::getExtrema(int idim, bool useSel) const
 {
   VectorDouble ext;
   if (!isDimensionIndexValid(idim)) return ext;
-  VectorDouble coor = getCoordinates(idim, useSel);
+  VectorDouble coor = getOneCoordinate(idim, useSel);
   ext.push_back(VH::minimum(coor));
   ext.push_back(VH::maximum(coor));
   return ext;
@@ -1988,7 +2083,7 @@ VectorDouble Db::getCoorMinimum(bool useSel) const
   VectorDouble ext;
   for (int idim = 0; idim < getNDim(); idim++)
   {
-    VectorDouble coor = getCoordinates(idim, useSel);
+    VectorDouble coor = getOneCoordinate(idim, useSel);
     ext.push_back(VH::minimum(coor));
   }
   return ext;
@@ -2003,7 +2098,7 @@ VectorDouble Db::getCoorMaximum(bool useSel) const
   VectorDouble ext;
   for (int idim = 0; idim < getNDim(); idim++)
   {
-    VectorDouble coor = getCoordinates(idim, useSel);
+    VectorDouble coor = getOneCoordinate(idim, useSel);
     ext.push_back(VH::maximum(coor));
   }
   return ext;
@@ -2029,9 +2124,9 @@ VectorDouble Db::getCenters(bool useSel) const
 double Db::getCenter(int idim, bool useSel) const
 {
   if (!isDimensionIndexValid(idim)) return TEST;
-  VectorDouble coor = getCoordinates(idim, useSel);
-  double mini = VH::minimum(coor);
-  double maxi = VH::maximum(coor);
+  VectorDouble coor = getOneCoordinate(idim, useSel);
+  double mini       = VH::minimum(coor);
+  double maxi       = VH::maximum(coor);
   return ((mini + maxi) / 2.);
 }
 
@@ -2042,9 +2137,9 @@ double Db::getCenter(int idim, bool useSel) const
 double Db::getExtension(int idim, bool useSel) const
 {
   if (!isDimensionIndexValid(idim)) return 0.;
-  VectorDouble coor = getCoordinates(idim, useSel);
-  double mini = VH::minimum(coor);
-  double maxi = VH::maximum(coor);
+  VectorDouble coor = getOneCoordinate(idim, useSel);
+  double mini       = VH::minimum(coor);
+  double maxi       = VH::maximum(coor);
   return maxi - mini;
 }
 
@@ -2054,7 +2149,7 @@ double Db::getExtension(int idim, bool useSel) const
  */
 double Db::getExtensionDiagonal(bool useSel) const
 {
-  int ndim = getNDim();
+  int ndim     = getNDim();
   double total = 0.;
   for (int idim = 0; idim < ndim; idim++)
   {
@@ -2074,7 +2169,7 @@ void Db::getExtensionInPlace(VectorDouble& mini,
                              bool useSel) const
 {
   int ndim = getNDim();
-  if (ndim != (int) mini.size()) mini.resize(ndim,TEST);
+  if (ndim != (int)mini.size()) mini.resize(ndim, TEST);
   if (ndim != (int)maxi.size()) maxi.resize(ndim, TEST);
 
   // If flagPreserve is false, the output arguments are reset beforehand
@@ -2090,9 +2185,9 @@ void Db::getExtensionInPlace(VectorDouble& mini,
 
   for (int idim = 0; idim < getNDim(); idim++)
   {
-    VectorDouble coor = getCoordinates(idim, useSel);
-    double vmin = VH::minimum(coor);
-    double vmax = VH::maximum(coor);
+    VectorDouble coor = getOneCoordinate(idim, useSel);
+    double vmin       = VH::minimum(coor);
+    double vmax       = VH::maximum(coor);
     if (FFFF(mini[idim]) || vmin < mini[idim]) mini[idim] = vmin;
     if (FFFF(maxi[idim]) || vmax > maxi[idim]) maxi[idim] = vmax;
   }
@@ -2127,29 +2222,29 @@ VectorString Db::identifyNames(const VectorString& names) const
 
   // Constitute the list of the locator names
   VectorString locnames;
-  for (int j = 0; j < getColumnNumber(); j++)
+  for (int j = 0; j < getNColumn(); j++)
   {
-    if (! getLocatorByColIdx(j, &locatorType, &locatorIndex)) continue;
+    if (!getLocatorByColIdx(j, &locatorType, &locatorIndex)) continue;
     String local = getLocatorName(locatorType, locatorIndex);
     locnames.push_back(local);
   }
 
-  for (int i = 0; i < (int) names.size(); i++)
+  for (int i = 0; i < (int)names.size(); i++)
   {
     // Look within the list of names
     namloc = getName(names[i]);
-    if (! namloc.empty())
+    if (!namloc.empty())
     {
-      for (int j = 0; j < (int) namloc.size(); j++)
+      for (int j = 0; j < (int)namloc.size(); j++)
         ret_names.push_back(namloc[j]);
       continue;
     }
 
     // Look within the list of locators
     namloc = expandList(locnames, names[i]);
-    if (! namloc.empty())
+    if (!namloc.empty())
     {
-      for (int j = 0; j < (int) namloc.size(); j++)
+      for (int j = 0; j < (int)namloc.size(); j++)
       {
         if (locatorIdentify(namloc[j], &locatorType, &locatorIndex, &mult) != 0) continue;
         String local = getNameByLocator(locatorType, locatorIndex);
@@ -2236,7 +2331,7 @@ double Db::getCorrelation(const String& name1, const String& name2, bool useSel)
   iuids = _ids(name1, true);
   if (iuids.empty()) return TEST;
   VectorDouble tab1 = getColumnByUID(iuids[0], useSel);
-  iuids = _ids(name2, true);
+  iuids             = _ids(name2, true);
   if (iuids.empty()) return TEST;
   VectorDouble tab2 = getColumnByUID(iuids[0], useSel);
   return VH::correlation(tab1, tab2);
@@ -2244,7 +2339,7 @@ double Db::getCorrelation(const String& name1, const String& name2, bool useSel)
 
 int Db::getNDim() const
 {
-  return _p[ELoc::X.getValue()].getLocatorNumber();
+  return _p[ELoc::X.getValue()].getNLoc();
 }
 
 bool Db::hasSameDimension(const Db* dbaux) const
@@ -2268,12 +2363,11 @@ bool Db::hasLargerDimension(const Db* dbaux) const
     messerr("The Space Dimension of the Secondary Data base (%d)",
             dbaux->getNDim());
     messerr(
-        "should be larger than the Space Dimension of the Current Data Base (%d)",
-        getNDim());
+      "should be larger than the Space Dimension of the Current Data Base (%d)",
+      getNDim());
   }
   return retOK;
 }
-
 
 void Db::_columnInit(int ncol, int icol0, bool flagCst, double valinit)
 {
@@ -2310,8 +2404,8 @@ void Db::switchLocator(const ELoc& locatorType_in, const ELoc& locatorType_out)
 {
   PtrGeos& p_in  = _p[locatorType_in.getValue()];
   PtrGeos& p_out = _p[locatorType_out.getValue()];
-  int n_in  = getFromLocatorNumber(locatorType_in);
-  int n_out = getFromLocatorNumber(locatorType_out);
+  int n_in       = getNFromLocator(locatorType_in);
+  int n_out      = getNFromLocator(locatorType_out);
 
   /* Move the gradient components into additional variables */
   p_out.resize(n_in + n_out);
@@ -2320,30 +2414,33 @@ void Db::switchLocator(const ELoc& locatorType_in, const ELoc& locatorType_out)
   p_in.clear();
 }
 
-double Db::getValueByColIdx(int iech, int icol) const
+double Db::getValueByColIdx(int iech, int icol, bool flagCheck) const
 {
-  if (!isColIdxValid(icol)) return TEST;
+  if (flagCheck)
+  {
+    if (!isColIdxValid(icol)) return TEST;
+  }
   return (_array[_getAddress(iech, icol)]);
 }
 
-VectorDouble Db::getValuesByNames(const VectorInt &iechs,
-                                  const VectorString &names,
+VectorDouble Db::getValuesByNames(const VectorInt& iechs,
+                                  const VectorString& names,
                                   bool bySample) const
 {
   VectorInt icols = getColIdxs(names);
   return getValuesByColIdx(iechs, icols, bySample);
 }
 
-VectorDouble Db::getValuesByColIdx(const VectorInt &iechs,
-                                   const VectorInt &icols,
+VectorDouble Db::getValuesByColIdx(const VectorInt& iechs,
+                                   const VectorInt& icols,
                                    bool bySample) const
 {
   VectorDouble vec;
 
   if (bySample)
   {
-    for (int j = 0; j < (int) iechs.size(); j++)
-      for (int i = 0; i < (int) icols.size(); i++)
+    for (int j = 0; j < (int)iechs.size(); j++)
+      for (int i = 0; i < (int)icols.size(); i++)
       {
         int iech = iechs[j];
         int icol = icols[i];
@@ -2354,8 +2451,8 @@ VectorDouble Db::getValuesByColIdx(const VectorInt &iechs,
   }
   else
   {
-    for (int i = 0; i < (int) icols.size(); i++)
-      for (int j = 0; j < (int) iechs.size(); j++)
+    for (int i = 0; i < (int)icols.size(); i++)
+      for (int j = 0; j < (int)iechs.size(); j++)
       {
         int iech = iechs[j];
         int icol = icols[i];
@@ -2367,39 +2464,42 @@ VectorDouble Db::getValuesByColIdx(const VectorInt &iechs,
   return vec;
 }
 
-void Db::setValueByColIdx(int iech, int icol, double value)
+void Db::setValueByColIdx(int iech, int icol, double value, bool flagCheck)
 {
-  if (!isColIdxValid(icol)) return;
-  if (!isSampleIndexValid(iech)) return;
+  if (flagCheck)
+  {
+    if (!isColIdxValid(icol)) return;
+    if (!isSampleIndexValid(iech)) return;
+  }
   _array[_getAddress(iech, icol)] = value;
 }
 
-void Db::setValuesByNames(const VectorInt &iechs,
-                          const VectorString &names,
-                          const VectorDouble &values,
+void Db::setValuesByNames(const VectorInt& iechs,
+                          const VectorString& names,
+                          const VectorDouble& values,
                           bool bySample)
 {
   VectorInt icols = getColIdxs(names);
   setValuesByColIdx(iechs, icols, values, bySample);
 }
 
-void Db::setValuesByColIdx(const VectorInt &iechs,
-                           const VectorInt &icols,
-                           const VectorDouble &values,
+void Db::setValuesByColIdx(const VectorInt& iechs,
+                           const VectorInt& icols,
+                           const VectorDouble& values,
                            bool bySample)
 {
-  if ((int) icols.size() * (int) iechs.size() != (int) values.size())
+  if ((int)icols.size() * (int)iechs.size() != (int)values.size())
   {
     messerr("Dimensions of 'icols'(%d), 'iechs'(%d) and 'values'(%d) are inconsistent",
-            (int) icols.size(), (int) iechs.size(), (int) values.size());
-    return ;
+            (int)icols.size(), (int)iechs.size(), (int)values.size());
+    return;
   }
 
   int lec = 0;
   if (bySample)
   {
-    for (int j = 0; j < (int) iechs.size(); j++)
-      for (int i = 0; i < (int) icols.size(); i++)
+    for (int j = 0; j < (int)iechs.size(); j++)
+      for (int i = 0; i < (int)icols.size(); i++)
       {
         int icol = icols[i];
         int iech = iechs[j];
@@ -2410,8 +2510,8 @@ void Db::setValuesByColIdx(const VectorInt &iechs,
   }
   else
   {
-    for (int i = 0; i < (int) icols.size(); i++)
-      for (int j = 0; j < (int) iechs.size(); j++)
+    for (int i = 0; i < (int)icols.size(); i++)
+      for (int j = 0; j < (int)iechs.size(); j++)
       {
         int icol = icols[i];
         int iech = iechs[j];
@@ -2427,16 +2527,17 @@ void Db::setValuesByColIdx(const VectorInt &iechs,
  *
  * @return Number of fields
  */
-int Db::getLocNumber(const ELoc& loctype) const
+int Db::getNLoc(const ELoc& loctype) const
 {
   if (loctype == ELoc::UNKNOWN) return 0;
   const PtrGeos& p = _p[loctype.getValue()];
-  return p.getLocatorNumber();
+  return p.getNLoc();
 }
-int Db::getZNumber() const
+
+int Db::getNZValues() const
 {
   const PtrGeos& p = _p[ELoc::Z.getValue()];
-  return p.getLocatorNumber();
+  return p.getNLoc();
 }
 
 /**
@@ -2447,11 +2548,11 @@ int Db::getZNumber() const
 bool Db::hasLocVariable(const ELoc& loctype) const
 {
   if (loctype == ELoc::UNKNOWN) return false;
-  return (int) hasLocator(loctype);
+  return (int)hasLocator(loctype);
 }
 bool Db::hasZVariable() const
 {
-  return (int) hasLocator(ELoc::Z);
+  return (int)hasLocator(ELoc::Z);
 }
 
 /**
@@ -2471,7 +2572,7 @@ double Db::getZVariable(int iech, int item) const
 VectorDouble Db::getLocVariables(const ELoc& loctype, int iech, int nitemax) const
 {
   VectorDouble vec;
-  int number = getFromLocatorNumber(loctype);
+  int number = getNFromLocator(loctype);
   if (number <= 0) return vec;
   int nitem = (nitemax > 0) ? MIN(nitemax, number) : number;
 
@@ -2498,8 +2599,8 @@ void Db::setLocVariables(const ELoc& loctype,
                          int iech,
                          const VectorDouble& values)
 {
-  int number = getFromLocatorNumber(loctype);
-  int size = (int) values.size();
+  int number = getNFromLocator(loctype);
+  int size   = (int)values.size();
   if (number != size)
   {
     messerr("Dimension of 'values' (%d) does not match number of elements in "
@@ -2519,11 +2620,11 @@ void Db::updLocVariable(const ELoc& loctype, int iech, int item, const EOperator
 {
   if (loctype == ELoc::UNKNOWN) return;
   if (!isSampleIndexValid(iech)) return;
-  int icol = getColIdxByLocator(loctype, item);
+  int icol            = getColIdxByLocator(loctype, item);
   int internalAddress = _getAddress(iech, icol);
 
-  double oldval = _array[internalAddress];
-  double newval = modifyOperator(oper, oldval, value);
+  double oldval           = _array[internalAddress];
+  double newval           = modifyOperator(oper, oldval, value);
   _array[internalAddress] = newval;
 }
 void Db::updZVariable(int iech, int item, const EOperator& oper, double value)
@@ -2543,32 +2644,32 @@ void Db::updZVariable(int iech, int item, const EOperator& oper, double value)
  * - compare<0: 'this' should contain less (or equal) than 'nvar'
  * - compare>0: 'this' should contain more (or equal) than 'nvar'
  */
-bool Db::isVariableNumberComparedTo(int nvar, int compare) const
+bool Db::isNVarComparedTo(int nvar, int compare) const
 {
   if (compare == 0)
   {
-    if (getLocNumber(ELoc::Z) != nvar)
+    if (getNLoc(ELoc::Z) != nvar)
     {
       messerr("This function requires %d variables (locator 'Z'). The 'Db' contains %d variables",
-              nvar,getLocNumber(ELoc::Z));
+              nvar, getNLoc(ELoc::Z));
       return false;
     }
   }
   else if (compare < 0)
   {
-    if (! (getLocNumber(ELoc::Z) <= nvar))
+    if (!(getNLoc(ELoc::Z) <= nvar))
     {
       messerr("This function requires nvar <= %d variables (locator 'Z'). The 'Db' contains %d variables",
-              nvar,getLocNumber(ELoc::Z));
+              nvar, getNLoc(ELoc::Z));
       return false;
     }
   }
   else
   {
-    if (! (getLocNumber(ELoc::Z) > nvar))
+    if (!(getNLoc(ELoc::Z) > nvar))
     {
       messerr("This function requires nvar >= %d variables (locator 'Z'). The 'Db' contains %d variables",
-              nvar,getLocNumber(ELoc::Z));
+              nvar, getNLoc(ELoc::Z));
       return false;
     }
   }
@@ -2589,7 +2690,7 @@ bool Db::isVariableNumberComparedTo(int nvar, int compare) const
  */
 bool Db::isIsotopic(int iech, int nvar_max) const
 {
-  int nvar = getLocNumber(ELoc::Z);
+  int nvar = getNLoc(ELoc::Z);
   if (nvar_max > 0) nvar = MIN(nvar, nvar_max);
   if (nvar <= 0) return false;
   if (!isSampleIndexValid(iech)) return false;
@@ -2604,9 +2705,9 @@ bool Db::isIsotopic(int iech, int nvar_max) const
  */
 bool Db::isAllIsotopic() const
 {
-  for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
+  for (int iech = 0, nech = getNSample(); iech < nech; iech++)
   {
-    if (! isIsotopic(iech)) return false;
+    if (!isIsotopic(iech)) return false;
   }
   return true;
 }
@@ -2614,28 +2715,28 @@ bool Db::isAllIsotopic() const
 bool Db::isAllUndefined(int iech) const
 {
   if (!isSampleIndexValid(iech)) return false;
-  int nvar = getLocNumber(ELoc::Z);
+  int nvar = getNLoc(ELoc::Z);
   if (nvar <= 0) return false;
 
   for (int ivar = 0; ivar < nvar; ivar++)
-    if (! FFFF(getZVariable(iech, ivar))) return true;
+    if (!FFFF(getZVariable(iech, ivar))) return true;
   return false;
 }
 
 bool Db::isAllUndefinedByType(const ELoc& loctype, int iech) const
 {
   if (!isSampleIndexValid(iech)) return false;
-  int natt = getLocNumber(loctype);
+  int natt = getNLoc(loctype);
   if (natt <= 0) return false;
 
   for (int iatt = 0; iatt < natt; iatt++)
-    if (! FFFF(getLocVariable(loctype, iech, iatt))) return true;
+    if (!FFFF(getLocVariable(loctype, iech, iatt))) return true;
   return false;
 }
 
-int Db::getIntervalNumber() const
+int Db::getNInterval() const
 {
-  return MAX(getLocNumber(ELoc::RKLOW), getLocNumber(ELoc::RKUP));
+  return MAX(getNLoc(ELoc::RKLOW), getNLoc(ELoc::RKUP));
 }
 
 void Db::setInterval(int iech, int item, double rklow, double rkup)
@@ -2643,11 +2744,11 @@ void Db::setInterval(int iech, int item, double rklow, double rkup)
   if (rklow > rkup)
   {
     messerr("Setting Intervals: Lower (%lf) cannot be larger than upper (%lf)",
-            rklow,rkup);
+            rklow, rkup);
     return;
   }
   setFromLocator(ELoc::RKLOW, iech, item, rklow);
-  setFromLocator(ELoc::RKUP,  iech, item, rkup);
+  setFromLocator(ELoc::RKUP, iech, item, rkup);
 }
 
 void Db::setBound(int iech, int item, double lower, double upper)
@@ -2655,16 +2756,16 @@ void Db::setBound(int iech, int item, double lower, double upper)
   if (lower > upper)
   {
     messerr("Setting bounds: Lower (%lf) cannot be larger than upper (%lf)",
-            lower,upper);
+            lower, upper);
     return;
   }
-  setLocVariable(ELoc::L,iech,item,lower);
-  setLocVariable(ELoc::U,iech,item,upper);
+  setLocVariable(ELoc::L, iech, item, lower);
+  setLocVariable(ELoc::U, iech, item, upper);
 }
 
 VectorDouble Db::getWithinBounds(int item, bool useSel) const
 {
-  int nech = getSampleNumber(useSel);
+  int nech = getNSample(useSel);
   VectorDouble vec(nech);
   VectorDouble vecl = getColumnByLocator(ELoc::L, item, useSel);
   VectorDouble vecu = getColumnByLocator(ELoc::U, item, useSel);
@@ -2696,10 +2797,10 @@ VectorDouble Db::getGradient(int item, bool useSel) const
   if (!hasLocVariable(ELoc::G)) return VectorDouble();
   VectorDouble tab;
 
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int iech = 0; iech < getNSample(); iech++)
   {
-    if (useSel && ! isActive(iech)) continue;
-    tab.push_back(getLocVariable(ELoc::G,iech,item));
+    if (useSel && !isActive(iech)) continue;
+    tab.push_back(getLocVariable(ELoc::G, iech, item));
   }
   return tab;
 }
@@ -2709,10 +2810,10 @@ VectorDouble Db::getTangent(int item, bool useSel) const
   if (!hasLocVariable(ELoc::TGTE)) return VectorDouble();
   VectorDouble tab;
 
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int iech = 0; iech < getNSample(); iech++)
   {
-    if (useSel && ! isActive(iech)) continue;
-    tab.push_back(getLocVariable(ELoc::TGTE,iech,item));
+    if (useSel && !isActive(iech)) continue;
+    tab.push_back(getLocVariable(ELoc::TGTE, iech, item));
   }
   return tab;
 }
@@ -2728,29 +2829,29 @@ int Db::getSelection(int iech) const
   if (!hasLocVariable(ELoc::SEL)) return 1;
   double value = getFromLocator(ELoc::SEL, iech, 0);
   if (FFFF(value)) return 0;
-  int sel = (! isZero(value)) ? 1 :  0;
+  int sel = (!isZero(value)) ? 1 : 0;
   return (sel);
 }
 
 /**
  * Returns the number of active samples if a Selection is already defined.
  *
- * If no Selection is currently defined, it returns the total number of samples (see getSampleNumber())
+ * If no Selection is currently defined, it returns the total number of samples (see getNSample())
  * @return Number of active samples
  *
  * @remark This method is deprecated and should be replaced by a call to
- * getSampleNumber()
+ * getNSample()
  */
-GSTLEARN_DEPRECATED int Db::getActiveSampleNumber() const
+GSTLEARN_DEPRECATED int Db::getNSampleActive() const
 {
-  if (!hasLocVariable(ELoc::SEL)) return (getSampleNumber());
+  if (!hasLocVariable(ELoc::SEL)) return (getNSample());
 
   /* Case when a selection is present */
 
   int count = 0;
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int iech = 0; iech < getNSample(); iech++)
   {
-    if (! isZero(getFromLocator(ELoc::SEL, iech, 0))) count++;
+    if (!isZero(getFromLocator(ELoc::SEL, iech, 0))) count++;
   }
   return count;
 }
@@ -2762,12 +2863,12 @@ GSTLEARN_DEPRECATED int Db::getActiveSampleNumber() const
  */
 int Db::getRankRelativeToAbsolute(int irel) const
 {
-  if (! hasLocVariable(ELoc::SEL)) return irel;
-  int nech = getSampleNumber(false);
+  if (!hasLocVariable(ELoc::SEL)) return irel;
+  int nech = getNSample(false);
   int jech = 0;
   for (int iabs = 0; iabs < nech; iabs++)
   {
-    if (! isActive(iabs)) continue;
+    if (!isActive(iabs)) continue;
     if (irel == jech) return iabs;
     jech++;
   }
@@ -2776,12 +2877,12 @@ int Db::getRankRelativeToAbsolute(int irel) const
 
 int Db::getRankAbsoluteToRelative(int iabs) const
 {
-  if (! hasLocVariable(ELoc::SEL)) return iabs;
-  int nech = getSampleNumber(false);
+  if (!hasLocVariable(ELoc::SEL)) return iabs;
+  int nech = getNSample(false);
   int irel = 0;
   for (int jabs = 0; jabs < nech; jabs++)
   {
-    if (! isActive(jabs)) continue;
+    if (!isActive(jabs)) continue;
     if (jabs == iabs) return irel;
     irel++;
   }
@@ -2794,30 +2895,15 @@ int Db::getRankAbsoluteToRelative(int iabs) const
  * When TRUE returns the number of active samples
  * @return
  */
-int Db::getSampleNumber(bool useSel) const
+int Db::getNSample(bool useSel) const
 {
   if (!hasLocVariable(ELoc::SEL)) return _nech;
 
   if (!useSel) return _nech;
   int count = 0;
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int iech = 0; iech < getNSample(); iech++)
   {
     if (!isZero(getFromLocator(ELoc::SEL, iech, 0))) count++;
-  }
-  return count;
-}
-
-/**
- * Returns the number of samples active and whose Z-value(item) is defined
- * @param item Rank of the Z-locator
- * @return
- */
-int Db::getNumberActiveAndDefined(int item) const
-{
-  int count = 0;
-  for (int iech = 0; iech < getSampleNumber(); iech++)
-  {
-    if (isActiveAndDefined(iech, item)) count++;
   }
   return count;
 }
@@ -2834,7 +2920,7 @@ double Db::getWeight(int iech) const
 VectorDouble Db::getWeights(bool useSel) const
 {
   int icol = -1;
-  int nech = getSampleNumber();
+  int nech = getNSample();
   VectorDouble sel;
   VectorDouble tab(nech);
 
@@ -2872,7 +2958,7 @@ VectorDouble Db::getCodeList(void) const
   for (int iech = 0; iech < _nech; iech++)
   {
     if (isActive(iech))
-      work[number++] = getLocVariable(ELoc::C,iech,0);
+      work[number++] = getLocVariable(ELoc::C, iech, 0);
   }
 
   /* Get the Unique occurrence */
@@ -2884,11 +2970,11 @@ VectorDouble Db::getCodeList(void) const
 
 bool Db::isActiveDomain(int iech) const
 {
-  if (! hasLocVariable(ELoc::DOM)) return true;
-  if (! GlobalEnvironment::getEnv()->isDomainReference()) return true;
+  if (!hasLocVariable(ELoc::DOM)) return true;
+  if (!GlobalEnvironment::getEnv()->isDomainReference()) return true;
   double value = getFromLocator(ELoc::DOM, iech, 0);
   if (FFFF(value)) return false;
-  if (! GlobalEnvironment::getEnv()->matchDomainReference(value)) return true;
+  if (!GlobalEnvironment::getEnv()->matchDomainReference(value)) return true;
   return false;
 }
 
@@ -2943,8 +3029,8 @@ void Db::updSimvar(const ELoc& locatorType,
   if (icol < 0) return;
   int internalAddress = _getAddress(iech, icol);
 
-  double oldval = _array[internalAddress];
-  double newval = modifyOperator(oper, oldval, value);
+  double oldval           = _array[internalAddress];
+  double newval           = modifyOperator(oper, oldval, value);
   _array[internalAddress] = newval;
 }
 
@@ -2955,8 +3041,9 @@ bool Db::isActive(int iech) const
 
 bool Db::isActiveAndDefined(int iech, int item) const
 {
-  if (!isActive(iech)) return false;;
-  return (! FFFF(getZVariable(iech, item)));
+  if (!isActive(iech)) return false;
+  ;
+  return (!FFFF(getZVariable(iech, item)));
 }
 
 /**
@@ -2965,7 +3052,7 @@ bool Db::isActiveAndDefined(int iech, int item) const
  * @param item Rank of the ELoc::Z variable
  * @return Number of samples
  */
-int Db::getActiveAndDefinedNumber(int item) const
+int Db::getNSampleActiveAndDefined(int item) const
 {
   int nech = 0;
   for (int iech = 0; iech < _nech; iech++)
@@ -2983,16 +3070,16 @@ int Db::getActiveAndDefinedNumber(int item) const
  * @param name Name of the Target variable
  * @return Number of samples
  */
-int Db::getActiveAndDefinedNumber(const String& name) const
+int Db::getNSampleActiveAndDefined(const String& name) const
 {
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return 0;
   VectorDouble tab = getColumnByUID(iuids[0], true);
 
   int nech = 0;
-  for (int iech = 0; iech < (int) tab.size(); iech++)
+  for (int iech = 0; iech < (int)tab.size(); iech++)
   {
-    if (! FFFF(tab[iech])) nech++;
+    if (!FFFF(tab[iech])) nech++;
   }
   return (nech);
 }
@@ -3005,16 +3092,16 @@ int Db::getActiveAndDefinedNumber(const String& name) const
 int Db::getLastUID(int number) const
 {
   VectorInt ranks;
-  for (int i = 0; i < (int) _uidcol.size(); i++)
+  for (int i = 0; i < (int)_uidcol.size(); i++)
     if (_uidcol[i] >= 0) ranks.push_back(i);
-  int size = static_cast<int> (ranks.size());
+  int size = static_cast<int>(ranks.size());
   if (number > size) return -1;
-    return ranks[size - number - 1];
+  return ranks[size - number - 1];
 }
 
 String Db::getLastName(int number) const
 {
-  int iuid = getLastUID(number);
+  int iuid    = getLastUID(number);
   String name = getNameByUID(iuid);
   return name;
 }
@@ -3035,7 +3122,7 @@ String Db::getNameByLocator(const ELoc& locatorType, int locatorIndex) const
 
 String Db::getNameByColIdx(int icol) const
 {
-  if (! isColIdxValid(icol)) return String();
+  if (!isColIdxValid(icol)) return String();
   return _colNames[icol];
 }
 
@@ -3049,7 +3136,7 @@ String Db::getNameByUID(int iuid) const
 VectorString Db::getNamesByLocator(const ELoc& locatorType) const
 {
   VectorString namelist;
-  int count = getFromLocatorNumber(locatorType);
+  int count = getNFromLocator(locatorType);
   if (count <= 0) return namelist;
   for (int i = 0; i < count; i++)
   {
@@ -3062,10 +3149,10 @@ VectorString Db::getNamesByLocator(const ELoc& locatorType) const
 VectorString Db::getNamesByColIdx(const VectorInt& icols) const
 {
   VectorString namelist;
-  for (int i = 0; i < (int) icols.size(); i++)
+  for (int i = 0; i < (int)icols.size(); i++)
   {
     int icol = icols[i];
-    if (icol < 0 || icol >= (int) _colNames.size()) continue;
+    if (icol < 0 || icol >= (int)_colNames.size()) continue;
     namelist.push_back(_colNames[icol]);
   }
   return namelist;
@@ -3075,7 +3162,7 @@ VectorString Db::getNamesByUID(const VectorInt& iuids) const
 {
   VectorString namelist;
   if (iuids.empty()) return namelist;
-  int count = static_cast<int> (iuids.size());
+  int count = static_cast<int>(iuids.size());
   for (int i = 0; i < count; i++)
   {
     int icol = getColIdxByUID(iuids[i]);
@@ -3097,13 +3184,13 @@ VectorString Db::getNames(const VectorString& names) const
 VectorString Db::getAllNames(bool excludeRankAndCoordinates, bool verbose) const
 {
   if (!excludeRankAndCoordinates) return _colNames;
-  
+
   // From the list of all variables, exclude the following variables:
   // - the one named 'rank' (if any)
   // - the coordinates (if any)
   VectorString allnames = _colNames;
   VectorString names;
-  for (int ivar = 0, nvar = (int) allnames.size(); ivar < nvar; ivar++)
+  for (int ivar = 0, nvar = (int)allnames.size(); ivar < nvar; ivar++)
   {
     // Exclude variable named 'rank'
     if (matchRegexp(allnames[ivar], "rank", false))
@@ -3142,7 +3229,7 @@ void Db::setNameByUID(int iuid, const String& name)
 
 void Db::setNameByColIdx(int icol, const String& name)
 {
-  if (! isColIdxValid(icol)) return;
+  if (!isColIdxValid(icol)) return;
   _colNames[icol] = name;
 }
 
@@ -3156,7 +3243,7 @@ void Db::setName(const String& old_name, const String& name)
 
 void Db::setName(const VectorString& list, const String& name)
 {
-  for (int i = 0; i < (int) list.size(); i++)
+  for (int i = 0; i < (int)list.size(); i++)
   {
     int icol = getColIdx(list[i]);
     if (icol < 0) continue;
@@ -3168,13 +3255,13 @@ void Db::setName(const VectorString& list, const String& name)
 void Db::setNameByLocator(const ELoc& locatorType, const String& name)
 {
   VectorString namelist;
-  int count = getFromLocatorNumber(locatorType);
+  int count = getNFromLocator(locatorType);
   if (count <= 0) return;
   for (int i = 0; i < count; i++)
   {
     int icol = getColIdxByLocator(locatorType, i);
     if (icol < 0) continue;
-    _colNames[icol] = incrementStringVersion(name, i+ 1);
+    _colNames[icol] = incrementStringVersion(name, i + 1);
   }
   correctNamesForDuplicates(_colNames);
 }
@@ -3191,10 +3278,10 @@ String Db::_summaryString(void) const
     sstr << "File is organized as a set of isolated points" << std::endl;
 
   sstr << "Space dimension              = " << getNDim() << std::endl;
-  sstr << "Number of Columns            = " << getColumnNumber() << std::endl;
-  sstr << "Total number of samples      = " << getSampleNumber() << std::endl;
+  sstr << "Number of Columns            = " << getNColumn() << std::endl;
+  sstr << "Total number of samples      = " << getNSample() << std::endl;
   if (hasLocVariable(ELoc::SEL))
-    sstr << "Number of active samples     = " << getSampleNumber(true)
+    sstr << "Number of active samples     = " << getNSample(true)
          << std::endl;
   return sstr.str();
 }
@@ -3210,9 +3297,9 @@ String Db::_summaryExtensions(void) const
   sstr << toTitle(1, "Data Base Extension");
   for (int idim = 0; idim < ndim; idim++)
   {
-    VectorDouble coor = getCoordinates(idim, true);
-    double vmin = VH::minimum(coor);
-    double vmax = VH::maximum(coor);
+    VectorDouble coor = getOneCoordinate(idim, true);
+    double vmin       = VH::minimum(coor);
+    double vmax       = VH::maximum(coor);
 
     sstr << "Coor #" << idim + 1;
     sstr << " - Min = " << toDouble(vmin);
@@ -3228,10 +3315,10 @@ String Db::_summaryVariables(void) const
 {
   std::stringstream sstr;
 
-  if (getColumnNumber() <= 0) return sstr.str();
+  if (getNColumn() <= 0) return sstr.str();
   sstr << toTitle(1, "Variables");
 
-  for (int icol = 0; icol < getColumnNumber(); icol++)
+  for (int icol = 0; icol < getNColumn(); icol++)
   {
     sstr << "Column = " << icol;
     sstr << " - Name = " << getNameByColIdx(icol);
@@ -3252,13 +3339,13 @@ String Db::_summaryStats(VectorInt cols, int mode, int maxNClass) const
 {
   std::stringstream sstr;
 
-  int ncol = (cols.empty()) ? getColumnNumber() : static_cast<int> (cols.size());
+  int ncol = (cols.empty()) ? getNColumn() : static_cast<int>(cols.size());
   if (ncol <= 0) return sstr.str();
 
   sstr << toTitle(1, "Data Base Statistics");
 
   int nmask, ntest, nout;
-  int nech = getSampleNumber(false);
+  int nech = getNSample(false);
   VectorDouble tab, wgt;
 
   // Loop on the columns
@@ -3268,9 +3355,9 @@ String Db::_summaryStats(VectorInt cols, int mode, int maxNClass) const
     int icol = (cols.empty()) ? jcol : cols[jcol];
     if (!isColIdxValid(icol)) continue;
 
-    tab = getColumnByColIdx(icol, true);
-    wgt = getWeights(true);
-    StatResults stats = ut_statistics((int) tab.size(), tab.data(), NULL, wgt.data());
+    tab               = getColumnByColIdx(icol, true);
+    wgt               = getWeights(true);
+    StatResults stats = ut_statistics((int)tab.size(), tab.data(), NULL, wgt.data());
 
     sstr << icol + 1 << " - Name " << getNameByColIdx(icol) << " - Locator "
          << _getLocatorNameByColIdx(icol) << std::endl;
@@ -3292,12 +3379,12 @@ String Db::_summaryStats(VectorInt cols, int mode, int maxNClass) const
     {
       double vmin = floor(stats.mini - 0.5);
       double vmax = ceil(stats.maxi + 0.5);
-      int nclass = (int) (vmax - vmin) + 1;
+      int nclass  = (int)(vmax - vmin) + 1;
       if (nclass > maxNClass)
         sstr << " Number of classes is truncated to " << maxNClass << std::endl;
       nclass = MIN(maxNClass, nclass);
       VectorInt classe(nclass);
-      ut_classify(static_cast<int> (tab.size()), tab.data(), NULL,
+      ut_classify(static_cast<int>(tab.size()), tab.data(), NULL,
                   nclass, vmin, 1., &nmask,
                   &ntest, &nout, classe.data());
       if (ntest > 0)
@@ -3308,7 +3395,7 @@ String Db::_summaryStats(VectorInt cols, int mode, int maxNClass) const
       for (int iclass = 0; iclass < nclass; iclass++)
       {
         if (classe[iclass] <= 0) continue;
-        sstr << " Class" << toInt((int) vmin + iclass);
+        sstr << " Class" << toInt((int)vmin + iclass);
         sstr << " = " << toInt(classe[iclass]);
         sstr << " (" << toDouble(100. * classe[iclass] / stats.nvalid) << "%)";
         sstr << std::endl;
@@ -3322,12 +3409,12 @@ String Db::_summaryArrays(VectorInt cols, bool useSel) const
 {
   std::stringstream sstr;
 
-  int ncol = (cols.empty()) ? getColumnNumber() : static_cast<int> (cols.size());
+  int ncol = (cols.empty()) ? getNColumn() : static_cast<int>(cols.size());
   if (ncol <= 0) return sstr.str();
 
   sstr << toTitle(1, "Data Base Contents");
 
-  int number = getSampleNumber(useSel);
+  int number = getNSample(useSel);
 
   VectorDouble tab;
   VectorString colnames;
@@ -3345,7 +3432,7 @@ String Db::_summaryArrays(VectorInt cols, bool useSel) const
   return sstr.str();
 }
 
-String Db::_toStringCommon(const AStringFormat *strfmt) const
+String Db::_toStringCommon(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   static int MAX_NCLASS = 50;
@@ -3360,7 +3447,7 @@ String Db::_toStringCommon(const AStringFormat *strfmt) const
   if (cols.empty())
   {
     VectorInt iuids = _ids(dsf.getNames(), false);
-    if (! iuids.empty()) cols = getColIdxsByUID(iuids);
+    if (!iuids.empty()) cols = getColIdxsByUID(iuids);
   }
 
   /* Print the Extension */
@@ -3413,11 +3500,11 @@ String Db::toString(const AStringFormat* strfmt) const
 
 VectorDouble Db::getSelections(void) const
 {
-  int nech = getSampleNumber();
+  int nech = getNSample();
   VectorDouble tab;
 
   if (!hasLocVariable(ELoc::SEL)) return tab;
-  int icol = getColIdxByLocator(ELoc::SEL,0);
+  int icol = getColIdxByLocator(ELoc::SEL, 0);
   if (!isColIdxValid(icol)) return tab;
 
   tab.resize(nech);
@@ -3427,58 +3514,52 @@ VectorDouble Db::getSelections(void) const
 }
 
 /**
- * Returns a one_dimensional vector of values for valid samples for the set of
- * variables 'ivars'
- *
- * @param ivars   Vector giving the indices of the variables of interest
- * @param nbgh    Vector giving the ranks of the elligible samples (optional)
- * @param means   Vector of Means per variable (optional)
- * @param useSel  Discard the masked samples (if True)
- * @param useVerr Discard the samples where Verr (if it exists) is not correctly
- * defined
- *
- * @note: if the current 'db' has some Z-variable defined, only samples where
- * @note a variable is defined is considered (search for heterotopy).
- * @note: If argumennt 'Mean' is provided, the mean is subtracted from the output vector
+ * Returns the values of the Z variables for the samples
+ * @param sampleRanks Vector of ranks of the samples
+ * @param means       Vector of means (optional)
+ * @param subtractMean Subtract the mean from the values
+ * @return VectorDouble
  */
-
-VectorDouble Db::getMultipleValuesActive(const VectorInt& ivars,
-                                         const VectorInt& nbgh,
-                                         const VectorDouble& means,
-                                         bool useSel,
-                                         bool useVerr) const
+VectorDouble Db::getValuesByRanks(const VectorVectorInt& sampleRanks,
+                                  const VectorDouble& means,
+                                  bool subtractMean) const
 {
   VectorDouble vec;
+  getValuesByRanksInPlace(&vec, sampleRanks, means, subtractMean);
+  return vec;
+}
 
-  VectorInt jvars = ivars;
-  if (jvars.empty()) jvars = VH::sequence(getLocatorNumber(ELoc::Z));
-  const VectorVectorInt index = getMultipleRanksActive(jvars, nbgh, useSel, useVerr);
-    
-  int nvar = (int)jvars.size();
+void Db::getValuesByRanksInPlace(VectorDouble* values,
+                                 const VectorVectorInt& sampleRanks,
+                                 const VectorDouble& means,
+                                 bool subtractMean) const
+{
+  int nvar        = getNLoc(ELoc::Z);
+  VectorInt jvars = VH::sequence(nvar);
+  values->clear();
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int jvar = jvars[ivar];
-    double meanlocal = (! means.empty()) ? means[jvar] : 0.;
-    const VectorInt& local = index[ivar];
+    int jvar               = jvars[ivar];
+    double meanlocal       = (!means.empty() && subtractMean) ? means[jvar] : 0.;
+    const VectorInt& local = sampleRanks[ivar];
     for (int iech = 0, nech = (int)local.size(); iech < nech; iech++)
-      vec.push_back(getZVariable(local[iech], jvar) - meanlocal);
+      values->push_back(getZVariable(local[iech], jvar) - meanlocal);
   }
-  return vec;
 }
 
 /**
  * @brief Return the vector of the ranks within 'index' of data beloging:
  * - to the variable indices 'ivars' (default: all samples)
  * - to the sample indices 'nbgh' (default: all samples)
- * 
+ *
  * @param index Input data information ranks
  * @param ivars Vector of selection variables
  * @param nbgh  Vector of selection samples
- * @return VectorInt 
+ * @return VectorInt
  */
-VectorInt Db::getMultipleSelectedIndices(const VectorVectorInt& index,
-                                         const VectorInt& ivars,
-                                         const VectorInt& nbgh)
+VectorInt Db::getMultipleSelectedRanks(const VectorVectorInt& index,
+                                       const VectorInt& ivars,
+                                       const VectorInt& nbgh)
 {
   VectorInt vec;
 
@@ -3524,97 +3605,167 @@ VectorInt Db::getMultipleSelectedVariables(const VectorVectorInt& index,
 
 /**
  * Returns the list of indices 'index' for valid samples for the set of
- * variables 'ivars' as well as the count of samples (per variable)
+ * variables 'ivars'.
+ * Note: each address is ABSOLUTE to the target set of available samples.
  *
  * @param ivars   Vector giving the indices of the variables of interest
  * @param nbgh    Vector giving the ranks of the elligible samples (optional)
  * @param useSel  Discard the masked samples (if True)
- * @param useVerr Discard the samples where Verr (if it exists) is not
- * correctly defined
+ * @param useZ    Discard samples when Z is not defined
+ * @param useVerr Discard the samples where Verr (optional) is not defined
+ * @param useExtD True if the definition of the External Drift must be checked
  *
  * @note: if the current 'db' has some Z-variable defined, only samples
- * where
- * @note a variable is defined is considered (search for heterotopy).
+ * @note: where a variable is defined is considered (search for heterotopy).
+ *
+ * @note: if 'nbgh' is not provided, the absolute and relative indices
+ * @note: returned by this function are similar.
+ *
+ * @note: if 'useExtD' is ON, each sample for each variable is tested against
+ * @note: all the values of External Drift functions.
  */
-VectorVectorInt Db::getMultipleRanksActive(const VectorInt& ivars,
-                                           const VectorInt& nbgh,
-                                           bool useSel,
-                                           bool useVerr) const
+VectorVectorInt Db::getSampleRanks(const VectorInt& ivars,
+                                   const VectorInt& nbgh,
+                                   bool useSel,
+                                   bool useZ,
+                                   bool useVerr,
+                                   bool useExtD) const
 {
-  VectorInt jvars = ivars;
-  if (jvars.empty()) jvars = VH::sequence(getLocatorNumber(ELoc::Z));
-  int nvar = (int)jvars.size();
 
-  VectorVectorInt index(nvar);
-  for (int ivar = 0; ivar < nvar; ivar++)
-  {
-    int jvar    = jvars[ivar];
-    index[ivar] = getRanksActive(nbgh, jvar, useSel, useVerr);
-  }
+  VectorVectorInt index;
+  getSampleRanksInPlace(&index, ivars, nbgh, useSel, useZ, useVerr, useExtD);
   return index;
 }
 
-VectorInt Db::getRanksActive(const VectorInt& nbgh,
-                             int item,
-                             bool useSel,
-                             bool useVerr) const
+/**
+ * Compute the list of indices 'index' for valid samples for the set of
+ * variables 'ivars'.
+ * Note: each address is ABSOLUTE to the target set of available samples.
+ *
+ * @param sampleRanks Return the list of indices 'index' for valid samples
+ * @param ivars       Vector giving the indices of the variables of interest
+ * @param nbgh        Vector giving the ranks of the elligible samples (optional)
+ * @param useSel      Discard the masked samples (if True)
+ * @param useZ        Discard samples when Z is not defined
+ * @param useVerr     Discard the samples where Verr (optional) is not defined
+ * @param useExtD     True if the definition of the External Drift must be checked
+ *
+ * @note: if the current 'db' has some Z-variable defined, only samples
+ * @note: where a variable is defined is considered (search for heterotopy).
+ *
+ * @note: if 'nbgh' is not provided, the absolute and relative indices
+ * @note: returned by this function are similar.
+ *
+ * @note: if 'useExtD' is ON, each sample for each variable is tested against
+ * @note: all the values of External Drift functions.
+ */
+void Db::getSampleRanksInPlace(VectorVectorInt* sampleRanks,
+                               const VectorInt& ivars,
+                               const VectorInt& nbgh,
+                               bool useSel,
+                               bool useZ,
+                               bool useVerr,
+                               bool useExtD) const
+{
+  VectorInt jvars = ivars;
+  if (jvars.empty()) jvars = VH::sequence(getNLoc(ELoc::Z));
+  int nvar = (int)jvars.size();
+
+  sampleRanks->resize(nvar);
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    int jvar             = jvars[ivar];
+    (*sampleRanks)[ivar] = getSampleRanksPerVariable(nbgh, jvar, useSel, useZ, useVerr, useExtD);
+  }
+}
+
+/**
+ * @brief Create the vector of elligible sample ranks for the variable 'ivar'
+ *
+ * @param nbgh Set of potentiel sample ranks
+ * @param ivar Target variable rank
+ * @param useSel True if the selection must be taken into account
+ * @param useZ   True if the definition of the target variable must be checked
+ * @param useVerr True if the definition of the Variance of Measurement Error must be checked
+ * @param useExtD True if the definition of the External Drift must be checked
+ * @return VectorInt
+ */
+VectorInt Db::getSampleRanksPerVariable(const VectorInt& nbgh,
+                                        int ivar,
+                                        bool useSel,
+                                        bool useZ,
+                                        bool useVerr,
+                                        bool useExtD) const
 {
   double value;
-  int nech_tot = getSampleNumber();
+  int nech_tot = getNSample();
 
-  // Create a vector of ranks of samples to be searched (using input 'nbgh'
-  // or not)
-  VectorInt nbgh_init;
-  if (nbgh.empty())
-    nbgh_init = VH::sequence(nech_tot);
-  else
-    nbgh_init = nbgh;
+  // Create vector of sample ranks to be searched (using input 'nbgh' or not)
+  VectorInt nbgh_init = nbgh;
+  if (nbgh_init.empty()) nbgh_init = VH::sequence(nech_tot);
   int nech_init = (int)nbgh_init.size();
 
   // Create the column index for the selection (only if 'useSel')
   int icol = (useSel) ? getColIdxByLocator(ELoc::SEL, 0) : -1;
 
   // Update the search for variable, if no variable is defined
-  if (getLocNumber(ELoc::Z) <= 0) item = -1;
+  if (getNLoc(ELoc::Z) <= 0) ivar = -1;
 
-  // Check the presence of variance of measurement error variable (only if
-  // 'useVerr')
+  // Count the number of external drifts
+  int nExtD = (useExtD) ? getNLoc(ELoc::F) : 0;
+
+  // Check the presence of variance of measurement error (when 'useVerr')
   bool useV = false;
-  if (useVerr && item >= 0)
+  if (useVerr && ivar >= 0)
   {
-    if (getColIdxByLocator(ELoc::V, item) >= 0) useV = true;
+    if (getColIdxByLocator(ELoc::V, ivar) >= 0) useV = true;
   }
 
-  // Constitute the resulting vector osf selected sample ranks
+  // Constitute the resulting vector of selected sample ranks
   VectorInt ranks;
-  for (int jech = 0; jech < nech_init; jech++)
+  for (int irel = 0; irel < nech_init; irel++)
   {
-    int iech = nbgh_init[jech];
+    int iabs = nbgh_init[irel];
 
     // Check against a possible selection
     if (icol >= 0)
     {
-      value = getValueByColIdx(iech, icol);
+      value = getValueByColIdx(iabs, icol);
       if (value <= 0) continue;
     }
 
     // Check against the existence of a target variable
-    if (item >= 0)
+    if (useZ && ivar >= 0)
     {
-      value = getZVariable(iech, item);
+      value = getFromLocator(ELoc::Z, iabs, ivar);
       if (FFFF(value)) continue;
     }
 
-    // Check against the validity of the Variance of Measurement Error
-    // variable
+    // Check against validity of the Variance of Measurement Error variable
     if (useV)
     {
-      value = getLocVariable(ELoc::V, iech, item);
+      value = getFromLocator(ELoc::V, iabs, ivar);
       if (FFFF(value) || value < 0) continue;
     }
 
-    // The sample is finally accepted
-    ranks.push_back(iech);
+    // Check against the validity of ALL external drifts
+    if (useExtD && nExtD > 0)
+    {
+      bool valid = true;
+      for (int iext = 0; iext < nExtD; iext++)
+      {
+        value = getLocVariable(ELoc::F, iabs, iext);
+        if (FFFF(value))
+        {
+          valid = false;
+          break;
+        }
+      }
+      if (!valid) continue;
+    }
+
+    // The sample is finally accepted: its ABSOLUTE index is stored
+    ranks.push_back(iabs);
   }
   return ranks;
 }
@@ -3629,7 +3780,7 @@ VectorDouble Db::getColumnsActiveAndDefined(const ELoc& locatorType,
   // Calculate the dimension of the output vector
   int size = 0;
   for (int ivar = 0; ivar < nvar; ivar++)
-    size += getActiveAndDefinedNumber(names[ivar]);
+    size += getNSampleActiveAndDefined(names[ivar]);
 
   VectorDouble retval(size);
 
@@ -3656,7 +3807,7 @@ VectorDouble Db::getColumnsActiveAndDefined(const ELoc& locatorType,
 VectorDouble
 Db::getColumnByColIdx(int icol, bool useSel, bool flagCompress) const
 {
-  int nech = getSampleNumber(false);
+  int nech = getNSample(false);
   if (!isColIdxValid(icol)) return VectorDouble();
 
   VectorDouble tab(nech, TEST);
@@ -3717,8 +3868,7 @@ VectorDouble Db::getColumnByLocator(const ELoc& locatorType,
  * Returns the contents of one Column identified by its name
  *
  */
-VectorDouble
-Db::getColumn(const String& name, bool useSel, bool flagCompress) const
+VectorDouble Db::getColumn(const String& name, bool useSel, bool flagCompress) const
 {
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return VectorDouble();
@@ -3846,7 +3996,7 @@ void Db::_setItem(const String& name,
 void Db::_setItem(const String& name, bool useSel, const VectorDouble& values)
 {
   int icol  = getUID(name);
-  int nrows = getSampleNumber();
+  int nrows = getNSample();
   int jjrow = 0;
   for (int jrow = 0; jrow < nrows; jrow++)
   {
@@ -3874,7 +4024,7 @@ bool Db::_isValidCountRows(const VectorInt& rows,
 
 bool Db::_isValidCountRows(bool useSel, const VectorDouble& values) const
 {
-  int nrows = getSampleNumber(useSel);
+  int nrows = getNSample(useSel);
   if (nrows != (int)values.size())
   {
     messerr("Mismatch in dimensions:");
@@ -4190,16 +4340,16 @@ VectorVectorDouble Db::getColumnsAsVVD(const VectorString& names,
 /**
  * Returns the contents of the columns specified by their names
  */
-MatrixRectangular Db::getColumnsAsMatrix(const VectorString& names,
+MatrixDense Db::getColumnsAsMatrix(const VectorString& names,
                                          bool useSel,
                                          bool flagCompress) const
 {
-  if (names.empty()) return MatrixRectangular();
+  if (names.empty()) return MatrixDense();
   VectorInt iuids = _ids(names, false);
   int nvar        = (int)iuids.size();
-  int nech        = getSampleNumber(useSel && flagCompress);
+  int nech        = getNSample(useSel && flagCompress);
 
-  MatrixRectangular mat(nech, nvar);
+  MatrixDense mat(nech, nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     VectorDouble X = getColumnByUID(iuids[ivar], useSel, flagCompress);
@@ -4215,16 +4365,16 @@ MatrixRectangular Db::getColumnsAsMatrix(const VectorString& names,
  * @param flag_rotate Flag for rotation (only for Grid)
  * @return
  */
-VectorDouble Db::getCoordinates(int idim, bool useSel, bool flag_rotate) const
+VectorDouble Db::getOneCoordinate(int idim, bool useSel, bool flag_rotate) const
 {
-  int nech = getSampleNumber();
+  int nech = getNSample();
   VectorDouble tab, sel;
 
   tab.resize(nech, TEST);
   if (useSel) sel = getSelections();
 
   int ecr = 0;
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int iech = 0; iech < getNSample(); iech++)
   {
     bool defined = true;
     if (useSel && !sel.empty()) defined = (isOne(sel[iech]));
@@ -4268,7 +4418,7 @@ VectorInt Db::getColIdxs(const VectorString& names) const
 VectorInt Db::getColIdxsByLocator(const ELoc& locatorType) const
 {
   VectorInt icols;
-  int number = getLocatorNumber(locatorType);
+  int number = getNLoc(locatorType);
   if (number <= 0) return icols;
 
   icols.resize(number);
@@ -4284,7 +4434,7 @@ VectorInt Db::getColIdxsByLocator(const ELoc& locatorType) const
  */
 int Db::getUID(const String& name) const
 {
-  VectorInt iuids = _ids(name, true);
+  std::vector<int> iuids = _ids(name, true);
   if (iuids.empty()) return -1;
   int icol = getColIdxByUID(iuids[0]);
   return getUIDByColIdx(icol);
@@ -4320,7 +4470,7 @@ VectorInt Db::getUIDs(const VectorString& names) const
 VectorInt Db::getUIDsByLocator(const ELoc& locatorType) const
 {
   VectorInt iuids;
-  int number = getLocatorNumber(locatorType);
+  int number = getNLoc(locatorType);
   if (number <= 0) return iuids;
   iuids.resize(number);
   for (int i = 0; i < number; i++) iuids[i] = getUIDByLocator(locatorType, i);
@@ -4389,7 +4539,7 @@ void Db::_loadData(const VectorDouble& tab,
 
 void Db::generateRank(const String& radix)
 {
-  int nech = getSampleNumber();
+  int nech = getNSample();
   VectorDouble vec(nech);
   for (int iech = 0; iech < nech; iech++) vec[iech] = iech + 1;
 
@@ -4402,7 +4552,7 @@ void Db::generateRank(const String& radix)
  */
 void Db::_createRank(int icol)
 {
-  int nech = getSampleNumber();
+  int nech = getNSample();
   for (int iech = 0; iech < nech; iech++) setArray(iech, icol, iech + 1);
 
   // Set the name
@@ -4416,7 +4566,7 @@ void Db::_createRank(int icol)
  */
 void Db::_addRank(int nech)
 {
-  if (getColumnNumber() > 0 || getSampleNumber() > 0)
+  if (getNColumn() > 0 || getNSample() > 0)
   {
     messerr("Error: the Db should be empty in order to call _addRank. "
             "Nothing is done");
@@ -4428,7 +4578,7 @@ void Db::_addRank(int nech)
 
 void Db::_defineDefaultNames(int shift, const VectorString& names)
 {
-  int ncol = getColumnNumber() - shift;
+  int ncol = getNColumn() - shift;
   if (!names.empty())
   {
     if ((int)names.size() != ncol)
@@ -4452,7 +4602,7 @@ void Db::_defineDefaultLocators(int shift, const VectorString& locatorNames)
 {
   if (locatorNames.empty()) return;
 
-  int ncol = getColumnNumber() - shift;
+  int ncol = getNColumn() - shift;
   if ((int)locatorNames.size() != ncol)
     my_throw("Error in the dimension of 'locatorNames'");
 
@@ -4470,7 +4620,7 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
 {
   if (names.empty()) return;
 
-  int ncol = getColumnNumber() - shift;
+  int ncol = getNColumn() - shift;
   if ((int)names.size() != ncol) my_throw("Error in the dimension of 'names'");
 
   ELoc locatorType;
@@ -4508,7 +4658,7 @@ void Db::statisticsBySample(const VectorString& names,
   for (int i = 0; i < noper; i++)
   {
     const EStatOption& oper = opers[i];
-    namconv.setNamesAndLocators(this, iuidn + i, String{oper.getKey()});
+    namconv.setNamesAndLocators(this, iuidn + i, String {oper.getKey()});
   }
 }
 
@@ -4571,18 +4721,18 @@ Db* Db::createFromNF(const String& neutralFilename, bool verbose)
 
 bool Db::_serialize(std::ostream& os, bool /*verbose*/) const
 {
-  int ncol              = getColumnNumber();
+  int ncol              = getNColumn();
   VectorString locators = getLocators(true);
   VectorString names    = getName("*");
   std::vector<double> vals;
 
   bool ret = true;
   ret      = ret && _recordWrite<int>(os, "Number of variables", ncol);
-  ret = ret && _recordWrite<int>(os, "Number of samples", getSampleNumber());
-  ret = ret && _recordWriteVec<String>(os, "Locators", locators);
-  ret = ret && _recordWriteVec<String>(os, "Names", names);
-  ret = ret && _commentWrite(os, "Array of values");
-  for (int iech = 0, nech = getSampleNumber(); ret && iech < nech; iech++)
+  ret      = ret && _recordWrite<int>(os, "Number of samples", getNSample());
+  ret      = ret && _recordWriteVec<String>(os, "Locators", locators);
+  ret      = ret && _recordWriteVec<String>(os, "Names", names);
+  ret      = ret && _commentWrite(os, "Array of values");
+  for (int iech = 0, nech = getNSample(); ret && iech < nech; iech++)
   {
     getArrayBySample(vals, iech);
     ret = ret && _recordWriteVec<double>(os, "", vals);
@@ -4645,20 +4795,132 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
+#ifdef HDF5
+bool Db::_serializeH5(H5::Group& grp, bool /*verbose*/) const
+{
+  // create a new Group every time we enter a _serialize method
+  // => easier to deserialize
+  auto db = grp.createGroup("Db");
+
+  // HDF5 DataSpace should be manually created and passed to
+  // SerializeHDF5::writeVec or directly to Group::createDataSet()
+
+  // here the DataSpace is the number of rows in the Db (number of
+  // samples) and every Db column corresponds to a DataSet
+  const hsize_t dim = getNSample();
+  const H5::DataSpace ds {1, &dim};
+
+  int ncol              = getNColumn();
+  VectorString locators = getLocators(true);
+  VectorString names    = getName("*");
+
+  for (int i = 0; i < ncol; ++i)
+  {
+    // here we create H5::DataSet by hand to augment them with
+    // attributes
+    auto data = db.createDataSet(names[i], H5::PredType::NATIVE_DOUBLE, ds);
+    // Locators are semantically close to Db columns and H5::Attribute has a
+    // nicer API than string H5::DataSets. Putting Locators inside Attribute
+    // also avoids checking array sizes during deserialization
+    // (Locators DataSet size vs. number of columns)
+    SerializeHDF5::createAttribute(data, "Locators", locators[i]);
+    data.write(getColumnByColIdx(i).data(), H5::PredType::NATIVE_DOUBLE);
+  }
+
+  return true;
+}
+
+bool Db::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+{
+  VectorString locators;
+  VectorString names;
+
+  // we get the H5::Group that has the name of the current class
+
+  // Call SerializeHDF5::getGroup to get the subgroup of grp named
+  // "Db" with some error handling
+  auto db = SerializeHDF5::getGroup(grp, "Db");
+  if (!db)
+  {
+    return false;
+  }
+
+  // a DataSet == a Db column
+  int ncol {};
+  for (hsize_t i = 0; i < db->getNumObjs(); ++i)
+  {
+    if (db->getObjTypeByIdx(i) == H5G_DATASET)
+    {
+      ncol++;
+      names.push_back(db->getObjnameByIdx(i));
+    }
+  }
+
+  // assume every DataSet has the same DataSpace
+  hsize_t nech {};
+  {
+    const auto data = db->openDataSet(names.front());
+    const auto ds   = data.getSpace();
+    ds.getSimpleExtentDims(&nech);
+  }
+
+  bool ret = true;
+  if (ncol > 0)
+  {
+    locators.resize(ncol);
+  }
+
+  // Initialize the Db
+  resetDims(ncol, nech);
+
+  for (size_t i = 0; i < names.size(); ++i)
+  {
+    const auto data = db->openDataSet(names[i]);
+    // read the column locator (H5::Attribute)
+    locators[i] = SerializeHDF5::readAttribute(data, "Locators");
+    // read the column values from H5::DataSet
+    data.read(&_array[_getAddress(0, i)], H5::PredType::NATIVE_DOUBLE);
+  }
+
+  if (ret)
+  {
+    // Decode the locators
+    std::vector<ELoc> tabloc;
+    VectorInt tabnum;
+    int inum = 0, mult = 0;
+    ELoc iloc;
+    for (const auto& loc: locators)
+    {
+      if (locatorIdentify(loc, &iloc, &inum, &mult) != 0) return true;
+      tabloc.push_back(iloc);
+      tabnum.push_back(inum);
+    }
+
+    // Update the column names and locators
+    for (int i = 0; i < ncol; i++)
+    {
+      setNameByUID(i, names[i]);
+      setLocatorByUID(i, tabloc[i], tabnum[i]);
+    }
+  }
+  return ret;
+}
+#endif
+
 void Db::_loadData(const ELoadBy& order,
                    bool flagAddSampleRank,
                    const VectorDouble& tab)
 {
   // Preliminary check
 
-  if (getColumnNumber() <= 0) return;
+  if (getNColumn() <= 0) return;
   int jcol = 0;
 
   // Add the rank (optional)
 
   if (flagAddSampleRank)
   {
-    for (int iech = 0; iech < getSampleNumber(); iech++)
+    for (int iech = 0; iech < getNSample(); iech++)
       setValueByColIdx(iech, jcol, iech + 1);
     setNameByUID(jcol, "rank");
     jcol++;
@@ -4667,11 +4929,11 @@ void Db::_loadData(const ELoadBy& order,
   // Add the input array 'tab' (if provided)
 
   if (tab.empty()) return;
-  int ntab = (flagAddSampleRank) ? getColumnNumber() - 1 : getColumnNumber();
+  int ntab = (flagAddSampleRank) ? getNColumn() - 1 : getNColumn();
   int ecr  = 0;
   for (int icol = 0; icol < ntab; icol++)
   {
-    for (int iech = 0; iech < getSampleNumber(); iech++, ecr++)
+    for (int iech = 0; iech < getNSample(); iech++, ecr++)
     {
       if (order == ELoadBy::SAMPLE)
         setValueByColIdx(iech, jcol, tab[icol + ntab * iech]);
@@ -4707,16 +4969,16 @@ bool Db::_isCountValid(const VectorInt& iuids, bool flagOne, bool verbose) const
  * Returns the Number of different facies (labelling starts at 1)
  * The facies variable must be locatorized as ELoc::Z and be unique
  */
-int Db::getFaciesNumber(void) const
+int Db::getNFacies(void) const
 {
-  if (getLocatorNumber(ELoc::Z) != 1)
+  if (getNLoc(ELoc::Z) != 1)
   {
     messerr("This function requires the number of variables (%d) to be "
             "equal to 1",
-            getLocatorNumber(ELoc::Z));
+            getNLoc(ELoc::Z));
     return ITEST;
   }
-  int nech = getSampleNumber();
+  int nech = getNSample();
 
   // Find the number of Facies (labelled starting from 1)
 
@@ -4733,7 +4995,7 @@ int Db::getFaciesNumber(void) const
 
 VectorBool Db::getActiveArray() const
 {
-  int nech = getSampleNumber();
+  int nech = getNSample();
   VectorBool status(nech);
   for (int iech = 0; iech < nech; iech++) status[iech] = isActive(iech);
   return status;
@@ -4755,7 +5017,7 @@ VectorInt Db::getSortArray() const
 
   /* Initializations */
 
-  int nech = getSampleNumber();
+  int nech = getNSample();
 
   /* Core allocation */
 
@@ -4840,7 +5102,7 @@ int Db::resetSamplingDb(const Db* dbin,
 
   // Creating the vector of selected samples
 
-  int nfrom       = dbin->getSampleNumber();
+  int nfrom       = dbin->getNSample();
   VectorInt ranks = VH::sampleRanks(nfrom, proportion, number, seed);
   _nech           = static_cast<int>(ranks.size());
   if (verbose)
@@ -4927,15 +5189,15 @@ int Db::resetReduce(const Db* dbin,
   if (ranksel.empty())
   {
     if (dbin->hasLocVariable(ELoc::SEL))
-      ranksel = dbin->getRanksActive();
+      ranksel = dbin->getSampleRanksPerVariable();
     else
-      ranksel = VH::sequence(dbin->getSampleNumber());
+      ranksel = VH::sequence(dbin->getNSample());
   }
   _nech         = static_cast<int>(ranksel.size());
-  bool flagMask = _nech != dbin->getSampleNumber();
+  bool flagMask = _nech != dbin->getNSample();
   if (verbose)
     message("From %d samples, the extraction concerns %d samples\n",
-            dbin->getSampleNumber(), _nech);
+            dbin->getNSample(), _nech);
 
   // Creating the vector of variables
 
@@ -4960,7 +5222,7 @@ int Db::resetReduce(const Db* dbin,
   // Otherwise, the resulting Db (which is a 'point' Db) will have no
   // coordinate the coordinates are added before reduction
 
-  if (getLocatorNumber(ELoc::X) <= 0)
+  if (getNLoc(ELoc::X) <= 0)
   {
     // Extract vector of coordinates from input 'Db' (converted into a
     // 'DbGrid')
@@ -4997,13 +5259,13 @@ int Db::resetFromGridRandomized(const DbGrid* dbin,
 {
   // Creating the vector of selected samples
 
-  _nech = dbin->getSampleNumber();
+  _nech           = dbin->getNSample();
   VectorInt ranks = VH::sequence(_nech);
 
   // Creating the vector of variables
 
   VectorString namloc = dbin->getAllNames();
-  _ncol = static_cast<int>(namloc.size());
+  _ncol               = static_cast<int>(namloc.size());
 
   // Create the (empty) architecture
 
@@ -5026,7 +5288,7 @@ int Db::resetFromGridRandomized(const DbGrid* dbin,
   for (int idim = 0; idim < getNDim(); idim++)
   {
     double dx = dbin->getDX(idim);
-    for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+    for (int iech = 0; iech < dbin->getNSample(); iech++)
     {
       double coor = getCoordinate(iech, idim);
       coor += dx * law_uniform(-perc, perc);
@@ -5035,7 +5297,7 @@ int Db::resetFromGridRandomized(const DbGrid* dbin,
   }
 
   return 0;
-  }
+}
 
 /*****************************************************************************/
 /*!
@@ -5301,7 +5563,7 @@ VectorInt Db::filter(const String& name,
 
   int rankFrom = 0;
   if (!IFFFF(belowRow)) rankFrom = belowRow;
-  int rankTo = getSampleNumber() - 1;
+  int rankTo = getNSample() - 1;
   if (!IFFFF(aboveRow)) rankTo = aboveRow;
 
   for (int irow = rankFrom; irow <= rankTo; irow++)
@@ -5333,28 +5595,6 @@ VectorInt Db::shrinkToValidCols(const VectorInt& cols) const
     if (cols[i] >= 0 && cols[i] < _ncol) new_cols.push_back(cols[i]);
   }
   return new_cols;
-}
-
-/** Returns the ranks, within the exhaustive loop on variables then samples
- * to be used in the kriging system, knowing that we must discard the masked
- * samples and the samples whose value is not defined
- * @return
- */
-VectorInt Db::getSampleRanks() const
-{
-  VectorInt vec;
-  int nvar = getLocNumber(ELoc::Z);
-  int nech = getSampleNumber();
-
-  int lec = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int iech = 0; iech < nech; iech++, lec++)
-    {
-      if (!isActive(iech)) continue;
-      if (FFFF(getZVariable(iech, ivar))) continue;
-      vec.push_back(lec);
-    }
-  return vec;
 }
 
 /**
@@ -5470,6 +5710,70 @@ Db* Db::createFillRandom(int ndat,
   return db;
 }
 
+Db* Db::createEmpty(int ndat,
+                    int ndim,
+                    int nvar,
+                    int nfex,
+                    int ncode,
+                    bool flagVerr,
+                    bool flagSel,
+                    bool flagAddSampleRank)
+{
+  // Create the Db
+  Db* db = Db::create();
+
+  // Add the sample rank attribute
+  if (flagAddSampleRank) db->_addRank(ndat);
+
+  // Generate the vector of coordinates
+  VectorVectorDouble coor(ndim);
+  for (int idim = 0; idim < ndim; idim++)
+    coor[idim] = VectorDouble(ndat, 0.);
+  db->addColumnsByVVD(coor, "x", ELoc::X);
+
+  // Generate the Vectors of Variance of measurement error (optional)
+  if (flagVerr)
+  {
+    VectorVectorDouble varm(nvar);
+    for (int ivar = 0; ivar < nvar; ivar++)
+      varm[ivar] = VectorDouble(ndat, 0.);
+    db->addColumnsByVVD(varm, "v", ELoc::V);
+  }
+
+  // Generate the External Drift functions (optional)
+  if (nfex > 0)
+  {
+    VectorVectorDouble fex(nfex);
+    for (int ifex = 0; ifex < nfex; ifex++)
+      fex[ifex] = VectorDouble(ndat, 0.);
+    db->addColumnsByVVD(fex, "f", ELoc::F);
+  }
+
+  // Generate the selection (optional)
+  if (flagSel)
+  {
+    VectorDouble sel(ndat);
+    sel.fill(1.);
+    db->addColumns(sel, "sel", ELoc::SEL);
+  }
+
+  // Generate the variables
+  VectorVectorDouble vars(nvar);
+  for (int ivar = 0; ivar < nvar; ivar++)
+    vars[ivar] = VectorDouble(ndat, 0.);
+  db->addColumnsByVVD(vars, "z", ELoc::Z);
+
+  // Generate the code (optional)
+  if (ncode > 0)
+  {
+    VectorDouble codes(ndat);
+    codes.fill(0.);
+    db->addColumns(codes, "code", ELoc::C);
+  }
+
+  return db;
+}
+
 Table Db::printOneSample(int iech,
                          const VectorString& names,
                          bool excludeCoordinates,
@@ -5488,7 +5792,7 @@ Table Db::printOneSample(int iech,
   table.setSkipDescription(true);
   if (!skipTitle)
     table.setTitle("Sample " + std::to_string(iech + 1) + " / " +
-                   std::to_string(getSampleNumber()));
+                   std::to_string(getNSample()));
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
@@ -5510,6 +5814,26 @@ void Db::copyByCol(int icolIn, int icolOut)
   if (!isColIdxValid(icolIn)) return;
   if (!isColIdxValid(icolOut)) return;
 
-  for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
+  for (int iech = 0, nech = getNSample(); iech < nech; iech++)
     _array[_getAddress(iech, icolOut)] = _array[_getAddress(iech, icolIn)];
+}
+
+void Db::dumpGeometry(int iech, int jech) const
+{
+  int ndim = getNDim();
+  SpacePoint P1(ndim);
+  SpacePoint P2(ndim);
+  getSampleAsSPInPlace(P1, iech);
+  getSampleAsSPInPlace(P2, jech);
+
+  message("Comparing samples #%d and #%d\n", iech, jech);
+
+  double dist = P1.getDistance(P2);
+  message("- Distance = %lf\n", dist);
+
+  VectorDouble incr = P1.getIncrement(P2);
+  VH::dump("- Increments = ", incr, false);
+
+  VectorDouble angles = GH::rotationFromIncrements(incr, true);
+  VH::dump("- Angles (deg) = ", angles, false);
 }

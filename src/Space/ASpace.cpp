@@ -9,6 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Space/ASpace.hpp"
+#include "Basic/AStringable.hpp"
+#include "Space/ASpaceObject.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
 
@@ -49,7 +51,10 @@ ASpace& ASpace::operator=(const ASpace& r)
   return *this;
 }
 
-ASpace::~ASpace() {}
+ASpace::~ASpace() 
+{
+  //messerr("coucou");
+}
 
 /// Interface for AStringable
 String ASpace::toString(const AStringFormat* strfmt) const
@@ -61,7 +66,7 @@ String ASpace::toString(const AStringFormat* strfmt) const
 }
 
 /// Update the origin of the space
-void ASpace::setOrigin(const VectorDouble& origin)
+void ASpace::setOrigin(const VectorDouble& origin) 
 {
   if (origin.size() != getNDim())
   {
@@ -92,6 +97,12 @@ const VectorDouble& ASpace::getOrigin(int ispace) const
   return _origin;
 }
 
+ASpaceSharedPtr ASpace::getDefaultSpaceIfNull(const ASpaceSharedPtr& space)
+{
+  if (space == nullptr) return getDefaultSpaceSh();
+  return space;
+}
+
 /// Get the number of space components
 unsigned int ASpace::getNComponents() const
 {
@@ -99,10 +110,10 @@ unsigned int ASpace::getNComponents() const
 }
 
 /// Return the space component at index ispace
-const ASpace* ASpace::getComponent(int ispace) const
+ASpaceSharedPtr ASpace::getComponent(int ispace) const
 {
   DECLARE_UNUSED(ispace)
-  return this;
+  return ASpaceSharedPtr(this);
 }
 
 /// Dump a space in a string (given the space index)
@@ -232,7 +243,7 @@ VectorDouble ASpace::getIncrement(const SpacePoint& p1,
 VectorDouble ASpace::projCoord(const VectorDouble& coord, int ispace) const
 {
   if (ispace < 0 || ispace >= (int)getNComponents()) return coord;
-  const ASpace* sp = getComponent(ispace);
+  auto sp = getComponent(ispace);
   auto first       = coord.cbegin() + sp->getOffset();
   auto last        = first          + sp->getNDim();
   /// TODO : Memory copies !

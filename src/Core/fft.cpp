@@ -78,7 +78,7 @@ static void *Tmp0 = NULL; /* temp space for real part */
 static void *Tmp1 = NULL; /* temp space for imaginary part */
 static void *Tmp2 = NULL; /* temp space for Cosine values */
 static void *Tmp3 = NULL; /* temp space for Sine values */
-static int *Perm = NULL; /* Permutation vector */
+static int  *Perm = NULL; /* Permutation vector */
 
 static int factor[NFACTOR];
 

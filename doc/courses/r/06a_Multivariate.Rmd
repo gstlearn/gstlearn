@@ -7,6 +7,8 @@ output:
     toc: true
   pdf_document:
     toc: true
+editor_options: 
+  chunk_output_type: console
 ---
 
 <!-- SUMMARY: Estimation using several variables simultaneously: Cokriging, Kriging with trend, Kriging with External Drift  -->
@@ -30,13 +32,6 @@ In this preamble, we load the **gstlearn** library and clean the workspace.
 ```{r Loading_libraries, message=FALSE,results=FALSE}
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
-```
-
-```{r Global_plot_option}
-plot.setDefaultGeographic(dims=c(8,8))
 ```
 
 We load two data bases:
@@ -66,9 +61,11 @@ target
 Let us plot its content.
 
 ```{r Plot_elevation_grid}
-ggDefaultGeographic() + plot(target, nameRaster="Elevation",
-                             flagLegendRaster=TRUE,palette="Spectral",
-                             legendNameRaster="Elevation (m)")
+p = plot.init(asp=1)
+p = p + plot(target, name="Elevation",
+                             flagLegend=TRUE,palette="Spectral",
+                             legendName="Elevation (m)")
+plot.end(p)
 ```
 
 The `dat` data base contains 236 (point) samples of two variables across Scotland: elevation and temperature.
@@ -121,27 +118,25 @@ As explained above, the first row of the table contains contains the mean, the m
 To confirm that, we plot the points where the temperature is sampled on top of the elevation map of Scotland.
 
 ```{r Plot_temperature_observations_on_elevation_map}
-p = ggDefaultGeographic()
-p = p + plot.grid(target, nameRaster="Elevation",
-                  flagLegendRaster=TRUE,
+p = plot.init(asp=1)
+p = p + plot.raster(target, name="Elevation",
+                  flagLegend=TRUE,
                   palette="Spectral",
-                  legendNameRaster="Elevation (m)")
-#p = p + new_scale_color()
-#p = p + new_scale("linetype")
-p = p + plot.point(dat, nameSize="Temperature",
+                  legendName="Elevation (m)")
+p = p + plot.symbol(dat, nameSize="Temperature",
                    sizmin = 0.5, sizmax = 3,
-                   flagLegendSize=TRUE,legendNameSize="°C")
-ggPrint(p)
+                   flagLegend=TRUE,legendNameSize="°C")
+plot.end(p)
 ```
 
 From observing this last plot, it seems like the bigger points (corresponding to high temperatures) are located where the elevation is smaller: this seems to hint (confirm?) that the temperature is negatively correlated with the elevation. To corroborate this, we plot a correlation plot between the two variables.
 
 ```{r Correlation_plot_Temperature - Elevation}
-p = ggplot()
+p = plot.init(dims=c(8,8))
 p = p + plot.correlation(dat, namex="Elevation", namey="Temperature", 
                      asPoint=TRUE, flagRegr=TRUE)
 p = p + plot.decoration(title="Correlation between Temperature and Elevation")
-ggPrint(p)
+plot.end(p)
 ```
 
 ### Baseline univariate model
@@ -154,7 +149,7 @@ We start by computing an experimental directional variogram `vario_raw2dir` of t
 
 ```{r Experimental_directional_variograms}
 ## Create experimental variogram on raw data
-varioparam = VarioParam_createMultiple(ndir=2, npas=30, dpas=10)
+varioparam = VarioParam_createMultiple(ndir=2, nlag=30, dlag=10)
 vario_raw2dir = Vario(varioparam)
 err = vario_raw2dir$compute(dat)
 ```
@@ -169,10 +164,10 @@ err = fitmod_raw$setDriftIRF(0,0)
 ```
 
 ```{r Plot_model_fitted_on_raw_variogram}
-p = ggplot()
+p = plot.init(dims=c(8,8))
 p = p + plot.varmod(vario_raw2dir, fitmod_raw)
 p = p + plot.decoration(title="Experimental and fitted variogram models - Raw temperature observations")
-ggPrint(p)
+plot.end(p)
 ```
 
 #### Ordinary kriging
@@ -193,12 +188,12 @@ err = kriging(dbin=dat, dbout=target, model=fitmod_raw,
 
 ```{r Plot_of_Ordinary_Kriging_prediction}
 ## Plot
-p = ggDefaultGeographic()
-p = p + plot.grid(target,nameRaster = "OK*estim",
-                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C") 
-p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
+p = plot.init(asp=1)
+p = p + plot.raster(target,name = "OK*estim",
+                  flagLegend = TRUE, palette="Spectral",legendName="°C") 
+p = p + plot.symbol(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - Ordinary Kriging")
-ggPrint(p)
+plot.end(p)
 ```
 
 ```{r Statistics_of_Ordinary_Kriging_prediction}
@@ -213,8 +208,7 @@ We perform a cross-validation of the fitted model using Ordinary Kriging, and ca
 
 ```{r Cross-validation_Ordinary_kriging, results=FALSE}
 ## Compute cross-validation
-err = xvalid(dat, model=fitmod_raw, 
-             neigh=uniqueNeigh,
+err = xvalid(dat, model=fitmod_raw, neigh=uniqueNeigh,
              namconv=NamingConvention_create(prefix="CV_OK",flag_locator=FALSE))
 ```
 
@@ -283,13 +277,13 @@ err = kriging(dbin=dat, dbout=target, model=fitmod2var,
 We can then represent the cokriging predictor for the temperature.
 
 ```{r Cokriging_plot}
-p = ggDefaultGeographic()
-p = p + plot.grid(target,nameRaster = "COK.Temp*estim",
-                  flagLegendRaster = TRUE, 
-                  palette="Spectral",legendNameRaster="°C") 
-p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
+p = plot.init(asp=1)
+p = p + plot.raster(target,name = "COK.Temp*estim",
+                  flagLegend = TRUE, 
+                  palette="Spectral",legendName="°C") 
+p = p + plot.symbol(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - CoKriging")
-ggPrint(p)
+plot.end(p)
 ```
 
 For this predictor, we get the following statistics:
@@ -304,11 +298,11 @@ dbStatisticsPrint(target, names=(c("COK.T*")), opers=opers,
 Finally, we compare the cokriging predictor to the ordinary kriging predictor.
 
 ```{r Comparing_Ordinary_Kriging_and_CoKriging}
-p = ggplot()
+p = plot.init(dims=c(8,8))
 p = p + plot.correlation(target, namex="OK.T*estim", namey="COK.T*estim", 
                      flagBiss=TRUE, bins=100)
 p = p + plot.decoration(xlab="Ordinary Kriging",ylab="CoKriging")
-ggPrint(p)
+plot.end(p)
 ```
 
 ```{r Comparing_Ordinary_kriging_and_Cokriging}
@@ -329,8 +323,7 @@ movingNeigh = NeighMoving_create(radius = 1000, nmaxi = 10)
 To perform a cross-validation of the bivariate model using co-kriging, we use the  same commands as in the univariate case. Then cross-validation errors are computed for each variable of the multivariate model (hence for both the Temperature and the Elevation in our case).
 
 ```{r Cross-validation_Cokriging, echo=TRUE}
-err = xvalid(dat, model=fitmod2var,
-             neigh=movingNeigh,
+err = xvalid(dat, model=fitmod2var, neigh=movingNeigh,
              namconv=NamingConvention_create(prefix="CV_COK",flag_locator=FALSE))
 ```
 
@@ -415,8 +408,10 @@ dbStatisticsPrint(dat, names=c("RegRes*"), opers=opers,
 Finally we plot a correlation plot between the residuals and the regressor variable (i.e. the elevation).
 
 ```{r Plot_correlation_residuals, echo=TRUE}
-ggplot() + plot.correlation(dat,namex="Elevation",namey="RegRes*",
+p = plot.init(dims=c(8,8)) 
+p = p + plot.correlation(dat,namex="Elevation",namey="RegRes*",
                             flagRegr=TRUE,asPoint=TRUE)
+plot.end(p)
 ```
 
 Now that the residuals are explicitly computed and available in the observation data base, we can proceed to work with them as with any other variable.
@@ -442,10 +437,10 @@ err = fitmodR$setDriftIRF(0,0)
 ```
 
 ```{r Plot_variogram_of_residuals}
-p = ggplot()
+p = plot.init(dims=c(8,8))
 p = p + plot.varmod(varioexpR, fitmodR)
 p = p + plot.decoration(title="Experimental and fitted variogram models - Temperature Residual")
-ggPrint(p)
+plot.end(p)
 ```
 
 ### Ordinary kriging of the residuals
@@ -459,12 +454,12 @@ err = kriging(dbin=dat, dbout=target, model=fitmodR,
 ```
 
 ```{r Plot_Kriging_of_residuals}
-p = ggDefaultGeographic()
-p = p + plot.grid(target,nameRaster = "ROK*estim",
-                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C") 
-p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
+p = plot.init(asp=1)
+p = p + plot.raster(target,name = "ROK*estim",
+                  flagLegend = TRUE, palette="Spectral",legendName="°C") 
+p = p + plot.symbol(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature residuals - Ordinary Kriging")
-ggPrint(p)
+plot.end(p)
 ```
 
 Now that the residuals $\varepsilon^{OK}$ are predicted everywhere on the grid (by ordinary kriging), we can compute a predictor $Z^*$ for the temperature by simply adding the back the linear regression part of the model, i.e. by computing
@@ -485,22 +480,22 @@ uid = target$addColumns(ROK_estim,"KR.Temperature.estim")
 Let us plot the resulting temperature predictions.
 
 ```{r Plot_Predictor_from_Kriging_of_residuals}
-p = ggDefaultGeographic()
-p = p + plot.grid(target,nameRaster = "KR.T*estim",
-                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C") 
-p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
+p = plot.init(asp=1)
+p = p + plot.raster(target,name = "KR.T*estim",
+                  flagLegend = TRUE, palette="Spectral",legendName="°C") 
+p = p + plot.symbol(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - Ordinary Kriging of the residuals")
-ggPrint(p)
+plot.end(p)
 ```
 
 Finally, we compare the predictor obtained by kriging of the residuals to the ordinary kriging predictor.
  
 ```{r Correlation_plot_OK_Kriging_of_residuals}
-p = ggplot()
+p = plot.init(dims=c(8,8))
 p = p + plot.correlation(target, namex="OK.T*estim", namey="KR.T*estim", 
                          flagBiss=TRUE, bins=100)
 p = p + plot.decoration(xlab="Ordinary Kriging",ylab="Kriging with Residuals")
-ggPrint(p)
+plot.end(p)
 ```
 
 ```{r Comparing_Ordinary_kriging_and_Residual_kriging}
@@ -549,10 +544,10 @@ err = vario_res2dir$compute(dat,model=polDriftModel)
 When plotting the experimental variograms, we notice that in one of the directions, the variogram does not reach a plateau. This suggests that a non-stationary model could be more suited for the analysis of these temperature observations.
 
 ```{r Plot_experimental_variogram_of_residuals, message=FALSE}
-p = ggplot()
+p = plot.init(dims=c(8,8))
 p = p + plot.varmod(vario_raw2dir)
 p = p + plot.decoration(title="Temperature (°C)") 
-ggPrint(p)
+plot.end(p)
 ```
 
 Then, we can now fit that a model on the experimental variorgram using the `fit` method in the usual way.
@@ -563,10 +558,10 @@ err = polDriftModel$fit(vario_res2dir,
 ```
 
 ```{r Plot_model_fit}
-p = ggplot()
+p = plot.init(dims=c(8,8))
 p = p + plot.varmod(vario_res2dir, polDriftModel)
 p = p + plot.decoration(title="Experimental and fitted variogram models - Residuals")
-ggPrint(p)
+plot.end(p)
 ```
 
 Finally, note that it is possible to compute the coefficients of the polynomial trend from the intrinsic model defined above, using the function `regression`. This function allows to perform linear regressions on variables defined in a data base. 
@@ -595,13 +590,13 @@ err = kriging(dbin=dat, dbout=target, model=polDriftModel,
  
 ```{r Plot_of_Universal_Kriging_prediction}
 ## Plot
-p = ggDefaultGeographic()
-p = p + plot.grid(target,nameRaster = "UK*estim",
-                  flagLegendRaster = TRUE, 
-                  palette="Spectral",legendNameRaster="°C") 
-p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
+p = plot.init(asp=1)
+p = p + plot.raster(target,name = "UK*estim",
+                  flagLegend = TRUE, 
+                  palette="Spectral",legendName="°C") 
+p = p + plot.symbol(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - Universal Kriging")
-ggPrint(p)
+plot.end(p)
 ```
 
 
@@ -616,11 +611,11 @@ dbStatisticsPrint(target, names=c("UK.T*"), opers=opers,
 Let us compare the predictions obtained when considering a polynomial trend in the model, with the ordinary kriging predictor based on the "raw" temperature observations. We plot a correlation plot between the ordinary and universal kriging predictions, compare their respective statistics.
 
 ```{r Comparing_Ordinary_and_Universal_Kriging, results="hide"}
-p = ggplot()
+p = plot.init(dims=c(8,8))
 p = p + plot.correlation(target, namex="OK*estim", namey="UK*estim", 
                          flagBiss=TRUE, bins=100)
 p = p + plot.decoration(xlab="Ordinary Kriging",ylab="Universal Kriging")
-ggPrint(p)
+plot.end(p)
 ```
 
 ```{r Comparing_Ordinary_and_Universal_kriging}
@@ -635,8 +630,7 @@ dbStatisticsPrint(target, names=c("OK.T*estim", "UK.T*estim"), opers=opers,
 To perform cross-validation using Universal Kriging, we simply call the `xvalid` function with the model we fitted on the residuals. 
 
 ```{r Cross-validation_Universal_Kriging}
-err = xvalid(dat, model=polDriftModel, 
-             neigh=uniqueNeigh,
+err = xvalid(dat, model=polDriftModel, neigh=uniqueNeigh,
              namconv=NamingConvention_create(prefix="CV_UK",flag_locator=FALSE))
 ```
 
@@ -699,11 +693,11 @@ err = varioKED$compute(dat,model=EDmodel)
 As a reference, we plot the experimental variograms computed on the raw temperature data (dashed lines) and on the residuals from the model with external drift (solid line).
 
 ```{r Plot_experimental_variogram_of_residuals-ED, message=FALSE}
-p = ggplot()
+p = plot.init(dims=c(8,8))
 p = p + plot.varmod(vario_raw2dir, varioLinetype="dashed")
 p = p + plot.varmod(varioKED, varioLinetype="solid")
 p = p + plot.decoration(title="Temperature (°C)") 
-ggPrint(p)
+plot.end(p)
 ```
 
 Finally, we fit our model with external drift using the `fit` method (which we call on the experimental variogram of residuals).
@@ -714,10 +708,10 @@ err = EDmodel$fit(varioKED,
 ```
 
 ```{r Plot_model_fit-ED}
-p = ggplot()
+p = plot.init(dims=c(8,8))
 p = p + plot.varmod(varioKED, EDmodel)
 p = p + plot.decoration(title="Experimental and fitted variogram models - Residuals")
-ggPrint(p)
+plot.end(p)
 ```
 
 #### Kriging with external drifts
@@ -733,12 +727,12 @@ err = kriging(dbin=dat, dbout=target, model=EDmodel,
 ```
  
 ```{r Plot_of_KED_prediction}
-p = ggDefaultGeographic()
-p = p + plot.grid(target,nameRaster = "KED*estim",
-                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C") 
-p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
+p = plot.init(asp=1)
+p = p + plot.raster(target,name = "KED*estim",
+                  flagLegend = TRUE, palette="Spectral",legendName="°C") 
+p = p + plot.symbol(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - Kriging with external drift")
-ggPrint(p)
+plot.end(p)
 ```
 
 For this predictor, we get the following statistics
@@ -753,11 +747,11 @@ err = dbStatisticsPrint(target, names=(c("KED.T*")), opers=opers,
 We can then compare these predictions to the ones obtained by ordinary kriging. We create a correlation plot between the ordinary kriging predictions, and the kriging with external drift (KED) predictions.
 
 ```{r Comparing_OK_and_KED, results="hide"}
-p = ggplot()
+p = plot.init(dims=c(8,8))
 p = p + plot.correlation(target, namex="OK.T*estim", namey="KED.T*estim", 
                          flagBiss=TRUE,  bins=100)
 p = p + plot.decoration(xlab="Ordinary Kriging", ylab="Kriging with External Drift")
-ggPrint(p)
+plot.end(p)
 ```
 
 Note that negative Estimates are present when using External Drift.
@@ -767,8 +761,7 @@ Note that negative Estimates are present when using External Drift.
 To perform a cross-validation, we simply call the `xvalid` function. 
 
 ```{r Cross-Validation_External_Drift}
-err = xvalid(dat, model=EDmodel, 
-             neigh=uniqueNeigh,
+err = xvalid(dat, model=EDmodel, neigh=uniqueNeigh,
              namconv=NamingConvention_create(prefix="CV_KED",flag_locator=FALSE))
 ```
 

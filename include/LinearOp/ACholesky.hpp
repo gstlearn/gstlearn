@@ -15,7 +15,7 @@
 #include "LinearOp/ASimulable.hpp"
 #include "Matrix/AMatrix.hpp"
 
-class MatrixRectangular;
+class MatrixDense;
 
 class GSTLEARN_EXPORT ACholesky: public ASimulable
 {
@@ -33,9 +33,15 @@ public:
   int LtX(const constvect whitenoise, vect vecout) const;
   int LX(const constvect whitenoise, vect vecout) const;
   int InvLX(const constvect whitenoise, vect vecout) const;
-  int solveMatrix(const MatrixRectangular& b, MatrixRectangular& x) const;
+  int solveMatrix(const MatrixDense& b, MatrixDense& x) const;
   bool isReady() const { return _ready; }
 
+  VectorDouble invLtX(const VectorDouble& vecin) const;
+  VectorDouble LtX(const VectorDouble& vecin) const;
+  VectorDouble LX(const VectorDouble& vecin) const;
+  VectorDouble invLX(const VectorDouble& vecin) const;
+  VectorDouble solveX(const VectorDouble& vecin) const;
+  
   virtual double computeLogDeterminant() const                    = 0;
   virtual int addSolveX(const constvect vecin, vect vecout) const = 0;
   virtual int addInvLtX(const constvect vecin, vect vecout) const = 0;
@@ -44,14 +50,15 @@ public:
   virtual int addInvLX(const constvect vecin, vect vecout) const  = 0;
 
 protected:
-  void _setReady() const { _ready = true; }
+  void _setReady() const { _ready = true; _empty = false; }
 
 private:
   int _addToDest(const constvect vecin, vect vecout) const override;
   int _addSimulateToDest(const constvect whitenoise, vect vecout) const override;
 
 protected:
-  const AMatrix* _mat; // Pointer to original matrix (not to be deleted)
+  const AMatrix* _mat; // Pointer to original matrix (not to be deleted) TODO Suppress this pointer (useless)
   int _size;
   mutable bool _ready;
+  mutable bool _empty;
 };

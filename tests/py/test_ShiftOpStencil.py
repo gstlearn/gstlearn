@@ -4,22 +4,22 @@ import numpy as np
 
 np.random.seed(123)
 dbg = gl.DbGrid.create(nx = [11,11])
-ncell = dbg.getSampleNumber()
+ncell = dbg.getNSample()
 seltab = np.ones(ncell)
 middle = int(ncell / 2)
 seltab[middle] = 0
-flagSel = True
-meshref = gl.MeshETurbo(dbg)
+flagSel = False                 # TODO flagSel = True makes a read out-of-bounds
+meshref = gl.MeshETurbo(dbg, False)
 if flagSel:
     dbg.addColumns(seltab, "sel", gl.ELoc.SEL)
     print("Pixel", middle, "has been masked off")
 
-meshsel = gl.MeshETurbo(dbg)
+meshsel = gl.MeshETurbo(dbg, False)
 model = gl.Model.createFromParam(gl.ECov.MATERN,ranges = [3.,4.],param=1)
-cova = model.getCova(0)
+cova = model.getCovAniso(0)
 
 # %%
-newvar = np.random.normal(size=dbg.getSampleNumber())
+newvar = np.random.normal(size=dbg.getNSample())
 newvar[dbg["x1"]==00] = 0
 newvar[dbg["x1"]==10] = 0
 newvar[dbg["x2"]==00] = 0
@@ -39,7 +39,10 @@ if flagSel:
 
 # %%
 Ssten = gl.ShiftOpStencil(meshsel,cova)
+Ssten.getSize()
 resultNew = Ssten.evalDirect(newvar)
 
 # %%
 print("Difference =", np.max(np.abs(resultNew-result)))
+
+

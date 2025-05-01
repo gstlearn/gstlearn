@@ -10,13 +10,11 @@ set(SRC
   Fractures/FracList.cpp
   Matrix/LinkMatrixSparse.cpp
   Matrix/AMatrix.cpp
-  Matrix/AMatrixDense.cpp
   Matrix/MatrixSparse.cpp
   Matrix/MatrixInt.cpp
-  Matrix/MatrixRectangular.cpp
-  Matrix/AMatrixSquare.cpp
-  Matrix/MatrixSquareSymmetric.cpp
-  Matrix/MatrixSquareGeneral.cpp
+  Matrix/MatrixDense.cpp
+  Matrix/MatrixSquare.cpp
+  Matrix/MatrixSymmetric.cpp
   Matrix/MatrixFactory.cpp
   Matrix/Table.cpp
   Matrix/NF_Triplet.cpp
@@ -40,6 +38,7 @@ set(SRC
   LithoRule/RuleShift.cpp
   LithoRule/Node.cpp
   Model/ModelGeneric.cpp
+  Model/ModelCovList.cpp
   Model/ConsItem.cpp
   Model/CovParamId.cpp
   Model/Constraints.cpp
@@ -66,9 +65,11 @@ set(SRC
   Calculators/CalcSimuPostDemo.cpp
   Calculators/CalcSimuPostPropByLayer.cpp
   Covariances/TabNoStatCovAniso.cpp
+  Covariances/TabNoStatSills.cpp
   Covariances/TabNoStat.cpp
   Covariances/ParamId.cpp
   Covariances/CovBase.cpp
+  Covariances/CovProportional.cpp
   Covariances/ANoStat.cpp
   Covariances/NoStatArray.cpp
   Covariances/NoStatFunctional.cpp
@@ -83,19 +84,20 @@ set(SRC
   Covariances/CovPower.cpp
   Covariances/CovStorkey.cpp
   Covariances/CovGC5.cpp
-  Covariances/ACovAnisoList.cpp
+  Covariances/CovList.cpp
+  Covariances/CovAnisoList.cpp
   Covariances/CovPenta.cpp
   Covariances/CovGamma.cpp
   Covariances/CovExponential.cpp
   Covariances/CovGC1.cpp
   Covariances/ACov.cpp
-  Covariances/ACor.cpp
   Covariances/CovSincard.cpp
   Covariances/CovLMCTapering.cpp
   Covariances/CovLMCConvolution.cpp
   Covariances/CovLMCAnamorphosis.cpp
   Covariances/ACovGradient.cpp
   Covariances/CorGneiting.cpp
+  Covariances/CorMatern.cpp
   Covariances/CovGCspline2.cpp
   Covariances/CovGC3.cpp
   Covariances/CovGCspline.cpp
@@ -172,6 +174,7 @@ set(SRC
   Db/DbStringFormat.cpp
   Db/PtrGeos.cpp
   Db/DbHelper.cpp
+  Db/RankHandler.cpp
   LinearOp/LogStats.cpp
   LinearOp/CGParam.cpp
   LinearOp/PrecisionOp.cpp
@@ -179,6 +182,8 @@ set(SRC
   LinearOp/ProjMatrix.cpp
   LinearOp/ProjMulti.cpp
   LinearOp/ProjMultiMatrix.cpp
+  LinearOp/ProjComposition.cpp
+  LinearOp/ProjZero.cpp
   LinearOp/PrecisionOpMatrix.cpp
   LinearOp/ALinearOpMulti.cpp
   LinearOp/ALinearOp.cpp
@@ -201,7 +206,7 @@ set(SRC
   LinearOp/SPDEOp.cpp
   LinearOp/SPDEOpMatrix.cpp
   LinearOp/ASimulable.cpp
-  LinearOp/MatrixSquareSymmetricSim.cpp
+  LinearOp/MatrixSymmetricSim.cpp
   Space/SpaceSN.cpp
   Space/SpaceRN.cpp
   Space/SpacePoint.cpp
@@ -217,6 +222,7 @@ set(SRC
   Variogram/Vario.cpp
   Variogram/VarioParam.cpp
   Variogram/DirParam.cpp
+  Basic/ParamInfo.cpp
   Basic/Limits.cpp
   Basic/AStringable.cpp
   Basic/AStringFormat.cpp
@@ -225,7 +231,6 @@ set(SRC
   Basic/Utilities.cpp
   Basic/ArgumentTest.cpp
   Basic/File.cpp
-  Basic/HDF5format.cpp
   Basic/Memory.cpp
   Basic/VectorHelper.cpp
   Basic/FunctionalSpirale.cpp
@@ -248,7 +253,9 @@ set(SRC
   Basic/OptCustom.cpp
   Basic/Plane.cpp
   Basic/FFT.cpp
+  Basic/SerializeNeutralFile.cpp
   Basic/PolyLine2D.cpp
+  Basic/Convolution.cpp
   Geometry/GeometryHelper.cpp
   Geometry/ABiTargetCheck.cpp
   Geometry/BiTargetCheckDistance.cpp
@@ -302,12 +309,17 @@ set(SRC
   Neigh/NeighBench.cpp
   Neigh/NeighCell.cpp
   Estimation/KrigingSystem.cpp
-  Estimation/KrigingCalcul.cpp
+  Estimation/KrigingSystemSimpleCase.cpp
+  Estimation/KrigingAlgebra.cpp
+  Estimation/KrigingAlgebraSimpleCase.cpp
   Estimation/CalcKriging.cpp
+  Estimation/CalcKrigingSimpleCase.cpp
   Estimation/CalcKrigingFactors.cpp
   Estimation/CalcSimpleInterpolation.cpp
   Estimation/CalcImage.cpp
   Estimation/CalcGlobal.cpp
+  Estimation/KrigOpt.cpp
+  Estimation/Vecchia.cpp
   OutputFormat/AOF.cpp
   OutputFormat/GridIfpEn.cpp
   OutputFormat/GridEclipse.cpp

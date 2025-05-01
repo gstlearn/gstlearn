@@ -36,6 +36,7 @@ internetAvailable <- function()
 #' Return the absolute path of a file:
 #' - it is assumed to be present locally in '.' ('where' and 'directory' are ignored)
 #' - if not, it is assumed to be present locally in './doc/<where>', '../../doc/<where>' or '../../<where>'
+#' - if not, if the GSTLEARN_DIR environment variable is defined, it is assumed to be present in '<GSTLEARN_DIR>/gstlearn/doc/<where>'
 #' - if not, if Internet is available, the file is downloaded from the gstlearn website in a temporary file
 #' 
 #' @param filename: Name of the file to be located
@@ -56,7 +57,7 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
   {
     fullname = normalizePath(localname)
     if (verbose)
-      print(paste(localname, "found... Full path is", fullname))
+      print(paste(filename, "found... Full path is", fullname))
     return(fullname)
   }
   else if (verbose)
@@ -83,7 +84,7 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
     {
       fullname = normalizePath(localname)
       if (verbose)
-        print(paste(localname, "found... Full path is", fullname))
+        print(paste(filename, "found... Full path is", fullname))
       return(fullname)
     }
     else if (verbose)
@@ -92,6 +93,25 @@ locateFile <- function (filename, where='references', directory=NULL, verbose=FA
     }
   }
 
+  # Test in GSTLEARN_DIR environment variable
+  if (!is.null(Sys.getenv("GSTLEARN_DIR")) &&
+               Sys.getenv("GSTLEARN_DIR") != "")
+  {
+    localname = file.path(Sys.getenv("GSTLEARN_DIR"), "gstlearn", "doc", where, filename)
+    if (file.exists(localname))
+    {
+      fullname = normalizePath(localname)
+      if (verbose)
+        print(paste(filename, "found... Full path is", fullname))
+      return(fullname)
+    }
+    else if (verbose)
+    {
+      print(paste(localname, "not found..."))
+    }
+  }
+
+  # Test on the web
   if (!internetAvailable())
   {
     print(paste("Error: Cannot access to", filename, "(no Internet)!"))

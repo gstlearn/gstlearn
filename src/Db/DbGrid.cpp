@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/Grid.hpp"
 #include "geoslib_define.h"
 
 #include "Db/Db.hpp"
@@ -17,6 +18,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
@@ -24,20 +26,19 @@
 #include "Estimation/CalcImage.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Space/SpaceTarget.hpp"
-
 #include <algorithm>
 #include <math.h>
 
 DbGrid::DbGrid()
-    : Db(),
-      _grid(0)
+    : Db()
+    , _grid()
 {
   _clear();
 }
 
 DbGrid::DbGrid(const DbGrid& r)
-    : Db(r),
-      _grid(r._grid)
+    : Db(r)
+    , _grid(r._grid)
 {
 }
 
@@ -146,7 +147,7 @@ int DbGrid::reset(const VectorInt& nx,
     setLocatorsByUID(ndim, jcol, ELoc::X, 0);
     _defineDefaultLocators(number, locatorNames);
   }
-
+  initThread();
   return 0;
 }
 
@@ -592,7 +593,7 @@ bool DbGrid::migrateAllVariables(Db *dbin, bool flag_fill, bool flag_inter,
   // Constitute the list of Variables to be migrated
 
   VectorInt icols;
-  for (int icol = 0; icol < dbin->getColumnNumber(); icol++)
+  for (int icol = 0; icol < dbin->getNColumn(); icol++)
   {
     // Skip the rank
     if (flagAddSampleRank && icol == 0) continue;
@@ -609,7 +610,7 @@ bool DbGrid::migrateAllVariables(Db *dbin, bool flag_fill, bool flag_inter,
   if (ncol <= 0) return true;
 
   // Migrate the variables
-  int icolOut = getColumnNumber();
+  int icolOut = getNColumn();
   if (migrateByAttribute(dbin, this, icols, 2, VectorDouble(), flag_fill,
                          flag_inter, flag_ball, NamingConvention(String())))
     return false;
@@ -647,7 +648,7 @@ void DbGrid::_createGridCoordinates(int icol0)
   std::vector<double> coors(ndim);
   std::vector<int> indices;
   _grid.iteratorInit();
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int iech = 0; iech < getNSample(); iech++)
   {
     _grid.iteratorNext(indices);
     _grid.indicesToCoordinateInPlace(indices, coors);
@@ -710,10 +711,20 @@ double DbGrid::getCoordinate(int iech, int idim, bool flag_rotate) const
   return _grid.getCoordinate(iech, idim, flag_rotate);
 }
 
-void DbGrid::getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate) const
+void DbGrid::initThread() const
+{
+  _grid.initThread();
+}
+void DbGrid::getCoordinatesInPlace(VectorDouble& coor, int iech, bool flag_rotate) const
 {
   VectorDouble vec = _grid.getCoordinatesByRank(iech, flag_rotate);
-  coor = vec;
+  vec.resize(getNDim());
+  coor             = vec;
+}
+void DbGrid::getCoordinatesInPlace(vect coor, int iech, bool flag_rotate) const
+{
+  VectorDouble vec = _grid.getCoordinatesByRank(iech, flag_rotate);
+  coor             = vec;
 }
 
 int DbGrid::getNDim() const
@@ -734,47 +745,14 @@ void DbGrid::resetDims(int ncol, int /*nech*/)
 
 bool DbGrid::isConsistent() const
 {
-  return _grid.getNTotal() == getSampleNumber();
+  return _grid.getNTotal() == getNSample();
 }
 
 bool DbGrid::_deserialize(std::istream& is, bool verbose)
 {
-  int ndim = 0;
-  VectorInt nx;
-  VectorString locators;
-  VectorString names;
-  VectorDouble x0;
-  VectorDouble dx;
-  VectorDouble angles;
-  VectorDouble values;
-  VectorDouble allvalues;
-
-  /* Initializations */
-
   bool ret = true;
-  ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
-
-  /* Core allocation */
-
-  nx.resize(ndim);
-  dx.resize(ndim);
-  x0.resize(ndim);
-  angles.resize(ndim);
-
-  /* Read the grid characteristics */
-
-  for (int idim = 0; ret && idim < ndim; idim++)
-  {
-    ret = ret && _recordRead<int>(is, "Grid Number of Nodes", nx[idim]);
-    ret = ret && _recordRead<double>(is, "Grid Origin", x0[idim]);
-    ret = ret && _recordRead<double>(is, "Grid Mesh", dx[idim]);
-    ret = ret && _recordRead<double>(is, "Grid Angles", angles[idim]);
-  }
-
-  // Create the Grid characteristics
-  (void) gridDefine(nx, dx, x0, angles);
-
-  ret && Db::_deserialize(is, verbose);
+  ret      = ret && _grid._deserialize(is, verbose);
+  ret      = ret && Db::_deserialize(is, verbose);
 
   return ret;
 }
@@ -783,28 +761,58 @@ bool DbGrid::_serialize(std::ostream& os, bool verbose) const
 {
   bool ret = true;
 
-  /* Writing the header */
-
-  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
-
   /* Writing the grid characteristics */
 
-  ret = ret && _commentWrite(os, "Grid characteristics (NX,X0,DX,ANGLE)");
-  for (int idim = 0; ret && idim < getNDim(); idim++)
-  {
-    ret = ret && _recordWrite<int>(os, "",  getNX(idim));
-    ret = ret && _recordWrite<double>(os, "", getX0(idim));
-    ret = ret && _recordWrite<double>(os, "", getDX(idim));
-    ret = ret && _recordWrite<double>(os, "", getAngle(idim));
-    ret = ret && _commentWrite(os, "");
-  }
+  ret = ret && _grid._serialize(os, verbose);
 
   /* Writing the tail of the file */
 
-  ret && Db::_serialize(os, verbose);
+  ret = ret && Db::_serialize(os, verbose);
 
   return ret;
 }
+
+#ifdef HDF5
+bool DbGrid::_deserializeH5(H5::Group& grp, bool verbose)
+{
+  // Call SerializeHDF5::getGroup to get the subgroup of grp named
+  // "DbGrid" with some error handling
+  auto db = SerializeHDF5::getGroup(grp, "DbGrid");
+  if (!db)
+  {
+    return false;
+  }
+
+  bool ret = true;
+
+  // call _deserialize on each member with the current class Group
+  ret = ret && _grid._deserializeH5(*db, verbose);
+
+  // call _deserialize on the parent class with the current class Group
+  ret = ret && Db::_deserializeH5(*db, verbose);
+
+  return ret;
+}
+
+bool DbGrid::_serializeH5(H5::Group& grp, bool verbose) const
+{
+  // create a new H5 group every time we enter a _serialize method
+  // => easier to deserialize
+  auto db = grp.createGroup("DbGrid");
+
+  bool ret = true;
+  // serialize vector members using SerializeHDF5::writeVec
+  // (error handling is done in these methods)
+
+  // call _serialize on each member with the current class Group
+  ret = ret && _grid._serializeH5(db, verbose);
+
+  // call _serialize on the parent class with the current class Group
+  ret = ret && Db::_serializeH5(db, verbose);
+
+  return ret;
+}
+#endif
 
 double DbGrid::getUnit(int idim) const
 {
@@ -816,7 +824,7 @@ int DbGrid::gridDefine(const VectorInt& nx,
                        const VectorDouble& x0,
                        const VectorDouble& angles)
 {
-  return (_grid.resetFromVector(nx, dx, x0, angles));
+  return _grid.resetFromVector(nx, dx, x0, angles);
 }
 
 /**
@@ -846,6 +854,22 @@ DbGrid* DbGrid::createFromNF(const String& neutralFilename, bool verbose)
   return dbgrid;
 }
 
+#ifdef HDF5
+DbGrid* DbGrid::createFromH5(const String& H5Filename, bool verbose)
+{
+  auto* dbgrid = new DbGrid;
+  auto file    = SerializeHDF5::fileOpenRead(H5Filename);
+
+  bool success = dbgrid->_deserializeH5(file, verbose);
+  if (!success)
+  {
+    delete dbgrid;
+    dbgrid = nullptr;
+  }
+  return dbgrid;
+}
+#endif
+
 VectorDouble DbGrid::getColumnSubGrid(const String& name,
                                      int idim0,
                                      int rank,
@@ -866,7 +890,7 @@ VectorDouble DbGrid::getColumnSubGrid(const String& name,
   // Loop on the samples
 
   _grid.iteratorInit();
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int iech = 0; iech < getNSample(); iech++)
   {
     VectorInt indices = _grid.iteratorNext();
     if (indices[idim0] != rank) continue;
@@ -929,7 +953,7 @@ void DbGrid::generateCoordinates(const String& radix)
   int ndim = getNDim();
   VectorDouble coors(ndim);
   (void) addColumnsByConstant(ndim, 0., radix, ELoc::X);
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int iech = 0; iech < getNSample(); iech++)
   {
     _grid.rankToCoordinatesInPlace(iech, coors);
     for (int idim = 0; idim < ndim; idim++)
@@ -1042,7 +1066,7 @@ int DbGrid::assignGridColumn(const String& name,
   }
 
   _grid.iteratorInit();
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int iech = 0; iech < getNSample(); iech++)
   {
     VectorInt indices = _grid.iteratorNext();
     if (indices[idim] != rank) continue;
@@ -1137,7 +1161,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
         indices[1] = i1;
         indices[2] = i2;
         int iech = indiceToRank(indices);
-        getCoordinatesPerSampleInPlace(iech, coor);
+        getCoordinatesInPlace(coor, iech);
         tab[0][ecr] = coor[0];
         tab[1][ecr] = coor[1];
         tab[2][ecr] = coor[2];
@@ -1166,7 +1190,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
         indices[0] = i1;
         indices[2] = i2;
         int iech = indiceToRank(indices);
-        getCoordinatesPerSampleInPlace(iech, coor);
+        getCoordinatesInPlace(coor, iech);
         tab[0][ecr] = coor[0];
         tab[1][ecr] = coor[1];
         tab[2][ecr] = coor[2];
@@ -1194,7 +1218,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
         indices[0] = i1;
         indices[1] = i2;
         int iech = indiceToRank(indices);
-        getCoordinatesPerSampleInPlace(iech, coor);
+        getCoordinatesInPlace(coor, iech);
         tab[0][ecr] = coor[0];
         tab[1][ecr] = coor[1];
         tab[2][ecr] = coor[2];
@@ -1445,6 +1469,99 @@ DbGrid* DbGrid::createGrid2D(const ELoadBy &order,
   return db;
 }
 
+/**
+ * Creating a new Db loaded with random values
+ * @param nx Vector of mesh indices
+ * @param nvar Number of variables
+ * @param nfex Number of external drift functions
+ * @param ncode Number of codes (no code when 0)
+ * @param varmax Maximum value for the measurement error
+ * @param selRatio Percentage of samples that must be masked off (between 0 and 1)
+ * @param heteroRatio Vector of proportions of NA to be generated per variable
+ * @param means Vector of means per variable (optional)
+ * @param seed Value for the Random Generator seed
+ * @return A pointer to the newly created DbGrid
+ *
+ * @remarks
+ * The generated grid lies within a [0,1] hypercube.
+ * The variance of measurement error is created only if 'varmax' is
+ * positive. Then a field is created for each variable. this field is filled
+ * with random values uniformly generated in [0, varmax] The external drift
+ * values are generated according to Normal distribution.
+ */
+DbGrid* DbGrid::createFillRandom(const VectorInt& nx,
+                                 int nvar,
+                                 int nfex,
+                                 int ncode,
+                                 double varmax,
+                                 double selRatio,
+                                 const VectorDouble& heteroRatio,
+                                 const VectorDouble& means,
+                                 int seed)
+{
+  // Set the seed
+  law_set_random_seed(seed);
+
+  // Create the Db
+  int ndim = (int)nx.size();
+  VectorDouble dx(ndim);
+  for (int idim = 0; idim < ndim; idim++) dx[idim] = 1. / nx[idim];
+  DbGrid* dbgrid = DbGrid::create(nx, dx);
+  int ndat = VH::product(nx);
+
+  // Generate the Vectors of Variance of measurement error (optional)
+  if (varmax > 0.)
+  {
+    VectorVectorDouble varm(nvar);
+    for (int ivar = 0; ivar < nvar; ivar++)
+      varm[ivar] = VH::simulateUniform(ndat, 0., varmax);
+    dbgrid->addColumnsByVVD(varm, "v", ELoc::V);
+  }
+
+  // Generate the External Drift functions (optional)
+  if (nfex > 0)
+  {
+    VectorVectorDouble fex(nfex);
+    for (int ifex = 0; ifex < nfex; ifex++) fex[ifex] = VH::simulateGaussian(ndat);
+    dbgrid->addColumnsByVVD(fex, "f", ELoc::F);
+  }
+
+  // Generate the selection (optional)
+  if (selRatio > 0)
+  {
+    VectorDouble sel(ndat);
+    VectorDouble rnd = VH::simulateUniform(ndat);
+    for (int idat = 0; idat < ndat; idat++) sel[idat] = (rnd[idat] > selRatio) ? 1. : 0.;
+    dbgrid->addColumns(sel, "sel", ELoc::SEL);
+  }
+
+  // Generate the variables
+  bool flag_hetero = ((int)heteroRatio.size() == nvar);
+  VectorVectorDouble vars(nvar);
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double mean = (means.empty()) ? 0. : means[ivar];
+    vars[ivar] = VH::simulateGaussian(ndat, mean);
+    if (flag_hetero)
+    {
+      VectorDouble rnd = VH::simulateUniform(ndat);
+      for (int idat = 0; idat < ndat; idat++)
+        if (rnd[idat] <= heteroRatio[ivar]) vars[ivar][idat] = TEST;
+    }
+  }
+  dbgrid->addColumnsByVVD(vars, "z", ELoc::Z);
+
+  // Generate the code (optional)
+  if (ncode > 0)
+  {
+    VectorDouble codes = VH::simulateUniform(ndat);
+    for (int idat = 0; idat < ndat; idat++) codes[idat] = floor(ncode * codes[idat]);
+    dbgrid->addColumns(codes, "code", ELoc::C);
+  }
+
+  return dbgrid;
+}
+
 void DbGrid::_interpolate(const DbGrid *grid3D,
                           int idim0,
                           double top,
@@ -1529,7 +1646,7 @@ DbGrid* DbGrid::createSubGrid(const DbGrid* gridIn, VectorVectorInt limits, bool
   VectorInt indg(ndim);
   double value;
   int igin;
-  for (int igout = 0, nout = gridOut->getSampleNumber(); igout < nout; igout++)
+  for (int igout = 0, nout = gridOut->getNSample(); igout < nout; igout++)
   {
     // Get the indices in the output grid
     gridOut->rankToIndice(igout, indg);
@@ -1852,7 +1969,7 @@ VectorVectorInt DbGrid::getLimitsFromVariableExtend(const String &nameTop,
 
   // Find the set of Min and Max indices of the subgrid
 
-  int nech = getSampleNumber(true);
+  int nech = getNSample(true);
   VectorInt indmin(ndim,  10000000);
   VectorInt indmax(ndim, -10000000);
   VectorInt indg(ndim);
@@ -1923,7 +2040,7 @@ int DbGrid::setSelectionFromVariableExtend(const String &nameTop, const String &
 
   // Find the set of Min and Max indices of the subgrid
 
-  int nech = getSampleNumber(true);
+  int nech = getNSample(true);
   int iuid_top = getUID(nameTop);
   int iuid_bot = getUID(nameBot);
 
@@ -2116,7 +2233,7 @@ VectorInt DbGrid::locateDataInGrid(const Db *data,
 
     // Locate all samples (using useSel criterion)
 
-    for (int ip = 0, np = data->getSampleNumber(useSel); ip < np; ip++)
+    for (int ip = 0, np = data->getNSample(useSel); ip < np; ip++)
     {
       if (data->isActive(ip) || ! useSel)
       {
@@ -2160,7 +2277,7 @@ int DbGrid::addSelectionFromDbByMorpho(Db *db,
     return 1;
   }
 
-  int nech = getSampleNumber();
+  int nech = getNSample();
 
   VectorString names = db->getNamesByColIdx({0});
   int iuid = addColumnsByConstant(1);
@@ -2316,7 +2433,7 @@ VectorDouble DbGrid::getDistanceToOrigin(const VectorInt& origin,
                                          const VectorDouble& radius)
 {
   int ndim           = getNDim();
-  int nech           = getSampleNumber();
+  int nech           = getNSample();
   VectorDouble coor0 = getCoordinatesByIndice(origin);
   VectorDouble radloc   = radius;
   if (ndim != (int) radloc.size()) radloc = VectorDouble(ndim, 1.);
@@ -2325,7 +2442,7 @@ VectorDouble DbGrid::getDistanceToOrigin(const VectorInt& origin,
   VectorDouble distvec(nech, 0.);
   for (int iech = 0; iech < nech; iech++)
   {
-    getCoordinatesPerSampleInPlace(iech, coor);
+    getCoordinatesInPlace(coor, iech);
     double dist = 0.;
     for (int idim = 0; idim < ndim; idim++)
     {

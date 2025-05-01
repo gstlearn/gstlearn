@@ -5,12 +5,14 @@
 #include "Db/DbGrid.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "geoslib_define.h"
+#include <memory>
 
-NoStatArray::NoStatArray(const Db *dbref,const String& colname)
-:_dbNoStat(dbref)
-,_colName(colname)
-{}
-
+NoStatArray::NoStatArray(std::shared_ptr<const Db> dbref,
+                         const String& colname)
+  : _dbNoStat(std::move(dbref))
+  , _colName(colname)
+{
+}
 
 String NoStatArray::toString(const AStringFormat* strfmt) const
 {
@@ -21,9 +23,9 @@ String NoStatArray::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-
 void NoStatArray::_informField(const VectorVectorDouble& coords,
-                              VectorDouble& tab, bool verbose)
+                               VectorDouble& tab,
+                               bool verbose)
 {
   // Identify the attribute in the Db
 
@@ -38,12 +40,12 @@ void NoStatArray::_informField(const VectorVectorDouble& coords,
 
   if (_dbNoStat->isGrid())
   {
-    const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbNoStat);
+    const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbNoStat.get());
     if (migrateGridToCoor(dbgrid, iatt, coords, tab)) return;
   }
   else
   {
-    if (expandPointToCoor(_dbNoStat, iatt, coords, tab)) return;
+    if (expandPointToCoor(_dbNoStat.get(), iatt, coords, tab)) return;
   }
 
   int ndef = VH::countUndefined(tab);
@@ -76,9 +78,8 @@ void NoStatArray::_informField(const VectorVectorDouble& coords,
   if (verbose)
   {
     char str[LONG_SIZE];
-    (void) gslSPrintf(str,
-                      "Statistics for Non-Stationary Parameter on Mesh");
-    VH::displayStats(str,tab);
+    (void)gslSPrintf(str,
+                     "Statistics for Non-Stationary Parameter on Mesh");
+    VH::dumpStats(str, tab);
   }
-
 }

@@ -10,7 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovAnisoList.hpp"
+#include "Covariances/CovContext.hpp"
+#include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Enum/EAnam.hpp"
@@ -21,13 +23,13 @@ class SpacePoint;
 class CovAniso;
 class Model;
 
-class GSTLEARN_EXPORT CovLMCAnamorphosis : public ACovAnisoList
+class GSTLEARN_EXPORT CovLMCAnamorphosis : public CovAnisoList
 {
 public:
   CovLMCAnamorphosis(const AAnam* anam,
                      const VectorInt& strcnt = VectorInt(),
-                     const ASpace* space = nullptr);
-  CovLMCAnamorphosis(const ACovAnisoList& lmc,
+                     const CovContext& ctxt = CovContext());  
+  CovLMCAnamorphosis(const CovAnisoList& lmc,
                      const AAnam* anam,
                      const VectorInt& strcnt);
   CovLMCAnamorphosis(const CovLMCAnamorphosis &r);
@@ -44,12 +46,8 @@ public:
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
-  virtual double eval(const SpacePoint& p1,
-                      const SpacePoint& p2,
-                      int ivar = 0,
-                      int jvar = 0,
-                      const CovCalcMode* mode = nullptr) const override;                   
-  void addCov(const CovAniso* cov) override;
+  
+  void addCov(const CovBase* cov) override;
   bool hasAnam() const override { return true; }
   const AAnam* getAnam() const override { return _anam; }
   void setActiveFactor(int iclass) override;
@@ -57,24 +55,15 @@ public:
   int getAnamNClass() const override { return _anam->getNClass(); }
 
   int init(const VectorInt& strcnt = VectorInt());
-  const EAnam getAnamType() const;
+  EAnam getAnamType() const;
   void setAnam(const AAnam*& anam) { _anam = anam; }
 
-protected:
-    void _loadAndAddEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,const SpacePoint& p1,const SpacePoint&p2,
-                                              const CovCalcMode *mode = nullptr) const override;
-
-    void _addEvalCovMatBiPointInPlace(MatrixSquareGeneral &mat,
-                        const SpacePoint& pwork1, 
-                        const SpacePoint& pwork2, 
-                        const CovCalcMode *mode) const override;
-    void _optimizationSetTarget(const SpacePoint &pt) const override
-    {
-      ACov::_optimizationSetTarget(pt);
-    }
-
 private:
-  
+virtual double _eval(const SpacePoint& p1,
+                     const SpacePoint& p2,
+                     int ivar = 0,
+                     int jvar = 0,
+                     const CovCalcMode* mode = nullptr) const override;                   
   double _evalHermite(int ivar,
                       int jvar,
                       double h,
@@ -106,10 +95,10 @@ private:
   double _evalHermite0(int ivar, int jvar, const CovCalcMode* mode) const;
   double _evalDiscreteDD0(int ivar, int jvar, const CovCalcMode* mode) const;
   double _evalDiscreteIR0(int ivar, int jvar, const CovCalcMode* mode) const;
-  void   _transformCovCalcModeIR(CovCalcMode* mode, int iclass) const;
+  void   _transformCovCalcModeIR(int iclass) const;
 
 private:
-  int    _activeFactor;       /* Target factor (-1: Raw; 1: Gaussian; n: rank of factor) */
+  int       _activeFactor;    /* Target factor (-1: Raw; 1: Gaussian; n: rank of factor) */
   VectorInt _anamStrCount;    /* List of covariances in the Model (for RI only) */
   const AAnam* _anam;
 };

@@ -44,7 +44,7 @@ private:
 
   bool _simulate();
   void _alloc();
-  static int _getOptimalEvenNumber(int number, int largeFactor = 11);
+  static int _getNOptimalEven(int number, int largeFactor = 11);
   static VectorInt _getFactors(int number);
   void _gridDilate();
   bool _checkCorrect(const VectorVectorDouble& xyz,
@@ -85,14 +85,14 @@ private:
 };
 
 GSTLEARN_EXPORT int simfft(DbGrid *db,
-                           Model *model,
+                           ModelGeneric *model,
                            SimuFFTParam& param,
                            int nbsimu = 1,
                            int seed = 432431,
                            int verbose = false,
                            const NamingConvention& namconv = NamingConvention("FFT"));
 GSTLEARN_EXPORT VectorDouble getChangeSupport(DbGrid *db,
-                                              Model *model,
+                                              ModelGeneric *model,
                                               const SimuFFTParam &param,
                                               const VectorDouble &sigma = VectorDouble(),
                                               int seed = 14333,

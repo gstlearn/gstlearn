@@ -14,8 +14,13 @@
 #            => Do not restore without reading this: https://github.com/gstlearn/gstlearn/issues/68
 
 
-import geopandas as gpd
-from shapely.geometry import Polygon, Point
+try:
+    import geopandas as gpd
+    from shapely.geometry import Polygon, Point
+except ModuleNotFoundError as ex:
+    msg = ("Python dependencies 'geopandas' and 'shapely' not found.\n"
+          "To install them alongside gstlearn, please run `pip install gstlearn[plot]'")
+    raise ModuleNotFoundError(msg) from ex
 
 ''' Generate GeometryArray of shapely Point geometries from x, y(, z) coordinates.
     x, y: Data coordinates

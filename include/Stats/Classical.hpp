@@ -14,7 +14,7 @@
 
 #include "Enum/EStatOption.hpp"
 
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/NamingConvention.hpp"
 
@@ -101,7 +101,7 @@ GSTLEARN_EXPORT int statisticsTransition(DbGrid *dbin,
 GSTLEARN_EXPORT VectorDouble dbStatisticsFacies(Db *db);
 GSTLEARN_EXPORT double dbStatisticsIndicator(Db *db);
 
-GSTLEARN_EXPORT MatrixSquareGeneral* sphering(const AMatrix* X);
+GSTLEARN_EXPORT MatrixSquare* sphering(const AMatrix* X);
 
 GSTLEARN_EXPORT VectorVectorInt correlationPairs(Db *db1,
                                                  Db *db2,
@@ -113,7 +113,7 @@ GSTLEARN_EXPORT VectorVectorInt hscatterPairs(Db *db,
                                               const String &name1,
                                               const String &name2,
                                               VarioParam *varioparam,
-                                              int ipas = 0,
+                                              int ilag = 0,
                                               int idir = 0,
                                               bool verbose = false);
 GSTLEARN_EXPORT int correlationIdentify(Db *db1,
@@ -132,41 +132,40 @@ GSTLEARN_EXPORT VectorVectorDouble condexp(Db *db1,
 
 GSTLEARN_EXPORT std::map<int, int> contingencyTable(const VectorInt& values);
 GSTLEARN_EXPORT std::map<int, std::map<int, int>>contingencyTable2(const VectorInt& values, const VectorInt& bins);
-GSTLEARN_EXPORT MatrixSquareSymmetric dbVarianceMatrix(const Db* db);
+GSTLEARN_EXPORT MatrixSymmetric dbVarianceMatrix(const Db* db);
 
 #ifndef SWIG
-  // All the following functions assume that the variables in the output Db used
-  // to store the results are already created. This is the reason why they are
-  // not supposed to be presented to the Target Language.
+// All the following functions assume that the variables in the output Db used
+// to store the results are already created. This is the reason why they are
+// not supposed to be presented to the Target Language.
 
-  /** @addtogroup STATS_2 Statistics stored in already created variables
-   * \ingroup STATS
-   *
-   * @param db Input Data Base
-   * @param names List of target variables
-   * @param opers List of statistical operators
-   * @param iptr0 Starting address for storage
-   * @param proba Probability (used for calculations)
-   * @param vmin Minimum threshold (or TEST)
-   * @param vmax Maximum threshold (or TEST)
-   *
-   * @{
-   *
-   */
-  GSTLEARN_EXPORT
-  void dbStatisticsVariables(Db* db,
-                             const VectorString& names,
-                             const std::vector<EStatOption>& opers,
-                             int iptr0,
-                             double proba = TEST,
-                             double vmin  = TEST,
-                             double vmax  = TEST);
+/** @addtogroup STATS_2 Statistics stored in already created variables
+ * \ingroup STATS
+ *
+ * @param db Input Data Base
+ * @param names List of target variables
+ * @param opers List of statistical operators
+ * @param iptr0 Starting address for storage
+ * @param proba Probability (used for calculations)
+ * @param vmin Minimum threshold (or TEST)
+ * @param vmax Maximum threshold (or TEST)
+ *
+ * @{
+ *
+ */
+GSTLEARN_EXPORT void dbStatisticsVariables(Db* db,
+                                           const VectorString& names,
+                                           const std::vector<EStatOption>& opers,
+                                           int iptr0,
+                                           double proba = TEST,
+                                           double vmin  = TEST,
+                                           double vmax  = TEST);
 /**@}*/
 
-GSTLEARN_EXPORT int dbStatisticsInGridTool(Db *db,
-                                           DbGrid *dbgrid,
-                                           const VectorString &names,
-                                           const EStatOption &oper,
+GSTLEARN_EXPORT int dbStatisticsInGridTool(Db* db,
+                                           DbGrid* dbgrid,
+                                           const VectorString& names,
+                                           const EStatOption& oper,
                                            int radius,
                                            int iptr0);
 

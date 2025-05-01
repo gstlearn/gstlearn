@@ -11,7 +11,7 @@
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "geoslib_define.h"
 #include <functional>
@@ -76,7 +76,7 @@ int PrecisionOpMultiConditional::push_back(PrecisionOp *pmatElem,
   if (sizes() == 0 && projDataElem != nullptr)
   {
     // From the first element of the list, get the number of data and set _ndat
-    _ndat = projDataElem->getPointNumber(); //TODO Vérifier la cohérence. _ndat doit coïncider pour tous les projDataElem.
+    _ndat = projDataElem->getNPoint(); //TODO Vérifier la cohérence. _ndat doit coïncider pour tous les projDataElem.
     _work1.resize(_ndat);
     _workdata.resize(_ndat);
   }
@@ -85,7 +85,7 @@ int PrecisionOpMultiConditional::push_back(PrecisionOp *pmatElem,
 
   for (int i = 0, n = sizes(); i < n; i++)
   {
-    int ndatloc = _multiProjData[i]->getPointNumber();
+    int ndatloc = _multiProjData[i]->getNPoint();
     if (ndatloc != _ndat)
     {
       messerr("The Projection matrix for element %d refers to %d data",i,ndatloc);
@@ -377,7 +377,7 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, c
   _allocate(4);
   int xsize = static_cast<int>(X.size());
   VectorDouble XtInvSigmaZ(static_cast<int>(xsize));
-  MatrixSquareSymmetric XtInvSigmaX(xsize);
+  MatrixSymmetric XtInvSigmaX(xsize);
   VectorDouble result(xsize);
 
   for(int i = 0; i< xsize; i++)

@@ -15,7 +15,6 @@
 #include "Basic/Grid.hpp"
 #include "Mesh/AMesh.hpp"
 
-class MatrixRectangular;
 class DbGrid;
 class CovAniso;
 class cs;
@@ -52,11 +51,11 @@ public:
   int     getNMeshes() const override;
   int     getApex(int imesh, int rank) const override;
   double  getCoor(int imesh, int rank, int idim) const override;
-  void    getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const override;
+  void    getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const override;
   double  getApexCoor(int i, int idim) const override;
   void    getApexCoordinatesInPlace(int i, VectorDouble& coords) const override;
   double  getMeshSize(int imesh) const override;
-  void    resetProjMatrix(ProjMatrix* m, const Db *db, int rankZ = -1, bool verbose = false) const override;
+  void    resetProjFromDb(ProjMatrix* m, const Db *db, int rankZ = -1, bool verbose = false) const override;
   void    setPolarized(bool flag) { _isPolarized = flag; }
 
   static MeshETurbo* create(const VectorInt& nx,
@@ -75,12 +74,14 @@ public:
                                         bool flag_polarized = false,
                                         bool verbose = false,
                                         int mode = 1);
-  static MeshETurbo* createFromCova(const CovAniso &cova,
-                                    const Db *field,
+  static MeshETurbo* createFromCova(const CovAniso& cova,
+                                    const Db* field,
                                     double ratio,
                                     int nbExt = 0,
+                                    bool isPolarized = false,
                                     bool useSel = true,
                                     bool flagNoStatRot = false,
+                                    int nxmax = 300,
                                     bool verbose = false);
 
   int initFromExtend(const VectorDouble& extendmin,
@@ -107,18 +108,23 @@ public:
                    const Db* field,
                    double ratio,
                    int nbExt = 0,
+                   bool isPolarized = false,
                    bool useSel = true,
                    bool flagNoStatRot = false,
+                   int nxmax = 300,
                    bool verbose = false);
   const Grid& getGrid() const { return _grid; }
 
   const Indirection& getGridIndirect() const { return _gridIndirect; }
   const Indirection& getMeshIndirect() const { return _meshIndirect; }
   void getApexIndicesInPlace(int i, VectorInt& indg) const;
+  int getMeshFromCoordinates(const VectorDouble& coor,
+                             VectorInt& indices,
+                             VectorDouble& lambdas) const;
 
 private:
   int _defineGrid(const VectorDouble& cellsize);
-  void _setNumberElementPerCell();
+  void _setNElementPerCell();
   int _getPolarized(const constvectint indg) const;
   int _addWeights(int icas,
                   const constvectint indg0,
@@ -127,7 +133,7 @@ private:
                   const vect lambda,
                   bool verbose = false) const;
   void _deallocate();
-  void _getGridFromMesh(int imesh, int *node, int *icas) const;
+  void _getGridFromMesh(int imesh, int* node, int* icas) const;
   void _buildMaskInMeshing(const VectorDouble& sel);
   int  _nmeshInCompleteGrid() const;
   bool _addElementToTriplet(NF_Triplet& NF_T,
@@ -151,4 +157,11 @@ private:
   bool  _isPolarized;
   Indirection _meshIndirect;
   Indirection _gridIndirect;
+
+  /// factor allocations
+  mutable std::vector<int> indg;
+  mutable std::vector<int> indices;
+  mutable std::vector<double> lambdas;
+  mutable std::vector<double> rhs;
+  mutable std::vector<int> indgg;
 };

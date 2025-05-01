@@ -15,7 +15,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include <vector>
 
 #define EVALOP(IN,OUT,TAB,getmat,OP,IY,COMPUTEOP,XORY,START,END,IVAR,JVAR) \
@@ -116,7 +116,7 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
 
   for (int icov = 0; icov < ncov; icov++)
   {    
-    bool nostaticov =  _model->getCova(icov)->isNoStatForVariance();
+    bool nostaticov =  _model->getCovAniso(icov)->isNoStatForVariance();
     _isNoStatForVariance[icov] = nostaticov;
     _allStat = _allStat && !nostaticov;
   }
@@ -149,7 +149,7 @@ void PrecisionOpMulti::_buildQop(bool stencil)
 {
   for (int i = 0, number = _getNCov(); i < number; i++)
   {
-     CovAniso* cova = _model->getCova(_covList[i]);
+     CovAniso* cova = _model->getCovAniso(_covList[i]);
     _pops.push_back(PrecisionOp::create(_meshes[i], cova, stencil));
   }
 }
@@ -172,10 +172,10 @@ bool PrecisionOpMulti::_isValidModel(Model* model)
   if (model == nullptr) return false;
 
   _covList.clear();
-  for (int icov = 0, ncov = model->getCovaNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = model->getNCov(); icov < ncov; icov++)
   {
-    if (model->getCovaType(icov) == ECov::NUGGET) continue;
-    if (model->getCovaType(icov) == ECov::MATERN)
+    if (model->getCovType(icov) == ECov::NUGGET) continue;
+    if (model->getCovType(icov) == ECov::MATERN)
       _covList.push_back(icov);
     else
     {
@@ -221,7 +221,7 @@ bool PrecisionOpMulti::_matchModelAndMeshes() const
 int PrecisionOpMulti::_getNVar() const
 {
   if (_model == nullptr) return 0;
-  return _model->getVariableNumber();
+  return _model->getNVar();
 }
 
 int PrecisionOpMulti::_getNCov() const
@@ -253,16 +253,16 @@ void PrecisionOpMulti::_computeSize()
 
 int PrecisionOpMulti::_buildGlobalMatricesStationary(int icov)
 {
-  _invCholSillsStat[icov].setMatrix(&_model->getSillValues(icov)); // TODO: a nettoyer
+  _invCholSillsStat[icov].setMatrix(&_model->getSills(icov)); // TODO: a nettoyer
   if (!_invCholSillsStat[icov].isReady()) return 1;
-  _cholSillsStat[icov].setMatrix(&_model->getSillValues(icov));
+  _cholSillsStat[icov].setMatrix(&_model->getSills(icov));
   if (!_cholSillsStat[icov].isReady()) return 1;
   return 0;
 }
 
 int PrecisionOpMulti::_buildLocalMatricesNoStat(int icov)
 {
-  CovAniso* cova = _model->getCova(icov);
+  CovAniso* cova = _model->getCovAniso(icov);
   int nvar = _getNVar();
   cova->informMeshByApexForSills(_meshes[icov]);
   int nvertex =  (int)_meshes[icov]->getNApices();
@@ -278,7 +278,7 @@ int PrecisionOpMulti::_buildLocalMatricesNoStat(int icov)
   for (int imesh = 0; imesh < nvertex; imesh++)
   {
     cova->updateCovByMesh(imesh,false);
-    MatrixSquareSymmetric sills = cova->getSill();
+    MatrixSymmetric sills = cova->getSill();
     CholeskyDense sillsChol(&sills);
     if (! sillsChol.isReady()) return 1;
 

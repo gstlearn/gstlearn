@@ -458,7 +458,7 @@ static double st_get_drift_data(LMlayers *lmlayers,
 static void st_covariance_c00(LMlayers *lmlayers,
                               Model  *model,
                               const VectorDouble& prop1,
-                              MatrixSquareGeneral& covtab,
+                              MatrixSquare& covtab,
                               double *c00)
 {
   int nlayers, flag_interrupt;
@@ -517,7 +517,7 @@ static double st_cij(LMlayers *lmlayers,
                      int jlayer,
                      const VectorDouble& prop2,
                      const double *dd,
-                     MatrixSquareGeneral& covtab)
+                     MatrixSquare& covtab)
 {
   VectorDouble d1(2);
   st_check_layer("st_cij", lmlayers, ilayer);
@@ -566,7 +566,7 @@ static double st_ci0(LMlayers *lmlayers,
                      const VectorDouble& prop1,
                      int jlayer,
                      const double *dd,
-                     MatrixSquareGeneral& covtab)
+                     MatrixSquare& covtab)
 {
   VectorDouble d1(2);
   st_check_layer("st_ci0", lmlayers, ilayer);
@@ -678,7 +678,7 @@ static int st_lhs_one(LMlayers *lmlayers,
                       double *coor,
                       VectorDouble& prop0,
                       VectorDouble& prop2,
-                      MatrixSquareGeneral& covtab,
+                      MatrixSquare& covtab,
                       VectorDouble& b)
 {
   int jech, jjech, jfois, jlayer, nlayers, i;
@@ -690,7 +690,7 @@ static int st_lhs_one(LMlayers *lmlayers,
 
   /* Covariance part */
 
-  for (jech = jjech = 0; jech < dbin->getSampleNumber(); jech++)
+  for (jech = jjech = 0; jech < dbin->getNSample(); jech++)
   {
     if (seltab[jech] == 0) continue;
     coor2[0] = dbin->getCoordinate(jech, 0);
@@ -753,7 +753,7 @@ static int st_rhs(LMlayers *lmlayers,
                   int ilayer0,
                   VectorDouble& prop0,
                   VectorDouble& prop2,
-                  MatrixSquareGeneral& covtab,
+                  MatrixSquare& covtab,
                   VectorDouble& b)
 {
   int jech, jjech, i, jlayer, ipos, ifois, nlayers, ideb;
@@ -773,7 +773,7 @@ static int st_rhs(LMlayers *lmlayers,
 
   /* Covariance part */
 
-  for (jech = jjech = 0; jech < dbin->getSampleNumber(); jech++)
+  for (jech = jjech = 0; jech < dbin->getNSample(); jech++)
   {
     if (seltab[jech] == 0) continue;
     coor2[0] = dbin->getCoordinate(jech, 0);
@@ -839,7 +839,7 @@ static int st_lhs(LMlayers *lmlayers,
                   VectorInt& seltab,
                   VectorDouble& prop1,
                   VectorDouble& prop2,
-                  MatrixSquareGeneral& covtab,
+                  MatrixSquare& covtab,
                   double *a,
                   double *acov)
 {
@@ -857,7 +857,7 @@ static int st_lhs(LMlayers *lmlayers,
   /* Loop on the first sample */
 
   iiech = 0;
-  for (int iech=0; iech<dbin->getSampleNumber(); iech++)
+  for (int iech=0; iech<dbin->getNSample(); iech++)
   {
     if (seltab[iech] == 0) continue;
     coor[0] = dbin->getCoordinate(iech,0);
@@ -929,7 +929,7 @@ static void st_data_vector(LMlayers *lmlayers,
 
   /* Loop on the samples */
 
-  for (iech = iiech = 0; iech < dbin->getSampleNumber(); iech++)
+  for (iech = iiech = 0; iech < dbin->getNSample(); iech++)
   {
     if (seltab[iech] == 0) continue;
 
@@ -1035,7 +1035,7 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
 
   /* Find the vector of optimal mean values */
 
-  for (iech = iiech = 0; iech < dbin->getSampleNumber(); iech++)
+  for (iech = iiech = 0; iech < dbin->getNSample(); iech++)
   {
     if (seltab[iech] == 0) continue;
 
@@ -1085,7 +1085,7 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
 
   /* Subtract the optimal mean */
 
-  for (iech = iiech = 0; iech < dbin->getSampleNumber(); iech++)
+  for (iech = iiech = 0; iech < dbin->getNSample(); iech++)
   {
     if (seltab[iech] == 0) continue;
 
@@ -1175,7 +1175,7 @@ static int st_get_close_sample(LMlayers *lmlayers,
   /* Check among the subsequent samples if a sample with matching coordinates */
   /* and belonging to the bottom surface exists */
 
-  for (iech = iech0 + 1; iech < dbin->getSampleNumber(); iech++)
+  for (iech = iech0 + 1; iech < dbin->getNSample(); iech++)
   {
     dx = dbin->getCoordinate(iech, 0) - coor[0];
     if (ABS(dx) > EPS) continue;
@@ -1220,7 +1220,7 @@ static int st_collocated_prepare(LMlayers *lmlayers,
                                  VectorDouble& zval,
                                  VectorDouble& prop1,
                                  VectorDouble& prop2,
-                                 MatrixSquareGeneral& covtab,
+                                 MatrixSquare& covtab,
                                  double *b2,
                                  VectorDouble& baux,
                                  double *ratio)
@@ -1440,7 +1440,7 @@ static void st_estimate(LMlayers *lmlayers,
                         double *dual,
                         VectorDouble& prop1,
                         VectorDouble& prop2,
-                        MatrixSquareGeneral& covtab,
+                        MatrixSquare& covtab,
                         VectorDouble& b,
                         double *b2,
                         VectorDouble& baux,
@@ -1465,7 +1465,7 @@ static void st_estimate(LMlayers *lmlayers,
   if (flag_std && !lmlayers->flag_cumul)
     st_covariance_c00(lmlayers, model, VectorDouble(), covtab, c00);
 
-  for (iechout = 0; iechout < dbout->getSampleNumber(); iechout++)
+  for (iechout = 0; iechout < dbout->getNSample(); iechout++)
   {
     OptDbg::setCurrentIndex(iechout + 1);
     if (!dbout->isActive(iechout)) continue;
@@ -1474,7 +1474,7 @@ static void st_estimate(LMlayers *lmlayers,
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(dbout, iechout, 1, 0, 0);
+      db_sample_print(dbout, iechout, 1, 0, 0, 0);
     }
 
     /* Correction in the case of collocation of the bottom surface */
@@ -1574,7 +1574,7 @@ static int st_check_auxiliary_variables(LMlayers *lmlayers,
   double drift, value, coor[2];
 
   nechtot = 0;
-  for (iech = 0; iech < dbin->getSampleNumber(); iech++)
+  for (iech = 0; iech < dbin->getNSample(); iech++)
   {
     if (seltab[iech] == 0) continue;
     coor[0] = dbin->getCoordinate(iech, 0);
@@ -1657,7 +1657,7 @@ static void st_convert_results(LMlayers *lmlayers, Db *dbout, int flag_std)
 
   /* Loop on the target points */
 
-  for (iechout = 0; iechout < dbout->getSampleNumber(); iechout++)
+  for (iechout = 0; iechout < dbout->getNSample(); iechout++)
   {
 
     /* Identify the reference surface */
@@ -1762,7 +1762,7 @@ static int st_drift_data(LMlayers *lmlayers,
   for (int i = 0; i < npar * nech; i++)
     fftab[i] = 0.;
 
-  for (iech = iiech = 0; iech < dbin->getSampleNumber(); iech++)
+  for (iech = iiech = 0; iech < dbin->getNSample(); iech++)
   {
     if (seltab[iech] == 0) continue;
     coor[0] = dbin->getCoordinate(iech, 0);
@@ -2000,7 +2000,7 @@ int multilayers_kriging(Db* dbin,
   int nlayers, ilayer, nechmax, nech, iech, neq, nvar, npar, error;
   double *a, *b2, *dual, *c00, *wgt;
   double *acov, *atot, *a0, *cc, *ss, *gs, *post_mean, *post_S;
-  MatrixSquareGeneral covtab;
+  MatrixSquare covtab;
   bool flag_created;
   ELoc ptime;
   VectorInt seltab;
@@ -2021,8 +2021,8 @@ int multilayers_kriging(Db* dbin,
   acov = atot = nullptr;
   a0 = cc = ss = gs = post_mean = post_S = nullptr;
   lmlayers = nullptr;
-  nlayers = model->getVariableNumber();
-  nechmax = dbin->getSampleNumber();
+  nlayers = model->getNVar();
+  nechmax = dbin->getNSample();
   ptime = (match_time) ? ELoc::F : ELoc::TIME;
   if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
@@ -2036,7 +2036,7 @@ int multilayers_kriging(Db* dbin,
     messerr("The output Db must be defined in 2-D");
     goto label_end;
   }
-  if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
+  if (!dbin->isNVarComparedTo(1)) goto label_end;
   if (!flag_same && ! dbout->isGrid())
   {
     messerr("If Input and Output are different, Output should be a Grid Db");
@@ -2047,12 +2047,12 @@ int multilayers_kriging(Db* dbin,
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
   }
-  if (flag_ext && nlayers != dbout->getLocNumber(ELoc::F))
+  if (flag_ext && nlayers != dbout->getNLoc(ELoc::F))
   {
     messerr("Inconsistency between:");
     messerr("- the number of variables in the Model (%d)", nlayers);
     messerr("- the number of external drifts in the Output Db File (%d)",
-            dbout->getLocNumber(ELoc::F));
+            dbout->getNLoc(ELoc::F));
     goto label_end;
   }
   if (flag_vel && nlayers != get_LOCATOR_NITEM(dbout, ptime))
@@ -2142,7 +2142,7 @@ int multilayers_kriging(Db* dbin,
   zval.resize(neq);
   dual = (double*) mem_alloc(sizeof(double) * neq, 1);
   wgt = (double*) mem_alloc(sizeof(double) * neq, 1);
-  covtab = MatrixSquareGeneral(nlayers);
+  covtab = MatrixSquare(nlayers);
   c00 = (double*) mem_alloc(sizeof(double) * nlayers, 1);
   if (flag_bayes)
   {
@@ -2353,7 +2353,7 @@ static int st_varioexp_chh(LMlayers *lmlayers,
 {
   double *atab, *btab, *sill, distsum;
   int *stat, error, nlayers, iadlag, nhalf, nhalf2, nval;
-  int ipas, number, ifirst, ilast, ilayer, jlayer, ijl;
+  int ilag, number, ifirst, ilast, ilayer, jlayer, ijl;
   VectorDouble phia;
   VectorDouble phib;
 
@@ -2381,9 +2381,9 @@ static int st_varioexp_chh(LMlayers *lmlayers,
 
   /* Loop on the lags */
 
-  for (ipas = 0; ipas < vario->getLagNumber(idir); ipas++)
+  for (ilag = 0; ilag < vario->getNLag(idir); ilag++)
   {
-    vario_order_get_bounds(vorder, idir, ipas, &ifirst, &ilast);
+    vario_order_get_bounds(vorder, idir, ilag, &ifirst, &ilast);
     number = ilast - ifirst;
     if (number <= 0) continue;
 
@@ -2395,14 +2395,14 @@ static int st_varioexp_chh(LMlayers *lmlayers,
 
     if (OptDbg::query(EDbg::VARIOGRAM))
     {
-      message("Lag %d\n", ipas + 1);
+      message("Lag %d\n", ilag + 1);
       print_matrix("L.H.S.", 0, 1, nhalf, nhalf, NULL, atab);
       print_matrix("R.H.S.", 0, 1, 1, nhalf, NULL, btab);
     }
 
     if (matrix_invert(atab, nhalf, -2))
     {
-      messerr("--> Inversion problem for lag %d", ipas + 1);
+      messerr("--> Inversion problem for lag %d", ilag + 1);
       if (verbose)
       {
         /* Matrix must be evaluated (as it has been destroyed by inversion) */
@@ -2431,11 +2431,11 @@ static int st_varioexp_chh(LMlayers *lmlayers,
     for (ilayer = 0; ilayer < nlayers; ilayer++)
       for (jlayer = 0; jlayer <= ilayer; jlayer++, ijl++)
       {
-        iadlag = vario->getDirAddress(idir, ilayer, jlayer, ipas, false, 1);
+        iadlag = vario->getDirAddress(idir, ilayer, jlayer, ilag, false, 1);
         vario->setGgByIndex(idir, iadlag, sill[ijl]);
         vario->setHhByIndex(idir, iadlag, distsum);
         vario->setSwByIndex(idir, iadlag, nval);
-        iadlag = vario->getDirAddress(idir, ilayer, jlayer, ipas, false, -1);
+        iadlag = vario->getDirAddress(idir, ilayer, jlayer, ilag, false, -1);
         vario->setGgByIndex(idir, iadlag, sill[ijl]);
         vario->setHhByIndex(idir, iadlag, -distsum);
         vario->setSwByIndex(idir, iadlag, nval);
@@ -2500,7 +2500,7 @@ int multilayers_vario(Db *dbin,
   flag_created = false;
   lmlayers = nullptr;
   vorder = nullptr;
-  nechmax = dbin->getSampleNumber();
+  nechmax = dbin->getNSample();
   ptime = (match_time) ? ELoc::F : ELoc::TIME;
   if (dbin->getNDim() != 2)
   {
@@ -2512,18 +2512,18 @@ int multilayers_vario(Db *dbin,
     messerr("The output Db must be defined in 2-D");
     goto label_end;
   }
-  if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
+  if (!dbin->isNVarComparedTo(1)) goto label_end;
   if (!dbin->hasLocator(ELoc::LAYER))
   {
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
   }
-  if (flag_ext && nlayers != dbout->getLocNumber(ELoc::F))
+  if (flag_ext && nlayers != dbout->getNLoc(ELoc::F))
   {
     messerr("Inconsistency between:");
     messerr("- the number of variables in the Model (%d)", nlayers);
     messerr("- the number of external drifts in the Output Db File (%d)",
-            dbout->getLocNumber(ELoc::F));
+            dbout->getNLoc(ELoc::F));
     goto label_end;
   }
   if (flag_vel && nlayers != get_LOCATOR_NITEM(dbout, ptime))
@@ -2582,7 +2582,7 @@ int multilayers_vario(Db *dbin,
 
   /* Evaluate the variogram */
 
-  for (idir = 0; idir < vario->getDirectionNumber(); idir++)
+  for (idir = 0; idir < vario->getNDir(); idir++)
   {
     if (st_varioexp_chh(lmlayers, verbose, dbin, dbout, vorder, zval, idir,
                         vario)) goto label_end;
@@ -2621,8 +2621,8 @@ static int st_get_prior(int nech,
                         double *mean,
                         double *vars)
 {
-  MatrixSquareSymmetric atab(npar);
-  MatrixSquareSymmetric atab0(npar);
+  MatrixSymmetric atab(npar);
+  MatrixSymmetric atab0(npar);
   VectorDouble btab(npar);
   VectorDouble btab0(npar);
   VectorDouble result(npar);
@@ -2748,8 +2748,8 @@ int multilayers_get_prior(Db* dbin,
   error = 1;
   flag_created = false;
   lmlayers = nullptr;
-  nlayers = model->getVariableNumber();
-  nechmax = dbin->getSampleNumber();
+  nlayers = model->getNVar();
+  nechmax = dbin->getNSample();
   ptime = (match_time) ? ELoc::F : ELoc::TIME;
   if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))  goto label_end;
   if (dbin->getNDim() != 2)
@@ -2762,7 +2762,7 @@ int multilayers_get_prior(Db* dbin,
     messerr("The output Db must be defined in 2-D");
     goto label_end;
   }
-  if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
+  if (!dbin->isNVarComparedTo(1)) goto label_end;
   if (!flag_same && ! dbout->isGrid())
   {
     messerr("If Input and Output are different, Output should be a Grid Db");
@@ -2773,12 +2773,12 @@ int multilayers_get_prior(Db* dbin,
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
   }
-  if (flag_ext && nlayers != dbout->getLocNumber(ELoc::F))
+  if (flag_ext && nlayers != dbout->getNLoc(ELoc::F))
   {
     messerr("Inconsistency between:");
     messerr("- the number of variables in the Model (%d)", nlayers);
     messerr("- the number of external drifts in the Output Db File (%d)",
-            dbout->getLocNumber(ELoc::F));
+            dbout->getNLoc(ELoc::F));
     goto label_end;
   }
   if (flag_vel && nlayers != get_LOCATOR_NITEM(dbout, ptime))

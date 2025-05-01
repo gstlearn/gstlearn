@@ -9,11 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovFactory.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
-#include "Basic/VectorNumT.hpp"
 #include "Basic/AException.hpp"
-#include "Covariances/CovAniso.hpp"
 #include "Covariances/CovBesselJ.hpp"
 #include "Covariances/CovMatern.hpp"
 #include "Covariances/CovCauchy.hpp"
@@ -47,14 +44,12 @@
 #include "Covariances/CovPoisson.hpp"
 #include "Covariances/CovLinearSph.hpp"
 
-#include <iostream>
 #include <cctype>
 
 bool _isValid(ACovFunc* cova, const CovContext& ctxt)
 {
-  if ((int) cova->getMaxNDim() > 0   &&
-      (int) ctxt.getNDim() > (int) cova->getMaxNDim())  return false;
-  return true;
+  return (int)cova->getMaxNDim() <= 0 ||
+           (int)ctxt.getNDim() <= (int)cova->getMaxNDim();
 }
 
 ACovFunc* CovFactory::createCovFunc(const ECov& type, const CovContext& ctxt)

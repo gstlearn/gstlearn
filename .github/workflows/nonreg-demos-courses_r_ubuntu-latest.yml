@@ -1,7 +1,7 @@
 name: nonreg-demos-courses_r_ubuntu-latest
 
 on:
-  # Permit calling trigger
+  # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
   workflow_call:
   # Activate the workflow at each push on dev branch
   #push:
@@ -20,8 +20,8 @@ on:
 env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
-  R_VERSION : "4.3.2"
-  SWIG_ROOT : ${{github.workspace}}/swig_420b
+  R_VERSION : "4.5.0"
+  SWIG_ROOT : ${{github.workspace}}/swig
   SCCACHE_IDLE_TIMEOUT: 0
 
 jobs:
@@ -50,28 +50,10 @@ jobs:
       with:
         r-version: ${{env.R_VERSION}}
 
-    # Separate installation from roxygen2 (pak dependency conflicts)
     - name: Install R dependencies
-      run: |
-        Rscript -e "install.packages (
-          c('ggplot2', 
-            'vctrs', 
-            'ggpubr', 
-            'ggrepel', 
-            'ggnewscale', 
-            'lares', 
-            'Matrix', 
-            'FNN', 
-            'rgl', 
-            'tidyr', 
-            'geigen', 
-            'callr'),
-            repos='https://cloud.r-project.org/')"
-
-    - name: Install roxygen2
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
-        packages: roxygen2
+        packages: ggpubr, ggplot2, ggnewscale, vctrs, lares, rgl, Matrix, FNN, tidyr, geigen, callr, knitr, callr
         install-pandoc: false
 
     - name: Install the customized SWIG from source
@@ -81,9 +63,9 @@ jobs:
         generator: "Unix Makefiles"
 
     - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.5
+      uses: mozilla-actions/sccache-action@v0.0.9
 
-    - name: Configure build directory
+    - name: Configure build directory for R package
       run: |
         cmake \
           -B${{ env.BUILD_DIR }} \
@@ -95,12 +77,11 @@ jobs:
         CMAKE_CC_COMPILER_LAUNCHER: sccache
         CMAKE_CXX_COMPILER_LAUNCHER: sccache
 
-    - name: Build the package
+    - name: Build and Install the package
       run: |
-        cmake --build ${{env.BUILD_DIR}} --parallel 3
+        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target r_install
 
     - name: Execute R demos and courses
-      if: success() || failure()
       run: |
         cmake --build ${{env.BUILD_DIR}} --parallel 3 --target check_rmd
 

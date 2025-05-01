@@ -45,7 +45,7 @@ int SimuSpherical::simulate(DbGrid *db,
   int degmax = sphepar.getDegmax();
   int nx = db->getNX(0);
   int ny = db->getNX(1);
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int shunt  = (int) get_keypone("Simsph_Shunt",0);
   law_set_random_seed(getSeed());
 
@@ -297,7 +297,7 @@ VectorDouble SimuSpherical::_spectrum_exponential(Model *model,
   VectorDouble freqs;
   int ifreq = 0;
   double total = 0.;
-  double fcs = 1. / model->getCova(0)->getScale();
+  double fcs = 1. / model->getCovAniso(0)->getScale();
   double fcs2 = fcs * fcs;
   double expfc = exp(-fcs * GV_PI);
 
@@ -363,8 +363,8 @@ VectorDouble SimuSpherical::_spectrum_any(Model *model,
     double alpha = DISCRET(idisc);
     dd[0] = 2. * sin(alpha / 2.);
     double ca = 0.;
-    for (int icova = 0; icova < model->getCovaNumber(); icova++)
-      ca += model->evalCov(dd, icova, ECalcMember::LHS);
+    for (int icova = 0; icova < model->getNCov(); icova++)
+      ca += model->evalCovFromIncr(dd, icova, ECalcMember::LHS);
     covs[idisc] = ca;
   }
 

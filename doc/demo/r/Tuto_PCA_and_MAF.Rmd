@@ -19,8 +19,6 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(align="center")
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
 library(geigen)
 rm(list=ls())
 ```
@@ -36,7 +34,7 @@ dx_S = c(0.01, 0.01)
 grid = DbGrid_create(nx = nx_S, dx = dx_S)
 grid$display()
 
-np = grid$getSampleNumber()
+np = grid$getNSample()
 nv = 3 # Number of variables
 m_Z = c(1, 2, 3)
 S_Z = c(0.25, 3.0, 1.5)
@@ -51,15 +49,15 @@ LM_3 = matrix(c(1.0, 0.1, 0.2, 0.0, sqrt(1-0.1^2), 0.3, 0.0, 0.0, sqrt(1 - 0.2^2
 # Simulation of the Gaussian factors for structure #1
 m1 = Model_createFromParam(ECov_NUGGET(), sill= 1.0)
 err = simtub(NULL, grid, m1, nbsimu = nv, namconv=NamingConvention("U1"))
-U1 = matrix(grid$getColumns(names = "U1.*"), nrow = grid$getSampleNumber(), ncol = nv)
+U1 = matrix(grid$getColumns(names = "U1.*"), nrow = grid$getNSample(), ncol = nv)
 # Simulation of the Gaussian factors for structure #2
 m2 = Model_createFromParam(ECov_EXPONENTIAL(), range=0.1, sill=1.)
 err = simtub(NULL, grid, m2, nbsimu = nv, namconv=NamingConvention("U2"))
-U2 = matrix(grid$getColumns(names = "U2.*"), nrow = grid$getSampleNumber(), ncol = nv)
+U2 = matrix(grid$getColumns(names = "U2.*"), nrow = grid$getNSample(), ncol = nv)
 # Simulation of the Gaussian factors for structure #2
 m3 = Model_createFromParam(ECov_CUBIC(), range=0.25, sill=1.)
 err = simtub(NULL, grid, m3, nbsimu = nv, namconv=NamingConvention("U3"))
-U3 = matrix(grid$getColumns(names = "U3.*"), nrow = grid$getSampleNumber(), ncol = nv)
+U3 = matrix(grid$getColumns(names = "U3.*"), nrow = grid$getNSample(), ncol = nv)
 
 # Correlated variables
 Z = outer(X = rep(1, np), Y = m_Z, FUN = "*") + 
@@ -71,10 +69,10 @@ grid$setColumn(Z[,3], name = "Z3")
 
 for (i in 1:nv) {
   nm_var = paste0("Z", i)
-  p = ggplot() + 
-    plot.grid(grid, nm_var) + 
+  p = ggplot(asp=1) + 
+    plot.raster(grid, nm_var) + 
     plot.decoration(xlab = "Easting", ylab = "Northing", title = nm_var)
-  ggPrint(p)
+  plot.end(p)
 }
 
 # Data extraction
@@ -88,14 +86,14 @@ data$display()
 
 ```{r}
 # Statistics (vector of means and covariance matrix)
-data_Z = matrix(data$getColumns(names = "Z*"), nrow = data$getSampleNumber(), ncol = nv)
+data_Z = matrix(data$getColumns(names = "Z*"), nrow = data$getNSample(), ncol = nv)
 mZ = apply(X = data_Z, 2, mean)
 varZ = var(data_Z)
 
 # Computing the experimental variogram
 nlag = 10
-lag  = 0.025
-varioparam = VarioParam_createOmniDirection(npas=nlag, dpas=lag)
+dlag  = 0.025
+varioparam = VarioParam_createOmniDirection(nlag=nlag, dlag=dlag)
 vario_raw  = Vario_computeFromDb(varioparam, db=data)
 
 # Fitting the variogram model on the experimental variogram
@@ -276,7 +274,7 @@ round(range(abs(abs(pca$getEigVals()) - abs(res$values))),8)
 
 # getting the computed factors
 data_gsPCA = matrix(data$getColumns(names = "PCA.*"), 
-                    nrow = data$getSampleNumber(), ncol = nv)
+                    nrow = data$getNSample(), ncol = nv)
 
 # Statistics (mean and variance) compared to the values of eigen
 round(apply(X = data_gsPCA, MARGIN = 2, mean), 8)
@@ -286,14 +284,14 @@ round(t(data_gsPCA) %*% data_gsPCA / (np-1), 8)
 for (i in 1:nv) {
   titre = paste0("PCA #", i)
   change_sign(data, paste0("PCA.",i), paste0("U",i))
-  p = ggplot() +
+  p = plot.init() +
     plot.correlation(data, 
                    namex = paste0("U",i), 
                    namey = paste0("PCA.", i), 
                    asPoint = TRUE, col = "red", 
                    flagDiag = TRUE) +   
     plot.decoration(xlab = "Eigen problem", ylab = "gstlearn", title = titre)
-  ggPrint(p)
+  plot.end(p)
 }
 
 # Back transform
@@ -301,14 +299,14 @@ err = data$setLocators("PCA*", ELoc_Z())
 err = pca$dbF2Z(data, verbose = FALSE, namconv = NamingConvention(prefix = "ZZ.PCA", FALSE))
 for (i in 1:nv) {
   titre = paste0("Z", i)
-  p = ggplot() +
+  p = plot.init() +
     plot.correlation(data, 
                    namex = paste0("Z",i), 
                    namey = paste0("ZZ.PCA.", i), 
                    asPoint = TRUE, col = "red", 
                    flagDiag = TRUE) +   
     plot.decoration(xlab = "Initial values", ylab = "Back transformed values", title = titre)
-  ggPrint(p)
+  plot.end(p)
 }
 ```
 
@@ -332,7 +330,7 @@ round(range(abs(abs(maf$getEigVals()) - abs(res_maf$values[sequence]))),8)
 
 # computing the factors
 data_gsMAF = matrix(data$getColumns(names = "MAF.*"), 
-                    nrow = data$getSampleNumber(), ncol = nv)
+                    nrow = data$getNSample(), ncol = nv)
 # Statistics (mean and variance)
 round(apply(X = data_gsMAF, MARGIN = 2, mean), 8)
 round(t(data_gsMAF) %*% data_gsMAF / (np -1), 8)
@@ -341,14 +339,14 @@ for (i in 1:nv) {
   j = sequence[i]
   titre = paste0("MAF #", i)
   change_sign(data, paste0("MAF.",i), paste0("F",j))
-  p = ggplot() +
+  p = plot.init() +
     plot.correlation(data, 
                    namex = paste0("F",j), 
                    namey = paste0("MAF.", i), 
                    asPoint = TRUE, col = "red", 
                    flagDiag = TRUE) +   
     plot.decoration(xlab = "Eigen problem", ylab = "gstlearn", title = titre)
-  ggPrint(p)
+  plot.end(p)
 }
 
 # back transform
@@ -357,13 +355,13 @@ err = maf$dbF2Z(data, verbose = FALSE, namconv = NamingConvention(prefix = "ZZ.M
 
 for (i in 1:nv) {
   titre = paste0("Z", i)
-  p = ggplot() +
+  p = plot.init() +
     plot.correlation(data, 
                    namex = paste0("Z",i), 
                    namey = paste0("ZZ.MAF.", i), 
                    asPoint = TRUE, col = "red", 
                    flagDiag = TRUE) +   
     plot.decoration(xlab = "Initial values", ylab = "Back transformed values", title = titre)
-  ggPrint(p)
+  plot.end(p)
 }
 ```

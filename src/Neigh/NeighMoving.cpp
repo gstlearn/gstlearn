@@ -12,6 +12,7 @@
 #include "Geometry/GeometryHelper.hpp"
 
 #include "Neigh/NeighMoving.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -27,7 +28,9 @@ NeighMoving::NeighMoving(bool flag_xvalid,
                          int nsmax,
                          const VectorDouble& coeffs,
                          const VectorDouble& angles,
-                         const ASpace *space)
+                         bool useBallTree,
+                         int leaf_size,
+                         const ASpaceSharedPtr& space)
     : ANeigh(space),
       _nMini(nmini),
       _nMaxi(nmaxi),
@@ -45,6 +48,8 @@ NeighMoving::NeighMoving(bool flag_xvalid,
 {
   setFlagXvalid(flag_xvalid);
 
+  setBallSearch(useBallTree, leaf_size);
+
   _biPtDist = BiTargetCheckDistance::create(radius, coeffs, angles);
 }
 
@@ -61,12 +66,13 @@ NeighMoving::NeighMoving(const NeighMoving& r)
   , _movingIsect(r._movingIsect)
   , _movingNsect(r._movingNsect)
   , _movingDst(r._movingDst)
+  , _dbgrid(r._dbgrid)
   , _T1(r._T1)
   , _T2(r._T2)
 {
   for (int ipt = 0, npt = (int)r._bipts.size(); ipt < npt; ipt++)
-    //_bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
-    _bipts.push_back(r._bipts[ipt]);
+    _bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
+    //_bipts.push_back(r._bipts[ipt]);
 
   // _biPtDist = r._biPtDist;
   _biPtDist = new BiTargetCheckDistance(*r._biPtDist);
@@ -101,7 +107,7 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
 
 NeighMoving::~NeighMoving()
 {
-  int number = _getBiPtsNumber();
+  int number = _getNBiPts();
   for (int ipt = 0; ipt < number; ipt++)
     delete _bipts[ipt];
   _bipts.clear();
@@ -130,7 +136,7 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
 
   sstr << _biPtDist->toString(strfmt);
 
-  int number = _getBiPtsNumber();
+  int number = _getNBiPts();
   for (int ipt = 0; ipt < number; ipt++)
   {
     sstr << _bipts[ipt]->toString(strfmt);
@@ -243,10 +249,12 @@ NeighMoving* NeighMoving::create(bool flag_xvalid,
                                  int nsmax,
                                  const VectorDouble& coeffs,
                                  const VectorDouble& angles,
-                                 const ASpace* space)
+                                 bool useBallTree,
+                                 int leaf_size,
+                                 const ASpaceSharedPtr& space)
 {
   return new NeighMoving(flag_xvalid, nmaxi, radius, nmini, nsect, nsmax,
-                         coeffs, angles, space);
+                         coeffs, angles, useBallTree, leaf_size, space);
 }
 
 /**
@@ -278,7 +286,7 @@ NeighMoving* NeighMoving::createFromNF(const String& neutralFilename, bool verbo
  * @param db Pointer to the target Db
  * @return
  */
-int NeighMoving::getMaxSampleNumber(const Db* /*db*/) const
+int NeighMoving::getNSampleMax(const Db* /*db*/) const
 {
   return (getFlagSector()) ? _nSect * _nSMax : _nMaxi;
 }
@@ -317,7 +325,7 @@ VectorVectorDouble NeighMoving::getEllipsoid(const VectorDouble& target, int cou
   double rx, ry, theta, cosp, sinp;
   if (! _getAnisotropyElements(&rx, &ry, &theta, &cosp, &sinp)) return VectorVectorDouble();
 
-  return GH::getEllipse(target, theta, rx, ry, count);
+  return GH::getEllipse(target, rx, ry, theta, count);
 }
 
 VectorVectorDouble NeighMoving::getZoomLimits(const VectorDouble& target, double percent) const
@@ -376,12 +384,12 @@ int NeighMoving::attach(const Db *dbin, const Db *dbout)
 
   _dbgrid = dynamic_cast<const DbGrid*>(_dbout);
 
-  for (int ipt = 0, nbt = _getBiPtsNumber(); ipt < nbt; ipt++)
+  for (int ipt = 0, nbt = _getNBiPts(); ipt < nbt; ipt++)
   {
     if (! _bipts[ipt]->isValid(dbin, dbout)) return 1;
   }
 
-  int nech = _dbin->getSampleNumber();
+  int nech = _dbin->getNSample();
   int nsect = getNSect();
   _movingInd = VectorInt(nech);
   _movingDst = VectorDouble(nech);
@@ -496,7 +504,9 @@ void NeighMoving::getNeigh(int iech_out, VectorInt& ranks)
   }
 
   // In case of debug option, dump out neighborhood characteristics
-  if (OptDbg::query(EDbg::NBGH)) _display(ranks);
+  int optim = OptCustom::query("Optim", 0);
+  if (!optim ||(optim && (iech_out + 1 == OptDbg::getReference())))
+    if (OptDbg::query(EDbg::NBGH)) _display(ranks);
 
   // Compress the vector of returned sample ranks
   _neighCompress(ranks);
@@ -519,7 +529,7 @@ void NeighMoving::getNeigh(int iech_out, VectorInt& ranks)
  *****************************************************************************/
 int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
 {
-  int nech = _dbin->getSampleNumber();
+  int nech = _dbin->getNSample();
   ranks.resize(nech);
   ranks.fill(-1);
   int isect = 0;
@@ -536,7 +546,7 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
   else
     _dbout->getSampleAsSTInPlace(iech_out, _T1);
 
-  // Select the elligible points when using Ball Tree serach
+  // Select the elligible points when using Ball Tree search
   VectorInt elligibles;
   if (_useBallSearch)
   {
@@ -574,7 +584,7 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
     // (other than the one based on distance which must come last)
 
     bool reject = false;
-    for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt && !reject; ipt++)
+    for (int ipt = 0, npt = _getNBiPts(); ipt < npt && !reject; ipt++)
     {
       if (!_bipts[ipt]->isOK(_T1, _T2)) reject = true;
     }

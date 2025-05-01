@@ -60,7 +60,7 @@ private:
   bool _FactorsToSelectivity();
 
   int _getNfact() const { return (int) _ifacs.size(); }
-  int _getNSel() const { return _selectivity->getVariableNumber(); }
+  int _getNSel() const { return _selectivity->getNVar(); }
 
   bool _hasAnam(const EAnam& anamType = EAnam::fromKey("UNKNOWN")) const;
   bool _hasInputVarDefined(int mode = 0) const;

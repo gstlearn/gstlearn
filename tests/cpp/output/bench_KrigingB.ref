@@ -1,9 +1,9 @@
-This test is mean to test Kriging using Moving Neighborhood
+This test is meant to test Kriging using Moving Neighborhood
 - the Data Set contains 1000 samples
 - the Output Grid contains 10000 nodes
 - the Bench Neighborhood is required:
   . Bench width = 0.500000
-#NO_DIFF# Kriging in Bench Neighborhood: 758 ms. (Ref = 1800 ms.)
+#NO_DIFF# Kriging in Bench Neighborhood: 448 ms. (Ref = 1800 ms.)
 
 Data Base Grid Characteristics
 ==============================

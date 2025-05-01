@@ -32,6 +32,27 @@ For using this Python package you only need Python 3.8 (or higher) (with numpy, 
 pip install gstlearn
 ```
 
+The `gstlearn.plot` Python module requires additional dependencies,
+those can be installed alongside gstlearn with the following command:
+
+``` python
+pip install gstlearn[plot]
+```
+
+Converting several gstlearn C++ types through `toTL` methods to, e.g.,
+Pandas DataFrames also require additional dependencies. These are
+available through the `conv` optional dependency group:
+
+``` python
+pip install gstlearn[conv]
+```
+
+All optional dependencies can be installed with the following command:
+
+``` python
+pip install gstlearn[all]
+```
+
 ## Usage
 
 We refer the reader to this [course page](https://soft.mines-paristech.fr/gstlearn/courses-latest/python/01_gstlearn_start.html) for an introduction and important information about Python gstlearn package.
@@ -259,7 +280,7 @@ cmake --build build --target check_ipynb --config Release
 
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 * You may need to reconnect to your session after installing some requirements
-* If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
+* If you plan to generate the documentation, add `-DBUILD_DOC=ON` to the first cmake command above.
 * If you don't know how to execute github commands, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * Using Visual Studio on a Windows where MinGW is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
 * The Windows C++ Compiler used must be the same that the one used for compiling Python (Visual C++). Using another compiler than Visual C++ is not supported.

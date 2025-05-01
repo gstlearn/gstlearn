@@ -17,7 +17,7 @@
 #include "Basic/AStringable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 
 class TurningBandOperate;
 
@@ -77,17 +77,18 @@ public:
 
   // Specific for Spectral Simulation Method
   virtual bool isValidForSpectral() const { return false; }
-  virtual MatrixRectangular simulateSpectralOmega(int nb) const
+  virtual MatrixDense simulateSpectralOmega(int nb) const
   {
     DECLARE_UNUSED(nb);
-    return MatrixRectangular();
+    return MatrixDense();
   }
 
   ///////////////////////////////////////////////////
 
   void setParam(double param);
   void setField(double field);
-  double evalCov(double h) const;
+  void setContext(const CovContext& ctxt) {_ctxt = ctxt; }
+  double evalCorFunc(double h) const;
   double evalCovDerivative(int degree, double h) const;
   double evalCovOnSphere(double alpha,
                          double scale = 1.,
@@ -102,7 +103,7 @@ public:
   void    copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
   virtual double evaluateSpectrum(double freq) const;
   virtual VectorDouble getMarkovCoeffs() const;
-  virtual void setMarkovCoeffs(VectorDouble coeffs);
+  virtual void setMarkovCoeffs(const VectorDouble& coeffs);
   virtual double getCorrec() const {return 1.;}
   virtual void setCorrec(double val)
   {
@@ -130,7 +131,7 @@ protected:
   virtual VectorDouble _evaluateSpectrumOnSphere(int n, double scale = 1.) const;
 
 private:
-  Array _evalCovFFT(const VectorDouble& ext, int N = 128) const;
+  Array _evalCovFFT(const VectorDouble& hmax, int N = 128) const;
   ECov        _type;    /*! Covariance function type */
   CovContext  _ctxt;    /*! Context (space, number of variables, ...) */
   double      _param;   /*! Third parameter (TEST if not used) */

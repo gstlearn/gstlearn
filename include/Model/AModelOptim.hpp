@@ -15,13 +15,43 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include <vector>
 
 class Model;
 class Constraints;
+
+struct OneParam
+{
+  int _icov;
+  EConsElem _type;
+  int _rank;
+  double _scale;
+};
+
+struct Model_Part
+{
+  // Pointer to the Model structure
+  Model* _model;
+
+  // Model fitting options
+  Option_VarioFit _optvar;
+
+  // Model parametrization
+  std::vector<OneParam> _params;
+
+  // Model parametrization
+  VectorDouble _tabval;
+  VectorDouble _tablow;
+  VectorDouble _tabupp;
+
+  // Verbosity flag
+  bool _verbose;
+  int _niter;
+  CovCalcMode _calcmode;
+};
 
 /**
  * \brief
@@ -39,39 +69,9 @@ public:
   AModelOptim& operator=(const AModelOptim& m);
   virtual ~AModelOptim();
 
-  typedef struct
-  {
-    int _icov;
-    EConsElem _type;
-    int _rank;
-    double _scale;
-  } OneParam;
-
-  typedef struct
-  {
-    // Pointer to the Model structure
-    Model* _model;
-
-    // Model fitting options
-    Option_VarioFit _optvar;
-
-    // Model parametrization
-    std::vector<OneParam> _params;
-
-    // Model parametrization
-    VectorDouble _tabval;
-    VectorDouble _tablow;
-    VectorDouble _tabupp;
-
-    // Verbosity flag
-    bool _verbose;
-    int  _niter;
-    CovCalcMode _calcmode;
-  } Model_Part;
-
 protected:
   int _buildModelParamList();
-  int _getParamNumber() const { return (int) _modelPart._params.size(); }
+  int _getNParam() const { return (int) _modelPart._params.size(); }
 
   static void _patchModel(Model_Part& modelPart, const double* current);
   static void _printResult(const String& title, const Model_Part& modelPart, double result);
@@ -83,11 +83,11 @@ protected:
                                                  void* func_data),
                             void* f_data,
                             double distmax_def = TEST,
-                            const MatrixSquareSymmetric& vars_def = MatrixSquareSymmetric());
+                            const MatrixSymmetric& vars_def = MatrixSymmetric());
 
 private:
   void _updateModelParamList(double distmax_def = TEST,
-                             const MatrixSquareSymmetric& vars_def = MatrixSquareSymmetric());
+                             const MatrixSymmetric& vars_def = MatrixSymmetric());
   void _dumpParamList() const;
   static void _dumpOneModelParam(const OneParam& param, double value);
   void _addOneModelParam(int icov,

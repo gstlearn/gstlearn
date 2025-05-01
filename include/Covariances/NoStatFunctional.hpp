@@ -25,7 +25,7 @@ public:
   NoStatFunctional(const NoStatFunctional &m) = delete;
   NoStatFunctional& operator=(const NoStatFunctional &m) = delete;
   virtual ~NoStatFunctional();
-  String toString(const AStringFormat* strfmt) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
 private :
   void _informField(const VectorVectorDouble& coords,

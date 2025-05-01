@@ -9,34 +9,31 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/CholeskyDense.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixDense.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
+#include "geoslib_define.h"
 #include <Eigen/src/Core/Matrix.h>
 
 #define TRI(i)        (((i) * ((i) + 1)) / 2)
-#define SQ(i, j, neq) ((j)*neq + (i))
-#define _TL(i, j) _tl[SQ(i, j, neq) - TRI(j)] /* for i >= j */
-#define _XL(i, j) _xl[SQ(i, j, neq) - TRI(j)] /* for i >= j */
+#define SQ(i, j, neq) ((j) * neq + (i))
+#define _TL(i, j)     _tl[SQ(i, j, neq) - TRI(j)] /* for i >= j */
+#define _XL(i, j)     _xl[SQ(i, j, neq) - TRI(j)] /* for i >= j */
 
-CholeskyDense::CholeskyDense(const MatrixSquareSymmetric* mat)
+CholeskyDense::CholeskyDense(const MatrixSymmetric* mat)
   : ACholesky(mat)
   , _tl()
   , _xl()
-  , _factor(nullptr)
+  , _factor()
 {
-  (void) _prepare();
+  (void)_prepare();
 }
 
 CholeskyDense::CholeskyDense(const CholeskyDense& m)
   : ACholesky(m)
   , _tl(m._tl)
   , _xl(m._xl)
-  , _factor()
+  , _factor(m._factor)
 {
-  if (m._factor != nullptr)
-  {
-    _factor = new Eigen::LLT<Eigen::MatrixXd>();
-    _factor = m._factor;
-  }
 }
 
 CholeskyDense& CholeskyDense::operator=(const CholeskyDense& m)
@@ -44,13 +41,10 @@ CholeskyDense& CholeskyDense::operator=(const CholeskyDense& m)
   if (this != &m)
   {
     ACholesky::operator=(m);
-    _tl   = m._tl;
-    _xl   = m._xl;
-    if (m._factor != nullptr)
-    {
-      _factor = new Eigen::LLT<Eigen::MatrixXd>();
-      _factor = m._factor;
-    }
+    _tl     = m._tl;
+    _xl     = m._xl;
+    _factor = m._factor;
+    _empty  = m._empty;
   }
   return *this;
 }
@@ -60,71 +54,84 @@ CholeskyDense::~CholeskyDense()
   _clear();
 }
 
+void CholeskyDense::clear()
+{
+  _clear();
+}
 void CholeskyDense::_clear()
 {
-  delete _factor;
-  _factor = nullptr;
+  _empty = true;
 }
 
+bool CholeskyDense::empty() const
+{
+  return _empty;
+}
+
+void CholeskyDense::solveMatInPlace(const MatrixDense& mat, MatrixDense& res) const
+{
+  if (!isReady()) return;
+  res.getEigenMat() = _factor.solve(mat.getEigenMat());
+}
 int CholeskyDense::addInvLtX(const constvect vecin, vect vecout) const
 {
-  if (! isReady()) return 1;
-  Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(),vecin.size());
+  if (!isReady()) return 1;
+  Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
   Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
-  mvecout.noalias() += _factor->matrixL().transpose().solve(mvecin);
-  return 0;             
+  mvecout.noalias() += _factor.matrixL().transpose().solve(mvecin);
+  return 0;
 }
 
 int CholeskyDense::addLtX(const constvect vecin, vect vecout) const
 {
-  if (! isReady()) return 1;
+  if (!isReady()) return 1;
   Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
   Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
-  mvecout.noalias() += _factor->matrixL().transpose() * mvecin;
+  mvecout.noalias() += _factor.matrixL().transpose() * mvecin;
   return 0;
 }
 
 int CholeskyDense::addLX(const constvect vecin, vect vecout) const
 {
-  if (! isReady()) return 1;
-  Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(),vecin.size());
+  if (!isReady()) return 1;
+  Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
   Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
-  mvecout.noalias() += _factor->matrixL() * mvecin;
+  mvecout.noalias() += _factor.matrixL() * mvecin;
   return 0;
 }
 
 int CholeskyDense::addInvLX(const constvect vecin, vect vecout) const
 {
-  if (! isReady()) return 1;
+  if (!isReady()) return 1;
   Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
   Eigen::Map<Eigen::VectorXd> mvecout(vecout.data(), vecout.size());
-  mvecout.noalias() += _factor->matrixL().solve(mvecin);
+  mvecout.noalias() += _factor.matrixL().solve(mvecin);
   return 0;
 }
 
 int CholeskyDense::addSolveX(const constvect vecin, vect vecout) const
 {
-  if (! isReady()) return 1;
+  if (!isReady()) return 1;
   int size = (int)vecin.size();
   Eigen::Map<const Eigen::VectorXd> bm(vecin.data(), size);
   Eigen::Map<Eigen::VectorXd> xm(vecout.data(), size);
-  xm += _factor->solve(bm);
+  xm += _factor.solve(bm);
   return 0;
 }
 
 int CholeskyDense::_getTriangleSize() const
 {
-  int neq  = _size;
+  int neq = _size;
   int tri = neq * (neq + 1) / 2;
   return tri;
 }
 
 double CholeskyDense::computeLogDeterminant() const
 {
-  if (! isReady()) return TEST;
-  auto diag  = _factor->matrixLLT().diagonal();
+  if (!isReady()) return TEST;
+  auto diag  = _factor.matrixLLT().diagonal();
   double det = 0.;
-  for (int i = 0; i < _factor->rows(); i++) det += log(diag[i]);
+  for (int i = 0; i < _factor.rows(); i++) det += log(diag[i]);
   return 2. * det;
 }
 
@@ -149,7 +156,8 @@ VectorDouble CholeskyDense::getUpperTriangleInverse() const
 
 double CholeskyDense::getUpperTriangleInverse(int i, int j) const
 {
-  if (_computeXL()) return TEST;;
+  if (_computeXL()) return TEST;
+  ;
   int neq = _size;
   return (i >= j) ? _XL(i, j) : 0.;
 }
@@ -157,21 +165,15 @@ double CholeskyDense::getUpperTriangleInverse(int i, int j) const
 int CholeskyDense::_prepare() const
 {
   if (_mat == nullptr) return 1;
-  const Eigen::MatrixXd* a = ((AMatrixDense*)_mat)->getTab();
-  _factor                  = new Eigen::LLT<Eigen::MatrixXd>();
-  *_factor                 = a->llt();
-  if (_factor == nullptr)
-  {
-    messerr("Error when computing the Cholesky Decmposition");
-    return 1;
-  }
+  const auto a = dynamic_cast<const MatrixDense*>(_mat)->getEigenMat();
+  _factor      = a.llt();
   _setReady();
   return 0;
 }
 
-int CholeskyDense::setMatrix(const MatrixSquareSymmetric* mat)
+int CholeskyDense::setMatrix(const MatrixSymmetric* mat)
 {
-  _mat = mat;
+  _mat  = mat;
   _size = mat->getNRows();
   return _prepare();
 }
@@ -179,11 +181,11 @@ int CholeskyDense::setMatrix(const MatrixSquareSymmetric* mat)
 int CholeskyDense::_computeTL() const
 {
   if (!_tl.empty()) return 0;
-  if (! isReady()) return 1;
+  if (!isReady()) return 1;
   int neq = _size;
 
   _tl.resize(_getTriangleSize());
-  Eigen::MatrixXd mymat = _factor->matrixL();
+  Eigen::MatrixXd mymat = _factor.matrixL();
   for (int ip = 0; ip < neq; ip++)
     for (int jp = 0; jp <= ip; jp++) _TL(ip, jp) = mymat(ip, jp);
   return 0;
@@ -194,7 +196,7 @@ int CholeskyDense::_computeXL() const
   if (!_xl.empty()) return 0;
   if (!isReady()) return 1;
   if (_computeTL()) return 1;
-  
+
   int neq = _size;
   _xl.resize(_getTriangleSize());
 
@@ -228,11 +230,11 @@ int CholeskyDense::_computeXL() const
  **
  ** \remark The dimensions of 'a' and 'x' must match
  ** \remark Anyhow 'x' is resized to the same dimension as 'a'
- ** 
+ **
  *****************************************************************************/
 void CholeskyDense::matProductInPlace(int mode,
-                                      const MatrixRectangular& a,
-                                      MatrixRectangular& x)
+                                      const MatrixDense& a,
+                                      MatrixDense& x)
 {
   if (_computeTL()) return;
   int n1 = a.getNRows();
@@ -333,13 +335,13 @@ void CholeskyDense::matProductInPlace(int mode,
  ** \param[out] b    Square output matrix (resized if needed)
  **
  ** \remark The value of 'neq' could be derived from the input matrix 'a'
- ** \remark but this matrix is optional, hence the presence of argument 'neq' 
+ ** \remark but this matrix is optional, hence the presence of argument 'neq'
  **
  *****************************************************************************/
 void CholeskyDense::normMatInPlace(int mode,
-                                        int neq,
-                                        const MatrixSquareSymmetric& a,
-                                        MatrixSquareSymmetric& b)
+                                   int neq,
+                                   const MatrixSymmetric& a,
+                                   MatrixSymmetric& b)
 {
   if (_computeTL()) return;
   b.resize(neq, neq);
@@ -376,4 +378,3 @@ void CholeskyDense::normMatInPlace(int mode,
       b.setValue(i, j, val);
     }
 }
-

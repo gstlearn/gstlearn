@@ -111,15 +111,15 @@ int main(int argc, char *argv[])
     // Generate the Model
     Model *model;
     model = Model::createFromParam(ECov::MATERN, TEST, 1, matern_param,
-                                   { 0.1, 0.3 }, MatrixSquareSymmetric(), { 30., 0. });
+                                   { 0.1, 0.3 }, MatrixSymmetric(), { 30., 0. });
     if (ncov >= 1)
       model->addCovFromParam(ECov::MATERN, TEST, 1, matern_param,
-                             { 0.3, 0.2 }, MatrixSquareSymmetric(), { -10., 0.});
+                             { 0.3, 0.2 }, MatrixSymmetric(), { -10., 0.});
     String sncov = (ncov == 0) ? "1" : "2";
 
     // Printout of general environment
     if (showStats)
-      message("- Number of covariances  = %d\n", model->getCovaNumber());
+      message("- Number of covariances  = %d\n", model->getNCov());
 
     // Building Shift Operator
     if (mode < 0 || mode == 0)
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
       for (int icov = 0; icov <= ncov; icov++)
       {
         timer.reset();
-        ShiftOpMatrix shiftop(&mesh, model->getCova(icov), nullptr);
+        ShiftOpMatrix shiftop(&mesh, model->getCovAniso(icov), nullptr);
         timer.displayIntervalMilliseconds("Establishing S", 150);
       }
     }

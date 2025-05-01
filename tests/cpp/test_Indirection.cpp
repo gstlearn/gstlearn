@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
   // Creating the small Grid Db
   // All characteristics along X and Y are different (on purpose)
   DbGrid* grid = DbGrid::create({5,4}, {1.,2.}, {10.,20.});
-  int nech = grid->getSampleNumber();
+  int nech = grid->getNSample();
 
   // Add a selection to the Grid
   VectorDouble x1 = grid->getColumn("x1");

@@ -10,9 +10,6 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
 ```
 
 This Tutorial has been established from:
@@ -48,9 +45,9 @@ poly.data = Polygons_createFromNF(loadData("halieutic", "Hake_Bob_Polygon.NF"))
 Visualizing the data set
 
 ```{r Plot_Data}
-ggplot() + 
+plot.init() + 
   plot.polygon(poly.data, fill="NA") + 
-  plot.point(db.data, nameSize="A0", colour="blue") +
+  plot.symbol(db.data, nameSize="A0", colour="blue") +
   plot.decoration(title="Age-0 hake density")
 ```
 
@@ -66,9 +63,9 @@ err = projec$operateOnPolygons(poly.data)
 Display in the projected system
 
 ```{r Plot_Data_Projected}
-ggplot() + 
+plot.init() + 
   plot.polygon(poly.data, fill="NA") + 
-  plot.point(db.data, nameSize="A0", color="blue") +
+  plot.symbol(db.data, nameSize="A0", color="blue") +
   plot.decoration(title="Age-0 hake density (in projected space)")
 ```
 
@@ -113,9 +110,9 @@ cat("Isotropy =          ",cg$getIso(),"\n")
 Display the sample within the Polygon, together with the two inertia calculated beforehand: the one using the sample locations only (in blue) and the one using the weighted variable A0 into account (in red).
 
 ```{r}
-ggplot() + 
+plot.init() + 
   plot.polygon(poly.data, fill="NA") + 
-  plot.point(db.data, color="black") +
+  plot.symbol(db.data, color="black") +
   plot.decoration(title="Center of gravity and Inertia of densities and Samples") +
   plot.XY(cgAxesA0[[1]], cgAxesA0[[2]], linewidth=1, col="red") + 
   plot.XY(cgAxesA0[[3]], cgAxesA0[[4]], linewidth=1, col="red") +
@@ -126,10 +123,10 @@ ggplot() +
 The two populations (variables *A0* and *A1*) are displayed simultaneously.
 
 ```{r}
-ggplot() + 
+plot.init() + 
   plot.polygon(poly.data, fill="NA") + 
-  plot.point(db.data, nameSize="A0", color="red") +
-  plot.point(db.data, nameSize="A1", color="blue") +
+  plot.symbol(db.data, nameSize="A0", color="red") +
+  plot.symbol(db.data, nameSize="A1", color="blue") +
   plot.decoration(title="Age-0 and age-1 hake densities") 
 ```
 
@@ -163,7 +160,7 @@ ng cumulated abundance and Q the overall abundance. The spreading area is simply
 err = cg$spatial("A0")
 
 VDD = cg$getQT("A0")
-ggplot() + 
+plot.init() + 
   plot.XY(VDD[[1]], VDD[[2]], flagPoint=TRUE) + 
   plot.decoration(title="Curve: (Q - Q(T)) / Q", xlab="T", ylab="(Q-Q(T))/Q") 
 ```
@@ -172,9 +169,9 @@ Calculate the patches and represent them by color.
 
 ```{r}
 centers = cg$getPatches("A0", 100, 10)
-ggplot() + 
+plot.init() + 
   plot.polygon(poly.data, fill="NA") + 
-  plot.point(db.data, nameColor="Patch", palette=c("blue", "red", "green", "black"),
+  plot.symbol(db.data, nameColor="Patch", palette=c("blue", "red", "green", "black"),
              asFactor=TRUE) +
   plot.decoration(title="Patches")
 ```

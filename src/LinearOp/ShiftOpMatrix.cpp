@@ -13,9 +13,9 @@
 #include "Enum/EConsElem.hpp"
 #include "LinearOp/AShiftOp.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSquare.hpp"
+#include "Matrix/MatrixDense.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Basic/AStringable.hpp"
@@ -262,7 +262,7 @@ int ShiftOpMatrix::initFromCS(const MatrixSparse* S,
 
     _TildeC = TildeC;
     _Lambda = Lambda;
-    _ndim   = cova->getDimensionNumber();
+    _ndim   = cova->getNDim();
 
     // Duplicate the Shift Operator sparse matrix
 
@@ -460,7 +460,7 @@ void ShiftOpMatrix::_updateCova(std::shared_ptr<CovAniso> &cova, int imesh)
 
 }
 
-void ShiftOpMatrix::_updateHH(MatrixSquareSymmetric& hh, int imesh)
+void ShiftOpMatrix::_updateHH(MatrixSymmetric& hh, int imesh)
 {
   DECLARE_UNUSED(imesh)
   if (! _isNoStat()) return;
@@ -482,23 +482,23 @@ void ShiftOpMatrix::_updateHH(MatrixSquareSymmetric& hh, int imesh)
  * @param hh Output Array
  * @param imesh Rank of the active mesh
  */
-void ShiftOpMatrix::_loadHHRegular(MatrixSquareSymmetric &hh, int imesh)
+void ShiftOpMatrix::_loadHHRegular(MatrixSymmetric &hh, int imesh)
 {
   int ndim = getNDim();
   // Locally update the covariance for non-stationarity (if necessary)
   _updateCova(_getCovAniso(), imesh);
 
   // Calculate the current HH matrix (using local covariance parameters)
-  const MatrixSquareGeneral &rotmat = _getCovAniso()->getAnisoInvMat();
+  const MatrixSquare &rotmat = _getCovAniso()->getAnisoInvMat();
 
   VectorDouble diag = VH::power(_getCovAniso()->getScales(), 2.);
-  MatrixSquareSymmetric temp(ndim);
+  MatrixSymmetric temp(ndim);
   temp.setDiagonal(diag);
   hh.normMatrix(rotmat, temp);
 
 }
 
-void ShiftOpMatrix::_loadHHVariety(MatrixSquareSymmetric& hh, int imesh)
+void ShiftOpMatrix::_loadHHVariety(MatrixSymmetric& hh, int imesh)
 {
   int ndim = getNDim();
 
@@ -526,7 +526,7 @@ void ShiftOpMatrix::_loadHHVariety(MatrixSquareSymmetric& hh, int imesh)
  */
 
 void ShiftOpMatrix::_loadHHGrad(const AMesh *amesh,
-                            MatrixSquareSymmetric &hh,
+                            MatrixSymmetric &hh,
                             int igparam,
                             int ipref)
 {
@@ -553,10 +553,10 @@ void ShiftOpMatrix::_loadHHGrad(const AMesh *amesh,
     // Locally update the covariance for non-stationarity (if necessary)
 
     _updateCova(_getCovAniso(), ipref);
-    const MatrixSquareGeneral &rotmat = _getCovAniso()->getAnisoRotMat();
+    const MatrixSquare &rotmat = _getCovAniso()->getAnisoRotMat();
     VectorDouble diag = VH::power(_getCovAniso()->getScales(), 2.);
 
-    MatrixSquareSymmetric temp(ndim);
+    MatrixSymmetric temp(ndim);
     if (igparam < ndim)
     {
       // Derivation with respect to the Range 'igparam'
@@ -572,7 +572,7 @@ void ShiftOpMatrix::_loadHHGrad(const AMesh *amesh,
       auto covaderiv = cloneAndCast(covini);
       _updateCova(covaderiv, ipref);
       _getCovAniso()->setAnisoAngle(ir, covaderiv->getAnisoAngles(ir) + 90.);
-      const MatrixSquareGeneral &drotmat = covaderiv->getAnisoRotMat();
+      const MatrixSquare &drotmat = covaderiv->getAnisoRotMat();
 
       VH::divideConstant(diag, 180. / GV_PI); // Necessary as angles are provided in degrees. Factor 2 is for derivative
       temp.setDiagonal(diag);
@@ -587,9 +587,9 @@ void ShiftOpMatrix::_loadHHGrad(const AMesh *amesh,
 double ShiftOpMatrix::_computeGradLogDetHH(const AMesh *amesh,
                                        int igparam,
                                        int ipref,
-                                       const MatrixSquareSymmetric &invHH,
-                                       MatrixSquareSymmetric &work,
-                                       MatrixSquareSymmetric &work2)
+                                       const MatrixSymmetric &invHH,
+                                       MatrixSymmetric &work,
+                                       MatrixSymmetric &work2)
 {
   int ndim = getNDim();
   int number = amesh->getNApexPerMesh();
@@ -597,8 +597,8 @@ double ShiftOpMatrix::_computeGradLogDetHH(const AMesh *amesh,
   if (igparam < ndim)
   {
     _updateCova(_getCovAniso(), ipref);
-    const MatrixSquareGeneral &rotmat = _getCovAniso()->getAnisoRotMat();
-    MatrixSquareSymmetric temp(ndim);
+    const MatrixSquare &rotmat = _getCovAniso()->getAnisoRotMat();
+    MatrixSymmetric temp(ndim);
     temp.setDiagonal(_getCovAniso()->getScales());
     for (int idim = 0; idim < ndim; idim++)
     {
@@ -627,7 +627,7 @@ double ShiftOpMatrix::_computeGradLogDetHH(const AMesh *amesh,
  * @param imesh Rank of the mesh
  */
 void ShiftOpMatrix::_loadHH(const AMesh *amesh,
-                        MatrixSquareSymmetric &hh,
+                        MatrixSymmetric &hh,
                         int imesh)
 {
   if (_flagNoStatByHH)
@@ -662,8 +662,8 @@ void ShiftOpMatrix::_loadAux(VectorDouble &tab, const EConsElem &type, int imesh
 
 int ShiftOpMatrix::_preparMatrices(const AMesh *amesh,
                                int imesh,
-                               MatrixSquareGeneral& matu,
-                               MatrixRectangular& matw) const
+                               MatrixSquare& matu,
+                               MatrixDense& matw) const
 {
   int ndim = _ndim;
   int ncorner = amesh->getNApexPerMesh();
@@ -717,8 +717,8 @@ MatrixSparse* ShiftOpMatrix::_BuildTildeCGradfromMap(std::map< int, double> &tab
 int ShiftOpMatrix::_prepareMatricesSVariety(const AMesh *amesh,
                                         int imesh,
                                         VectorVectorDouble &coords,
-                                        MatrixRectangular& matM,
-                                        MatrixSquareSymmetric &matMtM,
+                                        MatrixDense& matM,
+                                        MatrixSymmetric &matMtM,
                                         AMatrix &matP,
                                         double *deter) const
 {
@@ -758,7 +758,7 @@ int ShiftOpMatrix::_prepareMatricesSVariety(const AMesh *amesh,
 int ShiftOpMatrix::_prepareMatricesSphere(const AMesh *amesh,
                                       int imesh,
                                       VectorVectorDouble &coords,
-                                      AMatrixSquare &matMs,
+                                      MatrixSquare &matMs,
                                       double *deter) const
 {
   int ndim = getNDim();
@@ -809,12 +809,12 @@ int ShiftOpMatrix::_buildS(const AMesh *amesh, double tol)
   // Initialize the arrays
 
   VectorDouble srot(2);
-  MatrixSquareSymmetric hh(ndim);
-  MatrixSquareSymmetric matMtM(ncorner-1);
-  MatrixRectangular matP(ncorner-1,ndim);
-  MatrixRectangular matM(ndim, ncorner - 1);
-  MatrixSquareGeneral matMs(ndim);
-  MatrixSquareSymmetric matPinvHPt(ncorner-1);
+  MatrixSymmetric hh(ndim);
+  MatrixSymmetric matMtM(ncorner-1);
+  MatrixDense matP(ncorner-1,ndim);
+  MatrixDense matM(ndim, ncorner - 1);
+  MatrixSquare matMs(ndim);
+  MatrixSymmetric matPinvHPt(ncorner-1);
   VectorVectorDouble coords = amesh->getEmbeddedCoordinatesPerMesh();
   double detMtM = 0.;
   double dethh = 0.;
@@ -836,7 +836,7 @@ int ShiftOpMatrix::_buildS(const AMesh *amesh, double tol)
   if (_S == nullptr) goto label_end;
 
   /* Loop on the active meshes */
-
+  
   for (int imesh = 0; imesh < nmeshes; imesh++)
   {
     OptDbg::setCurrentIndex(imesh + 1);
@@ -955,7 +955,7 @@ bool ShiftOpMatrix::_cond(int indref, int igparam, int ipref)
 int ShiftOpMatrix::_buildSGrad(const AMesh *amesh, double tol)
 {
   auto cova = _getCovAniso();
-  _nCovAnisoGradParam = cova->getGradParamNumber();
+  _nCovAnisoGradParam = cova->getNGradParam();
   int number = _nCovAnisoGradParam * getSize();
   VectorT<std::map<int, double> > tab(number);
   std::vector<std::map<std::pair<int, int>, double> > Mtab(number);
@@ -966,16 +966,16 @@ int ShiftOpMatrix::_buildSGrad(const AMesh *amesh, double tol)
 
   // Initialize the arrays
 
-  MatrixSquareSymmetric hh(ndim);
-  MatrixSquareSymmetric work(ndim);
-  MatrixSquareSymmetric work2(ndim);
-  MatrixSquareSymmetric hhGrad(ndim);
-  MatrixRectangular matM(ndim, ncorner - 1);
-  MatrixSquareSymmetric matMtM(ncorner-1);
-  MatrixRectangular matP(ncorner-1,ndim);
-  MatrixSquareGeneral matMs(ndim);
-  MatrixSquareSymmetric matPGradHPt(ncorner-1);
-  MatrixSquareSymmetric matPHHPt(ncorner-1);
+  MatrixSymmetric hh(ndim);
+  MatrixSymmetric work(ndim);
+  MatrixSymmetric work2(ndim);
+  MatrixSymmetric hhGrad(ndim);
+  MatrixDense matM(ndim, ncorner - 1);
+  MatrixSymmetric matMtM(ncorner-1);
+  MatrixDense matP(ncorner-1,ndim);
+  MatrixSquare matMs(ndim);
+  MatrixSymmetric matPGradHPt(ncorner-1);
+  MatrixSymmetric matPHHPt(ncorner-1);
 
   double detMtM = 0.;
   double dethh = 0.;
@@ -993,7 +993,8 @@ int ShiftOpMatrix::_buildSGrad(const AMesh *amesh, double tol)
     OptDbg::setCurrentIndex(imesh + 1);
 
     // Prepare M matrix
-    _loadHH(amesh, hh, imesh);
+    if (_cova->isNoStatForAnisotropy())
+      _loadHH(amesh, hh, imesh);
     bool flagSphere = (amesh->getVariety() == 1);
     flagSphere = false; // Modif DR a valider
     if (! flagSphere)
@@ -1168,17 +1169,15 @@ void ShiftOpMatrix::_buildLambda(const AMesh *amesh)
   _Lambda.clear();
   _Lambda.resize(nvertex, 0.);
 
-  MatrixSquareSymmetric hh(ndim);
+  MatrixSymmetric hh(ndim);
   //double param = cova->getParam();
   bool flagSphere = (amesh->getVariety() == 1);
 
   double correc = cova->getCorrec();
-  //double sqdethh = 0.;
   double factor = 1.;
-
  if (flagSphere)
   {
-    const ASpace *space = getDefaultSpace();
+    const ASpace *space = getDefaultSpaceSh().get();
     const SpaceSN *spaceSn = dynamic_cast<const SpaceSN*>(space);
     double r = 1.;
     if (spaceSn != nullptr) r = spaceSn->getRadius();
@@ -1190,46 +1189,6 @@ void ShiftOpMatrix::_buildLambda(const AMesh *amesh)
       factor = sqrt(hh.determinant());
     }
   }
-  /* Fill the array */
-
-  // if (_isNoStat())
-  // {
-  //   VectorDouble cum(nvertex, 0.);
-  //   for (int imesh = 0; imesh < nmeshes; imesh++)
-  //   {
-  //     // if (flagSphere && cova->isNoStatForAnisotropy())
-  //     // {
-  //     //   _loadHH(amesh, hh, imesh);
-  //     //   sqdethh = sqrt(hh.determinant());
-  //     //   factor = pow(sqdethh, - (2. * param  - 1.)/3.); //TODO probably wrong
-  //     // }
- 
-  //     for (int ic = 0, ncorner = amesh->getNApexPerMesh(); ic < ncorner; ic++)
-  //     {
-  //       int ip = amesh->getApex(imesh, ic);
-  //       _Lambda[ip] += 1 / factor;
-  //       cum[ip]++;
-  //     }
-  //   }
-
-  //   for (int ip = 0; ip < nvertex; ip++)
-  //   {
-  //     if (cum[ip] > 0.) _Lambda[ip] /= cum[ip];
-  //     _Lambda[ip] = sqrt(_TildeC[ip] * correc / _Lambda[ip]);
-  //   }
-  // }
-  // else
-  // {
-  //   for (int ip = 0; ip < nvertex; ip++)
-  //    {
-  //     _Lambda[ip] = sqrt(_TildeC[ip] * correc * factor);
-  //    }
-  // }
-
-  //   for (int ip = 0; ip < nvertex; ip++)
-  //    {
-  //     _Lambda[ip] = sqrt(_TildeC[ip] * correc * factor);
-  //    }
 
   for (int ip = 0; ip < nvertex; ip++)
   {
@@ -1293,8 +1252,8 @@ void ShiftOpMatrix::_projectMesh(const AMesh *amesh,
   for (int icorn = 0; icorn < (int) amesh->getNApexPerMesh(); icorn++)
   {
     GH::convertSph2Cart(amesh->getCoor(imesh, icorn, 0),
-                        amesh->getCoor(imesh, icorn, 1), &xyz[icorn][0],
-                        &xyz[icorn][1], &xyz[icorn][2]);
+                        amesh->getCoor(imesh, icorn, 1), 
+                        &xyz[icorn][0], &xyz[icorn][1], &xyz[icorn][2]);
     for (int i = 0; i < 3; i++)
       center[i] += xyz[icorn][i];
   }

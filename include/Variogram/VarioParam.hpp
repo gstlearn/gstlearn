@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Variogram/DirParam.hpp"
@@ -55,8 +56,8 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Shortcuts
-  static VarioParam* createOmniDirection(int npas = 10,
-                                         double dpas = 1.,
+  static VarioParam* createOmniDirection(int nlag = 10,
+                                         double dlag = 1.,
                                          double toldis = 0.5,
                                          int opt_code = 0,
                                          int idate = 0,
@@ -66,57 +67,56 @@ public:
                                          const VectorDouble& breaks = VectorDouble(),
                                          double scale = 0.,
                                          const VectorDouble& dates = VectorDouble(),
-                                         const ASpace* space = nullptr);
+                                         const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static VarioParam* createMultiple(int ndir,
-                                    int npas = 10,
-                                    double dpas = 1.,
+                                    int nlag = 10,
+                                    double dlag = 1.,
                                     double toldis = 0.5,
                                     double angref = 0.,
                                     double scale = 0.,
                                     const VectorDouble& dates = VectorDouble(),
-                                    const ASpace* space = nullptr);
-  static VarioParam*
-  createMultipleFromGrid(const DbGrid* dbgrid,
-                         int npas,
-                         double scale              = 0.,
-                         const VectorDouble& dates = VectorDouble(),
-                         const ASpace* space       = nullptr,
-                         int ndimax = 0);
-  static VarioParam* createFromSpaceDimension(int npas = 10,
-                                              double dpas = 1.,
+                                    const ASpaceSharedPtr& space = ASpaceSharedPtr());
+  static VarioParam* createMultipleFromGrid(const DbGrid* dbgrid,
+                                            int nlag,
+                                            double scale                 = 0.,
+                                            const VectorDouble& dates    = VectorDouble(),
+                                            const ASpaceSharedPtr& space = ASpaceSharedPtr(),
+                                            int ndimax                   = 0);
+  static VarioParam* createFromSpaceDimension(int nlag = 10,
+                                              double dlag = 1.,
                                               double toldis = 0.5,
                                               double tolang = 45.,
                                               double scale = 0.,
                                               const VectorDouble &dates = VectorDouble(),
-                                              const ASpace *space = nullptr);
+                                              const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static VarioParam* createSeveral2D(const VectorDouble &angles,
-                                     int npas = 10,
-                                     double dpas = 1.,
+                                     int nlag = 10,
+                                     double dlag = 1.,
                                      double toldis = 0.5,
                                      double tolang = TEST,
                                      double scale = 0.,
                                      const VectorDouble& dates = VectorDouble(),
-                                     const ASpace *space = nullptr);
+                                     const ASpaceSharedPtr& space = ASpaceSharedPtr());
 
   void addDir(const DirParam& dirparam);
   void addMultiDirs(const std::vector<DirParam>& dirparams);
   void delDir(int rank);
   void delAllDirs();
 
-  const ASpace* getSpace() const { return _dirparams[0].getSpace(); }
+  ASpaceSharedPtr getSpace() const { return _dirparams[0].getSpace(); }
   double getScale() const { return _scale; }
-  int    getDateNumber() const { return (int) _dates.size() / 2; }
-  int    getDirectionNumber() const { return (int) _dirparams.size(); }
+  int    getNDate() const { return (int) _dates.size() / 2; }
+  int    getNDir() const { return (int) _dirparams.size(); }
   const VectorDouble& getDates() const { return _dates; }
   double getDate(int idate, int icas) const;
-  int getLagNumber(int idir) const;
+  int getNLag(int idir) const;
   VectorDouble getCodirs(int idir = 0) const;
   const std::vector<DirParam>& getDirParams() const { return _dirparams; }
   const DirParam& getDirParam(int idir) const { return _dirparams[idir]; }
-  int getDimensionNumber() const;
+  int getNDim() const;
   bool isDefinedForGrid() const;
 
-  int hasDate() const { return (getDateNumber() > 0 && (_dates[0] > -1.e30 || _dates[1] < 1.e30)); }
+  int hasDate() const { return (getNDate() > 0 && (_dates[0] > -1.e30 || _dates[1] < 1.e30)); }
   bool isDateUsed(const Db *db1, const Db *db2 = nullptr) const;
 
   void setScale(double scale) { _scale = scale; }
@@ -124,7 +124,7 @@ public:
   void setDPas(int idir,const DbGrid* db);
   void setGrincr(int idir, const VectorInt& grincr);
 
-  String toStringMain(const AStringFormat* strfmt) const;
+  String toStringMain(const AStringFormat* strfmt = nullptr) const;
 
   const Faults* getFaults() const { return _faults; }
   bool hasFaults() const { return _faults != nullptr; }

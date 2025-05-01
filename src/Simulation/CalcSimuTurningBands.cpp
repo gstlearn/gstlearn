@@ -51,6 +51,7 @@ CalcSimuTurningBands::CalcSimuTurningBands(int nbsimu,
   , _theta(0.)
   , _seedBands()
   , _codirs()
+  , _modelLocal(nullptr)
 {
 }
 
@@ -75,7 +76,7 @@ bool CalcSimuTurningBands::_resize()
   if (nbsimu > 0 && nbtuba > 0)
   {
     int nvar  = _getNVar();
-    int ncova = _getNCova();
+    int ncova = _getNCov();
 
     /* Allocate the structures for the seeds */
 
@@ -93,10 +94,10 @@ bool CalcSimuTurningBands::_resize()
   return true;
 }
 
-int CalcSimuTurningBands::_getAddressBand(int ivar, int is, int ib, int isimu)
+int CalcSimuTurningBands::_getAddressBand(int ivar, int is, int ib, int isimu) const
 {
-  int ncova = _getNCova();
-  int nvar = _getNVar();
+  int nvar  = _getNVar();
+  int ncova = _getNCov();
   return ivar+nvar*((is)+ncova*((ib)+_nbtuba*(isimu)));
 }
 
@@ -106,10 +107,29 @@ void CalcSimuTurningBands::_setSeedBand(int ivar, int is, int ib, int isimu, int
   _seedBands[iad] = seed;
 }
 
-int CalcSimuTurningBands::_getSeedBand(int ivar, int is, int ib, int isimu)
+int CalcSimuTurningBands::_getSeedBand(int ivar, int is, int ib, int isimu) const
 {
   int iad = _getAddressBand(ivar, is, ib, isimu);
   return _seedBands[iad];
+}
+
+void CalcSimuTurningBands::_dumpSeeds() const
+{
+  int nvar   = _getNVar();
+  int ncova  = _getNCov();
+  int nbsimu = getNbSimu();
+  int nbtuba = getNBtuba();
+
+  mestitle(1, "Seeds");
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int isimu = 0; isimu < nbsimu; isimu++)
+      for (int is = 0; is < ncova; is++)
+        for (int ib = 0; ib < nbtuba; ib++)
+        {
+          int iad = _getAddressBand(ivar, is, ib, isimu);
+          message("Var=%d Simu=%d Is=%d Ib=%d iad=%d : %d\n",
+                  ivar, isimu, is, ib, iad, _seedBands[iad]);
+        }
 }
 
 /****************************************************************************/
@@ -124,8 +144,8 @@ int CalcSimuTurningBands::_getSeedBand(int ivar, int is, int ib, int isimu)
 int CalcSimuTurningBands::_generateDirections(const Db* dbout)
 {
   double x[2];
-  int ndim = _getNDim();
-  int ncova = _getNCova();
+  int ndim   = _getNDim();
+  int ncova  = _getNCov();
   int nbsimu = getNbSimu();
   int nbands = getNDirs();
 
@@ -183,7 +203,7 @@ int CalcSimuTurningBands::_generateDirections(const Db* dbout)
     for (int is = 0; is < ncova; is++)
       for (int ib = 0; ib < _nbtuba; ib++, ibs++)
       {
-        const CovAniso* cova = getModel()->getCova(is);
+        const CovAniso* cova = _modelLocal->getCovAniso(is);
 
         // If the covariance has no Range (i.e. Nugget Effect), the rest is non-sense.
         // Nevertheless this code is maintained in order not to disorganize
@@ -244,7 +264,19 @@ int CalcSimuTurningBands::_generateDirections(const Db* dbout)
           }
         }
       }
+
   return 0;
+}
+
+void CalcSimuTurningBands::_dumpBands() const
+{
+  int nbands = getNDirs();
+  bool flagGrid = getDbout()->isGrid();
+  for (int ibs = 0; ibs < nbands; ibs++)
+  {
+    message("- Band %d/%d\n", ibs + 1, nbands);
+    _codirs[ibs].dump(flagGrid);
+  }
 }
 
 /*****************************************************************************/
@@ -319,7 +351,7 @@ void CalcSimuTurningBands::_minmax(const Db *db)
 
     /* Case of an isolated set of data */
 
-    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    for (int iech = 0; iech < db->getNSample(); iech++)
     {
       if (!db->isActive(iech)) continue;
       for (int ibs = 0; ibs < nbands; ibs++)
@@ -333,7 +365,7 @@ void CalcSimuTurningBands::_minmax(const Db *db)
     }
   }
 
-  _npointSimulated += db->getSampleNumber();
+  _npointSimulated += db->getNSample();
 }
 
 /****************************************************************************/
@@ -410,9 +442,9 @@ int CalcSimuTurningBands::_initializeSeedBands()
   /* Initializations */
 
   _setDensity();
-  int ncova  = _getNCova();
-  int nvar   = _getNVar();
-  int nbsimu = getNbSimu();
+  int ncova     = _getNCov();
+  int nvar      = _getNVar();
+  int nbsimu    = getNbSimu();
   double theta1 = 1. / _theta;
 
   /* Loop on the turning bands */
@@ -427,8 +459,8 @@ int CalcSimuTurningBands::_initializeSeedBands()
         {
           operTB.reset();
           double scale = _getCodirScale(ibs);
-          double param = getModel()->getParam(is);
-          ECov type    = _particularCase(getModel()->getCovaType(is), param);
+          double param = _modelLocal->getParam(is);
+          ECov type    = _particularCase(_modelLocal->getCovType(is), param);
           _setSeedBand(ivar, is, ib, isimu, law_get_random_seed());
 
           switch (type.toEnum())
@@ -587,7 +619,7 @@ double CalcSimuTurningBands::_dilutionInit(int ibs,
 
   operTB.setTdeb(tdeb);
 
-  ECov type = getModel()->getCovaType(is);
+  ECov type = _modelLocal->getCovType(is);
   double correc;
   switch (type.toEnum())
   {
@@ -623,8 +655,8 @@ double CalcSimuTurningBands::_spectralInit(int ibs,
                                            TurningBandOperate &operTB)
 {
   double scale = _getCodirScale(ibs);
-  double param = getModel()->getParam(is);
-  ECov type    = getModel()->getCovaType(is);
+  double param = _modelLocal->getParam(is);
+  ECov type    = _modelLocal->getCovType(is);
 
   double val = 0.;
   double period = 0.;
@@ -741,7 +773,7 @@ double CalcSimuTurningBands::_power1DInit(int ibs,
   static double log3s2, log1s2, logap1, logap1s2, logap3s2, as2, coeff, coeff3;
   static double alpha_mem = -1.;
 
-  double param = getModel()->getParam(is);
+  double param = _modelLocal->getParam(is);
   if (ibs == 0 || ! isEqual(param,alpha_mem))
   {
     double scale = _getCodirScale(ibs);
@@ -842,7 +874,7 @@ double CalcSimuTurningBands::_irfProcessInit(int ibs,
                                              int is,
                                              TurningBandOperate &operTB)
 {
-  ECov type = getModel()->getCovaType(is);
+  ECov type = _modelLocal->getCovType(is);
   double delta;
 
   int level = -1;
@@ -898,16 +930,15 @@ double CalcSimuTurningBands::_irfProcessInit(int ibs,
  *****************************************************************************/
 VectorDouble CalcSimuTurningBands::_createAIC()
 {
-  int ncova = _getNCova();
+  int ncova = _getNCov();
   int nvar  = _getNVar();
-
   VectorDouble aic(ncova * nvar * nvar);
 
   /* Calculate the eigen values and vectors of the coregionalization matrix */
 
   for (int icov = 0; icov < ncova; icov++)
   {
-    MatrixSquareSymmetric mat = getModel()->getSillValues(icov);
+    MatrixSymmetric mat = _modelLocal->getSills(icov);
     if (! mat.isDefinitePositive())
     {
       messerr("Warning: the model is not authorized");
@@ -920,7 +951,7 @@ VectorDouble CalcSimuTurningBands::_createAIC()
 
     if (mat.computeEigen()) return VectorDouble();
     VectorDouble valpro = mat.getEigenValues();
-    const MatrixSquareGeneral* vecpro = mat.getEigenVectors();
+    const MatrixSquare* vecpro = mat.getEigenVectors();
 
     /* Calculate the factor matrix */
 
@@ -943,10 +974,10 @@ void CalcSimuTurningBands::_spreadRegularOnGrid(int nx,
                                                 const VectorBool &activeArray,
                                                 VectorDouble &tab)
 {
-  CovAniso* cova = getModel()->getCova(is);
+  CovAniso* cova = _modelLocal->getCovAniso(is);
   double t0y, t0z, t0;
 
-  ECov type = getModel()->getCovaType(is);
+  ECov type = _modelLocal->getCovType(is);
 
   double t00 = _getCodirT00(ibs);
   double dxp = _getCodirDXP(ibs);
@@ -984,7 +1015,7 @@ void CalcSimuTurningBands::_spreadSpectralOnGrid(int nx,
                                                  const VectorBool &activeArray,
                                                  VectorDouble &tab)
 {
-  CovAniso* cova = getModel()->getCova(is);
+  CovAniso* cova = _modelLocal->getCovAniso(is);
   double c1, s1, c0x, s0x, c0y, s0y, c0z, s0z, cxp, sxp, cyp, syp, czp, szp;
 
   _getOmegaPhi(ibs, operTB, &cxp, &sxp, &cyp, &syp, &czp, &szp, &c0z, &s0z);
@@ -1028,9 +1059,9 @@ void CalcSimuTurningBands::_spreadRegularOnPoint(const Db *db,
                                                  const VectorBool &activeArray,
                                                  VectorDouble &tab)
 {
-  CovAniso* cova = getModel()->getCova(is);
+  CovAniso* cova = _modelLocal->getCovAniso(is);
   double t0;
-  for (int iech = 0, nech = db->getSampleNumber(); iech < nech; iech++)
+  for (int iech = 0, nech = db->getNSample(); iech < nech; iech++)
   {
     if (! activeArray[iech]) continue;
     t0 = _codirs[ibs].projectPoint(db, iech);
@@ -1045,9 +1076,9 @@ void CalcSimuTurningBands::_spreadSpectralOnPoint(const Db* db,
                                                   const VectorBool &activeArray,
                                                   VectorDouble &tab)
 {
-  CovAniso* cova = getModel()->getCova(is);
+  CovAniso* cova = _modelLocal->getCovAniso(is);
   double t0;
-  for (int iech = 0, nech = db->getSampleNumber(); iech < nech; iech++)
+  for (int iech = 0, nech = db->getNSample(); iech < nech; iech++)
   {
     if (!activeArray[iech]) continue;
     t0 = _codirs[ibs].projectPoint(db, iech);
@@ -1071,12 +1102,12 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
                                           int icase,
                                           int shift)
 {
-  int nech   = db->getSampleNumber();
-  int ncova  = _getNCova();
-  int nvar   = _getNVar();
-  int nbsimu = getNbSimu();
+  int nech      = db->getNSample();
+  int ncova     = _getNCov();
+  int nvar      = _getNVar();
+  int nbsimu    = getNbSimu();
   double theta1 = 1. / _theta;
-  double norme = sqrt(1. / _nbtuba);
+  double norme  = sqrt(1. / _nbtuba);
 
   /* Core allocation */
 
@@ -1097,8 +1128,8 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
         for (int ib = 0; ib < _nbtuba; ib++, ibs++)
         {
           double scale = _getCodirScale(ibs);
-          double param = getModel()->getParam(is);
-          ECov type    = _particularCase(getModel()->getCovaType(is), param);
+          double param = _modelLocal->getParam(is);
+          ECov type    = _particularCase(_modelLocal->getCovType(is), param);
           operTB.reset();
           operTB.setScale(scale);
           operTB.setFlagScaled(false);
@@ -1184,9 +1215,11 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
             for (int iech = 0; iech < nech; iech++)
               if (activeArray[iech])
                 for (int jvar = 0; jvar < nvar; jvar++)
+                {
                   db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase,
                                 nbsimu, nvar, EOperator::ADD,
                                 tab[iech] * correc * _getAIC(aic, is, jvar, ivar));
+                }
         }
   }
 
@@ -1219,16 +1252,16 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                                          int icase,
                                          int shift)
 {
-  int nbsimu = getNbSimu();
-  double theta1 = 1. / _theta;
-  int nvar   = _getNVar();
-  int ncova  = _getNCova();
-  int ndim   = db->getNDim();
-  int nx     = (ndim >= 1) ? db->getNX(0) : 1;
-  int ny     = (ndim >= 2) ? db->getNX(1) : 1;
-  int nz     = (ndim >= 3) ? db->getNX(2) : 1;
-  int nech   = nx * ny * nz;
-  double norme  = sqrt(1. / _nbtuba);
+  int nbsimu             = getNbSimu();
+  double theta1          = 1. / _theta;
+  int nvar               = _getNVar();
+  int ncova              = _getNCov();
+  int ndim               = db->getNDim();
+  int nx                 = (ndim >= 1) ? db->getNX(0) : 1;
+  int ny                 = (ndim >= 2) ? db->getNX(1) : 1;
+  int nz                 = (ndim >= 3) ? db->getNX(2) : 1;
+  int nech               = nx * ny * nz;
+  double norme           = sqrt(1. / _nbtuba);
   VectorBool activeArray = db->getActiveArray();
 
   /* Core allocation */
@@ -1249,8 +1282,8 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
         for (int ib = 0; ib < _nbtuba; ib++, ibs++)
         {
           double scale = _getCodirScale(ibs);
-          double param = getModel()->getParam(is);
-          ECov type    = _particularCase(getModel()->getCovaType(is), param);
+          double param = _modelLocal->getParam(is);
+          ECov type    = _particularCase(_modelLocal->getCovType(is), param);
           operTB.reset();
           operTB.setScale(scale);
           operTB.setFlagScaled(true);
@@ -1393,7 +1426,7 @@ void CalcSimuTurningBands::_simulateGradient(Db *dbgrd,
 
     /* Shift the information */
 
-    for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
+    for (int iech = 0; iech < dbgrd->getNSample(); iech++)
       if (activeArray[iech])
         dbgrd->setCoordinate(iech, idim,
                              dbgrd->getCoordinate(iech, idim) + delta);
@@ -1408,7 +1441,7 @@ void CalcSimuTurningBands::_simulateGradient(Db *dbgrd,
 
     /* Un-Shift the information */
 
-    for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
+    for (int iech = 0; iech < dbgrd->getNSample(); iech++)
       if (!activeArray[iech])
         dbgrd->setCoordinate(iech, idim,
                              dbgrd->getCoordinate(iech, idim) - delta);
@@ -1416,7 +1449,7 @@ void CalcSimuTurningBands::_simulateGradient(Db *dbgrd,
     /* Scaling */
 
     for (int isimu = 0; isimu < nbsimu; isimu++)
-      for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
+      for (int iech = 0; iech < dbgrd->getNSample(); iech++)
       {
         if (!!activeArray[iech]) continue;
         jsimu = isimu + idim * nbsimu + ndim * nbsimu;
@@ -1462,7 +1495,7 @@ void CalcSimuTurningBands::_simulateTangent(Db *dbtgt,
   /* Calculate the simulated tangent */
 
   for (int isimu = 0; isimu < nbsimu; isimu++)
-    for (int iech = 0; iech < dbtgt->getSampleNumber(); iech++)
+    for (int iech = 0; iech < dbtgt->getNSample(); iech++)
     {
       if (! activeArray[iech]) continue;
 
@@ -1552,12 +1585,14 @@ void CalcSimuTurningBands::_getOmegaPhi(int ibs,
  ** \param[in]  icase      Rank of PGS or GRF
  **
  *****************************************************************************/
-void CalcSimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int icase)
+void CalcSimuTurningBands::_simulateNugget(Db* db,
+                                           const VectorDouble& aic,
+                                           int icase)
 {
-  int nech = db->getSampleNumber();
-  int ncova = _getNCova();
-  int nvar = _getNVar();
-  int nbsimu = getNbSimu();
+  int nech               = db->getNSample();
+  int ncova              = _getNCov();
+  int nvar               = _getNVar();
+  int nbsimu             = getNbSimu();
   VectorBool activeArray = db->getActiveArray();
 
   /* Do nothing if there is no nugget effect in the model */
@@ -1565,7 +1600,7 @@ void CalcSimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int 
   bool flag_used = false;
   for (int is = 0; is < ncova && flag_used == 0; is++)
   {
-    if (getModel()->getCovaType(is) == ECov::NUGGET) flag_used = true;
+    if (_modelLocal->getCovType(is) == ECov::NUGGET) flag_used = true;
   }
   if (!flag_used) return;
 
@@ -1576,7 +1611,7 @@ void CalcSimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int 
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int is = 0; is < ncova; is++)
       {
-        ECov type = getModel()->getCovaType(is);
+        ECov type = _modelLocal->getCovType(is);
 
         if (type != ECov::NUGGET) continue;
         law_set_random_seed(_getSeedBand(ivar, is, 0, isimu));
@@ -1642,7 +1677,7 @@ void CalcSimuTurningBands::_difference(Db *dbin,
     /* Standard case (multivariate) */
     /********************************/
 
-    for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+    for (int iech = 0; iech < dbin->getNSample(); iech++)
     {
       if (!dbin->isActive(iech)) continue;
       for (int ivar = 0; ivar < nvar; ivar++)
@@ -1682,7 +1717,7 @@ void CalcSimuTurningBands::_difference(Db *dbin,
     /* Case of PGS: Data varies per simulation (monovariate) */
     /*********************************************************/
 
-    for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+    for (int iech = 0; iech < dbin->getNSample(); iech++)
     {
       if (!dbin->isActive(iech)) continue;
       for (int isimu = 0; isimu < nbsimu; isimu++)
@@ -1710,7 +1745,7 @@ void CalcSimuTurningBands::_meanCorrect(Db *dbout, int icase)
   if (_flagBayes) return;
   int nbsimu = getNbSimu();
   int nvar   = _getNVar();
-  int nech   = dbout->getSampleNumber();
+  int nech   = dbout->getNSample();
 
   VectorBool activeArray = dbout->getActiveArray();
 
@@ -1757,7 +1792,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
                                                 bool flag_pgs,
                                                 bool flag_dgm)
 {
-  if (dbin->getSampleNumber() <= 0) return;
+  if (dbin->getNSample() <= 0) return;
   if (flag_dgm) return;
   int nvar = _getNVar();
   int ndim = dbin->getNDim();
@@ -1783,10 +1818,10 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
     /* Case where the output file is a grid file */
     /*********************************************/
 
-    for (int ip = 0; ip < dbin->getSampleNumber(); ip++)
+    for (int ip = 0; ip < dbin->getNSample(); ip++)
     {
       if (!activeArrayIn[ip]) continue;
-      dbin->getCoordinatesPerSampleInPlace(ip, coor2);
+      dbin->getCoordinatesInPlace(coor2, ip);
       int rank = dbgrid->coordinateToRank(coor2, false, eps);
       if (rank < 0 || !activeArrayOut[rank]) continue;
       dbgrid->rankToCoordinatesInPlace(rank, coor1);
@@ -1825,18 +1860,20 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
     /* Case where the output file is a point file */
     /**********************************************/
 
-    for (int ik = 0; ik < dbout->getSampleNumber(); ik++)
+    for (int ik = 0; ik < dbout->getNSample(); ik++)
     {
+      // Get coordinates of the active target point
       if (!activeArrayOut[ik]) continue;
-      dbin->getCoordinatesPerSampleInPlace(ik, coor1);
+      dbout->getCoordinatesInPlace(coor1, ik);
 
       /* Look for the closest data point */
 
       int ip_close = -1;
-      for (int ip = 0; ip < dbin->getSampleNumber() && ip_close < 0; ip++)
+      for (int ip = 0; ip < dbin->getNSample() && ip_close < 0; ip++)
       {
+        // Get the coordinates of the active data point
         if (!activeArrayIn[ip]) continue;
-        dbin->getCoordinatesPerSampleInPlace(ip, coor2);
+        dbin->getCoordinatesInPlace(coor2, ip);
 
         /* Get the distance to the target point */
 
@@ -1898,7 +1935,7 @@ bool CalcSimuTurningBands::_run()
 
     // Calculate the simulated error
 
-    _difference(getDbin(), getModel(), _icase, _flagPGS, _flagGibbs, _flagDGM);
+    _difference(getDbin(), _modelLocal, _icase, _flagPGS, _flagGibbs, _flagDGM);
   }
 
   // Non conditional simulations on the grid
@@ -1923,7 +1960,7 @@ bool CalcSimuTurningBands::_run()
 
   if (flag_cond)
   {
-    if (_krigsim(getDbin(), getDbout(), getModel(), getNeigh(),
+    if (_krigsim(getDbin(), getDbout(), _modelLocal, getNeigh(),
                  _flagBayes, _bayesMean, _bayesCov, _icase,
                  nbsimu, _flagDGM)) return 1;
   }
@@ -1936,7 +1973,7 @@ bool CalcSimuTurningBands::_run()
   // Check the simulation at data location
 
   if (_flagCheck)
-    _checkGaussianData2Grid(getDbin(), getDbout(), getModel());
+    _checkGaussianData2Grid(getDbin(), getDbout(), _modelLocal);
 
   return true;
 }
@@ -1968,7 +2005,7 @@ int CalcSimuTurningBands::simulate(Db* dbin,
                                    int icase,
                                    int flag_bayes,
                                    const VectorDouble& dmean,
-                                   const MatrixSquareSymmetric& dcov,
+                                   const MatrixSymmetric& dcov,
                                    bool flag_pgs,
                                    bool flag_gibbs,
                                    bool flag_dgm)
@@ -2086,9 +2123,9 @@ bool CalcSimuTurningBands::isValidForTurningBands(const Model *model)
 {
   /* Loop on the structures */
 
-  for (int is = 0; is < model->getCovaNumber(); is++)
+  for (int is = 0; is < model->getNCov(); is++)
   {
-    if (! model->getCova(is)->isValidForTurningBand()) return false;
+    if (! model->getCovAniso(is)->isValidForTurningBand()) return false;
   }
   return true;
 }
@@ -2123,14 +2160,14 @@ void CalcSimuTurningBands::_checkGaussianData2Grid(Db *dbin,
 
   int number = 0;
   VectorDouble coor(ndim);
-  for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbin->getNSample(); iech++)
   {
     if (!dbin->isActive(iech)) continue;
 
     // Find the index of the closest grid node and derive tolerance
     int jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor.data());
     if (jech < 0) continue;
-    double eps = model->calculateStdev(dbin, iech, dbgrid, jech, false, 2.);
+    double eps = model->calculateStDev(dbin, iech, dbgrid, jech, false, 2.);
     if (eps < 1.e-6) eps = 1.e-6;
 
     for (int isimu = 0; isimu < nbsimu; isimu++)
@@ -2171,6 +2208,7 @@ bool CalcSimuTurningBands::_check()
   {
     if (! hasNeigh()) return false;
   }
+
   int ndim = _getNDim();
   if (ndim > 3)
   {
@@ -2178,6 +2216,22 @@ bool CalcSimuTurningBands::_check()
     messerr("for this Space Dimension (%d)", ndim);
     return false;
   }
+
+  // Check that the model is of type 'Model' (more than ModelGeneric)
+  // Store the pointer to this converted type locally for better performance
+  _modelLocal = dynamic_cast<Model*>(getModel());
+  if (_modelLocal == nullptr)
+  {
+    messerr("The model must be of type Model not ModelGeneric)");
+    return false;
+  }
+  int ncova = _modelLocal->getNCov();
+  if (ncova <= 0)
+  {
+    messerr("The Model should contain some valid covariances");
+    return false;
+  }
+
   if (getNBtuba() <= 0)
   {
     messerr("You must define 'nbsimu' and 'nbtuba'");
@@ -2191,12 +2245,12 @@ bool CalcSimuTurningBands::_check()
       messerr("For DGM option, the argument 'dbout'  should be a Grid");
       return false;
     }
-    if (! getModel()->hasAnam())
+    if (! _modelLocal->hasAnam())
     {
       messerr("For DGM option, the Model must have an Anamorphosis attached");
       return false;
     }
-    if (! getModel()->isChangeSupportDefined())
+    if (! _modelLocal->isChangeSupportDefined())
     {
       messerr("DGM option requires a Change of Support to be defined");
       return false;
@@ -2354,7 +2408,7 @@ int simbayes(Db *dbin,
              int nbsimu,
              int seed,
              const VectorDouble& dmean,
-             const MatrixSquareSymmetric& dcov,
+             const MatrixSymmetric& dcov,
              int nbtuba,
              bool flag_check,
              const NamingConvention& namconv)

@@ -12,6 +12,7 @@
 
 #include "Matrix/MatrixSparse.hpp"
 #include "LinearOp/ProjMulti.hpp"
+#include "Matrix/MatrixT.hpp"
 
 class ProjMatrix;
 class AMesh;

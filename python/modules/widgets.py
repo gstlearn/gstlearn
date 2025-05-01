@@ -95,7 +95,7 @@ class WModel(ipw.VBox):
                                                  sill=self.sliderSill.value)
         
     def __toValue(self, myModel):
-        cova   = myModel.getCova(0)
+        cova   = myModel.getCovAniso(0)
         type   = cova.getType()
         rangeX = cova.getRange(0)
         rangeY = cova.getRange(1)

@@ -30,9 +30,6 @@ knitr::opts_chunk$set(fig.width=4, fig.height=4,
 ```{r loading_library, message=FALSE}
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
 ```
 
 ```{r Preamble, message=FALSE}
@@ -50,10 +47,10 @@ grid = DbGrid_createFromNF(fileNF)
 \frametitle{Histogram of the raw variable (temperature)}
 
 ```{r Histogram}
-p = ggplot()
+p = plot.init()
 p = p + plot.hist(dat,"January*")
 p = p + plot.decoration(title="Temperatures")
-ggPrint(p)
+plot.end(p)
 ```
 
 ---
@@ -72,10 +69,10 @@ anam
 \frametitle{Gaussian scores}
 
 ```{r Gaussian_Score_Plot}
-p = ggplot()
+p = plot.init()
 p = p + plot.XY(dat["Y.January_temp"], dat["January_temp"], flagLine=FALSE, flagPoint=TRUE)
 p = p + plot.decoration(xlab="Gaussian", ylab="Raw")
-ggPrint(p)
+plot.end(p)
 ```
 
 ---
@@ -83,10 +80,10 @@ ggPrint(p)
 \frametitle{Gaussian scores}
 
 ```{r Gaussian_Score_Histogram}
-p = ggplot()
+p = plot.init()
 p = p + plot.hist(dat,"Y.January*")
 p = p + plot.decoration(title="Temperatures (Gaussian scale)")
-ggPrint(p)
+plot.end(p)
 ```
 
 ---
@@ -95,7 +92,7 @@ ggPrint(p)
 We calculate the experimental directional variogram of the gaussian scores and fit the Model (with the constraints that sill should be 1)
 
 ```{r Fitting_Model}
-varioparam = VarioParam_createMultiple(ndir=2, npas=40, dpas=10)
+varioparam = VarioParam_createMultiple(ndir=2, nlag=40, dlag=10)
 vario_gauss2dir = Vario_create(varioparam)
 err = vario_gauss2dir$compute(dat)
 
@@ -106,7 +103,7 @@ err = fitmodgauss$fit(vario_gauss2dir,
 ```
 
 ```{r}
-ggplot() + plot.varmod(vario_gauss2dir, fitmodgauss)
+plot.init() + plot.varmod(vario_gauss2dir, fitmodgauss)
 ```
 
 ---
@@ -123,11 +120,11 @@ err = kriging(dat, grid, fitmodgauss, neighU)
 \framesubtitle{Estimation}
 
 ```{r}
-p = ggDefaultGeographic()
+p = plot.init()
 p = p + plot(grid,"*estim")
 p = p + plot(dat)
 p = p + plot.decoration(title="Kriging of Gaussian scores")
-ggPrint(p)
+plot.end(p)
 ```
 
 ---
@@ -136,11 +133,11 @@ ggPrint(p)
 \framesubtitle{Standard Deviation}
 
 ```{r Kriging_Gaussian_scores_stdev}
-p = ggDefaultGeographic()
+p = plot.init()
 p = p + plot(grid,"*stdev")
 p = p + plot(dat, flagCst=TRUE)
 p = p + plot.decoration(title="St. Dev. of Gaussian scores")
-ggPrint(p)
+plot.end(p)
 ```
 
 ---
@@ -161,11 +158,11 @@ err = ConditionalExpectation(grid, anam, selectivity, "K*.estim", "K*.stdev",
 \frametitle{Conditional expectation}
 
 ```{r Display_Conditional_Expectation}
-p = ggDefaultGeographic()
+p = plot.init()
 p = p + plot(grid,"CE*estim")
 p = p + plot(dat)
 p = p + plot.decoration(title = "Conditional Expectation")
-ggPrint(p)
+plot.end(p)
 ```
 
 ---
@@ -173,11 +170,11 @@ ggPrint(p)
 \frametitle{Conditional Standard Deviation}
 
 ```{r Conditional_Standard_Deviation}
-p = ggDefaultGeographic()
+p = plot.init()
 p = p + plot(grid, "CE*stdev")
 p = p + plot(dat, flagCst=TRUE)
 p = p + plot.decoration(title="Conditional Standard Deviation")
-ggPrint(p)
+plot.end(p)
 ```
 
 ---
@@ -195,11 +192,11 @@ err = ConditionalExpectation(grid, anam, selectivity,
 
 
 ```{r}
-p = ggDefaultGeographic()
+p = plot.init()
 p = p + plot(grid,"CE.Proba*estim")
 p = p + plot(dat)
 p = p + plot.decoration(title = "Conditional Probability below 0")
-ggPrint(p)
+plot.end(p)
 ```
 
 ---
@@ -221,11 +218,11 @@ err = ConditionalExpectation(grid, anam, selectivity, "K*.estim", "K*.stdev",
 \framesubtitle{Estimation}
 
 ```{r}
-p = ggDefaultGeographic()
+p = plot.init()
 p = p + plot(grid,"CE.T*estim-1")
 p = p + plot(dat)
 p = p + plot.decoration(title = "Conditional Probability above 1")
-ggPrint(p)
+plot.end(p)
 ```
 
 ---
@@ -234,11 +231,11 @@ ggPrint(p)
 \framesubtitle{Standard Deviation}
 
 ```{r Final_Histogram}
-p = ggDefaultGeographic()
+p = plot.init()
 p = p + plot(grid, "CE.T*stdev-1")
 p = p + plot(dat, flagCst=TRUE)
 p = p + plot.decoration(title = "Conditional probability (Standard Deviation)")
-ggPrint(p)
+plot.end(p)
 ```
 
 

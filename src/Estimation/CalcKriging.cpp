@@ -11,60 +11,47 @@
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Estimation/CalcKriging.hpp"
+#include "Enum/EKrigOpt.hpp"
+#include "Estimation/CalcKrigingSimpleCase.hpp"
+#include "Estimation/KrigOpt.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/OptCustom.hpp"
 #include "Model/Model.hpp"
+#include "Neigh/NeighBench.hpp"
+#include "Neigh/NeighUnique.hpp"
 
 #include <math.h>
 
 CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
-    : ACalcInterpolator(),
-    _flagEst(flag_est),
-    _flagStd(flag_std),
-    _flagVarZ(flag_varZ),
-    _calcul(EKrigOpt::POINT),
-    _ndiscs(),
-    _rankColCok(),
-    _matLC(nullptr),
-    _flagDGM(false),
-    _nameCoord(),
-    _flagBayes(false),
-    _priorMean(),
-    _priorCov(),
-    _flagProf(false),
-    _iechSingleTarget(-1),
-    _verboseSingleTarget(false),
-    _flagPerCell(false),
-    _flagGam(false),
-    _anam(nullptr),
-    _flagXvalid(false),
-    _flagKfold(false),
-    _flagXvalidEst(0),
-    _flagXvalidStd(0),
-    _flagXvalidVarZ(0),
-    _flagNeighOnly(false),
-    _nbNeigh(5),
-    _iptrEst(-1),
-    _iptrStd(-1),
-    _iptrVarZ(-1),
-    _iptrNeigh(-1)
+  : ACalcInterpolator()
+  , _flagEst(flag_est)
+  , _flagStd(flag_std)
+  , _flagVarZ(flag_varZ)
+  , _nameCoord()
+  , _flagBayes(false)
+  , _priorMean()
+  , _priorCov()
+  , _iechSingleTarget(-1)
+  , _verboseSingleTarget(false)
+  , _flagGam(false)
+  , _anam(nullptr)
+  , _flagXvalid(false)
+  , _flagKfold(false)
+  , _flagXvalidEst(0)
+  , _flagXvalidStd(0)
+  , _flagXvalidVarZ(0)
+  , _flagNeighOnly(false)
+  , _nbNeigh(5)
+  , _iptrEst(-1)
+  , _iptrStd(-1)
+  , _iptrVarZ(-1)
+  , _iptrNeigh(-1)
 {
 }
 
 CalcKriging::~CalcKriging()
 {
-}
-
-void CalcKriging::setCalcul(const EKrigOpt &calcul)
-{
-  _calcul = calcul;
-
-  // Temporary code for incorporating DGM as a EKrigOpt option
-
-  if (_calcul == EKrigOpt::DGM)
-    setFlagDgm(true);
-  else
-    setFlagDgm(false);
 }
 
 bool CalcKriging::_check()
@@ -83,27 +70,9 @@ bool CalcKriging::_check()
 
   if (_flagVarZ)
   {
-    if (! getModel()->getCovAnisoList()->isStationary())
+    if (getModel()->isNoStat())
     {
       messerr("Variance of Estimator is limited to Stationary Covariance");
-      return false;
-    }
-  }
-  if (_flagDGM)
-  {
-    if (! getDbout()->isGrid())
-    {
-      messerr("For DGM option, the argument 'dbout'  should be a Grid");
-      return false;
-    }
-    if (! getModel()->hasAnam())
-    {
-      messerr("For DGM option, the Model must have an Anamorphosis attached");
-      return false;
-    }
-    if (! getModel()->isChangeSupportDefined())
-    {
-      messerr("DGM option requires a Change of Support to be defined");
       return false;
     }
   }
@@ -114,7 +83,7 @@ bool CalcKriging::_preprocess()
 {
   if (!ACalcInterpolator::_preprocess()) return false;
 
-  if (_matLC != nullptr) _setNvar(_matLC->getNRows(), true);
+  if (getKrigopt().hasMatLC()) _setNvar(getKrigopt().getMatLCNRows(), true);
 
   int status = 1;
   if (_iechSingleTarget >= 0) status = 2;
@@ -140,9 +109,9 @@ bool CalcKriging::_preprocess()
     if (_iptrNeigh < 0) return false;
   }
 
-  // Centering the Data (for DGM)
+  // Centering the Data (for DGM only)
 
-  if (_flagDGM)
+  if (getKrigopt().hasFlagDGM())
   {
     // Centering (only if the output file is a Grid)
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
@@ -192,7 +161,7 @@ bool CalcKriging::_postprocess()
     _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh + 4, "NbCESect",
                     1);
   }
-  else if (_flagDGM)
+  else if (getKrigopt().hasFlagDGM())
   {
     if (!_nameCoord.empty()) getDbin()->setLocators(_nameCoord, ELoc::X, 0);
 
@@ -202,7 +171,7 @@ bool CalcKriging::_postprocess()
   }
   else
   {
-    if (_matLC == nullptr)
+    if (! getKrigopt().hasMatLC())
     {
       _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
       _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);
@@ -226,23 +195,22 @@ void CalcKriging::_rollback()
 
 void CalcKriging::_storeResultsForExport(const KrigingSystem& ksys)
 {
-  int ndim = ksys.getNDim();
-
-  /* Extract relevant information */
-
-  _ktest.ndim = ndim;
-  _ktest.nvar = 1;
-  _ktest.nech = ksys.getNRed();
-  _ktest.nrhs = 1;
-  _ktest.neq  = ksys.getNeq();
-  _ktest.nbgh = ksys.getSampleIndices();
-  _ktest.xyz  = ksys.getSampleCoordinates();
-  _ktest.data = ksys.getSampleData();
-  _ktest.zam  = ksys.getZam();
-  _ktest.lhs  = ksys.getLHSC();
-  _ktest.rhs  = ksys.getRHSC();
-  _ktest.wgt  = ksys.getWeights();
-  _ktest.var  = ksys.getVariance();
+  _ktest.ndim  = ksys.getNDim();
+  _ktest.nvar  = ksys.getNVar();
+  _ktest.nech  = ksys.getNech();
+  _ktest.CSize = ksys.getCovSize();
+  _ktest.DSize = ksys.getDriftSize();
+  _ktest.nrhs  = ksys.getNrhs();
+  _ktest.nbgh  = ksys.getSampleNbgh();
+  _ktest.xyz   = ksys.getSampleCoordinates();
+  _ktest.data  = ksys.getSampleData();
+  _ktest.lhs   = ksys.getLHS();
+  _ktest.lhsF  = ksys.getLHSF();
+  _ktest.rhs   = ksys.getRHS();
+  _ktest.rhsF  = ksys.getRHSF();
+  _ktest.wgt   = ksys.getWeights();
+  _ktest.mu    = ksys.getMu();
+  _ktest.var   = ksys.getVariance();
 }
 
 /****************************************************************************/
@@ -254,24 +222,11 @@ void CalcKriging::_storeResultsForExport(const KrigingSystem& ksys)
  *****************************************************************************/
 bool CalcKriging::_run()
 {
-  /* Setting options */
-
-  KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh());
+  KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh(), getKrigopt());
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
-  if (ksys.setKrigOptCalcul(_calcul, _ndiscs, _flagPerCell)) return false;
-  if (ksys.setKrigOptColCok(_rankColCok)) return false;
-  if (ksys.setKrigOptMatLC(_matLC)) return false;
-  if (_flagDGM)
-  {
-    if (ksys.setKrigOptDGM(true)) return false;
-  }
   if (_flagBayes)
   {
     ksys.setKrigOptBayes(true, _priorMean, _priorCov);
-  }
-  if (_flagProf)
-  {
-    if (ksys.setKrigoptCode(true)) return false;
   }
   if (_flagGam)
   {
@@ -293,7 +248,7 @@ bool CalcKriging::_run()
   /* Loop on the targets to be processed */
   /***************************************/
 
-  for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
+  for (int iech_out = 0, nech_out = getDbout()->getNSample(); iech_out < nech_out; iech_out++)
   {
     if (_iechSingleTarget > 0)
     {
@@ -302,7 +257,7 @@ bool CalcKriging::_run()
     }
     else
     {
-      mes_process("Kriging sample", getDbout()->getSampleNumber(), iech_out);
+      mes_process("Kriging sample", getDbout()->getNSample(), iech_out);
     }
 
     bool error = ksys.estimate(iech_out);
@@ -331,47 +286,62 @@ bool CalcKriging::_run()
  **
  ** \param[in]  dbin        Input Db structure
  ** \param[in]  dbout       Output Db structure
- ** \param[in]  model       Model structure
+ ** \param[in]  model       ModelGeneric structure
  ** \param[in]  neigh       ANeigh structure
- ** \param[in]  calcul      Kriging calculation option (EKrigOpt)
- ** \param[in]  ndiscs      Array giving the discretization counts
  ** \param[in]  flag_est    Option for storing the estimation
  ** \param[in]  flag_std    Option for storing the standard deviation
  ** \param[in]  flag_varz   Option for storing the variance of the estimator
  **                         (only available for stationary model)
- ** \param[in]  rank_colcok Option for running Collocated Cokriging
- ** \param[in]  matLC       Matrix of linear combination (or NULL)
- **                         (Dimension: nvarLC * model->getNVar())
+ ** \param[in]  krigopt     KrigOpt structure
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
 int kriging(Db* dbin,
             Db* dbout,
-            Model* model,
+            ModelGeneric* model,
             ANeigh* neigh,
-            const EKrigOpt& calcul,
             bool flag_est,
             bool flag_std,
             bool flag_varz,
-            const VectorInt& ndiscs,
-            const VectorInt& rank_colcok,
-            const MatrixRectangular* matLC,
+            const KrigOpt& krigopt,
             const NamingConvention& namconv)
 {
+  //NeighUnique* neighUnique = dynamic_cast<NeighUnique*>(neigh);
+  NeighBench* neighBench = dynamic_cast<NeighBench*>(neigh);
+  bool avoidSimpleCase = (OptCustom::query("DoNotUseSimpleCase", 1) == 1);
+
+  if (krigopt.getCalcul() == EKrigOpt::POINT && 
+      !krigopt.hasColcok() &&
+      !krigopt.hasMatLC() && 
+      //neighUnique != nullptr &&
+      neighBench == nullptr &&
+      model->getNVar() == 1 && 
+      ! avoidSimpleCase &&
+      OptCustom::query("NotOptimSimpleCase", 0) == 0)
+  {
+    OptCustom::define("Optim", 1);
+    CalcKrigingSimpleCase krige(flag_est, flag_std, flag_varz);
+    krige.setDbin(dbin);
+    krige.setDbout(dbout);
+    krige.setModel(model);
+    krige.setNeigh(neigh);
+    krige.setNamingConvention(namconv);
+    int result = krige.run();
+    OptCustom::undefine("Optim");
+    return 1 - result;
+  }
+
   CalcKriging krige(flag_est, flag_std, flag_varz);
   krige.setDbin(dbin);
   krige.setDbout(dbout);
   krige.setModel(model);
   krige.setNeigh(neigh);
+  krige.setKrigopt(krigopt);
   krige.setNamingConvention(namconv);
 
-  krige.setCalcul(calcul);
-  krige.setNdisc(ndiscs);
-  krige.setRankColCok(rank_colcok);
-  krige.setMatLC(matLC);
-
   // Run the calculator
-  int error = (krige.run()) ? 0 : 1;
+  int error = 1 - krige.run();
+
   return error;
 }
 
@@ -383,23 +353,21 @@ int kriging(Db* dbin,
  **
  ** \param[in]  dbin        Input Db structure
  ** \param[in]  dbout       Output Db structure
- ** \param[in]  model       Model structure
+ ** \param[in]  model       ModelGeneric structure
  ** \param[in]  neigh       ANeigh structure
- ** \param[in]  ndiscs      Array giving the discretization counts
  ** \param[in]  flag_est    Option for the storing the estimation
  ** \param[in]  flag_std    Option for the storing the standard deviation
- ** \param[in]  rank_colcok Option for running Collocated Cokriging
+ ** \param[in]  krigopt     KrigOpt structure
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
 int krigcell(Db* dbin,
              Db* dbout,
-             Model* model,
+             ModelGeneric* model,
              ANeigh* neigh,
              bool flag_est,
              bool flag_std,
-             const VectorInt& ndiscs,
-             const VectorInt& rank_colcok,
+             const KrigOpt& krigopt,
              const NamingConvention& namconv)
 {
   CalcKriging krige(flag_est, flag_std, false);
@@ -407,12 +375,8 @@ int krigcell(Db* dbin,
   krige.setDbout(dbout);
   krige.setModel(model);
   krige.setNeigh(neigh);
+  krige.setKrigopt(krigopt);
   krige.setNamingConvention(namconv);
-
-  krige.setCalcul(EKrigOpt::BLOCK);
-  krige.setNdisc(ndiscs);
-  krige.setRankColCok(rank_colcok);
-  krige.setFlagPerCell(true);
 
   // Run the calculator
   int error = (krige.run()) ? 0 : 1;
@@ -427,7 +391,7 @@ int krigcell(Db* dbin,
  **
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
- ** \param[in]  model      Model structure
+ ** \param[in]  model      ModelGeneric structure
  ** \param[in]  neigh      ANeigh structure
  ** \param[in]  prior_mean Array giving the prior means for the drift terms
  ** \param[in]  prior_cov  Array containing the prior covariance matrix
@@ -439,10 +403,10 @@ int krigcell(Db* dbin,
  *****************************************************************************/
 int kribayes(Db* dbin,
              Db* dbout,
-             Model* model,
+             ModelGeneric* model,
              ANeigh* neigh,
              const VectorDouble& prior_mean,
-             const MatrixSquareSymmetric& prior_cov,
+             const MatrixSymmetric& prior_cov,
              bool flag_est,
              bool flag_std,
              const NamingConvention& namconv)
@@ -465,67 +429,26 @@ int kribayes(Db* dbin,
 
 /****************************************************************************/
 /*!
- **  Punctual Kriging based on profiles
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       input Db structure
- ** \param[in]  dbout      output Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neigh      ANeigh structure
- ** \param[in]  flag_est   Option for the storing the estimation
- ** \param[in]  flag_std   Option for the storing the standard deviation
- ** \param[in]  namconv    Naming convention
- **
- *****************************************************************************/
-int krigprof(Db* dbin,
-             Db* dbout,
-             Model* model,
-             ANeigh* neigh,
-             bool flag_est,
-             bool flag_std,
-             const NamingConvention& namconv)
-{
-  CalcKriging krige(flag_est, flag_std, false);
-  krige.setDbin(dbin);
-  krige.setDbout(dbout);
-  krige.setModel(model);
-  krige.setNeigh(neigh);
-  krige.setNamingConvention(namconv);
-
-  krige.setFlagProf(true);
-
-  // Run the calculator
-  int error = (krige.run()) ? 0 : 1;
-  return error;
-}
-
-/****************************************************************************/
-/*!
  **  Perform kriging and return the calculation elements
  **
  ** \return  A Krigtest_Res structure
  **
  ** \param[in]  dbin        input Db structure
  ** \param[in]  dbout       output Db structure
- ** \param[in]  model       Model structure
+ ** \param[in]  model       ModelGeneric structure
  ** \param[in]  neigh       ANeigh structure
  ** \param[in]  iech0       Rank of the target sample
- ** \param[in]  calcul      Kriging calculation option (EKrigOpt)
- ** \param[in]  ndiscs      Array giving the discretization counts
- ** \param[in]  flagPerCell Use local block extensions (when defined)
+ ** \param[in]  krigopt     KrigOpt structure
  ** \param[in]  verbose     When TRUE, the full debugging flag is switched ON
  **                         (the current status is reset after the run)
  **
  *****************************************************************************/
 Krigtest_Res krigtest(Db* dbin,
                       Db* dbout,
-                      Model* model,
+                      ModelGeneric* model,
                       ANeigh* neigh,
                       int iech0,
-                      const EKrigOpt& calcul,
-                      const VectorInt& ndiscs,
-                      bool flagPerCell,
+                      const KrigOpt& krigopt,
                       bool verbose)
 {
   CalcKriging krige(true, true, false);
@@ -533,12 +456,9 @@ Krigtest_Res krigtest(Db* dbin,
   krige.setDbout(dbout);
   krige.setModel(model);
   krige.setNeigh(neigh);
-
-  krige.setCalcul(calcul);
-  krige.setNdisc(ndiscs);
+  krige.setKrigopt(krigopt);
   krige.setIechSingleTarget(iech0);
   krige.setVerboseSingleTarget(verbose);
-  krige.setFlagPerCell(flagPerCell);
 
   (void)krige.run();
 
@@ -553,7 +473,7 @@ Krigtest_Res krigtest(Db* dbin,
  **
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
- ** \param[in]  model      Model structure
+ ** \param[in]  model      ModelGeneric structure
  ** \param[in]  neigh      ANeigh structure
  ** \param[in]  anam       AAnam structure
  ** \param[in]  namconv    Naming convention
@@ -561,7 +481,7 @@ Krigtest_Res krigtest(Db* dbin,
  *****************************************************************************/
 int kriggam(Db* dbin,
             Db* dbout,
-            Model* model,
+            ModelGeneric* model,
             ANeigh* neigh,
             AAnam* anam,
             const NamingConvention& namconv)
@@ -585,7 +505,7 @@ int kriggam(Db* dbin,
  * Standard Cross-Validation
  *
  * @param db Db structure
- * @param model Model structure
+ * @param model ModelGeneric structure
  * @param neigh ANeigh structure
  * @param flag_kfold True if a code (K-FOLD) is used
  * @param flag_xvalid_est Option for storing the estimation: 1 for Z*-Z; -1 for
@@ -594,18 +514,18 @@ int kriggam(Db* dbin,
  * (Z*-Z)/S; -1 for S; 0 not stored
  * @param flag_xvalid_varz Option for storing the variance of the estimator: 1
  * to store and 0 not stored
- * @param rank_colcok Option for running Collocated Cokriging
+ * @param krigopt KrigOpt structure
  * @param namconv Naming Convention
  * @return Error return code
  */
 int xvalid(Db* db,
-           Model* model,
+           ModelGeneric* model,
            ANeigh* neigh,
            bool flag_kfold,
            int flag_xvalid_est,
            int flag_xvalid_std,
            int flag_xvalid_varz,
-           const VectorInt& rank_colcok,
+           const KrigOpt& krigopt,
            const NamingConvention& namconv)
 {
   CalcKriging krige(flag_xvalid_est != 0, flag_xvalid_std != 0,
@@ -621,7 +541,7 @@ int xvalid(Db* db,
   krige.setFlagXvalidStd(flag_xvalid_std);
   krige.setFlagXvalidVarZ(flag_xvalid_varz);
   krige.setFlagKfold(flag_kfold);
-  krige.setRankColCok(rank_colcok);
+  krige.setKrigopt(krigopt);
 
   // Run the calculator
   int error = (krige.run()) ? 0 : 1;
@@ -636,7 +556,7 @@ int xvalid(Db* db,
  **
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
- ** \param[in]  model      Model structure (optional)
+ ** \param[in]  model      ModelGeneric structure (optional)
  ** \param[in]  neigh      ANeigh structure
  ** \param[in]  namconv    Naming Convention
  **
@@ -650,7 +570,7 @@ int xvalid(Db* db,
  *****************************************************************************/
 int test_neigh(Db* dbin,
                Db* dbout,
-               Model* model,
+               ModelGeneric* model,
                ANeigh* neigh,
                const NamingConvention& namconv)
 {

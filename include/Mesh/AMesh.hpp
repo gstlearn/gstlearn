@@ -14,7 +14,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
-class MatrixRectangular;
+class MatrixDense;
 class ProjMatrix;
 class MatrixInt;
 class Db;
@@ -43,24 +43,25 @@ public:
   /*! Returns coordinate 'idim' of apex 'rank' of mesh 'imesh' */
   virtual double getCoor(int imesh, int rank, int idim) const = 0;
   /*! Returns coordinate 'idim' of apex 'rank' of mesh 'imesh' */
-  virtual void getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const;
+  virtual void getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const;
   /*! Returns coordinate 'idim' of apex 'i' */
   virtual double getApexCoor(int i, int idim) const = 0;
   /*! Returns coordinates of apex 'i' */
   virtual void getApexCoordinatesInPlace(int i, VectorDouble& coords) const;
   /*! Returns the mesh size */
   virtual double getMeshSize(int imesh) const = 0;
-  /*! Initialize the Sparse Matrix for projecting the Mesh to a Db */
-  virtual void resetProjMatrix(ProjMatrix* m, const Db* db, int rankZ = -1, bool verbose = false) const = 0;
+  /*! Initialize the Sparse Matrix for projecting the Db on a Mesh */
+  virtual void resetProjFromDb(ProjMatrix* m, const Db* db, int rankZ = -1, bool verbose = false) const;
 
   /*! Returns the space variety */
   virtual int  getVariety() const { return 0; }
   virtual int  getEmbeddedNDim() const { return _nDim; }
   virtual void getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const;
   virtual void getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const;
+  virtual void getBarycenterInPlace(int imesh, VectorDouble& coord) const;
 
-  /*! Returns the Sparse Matrix for projecting the Mesh to a Db */
-  ProjMatrix* createProjMatrix(const Db* db, int rankZ = -1, bool verbose = false) const;
+    /*! Returns the Sparse Matrix for projecting the Mesh to a Db */
+    ProjMatrix* createProjMatrix(const Db* db, int rankZ = -1, bool verbose = false) const;
 
   /*! Returns the space dimension */
   int getNDim() const { return _nDim; }
@@ -71,7 +72,7 @@ public:
   /*! Returns the Vector of Extrema of the Bounding Box */
   VectorDouble getExtrema(int idim) const;
   /*! Returns the list of apexes and meshes */
-  void getElements(MatrixRectangular& apices, MatrixInt& meshes) const;
+  void getElements(MatrixDense& apices, MatrixInt& meshes) const;
 
   int  isCompatibleDb(const Db *db) const;
   VectorDouble getMeshSizes() const;
@@ -80,7 +81,7 @@ public:
   void printMesh(int imesh0) const;
   void printMeshes(int level=0, int nline_max=-1) const;
   /*! Returns Vector of Apex coordinates for space index */
-  VectorDouble getCoordinates(int idim) const;
+  VectorDouble getCoordinatesPerApex(int idim) const;
   /*! Returns the list of indices of Meshes sharing the same Apex */
   VectorInt getMeshByApexPair(int apex1, int apex2) const;
   /*! Returns the vector of coordinates for a mesh */
@@ -96,7 +97,7 @@ public:
   VectorDouble getDistances(int iapex0, const VectorInt& japices = VectorInt()) const;
 
   VectorVectorDouble getAllCoordinates() const;
-  MatrixRectangular getAllApices() const;
+  MatrixDense getAllApices() const;
   MatrixInt getAllMeshes() const;
 
   double getCenterCoordinate(int imesh, int idim) const;
@@ -109,28 +110,33 @@ public:
 protected:
   void _setNDim(int ndim) { _nDim = ndim; }
   int  _setExtend(const VectorDouble& extendmin, const VectorDouble& extendmax);
-  bool _weightsInMesh(const VectorDouble& coor,
-                      const VectorVectorDouble& corners,
-                      double meshsize,
-                      VectorDouble& weights,
-                      double eps = EPSILON5) const;;
+  virtual bool _weightsInMesh(const VectorDouble& coor,
+                              const VectorVectorDouble& corners,
+                              double meshsize,
+                              VectorDouble& weights,
+                              double eps = EPSILON5) const;
   double _getMeshUnit(const VectorVectorDouble& corners) const;
 
 protected:
-  void _recopy(const AMesh &m);
+  void _recopy(const AMesh& m);
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
-  virtual bool _serialize(std::ostream& os,bool verbose = false) const override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "AMesh"; }
-
 
 private:
   bool _isSpaceDimensionValid(int idim) const;
   void _printMeshListByIndices(int nline_max = -1) const;
   void _printMeshListByCoordinates(int nline_max = -1) const;
+  int _findBarycenter(const VectorDouble& target,
+                      const VectorDouble& units,
+                      int nb_neigh,
+                      VectorInt& neighs,
+                      VectorDouble& weight) const;
+  VectorDouble _defineUnits(void) const;
 
 private:
-  int          _nDim;
+  int _nDim;
   VectorDouble _extendMin;
   VectorDouble _extendMax;
 };

@@ -11,7 +11,7 @@
 #include "LinearOp/CholeskySparse.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -44,10 +44,10 @@ MatrixSparse* _createSparseMatrix(int n, double proba)
   return Q;
 }
 
-MatrixSquareSymmetric* _createDenseMatrix(int n, const MatrixSparse* Q)
+MatrixSymmetric* _createDenseMatrix(int n, const MatrixSparse* Q)
 {
   // Create the corresponding Symmetric matrix
-  MatrixSquareSymmetric* M = new MatrixSquareSymmetric(n);
+  MatrixSymmetric* M = new MatrixSymmetric(n);
   for (int icol = 0; icol < n; icol++)
     for (int irow = 0; irow < n; irow++)
     {
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
   int size                 = 10;
   double proba             = 0.05;
   MatrixSparse* Q          = _createSparseMatrix(size, proba);
-  MatrixSquareSymmetric* M = _createDenseMatrix(size, Q);
+  MatrixSymmetric* M = _createDenseMatrix(size, Q);
 
   // Create a vector random gaussian values
   VectorDouble vecin = VH::simulateGaussian(size);
@@ -96,9 +96,9 @@ int main(int argc, char *argv[])
     message(">>> Function 'LLt' is validated\n");
   else
   {
-    VH::display("LLt (by Matrix)", vecref);
-    VH::display("LLt (by CholeskySparse)", vecout1);
-    VH::display("LLt (by CholeskyDense)", vecout2);
+    VH::dump("LLt (by Matrix)", vecref);
+    VH::dump("LLt (by CholeskySparse)", vecout1);
+    VH::dump("LLt (by CholeskyDense)", vecout2);
     message(">>> Function 'LLt' is INVALID =======================\n");
   }
 
@@ -111,9 +111,9 @@ int main(int argc, char *argv[])
     message(">>> Function 'solve' is validated\n");
   else
   {
-    VH::display("Solve (by Matrix)", vecref);
-    VH::display("Solve (by CholeskySparse)", vecout1);
-    VH::display("Solve (by CholeskyDense)", vecout2);
+    VH::dump("Solve (by Matrix)", vecref);
+    VH::dump("Solve (by CholeskySparse)", vecout1);
+    VH::dump("Solve (by CholeskyDense)", vecout2);
     message(">>> Function 'solve' is INVALID =======================\n");
   }
 
@@ -127,9 +127,9 @@ int main(int argc, char *argv[])
     message(">>> Function 'InvLX(LX)' is validated\n");
   else
   {
-    VH::display("Function 'InvLX(LX)' (by Matrix)", vecin);
-    VH::display("Function 'InvLX(LX)' (by CholeskySparse)", vecout1);
-    VH::display("Function 'InvLX(LX)' (by CholeskyDense)", vecout2);
+    VH::dump("Function 'InvLX(LX)' (by Matrix)", vecin);
+    VH::dump("Function 'InvLX(LX)' (by CholeskySparse)", vecout1);
+    VH::dump("Function 'InvLX(LX)' (by CholeskyDense)", vecout2);
     message(">>> Function 'InvLX(LX)' is INVALID ========================\n");
   }
 
@@ -143,21 +143,19 @@ int main(int argc, char *argv[])
     message(">>> Function 'LtX(InvLtX)' is validated\n");
   else
   {
-    VH::display("Function 'LtX(InvLtX)' (by Matrix)", vecin);
-    VH::display("Function 'LtX(InvLtX)' (by CholeskySparse)", vecout1);
-    VH::display("Function 'LtX(InvLtX)' (by CholeskyDense)", vecout2);
+    VH::dump("Function 'LtX(InvLtX)' (by Matrix)", vecin);
+    VH::dump("Function 'LtX(InvLtX)' (by CholeskySparse)", vecout1);
+    VH::dump("Function 'LtX(InvLtX)' (by CholeskyDense)", vecout2);
     message(">>> Function 'LtX(InvLtX)' is INVALID ========================\n");
   }
 
   // Checking the Stdev vector
-  MatrixSquareSymmetric MP(*M);
+  MatrixSymmetric MP(*M);
   (void)MP.invert();
   VectorDouble vecout1b = MP.getDiagonal();
 
-  // We use a Tim Davis sparse matrix cs as long as Qchol
-  // stdev calculation is not available with eigen underlying matrix
   MatrixSparse* M2 = MatrixSparse::createFromTriplet(
-    M->getMatrixToTriplet(), M->getNRows(), M->getNCols(), 0);
+    M->getMatrixToTriplet(), M->getNRows(), M->getNCols(), -1, 1);
   CholeskySparse Qchol(M2);
   Qchol.stdev(vecout2, false);
 
@@ -165,8 +163,8 @@ int main(int argc, char *argv[])
     message(">>> Function 'stdev' is validated\n");
   else
   {
-    VH::display("Standard Deviation (by Matrix)", vecout1b);
-    VH::display("Standard Deviation (by Cholesky)", vecout2);
+    VH::dump("Standard Deviation (by Matrix)", vecout1b);
+    VH::dump("Standard Deviation (by Cholesky)", vecout2);
     message(">>> Function 'stdev' is INVALID =============================\n");
   }
 

@@ -84,53 +84,7 @@ VectorString VectorHelper::initVString(int ntab, char** names)
   return rettab;
 }
 
-void VectorHelper::dump(const String &title, const VectorDouble& vect)
-{
-  std::stringstream sstr;
-  if (!title.empty())
-  {
-    sstr << title.c_str() << std::endl;
-  }
-  sstr.precision(20);
-  for (int i = 0, n = (int) vect.size(); i < n; i++)
-    sstr << std::fixed << vect[i] << std::endl;
-  messageFlush(sstr.str());
-}
-
-void VectorHelper::display(const String &title, const VectorDouble &vect, bool skipLine)
-{
-  if (vect.empty()) return;
-  if (!title.empty())
-  {
-    message("%s", title.c_str());
-    if (skipLine) message("\n");
-  }
-  messageFlush(VH::toStringAsVD(vect));
-}
-
-void VectorHelper::display(const String &title, const VectorString &vect, bool skipLine)
-{
-  if (vect.empty()) return;
-  if (!title.empty())
-  {
-    message("%s", title.c_str());
-    if (skipLine) message("\n");
-  }
-  messageFlush(VH::toStringAsVS(vect));
-}
-
-void VectorHelper::display(const String &title, const VectorVectorDouble &vect, bool skipLine)
-{
-  if (vect.empty()) return;
-  if (!title.empty())
-  {
-    message("%s", title.c_str());
-    if (skipLine) message("\n");
-  }
-  messageFlush(VH::toStringAsVVD(vect));
-}
-
-void VectorHelper::display(const String &title, const VectorInt &vect, bool skipLine)
+void VectorHelper::dump(const String& title, const VectorInt& vect, bool skipLine)
 {
   if (vect.empty()) return;
   if (!title.empty())
@@ -144,16 +98,69 @@ void VectorHelper::display(const String &title, const VectorInt &vect, bool skip
   messageFlush(VH::toStringAsVI(vect));
 }
 
+void VectorHelper::dump(const String &title, const VectorDouble &vect, bool skipLine)
+{
+  if (vect.empty()) return;
+  if (!title.empty())
+  {
+    message("%s", title.c_str());
+    if (skipLine)
+      message("\n");
+    else
+      message(":");
+  }
+  messageFlush(VH::toStringAsVD(vect));
+}
+
+void VectorHelper::dump(const String &title, const VectorString &vect, bool skipLine)
+{
+  if (vect.empty()) return;
+  if (!title.empty())
+  {
+    message("%s", title.c_str());
+    if (skipLine)
+      message("\n");
+    else
+      message(":");
+  }
+  messageFlush(VH::toStringAsVS(vect));
+}
+
+void VectorHelper::dump(const String &title, const VectorVectorInt &vect, bool skipLine)
+{
+  if (vect.empty()) return;
+  if (!title.empty())
+  {
+    message("%s", title.c_str());
+    if (skipLine) message("\n");
+  }
+  messageFlush(VH::toStringAsVVI(vect));
+}
+
+void VectorHelper::dump(const String& title, const VectorVectorDouble& vect, bool skipLine)
+{
+  if (vect.empty()) return;
+  if (!title.empty())
+  {
+    message("%s", title.c_str());
+    if (skipLine) message("\n");
+  }
+  messageFlush(VH::toStringAsVVD(vect));
+}
+
 String VectorHelper::toStringAsVD(const VectorDouble &vec)
 {
   return toVector(String(), vec);
 }
-
 String VectorHelper::toStringAsSpan(constvect vec)
 {
   return toVector(String(), vec);
 }
 String VectorHelper::toStringAsVVD(const VectorVectorDouble &vec)
+{
+  return toVector(String(), vec);
+}
+String VectorHelper::toStringAsVVI(const VectorVectorInt& vec)
 {
   return toVector(String(), vec);
 }
@@ -168,7 +175,7 @@ String VectorHelper::toStringAsVI(const VectorInt &vec)
   return toVector(String(), vec);
 }
 
-void VectorHelper::displayStats(const String &title, const VectorDouble &vect)
+void VectorHelper::dumpStats(const String &title, const VectorDouble &vect)
 {
   int ntotal = (int) vect.size();
   int number = 0;
@@ -207,7 +214,7 @@ void VectorHelper::displayStats(const String &title, const VectorDouble &vect)
   }
 }
 
-void VectorHelper::displayRange(const String &title, const VectorDouble &vect)
+void VectorHelper::dumpRange(const String &title, const VectorDouble &vect)
 {
   int ntotal = (int) vect.size();
   int number = 0;
@@ -236,7 +243,7 @@ void VectorHelper::displayRange(const String &title, const VectorDouble &vect)
   }
 }
 
-void VectorHelper::displayRange(const String &title, const VectorInt &vect)
+void VectorHelper::dumpRange(const String &title, const VectorInt &vect)
 {
   int ntotal = (int) vect.size();
   int number = 0;
@@ -265,7 +272,7 @@ void VectorHelper::displayRange(const String &title, const VectorInt &vect)
   }
 }
 
-void VectorHelper::displayNNZ(const String &title, const VectorDouble &vect, int nclass)
+void VectorHelper::dumpNNZ(const String &title, const VectorDouble &vect, int nclass)
 {
   int ntotal = (int) vect.size();
   VectorInt total(nclass);
@@ -314,7 +321,6 @@ double VectorHelper::maximum(const std::vector<std::vector<double>> &vec, bool f
   for (int i = 1, n = (int) vec.size(); i < n; i++)
     val = MAX(val,  VH::maximum(vec[i], flagAbs));
   return val;
-
 }
 
 double VectorHelper::maximum(const VectorVectorDouble& vect, bool flagAbs)
@@ -522,6 +528,19 @@ double VectorHelper::cumul(const VectorDouble& vec)
     if (!FFFF(v)) total += v;
   }
   return total;
+}
+
+VectorInt VectorHelper::cumulIncrement(const VectorVectorInt& vec)
+{
+  int nvar = (int) vec.size();
+  VectorInt cumul(nvar, 0);
+  int number = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    cumul[ivar] = number;
+    number += (int)vec[ivar].size();
+  }
+  return cumul;
 }
 
 double VectorHelper::variance(const VectorDouble &vec, bool scaleByN)
@@ -941,6 +960,12 @@ void VectorHelper::fillUndef(VectorDouble& vec, double repl)
   }
 }
 
+void VectorHelper::sequenceInPlace(int n, VectorInt& vec)
+{
+  vec.resize(n);
+  for (int i = 0; i < n; i++)
+    vec[i] = i;
+}
 /**
  * Create an output vector containing the 'number' consecutive numbers starting from 'ideb'
  *
@@ -1054,6 +1079,11 @@ VectorDouble VectorHelper::concatenate(const VectorDouble &veca,
   VectorDouble res = veca;
   for (const auto& e: vecb) res.push_back(e);
   return res;
+}
+
+void VectorHelper::concatenateInPlace(VectorDouble& veca, const VectorDouble& vecb)
+{
+  for (const auto& e: vecb) veca.push_back(e);
 }
 
 void VectorHelper::cumulateInPlace(VectorDouble& vec)
@@ -1335,6 +1365,27 @@ void VectorHelper::addInPlace(const VectorDouble &veca,
   }
 }
 
+void VectorHelper::addInPlace(const VectorInt& veca,
+                              const VectorInt& vecb,
+                              VectorInt& res,
+                              int size)
+{
+  if (size <= 0) size = (int)veca.size();
+  if (size != (int)vecb.size()) my_throw("Wrong size");
+  if ((int)res.size() != size) res.resize(size);
+
+  const int* iptra = veca.data();
+  const int* iptrb = vecb.data();
+  int* iptrv       = res.data();
+  for (int i = 0; i < size; i++)
+  {
+    (*iptrv) = (*iptra) + (*iptrb);
+    iptrv++;
+    iptra++;
+    iptrb++;
+  }
+}
+
 void VectorHelper::addInPlace(const double* veca,
                               const double* vecb,
                               double* res,
@@ -1475,6 +1526,16 @@ void VectorHelper::subtractInPlace(VectorInt &dest, const VectorInt &src)
   }
 }
 
+void VectorHelper::subtractInPlace(const constvect in1,
+                                   const constvect in2,
+                                   vect  outv)
+{
+  for (int is = 0, ns = (int) in1.size(); is < ns; is++)
+  {
+    outv[is] = in2[is] - in1[is];
+  }
+}
+
 void VectorHelper::subtractInPlace(const VectorVectorDouble &in1,
                                    const VectorVectorDouble &in2,
                                    VectorVectorDouble &outv)
@@ -1517,6 +1578,50 @@ void VectorHelper::multiplyInPlace(VectorDouble &vec, const VectorDouble &v)
   }
 }
 
+VectorDouble VectorHelper::multiply(const VectorDouble& veca, const VectorDouble& vecb)
+{
+  if (veca.size() != vecb.size())
+  {
+    messerr(
+      "Arguments 'veca' and 'vecb' should have the same dimension. Nothing is done");
+    return veca;
+  }
+
+  VectorDouble res(veca.size());
+
+  multiplyInPlace(veca, vecb, res);
+  return res;
+}
+
+void VectorHelper::multiplyInPlace(const VectorDouble& veca,
+                                   const VectorDouble& vecb,
+                                   VectorDouble& res)
+{
+  if (veca.size() != vecb.size())
+  {
+    messerr("Arguments 'veca' and 'vecb' should have the same dimension. Nothing is done");
+    return;
+  }
+  if (veca.size() != res.size())
+  {
+    messerr(
+      "Arguments 'veca' and 'res' should have the same dimension. Nothing is done");
+    return;
+  }
+
+  VectorDouble::iterator it(res.begin());
+  VectorDouble::const_iterator ita(veca.begin());
+  VectorDouble::const_iterator itb(vecb.begin());
+
+  while (it < res.end())
+  {
+    *it = (*ita) * (*itb);
+    it++;
+    ita++;
+    itb++;
+  }
+}
+
 void VectorHelper::divideInPlace(VectorDouble &vec, const VectorDouble &v)
 {
   if (vec.size() != v.size())
@@ -1548,6 +1653,68 @@ void VectorHelper::divideInPlace(std::vector<double> &vec, const std::vector<dou
     itv++;
   }
 }
+
+void VectorHelper::divideInPlace(const VectorDouble& veca,
+                                 const VectorDouble& vecb,
+                                 VectorDouble& res)
+{
+  if (veca.size() != vecb.size())
+  {
+    messerr(
+      "Arguments 'veca' and 'vecb' should have the same dimension. Nothing is done");
+    return;
+  }
+  if (veca.size() != res.size())
+  {
+    messerr(
+      "Arguments 'veca' and 'res' should have the same dimension. Nothing is done");
+    return;
+  }
+
+  VectorDouble::iterator it(res.begin());
+  VectorDouble::const_iterator ita(veca.begin());
+  VectorDouble::const_iterator itb(vecb.begin());
+
+  while (it < res.end())
+  {
+    *it = (*ita) / (*itb);
+    it++;
+    ita++;
+    itb++;
+  }
+}
+
+VectorDouble VectorHelper::divide(const VectorDouble& veca, const VectorDouble& vecb)
+{
+  if (veca.size() != vecb.size())
+  {
+    messerr(
+      "Arguments 'veca' and 'vecb' should have the same dimension. Nothing is done");
+    return veca;
+  }
+
+  VectorDouble res(veca.size());
+  return res;
+}
+
+void VectorHelper::multiplyComplexInPlace(const VectorDouble& vecaRe,
+                                          const VectorDouble& vecaIm,
+                                          const VectorDouble& vecbRe,
+                                          const VectorDouble& vecbIm,
+                                          VectorDouble& resRe,
+                                          VectorDouble& resIm)
+{
+  VectorDouble temp(vecaRe);
+
+  VH::multiplyInPlace(vecaRe, vecbRe, resRe);
+  VH::multiplyInPlace(vecaIm, vecbIm, temp);
+  VH::subtractInPlace(resRe, temp);
+
+  VH::multiplyInPlace(vecaRe, vecbIm, resIm);
+  VH::multiplyInPlace(vecaIm, vecbRe, temp);
+  VH::addInPlace(resIm, temp);
+}
+
 void VectorHelper::multiplyConstant(VectorDouble &vec, double v)
 {
   std::for_each(vec.begin(), vec.end(), [v](double &d)
@@ -2192,7 +2359,7 @@ double VectorHelper::innerProduct(const std::vector<double> &veca, const std::ve
 
 double VectorHelper::innerProduct(const constvect veca, const constvect vecb)
 {
-    return innerProduct(veca.data(), vecb.data(), veca.size());
+  return innerProduct(veca.data(), vecb.data(), (int)veca.size());
 }
 
 double VectorHelper::innerProduct(const VectorDouble &veca,
@@ -2715,20 +2882,18 @@ VectorDouble VectorHelper::sample(const VectorDouble& vecin,
   VectorDouble vecout;
 
   VectorInt indices = indKeep;
-  if (indices.empty()) indices = VH::sequence((int) vecin.size());
+  if (indices.empty()) indices = VH::sequence((int)vecin.size());
 
   int nindices = (int)indices.size();
   if (nindices <= 0) return vecout;
 
   for (int i = 0; i < nindices; i++)
   {
-    if (!checkArg("Selected index", indices[i], (int) vecin.size()))
-      return vecout;
+    if (!checkArg("Selected index", indices[i], (int)vecin.size())) return vecout;
   }
 
   vecout.resize(nindices);
-  for (int i = 0; i < nindices; i++)
-      vecout[i] = vecin[indices[i]];
+  for (int i = 0; i < nindices; i++) vecout[i] = vecin[indices[i]];
   return vecout;
 }
 
@@ -2792,5 +2957,16 @@ bool VectorHelper::isEqualExtended(const VectorDouble& v1,
     message("Experimental value = %lf is larger than tolerance (%lf)\n", diff, eps);
     return false;
   }
+  return true;
+}
+
+bool VectorHelper::isIsotropic(const VectorVectorInt& sampleRanks)
+{
+  int nvar = (int)sampleRanks.size();
+  if (nvar <= 0) return true;
+
+  int refSize = (int)sampleRanks[0].size();
+  for (int ivar = 1; ivar < nvar; ivar++)
+    if (refSize != (int)sampleRanks[ivar].size()) return false;
   return true;
 }

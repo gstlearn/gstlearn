@@ -16,9 +16,6 @@ In this tutorial, we show how the use of SPDE for Varying Anisotropy when this A
 knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
 ```
 
 Defining the Model as a single Bessel structure. This function is defined as anisotropic: we clearly specify the extension of the ranges in the two main directions. The angle does not have to be defined here: it will be overwritten later as the non-stationary parameter. Note that it is essential to define the short range of the anisotropy ellipsoid first (for the definition of angle as defined in the Spiral function used as a function)... otherwise future results will represent the shape otabined as the orthogonal of the spiral.
@@ -31,7 +28,7 @@ A Spiral function is defined and attached to the Model: this is a manner to upda
 
 ```{r Spiral}
 spirale = FunctionalSpirale(0., -1.4, 1., 1., 50., 50.)
-err = model$getCova(0)$makeAngleNoStatFunctional(spirale)
+err = model$getCovAniso(0)$makeAngleNoStatFunctional(spirale)
 model$display()
 ```
 
@@ -52,10 +49,10 @@ grid
 We represent the non-conditional simulations
 
 ```{r Graphic_Non-conditional_simulations}
-p1 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.1")
-p2 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.2")
-p3 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.3")
-p4 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.4")
+p1 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.1")
+p2 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.2")
+p3 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.3")
+p4 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.4")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
 
@@ -68,7 +65,7 @@ data
 ```
 
 ```{r Display_data}
-ggDefaultGeographic() + plot.point(data, nameColor="data")
+plot.init() + plot.symbol(data, nameColor="data")
 ```
 
 Use the previous data set (and the non-stationary Model) in order to perform an estimation
@@ -81,7 +78,7 @@ grid
 Representing the Estimation obtained on the Grid
 
 ```{r Display_Kriging}
-ggDefaultGeographic() + plot.grid(grid, nameRaster="KrigingSPDE.data.estim")
+plot.init(asp=1) + plot.raster(grid, name="KrigingSPDE.data.estim")
 ```
 
 Performing several conditional simulation
@@ -95,10 +92,10 @@ grid
 Representing the conditional simulations
 
 ```{r Display_Conditional_Representations}
-p1 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.data.1")
-p2 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.data.2")
-p3 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.data.3")
-p4 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.data.4")
+p1 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.data.1")
+p2 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.data.2")
+p3 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.data.3")
+p4 = plot.init(asp=1) + plot.raster(grid, name="SimuSPDE.data.4")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
 

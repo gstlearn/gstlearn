@@ -32,12 +32,6 @@ In this preamble, we load the **gstlearn** library and clean the workspace.
 ```{r Loading_libraries, message=FALSE,results=FALSE}
 rm(list=ls())
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
-library(ggnewscale)
-
-## Global plot option
-plot.setDefaultGeographic(dims=c(8,8))
 ```
 
 We load two data bases:
@@ -59,7 +53,7 @@ We also compute an experimental variogram on the observations and fit a model on
 
 ```{r Fit_model_on_obervations}
 ## Define and compute experimental variogram
-varioparam = VarioParam_createOmniDirection(npas=40, dpas=10)
+varioparam = VarioParam_createOmniDirection(nlag=40, dlag=10)
 vario_raw2dir = Vario_create(varioparam)
 err = vario_raw2dir$compute(dat)
 
@@ -102,12 +96,12 @@ target$display()
 ```
 
 ```{r Unconditional Simulation with 1 band - Plot}
-p = ggDefaultGeographic()
-p = p + plot.grid(target, nameRaster = "Simu1",
-            flagLegendRaster=TRUE,palette="Spectral",
-            legendNameRaster="Value")
+p = plot.init(asp=1)
+p = p + plot.raster(target, name = "Simu1",
+            flagLegend=TRUE,palette="Spectral",
+            legendName="Value")
 p = p + plot.decoration(title="Simulation with 1 band")
-ggPrint(p)
+plot.end(p)
 ```
 
 Let us now simulate the model using 10 turning bands.
@@ -120,11 +114,11 @@ err = simtub(dbout=target, model=fitmod,
 ```
 
 ```{r Unconditional Simulation with 10 band - Plot}
-p = ggDefaultGeographic()
-p = p + plot.grid(target, nameRaster = "Simu10",
-            flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
+p = plot.init(asp=1)
+p = p + plot.raster(target, name = "Simu10",
+            flagLegend=TRUE,palette="Spectral",legendName="Value")
 p = p + plot.decoration(title="Simulation with 1 band")
-ggPrint(p)
+plot.end(p)
 ```
 
 Let us now simulate the model using 1000 turning bands.
@@ -137,11 +131,11 @@ err = simtub(dbout=target, model=fitmod,
 ```
 
 ```{r Unconditional Simulation with 1000 band - Plot}
-p = ggDefaultGeographic()
-p = p + plot.grid(target, nameRaster = "Simu1000",
-            flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
+p = plot.init(asp=1)
+p = p + plot.raster(target, name = "Simu1000",
+            flagLegend=TRUE,palette="Spectral",legendName="Value")
 p = p + plot.decoration(title="Simulation with 1 band")
-ggPrint(p)
+plot.end(p)
 ```
 
 ---
@@ -155,9 +149,9 @@ Circling back to our example, let us consider the temperature observations in th
 We first must control that our data follow more or less a gaussian distribution.
 
 ```{r}
-p = ggplot()
+p = plot.init(dims = c(8, 8))
 p = p + plot.hist(dat,name="January_temp", bins=10)
-ggPrint(p)
+plot.end(p)
 ```
 
 Then, we compute the mean of temperature observations and set it as the mean of the model, so that the future simulations of the model also share this mean.
@@ -191,22 +185,22 @@ err = simtub(dbin=dat, dbout=target,
 Let us display a few simulation results.
 
 ```{r One_Simulation_Outcome}
-p1 = ggDefaultGeographic()
-p1 = p1 + plot.grid(target, nameRaster = "Simu*temp.1",
-                    flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
-p1 = p1 + plot.point(dat,flagCst = T,pch=18,cex=0.5)
-p2 = ggDefaultGeographic()
-p2 = p2 + plot.grid(target, nameRaster = "Simu*temp.2",
-                    flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
-p2 = p2 + plot.point(dat,flagCst = T,pch=18,cex=0.5)
-p3 = ggDefaultGeographic()
-p3 = p3 + plot.grid(target, nameRaster = "Simu*temp.3",
-                    flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
-p3 = p3 + plot.point(dat,flagCst = T,pch=18,cex=0.5)
-p4 = ggDefaultGeographic()
-p4 = p4 + plot.grid(target, nameRaster = "Simu*temp.4",
-                    flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
-p4 = p4 + plot.point(dat,flagCst = T,pch=18,cex=0.5)
+p1 = plot.init(asp=1)
+p1 = p1 + plot.raster(target, name = "Simu*temp.1",
+                    flagLegend=TRUE,palette="Spectral",legendName="Value")
+p1 = p1 + plot.symbol(dat,flagCst = T,pch=18,cex=0.5)
+p2 = plot.init(asp=1)
+p2 = p2 + plot.raster(target, name = "Simu*temp.2",
+                    flagLegend=TRUE,palette="Spectral",legendName="Value")
+p2 = p2 + plot.symbol(dat,flagCst = T,pch=18,cex=0.5)
+p3 = plot.init(asp=1)
+p3 = p3 + plot.raster(target, name = "Simu*temp.3",
+                    flagLegend=TRUE,palette="Spectral",legendName="Value")
+p3 = p3 + plot.symbol(dat,flagCst = T,pch=18,cex=0.5)
+p4 = plot.init(asp=1)
+p4 = p4 + plot.raster(target, name = "Simu*temp.4",
+                    flagLegend=TRUE,palette="Spectral",legendName="Value")
+p4 = p4 + plot.symbol(dat,flagCst = T,pch=18,cex=0.5)
 ggarrange(p1,p2,p3,p4,nrow=2,ncol=2)
 ```
 
@@ -227,12 +221,12 @@ err = kriging(dat, target, model=fitmod,
 
 ```{r Plot_correlation_plot}
 ## Plot correlation plot
-p = ggplot()
+p = plot.init(c(8, 8))
 p = p + plot.correlation(target, "Stats.MEAN", "KS*estim", flagDiag=TRUE, bins=100)
 p = p + plot.decoration(xlab="Mean of Simulations", 
                         ylab="Simple Kriging Estimate",
                         title = "Correlation plot")
-ggPrint(p)
+plot.end(p)
 ```
 
 ---
@@ -283,7 +277,7 @@ model_ED$display()
 Let us plot the fitted model (solid line) together with the experimental variogram (dashed line).
 
 ```{r Plot_fitted_model-ED}
-ggplot() + plot.varmod(vario_resED, model_ED)
+plot.init(c(8, 8)) + plot.varmod(vario_resED, model_ED)
 ```
 
 Now, to generate 10 conditional simulations from the model with external drift that we just create, we call the `simtub` function with the same synthax as before.
@@ -298,22 +292,22 @@ err = simtub(dbin=dat, dbout=target, model=model_ED,
 Let us display a few simulation results.
 
 ```{r Plotsimulations-ED}
-p1 = ggDefaultGeographic()
-p1 = p1 + plot.grid(target, nameRaster = "Simu*temp.1",
-                    flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
-p1 = p1 + plot.point(dat,flagCst = T,pch=18,cex=0.5)
-p2 = ggDefaultGeographic()
-p2 = p2 + plot.grid(target, nameRaster = "Simu*temp.2",
-                    flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
-p2 = p2 + plot.point(dat,flagCst = T,pch=18,cex=0.5)
-p3 = ggDefaultGeographic()
-p3 = p3 + plot.grid(target, nameRaster = "Simu*temp.3",
-                    flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
-p3 = p3 + plot.point(dat,flagCst = T,pch=18,cex=0.5)
-p4 = ggDefaultGeographic()
-p4 = p4 + plot.grid(target, nameRaster = "Simu*temp.4",
-                    flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
-p4 = p4 + plot.point(dat,flagCst = T,pch=18,cex=0.5)
+p1 = plot.init(asp=1)
+p1 = p1 + plot.raster(target, name = "Simu*temp.1",
+                    flagLegend=TRUE,palette="Spectral",legendName="Value")
+p1 = p1 + plot.symbol(dat,flagCst = T,pch=18,cex=0.5)
+p2 = plot.init(asp=1)
+p2 = p2 + plot.raster(target, name = "Simu*temp.2",
+                    flagLegend=TRUE,palette="Spectral",legendName="Value")
+p2 = p2 + plot.symbol(dat,flagCst = T,pch=18,cex=0.5)
+p3 = plot.init(asp=1)
+p3 = p3 + plot.raster(target, name = "Simu*temp.3",
+                    flagLegend=TRUE,palette="Spectral",legendName="Value")
+p3 = p3 + plot.symbol(dat,flagCst = T,pch=18,cex=0.5)
+p4 = plot.init(asp=1)
+p4 = p4 + plot.raster(target, name = "Simu*temp.4",
+                    flagLegend=TRUE,palette="Spectral",legendName="Value")
+p4 = p4 + plot.symbol(dat,flagCst = T,pch=18,cex=0.5)
 ggarrange(p1,p2,p3,p4,nrow=2,ncol=2)
 ```
 
@@ -330,10 +324,10 @@ err = kriging(dat, target, model=model_ED,
 ```
 
 ```{r Plot_correlation_plot-ED}
-p = ggplot()
+p = plot.init(c(8,8))
 p = p + plot.correlation(target, "Stats.MEAN", "KED*estim", flagDiag=TRUE, bins=100)
 p = p + plot.decoration(xlab="Mean of Simulations", ylab="Kriging with External Drift",title = "Correlation plot")
-ggPrint(p)
+plot.end(p)
 ```
 
 ## Application : Probability of exceedence 
@@ -353,8 +347,8 @@ target$statisticsBySample(names=c("Simu.January_temp*"),
 Let us plot the results.
 
 ```{r Plot_probabilities}
-p = ggDefaultGeographic()
-p = p + plot.grid(target, "Proba.MEAN", flagLegendRaster=TRUE, legendNameRaster="Probability")
+p = plot.init(asp=1)
+p = p + plot.raster(target, "Proba.MEAN", flagLegend=TRUE, legendName="Probability")
 p = p + plot.decoration(title="Probability for positive Temperatures")
-ggPrint(p)
+plot.end(p)
 ```

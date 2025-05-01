@@ -233,6 +233,7 @@
           vec.push_back(value);
       }
     }
+    // else size is zero (empty vector)
     return myres;
   }
 
@@ -276,7 +277,7 @@
     return myres;
   }
 
-  int matrixDenseToCpp(PyObject* obj, MatrixRectangular& mat)
+  int matrixDenseToCpp(PyObject* obj, MatrixDense& mat)
   {
     mat.resize(0, 0);
     if (obj == NULL) return SWIG_TypeError;
@@ -548,10 +549,6 @@
   {
     return PyUnicode_FromString(convertFromCpp(value));
   }
-  template <> PyObject* objectFromCpp(const std::string_view& value)
-  {
-    return PyUnicode_FromString(convertFromCpp(String{value}));
-  }
   template <> PyObject* objectFromCpp(const float& value)
   {
     return PyFloat_FromDouble(static_cast<double>(convertFromCpp(value)));
@@ -589,7 +586,7 @@
         myres = SWIG_OK;
       }
     }
-    else // Convert to a tuple using standard std_vector (mandatory for string)
+    else // Convert to a tuple using standard std_vector
     {
       // Test NA values
       auto vec2 = vec.getVector();
@@ -669,7 +666,7 @@
     return myres;
   }
 
-  int matrixDenseFromCpp(PyObject** obj, const AMatrixDense& mat)
+  int matrixDenseFromCpp(PyObject** obj, const MatrixDense& mat)
   {
     // Conversion to a 2D numpy array
     npy_intp dims[2] = { mat.getNRows(), mat.getNCols() };
@@ -688,9 +685,9 @@
     return SWIG_OK;
   }
 
-  int matrixDenseFromCppCreate(PyObject** obj, const MatrixRectangular& mat)
+  int matrixDenseFromCppCreate(PyObject** obj, const MatrixDense& mat)
   {
-    *obj = SWIG_NewPointerObj((void*) new MatrixRectangular(mat), SWIGTYPE_p_MatrixRectangular, 0);
+    *obj = SWIG_NewPointerObj((void*) new MatrixDense(mat), SWIGTYPE_p_MatrixDense, 0);
     int myres = (*obj) == NULL ? SWIG_TypeError : SWIG_OK;
     return myres;
   }
@@ -705,7 +702,7 @@
     int ncols = mat.getNCols();
 
     NF_Triplet NFT = mat.getMatrixToTriplet();
-    const npy_intp nnz = NFT.getNumber();;
+    const npy_intp nnz = NFT.getNElements();
 
     // Create 1D NumPy arrays for row indices, column indices, and values
     npy_intp dim[1] = {nnz};
@@ -843,6 +840,9 @@ void exit_f(void)
 %}
 
 // Do not use VectorInt here
+%extend VectorT<String> {
+  std::string __repr__() {  return $self->toString(); }
+}
 %extend VectorNumT<int> {
   std::string __repr__() {  return $self->toString(); }
 }
@@ -855,204 +855,15 @@ void exit_f(void)
 %extend VectorNumT<UChar> {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorT<int> {
+%extend VectorT<VectorNumT<int> > {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend AMatrix {
+%extend VectorT<VectorNumT<double> >{
   std::string __repr__() {  return $self->toString(); }
 }
-%extend AMatrixSquare {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend MatrixInt {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend MatrixRectangular {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend MatrixSquareGeneral {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend MatrixSquareSymmetric {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend MatrixSparse {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend ASpace {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend SpacePoint {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend SpaceTarget {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend Db {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend DbGrid {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend DbLine {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend DbGraphO {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend DbMeshTurbo {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend DbMeshStandard {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend Vario {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend DirParam {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend VarioParam {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend Option_AutoFit {
-  std::string __repr__() {  return $self->toString();  }
-}
-%extend Option_VarioFit {
-  std::string __repr__() {  return $self->toString();  }
-}
-%extend Constraints {
-  std::string __repr__() {  return $self->toString();  }
-}
-%extend Polygons {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend Model {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend CovAniso {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend SimuBooleanParam {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend SimuSphericalParam {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend SimuPartitionParam {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend SimuSubstitutionParam {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend SimuFFTParam {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend SimuRefineParam {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend Array {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend BImage {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend ProjMatrix {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend FracEnviron {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend PolyLine2D {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend Table {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend Selectivity {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend Limits {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend NeighMoving {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend NeighUnique {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend NeighImage {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend NeighBench {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend NeighCell {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend MeshEStandard {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend MeshETurbo {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend MeshSpherical {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend CSVformat {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend PCA {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend Rule {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend PPMT {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend AnamHermite {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend NamingConvention {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend Regression {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend RuleProp {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend BiTargetCheckBench {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend BiTargetCheckCell {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend BiTargetCheckCode {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend BiTargetCheckDate {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend BiTargetCheckDistance {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend BiTargetCheckFaults {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend BiTargetCheckGeometry {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend ABiTargetCheck {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend Grid {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend PrecisionOpMulti {
-  std::string __repr__() {  return $self->toString(); }
-}
+
+%include ../swig/toString.i
+%include generated_python.i
 
 //////////////////////////////////////////////////////////////
 //       Add target language additional features below      //
@@ -1062,8 +873,6 @@ void exit_f(void)
 
 import gstlearn as gl
 import numpy as np
-import scipy.sparse as sc
-import pandas as pd
 import os
 import sys
 
@@ -1148,17 +957,17 @@ def check_nrows(db, nrows):
     """Check if a number of rows matches with the number of samples of a Db, 
     and returns the flag for useSel (whether it matches the number of active 
     samples or the total number of samples)"""
-    if nrows == db.getActiveSampleNumber() :
+    if nrows == db.getNSampleActive() :
         useSel = True
-    elif nrows == db.getSampleNumber() or db.getSampleNumber()==0:
+    elif nrows == db.getNSample() or db.getNSample()==0:
         useSel = False
     else:
-        if db.getActiveSampleNumber() != db.getSampleNumber():
+        if db.getNSampleActive() != db.getNSample():
             raise ValueError("Error of dimension. Your number of lines ("+str(nrows)+") has to be equal to " +
-                str(db.getActiveSampleNumber()) + " or " + str(db.getSampleNumber()))
+                str(db.getNSampleActive()) + " or " + str(db.getNSample()))
         else :
             raise ValueError("Error of dimension. Your number of lines ("+str(nrows)+") has to be equal to " +
-                  str(db.getActiveSampleNumber()))
+                  str(db.getNSampleActive()))
     return useSel
 
 def findColumnNames(self, columns):
@@ -1171,14 +980,14 @@ def findColumnNames(self, columns):
         names = self.getNameByColIdx(columns)
     
     elif isinstance(columns, slice):
-        Nmax = self.getColumnNumber()
+        Nmax = self.getNColumn()
         names = []
         for i in range(Nmax)[columns]:
             names.append(self.getNameByColIdx(i))
 
     elif is_list_type(columns, (int, np.int_)):
         names = []
-        Nfields = self.getColumnNumber()
+        Nfields = self.getNColumn()
         for i in columns:
             if i >= Nfields:
                 print("Warning: the index {} is out of bounds with {}, this index is ignored".format(i,Nfields))
@@ -1209,7 +1018,7 @@ def getNrows(self, useSel=None):
     """ get number of rows of the Db when using or not a selection"""
     if useSel is None:
         useSel = self.useSel
-    nrows = self.getSampleNumber(useSel)
+    nrows = self.getNSample(useSel)
     return nrows
 
 def getdbitem(self,arg):
@@ -1341,29 +1150,6 @@ setattr(gl.Db,"useSel",False)
 setattr(gl.Db,"__getitem__",getdbitem)
 setattr(gl.Db,"__setitem__",setdbitem)
 
-def Db_toTL(self, flagLocate=False):
-  dat = pd.DataFrame(self.getAllColumns().reshape(-1,self.getSampleNumber()).T, 
-    columns = self.getAllNames())
-    
-  if flagLocate:
-    for j,i in enumerate(self.getAllNames()):
-      dat[i].locator = self.getLocators()[j] 
-  return dat
-
-setattr(gl.Db, "toTL", Db_toTL)
-
-def Db_fromPanda(pf):
-	# Create an empty Db
-	dat = Db()
-	# And import all columns in one a loop using [] operator
-	for field in pf.columns :
-		mycol = pf[field]
-		if mycol.dtype == 'float64' or mycol.dtype == 'int64':
-	 		dat[field] = mycol
-	return dat
-
-gl.Db.fromTL = staticmethod(Db_fromPanda)
-
 def Vector_toTL(self):
   return np.array(self)
 
@@ -1378,73 +1164,10 @@ def VectorVector_toTL(self):
 
 setattr(gl.VectorVectorDouble, "toTL", VectorVector_toTL)
 
-def matrix_toTL(self):
-  if self.isSparse():
-  	NF_T = self.getMatrixToTriplet()
-  	return Triplet_toTL(NF_T)
-  else:
-    return np.array(self.getValues(False)).reshape(self.getNRows(),self.getNCols())
-  return
-
-setattr(gl.MatrixRectangular, "toTL", matrix_toTL)
-setattr(gl.MatrixSquareGeneral, "toTL", matrix_toTL)
-setattr(gl.MatrixSquareSymmetric, "toTL", matrix_toTL)
-setattr(gl.MatrixSparse, "toTL", matrix_toTL)
-setattr(gl.ProjMatrix, "toTL", matrix_toTL)
-setattr(gl.PrecisionOpMultiMatrix, "toTL", matrix_toTL)
-setattr(gl.ProjMultiMatrix, "toTL", matrix_toTL)
-
-def Triplet_toTL(self):
-  return sc.csc_matrix((np.array(self.getValues()), 
-                       (np.array(self.getRows()), np.array(self.getCols()))),
-                                 shape=(self.getNRows()+1, self.getNCols()+1))
-
-setattr(gl.NF_Triplet, "toTL", Triplet_toTL)
-
-def table_toTL(self):
-# As a Panda Data Frame
-  colnames = self.getColumnNames()
-  rownames = self.getRowNames()
-  if len(colnames) == 0:
-  	colnames = None
-  if len(rownames) == 0:
-  	rownames = None
-  Anp = pd.DataFrame(self.getValues(False).reshape(self.getNRows(),self.getNCols()),
-  columns = colnames, index=rownames)
-  return Anp
-
-setattr(gl.Table, "toTL", table_toTL)
-
-def vario_toTL(self, idir, ivar, jvar):
-  sw = self.getSwVec(idir, ivar, jvar, False)
-  hh = self.getHhVec(idir, ivar, jvar, False)
-  gg = self.getGgVec(idir, ivar, jvar, False, False, False)
-  array = np.vstack((sw, hh, gg)).T
-  colnames = np.array(["sw","hh","gg"])
-  return pd.DataFrame(array, columns = colnames)
-
-setattr(gl.Vario, "toTL", vario_toTL)
-
-def vario_updateFromPanda(self, pf, idir, ivar, jvar):
-	vario = self
-	ndir = vario.getDirectionNumber()
-	nvar = vario.getVariableNumber()
-	if idir < 0 or idir >= ndir:
-	 return vario
-	if ivar < 0 or ivar >= nvar:
-	 return vario
-	if jvar < 0 or jvar >= nvar:
-	 return vario
-	nlag = vario.getLagTotalNumber(idir)
-	if len(pf.index) != nlag:
-	 return vario
-	
-	vario.setSwVec(idir, ivar, jvar, pf["sw"])
-	vario.setHhVec(idir, ivar, jvar, pf["hh"])
-	vario.setGgVec(idir, ivar, jvar, pf["gg"])
-	return vario
-
-setattr(gl.Vario, "updateFromPanda", vario_updateFromPanda)
+try:
+    from .conv import *
+except ModuleNotFoundError:
+    pass
 
 %}
 

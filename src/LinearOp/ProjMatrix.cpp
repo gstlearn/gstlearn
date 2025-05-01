@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
-#include "LinearOp/ALinearOp.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 
@@ -65,14 +64,13 @@ void ProjMatrix::resetFromMeshAndDb(const Db* db, const AMesh* a_mesh, int rankZ
   }
   if (db != nullptr)
   {
-    a_mesh->resetProjMatrix(this, db, rankZ, verbose);
+    a_mesh->resetProjFromDb(this, db, rankZ, verbose);
   }
   else
   {
     _setNRows(0);
     _setNCols(a_mesh->getNApices());
   }
-
 }
 
 //int ProjMatrix::resetFromDbByNeigh(const Db *db,
@@ -94,16 +92,16 @@ void ProjMatrix::resetFromMeshAndDb(const Db* db, const AMesh* a_mesh, int rankZ
 
 /* int ProjMatrix::point2mesh(const VectorDouble& inv, VectorDouble& outv) const
 {
-  if ((int) inv.size() != getPointNumber())
+  if ((int) inv.size() != getNPoint())
   {
     messerr("point2mesh: Error in the dimension of argument 'inv'(%d). It should be (%d)",
-            inv.size(),getPointNumber());
+            inv.size(),getNPoint());
     return 1;
   }
-  if ((int) outv.size() != getApexNumber())
+  if ((int) outv.size() != getNApex())
   {
     messerr("point2mesh: Error in the dimension of argument 'outv'(%d). It should be (%d)",
-            outv.size(),getApexNumber());
+            outv.size(),getNApex());
     return 1;
   }
 
@@ -113,16 +111,16 @@ void ProjMatrix::resetFromMeshAndDb(const Db* db, const AMesh* a_mesh, int rankZ
  */
 int ProjMatrix::_addMesh2point(const constvect inv, vect outv) const
 {
-  if ((int) inv.size() != getApexNumber())
+  if ((int) inv.size() != getNApex())
   {
     messerr("mesh2point: Error in the dimension of argument 'inv'(%d). It should be (%d)",
-            inv.size(),getApexNumber());
+            inv.size(),getNApex());
     return 1;
   }
-  if ((int) outv.size() != getPointNumber())
+  if ((int) outv.size() != getNPoint())
   {
     messerr("mesh2point: Error in the dimension of argument 'outv'(%d). It should be (%d)",
-            outv.size(),getPointNumber());
+            outv.size(),getNPoint());
     return 1;
   }
 
@@ -132,16 +130,16 @@ int ProjMatrix::_addMesh2point(const constvect inv, vect outv) const
 
 int ProjMatrix::_addPoint2mesh(const constvect inv, vect outv) const
 {
-  if ((int) inv.size() != getPointNumber())
+  if ((int) inv.size() != getNPoint())
   {
     messerr("point2mesh: Error in the dimension of argument 'inv'(%d). It should be (%d)",
-            inv.size(),getPointNumber());
+            inv.size(),getNPoint());
     return 1;
   }
-  if ((int) outv.size() != getApexNumber())
+  if ((int) outv.size() != getNApex())
   {
     messerr("point2mesh: Error in the dimension of argument 'outv'(%d). It should be (%d)",
-            outv.size(),getApexNumber());
+            outv.size(),getNApex());
     return 1;
   }
 
@@ -151,16 +149,16 @@ int ProjMatrix::_addPoint2mesh(const constvect inv, vect outv) const
 
 /* int ProjMatrix::mesh2point(const VectorDouble& inv, VectorDouble& outv) const
 {
-  if ((int) inv.size() != getApexNumber())
+  if ((int) inv.size() != getNApex())
   {
     messerr("mesh2point: Error in the dimension of argument 'inv'(%d). It should be (%d)",
-            inv.size(),getApexNumber());
+            inv.size(),getNApex());
     return 1;
   }
-  if ((int) outv.size() != getPointNumber())
+  if ((int) outv.size() != getNPoint())
   {
     messerr("mesh2point: Error in the dimension of argument 'outv'(%d). It should be (%d)",
-            outv.size(),getPointNumber());
+            outv.size(),getNPoint());
     return 1;
   }
 
@@ -171,4 +169,21 @@ int ProjMatrix::_addPoint2mesh(const constvect inv, vect outv) const
 String ProjMatrix::toString(const AStringFormat* strfmt) const
 {
   return MatrixSparse::toString(strfmt);
+}
+
+void ProjMatrix::dumpVerticesUsed(int npmax) const
+{
+  mestitle(1, "Vertices used in the projection matrix");
+  if (npmax > 0) message("(Display is limited to %d samples)\n", npmax);
+  int np = (npmax > 0) ? npmax : getNPoint();
+  for (int ip = 0; ip < np; ip++)
+  {
+    message("Sample %3d: ", ip);
+    for (int ic = 0, nc = getNApex(); ic < nc; ic++)
+    {
+      if (getValue(ip, ic) > 0)
+        message(" %3d [%5.2lf]", ic, getValue(ip,ic));
+    }
+    message("\n");
+  }
 }

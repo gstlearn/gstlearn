@@ -18,7 +18,6 @@ install.packages("flumy",repos="https://soft.mines-paristech.fr/cran")
 # Import package
 library(gstlearn)
 library(flumy)
-library(ggplot2)
 ```
 
 # Generate a Flumy simulation
@@ -131,7 +130,7 @@ if (verbose)
     dbfmt$setFlags(flag_extend=TRUE, flag_stats=TRUE)
     grid$display(dbfmt)
 }
-ggplot() + plot.grid(grid,nameRaster="fac",flagLegendRaster=TRUE)
+plot.init(asp=1) + plot.raster(grid,name="fac",flagLegend=TRUE)
 ```
 
 # Transform categorical variable into indicators
@@ -143,7 +142,7 @@ if (verbose) {
 }
 err = limits$toIndicator(grid, "fac")
 grid$display()
-ggplot() + plot.grid(grid,nameRaster="Indicator.fac.Class.4",flagLegendRaster=TRUE)
+plot.init(asp=1) + plot.raster(grid,name="Indicator.fac.Class.4",flagLegend=TRUE)
 ```
 
 # Variogram of indicators
@@ -164,7 +163,7 @@ vario$display()
 # Transition probabilities
 
 ```{r transition_proba}
-ndir = vario$getDirectionNumber()
+ndir = vario$getNDir()
 for (idir in 0:(ndir-1)) {
     for (ifac in 0:(nfacies-1)) {
         for (jfac in 0:ifac) {

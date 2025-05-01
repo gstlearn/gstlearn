@@ -12,8 +12,8 @@
 
 #include "Db/Db.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSquare.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/AFunctional.hpp"
 #include <math.h>
@@ -105,10 +105,10 @@ double FunctionalSpirale::getFunctionValue(const VectorDouble& coor) const
  * @param coor 2-D coordinates of the target
  * @return
  */
-MatrixSquareGeneral FunctionalSpirale::getFunctionMatrix(const VectorDouble& coor) const
+MatrixSquare FunctionalSpirale::getFunctionMatrix(const VectorDouble& coor) const
 {
   int ndim = 2;
-  MatrixSquareGeneral dirs = MatrixSquareGeneral(ndim);
+  MatrixSquare dirs = MatrixSquare(ndim);
 
   double angle = getFunctionValue(coor) * GV_PI / 180.;
   double u1 = cos(angle);
@@ -129,21 +129,21 @@ VectorVectorDouble FunctionalSpirale::getFunctionVectors(const Db *db, const Cov
     return VectorVectorDouble();
   }
 
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   VectorVectorDouble vec(3);
   vec[0].resize(nech);
   vec[1].resize(nech);
   vec[2].resize(nech);
 
-  MatrixSquareSymmetric temp(2);
-  MatrixSquareSymmetric hh(2);
+  MatrixSymmetric temp(2);
+  MatrixSymmetric hh(2);
   VectorDouble diag = VH::power(cova->getScales(), 2.);
   temp.setDiagonal(diag);
 
   for (int iech = 0; iech < nech; iech++)
   {
     VectorDouble coor = db->getSampleCoordinates(iech);
-    MatrixSquareGeneral rotmat = getFunctionMatrix(coor);
+    MatrixSquare rotmat = getFunctionMatrix(coor);
     hh.normMatrix(rotmat, temp);
 
     vec[0][iech] = hh.getValue(0,0);

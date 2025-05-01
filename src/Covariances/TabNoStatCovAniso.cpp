@@ -21,15 +21,15 @@ TabNoStatCovAniso::TabNoStatCovAniso()
 TabNoStatCovAniso::TabNoStatCovAniso(const TabNoStatCovAniso &m):
     TabNoStat(m)
 {
-    this->_definedByAnglesAndScales = m._definedByAnglesAndScales;
-    this->_definedForAnisotropy = m._definedForAnisotropy;
-    this->_definedForRotation = m._definedForRotation;
-    this->_definedForTensor = m._definedForTensor;
-    this->_nTensor = m._nTensor;
-    this->_nAngles = m._nAngles;
-    this->_nRanges = m._nRanges;
-    this->_nScales = m._nScales;
-    this->_param = m._param;
+    _definedByAnglesAndScales = m._definedByAnglesAndScales;
+    _definedForAnisotropy = m._definedForAnisotropy;
+    _definedForRotation = m._definedForRotation;
+    _definedForTensor = m._definedForTensor;
+    _nTensor = m._nTensor;
+    _nAngles = m._nAngles;
+    _nRanges = m._nRanges;
+    _nScales = m._nScales;
+    _param = m._param;
 }
 
 

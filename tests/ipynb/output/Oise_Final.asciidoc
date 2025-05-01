@@ -48,16 +48,7 @@ Column = 6 - Name = Duplicate - Locator = sel----
 
 
 #NO_DIFF#XXX
-XXX
-#NO_DIFF#XXX
 ----
-
-
-#NO_DIFF#XXX
-----(array([120., 787., 658., 447., 198., 118.,  63.,  51.,  22.,   6.]),
- array([ 16. ,  24.4,  32.8,  41.2,  49.6,  58. ,  66.4,  74.8,  83.2,
-         91.6, 100. ]),
- <BarContainer object of 10 artists>)
 #NO_DIFF#XXX
 ----
 
@@ -69,7 +60,13 @@ XXX
 
 
 #NO_DIFF#XXX
-XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
 #NO_DIFF#XXX
 ----
 
@@ -111,11 +108,7 @@ Column = 3 - Name = Polygon - Locator = sel----
 
 
 #NO_DIFF#XXX
-----(array([ 23.,  11.,   8.,  36., 238., 545., 700., 270.,  98.,  41.]),
- array([-178.33971763, -142.50574587, -106.6717741 ,  -70.83780234,
-         -35.00383058,    0.83014118,   36.66411295,   72.49808471,
-         108.33205647,  144.16602824,  180.        ]),
- <BarContainer object of 10 artists>)
+----
 #NO_DIFF#XXX
 ----
 
@@ -251,7 +244,7 @@ Column = 6 - Name = res - Locator = sel----
 
 
 #NO_DIFF#XXX
-XXX
+----
 #NO_DIFF#XXX
 ----
 
@@ -353,6 +346,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 2
 Space dimension             = 2
 Variable(s)                 = [ThicknessSides]
+
 Variance-Covariance Matrix     8.283
 
 Direction #1
@@ -525,6 +519,6 @@ Universality_Condition----
 
 
 #NO_DIFF#XXX
-XXX
+----
 #NO_DIFF#XXX
 ----

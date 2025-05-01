@@ -29,9 +29,6 @@ env:
   DOXYGEN_ROOT : ${{github.workspace}}\doxygen
   DOXYGEN_VERSION : "1.9.8"
   CMAKE_TOOLCHAIN_FILE : C:\vcpkg\scripts\buildsystems\vcpkg.cmake
-  #HDF5_ROOT : hdf5 #do not use "." in the name
-  #HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1-zip/?wpdmdl=15723"
-  #HDF5_VERSION : hdf5-1.12.1
 
 jobs:
   build:
@@ -65,7 +62,7 @@ jobs:
       run: |
         echo '{
           "dependencies": [ "boost-math", "eigen3" ],
-          "builtin-baseline": "bcf3d00d2116056fda0ce47615f6074ffecb7524"
+          "builtin-baseline": "d5ec528843d29e3a52d745a64b469f810b2cedbf"
         }' > vcpkg.json
         vcpkg install
       env:
@@ -90,17 +87,10 @@ jobs:
       env:
         CMAKE_GENERATOR_PLATFORM: ${{ matrix.arch.of }}
 
-#    - name : Download and install HDF5
-#      run: |
-#        mkdir ${{env.HDF5_ROOT}}
-#        curl --progress-bar --location --output ${{env.HDF5_ROOT}}/download.zip ${{env.HDF5_URL}}
-#        7z x ${{env.HDF5_ROOT}}/download.zip
-#        cd CMake-${{env.HDF5_VERSION}}
-#        mkdir build
-#        cd build
-#        cmake -G ${{env.GENERATOR}} -DHDF5_GENERATE_HEADERS:BOOL=OFF -DBUILD_SHARED_LIBS:BOOL=OFF -DDEFAULT_API_VERSION:STRING=v110 -DCMAKE_BUILD_TYPE:STRING=Release -DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_CPP_LIB:BOOL=ON -DHDF5_BUILD_JAVA:BOOL=OFF -DCMAKE_INSTALL_PREFIX:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}} -DHDF5_ENABLE_SZIP_SUPPORT:BOOL=OFF -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=OFF -DBUILD_TESTING:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=OFF ../${{env.HDF5_VERSION}}
-#        cmake --build . --target all --config Release
-#        cmake --build . --target install --config Release
+    - name: Build & install HDF5 static libraries
+      uses: ./.github/actions/hdf5_static_windows
+      env:
+        CMAKE_GENERATOR_PLATFORM: ${{ matrix.arch.of }}
 
     - name : Configure build directory
       run : |
@@ -110,7 +100,8 @@ jobs:
           -DBUILD_PYTHON=ON `
           -DBUILD_R=OFF `
           -DPython3_ROOT_DIR="${{env.pythonLocation}}" `
-          -DBUILD_DOXYGEN=ON
+          -DHDF5_USE_STATIC_LIBRARIES=ON `
+          -DBUILD_DOC=ON
 
     - name : Build the package
       run : |
@@ -162,7 +153,7 @@ jobs:
         python-version: ${{matrix.python.py}}
 
     - name: Install Python package
-      run: pip install $(ls *.whl)
+      run: pip install "$(ls *.whl)[conv]"
 
     - name: Test installed Python package
       run: |

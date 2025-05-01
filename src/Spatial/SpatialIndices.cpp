@@ -14,7 +14,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Enum/ECalcVario.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Space/SpacePoint.hpp"
@@ -133,7 +133,7 @@ bool SpatialIndices::_discardData(bool flag_w,
 
   /* Check if the sample has defined coordinates */
 
-  _db->getCoordinatesPerSampleInPlace(iech, coor);
+  _db->getCoordinatesInPlace(coor, iech);
   for (int idim = 0, ndim = _db->getNDim(); idim < ndim; idim++)
     if (FFFF(coor[idim])) return true;
 
@@ -157,7 +157,7 @@ int SpatialIndices::computeCGI(const String &name)
 {
   // Initializations
   double wvalue, value, weight;
-  int nech = _db->getSampleNumber();
+  int nech = _db->getNSample();
   int ndim = _db->getNDim();
   bool flag_w = _db->hasLocVariable(ELoc::W);
 
@@ -186,7 +186,7 @@ int SpatialIndices::computeCGI(const String &name)
   /* Calculate the inertia and the weighted PCA */
 
   _inertia = 0.;
-  MatrixSquareSymmetric mm(ndim);
+  MatrixSymmetric mm(ndim);
   for (int iech = 0; iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue)) continue;
@@ -216,7 +216,7 @@ int SpatialIndices::computeCGI(const String &name)
   e2 = e2 * e2;
   _iso = 1. / sqrt(r);
 
-  MatrixRectangular axes = getMatrixInertia();
+  MatrixDense axes = getMatrixInertia();
   double dx1 = axes.getValue(1, 0) - axes.getValue(0, 0);
   double dy1 = axes.getValue(1, 1) - axes.getValue(0, 1);
   double dx2 = axes.getValue(3, 0) - axes.getValue(2, 0);
@@ -232,7 +232,7 @@ double SpatialIndices::getLIC(const String &name1, const String &name2)
 {
   // Initializations
   double wvalue, value1, value2, weight;
-  int nech = _db->getSampleNumber();
+  int nech = _db->getNSample();
   int ndim = _db->getNDim();
   bool flag_w = _db->hasLocVariable(ELoc::W);
 
@@ -293,7 +293,7 @@ VectorVectorDouble SpatialIndices::getAxes() const
     return vec;
   }
 
-  MatrixRectangular axes = getMatrixInertia();
+  MatrixDense axes = getMatrixInertia();
   vec[0] = {axes.getValue(0, 0), axes.getValue(1, 0)};
   vec[1] = {axes.getValue(0, 1), axes.getValue(1, 1)};
   vec[2] = {axes.getValue(2, 0), axes.getValue(3, 0)};
@@ -314,9 +314,9 @@ VectorDouble SpatialIndices::getAxe(int rank) const
   return axes[rank];
 }
 
-MatrixRectangular SpatialIndices::getMatrixEllipse() const
+MatrixDense SpatialIndices::getMatrixEllipse() const
 {
-  MatrixRectangular axes(4, 2);
+  MatrixDense axes(4, 2);
   if (_mvalues.empty())
   {
     messerr("You must use 'computeCGI() beforehand");
@@ -344,9 +344,9 @@ MatrixRectangular SpatialIndices::getMatrixEllipse() const
   return axes;
 }
 
-MatrixRectangular SpatialIndices::getMatrixInertia() const
+MatrixDense SpatialIndices::getMatrixInertia() const
 {
-  MatrixRectangular axes(4, 2);
+  MatrixDense axes(4, 2);
   if (_mvalues.empty())
   {
     messerr("You must use 'computeCGI() beforehand");
@@ -399,7 +399,7 @@ void SpatialIndices::spatial(const String &name)
   double top = 0.;
   double bot = 0.;
   double sum = 0.;
-  for (int iech = 0, nech = _db->getSampleNumber(); iech < nech; iech++)
+  for (int iech = 0, nech = _db->getNSample(); iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue)) continue;
     if (value > 0)
@@ -450,7 +450,7 @@ VectorVectorDouble SpatialIndices::getQT(const String &name) const
   VectorDouble zz;
   VectorDouble ww;
   VectorDouble wz;
-  for (int iech = 0, nech = _db->getSampleNumber(); iech < nech; iech++)
+  for (int iech = 0, nech = _db->getNSample(); iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue))
       continue;
@@ -504,7 +504,7 @@ double SpatialIndices::getMicroStructure(const String& name,
   double xmax = -1.e30;
   double ymin = +1.e30;
   double ymax = -1.e30;
-  for (int iech = 0, nech = _db->getSampleNumber(); iech < nech; iech++)
+  for (int iech = 0, nech = _db->getNSample(); iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue))
       continue;
@@ -687,7 +687,7 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
   VectorDouble ww;
   VectorDouble zz;
   VectorInt origRank;
-  for (int iech = 0, nech = _db->getSampleNumber(); iech < nech; iech++)
+  for (int iech = 0, nech = _db->getNSample(); iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue))
       continue;

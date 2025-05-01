@@ -3,6 +3,10 @@
 # This script is meant to update the reference output file
 # starting from the resulting test output file (in Release mode only)
 
+if [ -z "$GSTLEARN_DIR" ]; then
+    echo "GSTLEARN_DIR is not defined"
+    exit
+fi
 DIR="$GSTLEARN_DIR/gstlearn"
 
 nargs=$#
@@ -12,6 +16,8 @@ if [ $nargs -lt 2 ]; then
     echo "update_test name1 nametest"
     echo "   name1    : Name of the subContainer (e.g.: data, ipynb, py, r, rmd, cpp)"
     echo "   nametest : Name of the test (e.g.: Jeu1, Tuto_Plot2D, Hermite, etc...)"
+    echo ""
+    echo "( Current number of arguments =" $nargs ")"
     exit
 fi
 

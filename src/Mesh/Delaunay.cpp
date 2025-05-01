@@ -505,7 +505,7 @@ static MeshEStandard* st_ultimate_regular_grid(Db *dbgrid,
 {
   /* Count the number of active vertices */
 
-  int number = dbgrid->getSampleNumber();
+  int number = dbgrid->getNSample();
   int nvertex = 0;
   int nin = 0;
   for (int iech = 0; iech < number; iech++)

@@ -20,9 +20,9 @@ on:
 env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
-  PYTHON_VERSION : "3.11"
-  R_VERSION : "4.3.2"
-  SWIG_ROOT : ${{github.workspace}}/swig_420b
+  PYTHON_VERSION : "3.13"
+  R_VERSION : "4.5.0"
+  SWIG_ROOT : ${{github.workspace}}/swig
   LLVM_ROOT : /opt/homebrew
 
 jobs:
@@ -35,9 +35,12 @@ jobs:
     - name: Install dependencies
       run: |
         brew install llvm
+        brew install bison
         brew install boost
         brew install eigen
         brew install nlopt
+        brew install hdf5
+        echo "$(brew --prefix bison)/bin" >> $GITHUB_PATH
 
     - name: Setup Python Version
       uses: actions/setup-python@v5
@@ -55,10 +58,10 @@ jobs:
       with:
         r-version: ${{env.R_VERSION}}
 
-    - name: Install roxygen2
+    - name: Install R packages
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
-        packages: roxygen2
+        packages: ggpubr, ggplot2, ggnewscale
         install-pandoc: false
 
     - name: Install the customized SWIG from source
@@ -68,7 +71,7 @@ jobs:
         generator: "Unix Makefiles"
 
     - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.5
+      uses: mozilla-actions/sccache-action@v0.0.9
 
     - name: Configure build directory
       run: |

@@ -52,8 +52,10 @@ int main(int argc, char *argv[])
   NeighImage* neighI = NeighImage::create({10,10}, 3);
   if (verbose) neighI->display();
 
+  bool flagFFT     = true;
+
   Timer timer;
-  krimage(image, model, neighI);
+  krimage(image, model, neighI, flagFFT);
   timer.displayIntervalMilliseconds("Kriging in Image Neighborhood", 1200);
 
   // Produce some stats for comparison

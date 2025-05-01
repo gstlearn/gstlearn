@@ -79,7 +79,7 @@ typedef struct
   VectorInt indg;
   VectorInt indg0;
   VectorDouble data; // Dimension: nech
-  MatrixRectangular weight; // Dimension: nech * 4
+  MatrixDense weight; // Dimension: nech * 4
 } Pot_Ext;
 
 static int TAB_DRF[9];
@@ -197,9 +197,9 @@ static int EXT(int iext)
  *****************************************************************************/
 static int st_model_invalid(Model *model)
 {
-  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  for (int icov = 0; icov < model->getNCov(); icov++)
   {
-    const ECov& type = model->getCovaType(icov);
+    const ECov& type = model->getCovType(icov);
     if (type != ECov::GAUSSIAN && type != ECov::CUBIC &&
         type != ECov::SPLINE2_GC && type != ECov::NUGGET)
     {
@@ -245,7 +245,7 @@ static void st_cov(Model* model,
                    VectorDouble& covGp,
                    VectorDouble& covGG)
 {
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   VectorDouble vec(ndim);
   if (ndim >= 1) vec[0] = dx;
   if (ndim >= 2) vec[1] = dy;
@@ -322,10 +322,10 @@ static int st_extdrift_create_model(Pot_Ext *pot_ext)
   if (pot_ext->model == nullptr) return 1;
 
   // Covariance part
-  CovLMGradient covs(ctxt.getSpace());
+  CovLMGradient covs(ctxt);
   CovAniso cov(ECov::CUBIC, pot_ext->range, 0., sill, ctxt);
   covs.addCov(&cov);
-  pot_ext->model->setCovList(&covs);
+  pot_ext->model->setCovAnisoList(&covs);
 
   // Drift part
   DriftList drifts(ctxt);
@@ -345,7 +345,7 @@ static int st_extdrift_create_model(Pot_Ext *pot_ext)
  ** \param[out] number     Matrix dimension
  **
  *****************************************************************************/
-static MatrixRectangular st_extdrift_establish(Pot_Ext *pot_ext, int number)
+static MatrixDense st_extdrift_establish(Pot_Ext *pot_ext, int number)
 {
   double covar = 0.;
   VectorDouble covGp(3, 0.);
@@ -353,7 +353,7 @@ static MatrixRectangular st_extdrift_establish(Pot_Ext *pot_ext, int number)
 
   /* Establish the kriging matrix */
 
-  MatrixRectangular b(number,4);
+  MatrixDense b(number,4);
 
   /* Establish the Right-Hand side */
 
@@ -399,10 +399,10 @@ static int st_extdrift_calc_init(DbGrid *dbout, Pot_Ext *pot_ext)
 
   /* Solve the kriging system */
 
-  MatrixSquareSymmetric a = pot_ext->model->evalCovMatrixSymmetric(pot_ext->db);
+  MatrixSymmetric a = pot_ext->model->evalCovMatSym(pot_ext->db);
   if (a.invert()) return 1;
 
-  MatrixRectangular b = st_extdrift_establish(pot_ext, number);
+  MatrixDense b = st_extdrift_establish(pot_ext, number);
 
   a.prodMatMatInPlace(&b, &pot_ext->weight);
 
@@ -485,7 +485,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
     messerr("The Tangent and Data Db must share the same space dimension");
     return false;
   }
-  if (model->getDimensionNumber() != pot_env->ndim)
+  if ((int)model->getNDim() != pot_env->ndim)
   {
     messerr("The Model and Data Db must have the same space dimension");
     return false;
@@ -501,7 +501,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
     messerr("The input Db must contain a LAYER locator");
     return false;
   }
-  if (model->getVariableNumber() != 1)
+  if (model->getNVar() != 1)
   {
     messerr("The Model must be monovariate");
     return false;
@@ -512,8 +512,8 @@ bool st_potenv_valid(Pot_Env* pot_env,
     return false;
   }
 
-  int next = model->getExternalDriftNumber();
-  if (dbout != NULL && next != dbout->getLocNumber(ELoc::F))
+  int next = model->getNExtDrift();
+  if (dbout != NULL && next != dbout->getNLoc(ELoc::F))
   {
     messerr("Inconsistency for External Drift between Model and Dbout");
     return false;
@@ -615,7 +615,7 @@ static int st_update_isopot(Db *dbiso, Pot_Env *pot_env)
 
 {
   if (dbiso == nullptr) return (0);
-  int nech = dbiso->getSampleNumber();
+  int nech = dbiso->getNSample();
   int nlayers = 0;
   int niso = 0;
   VectorInt laycnt;
@@ -721,7 +721,7 @@ static int st_update_isopot(Db *dbiso, Pot_Env *pot_env)
 static int st_update_gradient(Db *dbgrd, Pot_Env *pot_env)
 {
   if (dbgrd == nullptr) return (0);
-  int nech = dbgrd->getSampleNumber();
+  int nech = dbgrd->getNSample();
   int ngrd = 0;
   pot_env->rank_grd.resize(nech);
 
@@ -766,7 +766,7 @@ static int st_update_tangent(Db *dbtgt, Pot_Env *pot_env)
 
 {
   if (dbtgt == nullptr) return (0);
-  int nech = dbtgt->getSampleNumber();
+  int nech = dbtgt->getNSample();
   int ntgt = 0;
   pot_env->rank_tgt.resize(nech);
 
@@ -803,11 +803,11 @@ static int st_update_tangent(Db *dbtgt, Pot_Env *pot_env)
  *****************************************************************************/
 static int st_update_model(Model *model, Pot_Env *pot_env)
 {
-  int nbfl = model->getDriftNumber();
+  int nbfl = model->getNDrift();
   if (model->isDriftDefined(VectorInt(), 0)) nbfl--;
   pot_env->order =  model->getDriftMaxIRFOrder();
   pot_env->size_drf = nbfl;
-  pot_env->next = pot_env->size_ext = model->getExternalDriftNumber();
+  pot_env->next = pot_env->size_ext = model->getNExtDrift();
 
   return (0);
 }
@@ -849,15 +849,15 @@ static int st_update_final(Model *model, Pot_Env *pot_env)
   for (int i = 0; i < 9; i++)
     TAB_DRF[i] = -1;
 
-  if (model->isDriftDefined({1}))     TAB_DRF[0] = pos++;
-  if (model->isDriftDefined({0,1}))   TAB_DRF[1] = pos++;
-  if (model->isDriftDefined({0,0,1})) TAB_DRF[2] = pos++;
-  if (model->isDriftDefined({2}))     TAB_DRF[3] = pos++;
-  if (model->isDriftDefined({0,2}))   TAB_DRF[4] = pos++;
-  if (model->isDriftDefined({0,0,2})) TAB_DRF[5] = pos++;
-  if (model->isDriftDefined({1,1}))   TAB_DRF[6] = pos++;
-  if (model->isDriftDefined({1,0,1})) TAB_DRF[7] = pos++;
-  if (model->isDriftDefined({0,1,1})) TAB_DRF[8] = pos++;
+  if (model->isDriftDefined(VectorInt{1}))     TAB_DRF[0] = pos++;
+  if (model->isDriftDefined(VectorInt{0,1}))   TAB_DRF[1] = pos++;
+  if (model->isDriftDefined(VectorInt{0,0,1})) TAB_DRF[2] = pos++;
+  if (model->isDriftDefined(VectorInt{2}))     TAB_DRF[3] = pos++;
+  if (model->isDriftDefined(VectorInt{0,2}))   TAB_DRF[4] = pos++;
+  if (model->isDriftDefined(VectorInt{0,0,2})) TAB_DRF[5] = pos++;
+  if (model->isDriftDefined(VectorInt{1,1}))   TAB_DRF[6] = pos++;
+  if (model->isDriftDefined(VectorInt{1,0,1})) TAB_DRF[7] = pos++;
+  if (model->isDriftDefined(VectorInt{0,1,1})) TAB_DRF[8] = pos++;
 
   /* Optional output */
 
@@ -952,7 +952,7 @@ static double setMatUAV(int ndim,
  ** \param[in] value    Value to be assigned to this cell
  **
  *****************************************************************************/
-static void setRhs(MatrixRectangular& rhs, int i, int isol, double value)
+static void setRhs(MatrixDense& rhs, int i, int isol, double value)
 {
   if (i < 0 || isol < 0) return;
   rhs.setValue(i, isol, value);
@@ -968,7 +968,7 @@ static void setRhs(MatrixRectangular& rhs, int i, int isol, double value)
  ** \param[in] value    Value to be assigned to this cell
  **
  *****************************************************************************/
-static void setLhs(MatrixSquareSymmetric& lhs, int i, int j, double value)
+static void setLhs(MatrixSymmetric& lhs, int i, int j, double value)
 {
   if (i < 0 || j < 0) return;
   lhs.setValue(i, j, value);
@@ -985,7 +985,7 @@ static void setLhs(MatrixSquareSymmetric& lhs, int i, int j, double value)
  ** \param[in] j        Column number
  **
  *****************************************************************************/
-static double getLhs(MatrixSquareSymmetric& lhs, int i, int j)
+static double getLhs(MatrixSymmetric& lhs, int i, int j)
 {
   if (i < 0 || j < 0) return (0.);
   return lhs.getValue(i,j);
@@ -1135,7 +1135,7 @@ static int st_build_lhs(Pot_Env *pot_env,
                         Model *model,
                         double nugget_grd,
                         double nugget_tgt,
-                        MatrixSquareSymmetric& lhs)
+                        MatrixSymmetric& lhs)
 {
   double extval, extval1, extval2;
 
@@ -1547,7 +1547,7 @@ static void st_fill_dual_simulation(Pot_Env *pot_env,
                                     Db *dbgrd,
                                     Db *dbtgt,
                                     int nbsimu,
-                                    MatrixRectangular& zvals)
+                                    MatrixDense& zvals)
 {
   int ndim = dbgrd->getNDim();
   zvals.fill(0.);
@@ -1609,7 +1609,7 @@ static void st_fill_dual_simulation(Pot_Env *pot_env,
  ** \param[in,out] rhs        Array for the R.H.S.
  **
  *****************************************************************************/
-static void st_rhs_part(Pot_Env *pot_env, MatrixRectangular& rhs)
+static void st_rhs_part(Pot_Env *pot_env, MatrixDense& rhs)
 {
   int nequa = pot_env->nequa;
   int opt_part = pot_env->opt_part;
@@ -1682,7 +1682,7 @@ static void st_build_rhs(Pot_Env *pot_env,
                          DbGrid *dbgrid,
                          Model *model,
                          VectorDouble& coor,
-                         MatrixRectangular& rhs)
+                         MatrixDense& rhs)
 {
   double extval = 0.;
   double covar = 0.;
@@ -1876,7 +1876,7 @@ static void st_calc_point(Pot_Env *pot_env,
                           DbGrid *dbgrid,
                           Model *model,
                           VectorDouble& zdual,
-                          MatrixRectangular& rhs,
+                          MatrixDense& rhs,
                           Db *db_target,
                           int iech0,
                           VectorDouble& result)
@@ -1898,7 +1898,7 @@ static void st_calc_point(Pot_Env *pot_env,
   if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH))
   {
     mestitle(1, "Target location");
-    db_sample_print(db_target, iech0, 1, 0, 0);
+    db_sample_print(db_target, iech0, 1, 0, 0, 0);
   }
 
   /* Establish the R.H.S */
@@ -1981,14 +1981,14 @@ static void st_estimate_result(Pot_Env *pot_env,
                                Model *model,
                                double refpot,
                                VectorDouble& zdual,
-                               MatrixRectangular& rhs,
+                               MatrixDense& rhs,
                                double *potval)
 {
   VectorDouble result(4);
 
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
-    mes_process("Potential Estimation on Grid", dbout->getSampleNumber(),iech);
+    mes_process("Potential Estimation on Grid", dbout->getNSample(),iech);
     OptDbg::setCurrentIndex(iech);
     if (!dbout->isActive(iech)) continue;
 
@@ -2030,7 +2030,7 @@ static void st_estimate_data(Pot_Env *pot_env,
                              Model *model,
                              double refpot,
                              VectorDouble& zdual,
-                             MatrixRectangular& rhs,
+                             MatrixDense& rhs,
                              Db *db_target,
                              VectorInt& uid_pot,
                              VectorInt& uid_grad)
@@ -2038,7 +2038,7 @@ static void st_estimate_data(Pot_Env *pot_env,
   if (db_target == nullptr) return;
   VectorDouble result(4);
 
-  for (int iech = 0; iech < db_target->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db_target->getNSample(); iech++)
   {
     if (! db_target->isActive(iech)) continue;
 
@@ -2101,8 +2101,8 @@ static void st_dist_convert(Pot_Env *pot_env,
                             int ic0,
                             int j0,
                             VectorDouble& zval,
-                            MatrixSquareSymmetric& lhs_orig_arg,
-                            MatrixRectangular& rhs_arg,
+                            MatrixSymmetric& lhs_orig_arg,
+                            MatrixDense& rhs_arg,
                             double *dist_euc,
                             double *dist_geo)
 {
@@ -2122,12 +2122,12 @@ static void st_dist_convert(Pot_Env *pot_env,
 
   VectorDouble lhs_orig = lhs_orig_arg.getValues();
   VectorDouble rhs;
-  MatrixSquareSymmetric* lhs_aux = nullptr;
-  MatrixRectangular* rhs_red = nullptr;
+  MatrixSymmetric* lhs_aux = nullptr;
+  MatrixDense* rhs_red = nullptr;
 
   /* Update the L.H.S. by dropping the current data point */
 
-  lhs_aux = dynamic_cast<MatrixSquareSymmetric*>
+  lhs_aux = dynamic_cast<MatrixSymmetric*>
     (MatrixFactory::createReduceOne(&lhs_orig_arg, icol0, icol0, false, false));
 
   /* Invert the new LHS */
@@ -2146,7 +2146,7 @@ static void st_dist_convert(Pot_Env *pot_env,
   for (int idim = 0; idim < pot_env->ndim; idim++)
     coor0[idim] = ISO_COO(ic0, 0, idim);
   st_build_rhs(pot_env, pot_ext, 0, nullptr, model, coor0, rhs_arg);
-  rhs_red = dynamic_cast<MatrixRectangular*>
+  rhs_red = dynamic_cast<MatrixDense*>
     (MatrixFactory::createReduceOne(&rhs_arg,icol0, -1, false, false));
   rhs_red->prodVecMatInPlace(zdual_red, result);
 //  double potval = result[0]; // TODO: check why is potval not used
@@ -2157,7 +2157,7 @@ static void st_dist_convert(Pot_Env *pot_env,
   for (int idim = 0; idim < pot_env->ndim; idim++)
     coor0[idim] = coor[idim] = ISO_COO(ic0, j0, idim);
   st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor0, rhs_arg);
-  rhs_red = dynamic_cast<MatrixRectangular*>
+  rhs_red = dynamic_cast<MatrixDense*>
     (MatrixFactory::createReduceOne(&rhs_arg,icol0, -1, false, false));
   rhs_red->prodVecMatInPlace(zdual_red, result);
   delete rhs_red;
@@ -2184,7 +2184,7 @@ static void st_dist_convert(Pot_Env *pot_env,
       dgeo[idim] += delta * delta;
     }
     st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor, rhs_arg);
-    rhs_red = dynamic_cast<MatrixRectangular*>
+    rhs_red = dynamic_cast<MatrixDense*>
       (MatrixFactory::createReduceOne(&rhs_arg,icol0, -1, false, false));
     rhs_red->prodVecMatInPlace(zdual_red, result);
     delete rhs_red;
@@ -2245,11 +2245,11 @@ static void st_xvalid_potential(Pot_Env *pot_env,
                                 Db *dbgrd,
                                 Db *dbtgt,
                                 Model *model,
-                                MatrixSquareSymmetric& lhs,
+                                MatrixSymmetric& lhs,
                                 bool flag_dist_conv,
                                 VectorDouble& zval,
-                                MatrixSquareSymmetric& lhs_orig,
-                                MatrixRectangular& rhs,
+                                MatrixSymmetric& lhs_orig,
+                                MatrixDense& rhs,
                                 VectorDouble& zdual)
 {
   DECLARE_UNUSED(zdual);
@@ -2465,15 +2465,15 @@ static void st_simcond(Pot_Env *pot_env,
                        double refpot,
                        double *potsim,
                        VectorDouble& zdual,
-                       MatrixRectangular& zduals,
-                       MatrixRectangular& rhs)
+                       MatrixDense& zduals,
+                       MatrixDense& rhs)
 {
   VectorDouble resest(4), result(4);
 
   int ndim = dbgrd->getNDim();
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
-    mes_process("Potential Simulation on Grid", dbout->getSampleNumber(),iech);
+    mes_process("Potential Simulation on Grid", dbout->getNSample(),iech);
     OptDbg::setCurrentIndex(iech);
     if (!dbout->isActive(iech)) continue;
 
@@ -2587,7 +2587,7 @@ static void st_check_data(Pot_Env *pot_env,
                           int nbsimu,
                           double refpot,
                           VectorDouble& zdual,
-                          MatrixRectangular& rhs)
+                          MatrixDense& rhs)
 {
   VectorDouble result(4);
 
@@ -2734,7 +2734,7 @@ static double st_evaluate_refpot(Pot_Env *pot_env,
                                  DbGrid *dbgrid,
                                  Model *model,
                                  VectorDouble& zdual,
-                                 MatrixRectangular& rhs)
+                                 MatrixDense& rhs)
 {
   if (dbiso == nullptr) return (TEST);
   VectorDouble result(4);
@@ -2779,7 +2779,7 @@ static void st_evaluate_potval(Pot_Env *pot_env,
                                int isimu,
                                int nbsimu,
                                VectorDouble& zdual,
-                               MatrixRectangular& rhs,
+                               MatrixDense& rhs,
                                double *potval)
 {
   if (dbiso == nullptr) return;
@@ -2900,8 +2900,8 @@ int potential_kriging(Db *dbiso,
   Pot_Ext pot_ext;
   VectorDouble zval;
   VectorDouble zdual;
-  MatrixRectangular rhs;
-  MatrixSquareSymmetric lhs;
+  MatrixDense rhs;
+  MatrixSymmetric lhs;
 
   // Initialization
 
@@ -3033,7 +3033,7 @@ static int st_distance_to_isoline(DbGrid *dbout)
   double eps = 1.e-3;
 
   // Highlight the isoline of interest
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  for (int iech = 0; iech < dbout->getNSample(); iech++)
   {
     double value = dbout->getZVariable(iech, 0);
     if (!FFFF(value) && ABS(value) > eps) dbout->setLocVariable(ELoc::Z,iech, 0, TEST);
@@ -3096,10 +3096,10 @@ int potential_simulate(Db *dbiso,
   VectorInt uid_tgt_pot, uid_tgt_grad;
   VectorDouble zval;
   VectorDouble zdual;
-  MatrixRectangular zvals;
-  MatrixRectangular zduals;
-  MatrixRectangular rhs;
-  MatrixSquareSymmetric lhs;
+  MatrixDense zvals;
+  MatrixDense zduals;
+  MatrixDense rhs;
+  MatrixSymmetric lhs;
 
   // Initialization
 
@@ -3288,10 +3288,10 @@ int potential_xvalid(Db *dbiso,
   Pot_Ext pot_ext;
   VectorDouble zval;
   VectorDouble zdual;
-  MatrixRectangular rhs;
-  MatrixSquareSymmetric lhs;
-  MatrixSquareSymmetric lhs_orig;
-  MatrixSquareSymmetric lhs_aux;
+  MatrixDense rhs;
+  MatrixSymmetric lhs;
+  MatrixSymmetric lhs_orig;
+  MatrixSymmetric lhs_aux;
 
   // Initialization
 
@@ -3454,7 +3454,7 @@ int potential_cov(Model *model,
   // Preliminary checks
 
   VERBOSE = verbose;
-  int ndim = model->getDimensionNumber();
+  int ndim = model->getNDim();
   covtab.resize(ndim * ndim, TEST);
 
   /* Preliminary checks */

@@ -108,7 +108,7 @@ public:
   void _setResult(int iech1,
                   int iech2,
                   int nvar,
-                  int ipas,
+                  int ilag,
                   int ivar,
                   int jvar,
                   int orient,
@@ -149,12 +149,12 @@ public:
   bool              drawOnlyPositiveX(int ivar, int jvar) const;
   bool              drawOnlyPositiveY(int ivar, int jvar) const;
 
-  int    getVariableNumber() const { return _nVar; }
+  int    getNVar() const { return _nVar; }
   const  VectorDouble& getMeans() const { return _means; }
   double getMean(int ivar) const;
 
   double getVar(int ivar, int jvar) const;
-  MatrixSquareSymmetric getVarMatrix() const;
+  MatrixSymmetric getVarMatrix() const;
   double getVarIndex(int ijvar) const;
   const VectorDouble& getVars() const { return _vars; }
   void setMeans(const VectorDouble& means);
@@ -174,12 +174,12 @@ public:
   double getGg(int idir = 0,
                int ivar = 0,
                int jvar = 0,
-               int ipas = 0,
+               int ilag = 0,
                bool asCov = false,
                bool flagNormalized = false) const;
-  double getHh(int idir = 0, int ivar = 0, int jvar = 0, int ipas = 0) const;
-  double getSw(int idir = 0, int ivar = 0, int jvar = 0, int ipas = 0) const;
-  double getUtilize(int idir = 0, int ivar = 0, int jvar = 0, int ipas = 0) const;
+  double getHh(int idir = 0, int ivar = 0, int jvar = 0, int ilag = 0) const;
+  double getSw(int idir = 0, int ivar = 0, int jvar = 0, int ilag = 0) const;
+  double getUtilize(int idir = 0, int ivar = 0, int jvar = 0, int ilag = 0) const;
 
   VectorVectorDouble getVec(int idir = 0, int ivar = 0, int jvar = 0) const;
   VectorDouble getGgVec(int idir = 0,
@@ -208,8 +208,8 @@ public:
   VectorDouble getGgs(int idir = 0,
                       int ivar = 0,
                       int jvar = 0,
-                      const VectorInt &ipas = VectorInt()) const;
-  VectorDouble setGgs(int idir, int ivar, int jvar, const VectorInt& ipas, const VectorDouble& values);
+                      const VectorInt &ilag = VectorInt()) const;
+  VectorDouble setGgs(int idir, int ivar, int jvar, const VectorInt& ilag, const VectorDouble& values);
 
   const VectorDouble& getAllGg(int idir = 0) const;
   const VectorDouble& getAllHh(int idir = 0) const;
@@ -221,13 +221,13 @@ public:
   void setSwByIndex(int idir, int i, double sw, bool flagCheck = true);
   void setUtilizeByIndex(int idir, int i, double utilize, bool flagCheck = true);
 
-  void setSw(int idir, int ivar, int jvar, int ipas, double sw, bool flagCheck = true);
-  void setHh(int idir, int ivar, int jvar, int ipas, double hh, bool flagCheck = true);
-  void setGg(int idir, int ivar, int jvar, int ipas, double gg, bool flagCheck = true);
+  void setSw(int idir, int ivar, int jvar, int ilag, double sw, bool flagCheck = true);
+  void setHh(int idir, int ivar, int jvar, int ilag, double hh, bool flagCheck = true);
+  void setGg(int idir, int ivar, int jvar, int ilag, double gg, bool flagCheck = true);
   void setUtilize(int idir,
                   int ivar,
                   int jvar,
-                  int ipas,
+                  int ilag,
                   double utilize,
                   bool flagCheck = true);
 
@@ -263,12 +263,12 @@ public:
   int getDirAddress(int idir,
                     int ivar,
                     int jvar,
-                    int ipas,
+                    int ilag,
                     bool flag_abs = false,
                     int sens      = 0,
                     bool flagCheck = true) const;
   int getVarAddress(int ivar, int jvar) const;
-  int getLagTotalNumber(int idir) const;
+  int getNLagTotal(int idir) const;
 
   int compute(Db* db,
               const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
@@ -318,21 +318,21 @@ public:
 
   // Pipe to the DirParam
   const DirParam& getDirParam(int idir) const { return _varioparam.getDirParam(idir); }
-  int getDirectionNumber() const { return _varioparam.getDirectionNumber(); }
+  int getNDir() const { return _varioparam.getNDir(); }
   const VectorDouble& getDates() const { return _varioparam.getDates(); }
   bool hasDate() const { return _varioparam.hasDate(); }
   double getDates(int idate, int icas) const { return _varioparam.getDate(idate, icas); }
-  int getDateNumber() const { return _varioparam.getDateNumber(); }
+  int getNDate() const { return _varioparam.getNDate(); }
   double getScale() const { return _varioparam.getScale(); }
-  int getDimensionNumber() const { return getDirParam(0).getNDim(); }
-  const ASpace* getSpace() const { return getDirParam(0).getSpace(); }
+  int getNDim() const { return getDirParam(0).getNDim(); }
+  ASpaceSharedPtr getSpace() const { return getDirParam(0).getSpace(); }
 
   void setScale(double scale) { _varioparam.setScale(scale); }
   void addDirs(const DirParam& dirparam) { _varioparam.addDir(dirparam); }
 
-  int getLagNumber(int idir) const { return getDirParam(idir).getLagNumber(); }
+  int getNLag(int idir) const { return getDirParam(idir).getNLag(); }
   double getDPas(int idir) const { return getDirParam(idir).getDPas(); }
-  int getDimensionNumber(int idir) const { return getDirParam(idir).getNDim(); }
+  int getNDim(int idir) const { return getDirParam(idir).getNDim(); }
   VectorDouble getCodirs(int idir) const;
   double getCodir(int idir, int idim) const;
   double getMaximumDistance(int idir) const { return getDirParam(idir).getMaximumDistance(); }
@@ -349,7 +349,7 @@ public:
   int  prepare(const ECalcVario &calcul = ECalcVario::fromKey("VARIOGRAM"), bool defineList = true);
 
   const VarioParam& getVarioParam() const { return _varioparam; }
-  int getBiPtsNumberPerDirection() const { return _biPtsPerDirection; }
+  int getNBiPtsPerDir() const { return _biPtsPerDirection; }
   const ABiTargetCheck* getBipts(int idir, int rank) const { return _bipts[_getBiPtsRank(idir, rank)]; }
   bool keepPair(int idir, SpaceTarget &T1, SpaceTarget &T2, double *dist) const;
   int getRankFromDirAndDate(int idir, int idate) const;
@@ -364,7 +364,7 @@ public:
   double getC00(int idir, int ivar, int jvar) const;
   VectorDouble computeWeightPerDirection() const;
   int getTotalLagsPerDirection() const;
-  VectorDouble computeWeightsFromVario(int wmode);
+  VectorDouble computeWeightsFromVario(int wmode) const;
 
 protected:
   /// Interface for ASerializable
@@ -390,7 +390,7 @@ private:
   void _clearBiTargetCheck();
   void _addBiTargetCheck(ABiTargetCheck* abpc);
   void _setListBiTargetCheck();
-  int  _getBiPtsNumber() const { return (int) _bipts.size(); }
+  int  _getNBiPts() const { return (int) _bipts.size(); }
   int  _getBiPtsRank(int idir, int rank) const;
 
   int _compute(Db *db,
@@ -416,7 +416,7 @@ private:
   double _g(Db *db, int iech, int jech) const;
   void _calculateBiasLocal(Db *db,
                            int idir,
-                           int ipas,
+                           int ilag,
                            Vario_Order *vorder,
                            int ifirst,
                            int ilast);
@@ -449,7 +449,7 @@ private:
                                     const VectorDouble& x,
                                     const VectorDouble& y,
                                     double x0);
-  MatrixSquareGeneral _evalAverageDbIncr(Model *model,
+  MatrixSquare _evalAverageDbIncr(Model *model,
                                          const Db &db,
                                          const VectorDouble &incr = VectorDouble(),
                                          const CovCalcMode *mode = nullptr) const;
@@ -478,10 +478,10 @@ private:
   mutable Model*              _model;  // Model pointer (not to be deleted) for drift removal
   mutable VectorDouble        _BETA;
   mutable VectorDouble        _DRFDIAG;
-  mutable MatrixRectangular   _DRFXA;
-  mutable MatrixRectangular   _DRFGX;
-  mutable MatrixRectangular   _DRFTAB;
-  mutable MatrixSquareGeneral _DRFXGX;
+  mutable MatrixDense   _DRFXA;
+  mutable MatrixDense   _DRFGX;
+  mutable MatrixDense   _DRFTAB;
+  mutable MatrixSquare _DRFXGX;
 };
 
 GSTLEARN_EXPORT Vario_Order*
@@ -493,7 +493,7 @@ GSTLEARN_EXPORT void vario_order_print(Vario_Order* vorder,
                                        int ipas_target,
                                        int verbose);
 GSTLEARN_EXPORT void vario_order_get_bounds(
-  Vario_Order* vorder, int idir, int ipas, int* ifirst, int* ilast);
+  Vario_Order* vorder, int idir, int ilag, int* ifirst, int* ilast);
 GSTLEARN_EXPORT void vario_order_get_indices(
   Vario_Order* vorder, int ipair, int* iech, int* jech, double* dist);
 GSTLEARN_EXPORT void vario_order_get_auxiliary(Vario_Order* vorder,
@@ -505,6 +505,6 @@ GSTLEARN_EXPORT int vario_order_add(Vario_Order* vorder,
                                     int jech,
                                     void* aux_iech,
                                     void* aux_jech,
-                                    int ipas,
+                                    int ilag,
                                     int idir,
                                     double dist);

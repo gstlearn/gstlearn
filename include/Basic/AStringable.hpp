@@ -65,6 +65,15 @@ GSTLEARN_EXPORT String toMatrix(const String& title,
                                 bool bycol,
                                 int nrows,
                                 int ncols,
+                                const double* tab,
+                                bool flagOverride = false,
+                                bool flagSkipZero = false);
+GSTLEARN_EXPORT String toMatrix(const String& title,
+                                const VectorString& colnames,
+                                const VectorString& rownames,
+                                bool bycol,
+                                int nrows,
+                                int ncols,
                                 const VectorInt &tab,
                                 bool flagOverride = false,
                                 bool flagSkipZero = false);
@@ -75,8 +84,9 @@ GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorVectorDouble& tab,
                                 bool flagOverride = true);
 GSTLEARN_EXPORT String toVector(const String& title,
-                                const VectorInt& tab,
+                                const VectorVectorInt& tab,
                                 bool flagOverride = true);
+GSTLEARN_EXPORT String toVector(const String& title, const VectorInt& tab, bool flagOverride = true);
 GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorString& tab,
                                 bool flagOverride = true);

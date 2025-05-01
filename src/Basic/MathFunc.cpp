@@ -11,7 +11,7 @@
 #include "geoslib_define.h"
 #include "geoslib_d.h"
 
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/WarningMacro.hpp"
@@ -54,7 +54,7 @@ static VectorDouble _corputVector(int n, int b)
   VectorDouble un(L,0.);
   un[0] = 1.;
 
-  MatrixRectangular d(n, L);
+  MatrixDense d(n, L);
 
   if (L == 1)
   {
@@ -1919,42 +1919,42 @@ int besselj_table(double x, double alpha, int nb, double *b)
 *****************************************************************************/
 int besselk(double x, double alpha, int nb, double *bk)
 {
-  static double p[] = {
+  static const double p[] = {
     .805629875690432845,20.4045500205365151,
     157.705605106676174,536.671116469207504,900.382759291288778,
     730.923886650660393,229.299301509425145,.822467033424113231 };
-  static double q[] = {
+  static const double q[] = {
     29.4601986247850434,277.577868510221208,
     1206.70325591027438,2762.91444159791519,3443.74050506564618,
     2210.63190113378647,572.267338359892221 };
-  static double r[] = {
+  static const double r[] = {
     -.48672575865218401848,13.079485869097804016,
     -101.96490580880537526,347.65409106507813131,
     3.495898124521934782e-4 };
-  static double s[] = {
+  static const double s[] = {
     -25.579105509976461286,212.57260432226544008,
     -610.69018684944109624,422.69668805777760407 };
-  static double t[] = {
+  static const double t[] = {
     1.6125990452916363814e-10,
     2.5051878502858255354e-8,2.7557319615147964774e-6,
     1.9841269840928373686e-4,.0083333333333334751799,
     .16666666666666666446 };
-  static double estm[] = {
+  static const double estm[] = {
     52.0583,5.7607,2.7782,14.4303,185.3004,9.3715 };
-  static double estf[] = {
+  static const double estf[] = {
     41.8341,7.1075,6.4306,42.511,1.35633,84.5096,20. };
-  static double sqxmin = 1.49e-154;
-  static double xinf   = 1.79e308;
-  static double xmin   = 2.23e-308;
-  static double xmax   = 705.342;
-  static double tinyx  = 1e-10;
-  static double a      = .11593151565841244881;
-  static double d      = .797884560802865364;
-  static double eps    = 2.22e-16;
+  static const double sqxmin = 1.49e-154;
+  static const double xinf   = 1.79e308;
+  static const double xmin   = 2.23e-308;
+  static const double xmax   = 705.342;
+  static const double tinyx  = 1e-10;
+  static const double a      = .11593151565841244881;
+  static const double d      = .797884560802865364;
+  static const double eps    = 2.22e-16;
 
-  static double x2by4, twox, c, blpha, dm, ex, bk1, bk2, enu;
-  static double ratio, wminf, d1, d2, d3, f0, f1, f2, p0, q0, t1, t2, twonu;
-  static int i, j, k, m, iend, itemp, mplus1, ncalc;
+  double x2by4, twox, c, blpha, dm, ex, bk1, bk2, enu;
+  double ratio, wminf, d1, d2, d3, f0, f1, f2, p0, q0, t1, t2, twonu;
+  int i, j, k, m, iend{}, itemp{}, mplus1, ncalc;
 
   /* Parameter adjustments */
 
@@ -2366,11 +2366,11 @@ VectorDouble ut_legendreVec(int n, const VectorDouble& vecin, bool flagNorm)
   return vecout;
 }
 
-MatrixRectangular ut_legendreMatNorm(int n, const VectorDouble& v)
+MatrixDense ut_legendreMatNorm(int n, const VectorDouble& v)
 {
   int nrow = (int) v.size();
   int ncol = n + 1;
-  MatrixRectangular res(nrow, ncol);
+  MatrixDense res(nrow, ncol);
 
   VectorDouble P0(nrow, 0.);
   VectorDouble P1(nrow, 0.);
@@ -2438,11 +2438,11 @@ MatrixRectangular ut_legendreMatNorm(int n, const VectorDouble& v)
  **       P_l^m (x) for 0 <= m <= l
  **
  *****************************************************************************/
-MatrixRectangular ut_legendreAssociatedMat(int l, const VectorDouble& v, bool flagNorm)
+MatrixDense ut_legendreAssociatedMat(int l, const VectorDouble& v, bool flagNorm)
 {
   int nrow = (int) v.size();
   int ncol = l + 1;
-  MatrixRectangular res(nrow, ncol);
+  MatrixDense res(nrow, ncol);
 
   VectorDouble w(nrow);
   VectorDouble Pmm(nrow);
@@ -3172,7 +3172,7 @@ DISABLE_WARNING_POP
  * @return A matrix of dimensions [n,nd] with the sequence values (between 0 and 1)
  * @note The dimension nd should be lower or equal to 50.
  */
-MatrixRectangular* vanDerCorput(int n, int nd)
+MatrixDense* vanDerCorput(int n, int nd)
 {
   VectorDouble primes = { 2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,
                           73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,
@@ -3185,7 +3185,7 @@ MatrixRectangular* vanDerCorput(int n, int nd)
     return nullptr;
   }
 
-  MatrixRectangular* res = new MatrixRectangular(n, nd);
+  MatrixDense* res = new MatrixDense(n, nd);
   for (int k = 0; k < nd; k++)
   {
     VectorDouble local = _corputVector(n, primes[k]);
@@ -3194,11 +3194,11 @@ MatrixRectangular* vanDerCorput(int n, int nd)
   return res;
 }
 
-MatrixRectangular fillLegendreMatrix(const VectorDouble &r, int legendreOrder)
+MatrixDense fillLegendreMatrix(const VectorDouble &r, int legendreOrder)
 {
   int nrow = (int) r.size();
   int ncol = legendreOrder + 1;
-  MatrixRectangular lp(nrow, ncol);
+  MatrixDense lp(nrow, ncol);
 
   // Initialization
 

@@ -46,7 +46,7 @@ model.display()
 # Using an explicit context
 ctxt = gl.CovContext(nvar, ndim)
 # And creating the specific CovLMCTapering object
-covtape = gl.CovLMCTapering(gl.ETape.STORKEY, 2., ctxt.getSpace())
+covtape = gl.CovLMCTapering(gl.ETape.STORKEY, 2., ctxt)
 cova = gl.CovAniso(gl.ECov.EXPONENTIAL, 2, 0, 1.5, ctxt)
 covtape.addCov(cova)
 
@@ -57,7 +57,7 @@ mymodeltape.display()
 
 # And the same for a convolution model
 
-covconv = gl.CovLMCConvolution(gl.EConvType.EXPONENTIAL, gl.EConvDir.X, 0.1, 10, ctxt.getSpace())
+covconv = gl.CovLMCConvolution(gl.EConvType.EXPONENTIAL, gl.EConvDir.X, 0.1, 10, ctxt)
 cova = gl.CovAniso(gl.ECov.EXPONENTIAL, 2, 0, 1.5, ctxt)
 covconv.addCov(cova)
 

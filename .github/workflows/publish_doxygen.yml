@@ -44,6 +44,7 @@ jobs:
           libopenmpi-dev \
           libboost-dev \
           libeigen3-dev \
+          libhdf5-dev \
           libnlopt-dev
 
     - name: Configure build directory
@@ -52,7 +53,7 @@ jobs:
           -B${{ env.BUILD_DIR }} \
           -DBUILD_PYTHON=OFF \
           -DBUILD_R=OFF \
-          -DBUILD_DOXYGEN=ON
+          -DBUILD_DOC=ON
           
     - name: Build doxygen documentation and save generated folder name in the environment
       id: main_step

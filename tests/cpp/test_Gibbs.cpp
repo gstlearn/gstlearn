@@ -51,7 +51,7 @@ static int st_save(Db    *dbgrid,
                    const VectorDouble& z)
 {
   int iptr;
-  int nech = dbgrid->getSampleNumber();
+  int nech = dbgrid->getNSample();
 
   /* Add the terms to 'dbgrid' */
   
@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
   // Creating the meshing for extracting Q
 
   MeshETurbo mesh(dbgrid);
-  auto P = PrecisionOpMatrix(&mesh, model1->getCova(0));
+  auto P = PrecisionOpMatrix(&mesh, model1->getCovAniso(0));
   const MatrixSparse* Qref = P.getQ();
   MatrixSparse* Q = new MatrixSparse(*Qref);
   int nvertex = mesh.getNApices();
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
   (void)simulateSPDE(NULL, dbgrid, model2, nullptr, nsimu, NULL, useCholesky,
                      SPDEParam(), verbose);
 
-  int rank = dbgrid->getColumnNumber();
+  int rank = dbgrid->getNColumn();
   for (int i=0; i<nvertex; i++)
   {
     consmin[i] = MIN(dbgrid->getArray(i,rank-1), dbgrid->getArray(i,rank-2));

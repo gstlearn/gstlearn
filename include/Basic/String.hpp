@@ -23,8 +23,10 @@ GSTLEARN_EXPORT void skipBOM(std::ifstream &ins);
 GSTLEARN_EXPORT String toUpper(const std::string_view string);
 GSTLEARN_EXPORT String toLower(const std::string_view string);
 
+#ifndef SWIG
 GSTLEARN_EXPORT void toUpper(String &string);
 GSTLEARN_EXPORT void toLower(String &string);
+#endif // SWIG
 
 GSTLEARN_EXPORT bool matchKeyword(const String &string1,
                                   const String &string2,

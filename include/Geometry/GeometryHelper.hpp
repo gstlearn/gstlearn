@@ -13,8 +13,8 @@
 #include "Enum/ERotation.hpp"
 
 #include "gstlearn_export.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSquare.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixInt.hpp"
 
 class GSTLEARN_EXPORT GeometryHelper
@@ -39,9 +39,8 @@ public:
                                        VectorDouble &angles);
   static void rotationCopy(int ndim, const double *rotin, double *rotout);
   static bool rotationIsIdentity(int ndim, const double *rot, double eps = EPSILON10);
-  static MatrixSquareGeneral EulerToRotation(const VectorDouble &angles,
+  static MatrixSquare EulerToRotation(const VectorDouble &angles,
                                              const ERotation &convrot = ERotation::fromKey("SXYZ"));
-
   static void rotationGetRandomDirection(double ct,
                                          double st,
                                          const double *a,
@@ -53,8 +52,9 @@ public:
                                                 VectorDouble &angles);
   static VectorDouble rotationGetAngles(const VectorDouble &codir,
                                         bool flagResize = false);
+  static VectorDouble rotationFromIncrements(const VectorDouble& incr, bool flagDegree = false);
 
-  static VectorDouble rotationToEuler(const MatrixSquareGeneral &mat,
+  static VectorDouble rotationToEuler(const MatrixSquare &mat,
                                       const ERotation &convrot = ERotation::fromKey(
                                           "SXYZ"),
                                       double eps = EPSILON10);
@@ -116,30 +116,34 @@ public:
                                     double *wgts,
                                     double eps = EPSILON6);
   static bool isInSphericalTriangleOptimized(const double *coor,
-                                             double *ptsa,
-                                             double *ptsb,
-                                             double *ptsc,
+                                             const double *ptsa,
+                                             const double *ptsb,
+                                             const double *ptsc,
                                              double *wgts,
                                              double eps = EPSILON6);
-  static VectorVectorDouble convertLongLat(const VectorDouble &longitude,
-                                           const VectorDouble &latitude,
-                                           double dilate = 1.,
-                                           double radius_arg = 1.);
+  static VectorVectorDouble convertLongLatTo3D(const VectorDouble& longitude,
+                                               const VectorDouble& latitude,
+                                               double dilate     = 1.,
+                                               double radius_arg = 1.);
+  static VectorVectorDouble convert3DToLongLat(const VectorDouble& x,
+                                               const VectorDouble& y,
+                                               const VectorDouble& z,
+                                               double radius_arg = 1.);
   static void convertCart2Sph(double x,
                               double y,
                               double z,
-                              double *rlong,
-                              double *rlat,
+                              double* rlong,
+                              double* rlat,
                               double radius_arg = 1.);
   static void convertSph2Cart(double rlong,
                               double rlat,
-                              double *x,
-                              double *y,
-                              double *z,
+                              double* x,
+                              double* y,
+                              double* z,
                               double radius_arg = 1.);
-  static MatrixSquareGeneral gradXYToRotmat(double dzoverdx, double dzoverdy);
-  static MatrixRectangular* getDirectionsInR3(const MatrixRectangular *U);
-  static MatrixRectangular* getDirectionsInRn(const MatrixRectangular *U);
+  static MatrixSquare gradXYToRotmat(double dzoverdx, double dzoverdy);
+  static MatrixDense* getDirectionsInR3(const MatrixDense *U);
+  static MatrixDense* getDirectionsInRn(const MatrixDense *U);
 
   static double formatAngle(double anglein, double basis = 360.);
   static VectorDouble formatAngles(const VectorDouble &anglesin, double basis = 360.);
@@ -149,7 +153,7 @@ public:
                                            const VectorDouble &v1,
                                            const VectorDouble &v2);
   static VectorVectorDouble sphBarCoord(const VectorVectorDouble &sphPts,
-                                        const MatrixRectangular &apices,
+                                        const MatrixDense &apices,
                                         const MatrixInt &meshes);
 
   static double getCosineAngularTolerance(double tolang);

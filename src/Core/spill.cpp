@@ -635,8 +635,8 @@ int spill_point(DbGrid* dbgrid,
     messerr("Spill point is limited to 2-D space");
     return (1);
   }
-  if (ind_depth < 0 || ind_depth > dbgrid->getColumnNumber() ||
-      ind_data  < 0 || ind_data  > dbgrid->getColumnNumber())
+  if (ind_depth < 0 || ind_depth > dbgrid->getNColumn() ||
+      ind_data  < 0 || ind_data  > dbgrid->getNColumn())
   {
     messerr("Error in the ranks of the height (%d) and data (%d) variables",
             ind_depth, ind_data);

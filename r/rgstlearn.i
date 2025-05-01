@@ -159,6 +159,7 @@
     
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
+    if (obj == R_NilValue) return SWIG_NullReferenceError;
     if (TYPEOF(obj) == EXTPTRSXP) return SWIG_TypeError;
 
     // Conversion
@@ -191,6 +192,7 @@
     
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
+    if (obj == R_NilValue) return SWIG_NullReferenceError;
     if (TYPEOF(obj) == EXTPTRSXP) return SWIG_TypeError;
 
     // Conversion
@@ -198,10 +200,13 @@
     int size = (int)Rf_length(obj);
     if (size == 1)
     {
-      // Not a vector (or a single value)
       InputVector vec;
+      SEXP item = getElem(obj,0);
       // Try to convert
-      myres = vectorToCpp(obj, vec);
+      if (TYPEOF(item) == NILSXP) 
+        myres = vectorToCpp(obj, vec);
+      else
+        myres = vectorToCpp(item, vec);
       if (SWIG_IsOK(myres))
         vvec.push_back(vec);
     }
@@ -220,7 +225,7 @@
     return myres;
   }
 
-  int matrixDenseToCpp(SEXP obj, MatrixRectangular& mat)
+  int matrixDenseToCpp(SEXP obj, MatrixDense& mat)
   {
     mat.resize(0, 0);
     if (obj == NULL) return SWIG_TypeError;
@@ -313,6 +318,7 @@
 %typemap(rtypecheck, noblock=1) const int&, int                               { length($arg) == 1 && (is.integer(unlist($arg)) || is.numeric(unlist($arg))) }
 %typemap(rtypecheck, noblock=1) const double&, double                         { length($arg) == 1 &&  is.numeric(unlist($arg)) }
 %typemap(rtypecheck, noblock=1) const String&, String                         { length($arg) == 1 &&  is.character(unlist($arg)) }
+%typemap(rtypecheck, noblock=1) const std::string_view, std::string_view      { length($arg) == 1 &&  is.character(unlist($arg)) }
 %typemap(rtypecheck, noblock=1) const float&, float                           { length($arg) == 1 &&  is.numeric(unlist($arg)) }
 %typemap(rtypecheck, noblock=1) const UChar&, UChar                           { length($arg) == 1 && (is.integer(unlist($arg)) || is.numeric(unlist($arg))) }
 %typemap(rtypecheck, noblock=1) const bool&, bool                             { length($arg) == 1 &&  is.logical(unlist($arg)) }
@@ -388,10 +394,6 @@
   {
     return Rf_ScalarString(Rf_mkChar(convertFromCpp(value).c_str()));
   }
-  template <> SEXP objectFromCpp(const std::string_view& value)
-  {
-    return Rf_ScalarString(Rf_mkChar(convertFromCpp(String{value}).c_str()));
-  }
   template <> SEXP objectFromCpp(const float& value)
   {
     return Rf_ScalarReal(static_cast<double>(convertFromCpp(value)));
@@ -450,7 +452,7 @@
     return myres;
   }
 
-  int matrixDenseFromCpp(SEXP* obj, const MatrixRectangular& mat)
+  int matrixDenseFromCpp(SEXP* obj, const MatrixDense& mat)
   {
     // Local definitions
     int nrows = mat.getNRows();
@@ -468,9 +470,9 @@
     return SWIG_OK;
   }
 
-  int matrixDenseFromCppCreate(SEXP* obj, const MatrixRectangular& mat)
+  int matrixDenseFromCppCreate(SEXP* obj, const MatrixDense& mat)
   {
-    *obj = SWIG_R_NewPointerObj(SWIG_as_voidptr(&mat), SWIGTYPE_p_MatrixRectangular, 0 |  0 );
+    *obj = SWIG_R_NewPointerObj(SWIG_as_voidptr(&mat), SWIGTYPE_p_MatrixDense, 0 |  0 );
     int myres = (*obj) == NULL ? SWIG_TypeError : SWIG_OK;
     return myres;
   }
@@ -545,9 +547,12 @@
                      VectorVectorFloat,  VectorVectorFloat*,  VectorVectorFloat&
  %{    %}
 
-//%typemap(scoerceout) MatrixRectangular,     MatrixRectangular*,     MatrixRectangular&,
-//                     MatrixSquareGeneral,   MatrixSquareGeneral*,   MatrixSquareGeneral&,
-//                     MatrixSquareSymmetric, MatrixSquareSymmetric*, MatrixSquareSymmetric&,
+%typemap(scoerceout) std::string_view, const std::string_view
+%{    %}
+
+//%typemap(scoerceout) MatrixDense,     MatrixDense*,     MatrixDense&,
+//                     MatrixSquare,   MatrixSquare*,   MatrixSquare&,
+//                     MatrixSymmetric, MatrixSymmetric*, MatrixSymmetric&,
 //                     MatrixSparse,          MatrixSparse*,          MatrixSparse&
 // %{    %}
 
@@ -574,6 +579,7 @@
 //                    Add C++ extension                     //
 //////////////////////////////////////////////////////////////
 
+%include ../r/generated_r.i
 %{
   #include <stdio.h>
   #include <string>
@@ -609,15 +615,6 @@
     buf.append(s, prevPos, s.size() - prevPos);
     s.swap(buf);
   }
-
-  // Use std::string for find/replace (because char* is annoying)
-  // TODO : See io.cpp (do not use const char* anymore in message function)
-  // https://stackoverflow.com/questions/779875/what-function-is-to-replace-a-substring-from-a-string-in-c
-  const char* escape(std::string& str)
-  {
-    replace_all(str, "%", "%%");
-    return str.c_str();
-  }
   
   void R_Write(const char *string)
   {
@@ -625,8 +622,7 @@
     int length = strlen(string);
     if (length > 0)
     {
-      std::string str(string);
-      Rprintf(escape(str));
+      Rprintf("%s", string);
     }
   }
   
@@ -673,11 +669,91 @@
 %insert(s)
 %{
 
-# Add automatic display for all AStringable objects (see onAttach comment below)
-setMethod(f = "show", signature = "_p_AStringable", definition = function(object){ AStringable_display(object) })
+##
+## Add automatic display for all AStringable objects and vectors
+## ------------------------------------------------------------- ##
+
+setMethod(f = "show", signature = "_p_AStringable",                     definition = function(object){ AStringable_display(object) })
+
+setMethod(f = "show", signature = "_p_VectorTT_double_t",               definition = function(object){ VectorTDouble_display(object) })
+setMethod(f = "show", signature = "_p_VectorNumTT_double_t",            definition = function(object){ VectorTDouble_display(object) })
+
+setMethod(f = "show", signature = "_p_VectorTT_int_t",                  definition = function(object){ VectorTInt_display(object) })
+setMethod(f = "show", signature = "_p_VectorNumTT_int_t",               definition = function(object){ VectorTInt_display(object) })
+
+setMethod(f = "show", signature = "_p_VectorTT_float_t",                definition = function(object){ VectorTFloat_display(object) })
+setMethod(f = "show", signature = "_p_VectorNumTT_float_t",             definition = function(object){ VectorTFloat_display(object) })
+
+setMethod(f = "show", signature = "_p_VectorTT_String_t",               definition = function(object){ VectorString_display(object) })
+
+setMethod(f = "show", signature = "_p_VectorTT_VectorNumTT_int_t_t",    definition = function(object){ VectorVectorInt_display(object) })
+
+setMethod(f = "show", signature = "_p_VectorTT_VectorNumTT_double_t_t", definition = function(object){ VectorVectorDouble_display(object) })
+
+setMethod(f = "show", signature = "_p_VectorTT_VectorNumTT_float_t_t",  definition = function(object){ VectorVectorFloat_display(object) })
 
 ##
-## Add operator [] to VectorXXX R class [1-based index] ##
+## Add function for fixing inheritance issue (known caveat):
+## https://github.com/gstlearn/gstlearn/issues/308
+## ---------------------------------------------------- ##
+
+"getMethodsOfClass" <- function(name)
+{
+  x=ls(envir=asNamespace("gstlearn"))
+  split_vec = strsplit(x,"_")
+  first_part <- sapply(split_vec, function(x) x[1])
+  second_part <- sapply(split_vec, function(x) x[2])
+  len = sapply(split_vec,function(x) length(x))
+  ind = (first_part == name) & len == 2
+  return(second_part[ind])
+}
+
+"addMethodToList" <- function(classe,namemethod,listcur)
+{
+  listcur[[namemethod]] <- get(paste0(classe, "_", namemethod))
+  return(listcur)
+}
+
+"generateListMethods" <-function(listclasses)
+{
+  accessorFuns = list()
+  for (classe in listclasses)
+  {
+    methodsName = getMethodsOfClass(classe)
+    for (namemethod in methodsName)
+    {
+      accessorFuns = addMethodToList(classe,namemethod,accessorFuns)
+    }
+  }
+  return(accessorFuns)
+}
+
+"addMethodsFromNames" <- function(derived,listmethods) {
+  setMethod(
+    "$", paste0("_p_", derived),
+    function(x, name) {
+      idx = match(name, names(listmethods))
+      if (is.na(idx)) {
+        return(callNextMethod(x, name))
+      }
+      f = listmethods[[idx]]
+      result = function(...) {
+        f(x, ...)
+      }
+      return(result)
+    }
+  )
+}
+
+# Add methods to derived class (list classes must be ordered from
+# the most abstract to the most concrete)
+"addMethods" <- function(derived,listclasses) {
+  listfull = c(listclasses,derived)
+  addMethodsFromNames(derived, generateListMethods(listfull))
+}
+
+##
+## Add operator [] to VectorXXX R class [1-based index]
 ## ---------------------------------------------------- ##
 
 "getVitem" <-
@@ -739,7 +815,22 @@ setMethod('[[',   '_p_VectorTT_VectorNumTT_float_t_t',  getVitem)
 setMethod('[[<-', '_p_VectorTT_VectorNumTT_float_t_t',  setVitem)
 
 ##
-## Add operator [] to Db R class ##
+## Add toTL for Vector* R classes
+## ----------------------------- ##
+
+"Vector_toTL" <- function(x)
+{
+  unlist(lapply(seq(1,x$size()), getVitem, x=x))
+}
+
+"VectorTDouble_toTL" <- function(x) { Vector_toTL(x) }
+"VectorTInt_toTL"    <- function(x) { Vector_toTL(x) }
+"VectorTFloat_toTL"  <- function(x) { Vector_toTL(x) }
+"VectorTUChar_toTL"  <- function(x) { Vector_toTL(x) }
+"VectorTString_toTL" <- function(x) { Vector_toTL(x) }
+
+##
+## Add operator [] to Db R class
 ## ----------------------------- ##
 
 "is.undef" <- function(x)
@@ -788,8 +879,8 @@ function (x,i,j,...,drop=TRUE)
   dots = list(...)
   if (length(dots) > 0) args = append(args, dots)
   nargs = length(args)
-  nech_abs = db$getSampleNumber()
-  ncol_abs = db$getColumnNumber()
+  nech_abs = db$getNSample()
+  ncol_abs = db$getNColumn()
   rows <- NA
   namcols <- NA
 
@@ -843,8 +934,8 @@ function (x,i,j,...,drop=TRUE)
   if (length(dots) > 0) args = append(args, dots)
   nargs = length(args)
   
-  nech_abs = db$getSampleNumber()
-  ncol_abs = db$getColumnNumber()
+  nech_abs = db$getNSample()
+  ncol_abs = db$getNColumn()
   value = as.numeric(unlist(value))
 
   rows <- NA
@@ -894,6 +985,27 @@ setMethod('[<-',  '_p_Db',               setDbitem)
 setMethod('[',    '_p_DbGrid',           getDbitem)
 setMethod('[<-',  '_p_DbGrid',           setDbitem)
 
+##
+## Add toTL to Db R class
+## ----------------------------- ##
+
+"Db_toTL" <- function(x)
+{
+  names = x$getAllNames()
+  nc = x$getNColumn()
+  vals = NULL
+  for (i in seq(0,nc-1)) {
+    vals = cbind(vals,x$getColumnsByColIdx(i))
+  }
+  df = data.frame(vals)
+  names(df) = names
+  df
+}
+
+##
+## Add toTL to Matrix* R classes
+## ----------------------------- ##
+
 "matrix_toTL" <- function(x)
 {
   Q = NULL
@@ -912,32 +1024,15 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
   Q
 }
 
-"MatrixRectangular_toTL" <- function(x) { matrix_toTL(x) }
-"MatrixSquareGeneral_toTL" <- function(x) { matrix_toTL(x) }
-"MatrixSquareSymmetric_toTL" <- function(x) { matrix_toTL(x) }
+"MatrixDense_toTL" <- function(x) { matrix_toTL(x) }
+"MatrixSquare_toTL" <- function(x) { matrix_toTL(x) }
+"MatrixSymmetric_toTL" <- function(x) { matrix_toTL(x) }
 "MatrixSparse_toTL" <- function(x) { matrix_toTL(x) }
 "ProjMatrix_toTL" <- function(x) { matrix_toTL(x) }
 
-"Table_toTL" <- function(tab)
-{
-  nrow = tab$getNRows()
-  ncol = tab$getNCols()
-  mat <- matrix(tab$getValues(), byrow = FALSE, nrow=nrow, ncol=ncol)
-  df = data.frame(mat)
-  if (nrow > 0 && ncol > 0)
-  {
- 	names(df) = tab$getColumnNames()
-  	if (length(tab$getColumnNames()) > 0) 
-  		colnames(df) <- tab$getColumnNames()
- 	else
-  		colnames(df) = seq(1, ncol)
-  	if (length(tab$getRowNames()) > 0)    
-  		rownames(df) <- tab$getRowNames()
-  	else
-  		rownames(df) = seq(1, nrow)
-  }
-  df
-}
+##
+## Add operator [] to Table R class
+## -------------------------------- ##
 
 "getTableitem" <-
 function (x,i,j,...,drop=TRUE)
@@ -974,6 +1069,35 @@ function (x,i,j,...,drop=TRUE)
 setMethod('[',    '_p_Table',               getTableitem)
 setMethod('[<-',  '_p_Table',               setTableitem)
 
+##
+## Add toTL to Table R class
+## ----------------------------- ##
+
+"Table_toTL" <- function(tab)
+{
+  nrow = tab$getNRows()
+  ncol = tab$getNCols()
+  mat <- matrix(tab$getValues(), byrow = FALSE, nrow=nrow, ncol=ncol)
+  df = data.frame(mat)
+  if (nrow > 0 && ncol > 0)
+  {
+ 	names(df) = tab$getColumnNames()
+  	if (length(tab$getColumnNames()) > 0) 
+  		colnames(df) <- tab$getColumnNames()
+ 	else
+  		colnames(df) = seq(1, ncol)
+  	if (length(tab$getRowNames()) > 0)    
+  		rownames(df) <- tab$getRowNames()
+  	else
+  		rownames(df) = seq(1, nrow)
+  }
+  df
+}
+
+##
+## Add toTL to Triplet R class
+## ----------------------------- ##
+
 "Triplet_toTL" <- function(x)
 {
   Q = NULL
@@ -987,18 +1111,10 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   Q
 }
 
-"Db_toTL" <- function(x)
-{
-  names = x$getAllNames()
-  nc = x$getColumnNumber()
-  vals = NULL
-  for (i in seq(0,nc-1)) {
-    vals = cbind(vals,x$getColumnsByColIdx(i))
-  }
-  df = data.frame(vals)
-  names(df) = names
-  df
-}
+
+##
+## Add toTL to Vario R class
+## ----------------------------- ##
 
 #' Convert a variogram into a data.frame
 #'
@@ -1020,12 +1136,12 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 
 "Vario_updateFromDF" <- function(vario, df, idir=0, ivar=0, jvar=0)
 {
-	ndir = vario$getDirectionNumber()
-	nvar = vario$getVariableNumber()
+	ndir = vario$getNDir()
+	nvar = vario$getNVar()
 	if (idir < 0 || idir >= ndir) return
 	if (ivar < 0 || ivar >= nvar) return 
 	if (jvar < 0 || jvar >= nvar) return 
-	nlag = vario$getLagTotalNumber(idir)
+	nlag = vario$getNLagTotal(idir)
 	if (dim(df)[1] != nlag) return 
 	
 	vario$setSwVec(idir, ivar, jvar, df$sw)
@@ -1033,6 +1149,11 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 	vario$setGgVec(idir, ivar, jvar, df$gg)
 	vario
 }
+
+
+##
+## Add toTL to Krigtest_Res R class
+## -------------------------------- ##
 
 "Krigtest_Res_toTL" <- function(x)
 {
@@ -1054,6 +1175,32 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   res
 }
 
+
+##
+## Add toTL to Global_Result R class
+## -------------------------------- ##
+
+"Global_Result_toTL" <- function(x)
+{
+  res = list(
+      ntot = x$ntot,
+      np = x$np,
+      ng = x$ng,
+      surface  = x$surface,
+      zest = x$zest,
+      sse = x$sse,
+      cvgeo = x$cvgeo,
+      cvv = x$cvv,
+      weights = x$weights$toTL()
+      )
+  res
+}
+
+
+##
+## Add operator [] to Vario R class
+## -------------------------------- ##
+
 "varioArguments" <- function(res)
 {
   nargs = length(res)
@@ -1061,31 +1208,31 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   idir = 0
   ivar = 0
   jvar = 0
-  ipas = 0
+  ilag = 0
   if (nargs == 1)
   {
-    ipas = unlist(res[[1]])
+    ilag = unlist(res[[1]])
   }
   else if (nargs == 2)
   {
     idir = unlist(res[[1]])
-    ipas = unlist(res[[2]])
+    ilag = unlist(res[[2]])
   }
   else if (nargs == 3)
   {
     ivar = unlist(res[[1]])
     jvar = unlist(res[[2]])
-    ipas = unlist(res[[3]])
+    ilag = unlist(res[[3]])
   }
   else if (nargs == 4)
   {
     idir = unlist(res[[1]])
     ivar = unlist(res[[2]])
     jvar = unlist(res[[3]])
-    ipas = unlist(res[[4]])
+    ilag = unlist(res[[4]])
   }
 
-  res = list(idir=idir, ivar=ivar, jvar=jvar, ipas=ipas)
+  res = list(idir=idir, ivar=ivar, jvar=jvar, ilag=ilag)
   res
 }
 
@@ -1099,7 +1246,7 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   if (length(dots) > 0) args = append(args, dots)
   
   res = varioArguments(args)
-  values = vario$getGgs(res$idir, res$ivar, res$jvar, res$ipas)
+  values = vario$getGgs(res$idir, res$ivar, res$jvar, res$ilag)
   values
 }
 
@@ -1113,25 +1260,25 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   if (length(dots) > 0) args = append(args, dots)
   
   res = varioArguments(args)  
-  vario$setGgs(res$idir, res$ivar, res$jvar, res$ipas, as.numeric(unlist(value)))
+  vario$setGgs(res$idir, res$ivar, res$jvar, res$ilag, as.numeric(unlist(value)))
   vario
 }
 
 setMethod('[',    '_p_Vario',               getVarioitem)
 setMethod('[<-',  '_p_Vario',               setVarioitem)
 
-#"MatrixRectangular_create" <- function(mat)
+#"MatrixDense_create" <- function(mat)
 #{
 #  if (inherits(mat, "ExternalReference")) mat = slot(mat,"ref"); 
-#  ;ans = .Call('R_swig_MatrixRectangular_create', mat, PACKAGE='gstlearn');
+#  ;ans = .Call('R_swig_MatrixDense_create', mat, PACKAGE='gstlearn');
 #  ans <- if (is.null(ans)) ans
 #  else new("_p_Plane", ref=ans);
 #  
 #  ans
 #}
-#attr(`MatrixRectangular_create`, 'returnType') = '_p_MatrixRectangular'
-#attr(`MatrixRectangular_create`, "inputTypes") = c('_p_MatrixRectangular')
-#class(`MatrixRectangular_create`) = c("SWIGFunction", class('MatrixRectangular_create'))
+#attr(`MatrixDense_create`, 'returnType') = '_p_MatrixDense'
+#attr(`MatrixDense_create`, "inputTypes") = c('_p_MatrixDense')
+#class(`MatrixDense_create`) = c("SWIGFunction", class('MatrixDense_create'))
 
 #"MatrixSparse_create" <- function(mat)
 #{
@@ -1146,12 +1293,17 @@ setMethod('[<-',  '_p_Vario',               setVarioitem)
 #attr(`MatrixSparse_create`, "inputTypes") = c('_p_MatrixSparse')
 #class(`MatrixSparse_create`) = c("SWIGFunction", class('MatrixSparse_create'))
 
-"MatrixRectangular_fromTL" <- function(Robj)
+
+##
+## Add fromTL to a some R classes
+## -------------------------------- ##
+
+"MatrixDense_fromTL" <- function(Robj)
 {
 	ncol = ncol(Robj)
 	nrow = nrow(Robj)
 	values = as.vector(Robj)
-	gstobj = MatrixRectangular_createFromVD(values, nrow=nrow, ncol=ncol)
+	gstobj = MatrixDense_createFromVD(values, nrow=nrow, ncol=ncol)
 	gstobj
 }
 
@@ -1186,7 +1338,7 @@ setMethod('[<-',  '_p_Vario',               setVarioitem)
 	gstobj = NULL
 	if ("matrix" %in% class(Robj))
 	{
-		gstobj = MatrixRectangular_fromTL(Robj)
+		gstobj = MatrixDense_fromTL(Robj)
 	}
 	else if ("data.frame" %in% class(Robj))
 	{
@@ -1196,15 +1348,26 @@ setMethod('[<-',  '_p_Vario',               setVarioitem)
 }
 
 # Special function overloaded for plot.R
-setMethod("plot", signature(x="_p_AMesh"), function(x,y=missing,...)   plot.mesh(x,...))
-setMethod("plot", signature(x="_p_DbGrid"), function(x,y="missing",...)  plot.grid(x,...))
-
-setMethod("plot", signature(x="_p_Db"), function(x,y=missing,...) plot.point(x,...))
+setMethod("plot", signature(x="_p_AMesh"),    function(x,y=missing,...) plot.mesh(x,...))
+setMethod("plot", signature(x="_p_DbGrid"),   function(x,y=missing,...) plot.raster(x,...))
+setMethod("plot", signature(x="_p_Db"),       function(x,y=missing,...) plot.symbol(x,...))
 setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))
+setMethod("plot", signature(x="_p_Vario"),    function(x,y=missing,...) plot.vario(x,...))
+setMethod("plot", signature(x="_p_Model"),    function(x,y=missing,...) plot.model(x,...))
+setMethod("plot", signature(x="_p_Rule"),     function(x,y=missing,...) plot.rule(x,...))
+setMethod("plot", signature(x="_p_AAnam"),    function(x,y=missing,...) plot.anam(x,...))
 
-setMethod("plot", signature(x="_p_Vario"), function(x,y=missing,...) plot.vario(x,...))
-setMethod("plot", signature(x="_p_Model"), function(x,y="missing",...) plot.model(x,...))
+#Add methods of ModelCovList (base) to Model (derived) (in case inheritance didn t work)
 
-setMethod("plot", signature(x="_p_Rule"), function(x,y="missing",...) plot.rule(x,...))
-setMethod("plot", signature(x="_p_AAnam"), function(x,y="missing",...) plot.anam(x,...))
+addMethods("ModelCovList",c("ModelGeneric"))
+addMethods("Model",c("ModelGeneric","ModelCovList"))
+
+addMethods("CovAniso", c("ACov", "CovBase", "CovProportional"))
+addMethods("CovList", c("ACov"))
+addMethods("CovAnisoList", c("ACov","CovList"))
+
+addMethods("Db", c("ASerializable"))
+addMethods("DbGrid", c("ASerializable"))
+
+
 %}

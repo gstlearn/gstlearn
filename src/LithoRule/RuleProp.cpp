@@ -140,7 +140,7 @@ void RuleProp::_clear()
   _dbprop = nullptr;
   if (_ruleInternal)
   {
-    for (int ir = 0; ir < getRuleNumber(); ir++)
+    for (int ir = 0; ir < getNRule(); ir++)
       delete _rules[ir];
   }
 }
@@ -148,7 +148,7 @@ void RuleProp::_clear()
 String RuleProp::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  if (getRuleNumber() <= 0) return sstr.str();
+  if (getNRule() <= 0) return sstr.str();
 
   // Stationary Flag
   if (_flagStat)
@@ -165,7 +165,7 @@ String RuleProp::toString(const AStringFormat* strfmt) const
   //   sstr << _dbprop->toString(strfmt);
 
   // Rules
-  for (int ir = 0; ir < getRuleNumber(); ir++)
+  for (int ir = 0; ir < getNRule(); ir++)
   {
     const Rule* rule = _rules[ir];
     sstr << rule->toString(strfmt);
@@ -179,13 +179,13 @@ bool RuleProp::_checkConsistency()
   int nfacies = 0;
 
   // Check the number of facies against the Rule(s)
-  if (getRuleNumber() > 0)
+  if (getNRule() > 0)
   {
     // In case of several rules, the number of facies is the product
     // of the number of facies per rule.
     int nfacrule = 1;
-    for (int ir = 0; ir < getRuleNumber(); ir++)
-      nfacrule *= _rules[ir]->getFaciesNumber();
+    for (int ir = 0; ir < getNRule(); ir++)
+      nfacrule *= _rules[ir]->getNFacies();
     nfacies = nfacrule;
   }
 
@@ -196,7 +196,7 @@ bool RuleProp::_checkConsistency()
     _propcst.clear();
 
     // Check consistency of the number of facies
-    int nfacdb = _dbprop->getFromLocatorNumber(ELoc::P);
+    int nfacdb = _dbprop->getNFromLocator(ELoc::P);
     if (nfacies > 0 && nfacies != nfacdb)
     {
       messerr("Mismatch between:");
@@ -239,7 +239,7 @@ bool RuleProp::_checkConsistency()
 
 bool RuleProp::_checkRuleRank(int rank) const
 {
-  return checkArg("Rule Rank", rank, getRuleNumber());
+  return checkArg("Rule Rank", rank, getNRule());
 }
 
 int RuleProp::_getNFacies()
@@ -248,15 +248,15 @@ int RuleProp::_getNFacies()
   if (! _rules.empty())
   {
     int nfacies = 1;
-    for (int ir = 0; ir < getRuleNumber(); ir++)
-      nfacies *= _rules[ir]->getFaciesNumber();
+    for (int ir = 0; ir < getNRule(); ir++)
+      nfacies *= _rules[ir]->getNFacies();
     return nfacies;
   }
 
   // Non-stationary case: proportions are provided using Dbprop
   if (_dbprop != nullptr)
   {
-    return _dbprop->getFromLocatorNumber(ELoc::P);
+    return _dbprop->getNFromLocator(ELoc::P);
   }
 
   // Stationary proportions provided by 'propcst'

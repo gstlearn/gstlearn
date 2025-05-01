@@ -14,8 +14,6 @@
 #include "Basic/OptCst.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/ACovAnisoList.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -47,32 +45,32 @@ int main(int argc, char *argv[])
 
   // Creating the Model
   Model* model = Model::createFromParam(ECov::CUBIC, 0., 1., 1., {10., 45.},
-                                        MatrixSquareSymmetric(), {30., 0.});
+                                        MatrixSymmetric(), {30., 0.});
   model->display();
 
   // Creating the MeshTurbo which contains the Db
   MeshETurbo mesh;
-  mesh.initFromCova(*model->getCova(0),grid,10,2,true,false,true);
+  mesh.initFromCova(*model->getCovAniso(0),grid,10,2,true, true,false,300,true);
 
   /////////////////////////
   // Testing the selections
   /////////////////////////
 
-  int nech = grid->getSampleNumber();
+  int nech = grid->getNSample();
 
   // First selection generated with Bernoulli (proba=0.6)
   VectorDouble sel1 = VH::simulateBernoulli(nech, 0.6);
-  VH::display("sel1", sel1);
+  VH::dump("sel1", sel1);
   grid->addSelection(sel1, "Sel1");
 
   // Second selection generated with Bernoulli (proba=0.4) combined with previous one
   VectorDouble sel2 = VH::simulateBernoulli(nech, 0.4);
-  VH::display("sel2", sel2);
+  VH::dump("sel2", sel2);
   grid->addSelection(sel2, "Sel2","and");
 
   // Retrieve resulting selection for check
   VectorDouble sel3 = grid->getSelections();
-  VH::display("sel1 && sel2",sel3);
+  VH::dump("sel1 && sel2",sel3);
 
   // Testing Filters on Db printout (only Statistics on the variables "Sel*")
   DbStringFormat dbfmt(FLAG_VARS | FLAG_STATS,{"Sel*"});

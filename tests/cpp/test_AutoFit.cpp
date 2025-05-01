@@ -62,8 +62,8 @@ int main(int argc, char *argv[])
   vario->dumpToNF("Vario2D");
 
   // Fitting an omni-directional model
-  Model* model_fit = Model::createFromEnvironment(1, ndim);
-  model_fit->fit(vario, {ECov::GAUSSIAN, ECov::LINEAR});
+  Model* model_fit = new Model(1, ndim);
+  model_fit->fit(vario, {ECov::LINEAR});
   model_fit->display();
   model_fit->dumpToNF("Model2D");
 
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
 
   // Defining a Data Base
   db = Db::createFromBox(100, {0.,0.,0.,0.}, {100., 100., 100., 100.});
-  VectorDouble tab = VH::simulateGaussian(db->getActiveSampleNumber(), 0., 1.);
+  VectorDouble tab = VH::simulateGaussian(db->getNSampleActive(), 0., 1.);
   db->addColumns(tab, "Var", ELoc::Z);
 
   // Calculate the experimental variogram
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 
   // Fitting an omni-directional model
   model_fit = Model::createFromEnvironment(1, ndim);
-  model_fit->fit(vario, {ECov::GAUSSIAN, ECov::LINEAR});
+  model_fit->fit(vario, {ECov::GAUSSIAN});
   model_fit->display();
   model_fit->dumpToNF("Model4D");
 

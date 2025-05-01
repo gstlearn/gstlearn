@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Anamorphosis/AnamDiscrete.hpp"
 #include "Basic/AStringable.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include <Stats/Selectivity.hpp>
 
 #include <math.h>

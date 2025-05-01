@@ -64,16 +64,16 @@ bool ModelOptimVario::_checkConsistency()
   const Model* model = _modelPart._model;
   const Vario* vario = _varioPart._vario;
 
-  if (vario->getDimensionNumber() != model->getDimensionNumber())
+  if (vario->getNDim() != (int)model->getNDim())
   {
     messerr("'_vario'(%d) and '_model'(%d) should have same Space Dimension",
-            vario->getDimensionNumber(), model->getDimensionNumber());
+            vario->getNDim(), model->getNDim());
     return false;
   }
-  if (vario->getVariableNumber() != model->getVariableNumber())
+  if (vario->getNVar() != model->getNVar())
   {
     messerr("'_vario'(%d) and '_model'(%d) should have same number of Variables",
-      vario->getVariableNumber(), model->getVariableNumber());
+      vario->getNVar(), model->getNVar());
     return false;
   }
   return true;
@@ -134,13 +134,13 @@ int ModelOptimVario::_buildExperimental()
   // Clean previous contents
   _varioPart._lags.clear();
 
-  int nvar = vario->getVariableNumber();
-  int ndim = vario->getDimensionNumber();
+  int nvar = vario->getNVar();
+  int ndim = vario->getNDim();
   VectorDouble dd(ndim);
 
-  for (int idir = 0, ndir = vario->getDirectionNumber(); idir < ndir; idir++)
+  for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
   {
-    for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++)
+    for (int ilag = 0, nlag = vario->getNLag(idir); ilag < nlag; ilag++)
     {
       int ijvar = 0;
       for (int ivar = ijvar = 0; ivar < nvar; ivar++)
@@ -153,8 +153,8 @@ int ModelOptimVario::_buildExperimental()
           double gg   = TEST;
           if (vario->getFlagAsym())
           {
-            int iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
-            int jad = vario->getDirAddress(idir, ivar, jvar, ipas, false, -1);
+            int iad = vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+            int jad = vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
             double c00 = vario->getC00(idir, ivar, jvar);
             double n1  = vario->getSwByIndex(idir, iad);
             double n2  = vario->getSwByIndex(idir, jad);
@@ -172,7 +172,7 @@ int ModelOptimVario::_buildExperimental()
           }
           else
           {
-            int iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
+            int iad = vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
             if (vario->isLagCorrect(idir, iad))
             {
               gg   = vario->getGgByIndex(idir, iad);
@@ -195,16 +195,14 @@ int ModelOptimVario::_buildExperimental()
   int ecr         = 0;
   int ipadir      = 0;
 
-  for (int idir = 0, ndir = vario->getDirectionNumber(); idir < ndir; idir++)
-  {
-    for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
+  for (int idir = 0, ndir = vario->getNDir(); idir < ndir; idir++)
+    for (int ilag = 0, nlag = vario->getNLag(idir); ilag < nlag; ilag++, ipadir++)
     {
       int ijvar = 0;
       for (int ivar = ijvar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
           _varioPart._lags[ecr]._weight = WT(ijvar, ipadir);
     }
-  }
 
   return 0;
 }
@@ -254,11 +252,11 @@ double ModelOptimVario::evalCost(unsigned int nparams,
   int nlags = (int) varioPart._lags.size();
   double total = 0.;
   SpacePoint origin;
-  for (int ipas = 0; ipas < nlags; ipas++)
+  for (int ilag = 0; ilag < nlags; ilag++)
   {
-    const OneLag& lag = varioPart._lags[ipas];
+    const OneLag& lag = varioPart._lags[ilag];
     double vexp        = lag._gg;
-    double vtheo = modelPart._model->eval(origin, lag._P, lag._ivar, lag._jvar, &modelPart._calcmode);
+    double vtheo = modelPart._model->evalCov(origin, lag._P, lag._ivar, lag._jvar, &modelPart._calcmode);
     double delta = vexp - vtheo;
     total += lag._weight * delta * delta;
   }

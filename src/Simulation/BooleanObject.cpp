@@ -380,7 +380,7 @@ bool BooleanObject::isCompatiblePore(const Db* db)
 {
   if (db == nullptr) return true;
   int ndim = db->getNDim();
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (! db->isActive(iech)) continue;
     if (! _isPore(db, iech)) continue;
@@ -403,7 +403,7 @@ bool BooleanObject::isCompatibleGrainAdd(const Db* db)
   if (db == nullptr) return true;
 
   int ndim = db->getNDim();
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (! db->isActive(iech)) continue;
     if (! _isGrain(db,iech)) continue;
@@ -427,7 +427,7 @@ bool BooleanObject::isCompatibleGrainDelete(const Db* db, int iptr_cover)
   if (db == nullptr) return true;
   int ndim = db->getNDim();
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (! db->isActive(iech)) continue;
     if (! _isGrain(db, iech)) continue;
@@ -457,7 +457,7 @@ int BooleanObject::coverageUpdate(Db* db, int iptr_cover, int val)
   if (db == nullptr) return 0;
   int ndim = db->getNDim();
   int not_covered = 0;
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (! db->isActive(iech)) continue;
     if (! _isGrain(db, iech)) continue;

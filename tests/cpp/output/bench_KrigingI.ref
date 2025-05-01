@@ -1,4 +1,4 @@
-#NO_DIFF# Kriging in Image Neighborhood: 2396 ms. (Ref = 2200 ms.)
+#NO_DIFF# Kriging in Image Neighborhood: 48 ms. (Ref = 1200 ms.)
 
 Data Base Grid Characteristics
 ==============================
@@ -8,8 +8,8 @@ Data Base Statistics
 5 - Name Filtering.Var - Locator z1
  Nb of data          =      86400
  Nb of active values =      86400
- Minimum value       =      1.214
- Maximum value       =      1.214
- Mean value          =      1.214
+ Minimum value       =      1.200
+ Maximum value       =      1.200
+ Mean value          =      1.200
  Standard Deviation  =      0.000
  Variance            =      0.000

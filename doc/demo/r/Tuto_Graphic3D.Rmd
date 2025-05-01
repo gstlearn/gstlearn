@@ -21,8 +21,6 @@ Initialization of *gstlearn*
 
 ```{r intialization, include=FALSE}
 library(gstlearn)
-library(ggplot2)
-library(ggpubr)
 library(rgl) # used for 3D vizualisation
 rm(list = ls())
 ```

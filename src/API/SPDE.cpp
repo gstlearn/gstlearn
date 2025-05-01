@@ -12,11 +12,11 @@
 #include "Enum/ECov.hpp"
 
 #include "API/SPDE.hpp"
-#include "LinearOp/MatrixSquareSymmetricSim.hpp"
+#include "LinearOp/MatrixSymmetricSim.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "LinearOp/SPDEOp.hpp"
 #include "LinearOp/SPDEOpMatrix.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/NF_Triplet.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Mesh/MeshETurbo.hpp"
@@ -154,7 +154,7 @@ void SPDE::_setUseCholesky(int useCholesky, bool verbose)
 {
   if (useCholesky == -1)
   {
-    useCholesky = (_model->getDimensionNumber() == 2);
+    useCholesky = (_model->getNDim() == 2);
   }
   else if (useCholesky == 1)
     _useCholesky = true;
@@ -165,7 +165,7 @@ void SPDE::_setUseCholesky(int useCholesky, bool verbose)
   if (verbose)
   {
     mestitle(1, "SPDE parameters");
-    message("- Space dimension = %d\n", _model->getDimensionNumber());
+    message("- Space dimension = %d\n", _model->getNDim());
     if (! _meshingKrig.empty())
     {
       for (int imesh = 0; imesh < (int) _meshingKrig.size(); imesh++)
@@ -223,9 +223,9 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
   }
 
   // Loop on the basic structures
-  for (int icov = 0, ncov = _model->getCovaNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = _model->getNCov(); icov < ncov; icov++)
   {
-    CovAniso* cova = _model->getCova(icov);
+    CovAniso* cova = _model->getCovAniso(icov);
     double sill = cova->getSill(0,0);
     bool flagNoStatRot = false;
     
@@ -243,8 +243,10 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
       {
         if (meshUser == nullptr)
         {
-          mesh = MeshETurbo::createFromCova(*cova, domain, _params.getRefineS(), _params.getBorder(),
-                                            useSel, flagNoStatRot, verbose);
+          mesh        = MeshETurbo::createFromCova(*cova, domain, _params.getRefineS(),
+                                                   _params.getBorder(), useSel, 
+                                            _params.isPolarized(),        flagNoStatRot, _params.getNxMax(), 
+                                                   verbose);
           _deleteMesh = true;
         }
         _meshingSimu.push_back(mesh);
@@ -268,7 +270,9 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         if (meshUser == nullptr)
         {
           mesh = MeshETurbo::createFromCova(*cova, domain, _params.getRefineK(),
-                                            _params.getBorder(), useSel, flagNoStatRot, verbose);
+                                            _params.getBorder(), _params.isPolarized(),
+                                            useSel, flagNoStatRot,
+                                            _params.getNxMax(), verbose);
          
           _deleteMesh = true;
         }
@@ -297,14 +301,14 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
   // Evaluation of the variance at data point
   if (_isKrigingRequested() && _data != nullptr)
   {
-    if (_data->getLocNumber(ELoc::V) > 0)
+    if (_data->getNLoc(ELoc::V) > 0)
     {
       // If a variance of measurement error is defined
       // we must intersect it with the definition of the Z-value
       VectorDouble valData = _data->getColumnByLocator(ELoc::Z,0,useSel);
       VectorDouble varData = _data->getColumnByLocator(ELoc::V,0,useSel);
       double eps_loc = _params.getEpsNugget() * totalSill;
-      for (int iech = 0; iech < _data->getSampleNumber(true); iech++)
+      for (int iech = 0; iech < _data->getNSample(true); iech++)
       {
         if (FFFF(valData[iech])) continue;
         {
@@ -322,7 +326,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
     else
     {
       VH::fill(varianceData, MAX(_nugget, _params.getEpsNugget() * totalSill),
-               _data->getNumberActiveAndDefined(0));
+               _data->getNSampleActiveAndDefined(0));
     }
     _precisionsKrig->setVarianceDataVector(varianceData);
 
@@ -364,7 +368,7 @@ void SPDE::_computeSimuCond() const
   _computeSimuNonCond();
 
   // Perform the non conditional simulation on data
-  std::vector<double> temp_dat(_data->getSampleNumber(true));
+  std::vector<double> temp_dat(_data->getNSample(true));
   _precisionsSimu->simulateOnDataPointFromMeshings(_workingSimu, temp_dat);
 
   // Calculate the simulation error
@@ -377,7 +381,7 @@ void SPDE::_computeSimuCond() const
   _computeKriging();
 }
 
-void SPDE::_centerByDrift(const VectorDouble& dataVect,int ivar,bool useSel) const
+void SPDE::_centerByDrift(const VectorDouble& dataVect, bool useSel) const
 {
   _computeDriftCoeffs();
 
@@ -395,7 +399,7 @@ void SPDE::_centerByDrift(const VectorDouble& dataVect,int ivar,bool useSel) con
   }
   else
   {
-    _workingDataInit = _model->evalDriftVarCoefs(_data,_driftCoeffs,ivar,useSel);
+    _workingDataInit = _model->evalDriftVarCoefs(_data,_driftCoeffs,useSel);
 
     for(int iech = 0, nech = (int) _workingDataInit.size(); iech<nech; iech++)
     {
@@ -404,10 +408,10 @@ void SPDE::_centerByDrift(const VectorDouble& dataVect,int ivar,bool useSel) con
   }
 }
 
-void SPDE::_addDrift(Db* db, VectorDouble &result, int ivar, bool useSel)
+void SPDE::_addDrift(Db* db, VectorDouble &result, bool useSel)
 {
   if (! _requireCoeffs) return;
-  VectorDouble temp_out = _model->evalDriftVarCoefs(db, _driftCoeffs, ivar, useSel);
+  VectorDouble temp_out = _model->evalDriftVarCoefs(db, _driftCoeffs, useSel);
   VH::addInPlace(result, temp_out);
 }
 
@@ -427,7 +431,7 @@ int SPDE::compute(Db *dbout,
       messerr("For this calculation option, you must define some Data");
       return 1;
     }
-    if (_data->getLocNumber(ELoc::Z) != 1)
+    if (_data->getNLoc(ELoc::Z) != 1)
     {
       messerr("The Input dbin must contain ONE variable (Z locator)");
       return 1;
@@ -453,7 +457,7 @@ int SPDE::compute(Db *dbout,
     dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
     // Suppress any TEST value and center by the drift
     dataVect = VH::suppressTest(dataVect);
-    _centerByDrift(dataVect,ivar,useSel);
+    _centerByDrift(dataVect,useSel);
   }
 
   // Create the output vectors in the output Db
@@ -473,7 +477,7 @@ int SPDE::compute(Db *dbout,
 
   // Dispatch
 
-  VectorDouble result(dbout->getSampleNumber(true));
+  VectorDouble result(dbout->getNSample(true));
 
   if (_calcul == ESPDECalcMode::KRIGING)
   {
@@ -502,8 +506,8 @@ int SPDE::compute(Db *dbout,
                                 "estim", 1);
 
     // Standard Deviation using Monte-Carlo simulations
-    VectorDouble temp_mean(dbout->getSampleNumber(true), 0.);
-    VectorDouble temp_mean2(dbout->getSampleNumber(true), 0.);
+    VectorDouble temp_mean(dbout->getNSample(true), 0.);
+    VectorDouble temp_mean2(dbout->getNSample(true), 0.);
 
     for (int isimu = 0; isimu < nbsimu; isimu++)
     {
@@ -568,7 +572,7 @@ void SPDE::_projecLocal(Db* dbout,
                         std::vector<double>& working,
                         VectorDouble& result)
 {
-  std::vector<double> temp_out(dbout->getSampleNumber(true));
+  std::vector<double> temp_out(dbout->getNSample(true));
   vect tempoutm(temp_out);
   constvect workingm(working);
   ProjMatrix proj(dbout,meshing);
@@ -627,7 +631,7 @@ double SPDE::computeQuad() const
   int ivar = 0;
   bool useSel = true;
   VectorDouble dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
-  _centerByDrift(dataVect,ivar,useSel);
+  _centerByDrift(dataVect,useSel);
   return _precisionsKrig->computeQuadratic(_workingData);
 }
 
@@ -676,7 +680,7 @@ double SPDE::computeLogLikelihood(int nbsimu, bool verbose) const
       messerr("For this calculation option, you must define some Data");
       return 1;
     }
-    if (_data->getLocNumber(ELoc::Z) != 1)
+    if (_data->getNLoc(ELoc::Z) != 1)
     {
       messerr("The Input dbin must contain ONE variable (Z locator)");
       return 1;
@@ -692,7 +696,7 @@ double SPDE::computeLogLikelihood(int nbsimu, bool verbose) const
     dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
     // Suppress any TEST value and center by the drift
     dataVect = VH::suppressTest(dataVect);
-    _centerByDrift(dataVect,ivar,useSel);
+    _centerByDrift(dataVect,useSel);
   }
 
   // Dispatch
@@ -717,6 +721,7 @@ void SPDE::_computeDriftCoeffs() const
       _driftCoeffs = _precisionsKrig->computeCoeffs(_data->getColumnByLocator(ELoc::Z,0,true),
                                                     _driftTab);
     }
+    _model->setBetaHat(_driftCoeffs);
     _isCoeffsComputed = true;
   }
 }
@@ -870,7 +875,7 @@ static int _loadPositions(int iech,
   return ndef;
 }
 
-static void _addVerrConstant(MatrixSquareSymmetric& sills, const VectorDouble& verrDef)
+static void _addVerrConstant(MatrixSymmetric& sills, const VectorDouble& verrDef)
 {
   int nverr = (int) verrDef.size();
   if (nverr > 0)
@@ -880,7 +885,7 @@ static void _addVerrConstant(MatrixSquareSymmetric& sills, const VectorDouble& v
   }
 }
 
-static void _checkMinNugget(MatrixSquareSymmetric& sills, const VectorDouble& minNug)
+static void _checkMinNugget(MatrixSymmetric& sills, const VectorDouble& minNug)
 {
   int nvar = (int) minNug.size();
 
@@ -889,17 +894,17 @@ static void _checkMinNugget(MatrixSquareSymmetric& sills, const VectorDouble& mi
     sills.setValue(ivar,ivar, MAX(sills.getValue(ivar,ivar), minNug[ivar]));
 }
 
-static MatrixSquareSymmetric _buildSillPartialMatrix(const MatrixSquareSymmetric &sillsRef,
+static MatrixSymmetric _buildSillPartialMatrix(const MatrixSymmetric &sillsRef,
                                                      int nvar,
                                                      int ndef,
                                                      const VectorInt &identity)
 {
-  MatrixSquareSymmetric sills;
+  MatrixSymmetric sills;
   if (ndef == nvar)
     sills = sillsRef;
   else
   {
-    sills = MatrixSquareSymmetric(ndef);
+    sills = MatrixSymmetric(ndef);
     for (int idef = 0; idef < ndef; idef++)
       for (int jdef = 0; jdef <= idef; jdef++)
         sills.setValue(idef, jdef, sillsRef.getValue(identity[idef], identity[jdef]));
@@ -923,10 +928,10 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
 
   MatrixSparse* mat = nullptr;
   if (db == nullptr) return mat;
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   if (model == nullptr) return mat;
-  int nvar = db->getLocNumber(ELoc::Z);
-  if (nvar != model->getVariableNumber())
+  int nvar = db->getNLoc(ELoc::Z);
+  if (nvar != model->getNVar())
   {
     messerr("'db' and 'model' should have the same number of variables");
     return mat;
@@ -934,19 +939,19 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   bool hasnugget = false;
   CovAniso* cova =nullptr;
 
-  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  for (int icov = 0; icov < model->getNCov(); icov++)
   {
-    if (model->getCova(icov)->getType() == ECov::NUGGET)
+    if (model->getCovAniso(icov)->getType() == ECov::NUGGET)
     {
-      cova = model->getCova(icov);
+      cova = model->getCovAniso(icov);
       hasnugget = true;
       break;
     }
   }
   if (!hasnugget)
   {
-    MatrixSquareSymmetric sills(model->getVariableNumber());
-    cova = CovAniso::createIsotropicMulti(model->getContext(), ECov::NUGGET, 0, sills);
+    MatrixSymmetric sills(model->getNVar());
+    cova = CovAniso::createIsotropicMulti(*model->getContext(), ECov::NUGGET, 0, sills);
   }
   VectorInt ivars = VH::sequence(nvar);
 
@@ -961,23 +966,17 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   if (flag_nostat_sill)
     cova->informDbInForSills(db);
 
-  // Create the sets of Vector of valid sample indices per variable (not masked and defined)
-  VectorVectorInt index1 = db->getMultipleRanksActive(ivars);
+  // Create sets of Vector of valid sample indices per variable (not masked and defined)
+  VectorVectorInt index1 = db->getSampleRanks(ivars);
   // 'cumul' counts the number of valid positions for all variables before 'ivar'
-  VectorInt cumul(nvar, 0);
-  int number = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
-  {
-    cumul[ivar] = number;
-    number += (int) index1[ivar].size();
-  }
+  VectorInt cumul        = VH::cumulIncrement(index1);
 
   // Check the various possibilities
   // - flag_verr: True if Variance of Measurement Error variable is defined
   // - flag_isotropic: True in Isotopic case
   // - flag_uniqueVerr: True if the Variance of Measurement Error is constant per variable
   // - flag_nostat: True is some non-stationarity is defined
-  int nverr = db->getLocNumber(ELoc::V);
+  int nverr = db->getNLoc(ELoc::V);
   bool flag_verr = (nverr > 0);
   bool flag_isotopic = true;
   for (int ivar = 1; ivar < nvar && flag_isotopic; ivar++)
@@ -996,9 +995,9 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
   bool flag_constant = (! flag_nostat_sill && (! flag_verr || flag_uniqueVerr));
 
   // Elaborate the Sill matrix for the Nugget Effect component
-  MatrixSquareSymmetric sillsRef = cova->getSill();
+  MatrixSymmetric sillsRef = cova->getSill();
   int count = (int) pow(2, nvar);
-  std::vector<MatrixSquareSymmetric> sillsInv(count);
+  std::vector<MatrixSymmetric> sillsInv(count);
 
   // Pre-calculate the inverse of the sill matrix (if constant)
 
@@ -1050,7 +1049,7 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
       }
 
       // Establish a local matrix
-      MatrixSquareSymmetric local(ndef);
+      MatrixSymmetric local(ndef);
       for (int idef = 0; idef < ndef; idef++)
         for (int jdef = 0; jdef <= idef; jdef++)
         {
@@ -1139,7 +1138,7 @@ VectorDouble krigingSPDENew(Db* dbin,
   else
   {
     PrecisionOpMulti Qop(model, meshes);
-    MatrixSquareSymmetricSim invnoisep(invnoise);
+    MatrixSymmetricSim invnoisep(invnoise);
     SPDEOp spdeop(&Qop, &AM, &invnoisep);
     spdeop.setMaxIterations(1000);
     spdeop.setTolerance(1e-5);

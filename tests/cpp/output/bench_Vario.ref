@@ -3,7 +3,7 @@ Experimental variogram on Data Samples
 --------------------------------------
 - on a Db containing 2000 samples
 - for a variogram calculated in 4 directions with 20 lags
-#NO_DIFF# Variogram on Isolated Points: 2778 ms. (Ref = 2600 ms.)
+#NO_DIFF# Variogram on Isolated Points: 2600 ms. (Ref = 2600 ms.)
 
 Variogram characteristics
 =========================
@@ -147,7 +147,7 @@ Experimental variogram on Data Samples (with attributes)
 - on a Db containing 2000 samples (with code attribute)
 - taking a Fault System into account
 - for a variogram calculated in 1 direction with 20 lags
-#NO_DIFF# Variogram on Isolated Points (with attributes): 1110 ms. (Ref = 1100 ms.)
+#NO_DIFF# Variogram on Isolated Points (with attributes): 900 ms. (Ref = 900 ms.)
 
 Variogram characteristics
 =========================
@@ -196,7 +196,7 @@ Experimental variogram on Grid
 ------------------------------
 - on a grid of 200 by 200 pixels
 - for a variogram calculated along main directions with 20 lags
-#NO_DIFF# Variogram on Regular Grid: 735 ms. (Ref = 1500 ms.)
+#NO_DIFF# Variogram on Regular Grid: 735 ms. (Ref = 500 ms.)
 
 Variogram characteristics
 =========================
@@ -275,7 +275,7 @@ Variogram Map on Isolated Data
 ------------------------------
 - on a Db containing 2000 samples
 - for 50 by 50 cells (automatic dimensions)
-#NO_DIFF# Variogram Map on Isolated Points: 2316 ms. (Ref = 2400 ms.)
+#NO_DIFF# Variogram Map on Isolated Points: 2316 ms. (Ref = 1700 ms.)
 
 Variogram Map on Grid
 ---------------------

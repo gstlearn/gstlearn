@@ -14,14 +14,21 @@
 #include "Db/DbGrid.hpp"
 #include "Basic/OptDbg.hpp"
 
-NeighBench::NeighBench(bool flag_xvalid, double width, const ASpace *space)
-    : ANeigh(space),
-      _width(width),
-      _biPtBench(),
-      _T1(space),
-      _T2(space)
+NeighBench::NeighBench(bool flag_xvalid,
+                       double width,
+                       bool useBallTree,
+                       int leaf_size,
+                       const ASpaceSharedPtr& space)
+  : ANeigh(space)
+  , _width(width)
+  , _biPtBench()
+  , _T1(space)
+  , _T2(space)
 {
   setFlagXvalid (flag_xvalid);
+
+  setBallSearch(useBallTree, leaf_size);
+
   _biPtBench = BiTargetCheckBench::create(-1, _width);
 }
 
@@ -94,9 +101,13 @@ bool NeighBench::_serialize(std::ostream& os, bool verbose) const
   return ret;
 }
 
-NeighBench* NeighBench::create(bool flag_xvalid, double width, const ASpace* space)
+NeighBench* NeighBench::create(bool flag_xvalid,
+                               double width,
+                               bool useBallTree,
+                               int leaf_size,
+                               const ASpaceSharedPtr& space)
 {
-  return new NeighBench(flag_xvalid, width, space);
+  return new NeighBench(flag_xvalid, width, useBallTree, leaf_size, space);
 }
 
 /**
@@ -128,15 +139,15 @@ NeighBench* NeighBench::createFromNF(const String& neutralFilename, bool verbose
  * @param db Pointer to the target Db
  * @return
  */
-int NeighBench::getMaxSampleNumber(const Db* db) const
+int NeighBench::getNSampleMax(const Db* db) const
 {
   bool useSel = false;
-  int nech = db->getSampleNumber();
+  int nech = db->getNSample();
   int ndim = db->getNDim();
   if (db->getNDim() <= 2) return nech;
 
   /* Read the vector of the last coordinates */
-  VectorDouble vec = db->getCoordinates(ndim-1, useSel);
+  VectorDouble vec = db->getOneCoordinate(ndim-1, useSel);
 
   /* Sort the third coordinate vector */
   VectorDouble tab = VH::sort(vec, true);
@@ -216,7 +227,7 @@ void NeighBench::getNeigh(int iech_out, VectorInt& ranks)
  *****************************************************************************/
 void NeighBench::_bench(int iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getSampleNumber();
+  int nech = _dbin->getNSample();
   ranks.resize(nech);
   ranks.fill(-1);
 

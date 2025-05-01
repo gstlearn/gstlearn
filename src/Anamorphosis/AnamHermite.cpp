@@ -10,12 +10,13 @@
 /******************************************************************************/
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
-#include "Polynomials/Hermite.hpp"
 #include "Basic/Interval.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
+#include "Polynomials/Hermite.hpp"
 #include "Stats/Selectivity.hpp"
 
 #include <math.h>
@@ -422,7 +423,7 @@ void AnamHermite::_defineBounds(double pymin,
                                 double aymax,
                                 double azmax)
 {
-  int npas,ind,ind0;
+  int nlag,ind,ind0;
   VectorDouble ym,zm;
 
   // Switch off the flagBound during the calculation of bounds
@@ -432,7 +433,7 @@ void AnamHermite::_defineBounds(double pymin,
 
   /* Initializations */
 
-  npas = (int)((ANAM_YMAX - ANAM_YMIN) / YPAS) + 1;
+  nlag = (int)((ANAM_YMAX - ANAM_YMIN) / YPAS) + 1;
   if (FFFF(azmin)) azmin = pzmin;
   if (FFFF(aymin)) aymin = pymin;
   if (FFFF(azmax)) azmax = pzmax;
@@ -440,12 +441,12 @@ void AnamHermite::_defineBounds(double pymin,
 
   /* Core allocation */
 
-  ym.resize(npas + 2);
-  zm.resize(npas + 2);
+  ym.resize(nlag + 2);
+  zm.resize(nlag + 2);
 
   /* Evaluate the experimental anamorphosis */
 
-  ind0 = (npas - 1) / 2;
+  ind0 = (nlag - 1) / 2;
   ym[ind0] = 0.;
   zm[ind0] = transformToRawValue(ym[ind0]);
   for (ind=ind0-1; ind>=0; ind--)
@@ -453,7 +454,7 @@ void AnamHermite::_defineBounds(double pymin,
     ym[ind] = ym[ind+1] - YPAS;
     zm[ind] = transformToRawValue(ym[ind]);
   }
-  for (ind=ind0+1; ind<npas; ind++)
+  for (ind=ind0+1; ind<nlag; ind++)
   {
     ym[ind] = ym[ind-1] + YPAS;
     zm[ind] = transformToRawValue(ym[ind]);
@@ -461,11 +462,11 @@ void AnamHermite::_defineBounds(double pymin,
 
   /* Look for a starting search point */
 
-  for (ind0=0; ind0<npas; ind0++)
+  for (ind0=0; ind0<nlag; ind0++)
     if (ym[ind0] > pymin) break;
-  for (; ind0 < npas; ind0++)
+  for (; ind0 < nlag; ind0++)
     if (zm[ind0] > (pzmin+pzmax) / 2.) break;
-  if (ind0 == npas) ind0 = (int)(npas / 2.);
+  if (ind0 == nlag) ind0 = (int)(nlag / 2.);
 
   /* Look for the first non-monotonous point, starting from the median */
 
@@ -485,7 +486,7 @@ void AnamHermite::_defineBounds(double pymin,
       _pz.setVmin(zm[ind]);
     }
   }
-  for (ind=ind0; ind<npas-1; ind++)
+  for (ind=ind0; ind<nlag-1; ind++)
   {
     if (zm[ind] > azmax)
     {
@@ -493,7 +494,7 @@ void AnamHermite::_defineBounds(double pymin,
       _ay.setVmax(rawToTransformValue(_az.getVmax()));
       break;
     }
-    if (ind == npas-1)
+    if (ind == nlag-1)
       break;
     if (FFFF(_pz.getVmax()) && zm[ind] > zm[ind+1])
     {
@@ -746,7 +747,7 @@ int AnamHermite::factor2Selectivity(Db *db,
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (_isSampleSkipped(db, iech, cols_est, cols_std)) continue;
 

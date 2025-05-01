@@ -10,25 +10,23 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Space/ASpace.hpp"
 
-class ASpace;
 class Vario;
 class Db;
 
 class GSTLEARN_EXPORT CovContext : public ASpaceObject
 {
 public:
-  CovContext(int nvar = 1, const ASpace *space = nullptr);
+  CovContext(int nvar = 1, const ASpaceSharedPtr& space = ASpaceSharedPtr());
   CovContext(int nvar,
              int ndim,
-             const VectorDouble& mean = VectorDouble(),
              const VectorDouble& covar0 = VectorDouble());
-  CovContext(const Db *db, const ASpace *space = nullptr);
-  CovContext(const Vario *vario, const ASpace *space = nullptr);
-  CovContext(const CovContext &r);
-  CovContext& operator= (const CovContext &r);
+  CovContext(const Db* db, const ASpaceSharedPtr& space = ASpaceSharedPtr());
+  CovContext(const Vario* vario, const ASpaceSharedPtr& space = ASpaceSharedPtr());
+  CovContext(const CovContext& r);
+  CovContext& operator=(const CovContext& r);
   virtual ~CovContext();
 
   /// AStringable interface
@@ -41,19 +39,16 @@ public:
 
   bool isEqual(const CovContext &r) const;
 
-  int                 getNVar()         const { return _nVar; }
-  double              getField()        const { return _field; }
-  const VectorDouble& getMean()         const { return _mean; }
-  const VectorDouble& getCovar0()       const { return _covar0; }
-  const ASpace*       getASpace()       const { return _space; }
-  double getMean(int ivar) const;
+  int                             getNVar()      const { return _nVar; }
+  double                          getField()     const { return _field; }
+  const VectorDouble&             getCovar0()    const { return _covar0; }
+
   double getCovar0(int ivar, int jvar) const;
 
   void setNVar(int nvar)                 { _nVar = nvar; _update(); }
   void setField(double field)            { _field = field; }
-  void setMean(const VectorDouble& mean);
-  void setMean(const double mean,int ivar=0);
-  void setCovar0(const VectorDouble& covar0);
+
+  void setCovar0s(const VectorDouble& covar0);
   void setCovar0(int ivar, int jvar, double covar0);
 
   void copyCovContext(const CovContext& ctxt, bool severe = false);
@@ -63,7 +58,6 @@ public:
 private:
   int           _nVar;         /*! Number of variables */
   double        _field;        /*! Field maximum size */
-  VectorDouble  _mean;         /*! Array of Variable Mean */
   VectorDouble  _covar0;       /*! Variance-Covariance matrix (used for covariances) */
 
 private:

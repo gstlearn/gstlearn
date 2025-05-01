@@ -8,6 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Neigh/NeighUnique.hpp"
+#include "Basic/OptDbg.hpp"
 #include "geoslib_old_f.h"
 
 #include "Neigh/ANeigh.hpp"
@@ -19,13 +21,12 @@
 #include <math.h>
 #include <algorithm>
 
-ANeigh::ANeigh(const ASpace* space)
+ANeigh::ANeigh(const ASpaceSharedPtr& space)
   : ASpaceObject(space)
   , ASerializable()
   , _dbin(nullptr)
   , _dbout(nullptr)
   , _dbgrid(nullptr)
-  , _rankColCok()
   , _iechMemo(-1)
   , _flagSimu(false)
   , _flagXvalid(false)
@@ -44,7 +45,6 @@ ANeigh::ANeigh(const ANeigh& r)
   , _dbin(r._dbin)
   , _dbout(r._dbout)
   , _dbgrid(r._dbgrid)
-  , _rankColCok(r._rankColCok)
   , _iechMemo(r._iechMemo)
   , _flagSimu(r._flagSimu)
   , _flagXvalid(r._flagXvalid)
@@ -53,7 +53,9 @@ ANeigh::ANeigh(const ANeigh& r)
   , _ballLeafSize(r._ballLeafSize)
   , _flagIsUnchanged(r._flagIsUnchanged)
   , _nbghMemo(r._nbghMemo)
+  , _ball(r._ball)
 {
+
 }
 
 ANeigh& ANeigh::operator=(const ANeigh &r)
@@ -65,7 +67,6 @@ ANeigh& ANeigh::operator=(const ANeigh &r)
     _dbin = r._dbin;
     _dbout = r._dbout;
     _dbgrid = r._dbgrid;
-    _rankColCok = r._rankColCok;
     _iechMemo = r._iechMemo;
     _flagSimu = r._flagSimu;
     _flagXvalid = r._flagXvalid;
@@ -74,6 +75,7 @@ ANeigh& ANeigh::operator=(const ANeigh &r)
     _ballLeafSize = r._ballLeafSize;
     _flagIsUnchanged = r._flagIsUnchanged;
     _nbghMemo = r._nbghMemo;
+    _ball = r._ball;
   }
   return *this;
 }
@@ -122,7 +124,6 @@ void ANeigh::reset()
 {
   _flagIsUnchanged = false;
   _nbghMemo.clear();
-  _rankColCok.clear();
   _iechMemo   = -1;
   _flagSimu   = false;
   _flagXvalid = false;
@@ -176,10 +177,6 @@ void ANeigh::select(int iech_out, VectorInt& ranks)
 
   // Stop the neighborhood search if not enough point is available
   if ((int) ranks.size() <= 0) return;
-
-  // Update in case of Colocated option
-
-  _updateColCok(ranks, iech_out);
 }
 
 /**
@@ -225,55 +222,11 @@ void ANeigh::_checkUnchanged(int iech_out, const VectorInt &ranks)
   _nbghMemo = rsorted;
 }
 
-/**
- * Update the set of selected samples in case of colocated option
- * This is done only if:
- * - the colocation option is ON (vector of colocated variable is defined)
- * - at least one of the colocated variables at the target is valid
- * - the target does not coincide with a sample already selected
- * If the colocation option is validated, an additional member is added to 'ranks':
- * its value is conventionally set to -1.
- * @param ranks      Vector of samples already selected
- * @param iech_out   Rank of the target site (in dbout)
- */
-void ANeigh::_updateColCok(VectorInt &ranks, int iech_out)
+void ANeigh::displayDebug(VectorInt& ranks) const
 {
-  if (_rankColCok.empty()) return;
-  int nvarin = (int) _rankColCok.size();
-
-  /* Do not add the target if no variable is defined */
-  bool found = false;
-  for (int ivar = 0; ivar < nvarin && !found; ivar++)
-  {
-    int jvar = _rankColCok[ivar];
-    if (jvar < 0) continue;
-    if (!FFFF(_dbout->getArray(iech_out, jvar))) found = true;
-  }
-  if (! found) return;
-
-  /* Do not add the target if it coincides with an already selected sample */
-  int nsel = (int) ranks.size();
-  for (int iech = 0; iech < nsel; iech++)
-  {
-    if (distance_inter(_dbin, _dbout, ranks[iech], iech_out, NULL) <= 0.)
-      return;
-  }
-
-  /* Add the target */
-
-  ranks.push_back(-1);
-  _flagIsUnchanged = false;
+  if (OptDbg::query(EDbg::NBGH))
+    _display(ranks);
 }
-
-void ANeigh::_neighCompress(VectorInt& ranks)
-{
-  int necr = 0;
-  int number = (int) ranks.size();
-  for (int i = 0; i < number; i++)
-    if (ranks[i] >= 0) ranks[necr++] = i;
-  ranks.resize(necr);
-}
-
 /****************************************************************************/
 /*!
  **  Print the information selected in the neighborhood
@@ -283,25 +236,60 @@ void ANeigh::_neighCompress(VectorInt& ranks)
  ** \li                   >=0 gives the angular sector in ENeigh::MOVING
  **
  *****************************************************************************/
-void ANeigh::_display(const VectorInt& ranks)
+void ANeigh::_display(const VectorInt& ranks) const
 {
   String string;
-  int ndim = _dbin->getNDim();
-  int nech = _dbin->getSampleNumber();
-  bool flag_ext = _dbin->getLocNumber(ELoc::BLEX) > 0;
+  int ndim  = _dbin->getNDim();
+  int nech  = _dbin->getNSample();
+  int nerr  = _dbin->getNLoc(ELoc::V);
+  int ncode = _dbin->getNLoc(ELoc::C);
+  int nblex = _dbin->getNLoc(ELoc::BLEX);
+  int nvar  = _dbin->getNLoc(ELoc::Z);
+  nvar = 0;
 
-  /* Neighborhood data */
+  /* Title */
 
   mestitle(1, "Data selected in neighborhood");
+
+  // Rank
   tab_prints(NULL, "Rank");
+
+  // Sample number
   tab_prints(NULL, "Sample");
-  if (_dbin->hasLocVariable(ELoc::C)) tab_prints(NULL, "Code");
+
+  // Code
+  if (ncode > 0)
+    tab_prints(NULL, "Code");
+
+  // Coordinates
   for (int idim = 0; idim < ndim; idim++)
   {
     string = getLocatorName(ELoc::X, idim);
     tab_prints(NULL, string.c_str());
   }
-  if (flag_ext)
+
+  // Variables
+  if (nvar > 0)
+  {
+    for (int ivar = 0; ivar < nvar; ivar++)
+    {
+      string = getLocatorName(ELoc::Z, ivar);
+      tab_prints(NULL, string.c_str());
+    }
+  }
+
+  // Variance of measurement errors
+  if (nerr > 0)
+  {
+    for (int ierr = 0; ierr < nerr; ierr++)
+    {
+      string = getLocatorName(ELoc::V, ierr);
+      tab_prints(NULL, string.c_str());
+    }
+  }
+
+  // Variable Block extensions
+  if (nblex > 0)
   {
     for (int idim = 0; idim < ndim; idim++)
     {
@@ -309,7 +297,10 @@ void ANeigh::_display(const VectorInt& ranks)
       tab_prints(NULL, string.c_str());
     }
   }
-  if (getType() == ENeigh::MOVING) tab_prints(NULL, "Sector");
+
+  // Sector
+  if (getType() == ENeigh::MOVING)
+    tab_prints(NULL, "Sector");
   message("\n");
 
   /* Loop on the sample points */
@@ -319,22 +310,43 @@ void ANeigh::_display(const VectorInt& ranks)
   {
     if (ranks[iech] < 0) continue;
 
+    // Rank
     tab_printi(NULL, nsel + 1);
+
+    // Sample number
     tab_printi(NULL, iech + 1);
-    if (_dbin->hasLocVariable(ELoc::C))
-      tab_printi(NULL, static_cast<int>(_dbin->getLocVariable(ELoc::C,iech,0)));
+
+    // Code
+    if (ncode > 0)
+      tab_printi(NULL, static_cast<int>(_dbin->getLocVariable(ELoc::C, iech, 0)));
+
+    // Coordinates
     for (int idim = 0; idim < ndim; idim++)
       tab_printg(NULL, _dbin->getCoordinate(iech, idim));
-    if (flag_ext)
+
+    // Variables
+    for (int ivar = 0; ivar < nvar; ivar++)
+      tab_printg(NULL, _dbin->getLocVariable(ELoc::Z, iech, ivar));
+
+    // Variance of measurement errors
+    for (int ierr = 0; ierr < nerr; ierr++)
+      tab_printg(NULL, _dbin->getLocVariable(ELoc::V, iech, ierr));
+
+    // Variable block extension
+    if (nblex > 0)
     {
       for (int idim = 0; idim < ndim; idim++)
         tab_printg(NULL, _dbin->getLocVariable(ELoc::BLEX,iech, idim));
     }
-    if (getType() == ENeigh::MOVING) tab_printi(NULL, ranks[iech] + 1);
+
+    // Sector
+    if (getType() == ENeigh::MOVING)
+      tab_printi(NULL, ranks[iech] + 1);
+
     message("\n");
     nsel++;
   }
-}
+  }
 
 /****************************************************************************/
 /*!
@@ -351,7 +363,7 @@ void ANeigh::_display(const VectorInt& ranks)
  *****************************************************************************/
 bool ANeigh::_discardUndefined(int iech)
 {
-  if (_dbin->getLocNumber(ELoc::Z) <= 0) return 0;
+  if (_dbin->getNLoc(ELoc::Z) <= 0) return 0;
 
   if (! _flagSimu)
   {
@@ -423,6 +435,15 @@ bool ANeigh::_serialize(std::ostream& os, bool /*verbose*/) const
 
 void ANeigh::setBallSearch(bool status, int leaf_size)
 {
+  if (leaf_size <= 0) status = false;
   _useBallSearch = status;
   _ballLeafSize = leaf_size;
+}
+
+void ANeigh::_neighCompress(VectorInt& ranks) {
+  int necr   = 0;
+  int number = (int)ranks.size();
+  for (int i = 0; i < number; i++)
+    if (ranks[i] >= 0) ranks[necr++] = i;
+  ranks.resize(necr);
 }

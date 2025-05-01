@@ -14,7 +14,6 @@
 
 #include "Gibbs/GibbsMulti.hpp"
 #include "LinearOp/CholeskySparse.hpp"
-#include "Basic/HDF5format.hpp"
 
 class MatrixSparse;
 class Db;
@@ -38,7 +37,7 @@ public:
   void setFlagStoreInternal(bool flagStoreInternal) ;
 
 private:
-  int  _getVariableNumber() const;
+  int  _getNVar() const;
   int  _getSize() const;
   void _storeWeights(int icol);
   void _storeWeightsMS(int icol, NF_Triplet& NF_T);
@@ -62,7 +61,6 @@ private:
   bool            _flagStoreInternal;
 
   VectorVectorDouble _areas;
-  HDF5format         _hdf5;
   MatrixSparse*      _matWgt;
 
   mutable VectorDouble _weights;

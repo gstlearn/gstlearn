@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovGradientFunctional.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Space/ASpace.hpp"
@@ -96,8 +95,6 @@ void CovGradientFunctional::_calculateTrTtr(const VectorDouble& d,
   u[0] = Tr[0] * h[0] + Tr[3] * h[1] + Tr[6] * h[2];
   u[1] = Tr[1] * h[0] + Tr[4] * h[1] + Tr[7] * h[2];
   u[2] = Tr[2] * h[0] + Tr[5] * h[1] + Tr[8] * h[2];
-
-  return;
  }
 
 /**
@@ -141,12 +138,12 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
 
   //  Calculate the covariance
 
-  double covar = getSill(0,0) * getCova()->evalCov(h);
+  double covar = getSill(0,0) * getCorFunc()->evalCorFunc(h);
   covVal += covar;
-  if (getCova()->getType() == ECov::NUGGET) return;
+  if (getCorFunc()->getType() == ECov::NUGGET) return;
 
   _calculateTrTtr(d, u, trttr);
-  double dcovsr = getSill(0,0) * getCova()->evalCovDerivative(1,h);
+  double dcovsr = getSill(0,0) * getCorFunc()->evalCovDerivative(1,h);
 
   //  Case where distance is null
 
@@ -172,7 +169,7 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
 
     if (flagGrad)
     {
-      double d2cov = getSill(0,0) * getCova()->evalCovDerivative(2,h);
+      double d2cov = getSill(0,0) * getCorFunc()->evalCovDerivative(2,h);
       double a = (dcovsr - d2cov) / (h * h);
       if (getAniso().isIsotropic())
       {

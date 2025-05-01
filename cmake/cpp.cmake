@@ -19,7 +19,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # https://cmake.org/cmake/help/latest/command/add_compile_options.html
 if (MSVC)
   # Warning level 4 (4 = maximum, 0 = none)
-  add_compile_options(/bigobj /W4 /wd4251 /wd4244 /wd4127) # Except those two warnings
+  add_compile_options(/bigobj /W4 /wd4251 /wd4244 /wd4127 /wd4250) # Except those few ones
   # Silence MSVC warnings about unsafe C standard library functions
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 else()
@@ -38,9 +38,25 @@ else()
   endif()
 endif()
 
-# For sanitizer
-#add_compile_options(-fsanitize=address -O0 -ggdb)
-#add_link_options(-fsanitize=address)
+if (MSVC)
+  # Enable parallel compilation automatically.
+  add_compile_options(/MP)
+endif()
+
+# Address Sanitizer (GCC/Clang)
+option(BUILD_ASAN "Build with Address Sanitizer enabled" OFF)
+mark_as_advanced(BUILD_ASAN)
+
+if(BUILD_ASAN AND MSVC)
+  message(WARNING "Cannot use BUILD_ASAN option with Microsoft Visual Studio compilers")
+  set(BUILD_ASAN OFF)
+endif()
+
+if(BUILD_ASAN)
+  add_compile_options(-fsanitize=address)
+  add_link_options(-fsanitize=address)
+endif()
+
 # For valgrind usage (use Debug)
 #add_compile_options(-O0)
 
@@ -101,16 +117,13 @@ else()
 endif()
 
 # Look for HDF5
-if (USE_HDF5)
-  # Use static library for HDF5 under Windows (no more issue with DLL location)
-  if (WIN32)
-    set(HDF5_USE_STATIC_LIBRARIES ON)
+if(USE_HDF5)
+  # use MODULE to use CMake's FindHDF5.cmake instead of HDF5 config files
+  find_package(HDF5 MODULE REQUIRED COMPONENTS C CXX)
+  if(NOT HDF5_FOUND)
+    message(FATAL_ERROR "HDF5 not found")
   endif()
-  
-  # Look for HDF5
-  # https://stackoverflow.com/questions/41529774/cmakelists-txt-for-compiling-hdf5
-  find_package(HDF5 REQUIRED COMPONENTS CXX)
-  # TODO : If HDF5 not found, fetch it from the web ?
+  add_definitions(-DHDF5)
 endif()
 
 # Shared and Static libraries
@@ -179,10 +192,10 @@ foreach(FLAVOR ${FLAVORS})
   target_link_libraries(${FLAVOR} PRIVATE NLopt::nlopt)
 
   # Link to HDF5
-  if (USE_HDF5)
-    # Define _USE_HDF5 macro
-    target_compile_definitions(${FLAVOR} PUBLIC _USE_HDF5) 
-    target_link_libraries(${FLAVOR} PUBLIC hdf5::hdf5_cpp)
+  if(USE_HDF5)
+    target_compile_definitions(${FLAVOR} PRIVATE ${HDF5_DEFINITIONS})
+    target_include_directories(${FLAVOR} PRIVATE ${HDF5_INCLUDE_DIRS})
+    target_link_libraries(${FLAVOR} PRIVATE ${HDF5_LIBRARIES})
   endif()
   
   # Exclude [L]GPL features from Eigen

@@ -27,21 +27,6 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = z1 - Locator = z1
- ----
-
-
-#NO_DIFF#XXX
-----
-Non geographical defaults:
-- Figure dimensions = [5, 5]
-- Limits along X (not defined)
-- Limits along Y (not defined)
-- Aspect = auto
-Geographical defaults:
-- Figure dimensions = [8, 8]
-- Limits along X = [-1, 10]
-- Limits along Y = [-1, 10]
-- Aspect = 1
 ----
 
 

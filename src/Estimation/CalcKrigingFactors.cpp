@@ -16,15 +16,14 @@
 #include "Model/Model.hpp"
 
 CalcKrigingFactors::CalcKrigingFactors(bool flag_est, bool flag_std)
-    : ACalcInterpolator(),
-      _flagEst(flag_est),
-      _flagStd(flag_std),
-      _calcul(EKrigOpt::POINT),
-      _ndiscs(),
-      _nameCoord(),
-      _iptrEst(-1),
-      _iptrStd(-1),
-      _iuidFactors()
+  : ACalcInterpolator()
+  , _flagEst(flag_est)
+  , _flagStd(flag_std)
+  , _nameCoord()
+  , _iptrEst(-1)
+  , _iptrStd(-1)
+  , _iuidFactors()
+  , _modelLocal(nullptr)
 {
 }
 
@@ -50,12 +49,19 @@ bool CalcKrigingFactors::_check()
     messerr("This tool cannot function with an IMAGE neighborhood");
     return false;
   }
-  if (getModel()->getVariableNumber() != 1)
+
+  _modelLocal = dynamic_cast<Model*>(getModel());
+  if (_modelLocal == nullptr)
+  {
+    messerr("The model must be of type Model (not ModelGeneric)");
+    return false;
+  }
+  if (_modelLocal->getNVar() != 1)
   {
     messerr("This application is limited to the monovariate Model case");
     return false;
   }
-  if (! getModel()->hasAnam())
+  if (! _modelLocal->hasAnam())
   {
     messerr("Argument 'model' should has an Anamorphosis attached");
     return false;
@@ -63,7 +69,8 @@ bool CalcKrigingFactors::_check()
   // If change of support is defined through the anamorphosis,
   // the calculation option (EKrigOpt) should be set to POINT
   // in order to avoid additional block randomization
-  if (_calcul == EKrigOpt::BLOCK && _ndiscs.empty())
+  if (getKrigopt().getCalcul() == EKrigOpt::BLOCK &&
+      ! getKrigopt().hasDiscs())
   {
     messerr("For Block estimate, you must specify the discretization");
     return false;
@@ -73,7 +80,7 @@ bool CalcKrigingFactors::_check()
 
 bool CalcKrigingFactors::_hasChangeSupport() const
 {
-  const AAnam* anam = getModel()->getAnam();
+  const AAnam* anam = _modelLocal->getAnam();
   if (anam == nullptr) return false;
 
   // Check if the change of support is defined in the Anamorphosis
@@ -93,7 +100,7 @@ bool CalcKrigingFactors::_preprocess()
       messerr("Due to change of support, 'dbout' should be a Grid");
       return false;
     }
-    if (_ndiscs.empty())
+    if (! getKrigopt().hasDiscs())
     {
       // Center the information in the blocks of the output grid
       // Duplicating the coordinate variable names before centering
@@ -101,10 +108,11 @@ bool CalcKrigingFactors::_preprocess()
       int error = _centerDataToGrid(dbgrid);
       if (error) return false;
     }
-    if (! _ndiscs.empty())
+    if (getKrigopt().hasDiscs())
     {
       // Center the information in sub-blocks when the output grid defines panels
-      DbGrid* dbsmu = DbGrid::createDivider(dbgrid, _ndiscs, 1);
+      VectorInt ndiscs = getKrigopt().getDiscs();
+      DbGrid* dbsmu = DbGrid::createDivider(dbgrid, ndiscs, 1);
       _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
       int error = _centerDataToGrid(dbsmu);
       delete dbsmu;
@@ -162,15 +170,14 @@ int CalcKrigingFactors::_getNFactors() const
  *****************************************************************************/
 bool CalcKrigingFactors::_run()
 {
-  KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh());
+  KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh(), getKrigopt());
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, -1)) return 1;
-  if (ksys.setKrigOptCalcul(_calcul, _ndiscs)) return 1;
   if (ksys.setKrigOptFactorKriging(true)) return 1;
   if (! ksys.isReady()) return 1;
 
   // Loop on the targets to be processed
 
-  int ntotal = getDbout()->getSampleNumber() * _getNFactors();
+  int ntotal = getDbout()->getNSample() * _getNFactors();
   int iproc = 0;
   for (int iclass = 1; iclass <= _getNFactors(); iclass++)
   {
@@ -181,13 +188,12 @@ bool CalcKrigingFactors::_run()
     if (ksys.updKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
     if (ksys.updKrigOptIclass(iclass, _getNFactors())) return 1;
 
-    for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
+    for (int iech_out = 0; iech_out < getDbout()->getNSample(); iech_out++)
     {
       mes_process("Disjunctive Kriging for cell", ntotal, iproc);
       if (ksys.estimate(iech_out)) return 1;
     }
   }
-
   ksys.conclusion();
 
   return true;
@@ -203,10 +209,10 @@ bool CalcKrigingFactors::_run()
  ** \param[in]  dbout      output Grid Db structure
  ** \param[in]  model      Model structure
  ** \param[in]  neigh      ANeigh structure
- ** \param[in]  calcul     Type of estimate (from EKrigopt)
- ** \param[in]  ndiscs     Discretization parameters (or empty)
+
  ** \param[in]  flag_est   Option for the storing the estimation
  ** \param[in]  flag_std   Option for the storing the standard deviation
+ ** \param[in]  krigopt    Krigopt structure
  ** \param[in]  namconv    Naming convention
  **
  ** \remark When the change of support is defined through the Anamorphosis
@@ -218,10 +224,9 @@ int krigingFactors(Db *dbin,
                    Db *dbout,
                    Model *model,
                    ANeigh *neigh,
-                   const EKrigOpt &calcul,
-                   const VectorInt& ndiscs,
                    bool flag_est,
                    bool flag_std,
+                   const KrigOpt& krigopt,
                    const NamingConvention &namconv)
 {
   CalcKrigingFactors krige(flag_est, flag_std);
@@ -229,10 +234,9 @@ int krigingFactors(Db *dbin,
   krige.setDbout(dbout);
   krige.setModel(model);
   krige.setNeigh(neigh);
+  krige.setKrigopt(krigopt);
   krige.setNamingConvention(namconv);
 
-  krige.setCalcul(calcul);
-  krige.setNdisc(ndiscs);
   krige.setIuidFactors(dbin->getUIDsByLocator(ELoc::Z));
 
   // Run the calculator

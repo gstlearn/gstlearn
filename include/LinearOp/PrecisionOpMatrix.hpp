@@ -64,6 +64,7 @@ public:
                     const EPowerPT& power) override;
 #endif
   const MatrixSparse* getQ() const { return _Q; }
+  const MatrixSparse* getS() const;
 
 private:
   void _buildQ();

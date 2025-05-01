@@ -24,8 +24,8 @@ public:
   int mesh2point(const constvect inv, vect out) const;
 #endif
 
-  virtual int getApexNumber() const = 0;
-  virtual int getPointNumber() const = 0;
+  virtual int getNApex() const = 0;
+  virtual int getNPoint() const = 0;
 
 #ifndef SWIG
   int addMesh2point(const constvect inv, vect outv) const;

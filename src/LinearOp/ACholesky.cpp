@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ACholesky.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixDense.hpp"
 
 ACholesky::ACholesky(const AMatrix* mat)
   : _mat(mat)
@@ -82,7 +82,7 @@ int ACholesky::LtX(const constvect whitenoise, vect vecout) const
   return addLtX(whitenoise, vecout);
 }
 
-int ACholesky::solveMatrix(const MatrixRectangular& b, MatrixRectangular& x) const
+int ACholesky::solveMatrix(const MatrixDense& b, MatrixDense& x) const
 {
   if (!isReady()) return 1;
 
@@ -98,4 +98,49 @@ int ACholesky::solveMatrix(const MatrixRectangular& b, MatrixRectangular& x) con
     x.setColumn(icol, xcol);
   }
   return 0;
+}
+
+
+VectorDouble ACholesky::invLtX(const VectorDouble& vecin) const
+{
+  constvect spin(vecin);
+  VectorDouble vecout(_size,0);
+  vect spout(vecout);
+  addInvLtX(spin, spout);
+  return vecout;
+}
+
+VectorDouble ACholesky::LtX(const VectorDouble& vecin) const
+{
+  constvect spin(vecin);
+  VectorDouble vecout(_size,0);
+  vect spout(vecout);
+  addLtX(spin, spout);
+  return vecout;
+}
+
+VectorDouble ACholesky::LX(const VectorDouble& vecin) const
+{
+  constvect spin(vecin);
+  VectorDouble vecout(_size,0);
+  vect spout(vecout);
+  addLX(spin, spout);
+  return vecout;
+}
+
+VectorDouble ACholesky::invLX(const VectorDouble& vecin) const
+{
+  constvect spin(vecin);
+  VectorDouble vecout(_size,0);
+  vect spout(vecout);
+  addInvLX(spin, spout);
+  return vecout;
+}
+VectorDouble ACholesky::solveX(const VectorDouble& vecin) const
+{
+  constvect spin(vecin);
+  VectorDouble vecout(_size,0);
+  vect spout(vecout);
+  addSolveX(spin, spout);
+  return vecout;
 }

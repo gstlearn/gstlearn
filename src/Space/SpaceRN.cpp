@@ -9,23 +9,25 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Space/SpaceRN.hpp"
+#include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/VectorHelper.hpp"
 
 #include <math.h>
+#include <memory>
 
 SpaceRN::SpaceRN(unsigned int ndim)
   : ASpace(ndim)
 {
 }
 
-SpaceRN::SpaceRN(const SpaceRN &r)
-    : ASpace(r)
+SpaceRN::SpaceRN(const SpaceRN& r)
+  : ASpace(r)
 {
 }
 
-SpaceRN& SpaceRN::operator=(const SpaceRN &r)
+SpaceRN& SpaceRN::operator=(const SpaceRN& r)
 {
   if (this != &r)
   {
@@ -37,11 +39,15 @@ SpaceRN& SpaceRN::operator=(const SpaceRN &r)
 SpaceRN::~SpaceRN()
 {
 }
+ASpaceSharedPtr SpaceRN::create(int ndim)
+{
+  return std::shared_ptr<const SpaceRN>(new SpaceRN(ndim));
+}
 
-void SpaceRN::_move(SpacePoint &p1, const VectorDouble &vec) const
+void SpaceRN::_move(SpacePoint& p1, const VectorDouble& vec) const
 {
   unsigned int offset = getOffset();
-  unsigned int ndim = getNDim();
+  unsigned int ndim   = getNDim();
   for (unsigned int i = offset; i < ndim + offset; i++)
   {
     p1.setCoord(i, p1.getCoord(i) + vec[i]);
@@ -64,8 +70,8 @@ double SpaceRN::_getDistance(const SpacePoint& p1,
                              int ispace) const
 {
   DECLARE_UNUSED(ispace);
-  double dist = 0.;
-  double delta = 0.;
+  double dist         = 0.;
+  double delta        = 0.;
   unsigned int offset = getOffset();
   unsigned int ndim   = getNDim();
   for (unsigned int i = offset; i < ndim + offset; i++)
@@ -119,9 +125,33 @@ void SpaceRN::_getIncrementInPlace(const SpacePoint& p1,
                                    int ispace) const
 {
   DECLARE_UNUSED(ispace);
-  int j = 0;
-  unsigned int offset = getOffset();
-  unsigned int ndim   = getNDim();
-  for (unsigned int i = offset; i < ndim + offset; i++)
+  int j                  = 0;
+  unsigned int offset    = getOffset();
+  unsigned int ndim      = getNDim();
+  unsigned int maxlength = ndim + offset;
+  for (unsigned int i = offset; i < maxlength; i++)
     ptemp[j++] = p2.getCoord(i) - p1.getCoord(i);
+}
+
+void SpaceRN::getDistancePointVectInPlace(const SpacePoint& p1,
+                                          const std::vector<SpacePoint>& p2,
+                                          VectorDouble& res,
+                                          const VectorInt& ranks) const
+{
+  double ti;
+  double s;
+  double* ptr = res.data();
+  auto pt1 = p1.getCoords();
+  for (const auto &i : ranks)
+  {
+    s = 0.;
+    auto pt = p2[i].getCoords();
+    for (unsigned int idim = 0; idim < _nDim; idim++)
+    {
+      ti = pt1[idim] - pt[idim];
+      s += ti * ti;
+    }
+
+    *ptr++ = sqrt(s);
+  }
 }

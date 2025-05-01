@@ -34,7 +34,7 @@ class cs;
  * The format is adapter to Eigen or to csparse
  */
 
-class GSTLEARN_EXPORT NF_Triplet
+class GSTLEARN_EXPORT NF_Triplet                                                                     
 {
 public:
   NF_Triplet();
@@ -46,7 +46,7 @@ public:
   DECLARE_TOTL;
 
   void add(int irow, int icol, double value);
-  int getNumber() const { return (int) _eigenT.size(); }
+  int getNElements() const { return (int) _eigenT.size(); }
   int getNRows()  const { return _nrowmax; }
   int getNCols()  const { return _ncolmax; }
   void force(int nrow, int ncol);

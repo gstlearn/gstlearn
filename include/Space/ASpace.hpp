@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Enum/ESpaceType.hpp"
@@ -17,6 +18,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/ICloneable.hpp"
+#include <memory>
 
 class SpacePoint;
 class Tensor;
@@ -28,15 +30,17 @@ class Tensor;
   * _offset is used. Otherwise it is set to 0.
   * Example : if I am RN(1) in RN(2)+RN(1), offset is 2
   */
-class GSTLEARN_EXPORT ASpace: public AStringable,
-                              public ICloneable
+class GSTLEARN_EXPORT ASpace: public AStringable, public ICloneable
 {
-public:
+protected:
   ASpace(unsigned int ndim);
   ASpace(const ASpace& r);
   ASpace& operator=(const ASpace& r);
+
+public: 
   virtual ~ASpace();
 
+public:
   /// Interface for AStringable
   String toString(const AStringFormat* strfmt = nullptr) const final;
 
@@ -62,7 +66,7 @@ public:
   virtual unsigned int getNComponents() const;
 
   /// Return the space component at index ispace
-  virtual const ASpace* getComponent(int ispace = -1) const;
+  virtual std::shared_ptr<const ASpace> getComponent(int ispace = -1) const;
 
   /// Dump a space in a string (given the space index)
   virtual String toString(const AStringFormat* strfmt, int ispace) const;
@@ -75,6 +79,13 @@ public:
   virtual VectorDouble getDistances(const SpacePoint& p1,
                                     const SpacePoint& p2) const;
 
+  virtual void getDistancePointVectInPlace(const SpacePoint& p1,
+                                           const std::vector<SpacePoint>& p2,
+                                           VectorDouble& res,
+                                           const VectorInt& ranks) const
+  {
+    DECLARE_UNUSED(p1, p2, res, ranks)                                      
+  };
   ///////////////////////////////////////////////
   /// Not to be overriden
   
@@ -111,6 +122,7 @@ public:
   /// TODO : to be made private
   void setOffset(unsigned int offset) { _offset = offset; }
 
+  static std::shared_ptr<const ASpace> getDefaultSpaceIfNull(const std::shared_ptr<const ASpace>& space);
 protected:
 
   /// Move the given space point by the given vector
@@ -163,3 +175,6 @@ protected:
   /// Privilege to SpaceComposit only
   //friend class SpaceComposit; /// TODO : this has no effect (see _setOffset). Why ?
 };
+
+typedef std::shared_ptr<const ASpace> ASpaceSharedPtr;
+typedef std::vector<ASpaceSharedPtr> ASpaceSharedPtrVector; 

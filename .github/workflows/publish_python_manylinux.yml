@@ -1,0 +1,170 @@
+name: publish_python_manylinux
+
+on:
+  # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
+  workflow_call:
+    inputs:
+      dry_publish:
+        description: 'Dry publish (no upload)'
+        type: boolean
+        required: false
+        default: true
+  # Permit manual trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+      dry_publish:
+        description: 'Dry publish (no upload)'
+        type: boolean
+        required: false
+        default: false
+
+env:
+  CMAKE_BUILD_TYPE : Release
+  BUILD_DIR : build
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: quay.io/pypa/${{ matrix.image }}
+    strategy:
+      matrix:
+        # Python version
+        python: [
+          # Double quote for version is needed otherwise 3.10 => 3.1
+            "cp39-cp39",
+            "cp310-cp310",
+            "cp311-cp311",
+            "cp312-cp312",
+            "cp313-cp313"
+          ]
+        image: [
+           manylinux_2_28_x86_64
+        ]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    # Fix dubious ownership issue:
+    # https://github.com/actions/checkout/issues/1048
+    - name: Fix dubious ownership
+      run: |
+        git config --global --add safe.directory $GITHUB_WORKSPACE
+        
+    - name: Install dependencies
+      run: |
+        dnf update -y
+        dnf install -y \
+          sudo \
+          swig \
+          doxygen \
+          boost-devel \
+          eigen3-devel
+
+    - name: Register the python version
+      run: |
+        echo "/opt/python/${{ matrix.python }}/bin" >> $GITHUB_PATH
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install numpy
+
+    - name: Build & install NLopt static libraries
+      uses: ./.github/actions/nlopt_static_unix
+
+    - name: Build & install HDF5 static libraries
+      uses: ./.github/actions/hdf5_static_unix
+
+    - name : Configure build directory
+      run : |
+        cmake \
+          -B${{ env.BUILD_DIR }} \
+          -DHDF5_USE_STATIC_LIBRARIES=ON \
+          -DBUILD_PYTHON=ON \
+          -DBUILD_R=OFF \
+          -DBUILD_DOC=ON
+
+    - name : Build the package
+      run : |
+        cmake --build ${{ env.BUILD_DIR }} --parallel 3 --target python_build
+
+    - name : Create Wheel
+      run : |
+        cd ${{ env.BUILD_DIR }}/python/${{ env.CMAKE_BUILD_TYPE }}
+        # Note: wheel must be declared not pure (see setup.py)
+        python3 -m build --wheel -C="--build-option=--plat-name=${{ matrix.image }}"
+        cd ../../..
+        echo "MY_PKG=$(ls ${{ env.BUILD_DIR }}/python/${{ env.CMAKE_BUILD_TYPE }}/dist/*)" >> "$GITHUB_ENV"
+
+    - uses: actions/upload-artifact@v4
+      # Use specific artifact identifier for publishing all versions
+      with:
+        name: linux-python-package-${{ matrix.image }}-${{ matrix.python }}
+        path: ${{env.MY_PKG}}
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    container:
+      image: quay.io/pypa/${{ matrix.image }}
+    strategy:
+      matrix:
+        # Python version
+        python: [
+          # Double quote for version is needed otherwise 3.10 => 3.1
+            "cp39-cp39",
+            "cp310-cp310",
+            "cp311-cp311",
+            "cp312-cp312",
+            "cp313-cp313"
+          ]
+        image: [
+           manylinux_2_28_x86_64
+        ]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/download-artifact@v4
+      with:
+        name: linux-python-package-${{ matrix.image }}-${{ matrix.python }}
+
+    - name: Register the python version
+      run: |
+        echo "/opt/python/${{ matrix.python }}/bin" >> $GITHUB_PATH
+
+    - name: Install Python package
+      run: python -m pip install "./$(ls *.whl)[conv]"
+
+    - name: Test installed Python package
+      run: |
+        python -c "import gstlearn as gl; gl.acknowledge_gstlearn()"
+        python tests/py/test_Arguments.py
+        python tests/py/test_Assessors.py
+        python tests/py/test_Matrix.py
+
+  publish:
+    needs: test
+    if: ${{inputs.dry_publish == false}}
+
+    # Only ubuntu can upload via ssh
+    runs-on: ubuntu-latest
+
+    steps:
+    # Upload packages to pypi
+    - uses: fabien-ors/pypi-publish-action@v2
+      with:
+        repo: pypi
+        username: __token__
+        password: ${{ secrets.TWINE_PYPI_PWD }}
+        pattern: linux-python-package-*
+
+    # Delete the artifacts (for freeing storage space under github)
+    - uses: geekyeggo/delete-artifact@v5
+      with:
+        name: linux-python-package-*
+

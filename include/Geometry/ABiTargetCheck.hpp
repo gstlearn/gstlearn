@@ -25,7 +25,7 @@ class Db;
  * - if the criterion is based on DISTANCE, the method isOK returns TRUE if the distance between the two space points
  * is smaller than a threshold distance (registered as a member of the BiTargetCheckDistance class)
  */
-class GSTLEARN_EXPORT ABiTargetCheck: public AStringable//, public ICloneable
+class GSTLEARN_EXPORT ABiTargetCheck: public AStringable, public ICloneable
 {
 public:
   ABiTargetCheck();

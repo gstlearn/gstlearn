@@ -43,7 +43,7 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static int getTapeNumber();
+  static int getNTape();
 
   double getRange() const         { return _range; }
   int getType() const             { return _type; }

@@ -10,8 +10,10 @@
 /******************************************************************************/
 #include "Basic/Grid.hpp"
 
+#include "Basic/VectorNumT.hpp"
 #include "Geometry/Rotation.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquare.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "geoslib_define.h"
@@ -27,6 +29,10 @@ typedef struct
   VectorInt indg;
   VectorInt tab;
 } DimLoop;
+
+thread_local VectorInt _iwork0;
+thread_local VectorDouble _work1;
+thread_local VectorDouble _work2;
 
 /****************************************************************************/
 /*!
@@ -95,9 +101,6 @@ Grid::Grid(int ndim,
   , _counts()
   , _order()
   , _indices()
-  , _iwork0(ndim)
-  , _work1(ndim)
-  , _work2(ndim)
 {
   _allocate();
   if ((int) nx.size() == ndim) _nx = nx;
@@ -107,6 +110,7 @@ Grid::Grid(int ndim,
 
 Grid::Grid(const Grid &r)
   : AStringable(r)
+  , ASerializable()
 {
   _recopy(r);
 }
@@ -206,7 +210,7 @@ void Grid::setNX(int idim, int value)
   _nx[idim] = value;
 }
 
-void Grid::setRotationByMatrix(const MatrixSquareGeneral& rotmat)
+void Grid::setRotationByMatrix(const MatrixSquare& rotmat)
 {
   _rotation.resetFromSpaceDimension(_nDim);
   _rotation.setMatrixDirect(rotmat);
@@ -391,6 +395,7 @@ VectorDouble Grid::getCoordinatesByIndice(const VectorInt &indice,
  */
 VectorDouble Grid::getCoordinatesByCorner(const VectorInt& icorner) const
 {
+  initThread();
   VH::fill(_iwork0, 0);
   for (int idim = 0; idim < _nDim; idim++)
     if (icorner[idim] > 0) _iwork0[idim] = _nx[idim]-1;
@@ -409,6 +414,7 @@ VectorDouble Grid::getCellCoordinatesByCorner(int node,
                                               const VectorInt& shift,
                                               const VectorDouble& dxsPerCell) const
 {
+
   rankToIndice(node, _iwork0);
   return getCoordinatesByIndice(_iwork0, true, shift, dxsPerCell);
 }
@@ -422,7 +428,6 @@ VectorDouble Grid::getCellCoordinatesByCorner(int node,
 VectorDouble Grid::getCoordinatesByRank(int rank, bool flag_rotate) const
 {
   /* Convert a sample number into grid indices */
-
   rankToIndice(rank, _iwork0);
 
   /* Calculate the coordinates in the grid system */
@@ -488,6 +493,7 @@ void Grid::indicesToCoordinateInPlace(const constvectint indice,
 
   /* Calculate the coordinates in the grid system */
 
+
   for (int idim=0; idim<_nDim; idim++)
   {
     _work1[idim] = indice[idim];
@@ -510,12 +516,14 @@ void Grid::indicesToCoordinateInPlace(const constvectint indice,
 
 double Grid::rankToCoordinate(int idim0, int rank, const VectorDouble& percent) const
 {
+
   rankToIndice(rank, _iwork0);
   return indiceToCoordinate(idim0, _iwork0, percent);
 }
 
 VectorDouble Grid::rankToCoordinates(int rank, const VectorDouble& percent) const
 {
+
   rankToIndice(rank, _iwork0);
   return indicesToCoordinate(_iwork0,percent);
 }
@@ -567,11 +575,21 @@ void Grid::rankToIndice(int rank, vectint indices, bool minusOne) const
   }
 }
 
-VectorInt Grid::coordinateToIndices(const VectorDouble &coor,
+void Grid::initThread() const
+{
+  if (_nDim > (int)_iwork0.size())
+  {
+    _iwork0.resize(_nDim);
+    _work1.resize(_nDim);
+    _work2.resize(_nDim);
+  }
+}
+
+VectorInt& Grid::coordinateToIndices(const VectorDouble &coor,
                                     bool centered,
                                     double eps) const
 {
-  if (coordinateToIndicesInPlace(coor, _iwork0, centered, eps)) return VectorInt();
+  if (coordinateToIndicesInPlace(coor, _iwork0, centered, eps)) return _dummy;
   return _iwork0;
 }
 
@@ -630,10 +648,10 @@ int Grid::coordinateToRank(const VectorDouble& coor, bool centered, double eps) 
   return indiceToRank(_iwork0);
 }
 
-VectorInt Grid::getCenterIndices() const
+VectorInt Grid::getCenterIndices(bool flagSup) const
 {
   for (int idim = 0; idim < _nDim; idim++)
-    _iwork0[idim] = (_nx[idim] - 1) / 2;
+    _iwork0[idim] = (flagSup) ? ceil(_nx[idim] / 2.) : floor(_nx[idim] / 2.);
   return _iwork0;
 }
 
@@ -644,6 +662,7 @@ bool Grid::_isSpaceDimensionValid(int idim) const
 
 void Grid::_allocate(void)
 {
+  initThread();
   _nx.resize(_nDim);
   for (int i=0; i<_nDim; i++) _nx[i] = 1;
   _x0.resize(_nDim);
@@ -653,9 +672,6 @@ void Grid::_allocate(void)
 
   _rotation.resetFromSpaceDimension(_nDim);
 
-  _iwork0.resize(_nDim);
-  _work1.resize(_nDim);
-  _work2.resize(_nDim);
 }
 
 void Grid::_recopy(const Grid &r)
@@ -677,11 +693,6 @@ void Grid::_recopy(const Grid &r)
   _order = r._order;
   _indices = r._indices;
 
-  // For working array, simply dimension but do not loose time in copying the contents
-
-  _iwork0 = VectorInt(_nDim);
-  _work1 = VectorDouble(_nDim);
-  _work2 = VectorDouble(_nDim);
 }
 
 /**
@@ -1042,6 +1053,15 @@ int Grid::getMirrorIndex(int idim, int ix) const
   return generateMirrorIndex(_nx[idim], ix);
 }
 
+bool Grid::isInside(const VectorInt& indices) const
+{
+  for (int idim = 0; idim < _nDim; idim++)
+  {
+    if (indices[idim] < 0 || indices[idim] >= _nx[idim]) return false;
+  }
+  return true;
+}
+
 /****************************************************************************/
 /*!
  **  Returns an array giving the ranks of the nodes (according to user's order)
@@ -1167,6 +1187,7 @@ bool Grid::sampleBelongsToCell(constvect coor,
                                constvect center,
                                const VectorDouble& dxsPerCell) const
 {
+
   if (_rotation.isRotated())
   {
     // Convert Grid Node center into Grid coordinates
@@ -1221,6 +1242,7 @@ bool Grid::sampleBelongsToCell(const VectorDouble &coor,
                                int rank,
                                const VectorDouble &dxsPerCell) const
 {
+
   // Identify the coordinates of the center of the grid cell, referred by its 'rank' and
   // convert into Grid coordinates
   VectorDouble center = rankToCoordinates(rank);
@@ -1269,3 +1291,111 @@ bool Grid::sampleBelongsToCell(const VectorDouble &coor,
   }
   return true;
 }
+
+bool Grid::_deserialize(std::istream& is, [[maybe_unused]] bool verbose)
+{
+  int ndim = 0;
+  VectorInt nx;
+  VectorDouble x0;
+  VectorDouble dx;
+  VectorDouble angles;
+
+  /* Initializations */
+
+  bool ret = true;
+  ret      = ret && _recordRead<int>(is, "Space Dimension", ndim);
+
+  /* Core allocation */
+
+  nx.resize(ndim);
+  dx.resize(ndim);
+  x0.resize(ndim);
+  angles.resize(ndim);
+
+  /* Read the grid characteristics */
+
+  for (int idim = 0; ret && idim < ndim; idim++)
+  {
+    ret = ret && _recordRead<int>(is, "Grid Number of Nodes", nx[idim]);
+    ret = ret && _recordRead<double>(is, "Grid Origin", x0[idim]);
+    ret = ret && _recordRead<double>(is, "Grid Mesh", dx[idim]);
+    ret = ret && _recordRead<double>(is, "Grid Angles", angles[idim]);
+  }
+
+  // reset the Grid
+  resetFromVector(nx, dx, x0, angles);
+
+  return ret;
+}
+
+bool Grid::_serialize(std::ostream& os, [[maybe_unused]] bool verbose) const
+{
+  bool ret = true;
+
+  /* Writing the header */
+
+  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
+
+  /* Writing the grid characteristics */
+
+  ret = ret && _commentWrite(os, "Grid characteristics (NX,X0,DX,ANGLE)");
+  for (int idim = 0; ret && idim < getNDim(); idim++)
+  {
+    ret = ret && _recordWrite<int>(os, "", getNX(idim));
+    ret = ret && _recordWrite<double>(os, "", getX0(idim));
+    ret = ret && _recordWrite<double>(os, "", getDX(idim));
+    ret = ret && _recordWrite<double>(os, "", getRotAngle(idim));
+    ret = ret && _commentWrite(os, "");
+  }
+
+  return ret;
+}
+
+#ifdef HDF5
+bool Grid::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
+{
+  VectorInt nx;
+  VectorDouble x0;
+  VectorDouble dx;
+  VectorDouble angles;
+
+  // Call SerializeHDF5::getGroup to get the subgroup of grp named
+  // "Grid" with some error handling
+  auto gr = SerializeHDF5::getGroup(grp, "Grid");
+  if (!gr)
+  {
+    return false;
+  }
+
+  /* Read the grid characteristics */
+  bool ret = true;
+  // deserialize vector members using SerializeHDF5::readVec
+  // (error handling is done in these methods)
+  ret = ret && SerializeHDF5::readVec(*gr, "NX", nx);
+  ret = ret && SerializeHDF5::readVec(*gr, "X0", x0);
+  ret = ret && SerializeHDF5::readVec(*gr, "DX", dx);
+  ret = ret && SerializeHDF5::readVec(*gr, "ANGLE", angles);
+
+  // reset the Grid
+  resetFromVector(nx, dx, x0, angles);
+
+  return ret;
+}
+
+bool Grid::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
+{
+  // create a new H5::Group every time we enter a _serialize method
+  // => easier to deserialize
+  auto gr = grp.createGroup("Grid");
+
+  bool ret = true;
+  // serialize vector members using SerializeHDF5::writeVec
+  // (error handling is done in these methods)
+  ret = ret && SerializeHDF5::writeVec(gr, "NX", getNXs());
+  ret = ret && SerializeHDF5::writeVec(gr, "X0", getX0s());
+  ret = ret && SerializeHDF5::writeVec(gr, "DX", getDXs());
+  ret = ret && SerializeHDF5::writeVec(gr, "ANGLE", getRotAngles());
+
+  return ret;
+}
+#endif

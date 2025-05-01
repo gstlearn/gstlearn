@@ -9,31 +9,41 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_f_private.h"
+#include "Enum/EStatOption.hpp"
 
 #include "Calculators/ACalcInterpolator.hpp"
-#include "Basic/NamingConvention.hpp"
 #include "Estimation/CalcImage.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Neigh/NeighImage.hpp"
+#include "Neigh/NeighUnique.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Morpho/Morpho.hpp"
+#include "Model/Model.hpp"
+#include "Basic/NamingConvention.hpp"
+#include "Basic/Convolution.hpp"
+#include "Stats/Classical.hpp"
+
+#include "geoslib_old_f.h"
 
 CalcImage::CalcImage()
-    : ACalcInterpolator(),
-      _iattOut(-1),
-      _flagFilter(false),
-      _flagMorpho(false),
-      _nvarMorpho(1),
-      _oper(EMorpho::UNKNOWN),
-      _vmin(0.5),
-      _vmax(1.5),
-      _option(0),
-      _radius(),
-      _distErode(false),
-      _verbose(false),
-      _flagSmooth(false),
-      _smoothType(0),
-      _smoothRange(1.)
+  : ACalcInterpolator()
+  , _iattOut(-1)
+  , _flagFilter(false)
+  , _flagFFT(false)
+  , _seed(13242)
+  , _flagMorpho(false)
+  , _nvarMorpho(1)
+  , _oper(EMorpho::UNKNOWN)
+  , _vmin(0.5)
+  , _vmax(1.5)
+  , _option(0)
+  , _radius()
+  , _distErode(false)
+  , _verbose(false)
+  , _flagSmooth(false)
+  , _smoothType(0)
+  , _smoothRange(1.)
 {
 }
 
@@ -46,7 +56,7 @@ bool CalcImage::_check()
   if (! ACalcInterpolator::_check()) return false;
 
   if (!hasDbin()) return false;
-  int nvar = getDbin()->getLocNumber(ELoc::Z);
+  int nvar = getDbin()->getNLoc(ELoc::Z);
   if (! getDbin()->isGrid())
   {
     messerr("This method requires the Db to be a Grid");
@@ -55,6 +65,12 @@ bool CalcImage::_check()
 
   if (_flagFilter)
   {
+    const ModelCovList* model = dynamic_cast<const ModelCovList*>(getModel());
+    if (model == nullptr)
+    {
+      messerr("Model should be a ModelCovList");
+      return false;
+    }
     if (nvar <= 0)
     {
       messerr("This method requires some Variables to be defined in 'Db'");
@@ -112,7 +128,7 @@ bool CalcImage::_postprocess()
   _cleanVariableDb(2);
 
   if (_flagFilter)
-    _renameVariable(2, VectorString(), ELoc::Z, getDbin()->getLocNumber(ELoc::Z), _iattOut, String(), 1);
+    _renameVariable(2, VectorString(), ELoc::Z, getDbin()->getNLoc(ELoc::Z), _iattOut, String(), 1);
 
   if (_flagMorpho)
     _renameVariable(2, VectorString(), ELoc::Z, 1, _iattOut, String{_oper.getKey()}, _nvarMorpho);
@@ -128,6 +144,150 @@ void CalcImage::_rollback()
   _cleanVariableDb(1);
 }
 
+/**
+ * @brief Create the vector of centered grid indices for neighborhood
+ * 
+ * @param dblocal Neighborhood Grid template
+ * @return Returned vector of sample indices 
+ */
+VectorVectorInt CalcImage::_getActiveRanks(const DbGrid* dblocal)
+{
+  int ndim = dblocal->getNDim();
+  int nech = dblocal->getNSample();
+
+  // Get the indices of the center grid node
+  VectorInt center = dblocal->getCenterIndices();
+
+  VectorVectorInt ranks;
+  VectorInt local(ndim);
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (FFFF(dblocal->getZVariable(iech, 0))) continue;
+
+    // The sample is valid, get its indices
+    dblocal->rankToIndice(iech, local);
+
+    // Center the indices
+    VH::subtractInPlace(local, center);
+
+    // Store these indices to the output vector
+    ranks.push_back(local);
+  }
+  return ranks;
+}
+
+bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelCovList* model)
+{
+  VectorDouble means;
+  if (model->getNDrift() == 0) means = model->getMeans();
+
+  int ndim = dbgrid->getNDim();
+  int nvar = _getNVar();
+
+  const NeighImage* neighI = dynamic_cast<const NeighImage*>(getNeigh());
+  DbGrid* dblocal          = neighI->buildImageGrid(dbgrid, _seed);
+  VectorVectorInt ranks    = _getActiveRanks(dblocal);
+
+  Db* target = Db::createFromOnePoint(VectorDouble(ndim));
+  int iuid   = target->addColumnsByConstant(nvar);
+
+  // We perform a Kriging of the center 'dbaux' in Unique Neighborhood
+  NeighUnique* neighU = NeighUnique::create();
+  KrigingSystem ksys(dblocal, target, model, neighU, getKrigopt());
+  if (ksys.updKrigOptEstim(iuid, -1, -1, true)) return false;
+  if (!ksys.isReady()) return false;
+  if (ksys.estimate(0)) return false;
+  MatrixDense wgt = ksys.getWeights();
+  ksys.conclusion();
+
+  // Cleaning
+  delete target;
+  delete neighU;
+
+  // Perform the Sparse convolution
+  Convolution conv(dbgrid);
+
+  int retcode = 0;
+  if (!_flagFFT)
+  {
+    retcode = conv.ConvolveSparse(_iattOut, ranks, wgt, means, (int) _verbose);
+  }
+  else
+  {
+    DbGrid* marpat = _buildMarpat(neighI, ranks, wgt, (int) _verbose);
+    retcode        = conv.ConvolveFFT(_iattOut, nvar, marpat, means);
+    delete marpat;
+  }
+  return (retcode == 0);
+}
+
+/**
+ * @brief Construct a regular DbGrid of correct dimension
+ * where the weights for the different variables are stored
+ *
+ * @param neigh NeighImage description
+ * @param ranks Vector of Vector of neighborhood ranks
+ * @param wgt   Matrix of weights
+ * @param optionVerbose Verbose option (0: silent; 1: statistics; 2: whole display)
+ * @return DbGrid
+ */
+DbGrid* CalcImage::_buildMarpat(const NeighImage* neigh,
+                                const VectorVectorInt& ranks,
+                                const MatrixDense& wgt,
+                                int optionVerbose)
+{
+  int nbneigh = (int)ranks.size();
+  int ndim    = (int)ranks[0].size();
+  int nvar    = wgt.getNCols();
+  VectorInt nx(ndim);
+  for (int i = 0; i < ndim; i++)
+    nx[i] = 2 * neigh->getImageRadius(i) + 1;
+
+  // Create the relevant DbGrid
+  DbGrid* dbgrid   = DbGrid::create(nx);
+  int iuid         = dbgrid->addColumnsByConstant(nvar * nvar, 0., "Weights", ELoc::Z);
+  VectorInt center = dbgrid->getCenterIndices();
+
+  // Loop on the valid weights
+  VectorInt local(ndim);
+  for (int ineigh = 0; ineigh < nbneigh; ineigh++)
+  {
+    local = ranks[ineigh];
+    VH::addInPlace(local,  center);
+    int iadd = dbgrid->indiceToRank(local);
+
+    // Load the weights as variables
+    int ecr = 0;
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < nvar; jvar++, ecr++)
+        dbgrid->setArray(iadd, iuid + ecr, wgt.getValue(nbneigh * jvar + ineigh, ivar));
+  }
+
+  // Optional printout
+  if (optionVerbose)
+  {
+    mestitle(1, "Convolution Pattern");
+    if (optionVerbose == 1)
+    {
+      Table table = dbStatisticsMono(dbgrid, {"Weights*"},
+                                     {EStatOption::MINI, EStatOption::MAXI});
+      for (int ivar = 0, irow = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar < nvar; jvar++, irow++)
+          table.setRowName(irow, "Weight of Z" + std::to_string(jvar + 1) +
+                                   " for Z*" + std::to_string(ivar + 1));
+      table.display();
+    }
+    else
+    {
+      DbStringFormat* dbfmt = DbStringFormat::createFromFlags(false, false, false,
+                                                              false, true, false,
+                                                              {"Weights*"});
+      dbgrid->display(dbfmt);
+    }
+  }
+  return dbgrid;
+}
+
 /****************************************************************************/
 /*!
  **  Standard Kriging
@@ -141,19 +301,8 @@ bool CalcImage::_run()
 
   if (_flagFilter)
   {
-    KrigingSystem ksys(dbgrid, dbgrid, getModel(), getNeigh());
-    if (ksys.updKrigOptEstim(_iattOut, -1, -1)) return false;
-    if (! ksys.isReady()) return false;
-
-    /* Loop on the targets to be processed */
-
-    for (int iech_out = 0; iech_out < dbgrid->getSampleNumber(); iech_out++)
-    {
-      mes_process("Image filtering", dbgrid->getSampleNumber(), iech_out);
-      if (ksys.estimate(iech_out)) return false;
-    }
-
-    ksys.conclusion();
+    const ModelCovList* model = dynamic_cast<const ModelCovList*>(getModel());
+    if (!_filterImage(dbgrid, model)) return false;
   }
 
   if (_flagMorpho)
@@ -180,12 +329,18 @@ bool CalcImage::_run()
  ** \param[in]  dbgrid     input and output Db grid structure
  ** \param[in]  model      Model structure
  ** \param[in]  neigh      ANeigh structure
+ ** \param[in]  flagFFT    True if the FFT version is to be used
+ ** \param[in]  verbose    Verbose flag
+ ** \param[in]  seed       Seed used for random number generation
  ** \param[in]  namconv    Naming Convention
  **
  *****************************************************************************/
-int krimage(DbGrid *dbgrid,
-            Model *model,
-            ANeigh *neigh,
+int krimage(DbGrid* dbgrid,
+            Model* model,
+            ANeigh* neigh,
+            bool flagFFT,
+            bool verbose,
+            int seed,
             const NamingConvention& namconv)
 {
   CalcImage image;
@@ -194,6 +349,9 @@ int krimage(DbGrid *dbgrid,
   image.setDbout(dbgrid);
   image.setModel(model);
   image.setNeigh(neigh);
+  image.setFlagFFT(flagFFT);
+  image.setSeed(seed);
+  image.setVerbose(verbose);
   image.setNamingConvention(namconv);
 
   image.setFlagFilter(true);

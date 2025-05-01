@@ -12,9 +12,9 @@
 
 #include "gstlearn_export.hpp"
 #include "Variogram/VarioParam.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSquare.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/NamingConvention.hpp"
 
@@ -35,26 +35,26 @@ public:
 
   const VectorDouble& getEigVals() const { return _eigval; }
   double getEigVal(int ivar) const { return _eigval[ivar]; }
-  const MatrixRectangular& getEigVecs() const { return _eigvec; }
+  const MatrixDense& getEigVecs() const { return _eigvec; }
   double getEigVec(int ivar, int jvar) const { return _eigvec.getValue(ivar,jvar); }
   VectorDouble getVarianceRatio() const;
   const VectorDouble& getMeans() const { return _mean; }
   double getMean(int ivar) const { return _mean[ivar]; }
-  const MatrixSquareSymmetric& getC0() const { return _c0; }
+  const MatrixSymmetric& getC0() const { return _c0; }
   int getNVar() const { return _nVar; }
-  const MatrixSquareGeneral& getF2Zs() const { return _F2Z; }
-  const MatrixSquareGeneral& getZ2Fs() const { return _Z2F; }
+  const MatrixSquare& getF2Zs() const { return _F2Z; }
+  const MatrixSquare& getZ2Fs() const { return _Z2F; }
   const VectorDouble& getSigmas() const { return _sigma; }
   double getSigma(int ivar) const { return _sigma[ivar]; }
 
   void setMeans(const VectorDouble &mean) { _mean = mean; }
   void setSigmas(const VectorDouble &sigma) { _sigma = sigma; }
-  void setZ2Fs(const MatrixSquareGeneral& z2f) { _Z2F = z2f; }
-  void setF2Zs(const MatrixSquareGeneral& f2z) { _F2Z = f2z; }
+  void setZ2Fs(const MatrixSquare& z2f) { _Z2F = z2f; }
+  void setF2Zs(const MatrixSquare& f2z) { _F2Z = f2z; }
 
   void setEigVals(VectorDouble& eigval) { _eigval = eigval; }
   void setEigVal(int ivar, double eigval) { _eigval[ivar] = eigval; }
-  void setEigVecs(const MatrixRectangular& eigvec) { _eigvec = eigvec; }
+  void setEigVecs(const MatrixDense& eigvec) { _eigvec = eigvec; }
   void setEigVec(int ivar, int jvar, double eigvec) { _eigvec.setValue(ivar,jvar,eigvec); }
 
   int pca_compute(const Db *db, bool verbose = false, bool optionPositive = true);
@@ -133,9 +133,9 @@ private:
   VectorDouble _mean;
   VectorDouble _sigma;
   VectorDouble          _eigval;
-  MatrixRectangular     _eigvec;
-  MatrixSquareSymmetric _c0;
-  MatrixSquareSymmetric _gh;
-  MatrixSquareGeneral   _Z2F;
-  MatrixSquareGeneral   _F2Z;
+  MatrixDense     _eigvec;
+  MatrixSymmetric _c0;
+  MatrixSymmetric _gh;
+  MatrixSquare   _Z2F;
+  MatrixSquare   _F2Z;
 };

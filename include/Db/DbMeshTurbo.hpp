@@ -58,10 +58,10 @@ public:
   bool isConsistent() const override;
 
   static DbMeshTurbo* create(const VectorInt& nx,
-                             const VectorDouble& dx     = VectorDouble(),
-                             const VectorDouble& x0     = VectorDouble(),
-                             const VectorDouble& angles = VectorDouble(),
-                             const ELoadBy& order       = ELoadBy::fromKey("SAMPLE"),
+                             const VectorDouble& dx           = VectorDouble(),
+                             const VectorDouble& x0           = VectorDouble(),
+                             const VectorDouble& angles       = VectorDouble(),
+                             const ELoadBy& order             = ELoadBy::fromKey("SAMPLE"),
                              const VectorDouble& tab          = VectorDouble(),
                              const VectorString& names        = VectorString(),
                              const VectorString& locatorNames = VectorString(),
@@ -77,9 +77,9 @@ public:
   {
     return _mesh.getCoor(imesh, rank, idim);
   }
-  void getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const
+  void getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const
   {
-    _mesh.getCoordinatesInPlace(imesh, rank, coords);
+    _mesh.getCoordinatesPerMeshInPlace(imesh, rank, coords);
   }
   double getApexCoor(int i, int idim) const
   {
@@ -89,8 +89,7 @@ public:
   {
     _mesh.getApexCoordinatesInPlace(i, coords);
   }
-  VectorDouble
-  getCoordinatesPerMesh(int imesh, int idim, bool flagClose = false) const
+  VectorDouble getCoordinatesPerMesh(int imesh, int idim, bool flagClose = false) const
   {
     return _mesh.getCoordinatesPerMesh(imesh, idim, flagClose);
   }

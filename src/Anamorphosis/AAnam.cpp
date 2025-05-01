@@ -240,7 +240,7 @@ VectorDouble AAnam::transformToRawVec(const VectorDouble& y) const
 
 int AAnam::fitFromLocator(Db *db, const ELoc& locatorType)
 {
-  int number = db->getLocatorNumber(locatorType);
+  int number = db->getNLoc(locatorType);
   if (number != 1)
   {
     messerr("The number of items for locator(%d) is %d. It should be 1",
