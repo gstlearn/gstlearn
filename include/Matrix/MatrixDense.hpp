@@ -150,11 +150,13 @@ public:
                            const AMatrix* A2,
                            bool flagShiftRow,
                            bool flagShiftCol);
-  static MatrixDense* sample(const AMatrix* A,
-                             const VectorInt& rowKeep = VectorInt(),
-                             const VectorInt& colKeep = VectorInt(),
-                             bool flagInvertRow       = false,
-                             bool flagInvertCol       = false);
+  static bool sample(MatrixDense& res,
+                     const AMatrix& A,
+                     const VectorInt& rowKeep = VectorInt(),
+                     const VectorInt& colKeep = VectorInt(),
+                     bool flagInvertRow       = false,
+                     bool flagInvertCol       = false);
+
   void unsample(const AMatrix* A,
                 const VectorInt& rowFetch,
                 const VectorInt& colFetch,

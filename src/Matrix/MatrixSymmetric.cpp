@@ -860,29 +860,29 @@ columns)
  * @param flagInvert when True, transform 'rowKeep' into 'rowDrop' 
  * @return Pointer to the newly created Square Symmetric Matrix
  */
-MatrixSymmetric*
-MatrixSymmetric::sample(const MatrixSymmetric* A,
-                              const VectorInt& rowKeep,
-                              bool flagInvert)
+bool MatrixSymmetric::sample(MatrixSymmetric& res,
+                             const MatrixSymmetric& A,
+                             const VectorInt& rowKeep,
+                             bool flagInvert)
 {
-  int ntotal = A->getNRows();
+  int ntotal     = A.getNRows();
   VectorInt rows = rowKeep;
   if (rows.empty()) rows = VH::sequence(ntotal);
   if (flagInvert) rows = VH::complement(VH::sequence(ntotal), rows);
 
   int nrows = (int)rows.size();
-  if (nrows <= 0) return nullptr;
+  if (nrows <= 0) return false;
 
   for (int irow = 0; irow < nrows; irow++)
   {
-    if (!checkArg("Selected Row index", rows[irow], ntotal)) return nullptr;
+    if (!checkArg("Selected Row index", rows[irow], ntotal)) return false;
   }
 
-  MatrixSymmetric* mat = new MatrixSymmetric(nrows);
+  res.resize(nrows, nrows);
   for (int irow = 0; irow < nrows; irow++)
     for (int icol = 0; icol <= irow; icol++)
-      mat->setValue(irow, icol, A->getValue(rows[irow], rows[icol]));
-  return mat;
+      res.setValue(irow, icol, A.getValue(rows[irow], rows[icol]));
+  return true;
 }
 
 MatrixSymmetric* MatrixSymmetric::createRandomDefinitePositive(int neq, int seed)

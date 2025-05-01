@@ -656,14 +656,15 @@ void MatrixDense::addColumn(int ncolumn_added)
  * @param flagInvertCol when True, transform 'colKeep' into 'colDrop'
  * @return Newly created Rectangular Matrix
  */
-MatrixDense* MatrixDense::sample(const AMatrix* A,
-                                 const VectorInt& rowKeep,
-                                 const VectorInt& colKeep,
-                                 bool flagInvertRow,
-                                 bool flagInvertCol)
+bool MatrixDense::sample(MatrixDense& res,
+                         const AMatrix& A,
+                         const VectorInt& rowKeep,
+                         const VectorInt& colKeep,
+                         bool flagInvertRow,
+                         bool flagInvertCol)
 {
-  int nrowtotal  = A->getNRows();
-  int ncoltotal  = A->getNCols();
+  int nrowtotal  = A.getNRows();
+  int ncoltotal  = A.getNCols();
   VectorInt rows = rowKeep;
   if (rows.empty()) rows = VH::sequence(nrowtotal);
   if (flagInvertRow) rows = VH::complement(VH::sequence(nrowtotal), rows);
@@ -673,22 +674,22 @@ MatrixDense* MatrixDense::sample(const AMatrix* A,
 
   int nrows = (int)rows.size();
   int ncols = (int)cols.size();
-  if (nrows <= 0 || ncols <= 0) return nullptr;
+  if (nrows <= 0 || ncols <= 0) return false;
 
   for (int irow = 0; irow < nrows; irow++)
   {
-    if (!checkArg("Selected Row index", rows[irow], nrowtotal)) return nullptr;
+    if (!checkArg("Selected Row index", rows[irow], nrowtotal)) return false;
   }
   for (int icol = 0; icol < ncols; icol++)
   {
-    if (!checkArg("Selected Column index", cols[icol], ncoltotal)) return nullptr;
+    if (!checkArg("Selected Column index", cols[icol], ncoltotal)) return false;
   }
 
-  MatrixDense* mat = new MatrixDense(nrows, ncols);
+  res.resize(nrows, ncols);
   for (int irow = 0; irow < nrows; irow++)
     for (int icol = 0; icol < ncols; icol++)
-      mat->setValue(irow, icol, A->getValue(rows[irow], cols[icol]));
-  return mat;
+      res.setValue(irow, icol, A.getValue(rows[irow], cols[icol]));
+  return true;
 }
 
 /**
