@@ -308,7 +308,7 @@ int kriging(Db* dbin,
 {
   //NeighUnique* neighUnique = dynamic_cast<NeighUnique*>(neigh);
   NeighBench* neighBench = dynamic_cast<NeighBench*>(neigh);
-  bool avoidSimpleCase = (OptCustom::query("DoNotUseSimpleCase", 1) == 1);
+  //bool avoidSimpleCase = (OptCustom::query("DoNotUseSimpleCase", 0) == 1);
 
   if (krigopt.getCalcul() == EKrigOpt::POINT && 
       !krigopt.hasColcok() &&
@@ -316,7 +316,7 @@ int kriging(Db* dbin,
       //neighUnique != nullptr &&
       neighBench == nullptr &&
       model->getNVar() == 1 && 
-      ! avoidSimpleCase &&
+      //! avoidSimpleCase &&
       OptCustom::query("NotOptimSimpleCase", 0) == 0)
   {
     OptCustom::define("Optim", 1);
