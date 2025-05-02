@@ -123,8 +123,8 @@ public:
                                 const ECalcMember &member,
                                 VectorDouble &drftab) const;
   MatrixDense evalDriftMat(const Db* db,
-                                 const VectorInt& nbgh     = VectorInt(),
-                                 const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+                           const VectorInt& nbgh     = VectorInt(),
+                           const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
   int evalDriftMatByRanks(MatrixDense& mat,
                           const Db* db,
                           const VectorVectorInt& sampleranks,

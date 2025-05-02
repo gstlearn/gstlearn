@@ -93,7 +93,7 @@ void ASPDEOp::simCond(const constvect data, vect outv) const
   VH::addInPlace(_workmesh,outv); 
 }
 
-void ASPDEOp::simNCond(vect outv) const
+void ASPDEOp::simNonCond(vect outv) const
 {
   // Resize if necessary
   _workmesh.resize(getSizeSimu());
@@ -123,11 +123,11 @@ VectorDouble ASPDEOp::simCond(const VectorDouble& dat) const
   return outv;
 }
 
-VectorDouble ASPDEOp::simNCond() const
+VectorDouble ASPDEOp::simNonCond() const
 {
   VectorDouble outv(_QSimu->getSize());
   vect outvs(outv);
-  simNCond(outvs);
+  simNonCond(outvs);
   return outv;
 }
 
