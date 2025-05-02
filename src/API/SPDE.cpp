@@ -142,7 +142,8 @@ SPDE* SPDE::create(Model *model,
                    bool verbose,
                    bool showStats)
 {
-  return new SPDE(model, domain, data, calcul, meshUser, useCholesky, params, verbose, showStats);
+  return new SPDE(model, domain, data, calcul, meshUser, useCholesky,
+                  params, verbose, showStats);
 }
 
 /**
@@ -1112,6 +1113,10 @@ VectorDouble krigingSPDENew(Db* dbin,
   ProjMultiMatrix* AM    = ProjMultiMatrix::createFromDbAndMeshes(dbin, meshes, nvar);
   ProjMultiMatrix* Aout  = ProjMultiMatrix::createFromDbAndMeshes(dbout, meshes, nvar);
   MatrixSparse* invnoise = buildInvNugget(dbin, model, params);
+  MatrixSymmetricSim* invnoisep = nullptr;
+  if (! useCholesky)
+    invnoisep = new MatrixSymmetricSim(invnoise);
+
   VectorDouble result;
   if (useCholesky)
   {
@@ -1123,8 +1128,7 @@ VectorDouble krigingSPDENew(Db* dbin,
   else
   {
     PrecisionOpMulti Qop(model, meshes);
-    MatrixSymmetricSim invnoisep(invnoise);
-    SPDEOp spdeop(&Qop, AM, &invnoisep);
+    SPDEOp spdeop(&Qop, AM, invnoisep);
     spdeop.setMaxIterations(params.getNxMax());
     spdeop.setTolerance(params.getEpsNugget());
     auto resultmesh = spdeop.kriging(Z);
@@ -1170,7 +1174,8 @@ VectorVectorDouble simulateSPDENew(Db* dbin,
     Z         = dbin->getColumnsActiveAndDefined(ELoc::Z);
     AM        = ProjMultiMatrix::createFromDbAndMeshes(dbin, meshes, nvar);
     invnoise  = buildInvNugget(dbin, model, params);
-    invnoisep = new MatrixSymmetricSim(invnoise);
+    if (!useCholesky)
+      invnoisep = new MatrixSymmetricSim(invnoise);
    }
   ProjMultiMatrix* Aout = ProjMultiMatrix::createFromDbAndMeshes(dbout, meshes, nvar);
 
@@ -1182,7 +1187,7 @@ VectorVectorDouble simulateSPDENew(Db* dbin,
 
     for (int isimu = 0; isimu < nbsimu; isimu++)
     {
-      VectorDouble resultmesh = (flagCond) ? spdeop->simCond(Z) : spdeop->simNCond();
+      VectorDouble resultmesh = (flagCond) ? spdeop->simCond(Z) : spdeop->simNonCond();
       Aout->mesh2point(resultmesh, result[isimu]);
     }
     delete spdeop;
@@ -1196,7 +1201,7 @@ VectorVectorDouble simulateSPDENew(Db* dbin,
 
     for (int isimu = 0; isimu < nbsimu; isimu ++)
     {
-      VectorDouble resultmesh = (flagCond) ? spdeop->simCond(Z) : spdeop->simNCond();
+      VectorDouble resultmesh = (flagCond) ? spdeop->simCond(Z) : spdeop->simNonCond();
       Aout->mesh2point(resultmesh, result[isimu]);
     }
     delete spdeop;

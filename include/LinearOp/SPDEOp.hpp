@@ -50,7 +50,7 @@ public:
   VectorDouble computeDriftCoeffs(const VectorDouble& Z,
                                   const MatrixDense& drifts) const;
   VectorDouble simCond(const VectorDouble& dat) const;
-  VectorDouble simNCond() const;
+  VectorDouble simNonCond() const;
 
   const PrecisionOpMulti* getQKriging() const { return _QKriging; }
   const ProjMulti* getProjKriging() const { return _projKriging; }
@@ -66,7 +66,7 @@ public:
                        vect out) const;
   void evalInvCov(const constvect inv, vect result) const;
   void simCond(const constvect data, vect outv) const;
-  void simNCond(vect outv) const;
+  void simNonCond(vect outv) const;
 
 protected:
   int _addToDest(const constvect inv, vect outv) const override;

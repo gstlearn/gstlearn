@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # %% General parameters
-flag_plot = False
+flag_plot = True
 ndim = 2
 nvar = 2
 nbsimu = 2
@@ -13,13 +13,16 @@ nbsimu = 2
 if nvar == 1:
     sills = np.array([1.])
     epsNugget = 0.0001
+    sillsNugg = np.array([0.0001])
 
 if nvar == 2:
     sills = np.array([[80,-50],[-50,40]])
     epsNugget = 0.001
+    sillsNugg = np.array([[.001,0.],[.0,.001]])
 
 model = gl.Model.createFromParam(gl.ECov.MATERN,param = 1, range=20,
-                                sills = sills)
+                                 sills = sills)
+modelNugg = gl.Model.createFromParam(gl.ECov.NUGGET, sills = sillsNugg)
 
 # %% Data creation (2 variables)
 dat = gl.Db.createFillRandom(ndat=100, ndim = 2,nvar = 0,
@@ -57,34 +60,48 @@ AM = gl.ProjMulti(vectproj)
 
 # %% Simulation (Matrix) performed with gstlearn
 
+print("Simulation using gstlearn (with Matrix) -> SGM")
 gl.law_set_random_seed(1242)
 params = gl.SPDEParam.create(epsNugget = epsNugget)
-resultMatGM = gl.simulateSPDENew(dat, grid, model, meshes, nbsimu, 0, params)
+resultMat = gl.simulateSPDENew(dat, grid, model, meshes, nbsimu, 1, params)
 
 SimuGM = {}
 for i in range(nbsimu):
     SimuGM[i+1] = {}
-    SimuGM[i+1][1] = resultMatGM[i][0:nt]
+    SimuGM[i+1][1] = resultMat[i][0:nt]
     if nvar == 2:
-        SimuGM[i+1][2] = resultMatGM[i][(nt):(2*nt)]
+        SimuGM[i+1][2] = resultMat[i][(nt):(2*nt)]
 
 # Printing Statistics
 print("Mean of the gstlearn simulations")
 for i in range(nbsimu):
     for j in range(nvar):
         print(np.round(SimuGM[i+1][j+1].mean(),4))
+        
+# %% Simulation (Matrix-free) performed with gstlearn
+
+print("Simulation using gstlearn (Matrix Free) -> SGF")
+gl.law_set_random_seed(1242)
+params = gl.SPDEParam.create(epsNugget = epsNugget)
+resultMat = gl.simulateSPDENew(dat, grid, model, meshes, nbsimu, 0, params)
+
+SimuGF = {}
+for i in range(nbsimu):
+    SimuGF[i+1] = {}
+    SimuGF[i+1][1] = resultMat[i][0:nt]
+    if nvar == 2:
+        SimuGF[i+1][2] = resultMat[i][(nt):(2*nt)]
+
+# Printing Statistics
+print("Mean of the gstlearn simulations")
+for i in range(nbsimu):
+    for j in range(nvar):
+        print(np.round(SimuGF[i+1][j+1].mean(),4))
 
 # %% Simulation (with Matrix) is performed by hand
 
-#Noise Operator (here from a nugget but could be from another SPDE)
-if nvar == 1:
-    sills = np.array([0.0001])
-
-if nvar == 2:
-    sills = np.array([[.001,0.],[.0,.001]])
-
+print("Simulation using gstlearperformed by Hand (with Matrix) -> SHF")
 gl.law_set_random_seed(1242)
-modelNugg = gl.Model.createFromParam(gl.ECov.NUGGET, sills=sills)
 Qop       = gl.PrecisionOpMulti(model,meshes,True)
 invnoise  = gl.buildInvNugget(dat,modelNugg)
 invnoisep = gl.MatrixSymmetricSim(invnoise)
@@ -113,38 +130,58 @@ for i in range(nbsimu):
 
 if flag_plot:
 
-    # Display the simulations for all variables and all simulations
+    # Display the GF simulations for all variables and all simulations
+    for i in range(nbsimu):
+        for j in range(nvar):
+            plt.imshow(SimuGF[i+1][j+1].reshape(grid.getNXs()))
+            plt.title("SGF#"+str(i+1)+" V#"+str(j+1)+" (gstlearn)")
+            plt.show()
+
+    # Display the GM simulations for all variables and all simulations
     for i in range(nbsimu):
         for j in range(nvar):
             plt.imshow(SimuGM[i+1][j+1].reshape(grid.getNXs()))
-            plt.title("S#"+str(i+1)+" V#"+str(j+1)+" (gstlearn)")
+            plt.title("SGM#"+str(i+1)+" V#"+str(j+1)+" (gstlearn)")
             plt.show()
     
     # Checking the simulations are different per variable
     if nvar == 2:
-        plt.scatter(SimuGM[1][1],SimuGM[1][2],s=1)
-        plt.title("Comparing two Variables for S#1 (gstlearn)")
+        plt.scatter(SimuGF[1][1],SimuGF[1][2],s=1)
+        plt.title("Comparing two Variables for SGF#1 (gstlearn)")
+        plt.xlabel("Variable #1")
+        plt.ylabel("Variable #2")
         plt.show()
 
     # Checking the simulations are different per simulation
     if nbsimu == 2:
-        plt.scatter(SimuGM[1][1], SimuGM[2][1], s=1)
-        plt.title("Comparing two Simulations for V#1 (gstlearn)")
+        plt.scatter(SimuGF[1][1], SimuGF[2][1], s=1)
+        plt.title("Comparing two Simulations SGF for V#1 (gstlearn)")
+        plt.xlabel("Simulation #1")
+        plt.ylabel("Simulation #2")
         plt.show()
     
-    # Comparing Manual and Gstlearn simulations for all variables / simulations
+    # Comparing Manual to SGF simulations for all variables / simulations
+    for i in range(nbsimu):
+        for j in range(nvar):
+            plt.scatter(SimuH[i+1][j+1], SimuGF[i+1][j+1], s=1)
+            plt.title("Comparing Simulation SGF#"+str(i+1)+" V#"+str(j+1)+" to SHF")
+            plt.xlabel("(Manual SHF)")
+            plt.ylabel("(gstlearn GF)")
+            plt.show()
+
+    # Comparing Manual to SGM simulations for all variables / simulations
     for i in range(nbsimu):
         for j in range(nvar):
             plt.scatter(SimuH[i+1][j+1], SimuGM[i+1][j+1], s=1)
-            plt.title("Comparing Simulations S#"+str(i+1)+" V#"+str(j+1))
-            plt.xlabel("(Manual)")
-            plt.ylabel("(gstlearn)")
+            plt.title("Comparing Simulation SGM#"+str(i+1)+" V#"+str(j+1)+" to SHF  ")
+            plt.xlabel("(Manual SHF)")
+            plt.ylabel("(gstlearn GM)")
             plt.show()
 
 # %% Checking the exactness of conditional simulations
-grid["v1"] = SimuGM[1][1]
+grid["v1"] = SimuGF[1][1]
 if nvar == 2:
-    grid["v2"] = SimuGM[1][2]
+    grid["v2"] = SimuGF[1][2]
 
 # %%
 gl.migrate(grid,dat,"v1")
