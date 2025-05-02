@@ -583,7 +583,7 @@ def _ax_varmod(axs, vario=None, model=None, ivar=-1, jvar=-1, idir=-1,
                     kwargs.update({'color':cols(idirUtil)})
                 if varioLinestyle is not None:
                     kwargs.update({'linestyle': varioLinestyle})
-                codir = _getCodir(codir, idirUtil, vario, model)
+                codirLoc = _getCodir(codir, idirUtil, vario, model)
                 
                 # Plotting the Variogram (optional)
                 if vario is not None:
@@ -598,11 +598,11 @@ def _ax_varmod(axs, vario=None, model=None, ivar=-1, jvar=-1, idir=-1,
                 if model is not None:
                     if modelLinestyle is not None:
                         kwargs.update({'linestyle': modelLinestyle})
-                    _ax_modelElem(ax, model, ivar=iv, jvar=jv, codir=codir, 
-                                   hmax=hmax, nh=nh, asCov=asCov,
-                                   envColor=envColor, envLinestyle=envLinestyle, 
-                                   flagLabelDir=flagLabelDir, flagLegend=flagLegend, 
-                                   **kwargs)
+                    _ax_modelElem(ax, model, ivar=iv, jvar=jv, codir=codirLoc, 
+                                  hmax=hmax, nh=nh, asCov=asCov,
+                                  envColor=envColor, envLinestyle=envLinestyle, 
+                                  flagLabelDir=flagLabelDir, flagLegend=flagLegend, 
+                                  **kwargs)
 
             ax.autoscale(True)
             
@@ -633,10 +633,17 @@ def variogram(vario, ivar=0, jvar=0, *args, **kwargs):
 def _getCodir(codir, idir, vario, model):
     if codir is not None:
         return codir
+    ndim = 0
     if vario is not None:
+        ndim = vario.getNDim()
         return vario.getCodirs(idir)
+    if model is not None:
+        ndim = model.getNDim()
+    if ndim <= 0:
+        print("You must define either 'vario' or 'model' or both")
+        return None
     else:
-        codir = [0] * model.getNDim()
+        codir = np.zeros(ndim)
         codir[0] = 1
         return codir
         
@@ -677,10 +684,10 @@ def _ax_variogram(axs, vario, ivar=0, jvar=0, idir=0, *args, **kwargs):
                       *args, **kwargs)
 
 def _ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
-                   nh = 100, hmax = None, asCov=False,
-                   envColor='black', envLinestyle='dashed',
-                   label=None, flagLabelDir=False, flagEnvelop = True, flagLegend=False, 
-                   **kwargs):
+                  nh = 100, hmax = None, asCov=False,
+                  envColor='black', envLinestyle='dashed',
+                  label=None, flagLabelDir=False, flagEnvelop = True, flagLegend=False, 
+                  **kwargs):
     """
     Construct a Layer for plotting a model
     
@@ -723,7 +730,7 @@ def _ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
     mode.setAsVario(not asCov)
     gg = modelobj.sample(hh, codir, ivar, jvar, mode)
     res = ax.plot(hh[istart:], gg[istart:], label=label, **kwargs)
-    
+
     # Represent the coregionalization envelop (optional)
     if ivar != jvar and flagEnvelop:
         ggp = modelobj.envelop(hh, ivar, jvar, +1, codir, mode)
