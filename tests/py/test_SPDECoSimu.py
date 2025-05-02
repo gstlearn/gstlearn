@@ -109,22 +109,22 @@ spdeop    = gl.SPDEOp(Qop, AM, invnoisep)
 resultMatH = spdeop.simCond(Z)
 resultMatH1 = spdeop.simCond(Z)
 
-SimuH = {}
-SimuH[1] = {}
-SimuH[1][1] = resultMatH[0:nt]
+SimuHF = {}
+SimuHF[1] = {}
+SimuHF[1][1] = resultMatH[0:nt]
 if nvar == 2:
-    SimuH[1][2] = resultMatH[(nt):(2*nt)]
+    SimuHF[1][2] = resultMatH[(nt):(2*nt)]
 if nbsimu == 2:
-    SimuH[2] = {}
-    SimuH[2][1] = resultMatH1[0:nt]
+    SimuHF[2] = {}
+    SimuHF[2][1] = resultMatH1[0:nt]
     if nvar == 2:
-        SimuH[2][2] = resultMatH1[(nt):(2*nt)]
+        SimuHF[2][2] = resultMatH1[(nt):(2*nt)]
 
 # Printing Statistics
 print("Mean of the manual simulations")
 for i in range(nbsimu):
     for j in range(nvar):
-        print(np.round(SimuH[i+1][j+1].mean(),4))
+        print(np.round(SimuHF[i+1][j+1].mean(),4))
 
 # %% Various plots
 
@@ -163,19 +163,10 @@ if flag_plot:
     # Comparing Manual to SGF simulations for all variables / simulations
     for i in range(nbsimu):
         for j in range(nvar):
-            plt.scatter(SimuH[i+1][j+1], SimuGF[i+1][j+1], s=1)
+            plt.scatter(SimuHF[i+1][j+1], SimuGF[i+1][j+1], s=1)
             plt.title("Comparing Simulation SGF#"+str(i+1)+" V#"+str(j+1)+" to SHF")
             plt.xlabel("(Manual SHF)")
             plt.ylabel("(gstlearn GF)")
-            plt.show()
-
-    # Comparing Manual to SGM simulations for all variables / simulations
-    for i in range(nbsimu):
-        for j in range(nvar):
-            plt.scatter(SimuH[i+1][j+1], SimuGM[i+1][j+1], s=1)
-            plt.title("Comparing Simulation SGM#"+str(i+1)+" V#"+str(j+1)+" to SHF  ")
-            plt.xlabel("(Manual SHF)")
-            plt.ylabel("(gstlearn GM)")
             plt.show()
 
 # %% Checking the exactness of conditional simulations
