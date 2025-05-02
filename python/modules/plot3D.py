@@ -47,6 +47,17 @@ def __invalidFileDimension(db, ndim):
         return True
     return False
 
+def __linearInterpolate(values, Min=0.0, Max=1.0, flagNoInterpolate = False):
+    if flagNoInterpolate:
+        return values
+    values = np.asarray(values)
+    vmin = np.min(values)
+    vmax = np.max(values)
+    if vmax == vmin:
+        return np.full_like(values, (Min + Max) / 2.0)
+    # Linear interpolation between Min and Max
+    return Min + (values - vmin) * (Max - Min) / (vmax - vmin)
+
 def SurfaceOnMesh(mesh, intensity=None, cscale=None, color='white', opacity=0.50, 
                   **plot_args):
     '''
@@ -318,7 +329,9 @@ def SurfaceOnDbGrid(grid, name, useSel=False, showscale=False, **plot_args):
     return surface
     
 def PointDb(db, nameColor=None, nameSize=None, useSel=True, 
-            color='black', size=3, sizeCoef=1, opacity=1, posX=0, posY=1, posZ=2,
+            color='black', size=3, sizeMin=1, sizeMax=3, 
+            nColors=10, flagNoColorInterpolate=False,
+            opacity=1, posX=0, posY=1, posZ=2,
             fromLongLat = False, dilate = 1,
             **plot_args): 
     '''
@@ -343,12 +356,14 @@ def PointDb(db, nameColor=None, nameSize=None, useSel=True,
         z = db.getOneCoordinate(posZ, useSel)
 
     if nameColor is not None:
-        colors = db.getColumn(nameColor, useSel)
+        colors = __linearInterpolate(db.getColumn(nameColor, useSel), 
+                                     1, nColors, flagNoColorInterpolate)
     else:
         colors = color
     
     if nameSize is not None:
-        sizes = db.getColumn(nameSize, useSel) * sizeCoef
+        sizes = __linearInterpolate(db.getColumn(nameSize, useSel), 
+                                    sizeMin, sizeMax)
     else:
         sizes = size
     
