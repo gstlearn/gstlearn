@@ -144,7 +144,7 @@ bool CalcKrigingSimpleCase::_run()
   KrigingAlgebraSimpleCase algebra(ksys.getAlgebra());
   bool use_parallel = !getModel()->isNoStat();
   int nech_out      = getDbout()->getNSample();
-  int nbthread      = OptCustom::query("ompthreads", 5);
+  int nbthread      = OptCustom::query("ompthreads", 1); // TODO : would like to use more threads
   omp_set_num_threads(nbthread);
 
   SpacePoint pin(getModel()->getSpace());
