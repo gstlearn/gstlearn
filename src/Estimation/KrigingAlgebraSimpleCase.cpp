@@ -653,10 +653,10 @@ bool KrigingAlgebraSimpleCase::_forbiddenWhenDual() const
   return false;
 }
 
-VectorDouble KrigingAlgebraSimpleCase::getStdv()
+const VectorDouble &KrigingAlgebraSimpleCase::getStdv()
 {
-  if (!_forbiddenWhenDual()) return VectorDouble();
-  if (_needStdv()) return VectorDouble();
+  if (!_forbiddenWhenDual()) return _dummy;
+  if (_needStdv()) return _dummy;
   return _Stdv.getDiagonal();
 }
 
