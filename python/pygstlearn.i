@@ -1141,7 +1141,7 @@ def setdbitem(self,name,tab):
         
         tab_i[np.isnan(tab_i)] = np.nan
         VectD = np.double(tab_i)
-        self.setColumn(VectD, name, gl.ELoc.UNKNOWN, 0, useSel)
+        self.setColumn(VectD.tolist(), name, gl.ELoc.UNKNOWN, 0, useSel)
         
     return
 

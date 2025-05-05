@@ -54,8 +54,10 @@ public:
 
   // The subsequent methods do not require isReady() validation
   int updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ, bool forceNoDual = false);
-  bool isReady();
-  void updateLHS(KrigingAlgebraSimpleCase& algebra, ModelGeneric& model);
+  bool isReady(VectorDouble& tabwork);
+  void updateLHS(KrigingAlgebraSimpleCase& algebra,
+                 ModelGeneric& model,
+                 VectorDouble& tabwork);
   int estimate(int iechout,
                SpacePoint& pin,
                SpacePoint& pout,
@@ -112,8 +114,8 @@ private:
   // Note that 'algebra' is mutable not to destroy constness when calling getLambda.
   mutable KrigingAlgebraSimpleCase _algebra;
   mutable KrigOpt _krigopt;
-  VectorDouble _means;            // Means of the variables (used to center variables)
-  VectorDouble _meansTarget;      // Means for target (possible using matLC)
+  VectorDouble _means;       // Means of the variables (used to center variables)
+  VectorDouble _meansTarget; // Means for target (possible using matLC)
 
   /// UID for storage
   int _iptrEst;

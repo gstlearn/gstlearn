@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Db/RankHandler.hpp"
 #include "Estimation/KrigingAlgebraSimpleCase.hpp"
@@ -335,17 +336,21 @@ void KrigingSystemSimpleCase::_estimateVarZ(int status, int iechout, KrigingAlge
 }
 
 
-void KrigingSystemSimpleCase::updateLHS(KrigingAlgebraSimpleCase& algebra, ModelGeneric& model)
+void KrigingSystemSimpleCase::updateLHS(KrigingAlgebraSimpleCase& algebra, 
+                                        ModelGeneric& model,
+                                        VectorDouble& tabwork)
 {
 
   auto* Sigma       = algebra.getSigma();
   auto* X           = algebra.getX();
-  auto* sampleRanks = algebra.getSampleRanks();
+  const auto* sampleRanks = algebra.getSampleRanks();
   auto* nbgh        = algebra.getNbgh();
   auto* rkh = algebra.getRankHandler();
   rkh->defineSampleRanks(*nbgh);
   //_dbin->getSampleRanksInPlace(sampleRanks, VectorInt(), *nbgh);
-  if (model.evalCovMatSymInPlaceFromIdx(*Sigma, _dbin, *sampleRanks, nullptr, false)) return;
+  //if (model.evalCovMatSymInPlaceFromIdx(*Sigma, _dbin, *sampleRanks, nullptr, false)) return;
+
+  if (model.evalCovMatOptimInPlace(*Sigma, _dbin, *rkh, _krigopt, ECalcMember::LHS, tabwork)) return;
   if (model.evalDriftMatByRanks(*X, _dbin, *sampleRanks, ECalcMember::LHS)) return;
   algebra.updateSampleRanks();
   // if (algebra.setData(Z, sampleRanks, _meansTarget)) return;
@@ -354,7 +359,7 @@ void KrigingSystemSimpleCase::updateLHS(KrigingAlgebraSimpleCase& algebra, Model
  * Performs the last operations before launching the loop on Estimations
  * @return
  */
-bool KrigingSystemSimpleCase::isReady()
+bool KrigingSystemSimpleCase::isReady(VectorDouble & tabwork)
 {
   if (!_isCorrect()) return false;
 
@@ -373,7 +378,7 @@ bool KrigingSystemSimpleCase::isReady()
   {
     auto* nbgh = _algebra.getNbgh();
     _neigh->select(0, *nbgh);
-    updateLHS(_algebra, *_model);
+    updateLHS(_algebra, *_model, tabwork);
     _algebra.prepare();
   }
 
@@ -450,13 +455,12 @@ int KrigingSystemSimpleCase::estimate(int iechout,
       return 0;
     if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || OptDbg::force())
     {
-      updateLHS(algebra,model);
+      updateLHS(algebra,model,tabwork);
     }
   }
 
   model.evalCovVecRHSInPlace(Sigma0->getViewOnColumnModify(0),
-                             _dbout,
-                             *algebra.getSampleRanksByVariable(0),
+                             *algebra.getRankHandler(),
                              iechout,
                              _krigopt,
                              pin,

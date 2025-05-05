@@ -69,6 +69,7 @@ public:
   FORWARD_METHOD(getCov, evalCovMat0)
   FORWARD_METHOD(getCov, evalCovMat0InPlace)
   FORWARD_METHOD(getCov, evalCovVecRHSInPlace)
+  FORWARD_METHOD(getCov, evalCovMatOptimInPlace)
   FORWARD_METHOD(getCov, evalCovMatRHSInPlaceFromIdx)
   FORWARD_METHOD(getCov, evalCovMatSparse)
   FORWARD_METHOD(getCov, eval0)

@@ -265,7 +265,8 @@ public:
                               SpacePoint& pin,
                               SpacePoint& pout,
                               VectorDouble& tabwork,
-                              double lambda = 1.) const override;
+                              double lambda = 1., 
+                              const ECalcMember& calcMember = ECalcMember::RHS) const override;
   #endif
 protected:
   /// Update internal parameters consistency with the context

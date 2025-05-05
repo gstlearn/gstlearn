@@ -90,7 +90,7 @@ public:
   void updateSampleRanks();
   void updateRankHandler();
   MatrixDense* getX0() { return _X0.get(); }
-  VectorVectorInt* getSampleRanks() { return &_rankHandler->getSampleRanks(); }
+  const VectorVectorInt* getSampleRanks() { return &_rankHandler->getSampleRanks(); }
   VectorInt* getSampleRanksByVariable(int ivar) { return &_rankHandler->getSampleRanksByVariable(ivar); }
   RankHandler* getRankHandler() { return _rankHandler.get();}
   void setRankHandler(std::shared_ptr<RankHandler> &rkh){ _rankHandler = rkh;}

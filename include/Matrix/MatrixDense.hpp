@@ -174,6 +174,10 @@ public:
                   const MatrixDense* mat2,
                   MatrixDense* mat3);
 #endif
+  void prodMatMatInPlaceOptim(const MatrixDense* x,
+                              const MatrixDense* y,
+                              bool transposeX = false,
+                              bool transposeY = false);
 
 protected:
   virtual void _allocate() override;
@@ -223,7 +227,7 @@ public:
 
 protected:
   bool _flagEigenDecompose;
-  VectorDouble _eigenValues;          // Used only when ! flag_eigen()
+  VectorDouble _eigenValues;   // Used only when ! flag_eigen()
   MatrixSquare* _eigenVectors; // Used only when ! flag_eigen()
   int _maxSize;
 

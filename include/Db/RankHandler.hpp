@@ -39,7 +39,7 @@ public:
   void defineSampleRanks(const VectorInt& nbgh = VectorInt());
 
   const VectorInt& getSampleRanks(int ivar) const { return _index[ivar]; }
-  VectorVectorInt& getSampleRanks()  { return _index; }
+  const VectorVectorInt& getSampleRanks() const { return _index; }
   VectorInt& getSampleRanksByVariable(int ivar)  { return _index[ivar]; }
   std::shared_ptr<VectorDouble>& getZflatten()  { return _Zflatten; }
   int getNumber() const;
