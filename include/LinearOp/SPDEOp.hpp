@@ -48,7 +48,8 @@ public:
   int getIterations() const { return _solver->getIterations(); }
   double getError() const { return _solver->getError(); }
   VectorDouble computeDriftCoeffs(const VectorDouble& Z,
-                                  const MatrixDense& drifts) const;
+                                  const MatrixDense& driftMat,
+                                  bool verbose = false) const;
   VectorDouble simCond(const VectorDouble& dat) const;
   VectorDouble simNonCond() const;
 
@@ -67,12 +68,17 @@ public:
   void evalInvCov(const constvect inv, vect result) const;
   void simCond(const constvect data, vect outv) const;
   void simNonCond(vect outv) const;
+  static int centerDataByDriftMat(VectorDouble& Z,
+                                  const MatrixDense& driftMat,
+                                  const VectorDouble& driftCoeffs);
+  static int centerDataByMeanVec(VectorDouble& Z,
+                                 const VectorDouble& meanVec);
 
 protected:
   int _addToDest(const constvect inv, vect outv) const override;
 
-private: 
-  int _getNDat() const {return _ndat;}
+private:
+  int _getNDat() const { return _ndat; }
   virtual int _solve(const constvect in, vect out) const;
   int _solveWithGuess(const constvect in,
                       const constvect guess,

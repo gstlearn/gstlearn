@@ -34,7 +34,7 @@ dat["x-2"] = np.round(dat["x-2"])
 gl.simtub(None,dat,model,nbtuba = 1000)
 Z = dat["Simu*"].T.reshape(-1) #Data vector (two variables in a single vector)
 
-# %% Resolution Grid
+# %% Output Grid
 grid = gl.DbGrid.create([141,141] ,dx = [1,1], x0 = [-20,-20])
 nt = grid.getNSample()
 
@@ -58,7 +58,9 @@ if nvar == 2:
 
 AM = gl.ProjMulti(vectproj)
 
+################################################
 # %% Simulation (Matrix) performed with gstlearn
+################################################
 
 print("Simulation using gstlearn (with Matrix) -> SGM")
 gl.law_set_random_seed(1242)
@@ -73,12 +75,13 @@ for i in range(nbsimu):
         SimuGM[i+1][2] = resultMat[i][(nt):(2*nt)]
 
 # Printing Statistics
-print("Mean of the gstlearn simulations")
 for i in range(nbsimu):
     for j in range(nvar):
         print(np.round(SimuGM[i+1][j+1].mean(),4))
-        
+
+#####################################################
 # %% Simulation (Matrix-free) performed with gstlearn
+#####################################################
 
 print("Simulation using gstlearn (Matrix Free) -> SGF")
 gl.law_set_random_seed(1242)
@@ -93,14 +96,15 @@ for i in range(nbsimu):
         SimuGF[i+1][2] = resultMat[i][(nt):(2*nt)]
 
 # Printing Statistics
-print("Mean of the gstlearn simulations")
 for i in range(nbsimu):
     for j in range(nvar):
         print(np.round(SimuGF[i+1][j+1].mean(),4))
 
+##################################################
 # %% Simulation (with Matrix) is performed by hand
+##################################################
 
-print("Simulation using gstlearperformed by Hand (with Matrix) -> SHF")
+print("Simulation using gstlearn performed by Hand (with Matrix) -> SHF")
 gl.law_set_random_seed(1242)
 Qop       = gl.PrecisionOpMulti(model,meshes,True)
 invnoise  = gl.buildInvNugget(dat,modelNugg)
@@ -121,7 +125,6 @@ if nbsimu == 2:
         SimuHF[2][2] = resultMatH1[(nt):(2*nt)]
 
 # Printing Statistics
-print("Mean of the manual simulations")
 for i in range(nbsimu):
     for j in range(nvar):
         print(np.round(SimuHF[i+1][j+1].mean(),4))

@@ -37,6 +37,74 @@
 #include <math.h>
 #include <vector>
 
+static VectorDouble _centerDataByDrift(SPDEOp* spdeop,
+                                       const Db* dbin,
+                                       const Model* model,
+                                       VectorDouble& Z)
+{
+  bool mustEvaluateDrift = model->getNDrift() > 0;
+
+  MatrixDense driftMat = model->evalDriftMatByRanks(dbin);
+  VectorDouble meanVec = model->evalMeanVecByRanks(dbin);
+
+  VectorDouble driftCoeffs;
+  if (mustEvaluateDrift)
+  {
+    driftCoeffs = spdeop->computeDriftCoeffs(Z, driftMat);
+    ASPDEOp::centerDataByDriftMat(Z, driftMat, driftCoeffs);
+  }
+  else
+  {
+    ASPDEOp::centerDataByMeanVec(Z, meanVec);
+  }
+  return driftCoeffs;
+}
+
+static void _uncenterResultByDrift(const Db* dbout,
+                                   const Model* model,
+                                   VectorDouble& result,
+                                   const VectorDouble& driftCoeffs)
+{
+  int nvar               = model->getNVar();
+  int nbfl               = model->getNDrift();
+  int nech               = dbout->getNSample();
+  int nechred            = dbout->getNSample(true);
+  bool mustEvaluateDrift = nbfl > 0;
+
+  // Loop on the samples of the output file
+
+  double value;
+  int ncols = 0;
+  MatrixDense mat;
+  for (int jech = 0, iech = 0; jech < nech; jech++)
+  {
+    if (!dbout->isActive(jech)) continue;
+
+    if (mustEvaluateDrift)
+    {
+      (void)model->evalDriftMatByTarget(mat, dbout, jech);
+      ncols = mat.getNCols();
+    }
+
+    // Loop on the variables
+
+    for (int ivar = 0; ivar < nvar; ivar++)
+    {
+      if (mustEvaluateDrift)
+      {
+
+        value = 0.;
+        for (int icol = 0; icol < ncols; icol++)
+          value += mat.getValue(ivar, icol) * driftCoeffs[icol];
+      }
+      else
+        value = model->getMean(ivar);
+      result[ivar * nechred + iech] += value;
+    }
+    iech++;
+  }
+}
+
 /**
  * The class constructor with the following arguments:
  *
@@ -1108,35 +1176,52 @@ VectorDouble krigingSPDENew(Db* dbin,
   if (dbin  == nullptr) return 1;
   if (dbout == nullptr) return 1;
   if (model == nullptr) return 1;
-  int nvar               = model->getNVar();
-  VectorDouble Z         = dbin->getColumnsActiveAndDefined(ELoc::Z);
-  ProjMultiMatrix* AM    = ProjMultiMatrix::createFromDbAndMeshes(dbin, meshes, nvar);
-  ProjMultiMatrix* Aout  = ProjMultiMatrix::createFromDbAndMeshes(dbout, meshes, nvar);
-  MatrixSparse* invnoise = buildInvNugget(dbin, model, params);
+
+  int nvar                      = model->getNVar();
+  VectorDouble Z                = dbin->getColumnsActiveAndDefined(ELoc::Z);
+  MatrixDense driftMat          = model->evalDriftMatByRanks(dbin);
+  VectorDouble meanVec          = model->evalMeanVecByRanks(dbin);
+  ProjMultiMatrix* AM           = ProjMultiMatrix::createFromDbAndMeshes(dbin, meshes, nvar);
+  ProjMultiMatrix* Aout         = ProjMultiMatrix::createFromDbAndMeshes(dbout, meshes, nvar);
+  MatrixSparse* invnoise        = buildInvNugget(dbin, model, params);
   MatrixSymmetricSim* invnoisep = nullptr;
   if (! useCholesky)
     invnoisep = new MatrixSymmetricSim(invnoise);
 
-  VectorDouble result;
+  SPDEOp* spdeop = nullptr;
+  PrecisionOpMulti* Qop = nullptr;
+  PrecisionOpMultiMatrix* Qom = nullptr;
   if (useCholesky)
   {
-    PrecisionOpMultiMatrix Qop(model, meshes);
-    SPDEOpMatrix spdeop(&Qop, AM, invnoise);
-    auto resultmesh = spdeop.kriging(Z);
-    Aout->mesh2point(resultmesh, result);
+    Qom = new PrecisionOpMultiMatrix(model, meshes);
+    spdeop = new SPDEOpMatrix(Qom, AM, invnoise);
   }
   else
   {
-    PrecisionOpMulti Qop(model, meshes);
-    SPDEOp spdeop(&Qop, AM, invnoisep);
-    spdeop.setMaxIterations(params.getNxMax());
-    spdeop.setTolerance(params.getEpsNugget());
-    auto resultmesh = spdeop.kriging(Z);
-    Aout->mesh2point(resultmesh, result);
+    Qop = new PrecisionOpMulti(model, meshes);
+    spdeop = new SPDEOp(Qop, AM, invnoisep);
+    spdeop->setMaxIterations(params.getNxMax());
+    spdeop->setTolerance(params.getEpsNugget());
   }
+
+  // Calculating the drift coefficient (optional) and Centering the Data
+  VectorDouble driftCoeffs = _centerDataByDrift(spdeop, dbin, model, Z);
+
+  // Kriging step
+  auto resultmesh = spdeop->kriging(Z);
+
+  // Storing the results
+  VectorDouble result;
+  Aout->mesh2point(resultmesh, result);
+  _uncenterResultByDrift(dbout, model, result, driftCoeffs);
+
+  delete spdeop;
+  delete Qom;
+  delete Qop;
   delete invnoise;
   delete AM;
   delete Aout;
+
   return result;
 }
 

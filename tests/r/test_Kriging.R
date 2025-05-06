@@ -65,7 +65,7 @@ test_kriging <- function(dbin, dbout, model, neigh,
         err = Kcalc$setLHS(Sigma)
       } else {
         err = Kcalc$setData(Z = Z, indices = sampleRanks)
-        err = model$evalDriftMatByRanks(mat = X, db = dbin, sampleRanks,
+        err = model$evalDriftMatByRanksInPlace(mat = X, db = dbin, sampleRanks,
                                         member = ECalcMember_fromKey("LHS"))
         err = Kcalc$setLHS(Sigma, X)
       }

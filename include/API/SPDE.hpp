@@ -97,11 +97,12 @@ private:
   void _addDrift(Db* db, VectorDouble& result, bool useSel = true);
   void _setUseCholesky(int useCholesky = -1, bool verbose = false);
   double _computeLogLikelihood(int nbsimu = 1, bool verbose = false) const;
+
 #ifndef SWIG
-  static void _projecLocal(Db* dbout,
-                           const AMesh* meshing,
-                           std::vector<double>& working,
-                           VectorDouble& result);
+    static void _projecLocal(Db* dbout,
+                             const AMesh* meshing,
+                             std::vector<double>& working,
+                             VectorDouble& result);
 #endif
 
 private:

@@ -97,7 +97,7 @@ public:
   VectorVectorDouble getDrifts(const Db* db, bool useSel = true) const;
   bool isFlagLinked() const { return _flagLinked; }
   bool isFlagCombined() const { return _flagCombined; }
-  int getDriftMaxIRFOrder() const;
+  int  getDriftMaxIRFOrder() const;
   bool isDriftDefined(const VectorInt &powers, int rank_fex = 0) const;
   bool isDriftDifferentDefined(const VectorInt &powers, int rank_fex = -1) const;
 
@@ -125,20 +125,25 @@ public:
   MatrixDense evalDriftMat(const Db* db,
                            const VectorInt& nbgh     = VectorInt(),
                            const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
-  int evalDriftMatByRanks(MatrixDense& mat,
-                          const Db* db,
-                          const VectorVectorInt& sampleranks,
-                          const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+  int evalDriftMatByRanksInPlace(MatrixDense& mat,
+                                 const Db* db,
+                                 const VectorVectorInt& sampleranks = VectorVectorInt(),
+                                 const ECalcMember& member          = ECalcMember::fromKey("LHS")) const;
+  MatrixDense evalDriftMatByRanks(const Db* db,
+                                  const VectorVectorInt& sampleRanks = VectorVectorInt(),
+                                  const ECalcMember& member          = ECalcMember::fromKey("LHS")) const;
+  VectorDouble evalMeanVecByRanks(const Db* db,
+                                  const VectorVectorInt& sampleRanks = VectorVectorInt()) const;
   int evalDriftMatByTarget(MatrixDense& mat,
                            const Db* db,
                            int iech2,
                            const KrigOpt& krigopt = KrigOpt()) const;
-  double evalDriftValue(const Db *db,
+  double evalDriftValue(const Db* db,
                         int iech,
                         int ivar,
                         int ib,
-                        const ECalcMember &member = ECalcMember::fromKey("LHS")) const;
-  
+                        const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+
   void setMeans(const VectorDouble& mean);
   void setMean(const double mean,int ivar=0);
   double getMean(int ivar) const;

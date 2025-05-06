@@ -127,7 +127,7 @@ int CalcGlobal::_globalKriging()
                                                        _modelLocal->getMeans(), 
                                                        !_modelLocal->hasDrift());
   if (_modelLocal->evalCovMatSymInPlaceFromIdx(Sigma, dbin, sampleRanks, &mode, false)) return 1;
-  if (_modelLocal->evalDriftMatByRanks(X, dbin, sampleRanks, ECalcMember::LHS)) return 1;
+  if (_modelLocal->evalDriftMatByRanksInPlace(X, dbin, sampleRanks, ECalcMember::LHS)) return 1;
 
   KrigingAlgebra algebra;
   algebra.resetNewData();

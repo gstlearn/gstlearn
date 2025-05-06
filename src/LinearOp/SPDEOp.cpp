@@ -114,6 +114,54 @@ VectorDouble ASPDEOp::kriging(const VectorDouble& dat) const
   return outv;
 }
 
+int ASPDEOp::centerDataByDriftMat(VectorDouble& Z,
+                                  const MatrixDense& driftMat,
+                                  const VectorDouble& driftCoeffs)
+{
+  int nrows = driftMat.getNRows();
+  int ncols = driftMat.getNCols();
+  if (nrows != (int) Z.size())
+  {
+    messerr("Error in number of Rows of drift matrix (%d) and size of data vector (%d)",
+            nrows, Z.size());
+    return 1;
+  }
+  if (ncols != (int) driftCoeffs.size())
+  {
+    messerr("Error in number of Columns of drift matrix (%d) and size of drift coefficients (%d)",
+            ncols, driftCoeffs.size());
+    return 1;
+  }
+
+  // Center the data set
+  for (int i = 0; i < nrows; i++)
+  {
+    double sum = 0.;
+    for (int j = 0; j < ncols; j++)
+    {
+      sum += driftCoeffs[j] * driftMat.getValue(i, j);
+    }
+    Z[i] -= sum;
+  }
+  return 0;
+}
+
+int ASPDEOp::centerDataByMeanVec(VectorDouble& Z,
+                                 const VectorDouble& meanVec)
+{
+  if ((int)Z.size() != (int)meanVec.size())
+  {
+    messerr("Error in size of data vector (%d) and size of mean vector (%d)",
+            Z.size(), meanVec.size());
+    return 1;
+  }
+
+  // Center the data set
+  for (int i = 0, nrows = (int)Z.size(); i < nrows; i++)
+    Z[i] -= meanVec[i];
+  return 0;
+}
+
 VectorDouble ASPDEOp::simCond(const VectorDouble& dat) const
 {
   constvect datm(dat.data(), dat.size());
@@ -222,9 +270,10 @@ void ASPDEOp::evalInvCov(const constvect inv, vect result) const
 }
 
 VectorDouble ASPDEOp::computeDriftCoeffs(const VectorDouble& Z,
-                                        const MatrixDense& drifts) const
+                                         const MatrixDense& driftMat,
+                                        bool verbose) const
 {
-  int xsize = (int)(drifts.getNCols());
+  int xsize = (int)(driftMat.getNCols());
   VectorDouble XtInvSigmaZ(xsize);
   MatrixSymmetric XtInvSigmaX(xsize);
   VectorDouble result(xsize);
@@ -232,7 +281,7 @@ VectorDouble ASPDEOp::computeDriftCoeffs(const VectorDouble& Z,
   vect w1s(_workdat1);
   for(int i = 0; i< xsize; i++)
   {
-    auto xm = drifts.getColumnPtr(i);
+    auto xm = driftMat.getColumnPtr(i);
     evalInvCov(xm,w1s);
 
     constvect ym(Z.data(),Z.size());
@@ -240,7 +289,7 @@ VectorDouble ASPDEOp::computeDriftCoeffs(const VectorDouble& Z,
     XtInvSigmaZ[i] = VH::innerProduct(ym,wd1);
     for(int j = i; j < xsize;j++)
     {
-      constvect xmj = drifts.getViewOnColumn(j);
+      constvect xmj = driftMat.getViewOnColumn(j);
       double prod = VH::innerProduct(xmj,w1s);
       XtInvSigmaX.setValue(i,j,prod);
     }
@@ -248,5 +297,9 @@ VectorDouble ASPDEOp::computeDriftCoeffs(const VectorDouble& Z,
 
   XtInvSigmaX.solve(XtInvSigmaZ,result);
 
+  // Optional printout
+  if (verbose)
+    VH::dump("Drift coefficients", result);
+  
   return result;
 }

@@ -68,5 +68,5 @@ private:
   VectorDouble _Zflatten; // Vector of Z values (fpr active samples of target variables)
 
   const Db* _db;       // Pointer to Db
-  VectorInt _workNbgh; // Vector of ellible sample absolute ranks
+  VectorInt _workNbgh; // Vector of elligible sample absolute ranks
 };
