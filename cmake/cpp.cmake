@@ -53,8 +53,8 @@ if(BUILD_ASAN AND MSVC)
 endif()
 
 if(BUILD_ASAN)
-  add_compile_options(-fsanitize=address)
-  add_link_options(-fsanitize=address)
+  add_compile_options(-fsanitize=thread)
+  add_link_options(-fsanitize=thread)
 endif()
 
 # For valgrind usage (use Debug)
