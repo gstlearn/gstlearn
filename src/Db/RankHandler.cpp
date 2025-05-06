@@ -195,9 +195,10 @@ void RankHandler::defineSampleRanks(const VectorInt& nbgh)
   _Zflatten->clear();
 
   // Loop on the variables
+  VectorInt ranks;
   for (int ivar = 0; ivar < _nvar; ivar++)
   {
-    VectorInt ranks;
+    ranks.clear();
     const double* zadd = _db->getColAdressByColIdx(_iptrZ[ivar]);
     // Loop on the elligible sample ranks
     for (int irel = 0; irel < nech; irel++)
