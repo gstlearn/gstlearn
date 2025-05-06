@@ -502,6 +502,8 @@ public:
                       double value);
 
   double getValueByColIdx(int iech, int icol, bool flagCheck = true) const;
+  const double* getColAdressByColIdx(int icol) const;
+
   void setValueByColIdx(int iech, int icol, double value, bool flagCheck = true);
   VectorDouble getValuesByNames(const VectorInt& iechs,
                                 const VectorString& names,

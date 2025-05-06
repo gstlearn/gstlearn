@@ -2423,6 +2423,12 @@ double Db::getValueByColIdx(int iech, int icol, bool flagCheck) const
   return (_array[_getAddress(iech, icol)]);
 }
 
+const double* Db::getColAdressByColIdx(int icol) const
+{
+  return &_array[_getAddress(0, icol)];
+}
+
+
 VectorDouble Db::getValuesByNames(const VectorInt& iechs,
                                   const VectorString& names,
                                   bool bySample) const

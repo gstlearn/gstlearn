@@ -198,14 +198,14 @@ void RankHandler::defineSampleRanks(const VectorInt& nbgh)
   for (int ivar = 0; ivar < _nvar; ivar++)
   {
     VectorInt ranks;
-
+    const double* zadd = _db->getColAdressByColIdx(_iptrZ[ivar]);
     // Loop on the elligible sample ranks
     for (int irel = 0; irel < nech; irel++)
     {
       int iabs = _nbgh[irel];
       if (!_elligible.getValue(ivar,iabs)) continue;
 
-      value = _db->getValueByColIdx(iabs, _iptrZ[ivar]);
+      value = zadd[iabs];
       _Zflatten->push_back(value);
       // The sample is finally accepted: its ABSOLUTE index is stored
       ranks.push_back(iabs);
