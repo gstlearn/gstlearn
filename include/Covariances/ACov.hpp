@@ -15,6 +15,9 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/TabNoStat.hpp"
+#include "Db/RankHandler.hpp"
+#include "Enum/ECalcMember.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Model/CovInternal.hpp"
 #include "gstlearn_export.hpp"
@@ -141,21 +144,21 @@ public:
   /////////////////////////////////////////////////////////////////////////////////
   /// Functions for evaluating Covariance Matrices either in place or not
   MatrixSymmetric evalCovMat0(const Db* db,
-                                    int iech,
-                                    const KrigOpt& krigopt = KrigOpt()) const;
+                              int iech,
+                              const KrigOpt& krigopt = KrigOpt()) const;
   MatrixDense evalCovMat(const Db* db1,
-                               const Db* db2           = nullptr,
-                               int ivar0               = -1,
-                               int jvar0               = -1,
-                               const VectorInt& nbgh1  = VectorInt(),
-                               const VectorInt& nbgh2  = VectorInt(),
-                               const CovCalcMode* mode = nullptr,
-                               bool cleanOptim         = true) const;
+                         const Db* db2           = nullptr,
+                         int ivar0               = -1,
+                         int jvar0               = -1,
+                         const VectorInt& nbgh1  = VectorInt(),
+                         const VectorInt& nbgh2  = VectorInt(),
+                         const CovCalcMode* mode = nullptr,
+                         bool cleanOptim         = true) const;
   MatrixSymmetric evalCovMatSym(const Db* db1,
-                                      const VectorInt& nbgh1  = VectorInt(),
-                                      int ivar0               = -1,
-                                      const CovCalcMode* mode = nullptr,
-                                      bool cleanOptim         = true) const;
+                                const VectorInt& nbgh1  = VectorInt(),
+                                int ivar0               = -1,
+                                const CovCalcMode* mode = nullptr,
+                                bool cleanOptim         = true) const;
   MatrixSparse* evalCovMatSparse(const Db* db1_arg,
                                  const Db* db2_arg       = nullptr,
                                  int ivar0               = -1,
@@ -209,14 +212,21 @@ public:
 
 #ifndef SWIG
   int evalCovVecRHSInPlace(vect vect,
-                           const Db* db2,
-                           const VectorInt& index1,
+                           const RankHandler& rank,
                            int iech2,
                            const KrigOpt& krigopt,
                            SpacePoint& pin,
                            SpacePoint& pout,
                            VectorDouble& tabwork,
-                           double lambda = 1.) const;
+                           double lambda = 1.,
+                           const ECalcMember& calcMember = ECalcMember::RHS) const;
+  int evalCovMatOptimInPlace(MatrixDense& mat,
+                             const Db* dbin,
+                             const RankHandler& rankhandler,
+                             const KrigOpt& krigopt,
+                             const ECalcMember& calcMember,
+                             VectorDouble& tabwork,
+                             double lambda = 1.) const;
   virtual int addEvalCovVecRHSInPlace(vect vect,
                                       const VectorInt& index1,
                                       const int iech2,
@@ -224,7 +234,8 @@ public:
                                       SpacePoint& pin,
                                       SpacePoint& pout,
                                       VectorDouble& tabwork,
-                                      double lambda = 1.) const;
+                                      double lambda = 1.,
+                                      const ECalcMember& calcMember = ECalcMember::RHS) const;
 #endif
   /////////////////////////////////////////////////////////////////////////////////
   void eval0CovMatBiPointInPlace(MatrixSymmetric& mat, const CovCalcMode* mode) const;
@@ -244,10 +255,10 @@ public:
                             int jvar                = 0,
                             const CovCalcMode* mode = nullptr) const;
   MatrixSquare evalNvarIpas(double step,
-                                   const VectorDouble& dir = VectorDouble(),
-                                   const CovCalcMode* mode = nullptr) const;
+                            const VectorDouble& dir = VectorDouble(),
+                            const CovCalcMode* mode = nullptr) const;
   MatrixSquare evalNvarIpasIncr(const VectorDouble& dincr,
-                                       const CovCalcMode* mode = nullptr) const;
+                                const CovCalcMode* mode = nullptr) const;
   double evalIsoIvarIpas(double step,
                          int ivar                = 0,
                          int jvar                = 0,
@@ -257,7 +268,7 @@ public:
                                int jvar                = 0,
                                const CovCalcMode* mode = nullptr) const;
   MatrixSquare evalIsoNvarIpas(double step,
-                                      const CovCalcMode* mode = nullptr) const;
+                               const CovCalcMode* mode = nullptr) const;
 
   double evalCvv(const VectorDouble& ext,
                  const VectorInt& ndisc,
@@ -273,9 +284,9 @@ public:
                       int jvar                   = 0,
                       const CovCalcMode* mode    = nullptr) const;
   MatrixSquare evalCvvM(const VectorDouble& ext,
-                               const VectorInt& ndisc,
-                               const VectorDouble& angles = VectorDouble(),
-                               const CovCalcMode* mode    = nullptr) const;
+                        const VectorInt& ndisc,
+                        const VectorDouble& angles = VectorDouble(),
+                        const CovCalcMode* mode    = nullptr) const;
   double evalCxv(const SpacePoint& p1,
                  const VectorDouble& ext,
                  const VectorInt& ndisc,
@@ -293,11 +304,11 @@ public:
                  int jvar                   = 0,
                  const CovCalcMode* mode    = nullptr) const;
   MatrixSquare evalCxvM(const SpacePoint& p1,
-                               const VectorDouble& ext,
-                               const VectorInt& ndisc,
-                               const VectorDouble& angles = VectorDouble(),
-                               const VectorDouble& x0     = VectorDouble(),
-                               const CovCalcMode* mode    = nullptr) const;
+                        const VectorDouble& ext,
+                        const VectorInt& ndisc,
+                        const VectorDouble& angles = VectorDouble(),
+                        const VectorDouble& x0     = VectorDouble(),
+                        const CovCalcMode* mode    = nullptr) const;
 
   void evalPointToDb(VectorDouble& values,
                      const SpacePoint& p1,
