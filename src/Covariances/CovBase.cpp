@@ -205,10 +205,11 @@ int CovBase::addEvalCovVecRHSInPlace(vect vect,
                                      SpacePoint& pin,
                                      SpacePoint& pout,
                                      VectorDouble& tabwork,
-                                     double lambda) const
+                                     double lambda,
+                                     const ECalcMember& calcMember) const
 {
   DECLARE_UNUSED(lambda)
-  return  _cor->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, getSill(0, 0));
+  return  _cor->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, getSill(0, 0), calcMember);
 }
 
 double CovBase::_eval(const SpacePoint& p1,

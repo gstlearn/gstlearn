@@ -814,6 +814,8 @@
   }
 }
 
+
+
 %typemap(in, fragment="ToCpp") const MatrixDense&     (void *argp, MatrixDense mat),
                                const MatrixDense*     (void *argp, MatrixDense mat),
                                const MatrixSquare&   (void *argp, MatrixSquare mat),

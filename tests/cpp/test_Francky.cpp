@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/OptCustom.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/FunctionalSpirale.hpp"
@@ -32,6 +33,7 @@
 int main(int argc, char *argv[])
 
 {
+  OptCustom::define("ompthreads",1);
   int seed = 10355;
   law_set_random_seed(seed);
 

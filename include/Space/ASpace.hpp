@@ -84,7 +84,8 @@ public:
                                            VectorDouble& res,
                                            const VectorInt& ranks) const
   {
-    DECLARE_UNUSED(p1, p2, res, ranks)                                      
+    DECLARE_UNUSED(p1, p2, res, ranks)     
+    messerr("Not implemented for this space");                                 
   };
   ///////////////////////////////////////////////
   /// Not to be overriden

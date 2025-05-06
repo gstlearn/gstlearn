@@ -979,7 +979,7 @@ int KrigingAlgebraSimpleCase::_needMuUK()
   _LambdaSKtX.resize(_nrhs, _nbfl);
   _Y0.resize(_nrhs, _nbfl);
 
-  _LambdaSKtX.prodMatMatInPlace(_LambdaSK.get(), _X.get(), true, false);
+  _LambdaSKtX.prodMatMatInPlaceOptim(_LambdaSK.get(), _X.get(), true, false);
   _Y0.linearCombination(1., _X0.get(), -1., &_LambdaSKtX);
 
   _MuUK.prodMatMatInPlace(_invSigmac.get(), &_Y0, false, true);
@@ -1031,7 +1031,7 @@ int KrigingAlgebraSimpleCase::_needLambdaSK()
     _cholSigma->solveMatInPlace(*_Sigma0, *_LambdaSK);
   }
   else
-    _LambdaSK->prodMatMatInPlace(_InvSigma.get(), _Sigma0.get());
+    _LambdaSK->prodMatMatInPlaceOptim(_InvSigma.get(), _Sigma0.get());
   return 0;
 }
 
@@ -1057,9 +1057,7 @@ int KrigingAlgebraSimpleCase::_needLambdaUK()
   _LambdaUK.resize(_neq, _nrhs);
 
   _needXtInvSigma();
-
   _needLambdaSK();
-
   _needMuUK();
 
   _invSigmaXMuUK.resize(_neq, _nrhs);
