@@ -55,6 +55,7 @@ bool CalcKrigingSimpleCase::_check()
     if (getModel()->isNoStat())
     {
       messerr("Variance of Estimator is limited to Stationary Covariance"); //Why?
+      messerr("Variance of Estimator is limited to Stationary Covariance"); //Why?
       return false;
     }
   }
@@ -144,7 +145,7 @@ bool CalcKrigingSimpleCase::_run()
   KrigingAlgebraSimpleCase algebra(ksys.getAlgebra());
   bool use_parallel = !getModel()->isNoStat();
   int nech_out      = getDbout()->getNSample();
-  int nbthread      = OptCustom::query("ompthreads", 10); // TODO : would like to use more threads
+  int nbthread      = OptCustom::query("ompthreads", 1); // TODO : would like to use more threads
   omp_set_num_threads(nbthread);
 
   SpacePoint pin(getModel()->getSpace());
