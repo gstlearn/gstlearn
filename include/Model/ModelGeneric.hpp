@@ -119,6 +119,8 @@ public:
   FORWARD_METHOD(getDriftList, evalDriftValue, TEST)
   FORWARD_METHOD(getDriftList, evalDriftMat)
   FORWARD_METHOD(getDriftList, evalDriftMatByRanks)
+  FORWARD_METHOD(getDriftList, evalMeanVecByRanks)
+  FORWARD_METHOD(getDriftList, evalDriftMatByRanksInPlace)
   FORWARD_METHOD(getDriftList, evalDriftMatByTarget)
   FORWARD_METHOD(getDriftList, getNDrift)
   FORWARD_METHOD(getDriftList, getNDriftEquation)
@@ -134,6 +136,7 @@ public:
   FORWARD_METHOD(getDriftList, evalDrift, TEST)
   FORWARD_METHOD(getDriftList, evalDriftBySample)
   FORWARD_METHOD(getDriftList, evalDriftBySampleInPlace)
+  FORWARD_METHOD(getDriftList, evalDriftCoef)
   FORWARD_METHOD(getDriftList, hasDrift, false)
 
   FORWARD_METHOD(getDriftList, getMean, TEST)

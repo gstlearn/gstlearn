@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Db/RankHandler.hpp"
 #include "Estimation/KrigingAlgebraSimpleCase.hpp"
@@ -351,7 +350,7 @@ void KrigingSystemSimpleCase::updateLHS(KrigingAlgebraSimpleCase& algebra,
   //if (model.evalCovMatSymInPlaceFromIdx(*Sigma, _dbin, *sampleRanks, nullptr, false)) return;
 
   if (model.evalCovMatOptimInPlace(*Sigma, _dbin, *rkh, _krigopt, ECalcMember::LHS, tabwork)) return;
-  if (model.evalDriftMatByRanks(*X, _dbin, *sampleRanks, ECalcMember::LHS)) return;
+  if (model.evalDriftMatByRanksInPlace(*X, _dbin, *sampleRanks, ECalcMember::LHS)) return;
   algebra.updateSampleRanks();
   // if (algebra.setData(Z, sampleRanks, _meansTarget)) return;
 }
