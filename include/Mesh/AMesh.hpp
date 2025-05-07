@@ -60,8 +60,8 @@ public:
   virtual void getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const;
   virtual void getBarycenterInPlace(int imesh, VectorDouble& coord) const;
 
-    /*! Returns the Sparse Matrix for projecting the Mesh to a Db */
-    ProjMatrix* createProjMatrix(const Db* db, int rankZ = -1, bool verbose = false) const;
+  /*! Returns the Sparse Matrix for projecting the Mesh to a Db */
+  ProjMatrix* createProjMatrix(const Db* db, int rankZ = -1, bool verbose = false) const;
 
   /*! Returns the space dimension */
   int getNDim() const { return _nDim; }
