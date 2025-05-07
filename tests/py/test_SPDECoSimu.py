@@ -17,6 +17,7 @@ flag_plot = False
 ndim = 2
 nvar = 2
 nbsimu = 2
+gl.OptCst.define(gl.ECst.NTDEC,2)
 
 # %% Model (multivariate) for the field 
 if nvar == 1:

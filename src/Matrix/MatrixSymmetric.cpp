@@ -855,10 +855,10 @@ int MatrixSymmetric::computeGeneralizedInverse(MatrixSymmetric &tabout,
 columns)
  *        of the Input matrix 'A'
  *
+ * @param res      Output Square Symmetric Matrix
  * @param A        Input Square Symmetric Matrix
  * @param rowKeep  Set of Rows (same for columns) to be kept
  * @param flagInvert when True, transform 'rowKeep' into 'rowDrop' 
- * @return Pointer to the newly created Square Symmetric Matrix
  */
 bool MatrixSymmetric::sample(MatrixSymmetric& res,
                              const MatrixSymmetric& A,
