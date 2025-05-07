@@ -1,21 +1,27 @@
+             Mean
+Data.1      2.736
+Data.2      2.353
 
-Turbo Meshing
-=============
+Simulation using gstlearn (with Matrix) -> GM
+---------------------------------------------
+                       Mean
+GM.Data.1.simu.1     -1.159
+GM.Data.1.simu.2      1.636
+GM.Data.2.simu.1      1.578
+GM.Data.2.simu.2     -0.839
 
-Grid characteristics:
----------------------
-Origin :    -20.000   -20.000
-Mesh   :      1.000     1.000
-Number :        141       141
-Euclidean Geometry
-Space Dimension           = 2
-Number of Apices per Mesh = 3
-Number of Meshes          = 39200
-Number of Apices          = 19881
+Simulation using gstlearn (Matrix Free) -> GF
+---------------------------------------------
+                       Mean
+GF.Data.1.simu.1     -0.696
+GF.Data.1.simu.2      1.853
+GF.Data.2.simu.1      1.274
+GF.Data.2.simu.2     -1.155
 
-Bounding Box Extension
-----------------------
-Dim #1 - Min:-20 - Max:120
-Dim #2 - Min:-20 - Max:120
-
-0.5769
+Simulation using gstlearn performed by Hand -> HF
+-------------------------------------------------
+                       Mean
+HF.Data.1.simu.1     -0.702
+HF.Data.2.simu.1      1.280
+HF.Data.1.simu.2      1.855
+HF.Data.2.simu.2     -1.157
