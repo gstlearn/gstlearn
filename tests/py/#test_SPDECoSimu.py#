@@ -57,7 +57,7 @@ meshes = gl.VectorMeshes([mesh1])
 AM1 = gl.ProjMatrix(dat,mesh1)
 AM2 = gl.ProjMatrix(dat,mesh1)
 
-#Total projection operator
+# Total projection operator
 if nvar == 1:
     vectproj = gl.VVectorConstIProj([[AM1]])
 

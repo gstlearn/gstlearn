@@ -1,9 +1,10 @@
 import gstlearn as gl
+import gstlearn.plot as gp
 import matplotlib.pyplot as plt
 import numpy as np
 
 # %% General parameters
-flag_plot = True
+flag_plot = False
 ndim = 2
 nvar = 2
 order = 1
@@ -31,17 +32,15 @@ model.setFlagLinked(flagLinked)
 # %% Data Bases
 dat  = gl.Db.createFillRandom(ndat=100, ndim = 2,nvar = 0,
                              coormin=[0,0],coormax=[100,100],seed=234)
-err = gl.simtub(None,dat,model)
+err = gl.simtub(None,dat,model, namconv=gl.NamingConvention("Data"))
 if order == 1:
     coeffX = +0.5
     coeffY = -0.5
-    dat["Simu.1"] = dat["Simu.1"] + dat["x-1"] * coeffX + means[0]
-    dat["Simu.1"] = dat["Simu.1"] + dat["x-2"] * coeffY + means[1]
+    dat["Data.1"] = dat["Data.1"] + dat["x-1"] * coeffX + means[0]
+    dat["Data.1"] = dat["Data.1"] + dat["x-2"] * coeffY + means[1]
 
 # %% Output Grid
 grid = gl.DbGrid.create(nx=[50,50], dx=[2,2])
-grid.addSelectionByVariable("x1", 20.)
-nt = grid.getNSample()
 
 # %% Meshing
 nx1 = [140,140]
@@ -52,88 +51,74 @@ meshes = gl.VectorMeshes([mesh1,mesh1])
 # %% Traditional Kriging (used as Reference)
 ############################################
 
-err = gl.kriging(dat,grid,model,gl.NeighUnique())
-resultRef = grid.getColumnsByLocator(gl.ELoc.Z)
-
-resR = {}
-for ivar in range(nvar):
-    if ivar == 1:
-        resR[0] = resultRef[0:nt]
-    else:
-        resR[1] = resultRef[(nt):(2*nt)]
-
-# Printing Statistics
-print("Mean of the Co-Kriging (traditional)")
-for ivar in range(nvar):
-    print(np.round(np.nanmean(resR[ivar]),4))
+gl.mestitle(1,"Co-Kriging (traditional)")
+err = gl.kriging(dat,grid,model,gl.NeighUnique(), flag_std=False)
+gl.dbStatisticsMono(grid, ["Kriging.*"]).display()
 
 ##################################
 # %% SPDE Kriging (matrix version)
 ##################################
 
-resultMat = gl.krigingSPDENew(dat,grid,model,meshes,1)
-
-resKM = {}
-for ivar in range(nvar):
-    if ivar == 1:
-        resKM[0] = resultMat[0:nt]
-    else:
-        resKM[1] = resultMat[(nt):(2*nt)]
-
-# Printing Statistics
-print("Mean of the SPDE (Matrix)")
-for ivar in range(nvar):
-    print(np.round(np.nanmean(resKM[ivar]),4))
+gl.mestitle(1,"Co-Kriging using SPDE (Matrix)")
+err = gl.krigingSPDENew(dat,grid,model,True,False,1,meshes,
+                        namconv=gl.NamingConvention("KM"))
+gl.dbStatisticsMono(grid, ["KM.*"]).display()
 
 #######################################
 # %% SPDE Kriging (matrix-free version)
 #######################################
 
-resultFree = gl.krigingSPDENew(dat,grid,model,meshes,0)
-
-resKF = {}
-for ivar in range(nvar):
-    if ivar == 1:
-        resKF[0] = resultFree[0:nt]
-    else:
-        resKF[1] = resultFree[(nt):(2*nt)]
-
-# Printing Statistics
-print("Mean of the SPDE (Matrix-Free)")
-for ivar in range(nvar):
-    print(np.round(np.nanmean(resKF[ivar]),4))
+gl.mestitle(1,"Co-Kriging using SPDE (Matrix-Free)")
+err = gl.krigingSPDENew(dat,grid,model,True,False,0,meshes,
+                        namconv = gl.NamingConvention("KF"))
+gl.dbStatisticsMono(grid, ["KF.*"]).display()
 
 if flag_plot:
-
+   
     # Display the result per variable for Traditional Kriging
     for ivar in range(nvar):
-        plt.imshow(resR[ivar].reshape(grid.getNXs()))
-        plt.title("Variable#"+str(ivar+1)+" (Traditional)")
-        plt.show()
+        fig, ax = gp.init(flagEqual=True)
+        gp.raster(grid, "Kriging.Data." + str(ivar+1) + ".estim")
+        gp.decoration(title = "Variable#"+str(ivar+1)+" (Traditional)")
+        gp.close()
 
     # Display the result per variable for SPDE Kriging (matrix)
     for ivar in range(nvar):
-        plt.imshow(resKM[ivar].reshape(grid.getNXs()))
-        plt.title("Variable#"+str(ivar+1)+" (SPDE Matrix)")
-        plt.show()
+        fig, ax = gp.init(flagEqual=True)
+        gp.raster(grid, "KM.Data." + str(ivar+1) + ".estim")
+        gp.decoration(title = "Variable#"+str(ivar+1)+" (SPDE Matrix)")
+        gp.close()
 
     # Display the result per variable for SPDE Kriging (matrix-free)
     for ivar in range(nvar):
-        plt.imshow(resKF[ivar].reshape(grid.getNXs()))
-        plt.title("Variable#"+str(ivar+1)+" (SPDE Matrix)")
-        plt.show()
+        fig, ax = gp.init(flagEqual=True)
+        gp.raster(grid, "KF.Data." + str(ivar+1) + ".estim")
+        gp.decoration(title = "Variable#"+str(ivar+1)+" (SPDE Matrix-Free)")
+        gp.close()
 
     # Comparing the SPDE with Reference
     for ivar in range(nvar):
-        plt.scatter(resKM[ivar],resR[ivar],s=1)
-        plt.title("Comparing Krigings for Variable#" + str(ivar+1))
-        plt.xlabel("SPDE (Matrix)")
-        plt.ylabel("Traditional")
-        plt.show()
+        fig, ax = gp.init()
+        gp.correlation(grid,
+                       "KM.Data." + str(ivar+1) + ".estim",
+                       "Kriging.Data." + str(ivar+1) + ".estim",
+                       regrLine=True, regrColor="black",
+                       bissLine=True, bissColor="blue",
+                       bins=100, cmin=1)
+        gp.decoration(title = "Comparing Krigings for Variable#" + str(ivar+1),
+                      xlabel = "SPDE (Matrix)",
+                      ylabel = "Traditional")
+        gp.close()
 
     for ivar in range(nvar):
-        plt.scatter(resKF[ivar],resR[ivar],s=1)
-        plt.title("Comparing Krigings for Variable#" + str(ivar+1))
-        plt.xlabel("SPDE (Matrix-Free)")
-        plt.ylabel("Traditional")
-        plt.show()
+        fig, ax = gp.init()
+        gp.correlation(grid,
+                       "KF.Data." + str(ivar+1) + ".estim",
+                       "Kriging.Data." + str(ivar+1) + ".estim",
+                       regrLine=True, regrColor="black",
+                       bissLine=True, bissColor="blue",
+                       bins=100, cmin=1)
+        gp.decoration(title = "Comparing Krigings for Variable#" + str(ivar+1),
+                      xlabel = "SPDE (Matrix-Free)",
+                      ylabel = "Traditional")
+        gp.close()
