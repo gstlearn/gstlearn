@@ -1729,14 +1729,14 @@ int Db::addSelection(const VectorDouble& tab,
  * @param lower Lower bound (included) or TEST for no lower bound
  * @param upper Upper bound (included) or TEST for no upper bound
  * @param name  Name given to the newly created selection
- * @param selName If defined, the current selection is combined with the existing one
+ * @param oldSelName If defined, the current selection is combined with the existing one
  * @return int
  */
 int Db::addSelectionByVariable(const String& varname,
                                double lower,
                                double upper,
                                const String& name,
-                               const String& selName)
+                               const String& oldSelName)
 {
   VectorDouble var = getColumn(varname, false);
   if (var.empty())
@@ -1764,12 +1764,12 @@ int Db::addSelectionByVariable(const String& varname,
   }
 
   // Intersection with an already existing selection (optional)
-  if (selName != "")
+  if (oldSelName != "")
   {
-    VectorDouble selOld = getColumn(selName, false);
+    VectorDouble selOld = getColumn(oldSelName, false);
     if (selOld.empty())
     {
-      messerr("The previous selection '%s' does not exist", selName.c_str());
+      messerr("The previous selection '%s' does not exist", oldSelName.c_str());
       return 1;
     }
     for (int iech = 0; iech < nech; iech++)
@@ -2072,6 +2072,17 @@ VectorVectorDouble Db::getExtremas(bool useSel) const
   for (int idim = 0; idim < getNDim(); idim++)
     exts.push_back(getExtrema(idim, useSel));
   return exts;
+}
+
+VectorDouble Db::getExtends(bool useSel) const
+{
+  VectorDouble ext;
+  for (int idim = 0; idim < getNDim(); idim++)
+  {
+    VectorDouble coor = getOneCoordinate(idim, useSel);
+    ext.push_back(VH::maximum(coor) - VH::minimum(coor));
+  }
+  return ext;
 }
 
 /**

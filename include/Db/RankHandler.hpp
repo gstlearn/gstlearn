@@ -74,5 +74,4 @@ private:
 
   const Db* _db;       // Pointer to Db
   VectorInt _workNbgh; // Vector of ellible sample absolute ranks
-  
 };

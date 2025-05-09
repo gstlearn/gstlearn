@@ -1,0 +1,18 @@
+
+Co-Kriging (traditional)
+------------------------
+                           Mean
+Kriging.Data.1.estim      1.744
+Kriging.Data.2.estim      0.267
+
+Co-Kriging using SPDE (Matrix)
+------------------------------
+                      Mean
+KM.Data.1.estim      1.491
+KM.Data.2.estim      0.095
+
+Co-Kriging using SPDE (Matrix-Free)
+-----------------------------------
+                      Mean
+KF.Data.1.estim      1.205
+KF.Data.2.estim      0.062

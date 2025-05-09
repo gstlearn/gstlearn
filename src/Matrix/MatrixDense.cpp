@@ -678,12 +678,12 @@ void MatrixDense::addColumn(int ncolumn_added)
  * @brief Create an output Rectangular Matrix by selecting some rows and columns
  *        of the Input matrix 'A'
  *
+ * @param res      Output Rectangular Matrix
  * @param A        Input Rectangular Matrix
  * @param rowKeep  Set of Rows to be kept (all if not defined)
  * @param colKeep  Set of Columns to be kept (all if not defined)
  * @param flagInvertRow when True, transform 'rowKeep' into 'rowDrop'
  * @param flagInvertCol when True, transform 'colKeep' into 'colDrop'
- * @return Newly created Rectangular Matrix
  */
 bool MatrixDense::sample(MatrixDense& res,
                          const AMatrix& A,

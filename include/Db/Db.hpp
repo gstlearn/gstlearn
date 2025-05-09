@@ -337,10 +337,10 @@ public:
                    const String& name      = "NewSel",
                    const String& combine   = "set");
   int addSelectionByVariable(const String& varname,
-                             double lower          = TEST,
-                             double upper          = TEST,
-                             const String& name    = "NewSel",
-                             const String& selName = "");
+                             double lower             = TEST,
+                             double upper             = TEST,
+                             const String& name       = "NewSel",
+                             const String& oldSelName = "");
   int addSelectionByRanks(const VectorInt& ranks,
                           const String& name    = "NewSel",
                           const String& combine = "set");
@@ -780,6 +780,7 @@ public:
    */
   VectorDouble getExtrema(int idim, bool useSel = false) const;
   VectorVectorDouble getExtremas(bool useSel = false) const;
+  VectorDouble getExtends(bool useSel = false) const;
   VectorDouble getCoorMinimum(bool useSel = false) const;
   VectorDouble getCoorMaximum(bool useSel = false) const;
   double getExtension(int idim, bool useSel = false) const;

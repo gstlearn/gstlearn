@@ -37,6 +37,74 @@
 #include <math.h>
 #include <vector>
 
+static VectorDouble _centerDataByDrift(SPDEOp* spdeop,
+                                       const Db* dbin,
+                                       const Model* model,
+                                       VectorDouble& Z)
+{
+  bool mustEvaluateDrift = model->getNDrift() > 0;
+
+  MatrixDense driftMat = model->evalDriftMatByRanks(dbin);
+  VectorDouble meanVec = model->evalMeanVecByRanks(dbin);
+
+  VectorDouble driftCoeffs;
+  if (mustEvaluateDrift)
+  {
+    driftCoeffs = spdeop->computeDriftCoeffs(Z, driftMat);
+    ASPDEOp::centerDataByDriftMat(Z, driftMat, driftCoeffs);
+  }
+  else
+  {
+    ASPDEOp::centerDataByMeanVec(Z, meanVec);
+  }
+  return driftCoeffs;
+}
+
+static void _uncenterResultByDrift(const Db* dbout,
+                                   const Model* model,
+                                   VectorDouble& result,
+                                   const VectorDouble& driftCoeffs)
+{
+  int nvar               = model->getNVar();
+  int nbfl               = model->getNDrift();
+  int nech               = dbout->getNSample();
+  int nechred            = dbout->getNSample(true);
+  bool mustEvaluateDrift = nbfl > 0;
+
+  // Loop on the samples of the output file
+
+  double value;
+  int ncols = 0;
+  MatrixDense mat;
+  for (int jech = 0, iech = 0; jech < nech; jech++)
+  {
+    if (!dbout->isActive(jech)) continue;
+
+    if (mustEvaluateDrift)
+    {
+      (void)model->evalDriftMatByTarget(mat, dbout, jech);
+      ncols = mat.getNCols();
+    }
+
+    // Loop on the variables
+
+    for (int ivar = 0; ivar < nvar; ivar++)
+    {
+      if (mustEvaluateDrift)
+      {
+
+        value = 0.;
+        for (int icol = 0; icol < ncols; icol++)
+          value += mat.getValue(ivar, icol) * driftCoeffs[icol];
+      }
+      else
+        value = model->getMean(ivar);
+      result[ivar * nechred + iech] += value;
+    }
+    iech++;
+  }
+}
+
 /**
  * The class constructor with the following arguments:
  *
@@ -142,7 +210,8 @@ SPDE* SPDE::create(Model *model,
                    bool verbose,
                    bool showStats)
 {
-  return new SPDE(model, domain, data, calcul, meshUser, useCholesky, params, verbose, showStats);
+  return new SPDE(model, domain, data, calcul, meshUser, useCholesky,
+                  params, verbose, showStats);
 }
 
 /**
@@ -244,8 +313,8 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         if (meshUser == nullptr)
         {
           mesh        = MeshETurbo::createFromCova(*cova, domain, _params.getRefineS(),
-                                                   _params.getBorder(), useSel, 
-                                            _params.isPolarized(),        flagNoStatRot, _params.getNxMax(), 
+                                                   _params.getBorder(), useSel,
+                                                   _params.isPolarized(), flagNoStatRot, _params.getNxMax(),
                                                    verbose);
           _deleteMesh = true;
         }
@@ -925,7 +994,6 @@ static MatrixSymmetric _buildSillPartialMatrix(const MatrixSymmetric &sillsRef,
  */
 MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
 {
-
   MatrixSparse* mat = nullptr;
   if (db == nullptr) return mat;
   int nech = db->getNSample();
@@ -1093,58 +1161,182 @@ MatrixSparse* buildInvNugget(Db *db, Model *model, const SPDEParam& params)
  * @param dbin Input Db (must contain the variable to be estimated)
  * @param dbout Output Db where the estimation must be performed
  * @param model Model definition
- * @param meshes Meshes description (optional)
+ * @param flag_est True for the estimation
+ * @param flag_std True for the standard deviation of estimation error
  * @param useCholesky Define the choice regarding Cholesky
- * @param verbose Verbose flag
+ * @param meshes Meshes description (optional)
+ * @param params Set of SPDE parameters
  * @param namconv Naming convention
- * @return Error return code
- *
- * @remarks You can provide an already existing mesh. Otherwise an optimal mesh
- * will be created
- * @remarks internally: one per structure constituting the Model for Kriging.
- * @remarks Each mesh is created using the Turbo Meshing facility... based on an
- * internal grid.
- * @remarks This internal grid is rotated according to the rotation of the
- * structure. Its mesh size
- * @remarks is derived from the range (per direction) by dividing it by the
- * refinement factor.
- *
+ * @return Returned vector
  */
 VectorDouble krigingSPDENew(Db* dbin,
                             Db* dbout,
                             Model* model,
-                            const VectorMeshes& meshes,
+                            bool flag_est,
+                            bool flag_std,
                             int useCholesky,
-                            bool verbose,
+                            const VectorMeshes& meshes,
+                            const SPDEParam& params,
                             const NamingConvention& namconv)
 {
-  DECLARE_UNUSED(verbose);
-  DECLARE_UNUSED(namconv);
-  if (dbin == nullptr) return 1;
+  if (dbin  == nullptr) return 1;
   if (dbout == nullptr) return 1;
   if (model == nullptr) return 1;
-  auto Z    = dbin->getColumnsActiveAndDefined(ELoc::Z);
-  auto AM   = ProjMultiMatrix::createFromDbAndMeshes(dbin, meshes);
-  auto Aout = ProjMultiMatrix::createFromDbAndMeshes(dbout, meshes);
-  MatrixSparse* invnoise = buildInvNugget(dbin, model);
-  VectorDouble result;
+
+  int nvar                      = model->getNVar();
+  VectorDouble Z                = dbin->getColumnsActiveAndDefined(ELoc::Z);
+  MatrixDense driftMat          = model->evalDriftMatByRanks(dbin);
+  VectorDouble meanVec          = model->evalMeanVecByRanks(dbin);
+  ProjMultiMatrix* AM           = ProjMultiMatrix::createFromDbAndMeshes(dbin, meshes, nvar);
+  ProjMultiMatrix* Aout         = ProjMultiMatrix::createFromDbAndMeshes(dbout, meshes, nvar);
+  MatrixSparse* invnoise        = buildInvNugget(dbin, model, params);
+  MatrixSymmetricSim* invnoisep = nullptr;
+  if (! useCholesky)
+    invnoisep = new MatrixSymmetricSim(invnoise);
+
+  SPDEOp* spdeop = nullptr;
+  PrecisionOpMulti* Qop = nullptr;
+  PrecisionOpMultiMatrix* Qom = nullptr;
   if (useCholesky)
   {
-    PrecisionOpMultiMatrix Qop(model, meshes);
-    SPDEOpMatrix spdeop(&Qop, &AM, invnoise);
-    auto resultmesh = spdeop.kriging(Z);
-    Aout.mesh2point(resultmesh, result);
+    Qom = new PrecisionOpMultiMatrix(model, meshes);
+    spdeop = new SPDEOpMatrix(Qom, AM, invnoise);
   }
   else
   {
-    PrecisionOpMulti Qop(model, meshes);
-    MatrixSymmetricSim invnoisep(invnoise);
-    SPDEOp spdeop(&Qop, &AM, &invnoisep);
-    spdeop.setMaxIterations(1000);
-    spdeop.setTolerance(1e-5);
-    auto resultmesh = spdeop.kriging(Z);
-    Aout.mesh2point(resultmesh, result);
+    Qop = new PrecisionOpMulti(model, meshes);
+    spdeop = new SPDEOp(Qop, AM, invnoisep);
+    spdeop->setMaxIterations(params.getNxMax());
+    spdeop->setTolerance(params.getEpsNugget());
   }
+
+  // Calculating the drift coefficient (optional) and Centering the Data
+  VectorDouble driftCoeffs = _centerDataByDrift(spdeop, dbin, model, Z);
+
+  // Storing the results
+  VectorVectorDouble result(2);
+  if (flag_est)
+  {
+    auto resultmesh = spdeop->kriging(Z);
+    Aout->mesh2point(resultmesh, result[0]);
+    _uncenterResultByDrift(dbout, model, result[0], driftCoeffs);
+  }
+  if (flag_std)
+  {
+    messerr("StDev is not programmed yet");
+  }
+
+  delete spdeop;
+  delete Qom;
+  delete Qop;
   delete invnoise;
-  return result;
+  delete invnoisep;
+  delete AM;
+  delete Aout;
+
+  if (!result[0].empty())
+  {
+    int iuid = dbout->addColumns(result[0], "estim", ELoc::Z, 0, true, 0., nvar);
+    namconv.setNamesAndLocators(dbin, VectorString(), ELoc::Z, nvar, dbout, iuid,
+                                "estim");
+  }
+  if (!result[1].empty())
+  {
+    int iuid = dbout->addColumns(result[1], "stdev", ELoc::UNKNOWN, 0, true, 0., nvar);
+    namconv.setNamesAndLocators(dbin, VectorString(), ELoc::Z, nvar, dbout, iuid,
+                                "stdev");
+  }
+  return 0;
+}
+
+/**
+ * Perform the SIMULATIONs under the SPDE framework
+ *
+ * @param dbin Input Db (variable to be estimated). Only for conditional simulations
+ * @param dbout Output Db where the estimation must be performed
+ * @param model Model definition
+ * @param nbsimu Number of simulations
+ * @param useCholesky Define the choice regarding Cholesky
+ * @param meshes Meshes description (optional)
+ * @param params Set of SPDE parameters
+ * @param namconv Naming convention
+ *
+ * @return Returned vector
+ */
+VectorVectorDouble simulateSPDENew(Db* dbin,
+                                   Db* dbout,
+                                   Model* model,
+                                   int nbsimu,
+                                   int useCholesky,
+                                   const VectorMeshes& meshes,
+                                   const SPDEParam& params,
+                                   const NamingConvention& namconv)
+{
+  bool flagCond = (dbin != nullptr);
+  if (dbout == nullptr) return 1;
+  if (model == nullptr) return 1;
+  int nvar = model->getNVar();
+  VectorDouble Z;
+  ProjMultiMatrix* AM           = nullptr;
+  MatrixSparse* invnoise        = nullptr;
+  MatrixSymmetricSim* invnoisep = nullptr;
+  if (flagCond)
+  {
+    Z         = dbin->getColumnsActiveAndDefined(ELoc::Z);
+    AM        = ProjMultiMatrix::createFromDbAndMeshes(dbin, meshes, nvar);
+    invnoise  = buildInvNugget(dbin, model, params);
+    if (!useCholesky)
+      invnoisep = new MatrixSymmetricSim(invnoise);
+   }
+  ProjMultiMatrix* Aout = ProjMultiMatrix::createFromDbAndMeshes(dbout, meshes, nvar);
+
+  SPDEOp* spdeop = nullptr;
+  PrecisionOpMulti* Qop = nullptr;
+  PrecisionOpMultiMatrix* Qom = nullptr;
+  if (useCholesky)
+  {
+    Qom = new PrecisionOpMultiMatrix(model, meshes);
+    spdeop = new SPDEOpMatrix(Qom, AM, invnoise);
+  }
+  else 
+  {
+    Qop = new PrecisionOpMulti(model, meshes, true);
+    spdeop = new SPDEOp(Qop, AM, invnoisep);
+    spdeop->setMaxIterations(params.getNxMax());
+    spdeop->setTolerance(params.getEpsNugget());
+  }
+
+  // Calculating the drift coefficient (optional) and Centering the Data
+  VectorDouble driftCoeffs;
+  if (flagCond)
+    driftCoeffs = _centerDataByDrift(spdeop, dbin, model, Z);
+
+  VectorVectorDouble result(nbsimu);
+  for (int isimu = 0; isimu < nbsimu; isimu++)
+  {
+    VectorDouble resultmesh = (flagCond) ? spdeop->simCond(Z) : spdeop->simNonCond();
+    Aout->mesh2point(resultmesh, result[isimu]);
+    _uncenterResultByDrift(dbout, model, result[isimu], driftCoeffs);
+  }
+  
+  delete spdeop;
+  delete Qom;
+  delete Qop;
+  delete invnoise;
+  delete invnoisep;
+  delete AM;
+  delete Aout;
+
+  int iuid  = dbout->addColumnsByConstant(nvar * nbsimu);
+  int nechred = dbout->getNSample(true);
+  VectorDouble local(nechred);
+  for (int ivar = 0, ecr = 0; ivar < nvar; ivar++)
+    for (int isimu = 0; isimu < nbsimu; isimu++, ecr++)
+    {
+      VH::extractInPlace(result[isimu], local, ivar * nechred);
+      dbout->setColumnByUID(local, iuid + ecr, true);
+    }
+  namconv.setNamesAndLocators(dbin, VectorString(), ELoc::Z, nvar, dbout, iuid,
+                              "simu", nbsimu);
+  return 0;
 }

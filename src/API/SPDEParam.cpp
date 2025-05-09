@@ -53,3 +53,14 @@ SPDEParam& SPDEParam::operator=(const SPDEParam &m)
 SPDEParam::~SPDEParam()
 {
 }
+
+SPDEParam* SPDEParam::create(int refineK,
+                             int refineS,
+                             int border,
+                             bool flag_polarized,
+                             int nxmax,
+                             double epsNugget,
+                             const CGParam& cgparams)
+{
+  return new SPDEParam(refineK, refineS, border, flag_polarized, nxmax, epsNugget, cgparams);
+}
