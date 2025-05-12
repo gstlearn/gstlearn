@@ -278,28 +278,25 @@ static MatrixDense _transformF(const MatrixDense& F1, int type, int idx)
   MatrixDense F1loc;
   switch (type)
   {
-  case 1:
-    F1loc = F1;
-    break;
-  case 2:
-    F1loc = F1;
-    break;
-  case 3:
-    F1loc = F1;
-    F1loc.fill(0.);
-    break;
-  case 4:
-    F1loc = F1;
-    F1loc.fill(0.);
-    for (int i = 0; i < F1.getNRows(); i++)
-      F1loc.setValue(i, idx, 1.);
-    break;
+    case 1:
+    case 2:
+      F1loc = F1;
+      break;
+    case 3:
+      F1loc = F1;
+      F1loc.fill(0.);
+      break;
+    case 4:
+      F1loc = F1;
+      F1loc.fill(0.);
+      for (int i = 0; i < F1.getNRows(); i++)
+        F1loc.setValue(i, idx, 1.);
+      break;
   }
   return (F1loc);
 }
 
-int evalCovMatLMOKLHSInPlace(int nvar,
-                             MatrixSymmetric& cov,
+int computeCovMatLMOKLHSInPlace(MatrixSymmetric& cov,
                              const MatrixSymmetric& Sigma,
                              const MatrixDense& F1,
                              int type,
@@ -307,6 +304,7 @@ int evalCovMatLMOKLHSInPlace(int nvar,
 {
   MatrixDense F1loc = _transformF(F1, type, idx);
   int nech = F1.getNRows();
+  int nvar = Sigma.getNRows() / nech;
   cov.resize(nech, nech);
 
   for (int iech = 0; iech < nech; iech++)
@@ -332,20 +330,20 @@ int evalCovMatLMOKLHSInPlace(int nvar,
   return 0;
 }
 
-int evalCovMatLMOKRHSInPlace(int nvar,
-                             MatrixDense& cov,
-                             const MatrixSymmetric& Sigma,
-                             const MatrixDense& F1,
-                             const MatrixDense& F2,
-                             int type1,
-                             int idx1,
-                             int type2,
-                             int idx2)
+int computeCovMatLMOKRHSInPlace(MatrixDense& cov,
+                                const MatrixSymmetric& Sigma,
+                                const MatrixDense& F1,
+                                const MatrixDense& F2,
+                                int type1,
+                                int idx1,
+                                int type2,
+                                int idx2)
 {
   MatrixDense F1loc = _transformF(F1, type1, idx1);
   MatrixDense F2loc = _transformF(F2, type2, idx2);
   int nech1 = F1.getNRows();
   int nech2 = F2.getNRows();
+  int nvar = Sigma.getNCols();
   cov.resize(nech1, nech2);
 
   for (int iech = 0; iech < nech1; iech++)
@@ -370,11 +368,11 @@ int evalCovMatLMOKRHSInPlace(int nvar,
   return 0;
 }
 
-int evalDriftMatLMOKRHSInPlace(MatrixDense& mat,
-                               const MatrixDense& F,
-                               int type,
-                               int idx,
-                               bool flagCenteredFactors)
+int computeDriftMatLMOKRHSInPlace(MatrixDense& mat,
+                                  const MatrixDense& F,
+                                  int type,
+                                  int idx,
+                                  bool flagCenteredFactors)
 {
   if (flagCenteredFactors)
   {

@@ -189,23 +189,21 @@ protected:               // TODO : pass into private to finish clean
   CovContext _ctxt;      /* Context */
 };
 
-GSTLEARN_EXPORT int evalCovMatLMOKLHSInPlace(int nvar,
-                                             MatrixSymmetric& cov,
-                                             const MatrixSymmetric& Sigma,
-                                             const MatrixDense& F1,
-                                             int type = 1,
-                                             int idx  = 0);
-GSTLEARN_EXPORT int evalCovMatLMOKRHSInPlace(int nvar,
-                                             MatrixDense& cov,
-                                             const MatrixSymmetric& Sigma,
-                                             const MatrixDense& F1,
-                                             const MatrixDense& F2,
-                                             int type  = 1,
-                                             int idx1  = 0,
-                                             int type2 = 1,
-                                             int idx2  = 0);
-GSTLEARN_EXPORT int evalDriftMatLMOKRHSInPlace(MatrixDense& mat,
-                                               const MatrixDense& F,
-                                               int type                 = 1,
-                                               int idx                  = 0,
-                                               bool flagCenteredFactors = true);
+GSTLEARN_EXPORT int computeCovMatLMOKLHSInPlace(MatrixSymmetric& cov,
+                                                const MatrixSymmetric& Sigma,
+                                                const MatrixDense& F1,
+                                                int type = 1,
+                                                int idx  = 0);
+GSTLEARN_EXPORT int computeCovMatLMOKRHSInPlace(MatrixDense& cov,
+                                                const MatrixSymmetric& Sigma,
+                                                const MatrixDense& F1,
+                                                const MatrixDense& F2,
+                                                int type1 = 1,
+                                                int idx1  = 0,
+                                                int type2 = 1,
+                                                int idx2  = 0);
+GSTLEARN_EXPORT int computeDriftMatLMOKRHSInPlace(MatrixDense& mat,
+                                                  const MatrixDense& F,
+                                                  int type                 = 1,
+                                                  int idx                  = 0,
+                                                  bool flagCenteredFactors = true);
