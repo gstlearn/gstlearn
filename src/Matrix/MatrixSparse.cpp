@@ -217,6 +217,22 @@ void MatrixSparse::setColumn(int icol, const VectorDouble& tab, bool flagCheck)
     AMatrix::setColumn(icol, tab);
 }
 
+void MatrixSparse::setColumnToConstant(int icol, double value, bool flagCheck)
+{
+  int nrows = getNRows();
+  if (flagCheck)
+  {
+    if (!_isColumnValid(icol)) return;
+  }
+  if (isFlagEigen())
+  {
+    for (int irow = 0; irow < nrows; irow++)
+      _eigenMatrix.coeffRef(irow, icol) = value;
+  }
+  else
+    AMatrix::setColumnToConstant(icol, value);
+}
+
 /**
  * Fill a row of an already existing Sparse matrix, using 'tab' as entry
  * The input 'tab' corresponds to the whole row contents
@@ -242,6 +258,24 @@ void MatrixSparse::setRow(int irow, const VectorDouble& tab, bool flagCheck)
   else
   {
     AMatrix::setRow(irow, tab);
+  }
+}
+
+void MatrixSparse::setRowToConstant(int irow, double value, bool flagCheck)
+{
+  int ncols = getNCols();
+  if (flagCheck)
+  {
+    if (!_isRowValid(irow)) return;
+  }
+  if (isFlagEigen())
+  {
+    for (int icol = 0; icol < ncols; icol++)
+      _eigenMatrix.coeffRef(irow, icol) = value;
+  }
+  else
+  {
+    AMatrix::setRowToConstant(irow, value);
   }
 }
 

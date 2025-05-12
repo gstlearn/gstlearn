@@ -78,10 +78,18 @@ public:
   virtual void setColumn(int icol,
                          const VectorDouble& tab,
                          bool flagCheck = false) override;
+  /*! Set the contents of a Column to a constant value */
+  virtual void setColumnToConstant(int icol,
+                                   double value,
+                                   bool flagCheck = false) override;
   /*! Set the contents of a Row */
   virtual void setRow(int irow,
                       const VectorDouble& tab,
                       bool flagCheck = false) override;
+  /*! Set the contents of a Row to a constant value*/
+  virtual void setRowToConstant(int irow,
+                                double value,
+                                bool flagCheck = false) override;
   /*! Set the contents of the (main) Diagonal */
   virtual void setDiagonal(const VectorDouble& tab, bool flagCheck = false) override;
   /*! Set the contents of the (main) Diagonal to a constant value */

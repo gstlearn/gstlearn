@@ -1161,6 +1161,16 @@ void AMatrix::setRow(int irow, const VectorDouble& tab, bool flagCheck)
     setValue(irow,icol,tab[icol],flagCheck);
 }
 
+/*! Set the contents of a Row to a constant value*/
+void AMatrix::setRowToConstant(int irow, double value, bool flagCheck)
+{
+  if (irow < 0 || irow >= getNRows())
+    my_throw("Incorrect argument 'irow'");
+
+  for (int icol = 0; icol < getNCols(); icol++)
+    setValue(irow, icol, value, flagCheck);
+}
+
 /*! Extract a Column */
 VectorDouble AMatrix::getColumn(int icol) const
 {
@@ -1183,6 +1193,7 @@ VectorDouble AMatrix::getColumnByRowRange(int icol, int rowFrom, int rowTo) cons
     vect.push_back(getValue(irow, icol));
   return vect;
 }
+
 /*! Set the contents of a Column */
 void AMatrix::setColumn(int icol, const VectorDouble& tab, bool flagCheck)
 {
@@ -1193,6 +1204,15 @@ void AMatrix::setColumn(int icol, const VectorDouble& tab, bool flagCheck)
 
   for (int irow = 0; irow < getNRows(); irow++)
     setValue(irow,icol,tab[irow], flagCheck);
+}
+
+/*! Set the contents of a Column to a constant value*/
+void AMatrix::setColumnToConstant(int icol, double value, bool flagCheck)
+{
+  if (icol < 0 || icol >= getNCols())
+    my_throw("Incorrect argument 'icol'");
+  for (int irow = 0; irow < getNRows(); irow++)
+    setValue(irow, icol, value, flagCheck);
 }
 
 /*! Checks if a Column is valid (contains a non TEST value) */

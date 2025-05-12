@@ -82,7 +82,7 @@ static void _uncenterResultByDrift(const Db* dbout,
 
     if (mustEvaluateDrift)
     {
-      (void)model->evalDriftMatByTarget(mat, dbout, jech);
+      (void)model->evalDriftMatByTargetInPlace(mat, dbout, jech);
       ncols = mat.getNCols();
     }
 

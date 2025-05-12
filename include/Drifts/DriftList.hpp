@@ -125,6 +125,10 @@ public:
   MatrixDense evalDriftMat(const Db* db,
                            const VectorInt& nbgh     = VectorInt(),
                            const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
+  int evalDriftMatInPlace(MatrixDense& mat,
+                          const Db* db,
+                          const VectorInt& nbgh     = VectorInt(),
+                          const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
   int evalDriftMatByRanksInPlace(MatrixDense& mat,
                                  const Db* db,
                                  const VectorVectorInt& sampleranks = VectorVectorInt(),
@@ -134,10 +138,10 @@ public:
                                   const ECalcMember& member          = ECalcMember::fromKey("LHS")) const;
   VectorDouble evalMeanVecByRanks(const Db* db,
                                   const VectorVectorInt& sampleRanks = VectorVectorInt()) const;
-  int evalDriftMatByTarget(MatrixDense& mat,
-                           const Db* db,
-                           int iech2,
-                           const KrigOpt& krigopt = KrigOpt()) const;
+  int evalDriftMatByTargetInPlace(MatrixDense& mat,
+                                  const Db* db,
+                                  int iech2,
+                                  const KrigOpt& krigopt = KrigOpt()) const;
   double evalDriftValue(const Db* db,
                         int iech,
                         int ivar,

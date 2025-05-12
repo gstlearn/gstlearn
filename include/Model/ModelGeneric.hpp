@@ -11,6 +11,8 @@
 #pragma once
 
 #include "Basic/ICloneable.hpp"
+#include "Db/RankHandler.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
@@ -118,10 +120,11 @@ public:
   FORWARD_METHOD(getDriftList, computeDrift, TEST)
   FORWARD_METHOD(getDriftList, evalDriftValue, TEST)
   FORWARD_METHOD(getDriftList, evalDriftMat)
+  FORWARD_METHOD(getDriftList, evalDriftMatInPlace)
   FORWARD_METHOD(getDriftList, evalDriftMatByRanks)
   FORWARD_METHOD(getDriftList, evalMeanVecByRanks)
   FORWARD_METHOD(getDriftList, evalDriftMatByRanksInPlace)
-  FORWARD_METHOD(getDriftList, evalDriftMatByTarget)
+  FORWARD_METHOD(getDriftList, evalDriftMatByTargetInPlace)
   FORWARD_METHOD(getDriftList, getNDrift)
   FORWARD_METHOD(getDriftList, getNDriftEquation)
   FORWARD_METHOD(getDriftList, getNExtDrift)
@@ -175,9 +178,9 @@ public:
   void addDrift(const ADrift* drift); // TODO: check that the same driftM has not been already defined
   void setDrifts(const VectorString& driftSymbols);
 
-  double computeLogLikelihood(const Db* db, bool verbose = false);  
+  double computeLogLikelihood(const Db* db, bool verbose = false);
 
-private :
+private:
   virtual bool _isValid() const;
 
 protected:               // TODO : pass into private to finish clean
@@ -185,3 +188,22 @@ protected:               // TODO : pass into private to finish clean
   DriftList* _driftList; /* Series of Drift functions */
   CovContext _ctxt;      /* Context */
 };
+
+GSTLEARN_EXPORT int computeCovMatLMOKLHSInPlace(MatrixSymmetric& cov,
+                                                const MatrixSymmetric& Sigma,
+                                                const MatrixDense& F1,
+                                                int type = 1,
+                                                int idx  = 0);
+GSTLEARN_EXPORT int computeCovMatLMOKRHSInPlace(MatrixDense& cov,
+                                                const MatrixSymmetric& Sigma,
+                                                const MatrixDense& F1,
+                                                const MatrixDense& F2,
+                                                int type1 = 1,
+                                                int idx1  = 0,
+                                                int type2 = 1,
+                                                int idx2  = 0);
+GSTLEARN_EXPORT int computeDriftMatLMOKRHSInPlace(MatrixDense& mat,
+                                                  const MatrixDense& F,
+                                                  int type                 = 1,
+                                                  int idx                  = 0,
+                                                  bool flagCenteredFactors = true);
