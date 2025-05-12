@@ -188,7 +188,6 @@ public:
                            int ivar0               = -1,
                            const CovCalcMode* mode = nullptr,
                            bool cleanOptim         = true) const;
-
   int evalCovMatInPlaceFromIdx(MatrixDense& mat,
                                const Db* db1,
                                const Db* db2,

@@ -509,6 +509,18 @@ MatrixDense DriftList::evalDriftMat(const Db* db,
   return (error == 0) ? mat : MatrixDense();
 }
 
+int DriftList::evalDriftMatInPlace(MatrixDense& mat,
+                                   const Db* db,
+                                   const VectorInt& nbgh,
+                                   const ECalcMember& member) const
+{
+  VectorInt ivars = _getActiveVariables(-1);
+  if (ivars.empty()) return 1;
+  VectorVectorInt index = db->getSampleRanks(ivars, nbgh, true, true, true);
+
+  return evalDriftMatByRanksInPlace(mat, db, index, member);
+}
+
 /**
  * @brief Calculate the Drift matrix
  *
@@ -630,10 +642,10 @@ VectorDouble DriftList::evalMeanVecByRanks(const Db* db,
  ** \param[in]  krigopt KrigOpt structure
  **
  *****************************************************************************/
-int DriftList::evalDriftMatByTarget(MatrixDense& mat,
-                                    const Db* db,
-                                    int iech2,
-                                    const KrigOpt& krigopt) const
+int DriftList::evalDriftMatByTargetInPlace(MatrixDense& mat,
+                                           const Db* db,
+                                           int iech2,
+                                           const KrigOpt& krigopt) const
 {
   VectorInt ivars = VH::sequence(getNVar());
   if (ivars.empty()) return 1;

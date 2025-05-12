@@ -219,6 +219,15 @@ void MatrixDense::setColumn(int icol, const VectorDouble& tab, bool flagCheck)
   getEigenMat().col(icol) = tabm;
 }
 
+void MatrixDense::setColumnToConstant(int icol, double value, bool flagCheck)
+{
+  if (flagCheck)
+  {
+    if (!_isColumnValid(icol)) return;
+  }
+  getEigenMat().col(icol) = Eigen::VectorXd::Constant(getNRows(), value);
+}
+
 void MatrixDense::setRow(int irow, const VectorDouble& tab, bool flagCheck)
 {
   if (flagCheck)
@@ -228,6 +237,15 @@ void MatrixDense::setRow(int irow, const VectorDouble& tab, bool flagCheck)
   }
   Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNCols());
   getEigenMat().row(irow) = tabm;
+}
+
+void MatrixDense::setRowToConstant(int irow, double value, bool flagCheck)
+{
+  if (flagCheck)
+  {
+    if (!_isRowValid(irow)) return;
+  }
+  getEigenMat().row(irow) = Eigen::VectorXd::Constant(getNCols(), value);
 }
 
 void MatrixDense::setDiagonal(const VectorDouble& tab, bool flagCheck)
