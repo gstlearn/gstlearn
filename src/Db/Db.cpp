@@ -4510,7 +4510,7 @@ VectorInt Db::getAllUIDs() const
   return iuids;
 }
 
-void Db::getAllUIDs(std::vector<int>& iuids) const
+void Db::getAllUIDs(VectorInt& iuids) const
 {
   iuids.clear();
   for (int i = 0; i < (int)_uidcol.size(); i++)

@@ -446,7 +446,7 @@ public:
   VectorInt getUIDsByLocator(const ELoc& locatorType) const;
   VectorInt getUIDsByColIdx(const VectorInt& icols) const;
   VectorInt getAllUIDs() const;
-  void getAllUIDs(std::vector<int>& iuids) const;
+  void getAllUIDs(VectorInt& iuids) const;
 
   void copyByUID(int iuidIn, int iuidOut);
   void copyByCol(int icolIn, int icolOut);
@@ -1000,5 +1000,5 @@ private:
   std::vector<PtrGeos> _p;    //!< Locator characteristics
 
   /// factor allocations
-  mutable std::vector<int> uids;
+  mutable VectorInt uids;
 };
