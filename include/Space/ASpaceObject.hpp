@@ -48,6 +48,8 @@ public:
   /// Indicate if I am consistent with my current space context
   bool isConsistent() const { return isConsistent(_space); }
 
+  void setSpace(ASpaceSharedPtr &&space) { _space = std::move(space); }
+
   /// Return unitary vector for the current space context
   VectorDouble getUnitaryVector() const;
 
