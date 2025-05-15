@@ -602,7 +602,7 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
 
     if (getFlagSector())
     {
-      VectorDouble incr = _biPtDist->getIncr();
+      const VectorDouble& incr = _biPtDist->getIncr();
       isect             = _movingSectorDefine(incr[0], incr[1]);
     }
 
