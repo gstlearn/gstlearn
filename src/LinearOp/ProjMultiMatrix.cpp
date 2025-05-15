@@ -18,19 +18,19 @@
 
 static std::vector<std::vector<const IProj*>> castToBase(const std::vector<std::vector<const ProjMatrix*>>& vect)
 {
-    std::vector<std::vector<const IProj*>> casted(vect.size());
-    int iv = 0;
-    for (const auto &e : vect)
+  std::vector<std::vector<const IProj*>> casted(vect.size());
+  int iv = 0;
+  for (const auto& e: vect)
+  {
+    std::vector<const IProj*> temp(e.size());
+    int ie = 0;
+    for (const auto& f: e)
     {
-        std::vector<const IProj*> temp(e.size());
-        int ie = 0;
-        for (const auto &f: e)
-        {
-            temp[ie++] = static_cast<const IProj*>(f);
-        }
-        casted[iv++] = temp;
-    } 
-    return casted;
+      temp[ie++] = static_cast<const IProj*>(f);
+    }
+    casted[iv++] = temp;
+  }
+  return casted;
 }
 
 /**
@@ -38,6 +38,7 @@ static std::vector<std::vector<const IProj*>> castToBase(const std::vector<std::
  * 
  * @param db  Target Db structure
  * @param meshes List of target meshes
+ * @param ncov Number of covariances (nugget excluded)
  * @param nvar Number of variables (see notes)
  * @param verbose Verbose flag
  * @return ProjMultiMatrix 
@@ -46,6 +47,7 @@ static std::vector<std::vector<const IProj*>> castToBase(const std::vector<std::
  */
 ProjMultiMatrix* ProjMultiMatrix::createFromDbAndMeshes(const Db* db,
                                                         const std::vector<const AMesh*>& meshes,
+                                                        int ncov,
                                                         int nvar,
                                                         bool verbose)
 {
@@ -66,9 +68,10 @@ ProjMultiMatrix* ProjMultiMatrix::createFromDbAndMeshes(const Db* db,
     messerr("You have to provide at least one mesh");
     return nullptr;
   }
-  if (nmeshes != 1 && nmeshes != nvar)
+  if (nmeshes != 1 && nmeshes != ncov)
   {
-    messerr("Inconsistent number of meshes and variables");
+    messerr("Inconsistent number of meshes (%d) and structures (%d)",
+            nmeshes, ncov);
     return nullptr;
   }
 

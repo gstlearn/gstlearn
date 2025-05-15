@@ -435,7 +435,8 @@ MeshETurbo* MeshETurbo::createFromCova(const CovAniso& cova,
                                        bool verbose)
 {
   MeshETurbo* mesh = new MeshETurbo();
-  if (mesh->initFromCova(cova, field, ratio, nbExt, isPolarized, useSel, flagNoStatRot, nxmax, verbose))
+  if (mesh->initFromCova(cova, field, ratio, nbExt, isPolarized, useSel,
+                         flagNoStatRot, nxmax, verbose))
     return nullptr;
   return mesh;
 }
@@ -595,8 +596,7 @@ void MeshETurbo::resetProjFromDb(ProjMatrix* m,
 
     /* Identification */
 
-    for (int idim=0; idim<ndim; idim++)
-      coor[idim] = db->getCoordinate(jech,idim);
+    db->getCoordinatesInPlace(coor, jech);
 
     /* Calculate the grid indices */
 

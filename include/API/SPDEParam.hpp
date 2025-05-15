@@ -27,13 +27,13 @@ class ALinearOp;
 class GSTLEARN_EXPORT SPDEParam {
 
 public:
-  SPDEParam(int            refineK   = 11,
-            int            refineS   = 18,
-            int            border    = 8,
-            bool flag_polarized = true,
-            int            nxmax     = 300,
-            double         epsNugget = EPSILON2,
-            const CGParam& cgparams  = CGParam());
+  SPDEParam(int refineK             = 11,
+            int refineS             = 18,
+            int border              = 8,
+            bool flag_polarized     = true,
+            int nxmax               = 300,
+            double epsNugget        = EPSILON2,
+            const CGParam& cgparams = CGParam());
   SPDEParam(const SPDEParam& m);
   SPDEParam& operator=(const SPDEParam& m);
   virtual ~SPDEParam();

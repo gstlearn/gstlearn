@@ -95,8 +95,8 @@ int main(int argc, char *argv[])
 
   int useCholesky = 0;
   law_set_random_seed(13256);
-  (void)simulateSPDE(nullptr, workingDbc, model, nullptr, 1, nullptr,
-                     useCholesky, SPDEParam(), false, false,
+  (void)simulateSPDE(nullptr, workingDbc, model, 1, useCholesky, 
+                     VectorMeshes(), nullptr, SPDEParam(), 
                      NamingConvention("Simu", true, false));
 
   DbStringFormat dbfmt(FLAG_STATS,{"Simu"});

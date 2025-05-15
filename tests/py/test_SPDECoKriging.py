@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # %% General parameters
-flag_plot = False
+flag_plot = True
 ndim = 2
 nvar = 2
 order = 1
@@ -60,8 +60,8 @@ gl.dbStatisticsMono(grid, ["Kriging.*"]).display()
 ##################################
 
 gl.mestitle(1,"Co-Kriging using SPDE (Matrix)")
-err = gl.krigingSPDENew(dat,grid,model,True,False,1,meshes,
-                        namconv=gl.NamingConvention("KM"))
+err = gl.krigingSPDE(dat,grid,model,True,False,1,meshes,
+                     namconv=gl.NamingConvention("KM"))
 gl.dbStatisticsMono(grid, ["KM.*"]).display()
 
 #######################################
@@ -69,8 +69,8 @@ gl.dbStatisticsMono(grid, ["KM.*"]).display()
 #######################################
 
 gl.mestitle(1,"Co-Kriging using SPDE (Matrix-Free)")
-err = gl.krigingSPDENew(dat,grid,model,True,False,0,meshes,
-                        namconv = gl.NamingConvention("KF"))
+err = gl.krigingSPDE(dat,grid,model,True,False,0,meshes,
+                     namconv = gl.NamingConvention("KF"))
 gl.dbStatisticsMono(grid, ["KF.*"]).display()
 
 if flag_plot:
@@ -96,7 +96,20 @@ if flag_plot:
         gp.decoration(title = "Variable#"+str(ivar+1)+" (SPDE Matrix-Free)")
         gp.close()
 
-    # Comparing the SPDE with Reference
+    # Comparing the Krigings
+    for ivar in range(nvar):
+        fig, ax = gp.init()
+        gp.correlation(grid,
+                       "KM.Data." + str(ivar+1) + ".estim",
+                       "KF.Data." + str(ivar+1) + ".estim",
+                       regrLine=True, regrColor="black",
+                       bissLine=True, bissColor="blue",
+                       bins=100, cmin=1)
+        gp.decoration(title = "Comparing Krigings for Variable#" + str(ivar+1),
+                      xlabel = "SPDE (Matrix)",
+                      ylabel = "SPDE (Matrix-Free)")
+        gp.close()
+
     for ivar in range(nvar):
         fig, ax = gp.init()
         gp.correlation(grid,

@@ -175,10 +175,11 @@ String VectorHelper::toStringAsVI(const VectorInt &vec)
   return toVector(String(), vec);
 }
 
-void VectorHelper::dumpStats(const String &title, const VectorDouble &vect)
+void VectorHelper::dumpStats(const String& title, constvect vect, int nmax)
 {
-  int ntotal = (int) vect.size();
-  int number = 0;
+  int ntotal  = (int)vect.size();
+  if (nmax > 0 && nmax < ntotal) ntotal = nmax;
+  int number  = 0;
   double mean = 0.;
   double stdv = 0.;
   double mini = 1.e30;
@@ -198,8 +199,8 @@ void VectorHelper::dumpStats(const String &title, const VectorDouble &vect)
   if (!title.empty()) message("%s\n", title.c_str());
   if (number > 0)
   {
-    mean /= (double) number;
-    stdv = stdv / (double) number - mean * mean;
+    mean /= (double)number;
+    stdv = stdv / (double)number - mean * mean;
     stdv = (stdv > 0.) ? sqrt(stdv) : 0.;
 
     message("- Number of samples = %d / %d\n", number, ntotal);
@@ -214,9 +215,22 @@ void VectorHelper::dumpStats(const String &title, const VectorDouble &vect)
   }
 }
 
-void VectorHelper::dumpRange(const String &title, const VectorDouble &vect)
+void VectorHelper::dumpStats(const String& title, const VectorDouble& vectin, int nmax)
 {
-  int ntotal = (int) vect.size();
+  constvect vect(vectin);
+  dumpStats(title, vect, nmax);
+}
+
+void VectorHelper::dumpRange(const String& title, const VectorDouble&  vectin, int nmax)
+{
+  constvect vect(vectin);
+  dumpRange(title, vect, nmax);
+}
+
+void VectorHelper::dumpRange(const String& title, constvect vect, int nmax)
+{
+  int ntotal = (int)vect.size();
+  if (nmax > 0 && nmax < ntotal) ntotal = nmax;
   int number = 0;
   double mini = 1.e30;
   double maxi = -1.e30;

@@ -195,7 +195,8 @@ VectorDouble ASPDEOp::krigingWithGuess(const VectorDouble& dat,
 int ASPDEOp::kriging(const constvect inv, vect out) const
 {
   _buildRhs(inv);
-  return _solve(_rhs, out);
+  int status = _solve(_rhs, out);
+  return status;
 }
 
 int ASPDEOp::krigingWithGuess(const constvect inv,
@@ -241,13 +242,24 @@ int ASPDEOp::_buildRhs(const constvect inv) const
 *****************************************************************************/
 int ASPDEOp::_addToDestImpl(const constvect inv, vect outv) const
 {
+  static bool debug = false;
+  static int count = 0;
+
   _prepare();
   vect w1s(_workdat1);
   vect w2s(_workdat2);
   _projKriging->mesh2point(inv, w1s);
   _invNoise->evalDirect(w1s, w2s);
   _projKriging->addPoint2mesh(w2s, outv);
-  return _QKriging->addToDest(inv, outv);
+  int status =  _QKriging->addToDest(inv, outv);
+
+  if (debug && count % 100 == 0)
+  {
+    message("Count = %d\n", count);
+    VH::dumpRange("outv apres ajout", outv);
+  }
+  count++;
+  return status;
 }
 
 void ASPDEOp::evalInvCov(const constvect inv, vect result) const

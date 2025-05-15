@@ -28,6 +28,7 @@ public:
                                                             int nvariable);
   static ProjMultiMatrix* createFromDbAndMeshes(const Db* db,
                                                 const std::vector<const AMesh*>& meshes,
+                                                int ncov,
                                                 int nvar,
                                                 bool verbose = false);
 

@@ -80,7 +80,7 @@ protected:
 
 private:
   mutable std::vector<PrecisionOp*>        _multiPrecisionOp; // Pointers are simply stored; do not delete
-  std::vector<IProj*>                _multiProjData; // Pointers are simply stored; do not delete
+  std::vector<IProj*>                      _multiProjData; // Pointers are simply stored; do not delete
   VectorDouble                             _varianceData; // Dimension: _ndat
   int                                      _ndat;
   int                                      _ncova;

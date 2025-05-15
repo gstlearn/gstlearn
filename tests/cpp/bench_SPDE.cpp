@@ -50,7 +50,6 @@ int main(int argc, char *argv[])
   defineDefaultSpace(ESpaceType::RN, 2);
   int seed  = 123;
   int nsim  = 10;
-  int nbMC  = 10;
   int ndat  = 50;
   int nxref = 101;
   double matern_param = 1.0;
@@ -80,12 +79,15 @@ int main(int argc, char *argv[])
   int ncov_tot = 2;
   // Feature to be tested:
   // -1: all the covariances
-  //  0: only the case with one covariance
-  //  1: only the case with two covariances
+  //  0: one covariance
+  //  1: two covariances
   int ncov_ref = -1;
 
-  bool verbose = false;
   bool showStats = false;
+  bool verbose   = false;
+  bool flagOld   = false;
+  bool flagStd   = false;
+  int nbMC       = 10;
 
   // Generate the data base
   Db* dat = Db::createFillRandom(ndat);
@@ -101,6 +103,12 @@ int main(int argc, char *argv[])
     message("- Number of target sites = %d\n", nxref * nxref);
     message("- Number of simulations  = %d\n", nsim);
   }
+
+  // Reglages perso
+  mode = 1;
+  ncov_ref = 1;
+  ifois_ref = 0;
+  flagOld = false;
 
   // Loop for usage of Cholesky
 
@@ -151,9 +159,14 @@ int main(int argc, char *argv[])
         namconv.append(option);
         namconv.append(sncov);
         law_set_random_seed(13243);
-        (void) krigingSPDE(dat, grid, model, nullptr, true, true, nullptr,
-                           useCholesky, SPDEParam(), nbMC, verbose, showStats,
-                           NamingConvention(namconv));
+        if (flagOld)
+          (void)krigingSPDEOld(dat, grid, model, nullptr, true, flagStd, nullptr,
+                            useCholesky, SPDEParam(), nbMC, verbose, showStats,
+                            NamingConvention(namconv));
+        else
+          (void)krigingSPDE(dat, grid, model, true, true, useCholesky,
+                            VectorMeshes(), nullptr, SPDEParam(),
+                            NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 400);
       }
 
@@ -166,9 +179,14 @@ int main(int argc, char *argv[])
         namconv.append(option);
         namconv.append(sncov);
         law_set_random_seed(seed);
-        (void) simulateSPDE(NULL, grid, model, nullptr, nsim, NULL, useCholesky,
-                            SPDEParam(), verbose, showStats,
-                            NamingConvention(namconv));
+        if (flagOld)
+          (void)simulateSPDEOld(NULL, grid, model, nullptr, nsim, NULL, useCholesky,
+                                SPDEParam(), verbose, showStats,
+                                NamingConvention(namconv));
+        else
+          (void)simulateSPDE(NULL, grid, model, nsim, useCholesky,
+                             VectorMeshes(), nullptr, SPDEParam(),
+                             NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 1350);
       }
 
@@ -181,9 +199,14 @@ int main(int argc, char *argv[])
         namconv.append(option);
         namconv.append(sncov);
         law_set_random_seed(seed);
-        (void) simulateSPDE(dat, grid, model, nullptr, nsim, NULL, useCholesky,
-                            SPDEParam(), verbose, showStats,
-                            NamingConvention(namconv));
+        if (flagOld)
+          (void)simulateSPDEOld(dat, grid, model, nullptr, nsim, NULL, useCholesky,
+                                SPDEParam(), verbose, showStats,
+                                NamingConvention(namconv));
+        else
+          (void)simulateSPDE(dat, grid, model, nsim, useCholesky,
+                             VectorMeshes(), nullptr, SPDEParam(),
+                             NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 3130);
       }
     }
