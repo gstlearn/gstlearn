@@ -114,6 +114,10 @@ public:
   VectorDouble getIncrement(const SpacePoint& p1,
                             const SpacePoint& p2,
                             int ispace = -1) const;
+  void getIncrementInPlace(const SpacePoint& p1,
+                           const SpacePoint& p2,
+                           VectorDouble& ptemp,
+                           int ispace = -1) const;
 
   /// Project the coordinates in the given space
   virtual VectorDouble projCoord(const VectorDouble& coord,

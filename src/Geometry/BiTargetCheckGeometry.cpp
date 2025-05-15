@@ -100,7 +100,8 @@ bool BiTargetCheckGeometry::isOK(const SpaceTarget &T1, const SpaceTarget &T2) c
   if (_dist <= 0.) return true;
 
   // Increment between two samples
-  _delta = T1.getIncrement(T2);
+  _delta.resize(T1.getNDim());
+  T1.getIncrementInPlace(_delta, T2);
 
   // Check if the angle of the pair matches the Calculation direction (up to angular tolerance)
   double dproj = 0.;

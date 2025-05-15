@@ -56,6 +56,7 @@ public:
   VectorDouble getDistances(const SpacePoint& pt) const;
   /// Return the increment vector between 'this' and another point
   VectorDouble getIncrement(const SpacePoint& pt, int ispace = -1) const;
+  void getIncrementInPlace(VectorDouble &inc, const SpacePoint& pt, int ispace = -1) const;
   /// Fill with TEST values to simulate a missing Space Point
   void setFFFF();
   /// Check if the SpacePoint is actually defined

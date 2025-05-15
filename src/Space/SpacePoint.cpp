@@ -144,6 +144,11 @@ VectorDouble SpacePoint::getIncrement(const SpacePoint& pt, int ispace) const
   return ASpaceObject::getIncrement(*this, pt, ispace);
 }
 
+void SpacePoint::getIncrementInPlace(VectorDouble& inc, const SpacePoint& pt, int ispace) const
+{
+  ASpaceObject::getIncrementInPlace(*this, pt, inc, ispace);
+}
+
 String SpacePoint::toString(const AStringFormat* /*strfmt*/) const
 {
   return VH::toStringAsSpan(constvect(_coord.data(),getNDim()));
