@@ -1897,32 +1897,36 @@ void VectorHelper::mean1AndMean2ToStdev(const VectorDouble &mean1,
   }
 }
 
-VectorDouble VectorHelper::power(const VectorDouble &vec, double power)
+VectorDouble VectorHelper::power(const VectorDouble& vec, double power)
 {
-  VectorDouble res(vec.size());
-  VectorDouble::iterator it(res.begin());
-  VectorDouble::const_iterator itv(vec.begin());
-  while (it < res.end())
-  {
-    *it = pow(*itv, power);
-    it++;
-    itv++;
-  }
+  VectorDouble res;
+  VectorHelper::power(res, vec, power);
   return res;
 }
 
 VectorDouble VectorHelper::inverse(const VectorDouble& vec)
 {
-  VectorDouble inv(vec.size());
-  VectorDouble::iterator it(inv.begin());
-  VectorDouble::const_iterator itv(vec.begin());
-  while (it < inv.end())
+  VectorDouble res;
+  VectorHelper::inverse(res, vec);
+  return res;
+}
+
+void VectorHelper::power(VectorDouble &res, const constvect vec, double power)
+{
+  res.resize(vec.size());
+  for (size_t i = 0; i < vec.size(); ++i)
   {
-    *it = 1. / *itv;
-    it++;
-    itv++;
+    res[i] = pow(vec[i], power);
   }
-  return inv;
+}
+
+void VectorHelper::inverse(VectorDouble& res, const constvect vec)
+{
+  res.resize(vec.size());
+  for (size_t i = 0; i < vec.size(); ++i)
+  {
+    res[i] = 1.0 / vec[i];
+  }
 }
 
 int VectorHelper::countUndefined(const VectorDouble &vec)

@@ -943,7 +943,8 @@ MatrixDense Db::getAllCoordinatesMat(const MatrixDense& box) const
   int nech = getNSample(true);
   int ndim = getNDim();
 
-  VectorInt ranks = getSampleRanksPerVariable();
+  VectorInt ranks;
+  getSampleRanksPerVariable(ranks);
 
   // Suppress some data due to bounds
   int nechValid = 0;
@@ -3650,9 +3651,12 @@ VectorVectorInt Db::getSampleRanks(const VectorInt& ivars,
 {
 
   VectorVectorInt index;
-  getSampleRanksInPlace(&index, ivars, nbgh, useSel, useZ, useVerr, useExtD);
+  getSampleRanksInPlace(index, ivars, nbgh, useSel, useZ, useVerr, useExtD);
   return index;
 }
+
+thread_local VectorInt nbgh_init;
+thread_local VectorInt jvars;
 
 /**
  * Compute the list of indices 'index' for valid samples for the set of
@@ -3676,7 +3680,7 @@ VectorVectorInt Db::getSampleRanks(const VectorInt& ivars,
  * @note: if 'useExtD' is ON, each sample for each variable is tested against
  * @note: all the values of External Drift functions.
  */
-void Db::getSampleRanksInPlace(VectorVectorInt* sampleRanks,
+void Db::getSampleRanksInPlace(VectorVectorInt& sampleRanks,
                                const VectorInt& ivars,
                                const VectorInt& nbgh,
                                bool useSel,
@@ -3684,15 +3688,16 @@ void Db::getSampleRanksInPlace(VectorVectorInt* sampleRanks,
                                bool useVerr,
                                bool useExtD) const
 {
-  VectorInt jvars = ivars;
+  jvars.resize(ivars.size());
+  std::copy(ivars.begin(), ivars.end(), jvars.begin());
   if (jvars.empty()) jvars = VH::sequence(getNLoc(ELoc::Z));
   int nvar = (int)jvars.size();
 
-  sampleRanks->resize(nvar);
+  sampleRanks.resize(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int jvar             = jvars[ivar];
-    (*sampleRanks)[ivar] = getSampleRanksPerVariable(nbgh, jvar, useSel, useZ, useVerr, useExtD);
+    getSampleRanksPerVariable(sampleRanks[ivar], nbgh, jvar, useSel, useZ, useVerr, useExtD);
   }
 }
 
@@ -3707,7 +3712,8 @@ void Db::getSampleRanksInPlace(VectorVectorInt* sampleRanks,
  * @param useExtD True if the definition of the External Drift must be checked
  * @return VectorInt
  */
-VectorInt Db::getSampleRanksPerVariable(const VectorInt& nbgh,
+void Db::getSampleRanksPerVariable(VectorInt &ranks,
+                                        const VectorInt& nbgh,
                                         int ivar,
                                         bool useSel,
                                         bool useZ,
@@ -3718,7 +3724,8 @@ VectorInt Db::getSampleRanksPerVariable(const VectorInt& nbgh,
   int nech_tot = getNSample();
 
   // Create vector of sample ranks to be searched (using input 'nbgh' or not)
-  VectorInt nbgh_init = nbgh;
+  nbgh_init.resize(nbgh.size());
+  std::copy(nbgh.begin(), nbgh.end(), nbgh_init.begin());
   if (nbgh_init.empty()) nbgh_init = VH::sequence(nech_tot);
   int nech_init = (int)nbgh_init.size();
 
@@ -3739,7 +3746,8 @@ VectorInt Db::getSampleRanksPerVariable(const VectorInt& nbgh,
   }
 
   // Constitute the resulting vector of selected sample ranks
-  VectorInt ranks;
+  ranks.clear();
+  ranks.reserve(nech_init);
   for (int irel = 0; irel < nech_init; irel++)
   {
     int iabs = nbgh_init[irel];
@@ -3784,7 +3792,6 @@ VectorInt Db::getSampleRanksPerVariable(const VectorInt& nbgh,
     // The sample is finally accepted: its ABSOLUTE index is stored
     ranks.push_back(iabs);
   }
-  return ranks;
 }
 
 VectorDouble Db::getColumnsActiveAndDefined(const ELoc& locatorType,
@@ -4510,7 +4517,7 @@ VectorInt Db::getAllUIDs() const
   return iuids;
 }
 
-void Db::getAllUIDs(std::vector<int>& iuids) const
+void Db::getAllUIDs(VectorInt& iuids) const
 {
   iuids.clear();
   for (int i = 0; i < (int)_uidcol.size(); i++)
@@ -5206,7 +5213,7 @@ int Db::resetReduce(const Db* dbin,
   if (ranksel.empty())
   {
     if (dbin->hasLocVariable(ELoc::SEL))
-      ranksel = dbin->getSampleRanksPerVariable();
+      dbin->getSampleRanksPerVariable(ranksel);
     else
       ranksel = VH::sequence(dbin->getNSample());
   }

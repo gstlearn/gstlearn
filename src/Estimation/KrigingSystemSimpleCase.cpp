@@ -311,11 +311,10 @@ void KrigingSystemSimpleCase::_estimateEstim(int status, KrigingAlgebraSimpleCas
  *****************************************************************************/
 void KrigingSystemSimpleCase::_estimateStdv(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const
 {
-  VectorDouble local = algebra.getStdv();
+  const VectorDouble &local = algebra.getStdv();
   if (local.size() <= 0) return;
-  if (status) local.fill(TEST);
   for (int ivarCL = 0; ivarCL < 1; ivarCL++)
-    _dbout->setArray(iechout, _iptrStd + ivarCL, local[ivarCL]);
+    _dbout->setArray(iechout, _iptrStd + ivarCL, status ? TEST : local[ivarCL]);
 }
 
 /****************************************************************************/

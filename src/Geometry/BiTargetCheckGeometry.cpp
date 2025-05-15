@@ -100,7 +100,7 @@ bool BiTargetCheckGeometry::isOK(const SpaceTarget &T1, const SpaceTarget &T2) c
   if (_dist <= 0.) return true;
 
   // Increment between two samples
-  VectorDouble delta = T1.getIncrement(T2);
+  _delta = T1.getIncrement(T2);
 
   // Check if the angle of the pair matches the Calculation direction (up to angular tolerance)
   double dproj = 0.;
@@ -108,8 +108,8 @@ bool BiTargetCheckGeometry::isOK(const SpaceTarget &T1, const SpaceTarget &T2) c
   double dn2 = 0.;
   for (int idim = 0; idim < _ndim; idim++)
   {
-    dproj +=  delta[idim] * _codir[idim];
-    dn1   +=  delta[idim] *  delta[idim];
+    dproj +=  _delta[idim] * _codir[idim];
+    dn1   +=  _delta[idim] *  _delta[idim];
     dn2   += _codir[idim] * _codir[idim];
   }
   double prod = dn1 * dn2;
@@ -128,7 +128,7 @@ bool BiTargetCheckGeometry::isOK(const SpaceTarget &T1, const SpaceTarget &T2) c
   // Check for vertical slicing test
   if (!FFFF(_bench) && _bench > 0.)
   {
-    double dvect = ABS(delta[_ndim-1]);
+    double dvect = ABS(_delta[_ndim-1]);
     if (dvect > _bench) return false;
   }
 

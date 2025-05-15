@@ -70,7 +70,7 @@ public:
   void dumpAux();
 
   VectorDouble& getEstimation();
-  VectorDouble getStdv();
+  const VectorDouble &getStdv();
   double getVarianceZstar(int i);
   VectorDouble getVarianceZstar();
   const MatrixSymmetric* getStdvMat();
@@ -230,4 +230,6 @@ private:
   bool _dualHasChanged;
   bool _invSigmaHasChanged;
   bool _XtInvSigmaHasChanged;
+
+  VectorDouble _dummy;
 };

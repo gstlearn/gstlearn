@@ -446,7 +446,7 @@ public:
   VectorInt getUIDsByLocator(const ELoc& locatorType) const;
   VectorInt getUIDsByColIdx(const VectorInt& icols) const;
   VectorInt getAllUIDs() const;
-  void getAllUIDs(std::vector<int>& iuids) const;
+  void getAllUIDs(VectorInt& iuids) const;
 
   void copyByUID(int iuidIn, int iuidOut);
   void copyByCol(int icolIn, int icolOut);
@@ -573,7 +573,8 @@ public:
 
   int getSelection(int iech) const;
   VectorDouble getSelections(void) const;
-  VectorInt getSampleRanksPerVariable(const VectorInt& nbgh = VectorInt(),
+  void getSampleRanksPerVariable(VectorInt &ranks,
+                                      const VectorInt& nbgh = VectorInt(),
                                       int ivar              = -1,
                                       bool useSel           = true,
                                       bool useZ             = true,
@@ -585,7 +586,7 @@ public:
                                  bool useZ              = true,
                                  bool useVerr           = false,
                                  bool useExtD           = true) const;
-  void getSampleRanksInPlace(VectorVectorInt* sampleRanks,
+  void getSampleRanksInPlace(VectorVectorInt& sampleRanks,
                              const VectorInt& ivars = VectorInt(),
                              const VectorInt& nbgh  = VectorInt(),
                              bool useSel            = true,
@@ -1000,5 +1001,5 @@ private:
   std::vector<PtrGeos> _p;    //!< Locator characteristics
 
   /// factor allocations
-  mutable std::vector<int> uids;
+  mutable VectorInt uids;
 };
