@@ -376,6 +376,7 @@ int computeDriftMatLMOKRHSInPlace(MatrixDense& mat,
 {
   if (flagCenteredFactors)
   {
+    mat.resize(1,1);
     switch (type)
     {
       case 1:
@@ -393,6 +394,7 @@ int computeDriftMatLMOKRHSInPlace(MatrixDense& mat,
   }
   else
   {
+    mat.resize(1, F.getNCols());
     switch (type)
     {
       case 1:
