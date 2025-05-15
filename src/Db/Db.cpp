@@ -854,15 +854,6 @@ void Db::getCoordinatesInPlace(VectorDouble& coor, int iech, bool flag_rotate) c
     coor[idim] = _array[_getAddress(iech, icol)];
   }
 }
-void Db::getCoordinatesInPlace(vect coor, int iech, bool flag_rotate) const
-{
-  DECLARE_UNUSED(flag_rotate);
-  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
-  {
-    int icol   = getColIdxByLocator(ELoc::X, idim);
-    coor[idim] = _array[_getAddress(iech, icol)];
-  }
-}
 
 double Db::getDistance1D(int iech, int jech, int idim, bool flagAbs) const
 {

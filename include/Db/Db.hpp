@@ -97,7 +97,6 @@ public:
   virtual bool isMesh() const { return false; }
   virtual double getCoordinate(int iech, int idim, bool flag_rotate = true) const;
   virtual void getCoordinatesInPlace(VectorDouble& coor, int iech, bool flag_rotate = true) const;
-  virtual void getCoordinatesInPlace(vect coor, int iech, bool flag_rotate = true) const;
 
   virtual double getUnit(int idim = 0) const;
   virtual int getNDim() const;
