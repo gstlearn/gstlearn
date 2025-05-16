@@ -140,6 +140,8 @@ private:
   mutable int    _flagProp;  /* 1 if proportions are defined; 0 otherwise */
   mutable double _rho;       /* Correlation between GRFs */
   Node*          _mainNode;
+
+  mutable VectorInt _facies;
 };
 
 GSTLEARN_EXPORT void   set_rule_mode(int rule_mode);

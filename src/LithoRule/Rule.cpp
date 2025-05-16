@@ -417,18 +417,18 @@ int Rule::statistics(int  verbose,
   /* Check that the facies are defined */
 
   nfac = (*nfac_tot);
-  VectorInt facies = VectorInt(nfac);
-  for (ifac=0; ifac<nfac; ifac++) facies[ifac] = 0;
-  if (_mainNode->isValid(facies)) return 1;
+  _facies.clear();
+  _facies.resize(nfac);
+  if (_mainNode->isValid(_facies)) return 1;
 
   /* Check that the first consecutive facies are defined */
 
   ntot = 0;
   for (ifac=0; ifac<nfac; ifac++)
-    if (facies[ifac] > 0) ntot = ifac + 1;
+    if (_facies[ifac] > 0) ntot = ifac + 1;
   for (ifac=0; ifac<nfac; ifac++)
   {
-    if (facies[ifac] <= 0)
+    if (_facies[ifac] <= 0)
     {
       messerr("The facies (%d) is not defined",ifac+1);
       return(1);
