@@ -31,11 +31,7 @@ where $P$ is a polynom positive on $\mathbb{R}^+$</md-block>
 
 
 #NO_DIFF#XXX
-----
-
-
-
-----
+--------
 
 
 #NO_DIFF#XXX
@@ -120,9 +116,7 @@ Column = 4 - Name = simu - Locator = z1----
 
 
 #NO_DIFF#XXX
-----
-
-----
+--------
 
 
 #NO_DIFF#XXX
@@ -139,15 +133,11 @@ Ball Tree
 
 
 #NO_DIFF#XXX
-----
-
-----
+--------
 
 
 #NO_DIFF#XXX
-----
-
-----
+--------
 
 
 #NO_DIFF#XXX
