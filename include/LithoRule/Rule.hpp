@@ -103,7 +103,7 @@ public:
   bool isYUsed(int igrf) const;
   VectorInt whichGRFUsed() const;
   double getProportion(int facies);
-  VectorDouble getThresh(int facies) const;
+  std::array<double, 4> getThresh(int facies) const;
   VectorDouble getThreshFromRectangle(int rect, int *facies);
   int getFaciesFromGaussian(double y1, double y2) const;
 

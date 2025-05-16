@@ -552,19 +552,20 @@ double Rule::getProportion(int facies)
  * @param facies Rank of the target facies (starting from 1)
  * @return The vector of bounds organized as [t1min, t1max, t2min, t2max]
  */
-VectorDouble Rule::getThresh(int facies) const
+std::array<double, 4> Rule::getThresh(int facies) const
 {
   int fac_ret;
   int rank = 0;
   double t1min, t1max, t2min, t2max;
 
   if (!_mainNode->getThresh(1, facies, &rank, &fac_ret, &t1min, &t1max, &t2min,
-                            &t2max)) return VectorDouble();
-  VectorDouble bounds(4);
-  bounds[0] = t1min;
-  bounds[1] = t1max;
-  bounds[2] = t2min;
-  bounds[3] = t2max;
+                            &t2max)) return {};
+  std::array<double, 4> bounds{
+    t1min,
+    t1max,
+    t2min,
+    t2max,
+  };
   return bounds;
 }
 
