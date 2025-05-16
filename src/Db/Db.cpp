@@ -654,10 +654,10 @@ void Db::setArrayByUID(const VectorDouble& tab, int iuid)
 
 void Db::getArrayBySample(std::vector<double>& vals, int iech) const
 {
-  getAllUIDs(uids);
-  vals.resize(uids.size());
-  for (int iuid = 0; iuid < (int)uids.size(); iuid++)
-    vals[iuid] = getArray(iech, uids[iuid]);
+  getAllUIDs(_uids);
+  vals.resize(_uids.size());
+  for (int iuid = 0; iuid < (int)_uids.size(); iuid++)
+    vals[iuid] = getArray(iech, _uids[iuid]);
 }
 
 void Db::setArrayBySample(int iech, const VectorDouble& vec)

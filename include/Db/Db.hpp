@@ -1003,5 +1003,5 @@ private:
   std::vector<PtrGeos> _p;    //!< Locator characteristics
 
   /// factor allocations
-  mutable VectorInt uids;
+  mutable VectorInt _uids;
 };
