@@ -621,16 +621,19 @@ int Rule::setProportions(const VectorDouble& proportions) const
 
   // Set the proportions when the input argument is left empty
 
-  VectorDouble props = proportions;
-  if (props.empty())
+  _props.resize(proportions.size());
+  if (_props.empty())
   {
     int nfacies = getNFacies();
-    props = VectorDouble(nfacies, 1. / (double) nfacies);
+    _props.clear();
+    _props.resize(nfacies, 1. / (double) nfacies);
+  } else {
+    std::copy(proportions.begin(), proportions.end(), _props.begin());
   }
 
   /* Set the proportions */
 
-  if (_mainNode->proportionDefine(props)) return 1;
+  if (_mainNode->proportionDefine(_props)) return 1;
   _flagProp = 1;
 
   /* Calculate the cumulative proportions */

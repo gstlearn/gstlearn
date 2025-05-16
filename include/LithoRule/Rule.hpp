@@ -142,6 +142,7 @@ private:
   Node*          _mainNode;
 
   mutable VectorInt _facies;
+  mutable VectorDouble _props;
 };
 
 GSTLEARN_EXPORT void   set_rule_mode(int rule_mode);
