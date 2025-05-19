@@ -191,7 +191,9 @@ int PrecisionOp::_addSimulateToDest(const constvect whitenoise, vect outv) const
 int PrecisionOp::_preparePoly(const EPowerPT& power,bool force) const
 {
   // Polynomial already exists. Nothing to be done
-  if (_polynomials.contains(power) && !force) return 0;
+  if (_polynomials.find(power) != _polynomials.end() && !force) return 0;
+  // Equivalent instruction (but only for C++ 20)
+  // if (_polynomials.contains(power) && !force) return 0;
 
   // Prepare Polynomial for EPowerPT::ONE
   if (_preparePrecisionPoly() != 0 && !force) return 1;
