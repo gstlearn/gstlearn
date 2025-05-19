@@ -50,8 +50,6 @@ pal   = rev(RColorBrewer::brewer.pal(6, "RdYlBu"))
 opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
 err = OptCustom_define("NotOptimSimpleCase", 1)
 
-source(file = "./function_kriging_SVC.R")
-
 # list of estimations to be performed
 ESTIM_KEY = c("obs", "res", "drift", "coeff")
 estim_list = list()
