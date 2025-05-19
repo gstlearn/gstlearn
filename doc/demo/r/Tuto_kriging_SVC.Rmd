@@ -1,0 +1,544 @@
+---
+title: "Regression with spatially varying coefficients in gstlearn"
+author: "Xavier Freulon, Didier Renard, and the gstlearn Team"
+date: "2025-04-23"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+editor_options:
+  markdown:
+    wrap: 72
+  chunk_output_type: console
+---
+
+# Introduction
+
+```{r initial,echo=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(gstlearn)
+rm(list=ls())
+```
+
+Regression models are build to explain a response variable over a region
+or domain. The regression coefficients are often assumed to be constant
+over the region of interest. However, in some applications, these
+coefficients may vary at the local level. The objective of this note is
+to present how this approach can be implemented using *gstlearn*.
+
+## Technical description
+
+```{r SVC_Theory, echo=FALSE, results='asis'}
+cat(loadDoc("SVC.md"), sep="\n")
+```
+
+# Simulation of the reference case
+
+```{r setup, echo=FALSE, message=FALSE}
+library(ggplot2)
+library(ggpubr)
+library(readxl)
+library(tictoc)
+```
+
+We are defining some global environment variables within the *gstlearn* package.
+
+```{r environment}
+set.seed(43243)
+pal   = rev(RColorBrewer::brewer.pal(6, "RdYlBu"))
+opers = EStatOption_fromKeys(c("NUM", "MINI", "MAXI", "MEAN", "STDV"))
+err = OptCustom_define("NotOptimSimpleCase", 1)
+
+source(file = "./function_kriging_SVC.R")
+
+# list of estimations to be performed
+ESTIM_KEY = c("obs", "res", "drift", "coeff")
+estim_list = list()
+estim_list[[1+length(estim_list)]] <- list(type = 1, idx = -1, name = "Z")
+estim_list[[1+length(estim_list)]] <- list(type = 2, idx = -1, name = "RES")
+estim_list[[1+length(estim_list)]] <- list(type = 3, idx = -1, name = "DRIFT")
+estim_list[[1+length(estim_list)]] <- list(type = 4, idx = 0,  name = "A")
+estim_list[[1+length(estim_list)]] <- list(type = 4, idx = 1,  name = "B")
+
+suffix_key = c("estim", "stdev")
+suffix_dsc = c("Estimation", "Std.")
+
+flag_est = TRUE
+flag_std = TRUE
+flag_varz = FALSE
+verbose = TRUE
+```
+
+The reference data set used to evaluate the different methods is
+simulated on the unit square $[0,1]^2$. The parameters are first
+simulated on a fine grid, then the observation are extracted from the
+grid. For each observation $\alpha \in \mathcal{D}$, we get the observed
+value $Z(\alpha)$ and the drifts $(f^l(\alpha))_{l \in 0:L}$. Note that
+the $f^0$ is the constant value.
+
+```{r data_set, echo=TRUE, eval=TRUE}
+nx = c(50, 50)
+dx = c(1,1) / nx
+grd = DbGrid_create(x0 = c(0,0), dx = dx, nx = nx, angles = c(0, 0))
+
+# Model of the spatially varying effects
+tau = 0.1
+m = c(1.25, 6.5)
+rho   = 0.7
+sigma = c(2, 3)
+c0    = diag(sigma^2)
+c0[1,2] = prod(sigma)*rho
+c0[2,1] = prod(sigma)*rho
+model = Model_createFromParam(ECov_MATERN(), sills = c0, range = 0.5, param = 1)
+err   = model$setMeans(m)
+
+# simulation of the spatially varying effects
+err   = simtub(dbin = NULL, dbout = grd, model = model, nbsimu = 1, nbtuba = 1000, 
+               namconv = NamingConvention("Y"))
+err = grd$setName(old_name = "Y.1", name = "A")
+err = grd$setName(old_name = "Y.2", name = "B")
+
+# simulation of the external drift Lognormal (m = 3, sigma = 0.25)
+m_N  <- 3
+sigma_N <- 0.25
+model_N = Model_createFromParam(ECov_CUBIC(), sill = 1.0, ranges = c(0.75, 0.75))
+err   = simtub(dbin = NULL, dbout = grd, model = model_N, nbsimu = 1, nbtuba = 1000, 
+               namconv = NamingConvention("N"))
+grd["N"] <- m_N * exp(sigma_N * grd["N"] - 1/2 * sigma_N^2)
+
+# Computing the observed values
+grd["DRIFT"] = grd["A"] + grd["B"]*grd["N"]
+grd["RES"]   = tau * rnorm(grd$getNSample())
+grd["Z"]     = grd["DRIFT"] + grd["RES"]
+
+# names of the estimated variables
+actual_var = c("Z", "RES", "DRIFT", "A", "B")
+
+# a selection on the output grid (a disk)
+grd["sel"]  <- (sqrt((grd["x1"] - 0.5)^2 + (grd["x2"] - 0.5)^2) < 0.5)
+
+# defining the observations
+np <- 100
+data = Db_createSamplingDb(grd, number = np, names = c("x1", "x2", "N", "Z"))
+err = data$addSelectionRandom(prop = 0.8, seed = 13167, name = "sel")
+
+# setting the roles
+# on the grid
+err = grd$setLocators("Z", ELoc_Z(), cleanSameLocator = TRUE)
+err = grd$setLocators("N", ELoc_F(), cleanSameLocator = TRUE)
+err = grd$setLocators("sel", ELoc_SEL(), cleanSameLocator = TRUE)
+# on the data
+err = data$setLocators("N", ELoc_F(), cleanSameLocator = TRUE)
+err = data$setLocators("Z", ELoc_Z(), cleanSameLocator = TRUE)
+err = data$setLocators("sel", ELoc_SEL(), cleanSameLocator = TRUE)
+
+# the number of points in the moving neighborhood
+n_neigh = 20
+
+```
+
+
+```{r data_set_plots, echo=FALSE, eval=TRUE}
+var_list = c("A", "B", "N", "Z")
+var_dscr = c("First varying Coefficient", "Second varying Coefficient", 
+             "External predictor", "Observed value")
+stopifnot(length(var_list) == length(var_dscr))
+
+plot_simulated_data <- function(ivar) {
+  stopifnot(ivar %in% 1:4)
+  var_range = round(range(grd[var_list[ivar]], na.rm = TRUE), digits = 1)
+  plot.init(asp = 1) + 
+    plot.raster(grd, name = var_list[ivar], 
+                flagLegend = FALSE, palette = pal, limits=var_range) +
+    # plot.decoration(title = paste(var_dscr[ivar], var_list[ivar], sep = ": "))
+    plot.decoration(title = paste(var_list[ivar], sep = ": "))
+}
+
+# plotting the simulated variables: the ingredients A, B, and N, the observed values
+ggarrange(
+  plot_simulated_data(1),
+  plot_simulated_data(2),
+  plot_simulated_data(3),
+  plot_simulated_data(4), nrow = 2, ncol = 2
+)
+
+# Statistics on the simulated values
+knitr::kable(dbStatisticsMono(db = grd, names = var_list, opers = opers)$toTL(), 
+             caption = "Statistics on the grid", digits = 2)
+
+# Statistics on the observed data
+knitr::kable(dbStatisticsMono(db = data, names = var_list[c(3,4)], opers = opers)$toTL(), 
+             caption = "Statistics on the observed data", digits = 2)
+
+# Z vs. N
+p = plot.init() + 
+  plot.correlation(grd, namex = var_list[4], namey = var_list[3], asPoint = FALSE, bins = 100) +
+  plot.decoration(
+    xlab = paste0(var_list[4], " (", var_dscr[4], ")"), 
+    ylab = paste0(var_list[3], " (", var_dscr[3], ")"))
+plot.end(p)
+
+# defining the names of the data
+nm_obs = data$getNamesByLocator(locatorType = ELoc_Z())
+nm_fac = data$getNamesByLocator(locatorType = ELoc_F())
+```
+
+
+```{r fn_plots, echo=FALSE, eval=TRUE}
+# functions for plots
+plot_res <- function(iest) {
+  type = ESTIM_KEY[estim_list[[iest]]$type]
+  idx  = estim_list[[iest]]$idx
+  if (type != ESTIM_KEY[4]) {
+    var_key = paste(prefix_section, type, sep = ".")
+  } else {
+    var_key = paste(prefix_section, type, idx, sep = ".")
+  }
+  p_list = list()
+  # plots
+  for (i in seq_along(suffix_key) ) {
+    tit = paste(estim_list[[iest]]$name, suffix_key[i], sep = " - ")
+    vv = paste(var_key, nm_obs, suffix_key[i], sep = ".")
+    range_vv = range(grd[vv], na.rm = TRUE)
+    p_list[[1+length(p_list)]] <- plot.init(asp=1) +
+      plot.raster(grd, name = vv, flagLegend = FALSE, legendName = suffix_dsc[i],
+                  palette = pal, limits=range_vv)  +
+      plot.symbol(data) + 
+      plot.decoration(title = tit)
+  }
+  ggarrange(plotlist = p_list, nrow = 1, ncol = length(p_list))
+}
+
+plot_corr <- function(iest) {
+  # correlation
+    p_corr <- plot.init() + plot.correlation(grd, 
+                     namex = paste(var_key, nm_obs, suffix_key[1], sep = "."), 
+                     namey = estim_list[[iest]]$name, 
+                     asPoint = FALSE, flagDiag = TRUE, diagColor = "red", bins = 100) +
+    plot.decoration(
+      xlab = paste0("Estimated value"), 
+      ylab = paste0("Actual value"),
+      title = estim_list[[iest]]$name
+      )
+    
+    plot.end(p_corr)
+}
+
+```
+
+# Kriging with external drift with a unique/moving neighbourhood
+
+## Initialisation
+
+```{r KED_init, echo =  TRUE, eval=TRUE}
+flag.unique.ked = FALSE
+flag.unique = flag.unique.ked
+if (flag.unique) {
+  neigh  = NeighUnique()
+  prefix_section = "KED"
+  neigh_txt = "UNIQUE"
+} else {
+  neigh  = NeighMoving_create(nmaxi = n_neigh, nmini = n_neigh)
+  prefix_section = "KEDM"
+  neigh_txt = "MOVING"
+}
+prefix_ked = prefix_section
+title_section = paste("using", neigh_txt, "neigh.")
+
+modED = model$createReduce(0)
+err   = modED$addCovFromParam(ECov_NUGGET(), sill = tau)
+err   = modED$setDriftIRF(order = 0, nfex = 1)
+
+define_estim <- function(estim, model, verbose = FALSE) {
+  # --------------------------------------------
+  # estimation of the observed variable
+  # --------------------------------------------
+  if (estim$type == 1) {
+    for (idx in 0:(model$getNCov()-1)) {
+      err = model$setCovFiltered(icov = idx, filter = FALSE)
+    }
+    for (idx in 0:(model$getNDrift()-1)) {
+      err = model$getDriftList()$setFiltered(i = idx, filter = FALSE)
+    }
+  }
+  # --------------------------------------------
+  # estimation of the residual
+  # --------------------------------------------
+  if (estim$type == 2) {
+    for (idx in 0:(model$getNCov()-1)) {
+      err = model$setCovFiltered(icov = idx, filter = FALSE)
+    }
+    for (idx in 0:(model$getNDrift()-1)) {
+      err = model$getDriftList()$setFiltered(i = idx, filter = TRUE)
+    }
+  }
+  # --------------------------------------------
+  # estimation of the observed drift
+  # --------------------------------------------
+  if (estim$type == 3) {
+    for (idx in 0:(model$getNCov()-1)) {
+      err = model$setCovFiltered(icov = idx, filter = TRUE)
+    }
+    for (idx in 0:(model$getNDrift()-1)) {
+      err = model$getDriftList()$setFiltered(i = idx, filter = FALSE)
+    }
+  }
+  # --------------------------------------------
+  # estimation of the coefficient
+  # --------------------------------------------
+  if (estim$type == 4) {
+    for (idx in 0:(model$getNCov()-1)) {
+      err = model$setCovFiltered(icov = idx, filter = TRUE)
+    }
+    for (idx in 0:(model$getNDrift()-1)) {
+      err = model$getDriftList()$setFiltered(i = idx, filter = !(idx == estim$idx))
+    }
+  }
+  # --------------------------------------------
+  if (verbose) {
+    model$display()
+  }
+  invisible()
+}  
+```
+
+## Estimation
+
+```{r KED_estim, echo=TRUE, eval=TRUE}
+tic(msg = "KED")
+# cleaning the target data base
+err = grd$deleteColumns(names = paste0(prefix_section, ".*.", c("estim", "stdev"), ".*"))
+
+for (iest in seq_along(estim_list)) {
+  if (verbose) {
+    print(paste0(">>> Estimation of ", estim_list[[iest]]$name, " using KED"))
+  }
+  # reset the model
+  err = define_estim(estim = estim_list[[iest]], model = modED, verbose = FALSE)
+  if (estim_list[[iest]]$type != 4) {
+    var_key = paste(prefix_section, ESTIM_KEY[estim_list[[iest]]$type], sep = ".")    
+  } else {
+    var_key = paste(prefix_section, ESTIM_KEY[estim_list[[iest]]$type], estim_list[[iest]]$idx, sep = ".")
+  }
+  
+  # computing the kriging
+  err = kriging(data, dbout = grd, model = modED, neigh = neigh, krigopt = KrigOpt(),
+                flag_est = flag_est, flag_std = flag_std,
+                namconv = NamingConvention(var_key))
+  
+  # rescaling the drift component by the deterministic predictor to get the effect estimate
+  if ((estim_list[[iest]]$type == 4)&(estim_list[[iest]]$idx > 0)) {
+    if (flag_est) {
+      grd[paste(var_key, nm_obs, suffix_key[1], sep = ".")] = 
+        grd[paste(var_key, nm_obs, suffix_key[1], sep = ".")] /
+        grd[nm_fac[estim_list[[iest]]$idx]]
+    }
+    if (flag_std) {
+      grd[paste(var_key, nm_obs, suffix_key[2], sep = ".")] = 
+        grd[paste(var_key, nm_obs, suffix_key[2], sep = ".")] /
+        abs(grd[nm_fac[estim_list[[iest]]$idx]])
+    }
+  }
+}
+toc()
+```
+
+## Check
+
+```{r KED_QC, echo=FALSE, eval=TRUE}
+# plots  of Z
+iest = 1; plot_res(iest); plot_corr(iest)
+
+# plots of Res
+iest = 2; plot_res(iest); plot_corr(iest)
+
+# plots of DRIFT
+iest = 3; plot_res(iest); plot_corr(iest)
+
+# plots of A
+iest = 4; plot_res(iest); plot_corr(iest)
+
+# plots of B
+iest = 5; plot_res(iest); plot_corr(iest)
+
+# statistics on the estimations
+knitr::kable(dbStatisticsMono(grd, names = paste(prefix_section, "*", sep = "."),
+                              opers = opers)$toTL(), 
+             caption = "Statistics on drift coefficients (actual values and estimated)", digits = 2)
+
+# statistics on the residual
+for (iest in 1:length(estim_list)) {
+  if (estim_list[[iest]]$idx < 0) {
+    vv = paste(sep = ".", prefix_section, ESTIM_KEY[estim_list[[iest]]$type], 
+               nm_obs, "estim")
+  } else {
+    vv = paste(sep = ".", prefix_section, ESTIM_KEY[estim_list[[iest]]$type], 
+               estim_list[[iest]]$idx, 
+               nm_obs, "estim")
+  }
+  grd[paste(sep = ".", prefix_section, "diff", estim_list[[iest]]$name)] =
+    grd[estim_list[[iest]]$name] - grd[vv]
+}
+
+knitr::kable(dbStatisticsMono(db = grd, 
+                              names = c(paste(prefix_section, "diff", "*", sep = "."), "Y"), 
+                              opers = opers)$toTL(), 
+             caption = paste0("Statistics on the residual (", neigh_txt, ")"), digits = 2)
+
+err = grd$deleteColumns(names = paste(prefix_section, "diff", "*", sep="."))
+```
+
+# Kriging with spatially varying coefficients with a unique/moving neighbourhood
+
+## Initialisation
+
+```{r SVC_init, echo = TRUE, eval=TRUE}
+flag.unique.svc = TRUE
+flag.unique = flag.unique.svc
+if (flag.unique) {
+  neigh  = NeighUnique()
+  prefix_section = "SVC"
+  neigh_txt = "UNIQUE"
+} else {
+  neigh  = NeighMoving_create(nmaxi = n_neigh, nmini = n_neigh)
+  prefix_section = "SVCM"
+  neigh_txt = "MOVING"
+}
+prefix_svc = prefix_section
+title_section = paste("using", neigh_txt, "neigh.")
+
+nfac = length(nm_fac)
+model_svc  = model$clone()
+C0 = matrix(c(tau, 0, 0, 0), nrow = 2, ncol = 2)
+err = model_svc$addCovFromParam(type = ECov_NUGGET(), sills = C0)
+err = model_svc$setDriftIRF(order = 0, nfex = nfac)
+```
+
+## Estimation
+
+```{r SVC_estim, echo=TRUE, eval=TRUE}
+# cleaning the target data base
+err = grd$clearLocators(locatorType = ELoc_Z())
+err = grd$deleteColumns(names = paste0(prefix_section, ".*.", c("estim", "stdev"), ".*"))
+
+tic(msg = "SVC")
+err = kriging_SVC(dbin = data, dbout = grd, model = model_svc, neigh = neigh,
+                flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz, 
+                estim_list = estim_list,
+                prefix = prefix_section, verbose = verbose
+)
+toc()
+```
+
+## Checking
+
+```{r SVC_QC, echo=FALSE, eval=TRUE}
+# plots  of Z
+iest = 1; plot_res(iest); plot_corr(iest)
+
+# plots of Res
+iest = 2; plot_res(iest); plot_corr(iest)
+
+# plots of DRIFT
+iest = 3; plot_res(iest); plot_corr(iest)
+
+# plots of A
+iest = 4; plot_res(iest); plot_corr(iest)
+
+# plots of B
+iest = 5; plot_res(iest); plot_corr(iest)
+
+# statistics on the estimations
+knitr::kable(dbStatisticsMono(grd, names = paste(prefix_section, "*", sep = "."),
+                              opers = opers)$toTL(), 
+             caption = "Statistics on drift coefficients (actual values and estimated)", digits = 2)
+
+# statistics on the residual
+for (iest in 1:length(estim_list)) {
+  if (estim_list[[iest]]$idx < 0) {
+    vv = paste(sep = ".", prefix_section, ESTIM_KEY[estim_list[[iest]]$type], 
+               nm_obs, "estim")
+  } else {
+    vv = paste(sep = ".", prefix_section, ESTIM_KEY[estim_list[[iest]]$type], 
+               estim_list[[iest]]$idx, 
+               nm_obs, "estim")
+  }
+  grd[paste(sep = ".", prefix_section, "diff", estim_list[[iest]]$name)] =
+    grd[estim_list[[iest]]$name] - grd[vv]
+}
+
+knitr::kable(dbStatisticsMono(db = grd, 
+                              names = c(paste(prefix_section, "diff", "*", sep = "."), "Y"), 
+                              opers = opers)$toTL(), 
+             caption = paste0("Statistics on the residual (", neigh_txt, ")"), digits = 2)
+
+err = grd$deleteColumns(names = paste(prefix_section, "diff", "*", sep="."))
+
+```
+
+# KED vs. SVC
+
+```{r SVC_vs_KED, echo=FALSE, eval=TRUE}
+# Plot of the estimations
+for (iest in 1:length(estim_list)) {
+  type = ESTIM_KEY[estim_list[[iest]]$type]
+  idx  = estim_list[[iest]]$idx
+  if (type != ESTIM_KEY[4]) {
+    var_key = paste(type, nm_obs, sep = ".")
+  } else {
+    var_key = paste(type, idx, nm_obs, sep = ".")
+  }
+  nm_svc = paste(prefix_svc, var_key, sep = ".")
+  nm_ked  = paste(prefix_ked, var_key, sep = ".")
+  
+  # correlation estim with KED vs. estim with SVC
+  p = plot.init() + 
+    plot.correlation(grd, 
+                     namex = paste(nm_svc, "estim", sep = "."),
+                     namey = paste(nm_ked, "estim", sep = "."), 
+                     asPoint = FALSE, flagDiag = TRUE, diagColor = "red", bins = 100) +
+    plot.decoration(xlab = "Estimated value (SVC)", ylab = "Estimated value (KED)", 
+                    title = paste0("KED vs. SVC", ": ", estim_list[[iest]]$name))
+  plot.end(p)
+  
+  # comparison
+  if (iest %in% c(1,4,5)) {
+    # actual value
+    vnm = actual_var[iest]
+    range_var = range(grd[vnm], na.rm = TRUE)
+    p0 = plot.init(asp=1) + 
+      plot.raster(grd, name = vnm, flagLegend = FALSE, palette = pal, limits = range_var) +
+      plot.decoration(title = vnm)
+    # estimation using SVC
+    vnm = paste(nm_svc, "estim", sep = ".")
+    range_var = range(grd[vnm], na.rm = TRUE)
+    p =   plot.init(asp=1) + 
+      plot.raster(grd, name = vnm, flagLegend = FALSE, palette = pal, limits = range_var) +
+      plot.decoration(title = vnm)
+    # estimation using KED
+    vnm = paste(nm_ked, "estim", sep = ".")
+    range_var = range(grd[vnm], na.rm = TRUE)
+    q = plot.init(asp=1) + 
+      plot.raster(grd, name = vnm, flagLegend = FALSE, palette = pal, limits = range_var) +
+      plot.decoration(title = vnm)
+    plot.end(ggarrange(p0, p, q, nrow = 1, ncol = 3))
+  }
+}
+
+# statistics
+stat_qc <- function(iest) {
+  stopifnot(iest %in% c(1,4,5))
+  lvar = paste(c(ESTIM_KEY[-4], paste(ESTIM_KEY[4], 0:nfac, sep = ".")), nm_obs, sep = ".")
+  nm_ked  = paste(prefix_ked,  lvar, sep = ".")[iest]
+  nm_svc = paste(prefix_svc, lvar, sep = ".")[iest]
+  nm_v = c(estim_list[[iest]]$name, paste(c(nm_ked, nm_svc), "estim", sep = "."))
+  knitr::kable(dbStatisticsMono(db = grd, names = nm_v, , opers = opers)$toTL(), 
+               caption = paste0("Statistics for ", actual_var[iest]), digits = 2)
+}
+
+stat_qc(1)
+stat_qc(4)
+stat_qc(5)
+```
+
