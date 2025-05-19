@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "LinearOp/AShiftOp.hpp"  
 #include "Covariances/CovAniso.hpp"
-#include "LinearOp/ALinearOp.hpp"
 #include <math.h>
 
 AShiftOp::AShiftOp(CovAniso* cova, int napices)
