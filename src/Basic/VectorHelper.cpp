@@ -1070,7 +1070,7 @@ void VectorHelper::simulateGaussianInPlace(VectorDouble &vec,
   VectorDouble::iterator it(vec.begin());
   while (it < vec.end())
   {
-    *it= mean + sigma * law_gaussian();
+    *it = mean + sigma * law_gaussian();
     it++;
   }
 }

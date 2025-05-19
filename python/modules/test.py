@@ -15,11 +15,11 @@ import numpy                 as np
 import numpy.ma              as ma
 import gstlearn              as gl
 
-def checkEqualityVector(vec1, vec2, 
-                        tolerance=gl.EPSILON6,
-                        flagRelative = True,
-                        flagAbsolute = False,
-                        message="checkEqualityVector"):
+def checkEqualityVectors(vec1, vec2, 
+                         tolerance = gl.EPSILON6,
+                         flagRelative = True,
+                         flagAbsolute = False,
+                         message="checkEqualityVectors"):
     
     '''
     This function checks that two vectors contain exactly the same set of values
@@ -37,7 +37,6 @@ def checkEqualityVector(vec1, vec2,
     When the two vectors do not share the same dimension, the test is not performed
     and a message is printed.
     '''
-    
     # Flatten the input vectors if necessary
     vec1 = vec1.flatten()
     vec2 = vec2.flatten()
@@ -66,11 +65,20 @@ def checkEqualityVector(vec1, vec2,
     
     return True
 
-def checkEquality(vec1, vec2, 
-                  tolerance=gl.EPSILON6,
-                  flagRelative = True,
-                  flagAbsolute = False,
-                  message="checkEqualityVector"):
+def checkEqualityDb(db, name1, name2,
+                    tolerance=gl.EPSILON6,
+                    flagRelative = True,
+                    flagAbsolute = False,
+                    message="checkEqualityDb"):
+    
+    return checkEqualityVectors(db[name1], db[name2], tolerance, 
+                                flagRelative, flagAbsolute, message)
+
+def checkEqualityValues(vec1, vec2, 
+                        tolerance = gl.EPSILON6,
+                        flagRelative = True,
+                        flagAbsolute = False,
+                        message="checkEqualityVectors"):
     '''
     This function checks that two values are equal
     

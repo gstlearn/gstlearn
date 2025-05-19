@@ -54,9 +54,41 @@ void ASPDEOp::_prepare(bool w1, bool w2) const
   if (w2) _workdat2.resize(_getNDat());
 }
 
+/*****************************************************************************/
+/*!
+**  Evaluate the product (by the SPDEOp) :
+**  'outv' = (_Q + _Proj' * _invNoise * Proj) * 'inv'
+**
+** \param[in]  inv     Array of input values
+**
+** \param[out] outv    Array of output values
+**
+*****************************************************************************/
+// int ASPDEOp::_addToDest(const constvect inv, vect outv) const
+// {
+//   _prepare();
+  
+//   vect w1s(_workdat1);
+//   vect w2s(_workdat2);
+//   _projKriging->mesh2point(inv, w1s);
+//   _invNoise->evalDirect(w1s, w2s);
+//   _projKriging->addPoint2mesh(w2s, outv);
+//   return _QKriging->addToDest(inv, outv);
+// }
+
 int ASPDEOp::_addToDest(const constvect inv, vect outv) const
 {
-  return _addToDestImpl(inv, outv);
+  _prepare();
+
+  int status = _QKriging->addToDest(inv, outv); // TODO: find why outv is set to zero in multistructure case
+  if (status) return status;
+  vect w1s(_workdat1);
+  vect w2s(_workdat2);
+  _projKriging->mesh2point(inv, w1s);
+  _invNoise->evalDirect(w1s, w2s);
+  _projKriging->addPoint2mesh(w2s, outv);
+
+  return status;
 }
 
 int ASPDEOp::getSizeSimu() const
@@ -228,38 +260,6 @@ int ASPDEOp::_buildRhs(const constvect inv) const
   _invNoise->evalDirect(inv, w1);
   _projKriging->point2mesh(_workdat1, _rhs);
   return 0;
-}
-
-/*****************************************************************************/
-/*!
-**  Evaluate the product (by the SPDEOp) :
-**  'outv' = (_Q + _Proj' * _invNoise * Proj) * 'inv'
-**
-** \param[in]  inv     Array of input values
-**
-** \param[out] outv    Array of output values
-**
-*****************************************************************************/
-int ASPDEOp::_addToDestImpl(const constvect inv, vect outv) const
-{
-  static bool debug = false;
-  static int count = 0;
-
-  _prepare();
-  vect w1s(_workdat1);
-  vect w2s(_workdat2);
-  _projKriging->mesh2point(inv, w1s);
-  _invNoise->evalDirect(w1s, w2s);
-  _projKriging->addPoint2mesh(w2s, outv);
-  int status =  _QKriging->addToDest(inv, outv);
-
-  if (debug && count % 100 == 0)
-  {
-    message("Count = %d\n", count);
-    VH::dumpRange("outv apres ajout", outv);
-  }
-  count++;
-  return status;
 }
 
 void ASPDEOp::evalInvCov(const constvect inv, vect result) const

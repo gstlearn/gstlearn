@@ -43,6 +43,7 @@ static VectorDouble _centerDataByDriftInPlace(SPDEOp* spdeop,
                                               const Model* model,
                                               VectorDouble& Z)
 {
+  if (Z.empty()) return VectorDouble();
   bool mustEvaluateDrift = model->getNDrift() > 0;
 
   MatrixDense driftMat = model->evalDriftMatByRanks(dbin);
@@ -64,7 +65,7 @@ static VectorDouble _centerDataByDriftInPlace(SPDEOp* spdeop,
 static void _uncenterResultByDriftInPlace(const Db* dbout,
                                           const Model* model,
                                           VectorDouble& result,
-                                          const VectorDouble& driftCoeffs)
+                                          const VectorDouble& driftCoeffs = VectorDouble())
 {
   int nvar               = model->getNVar();
   int nbfl               = model->getNDrift();
@@ -83,6 +84,7 @@ static void _uncenterResultByDriftInPlace(const Db* dbout,
 
     if (mustEvaluateDrift)
     {
+      if (driftCoeffs.empty()) continue;
       (void)model->evalDriftMatByTargetInPlace(mat, dbout, jech);
       ncols = mat.getNCols();
     }
@@ -91,10 +93,9 @@ static void _uncenterResultByDriftInPlace(const Db* dbout,
 
     for (int ivar = 0; ivar < nvar; ivar++)
     {
+      value = 0.;
       if (mustEvaluateDrift)
       {
-
-        value = 0.;
         for (int icol = 0; icol < ncols; icol++)
           value += mat.getValue(ivar, icol) * driftCoeffs[icol];
       }
@@ -103,6 +104,29 @@ static void _uncenterResultByDriftInPlace(const Db* dbout,
       result[ivar * nechred + iech] += value;
     }
     iech++;
+  }
+}
+
+/**
+ * @brief Simulate nugget component and add it to one multivariate simulation
+ * 
+ * @param model The Model
+ * @param result The array containing ONE multivariate simulation
+ * @param nechred Number of valid samples per variable
+ *
+ * @note The nugget component is added to each variable with its correct variance
+ * @note but not accounting for the dependency across different variables.  
+ */
+static void _addNuggetToResult(const Model* model, VectorDouble& result, int nechred)
+{
+  int rankNugget = model->getRankNugget();
+  if (rankNugget < 0) return;
+  int nvar = model->getNVar();
+  for (int ivar = 0, ecr = 0; ivar < nvar; ivar++)
+  {
+    double nugget = model->getSill(rankNugget, ivar, ivar);
+    for (int iech = 0; iech < nechred; iech++, ecr++)
+      result[iech] += law_gaussian(0., sqrt(nugget));
   }
 }
 
@@ -297,7 +321,6 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
   {
     CovAniso* cova = _model->getCovAniso(icov);
     double sill = cova->getSill(0,0);
-    bool flagNoStatRot = cova->isNoStatForAnisotropy();
 
     if (cova->getType() == ECov::NUGGET)
     {
@@ -313,7 +336,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         {
           mesh = MeshETurbo::createFromCova(*cova, domain, _params.getRefineS(),
                                             _params.getBorder(), _params.isPolarized(),
-                                            useSel, flagNoStatRot, _params.getNxMax(),
+                                            useSel, _params.getNxMax(),
                                             verbose);
           _deleteMesh = true;
         }
@@ -339,7 +362,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         {
           mesh = MeshETurbo::createFromCova(*cova, domain, _params.getRefineK(),
                                             _params.getBorder(), _params.isPolarized(),
-                                            useSel, flagNoStatRot, _params.getNxMax(),
+                                            useSel, _params.getNxMax(),
                                             verbose);
 
           _deleteMesh = true;
@@ -834,18 +857,18 @@ VectorDouble SPDE::getCoeffs()
  * @remarks Note that switching 'flag_std' to ON implies that 'flag_est' is ON.
  */
 int krigingSPDEOld(Db* dbin,
-                Db* dbout,
-                Model* model,
-                Db* domain,
-                bool flag_est,
-                bool flag_std,
-                const AMesh *mesh,
-                int useCholesky,
-                const SPDEParam& params,
-                int nbMC,
-                bool verbose,
-                bool showStats,
-                const NamingConvention &namconv)
+                   Db* dbout,
+                   Model* model,
+                   Db* domain,
+                   bool flag_est,
+                   bool flag_std,
+                   const AMesh* mesh,
+                   int useCholesky,
+                   const SPDEParam& params,
+                   int nbMC,
+                   bool verbose,
+                   bool showStats,
+                   const NamingConvention& namconv)
 {
   DECLARE_UNUSED(flag_est);
   const ESPDECalcMode mode =
@@ -988,12 +1011,14 @@ static MatrixSymmetric _buildSillPartialMatrix(const MatrixSymmetric &sillsRef,
  * @param model Target Model structure 
  * @param meshes Set of Mesh (one per structure, nugget excluded)
  * @param projIn Set of Projection matrices (Input)
+ * @param checkOnZVariable see details in 'createFromDbAndMeshes'
  * @return Pointer to the ProjMultiMatrix used in output (or nullptr)
  */
 static const ProjMultiMatrix* _defineProjMulti(const Db* db,
                                                const Model* model,
                                                VectorMeshes& meshes,
-                                               const ProjMultiMatrix* projIn)
+                                               const ProjMultiMatrix* projIn,
+                                               bool checkOnZVariable = true)
 {
   ProjMultiMatrix* projOut = nullptr;
   // Get the number of structures
@@ -1004,7 +1029,8 @@ static const ProjMultiMatrix* _defineProjMulti(const Db* db,
   // Case where the projection matrix has not been provided, create it
   if (projIn == nullptr)
   {
-    projOut = ProjMultiMatrix::createFromDbAndMeshes(db, meshes, ncov, nvar);
+    projOut = ProjMultiMatrix::createFromDbAndMeshes(db, meshes, ncov, nvar,
+                                                     checkOnZVariable);
     return projOut;
   }
 
@@ -1043,14 +1069,16 @@ static const ProjMultiMatrix* _defineProjMulti(const Db* db,
 /**
  * @brief Create the set of Meshes needed within SPDE
  *
- * @param domain Target Domain (used to create new meshing)
+ * @param dbin First Db (optional)
+ * @param dbout Second Db (optional)
  * @param model Target Model structure
  * @param meshes Set of Mesh (one per structure, nugget excluded)
  * @param params SPDEParam structure
  * @param flagKrige True if this method is used for Kriging (rather than Simulation)
  * @return int Error return code
  */
-static int _defineMeshes(const Db* domain,
+static int _defineMeshes(const Db* dbin,
+                         const Db* dbout,
                          const Model* model,
                          VectorMeshes& meshes,
                          const SPDEParam& params,
@@ -1060,20 +1088,7 @@ static int _defineMeshes(const Db* domain,
   int nmesh   = (int)meshes.size();
   if (nmesh == 0)
   {
-    // Create as many meshes as they are structures (nugget excluded)
-    meshes.resize(ncov);
-    int ncovtot = model->getNCov(false);
-    int refine  = (flagKrige) ? params.getRefineK() : params.getRefineS();
-    for (int jcov = 0, icov = 0; jcov < ncovtot; jcov++)
-    {
-      if (model->getCovType(jcov) == ECov::NUGGET) continue;
-      const CovAniso* cova = model->getCovAniso(icov);
-      meshes[icov++]       = MeshETurbo::createFromCova(*cova, domain, refine,
-                                                        params.getBorder(), 
-                                                        params.isPolarized(), true,
-                                                        cova->isNoStatForAnisotropy(),
-                                                        params.getNxMax());
-    }
+    meshes = defineMeshesFromDbs(dbin, dbout, model, params, flagKrige);
   }
   else if (nmesh == 1)
   {
@@ -1123,19 +1138,15 @@ int krigingSPDE(Db* dbin,
   if (dbout == nullptr) return 1;
   if (model == nullptr) return 1;
 
-  VectorDouble Z       = dbin->getColumnsActiveAndDefined(ELoc::Z);
-  MatrixDense driftMat = model->evalDriftMatByRanks(dbin);
-  VectorDouble meanVec = model->evalMeanVecByRanks(dbin);
+  VectorDouble Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
 
   // Define optional parameters
   VectorMeshes meshLocal = meshes;
   bool flagProjCreated   = (projIn == nullptr);
-  const Db* domain       = dbout;
-  if (_defineMeshes(domain, model, meshLocal, params, true)) return 1;
-  const ProjMultiMatrix* AIn = _defineProjMulti(dbin, model, meshLocal, projIn);
+  if (_defineMeshes(dbin, dbout, model, meshLocal, params, true)) return 1;
+  const ProjMultiMatrix* AIn = _defineProjMulti(dbin, model, meshLocal, projIn, true);
   if (AIn == nullptr) return 1;
-  AIn->display();
-  const ProjMultiMatrix* Aout = _defineProjMulti(dbout, model, meshLocal, nullptr);
+  const ProjMultiMatrix* Aout = _defineProjMulti(dbout, model, meshLocal, nullptr, false);
 
   // Auxiliary information
   MatrixSparse* invnoise        = buildInvNugget(dbin, model, params);
@@ -1153,8 +1164,8 @@ int krigingSPDE(Db* dbin,
   }
   else
   {
-    Qop = new PrecisionOpMulti(model, meshLocal);
-    spdeop = new SPDEOp(Qop, AIn, invnoisep);
+    Qop          = new PrecisionOpMulti(model, meshLocal, params.getUseStencil());
+    spdeop       = new SPDEOp(Qop, AIn, invnoisep);
     spdeop->setMaxIterations(params.getCGparams().getNIterMax());
     spdeop->setTolerance(params.getCGparams().getEps());
   }
@@ -1178,13 +1189,14 @@ int krigingSPDE(Db* dbin,
   if (flag_std)
   {
     messerr("StDev is not programmed yet");
-    return 1;
+    goto label_end;
     int iuid = dbout->addColumns(result, "stdev", ELoc::UNKNOWN, 0, true, 0., nvar);
     namconv.setNamesAndLocators(dbin, VectorString(), ELoc::Z, nvar, dbout, iuid,
                                 "stdev");
   }
 
   // Cleaning phase
+  label_end:
   delete spdeop;
   delete Qom;
   delete Qop;
@@ -1201,7 +1213,7 @@ int krigingSPDE(Db* dbin,
 }
 
 /**
- * Perform the SIMULATIONs under the SPDE framework
+ * Perform the conditional SIMULATIONs in the SPDE framework
  *
  * @param dbin Input Db (variable to be estimated). Only for conditional simulations
  * @param dbout Output Db where the estimation must be performed
@@ -1235,8 +1247,7 @@ int simulateSPDE(Db* dbin,
   // Define optional parameters
   VectorMeshes meshLocal = meshes;
   bool flagProjCreated   = (projIn == nullptr);
-  const Db* domain = dbout;
-  if (_defineMeshes(domain, model, meshLocal, params, true)) return 1;
+  if (_defineMeshes(dbin, dbout, model, meshLocal, params, false)) return 1;
 
   // Auxiliary parameters
   MatrixSparse* invnoise        = nullptr;
@@ -1262,8 +1273,8 @@ int simulateSPDE(Db* dbin,
   }
   else
   {
-    Qop    = new PrecisionOpMulti(model, meshLocal, true);
-    spdeop = new SPDEOp(Qop, AIn, invnoisep);
+    Qop          = new PrecisionOpMulti(model, meshLocal, params.getUseStencil());
+    spdeop       = new SPDEOp(Qop, AIn, invnoisep);
     spdeop->setMaxIterations(params.getCGparams().getNIterMax());
     spdeop->setTolerance(params.getCGparams().getEps());
   }
@@ -1283,7 +1294,8 @@ int simulateSPDE(Db* dbin,
   for (int isimu = 0; isimu < nbsimu; isimu++)
   {
     VectorDouble resultmesh = (flagCond) ? spdeop->simCond(Z) : spdeop->simNonCond();
-    Aout->mesh2point(resultmesh, result);
+    Aout->mesh2point(resultmesh, result); 
+    _addNuggetToResult(model, result, nechred);
     _uncenterResultByDriftInPlace(dbout, model, result, driftCoeffs);
 
     for (int ivar = 0; ivar < nvar; ivar++)
@@ -1294,7 +1306,7 @@ int simulateSPDE(Db* dbin,
     }
   }
   namconv.setNamesAndLocators(dbin, VectorString(), ELoc::Z, nvar, dbout, iuid,
-                              "simu", nbsimu);
+                              "", nbsimu);
 
   // Cleaning phase
   delete spdeop;
@@ -1310,6 +1322,7 @@ int simulateSPDE(Db* dbin,
   }
   return 0;
 }
+
 /**
  * Build the inverse of the Nugget Effect matrix
  * It is established for:
@@ -1482,4 +1495,34 @@ MatrixSparse* buildInvNugget(Db* db, Model* model, const SPDEParam& params)
   if (!hasnugget)
     delete cova;
   return mat;
+}
+
+VectorMeshes defineMeshesFromDbs(const Db* dbin,
+                                 const Db* dbout,
+                                 const Model* model,
+                                 const SPDEParam& params,
+                                 bool flagKrige)
+{
+  // Create the domain (by merging dbin and dbout)
+  bool isBuilt     = false;
+  const Db* domain = Db::coverSeveralDbs(dbin, dbout, &isBuilt);
+
+  int refine  = (flagKrige) ? params.getRefineK() : params.getRefineS();
+  int ncovtot = model->getNCov(false);
+  int ncov = model->getNCov(true);
+  VectorMeshes meshes(ncov);
+
+  // Create as many meshes as they are structures (nugget excluded)
+  for (int jcov = 0, icov = 0; jcov < ncovtot; jcov++)
+  {
+    if (model->getCovType(jcov) == ECov::NUGGET) continue;
+    const CovAniso* cova = model->getCovAniso(jcov);
+    meshes[icov++]       = MeshETurbo::createFromCova(*cova, domain, refine,
+                                                      params.getBorder(),
+                                                      params.isPolarized(), true,
+                                                      params.getNxMax());
+  }
+  if (isBuilt) delete domain;
+
+  return meshes;
 }

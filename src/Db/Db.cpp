@@ -5362,6 +5362,55 @@ Db* Db::createFromGridRandomized(DbGrid* dbgrid,
   return db;
 }
 
+const Db* Db::coverSeveralDbs(const Db* db1, const Db* db2, bool *isBuilt)
+{
+  *isBuilt = false;
+  int ndef = 0;
+  if (db1 != nullptr) ndef++;
+  if (db2 != nullptr) ndef++;
+  if (ndef == 0)
+  {
+    messerr("One of the Dbs must be defined at least");
+    return nullptr;
+  }
+
+  if (ndef == 1)
+  {
+    // One of the two files is defined only
+    if (db1 == nullptr) return db2;
+    if (db2 == nullptr) return db1;
+  }
+
+  // Check that the two Dbs share the same space dimensions
+  if (db1->getNDim() != db2->getNDim())
+  {
+    messerr("Both Dbs should share the same space dimension");
+    return nullptr;
+  }
+  int ndim = db1->getNDim();
+
+  // If the two Dbs are provided and create a new Db (with no rotation)
+  // covering both Dbs
+  VectorVectorDouble ext1 = db1->getExtremas();
+  VectorVectorDouble ext2 = db2->getExtremas();
+  VectorDouble ext(ndim);
+  VectorDouble dx(ndim);
+  VectorDouble x0(ndim);
+  VectorInt    nx(ndim, 2);
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    ext[0] = MIN(ext1[idim][0], ext2[idim][0]);
+    ext[1] = MAX(ext1[idim][1], ext2[idim][1]);
+    dx[idim] = ext[1] - ext[0];
+    x0[idim] = ext[0];
+  }
+
+  // Create the new Db
+  DbGrid* db = DbGrid::create(nx, dx, x0);
+  *isBuilt   = true;
+  return db;
+}
+
 /**
  * Combine 'sel' input argument with an already existing selection (if any)
  * @param sel Input selection (only 0 and 1)

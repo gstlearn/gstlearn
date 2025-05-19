@@ -430,13 +430,12 @@ MeshETurbo* MeshETurbo::createFromCova(const CovAniso& cova,
                                        int nbExt,
                                        bool isPolarized,
                                        bool useSel,
-                                       bool flagNoStatRot,
                                        int nxmax,
                                        bool verbose)
 {
   MeshETurbo* mesh = new MeshETurbo();
   if (mesh->initFromCova(cova, field, ratio, nbExt, isPolarized, useSel,
-                         flagNoStatRot, nxmax, verbose))
+                         nxmax, verbose))
     return nullptr;
   return mesh;
 }
@@ -447,7 +446,7 @@ MeshETurbo* MeshETurbo::createFromCova(const CovAniso& cova,
 **
 ** \param[in]  extendmin       Minimum of the dilated rotated bounding box
 ** \param[in]  extendmax       Minimum of the dilated rotated bounding box
-** \param[in]  cellsize        Array giving the cell size (see details)
+** \param[in]  cellsize        Array giving the cell size
 ** \param[in]  rotmat          Rotation matrix (optional)
 ** \param[in]  flag_polarized  Switching ON/OFF the polarization
 ** \param[in]  verbose         Verbose flag
@@ -845,7 +844,6 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
                              int nbExt,
                              bool isPolarized,
                              bool useSel,
-                             bool flagNoStatRot,
                              int nxmax,
                              bool verbose)
 {
@@ -930,9 +928,9 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
     if (dx[idim] < dxmin) dxmin = dx[idim];
   }
 
-  if (flagNoStatRot)
+  if (cova.isNoStatForAnisotropy())
   {
-    // In case of non-staionarity on the anisotropy rotation angle
+    // In case of non-stationarity on the anisotropy rotation angle
     // use the minimum mesh (for internal grid)
     for (int idim = 0; idim < ndim; idim++)
       dx[idim] = dxmin;
@@ -1036,4 +1034,21 @@ bool MeshETurbo::_serialize(std::ostream& os, bool /*verbose*/) const
 
   // Dumping the Grid Masking map
   return ret;
+}
+
+/**
+ * @brief Check if a series of Meshes (included in 'meshes') are Turbo
+ *
+ * @param meshes
+ * @return True if ALL meshes are TURBO
+ */
+bool isTurbo(const VectorMeshes& meshes)
+{
+  if (meshes.empty()) return false;
+  for (int imesh = 0, nmesh = (int) meshes.size(); imesh < nmesh; imesh++)
+  {
+    const MeshETurbo* mTurbo = dynamic_cast<const MeshETurbo*>(meshes[imesh]);
+    if (mTurbo == nullptr) return false;
+  }
+  return true;
 }

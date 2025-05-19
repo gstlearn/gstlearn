@@ -18,7 +18,6 @@ Non-Stationary Parameters
 -------------------------
 1 - Angle      : IdAngle=1
 Functional
-
 Total Sill     =      1.000
 Known Mean(s)     0.000
 
@@ -103,24 +102,24 @@ Data Base Statistics
 8 - Name CDS-spirale.variable.1 - Locator z1
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =      -2.93
- Maximum value       =       3.58
- Mean value          =       0.22
- Standard Deviation  =       1.02
- Variance            =       1.05
+ Minimum value       =      -2.91
+ Maximum value       =       3.69
+ Mean value          =       0.21
+ Standard Deviation  =       1.00
+ Variance            =       0.99
 9 - Name CDS-spirale.variable.2 - Locator z2
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =      -3.76
- Maximum value       =       4.75
- Mean value          =       0.14
- Standard Deviation  =       1.11
- Variance            =       1.23
+ Minimum value       =      -3.69
+ Maximum value       =       4.55
+ Mean value          =       0.15
+ Standard Deviation  =       1.07
+ Variance            =       1.15
 10 - Name CDS-spirale.variable.3 - Locator z3
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =      -3.89
- Maximum value       =       4.37
- Mean value          =       0.08
- Standard Deviation  =       1.21
- Variance            =       1.46
+ Minimum value       =      -4.12
+ Maximum value       =       3.76
+ Mean value          =       0.06
+ Standard Deviation  =       1.20
+ Variance            =       1.43

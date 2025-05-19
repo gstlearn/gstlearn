@@ -30,6 +30,7 @@ public:
                                                 const std::vector<const AMesh*>& meshes,
                                                 int ncov,
                                                 int nvar,
+                                                bool checkOnZVariable = true,
                                                 bool verbose = false);
 
   const MatrixSparse* getProj() const { return &_Proj; }

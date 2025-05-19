@@ -232,6 +232,7 @@ public:
   static Db* createFromGridRandomized(DbGrid* dbgrid,
                                       double randperc        = 0.,
                                       bool flagAddSampleRank = true);
+
   /**@}*/
 
   const std::vector<double>& getArrays() const { return _array; }
@@ -849,6 +850,8 @@ public:
 
   VectorInt shrinkToValidRows(const VectorInt& rows) const;
   VectorInt shrinkToValidCols(const VectorInt& cols) const;
+
+  static const Db* coverSeveralDbs(const Db* db1, const Db* db2, bool *isBuilt);
 
   /** @addtogroup DB_7 Calculating several statistics in Db
    * \ingroup DB

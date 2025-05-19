@@ -14,5 +14,5 @@ KM.Data.2.estim      0.095
 Co-Kriging using SPDE (Matrix-Free)
 -----------------------------------
                       Mean
-KF.Data.1.estim      1.205
-KF.Data.2.estim      0.062
+KF.Data.1.estim      1.484
+KF.Data.2.estim      0.095

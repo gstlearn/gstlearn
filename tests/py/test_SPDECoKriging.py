@@ -1,10 +1,11 @@
 import gstlearn as gl
 import gstlearn.plot as gp
+import gstlearn.test as gt
 import matplotlib.pyplot as plt
 import numpy as np
 
 # %% General parameters
-flag_plot = True
+flag_plot = False
 ndim = 2
 nvar = 2
 order = 1
@@ -73,29 +74,30 @@ err = gl.krigingSPDE(dat,grid,model,True,False,0,meshes,
                      namconv = gl.NamingConvention("KF"))
 gl.dbStatisticsMono(grid, ["KF.*"]).display()
 
+# Various plots
 if flag_plot:
-   
+    
     # Display the result per variable for Traditional Kriging
     for ivar in range(nvar):
         fig, ax = gp.init(flagEqual=True)
         gp.raster(grid, "Kriging.Data." + str(ivar+1) + ".estim")
         gp.decoration(title = "Variable#"+str(ivar+1)+" (Traditional)")
         gp.close()
-
+    
     # Display the result per variable for SPDE Kriging (matrix)
     for ivar in range(nvar):
         fig, ax = gp.init(flagEqual=True)
         gp.raster(grid, "KM.Data." + str(ivar+1) + ".estim")
         gp.decoration(title = "Variable#"+str(ivar+1)+" (SPDE Matrix)")
         gp.close()
-
+    
     # Display the result per variable for SPDE Kriging (matrix-free)
     for ivar in range(nvar):
         fig, ax = gp.init(flagEqual=True)
         gp.raster(grid, "KF.Data." + str(ivar+1) + ".estim")
         gp.decoration(title = "Variable#"+str(ivar+1)+" (SPDE Matrix-Free)")
         gp.close()
-
+    
     # Comparing the Krigings
     for ivar in range(nvar):
         fig, ax = gp.init()
@@ -109,7 +111,7 @@ if flag_plot:
                       xlabel = "SPDE (Matrix)",
                       ylabel = "SPDE (Matrix-Free)")
         gp.close()
-
+    
     for ivar in range(nvar):
         fig, ax = gp.init()
         gp.correlation(grid,
@@ -122,6 +124,7 @@ if flag_plot:
                       xlabel = "SPDE (Matrix)",
                       ylabel = "Traditional")
         gp.close()
+
 
     for ivar in range(nvar):
         fig, ax = gp.init()

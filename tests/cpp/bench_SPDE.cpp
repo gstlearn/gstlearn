@@ -104,12 +104,6 @@ int main(int argc, char *argv[])
     message("- Number of simulations  = %d\n", nsim);
   }
 
-  // Reglages perso
-  mode = 1;
-  ncov_ref = 1;
-  ifois_ref = 0;
-  flagOld = false;
-
   // Loop for usage of Cholesky
 
   for (int ncov = 0; ncov < ncov_tot; ncov++)
@@ -184,7 +178,7 @@ int main(int argc, char *argv[])
                                 SPDEParam(), verbose, showStats,
                                 NamingConvention(namconv));
         else
-          (void)simulateSPDE(NULL, grid, model, nsim, useCholesky,
+          (void)simulateSPDE(nullptr, grid, model, nsim, useCholesky,
                              VectorMeshes(), nullptr, SPDEParam(),
                              NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 1350);
