@@ -28,7 +28,9 @@ public:
                                                             int nvariable);
   static ProjMultiMatrix* createFromDbAndMeshes(const Db* db,
                                                 const std::vector<const AMesh*>& meshes,
+                                                int ncov,
                                                 int nvar,
+                                                bool checkOnZVariable = true,
                                                 bool verbose = false);
 
   const MatrixSparse* getProj() const { return &_Proj; }

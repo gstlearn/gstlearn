@@ -16,6 +16,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
+#include "Mesh/MeshETurbo.hpp"
 #include <vector>
 
 #define EVALOP(IN,OUT,TAB,getmat,OP,IY,COMPUTEOP,XORY,START,END,IVAR,JVAR) \
@@ -124,7 +125,8 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
 
   if(buildOp)
   {
-    buildQop(stencil);
+    bool localStencil = stencil && isTurbo(meshes) && !model->isNoStat();
+    buildQop(localStencil);
   }
 }
 

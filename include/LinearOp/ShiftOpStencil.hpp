@@ -50,7 +50,6 @@ class GSTLEARN_EXPORT ShiftOpStencil: public AShiftOp
     double getMaxEigenValue() const override;
     double getLambda(int iapex) const override;
 
-
 #ifndef SWIG
   int _addToDest(const constvect inv, vect outv) const override;
 #endif

@@ -242,7 +242,7 @@ err = grid$setColumn(name = "manual.kriging", tab = kriging)
 # plot of kriging
 p = plot.init(asp=1) + 
     plot.raster(grid, name = "manual.kriging", useSel = TRUE, palette = "Spectral", 
-            flagLegend = TRUE, legendNamer = "Kriging") +
+            flagLegend = TRUE, legendName = "Kriging") +
     plot.symbol(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Kriging")
@@ -454,7 +454,7 @@ err = grid$deleteColumns(names = c("spde.fn.Z.kriging", "spde.fn.Z.stdev", "spde
 
 # kriging value
 err = krigingSPDE(dbin = dat, dbout = grid, model = model, 
-                  flag_est = TRUE, flag_std = TRUE, nbMC=0,
+                  flag_est = TRUE, flag_std = TRUE, 
                   namconv = NamingConvention("spde.fn"))
 
 # cross plot for kriging values

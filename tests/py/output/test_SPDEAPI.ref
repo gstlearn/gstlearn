@@ -141,8 +141,6 @@ Column = 3 - Name = z - Locator = z1
  [ 8.          0.14027548  0.14997491  1.55933912]
  [ 9.          0.72892591  0.74736531 -1.53700908]
  [10.          0.53722003  0.47335739  0.3890081 ]]
-Sample #3 does not belong to the Turbo Meshing internal Grid
-Sample #6 does not belong to the Turbo Meshing internal Grid
 Correlation =  0.999
 
 Data Base Characteristics

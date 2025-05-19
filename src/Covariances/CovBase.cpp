@@ -493,6 +493,7 @@ TabNoStat* CovBase::_createNoStatTab()
 {
   return new TabNoStatSills();
 }
+
 void CovBase::_makeStationary()
 {
   _cor->makeStationary();
@@ -530,4 +531,18 @@ void CovBase::_optimizationSetTarget(SpacePoint& pt) const
 bool CovBase::_isNoStat() const
 {
   return _cor->isNoStat() || isNoStatForVariance();
+}
+
+int CovBase::getNSills() const
+{
+  TabNoStatSills* tabnostat = getTabNoStatSills();
+   if (tabnostat == nullptr) return 0;
+  return tabnostat->getNSills();
+}
+
+bool CovBase::isNoStatForVariance() const
+{
+  TabNoStatSills* tabnostat = getTabNoStatSills();
+  if (tabnostat == nullptr) return 0;
+  return tabnostat->isDefinedForVariance();
 }

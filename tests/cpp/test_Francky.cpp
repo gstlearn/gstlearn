@@ -68,16 +68,16 @@ int main(int argc, char *argv[])
   // Simulating variable at data location (using SPDE)
   int useCholesky = 0;
   law_set_random_seed(13256);
-  (void)simulateSPDE(nullptr, dat, model, nullptr, 1, nullptr, useCholesky,
-                     SPDEParam(), false, false,
+  (void)simulateSPDE(nullptr, dat, model, 1, useCholesky,
+                     VectorMeshes(), nullptr, SPDEParam(),
                      NamingConvention("Data", true, false));
-  (void) dat->dumpToNF("Data.ascii");
-
-  // Testing Kriging (with SPDE)
-  (void) krigingSPDE(dat, grid, model, nullptr, true, false, nullptr, useCholesky, SPDEParam());
+  (void)dat->dumpToNF("Data.ascii");
 
   // Testing Kriging (traditional method)
-  (void) kriging(dat, grid, model, neighU);
+  (void)kriging(dat, grid, model, neighU, true, false);
+
+  // Testing Kriging (with SPDE)
+  (void)krigingSPDE(dat, grid, model, true, false, useCholesky);
 
   // Printout (optional)
   (void) grid->dumpToNF("Grid.ascii");

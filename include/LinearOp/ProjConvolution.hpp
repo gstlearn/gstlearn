@@ -55,8 +55,6 @@ private:
   Grid _getGridCharacteristicsRR(bool delLastDim = false) const;
   Grid _getGridCharacteristicsRS() const;
 
-  
-
 #ifndef SWIG
   private:
     void _convolve(const constvect valonvertex, vect valonseismic) const;
