@@ -118,6 +118,12 @@ set(CMAKE_SWIG_FLAGS)
 # Note: Cannot use -doxygen feature because all documentation is in C++ body files
 # Note: Use -E option for seeing SWIG preprocessor output
 
+# Forward C++ compile definitions to rgstlearn.i
+set_property(
+  SOURCE ${SRC}
+  PROPERTY COMPILE_DEFINITIONS
+           $<TARGET_PROPERTY:${PROJECT_NAME}::shared,COMPILE_DEFINITIONS>)
+
 # SWIG target (generate wrapper & R script then build [so,dll] library)
 swig_add_library(
   r_build

@@ -101,6 +101,12 @@ set(CMAKE_SWIG_FLAGS -keyword) # Use -keyword option to activate kwargs
 # Note: Cannot use -doxygen feature because all documentation is in C++ body files
 # Note: Use -E option for seeing SWIG preprocessor output
 
+# Forward C++ compile definitions to pygstlearn.i
+set_property(
+  SOURCE ${SRC}
+  PROPERTY COMPILE_DEFINITIONS
+           $<TARGET_PROPERTY:${PROJECT_NAME}::shared,COMPILE_DEFINITIONS>)
+
 # SWIG target (generate wrapper & python script then build [so,pyd] library)
 swig_add_library(
   python_build
