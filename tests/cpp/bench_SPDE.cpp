@@ -85,7 +85,6 @@ int main(int argc, char *argv[])
 
   bool showStats = false;
   bool verbose   = false;
-  bool flagOld   = false;
   bool flagStd   = false;
   int nbMC       = 10;
 
@@ -153,14 +152,9 @@ int main(int argc, char *argv[])
         namconv.append(option);
         namconv.append(sncov);
         law_set_random_seed(13243);
-        if (flagOld)
-          (void)krigingSPDEOld(dat, grid, model, nullptr, true, flagStd, nullptr,
-                            useCholesky, SPDEParam(), nbMC, verbose, showStats,
-                            NamingConvention(namconv));
-        else
-          (void)krigingSPDE(dat, grid, model, true, true, useCholesky,
-                            VectorMeshes(), nullptr, SPDEParam(),
-                            NamingConvention(namconv));
+        (void)krigingSPDE(dat, grid, model, true, true, useCholesky,
+                          VectorMeshes(), nullptr, SPDEParam(),
+                          NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 400);
       }
 
@@ -173,14 +167,9 @@ int main(int argc, char *argv[])
         namconv.append(option);
         namconv.append(sncov);
         law_set_random_seed(seed);
-        if (flagOld)
-          (void)simulateSPDEOld(NULL, grid, model, nullptr, nsim, NULL, useCholesky,
-                                SPDEParam(), verbose, showStats,
-                                NamingConvention(namconv));
-        else
-          (void)simulateSPDE(nullptr, grid, model, nsim, useCholesky,
-                             VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(),
-                             NamingConvention(namconv));
+        (void)simulateSPDE(nullptr, grid, model, nsim, useCholesky,
+                           VectorMeshes(), nullptr, SPDEParam(),
+                           NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 1350);
       }
 
@@ -193,14 +182,10 @@ int main(int argc, char *argv[])
         namconv.append(option);
         namconv.append(sncov);
         law_set_random_seed(seed);
-        if (flagOld)
-          (void)simulateSPDEOld(dat, grid, model, nullptr, nsim, NULL, useCholesky,
-                                SPDEParam(), verbose, showStats,
-                                NamingConvention(namconv));
-        else
-          (void)simulateSPDE(dat, grid, model, nsim, useCholesky,
-                             VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(),
-                             NamingConvention(namconv));
+
+        (void)simulateSPDE(dat, grid, model, nsim, useCholesky,
+                           VectorMeshes(), nullptr, SPDEParam(),
+                           NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 3130);
       }
     }

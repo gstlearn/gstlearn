@@ -133,19 +133,6 @@ private:
   SPDEParam _params;
 };
 
-GSTLEARN_EXPORT int krigingSPDEOld(Db* dbin,
-                                   Db* dbout,
-                                   Model* model,
-                                   Db* domain                      = nullptr,
-                                   bool flag_est                   = true,
-                                   bool flag_std                   = false,
-                                   const AMesh* mesh               = nullptr,
-                                   int useCholesky                 = -1,
-                                   const SPDEParam& params         = SPDEParam(),
-                                   int nbMC                        = 10,
-                                   bool verbose                    = false,
-                                   bool showStats                  = false,
-                                   const NamingConvention& namconv = NamingConvention("KrigingSPDE"));
 GSTLEARN_EXPORT int krigingSPDE(Db* dbin,
                                 Db* dbout,
                                 Model* model,
@@ -156,17 +143,6 @@ GSTLEARN_EXPORT int krigingSPDE(Db* dbin,
                                 const ProjMultiMatrix* projInK  = nullptr,
                                 const SPDEParam& params         = SPDEParam(),
                                 const NamingConvention& namconv = NamingConvention("KrigingSPDE"));
-GSTLEARN_EXPORT int simulateSPDEOld(Db* dbin,
-                                    Db* dbout,
-                                    Model* model,
-                                    Db* domain                      = nullptr,
-                                    int nbsimu                      = 1,
-                                    const AMesh* mesh               = nullptr,
-                                    int useCholesky                 = -1,
-                                    const SPDEParam& params         = SPDEParam(),
-                                    bool verbose                    = false,
-                                    bool showStats                  = false,
-                                    const NamingConvention& namconv = NamingConvention("SimuSPDE"));
 GSTLEARN_EXPORT int simulateSPDE(Db* dbin,
                                  Db* dbout,
                                  Model* model,
