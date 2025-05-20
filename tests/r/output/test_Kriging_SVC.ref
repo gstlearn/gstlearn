@@ -1,0 +1,367 @@
+Le chargement a nécessité le package : ggplot2
+Le chargement a nécessité le package : ggpubr
+Le chargement a nécessité le package : ggnewscale
+
+Attachement du package : ‘gstlearn’
+
+Les objets suivants sont masqués depuis ‘package:base’:
+
+    message, toString
+
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 3
+Number of drift equation(s)  = 3
+
+Covariance Part
+---------------
+Matern (Third Parameter = 1)
+- Sill         =      0.053
+- Range        =      2.000
+- Theo. Range  =      0.577
+Total Sill     =      0.053
+
+Drift Part
+----------
+Universality_Condition
+External_Drift:0
+External_Drift:1
+[1] "SVC: number of spatial effects     = 1"
+[1] "SVC: number of constant effects    = 2"
+[1] "SVC: the spatially varying factors are not centered (3 universal conditions)"
+[1] "SVC: number of estimated variables = 12"
+[1] "SVC: variable #1 = obs.z"
+[1] "SVC: variable #2 = res.z"
+[1] "SVC: variable #3 = drift.z"
+[1] "SVC: variable #4 = coeff.0.z"
+[1] "SVC: variable #5 = coeff.1.z"
+[1] "SVC: variable #6 = coeff.2.z"
+NULL
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 3
+Number of drift equation(s)  = 3
+
+Covariance Part
+---------------
+Matern (Third Parameter = 1)
+- Sill         =      0.053
+- Range        =      2.000
+- Theo. Range  =      0.577
+Total Sill     =      0.053
+
+Drift Part
+----------
+Universality_Condition (This component is filtered)
+External_Drift:0 (This component is filtered)
+External_Drift:1 (This component is filtered)
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 3
+Number of drift equation(s)  = 3
+
+Covariance Part
+---------------
+Matern (Third Parameter = 1)
+- Sill         =      0.053
+- Range        =      2.000
+- Theo. Range  =      0.577
+  (This component is Filtered)
+Total Sill     =      0.053
+
+Drift Part
+----------
+Universality_Condition
+External_Drift:0
+External_Drift:1
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 3
+Number of drift equation(s)  = 3
+
+Covariance Part
+---------------
+Matern (Third Parameter = 1)
+- Sill         =      0.053
+- Range        =      2.000
+- Theo. Range  =      0.577
+Total Sill     =      0.053
+
+Drift Part
+----------
+Universality_Condition
+External_Drift:0 (This component is filtered)
+External_Drift:1 (This component is filtered)
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 3
+Number of drift equation(s)  = 3
+
+Covariance Part
+---------------
+Matern (Third Parameter = 1)
+- Sill         =      0.053
+- Range        =      2.000
+- Theo. Range  =      0.577
+  (This component is Filtered)
+Total Sill     =      0.053
+
+Drift Part
+----------
+Universality_Condition (This component is filtered)
+External_Drift:0
+External_Drift:1 (This component is filtered)
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 3
+Number of drift equation(s)  = 3
+
+Covariance Part
+---------------
+Matern (Third Parameter = 1)
+- Sill         =      0.053
+- Range        =      2.000
+- Theo. Range  =      0.577
+  (This component is Filtered)
+Total Sill     =      0.053
+
+Drift Part
+----------
+Universality_Condition (This component is filtered)
+External_Drift:0 (This component is filtered)
+External_Drift:1
+[1] "Test passed: SVC == KED(nvar = 1 nfac  = 2):obs.z-estim"
+[1] "Test passed: SVC == KED(nvar = 1 nfac  = 2):obs.z-stdev"
+[1] "Test passed: SVC == KED(nvar = 1 nfac  = 2):res.z-estim"
+[1] "Test passed: SVC == KED(nvar = 1 nfac  = 2):res.z-stdev"
+[1] "Test passed: SVC == KED(nvar = 1 nfac  = 2):drift.z-estim"
+[1] "Test passed: SVC == KED(nvar = 1 nfac  = 2):drift.z-stdev"
+[1] "Test passed: SVC == KED(nvar = 1 nfac  = 2):coeff.0.z-estim"
+[1] "Test passed: SVC == KED(nvar = 1 nfac  = 2):coeff.0.z-stdev"
+[1] "Test passed: SVC == KED(nvar = 1 nfac  = 2):coeff.1.z-estim"
+[1] "Test passed: SVC == KED(nvar = 1 nfac  = 2):coeff.1.z-stdev"
+[1] "Test passed: SVC == KED(nvar = 1 nfac  = 2):coeff.2.z-estim"
+[1] "Test passed: SVC == KED(nvar = 1 nfac  = 2):coeff.2.z-stdev"
+
+
+Table: Statistics
+
+|                    | Number| Minimum| Maximum|    Mean| St. Dev.|
+|:-------------------|------:|-------:|-------:|-------:|--------:|
+|KED.obs.z.estim     |      8| -3.1021|  3.0582| -0.0690|   2.2860|
+|KED.obs.z.stdev     |      8|  0.0704|  0.1365|  0.0908|   0.0200|
+|KED.res.z.estim     |      8| -3.9492|  0.8693| -2.3122|   1.6356|
+|KED.res.z.stdev     |      8|  0.1889|  0.2084|  0.2000|   0.0067|
+|KED.drift.z.estim   |      8|  0.7207|  5.7026|  2.2432|   1.5294|
+|KED.drift.z.stdev   |      8|  0.1874|  0.1979|  0.1902|   0.0033|
+|KED.coeff.0.z.estim |      8| -1.0389|  3.7796|  0.5981|   1.6356|
+|KED.coeff.0.z.stdev |      8|  0.0505|  0.1397|  0.0810|   0.0251|
+|KED.coeff.1.z.estim |      8| -0.2988| -0.2988| -0.2988|   0.0000|
+|KED.coeff.1.z.stdev |      8|  0.0196|  0.0196|  0.0196|   0.0000|
+|KED.coeff.2.z.estim |      8| -1.7535| -1.7535| -1.7535|   0.0000|
+|KED.coeff.2.z.stdev |      8|  0.0272|  0.0272|  0.0272|   0.0000|
+|SVC.obs.z.estim     |      8| -3.1021|  3.0582| -0.0690|   2.2860|
+|SVC.obs.z.stdev     |      8|  0.0704|  0.1365|  0.0908|   0.0200|
+|SVC.res.z.estim     |      8| -3.9492|  0.8693| -2.3122|   1.6356|
+|SVC.res.z.stdev     |      8|  0.1889|  0.2084|  0.2000|   0.0067|
+|SVC.drift.z.estim   |      8|  0.7207|  5.7026|  2.2432|   1.5294|
+|SVC.drift.z.stdev   |      8|  0.1874|  0.1979|  0.1902|   0.0033|
+|SVC.coeff.0.z.estim |      8| -1.0389|  3.7796|  0.5981|   1.6356|
+|SVC.coeff.0.z.stdev |      8|  0.0505|  0.1397|  0.0810|   0.0251|
+|SVC.coeff.1.z.estim |      8| -0.2988| -0.2988| -0.2988|   0.0000|
+|SVC.coeff.1.z.stdev |      8|  0.0196|  0.0196|  0.0196|   0.0000|
+|SVC.coeff.2.z.estim |      8| -1.7535| -1.7535| -1.7535|   0.0000|
+|SVC.coeff.2.z.stdev |      8|  0.0272|  0.0272|  0.0272|   0.0000|
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 3
+Number of basic structure(s) = 3
+Number of drift function(s)  = 3
+Number of drift equation(s)  = 9
+
+Covariance Part
+---------------
+Matern (Third Parameter = 0.5)
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     1.000     0.000     0.000
+     [  1,]     0.000     0.000     0.000
+     [  2,]     0.000     0.000     0.000
+- Range        =      0.250
+- Theo. Range  =      0.102
+Matern (Third Parameter = 1)
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.000     0.000     0.000
+     [  1,]     0.000     1.000     0.000
+     [  2,]     0.000     0.000     0.000
+- Range        =      0.500
+- Theo. Range  =      0.144
+Matern (Third Parameter = 1.5)
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.000     0.000     0.000
+     [  1,]     0.000     0.000     0.000
+     [  2,]     0.000     0.000     1.000
+- Range        =      1.000
+- Theo. Range  =      0.236
+Total Sill
+               [,  0]    [,  1]    [,  2]
+     [  0,]     1.000     0.000     0.000
+     [  1,]     0.000     1.000     0.000
+     [  2,]     0.000     0.000     1.000
+
+
+Drift Part
+----------
+Universality_Condition
+External_Drift:0
+External_Drift:1
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 3
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 1
+
+Covariance Part
+---------------
+Matern (Third Parameter = 0.5)
+- Sill         =      1.000
+- Range        =      0.250
+- Theo. Range  =      0.102
+Matern (Third Parameter = 1)
+- Sill         =      4.000
+- Range        =      0.500
+- Theo. Range  =      0.144
+Matern (Third Parameter = 1.5)
+- Sill         =      9.000
+- Range        =      1.000
+- Theo. Range  =      0.236
+Total Sill     =     14.000
+
+Drift Part
+----------
+Universality_Condition
+[1] "SVC: number of spatial effects     = 3"
+[1] "SVC: number of constant effects    = 0"
+[1] "SVC: the spatially varying factors are centered (one universal condition)"
+[1] "SVC: number of estimated variables = 12"
+[1] "SVC: variable #1 = obs.z"
+[1] "SVC: variable #2 = res.z"
+[1] "SVC: variable #3 = drift.z"
+[1] "SVC: variable #4 = coeff.0.z"
+[1] "SVC: variable #5 = coeff.1.z"
+[1] "SVC: variable #6 = coeff.2.z"
+[1] "Test passed: SVC == OK(nvar = 3 nfac  = 2):obs.z-estim"
+[1] "Test passed: SVC == OK(nvar = 3 nfac  = 2):obs.z-stdev"
+[1] "Test passed: SVC == OK(nvar = 3 nfac  = 2):res.z-estim"
+[1] "Test passed: SVC == OK(nvar = 3 nfac  = 2):res.z-stdev"
+[1] "Test passed: SVC == OK(nvar = 3 nfac  = 2):drift.z-estim"
+[1] "Test passed: SVC == OK(nvar = 3 nfac  = 2):drift.z-stdev"
+[1] "Test passed: SVC == OK(nvar = 3 nfac  = 2):coeff.0.z-estim"
+[1] "Test passed: SVC == OK(nvar = 3 nfac  = 2):coeff.0.z-stdev"
+[1] "Test passed: SVC == OK(nvar = 3 nfac  = 2):coeff.1.z-estim"
+[1] "Test passed: SVC == OK(nvar = 3 nfac  = 2):coeff.1.z-stdev"
+[1] "Test passed: SVC == OK(nvar = 3 nfac  = 2):coeff.2.z-estim"
+[1] "Test passed: SVC == OK(nvar = 3 nfac  = 2):coeff.2.z-stdev"
+
+
+Table: Statistics
+
+|                    | Number| Minimum| Maximum|    Mean| St. Dev.|
+|:-------------------|------:|-------:|-------:|-------:|--------:|
+|OK.obs.z.estim      |     14| -1.2832|  4.2746|  1.2039|   1.6759|
+|OK.obs.z.stdev      |     14|  1.5808|  3.4827|  2.3065|   0.5728|
+|OK.res.z.estim      |     14| -3.8158|  1.7420| -1.3286|   1.6759|
+|OK.res.z.stdev      |     14|  2.6414|  3.6279|  3.0174|   0.2748|
+|OK.drift.z.estim    |     14|  2.5326|  2.5326|  2.5326|   0.0000|
+|OK.drift.z.stdev    |     14|  2.1869|  2.1869|  2.1869|   0.0000|
+|OK.coeff.0.z.estim  |     14|  2.3402|  2.7208|  2.5006|   0.1125|
+|OK.coeff.0.z.stdev  |     14|  2.3722|  2.4024|  2.3856|   0.0085|
+|OK.coeff.1.z.estim  |     14| -0.5911|  0.4675| -0.1360|   0.3241|
+|OK.coeff.1.z.stdev  |     14|  0.8798|  0.9981|  0.9461|   0.0310|
+|OK.coeff.2.z.estim  |     14| -0.8154|  0.3511| -0.3415|   0.3226|
+|OK.coeff.2.z.stdev  |     14|  0.8241|  0.9644|  0.8600|   0.0408|
+|SVC.obs.z.estim     |     14| -1.2832|  4.2746|  1.2039|   1.6759|
+|SVC.obs.z.stdev     |     14|  1.5808|  3.4827|  2.3065|   0.5728|
+|SVC.res.z.estim     |     14| -3.8158|  1.7420| -1.3286|   1.6759|
+|SVC.res.z.stdev     |     14|  2.6414|  3.6279|  3.0174|   0.2748|
+|SVC.drift.z.estim   |     14|  2.5326|  2.5326|  2.5326|   0.0000|
+|SVC.drift.z.stdev   |     14|  2.1869|  2.1869|  2.1869|   0.0000|
+|SVC.coeff.0.z.estim |     14|  2.3402|  2.7208|  2.5006|   0.1125|
+|SVC.coeff.0.z.stdev |     14|  2.3722|  2.4024|  2.3856|   0.0085|
+|SVC.coeff.1.z.estim |     14| -0.5911|  0.4675| -0.1360|   0.3241|
+|SVC.coeff.1.z.stdev |     14|  0.8798|  0.9981|  0.9461|   0.0310|
+|SVC.coeff.2.z.estim |     14| -0.8154|  0.3511| -0.3415|   0.3226|
+|SVC.coeff.2.z.stdev |     14|  0.8241|  0.9644|  0.8600|   0.0408|
+[1] 1.84932746 0.03002917
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 2
+Number of basic structure(s) = 1
+Number of drift function(s)  = 2
+Number of drift equation(s)  = 4
+
+Covariance Part
+---------------
+Matern (Third Parameter = 0.5)
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     1.731     0.448
+     [  1,]     0.448     0.148
+- Range        =      0.250
+- Theo. Range  =      0.102
+Total Sill
+               [,  0]    [,  1]
+     [  0,]     1.731     0.448
+     [  1,]     0.448     0.148
+
+
+Drift Part
+----------
+Universality_Condition
+External_Drift:0
+[1] "SVC: number of spatial effects     = 2"
+[1] "SVC: number of constant effects    = 0"
+[1] "SVC: the spatially varying factors are not centered (2 universal conditions)"
+[1] "SVC: number of estimated variables = 2"
+[1] "SVC: variable #1 = obs.z"
+
+
+Table: Statistics
+
+|                | Number| Minimum| Maximum|    Mean| St. Dev.|
+|:---------------|------:|-------:|-------:|-------:|--------:|
+|SVC.obs.z.estim |      3| -1.5708|  0.5849| -0.6462|   0.9064|
+|SVC.obs.z.stdev |      3|  1.1723|  1.3559|  1.2439|   0.0802|
