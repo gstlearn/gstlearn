@@ -3,9 +3,9 @@
 #date: "2025-05-15"
 
 knitr::opts_chunk$set(echo = FALSE)
-rm(list=ls())
-library(gstlearn)
-library(ggplot2)
+rm(list = ls())
+suppressWarnings(suppressMessages(library(gstlearn)))
+
 set.seed(43243)
 # global parameters
 pal   = rev(RColorBrewer::brewer.pal(6, "RdYlBu"))
@@ -379,6 +379,8 @@ if (length(nms)) {
         res = paste0("Test passed: ", "SVC == ", pr)
       } else {
         res = paste0("Test failed: ", "SVC != ", pr)
+        print(dbout$getColumn(name = nm_1, useSel = TRUE))
+        print(dbout$getColumn(name = nm_2, useSel = TRUE))
       }
       print(paste0(res, "(nvar = ", nvar, " nfac  = ", nfac,"):", nm, "-", cs))
     } # loop over estim/stdev
