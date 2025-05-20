@@ -35,7 +35,7 @@ cat(loadDoc("SVC.md"), sep="\n")
 
 # Simulation of the reference case
 
-```{r setup, echo=FALSE, message=FALSE}
+```{r setup, include=FALSE, echo=TRUE}
 library(ggplot2)
 library(ggpubr)
 library(readxl)

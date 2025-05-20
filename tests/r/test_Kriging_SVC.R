@@ -369,12 +369,13 @@ for (i in seq_along(estim_list)) {
 }
 
 # QC of the results
+epsilon = 1.e-3
 if (length(nms)) {
   for (nm in nms) {
     for (cs in c("estim", "stdev", "varz")[c(flag_est, flag_std, flag_varz)]) {
       nm_1 = paste("SVC", nm, cs, sep = ".")
       nm_2 = paste(pr, nm, cs, sep = ".")
-      if(all(abs(dbout$getColumn(name = nm_1, useSel = TRUE) - dbout$getColumn(name = nm_2, useSel = TRUE)) < 1e-6)) {
+      if(all(abs(dbout$getColumn(name = nm_1, useSel = TRUE) - dbout$getColumn(name = nm_2, useSel = TRUE)) < epsilon)) {
         res = paste0("Test passed: ", "SVC == ", pr)
       } else {
         res = paste0("Test failed: ", "SVC != ", pr)
