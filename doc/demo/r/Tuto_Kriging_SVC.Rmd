@@ -30,7 +30,9 @@ to present how this approach can be implemented using *gstlearn*.
 ## Technical description
 
 ```{r SVC_Theory, echo=FALSE, results='asis'}
-cat(loadDoc("SVC.md"), sep="\n")
+
+cat(loadDoc("SVC.md"), sep = "\n")
+
 ```
 
 # Simulation of the reference case

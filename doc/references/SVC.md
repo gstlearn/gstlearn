@@ -311,4 +311,6 @@ Finally, the estimation of a fixed effect $a_{l_0}$ ($l_0 \in 0:L$) requires to 
 
 The variance of this estimation error is therefore: 
 $$
-\mathbf{Var} (\hat{a}_{l_0}) = - \mu_{l_0}$$
+\mathbf{Var} (\hat{a}_{l_0}) = - \mu_{l_0}
+$$
+
