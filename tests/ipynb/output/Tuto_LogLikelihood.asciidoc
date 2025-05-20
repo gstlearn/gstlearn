@@ -92,11 +92,15 @@ Universality_Condition----
 
 
 #NO_DIFF#XXX
-----array([0.3])----
+----
+Monovariate Standard [0.3]
+----
 
 
 #NO_DIFF#XXX
-----array([0.72774768])----
+----
+Monovariate with No constraint [0.727748]
+----
 
 
 #NO_DIFF#XXX
@@ -153,7 +157,7 @@ Column = 7 - Name = Simu.2 - Locator = z2----
 
 #NO_DIFF#XXX
 ----
-No Constraint [ 0.591383  3.049498  1.968406 -2.140452]
+Multivariate with no Constraint [ 0.591383  3.049498  1.968406 -2.140452]
 ----
 
 
