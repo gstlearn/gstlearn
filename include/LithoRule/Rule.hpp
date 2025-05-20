@@ -103,7 +103,9 @@ public:
   bool isYUsed(int igrf) const;
   VectorInt whichGRFUsed() const;
   double getProportion(int facies);
+#ifndef SWIG
   std::array<double, 4> getThresh(int facies) const;
+#endif
   VectorDouble getThreshFromRectangle(int rect, int *facies);
   int getFaciesFromGaussian(double y1, double y2) const;
 

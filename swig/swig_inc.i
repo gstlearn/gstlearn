@@ -1060,6 +1060,15 @@
   }
 };
 
+%extend Rule {
+  // Don't return std::array to wrapping languages
+  VectorDouble getThresh(int facies) const
+  {
+    const auto thresh = $self->getThresh(facies);
+    return VectorDouble{thresh.begin(), thresh.end()};
+  }
+};
+
 
 // Prevent memory leaks from 'create*' and 'clone' methods
 
