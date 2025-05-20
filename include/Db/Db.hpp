@@ -573,13 +573,13 @@ public:
 
   int getSelection(int iech) const;
   VectorDouble getSelections(void) const;
-  void getSampleRanksPerVariable(VectorInt &ranks,
-                                      const VectorInt& nbgh = VectorInt(),
-                                      int ivar              = -1,
-                                      bool useSel           = true,
-                                      bool useZ             = true,
-                                      bool useVerr          = false,
-                                      bool useExtD          = true) const;
+  void getSampleRanksPerVariable(VectorInt& ranks,
+                                 const VectorInt& nbgh = VectorInt(),
+                                 int ivar              = -1,
+                                 bool useSel           = true,
+                                 bool useZ             = true,
+                                 bool useVerr          = false,
+                                 bool useExtD          = true) const;
   VectorVectorInt getSampleRanks(const VectorInt& ivars = VectorInt(),
                                  const VectorInt& nbgh  = VectorInt(),
                                  bool useSel            = true,
