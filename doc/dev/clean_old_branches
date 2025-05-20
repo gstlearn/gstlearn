@@ -1,0 +1,71 @@
+# This script is meant to delete the VSCODE branches that:
+# - you may still have on your computer
+# - that have already been merged into 'dev'
+# - that do not have any new material since the last merge
+# These branches can be safely deleted
+
+set DIR = $GSTLEARN_DIR/gstlearn
+
+# Récupère la liste des branches (avec * éventuellement)
+set list = `git branch`
+
+# Nettoie les noms de branches (supprime '* ' éventuel)
+set clean_list = ()
+foreach b ($list)
+    set b = `echo $b | sed 's/^\* //'`
+    set clean_list = ($clean_list $b)
+end
+
+# Affiche les branches disponibles
+echo "Branches locales disponibles :"
+foreach b ($clean_list)
+    echo "  $b"
+end
+
+# Demande à l'utilisateur la branche à supprimer
+echo -n "Entrez le nom de la branche à détruire : "
+set branch_to_delete = $<
+
+# Vérifie que la branche existe
+set found = 0
+foreach b ($clean_list)
+    if ("$b" == "$branch_to_delete") then
+        set found = 1
+        break
+    endif
+end
+
+if (! $found) then
+    echo "Erreur : la branche '$branch_to_delete' n'existe pas parmi les branches locales."
+    exit 1
+endif
+
+# Vérifie que 'dev' contient la branche à supprimer
+set contains_list = `git branch --contains $branch_to_delete`
+
+set dev_found = 0
+foreach b ($contains_list)
+    set b = `echo $b | sed 's/^\* //'`
+    if ("$b" == "dev") then
+        set dev_found = 1
+        break
+    endif
+end
+
+if (! $dev_found) then
+    echo "Erreur : la branche '$branch_to_delete' ne peut pas être supprimée car elle n'est pas contenue dans 'dev'."
+    exit 1
+endif
+
+# Confirmation avant suppression
+echo -n "Êtes-vous sûr de vouloir supprimer la branche '$branch_to_delete' ? (oui/non) : "
+set confirmation = $<
+if ("$confirmation" != "oui") then
+    echo "Suppression annulée."
+    exit 0
+endif
+
+# Supprime la branche
+echo "Suppression de la branche '$branch_to_delete'..."
+git branch -d "$branch_to_delete"
+
