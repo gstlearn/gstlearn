@@ -744,11 +744,14 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
   tab.resize(ndim);
   for (int idim = 0; idim < ndim; idim++) tab[idim].resize(number);
 
+  VectorDouble vect;
   for (int ip = 0; ip < number; ip++)
   {
     getSampleAsSPInPlace(P1, iechs[ip]);
     getSampleAsSPInPlace(P2, jechs[ip]);
-    VectorDouble vect = P2.getIncrement(P1);
+    vect.clear();
+    vect.resize(ndim);
+    P2.getIncrementInPlace(vect, P1);
 
     for (int idim = 0; idim < ndim; idim++)
       tab[idim][ip] = vect[idim];

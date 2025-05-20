@@ -77,6 +77,7 @@ public:
 protected:
   /// Points coordinates (whatever the space context)
   VectorDouble _coord; // Coordinates (initial or projected)
+  mutable VectorDouble _delta; // Increment results
   mutable int _iech;   // Absolute rank of the sample within the Db
   mutable bool _isProjected; // True if the coordinates are projected
 };

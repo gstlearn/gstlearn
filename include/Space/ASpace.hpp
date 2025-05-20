@@ -151,6 +151,7 @@ protected:
                                          int ispace = -1) const = 0;
 
   /// Return the increment vector between two space points
+  /// (prefer the in-place variant below in C++ code)
   virtual VectorDouble _getIncrement(const SpacePoint& p1,
                                      const SpacePoint& p2,
                                      int ispace = -1) const = 0;
