@@ -182,7 +182,6 @@ int main(int argc, char *argv[])
         namconv.append(option);
         namconv.append(sncov);
         law_set_random_seed(seed);
-
         (void)simulateSPDE(dat, grid, model, nsim, useCholesky,
                            VectorMeshes(), nullptr, SPDEParam(),
                            NamingConvention(namconv));
