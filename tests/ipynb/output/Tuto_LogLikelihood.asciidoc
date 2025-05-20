@@ -68,27 +68,6 @@ Column = 4 - Name = Simu - Locator = z1----
 
 #NO_DIFF#XXX
 ----
-Likelihood calculation:
-- Number of active samples   = 100
-- Number of variables        = 1
-Constant Mean(s)
-     0.000
-Log-Determinant = -33.879144
-Quadratic term = 103.577106
-Log-likelihood = -92.085475
-----
-
-
-#NO_DIFF#XXX
-----
-Log-Determinant= -33.8791
-Quadratic term= 103.5771
-Log-likelihood= -126.7428
-----
-
-
-#NO_DIFF#XXX
-----
 Model characteristics
 =====================
 Space dimension              = 2
@@ -114,13 +93,7 @@ Universality_Condition----
 
 #NO_DIFF#XXX
 ----
-a0=0.3 : [0.3]
-----
-
-
-#NO_DIFF#XXX
-----
-No constraint : [0.7277]
+a=0.3 : [0.3]
 ----
 
 
@@ -178,7 +151,7 @@ Column = 7 - Name = Simu.2 - Locator = z2----
 
 #NO_DIFF#XXX
 ----
-No Constraint : [ 0.5914  3.0495  1.9684 -2.1405]
+No Constraint : [ 0.591383  3.049498  1.968406 -2.140452]
 ----
 
 
@@ -205,7 +178,7 @@ Log-likelihood = -271.354901
 
 #NO_DIFF#XXX
 ----
-a0=0.5 and b0=1.5 : [ 0.5     3.1778  1.5    -1.4828]
+a0=0.5 and b0=1.5 : [ 0.5       3.177797  1.5      -1.482825]
 ----
 
 
@@ -217,7 +190,7 @@ a0=0.5 and b0=1.5 : [ 0.5     3.1778  1.5    -1.4828]
 
 #NO_DIFF#XXX
 ----
-a0=b0 and a1=b1 : [0.3619 3.9145 0.3619 3.9145]
+a0=b0 and a1=b1 : [0.361879 3.91449  0.361879 3.91449 ]
 ----
 
 
@@ -244,7 +217,7 @@ Log-likelihood = -293.672891
 
 #NO_DIFF#XXX
 ----
-a0 = b0 : [0.3619 3.3717 0.3619 0.1151]
+a0=b0 : [0.361879 3.371714 0.361879 0.11506 ]
 ----
 
 
@@ -256,5 +229,5 @@ a0 = b0 : [0.3619 3.3717 0.3619 0.1151]
 
 #NO_DIFF#XXX
 ----
-a0=b0 and a1=1 : [ 1.2451  1.      1.2451 -5.6519]
+a0=b0 and a1=1 : [ 1.245068  1.        1.245068 -5.651889]
 ----
