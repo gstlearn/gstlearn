@@ -1066,13 +1066,13 @@ int krigingSPDE(Db* dbin,
   PrecisionOpMultiMatrix* Qom = nullptr;
   if (useCholesky)
   {
-    Qom = new PrecisionOpMultiMatrix(model, meshLocal);
+    Qom    = new PrecisionOpMultiMatrix(model, meshLocal);
     spdeop = new SPDEOpMatrix(Qom, AIn, invnoise);
   }
   else
   {
-    Qop          = new PrecisionOpMulti(model, meshLocal, params.getUseStencil());
-    spdeop       = new SPDEOp(Qop, AIn, invnoisep);
+    Qop    = new PrecisionOpMulti(model, meshLocal, params.getUseStencil());
+    spdeop = new SPDEOp(Qop, AIn, invnoisep);
     spdeop->setMaxIterations(params.getCGparams().getNIterMax());
     spdeop->setTolerance(params.getCGparams().getEps());
   }
