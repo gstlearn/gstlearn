@@ -27,7 +27,7 @@ BooleanObject::BooleanObject(const AShape* ashape)
       _extension({0.,0.,0.,}),
       _orientation(0.),
       _values({0.,0.,0.}),
-      _box({{0.,0.},{0.,0.},{0.,0.}})
+      _box()
 {
 }
 
@@ -72,8 +72,8 @@ String BooleanObject::toString(const AStringFormat* /*strfmt*/) const
   else
     sstr << "Secondary Object" << std::endl;
   sstr << "- Type        = " << _token->getType().getDescr() << std::endl;
-  sstr << "- Center      = " << VH::toStringAsVD(_center);
-  sstr << "- Extension   = " << VH::toStringAsVD(_extension);
+  sstr << "- Center      = " << VH::toStringAsSpan(_center);
+  sstr << "- Extension   = " << VH::toStringAsSpan(_extension);
   sstr << "- Orientation = " << _orientation << std::endl;
 
   return sstr.str();
@@ -81,7 +81,6 @@ String BooleanObject::toString(const AStringFormat* /*strfmt*/) const
 
 void BooleanObject::setCenter(const VectorDouble& center)
 {
-  _center.resize(3,0.);
   for (int idim = 0; idim < (int) center.size(); idim++)
     _center[idim] = center[idim];
 }
@@ -91,8 +90,8 @@ VectorDouble BooleanObject::getValues() const
   VectorDouble tab;
   tab.push_back((double) _mode);
   tab.push_back((double) _token->getType().getValue());
-  tab.insert(tab.end(), _center.begin(), _center.end());
-  tab.insert(tab.end(), _extension.begin(), _extension.end());
+  for (const auto c : _center) tab.push_back(c);
+  for (const auto e : _extension) tab.push_back(e);
   tab.push_back(_orientation);
   return tab;
 }

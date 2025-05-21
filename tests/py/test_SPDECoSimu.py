@@ -9,7 +9,7 @@ def getName(radix, ivar, isimu, flagShort=True):
     if flagShort:
         name = radix + str(isimu+1) + "V" + str(ivar+1)
     else:
-        name = radix + ".Data." + str(ivar+1) + ".simu." + str(isimu+1)
+        name = radix + ".Data." + str(ivar+1) + "." + str(isimu+1)
     return name
 
 # %% General parameters
@@ -32,8 +32,6 @@ if nvar == 2:
 
 model = gl.Model.createFromParam(gl.ECov.MATERN,param = 1, range=20,
                                  sills = sills)
-modelNugg = gl.Model.createFromParam(gl.ECov.NUGGET, sills = sillsNugg)
-
 # %% Data creation (2 variables)
 dat = gl.Db.createFillRandom(ndat=100, ndim = 2,nvar = 0,
                              coormin=[20,20],coormax=[80,80],seed=234)
@@ -51,8 +49,35 @@ grid = gl.DbGrid.create([141,141] ,dx = [1,1], x0 = [-20,-20])
 mesh1 = gl.MeshETurbo(grid, False)
 meshes = gl.VectorMeshes([mesh1])
 
-# %% Projections
+params = gl.SPDEParam.create(epsNugget = epsNugget)
 
+################################################
+# %% Simulation (Matrix) performed with gstlearn
+################################################
+
+gl.mestitle(1, "SPDE Simulation using gstlearn (with Matrix) -> GM")
+gl.law_set_random_seed(1242)
+err = gl.simulateSPDE(dat, grid, model, nbsimu, 1, meshes, None, params,
+                      namconv = gl.NamingConvention("GM"))
+gl.dbStatisticsMono(grid, ["GM.*"]).display()
+
+#####################################################
+# %% Simulation (Matrix-free) performed with gstlearn
+#####################################################
+
+gl.mestitle(1, "SPDE Simulation using gstlearn (Matrix-Free) -> GF")
+gl.law_set_random_seed(1242)
+err = gl.simulateSPDE(dat, grid, model, nbsimu, 0, meshes, None, params,
+                      namconv = gl.NamingConvention("GF"))
+gl.dbStatisticsMono(grid, ["GF.*"]).display()
+
+##################################################
+# %% Simulation (with Matrix) is performed by hand
+##################################################
+
+gl.mestitle(1, "SPDE Simulation performed by Hand -> HF")
+gl.law_set_random_seed(1242)
+Z         = dat["Data*"].T.reshape(-1)
 # Projection operators
 # (2 to mimic the possibility to have several convolution operators)
 AM1 = gl.ProjMatrix(dat,mesh1)
@@ -65,37 +90,8 @@ if nvar == 1:
 if nvar == 2:
     vectproj = gl.VVectorConstIProj([[AM1,None],[None,AM2]])
 
-AM = gl.ProjMulti(vectproj)
-
-params = gl.SPDEParam.create(epsNugget = epsNugget)
-
-################################################
-# %% Simulation (Matrix) performed with gstlearn
-################################################
-
-gl.mestitle(1, "Simulation using gstlearn (with Matrix) -> GM")
-gl.law_set_random_seed(1242)
-err = gl.simulateSPDENew(dat, grid, model, nbsimu, 1, meshes, params,
-                         namconv = gl.NamingConvention("GM"))
-gl.dbStatisticsMono(grid, ["GM.*"]).display()
-
-#####################################################
-# %% Simulation (Matrix-free) performed with gstlearn
-#####################################################
-
-gl.mestitle(1, "Simulation using gstlearn (Matrix Free) -> GF")
-gl.law_set_random_seed(1242)
-err = gl.simulateSPDENew(dat, grid, model, nbsimu, 0, meshes, params,
-                         namconv = gl.NamingConvention("GF"))
-gl.dbStatisticsMono(grid, ["GF.*"]).display()
-
-##################################################
-# %% Simulation (with Matrix) is performed by hand
-##################################################
-
-gl.mestitle(1, "Simulation using gstlearn performed by Hand -> HF")
-gl.law_set_random_seed(1242)
-Z         = dat["Data*"].T.reshape(-1)
+modelNugg = gl.Model.createFromParam(gl.ECov.NUGGET, sills = sillsNugg)
+AM        = gl.ProjMulti(vectproj)
 Qop       = gl.PrecisionOpMulti(model,meshes,True)
 invnoise  = gl.buildInvNugget(dat,modelNugg)
 invnoisep = gl.MatrixSymmetricSim(invnoise)
@@ -106,13 +102,34 @@ for i in range(nbsimu):
     resultMatH = spdeop.simCond(Z)
     for j in range(nvar):
         gl.VH.extractInPlace(resultMatH, local, j * ntarget)
-        grid.addColumns(local, getName("HF",j,i,False))
+        iuid = grid.addColumns(local, getName("HF",j,i,False))
+
 
 gl.dbStatisticsMono(grid, ["HF*"]).display()
 
+######################################################
+# %% Checking the exactness of conditional simulations
+######################################################
+
+err = gl.migrate(grid,dat,getName("GF",0,0,False),
+                 namconv=gl.NamingConvention("m1", False))
+if nvar == 2:
+    err = gl.migrate(grid,dat,getName("GF",1,0,False),
+                     namconv=gl.NamingConvention("m2", False))
+
+##################
 # %% Various plots
+##################
 if flag_plot:
 
+    # Display the HF simulations for all variables and all simulations
+    for i in range(nbsimu):
+        for j in range(nvar):
+            fig, ax = gp.init(flagEqual=True)
+            gp.raster(grid, getName("HF",j,i,False), flagLegend=True)
+            gp.decoration(title="HF"+str(i+1)+"V"+str(j+1)+" (gstlearn)")
+            gp.close()
+    
     # Display the GM simulations for all variables and all simulations
     for i in range(nbsimu):
         for j in range(nvar):
@@ -120,7 +137,7 @@ if flag_plot:
             gp.raster(grid, getName("GM",j,i,False), flagLegend=True)
             gp.decoration(title="GM"+str(i+1)+"V"+str(j+1)+" (gstlearn)")
             gp.close()
-
+    
     # Display the GF simulations for all variables and all simulations
     for i in range(nbsimu):
         for j in range(nvar):
@@ -129,30 +146,6 @@ if flag_plot:
             gp.decoration(title="GF"+str(i+1)+"V"+str(j+1)+" (gstlearn)")
             gp.close()
     
-    # Comparing Manual to GF simulations for all variables / simulations
-    for i in range(nbsimu):
-        for j in range(nvar):
-            fig, ax = gp.init()
-            gp.correlation(grid,
-                           getName("HF",j,i,False),
-                           getName("GF",j,i,False),
-                           regrLine=True, regrColor="black",
-                           bissLine=True, bissColor="blue",
-                           bins=100, cmin=1)
-            gp.decoration(title=getName("GF",j,i) + " = " + getName("HF",j,i),
-                          xlabel="(Manual SHF)",
-                          ylabel="(gstlearn GF)")
-            gp.close()
-
-# %% Checking the exactness of conditional simulations
-gl.migrate(grid,dat,getName("GF",0,0,False),
-           namconv=gl.NamingConvention("m1", False))
-if nvar == 2 :
-    gl.migrate(grid,dat,getName("GF",1,0,False),
-               namconv=gl.NamingConvention("m2", False))
-
-# %%
-if flag_plot:
     if nvar == 1:
         fig, ax = gp.init()
         gp.correlation(dat, "Data", "m1",
@@ -170,7 +163,7 @@ if flag_plot:
                        bins=100, cmin=1)
         gp.decoration(title="Data = Simu. Cond. V#1 (gstlearn)")
         gp.close()
-
+    
         fig, ax = gp.init()
         gp.correlation(dat, "Data.2", "m2",
                        regrLine=True, regrColor="black",

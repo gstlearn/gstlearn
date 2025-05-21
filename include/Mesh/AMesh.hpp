@@ -124,6 +124,7 @@ protected:
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "AMesh"; }
 
+
 private:
   bool _isSpaceDimensionValid(int idim) const;
   void _printMeshListByIndices(int nline_max = -1) const;

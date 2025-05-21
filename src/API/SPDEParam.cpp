@@ -10,20 +10,23 @@
 /******************************************************************************/
 #include "API/SPDEParam.hpp"
 
-SPDEParam::SPDEParam(int            refineK,
-                     int            refineS,
-                     int            border,
+SPDEParam::SPDEParam(int refineK,
+                     int refineS,
+                     int border,
                      bool flag_polarized,
-                     int            nxmax,
-                     double         epsNugget,
+                     int nxmax,
+                     double epsNugget,
+                     bool useStencil,
                      const CGParam& cgparams)
   : _refineK(refineK)
   , _refineS(refineS)
   , _border(border)
-  ,_flagPolarized(flag_polarized)
+  , _flagPolarized(flag_polarized)
   , _nxmax(nxmax)
   , _epsNugget(epsNugget)
-  , _CGparams(cgparams) {
+  , _useStencil(useStencil)
+  , _CGparams(cgparams)
+{
 }
 
 SPDEParam::SPDEParam(const SPDEParam& m)
@@ -33,6 +36,7 @@ SPDEParam::SPDEParam(const SPDEParam& m)
   ,_flagPolarized(m._flagPolarized)
   , _nxmax(m._nxmax)
   , _epsNugget(m._epsNugget)
+  , _useStencil(m._useStencil)
   , _CGparams(m._CGparams) {
 }
 
@@ -45,6 +49,7 @@ SPDEParam& SPDEParam::operator=(const SPDEParam &m)
     _flagPolarized = m._flagPolarized;
     _nxmax     = m._nxmax;
     _epsNugget = m._epsNugget;
+    _useStencil = m._useStencil;
     _CGparams  = m._CGparams;
   }
   return *this;
@@ -60,7 +65,9 @@ SPDEParam* SPDEParam::create(int refineK,
                              bool flag_polarized,
                              int nxmax,
                              double epsNugget,
+                             bool useStencil,
                              const CGParam& cgparams)
 {
-  return new SPDEParam(refineK, refineS, border, flag_polarized, nxmax, epsNugget, cgparams);
+  return new SPDEParam(refineK, refineS, border, flag_polarized, nxmax,
+                       epsNugget, useStencil, cgparams);
 }

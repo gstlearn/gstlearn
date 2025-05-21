@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.10.9"
+__generated_with = "0.11.25"
 app = marimo.App()
 
 
@@ -47,21 +47,9 @@ def _(distmax, gmo, ncovmax, varmax):
 
 
 @app.cell(hide_code=True)
-def _(WidgetModel, gmo):
-    gmo.WshowModel(WidgetModel)
-    return
-
-
-@app.cell(hide_code=True)
 def _(gmo):
     WidgetGrid = gmo.WdefineGrid(100)
     return (WidgetGrid,)
-
-
-@app.cell(hide_code=True)
-def _(WidgetGrid, gmo):
-    gmo.WshowGrid(WidgetGrid)
-    return
 
 
 @app.cell(hide_code=True)
@@ -71,34 +59,42 @@ def _(gmo):
 
 
 @app.cell(hide_code=True)
-def _(WidgetSimtub, gmo):
-    gmo.WshowSimtub(WidgetSimtub)
-    return
-
-
-@app.cell(hide_code=True)
-def _(WidgetGrid, WidgetModel, WidgetSimtub, gl, gmo, plt):
-    def mareaction():
+def _(WidgetGrid, WidgetModel, WidgetSimtub, gl, gmo, gp):
+    def myaction():
 
         model = gmo.WgetModel(WidgetModel)
         grid = gmo.WgetGrid(WidgetGrid)
         nbtuba, seed = gmo.WgetSimtub(WidgetSimtub)
         err = gl.simtub(None, dbout=grid, model=model, nbtuba=nbtuba, seed=int(seed))
 
-        fig = plt.figure(figsize=(20,6))
-        ax1 = fig.add_subplot(1,2,1)
-        ax1.model(model, hmax=100)
-        ax2 = fig.add_subplot(1,2,2)
-        ax2.raster(grid)
-        ax2.axis("equal")
+        fig, ax = gp.init(2,1,figsize=(10,14))
+        ax[0,0].model(model, hmax=100)
+        ax[1,0].raster(grid)
+        ax[1,0].axis("equal")
         return fig
-    return (mareaction,)
+    return (myaction,)
 
 
 @app.cell(hide_code=True)
-def _(mareaction, mo):
-    mo.md(f"A non-conditional simulation corresponding to a Model: {mo.as_html(mareaction())}")
-    return
+def _(WidgetGrid, WidgetModel, WidgetSimtub, gmo, mo, myaction):
+    param = mo.ui.tabs(
+        {
+            "Grid":       gmo.WshowGrid(WidgetGrid),
+            "Model":      gmo.WshowModel(WidgetModel),
+            "Simulation": gmo.WshowSimtub(WidgetSimtub),
+        }
+    ).style({"minWidth": "350px", "width": "350px"})
+
+    simu = mo.vstack(
+        [
+             mo.md(""),
+             mo.md(f"Model and Simulation{mo.as_html(myaction())}")
+        ],
+        gap = 4
+    )
+
+    mo.hstack([param, simu], gap=4)
+    return param, simu
 
 
 if __name__ == "__main__":

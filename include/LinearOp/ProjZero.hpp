@@ -23,8 +23,8 @@ public:
 
 #ifndef SWIG
 protected:
-  int _addPoint2mesh(const constvect, vect) const override { return 0; }
-  int _addMesh2point(const constvect, vect) const override { return 0; }
+  int _addPoint2mesh(const constvect inv, vect outv) const override { DECLARE_UNUSED(inv, outv); return 0; }
+  int _addMesh2point(const constvect inv, vect outv) const override { DECLARE_UNUSED(inv, outv); return 0; }
 #endif
 public:
   int getNApex() const override { return _napex; }

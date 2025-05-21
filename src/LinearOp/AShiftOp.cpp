@@ -19,7 +19,6 @@ AShiftOp::AShiftOp(CovAniso* cova, int napices)
 {
 }
 
-
 AShiftOp::AShiftOp(const AShiftOp& shift)
 : _Lambda(shift._Lambda)
 , _napices(shift._napices)

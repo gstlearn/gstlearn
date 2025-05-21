@@ -22,18 +22,20 @@ class ALinearOp;
  * border  Border size
  * nxmax   Maximum number of vertices in the internal mesh (0 : no limit)
  * epsNugget Nugget effect
+ * useStencil Default option for no Cholesky (can only be used in stationary case for Turbo Meshing)
  * cgparams Parameters for the Conjugate Gradient method
  */
 class GSTLEARN_EXPORT SPDEParam {
 
 public:
-  SPDEParam(int            refineK   = 11,
-            int            refineS   = 18,
-            int            border    = 8,
-            bool flag_polarized = true,
-            int            nxmax     = 300,
-            double         epsNugget = EPSILON2,
-            const CGParam& cgparams  = CGParam());
+  SPDEParam(int refineK             = 11,
+            int refineS             = 18,
+            int border              = 8,
+            bool flag_polarized     = true,
+            int nxmax               = 300,
+            double epsNugget        = EPSILON2,
+            bool useStencil         = true,
+            const CGParam& cgparams = CGParam());
   SPDEParam(const SPDEParam& m);
   SPDEParam& operator=(const SPDEParam& m);
   virtual ~SPDEParam();
@@ -44,8 +46,9 @@ public:
                            bool flag_polarized     = true,
                            int nxmax               = 300,
                            double epsNugget        = EPSILON2,
+                           bool useStencil         = true,
                            const CGParam& cgparams = CGParam());
-                           
+
   int     getBorder() const { return _border; }
   CGParam getCGparams() const { return _CGparams; }
   double  getEpsNugget() const { return _epsNugget; }
@@ -54,6 +57,8 @@ public:
   bool    isPolarized() const { return _flagPolarized; }
   void    setPolarized(bool flagPolarized) { _flagPolarized = flagPolarized; }  
   int     getNxMax() const { return _nxmax; }
+  bool    getUseStencil() const { return _useStencil; }
+  void    setUseStencil(bool useStencil) { _useStencil = useStencil; }
 
   void setBorder(int border) { _border = border; }
   void setCGparams(const CGParam& CGparams) { _CGparams = CGparams; }
@@ -69,5 +74,6 @@ private:
   bool    _flagPolarized;
   int     _nxmax;
   double  _epsNugget;
+  bool    _useStencil;
   CGParam _CGparams;
 };

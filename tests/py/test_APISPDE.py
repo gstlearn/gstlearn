@@ -46,19 +46,17 @@ dat["Y"]= coords[:,1]
 dat.setLocators(['X','Y'],gl.ELoc.X)
 
 model = gl.Model.createFromParam(gl.ECov.MATERN, 1., 1., 1., [4.,45.])
-
 workingDb = gl.DbGrid.create([101,101],[1.,1.]) 
 mesh = gl.MeshETurbo(workingDb, False)
-
 cova = model.getCovAniso(0)
 cova.makeAngleNoStatDb("theta",0,resultDb)
+
+
 S = gl.ShiftOpMatrix(mesh, cova, resultDb)
-
-
 Qsimu = gl.PrecisionOp(S, cova, False)
 
 result = Qsimu.simulateOne()
-workingDb.addColumns(result,"Simu",gl.ELoc.X)
+workingDb.addColumns(result,"Simu",gl.ELoc.Z)
 
 ind = np.random.choice(workingDb.getNSampleActive(), size=100, replace=False)
 data = gl.Db()
@@ -69,9 +67,11 @@ data.setLocator('x*',gl.ELoc.X)
 data.setLocator('z',gl.ELoc.Z)
 data
 
-spde = gl.SPDE(model,resultDb,data,gl.ESPDECalcMode.SIMUNONCOND,None,0)
+meshes = gl.defineMeshesFromDbs(data, resultDb, model, gl.SPDEParam(), False)
+#spde = gl.SPDE(model, resultDb, data, gl.ESPDECalcMode.SIMUNONCOND,None,0)
 gl.law_set_random_seed(131351)
-spde.compute(workingDb)
+#spde.compute(workingDb)
+err = gl.simulateSPDE(None, workingDb, model, 1, -1, meshes)
 
 dbfmt = gl.DbStringFormat()
 dbfmt.setFlags(flag_stats=True)

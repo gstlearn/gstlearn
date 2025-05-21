@@ -41,8 +41,12 @@ public:
   static String toStringAsVS(const VectorString& vec);
   static String toStringAsVI(const VectorInt& vec);
 
-  static void dumpStats(const String &title, const VectorDouble &vect);
-  static void dumpRange(const String &title, const VectorDouble &vect);
+  #ifndef SWIG
+  static void dumpStats(const String& title, constvect vect, int nmax = -1);
+  static void dumpRange(const String& title, constvect vect, int nmax = -1);
+#endif
+  static void dumpStats(const String& title, const VectorDouble& vectin, int nmax = -1);
+  static void dumpRange(const String &title, const VectorDouble& vectin, int nmax = -1);
   static void dumpRange(const String &title, const VectorInt &vect);
   static void dumpNNZ(const String &title, const VectorDouble &vect, int nclass = 10);
 

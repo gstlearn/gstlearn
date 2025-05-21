@@ -97,7 +97,6 @@ public:
   virtual bool isMesh() const { return false; }
   virtual double getCoordinate(int iech, int idim, bool flag_rotate = true) const;
   virtual void getCoordinatesInPlace(VectorDouble& coor, int iech, bool flag_rotate = true) const;
-  virtual void getCoordinatesInPlace(vect coor, int iech, bool flag_rotate = true) const;
 
   virtual double getUnit(int idim = 0) const;
   virtual int getNDim() const;
@@ -232,6 +231,7 @@ public:
   static Db* createFromGridRandomized(DbGrid* dbgrid,
                                       double randperc        = 0.,
                                       bool flagAddSampleRank = true);
+
   /**@}*/
 
   const std::vector<double>& getArrays() const { return _array; }
@@ -851,6 +851,8 @@ public:
   VectorInt shrinkToValidRows(const VectorInt& rows) const;
   VectorInt shrinkToValidCols(const VectorInt& cols) const;
 
+  static const Db* coverSeveralDbs(const Db* db1, const Db* db2, bool *isBuilt);
+
   /** @addtogroup DB_7 Calculating several statistics in Db
    * \ingroup DB
    *
@@ -1001,5 +1003,5 @@ private:
   std::vector<PtrGeos> _p;    //!< Locator characteristics
 
   /// factor allocations
-  mutable VectorInt uids;
+  mutable VectorInt _uids;
 };

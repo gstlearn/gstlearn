@@ -171,7 +171,6 @@ print(data[:])
 
 # In[16]:
 
-
 err = gl.krigingSPDE(data, data, model, namconv="Missing")
 print(data[:])
 

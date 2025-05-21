@@ -47,7 +47,7 @@ for i in range(4):
             covmat_hand[i,j] = ratio * np.exp(-norm)
 
 # Comparing the results
-print(str(gt.checkEqualityVector(covmat_gstlearn, covmat_hand)))
+print(str(gt.checkEqualityVectors(covmat_gstlearn, covmat_hand)))
 
 ####
 m = gl.Model.createFromParam(gl.ECov.EXPONENTIAL)
@@ -88,7 +88,7 @@ for i in range(4):
             covmat_hand[i,j] = ratio * np.exp(-norm)
 
 # Comparing the results
-print(str(gt.checkEqualityVector(covmat_gstlearn, covmat_hand)))
+print(str(gt.checkEqualityVectors(covmat_gstlearn, covmat_hand)))
 
 # Creating the non-stationary Model
 m = gl.Model.createFromParam(gl.ECov.MATERN)
@@ -129,4 +129,4 @@ for i in range(4):
             ratio = deti * detj / detM
             covmat_hand[i,j] = ratio * covfunc(norm)
 # Comparing the results
-print(str(gt.checkEqualityVector(covmat_gstlearn, covmat_hand)))
+print(str(gt.checkEqualityVectors(covmat_gstlearn, covmat_hand)))

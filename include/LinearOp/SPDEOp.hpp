@@ -89,10 +89,6 @@ private:
 
 private:
   void _prepare(bool w1 = true, bool w2 = true) const;
-#ifndef SWIG
-private:
-  virtual int _addToDestImpl(const constvect inv, vect outv) const;
-#endif
 
 protected:
   const PrecisionOpMulti* const _QKriging;
