@@ -18,7 +18,6 @@
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Utilities.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 MatrixSparse* _createSparseMatrix(int n, double proba)
 {

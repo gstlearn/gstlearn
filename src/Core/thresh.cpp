@@ -399,7 +399,7 @@ int rule_thresh_define_shadow(PropDef *propdef,
   /* Convert the proportions into thresholds */
 
   facloc = (IFFFF(facies)) ? 1 : facies;
-  VectorDouble bounds = rule->getThresh(facloc);
+  auto bounds = rule->getThresh(facloc);
   *t1min = bounds[0];
   *t1max = bounds[1];
   *t2min = bounds[2];
@@ -502,7 +502,7 @@ int rule_thresh_define(PropDef *propdef,
 
   facloc = (IFFFF(facies)) ? 1 :
                              facies;
-  VectorDouble bounds = rule->getThresh(facloc);
+  auto bounds = rule->getThresh(facloc);
   *t1min = bounds[0];
   *t1max = bounds[1];
   *t2min = bounds[2];

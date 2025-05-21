@@ -654,10 +654,10 @@ void Db::setArrayByUID(const VectorDouble& tab, int iuid)
 
 void Db::getArrayBySample(std::vector<double>& vals, int iech) const
 {
-  getAllUIDs(uids);
-  vals.resize(uids.size());
-  for (int iuid = 0; iuid < (int)uids.size(); iuid++)
-    vals[iuid] = getArray(iech, uids[iuid]);
+  getAllUIDs(_uids);
+  vals.resize(_uids.size());
+  for (int iuid = 0; iuid < (int)_uids.size(); iuid++)
+    vals[iuid] = getArray(iech, _uids[iuid]);
 }
 
 void Db::setArrayBySample(int iech, const VectorDouble& vec)
@@ -744,11 +744,14 @@ VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& je
   tab.resize(ndim);
   for (int idim = 0; idim < ndim; idim++) tab[idim].resize(number);
 
+  VectorDouble vect;
   for (int ip = 0; ip < number; ip++)
   {
     getSampleAsSPInPlace(P1, iechs[ip]);
     getSampleAsSPInPlace(P2, jechs[ip]);
-    VectorDouble vect = P2.getIncrement(P1);
+    vect.clear();
+    vect.resize(ndim);
+    P2.getIncrementInPlace(vect, P1);
 
     for (int idim = 0; idim < ndim; idim++)
       tab[idim][ip] = vect[idim];
@@ -846,15 +849,6 @@ double Db::getCoordinate(int iech, int idim, bool flag_rotate) const
  * @param flag_rotate True if Grid rotation must be taken into account
  */
 void Db::getCoordinatesInPlace(VectorDouble& coor, int iech, bool flag_rotate) const
-{
-  DECLARE_UNUSED(flag_rotate);
-  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
-  {
-    int icol   = getColIdxByLocator(ELoc::X, idim);
-    coor[idim] = _array[_getAddress(iech, icol)];
-  }
-}
-void Db::getCoordinatesInPlace(vect coor, int iech, bool flag_rotate) const
 {
   DECLARE_UNUSED(flag_rotate);
   for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
