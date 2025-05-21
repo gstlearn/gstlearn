@@ -316,6 +316,7 @@ The variance of this estimation error is therefore:
 $$
 \mathbf{Var} (\hat{a}_{l_0}) = - \mu_{l_0}
 $$
+
 </md-block>
 
 
@@ -340,7 +341,6 @@ Table: Statistics on the observed data
 [1] ">>> Estimation of DRIFT using KED"
 [1] ">>> Estimation of A using KED"
 [1] ">>> Estimation of B using KED"
-KED: 1.681 sec elapsed
 
 
 Table: Statistics on drift coefficients (actual values and estimated)
@@ -377,7 +377,6 @@ Table: Statistics on the residual (MOVING)
 [1] "SVC: variable #3 = drift.Z"
 [1] "SVC: variable #4 = coeff.0.Z"
 [1] "SVC: variable #5 = coeff.1.Z"
-SVC: 9.826 sec elapsed
 
 
 Table: Statistics on drift coefficients (actual values and estimated)

@@ -41,7 +41,6 @@ cat(loadDoc("SVC.md"), sep = "\n")
 library(ggplot2)
 library(ggpubr)
 library(readxl)
-library(tictoc)
 ```
 
 We are defining some global environment variables within the *gstlearn* package.
@@ -306,7 +305,6 @@ define_estim <- function(estim, model, verbose = FALSE) {
 ## Estimation
 
 ```{r KED_estim, echo=TRUE, eval=TRUE}
-tic(msg = "KED")
 # cleaning the target data base
 err = grd$deleteColumns(names = paste0(prefix_section, ".*.", c("estim", "stdev"), ".*"))
 
@@ -341,7 +339,6 @@ for (iest in seq_along(estim_list)) {
     }
   }
 }
-toc()
 ```
 
 ## Check
@@ -422,13 +419,11 @@ err = model_svc$setDriftIRF(order = 0, nfex = nfac)
 err = grd$clearLocators(locatorType = ELoc_Z())
 err = grd$deleteColumns(names = paste0(prefix_section, ".*.", c("estim", "stdev"), ".*"))
 
-tic(msg = "SVC")
 err = kriging_SVC(dbin = data, dbout = grd, model = model_svc, neigh = neigh,
                 flag_est = flag_est, flag_std = flag_std, flag_varz = flag_varz, 
                 estim_list = estim_list,
                 prefix = prefix_section, verbose = verbose
 )
-toc()
 ```
 
 ## Checking
