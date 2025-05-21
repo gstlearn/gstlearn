@@ -1,13 +1,3 @@
-Le chargement a nécessité le package : ggplot2
-Le chargement a nécessité le package : ggpubr
-Le chargement a nécessité le package : ggnewscale
-
-Attachement du package : ‘gstlearn’
-
-Les objets suivants sont masqués depuis ‘package:base’:
-
-    message, toString
-
 
 Model characteristics
 =====================

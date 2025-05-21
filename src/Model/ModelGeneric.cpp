@@ -385,8 +385,7 @@ int computeDriftMatSVCRHSInPlace(MatrixDense& mat,
         mat.setRowToConstant(0, 0.);
         break;
       case 4:
-        mat.setRowToConstant(0, 0.);
-        // mat.setValue(0, idx, 1.); TODO: suppression to be checked (DR)
+        mat.setValue(0, 0, (idx == 0) ? 1. : 0.);
         break;
     }
   }
