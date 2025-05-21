@@ -241,10 +241,10 @@ check_test_cpp: cmake
 	@cd $(BUILD_DIR); make $(TEST); CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
 
 check_test_py: cmake-python
-	@cd $(BUILD_DIR); make prepare_check_py; CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
+	@cd $(BUILD_DIR); make prepare_check_py; make prepare_check_ipynb; CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
 
 check_test_r: cmake-r
-	@cd $(BUILD_DIR); make prepare_check_r; CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
+	@cd $(BUILD_DIR); make prepare_check_r; make prepare_check_rmd; CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
 
 dump_test_cpp: cmake
 	@cd $(BUILD_DIR); make $(TEST); "tests/cpp/$(BUILD_TYPE)/$(TEST)" dummy

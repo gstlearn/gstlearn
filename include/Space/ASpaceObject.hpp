@@ -78,6 +78,10 @@ public:
   VectorDouble getIncrement(const SpacePoint& p1,
                             const SpacePoint& p2,
                             int ispace = 0) const;
+  void getIncrementInPlace(const SpacePoint& p1,
+                           const SpacePoint& p2,
+                           VectorDouble& ptemp,
+                           int ispace = -1) const;
 
 protected:
   /// Modify the Space dimension of an already created item (and create RN space)
