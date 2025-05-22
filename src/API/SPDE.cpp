@@ -1389,7 +1389,6 @@ double logLikelihoodSPDENew(Db* dbin,
  * @param dbin Input Db (must contain the variable to be estimated)
  * @param model Model definition
  * @param useCholesky Define the choice regarding Cholesky
- * @param nbsimu Number of simulations
  * @param meshes Meshes description (optional)
  * @param projIn Matrix of projection (optional)
  * @param params Set of SPDE parameters
@@ -1398,15 +1397,18 @@ double logLikelihoodSPDENew(Db* dbin,
 double logLikelihoodSPDENew(Db* dbin,
                             Model* model,
                             int useCholesky,
-                            int nbsimu,
                             const VectorMeshes& meshes,
                             const ProjMultiMatrix* projIn,
                             const SPDEParam& params,
                             bool verbose)
 {
-  DECLARE_UNUSED(nbsimu)
   if (dbin == nullptr) return 1;
   if (model == nullptr) return 1;
+  if (dbin->getNLoc(ELoc::Z) != 1)
+  {
+    messerr("'dbin' must contain ONE variable (Z locator)");
+    return 1;
+  }
 
   VectorDouble Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
 
@@ -1442,10 +1444,15 @@ double logLikelihoodSPDENew(Db* dbin,
   // Calculating the drift coefficient (optional) and Centering the Data
   VectorDouble driftCoeffs = _centerDataByDriftInPlace(spdeop, dbin, model, Z);
 
-  // Performing the task 
+  // Performing the task
+  int seedLocal = params.getSeedMC();
+  int nMC       = params.getNMC();
+  int memo      = law_get_random_seed();
+  law_set_random_seed(seedLocal);
+
   int size       = (int)Z.size();
-  double logdet  = 0.; // computeLogDet(nbsimu);
-  double quad    = 0.; // computeQuad();
+  double logdet  = spdeop->computeTotalLogDet(nMC);
+  double quad    = spdeop->computeQuadratic(Z);
   double loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
 
   if (verbose)
@@ -1469,6 +1476,7 @@ double logLikelihoodSPDENew(Db* dbin,
     AIn = nullptr;
   }
 
+  law_set_random_seed(memo);
   return loglike;
 }
 
