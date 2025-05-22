@@ -98,6 +98,10 @@ a=0.3 : [0.3]
 
 
 #NO_DIFF#XXX
+----[0.3]----
+
+
+#NO_DIFF#XXX
 ----
 Likelihood calculation:
 - Number of active samples     = 100
@@ -109,6 +113,7 @@ Optimal Drift coefficients =
 Log-Determinant = -33.879144
 Quadratic term = 90.846364
 Log-likelihood = -120.377463
+
 Compute manual loglikelihood = -120.377463
 ----
 
