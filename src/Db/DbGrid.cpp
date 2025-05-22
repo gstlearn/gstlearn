@@ -1052,6 +1052,7 @@ VectorDouble DbGrid::getOneSlice(const String& name,
  *
  * @remark The argument 'corner' gives the indices of a node that belongs to the
  * @remark extracted section. Obviously corner[posx] and corner[posy] are not used
+ *
  */
 VectorDouble DbGrid::getOneSliceForCoordinate(int idim,
                                               int posx,
