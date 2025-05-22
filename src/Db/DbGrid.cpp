@@ -1038,6 +1038,95 @@ VectorDouble DbGrid::getOneSlice(const String& name,
 }
 
 /**
+ * Returns the contents of one slice extracted from a DbGrid
+ * @param idim Rank of the target coordinate
+ * @param posx Rank of the first extracted coordinate (in [0, ndim[)
+ * @param posy Rank of the second extracted coordinate (in [0, ndim[)
+ * @param corner  Vector giving a reference node that belongs to the extracted section
+ * @param useSel Use of the current Selection
+ * @return
+ *
+ * @remark If idim does not match the Space dimension of the DbGrid, empty vector if returned
+ * @remark If the variable exists physically, this variable is read
+ * @remark Otherwise, the coordinate is generated on the fly
+ *
+ * @remark The argument 'corner' gives the indices of a node that belongs to the
+ * @remark extracted section. Obviously corner[posx] and corner[posy] are not used
+ *
+ */
+VectorDouble DbGrid::getOneSliceForCoordinate(int idim,
+                                              int posx,
+                                              int posy,
+                                              const VectorInt& corner,
+                                              bool useSel) const
+{
+  VectorDouble tab;
+  int ndim = getNDim();
+  if (getNDim() < 2)
+  {
+    messerr("This method is limited to Grid with space dimension >= 2");
+    return tab;
+  }
+  if (posx < 0 || posx >= ndim)
+  {
+    messerr("Argument 'posx'(%d) should lie in [0,%d[", posx, ndim);
+    return tab;
+  }
+  if (posy < 0 || posy >= ndim)
+  {
+    messerr("Argument 'posy'(%d) should lie in [0,%d[", posy, ndim);
+    return tab;
+  }
+  if (posx == posy)
+  {
+    messerr("Arguments 'posx' and 'posy' should not be similar");
+    return tab;
+  }
+  VectorInt cornloc = corner;
+  if (cornloc.empty())
+    cornloc.resize(ndim, 0);
+  if (ndim != (int)cornloc.size())
+  {
+    messerr("The dimension of 'corner' should be equal to 'ndim'");
+    return tab;
+  }
+  if (idim < 0 || idim >= ndim)
+  {
+    messerr("Argument 'idim'(%d) should lie in [0,%d[", idim, ndim);
+    return tab;
+  }
+  // Check if the variable name already exists
+  String name = getNameByLocator(ELoc::X, idim);
+  int iuid = getUID(name);
+  if (iuid >= 0)
+    return getOneSlice(name, posx, posy, corner, useSel);
+
+    // The variable does not exist, it must be generated on the fly
+  int n1 = getNX(posx);
+  int n2 = getNX(posy);
+  tab.resize(n1 * n2, TEST);
+
+  VectorInt indices = cornloc;
+  VectorDouble coord(ndim);
+
+  int ecr = 0;
+  for (int i2 = 0; i2 < n2; i2++)
+    for (int i1 = 0; i1 < n1; i1++, ecr++)
+    {
+      indices[posx] = i1;
+      indices[posy] = i2;
+
+      indicesToCoordinateInPlace(indices, coord);
+      int iech = indiceToRank(indices);
+      if (!useSel || isActive(iech))
+        tab[ecr] = coord[idim];
+      else
+        tab[ecr] = TEST;
+    }
+  return tab;
+}
+
+/**
  * Set all elements of a column (1-D) along a given space dimension
  * to a constant value
  * @param name   Name of the target variable
