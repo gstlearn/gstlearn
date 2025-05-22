@@ -43,16 +43,16 @@ jobs:
         brew install hdf5
         echo "$(brew --prefix bison)/bin" >> $GITHUB_PATH
 
-    - name: Setup Python Version
-      uses: actions/setup-python@v5
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v6
       with:
         python-version: ${{env.PYTHON_VERSION}}
+        activate-environment: true
 
     - name: Install python dependencies
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install numpy
-        python -m pip install pandas scipy mlxtend
+        uv pip install numpy
+        uv pip install pandas scipy mlxtend
 
     - name: Setup R Version
       uses: r-lib/actions/setup-r@v2
