@@ -1036,12 +1036,6 @@ bool Db::hasLocator(const ELoc& locatorType) const
   return p.hasLocator();
 }
 
-int Db::getNFromLocator(const ELoc& locatorType) const
-{
-  const PtrGeos& p = _p[locatorType.getValue()];
-  return p.getNLoc();
-}
-
 int Db::getNEloc()
 {
   int number = 0;
@@ -1127,7 +1121,7 @@ void Db::clearLocators(const ELoc& locatorType)
 int Db::_getNextLocator(const ELoc& locatorType) const
 {
   int number = getNLoc(locatorType);
-
+  messerr("Db::_getNextLocator: Selecting next locator for %s: %d (will be removed soon!)", std::string(locatorType.getKey()).c_str(), number);
   return number;
 }
 
@@ -2410,8 +2404,8 @@ void Db::switchLocator(const ELoc& locatorType_in, const ELoc& locatorType_out)
 {
   PtrGeos& p_in  = _p[locatorType_in.getValue()];
   PtrGeos& p_out = _p[locatorType_out.getValue()];
-  int n_in       = getNFromLocator(locatorType_in);
-  int n_out      = getNFromLocator(locatorType_out);
+  int n_in       = getNLoc(locatorType_in);
+  int n_out      = getNLoc(locatorType_out);
 
   /* Move the gradient components into additional variables */
   p_out.resize(n_in + n_out);
@@ -2584,7 +2578,7 @@ double Db::getZVariable(int iech, int item) const
 VectorDouble Db::getLocVariables(const ELoc& loctype, int iech, int nitemax) const
 {
   VectorDouble vec;
-  int number = getNFromLocator(loctype);
+  int number = getNLoc(loctype);
   if (number <= 0) return vec;
   int nitem = (nitemax > 0) ? MIN(nitemax, number) : number;
 
@@ -2611,7 +2605,7 @@ void Db::setLocVariables(const ELoc& loctype,
                          int iech,
                          const VectorDouble& values)
 {
-  int number = getNFromLocator(loctype);
+  int number = getNLoc(loctype);
   int size   = (int)values.size();
   if (number != size)
   {
@@ -3148,7 +3142,7 @@ String Db::getNameByUID(int iuid) const
 VectorString Db::getNamesByLocator(const ELoc& locatorType) const
 {
   VectorString namelist;
-  int count = getNFromLocator(locatorType);
+  int count = getNLoc(locatorType);
   if (count <= 0) return namelist;
   for (int i = 0; i < count; i++)
   {
@@ -3267,7 +3261,7 @@ void Db::setName(const VectorString& list, const String& name)
 void Db::setNameByLocator(const ELoc& locatorType, const String& name)
 {
   VectorString namelist;
-  int count = getNFromLocator(locatorType);
+  int count = getNLoc(locatorType);
   if (count <= 0) return;
   for (int i = 0; i < count; i++)
   {
