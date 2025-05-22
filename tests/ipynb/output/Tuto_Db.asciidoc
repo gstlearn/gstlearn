@@ -122,6 +122,7 @@ Column = 3 - Name = sel - Locator = sel----
 Data Base Line Characteristics
 ==============================
 Number of Lines = 10
+Number of samples = 274
 Line length = 24 / 29 / 30 / 26 / 26 / 22 / 23 / 35 / 23 / 36
 
 Variables
