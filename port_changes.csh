@@ -1,7 +1,7 @@
 #!/bin/csh
 
 # === À PERSONNALISER ===
-set old_branch = "Robustify-SPDE"
+set old_branch = "Modif_setLocator"
 
 # === VÉRIFICATION DANS UN RÉPO GIT ===
 if (! -d .git) then
