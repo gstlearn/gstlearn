@@ -23,6 +23,9 @@ class ALinearOp;
  * nxmax   Maximum number of vertices in the internal mesh (0 : no limit)
  * epsNugget Nugget effect
  * useStencil Default option for no Cholesky (can only be used in stationary case for Turbo Meshing)
+ * nMC Number of Monte-Carlo simulations (used for Variance and logdet)
+ * seedMC Seed for the random number generator (used for Variance and logdet)
+ *
  * cgparams Parameters for the Conjugate Gradient method
  */
 class GSTLEARN_EXPORT SPDEParam {
@@ -35,6 +38,8 @@ public:
             int nxmax               = 300,
             double epsNugget        = EPSILON2,
             bool useStencil         = true,
+            int nMC                 = 1,
+            int seedMC              = 134341,
             const CGParam& cgparams = CGParam());
   SPDEParam(const SPDEParam& m);
   SPDEParam& operator=(const SPDEParam& m);
@@ -47,6 +52,8 @@ public:
                            int nxmax               = 300,
                            double epsNugget        = EPSILON2,
                            bool useStencil         = true,
+                           int nMC                 = 1,
+                           int seedMC              = 134341,
                            const CGParam& cgparams = CGParam());
 
   int     getBorder() const { return _border; }
@@ -55,10 +62,11 @@ public:
   int     getRefineK() const { return _refineK; }
   int     getRefineS() const { return _refineS; }
   bool    isPolarized() const { return _flagPolarized; }
-  void    setPolarized(bool flagPolarized) { _flagPolarized = flagPolarized; }  
+  void    setPolarized(bool flagPolarized) { _flagPolarized = flagPolarized; }
   int     getNxMax() const { return _nxmax; }
   bool    getUseStencil() const { return _useStencil; }
-  void    setUseStencil(bool useStencil) { _useStencil = useStencil; }
+  int     getNMC() const { return _nMC; }
+  int     getSeedMC() const { return _seedMC; }
 
   void setBorder(int border) { _border = border; }
   void setCGparams(const CGParam& CGparams) { _CGparams = CGparams; }
@@ -66,6 +74,9 @@ public:
   void setRefineK(int refineK) { _refineK = refineK; }
   void setRefineS(int refineS) { _refineS = refineS; }
   void setNxMax(int nxmax) { _nxmax = nxmax; }
+  void setUseStencil(bool useStencil) { _useStencil = useStencil; }
+  void setNMC(int nMC) { _nMC = nMC; }
+  void setSeedMC(int seedMC) { _seedMC = seedMC; }
 
 private:
   int     _refineK;
@@ -75,5 +86,7 @@ private:
   int     _nxmax;
   double  _epsNugget;
   bool    _useStencil;
+  int     _nMC; // Number of Monte-Carlo simulations
+  int     _seedMC; // Seed for the random number generator
   CGParam _CGparams;
 };

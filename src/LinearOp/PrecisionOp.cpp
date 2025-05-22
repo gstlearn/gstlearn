@@ -253,10 +253,10 @@ int PrecisionOp::_prepareChebychev(const EPowerPT& power) const
 
 /**
  * Compute the Logarithm of the Determinant
- * @param nbsimu Number of simulations
+ * @param nMC Number of Monte-Carlo simulations
  * @return The computed value or TEST if problem
  */
-double PrecisionOp::getLogDeterminant(int nbsimu)
+double PrecisionOp::getLogDeterminant(int nMC)
 {
   VectorDouble gauss;
   VectorDouble result;
@@ -264,7 +264,7 @@ double PrecisionOp::getLogDeterminant(int nbsimu)
   result.resize(getSize());
 
   double val1 = 0.;
-  for (int isimu = 0; isimu < nbsimu; isimu++)
+  for (int isimu = 0; isimu < nMC; isimu++)
   {
     VH::simulateGaussianInPlace(gauss);
     vect results(result);
@@ -275,7 +275,7 @@ double PrecisionOp::getLogDeterminant(int nbsimu)
       val1 += gauss[i] * result[i];
     }
   }
-  val1 /= nbsimu;
+  val1 /= nMC;
 
   double val2 = 0.;
   for (const auto &e : _shiftOp->getLambdas())

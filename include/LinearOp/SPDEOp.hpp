@@ -139,6 +139,8 @@ public:
     _solver = new LinearOpCGSolver<SPDEOp>(this);
   }
   virtual ~SPDEOp() = default;
+
+
 };
 
 #ifndef SWIG

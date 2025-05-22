@@ -307,7 +307,7 @@ void ASPDEOp::evalInvCov(const constvect inv, vect result) const
 
 VectorDouble ASPDEOp::computeDriftCoeffs(const VectorDouble& Z,
                                          const MatrixDense& driftMat,
-                                        bool verbose) const
+                                         bool verbose) const
 {
   int xsize = (int)(driftMat.getNCols());
   VectorDouble XtInvSigmaZ(xsize);
@@ -339,3 +339,31 @@ VectorDouble ASPDEOp::computeDriftCoeffs(const VectorDouble& Z,
   
   return result;
 }
+
+double ASPDEOp::computeLogDetOp(int nbsimu) const
+{
+  DECLARE_UNUSED(nbsimu);
+  messerr("Not implemented yet in Matrix-free version");
+  return TEST;
+}
+
+double ASPDEOp::computeQuadratic(const std::vector<double>& x) const
+{
+  _workdat1.resize(_getNDat());
+  vect w1s(_workdat1);
+  constvect xm(x);
+  evalInvCov(xm, w1s);
+  return VH::innerProduct(w1s, xm);
+}
+
+// We use the fact that log|Sigma| = log |Q + A^t diag^(-1) (sigma) A|- log|Q| + Sum(log sigma_i^2)
+
+double ASPDEOp::computeTotalLogDet(int nMC) const
+{
+  double a1 = computeLogDetOp(nMC);
+  if (FFFF(a1)) return TEST;
+  double a2 = _QKriging->computeLogDetQ(nMC);
+  double a3 = _invNoise->computeLogDet();
+  return a1 - a2 + a3;
+}
+

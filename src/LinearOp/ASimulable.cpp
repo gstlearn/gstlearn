@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ASimulable.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "geoslib_define.h"
@@ -46,4 +47,11 @@ int ASimulable::evalSimulate(const constvect whitenoise, vect result) const
 int ASimulable::addSimulateToDest(const constvect whitenoise, vect outv) const
 {
   return _addSimulateToDest(whitenoise, outv);
+}
+
+double ASimulable::computeLogDet(int nMC) const
+{
+  DECLARE_UNUSED(nMC);
+  messerr("computeLogDet not implemented in ASimulable"); 
+  return TEST;
 }
