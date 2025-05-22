@@ -1404,6 +1404,7 @@ double logLikelihoodSPDENew(Db* dbin,
                             const SPDEParam& params,
                             bool verbose)
 {
+  DECLARE_UNUSED(nbsimu)
   if (dbin == nullptr) return 1;
   if (model == nullptr) return 1;
 
