@@ -60,7 +60,7 @@ private:
   double                    _eps;
   bool                      _precondStatus;
   bool                      _userInitialValue;
-  const ALinearOpMulti*     _precond;
+  const ALinearOpMulti*     _precond; // do not clean
 
   // Work arrays
   mutable bool                         _initialized;
