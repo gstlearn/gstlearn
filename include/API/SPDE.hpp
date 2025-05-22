@@ -160,6 +160,14 @@ GSTLEARN_EXPORT double logLikelihoodSPDE(Db* dbin,
                                          int nbsimu              = 1,
                                          const SPDEParam& params = SPDEParam(),
                                          bool verbose            = false);
+GSTLEARN_EXPORT double logLikelihoodSPDENew(Db* dbin,
+                                            Model* model,
+                                            int useCholesky               = -1,
+                                            int nbsimu                    = 1,
+                                            const VectorMeshes& meshes    = VectorMeshes(),
+                                            const ProjMultiMatrix* projIn = nullptr,
+                                            const SPDEParam& params       = SPDEParam(),
+                                            bool verbose                  = false);
 GSTLEARN_EXPORT MatrixSparse* buildInvNugget(Db* dbin, Model* model, const SPDEParam& params = SPDEParam());
 GSTLEARN_EXPORT VectorMeshes defineMeshesFromDbs(const Db* dbin,
                                                  const Db* dbout,

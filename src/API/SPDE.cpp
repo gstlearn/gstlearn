@@ -1231,6 +1231,94 @@ int simulateSPDE(Db* dbin,
 }
 
 /**
+ * Calculate the Log-Lieklihood under the SPDE framework
+ *
+ * @param dbin Input Db (must contain the variable to be estimated)
+ * @param model Model definition
+ * @param useCholesky Define the choice regarding Cholesky
+ * @param nbsimu Number of simulations
+ * @param meshes Meshes description (optional)
+ * @param projIn Matrix of projection (optional)
+ * @param params Set of SPDE parameters
+ * @return Returned value
+ */
+double logLikelihoodSPDENew(Db* dbin,
+                            Model* model,
+                            int useCholesky,
+                            int nbsimu,
+                            const VectorMeshes& meshes,
+                            const ProjMultiMatrix* projIn,
+                            const SPDEParam& params,
+                            bool verbose)
+{
+  if (dbin == nullptr) return 1;
+  if (model == nullptr) return 1;
+
+  VectorDouble Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
+
+  // Define optional parameters
+  VectorMeshes meshLocal = meshes;
+  bool flagProjCreated   = (projIn == nullptr);
+  if (_defineMeshes(dbin, nullptr, model, meshLocal, params, true)) return 1;
+  const ProjMultiMatrix* AIn = _defineProjMulti(dbin, model, meshLocal, projIn, true);
+  if (AIn == nullptr) return 1;
+
+  // Auxiliary information
+  MatrixSparse* invnoise        = buildInvNugget(dbin, model, params);
+  MatrixSymmetricSim* invnoisep = nullptr;
+  if (!useCholesky)
+    invnoisep = new MatrixSymmetricSim(invnoise);
+
+  SPDEOp* spdeop              = nullptr;
+  PrecisionOpMulti* Qop       = nullptr;
+  PrecisionOpMultiMatrix* Qom = nullptr;
+  if (useCholesky)
+  {
+    Qom    = new PrecisionOpMultiMatrix(model, meshLocal);
+    spdeop = new SPDEOpMatrix(Qom, AIn, invnoise);
+  }
+  else
+  {
+    Qop    = new PrecisionOpMulti(model, meshLocal, params.getUseStencil());
+    spdeop = new SPDEOp(Qop, AIn, invnoisep);
+    spdeop->setMaxIterations(params.getCGparams().getNIterMax());
+    spdeop->setTolerance(params.getCGparams().getEps());
+  }
+
+  // Calculating the drift coefficient (optional) and Centering the Data
+  VectorDouble driftCoeffs = _centerDataByDriftInPlace(spdeop, dbin, model, Z);
+
+  // Performing the task 
+  int size       = (int)Z.size();
+  double logdet  = 0.; // computeLogDet(nbsimu);
+  double quad    = 0.; // computeQuad();
+  double loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
+
+  if (verbose)
+  {
+    message("Likelihood calculation:\n");
+    message("- Length of Information Vector = %d\n", size);
+    message("Log-Determinant = %lf\n", logdet);
+    message("Quadratic term = %lf\n", quad);
+    message("Log-likelihood = %lf\n", loglike);
+  }
+
+  // Cleaning phase
+  delete spdeop;
+  delete Qom;
+  delete Qop;
+  delete invnoise;
+  delete invnoisep;
+  if (flagProjCreated)
+  {
+    delete AIn;
+    AIn = nullptr;
+  }
+
+  return loglike;
+}
+
+/**
  * Build the inverse of the Nugget Effect matrix
  * It is established for:
  * - the number of variables defined in 'dbin' (and in 'Model')
