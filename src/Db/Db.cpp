@@ -208,7 +208,7 @@ int Db::resetFromBox(int nech,
 
   int jcol = 0;
   if (flagAddSampleRank) jcol++;
-  setLocatorsByUID(ndim, jcol, ELoc::X, 0);
+  setLocatorsByUID(ndim, jcol, ELoc::X);
 
   return 0;
 }
@@ -238,7 +238,7 @@ int Db::resetFromOnePoint(const VectorDouble& tab, bool flagAddSampleRank)
 
   int jcol = 0;
   if (flagAddSampleRank) jcol++;
-  setLocatorsByUID(ndim, jcol, ELoc::X, 0);
+  setLocatorsByUID(ndim, jcol, ELoc::X);
 
   return 0;
 }
