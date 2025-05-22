@@ -56,3 +56,12 @@ int SPDEOpMatrix::_addToDest(const constvect inv, vect outv) const
 {
  return _QpAinvNoiseAt.addToDest(inv,outv);
 }
+
+double SPDEOpMatrix::computeLogDetOp(int nbsimu) const
+{
+  DECLARE_UNUSED(nbsimu);
+
+  if (_chol == nullptr)
+    _chol = new CholeskySparse(&_QpAinvNoiseAt);
+  return _chol->computeLogDeterminant();
+}
