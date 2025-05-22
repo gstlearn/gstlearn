@@ -5,6 +5,7 @@ Reference DbLine File
 Data Base Line Characteristics
 ==============================
 Number of Lines = 4
+Number of samples = 12
 Line length = 3 / 4 / 2 / 3
 
 Variables
@@ -21,6 +22,7 @@ DbLine after Serialization / Deserialization
 Data Base Line Characteristics
 ==============================
 Number of Lines = 4
+Number of samples = 12
 Line length = 3 / 4 / 2 / 3
 
 Variables
@@ -37,6 +39,7 @@ DbLine created using alternative solution
 Data Base Line Characteristics
 ==============================
 Number of Lines = 4
+Number of samples = 12
 Line length = 2 / 3 / 4 / 3
 
 Variables

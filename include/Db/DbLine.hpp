@@ -94,7 +94,11 @@ public:
                                         const VectorInt& xranks,
                                         const VectorInt& yranks,
                                         int byZ = 1);
-  
+  static DbLine* createMarkersFromGrid(const DbGrid& grid,
+                                       const String& name,
+                                       const VectorInt& xranks,
+                                       const VectorInt& yranks,
+                                       const VectorDouble& cuts);
   Db* createStatToHeader() const;
 
   int getNLine() const;
