@@ -144,6 +144,11 @@ VectorDouble SpacePoint::getIncrement(const SpacePoint& pt, int ispace) const
   return ASpaceObject::getIncrement(*this, pt, ispace);
 }
 
+void SpacePoint::getIncrementInPlace(VectorDouble& inc, const SpacePoint& pt, int ispace) const
+{
+  ASpaceObject::getIncrementInPlace(*this, pt, inc, ispace);
+}
+
 String SpacePoint::toString(const AStringFormat* /*strfmt*/) const
 {
   return VH::toStringAsSpan(constvect(_coord.data(),getNDim()));
@@ -167,11 +172,13 @@ double SpacePoint::getCosineToDirection(const SpacePoint &T2,
   double cosdir = 0.;
   double dn1 = 0.;
   double dn2 = 0.;
-  VectorDouble delta = getIncrement(T2);
+  _delta.clear();
+  _delta.resize(getNDim());
+  getIncrementInPlace(_delta, T2);
   for (int idim = 0; idim < (int)getNDim(); idim++)
   {
-    cosdir += delta[idim] * codir[idim];
-    dn1 += delta[idim] * delta[idim];
+    cosdir += _delta[idim] * codir[idim];
+    dn1 += _delta[idim] * _delta[idim];
     dn2 += codir[idim] * codir[idim];
   }
   double prod = dn1 * dn2;
@@ -186,12 +193,14 @@ double SpacePoint::getOrthogonalDistance(const SpacePoint &P2,
   double dn2 = 0.;
   double v = 0.;
   double dproj = 0.;
-  VectorDouble delta = getIncrement(P2);
+  _delta.clear();
+  _delta.resize(getNDim());
+  getIncrementInPlace(_delta, P2);
   for (int idim = 0; idim < (int)getNDim(); idim++)
   {
-    dproj += delta[idim] * codir[idim];
+    dproj += _delta[idim] * codir[idim];
     dn1 += codir[idim] * codir[idim];
-    dn2 += delta[idim] * delta[idim];
+    dn2 += _delta[idim] * _delta[idim];
   }
   if (dn1 > 0.) v = sqrt(dn2 - dproj * dproj / dn1);
   return (v);

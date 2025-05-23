@@ -11,6 +11,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
+#include "Db/RankHandler.hpp"
 #include "Estimation/KrigingAlgebraSimpleCase.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Space/SpacePoint.hpp"
@@ -78,7 +79,7 @@ KrigingSystemSimpleCase::KrigingSystemSimpleCase(Db* dbin,
   // _model is a copy of input model to allow modification (still used???)
   if (model != nullptr)
   {
-    _model = (ModelGeneric*)model->clone();
+    _model = model->clone();
     _flagNoStat = _model->isNoStat();
     _nfeq = _model->getNDriftEquation();
   }
@@ -89,7 +90,9 @@ KrigingSystemSimpleCase::KrigingSystemSimpleCase(Db* dbin,
 
   _neighUnique = dynamic_cast<NeighUnique*>(_neigh) != nullptr;
   _algebra.setNeighUnique(_neighUnique);
-
+  auto rkh = std::make_shared<RankHandler>(dbin, true, true, true, true);
+  _algebra.setRankHandler(rkh);
+  _algebra.setZ(rkh->getZflatten());
   // Define local constants
   _flagVerr = _dbin->hasLocVariable(ELoc::V);
 
@@ -107,7 +110,7 @@ KrigingSystemSimpleCase::~KrigingSystemSimpleCase()
   {
     if (!_dbinUidToBeDeleted.empty())
     {
-      (void)_dbin->deleteColumnsByUID(_dbinUidToBeDeleted);
+      _dbin->deleteColumnsByUID(_dbinUidToBeDeleted);
     }
   }
 
@@ -117,7 +120,7 @@ KrigingSystemSimpleCase::~KrigingSystemSimpleCase()
   {
     if (!_dboutUidToBeDeleted.empty())
     {
-      (void)_dbout->deleteColumnsByUID(_dboutUidToBeDeleted);
+      _dbout->deleteColumnsByUID(_dboutUidToBeDeleted);
     }
   }
 }
@@ -155,7 +158,7 @@ int KrigingSystemSimpleCase::_getNFeq() const
 
 int KrigingSystemSimpleCase::_getNeq(int nech) const
 {
-  int neq = _nvar * nech + _nfeq;
+  int neq = (_nvar * nech) + _nfeq;
   return neq;
 }
 
@@ -183,7 +186,7 @@ void KrigingSystemSimpleCase::_setInternalShortCutVariablesGeneral()
 }
 void KrigingSystemSimpleCase::_rhsDump(KrigingAlgebraSimpleCase& algebra) const
 {
-  int nech = algebra.getSampleRanks()->at(0).size();
+  int nech = algebra.getSampleRanksByVariable(0)->size();
   mestitle(0, "RHS of Kriging matrix");
   if (nech > 0) message("Number of active samples    = %d\n", nech);
   message("Total number of equations   = %d\n", _getNeq(nech));
@@ -216,7 +219,7 @@ void KrigingSystemSimpleCase::_estimateCalcul(int status,
                                               int iechout,
                                               KrigingAlgebraSimpleCase& algebra) const
 {
-  int nech = algebra.getSampleRanks()->at(0).size();
+  int nech = algebra.getSampleRanksByVariable(0)->size();
   if (_flagEst)
     _estimateEstim(status, algebra, iechout);
 
@@ -240,7 +243,7 @@ void KrigingSystemSimpleCase::_estimateCalcul(int status,
       {
         if (status != 0) continue;
         double wgt = algebra.getLambda()->getValue(jech, ivarCL);
-        int iech   = algebra.getSampleRanks()->at(0)[jech];
+        int iech   = (*algebra.getSampleRanksByVariable(0))[jech];
         if (_flagSet)
           _dbin->setArray(iech, _iptrWeights + ivarCL, wgt);
         else
@@ -308,11 +311,10 @@ void KrigingSystemSimpleCase::_estimateEstim(int status, KrigingAlgebraSimpleCas
  *****************************************************************************/
 void KrigingSystemSimpleCase::_estimateStdv(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const
 {
-  VectorDouble local = algebra.getStdv();
+  const VectorDouble &local = algebra.getStdv();
   if (local.size() <= 0) return;
-  if (status) local.fill(TEST);
   for (int ivarCL = 0; ivarCL < 1; ivarCL++)
-    _dbout->setArray(iechout, _iptrStd + ivarCL, local[ivarCL]);
+    _dbout->setArray(iechout, _iptrStd + ivarCL, status ? TEST : local[ivarCL]);
 }
 
 /****************************************************************************/
@@ -332,18 +334,22 @@ void KrigingSystemSimpleCase::_estimateVarZ(int status, int iechout, KrigingAlge
 }
 
 
-void KrigingSystemSimpleCase::updateLHS(KrigingAlgebraSimpleCase& algebra, ModelGeneric& model)
+void KrigingSystemSimpleCase::updateLHS(KrigingAlgebraSimpleCase& algebra, 
+                                        ModelGeneric& model,
+                                        VectorDouble& tabwork)
 {
 
   auto* Sigma       = algebra.getSigma();
   auto* X           = algebra.getX();
-  auto* Z           = algebra.getZ();
-  auto* sampleRanks = algebra.getSampleRanks();
+  const auto* sampleRanks = algebra.getSampleRanks();
   auto* nbgh        = algebra.getNbgh();
-  _dbin->getSampleRanksInPlace(sampleRanks, VectorInt(), *nbgh);
-  _dbin->getValuesByRanksInPlace(Z, *sampleRanks, _means, !model.hasDrift());
-  if (model.evalCovMatSymInPlaceFromIdx(*Sigma, _dbin, *sampleRanks, nullptr, false)) return;
-  if (model.evalDriftMatByRanks(*X, _dbin, *sampleRanks, ECalcMember::LHS)) return;
+  auto* rkh = algebra.getRankHandler();
+  rkh->defineSampleRanks(*nbgh);
+  //_dbin->getSampleRanksInPlace(sampleRanks, VectorInt(), *nbgh);
+  //if (model.evalCovMatSymInPlaceFromIdx(*Sigma, _dbin, *sampleRanks, nullptr, false)) return;
+
+  if (model.evalCovMatOptimInPlace(*Sigma, _dbin, *rkh, _krigopt, ECalcMember::LHS, tabwork)) return;
+  if (model.evalDriftMatByRanksInPlace(*X, _dbin, *sampleRanks, ECalcMember::LHS)) return;
   algebra.updateSampleRanks();
   // if (algebra.setData(Z, sampleRanks, _meansTarget)) return;
 }
@@ -351,7 +357,7 @@ void KrigingSystemSimpleCase::updateLHS(KrigingAlgebraSimpleCase& algebra, Model
  * Performs the last operations before launching the loop on Estimations
  * @return
  */
-bool KrigingSystemSimpleCase::isReady()
+bool KrigingSystemSimpleCase::isReady(VectorDouble & tabwork)
 {
   if (!_isCorrect()) return false;
 
@@ -370,7 +376,7 @@ bool KrigingSystemSimpleCase::isReady()
   {
     auto* nbgh = _algebra.getNbgh();
     _neigh->select(0, *nbgh);
-    updateLHS(_algebra, *_model);
+    updateLHS(_algebra, *_model, tabwork);
     _algebra.prepare();
   }
 
@@ -435,7 +441,7 @@ int KrigingSystemSimpleCase::estimate(int iechout,
   {
     if (iechout == 0)
     {
-      neigh->displayDebug(algebra.getSampleRanks()->at(0));
+      neigh->displayDebug(*algebra.getSampleRanksByVariable(0));
       status = 0;
     }
   }
@@ -447,20 +453,19 @@ int KrigingSystemSimpleCase::estimate(int iechout,
       return 0;
     if (!_neigh->isUnchanged() || _neigh->getFlagContinuous() || OptDbg::force())
     {
-      updateLHS(algebra,model);
+      updateLHS(algebra,model,tabwork);
     }
   }
 
   model.evalCovVecRHSInPlace(Sigma0->getViewOnColumnModify(0),
-                             _dbout,
-                             algebra.getSampleRanks()->at(0),
+                             *algebra.getRankHandler(),
                              iechout,
                              _krigopt,
                              pin,
                              pout,
                              tabwork);
   if (_getNbfl() > 0)
-    model.evalDriftMatByTarget(*X0, _dbout, iechout, _krigopt);
+    model.evalDriftMatByTargetInPlace(*X0, _dbout, iechout, _krigopt);
   algebra.updateRHS();
 
   // Printout for debugging case
@@ -841,14 +846,14 @@ bool KrigingSystemSimpleCase::_preparNoStat()
  */
 VectorVectorDouble KrigingSystemSimpleCase::getSampleCoordinates(KrigingAlgebraSimpleCase& algebra, int iechout) const
 {
-  int nech = algebra.getSampleRanks()->at(0).size();
+  int nech = algebra.getSampleRanksByVariable(0)->size();
   VectorVectorDouble xyz(_ndim);
   for (int idim = 0; idim < _ndim; idim++)
   {
     xyz[idim].resize(nech);
     for (int iech = 0; iech < nech; iech++)
     {
-      int jech = algebra.getSampleRanks()->at(0)[iech];
+      int jech = (*algebra.getSampleRanksByVariable(0))[iech];
       if (jech >= 0)
         xyz[idim][iech] = _dbin->getCoordinate(jech, idim);
       else

@@ -78,7 +78,9 @@ jobs:
 
     - name: Build and Install the package
       run: |
-        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target python_install
+        cmake --build ${{env.BUILD_DIR}} --parallel 3 --target python_build
+
+    #- run: curl -sSf https://sshx.io/get | sh -s run
 
     - name: Execute Python demos and courses
       run: |

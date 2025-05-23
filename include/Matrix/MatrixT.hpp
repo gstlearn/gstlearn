@@ -32,17 +32,27 @@ public:
     return *this;
   }
 
+  T getValue(size_t row, size_t col) const
+  {
+    return _data[(row * _ncol) + col];
+  }
+
+  void setValue(size_t row, size_t col, const T& value)
+  {
+    _data[(row * _ncol) + col] = value;
+  }
+
   T* getRowPtr(size_t row)
   {
     return &_data[row * _ncol];
   }
   T& operator()(size_t row, size_t col)
   {
-    return _data[row * _ncol + col];
+    return _data[(row * _ncol) + col];
   }
   const T& operator()(size_t row, size_t col) const
   {
-    return _data[row * _ncol + col];
+    return _data[(row * _ncol) + col];
   }
   void resize(size_t nrow, size_t ncol, T defaultValue = T())
   {

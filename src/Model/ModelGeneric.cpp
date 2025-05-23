@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Model/ModelGeneric.hpp"
+#include "Model/Model.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "LinearOp/CholeskyDense.hpp"
@@ -210,12 +211,11 @@ void ModelGeneric::setDriftList(const DriftList* driftlist)
 void ModelGeneric::setCov(ACov* cova)
 {
   if (cova == nullptr) return;
-  
 
   // Set the Context of ModelGeneric (cross_check with DriftList)
   if (_driftList != nullptr)
   {
-    if (! _driftList->getContext().isEqual(cova->getContext()))
+    if (!_driftList->getContext().isEqual(cova->getContext()))
     {
       messerr("Cova and DriftList do not share the same CovContext");
       messerr("Operation cancelled");
@@ -246,8 +246,7 @@ void ModelGeneric::setDriftIRF(int order, int nfex)
   _driftList = DriftFactory::createDriftListFromIRF(order, nfex, _ctxt);
 }
 
-
-void ModelGeneric::addDrift(const ADrift *drift)
+void ModelGeneric::addDrift(const ADrift* drift)
 {
   if (drift == nullptr) return;
   if (_driftList == nullptr) _driftList = new DriftList(_ctxt);
@@ -258,17 +257,157 @@ void ModelGeneric::addDrift(const ADrift *drift)
   _driftList->copyCovContext(_ctxt);
 }
 
-void ModelGeneric::setDrifts(const VectorString &driftSymbols)
+void ModelGeneric::setDrifts(const VectorString& driftSymbols)
 {
   if (_driftList == nullptr)
     _driftList = new DriftList();
   else
     delAllDrifts();
 
-  for (int i = 0; i < (int) driftSymbols.size(); i++)
+  for (int i = 0; i < (int)driftSymbols.size(); i++)
   {
-    ADrift *drift = DriftFactory::createDriftBySymbol(driftSymbols[i]);
+    ADrift* drift = DriftFactory::createDriftBySymbol(driftSymbols[i]);
     addDrift(drift);
   }
 }
 
+static MatrixDense _transformF(const MatrixDense& F1, int type, int idx)
+{
+  MatrixDense F1loc;
+  switch (type)
+  {
+    case 1:
+    case 2:
+      F1loc = F1;
+      break;
+    case 3:
+      F1loc = F1;
+      F1loc.fill(0.);
+      break;
+    case 4:
+      F1loc = F1;
+      F1loc.fill(0.);
+      for (int i = 0; i < F1.getNRows(); i++)
+        F1loc.setValue(i, idx, 1.);
+      break;
+  }
+  return (F1loc);
+}
+
+int computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,
+                               const MatrixSymmetric& Sigma,
+                               const MatrixDense& F1,
+                               int type,
+                               int idx)
+{
+  MatrixDense F1loc = _transformF(F1, type, idx);
+  int nech          = F1.getNRows();
+  int nvar          = Sigma.getNRows() / nech;
+  cov.resize(nech, nech);
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    for (int jech = 0; jech < nech; jech++)
+    {
+      if (iech > jech) continue;
+      double value = 0.;
+      for (int lvar = 0; lvar < nvar; lvar++)
+      {
+        for (int pvar = 0; pvar < nvar; pvar++)
+        {
+          int shifti = lvar * nech;
+          int shiftj = pvar * nech;
+          value += Sigma.getValue(shifti + iech, shiftj + jech) *
+                   F1loc.getValue(iech, lvar) *
+                   F1loc.getValue(jech, pvar);
+        }
+      }
+      cov.setValue(iech, jech, value);
+    }
+  }
+  return 0;
+}
+
+int computeCovMatSVCRHSInPlace(MatrixDense& cov,
+                               const MatrixSymmetric& Sigma,
+                               const MatrixDense& F1,
+                               const MatrixDense& F2,
+                               int type1,
+                               int idx1,
+                               int type2,
+                               int idx2)
+{
+  MatrixDense F1loc = _transformF(F1, type1, idx1);
+  MatrixDense F2loc = _transformF(F2, type2, idx2);
+  int nech1         = F1.getNRows();
+  int nech2         = F2.getNRows();
+  int nvar          = Sigma.getNCols();
+  cov.resize(nech1, nech2);
+
+  for (int iech = 0; iech < nech1; iech++)
+  {
+    for (int jech = 0; jech < nech2; jech++)
+    {
+      double value = 0.;
+      for (int lvar = 0; lvar < nvar; lvar++)
+      {
+        for (int pvar = 0; pvar < nvar; pvar++)
+        {
+          int shifti = lvar * nech1;
+          int shiftj = pvar * nech2;
+          value += Sigma.getValue(shifti + iech, shiftj + jech) *
+                   F1loc.getValue(iech, lvar) *
+                   F2loc.getValue(jech, pvar);
+        }
+      }
+      cov.setValue(iech, jech, value);
+    }
+  }
+  return 0;
+}
+
+int computeDriftMatSVCRHSInPlace(MatrixDense& mat,
+                                 const MatrixDense& F,
+                                 int type,
+                                 int idx,
+                                 bool flagCenteredFactors)
+{
+  if (flagCenteredFactors)
+  {
+    mat.resize(1, 1);
+    switch (type)
+    {
+      case 1:
+      case 3:
+        mat.setRowToConstant(0, 1.);
+        break;
+      case 2:
+        mat.setRowToConstant(0, 0.);
+        break;
+      case 4:
+        mat.setValue(0, 0, (idx == 0) ? 1. : 0.);
+        break;
+    }
+  }
+  else
+  {
+    mat.resize(1, F.getNCols());
+    switch (type)
+    {
+      case 1:
+      case 3:
+        mat.setRow(0, F.getRow(0));
+        break;
+
+      case 2:
+        mat.setRowToConstant(0, 0.);
+        break;
+
+      case 4:
+        mat.setRowToConstant(0, 0.);
+        mat.setValue(0, idx, 1.);
+        break;
+    }
+  }
+  return 0;
+}

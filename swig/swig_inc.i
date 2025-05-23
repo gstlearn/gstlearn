@@ -814,6 +814,8 @@
   }
 }
 
+
+
 %typemap(in, fragment="ToCpp") const MatrixDense&     (void *argp, MatrixDense mat),
                                const MatrixDense*     (void *argp, MatrixDense mat),
                                const MatrixSquare&   (void *argp, MatrixSquare mat),
@@ -1055,6 +1057,15 @@
                                   bool flag_rotate=true) const
   {
     return $self->indicesToCoordinateInPlace(indice, coor, percent, flag_rotate);
+  }
+};
+
+%extend Rule {
+  // Don't return std::array to wrapping languages
+  VectorDouble getThresh(int facies) const
+  {
+    const auto thresh = $self->getThresh(facies);
+    return VectorDouble{thresh.begin(), thresh.end()};
   }
 };
 

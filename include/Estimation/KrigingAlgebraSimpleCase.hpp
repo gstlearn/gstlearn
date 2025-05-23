@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Basic/VectorNumT.hpp"
+#include "Db/RankHandler.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "gstlearn_export.hpp"
 #include "Basic/OptCustom.hpp"
@@ -33,11 +34,14 @@
  * - the vector *Z* must be centered by the drift beforehand
  * - the vector *beta* corresponds to the vector of Means.
  */
+
+class RankHandler;
+
 class GSTLEARN_EXPORT KrigingAlgebraSimpleCase
 {
 public:
   KrigingAlgebraSimpleCase(bool flagDual                        = false,
-                           const VectorVectorInt* sampleRanks   = nullptr,
+                           const RankHandler* rankhandler       = nullptr,
                            const VectorDouble* Z                = nullptr,
                            const VectorDouble& Means            = VectorDouble(),
                            int flagchol                         = false,
@@ -49,8 +53,9 @@ public:
   void setDual(bool status);
   void setNeighUnique(bool nu = false) { _neighUnique = nu; }
   void resetNewData();
+  void setZ(std::shared_ptr<VectorDouble>& Z);
   int setData(const VectorDouble* Z          = nullptr,
-              const VectorVectorInt* indices = nullptr,
+              const RankHandler* rankhandler = nullptr,
               const VectorDouble& Means      = VectorDouble());
   int setLHS(const MatrixSymmetric* Sigma = nullptr,
              const MatrixDense* X         = nullptr);
@@ -65,7 +70,7 @@ public:
   void dumpAux();
 
   VectorDouble& getEstimation();
-  VectorDouble getStdv();
+  const VectorDouble &getStdv();
   double getVarianceZstar(int i);
   VectorDouble getVarianceZstar();
   const MatrixSymmetric* getStdvMat();
@@ -83,8 +88,12 @@ public:
   MatrixDense* getX() { return _X.get(); }
   MatrixDense* getSigma0() { return _Sigma0.get(); }
   void updateSampleRanks();
+  void updateRankHandler();
   MatrixDense* getX0() { return _X0.get(); }
-  VectorVectorInt* getSampleRanks() { return _sampleRanks.get(); }
+  const VectorVectorInt* getSampleRanks() { return &_rankHandler->getSampleRanks(); }
+  VectorInt* getSampleRanksByVariable(int ivar) { return &_rankHandler->getSampleRanksByVariable(ivar); }
+  RankHandler* getRankHandler() { return _rankHandler.get();}
+  void setRankHandler(std::shared_ptr<RankHandler> &rkh){ _rankHandler = rkh;}
   VectorInt* getNbgh() { return _nbgh.get(); }
   void setMeans(const VectorDouble& means);
 
@@ -117,6 +126,7 @@ private:
   bool _notFindSigma00();
 
   bool _notFindSampleRanks();
+  bool _notFindRankHandler();
 
   void _resetLinkedToZ();
   void _resetLinkedToX();
@@ -166,7 +176,7 @@ private:
 private:
   // Quantities to be defined by the user
   std::shared_ptr<VectorDouble> _Z;              // Data [flattened] (Dim: _neq)
-  std::shared_ptr<VectorVectorInt> _sampleRanks; // Vector of Vector of sampl indices per variable
+  std::shared_ptr<RankHandler> _rankHandler;
   std::shared_ptr<VectorInt> _nbgh;
   std::shared_ptr<MatrixDense> _X;           // Drift at Data (Dim: _neq * _nbfl)
   std::shared_ptr<MatrixSymmetric> _Sigma;   // Covariance Matrix (Dim: _neq * _neq)
@@ -220,4 +230,6 @@ private:
   bool _dualHasChanged;
   bool _invSigmaHasChanged;
   bool _XtInvSigmaHasChanged;
+
+  VectorDouble _dummy;
 };

@@ -52,6 +52,7 @@ private:
   double _cylrad;
   bool   _flagAsym;
 
+  mutable VectorDouble _delta;
   mutable double _psmin;
   mutable double _dist;
 };

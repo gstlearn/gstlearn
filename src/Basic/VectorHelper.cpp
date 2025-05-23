@@ -175,10 +175,11 @@ String VectorHelper::toStringAsVI(const VectorInt &vec)
   return toVector(String(), vec);
 }
 
-void VectorHelper::dumpStats(const String &title, const VectorDouble &vect)
+void VectorHelper::dumpStats(const String& title, constvect vect, int nmax)
 {
-  int ntotal = (int) vect.size();
-  int number = 0;
+  int ntotal  = (int)vect.size();
+  if (nmax > 0 && nmax < ntotal) ntotal = nmax;
+  int number  = 0;
   double mean = 0.;
   double stdv = 0.;
   double mini = 1.e30;
@@ -198,8 +199,8 @@ void VectorHelper::dumpStats(const String &title, const VectorDouble &vect)
   if (!title.empty()) message("%s\n", title.c_str());
   if (number > 0)
   {
-    mean /= (double) number;
-    stdv = stdv / (double) number - mean * mean;
+    mean /= (double)number;
+    stdv = stdv / (double)number - mean * mean;
     stdv = (stdv > 0.) ? sqrt(stdv) : 0.;
 
     message("- Number of samples = %d / %d\n", number, ntotal);
@@ -214,9 +215,22 @@ void VectorHelper::dumpStats(const String &title, const VectorDouble &vect)
   }
 }
 
-void VectorHelper::dumpRange(const String &title, const VectorDouble &vect)
+void VectorHelper::dumpStats(const String& title, const VectorDouble& vectin, int nmax)
 {
-  int ntotal = (int) vect.size();
+  constvect vect(vectin);
+  dumpStats(title, vect, nmax);
+}
+
+void VectorHelper::dumpRange(const String& title, const VectorDouble&  vectin, int nmax)
+{
+  constvect vect(vectin);
+  dumpRange(title, vect, nmax);
+}
+
+void VectorHelper::dumpRange(const String& title, constvect vect, int nmax)
+{
+  int ntotal = (int)vect.size();
+  if (nmax > 0 && nmax < ntotal) ntotal = nmax;
   int number = 0;
   double mini = 1.e30;
   double maxi = -1.e30;
@@ -1056,7 +1070,7 @@ void VectorHelper::simulateGaussianInPlace(VectorDouble &vec,
   VectorDouble::iterator it(vec.begin());
   while (it < vec.end())
   {
-    *it= mean + sigma * law_gaussian();
+    *it = mean + sigma * law_gaussian();
     it++;
   }
 }
@@ -1897,32 +1911,36 @@ void VectorHelper::mean1AndMean2ToStdev(const VectorDouble &mean1,
   }
 }
 
-VectorDouble VectorHelper::power(const VectorDouble &vec, double power)
+VectorDouble VectorHelper::power(const VectorDouble& vec, double power)
 {
-  VectorDouble res(vec.size());
-  VectorDouble::iterator it(res.begin());
-  VectorDouble::const_iterator itv(vec.begin());
-  while (it < res.end())
-  {
-    *it = pow(*itv, power);
-    it++;
-    itv++;
-  }
+  VectorDouble res;
+  VectorHelper::power(res, vec, power);
   return res;
 }
 
 VectorDouble VectorHelper::inverse(const VectorDouble& vec)
 {
-  VectorDouble inv(vec.size());
-  VectorDouble::iterator it(inv.begin());
-  VectorDouble::const_iterator itv(vec.begin());
-  while (it < inv.end())
+  VectorDouble res;
+  VectorHelper::inverse(res, vec);
+  return res;
+}
+
+void VectorHelper::power(VectorDouble &res, const constvect vec, double power)
+{
+  res.resize(vec.size());
+  for (size_t i = 0; i < vec.size(); ++i)
   {
-    *it = 1. / *itv;
-    it++;
-    itv++;
+    res[i] = pow(vec[i], power);
   }
-  return inv;
+}
+
+void VectorHelper::inverse(VectorDouble& res, const constvect vec)
+{
+  res.resize(vec.size());
+  for (size_t i = 0; i < vec.size(); ++i)
+  {
+    res[i] = 1.0 / vec[i];
+  }
 }
 
 int VectorHelper::countUndefined(const VectorDouble &vec)

@@ -55,7 +55,6 @@ public:
 
   double getSill(int ivar, int jvar) const;
   
-
   void makeSillNoStatDb(const String& namecol, int ivar = 0, int jvar = 0, const Db* db = nullptr);
   void makeSillStationary(int ivar = 0, int jvar = 0);
   void makeSillsStationary(bool silent = false);
@@ -63,9 +62,8 @@ public:
 
   TabNoStatSills* getTabNoStatSills() const { return (TabNoStatSills*)_tabNoStat; }
 
-  int getNSills() const { return getTabNoStatSills()->getNSills(); }
-
-  bool isNoStatForVariance() const { return getTabNoStatSills()->isDefinedForVariance(); }
+  int getNSills() const;
+  bool isNoStatForVariance() const;
 
   void informMeshByMesh(const AMesh* amesh) const;
   void informMeshByApex(const AMesh* amesh) const;
@@ -95,17 +93,18 @@ public:
                               SpacePoint& pin,
                               SpacePoint& pout,
                               VectorDouble& tabwork,
-                              double lambda = 1.) const override;
-  #endif
+                              double lambda                 = 1.,
+                              const ECalcMember& calcMember = ECalcMember::RHS) const override;
+#endif
   void setOptimEnabled(bool flag) const override
   {
     _optimEnabled = flag;
     _cor->setOptimEnabled(flag);
   }
   int makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String()) override;
+
 protected:
   void _attachNoStatDb(const Db* db) override;
-  
 
   void _manage(const Db* db1, const Db* db2) const override;
 

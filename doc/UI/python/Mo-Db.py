@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.10.9"
+__generated_with = "0.11.25"
 app = marimo.App()
 
 
@@ -28,29 +28,36 @@ def _(gmo):
 
 
 @app.cell(hide_code=True)
-def _(WidgetDb, gmo):
-    WDbLayout = gmo.WshowDb(WidgetDb)
-    WDbLayout
-    return (WDbLayout,)
-
-
-@app.cell(hide_code=True)
-def _(WDbLayout, WidgetDb, gmo, gp):
+def _(WidgetDb, gmo, gp):
     def myplot():
-        db = gmo.WgetDb(WidgetDb, WDbLayout.value)
+        db = gmo.WgetDb(WidgetDb)
 
         fig = None
         if db is not None:
-            fig, ax = gp.initGeographic(figsize=[4,4])
+            fig, ax = gp.init(figsize=[4,4])
             ax.symbol(db)
         return fig
     return (myplot,)
 
 
 @app.cell(hide_code=True)
-def _(mo, myplot):
-    mo.md(f"Plot of the Db {mo.as_html(myplot())}")
-    return
+def _(WidgetDb, gmo, mo, myplot):
+    param = mo.ui.tabs(
+        {
+            "Data":       gmo.WshowDb(WidgetDb),
+        }
+    ).style({"minWidth": "350px", "width": "350px"})
+
+    simu = mo.vstack(
+        [
+             mo.md(""),
+             mo.md(f"Plotting the Data Base:{mo.as_html(myplot())}")
+        ],
+        gap = 4
+    )
+
+    mo.hstack([param, simu], gap=4)
+    return param, simu
 
 
 if __name__ == "__main__":

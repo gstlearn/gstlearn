@@ -53,10 +53,10 @@ err = pcag.dbF2Z(db)
 db
 
 # Compare the initial variables with the ones obtained by back-transforming the factors
-gt.checkEqualityVector(db["x1"],db["Z.1"], message="Z.1")
-gt.checkEqualityVector(db["x2"],db["Z.2"], message="Z.2")
-gt.checkEqualityVector(db["x3"],db["Z.3"], message="Z.3")
-gt.checkEqualityVector(db["x4"],db["Z.4"], message="Z.4")
+gt.checkEqualityVectors(db["x1"],db["Z.1"], message="Z.1")
+gt.checkEqualityVectors(db["x2"],db["Z.2"], message="Z.2")
+gt.checkEqualityVectors(db["x3"],db["Z.3"], message="Z.3")
+gt.checkEqualityVectors(db["x4"],db["Z.4"], message="Z.4")
 
 # Get the vector of variance ratio.
 
@@ -79,7 +79,7 @@ varratio = eig[0]/np.sum(eig[0])
 
 # Comparing with gstlearn
 
-gt.checkEqualityVector(varratio, varratiog, message="Error in Variance Ratio")
+gt.checkEqualityVectors(varratio, varratiog, message="Error in Variance Ratio")
 
 # Transform the original data set
 
@@ -87,7 +87,7 @@ Xt = Xc@eig[1]/np.sqrt(eig[0])
 
 # Comparing with gstlearn
 
-gt.checkEqualityVector(Xt, db["F*"], flagAbsolute=True, message="Transformed original data set")
+gt.checkEqualityVectors(Xt, db["F*"], flagAbsolute=True, message="Transformed original data set")
 
 # Transform another data set
 
@@ -110,4 +110,4 @@ Xtestnm =(Xtest-means)@eig[1]/np.sqrt(eig[0])
 
 # Comparing with gstlearn
 
-gt.checkEqualityVector(Xtestnm, dbtest["F*"], flagAbsolute=True, message="Transformed another data set")
+gt.checkEqualityVectors(Xtestnm, dbtest["F*"], flagAbsolute=True, message="Transformed another data set")

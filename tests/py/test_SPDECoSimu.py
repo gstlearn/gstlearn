@@ -1,124 +1,173 @@
-
 # %%
 import gstlearn as gl
+import gstlearn.plot as gp
 import matplotlib.pyplot as plt
 import numpy as np
-manual = False
+
+# %% Various plots
+def getName(radix, ivar, isimu, flagShort=True):
+    if flagShort:
+        name = radix + str(isimu+1) + "V" + str(ivar+1)
+    else:
+        name = radix + ".Data." + str(ivar+1) + "." + str(isimu+1)
+    return name
+
+# %% General parameters
+flag_plot = False
+ndim = 2
 nvar = 2
-ndat = 100
-rangeval = 20
-param = 1
-nx = [141,141]
-dx = [1,1]
-x0 = [-20,-20]
-#Model (multivariate) for the field 
+nbsimu = 2
+gl.OptCst.define(gl.ECst.NTDEC,2)
+
+# %% Model (multivariate) for the field 
 if nvar == 1:
     sills = np.array([1.])
+    epsNugget = 0.0001
+    sillsNugg = np.array([0.0001])
+
 if nvar == 2:
     sills = np.array([[80,-50],[-50,40]])
+    epsNugget = 0.001
+    sillsNugg = np.array([[.001,0.],[.0,.001]])
 
-
-model = gl.Model.createFromParam(gl.ECov.MATERN,param = param, range=rangeval,
-                                sills = sills)
-#Data creation (2 variables)
-dat = gl.Db.createFillRandom(ndat,ndim = 2,nvar = 0,coormin=[20,20],coormax=[80,80],seed=234)
+model = gl.Model.createFromParam(gl.ECov.MATERN,param = 1, range=20,
+                                 sills = sills)
+# %% Data creation (2 variables)
+dat = gl.Db.createFillRandom(ndat=100, ndim = 2,nvar = 0,
+                             coormin=[20,20],coormax=[80,80],seed=234)
 
 ## Coordinates are rounded to check if simulations are exact
 dat["x-1"] = np.round(dat["x-1"])
 dat["x-2"] = np.round(dat["x-2"])
-gl.simtub(None,dat,model,nbtuba = 1000)
-Z = dat["Simu*"].T.reshape(-1) #Data vector (two variables in a single vector)
+gl.simtub(None,dat,model,nbtuba = 1000, namconv=gl.NamingConvention("Data"))
+gl.dbStatisticsMono(dat, ["Data.*"]).display()
 
-#Resolution Grid 
-grid = gl.DbGrid.create(nx = nx, dx = dx, x0 = x0)
+# %% Output Grid
+grid = gl.DbGrid.create([141,141] ,dx = [1,1], x0 = [-20,-20])
 
-#Meshes 
+# %% Meshing 
 mesh1 = gl.MeshETurbo(grid, False)
-print(mesh1)
+meshes = gl.VectorMeshes([mesh1])
 
-# %%
+params = gl.SPDEParam.create(epsNugget = epsNugget)
 
-#Projection operators (2 to mimic the possibility to have several convolution operators)
-A1 = gl.ProjMatrix(dat,mesh1)
-A2 = gl.ProjMatrix(dat,mesh1)
+################################################
+# %% Simulation (Matrix) performed with gstlearn
+################################################
 
-#Total projection operator
+gl.mestitle(1, "SPDE Simulation using gstlearn (with Matrix) -> GM")
+gl.law_set_random_seed(1242)
+err = gl.simulateSPDE(dat, grid, model, nbsimu, 1, meshes, None, params,
+                      namconv = gl.NamingConvention("GM"))
+gl.dbStatisticsMono(grid, ["GM.*"]).display()
+
+#####################################################
+# %% Simulation (Matrix-free) performed with gstlearn
+#####################################################
+
+gl.mestitle(1, "SPDE Simulation using gstlearn (Matrix-Free) -> GF")
+gl.law_set_random_seed(1242)
+err = gl.simulateSPDE(dat, grid, model, nbsimu, 0, meshes, None, params,
+                      namconv = gl.NamingConvention("GF"))
+gl.dbStatisticsMono(grid, ["GF.*"]).display()
+
+##################################################
+# %% Simulation (with Matrix) is performed by hand
+##################################################
+
+gl.mestitle(1, "SPDE Simulation performed by Hand -> HF")
+gl.law_set_random_seed(1242)
+Z         = dat["Data*"].T.reshape(-1)
+# Projection operators
+# (2 to mimic the possibility to have several convolution operators)
+AM1 = gl.ProjMatrix(dat,mesh1)
+AM2 = gl.ProjMatrix(dat,mesh1)
+
+# Total projection operator
 if nvar == 1:
-    vectproj = gl.VVectorConstIProj([[A1]])
-if nvar == 2:
-    vectproj = gl.VVectorConstIProj([[A1,None],[None,A2]])
-
-Atot = gl.ProjMulti(vectproj)
-
-#Precision operator (multivariate)
-vmesh = gl.VectorMeshes([mesh1])
-stencil = True
-Qtot = gl.PrecisionOpMulti(model,vmesh,stencil)
-
-
-#Noise Operator (here from a nugget but could be from another SPDE)
-#Note that it has to be multivariate if nvar > 1
-if nvar == 1:
-    modelNugg = gl.Model.createFromParam(gl.ECov.NUGGET,
-                                        sills = np.array([0.0001]))
+    vectproj = gl.VVectorConstIProj([[AM1]])
 
 if nvar == 2:
-    modelNugg = gl.Model.createFromParam(gl.ECov.NUGGET,
-                                        sills = np.array([[.001,0.],[.0,.001]]))
+    vectproj = gl.VVectorConstIProj([[AM1,None],[None,AM2]])
+
+modelNugg = gl.Model.createFromParam(gl.ECov.NUGGET, sills = sillsNugg)
+AM        = gl.ProjMulti(vectproj)
+Qop       = gl.PrecisionOpMulti(model,meshes,True)
+invnoise  = gl.buildInvNugget(dat,modelNugg)
+invnoisep = gl.MatrixSymmetricSim(invnoise)
+spdeop    = gl.SPDEOp(Qop, AM, invnoisep)
+ntarget   = grid.getNSample(True)
+local     = gl.VectorDouble(ntarget)
+for i in range(nbsimu):
+    resultMatH = spdeop.simCond(Z)
+    for j in range(nvar):
+        gl.VH.extractInPlace(resultMatH, local, j * ntarget)
+        iuid = grid.addColumns(local, getName("HF",j,i,False))
 
 
-Qnoise = gl.buildInvNugget(dat,modelNugg)
-NoiseOp = gl.MatrixSymmetricSim(Qnoise)
+gl.dbStatisticsMono(grid, ["HF*"]).display()
 
+######################################################
+# %% Checking the exactness of conditional simulations
+######################################################
 
-# %%
-spdeop = gl.SPDEOp(Qtot,Atot,NoiseOp)
-
-
-# %%
-result = spdeop.simCond(Z)
-print(np.round(result.mean(),4)) #4 to avoid differences on windows
-
-# %%
-nt = grid.getNSample()
-v1 = result[0:nt]
+err = gl.migrate(grid,dat,getName("GF",0,0,False),
+                 namconv=gl.NamingConvention("m1", False))
 if nvar == 2:
-    v2 = result[(nt):(2*nt)]
-plt.imshow(v1.reshape(grid.getNXs()))
-if manual:
-    plt.show()
-if nvar == 2:
-    plt.imshow(v2.reshape(grid.getNXs()))
+    err = gl.migrate(grid,dat,getName("GF",1,0,False),
+                     namconv=gl.NamingConvention("m2", False))
 
-# %%
-if nvar == 2:
-    plt.scatter(v1,v2,s=1)
+##################
+# %% Various plots
+##################
+if flag_plot:
 
-# %%
-grid["v1"] = v1
-if nvar == 2:
-    grid["v2"] = v2
-
-
-# %%
-gl.migrate(grid,dat,"v1")
-dat.setName("Migrate","m1")
-if nvar == 2 :
-    gl.migrate(grid,dat,"v2")
-    dat.setName("Migrate","m2")
-
-# %%
-if nvar == 1:
-    ax = plt.scatter(dat["Simu"], dat["m1"], s=1)
-    plt.plot(ax.axes.get_xbound(),ax.axes.get_xbound(),c="r")
-
-if nvar == 2:
-    ax = plt.scatter(dat["Simu.1"],dat["m1"],s=1)
-    plt.plot(ax.axes.get_xbound(),ax.axes.get_xbound(),c="r")
-    if manual:
-        plt.show()
-    plt.scatter(dat["Simu.2"],dat["m2"],s=1)
-    plt.plot(ax.axes.get_xbound(),ax.axes.get_xbound(),c="r")
-
-
-
+    # Display the HF simulations for all variables and all simulations
+    for i in range(nbsimu):
+        for j in range(nvar):
+            fig, ax = gp.init(flagEqual=True)
+            gp.raster(grid, getName("HF",j,i,False), flagLegend=True)
+            gp.decoration(title="HF"+str(i+1)+"V"+str(j+1)+" (gstlearn)")
+            gp.close()
+    
+    # Display the GM simulations for all variables and all simulations
+    for i in range(nbsimu):
+        for j in range(nvar):
+            fig, ax = gp.init(flagEqual=True)
+            gp.raster(grid, getName("GM",j,i,False), flagLegend=True)
+            gp.decoration(title="GM"+str(i+1)+"V"+str(j+1)+" (gstlearn)")
+            gp.close()
+    
+    # Display the GF simulations for all variables and all simulations
+    for i in range(nbsimu):
+        for j in range(nvar):
+            fig, ax = gp.init(flagEqual=True)
+            gp.raster(grid, getName("GF",j,i,False), flagLegend=True)
+            gp.decoration(title="GF"+str(i+1)+"V"+str(j+1)+" (gstlearn)")
+            gp.close()
+    
+    if nvar == 1:
+        fig, ax = gp.init()
+        gp.correlation(dat, "Data", "m1",
+                       regrLine=True, regrColor="black",
+                       bissLine=True, bissColor="blue",
+                       bins=100, cmin=1)
+        gp.decoration(title="Data = Simu. Cond. V#1 (gstlearn)")
+        gp.close()
+    
+    if nvar == 2:
+        fig, ax = gp.init()
+        gp.correlation(dat, "Data.1", "m1",
+                       regrLine=True, regrColor="black",
+                       bissLine=True, bissColor="blue",
+                       bins=100, cmin=1)
+        gp.decoration(title="Data = Simu. Cond. V#1 (gstlearn)")
+        gp.close()
+    
+        fig, ax = gp.init()
+        gp.correlation(dat, "Data.2", "m2",
+                       regrLine=True, regrColor="black",
+                       bissLine=True, bissColor="blue",
+                       bins=100, cmin=1)
+        gp.decoration(title="Data = Simu. Cond. V#2 (gstlearn)")
+        gp.close()

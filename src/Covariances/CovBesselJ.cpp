@@ -11,7 +11,6 @@
 #include "Covariances/CovBesselJ.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Simulation/TurningBandOperate.hpp"
-#include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 
 #include <math.h>

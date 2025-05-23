@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "LinearOp/AShiftOp.hpp"  
 #include "Covariances/CovAniso.hpp"
-#include "LinearOp/ALinearOp.hpp"
 #include <math.h>
 
 AShiftOp::AShiftOp(CovAniso* cova, int napices)
@@ -19,7 +18,6 @@ AShiftOp::AShiftOp(CovAniso* cova, int napices)
 , _cova(cova)
 {
 }
-
 
 AShiftOp::AShiftOp(const AShiftOp& shift)
 : _Lambda(shift._Lambda)

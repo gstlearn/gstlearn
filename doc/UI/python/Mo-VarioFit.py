@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.10.9"
+__generated_with = "0.11.25"
 app = marimo.App()
 
 
@@ -29,14 +29,7 @@ def _(gmo):
 
 @app.cell(hide_code=True)
 def _(WidgetDb, gmo):
-    WDbLayout = gmo.WshowDb(WidgetDb)
-    WDbLayout
-    return (WDbLayout,)
-
-
-@app.cell(hide_code=True)
-def _(WDbLayout, WidgetDb, gmo):
-    db = gmo.WgetDb(WidgetDb, WDbLayout.value)
+    db = gmo.WgetDb(WidgetDb)
     return (db,)
 
 
@@ -47,61 +40,65 @@ def _(gmo):
 
 
 @app.cell(hide_code=True)
-def _(WidgetVario, gmo):
-    WVarioLayout = gmo.WshowVario(WidgetVario)
-    WVarioLayout
-    return (WVarioLayout,)
-
-
-@app.cell(hide_code=True)
-def _(WVarioLayout, WidgetVario, db, gmo):
-    vario = gmo.WgetVario(WidgetVario, WVarioLayout.value, db)
-    return (vario,)
-
-
-@app.cell(hide_code=True)
 def _(gmo):
     WidgetCovList = gmo.WdefineCovList()
     return (WidgetCovList,)
 
 
-@app.cell(hide_code=True)
-def _(WidgetCovList, gmo):
-    gmo.WshowCovList(WidgetCovList)
-    return
+@app.cell
+def _(WidgetCovList, WidgetDb, WidgetVario, gmo, gp):
+    def myaction():
 
+        # Define the data base
+        db = gmo.WgetDb(WidgetDb)
+        if db is None:
+            return
 
-@app.cell(hide_code=True)
-def _(WidgetCovList, gmo, vario):
-    model = gmo.WgetCovList(WidgetCovList, vario)
-    return (model,)
+        # Define the Variogram
+        vario = gmo.WgetVario(WidgetVario, db)
+        if vario is None:
+            return
 
+        # Define the Model
+        model = gmo.WgetCovList(WidgetCovList, vario)
+        if model is None:
+            return
 
-@app.cell(hide_code=True)
-def _(db, model, plt, vario):
-    def myplot():
+        fig, ax = gp.init(2,1,figsize=(10,16))
+        ax[0,0].symbol(db)
+        ax[0,0].decoration(title="Data Location")
 
-        fig = plt.figure(figsize=(20,6))
-        if db is not None:
-            ax1 = fig.add_subplot(1,2,1)
-            ax1.symbol(db)
-
-        if vario is not None and model is None:
-            ax2 = fig.add_subplot(1,2,2)
-            ax2.variogram(vario, idir=-1)
-
-        if vario is not None and model is not None:
-            ax2 = fig.add_subplot(1,2,2)
-            ax2.varmod(vario, model)
+        if vario is not None:
+            if model is None:
+                ax[1,0].variogram(vario, idir=-1)
+            else:
+                ax[1,0].varmod(vario, model)
+            ax[1,0].decoration(title="Variogram and Model")
 
         return fig
-    return (myplot,)
+    return (myaction,)
 
 
 @app.cell(hide_code=True)
-def _(mo, myplot):
-    mo.md(f"Data Base and Experimental Variogram {mo.as_html(myplot())}")
-    return
+def _(WidgetCovList, WidgetDb, WidgetVario, gmo, mo, myaction):
+    param = mo.ui.tabs(
+        {
+            "Data":       gmo.WshowDb(WidgetDb),
+            "Variogram":  gmo.WshowVario(WidgetVario),
+            "Model":      gmo.WshowCovList(WidgetCovList),
+        }
+    ).style({"minWidth": "350px", "width": "350px"})
+
+    simu = mo.vstack(
+        [
+             mo.md(""),
+             mo.md(f"Variogram and fitted Model{mo.as_html(myaction())}")
+        ],
+        gap = 0
+    )
+
+    mo.hstack([param, simu], gap=2)
+    return param, simu
 
 
 if __name__ == "__main__":

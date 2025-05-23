@@ -78,10 +78,18 @@ public:
   virtual void setColumn(int icol,
                          const VectorDouble& tab,
                          bool flagCheck = false) override;
+  /*! Set the contents of a Column to a constant value */
+  virtual void setColumnToConstant(int icol,
+                                   double value,
+                                   bool flagCheck = false) override;
   /*! Set the contents of a Row */
   virtual void setRow(int irow,
                       const VectorDouble& tab,
                       bool flagCheck = false) override;
+  /*! Set the contents of a Row to a constant value*/
+  virtual void setRowToConstant(int irow,
+                                double value,
+                                bool flagCheck = false) override;
   /*! Set the contents of the (main) Diagonal */
   virtual void setDiagonal(const VectorDouble& tab, bool flagCheck = false) override;
   /*! Set the contents of the (main) Diagonal to a constant value */
@@ -150,11 +158,13 @@ public:
                            const AMatrix* A2,
                            bool flagShiftRow,
                            bool flagShiftCol);
-  static MatrixDense* sample(const AMatrix* A,
-                             const VectorInt& rowKeep = VectorInt(),
-                             const VectorInt& colKeep = VectorInt(),
-                             bool flagInvertRow       = false,
-                             bool flagInvertCol       = false);
+  static bool sample(MatrixDense& res,
+                     const AMatrix& A,
+                     const VectorInt& rowKeep = VectorInt(),
+                     const VectorInt& colKeep = VectorInt(),
+                     bool flagInvertRow       = false,
+                     bool flagInvertCol       = false);
+
   void unsample(const AMatrix* A,
                 const VectorInt& rowFetch,
                 const VectorInt& colFetch,
@@ -172,6 +182,10 @@ public:
                   const MatrixDense* mat2,
                   MatrixDense* mat3);
 #endif
+  void prodMatMatInPlaceOptim(const MatrixDense* x,
+                              const MatrixDense* y,
+                              bool transposeX = false,
+                              bool transposeY = false);
 
 protected:
   virtual void _allocate() override;
@@ -221,7 +235,7 @@ public:
 
 protected:
   bool _flagEigenDecompose;
-  VectorDouble _eigenValues;          // Used only when ! flag_eigen()
+  VectorDouble _eigenValues;   // Used only when ! flag_eigen()
   MatrixSquare* _eigenVectors; // Used only when ! flag_eigen()
   int _maxSize;
 

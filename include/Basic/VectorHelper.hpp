@@ -41,8 +41,12 @@ public:
   static String toStringAsVS(const VectorString& vec);
   static String toStringAsVI(const VectorInt& vec);
 
-  static void dumpStats(const String &title, const VectorDouble &vect);
-  static void dumpRange(const String &title, const VectorDouble &vect);
+  #ifndef SWIG
+  static void dumpStats(const String& title, constvect vect, int nmax = -1);
+  static void dumpRange(const String& title, constvect vect, int nmax = -1);
+#endif
+  static void dumpStats(const String& title, const VectorDouble& vectin, int nmax = -1);
+  static void dumpRange(const String &title, const VectorDouble& vectin, int nmax = -1);
   static void dumpRange(const String &title, const VectorInt &vect);
   static void dumpNNZ(const String &title, const VectorDouble &vect, int nclass = 10);
 
@@ -205,6 +209,10 @@ public:
   static void concatenateInPlace(VectorDouble& veca, const VectorDouble& vecb);
   static VectorDouble power(const VectorDouble& vec, double power);
   static VectorDouble inverse(const VectorDouble& vec);
+#ifndef SWIG
+  static void power(VectorDouble& res, const constvect vec, double power);
+  static void inverse(VectorDouble& res, const constvect vec);
+#endif // !SWIG
 
   static double innerProduct(const VectorDouble &veca, const VectorDouble &vecb, int size = -1);
   static double innerProduct(const double* veca, const double* vecb, int size);

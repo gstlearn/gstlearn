@@ -17,7 +17,6 @@
 #include "Drifts/ADrift.hpp"
 #include "Basic/String.hpp"
 #include "LithoRule/RuleProp.hpp"
-#include "Basic/Law.hpp"
 
 PGSSPDE::PGSSPDE(const std::vector<Model*>& models,
                  const Db* field,
@@ -35,6 +34,7 @@ PGSSPDE::PGSSPDE(const std::vector<Model*>& models,
     _spdeTab.push_back(new SPDE(e, field, data, _calcul));
   }
 }
+
 
 void PGSSPDE::compute(Db *dbout,
                       int /*nitergibbs*/,

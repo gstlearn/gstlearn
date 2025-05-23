@@ -25,7 +25,7 @@ Data Base Statistics
  Mean value          =   5101.000
  Standard Deviation  =   2944.775
  Variance            = 8671700.000
-2 - Name x1 - Locator NA
+2 - Name x1 - Locator x1
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =      0.000
@@ -41,7 +41,7 @@ Data Base Statistics
  Mean value          =     50.000
  Standard Deviation  =     29.155
  Variance            =    850.000
-4 - Name Simu - Locator x1
+4 - Name Simu - Locator NA
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =     -3.474
@@ -49,19 +49,19 @@ Data Base Statistics
  Mean value          =      0.158
  Standard Deviation  =      1.119
  Variance            =      1.253
-5 - Name spde - Locator z1
+5 - Name SimuSPDE - Locator z1
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =     -2.633
- Maximum value       =      3.257
- Mean value          =      0.299
- Standard Deviation  =      0.906
- Variance            =      0.821
+ Minimum value       =     -4.613
+ Maximum value       =      4.240
+ Mean value          =      0.123
+ Standard Deviation  =      1.000
+ Variance            =      1.000
 
 Variables
 ---------
 Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = Simu - Locator = x1
-Column = 4 - Name = spde - Locator = z1
+Column = 3 - Name = Simu - Locator = NA
+Column = 4 - Name = SimuSPDE - Locator = z1

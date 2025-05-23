@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Basic/VectorNumT.hpp"
+#include "Enum/ECalcMember.hpp"
 #include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
@@ -76,7 +77,8 @@ public:
                               SpacePoint& pin,
                               SpacePoint& pout,
                               VectorDouble& tabwork,
-                              double lambda = 1) const override;
+                              double lambda = 1,
+                              const ECalcMember& calcMember = ECalcMember::RHS) const override;
 #endif
   void setCovFiltered(int icov, bool filtered);
   int getNCov() const;

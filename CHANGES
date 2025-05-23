@@ -2,6 +2,9 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.8.0
+=============
+
 Release 1.7.2
 =============
 - Fix memory leak in Python Swig wrapper
@@ -16,6 +19,8 @@ Release 1.7.0
 Compatiblity:
 -------------
 - Compatibility with RHEL 8 (Old linux RedHat based like Centos8, RedHat8, Fedora etc...)
+- R 4.5 support
+- R 4.2 required at least
 
 New features:
 -------------
