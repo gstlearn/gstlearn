@@ -1096,12 +1096,12 @@ VectorDouble DbGrid::getOneSliceForCoordinate(int idim,
     return tab;
   }
   // Check if the variable name already exists
-  String name = getNameByLocator(ELoc::X, idim);
-  int iuid = getUID(name);
-  if (iuid >= 0)
+  if ( getNLoc(ELoc::X) > 0)
+  {
+    String name = getNameByLocator(ELoc::X, idim);
     return getOneSlice(name, posx, posy, corner, useSel);
-
-    // The variable does not exist, it must be generated on the fly
+  }
+  // The variable does not exist, it must be generated on the fly
   int n1 = getNX(posx);
   int n2 = getNX(posy);
   tab.resize(n1 * n2, TEST);
