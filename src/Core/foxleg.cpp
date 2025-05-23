@@ -1385,10 +1385,5 @@ int foxleg_f(int ndat,
   {
     return 0;
   }
-
-  set_keypair("Foxleg Value", 1, 1, 1, &mscur);
-  st_foxleg_score(mauto, mscur, delta, arret);
-
-  return 0;
 }
 

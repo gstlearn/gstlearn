@@ -202,7 +202,6 @@ std::istream& gslSafeGetline(std::istream& is, String& t)
         t += (char) c;
     }
   }
-  return is;
 }
 
 

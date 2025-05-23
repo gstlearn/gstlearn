@@ -47,7 +47,6 @@ ADrift* DriftFactory::createDriftByRank(int rank, int rank_fex)
     default: break;
   }
   my_throw_impossible("Drift function not yet implemented!");
-  return nullptr;
 }
 
 /**

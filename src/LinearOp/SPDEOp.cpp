@@ -145,6 +145,10 @@ VectorDouble ASPDEOp::kriging(const VectorDouble& dat) const
   int err = _kriging(datm, outvs);
   if (err) return VectorDouble();
 
+  if (_projOutKriging == nullptr)
+    return outMeshK;
+
+  // Project the result on the output mesh
   VectorDouble result(_projOutKriging->getNPoint());
   _projOutKriging->mesh2point(outvs, result);
   return result;
@@ -207,6 +211,11 @@ VectorDouble ASPDEOp::simCond(const VectorDouble& dat) const
   vect outvS(outMeshS);
   _simCond(datm, outvK, outvS);
 
+  if (_projOutKriging == nullptr && _projOutSimu == nullptr)
+  {
+    VH::addInPlace(outvS, outvK);
+    return outMeshK;
+  }
   VectorDouble result(_projOutSimu->getNPoint());
   _projOutKriging->mesh2point(outvK, result);
   _projOutSimu->addMesh2point(outvS, result);
@@ -219,6 +228,8 @@ VectorDouble ASPDEOp::simNonCond() const
   vect outvs(outMeshS);
   _simNonCond(outvs);
 
+  if (_projOutSimu == nullptr)
+    return outMeshS;
   VectorDouble result(_projOutSimu->getNPoint());
   _projOutSimu->mesh2point(outvs, result);
   return result;
