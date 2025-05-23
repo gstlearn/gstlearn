@@ -57,7 +57,7 @@ params = gl.SPDEParam.create(epsNugget = epsNugget)
 
 gl.mestitle(1, "SPDE Simulation using gstlearn (with Matrix) -> GM")
 gl.law_set_random_seed(1242)
-err = gl.simulateSPDE(dat, grid, model, nbsimu, 1, meshes, None, params,
+err = gl.simulateSPDE(dat, grid, model, nbsimu, 1, meshes, params = params,
                       namconv = gl.NamingConvention("GM"))
 gl.dbStatisticsMono(grid, ["GM.*"]).display()
 
@@ -67,7 +67,7 @@ gl.dbStatisticsMono(grid, ["GM.*"]).display()
 
 gl.mestitle(1, "SPDE Simulation using gstlearn (Matrix-Free) -> GF")
 gl.law_set_random_seed(1242)
-err = gl.simulateSPDE(dat, grid, model, nbsimu, 0, meshes, None, params,
+err = gl.simulateSPDE(dat, grid, model, nbsimu, 0, meshes, params = params,
                       namconv = gl.NamingConvention("GF"))
 gl.dbStatisticsMono(grid, ["GF.*"]).display()
 

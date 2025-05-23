@@ -64,6 +64,8 @@ gl.mestitle(1,"Co-Kriging using SPDE (Matrix)")
 err = gl.krigingSPDE(dat,grid,model,True,False,1,meshes,
                      namconv=gl.NamingConvention("KM"))
 gl.dbStatisticsMono(grid, ["KM.*"]).display()
+print("Difference with classical kriging (matricial version) = " + 
+      str(np.round(np.max(np.abs(grid["Kriging.*"]-grid["KM.*"]))/totalSill,5)))
 
 #######################################
 # %% SPDE Kriging (matrix-free version)
@@ -73,8 +75,12 @@ gl.mestitle(1,"Co-Kriging using SPDE (Matrix-Free)")
 err = gl.krigingSPDE(dat,grid,model,True,False,0,meshes,
                      namconv = gl.NamingConvention("KF"))
 gl.dbStatisticsMono(grid, ["KF.*"]).display()
+print("Difference with classical kriging (matrix free version) = " + 
+      str(np.round(np.max(np.abs(grid["Kriging.*"]-grid["KF.*"]))/totalSill,5)))
 
+###############
 # Various plots
+###############
 if flag_plot:
     
     # Display the result per variable for Traditional Kriging

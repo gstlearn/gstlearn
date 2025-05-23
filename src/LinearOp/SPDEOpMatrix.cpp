@@ -16,13 +16,16 @@
 
 SPDEOpMatrix::SPDEOpMatrix(const PrecisionOpMultiMatrix* pop,
                            const ProjMultiMatrix* A,
-                           const MatrixSparse* invNoise)
+                           const MatrixSparse* invNoise,
+                           const ProjMultiMatrix* projOut)
   : SPDEOp(pop,
            A,
            (invNoise == nullptr) ? nullptr : new MatrixSymmetricSim(invNoise),
            nullptr,
            nullptr,
-           1)
+           projOut, 
+           projOut,
+           true)
   , _QpAinvNoiseAt(MatrixSparse(0, 0))
   , _chol(nullptr)
 {

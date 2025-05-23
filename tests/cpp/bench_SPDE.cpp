@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
                                 NamingConvention(namconv));
         else
           (void)simulateSPDE(nullptr, grid, model, nsim, useCholesky,
-                             VectorMeshes(), nullptr, SPDEParam(),
+                             VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(),
                              NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 1350);
       }
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
                                 NamingConvention(namconv));
         else
           (void)simulateSPDE(dat, grid, model, nsim, useCholesky,
-                             VectorMeshes(), nullptr, SPDEParam(),
+                             VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(),
                              NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 3130);
       }

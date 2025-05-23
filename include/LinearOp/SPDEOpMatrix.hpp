@@ -24,7 +24,8 @@ class GSTLEARN_EXPORT SPDEOpMatrix : public SPDEOp
 public:
   SPDEOpMatrix(const PrecisionOpMultiMatrix* pop = nullptr,
                const ProjMultiMatrix* A          = nullptr,
-               const MatrixSparse* invNoise      = nullptr);
+               const MatrixSparse* invNoise      = nullptr,
+               const ProjMultiMatrix* projOut    = nullptr);
   virtual ~SPDEOpMatrix();
 
 #ifndef SWIG

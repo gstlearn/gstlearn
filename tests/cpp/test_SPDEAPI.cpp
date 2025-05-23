@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
   int useCholesky = 0;
   law_set_random_seed(132341);
   (void)simulateSPDE(nullptr, dat, model, 1, useCholesky,
-                     VectorMeshes(), nullptr, SPDEParam(),
+                     VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(),
                      NamingConvention("variable", false, false));
   dat->display();
 
@@ -65,11 +65,11 @@ int main(int argc, char *argv[])
   law_set_random_seed(132341);
 
   (void)simulateSPDE(nullptr, grid, model, nbsimu, useCholesky, 
-                     VectorMeshes(), nullptr, SPDEParam(), 
+                     VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(), 
                      NamingConvention("NCS-spirale"));
   law_set_random_seed(132341);
   (void)simulateSPDE(dat, grid, model, nbsimu, useCholesky,
-                     VectorMeshes(), nullptr, SPDEParam(), 
+                     VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(), 
                      NamingConvention("CDS-spirale"));
 
   (void) grid->dumpToNF("grid.ascii");
