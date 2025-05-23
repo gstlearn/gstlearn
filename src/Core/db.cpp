@@ -71,7 +71,7 @@ int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
   if (db == nullptr) return (0);
   if (db->isGrid() && locatorType == ELoc::X)
     return (db->getNDim());
-  return (db->getNFromLocator(locatorType));
+  return (db->getNLoc(locatorType));
 }
 
 /****************************************************************************/

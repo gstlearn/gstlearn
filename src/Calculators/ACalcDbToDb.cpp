@@ -405,12 +405,12 @@ int ACalcDbToDb::_expandInformation(int mode, const ELoc& locatorType) const
   if (getDbout()->isGrid() && locatorType == ELoc::X)
     ninfo = getDbout()->getNDim();
   else
-    ninfo = getDbout()->getNFromLocator(locatorType);
+    ninfo = getDbout()->getNLoc(locatorType);
   if (ninfo <= 0) return 0;
 
   // Check the corresponding number of variables in the Input File
 
-  int ninfoIn = getDbin()->getNFromLocator(locatorType);
+  int ninfoIn = getDbin()->getNLoc(locatorType);
   if (ninfo == ninfoIn) return 0;
 
   /* Case when the Output Db is not a grid */

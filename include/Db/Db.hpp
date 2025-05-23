@@ -494,7 +494,6 @@ public:
                               const VectorInt& nbgh) const;
 
   bool hasLocator(const ELoc& locatorType) const;
-  int getNFromLocator(const ELoc& locatorType) const;
   double getFromLocator(const ELoc& locatorType, int iech, int locatorIndex = 0) const;
   void setFromLocator(const ELoc& locatorType,
                       int iech,
