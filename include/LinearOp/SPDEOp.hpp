@@ -67,6 +67,12 @@ public:
                        const constvect guess,
                        vect out) const;
   void evalInvCov(const constvect inv, vect result) const;
+  void simCond(const constvect data, vect outv) const;
+  void simNonCond(vect outv) const;
+  virtual double computeLogDetOp(int nbsimu) const;
+  double computeQuadratic(const std::vector<double>& x) const;
+  double computeTotalLogDet(int nMC) const;
+
   static int centerDataByDriftMat(VectorDouble& Z,
                                   const MatrixDense& driftMat,
                                   const VectorDouble& driftCoeffs);
