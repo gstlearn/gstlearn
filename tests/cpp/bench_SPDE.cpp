@@ -84,9 +84,6 @@ int main(int argc, char *argv[])
   int ncov_ref = -1;
 
   bool showStats = false;
-  bool verbose   = false;
-  bool flagStd   = false;
-  int nbMC       = 10;
 
   // Generate the data base
   Db* dat = Db::createFillRandom(ndat);
@@ -168,7 +165,8 @@ int main(int argc, char *argv[])
         namconv.append(sncov);
         law_set_random_seed(seed);
         (void)simulateSPDE(nullptr, grid, model, nsim, useCholesky,
-                           VectorMeshes(), nullptr, SPDEParam(),
+                           VectorMeshes(), nullptr, VectorMeshes(), nullptr,
+                           SPDEParam(),
                            NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 1350);
       }
@@ -183,7 +181,8 @@ int main(int argc, char *argv[])
         namconv.append(sncov);
         law_set_random_seed(seed);
         (void)simulateSPDE(dat, grid, model, nsim, useCholesky,
-                           VectorMeshes(), nullptr, SPDEParam(),
+                           VectorMeshes(), nullptr, VectorMeshes(), nullptr, 
+                           SPDEParam(),
                            NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 3130);
       }
