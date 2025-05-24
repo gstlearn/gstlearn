@@ -989,9 +989,9 @@ int KrigingAlgebraSimpleCase::_needMuUK()
 void KrigingAlgebraSimpleCase::updateSampleRanks()
 {
 
-  _neq = (*getSampleRanksByVariable(0)).size();
-  _nrhs = getSampleRanks()->size();
-  _nvar = getSampleRanks()->size();
+  _neq  = (int)(*getSampleRanksByVariable(0)).size();
+  _nrhs = (int)getSampleRanks()->size();
+  _nvar = (int)getSampleRanks()->size();
   _Sigma0->resize(_neq, _nrhs);
   _resetLinkedToLHS();
   _nbfl = _X->getNCols();
@@ -1010,15 +1010,14 @@ void KrigingAlgebraSimpleCase::updateSampleRanks()
 
 void KrigingAlgebraSimpleCase::updateRankHandler()
 {
-  _neq = getSampleRanksByVariable(0)->size();
-  _nrhs = getSampleRanks()->size();
-  _nvar = getSampleRanks()->size();
+  _neq  = (int)getSampleRanksByVariable(0)->size();
+  _nrhs = (int)getSampleRanks()->size();
+  _nvar = (int)getSampleRanks()->size();
   _Sigma0->resize(_neq, _nrhs);
   _resetLinkedToLHS();
   _nbfl = _X->getNCols();
   _X0->resize(_nrhs, _nbfl);
   _flagSK = (_nbfl <= 0);
-
 }
 int KrigingAlgebraSimpleCase::_needLambdaSK()
 {
@@ -1307,7 +1306,7 @@ void KrigingAlgebraSimpleCase::dumpWGT()
   for (int ivar = 0; ivar < _nvar; ivar++)
   {
     if (_nvar > 1) message("Using variable Z%-2d\n", ivar + 1);
-    int nbyvar = getSampleRanksByVariable(0)->size();
+    int nbyvar = (int) getSampleRanksByVariable(0)->size();
     sum.fill(0.);
 
     for (int j = 0; j < nbyvar; j++)

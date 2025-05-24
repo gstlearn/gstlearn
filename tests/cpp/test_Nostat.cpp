@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
   //                    SPDEParam(),false, false,
   //                    NamingConvention("Simu", true, false));
   (void)simulateSPDE(nullptr, workingDbc, model, 1, useCholesky,
-                     VectorMeshes(), nullptr, SPDEParam(),
+                     VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(),
                      NamingConvention("Simu", true, false));
 
   DbStringFormat dbfmt(FLAG_STATS,{"Simu"});

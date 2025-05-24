@@ -1005,7 +1005,7 @@ static MatrixSymmetric _buildSillPartialMatrix(const MatrixSymmetric &sillsRef,
 }
 
 /**
- * @brief Create the set of Meshes and Projections needed within SPDE
+ * @brief Create the set of Projections needed within SPDE
  * 
  * @param db Target Data Base
  * @param model Target Model structure 
@@ -1054,13 +1054,15 @@ static const ProjMultiMatrix* _defineProjMulti(const Db* db,
   }
 
   int nrow = 0;
-  for (int icov = 0; icov < ncov; icov++)
-    nrow += db->getNSample();
+  for (int ivar = 0; ivar < nvar; ivar++)
+    nrow += db->getNSampleActiveAndDefined(ivar);
   if (nrow != npoint)
   {
     messerr("Number of Rows of 'projm' (%d) is not correct", npoint);
     messerr("- Number of variables = %d", nvar);
-    messerr("- Number of samples = %d\n", db->getNSample());
+    for (int ivar = 0; ivar < nvar; ivar++)
+      messerr("- Number of samples for variable %d = %d\n",
+              ivar, db->getNSampleActiveAndDefined(ivar));
     return nullptr;
   }
   return projIn;
@@ -1117,11 +1119,26 @@ static int _defineMeshes(const Db* dbin,
  * @param flag_est True for the estimation
  * @param flag_std True for the standard deviation of estimation error
  * @param useCholesky Define the choice regarding Cholesky
- * @param meshes Meshes description (optional)
- * @param projIn Matrix of projection (optional)
+ * @param meshesK Meshes description (optional)
+ * @param projInK Matrix of projection (optional)
  * @param params Set of SPDE parameters
  * @param namconv Naming convention
+ *
  * @return Returned vector
+ *
+* @remark Algorithm for 'meshesK' and 'projInK':
+ * - Each one of the previous arguments is considered individually and sequentially.
+ * - For 'meshesK':
+ *   - If it is not defined, it is created from 'model' and so as to cover both 'dbin' and 'dbout' (if provided).
+ *   - If is already exist, the number of meshes must be equal:
+ *     - either to 1: the same mesh is used for all structures
+ *     - or to the number of structures (nugget discarded)
+ *   - Otherwise an error is raised
+ * - For 'projInK':
+ *   - If it is not defined, it is created from 'meshesK'
+ *   - If it is already exist, the number of projectors must be equal to the number of meshes
+ *   - Otherwise an error is raised
+
  */
 int krigingSPDE(Db* dbin,
                 Db* dbout,
@@ -1129,8 +1146,8 @@ int krigingSPDE(Db* dbin,
                 bool flag_est,
                 bool flag_std,
                 int useCholesky,
-                const VectorMeshes& meshes,
-                const ProjMultiMatrix* projIn,
+                const VectorMeshes& meshesK,
+                const ProjMultiMatrix* projInK,
                 const SPDEParam& params,
                 const NamingConvention& namconv)
 {
@@ -1138,15 +1155,12 @@ int krigingSPDE(Db* dbin,
   if (dbout == nullptr) return 1;
   if (model == nullptr) return 1;
 
-  VectorDouble Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
-
   // Define optional parameters
-  VectorMeshes meshLocal = meshes;
-  bool flagProjCreated   = (projIn == nullptr);
-  if (_defineMeshes(dbin, dbout, model, meshLocal, params, true)) return 1;
-  const ProjMultiMatrix* AIn = _defineProjMulti(dbin, model, meshLocal, projIn, true);
-  if (AIn == nullptr) return 1;
-  const ProjMultiMatrix* Aout = _defineProjMulti(dbout, model, meshLocal, nullptr, false);
+  VectorMeshes meshLocalK = meshesK;
+  if (_defineMeshes(dbin, dbout, model, meshLocalK, params, true)) return 1;
+  const ProjMultiMatrix* AInK = _defineProjMulti(dbin, model, meshLocalK, projInK, true);
+  if (AInK == nullptr) return 1;
+  const ProjMultiMatrix* Aout = _defineProjMulti(dbout, model, meshLocalK, nullptr, false);
 
   // Auxiliary information
   MatrixSparse* invnoise        = buildInvNugget(dbin, model, params);
@@ -1159,16 +1173,19 @@ int krigingSPDE(Db* dbin,
   PrecisionOpMultiMatrix* Qom = nullptr;
   if (useCholesky)
   {
-    Qom = new PrecisionOpMultiMatrix(model, meshLocal);
-    spdeop = new SPDEOpMatrix(Qom, AIn, invnoise);
+    Qom = new PrecisionOpMultiMatrix(model, meshLocalK);
+    spdeop = new SPDEOpMatrix(Qom, AInK, invnoise, Aout);
   }
   else
   {
-    Qop          = new PrecisionOpMulti(model, meshLocal, params.getUseStencil());
-    spdeop       = new SPDEOp(Qop, AIn, invnoisep);
+    Qop    = new PrecisionOpMulti(model, meshLocalK, params.getUseStencil());
+    spdeop = new SPDEOp(Qop, AInK, invnoisep, nullptr, nullptr, Aout, nullptr);
     spdeop->setMaxIterations(params.getCGparams().getNIterMax());
     spdeop->setTolerance(params.getCGparams().getEps());
   }
+
+  // Read information from the input Db
+  VectorDouble Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
 
   // Calculating the drift coefficient (optional) and Centering the Data
   VectorDouble driftCoeffs = _centerDataByDriftInPlace(spdeop, dbin, model, Z);
@@ -1179,8 +1196,7 @@ int krigingSPDE(Db* dbin,
   VectorDouble result;
   if (flag_est)
   {
-    auto resultmesh = spdeop->kriging(Z);
-    Aout->mesh2point(resultmesh, result);
+    auto result = spdeop->kriging(Z);
     _uncenterResultByDriftInPlace(dbout, model, result, driftCoeffs);
     int iuid = dbout->addColumns(result, "estim", ELoc::Z, 0, true, 0., nvar);
     namconv.setNamesAndLocators(dbin, VectorString(), ELoc::Z, nvar, dbout, iuid,
@@ -1203,10 +1219,10 @@ int krigingSPDE(Db* dbin,
   delete invnoise;
   delete invnoisep;
   delete Aout;
-  if (flagProjCreated)
+  if (projInK == nullptr)
   {
-    delete AIn;
-    AIn = nullptr;
+    delete AInK;
+    AInK = nullptr;
   }
 
   return 0;
@@ -1220,20 +1236,39 @@ int krigingSPDE(Db* dbin,
  * @param model Model definition
  * @param nbsimu Number of simulations
  * @param useCholesky Define the choice regarding Cholesky
- * @param meshes Meshes description (optional)
- * @param projIn Matrix of projection (optional)
+ * @param meshesK Meshes used for Kriging (optional)
+ * @param projInK Matrix of projection used for Kriging (optional)
+ * @param meshesS Meshes used for Simulations (optional)
+ * @param projInS Matrix of projection used for Simulations (optional)
  * @param params Set of SPDE parameters
- * @param namconv Naming convention
+ * @param namconv see NamingConvention
  *
- * @return Returned vector
+ * @return Error returned code
+ *
+ * @remark Algorithm for 'meshesK', 'projInK', 'meshesS' and 'projInS':
+ * - Each one of the previous arguments is considered individually and sequentially.
+ * - For 'meshes' in general ('meshesK' or 'meshesS'):
+ *   - If it is not defined, it is created from 'model' and so as to cover both 'dbin' and 'dbout' (if provided).
+ *   - If is already exist, the number of meshes must be equal:
+ *     - either to 1: the same mesh is used for all structures
+ *     - or to the number of structures (nugget discarded)
+ *   - Otherwise an error is raised
+ * - For 'projIn' in general ('projInK' or 'projInS'):
+ *   - If it is not defined, it is created from 'meshes'
+ *   - If it is already exist, the number of projectors must be equal to the number of meshes
+ *   - Otherwise an error is raised
+ * - If 'mesheS' does not exist, 'meshesK' is used instead
+ * - If 'projInS' does not exist, 'projInK' is used instead
  */
 int simulateSPDE(Db* dbin,
                  Db* dbout,
                  Model* model,
                  int nbsimu,
                  int useCholesky,
-                 const VectorMeshes& meshes,
-                 const ProjMultiMatrix* projIn,
+                 const VectorMeshes& meshesK,
+                 const ProjMultiMatrix* projInK,
+                 const VectorMeshes& meshesS,
+                 const ProjMultiMatrix* projInS,
                  const SPDEParam& params,
                  const NamingConvention& namconv)
 {
@@ -1242,39 +1277,54 @@ int simulateSPDE(Db* dbin,
   if (model == nullptr) return 1;
   int nvar = model->getNVar();
   VectorDouble Z;
-  const ProjMultiMatrix* AIn = nullptr;
+  const ProjMultiMatrix* AInK = nullptr;
+  const ProjMultiMatrix* AInS = nullptr;
 
   // Define optional parameters
-  VectorMeshes meshLocal = meshes;
-  bool flagProjCreated   = (projIn == nullptr);
-  if (_defineMeshes(dbin, dbout, model, meshLocal, params, false)) return 1;
+  VectorMeshes meshLocalK = meshesK;
+  if (_defineMeshes(dbin, dbout, model, meshLocalK, params, false)) return 1;
+  VectorMeshes meshLocalS = (meshesS.empty()) ? meshLocalK : meshesS;
+  if (_defineMeshes(dbin, dbout, model, meshLocalS, params, false)) return 1;
 
   // Auxiliary parameters
   MatrixSparse* invnoise        = nullptr;
   MatrixSymmetricSim* invnoisep = nullptr;
   if (flagCond)
   {
-    Z   = dbin->getColumnsActiveAndDefined(ELoc::Z);
-    AIn = _defineProjMulti(dbin, model, meshLocal, projIn);
-    if (AIn == nullptr) return 1;
+    Z    = dbin->getColumnsActiveAndDefined(ELoc::Z);
+    AInK = _defineProjMulti(dbin, model, meshLocalK, projInK);
+    if (AInK == nullptr) return 1;
+    if (!useCholesky)
+    {
+      AInS = _defineProjMulti(dbin, model, meshLocalK,
+                              (projInS == nullptr) ? AInK : projInS);
+      if (AInS == nullptr) return 1;
+    }
+
     invnoise = buildInvNugget(dbin, model, params);
     if (!useCholesky)
       invnoisep = new MatrixSymmetricSim(invnoise);
   }
-  const ProjMultiMatrix* Aout = _defineProjMulti(dbout, model, meshLocal, nullptr);
+  const ProjMultiMatrix* AoutK = _defineProjMulti(dbout, model, meshLocalK, nullptr);
+  bool flagAoutSConstruct = (! useCholesky) && (meshLocalK != meshLocalS);
+  const ProjMultiMatrix* AoutS = flagAoutSConstruct ?
+    _defineProjMulti(dbout, model, meshLocalS, nullptr) : AoutK;
 
   SPDEOp* spdeop              = nullptr;
   PrecisionOpMulti* Qop       = nullptr;
+  PrecisionOpMulti* QopS      = nullptr;
   PrecisionOpMultiMatrix* Qom = nullptr;
   if (useCholesky)
   {
-    Qom    = new PrecisionOpMultiMatrix(model, meshLocal);
-    spdeop = new SPDEOpMatrix(Qom, AIn, invnoise);
+    Qom    = new PrecisionOpMultiMatrix(model, meshLocalK);
+    spdeop = new SPDEOpMatrix(Qom, AInK, invnoise, AoutK);
   }
   else
   {
-    Qop          = new PrecisionOpMulti(model, meshLocal, params.getUseStencil());
-    spdeop       = new SPDEOp(Qop, AIn, invnoisep);
+    Qop = new PrecisionOpMulti(model, meshLocalK, params.getUseStencil());
+    if (!meshesS.empty())
+      QopS = new PrecisionOpMulti(model, meshLocalS, params.getUseStencil());
+    spdeop = new SPDEOp(Qop, AInK, invnoisep, QopS, AInS, AoutK, AoutS);
     spdeop->setMaxIterations(params.getCGparams().getNIterMax());
     spdeop->setTolerance(params.getCGparams().getEps());
   }
@@ -1293,8 +1343,7 @@ int simulateSPDE(Db* dbin,
 
   for (int isimu = 0; isimu < nbsimu; isimu++)
   {
-    VectorDouble resultmesh = (flagCond) ? spdeop->simCond(Z) : spdeop->simNonCond();
-    Aout->mesh2point(resultmesh, result); 
+    VectorDouble result = (flagCond) ? spdeop->simCond(Z) : spdeop->simNonCond();
     _addNuggetToResult(model, result, nechred);
     _uncenterResultByDriftInPlace(dbout, model, result, driftCoeffs);
 
@@ -1314,11 +1363,18 @@ int simulateSPDE(Db* dbin,
   delete Qop;
   delete invnoise;
   delete invnoisep;
-  delete Aout;
-  if (flagProjCreated)
+  delete AoutK;
+  if (flagAoutSConstruct)
+    delete AoutS;
+  if (projInS == nullptr && AInS != AInK)
   {
-    delete AIn;
-    AIn = nullptr;
+    delete AInS;
+    AInS = nullptr;
+  }
+  if (projInK == nullptr)
+  {
+    delete AInK;
+    AInK = nullptr;
   }
   return 0;
 }

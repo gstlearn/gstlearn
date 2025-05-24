@@ -583,7 +583,6 @@ double matrix_determinant(int neq, const VectorDouble& b)
       }
       return deter;
   }
-  return TEST;
 }
 
 /*****************************************************************************/

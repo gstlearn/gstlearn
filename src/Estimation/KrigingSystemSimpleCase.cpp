@@ -186,7 +186,7 @@ void KrigingSystemSimpleCase::_setInternalShortCutVariablesGeneral()
 }
 void KrigingSystemSimpleCase::_rhsDump(KrigingAlgebraSimpleCase& algebra) const
 {
-  int nech = algebra.getSampleRanksByVariable(0)->size();
+  int nech = (int) algebra.getSampleRanksByVariable(0)->size();
   mestitle(0, "RHS of Kriging matrix");
   if (nech > 0) message("Number of active samples    = %d\n", nech);
   message("Total number of equations   = %d\n", _getNeq(nech));
@@ -219,7 +219,7 @@ void KrigingSystemSimpleCase::_estimateCalcul(int status,
                                               int iechout,
                                               KrigingAlgebraSimpleCase& algebra) const
 {
-  int nech = algebra.getSampleRanksByVariable(0)->size();
+  int nech = (int) algebra.getSampleRanksByVariable(0)->size();
   if (_flagEst)
     _estimateEstim(status, algebra, iechout);
 
@@ -846,7 +846,7 @@ bool KrigingSystemSimpleCase::_preparNoStat()
  */
 VectorVectorDouble KrigingSystemSimpleCase::getSampleCoordinates(KrigingAlgebraSimpleCase& algebra, int iechout) const
 {
-  int nech = algebra.getSampleRanksByVariable(0)->size();
+  int nech = (int) algebra.getSampleRanksByVariable(0)->size();
   VectorVectorDouble xyz(_ndim);
   for (int idim = 0; idim < _ndim; idim++)
   {

@@ -838,8 +838,8 @@ int point_to_grid(const DbGrid* db,
 int point_to_bench(const DbGrid* db, double* coor, int flag_outside, int* indb)
 {
   int ndim = db->getNDim();
-  VectorDouble work1(ndim);
-  VectorDouble work2(ndim);
+  work1.resize(ndim);
+  work2.resize(ndim);
   int idim0 = 2;
   (*indb)   = -1;
 
@@ -956,8 +956,8 @@ int index_point_to_grid(
 int point_inside_grid(Db* db, int iech, const DbGrid* dbgrid)
 {
   int ndim = db->getNDim();
-  VectorDouble work1(ndim);
-  VectorDouble work2(ndim);
+  work1.resize(ndim);
+  work2.resize(ndim);
 
   /* Process the grid rotation (if any) */
 
