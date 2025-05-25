@@ -26,7 +26,7 @@
 #include <wordexp.h>
 #endif
 
-//#include <boost/filesystem.hpp>
+#include <boost/filesystem.hpp>
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h> // for CreateDirectory
@@ -151,22 +151,6 @@ bool ASerializable::_tableRead(std::istream &is,
  */
 String ASerializable::buildFileName(int status, const String& filename, bool ensureDirExist)
 {
-// TODO: to be restored when boost (or c++14) is usable for gstlearn (is_absolute, path manipulation, etc.)
-//  boost::filesystem::path final;
-//  if (! myContainerName.empty())
-//  {
-//    boost::filesystem::path local(myContainerName);
-//    final += local;
-//  }
-//  if (! myPrefixName.empty())
-//  {
-//    boost::filesystem::path local(myPrefixName);
-//    final += local;
-//  }
-//  boost::filesystem::path file(filename);
-//  final += file;
-//  String fileLocal = final.string();
-
   String fileLocal;
 
   // In the case of Output File (2), 'filename' is appended after the 'containerName' and 'prefixName'
@@ -175,21 +159,45 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
   // - otherwise, add the 'containerName' and 'prefixName' (if defined)
   if (status == 2 || (filename.size() > 2 && filename[0] != '/' && filename[1] != ':'))
   {
+    // Code without cross_platform library
+    // if (!_myContainerName.empty())
+    // {
+    //   fileLocal += _myContainerName;
+    //   if (ensureDirExist)
+    //   {
+    //     (void) createDirectory(fileLocal);
+    //   }
+    // }
+    // if (!_myPrefixName.empty())
+    // {
+    //   fileLocal += _myPrefixName;
+    // }
+    // End of code without cross_platform library
+
+    // Code with cross_platform library
+    boost::filesystem::path final;
     if (!_myContainerName.empty())
     {
-      fileLocal += _myContainerName;
+      // Add the conteiner name (if defined)
+      boost::filesystem::path local(_myContainerName);
+      final += local;
       if (ensureDirExist)
       {
-        (void) createDirectory(fileLocal);
+        (void)createDirectory(final.string());
       }
     }
     if (!_myPrefixName.empty())
     {
-      fileLocal += _myPrefixName;
+      // Add the Prevfix name (if defined)
+      boost::filesystem::path local(_myPrefixName);
+      final += local;
     }
-  }
-  fileLocal += filename;
 
+    // Add the filename (always defined)
+    boost::filesystem::path file(filename);
+    final += file;
+    fileLocal = final.string();
+  }
   String filePath = fileLocal;
 
 #ifdef __linux__ // Not operational under MacOS
