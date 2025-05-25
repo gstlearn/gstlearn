@@ -27,6 +27,7 @@
 #endif
 
 #include <boost/filesystem.hpp>
+#include <filesystem>
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h> // for CreateDirectory
@@ -174,12 +175,37 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
     // }
     // End of code without cross_platform library
 
-    // Code with cross_platform library
-    boost::filesystem::path final;
+    // Code with cross_platform library boost
+    // boost::filesystem::path final;
+    // if (!_myContainerName.empty())
+    // {
+    //   // Add the conteiner name (if defined)
+    //   boost::filesystem::path local(_myContainerName);
+    //   final += local;
+    //   if (ensureDirExist)
+    //   {
+    //     (void)createDirectory(final.string());
+    //   }
+    // }
+    // if (!_myPrefixName.empty())
+    // {
+    //   // Add the Prevfix name (if defined)
+    //   boost::filesystem::path local(_myPrefixName);
+    //   final += local;
+    // }
+
+    // // Add the filename (always defined)
+    // boost::filesystem::path file(filename);
+    // final += file;
+    // fileLocal = final.string();
+
+    // Version avec <flesystem>
+    namespace fs = std::filesystem;
+    fs::path final;
     if (!_myContainerName.empty())
     {
       // Add the conteiner name (if defined)
-      boost::filesystem::path local(_myContainerName);
+      fs::path local(_myContainerName);
       final += local;
       if (ensureDirExist)
       {
@@ -189,12 +215,12 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
     if (!_myPrefixName.empty())
     {
       // Add the Prevfix name (if defined)
-      boost::filesystem::path local(_myPrefixName);
+      fs::path local(_myPrefixName);
       final += local;
     }
 
     // Add the filename (always defined)
-    boost::filesystem::path file(filename);
+    fs::path file(filename);
     final += file;
     fileLocal = final.string();
   }
