@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
   {
     if (model->evalCovMatRHSInPlaceFromIdx(Sigma0, dbin, dbout, sampleRanks, iout, krigopt, false)) break;
     if (verbose && iout == 0) Sigma0.dumpStatistics("RHS(target:1): Covariance part");  
-    if (model->evalDriftMatByTarget(X0, dbout, iout, krigopt)) break;
+    if (model->evalDriftMatByTargetInPlace(X0, dbout, iout, krigopt)) break;
     if (verbose && iout == 0) X0.dumpStatistics("RHS(target:1): Drift part");
 
     Kcalc.setRHS(&Sigma0, &X0);

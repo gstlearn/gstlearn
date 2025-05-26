@@ -31,25 +31,27 @@ class GSTLEARN_EXPORT ASPDEOp : public virtual ALinearOp
 {
 
 public:
-  ASPDEOp(const PrecisionOpMulti* const popkrig  = nullptr, 
-         const ProjMulti*        const proj     = nullptr,
-         const ASimulable*       const invNoise = nullptr,
-         const PrecisionOpMulti* const popsimu  = nullptr,
-         const ProjMulti*        const projSimu = nullptr,
-         bool  noiseToDelete                    = false);
+  ASPDEOp(const PrecisionOpMulti* const popKriging = nullptr,
+          const ProjMulti* const projKriging       = nullptr,
+          const ASimulable* const invNoise         = nullptr,
+          const PrecisionOpMulti* const popSimu    = nullptr,
+          const ProjMulti* const projSimu          = nullptr,
+          bool noiseToDelete                       = false);
   virtual ~ASPDEOp();
 
   int getSize() const override;
   int getSizeSimu() const;
   VectorDouble kriging(const VectorDouble& dat) const;
   VectorDouble krigingWithGuess(const VectorDouble& dat, const VectorDouble& guess) const;
-  void setMaxIterations(int n) {_solver->setMaxIterations(n);}
-  void setTolerance(double tol) {_solver->setTolerance(tol);}
-  int  getIterations() const { return _solver->getIterations();}
-  double getError() const { return  _solver->getError();}
-  VectorDouble computeDriftCoeffs(const VectorDouble& Z, 
-                                  const MatrixDense& drifts) const;
+  void setMaxIterations(int n) { _solver->setMaxIterations(n); }
+  void setTolerance(double tol) { _solver->setTolerance(tol); }
+  int getIterations() const { return _solver->getIterations(); }
+  double getError() const { return _solver->getError(); }
+  VectorDouble computeDriftCoeffs(const VectorDouble& Z,
+                                  const MatrixDense& driftMat,
+                                  bool verbose = false) const;
   VectorDouble simCond(const VectorDouble& dat) const;
+  VectorDouble simNonCond() const;
 
   const PrecisionOpMulti* getQKriging() const { return _QKriging; }
   const ProjMulti* getProjKriging() const { return _projKriging; }
@@ -65,12 +67,18 @@ public:
                        vect out) const;
   void evalInvCov(const constvect inv, vect result) const;
   void simCond(const constvect data, vect outv) const;
+  void simNonCond(vect outv) const;
+  static int centerDataByDriftMat(VectorDouble& Z,
+                                  const MatrixDense& driftMat,
+                                  const VectorDouble& driftCoeffs);
+  static int centerDataByMeanVec(VectorDouble& Z,
+                                 const VectorDouble& meanVec);
+
 protected:
   int _addToDest(const constvect inv, vect outv) const override;
 
-
-private: 
-  int _getNDat() const {return _ndat;}
+private:
+  int _getNDat() const { return _ndat; }
   virtual int _solve(const constvect in, vect out) const;
   int _solveWithGuess(const constvect in,
                       const constvect guess,
@@ -81,10 +89,6 @@ private:
 
 private:
   void _prepare(bool w1 = true, bool w2 = true) const;
-#ifndef SWIG
-private:
-  virtual int _addToDestImpl(const constvect inv, vect outv) const;
-#endif
 
 protected:
   const PrecisionOpMulti* const _QKriging;
@@ -117,13 +121,13 @@ class GSTLEARN_EXPORT SPDEOp : public ASPDEOp,
 #endif
 {
 public:
-  SPDEOp(const PrecisionOpMulti* const popkrig = nullptr,
-         const ProjMulti*        const proj = nullptr,
-         const ASimulable*       const invNoise = nullptr,
-         const PrecisionOpMulti* const popsimu = nullptr,
-         const ProjMulti*        const projSimu = nullptr,
-         bool  noiseToDelete = false
-  ) : ASPDEOp(popkrig, proj, invNoise, popsimu, projSimu, noiseToDelete)
+  SPDEOp(const PrecisionOpMulti* const popKriging = nullptr,
+         const ProjMulti* const projKriging       = nullptr,
+         const ASimulable* const invNoise         = nullptr,
+         const PrecisionOpMulti* const popSimu    = nullptr,
+         const ProjMulti* const projSimu          = nullptr,
+         bool noiseToDelete                       = false)
+    : ASPDEOp(popKriging, projKriging, invNoise, popSimu, projSimu, noiseToDelete)
   {
     _solver = new LinearOpCGSolver<SPDEOp>(this);
   }
@@ -169,13 +173,13 @@ class GSTLEARN_EXPORT ExampleSPDEOp : public ASPDEOp,
 #endif
 {
 public:
-  ExampleSPDEOp(const PrecisionOpMulti* const popkrig = nullptr,
-                const ProjMulti*        const proj = nullptr,
+  ExampleSPDEOp(const PrecisionOpMulti* const popKriging = nullptr,
+                const ProjMulti*        const projKriging = nullptr,
                 const ASimulable*       const invNoise = nullptr,
-                const PrecisionOpMulti* const popsimu = nullptr,
+                const PrecisionOpMulti* const popSimu = nullptr,
                 const ProjMulti*        const projSimu = nullptr,
                 bool  noiseToDelete = false
-  ) : ASPDEOp(popkrig, proj, invNoise, popsimu, projSimu, noiseToDelete)
+  ) : ASPDEOp(popKriging, projKriging, invNoise, popSimu, projSimu, noiseToDelete)
   {
     _solver = new LinearOpCGSolver<ExampleSPDEOp>(this);
   }

@@ -22,7 +22,9 @@ class MatrixSparse;
 class GSTLEARN_EXPORT SPDEOpMatrix : public SPDEOp
 {
 public:
-  SPDEOpMatrix(const PrecisionOpMultiMatrix* pop = nullptr, const ProjMultiMatrix* A = nullptr, const MatrixSparse* invNoise = nullptr);
+  SPDEOpMatrix(const PrecisionOpMultiMatrix* pop = nullptr,
+               const ProjMultiMatrix* A          = nullptr,
+               const MatrixSparse* invNoise      = nullptr);
   virtual ~SPDEOpMatrix();
 
 #ifndef SWIG
@@ -32,8 +34,6 @@ private:
 #endif
 
 private:
-  mutable MatrixSparse _QpAinvNoiseAt; //mutable is required to perform the Cholesky decompositions
-  mutable CholeskySparse* _chol;         // when needed, e.g in a const method.
+  mutable MatrixSparse _QpAinvNoiseAt; // mutable is required to perform the Cholesky decompositions
+  mutable CholeskySparse* _chol;       // when needed, e.g in a const method.
 };
-                               
-

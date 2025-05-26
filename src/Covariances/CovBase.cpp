@@ -205,10 +205,11 @@ int CovBase::addEvalCovVecRHSInPlace(vect vect,
                                      SpacePoint& pin,
                                      SpacePoint& pout,
                                      VectorDouble& tabwork,
-                                     double lambda) const
+                                     double lambda,
+                                     const ECalcMember& calcMember) const
 {
   DECLARE_UNUSED(lambda)
-  return  _cor->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, getSill(0, 0));
+  return  _cor->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, getSill(0, 0), calcMember);
 }
 
 double CovBase::_eval(const SpacePoint& p1,
@@ -492,6 +493,7 @@ TabNoStat* CovBase::_createNoStatTab()
 {
   return new TabNoStatSills();
 }
+
 void CovBase::_makeStationary()
 {
   _cor->makeStationary();
@@ -529,4 +531,18 @@ void CovBase::_optimizationSetTarget(SpacePoint& pt) const
 bool CovBase::_isNoStat() const
 {
   return _cor->isNoStat() || isNoStatForVariance();
+}
+
+int CovBase::getNSills() const
+{
+  TabNoStatSills* tabnostat = getTabNoStatSills();
+   if (tabnostat == nullptr) return 0;
+  return tabnostat->getNSills();
+}
+
+bool CovBase::isNoStatForVariance() const
+{
+  TabNoStatSills* tabnostat = getTabNoStatSills();
+  if (tabnostat == nullptr) return 0;
+  return tabnostat->isDefinedForVariance();
 }

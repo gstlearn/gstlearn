@@ -195,10 +195,10 @@ static shared build_tests doxygen install uninstall: cmake-doxygen
 python_doc: cmake-python-doxygen
 	@cmake --build $(BUILD_DIR) --target python_doc -- $(N_PROC_OPT)
 
-python_build: python_doc
+python_build: cmake-python
 	@cmake --build $(BUILD_DIR) --target python_build -- $(N_PROC_OPT)
 
-python_install: python_build
+python_install: cmake-python
 	@cmake --build $(BUILD_DIR) --target python_install -- $(N_PROC_OPT)
 
 
@@ -207,10 +207,10 @@ python_install: python_build
 r_doc: cmake-r-doxygen
 	@cmake --build $(BUILD_DIR) --target r_doc -- $(N_PROC_OPT)
 
-r_build: r_doc
+r_build: cmake-r
 	@cmake --build $(BUILD_DIR) --target r_build -- $(N_PROC_OPT)
 
-r_install: r_build
+r_install: cmake-r
 	@cmake --build $(BUILD_DIR) --target r_install -- $(N_PROC_OPT)
 
 
@@ -241,10 +241,10 @@ check_test_cpp: cmake
 	@cd $(BUILD_DIR); make $(TEST); CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
 
 check_test_py: cmake-python
-	@cd $(BUILD_DIR); make prepare_check_py; CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
+	@cd $(BUILD_DIR); make prepare_check_py; make prepare_check_ipynb; CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
 
 check_test_r: cmake-r
-	@cd $(BUILD_DIR); make prepare_check_r; CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
+	@cd $(BUILD_DIR); make prepare_check_r; make prepare_check_rmd; CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
 
 dump_test_cpp: cmake
 	@cd $(BUILD_DIR); make $(TEST); "tests/cpp/$(BUILD_TYPE)/$(TEST)" dummy

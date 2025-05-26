@@ -60,8 +60,8 @@ public:
   virtual void getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const;
   virtual void getBarycenterInPlace(int imesh, VectorDouble& coord) const;
 
-    /*! Returns the Sparse Matrix for projecting the Mesh to a Db */
-    ProjMatrix* createProjMatrix(const Db* db, int rankZ = -1, bool verbose = false) const;
+  /*! Returns the Sparse Matrix for projecting the Mesh to a Db */
+  ProjMatrix* createProjMatrix(const Db* db, int rankZ = -1, bool verbose = false) const;
 
   /*! Returns the space dimension */
   int getNDim() const { return _nDim; }
@@ -123,6 +123,7 @@ protected:
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "AMesh"; }
+
 
 private:
   bool _isSpaceDimensionValid(int idim) const;

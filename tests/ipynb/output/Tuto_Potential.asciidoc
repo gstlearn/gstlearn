@@ -93,8 +93,4 @@ Column = 5 - Name = Potential - Locator = z1
 
 
 #NO_DIFF#XXX
-----
-
-
-
-----
+--------

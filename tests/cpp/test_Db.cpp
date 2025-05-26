@@ -19,7 +19,6 @@
 #include "Db/DbStringFormat.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
-#include "Mesh/MeshETurbo.hpp"
 
 /****************************************************************************/
 /*!
@@ -47,10 +46,6 @@ int main(int argc, char *argv[])
   Model* model = Model::createFromParam(ECov::CUBIC, 0., 1., 1., {10., 45.},
                                         MatrixSymmetric(), {30., 0.});
   model->display();
-
-  // Creating the MeshTurbo which contains the Db
-  MeshETurbo mesh;
-  mesh.initFromCova(*model->getCovAniso(0),grid,10,2,true, true,false,300,true);
 
   /////////////////////////
   // Testing the selections

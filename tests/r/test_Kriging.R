@@ -65,7 +65,7 @@ test_kriging <- function(dbin, dbout, model, neigh,
         err = Kcalc$setLHS(Sigma)
       } else {
         err = Kcalc$setData(Z = Z, indices = sampleRanks)
-        err = model$evalDriftMatByRanks(mat = X, db = dbin, sampleRanks,
+        err = model$evalDriftMatByRanksInPlace(mat = X, db = dbin, sampleRanks,
                                         member = ECalcMember_fromKey("LHS"))
         err = Kcalc$setLHS(Sigma, X)
       }
@@ -82,9 +82,9 @@ test_kriging <- function(dbin, dbout, model, neigh,
     if (order == -1) {
       err = Kcalc$setRHS(Sigma0 = Sigma0)
     } else {
-      err = model$evalDriftMatByTarget(mat = X0, db = dbout,
-                                       iech2 = iech_out[iout]-1,
-                                       krigopt = krigopt)
+      err = model$evalDriftMatByTargetInPlace(mat = X0, db = dbout,
+                                              iech2 = iech_out[iout]-1,
+                                              krigopt = krigopt)
       err = Kcalc$setRHS(Sigma0 = Sigma0, X0 = X0)
     }
     if (flag_est) {

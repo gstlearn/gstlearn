@@ -491,9 +491,9 @@ void ShiftOpMatrix::_loadHHRegular(MatrixSymmetric &hh, int imesh)
   // Calculate the current HH matrix (using local covariance parameters)
   const MatrixSquare &rotmat = _getCovAniso()->getAnisoInvMat();
 
-  VectorDouble diag = VH::power(_getCovAniso()->getScales(), 2.);
+  VH::power(_diag, _getCovAniso()->getScales(), 2.);
   MatrixSymmetric temp(ndim);
-  temp.setDiagonal(diag);
+  temp.setDiagonal(_diag);
   hh.normMatrix(rotmat, temp);
 
 }

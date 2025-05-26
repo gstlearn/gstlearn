@@ -50,35 +50,6 @@ Cubic
      [  1,]     0.500     0.866
 Total Sill     =      1.000
 Known Mean(s)     0.000
-
-Turbo Meshing
-=============
-Diamond construction is activated
-
-Grid characteristics:
----------------------
-Origin :     13.623     9.725
-Mesh   :      1.000     4.500
-Number :         12         7
-Rotation Angles        =     30.000     0.000
-Direct Rotation Matrix
-               [,  0]    [,  1]
-     [  0,]     0.866    -0.500
-     [  1,]     0.500     0.866
-Inverse Rotation Matrix
-               [,  0]    [,  1]
-     [  0,]     0.866     0.500
-     [  1,]    -0.500     0.866
-Euclidean Geometry
-Space Dimension           = 2
-Number of Apices per Mesh = 3
-Number of Meshes          = 132
-Number of Apices          = 84
-
-Bounding Box Extension
-----------------------
-Dim #1 - Min:13.623 - Max:24.623
-Dim #2 - Min:9.72478 - Max:36.7248
 sel1
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     1.000     0.000     1.000     1.000     1.000     0.000     1.000

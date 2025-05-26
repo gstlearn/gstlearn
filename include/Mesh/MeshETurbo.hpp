@@ -10,6 +10,8 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+
 #include "Basic/VectorNumT.hpp"
 #include "Basic/Indirection.hpp"
 #include "Basic/Grid.hpp"
@@ -80,7 +82,6 @@ public:
                                     int nbExt = 0,
                                     bool isPolarized = false,
                                     bool useSel = true,
-                                    bool flagNoStatRot = false,
                                     int nxmax = 300,
                                     bool verbose = false);
 
@@ -110,7 +111,6 @@ public:
                    int nbExt = 0,
                    bool isPolarized = false,
                    bool useSel = true,
-                   bool flagNoStatRot = false,
                    int nxmax = 300,
                    bool verbose = false);
   const Grid& getGrid() const { return _grid; }
@@ -165,3 +165,5 @@ private:
   mutable std::vector<double> rhs;
   mutable std::vector<int> indgg;
 };
+
+GSTLEARN_EXPORT bool isTurbo(const VectorMeshes& meshes);

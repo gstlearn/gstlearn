@@ -359,7 +359,7 @@ double Grid::getCoordinate(int rank, int idim0, bool flag_rotate) const
  * @param dxsPerCell   Vector of variable grid meshes (optional)
  * @return
  */
-VectorDouble Grid::getCoordinatesByIndice(const VectorInt &indice,
+const VectorDouble& Grid::getCoordinatesByIndice(const VectorInt &indice,
                                           bool flag_rotate,
                                           const VectorInt& shift,
                                           const VectorDouble& dxsPerCell) const
@@ -393,7 +393,7 @@ VectorDouble Grid::getCoordinatesByIndice(const VectorInt &indice,
  * @param icorner Vector specifying the corner (0: minimum; 1: maximum). (Dimension: ndim)
  * @return The coordinates of a corner
  */
-VectorDouble Grid::getCoordinatesByCorner(const VectorInt& icorner) const
+const VectorDouble& Grid::getCoordinatesByCorner(const VectorInt& icorner) const
 {
   initThread();
   VH::fill(_iwork0, 0);
@@ -410,7 +410,7 @@ VectorDouble Grid::getCoordinatesByCorner(const VectorInt& icorner) const
  * @param dxsPerCell Vector of variable mesh extensions at target cell
  * @return The coordinates of a cell corner (possibly shifted)
  */
-VectorDouble Grid::getCellCoordinatesByCorner(int node,
+const VectorDouble& Grid::getCellCoordinatesByCorner(int node,
                                               const VectorInt& shift,
                                               const VectorDouble& dxsPerCell) const
 {
@@ -425,7 +425,7 @@ VectorDouble Grid::getCellCoordinatesByCorner(int node,
  * @param flag_rotate TRUE: perform the rotation; FALSE: skip rotation
  * @return Vector of coordinates
  */
-VectorDouble Grid::getCoordinatesByRank(int rank, bool flag_rotate) const
+const VectorDouble& Grid::getCoordinatesByRank(int rank, bool flag_rotate) const
 {
   /* Convert a sample number into grid indices */
   rankToIndice(rank, _iwork0);

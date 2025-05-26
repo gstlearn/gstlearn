@@ -97,6 +97,14 @@ VectorDouble ASpaceObject::getIncrement(const SpacePoint& p1,
   return (_space->getIncrement(p1, p2, ispace));
 }
 
+void ASpaceObject::getIncrementInPlace(const SpacePoint& p1,
+                                       const SpacePoint& p2,
+                                       VectorDouble& ptemp,
+                                       int ispace) const
+{
+  _space->getIncrementInPlace(p1, p2, ptemp, ispace);
+}
+
 /**
  * Modify the Space dimension of an already created item
  * (To be used only during creation ... in particular when reading NF)

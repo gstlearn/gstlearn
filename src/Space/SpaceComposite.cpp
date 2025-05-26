@@ -239,16 +239,20 @@ void SpaceComposite::_getIncrementInPlace(const SpacePoint& p1,
                                           int ispace) const
 {
   ptemp.clear();
+  VectorDouble inc;
   if (ispace < 0 || ispace >= (int)getNComponents())
   {
     for (const auto& sp: _comps)
     {
-      VectorDouble inc = sp->getIncrement(p1, p2);
+      inc.clear();
+      inc.resize(sp->getNDim());
+      sp->getIncrementInPlace(p1, p2, inc);
       ptemp.insert(ptemp.begin(), inc.begin(), inc.end());
     }
   }
   else
   {
-    ptemp = _comps[ispace]->getIncrement(p1, p2);
+    ptemp.resize(_comps[ispace]->getNDim());
+    _comps[ispace]->getIncrementInPlace(p1, p2, ptemp);
   }
 }

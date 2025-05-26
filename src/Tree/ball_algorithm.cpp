@@ -454,8 +454,13 @@ double manhattan_distance(const double* x1, const double* x2, int n_features)
  */
 double euclidean_distance(const double* x1, const double* x2, int n_features)
 {
-  SpacePoint p1;
-  SpacePoint p2;
+  thread_local SpacePoint p1;
+  thread_local SpacePoint p2;
+  if (p1.getSpace() != getDefaultSpaceSh())
+  {
+    p1.setSpace(getDefaultSpaceSh());
+    p2.setSpace(getDefaultSpaceSh());
+  }
   p1.setCoords(x1, n_features);
   p2.setCoords(x2, n_features);
   return p1.getDistance(p2);

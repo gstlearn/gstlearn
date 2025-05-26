@@ -177,7 +177,7 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
     VectorVectorDouble _LambdaGrad;
     bool _flagNoStatByHH;
     std::vector<double> _detHH;
-
+    mutable VectorDouble _diag;
 
     int _ndim;
   };

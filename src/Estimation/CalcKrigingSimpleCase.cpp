@@ -54,7 +54,8 @@ bool CalcKrigingSimpleCase::_check()
   {
     if (getModel()->isNoStat())
     {
-      messerr("Variance of Estimator is limited to Stationary Covariance");
+      messerr("Variance of Estimator is limited to Stationary Covariance"); //Why?
+      messerr("Variance of Estimator is limited to Stationary Covariance"); //Why?
       return false;
     }
   }
@@ -133,22 +134,18 @@ bool CalcKrigingSimpleCase::_run()
 
   KrigingSystemSimpleCase ksys(getDbin(), getDbout(), getModel(), getNeigh());
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
-
-  if (!ksys.isReady()) return false;
+  VectorDouble tabwork(getDbin()->getNSample());
+  if (!ksys.isReady(tabwork)) return false;
+  
 
   /***************************************/
   /* Loop on the targets to be processed */
   /***************************************/
 
-  VectorDouble tabwork(getDbin()->getNSample());
   KrigingAlgebraSimpleCase algebra(ksys.getAlgebra());
   bool use_parallel = !getModel()->isNoStat();
   int nech_out      = getDbout()->getNSample();
-  int nbthread      = OptCustom::query("ompthreads", 5);
-  // if (dynamic_cast<NeighUnique*>(getNeigh()))
-  // {
-  //   use_parallel = true;
-  // }
+  int nbthread      = OptCustom::query("ompthreads", 1); // TODO : would like to use more threads
   omp_set_num_threads(nbthread);
 
   SpacePoint pin(getModel()->getSpace());
@@ -160,7 +157,7 @@ bool CalcKrigingSimpleCase::_run()
 #pragma omp threadprivate(neigh)
 #pragma omp parallel for firstprivate(pin, pout, tabwork, algebra, model) schedule(guided) if (use_parallel)
   for (int iech_out = 0; iech_out < nech_out; iech_out++)
-  {
+  {  
     if (!getDbout()->isActive(iech_out)) continue;
     if (neigh == nullptr)
     {
@@ -176,8 +173,7 @@ bool CalcKrigingSimpleCase::_run()
     {
       pin.setCoord(idim, coords[idim][iech_out]);
     }
-
-    ksys.estimate(iech_out, pin, pout, tabwork, algebra, model, neigh);
+      ksys.estimate(iech_out, pin, pout, tabwork, algebra, model, neigh);
 
     // Store the results in an API structure (only if flagSingleTarget)
     if (_iechSingleTarget >= 0) _storeResultsForExport(ksys, algebra, iech_out);
@@ -185,7 +181,7 @@ bool CalcKrigingSimpleCase::_run()
 
 #pragma omp parallel
   {
-    delete neigh; // ✅ Chaque thread supprime son propre ptr
+    delete neigh;
     neigh = nullptr;
   }
   ksys.conclusion();

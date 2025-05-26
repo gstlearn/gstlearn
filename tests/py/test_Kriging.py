@@ -226,14 +226,14 @@ def test_kriging_internal(ndat,nx,nvar,percent,cova,
     if test:
         if compute_vars:
             stdref = target["*stdev"][indOut].T.reshape(-1,)
-            status = gt.checkEqualityVector(stdref, std, tolerance=tol, message=casetxt)
+            status = gt.checkEqualityVectors(stdref, std, tolerance=tol, message=casetxt)
             if not status:
                 print("Standard Deviation")
                 #print("- Reference",stdref)
                 #print("- Calculation",std)
 
             varestref = target["*varz"][indOut].T.reshape(-1,)
-            status = gt.checkEqualityVector(varestref, varest, tolerance=tol, message=casetxt)
+            status = gt.checkEqualityVectors(varestref, varest, tolerance=tol, message=casetxt)
             if not status:
                 print("Variance of Estimate")
                 #print("- Reference",varestref)
@@ -241,7 +241,7 @@ def test_kriging_internal(ndat,nx,nvar,percent,cova,
 
         else:
             krigref = target["*estim"][indOut].T.reshape(-1,)
-            status = gt.checkEqualityVector(krigref, krig, tolerance=tol, message=casetxt)
+            status = gt.checkEqualityVectors(krigref, krig, tolerance=tol, message=casetxt)
             if not status:
                 print("Estimation")
                 #print("- Reference",krigref)

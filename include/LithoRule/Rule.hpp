@@ -103,7 +103,9 @@ public:
   bool isYUsed(int igrf) const;
   VectorInt whichGRFUsed() const;
   double getProportion(int facies);
-  VectorDouble getThresh(int facies) const;
+#ifndef SWIG
+  std::array<double, 4> getThresh(int facies) const;
+#endif
   VectorDouble getThreshFromRectangle(int rect, int *facies);
   int getFaciesFromGaussian(double y1, double y2) const;
 
@@ -140,6 +142,9 @@ private:
   mutable int    _flagProp;  /* 1 if proportions are defined; 0 otherwise */
   mutable double _rho;       /* Correlation between GRFs */
   Node*          _mainNode;
+
+  mutable VectorInt _facies;
+  mutable VectorDouble _props;
 };
 
 GSTLEARN_EXPORT void   set_rule_mode(int rule_mode);

@@ -10,9 +10,11 @@
 /******************************************************************************/
 #pragma once
 
+#include "Matrix/MatrixT.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
+#include "memory"
 
 class Db;
 
@@ -26,7 +28,7 @@ class Db;
 class GSTLEARN_EXPORT RankHandler
 {
 public:
-  RankHandler(const Db* db,
+  RankHandler(const Db* db = nullptr,
               bool useSel = true,
               bool useZ   = true,
               bool useVerr = false,
@@ -39,8 +41,8 @@ public:
 
   const VectorInt& getSampleRanks(int ivar) const { return _index[ivar]; }
   const VectorVectorInt& getSampleRanks() const { return _index; }
-  const VectorInt& getSampleRanksByVariable(int ivar) const { return _index[ivar]; }
-  const VectorDouble& getZflatten() const { return _Zflatten; }
+  VectorInt& getSampleRanksByVariable(int ivar)  { return _index[ivar]; }
+  std::shared_ptr<VectorDouble>& getZflatten()  { return _Zflatten; }
   int getNumber() const;
   int getCount(int ivar) const;
   int getTotalCount() const;
@@ -48,6 +50,9 @@ public:
   int identifySampleRank(int ipos) const;
 
   void dump(bool flagFull = false) const;
+
+private:
+  void _initElligible();
 
 private:
   bool _useSel;
@@ -61,11 +66,11 @@ private:
   VectorInt _iptrZ;
   VectorInt _iptrVerr;
   VectorInt _iptrExtD;
-
+  MatrixT<bool> _elligible; 
   constvectint _nbgh; // Span of internal buffer
 
   VectorVectorInt _index; // Vector of sample ranks per variable
-  VectorDouble _Zflatten; // Vector of Z values (fpr active samples of target variables)
+  std::shared_ptr<VectorDouble> _Zflatten; // Vector of Z values (fpr active samples of target variables)
 
   const Db* _db;       // Pointer to Db
   VectorInt _workNbgh; // Vector of ellible sample absolute ranks

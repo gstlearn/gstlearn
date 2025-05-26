@@ -54,7 +54,7 @@ public:
   void setRadius(double radius) { _radius = radius; }
 
   double getDistance() const { return _dist; }
-  VectorDouble getIncr() const { return _movingIncr; }
+  const VectorDouble& getIncr() const { return _movingIncr; }
   double getNormalizedDistance(const VectorDouble& dd) const;
 
 private:

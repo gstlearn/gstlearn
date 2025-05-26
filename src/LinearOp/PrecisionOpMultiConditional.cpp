@@ -346,33 +346,34 @@ void PrecisionOpMultiConditional::evalInvCov(const constvect inv,
   _allocate(3);
   _allocate(4);
 
-  for(int idat = 0; idat < _ndat; idat++)
+  for (int idat = 0; idat < _ndat; idat++)
   {
     result[idat] = inv[idat] / _varianceData[idat];
   }
 
-  for(int icov = 0; icov < sizes(); icov++)
+  for (int icov = 0; icov < sizes(); icov++)
   {
     constvect results(result);
     vect w2s(_work2[icov]);
-    _multiProjData[icov]->point2mesh(results,w2s);
+    _multiProjData[icov]->point2mesh(results, w2s);
   }
-  evalInverse(_work2,_work3);
+  evalInverse(_work2, _work3);
 
-  for(int icov = 0; icov < sizes(); icov ++)
+  for (int icov = 0; icov < sizes(); icov++)
   {
-     constvect w3s(_work3[icov]);
-     vect w1bis(_work1bis);
-     _multiProjData[icov]->mesh2point(w3s,w1bis);
+    constvect w3s(_work3[icov]);
+    vect w1bis(_work1bis);
+    _multiProjData[icov]->mesh2point(w3s, w1bis);
 
-     for(int idat = 0; idat < _ndat; idat++)
-     {
-        result[idat] -=  1./_varianceData[idat] * _work1bis[idat];
-     }
+    for (int idat = 0; idat < _ndat; idat++)
+    {
+      result[idat] -= 1. / _varianceData[idat] * _work1bis[idat];
+    }
   }
 }
 
-VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const
+VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y,
+                                                        const VectorVectorDouble& X) const
 {
   _allocate(4);
   int xsize = static_cast<int>(X.size());
@@ -380,25 +381,24 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, c
   MatrixSymmetric XtInvSigmaX(xsize);
   VectorDouble result(xsize);
 
-  for(int i = 0; i< xsize; i++)
+  for (int i = 0; i < xsize; i++)
   {
-    constvect xm(X[i].data(),X[i].size());
-    evalInvCov(xm,_work1ter);
+    constvect xm(X[i].data(), X[i].size());
+    evalInvCov(xm, _work1ter);
 
     constvect Ys(Y);
     constvect w1i(_work1ter);
-    XtInvSigmaZ[i] = VH::innerProduct(Ys,w1i);
+    XtInvSigmaZ[i] = VH::innerProduct(Ys, w1i);
 
-    for(int j = i; j < xsize;j++)
+    for (int j = i; j < xsize; j++)
     {
-      constvect xmj(X[j].data(),X[j].size());
-      double prod = VH::innerProduct(xmj,w1i);
-      XtInvSigmaX.setValue(i,j,prod);
+      constvect xmj(X[j].data(), X[j].size());
+      double prod = VH::innerProduct(xmj, w1i);
+      XtInvSigmaX.setValue(i, j, prod);
     }
   }
 
-  XtInvSigmaX.solve(XtInvSigmaZ,result);
+  XtInvSigmaX.solve(XtInvSigmaZ, result);
 
   return result;
 }
-

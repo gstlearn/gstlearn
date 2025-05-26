@@ -75,6 +75,7 @@
         PyObject* item = PySequence_GetItem(obj, i);
         if (!PyNumber_Check(item))
           return SWIG_TypeError;
+        Py_DECREF(item);
       }
       return SWIG_OK;
     }
@@ -90,6 +91,7 @@
         PyObject* item = PySequence_GetItem(obj, i);
         if (!PyUnicode_Check(item))
           return SWIG_TypeError;
+        Py_DECREF(item);
       }
       return SWIG_OK;
     }
@@ -231,6 +233,7 @@
         myres = convertToCpp(item, value);
         if (SWIG_IsOK(myres))
           vec.push_back(value);
+        Py_DECREF(item);
       }
     }
     // else size is zero (empty vector)
@@ -271,6 +274,7 @@
         myres = vectorToCpp(item, vec);
         if (SWIG_IsOK(myres))
           vvec.push_back(vec);
+        Py_DECREF(item);
       }
     }
     // else size is zero (empty vector)
@@ -307,6 +311,7 @@
         myres = vectorToCpp(item, vec);
         if (SWIG_IsOK(myres))
           vvec.push_back(vec);
+        Py_DECREF(item);
       }
     }
     // Convert VVD to Matrix
@@ -1141,7 +1146,7 @@ def setdbitem(self,name,tab):
         
         tab_i[np.isnan(tab_i)] = np.nan
         VectD = np.double(tab_i)
-        self.setColumn(VectD, name, gl.ELoc.UNKNOWN, 0, useSel)
+        self.setColumn(VectD.tolist(), name, gl.ELoc.UNKNOWN, 0, useSel)
         
     return
 

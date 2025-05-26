@@ -42,10 +42,6 @@ public:
   void setIdentity();
   void rotateDirect(const VectorDouble& inv, VectorDouble& outv) const;
   void rotateInverse(const VectorDouble& inv, VectorDouble& outv) const;
-#ifndef SWIG
-  void rotateDirect(const std::vector<double>& inv, std::vector<double>& outv) const;
-  void rotateInverse(const std::vector<double>& inv, std::vector<double>& outv) const;
-#endif // SWIG
   bool isIdentity() const { return !_flagRot; }
   bool isSame(const Rotation& rot) const;
 
@@ -67,4 +63,5 @@ private:
   VectorDouble    _angles;
   MatrixSquare _rotMat;
   MatrixSquare _rotInv;
+  mutable VectorDouble _local;
 };

@@ -22,8 +22,4 @@ Maximum order             = 23
 
 
 #NO_DIFF#XXX
-----
-
-
-
-----
+--------

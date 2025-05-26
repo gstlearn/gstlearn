@@ -66,8 +66,8 @@ if filetype == "Db":
         print("Number of Variable ranks should be 0, 1 or 2")
         exit()
     if flagDb:
-        ax = gp.point(db, name)
-        ax.decoration(title=name)
+        gp.symbol(db, name)
+        gp.decoration(title=name)
         plt.show()
     else:
         gp.correlation(db, nameX, nameY, asPoint=True)
@@ -94,12 +94,12 @@ elif filetype == "DbGrid":
     
     if flagDb:
         if dbgrid.getNDim() > 1:
-            ax = gp.grid(dbgrid, name, flagLegend=True, legendName="")
-            ax.decoration(title=name)
+            gp.raster(dbgrid, name, flagLegend=True, legendName="")
+            gp.decoration(title=name)
             plt.show()
         else:
-            ax = gp.grid1D(dbgrid, name)
-            ax.decoration(title=name)
+            gp.grid1D(dbgrid, name)
+            gp.decoration(title=name)
             plt.show()
     else:
         gp.correlation(dbgrid, nameX, nameY, asPoint=False, bins=100)
@@ -140,8 +140,8 @@ elif filetype == "Rule":
 elif filetype == "Table":
     table = gl.Table.createFromNF(filename,False)
     checkValidPointer(table)
-    ax = gp.table(table,ranks)
-    ax.decoration(title=filename)
+    gp.table(table,ranks)
+    gp.decoration(title=filename)
     plt.show()
 
 elif filetype == "Polygon":

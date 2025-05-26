@@ -408,15 +408,25 @@ int CorAniso::addEvalCovVecRHSInPlace(vect vect,
                                       SpacePoint& pin,
                                       SpacePoint& pout,
                                       VectorDouble& tabwork,
-                                      double lambda) const
+                                      double lambda,
+                                      const ECalcMember& calcMember) const
 {
   if (!isOptimEnabled())
-    return ACov::addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda);
+    return ACov::addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda, calcMember);
   auto space = pin.getSpace();
   const CovCalcMode& mode = krigopt.getMode();
-  optimizationTransformSPNew(pin, pout);
+  if (pin.isProjected())
+  {
+    space->getDistancePointVectInPlace(*_pw1, _p1As, tabwork, index1);
+  }
+  else 
+  {
+    optimizationTransformSPNew(pin, pout);
+    space->getDistancePointVectInPlace(pout, _p1As, tabwork, index1);
+  }
+  
   //TODO adapt to Moving
-  space->getDistancePointVectInPlace(pout, _p1As, tabwork, index1);
+  
   double* dists = tabwork.data();
   //const int* ind = index1.data();
   for (int i = 0; i < (int)index1.size(); i++)

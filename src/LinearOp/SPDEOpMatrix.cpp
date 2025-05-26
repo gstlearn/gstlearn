@@ -17,12 +17,20 @@
 SPDEOpMatrix::SPDEOpMatrix(const PrecisionOpMultiMatrix* pop,
                            const ProjMultiMatrix* A,
                            const MatrixSparse* invNoise)
-  : SPDEOp(pop, A, new MatrixSymmetricSim(invNoise), nullptr, nullptr, 1)
+  : SPDEOp(pop,
+           A,
+           (invNoise == nullptr) ? nullptr : new MatrixSymmetricSim(invNoise),
+           nullptr,
+           nullptr,
+           1)
   , _QpAinvNoiseAt(MatrixSparse(0, 0))
   , _chol(nullptr)
 {
   _QpAinvNoiseAt.resize(pop->getSize(), pop->getSize());
-  _QpAinvNoiseAt.prodNormMatMatInPlace(A->getProj(), invNoise, true);
+  if (A != nullptr)
+  {
+    _QpAinvNoiseAt.prodNormMatMatInPlace(A->getProj(), invNoise, true);
+  }
   _QpAinvNoiseAt.addMatInPlace(*pop->getQ());
 }
 

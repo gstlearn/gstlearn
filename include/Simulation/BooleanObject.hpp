@@ -15,6 +15,8 @@
 
 #include "Basic/AStringable.hpp"
 
+#include <array>
+
 class AShape;
 class Db;
 class DbGrid;
@@ -84,9 +86,9 @@ private:
 private:
   int _mode;                // 1 for Primary; 2 for Secondary object
   const AShape* _token;     // Token to which the Object belongs
-  VectorDouble _center;     // Coordinates of the center of the object
-  VectorDouble _extension;  // Extension of the object
+  std::array<double, 3> _center;     // Coordinates of the center of the object
+  std::array<double, 3> _extension;  // Extension of the object
   double _orientation;      // Orientation angle for the object (degree)
-  VectorDouble _values;     // List of additional arguments
-  VectorVectorDouble _box;  // Bounding Box containing the object
+  std::array<double, 3> _values;     // List of additional arguments
+  std::array<std::array<double, 2>, 3> _box;  // Bounding Box containing the object
 };

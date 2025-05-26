@@ -160,7 +160,7 @@ public:
   bool getFlagRotation() const { return hasRotation(); }
   double getRange(int idim) const { return getRanges()[idim]; }
   double getScale(int idim) const { return getScales()[idim]; }
-  VectorDouble getAnisoAngles() const { return getCorAniso()->getAniso().getAngles(); }
+  const VectorDouble& getAnisoAngles() const { return getCorAniso()->getAniso().getAngles(); }
   const MatrixSquare& getAnisoRotMat() const { return getCorAniso()->getAniso().getMatrixDirect(); }
   const MatrixSquare& getAnisoInvMat() const { return getCorAniso()->getAniso().getMatrixInverse(); }
   VectorDouble getAnisoCoeffs() const;

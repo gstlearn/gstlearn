@@ -16,6 +16,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
+#include "Mesh/MeshETurbo.hpp"
 #include <vector>
 
 #define EVALOP(IN,OUT,TAB,getmat,OP,IY,COMPUTEOP,XORY,START,END,IVAR,JVAR) \
@@ -124,7 +125,8 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
 
   if(buildOp)
   {
-    buildQop(stencil);
+    bool localStencil = stencil && isTurbo(meshes) && !model->isNoStat();
+    buildQop(localStencil);
   }
 }
 
@@ -215,7 +217,13 @@ void PrecisionOpMulti::_popsClear()
 
 bool PrecisionOpMulti::_matchModelAndMeshes() const 
 {
-  return _getNCov() == _getNMesh();
+  if (_getNCov() != _getNMesh())
+  {
+    messerr("The number of meshes (%d) and the number of covariances (%d) do not match",
+            _getNMesh(), _getNCov());
+    return false;
+  }
+  return true;
 }
 
 int PrecisionOpMulti::_getNVar() const

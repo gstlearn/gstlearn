@@ -70,13 +70,13 @@ public:
 
   void    copyParams(int mode, const Grid& gridaux);
   double  getCoordinate(int rank, int idim, bool flag_rotate=true) const;
-  VectorDouble getCoordinatesByRank(int rank, bool flag_rotate=true) const;
-  VectorDouble getCoordinatesByIndice(const VectorInt &indice,
+  const VectorDouble& getCoordinatesByRank(int rank, bool flag_rotate=true) const;
+  const VectorDouble& getCoordinatesByIndice(const VectorInt &indice,
                                       bool flag_rotate = true,
                                       const VectorInt& shift = VectorInt(),
                                       const VectorDouble& dxsPerCell = VectorDouble()) const;
-  VectorDouble getCoordinatesByCorner(const VectorInt& icorner) const;
-  VectorDouble getCellCoordinatesByCorner(int node,
+  const VectorDouble& getCoordinatesByCorner(const VectorInt& icorner) const;
+  const VectorDouble& getCellCoordinatesByCorner(int node,
                                           const VectorInt& shift = VectorInt(),
                                           const VectorDouble& dxsPerCell = VectorDouble()) const;
 #ifndef SWIG

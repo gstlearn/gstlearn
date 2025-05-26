@@ -26,7 +26,6 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TEST_DST_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TEST_DST_DIR})
 
-
 # Create the output directory for logs
 add_custom_target(prepare_check_r
                   COMMAND ${CMAKE_COMMAND} -E make_directory "${TEST_DST_DIR}")

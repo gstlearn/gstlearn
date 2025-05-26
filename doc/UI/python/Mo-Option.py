@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.10.9"
+__generated_with = "0.11.25"
 app = marimo.App()
 
 
@@ -18,7 +18,7 @@ def _():
     return ctx, gl, gmo, gp, mo, np, pd, plt
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     # Global parameters
     nxdef = 100
@@ -26,109 +26,27 @@ def _():
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    b = mo.ui.file_browser()
-    mo.md( f"""
-        Choose your CSV file {b}
-        """)
-    return (b,)
+def _(gmo):
+    WidgetDb = gmo.WdefineDb()
+    return (WidgetDb,)
 
 
 @app.cell(hide_code=True)
-def _(b, gl, mo):
-    mo.stop(len(b.value) == 0, "You must define a CSV file first")
-    filename = b.value[0].path
-    csvformat = gl.CSVformat.create(flagHeader=True, charSep=';', charDec=',')
-    db = gl.Db.createFromCSV(filename, csvformat)
-    db.setLocators(["longitude", "latitude"], gl.ELoc.X)
-    db.setLocator("sel", gl.ELoc.SEL) # Set the selection (if present in CSV)
-
-    box = db.getExtremas()
-
-    dbfmt = gl.DbStringFormat.createFromFlags(flag_stats=True)
-    db.display()
-    return box, csvformat, db, dbfmt, filename
+def _(WidgetDb, gmo):
+    db = gmo.WgetDb(WidgetDb)
+    return (db,)
 
 
 @app.cell(hide_code=True)
-def _(box, mo):
-    WLongMin = mo.ui.number(start=1, stop=200, value=box[0,0])
-    WLongMax = mo.ui.number(start=1, stop=200, value=box[0,1])
-    WLatMin  = mo.ui.number(start=1, stop=200, value=box[1,0])
-    WLatMax  = mo.ui.number(start=1, stop=200, value=box[1,1])
-
-    mo.vstack([mo.md("Define the Area to be displayed"), 
-               mo.hstack([mo.md("Longitude"), WLongMin, WLongMax]),
-               mo.hstack([mo.md("Latitude"),  WLatMin,  WLatMax])
-              ], align='start')
-    return WLatMax, WLatMin, WLongMax, WLongMin
+def _(db, gmo):
+    WidgetZoom = gmo.WdefineBox(db)
+    return (WidgetZoom,)
 
 
 @app.cell(hide_code=True)
-def _(WLatMax, WLatMin, WLongMax, WLongMin, box):
-    box[0,0] = WLongMin.value
-    box[0,1] = WLongMax.value
-    box[1,0] = WLatMin.value
-    box[1,1] = WLatMax.value
-    return
-
-
-@app.cell(hide_code=True)
-def _(box, ctx, db, mo, plt):
-    fig1 = plt.figure(figsize=(5,4))
-
-    axref = fig1.add_subplot(1,1,1)
-    axref.baseMap(db, box=box, flagProj=True)
-    ctx.add_basemap(axref, source=ctx.providers.OpenStreetMap.Mapnik)
-    axref.decoration(title="In projected coordinates")
-    axref.axis("equal")
-
-    mo.mpl.interactive(fig1)
-    return axref, fig1
-
-
-@app.cell(hide_code=True)
-def _(db, gl):
-    # Define the target variable
-    targetName = "pH"
-    db.setLocator(targetName, gl.ELoc.Z)
-    return (targetName,)
-
-
-@app.cell(hide_code=True)
-def _(ctx, db, mo, plt, targetName):
-    fig2 = plt.figure(figsize=(5,4))
-
-    ax2 = fig2.add_subplot(1,1,1)
-    ax2.literal(db, targetName, fontsize=6)
-    ctx.add_basemap(ax2, source=ctx.providers.OpenStreetMap.Mapnik, crs="EPSG:4326")
-    ax2.decoration(title=targetName + " (long/lat)")
-    ax2.axis("equal")
-
-    mo.mpl.interactive(fig2)
-    return ax2, fig2
-
-
-@app.cell(hide_code=True)
-def _(mo, nxdef):
-    WNX = mo.ui.number(start=1, stop=200, value=nxdef)
-    WNY = mo.ui.number(start=1, stop=200, value=nxdef)
-    mo.vstack([mo.md("Grid Definition"), WNX, WNY])
-    return WNX, WNY
-
-
-@app.cell(hide_code=True)
-def _(WNX, WNY, box, gl):
-    deltax = box[0,1] - box[0,0]
-    deltay = box[1,1] - box[1,0]
-    nx = WNX.value
-    ny = WNY.value
-    dx = deltax / (nx-1)
-    dy = deltay / (ny-1)
-    x0 = box[0,0]
-    y0 = box[1,0]
-    grid = gl.DbGrid.create(nx = [nx,ny], dx = [dx,dy], x0 = [x0, y0])
-    return deltax, deltay, dx, dy, grid, nx, ny, x0, y0
+def _(gmo, nxdef):
+    WidgetGrid = gmo.WdefineGridN(nxdef)
+    return (WidgetGrid,)
 
 
 @app.cell(hide_code=True)
@@ -138,73 +56,116 @@ def _(gmo):
 
 
 @app.cell(hide_code=True)
-def _(WidgetVario, gmo):
-    WVarioLayout = gmo.WshowVario(WidgetVario)
-    WVarioLayout
-    return (WVarioLayout,)
-
-
-@app.cell(hide_code=True)
-def _(WVarioLayout, WidgetVario, db, gmo):
-    vario = gmo.WgetVario(WidgetVario, WVarioLayout.value, db)
-    vario
-    return (vario,)
-
-
-@app.cell(hide_code=True)
 def _(gmo):
     WidgetCovList = gmo.WdefineCovList()
     return (WidgetCovList,)
 
 
 @app.cell(hide_code=True)
-def _(WidgetCovList, gmo):
-    gmo.WshowCovList(WidgetCovList)
-    return
+def _(WidgetCovList, WidgetDb, WidgetGrid, WidgetVario, ctx, gl, gmo, gp, mo):
+    def plotVario(ax, vario, model, showPairs=True):
+        ax.varmod(vario, model, showPairs=showPairs)
+
+    def plotData(ax, db, box, targetName, flagProj=False):
+        ax.baseMap(db=db, box=box, flagProj=flagProj)
+        ax.literal(db=db, name=targetName, fontsize=6)
+        if flagProj:
+            ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik,
+                            crs="EPSG:4326")
+        ax.decoration(title=targetName + " (long/lat)")
+
+    def plotEstim(ax, db, grid, targetName, flagProj=False):
+        ax.raster(dbgrid=grid, name="Kriging.*.estim", alpha=0.5)
+        ax.literal(db=db, name=targetName, fontsize=6)
+        if flagProj:
+            ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik,
+                            crs="EPSG:4326")
+        ax.decoration(title="Estimation")
+
+    def plotStdev(ax, db, grid, targetName, flagProj=False):
+        ax.raster(dbgrid=grid, name="Kriging.*.stdev", alpha=0.5)
+        ax.literal(db=db, name=targetName, fontsize=6)
+        if flagProj:
+            ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik,
+                            crs="EPSG:4326")
+        ax.decoration(title="St. Dev. of Estimation Error")
+
+    def myaction():
+
+        # Define the Input Db
+        db = gmo.WgetDb(WidgetDb)
+        if db is None:
+            return None
+
+        # Check that the Db is 2-D and contains the variable of interest
+        targetName = "pH"
+        db.setLocators(["longitude", "latitude"], gl.ELoc.X)
+        db.setLocator("sel", gl.ELoc.SEL) # Set the selection (if present in CSV)
+        db.setLocator(targetName, gl.ELoc.Z)
+        ndim = db.getNLoc(gl.ELoc.X)
+        if ndim!= 2 or db.getColIdx(targetName) < 0:
+            print("The 'db' should be 2-D (",ndim,") and contain the target variable")
+            return None
+
+        # Define the output Grid
+        box = db.getExtremas()
+        grid = gmo.WgetGridN(WidgetGrid, box)
+
+        # Define the Variogram parameters
+        vario = gmo.WgetVario(WidgetVario, db)
+
+        # Define the Model
+        model = gmo.WgetCovList(WidgetCovList, vario)
+
+        # Define Neighborhood (Unique)
+        neigh = gl.NeighUnique.create()
+
+        # Perform the Estimation
+        err = gl.kriging(db, grid, model, neigh)
+
+        fig, ax = gp.init(2, 2, figsize=(10,10))
+        plotData(ax[0,0], db, box, targetName)
+        plotVario(ax[0,1], vario, model, showPairs=True)
+
+        plotEstim(ax[1,0], db, grid, targetName)
+        plotStdev(ax[1,1], db, grid, targetName)
+        mo.mpl.interactive(fig)
+
+        return fig
+    return myaction, plotData, plotEstim, plotStdev, plotVario
 
 
 @app.cell(hide_code=True)
-def _(WidgetCovList, gmo, vario):
-    model = gmo.WgetCovList(WidgetCovList, vario)
-    return (model,)
+def _(
+    WidgetCovList,
+    WidgetDb,
+    WidgetGrid,
+    WidgetVario,
+    WidgetZoom,
+    gmo,
+    mo,
+    myaction,
+):
+    param = mo.ui.tabs(
+        {
+            "Data":       gmo.WshowDb(WidgetDb),
+            "Zoom":       gmo.WshowBox(WidgetZoom),
+            "Grid":       gmo.WshowGridN(WidgetGrid),
+            "Variogram":  gmo.WshowVario(WidgetVario),
+            "Model":      gmo.WshowCovList(WidgetCovList),
+        }
+    ).style({"minWidth": "350px", "width": "350px"})
 
+    simu = mo.vstack(
+        [
+             mo.md(""),
+             mo.md(f"Data and its Estimation{mo.as_html(myaction())}")
+        ],
+        gap = 4
+    )
 
-@app.cell(hide_code=True)
-def _(model, plt, vario):
-    fig3 = plt.figure(figsize=(4,3))
-    ax3 = fig3.add_subplot(1,1,1)
-    ax3.varmod(vario, model, showPairs=True)
-    return ax3, fig3
-
-
-@app.cell(hide_code=True)
-def _(db, gl, grid, model):
-    # Perform Kriging
-    neigh = gl.NeighUnique.create()
-    err = gl.kriging(db, grid, model, neigh)
-    return err, neigh
-
-
-@app.cell(hide_code=True)
-def _(ctx, db, grid, mo, plt, targetName):
-    fig4 = plt.figure(figsize=(7,3))
-
-    ax4a = fig4.add_subplot(1,2,1)
-    ax4a.raster(grid, name="Kriging.*.estim", alpha=0.5)
-    ax4a.literal(db, targetName, fontsize=6)
-    ctx.add_basemap(ax4a, source=ctx.providers.OpenStreetMap.Mapnik, crs="EPSG:4326")
-    ax4a.decoration(title="Estimation")
-    #ax4a.axis("equal")
-
-    ax4b = fig4.add_subplot(1,2,2)
-    ax4b.raster(grid, name="Kriging.*.stdev", alpha=0.5)
-    ax4b.literal(db, targetName, fontsize=6)
-    ctx.add_basemap(ax4b, source=ctx.providers.OpenStreetMap.Mapnik, crs="EPSG:4326")
-    ax4b.decoration(title="St. Dev.")
-    #ax4b.axis("equal")
-
-    mo.mpl.interactive(fig4)
-    return ax4a, ax4b, fig4
+    mo.hstack([param, simu], gap=4)
+    return param, simu
 
 
 if __name__ == "__main__":

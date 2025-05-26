@@ -2857,8 +2857,7 @@ static double st_calcul_stat(Local_Pgs *local_pgs,
 
       /* Get the bounds */
 
-      VectorDouble bounds;
-      bounds = local_pgs->rule->getThresh(ifac1 + 1);
+      auto bounds = local_pgs->rule->getThresh(ifac1 + 1);
       lower[0] = bounds[0];
       upper[0] = bounds[1];
       lower[2] = bounds[2];

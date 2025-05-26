@@ -70,8 +70,12 @@ public:
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab, bool flagCheck=true);
+  /*! Set the contents of a Column to a constant value*/
+  virtual void setColumnToConstant(int icol, double value, bool flagCheck = true);
   /*! Set the contents of a Row */
   virtual void setRow(int irow, const VectorDouble& tab, bool flagCheck=true);
+  /*! Set the contents of a Row to a constant value*/
+  virtual void setRowToConstant(int irow, double value, bool flagCheck = true);
   /*! Set the contents of the (main) Diagonal */
   virtual void setDiagonal(const VectorDouble& tab, bool flagCheck=true);
   /*! Set the contents of the (main) Diagonal to a constant value */
@@ -157,7 +161,7 @@ public:
   /*! Returns the contents of the whole matrix as a VectorDouble */
   VectorDouble getValues(bool byCol = true) const;
   /*! Extract a Diagonal (main or secondary) of this */
-  VectorDouble getDiagonal(int shift = 0) const;
+  const VectorDouble &getDiagonal(int shift = 0) const;
   /*! Checks if a Column is valid (contains a non TEST value) */
   bool isColumnDefined(int icol) const;
   /*! Checks if a Row is valid (contains a non TEST value) */
@@ -281,6 +285,7 @@ protected:
                   bool transpose3 = false) const;
 
 private:
+  mutable VectorDouble _diagonal;
   int  _nRows;
   int  _nCols;
   bool _flagCheckAddress;
