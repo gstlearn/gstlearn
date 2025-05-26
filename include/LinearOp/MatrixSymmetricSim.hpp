@@ -33,6 +33,7 @@ public:
   const AMatrix* getMatrix() const;
   int  getSize() const override;
   bool isEmpty() const { return _factor == nullptr; }
+  double computeLogDet(int nMC = 1) const override;
   
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;
