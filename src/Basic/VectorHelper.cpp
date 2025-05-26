@@ -544,6 +544,16 @@ double VectorHelper::cumul(const VectorDouble& vec)
   return total;
 }
 
+double VectorHelper::cumulLog(const VectorDouble& vec)
+{
+  double total = 0.;
+  for (const auto& v: vec)
+  {
+    if (!FFFF(v)) total += log(v);
+  }
+  return total;
+}
+
 VectorInt VectorHelper::cumulIncrement(const VectorVectorInt& vec)
 {
   int nvar = (int) vec.size();

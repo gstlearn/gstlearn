@@ -18,6 +18,7 @@
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixT.hpp"
+#include "Matrix/MatrixFactory.hpp"
 #include "Model/ModelGeneric.hpp"
 
 Vecchia::Vecchia(const ModelGeneric* model,
@@ -30,6 +31,8 @@ Vecchia::Vecchia(const ModelGeneric* model,
   , _LFull()
   , _Dmat()
 {
+  _nt = (db1 == nullptr) ? 0 : db1->getNSample();
+  _nd = (db2 == nullptr) ? 0 : db2->getNSample();
 }
 
 Vecchia::~Vecchia()
@@ -143,37 +146,13 @@ int Vecchia::computeLower(const MatrixT<int>& Ranks, bool verbose)
   return 0;
 }
 
-int krigingVecchia(Db* dbin,
-                   Db* dbout,
-                   ModelGeneric* model,
-                   int nb_neigh,
-                   bool verbose,
-                   const NamingConvention& namconv) 
+// Calculate LdY = Ldat %*% Y
+static VectorDouble _calculateLdY(const Vecchia& V, const VectorDouble& Y)
 {
-  MatrixT<int> Ranks = findNN(dbout, dbin, nb_neigh+1, false, verbose);
-
-  Vecchia V = Vecchia(model, dbout, dbin);
-
-  if (V.computeLower(Ranks, verbose)) return 1;
-
-  // Main dimensions
-  int nd         = dbin->getNSample();
-  int nt         = dbout->getNSample();
-  VectorDouble Y = dbin->getColumnByLocator(ELoc::Z, 0);
-
-  // Extract sub-part of 'Diagonal' vector
-  VectorDouble DFull = V.getDFull();
-  VectorDouble D_tt(nt);
-  VectorDouble D_dd(nd);
-  VectorDouble D_dd3(nd);
-
-  VH::extractInPlace(DFull, D_tt, 0);
-  VH::extractInPlace(DFull, D_dd3, nt);
-  VH::extractInPlace(DFull, D_dd, nt);
-  VH::transformVD(D_dd3, 3);
-
-  // Calculate LdY = Ldat %*% Y
+  int nd = V.getND();
+  int nt = V.getNT();
   VectorDouble LdY(nd);
+
   for (int id = 0; id < nd; id++)
   {
     double value = 0.;
@@ -181,9 +160,14 @@ int krigingVecchia(Db* dbin,
       value += V.getLFull(id + nt, jd + nt) * Y[jd];
     LdY[id] = value;
   }
-  VH::multiplyInPlace(LdY, D_dd);
+  return LdY;
+}
 
-  // Calculate FtLdY = Ft %*% Ldat %*% Y
+// Calculate FtLdY = Ft %*% Ldat %*% Y
+static VectorDouble _calculateFtLdY(const Vecchia& V, const VectorDouble& LdY)
+{
+  int nd = V.getND();
+  int nt = V.getNT();
   VectorDouble FtLdY(nt);
   for (int it = 0; it < nt; it++)
   {
@@ -192,7 +176,17 @@ int krigingVecchia(Db* dbin,
       value += V.getLFull(id + nt, it) * LdY[id];
     FtLdY[it] = value;
   }
-  LdY.clear();
+  return FtLdY;
+}
+
+static MatrixSparse* _calculateW(const Vecchia& V, const VectorDouble& D_dd)
+{
+  int nd = V.getND();
+  int nt = V.getNT();
+
+  // Extract sub-part of 'Diagonal' vector
+  VectorDouble D_tt(nt);
+  VH::extractInPlace(V.getDFull(), D_tt, 0);
 
   // Extracting information from 'LFull'
   VectorInt indT = VectorInt(nt + nd, -1);
@@ -207,23 +201,210 @@ int krigingVecchia(Db* dbin,
   MatrixSparse* mat2 = prodNormMat(Ldt, D_dd, true);
   mat1->forceDimension(nt, nt);
   mat2->forceDimension(nt, nt);
+
+  // Cleaning
+  indT.clear();
+  indD.clear();
+  delete Ltt;
+  delete Ldt;
+
   MatrixSparse* W = MatrixSparse::addMatMat(mat1, mat2);
+  delete mat1;
+  delete mat2;
+  return W;
+}
+
+int krigingVecchia(Db* dbin,
+                   Db* dbout,
+                   ModelGeneric* model,
+                   int nb_neigh,
+                   bool verbose,
+                   const NamingConvention& namconv) 
+{
+  Vecchia V = Vecchia(model, dbout, dbin);
+
+  MatrixT<int> Ranks = findNN(dbout, dbin, nb_neigh + 1, false, verbose);
+  if (V.computeLower(Ranks, verbose)) return 1;
+
+  // Extract sub-part of 'Diagonal' vector
+  VectorDouble DFull = V.getDFull();
+  int nd             = V.getND();
+  int nt             = V.getNT();
+  VectorDouble D_dd(nd);
+  VH::extractInPlace(DFull, D_dd, nt);
+
+  // Calculate LdY
+  VectorDouble Y   = dbin->getColumnByLocator(ELoc::Z, 0);
+  VectorDouble LdY = _calculateLdY(V, Y);
+  VH::multiplyInPlace(LdY, D_dd);
+
+  // Calculate FtLdY
+  VectorDouble FtLdY = _calculateFtLdY(V, LdY);
+
+  // Calculating 'W'
+  MatrixSparse* W = _calculateW(V, D_dd);
+
+  // Compute the Cholesky decomposition of 'W'
   CholeskySparse cholW(W);
+  if (!cholW.isReady())
+  {
+    messerr("Cholesky decomposition of Covariance matrix failed");
+    delete W;
+    return 1;
+  }
+
+  // Perform the estimation
   VectorDouble result = cholW.solveX(FtLdY);
   for (int i = 0; i < nt; i++) result[i] = -result[i];
 
-  // Cleaning stage
-  indT.clear();
-  indD.clear();
-  FtLdY.clear();
-  delete Ltt;
-  delete Ldt;
-  delete mat1;
-  delete mat2;
-  delete W;
-
+  // Saving the results
   int iptr = dbout->addColumns(result, String(), ELoc::UNKNOWN, 0, true);
   namconv.setNamesAndLocators(dbout, iptr, "estim", 1);
 
+  delete W;
   return 0;
+}
+
+static VectorDouble _productVecchia(const Vecchia& V, const VectorDouble& Y)
+{
+  const MatrixSparse& L = V.getLFull();
+  const VectorDouble& D = V.getDFull();
+
+  VectorDouble LdY = L.prodMatVec(Y, false);
+  VectorDouble DLdY = VH::multiply(D, LdY);
+  VectorDouble LDLdY = L.prodMatVec(DLdY, true);
+  return LDLdY;
+}
+
+static MatrixDense _productMatVecchia(const Vecchia& V, const MatrixDense& X)
+{
+  int nrows = X.getNRows();
+  int ncols = X.getNCols();
+  MatrixDense resmat(nrows, ncols);
+  VectorDouble colin(nrows);
+  VectorDouble colout(nrows);
+
+  // Loop on the columns
+  for (int icol = 0; icol < ncols; icol++)
+  {
+    VectorDouble colin = X.getColumn(icol);
+    colout = _productVecchia(V, colin);
+    resmat.setColumn(icol, colout);
+  }
+  return resmat;
+}
+
+/**
+ * Compute the log-likelihood (based on Vecchia approximation for covMat)
+ *
+ * @param db  Db structure where variable are loaded from
+ * @param model ModelGeneric structure used for the calculation
+ * @param nb_neigh Number of neighbors to consider in the Vecchia approximation
+ * @param verbose Verbose flag
+ *
+ * @remarks The calculation considers all the active samples.
+ * @remarks It can work in multivariate case with or without drift conditions (linked or not)
+ * @remarks The algorithm is stopped (with a message) in the heterotopic case
+ */
+double logLikelihoodVecchia(Db* db,
+                            ModelGeneric* model,
+                            int nb_neigh,
+                            bool verbose)
+{
+  int nvar = db->getNLoc(ELoc::Z);
+  if (nvar < 1)
+  {
+    messerr("The 'db' should have at least one variable defined");
+    return TEST;
+  }
+ 
+  // Establish the vector of multivariate data
+  VectorDouble Y;
+  int nDrift = model->getNDriftEquation();
+  if (nDrift > 0)
+    Y = db->getColumnsByLocator(ELoc::Z, true, true);
+  else
+    Y = db->getColumnsByLocator(ELoc::Z, true, true, model->getMeans());
+
+  int size = (int)Y.size();
+  if (verbose)
+  {
+    message("Likelihood calculation:\n");
+    message("- Number of active samples     = %d\n", db->getNSample(true));
+    message("- Number of variables          = %d\n", nvar);
+    message("- Length of Information Vector = %d\n", size);
+    if (nDrift > 0)
+      message("- Number of drift conditions = %d\n", model->getNDriftEquation());
+    else
+      VH::dump("Constant Mean(s)", model->getMeans());
+  }
+
+  // Calculate the Vecchia approximation
+  Vecchia V = Vecchia(model, db);
+  MatrixT<int> Ranks = findNN(db, nullptr, nb_neigh + 1, false);
+  if (V.computeLower(Ranks)) return 1;
+
+  // If Drift functions are present, evaluate the optimal Drift coefficients
+  if (nDrift > 0)
+  {
+    // Extract the matrix of drifts at samples X
+    MatrixDense X = model->evalDriftMat(db);
+
+    // Calculate t(L-1) %*% D-1 %*% L-1 applied to X (L and D from Vecchia)
+    MatrixDense Cm1X = _productMatVecchia(V, X);
+
+    // Calculate XtCm1X = Xt * Cm1 * X
+    MatrixSymmetric* XtCm1X =
+      MatrixFactory::prodMatMat<MatrixSymmetric>(&X, &Cm1X, true, false);
+
+    // Construct ZtCm1X = Zt * Cm1 * X and perform its Cholesky decomposition
+    VectorDouble ZtCm1X = Cm1X.prodVecMat(Y);
+    CholeskyDense XtCm1XChol(XtCm1X);
+    if (!XtCm1XChol.isReady())
+    {
+      messerr("Cholesky decomposition of XtCm1X matrix failed");
+      delete XtCm1X;
+      return TEST;
+    }
+
+    // Calculate beta = (XtCm1X)-1 * ZtCm1X
+    VectorDouble beta(nDrift);
+    if (XtCm1XChol.solve(ZtCm1X, beta))
+    {
+      messerr("Error when calculating Likelihood");
+      delete XtCm1X;
+      return TEST;
+    }
+    model->setBetaHat(beta);
+    delete XtCm1X;
+
+    if (verbose)
+    {
+      VH::dump("Optimal Drift coefficients = ", beta);
+    }
+
+    // Center the data by the optimal drift: Y = Y - beta * X
+    VH::subtractInPlace(Y, X.prodMatVec(beta));
+  }
+
+  // Calculate t(L-1) %*% D-1 %*% L-1 applied to Y (L and D from Vecchia)
+  VectorDouble Cm1Z = _productVecchia(V, Y);
+
+  // Calculate the log-determinant
+  double logdet = -VH::cumulLog(V.getDFull());
+
+  // Calculate quad = Zt * Cm1Z
+  double quad = VH::innerProduct(Y, Cm1Z);
+
+  // Derive the log-likelihood
+  double loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
+
+  // Optional printout
+  if (verbose)
+  {
+    message("Log-Determinant = %lf\n", logdet);
+    message("Quadratic term  = %lf\n", quad);
+    message("Log-likelihood  = %lf\n", loglike);
+  }
+  return loglike;
 }

@@ -22,7 +22,9 @@ class ModelGeneric;
 class GSTLEARN_EXPORT Vecchia
 {
 public:
-  Vecchia(const ModelGeneric* model, const Db* db1, const Db* db2 = nullptr);
+  Vecchia(const ModelGeneric* model,
+          const Db* db1,
+          const Db* db2 = nullptr);
   Vecchia(const Vecchia &r) = delete;
   Vecchia& operator=(const Vecchia &r) = delete;
   virtual ~Vecchia();
@@ -30,9 +32,11 @@ public:
   int computeLower(const MatrixT<int>& Ranks, bool verbose = false);
   const MatrixSparse& getLFull() const { return _LFull; }
   const VectorDouble& getDFull() const { return _DFull; }
-  const MatrixSparse& getDMat() const { return _Dmat; }
+  const MatrixSparse& getDMat() const  { return _Dmat; }
 
   double getLFull(int i, int j) const { return _LFull.getValue(i, j); }
+  int getND() const { return _nd; }
+  int getNT() const { return _nt; }
 
 private:
   // Following members are copies of pointers (not to be deleted)
@@ -40,6 +44,8 @@ private:
   const Db* _db2;
   const ModelGeneric* _model;
 
+  int _nt;
+  int _nd;
   mutable VectorDouble _DFull;
   mutable MatrixSparse _LFull;
 
@@ -53,4 +59,7 @@ GSTLEARN_EXPORT int krigingVecchia(Db* dbin,
                                    int nb_neigh = 5,
                                    bool verbose = false,
                                    const NamingConvention& namconv = NamingConvention("Vecchia"));
-
+GSTLEARN_EXPORT double logLikelihoodVecchia(Db* db,
+                                            ModelGeneric* model,
+                                            int nb_neigh = 5,
+                                            bool verbose = false);

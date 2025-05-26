@@ -749,8 +749,8 @@ double SPDE::_computeLogLikelihood(int nbsimu, bool verbose) const
     message("Likelihood calculation:\n");
     message("- Length of Information Vector = %d\n", size);
     message("Log-Determinant = %lf\n", logdet);
-    message("Quadratic term = %lf\n", quad);
-    message("Log-likelihood = %lf\n", loglike);
+    message("Quadratic term  = %lf\n", quad);
+    message("Log-likelihood  = %lf\n", loglike);
   }
   return loglike;
 }
