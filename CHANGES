@@ -5,6 +5,13 @@ This file contains the logs between consecutive releases
 Release 1.8.0
 =============
 
+Release 1.7.2
+=============
+- Fix memory leak in Python Swig wrapper
+
+Release 1.7.1
+=============
+- Fix HDF5 serialization missing in Python, R wrappers
 
 Release 1.7.0
 =============
