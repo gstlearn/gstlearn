@@ -18,7 +18,6 @@
 
 #include <iostream>
 #include <stdarg.h>
-#include <filesystem>
 #include <fstream>
 
 namespace H5
@@ -46,8 +45,6 @@ public:
   static String buildFileName(int status, const String& filename, bool ensureDirExist = false);
 
   static String getHomeDirectory(const String& sub = "");
-  static String getWorkingDirectory();
-  static String getTestData(const String& subdir, const String& filename);
   static String getFileIdentity(const String& filename, bool verbose = false);
   static void setContainerName(bool useDefault,
                                const String& containerName = "",
@@ -58,9 +55,6 @@ public:
   static const String& getContainerName();
   static const String& getPrefixName();
 
-  // TODO : Directory manipulation class
-  static bool createDirectory(const std::filesystem::path& dir);
-  static std::filesystem::path getExecDirectory();
   virtual String _getNFName() const = 0;
 
 protected:

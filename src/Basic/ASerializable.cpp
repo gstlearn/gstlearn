@@ -16,6 +16,7 @@
 #include "Basic/String.hpp"
 
 #include <iostream>
+#include <filesystem>
 #include <fstream>
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -146,7 +147,7 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
     fileLocal = _myContainerName;
     if (ensureDirExist)
     {
-      (void)createDirectory(fileLocal);
+      std::filesystem::create_directory(fileLocal);
     }
   }
   const auto fname = _myPrefixName + filename;
@@ -163,26 +164,6 @@ String ASerializable::getHomeDirectory(const String& sub)
 #endif
   std::filesystem::path p {home_dir};
   if (!sub.empty()) p /= sub;
-  return p.string();
-}
-
-String ASerializable::getWorkingDirectory()
-{
-  return std::filesystem::current_path().string();
-}
-
-/**
- * This method returns the absolute path to a Test Data file
- * This can only be used in non-regression test (NOT in any Python or R stand-alone script)
- *
- * @param subdir Sub directory (in doc/data folder) containing the required file
- * @param filename Name of the required data file
- *
- * @return
- */
-String ASerializable::getTestData(const String& subdir, const String& filename)
-{
-  const auto p = getExecDirectory().parent_path().parent_path().parent_path() / "doc" / "data" / subdir / filename;
   return p.string();
 }
 
@@ -284,43 +265,4 @@ const String& ASerializable::getContainerName()
 const String& ASerializable::getPrefixName()
 {
   return _myPrefixName;
-}
-
-/*!
- * Cross platform way to create a directory
- * (or ensure its existence)
- */
-bool ASerializable::createDirectory(const std::filesystem::path& dir)
-{
-  if (std::filesystem::exists(dir))
-  {
-    return std::filesystem::is_directory(dir);
-  }
-  return std::filesystem::create_directory(dir);
-}
-
-/*!
- * Cross platform way to get executable directory.
- * Returned directory contains trailing separator
- */
-std::filesystem::path ASerializable::getExecDirectory()
-{
-  // TODO boost::filesystem::path program_location
-  String dir = getHomeDirectory();
-#if defined(_WIN32) || defined(_WIN64)
-  char buffer[MAX_PATH] = "";
-  if (GetModuleFileName(NULL, buffer, MAX_PATH) != 0)
-    dir = String(buffer);
-#elif defined (__APPLE__)
-  char buffer[PATH_MAX] = "";
-  uint32_t bufsize = PATH_MAX;
-  if(!_NSGetExecutablePath(buffer, &bufsize))
-    dir = String(buffer);
-#else // __linux__
-  char buffer[LONG_SIZE] = "";
-  if (readlink("/proc/self/exe", buffer, LONG_SIZE) != -1)
-    dir = String(buffer);
-#endif
-  std::filesystem::path p {dir};
-  return p.parent_path();
 }
