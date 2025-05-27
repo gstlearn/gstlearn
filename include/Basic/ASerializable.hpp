@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <stdarg.h>
+#include <filesystem>
 #include <fstream>
 
 namespace H5
@@ -31,6 +32,8 @@ public:
   ASerializable();
   ASerializable(const ASerializable& r);
   ASerializable& operator=(const ASerializable& r);
+  ASerializable(ASerializable&& r) noexcept;
+  ASerializable& operator=(ASerializable&& r) noexcept;
   virtual ~ASerializable();
 
   bool deserialize(std::istream& is, bool verbose = true);
@@ -56,9 +59,8 @@ public:
   static const String& getPrefixName();
 
   // TODO : Directory manipulation class
-  static bool createDirectory(const String& dir);
-  static String getExecDirectory();
-  static String getDirectory(const String& path);
+  static bool createDirectory(const std::filesystem::path& dir);
+  static std::filesystem::path getExecDirectory();
   virtual String _getNFName() const = 0;
 
 protected:

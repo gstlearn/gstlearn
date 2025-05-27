@@ -17,16 +17,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <sstream>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#ifdef __linux__ // Not operational under MacOS
-#include <wordexp.h>
-#endif
-
-//#include <boost/filesystem.hpp>
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h> // for CreateDirectory
@@ -44,26 +34,12 @@
 String ASerializable::_myContainerName = String();
 String ASerializable::_myPrefixName = String();
 
-ASerializable::ASerializable()
-{
-}
-/**
- * Copy constructor: don't copy temporary file info
- */
-ASerializable::ASerializable(const ASerializable& /*r*/)
-{
-}
-/**
- * Assignment operator: don't copy temporary file info
- */
-ASerializable& ASerializable::operator=(const ASerializable& /*r*/)
-{
-  return *this;
-}
-
-ASerializable::~ASerializable()
-{
-}
+ASerializable::ASerializable()                                    = default;
+ASerializable::ASerializable(const ASerializable&)                = default;
+ASerializable& ASerializable::operator=(const ASerializable&)     = default;
+ASerializable::ASerializable(ASerializable&&) noexcept            = default;
+ASerializable& ASerializable::operator=(ASerializable&&) noexcept = default;
+ASerializable::~ASerializable()                                   = default;
 
 bool ASerializable::deserialize(std::istream& is, bool verbose)
 {
@@ -100,7 +76,7 @@ bool ASerializable::dumpToH5(const String& H5Filename, bool verbose) const
   bool ret  = _serializeH5(file, verbose);
   if (!ret)
   {
-    messerr("Problem writing in the netCDF File.");
+    messerr("Problem writing in the HDF5 file.");
   }
 
   return ret;
@@ -151,87 +127,48 @@ bool ASerializable::_tableRead(std::istream &is,
  */
 String ASerializable::buildFileName(int status, const String& filename, bool ensureDirExist)
 {
-// TODO: to be restored when boost (or c++14) is usable for gstlearn (is_absolute, path manipulation, etc.)
-//  boost::filesystem::path final;
-//  if (! myContainerName.empty())
-//  {
-//    boost::filesystem::path local(myContainerName);
-//    final += local;
-//  }
-//  if (! myPrefixName.empty())
-//  {
-//    boost::filesystem::path local(myPrefixName);
-//    final += local;
-//  }
-//  boost::filesystem::path file(filename);
-//  final += file;
-//  String fileLocal = final.string();
-
-  String fileLocal;
-
   // In the case of Output File (2), 'filename' is appended after the 'containerName' and 'prefixName'
   // In the case of Input file (1), the process depends on the contents of 'filename':
   // - if 'filename' is absolute (starts with '/' or second character is ':'): do nothing
   // - otherwise, add the 'containerName' and 'prefixName' (if defined)
-  if (status == 2 || (filename.size() > 2 && filename[0] != '/' && filename[1] != ':'))
+
+  std::filesystem::path fileLocal {filename};
+
+  if (status == 1 && fileLocal.is_absolute())
   {
-    if (!_myContainerName.empty())
+    return fileLocal.string();
+  }
+
+  fileLocal.clear();
+
+  if (!_myContainerName.empty())
+  {
+    fileLocal = _myContainerName;
+    if (ensureDirExist)
     {
-      fileLocal += _myContainerName;
-      if (ensureDirExist)
-      {
-        (void) createDirectory(fileLocal);
-      }
-    }
-    if (!_myPrefixName.empty())
-    {
-      fileLocal += _myPrefixName;
+      (void)createDirectory(fileLocal);
     }
   }
-  fileLocal += filename;
+  const auto fname = _myPrefixName + filename;
 
-  String filePath = fileLocal;
-
-#ifdef __linux__ // Not operational under MacOS
-  // Check the presence of tilde character
-  wordexp_t p;
-  wordexp(fileLocal.c_str(), &p, 0);
-
-  filePath = p.we_wordv[p.we_offs];
-  wordfree(&p);
-#endif
-
-  return filePath;
+  return (fileLocal / fname).string();
 }
 
 String ASerializable::getHomeDirectory(const String& sub)
 {
-  std::stringstream sstr;
 #if defined(_WIN32) || defined(_WIN64)
-  String home_drive = gslGetEnv("HOMEDRIVE");
-  String home_path = gslGetEnv("HOMEPATH");
-  sstr << home_drive << home_path;
+  String home_dir = gslGetEnv("USERPROFILE");
 #else
   String home_dir = gslGetEnv("HOME");
-  sstr << home_dir;
 #endif
-  // TODO : Cross-platform way to build file path (use boost ?)
-  if (!sub.empty()) sstr << "/" << sub;
-  return sstr.str();
+  std::filesystem::path p {home_dir};
+  if (!sub.empty()) p /= sub;
+  return p.string();
 }
 
 String ASerializable::getWorkingDirectory()
 {
-  String path;
-#if defined(_WIN32) || defined(_WIN64)
-  char buffer[LONG_SIZE];
-  if (GetModuleFileName(NULL, buffer, LONG_SIZE) != 0)
-  path = String(buffer);
-#else
-  char buffer[LONG_SIZE];
-  if (getcwd(buffer, sizeof(buffer)) != NULL) path = String(buffer);
-#endif
-  return path;
+  return std::filesystem::current_path().string();
 }
 
 /**
@@ -245,35 +182,8 @@ String ASerializable::getWorkingDirectory()
  */
 String ASerializable::getTestData(const String& subdir, const String& filename)
 {
-  String path = getExecDirectory();
-  //std::cout << "path=" << path << std::endl;
-  // TODO : Cross-platform way to build file path (use boost ?)
-  // TODO : Find a proper way to register global folders (data, docs etc...)
-#if defined(_WIN32) || defined(_WIN64)
-  path += "..";
-  path += "\\";
-  path += "..";
-  path += "\\";
-  path += "..";
-  path += "\\";
-  path += "doc";
-  path += "\\";
-  path += "data";
-  path += "\\";
-  // Concatenate with the Sub-Directory
-  path += subdir;
-  path += "\\";
-  // Concatenate with the Filename
-  path += filename;
-#else
-  path += "../../../doc/data/";
-  // Concatenate with the Sub-Directory
-  path += subdir;
-  path += "/";
-  // Concatenate with the Filename
-  path += filename;
-#endif
-  return path;
+  const auto p = getExecDirectory().parent_path().parent_path().parent_path() / "doc" / "data" / subdir / filename;
+  return p.string();
 }
 
 /**
@@ -363,7 +273,7 @@ void ASerializable::setPrefixName(const String& prefixName)
 
 void ASerializable::unsetPrefixName(void)
 {
-  _myPrefixName.erase();
+  _myPrefixName.clear();
 }
 
 const String& ASerializable::getContainerName()
@@ -380,28 +290,20 @@ const String& ASerializable::getPrefixName()
  * Cross platform way to create a directory
  * (or ensure its existence)
  */
-bool ASerializable::createDirectory(const String& dir)
+bool ASerializable::createDirectory(const std::filesystem::path& dir)
 {
-  // TODO boost::filesystem::create_directory(dir);
-#if defined(_WIN32) || defined(_WIN64)
-  if (CreateDirectory(dir.c_str(), NULL) ||       // Directory creation
-      ERROR_ALREADY_EXISTS == GetLastError())
-  {   // or Directory was existing
-    return true;
+  if (std::filesystem::exists(dir))
+  {
+    return std::filesystem::is_directory(dir);
   }
-  return false;
-#else
-  struct stat sb;
-  return ((stat(dir.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode)) || // Directory exists
-      (mkdir(dir.c_str(), 0755) == 0));                           // or Creation
-#endif
+  return std::filesystem::create_directory(dir);
 }
 
 /*!
  * Cross platform way to get executable directory.
  * Returned directory contains trailing separator
  */
-String ASerializable::getExecDirectory()
+std::filesystem::path ASerializable::getExecDirectory()
 {
   // TODO boost::filesystem::path program_location
   String dir = getHomeDirectory();
@@ -419,17 +321,6 @@ String ASerializable::getExecDirectory()
   if (readlink("/proc/self/exe", buffer, LONG_SIZE) != -1)
     dir = String(buffer);
 #endif
-  return getDirectory(dir);
-}
-
-/**
- * Cross-platform way to get parent directory from a path.
- * Returned directory contains trailing separator.
- */
-String ASerializable::getDirectory(const String& path)
-{
-  // TODO boost::filesystem::parent_path
-  size_t found = path.find_last_of("/\\");
-  String dir = path.substr(0, found + 1);
-  return dir;
+  std::filesystem::path p {dir};
+  return p.parent_path();
 }
