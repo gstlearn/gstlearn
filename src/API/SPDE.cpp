@@ -739,9 +739,9 @@ double SPDE::_computeLogLikelihood(int nbsimu, bool verbose) const
   {
     _computeDriftCoeffs();
   }
-  int size = (int)_workingData.size();
-  double logdet = computeLogDet(nbsimu);
-  double quad   = computeQuad();
+  int size       = (int)_workingData.size();
+  double logdet  = computeLogDet(nbsimu);
+  double quad    = computeQuad();
   double loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
 
   if (verbose)
@@ -828,99 +828,6 @@ VectorDouble SPDE::getCoeffs()
 {
   _computeDriftCoeffs();
   return _driftCoeffs;
-}
-
-/**
- * Perform the estimation by KRIGING under the SPDE framework
- *
- * @param dbin Input Db (must contain the variable to be estimated)
- * @param dbout Output Db where the estimation must be performed
- * @param model Model definition
- * @param domain Domain  used to calibrate the Mesh (if not defined, defaulted to dbout)
- * @param flag_est True for the estimation
- * @param flag_std True for the standard deviation of estimation error
- * @param mesh Mesh description (optional)
- * @param useCholesky Define the choice regarding Cholesky
- * @param params Set of parameters
- * @param nbMC Number of Monte-Carlo simulations used for variance calculation
- * @param verbose Verbose flag
- * @param showStats Show statistics for Linear Operations
- * @param namconv Naming convention
- * @return Error return code
- *
- * @remarks You can provide an already existing mesh. Otherwise an optimal mesh will be created
- * @remarks internally: one per structure constituting the Model for Kriging.
- * @remarks Each mesh is created using the Turbo Meshing facility... based on an internal grid.
- * @remarks This internal grid is rotated according to the rotation of the structure. Its mesh size
- * @remarks is derived from the range (per direction) by dividing it by the refinement factor.
- *
- * @remarks Note that switching 'flag_std' to ON implies that 'flag_est' is ON.
- */
-int krigingSPDEOld(Db* dbin,
-                   Db* dbout,
-                   Model* model,
-                   Db* domain,
-                   bool flag_est,
-                   bool flag_std,
-                   const AMesh* mesh,
-                   int useCholesky,
-                   const SPDEParam& params,
-                   int nbMC,
-                   bool verbose,
-                   bool showStats,
-                   const NamingConvention& namconv)
-{
-  DECLARE_UNUSED(flag_est);
-  const ESPDECalcMode mode =
-    (flag_std) ? ESPDECalcMode::KRIGVAR : ESPDECalcMode::KRIGING;
-  Db* domain_local = domain;
-  if (domain_local == nullptr) domain_local = dbout;
-  SPDE spde(model, domain_local, dbin, mode, mesh, useCholesky, params, verbose,
-            showStats);
-  return spde.compute(dbout, nbMC, namconv);
-}
-
-/**
- * Perform simulations under the SPDE framework
- *
- * @param dbin Input Db. If defined, the simulations are conditional; non conditional otherwise
- * @param dbout Output Db where the simulations must be performed
- * @param model Model definition
- * @param domain Domain  used to calibrate the Mesh (if not defined, defaulted to dbout)
- * @param nbsimu Number of simulations
- * @param mesh Mesh description (optional)
- * @param useCholesky Define the choice regarding Cholesky
- * @param params Set of parametes
- * @param verbose Verbose flag
- * @param showStats Show statistics for Linear Operations
- * @param namconv Naming convention
- * @return Error return code
- *
- * @remarks You can provide an already existing mesh. Otherwise an optimal mesh will be created
- * @remarks internally: one per structure constituting the Model for Kriging and one for Simulating
- * @remarks Each mesh is created using the Turbo Meshing facility... based on an internal grid.
- * @remarks This internal grid is rotated according to the rotation of the structure. Its mesh size
- * @remarks is derived from the range (per direction) by dividing it by the refinement factor.
- */
-int simulateSPDEOld(Db* dbin,
-                 Db* dbout,
-                 Model* model,
-                 Db* domain,
-                 int nbsimu,
-                 const AMesh *mesh,
-                 int useCholesky,
-                 const SPDEParam& params,
-                 bool verbose,
-                 bool showStats,
-                 const NamingConvention &namconv)
-{
-  const ESPDECalcMode mode =
-    (dbin == nullptr) ? ESPDECalcMode::SIMUNONCOND : ESPDECalcMode::SIMUCOND;
-  Db* domain_local = domain;
-  if (domain_local == nullptr) domain_local = dbout;
-  SPDE spde(model, domain_local, dbin, mode, mesh, useCholesky, params, verbose,
-            showStats);
-  return spde.compute(dbout, nbsimu, namconv);
 }
 
 double logLikelihoodSPDE(Db* dbin,
@@ -1377,6 +1284,104 @@ int simulateSPDE(Db* dbin,
     AInK = nullptr;
   }
   return 0;
+}
+
+/**
+ * Calculate the Log-Likelihood under the SPDE framework
+ *
+ * @param dbin Input Db (must contain the variable to be estimated)
+ * @param model Model definition
+ * @param useCholesky Define the choice regarding Cholesky
+ * @param meshes Meshes description (optional)
+ * @param projIn Matrix of projection (optional)
+ * @param params Set of SPDE parameters
+ * @param verbose True for verbose output
+ * @return Returned value
+ */
+double logLikelihoodSPDENew(Db* dbin,
+                            Model* model,
+                            int useCholesky,
+                            const VectorMeshes& meshes,
+                            const ProjMultiMatrix* projIn,
+                            const SPDEParam& params,
+                            bool verbose)
+{
+  if (dbin == nullptr) return 1;
+  if (model == nullptr) return 1;
+  if (dbin->getNLoc(ELoc::Z) != 1)
+  {
+    messerr("'dbin' must contain ONE variable (Z locator)");
+    return 1;
+  }
+
+  VectorDouble Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
+
+  // Define optional parameters
+  VectorMeshes meshLocal = meshes;
+  bool flagProjCreated   = (projIn == nullptr);
+  if (_defineMeshes(dbin, nullptr, model, meshLocal, params, true)) return 1;
+  const ProjMultiMatrix* AIn = _defineProjMulti(dbin, model, meshLocal, projIn, true);
+  if (AIn == nullptr) return 1;
+
+  // Auxiliary information
+  MatrixSparse* invnoise        = buildInvNugget(dbin, model, params);
+  MatrixSymmetricSim* invnoisep = nullptr;
+  if (!useCholesky)
+    invnoisep = new MatrixSymmetricSim(invnoise);
+
+  SPDEOp* spdeop              = nullptr;
+  PrecisionOpMulti* Qop       = nullptr;
+  PrecisionOpMultiMatrix* Qom = nullptr;
+  if (useCholesky)
+  {
+    Qom    = new PrecisionOpMultiMatrix(model, meshLocal);
+    spdeop = new SPDEOpMatrix(Qom, AIn, invnoise);
+  }
+  else
+  {
+    Qop    = new PrecisionOpMulti(model, meshLocal, params.getUseStencil());
+    spdeop = new SPDEOp(Qop, AIn, invnoisep);
+    spdeop->setMaxIterations(params.getCGparams().getNIterMax());
+    spdeop->setTolerance(params.getCGparams().getEps());
+  }
+
+  // Calculating the drift coefficient (optional) and Centering the Data
+  VectorDouble driftCoeffs = _centerDataByDriftInPlace(spdeop, dbin, model, Z);
+
+  // Performing the task
+  int seedLocal = params.getSeedMC();
+  int nMC       = params.getNMC();
+  int memo      = law_get_random_seed();
+  law_set_random_seed(seedLocal);
+
+  int size       = (int)Z.size();
+  double logdet  = spdeop->computeTotalLogDet(nMC);
+  double quad    = spdeop->computeQuadratic(Z);
+  double loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
+
+  if (verbose)
+  {
+    message("Likelihood calculation:\n");
+    message("- Length of Information Vector = %d\n", size);
+    message("Log-Determinant = %lf\n", logdet);
+    message("Quadratic term = %lf\n", quad);
+    message("Log-likelihood = %lf\n", loglike);
+  }
+
+  // Cleaning phase
+  delete spdeop;
+  delete Qom;
+  delete Qop;
+  delete invnoise;
+  delete invnoisep;
+  if (flagProjCreated)
+  {
+    delete AIn;
+    AIn = nullptr;
+  }
+
+  law_set_random_seed(memo);
+  return loglike;
 }
 
 /**

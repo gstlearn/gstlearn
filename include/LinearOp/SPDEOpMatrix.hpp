@@ -28,7 +28,10 @@ public:
                const ProjMultiMatrix* projOut    = nullptr);
   virtual ~SPDEOpMatrix();
 
+  double computeLogDetOp(int nbsimu) const override;
+
 #ifndef SWIG
+
 private:
   int _addToDest(const constvect inv, vect outv) const override;
   int _solve(const constvect inv, vect outv) const override;

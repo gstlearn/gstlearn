@@ -48,8 +48,8 @@ public:
   double getMaxEigenValProj() const;
   double sumLogVar() const;
 
-  double computeLogDetQ(int nbsimu = 1) const;
-  double computeTotalLogDet(int nbsimu = 1) const;
+  double computeLogDetQ(int nMC = 1) const;
+  double computeTotalLogDet(int nMC = 1) const;
   void preparePoly(Chebychev& logPoly) const;
   
   const ProjMatrix* getProjMatrix(int i = 0) const { return (ProjMatrix*) _multiProjData[i];}

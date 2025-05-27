@@ -111,7 +111,6 @@ std::pair<double,double> PrecisionOpMultiConditional::rangeEigenValQ() const
     result.first  = MIN(result.first ,vals.first);
     result.second = MAX(result.second,vals.second);
   }
-
   return result;
 }
 
@@ -135,7 +134,6 @@ std::pair<double,double> PrecisionOpMultiConditional::computeRangeEigenVal() con
   result.second += getMaxEigenValProj();
   return result;
 }
-
 
  void PrecisionOpMultiConditional::preparePoly(Chebychev& logPoly) const
 {
@@ -170,12 +168,12 @@ double PrecisionOpMultiConditional::computeLogDetOp(int nbsimu) const
   return val / nbsimu;
 }
 
-double PrecisionOpMultiConditional::computeLogDetQ(int nbsimu) const
+double PrecisionOpMultiConditional::computeLogDetQ(int nMC) const
 {
   double result = 0.;
   for (const auto &e : _multiPrecisionOp)
   {
-    result += e->getLogDeterminant(nbsimu);
+    result += e->getLogDeterminant(nMC);
   }
   return result;
 }
@@ -192,10 +190,10 @@ double PrecisionOpMultiConditional::sumLogVar() const
 
 // We use the fact that log|Sigma| = log |Q + A^t diag^(-1) (sigma) A|- log|Q| + Sum(log sigma_i^2)
 
-double PrecisionOpMultiConditional::computeTotalLogDet(int nbsimu) const
+double PrecisionOpMultiConditional::computeTotalLogDet(int nMC ) const
 {
-  double a1 = computeLogDetOp(nbsimu);
-  double a2 = computeLogDetQ(nbsimu);
+  double a1 = computeLogDetOp(nMC);
+  double a2 = computeLogDetQ(nMC);
   double a3 = sumLogVar();
   return a1 + a3 - a2;
 }
@@ -295,42 +293,40 @@ void PrecisionOpMultiConditional::_allocate(int i) const
 {
   if (i == 1)
   {
-    if(_work1bis.size() == 0)
+    if (_work1bis.size() == 0)
     {
       _work1bis.resize(_ndat);
     }
   }
-
-  if (i == 0)
+  else if (i == 0)
   {
-    if(_work1.size() == 0)
+    if (_work1.size() == 0)
     {
       _work1.resize(_ndat);
     }
   }
-
-  if (i == 3)
+  else if (i == 3)
   {
     _work3.resize(sizes());
 
-    for(int j = 0; j<sizes(); j++)
+    for (int j = 0; j < sizes(); j++)
     {
-      if(_work3[j].size() == 0)
+      if (_work3[j].size() == 0)
       {
         _work3[j].resize(size(j));
       }
     }
   }
-  if (i == 2)
+  else if (i == 2)
   {
-    if(_workdata.size() == 0)
+    if (_workdata.size() == 0)
     {
       _workdata.resize(_ndat);
     }
   }
-  if (i == 4)
+  else if (i == 4)
   {
-    if(_work1ter.size() == 0)
+    if (_work1ter.size() == 0)
     {
       _work1ter.resize(_ndat);
     }

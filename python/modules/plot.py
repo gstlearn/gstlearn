@@ -401,11 +401,9 @@ def _getGridVariable(dbgrid, name, useSel=True, posX=0, posY=1, corner=None, sha
     data = np.reshape(data, (ny,nx))
 
     tr = transform.Affine2D().rotate_deg_around(x0,y0,angle)
-    nameX = dbgrid.getNameByLocator(gl.ELoc.X, posX)
-    Xrot = dbgrid.getOneSlice(nameX, posX, posY, corner, useSel)
+    Xrot = dbgrid.getOneSliceForCoordinate(posX, posX, posY, corner, useSel)
     Xrot = np.reshape(Xrot, (ny,nx))
-    nameY = dbgrid.getNameByLocator(gl.ELoc.X, posY)
-    Yrot = dbgrid.getOneSlice(nameY, posX, posY, corner, useSel)
+    Yrot = dbgrid.getOneSliceForCoordinate(posY, posX, posY, corner, useSel)
     Yrot = np.reshape(Yrot, (ny,nx))
 
     if shading == "nearest":
