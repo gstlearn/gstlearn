@@ -30,7 +30,6 @@ int main(int argc, char *argv[])
 
   bool verbose = true;
   // This crashes under MingGW/Windows due to compatibility issue with getTestData
-  //ASerializable::setContainerName(true); // TODO: check if this is still valid
   //ASerializable::setPrefixName("test_SPDEDrift-");
 
   String filename;
