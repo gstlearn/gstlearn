@@ -44,15 +44,9 @@ public:
 
   static String buildFileName(int status, const String& filename, bool ensureDirExist = false);
 
-  static String getHomeDirectory(const String& sub = "");
   static String getFileIdentity(const String& filename, bool verbose = false);
-  static void setContainerName(bool useDefault,
-                               const String& containerName = "",
-                               bool verbose = false);
-  static void unsetContainerName();
   static void setPrefixName(const String& prefixName);
   static void unsetPrefixName();
-  static const String& getContainerName();
   static const String& getPrefixName();
 
   virtual String _getNFName() const = 0;
@@ -117,7 +111,6 @@ protected:
                           const VectorDouble &tab);
 
 private:
-  static String _myContainerName;
   static String _myPrefixName;
 };
 

@@ -32,7 +32,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-String ASerializable::_myContainerName = String();
 String ASerializable::_myPrefixName = String();
 
 ASerializable::ASerializable()                                    = default;
@@ -142,29 +141,28 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
 
   fileLocal.clear();
 
-  if (!_myContainerName.empty())
+  // container name: first search for the GSTLEARN_OUTPUT_DIR
+  // environment variable, then if empty create a `gstlearn_dir'
+  // folder in the current directory
+  const auto output_dir = gslGetEnv("GSTLEARN_OUTPUT_DIR");
+
+  if (!output_dir.empty())
   {
-    fileLocal = _myContainerName;
-    if (ensureDirExist)
-    {
-      std::filesystem::create_directory(fileLocal);
-    }
+    fileLocal = output_dir;
   }
+  else
+  {
+    fileLocal = std::filesystem::current_path() / "gstlearn_dir";
+  }
+
+  if (ensureDirExist)
+  {
+    std::filesystem::create_directory(fileLocal);
+  }
+
   const auto fname = _myPrefixName + filename;
 
   return (fileLocal / fname).string();
-}
-
-String ASerializable::getHomeDirectory(const String& sub)
-{
-#if defined(_WIN32) || defined(_WIN64)
-  String home_dir = gslGetEnv("USERPROFILE");
-#else
-  String home_dir = gslGetEnv("HOME");
-#endif
-  std::filesystem::path p {home_dir};
-  if (!sub.empty()) p /= sub;
-  return p.string();
 }
 
 /**
@@ -204,49 +202,6 @@ String ASerializable::getFileIdentity(const String& filename, bool verbose)
   return filetype;
 }
 
-/**
- * Set the Container Directory Name (do not forget trailing separator "/")
- * @param useDefault True if the user wants to use automated ContainerName
- *        - defined with the global variable PYGTSLEARN_DIR
- *        - or using HOME/gstlearn_dir
- * @param containerName Name or "" for current location
- * @param verbose Verbose flag
- */
-void ASerializable::setContainerName(bool useDefault,
-                                     const String& containerName,
-                                     bool verbose)
-{
-  if (useDefault)
-  {
-    // Default is first set to GSTLEARN_OUTPUT_DIR (if defined)
-    String pygst(gslGetEnv("GSTLEARN_OUTPUT_DIR"));
-    if (pygst.empty())
-    {
-      // Otherwise, it is set to HOME/gstlearn_dir
-      pygst = ASerializable::getHomeDirectory("gstlearn_dir/");
-      if (verbose) message("Results are stored in %s\n", pygst.c_str());
-    }
-    else
-    {
-      if (verbose)
-        message("Results are stored in GSTLEARN_OUTPUT_DIR\n");
-    }
-    _myContainerName = pygst;
-  }
-  else
-  {
-    _myContainerName = containerName;
-  }
-}
-
-/**
- * This enables un-defining the Container Name. Then files will be saved on current Directory
- */
-void ASerializable::unsetContainerName()
-{
-  _myContainerName.erase();
-}
-
 void ASerializable::setPrefixName(const String& prefixName)
 {
   _myPrefixName = prefixName;
@@ -255,11 +210,6 @@ void ASerializable::setPrefixName(const String& prefixName)
 void ASerializable::unsetPrefixName(void)
 {
   _myPrefixName.clear();
-}
-
-const String& ASerializable::getContainerName()
-{
-  return _myContainerName;
 }
 
 const String& ASerializable::getPrefixName()
