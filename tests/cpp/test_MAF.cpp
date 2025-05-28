@@ -20,6 +20,7 @@
 #include "Variogram/VarioParam.hpp"
 #include "Basic/OptDbg.hpp"
 #include "geoslib_define.h"
+#include "utils.hpp"
 
 /****************************************************************************/
 /*!
@@ -38,7 +39,7 @@ int main(int argc, char *argv[])
   VarioParam* varioparam = VarioParam::createOmniDirection(nlag, lag);
 
   String filename;
-  filename = ASerializable::getTestData("MAF", "data_for_MAF.dat");
+  filename = gstlearn::getTestData("MAF", "data_for_MAF.dat");
   Db* data = Db::createFromNF(filename);
   data->display();
 
