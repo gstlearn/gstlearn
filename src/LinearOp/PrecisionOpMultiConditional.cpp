@@ -350,9 +350,7 @@ void PrecisionOpMultiConditional::evalInvCov(const constvect inv,
   _allocate(4);
 
   for (int idat = 0; idat < _ndat; idat++)
-  {
     result[idat] = inv[idat] / _varianceData[idat];
-  }
 
   for (int icov = 0; icov < sizes(); icov++)
   {
@@ -369,9 +367,7 @@ void PrecisionOpMultiConditional::evalInvCov(const constvect inv,
     _multiProjData[icov]->mesh2point(w3s, w1bis);
 
     for (int idat = 0; idat < _ndat; idat++)
-    {
       result[idat] -= 1. / _varianceData[idat] * _work1bis[idat];
-    }
   }
 }
 

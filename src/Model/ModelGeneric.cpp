@@ -186,8 +186,8 @@ double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
   if (verbose)
   {
     message("Log-Determinant = %lf\n", logdet);
-    message("Quadratic term = %lf\n", quad);
-    message("Log-likelihood = %lf\n", loglike);
+    message("Quadratic term  = %lf\n", quad);
+    message("Log-likelihood  = %lf\n", loglike);
   }
   return loglike;
 }
