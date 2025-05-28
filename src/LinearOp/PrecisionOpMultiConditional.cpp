@@ -178,7 +178,7 @@ double PrecisionOpMultiConditional::computeLogDetQ(int nMC) const
   return result;
 }
 
-double PrecisionOpMultiConditional::sumLogVar() const
+double PrecisionOpMultiConditional::computeLogDetNoise() const
 {
   double s = 0.;
   for (const auto &e : _varianceData)
@@ -190,12 +190,19 @@ double PrecisionOpMultiConditional::sumLogVar() const
 
 // We use the fact that log|Sigma| = log |Q + A^t diag^(-1) (sigma) A|- log|Q| + Sum(log sigma_i^2)
 
-double PrecisionOpMultiConditional::computeTotalLogDet(int nMC ) const
+double PrecisionOpMultiConditional::computeTotalLogDet(int nMC, int seed) const
 {
+  int memo = law_get_random_seed();
+
+  law_set_random_seed(seed);
   double a1 = computeLogDetOp(nMC);
   double a2 = computeLogDetQ(nMC);
-  double a3 = sumLogVar();
-  return a1 - a2 + a3;
+  double a3 = computeLogDetNoise();
+  law_set_random_seed(memo);
+
+  double result = TEST;
+  if (!FFFF(a1) && !FFFF(a2) && !FFFF(a3)) result = a1 - a2 + a3;
+  return result;
 }
 
 double PrecisionOpMultiConditional::computeQuadratic(const std::vector<double>& x) const

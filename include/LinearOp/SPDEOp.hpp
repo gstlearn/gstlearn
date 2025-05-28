@@ -71,7 +71,9 @@ public:
   void simNonCond(vect outv) const;
   virtual double computeLogDetOp(int nbsimu) const;
   double computeQuadratic(const std::vector<double>& x) const;
-  double computeTotalLogDet(int nMC) const;
+  double computeTotalLogDet(int nMC = 1, int seed = 13132) const;
+  double computeLogDetQ(int nMC = 1) const;
+  double computeLogDetNoise() const;
 
   static int centerDataByDriftMat(VectorDouble& Z,
                                   const MatrixDense& driftMat,

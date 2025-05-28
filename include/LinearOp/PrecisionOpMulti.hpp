@@ -55,7 +55,7 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  double computeLogDetQ(int nMC) const;
+  double computeLogDetQ(int nMC = 1) const;
 
 protected:
   int size(int imesh) const;

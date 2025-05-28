@@ -208,5 +208,7 @@ Trend coefficients: [ 3.97002567 -0.00659772]
 
 #NO_DIFF#XXX
 ----
+Difference between Traditional and SPDE Krigings: 0.0187
+
 #NO_DIFF#XXX
 ----

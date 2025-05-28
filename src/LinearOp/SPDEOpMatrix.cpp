@@ -45,9 +45,7 @@ SPDEOpMatrix::~SPDEOpMatrix()
 int SPDEOpMatrix::_solve(const constvect inv, vect outv) const
 {
   if (_chol == nullptr)
-  {
     _chol = new CholeskySparse(&_QpAinvNoiseAt);
-  }
   return _chol->solve(inv, outv);
 }
 
