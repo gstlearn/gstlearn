@@ -23,6 +23,7 @@ env:
   BUILD_DIR : build
   CMAKE_GENERATOR : Ninja
   PYTHON_VERSION : "3.13"
+  GSTLEARN_OUTPUT_DIR: ${{ github.workspace }}\build\gstlearn_dir
 
 jobs:
 
@@ -79,7 +80,7 @@ jobs:
         {
             Compress-Archive -Update $filename .\msvc-logs.zip
         }
-        cd $HOME/gstlearn_dir
+        cd ${{ env.GSTLEARN_OUTPUT_DIR }}
         Get-ChildItem -Recurse -Filter '*.*' | Select-Object -ExpandProperty Fullname | Resolve-Path -Relative > neutral.txt
         foreach ($filename in Get-Content .\neutral.txt)
         {
