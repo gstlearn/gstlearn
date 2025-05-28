@@ -98,7 +98,9 @@ a=0.3 : [0.3]
 
 
 #NO_DIFF#XXX
-----[0.3]----
+----
+Computed manual : -120.377463
+----
 
 
 #NO_DIFF#XXX
@@ -111,10 +113,23 @@ Likelihood calculation:
 Optimal Drift coefficients = 
      0.728
 Log-Determinant = -33.879144
-Quadratic term = 90.846364
-Log-likelihood = -120.377463
+Quadratic term  = 90.846364
+Log-likelihood  = -120.377463
+----
 
-Compute manual loglikelihood = -120.377463
+
+#NO_DIFF#XXX
+----
+Likelihood calculation:
+- Number of active samples     = 100
+- Number of variables          = 1
+- Length of Information Vector = 100
+- Number of drift conditions = 1
+Optimal Drift coefficients = 
+     0.725
+Log-Determinant = -33.200255
+Quadratic term  = 89.332909
+Log-likelihood  = -119.960180
 ----
 
 
@@ -170,8 +185,8 @@ Likelihood calculation:
 Optimal Drift coefficients = 
      0.591     3.049     1.968    -2.140
 Log-Determinant = -676.517039
-Quadratic term = 484.076013
-Log-likelihood = -271.354901
+Quadratic term  = 484.076013
+Log-likelihood  = -271.354901
 ----
 
 
@@ -209,8 +224,8 @@ Likelihood calculation:
 Optimal Drift coefficients = 
      0.362     3.914
 Log-Determinant = -676.517039
-Quadratic term = 528.711994
-Log-likelihood = -293.672891
+Quadratic term  = 528.711994
+Log-likelihood  = -293.672891
 ----
 
 

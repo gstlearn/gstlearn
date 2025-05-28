@@ -195,7 +195,7 @@ double PrecisionOpMultiConditional::computeTotalLogDet(int nMC ) const
   double a1 = computeLogDetOp(nMC);
   double a2 = computeLogDetQ(nMC);
   double a3 = sumLogVar();
-  return a1 - a2 + a3;
+  return a1 + a3 - a2;
 }
 
 double PrecisionOpMultiConditional::computeQuadratic(const std::vector<double>& x) const
@@ -343,9 +343,7 @@ void PrecisionOpMultiConditional::evalInvCov(const constvect inv,
   _allocate(4);
 
   for (int idat = 0; idat < _ndat; idat++)
-  {
     result[idat] = inv[idat] / _varianceData[idat];
-  }
 
   for (int icov = 0; icov < sizes(); icov++)
   {
@@ -362,9 +360,7 @@ void PrecisionOpMultiConditional::evalInvCov(const constvect inv,
     _multiProjData[icov]->mesh2point(w3s, w1bis);
 
     for (int idat = 0; idat < _ndat; idat++)
-    {
       result[idat] -= 1. / _varianceData[idat] * _work1bis[idat];
-    }
   }
 }
 
