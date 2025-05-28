@@ -8,13 +8,13 @@ Kriging.Data.2.estim      0.267
 Co-Kriging using SPDE (Matrix)
 ------------------------------
                       Mean
-KM.Data.1.estim      1.491
-KM.Data.2.estim      0.095
-Difference with classical kriging (matricial version) = 0.01791
+KM.Data.1.estim      1.760
+KM.Data.2.estim      0.287
+Difference with classical kriging (matricial version) = 0.01211
 
 Co-Kriging using SPDE (Matrix-Free)
 -----------------------------------
                       Mean
-KF.Data.1.estim      1.484
-KF.Data.2.estim      0.095
-Difference with classical kriging (matrix free version) = 0.01987
+KF.Data.1.estim      1.483
+KF.Data.2.estim      0.097
+Difference with classical kriging (matrix free version) = 0.01983

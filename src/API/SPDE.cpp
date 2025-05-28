@@ -696,7 +696,7 @@ bool SPDE::_isKrigingRequested() const
       || _calcul == ESPDECalcMode::KRIGVAR;
 }
 
-double SPDE::computeLogDet(int nbsimu) const
+double SPDE::computeTotalLogDet(int nMC) const
 {
   if (_precisionsKrig == nullptr)
   {
@@ -704,7 +704,7 @@ double SPDE::computeLogDet(int nbsimu) const
     return TEST;
   }
 
-  return _precisionsKrig->computeTotalLogDet(nbsimu);
+  return _precisionsKrig->computeTotalLogDet(nMC);
 }
 
 double SPDE::computeQuad() const
@@ -740,7 +740,7 @@ double SPDE::_computeLogLikelihood(int nbsimu, bool verbose) const
     _computeDriftCoeffs();
   }
   int size       = (int)_workingData.size();
-  double logdet  = computeLogDet(nbsimu);
+  double logdet  = computeTotalLogDet(nbsimu);
   double quad    = computeQuad();
   double loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
 
@@ -748,6 +748,8 @@ double SPDE::_computeLogLikelihood(int nbsimu, bool verbose) const
   {
     message("Likelihood calculation:\n");
     message("- Length of Information Vector = %d\n", size);
+    message("- Number of Simulations = %d\n", nbsimu);
+    message("- Cholesky = %d\n", _useCholesky);
     message("Log-Determinant = %lf\n", logdet);
     message("Quadratic term  = %lf\n", quad);
     message("Log-likelihood  = %lf\n", loglike);
@@ -830,14 +832,14 @@ VectorDouble SPDE::getCoeffs()
   return _driftCoeffs;
 }
 
-double logLikelihoodSPDE(Db* dbin,
-                         Model* model,
-                         Db* domain,
-                         const AMesh* mesh,
-                         int useCholesky,
-                         int nbsimu,
-                         const SPDEParam& params,
-                         bool verbose)
+double logLikelihoodSPDEOld(Db* dbin,
+                            Model* model,
+                            Db* domain,
+                            const AMesh* mesh,
+                            int useCholesky,
+                            int nbsimu,
+                            const SPDEParam& params,
+                            bool verbose)
 {
   Db* domain_local = domain;
   if (domain_local == nullptr) domain_local = dbin;
@@ -1298,13 +1300,13 @@ int simulateSPDE(Db* dbin,
  * @param verbose True for verbose output
  * @return Returned value
  */
-double logLikelihoodSPDENew(Db* dbin,
-                            Model* model,
-                            int useCholesky,
-                            const VectorMeshes& meshes,
-                            const ProjMultiMatrix* projIn,
-                            const SPDEParam& params,
-                            bool verbose)
+double logLikelihoodSPDE(Db* dbin,
+                         Model* model,
+                         int useCholesky,
+                         const VectorMeshes& meshes,
+                         const ProjMultiMatrix* projIn,
+                         const SPDEParam& params,
+                         bool verbose)
 {
   if (dbin == nullptr) return 1;
   if (model == nullptr) return 1;
@@ -1351,21 +1353,23 @@ double logLikelihoodSPDENew(Db* dbin,
   // Performing the task
   int seedLocal = params.getSeedMC();
   int nMC       = params.getNMC();
-  int memo      = law_get_random_seed();
-  law_set_random_seed(seedLocal);
 
   int size       = (int)Z.size();
-  double logdet  = spdeop->computeTotalLogDet(nMC);
+  double logdet  = spdeop->computeTotalLogDet(nMC, seedLocal);
   double quad    = spdeop->computeQuadratic(Z);
-  double loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
+  double loglike = TEST;
+  if (!FFFF(logdet) && !FFFF(quad))
+    loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
 
   if (verbose)
   {
     message("Likelihood calculation:\n");
-    message("- Length of Information Vector = %d\n", size);
-    message("Log-Determinant = %lf\n", logdet);
-    message("Quadratic term = %lf\n", quad);
-    message("Log-likelihood = %lf\n", loglike);
+    message("Nb. active samples = %d\n",  size);
+    message("Nb. Monte-Carlo    = %d\n",  nMC);
+    message("Cholesky           = %d\n",  useCholesky);
+    message("Log-Determinant    = %lf\n", logdet);
+    message("Quadratic term     = %lf\n", quad);
+    message("Log-likelihood     = %lf\n", loglike);
   }
 
   // Cleaning phase
@@ -1379,8 +1383,6 @@ double logLikelihoodSPDENew(Db* dbin,
     delete AIn;
     AIn = nullptr;
   }
-
-  law_set_random_seed(memo);
   return loglike;
 }
 

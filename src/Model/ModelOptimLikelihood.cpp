@@ -115,7 +115,7 @@ double ModelOptimLikelihood::evalCost(unsigned int nparams,
   // Evaluate the Cost function
   double total;
   if (dbPart._flagSPDE)
-    total = -logLikelihoodSPDE(dbPart._db, modelPart._model);
+    total = -logLikelihoodSPDEOld(dbPart._db, modelPart._model);
   else
     total = -modelPart._model->computeLogLikelihood(dbPart._db);
 

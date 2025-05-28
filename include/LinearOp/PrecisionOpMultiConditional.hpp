@@ -46,10 +46,10 @@ public:
   std::pair<double,double> computeRangeEigenVal() const;
   std::pair<double,double> rangeEigenValQ() const;
   double getMaxEigenValProj() const;
-  double sumLogVar() const;
+  double computeLogDetNoise() const;
 
   double computeLogDetQ(int nMC = 1) const;
-  double computeTotalLogDet(int nMC = 1) const;
+  double computeTotalLogDet(int nMC = 1, int seed = 13132) const;
   void preparePoly(Chebychev& logPoly) const;
   
   const ProjMatrix* getProjMatrix(int i = 0) const { return (ProjMatrix*) _multiProjData[i];}

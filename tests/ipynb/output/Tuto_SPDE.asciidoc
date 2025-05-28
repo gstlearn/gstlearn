@@ -4,6 +4,31 @@
 
 #NO_DIFF#XXX
 ----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 1
+
+Covariance Part
+---------------
+Matern (Third Parameter = 1)
+- Sill         =      1.000
+- Range        =      0.200
+- Theo. Range  =      0.058
+Nugget Effect
+- Sill         =      0.100
+Total Sill     =      1.100
+
+Drift Part
+----------
+Universality_Condition----
+
+
+#NO_DIFF#XXX
+----
 
 Data Base Grid Characteristics
 ==============================
@@ -112,10 +137,10 @@ Data Base Statistics
  Nb of data          =       2500
  Nb of active values =       2500
  Minimum value       =     -2.554
- Maximum value       =      2.026
+ Maximum value       =      2.025
  Mean value          =     -0.137
  Standard Deviation  =      0.885
- Variance            =      0.784
+ Variance            =      0.783
 
 Variables
 ---------
@@ -149,48 +174,43 @@ Variance = 1.1733
 
 #NO_DIFF#XXX
 ----
-logdet(noise) = -2302.5851
-logdet(Q) = 11255.7151
-logdet(QOp) = 12296.9389
-logdet_chol = -1261.3613
-quad_chol = 1118.4871
-like_chol = -847.5015
+Value for MU = -0.063
 ----
 
 
 #NO_DIFF#XXX
 ----
--> Relative difference quadratic = 0.01%
+Quadratic (manual)  = 1118.4871
+Quadratic (api-old) = 1118.4871
+-> Relative difference quadratic = 0.0%
 ----
 
 
 #NO_DIFF#XXX
 ----
-log_det_op_chol = 12296.9389
-log_det_op_api = 12296.9389
+log_det_op (manual)  = 12296.9389
+log_det_op (api-old) = 12296.9389
 -> Relative difference = 0.0%
 ----
 
 
 #NO_DIFF#XXX
 ----
-log_det_Q_chol = 11255.7151
-log_det_Q_api = 11255.7151
+log_det_Q (manual)  = 11255.7151
+log_det_Q (api-old) = 11255.7151
 -> Relative difference = 0.0%
 ----
 
 
 #NO_DIFF#XXX
 ----
-likelihood api = -847.5015
-likelihood_chol = -847.5015
--> Relative Difference = -0.0%
-----
-
-
-#NO_DIFF#XXX
-----
-likelihood by Old API with cholesky=1 -847.5015
+Likelihood calculation (manual):
+log_det_op      = 12296.9389
+log_det_Q       = 11255.7151
+log_det_Noise   = -2302.5851
+log_determinant = -1261.3613
+Quadratic term  = 1118.4871
+-> Likelihood (manual) = -847.5015
 ----
 
 
@@ -198,10 +218,25 @@ likelihood by Old API with cholesky=1 -847.5015
 ----
 Likelihood calculation:
 - Length of Information Vector = 1000
-Log-Determinant = -1239.812325
-Quadratic term = 19458.416430
-Log-likelihood = -10028.240586
-likelihood by New API with cholesky=1 -10028.2406
+- Number of Simulations = 100
+- Cholesky = 1
+Log-Determinant = -1261.361258
+Quadratic term  = 1118.487113
+Log-likelihood  = -847.501461
+-> likelihood (api-old) = -847.5015
+----
+
+
+#NO_DIFF#XXX
+----
+Likelihood calculation:
+Nb. active samples = 1000
+Nb. Monte-Carlo    = 100
+Cholesky           = 1
+Log-Determinant    = -1261.361258
+Quadratic term     = 1118.487113
+Log-likelihood     = -847.501461
+-> likelihood (api-new) cholesky=1 -847.5015
 ----
 
 
@@ -209,9 +244,11 @@ likelihood by New API with cholesky=1 -10028.2406
 ----
 Not implemented yet in Matrix-free version
 Likelihood calculation:
-- Length of Information Vector = 1000
-Log-Determinant = 1233999999999999958672482500608.000000
-Quadratic term = 9168.549913
-Log-likelihood = -616999999999999979336241250304.000000
-likelihood by New API with cholesky=0 -6.17e+29
+Nb. active samples = 1000
+Nb. Monte-Carlo    = 100
+Cholesky           = 0
+Log-Determinant    = 1233999999999999958672482500608.000000
+Quadratic term     = -9157.277613
+Log-likelihood     = 1233999999999999958672482500608.000000
+-> likelihood by New API with cholesky=0 nan
 ----

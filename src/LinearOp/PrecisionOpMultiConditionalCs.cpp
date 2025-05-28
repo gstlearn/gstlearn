@@ -63,6 +63,7 @@ MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
 {
   MatrixSparse* Qmult = nullptr;
   int number = sizes();
+
   if (number <= 0)
   {
     messerr("This method requires at least one registered covariance");

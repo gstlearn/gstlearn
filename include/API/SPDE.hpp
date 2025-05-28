@@ -66,7 +66,7 @@ public:
               int nbsimu                      = 1,
               const NamingConvention& namconv = NamingConvention("spde"));
 
-  double computeLogDet(int nbsimu = 1) const;
+  double computeTotalLogDet(int nMC = 1) const;
   double computeQuad() const;
   double computeLogLikelihood(int nbsimu = 1, bool verbose = false) const;
   VectorDouble getCoeffs();
@@ -154,7 +154,7 @@ GSTLEARN_EXPORT int simulateSPDE(Db* dbin,
                                  const ProjMultiMatrix* projInS  = nullptr,
                                  const SPDEParam& params         = SPDEParam(),
                                  const NamingConvention& namconv = NamingConvention("SimuSPDE"));
-GSTLEARN_EXPORT double logLikelihoodSPDE(Db* dbin,
+GSTLEARN_EXPORT double logLikelihoodSPDEOld(Db* dbin,
                                          Model* model,
                                          Db* domain              = nullptr,
                                          const AMesh* mesh       = nullptr,
@@ -162,13 +162,13 @@ GSTLEARN_EXPORT double logLikelihoodSPDE(Db* dbin,
                                          int nbsimu              = 1,
                                          const SPDEParam& params = SPDEParam(),
                                          bool verbose            = false);
-GSTLEARN_EXPORT double logLikelihoodSPDENew(Db* dbin,
-                                            Model* model,
-                                            int useCholesky               = -1,
-                                            const VectorMeshes& meshes    = VectorMeshes(),
-                                            const ProjMultiMatrix* projIn = nullptr,
-                                            const SPDEParam& params       = SPDEParam(),
-                                            bool verbose                  = false);
+GSTLEARN_EXPORT double logLikelihoodSPDE(Db* dbin,
+                                         Model* model,
+                                         int useCholesky               = -1,
+                                         const VectorMeshes& meshes    = VectorMeshes(),
+                                         const ProjMultiMatrix* projIn = nullptr,
+                                         const SPDEParam& params       = SPDEParam(),
+                                         bool verbose                  = false);
 GSTLEARN_EXPORT MatrixSparse* buildInvNugget(Db* dbin, Model* model, const SPDEParam& params = SPDEParam());
 GSTLEARN_EXPORT VectorMeshes defineMeshesFromDbs(const Db* dbin,
                                                  const Db* dbout,
