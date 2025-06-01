@@ -61,7 +61,8 @@ int main(int argc, char *argv[])
 
   // Estimation and simulations
   (void)krigingSPDE(dat, grid, model, true, false, useCholesky, 
-                    VectorMeshes(), nullptr, SPDEParam(), NamingConvention("K-spirale"));
+                    VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(), 
+                    NamingConvention("K-spirale"));
   law_set_random_seed(132341);
 
   (void)simulateSPDE(nullptr, grid, model, nbsimu, useCholesky, 

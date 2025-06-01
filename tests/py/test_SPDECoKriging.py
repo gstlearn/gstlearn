@@ -4,13 +4,20 @@ import gstlearn.test as gt
 import matplotlib.pyplot as plt
 import numpy as np
 
+def getName(radix, ivar, iext):
+    name = radix + ".Data." + str(ivar+1) + iext
+    return name
+
 # %% General parameters
-flag_plot = False
+flag_plot = True
 ndim = 2
 nvar = 2
 order = 1
 flagLinked = False
 gl.OptCst.defineByKey("NTROW", -1)
+exts = [".estim", ".stdev"]
+params = gl.SPDEParam()
+params.setNMC(100)
 
 # %% Creating the Model
 model = gl.Model(nvar, ndim)
@@ -53,7 +60,7 @@ meshes = gl.VectorMeshes([mesh1,mesh1])
 ############################################
 
 gl.mestitle(1,"Co-Kriging (traditional)")
-err = gl.kriging(dat,grid,model,gl.NeighUnique(), flag_std=False)
+err = gl.kriging(dat,grid,model,gl.NeighUnique(), flag_std=True)
 gl.dbStatisticsMono(grid, ["Kriging.*"]).display()
 
 ##################################
@@ -61,22 +68,30 @@ gl.dbStatisticsMono(grid, ["Kriging.*"]).display()
 ##################################
 
 gl.mestitle(1,"Co-Kriging using SPDE (Matrix)")
-err = gl.krigingSPDE(dat,grid,model,True,False,1,meshes,
+err = gl.krigingSPDE(dat,grid,model,True,True,1,meshes,params=params,
                      namconv=gl.NamingConvention("KM"))
 gl.dbStatisticsMono(grid, ["KM.*"]).display()
-print("Difference with classical kriging (matricial version) = " + 
-      str(np.round(np.max(np.abs(grid["Kriging.*"]-grid["KM.*"]))/totalSill,5)))
+for iext in exts:
+    for ivar in range(nvar):
+        name1 = getName("Kriging", ivar, iext)
+        name2 = getName("KM", ivar, iext)
+        print("Difference for", name1, "(Matrix) = " +
+              str(np.round(np.max(np.abs(grid[name1]-grid[name2]))/totalSill,5)))
 
 #######################################
 # %% SPDE Kriging (matrix-free version)
 #######################################
 
 gl.mestitle(1,"Co-Kriging using SPDE (Matrix-Free)")
-err = gl.krigingSPDE(dat,grid,model,True,False,0,meshes,
+err = gl.krigingSPDE(dat,grid,model,True,True,0,meshes,params=params,
                      namconv = gl.NamingConvention("KF"))
 gl.dbStatisticsMono(grid, ["KF.*"]).display()
-print("Difference with classical kriging (matrix free version) = " + 
-      str(np.round(np.max(np.abs(grid["Kriging.*"]-grid["KF.*"]))/totalSill,5)))
+for iext in exts:
+    for ivar in range(nvar):
+        name1 = getName("Kriging", ivar, iext)
+        name2 = getName("KF", ivar, iext)
+        print("Difference for", name1, "(matrix) = " +
+              str(np.round(np.max(np.abs(grid[name1]-grid[name2]))/totalSill,5)))
 
 ###############
 # Various plots
@@ -84,63 +99,68 @@ print("Difference with classical kriging (matrix free version) = " +
 if flag_plot:
     
     # Display the result per variable for Traditional Kriging
-    for ivar in range(nvar):
-        fig, ax = gp.init(flagEqual=True)
-        gp.raster(grid, "Kriging.Data." + str(ivar+1) + ".estim")
-        gp.decoration(title = "Variable#"+str(ivar+1)+" (Traditional)")
-        gp.close()
+    for iext in exts:
+        for ivar in range(nvar):
+            fig, ax = gp.init(flagEqual=True)
+            gp.raster(grid, getName("Kriging", ivar,  iext))
+            gp.decoration(title = getName("Kriging", ivar, iext)+" (Traditional)")
+            gp.close()
     
     # Display the result per variable for SPDE Kriging (matrix)
-    for ivar in range(nvar):
-        fig, ax = gp.init(flagEqual=True)
-        gp.raster(grid, "KM.Data." + str(ivar+1) + ".estim")
-        gp.decoration(title = "Variable#"+str(ivar+1)+" (SPDE Matrix)")
-        gp.close()
+    for iext in exts:
+        for ivar in range(nvar):
+            fig, ax = gp.init(flagEqual=True)
+            gp.raster(grid, getName("KM", ivar, iext))
+            gp.decoration(title = getName("KM", ivar, iext)+" (SPDE Matrix)")
+            gp.close()
     
     # Display the result per variable for SPDE Kriging (matrix-free)
-    for ivar in range(nvar):
-        fig, ax = gp.init(flagEqual=True)
-        gp.raster(grid, "KF.Data." + str(ivar+1) + ".estim")
-        gp.decoration(title = "Variable#"+str(ivar+1)+" (SPDE Matrix-Free)")
-        gp.close()
+    for iext in exts:
+        for ivar in range(nvar):
+            fig, ax = gp.init(flagEqual=True)
+            gp.raster(grid, getName("KF", ivar, iext))
+            gp.decoration(title = getName("KF", ivar, iext)+" (SPDE Matrix-Free)")
+            gp.close()
     
     # Comparing the Krigings
-    for ivar in range(nvar):
-        fig, ax = gp.init()
-        gp.correlation(grid,
-                       "KM.Data." + str(ivar+1) + ".estim",
-                       "KF.Data." + str(ivar+1) + ".estim",
-                       regrLine=True, regrColor="black",
-                       bissLine=True, bissColor="blue",
-                       bins=100, cmin=1)
-        gp.decoration(title = "Comparing Krigings for Variable#" + str(ivar+1),
-                      xlabel = "SPDE (Matrix)",
-                      ylabel = "SPDE (Matrix-Free)")
-        gp.close()
-    
-    for ivar in range(nvar):
-        fig, ax = gp.init()
-        gp.correlation(grid,
-                       "KM.Data." + str(ivar+1) + ".estim",
-                       "Kriging.Data." + str(ivar+1) + ".estim",
-                       regrLine=True, regrColor="black",
-                       bissLine=True, bissColor="blue",
-                       bins=100, cmin=1)
-        gp.decoration(title = "Comparing Krigings for Variable#" + str(ivar+1),
+    for iext in exts:
+        for ivar in range(nvar):
+            fig, ax = gp.init()
+            gp.correlation(grid,
+                           getName("KM", ivar, iext),
+                           getName("KF", ivar, iext),
+                           regrLine=True, regrColor="black",
+                           bissLine=True, bissColor="blue",
+                           bins=100, cmin=1)
+            gp.decoration(title = "Comparing Kriging" + iext,
+                          xlabel = "SPDE (Matrix)",
+                          ylabel = "SPDE (Matrix-Free)")
+            gp.close()
+
+    for iext in exts:
+        for ivar in range(nvar):
+            fig, ax = gp.init()
+            gp.correlation(grid,
+                           getName("KM", ivar, iext),
+                           getName("Kriging", ivar, iext),
+                           regrLine=True, regrColor="black",
+                           bissLine=True, bissColor="blue",
+                           bins=100, cmin=1)
+            gp.decoration(title = "Comparing Kriging" + iext,
                       xlabel = "SPDE (Matrix)",
                       ylabel = "Traditional")
-        gp.close()
+            gp.close()
 
-
-    for ivar in range(nvar):
-        fig, ax = gp.init()
-        gp.correlation(grid,
-                       "KF.Data." + str(ivar+1) + ".estim",
-                       "Kriging.Data." + str(ivar+1) + ".estim",
-                       regrLine=True, regrColor="black",
-                       bissLine=True, bissColor="blue",
-                       bins=100, cmin=1)
-        gp.decoration(title = "Comparing Krigings for Variable#" + str(ivar+1),
+    for iext in exts:
+        for ivar in range(nvar):
+            fig, ax = gp.init()
+            gp.correlation(grid,
+                           getName("KF", ivar, iext),
+                           getName("Kriging", ivar, iext),
+                           regrLine=True, regrColor="black",
+                           bissLine=True, bissColor="blue",
+                           bins=100, cmin=1)
+            gp.decoration(title = "Comparing Kriging" + iext,
                       xlabel = "SPDE (Matrix-Free)",
                       ylabel = "Traditional")
-        gp.close()
+            gp.close()

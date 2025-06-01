@@ -29,7 +29,6 @@ class ProjMulti;
 
 class GSTLEARN_EXPORT ASPDEOp : public virtual ALinearOp
 {
-
 public:
   ASPDEOp(const PrecisionOpMulti* const popKriging = nullptr,
           const ProjMulti* const projInKriging     = nullptr,
@@ -45,9 +44,10 @@ public:
   int getSizeSimu() const;
   VectorDouble kriging(const VectorDouble& dat) const;
   VectorDouble krigingWithGuess(const VectorDouble& dat, const VectorDouble& guess) const;
+  VectorDouble stdev(const VectorDouble& dat, int nMC = 1, int seed = 134343) const;
   void setMaxIterations(int n) { _solver->setMaxIterations(n); }
   void setTolerance(double tol) { _solver->setTolerance(tol); }
-  int getIterations() const { return _solver->getIterations(); }
+  int  getIterations() const { return _solver->getIterations(); }
   double getError() const { return _solver->getError(); }
   VectorDouble computeDriftCoeffs(const VectorDouble& Z,
                                   const MatrixDense& driftMat,
@@ -85,10 +85,10 @@ protected:
   int _addToDest(const constvect inv, vect outv) const override;
 
 private:
-  int _kriging(const constvect inv, vect out) const;
+  int  _kriging(const constvect inv, vect out) const;
   void _simNonCond(vect outv) const;
   void _simCond(const constvect data, vect outvK, vect outvS) const;
-  int _getNDat() const { return _ndat; }
+  int  _getNDat() const { return _ndat; }
   virtual int _solve(const constvect in, vect out) const;
   int _solveWithGuess(const constvect in,
                       const constvect guess,

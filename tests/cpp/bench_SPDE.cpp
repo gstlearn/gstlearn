@@ -12,6 +12,7 @@
  * This function is meant to evaluate the bench marks on the SPDE functionalities
  *
  */
+#include "API/SPDEParam.hpp"
 #include "Basic/Law.hpp"
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
@@ -149,8 +150,10 @@ int main(int argc, char *argv[])
         namconv.append(option);
         namconv.append(sncov);
         law_set_random_seed(13243);
+        SPDEParam params;
+        params.setNMC(10);
         (void)krigingSPDE(dat, grid, model, true, true, useCholesky,
-                          VectorMeshes(), nullptr, SPDEParam(),
+                          VectorMeshes(), nullptr, VectorMeshes(), nullptr, params,
                           NamingConvention(namconv));
         timer.displayIntervalMilliseconds(namconv, 400);
       }

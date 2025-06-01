@@ -146,10 +146,9 @@ VectorDouble ASPDEOp::kriging(const VectorDouble& dat) const
   int err = _kriging(datm, outvs);
   if (err) return VectorDouble();
 
+  // Project the result on the output mesh (optional)
   if (_projOutKriging == nullptr)
     return outMeshK;
-
-  // Project the result on the output mesh
   VectorDouble result(_projOutKriging->getNPoint());
   _projOutKriging->mesh2point(outvs, result);
   return result;
@@ -212,6 +211,7 @@ VectorDouble ASPDEOp::simCond(const VectorDouble& dat) const
   vect outvS(outMeshS);
   _simCond(datm, outvK, outvS);
 
+  // Project the result on the output mesh (optional)
   if (_projOutKriging == nullptr && _projOutSimu == nullptr)
   {
     VH::addInPlace(outvS, outvK);
@@ -223,12 +223,45 @@ VectorDouble ASPDEOp::simCond(const VectorDouble& dat) const
   return result;
 }
 
+/**
+ * @brief Computing Stndard deviation of the estimation error using MonteCarlo
+ * on conditional simulations
+ * 
+ * @param dat Vector of Data
+ * @param nMC  Number of Monte-Carlo simulations
+ * @param seed Random seed for the Monte-Carlo simulations
+ * @return VectorDouble 
+ */
+VectorDouble ASPDEOp::stdev(const VectorDouble& dat, int nMC, int seed) const
+{
+  int memo = law_get_random_seed();
+  law_set_random_seed(seed);
+
+  // Standard Deviation using Monte-Carlo simulations
+  int nout = _projOutSimu->getNPoint();
+  VectorDouble temp_mean(nout, 0.);
+  VectorDouble temp_mean2(nout, 0.);
+
+  for (int iMC = 0; iMC < nMC; iMC++)
+  {
+    VectorDouble temp = simCond(dat);
+    VH::addInPlace(temp_mean, temp);
+    VH::addSquareInPlace(temp_mean2, temp);
+  }
+  VH::mean1AndMean2ToStdev(temp_mean, temp_mean2, temp_mean, nMC);
+
+  law_set_random_seed(memo);
+
+  return temp_mean;
+}
+
 VectorDouble ASPDEOp::simNonCond() const
 {
   VectorDouble outMeshS(_QSimu->getSize());
   vect outvs(outMeshS);
   _simNonCond(outvs);
 
+  // Project the result on the output mesh (optional)
   if (_projOutSimu == nullptr)
     return outMeshS;
   VectorDouble result(_projOutSimu->getNPoint());
