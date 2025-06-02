@@ -110,7 +110,7 @@ void ASPDEOp::_simCond(const constvect data, vect outvK, vect outvS) const
   _workNoiseMesh.resize(getSizeSimu());
   _workNoiseData.resize(_getNDat());
 
-  // Non conditional simulation on mesh
+  // Non conditional simulation on Simulation mesh
   VH::simulateGaussianInPlace(_workNoiseMesh);
   _QSimu->evalSimulate(_workNoiseMesh, outvS); 
   
@@ -122,7 +122,7 @@ void ASPDEOp::_simCond(const constvect data, vect outvK, vect outvS) const
   // compute residual _workdat4 = data - outv
   VH::subtractInPlace(_workdat3, data, _workdat4);
 
-  //Co-Kriging of the residual on the mesh
+  // Co-Kriging of the residual on the Kriging mesh
   _solver->setTolerance(1e-5);
   _kriging(_workdat4, outvK);
 }
@@ -204,27 +204,27 @@ int ASPDEOp::centerDataByMeanVec(VectorDouble& Z,
 
 VectorDouble ASPDEOp::simCond(const VectorDouble& dat) const
 {
-  constvect datm(dat.data(), dat.size());
+  constvect datv(dat.data(), dat.size());
   VectorDouble outMeshK(_QKriging->getSize());
-  vect outvK(outMeshK);
+  vect outMeshKv(outMeshK);
   VectorDouble outMeshS(_QSimu->getSize());
-  vect outvS(outMeshS);
-  _simCond(datm, outvK, outvS);
+  vect outMeshSv(outMeshS);
+  _simCond(datv, outMeshKv, outMeshSv);
 
   // Project the result on the output mesh (optional)
   if (_projOutKriging == nullptr && _projOutSimu == nullptr)
   {
-    VH::addInPlace(outvS, outvK);
+    VH::addInPlace(outMeshSv, outMeshKv);
     return outMeshK;
   }
   VectorDouble result(_projOutSimu->getNPoint());
-  _projOutKriging->mesh2point(outvK, result);
-  _projOutSimu->addMesh2point(outvS, result);
+  _projOutKriging->mesh2point(outMeshKv, result);
+  _projOutSimu->addMesh2point(outMeshSv, result);
   return result;
 }
 
 /**
- * @brief Computing Stndard deviation of the estimation error using MonteCarlo
+ * @brief Computing Standard deviation of the estimation error using MonteCarlo
  * on conditional simulations
  * 
  * @param dat Vector of Data

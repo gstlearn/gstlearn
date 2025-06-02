@@ -1102,10 +1102,7 @@ int krigingSPDE(Db* dbin,
                 const NamingConvention& namconv)
 {
   bool flagCholesky = _defineCholesky(useCholesky, model);
-  // TODO: the following check (useCholesky) should be considered when stdev is programmed
-  // in its Matrix version (Takhashi)
-  // bool flagSimu = flag_std && ! flagCholesky;
-  bool flagSimu = flag_std;
+  bool flagSimu = flag_std && ! flagCholesky;
   if (dbin  == nullptr) return 1;
   if (dbout == nullptr) return 1;
   if (model == nullptr) return 1;

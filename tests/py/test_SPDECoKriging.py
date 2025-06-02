@@ -75,7 +75,7 @@ for iext in exts:
     for ivar in range(nvar):
         name1 = getName("Kriging", ivar, iext)
         name2 = getName("KM", ivar, iext)
-        print("Difference for", name1, "(Matrix) = " +
+        print("Difference with", name1, "(Matrix) = " +
               str(np.round(np.max(np.abs(grid[name1]-grid[name2]))/totalSill,5)))
 
 #######################################
@@ -90,7 +90,7 @@ for iext in exts:
     for ivar in range(nvar):
         name1 = getName("Kriging", ivar, iext)
         name2 = getName("KF", ivar, iext)
-        print("Difference for", name1, "(matrix) = " +
+        print("Difference with", name1, "(matrix) = " +
               str(np.round(np.max(np.abs(grid[name1]-grid[name2]))/totalSill,5)))
 
 ###############

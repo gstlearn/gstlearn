@@ -40,11 +40,12 @@ public:
           bool noiseToDelete                       = false);
   virtual ~ASPDEOp();
 
+  virtual VectorDouble stdev(const VectorDouble& dat, int nMC = 1, int seed = 134343) const;
+
   int getSize() const override;
   int getSizeSimu() const;
   VectorDouble kriging(const VectorDouble& dat) const;
   VectorDouble krigingWithGuess(const VectorDouble& dat, const VectorDouble& guess) const;
-  VectorDouble stdev(const VectorDouble& dat, int nMC = 1, int seed = 134343) const;
   void setMaxIterations(int n) { _solver->setMaxIterations(n); }
   void setTolerance(double tol) { _solver->setTolerance(tol); }
   int  getIterations() const { return _solver->getIterations(); }
