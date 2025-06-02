@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Estimation/Vecchia.hpp"
-
 #include "Basic/VectorHelper.hpp"
 #include "LinearOp/CholeskySparse.hpp"
 #include "Tree/Ball.hpp"
@@ -128,14 +127,14 @@ int Vecchia::computeLower(const MatrixT<int>& Ranks, bool verbose)
       {
         int ip = Ranks(ind, jp);
         if (IFFFF(ip)) continue;
-        _LFull.setValue(ind, ip, -res[icur]);
+        _LFull.setValue(ip, ind, -res[icur]);
         icur++;
       }
       _DFull[ind] = 1. / (varK - VH::innerProduct(res, vect));
     }
   }
   _Dmat.setDiagonal(_DFull);
-
+  _LFull.transposeInPlace();
   // Optional printout
   if (verbose)
   {
@@ -342,8 +341,8 @@ double logLikelihoodVecchia(Db* db,
   // Calculate the Vecchia approximation
   Vecchia V = Vecchia(model, db);
   MatrixT<int> Ranks = findNN(db, nullptr, nb_neigh + 1, false);
-  if (V.computeLower(Ranks)) return 1;
 
+  if (V.computeLower(Ranks)) return 1;
   // If Drift functions are present, evaluate the optimal Drift coefficients
   if (nDrift > 0)
   {
