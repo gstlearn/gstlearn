@@ -138,6 +138,9 @@ target_link_libraries(python_build
 # Link to NumPy
 target_link_libraries(python_build PUBLIC Python3::NumPy)
 
+# TODO: to prevent Warning 473, I tried -DSWIG_DIRECTOR_NORTTI below, but it didn't work
+# Source: https://stackoverflow.com/questions/55139832/swig-binding-a-method-returning-a-reference-to-a-pointer-of-a-director-class
+
 # Transmit the fact that we are linking to static ${PROJECT_NAME} library
 set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE")
 if (MSVC)
