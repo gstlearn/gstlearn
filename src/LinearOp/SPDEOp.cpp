@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "LinearOp/SPDEOp.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Basic/Law.hpp"
 #include "LinearOp/ProjMulti.hpp"
 #include "LinearOp/PrecisionOpMulti.hpp"
 #include "Matrix/MatrixDense.hpp"
@@ -293,16 +294,18 @@ void ASPDEOp::evalInvCov(const constvect inv, vect result) const
   _rhs.resize(getSize());
   _workmesh.resize(getSize());
   _workdat2.resize(_getNDat());
+  _workdat3.resize(_getNDat());
   vect rhss(_rhs);
   vect wms(_workmesh);
   vect w2s(_workdat2);
+  vect w3s(_workdat3);
 
   _invNoise->evalDirect(inv,result);
   _projInKriging->point2mesh(result,rhss);
   _solve(rhss,wms);
   _projInKriging->mesh2point(wms,w2s);
-  //VectorHelper::multiplyConstant(w2s,-1);
-  _invNoise->addToDest(w2s,result);
+  _invNoise->evalDirect(w2s, w3s);
+  VectorHelper::subtractInPlace(w3s, result, result);
 }
 
 VectorDouble ASPDEOp::computeDriftCoeffs(const VectorDouble& Z,
@@ -313,20 +316,22 @@ VectorDouble ASPDEOp::computeDriftCoeffs(const VectorDouble& Z,
   VectorDouble XtInvSigmaZ(xsize);
   MatrixSymmetric XtInvSigmaX(xsize);
   VectorDouble result(xsize);
+
   _workdat1.resize(_getNDat());
   vect w1s(_workdat1);
   for(int i = 0; i< xsize; i++)
   {
     auto xm = driftMat.getColumnPtr(i);
-    evalInvCov(xm,w1s);
+    evalInvCov(xm, w1s);
 
     constvect ym(Z.data(),Z.size());
     constvect wd1(_workdat1.data(),_workdat1.size());
     XtInvSigmaZ[i] = VH::innerProduct(ym,wd1);
+
     for(int j = i; j < xsize;j++)
     {
       constvect xmj = driftMat.getViewOnColumn(j);
-      double prod = VH::innerProduct(xmj,w1s);
+      double prod   = VH::innerProduct(xmj, w1s);
       XtInvSigmaX.setValue(i,j,prod);
     }
   }
@@ -356,14 +361,28 @@ double ASPDEOp::computeQuadratic(const std::vector<double>& x) const
   return VH::innerProduct(w1s, xm);
 }
 
-// We use the fact that log|Sigma| = log |Q + A^t diag^(-1) (sigma) A|- log|Q| + Sum(log sigma_i^2)
-
-double ASPDEOp::computeTotalLogDet(int nMC) const
+double ASPDEOp::computeLogDetQ(int nMC) const
 {
-  double a1 = computeLogDetOp(nMC);
-  if (FFFF(a1)) return TEST;
-  double a2 = _QKriging->computeLogDetQ(nMC);
-  double a3 = _invNoise->computeLogDet();
-  return a1 - a2 + a3;
+  return _QKriging->computeLogDetQ(nMC);
 }
 
+double ASPDEOp::computeLogDetNoise() const
+{
+  return _invNoise->computeLogDet();
+}
+
+// We use the fact that log|Sigma| = log |Q + A^t diag^(-1) (sigma) A|- log|Q| + Sum(log sigma_i^2)
+double ASPDEOp::computeTotalLogDet(int nMC, int seed) const
+{
+  int memo = law_get_random_seed();
+
+  law_set_random_seed(seed);
+  double a1 = computeLogDetOp(nMC);
+  double a2 = computeLogDetQ(nMC);
+  double a3 = computeLogDetNoise();
+  law_set_random_seed(memo);
+
+  double result = TEST;
+  if (! FFFF(a1) && ! FFFF(a2) && ! FFFF(a3)) result = a1 - a2 + a3;
+  return result;
+}
