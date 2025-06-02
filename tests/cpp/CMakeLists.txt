@@ -134,4 +134,5 @@ endforeach(TARGET_EXE ${TARGETS_EXE})
 # Look parent CMakeLists for MY_CTEST_COMMAND definition
 add_custom_target(check_cpp
   COMMAND ${MY_CTEST_COMMAND} DEPENDS ${TARGETS_EXE}
+  JOB_POOL console
 )
