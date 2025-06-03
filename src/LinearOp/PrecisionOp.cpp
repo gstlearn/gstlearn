@@ -223,7 +223,10 @@ void PrecisionOp::setPolynomialFromPoly(APolynomial* polynomial)
 
 int PrecisionOp::_prepareChebychev(const EPowerPT& power) const
 {
-  if (_cova == nullptr && _polynomials.contains(EPowerPT::ONE)) return 1;
+  // Polynomial already exists. Nothing to be done
+  if (_cova == nullptr && _polynomials.find(EPowerPT::ONE) != _polynomials.end()) return 1;
+  // Equivalent instruction (but only for C++ 20)
+  //if (_cova == nullptr && _polynomials.contains(EPowerPT::ONE)) return 1;
   if (_shiftOp == nullptr) return 1;
 
   double b = _shiftOp->getMaxEigenValue();
