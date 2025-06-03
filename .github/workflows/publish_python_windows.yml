@@ -75,6 +75,7 @@ jobs:
         python -m pip install numpy
         python -m pip install build
         python -m pip install twine
+        python -m pip install uv
 
     - name: Install Doxygen under windows
       uses: fabien-ors/install-doxygen-windows-action@v1
