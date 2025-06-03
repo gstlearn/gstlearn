@@ -32,8 +32,13 @@ public:
     double getAbsoluteMaxValue() const {return _absoluteBounds[1];};
     void setMinValue(double value);
     void setMaxValue(double value);
+    void setValue(double value)
+    {
+      _value = value;
+      _currentValue = value;
+    }
     void setFixed(bool isFixed) {_isFixed = isFixed;};
-
+    bool isFixed() const {return _isFixed;};
     String toString(const AStringFormat* strfmt = nullptr) const override;
 
 private:

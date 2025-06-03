@@ -184,6 +184,7 @@
   #include "Variogram/VCloud.hpp"
   
   #include "Basic/ParamInfo.hpp"
+  #include "Basic/ListParams.hpp"
   #include "Model/ModelGeneric.hpp"
   #include "Model/ModelCovList.hpp"
   #include "Model/Model.hpp"
@@ -1085,5 +1086,7 @@
   #include <memory>
 %}
 %include <std_shared_ptr.i>
+%shared_ptr(ListParams)
 %template(ASpaceSharedPtr)    std::shared_ptr<const ASpace>;
 %template(ASpaceSharedPtrVector)   std::vector< ASpaceSharedPtr>;
+//%template(ListParamUniquePtr) std::shared_ptr< ListParams >;

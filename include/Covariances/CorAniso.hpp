@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/AFunctional.hpp"
+#include "Basic/ParamInfo.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStat.hpp"
@@ -59,7 +60,6 @@ public:
   CorAniso(const CorAniso& r);
   CorAniso& operator=(const CorAniso& r);
   virtual ~CorAniso();
-
   /// ICloneable Interface
   IMPLEMENT_CLONING(CorAniso)
 
@@ -256,7 +256,8 @@ public:
   void optimizationTransformSPNew(const SpacePoint& ptin, SpacePoint& ptout) const;
   String toStringParams(const AStringFormat* strfmt = nullptr) const;
   String toStringNoStat(const AStringFormat* strfmt = nullptr, int i = 0) const;
-  
+  void appendParams(ListParams& listParams) override;
+  void updateCov() override;
   #ifndef SWIG
   int addEvalCovVecRHSInPlace(vect vect,
                               const VectorInt& index1,
@@ -273,6 +274,7 @@ protected:
   void _initFromContext() override;
 
 private:
+  void _initParamInfo();
   bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;
   TabNoStat* _createNoStatTab() override;
@@ -300,6 +302,8 @@ private:
 
 private:
   ACovFunc* _corfunc;    /// Basic correlation function
+  std::vector<ParamInfo> _scales;
+  std::vector<ParamInfo> _angles;
   mutable Tensor _aniso; /// Anisotropy parameters
   mutable double _noStatFactor; /// Correcting factor for non-stationarity
   const std::array<EConsElem, 4> _listaniso = {EConsElem::RANGE,

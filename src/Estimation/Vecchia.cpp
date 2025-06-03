@@ -306,7 +306,7 @@ static MatrixDense _productMatVecchia(const Vecchia& V, const MatrixDense& X)
  * @remarks It can work in multivariate case with or without drift conditions (linked or not)
  * @remarks The algorithm is stopped (with a message) in the heterotopic case
  */
-double logLikelihoodVecchia(Db* db,
+double logLikelihoodVecchia(const Db* db,
                             ModelGeneric* model,
                             int nb_neigh,
                             bool verbose)

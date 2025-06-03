@@ -19,6 +19,7 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Drifts/DriftList.hpp"
+#include "Basic/ListParams.hpp"
 
 class Model;
 class Db;
@@ -178,8 +179,10 @@ public:
   void addDrift(const ADrift* drift); // TODO: check that the same driftM has not been already defined
   void setDrifts(const VectorString& driftSymbols);
 
+  std::shared_ptr<ListParams> generateListParams() const;
+  void updateModel();
   double computeLogLikelihood(const Db* db, bool verbose = false);
-
+  void fitLikelihood(const Db* db, bool useVecchia = false, bool verbose = false);
 private:
   virtual bool _isValid() const;
 

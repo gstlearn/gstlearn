@@ -10,6 +10,7 @@
 /******************************************************************************/
 
 #include "Covariances/CovBase.hpp"
+#include "Basic/ListParams.hpp"
 #include "Basic/ParamInfo.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
@@ -49,9 +50,6 @@ CovBase::CovBase(ACov* cor,
   for (size_t i = 0, n = getNVar(); i < n; i++)
   {
 
-    for (size_t j = 0; j <= n; j++)
-    {
-    }
     for (size_t j = i + 1; j < n; j++)
     {
       _cholSillsInfo(i, j).setFixed(true);
@@ -545,4 +543,34 @@ bool CovBase::isNoStatForVariance() const
   TabNoStatSills* tabnostat = getTabNoStatSills();
   if (tabnostat == nullptr) return 0;
   return tabnostat->isDefinedForVariance();
+}
+
+void CovBase::appendParams(ListParams& listParams)
+{
+  _cor->appendParams(listParams);
+  for (size_t ivar = 0, n = getNVar(); ivar < n; ivar++)
+  {
+
+    for (size_t jvar = ivar + 1; jvar < n; jvar++)
+    {
+      if (_cholSillsInfo(ivar, jvar).isFixed())
+      {
+        listParams.addParam(_cholSillsInfo(ivar, jvar));
+      }
+    }
+  }
+}
+
+void CovBase::updateCov()
+{
+  _cor->updateCov();
+  for (size_t ivar = 0, n = getNVar(); ivar < n; ivar++)
+  {
+    for (size_t jvar = ivar + 1; jvar < n; jvar++)
+    {
+      if (!_cholSillsInfo(ivar, jvar).isFixed()) continue;
+      _cholSills.setValue(ivar, jvar, _cholSillsInfo(ivar, jvar).getValue());
+    }
+  }
+  _sillCur.prodMatMatInPlace(&_cholSills, &_cholSills, false, true);
 }

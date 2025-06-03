@@ -57,20 +57,19 @@ ParamInfo::~ParamInfo()
 String ParamInfo::toString(const AStringFormat* strfmt) const {
     DECLARE_UNUSED(strfmt);
     std::stringstream sstr;
-    sstr << " Description of parameter " << _name << std::endl;
-    sstr <<  _description << std::endl;
-    sstr << "  Value: " <<  std::to_string(_value)  << std::endl;
+    sstr <<  _description << "\n";
+    sstr << "  Value: " <<  std::to_string(_value)  << "\n";
     sstr << "  Absolute Bounds: ";
     for (const auto& bound : _absoluteBounds) {
         sstr << bound << " ";
     }
-    sstr << std::endl;
+    sstr << "\n";
     sstr << "  User Bounds: ";
     for (const auto& bound : _userBounds) {
         sstr << bound << " ";
     }
-    sstr << std::endl;
-    sstr << "  Is Fixed: " << (_isFixed ? "true" : "false") << std::endl;
+    sstr << "\n";
+    sstr << "  Is Fixed: " << (_isFixed ? "true" : "false") << "\n";
     return sstr.str();
 }
 

@@ -103,6 +103,8 @@ public:
   }
   int makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String()) override;
 
+  void appendParams(ListParams& listParams) override;
+  void updateCov() override;
 protected:
   void _attachNoStatDb(const Db* db) override;
 

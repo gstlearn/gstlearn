@@ -11,6 +11,8 @@
 #include "Arrays/Array.hpp"
 #include "Basic/AFunctional.hpp"
 #include "Basic/AStringFormat.hpp"
+#include "Basic/ListParams.hpp"
+#include "Basic/ParamInfo.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Db/Db.hpp"
@@ -733,8 +735,30 @@ void CorAniso::_initFromContext()
   updateFromContext();
   setOptimEnabled(true);
   _createNoStatTab();
+  _initParamInfo();
 }
 
+void CorAniso::_initParamInfo()
+{
+  if (_corfunc != nullptr)
+  {
+    if (_corfunc->hasRange())
+    {
+      for (int idim = 0; idim < getNDim(); idim++)
+      {
+        String name = "Scale_" + std::to_string(idim);
+        double value = _aniso.getRadius(idim);
+        ParamInfo pis(name, value, {0, INF}, "Scale in Dimension " + std::to_string(idim));               
+        _scales.push_back(pis);
+        name = "Scale_" + std::to_string(idim);
+        value = _aniso.getAngle(idim);
+        ParamInfo pia(name, value, {-INF, INF}, "Angle in Dimension " + std::to_string(idim));               
+        _angles.push_back(pia);
+      }
+    }
+   
+  }
+}
 void CorAniso::_updateFromContext()
 {
   computeMarkovCoeffs();
@@ -1441,4 +1465,23 @@ void CorAniso::_optimizationSetTarget(SpacePoint& p) const
   optimizationTransformSP(p, _p2As[iech]);
   p.setProjected(true);
   _pw2 = &_p2As[iech];
+}
+
+void CorAniso::appendParams(ListParams& listparams)
+{
+  _initParamInfo();
+  listparams.addParams(_scales);
+  listparams.addParams(_angles);
+}
+
+void CorAniso::updateCov()
+{
+  if (_corfunc->hasRange())
+  {
+    for (int idim = 0; idim < getNDim(); idim++)
+    {
+      _aniso.setRadiusDir(idim, _scales[idim].getValue());
+      _aniso.setRotationAngle(idim, _angles[idim].getValue());
+     }
+  }
 }

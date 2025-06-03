@@ -59,7 +59,7 @@ GSTLEARN_EXPORT int krigingVecchia(Db* dbin,
                                    int nb_neigh = 5,
                                    bool verbose = false,
                                    const NamingConvention& namconv = NamingConvention("Vecchia"));
-GSTLEARN_EXPORT double logLikelihoodVecchia(Db* db,
+GSTLEARN_EXPORT double logLikelihoodVecchia(const Db* db,
                                             ModelGeneric* model,
                                             int nb_neigh = 5,
                                             bool verbose = false);

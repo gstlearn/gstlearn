@@ -9,6 +9,9 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Model/ModelGeneric.hpp"
+#include "Basic/ListParams.hpp"
+#include "Basic/Optim.hpp"
+#include "Estimation/Vecchia.hpp"
 #include "Model/Model.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
@@ -16,6 +19,8 @@
 #include "Db/Db.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Drifts/DriftFactory.hpp"
+#include <memory>
+#include <nlopt.h>
 
 ModelGeneric::ModelGeneric(const CovContext &ctxt)
     : _cova(nullptr),
@@ -411,3 +416,63 @@ int computeDriftMatSVCRHSInPlace(MatrixDense& mat,
   }
   return 0;
 }
+
+std::shared_ptr<ListParams> ModelGeneric::generateListParams() const
+{
+  auto listParams = std::make_shared<ListParams>();
+  
+  // Add Covariance parameters
+  if (_cova != nullptr)
+  {
+    _cova->appendParams(*listParams);
+  }
+
+  // Add Drift parameters
+  if (_driftList != nullptr)
+  {
+   _driftList->appendParams(*listParams);
+  }
+
+  return listParams;
+}
+
+void ModelGeneric::updateModel()
+{
+  // Update the Covariance
+  if (_cova != nullptr)
+  {
+    _cova->updateCov();
+  }
+
+  // Update the DriftList
+  if (_driftList != nullptr)
+  {
+    _driftList->updateDriftList();
+  }
+}
+void ModelGeneric::fitLikelihood(const Db* db, bool useVecchia, bool verbose)
+{
+  auto params = generateListParams();
+  std::vector<double> x = params->getValues();
+
+  Optim opt(NLOPT_LN_NELDERMEAD, x.size());
+
+
+  auto func = [db, params, useVecchia, this](const std::vector<double>& x) -> double 
+       {
+        params->setValues(x);
+        this->updateModel();
+        if (! useVecchia)
+          return computeLogLikelihood(db);  
+        return logLikelihoodVecchia(db,this,30);
+       };
+
+  opt.setObjective(func);
+
+  opt.setXtolRel(1e-6);
+
+  opt.optimize(x);
+
+  
+} 
+
