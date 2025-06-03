@@ -60,7 +60,7 @@ For **compiling and installing** *gstlearn* C++ library, the following tools mus
 * CMake tool 3.20 or higher
 * A C++ compiler among:
   * Linux:
-    * GCC 5.4 or higher
+    * GCC 8.0 or higher
   * MacOS:
     * Clang (from llvm) or higher (not tested)
   * Windows:
