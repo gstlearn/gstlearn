@@ -32,7 +32,6 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("SimFFT-");
 
   // Global parameters

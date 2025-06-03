@@ -75,7 +75,6 @@ int main(int argc, char *argv[])
   int nargs             = (int)subparts.size();
   String outname =
     concatenateStrings("", subparts[nargs - 2], subparts[nargs - 1], "-");
-  ASerializable::setContainerName(true);
   ASerializable::setPrefixName(outname);
   setInternalDebug(true);
 

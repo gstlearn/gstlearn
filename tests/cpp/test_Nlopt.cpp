@@ -118,7 +118,6 @@ int main(int argc, char *argv[])
     std::stringstream sfn;
     sfn << gslBaseName(__FILE__) << ".out";
     StdoutRedirect sr(sfn.str(), argc, argv);
-    ASerializable::setContainerName(true);
     ASerializable::setPrefixName("NlOpt-");
 
        // Creating the Model used to simulate the Data

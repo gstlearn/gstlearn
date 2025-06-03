@@ -29,7 +29,6 @@ int main(int argc, char *argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   defineDefaultSpace(ESpaceType::RN, 2);
-  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Basic-");
   law_set_old_style(true); // Added to ensure the similarity of non-regression tests per platform
 

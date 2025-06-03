@@ -24,6 +24,7 @@ env:
   R_VERSION : "4.5.0"
   SWIG_ROOT : ${{github.workspace}}/swig
   LLVM_ROOT : /opt/homebrew
+  GSTLEARN_OUTPUT_DIR: ${{ github.workspace }}/build/gstlearn_dir
 
 jobs:
   build:
@@ -101,7 +102,7 @@ jobs:
       run: |
         cd ${{env.BUILD_DIR}}/tests
         find . -type f -name "*.out" -print0 | tar -czvf macos-logs.tar.gz --null -T -
-        cd $HOME/gstlearn_dir
+        cd ${{ env.GSTLEARN_OUTPUT_DIR }}
         find . -type f -name "*.*" -print0 | tar -czvf macos-neutral.tar.gz --null -T -
         mv macos-neutral.tar.gz ${{github.workspace}}/
 

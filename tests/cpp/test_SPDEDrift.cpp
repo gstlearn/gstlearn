@@ -8,7 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/ASerializable.hpp"
+
 #include "Basic/File.hpp"
 #include "Model/ConsItem.hpp"
 #include "Model/Constraints.hpp"
@@ -20,6 +20,7 @@
 #include "API/SPDE.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
+#include "utils.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -29,26 +30,25 @@ int main(int argc, char *argv[])
 
   bool verbose = true;
   // This crashes under MingGW/Windows due to compatibility issue with getTestData
-  //ASerializable::setContainerName(true); // TODO: check if this is still valid
   //ASerializable::setPrefixName("test_SPDEDrift-");
 
   String filename;
 
-  filename = ASerializable::getTestData("Scotland","temperatures.ascii");
+  filename = gstlearn::getTestData("Scotland","temperatures.ascii");
   Db* temperatures = Db::createFromNF(filename,verbose);
   temperatures->setLocator("January_temp", ELoc::Z, 0);
   temperatures->display();
 
-  filename = ASerializable::getTestData("Scotland","grid.ascii");
+  filename = gstlearn::getTestData("Scotland","grid.ascii");
   DbGrid* grid = DbGrid::createFromNF(filename,verbose);
   grid->display();
 
-  filename = ASerializable::getTestData("Scotland","model.ascii");
+  filename = gstlearn::getTestData("Scotland","model.ascii");
   Model* model = Model::createFromNF(filename,verbose);
 
   model->display();
 
-  filename = ASerializable::getTestData("Scotland","vario.ascii");
+  filename = gstlearn::getTestData("Scotland","vario.ascii");
   Vario* vario = Vario::createFromNF(filename,verbose);
 
   vario->display();
