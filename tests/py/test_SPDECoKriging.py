@@ -4,12 +4,12 @@ import gstlearn.test as gt
 import matplotlib.pyplot as plt
 import numpy as np
 
-def getName(radix, ivar, iext):
+def getName(radix, ivar, iext):ParamInfo
     name = radix + ".Data." + str(ivar+1) + iext
     return name
 
 # %% General parameters
-flag_plot = True
+flag_plot = False
 ndim = 2
 nvar = 2
 order = 1
