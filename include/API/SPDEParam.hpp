@@ -38,7 +38,7 @@ public:
             int nxmax               = 300,
             double epsNugget        = EPSILON2,
             bool useStencil         = true,
-            int nMC                 = 1,
+            int nMC                 = 10,
             int seedMC              = 134341,
             const CGParam& cgparams = CGParam());
   SPDEParam(const SPDEParam& m);
@@ -52,7 +52,7 @@ public:
                            int nxmax               = 300,
                            double epsNugget        = EPSILON2,
                            bool useStencil         = true,
-                           int nMC                 = 1,
+                           int nMC                 = 10,
                            int seedMC              = 134341,
                            const CGParam& cgparams = CGParam());
 

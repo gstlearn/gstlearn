@@ -13,11 +13,20 @@
 
 #define INF std::numeric_limits<double>::infinity()
 
-// Définition d'un type générique pour les paramètres
-
+/**
+ * @brief Definition of the generic parameter
+ * 
+ * @param _name Name assigned to the parameter
+ * @param _value Value (initial) assigned to the parameter
+ * @param _currentValue Value currently assigned to the parameter
+ * @param _absoluteBounds Absolute bounds within which the parameter may vary
+ * @param _userBounds Current bounds for the parameter
+ * @param _isFixed True if the parameter value may not vary
+ * @param _description String describing the role of this parameter
+ */
 class GSTLEARN_EXPORT ParamInfo : public AStringable {
 public:
-    ParamInfo(const String& name ="", 
+    ParamInfo(const String& name = "", 
               double value = TEST,
               const std::array<double,2>& absoluteBounds = {-INF, INF},
               const std::string& description = "");
@@ -25,14 +34,14 @@ public:
     ParamInfo& operator=(const ParamInfo& other);
     virtual ~ParamInfo();
 
-    void setValueDefault(double val) {_value = val;};
     double getValue() const {return _value;};
-
     double getAbsoluteMinValue() const {return _absoluteBounds[0];};
     double getAbsoluteMaxValue() const {return _absoluteBounds[1];};
-    void setMinValue(double value);
-    void setMaxValue(double value);
-    void setFixed(bool isFixed) {_isFixed = isFixed;};
+
+    void   setValueDefault(double val) { _value = val; };
+    void   setMinValue(double value);
+    void   setMaxValue(double value);
+    void   setFixed(bool isFixed) { _isFixed = isFixed; };
 
     String toString(const AStringFormat* strfmt = nullptr) const override;
 
@@ -45,4 +54,3 @@ private:
   bool _isFixed;
   String _description;
 };
-
