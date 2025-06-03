@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 
   // Global parameters
   int nb_neigh = 3;
-  int mode     = 3;
+  int mode     = 0;
   bool verbose = false;
   OptCst::define(ECst::NTCOL, -1);
   OptCst::define(ECst::NTROW, -1);
