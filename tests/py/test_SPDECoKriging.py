@@ -4,7 +4,7 @@ import gstlearn.test as gt
 import matplotlib.pyplot as plt
 import numpy as np
 
-def getName(radix, ivar, iext):ParamInfo
+def getName(radix, ivar, iext):
     name = radix + ".Data." + str(ivar+1) + iext
     return name
 
