@@ -48,7 +48,9 @@ add_dependencies(prepare_check_ipynb python_install)
 # Create the target and the output directory for logs
 # Look parent CMakeLists for MY_CTEST_COMMAND definition
 add_custom_target(check_ipynb
-                  COMMAND ${MY_CTEST_COMMAND})
+  COMMAND ${MY_CTEST_COMMAND}
+  JOB_POOL console
+)
 
 # Add dependency for check_ipynb
 add_dependencies(check_ipynb prepare_check_ipynb)
