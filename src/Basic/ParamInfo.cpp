@@ -59,6 +59,7 @@ void ParamInfo::increaseMin(double value)
   _currentValue  = _value;
 }
 
+
 void ParamInfo::decreaseMax(double value)
 {
   _userBounds[1] = std::min(value, _userBounds[1]);

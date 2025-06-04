@@ -29,7 +29,6 @@ class ProjMulti;
 
 class GSTLEARN_EXPORT ASPDEOp : public virtual ALinearOp
 {
-
 public:
   ASPDEOp(const PrecisionOpMulti* const popKriging = nullptr,
           const ProjMulti* const projInKriging     = nullptr,
@@ -41,14 +40,19 @@ public:
           bool noiseToDelete                       = false);
   virtual ~ASPDEOp();
 
-  int getSize() const override;
-  int getSizeSimu() const;
+  virtual VectorDouble stdev(const VectorDouble& dat, int nMC = 1, int seed = 134343) const;
+
+  int    getSize() const override;
+  int    getSizeSimu() const;
+  int    getIterations() const { return _solver->getIterations(); }
+  double getError() const { return _solver->getError(); }
+
+  void   setMaxIterations(int n) { _solver->setMaxIterations(n); }
+  void   setTolerance(double tol) { _solver->setTolerance(tol); }
+
   VectorDouble kriging(const VectorDouble& dat) const;
   VectorDouble krigingWithGuess(const VectorDouble& dat, const VectorDouble& guess) const;
-  void setMaxIterations(int n) { _solver->setMaxIterations(n); }
-  void setTolerance(double tol) { _solver->setTolerance(tol); }
-  int getIterations() const { return _solver->getIterations(); }
-  double getError() const { return _solver->getError(); }
+
   VectorDouble computeDriftCoeffs(const VectorDouble& Z,
                                   const MatrixDense& driftMat,
                                   bool verbose = false) const;
@@ -71,10 +75,9 @@ public:
   void simNonCond(vect outv) const;
   virtual double computeLogDetOp(int nbsimu) const;
   double computeQuadratic(const std::vector<double>& x) const;
-  double computeTotalLogDet(int nMC = 1, int seed = 13132) const;
-  double computeLogDetQ(int nMC = 1) const;
+  double computeTotalLogDet(int nMC = 5, int seed = 13132) const;
+  double computeLogDetQ(int nMC = 5) const;
   double computeLogDetNoise() const;
-
   static int centerDataByDriftMat(VectorDouble& Z,
                                   const MatrixDense& driftMat,
                                   const VectorDouble& driftCoeffs);
@@ -85,15 +88,14 @@ protected:
   int _addToDest(const constvect inv, vect outv) const override;
 
 private:
-  int _kriging(const constvect inv, vect out) const;
+  int  _kriging(const constvect inv, vect out) const;
   void _simNonCond(vect outv) const;
   void _simCond(const constvect data, vect outvK, vect outvS) const;
-  int _getNDat() const { return _ndat; }
+  int  _getNDat() const { return _ndat; }
   virtual int _solve(const constvect in, vect out) const;
   int _solveWithGuess(const constvect in,
                       const constvect guess,
                       vect out) const;
-
   int _buildRhs(const constvect inv) const;
 #endif
 

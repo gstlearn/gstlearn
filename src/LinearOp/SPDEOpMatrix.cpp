@@ -71,3 +71,33 @@ double SPDEOpMatrix::computeLogDetOp(int nbsimu) const
     _chol = new CholeskySparse(&_QpAinvNoiseAt);
   return _chol->computeLogDeterminant();
 }
+
+/**
+ * @brief Computing Standard deviation of the estimation error 
+ * using partial_invert of a Sparse Cholesky matrix
+ *
+ * @param dat Vector of Data
+ * @param nMC  Number of Monte-Carlo simulations (unused)
+ * @param seed Random seed for the Monte-Carlo simulations (unused)
+ * @return VectorDouble
+ */
+VectorDouble SPDEOpMatrix::stdev(const VectorDouble& dat, int nMC, int seed) const
+{
+  DECLARE_UNUSED(dat);
+  DECLARE_UNUSED(nMC);
+  DECLARE_UNUSED(seed);
+
+  if (_chol == nullptr)
+    _chol = new CholeskySparse(&_QpAinvNoiseAt);
+  
+  VectorDouble vcur(_QKriging->getSize(), 0.0);
+  _chol->stdev(vcur, true); // true for standard deviation
+
+  // Project the result on the output mesh (optional)
+  if (_projOutSimu == nullptr)
+    return vcur;
+
+  VectorDouble result(_projOutSimu->getNPoint());
+  _projOutSimu->mesh2point(vcur, result);
+  return result;
+}

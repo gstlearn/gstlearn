@@ -99,7 +99,7 @@ a=0.3 : [0.3]
 
 #NO_DIFF#XXX
 ----
-Computed manual : -120.377463
+Computed manually : -120.377463
 ----
 
 
@@ -251,3 +251,70 @@ a0=b0 : [0.361879 3.371714 0.361879 0.11506 ]
 ----
 a0=b0 and a1=1 : [ 1.245068  1.        1.245068 -5.651889]
 ----
+
+
+#NO_DIFF#XXX
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 3
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Matern (Third Parameter = 1)
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     5.167    -3.000     1.843
+     [  1,]    -3.000     3.831     2.299
+     [  2,]     1.843     2.299     6.110
+- Range        =      0.200
+- Theo. Range  =      0.058
+Total Sill
+               [,  0]    [,  1]    [,  2]
+     [  0,]     5.167    -3.000     1.843
+     [  1,]    -3.000     3.831     2.299
+     [  2,]     1.843     2.299     6.110
+
+Known Mean(s)     0.000     0.000     0.000----
+
+
+#NO_DIFF#XXX
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 9
+Total number of samples      = 200
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = f-1 - Locator = f1
+Column = 4 - Name = f-2 - Locator = f2
+Column = 5 - Name = drift - Locator = NA
+Column = 6 - Name = Simu.1 - Locator = z1
+Column = 7 - Name = Simu.2 - Locator = z2
+Column = 8 - Name = Simu.3 - Locator = z3----
+
+
+#NO_DIFF#XXX
+----
+[ 0.89610178  2.34510063  1.71794026 -1.729727   -0.00333606 -1.53702255]
+
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----array([ 2.05802776,  0.71379393,  2.05802776, -2.20719891,  2.05802776,
+       -4.43111105])----

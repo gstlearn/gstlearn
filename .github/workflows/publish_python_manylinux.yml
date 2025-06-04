@@ -71,7 +71,7 @@ jobs:
 
     - name: Install Python dependencies
       run: |
-        python -m pip install numpy
+        python -m pip install numpy uv
 
     - name: Build & install NLopt static libraries
       uses: ./.github/actions/nlopt_static_unix
