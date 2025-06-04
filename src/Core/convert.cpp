@@ -532,10 +532,9 @@ int csv_table_read(const String &filename,
   String na_string = csvfmt.getNaString();
 
   String line;
-  String filepath = ASerializable::buildFileName(1, filename, true);
   // Open new stream
   std::ifstream file;
-  file.open(filepath, std::ios::in);
+  file.open(filename, std::ios::in);
 
 //  std::ifstream file(filename.c_str());
   if (!file.is_open())
