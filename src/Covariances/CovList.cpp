@@ -507,3 +507,25 @@ void CovList::setCovFiltered(int icov, bool filtered)
   _filtered[icov] = filtered;
   _updateLists();
 }
+
+void CovList::appendParams(ListParams& listParams){
+  for (const auto& cov: _covs)
+  {
+    cov->appendParams(listParams);
+  }
+}
+
+void CovList::initParams()
+{
+  for (const auto& cov: _covs)
+  {
+    cov->initParams();
+  }
+}
+void CovList::updateCov()
+{
+  for (const auto& cov: _covs)
+  {
+    cov->updateCov();
+  }
+}

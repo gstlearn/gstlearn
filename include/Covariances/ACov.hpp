@@ -39,7 +39,7 @@ class MatrixSparse;
 class TabNoStat;
 class AFunctional;
 class CovInternal;
-
+class ListParams;
 /**
  * \brief
  * Class containing the Covariance part of the Model.
@@ -62,7 +62,6 @@ public:
   virtual int getNVar() const { return _ctxt.getNVar(); };
   virtual bool isIndexable() const { return false; }
   bool isNoStat() const { return _isNoStat(); }
-  virtual void loadInfoValues() {}
   const CovContext& getContext() const { return _ctxt; }
   void setContext(const CovContext& ctxt);
   void updateFromContext() { _updateFromContext(); }
@@ -473,6 +472,19 @@ public:
   const Db* getDbNoStatRaw() const;
   void setNoStatDbIfNecessary(const Db* db);
   void setNoStatDbIfNecessary(std::shared_ptr<const Db>& db);
+  virtual void appendParams(ListParams& listParams) 
+  {
+    DECLARE_UNUSED(listParams);
+  }
+  virtual void updateCov()
+  {
+    
+  }
+
+  virtual void initParams()
+  {
+
+  }
 
 private:
   virtual void _setContext(const CovContext& ctxt) { DECLARE_UNUSED(ctxt); }

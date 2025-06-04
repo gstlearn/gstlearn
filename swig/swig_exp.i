@@ -218,6 +218,7 @@
 %include Variogram/VCloud.hpp
 
 %include Basic/ParamInfo.hpp
+%include Basic/ListParams.hpp
 %include Model/ModelGeneric.hpp
 %include Model/ModelCovList.hpp
 %include Model/Model.hpp

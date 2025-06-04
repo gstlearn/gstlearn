@@ -35,13 +35,12 @@ public:
   virtual ~CovBase();
 
   IMPLEMENT_CLONING(CovBase)
-  ParamInfo createParamInfoForCholSill(int ivar = 0, int jvar = 0);
+  ParamInfo createParamInfoForCholSill();
 
   virtual bool isConsistent(const ASpace* space) const override;
   virtual int getNVar() const override { return _ctxt.getNVar(); }
   bool isOptimizationInitialized(const Db* db = nullptr) const;
 
-  void loadInfoValues() override;
   void setCholSill(int ivar, int jvar, double val) const;
   virtual void setSill(double sill) const; /// Only valid when there is only one variable (in the context)
   virtual void setSill(const MatrixSymmetric& sill) const;
@@ -103,6 +102,9 @@ public:
   }
   int makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String()) override;
 
+  void appendParams(ListParams& listParams) override;
+  void updateCov() override;
+  void initParams() override;
 protected:
   void _attachNoStatDb(const Db* db) override;
 
