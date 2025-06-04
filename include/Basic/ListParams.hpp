@@ -8,30 +8,29 @@
 #include "Basic/ParamInfo.hpp"
 #include <vector>
 
-class GSTLEARN_EXPORT ListParams : public AStringable { 
+class GSTLEARN_EXPORT ListParams: public AStringable
+{
 public:
-    ListParams();
-    ListParams(const ListParams& other) = delete;
-    ListParams& operator=(const ListParams& other) = delete;
-    virtual ~ListParams() = default;
+  ListParams();
+  ListParams(const ListParams& other)            = delete;
+  ListParams& operator=(const ListParams& other) = delete;
+  virtual ~ListParams()                          = default;
 
-    virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-    
-    void addParam(ParamInfo& param);
-    void addParams(std::vector<ParamInfo>& params) 
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  void addParam(ParamInfo& param);
+  void addParams(std::vector<ParamInfo>& params)
+  {
+    for (auto& param: params)
     {
-        for (auto& param : params) 
-        {
-            _params.push_back(param);
-        }
+      _params.push_back(param);
     }
-    std::vector<double> getValues() const;
-    void setValues(const std::vector<double>& values);
-    std::vector<double> getMinValues() const;
-
-    std::vector<double> getMaxValues() const;
-
+  }
+  std::vector<double> getValues() const;
+  void setValues(const std::vector<double>& values);
+  std::vector<double> getMinValues() const;
+  std::vector<double> getMaxValues() const;
 
 private:
-    std::vector<std::reference_wrapper<ParamInfo> > _params; // List of parameters
+  std::vector<std::reference_wrapper<ParamInfo>> _params; // List of parameters
 };

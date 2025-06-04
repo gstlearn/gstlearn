@@ -750,13 +750,14 @@ void CorAniso::_initParamInfo()
       {
         String name = "Scale_" + std::to_string(idim);
         double value = _aniso.getRadius(idim);
-        ParamInfo pis(name, value, {0, INF}, "Scale in Dimension " + std::to_string(idim));               
+        ParamInfo pis(name, value, {0, INF}, "Scale in Dimension " + std::to_string(idim+1));               
         _scales.push_back(pis);
+        
         if (getNDim() > 2 || idim < 1)
         {
           name = "Angle_" + std::to_string(idim);
           value = _aniso.getAngle(idim);
-          ParamInfo pia(name, value, {-INF, INF}, "Angle in Dimension " + std::to_string(idim));               
+          ParamInfo pia(name, value, {-INF, INF}, "Angle in Dimension " + std::to_string(idim+1));               
           _angles.push_back(pia);
         }
       }
@@ -768,7 +769,7 @@ void CorAniso::initParams()
 {
   for (auto &sc : _scales)
   {
-    sc.increaseMin(1e-3); //TODO use Db extensions
+    sc.increaseMin(EPSILON3); //TODO use Db extensions
   }
 }
 

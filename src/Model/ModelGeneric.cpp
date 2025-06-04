@@ -23,10 +23,10 @@
 #include <memory>
 #include <nlopt.h>
 
-ModelGeneric::ModelGeneric(const CovContext &ctxt)
-    : _cova(nullptr),
-      _driftList(nullptr),
-      _ctxt(ctxt)
+ModelGeneric::ModelGeneric(const CovContext& ctxt)
+  : _cova(nullptr)
+  , _driftList(nullptr)
+  , _ctxt(ctxt)
 {
   _driftList = new DriftList(_ctxt);
 }
@@ -93,11 +93,11 @@ double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
     return TEST;
   }
   int nDrift = getNDriftEquation();
- 
+
   // Calculate the covariance matrix C and perform its Cholesky decomposition
   MatrixSymmetric cov = evalCovMatSym(db);
   CholeskyDense covChol(&cov);
-  if (! covChol.isReady())
+  if (!covChol.isReady())
   {
     messerr("Cholesky decomposition of Covariance matrix failed");
     return TEST;
@@ -140,11 +140,11 @@ double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
     // Calculate XtCm1X = Xt * Cm1 * X
     MatrixSymmetric* XtCm1X =
       MatrixFactory::prodMatMat<MatrixSymmetric>(&X, &Cm1X, true, false);
-   
+
     // Construct ZtCm1X = Zt * Cm1 * X and perform its Cholesky decomposition
     VectorDouble ZtCm1X = Cm1X.prodVecMat(Z);
     CholeskyDense XtCm1XChol(XtCm1X);
-    if (! XtCm1XChol.isReady())
+    if (!XtCm1XChol.isReady())
     {
       messerr("Cholesky decomposition of XtCm1X matrix failed");
       delete XtCm1X;
@@ -171,7 +171,7 @@ double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
     VH::subtractInPlace(Z, X.prodMatVec(beta));
   }
 
-   // Calculate Cm1Z = Cm1 * Z
+  // Calculate Cm1Z = Cm1 * Z
   VectorDouble Cm1Z(Z.size());
   if (covChol.solve(Z, Cm1Z))
   {
@@ -421,7 +421,7 @@ int computeDriftMatSVCRHSInPlace(MatrixDense& mat,
 std::shared_ptr<ListParams> ModelGeneric::generateListParams() const
 {
   auto listParams = std::make_shared<ListParams>();
-  
+
   // Add Covariance parameters
   if (_cova != nullptr)
   {
@@ -431,7 +431,7 @@ std::shared_ptr<ListParams> ModelGeneric::generateListParams() const
   // Add Drift parameters
   if (_driftList != nullptr)
   {
-   _driftList->appendParams(*listParams);
+    _driftList->appendParams(*listParams);
   }
 
   return listParams;
@@ -470,44 +470,42 @@ void ModelGeneric::fitLikelihood(const Db* db, bool useVecchia, bool verbose)
 {
   auto params = generateListParams();
   initParams();
-  std::vector<double> x = params->getValues();
+  std::vector<double> x    = params->getValues();
   std::vector<double> xmin = params->getMinValues();
   std::vector<double> xmax = params->getMaxValues();
   updateModel();
   if (verbose)
   {
-    message("Initial parameters:\n");
     params->display();
     _cova->display();
   }
- 
+
   Optim opt(NLOPT_LN_NELDERMEAD, x.size());
 
+  auto func = [db, params, useVecchia, verbose, this](const std::vector<double>& x) -> double
+  {
+    static int iter = 1;
+    params->setValues(x);
+    this->updateModel();
 
-  auto func = [db, params, useVecchia,verbose, this](const std::vector<double>& x) -> double 
-       {
-        params->setValues(x);
-        this->updateModel();
-        double result;
-        if (! useVecchia)
-          result = computeLogLikelihood(db);  
-        else 
-        {
-          int nbneigh = std::min(30, db->getNSample(true));
-          result = logLikelihoodVecchia(db,this,nbneigh); //TODO : find a way to pass the result of findNN
-        }
-        if (verbose)
-          message("Cost Function (Likelihood) = %lf\n", result);
-        return -result;
-       };
+    double result;
+    if (!useVecchia)
+      result = computeLogLikelihood(db);
+    else
+    {
+      int nbneigh = std::min(30, db->getNSample(true));
+      result      = logLikelihoodVecchia(db, this, nbneigh); // TODO : find a way to pass the result of findNN
+    }
+    
+    if (verbose)
+      message("Iteration %3d - Cost Function (Likelihood) = %lf\n", iter++, result);
+    return -result;
+  };
 
   opt.setObjective(func);
   opt.setLowerBounds(xmin);
   opt.setUpperBounds(xmax);
-  opt.setXtolRel(1e-6);
+  opt.setXtolRel(EPSILON6);
 
   opt.optimize(x);
-
-  
-} 
-
+}

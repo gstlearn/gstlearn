@@ -65,8 +65,8 @@ int Vecchia::computeLower(const MatrixT<int>& Ranks, bool verbose)
 
   // Resizing
   _DFull.resize(ntot);
-  _LFull = MatrixSparse(ntot, ntot, nb_neigh+1);
-  _Dmat = MatrixSparse(ntot, ntot);
+  _LFull = MatrixSparse(ntot, ntot, nb_neigh + 1);
+  _Dmat  = MatrixSparse(ntot, ntot);
 
   // Creating empty Dbs
   Db* Dbtemp = Db::createEmpty(nb_neigh, ndim, 0, 0, 0, false, true);
@@ -115,11 +115,11 @@ int Vecchia::computeLower(const MatrixT<int>& Ranks, bool verbose)
     }
     else
     {
-      MatrixSymmetric mat = _model->evalCovMatSym(Dbtemp);
-      CholeskyDense chol         = CholeskyDense(&mat);
+      MatrixSymmetric mat  = _model->evalCovMatSym(Dbtemp);
+      CholeskyDense chol   = CholeskyDense(&mat);
       MatrixDense crossmat = _model->evalCovMat(Dbtemp, DbOnePoint);
-      VectorDouble vect = crossmat.getColumn(0);
-      VectorDouble res  = chol.solveX(vect);
+      VectorDouble vect    = crossmat.getColumn(0);
+      VectorDouble res     = chol.solveX(vect);
 
       icur = 0;
       _LFull.setValue(ind, ind, 1.);
@@ -135,6 +135,7 @@ int Vecchia::computeLower(const MatrixT<int>& Ranks, bool verbose)
   }
   _Dmat.setDiagonal(_DFull);
   _LFull.transposeInPlace();
+
   // Optional printout
   if (verbose)
   {
@@ -343,7 +344,8 @@ double logLikelihoodVecchia(const Db* db,
   MatrixT<int> Ranks = findNN(db, nullptr, nb_neigh + 1, false);
 
   if (V.computeLower(Ranks)) return 1;
-  // If Drift functions are present, evaluate the optimal Drift coefficients
+
+  // If Drift function is present, evaluate the optimal Drift coefficients
   if (nDrift > 0)
   {
     // Extract the matrix of drifts at samples X

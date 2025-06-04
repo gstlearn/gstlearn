@@ -4,61 +4,65 @@
 #include <sstream>
 
 ListParams::ListParams()
-: AStringable()
+  : AStringable()
 {
 }
 
 void ListParams::addParam(ParamInfo& param)
 {
-    _params.push_back(param);
+  _params.push_back(param);
 }
 
 String ListParams::toString(const AStringFormat* strfmt) const
 {
-    DECLARE_UNUSED(strfmt);
-    std::stringstream result;
-    result << "List of Parameters:\n";
-    result << "---------------------\n";
-    for (const auto& param : _params) {
-        result << param.get().toString() + "\n";
-    }
-    return result.str();
+  DECLARE_UNUSED(strfmt);
+  std::stringstream result;
+  result << toTitle(1,"List of Parameters:");
+  for (const auto& param: _params)
+  {
+    result << param.get().toString() + "\n";
+  }
+  return result.str();
 }
 
 std::vector<double> ListParams::getValues() const
 {
-    size_t nparam = _params.size();
-    std::vector<double> values(nparam);
-    for (size_t i = 0; i < nparam; ++i) {
-        values[i] = _params[i].get().getValue();
-    }
-    return values;
+  size_t nparam = _params.size();
+  std::vector<double> values(nparam);
+  for (size_t i = 0; i < nparam; ++i)
+  {
+    values[i] = _params[i].get().getValue();
+  }
+  return values;
 }
 
 std::vector<double> ListParams::getMinValues() const
 {
-    size_t nparam = _params.size();
-    std::vector<double> values(nparam);
-    for (size_t i = 0; i < nparam; ++i) {
-        values[i] = _params[i].get().getUserMin();
-    }
-    return values;
+  size_t nparam = _params.size();
+  std::vector<double> values(nparam);
+  for (size_t i = 0; i < nparam; ++i)
+  {
+    values[i] = _params[i].get().getUserMin();
+  }
+  return values;
 }
 
 std::vector<double> ListParams::getMaxValues() const
 {
-    size_t nparam = _params.size();
-    std::vector<double> values(nparam);
-    for (size_t i = 0; i < nparam; ++i) {
-        values[i] = _params[i].get().getUserMax();
-    }
-    return values;
+  size_t nparam = _params.size();
+  std::vector<double> values(nparam);
+  for (size_t i = 0; i < nparam; ++i)
+  {
+    values[i] = _params[i].get().getUserMax();
+  }
+  return values;
 }
+
 void ListParams::setValues(const std::vector<double>& values)
 {
-    size_t size = values.size();
-    for (size_t i = 0; i < size; i ++)
-    {
-        _params[i].get().setValue(values[i]);
-    }
+  size_t size = values.size();
+  for (size_t i = 0; i < size; i++)
+  {
+    _params[i].get().setValue(values[i]);
+  }
 }
