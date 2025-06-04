@@ -110,7 +110,7 @@ void ASPDEOp::_simCond(const constvect data, vect outvK, vect outvS) const
   _workNoiseMesh.resize(getSizeSimu());
   _workNoiseData.resize(_getNDat());
 
-  // Non conditional simulation on mesh
+  // Non conditional simulation on Simulation mesh
   VH::simulateGaussianInPlace(_workNoiseMesh);
   _QSimu->evalSimulate(_workNoiseMesh, outvS); 
   
@@ -122,7 +122,7 @@ void ASPDEOp::_simCond(const constvect data, vect outvK, vect outvS) const
   // compute residual _workdat4 = data - outv
   VH::subtractInPlace(_workdat3, data, _workdat4);
 
-  //Co-Kriging of the residual on the mesh
+  // Co-Kriging of the residual on the Kriging mesh
   _solver->setTolerance(1e-5);
   _kriging(_workdat4, outvK);
 }
@@ -146,10 +146,9 @@ VectorDouble ASPDEOp::kriging(const VectorDouble& dat) const
   int err = _kriging(datm, outvs);
   if (err) return VectorDouble();
 
+  // Project the result on the output mesh (optional)
   if (_projOutKriging == nullptr)
     return outMeshK;
-
-  // Project the result on the output mesh
   VectorDouble result(_projOutKriging->getNPoint());
   _projOutKriging->mesh2point(outvs, result);
   return result;
@@ -205,46 +204,82 @@ int ASPDEOp::centerDataByMeanVec(VectorDouble& Z,
 
 VectorDouble ASPDEOp::simCond(const VectorDouble& dat) const
 {
-  constvect datm(dat.data(), dat.size());
+  constvect datv(dat.data(), dat.size());
   VectorDouble outMeshK(_QKriging->getSize());
-  vect outvK(outMeshK);
+  vect outMeshKv(outMeshK);
   VectorDouble outMeshS(_QSimu->getSize());
-  vect outvS(outMeshS);
-  _simCond(datm, outvK, outvS);
+  vect outMeshSv(outMeshS);
+  
+  // Perform the conditional simulation
+  _simCond(datv, outMeshKv, outMeshSv);
 
+  // Project the result on the output mesh (optional)
   if (_projOutKriging == nullptr && _projOutSimu == nullptr)
   {
-    VH::addInPlace(outvS, outvK);
+    VH::addInPlace(outMeshSv, outMeshKv);
     return outMeshK;
   }
   VectorDouble result(_projOutSimu->getNPoint());
-  _projOutKriging->mesh2point(outvK, result);
-  _projOutSimu->addMesh2point(outvS, result);
+  _projOutKriging->mesh2point(outMeshKv, result);
+  _projOutSimu->addMesh2point(outMeshSv, result);
   return result;
+}
+
+/**
+ * @brief Computing Standard deviation of the estimation error using MonteCarlo
+ * on conditional simulations
+ * 
+ * @param dat Vector of Data
+ * @param nMC  Number of Monte-Carlo simulations
+ * @param seed Random seed for the Monte-Carlo simulations
+ * @return VectorDouble 
+ */
+VectorDouble ASPDEOp::stdev(const VectorDouble& dat, int nMC, int seed) const
+{
+  int memo = law_get_random_seed();
+  law_set_random_seed(seed);
+
+  // Standard Deviation using Monte-Carlo simulations
+  int nout = _projOutSimu->getNPoint();
+  VectorDouble temp_mean(nout, 0.);
+  VectorDouble temp_mean2(nout, 0.);
+
+  for (int iMC = 0; iMC < nMC; iMC++)
+  {
+    VectorDouble temp = simCond(dat);
+    VH::addInPlace(temp_mean, temp);
+    VH::addSquareInPlace(temp_mean2, temp);
+  }
+  VH::mean1AndMean2ToStdev(temp_mean, temp_mean2, temp_mean, nMC);
+
+  law_set_random_seed(memo);
+
+  return temp_mean;
 }
 
 VectorDouble ASPDEOp::simNonCond() const
 {
   VectorDouble outMeshS(_QSimu->getSize());
-  vect outvs(outMeshS);
-  _simNonCond(outvs);
+  vect outMeshSv(outMeshS);
+  _simNonCond(outMeshSv);
 
+  // Project the result on the output mesh (optional)
   if (_projOutSimu == nullptr)
     return outMeshS;
   VectorDouble result(_projOutSimu->getNPoint());
-  _projOutSimu->mesh2point(outvs, result);
+  _projOutSimu->mesh2point(outMeshSv, result);
   return result;
 }
 
 VectorDouble ASPDEOp::krigingWithGuess(const VectorDouble& dat,
                                        const VectorDouble& guess) const
 {
-  constvect datm(dat.data(), dat.size());
-  constvect guessm(guess.data(), guess.size());
+  constvect datv(dat.data(), dat.size());
+  constvect guessv(guess.data(), guess.size());
 
   VectorDouble outv(_QKriging->getSize());
   vect outvs(outv);
-  int err = krigingWithGuess(datm, guessm, outvs);
+  int err = krigingWithGuess(datv, guessv, outvs);
   if (err) return VectorDouble();
   return outv;
 }

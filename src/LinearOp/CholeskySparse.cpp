@@ -374,7 +374,7 @@ int CholeskySparse::addInvLX(const constvect vecin, vect vecout) const
  * @param vcur Storing the diagonal of the inverse matrix
  * @return int 
  *
- * @note: The mathod 'partial_inverse' used assumes a LTT decomposition
+ * @note: The method 'partial_inverse' used assumes a LTT decomposition
  * (which is not the decomposition of _factor [LDLT]). Hence a local
  * decomposition is performed again here.
  */
@@ -382,8 +382,8 @@ int CholeskySparse::_stdevEigen(VectorDouble& vcur) const
 {
   Eigen::Map<Eigen::VectorXd> vcurm(vcur.data(), vcur.size());
 
-  // Find the pointor on the initial matrix 
-  const auto a             = dynamic_cast<const MatrixSparse*>(_mat)->getEigenMatrix();
+  // Find the pointor on the initial matrix
+  const auto a = dynamic_cast<const MatrixSparse*>(_mat)->getEigenMatrix();
 
   // Construct a SimplicialLLT matrix (instead of the LDLT stored in '_factor')
   Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> llt;
