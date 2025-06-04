@@ -515,6 +515,13 @@ void CovList::appendParams(ListParams& listParams){
   }
 }
 
+void CovList::initParams()
+{
+  for (const auto& cov: _covs)
+  {
+    cov->initParams();
+  }
+}
 void CovList::updateCov()
 {
   for (const auto& cov: _covs)

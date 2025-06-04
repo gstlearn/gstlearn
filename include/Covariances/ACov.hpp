@@ -62,7 +62,6 @@ public:
   virtual int getNVar() const { return _ctxt.getNVar(); };
   virtual bool isIndexable() const { return false; }
   bool isNoStat() const { return _isNoStat(); }
-  virtual void loadInfoValues() {}
   const CovContext& getContext() const { return _ctxt; }
   void setContext(const CovContext& ctxt);
   void updateFromContext() { _updateFromContext(); }
@@ -480,6 +479,11 @@ public:
   virtual void updateCov()
   {
     
+  }
+
+  virtual void initParams()
+  {
+
   }
 
 private:

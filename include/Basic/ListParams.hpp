@@ -27,6 +27,10 @@ public:
     }
     std::vector<double> getValues() const;
     void setValues(const std::vector<double>& values);
+    std::vector<double> getMinValues() const;
+
+    std::vector<double> getMaxValues() const;
+
 
 private:
     std::vector<std::reference_wrapper<ParamInfo> > _params; // List of parameters

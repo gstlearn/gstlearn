@@ -35,6 +35,25 @@ std::vector<double> ListParams::getValues() const
     return values;
 }
 
+std::vector<double> ListParams::getMinValues() const
+{
+    size_t nparam = _params.size();
+    std::vector<double> values(nparam);
+    for (size_t i = 0; i < nparam; ++i) {
+        values[i] = _params[i].get().getUserMin();
+    }
+    return values;
+}
+
+std::vector<double> ListParams::getMaxValues() const
+{
+    size_t nparam = _params.size();
+    std::vector<double> values(nparam);
+    for (size_t i = 0; i < nparam; ++i) {
+        values[i] = _params[i].get().getUserMax();
+    }
+    return values;
+}
 void ListParams::setValues(const std::vector<double>& values)
 {
     size_t size = values.size();

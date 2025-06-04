@@ -24,17 +24,12 @@
 #include <cstddef>
 #include <functional>
 
-ParamInfo CovBase::createParamInfoForCholSill(int ivar, int jvar)
+ParamInfo CovBase::createParamInfoForCholSill()
 {
-  std::function<void(double)> setCholSill = [this, ivar, jvar](double value)
-  {
-    this->setCholSill(ivar, jvar, value);
-  };
-  ParamInfo pinf(String("Cholesky sill"),
+  return ParamInfo(String("Cholesky sill"),
                  TEST,
                  {-INF, INF},
                  String("Term of the Cholesky decomposition of the sill matrix"));
-  return pinf;
 }
 CovBase::CovBase(ACov* cor,
                  const MatrixSymmetric& sill)
@@ -47,14 +42,7 @@ CovBase::CovBase(ACov* cor,
   createNoStatTab();
 
   _ctxt.setNVar(sill.getNSize());
-  for (size_t i = 0, n = getNVar(); i < n; i++)
-  {
-
-    for (size_t j = i + 1; j < n; j++)
-    {
-      _cholSillsInfo(i, j).setFixed(true);
-    }
-  }
+  
   if (cor != nullptr)
   {
     _ctxt = cor->getContextCopy();
@@ -91,18 +79,6 @@ CovBase::~CovBase()
 {
 }
 
-void CovBase::loadInfoValues()
-{
-  for (size_t ivar = 0, n = getNVar(); ivar < n; ivar++)
-  {
-    for (size_t jvar = 0; jvar < n; jvar++)
-    {
-      // _cholSills.setValue(ivar, jvar, _cholSillsInfo(ivar, jvar).getValue());
-    }
-  }
-  _sillCur.prodMatMatInPlace(&_cholSills, &_cholSills, false, true);
-  _cor->loadInfoValues();
-}
 void CovBase::setCor(ACov* cor)
 {
   _cor     = cor;
@@ -551,9 +527,9 @@ void CovBase::appendParams(ListParams& listParams)
   for (size_t ivar = 0, n = getNVar(); ivar < n; ivar++)
   {
 
-    for (size_t jvar = ivar + 1; jvar < n; jvar++)
+    for (size_t jvar = 0; jvar <= ivar; jvar++)
     {
-      if (_cholSillsInfo(ivar, jvar).isFixed())
+      if (!_cholSillsInfo(ivar, jvar).isFixed())
       {
         listParams.addParam(_cholSillsInfo(ivar, jvar));
       }
@@ -561,16 +537,35 @@ void CovBase::appendParams(ListParams& listParams)
   }
 }
 
+void CovBase::initParams()
+{
+  for (size_t ivar = 0, n = getNVar(); ivar < n; ivar++)
+  {
+    for (size_t jvar = 0; jvar <= ivar; jvar++)
+    {
+      double value = ivar == jvar ? 1.0 : 0.0; // Diagonal elements are initialized to 1, others to 0
+      if (!_cholSillsInfo(ivar, jvar).isFixed())
+      {
+        _cholSillsInfo(ivar, jvar).setValue(value);
+      }
+    }
+  }
+  _cor->initParams();
+}
+
 void CovBase::updateCov()
 {
   _cor->updateCov();
+  int nvaroptim = 0;
   for (size_t ivar = 0, n = getNVar(); ivar < n; ivar++)
   {
-    for (size_t jvar = ivar + 1; jvar < n; jvar++)
+    for (size_t jvar = 0; jvar <= ivar; jvar++)
     {
-      if (!_cholSillsInfo(ivar, jvar).isFixed()) continue;
+      if (_cholSillsInfo(ivar, jvar).isFixed()) continue;
+      nvaroptim++;
       _cholSills.setValue(ivar, jvar, _cholSillsInfo(ivar, jvar).getValue());
     }
   }
-  _sillCur.prodMatMatInPlace(&_cholSills, &_cholSills, false, true);
+  if (nvaroptim > 0)
+    _sillCur.prodMatMatInPlace(&_cholSills, &_cholSills, false, true);
 }

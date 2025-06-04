@@ -740,6 +740,8 @@ void CorAniso::_initFromContext()
 
 void CorAniso::_initParamInfo()
 {
+  _scales.clear();
+  _angles.clear();
   if (_corfunc != nullptr)
   {
     if (_corfunc->hasRange())
@@ -750,15 +752,26 @@ void CorAniso::_initParamInfo()
         double value = _aniso.getRadius(idim);
         ParamInfo pis(name, value, {0, INF}, "Scale in Dimension " + std::to_string(idim));               
         _scales.push_back(pis);
-        name = "Scale_" + std::to_string(idim);
-        value = _aniso.getAngle(idim);
-        ParamInfo pia(name, value, {-INF, INF}, "Angle in Dimension " + std::to_string(idim));               
-        _angles.push_back(pia);
+        if (getNDim() > 2 || idim < 1)
+        {
+          name = "Angle_" + std::to_string(idim);
+          value = _aniso.getAngle(idim);
+          ParamInfo pia(name, value, {-INF, INF}, "Angle in Dimension " + std::to_string(idim));               
+          _angles.push_back(pia);
+        }
       }
     }
-   
   }
 }
+
+void CorAniso::initParams()
+{
+  for (auto &sc : _scales)
+  {
+    sc.increaseMin(1e-3); //TODO use Db extensions
+  }
+}
+
 void CorAniso::_updateFromContext()
 {
   computeMarkovCoeffs();
@@ -1480,8 +1493,11 @@ void CorAniso::updateCov()
   {
     for (int idim = 0; idim < getNDim(); idim++)
     {
+      if (getNDim() > 2 || idim < 1)
+      {
+        _aniso.setRotationAngle(idim, _angles[idim].getValue());
+      }
       _aniso.setRadiusDir(idim, _scales[idim].getValue());
-      _aniso.setRotationAngle(idim, _angles[idim].getValue());
      }
   }
 }

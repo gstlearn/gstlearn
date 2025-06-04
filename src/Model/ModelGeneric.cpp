@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Model/ModelGeneric.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/ListParams.hpp"
 #include "Basic/Optim.hpp"
 #include "Estimation/Vecchia.hpp"
@@ -450,25 +451,59 @@ void ModelGeneric::updateModel()
     _driftList->updateDriftList();
   }
 }
+
+void ModelGeneric::initParams()
+{
+  // Initialize the parameters in the Covariance
+  if (_cova != nullptr)
+  {
+    _cova->initParams();
+  }
+
+  // Initialize the parameters in the DriftList
+  if (_driftList != nullptr)
+  {
+    _driftList->initParams();
+  }
+}
 void ModelGeneric::fitLikelihood(const Db* db, bool useVecchia, bool verbose)
 {
   auto params = generateListParams();
+  initParams();
   std::vector<double> x = params->getValues();
-
+  std::vector<double> xmin = params->getMinValues();
+  std::vector<double> xmax = params->getMaxValues();
+  updateModel();
+  if (verbose)
+  {
+    message("Initial parameters:\n");
+    params->display();
+    _cova->display();
+  }
+ 
   Optim opt(NLOPT_LN_NELDERMEAD, x.size());
 
 
-  auto func = [db, params, useVecchia, this](const std::vector<double>& x) -> double 
+  auto func = [db, params, useVecchia,verbose, this](const std::vector<double>& x) -> double 
        {
         params->setValues(x);
         this->updateModel();
+        double result;
         if (! useVecchia)
-          return computeLogLikelihood(db);  
-        return logLikelihoodVecchia(db,this,30);
+          result = computeLogLikelihood(db);  
+        else 
+        {
+          int nbneigh = std::min(30, db->getNSample(true));
+          result = logLikelihoodVecchia(db,this,nbneigh); //TODO : find a way to pass the result of findNN
+        }
+        if (verbose)
+          message("Cost Function (Likelihood) = %lf\n", result);
+        return -result;
        };
 
   opt.setObjective(func);
-
+  opt.setLowerBounds(xmin);
+  opt.setUpperBounds(xmax);
   opt.setXtolRel(1e-6);
 
   opt.optimize(x);

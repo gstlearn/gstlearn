@@ -8,14 +8,15 @@
 ParamInfo::ParamInfo(const String& name, 
                     double value,
                     const std::array<double,2>& absoluteBounds,
-                    const String& description)              
+                    const String& description,
+                    bool isfixed)              
 : AStringable()
 , _name(name)
 , _value(value)
 , _currentValue(value)
 , _absoluteBounds(absoluteBounds)
 , _userBounds(absoluteBounds)
-, _isFixed(false)
+, _isFixed(isfixed)
 , _description(description)
 {
     
@@ -53,6 +54,22 @@ ParamInfo::~ParamInfo()
 {
 
 }
+
+void ParamInfo::increaseMin(double value)
+{
+    _userBounds[0] = std::max(value, _userBounds[0]);
+    _value = std::max(value, _value);
+    _currentValue = _value;
+}
+
+
+void ParamInfo::decreaseMax(double value)
+{
+    _userBounds[1] = std::min(value, _userBounds[1]);
+    _value = std::min(value, _value);
+    _currentValue = _value;
+}
+
 
 String ParamInfo::toString(const AStringFormat* strfmt) const {
     DECLARE_UNUSED(strfmt);

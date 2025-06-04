@@ -37,6 +37,14 @@ public:
         return minf;
     }
 
+    void setLowerBounds(const std::vector<double>& lb) {
+        nlopt_set_lower_bounds(_opt, lb.data());
+    }
+
+    void setUpperBounds(const std::vector<double>& ub) {
+        nlopt_set_upper_bounds(_opt, ub.data());
+    }
+
 private:
     nlopt_opt _opt;
     std::shared_ptr<std::function<double(const std::vector<double>&)>> _objective;

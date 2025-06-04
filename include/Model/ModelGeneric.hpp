@@ -179,6 +179,7 @@ public:
   void addDrift(const ADrift* drift); // TODO: check that the same driftM has not been already defined
   void setDrifts(const VectorString& driftSymbols);
 
+  void initParams();
   std::shared_ptr<ListParams> generateListParams() const;
   void updateModel();
   double computeLogLikelihood(const Db* db, bool verbose = false);

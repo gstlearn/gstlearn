@@ -170,6 +170,12 @@ public:
   {
     
   }
+
+  void initParams()
+  {
+
+  }
+  
 private:
   void _update();
   bool _isDriftIndexValid(int i) const;

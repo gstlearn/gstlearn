@@ -126,6 +126,7 @@ public:
 
   void appendParams(ListParams& listParams) override;
   void updateCov() override;
+  void initParams() override;
 protected:
   bool _isCovarianceIndexValid(int icov) const;
   void _load(const SpacePoint& p, bool case1) const override;

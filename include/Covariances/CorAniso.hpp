@@ -258,6 +258,7 @@ public:
   String toStringNoStat(const AStringFormat* strfmt = nullptr, int i = 0) const;
   void appendParams(ListParams& listParams) override;
   void updateCov() override;
+  void initParams() override;
   #ifndef SWIG
   int addEvalCovVecRHSInPlace(vect vect,
                               const VectorInt& index1,
