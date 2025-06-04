@@ -43,7 +43,6 @@ int main(int argc, char *argv[])
 
   DbStringFormat dbfmt(FLAG_STATS,{"Kriging*"});
 
-  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("test_Francky-");
 
   // Creating the 2-D Grid

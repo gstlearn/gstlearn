@@ -65,6 +65,8 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     add_executable(${TEST_NAME} ${TEST_SOURCE_FILE})
     # Link each test to shared library
     target_link_libraries(${TEST_NAME} PRIVATE ${PROJECT_NAME}::shared)
+    # Pass CMAKE_SOURCE_DIR to executables (for the `getTestData' function)
+    target_compile_definitions(${TEST_NAME} PRIVATE -DCMAKE_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
     # Trigger the prepare target each time a test is compiled
     add_dependencies(${TEST_NAME} prepare_cpp)
     # Trigger the build of the test with the target build_tests

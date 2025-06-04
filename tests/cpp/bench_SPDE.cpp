@@ -43,7 +43,6 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setContainerName(false);
   ASerializable::setPrefixName("BenchSPDE-");
 
   // Global parameters

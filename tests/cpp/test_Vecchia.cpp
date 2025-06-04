@@ -8,8 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/AStringable.hpp"
 #include "geoslib_f.h"
-
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
@@ -74,6 +74,14 @@ int main(int argc, char* argv[])
     grid->display(&dbfmt);
   }
 
+  if (mode == 0 || mode == 3)
+  {
+    delete db;
+    db = Db::createFillRandom(20000, 2, 1);
+
+    const double result = logLikelihoodVecchia(db, model, 20, false);
+    message("Log-likelihood = %f\n", result);
+  }
   // ====================== Free pointers ==================================
   delete db;
   delete grid;

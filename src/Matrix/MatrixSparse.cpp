@@ -37,12 +37,12 @@ DISABLE_WARNING_POP
  */
 static bool globalFlagEigen = true;
 
-MatrixSparse::MatrixSparse(int nrow, int ncol, int nrowmax, int opt_eigen)
+MatrixSparse::MatrixSparse(int nrow, int ncol, int ncolmax, int opt_eigen)
   : AMatrix(nrow, ncol),
     _csMatrix(nullptr),
     _eigenMatrix(),
     _flagEigen(false),
-    _nRowMax(nrowmax)
+    _nColMax(ncolmax)
 {
   _flagEigen = _defineFlagEigen(opt_eigen);
   _allocate();
@@ -1326,11 +1326,11 @@ void MatrixSparse::_allocate()
 {
   if (isFlagEigen())
   {
-    _eigenMatrix = Eigen::SparseMatrix<double, Eigen::ColMajor>(getNRows(),getNCols());
+    _eigenMatrix = Eigen::SparseMatrix<double>(getNRows(),getNCols());
 
-    if (_nRowMax > 0)
+    if (_nColMax > 0)
     {
-      _eigenMatrix.reserve(Eigen::VectorXi::Constant(getNRows(), _nRowMax));
+      _eigenMatrix.reserve(Eigen::VectorXi::Constant(getNCols(), _nColMax));
     }
     if (isMultiThread()) omp_set_num_threads(getMultiThread());
   }

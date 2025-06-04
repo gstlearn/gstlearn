@@ -27,7 +27,6 @@ def spirale(db,a=0,b=-1.4,c=1.,d=1.,plot = False):
         plt.show()
     return theta
 
-gl.ASerializable.setContainerName(True)
 gl.ASerializable.setPrefixName("test_APISPDE-")
 
 resultDb = gl.DbGrid.create([200,200],[0.5,0.5]) 
