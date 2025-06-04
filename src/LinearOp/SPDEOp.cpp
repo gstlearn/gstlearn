@@ -209,6 +209,8 @@ VectorDouble ASPDEOp::simCond(const VectorDouble& dat) const
   vect outMeshKv(outMeshK);
   VectorDouble outMeshS(_QSimu->getSize());
   vect outMeshSv(outMeshS);
+  
+  // Perform the conditional simulation
   _simCond(datv, outMeshKv, outMeshSv);
 
   // Project the result on the output mesh (optional)
@@ -258,26 +260,26 @@ VectorDouble ASPDEOp::stdev(const VectorDouble& dat, int nMC, int seed) const
 VectorDouble ASPDEOp::simNonCond() const
 {
   VectorDouble outMeshS(_QSimu->getSize());
-  vect outvs(outMeshS);
-  _simNonCond(outvs);
+  vect outMeshSv(outMeshS);
+  _simNonCond(outMeshSv);
 
   // Project the result on the output mesh (optional)
   if (_projOutSimu == nullptr)
     return outMeshS;
   VectorDouble result(_projOutSimu->getNPoint());
-  _projOutSimu->mesh2point(outvs, result);
+  _projOutSimu->mesh2point(outMeshSv, result);
   return result;
 }
 
 VectorDouble ASPDEOp::krigingWithGuess(const VectorDouble& dat,
                                        const VectorDouble& guess) const
 {
-  constvect datm(dat.data(), dat.size());
-  constvect guessm(guess.data(), guess.size());
+  constvect datv(dat.data(), dat.size());
+  constvect guessv(guess.data(), guess.size());
 
   VectorDouble outv(_QKriging->getSize());
   vect outvs(outv);
-  int err = krigingWithGuess(datm, guessm, outvs);
+  int err = krigingWithGuess(datv, guessv, outvs);
   if (err) return VectorDouble();
   return outv;
 }

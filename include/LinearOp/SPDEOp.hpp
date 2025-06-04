@@ -42,14 +42,17 @@ public:
 
   virtual VectorDouble stdev(const VectorDouble& dat, int nMC = 1, int seed = 134343) const;
 
-  int getSize() const override;
-  int getSizeSimu() const;
+  int    getSize() const override;
+  int    getSizeSimu() const;
+  int    getIterations() const { return _solver->getIterations(); }
+  double getError() const { return _solver->getError(); }
+
+  void   setMaxIterations(int n) { _solver->setMaxIterations(n); }
+  void   setTolerance(double tol) { _solver->setTolerance(tol); }
+
   VectorDouble kriging(const VectorDouble& dat) const;
   VectorDouble krigingWithGuess(const VectorDouble& dat, const VectorDouble& guess) const;
-  void setMaxIterations(int n) { _solver->setMaxIterations(n); }
-  void setTolerance(double tol) { _solver->setTolerance(tol); }
-  int  getIterations() const { return _solver->getIterations(); }
-  double getError() const { return _solver->getError(); }
+
   VectorDouble computeDriftCoeffs(const VectorDouble& Z,
                                   const MatrixDense& driftMat,
                                   bool verbose = false) const;
@@ -72,10 +75,9 @@ public:
   void simNonCond(vect outv) const;
   virtual double computeLogDetOp(int nbsimu) const;
   double computeQuadratic(const std::vector<double>& x) const;
-  double computeTotalLogDet(int nMC = 1, int seed = 13132) const;
-  double computeLogDetQ(int nMC = 1) const;
+  double computeTotalLogDet(int nMC = 5, int seed = 13132) const;
+  double computeLogDetQ(int nMC = 5) const;
   double computeLogDetNoise() const;
-
   static int centerDataByDriftMat(VectorDouble& Z,
                                   const MatrixDense& driftMat,
                                   const VectorDouble& driftCoeffs);
@@ -94,7 +96,6 @@ private:
   int _solveWithGuess(const constvect in,
                       const constvect guess,
                       vect out) const;
-
   int _buildRhs(const constvect inv) const;
 #endif
 
