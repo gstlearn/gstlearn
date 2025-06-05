@@ -30,23 +30,30 @@ int main(int argc, char* argv[])
   bool useVecchia = true;
   Db* db          = Db::createFillRandom(100, 2, 0);
   Model* model    = Model::createFromParam(ECov::EXPONENTIAL, TEST, 2., 1., {0.1, 0.3}, MatrixSymmetric(), {30., 0});
-  Model* modelfit = Model::createFromParam(ECov::EXPONENTIAL, TEST, 1, 1, {1., 1.}, MatrixSymmetric(), {0., 0});
-
+  Model* modelfit1 = Model::createFromParam(ECov::EXPONENTIAL, TEST, 1, 1, {1., 1.}, MatrixSymmetric(), {0., 0});
+  Model* modelfit2 = modelfit1->clone();
   mestitle(0, "Test fit likelihood");
 
   mestitle(1, "True Model");
   model->display();
 
   simtub(nullptr, db, model, nullptr, 1, 234555, 3000);
-  message("Start Fitting Model");
+  message("Start Fitting Model with Vecchia Approximation\n");
   // Do not use 'verbose' for cross-platforms comparison
-  modelfit->fitNew(db, useVecchia, false);
+  modelfit1->fitNew(db, true, false);
 
   mestitle(1,"Fitted Model");
-  modelfit->display();
+  modelfit1->display();
 
+  message("Start Fitting Model with Likelihood\n");
+  // Do not use 'verbose' for cross-platforms comparison
+  modelfit2->fitNew(db, false, false);
+
+  mestitle(1,"Fitted Model");
+  modelfit2->display();
   delete db;
   delete model;
-  delete modelfit;
+  delete modelfit1;
+  delete modelfit2;
   return (0);
 }
