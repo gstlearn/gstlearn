@@ -507,11 +507,16 @@ int PrecisionOp::_preparePrecisionPoly() const
 /* Evaluation of the polynomial of the precision over the interval [0, lambda_max(ShiftOp)] */
 /* discretized over ndiscr points */
 /* and return the min and the max */
-
 std::pair<double,double> PrecisionOp::getRangeEigenVal(int ndiscr)
 {
   std::pair<double,double> rangeVals;
-  double sill = _cova->getSill(0,0); //TODO handle non constant sill
+  if (_cova->isNoStatForVariance())
+  {
+    messerr("Warning: PrecisionOp::getRangeEigenVal is not implemented for No stat on variances. "
+            "This may lead to wrong results.\n");
+    return rangeVals;
+  }
+  double sill = _cova->getSill(0,0);
   double sMax = _shiftOp->getMaxEigenValue();
   double x = 0;
   double delta = sMax/(ndiscr-1);
