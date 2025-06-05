@@ -30,7 +30,7 @@ stopifnot(all(dim(terra_ini) == dim(terra_final)))
 stopifnot(all(res(terra_ini) == res(terra_final)))
 
 # consistency between DbGrid and raster
-# stopifnot(all(gst_ini$getNXs() == dim(terra_final)[1:2]))
+stopifnot(all(gst_ini$getNXs() == dim(terra_final)[c(2,1)]))
 stopifnot(all(gst_ini$getDXs() == res(terra_final)))
 
 print("Test is successful!")
