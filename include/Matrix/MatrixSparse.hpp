@@ -83,6 +83,8 @@ public:
   void addProdMatVecInPlaceToDest(const constvect in,
                                   vect out,
                                   bool transpose = false) const;
+
+void prodMatVecInPlace(constvect x, vect res, bool transpose = false) const;
 #endif
   /*! Set the contents of a Column */
   virtual void setColumn(int icol,

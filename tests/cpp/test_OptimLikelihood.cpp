@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  bool useVecchia = false;
+  bool useVecchia = true;
   Db* db          = Db::createFillRandom(100, 2, 0);
   Model* model    = Model::createFromParam(ECov::EXPONENTIAL, TEST, 2., 1., {0.1, 0.3}, MatrixSymmetric(), {30., 0});
   Model* modelfit = Model::createFromParam(ECov::EXPONENTIAL, TEST, 1, 1, {1., 1.}, MatrixSymmetric(), {0., 0});
@@ -38,8 +38,8 @@ int main(int argc, char* argv[])
   model->display();
 
   simtub(nullptr, db, model, nullptr, 1, 234555, 3000);
-
-  modelfit->fitLikelihood(db, useVecchia, false);
+  message("Start Fitting Model");
+  modelfit->fitLikelihood(db, useVecchia, true);
 
   mestitle(1,"Fitted Model");
   modelfit->display();
