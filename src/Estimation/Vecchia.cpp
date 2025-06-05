@@ -376,7 +376,7 @@ Vecchia* Vecchia::createForOptim(const ModelGeneric* model,
 
 double Vecchia::computeCost(bool verbose)
 {
-  computeLower(_Ranks, verbose);
+  computeLower(_Ranks, false);
   int nDrift = _model->getNDriftEquation();
 
   if (nDrift > 0)
