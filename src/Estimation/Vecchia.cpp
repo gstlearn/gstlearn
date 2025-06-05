@@ -72,9 +72,9 @@ int Vecchia::computeLower(const MatrixT<int>& Ranks, bool verbose)
 
   // Resizing
   _DFull.resize(ntot);
-  if (_LFull.empty())
+  //if (_LFull.empty())
     _LFull = MatrixSparse(ntot, ntot, nb_neigh + 1);
-  if (_Dmat.empty())
+  //if (_Dmat.empty())
     _Dmat = MatrixSparse(ntot, ntot);
 
   // Creating empty Dbs
@@ -377,7 +377,7 @@ Vecchia* Vecchia::createForOptim(const ModelGeneric* model,
 double Vecchia::computeCost(bool verbose)
 {
   computeLower(_Ranks, verbose);
-  int nDrift = _X.getNCols();
+  int nDrift = _model->getNDriftEquation();
 
   if (nDrift > 0)
   {

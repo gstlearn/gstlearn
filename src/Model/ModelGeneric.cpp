@@ -482,7 +482,14 @@ void ModelGeneric::fitLikelihood(const Db* db, bool useVecchia, bool verbose)
 
   Optim opt(NLOPT_LN_NELDERMEAD, x.size());
 
-  auto func = [db, params, useVecchia, verbose, this](const std::vector<double>& x) -> double
+  AModelOptimNew* amopt = nullptr;
+
+  if (useVecchia)
+  {
+    int nbneigh = std::min(30, db->getNSample(true));
+    amopt = Vecchia::createForOptim(this, db, nbneigh);
+  }
+  auto func = [amopt,db, params, useVecchia, verbose, this](const std::vector<double>& x) -> double
   {
     static int iter = 1;
     params->setValues(x);
@@ -493,8 +500,7 @@ void ModelGeneric::fitLikelihood(const Db* db, bool useVecchia, bool verbose)
       result = computeLogLikelihood(db);
     else
     {
-      int nbneigh = std::min(30, db->getNSample(true));
-      result      = logLikelihoodVecchia(db, this, nbneigh); // TODO : find a way to pass the result of findNN
+      result      = amopt->computeCost(false); 
     }
     
     if (verbose)
@@ -508,4 +514,6 @@ void ModelGeneric::fitLikelihood(const Db* db, bool useVecchia, bool verbose)
   opt.setXtolRel(EPSILON6);
 
   opt.optimize(x);
+
+  delete amopt;
 }
