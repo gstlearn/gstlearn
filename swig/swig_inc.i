@@ -1086,7 +1086,5 @@
   #include <memory>
 %}
 %include <std_shared_ptr.i>
-%shared_ptr(ListParams)
 %template(ASpaceSharedPtr)    std::shared_ptr<const ASpace>;
 %template(ASpaceSharedPtrVector)   std::vector< ASpaceSharedPtr>;
-//%template(ListParamUniquePtr) std::shared_ptr< ListParams >;

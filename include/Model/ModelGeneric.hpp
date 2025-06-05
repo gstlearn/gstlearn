@@ -180,7 +180,10 @@ public:
   void setDrifts(const VectorString& driftSymbols);
 
   void initParams();
+
+  #ifndef SWIG
   std::shared_ptr<ListParams> generateListParams() const;
+  #endif
   void updateModel();
   double computeLogLikelihood(const Db* db, bool verbose = false);
   void fitLikelihood(const Db* db, bool useVecchia = false, bool verbose = false);
