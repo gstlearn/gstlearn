@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
   simtub(nullptr, db, model, nullptr, 1, 234555, 3000);
   message("Start Fitting Model");
   // Do not use 'verbose' for cross-platforms comparison
-  modelfit->fitLikelihood(db, useVecchia, false);
+  modelfit->fitNew(db, useVecchia, false);
 
   mestitle(1,"Fitted Model");
   modelfit->display();

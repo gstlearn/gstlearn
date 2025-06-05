@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   model->display();
   simtub(nullptr, db, model, nullptr, 1, 234555, 3000);
   db->display();
-  modelfit->fitLikelihood(db, useVecchia, true);
+  modelfit->fitNew(db, useVecchia, true);
   message("Fitted Model\n");
   modelfit->display();
 

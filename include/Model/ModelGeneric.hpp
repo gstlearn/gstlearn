@@ -186,7 +186,7 @@ public:
   #endif
   void updateModel();
   double computeLogLikelihood(const Db* db, bool verbose = false);
-  void fitLikelihood(const Db* db, bool useVecchia = false, bool verbose = false);
+  void fitNew(const Db* db, bool useVecchia = false, bool verbose = false);
 private:
   virtual bool _isValid() const;
 

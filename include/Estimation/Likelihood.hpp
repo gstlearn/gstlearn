@@ -10,33 +10,37 @@
 /******************************************************************************/
 #pragma once
 
-#include "Model/ModelGeneric.hpp"
+#include "Estimation/ALikelihood.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
+#include "LinearOp/CholeskyDense.hpp"
 #include "gstlearn_export.hpp"
 
-class GSTLEARN_EXPORT AModelOptimNew 
+class Db;
+class ModelGeneric;
+
+class GSTLEARN_EXPORT Likelihood: public ALikelihood
 {
 public:
-  AModelOptimNew(const ModelGeneric* model = nullptr) 
-  :_model(model)
-  {
-  }
-  AModelOptimNew(const AModelOptimNew& r)
-    : _model(r._model)
-  {
-  }
-  AModelOptimNew& operator=(const AModelOptimNew& r)
-  {
-    if (this != &r)
-    {
-      _model = r._model;
-    }
-    return *this;
-  }
-  virtual ~AModelOptimNew() = default;
+  Likelihood(const ModelGeneric* model,
+             const Db* db);
+  Likelihood(const Likelihood& r);           
+  Likelihood& operator=(const Likelihood& r);
+  virtual ~Likelihood();
+  
 
-  virtual double computeCost(bool verbose = false) = 0;
+  public:
+  static Likelihood* createForOptim(const ModelGeneric* model,
+                                 const Db* db,
+                                 bool verbose = false);
 
-protected:
-  const ModelGeneric* _model; // Pointer to the model being optimized
+  private:
+  void _updateModel(bool verbose = false) override;
+  void _computeCm1X() override;
+  void _computeCm1Z() override;
+  double _computeLogDet() const override;
+ 
+private:
+    MatrixSymmetric _cov;
+    CholeskyDense _covChol;
 
 };
