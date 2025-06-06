@@ -60,8 +60,8 @@ add_dependencies(check_ipynb prepare_check_ipynb)
 cmake_path(APPEND CMAKE_SOURCE_DIR python run_test_ipynb.py
            OUTPUT_VARIABLE RUN_TEST_SCRIPT)
 
-# Look for Python3 (needed here because Python3_EXECUTABLE not populated everywhere)
-find_package(Python3 REQUIRED)
+# Look for uv (needed here because UV not populated everywhere)
+find_program(UV NAMES uv REQUIRED DOC "Python package and project manager")
 # Display test output in case of failure
 set(CTEST_OUTPUT_ON_FAILURE ON)
 
@@ -74,7 +74,7 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
                OUTPUT_VARIABLE TEST_SOURCE_FILE)
     # Run the test (and generate log in ${TEST_DST_DIR})
     add_test(NAME ${TEST_NAME}_ipynb
-             COMMAND ${Python3_EXECUTABLE} ${RUN_TEST_SCRIPT} ${TEST_SOURCE_FILE} ${TEST_DST_DIR})
+             COMMAND ${UV} run python ${RUN_TEST_SCRIPT} ${TEST_SOURCE_FILE} ${TEST_DST_DIR})
     # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
     set(REF_FILE ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.asciidoc)
     # Use maybe a specific output log for the local computer
