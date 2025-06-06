@@ -309,6 +309,7 @@ set(SRC
   Neigh/NeighMoving.cpp
   Neigh/NeighBench.cpp
   Neigh/NeighCell.cpp
+  Estimation/ALikelihood.cpp
   Estimation/KrigingSystem.cpp
   Estimation/KrigingSystemSimpleCase.cpp
   Estimation/KrigingAlgebra.cpp
@@ -321,6 +322,7 @@ set(SRC
   Estimation/CalcGlobal.cpp
   Estimation/KrigOpt.cpp
   Estimation/Vecchia.cpp
+  Estimation/Likelihood.cpp
   OutputFormat/AOF.cpp
   OutputFormat/GridIfpEn.cpp
   OutputFormat/GridEclipse.cpp

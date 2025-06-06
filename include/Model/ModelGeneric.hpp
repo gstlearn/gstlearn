@@ -188,7 +188,7 @@ public:
   std::shared_ptr<ListParams> generateListParams() const;
   #endif
   void updateModel();
-  double computeLogLikelihood(const Db* db, bool verbose = false);
+  double computeLogLikelihood(const Db* db, bool verbose = false) const;
 
   void fitNew(const Db* db = nullptr,
               Vario* vario = nullptr,
