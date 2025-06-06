@@ -42,15 +42,15 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      2.086
-- Ranges       =      0.063     0.270
-- Theo. Ranges =      0.021     0.090
-- Angles       =     24.826     0.000
+- Sill         =      2.088
+- Ranges       =      0.061     0.282
+- Theo. Ranges =      0.020     0.094
+- Angles       =     25.059     0.000
 - Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.908    -0.420
-     [  1,]     0.420     0.908
-Total Sill     =      2.086
+     [  0,]     0.906    -0.424
+     [  1,]     0.424     0.906
+Total Sill     =      2.088
 Known Mean(s)     0.000
 Start Fitting Model with Likelihood
 
