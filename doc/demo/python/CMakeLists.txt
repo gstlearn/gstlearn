@@ -36,8 +36,8 @@ add_dependencies(build_demos_py prepare_build_demos_py)
 cmake_path(APPEND CMAKE_SOURCE_DIR python run_test_ipynb.py
            OUTPUT_VARIABLE RUN_DEMO_SCRIPT)
 
-# Look for Python3 (needed here because Python3_EXECUTABLE not populated everywhere)
-find_package(Python3 REQUIRED)
+# Look for uv (needed here because UV not populated everywhere)
+find_program(UV NAMES uv REQUIRED DOC "Python package and project manager")
 
 # Run each jupyter notebook scripts
 foreach(DEMO_SOURCE_FILE ${DEMO_SOURCES})
@@ -48,7 +48,7 @@ foreach(DEMO_SOURCE_FILE ${DEMO_SOURCES})
                OUTPUT_VARIABLE DEMO_SOURCE_FILE)
     # Run the demo (and generate html in ${DEMO_DIR})
     add_custom_target(${DEMO_NAME}_ipynb_html
-                      COMMAND ${Python3_EXECUTABLE} ${RUN_DEMO_SCRIPT} ${DEMO_SOURCE_FILE} ${DEMO_DIR} html)
+                      COMMAND ${UV} run python ${RUN_DEMO_SCRIPT} ${DEMO_SOURCE_FILE} ${DEMO_DIR} html)
 
     # Add dependency
     add_dependencies(${DEMO_NAME}_ipynb_html prepare_build_demos_py)
