@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
   {
     mestitle(0, "Checking Vecchia Class");
     verbose = true;
-    Vecchia V          = Vecchia(model, db);
+    Vecchia V          = Vecchia(model, nb_neigh, db);
     MatrixT<int> Ranks = findNN(db, nullptr, nb_neigh+1, false, verbose);
     (void)V.computeLower(Ranks, verbose);
   }

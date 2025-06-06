@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Estimation/Vecchia.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Estimation/ALikelihood.hpp"
 #include "LinearOp/CholeskySparse.hpp"
 #include "Tree/Ball.hpp"
 #include "Db/Db.hpp"
@@ -17,16 +18,17 @@
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixT.hpp"
-#include "Matrix/MatrixFactory.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "geoslib_define.h"
 
 Vecchia::Vecchia(const ModelGeneric* model,
+                 int nb_neigh,
                  const Db* db1,
                  const Db* db2)
-  : _db1(db1)
+  : ALikelihood(model, db1)
+  ,_nbNeigh(nb_neigh)
+  , _db1(db1)
   , _db2(db2)
-  , _model(model)
   , _DFull()
   , _LFull()
   , _dbTemp(nullptr)
@@ -38,6 +40,44 @@ Vecchia::Vecchia(const ModelGeneric* model,
   _chol = new CholeskyDense();
 }
 
+Vecchia::Vecchia(const Vecchia& r)
+  : ALikelihood(r)
+  , _nbNeigh(r._nbNeigh)
+  , _db1(r._db1)
+  , _db2(r._db2)
+  , _DFull(r._DFull)
+  , _LFull(r._LFull)
+  , _dbTemp(nullptr)
+  , _dbOnePoint(nullptr)
+  , _Dmat(r._Dmat)
+{
+  if (r._dbTemp != nullptr) _dbTemp = r._dbTemp->clone();
+  if (r._dbOnePoint != nullptr) _dbOnePoint = r._dbOnePoint->clone();
+  _chol = new CholeskyDense(*r._chol);
+}
+Vecchia& Vecchia::operator=(const Vecchia& r)
+{
+  if (this != &r)
+  {
+    ALikelihood::operator=(r);
+    _nbNeigh = r._nbNeigh;
+    _db1     = r._db1;
+    _db2     = r._db2;
+    _DFull   = r._DFull;
+    _LFull   = r._LFull;
+    _Dmat    = r._Dmat;
+
+    delete _dbTemp;
+    delete _dbOnePoint;
+    delete _chol;
+
+    if (r._dbTemp != nullptr) _dbTemp = r._dbTemp->clone();
+    if (r._dbOnePoint != nullptr) _dbOnePoint = r._dbOnePoint->clone();
+    _chol = new CholeskyDense(*r._chol);
+  }
+  return *this;
+}
+
 Vecchia::~Vecchia()
 {
   delete _dbTemp;
@@ -45,6 +85,10 @@ Vecchia::~Vecchia()
   delete _chol;
 }
 
+void Vecchia::_init(bool verbose)
+{
+  _Ranks = findNN(_db, nullptr, _nbNeigh + 1, false, verbose);
+}
 /**
  * @brief Construct the Vecchia approximation starting from 'Ranks'
  *
@@ -236,7 +280,7 @@ int krigingVecchia(Db* dbin,
                    bool verbose,
                    const NamingConvention& namconv)
 {
-  Vecchia V = Vecchia(model, dbout, dbin);
+  Vecchia V = Vecchia(model, nb_neigh, dbout, dbin);
 
   MatrixT<int> Ranks = findNN(dbout, dbin, nb_neigh + 1, false, verbose);
   if (V.computeLower(Ranks, verbose)) return 1;
@@ -320,123 +364,39 @@ double logLikelihoodVecchia(const Db* db,
                             int nb_neigh,
                             bool verbose)
 {
-  Vecchia* vec = Vecchia::createForOptim(model, db, nb_neigh, verbose);
+  Vecchia* vec = Vecchia::createForOptim(model, db, nb_neigh);
   double result = vec->computeCost(verbose);
   delete vec;
   return result;
 }
 
-Vecchia* Vecchia::createForOptim(const ModelGeneric* model,
+Vecchia* Vecchia::createForOptim(ModelGeneric* model,
                                  const Db* db,
-                                 int nb_neigh,
-                                 bool verbose)
+                                 int nb_neigh)
 {
-  auto* vec = new Vecchia(model, db, nullptr);
-
-  int nvar = db->getNLoc(ELoc::Z);
-  if (nvar < 1)
-  {
-    messerr("The 'db' should have at least one variable defined");
-    return nullptr;
-  }
-
-  // Establish the vector of multivariate data
-  int nDrift = model->getNDriftEquation();
-  if (nDrift > 0)
-    vec->_Y = db->getColumnsByLocator(ELoc::Z, true, true);
-  else
-    vec->_Y = db->getColumnsByLocator(ELoc::Z, true, true, model->getMeans());
-
-  int size = (int)vec->_Y.size();
-  if (verbose)
-  {
-    message("Likelihood calculation:\n");
-    message("- Number of active samples     = %d\n", db->getNSample(true));
-    message("- Number of variables          = %d\n", nvar);
-    message("- Length of Information Vector = %d\n", size);
-    if (nDrift > 0)
-      message("- Number of drift conditions = %d\n", model->getNDriftEquation());
-    else
-      VH::dump("Constant Mean(s)", model->getMeans());
-  }
-
-  // Calculate the Vecchia approximation
-  vec->_Ranks = findNN(db, nullptr, nb_neigh + 1, false);
-
-  // If Drift function is present, evaluate the optimal Drift coefficients
-  if (nDrift > 0)
-  {
-    // Extract the matrix of drifts at samples X
-    vec->_X = model->evalDriftMat(db);
-
-    vec->_beta.resize(nDrift);
-  }
+  auto* vec = new Vecchia(model, nb_neigh, db, nullptr);
+  vec->init();
   return vec;
 }
 
-double Vecchia::computeCost(bool verbose)
+void Vecchia::_computeCm1X()
 {
-  computeLower(_Ranks, false);
-  int nDrift = _model->getNDriftEquation();
+  productMatVecchia(_X, _Cm1X);
+}
 
-  if (nDrift > 0)
-  {
-    // Calculate t(L-1) %*% D-1 %*% L-1 applied to X (L and D from Vecchia)
-    productMatVecchia(_X, _Cm1X);
+void Vecchia::_computeCm1Z()
+{
+  _Cm1Y.resize(_Y.size());
+  productVecchia(_Y, _Cm1Y);
+}
 
-    // Calculate XtCm1X = Xt * Cm1 * X
-    MatrixSymmetric* XtCm1X =
-      MatrixFactory::prodMatMat<MatrixSymmetric>(&_X, &_Cm1X, true, false);
+double Vecchia::_computeLogDet() const 
+{
+  return -VH::cumulLog(getDFull());
+}
 
-    // Construct ZtCm1X = Zt * Cm1 * X and perform its Cholesky decomposition
-    VectorDouble ZtCm1X = _Cm1X.prodVecMat(_Y);
-    CholeskyDense XtCm1XChol(XtCm1X);
-    if (!XtCm1XChol.isReady())
-    {
-      messerr("Cholesky decomposition of XtCm1X matrix failed");
-      delete XtCm1X;
-      return TEST;
-    }
-
-  // Calculate beta = (XtCm1X)-1 * ZtCm1X
-    if (XtCm1XChol.solve(ZtCm1X, _beta))
-    {
-      messerr("Error when calculating Likelihood");
-      delete XtCm1X;
-      return TEST;
-    }
-    // model->setBetaHat(beta);
-    delete XtCm1X;
-
-    if (verbose)
-    {
-      VH::dump("Optimal Drift coefficients = ", _beta);
-    }
-
-    // Center the data by the optimal drift: Y = Y - beta * X
-    VH::subtractInPlace(_Y, _X.prodMatVec(_beta));
-  }
-
-  // Calculate t(L-1) %*% D-1 %*% L-1 applied to Y (L and D from Vecchia)
-  _Cm1Z.resize(_Y.size());
-  productVecchia(_Y, _Cm1Z);
-
-// Calculate the log-determinant
-  double logdet = -VH::cumulLog(getDFull());
-
-  // Calculate quad = Zt * Cm1Z
-  double quad = VH::innerProduct(_Y, _Cm1Z);
-
-  // Derive the log-likelihood
-  int size = (int)_Y.size();
-  double loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
-
-  // Optional printout
-  if (verbose)
-  {
-    message("Log-Determinant = %lf\n", logdet);
-    message("Quadratic term  = %lf\n", quad);
-    message("Log-likelihood  = %lf\n", loglike);
-  }
-  return loglike;
+void Vecchia::_updateModel(bool verbose)
+{
+  computeLower(_Ranks, verbose);
+ 
 }

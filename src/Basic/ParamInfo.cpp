@@ -73,7 +73,7 @@ String ParamInfo::toString(const AStringFormat* strfmt) const
   std::stringstream sstr;
   sstr << _description << std::endl;
 
-  sstr << "- Value: " << std::to_string(_value) << std::endl;
+  sstr << "- Value: " << std::to_string(_value);
   if (_isFixed) sstr << " (fixed)";
   sstr << std::endl;
 

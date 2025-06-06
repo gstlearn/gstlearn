@@ -103,5 +103,4 @@ protected:
 
   Constraints* _constraints;
   Option_AutoFit _mauto;
-
 };

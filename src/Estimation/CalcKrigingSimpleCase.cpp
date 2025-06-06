@@ -29,11 +29,9 @@ CalcKrigingSimpleCase::CalcKrigingSimpleCase(bool flag_est, bool flag_std, bool 
   , _flagVarZ(flag_varZ)
   , _nameCoord()
   , _iechSingleTarget(-1)
-  , _nbNeigh(5)
   , _iptrEst(-1)
   , _iptrStd(-1)
   , _iptrVarZ(-1)
-  , _iptrNeigh(-1)
 {
 }
 

@@ -52,12 +52,9 @@ private:
   VectorString _nameCoord;
   int _iechSingleTarget;
 
-  int _nbNeigh;
-
   int _iptrEst;
   int _iptrStd;
   int _iptrVarZ;
-  int _iptrNeigh;
 
   Krigtest_Res _ktest;
 };

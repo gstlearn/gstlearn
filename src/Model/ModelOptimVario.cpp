@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Model/ModelOptimVario.hpp"
 
+#include "Model/AModelOptim.hpp"
 #include "Model/ModelOptimSillsVario.hpp"
 #include "geoslib_define.h"
 
@@ -19,20 +20,30 @@
 #define IJDIR(ijvar, ipadir) ((ijvar)*npadir + (ipadir))
 #define WT(ijvar, ipadir)     wt[IJDIR(ijvar, ipadir)]
 
-ModelOptimVario::ModelOptimVario(Model* model,
+ModelOptimVario::ModelOptimVario(ModelGeneric* model,
                                  Constraints* constraints,
                                  const Option_AutoFit& mauto,
                                  const Option_VarioFit& optvar)
-  : AModelOptim(model, constraints, mauto, optvar)
+  : AModelOptimNew(model)
+  , AModelOptim(dynamic_cast<Model*>(model), constraints, mauto, optvar)
+  , _optvar(optvar)
+  , _mauto(mauto)
+  , _constraints(constraints)
+  , _calcmode()
   , _varioPart()
-  , _optGoulard(model)
+  , _goulardPart(dynamic_cast<Model*>(model))
 {
 }
 
 ModelOptimVario::ModelOptimVario(const ModelOptimVario& m)
-  : AModelOptim(m)
+  : AModelOptimNew(m)
+  , AModelOptim(m)
+  , _optvar(m._optvar)
+  , _mauto(m._mauto)
+  , _constraints(m._constraints)
+  , _calcmode(m._calcmode)
   , _varioPart()
-  , _optGoulard(m._optGoulard)
+  , _goulardPart(m._goulardPart)
 {
    _copyVarioPart(m._varioPart);
 }
@@ -41,9 +52,14 @@ ModelOptimVario& ModelOptimVario::operator=(const ModelOptimVario& m)
 {
   if (this != &m)
   {
+    AModelOptimNew::operator=(m);
     AModelOptim::operator=(m);
-    _optGoulard  = m._optGoulard;
+    _optvar      = m._optvar;
+    _mauto       = m._mauto;
+    _constraints = m._constraints;
+    _calcmode    = m._calcmode;
     _copyVarioPart(m._varioPart);
+    _goulardPart = m._goulardPart;
   }
   return (*this);
 }
@@ -61,7 +77,7 @@ void ModelOptimVario::_copyVarioPart(const Vario_Part& varioPart)
 
 bool ModelOptimVario::_checkConsistency()
 {
-  const Model* model = _modelPart._model;
+  const ModelGeneric* model = _modelPart._model;
   const Vario* vario = _varioPart._vario;
 
   if (vario->getNDim() != (int)model->getNDim())
@@ -101,23 +117,10 @@ int ModelOptimVario::loadEnvironment(Vario* vario,
   // Instantiate Goulard algorithm (optional)
   if (flagGoulard)
   {
-    _optGoulard = ModelOptimSillsVario(_modelPart._model, _constraints, _mauto,
+    _goulardPart = ModelOptimSillsVario(_modelPart._model, _constraints, _mauto,
                                        _modelPart._optvar);
-    _optGoulard.loadEnvironment(vario, wmode, verbose);
+    _goulardPart.loadEnvironment(vario, wmode, verbose);
   }
-
-  return 0;
-}
-
-int ModelOptimVario::fit(Vario* vario, bool flagGoulard, int wmode, bool verbose)
-{
-  // Load the Environment
-  if (loadEnvironment(vario, flagGoulard, wmode, verbose)) return 1;
-
-  // Perform the optimization
-  AlgorithmVario algorithm {_modelPart, _varioPart, _optGoulard};
-  _performOptimization(evalCost, &algorithm, vario->getMaximumDistance(),
-                       vario->getVarMatrix());
 
   return 0;
 }
@@ -263,4 +266,87 @@ double ModelOptimVario::evalCost(unsigned int nparams,
   _printResult("Cost Function (Variogram Fit)", modelPart, total);
   
   return total;
+}
+
+ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
+                                                 Vario* vario,
+                                                 Constraints* constraints,
+                                                 const Option_AutoFit& mauto,
+                                                 const Option_VarioFit& optvar)
+{
+  int wmode = mauto.getWmode();
+  auto* optim = new ModelOptimVario(model, constraints, mauto, optvar);
+
+  optim->_varioPart._vario = vario;
+  optim->_varioPart._wmode = wmode;
+
+  // Constitute the experimental material (using '_vario')
+  if (optim->_buildExperimental()) 
+  {
+    delete optim;
+    return nullptr;
+  }
+
+  // Check consistency
+  if (!optim->_checkConsistency())
+  {
+    delete optim;
+    return nullptr;
+  }
+
+  // Instantiate Goulard algorithm (optional)
+  if (optvar.getFlagGoulardUsed())
+  {
+    Model* modelLocal   = dynamic_cast<Model*>(model);
+    optim->_goulardPart = ModelOptimSillsVario(modelLocal,
+                                               optim->_constraints,
+                                               optim->_mauto,
+                                               optim->_optvar);
+    optim->_goulardPart.loadEnvironment(vario, wmode, false);
+  }
+
+  // Perform the Fitting in terms of variograms
+  optim->_calcmode.setAsVario(true);
+
+  return optim;
+}
+
+double ModelOptimVario::computeCost(bool verbose)
+{
+  DECLARE_UNUSED(verbose);
+  Vario_Part& varioPart = _varioPart;
+
+  // Perform sill fitting using Goulard (optional)
+  if (_optvar.getFlagGoulardUsed())
+  {
+    _goulardPart.updateFromModel();
+    _goulardPart.fitPerform();
+  }
+
+  // Evaluate the Cost function
+  int nlags    = (int)varioPart._lags.size();
+  double total = 0.;
+  SpacePoint origin;
+  for (int ilag = 0; ilag < nlags; ilag++)
+  {
+    const OneLag& lag = varioPart._lags[ilag];
+    double vexp       = lag._gg;
+    double vtheo      = _model->evalCov(origin, lag._P, lag._ivar, lag._jvar, &_calcmode);
+    double delta      = vexp - vtheo;
+    total += lag._weight * delta * delta;
+  }
+  return -total;
+}
+
+int ModelOptimVario::fit(Vario* vario, bool flagGoulard, int wmode, bool verbose)
+{
+  // Load the Environment
+  if (loadEnvironment(vario, flagGoulard, wmode, verbose)) return 1;
+
+  // Perform the optimization
+  AlgorithmVario algorithm {_modelPart, _varioPart, _goulardPart};
+  _performOptimization(evalCost, &algorithm, vario->getMaximumDistance(),
+                       vario->getVarMatrix());
+
+  return 0;
 }

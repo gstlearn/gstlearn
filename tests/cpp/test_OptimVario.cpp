@@ -15,46 +15,57 @@
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
+#include "Variogram/Vario.hpp"
+#include "Variogram/VarioParam.hpp"
 
 /**
  * This file is meant to parametrized the ModelGeneric in terms of ParamInfo
- * and to fit the values of these parameters according to the Maximum LogLikelihood
- * method and using the Vecchia approximation.
+ * and to fit the values of these parameters starting from an experimental variogram
+ * and using the NlOpt machinery
  */
 int main(int argc, char* argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
+  ASerializable::setPrefixName("OptimVario-");
 
-  Db* db          = Db::createFillRandom(100, 2, 0);
+  Db* db          = Db::createFillRandom(1000, 2, 0);
   Model* model    = Model::createFromParam(ECov::EXPONENTIAL, TEST, 2., 1., {0.1, 0.3}, MatrixSymmetric(), {30., 0});
-  Model* modelfit1 = Model::createFromParam(ECov::EXPONENTIAL, TEST, 1, 1, {1., 1.}, MatrixSymmetric(), {0., 0});
-  Model* modelfit2 = modelfit1->clone();
-  mestitle(0, "Test fit likelihood");
+  Model* modelfit = Model::createFromParam(ECov::EXPONENTIAL, TEST, 1, 1, {1., 1}, MatrixSymmetric(), {0, 0});
+
+  mestitle(0, "Test fit from Variogram");
 
   mestitle(1, "True Model");
   model->display();
 
   simtub(nullptr, db, model, nullptr, 1, 234555, 3000);
-  message("Start Fitting Model with Vecchia Approximation\n");
-  // Do not use 'verbose' for cross-platforms comparison
-  modelfit1->fitNew(db, nullptr, nullptr, nullptr, Option_AutoFit(), Option_VarioFit(),
-                   true, 30, false);
 
-  mestitle(1,"Fitted Model");
-  modelfit1->display();
+  // Calculating the experimental variogram
+  double diagonal = db->getExtensionDiagonal();
+  int nlag = 10;
+  double dlag = diagonal / 2. / nlag;
+  VarioParam* varioparam = VarioParam::createMultiple(4, nlag, dlag);
+  Vario* vario = Vario::computeFromDb(*varioparam, db);
+  vario->dumpToNF("vario.ascii");
 
-  message("Start Fitting Model with Likelihood\n");
-  // Do not use 'verbose' for cross-platforms comparison
-  modelfit2->fitNew(db, nullptr, nullptr, nullptr, Option_AutoFit(), Option_VarioFit(),
-                    false, 30, false);
+  mestitle(1, "Initial Model");
+  modelfit->display();
 
-  mestitle(1,"Fitted Model");
-  modelfit2->display();
+  // Fitting procedure
+  Option_VarioFit optvar = Option_VarioFit();
+  optvar.setFlagGoulardUsed(false);
+  modelfit->fitNew(nullptr, vario, nullptr, nullptr, Option_AutoFit(), optvar,
+                   false, 30, false);
+
+  mestitle(1, "Fitted Model");
+  modelfit->display();
+  modelfit->dumpToNF("model.ascii");
+
   delete db;
+  delete vario;
+  delete varioparam;
   delete model;
-  delete modelfit1;
-  delete modelfit2;
+  delete modelfit;
   return (0);
 }

@@ -1,6 +1,6 @@
 
-Test fit likelihood
-===================
+Test fit from Variogram
+=======================
 
 True Model
 ----------
@@ -26,10 +26,9 @@ Exponential
      [  1,]     0.500     0.866
 Total Sill     =      2.000
 Known Mean(s)     0.000
-Start Fitting Model with Vecchia Approximation
 
-Fitted Model
-------------
+Initial Model
+-------------
 
 Model characteristics
 =====================
@@ -42,17 +41,11 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      2.088
-- Ranges       =      0.061     0.282
-- Theo. Ranges =      0.020     0.094
-- Angles       =     25.059     0.000
-- Rotation Matrix
-               [,  0]    [,  1]
-     [  0,]     0.906    -0.424
-     [  1,]     0.424     0.906
-Total Sill     =      2.088
+- Sill         =      1.000
+- Range        =      1.000
+- Theo. Range  =      0.334
+Total Sill     =      1.000
 Known Mean(s)     0.000
-Start Fitting Model with Likelihood
 
 Fitted Model
 ------------
@@ -68,13 +61,13 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      2.086
-- Ranges       =      0.063     0.270
-- Theo. Ranges =      0.021     0.090
-- Angles       =     24.826     0.000
+- Sill         =      2.184
+- Ranges       =      0.141     0.371
+- Theo. Ranges =      0.047     0.124
+- Angles       =     30.066     0.000
 - Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.908    -0.420
-     [  1,]     0.420     0.908
-Total Sill     =      2.086
+     [  0,]     0.865    -0.501
+     [  1,]     0.501     0.865
+Total Sill     =      2.184
 Known Mean(s)     0.000

@@ -11,11 +11,11 @@
 #pragma once
 
 #include "Basic/VectorNumT.hpp"
+#include "Estimation/ALikelihood.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Model/AModelOptimNew.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Matrix/MatrixT.hpp"
@@ -25,22 +25,22 @@
 class Db;
 class ModelGeneric;
 
-class GSTLEARN_EXPORT Vecchia: public AModelOptimNew
+class GSTLEARN_EXPORT Vecchia: public ALikelihood
 {
 public:
   Vecchia(const ModelGeneric* model,
+          int nb_neigh,
           const Db* db1,
           const Db* db2 = nullptr);
-  Vecchia(const Vecchia& r)            = delete;
-  Vecchia& operator=(const Vecchia& r) = delete;
+  Vecchia(const Vecchia& r);           
+  Vecchia& operator=(const Vecchia& r);
   virtual ~Vecchia();
 
-  static Vecchia* createForOptim(const ModelGeneric* model,
+public:
+  static Vecchia* createForOptim(ModelGeneric* model,
                                  const Db* db1,
-                                 int nb_neigh = 5,
-                                 bool verbose = false);
+                                 int nb_neigh = 30);
 
-  double computeCost(bool verbose = false) override;
   int computeLower(const MatrixT<int>& Ranks, bool verbose = false);
   const MatrixSparse& getLFull() const { return _LFull; }
   const VectorDouble& getDFull() const { return _DFull; }
@@ -56,29 +56,30 @@ public:
   VectorDouble calculateFtLdY(const VectorDouble& LdY) const;
   MatrixSparse* calculateW(const VectorDouble& D_dd) const;
 
+private:
+  void _init(bool verbose = false) override;
+  void _updateModel(bool verbose = false) override;
+  void _computeCm1X() override;
+  void _computeCm1Z() override;
+  double _computeLogDet() const override;
 
 private:
   // Following members are copies of pointers (not to be deleted)
+  int _nbNeigh;
   const Db* _db1;
   const Db* _db2;
-  const ModelGeneric* _model;
 
   int _nt;
   int _nd;
-  VectorDouble _Y; // Vector of multivariate data
   MatrixT<int> _Ranks; // Matrix of ranks for the Vecchia approximation
-  MatrixDense _X; // Matrix of drifts
-  VectorDouble _beta;
-  MatrixDense _Cm1X;
-  VectorDouble _Cm1Z;
-  MatrixSymmetric _matCov; 
+  MatrixSymmetric _matCov;
   MatrixDense _vectCov;
   VectorDouble _work; // Work vector for calculations
   mutable VectorDouble _LdY;
   mutable VectorDouble _DFull;
   mutable MatrixSparse _LFull;
-  mutable Db* _dbTemp; // Temporary Db for calculations
-  mutable Db* _dbOnePoint; // Temporary Db for one point calculations
+  mutable Db* _dbTemp;          // Temporary Db for calculations
+  mutable Db* _dbOnePoint;      // Temporary Db for one point calculations
   mutable CholeskyDense* _chol; // Cholesky decomposition of the covariance matrix
   // Local calculation results (to be deleted later)
   mutable MatrixSparse _Dmat;
