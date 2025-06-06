@@ -192,6 +192,7 @@ public:
 
   void fitNew(const Db* db = nullptr,
               Vario* vario = nullptr,
+              const DbGrid* dbmap = nullptr,
               Constraints* constraints = nullptr,
               const Option_AutoFit& mauto = Option_AutoFit(),
               const Option_VarioFit& optvar = Option_VarioFit(),

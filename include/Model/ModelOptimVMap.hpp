@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Model/AModelOptimNew.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
@@ -27,10 +28,10 @@ class Constraints;
  * Class which, starting from an experimental variogram, enables fitting the
  * various parameters of a Covariance part of a Model
  */
-class GSTLEARN_EXPORT ModelOptimVMap: public AModelOptim
+class GSTLEARN_EXPORT ModelOptimVMap: public AModelOptimNew, public AModelOptim
 {
 public:
-  ModelOptimVMap(Model* model,
+  ModelOptimVMap(ModelGeneric* model,
                  Constraints* constraints      = nullptr,
                  const Option_AutoFit& mauto   = Option_AutoFit(),
                  const Option_VarioFit& optvar = Option_VarioFit());
@@ -42,6 +43,14 @@ public:
 
   int loadEnvironment(const DbGrid* dbmap, bool flagGoulard = true, bool verbose = false);
 
+  double computeCost(bool verbose = false) override;
+
+  static ModelOptimVMap* createForOptim(ModelGeneric* model,
+                                        const DbGrid* dbmap,
+                                        Constraints* constraints      = nullptr,
+                                        const Option_AutoFit& mauto   = Option_AutoFit(),
+                                        const Option_VarioFit& optvar = Option_VarioFit());
+
 #ifndef SWIG
   static double evalCost(unsigned int nparams,
                          const double* current,
@@ -49,7 +58,7 @@ public:
                          void* my_func_data);
 #endif
 
-private:
+protected:
   struct VMap_Part
   {
     const DbGrid* _dbmap;
@@ -65,6 +74,7 @@ private:
     ModelOptimSillsVMap& _goulardPart;
   };
 
+private:
   void _copyVMapPart(const VMap_Part& vmapPart);
   bool _checkConsistency();
   int  _getDimensions();
@@ -72,9 +82,24 @@ private:
   void _computeFromVMap();
 
 protected:
+  // Model fitting options
+  Option_VarioFit _optvar;
+
+  // Model fitting parameters
+  Option_AutoFit _mauto;
+
+  // Set of constraints
+  Constraints* _constraints;
+  CovCalcMode _calcmode;
+
   // Part relative to the Experimental VMap
   VMap_Part _vmapPart;
 
   // Only used for Goulard Option
-  ModelOptimSillsVMap _optGoulard;
+  ModelOptimSillsVMap _goulardPart;
+
+  // Following members are simply there to accelerate the computation
+  int _ndim;
+  int _nvar;
+  int _nech;
 };

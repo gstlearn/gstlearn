@@ -310,11 +310,13 @@ ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
 
   // Perform the Fitting in terms of variograms
   optim->_calcmode.setAsVario(true);
+
   return optim;
 }
 
 double ModelOptimVario::computeCost(bool verbose)
 {
+  DECLARE_UNUSED(verbose);
   Vario_Part& varioPart = _varioPart;
 
   // Perform sill fitting using Goulard (optional)
@@ -336,10 +338,6 @@ double ModelOptimVario::computeCost(bool verbose)
     double delta      = vexp - vtheo;
     total += lag._weight * delta * delta;
   }
-
-  if (verbose)
-    message("Cost = Lf\n", total);
-
   return -total;
 }
 

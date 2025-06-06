@@ -89,8 +89,6 @@ private:
   bool _checkConsistency();
   OneLag _createOneLag(int ndim, int idir, int ivar, int jvar, double gg, double dist) const;
 
-
-
 protected:
   // Model fitting options
   Option_VarioFit _optvar;

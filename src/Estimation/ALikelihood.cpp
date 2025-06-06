@@ -92,9 +92,8 @@ void ALikelihood::init(bool verbose)
 double ALikelihood::computeCost(bool verbose)
 {
   _updateModel(verbose);
-  int nDrift = _model->getNDriftEquation();
 
-  if (nDrift > 0)
+  if (_model->getNDriftEquation() > 0)
   {
     // Calculate t(L-1) %*% D-1 %*% L-1 applied to X (L and D from Vecchia)
     _computeCm1X();

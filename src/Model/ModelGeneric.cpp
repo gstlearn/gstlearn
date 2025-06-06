@@ -16,6 +16,7 @@
 #include "Estimation/Vecchia.hpp"
 #include "Model/Model.hpp"
 #include "Model/ModelOptimVario.hpp"
+#include "Model/ModelOptimVMap.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Db/Db.hpp"
@@ -364,6 +365,7 @@ void ModelGeneric::initParams()
 
 void ModelGeneric::fitNew(const Db* db,
                           Vario* vario,
+                          const DbGrid* dbmap,
                           Constraints* constraints,
                           const Option_AutoFit& mauto,
                           const Option_VarioFit& optvar,
@@ -389,11 +391,15 @@ void ModelGeneric::fitNew(const Db* db,
   {
     amopt = Vecchia::createForOptim(this, db, nb_neigh);
   }
-  if (vario != nullptr)
+  else if (dbmap != nullptr)
+  {
+    amopt = ModelOptimVMap::createForOptim(this, dbmap, constraints, mauto, optvar);
+  }
+  else if (vario != nullptr)
   {
     amopt = ModelOptimVario::createForOptim(this, vario, constraints, mauto, optvar);
   }
-  else 
+  else
   {
     amopt = Likelihood::createForOptim(this, db);
   }
@@ -402,14 +408,13 @@ void ModelGeneric::fitNew(const Db* db,
     static int iter = 1;
     params->setValues(x);
     this->updateModel();
-   
-    double result      = amopt->computeCost(false); 
-    
-    
+
+    double result = amopt->computeCost(false);
+
     if (verbose)
     {
-      VH::dump(" Current parameters", x, false);
-      message("Iteration %3d - Cost Function (Likelihood) = %lf\n", iter++, result);
+      message("Iteration %3d - Cost = %lf", iter++, result);
+      VH::dump(" - Current parameters", x, false);
     }
     return -result;
   };
