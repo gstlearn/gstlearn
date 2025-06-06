@@ -30,8 +30,8 @@ f = open(test_script, 'r', encoding='utf8')
 if (out_type == "asciidoc"):
     # Kill some cells that pollute nonregression
     nbs = f.read()
-    nbs = re.sub("from IPython.display import Markdown", "", nbs)
-    nbs = re.sub("Markdown", "print", nbs)
+    nbs = re.sub(r"from IPython.display import Markdown", "", nbs)
+    nbs = re.sub(r"Markdown", "print", nbs)
     print(type(nbs))
     new_file, filename = tempfile.mkstemp(text=True)
     os.write(new_file, nbs.encode('utf8'))
@@ -77,13 +77,13 @@ if (out_type == "asciidoc"):
     # [[e43b6f2f-ba2b-47f7-8a13-2336077446d1]]
     # -----<matplotlib.collections.QuadMesh at 0x7f3a056e6320>
     # ----[<matplotlib.lines.Line2D at 0x7f3918a78550>]
-    notebook_node = re.sub("\[\[[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}\]\]", "", notebook_node)
-    notebook_node = re.sub("----<matplotlib.*", "XXX", notebook_node)
-    notebook_node = re.sub("----\[<matplotlib.*", "XXX", notebook_node)
+    notebook_node = re.sub(r"\[\[[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}\]\]", "", notebook_node)
+    notebook_node = re.sub(r"----<matplotlib.*", "XXX", notebook_node)
+    notebook_node = re.sub(r"----\[<matplotlib.*", "XXX", notebook_node)
     
     # Remove images in base64 included by MD files
     # data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAGQCAYAA........
-    notebook_node = re.sub(".*data:image/png;base64,.*", "data:image/png;base64,XXX", notebook_node)
+    notebook_node = re.sub(r".*data:image/png;base64,.*", "data:image/png;base64,XXX", notebook_node)
     
     # Remove all lines coming from data downloading (no need anymore as wget -q):
     # --2023-07-28 15:20:09--  https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF
@@ -94,30 +94,30 @@ if (out_type == "asciidoc"):
     # Enregistre : ‘Scotland_Temperatures.NF.1’
     # Scotland_Temperatur 100%[===================>]   5,17K  --.-KB/s    ds 0s      
     # 2023-07-28 15:20:10 (1,31 GB/s) - ‘Scotland_Temperatures.NF.1’ enregistré [5291/5291]
-    #notebook_node = re.sub(".*-  https://soft.minesparis.psl.eu/gstlearn/data.*", "XXX", notebook_node)
-    #notebook_node = re.sub(".*51\.83\.45\.127.*", "XXX", notebook_node)
-    #notebook_node = re.sub(".*HTTP transmise.*", "XXX", notebook_node)
-    #notebook_node = re.sub("Taille.*", "XXX", notebook_node)
-    #notebook_node = re.sub("Enregistre.*", "XXX", notebook_node)
-    #notebook_node = re.sub(".*KB/s.*", "XXX", notebook_node)
-    #notebook_node = re.sub(".*GB/s.*", "XXX", notebook_node)
+    #notebook_node = re.sub(r".*-  https://soft.minesparis.psl.eu/gstlearn/data.*", "XXX", notebook_node)
+    #notebook_node = re.sub(r".*51\.83\.45\.127.*", "XXX", notebook_node)
+    #notebook_node = re.sub(r".*HTTP transmise.*", "XXX", notebook_node)
+    #notebook_node = re.sub(r"Taille.*", "XXX", notebook_node)
+    #notebook_node = re.sub(r"Enregistre.*", "XXX", notebook_node)
+    #notebook_node = re.sub(r".*KB/s.*", "XXX", notebook_node)
+    #notebook_node = re.sub(r".*GB/s.*", "XXX", notebook_node)
     
     # Remove a specific warning in Tuto_SpatioTemp.ipynb, i.e. :
     # /tmp/ipykernel_24563/4216505814.py:15: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC format
-    notebook_node = re.sub(".*CholmodTypeConversionWarning", "XXX: CholmodTypeConversionWarning", notebook_node)
+    notebook_node = re.sub(r".*CholmodTypeConversionWarning", "XXX: CholmodTypeConversionWarning", notebook_node)
     
     # Remove panda frame decoration that can vary according the version/OS i.e. :
-    notebook_node = re.sub("\\|====+", "|===", notebook_node)
-    notebook_node = re.sub("\[.*options=\"header\"\,]", "", notebook_node)
+    notebook_node = re.sub(r"\\|====+", "|===", notebook_node)
+    notebook_node = re.sub(r"\[.*options=\"header\"\,]", "", notebook_node)
     
     # Remove pip install output
-    notebook_node = re.sub("\[notice\].*", "#NO_DIFF#XXX", notebook_node)
-    notebook_node = re.sub(".*site-packages is not writeable", "#NO_DIFF#XXX", notebook_node)
-    notebook_node = re.sub("Requirement already satisfied.*", "#NO_DIFF#XXX", notebook_node)
+    notebook_node = re.sub(r"\[notice\].*", "#NO_DIFF#XXX", notebook_node)
+    notebook_node = re.sub(r".*site-packages is not writeable", "#NO_DIFF#XXX", notebook_node)
+    notebook_node = re.sub(r"Requirement already satisfied.*", "#NO_DIFF#XXX", notebook_node)
     # Remove this: +*Out[3]:*+
-    notebook_node = re.sub("\+\*Out\[[0-9]+\]:\*\+", "#NO_DIFF#XXX", notebook_node)
+    notebook_node = re.sub(r"\+\*Out\[[0-9]+\]:\*\+", "#NO_DIFF#XXX", notebook_node)
     # Remove this: [png]
-    notebook_node = re.sub("\!\[png\].*", "#NO_DIFF#XXX", notebook_node)
+    notebook_node = re.sub(r"\!\[png\].*", "#NO_DIFF#XXX", notebook_node)
 
     
 # Write to output file
