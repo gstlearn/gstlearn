@@ -28,7 +28,6 @@ ModelOptimVario::ModelOptimVario(ModelGeneric* model,
   , AModelOptim(dynamic_cast<Model*>(model), constraints, mauto, optvar)
   , _optvar(optvar)
   , _mauto(mauto)
-  , _params()
   , _constraints(constraints)
   , _calcmode()
   , _varioPart()
@@ -41,7 +40,6 @@ ModelOptimVario::ModelOptimVario(const ModelOptimVario& m)
   , AModelOptim(m)
   , _optvar(m._optvar)
   , _mauto(m._mauto)
-  , _params(m._params)
   , _constraints(m._constraints)
   , _calcmode(m._calcmode)
   , _varioPart()
@@ -58,7 +56,6 @@ ModelOptimVario& ModelOptimVario::operator=(const ModelOptimVario& m)
     AModelOptim::operator=(m);
     _optvar      = m._optvar;
     _mauto       = m._mauto;
-    _params      = m._params;
     _constraints = m._constraints;
     _calcmode    = m._calcmode;
     _copyVarioPart(m._varioPart);

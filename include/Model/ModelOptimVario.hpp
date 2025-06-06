@@ -96,9 +96,6 @@ protected:
   // Model fitting parameters
   Option_AutoFit _mauto;
 
-  // Model parametrization
-  std::vector<OneParam> _params;
-
   // Set of constraints
   Constraints* _constraints;
   CovCalcMode _calcmode;

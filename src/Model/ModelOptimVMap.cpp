@@ -27,16 +27,30 @@ ModelOptimVMap::ModelOptimVMap(ModelGeneric* model,
                                const Option_VarioFit& optvar)
   : AModelOptimNew(model)
   , AModelOptim(dynamic_cast<Model*>(model), constraints, mauto, optvar)
+  , _optvar(optvar)
+  , _mauto(mauto)
+  , _constraints(constraints)
+  , _calcmode()
   , _vmapPart()
   , _goulardPart(dynamic_cast<Model*>(model))
+  , _ndim(0)
+  , _nvar(0)
+  , _nech(0)
 {
 }
 
 ModelOptimVMap::ModelOptimVMap(const ModelOptimVMap& m)
   : AModelOptimNew(m)
   , AModelOptim(m)
+  , _optvar(m._optvar)
+  , _mauto(m._mauto)
+  , _constraints(m._constraints)
+  , _calcmode(m._calcmode)
   , _vmapPart()
   , _goulardPart(m._goulardPart)
+  , _ndim(m._ndim)
+  , _nvar(m._nvar)
+  , _nech(m._nech)
 {
   _copyVMapPart(m._vmapPart);
 }
@@ -47,8 +61,15 @@ ModelOptimVMap& ModelOptimVMap::operator=(const ModelOptimVMap& m)
   {
     AModelOptimNew::operator=(m);
     AModelOptim::operator=(m);
+    _optvar      = m._optvar;
+    _mauto       = m._mauto;
+    _constraints = m._constraints;
+    _calcmode    = m._calcmode;
     _goulardPart = m._goulardPart;
     _copyVMapPart(m._vmapPart);
+    _ndim = m._ndim;
+    _nvar = m._nvar;
+    _nech = m._nech;
   }
   return (*this);
 }
