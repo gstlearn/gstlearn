@@ -6,7 +6,6 @@ import os
 import gstlearn as gl
 import gstlearn.plot as gp
 import matplotlib.pyplot as plt
-from attr._make import NOTHING
 from pandas.core.sorting import nargsort
 from numpy._core.defchararray import isnumeric
 
