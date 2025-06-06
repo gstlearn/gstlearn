@@ -36,8 +36,8 @@ add_dependencies(build_courses_py prepare_build_courses_py)
 cmake_path(APPEND CMAKE_SOURCE_DIR python run_test_ipynb.py
            OUTPUT_VARIABLE RUN_COURSES_SCRIPT)
 
-# Look for Python3 (needed here because Python3_EXECUTABLE not populated everywhere)
-find_package(Python3 REQUIRED)
+# Look for uv (needed here because UV not populated everywhere)
+find_program(UV NAMES uv REQUIRED DOC "Python package and project manager")
 
 # Run each jupyter notebook scripts
 foreach(COURSES_SOURCE_FILE ${COURSES_SOURCES})
@@ -48,7 +48,7 @@ foreach(COURSES_SOURCE_FILE ${COURSES_SOURCES})
                OUTPUT_VARIABLE COURSES_SOURCE_FILE)
     # Run the courses (and generate html in ${COURSES_DIR})
     add_custom_target(${COURSES_NAME}_ipynb_html
-                      COMMAND ${Python3_EXECUTABLE} ${RUN_COURSES_SCRIPT} ${COURSES_SOURCE_FILE} ${COURSES_DIR} html)
+                      COMMAND ${UV} run python ${RUN_COURSES_SCRIPT} ${COURSES_SOURCE_FILE} ${COURSES_DIR} html)
 
     # Add dependency
     add_dependencies(${COURSES_NAME}_ipynb_html prepare_build_courses_py)

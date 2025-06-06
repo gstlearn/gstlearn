@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.8.0
 =============
+- Fix gstlearn_to_terra and terra_to_gstlearn (issue #566)
 
 Release 1.7.2
 =============
