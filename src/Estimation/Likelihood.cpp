@@ -17,7 +17,7 @@
 #include "Model/ModelGeneric.hpp"
 #include "geoslib_define.h"
 
-Likelihood::Likelihood(const ModelGeneric* model,
+Likelihood::Likelihood(ModelGeneric* model,
                        const Db* db)
   : ALikelihood(model, db)
 {
@@ -50,7 +50,7 @@ double logLikelihood(const Db* db,
   return result;
 }
 
-Likelihood* Likelihood::createForOptim(const ModelGeneric* model,
+Likelihood* Likelihood::createForOptim(ModelGeneric* model,
                                        const Db* db)
 {
   auto* vec = new Likelihood(model, db);

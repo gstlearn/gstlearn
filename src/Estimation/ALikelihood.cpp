@@ -15,7 +15,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "LinearOp/CholeskyDense.hpp"
-ALikelihood::ALikelihood(const ModelGeneric* model,
+ALikelihood::ALikelihood(ModelGeneric* model,
                          const Db* db)
   : AModelOptimNew(model)
   , _db(db)

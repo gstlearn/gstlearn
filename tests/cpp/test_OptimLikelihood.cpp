@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
   message("Start Fitting Model with Vecchia Approximation\n");
   // Do not use 'verbose' for cross-platforms comparison
   modelfit1->fitNew(db, nullptr, nullptr, nullptr, Option_AutoFit(), Option_VarioFit(),
-                   true, 30, false);
+                    30, false);
 
   mestitle(1,"Fitted Model");
   modelfit1->display();
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
   message("Start Fitting Model with Likelihood\n");
   // Do not use 'verbose' for cross-platforms comparison
   modelfit2->fitNew(db, nullptr, nullptr, nullptr, Option_AutoFit(), Option_VarioFit(),
-                    false, 30, false);
+                    ITEST, false);
 
   mestitle(1,"Fitted Model");
   modelfit2->display();

@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "Model/AModelOptimNew.hpp"
+#include "Estimation/AModelOptimNew.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"

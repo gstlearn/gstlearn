@@ -21,7 +21,7 @@
 #include "Model/ModelGeneric.hpp"
 #include "geoslib_define.h"
 
-Vecchia::Vecchia(const ModelGeneric* model,
+Vecchia::Vecchia(ModelGeneric* model,
                  int nb_neigh,
                  const Db* db1,
                  const Db* db2)
