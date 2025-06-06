@@ -10,16 +10,16 @@
 /******************************************************************************/
 #pragma once
 
-
 #include "gstlearn_export.hpp"
 
 #include "Space/SpacePoint.hpp"
 #include "Model/AModelOptim.hpp"
+#include "Model/AModelOptimNew.hpp"
 #include "Model/ModelOptimSillsVario.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 
-class Model;
+class ModelGeneric;
 class Vario;
 
 /**
@@ -27,10 +27,10 @@ class Vario;
  * Class which, starting from an experimental variogram, enables fitting the
  * various parameters of a Covariance part of a Model
  */
-class GSTLEARN_EXPORT ModelOptimVario: public AModelOptim
+class GSTLEARN_EXPORT ModelOptimVario: public AModelOptimNew, public AModelOptim
 {
 public:
-  ModelOptimVario(Model* model,
+  ModelOptimVario(ModelGeneric* model,
                   Constraints* constraints      = nullptr,
                   const Option_AutoFit& mauto   = Option_AutoFit(),
                   const Option_VarioFit& optvar = Option_VarioFit());
@@ -44,6 +44,13 @@ public:
                       bool flagGoulard = true,
                       int wmode        = 2,
                       bool verbose     = false);
+  double computeCost(bool verbose = false) override;
+
+  static ModelOptimVario* createForOptim(ModelGeneric* model,
+                                         Vario* vario,
+                                         Constraints* constraints      = nullptr,
+                                         const Option_AutoFit& mauto   = Option_AutoFit(),
+                                         const Option_VarioFit& optvar = Option_VarioFit());
 
 #ifndef SWIG
   static double evalCost(unsigned int nparams,
@@ -61,10 +68,9 @@ protected:
     double _gg;
     SpacePoint _P;
   };
-
   struct Vario_Part
   {
-    Vario* _vario;
+    const Vario* _vario;
     int _wmode;
     std::vector<OneLag> _lags;
   };
@@ -83,10 +89,25 @@ private:
   bool _checkConsistency();
   OneLag _createOneLag(int ndim, int idir, int ivar, int jvar, double gg, double dist) const;
 
+
+
 protected:
+  // Model fitting options
+  Option_VarioFit _optvar;
+
+  // Model fitting parameters
+  Option_AutoFit _mauto;
+
+  // Model parametrization
+  std::vector<OneParam> _params;
+
+  // Set of constraints
+  Constraints* _constraints;
+  CovCalcMode _calcmode;
+
   // Part relative to the Experimental variograms
   Vario_Part _varioPart;
 
   // Only used for Goulard Option
-  ModelOptimSillsVario _optGoulard;
+  ModelOptimSillsVario _goulardPart;
 };

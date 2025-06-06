@@ -14,12 +14,14 @@
 #include "Basic/Optim.hpp"
 #include "Estimation/Vecchia.hpp"
 #include "Model/Model.hpp"
+#include "Model/ModelOptimVario.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Db/Db.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Drifts/DriftFactory.hpp"
+
 #include <memory>
 #include <nlopt.h>
 
@@ -466,7 +468,15 @@ void ModelGeneric::initParams()
     _driftList->initParams();
   }
 }
-void ModelGeneric::fitLikelihood(const Db* db, bool useVecchia, bool verbose)
+
+void ModelGeneric::fitNew(const Db* db,
+                          Vario* vario,
+                          Constraints* constraints,
+                          const Option_AutoFit& mauto,
+                          const Option_VarioFit& optvar,
+                          bool useVecchia,
+                          int nb_neigh,
+                          bool verbose)
 {
   auto params = generateListParams();
   initParams();
@@ -477,34 +487,39 @@ void ModelGeneric::fitLikelihood(const Db* db, bool useVecchia, bool verbose)
   if (verbose)
   {
     params->display();
-    _cova->display();
   }
 
   Optim opt(NLOPT_LN_NELDERMEAD, x.size());
 
   AModelOptimNew* amopt = nullptr;
-
-  if (useVecchia)
+  if (db != nullptr && useVecchia)
   {
-    int nbneigh = std::min(30, db->getNSample(true));
-    amopt = Vecchia::createForOptim(this, db, nbneigh);
+    amopt = Vecchia::createForOptim(this, db, nb_neigh);
   }
-  auto func = [amopt,db, params, useVecchia, verbose, this](const std::vector<double>& x) -> double
+  if (vario != nullptr)
+  {
+    amopt = ModelOptimVario::createForOptim(this, vario, constraints, mauto, optvar);
+  }
+
+  auto func = [amopt, params, db, verbose, this](const std::vector<double>& x) -> double
   {
     static int iter = 1;
     params->setValues(x);
     this->updateModel();
 
-    double result;
-    if (!useVecchia)
+    double result = TEST;
+    if (amopt == nullptr)
       result = computeLogLikelihood(db);
     else
     {
-      result      = amopt->computeCost(false); 
+      result = amopt->computeCost(false);
     }
-    
+
     if (verbose)
+    {
+      VH::dump(" Current parameters", x, false);
       message("Iteration %3d - Cost Function (Likelihood) = %lf\n", iter++, result);
+    }
     return -result;
   };
 

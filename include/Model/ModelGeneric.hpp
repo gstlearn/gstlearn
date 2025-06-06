@@ -10,9 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/ICloneable.hpp"
-#include "Db/RankHandler.hpp"
-#include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
@@ -20,6 +17,12 @@
 #include "Covariances/CovContext.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Basic/ListParams.hpp"
+#include "Basic/ICloneable.hpp"
+#include "Db/RankHandler.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
+#include "Model/Constraints.hpp"
+#include "Model/Option_AutoFit.hpp"
+#include "Model/Option_VarioFit.hpp"
 
 class Model;
 class Db;
@@ -186,7 +189,16 @@ public:
   #endif
   void updateModel();
   double computeLogLikelihood(const Db* db, bool verbose = false);
-  void fitLikelihood(const Db* db, bool useVecchia = false, bool verbose = false);
+
+  void fitNew(const Db* db = nullptr,
+              Vario* vario = nullptr,
+              Constraints* constraints = nullptr,
+              const Option_AutoFit& mauto = Option_AutoFit(),
+              const Option_VarioFit& optvar = Option_VarioFit(),
+              bool useVecchia = false,
+              int nb_neigh = 30,
+              bool verbose = false);
+
 private:
   virtual bool _isValid() const;
 

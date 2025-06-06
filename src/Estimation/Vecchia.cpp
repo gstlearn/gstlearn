@@ -24,9 +24,9 @@
 Vecchia::Vecchia(const ModelGeneric* model,
                  const Db* db1,
                  const Db* db2)
-  : _db1(db1)
+  : AModelOptimNew(model)
+  , _db1(db1)
   , _db2(db2)
-  , _model(model)
   , _DFull()
   , _LFull()
   , _dbTemp(nullptr)
@@ -326,7 +326,7 @@ double logLikelihoodVecchia(const Db* db,
   return result;
 }
 
-Vecchia* Vecchia::createForOptim(const ModelGeneric* model,
+Vecchia* Vecchia::createForOptim(ModelGeneric* model,
                                  const Db* db,
                                  int nb_neigh,
                                  bool verbose)
@@ -361,7 +361,8 @@ Vecchia* Vecchia::createForOptim(const ModelGeneric* model,
   }
 
   // Calculate the Vecchia approximation
-  vec->_Ranks = findNN(db, nullptr, nb_neigh + 1, false);
+  int nblocal = std::min(nb_neigh, db->getNSample(true));
+  vec->_Ranks = findNN(db, nullptr, nblocal + 1, false);
 
   // If Drift function is present, evaluate the optimal Drift coefficients
   if (nDrift > 0)

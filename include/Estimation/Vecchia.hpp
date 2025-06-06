@@ -35,9 +35,9 @@ public:
   Vecchia& operator=(const Vecchia& r) = delete;
   virtual ~Vecchia();
 
-  static Vecchia* createForOptim(const ModelGeneric* model,
+  static Vecchia* createForOptim(ModelGeneric* model,
                                  const Db* db1,
-                                 int nb_neigh = 5,
+                                 int nb_neigh = 30,
                                  bool verbose = false);
 
   double computeCost(bool verbose = false) override;
@@ -61,7 +61,6 @@ private:
   // Following members are copies of pointers (not to be deleted)
   const Db* _db1;
   const Db* _db2;
-  const ModelGeneric* _model;
 
   int _nt;
   int _nd;

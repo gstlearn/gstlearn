@@ -20,7 +20,7 @@ String ListParams::toString(const AStringFormat* strfmt) const
   result << toTitle(1,"List of Parameters:");
   for (const auto& param: _params)
   {
-    result << param.get().toString() + "\n";
+    result << param.get().toString() << std::endl;
   }
   return result.str();
 }
