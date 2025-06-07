@@ -14,7 +14,7 @@
 
 #include "Space/SpacePoint.hpp"
 #include "Model/AModelOptim.hpp"
-#include "Model/AModelOptimNew.hpp"
+#include "Estimation/AModelOptimNew.hpp"
 #include "Model/ModelOptimSillsVario.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"

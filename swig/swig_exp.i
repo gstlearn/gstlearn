@@ -350,7 +350,7 @@
 %include Estimation/CalcImage.hpp
 %include Estimation/CalcGlobal.hpp
 %include Estimation/KrigOpt.hpp
-%include Model/AModelOptimNew.hpp
+%include Estimation/AModelOptimNew.hpp
 %include Estimation/ALikelihood.hpp
 %include Estimation/Vecchia.hpp
 %include Estimation/Likelihood.hpp

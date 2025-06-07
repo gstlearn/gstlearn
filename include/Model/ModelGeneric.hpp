@@ -188,7 +188,7 @@ public:
   std::shared_ptr<ListParams> generateListParams() const;
   #endif
   void updateModel();
-  double computeLogLikelihood(const Db* db, bool verbose = false) const;
+  double computeLogLikelihood(const Db* db, bool verbose = false);
 
   void fitNew(const Db* db = nullptr,
               Vario* vario = nullptr,
@@ -196,8 +196,7 @@ public:
               Constraints* constraints = nullptr,
               const Option_AutoFit& mauto = Option_AutoFit(),
               const Option_VarioFit& optvar = Option_VarioFit(),
-              bool useVecchia = false,
-              int nb_neigh = 30,
+              int nb_neighVecchia = 30,
               bool verbose = false);
 
 private:

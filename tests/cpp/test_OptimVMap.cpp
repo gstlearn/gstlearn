@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
   Option_VarioFit optvar = Option_VarioFit();
   optvar.setFlagGoulardUsed(false);
   modelfit->fitNew(nullptr, nullptr, dbmap, nullptr, Option_AutoFit(), optvar,
-                   false, 30, false);
+                   ITEST, false);
 
   // Fitting procedure
   mestitle(1, "Fitted Model");

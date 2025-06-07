@@ -12,7 +12,7 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include "Model/AModelOptimNew.hpp"
+#include "Estimation/AModelOptimNew.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
@@ -24,7 +24,7 @@ class ModelGeneric;
 class GSTLEARN_EXPORT ALikelihood: public AModelOptimNew
 {
 public:
-  ALikelihood(const ModelGeneric* model,
+  ALikelihood(ModelGeneric* model,
               const Db* db);
   ALikelihood(const ALikelihood& r);
   ALikelihood& operator=(const ALikelihood& r);

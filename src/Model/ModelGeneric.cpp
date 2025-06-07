@@ -11,16 +11,14 @@
 #include "Model/ModelGeneric.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ListParams.hpp"
-#include "Basic/Optim.hpp"
-#include "Estimation/Likelihood.hpp"
-#include "Estimation/Vecchia.hpp"
+#include "Estimation/AModelOptimNew.hpp"
 #include "Model/Model.hpp"
 #include "Model/ModelOptimVario.hpp"
 #include "Model/ModelOptimVMap.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Db/Db.hpp"
-#include "Basic/VectorHelper.hpp"
+#include "Estimation/AModelOptimFactory.hpp"
 #include "Drifts/DriftFactory.hpp"
 
 #include <memory>
@@ -87,7 +85,7 @@ bool ModelGeneric::_isValid() const
  * @remarks The algorithm is stopped (with a message) in the heterotopic case
  * // TODO; improve for heterotopic case
  */
-double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose) const
+double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
 {
   auto* like = Likelihood::createForOptim(this, db);
   like->init(verbose);
@@ -369,62 +367,13 @@ void ModelGeneric::fitNew(const Db* db,
                           Constraints* constraints,
                           const Option_AutoFit& mauto,
                           const Option_VarioFit& optvar,
-                          bool useVecchia,
-                          int nb_neigh,
+                          int nb_neighVecchia,
                           bool verbose)
 {
-  auto params = generateListParams();
-  initParams();
-  std::vector<double> x    = params->getValues();
-  std::vector<double> xmin = params->getMinValues();
-  std::vector<double> xmax = params->getMaxValues();
-  updateModel();
-  if (verbose)
-  {
-    params->display();
-  }
-
-  Optim opt(NLOPT_LN_NELDERMEAD, x.size());
-
-  AModelOptimNew* amopt = nullptr;
-  if (db != nullptr && useVecchia)
-  {
-    amopt = Vecchia::createForOptim(this, db, nb_neigh);
-  }
-  else if (dbmap != nullptr)
-  {
-    amopt = ModelOptimVMap::createForOptim(this, dbmap, constraints, mauto, optvar);
-  }
-  else if (vario != nullptr)
-  {
-    amopt = ModelOptimVario::createForOptim(this, vario, constraints, mauto, optvar);
-  }
-  else
-  {
-    amopt = Likelihood::createForOptim(this, db);
-  }
-  auto func = [amopt, params, verbose, this](const std::vector<double>& x) -> double
-  {
-    static int iter = 1;
-    params->setValues(x);
-    this->updateModel();
-
-    double result = amopt->computeCost(false);
-
-    if (verbose)
-    {
-      message("Iteration %3d - Cost = %lf", iter++, result);
-      VH::dump(" - Current parameters", x, false);
-    }
-    return -result;
-  };
-
-  opt.setObjective(func);
-  opt.setLowerBounds(xmin);
-  opt.setUpperBounds(xmax);
-  opt.setXtolRel(EPSILON6);
-
-  opt.optimize(x);
-
+  AModelOptimNew* amopt = AModelOptimFactory::create(this, db, vario, dbmap, 
+                                                     constraints, mauto, optvar, 
+                                                     nb_neighVecchia);
+  amopt->setVerbose(verbose);
+  amopt->run();
   delete amopt;
 }
