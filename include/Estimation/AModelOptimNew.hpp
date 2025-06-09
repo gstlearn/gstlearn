@@ -12,6 +12,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Model/ModelGeneric.hpp"
+#include "Model/ModelCovList.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 #include "Basic/Optim.hpp"
@@ -85,7 +86,8 @@ public:
     }
 
     // Check if Goulard must be applied
-    if (_model->_modelFitSills != nullptr) _model->_modelFitSills->fit(_verbose);
+    ModelCovList* mcv = dynamic_cast<ModelCovList*>(_model);
+    if (mcv != nullptr && mcv->_modelFitSills != nullptr) mcv->_modelFitSills->fit(_verbose);
 
     return -result;
   };

@@ -205,11 +205,10 @@ private:
 
 protected:               // TODO : pass into private to finish clean
   ACov* _cova;           /* Generic Covariance structure */
+  //std::vector<std::function<double>(double)> _gradFuncs;
   DriftList* _driftList; /* Series of Drift functions */
   CovContext _ctxt;      /* Context */
 
-public:
-  mutable AModelFitSills* _modelFitSills; /* Model fitting procedure for Sills */
 };
 
 GSTLEARN_EXPORT int computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,

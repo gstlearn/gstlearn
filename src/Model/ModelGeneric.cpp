@@ -26,7 +26,6 @@ ModelGeneric::ModelGeneric(const CovContext& ctxt)
   : _cova(nullptr)
   , _driftList(nullptr)
   , _ctxt(ctxt)
-  , _modelFitSills(nullptr)
 {
 }
 
@@ -34,7 +33,6 @@ ModelGeneric::ModelGeneric(const ModelGeneric& r)
 {
   _cova          = (r._cova != nullptr) ? (ACov*)r._cova->clone() : nullptr;
   _driftList     = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
-  _modelFitSills = (r._modelFitSills != nullptr) ? (AModelFitSills*)r._modelFitSills->clone() : nullptr;
   _ctxt          = r._ctxt;
 }
 
@@ -45,7 +43,6 @@ ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
     _cova          = (r._cova != nullptr) ? (ACov*)r._cova->clone() : nullptr;
     _driftList     = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
     _ctxt          = r._ctxt;
-    _modelFitSills = (r._modelFitSills != nullptr) ? (AModelFitSills*)r._modelFitSills->clone() : nullptr;
   }
   return *this;
 }
@@ -56,8 +53,7 @@ ModelGeneric::~ModelGeneric()
   _cova = nullptr;
   delete _driftList;
   _driftList = nullptr;
-  delete _modelFitSills;
-  _modelFitSills = nullptr;
+
 }
 
 void ModelGeneric::setField(double field)

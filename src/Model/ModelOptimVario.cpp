@@ -299,12 +299,16 @@ ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
   // Instantiate Goulard algorithm (optional)
   if (optvar.getFlagGoulardUsed())
   {
-    delete model->_modelFitSills;
-    model->_modelFitSills = ModelFitSillsVario::createForOptim(vario, model, constraints, mauto, optvar);
-    if (model->_modelFitSills == nullptr)
+    ModelCovList* mcv = dynamic_cast<ModelCovList*>(model);
+    if (mcv != nullptr)
     {
-      delete optim;
-      return nullptr;
+      delete mcv->_modelFitSills;
+      mcv->_modelFitSills = ModelFitSillsVario::createForOptim(vario, model, constraints, mauto, optvar);
+      if (mcv->_modelFitSills == nullptr)
+      {
+        delete optim;
+        return nullptr;
+      }
     }
   }
 

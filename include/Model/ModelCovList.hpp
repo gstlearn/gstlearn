@@ -53,4 +53,7 @@ public:
 
   void setCovList(CovList* covs);
   virtual void addCov(const CovBase* cov);
+
+  public:
+  mutable AModelFitSills* _modelFitSills; /* Model fitting procedure for Sills */
 };
