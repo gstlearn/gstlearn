@@ -53,6 +53,9 @@ set(SRC
   Model/AModelOptimSills.cpp
   Model/ModelOptimSillsVario.cpp
   Model/ModelOptimSillsVMap.cpp
+  Model/AModelFitSills.cpp
+  Model/ModelFitSillsVario.cpp
+  Model/ModelFitSillsVMap.cpp
   Model/ModelOptimLikelihood.cpp
   Calculators/ACalculator.cpp
   Calculators/ACalcDbToDb.cpp

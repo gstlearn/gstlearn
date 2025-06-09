@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Model/AModelOptim.hpp"
 #include "Model/ModelOptimSillsVMap.hpp"
+#include "Model/ModelFitSillsVMap.hpp"
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
 
@@ -305,32 +306,22 @@ void ModelOptimVMap::_computeFromVMap()
 double ModelOptimVMap::computeCost(bool verbose)
 {
   DECLARE_UNUSED(verbose);
-  const DbGrid* dbmap             = _vmapPart._dbmap;
-  int ndim                        = dbmap->getNLoc(ELoc::X);
-  int nvar                        = dbmap->getNLoc(ELoc::Z);
-  int nech                        = dbmap->getNSample();
-
-  // Perform sill fitting using Goulard (optional)
-  if (_optvar.getFlagGoulardUsed())
-  {
-    _goulardPart.updateFromModel();
-    _goulardPart.fitPerform();
-  }
+  const DbGrid* dbmap = _vmapPart._dbmap;
 
   // Evaluate the Cost function
   double total = 0.;
-  VectorDouble d0(ndim);
-  dbmap->rankToIndice(nech / 2, _vmapPart._indg1);
+  VectorDouble d0(_ndim);
+  dbmap->rankToIndice(_nech / 2, _vmapPart._indg1);
 
   /* Loop on the experimental conditions */
-  for (int iech = 0; iech < nech; iech++)
+  for (int iech = 0; iech < _nech; iech++)
   {
     dbmap->rankToIndice(iech, _vmapPart._indg2);
-    for (int idim = 0; idim < ndim; idim++)
+    for (int idim = 0; idim < _ndim; idim++)
       d0[idim] = (_vmapPart._indg2[idim] - _vmapPart._indg1[idim]) * dbmap->getDX(idim);
 
     int ijvar = 0;
-    for (int ivar = 0; ivar < nvar; ivar++)
+    for (int ivar = 0; ivar < _nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
         double vexp = dbmap->getZVariable(iech, ijvar);
@@ -370,16 +361,22 @@ ModelOptimVMap* ModelOptimVMap::createForOptim(ModelGeneric* model,
   // Instantiate Goulard algorithm (optional)
   if (optvar.getFlagGoulardUsed())
   {
-    Model* modelLocal   = dynamic_cast<Model*>(model);
-    optim->_goulardPart = ModelOptimSillsVMap(modelLocal,
-                                              optim->_constraints, 
-                                              optim->_mauto,
-                                              optim->_optvar);
-    optim->_goulardPart.loadEnvironment(dbmap, false);
+    delete model->_modelFitSills;
+    model->_modelFitSills = ModelFitSillsVMap::createForOptim(dbmap, model, constraints, mauto, optvar);
+    if (model->_modelFitSills == nullptr)
+    {
+      delete optim;
+      return nullptr;
+    }
   }
 
   // Perform the Fitting in terms of variograms
   optim->_calcmode.setAsVario(true);
+
+  // Local variables
+  optim->_ndim = dbmap->getNLoc(ELoc::X);
+  optim->_nvar = dbmap->getNLoc(ELoc::Z);
+  optim->_nech = dbmap->getNSample();
 
   return optim;
 }
