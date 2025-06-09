@@ -10,8 +10,8 @@
 /******************************************************************************/
 #pragma once
 
-
 #include "geoslib_define.h"
+
 #include <nlopt.h>
 #include <vector>
 #include <functional>

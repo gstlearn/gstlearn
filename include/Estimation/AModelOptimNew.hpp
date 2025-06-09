@@ -35,7 +35,7 @@ public:
     _x    = _params->getValues();
     _xmin = _params->getMinValues();
     _xmax = _params->getMaxValues();
-    _opt  = new Optim(NLOPT_LN_NELDERMEAD, _x.size());
+    _opt  = new Optim(NLOPT_LN_NELDERMEAD, (int) _x.size());
     _opt->setLowerBounds(_xmin);
     _opt->setUpperBounds(_xmax);
     _opt->setXtolRel(EPSILON6);
