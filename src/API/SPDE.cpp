@@ -1169,7 +1169,7 @@ int krigingSPDE(Db* dbin,
   VectorDouble result;
   if (flag_est)
   {
-    auto result = spdeop->kriging(Z);
+    result = spdeop->kriging(Z);
     _uncenterResultByDriftInPlace(dbout, model, result, driftCoeffs);
     int iuid = dbout->addColumns(result, "estim", ELoc::Z, 0, true, 0., nvar);
     namconv.setNamesAndLocators(dbin, VectorString(), ELoc::Z, nvar, dbout, iuid,
@@ -1179,7 +1179,7 @@ int krigingSPDE(Db* dbin,
   {
     int seedLocal = params.getSeedMC();
     int nMC       = params.getNMC();
-    auto result   = spdeop->stdev(Z, nMC, seedLocal);
+    result   = spdeop->stdev(Z, nMC, seedLocal);
     int iuid      = dbout->addColumns(result, "stdev", ELoc::UNKNOWN, 0, true, 0., nvar);
     namconv.setNamesAndLocators(dbin, VectorString(), ELoc::Z, nvar, dbout, iuid,
                                 "stdev");
@@ -1328,7 +1328,7 @@ int simulateSPDE(Db* dbin,
 
   for (int isimu = 0; isimu < nbsimu; isimu++)
   {
-    VectorDouble result = (flagCond) ? spdeop->simCond(Z) : spdeop->simNonCond();
+    result = (flagCond) ? spdeop->simCond(Z) : spdeop->simNonCond();
     _addNuggetToResult(model, result, nechred);
     _uncenterResultByDriftInPlace(dbout, model, result, driftCoeffs);
 
