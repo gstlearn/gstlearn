@@ -116,6 +116,10 @@ public:
     DECLARE_UNUSED(dim);
   }
 
+  double evalDerivative(double h) const
+  {
+    return _evaluateCovDerivative(h);
+  }
 protected:
   /// TODO : Gneiting (spatio-temporal covariance) :
   /// Change argument : double h becomes VectorDouble (number of sub-space)
@@ -130,7 +134,7 @@ protected:
     double eps = EPSILON4;
     return (_evaluateCov(h + eps) - _evaluateCov(h - eps)) / (2. * eps);
   }
-  
+
   virtual double _evaluateCovDerivative(int degree, double h) const;
   virtual double _evaluateCovOnSphere(double alpha,
                                       double scale = 1.,
