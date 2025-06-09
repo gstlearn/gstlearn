@@ -27,6 +27,7 @@ Likelihood::Likelihood(const Likelihood& r)
   : ALikelihood(r)
 {
 }
+
 Likelihood& Likelihood::operator=(const Likelihood& r)
 {
   if (this != &r)

@@ -39,7 +39,8 @@ public:
     _opt->setLowerBounds(_xmin);
     _opt->setUpperBounds(_xmax);
     _opt->setXtolRel(EPSILON6);
-    _opt->setObjective([this](const std::vector<double>&  x) { return this->eval(x); });
+    _opt->setObjective([this](const std::vector<double>& x)
+                       { return this->eval(x); });
   };
 
   AModelOptimNew(const AModelOptimNew& r) 
@@ -50,26 +51,31 @@ public:
 
   AModelOptimNew& operator=(const AModelOptimNew& r)
   {
-    DECLARE_UNUSED(r)
-    messerr("Assignment operator not implemented for AModelOptimNew");
+    if (this != &r)
+    {
+      DECLARE_UNUSED(r)
+      messerr("Assignment operator not implemented for AModelOptimNew");
+    }
     return *this;
-
   }
 
   virtual ~AModelOptimNew()
   {
     delete _opt;
   }
+
   void setVerbose(bool verbose)
   {
     _verbose = verbose;
   }
+
   double eval(const std::vector<double>& x)
   {
     static int iter = 1;
     _params->setValues(x);
     _model->updateModel();
 
+    // Calculate the cost
     double result = computeCost(false);
 
     if (_verbose)
@@ -77,6 +83,10 @@ public:
       message("Iteration %3d - Cost = %lf", iter++, result);
       VH::dump(" - Current parameters", x, false);
     }
+
+    // Check if Goulard must be applied
+    if (_model->_modelFitSills != nullptr) _model->_modelFitSills->fit(_verbose);
+
     return -result;
   };
 

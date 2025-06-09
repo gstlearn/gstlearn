@@ -19,6 +19,7 @@
 #include "Model/AModelOptim.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
+#include "Basic/ICloneable.hpp"
 
 class ModelCovList;
 class Constraints;
@@ -30,7 +31,7 @@ class MatrixSymmetric;
  * Class which, starting from experimental quantities, enables fitting the
  * sills of all Covariance parts of a Model
  */
-class GSTLEARN_EXPORT AModelFitSills
+class GSTLEARN_EXPORT AModelFitSills: public ICloneable
 {
 public:
   AModelFitSills(ModelCovList* model,
@@ -41,11 +42,12 @@ public:
   AModelFitSills& operator=(const AModelFitSills& m);
   virtual ~AModelFitSills();
 
-  int fitPerform(bool verbose = false);
+  virtual int fit(bool verbose = false) { DECLARE_UNUSED(verbose); return 0; }
 
 protected:
-  void _resetSill(int ncova, std::vector<MatrixSymmetric>& sill) const;
+  void _resetInitialSill(std::vector<MatrixSymmetric>& sill) const;
   void _allocateInternalArrays(bool flag_exp = true);
+  int _fitSills(bool verbose = false);
 
 private:
   int _sillFittingIntrinsic(double *crit_arg);
@@ -97,6 +99,7 @@ private:
 protected:
   int _ndim;
   int _nvar;
+  int _nvs2;
   int _ncova;
   int _nbexp;
   int _npadir;
@@ -115,8 +118,9 @@ protected:
   std::vector<MatrixSymmetric> _sill;
 
   // Storing external pointers or references (not to be deleted)
-  ModelCovList* _model;
+  ModelCovList*      _model;
   const Constraints* _constraints;
-  Option_AutoFit _mauto;
-  Option_VarioFit _optvar;
+  Option_AutoFit     _mauto;
+  Option_VarioFit    _optvar;
+  CovCalcMode        _calcmode;
 };

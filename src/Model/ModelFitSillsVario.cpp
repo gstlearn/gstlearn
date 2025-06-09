@@ -37,25 +37,25 @@
    isZero(_vario->getSwByIndex(idir, k)) || \
    FFFF(_vario->getSwByIndex(idir, k)) || FFFF(_vario->getGgByIndex(idir, k)))
 
-AModelFitSillsVario::AModelFitSillsVario(Vario* vario,
-                                         Model* model,
-                                         Constraints* constraints,
-                                         const Option_AutoFit& mauto,
-                                         const Option_VarioFit& optvar)
+ModelFitSillsVario::ModelFitSillsVario(Vario* vario,
+                                       ModelCovList* model,
+                                       Constraints* constraints,
+                                       const Option_AutoFit& mauto,
+                                       const Option_VarioFit& optvar)
   : AModelFitSills(model, constraints, mauto, optvar)
   , _vario(vario)
 {
   (void)_prepare();
 }
 
-AModelFitSillsVario::AModelFitSillsVario(const AModelFitSillsVario& m)
+ModelFitSillsVario::ModelFitSillsVario(const ModelFitSillsVario& m)
   : AModelFitSills(m)
   , _vario(m._vario)
 {
   (void)_prepare();
 }
 
-AModelFitSillsVario& AModelFitSillsVario::operator=(const AModelFitSillsVario& m)
+ModelFitSillsVario& ModelFitSillsVario::operator=(const ModelFitSillsVario& m)
 {
   if (this != &m)
   {
@@ -66,11 +66,28 @@ AModelFitSillsVario& AModelFitSillsVario::operator=(const AModelFitSillsVario& m
   return (*this);
 }
 
-AModelFitSillsVario::~AModelFitSillsVario()
+ModelFitSillsVario::~ModelFitSillsVario()
 {
 }
 
-int AModelFitSillsVario::_prepare()
+ModelFitSillsVario* ModelFitSillsVario::createForOptim(Vario* vario,
+                                                       ModelGeneric* model,
+                                                       Constraints* constraints,
+                                                       const Option_AutoFit& mauto,
+                                                       const Option_VarioFit& optvar)
+{
+  ModelCovList* modelLocal = dynamic_cast<ModelCovList*>(model);
+  if (modelLocal == nullptr)
+  {
+    messerr("The argument 'model' should be a 'ModelCovList'");
+    return nullptr;
+  }
+  ModelFitSillsVario* optim = new ModelFitSillsVario(vario, modelLocal, constraints, mauto, optvar);
+
+  return optim;
+}
+
+int ModelFitSillsVario::_prepare()
 {
   // Get internal dimension
   if (_getDimensions()) return 1;
@@ -86,7 +103,7 @@ int AModelFitSillsVario::_prepare()
   _compressArray(_gg, _ggc);
 
   // Initialize the array of sills
-  _resetSill(_ncova, _sill);
+  _resetInitialSill(_sill);
 
   int norder = 0;
   if (_vario->getCalcul() == ECalcVario::GENERAL1) norder = 1;
@@ -108,13 +125,13 @@ int AModelFitSillsVario::_prepare()
  ** \param[in]  verbose     Verbose flag
  **
  *****************************************************************************/
-int AModelFitSillsVario::fit(bool verbose)
+int ModelFitSillsVario::fit(bool verbose)
 {
   // Initialize Model-dependent quantities
-  updateFromModel();
+  _updateFromModel();
 
   // Perform the sill fitting
-  return fitPerform(verbose);
+  return _fitSills(verbose);
 }
 
 /****************************************************************************/
@@ -122,11 +139,12 @@ int AModelFitSillsVario::fit(bool verbose)
  **  Calculate the main dimensions
  **
  *****************************************************************************/
-int AModelFitSillsVario::_getDimensions()
+int ModelFitSillsVario::_getDimensions()
 {
   _ndim  = _model->getNDim();
   _nvar  = _model->getNVar();
   _ncova = _model->getNCov();
+  _nvs2 = _nvar * (_nvar + 1) / 2;
 
   int nbexp  = 0;
   int npadir = 0;
@@ -191,7 +209,7 @@ int AModelFitSillsVario::_getDimensions()
  **  Fill the array of pointers on the experimental conditions
  **
  *****************************************************************************/
-void AModelFitSillsVario::_computeGg()
+void ModelFitSillsVario::_computeGg()
 {
   int ipadir = 0;
   for (int idir = 0, ndir = _vario->getNDir(); idir < ndir; idir++)
@@ -253,7 +271,7 @@ void AModelFitSillsVario::_computeGg()
  **  to the lags of an experimental variogram
  **
  *****************************************************************************/
-void AModelFitSillsVario::updateFromModel()
+void ModelFitSillsVario::_updateFromModel()
 {
   VectorDouble d1(_ndim);
 
@@ -315,7 +333,7 @@ void AModelFitSillsVario::updateFromModel()
  **  in the case of Variogram calculation
  **
  *****************************************************************************/
-void AModelFitSillsVario::_prepareGoulard()
+void ModelFitSillsVario::_prepareGoulard()
 {
   VectorDouble tab(_nvar * _nvar);
   VectorDouble d0(_ndim);
@@ -367,8 +385,8 @@ void AModelFitSillsVario::_prepareGoulard()
  ** \param[out] tabout    Compressed array
  **
  *****************************************************************************/
-void AModelFitSillsVario::_compressArray(const VectorDouble& tabin,
-                                         VectorDouble& tabout)
+void ModelFitSillsVario::_compressArray(const VectorDouble& tabin,
+                                        VectorDouble& tabout)
 {
   int ecr    = 0;
   int ipadir = 0;

@@ -10,8 +10,10 @@
 /******************************************************************************/
 #include "Model/ModelOptimVario.hpp"
 
+#include "Model/AModelFitSills.hpp"
 #include "Model/AModelOptim.hpp"
 #include "Model/ModelOptimSillsVario.hpp"
+#include "Model/ModelFitSillsVario.hpp"
 #include "geoslib_define.h"
 
 #include "Model/Model.hpp"
@@ -297,12 +299,13 @@ ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
   // Instantiate Goulard algorithm (optional)
   if (optvar.getFlagGoulardUsed())
   {
-    Model* modelLocal   = dynamic_cast<Model*>(model);
-    optim->_goulardPart = ModelOptimSillsVario(modelLocal,
-                                               optim->_constraints,
-                                               optim->_mauto,
-                                               optim->_optvar);
-    optim->_goulardPart.loadEnvironment(vario, wmode, false);
+    delete model->_modelFitSills;
+    model->_modelFitSills = ModelFitSillsVario::createForOptim(vario, model, constraints, mauto, optvar);
+    if (model->_modelFitSills == nullptr)
+    {
+      delete optim;
+      return nullptr;
+    }
   }
 
   // Perform the Fitting in terms of variograms
@@ -315,13 +318,6 @@ double ModelOptimVario::computeCost(bool verbose)
 {
   DECLARE_UNUSED(verbose);
   Vario_Part& varioPart = _varioPart;
-
-  // Perform sill fitting using Goulard (optional)
-  if (_optvar.getFlagGoulardUsed())
-  {
-    _goulardPart.updateFromModel();
-    _goulardPart.fitPerform();
-  }
 
   // Evaluate the Cost function
   int nlags    = (int)varioPart._lags.size();

@@ -20,32 +20,41 @@
 
 class AModelOptimNew;
 
-class GSTLEARN_EXPORT AModelOptimFactory
-{
+class GSTLEARN_EXPORT AModelOptimFactory {
   public:
-  static AModelOptimNew* create(
-    ModelGeneric* model,
-    const Db* db,
-    Vario* vario,
-    const DbGrid* dbmap,
-    Constraints* constraints,
-    const Option_AutoFit& mauto,
-    const Option_VarioFit& optvar,
-    int nb_neighVecchia = ITEST)
-  {
- 
-    if (db != nullptr && nb_neighVecchia != ITEST)
+    /**
+     * @brief Instantiate the appropriate AModelOptimNew object based on the provided parameters.
+     *
+     * @param model ModelGeneric pointer representing the model to be optimized.
+     * @param db Db pointer containing experimental data (for standard Likelihood).
+     * @param vario Vario pointer containing the variogram (for variogram fitting).
+     * @param dbmap DbGrid containing the grid map (for variogram map fitting).
+     * @param constraints Constraints (optional)
+     * @param mauto Option_AutoFit containing auto-fit options.
+     * @param optvar Option_VarioFit containing variogram fit options.
+     * @param nb_neighVecchia Number of Vecchia neighbors to use (for Vecchia Likelihood).
+     * @return AModelOptimNew*
+     */
+    static AModelOptimNew* create(ModelGeneric* model,
+                                  const Db* db,
+                                  Vario* vario,
+                                  const DbGrid* dbmap,
+                                  Constraints* constraints,
+                                  const Option_AutoFit& mauto,
+                                  const Option_VarioFit& optvar,
+                                  int nb_neighVecchia = ITEST)
     {
-      return Vecchia::createForOptim(model, db, nb_neighVecchia);
+      if (db != nullptr)
+      {
+        if (nb_neighVecchia != ITEST)
+          return Vecchia::createForOptim(model, db, nb_neighVecchia);
+        return Likelihood::createForOptim(model, db);
+      }
+      if (dbmap != nullptr)
+        return ModelOptimVMap::createForOptim(model, dbmap, constraints, mauto, optvar);
+      if (vario != nullptr)
+        return ModelOptimVario::createForOptim(model, vario, constraints, mauto, optvar);
+
+      return nullptr;
     }
-    if (dbmap != nullptr)
-    {
-      return ModelOptimVMap::createForOptim(model, dbmap, constraints, mauto, optvar);
-    }
-    if (vario != nullptr)
-    {
-      return ModelOptimVario::createForOptim(model, vario, constraints, mauto, optvar);
-    }
-    return Likelihood::createForOptim(model, db);
-  }  
 };

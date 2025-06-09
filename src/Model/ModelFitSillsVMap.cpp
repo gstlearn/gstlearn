@@ -57,6 +57,23 @@ ModelFitSillsVMap::~ModelFitSillsVMap()
 {
 }
 
+ModelFitSillsVMap* ModelFitSillsVMap::createForOptim(const DbGrid* dbmap,
+                                                     ModelGeneric* model,
+                                                     Constraints* constraints,
+                                                     const Option_AutoFit& mauto,
+                                                     const Option_VarioFit& optvar)
+{
+  ModelCovList* modelLocal = dynamic_cast<ModelCovList*>(model);
+  if (modelLocal == nullptr)
+  {
+    messerr("The argument 'model' should be a 'ModelCovList'");
+    return nullptr;
+  }
+  ModelFitSillsVMap* optim = new ModelFitSillsVMap(dbmap, modelLocal, constraints, mauto, optvar);
+
+  return optim;
+}
+
 int ModelFitSillsVMap::_prepare()
 {
   // Get internal dimension
@@ -69,7 +86,7 @@ int ModelFitSillsVMap::_prepare()
   _computeVMap();
 
   // Initialize the array of sills
-  _resetSill(_ncova, _sill);
+  _resetInitialSill(_sill);
 
   _calcmode = CovCalcMode(ECalcMember::RHS);
   _calcmode.setAsVario(true);
@@ -90,10 +107,10 @@ int ModelFitSillsVMap::_prepare()
 int ModelFitSillsVMap::fit(bool verbose)
 {
   // Initialize Model-dependent quantities
-  updateFromModel();
+  _updateFromModel();
 
   // Perform the sill fitting
-  return fitPerform(verbose);
+  return _fitSills(verbose);
 }
 
 /****************************************************************************/
@@ -104,7 +121,6 @@ int ModelFitSillsVMap::fit(bool verbose)
 void ModelFitSillsVMap::_computeVMap()
 {
   const DbGrid* dbmap = _dbmap;
-  int nvs2            = _nvar * (_nvar + 1) / 2;
   dbmap->rankToIndice(_nech / 2, _indg1);
 
   /* Load the Experimental conditions structure */
@@ -119,11 +135,11 @@ void ModelFitSillsVMap::_computeVMap()
     /* Check samples containing only undefined values */
 
     int ntest = 0;
-    for (int ijvar = 0; ijvar < nvs2; ijvar++)
+    for (int ijvar = 0; ijvar < _nvs2; ijvar++)
       if (!FFFF(dbmap->getZVariable(iech, ijvar))) ntest++;
     if (ntest <= 0) continue;
 
-    for (int ijvar = 0; ijvar < nvs2; ijvar++)
+    for (int ijvar = 0; ijvar < _nvs2; ijvar++)
     {
       _WT(ijvar, ipadir) = 0.;
       _GG(ijvar, ipadir) = 0.;
@@ -143,7 +159,7 @@ void ModelFitSillsVMap::_computeVMap()
  **  Fill the array of pointers on the moded
  **
  *****************************************************************************/
-void ModelFitSillsVMap::updateFromModel()
+void ModelFitSillsVMap::_updateFromModel()
 {
   VectorDouble d0(_ndim);
   MatrixSquare tab(_nvar);
@@ -179,17 +195,17 @@ int ModelFitSillsVMap::_getDimensions()
 {
   int nbexp  = 0;
   int npadir = 0;
-  int nvs2   = _nvar * (_nvar + 1) / 2;
   _nech      = _dbmap->getNSample();
   _nvar      = _dbmap->getNLoc(ELoc::Z);
   _ndim      = _dbmap->getNLoc(ELoc::X);
+  _nvs2      = _nvar * (_nvar + 1) / 2;
 
   /* Calculate the total number of lags */
 
   for (int iech = 0; iech < _nech; iech++)
   {
     int ndef = 0;
-    for (int ijvar = 0; ijvar < nvs2; ijvar++)
+    for (int ijvar = 0; ijvar < _nvs2; ijvar++)
       if (!FFFF(_dbmap->getZVariable(iech, ijvar))) ndef++;
     nbexp += ndef;
     if (ndef > 0) npadir++;

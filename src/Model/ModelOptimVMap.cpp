@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Model/AModelOptim.hpp"
 #include "Model/ModelOptimSillsVMap.hpp"
+#include "Model/ModelFitSillsVMap.hpp"
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
 
@@ -305,14 +306,7 @@ void ModelOptimVMap::_computeFromVMap()
 double ModelOptimVMap::computeCost(bool verbose)
 {
   DECLARE_UNUSED(verbose);
-  const DbGrid* dbmap             = _vmapPart._dbmap;
-
-  // Perform sill fitting using Goulard (optional)
-  if (_optvar.getFlagGoulardUsed())
-  {
-    _goulardPart.updateFromModel();
-    _goulardPart.fitPerform();
-  }
+  const DbGrid* dbmap = _vmapPart._dbmap;
 
   // Evaluate the Cost function
   double total = 0.;
@@ -367,12 +361,13 @@ ModelOptimVMap* ModelOptimVMap::createForOptim(ModelGeneric* model,
   // Instantiate Goulard algorithm (optional)
   if (optvar.getFlagGoulardUsed())
   {
-    Model* modelLocal   = dynamic_cast<Model*>(model);
-    optim->_goulardPart = ModelOptimSillsVMap(modelLocal,
-                                              optim->_constraints, 
-                                              optim->_mauto,
-                                              optim->_optvar);
-    optim->_goulardPart.loadEnvironment(dbmap, false);
+    delete model->_modelFitSills;
+    model->_modelFitSills = ModelFitSillsVMap::createForOptim(dbmap, model, constraints, mauto, optvar);
+    if (model->_modelFitSills == nullptr)
+    {
+      delete optim;
+      return nullptr;
+    }
   }
 
   // Perform the Fitting in terms of variograms

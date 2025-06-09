@@ -17,7 +17,7 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 
-class Model;
+class ModelGeneric;
 class Vario;
 class Constraints;
 class MatrixDense;
@@ -28,20 +28,27 @@ class MatrixSymmetric;
  * Class which, starting from an experimental variogram, enables fitting the
  * sills of all Covariance parts of a Model
  */
-class GSTLEARN_EXPORT AModelFitSillsVario: public AModelFitSills
+class GSTLEARN_EXPORT ModelFitSillsVario: public AModelFitSills
 {
 public:
-  AModelFitSillsVario(Vario* vario,
-                      Model* model,
-                      Constraints* constraints      = nullptr,
-                      const Option_AutoFit& mauto   = Option_AutoFit(),
-                      const Option_VarioFit& optvar = Option_VarioFit());
-  AModelFitSillsVario(const AModelFitSillsVario& m);
-  AModelFitSillsVario& operator=(const AModelFitSillsVario& m);
-  virtual ~AModelFitSillsVario();
+  ModelFitSillsVario(Vario* vario,
+                     ModelCovList* model,
+                     Constraints* constraints      = nullptr,
+                     const Option_AutoFit& mauto   = Option_AutoFit(),
+                     const Option_VarioFit& optvar = Option_VarioFit());
+  ModelFitSillsVario(const ModelFitSillsVario& m);
+  ModelFitSillsVario& operator=(const ModelFitSillsVario& m);
+  virtual ~ModelFitSillsVario();
 
-  int fit(bool verbose = false);
-  void updateFromModel();
+  IMPLEMENT_CLONING(ModelFitSillsVario)
+
+  int fit(bool verbose = false) override;
+
+  static ModelFitSillsVario* createForOptim(Vario* vario,
+                                            ModelGeneric* model,
+                                            Constraints* constraints      = nullptr,
+                                            const Option_AutoFit& mauto   = Option_AutoFit(),
+                                            const Option_VarioFit& optvar = Option_VarioFit());
 
 private:
   int _prepare();
@@ -49,8 +56,8 @@ private:
   void _computeGg();
   void _compressArray(const VectorDouble& tabin, VectorDouble& tabout);
   void _prepareGoulard();
+  void _updateFromModel();
 
 private:
   Vario* _vario;
-  CovCalcMode _calcmode;
 };

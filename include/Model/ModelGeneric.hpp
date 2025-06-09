@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Model/AModelFitSills.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
@@ -206,6 +207,9 @@ protected:               // TODO : pass into private to finish clean
   ACov* _cova;           /* Generic Covariance structure */
   DriftList* _driftList; /* Series of Drift functions */
   CovContext _ctxt;      /* Context */
+
+public:
+  mutable AModelFitSills* _modelFitSills; /* Model fitting procedure for Sills */
 };
 
 GSTLEARN_EXPORT int computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,

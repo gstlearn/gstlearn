@@ -12,6 +12,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ListParams.hpp"
 #include "Estimation/AModelOptimNew.hpp"
+#include "Model/AModelFitSills.hpp"
 #include "Model/Model.hpp"
 #include "Model/ModelOptimVario.hpp"
 #include "Model/ModelOptimVMap.hpp"
@@ -21,32 +22,30 @@
 #include "Estimation/AModelOptimFactory.hpp"
 #include "Drifts/DriftFactory.hpp"
 
-#include <memory>
-#include <nlopt.h>
-
 ModelGeneric::ModelGeneric(const CovContext& ctxt)
   : _cova(nullptr)
   , _driftList(nullptr)
   , _ctxt(ctxt)
+  , _modelFitSills(nullptr)
 {
-  _driftList = new DriftList(_ctxt);
 }
 
 ModelGeneric::ModelGeneric(const ModelGeneric& r)
 {
-  if (r._cova != nullptr) _cova = (ACov*)r._cova->clone();
-  if (r._driftList != nullptr) _driftList = r._driftList->clone();
-
-  _ctxt = r._ctxt;
+  _cova          = (r._cova != nullptr) ? (ACov*)r._cova->clone() : nullptr;
+  _driftList     = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
+  _modelFitSills = (r._modelFitSills != nullptr) ? (AModelFitSills*)r._modelFitSills->clone() : nullptr;
+  _ctxt          = r._ctxt;
 }
 
 ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
 {
   if (this != &r)
   {
-    _cova      = (ACov*)r._cova->clone();
-    _driftList = r._driftList->clone();
-    _ctxt      = r._ctxt;
+    _cova          = (r._cova != nullptr) ? (ACov*)r._cova->clone() : nullptr;
+    _driftList     = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
+    _ctxt          = r._ctxt;
+    _modelFitSills = (r._modelFitSills != nullptr) ? (AModelFitSills*)r._modelFitSills->clone() : nullptr;
   }
   return *this;
 }
@@ -54,7 +53,11 @@ ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
 ModelGeneric::~ModelGeneric()
 {
   delete _cova;
+  _cova = nullptr;
   delete _driftList;
+  _driftList = nullptr;
+  delete _modelFitSills;
+  _modelFitSills = nullptr;
 }
 
 void ModelGeneric::setField(double field)

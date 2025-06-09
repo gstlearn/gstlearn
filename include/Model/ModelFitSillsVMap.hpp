@@ -17,7 +17,7 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 
-class Model;
+class ModelGeneric;
 class DbGrid;
 class Constraints;
 class MatrixDense;
@@ -40,18 +40,25 @@ public:
   ModelFitSillsVMap& operator=(const ModelFitSillsVMap& m);
   virtual ~ModelFitSillsVMap();
 
-  int fit(bool verbose = false);
-  void updateFromModel();
+  IMPLEMENT_CLONING(ModelFitSillsVMap)
+
+  int fit(bool verbose = false) override;
+
+  static ModelFitSillsVMap* createForOptim(const DbGrid* dbmap,
+                                           ModelGeneric* model,
+                                           Constraints* constraints      = nullptr,
+                                           const Option_AutoFit& mauto   = Option_AutoFit(),
+                                           const Option_VarioFit& optvar = Option_VarioFit());
 
 private:
-  int  _prepare();
+  int _prepare();
   int  _getDimensions();
   void _computeVMap();
+  void _updateFromModel();
 
 private:
   const DbGrid* _dbmap;
   VectorInt _indg1;
   VectorInt _indg2;
   int _nech;
-  CovCalcMode _calcmode;
 };

@@ -36,6 +36,7 @@ AModelFitSills::AModelFitSills(ModelCovList* model,
   , _constraints(constraints)
   , _mauto(mauto)
   , _optvar(optvar)
+  , _calcmode()
 {
 }
 
@@ -44,6 +45,7 @@ AModelFitSills::AModelFitSills(const AModelFitSills& m)
   , _constraints(m._constraints)
   , _mauto(m._mauto)
   , _optvar(m._optvar)
+  , _calcmode(m._calcmode)
 {
 }
 
@@ -55,6 +57,7 @@ AModelFitSills& AModelFitSills::operator=(const AModelFitSills& m)
     _constraints = m._constraints;
     _mauto = m._mauto;
     _optvar = m._optvar;
+    _calcmode = m._calcmode;
   }
   return (*this);
 }
@@ -74,8 +77,9 @@ void AModelFitSills::_storeSillsInModel() const
   }
 }
 
-void AModelFitSills::_resetSill(int ncova, std::vector<MatrixSymmetric>& sill) const
+void AModelFitSills::_resetInitialSill(std::vector<MatrixSymmetric>& sill) const
 {
+  int ncova = (int) sill.size();
   for (int icova = 0; icova < ncova; icova++)
   {
     for (int ivar = 0; ivar < _nvar; ivar++)
@@ -95,13 +99,11 @@ void AModelFitSills::_resetSill(int ncova, std::vector<MatrixSymmetric>& sill) c
  *****************************************************************************/
 void AModelFitSills::_allocateInternalArrays(bool flag_exp)
 {
-  int nvs2 = _nvar * (_nvar + 1) / 2;
-
-  _wt.fill(TEST, _npadir * nvs2);
-  _gg.fill(TEST, _npadir * nvs2);
+  _wt.fill(TEST, _npadir * _nvs2);
+  _gg.fill(TEST, _npadir * _nvs2);
   _ge.clear();
   for (int icova = 0; icova < _ncova; icova++)
-    _ge.push_back(MatrixDense(nvs2, _npadir));
+    _ge.push_back(MatrixDense(_nvs2, _npadir));
   _sill.clear();
   for (int icova = 0; icova < _ncova; icova++)
     _sill.push_back(MatrixSymmetric(_nvar));
@@ -112,7 +114,7 @@ void AModelFitSills::_allocateInternalArrays(bool flag_exp)
     _ggc.fill(TEST, _nbexp);
     _dd.clear();
     for (int idim = 0; idim < _ndim; idim++)
-      _dd.push_back(VectorDouble(_npadir * nvs2, TEST));
+      _dd.push_back(VectorDouble(_npadir * _nvs2, TEST));
   }
 
   if (_optvar.getFlagIntrinsic())
@@ -121,12 +123,12 @@ void AModelFitSills::_allocateInternalArrays(bool flag_exp)
     for (int icova = 0; icova < _ncova; icova++)
       _alphau.push_back(MatrixSymmetric(1));
     _ge1.clear();
-    _ge1.push_back(MatrixDense(nvs2, _npadir));
+    _ge1.push_back(MatrixDense(_nvs2, _npadir));
     _ge2.clear();
     for (int icova = 0; icova < _ncova; icova++)
-      _ge2.push_back(MatrixDense(nvs2, _npadir));
-    _wt2.fill(TEST, nvs2 * _npadir);
-    _gg2.fill(TEST, nvs2 * _npadir);
+      _ge2.push_back(MatrixDense(_nvs2, _npadir));
+    _wt2.fill(TEST, _nvs2 * _npadir);
+    _gg2.fill(TEST, _nvs2 * _npadir);
   }
 }
 
@@ -734,10 +736,9 @@ int AModelFitSills::_combineVariables(int ivar0, int jvar0)
   return (jvar0 + ivar0 * (ivar0 + 1) / 2);
 }
 
-int AModelFitSills::_sillFittingIntrinsic(double *crit_arg)
+int AModelFitSills::_sillFittingIntrinsic(double* crit_arg)
 {
-  int nvs2 = _nvar * (_nvar + 1) / 2;
-  double crit = 0.;
+  double crit     = 0.;
   double crit_mem = 1.e30;
   for (int icov = 0; icov < _ncova; icov++) _alphau[icov] = 1. / (double)_ncova;
 
@@ -767,7 +768,7 @@ int AModelFitSills::_sillFittingIntrinsic(double *crit_arg)
 
     /* Call Goulard with 1 structure (no constraint) */
 
-    _resetSill(1, _sill1);
+    _resetInitialSill(_sill1);
     if (_goulardWithoutConstraint(mautoLocal, _nvar, 1, _npadir, _wt, _gg, _ge1,
                                   _sill1, &crit)) return 1;
 
@@ -789,7 +790,7 @@ int AModelFitSills::_sillFittingIntrinsic(double *crit_arg)
 
     /* Call Goulard with 1 variable (no constraint) */
 
-    if (_goulardWithoutConstraint(mautoLocal, 1, _ncova, _npadir * nvs2, _wt2,
+    if (_goulardWithoutConstraint(mautoLocal, 1, _ncova, _npadir * _nvs2, _wt2,
                                   _gg2, _ge2, _alphau, &crit)) return 1;
 
     /* Stopping criterion */
@@ -816,16 +817,15 @@ int AModelFitSills::_sillFittingIntrinsic(double *crit_arg)
   return 0;
 }
 
-int AModelFitSills::_goulardWithoutConstraint(
-  const Option_AutoFit& mauto,
-  int nvar,
-  int ncova,
-  int npadir,
-  VectorDouble& wt,
-  VectorDouble& gg,
-  std::vector<MatrixDense>& ge,
-  std::vector<MatrixSymmetric>& sill,
-  double* crit_arg) const
+int AModelFitSills::_goulardWithoutConstraint(const Option_AutoFit& mauto,
+                                              int nvar,
+                                              int ncova,
+                                              int npadir,
+                                              VectorDouble& wt,
+                                              VectorDouble& gg,
+                                              std::vector<MatrixDense>& ge,
+                                              std::vector<MatrixSymmetric>& sill,
+                                              double* crit_arg) const
 {
   int allpos;
   double temp, crit, crit_mem, value;
@@ -836,18 +836,18 @@ int AModelFitSills::_goulardWithoutConstraint(
   /* Initializations */
   /*******************/
 
-  double sum  = 0.;
-  double sum1 = 0.;
-  double sum2 = 0.;
-  int nvs2    = nvar * (nvar + 1) / 2;
+  double sum    = 0.;
+  double sum1   = 0.;
+  double sum2   = 0.;
+  int nvs2Local = nvar * (nvar + 1) / 2;
 
   /* Core allocation */
 
-  MatrixDense mp(nvs2, npadir);
+  MatrixDense mp(nvs2Local, npadir);
   std::vector<MatrixDense> fk;
   fk.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
-    fk.push_back(MatrixDense(nvs2, npadir));
+    fk.push_back(MatrixDense(nvs2Local, npadir));
   MatrixSymmetric cc(nvar);
 
   std::vector<MatrixSymmetric> aic;
@@ -863,8 +863,7 @@ int AModelFitSills::_goulardWithoutConstraint(
   /* Pre-calculations */
   /********************/
 
-  int ijvar = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (int ivar = 0, ijvar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       for (int ipadir = 0; ipadir < npadir; ipadir++)
       {
@@ -877,9 +876,7 @@ int AModelFitSills::_goulardWithoutConstraint(
       }
 
   for (int icov = 0; icov < ncova; icov++)
-  {
-    ijvar = 0;
-    for (int ivar = 0; ivar < nvar; ivar++)
+    for (int ivar = 0, ijvar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
         sum1 = sum2 = 0;
@@ -893,14 +890,11 @@ int AModelFitSills::_goulardWithoutConstraint(
           sum2 += temp * ge[icov].getValue(ijvar, ipadir);
         }
         alphak[icov].setValue(ivar, jvar, 1. / sum2);
-        aic[icov].setValue(ivar, jvar,
-                           sum1 * alphak[icov].getValue(ivar, jvar));
+        aic[icov].setValue(ivar, jvar, sum1 / sum2);
       }
-  }
 
-  crit  = 0.;
-  ijvar = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  crit = 0.;
+  for (int ivar = 0, ijvar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       for (int ipadir = 0; ipadir < npadir; ipadir++)
       {
@@ -914,8 +908,7 @@ int AModelFitSills::_goulardWithoutConstraint(
   /* Iterative procedure */
   /***********************/
 
-  int iter;
-  for (iter = 0; iter < mauto.getMaxiter(); iter++)
+  for (int iter = 0; iter < mauto.getMaxiter(); iter++)
   {
 
     /* Loop on the elementary structures */
@@ -925,9 +918,7 @@ int AModelFitSills::_goulardWithoutConstraint(
 
       /* Establish the coregionalization matrix */
 
-      ijvar = 0;
-      for (int ivar = 0; ivar < nvar; ivar++)
-      {
+      for (int ivar = 0, ijvar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
           sum = 0;
@@ -937,15 +928,14 @@ int AModelFitSills::_goulardWithoutConstraint(
                         mp.getValue(ijvar, ipadir) -
                           sill[icov].getValue(ivar, jvar) *
                             ge[icov].getValue(ijvar, ipadir));
-            sum +=
-              fk[icov].getValue(ijvar, ipadir) * mp.getValue(ijvar, ipadir);
+            sum += fk[icov].getValue(ijvar, ipadir) * mp.getValue(ijvar, ipadir);
           }
           value = aic[icov].getValue(ivar, jvar) -
                   alphak[icov].getValue(ivar, jvar) * sum;
           cc.setValue(ivar, jvar, value);
           cc.setValue(jvar, ivar, value);
         }
-      }
+
       /* Computing and sorting the eigen values and eigen vectors */
 
       if (cc.computeEigen()) return 1;
@@ -961,9 +951,7 @@ int AModelFitSills::_goulardWithoutConstraint(
 
       /* Calculate the new coregionalization matrix */
 
-      ijvar = 0;
-      for (int ivar = 0; ivar < nvar; ivar++)
-      {
+      for (int ivar = 0, ijvar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
           if (allpos)
@@ -984,7 +972,6 @@ int AModelFitSills::_goulardWithoutConstraint(
                           sill[icov].getValue(ivar, jvar) *
                             ge[icov].getValue(ijvar, ipadir));
         }
-      }
     }
 
     /* Update the global criterion */
@@ -992,9 +979,7 @@ int AModelFitSills::_goulardWithoutConstraint(
     crit_mem = crit;
     crit     = 0.;
     for (int ipadir = 0; ipadir < npadir; ipadir++)
-    {
-      ijvar = 0;
-      for (int ivar = 0; ivar < nvar; ivar++)
+      for (int ivar = 0, ijvar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
           if (FFFF(WT(ijvar, ipadir))) continue;
@@ -1002,7 +987,6 @@ int AModelFitSills::_goulardWithoutConstraint(
           value = (ivar != jvar) ? 2. : 1.;
           crit += value * WT(ijvar, ipadir) * temp * temp;
         }
-    }
 
     /* Stopping criterion */
 
@@ -1026,15 +1010,15 @@ void AModelFitSills::_printResults(double crit) const
   int ncov = _model->getNCov();
   for (int icov = 0; icov < ncov; icov++)
   {
-    message("Cost Function (Sill Fitting) (");
+    message("- Sill Fitting Procedure: Cost = %lf - Current Sills = ", crit);
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int jvar = 0; jvar < _nvar; jvar++)
         message("%lf ", _model->getSill(icov, ivar, jvar));
-    message(") : %lf\n", crit);
+    message("\n");
   }
 }
 
-int AModelFitSills::fitPerform(bool verbose)
+int AModelFitSills::_fitSills(bool verbose)
 {
   int status  = 0;
   double crit = 0.;
