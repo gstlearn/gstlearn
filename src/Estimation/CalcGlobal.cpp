@@ -167,6 +167,10 @@ int CalcGlobal::_globalKriging()
 
   double estim = algebra.getEstimation()[0];
   double stdv  = algebra.getStdv()[0];
+  // The previous term corresponds to the standard deviation calculated
+  // with a punctual target. Therefore the corresponding variance
+  // must be corrected (C00 -> Cvv) to pass to a correct Territory variance 
+  // of estimation
   double c00   = Sigma00.getValue(0,0);
 
   /* Preliminary checks */
