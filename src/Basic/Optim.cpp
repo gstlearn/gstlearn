@@ -28,7 +28,7 @@ Optim::Optim(opt_algorithm algo, int dim)
 
 Optim::~Optim()
 {
-  nlopt_destroy((nlopt_opt)_opt);
+  nlopt_destroy(_opt);
 }
 
 double Optim::callback(unsigned n, const double* x, double* grad, void* f_data)
@@ -44,30 +44,30 @@ void Optim::setObjective(std::function<double(const std::vector<double>&)> objec
     std::move(objective));
 
   // Définir le callback NLopt avec la fonction C statique
-  nlopt_set_min_objective((nlopt_opt)_opt, &Optim::callback, _objective.get());
+  nlopt_set_min_objective(_opt, &Optim::callback, _objective.get());
 }
 
 void Optim::setXtolRel(double tol)
 {
-  nlopt_set_xtol_rel((nlopt_opt)_opt, tol);
+  nlopt_set_xtol_rel(_opt, tol);
 }
 
 double Optim::optimize(std::vector<double>& x)
 {
   double minf;
-  nlopt_result res = nlopt_optimize((nlopt_opt)_opt, x.data(), &minf);
+  nlopt_result res = nlopt_optimize(_opt, x.data(), &minf);
   if (res < 0) throw std::runtime_error("Échec de l'optimisation");
   return minf;
 }
 
 void Optim::setLowerBounds(const std::vector<double>& lb)
 {
-  nlopt_set_lower_bounds((nlopt_opt)_opt, lb.data());
+  nlopt_set_lower_bounds(_opt, lb.data());
 }
 
 void Optim::setUpperBounds(const std::vector<double>& ub)
 {
-  nlopt_set_upper_bounds((nlopt_opt)_opt, ub.data());
+  nlopt_set_upper_bounds(_opt, ub.data());
 }
 
 

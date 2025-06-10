@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include <nlopt.h>
 #include <vector>
 #include <functional>
 #include <memory>
@@ -102,7 +101,7 @@ typedef enum {
   // NLOPT_NUM_ALGORITHMS        /* not an algorithm, just the number of them */
 } opt_algorithm;
 
-//struct nlopt_opt;
+struct nlopt_opt_s;
 
 class GSTLEARN_EXPORT Optim
 {
@@ -122,7 +121,7 @@ public:
   static double callback(unsigned n, const double* x, double* grad, void* f_data);
 
 private:
-  void* _opt;
+  nlopt_opt_s* _opt;
   std::shared_ptr<std::function<double(const std::vector<double>&)>> _objective;
 
 };
