@@ -225,6 +225,7 @@ set(SRC
   Variogram/Vario.cpp
   Variogram/VarioParam.cpp
   Variogram/DirParam.cpp
+  Basic/Optim.cpp
   Basic/ParamInfo.cpp
   Basic/ListParams.cpp
   Basic/Limits.cpp
