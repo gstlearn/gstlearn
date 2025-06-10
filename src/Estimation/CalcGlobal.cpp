@@ -167,7 +167,7 @@ int CalcGlobal::_globalKriging()
 
   double estim = algebra.getEstimation()[0];
   double stdv  = algebra.getStdv()[0];
-  double cv0   = _modelLocal->getTotalSill(_ivar0, _ivar0) - stdv * stdv;
+  double c00   = Sigma00.getValue(0,0);
 
   /* Preliminary checks */
 
@@ -185,7 +185,8 @@ int CalcGlobal::_globalKriging()
 
   /* Perform the estimation */
 
-  double cvvgeo = cvv - cv0;
+  double cvvgeo = stdv * stdv - c00 + cvv;
+
   double stdgeo = (cvvgeo > 0) ? sqrt(cvvgeo) : 0.;
   double cvgeo = (isZero(estim) || FFFF(estim)) ? TEST : stdgeo / estim;
 
