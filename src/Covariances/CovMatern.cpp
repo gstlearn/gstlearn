@@ -83,6 +83,7 @@ double CovMatern::_newMatern(double h) const
 
 double CovMatern::_evaluateCovDerivative(double h) const
 {
+  if (h == 0) return 1;
   double nu = getParam();
   double ratio = pow(2., 1. - nu)  / exp(loggamma(nu));
   double term1 = nu * pow(h, nu - 1) * _besselK(nu, h);
@@ -92,9 +93,18 @@ double CovMatern::_evaluateCovDerivative(double h) const
 
 double CovMatern::_besselK(double nu, double h)
 {
-  if (h == 0) return 1;
+#if defined(__APPLE__)
+  double TAB[MAXTAB];
+  int nb = (int) floor(nu);
+  if (nu <= 0 || nb >= MAXTAB) return (0.);
+  double alpha = nu - nb;
+  if (besselk(h, alpha, nb + 1, TAB) < nb + 1) return 0.;
+  return TAB[nb];
+#else
   return std::cyl_bessel_k(nu, h);
 }
+#endif
+
 double CovMatern::_oldMatern(double h) const
 { 
   double TAB[MAXTAB];
