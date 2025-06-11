@@ -36,19 +36,19 @@
  * - flag_instrinsic: When True, fit a Model which includes at least one Intrinsic basic Structure
  */
 
-class GSTLEARN_EXPORT Option_VarioFit: public AStringable
+class GSTLEARN_EXPORT ModelOptimParam: public AStringable
 {
  public:
-  Option_VarioFit(bool flag_noreduce = false,
+  ModelOptimParam(bool flag_noreduce = false,
                   bool auth_aniso = true,
                   bool auth_rotation = true,
                   bool lock_samerot = false,
                   bool lock_rot2d = false,
                   bool lock_no3d = false,
                   bool lock_iso2d = false);
-  Option_VarioFit(const Option_VarioFit &m);
-  Option_VarioFit& operator= (const Option_VarioFit &m);
-  virtual ~Option_VarioFit();
+  ModelOptimParam(const ModelOptimParam &m);
+  ModelOptimParam& operator= (const ModelOptimParam &m);
+  virtual ~ModelOptimParam();
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   bool getAuthAniso() const { return _auth_aniso; }

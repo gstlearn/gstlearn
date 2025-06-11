@@ -47,6 +47,7 @@ set(SRC
   Model/Option_AutoFit.cpp
   Model/Option_VarioFit.cpp
   Model/Model.cpp
+  Model/ModelOptimParam.cpp
   Model/ModelOptimVario.cpp
   Model/ModelOptimVMap.cpp
   Model/AModelFitSills.cpp
