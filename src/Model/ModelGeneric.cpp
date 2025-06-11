@@ -21,6 +21,7 @@
 #include "Db/Db.hpp"
 #include "Estimation/AModelOptimFactory.hpp"
 #include "Drifts/DriftFactory.hpp"
+#include "geoslib_define.h"
 
 ModelGeneric::ModelGeneric(const CovContext& ctxt)
   : _cova(nullptr)
@@ -375,4 +376,24 @@ void ModelGeneric::fitNew(const Db* db,
   amopt->setVerbose(verbose);
   amopt->run();
   delete amopt;
+}
+
+double ModelGeneric::evalGradParam(int iparam, SpacePoint& p1, SpacePoint& p2, int ivar, int jvar)
+{
+  if (_cova == nullptr)
+  {
+    messerr("No covariance defined for the model");
+    return TEST;
+  }
+  double eps = EPSILON4;
+  auto params = generateListParams();
+  double valcur = params->getValue(iparam);
+  params->setValue(iparam, valcur + eps);
+  updateModel();
+  double valplus = _cova->evalCov(p1, p2, ivar, jvar);
+  params->setValue(iparam, valcur - eps);
+  updateModel();
+  double valminus = _cova->evalCov(p1, p2, ivar, jvar);
+
+  return  ( valplus - valminus ) / (2. * eps);
 }

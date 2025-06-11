@@ -37,6 +37,9 @@ doc/courses/*/*.html
 doc/courses/r/.Rhistory
 doc/courses/r/.RData
 doc/courses/r/*_cache
+doc/details/*.log
+doc/details/*.aux
+doc/details/*.pdf
 *.Rout
 .*~
 .metadata
