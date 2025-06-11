@@ -104,7 +104,7 @@ int ModelFitSillsVMap::_prepare()
  ** \param[in]  verbose     Verbose flag
  **
  *****************************************************************************/
-int ModelFitSillsVMap::fit(bool verbose)
+int ModelFitSillsVMap::fitSills(bool verbose)
 {
   // Initialize Model-dependent quantities
   _updateFromModel();
@@ -199,6 +199,8 @@ int ModelFitSillsVMap::_getDimensions()
   _nvar      = _dbmap->getNLoc(ELoc::Z);
   _ndim      = _dbmap->getNLoc(ELoc::X);
   _nvs2      = _nvar * (_nvar + 1) / 2;
+  _indg1.resize(_ndim);
+  _indg2.resize(_ndim);
 
   /* Calculate the total number of lags */
 

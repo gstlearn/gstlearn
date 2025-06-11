@@ -42,6 +42,7 @@ public:
     _opt->setXtolRel(EPSILON6);
     _opt->setObjective([this](const std::vector<double>& x)
                        { return this->eval(x); });
+    _iter = 0;
   };
 
   AModelOptimNew(const AModelOptimNew& r) 
@@ -68,11 +69,14 @@ public:
   void setVerbose(bool verbose)
   {
     _verbose = verbose;
+
+    // In the verbose case, first print the list of parameters
+    if (verbose) _params->display();
   }
 
   double eval(const std::vector<double>& x)
   {
-    static int iter = 1;
+    _iter++;
     _params->setValues(x);
     _model->updateModel();
 
@@ -81,13 +85,14 @@ public:
 
     if (_verbose)
     {
-      message("Iteration %3d - Cost = %lf", iter++, result);
+      message("Iteration %4d - Cost = %lf", _iter, result);
       VH::dump(" - Current parameters", x, false);
     }
 
     // Check if Goulard must be applied
     ModelCovList* mcv = dynamic_cast<ModelCovList*>(_model);
-    if (mcv != nullptr && mcv->_modelFitSills != nullptr) mcv->_modelFitSills->fit(_verbose);
+    if (mcv != nullptr && mcv->_modelFitSills != nullptr) 
+      mcv->_modelFitSills->fitSills(_verbose);
 
     return -result;
   };
@@ -97,6 +102,10 @@ public:
     _opt->optimize(_x);
   }
 
+  void resetIter()
+  {
+    _iter = 0;
+  }
   virtual double computeCost(bool verbose = false) = 0;
 
 protected:
@@ -109,4 +118,5 @@ private:
   std::vector<double> _x;
   std::vector<double> _xmin;
   std::vector<double> _xmax;
+  int _iter;
 };

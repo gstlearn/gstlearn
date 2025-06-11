@@ -220,6 +220,7 @@ void AModelOptim::_performOptimization(double (*optim_func)(unsigned n,
                                        double distmax_def,
                                        const MatrixSymmetric& vars_def)
 {
+  message("\n\n>>>> On passe par l'ancien nlopt >>>>\n\n");
   // Define the optimization criterion
   int npar      = _getNParam();
   nlopt_opt opt = nlopt_create(NLOPT_LN_NELDERMEAD, npar);

@@ -90,8 +90,12 @@ static void _secondTest(Db* db, Model* model, bool converge)
   (void)vario->dumpToNF("vario2.ascii");
 
   // Fit the Model
-  ModelOptimVario model_optim_vario(model);
-  model_optim_vario.fit(vario, false, 2, converge);
+  Option_AutoFit mauto = Option_AutoFit();
+  mauto.setWmode(2);
+  Option_VarioFit optvar = Option_VarioFit();
+  optvar.setFlagGoulardUsed(true);
+  model->fitNew(nullptr, vario, nullptr, nullptr, mauto, optvar,
+                ITEST, converge);
   (void) model->dumpToNF("model2.ascii");
   model->display();
 
@@ -107,8 +111,9 @@ static void _thirdTest(Db* db, Model* model, bool flagSPDE, bool converge)
     mestitle(0, "Fitting a Model using Loglikelihood (Covariance)");
 
   // Fit the Model
-  ModelOptimLikelihood model_optim_likelihood(model);
-  model_optim_likelihood.fit(db, flagSPDE, converge);
+  model->fitNew(db, nullptr, nullptr, nullptr,
+                Option_AutoFit(), Option_VarioFit(),
+                ITEST, converge);
   (void)model->dumpToNF("model3.ascii");
   model->display();
 }
@@ -120,7 +125,7 @@ int main(int argc, char *argv[])
     StdoutRedirect sr(sfn.str(), argc, argv);
     ASerializable::setPrefixName("NlOpt-");
 
-       // Creating the Model used to simulate the Data
+    // Creating the Model used to simulate the Data
     double sill_nugget = 2.;
     Model* model_simu  = new Model();
     model_simu->addCovFromParam(ECov::NUGGET, 0., sill_nugget);
@@ -147,16 +152,26 @@ int main(int argc, char *argv[])
 
     // Optimization tests
     int mode      = 0;
-    bool converge = true;
+    bool converge = false;
     bool flagSPDE = false;
+
+    Model* model_copy;
 
     if (mode == 0 || mode == 1) _firstTest();
 
-    if (mode == 0 || mode == 2) _secondTest(db, model_test, converge);
-
-    if (mode == 0 || mode == 3) _thirdTest(db, model_test, flagSPDE, converge);
+    if (mode == 0 || mode == 2) 
+    {
+      model_copy = model_test->clone();
+      _secondTest(db, model_copy, converge);
+    }
+    if (mode == 0 || mode == 3) 
+    {
+      model_copy = model_test->clone();
+      _thirdTest(db, model_copy, flagSPDE, converge);
+    }
 
     delete db;
     delete model_simu;
+    delete model_copy;
     return 0;
 }

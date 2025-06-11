@@ -42,12 +42,12 @@ public:
   AModelFitSills& operator=(const AModelFitSills& m);
   virtual ~AModelFitSills();
 
-  virtual int fit(bool verbose = false) { DECLARE_UNUSED(verbose); return 0; }
+  virtual int fitSills(bool verbose = false) { DECLARE_UNUSED(verbose); return 0; }
 
 protected:
   void _resetInitialSill(std::vector<MatrixSymmetric>& sill) const;
   void _allocateInternalArrays(bool flag_exp = true);
-  int _fitSills(bool verbose = false);
+  int  _fitSills(bool verbose = false);
 
 private:
   int _sillFittingIntrinsic(double *crit_arg);

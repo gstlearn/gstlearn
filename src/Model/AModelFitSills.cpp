@@ -32,7 +32,26 @@ AModelFitSills::AModelFitSills(ModelCovList* model,
                                const Constraints* constraints,
                                const Option_AutoFit& mauto,
                                const Option_VarioFit& optvar)
-  : _model(model)
+  : _ndim(0)
+  , _nvar(0)
+  , _nvs2(0)
+  , _ncova(0)
+  , _nbexp(0)
+  , _npadir(0)
+  , _wt()
+  , _gg()
+  , _ggc()
+  , _wtc()
+  , _wt2()
+  , _gg2()
+  , _dd()
+  , _ge()
+  , _ge1()
+  , _ge2()
+  , _alphau()
+  , _sill1()
+  , _sill()
+  , _model(model)
   , _constraints(constraints)
   , _mauto(mauto)
   , _optvar(optvar)
@@ -41,7 +60,26 @@ AModelFitSills::AModelFitSills(ModelCovList* model,
 }
 
 AModelFitSills::AModelFitSills(const AModelFitSills& m)
-  : _model(m._model)
+  : _ndim(m._ndim)
+  , _nvar(m._nvar)
+  , _nvs2(m._nvs2)
+  , _ncova(m._ncova)
+  , _nbexp(m._nbexp)
+  , _npadir(m._npadir)
+  , _wt(m._wt)
+  , _gg(m._gg)
+  , _ggc(m._ggc)
+  , _wtc(m._wtc)
+  , _wt2(m._wt2)
+  , _gg2(m._gg2)
+  , _dd(m._dd)
+  , _ge(m._ge)
+  , _ge1(m._ge1)
+  , _ge2(m._ge2)
+  , _alphau(m._alphau)
+  , _sill1(m._sill1)
+  , _sill(m._sill)
+  , _model(m._model)
   , _constraints(m._constraints)
   , _mauto(m._mauto)
   , _optvar(m._optvar)
@@ -53,11 +91,30 @@ AModelFitSills& AModelFitSills::operator=(const AModelFitSills& m)
 {
   if (this != &m)
   {
-    _model = m._model;
+    _ndim        = m._ndim;
+    _nvar        = m._nvar;
+    _nvs2        = m._nvs2;
+    _ncova       = m._ncova;
+    _nbexp       = m._nbexp;
+    _npadir      = m._npadir;
+    _wt          = m._wt;
+    _gg          = m._gg;
+    _ggc         = m._ggc;
+    _wtc         = m._wtc;
+    _wt2         = m._wt2;
+    _gg2         = m._gg2;
+    _dd          = m._dd;
+    _ge          = m._ge;
+    _ge1         = m._ge1;
+    _ge2         = m._ge2;
+    _alphau      = m._alphau;
+    _sill1       = m._sill1;
+    _sill        = m._sill;
+    _model       = m._model;
     _constraints = m._constraints;
-    _mauto = m._mauto;
-    _optvar = m._optvar;
-    _calcmode = m._calcmode;
+    _mauto       = m._mauto;
+    _optvar      = m._optvar;
+    _calcmode    = m._calcmode;
   }
   return (*this);
 }
@@ -1001,7 +1058,7 @@ bool AModelFitSills::_convergenceReached(const Option_AutoFit& mauto,
                                            double crit,
                                            double crit_mem)
 {
-   return (ABS(crit) < mauto.getTolred() ||
+  return (ABS(crit) < mauto.getTolred() ||
           ABS(crit - crit_mem) / ABS(crit) < mauto.getTolred());
 }
 

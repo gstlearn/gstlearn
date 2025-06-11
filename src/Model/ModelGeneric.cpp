@@ -31,18 +31,18 @@ ModelGeneric::ModelGeneric(const CovContext& ctxt)
 
 ModelGeneric::ModelGeneric(const ModelGeneric& r)
 {
-  _cova          = (r._cova != nullptr) ? (ACov*)r._cova->clone() : nullptr;
-  _driftList     = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
-  _ctxt          = r._ctxt;
+  _cova      = (r._cova != nullptr) ? (ACov*)r._cova->clone() : nullptr;
+  _driftList = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
+  _ctxt      = r._ctxt;
 }
 
 ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
 {
   if (this != &r)
   {
-    _cova          = (r._cova != nullptr) ? (ACov*)r._cova->clone() : nullptr;
-    _driftList     = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
-    _ctxt          = r._ctxt;
+    _cova      = (r._cova != nullptr) ? (ACov*)r._cova->clone() : nullptr;
+    _driftList = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
+    _ctxt      = r._ctxt;
   }
   return *this;
 }
@@ -53,7 +53,6 @@ ModelGeneric::~ModelGeneric()
   _cova = nullptr;
   delete _driftList;
   _driftList = nullptr;
-
 }
 
 void ModelGeneric::setField(double field)
@@ -373,6 +372,15 @@ void ModelGeneric::fitNew(const Db* db,
                                                      constraints, mauto, optvar, 
                                                      nb_neighVecchia);
   amopt->setVerbose(verbose);
+  amopt->resetIter();
   amopt->run();
   delete amopt;
+
+  // Cancel the structure possibly used for Goulard (to be improved)
+  ModelCovList* mcv = dynamic_cast<ModelCovList*>(this);
+  if (mcv != nullptr)
+  {
+    delete mcv->_modelFitSills;
+    mcv->_modelFitSills = nullptr;
+  }
 }

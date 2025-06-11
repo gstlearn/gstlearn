@@ -76,13 +76,13 @@ ModelFitSillsVario* ModelFitSillsVario::createForOptim(Vario* vario,
                                                        const Option_AutoFit& mauto,
                                                        const Option_VarioFit& optvar)
 {
-  ModelCovList* modelLocal = dynamic_cast<ModelCovList*>(model);
-  if (modelLocal == nullptr)
+  ModelCovList* mcv = dynamic_cast<ModelCovList*>(model);
+  if (mcv == nullptr)
   {
     messerr("The argument 'model' should be a 'ModelCovList'");
     return nullptr;
   }
-  ModelFitSillsVario* optim = new ModelFitSillsVario(vario, modelLocal, constraints, mauto, optvar);
+  ModelFitSillsVario* optim = new ModelFitSillsVario(vario, mcv, constraints, mauto, optvar);
 
   return optim;
 }
@@ -125,7 +125,7 @@ int ModelFitSillsVario::_prepare()
  ** \param[in]  verbose     Verbose flag
  **
  *****************************************************************************/
-int ModelFitSillsVario::fit(bool verbose)
+int ModelFitSillsVario::fitSills(bool verbose)
 {
   // Initialize Model-dependent quantities
   _updateFromModel();

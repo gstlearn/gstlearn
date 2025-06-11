@@ -208,7 +208,6 @@ protected:               // TODO : pass into private to finish clean
   //std::vector<std::function<double>(double)> _gradFuncs;
   DriftList* _driftList; /* Series of Drift functions */
   CovContext _ctxt;      /* Context */
-
 };
 
 GSTLEARN_EXPORT int computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,

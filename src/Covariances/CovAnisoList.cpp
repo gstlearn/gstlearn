@@ -113,7 +113,9 @@ double CovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
   double cov      = 0.;
   const VectorInt& list = _getListActiveCovariances(mode);
   for (const auto& j: list.getVector())
+  {
     cov += _covs[j]->eval0(ivar, jvar, mode);
+  }
   return cov;
 }
 

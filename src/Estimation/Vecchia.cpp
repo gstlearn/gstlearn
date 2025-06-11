@@ -398,5 +398,4 @@ double Vecchia::_computeLogDet() const
 void Vecchia::_updateModel(bool verbose)
 {
   computeLower(_Ranks, verbose);
- 
 }
