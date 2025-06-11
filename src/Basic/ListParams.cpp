@@ -1,4 +1,5 @@
 #include "Basic/ListParams.hpp"
+#include "Basic/AStringable.hpp"
 #include "geoslib_define.h"
 #include <cstddef>
 #include <sstream>
@@ -13,6 +14,25 @@ void ListParams::addParam(ParamInfo& param)
   _params.push_back(param);
 }
 
+
+double ListParams::getValue(int index) const
+{
+  if (index < 0 || index >= static_cast<int>(_params.size()))
+  {
+    messerr("Index out of range in ListParams::getValue");
+    return TEST;
+  }
+  return _params[index].get().getValue();
+}
+void ListParams::setValue(int index, double value)
+{
+  if (index < 0 || index >= static_cast<int>(_params.size()))
+  {
+    messerr("Index out of range in ListParams::setValue");
+    return;
+  }
+  _params[index].get().setValue(value);
+}
 String ListParams::toString(const AStringFormat* strfmt) const
 {
   DECLARE_UNUSED(strfmt);

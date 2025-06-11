@@ -10,70 +10,118 @@
 /******************************************************************************/
 #pragma once
 
-#include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
-#include <nlopt.h>
 #include <vector>
 #include <functional>
 #include <memory>
-#include <stdexcept>
 
-class Optim
+
+typedef enum {
+  /* Naming conventions:
+
+     NLOPT_{G/L}{D/N}_*
+     = global/local derivative/no-derivative optimization,
+     respectively
+
+     *_RAND algorithms involve some randomization.
+
+     *_NOSCAL algorithms are *not* scaled to a unit hypercube
+     (i.e. they are sensitive to the units of x)
+   */
+
+  // NLOPT_GN_DIRECT = 0,
+  // NLOPT_GN_DIRECT_L,
+  // NLOPT_GN_DIRECT_L_RAND,
+  // NLOPT_GN_DIRECT_NOSCAL,
+  // NLOPT_GN_DIRECT_L_NOSCAL,
+  // NLOPT_GN_DIRECT_L_RAND_NOSCAL,
+
+  // NLOPT_GN_ORIG_DIRECT,
+  // NLOPT_GN_ORIG_DIRECT_L,
+
+  // NLOPT_GD_STOGO,
+  // NLOPT_GD_STOGO_RAND,
+
+  // NLOPT_LD_LBFGS_NOCEDAL,
+
+  // NLOPT_LD_LBFGS,
+
+  // NLOPT_LN_PRAXIS,
+
+  // NLOPT_LD_VAR1,
+  // NLOPT_LD_VAR2,
+
+  // NLOPT_LD_TNEWTON,
+  // NLOPT_LD_TNEWTON_RESTART,
+  // NLOPT_LD_TNEWTON_PRECOND,
+  // NLOPT_LD_TNEWTON_PRECOND_RESTART,
+
+  // NLOPT_GN_CRS2_LM,
+
+  // NLOPT_GN_MLSL,
+  // NLOPT_GD_MLSL,
+  // NLOPT_GN_MLSL_LDS,
+  // NLOPT_GD_MLSL_LDS,
+
+  // NLOPT_LD_MMA,
+
+  // NLOPT_LN_COBYLA,
+
+  // NLOPT_LN_NEWUOA,
+  // NLOPT_LN_NEWUOA_BOUND,
+
+    NELDERMEAD = 28,
+  // NLOPT_LN_SBPLX,
+
+  // NLOPT_LN_AUGLAG,
+  // NLOPT_LD_AUGLAG,
+  // NLOPT_LN_AUGLAG_EQ,
+  // NLOPT_LD_AUGLAG_EQ,
+
+  // NLOPT_LN_BOBYQA,
+
+  // NLOPT_GN_ISRES,
+
+  // /* new variants that require local_optimizer to be set,
+  //    not with older constants for backwards compatibility */
+  // NLOPT_AUGLAG,
+  // NLOPT_AUGLAG_EQ,
+  // NLOPT_G_MLSL,
+  // NLOPT_G_MLSL_LDS,
+
+  // NLOPT_LD_SLSQP,
+
+  // NLOPT_LD_CCSAQ,
+
+  // NLOPT_GN_ESCH,
+
+  // NLOPT_GN_AGS,
+
+  // NLOPT_NUM_ALGORITHMS        /* not an algorithm, just the number of them */
+} opt_algorithm;
+
+struct nlopt_opt_s;
+
+class GSTLEARN_EXPORT Optim
 {
 public:
-  Optim(nlopt_algorithm algo, int dim)
-    : _opt(nlopt_create(algo, dim))
-  {
-    if (!_opt) throw std::runtime_error("Échec de création de l'optimiseur NLopt");
-  }
+  Optim(opt_algorithm algo, int dim);
+  Optim(const Optim&) = delete; 
+  Optim& operator=(const Optim&) = delete; 
+  ~Optim();
 
-  ~Optim()
-  {
-    nlopt_destroy(_opt);
-  }
+  void setObjective(std::function<double(const std::vector<double>&)> objective);
+  void setXtolRel(double tol);
+  double optimize(std::vector<double>& x);
 
-  void setObjective(std::function<double(const std::vector<double>&)> objective)
-  {
-    // Stocker la fonction dans un pointeur partagé pour que le callback y ait accès
-    _objective = std::make_shared<std::function<double(const std::vector<double>&)>>(
-      std::move(objective));
+  void setLowerBounds(const std::vector<double>& lb);
 
-    // Définir le callback NLopt avec la fonction C statique
-    nlopt_set_min_objective(_opt, &Optim::callback, _objective.get());
-  }
-
-  void setXtolRel(double tol)
-  {
-    nlopt_set_xtol_rel(_opt, tol);
-  }
-
-  double optimize(std::vector<double>& x)
-  {
-    double minf;
-    nlopt_result res = nlopt_optimize(_opt, x.data(), &minf);
-    if (res < 0) throw std::runtime_error("Échec de l'optimisation");
-    return minf;
-  }
-
-  void setLowerBounds(const std::vector<double>& lb)
-  {
-    nlopt_set_lower_bounds(_opt, lb.data());
-  }
-
-  void setUpperBounds(const std::vector<double>& ub)
-  {
-    nlopt_set_upper_bounds(_opt, ub.data());
-  }
+  void setUpperBounds(const std::vector<double>& ub);
+  static double callback(unsigned n, const double* x, double* grad, void* f_data);
 
 private:
-  nlopt_opt _opt;
+  nlopt_opt_s* _opt;
   std::shared_ptr<std::function<double(const std::vector<double>&)>> _objective;
 
-  // Callback C compatible NLopt
-  static double callback(unsigned n, const double* x, double* grad, void* f_data)
-  {
-    DECLARE_UNUSED(grad);
-    auto* f = static_cast<std::function<double(const std::vector<double>&)>*>(f_data);
-    return (*f)(std::vector<double>(x, x + n));
-  }
 };

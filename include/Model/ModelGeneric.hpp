@@ -27,6 +27,7 @@
 
 class Model;
 class Db;
+
 class DbGrid;
 class CovCalcMode;
 /**
@@ -190,7 +191,7 @@ public:
   #endif
   void updateModel();
   double computeLogLikelihood(const Db* db, bool verbose = false);
-
+  double evalGradParam(int iparam, SpacePoint& p1, SpacePoint& p2,int ivar = 0, int jvar = 0);
   void fitNew(const Db* db = nullptr,
               Vario* vario = nullptr,
               const DbGrid* dbmap = nullptr,
@@ -205,7 +206,7 @@ private:
 
 protected:               // TODO : pass into private to finish clean
   ACov* _cova;           /* Generic Covariance structure */
-  //std::vector<std::function<double>(double)> _gradFuncs;
+  std::vector<std::function<double(double)>> _gradFuncs;
   DriftList* _driftList; /* Series of Drift functions */
   CovContext _ctxt;      /* Context */
 };
