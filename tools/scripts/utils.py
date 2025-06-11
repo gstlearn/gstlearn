@@ -17,7 +17,7 @@ def extract_macro_calls(header_file, macro_name):
                     if len(contents) == 3:
                         body, func_name, arg = contents
                     else:
-                        print("error.")  
+                        print("The macro should have 2 or 3 arguments")  
                 macro_calls += [(classname, func_name.strip(), body.strip(), arg)]
     return macro_calls
     
@@ -91,80 +91,6 @@ def find_include_folder_in_file(classname, file_path):
     return None
    
 
-def find_method_signature_in_header(method_name, header_path):
-    if not os.path.isfile(header_path):
-        return None
-
-    with open(header_path, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-
-    signature_lines = []
-    collecting = False
-    brace_depth = 0
-
-    for line in lines:
-        stripped = line.strip()
-
-        # Ignore les commentaires ou lignes vides
-        if not stripped or stripped.startswith("//") or stripped.startswith("/*"):
-            continue
-
-        # Démarrage de la collecte si le nom de méthode apparaît
-        if not collecting and re.search(rf'\b{re.escape(method_name)}\s*\(', stripped):
-            collecting = True
-
-        if collecting:
-            signature_lines.append(stripped)
-
-            # Compte les accolades pour éviter de couper au mauvais moment
-            brace_depth += stripped.count('{') - stripped.count('}')
-
-            # Fin de la signature : si ; ou { sans autre {
-            if (brace_depth == 0 and ';' in stripped) or (brace_depth <= 1 and '{' in stripped and '}' in stripped):
-                break
-
-    if not signature_lines:
-        return None
-
-    # Fusionner, supprimer les corps de fonctions
-    full_signature = ' '.join(signature_lines)
-    full_signature = re.sub(r'\{[^{}]*\}', '', full_signature)  # Retire corps simple
-    full_signature = re.sub(r'\s+', ' ', full_signature).strip()
-
-    # Force ; si terminé par ') const' ou 'override', etc.
-    if not full_signature.endswith(';'):
-        full_signature += ';'
-
-    return full_signature
-    
-    
-def extract_base_class_name(lines):
-    """
-    Extrait le nom de la classe de base d'après une ligne comme :
-    class CovList : public CovBase {
-    """
-    pattern = re.compile(r'class\s+\w+\s*:\s*public\s+(\w+)')
-    for line in lines:
-        match = pattern.search(line)
-        if match:
-            return match.group(1)
-    return None
-    
-def extract_base_classes(header_lines):
-    """
-    Extrait la liste des classes bases à partir des lignes du header.
-    Supporte plusieurs bases, format classique : class Derived : public Base1, public Base2 { ...
-    """
-    bases = []
-    class_decl_pattern = re.compile(r'class\s+\w+\s*:\s*([^\\{]+)\{?')
-    for line in header_lines:
-        match = class_decl_pattern.search(line)
-        if match:
-            bases_list = match.group(1)
-            # extraire les noms de bases (supprimer "public ", "private ", etc.)
-            bases = [b.strip().split()[-1] for b in bases_list.split(',')]
-            break
-    return bases
 
 def find_header_file_recursive(class_name, root_dir):
     """
@@ -237,7 +163,7 @@ def find_method_signature_in_header(method_name, header_path):
 
     return full_signature
 
-def find_method_in_class_or_bases(class_name, method_name, root_folder, visited=None, depth=0):
+def find_method_in_class_or_bases(class_name, method_name, root_folder, visited=None, depth=0, verbose = False):
     if visited is None:
         visited = set()
     if class_name in visited:
@@ -252,7 +178,7 @@ def find_method_in_class_or_bases(class_name, method_name, root_folder, visited=
     # 1. Cherche la méthode dans le header direct
     signature = find_method_signature_in_header(method_name, header_path)
     if signature:
-        if depth > 0:
+        if depth > 0 and verbose:
             print(f"[INFO] Méthode '{method_name}' trouvée dans la base '{class_name}'")
         return signature
 

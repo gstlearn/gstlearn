@@ -50,16 +50,17 @@ set(DOXYGEN_USE_MATHJAX YES)
 # https://stackoverflow.com/questions/25290453/how-do-i-add-a-footnote-in-doxygen
 set(DOXYGEN_ALIASES tooltip{1}=\"\\latexonly\\footnote\\{\\1\\}\\endlatexonly\\htmlonly<sup title=\'\\1\'>*</sup>\\endhtmlonly\")
 
-### TODO: Following lines create fake hpp to automatically generate documentation for macros
+### Following lines create fake hpp to automatically generate documentation for macros
 # FORWARD_METHOD_CONST and FORWARD_METHOD_NON_CONST
 
-set(GENERATED_HPP_FILES ${CMAKE_BINARY_DIR}/doxygen/generated_hpp/)
+set(GENERATED_HPP_FILES ${CMAKE_BINARY_DIR}/doxygen/generated_hpp)
 set(DOXYGEN_SCRIPT ${CMAKE_SOURCE_DIR}/tools/scripts/macrodoc.py)
 
 add_custom_command(OUTPUT ${GENERATED_HPP_FILES}
   COMMAND ${CMAKE_COMMAND} -E make_directory ${GENERATED_HPP_FILES})
 
 add_custom_target(doc_macro
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${GENERATED_HPP_FILES}
   COMMAND ${Python3_EXECUTABLE} ${DOXYGEN_SCRIPT} ${GENERATED_HPP_FILES}
   "python"
   COMMENT "Generate macro wrapper doc"
