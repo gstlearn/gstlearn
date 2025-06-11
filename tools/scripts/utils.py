@@ -166,35 +166,6 @@ def extract_base_classes(header_lines):
             break
     return bases
 
-def find_method_in_class_or_base(class_name, method_name, root_dir, visited=None, depth=0):
-    if visited is None:
-        visited = set()
-    if class_name in visited:
-        return None
-    visited.add(class_name)
-
-    header_path = find_header_file_recursive(class_name, root_dir)
-    if header_path is None:
-        print(f"[INFO] Header not found for class {class_name}")
-        return None
-
-    signature = find_method_signature_in_header(method_name, header_path)
-    if signature:
-        if depth > 0:
-            print(f"[INFO] Method '{method_name}' found in base class '{class_name}'")
-        return signature
-
-    with open(header_path, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-
-    base_classes = extract_base_classes(lines)
-    for base_class in base_classes:
-        sig = find_method_in_class_or_base(base_class, method_name, root_dir, visited, depth + 1)
-        if sig:
-            return sig
-
-    return None
-    
 def find_header_file_recursive(class_name, root_dir):
     """
     Recherche récursive d'un fichier <class_name>.hpp dans root_dir et ses sous-dossiers.
