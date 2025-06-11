@@ -39,8 +39,8 @@ Matern (Third Parameter = 1)
 Total Sill     =      2.000
 Known Mean(s)     0.000
 
-Minimization of a simple function
-=================================
+Minimization of a Function
+==========================
 Optimum: x = 3 -> Minimum value = 0
 
 Fitting a Model from a Variogram

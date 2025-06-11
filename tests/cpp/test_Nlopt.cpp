@@ -47,7 +47,7 @@ double myfunc(unsigned n, const double *x, double *grad, void *my_func_data = nu
 
 static void _firstTest()
 {
-  mestitle(0,"Minimization of a simple function");
+  mestitle(0,"Minimization of a Function");
   int npar = 1;
   VectorDouble x = {1.};
   nlopt_opt opt = nlopt_create(NLOPT_LN_NELDERMEAD, npar);
