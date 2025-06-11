@@ -3,6 +3,10 @@ import re
 import sys
 import os
 
+#The aim of this script is to generate the code for 
+# FORWARD_METHOD and FORWARD_METHOD_NON_CONST
+# in the target languages (since these macros are not understood by swig).
+
 def extract_macro_calls(header_file, macro_name):
     # Utilisation de os.path pour manipuler les chemins de manière portable
     classname = os.path.basename(header_file).split(".")[0]

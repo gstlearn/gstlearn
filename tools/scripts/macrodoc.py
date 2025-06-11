@@ -5,7 +5,7 @@ import os
 import utils
     
     
-#This script generates specific documentations when macros FORWARD_METHOD is used.
+#This script generates specific documentations when macros FORWARD_METHOD and FORWARD_METHOD_NON_CONST are used.
 
 if __name__ == "__main__":
    folder  = sys.argv[1]
