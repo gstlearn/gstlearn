@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+
 /**
  * This test aims to test the various possibilities of Model Fitting
  *
@@ -31,7 +32,6 @@
 #include "Variogram/VarioParam.hpp"
 #include "Model/ModelOptimVario.hpp"
 #include "Model/ModelOptimVMap.hpp"
-#include "Model/ModelOptimSillsVario.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 
 #include "geoslib_define.h"
@@ -67,22 +67,6 @@ static void _firstTest(Db* db2D, Model* model, const ECalcVario& calcul, bool co
 
 static void _secondTest(Db* db2D, Model* model, const ECalcVario& calcul, bool converge)
 {
-  mestitle(0, "Sill fitting from Variogram (old version)");
-
-  // Calculating the experimental variogram
-  Vario* vario = _computeVariogram(db2D, calcul);
-
-  // Fit the Model
-  ModelOptimSillsVario model_opt(model);
-  model_opt.fit(vario, 2, converge);
-  (void) model->dumpToNF("SillsFromVario.ascii");
-  model->display();
-
-  delete vario;
-}
-
-static void _thirdTest(Db* db2D, Model* model, const ECalcVario& calcul, bool converge)
-{
   mestitle(0, "Model fitting from Variogram (new version)");
 
   // Calculating the experimental variogram
@@ -101,7 +85,7 @@ static void _thirdTest(Db* db2D, Model* model, const ECalcVario& calcul, bool co
   delete vario;
 }
 
-static void _fourthTest(DbGrid* dbgrid, Model* model, const ECalcVario& calcul, bool converge)
+static void _thirdTest(DbGrid* dbgrid, Model* model, const ECalcVario& calcul, bool converge)
 {
   mestitle(0, "Sill Fitting from Variogram Map (new version)");
 
@@ -198,12 +182,7 @@ int main(int argc, char* argv[])
   if (mode == 0 || mode == 3)
   {
     model_test = model_simu->clone();
-    _thirdTest(db2D, model_test, calcul, converge);
-  }
-  if (mode == 0 || mode == 4)
-  {
-    model_test = model_simu->clone();
-    _fourthTest(dbgrid, model_test, calcul, converge);
+    _thirdTest(dbgrid, model_test, calcul, converge);
   }
 
   // Printing the resulting Model

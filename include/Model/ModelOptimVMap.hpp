@@ -39,10 +39,6 @@ public:
   ModelOptimVMap& operator=(const ModelOptimVMap& m);
   virtual ~ModelOptimVMap();
 
-  int fit(const DbGrid* dbmap, bool flagGoulard = true, bool verbose = false);
-
-  int loadEnvironment(const DbGrid* dbmap, bool flagGoulard = true, bool verbose = false);
-
   double computeCost(bool verbose = false) override;
 
   static ModelOptimVMap* createForOptim(ModelGeneric* model,
@@ -51,35 +47,10 @@ public:
                                         const Option_AutoFit& mauto   = Option_AutoFit(),
                                         const Option_VarioFit& optvar = Option_VarioFit());
 
-#ifndef SWIG
-  static double evalCost(unsigned int nparams,
-                         const double* current,
-                         double* grad,
-                         void* my_func_data);
-#endif
-
-protected:
-  struct VMap_Part
-  {
-    const DbGrid* _dbmap;
-    VectorInt _indg1;
-    VectorInt _indg2;
-    int _npadir;
-  };
-
-  struct AlgorithmVMap
-  {
-    Model_Part& _modelPart;
-    VMap_Part& _vmapPart;
-    ModelOptimSillsVMap& _goulardPart;
-  };
-
 private:
-  void _copyVMapPart(const VMap_Part& vmapPart);
   bool _checkConsistency();
   int  _getDimensions();
   void _allocateInternalArrays();
-  void _computeFromVMap();
 
 protected:
   // Model fitting options
@@ -90,16 +61,18 @@ protected:
 
   // Set of constraints
   Constraints* _constraints;
+
+  // Calculation option
   CovCalcMode _calcmode;
 
   // Part relative to the Experimental VMap
-  VMap_Part _vmapPart;
-
-  // Only used for Goulard Option
-  ModelOptimSillsVMap _goulardPart;
+  const DbGrid* _dbmap;
 
   // Following members are simply there to accelerate the computation
+  VectorInt _indg1;
+  VectorInt _indg2;
   int _ndim;
   int _nvar;
   int _nech;
+  int _npadir;
 };

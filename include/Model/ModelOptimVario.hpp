@@ -38,12 +38,6 @@ public:
   ModelOptimVario& operator=(const ModelOptimVario& m);
   virtual ~ModelOptimVario();
 
-  int fit(Vario* vario, bool flagGoulard = true, int wmode = 2, bool verbose = false);
-
-  int loadEnvironment(Vario* vario,
-                      bool flagGoulard = true,
-                      int wmode        = 2,
-                      bool verbose     = false);
   double computeCost(bool verbose = false) override;
 
   static ModelOptimVario* createForOptim(ModelGeneric* model,
@@ -51,13 +45,6 @@ public:
                                          Constraints* constraints      = nullptr,
                                          const Option_AutoFit& mauto   = Option_AutoFit(),
                                          const Option_VarioFit& optvar = Option_VarioFit());
-
-#ifndef SWIG
-  static double evalCost(unsigned int nparams,
-                         const double* current,
-                         double* grad,
-                         void* my_func_data);
-#endif
 
 protected:
   struct OneLag
@@ -68,24 +55,9 @@ protected:
     double _gg;
     SpacePoint _P;
   };
-  struct Vario_Part
-  {
-    const Vario* _vario;
-    int _wmode;
-    std::vector<OneLag> _lags;
-  };
-  struct AlgorithmVario
-  {
-    Model_Part& _modelPart;
-    Vario_Part& _varioPart;
-
-    // Part relative to Sill fitting procedure
-    ModelOptimSillsVario& _goulardPart;
-  };
 
 private:
   int  _buildExperimental();
-  void _copyVarioPart(const Vario_Part& varioPart);
   bool _checkConsistency();
   OneLag _createOneLag(int ndim, int idir, int ivar, int jvar, double gg, double dist) const;
 
@@ -101,8 +73,6 @@ protected:
   CovCalcMode _calcmode;
 
   // Part relative to the Experimental variograms
-  Vario_Part _varioPart;
-
-  // Only used for Goulard Option
-  ModelOptimSillsVario _goulardPart;
+  const Vario* _vario;
+  std::vector<OneLag> _lags;
 };

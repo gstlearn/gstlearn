@@ -20,27 +20,6 @@ Spherical
 Total Sill     =      4.145
 Known Mean(s)     0.000
 
-Sill fitting from Variogram (old version)
-=========================================
-
-Model characteristics
-=====================
-Space dimension              = 2
-Number of variable(s)        = 1
-Number of basic structure(s) = 2
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
-
-Covariance Part
----------------
-Nugget Effect
-- Sill         =      1.457
-Spherical
-- Sill         =      2.688
-- Range        =      0.250
-Total Sill     =      4.145
-Known Mean(s)     0.000
-
 Model fitting from Variogram (new version)
 ==========================================
 

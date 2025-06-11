@@ -30,36 +30,13 @@ public:
   ModelOptimLikelihood& operator=(const ModelOptimLikelihood& m);
   virtual ~ModelOptimLikelihood();
 
-  int fit(Db* db, bool flagSPDE = false, bool verbose = false);
   int loadEnvironment(Db* db, bool flagSPDE = false, bool verbose = false);
 
-#ifndef SWIG
-  static double evalCost(unsigned int nparams,
-                         const double* current,
-                         double* grad,
-                         void* my_func_data);
-#endif
-
 private:
-  struct Db_Part
-  {
-    // Use SPDE approach (TRUE); use the Covariance Matrix approach (FALSE°
-    // Use SPDE approach (TRUE); use the Covariance Matrix approach (FALSE°
-    bool _flagSPDE;
-    Db* _db;
-  };
-
-  struct AlgorithmLikelihood
-  {
-    Model_Part& _modelPart;
-    Db_Part& _dbPart;
-  };
-private:
-private:
-  void _copyDbPart(const Db_Part& dbPart);
   bool _checkConsistency();
 
 private:
-  // Part relative to the Db
-  Db_Part _dbPart;
+  // Use SPDE approach (TRUE); use the Covariance Matrix approach (FALSE)
+  bool _flagSPDE;
+  Db* _db;
 };
