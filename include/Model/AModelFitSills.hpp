@@ -16,10 +16,10 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Model/AModelOptim.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Basic/ICloneable.hpp"
+#include "Covariances/CovCalcMode.hpp"
 
 class ModelCovList;
 class Constraints;

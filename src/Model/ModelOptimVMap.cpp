@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Model/AModelOptim.hpp"
-#include "Model/ModelOptimSillsVMap.hpp"
 #include "Model/ModelFitSillsVMap.hpp"
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
@@ -27,7 +25,6 @@ ModelOptimVMap::ModelOptimVMap(ModelGeneric* model,
                                const Option_AutoFit& mauto,
                                const Option_VarioFit& optvar)
   : AModelOptimNew(model)
-  , AModelOptim(dynamic_cast<Model*>(model), constraints, mauto, optvar)
   , _optvar(optvar)
   , _mauto(mauto)
   , _constraints(constraints)
@@ -44,7 +41,6 @@ ModelOptimVMap::ModelOptimVMap(ModelGeneric* model,
 
 ModelOptimVMap::ModelOptimVMap(const ModelOptimVMap& m)
   : AModelOptimNew(m)
-  , AModelOptim(m)
   , _optvar(m._optvar)
   , _mauto(m._mauto)
   , _constraints(m._constraints)
@@ -64,7 +60,6 @@ ModelOptimVMap& ModelOptimVMap::operator=(const ModelOptimVMap& m)
   if (this != &m)
   {
     AModelOptimNew::operator=(m);
-    AModelOptim::operator=(m);
     _optvar      = m._optvar;
     _mauto       = m._mauto;
     _constraints = m._constraints;
@@ -86,8 +81,6 @@ ModelOptimVMap::~ModelOptimVMap()
 
 bool ModelOptimVMap::_checkConsistency()
 {
-  const Model* model = _modelPart._model;
-
   if (_dbmap == nullptr)
   {
     messerr("You must have defined 'dbmap' beforehand");
@@ -96,16 +89,16 @@ bool ModelOptimVMap::_checkConsistency()
   int nvar = _dbmap->getNLoc(ELoc::Z);
   unsigned int ndim = _dbmap->getNLoc(ELoc::X);
 
-  if (model->getNVar() != nvar)
+  if (_model->getNVar() != nvar)
   {
     messerr("Number of variables in Dbmap (%d) must match the one in Model (%d)",
-            nvar, model->getNVar());
+            nvar, _model->getNVar());
     return false;
   }
-  if (model->getNDim() != ndim)
+  if (_model->getNDim() != ndim)
   {
     messerr("'_dbmap'(%d) and '_model'(%d) should have same Space Dimensions",
-      ndim, model->getNDim());
+      ndim, _model->getNDim());
     return false;
   }
   // if (_constraints->isConstraintSillDefined())

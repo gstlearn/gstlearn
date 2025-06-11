@@ -11,8 +11,6 @@
 #include "Model/ModelOptimVario.hpp"
 
 #include "Model/AModelFitSills.hpp"
-#include "Model/AModelOptim.hpp"
-#include "Model/ModelOptimSillsVario.hpp"
 #include "Model/ModelFitSillsVario.hpp"
 #include "geoslib_define.h"
 
@@ -27,7 +25,6 @@ ModelOptimVario::ModelOptimVario(ModelGeneric* model,
                                  const Option_AutoFit& mauto,
                                  const Option_VarioFit& optvar)
   : AModelOptimNew(model)
-  , AModelOptim(dynamic_cast<Model*>(model), constraints, mauto, optvar)
   , _optvar(optvar)
   , _mauto(mauto)
   , _constraints(constraints)
@@ -38,7 +35,6 @@ ModelOptimVario::ModelOptimVario(ModelGeneric* model,
 
 ModelOptimVario::ModelOptimVario(const ModelOptimVario& m)
   : AModelOptimNew(m)
-  , AModelOptim(m)
   , _optvar(m._optvar)
   , _mauto(m._mauto)
   , _constraints(m._constraints)
@@ -53,7 +49,6 @@ ModelOptimVario& ModelOptimVario::operator=(const ModelOptimVario& m)
   if (this != &m)
   {
     AModelOptimNew::operator=(m);
-    AModelOptim::operator=(m);
     _optvar      = m._optvar;
     _mauto       = m._mauto;
     _constraints = m._constraints;
@@ -70,18 +65,16 @@ ModelOptimVario::~ModelOptimVario()
 
 bool ModelOptimVario::_checkConsistency()
 {
-  const ModelGeneric* model = _modelPart._model;
-
-  if (_vario->getNDim() != (int)model->getNDim())
+  if (_vario->getNDim() != (int)_model->getNDim())
   {
     messerr("'_vario'(%d) and '_model'(%d) should have same Space Dimension",
-            _vario->getNDim(), model->getNDim());
+            _vario->getNDim(), _model->getNDim());
     return false;
   }
-  if (_vario->getNVar() != model->getNVar())
+  if (_vario->getNVar() != _model->getNVar())
   {
     messerr("'_vario'(%d) and '_model'(%d) should have same number of Variables",
-      _vario->getNVar(), model->getNVar());
+      _vario->getNVar(), _model->getNVar());
     return false;
   }
   return true;

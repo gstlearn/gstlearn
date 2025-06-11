@@ -14,7 +14,7 @@
  *
  * The example contains several subsets:
  * - Fitting sills only using old technology (Goulard)
- * - Fitting sills only using new technology (AModelOptimSills)
+ * - Fitting sills only using new technology (AModelFitSills)
  * - Fitting a Model using the old technology (Foxleg based)
  * - Fitting using the new technology (AModelOptim*)
  *

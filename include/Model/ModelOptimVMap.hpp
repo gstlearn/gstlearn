@@ -14,8 +14,6 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Model/AModelOptim.hpp"
-#include "Model/ModelOptimSillsVMap.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 
@@ -28,7 +26,7 @@ class Constraints;
  * Class which, starting from an experimental variogram, enables fitting the
  * various parameters of a Covariance part of a Model
  */
-class GSTLEARN_EXPORT ModelOptimVMap: public AModelOptimNew, public AModelOptim
+class GSTLEARN_EXPORT ModelOptimVMap: public AModelOptimNew
 {
 public:
   ModelOptimVMap(ModelGeneric* model,

@@ -24,7 +24,6 @@
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Model/ModelOptimVario.hpp"
-#include "Model/ModelOptimLikelihood.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 
 #include "geoslib_define.h"
