@@ -125,13 +125,13 @@ int main(int argc, char *argv[])
     mestitle(0, "Demonstrating the findNN algorithm");
     bool flagShuffle = true;
 
-    int nech = 20;
+    nech = 20;
     Db* aux = Db::createFillRandom(nech, ndim, 1, 0, 0, 0., 0.,
                                     VectorDouble(), VectorDouble(),
                                     VectorDouble(), 24813);
     MatrixT<int> mat = findNN(data, aux, nb_neigh, flagShuffle);
-    int nrows        = mat.getNRows();
-    int ncols        = mat.getNCols();
+    int nrows        = (int) mat.getNRows();
+    int ncols        = (int) mat.getNCols();
     for (int irow = 0; irow < nrows; irow++)
     {
       for (int icol = 0; icol < ncols; icol++)
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
     mestitle(0, "Demonstrating BallTree algorithm on a Sphere");
 
     // Global parameters
-    bool verbose = false;
+    verbose = false;
     defineDefaultSpace(ESpaceType::SN, 2);
 
     // Constructing the Meshing on the Sphere

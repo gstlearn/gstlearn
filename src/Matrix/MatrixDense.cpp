@@ -282,6 +282,7 @@ void MatrixDense::prodScalar(double v)
 
 void MatrixDense::addMatInPlace(const MatrixDense& y, double cx, double cy)
 {
+  if (y.getEigenMat().size() <= 0) return;
   getEigenMat().noalias() = cx * getEigenMat() + cy * y.getEigenMat();
 }
 
