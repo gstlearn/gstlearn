@@ -26,6 +26,8 @@ public:
       _params.push_back(param);
     }
   }
+  double getValue(int index) const;
+  void setValue(int index, double value);
   std::vector<double> getValues() const;
   void setValues(const std::vector<double>& values);
   std::vector<double> getMinValues() const;
