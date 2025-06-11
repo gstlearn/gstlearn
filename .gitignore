@@ -40,5 +40,7 @@ doc/courses/r/*_cache
 *.Rout
 .*~
 .metadata
+doc/details/*.aux
+doc/details/*.log
+doc/details/*.pdf
 2
-
