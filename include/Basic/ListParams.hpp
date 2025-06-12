@@ -33,6 +33,7 @@ public:
 
   size_t getNOptimizableParams() const { return _dispatchIndex.size(); }
   size_t getNParams() const { return _params.size(); }
+  void updateDispatch();
 private:
   
   

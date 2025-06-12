@@ -9,6 +9,17 @@ ListParams::ListParams()
 {
 }
 
+void ListParams::updateDispatch()
+{
+  _dispatch.clear();
+  _dispatchIndex.clear();
+  for (size_t i = 0; i < _params.size(); ++i)
+  {
+    _dispatch.push_back(_params[i].get().getAddress());
+  }
+  makeDispatchIndexFromDispatch();
+}
+
 void ListParams::addParam(ParamInfo& param)
 {
   _params.push_back(param);

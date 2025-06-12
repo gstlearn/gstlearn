@@ -260,6 +260,16 @@ public:
   void appendParams(ListParams& listParams) override;
   void updateCov() override;
   void initParams() override;
+  std::vector<ParamInfo>& getScalesParam()
+  {
+    return _scales;
+  }
+
+  std::vector<ParamInfo>& getAnglesParam()
+  {
+    return _angles;
+  }
+  
   #ifndef SWIG
   int addEvalCovVecRHSInPlace(vect vect,
                               const VectorInt& index1,

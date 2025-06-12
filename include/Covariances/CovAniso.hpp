@@ -249,7 +249,14 @@ public:
   int getNAngles() const { return getCorAniso()->getNAngles(); }
   int getNRanges() const { return getCorAniso()->getNRanges(); }
   int getNScales() const { return getCorAniso()->getNScales(); }
-
+  std::vector<ParamInfo>& getScalesParam()
+  {
+    return getCorAniso()->getScalesParam();
+  }
+  std::vector<ParamInfo>& getAnglesParam()
+  {
+    return getCorAniso()->getAnglesParam();
+  }
   void _computeCorrec();
   double _getDetTensor() const;
   double _getSillValue(int ivar, int jvar, const CovCalcMode* mode) const;

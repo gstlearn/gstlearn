@@ -185,9 +185,9 @@ public:
 
   void initParams();
 
-  #ifndef SWIG
   std::shared_ptr<ListParams> generateListParams() const;
-  #endif
+  // Version for python test
+  static ListParams* createListParams(std::shared_ptr<ListParams> lp);
   void updateModel();
   double computeLogLikelihood(const Db* db, bool verbose = false);
   double evalGradParam(int iparam, SpacePoint& p1, SpacePoint& p2,int ivar = 0, int jvar = 0);

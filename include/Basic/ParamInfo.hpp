@@ -55,6 +55,7 @@ public:
     void   setFixed(bool isFixed) {_isFixed = isFixed;};
     bool   isFixed() const {return _isFixed;};
     void   setAddress(int addr) const {address = addr;};
+    size_t getAddress() const {return address;};
     String toString(const AStringFormat* strfmt = nullptr) const override;
 
 private:
