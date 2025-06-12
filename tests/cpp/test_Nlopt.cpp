@@ -29,22 +29,8 @@
 #include "geoslib_define.h"
 
 #include <iostream>
-#include <nlopt.h>
 
 // Function to minimize
-double myfunc(unsigned n, const double *x, double *grad, void *my_func_data = nullptr)
-{
-    DECLARE_UNUSED(n);
-    DECLARE_UNUSED(my_func_data);
-    if (grad) {
-        grad[0] = 2 * (x[0] - 3);
-    }
-    double value = (x[0] - 3) * (x[0] - 3);
-    // std::cout << "current value = " << x[0] << " -> Minimum = " << value
-    //           << std::endl;
-    return value;
-}
-
 double myfunc2(const std::vector<double>& x)
 {
   // if (grad)
