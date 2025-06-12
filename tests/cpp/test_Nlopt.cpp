@@ -75,6 +75,7 @@ static void _firstTest()
   // nlopt_set_min_objective(opt, myfunc, nullptr);
   opt->setXtolRel(EPSILON4);
 
+  
   // Minimization
   double minf    = 1.e30;
   try
