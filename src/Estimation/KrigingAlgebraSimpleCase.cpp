@@ -988,7 +988,6 @@ int KrigingAlgebraSimpleCase::_needMuUK()
 
 void KrigingAlgebraSimpleCase::updateSampleRanks()
 {
-
   _neq  = (int)(*getSampleRanksByVariable(0)).size();
   _nrhs = (int)getSampleRanks()->size();
   _nvar = (int)getSampleRanks()->size();
@@ -997,15 +996,11 @@ void KrigingAlgebraSimpleCase::updateSampleRanks()
   _nbfl = _X->getNCols();
   _X0->resize(_nrhs, _nbfl);
   _flagSK = (_nbfl <= 0);
-  if (_flagSK)
+  if (_flagSK && !_Means.empty())
   {
     for (int i = 0; i < (int)_Z->size(); i++)
-    {
       (*_Z)[i] -= _Means[0];
-    }
-
   }
-
 }
 
 void KrigingAlgebraSimpleCase::updateRankHandler()

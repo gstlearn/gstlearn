@@ -21,7 +21,7 @@
 #include "Model/ModelGeneric.hpp"
 #include "geoslib_define.h"
 
-Vecchia::Vecchia(const ModelGeneric* model,
+Vecchia::Vecchia(ModelGeneric* model,
                  int nb_neigh,
                  const Db* db1,
                  const Db* db2)
@@ -398,5 +398,4 @@ double Vecchia::_computeLogDet() const
 void Vecchia::_updateModel(bool verbose)
 {
   computeLower(_Ranks, verbose);
- 
 }

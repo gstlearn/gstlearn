@@ -15,7 +15,6 @@
 #include "gstlearn_export.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Space/SpacePoint.hpp"
-#include <vector>
 
 class ACov;
 class CorAniso;
@@ -31,6 +30,7 @@ public:
   CorGneiting(const CorGneiting& r);
   CorGneiting& operator=(const CorGneiting& r);
   virtual ~CorGneiting();
+
   IMPLEMENT_CLONING(CorGneiting)
 
   bool isConsistent(const ASpace* space) const override

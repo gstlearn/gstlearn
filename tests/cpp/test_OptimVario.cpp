@@ -53,10 +53,9 @@ int main(int argc, char* argv[])
   modelfit->display();
 
   // Fitting procedure
-  Option_VarioFit optvar = Option_VarioFit();
-  optvar.setFlagGoulardUsed(false);
-  modelfit->fitNew(nullptr, vario, nullptr, nullptr, Option_AutoFit(), optvar,
-                   false, 30, false);
+  ModelOptimParam mop = ModelOptimParam();
+  mop.setFlagGoulard(true);
+  modelfit->fitNew(nullptr, vario, nullptr, nullptr, mop, ITEST, false);
 
   mestitle(1, "Fitted Model");
   modelfit->display();

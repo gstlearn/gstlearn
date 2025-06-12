@@ -50,8 +50,8 @@ public:
     }
     double getUserMin() const {return _userBounds[0];};
     double getUserMax() const {return _userBounds[1];};
-    void setFixed(bool isFixed) {_isFixed = isFixed;};
-    bool isFixed() const {return _isFixed;};
+    void   setFixed(bool isFixed) {_isFixed = isFixed;};
+    bool   isFixed() const {return _isFixed;};
 
     String toString(const AStringFormat* strfmt = nullptr) const override;
 

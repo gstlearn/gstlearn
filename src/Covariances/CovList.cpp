@@ -250,7 +250,9 @@ double CovList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
   double cov            = 0.;
   const VectorInt& list = _getListActiveCovariances(mode);
   for (const auto& j: list.getVector())
+  {
     cov += _covs[j]->eval0(ivar, jvar, mode);
+  }
   return cov;
 }
 
@@ -276,7 +278,9 @@ double CovList::_eval(const SpacePoint& p1,
   double cov            = 0.;
   const VectorInt& list = _getListActiveCovariances(mode);
   for (const auto& j: list.getVector())
+  {
     cov += _covs[j]->evalCov(p1, p2, ivar, jvar, mode);
+  }
   return cov;
 }
 
@@ -284,7 +288,9 @@ void CovList::_load(const SpacePoint& p, bool case1) const
 {
   const VectorInt& list = _getListActiveCovariances(nullptr);
   for (const auto& j: list.getVector())
+  {
     _covs[j]->load(p, case1);
+  }
 }
 
 String CovList::toString(const AStringFormat* /*strfmt*/) const

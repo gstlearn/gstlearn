@@ -73,18 +73,18 @@ String ParamInfo::toString(const AStringFormat* strfmt) const
   std::stringstream sstr;
   sstr << _description << std::endl;
 
-  sstr << "- Value: " << std::to_string(_value);
+  sstr << "    Value: " << std::to_string(_value);
   if (_isFixed) sstr << " (fixed)";
   sstr << std::endl;
 
-  sstr << "- Absolute Bounds: ";
+  sstr << "    Absolute Bounds: ";
   for (const auto& bound: _absoluteBounds)
   {
     sstr << bound << " ";
   }
   sstr << std::endl;
 
-  sstr << "- User Bounds: ";
+  sstr << "    User Bounds: ";
   for (const auto& bound: _userBounds)
   {
     sstr << bound << " ";

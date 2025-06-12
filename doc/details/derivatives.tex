@@ -1,0 +1,109 @@
+\documentclass{article}
+\usepackage{amsmath,amssymb}
+\usepackage{bm}
+
+\begin{document}
+
+\section*{Derivative of the Anisotropic Covariance Function (Matérn) in 2D and 3D}
+
+We consider an anisotropic covariance function of the form:
+\[
+k(h) = C\left( r(h) \right), \quad \text{where } r(h) = \sqrt{h^\top T h}
+\]
+with:
+\begin{itemize}
+  \item \( h \in \mathbb{R}^d \) is the spatial displacement vector,
+  \item \( T = R^\top \Lambda R \in \mathbb{R}^{d \times d} \) is a symmetric positive definite anisotropy tensor,
+  \item \( \Lambda = \mathrm{diag}(\lambda_1, \lambda_2, [\lambda_3]) \), with \( \lambda_i = \frac{1}{s_i^2} \),
+  \item \( R \in SO(d) \) is a rotation matrix.
+\end{itemize}
+
+We define the rotated coordinate \( \tilde{h} = R h \), so:
+\[
+r(h)^2 = \tilde{h}^\top \Lambda \tilde{h}
+\]
+
+\section*{2D Case}
+
+Let \( d = 2 \), and \( R(\theta) \) be a rotation by angle \( \theta \):
+\[
+R(\theta) = \begin{pmatrix}
+\cos\theta & -\sin\theta \\
+\sin\theta & \cos\theta
+\end{pmatrix}
+\]
+
+Let \( J = \begin{pmatrix} 0 & -1 \\ 1 & 0 \end{pmatrix} \) be the generator of infinitesimal rotations.
+
+\subsection*{Derivative with respect to scale \( s_i \)}
+
+Since \( \lambda_i = 1/s_i^2 \), we obtain:
+\[
+\frac{\partial k(h)}{\partial s_i} = - \frac{C'(r)}{r} \cdot \frac{\tilde{h}_i^2}{s_i^3}
+\]
+
+\subsection*{Derivative with respect to angle \( \theta \)}
+
+\[
+\frac{\partial k(h)}{\partial \theta} = \frac{C'(r)}{r} \cdot \tilde{h}^\top \Lambda J \tilde{h}
+\]
+
+\subsection*{Behavior at \( h = 0 \)}
+
+In both cases, the derivative tends to 0 as \( h \to 0 \), so:
+\[
+\left. \frac{\partial k(h)}{\partial \xi} \right|_{h = 0} = 0
+\quad \text{for } \xi \in \{s_1, s_2, \theta\}
+\]
+
+\section*{3D Case}
+
+Let \( d = 3 \), and \( R \in SO(3) \) be a rotation matrix parameterized by Euler angles \( (\theta_1, \theta_2, \theta_3) \) (e.g., ZYX convention: yaw, pitch, roll).
+
+\subsection*{Derivative with respect to scale \( s_i \)}
+
+Same as in 2D:
+\[
+\frac{\partial k(h)}{\partial s_i} = - \frac{C'(r)}{r} \cdot \frac{\tilde{h}_i^2}{s_i^3}
+\]
+
+\subsection*{Derivative with respect to orientation parameters}
+
+Let \( J_k \in \mathfrak{so}(3) \) be the skew-symmetric generator for infinitesimal rotation around axis \( k \). Then:
+\[
+\frac{\partial k(h)}{\partial \theta_k} = \frac{C'(r)}{r} \cdot \tilde{h}^\top \Lambda J_k \tilde{h}
+\]
+
+\subsection*{Infinitesimal rotation matrices}
+
+The generators \( J_1, J_2, J_3 \in \mathbb{R}^{3 \times 3} \) are:
+
+\[
+J_1 = \begin{pmatrix}
+0 & 0 & 0 \\
+0 & 0 & -1 \\
+0 & 1 & 0
+\end{pmatrix}, \quad
+J_2 = \begin{pmatrix}
+0 & 0 & 1 \\
+0 & 0 & 0 \\
+-1 & 0 & 0
+\end{pmatrix}, \quad
+J_3 = \begin{pmatrix}
+0 & -1 & 0 \\
+1 & 0 & 0 \\
+0 & 0 & 0
+\end{pmatrix}
+\]
+
+Each corresponds to rotation around the \( x \)-, \( y \)-, and \( z \)-axes, respectively.
+
+\subsection*{Note on parameterization}
+
+The matrices \( J_k \) apply directly for Lie algebra–based parametrization. If using Euler angles, chain rule must be applied:
+\[
+\frac{\partial k}{\partial \theta_{\text{Euler}}} = \sum_{k=1}^3 \frac{\partial k}{\partial \theta_k} \cdot \frac{\partial \theta_k}{\partial \theta_{\text{Euler}}}
+\]
+
+\end{document}
+

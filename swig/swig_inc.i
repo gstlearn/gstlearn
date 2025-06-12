@@ -188,14 +188,13 @@
   #include "Model/ModelGeneric.hpp"
   #include "Model/ModelCovList.hpp"
   #include "Model/Model.hpp"
+  #include "Model/ModelOptimParam.hpp"
   #include "Model/Option_AutoFit.hpp"
   #include "Model/Option_VarioFit.hpp"
   #include "Model/Constraints.hpp"
   #include "Model/ConsItem.hpp"
   #include "Model/CovParamId.hpp"
   #include "Model/CovParamId.hpp"
-  #include "Model/AModelOptim.hpp"
-  #include "Model/ModelOptimLikelihood.hpp"
   
   #include "Covariances/ParamId.hpp"
   #include "Covariances/TabNoStat.hpp"
@@ -325,7 +324,7 @@
   #include "Estimation/CalcImage.hpp"
   #include "Estimation/CalcGlobal.hpp"
   #include "Estimation/KrigOpt.hpp"
-  #include "Model/AModelOptimNew.hpp"
+  #include "Estimation/AModelOptimNew.hpp"
   #include "Estimation/ALikelihood.hpp"
   #include "Estimation/Vecchia.hpp"
   #include "Estimation/Likelihood.hpp"
@@ -418,6 +417,8 @@
 %template(VVectorConstProjMatrix)  std::vector< std::vector< const ProjMatrix*> >;
 %template(VVectorConstIProj) std::vector< std::vector< const IProj*> >;
 %template(VectorMeshes)            std::vector< const AMesh*>;
+%template(VectorMatrixSquare)      std::vector<MatrixSquare >;
+
 ////////////////////////////////////////////////
 // Conversion Target language => C++
 

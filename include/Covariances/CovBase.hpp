@@ -35,7 +35,7 @@ public:
   virtual ~CovBase();
 
   IMPLEMENT_CLONING(CovBase)
-  ParamInfo createParamInfoForCholSill();
+  static ParamInfo createParamInfoForCholSill();
 
   virtual bool isConsistent(const ASpace* space) const override;
   virtual int getNVar() const override { return _ctxt.getNVar(); }

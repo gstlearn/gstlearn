@@ -60,6 +60,7 @@ public:
   CorAniso(const CorAniso& r);
   CorAniso& operator=(const CorAniso& r);
   virtual ~CorAniso();
+  
   /// ICloneable Interface
   IMPLEMENT_CLONING(CorAniso)
 

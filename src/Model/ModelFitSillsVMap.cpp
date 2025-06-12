@@ -8,12 +8,9 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Model/ModelOptimSillsVMap.hpp"
+#include "Model/ModelFitSillsVMap.hpp"
 
 #include "Model/Model.hpp"
-#include "Variogram/Vario.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
 #include "Db/DbGrid.hpp"
 
@@ -22,55 +19,59 @@
 #define IJDIR(ijvar, ipadir) ((ijvar) * _npadir + (ipadir))
 #define WT(ijvar, ipadir)       wt[IJDIR(ijvar, ipadir)]
 #define GG(ijvar, ipadir)       gg[IJDIR(ijvar, ipadir)]
-#define _WT(ijvar, ipadir)       _wt[IJDIR(ijvar, ipadir)]
-#define _GG(ijvar, ipadir)       _gg[IJDIR(ijvar, ipadir)]
-#define _WT2(ijvar, ipadir) _wt2[IJDIR(ijvar, ipadir)]
-#define _GG2(ijvar, ipadir)      _gg2[IJDIR(ijvar, ipadir)]
-#define TAB(ijvar, ipadir)      tabin[IJDIR(ijvar, ipadir)]
-#define DD(idim, ijvar, ipadir) _dd[idim][IJDIR(ijvar, ipadir)]
+#define _WT(ijvar, ipadir)     _wt[IJDIR(ijvar, ipadir)]
+#define _GG(ijvar, ipadir)     _gg[IJDIR(ijvar, ipadir)]
 
-#define CORRECT(idir, k)                                                       \
-  (!isZero(vario->getHhByIndex(idir, k)) &&                                    \
-   !FFFF(vario->getHhByIndex(idir, k)) &&                                      \
-   !isZero(vario->getSwByIndex(idir, k)) &&                                    \
-   !FFFF(vario->getSwByIndex(idir, k)) && !FFFF(vario->getGgByIndex(idir, k)))
-#define INCORRECT(idir, k)                                                     \
-  (isZero(vario->getHhByIndex(idir, k)) ||                                     \
-   FFFF(vario->getHhByIndex(idir, k)) ||                                       \
-   isZero(vario->getSwByIndex(idir, k)) ||                                     \
-   FFFF(vario->getSwByIndex(idir, k)) || FFFF(vario->getGgByIndex(idir, k)))
-
-ModelOptimSillsVMap::ModelOptimSillsVMap(Model* model,
-                                         Constraints* constraints,
-                                         const Option_AutoFit& mauto,
-                                         const Option_VarioFit& optvar)
-  : AModelOptimSills(model, constraints, mauto, optvar)
+ModelFitSillsVMap::ModelFitSillsVMap(const DbGrid* dbmap,
+                                     ModelCovList* model,
+                                     Constraints* constraints,
+                                     const ModelOptimParam& mop)
+  : AModelFitSills(model, constraints, mop)
+  , _dbmap(dbmap)
 {
+  (void) _prepare();
 }
 
-ModelOptimSillsVMap::ModelOptimSillsVMap(const ModelOptimSillsVMap& m)
-  : AModelOptimSills(m)
+ModelFitSillsVMap::ModelFitSillsVMap(const ModelFitSillsVMap& m)
+  : AModelFitSills(m)
+  , _dbmap(m._dbmap)
 {
+  (void)_prepare();
 }
 
-ModelOptimSillsVMap& ModelOptimSillsVMap::operator=(const ModelOptimSillsVMap& m)
+ModelFitSillsVMap& ModelFitSillsVMap::operator=(const ModelFitSillsVMap& m)
 {
   if (this != &m)
   {
-    AModelOptimSills::operator=(m);
+    AModelFitSills::operator=(m);
+    _dbmap = m._dbmap;
+    (void)_prepare();
   }
   return (*this);
 }
 
-ModelOptimSillsVMap::~ModelOptimSillsVMap()
+ModelFitSillsVMap::~ModelFitSillsVMap()
 {
 }
 
-int ModelOptimSillsVMap::loadEnvironment(const DbGrid* dbmap, bool verbose)
+ModelFitSillsVMap* ModelFitSillsVMap::createForOptim(const DbGrid* dbmap,
+                                                     ModelGeneric* model,
+                                                     Constraints* constraints,
+                                                     const ModelOptimParam& mop)
 {
-  _dbmap = dbmap;
-  _modelPart._verbose = verbose;
+  ModelCovList* modelLocal = dynamic_cast<ModelCovList*>(model);
+  if (modelLocal == nullptr)
+  {
+    messerr("The argument 'model' should be a 'ModelCovList'");
+    return nullptr;
+  }
+  ModelFitSillsVMap* optim = new ModelFitSillsVMap(dbmap, modelLocal, constraints, mop);
 
+  return optim;
+}
+
+int ModelFitSillsVMap::_prepare()
+{
   // Get internal dimension
   if (_getDimensions()) return 1;
 
@@ -81,7 +82,11 @@ int ModelOptimSillsVMap::loadEnvironment(const DbGrid* dbmap, bool verbose)
   _computeVMap();
 
   // Initialize the array of sills
-  _resetSill(_ncova, _sill);
+  _resetInitialSill(_sill);
+
+  _calcmode = CovCalcMode(ECalcMember::RHS);
+  _calcmode.setAsVario(true);
+  _calcmode.setUnitary(true);
 
   return 0;
 }
@@ -92,31 +97,26 @@ int ModelOptimSillsVMap::loadEnvironment(const DbGrid* dbmap, bool verbose)
  **
  ** \return  Error return code
  **
- ** \param[in]  dbmap       Experimental Variogram Map
  ** \param[in]  verbose     Verbose flag
  **
  *****************************************************************************/
-int ModelOptimSillsVMap::fit(const DbGrid* dbmap, bool verbose)
+int ModelFitSillsVMap::fitSills(bool verbose)
 {
-  // Define the environment
-  if (loadEnvironment(dbmap, verbose)) return 1;
-
   // Initialize Model-dependent quantities
-  updateFromModel();
+  _updateFromModel();
 
   // Perform the sill fitting
-  return fitPerform();
+  return _fitSills(verbose);
 }
 
- /****************************************************************************/
+/****************************************************************************/
 /*!
  **  Fill the array of pointers on the experimental conditions
  **
  *****************************************************************************/
-void ModelOptimSillsVMap::_computeVMap()
+void ModelFitSillsVMap::_computeVMap()
 {
   const DbGrid* dbmap = _dbmap;
-  int nvs2            = _nvar * (_nvar + 1) / 2;
   dbmap->rankToIndice(_nech / 2, _indg1);
 
   /* Load the Experimental conditions structure */
@@ -131,11 +131,11 @@ void ModelOptimSillsVMap::_computeVMap()
     /* Check samples containing only undefined values */
 
     int ntest = 0;
-    for (int ijvar = 0; ijvar < nvs2; ijvar++)
+    for (int ijvar = 0; ijvar < _nvs2; ijvar++)
       if (!FFFF(dbmap->getZVariable(iech, ijvar))) ntest++;
     if (ntest <= 0) continue;
 
-    for (int ijvar = 0; ijvar < nvs2; ijvar++)
+    for (int ijvar = 0; ijvar < _nvs2; ijvar++)
     {
       _WT(ijvar, ipadir) = 0.;
       _GG(ijvar, ipadir) = 0.;
@@ -155,19 +155,15 @@ void ModelOptimSillsVMap::_computeVMap()
  **  Fill the array of pointers on the moded
  **
  *****************************************************************************/
-void ModelOptimSillsVMap::updateFromModel()
+void ModelFitSillsVMap::_updateFromModel()
 {
-  Model* model = _modelPart._model;
   VectorDouble d0(_ndim);
   MatrixSquare tab(_nvar);
   _dbmap->rankToIndice(_nech / 2, _indg1);
-  CovCalcMode mode(ECalcMember::RHS);
-  const CovAnisoList* cova = model->getCovAnisoList();
-  mode.setAsVario(true);
-  mode.setUnitary(true);
 
   /* Loop on the basic structures */
 
+  const CovList* cova = _model->getCovList();
   for (int icov = 0; icov < _ncova; icov++)
   {
     cova->setActiveCovListFromOne(icov);
@@ -179,7 +175,7 @@ void ModelOptimSillsVMap::updateFromModel()
       _dbmap->rankToIndice(ipadir, _indg2);
       for (int idim = 0; idim < _ndim; idim++)
         d0[idim] = (_indg2[idim] - _indg1[idim]) * _dbmap->getDX(idim);
-      model->evaluateMatInPlace(nullptr, d0, tab, true, 1., &mode);
+      _model->evaluateMatInPlace(nullptr, d0, tab, true, 1., &_calcmode);
 
       /* Loop on the variables */
 
@@ -191,21 +187,23 @@ void ModelOptimSillsVMap::updateFromModel()
   }
 }
 
-int ModelOptimSillsVMap::_getDimensions()
+int ModelFitSillsVMap::_getDimensions()
 {
   int nbexp  = 0;
   int npadir = 0;
-  int nvs2   = _nvar * (_nvar + 1) / 2;
   _nech      = _dbmap->getNSample();
   _nvar      = _dbmap->getNLoc(ELoc::Z);
   _ndim      = _dbmap->getNLoc(ELoc::X);
+  _nvs2      = _nvar * (_nvar + 1) / 2;
+  _indg1.resize(_ndim);
+  _indg2.resize(_ndim);
 
   /* Calculate the total number of lags */
 
   for (int iech = 0; iech < _nech; iech++)
   {
     int ndef = 0;
-    for (int ijvar = 0; ijvar < nvs2; ijvar++)
+    for (int ijvar = 0; ijvar < _nvs2; ijvar++)
       if (!FFFF(_dbmap->getZVariable(iech, ijvar))) ndef++;
     nbexp += ndef;
     if (ndef > 0) npadir++;

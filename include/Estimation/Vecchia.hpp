@@ -28,7 +28,7 @@ class ModelGeneric;
 class GSTLEARN_EXPORT Vecchia: public ALikelihood
 {
 public:
-  Vecchia(const ModelGeneric* model,
+  Vecchia(ModelGeneric* model,
           int nb_neigh,
           const Db* db1,
           const Db* db2 = nullptr);
