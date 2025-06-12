@@ -14,8 +14,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
+#include "Model/ModelOptimParam.hpp"
 
 class Model;
 class DbGrid;
@@ -30,9 +29,8 @@ class GSTLEARN_EXPORT ModelOptimVMap: public AModelOptimNew
 {
 public:
   ModelOptimVMap(ModelGeneric* model,
-                 Constraints* constraints      = nullptr,
-                 const Option_AutoFit& mauto   = Option_AutoFit(),
-                 const Option_VarioFit& optvar = Option_VarioFit());
+                 Constraints* constraints   = nullptr,
+                 const ModelOptimParam& mop = ModelOptimParam());
   ModelOptimVMap(const ModelOptimVMap& m);
   ModelOptimVMap& operator=(const ModelOptimVMap& m);
   virtual ~ModelOptimVMap();
@@ -41,9 +39,8 @@ public:
 
   static ModelOptimVMap* createForOptim(ModelGeneric* model,
                                         const DbGrid* dbmap,
-                                        Constraints* constraints      = nullptr,
-                                        const Option_AutoFit& mauto   = Option_AutoFit(),
-                                        const Option_VarioFit& optvar = Option_VarioFit());
+                                        Constraints* constraints   = nullptr,
+                                        const ModelOptimParam& mop = ModelOptimParam());
 
 private:
   bool _checkConsistency();
@@ -52,10 +49,7 @@ private:
 
 protected:
   // Model fitting options
-  Option_VarioFit _optvar;
-
-  // Model fitting parameters
-  Option_AutoFit _mauto;
+  ModelOptimParam _mop;
 
   // Set of constraints
   Constraints* _constraints;

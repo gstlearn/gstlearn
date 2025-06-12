@@ -16,8 +16,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
+#include "Model/ModelOptimParam.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Covariances/CovCalcMode.hpp"
 
@@ -36,8 +35,7 @@ class GSTLEARN_EXPORT AModelFitSills: public ICloneable
 public:
   AModelFitSills(ModelCovList* model,
                  const Constraints* constraints = nullptr,
-                 const Option_AutoFit& mauto    = Option_AutoFit(),
-                 const Option_VarioFit& optvar  = Option_VarioFit());
+                 const ModelOptimParam& mop     = ModelOptimParam());
   AModelFitSills(const AModelFitSills& m);
   AModelFitSills& operator=(const AModelFitSills& m);
   virtual ~AModelFitSills();
@@ -52,7 +50,7 @@ protected:
 private:
   int _sillFittingIntrinsic(double *crit_arg);
   int _goulardWithConstraints(double *crit_arg);
-  int _goulardWithoutConstraint(const Option_AutoFit& mauto,
+  int _goulardWithoutConstraint(int niter,
                                 int nvar,
                                 int ncova,
                                 int npadir,
@@ -91,9 +89,7 @@ private:
                           int ivar0,
                           VectorDouble& xr,
                           std::vector<MatrixSymmetric>& alpha);
-  static bool _convergenceReached(const Option_AutoFit& mauto,
-                           double crit,
-                           double crit_mem);
+  bool _convergenceReached(double crit, double crit_mem) const;
   void _printResults(double crit) const;
 
 protected:
@@ -120,7 +116,6 @@ protected:
   // Storing external pointers or references (not to be deleted)
   ModelCovList*      _model;
   const Constraints* _constraints;
-  Option_AutoFit     _mauto;
-  Option_VarioFit    _optvar;
+  ModelOptimParam    _mop;
   CovCalcMode        _calcmode;
 };

@@ -22,11 +22,9 @@
 
 ModelOptimVario::ModelOptimVario(ModelGeneric* model,
                                  Constraints* constraints,
-                                 const Option_AutoFit& mauto,
-                                 const Option_VarioFit& optvar)
+                                 const ModelOptimParam& mop)
   : AModelOptimNew(model)
-  , _optvar(optvar)
-  , _mauto(mauto)
+  , _mop(mop)
   , _constraints(constraints)
   , _vario()
   , _lags()
@@ -35,8 +33,7 @@ ModelOptimVario::ModelOptimVario(ModelGeneric* model,
 
 ModelOptimVario::ModelOptimVario(const ModelOptimVario& m)
   : AModelOptimNew(m)
-  , _optvar(m._optvar)
-  , _mauto(m._mauto)
+  , _mop(m._mop)
   , _constraints(m._constraints)
   , _calcmode(m._calcmode)
   , _vario(m._vario)
@@ -49,8 +46,7 @@ ModelOptimVario& ModelOptimVario::operator=(const ModelOptimVario& m)
   if (this != &m)
   {
     AModelOptimNew::operator=(m);
-    _optvar      = m._optvar;
-    _mauto       = m._mauto;
+    _mop         = m._mop;
     _constraints = m._constraints;
     _calcmode    = m._calcmode;
     _vario       = m._vario;
@@ -147,7 +143,7 @@ int ModelOptimVario::_buildExperimental()
   }
 
   // Update the weight
-  VectorDouble wt = _vario->computeWeightsFromVario(_mauto.getWmode());
+  VectorDouble wt = _vario->computeWeightsFromVario(_mop.getWmode());
   int npadir      = _vario->getTotalLagsPerDirection();
   int ecr         = 0;
   int ipadir      = 0;
@@ -186,10 +182,9 @@ ModelOptimVario::OneLag ModelOptimVario::_createOneLag(int ndim,
 ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
                                                  Vario* vario,
                                                  Constraints* constraints,
-                                                 const Option_AutoFit& mauto,
-                                                 const Option_VarioFit& optvar)
+                                                 const ModelOptimParam& mop)
 {
-  auto* optim = new ModelOptimVario(model, constraints, mauto, optvar);
+  auto* optim = new ModelOptimVario(model, constraints, mop);
 
   optim->_vario = vario;
 
@@ -208,13 +203,13 @@ ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
   }
 
   // Instantiate Goulard algorithm (optional)
-  if (optvar.getFlagGoulardUsed())
+  if (mop.getFlagGoulard())
   {
     ModelCovList* mcv = dynamic_cast<ModelCovList*>(model);
     if (mcv != nullptr)
     {
       delete mcv->_modelFitSills;
-      mcv->_modelFitSills = ModelFitSillsVario::createForOptim(vario, model, constraints, mauto, optvar);
+      mcv->_modelFitSills = ModelFitSillsVario::createForOptim(vario, model, constraints, mop);
       if (mcv->_modelFitSills == nullptr)
       {
         delete optim;

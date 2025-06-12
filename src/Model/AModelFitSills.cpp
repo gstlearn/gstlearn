@@ -14,8 +14,6 @@
 #include "Covariances/CovAniso.hpp"
 
 #include "Model/ModelCovList.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
 
 #define IJDIR(ijvar, ipadir) ((ijvar) * _npadir + (ipadir))
@@ -30,8 +28,7 @@
 
 AModelFitSills::AModelFitSills(ModelCovList* model,
                                const Constraints* constraints,
-                               const Option_AutoFit& mauto,
-                               const Option_VarioFit& optvar)
+                               const ModelOptimParam& mop)
   : _ndim(0)
   , _nvar(0)
   , _nvs2(0)
@@ -53,8 +50,7 @@ AModelFitSills::AModelFitSills(ModelCovList* model,
   , _sill()
   , _model(model)
   , _constraints(constraints)
-  , _mauto(mauto)
-  , _optvar(optvar)
+  , _mop(mop)
   , _calcmode()
 {
 }
@@ -81,8 +77,7 @@ AModelFitSills::AModelFitSills(const AModelFitSills& m)
   , _sill(m._sill)
   , _model(m._model)
   , _constraints(m._constraints)
-  , _mauto(m._mauto)
-  , _optvar(m._optvar)
+  , _mop(m._mop)
   , _calcmode(m._calcmode)
 {
 }
@@ -112,8 +107,7 @@ AModelFitSills& AModelFitSills::operator=(const AModelFitSills& m)
     _sill        = m._sill;
     _model       = m._model;
     _constraints = m._constraints;
-    _mauto       = m._mauto;
-    _optvar      = m._optvar;
+    _mop         = m._mop;
     _calcmode    = m._calcmode;
   }
   return (*this);
@@ -174,7 +168,7 @@ void AModelFitSills::_allocateInternalArrays(bool flag_exp)
       _dd.push_back(VectorDouble(_npadir * _nvs2, TEST));
   }
 
-  if (_optvar.getFlagIntrinsic())
+  if (_mop.getFlagIntrinsic())
   {
     _alphau.clear();
     for (int icova = 0; icova < _ncova; icova++)
@@ -396,7 +390,7 @@ void AModelFitSills::_optimizeUnderConstraints(double* score)
       xr[ivar] = sqrt(consSill[ivar] / _sumSills(ivar, alpha));
   }
 
-  for (iter = 0; iter < _mauto.getMaxiter(); iter++)
+  for (iter = 0; iter < _mop.getMaxiter(); iter++)
   {
     for (int icov0 = 0; icov0 < _ncova; icov0++)
     {
@@ -456,7 +450,7 @@ void AModelFitSills::_optimizeUnderConstraints(double* score)
 
     score_old = score_new;
     score_new = _score();
-    if (_convergenceReached(_mauto, score_new, score_old)) break;
+    if (_convergenceReached(score_new, score_old)) break;
   }
 
   /* Optional printout */
@@ -801,9 +795,7 @@ int AModelFitSills::_sillFittingIntrinsic(double* crit_arg)
 
   /* Iterative procedure */
 
-  Option_AutoFit mautoLocal(_mauto);
-  mautoLocal.setMaxiter(1);
-  for (int iter = 0; iter < _mauto.getMaxiter(); iter++)
+  for (int iter = 0; iter < _mop.getMaxiter(); iter++)
   {
 
     /* Initialize the arrays for the first pass */
@@ -826,7 +818,7 @@ int AModelFitSills::_sillFittingIntrinsic(double* crit_arg)
     /* Call Goulard with 1 structure (no constraint) */
 
     _resetInitialSill(_sill1);
-    if (_goulardWithoutConstraint(mautoLocal, _nvar, 1, _npadir, _wt, _gg, _ge1,
+    if (_goulardWithoutConstraint(1, _nvar, 1, _npadir, _wt, _gg, _ge1,
                                   _sill1, &crit)) return 1;
 
     /* Initialize the arrays for the second pass */
@@ -847,12 +839,12 @@ int AModelFitSills::_sillFittingIntrinsic(double* crit_arg)
 
     /* Call Goulard with 1 variable (no constraint) */
 
-    if (_goulardWithoutConstraint(mautoLocal, 1, _ncova, _npadir * _nvs2, _wt2,
+    if (_goulardWithoutConstraint(1, 1, _ncova, _npadir * _nvs2, _wt2,
                                   _gg2, _ge2, _alphau, &crit)) return 1;
 
     /* Stopping criterion */
 
-    if (_convergenceReached(_mauto, crit, crit_mem)) break;
+    if (_convergenceReached(crit, crit_mem)) break;
     crit_mem = crit;
   }
 
@@ -874,7 +866,7 @@ int AModelFitSills::_sillFittingIntrinsic(double* crit_arg)
   return 0;
 }
 
-int AModelFitSills::_goulardWithoutConstraint(const Option_AutoFit& mauto,
+int AModelFitSills::_goulardWithoutConstraint(int niter,
                                               int nvar,
                                               int ncova,
                                               int npadir,
@@ -965,7 +957,7 @@ int AModelFitSills::_goulardWithoutConstraint(const Option_AutoFit& mauto,
   /* Iterative procedure */
   /***********************/
 
-  for (int iter = 0; iter < mauto.getMaxiter(); iter++)
+  for (int iter = 0; iter < niter; iter++)
   {
 
     /* Loop on the elementary structures */
@@ -1047,19 +1039,18 @@ int AModelFitSills::_goulardWithoutConstraint(const Option_AutoFit& mauto,
 
     /* Stopping criterion */
 
-    if (_convergenceReached(mauto, crit, crit_mem)) break;
+    if (_convergenceReached(crit, crit_mem)) break;
   }
 
   *crit_arg = crit;
   return (0);
 }
 
-bool AModelFitSills::_convergenceReached(const Option_AutoFit& mauto,
-                                           double crit,
-                                           double crit_mem)
+bool AModelFitSills::_convergenceReached(double crit,
+                                         double crit_mem) const
 {
-  return (ABS(crit) < mauto.getTolred() ||
-          ABS(crit - crit_mem) / ABS(crit) < mauto.getTolred());
+  double eps = _mop.getTolred();
+  return (ABS(crit) < eps || ABS(crit - crit_mem) / ABS(crit) < eps);
 }
 
 void AModelFitSills::_printResults(double crit) const
@@ -1079,7 +1070,7 @@ int AModelFitSills::_fitSills(bool verbose)
 {
   int status  = 0;
   double crit = 0.;
-  if (!_optvar.getFlagIntrinsic())
+  if (!_mop.getFlagIntrinsic())
   {
 
     /* No intrinsic hypothesis */
@@ -1088,7 +1079,8 @@ int AModelFitSills::_fitSills(bool verbose)
     {
       /* Without constraint on the sill */
 
-      status = _goulardWithoutConstraint(_mauto, _nvar, _ncova, _npadir, _wt,
+      status = _goulardWithoutConstraint(_mop.getMaxiter(),
+                                         _nvar, _ncova, _npadir, _wt,
                                          _gg, _ge, _sill, &crit);
     }
     else

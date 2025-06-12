@@ -22,11 +22,9 @@
 
 ModelOptimVMap::ModelOptimVMap(ModelGeneric* model,
                                Constraints* constraints,
-                               const Option_AutoFit& mauto,
-                               const Option_VarioFit& optvar)
+                               const ModelOptimParam& mop)
   : AModelOptimNew(model)
-  , _optvar(optvar)
-  , _mauto(mauto)
+  , _mop(mop)
   , _constraints(constraints)
   , _calcmode()
   , _dbmap(nullptr)
@@ -41,8 +39,7 @@ ModelOptimVMap::ModelOptimVMap(ModelGeneric* model,
 
 ModelOptimVMap::ModelOptimVMap(const ModelOptimVMap& m)
   : AModelOptimNew(m)
-  , _optvar(m._optvar)
-  , _mauto(m._mauto)
+  , _mop(m._mop)
   , _constraints(m._constraints)
   , _calcmode(m._calcmode)
   , _dbmap(m._dbmap)
@@ -60,8 +57,7 @@ ModelOptimVMap& ModelOptimVMap::operator=(const ModelOptimVMap& m)
   if (this != &m)
   {
     AModelOptimNew::operator=(m);
-    _optvar      = m._optvar;
-    _mauto       = m._mauto;
+    _mop         = m._mop;
     _constraints = m._constraints;
     _calcmode    = m._calcmode;
     _dbmap       = m._dbmap;
@@ -187,10 +183,9 @@ double ModelOptimVMap::computeCost(bool verbose)
 ModelOptimVMap* ModelOptimVMap::createForOptim(ModelGeneric* model,
                                                const DbGrid* dbmap,
                                                Constraints* constraints,
-                                               const Option_AutoFit& mauto,
-                                               const Option_VarioFit& optvar)
+                                               const ModelOptimParam& mop)
 {
-  auto* optim = new ModelOptimVMap(model, constraints, mauto, optvar);
+  auto* optim = new ModelOptimVMap(model, constraints, mop);
 
   optim->_dbmap = dbmap;
 
@@ -209,13 +204,13 @@ ModelOptimVMap* ModelOptimVMap::createForOptim(ModelGeneric* model,
   }
 
   // Instantiate Goulard algorithm (optional)
-  if (optvar.getFlagGoulardUsed())
+  if (mop.getFlagGoulard())
   {
     ModelCovList* mcv = dynamic_cast<ModelCovList*>(model);
     if (mcv != nullptr)
     {
       delete mcv->_modelFitSills;
-      mcv->_modelFitSills = ModelFitSillsVMap::createForOptim(dbmap, model, constraints, mauto, optvar);
+      mcv->_modelFitSills = ModelFitSillsVMap::createForOptim(dbmap, model, constraints, mop);
       if (mcv->_modelFitSills == nullptr)
       {
         delete optim;

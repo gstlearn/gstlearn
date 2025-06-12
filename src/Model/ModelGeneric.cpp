@@ -364,13 +364,12 @@ void ModelGeneric::fitNew(const Db* db,
                           Vario* vario,
                           const DbGrid* dbmap,
                           Constraints* constraints,
-                          const Option_AutoFit& mauto,
-                          const Option_VarioFit& optvar,
+                          const ModelOptimParam& mop,
                           int nb_neighVecchia,
                           bool verbose)
 {
   AModelOptimNew* amopt = AModelOptimFactory::create(this, db, vario, dbmap, 
-                                                     constraints, mauto, optvar, 
+                                                     constraints, mop, 
                                                      nb_neighVecchia);
   amopt->setVerbose(verbose);
   amopt->resetIter();

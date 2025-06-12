@@ -45,23 +45,35 @@ double myfunc(unsigned n, const double *x, double *grad, void *my_func_data = nu
     return value;
 }
 
+double myfunc2(const std::vector<double>& x);
+{
+  if (grad)
+  {
+    grad[0] = 2 * (x[0] - 3);
+  }
+  double value = (x[0] - 3) * (x[0] - 3);
+  // std::cout << "current value = " << x[0] << " -> Minimum = " << value
+  //           << std::endl;
+  return value;
+}
+
 static void _firstTest()
 {
   mestitle(0,"Minimization of a Function");
   int npar = 1;
   VectorDouble x = {1.};
-  nlopt_opt opt = nlopt_create(NLOPT_LN_NELDERMEAD, npar);
+  Optim* opt     = new Optim(opt_algorithm::NELDERMEAD, npar);
 
   // Bounds for each parameter
   VectorDouble lb = {1., 10.};
-  nlopt_set_lower_bounds(opt, lb.data());
+  opt->setLowerBounds(lb);
   VectorDouble ub = {5., 10.};
-  nlopt_set_upper_bounds(opt, ub.data());
-
-  nlopt_set_min_objective(opt, myfunc, nullptr);
-
-  // Set the tolerance for the stopping criteria
-  nlopt_set_ftol_rel(opt, EPSILON4);
+  opt->setUpperBounds(ub);
+  opt->setObjective(myfunc2);
+  // opt->setObjective([this](const std::vector<double>& x)
+  //                   { return this->eval(x); });
+  // nlopt_set_min_objective(opt, myfunc, nullptr);
+  opt->setXtolRel(EPSILON4);
 
   // Minimization
   double minf    = 1.e30;
@@ -89,12 +101,10 @@ static void _secondTest(Db* db, Model* model, bool converge)
   (void)vario->dumpToNF("vario2.ascii");
 
   // Fit the Model
-  Option_AutoFit mauto = Option_AutoFit();
-  mauto.setWmode(2);
-  Option_VarioFit optvar = Option_VarioFit();
-  optvar.setFlagGoulardUsed(true);
-  model->fitNew(nullptr, vario, nullptr, nullptr, mauto, optvar,
-                ITEST, converge);
+  ModelOptimParam mop = ModelOptimParam();
+  mop.setWmode(2);
+  mop.setFlagGoulard(true);
+  model->fitNew(nullptr, vario, nullptr, nullptr, mop, ITEST, converge);
   (void) model->dumpToNF("model2.ascii");
   model->display();
 
@@ -110,8 +120,7 @@ static void _thirdTest(Db* db, Model* model, bool flagSPDE, bool converge)
     mestitle(0, "Fitting a Model using Loglikelihood (Covariance)");
 
   // Fit the Model
-  model->fitNew(db, nullptr, nullptr, nullptr,
-                Option_AutoFit(), Option_VarioFit(),
+  model->fitNew(db, nullptr, nullptr, nullptr, ModelOptimParam(),
                 ITEST, converge);
   (void)model->dumpToNF("model3.ascii");
   model->display();

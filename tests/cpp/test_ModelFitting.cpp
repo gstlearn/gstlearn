@@ -54,10 +54,8 @@ static void _firstTest(Db* db2D, Model* model, const ECalcVario& calcul, bool co
   DECLARE_UNUSED(converge);
   mestitle(0, "Sill fitting from Variogram (old version)");
 
-  // Calculating the experimental variogram
   Vario* vario = _computeVariogram(db2D, calcul);
 
-  // Fit the Model
   (void) model_fitting_sills(vario, model);
   (void)model->dumpToNF("SillsFromVario_Old.ascii");
   model->display();
@@ -69,16 +67,12 @@ static void _secondTest(Db* db2D, Model* model, const ECalcVario& calcul, bool c
 {
   mestitle(0, "Model fitting from Variogram (new version)");
 
-  // Calculating the experimental variogram
   Vario* vario = _computeVariogram(db2D, calcul);
 
-  // Fit the Model
-  Option_AutoFit mauto = Option_AutoFit();
-  mauto.setWmode(2);
-  Option_VarioFit optvar = Option_VarioFit();
-  optvar.setFlagGoulardUsed(true);
-  model->fitNew(nullptr, vario, nullptr, nullptr, mauto, optvar,
-                ITEST, converge);
+  ModelOptimParam mop = ModelOptimParam();
+  mop.setWmode(2);
+  mop.setFlagGoulard(true);
+  model->fitNew(nullptr, vario, nullptr, nullptr, mop, ITEST, converge);
   (void)model->dumpToNF("ModelFromVario.ascii");
   model->display();
 
@@ -89,22 +83,17 @@ static void _thirdTest(DbGrid* dbgrid, Model* model, const ECalcVario& calcul, b
 {
   mestitle(0, "Sill Fitting from Variogram Map (new version)");
 
-  // Calculating the experimental variogram
   DbGrid* dbmap = db_vmap(dbgrid, calcul, {50,50});
   (void) dbmap->dumpToNF("VMap.ascii");
 
-  // Fit the Model
-  Option_AutoFit mauto = Option_AutoFit();
-  mauto.setWmode(2);
-  Option_VarioFit* optvar  = new Option_VarioFit();
-  optvar->setFlagGoulardUsed(false);
-  model->fitNew(nullptr, nullptr, dbmap, nullptr, mauto, optvar,
-                ITEST, converge);
+  ModelOptimParam mop = ModelOptimParam();
+  mop.setWmode(2);
+  mop.setFlagGoulard(false);
+  model->fitNew(nullptr, nullptr, dbmap, nullptr, mop, ITEST, converge);
   (void)model->dumpToNF("SillsFromVMap.ascii");
   model->display();
 
   delete dbmap;
-  delete optvar;
 }
 
 static MatrixSymmetric _buildSillMatrix(int nvar, double value)

@@ -30,8 +30,7 @@ class GSTLEARN_EXPORT AModelOptimFactory {
      * @param vario Vario pointer containing the variogram (for variogram fitting).
      * @param dbmap DbGrid containing the grid map (for variogram map fitting).
      * @param constraints Constraints (optional)
-     * @param mauto Option_AutoFit containing auto-fit options.
-     * @param optvar Option_VarioFit containing variogram fit options.
+     * @param mop ModelOptimParam containing fitting options.
      * @param nb_neighVecchia Number of Vecchia neighbors to use (for Vecchia Likelihood).
      * @return AModelOptimNew*
      */
@@ -40,8 +39,7 @@ class GSTLEARN_EXPORT AModelOptimFactory {
                                   Vario* vario,
                                   const DbGrid* dbmap,
                                   Constraints* constraints,
-                                  const Option_AutoFit& mauto,
-                                  const Option_VarioFit& optvar,
+                                  const ModelOptimParam& mop,
                                   int nb_neighVecchia = ITEST)
     {
       if (db != nullptr)
@@ -51,9 +49,9 @@ class GSTLEARN_EXPORT AModelOptimFactory {
         return Likelihood::createForOptim(model, db);
       }
       if (dbmap != nullptr)
-        return ModelOptimVMap::createForOptim(model, dbmap, constraints, mauto, optvar);
+        return ModelOptimVMap::createForOptim(model, dbmap, constraints, mop);
       if (vario != nullptr)
-        return ModelOptimVario::createForOptim(model, vario, constraints, mauto, optvar);
+        return ModelOptimVario::createForOptim(model, vario, constraints, mop);
 
       return nullptr;
     }

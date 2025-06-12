@@ -22,8 +22,7 @@
 #include "Db/RankHandler.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Constraints.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
+#include "Model/ModelOptimParam.hpp"
 
 class Model;
 class Db;
@@ -196,8 +195,7 @@ public:
               Vario* vario = nullptr,
               const DbGrid* dbmap = nullptr,
               Constraints* constraints = nullptr,
-              const Option_AutoFit& mauto = Option_AutoFit(),
-              const Option_VarioFit& optvar = Option_VarioFit(),
+              const ModelOptimParam& mop = ModelOptimParam(),
               int nb_neighVecchia = 30,
               bool verbose = false);
 

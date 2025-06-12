@@ -11,8 +11,6 @@
 #include "Model/ModelFitSillsVMap.hpp"
 
 #include "Model/Model.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
 #include "Db/DbGrid.hpp"
 
@@ -27,9 +25,8 @@
 ModelFitSillsVMap::ModelFitSillsVMap(const DbGrid* dbmap,
                                      ModelCovList* model,
                                      Constraints* constraints,
-                                     const Option_AutoFit& mauto,
-                                     const Option_VarioFit& optvar)
-  : AModelFitSills(model, constraints, mauto, optvar)
+                                     const ModelOptimParam& mop)
+  : AModelFitSills(model, constraints, mop)
   , _dbmap(dbmap)
 {
   (void) _prepare();
@@ -60,8 +57,7 @@ ModelFitSillsVMap::~ModelFitSillsVMap()
 ModelFitSillsVMap* ModelFitSillsVMap::createForOptim(const DbGrid* dbmap,
                                                      ModelGeneric* model,
                                                      Constraints* constraints,
-                                                     const Option_AutoFit& mauto,
-                                                     const Option_VarioFit& optvar)
+                                                     const ModelOptimParam& mop)
 {
   ModelCovList* modelLocal = dynamic_cast<ModelCovList*>(model);
   if (modelLocal == nullptr)
@@ -69,7 +65,7 @@ ModelFitSillsVMap* ModelFitSillsVMap::createForOptim(const DbGrid* dbmap,
     messerr("The argument 'model' should be a 'ModelCovList'");
     return nullptr;
   }
-  ModelFitSillsVMap* optim = new ModelFitSillsVMap(dbmap, modelLocal, constraints, mauto, optvar);
+  ModelFitSillsVMap* optim = new ModelFitSillsVMap(dbmap, modelLocal, constraints, mop);
 
   return optim;
 }

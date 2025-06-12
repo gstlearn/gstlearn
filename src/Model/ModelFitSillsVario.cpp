@@ -13,8 +13,6 @@
 #include "Variogram/Vario.hpp"
 #include "Covariances/CovBase.hpp"
 #include "Model/Model.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
 #include "Model/ModelOptimVario.hpp"
 #include "Model/Constraints.hpp"
 
@@ -40,9 +38,8 @@
 ModelFitSillsVario::ModelFitSillsVario(Vario* vario,
                                        ModelCovList* model,
                                        Constraints* constraints,
-                                       const Option_AutoFit& mauto,
-                                       const Option_VarioFit& optvar)
-  : AModelFitSills(model, constraints, mauto, optvar)
+                                       const ModelOptimParam& mop)
+  : AModelFitSills(model, constraints, mop)
   , _vario(vario)
 {
   (void)_prepare();
@@ -73,8 +70,7 @@ ModelFitSillsVario::~ModelFitSillsVario()
 ModelFitSillsVario* ModelFitSillsVario::createForOptim(Vario* vario,
                                                        ModelGeneric* model,
                                                        Constraints* constraints,
-                                                       const Option_AutoFit& mauto,
-                                                       const Option_VarioFit& optvar)
+                                                       const ModelOptimParam& mop)
 {
   ModelCovList* mcv = dynamic_cast<ModelCovList*>(model);
   if (mcv == nullptr)
@@ -82,7 +78,7 @@ ModelFitSillsVario* ModelFitSillsVario::createForOptim(Vario* vario,
     messerr("The argument 'model' should be a 'ModelCovList'");
     return nullptr;
   }
-  ModelFitSillsVario* optim = new ModelFitSillsVario(vario, mcv, constraints, mauto, optvar);
+  ModelFitSillsVario* optim = new ModelFitSillsVario(vario, mcv, constraints, mop);
 
   return optim;
 }
@@ -96,7 +92,7 @@ int ModelFitSillsVario::_prepare()
   _allocateInternalArrays(true);
 
   // Initialize Model-free quantities
-  int wmode = _mauto.getWmode();
+  int wmode = _mop.getWmode();
   _wt       = _vario->computeWeightsFromVario(wmode);
   _compressArray(_wt, _wtc);
   _computeGg();

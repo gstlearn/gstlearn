@@ -14,8 +14,6 @@
 
 #include "Space/SpacePoint.hpp"
 #include "Estimation/AModelOptimNew.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
 
 class ModelGeneric;
 class Vario;
@@ -29,9 +27,8 @@ class GSTLEARN_EXPORT ModelOptimVario: public AModelOptimNew
 {
 public:
   ModelOptimVario(ModelGeneric* model,
-                  Constraints* constraints      = nullptr,
-                  const Option_AutoFit& mauto   = Option_AutoFit(),
-                  const Option_VarioFit& optvar = Option_VarioFit());
+                  Constraints* constraints   = nullptr,
+                  const ModelOptimParam& mop = ModelOptimParam());
   ModelOptimVario(const ModelOptimVario& m);
   ModelOptimVario& operator=(const ModelOptimVario& m);
   virtual ~ModelOptimVario();
@@ -40,9 +37,8 @@ public:
 
   static ModelOptimVario* createForOptim(ModelGeneric* model,
                                          Vario* vario,
-                                         Constraints* constraints      = nullptr,
-                                         const Option_AutoFit& mauto   = Option_AutoFit(),
-                                         const Option_VarioFit& optvar = Option_VarioFit());
+                                         Constraints* constraints   = nullptr,
+                                         const ModelOptimParam& mop = ModelOptimParam());
 
 protected:
   struct OneLag
@@ -61,10 +57,7 @@ private:
 
 protected:
   // Model fitting options
-  Option_VarioFit _optvar;
-
-  // Model fitting parameters
-  Option_AutoFit _mauto;
+  ModelOptimParam _mop;
 
   // Set of constraints
   Constraints* _constraints;

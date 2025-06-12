@@ -14,8 +14,7 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Model/AModelFitSills.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
+#include "Model/ModelOptimParam.hpp"
 
 class ModelGeneric;
 class DbGrid;
@@ -33,9 +32,8 @@ class GSTLEARN_EXPORT ModelFitSillsVMap: public AModelFitSills
 public:
   ModelFitSillsVMap(const DbGrid* dbmap,
                     ModelCovList* model,
-                    Constraints* constraints      = nullptr,
-                    const Option_AutoFit& mauto   = Option_AutoFit(),
-                    const Option_VarioFit& optvar = Option_VarioFit());
+                    Constraints* constraints   = nullptr,
+                    const ModelOptimParam& mop = ModelOptimParam());
   ModelFitSillsVMap(const ModelFitSillsVMap& m);
   ModelFitSillsVMap& operator=(const ModelFitSillsVMap& m);
   virtual ~ModelFitSillsVMap();
@@ -46,9 +44,8 @@ public:
 
   static ModelFitSillsVMap* createForOptim(const DbGrid* dbmap,
                                            ModelGeneric* model,
-                                           Constraints* constraints      = nullptr,
-                                           const Option_AutoFit& mauto   = Option_AutoFit(),
-                                           const Option_VarioFit& optvar = Option_VarioFit());
+                                           Constraints* constraints   = nullptr,
+                                           const ModelOptimParam& mop = ModelOptimParam());
 
 private:
   int _prepare();

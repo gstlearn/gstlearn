@@ -17,9 +17,6 @@
 #include <memory>
 #include <stdexcept>
 
-
-
-
 Optim::Optim(opt_algorithm algo, int dim)
   : _opt(nlopt_create((nlopt_algorithm)algo, dim))
 {

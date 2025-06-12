@@ -14,8 +14,7 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Model/AModelFitSills.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
+#include "Model/ModelOptimParam.hpp"
 
 class ModelGeneric;
 class Vario;
@@ -33,9 +32,8 @@ class GSTLEARN_EXPORT ModelFitSillsVario: public AModelFitSills
 public:
   ModelFitSillsVario(Vario* vario,
                      ModelCovList* model,
-                     Constraints* constraints      = nullptr,
-                     const Option_AutoFit& mauto   = Option_AutoFit(),
-                     const Option_VarioFit& optvar = Option_VarioFit());
+                     Constraints* constraints   = nullptr,
+                     const ModelOptimParam& mop = ModelOptimParam());
   ModelFitSillsVario(const ModelFitSillsVario& m);
   ModelFitSillsVario& operator=(const ModelFitSillsVario& m);
   virtual ~ModelFitSillsVario();
@@ -46,9 +44,8 @@ public:
 
   static ModelFitSillsVario* createForOptim(Vario* vario,
                                             ModelGeneric* model,
-                                            Constraints* constraints      = nullptr,
-                                            const Option_AutoFit& mauto   = Option_AutoFit(),
-                                            const Option_VarioFit& optvar = Option_VarioFit());
+                                            Constraints* constraints   = nullptr,
+                                            const ModelOptimParam& mop = ModelOptimParam());
 
 private:
   int _prepare();
