@@ -579,7 +579,7 @@
 //                    Add C++ extension                     //
 //////////////////////////////////////////////////////////////
 
-%include ../r/generated_r.i
+%include ../swig/generated_r.i
 %{
   #include <stdio.h>
   #include <string>
