@@ -324,7 +324,7 @@
   #include "Estimation/CalcImage.hpp"
   #include "Estimation/CalcGlobal.hpp"
   #include "Estimation/KrigOpt.hpp"
-  #include "Estimation/AModelOptimNew.hpp"
+  #include "Estimation/AModelOptim.hpp"
   #include "Estimation/ALikelihood.hpp"
   #include "Estimation/Vecchia.hpp"
   #include "Estimation/Likelihood.hpp"

@@ -11,7 +11,7 @@
 #include "Model/ModelGeneric.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ListParams.hpp"
-#include "Estimation/AModelOptimNew.hpp"
+#include "Estimation/AModelOptim.hpp"
 #include "Model/AModelFitSills.hpp"
 #include "Model/Model.hpp"
 #include "Model/ModelOptimVario.hpp"
@@ -368,7 +368,7 @@ void ModelGeneric::fitNew(const Db* db,
                           int nb_neighVecchia,
                           bool verbose)
 {
-  AModelOptimNew* amopt = AModelOptimFactory::create(this, db, vario, dbmap, 
+  AModelOptim* amopt = AModelOptimFactory::create(this, db, vario, dbmap, 
                                                      constraints, mop, 
                                                      nb_neighVecchia);
   amopt->setVerbose(verbose);

@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "Estimation/AModelOptimNew.hpp"
+#include "Estimation/AModelOptim.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
@@ -25,7 +25,7 @@ class Constraints;
  * Class which, starting from an experimental variogram, enables fitting the
  * various parameters of a Covariance part of a Model
  */
-class GSTLEARN_EXPORT ModelOptimVMap: public AModelOptimNew
+class GSTLEARN_EXPORT ModelOptimVMap: public AModelOptim
 {
 public:
   ModelOptimVMap(ModelGeneric* model,

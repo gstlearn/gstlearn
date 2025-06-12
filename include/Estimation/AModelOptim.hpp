@@ -21,10 +21,10 @@
 
 class ModelGeneric;
 
-class GSTLEARN_EXPORT AModelOptimNew
+class GSTLEARN_EXPORT AModelOptim
 {
 public:
-  AModelOptimNew(ModelGeneric* model = nullptr, bool verbose = false)
+  AModelOptim(ModelGeneric* model = nullptr, bool verbose = false)
     : _model(model)
     , _verbose(verbose)
   {
@@ -46,23 +46,23 @@ public:
     _iter = 0;
   };
 
-  AModelOptimNew(const AModelOptimNew& r) 
+  AModelOptim(const AModelOptim& r) 
   {
     DECLARE_UNUSED(r)
     throw std::runtime_error("You shoudln't arrive here!");
   };
 
-  AModelOptimNew& operator=(const AModelOptimNew& r)
+  AModelOptim& operator=(const AModelOptim& r)
   {
     if (this != &r)
     {
       DECLARE_UNUSED(r)
-      messerr("Assignment operator not implemented for AModelOptimNew");
+      messerr("Assignment operator not implemented for AModelOptim");
     }
     return *this;
   }
 
-  virtual ~AModelOptimNew()
+  virtual ~AModelOptim()
   {
     delete _opt;
   }

@@ -23,7 +23,7 @@
 ModelOptimVario::ModelOptimVario(ModelGeneric* model,
                                  Constraints* constraints,
                                  const ModelOptimParam& mop)
-  : AModelOptimNew(model)
+  : AModelOptim(model)
   , _mop(mop)
   , _constraints(constraints)
   , _vario()
@@ -32,7 +32,7 @@ ModelOptimVario::ModelOptimVario(ModelGeneric* model,
 }
 
 ModelOptimVario::ModelOptimVario(const ModelOptimVario& m)
-  : AModelOptimNew(m)
+  : AModelOptim(m)
   , _mop(m._mop)
   , _constraints(m._constraints)
   , _calcmode(m._calcmode)
@@ -45,7 +45,7 @@ ModelOptimVario& ModelOptimVario::operator=(const ModelOptimVario& m)
 {
   if (this != &m)
   {
-    AModelOptimNew::operator=(m);
+    AModelOptim::operator=(m);
     _mop         = m._mop;
     _constraints = m._constraints;
     _calcmode    = m._calcmode;
@@ -208,7 +208,6 @@ ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
     ModelCovList* mcv = dynamic_cast<ModelCovList*>(model);
     if (mcv != nullptr)
     {
-      mcv->deleteFitSills();
       mcv->setFitSills(ModelFitSillsVario::createForOptim(vario, model, constraints, mop));
       if (mcv->getFitSills() == nullptr)
       {

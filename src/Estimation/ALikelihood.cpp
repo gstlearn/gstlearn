@@ -17,13 +17,13 @@
 #include "LinearOp/CholeskyDense.hpp"
 ALikelihood::ALikelihood(ModelGeneric* model,
                          const Db* db)
-  : AModelOptimNew(model)
+  : AModelOptim(model)
   , _db(db)
 {
 }
 
 ALikelihood::ALikelihood(const ALikelihood& r)
-  : AModelOptimNew(r)
+  : AModelOptim(r)
   , _db(r._db)
   , _Y(r._Y)
   , _X(r._X)
@@ -35,7 +35,7 @@ ALikelihood& ALikelihood::operator=(const ALikelihood& r)
 {
   if (this != &r)
   {
-    AModelOptimNew::operator=(r);
+    AModelOptim::operator=(r);
     _db   = r._db;
     _Y    = r._Y;
     _X    = r._X;

@@ -12,18 +12,18 @@
 
 #include "Estimation/Vecchia.hpp"
 #include "Estimation/Likelihood.hpp"
-#include "Estimation/AModelOptimNew.hpp"
+#include "Estimation/AModelOptim.hpp"
 #include "Model/ModelOptimVMap.hpp"
 #include "Model/ModelOptimVario.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
-class AModelOptimNew;
+class AModelOptim;
 
 class GSTLEARN_EXPORT AModelOptimFactory {
   public:
     /**
-     * @brief Instantiate the appropriate AModelOptimNew object based on the provided parameters.
+     * @brief Instantiate the appropriate AModelOptim object based on the provided parameters.
      *
      * @param model ModelGeneric pointer representing the model to be optimized.
      * @param db Db pointer containing experimental data (for standard Likelihood).
@@ -32,9 +32,9 @@ class GSTLEARN_EXPORT AModelOptimFactory {
      * @param constraints Constraints (optional)
      * @param mop ModelOptimParam containing fitting options.
      * @param nb_neighVecchia Number of Vecchia neighbors to use (for Vecchia Likelihood).
-     * @return AModelOptimNew*
+     * @return AModelOptim*
      */
-    static AModelOptimNew* create(ModelGeneric* model,
+    static AModelOptim* create(ModelGeneric* model,
                                   const Db* db,
                                   Vario* vario,
                                   const DbGrid* dbmap,

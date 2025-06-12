@@ -76,6 +76,12 @@ void ModelCovList::deleteFitSills() const
 
 void ModelCovList::setFitSills(AModelFitSills* amopts)
 {
+  if (amopts == nullptr) return;
+
+  // Delete previously existing structure
+  delete _modelFitSills;
+
+  // Store the new pointer
   _modelFitSills = amopts;
 }
 
