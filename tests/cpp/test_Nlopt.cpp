@@ -18,13 +18,10 @@
  *    variogram and retrieve the parameters of the Model
  */
 
+#include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
+#include "Basic/Optim.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Model/Model.hpp"
-#include "Db/Db.hpp"
-#include "Variogram/Vario.hpp"
-#include "Variogram/VarioParam.hpp"
-#include "Model/ModelOptimVario.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
 
 #include "geoslib_define.h"
 

@@ -101,8 +101,8 @@ public:
   double             getBallRadius() const;
   int                hasExternalCov() const;
   bool               isChangeSupportDefined() const;
-  // Methods necessary for Optimization
 
+  // Methods necessary for Optimization
   bool hasNugget() const;
   int  getRankNugget() const;
   const CovAnisoList* createReduce(const VectorInt& validVars) const;
@@ -125,6 +125,10 @@ public:
 
   void makeTensorStationary(int icov, int idim, int jdim);
   void makeParamStationary(int icov);
+
+  bool getSameRotation() const { return _sameRotation; }
+  void setSameRotation(bool samerot) { _sameRotation = samerot; }
+  
 private:
   // Returns a pointer on an existing Cov and cast it to CovAniso
   const CovAniso* _getCovAniso(int icov) const;
@@ -132,4 +136,7 @@ private:
 
 protected:
   bool _isCovarianceIndexValid(int icov) const;
+
+private:
+  bool _sameRotation;
 };

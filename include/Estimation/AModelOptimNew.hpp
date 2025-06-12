@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/AStringable.hpp"
+#include "Model/AModelFitSills.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "Model/ModelCovList.hpp"
 #include "geoslib_define.h"
@@ -91,8 +92,11 @@ public:
 
     // Check if Goulard must be applied
     ModelCovList* mcv = dynamic_cast<ModelCovList*>(_model);
-    if (mcv != nullptr && mcv->_modelFitSills != nullptr) 
-      mcv->_modelFitSills->fitSills(_verbose);
+    if (mcv != nullptr)
+    {
+      AModelFitSills* amf = mcv->getFitSills();
+      if (amf != nullptr) amf->fitSills(_verbose);
+    }
 
     return -result;
   };

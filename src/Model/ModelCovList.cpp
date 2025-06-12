@@ -67,3 +67,19 @@ void ModelCovList::addCov(const CovBase* cov)
   }
   getCovListModify()->addCov(cov);
 }
+
+void ModelCovList::deleteFitSills() const
+{
+  delete _modelFitSills;
+  _modelFitSills = nullptr;
+}
+
+void ModelCovList::setFitSills(AModelFitSills* amopts)
+{
+  _modelFitSills = amopts;
+}
+
+AModelFitSills* ModelCovList::getFitSills() const
+{
+  return _modelFitSills;
+}

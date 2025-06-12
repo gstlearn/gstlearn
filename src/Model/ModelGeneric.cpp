@@ -380,8 +380,7 @@ void ModelGeneric::fitNew(const Db* db,
   ModelCovList* mcv = dynamic_cast<ModelCovList*>(this);
   if (mcv != nullptr)
   {
-    delete mcv->_modelFitSills;
-    mcv->_modelFitSills = nullptr;
+    mcv->deleteFitSills();
   }
 }
 

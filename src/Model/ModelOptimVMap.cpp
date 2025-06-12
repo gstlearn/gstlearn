@@ -209,9 +209,9 @@ ModelOptimVMap* ModelOptimVMap::createForOptim(ModelGeneric* model,
     ModelCovList* mcv = dynamic_cast<ModelCovList*>(model);
     if (mcv != nullptr)
     {
-      delete mcv->_modelFitSills;
-      mcv->_modelFitSills = ModelFitSillsVMap::createForOptim(dbmap, model, constraints, mop);
-      if (mcv->_modelFitSills == nullptr)
+      mcv->deleteFitSills();
+      mcv->setFitSills(ModelFitSillsVMap::createForOptim(dbmap, model, constraints, mop));
+      if (mcv->getFitSills() == nullptr)
       {
         delete optim;
         return nullptr;
