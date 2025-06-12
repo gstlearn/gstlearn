@@ -33,6 +33,8 @@ void ListParams::setValue(int index, double value)
   }
   _params[index].get().setValue(value);
 }
+
+
 String ListParams::toString(const AStringFormat* strfmt) const
 {
   DECLARE_UNUSED(strfmt);
