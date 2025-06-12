@@ -101,7 +101,7 @@ public:
   double             getBallRadius() const;
   int                hasExternalCov() const;
   bool               isChangeSupportDefined() const;
-
+  void appendParams(ListParams& listParams) override;
   // Methods necessary for Optimization
   bool hasNugget() const;
   int  getRankNugget() const;

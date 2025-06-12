@@ -11,6 +11,7 @@
 #include "Covariances/CovAnisoList.hpp"
 #include "Enum/EModelProperty.hpp"
 
+#include "Basic/ListParams.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovList.hpp"
@@ -554,4 +555,30 @@ void CovAnisoList::makeParamStationary(int icov)
 {
   if (!_isCovarianceIndexValid(icov)) return;
   getCovAniso(icov)->makeParamStationary();
+}
+
+void CovAnisoList::appendParams(ListParams& listParams)
+{
+  if (!_sameRotation)
+    CovList::appendParams(listParams);
+  else
+  {
+    //Find the first structure with a rotation
+    int icov = ITEST;
+    int ncov = getNCov();
+    int icur = 0;
+    for (int jcov = 0; jcov < ncov; jcov++)
+    {
+      
+      CovAniso* cova = getCovAniso(jcov);
+      cova->appendParams(listParams);
+      int icurnew = listParams.getNParams();
+      int nadded = icurnew - icur;
+      icur = icurnew;
+      if (cova->getFlagRotation() && icov == ITEST)
+      {
+        icov = jcov;
+      }
+    }
+  }
 }

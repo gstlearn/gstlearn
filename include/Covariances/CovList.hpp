@@ -124,7 +124,7 @@ public:
   void makeSillsStationary(int icov,bool silent = false);
   void makeSillNoStatFunctional(int icov, const AFunctional* func, int ivar = 0, int jvar = 0);
 
-  void appendParams(ListParams& listParams) override;
+  virtual void appendParams(ListParams& listParams) override;
   void updateCov() override;
   void initParams() override;
 protected:

@@ -34,7 +34,7 @@ public:
     }
     _params = _model->generateListParams();
     _model->initParams();
-    _x    = _params->getValues();
+    _x    = _params->getOptimizableValues();
     _xmin = _params->getMinValues();
     _xmax = _params->getMaxValues();
     _opt  = new Optim(opt_algorithm::NELDERMEAD, (int) _x.size());

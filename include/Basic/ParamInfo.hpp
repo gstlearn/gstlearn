@@ -7,6 +7,7 @@
 #include "Basic/AStringFormat.hpp"
 
 #include <array>
+#include <cstddef>
 #include <limits>
 #include <string>
 
@@ -21,8 +22,9 @@
  * @param _currentValue Value currently assigned to the parameter
  * @param _absoluteBounds Absolute bounds within which the parameter may vary
  * @param _userBounds Current bounds for the parameter
- * @param _isFixed True if the parameter value may not vary
+ * @param _isFixed True if the parameter value may not vary (in the non linear optimization)
  * @param _description String describing the role of this parameter
+ * @param _address Address of the parameter in the optimization vector (ListParams)
  */
 class GSTLEARN_EXPORT ParamInfo : public AStringable {
 public:
@@ -52,7 +54,7 @@ public:
     double getUserMax() const {return _userBounds[1];};
     void   setFixed(bool isFixed) {_isFixed = isFixed;};
     bool   isFixed() const {return _isFixed;};
-
+    void   setAddress(int addr) const {address = addr;};
     String toString(const AStringFormat* strfmt = nullptr) const override;
 
 private:
@@ -63,4 +65,5 @@ private:
   std::array<double, 2> _userBounds;
   bool _isFixed;
   String _description;
+  mutable size_t address;
 };
