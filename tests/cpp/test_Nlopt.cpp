@@ -45,12 +45,11 @@ double myfunc(unsigned n, const double *x, double *grad, void *my_func_data = nu
     return value;
 }
 
-double myfunc2(const std::vector<double>& x);
+double myfunc2(const std::vector<double>& x)
 {
-  if (grad)
-  {
-    grad[0] = 2 * (x[0] - 3);
-  }
+  // if (grad)
+  //   grad[0] = 2 * (x[0] - 3);
+
   double value = (x[0] - 3) * (x[0] - 3);
   // std::cout << "current value = " << x[0] << " -> Minimum = " << value
   //           << std::endl;
@@ -61,7 +60,7 @@ static void _firstTest()
 {
   mestitle(0,"Minimization of a Function");
   int npar = 1;
-  VectorDouble x = {1.};
+  std::vector<double> x = {1.};
   Optim* opt     = new Optim(opt_algorithm::NELDERMEAD, npar);
 
   // Bounds for each parameter
@@ -69,62 +68,14 @@ static void _firstTest()
   opt->setLowerBounds(lb);
   VectorDouble ub = {5., 10.};
   opt->setUpperBounds(ub);
-  opt->setObjective(myfunc2);
+  auto func = [](const std::vector<double>& x) { return myfunc2(x);};
+  opt -> setObjective(func);
   // opt->setObjective([this](const std::vector<double>& x)
   //                   { return this->eval(x); });
   // nlopt_set_min_objective(opt, myfunc, nullptr);
   opt->setXtolRel(EPSILON4);
-
-  
-  // Minimization
-  double minf    = 1.e30;
-  try
-  {
-    nlopt_optimize(opt, x.data(), &minf);
-    std::cout << "Optimum: x = " << x[0] << " -> Minimum value = " << minf << std::endl;
-  }
-  catch (std::exception& e)
-  {
-    std::cerr << "Error in the optimization: " << e.what() << std::endl;
-  }
-}
-
-static void _secondTest(Db* db, Model* model, bool converge)
-{
-  mestitle(0, "Fitting a Model from a Variogram");
-
-  // Calculating the experimental variogram
-  double hmax = db->getExtensionDiagonal();
-  int nlag = 10;
-  double dlag = hmax / 2. / nlag;
-  VarioParam* varioparam = VarioParam::createOmniDirection(nlag, dlag);
-  Vario* vario           = Vario::computeFromDb(*varioparam, db);
-  (void)vario->dumpToNF("vario2.ascii");
-
-  // Fit the Model
-  ModelOptimParam mop = ModelOptimParam();
-  mop.setWmode(2);
-  mop.setFlagGoulard(true);
-  model->fitNew(nullptr, vario, nullptr, nullptr, mop, ITEST, converge);
-  (void) model->dumpToNF("model2.ascii");
-  model->display();
-
-  delete varioparam;
-  delete vario;
-}
-
-static void _thirdTest(Db* db, Model* model, bool flagSPDE, bool converge)
-{
-  if (flagSPDE)
-    mestitle(0, "Fitting a Model using Loglikelihood (SPDE)");
-  else
-    mestitle(0, "Fitting a Model using Loglikelihood (Covariance)");
-
-  // Fit the Model
-  model->fitNew(db, nullptr, nullptr, nullptr, ModelOptimParam(),
-                ITEST, converge);
-  (void)model->dumpToNF("model3.ascii");
-  model->display();
+  double minf = opt->optimize(x);
+  std::cout << "Optimum: x = " << x[0] << " -> Minimum value = " << minf << std::endl;
 }
 
 int main(int argc, char *argv[])
@@ -134,53 +85,9 @@ int main(int argc, char *argv[])
     StdoutRedirect sr(sfn.str(), argc, argv);
     ASerializable::setPrefixName("NlOpt-");
 
-    // Creating the Model used to simulate the Data
-    double sill_nugget = 2.;
-    Model* model_simu  = new Model();
-    model_simu->addCovFromParam(ECov::NUGGET, 0., sill_nugget);
-    double range1 = 0.25;
-    double sill1  = 3.;
-    double param1 = 1.;
-    model_simu->addCovFromParam(ECov::MATERN, range1, sill1, param1);
-    message("Model used for simulating the Data\n");
-    model_simu->display();
-
-    // Data set
-    int nech = 100;
-    Db* db   = Db::createFromBox(nech, {0., 0.}, {1., 1.});
-    (void)simtub(nullptr, db, model_simu);
-    (void)db->dumpToNF("db.ascii");
-
-    // Creating the testing Model
-    Model* model_test  = new Model();
-    model_test->addCovFromParam(ECov::NUGGET);
-    model_test->addCovFromParam(ECov::MATERN);
-    // model_test->setDriftIRF(0);
-    message("Model used for Test\n");
-    model_test->display();
-
     // Optimization tests
-    int mode      = 0;
-    bool converge = false;
-    bool flagSPDE = false;
 
-    Model* model_copy;
+   _firstTest();
 
-    if (mode == 0 || mode == 1) _firstTest();
-
-    if (mode == 0 || mode == 2) 
-    {
-      model_copy = model_test->clone();
-      _secondTest(db, model_copy, converge);
-    }
-    if (mode == 0 || mode == 3) 
-    {
-      model_copy = model_test->clone();
-      _thirdTest(db, model_copy, flagSPDE, converge);
-    }
-
-    delete db;
-    delete model_simu;
-    delete model_copy;
     return 0;
 }
