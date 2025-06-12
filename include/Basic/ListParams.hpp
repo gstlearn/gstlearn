@@ -29,8 +29,6 @@ public:
   double getValue(int index) const;
   void setValue(int index, double value);
   std::vector<double> getValues() const;
-  double getValue(int index) const;
-  void setValue(int index, double value);
   void setValues(const std::vector<double>& values);
   std::vector<double> getMinValues() const;
   std::vector<double> getMaxValues() const;
