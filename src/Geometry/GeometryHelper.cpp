@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Geometry/GeometryHelper.hpp"
 
+#include "Basic/VectorNumT.hpp"
 #include "Enum/ERotation.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -212,6 +213,96 @@ void GeometryHelper::rotationMatrixInPlace(int ndim,
     GH::rotation3DMatrixInPlace(angles[0], angles[1], angles[2], rot);
   else
     GH::rotationMatrixIdentityInPlace(ndim, rot);
+}
+
+void GeometryHelper::rotationMatrixDerivativesInPlace(int ndim,
+                                                      VectorDouble& angles,
+                                                      std::vector<MatrixSquare>& dR)
+{
+
+  if (ndim == 2)
+  {
+    dR.resize(1);
+    dR[0].reset(2, 2);
+    rotation2DMatrixDerivativesInPlace(angles[0], dR[0]);
+  }
+  else if (ndim == 3)
+  {
+    dR.resize(3);
+    for (int i = 0; i < 3; i++)
+      dR[i].reset(3, 3);
+    rotation3DMatrixDerivativesInPlace(angles, dR);
+  }
+  else
+  {
+    dR.resize(0);
+    return;
+  }
+}
+
+void GeometryHelper::rotation2DMatrixDerivativesInPlace(double angle, MatrixSquare& dR)
+{
+  double ca, sa;
+
+  GH::rotationGetSinCos(angle, &ca, &sa);
+
+  /* Define the 2-D rotation matrix */
+
+  GH::rotationGetSinCos(angle, &ca, &sa);
+
+  /* Define the 2-D rotation matrix */
+
+  dR.setValue(0, 0, -sa);
+  dR.setValue(1, 0,  ca);
+  dR.setValue(0, 1, -ca);
+  dR.setValue(1, 1, -sa);
+}
+
+void GeometryHelper::rotation3DMatrixDerivativesInPlace(VectorDouble& angles,
+                                                        std::vector<MatrixSquare>& dR)
+{
+  double ca[3], sa[3];
+
+  /* Initializations */
+
+  GH::rotationGetSinCos(angles[0], &ca[0], &sa[0]);
+  GH::rotationGetSinCos(angles[1], &ca[1], &sa[1]);
+  GH::rotationGetSinCos(angles[2], &ca[2], &sa[2]);
+
+
+  /* Define the 3-D rotation matrix */
+
+  dR[0].setValue(0, 0, - sa[0] * ca[1]);
+  dR[0].setValue(0, 1, -(ca[0] * ca[2]) - (sa[0] * sa[1] * sa[2]));
+  dR[0].setValue(0, 2,  (ca[0] * sa[2]) - (sa[0] * sa[1] * ca[2]));
+  dR[0].setValue(1, 0,   ca[0] * ca[1]);
+  dR[0].setValue(1, 1, -(sa[0] * ca[2]) + (ca[0] * sa[1] * sa[2]));
+  dR[0].setValue(1, 2,  (sa[0] * sa[2]) + (ca[0] * sa[1] * ca[2]));
+  dR[0].setValue(2, 0, 0.);
+  dR[0].setValue(2, 1, 0.);
+  dR[0].setValue(2, 2, 0.);
+
+  dR[1].setValue(0, 0, - ca[0] * sa[1]);
+  dR[1].setValue(0, 1, ca[0] * ca[1] * sa[2]);
+  dR[1].setValue(0, 2, ca[0] *  ca[1] * ca[2]);
+  dR[1].setValue(1, 0, - sa[0] * sa[1]);
+  dR[1].setValue(1, 1, sa[0] * ca[1] * sa[2]);
+  dR[1].setValue(1, 2, sa[0] * ca[1] * ca[2]);
+  dR[1].setValue(2, 0, -ca[1]);
+  dR[1].setValue(2, 1, -sa[1] * sa[2]);
+  dR[1].setValue(2, 2, -sa[1] * ca[2]);
+
+  dR[2].setValue(0, 0, 0.);
+  dR[2].setValue(0, 1,  (sa[0] * sa[2]) + (ca[0] * sa[1] * ca[2]));
+  dR[2].setValue(0, 2,  (sa[0] * ca[2]) - (ca[0] * sa[1] * sa[2]));
+  dR[2].setValue(1, 0, 0.);
+  dR[2].setValue(1, 1, -(ca[0] * sa[2]) + (sa[0] * sa[1] * ca[2]));
+  dR[2].setValue(1, 2, -(ca[0] * ca[2]) - (sa[0] * sa[1] * sa[2]));
+  dR[2].setValue(2, 0, 0.);
+  dR[2].setValue(2, 1,  ca[1] * ca[2]);
+  dR[2].setValue(2, 2, -ca[1] * sa[2]);
+ 
+
 }
 
 /*****************************************************************************/
@@ -1213,7 +1304,7 @@ double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy)
  * @param dzoverdy Partial derivative along Y
  */
 MatrixSquare GeometryHelper::gradXYToRotmat(double dzoverdx,
-                                                   double dzoverdy)
+                                            double dzoverdy)
 {
   int ndim = 3;
   VectorDouble axis(ndim, 0.);
@@ -1348,7 +1439,7 @@ VectorDouble GeometryHelper::rotationToEuler(const MatrixSquare& M,
  * @remark https://github.com/matthew-brett/transforms3d/blob/master/transforms3d/euler.py
  */
 MatrixSquare GeometryHelper::EulerToRotation(const VectorDouble& angles,
-                                                    const ERotation& convrot)
+                                             const ERotation& convrot)
 {
   int firstaxis, parity, repetition, frame;
   _decodeConvRot(convrot, &firstaxis, &parity, &repetition, &frame);
@@ -1440,6 +1531,177 @@ MatrixDense* GeometryHelper::getDirectionsInR3(const MatrixDense* U)
     X->setValue(ip, 2, u2);
   }
   return X;
+}
+
+std::vector<MatrixSquare> GeometryHelper::EulerToRotationDerivatives(const VectorDouble& angles,
+                                                                     const ERotation& convrot)
+{
+  std::vector<MatrixSquare> dR(3);
+  EulerToRotationDerivativesInPlace(dR, angles, convrot);
+  return dR;
+}
+
+void GeometryHelper::EulerToRotationDerivativesInPlace(std::vector<MatrixSquare>& dR,
+                                                       const VectorDouble& angles,
+                                                       const ERotation& convrot)
+{
+  int firstaxis, parity, repetition, frame;
+  _decodeConvRot(convrot, &firstaxis, &parity, &repetition, &frame);
+
+  VectorInt next_axis = {1, 2, 0, 1};
+  int i               = firstaxis;
+  int j               = next_axis[i + parity];
+  int k               = next_axis[i - parity + 1];
+
+  int ndim = 3;
+
+  // Load and adjust angles
+  double ai = angles[0];
+  double aj = angles[1];
+  double ak = angles[2];
+  if (frame)
+    std::swap(ai, ak);
+  if (parity)
+  {
+    ai = -ai;
+    aj = -aj;
+    ak = -ak;
+  }
+
+  // Precompute trig
+  double si = sin(ai), sj = sin(aj), sk = sin(ak);
+  double ci = cos(ai), cj = cos(aj), ck = cos(ak);
+
+  // Derivatives of trig functions
+  double dai = 1.0, daj = 1.0, dak = 1.0;
+  if (frame) std::swap(dai, dak);
+  if (parity)
+  {
+    dai = -dai;
+    daj = -daj;
+    dak = -dak;
+  }
+
+  double dsi = cos(ai) * dai, dsj = cos(aj) * daj, dsk = cos(ak) * dak;
+  double dci = -sin(ai) * dai, dcj = -sin(aj) * daj, dck = -sin(ak) * dak;
+
+  // Derivatives of R w.r.t. ai, aj, ak
+  MatrixSquare& dR1 = dR[0];
+  MatrixSquare& dR2 = dR[1];
+  MatrixSquare& dR3 = dR[2];
+  dR1.resize(ndim, ndim);
+  dR2.resize(ndim, ndim);
+  dR3.resize(ndim, ndim);
+
+  // Common precomputed values
+  double cc = ci * ck;
+  double cs = ci * sk;
+  double sc = si * ck;
+  double ss = si * sk;
+
+  double dcc_di = dci * ck;
+  double dcc_dk = ci * dck;
+
+  double dss_di = dsi * sk;
+  double dss_dk = si * dsk;
+
+  double dcs_di = dci * sk;
+  double dcs_dk = ci * dsk;
+
+  double dsc_di = dsi * ck;
+  double dsc_dk = si * dck;
+
+  if (repetition)
+  {
+    // Derivatives with respect to ai
+    dR1.setValue(i, i, 0.);
+    dR1.setValue(i, j, sj * dsi);
+    dR1.setValue(i, k, sj * dci);
+    dR1.setValue(j, i, 0.);
+    dR1.setValue(j, j, -cj * dss_di + dcc_di);
+    dR1.setValue(j, k, -cj * dcs_di - dsc_di);
+    dR1.setValue(k, i, 0.);
+    dR1.setValue(k, j, cj * dsc_di + dcs_di);
+    dR1.setValue(k, k, cj * dcc_di - dss_di);
+
+    // Derivatives with respect to aj
+    dR2.setValue(i, i, dcj);
+    dR2.setValue(i, j, dsj * si);
+    dR2.setValue(i, k, dsj * ci);
+    dR2.setValue(j, i, dsj * sk);
+    dR2.setValue(j, j, -dcj * ss);
+    dR2.setValue(j, k, -dcj * cs);
+    dR2.setValue(k, i, -dsj * ck);
+    dR2.setValue(k, j, dcj * sc);
+    dR2.setValue(k, k, dcj * cc);
+
+    // if (repetition)
+    // {
+    //   M.setValue(i, i, cj);
+    //   M.setValue(i, j, sj * si);
+    //   M.setValue(i, k, sj * ci);
+    //   M.setValue(j, i, sj * sk);
+    //   M.setValue(j, j, -cj * ss + cc);
+    //   M.setValue(j, k, -cj * cs - sc);
+    //   M.setValue(k, i, -sj * ck);
+    //   M.setValue(k, j, cj * sc + cs);
+    //   M.setValue(k, k, cj * cc - ss);
+    // }
+
+    // Derivatives with respect to ak
+    dR3.setValue(i, i, 0.);
+    dR3.setValue(i, j, 0.);
+    dR3.setValue(i, k, 0.);
+    dR3.setValue(j, i, sj * dsk);
+    dR3.setValue(j, j, -cj * dss_dk + dcc_dk);
+    dR3.setValue(j, k, -cj * dcs_dk - dsc_dk);
+    dR3.setValue(k, i, sj * dck);
+    dR3.setValue(k, j, cj * dcc_dk - dss_dk);
+  }
+  else
+  {
+    // Derivatives with respect to ai
+    dR1.setValue(i, i, 0.);
+    dR1.setValue(i, j, sj * dsc_di - dcs_di);
+    dR1.setValue(i, k, sj * dcc_di + dss_di);
+    dR1.setValue(j, i, 0.);
+    dR1.setValue(j, j, sj * dss_di + dcc_di);
+    dR1.setValue(j, k, sj * dcs_di - dsc_di);
+    dR1.setValue(k, i, 0.);
+    dR1.setValue(k, j, cj * dsi);
+    dR1.setValue(k, k, cj * dci);
+
+    // Derivatives with respect to aj
+    dR2.setValue(i, i, dcj * ck);
+    dR2.setValue(i, j, dsj * sc);
+    dR2.setValue(i, k, dsj * cc);
+    dR2.setValue(j, i, dcj * sk);
+    dR2.setValue(j, j, dsj * ss);
+    dR2.setValue(j, k, dsj * cs);
+    dR2.setValue(k, i, -dsj);
+    dR2.setValue(k, j, dcj * si);
+    dR2.setValue(k, k, dcj * ci);
+
+    // M.setValue(i, i, cj * ck);
+    // M.setValue(i, j, sj * sc - cs);
+    // M.setValue(i, k, sj * cc + ss);
+    // M.setValue(j, i, cj * sk);
+    // M.setValue(j, j, sj * ss + cc);
+    // M.setValue(j, k, sj * cs - sc);
+    // M.setValue(k, i, -sj);
+    // M.setValue(k, j, cj * si);
+    // M.setValue(k, k, cj * ci);
+    // Derivatives with respect to ak
+    dR3.setValue(i, i, cj * dck);
+    dR3.setValue(i, j, sj * dsc_dk - dcs_dk);
+    dR3.setValue(i, k, sj * dcc_dk + dss_dk);
+    dR3.setValue(j, i, cj * dsk);
+    dR3.setValue(j, j, sj * dss_dk + dcc_dk);
+    dR3.setValue(j, k, sj * dcs_dk - dsc_dk);
+    dR3.setValue(k, i, 0.);
+    dR3.setValue(k, j, 0.);
+    dR3.setValue(k, k, 0.);
+  }
 }
 
 /**

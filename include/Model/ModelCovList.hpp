@@ -51,9 +51,10 @@ public:
   FORWARD_METHOD(getCovList, getTotalSill)
   FORWARD_METHOD(getCovList, getTotalSills)
   FORWARD_METHOD(getCovList, isAllActiveCovList)
-
   
   void setCovList(CovList* covs);
   virtual void addCov(const CovBase* cov);
 
+public:
+  mutable AModelFitSills* _modelFitSills; /* Model fitting procedure for Sills */
 };

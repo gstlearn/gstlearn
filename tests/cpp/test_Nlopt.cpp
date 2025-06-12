@@ -24,93 +24,44 @@
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Model/ModelOptimVario.hpp"
-#include "Model/ModelOptimLikelihood.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 
 #include "geoslib_define.h"
 
 #include <iostream>
-#include <nlopt.h>
 
 // Function to minimize
-double myfunc(unsigned n, const double *x, double *grad, void *my_func_data = nullptr)
+double myfunc2(const std::vector<double>& x)
 {
-    DECLARE_UNUSED(n);
-    DECLARE_UNUSED(my_func_data);
-    if (grad) {
-        grad[0] = 2 * (x[0] - 3);
-    }
-    double value = (x[0] - 3) * (x[0] - 3);
-    // std::cout << "current value = " << x[0] << " -> Minimum = " << value
-    //           << std::endl;
-    return value;
+  // if (grad)
+  //   grad[0] = 2 * (x[0] - 3);
+
+  double value = (x[0] - 3) * (x[0] - 3);
+  // std::cout << "current value = " << x[0] << " -> Minimum = " << value
+  //           << std::endl;
+  return value;
 }
 
 static void _firstTest()
 {
-  mestitle(0,"Minimization of a simple function");
+  mestitle(0,"Minimization of a Function");
   int npar = 1;
-  VectorDouble x = {1.};
-  nlopt_opt opt = nlopt_create(NLOPT_LN_NELDERMEAD, npar);
+  std::vector<double> x = {1.};
+  Optim* opt     = new Optim(opt_algorithm::NELDERMEAD, npar);
 
   // Bounds for each parameter
   VectorDouble lb = {1., 10.};
-  nlopt_set_lower_bounds(opt, lb.data());
+  opt->setLowerBounds(lb);
   VectorDouble ub = {5., 10.};
-  nlopt_set_upper_bounds(opt, ub.data());
-
-  nlopt_set_min_objective(opt, myfunc, nullptr);
-
-  // Set the tolerance for the stopping criteria
-  nlopt_set_ftol_rel(opt, EPSILON4);
-
-  // Minimization
-  double minf    = 1.e30;
-  try
-  {
-    nlopt_optimize(opt, x.data(), &minf);
-    std::cout << "Optimum: x = " << x[0] << " -> Minimum value = " << minf << std::endl;
-  }
-  catch (std::exception& e)
-  {
-    std::cerr << "Error in the optimization: " << e.what() << std::endl;
-  }
-}
-
-static void _secondTest(Db* db, Model* model, bool converge)
-{
-  mestitle(0, "Fitting a Model from a Variogram");
-
-  // Calculating the experimental variogram
-  double hmax = db->getExtensionDiagonal();
-  int nlag = 10;
-  double dlag = hmax / 2. / nlag;
-  VarioParam* varioparam = VarioParam::createOmniDirection(nlag, dlag);
-  Vario* vario           = Vario::computeFromDb(*varioparam, db);
-  (void)vario->dumpToNF("vario2.ascii");
-
-  // Fit the Model
-  ModelOptimVario model_optim_vario(model);
-  model_optim_vario.fit(vario, false, 2, converge);
-  (void) model->dumpToNF("model2.ascii");
-  model->display();
-
-  delete varioparam;
-  delete vario;
-}
-
-static void _thirdTest(Db* db, Model* model, bool flagSPDE, bool converge)
-{
-  if (flagSPDE)
-    mestitle(0, "Fitting a Model using Loglikelihood (SPDE)");
-  else
-    mestitle(0, "Fitting a Model using Loglikelihood (Covariance)");
-
-  // Fit the Model
-  ModelOptimLikelihood model_optim_likelihood(model);
-  model_optim_likelihood.fit(db, flagSPDE, converge);
-  (void)model->dumpToNF("model3.ascii");
-  model->display();
+  opt->setUpperBounds(ub);
+  auto func = [](const std::vector<double>& x) { return myfunc2(x);};
+  opt -> setObjective(func);
+  // opt->setObjective([this](const std::vector<double>& x)
+  //                   { return this->eval(x); });
+  // nlopt_set_min_objective(opt, myfunc, nullptr);
+  opt->setXtolRel(EPSILON4);
+  double minf = opt->optimize(x);
+  std::cout << "Optimum: x = " << x[0] << " -> Minimum value = " << minf << std::endl;
 }
 
 int main(int argc, char *argv[])
@@ -120,43 +71,9 @@ int main(int argc, char *argv[])
     StdoutRedirect sr(sfn.str(), argc, argv);
     ASerializable::setPrefixName("NlOpt-");
 
-       // Creating the Model used to simulate the Data
-    double sill_nugget = 2.;
-    Model* model_simu  = new Model();
-    model_simu->addCovFromParam(ECov::NUGGET, 0., sill_nugget);
-    double range1 = 0.25;
-    double sill1  = 3.;
-    double param1 = 1.;
-    model_simu->addCovFromParam(ECov::MATERN, range1, sill1, param1);
-    message("Model used for simulating the Data\n");
-    model_simu->display();
-
-    // Data set
-    int nech = 100;
-    Db* db   = Db::createFromBox(nech, {0., 0.}, {1., 1.});
-    (void)simtub(nullptr, db, model_simu);
-    (void)db->dumpToNF("db.ascii");
-
-    // Creating the testing Model
-    Model* model_test  = new Model();
-    model_test->addCovFromParam(ECov::NUGGET);
-    model_test->addCovFromParam(ECov::MATERN);
-    // model_test->setDriftIRF(0);
-    message("Model used for Test\n");
-    model_test->display();
-
     // Optimization tests
-    int mode      = 0;
-    bool converge = true;
-    bool flagSPDE = false;
 
-    if (mode == 0 || mode == 1) _firstTest();
+   _firstTest();
 
-    if (mode == 0 || mode == 2) _secondTest(db, model_test, converge);
-
-    if (mode == 0 || mode == 3) _thirdTest(db, model_test, flagSPDE, converge);
-
-    delete db;
-    delete model_simu;
     return 0;
 }

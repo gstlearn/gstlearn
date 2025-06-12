@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Geometry/Rotation.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -108,6 +109,36 @@ int Rotation::setAngles(const VectorDouble& angles)
     _checkRotForIdentity();
   }
   return 0;
+}
+
+int Rotation::getDerivativesInPlace(std::vector<MatrixSquare>& res)
+{
+ 
+  GH::rotationMatrixDerivativesInPlace(_nDim, _angles, res);
+  for (auto& dR : res)
+  {
+    dR.prodScalar(GV_PI / 180); 
+  }
+  return 0;
+}
+
+std::vector<MatrixSquare> Rotation::getDerivatives()
+{
+      
+  std::vector<MatrixSquare> res;
+  if (_nDim == 2)
+  {
+    res.resize(1);
+    res[0].reset(2, 2);
+  }
+  else if (_nDim == 3)
+  {
+    res.resize(3);
+    for (int i = 0; i < 3; i++)
+      res[i].reset(3, 3);
+  }
+  getDerivativesInPlace(res);
+  return res;
 }
 
 void Rotation::setIdentity()

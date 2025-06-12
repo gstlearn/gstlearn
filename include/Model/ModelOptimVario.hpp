@@ -13,11 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Space/SpacePoint.hpp"
-#include "Model/AModelOptim.hpp"
-#include "Model/AModelOptimNew.hpp"
-#include "Model/ModelOptimSillsVario.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
+#include "Estimation/AModelOptimNew.hpp"
 
 class ModelGeneric;
 class Vario;
@@ -27,37 +23,22 @@ class Vario;
  * Class which, starting from an experimental variogram, enables fitting the
  * various parameters of a Covariance part of a Model
  */
-class GSTLEARN_EXPORT ModelOptimVario: public AModelOptimNew, public AModelOptim
+class GSTLEARN_EXPORT ModelOptimVario: public AModelOptimNew
 {
 public:
   ModelOptimVario(ModelGeneric* model,
-                  Constraints* constraints      = nullptr,
-                  const Option_AutoFit& mauto   = Option_AutoFit(),
-                  const Option_VarioFit& optvar = Option_VarioFit());
+                  Constraints* constraints   = nullptr,
+                  const ModelOptimParam& mop = ModelOptimParam());
   ModelOptimVario(const ModelOptimVario& m);
   ModelOptimVario& operator=(const ModelOptimVario& m);
   virtual ~ModelOptimVario();
 
-  int fit(Vario* vario, bool flagGoulard = true, int wmode = 2, bool verbose = false);
-
-  int loadEnvironment(Vario* vario,
-                      bool flagGoulard = true,
-                      int wmode        = 2,
-                      bool verbose     = false);
   double computeCost(bool verbose = false) override;
 
   static ModelOptimVario* createForOptim(ModelGeneric* model,
                                          Vario* vario,
-                                         Constraints* constraints      = nullptr,
-                                         const Option_AutoFit& mauto   = Option_AutoFit(),
-                                         const Option_VarioFit& optvar = Option_VarioFit());
-
-#ifndef SWIG
-  static double evalCost(unsigned int nparams,
-                         const double* current,
-                         double* grad,
-                         void* my_func_data);
-#endif
+                                         Constraints* constraints   = nullptr,
+                                         const ModelOptimParam& mop = ModelOptimParam());
 
 protected:
   struct OneLag
@@ -68,41 +49,21 @@ protected:
     double _gg;
     SpacePoint _P;
   };
-  struct Vario_Part
-  {
-    const Vario* _vario;
-    int _wmode;
-    std::vector<OneLag> _lags;
-  };
-  struct AlgorithmVario
-  {
-    Model_Part& _modelPart;
-    Vario_Part& _varioPart;
-
-    // Part relative to Sill fitting procedure
-    ModelOptimSillsVario& _goulardPart;
-  };
 
 private:
   int  _buildExperimental();
-  void _copyVarioPart(const Vario_Part& varioPart);
   bool _checkConsistency();
   OneLag _createOneLag(int ndim, int idir, int ivar, int jvar, double gg, double dist) const;
 
 protected:
   // Model fitting options
-  Option_VarioFit _optvar;
-
-  // Model fitting parameters
-  Option_AutoFit _mauto;
+  ModelOptimParam _mop;
 
   // Set of constraints
   Constraints* _constraints;
   CovCalcMode _calcmode;
 
   // Part relative to the Experimental variograms
-  Vario_Part _varioPart;
-
-  // Only used for Goulard Option
-  ModelOptimSillsVario _goulardPart;
+  const Vario* _vario;
+  std::vector<OneLag> _lags;
 };

@@ -37,10 +37,17 @@ doc/courses/*/*.html
 doc/courses/r/.Rhistory
 doc/courses/r/.RData
 doc/courses/r/*_cache
+doc/details/*.log
+doc/details/*.aux
+doc/details/*.pdf
 *.Rout
 .*~
 .metadata
 doc/details/*.aux
 doc/details/*.log
 doc/details/*.pdf
+doc/details/*.fdb_latexmk
+doc/details/*.fls
+doc/details/*.synctex.gz
+
 2

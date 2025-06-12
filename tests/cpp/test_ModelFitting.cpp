@@ -8,12 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+
 /**
  * This test aims to test the various possibilities of Model Fitting
  *
  * The example contains several subsets:
  * - Fitting sills only using old technology (Goulard)
- * - Fitting sills only using new technology (AModelOptimSills)
+ * - Fitting sills only using new technology (AModelFitSills)
  * - Fitting a Model using the old technology (Foxleg based)
  * - Fitting using the new technology (AModelOptim*)
  *
@@ -31,7 +32,6 @@
 #include "Variogram/VarioParam.hpp"
 #include "Model/ModelOptimVario.hpp"
 #include "Model/ModelOptimVMap.hpp"
-#include "Model/ModelOptimSillsVario.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 
 #include "geoslib_define.h"
@@ -54,10 +54,8 @@ static void _firstTest(Db* db2D, Model* model, const ECalcVario& calcul, bool co
   DECLARE_UNUSED(converge);
   mestitle(0, "Sill fitting from Variogram (old version)");
 
-  // Calculating the experimental variogram
   Vario* vario = _computeVariogram(db2D, calcul);
 
-  // Fit the Model
   (void) model_fitting_sills(vario, model);
   (void)model->dumpToNF("SillsFromVario_Old.ascii");
   model->display();
@@ -67,54 +65,35 @@ static void _firstTest(Db* db2D, Model* model, const ECalcVario& calcul, bool co
 
 static void _secondTest(Db* db2D, Model* model, const ECalcVario& calcul, bool converge)
 {
-  mestitle(0, "Sill fitting from Variogram (new version)");
-
-  // Calculating the experimental variogram
-  Vario* vario = _computeVariogram(db2D, calcul);
-
-  // Fit the Model
-  ModelOptimSillsVario model_opt(model);
-  model_opt.fit(vario, 2, converge);
-  (void) model->dumpToNF("SillsFromVario.ascii");
-  model->display();
-
-  delete vario;
-}
-
-static void _thirdTest(Db* db2D, Model* model, const ECalcVario& calcul, bool converge)
-{
   mestitle(0, "Model fitting from Variogram (new version)");
 
-  // Calculating the experimental variogram
   Vario* vario = _computeVariogram(db2D, calcul);
 
-  // Fit the Model
-  ModelOptimVario model_opt(model);
-  model_opt.fit(vario, true, 2, converge);
+  ModelOptimParam mop = ModelOptimParam();
+  mop.setWmode(2);
+  mop.setFlagGoulard(true);
+  model->fitNew(nullptr, vario, nullptr, nullptr, mop, ITEST, converge);
   (void)model->dumpToNF("ModelFromVario.ascii");
   model->display();
 
   delete vario;
 }
 
-static void _fourthTest(DbGrid* dbgrid, Model* model, const ECalcVario& calcul, bool converge)
+static void _thirdTest(DbGrid* dbgrid, Model* model, const ECalcVario& calcul, bool converge)
 {
   mestitle(0, "Sill Fitting from Variogram Map (new version)");
 
-  // Calculating the experimental variogram
   DbGrid* dbmap = db_vmap(dbgrid, calcul, {50,50});
   (void) dbmap->dumpToNF("VMap.ascii");
 
-  // Fit the Model
-  Option_VarioFit* optvar  = new Option_VarioFit();
-  optvar->setFlagGoulardUsed(false);
-  ModelOptimVMap model_opt(model);
-  model_opt.fit(dbmap, false, converge);
+  ModelOptimParam mop = ModelOptimParam();
+  mop.setWmode(2);
+  mop.setFlagGoulard(false);
+  model->fitNew(nullptr, nullptr, dbmap, nullptr, mop, ITEST, converge);
   (void)model->dumpToNF("SillsFromVMap.ascii");
   model->display();
 
   delete dbmap;
-  delete optvar;
 }
 
 static MatrixSymmetric _buildSillMatrix(int nvar, double value)
@@ -125,70 +104,86 @@ static MatrixSymmetric _buildSillMatrix(int nvar, double value)
 }
 
 int main(int argc, char* argv[])
+{
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str(), argc, argv);
+  ASerializable::setPrefixName("ModelFit-");
+
+  // Global parameters
+  int nvar                = 1;
+  const ECalcVario calcul = ECalcVario::VARIOGRAM;
+  bool verbose            = false;
+
+  // Creating the Model used to simulate the Data
+  Model* model_simu           = new Model(nvar);
+  MatrixSymmetric sill_nugget = _buildSillMatrix(nvar, 2.);
+  model_simu->addCovFromParam(ECov::NUGGET, 0., 0., 0., VectorDouble(),
+                              sill_nugget);
+
+  double range1         = 0.25;
+  double param1         = 1.;
+  MatrixSymmetric sill1 = _buildSillMatrix(nvar, 3.);
+  model_simu->addCovFromParam(ECov::SPHERICAL, range1, 0., param1,
+                              VectorDouble(), sill1);
+  if (verbose)
   {
-    std::stringstream sfn;
-    sfn << gslBaseName(__FILE__) << ".out";
-    StdoutRedirect sr(sfn.str(), argc, argv);
-    ASerializable::setPrefixName("ModelFit-");
+    message("Model used for simulating the Data\n");
+    model_simu->display();
+  }
+  model_simu->dumpToNF("Reference_Model.ascii");
 
-    // Global parameters
-    int nvar = 1;
-    const ECalcVario calcul = ECalcVario::VARIOGRAM;
-    bool verbose            = false;
+  // Data set
+  int nech = 100;
+  Db* db2D = Db::createFromBox(nech, {0., 0.}, {1., 1.});
+  (void)simtub(nullptr, db2D, model_simu);
+  (void)db2D->dumpToNF("db.ascii");
 
-    // Creating the Model used to simulate the Data
-    MatrixSymmetric sill_nugget = _buildSillMatrix(nvar, 2.);
-    Model* model_simu  = new Model(nvar);
-    model_simu->addCovFromParam(ECov::NUGGET, 0., 0., 0., VectorDouble(),
-                                sill_nugget);
+  // Grid Data set
+  int nx         = 100;
+  double dx      = 1. / nx;
+  DbGrid* dbgrid = DbGrid::create({nx, nx}, {dx, dx});
+  (void)simtub(nullptr, dbgrid, model_simu);
+  (void)dbgrid->dumpToNF("dbgrid.ascii");
 
-    double range1 = 0.25;
-    double param1 = 1.;
-    MatrixSymmetric sill1 = _buildSillMatrix(nvar, 3.);
-    model_simu->addCovFromParam(ECov::SPHERICAL, range1, 0., param1,
-                                VectorDouble(), sill1);
-    if (verbose)
-    {
-      message("Model used for simulating the Data\n");
-      model_simu->display();
-    }
-    model_simu->dumpToNF("Reference_Model.ascii");
+  // Creating the testing Model
+  if (verbose)
+  {
+    message("Initial Model used for Test\n");
+    model_simu->display();
+  }
 
-    // Data set
-    int nech = 100;
-    Db* db2D   = Db::createFromBox(nech, {0., 0.}, {1., 1.});
-    (void)simtub(nullptr, db2D, model_simu);
-    (void)db2D->dumpToNF("db.ascii");
+  // Optimization tests
+  int mode      = 0;
+  bool converge = false;
+  Model* model_test;
 
-    // Grid Data set
-    int nx = 100;
-    double dx = 1. / nx;
-    DbGrid* dbgrid = DbGrid::create({nx, nx}, {dx, dx});
-    (void)simtub(nullptr, dbgrid, model_simu);
-    (void)dbgrid->dumpToNF("dbgrid.ascii");
+  if (mode == 0 || mode == 1)
+  {
+    model_test = model_simu->clone();
+    _firstTest(db2D, model_test, calcul, converge);
+  }
+  if (mode == 0 || mode == 2)
+  {
+    model_test = model_simu->clone();
+    _secondTest(db2D, model_test, calcul, converge);
+  }
+  if (mode == 0 || mode == 3)
+  {
+    model_test = model_simu->clone();
+    _thirdTest(dbgrid, model_test, calcul, converge);
+  }
 
-    // Creating the testing Model
-    Model* model_test  = model_simu->clone();
-    if (verbose)
-    {
-      message("Model used for Test\n");
-      model_test->display();
-    }
+  // Printing the resulting Model
+  if (verbose)
+  {
+    message("Resulting Model\n");
+    model_test->display();
+  }
+  model_test->dumpToNF("Resulting_Model.ascii");
 
-    // Optimization tests
-    int mode      = 0;
-    bool converge = true;
-
-    if (mode == 0 || mode == 1) _firstTest(db2D, model_test, calcul, converge);
-
-    if (mode == 0 || mode == 2) _secondTest(db2D, model_test, calcul, converge);
-
-    if (mode == 0 || mode == 3) _thirdTest(db2D, model_test, calcul, converge);
-
-    if (mode == 0 || mode == 4) _fourthTest(dbgrid, model_test, calcul, converge);
-
-    delete db2D;
-    delete dbgrid;
-    delete model_simu;
-    return 0;
+  delete db2D;
+  delete dbgrid;
+  delete model_simu;
+  return 0;
 }

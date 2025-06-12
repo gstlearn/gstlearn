@@ -47,13 +47,12 @@ set(SRC
   Model/Option_AutoFit.cpp
   Model/Option_VarioFit.cpp
   Model/Model.cpp
-  Model/AModelOptim.cpp
+  Model/ModelOptimParam.cpp
   Model/ModelOptimVario.cpp
   Model/ModelOptimVMap.cpp
-  Model/AModelOptimSills.cpp
-  Model/ModelOptimSillsVario.cpp
-  Model/ModelOptimSillsVMap.cpp
-  Model/ModelOptimLikelihood.cpp
+  Model/AModelFitSills.cpp
+  Model/ModelFitSillsVario.cpp
+  Model/ModelFitSillsVMap.cpp
   Calculators/ACalculator.cpp
   Calculators/ACalcDbToDb.cpp
   Calculators/CalcMigrate.cpp
@@ -222,6 +221,7 @@ set(SRC
   Variogram/Vario.cpp
   Variogram/VarioParam.cpp
   Variogram/DirParam.cpp
+  Basic/Optim.cpp
   Basic/ParamInfo.cpp
   Basic/ListParams.cpp
   Basic/Limits.cpp

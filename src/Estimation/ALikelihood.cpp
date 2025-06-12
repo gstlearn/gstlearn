@@ -15,7 +15,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "LinearOp/CholeskyDense.hpp"
-ALikelihood::ALikelihood(const ModelGeneric* model,
+ALikelihood::ALikelihood(ModelGeneric* model,
                          const Db* db)
   : AModelOptimNew(model)
   , _db(db)
@@ -73,7 +73,7 @@ void ALikelihood::init(bool verbose)
     message("- Number of variables          = %d\n", nvar);
     message("- Length of Information Vector = %d\n", size);
     if (nDrift > 0)
-      message("- Number of drift conditions = %d\n", _model->getNDriftEquation());
+      message("- Number of drift conditions = %d\n", nDrift);
     else
       VH::dump("Constant Mean(s)", _model->getMeans());
   }

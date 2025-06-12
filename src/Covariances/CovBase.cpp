@@ -22,7 +22,6 @@
 #include "Covariances/NoStatArray.hpp"
 #include "geoslib_define.h"
 #include <cstddef>
-#include <functional>
 
 ParamInfo CovBase::createParamInfoForCholSill()
 {

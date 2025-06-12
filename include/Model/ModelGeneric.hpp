@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Model/AModelFitSills.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
@@ -21,11 +22,11 @@
 #include "Db/RankHandler.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Constraints.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
+#include "Model/ModelOptimParam.hpp"
 
 class Model;
 class Db;
+
 class DbGrid;
 class CovCalcMode;
 /**
@@ -188,16 +189,14 @@ public:
   std::shared_ptr<ListParams> generateListParams() const;
   #endif
   void updateModel();
-  double computeLogLikelihood(const Db* db, bool verbose = false) const;
-
+  double computeLogLikelihood(const Db* db, bool verbose = false);
+  double evalGradParam(int iparam, SpacePoint& p1, SpacePoint& p2,int ivar = 0, int jvar = 0);
   void fitNew(const Db* db = nullptr,
               Vario* vario = nullptr,
               const DbGrid* dbmap = nullptr,
               Constraints* constraints = nullptr,
-              const Option_AutoFit& mauto = Option_AutoFit(),
-              const Option_VarioFit& optvar = Option_VarioFit(),
-              bool useVecchia = false,
-              int nb_neigh = 30,
+              const ModelOptimParam& mop = ModelOptimParam(),
+              int nb_neighVecchia = 30,
               bool verbose = false);
 
 private:
@@ -205,6 +204,7 @@ private:
 
 protected:               // TODO : pass into private to finish clean
   ACov* _cova;           /* Generic Covariance structure */
+  std::vector<std::function<double(double)>> _gradFuncs;
   DriftList* _driftList; /* Series of Drift functions */
   CovContext _ctxt;      /* Context */
 };

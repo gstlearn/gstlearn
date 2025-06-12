@@ -34,14 +34,15 @@ void ListParams::setValue(int index, double value)
   _params[index].get().setValue(value);
 }
 
+
 String ListParams::toString(const AStringFormat* strfmt) const
 {
   DECLARE_UNUSED(strfmt);
   std::stringstream result;
   result << toTitle(1,"List of Parameters:");
-  for (const auto& param: _params)
+  for (int ipar = 0, npar = (int) _params.size(); ipar < npar; ipar++)
   {
-    result << param.get().toString() << std::endl;
+    result << ipar+1 << " - " << _params[ipar].get().toString() << std::endl;
   }
   return result.str();
 }

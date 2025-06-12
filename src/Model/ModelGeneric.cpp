@@ -11,43 +11,38 @@
 #include "Model/ModelGeneric.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ListParams.hpp"
-#include "Basic/Optim.hpp"
-#include "Estimation/Likelihood.hpp"
-#include "Estimation/Vecchia.hpp"
+#include "Estimation/AModelOptimNew.hpp"
+#include "Model/AModelFitSills.hpp"
 #include "Model/Model.hpp"
 #include "Model/ModelOptimVario.hpp"
 #include "Model/ModelOptimVMap.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Db/Db.hpp"
-#include "Basic/VectorHelper.hpp"
+#include "Estimation/AModelOptimFactory.hpp"
 #include "Drifts/DriftFactory.hpp"
-
-#include <memory>
-#include <nlopt.h>
+#include "geoslib_define.h"
 
 ModelGeneric::ModelGeneric(const CovContext& ctxt)
   : _cova(nullptr)
   , _driftList(nullptr)
   , _ctxt(ctxt)
 {
-  _driftList = new DriftList(_ctxt);
 }
 
 ModelGeneric::ModelGeneric(const ModelGeneric& r)
 {
-  if (r._cova != nullptr) _cova = (ACov*)r._cova->clone();
-  if (r._driftList != nullptr) _driftList = r._driftList->clone();
-
-  _ctxt = r._ctxt;
+  _cova      = (r._cova != nullptr) ? (ACov*)r._cova->clone() : nullptr;
+  _driftList = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
+  _ctxt      = r._ctxt;
 }
 
 ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
 {
   if (this != &r)
   {
-    _cova      = (ACov*)r._cova->clone();
-    _driftList = r._driftList->clone();
+    _cova      = (r._cova != nullptr) ? (ACov*)r._cova->clone() : nullptr;
+    _driftList = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
     _ctxt      = r._ctxt;
   }
   return *this;
@@ -56,7 +51,9 @@ ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
 ModelGeneric::~ModelGeneric()
 {
   delete _cova;
+  _cova = nullptr;
   delete _driftList;
+  _driftList = nullptr;
 }
 
 void ModelGeneric::setField(double field)
@@ -87,7 +84,7 @@ bool ModelGeneric::_isValid() const
  * @remarks The algorithm is stopped (with a message) in the heterotopic case
  * // TODO; improve for heterotopic case
  */
-double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose) const
+double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
 {
   auto* like = Likelihood::createForOptim(this, db);
   like->init(verbose);
@@ -367,64 +364,46 @@ void ModelGeneric::fitNew(const Db* db,
                           Vario* vario,
                           const DbGrid* dbmap,
                           Constraints* constraints,
-                          const Option_AutoFit& mauto,
-                          const Option_VarioFit& optvar,
-                          bool useVecchia,
-                          int nb_neigh,
+                          const ModelOptimParam& mop,
+                          int nb_neighVecchia,
                           bool verbose)
 {
-  auto params = generateListParams();
-  initParams();
-  std::vector<double> x    = params->getValues();
-  std::vector<double> xmin = params->getMinValues();
-  std::vector<double> xmax = params->getMaxValues();
-  updateModel();
-  if (verbose)
-  {
-    params->display();
-  }
-
-  Optim opt(NLOPT_LN_NELDERMEAD, x.size());
-
-  AModelOptimNew* amopt = nullptr;
-  if (db != nullptr && useVecchia)
-  {
-    amopt = Vecchia::createForOptim(this, db, nb_neigh);
-  }
-  else if (dbmap != nullptr)
-  {
-    amopt = ModelOptimVMap::createForOptim(this, dbmap, constraints, mauto, optvar);
-  }
-  else if (vario != nullptr)
-  {
-    amopt = ModelOptimVario::createForOptim(this, vario, constraints, mauto, optvar);
-  }
-  else
-  {
-    amopt = Likelihood::createForOptim(this, db);
-  }
-  auto func = [amopt, params, verbose, this](const std::vector<double>& x) -> double
-  {
-    static int iter = 1;
-    params->setValues(x);
-    this->updateModel();
-
-    double result = amopt->computeCost(false);
-
-    if (verbose)
-    {
-      message("Iteration %3d - Cost = %lf", iter++, result);
-      VH::dump(" - Current parameters", x, false);
-    }
-    return -result;
-  };
-
-  opt.setObjective(func);
-  opt.setLowerBounds(xmin);
-  opt.setUpperBounds(xmax);
-  opt.setXtolRel(EPSILON6);
-
-  opt.optimize(x);
-
+  AModelOptimNew* amopt = AModelOptimFactory::create(this, db, vario, dbmap, 
+                                                     constraints, mop, 
+                                                     nb_neighVecchia);
+  amopt->setVerbose(verbose);
+  amopt->resetIter();
+  amopt->run();
   delete amopt;
+
+  // Cancel the structure possibly used for Goulard (to be improved)
+  ModelCovList* mcv = dynamic_cast<ModelCovList*>(this);
+  if (mcv != nullptr)
+  {
+    delete mcv->_modelFitSills;
+    mcv->_modelFitSills = nullptr;
+  }
+}
+
+double ModelGeneric::evalGradParam(int iparam, SpacePoint& p1, SpacePoint& p2, int ivar, int jvar)
+{
+
+  double eps = EPSILON4;
+  auto params = generateListParams();
+  double valcur = params->getValue(iparam);
+  params->setValue(iparam, valcur + eps);
+  updateModel();
+  double valplus = evalCov(p1, p2, ivar, jvar);
+  if (valplus == TEST)
+  {
+    return TEST;
+  }
+  params->setValue(iparam, valcur - eps);
+  updateModel();
+  double valminus = evalCov(p1, p2, ivar, jvar);
+  if (valminus == TEST)
+  {
+    return TEST;
+  }
+  return  ( valplus - valminus ) / (2. * eps);
 }
