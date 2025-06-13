@@ -20,7 +20,7 @@ jobs:
         # Last releases from here https://cran.r-project.org/src/base/R-4/
         r_version: [4.2.3, 4.3.3, 4.4.3, 4.5.0]
         # See the list here: https://github.com/actions/runner-images#available-images
-        os: [ubuntu-22.04, ubuntu-24.04, windows-2019, windows-2022, macos-13, macos-14, macos-15]
+        os: [ubuntu-22.04, ubuntu-24.04, windows-2022, windows-2025, macos-13, macos-14, macos-15]
         exclude:
           - os: ubuntu-22.04
             r_version: 4.2.3  # ggpubr install fails
