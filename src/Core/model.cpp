@@ -111,7 +111,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
       {
         covnew->setRanges(cova->getRanges());
         if (cova->getFlagRotation())
-          covnew->setAnisoRotation(cova->getAnisoRotation());
+          covnew->setAnisoRotationMat(cova->getAnisoRotation());
       }
       else
         covnew->setRangeIsotropic(cova->getRange());

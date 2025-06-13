@@ -19,7 +19,6 @@
 #include "Covariances/NoStatArray.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
-#include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Basic/AStringable.hpp"
@@ -109,85 +108,7 @@ CorAniso* CovAniso::getCorAniso()
 {
   return (CorAniso*)getCor();
 }
-void CovAniso::_computeCorrec()
-{
-  getCorAniso()->computeCorrec();
-}
 
-void CovAniso::setParam(double param)
-{
-  getCorAniso()->setParam(param);
-}
-
-void CovAniso::setRangeIsotropic(double range)
-{
-  getCorAniso()->setRangeIsotropic(range);
-}
-
-void CovAniso::setRanges(const VectorDouble& ranges)
-{
-  getCorAniso()->setRanges(ranges);
-}
-
-void CovAniso::setRange(int idim, double range)
-{
-  getCorAniso()->setRange(idim, range);
-}
-
-void CovAniso::setScale(double scale)
-{
-  getCorAniso()->setScale(scale);
-}
-
-void CovAniso::setScales(const VectorDouble& scales)
-{
-  getCorAniso()->setScales(scales);
-}
-
-void CovAniso::setScale(int idim, double scale)
-{
-  getCorAniso()->setScale(idim, scale);
-}
-
-void CovAniso::setAnisoRotation(const Rotation& rot)
-{
-  getCorAniso()->setAnisoRotation(rot);
-}
-
-void CovAniso::setAnisoRotation(const VectorDouble& rot)
-{
-  getCorAniso()->setAnisoRotation(rot);
-}
-
-void CovAniso::setAnisoAngles(const VectorDouble& angles)
-{
-  getCorAniso()->setAnisoAngles(angles);
-}
-
-void CovAniso::setAnisoAngle(int idim, double angle)
-{
-  getCorAniso()->setAnisoAngle(idim, angle);
-}
-
-void CovAniso::setRotationAnglesAndRadius(const VectorDouble& angles,
-                                          const VectorDouble& ranges,
-                                          const VectorDouble& scales)
-{
-  getCorAniso()->setRotationAnglesAndRadius(angles, ranges, scales);
-}
-
-bool CovAniso::isValidForTurningBand() const
-{
-  return getCorAniso()->isValidForTurningBand();
-}
-double CovAniso::simulateTurningBand(double t0, TurningBandOperate& operTB) const
-{
-  return getCorAniso()->simulateTurningBand(t0, operTB);
-}
-bool CovAniso::isValidForSpectral() const
-{
-  return getCorAniso()->isValidForSpectral();
-}
 MatrixDense CovAniso::simulateSpectralOmega(int nb) const
 {
   return getCorAniso()->simulateSpectralOmega(nb);
@@ -227,21 +148,6 @@ double CovAniso::evalCovOnSphere(double alpha,
 VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool flagCumul) const
 {
   return getCorAniso()->evalSpectrumOnSphere(n, flagNormDistance, flagCumul);
-}
-
-void CovAniso::setMarkovCoeffs(const VectorDouble& coeffs)
-{
-  getCorAniso()->setMarkovCoeffs(coeffs);
-}
-
-/* This function computes a polynomial P from two polynomials P1 and P2 and a small constant eps
- * P(x) = P1(x)^2 + x * P2(x)^2 + eps
- */
-void CovAniso::setMarkovCoeffsBySquaredPolynomials(const VectorDouble& coeffs1,
-                                                   const VectorDouble& coeffs2,
-                                                   double eps)
-{
-  getCorAniso()->setMarkovCoeffsBySquaredPolynomials(coeffs1, coeffs2, eps);
 }
 
 double CovAniso::getCorrec() const
@@ -359,21 +265,6 @@ double CovAniso::getSlope(int ivar, int jvar) const
 VectorDouble CovAniso::getRanges() const
 {
   return getCorAniso()->getRanges();
-}
-
-void CovAniso::setType(const ECov& type)
-{
-  getCorAniso()->setType(type);
-}
-
-/**
- * This function returns the range in the isotropic case
- * In the anisotropic case, it returns the largest range over all directions
- * @return
- */
-double CovAniso::getRange() const
-{
-  return getCorAniso()->getRange();
 }
 
 VectorDouble CovAniso::getAnisoCoeffs() const
@@ -673,106 +564,4 @@ double range2scale(const ECov& type, double range, double param)
   cova->setParam(param);
   double scadef = cova->getScadef();
   return range / scadef;
-}
-
-///////////////////// Range ////////////////////////
-void CovAniso::makeRangeNoStatDb(const String& namecol, int idim, const Db* db)
-{
-    getCorAniso()->makeRangeNoStatDb(namecol, idim, db);
-}
-
-void CovAniso::makeRangeNoStatFunctional(const AFunctional* func, int idim)
-{
-  getCorAniso()->makeRangeNoStatFunctional(func, idim);
-}
-
-void CovAniso::makeRangeStationary(int idim)
-{
-  getCorAniso()->makeRangeStationary(idim);
-}
-
-///////////////////// Scale ////////////////////////
-
-void CovAniso::makeScaleNoStatDb(const String& namecol, int idim, const Db* db)
-{
-    getCorAniso()->makeScaleNoStatDb(namecol, idim, db);
-}
-
-void CovAniso::makeScaleNoStatFunctional(const AFunctional* func, int idim)
-{
-  getCorAniso()->makeScaleNoStatFunctional(func, idim);
-}
-
-void CovAniso::makeScaleStationary(int idim)
-{
-  getCorAniso()->makeScaleStationary(idim);
-}
-
-///////////////////// Angle ////////////////////////
-
-void CovAniso::makeAngleNoStatDb(const String& namecol, int idim, const Db* db)
-{
-    getCorAniso()->makeAngleNoStatDb(namecol, idim, db);
-}
-
-void CovAniso::makeAngleNoStatFunctional(const AFunctional* func, int idim)
-{
-  getCorAniso()->makeAngleNoStatFunctional(func, idim);
-}
-
-void CovAniso::makeAngleStationary(int idim)
-{
-  getCorAniso()->makeAngleStationary(idim);
-}
-///////////////////// Tensor ////////////////////////
-
-void CovAniso::makeTensorNoStatDb(const String& namecol, int idim, int jdim, const Db* db)
-{
-  getCorAniso()->makeTensorNoStatDb(namecol, idim, jdim, db);
-}
-
-void CovAniso::makeTensorNoStatFunctional(const AFunctional* func, int idim, int jdim)
-{
-  getCorAniso()->makeTensorNoStatFunctional(func, idim, jdim);
-}
-
-void CovAniso::makeTensorStationary(int idim, int jdim)
-{
-  getCorAniso()->makeTensorStationary(idim, jdim);
-}
-
-///////////////////// Param ////////////////////////
-
-void CovAniso::makeParamNoStatDb(const String& namecol, const Db* db)
-{
-  getCorAniso()->makeParamNoStatDb(namecol, db);
-}
-
-void CovAniso::makeParamNoStatFunctional(const AFunctional* func)
-{
-  getCorAniso()->makeParamNoStatFunctional(func);
-}
-
-void CovAniso::makeParamStationary()
-{
-  getCorAniso()->makeParamStationary();
-}
-
-void CovAniso::informMeshByMeshForAnisotropy(const AMesh* amesh) const
-{
-  getCorAniso()->informMeshByMeshForAnisotropy(amesh);
-}
-
-void CovAniso::informMeshByApexForAnisotropy(const AMesh* amesh) const
-{
-  getCorAniso()->informMeshByApexForAnisotropy(amesh);
-}
-
-void CovAniso::informDbInForAnisotropy(const Db* dbin) const
-{
-  getCorAniso()->informDbInForAnisotropy(dbin);
-}
-void CovAniso::informDbOutForAnisotropy(const Db* dbout) const
-{
-  getCorAniso()->informDbOutForAnisotropy(dbout);
 }

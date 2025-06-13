@@ -196,7 +196,7 @@ void CorAniso::setRange(int idim, double range)
     return;
   }
   double scadef = _corfunc->getScadef();
-  setScale(idim, range / scadef);
+  setScaleDim(idim, range / scadef);
 }
 
 void CorAniso::setScale(double scale)
@@ -228,7 +228,7 @@ void CorAniso::setScales(const VectorDouble& scales)
   _corfunc->setField(scadef * VH::maximum(scales));
 }
 
-void CorAniso::setScale(int idim, double scale)
+void CorAniso::setScaleDim(int idim, double scale)
 {
   if (scale <= EPSILON10)
   {
@@ -240,7 +240,7 @@ void CorAniso::setScale(int idim, double scale)
   _corfunc->setField(scadef * VH::maximum(_aniso.getRadius()));
 }
 
-void CorAniso::setAnisoRotation(const Rotation& rot)
+void CorAniso::setAnisoRotationMat(const Rotation& rot)
 {
   if (!hasRange()) return;
   _aniso.setRotation(rot);

@@ -130,13 +130,13 @@ def _ax_geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
     if aspect is not None:
         ax.set_aspect(aspect)
             
-def decoration(xlabel=None, ylabel=None, title=None, **kwargs):
+def decoration(title=None, xlabel=None, ylabel=None, **kwargs):
     '''
     Attach a decoration to the current graphic (either current Figure or current Axes)
 
+    title: Title assigned to the Figure
     xlabel: Label on the X-axis (only for the current Axes)
     ylabel: Label on the Y-axis (only for the current Axes)
-    title: Title assigned to the Figure
     '''
     fig = plt.gcf()
     if fig is None:
@@ -148,7 +148,7 @@ def decoration(xlabel=None, ylabel=None, title=None, **kwargs):
     else:
         ax  = _getCurrentAx(fig)
         if ax is not None:
-            _ax_decoration(ax, xlabel=xlabel, ylabel=ylabel, title=title, **kwargs)
+            _ax_decoration(ax, title=title, xlabel=xlabel, ylabel=ylabel, **kwargs)
         return
     
 def _fig_decoration(fig, title=None, **kwargs):
@@ -160,13 +160,13 @@ def _fig_decoration(fig, title=None, **kwargs):
     if title is not None:
         fig.suptitle(title, **kwargs)
     
-def _ax_decoration(ax, xlabel=None, ylabel=None, title=None, **kwargs):
+def _ax_decoration(ax, title=None, xlabel=None, ylabel=None, **kwargs):
     '''
     Add the decoration to a Axes.
     ax: matplotlib.Axes
+    title: title contents (for the main for a collection of Axes)
     xlabel: label along the horizontal axis
     ylabel: label along the vertical axis
-    title: title contents (for the main for a collection of Axes)
     '''
     if title is not None:
         ax.set_title(title, **kwargs)
@@ -2147,3 +2147,5 @@ setattr(plt.Figure, "varmod",      gp._fig_varmod)
 setattr(plt.Figure, "variogram",   gp._fig_variogram)
 setattr(plt.Figure, "model",       gp._fig_model)
 setattr(plt.Figure, "decoration",  gp._fig_decoration)
+
+setattr(gl.DbGrid, "plot",         gp.raster)

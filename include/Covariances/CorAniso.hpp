@@ -141,10 +141,10 @@ public:
   void setRanges(const VectorDouble& ranges);
 
   void setScale(double scale); /// Make the covariance isotropic
-  void setScale(int idim, double scale);
+  void setScaleDim(int idim, double scale);
   void setScales(const VectorDouble& scales);
 
-  void setAnisoRotation(const Rotation& rot);
+  void setAnisoRotationMat(const Rotation& rot);
   void setAnisoRotation(const VectorDouble& rot);
   void setAnisoAngles(const VectorDouble& angles);
   void setAnisoAngle(int idim, double angle);
