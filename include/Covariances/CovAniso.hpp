@@ -251,11 +251,11 @@ public:
   int getNScales() const { return getCorAniso()->getNScales(); }
   std::vector<ParamInfo>& getScalesParam()
   {
-    return getCorAniso()->getScalesParam();
+    return getCorAniso()->getParamInfoScales();
   }
   std::vector<ParamInfo>& getAnglesParam()
   {
-    return getCorAniso()->getAnglesParam();
+    return getCorAniso()->getParamInfoAngles();
   }
   void _computeCorrec();
   double _getDetTensor() const;
