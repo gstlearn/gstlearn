@@ -37,7 +37,7 @@ public:
     _x    = _params->getOptimizableValues();
     _xmin = _params->getMinValues();
     _xmax = _params->getMaxValues();
-    _opt  = new Optim(opt_algorithm::NELDERMEAD, (int) _x.size());
+    _opt  = new Optim(LBFGS, (int) _x.size());
     _opt->setLowerBounds(_xmin);
     _opt->setUpperBounds(_xmax);
     _opt->setXtolRel(EPSILON6);

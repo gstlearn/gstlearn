@@ -44,7 +44,7 @@ static void _firstTest()
   mestitle(0,"Minimization of a Function");
   int npar = 1;
   std::vector<double> x = {1.};
-  Optim* opt     = new Optim(opt_algorithm::NELDERMEAD, npar);
+  Optim* opt     = new Optim(NELDERMEAD, npar);
 
   // Bounds for each parameter
   VectorDouble lb = {1., 10.};
@@ -53,9 +53,6 @@ static void _firstTest()
   opt->setUpperBounds(ub);
   auto func = [](const std::vector<double>& x) { return myfunc2(x);};
   opt -> setObjective(func);
-  // opt->setObjective([this](const std::vector<double>& x)
-  //                   { return this->eval(x); });
-  // nlopt_set_min_objective(opt, myfunc, nullptr);
   opt->setXtolRel(EPSILON4);
   double minf = opt->optimize(x);
   std::cout << "Optimum: x = " << x[0] << " -> Minimum value = " << minf << std::endl;
