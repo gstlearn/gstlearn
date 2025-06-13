@@ -98,7 +98,6 @@ typedef enum {
 
   // NLOPT_GN_AGS,
 
-  // NLOPT_NUM_ALGORITHMS        /* not an algorithm, just the number of them */
 } opt_algorithm;
 
 struct nlopt_opt_s;
