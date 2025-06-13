@@ -105,6 +105,8 @@ public:
   void appendParams(ListParams& listParams) override;
   void updateCov() override;
   void initParams() override;
+  ParamInfo& getParamInfoCholSills(int ivar, int jvar) { return _cholSillsInfo(ivar,jvar); }
+
 protected:
   void _attachNoStatDb(const Db* db) override;
 

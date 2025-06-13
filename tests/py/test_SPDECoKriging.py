@@ -13,7 +13,6 @@ flag_plot = False
 ndim = 2
 nvar = 2
 order = 1
-flagLinked = False
 gl.OptCst.defineByKey("NTROW", -1)
 exts = [".estim", ".stdev"]
 params = gl.SPDEParam()
@@ -35,7 +34,6 @@ if order < 0:
 
 model.setDriftIRF(order)
 model.setMeans(means)
-model.setFlagLinked(flagLinked)
     
 # %% Data Bases
 dat  = gl.Db.createFillRandom(ndat=100, ndim = 2,nvar = 0,
