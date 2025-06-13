@@ -100,8 +100,7 @@ public:
   static Model* create(const CovContext& ctxt = CovContext());
   static Model* createFromEnvironment(int nvar, int ndim = 2);
   static Model* createNugget(int nvar, int ndim = 2, double sill = 1.);
-  static Model*
-  createFromParam(const ECov& type                   = ECov::fromKey("NUGGET"),
+  static Model* createFromParam(const ECov& type                   = ECov::fromKey("NUGGET"),
                   double range                       = 1.,
                   double sill                        = 1.,
                   double param                       = 1.,
@@ -176,16 +175,12 @@ public:
   FORWARD_METHOD(castInCovAnisoListConst, hasExternalCov)
   FORWARD_METHOD(castInCovAnisoListConst, isChangeSupportDefined, false)
   FORWARD_METHOD(castInCovAnisoListConst, getAnamHermite) 
-  FORWARD_METHOD(castInCovAnisoListConst, evalCovMat)
   FORWARD_METHOD(castInCovAnisoListConst, getCovMode, EModelProperty::NONE)
 
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setActiveFactor)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, getCovAniso)
-  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setSill)
-  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setSills)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setRangeIsotropic)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setMarkovCoeffs)
-  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, normalize)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeRangeNoStatDb);
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeScaleNoStatDb);
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeAngleNoStatDb);

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Estimation/KrigingAlgebraSimpleCase.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Db/RankHandler.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/MatrixDense.hpp"
@@ -23,13 +24,13 @@
 #include <omp.h>
 
 KrigingAlgebraSimpleCase::KrigingAlgebraSimpleCase(bool flagDual,
-                                                   const VectorVectorInt* sampleRanks,
+                                                   const RankHandler* rankHandler,
                                                    const VectorDouble* Z,
                                                    const VectorDouble& Means,
                                                    int flagchol,
                                                    bool neighUnique)
   : _Z(nullptr)
-  , _sampleRanks(nullptr)
+  , _rankHandler(nullptr)
   , _nbgh(nullptr)
   , _X(nullptr)
   , _Sigma(nullptr)
@@ -74,9 +75,8 @@ KrigingAlgebraSimpleCase::KrigingAlgebraSimpleCase(bool flagDual,
   _Sigma0 = std::make_shared<MatrixDense>();
   _X0     = std::make_shared<MatrixDense>();
  
-  (void)setData(Z, sampleRanks, Means);
-  //(void)setLHS(Sigma, X);
-  //(void)setVariance(Sigma00);
+  (void)setData(Z, rankHandler, Means);
+
   _Sigma00   = std::make_shared<MatrixSymmetric>();
   if (_flagCholesky)
   {
@@ -100,7 +100,7 @@ KrigingAlgebraSimpleCase::KrigingAlgebraSimpleCase(bool flagDual,
 
   _Sigma = std::make_shared<MatrixSymmetric>();
   _X = std::make_shared<MatrixDense>();
-  _sampleRanks = std::make_shared<VectorVectorInt>();
+  _rankHandler = std::make_shared<RankHandler>();
   _nbgh = std::make_shared<VectorInt>();
 }
 
@@ -137,7 +137,7 @@ void KrigingAlgebraSimpleCase::_copyModelQuantities(const KrigingAlgebraSimpleCa
 void KrigingAlgebraSimpleCase::_copyPtrForUniqueNeigh(KrigingAlgebraSimpleCase& r)
 {
   _Z             = r._Z;
-  _sampleRanks   = r._sampleRanks;
+  _rankHandler   = r._rankHandler;
   _nbgh          = r._nbgh;
   _X             = r._X;
   _Sigma         = r._Sigma;
@@ -146,7 +146,7 @@ void KrigingAlgebraSimpleCase::_copyPtrForUniqueNeigh(KrigingAlgebraSimpleCase& 
   _XtInvSigma    = r._XtInvSigma;
   _invSigmaX     = r._invSigmaX;
   _XtInvSigmaZ   = r._XtInvSigmaZ;
-  _invSigmac        = r._invSigmac;
+  _invSigmac     = r._invSigmac;
   _Beta          = r._Beta;
   _bDual         = r._bDual;
   _invSigmaXBeta = r._invSigmaXBeta;
@@ -154,16 +154,15 @@ void KrigingAlgebraSimpleCase::_copyPtrForUniqueNeigh(KrigingAlgebraSimpleCase& 
 
 void KrigingAlgebraSimpleCase::_copyContentForMovingNeigh(const KrigingAlgebraSimpleCase& r)
 {
-  if (r._Z == nullptr)
-    _Z = std::make_shared<VectorDouble>();
+ 
+  if (r._rankHandler == nullptr)
+    _rankHandler = std::make_shared<RankHandler>();
   else
-    _Z = std::shared_ptr<VectorDouble>(new VectorDouble(*r._Z));
+    _rankHandler = std::shared_ptr<RankHandler>(new RankHandler(*r._rankHandler));
+ 
 
-  if (r._sampleRanks == nullptr)
-    _sampleRanks = std::make_shared<VectorVectorInt>();
-  else
-    _sampleRanks = std::shared_ptr<VectorVectorInt>(new VectorVectorInt(*r._sampleRanks));
-
+  _Z = _rankHandler->getZflatten();
+  
   if (r._nbgh == nullptr)
     _nbgh = std::make_shared<VectorInt>();
   else
@@ -435,11 +434,15 @@ void KrigingAlgebraSimpleCase::resetNewData()
   _neq = 0;
 }
 
+void KrigingAlgebraSimpleCase::setZ(std::shared_ptr<VectorDouble>& Z)
+{
+  _Z = Z;
+}
 /**
  * @brief Modify the Data Values (and Means)
  *
  * @param Z Data flattened vector (possibly multivariate)
- * @param indices Vector Of Vector of sample ranks
+ * @param rankhandler rank handler
  * @param Means  Vector of known Drift coefficients (optional)
  * @return int
  *
@@ -447,7 +450,7 @@ void KrigingAlgebraSimpleCase::resetNewData()
  * @note kept unchanged (even if its contents may have been updated)
  */
 int KrigingAlgebraSimpleCase::setData(const VectorDouble* Z,
-                                      const VectorVectorInt* indices,
+                                      const RankHandler* rankhandler,
                                       const VectorDouble& Means)
 {
   _resetLinkedToZ();
@@ -463,17 +466,15 @@ int KrigingAlgebraSimpleCase::setData(const VectorDouble* Z,
     _Z = std::make_shared<VectorDouble>();
   }
 
-  // Argument indices
-  if (indices != nullptr)
+
+  if (rankhandler != nullptr)
   {
-    if (!_checkDimensionVVI("sampleRanks", indices, &_nvar, &_neq)) return 1;
-    _sampleRanks = std::make_shared<VectorVectorInt>(*indices);
+    _rankHandler = std::make_shared<RankHandler>(*rankhandler);
   }
   else 
   {
-    _sampleRanks = std::make_shared<VectorVectorInt>();
+    _rankHandler = std::make_shared<RankHandler>();
     _neq = 0;
-
   }
   // Argument Means
 
@@ -652,10 +653,10 @@ bool KrigingAlgebraSimpleCase::_forbiddenWhenDual() const
   return false;
 }
 
-VectorDouble KrigingAlgebraSimpleCase::getStdv()
+const VectorDouble &KrigingAlgebraSimpleCase::getStdv()
 {
-  if (!_forbiddenWhenDual()) return VectorDouble();
-  if (_needStdv()) return VectorDouble();
+  if (!_forbiddenWhenDual()) return _dummy;
+  if (_needStdv()) return _dummy;
   return _Stdv.getDiagonal();
 }
 
@@ -978,7 +979,7 @@ int KrigingAlgebraSimpleCase::_needMuUK()
   _LambdaSKtX.resize(_nrhs, _nbfl);
   _Y0.resize(_nrhs, _nbfl);
 
-  _LambdaSKtX.prodMatMatInPlace(_LambdaSK.get(), _X.get(), true, false);
+  _LambdaSKtX.prodMatMatInPlaceOptim(_LambdaSK.get(), _X.get(), true, false);
   _Y0.linearCombination(1., _X0.get(), -1., &_LambdaSKtX);
 
   _MuUK.prodMatMatInPlace(_invSigmac.get(), &_Y0, false, true);
@@ -987,16 +988,31 @@ int KrigingAlgebraSimpleCase::_needMuUK()
 
 void KrigingAlgebraSimpleCase::updateSampleRanks()
 {
-
-  _neq = (*_sampleRanks)[0].size();
-  _nrhs = _sampleRanks->size();
-  _nvar = _sampleRanks->size();
+  _neq  = (int)(*getSampleRanksByVariable(0)).size();
+  _nrhs = (int)getSampleRanks()->size();
+  _nvar = (int)getSampleRanks()->size();
   _Sigma0->resize(_neq, _nrhs);
   _resetLinkedToLHS();
   _nbfl = _X->getNCols();
   _X0->resize(_nrhs, _nbfl);
   _flagSK = (_nbfl <= 0);
+  if (_flagSK && !_Means.empty())
+  {
+    for (int i = 0; i < (int)_Z->size(); i++)
+      (*_Z)[i] -= _Means[0];
+  }
+}
 
+void KrigingAlgebraSimpleCase::updateRankHandler()
+{
+  _neq  = (int)getSampleRanksByVariable(0)->size();
+  _nrhs = (int)getSampleRanks()->size();
+  _nvar = (int)getSampleRanks()->size();
+  _Sigma0->resize(_neq, _nrhs);
+  _resetLinkedToLHS();
+  _nbfl = _X->getNCols();
+  _X0->resize(_nrhs, _nbfl);
+  _flagSK = (_nbfl <= 0);
 }
 int KrigingAlgebraSimpleCase::_needLambdaSK()
 {
@@ -1009,14 +1025,20 @@ int KrigingAlgebraSimpleCase::_needLambdaSK()
     _cholSigma->solveMatInPlace(*_Sigma0, *_LambdaSK);
   }
   else
-    _LambdaSK->prodMatMatInPlace(_InvSigma.get(), _Sigma0.get());
+    _LambdaSK->prodMatMatInPlaceOptim(_InvSigma.get(), _Sigma0.get());
   return 0;
 }
 
 bool KrigingAlgebraSimpleCase::_notFindSampleRanks()
 {
-  return !_isPresentIIVector("SampleRanks", _sampleRanks.get());
+  return !_isPresentIIVector("SampleRanks", getSampleRanks());
 }
+
+bool KrigingAlgebraSimpleCase::_notFindRankHandler()
+{
+  return !(_rankHandler == nullptr);
+}
+
 
 bool KrigingAlgebraSimpleCase::_notFindZ()
 {
@@ -1029,9 +1051,7 @@ int KrigingAlgebraSimpleCase::_needLambdaUK()
   _LambdaUK.resize(_neq, _nrhs);
 
   _needXtInvSigma();
-
   _needLambdaSK();
-
   _needMuUK();
 
   _invSigmaXMuUK.resize(_neq, _nrhs);
@@ -1041,7 +1061,6 @@ int KrigingAlgebraSimpleCase::_needLambdaUK()
     _invSigmaXMuUK.prodMatMatInPlace(_XtInvSigma.get(), &_MuUK, true);
 
   MatrixDense::sum(_LambdaSK.get(), &_invSigmaXMuUK, &_LambdaUK);
- // _LambdaUK.linearCombination(1., _LambdaSK.get(), 1., &_invSigmaXMuUK);
 
   return 0;
 }
@@ -1166,7 +1185,7 @@ void KrigingAlgebraSimpleCase::dumpLHS(int nbypas) const
 {
   int size = _neq;
   if (!_flagSK) size += _nbfl;
-  int npass = (size - 1) / nbypas + 1;
+  int npass = ( (size - 1) / nbypas ) + 1;
 
   /* General Header */
 
@@ -1282,7 +1301,7 @@ void KrigingAlgebraSimpleCase::dumpWGT()
   for (int ivar = 0; ivar < _nvar; ivar++)
   {
     if (_nvar > 1) message("Using variable Z%-2d\n", ivar + 1);
-    int nbyvar = (*_sampleRanks)[ivar].size();
+    int nbyvar = (int) getSampleRanksByVariable(0)->size();
     sum.fill(0.);
 
     for (int j = 0; j < nbyvar; j++)

@@ -868,7 +868,7 @@ void exit_f(void)
 }
 
 %include ../swig/toString.i
-%include generated_python.i
+%include ../swig/generated_python.i
 
 //////////////////////////////////////////////////////////////
 //       Add target language additional features below      //
@@ -1146,7 +1146,7 @@ def setdbitem(self,name,tab):
         
         tab_i[np.isnan(tab_i)] = np.nan
         VectD = np.double(tab_i)
-        self.setColumn(VectD, name, gl.ELoc.UNKNOWN, 0, useSel)
+        self.setColumn(VectD.tolist(), name, gl.ELoc.UNKNOWN, 0, useSel)
         
     return
 

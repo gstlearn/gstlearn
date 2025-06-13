@@ -71,7 +71,7 @@ int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
   if (db == nullptr) return (0);
   if (db->isGrid() && locatorType == ELoc::X)
     return (db->getNDim());
-  return (db->getNFromLocator(locatorType));
+  return (db->getNLoc(locatorType));
 }
 
 /****************************************************************************/
@@ -736,6 +736,9 @@ int point_to_point(Db* db, const double* coor)
   return (iechmin);
 }
 
+static VectorDouble work1;
+static VectorDouble work2;
+
 /*****************************************************************************/
 /*!
  **  Converts from point coordinates to nearest grid node indices
@@ -763,8 +766,8 @@ int point_to_grid(const DbGrid* db,
                   int* indg)
 {
   int ndim = db->getNDim();
-  VectorDouble work1(ndim);
-  VectorDouble work2(ndim);
+  work1.resize(ndim);
+  work2.resize(ndim);
 
   /* Check if all coordinates are defined */
 
@@ -835,8 +838,8 @@ int point_to_grid(const DbGrid* db,
 int point_to_bench(const DbGrid* db, double* coor, int flag_outside, int* indb)
 {
   int ndim = db->getNDim();
-  VectorDouble work1(ndim);
-  VectorDouble work2(ndim);
+  work1.resize(ndim);
+  work2.resize(ndim);
   int idim0 = 2;
   (*indb)   = -1;
 
@@ -953,8 +956,8 @@ int index_point_to_grid(
 int point_inside_grid(Db* db, int iech, const DbGrid* dbgrid)
 {
   int ndim = db->getNDim();
-  VectorDouble work1(ndim);
-  VectorDouble work2(ndim);
+  work1.resize(ndim);
+  work2.resize(ndim);
 
   /* Process the grid rotation (if any) */
 

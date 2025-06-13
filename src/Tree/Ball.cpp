@@ -237,8 +237,8 @@ int Ball::resetConstraints(bool status)
   return 0;
 }
 
-MatrixT<int> findNN(Db* dbin,
-                    Db* dbout,
+MatrixT<int> findNN(const Db* dbin,
+                    const Db* dbout,
                     int nb_neigh,
                     bool flagShuffle,
                     bool verbose,

@@ -16,6 +16,8 @@
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
+#include "Mesh/MeshETurbo.hpp"
+
 #include <vector>
 
 #define EVALOP(IN,OUT,TAB,getmat,OP,IY,COMPUTEOP,XORY,START,END,IVAR,JVAR) \
@@ -124,7 +126,8 @@ PrecisionOpMulti::PrecisionOpMulti(Model* model,
 
   if(buildOp)
   {
-    buildQop(stencil);
+    bool localStencil = stencil && isTurbo(meshes) && !model->isNoStat();
+    buildQop(localStencil);
   }
 }
 
@@ -215,7 +218,13 @@ void PrecisionOpMulti::_popsClear()
 
 bool PrecisionOpMulti::_matchModelAndMeshes() const 
 {
-  return _getNCov() == _getNMesh();
+  if (_getNCov() != _getNMesh())
+  {
+    messerr("The number of meshes (%d) and the number of covariances (%d) do not match",
+            _getNMesh(), _getNCov());
+    return false;
+  }
+  return true;
 }
 
 int PrecisionOpMulti::_getNVar() const
@@ -388,3 +397,27 @@ int PrecisionOpMulti::_addSimulateToDest(const constvect vecin,
   EVALOP(vecin, vecout, _cholSills, getLowerTriangle, evalSimulate,
          iad_struct + jvar * napices, true, y, jvar, nvar, ivar, jvar)
 }
+
+std::pair<double, double> PrecisionOpMulti::rangeEigenValQ() const
+{
+  std::pair<double, double> result = _pops[0]->getRangeEigenVal();
+
+  for (int i = 1; i < (int)_pops.size(); i++)
+  {
+    std::pair<double, double> vals = _pops[i]->getRangeEigenVal();
+    result.first                   = MIN(result.first, vals.first);
+    result.second                  = MAX(result.second, vals.second);
+  }
+  return result;
+}
+
+double PrecisionOpMulti::computeLogDetQ(int nMC) const
+{
+  double result = 0.;
+  for (const auto& e: _pops)
+  {
+    result += e->getLogDeterminant(nMC);
+  }
+  return result;
+}
+

@@ -209,6 +209,16 @@ foreach(FLAVOR ${FLAVORS})
     target_link_libraries(${FLAVOR} PUBLIC -liphlpapi -lrpcrt4)
   endif()
 
+  if(CMAKE_COMPILER_IS_GNUCC)
+    # Use of std::filesystem needs at least GCC 8.0
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+      message(SEND_ERROR "GCC>=8.0 is needed to build gstlearn")
+    elseif(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
+      # GCC 8.0 doesn't link automatically to std::filesystem
+      target_link_libraries(${FLAVOR} PUBLIC stdc++fs)
+    endif()
+  endif()
+
   # Build a cmake file to be imported by library users
   export(TARGETS ${FLAVOR}
          NAMESPACE ${PROJECT_NAME}::

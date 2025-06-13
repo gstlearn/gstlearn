@@ -35,7 +35,7 @@ NeighBench::NeighBench(bool flag_xvalid,
 NeighBench::NeighBench(const NeighBench& r)
     : ANeigh(r),
       _width(r._width),
-      _biPtBench(r._biPtBench),
+      _biPtBench(r._biPtBench->clone()),
       _T1(r._T1),
       _T2(r._T2)
 {
@@ -47,7 +47,7 @@ NeighBench& NeighBench::operator=(const NeighBench& r)
   {
     ANeigh::operator=(r);
     _width = r._width;
-    _biPtBench = r._biPtBench;
+    _biPtBench = r._biPtBench->clone();
     _T1 = r._T1;
     _T2 = r._T2;
    }

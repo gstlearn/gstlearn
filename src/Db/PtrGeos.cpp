@@ -108,7 +108,6 @@ String getLocatorName(const ELoc& locatorType, int locatorIndex)
   if (!isLocatorTypeValid(locatorType))
   {
     return STRING_NA;
-    return sstr.str();
   }
   int i = locatorType.getValue();
   if (DEF_LOCATOR[i].IREF == 1)

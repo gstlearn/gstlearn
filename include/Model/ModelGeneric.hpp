@@ -10,16 +10,23 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/ICloneable.hpp"
+#include "Model/AModelFitSills.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Drifts/DriftList.hpp"
+#include "Basic/ListParams.hpp"
+#include "Basic/ICloneable.hpp"
+#include "Db/RankHandler.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
+#include "Model/Constraints.hpp"
+#include "Model/ModelOptimParam.hpp"
 
 class Model;
 class Db;
+
 class DbGrid;
 class CovCalcMode;
 /**
@@ -69,6 +76,7 @@ public:
   FORWARD_METHOD(getCov, evalCovMat0)
   FORWARD_METHOD(getCov, evalCovMat0InPlace)
   FORWARD_METHOD(getCov, evalCovVecRHSInPlace)
+  FORWARD_METHOD(getCov, evalCovMatOptimInPlace)
   FORWARD_METHOD(getCov, evalCovMatRHSInPlaceFromIdx)
   FORWARD_METHOD(getCov, evalCovMatSparse)
   FORWARD_METHOD(getCov, eval0)
@@ -117,8 +125,11 @@ public:
   FORWARD_METHOD(getDriftList, computeDrift, TEST)
   FORWARD_METHOD(getDriftList, evalDriftValue, TEST)
   FORWARD_METHOD(getDriftList, evalDriftMat)
+  FORWARD_METHOD(getDriftList, evalDriftMatInPlace)
   FORWARD_METHOD(getDriftList, evalDriftMatByRanks)
-  FORWARD_METHOD(getDriftList, evalDriftMatByTarget)
+  FORWARD_METHOD(getDriftList, evalMeanVecByRanks)
+  FORWARD_METHOD(getDriftList, evalDriftMatByRanksInPlace)
+  FORWARD_METHOD(getDriftList, evalDriftMatByTargetInPlace)
   FORWARD_METHOD(getDriftList, getNDrift)
   FORWARD_METHOD(getDriftList, getNDriftEquation)
   FORWARD_METHOD(getDriftList, getNExtDrift)
@@ -133,6 +144,7 @@ public:
   FORWARD_METHOD(getDriftList, evalDrift, TEST)
   FORWARD_METHOD(getDriftList, evalDriftBySample)
   FORWARD_METHOD(getDriftList, evalDriftBySampleInPlace)
+  FORWARD_METHOD(getDriftList, evalDriftCoef)
   FORWARD_METHOD(getDriftList, hasDrift, false)
 
   FORWARD_METHOD(getDriftList, getMean, TEST)
@@ -171,13 +183,47 @@ public:
   void addDrift(const ADrift* drift); // TODO: check that the same driftM has not been already defined
   void setDrifts(const VectorString& driftSymbols);
 
-  double computeLogLikelihood(const Db* db, bool verbose = false);  
+  void initParams();
 
-private :
+  #ifndef SWIG
+  std::shared_ptr<ListParams> generateListParams() const;
+  #endif
+  void updateModel();
+  double computeLogLikelihood(const Db* db, bool verbose = false);
+  double evalGradParam(int iparam, SpacePoint& p1, SpacePoint& p2,int ivar = 0, int jvar = 0);
+  void fitNew(const Db* db = nullptr,
+              Vario* vario = nullptr,
+              const DbGrid* dbmap = nullptr,
+              Constraints* constraints = nullptr,
+              const ModelOptimParam& mop = ModelOptimParam(),
+              int nb_neighVecchia = 30,
+              bool verbose = false);
+
+private:
   virtual bool _isValid() const;
 
 protected:               // TODO : pass into private to finish clean
   ACov* _cova;           /* Generic Covariance structure */
+  std::vector<std::function<double(double)>> _gradFuncs;
   DriftList* _driftList; /* Series of Drift functions */
   CovContext _ctxt;      /* Context */
 };
+
+GSTLEARN_EXPORT int computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,
+                                               const MatrixSymmetric& Sigma,
+                                               const MatrixDense& F1,
+                                               int type = 1,
+                                               int idx  = 0);
+GSTLEARN_EXPORT int computeCovMatSVCRHSInPlace(MatrixDense& cov,
+                                               const MatrixSymmetric& Sigma,
+                                               const MatrixDense& F1,
+                                               const MatrixDense& F2,
+                                               int type1 = 1,
+                                               int idx1  = 0,
+                                               int type2 = 1,
+                                               int idx2  = 0);
+GSTLEARN_EXPORT int computeDriftMatSVCRHSInPlace(MatrixDense& mat,
+                                                 const MatrixDense& F,
+                                                 int type                 = 1,
+                                                 int idx                  = 0,
+                                                 bool flagCenteredFactors = true);

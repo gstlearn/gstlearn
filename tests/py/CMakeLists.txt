@@ -26,7 +26,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TEST_DST_DIR})
 
 # Create the output directory for logs
 add_custom_target(prepare_check_py
-                  COMMAND ${CMAKE_COMMAND} -E make_directory "${TEST_DST_DIR}")
+                  COMMAND ${CMAKE_COMMAND} -E make_directory "${TEST_DST_DIR}"
+                  COMMAND ${UV} pip install ${NO_INTERNET_ARG} "mlxtend")
 
 # Add dependency for prepare_check_py
 add_dependencies(prepare_check_py python_install)
@@ -34,7 +35,9 @@ add_dependencies(prepare_check_py python_install)
 # Create the main target
 # Look parent CMakeLists for MY_CTEST_COMMAND definition
 add_custom_target(check_py
-                  COMMAND ${MY_CTEST_COMMAND})
+  COMMAND ${MY_CTEST_COMMAND}
+  JOB_POOL console
+)
 
 # Add dependency for check_py
 add_dependencies(check_py prepare_check_py)

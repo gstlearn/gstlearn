@@ -127,7 +127,7 @@ int CalcGlobal::_globalKriging()
                                                        _modelLocal->getMeans(), 
                                                        !_modelLocal->hasDrift());
   if (_modelLocal->evalCovMatSymInPlaceFromIdx(Sigma, dbin, sampleRanks, &mode, false)) return 1;
-  if (_modelLocal->evalDriftMatByRanks(X, dbin, sampleRanks, ECalcMember::LHS)) return 1;
+  if (_modelLocal->evalDriftMatByRanksInPlace(X, dbin, sampleRanks, ECalcMember::LHS)) return 1;
 
   KrigingAlgebra algebra;
   algebra.resetNewData();
@@ -148,7 +148,7 @@ int CalcGlobal::_globalKriging()
     if (!dbout->isActive(iech)) continue;
 
     if (_modelLocal->evalCovMatRHSInPlaceFromIdx(Sigma0, dbin, dbout, sampleRanks, iech, krigopt, false)) return 1;
-    if (_modelLocal->evalDriftMatByTarget(X0, dbout, iech, krigopt)) return 1;
+    if (_modelLocal->evalDriftMatByTargetInPlace(X0, dbout, iech, krigopt)) return 1;
 
     // Cumulate the R.H.S.
     Sigma0Cum.addMatInPlace(Sigma0);
@@ -167,7 +167,11 @@ int CalcGlobal::_globalKriging()
 
   double estim = algebra.getEstimation()[0];
   double stdv  = algebra.getStdv()[0];
-  double cv0   = _modelLocal->getTotalSill(_ivar0, _ivar0) - stdv * stdv;
+  // The previous term corresponds to the standard deviation calculated
+  // with a punctual target. Therefore the corresponding variance
+  // must be corrected (C00 -> Cvv) to pass to a correct Territory variance 
+  // of estimation
+  double c00   = Sigma00.getValue(0,0);
 
   /* Preliminary checks */
 
@@ -185,7 +189,8 @@ int CalcGlobal::_globalKriging()
 
   /* Perform the estimation */
 
-  double cvvgeo = cvv - cv0;
+  double cvvgeo = stdv * stdv - c00 + cvv;
+
   double stdgeo = (cvvgeo > 0) ? sqrt(cvvgeo) : 0.;
   double cvgeo = (isZero(estim) || FFFF(estim)) ? TEST : stdgeo / estim;
 

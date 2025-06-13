@@ -417,18 +417,18 @@ int Rule::statistics(int  verbose,
   /* Check that the facies are defined */
 
   nfac = (*nfac_tot);
-  VectorInt facies = VectorInt(nfac);
-  for (ifac=0; ifac<nfac; ifac++) facies[ifac] = 0;
-  if (_mainNode->isValid(facies)) return 1;
+  _facies.clear();
+  _facies.resize(nfac);
+  if (_mainNode->isValid(_facies)) return 1;
 
   /* Check that the first consecutive facies are defined */
 
   ntot = 0;
   for (ifac=0; ifac<nfac; ifac++)
-    if (facies[ifac] > 0) ntot = ifac + 1;
+    if (_facies[ifac] > 0) ntot = ifac + 1;
   for (ifac=0; ifac<nfac; ifac++)
   {
-    if (facies[ifac] <= 0)
+    if (_facies[ifac] <= 0)
     {
       messerr("The facies (%d) is not defined",ifac+1);
       return(1);
@@ -552,19 +552,20 @@ double Rule::getProportion(int facies)
  * @param facies Rank of the target facies (starting from 1)
  * @return The vector of bounds organized as [t1min, t1max, t2min, t2max]
  */
-VectorDouble Rule::getThresh(int facies) const
+std::array<double, 4> Rule::getThresh(int facies) const
 {
   int fac_ret;
   int rank = 0;
   double t1min, t1max, t2min, t2max;
 
   if (!_mainNode->getThresh(1, facies, &rank, &fac_ret, &t1min, &t1max, &t2min,
-                            &t2max)) return VectorDouble();
-  VectorDouble bounds(4);
-  bounds[0] = t1min;
-  bounds[1] = t1max;
-  bounds[2] = t2min;
-  bounds[3] = t2max;
+                            &t2max)) return {};
+  std::array<double, 4> bounds{
+    t1min,
+    t1max,
+    t2min,
+    t2max,
+  };
   return bounds;
 }
 
@@ -620,16 +621,19 @@ int Rule::setProportions(const VectorDouble& proportions) const
 
   // Set the proportions when the input argument is left empty
 
-  VectorDouble props = proportions;
-  if (props.empty())
+  _props.resize(proportions.size());
+  if (_props.empty())
   {
     int nfacies = getNFacies();
-    props = VectorDouble(nfacies, 1. / (double) nfacies);
+    _props.clear();
+    _props.resize(nfacies, 1. / (double) nfacies);
+  } else {
+    std::copy(proportions.begin(), proportions.end(), _props.begin());
   }
 
   /* Set the proportions */
 
-  if (_mainNode->proportionDefine(props)) return 1;
+  if (_mainNode->proportionDefine(_props)) return 1;
   _flagProp = 1;
 
   /* Calculate the cumulative proportions */

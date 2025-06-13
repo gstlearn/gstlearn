@@ -230,16 +230,17 @@ int CovList::addEvalCovVecRHSInPlace(vect vect,
                                      SpacePoint& pin,
                                      SpacePoint& pout,
                                      VectorDouble& tabwork,
-                                     double lambda) const
+                                     double lambda,
+                                     const ECalcMember& calcMember) const
 {
   CovCalcMode mode(ECalcMember::RHS);
   const VectorInt& list = _getListActiveCovariances(&mode);
   for (const auto& j: list.getVector())
   {
     if (_covs[j]->isOptimEnabled())
-      _covs[j]->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda);
+      _covs[j]->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda, calcMember);
     else
-      _covs[j]->ACov::addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda);
+      _covs[j]->ACov::addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda, calcMember);
   }
   return 0;
 }
@@ -249,7 +250,9 @@ double CovList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
   double cov            = 0.;
   const VectorInt& list = _getListActiveCovariances(mode);
   for (const auto& j: list.getVector())
+  {
     cov += _covs[j]->eval0(ivar, jvar, mode);
+  }
   return cov;
 }
 
@@ -275,7 +278,9 @@ double CovList::_eval(const SpacePoint& p1,
   double cov            = 0.;
   const VectorInt& list = _getListActiveCovariances(mode);
   for (const auto& j: list.getVector())
+  {
     cov += _covs[j]->evalCov(p1, p2, ivar, jvar, mode);
+  }
   return cov;
 }
 
@@ -283,7 +288,9 @@ void CovList::_load(const SpacePoint& p, bool case1) const
 {
   const VectorInt& list = _getListActiveCovariances(nullptr);
   for (const auto& j: list.getVector())
+  {
     _covs[j]->load(p, case1);
+  }
 }
 
 String CovList::toString(const AStringFormat* /*strfmt*/) const
@@ -505,4 +512,26 @@ void CovList::setCovFiltered(int icov, bool filtered)
   if (!_isCovarianceIndexValid(icov)) return;
   _filtered[icov] = filtered;
   _updateLists();
+}
+
+void CovList::appendParams(ListParams& listParams){
+  for (const auto& cov: _covs)
+  {
+    cov->appendParams(listParams);
+  }
+}
+
+void CovList::initParams()
+{
+  for (const auto& cov: _covs)
+  {
+    cov->initParams();
+  }
+}
+void CovList::updateCov()
+{
+  for (const auto& cov: _covs)
+  {
+    cov->updateCov();
+  }
 }

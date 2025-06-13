@@ -16,29 +16,29 @@
 #include "Drifts/DriftFactory.hpp"
 #include "Db/Db.hpp"
 
-DriftList::DriftList(const CovContext &ctxt)
-    : AStringable(),
-      _flagLinked(false),
-      _flagCombined(false),
-      _driftCL(),
-      _drifts(),
-      _betaHat(),
-      _filtered(),
-      _ctxt(ctxt),
-      _mean(VectorDouble(ctxt.getNVar(), 0.))
+DriftList::DriftList(const CovContext& ctxt)
+  : AStringable()
+  , _flagLinked(false)
+  , _flagCombined(false)
+  , _driftCL()
+  , _drifts()
+  , _betaHat()
+  , _filtered()
+  , _ctxt(ctxt)
+  , _mean(VectorDouble(ctxt.getNVar(), 0.))
 {
 }
 
-DriftList::DriftList(const DriftList &r)
-    : AStringable(r),
-      _flagLinked(r._flagLinked),
-      _flagCombined(r._flagCombined),
-      _driftCL(r._driftCL),
-      _drifts(),
-      _betaHat(r._betaHat),
-      _filtered(r._filtered),
-      _ctxt(r._ctxt),
-      _mean(r._mean)
+DriftList::DriftList(const DriftList& r)
+  : AStringable(r)
+  , _flagLinked(r._flagLinked)
+  , _flagCombined(r._flagCombined)
+  , _driftCL(r._driftCL)
+  , _drifts()
+  , _betaHat(r._betaHat)
+  , _filtered(r._filtered)
+  , _ctxt(r._ctxt)
+  , _mean(r._mean)
 {
   for (const auto& e: r._drifts)
   {
@@ -46,22 +46,22 @@ DriftList::DriftList(const DriftList &r)
   }
 }
 
-DriftList& DriftList::operator=(const DriftList &r)
+DriftList& DriftList::operator=(const DriftList& r)
 {
   if (this != &r)
   {
     AStringable::operator=(r);
-    _flagLinked = r._flagLinked;
+    _flagLinked   = r._flagLinked;
     _flagCombined = r._flagCombined;
-    _driftCL  = r._driftCL;
-    _mean = r._mean;
+    _driftCL      = r._driftCL;
+    _mean         = r._mean;
     for (const auto& e: r._drifts)
     {
       _drifts.push_back(dynamic_cast<ADrift*>(e->clone()));
     }
-    _betaHat = r._betaHat;
+    _betaHat  = r._betaHat;
     _filtered = r._filtered;
-    _ctxt = r._ctxt;
+    _ctxt     = r._ctxt;
   }
   return *this;
 }
@@ -80,7 +80,7 @@ void DriftList::copyCovContext(const CovContext& ctxt)
 void DriftList::_update()
 {
   if ((int)_mean.size() != _ctxt.getNVar())
-  _mean =  VectorDouble(_ctxt.getNVar(), 0.);
+    _mean = VectorDouble(_ctxt.getNVar(), 0.);
 }
 
 String DriftList::toString(const AStringFormat* /*strfmt*/) const
@@ -112,7 +112,7 @@ void DriftList::addDrift(const ADrift* drift)
 void DriftList::delDrift(unsigned int rank)
 {
   if (_drifts.empty()) return;
-  if (! _isDriftIndexValid(rank)) return;
+  if (!_isDriftIndexValid(rank)) return;
   _drifts.erase(_drifts.begin() + rank);
   _filtered.erase(_filtered.begin() + rank);
   _betaHat.erase(_betaHat.begin() + rank);
@@ -121,7 +121,7 @@ void DriftList::delDrift(unsigned int rank)
 
 void DriftList::delAllDrifts()
 {
-  if (! _drifts.empty())
+  if (!_drifts.empty())
     for (const auto& e: _drifts)
     {
       delete e;
@@ -136,38 +136,38 @@ void DriftList::delAllDrifts()
 
 bool DriftList::isDriftFiltered(int i) const
 {
-  if (! _isDriftIndexValid(i)) return false;
+  if (!_isDriftIndexValid(i)) return false;
   return _filtered[i];
 }
 
 void DriftList::setFiltered(int i, bool filter)
 {
-  if (! _isDriftIndexValid(i)) return;
+  if (!_isDriftIndexValid(i)) return;
   _filtered[i] = filter;
 }
 
 const ADrift* DriftList::getDrift(int il) const
 {
-  if (! _isDriftIndexValid(il)) return nullptr;
+  if (!_isDriftIndexValid(il)) return nullptr;
   return _drifts[il];
 }
 
 int DriftList::getRankFex(int il) const
 {
-  if (! _isDriftIndexValid(il)) return 0;
+  if (!_isDriftIndexValid(il)) return 0;
   return _drifts[il]->getRankFex();
 }
 
 String DriftList::getDriftName(int il) const
 {
-  if (! _isDriftIndexValid(il)) return String();
+  if (!_isDriftIndexValid(il)) return String();
   return _drifts[il]->getDriftName();
 }
 
 int DriftList::getNDriftEquation() const
 {
-  int nbfl = getNDrift();
-  int nvar = getNVar();
+  int nbfl                 = getNDrift();
+  int nvar                 = getNVar();
   int ndriftEquationNumber = (_flagLinked) ? nbfl : nbfl * nvar;
   return ndriftEquationNumber;
 }
@@ -181,17 +181,17 @@ bool DriftList::isValid() const
   int nbfl = getNDrift();
 
   // Check that the same drift function has not been called twice
-  for (int il=0; il<nbfl; il++)
+  for (int il = 0; il < nbfl; il++)
   {
     const String str_il = _drifts[il]->getDriftName();
 
-    for (int jl=0; jl<il; jl++)
+    for (int jl = 0; jl < il; jl++)
     {
       const String str_jl = _drifts[jl]->getDriftName();
 
       if (str_il == str_jl)
       {
-        messerr("Set of drift functions is invalid: %d and %d are similar",il+1,jl+1);
+        messerr("Set of drift functions is invalid: %d and %d are similar", il + 1, jl + 1);
         return false;
       }
     }
@@ -246,7 +246,7 @@ void DriftList::resetDriftList()
 
   // Resize the 'filtered' array (if necessary)
 
-  if (nbfl != (int) _filtered.size())
+  if (nbfl != (int)_filtered.size())
     _filtered.resize(nbfl, false);
 }
 
@@ -262,10 +262,10 @@ void DriftList::resetDriftList()
 void DriftList::setDriftCLByPart(int ivar, int ib, const VectorDouble& coef)
 {
   int nbfl = getNDrift();
-  if (nbfl != (int) coef.size())
+  if (nbfl != (int)coef.size())
   {
     messerr("The dimension of 'vec' (%d) is not equal to the number of drift functions (%d)",
-            (int) coef.size(), nbfl);
+            (int)coef.size(), nbfl);
     return;
   }
   for (int il = 0; il < nbfl; il++)
@@ -283,11 +283,11 @@ void DriftList::setDriftCLByPart(int ivar, int ib, const VectorDouble& coef)
  * @param nbgh Vector of sample indices within the data base
  * @param loctype Locator to be checked
  */
-bool DriftList::isDriftSampleDefined(const Db *db,
+bool DriftList::isDriftSampleDefined(const Db* db,
                                      int ib,
                                      int nech,
-                                     const VectorInt &nbgh,
-                                     const ELoc &loctype) const
+                                     const VectorInt& nbgh,
+                                     const ELoc& loctype) const
 {
   int nbfl = getNDrift();
   int nvar = db->getNLoc(loctype);
@@ -313,7 +313,7 @@ bool DriftList::isDriftSampleDefined(const Db *db,
 
 double DriftList::computeDrift(const Db* db, int ib, int iech) const
 {
-  if (! _isDriftIndexValid(ib)) return TEST;
+  if (!_isDriftIndexValid(ib)) return TEST;
   return _drifts[ib]->eval(db, iech);
 }
 
@@ -324,12 +324,12 @@ VectorVectorDouble DriftList::getDrifts(const Db* db, bool useSel) const
   int nech = db->getNSample(useSel);
   VectorDouble vec(nech);
 
-  for (int ib=0; ib<nbfl; ib++)
+  for (int ib = 0; ib < nbfl; ib++)
   {
     int ecr = 0;
-    for (int iech=0; iech<db->getNSample(); iech++)
+    for (int iech = 0; iech < db->getNSample(); iech++)
     {
-      if (useSel && ! db->isActive(iech)) continue;
+      if (useSel && !db->isActive(iech)) continue;
       vec[ecr++] = _drifts[ib]->eval(db, iech);
     }
     vecvec.push_back(vec);
@@ -337,10 +337,10 @@ VectorVectorDouble DriftList::getDrifts(const Db* db, bool useSel) const
   return vecvec;
 }
 
-double DriftList::evalDriftCoef(const Db *db, int iech, const VectorDouble &coeffs) const
+double DriftList::evalDriftCoef(const Db* db, int iech, const VectorDouble& coeffs) const
 {
-  int nbfl = getNDrift();
-  int ncoeff = (int) coeffs.size();
+  int nbfl   = getNDrift();
+  int ncoeff = (int)coeffs.size();
   if (nbfl != ncoeff)
   {
     messerr("Dimension of 'coeffs' (%d) should match number of drift functions (%d)", ncoeff, nbfl);
@@ -364,23 +364,23 @@ double DriftList::evalDriftCoef(const Db *db, int iech, const VectorDouble &coef
  * @param useSel True if the selection must be taken into account
  * @return
  */
-VectorDouble DriftList::evalDriftCoefs(const Db *db,
-                                       const VectorDouble &coeffs,
+VectorDouble DriftList::evalDriftCoefs(const Db* db,
+                                       const VectorDouble& coeffs,
                                        bool useSel) const
 {
   VectorDouble vec;
-  int nbfl = getNDrift();
-  int ncoeff = (int) coeffs.size();
+  int nbfl   = getNDrift();
+  int ncoeff = (int)coeffs.size();
   if (ncoeff != nbfl)
   {
     messerr("'coeffs' dimension (%d) should match number of drift functions (%d)",
-        ncoeff, nbfl);
+            ncoeff, nbfl);
     return vec;
   }
 
-  for (int iech=0, nech=db->getNSample(); iech<nech; iech++)
+  for (int iech = 0, nech = db->getNSample(); iech < nech; iech++)
   {
-    if (useSel && ! db->isActive(iech)) continue;
+    if (useSel && !db->isActive(iech)) continue;
     double value = evalDriftCoef(db, iech, coeffs);
     vec.push_back(value);
   }
@@ -396,7 +396,7 @@ int DriftList::getDriftMaxIRFOrder() const
   for (int il = 0, nbfl = getNDrift(); il < nbfl; il++)
   {
     const ADrift* drft = _drifts[il];
-    int order = drft->getOrderIRF();
+    int order          = drft->getOrderIRF();
     if (order > max_order) max_order = order;
   }
   return (max_order);
@@ -408,7 +408,7 @@ int DriftList::getDriftMaxIRFOrder() const
  * @param rank_fex Rank of the variable for external dift
  * @return
  */
-bool DriftList::isDriftDefined(const VectorInt &powers, int rank_fex) const
+bool DriftList::isDriftDefined(const VectorInt& powers, int rank_fex) const
 {
   for (int il = 0, nbfl = getNDrift(); il < nbfl; il++)
   {
@@ -431,7 +431,7 @@ bool DriftList::isDriftDefined(const VectorInt &powers, int rank_fex) const
  * @param rank_fex Rank of the variable for external Drift
  * @return
  */
-bool DriftList::isDriftDifferentDefined(const VectorInt &powers, int rank_fex) const
+bool DriftList::isDriftDifferentDefined(const VectorInt& powers, int rank_fex) const
 {
   for (int il = 0, nbfl = getNDrift(); il < nbfl; il++)
   {
@@ -495,8 +495,8 @@ VectorInt DriftList::_getActiveVariables(int ivar0) const
  **
  *****************************************************************************/
 MatrixDense DriftList::evalDriftMat(const Db* db,
-                                          const VectorInt& nbgh,
-                                          const ECalcMember& member) const
+                                    const VectorInt& nbgh,
+                                    const ECalcMember& member) const
 {
   MatrixDense mat;
   VectorInt ivars = _getActiveVariables(-1);
@@ -505,8 +505,20 @@ MatrixDense DriftList::evalDriftMat(const Db* db,
   // Create the sets of Vector of valid sample indices per variable (not masked and defined)
   VectorVectorInt index = db->getSampleRanks(ivars, nbgh, true, true, true);
 
-  int error = evalDriftMatByRanks(mat, db, index, member);
+  int error = evalDriftMatByRanksInPlace(mat, db, index, member);
   return (error == 0) ? mat : MatrixDense();
+}
+
+int DriftList::evalDriftMatInPlace(MatrixDense& mat,
+                                   const Db* db,
+                                   const VectorInt& nbgh,
+                                   const ECalcMember& member) const
+{
+  VectorInt ivars = _getActiveVariables(-1);
+  if (ivars.empty()) return 1;
+  VectorVectorInt index = db->getSampleRanks(ivars, nbgh, true, true, true);
+
+  return evalDriftMatByRanksInPlace(mat, db, index, member);
 }
 
 /**
@@ -519,13 +531,19 @@ MatrixDense DriftList::evalDriftMat(const Db* db,
  *
  * @return int Error returned code
  */
-int DriftList::evalDriftMatByRanks(MatrixDense& mat,
-                                   const Db* db,
-                                   const VectorVectorInt& sampleRanks,
-                                   const ECalcMember& member) const
+int DriftList::evalDriftMatByRanksInPlace(MatrixDense& mat,
+                                          const Db* db,
+                                          const VectorVectorInt& sampleRanks,
+                                          const ECalcMember& member) const
 {
+  VectorVectorInt sampleRanksLoc = sampleRanks;
+  if (sampleRanksLoc.empty())
+  {
+    sampleRanksLoc = db->getSampleRanks();
+  }
+
   // Creating the matrix
-  int neq = VH::count(sampleRanks);
+  int neq = VH::count(sampleRanksLoc);
   if (neq <= 0)
   {
     messerr("The returned matrix has no valid sample and no valid variable");
@@ -545,10 +563,10 @@ int DriftList::evalDriftMatByRanks(MatrixDense& mat,
 
     /* Loop on the samples */
 
-    int nechs = (int)sampleRanks[ivar].size();
+    int nechs = (int)sampleRanksLoc[ivar].size();
     for (int jech = 0; jech < nechs; jech++, irow++)
     {
-      int iech = sampleRanks[ivar][jech];
+      int iech = sampleRanksLoc[ivar][jech];
       {
         for (int ib = 0; ib < nfeq; ib++)
         {
@@ -560,6 +578,59 @@ int DriftList::evalDriftMatByRanks(MatrixDense& mat,
   }
   return 0;
 }
+
+/**
+ * @brief Returns the Matrix of the Drift elements
+ *
+ * @param db
+ * @param sampleRanks
+ * @param member
+ * @return MatrixDense
+ */
+MatrixDense DriftList::evalDriftMatByRanks(const Db* db,
+                                           const VectorVectorInt& sampleRanks,
+                                           const ECalcMember& member) const
+{
+  MatrixDense mat;
+
+  int error = evalDriftMatByRanksInPlace(mat, db, sampleRanks, member);
+  if (error) mat.resize(0, 0);
+  return mat;
+}
+
+VectorDouble DriftList::evalMeanVecByRanks(const Db* db,
+                                           const VectorVectorInt& sampleRanks) const
+{
+  VectorVectorInt sampleRanksLoc = sampleRanks;
+  if (sampleRanksLoc.empty())
+  {
+    sampleRanksLoc = db->getSampleRanks();
+  }
+
+  // Creating the matrix
+  int neq = VH::count(sampleRanksLoc);
+  if (neq <= 0)
+  {
+    messerr("The returned matrix has no valid sample and no valid variable");
+    return 1;
+  }
+  int nvar  = getNVar();
+
+  VectorDouble vec(neq, 0.);
+
+  for (int ivar = 0, ecr = 0, irow = 0; ivar < nvar; ivar++)
+  {
+    int nechs = (int)sampleRanksLoc[ivar].size();
+    for (int jech = 0; jech < nechs; jech++, irow++, ecr++)
+    {
+      vec[ecr] = getMean(ivar);
+    }
+  }
+  return vec;
+}
+
+thread_local VectorInt viech2(1);
+thread_local VectorInt ivars;
 
 /****************************************************************************/
 /*!
@@ -574,17 +645,18 @@ int DriftList::evalDriftMatByRanks(MatrixDense& mat,
  ** \param[in]  krigopt KrigOpt structure
  **
  *****************************************************************************/
-int DriftList::evalDriftMatByTarget(MatrixDense& mat,
-                                    const Db* db,
-                                    int iech2,
-                                    const KrigOpt& krigopt) const
+int DriftList::evalDriftMatByTargetInPlace(MatrixDense& mat,
+                                           const Db* db,
+                                           int iech2,
+                                           const KrigOpt& krigopt) const
 {
-  VectorInt ivars = VH::sequence(getNVar());
+  VH::sequenceInPlace(getNVar(), ivars);
   if (ivars.empty()) return 1;
 
   // Create the sets of Vector of valid sample indices per variable
   // (not masked and defined)
-  VectorVectorInt index = db->getSampleRanks(ivars, {iech2}, true, false, false);
+  viech2[0] = iech2;
+  const VectorVectorInt &index = db->getSampleRanks(ivars, viech2, true, false, false);
 
   // Creating the matrix
   int neq = VH::count(index);
@@ -615,8 +687,9 @@ int DriftList::evalDriftMatByTarget(MatrixDense& mat,
   return 0;
 }
 
-VectorDouble
-DriftList::evalDriftBySample(const Db* db, int iech, const ECalcMember& member) const
+VectorDouble DriftList::evalDriftBySample(const Db* db,
+                                          int iech,
+                                          const ECalcMember& member) const
 {
   int nbfl = getNDrift();
   VectorDouble drftab(nbfl);
@@ -649,8 +722,11 @@ void DriftList::evalDriftBySampleInPlace(const Db* db,
  * @param ib   Rank of the Drift function
  * @param member ECalcMember characteristics
  */
-double DriftList::evalDriftValue(
-  const Db* db, int iech, int ivar, int ib, const ECalcMember& member) const
+double DriftList::evalDriftValue(const Db* db,
+                                 int iech,
+                                 int ivar,
+                                 int ib,
+                                 const ECalcMember& member) const
 {
   int nbfl     = getNDrift();
   double value = 0.;
@@ -687,7 +763,6 @@ DriftList::evalDrift(const Db* db, int iech, int il, const ECalcMember& member) 
   if (member != ECalcMember::LHS && isDriftFiltered(il)) return 0.;
   if (!_isDriftIndexValid(il)) return TEST;
   return _drifts[il]->eval(db, iech);
-  return TEST;
 }
 
 const DriftList* DriftList::createReduce(const VectorInt& validVars) const

@@ -136,6 +136,7 @@ using vectint = std::span<int>;
 */
 
 #ifndef SWIG  
+
 #define FORWARD_METHOD_NON_CONST(obj, name, ...)                               \
     template <typename... Args>                                               \
     auto name(Args&&... args) -> decltype(auto) {                             \

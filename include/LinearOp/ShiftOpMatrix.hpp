@@ -86,26 +86,14 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
     MatrixSparse* getTildeCGrad(int iapex, int igparam) const;
     MatrixSparse* getSGrad(int iapex, int igparam) const;
 
-    const VectorDouble& getTildeC() const
-    {
-      return _TildeC;
-    }
-
-    const VectorDouble& getLambdaGrads(int idim) const
-    {
-      return _LambdaGrad[idim];
-    }
-    double getLambdaGrad(int idim, int iapex) const
-    {
-      return _LambdaGrad[idim][iapex];
-    }
+    const VectorDouble& getTildeC() const { return _TildeC; }
+    const VectorDouble& getLambdaGrads(int idim) const { return _LambdaGrad[idim]; }
+    double getLambdaGrad(int idim, int iapex) const { return _LambdaGrad[idim][iapex]; }
     int getSGradAddress(int iapex, int igparam) const;
 
     int getLambdaGradSize() const;
     //void multiplyByValueAndAddDiagonal(double v1 = 1.,double v2 = 0.) override;
   private:
-
-  
     int _buildS(const AMesh* amesh, double tol = EPSILON10);
     int _buildSGrad(const AMesh* amesh, double tol = EPSILON10);
     void _buildLambda(const AMesh* amesh);
@@ -130,8 +118,7 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
                              int imesh,
                              double coeff[3][2]);
     int _preparMatrices(const AMesh* amesh, int imesh,
-                        MatrixSquare& matu, MatrixDense& matw)
-      const;
+                        MatrixSquare& matu, MatrixDense& matw) const;
     int _prepareMatricesSVariety(const AMesh* amesh,
                                  int imesh,
                                  VectorVectorDouble& coords,
@@ -177,7 +164,7 @@ class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
     VectorVectorDouble _LambdaGrad;
     bool _flagNoStatByHH;
     std::vector<double> _detHH;
-
+    mutable VectorDouble _diag;
 
     int _ndim;
   };

@@ -1,0 +1,170 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.11.25"
+  },
+  "cells": [
+    {
+      "id": "Hbol",
+      "code_hash": "1b68fde3e961f802c586bd784a63a329",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "e108242a9f6261acac0b7d5ed5276dae",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "375ed5ec643bad16ae70beece31023be",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div><span class=\"markdown prose dark:prose-invert\"><h2 id=\"data-base-parameters\">Data Base Parameters</h2></span></div><div><marimo-ui-element object-id='MJUe-34' random-id='48175f30-bb35-cc3f-d66b-969441689d2e'><marimo-radio data-initial-value='&quot;From Box&quot;' data-label='null' data-options='[&quot;From Box&quot;, &quot;From Grid&quot;, &quot;From NF&quot;]' data-inline='false'></marimo-radio></marimo-ui-element></div><div><marimo-ui-element object-id='MJUe-35' random-id='224f9671-2d4c-b5dd-933b-48bd205de966'><marimo-number data-initial-value='100' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Number of Samples&lt;/span&gt;&lt;/span&gt;&quot;' data-start='1' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div><div><marimo-ui-element object-id='MJUe-36' random-id='05eb2a16-ba22-2890-af1f-6458d308e3f4'><marimo-number data-initial-value='1' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Number of Variables&lt;/span&gt;&lt;/span&gt;&quot;' data-start='1' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div><div><marimo-ui-element object-id='MJUe-37' random-id='405457c7-4aa3-c5f1-fc55-03436ad3fc8f'><marimo-number data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Minimum along X&lt;/span&gt;&lt;/span&gt;&quot;' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div><div><marimo-ui-element object-id='MJUe-38' random-id='fd18510d-7a2e-7649-e712-c17ca72e5257'><marimo-number data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Minimum along Y&lt;/span&gt;&lt;/span&gt;&quot;' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div><div><marimo-ui-element object-id='MJUe-39' random-id='491038f0-f924-a8f2-6dea-0ff2f305a4ef'><marimo-number data-initial-value='100' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Maximum along X&lt;/span&gt;&lt;/span&gt;&quot;' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div><div><marimo-ui-element object-id='MJUe-40' random-id='b9a4506f-8f70-1f6d-db02-da10add4e227'><marimo-number data-initial-value='100' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Maximum along Y&lt;/span&gt;&lt;/span&gt;&quot;' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div><div><marimo-ui-element object-id='MJUe-41' random-id='47a0cf3b-f9f2-ea4d-b20f-e5ff97454f25'><marimo-number data-initial-value='14543' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Seed&lt;/span&gt;&lt;/span&gt;&quot;' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "8af2c47d4d0aa10909a836b74c93f701",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "This cell raised an exception: AttributeError(''Html' object has no attribute 'value'')",
+          "traceback": []
+        }
+      ],
+      "console": [
+        {
+          "type": "stream",
+          "name": "stderr",
+          "text": "<span class=\"codehilite\"><div class=\"highlight\"><pre><span></span><span class=\"gt\">Traceback (most recent call last):</span>\n  File <span class=\"nb\">&quot;/home/drenard/Program/Python-3.10.5/lib/python3.10/site-packages/marimo/_runtime/executor.py&quot;</span>, line <span class=\"m\">141</span>, in <span class=\"n\">execute_cell</span>\n<span class=\"w\">    </span><span class=\"n\">exec</span><span class=\"p\">(</span><span class=\"n\">cell</span><span class=\"o\">.</span><span class=\"n\">body</span><span class=\"p\">,</span> <span class=\"n\">glbls</span><span class=\"p\">)</span>\n  File <span class=\"nb\">&quot;/tmp/marimo_488315/__marimo__cell_bkHC_.py&quot;</span>, line <span class=\"m\">1</span>, in <span class=\"n\">&lt;module&gt;</span>\n<span class=\"w\">    </span><span class=\"n\">db</span> <span class=\"o\">=</span> <span class=\"n\">gmo</span><span class=\"o\">.</span><span class=\"n\">WgetDb</span><span class=\"p\">(</span><span class=\"n\">WidgetDb</span><span class=\"p\">,</span> <span class=\"n\">WDbLayout</span><span class=\"o\">.</span><span class=\"n\">value</span><span class=\"p\">)</span>\n<span class=\"gr\">AttributeError</span>: <span class=\"n\">&#39;Html&#39; object has no attribute &#39;value&#39;</span>\n</pre></div>\n</span>"
+        }
+      ]
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "f6383e5c3ee35648bffd5658b5ca345c",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "60f0dc8f2bb8027adb1e52d578574677",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div><span class=\"markdown prose dark:prose-invert\"><h2 id=\"variogram-parameters\">Variogram Parameters</h2></span></div><div><marimo-ui-element object-id='lEQa-29' random-id='92ad621b-e7ce-76f8-f19c-49bd35a3f3a6'><marimo-radio data-initial-value='&quot;Omni&quot;' data-label='null' data-options='[&quot;Omni&quot;, &quot;Multi&quot;, &quot;From NF&quot;]' data-inline='false'></marimo-radio></marimo-ui-element></div><div><marimo-ui-element object-id='lEQa-30' random-id='69db194f-743b-7a17-386d-f8eb39cb699c'><marimo-number data-initial-value='10' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Number of Lags&lt;/span&gt;&lt;/span&gt;&quot;' data-start='1' data-stop='100' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div><div><marimo-ui-element object-id='lEQa-31' random-id='8f210eab-bb5a-dd3d-5988-606add78be49'><marimo-number data-initial-value='1' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Lag Value&lt;/span&gt;&lt;/span&gt;&quot;' data-start='0' data-stop='100' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div><div><marimo-ui-element object-id='lEQa-32' random-id='11c5fbba-22b9-433c-cfa8-37e70ce24e67'><marimo-number data-initial-value='0.5' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Tolerance on Distance&lt;/span&gt;&lt;/span&gt;&quot;' data-start='0' data-stop='1' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div><div><marimo-ui-element object-id='lEQa-33' random-id='171b199b-82d4-203c-46ea-5b6b2bcd9437'><marimo-number data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Cylinder Radius&lt;/span&gt;&lt;/span&gt;&quot;' data-start='0' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div><div><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div><marimo-ui-element object-id='lEQa-43' random-id='cde43f1e-40a6-cd65-8035-e39d8314a602'><marimo-text data-initial-value='&quot;vario.ascii&quot;' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Saving in Neutral File&lt;/span&gt;&lt;/span&gt;&quot;' data-placeholder='&quot;&quot;' data-kind='&quot;text&quot;' data-full-width='false' data-disabled='false' data-debounce='true'></marimo-text></marimo-ui-element></div><div><marimo-ui-element object-id='lEQa-44' random-id='aedebe5e-f650-b1c4-4ee9-4b37ecbd8606'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Save&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-full-width='false'></marimo-button></marimo-ui-element></div></div></div></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "2a780a2c52d17ca9eadc41f4af8caf47",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "An ancestor raised an exception (AttributeError): ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "36a3454814d17c4e33240c43ef31036e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "7c8cdeb96d79bf817622786c75978f8b",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div><span class=\"markdown prose dark:prose-invert\"><h2 id=\"select-the-basic-structures-used-for-fitting\">Select the Basic Structures used for Fitting</h2></span></div><div><marimo-ui-element object-id='SFPL-1' random-id='552dcc7f-1822-8501-d180-b995e3667626'><marimo-multiselect data-initial-value='[&quot;Spherical&quot;]' data-label='null' data-options='[&quot;Nugget effect&quot;, &quot;Exponential&quot;, &quot;Spherical&quot;, &quot;Gaussian&quot;, &quot;Cubic&quot;, &quot;Sine Cardinal&quot;, &quot;Bessel J&quot;, &quot;Matern&quot;, &quot;Gamma&quot;, &quot;Cauchy&quot;, &quot;Stable&quot;, &quot;Linear&quot;, &quot;Power&quot;, &quot;First Order Generalized covariance&quot;, &quot;Spline Generalized covariance&quot;, &quot;Third Order Generalized covariance&quot;, &quot;Fifth Order Generalized covariance&quot;, &quot;Cosine&quot;, &quot;Triangle&quot;, &quot;Cosine Exponential&quot;, &quot;1-D Regular&quot;, &quot;Pentamodel&quot;, &quot;Order-2 Spline&quot;, &quot;Storkey covariance in 1-D&quot;, &quot;Wendland covariance (2,0)&quot;, &quot;Wendland covariance (3,1)&quot;, &quot;Wendland covariance (4,2)&quot;, &quot;Markovian covariances&quot;, &quot;Geometric (Sphere only)&quot;, &quot;Poisson (Sphere only)&quot;, &quot;Linear (Sphere only)&quot;]' data-full-width='false'></marimo-multiselect></marimo-ui-element></div></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "108dd28fcea4f3049cd327772b1629b5",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "An ancestor raised an exception (AttributeError): ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Kclp",
+      "code_hash": "10f2f19e35f1e22f6bcdc732e5d5d328",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "An ancestor raised an exception (AttributeError): ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "emfo",
+      "code_hash": "6d825580bc643e58af5142767778a6d1",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "exception",
+          "evalue": "An ancestor raised an exception (AttributeError): ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    }
+  ]
+}

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Enum/ECov.hpp"
@@ -115,6 +116,10 @@ public:
     DECLARE_UNUSED(dim);
   }
 
+  double evalDerivative(double h) const
+  {
+    return _evaluateCovDerivative(h);
+  }
 protected:
   /// TODO : Gneiting (spatio-temporal covariance) :
   /// Change argument : double h becomes VectorDouble (number of sub-space)
@@ -124,6 +129,12 @@ protected:
     return TEST;
   }
   ;
+  virtual double _evaluateCovDerivative(double h) const
+  {
+    double eps = EPSILON4;
+    return (_evaluateCov(h + eps) - _evaluateCov(h - eps)) / (2. * eps);
+  }
+
   virtual double _evaluateCovDerivative(int degree, double h) const;
   virtual double _evaluateCovOnSphere(double alpha,
                                       double scale = 1.,

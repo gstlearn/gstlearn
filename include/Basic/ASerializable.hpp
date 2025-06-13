@@ -31,6 +31,8 @@ public:
   ASerializable();
   ASerializable(const ASerializable& r);
   ASerializable& operator=(const ASerializable& r);
+  ASerializable(ASerializable&& r) noexcept;
+  ASerializable& operator=(ASerializable&& r) noexcept;
   virtual ~ASerializable();
 
   bool deserialize(std::istream& is, bool verbose = true);
@@ -42,23 +44,11 @@ public:
 
   static String buildFileName(int status, const String& filename, bool ensureDirExist = false);
 
-  static String getHomeDirectory(const String& sub = "");
-  static String getWorkingDirectory();
-  static String getTestData(const String& subdir, const String& filename);
   static String getFileIdentity(const String& filename, bool verbose = false);
-  static void setContainerName(bool useDefault,
-                               const String& containerName = "",
-                               bool verbose = false);
-  static void unsetContainerName();
   static void setPrefixName(const String& prefixName);
   static void unsetPrefixName();
-  static const String& getContainerName();
   static const String& getPrefixName();
 
-  // TODO : Directory manipulation class
-  static bool createDirectory(const String& dir);
-  static String getExecDirectory();
-  static String getDirectory(const String& path);
   virtual String _getNFName() const = 0;
 
 protected:
@@ -121,7 +111,6 @@ protected:
                           const VectorDouble &tab);
 
 private:
-  static String _myContainerName;
   static String _myPrefixName;
 };
 

@@ -22,8 +22,8 @@
 #include "Basic/AException.hpp"
 
 PrecisionOpMatrix::PrecisionOpMatrix(ShiftOpMatrix* shiftop,
-                             const CovAniso* cova,
-                             bool verbose)
+                                     const CovAniso* cova,
+                                     bool verbose)
   : PrecisionOp(shiftop, cova, verbose)
   , _Q(nullptr)
   , _chol(nullptr)
@@ -39,7 +39,7 @@ PrecisionOpMatrix::PrecisionOpMatrix(const AMesh* mesh, CovAniso* cova, bool ver
   _buildQ();
 }
 
-const MatrixSparse* PrecisionOpMatrix::  getS() const
+const MatrixSparse* PrecisionOpMatrix::getS() const
 {
   return dynamic_cast<const ShiftOpMatrix*>(getShiftOp())->getS();
 }
@@ -51,9 +51,9 @@ PrecisionOpMatrix::~PrecisionOpMatrix()
 }
 
 void PrecisionOpMatrix::gradYQX(const constvect X,
-                            const constvect Y,
-                            vect result,
-                            const EPowerPT& power)
+                                const constvect Y,
+                                vect result,
+                                const EPowerPT& power)
 {
   if (_work2.size() == 0) _work2.resize(getSize());
   if (_work3.size() == 0) _work3.resize(getSize());
@@ -171,9 +171,9 @@ void PrecisionOpMatrix::evalInverse(const constvect vecin,
   _chol->solve(vecin, vecout);
 }
 
-double PrecisionOpMatrix::getLogDeterminant(int nbsimu)
+double PrecisionOpMatrix::getLogDeterminant(int nMC)
 {
-  DECLARE_UNUSED(nbsimu);
+  DECLARE_UNUSED(nMC);
   if (_chol == nullptr) _chol = new CholeskySparse(_Q);
   return _chol->computeLogDeterminant();
 }

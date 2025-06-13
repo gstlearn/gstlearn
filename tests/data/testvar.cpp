@@ -56,7 +56,6 @@ int main(int argc, char *argv[])
   VectorString subparts = separateKeywords(argv[1]);
   int nargs = (int) subparts.size();
   String outname = concatenateStrings("", subparts[nargs-2], subparts[nargs-1], "-");
-  ASerializable::setContainerName(true);
   ASerializable::setPrefixName(outname);
   setInternalDebug(true);
 

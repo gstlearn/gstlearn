@@ -42,7 +42,6 @@ int main(int argc, char *argv[])
 
   int ndim     = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
-  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("SPDE-");
 
   /* 1.c - Setup constants */
@@ -67,13 +66,11 @@ int main(int argc, char *argv[])
 
   // Perform the non-conditional simulation
 
-  bool verbose    = false;
   int seed        = 31415;
   int nsimu       = 10;
   int useCholesky = 1;
   law_set_random_seed(seed);
-  (void) simulateSPDE(NULL, dbgrid, model, nullptr, nsimu, NULL, useCholesky,
-                      SPDEParam(), verbose);
+  (void) simulateSPDE(nullptr, dbgrid, model, nsimu, useCholesky);
 
   // Print statistics on the results
 

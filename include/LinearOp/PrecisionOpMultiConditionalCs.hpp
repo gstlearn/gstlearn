@@ -45,6 +45,6 @@ private:
   ProjMatrix*   _buildAmult() const;
   int _buildQpAtA();
 
-  MatrixSparse* _Q;
+  MatrixSparse* _QpAtA;
   mutable CholeskySparse* _chol;
 };

@@ -1,0 +1,268 @@
+{
+  "version": "1",
+  "metadata": {
+    "marimo_version": "0.11.25"
+  },
+  "cells": [
+    {
+      "id": "Hbol",
+      "code_hash": "6f3505fc129f9d3a1ada33481a03e799",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "MJUe",
+      "code_hash": "6e0ae209ecc609b528fc8f9b0fa0e4ea",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "vblA",
+      "code_hash": "1024e0b1dc2854aaa17a8c7eb42c09f9",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<span class=\"markdown prose dark:prose-invert\"><span class=\"paragraph\">Choose your CSV file <marimo-ui-element object-id='vblA-0' random-id='94917dce-05b2-8e70-d983-647281e6c4df'><marimo-file-browser data-initial-value='[]' data-label='null' data-initial-path='&quot;/home/drenard/project_gstlearn/gstlearn/doc/UI/python&quot;' data-selection-mode='&quot;file&quot;' data-filetypes='[]' data-multiple='true' data-restrict-navigation='false'></marimo-file-browser></marimo-ui-element></span></span>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "bkHC",
+      "code_hash": "fb3df3fb22101cea130752c89f724521",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<pre style='font-size: 12px'>&#x27;You must define a CSV file first&#x27;</pre>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "lEQa",
+      "code_hash": "8218b4b90fe8193f03067796dafa76e0",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "PKri",
+      "code_hash": "7b6ef672a88ce02d7e9c4562702bb873",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Xref",
+      "code_hash": "a681b8b6eb16647008b26c65b44be359",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "SFPL",
+      "code_hash": "84407ecc9fc53aa200ffc90d03921919",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "BYtC",
+      "code_hash": "ce11c9adc7e9c196278de92cc3436ac5",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "RGSE",
+      "code_hash": "e59b6ebe5a4535cd3a5bf1bc189b17a6",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div><span class=\"markdown prose dark:prose-invert\"><span class=\"paragraph\">Grid Definition</span></span></div><div><marimo-ui-element object-id='RGSE-0' random-id='ec1a0a90-9444-825d-382a-821f6260ee73'><marimo-number data-initial-value='100' data-label='null' data-start='1' data-stop='200' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div><div><marimo-ui-element object-id='RGSE-1' random-id='6192dc41-9e3a-e81f-842d-8da9f9af2714'><marimo-number data-initial-value='100' data-label='null' data-start='1' data-stop='200' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Kclp",
+      "code_hash": "c3ca87e69c36ade0f0e844cb12004ac2",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "emfo",
+      "code_hash": "8205e7500a9b90e8153cd1a9d97df514",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Hstk",
+      "code_hash": "60f0dc8f2bb8027adb1e52d578574677",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div><span class=\"markdown prose dark:prose-invert\"><h2 id=\"variogram-parameters\">Variogram Parameters</h2></span></div><div><marimo-ui-element object-id='emfo-29' random-id='be69a9ea-fce1-ab04-383f-61e4f718778d'><marimo-radio data-initial-value='&quot;Omni&quot;' data-label='null' data-options='[&quot;Omni&quot;, &quot;Multi&quot;, &quot;From NF&quot;]' data-inline='false'></marimo-radio></marimo-ui-element></div><div><marimo-ui-element object-id='emfo-30' random-id='cc8971bf-007f-c798-e13a-e46d5406270c'><marimo-number data-initial-value='10' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Number of Lags&lt;/span&gt;&lt;/span&gt;&quot;' data-start='1' data-stop='100' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div><div><marimo-ui-element object-id='emfo-31' random-id='d7a324f0-3cda-a2ad-303f-3719829f1392'><marimo-number data-initial-value='0.005' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Lag Value&lt;/span&gt;&lt;/span&gt;&quot;' data-start='0' data-stop='100' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div><div><marimo-ui-element object-id='emfo-32' random-id='6977910b-ad45-4c98-34bb-b12323df307e'><marimo-number data-initial-value='0.5' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Tolerance on Distance&lt;/span&gt;&lt;/span&gt;&quot;' data-start='0' data-stop='1' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div><div><marimo-ui-element object-id='emfo-33' random-id='355dcd09-6bfc-49be-fe42-feabdd4efd7a'><marimo-number data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Cylinder Radius&lt;/span&gt;&lt;/span&gt;&quot;' data-start='0' data-debounce='false' data-full-width='false'></marimo-number></marimo-ui-element></div><div><div style='display: flex;flex: 1;flex-direction: row;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div><marimo-ui-element object-id='emfo-43' random-id='f110c1f1-72a6-2388-5178-e7005a96559b'><marimo-text data-initial-value='&quot;vario.ascii&quot;' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Saving in Neutral File&lt;/span&gt;&lt;/span&gt;&quot;' data-placeholder='&quot;&quot;' data-kind='&quot;text&quot;' data-full-width='false' data-disabled='false' data-debounce='true'></marimo-text></marimo-ui-element></div><div><marimo-ui-element object-id='emfo-44' random-id='c1b644cc-f6f5-573e-b766-61e38e246cd8'><marimo-button data-initial-value='0' data-label='&quot;&lt;span class=&#92;&quot;markdown prose dark:prose-invert&#92;&quot;&gt;&lt;span class=&#92;&quot;paragraph&#92;&quot;&gt;Save&lt;/span&gt;&lt;/span&gt;&quot;' data-kind='&quot;neutral&quot;' data-disabled='false' data-full-width='false'></marimo-button></marimo-ui-element></div></div></div></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "nWHF",
+      "code_hash": "b9c5b5116343d888a580c1ba36fe7d47",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "iLit",
+      "code_hash": "36a3454814d17c4e33240c43ef31036e",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/plain": ""
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ZHCJ",
+      "code_hash": "7c8cdeb96d79bf817622786c75978f8b",
+      "outputs": [
+        {
+          "type": "data",
+          "data": {
+            "text/html": "<div style='display: flex;flex: 1;flex-direction: column;justify-content: flex-start;align-items: normal;flex-wrap: nowrap;gap: 0.5rem'><div><span class=\"markdown prose dark:prose-invert\"><h2 id=\"select-the-basic-structures-used-for-fitting\">Select the Basic Structures used for Fitting</h2></span></div><div><marimo-ui-element object-id='iLit-1' random-id='0b4ba613-484c-55e6-6279-6bb2f79187de'><marimo-multiselect data-initial-value='[&quot;Spherical&quot;]' data-label='null' data-options='[&quot;Nugget effect&quot;, &quot;Exponential&quot;, &quot;Spherical&quot;, &quot;Gaussian&quot;, &quot;Cubic&quot;, &quot;Sine Cardinal&quot;, &quot;Bessel J&quot;, &quot;Matern&quot;, &quot;Gamma&quot;, &quot;Cauchy&quot;, &quot;Stable&quot;, &quot;Linear&quot;, &quot;Power&quot;, &quot;First Order Generalized covariance&quot;, &quot;Spline Generalized covariance&quot;, &quot;Third Order Generalized covariance&quot;, &quot;Fifth Order Generalized covariance&quot;, &quot;Cosine&quot;, &quot;Triangle&quot;, &quot;Cosine Exponential&quot;, &quot;1-D Regular&quot;, &quot;Pentamodel&quot;, &quot;Order-2 Spline&quot;, &quot;Storkey covariance in 1-D&quot;, &quot;Wendland covariance (2,0)&quot;, &quot;Wendland covariance (3,1)&quot;, &quot;Wendland covariance (4,2)&quot;, &quot;Markovian covariances&quot;, &quot;Geometric (Sphere only)&quot;, &quot;Poisson (Sphere only)&quot;, &quot;Linear (Sphere only)&quot;]' data-full-width='false'></marimo-multiselect></marimo-ui-element></div></div>"
+          }
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "ROlb",
+      "code_hash": "108dd28fcea4f3049cd327772b1629b5",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "qnkX",
+      "code_hash": "ce063b3bcd568f94c9eceb839203fbf5",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "TqIu",
+      "code_hash": "8905234a1fb714c114478f2265dbba51",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    },
+    {
+      "id": "Vxnm",
+      "code_hash": "becf31d238f853caf5153bdcecb5afeb",
+      "outputs": [
+        {
+          "type": "error",
+          "ename": "ancestor-stopped",
+          "evalue": "This cell wasn't run because an ancestor was stopped with `mo.stop`: ",
+          "traceback": []
+        }
+      ],
+      "console": []
+    }
+  ]
+}

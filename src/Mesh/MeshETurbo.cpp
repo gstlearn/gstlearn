@@ -152,17 +152,17 @@ int MeshETurbo::getApex(int imesh, int rank) const
 {
   int node,icas;
   int ndim = getNDim();
-  indg.resize(ndim);
+  _indg.resize(ndim);
 
   int jmesh = _meshIndirect.getRToA(imesh);
   _getGridFromMesh(jmesh,&node,&icas);
-  _grid.rankToIndice(node,indg);
-  int ipol = _getPolarized(indg);
+  _grid.rankToIndice(node,_indg);
+  int ipol = _getPolarized(_indg);
 
   for (int idim = 0; idim < ndim; idim++)
-    indg[idim] += MSS(ndim, ipol, icas, rank, idim);
+    _indg[idim] += MSS(ndim, ipol, icas, rank, idim);
 
-  int igrid = _grid.indiceToRank(indg);
+  int igrid = _grid.indiceToRank(_indg);
 
   int irel = _gridIndirect.getAToR(igrid);
   if (irel < 0)
@@ -175,17 +175,17 @@ int MeshETurbo::getApex(int imesh, int rank) const
 
 double MeshETurbo::getCoor(int imesh, int rank, int idim) const
 {
-  indg.resize(getNDim());
+  _indg.resize(getNDim());
 
   int irel = getApex(imesh,rank);
   int iabs = _gridIndirect.getRToA(irel);
-  _grid.rankToIndice(iabs, indg);
-  return _grid.indiceToCoordinate(idim, indg);
+  _grid.rankToIndice(iabs, _indg);
+  return _grid.indiceToCoordinate(idim, _indg);
 }
 
 void MeshETurbo::getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const
 {
-  indg.resize(getNDim());
+  _indg.resize(getNDim());
 
   int irel = getApex(imesh,rank);
   int iabs = _gridIndirect.getRToA(irel);
@@ -195,11 +195,11 @@ void MeshETurbo::getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble&
 double MeshETurbo::getApexCoor(int i, int idim) const
 {
   // _meshIndirect.getRelSize();
-  indg.resize(getNDim());
+  _indg.resize(getNDim());
 
   int iabs = _gridIndirect.getRToA(i);
-  _grid.rankToIndice(iabs, indg);
-  return _grid.indiceToCoordinate(idim, indg);
+  _grid.rankToIndice(iabs, _indg);
+  return _grid.indiceToCoordinate(idim, _indg);
 }
 
 void MeshETurbo::getApexIndicesInPlace(int i, VectorInt& indg) const
@@ -213,13 +213,13 @@ void MeshETurbo::getApexIndicesInPlace(int i, VectorInt& indg) const
 
 void MeshETurbo::getApexCoordinatesInPlace(int i, VectorDouble& coords) const
 {
-  indg.resize(getNDim());
+  _indg.resize(getNDim());
 
   int iabs = _gridIndirect.getRToA(i);
-  _grid.rankToIndice(iabs, indg);
+  _grid.rankToIndice(iabs, _indg);
 
   for (int idim = 0; idim < getNDim(); idim++)
-    coords[idim] = _grid.indiceToCoordinate(idim, indg);
+    coords[idim] = _grid.indiceToCoordinate(idim, _indg);
 }
 
 int MeshETurbo::initFromGridByAngles(const VectorInt& nx,
@@ -313,7 +313,7 @@ void MeshETurbo::_buildMaskInMeshing(const VectorDouble& sel)
   int nmesh = _nmeshInCompleteGrid();
   int ncorner = getNApexPerMesh();
   VectorInt indg0(ndim);
-  indg.resize(ndim);
+  _indg.resize(ndim);
 
   // Loop on all possible meshes
   int meshNactive = 0;
@@ -330,8 +330,8 @@ void MeshETurbo::_buildMaskInMeshing(const VectorDouble& sel)
 
       // Generate the indices of the mesh apex
       for (int idim = 0; idim < ndim; idim++)
-        indg[idim] = indg0[idim] + MSS(ndim, ipol, icas, icorner, idim);
-      int iad = _grid.indiceToRank(indg);
+        _indg[idim] = indg0[idim] + MSS(ndim, ipol, icas, icorner, idim);
+      int iad = _grid.indiceToRank(_indg);
       if (sel[iad] == 0.) flagMasked = true;
     }
 
@@ -358,8 +358,8 @@ void MeshETurbo::_buildMaskInMeshing(const VectorDouble& sel)
     for (int icorner=0; icorner<ncorner; icorner++)
     {
       for (int idim = 0; idim < ndim; idim++)
-        indg[idim] = indg0[idim] + MSS(ndim, ipol, icas, icorner, idim);
-      int iad = _grid.indiceToRank(indg);
+        _indg[idim] = indg0[idim] + MSS(ndim, ipol, icas, icorner, idim);
+      int iad = _grid.indiceToRank(_indg);
       selbis[iad] = 1;
     }
   }
@@ -430,12 +430,12 @@ MeshETurbo* MeshETurbo::createFromCova(const CovAniso& cova,
                                        int nbExt,
                                        bool isPolarized,
                                        bool useSel,
-                                       bool flagNoStatRot,
                                        int nxmax,
                                        bool verbose)
 {
   MeshETurbo* mesh = new MeshETurbo();
-  if (mesh->initFromCova(cova, field, ratio, nbExt, isPolarized, useSel, flagNoStatRot, nxmax, verbose))
+  if (mesh->initFromCova(cova, field, ratio, nbExt, isPolarized, useSel,
+                         nxmax, verbose))
     return nullptr;
   return mesh;
 }
@@ -446,7 +446,7 @@ MeshETurbo* MeshETurbo::createFromCova(const CovAniso& cova,
 **
 ** \param[in]  extendmin       Minimum of the dilated rotated bounding box
 ** \param[in]  extendmax       Minimum of the dilated rotated bounding box
-** \param[in]  cellsize        Array giving the cell size (see details)
+** \param[in]  cellsize        Array giving the cell size
 ** \param[in]  rotmat          Rotation matrix (optional)
 ** \param[in]  flag_polarized  Switching ON/OFF the polarization
 ** \param[in]  verbose         Verbose flag
@@ -490,15 +490,15 @@ bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
                                       bool verbose) const
 {
   int ncorner = getNApexPerMesh();
-  indices.resize(ncorner);
-  lambdas.resize(ncorner);
+  _indices.resize(ncorner);
+  _lambdas.resize(ncorner);
 
   for (int icas = 0; icas < _nPerCell; icas++)
   {
-    if (_addWeights(icas, indg0, coor, indices, lambdas, verbose) == 0)
+    if (_addWeights(icas, indg0, coor, _indices, _lambdas, verbose) == 0)
     {
       for (int icorner = 0; icorner < ncorner; icorner++)
-        NF_T.add(iech, indices[icorner], lambdas[icorner]);
+        NF_T.add(iech, _indices[icorner], _lambdas[icorner]);
       return true;
     }
   }
@@ -595,8 +595,7 @@ void MeshETurbo::resetProjFromDb(ProjMatrix* m,
 
     /* Identification */
 
-    for (int idim=0; idim<ndim; idim++)
-      coor[idim] = db->getCoordinate(jech,idim);
+    db->getCoordinatesInPlace(coor, jech);
 
     /* Calculate the grid indices */
 
@@ -757,8 +756,8 @@ int MeshETurbo::_addWeights(int icas,
   int ncorner =  getNApexPerMesh();
   int ipol    = _getPolarized(indg0);
   MatrixSquare lhs;
-  rhs.resize(ncorner);
-  indgg.resize(ndim);
+  _rhs.resize(ncorner);
+  _indgg.resize(ndim);
 
   // Build the LHS matrix
 
@@ -767,8 +766,8 @@ int MeshETurbo::_addWeights(int icas,
   {
     // Generate the indices of the mesh apex
     for (int idim=0; idim<ndim; idim++)
-      indgg[idim] = indg0[idim] + MSS(ndim,ipol,icas,icorner,idim);
-    int igrid = _grid.indiceToRank(indgg);
+      _indgg[idim] = indg0[idim] + MSS(ndim,ipol,icas,icorner,idim);
+    int igrid = _grid.indiceToRank(_indgg);
     if (igrid < 0) return 1; // grid node outside grid
 
     indices[icorner] = _gridIndirect.getAToR(igrid);
@@ -776,20 +775,20 @@ int MeshETurbo::_addWeights(int icas,
 
     // Update the LHS matrix
     for (int idim=0; idim<ndim; idim++)
-      lhs.setValue(idim,icorner,_grid.indiceToCoordinate(idim,indgg));
+      lhs.setValue(idim,icorner,_grid.indiceToCoordinate(idim,_indgg));
     lhs.setValue(ndim,icorner,1.);
   }
 
   // Generate the right-hand side vector
   for (int idim=0; idim<ndim; idim++)
-    rhs[idim] = coor[idim];
-  rhs[ndim] = 1;
+    _rhs[idim] = coor[idim];
+  _rhs[ndim] = 1;
 
   // Invert the matrix
   if (lhs.invert()) return 1;
 
   // Calculate the weights
-  lhs.prodMatVecInPlace(rhs, lambda);
+  lhs.prodMatVecInPlace(_rhs, lambda);
 
   // Check that all weights are positive
   for (int icorner=0; icorner<ncorner; icorner++)
@@ -831,12 +830,12 @@ int MeshETurbo::_getPolarized(const constvectint indg) const
  */
 void MeshETurbo::_getGridFromMesh(int imesh, int *node, int *icas) const
 {
-  indg.resize(getNDim());
+  _indg.resize(getNDim());
   int ncas = _nPerCell;
   int rank = imesh / ncas;
   *icas    = imesh - rank * ncas;
-  _grid.rankToIndice(rank,indg,true);
-  *node = _grid.indiceToRank(indg);
+  _grid.rankToIndice(rank,_indg,true);
+  *node = _grid.indiceToRank(_indg);
 }
 
 int MeshETurbo::initFromCova(const CovAniso& cova,
@@ -845,7 +844,6 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
                              int nbExt,
                              bool isPolarized,
                              bool useSel,
-                             bool flagNoStatRot,
                              int nxmax,
                              bool verbose)
 {
@@ -930,9 +928,9 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
     if (dx[idim] < dxmin) dxmin = dx[idim];
   }
 
-  if (flagNoStatRot)
+  if (cova.isNoStatForAnisotropy())
   {
-    // In case of non-staionarity on the anisotropy rotation angle
+    // In case of non-stationarity on the anisotropy rotation angle
     // use the minimum mesh (for internal grid)
     for (int idim = 0; idim < ndim; idim++)
       dx[idim] = dxmin;
@@ -1036,4 +1034,21 @@ bool MeshETurbo::_serialize(std::ostream& os, bool /*verbose*/) const
 
   // Dumping the Grid Masking map
   return ret;
+}
+
+/**
+ * @brief Check if a series of Meshes (included in 'meshes') are Turbo
+ *
+ * @param meshes
+ * @return True if ALL meshes are TURBO
+ */
+bool isTurbo(const VectorMeshes& meshes)
+{
+  if (meshes.empty()) return false;
+  for (int imesh = 0, nmesh = (int) meshes.size(); imesh < nmesh; imesh++)
+  {
+    const MeshETurbo* mTurbo = dynamic_cast<const MeshETurbo*>(meshes[imesh]);
+    if (mTurbo == nullptr) return false;
+  }
+  return true;
 }

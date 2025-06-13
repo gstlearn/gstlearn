@@ -48,6 +48,8 @@ public:
   /// Indicate if I am consistent with my current space context
   bool isConsistent() const { return isConsistent(_space); }
 
+  void setSpace(ASpaceSharedPtr &&space) { _space = std::move(space); }
+
   /// Return unitary vector for the current space context
   VectorDouble getUnitaryVector() const;
 
@@ -76,6 +78,10 @@ public:
   VectorDouble getIncrement(const SpacePoint& p1,
                             const SpacePoint& p2,
                             int ispace = 0) const;
+  void getIncrementInPlace(const SpacePoint& p1,
+                           const SpacePoint& p2,
+                           VectorDouble& ptemp,
+                           int ispace = -1) const;
 
 protected:
   /// Modify the Space dimension of an already created item (and create RN space)

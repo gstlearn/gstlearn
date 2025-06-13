@@ -76,7 +76,6 @@ public:
   void getCoordinatesInPlace(VectorDouble& coor,
                              int iech,
                              bool flag_rotate = true) const override;
-  void getCoordinatesInPlace(vect coor, int iech, bool flag_rotate = true) const override;
 
   double getUnit(int idim = 0) const override;
   int getNDim() const override;
@@ -228,18 +227,18 @@ public:
   void setX0(int idim, double value) { _grid.setX0(idim, value); }
   void setDX(int idim, double value) { _grid.setDX(idim, value); }
   VectorDouble getGridAxis(int idim) const { return _grid.getAxis(idim); }
-  VectorDouble getCoordinateFromCorner(const VectorInt& icorner) const
+  const VectorDouble& getCoordinateFromCorner(const VectorInt& icorner) const
   {
     return _grid.getCoordinatesByCorner(icorner);
   }
-  VectorDouble getCoordinatesByIndice(const VectorInt &indice,
+  const VectorDouble& getCoordinatesByIndice(const VectorInt &indice,
                                       bool flag_rotate = true,
                                       const VectorInt& shift = VectorInt(),
                                       const VectorDouble& dxsPerCell = VectorDouble()) const
   {
     return _grid.getCoordinatesByIndice(indice, flag_rotate, shift, dxsPerCell);
   }
-  VectorDouble getCoordinatesPerSample(int iech, bool flag_rotate = true) const
+  const VectorDouble& getCoordinatesPerSample(int iech, bool flag_rotate = true) const
   {
     return _grid.getCoordinatesByRank(iech, flag_rotate);
   }

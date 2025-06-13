@@ -84,7 +84,8 @@ public:
                                            VectorDouble& res,
                                            const VectorInt& ranks) const
   {
-    DECLARE_UNUSED(p1, p2, res, ranks)                                      
+    DECLARE_UNUSED(p1, p2, res, ranks)     
+    messerr("Not implemented for this space");                                 
   };
   ///////////////////////////////////////////////
   /// Not to be overriden
@@ -113,6 +114,10 @@ public:
   VectorDouble getIncrement(const SpacePoint& p1,
                             const SpacePoint& p2,
                             int ispace = -1) const;
+  void getIncrementInPlace(const SpacePoint& p1,
+                           const SpacePoint& p2,
+                           VectorDouble& ptemp,
+                           int ispace = -1) const;
 
   /// Project the coordinates in the given space
   virtual VectorDouble projCoord(const VectorDouble& coord,
@@ -146,6 +151,7 @@ protected:
                                          int ispace = -1) const = 0;
 
   /// Return the increment vector between two space points
+  /// (prefer the in-place variant below in C++ code)
   virtual VectorDouble _getIncrement(const SpacePoint& p1,
                                      const SpacePoint& p2,
                                      int ispace = -1) const = 0;

@@ -17,6 +17,7 @@
 #include <iostream>
 
 #include <fstream>
+#include <filesystem>
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
@@ -143,15 +144,8 @@ bool gslFileExist(const String& path, const String& mode)
 
 String gslBaseName(const String& path, bool keepExtension)
 {
-  // TODO c++17 : use #include <filesystem> to retrieve base name
-  // https://stackoverflow.com/questions/8520560/get-a-file-name-from-a-path
-  String base_filename = path.substr(path.find_last_of("/\\") + 1);
-  if (!keepExtension)
-  {
-    String::size_type p(base_filename.find_last_of('.'));
-    base_filename = base_filename.substr(0, p);
-  }
-  return base_filename;
+  std::filesystem::path p {path};
+  return (keepExtension ? p.filename() : p.stem()).string();
 }
 
 
@@ -202,7 +196,6 @@ std::istream& gslSafeGetline(std::istream& is, String& t)
         t += (char) c;
     }
   }
-  return is;
 }
 
 

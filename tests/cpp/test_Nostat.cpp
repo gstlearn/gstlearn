@@ -44,7 +44,6 @@ int main(int argc, char *argv[])
   int seed = 10355;
   law_set_random_seed(seed);
 
-  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("test_nostat-");
 
   // Creating the 2-D Db
@@ -95,8 +94,8 @@ int main(int argc, char *argv[])
 
   int useCholesky = 0;
   law_set_random_seed(13256);
-  (void)simulateSPDE(nullptr, workingDbc, model, nullptr, 1, nullptr,
-                     useCholesky, SPDEParam(), false, false,
+  (void)simulateSPDE(nullptr, workingDbc, model, 1, useCholesky,
+                     VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(),
                      NamingConvention("Simu", true, false));
 
   DbStringFormat dbfmt(FLAG_STATS,{"Simu"});

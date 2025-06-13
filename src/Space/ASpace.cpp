@@ -240,6 +240,21 @@ VectorDouble ASpace::getIncrement(const SpacePoint& p1,
   return _getIncrement(p1, p2, ispace);
 }
 
+void ASpace::getIncrementInPlace(const SpacePoint& p1,
+                                 const SpacePoint& p2,
+                                 VectorDouble& ptemp,
+                                 int ispace) const
+{
+  if (p1.getNDim() != p2.getNDim())
+  /// TODO : test tensor size
+  {
+    std::cout << "Error: Inconsistent point dimensions. Return empty vector."
+              << std::endl;
+    ptemp.clear();
+  }
+  _getIncrementInPlace(p1, p2, ptemp, ispace);
+}
+
 VectorDouble ASpace::projCoord(const VectorDouble& coord, int ispace) const
 {
   if (ispace < 0 || ispace >= (int)getNComponents()) return coord;

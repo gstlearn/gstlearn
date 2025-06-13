@@ -30,7 +30,6 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("test_SPDEAPI-");
   int seed = 10355;
   int nbsimu = 3;
@@ -54,23 +53,23 @@ int main(int argc, char *argv[])
   VectorDouble z = VH::simulateGaussian(ndata);
   int useCholesky = 0;
   law_set_random_seed(132341);
-  (void)simulateSPDE(nullptr, dat, model, nullptr, 1, nullptr, useCholesky,
-                     SPDEParam(), false, false,
+  (void)simulateSPDE(nullptr, dat, model, 1, useCholesky,
+                     VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(),
                      NamingConvention("variable", false, false));
   dat->display();
 
   // Estimation and simulations
-  (void)krigingSPDE(dat, grid, model, nullptr, true, false, nullptr,
-                    useCholesky, SPDEParam(), 0, false, false,
+  (void)krigingSPDE(dat, grid, model, true, false, useCholesky, 
+                    VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(), 
                     NamingConvention("K-spirale"));
   law_set_random_seed(132341);
 
-  (void)simulateSPDE(nullptr, grid, model, nullptr, nbsimu, nullptr,
-                     useCholesky, SPDEParam(), false, false,
+  (void)simulateSPDE(nullptr, grid, model, nbsimu, useCholesky, 
+                     VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(), 
                      NamingConvention("NCS-spirale"));
   law_set_random_seed(132341);
-  (void)simulateSPDE(dat, grid, model, nullptr, nbsimu, nullptr, useCholesky,
-                     SPDEParam(), false, false,
+  (void)simulateSPDE(dat, grid, model, nbsimu, useCholesky,
+                     VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(), 
                      NamingConvention("CDS-spirale"));
 
   (void) grid->dumpToNF("grid.ascii");

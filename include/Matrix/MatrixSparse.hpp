@@ -40,7 +40,7 @@ class EOperator;
 class GSTLEARN_EXPORT MatrixSparse : public AMatrix, public ALinearOp {
 
 public:
-  MatrixSparse(int nrow = 0, int ncol = 0, int nrowmax = -1, int opt_eigen = -1);
+  MatrixSparse(int nrow = 0, int ncol = 0, int ncolmax = -1, int opt_eigen = -1);
 #ifndef SWIG
   MatrixSparse(const cs* A);
 #endif
@@ -83,15 +83,25 @@ public:
   void addProdMatVecInPlaceToDest(const constvect in,
                                   vect out,
                                   bool transpose = false) const;
+
+void prodMatVecInPlace(constvect x, vect res, bool transpose = false) const;
 #endif
   /*! Set the contents of a Column */
   virtual void setColumn(int icol,
                          const VectorDouble &tab,
                          bool flagCheck = true) override;
+  /*! Set the contents of a Column to a constant */
+  virtual void setColumnToConstant(int icol,
+                                   double value,
+                                   bool flagCheck = true) override;
   /*! Set the contents of a Row */
   virtual void setRow(int irow,
                       const VectorDouble& tab,
-                      bool flagCheck=true) override;
+                      bool flagCheck = true) override;
+  /*! Set the contents of a Row to a constant*/
+  virtual void setRowToConstant(int irow,
+                                double value,
+                                bool flagCheck = true) override;
   /*! Set the contents of the (main) Diagonal */
   virtual void setDiagonal(const VectorDouble& tab, bool flagCheck=true) override;
   /*! Set the contents of the (main) Diagonal to a constant value */
@@ -276,7 +286,7 @@ private:
   Eigen::SparseMatrix<double> _eigenMatrix; // Eigen storage in Eigen Library (always stored Eigen::ColMajor)
 #endif
   bool _flagEigen;
-  int _nRowMax;
+  int _nColMax;
 };
 
 /*! Transform any matrix into a Sparse format */

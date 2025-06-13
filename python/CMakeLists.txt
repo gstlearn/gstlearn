@@ -16,6 +16,7 @@ string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)"
   Python3_NumPy_VERSION_MATCH ${Python3_NumPy_VERSION})
 set(Python3_NumPy_VERSION_MAJOR ${CMAKE_MATCH_1})
 math(EXPR Python3_NumPy_NEXT_MAJOR "${Python3_NumPy_VERSION_MAJOR} + 1")
+message(STATUS "Found Numpy Version ${Python3_NumPy_VERSION} in ${Python3_NumPy_INCLUDE_DIRS}")
 
 # Look for SWIG 4 [No need for customized swig]
 find_package(SWIG 4.0 REQUIRED)
@@ -46,12 +47,12 @@ if (BUILD_DOC)
 endif()
 
 ####CUSTOM WRAPPER
-add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/python/generated_python.i
-  COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/python/generated_python.i
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/swig/generated_python.i
+  COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_BINARY_DIR}/swig/generated_python.i
   COMMENT "Ensure that generated_python.i exists")
   
 add_custom_target(python_wrap_macro
-  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../swig/macrogenerate.py
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../tools/scripts/macrogenerate.py python ${CMAKE_BINARY_DIR}/swig/generated_python.i
   "python"
   COMMENT "Generate macro wrapper package"
   )
@@ -137,6 +138,9 @@ target_link_libraries(python_build
 
 # Link to NumPy
 target_link_libraries(python_build PUBLIC Python3::NumPy)
+
+# TODO: to prevent Warning 473, I tried -DSWIG_DIRECTOR_NORTTI below, but it didn't work
+# Source: https://stackoverflow.com/questions/55139832/swig-binding-a-method-returning-a-reference-to-a-pointer-of-a-director-class
 
 # Transmit the fact that we are linking to static ${PROJECT_NAME} library
 set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE")
@@ -244,8 +248,10 @@ endforeach()
 option(NO_INTERNET "Do not try to connect to Internet" OFF)
 message(STATUS "NO_INTERNET=" ${NO_INTERNET})
 
+find_program(UV NAMES uv REQUIRED DOC "Python package and project manager")
+
 if (NO_INTERNET)
-  set(NO_INTERNET_ARG "--no-build-isolation")
+  set(NO_INTERNET_ARG "--offline")
 else()
   set(NO_INTERNET_ARG "")
 endif()
@@ -253,10 +259,19 @@ endif()
 # Add a custom target for python package installation
 # TODO: Do also installation each time setup.py.in or README.md is modified
 add_custom_target(python_install
-  COMMAND ${Python3_EXECUTABLE} -m pip install ${NO_INTERNET_ARG} "${PYTHON_PACKAGE_ROOT_FOLDER}[plot,conv,doc]"
+  COMMAND ${UV} pip install ${NO_INTERNET_ARG} "${PYTHON_PACKAGE_ROOT_FOLDER}[plot,conv,doc]"
   COMMENT "Installing python package"
   )
  
 # Tell to CMake that python package must be built before installation [python_doc is optional]
 
 add_dependencies(python_install python_build)
+
+if(NOT DEFINED ENV{VIRTUAL_ENV})
+  add_custom_target(python_create_venv
+    COMMAND ${UV} venv
+    COMMENT "Creating a new venv with uv"
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  )
+  add_dependencies(python_install python_create_venv)
+endif()

@@ -191,7 +191,9 @@ int PrecisionOp::_addSimulateToDest(const constvect whitenoise, vect outv) const
 int PrecisionOp::_preparePoly(const EPowerPT& power,bool force) const
 {
   // Polynomial already exists. Nothing to be done
-  if (_polynomials.count(power) > 0 && !force) return 0;
+  if (_polynomials.find(power) != _polynomials.end() && !force) return 0;
+  // Equivalent instruction (but only for C++ 20)
+  // if (_polynomials.contains(power) && !force) return 0;
 
   // Prepare Polynomial for EPowerPT::ONE
   if (_preparePrecisionPoly() != 0 && !force) return 1;
@@ -221,7 +223,10 @@ void PrecisionOp::setPolynomialFromPoly(APolynomial* polynomial)
 
 int PrecisionOp::_prepareChebychev(const EPowerPT& power) const
 {
-  if (_cova == nullptr && _polynomials.count(EPowerPT::ONE) > 0) return 1;
+  // Polynomial already exists. Nothing to be done
+  if (_cova == nullptr && _polynomials.find(EPowerPT::ONE) != _polynomials.end()) return 1;
+  // Equivalent instruction (but only for C++ 20)
+  //if (_cova == nullptr && _polynomials.contains(EPowerPT::ONE)) return 1;
   if (_shiftOp == nullptr) return 1;
 
   double b = _shiftOp->getMaxEigenValue();
@@ -251,10 +256,10 @@ int PrecisionOp::_prepareChebychev(const EPowerPT& power) const
 
 /**
  * Compute the Logarithm of the Determinant
- * @param nbsimu Number of simulations
+ * @param nMC Number of Monte-Carlo simulations
  * @return The computed value or TEST if problem
  */
-double PrecisionOp::getLogDeterminant(int nbsimu)
+double PrecisionOp::getLogDeterminant(int nMC)
 {
   VectorDouble gauss;
   VectorDouble result;
@@ -262,7 +267,7 @@ double PrecisionOp::getLogDeterminant(int nbsimu)
   result.resize(getSize());
 
   double val1 = 0.;
-  for (int isimu = 0; isimu < nbsimu; isimu++)
+  for (int isimu = 0; isimu < nMC; isimu++)
   {
     VH::simulateGaussianInPlace(gauss);
     vect results(result);
@@ -273,7 +278,7 @@ double PrecisionOp::getLogDeterminant(int nbsimu)
       val1 += gauss[i] * result[i];
     }
   }
-  val1 /= nbsimu;
+  val1 /= nMC;
 
   double val2 = 0.;
   for (const auto &e : _shiftOp->getLambdas())

@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/OptCustom.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
@@ -31,8 +32,7 @@ int main(int argc, char *argv[])
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
-
-  ASerializable::setContainerName(true);
+  OptCustom::define("ompthreads",5);
   ASerializable::setPrefixName("BenchKrigingM-");
 
   // Global parameters

@@ -19,7 +19,7 @@
 #include <vector>
 
 PrecisionOpMultiConditionalCs::PrecisionOpMultiConditionalCs()
-    : _Q(nullptr)
+    : _QpAtA(nullptr)
     , _chol(nullptr)
 {
 
@@ -34,8 +34,8 @@ void PrecisionOpMultiConditionalCs::_clear()
 {
   delete _chol;
   _chol = nullptr;
-  delete _Q;
-  _Q = nullptr;
+  delete _QpAtA;
+  _QpAtA = nullptr;
 }
 
 int PrecisionOpMultiConditionalCs::push_back(PrecisionOp* pmatElem, IProj* projDataElem)
@@ -55,7 +55,7 @@ double PrecisionOpMultiConditionalCs::computeLogDetOp(int nbsimu) const
   DECLARE_UNUSED(nbsimu);
 
   if (_chol == nullptr)
-    _chol = new CholeskySparse(_Q);
+    _chol = new CholeskySparse(_QpAtA);
   return _chol->computeLogDeterminant();
 }
 
@@ -63,6 +63,7 @@ MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
 {
   MatrixSparse* Qmult = nullptr;
   int number = sizes();
+
   if (number <= 0)
   {
     messerr("This method requires at least one registered covariance");
@@ -126,7 +127,7 @@ ProjMatrix* PrecisionOpMultiConditionalCs::_buildAmult() const
 
 int PrecisionOpMultiConditionalCs::_buildQpAtA()
 {
-  if (_Q != nullptr) return 0;
+  if (_QpAtA != nullptr) return 0;
 
   // Build the multiple projection matrix 'Amult'
   ProjMatrix* Amult = _buildAmult();
@@ -139,7 +140,7 @@ int PrecisionOpMultiConditionalCs::_buildQpAtA()
   // Create the conditional multiple precision matrix 'Q'
   VectorDouble invsigma = VectorHelper::inverse(getAllVarianceData());
   MatrixSparse* AtAsVar = prodNormMat(Amult, invsigma, true);
-  _Q = MatrixSparse::addMatMat(Qmult, AtAsVar, 1., 1.);
+  _QpAtA = MatrixSparse::addMatMat(Qmult, AtAsVar, 1., 1.);
 
   // Free core allocated
   delete Amult;
@@ -153,7 +154,7 @@ void PrecisionOpMultiConditionalCs::evalInverse(const std::vector<std::vector<do
                                                 std::vector<std::vector<double>> &vecout) const
 {
   if (_chol == nullptr)
-    _chol = new CholeskySparse(_Q);
+    _chol = new CholeskySparse(_QpAtA);
   std::vector<double> locVecin = VH::flatten(vecin);
   std::vector<double> locVecout(locVecin.size());
   _chol->solve(locVecin, locVecout);

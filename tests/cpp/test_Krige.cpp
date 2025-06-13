@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/OptCustom.hpp"
 #include "geoslib_f.h"
 
 #include "Enum/ESpaceType.hpp"

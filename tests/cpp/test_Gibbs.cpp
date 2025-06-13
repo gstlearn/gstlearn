@@ -15,7 +15,6 @@
 #include "Enum/ESpaceType.hpp"
 
 #include "API/SPDE.hpp"
-#include "API/SPDEParam.hpp"
 
 #include "Mesh/MeshETurbo.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -264,7 +263,6 @@ int main(int argc, char *argv[])
   /***********************/
   int ndim     = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
-  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Gibbs-");
 
   // Setup constants
@@ -320,13 +318,11 @@ int main(int argc, char *argv[])
 
   // Creating the constraints
 
-  bool verbose = false;
   int seed = 31415;
   law_set_random_seed(seed);
   int nsimu = 2;
   int useCholesky = 1;
-  (void)simulateSPDE(NULL, dbgrid, model2, nullptr, nsimu, NULL, useCholesky,
-                     SPDEParam(), verbose);
+  (void)simulateSPDE(nullptr, dbgrid, model2, nsimu, useCholesky);
 
   int rank = dbgrid->getNColumn();
   for (int i=0; i<nvertex; i++)

@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Geometry/Rotation.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -101,13 +102,43 @@ int Rotation::setAngles(const VectorDouble& angles)
     _angles.resize(_nDim,0.);
     if (_nDim == 2) _angles[1] = 0.;
 
-    VectorDouble local = VectorDouble(_nDim * _nDim);
-    GH::rotationMatrixInPlace(_nDim, _angles, local);
-    _rotMat.setValues(local);
+    _local.resize(_nDim * _nDim);
+    GH::rotationMatrixInPlace(_nDim, _angles, _local);
+    _rotMat.setValues(_local);
     _directToInverse();
     _checkRotForIdentity();
   }
   return 0;
+}
+
+int Rotation::getDerivativesInPlace(std::vector<MatrixSquare>& res)
+{
+ 
+  GH::rotationMatrixDerivativesInPlace(_nDim, _angles, res);
+  for (auto& dR : res)
+  {
+    dR.prodScalar(GV_PI / 180); 
+  }
+  return 0;
+}
+
+std::vector<MatrixSquare> Rotation::getDerivatives()
+{
+      
+  std::vector<MatrixSquare> res;
+  if (_nDim == 2)
+  {
+    res.resize(1);
+    res[0].reset(2, 2);
+  }
+  else if (_nDim == 3)
+  {
+    res.resize(3);
+    for (int i = 0; i < 3; i++)
+      res[i].reset(3, 3);
+  }
+  getDerivativesInPlace(res);
+  return res;
 }
 
 void Rotation::setIdentity()
@@ -139,11 +170,6 @@ String Rotation::toString(const AStringFormat* strfmt) const
 
 void Rotation::rotateDirect(const VectorDouble& inv, VectorDouble& outv) const
 {
-  this->rotateDirect(inv.getVector(), outv.getVector());
-}
-
-void Rotation::rotateDirect(const std::vector<double>& inv, std::vector<double>& outv) const
-{
   if (!_flagRot)
     outv = inv;
   else
@@ -151,11 +177,6 @@ void Rotation::rotateDirect(const std::vector<double>& inv, std::vector<double>&
 }
 
 void Rotation::rotateInverse(const VectorDouble& inv, VectorDouble& outv) const
-{
-  this->rotateInverse(inv.getVector(), outv.getVector());
-}
-
-void Rotation::rotateInverse(const std::vector<double>& inv, std::vector<double>& outv) const
 {
   if (!_flagRot)
     outv = inv;

@@ -53,9 +53,11 @@ public:
 
 protected:
   double _evaluateCov(double h) const override;
+  double _evaluateCovDerivative(double h) const override;
   VectorDouble _evaluateSpectrumOnSphere(int n, double scale = 1.) const override;
 
 private:
+  static double _besselK(double nu, double h);
   double _newMatern(double h) const;
   double _oldMatern(double h) const;
 private:

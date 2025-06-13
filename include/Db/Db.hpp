@@ -97,7 +97,6 @@ public:
   virtual bool isMesh() const { return false; }
   virtual double getCoordinate(int iech, int idim, bool flag_rotate = true) const;
   virtual void getCoordinatesInPlace(VectorDouble& coor, int iech, bool flag_rotate = true) const;
-  virtual void getCoordinatesInPlace(vect coor, int iech, bool flag_rotate = true) const;
 
   virtual double getUnit(int idim = 0) const;
   virtual int getNDim() const;
@@ -232,6 +231,7 @@ public:
   static Db* createFromGridRandomized(DbGrid* dbgrid,
                                       double randperc        = 0.,
                                       bool flagAddSampleRank = true);
+
   /**@}*/
 
   const std::vector<double>& getArrays() const { return _array; }
@@ -337,10 +337,10 @@ public:
                    const String& name      = "NewSel",
                    const String& combine   = "set");
   int addSelectionByVariable(const String& varname,
-                             double lower          = TEST,
-                             double upper          = TEST,
-                             const String& name    = "NewSel",
-                             const String& selName = "");
+                             double lower             = TEST,
+                             double upper             = TEST,
+                             const String& name       = "NewSel",
+                             const String& oldSelName = "");
   int addSelectionByRanks(const VectorInt& ranks,
                           const String& name    = "NewSel",
                           const String& combine = "set");
@@ -446,7 +446,7 @@ public:
   VectorInt getUIDsByLocator(const ELoc& locatorType) const;
   VectorInt getUIDsByColIdx(const VectorInt& icols) const;
   VectorInt getAllUIDs() const;
-  void getAllUIDs(std::vector<int>& iuids) const;
+  void getAllUIDs(VectorInt& iuids) const;
 
   void copyByUID(int iuidIn, int iuidOut);
   void copyByCol(int icolIn, int icolOut);
@@ -494,7 +494,6 @@ public:
                               const VectorInt& nbgh) const;
 
   bool hasLocator(const ELoc& locatorType) const;
-  int getNFromLocator(const ELoc& locatorType) const;
   double getFromLocator(const ELoc& locatorType, int iech, int locatorIndex = 0) const;
   void setFromLocator(const ELoc& locatorType,
                       int iech,
@@ -502,6 +501,8 @@ public:
                       double value);
 
   double getValueByColIdx(int iech, int icol, bool flagCheck = true) const;
+  const double* getColAdressByColIdx(int icol) const;
+
   void setValueByColIdx(int iech, int icol, double value, bool flagCheck = true);
   VectorDouble getValuesByNames(const VectorInt& iechs,
                                 const VectorString& names,
@@ -571,19 +572,20 @@ public:
 
   int getSelection(int iech) const;
   VectorDouble getSelections(void) const;
-  VectorInt getSampleRanksPerVariable(const VectorInt& nbgh = VectorInt(),
-                                      int ivar              = -1,
-                                      bool useSel           = true,
-                                      bool useZ             = true,
-                                      bool useVerr          = false,
-                                      bool useExtD          = true) const;
+  void getSampleRanksPerVariable(VectorInt& ranks,
+                                 const VectorInt& nbgh = VectorInt(),
+                                 int ivar              = -1,
+                                 bool useSel           = true,
+                                 bool useZ             = true,
+                                 bool useVerr          = false,
+                                 bool useExtD          = true) const;
   VectorVectorInt getSampleRanks(const VectorInt& ivars = VectorInt(),
                                  const VectorInt& nbgh  = VectorInt(),
                                  bool useSel            = true,
                                  bool useZ              = true,
                                  bool useVerr           = false,
                                  bool useExtD           = true) const;
-  void getSampleRanksInPlace(VectorVectorInt* sampleRanks,
+  void getSampleRanksInPlace(VectorVectorInt& sampleRanks,
                              const VectorInt& ivars = VectorInt(),
                              const VectorInt& nbgh  = VectorInt(),
                              bool useSel            = true,
@@ -778,6 +780,7 @@ public:
    */
   VectorDouble getExtrema(int idim, bool useSel = false) const;
   VectorVectorDouble getExtremas(bool useSel = false) const;
+  VectorDouble getExtends(bool useSel = false) const;
   VectorDouble getCoorMinimum(bool useSel = false) const;
   VectorDouble getCoorMaximum(bool useSel = false) const;
   double getExtension(int idim, bool useSel = false) const;
@@ -846,6 +849,8 @@ public:
 
   VectorInt shrinkToValidRows(const VectorInt& rows) const;
   VectorInt shrinkToValidCols(const VectorInt& cols) const;
+
+  static const Db* coverSeveralDbs(const Db* db1, const Db* db2, bool *isBuilt);
 
   /** @addtogroup DB_7 Calculating several statistics in Db
    * \ingroup DB
@@ -997,5 +1002,5 @@ private:
   std::vector<PtrGeos> _p;    //!< Locator characteristics
 
   /// factor allocations
-  mutable std::vector<int> uids;
+  mutable VectorInt _uids;
 };
