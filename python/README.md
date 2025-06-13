@@ -73,8 +73,8 @@ mygrid = gl.DbGrid.create([nx,ny],[1,1])
 var = np.random.randn(nx * ny)
 mygrid.addColumns(var, "var1", gl.ELoc.Z)
 # Display the field
-ax = gp.grid(mygrid)
-ax.decoration(title="Gaussian random field")
+gp.raster(mygrid)
+gp.decoration(title="Gaussian random field")
 plt.show()
 ```
 
