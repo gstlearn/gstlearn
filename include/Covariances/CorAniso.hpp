@@ -264,6 +264,10 @@ public:
   ParamInfo& getParamInfoAngle(int idim) { return _angles[idim]; }
   std::vector<ParamInfo>& getParamInfoScales() { return _scales; }
   std::vector<ParamInfo>& getParamInfoAngles() { return _angles; }
+  bool getOptimLockIso2d() const { return _optimLockIso2d; }
+  void setOptimLockIso2d(bool status) { _optimLockIso2d = status; }
+  bool getOptimNoAniso() const { return _optimNoAniso; };
+  void setOptimNoAniso(bool status) { _optimNoAniso = status; }
 
 #ifndef SWIG
   int addEvalCovVecRHSInPlace(vect vect,
@@ -314,10 +318,16 @@ private:
   std::vector<ParamInfo> _angles;
   mutable Tensor _aniso; /// Anisotropy parameters
   mutable double _noStatFactor; /// Correcting factor for non-stationarity
+
+  bool _optimNoAniso; // All ranges should be equal
+  bool _optimLockIso2d; // Range U and V should be equal
+
   const std::array<EConsElem, 4> _listaniso = {EConsElem::RANGE,
                                                EConsElem::SCALE,
                                                EConsElem::TENSOR,
                                                EConsElem::ANGLE};
   // These temporary information is used to speed up processing (optimization functions)
   // They are in a protected section as they may be modified by class hierarchy
+
+
 };

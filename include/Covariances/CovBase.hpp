@@ -147,10 +147,10 @@ private:
                        const CovCalcMode* mode = nullptr) const override;
 
 protected:
-  MatrixT<ParamInfo> _cholSillsInfo;
-  mutable MatrixSquare _cholSills;
+  MatrixT<ParamInfo>      _cholSillsInfo;
+  mutable MatrixSquare    _cholSills;
   mutable MatrixSymmetric _sillCur;
-  mutable MatrixSquare _workMat;
+  mutable MatrixSquare    _workMat;
 
 private:
   ACov* _cor;

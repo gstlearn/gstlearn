@@ -53,6 +53,8 @@ CorAniso::CorAniso(const ECov& type, const CovContext& ctxt)
   _corfunc(CovFactory::createCovFunc(type, ctxt))
   , _aniso(ctxt.getSpace()->getNDim())
   , _noStatFactor(1.)
+  , _optimNoAniso(false)
+  , _optimLockIso2d(false)
 {
   initFromContext();
 }
@@ -63,6 +65,8 @@ CorAniso::CorAniso(const String& symbol, const CovContext& ctxt)
   _corfunc()
   , _aniso(ctxt.getSpace()->getNDim())
   , _noStatFactor(1.)
+  , _optimNoAniso(false)
+  , _optimLockIso2d(false)
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
   _corfunc     = CovFactory::createCovFunc(covtype, ctxt);
@@ -78,6 +82,8 @@ CorAniso::CorAniso(const ECov& type,
   , _corfunc(CovFactory::createCovFunc(type, ctxt))
   , _aniso(ctxt.getSpace()->getNDim())
   , _noStatFactor(1.)
+  , _optimNoAniso(false)
+  , _optimLockIso2d(false)
 {
   initFromContext();
 
@@ -96,6 +102,8 @@ CorAniso::CorAniso(const CorAniso& r)
   , _corfunc(CovFactory::duplicateCovFunc(*r._corfunc))
   , _aniso(r._aniso)
   , _noStatFactor(r._noStatFactor)
+  , _optimNoAniso(r._optimNoAniso)
+  , _optimLockIso2d(r._optimLockIso2d)
 {
 }
 
@@ -104,9 +112,11 @@ CorAniso& CorAniso::operator=(const CorAniso& r)
   if (this != &r)
   {
     ACov::operator=(r);
-    _corfunc           = CovFactory::duplicateCovFunc(*r._corfunc);
-    _aniso             = r._aniso;
-    _noStatFactor      = r._noStatFactor;
+    _corfunc        = CovFactory::duplicateCovFunc(*r._corfunc);
+    _aniso          = r._aniso;
+    _noStatFactor   = r._noStatFactor;
+    _optimNoAniso   = r._optimNoAniso;
+    _optimLockIso2d = r._optimLockIso2d;
   }
   return *this;
 }
@@ -1216,9 +1226,7 @@ double CorAniso::getValue(const EConsElem& econs, int iv1, int iv2) const
 void CorAniso::informMeshByMeshForAnisotropy(const AMesh* amesh) const
 {
   for (const auto& e: _listaniso)
-  {
     getTabNoStatCovAniso()->informMeshByMesh(amesh, e);
-  }
 }
 
 void CorAniso::informMeshByApexForAnisotropy(const AMesh* amesh) const
