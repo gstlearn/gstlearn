@@ -65,12 +65,12 @@ add_custom_target(r_doc
 )
 
 ####CUSTOM WRAPPER
-add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/r/generated_r.i
-COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/r/generated_r.i
+add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/swig/generated_r.i
+COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_BINARY_DIR}/swig/generated_r.i
 COMMENT "Ensure that generated_r.i exists")
   
 add_custom_target(r_wrap_macro
-  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../swig/macrogenerate.py
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../tools/scripts/macrogenerate.py r ${CMAKE_BINARY_DIR}/swig/generated_r.i
   "r"
   COMMENT "Generate macro wrapper package"
   )

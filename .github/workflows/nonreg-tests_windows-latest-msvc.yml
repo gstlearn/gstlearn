@@ -22,7 +22,7 @@ env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
   CMAKE_GENERATOR : Ninja
-  PYTHON_VERSION : "3.13"
+  PYTHON_VERSION : "3.13.3"
   GSTLEARN_OUTPUT_DIR: ${{ github.workspace }}\build\gstlearn_dir
   CMAKE_TOOLCHAIN_FILE : C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 

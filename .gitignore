@@ -43,6 +43,11 @@ doc/details/*.pdf
 *.Rout
 .*~
 .metadata
+doc/details/*.aux
+doc/details/*.log
+doc/details/*.pdf
+doc/details/*.fdb_latexmk
+doc/details/*.fls
+doc/details/*.synctex.gz
+.venv
 2
-python/generated_python.i
-r/generated_r.i

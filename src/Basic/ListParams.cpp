@@ -9,11 +9,39 @@ ListParams::ListParams()
 {
 }
 
+void ListParams::updateDispatch()
+{
+  _dispatch.clear();
+  _dispatchIndex.clear();
+  for (size_t i = 0; i < _params.size(); ++i)
+  {
+    _dispatch.push_back(_params[i].get().getAddress());
+  }
+  makeDispatchIndexFromDispatch();
+}
+
 void ListParams::addParam(ParamInfo& param)
 {
   _params.push_back(param);
+  _dispatch.push_back(_params.size() - 1);
+  _dispatchIndex.push_back(_params.size() - 1);
+  param.setAddress(_params.size() - 1);
 }
 
+void ListParams::addParams(std::vector<ParamInfo>& params)
+{
+  for (auto& param: params)
+  {
+    addParam(param);
+  }
+}
+
+void ListParams::clear()
+{
+  _params.clear();
+  _dispatch.clear();
+  _dispatchIndex.clear();
+}
 
 double ListParams::getValue(int index) const
 {
@@ -24,6 +52,18 @@ double ListParams::getValue(int index) const
   }
   return _params[index].get().getValue();
 }
+
+double ListParams::getOptimizableValue(size_t index) const
+{
+  if (index >= getNOptimizableParams())
+  {
+    messerr("Index out of range in ListParams::getOptimizableValue");
+    return TEST;
+  }
+
+  return _params[_dispatchIndex[index]].get().getValue();
+}
+
 void ListParams::setValue(int index, double value)
 {
   if (index < 0 || index >= static_cast<int>(_params.size()))
@@ -33,6 +73,8 @@ void ListParams::setValue(int index, double value)
   }
   _params[index].get().setValue(value);
 }
+
+
 String ListParams::toString(const AStringFormat* strfmt) const
 {
   DECLARE_UNUSED(strfmt);
@@ -45,13 +87,25 @@ String ListParams::toString(const AStringFormat* strfmt) const
   return result.str();
 }
 
-std::vector<double> ListParams::getValues() const
+
+void ListParams::makeDispatchIndexFromDispatch()
 {
-  size_t nparam = _params.size();
+  _dispatchIndex.clear();
+  for (size_t i = 0; i < getNParams(); ++i)
+  {
+    if (std::find(_dispatchIndex.begin(), _dispatchIndex.end(), _dispatch[i]) == _dispatchIndex.end())
+    {
+      _dispatchIndex.push_back(_dispatch[i]);
+    }
+  }
+}
+std::vector<double> ListParams::getOptimizableValues() const
+{
+  size_t nparam = getNOptimizableParams();
   std::vector<double> values(nparam);
   for (size_t i = 0; i < nparam; ++i)
   {
-    values[i] = _params[i].get().getValue();
+    values[i] = getOptimizableValue(i);
   }
   return values;
 }
@@ -80,9 +134,9 @@ std::vector<double> ListParams::getMaxValues() const
 
 void ListParams::setValues(const std::vector<double>& values)
 {
-  size_t size = values.size();
+  size_t size = _dispatchIndex.size();
   for (size_t i = 0; i < size; i++)
   {
-    _params[i].get().setValue(values[i]);
+    _params[i].get().setValue(values[_dispatch[i]]);
   }
 }

@@ -22,6 +22,7 @@
 #include "Estimation/AModelOptimFactory.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "geoslib_define.h"
+#include <memory>
 
 ModelGeneric::ModelGeneric(const CovContext& ctxt)
   : _cova(nullptr)
@@ -328,6 +329,11 @@ std::shared_ptr<ListParams> ModelGeneric::generateListParams() const
   }
 
   return listParams;
+}
+
+ListParams* ModelGeneric::createListParams(std::shared_ptr<ListParams> lp)
+{
+  return lp.get();
 }
 
 void ModelGeneric::updateModel()
