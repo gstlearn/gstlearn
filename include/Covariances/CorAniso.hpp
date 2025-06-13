@@ -260,17 +260,12 @@ public:
   void appendParams(ListParams& listParams) override;
   void updateCov() override;
   void initParams() override;
-  std::vector<ParamInfo>& getScalesParam()
-  {
-    return _scales;
-  }
+  ParamInfo& getParamInfoScale(int idim) { return _scales[idim]; }
+  ParamInfo& getParamInfoAngle(int idim) { return _angles[idim]; }
+  std::vector<ParamInfo>& getParamInfoScales() { return _scales; }
+  std::vector<ParamInfo>& getParamInfoAngles() { return _angles; }
 
-  std::vector<ParamInfo>& getAnglesParam()
-  {
-    return _angles;
-  }
-  
-  #ifndef SWIG
+#ifndef SWIG
   int addEvalCovVecRHSInPlace(vect vect,
                               const VectorInt& index1,
                               int iech2,
@@ -278,9 +273,10 @@ public:
                               SpacePoint& pin,
                               SpacePoint& pout,
                               VectorDouble& tabwork,
-                              double lambda = 1., 
+                              double lambda                 = 1.,
                               const ECalcMember& calcMember = ECalcMember::RHS) const override;
-  #endif
+#endif
+
 protected:
   /// Update internal parameters consistency with the context
   void _initFromContext() override;

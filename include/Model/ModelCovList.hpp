@@ -54,6 +54,7 @@ public:
   
   void setCovList(CovList* covs);
   virtual void addCov(const CovBase* cov);
+  CovBase* getCovBase(int icov) const { return getCovListModify()->getCovModify(icov); }
 
   void deleteFitSills() const;
   void setFitSills(AModelFitSills* amopts);
