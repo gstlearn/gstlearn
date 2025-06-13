@@ -114,11 +114,6 @@ void CovAniso::_computeCorrec()
   getCorAniso()->computeCorrec();
 }
 
-void CovAniso::computeMarkovCoeffs()
-{
-  getCorAniso()->computeMarkovCoeffs();
-}
-
 void CovAniso::setParam(double param)
 {
   getCorAniso()->setParam(param);
@@ -379,11 +374,6 @@ void CovAniso::setType(const ECov& type)
 double CovAniso::getRange() const
 {
   return getCorAniso()->getRange();
-}
-
-double CovAniso::getScale() const
-{
-  return getCorAniso()->getScale();
 }
 
 VectorDouble CovAniso::getAnisoCoeffs() const

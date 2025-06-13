@@ -127,7 +127,8 @@ public:
                                           bool flagRange             = true);
 
   void setParam(double param);
-
+  FORWARD_METHOD_NON_CONST(getCorAniso,computeMarkovCoeffs)
+  FORWARD_METHOD(getCorAniso, getScale, TEST)
   /// Practical range
   void setRangeIsotropic(double range);
   void setRange(int idim, double range);
@@ -155,7 +156,6 @@ public:
 
   void setType(const ECov& type);
   double getRange() const;
-  double getScale() const;
   bool getFlagAniso() const { return !isIsotropic(); }
   bool getFlagRotation() const { return hasRotation(); }
   double getRange(int idim) const { return getRanges()[idim]; }
@@ -228,7 +228,6 @@ public:
   void setMarkovCoeffsBySquaredPolynomials(const VectorDouble& coeffs1,
                                            const VectorDouble& coeffs2,
                                            double eps = 0);
-  void computeMarkovCoeffs();
   double getCorrec() const;
   double getFullCorrec() const;
   int getNDim() const { return _ctxt.getNDim(); }
