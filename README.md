@@ -33,6 +33,7 @@ The *gstlearn* C++ library :
 * depends on third-party libraries and source codes (see [below](#credits)).
 * comes with several data files that are used for our [documentation](https://gstlearn.org/?page_id=50) (tutorials and courses).
 
+<!-- TODO Warning with doxygen: https://github.com/doxygen/doxygen/issues/9200  -->
 See [credits](#credits) below.
 
 ## How to cite
