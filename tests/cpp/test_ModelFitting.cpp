@@ -72,7 +72,7 @@ static void _secondTest(Db* db2D,
   mestitle(0, "Model fitting from Variogram (new version)");
 
   Vario* vario = _computeVariogram(db2D, calcul);
-
+  vario->dumpToNF("Vario.ascii");
   ModelOptimParam mop = ModelOptimParam();
   mop.setWmode(2);
   mop.setFlagGoulard(true);
