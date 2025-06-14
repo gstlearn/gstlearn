@@ -332,7 +332,7 @@ std::shared_ptr<ListParams> ModelGeneric::generateListParams() const
   return listParams;
 }
 
-ListParams* ModelGeneric::createListParams(std::shared_ptr<ListParams> lp)
+ListParams* ModelGeneric::createListParams(std::shared_ptr<ListParams>& lp)
 {
   return lp.get();
 }
@@ -373,12 +373,13 @@ void ModelGeneric::fitNew(const Db* db,
                           Constraints* constraints,
                           const ModelOptimParam& mop,
                           int nb_neighVecchia,
-                          bool verbose)
+                          bool verbose,
+                          bool trace)
 {
   AModelOptim* amopt = AModelOptimFactory::create(this, db, vario, dbmap,
                                                   constraints, mop,
                                                   nb_neighVecchia);
-  amopt->setVerbose(verbose);
+  amopt->setVerbose(verbose, trace);
   amopt->resetIter();
   amopt->run();
   delete amopt;

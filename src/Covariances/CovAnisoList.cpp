@@ -267,7 +267,7 @@ double CovAnisoList::getRange(int icov) const
     messerr("The argument should be of type 'CovAniso*'");
     return 0.;
   }
-  return covaniso->getRange();
+  return covaniso->getRangeIso();
 }
 VectorDouble CovAnisoList::getRanges(int icov) const
 {
@@ -383,7 +383,7 @@ double CovAnisoList::getMaximumDistance() const
   {
     const CovAniso* cova = getCovAniso(icov);
     if (!cova->hasRange()) continue;
-    double range = cova->getRange();
+    double range = cova->getRangeIso();
     if (range > maxdist) maxdist = range;
   }
   return maxdist;

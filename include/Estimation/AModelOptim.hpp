@@ -27,6 +27,7 @@ public:
   AModelOptim(ModelGeneric* model = nullptr, bool verbose = false)
     : _model(model)
     , _verbose(verbose)
+    , _trace(false)
   {
     if (_model == nullptr)
     {
@@ -41,9 +42,8 @@ public:
     _opt->setLowerBounds(_xmin);
     _opt->setUpperBounds(_xmax);
     _opt->setXtolRel(EPSILON6);
-    _opt->setObjective([this](const std::vector<double>& x)
-                       { return this->eval(x); });
-    _iter = 0;
+    _opt->setObjective([this](const std::vector<double>& x) { return this->eval(x); });
+    resetIter();
   };
 
   AModelOptim(const AModelOptim& r) 
@@ -67,12 +67,14 @@ public:
     delete _opt;
   }
 
-  void setVerbose(bool verbose)
+  void setVerbose(bool verbose = false, bool trace = false)
   {
     _verbose = verbose;
+    _trace   = trace;
+    if (trace) _verbose = true;
 
     // In the verbose case, first print the list of parameters
-    if (verbose) _params->display();
+    if (verbose || trace) _params->display();
   }
 
   double eval(const std::vector<double>& x)
@@ -84,7 +86,7 @@ public:
     // Calculate the cost
     double result = computeCost(false);
 
-    if (_verbose)
+    if (_trace)
     {
       message("Iteration %4d - Cost = %lf", _iter, result);
       VH::dump(" - Current parameters", x, false);
@@ -95,20 +97,36 @@ public:
     if (mcv != nullptr)
     {
       AModelFitSills* amf = mcv->getFitSills();
-      if (amf != nullptr) amf->fitSills(_verbose);
+      if (amf != nullptr)
+      {
+        amf->fitSills(_verbose, _trace);
+        _itergCum += amf->getNiter();
+      }
     }
-
     return -result;
   };
 
+  void _printSummary(double minf, const std::vector<double>& x) const
+  {
+    message("Summary of Optimization procedure - Count of Iterations = %4d - Final Cost = %lf\n",
+            _iter, minf);
+    VH::dump("- Final parameters", x, false);
+    ModelCovList* mcv   = dynamic_cast<ModelCovList*>(_model);
+    AModelFitSills* amf = mcv->getFitSills();
+    if (amf != nullptr) amf->printFitSillSummary(_itergCum);
+  }
+
   void run()
   {
-    _opt->optimize(_x);
+    double minf = _opt->optimize(_x);
+
+    if (_verbose) _printSummary(minf, _x);
   }
 
   void resetIter()
   {
     _iter = 0;
+    _itergCum = 0;
   }
   virtual double computeCost(bool verbose = false) = 0;
 
@@ -119,8 +137,10 @@ private:
   std::shared_ptr<ListParams> _params; // Parameters of the model to be optimized
   Optim* _opt;
   bool _verbose;
+  bool _trace;
   std::vector<double> _x;
   std::vector<double> _xmin;
   std::vector<double> _xmax;
   int _iter;
+  int _itergCum;
 };

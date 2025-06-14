@@ -119,15 +119,21 @@ int ModelFitSillsVario::_prepare()
  ** \return  Error return code
  **
  ** \param[in]  verbose     Verbose flag
+ ** \param[in]  trace       Trace flag
  **
  *****************************************************************************/
-int ModelFitSillsVario::fitSills(bool verbose)
+int ModelFitSillsVario::fitSills(bool verbose, bool trace)
 {
+  DECLARE_UNUSED(verbose)
+
   // Initialize Model-dependent quantities
   _updateFromModel();
 
-  // Perform the sill fitting
-  return _fitSills(verbose);
+  // In this iterative manner of Fitting Sills, the verbose flag is switched OFF
+  // in order to avoid intermediate printouts
+  int status =  _fitSills(false, trace);
+
+  return status;
 }
 
 /****************************************************************************/

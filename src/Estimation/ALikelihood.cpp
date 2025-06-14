@@ -8,13 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-
 #include "Estimation/ALikelihood.hpp"
 #include "Db/Db.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "LinearOp/CholeskyDense.hpp"
+
 ALikelihood::ALikelihood(ModelGeneric* model,
                          const Db* db)
   : AModelOptim(model)

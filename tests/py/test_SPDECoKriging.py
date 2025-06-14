@@ -9,7 +9,7 @@ def getName(radix, ivar, iext):
     return name
 
 # %% General parameters
-flag_plot = True
+flag_plot = False
 ndim = 2
 nvar = 2
 order = 1

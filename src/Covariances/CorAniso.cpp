@@ -468,7 +468,7 @@ double CorAniso::evalCovOnSphere(double alpha,
   const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
   if (spaceSn == nullptr) return TEST;
 
-  double scale = getScale();
+  double scale = getScaleIso();
   if (flagScaleDistance)
   {
     double radius = spaceSn->getRadius();
@@ -491,7 +491,7 @@ VectorDouble CorAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool f
   const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
   if (spaceSn == nullptr) return VectorDouble();
 
-  double scale = getScale();
+  double scale = getScaleIso();
   if (flagNormDistance)
   {
     double radius = spaceSn->getRadius();
@@ -576,7 +576,7 @@ double CorAniso::normalizeOnSphere(int n) const
 {
   const ASpace* space    = getDefaultSpaceSh().get();
   const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
-  double scale           = getScale();
+  double scale           = getScaleIso();
   double radius          = spaceSn->getRadius();
   scale                  = scale / radius;
   return _corfunc->normalizeOnSphere(n, scale);
@@ -697,7 +697,7 @@ void CorAniso::setType(const ECov& type)
  * In the anisotropic case, it returns the largest range over all directions
  * @return
  */
-double CorAniso::getRange() const
+double CorAniso::getRangeIso() const
 {
   if (!hasRange()) return 0.;
   if (isIsotropic())
@@ -705,7 +705,7 @@ double CorAniso::getRange() const
   return VH::maximum(getRanges());
 }
 
-double CorAniso::getScale() const
+double CorAniso::getScaleIso() const
 {
   if (!hasRange()) return 0.;
   if (isIsotropic())

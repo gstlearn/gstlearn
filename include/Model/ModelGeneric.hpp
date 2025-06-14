@@ -187,17 +187,18 @@ public:
 
   std::shared_ptr<ListParams> generateListParams() const;
   // Version for python test
-  static ListParams* createListParams(std::shared_ptr<ListParams> lp);
+  static ListParams* createListParams(std::shared_ptr<ListParams>& lp);
   void updateModel();
   double computeLogLikelihood(const Db* db, bool verbose = false);
-  double evalGradParam(int iparam, SpacePoint& p1, SpacePoint& p2,int ivar = 0, int jvar = 0);
-  void fitNew(const Db* db = nullptr,
-              Vario* vario = nullptr,
-              const DbGrid* dbmap = nullptr,
-              Constraints* constraints = nullptr,
+  double evalGradParam(int iparam, SpacePoint& p1, SpacePoint& p2, int ivar = 0, int jvar = 0);
+  void fitNew(const Db* db               = nullptr,
+              Vario* vario               = nullptr,
+              const DbGrid* dbmap        = nullptr,
+              Constraints* constraints   = nullptr,
               const ModelOptimParam& mop = ModelOptimParam(),
-              int nb_neighVecchia = 30,
-              bool verbose = false);
+              int nb_neighVecchia        = 30,
+              bool verbose               = false,
+              bool trace                 = false);
 
 private:
   virtual bool _isValid() const;

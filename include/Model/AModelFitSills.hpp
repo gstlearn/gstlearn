@@ -40,16 +40,18 @@ public:
   AModelFitSills& operator=(const AModelFitSills& m);
   virtual ~AModelFitSills();
 
-  virtual int fitSills(bool verbose = false) { DECLARE_UNUSED(verbose); return 0; }
+  virtual int fitSills(bool verbose = false, bool trace = false) { DECLARE_UNUSED(verbose, trace); return 0; }
+  int getNiter() const { return _iterg; }
+  void printFitSillSummary(int niter) const;
 
 protected:
   void _resetInitialSill(std::vector<MatrixSymmetric>& sill) const;
   void _allocateInternalArrays(bool flag_exp = true);
-  int  _fitSills(bool verbose = false);
+  int  _fitSills(bool verbose = false, bool trace = false);
 
 private:
-  int _sillFittingIntrinsic(double *crit_arg);
-  int _goulardWithConstraints(double *crit_arg);
+  int _sillFittingIntrinsic();
+  int _goulardWithConstraints();
   int _goulardWithoutConstraint(int niter,
                                 int nvar,
                                 int ncova,
@@ -57,10 +59,9 @@ private:
                                 VectorDouble& wt,
                                 VectorDouble& gg,
                                 std::vector<MatrixDense>& ge,
-                                std::vector<MatrixSymmetric>& sill,
-                                double* crit_arg) const;
+                                std::vector<MatrixSymmetric>& sill) const;
   void _storeSillsInModel() const;
-  void _optimizeUnderConstraints(double* score);
+  void _optimizeUnderConstraints();
   int _makeDefinitePositive(int icov0, double eps = EPSILON12);
   void _initializeGoulard();
   int _truncateNegativeEigen(int icov0);
@@ -89,8 +90,7 @@ private:
                           int ivar0,
                           VectorDouble& xr,
                           std::vector<MatrixSymmetric>& alpha);
-  bool _convergenceReached(double crit, double crit_mem) const;
-  void _printResults(double crit) const;
+  bool _convergenceReached(int iter, double crit, double crit_mem) const;
 
 protected:
   int _ndim;
@@ -112,6 +112,11 @@ protected:
   std::vector<MatrixSymmetric> _alphau;
   std::vector<MatrixSymmetric> _sill1;
   std::vector<MatrixSymmetric> _sill;
+
+  bool _verbose;
+  bool _trace;
+  mutable int _iterg;
+  mutable double _crit;
 
   // Storing external pointers or references (not to be deleted)
   ModelCovList*      _model;

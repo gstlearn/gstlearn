@@ -114,7 +114,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
           covnew->setAnisoRotationMat(cova->getAnisoRotation());
       }
       else
-        covnew->setRangeIsotropic(cova->getRange());
+        covnew->setRangeIsotropic(cova->getRangeIso());
 
       /* Modify the Sill */;
 
@@ -214,7 +214,7 @@ void model_covupdt(Model *model,
     cova = model->getCovAniso(icov);
     if (cova->getType() == ECov::NUGGET) rank_nugget = icov;
     rank[icov] = icov;
-    range[icov] = cova->getRange();
+    range[icov] = cova->getRangeIso();
   }
   ut_sort_double(0, ncova, rank, range);
 
@@ -445,7 +445,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
     sill.setValue(0, 0, cova->getSill(0, 0));
     sill.setValue(1, 0, r * cova->getSill(0, 0));
     sill.setValue(1, 1, r * r * cova->getSill(0, 0));
-    model->addCovFromParam(cova->getType(), cova->getRange(), 0., cova->getParam(),
+    model->addCovFromParam(cova->getType(), cova->getRangeIso(), 0., cova->getParam(),
                            cova->getRanges(), sill, cova->getAnisoAngles());
   }
 
@@ -457,7 +457,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
     sill.setValue(0,0, 0.);
     sill.setValue(0,1, 0.);
     sill.setValue(1,1, (1. - r * r) * cova->getSill(0, 0));
-    model->addCovFromParam(cova->getType(), cova->getRange(), 0., cova->getParam(),
+    model->addCovFromParam(cova->getType(), cova->getRangeIso(), 0., cova->getParam(),
                            cova->getRanges(), sill, cova->getAnisoAngles());
   }
   return model;

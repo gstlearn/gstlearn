@@ -154,23 +154,23 @@ public:
                                   const VectorDouble& scales = VectorDouble()) const;
 
   VectorDouble getRanges() const;
+  double getRange(int idim) const { return getRanges()[idim]; }
+  double getScale(int idim) const { return getScales()[idim]; }
   const Rotation& getAnisoRotation() const { return _aniso.getRotation(); }
   const VectorDouble& getScales() const { return _aniso.getRadius(); }
 
   void setType(const ECov& type);
-  double getRange() const;
-  double getScale() const;
+  double getRangeIso() const;
+  double getScaleIso() const;
   bool getFlagAniso() const { return !isIsotropic(); }
   bool getFlagRotation() const { return hasRotation(); }
-  double getRange(int idim) const { return getRanges()[idim]; }
-  double getScale(int idim) const { return getScales()[idim]; }
   VectorDouble getAnisoAngles() const { return _aniso.getAngles(); }
   const MatrixSquare& getAnisoRotMat() const { return _aniso.getMatrixDirect(); }
   const MatrixSquare& getAnisoInvMat() const { return _aniso.getMatrixInverse(); }
   VectorDouble getAnisoCoeffs() const;
   double getAnisoAngles(int idim) const { return getAnisoAngles()[idim]; }
   double getAnisoRotMat(int idim, int jdim) const { return _aniso.getMatrixDirect().getValue(idim, jdim); }
-  double getAnisoCoeffs(int idim) const { return getAnisoCoeffs()[idim]; }
+  double getAnisoCoeff(int idim) const { return getAnisoCoeffs()[idim]; }
   const ECov& getType() const { return _corfunc->getType(); }
   double getParam() const;
   double getScadef() const { return _corfunc->getScadef(); }

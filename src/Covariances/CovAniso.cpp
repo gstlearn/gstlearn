@@ -11,12 +11,10 @@
 #include "geoslib_define.h"
 
 #include "Arrays/Array.hpp"
-#include "Basic/AFunctional.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CorAniso.hpp"
 #include "Covariances/CovProportional.hpp"
 #include "Db/Db.hpp"
-#include "Covariances/NoStatArray.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovCalcMode.hpp"
@@ -109,11 +107,6 @@ CorAniso* CovAniso::getCorAniso()
   return (CorAniso*)getCor();
 }
 
-MatrixDense CovAniso::simulateSpectralOmega(int nb) const
-{
-  return getCorAniso()->simulateSpectralOmega(nb);
-}
-
 double CovAniso::_getSillValue(int ivar, int jvar, const CovCalcMode* mode) const
 {
   if (mode != nullptr && mode->getUnitary()) return 1.;
@@ -150,35 +143,10 @@ VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool f
   return getCorAniso()->evalSpectrumOnSphere(n, flagNormDistance, flagCumul);
 }
 
-double CovAniso::getCorrec() const
-{
-  return getCorAniso()->getCorrec();
-}
-
-double CovAniso::getFullCorrec() const
-{
-  return getCorAniso()->getFullCorrec();
-}
-
-double CovAniso::_getDetTensor() const
-{
-  return getCorAniso()->getDetTensor();
-}
-
 double CovAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) const
 {
   if (!getCorAniso()->hasSpectrumOnRn()) return TEST;
   return _sillCur.getValue(ivar, jvar) * getCorAniso()->evalSpectrum(freq, ivar, jvar);
-}
-
-double CovAniso::normalizeOnSphere(int n) const
-{
-  return getCorAniso()->normalizeOnSphere(n);
-}
-
-VectorDouble CovAniso::getMarkovCoeffs() const
-{
-  return getCorAniso()->getMarkovCoeffs();
 }
 
 VectorDouble CovAniso::evalCovOnSphereVec(const VectorDouble& alpha,
@@ -262,26 +230,6 @@ double CovAniso::getSlope(int ivar, int jvar) const
   return _sillCur.getValue(ivar, jvar) / range;
 }
 
-VectorDouble CovAniso::getRanges() const
-{
-  return getCorAniso()->getRanges();
-}
-
-VectorDouble CovAniso::getAnisoCoeffs() const
-{
-  return getCorAniso()->getAnisoCoeffs();
-}
-
-/**
- * For compatibility, this function returns 0 if the Covariance has no Third Parameter
- *
- * @return Third parameter
- */
-double CovAniso::getParam() const
-{
-  return getCorAniso()->getParam();
-}
-
 /**
  * Calculate the Integral Range in various Space Dimension (1, 2 or 3)
  * @return
@@ -289,11 +237,6 @@ double CovAniso::getParam() const
 double CovAniso::getIntegralRange(int ndisc, double hmax) const
 {
   return _sillCur.getValue(0, 0) * getCorAniso()->getIntegralRange(ndisc, hmax);
-}
-
-int CovAniso::getNGradParam() const
-{
-  return getCorAniso()->getNGradParam();
 }
 
 CovAniso* CovAniso::createIsotropic(const CovContext& ctxt,
@@ -528,7 +471,7 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax,
   std::function<double(const VectorDouble&)> funcSpectrum;
   funcSpectrum = [this, ivar, jvar](const VectorDouble& freq)
   {
-    return evalSpectrum(freq, ivar, jvar) * _getDetTensor();
+    return evalSpectrum(freq, ivar, jvar) * getDetTensor();
   };
   return evalCovFFTSpatial(hmax, N, funcSpectrum);
 }

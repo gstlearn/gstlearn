@@ -6,7 +6,6 @@
 # License: BSD 3-clause                                                        #
 #                                                                              #
 ################################################################################
-
 try:
     import matplotlib
     import matplotlib.pyplot     as plt
