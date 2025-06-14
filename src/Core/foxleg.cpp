@@ -1022,33 +1022,6 @@ static void st_foxleg_debug_current(double mscur,
 
 /****************************************************************************/
 /*!
- **  Display the FOXLEG score
- **
- *****************************************************************************/
-static void st_foxleg_score(const Option_AutoFit &mauto,
-                            double mscur,
-                            double delta,
-                            double arret)
-{
-  if (mauto.getVerbose())
-  {
-    mestitle(1, "Statistics for the Minimization Foxleg procedure");
-    message("- Number of experimental values = %d\n", NDAT);
-    message("- Number of parameters          = %d\n", NPAR);
-    message("- Number of iterations          = %d/%d \n", ITERATION,
-            mauto.getMaxiter());
-    message("- Value of minimized function   = %lg\n", mscur);
-    message("- Initial increment value       = %lg\n", mauto.getInitdelta());
-    message("- Current increment value       = %lg\n", delta);
-    message("- Increment Stopping Criterion  = %lg\n", mauto.getEpsdelta());
-    message("- Stopping Value                = %lg\n", arret);
-    message("- Stopping Criterion            = %lg\n", mauto.getTolstop());
-    message("- Stopping Criterion (scaled)   = %lg\n", mauto.getTolred());
-  }
-}
-
-/****************************************************************************/
-/*!
  **  Interpolate linearly the vector of parameters
  **
  ** \param[in]  mscur     Current minimization value
@@ -1385,10 +1358,5 @@ int foxleg_f(int ndat,
   {
     return 0;
   }
-
-  set_keypair("Foxleg Value", 1, 1, 1, &mscur);
-  st_foxleg_score(mauto, mscur, delta, arret);
-
-  return 0;
 }
 

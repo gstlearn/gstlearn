@@ -208,7 +208,7 @@ int Db::resetFromBox(int nech,
 
   int jcol = 0;
   if (flagAddSampleRank) jcol++;
-  setLocatorsByUID(ndim, jcol, ELoc::X, 0);
+  setLocatorsByUID(ndim, jcol, ELoc::X);
 
   return 0;
 }
@@ -238,7 +238,7 @@ int Db::resetFromOnePoint(const VectorDouble& tab, bool flagAddSampleRank)
 
   int jcol = 0;
   if (flagAddSampleRank) jcol++;
-  setLocatorsByUID(ndim, jcol, ELoc::X, 0);
+  setLocatorsByUID(ndim, jcol, ELoc::X);
 
   return 0;
 }
@@ -3692,21 +3692,21 @@ void Db::getSampleRanksInPlace(VectorVectorInt& sampleRanks,
 /**
  * @brief Create the vector of elligible sample ranks for the variable 'ivar'
  *
+ * @param ranks Vector of elligible sample ranks (Input/Output)
  * @param nbgh Set of potentiel sample ranks
  * @param ivar Target variable rank
  * @param useSel True if the selection must be taken into account
  * @param useZ   True if the definition of the target variable must be checked
  * @param useVerr True if the definition of the Variance of Measurement Error must be checked
  * @param useExtD True if the definition of the External Drift must be checked
- * @return VectorInt
  */
-void Db::getSampleRanksPerVariable(VectorInt &ranks,
-                                        const VectorInt& nbgh,
-                                        int ivar,
-                                        bool useSel,
-                                        bool useZ,
-                                        bool useVerr,
-                                        bool useExtD) const
+void Db::getSampleRanksPerVariable(VectorInt& ranks,
+                                   const VectorInt& nbgh,
+                                   int ivar,
+                                   bool useSel,
+                                   bool useZ,
+                                   bool useVerr,
+                                   bool useExtD) const
 {
   double value;
   int nech_tot = getNSample();

@@ -38,7 +38,6 @@ class GSTLEARN_EXPORT Option_AutoFit : public AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   double getEpsdelta() const { return _epsdelta; }
-
   double getInitdelta() const { return _initdelta; }
   int getMaxiter() const { return _maxiter; }
   double getTolred() const { return _tolred; }
@@ -54,25 +53,25 @@ class GSTLEARN_EXPORT Option_AutoFit : public AStringable
   void setTolstop(double tolstop) { _tolstop = tolstop; }
   void setVerbose(bool verbose) { _verbose = verbose; }
   /**
- * Set the type of the weighting function used in the fitting procedure.
- * This function is defined in the case of several directional experimental variograms,
- * calculated in a multivariate case:
- * 0: The weight is constant  
- * 1: The weight is proportional to the number of pairs  
- * 2: The weight is proportional to the number of pairs and inverse proportional to the distance  
- * 3: The weight is inverse proportional to the number of lags for each direction  
- * @param wmode       type of weighting function (0, 1, 2 or 3, see above) 
- * @note The default value for wmode is 2 
- */
+   * Set the type of the weighting function used in the fitting procedure.
+   * This function is defined in the case of several directional experimental variograms,
+   * calculated in a multivariate case:
+   * 0: The weight is constant
+   * 1: The weight is proportional to the number of pairs
+   * 2: The weight is proportional to the number of pairs and inverse proportional to the distance
+   * 3: The weight is inverse proportional to the number of lags for each direction
+   * @param wmode       type of weighting function (0, 1, 2 or 3, see above)
+   * @note The default value for wmode is 2
+   */
   void setWmode(int wmode) { _wmode = wmode; }
 
- private:
-   bool   _verbose;                 /* Verbose option */
-   int    _wmode;                   /* Weighting option (used in Goulard) */
-   int    _maxiter;                 /* Maximum number of iterations */
-   double _tolstop;                 /* Tolerance for the stopping criterion */
-   double _tolred;                  /* Scaled tolerance (used in calculations) */
-   double _epsdelta;                /* Tolerance for the search */
-   double _tolsigma;                /* Percentage of variance below which a structure is discarded */
-   double _initdelta;               /* Initial radius of the trusting area */
+private:
+  bool _verbose;     /* Verbose option */
+  int _wmode;        /* Weighting option (used in Goulard) */
+  int _maxiter;      /* Maximum number of iterations */
+  double _tolstop;   /* Tolerance for the stopping criterion */
+  double _tolred;    /* Scaled tolerance (used in calculations) */
+  double _epsdelta;  /* Tolerance for the search */
+  double _tolsigma;  /* Percentage of variance below which a structure is discarded */
+  double _initdelta; /* Initial radius of the trusting area */
 };

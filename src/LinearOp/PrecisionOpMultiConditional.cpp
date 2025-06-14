@@ -111,7 +111,6 @@ std::pair<double,double> PrecisionOpMultiConditional::rangeEigenValQ() const
     result.first  = MIN(result.first ,vals.first);
     result.second = MAX(result.second,vals.second);
   }
-
   return result;
 }
 
@@ -135,7 +134,6 @@ std::pair<double,double> PrecisionOpMultiConditional::computeRangeEigenVal() con
   result.second += getMaxEigenValProj();
   return result;
 }
-
 
  void PrecisionOpMultiConditional::preparePoly(Chebychev& logPoly) const
 {
@@ -170,17 +168,17 @@ double PrecisionOpMultiConditional::computeLogDetOp(int nbsimu) const
   return val / nbsimu;
 }
 
-double PrecisionOpMultiConditional::computeLogDetQ(int nbsimu) const
+double PrecisionOpMultiConditional::computeLogDetQ(int nMC) const
 {
   double result = 0.;
   for (const auto &e : _multiPrecisionOp)
   {
-    result += e->getLogDeterminant(nbsimu);
+    result += e->getLogDeterminant(nMC);
   }
   return result;
 }
 
-double PrecisionOpMultiConditional::sumLogVar() const
+double PrecisionOpMultiConditional::computeLogDetNoise() const
 {
   double s = 0.;
   for (const auto &e : _varianceData)
@@ -192,12 +190,19 @@ double PrecisionOpMultiConditional::sumLogVar() const
 
 // We use the fact that log|Sigma| = log |Q + A^t diag^(-1) (sigma) A|- log|Q| + Sum(log sigma_i^2)
 
-double PrecisionOpMultiConditional::computeTotalLogDet(int nbsimu ) const
+double PrecisionOpMultiConditional::computeTotalLogDet(int nMC, int seed) const
 {
-  double a1 = computeLogDetOp(nbsimu);
-  double a2 = computeLogDetQ(nbsimu);
-  double a3 = sumLogVar();
-  return a1 - a2 + a3;
+  int memo = law_get_random_seed();
+
+  law_set_random_seed(seed);
+  double a1 = computeLogDetOp(nMC);
+  double a2 = computeLogDetQ(nMC);
+  double a3 = computeLogDetNoise();
+  law_set_random_seed(memo);
+
+  double result = TEST;
+  if (!FFFF(a1) && !FFFF(a2) && !FFFF(a3)) result = a1 - a2 + a3;
+  return result;
 }
 
 double PrecisionOpMultiConditional::computeQuadratic(const std::vector<double>& x) const
@@ -295,42 +300,40 @@ void PrecisionOpMultiConditional::_allocate(int i) const
 {
   if (i == 1)
   {
-    if(_work1bis.size() == 0)
+    if (_work1bis.size() == 0)
     {
       _work1bis.resize(_ndat);
     }
   }
-
-  if (i == 0)
+  else if (i == 0)
   {
-    if(_work1.size() == 0)
+    if (_work1.size() == 0)
     {
       _work1.resize(_ndat);
     }
   }
-
-  if (i == 3)
+  else if (i == 3)
   {
     _work3.resize(sizes());
 
-    for(int j = 0; j<sizes(); j++)
+    for (int j = 0; j < sizes(); j++)
     {
-      if(_work3[j].size() == 0)
+      if (_work3[j].size() == 0)
       {
         _work3[j].resize(size(j));
       }
     }
   }
-  if (i == 2)
+  else if (i == 2)
   {
-    if(_workdata.size() == 0)
+    if (_workdata.size() == 0)
     {
       _workdata.resize(_ndat);
     }
   }
-  if (i == 4)
+  else if (i == 4)
   {
-    if(_work1ter.size() == 0)
+    if (_work1ter.size() == 0)
     {
       _work1ter.resize(_ndat);
     }
@@ -347,9 +350,7 @@ void PrecisionOpMultiConditional::evalInvCov(const constvect inv,
   _allocate(4);
 
   for (int idat = 0; idat < _ndat; idat++)
-  {
     result[idat] = inv[idat] / _varianceData[idat];
-  }
 
   for (int icov = 0; icov < sizes(); icov++)
   {
@@ -366,9 +367,7 @@ void PrecisionOpMultiConditional::evalInvCov(const constvect inv,
     _multiProjData[icov]->mesh2point(w3s, w1bis);
 
     for (int idat = 0; idat < _ndat; idat++)
-    {
       result[idat] -= 1. / _varianceData[idat] * _work1bis[idat];
-    }
   }
 }
 

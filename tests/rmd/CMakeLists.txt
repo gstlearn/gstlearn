@@ -42,7 +42,9 @@ add_dependencies(prepare_check_rmd r_install)
 # Create the target and the output directory for logs
 # Look parent CMakeLists for MY_CTEST_COMMAND definition
 add_custom_target(check_rmd
-                  COMMAND ${MY_CTEST_COMMAND})
+  COMMAND ${MY_CTEST_COMMAND}
+  JOB_POOL console
+)
 
 # Add dependency for check_rmd
 add_dependencies(check_rmd prepare_check_rmd)

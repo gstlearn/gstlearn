@@ -127,25 +127,24 @@ gstlearn_to_sf <- function(x, crs = NA)
 #' @return returns the DbGrid object
 terra_to_gstlearn <- function(x)
 {
-  if (!require(terra, quietly=TRUE))
+  if (!require(terra, quietly = TRUE)) 
     stop("Package 'terra' is mandatory to use this function!")
-
   stopifnot(class(x)[1] == "SpatRaster")
-  dx = res(x)[c(2,1)]
+  dx = res(x)[c(1,2)]
   nx = dim(x)[c(2,1)]
   x0 = st_bbox(x)[1:2]
-  grd = DbGrid_create(nx = nx, dx = dx, x0 = x0)
+  grd = DbGrid_create(nx = nx, dx = dx, x0 = x0 + dx/2)
   for (i in 1:dim(x)[3]) {
     val_ini = x[[names(x)[i]]][]
     val = rep(NaN, length(val_ini))
     for (j in 1:nx[2]) {
-      idx_ini = 1:nx[1] + nx[1]*(j - 1)
-      idx     = 1:nx[1] + nx[1]*(nx[2] - j) 
+      idx_ini = 1:nx[1] + nx[1] * (j - 1)
+      idx = 1:nx[1] + nx[1] * (nx[2] - j)
       val[idx] <- val_ini[idx_ini]
     }
     grd[names(x)[i]] = val
   }
- grd
+  grd
 }
 
 #' Convert a *gstlearn* grid into a *terra* raster. (2 dimensional rasters) 
@@ -158,27 +157,26 @@ terra_to_gstlearn <- function(x)
 #' @return returns the sf object
 gstlearn_to_terra <- function(x, crs = NA)
 {
-  if (!require(terra, quietly=TRUE))
+  if (!require(terra, quietly = TRUE)) 
     stop("Package 'terra' is mandatory to use this function!")
-
   stopifnot(x$isGrid() & (x$getNDim() == 2))
-  nx    <- x$getNXs()
-  dx    <- x$getDXs()
-  x_min <- x$getX0s()
-  x_max <- x_min + dx * (nx - 1)
-  r <- rast(nrows = nx[2] , ncols = nx[1], 
-            xmin = x_min[1], xmax = x_max[1], ymin = x_min[2], ymax = x_max[2])
+  nx <- x$getNXs()
+  dx <- x$getDXs()
+  x_min <- (x$getX0s() - x$getDXs()/2)
+  x_max <- (x$getX0s() + dx * (nx - 1) + x$getDXs()/2)
+  r <- rast(nrows = nx[2], ncols = nx[1], xmin = x_min[1], 
+    xmax = x_max[1], ymin = x_min[2], ymax = x_max[2])
   crs(r) <- crs
-  var_nm <- x$getAllNames()[-c(1,2,3)]
+  var_nm <- x$getAllNames()[-c(1, 2, 3)]
   for (v in var_nm) {
     val_ini = x[v]
     val = rep(NaN, length(val_ini))
     for (j in 1:nx[2]) {
-      idx_ini = 1:nx[1] + nx[1]*(j - 1)
-      idx     = 1:nx[1] + nx[1]*(nx[2] - j) 
+      idx_ini = 1:nx[1] + nx[1] * (j - 1)
+      idx = 1:nx[1] + nx[1] * (nx[2] - j)
       val[idx] <- val_ini[idx_ini]
-      }
-    r[[v]] <- val
     }
+    r[[v]] <- val
+  }
   r
 }

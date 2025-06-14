@@ -18,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         # Double quote for version is needed otherwise 3.10 => 3.1
-        python: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python: ["3.9", "3.10", "3.11", "3.12", "3.13.3"]
         # See the list here: https://github.com/actions/runner-images#available-images
         os: [ubuntu-22.04, ubuntu-24.04, windows-2019, windows-2022, macos-13, macos-14, macos-15]
         exclude:

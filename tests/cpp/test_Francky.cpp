@@ -43,7 +43,6 @@ int main(int argc, char *argv[])
 
   DbStringFormat dbfmt(FLAG_STATS,{"Kriging*"});
 
-  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("test_Francky-");
 
   // Creating the 2-D Grid
@@ -69,7 +68,7 @@ int main(int argc, char *argv[])
   int useCholesky = 0;
   law_set_random_seed(13256);
   (void)simulateSPDE(nullptr, dat, model, 1, useCholesky,
-                     VectorMeshes(), nullptr, SPDEParam(),
+                     VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(),
                      NamingConvention("Data", true, false));
   (void)dat->dumpToNF("Data.ascii");
 

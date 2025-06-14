@@ -544,11 +544,12 @@ bool CalcSimuRefine::_check()
 
 bool CalcSimuRefine::_preprocess()
 {
-  return ACalcSimulation::_preprocess();
+  if (!ACalcSimulation::_preprocess()) return false;
 
   /* Patch the model with maximum dimension for OK */
 
   getModel()->setField(getDbin()->getExtensionDiagonal());
+  return true;
 }
 
 bool CalcSimuRefine::_run()

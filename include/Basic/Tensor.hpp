@@ -46,6 +46,8 @@ public:
   const MatrixSquare&   getTensorInverse()  const { return  _tensorInverse; }
   const MatrixSymmetric& getTensorDirect2()  const { return  _tensorDirect2; }
   const VectorDouble&          getRadius()         const { return  _radius; }
+  double getAngle(int i)         const { return  getAngles()[i]; }
+  double getRadius(int i)         const { return  _radius[i]; }
   const Rotation&              getRotation()       const { return  _rotation; }
   const MatrixSquare&   getMatrixDirect()   const { return  _rotation.getMatrixDirect(); }
   const MatrixSquare&   getMatrixInverse()  const { return  _rotation.getMatrixInverse(); }

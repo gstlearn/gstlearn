@@ -131,7 +131,6 @@ ACovFunc* CovFactory::duplicateCovFunc(const ACovFunc& cov)
     default: break;
   }
   my_throw ("Covariance function not yet implemented!");
-  return nullptr;
 }
 
 /**

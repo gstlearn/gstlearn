@@ -4,8 +4,8 @@ endif()
 
 find_package(Python3 REQUIRED)  # Trouver Python3
 
-set(PYTHON_SCRIPT  ${PROJECT_SOURCE_DIR}/swig/classanalysis.py)
-set(PYTHON_SCRIPT2 ${PROJECT_SOURCE_DIR}/swig/toString.py)
+set(PYTHON_SCRIPT  ${PROJECT_SOURCE_DIR}/tools/scripts/classanalysis.py)
+set(PYTHON_SCRIPT2 ${PROJECT_SOURCE_DIR}/tools/scripts/toString.py)
 
 set(FILE_TO_READ ${PROJECT_SOURCE_DIR}/swig/swig_exp.i)
 

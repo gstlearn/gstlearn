@@ -11,7 +11,6 @@ import gstlearn as gl
 import gstlearn.plot as gp
 import gstlearn.test as gt
 
-
 # We use the data coming from Fisher (1936) and called *iris*
 
 X, y = iris_data()

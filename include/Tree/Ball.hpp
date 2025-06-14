@@ -101,8 +101,8 @@ private:
   bool _master;
 };
 
-GSTLEARN_EXPORT MatrixT<int> findNN(Db* dbin,
-                                    Db* dbout                               = nullptr,
+GSTLEARN_EXPORT MatrixT<int> findNN(const Db* dbin,
+                                    const Db* dbout                               = nullptr,
                                     int nb_neigh                            = 3,
                                     bool flagShuffle                        = false,
                                     bool verbose                            = false,

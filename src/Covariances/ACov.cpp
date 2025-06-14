@@ -2456,3 +2456,4 @@ void ACov::setContext(const CovContext& ctxt)
   _ctxt = ctxt;
   _setContext(ctxt);
 }
+

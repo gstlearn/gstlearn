@@ -58,7 +58,7 @@ public:
     }
   }
 
-  // Specialization for rank-1 matrces A = bc^T
+  // Specialization for rank-1 matrices A = bc^T
   MatchPattern(
     const typename Eigen::Matrix<T, 1, Eigen::Dynamic>& b,
     const typename Eigen::Matrix<T, 1, Eigen::Dynamic>& c,
@@ -105,7 +105,7 @@ public:
 template<typename SpChol, typename SpMat>
 typename SpChol::MatrixType partial_inverse(
   const SpChol& llt,
-  const SpMat& Q)
+  const SpMat& pattern)
 {
   typedef typename SpMat::ReverseInnerIterator reverse_it;
   StorageIndex ncols = llt.cols();
@@ -164,5 +164,5 @@ typename SpChol::MatrixType partial_inverse(
 
   // Return the non-zero elements of Qinv corresponding to the non-zero
   // elements of Q
-  return MatchPattern(Qinv, Q)();
+  return MatchPattern(Qinv, pattern)();
 }

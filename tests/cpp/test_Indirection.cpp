@@ -34,7 +34,6 @@ int main(int argc, char *argv[])
 
   DbStringFormat dbfmt(FLAG_STATS);
 
-  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Indirect-");
 
   // Creating the small Grid Db

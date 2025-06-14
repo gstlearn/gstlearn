@@ -159,11 +159,11 @@ private:
   Indirection _gridIndirect;
 
   /// factor allocations
-  mutable std::vector<int> indg;
-  mutable std::vector<int> indices;
-  mutable std::vector<double> lambdas;
-  mutable std::vector<double> rhs;
-  mutable std::vector<int> indgg;
+  mutable std::vector<int> _indg;
+  mutable std::vector<int> _indices;
+  mutable std::vector<double> _lambdas;
+  mutable std::vector<double> _rhs;
+  mutable std::vector<int> _indgg;
 };
 
 GSTLEARN_EXPORT bool isTurbo(const VectorMeshes& meshes);

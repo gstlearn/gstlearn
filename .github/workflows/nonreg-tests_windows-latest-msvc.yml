@@ -22,7 +22,9 @@ env:
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
   CMAKE_GENERATOR : Ninja
-  PYTHON_VERSION : "3.13"
+  PYTHON_VERSION : "3.13.3"
+  GSTLEARN_OUTPUT_DIR: ${{ github.workspace }}\build\gstlearn_dir
+  CMAKE_TOOLCHAIN_FILE : C:\vcpkg\scripts\buildsystems\vcpkg.cmake
 
 jobs:
 
@@ -32,17 +34,34 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup pixi
-      uses: prefix-dev/setup-pixi@v0.8.2
-      with:
-        run-install: false
-
     - name: Install dependencies
       run: |
-        pixi init
-        pixi add python==${{env.PYTHON_VERSION}}
-        pixi add pip numpy pandas scipy mlxtend
-        pixi add libboost-devel eigen ninja hdf5 nlopt
+        echo '{
+          "dependencies": [ "boost-math", "eigen3" ],
+          "builtin-baseline": "d5ec528843d29e3a52d745a64b469f810b2cedbf"
+        }' > vcpkg.json
+        vcpkg install
+
+    - name: Build & install nlopt static libraries
+      uses: ./.github/actions/nlopt_static_windows
+      env:
+        CMAKE_GENERATOR: "Visual Studio 17 2022"
+
+    - name: Build & install HDF5 static libraries
+      uses: ./.github/actions/hdf5_static_windows
+      env:
+        CMAKE_GENERATOR: "Visual Studio 17 2022"
+
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        python-version: ${{env.PYTHON_VERSION}}
+        activate-environment: true
+
+    - name: Install python dependencies
+      run: |
+        uv pip install numpy
+        uv pip install pandas scipy mlxtend
 
     - name: Run sccache-cache
       uses: mozilla-actions/sccache-action@v0.0.9
@@ -52,8 +71,9 @@ jobs:
 
     - name: Configure build directory
       run: |
-        pixi run cmake `
+        cmake `
           -B${{ env.BUILD_DIR }} `
+          -DHDF5_USE_STATIC_LIBRARIES=ON `
           -DBUILD_TESTING=ON `
           -DBUILD_PYTHON=ON
       env:
@@ -67,7 +87,7 @@ jobs:
 
     - name: Install packages and execute non-regression tests
       run: |
-        pixi run cmake --build ${{env.BUILD_DIR}} --target check
+        cmake --build ${{env.BUILD_DIR}} --target check
 
     - name: Compress output logs and neutral files
       if: success() || failure()
@@ -79,7 +99,7 @@ jobs:
         {
             Compress-Archive -Update $filename .\msvc-logs.zip
         }
-        cd $HOME/gstlearn_dir
+        cd ${{ env.GSTLEARN_OUTPUT_DIR }}
         Get-ChildItem -Recurse -Filter '*.*' | Select-Object -ExpandProperty Fullname | Resolve-Path -Relative > neutral.txt
         foreach ($filename in Get-Content .\neutral.txt)
         {

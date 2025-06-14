@@ -34,7 +34,6 @@ int main(int argc, char *argv[])
 
   DbStringFormat dbfmt(FLAG_STATS);
 
-  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("TestLimits-");
   int seed = 10355;
   law_set_random_seed(seed);

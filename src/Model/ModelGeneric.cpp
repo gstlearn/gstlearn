@@ -9,36 +9,40 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Model/ModelGeneric.hpp"
+#include "Basic/AStringable.hpp"
+#include "Basic/ListParams.hpp"
+#include "Estimation/AModelOptimNew.hpp"
+#include "Model/AModelFitSills.hpp"
 #include "Model/Model.hpp"
+#include "Model/ModelOptimVario.hpp"
+#include "Model/ModelOptimVMap.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
-#include "Matrix/MatrixFactory.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "Db/Db.hpp"
-#include "Basic/VectorHelper.hpp"
+#include "Estimation/AModelOptimFactory.hpp"
 #include "Drifts/DriftFactory.hpp"
+#include "geoslib_define.h"
 
-ModelGeneric::ModelGeneric(const CovContext &ctxt)
-    : _cova(nullptr),
-      _driftList(nullptr),
-      _ctxt(ctxt)
+ModelGeneric::ModelGeneric(const CovContext& ctxt)
+  : _cova(nullptr)
+  , _driftList(nullptr)
+  , _ctxt(ctxt)
 {
-  _driftList = new DriftList(_ctxt);
 }
 
 ModelGeneric::ModelGeneric(const ModelGeneric& r)
 {
-  if (r._cova != nullptr) _cova = (ACov*)r._cova->clone();
-  if (r._driftList != nullptr) _driftList = r._driftList->clone();
-
-  _ctxt = r._ctxt;
+  _cova      = (r._cova != nullptr) ? (ACov*)r._cova->clone() : nullptr;
+  _driftList = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
+  _ctxt      = r._ctxt;
 }
 
 ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
 {
   if (this != &r)
   {
-    _cova      = (ACov*)r._cova->clone();
-    _driftList = r._driftList->clone();
+    _cova      = (r._cova != nullptr) ? (ACov*)r._cova->clone() : nullptr;
+    _driftList = (r._driftList != nullptr) ? r._driftList->clone() : nullptr;
     _ctxt      = r._ctxt;
   }
   return *this;
@@ -47,7 +51,9 @@ ModelGeneric& ModelGeneric::operator=(const ModelGeneric& r)
 ModelGeneric::~ModelGeneric()
 {
   delete _cova;
+  _cova = nullptr;
   delete _driftList;
+  _driftList = nullptr;
 }
 
 void ModelGeneric::setField(double field)
@@ -80,116 +86,9 @@ bool ModelGeneric::_isValid() const
  */
 double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
 {
-  int nvar = db->getNLoc(ELoc::Z);
-  if (nvar < 1)
-  {
-    messerr("The 'db' should have at least one variable defined");
-    return TEST;
-  }
-  int nDrift = getNDriftEquation();
- 
-  // Calculate the covariance matrix C and perform its Cholesky decomposition
-  MatrixSymmetric cov = evalCovMatSym(db);
-  CholeskyDense covChol(&cov);
-  if (! covChol.isReady())
-  {
-    messerr("Cholesky decomposition of Covariance matrix failed");
-    return TEST;
-  }
-
-  // Establish the vector of multivariate data
-  VectorDouble Z;
-  if (nDrift > 0)
-    Z = db->getColumnsByLocator(ELoc::Z, true, true);
-  else
-    Z = db->getColumnsByLocator(ELoc::Z, true, true, getMeans());
-
-  int size = (int)Z.size();
-  if (verbose)
-  {
-    message("Likelihood calculation:\n");
-    message("- Number of active samples     = %d\n", db->getNSample(true));
-    message("- Number of variables          = %d\n", nvar);
-    message("- Length of Information Vector = %d\n", size);
-    if (nDrift > 0)
-      message("- Number of drift conditions = %d\n", getNDriftEquation());
-    else
-      VH::dump("Constant Mean(s)", getMeans());
-  }
-
-  // If Drift functions are present, evaluate the optimal Drift coefficients
-  if (nDrift > 0)
-  {
-    // Extract the matrix of drifts at samples X
-    MatrixDense X = evalDriftMat(db);
-
-    // Calculate Cm1X = Cm1 * X
-    MatrixDense Cm1X;
-    if (covChol.solveMatrix(X, Cm1X))
-    {
-      messerr("Problem when solving a Linear System after Cholesky decomposition");
-      return TEST;
-    }
-
-    // Calculate XtCm1X = Xt * Cm1 * X
-    MatrixSymmetric* XtCm1X =
-      MatrixFactory::prodMatMat<MatrixSymmetric>(&X, &Cm1X, true, false);
-   
-    // Construct ZtCm1X = Zt * Cm1 * X and perform its Cholesky decomposition
-    VectorDouble ZtCm1X = Cm1X.prodVecMat(Z);
-    CholeskyDense XtCm1XChol(XtCm1X);
-    if (! XtCm1XChol.isReady())
-    {
-      messerr("Cholesky decomposition of XtCm1X matrix failed");
-      delete XtCm1X;
-      return TEST;
-    }
-
-    // Calculate beta = (XtCm1X)-1 * ZtCm1X
-    VectorDouble beta(nDrift);
-    if (XtCm1XChol.solve(ZtCm1X, beta))
-    {
-      messerr("Error when calculating Likelihood");
-      delete XtCm1X;
-      return TEST;
-    }
-    setBetaHat(beta);
-    delete XtCm1X;
-
-    if (verbose)
-    {
-      VH::dump("Optimal Drift coefficients = ", beta);
-    }
-
-    // Center the data by the optimal drift: Z = Z - beta * X
-    VH::subtractInPlace(Z, X.prodMatVec(beta));
-  }
-
-   // Calculate Cm1Z = Cm1 * Z
-  VectorDouble Cm1Z(Z.size());
-  if (covChol.solve(Z, Cm1Z))
-  {
-    messerr("Error when calculating Cm1Z");
-    return TEST;
-  }
-
-  // Calculate the log-determinant
-  double logdet = covChol.computeLogDeterminant();
-
-  // Calculate quad = Zt * Cm1Z
-  double quad = VH::innerProduct(Z, Cm1Z);
-
-  // Derive the log-likelihood
-  double loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
-
-  // Optional printout
-  if (verbose)
-  {
-    message("Log-Determinant = %lf\n", logdet);
-    message("Quadratic term = %lf\n", quad);
-    message("Log-likelihood = %lf\n", loglike);
-  }
-  return loglike;
+  auto* like = Likelihood::createForOptim(this, db);
+  like->init(verbose);
+  return like->computeCost();
 }
 
 /**
@@ -410,4 +309,101 @@ int computeDriftMatSVCRHSInPlace(MatrixDense& mat,
     }
   }
   return 0;
+}
+
+std::shared_ptr<ListParams> ModelGeneric::generateListParams() const
+{
+  auto listParams = std::make_shared<ListParams>();
+
+  // Add Covariance parameters
+  if (_cova != nullptr)
+  {
+    _cova->appendParams(*listParams);
+  }
+
+  // Add Drift parameters
+  if (_driftList != nullptr)
+  {
+    _driftList->appendParams(*listParams);
+  }
+
+  return listParams;
+}
+
+void ModelGeneric::updateModel()
+{
+  // Update the Covariance
+  if (_cova != nullptr)
+  {
+    _cova->updateCov();
+  }
+
+  // Update the DriftList
+  if (_driftList != nullptr)
+  {
+    _driftList->updateDriftList();
+  }
+}
+
+void ModelGeneric::initParams()
+{
+  // Initialize the parameters in the Covariance
+  if (_cova != nullptr)
+  {
+    _cova->initParams();
+  }
+
+  // Initialize the parameters in the DriftList
+  if (_driftList != nullptr)
+  {
+    _driftList->initParams();
+  }
+}
+
+void ModelGeneric::fitNew(const Db* db,
+                          Vario* vario,
+                          const DbGrid* dbmap,
+                          Constraints* constraints,
+                          const ModelOptimParam& mop,
+                          int nb_neighVecchia,
+                          bool verbose)
+{
+  AModelOptimNew* amopt = AModelOptimFactory::create(this, db, vario, dbmap, 
+                                                     constraints, mop, 
+                                                     nb_neighVecchia);
+  amopt->setVerbose(verbose);
+  amopt->resetIter();
+  amopt->run();
+  delete amopt;
+
+  // Cancel the structure possibly used for Goulard (to be improved)
+  ModelCovList* mcv = dynamic_cast<ModelCovList*>(this);
+  if (mcv != nullptr)
+  {
+    delete mcv->_modelFitSills;
+    mcv->_modelFitSills = nullptr;
+  }
+}
+
+double ModelGeneric::evalGradParam(int iparam, SpacePoint& p1, SpacePoint& p2, int ivar, int jvar)
+{
+
+  double eps = EPSILON4;
+  auto params = generateListParams();
+  double valcur = params->getValue(iparam);
+  params->setValue(iparam, valcur + eps);
+  updateModel();
+  double valplus = evalCov(p1, p2, ivar, jvar);
+  if (valplus == TEST)
+  {
+    return TEST;
+  }
+  params->setValue(iparam, valcur - eps);
+  updateModel();
+  double valminus = evalCov(p1, p2, ivar, jvar);
+  if (valminus == TEST)
+  {
+    return TEST;
+  }
+  return  ( valplus - valminus ) / (2. * eps);
 }

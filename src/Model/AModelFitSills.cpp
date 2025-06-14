@@ -8,78 +8,129 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Model/AModelOptimSills.hpp"
+#include "Model/AModelFitSills.hpp"
 
 #include "Basic/MathFunc.hpp"
 #include "Covariances/CovAniso.hpp"
 
-#include "Model/Model.hpp"
-#include "Variogram/Vario.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
+#include "Model/ModelCovList.hpp"
 #include "Model/Constraints.hpp"
-
 
 #define IJDIR(ijvar, ipadir) ((ijvar) * _npadir + (ipadir))
 #define WT(ijvar, ipadir)       wt[IJDIR(ijvar, ipadir)]
 #define GG(ijvar, ipadir)       gg[IJDIR(ijvar, ipadir)]
-#define _WT(ijvar, ipadir)       _wt[IJDIR(ijvar, ipadir)]
-#define _GG(ijvar, ipadir)       _gg[IJDIR(ijvar, ipadir)]
-#define _WT2(ijvar, ipadir) _wt2[IJDIR(ijvar, ipadir)]
-#define _GG2(ijvar, ipadir)      _gg2[IJDIR(ijvar, ipadir)]
+#define _WT(ijvar, ipadir)      _wt[IJDIR(ijvar, ipadir)]
+#define _GG(ijvar, ipadir)      _gg[IJDIR(ijvar, ipadir)]
+#define _WT2(ijvar, ipadir)     _wt2[IJDIR(ijvar, ipadir)]
+#define _GG2(ijvar, ipadir)     _gg2[IJDIR(ijvar, ipadir)]
 #define TAB(ijvar, ipadir)      tabin[IJDIR(ijvar, ipadir)]
 #define DD(idim, ijvar, ipadir) _dd[idim][IJDIR(ijvar, ipadir)]
 
-#define CORRECT(idir, k)                                                       \
-  (!isZero(vario->getHhByIndex(idir, k)) &&                                    \
-   !FFFF(vario->getHhByIndex(idir, k)) &&                                      \
-   !isZero(vario->getSwByIndex(idir, k)) &&                                    \
-   !FFFF(vario->getSwByIndex(idir, k)) && !FFFF(vario->getGgByIndex(idir, k)))
-#define INCORRECT(idir, k)                                                     \
-  (isZero(vario->getHhByIndex(idir, k)) ||                                     \
-   FFFF(vario->getHhByIndex(idir, k)) ||                                       \
-   isZero(vario->getSwByIndex(idir, k)) ||                                     \
-   FFFF(vario->getSwByIndex(idir, k)) || FFFF(vario->getGgByIndex(idir, k)))
-
-AModelOptimSills::AModelOptimSills(Model* model,
-                                 Constraints* constraints,
-                                 const Option_AutoFit& mauto,
-                                 const Option_VarioFit& optvar)
-  : AModelOptim(model, constraints, mauto, optvar)
+AModelFitSills::AModelFitSills(ModelCovList* model,
+                               const Constraints* constraints,
+                               const ModelOptimParam& mop)
+  : _ndim(0)
+  , _nvar(0)
+  , _nvs2(0)
+  , _ncova(0)
+  , _nbexp(0)
+  , _npadir(0)
+  , _wt()
+  , _gg()
+  , _ggc()
+  , _wtc()
+  , _wt2()
+  , _gg2()
+  , _dd()
+  , _ge()
+  , _ge1()
+  , _ge2()
+  , _alphau()
+  , _sill1()
+  , _sill()
+  , _model(model)
+  , _constraints(constraints)
+  , _mop(mop)
+  , _calcmode()
 {
 }
 
-AModelOptimSills::AModelOptimSills(const AModelOptimSills& m)
-  : AModelOptim(m)
+AModelFitSills::AModelFitSills(const AModelFitSills& m)
+  : _ndim(m._ndim)
+  , _nvar(m._nvar)
+  , _nvs2(m._nvs2)
+  , _ncova(m._ncova)
+  , _nbexp(m._nbexp)
+  , _npadir(m._npadir)
+  , _wt(m._wt)
+  , _gg(m._gg)
+  , _ggc(m._ggc)
+  , _wtc(m._wtc)
+  , _wt2(m._wt2)
+  , _gg2(m._gg2)
+  , _dd(m._dd)
+  , _ge(m._ge)
+  , _ge1(m._ge1)
+  , _ge2(m._ge2)
+  , _alphau(m._alphau)
+  , _sill1(m._sill1)
+  , _sill(m._sill)
+  , _model(m._model)
+  , _constraints(m._constraints)
+  , _mop(m._mop)
+  , _calcmode(m._calcmode)
 {
 }
 
-AModelOptimSills& AModelOptimSills::operator=(const AModelOptimSills& m)
+AModelFitSills& AModelFitSills::operator=(const AModelFitSills& m)
 {
   if (this != &m)
   {
-    AModelOptim::operator=(m);
+    _ndim        = m._ndim;
+    _nvar        = m._nvar;
+    _nvs2        = m._nvs2;
+    _ncova       = m._ncova;
+    _nbexp       = m._nbexp;
+    _npadir      = m._npadir;
+    _wt          = m._wt;
+    _gg          = m._gg;
+    _ggc         = m._ggc;
+    _wtc         = m._wtc;
+    _wt2         = m._wt2;
+    _gg2         = m._gg2;
+    _dd          = m._dd;
+    _ge          = m._ge;
+    _ge1         = m._ge1;
+    _ge2         = m._ge2;
+    _alphau      = m._alphau;
+    _sill1       = m._sill1;
+    _sill        = m._sill;
+    _model       = m._model;
+    _constraints = m._constraints;
+    _mop         = m._mop;
+    _calcmode    = m._calcmode;
   }
   return (*this);
 }
 
-AModelOptimSills::~AModelOptimSills()
+AModelFitSills::~AModelFitSills()
 {
 }
 
-void AModelOptimSills::_storeSillsInModel() const
+void AModelFitSills::_storeSillsInModel() const
 {
   for (int icov = 0; icov < _ncova; icov++)
   {
     int ijvar = 0;
     for (int ivar = ijvar = 0; ivar < _nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-        _setSill(icov, ivar, jvar, _sill[icov].getValue(ivar, jvar));
+        _model->setSill(icov, ivar, jvar, _sill[icov].getValue(ivar, jvar));
   }
 }
 
-void AModelOptimSills::_resetSill(int ncova, std::vector<MatrixSymmetric>& sill) const
+void AModelFitSills::_resetInitialSill(std::vector<MatrixSymmetric>& sill) const
 {
+  int ncova = (int) sill.size();
   for (int icova = 0; icova < ncova; icova++)
   {
     for (int ivar = 0; ivar < _nvar; ivar++)
@@ -97,15 +148,13 @@ void AModelOptimSills::_resetSill(int ncova, std::vector<MatrixSymmetric>& sill)
  ** \param[in]  flag_exp  1 for experimental variogram
  **
  *****************************************************************************/
-void AModelOptimSills::_allocateInternalArrays(bool flag_exp)
+void AModelFitSills::_allocateInternalArrays(bool flag_exp)
 {
-  int nvs2 = _nvar * (_nvar + 1) / 2;
-
-  _wt.fill(TEST, _npadir * nvs2);
-  _gg.fill(TEST, _npadir * nvs2);
+  _wt.fill(TEST, _npadir * _nvs2);
+  _gg.fill(TEST, _npadir * _nvs2);
   _ge.clear();
   for (int icova = 0; icova < _ncova; icova++)
-    _ge.push_back(MatrixDense(nvs2, _npadir));
+    _ge.push_back(MatrixDense(_nvs2, _npadir));
   _sill.clear();
   for (int icova = 0; icova < _ncova; icova++)
     _sill.push_back(MatrixSymmetric(_nvar));
@@ -116,25 +165,25 @@ void AModelOptimSills::_allocateInternalArrays(bool flag_exp)
     _ggc.fill(TEST, _nbexp);
     _dd.clear();
     for (int idim = 0; idim < _ndim; idim++)
-      _dd.push_back(VectorDouble(_npadir * nvs2, TEST));
+      _dd.push_back(VectorDouble(_npadir * _nvs2, TEST));
   }
 
-  if (_modelPart._optvar.getFlagIntrinsic())
+  if (_mop.getFlagIntrinsic())
   {
     _alphau.clear();
     for (int icova = 0; icova < _ncova; icova++)
       _alphau.push_back(MatrixSymmetric(1));
     _ge1.clear();
-    _ge1.push_back(MatrixDense(nvs2, _npadir));
+    _ge1.push_back(MatrixDense(_nvs2, _npadir));
     _ge2.clear();
     for (int icova = 0; icova < _ncova; icova++)
-      _ge2.push_back(MatrixDense(nvs2, _npadir));
-    _wt2.fill(TEST, nvs2 * _npadir);
-    _gg2.fill(TEST, nvs2 * _npadir);
+      _ge2.push_back(MatrixDense(_nvs2, _npadir));
+    _wt2.fill(TEST, _nvs2 * _npadir);
+    _gg2.fill(TEST, _nvs2 * _npadir);
   }
 }
 
-int AModelOptimSills::_goulardWithConstraints(double *crit_arg)
+int AModelFitSills::_goulardWithConstraints(double *crit_arg)
 {
   double crit = 0.;
   VectorDouble consSill = _constraints->getConstantSills();
@@ -182,7 +231,7 @@ int AModelOptimSills::_goulardWithConstraints(double *crit_arg)
  **  Initialize the system for Goulard algorithm
  **
  *****************************************************************************/
-void AModelOptimSills::_initializeGoulard()
+void AModelFitSills::_initializeGoulard()
 {
   MatrixSymmetric aa(_ncova);
   VectorDouble bb(_ncova);
@@ -272,7 +321,7 @@ void AModelOptimSills::_initializeGoulard()
  ** \param[in]      eps      Tolerance
  **
  *****************************************************************************/
-int AModelOptimSills::_makeDefinitePositive(int icov0, double eps)
+int AModelFitSills::_makeDefinitePositive(int icov0, double eps)
 {
   VectorDouble muold(_nvar);
   VectorDouble norme1(_nvar);
@@ -307,7 +356,7 @@ int AModelOptimSills::_makeDefinitePositive(int icov0, double eps)
   return flag_positive;
 }
 
-void AModelOptimSills::_optimizeUnderConstraints(double* score)
+void AModelFitSills::_optimizeUnderConstraints(double* score)
 {
   double score_old, xrmax;
 
@@ -341,7 +390,7 @@ void AModelOptimSills::_optimizeUnderConstraints(double* score)
       xr[ivar] = sqrt(consSill[ivar] / _sumSills(ivar, alpha));
   }
 
-  for (iter = 0; iter < _mauto.getMaxiter(); iter++)
+  for (iter = 0; iter < _mop.getMaxiter(); iter++)
   {
     for (int icov0 = 0; icov0 < _ncova; icov0++)
     {
@@ -401,7 +450,7 @@ void AModelOptimSills::_optimizeUnderConstraints(double* score)
 
     score_old = score_new;
     score_new = _score();
-    if (_convergenceReached(_mauto, score_new, score_old)) break;
+    if (_convergenceReached(score_new, score_old)) break;
   }
 
   /* Optional printout */
@@ -409,7 +458,7 @@ void AModelOptimSills::_optimizeUnderConstraints(double* score)
   *score = score_new;
 }
 
-int AModelOptimSills::_truncateNegativeEigen(int icov0)
+int AModelFitSills::_truncateNegativeEigen(int icov0)
 {
   MatrixSymmetric cc(_nvar);
   for (int ivar = 0; ivar < _nvar; ivar++)
@@ -418,7 +467,7 @@ int AModelOptimSills::_truncateNegativeEigen(int icov0)
 
   if (cc.computeEigen()) messageAbort("st_truncate_negative_eigen");
 
-  VectorDouble valpro               = cc.getEigenValues();
+  VectorDouble valpro        = cc.getEigenValues();
   const MatrixSquare* vecpro = cc.getEigenVectors();
 
   /* Check positiveness */
@@ -443,7 +492,7 @@ int AModelOptimSills::_truncateNegativeEigen(int icov0)
   return flag_positive;
 }
 
-double AModelOptimSills::_score()
+double AModelFitSills::_score()
 {
   double score = 0.;
   int ijvar    = 0;
@@ -464,8 +513,8 @@ double AModelOptimSills::_score()
   return (score);
 }
 
-double AModelOptimSills::_sumSills(int ivar0,
-                                  std::vector<MatrixSymmetric>& alpha) const
+double AModelFitSills::_sumSills(int ivar0,
+                                 std::vector<MatrixSymmetric>& alpha) const
 {
   double Sr = 0;
   for (int icov = 0; icov < _ncova; icov++)
@@ -486,7 +535,7 @@ double AModelOptimSills::_sumSills(int ivar0,
  ** \param[in] alpha    Current auxiliary matrices alpha
  **
  *****************************************************************************/
-double AModelOptimSills::_minimizeP4(int icov0,
+double AModelFitSills::_minimizeP4(int icov0,
                                     int ivar0,
                                     double xrmax,
                                     VectorDouble& xr,
@@ -636,7 +685,7 @@ double AModelOptimSills::_minimizeP4(int icov0,
   return retval;
 }
 
-void AModelOptimSills::_updateAlphaDiag(int icov0,
+void AModelFitSills::_updateAlphaDiag(int icov0,
                                        int ivar0,
                                        VectorDouble& xr,
                                        std::vector<MatrixSymmetric>& alpha)
@@ -647,7 +696,7 @@ void AModelOptimSills::_updateAlphaDiag(int icov0,
   alpha[icov0].setValue(ivar0, ivar0, MAX(0., value));
 }
 
-void AModelOptimSills::_updateOtherSills(int icov0,
+void AModelFitSills::_updateOtherSills(int icov0,
                                         int ivar0,
                                         std::vector<MatrixSymmetric>& alpha,
                                         VectorDouble& xr)
@@ -664,7 +713,7 @@ void AModelOptimSills::_updateOtherSills(int icov0,
   }
 }
 
-void AModelOptimSills::_updateCurrentSillGoulard(int icov0, int ivar0)
+void AModelFitSills::_updateCurrentSillGoulard(int icov0, int ivar0)
 {
   VectorDouble mv(_npadir);
   VectorDouble consSill = _constraints->getConstantSills();
@@ -708,7 +757,7 @@ void AModelOptimSills::_updateCurrentSillGoulard(int icov0, int ivar0)
   }
 }
 
-void AModelOptimSills::_updateCurrentSillDiag(int icov0,
+void AModelFitSills::_updateCurrentSillDiag(int icov0,
                                              int ivar0,
                                              std::vector<MatrixSymmetric>& alpha,
                                              VectorDouble& xr)
@@ -718,7 +767,7 @@ void AModelOptimSills::_updateCurrentSillDiag(int icov0,
   _sill[icov0].setValue(ivar0, ivar0, value);
 }
 
-void AModelOptimSills::_updateAlphaNoDiag(int icov0,
+void AModelFitSills::_updateAlphaNoDiag(int icov0,
                                          int ivar0,
                                          VectorDouble& xr,
                                          std::vector<MatrixSymmetric>& alpha)
@@ -732,24 +781,21 @@ void AModelOptimSills::_updateAlphaNoDiag(int icov0,
   }
 }
 
-int AModelOptimSills::_combineVariables(int ivar0, int jvar0)
+int AModelFitSills::_combineVariables(int ivar0, int jvar0)
 {
   if (ivar0 > jvar0) return (ivar0 + jvar0 * (jvar0 + 1) / 2);
   return (jvar0 + ivar0 * (ivar0 + 1) / 2);
 }
 
-int AModelOptimSills::_sillFittingIntrinsic(double *crit_arg)
+int AModelFitSills::_sillFittingIntrinsic(double* crit_arg)
 {
-  int nvs2 = _nvar * (_nvar + 1) / 2;
-  double crit = 0.;
+  double crit     = 0.;
   double crit_mem = 1.e30;
   for (int icov = 0; icov < _ncova; icov++) _alphau[icov] = 1. / (double)_ncova;
 
   /* Iterative procedure */
 
-  Option_AutoFit mauto_new(_mauto);
-  mauto_new.setMaxiter(1);
-  for (int iter = 0; iter < _mauto.getMaxiter(); iter++)
+  for (int iter = 0; iter < _mop.getMaxiter(); iter++)
   {
 
     /* Initialize the arrays for the first pass */
@@ -771,8 +817,8 @@ int AModelOptimSills::_sillFittingIntrinsic(double *crit_arg)
 
     /* Call Goulard with 1 structure (no constraint) */
 
-    _resetSill(1, _sill1);
-    if (_goulardWithoutConstraint(mauto_new, _nvar, 1, _npadir, _wt, _gg, _ge1,
+    _resetInitialSill(_sill1);
+    if (_goulardWithoutConstraint(1, _nvar, 1, _npadir, _wt, _gg, _ge1,
                                   _sill1, &crit)) return 1;
 
     /* Initialize the arrays for the second pass */
@@ -793,12 +839,12 @@ int AModelOptimSills::_sillFittingIntrinsic(double *crit_arg)
 
     /* Call Goulard with 1 variable (no constraint) */
 
-    if (_goulardWithoutConstraint(mauto_new, 1, _ncova, _npadir * nvs2, _wt2,
+    if (_goulardWithoutConstraint(1, 1, _ncova, _npadir * _nvs2, _wt2,
                                   _gg2, _ge2, _alphau, &crit)) return 1;
 
     /* Stopping criterion */
 
-    if (_convergenceReached(_mauto, crit, crit_mem)) break;
+    if (_convergenceReached(crit, crit_mem)) break;
     crit_mem = crit;
   }
 
@@ -811,8 +857,8 @@ int AModelOptimSills::_sillFittingIntrinsic(double *crit_arg)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
         double newval = _alphau[icov].getValue(0, 0) * _sill1[0].getValue(ivar, jvar);
-        _setSill(icov, ivar, jvar, newval);
-        _setSill(icov, jvar, ivar, newval);
+        _model->setSill(icov, ivar, jvar, newval);
+        _model->setSill(icov, jvar, ivar, newval);
       }
   }
 
@@ -820,16 +866,15 @@ int AModelOptimSills::_sillFittingIntrinsic(double *crit_arg)
   return 0;
 }
 
-int AModelOptimSills::_goulardWithoutConstraint(
-  const Option_AutoFit& mauto,
-  int nvar,
-  int ncova,
-  int npadir,
-  VectorDouble& wt,
-  VectorDouble& gg,
-  std::vector<MatrixDense>& ge,
-  std::vector<MatrixSymmetric>& sill,
-  double* crit_arg) const
+int AModelFitSills::_goulardWithoutConstraint(int niter,
+                                              int nvar,
+                                              int ncova,
+                                              int npadir,
+                                              VectorDouble& wt,
+                                              VectorDouble& gg,
+                                              std::vector<MatrixDense>& ge,
+                                              std::vector<MatrixSymmetric>& sill,
+                                              double* crit_arg) const
 {
   int allpos;
   double temp, crit, crit_mem, value;
@@ -840,18 +885,18 @@ int AModelOptimSills::_goulardWithoutConstraint(
   /* Initializations */
   /*******************/
 
-  double sum  = 0.;
-  double sum1 = 0.;
-  double sum2 = 0.;
-  int nvs2    = nvar * (nvar + 1) / 2;
+  double sum    = 0.;
+  double sum1   = 0.;
+  double sum2   = 0.;
+  int nvs2Local = nvar * (nvar + 1) / 2;
 
   /* Core allocation */
 
-  MatrixDense mp(nvs2, npadir);
+  MatrixDense mp(nvs2Local, npadir);
   std::vector<MatrixDense> fk;
   fk.reserve(ncova);
   for (int icova = 0; icova < ncova; icova++)
-    fk.push_back(MatrixDense(nvs2, npadir));
+    fk.push_back(MatrixDense(nvs2Local, npadir));
   MatrixSymmetric cc(nvar);
 
   std::vector<MatrixSymmetric> aic;
@@ -867,8 +912,7 @@ int AModelOptimSills::_goulardWithoutConstraint(
   /* Pre-calculations */
   /********************/
 
-  int ijvar = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (int ivar = 0, ijvar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       for (int ipadir = 0; ipadir < npadir; ipadir++)
       {
@@ -881,9 +925,7 @@ int AModelOptimSills::_goulardWithoutConstraint(
       }
 
   for (int icov = 0; icov < ncova; icov++)
-  {
-    ijvar = 0;
-    for (int ivar = 0; ivar < nvar; ivar++)
+    for (int ivar = 0, ijvar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
         sum1 = sum2 = 0;
@@ -897,14 +939,11 @@ int AModelOptimSills::_goulardWithoutConstraint(
           sum2 += temp * ge[icov].getValue(ijvar, ipadir);
         }
         alphak[icov].setValue(ivar, jvar, 1. / sum2);
-        aic[icov].setValue(ivar, jvar,
-                           sum1 * alphak[icov].getValue(ivar, jvar));
+        aic[icov].setValue(ivar, jvar, sum1 / sum2);
       }
-  }
 
-  crit  = 0.;
-  ijvar = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  crit = 0.;
+  for (int ivar = 0, ijvar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       for (int ipadir = 0; ipadir < npadir; ipadir++)
       {
@@ -918,8 +957,7 @@ int AModelOptimSills::_goulardWithoutConstraint(
   /* Iterative procedure */
   /***********************/
 
-  int iter;
-  for (iter = 0; iter < mauto.getMaxiter(); iter++)
+  for (int iter = 0; iter < niter; iter++)
   {
 
     /* Loop on the elementary structures */
@@ -929,9 +967,7 @@ int AModelOptimSills::_goulardWithoutConstraint(
 
       /* Establish the coregionalization matrix */
 
-      ijvar = 0;
-      for (int ivar = 0; ivar < nvar; ivar++)
-      {
+      for (int ivar = 0, ijvar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
           sum = 0;
@@ -941,15 +977,14 @@ int AModelOptimSills::_goulardWithoutConstraint(
                         mp.getValue(ijvar, ipadir) -
                           sill[icov].getValue(ivar, jvar) *
                             ge[icov].getValue(ijvar, ipadir));
-            sum +=
-              fk[icov].getValue(ijvar, ipadir) * mp.getValue(ijvar, ipadir);
+            sum += fk[icov].getValue(ijvar, ipadir) * mp.getValue(ijvar, ipadir);
           }
           value = aic[icov].getValue(ivar, jvar) -
                   alphak[icov].getValue(ivar, jvar) * sum;
           cc.setValue(ivar, jvar, value);
           cc.setValue(jvar, ivar, value);
         }
-      }
+
       /* Computing and sorting the eigen values and eigen vectors */
 
       if (cc.computeEigen()) return 1;
@@ -965,9 +1000,7 @@ int AModelOptimSills::_goulardWithoutConstraint(
 
       /* Calculate the new coregionalization matrix */
 
-      ijvar = 0;
-      for (int ivar = 0; ivar < nvar; ivar++)
-      {
+      for (int ivar = 0, ijvar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
           if (allpos)
@@ -988,7 +1021,6 @@ int AModelOptimSills::_goulardWithoutConstraint(
                           sill[icov].getValue(ivar, jvar) *
                             ge[icov].getValue(ijvar, ipadir));
         }
-      }
     }
 
     /* Update the global criterion */
@@ -996,9 +1028,7 @@ int AModelOptimSills::_goulardWithoutConstraint(
     crit_mem = crit;
     crit     = 0.;
     for (int ipadir = 0; ipadir < npadir; ipadir++)
-    {
-      ijvar = 0;
-      for (int ivar = 0; ivar < nvar; ivar++)
+      for (int ivar = 0, ijvar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
           if (FFFF(WT(ijvar, ipadir))) continue;
@@ -1006,48 +1036,41 @@ int AModelOptimSills::_goulardWithoutConstraint(
           value = (ivar != jvar) ? 2. : 1.;
           crit += value * WT(ijvar, ipadir) * temp * temp;
         }
-    }
 
     /* Stopping criterion */
 
-    if (_convergenceReached(mauto, crit, crit_mem)) break;
+    if (_convergenceReached(crit, crit_mem)) break;
   }
 
   *crit_arg = crit;
   return (0);
 }
 
-bool AModelOptimSills::_convergenceReached(const Option_AutoFit& mauto,
-                                           double crit,
-                                           double crit_mem)
+bool AModelFitSills::_convergenceReached(double crit,
+                                         double crit_mem) const
 {
-   return (ABS(crit) < mauto.getTolred() ||
-          ABS(crit - crit_mem) / ABS(crit) < mauto.getTolred());
+  double eps = _mop.getTolred();
+  return (ABS(crit) < eps || ABS(crit - crit_mem) / ABS(crit) < eps);
 }
 
-void AModelOptimSills::_printResults(double crit) const
+void AModelFitSills::_printResults(double crit) const
 {
-  if (_modelPart._verbose)
+  int ncov = _model->getNCov();
+  for (int icov = 0; icov < ncov; icov++)
   {
-    const Model* model = _modelPart._model;
-    int ncov           = model->getNCov();
-    for (int icov = 0; icov < ncov; icov++)
-    {
-      const CovAniso* cova = model->getCovAniso(icov);
-      message("Cost Function (Sill Fitting) (");
-      for (int ivar = 0; ivar < _nvar; ivar++)
-        for (int jvar = 0; jvar < _nvar; jvar++)
-          message("%lf ", cova->getSill(ivar, jvar));
-      message(") : %lf\n", crit);
-    }
+    message("- Sill Fitting Procedure: Cost = %lf - Current Sills = ", crit);
+    for (int ivar = 0; ivar < _nvar; ivar++)
+      for (int jvar = 0; jvar < _nvar; jvar++)
+        message("%lf ", _model->getSill(icov, ivar, jvar));
+    message("\n");
   }
 }
 
-int AModelOptimSills::fitPerform()
+int AModelFitSills::_fitSills(bool verbose)
 {
   int status  = 0;
   double crit = 0.;
-  if (!_modelPart._optvar.getFlagIntrinsic())
+  if (!_mop.getFlagIntrinsic())
   {
 
     /* No intrinsic hypothesis */
@@ -1056,7 +1079,8 @@ int AModelOptimSills::fitPerform()
     {
       /* Without constraint on the sill */
 
-      status = _goulardWithoutConstraint(_mauto, _nvar, _ncova, _npadir, _wt,
+      status = _goulardWithoutConstraint(_mop.getMaxiter(),
+                                         _nvar, _ncova, _npadir, _wt,
                                          _gg, _ge, _sill, &crit);
     }
     else
@@ -1074,6 +1098,7 @@ int AModelOptimSills::fitPerform()
     status = _sillFittingIntrinsic(&crit);
   }
 
-  _printResults(crit);
+  if (verbose) _printResults(crit);
+
   return (status);
 }

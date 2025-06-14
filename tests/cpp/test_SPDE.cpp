@@ -42,7 +42,6 @@ int main(int argc, char *argv[])
 
   int ndim     = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
-  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("SPDE-");
 
   /* 1.c - Setup constants */

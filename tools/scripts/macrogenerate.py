@@ -3,6 +3,10 @@ import re
 import sys
 import os
 
+#The aim of this script is to generate the code for 
+# FORWARD_METHOD and FORWARD_METHOD_NON_CONST
+# in the target languages (since these macros are not understood by swig).
+
 def extract_macro_calls(header_file, macro_name):
     # Utilisation de os.path pour manipuler les chemins de manière portable
     classname = os.path.basename(header_file).split(".")[0]
@@ -60,36 +64,34 @@ def generate_r_code(macro_calls, output_file, first=True):
 
 def build_macro_python(macro_name, filename, output_file, first=True):
     header_file = os.path.join("..","..", "include", filename)  # Utilisation de os.path.join
-    output_file = os.path.join("..","..", "python", output_file)
     macro_calls = extract_macro_calls(header_file, macro_name)
     first = generate_python_code(macro_calls, output_file, first)
     return first
 
 def build_macro_r(macro_name, filename, output_file, first=True):
     header_file = os.path.join("..","..", "include", filename)  # Utilisation de os.path.join
-    output_file = os.path.join("..","..", "r", output_file)
     macro_calls = extract_macro_calls(header_file, macro_name)
     first = generate_r_code(macro_calls, output_file, first)
     return first
 
-output_file = "generated.i"
-includedir = "../../include/"
 
-
-first = True
-first2 = True
-
-for macro_name in ["FORWARD_METHOD","FORWARD_METHOD_NON_CONST"]:
-    tree = os.walk(os.path.join(os.pardir, os.pardir, "include"))
-    for dir, root, files in tree:
-        path = os.path.split(dir)[1]
-        if path in ["include", "Core"]:
-            continue
-        for file in files:
-            if file.split(".")[-1] != "hpp":
+if __name__ == "__main__":
+    pathout  = sys.argv[2]
+    includedir = "../../include/"
+    first = True
+    first2 = True
+    print(pathout)
+    for macro_name in ["FORWARD_METHOD","FORWARD_METHOD_NON_CONST"]:
+        tree = os.walk(os.path.join(os.pardir, os.pardir, "include"))
+        for dir, root, files in tree:
+            path = os.path.split(dir)[1]
+            if path in ["include", "Core"]:
                 continue
-            header_file = os.path.join(path, file)  # Utilisation de os.path.join
-            if sys.argv[1] == "python":
-                first = build_macro_python(macro_name, header_file, "generated_python.i", first)
-            if sys.argv[1] == "r":
-                first = build_macro_r(macro_name, header_file, "generated_r.i", first)
+            for file in files:
+                if file.split(".")[-1] != "hpp":
+                    continue
+                header_file = os.path.join(path, file)  # Utilisation de os.path.join
+                if sys.argv[1] == "python":
+                    first = build_macro_python(macro_name, header_file, pathout, first)
+                if sys.argv[1] == "r":
+                    first = build_macro_r(macro_name, header_file, pathout, first)

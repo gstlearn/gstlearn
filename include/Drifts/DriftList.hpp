@@ -26,6 +26,7 @@ class SpacePoint;
 class Db;
 class ELoc;
 class CovCalcMode;
+class ListParams;
 
 /**
  * \brief
@@ -161,6 +162,20 @@ public:
   VectorDouble evalDriftVarCoefs(const Db *db,
                                  const VectorDouble &coeffs,
                                  bool useSel = false) const;
+  virtual void appendParams(ListParams& listParams)
+  {
+    DECLARE_UNUSED(listParams);
+  }
+  void updateDriftList()
+  {
+    
+  }
+
+  void initParams()
+  {
+
+  }
+  
 private:
   void _update();
   bool _isDriftIndexValid(int i) const;

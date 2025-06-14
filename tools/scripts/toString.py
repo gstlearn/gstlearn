@@ -3,6 +3,13 @@ import re
 import sys
 import os
 
+#The aim of this script is to indentify all the classes which inherits  (recursively) from AStringable in order
+#to add the extension 
+#%extend {class_name} {{
+#  std::string __repr__() {{
+#    return $self->toString();
+#  }}
+#in the swig.i file such that toString is automatically called in the target languages when the name of the object is given.
 
 def extract_class_and_bases(line):
     """

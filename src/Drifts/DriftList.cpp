@@ -763,7 +763,6 @@ DriftList::evalDrift(const Db* db, int iech, int il, const ECalcMember& member) 
   if (member != ECalcMember::LHS && isDriftFiltered(il)) return 0.;
   if (!_isDriftIndexValid(il)) return TEST;
   return _drifts[il]->eval(db, iech);
-  return TEST;
 }
 
 const DriftList* DriftList::createReduce(const VectorInt& validVars) const

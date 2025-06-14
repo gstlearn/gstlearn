@@ -57,7 +57,7 @@ params = gl.SPDEParam.create(epsNugget = epsNugget)
 
 gl.mestitle(1, "SPDE Simulation using gstlearn (with Matrix) -> GM")
 gl.law_set_random_seed(1242)
-err = gl.simulateSPDE(dat, grid, model, nbsimu, 1, meshes, None, params,
+err = gl.simulateSPDE(dat, grid, model, nbsimu, 1, meshes, params = params,
                       namconv = gl.NamingConvention("GM"))
 gl.dbStatisticsMono(grid, ["GM.*"]).display()
 
@@ -67,7 +67,7 @@ gl.dbStatisticsMono(grid, ["GM.*"]).display()
 
 gl.mestitle(1, "SPDE Simulation using gstlearn (Matrix-Free) -> GF")
 gl.law_set_random_seed(1242)
-err = gl.simulateSPDE(dat, grid, model, nbsimu, 0, meshes, None, params,
+err = gl.simulateSPDE(dat, grid, model, nbsimu, 0, meshes, params = params,
                       namconv = gl.NamingConvention("GF"))
 gl.dbStatisticsMono(grid, ["GF.*"]).display()
 
@@ -82,19 +82,25 @@ Z         = dat["Data*"].T.reshape(-1)
 # (2 to mimic the possibility to have several convolution operators)
 AM1 = gl.ProjMatrix(dat,mesh1)
 AM2 = gl.ProjMatrix(dat,mesh1)
+AMout1 = gl.ProjMatrix(grid,mesh1)
+AMout2 = gl.ProjMatrix(grid,mesh1)
 
 # Total projection operator
 if nvar == 1:
     vectproj = gl.VVectorConstIProj([[AM1]])
+    vectprojOut = gl.VVectorConstIProj([[AMout1]])
 
 if nvar == 2:
     vectproj = gl.VVectorConstIProj([[AM1,None],[None,AM2]])
+    vectprojOut = gl.VVectorConstIProj([[AMout1,None],[None,AMout2]])
 
 modelNugg = gl.Model.createFromParam(gl.ECov.NUGGET, sills = sillsNugg)
 AM        = gl.ProjMulti(vectproj)
+AMout     = gl.ProjMulti(vectprojOut)
 Qop       = gl.PrecisionOpMulti(model,meshes,True)
 invnoise  = gl.buildInvNugget(dat,modelNugg)
 invnoisep = gl.MatrixSymmetricSim(invnoise)
+
 spdeop    = gl.SPDEOp(Qop, AM, invnoisep)
 ntarget   = grid.getNSample(True)
 local     = gl.VectorDouble(ntarget)

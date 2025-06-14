@@ -33,7 +33,8 @@ public:
   const MatrixSquare& getMatrixInverse() const { return _rotInv; }
   const VectorDouble& getAngles() const { return _angles; }
   double getAngle(int idim) const { return _angles[idim]; }
-
+  int getDerivativesInPlace(std::vector<MatrixSquare>& res);
+  std::vector<MatrixSquare> getDerivatives();
   void resetFromSpaceDimension(unsigned int ndim);
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   int setMatrixDirect(const MatrixSquare& rotmat);
@@ -48,7 +49,7 @@ public:
   VectorDouble getMatrixDirectVec() const { return _rotMat.getValues(); }
   VectorDouble getMatrixInverseVec() const { return _rotInv.getValues(); }
 
-  double getMatrixDirect(int idim, int jdim)  const { return _rotMat.getValue(idim, jdim); }
+  double getMatrixDirect(int idim, int jdim) const { return _rotMat.getValue(idim, jdim); }
   double getMatrixInverse(int idim, int jdim) const { return _rotInv.getValue(idim, jdim); }
 
 private:
@@ -60,7 +61,7 @@ private:
 private:
   unsigned int _nDim;
   bool _flagRot; // true if a Rotation is defined other than Identity
-  VectorDouble    _angles;
+  VectorDouble _angles;
   MatrixSquare _rotMat;
   MatrixSquare _rotInv;
   mutable VectorDouble _local;

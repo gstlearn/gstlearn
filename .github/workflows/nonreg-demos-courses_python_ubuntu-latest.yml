@@ -44,23 +44,24 @@ jobs:
           libpng-dev \
           pandoc
 
-    - name: Setup Python Version
-      uses: actions/setup-python@v5
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v6
       with:
         python-version: ${{env.PYTHON_VERSION}}
+        activate-environment: true
 
     - name: Install Python dependencies
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install numpy
-        python -m pip install jupyter
-        python -m pip install notebook==6.1.6
-        python -m pip install matplotlib
-        python -m pip install plotly
-        python -m pip install pandas
-        python -m pip install scipy
-        python -m pip install dash
-        python -m pip install scikit-sparse
+        uv pip install --upgrade pip
+        uv pip install numpy
+        uv pip install jupyter
+        uv pip install notebook==6.1.6
+        uv pip install matplotlib
+        uv pip install plotly
+        uv pip install pandas
+        uv pip install scipy
+        uv pip install dash
+        uv pip install scikit-sparse
 
     - name: Run sccache-cache
       uses: mozilla-actions/sccache-action@v0.0.9

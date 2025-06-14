@@ -3,6 +3,9 @@ import re
 import sys
 import os
 
+#The aim of this script is to browse swig file to get all the included hpp files and then to find
+#all the method whose name start with "create" in order to add %newobject instruction in the swig file
+#and avoid memory leak (garbage collector will then call delete of the object).
 
 def process_cpp_file(classname,header_file, output_file, first):
     # Catch all functions named 'createFrom*' or 'createSomething*'
@@ -52,5 +55,5 @@ if __name__ == "__main__":
         if path[0] in ["include", "Core"]:
             continue
         classname = fsplit[1].split(".")[0]
-        header_file = os.path.join("..","..","include", file)  # Utilisation de os.path.join
+        header_file = os.path.join("..","..","include", file)  
         first = process_cpp_file(classname,header_file, output_txt_file, first)

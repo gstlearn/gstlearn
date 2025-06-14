@@ -33,7 +33,6 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
   OptCustom::define("ompthreads",5);
-  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("BenchKrigingM-");
 
   // Global parameters

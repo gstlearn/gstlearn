@@ -263,7 +263,6 @@ int main(int argc, char *argv[])
   /***********************/
   int ndim     = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
-  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Gibbs-");
 
   // Setup constants

@@ -6,6 +6,7 @@ endif()
 find_package(Doxygen REQUIRED)
 
 # Configure doxyfile
+
 set(DOXYGEN_OUTPUT_DIRECTORY doxygen)
 set(DOXYGEN_PROJECT_BRIEF "Geostatistics & Machine Learning toolbox | <a href=https://gstlearn.org>https://gstlearn.org</a>")
 set(DOXYGEN_PROJECT_LOGO ${CMAKE_SOURCE_DIR}/doc/logos/gstlearn_logo_blue_th.png)
@@ -17,6 +18,9 @@ set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
 set(DOXYGEN_EXCLUDE ${CMAKE_SOURCE_DIR}/include/geoslib_old_f.h
                     ${CMAKE_SOURCE_DIR}/include/geoslib_f_private.h
                     ${CMAKE_SOURCE_DIR}/include/geoslib_d_private.h)
+set(DOXYGEN_EXCLUDE_SYMBOLS "FORWARD_METHOD_NON_CONST"
+                             "FORWARD_METHOD_CONST")
+
 set(DOXYGEN_VERBATIM_HEADERS NO)
 set(DOXYGEN_GENERATE_HTML YES)
 set(DOXYGEN_HTML_TIMESTAMP YES)
@@ -46,7 +50,29 @@ set(DOXYGEN_USE_MATHJAX YES)
 # https://stackoverflow.com/questions/25290453/how-do-i-add-a-footnote-in-doxygen
 set(DOXYGEN_ALIASES tooltip{1}=\"\\latexonly\\footnote\\{\\1\\}\\endlatexonly\\htmlonly<sup title=\'\\1\'>*</sup>\\endhtmlonly\")
 
+### Following lines create fake hpp to automatically generate documentation for macros
+# FORWARD_METHOD_CONST and FORWARD_METHOD_NON_CONST
+
+set(GENERATED_HPP_FILES ${CMAKE_BINARY_DIR}/doxygen/generated_hpp)
+set(DOXYGEN_SCRIPT ${CMAKE_SOURCE_DIR}/tools/scripts/macrodoc.py)
+
+add_custom_command(OUTPUT ${GENERATED_HPP_FILES}
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${GENERATED_HPP_FILES})
+
+add_custom_target(doc_macro
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${GENERATED_HPP_FILES}
+  COMMAND ${Python3_EXECUTABLE} ${DOXYGEN_SCRIPT} ${GENERATED_HPP_FILES}
+  "python"
+  COMMENT "Generate macro wrapper doc"
+  )
+
+########
+
 # Add target for generating the doxymentation
 doxygen_add_docs(doxygen
-                 ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/README.md
+                 ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src 
+                 ${CMAKE_SOURCE_DIR}/README.md
+                 ${GENERATED_HPP_FILES}
                  COMMENT "Generate doxygen documentation")
+
+add_dependencies(doxygen doc_macro)

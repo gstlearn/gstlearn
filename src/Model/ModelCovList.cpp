@@ -13,6 +13,7 @@
 
 ModelCovList::ModelCovList(const CovContext& ctxt)
   : ModelGeneric(ctxt)
+  , _modelFitSills(nullptr)
 {
   _cova = nullptr;
 }
@@ -20,6 +21,7 @@ ModelCovList::ModelCovList(const CovContext& ctxt)
 ModelCovList::ModelCovList(const ModelCovList &m)
   : ModelGeneric(m)
 {
+  _modelFitSills = (m._modelFitSills != nullptr) ? (AModelFitSills*)m._modelFitSills->clone() : nullptr;
 
 }
 ModelCovList& ModelCovList:: operator= (const ModelCovList &m)
@@ -27,6 +29,8 @@ ModelCovList& ModelCovList:: operator= (const ModelCovList &m)
   if (this != &m)
   {
     ModelGeneric::operator=(m);
+    _modelFitSills = (m._modelFitSills != nullptr) ? (AModelFitSills*)m._modelFitSills->clone() : nullptr;
+
   }
   return *this;
 }
@@ -38,7 +42,8 @@ void ModelCovList::setCovList(CovList* covs)
 
 ModelCovList::~ModelCovList() 
 {
-
+  delete _modelFitSills;
+  _modelFitSills = nullptr;
 }
 
 void ModelCovList::addCov(const CovBase* cov)

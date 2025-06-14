@@ -1,0 +1,73 @@
+
+Test fit from Variogram
+=======================
+
+True Model
+----------
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      2.000
+- Ranges       =      0.100     0.300
+- Theo. Ranges =      0.033     0.100
+- Angles       =     30.000     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.866    -0.500
+     [  1,]     0.500     0.866
+Total Sill     =      2.000
+Known Mean(s)     0.000
+
+Initial Model
+-------------
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      1.000
+- Range        =      1.000
+- Theo. Range  =      0.334
+Total Sill     =      1.000
+Known Mean(s)     0.000
+
+Fitted Model
+------------
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      1.752
+- Ranges       =      0.118     0.003
+- Theo. Ranges =      0.039     0.001
+- Angles       =    179.910     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     1.000     0.002
+     [  1,]    -0.002     1.000
+Total Sill     =      1.752
+Known Mean(s)     0.000

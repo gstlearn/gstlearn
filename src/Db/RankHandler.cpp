@@ -91,14 +91,14 @@ void RankHandler::_initElligible()
       // Check against a possible selection
       if (_iptrSel >= 0)
       {
-        value                  = _db->getValueByColIdx(iabs, _iptrSel);
+        value                  = _db->getValueByColIdx((int) iabs, _iptrSel);
         _elligible.setValue(ivar, iabs, value > 0);
       }
 
       // Check against validity of the Variance of Measurement Error variable
       if (!_iptrVerr.empty())
       {
-        value                  = _db->getValueByColIdx(iabs, _iptrVerr[ivar]);
+        value                  = _db->getValueByColIdx((int) iabs, _iptrVerr[ivar]);
         _elligible.setValue(ivar, iabs, !FFFF(value) && (value > 0));
       }
 
@@ -108,7 +108,7 @@ void RankHandler::_initElligible()
         bool valid = true;
         for (int iext = 0; iext < _nExtD && valid; iext++)
         {
-          value = _db->getValueByColIdx(iabs, _iptrExtD[iext]);
+          value = _db->getValueByColIdx((int) iabs, _iptrExtD[iext]);
           if (FFFF(value)) valid = false;
         }
         _elligible.setValue(ivar, iabs, valid);
@@ -117,7 +117,7 @@ void RankHandler::_initElligible()
       // Check against the existence of a target variable
       if (!_iptrZ.empty())
       {
-        value                  = _db->getValueByColIdx(iabs, _iptrZ[ivar]);
+        value                  = _db->getValueByColIdx((int) iabs, _iptrZ[ivar]);
         _elligible.setValue(ivar, iabs, !FFFF(value));
       }
     }

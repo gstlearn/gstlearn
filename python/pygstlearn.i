@@ -868,7 +868,7 @@ void exit_f(void)
 }
 
 %include ../swig/toString.i
-%include generated_python.i
+%include ../swig/generated_python.i
 
 //////////////////////////////////////////////////////////////
 //       Add target language additional features below      //

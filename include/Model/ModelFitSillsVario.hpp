@@ -13,11 +13,10 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Model/AModelOptimSills.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
+#include "Model/AModelFitSills.hpp"
+#include "Model/ModelOptimParam.hpp"
 
-class Model;
+class ModelGeneric;
 class Vario;
 class Constraints;
 class MatrixDense;
@@ -28,28 +27,34 @@ class MatrixSymmetric;
  * Class which, starting from an experimental variogram, enables fitting the
  * sills of all Covariance parts of a Model
  */
-class GSTLEARN_EXPORT ModelOptimSillsVario: public AModelOptimSills
+class GSTLEARN_EXPORT ModelFitSillsVario: public AModelFitSills
 {
 public:
-  ModelOptimSillsVario(Model* model,
-                       Constraints* constraints      = nullptr,
-                       const Option_AutoFit& mauto   = Option_AutoFit(),
-                       const Option_VarioFit& optvar = Option_VarioFit());
-  ModelOptimSillsVario(const ModelOptimSillsVario& m);
-  ModelOptimSillsVario& operator=(const ModelOptimSillsVario& m);
-  virtual ~ModelOptimSillsVario();
+  ModelFitSillsVario(Vario* vario,
+                     ModelCovList* model,
+                     Constraints* constraints   = nullptr,
+                     const ModelOptimParam& mop = ModelOptimParam());
+  ModelFitSillsVario(const ModelFitSillsVario& m);
+  ModelFitSillsVario& operator=(const ModelFitSillsVario& m);
+  virtual ~ModelFitSillsVario();
 
-  int fit(Vario* vario, int wmode = 2, bool verbose = false);
-  int loadEnvironment(Vario* vario, int wmode = 2, bool verbose = false);
-  void updateFromModel();
+  IMPLEMENT_CLONING(ModelFitSillsVario)
+
+  int fitSills(bool verbose = false) override;
+
+  static ModelFitSillsVario* createForOptim(Vario* vario,
+                                            ModelGeneric* model,
+                                            Constraints* constraints   = nullptr,
+                                            const ModelOptimParam& mop = ModelOptimParam());
 
 private:
-  int  _getDimensions();
+  int _prepare();
+  int _getDimensions();
   void _computeGg();
   void _compressArray(const VectorDouble& tabin, VectorDouble& tabout);
   void _prepareGoulard();
+  void _updateFromModel();
 
 private:
   Vario* _vario;
-  int _wmode;
 };

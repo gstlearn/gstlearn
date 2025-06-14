@@ -13,11 +13,10 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Model/AModelOptimSills.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
+#include "Model/AModelFitSills.hpp"
+#include "Model/ModelOptimParam.hpp"
 
-class Model;
+class ModelGeneric;
 class DbGrid;
 class Constraints;
 class MatrixDense;
@@ -28,24 +27,31 @@ class MatrixSymmetric;
  * Class which, starting from an experimental variogram, enables fitting the
  * sills of all Covariance parts of a Model
  */
-class GSTLEARN_EXPORT ModelOptimSillsVMap: public AModelOptimSills
+class GSTLEARN_EXPORT ModelFitSillsVMap: public AModelFitSills
 {
 public:
-  ModelOptimSillsVMap(Model* model,
-                      Constraints* constraints      = nullptr,
-                      const Option_AutoFit& mauto   = Option_AutoFit(),
-                      const Option_VarioFit& optvar = Option_VarioFit());
-  ModelOptimSillsVMap(const ModelOptimSillsVMap& m);
-  ModelOptimSillsVMap& operator=(const ModelOptimSillsVMap& m);
-  virtual ~ModelOptimSillsVMap();
+  ModelFitSillsVMap(const DbGrid* dbmap,
+                    ModelCovList* model,
+                    Constraints* constraints   = nullptr,
+                    const ModelOptimParam& mop = ModelOptimParam());
+  ModelFitSillsVMap(const ModelFitSillsVMap& m);
+  ModelFitSillsVMap& operator=(const ModelFitSillsVMap& m);
+  virtual ~ModelFitSillsVMap();
 
-  int fit(const DbGrid* dbmap, bool verbose = false);
-  int loadEnvironment(const DbGrid* dbmap, bool verbose = false);
-  void updateFromModel();
+  IMPLEMENT_CLONING(ModelFitSillsVMap)
+
+  int fitSills(bool verbose = false) override;
+
+  static ModelFitSillsVMap* createForOptim(const DbGrid* dbmap,
+                                           ModelGeneric* model,
+                                           Constraints* constraints   = nullptr,
+                                           const ModelOptimParam& mop = ModelOptimParam());
 
 private:
+  int _prepare();
   int  _getDimensions();
   void _computeVMap();
+  void _updateFromModel();
 
 private:
   const DbGrid* _dbmap;

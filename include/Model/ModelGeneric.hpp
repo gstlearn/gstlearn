@@ -10,18 +10,23 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/ICloneable.hpp"
-#include "Db/RankHandler.hpp"
-#include "Matrix/MatrixSymmetric.hpp"
+#include "Model/AModelFitSills.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Drifts/DriftList.hpp"
+#include "Basic/ListParams.hpp"
+#include "Basic/ICloneable.hpp"
+#include "Db/RankHandler.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
+#include "Model/Constraints.hpp"
+#include "Model/ModelOptimParam.hpp"
 
 class Model;
 class Db;
+
 class DbGrid;
 class CovCalcMode;
 /**
@@ -178,13 +183,28 @@ public:
   void addDrift(const ADrift* drift); // TODO: check that the same driftM has not been already defined
   void setDrifts(const VectorString& driftSymbols);
 
+  void initParams();
+
+  #ifndef SWIG
+  std::shared_ptr<ListParams> generateListParams() const;
+  #endif
+  void updateModel();
   double computeLogLikelihood(const Db* db, bool verbose = false);
+  double evalGradParam(int iparam, SpacePoint& p1, SpacePoint& p2,int ivar = 0, int jvar = 0);
+  void fitNew(const Db* db = nullptr,
+              Vario* vario = nullptr,
+              const DbGrid* dbmap = nullptr,
+              Constraints* constraints = nullptr,
+              const ModelOptimParam& mop = ModelOptimParam(),
+              int nb_neighVecchia = 30,
+              bool verbose = false);
 
 private:
   virtual bool _isValid() const;
 
 protected:               // TODO : pass into private to finish clean
   ACov* _cova;           /* Generic Covariance structure */
+  std::vector<std::function<double(double)>> _gradFuncs;
   DriftList* _driftList; /* Series of Drift functions */
   CovContext _ctxt;      /* Context */
 };

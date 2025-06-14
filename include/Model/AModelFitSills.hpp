@@ -16,11 +16,11 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Model/AModelOptim.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/Option_VarioFit.hpp"
+#include "Model/ModelOptimParam.hpp"
+#include "Basic/ICloneable.hpp"
+#include "Covariances/CovCalcMode.hpp"
 
-class Model;
+class ModelCovList;
 class Constraints;
 class MatrixDense;
 class MatrixSymmetric;
@@ -30,27 +30,27 @@ class MatrixSymmetric;
  * Class which, starting from experimental quantities, enables fitting the
  * sills of all Covariance parts of a Model
  */
-class GSTLEARN_EXPORT AModelOptimSills: public AModelOptim
+class GSTLEARN_EXPORT AModelFitSills: public ICloneable
 {
 public:
-  AModelOptimSills(Model* model,
-                   Constraints* constraints      = nullptr,
-                   const Option_AutoFit& mauto   = Option_AutoFit(),
-                   const Option_VarioFit& optvar = Option_VarioFit());
-  AModelOptimSills(const AModelOptimSills& m);
-  AModelOptimSills& operator=(const AModelOptimSills& m);
-  virtual ~AModelOptimSills();
+  AModelFitSills(ModelCovList* model,
+                 const Constraints* constraints = nullptr,
+                 const ModelOptimParam& mop     = ModelOptimParam());
+  AModelFitSills(const AModelFitSills& m);
+  AModelFitSills& operator=(const AModelFitSills& m);
+  virtual ~AModelFitSills();
 
-  int fitPerform();
+  virtual int fitSills(bool verbose = false) { DECLARE_UNUSED(verbose); return 0; }
 
 protected:
-  void _resetSill(int ncova, std::vector<MatrixSymmetric>& sill) const;
+  void _resetInitialSill(std::vector<MatrixSymmetric>& sill) const;
   void _allocateInternalArrays(bool flag_exp = true);
+  int  _fitSills(bool verbose = false);
 
 private:
   int _sillFittingIntrinsic(double *crit_arg);
   int _goulardWithConstraints(double *crit_arg);
-  int _goulardWithoutConstraint(const Option_AutoFit& mauto,
+  int _goulardWithoutConstraint(int niter,
                                 int nvar,
                                 int ncova,
                                 int npadir,
@@ -89,14 +89,13 @@ private:
                           int ivar0,
                           VectorDouble& xr,
                           std::vector<MatrixSymmetric>& alpha);
-  static bool _convergenceReached(const Option_AutoFit& mauto,
-                           double crit,
-                           double crit_mem);
+  bool _convergenceReached(double crit, double crit_mem) const;
   void _printResults(double crit) const;
 
 protected:
   int _ndim;
   int _nvar;
+  int _nvs2;
   int _ncova;
   int _nbexp;
   int _npadir;
@@ -113,4 +112,10 @@ protected:
   std::vector<MatrixSymmetric> _alphau;
   std::vector<MatrixSymmetric> _sill1;
   std::vector<MatrixSymmetric> _sill;
+
+  // Storing external pointers or references (not to be deleted)
+  ModelCovList*      _model;
+  const Constraints* _constraints;
+  ModelOptimParam    _mop;
+  CovCalcMode        _calcmode;
 };

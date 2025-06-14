@@ -31,7 +31,6 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setContainerName(true);
 
   // Creating the Lines (in a 2-D space)
   defineDefaultSpace(ESpaceType::RN, 2);
@@ -56,7 +55,7 @@ int main(int argc, char *argv[])
   VectorInt ind1 = {0, 1, 2, 3, 4, 5, 2, 7, 8, 9, 10, 11, 8, 13, 14, 7, 15, 16};
   VectorInt ind2 = {1,  2,  3,  4,  5,  6,  7,  8,  9,
                     10, 11, 12, 13, 14, 11, 15, 16, 17};
-  int narcs = ind1.size();
+  int narcs = (int) ind1.size();
   for (int iarc = 0; iarc < narcs; iarc++)
     NF_arcs.add(ind1[iarc], ind2[iarc], law_uniform(0.3, 0.9));
 

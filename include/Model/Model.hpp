@@ -175,16 +175,12 @@ public:
   FORWARD_METHOD(castInCovAnisoListConst, hasExternalCov)
   FORWARD_METHOD(castInCovAnisoListConst, isChangeSupportDefined, false)
   FORWARD_METHOD(castInCovAnisoListConst, getAnamHermite) 
-  FORWARD_METHOD(castInCovAnisoListConst, evalCovMat)
   FORWARD_METHOD(castInCovAnisoListConst, getCovMode, EModelProperty::NONE)
 
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setActiveFactor)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, getCovAniso)
-  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setSill)
-  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setSills)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setRangeIsotropic)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, setMarkovCoeffs)
-  FORWARD_METHOD_NON_CONST(_castInCovAnisoList, normalize)
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeRangeNoStatDb);
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeScaleNoStatDb);
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeAngleNoStatDb);

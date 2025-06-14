@@ -158,7 +158,6 @@ double ACovFunc::_evaluateCovDerivative(int degree, double h) const
   messerr("This covariance should have Derivative calculations");
   messerr("But _evaluateCovDerivative has not been coded");
   my_throw("This should never happen");
-  return 0.;
 }
 
 void ACovFunc::setMarkovCoeffs(const VectorDouble& coeffs)
@@ -183,7 +182,6 @@ VectorDouble ACovFunc::getMarkovCoeffs() const
   messerr("This covariance should have a method giving the Markov coefficients");
   messerr("But getMarkovCoeffs has not been coded");
   my_throw("This should never happen");
-  return VectorDouble();
 }
 
 double ACovFunc::evaluateSpectrum(double freq) const
@@ -197,7 +195,6 @@ double ACovFunc::evaluateSpectrum(double freq) const
   messerr("This covariance should have a method giving the spectrum");
   messerr("But evaluateSpectrum has not been coded");
   my_throw("This should never happen");
-  return 0.;
 }
 
 double ACovFunc::_evaluateCovOnSphere(double alpha,
@@ -244,7 +241,6 @@ VectorDouble ACovFunc::_evaluateSpectrumOnSphere(int n, double scale) const
   messerr("This covariance should have On Sphere calculations");
   messerr("But '_evaluateSpectrumOnSphere()' has not been coded");
   my_throw("This should never happen");
-  return VectorDouble();
 }
 
 Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const

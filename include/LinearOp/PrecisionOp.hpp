@@ -62,7 +62,7 @@ public:
             const CovAniso *cova = nullptr,
             bool verbose = false);
 
-  virtual double getLogDeterminant(int nbsimu = 1);
+  virtual double getLogDeterminant(int nMC = 1);
   #ifndef SWIG
   virtual void gradYQX(const constvect /*X*/,
                        const constvect /*Y*/,
@@ -138,7 +138,7 @@ private:
   void _purge();
 
 private:
-  mutable AShiftOp*                       _shiftOp;
+  mutable AShiftOp*                        _shiftOp;
   const CovAniso*                          _cova; // Not to be deleted
   mutable std::map<EPowerPT, APolynomial*> _polynomials;
   bool                                     _verbose;

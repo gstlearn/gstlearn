@@ -81,3 +81,11 @@ int MatrixSymmetricSim::getSize() const
   if (_factor == nullptr) return 0;
   return _factor->getSize();
 }
+
+double MatrixSymmetricSim::computeLogDet(int nMC) const
+{
+  DECLARE_UNUSED(nMC);
+  if (_factor == nullptr) return TEST;
+  int sign = _inverse ? -1 : 1;
+  return sign * _factor->computeLogDeterminant();
+}

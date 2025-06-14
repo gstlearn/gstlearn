@@ -38,6 +38,36 @@
 #include <math.h>
 #include <vector>
 
+/**
+ * Define if Cholesky must be used or not
+ * @param useCholesky: 1 for YES; 0 for No; -1: set optimal default (according to NDim)
+ * @param model: The ModelGeneric to use
+ * @param verbose: Verbose flag
+ */
+static bool _defineCholesky(int useCholesky, const Model* model, bool verbose = false)
+{
+  bool localCholesky;
+  if (useCholesky == -1)
+  {
+    localCholesky = model->getNDim() == 2;
+  }
+  else
+    localCholesky = (useCholesky == 1);
+
+  if (verbose)
+  {
+    if (localCholesky)
+      message("- Choice for the Cholesky option = ON");
+    else
+      message("- Choice for the Cholesky option = OFF");
+    if (useCholesky == -1)
+      message(" (Automatic setting)\n");
+    else
+      message("\n");
+  }
+  return localCholesky;
+}
+
 static VectorDouble _centerDataByDriftInPlace(SPDEOp* spdeop,
                                               const Db* dbin,
                                               const Model* model,
@@ -696,7 +726,7 @@ bool SPDE::_isKrigingRequested() const
       || _calcul == ESPDECalcMode::KRIGVAR;
 }
 
-double SPDE::computeLogDet(int nbsimu) const
+double SPDE::computeTotalLogDet(int nMC) const
 {
   if (_precisionsKrig == nullptr)
   {
@@ -704,7 +734,7 @@ double SPDE::computeLogDet(int nbsimu) const
     return TEST;
   }
 
-  return _precisionsKrig->computeTotalLogDet(nbsimu);
+  return _precisionsKrig->computeTotalLogDet(nMC);
 }
 
 double SPDE::computeQuad() const
@@ -739,18 +769,20 @@ double SPDE::_computeLogLikelihood(int nbsimu, bool verbose) const
   {
     _computeDriftCoeffs();
   }
-  int size = (int)_workingData.size();
-  double logdet = computeLogDet(nbsimu);
-  double quad   = computeQuad();
+  int size       = (int)_workingData.size();
+  double logdet  = computeTotalLogDet(nbsimu);
+  double quad    = computeQuad();
   double loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
 
   if (verbose)
   {
     message("Likelihood calculation:\n");
     message("- Length of Information Vector = %d\n", size);
+    message("- Number of Simulations = %d\n", nbsimu);
+    message("- Cholesky = %d\n", _useCholesky);
     message("Log-Determinant = %lf\n", logdet);
-    message("Quadratic term = %lf\n", quad);
-    message("Log-likelihood = %lf\n", loglike);
+    message("Quadratic term  = %lf\n", quad);
+    message("Log-likelihood  = %lf\n", loglike);
   }
   return loglike;
 }
@@ -830,107 +862,14 @@ VectorDouble SPDE::getCoeffs()
   return _driftCoeffs;
 }
 
-/**
- * Perform the estimation by KRIGING under the SPDE framework
- *
- * @param dbin Input Db (must contain the variable to be estimated)
- * @param dbout Output Db where the estimation must be performed
- * @param model Model definition
- * @param domain Domain  used to calibrate the Mesh (if not defined, defaulted to dbout)
- * @param flag_est True for the estimation
- * @param flag_std True for the standard deviation of estimation error
- * @param mesh Mesh description (optional)
- * @param useCholesky Define the choice regarding Cholesky
- * @param params Set of parameters
- * @param nbMC Number of Monte-Carlo simulations used for variance calculation
- * @param verbose Verbose flag
- * @param showStats Show statistics for Linear Operations
- * @param namconv Naming convention
- * @return Error return code
- *
- * @remarks You can provide an already existing mesh. Otherwise an optimal mesh will be created
- * @remarks internally: one per structure constituting the Model for Kriging.
- * @remarks Each mesh is created using the Turbo Meshing facility... based on an internal grid.
- * @remarks This internal grid is rotated according to the rotation of the structure. Its mesh size
- * @remarks is derived from the range (per direction) by dividing it by the refinement factor.
- *
- * @remarks Note that switching 'flag_std' to ON implies that 'flag_est' is ON.
- */
-int krigingSPDEOld(Db* dbin,
-                   Db* dbout,
-                   Model* model,
-                   Db* domain,
-                   bool flag_est,
-                   bool flag_std,
-                   const AMesh* mesh,
-                   int useCholesky,
-                   const SPDEParam& params,
-                   int nbMC,
-                   bool verbose,
-                   bool showStats,
-                   const NamingConvention& namconv)
-{
-  DECLARE_UNUSED(flag_est);
-  const ESPDECalcMode mode =
-    (flag_std) ? ESPDECalcMode::KRIGVAR : ESPDECalcMode::KRIGING;
-  Db* domain_local = domain;
-  if (domain_local == nullptr) domain_local = dbout;
-  SPDE spde(model, domain_local, dbin, mode, mesh, useCholesky, params, verbose,
-            showStats);
-  return spde.compute(dbout, nbMC, namconv);
-}
-
-/**
- * Perform simulations under the SPDE framework
- *
- * @param dbin Input Db. If defined, the simulations are conditional; non conditional otherwise
- * @param dbout Output Db where the simulations must be performed
- * @param model Model definition
- * @param domain Domain  used to calibrate the Mesh (if not defined, defaulted to dbout)
- * @param nbsimu Number of simulations
- * @param mesh Mesh description (optional)
- * @param useCholesky Define the choice regarding Cholesky
- * @param params Set of parametes
- * @param verbose Verbose flag
- * @param showStats Show statistics for Linear Operations
- * @param namconv Naming convention
- * @return Error return code
- *
- * @remarks You can provide an already existing mesh. Otherwise an optimal mesh will be created
- * @remarks internally: one per structure constituting the Model for Kriging and one for Simulating
- * @remarks Each mesh is created using the Turbo Meshing facility... based on an internal grid.
- * @remarks This internal grid is rotated according to the rotation of the structure. Its mesh size
- * @remarks is derived from the range (per direction) by dividing it by the refinement factor.
- */
-int simulateSPDEOld(Db* dbin,
-                 Db* dbout,
-                 Model* model,
-                 Db* domain,
-                 int nbsimu,
-                 const AMesh *mesh,
-                 int useCholesky,
-                 const SPDEParam& params,
-                 bool verbose,
-                 bool showStats,
-                 const NamingConvention &namconv)
-{
-  const ESPDECalcMode mode =
-    (dbin == nullptr) ? ESPDECalcMode::SIMUNONCOND : ESPDECalcMode::SIMUCOND;
-  Db* domain_local = domain;
-  if (domain_local == nullptr) domain_local = dbout;
-  SPDE spde(model, domain_local, dbin, mode, mesh, useCholesky, params, verbose,
-            showStats);
-  return spde.compute(dbout, nbsimu, namconv);
-}
-
-double logLikelihoodSPDE(Db* dbin,
-                         Model* model,
-                         Db* domain,
-                         const AMesh* mesh,
-                         int useCholesky,
-                         int nbsimu,
-                         const SPDEParam& params,
-                         bool verbose)
+double logLikelihoodSPDEOld(Db* dbin,
+                            Model* model,
+                            Db* domain,
+                            const AMesh* mesh,
+                            int useCholesky,
+                            int nbsimu,
+                            const SPDEParam& params,
+                            bool verbose)
 {
   Db* domain_local = domain;
   if (domain_local == nullptr) domain_local = dbin;
@@ -1005,7 +944,7 @@ static MatrixSymmetric _buildSillPartialMatrix(const MatrixSymmetric &sillsRef,
 }
 
 /**
- * @brief Create the set of Meshes and Projections needed within SPDE
+ * @brief Create the set of Projections needed within SPDE
  * 
  * @param db Target Data Base
  * @param model Target Model structure 
@@ -1021,6 +960,10 @@ static const ProjMultiMatrix* _defineProjMulti(const Db* db,
                                                bool checkOnZVariable = true)
 {
   ProjMultiMatrix* projOut = nullptr;
+  // If no mesh is provided, an empty ProjMultiMatrix is returned
+
+  if (meshes.empty()) return projOut;
+
   // Get the number of structures
   int ncov = model->getNCov(true);
   int nvar = model->getNVar();
@@ -1054,13 +997,15 @@ static const ProjMultiMatrix* _defineProjMulti(const Db* db,
   }
 
   int nrow = 0;
-  for (int icov = 0; icov < ncov; icov++)
-    nrow += db->getNSample();
+  for (int ivar = 0; ivar < nvar; ivar++)
+    nrow += db->getNSampleActiveAndDefined(ivar);
   if (nrow != npoint)
   {
     messerr("Number of Rows of 'projm' (%d) is not correct", npoint);
     messerr("- Number of variables = %d", nvar);
-    messerr("- Number of samples = %d\n", db->getNSample());
+    for (int ivar = 0; ivar < nvar; ivar++)
+      messerr("- Number of samples for variable %d = %d\n",
+              ivar, db->getNSampleActiveAndDefined(ivar));
     return nullptr;
   }
   return projIn;
@@ -1116,12 +1061,32 @@ static int _defineMeshes(const Db* dbin,
  * @param model Model definition
  * @param flag_est True for the estimation
  * @param flag_std True for the standard deviation of estimation error
- * @param useCholesky Define the choice regarding Cholesky
- * @param meshes Meshes description (optional)
- * @param projIn Matrix of projection (optional)
+ * @param useCholesky Define the choice regarding Cholesky (see _defineCholesky)
+ * @param meshesK Meshes description (optional)
+ * @param projInK Matrix of projection (optional)
+ * @param meshesS Meshes used for Variance calulcation (optional)
+ * @param projInS Matrix of projection used for Variance calculation (optional)
  * @param params Set of SPDE parameters
  * @param namconv Naming convention
+ *
  * @return Returned vector
+ *
+ * @remark Algorithm for 'meshesK' or 'mesheS' and 'projInK' or 'projInS':
+ * - Each one of the previous arguments is considered individually and sequentially.
+ * - For 'meshes' in general ('meshesK' or 'meshesS'):
+ *   - If it is not defined, it is created from 'model' and so as to cover both 'dbin' and 'dbout' (if provided).
+ *   - If is already exist, the number of meshes must be equal:
+ *     - either to 1: the same mesh is used for all structures
+ *     - or to the number of structures (nugget discarded)
+ *   - Otherwise an error is raised
+ * - For 'projIn' in general ('projInK' or 'projInS'):
+ *   - If it is not defined, it is created from 'meshesK'
+ *   - If it is already exist, the number of projectors must be equal to the number of meshes
+ *   - Otherwise an error is raised
+ * - If 'mesheS' does not exist, 'meshesK' is used instead
+ * - If 'projInS' does not exist, 'projInK' is used instead
+ *
+ * 'meshesS' and 'projInS' are used only if 'flag_std' is true and useCholesky=0
  */
 int krigingSPDE(Db* dbin,
                 Db* dbout,
@@ -1129,46 +1094,71 @@ int krigingSPDE(Db* dbin,
                 bool flag_est,
                 bool flag_std,
                 int useCholesky,
-                const VectorMeshes& meshes,
-                const ProjMultiMatrix* projIn,
+                const VectorMeshes& meshesK,
+                const ProjMultiMatrix* projInK,
+                const VectorMeshes& meshesS,
+                const ProjMultiMatrix* projInS,
                 const SPDEParam& params,
                 const NamingConvention& namconv)
 {
+  bool flagCholesky = _defineCholesky(useCholesky, model);
+  bool flagSimu = flag_std && ! flagCholesky;
   if (dbin  == nullptr) return 1;
   if (dbout == nullptr) return 1;
   if (model == nullptr) return 1;
 
-  VectorDouble Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
+  const ProjMultiMatrix* AInK = nullptr;
+  const ProjMultiMatrix* AInS = nullptr;
 
   // Define optional parameters
-  VectorMeshes meshLocal = meshes;
-  bool flagProjCreated   = (projIn == nullptr);
-  if (_defineMeshes(dbin, dbout, model, meshLocal, params, true)) return 1;
-  const ProjMultiMatrix* AIn = _defineProjMulti(dbin, model, meshLocal, projIn, true);
-  if (AIn == nullptr) return 1;
-  const ProjMultiMatrix* Aout = _defineProjMulti(dbout, model, meshLocal, nullptr, false);
+  VectorMeshes meshLocalK = meshesK;
+  if (_defineMeshes(dbin, dbout, model, meshLocalK, params, true)) return 1;
+  VectorMeshes meshLocalS;
+  if (flagSimu)
+  {
+    meshLocalS = (meshesS.empty()) ? meshLocalK : meshesS;
+    if (_defineMeshes(dbin, dbout, model, meshLocalS, params, false)) return 1;
+  }
+
+  AInK = _defineProjMulti(dbin, model, meshLocalK, projInK, true);
+  if (AInK == nullptr) return 1;
+  if (flagSimu)
+  {
+    AInS = _defineProjMulti(dbin, model, meshLocalS,
+                            (projInS == nullptr) ? AInK : projInS);
+    if (AInS == nullptr) return 1;
+  }
+  const ProjMultiMatrix* AoutK  = _defineProjMulti(dbout, model, meshLocalK, nullptr, false);
+  bool flagAoutSConstruct      = (flagSimu) && (meshLocalK != meshLocalS);
+  const ProjMultiMatrix* AoutS = flagAoutSConstruct ? _defineProjMulti(dbout, model, meshLocalS, nullptr) : AoutK;
 
   // Auxiliary information
   MatrixSparse* invnoise        = buildInvNugget(dbin, model, params);
   MatrixSymmetricSim* invnoisep = nullptr;
-  if (!useCholesky)
+  if (!flagCholesky)
     invnoisep = new MatrixSymmetricSim(invnoise);
 
-  SPDEOp* spdeop = nullptr;
-  PrecisionOpMulti* Qop = nullptr;
+  SPDEOp* spdeop              = nullptr;
+  PrecisionOpMulti* Qop       = nullptr;
+  PrecisionOpMulti* QopS      = nullptr;
   PrecisionOpMultiMatrix* Qom = nullptr;
-  if (useCholesky)
+  if (flagCholesky)
   {
-    Qom = new PrecisionOpMultiMatrix(model, meshLocal);
-    spdeop = new SPDEOpMatrix(Qom, AIn, invnoise);
+    Qom = new PrecisionOpMultiMatrix(model, meshLocalK);
+    spdeop = new SPDEOpMatrix(Qom, AInK, invnoise, AoutK);
   }
   else
   {
-    Qop          = new PrecisionOpMulti(model, meshLocal, params.getUseStencil());
-    spdeop       = new SPDEOp(Qop, AIn, invnoisep);
+    Qop    = new PrecisionOpMulti(model, meshLocalK, params.getUseStencil());
+    if (!meshLocalS.empty())
+      QopS = new PrecisionOpMulti(model, meshLocalS, params.getUseStencil());
+    spdeop = new SPDEOp(Qop, AInK, invnoisep, QopS, AInS, AoutK, AoutS);
     spdeop->setMaxIterations(params.getCGparams().getNIterMax());
     spdeop->setTolerance(params.getCGparams().getEps());
   }
+
+  // Read information from the input Db
+  VectorDouble Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
 
   // Calculating the drift coefficient (optional) and Centering the Data
   VectorDouble driftCoeffs = _centerDataByDriftInPlace(spdeop, dbin, model, Z);
@@ -1179,8 +1169,7 @@ int krigingSPDE(Db* dbin,
   VectorDouble result;
   if (flag_est)
   {
-    auto resultmesh = spdeop->kriging(Z);
-    Aout->mesh2point(resultmesh, result);
+    result = spdeop->kriging(Z);
     _uncenterResultByDriftInPlace(dbout, model, result, driftCoeffs);
     int iuid = dbout->addColumns(result, "estim", ELoc::Z, 0, true, 0., nvar);
     namconv.setNamesAndLocators(dbin, VectorString(), ELoc::Z, nvar, dbout, iuid,
@@ -1188,25 +1177,32 @@ int krigingSPDE(Db* dbin,
   }
   if (flag_std)
   {
-    messerr("StDev is not programmed yet");
-    goto label_end;
-    int iuid = dbout->addColumns(result, "stdev", ELoc::UNKNOWN, 0, true, 0., nvar);
+    int seedLocal = params.getSeedMC();
+    int nMC       = params.getNMC();
+    result   = spdeop->stdev(Z, nMC, seedLocal);
+    int iuid      = dbout->addColumns(result, "stdev", ELoc::UNKNOWN, 0, true, 0., nvar);
     namconv.setNamesAndLocators(dbin, VectorString(), ELoc::Z, nvar, dbout, iuid,
                                 "stdev");
   }
 
   // Cleaning phase
-  label_end:
   delete spdeop;
   delete Qom;
   delete Qop;
   delete invnoise;
   delete invnoisep;
-  delete Aout;
-  if (flagProjCreated)
+  delete AoutK;
+  if (flagAoutSConstruct)
+    delete AoutS;
+  if (projInS == nullptr && AInS != AInK)
   {
-    delete AIn;
-    AIn = nullptr;
+    delete AInS;
+    AInS = nullptr;
+  }
+  if (projInK == nullptr)
+  {
+    delete AInK;
+    AInK = nullptr;
   }
 
   return 0;
@@ -1219,73 +1215,112 @@ int krigingSPDE(Db* dbin,
  * @param dbout Output Db where the estimation must be performed
  * @param model Model definition
  * @param nbsimu Number of simulations
- * @param useCholesky Define the choice regarding Cholesky
- * @param meshes Meshes description (optional)
- * @param projIn Matrix of projection (optional)
+ * @param useCholesky Define the choice regarding Cholesky (see _defineCholesky)
+ * @param meshesK Meshes used for Kriging (optional)
+ * @param projInK Matrix of projection used for Kriging (optional)
+ * @param meshesS Meshes used for Simulations (optional)
+ * @param projInS Matrix of projection used for Simulations (optional)
  * @param params Set of SPDE parameters
- * @param namconv Naming convention
+ * @param namconv see NamingConvention
  *
- * @return Returned vector
+ * @return Error returned code
+ *
+ * @remark Algorithm for 'meshesK', 'projInK', 'meshesS' and 'projInS':
+ * - Each one of the previous arguments is considered individually and sequentially.
+ * - For 'meshes' in general ('meshesK' or 'meshesS'):
+ *   - If it is not defined, it is created from 'model' and so as to cover both 'dbin' and 'dbout' (if provided).
+ *   - If is already exist, the number of meshes must be equal:
+ *     - either to 1: the same mesh is used for all structures
+ *     - or to the number of structures (nugget discarded)
+ *   - Otherwise an error is raised
+ * - For 'projIn' in general ('projInK' or 'projInS'):
+ *   - If it is not defined, it is created from 'meshes'
+ *   - If it is already exist, the number of projectors must be equal to the number of meshes
+ *   - Otherwise an error is raised
+ * - If 'mesheS' does not exist, 'meshesK' is used instead
+ * - If 'projInS' does not exist, 'projInK' is used instead
  */
 int simulateSPDE(Db* dbin,
                  Db* dbout,
                  Model* model,
                  int nbsimu,
                  int useCholesky,
-                 const VectorMeshes& meshes,
-                 const ProjMultiMatrix* projIn,
+                 const VectorMeshes& meshesK,
+                 const ProjMultiMatrix* projInK,
+                 const VectorMeshes& meshesS,
+                 const ProjMultiMatrix* projInS,
                  const SPDEParam& params,
                  const NamingConvention& namconv)
 {
+  bool flagCholesky = _defineCholesky(useCholesky, model);
   bool flagCond = (dbin != nullptr);
   if (dbout == nullptr) return 1;
   if (model == nullptr) return 1;
-  int nvar = model->getNVar();
-  VectorDouble Z;
-  const ProjMultiMatrix* AIn = nullptr;
+
+  const ProjMultiMatrix* AInK = nullptr;
+  const ProjMultiMatrix* AInS = nullptr;
 
   // Define optional parameters
-  VectorMeshes meshLocal = meshes;
-  bool flagProjCreated   = (projIn == nullptr);
-  if (_defineMeshes(dbin, dbout, model, meshLocal, params, false)) return 1;
+  VectorMeshes meshLocalK = meshesK;
+  if (_defineMeshes(dbin, dbout, model, meshLocalK, params, false)) return 1;
+  VectorMeshes meshLocalS = (meshesS.empty()) ? meshLocalK : meshesS;
+  if (_defineMeshes(dbin, dbout, model, meshLocalS, params, false)) return 1;
 
   // Auxiliary parameters
   MatrixSparse* invnoise        = nullptr;
   MatrixSymmetricSim* invnoisep = nullptr;
   if (flagCond)
   {
-    Z   = dbin->getColumnsActiveAndDefined(ELoc::Z);
-    AIn = _defineProjMulti(dbin, model, meshLocal, projIn);
-    if (AIn == nullptr) return 1;
+    AInK = _defineProjMulti(dbin, model, meshLocalK, projInK);
+    if (AInK == nullptr) return 1;
+    if (!flagCholesky)
+    {
+      AInS = _defineProjMulti(dbin, model, meshLocalS,
+                              (projInS == nullptr) ? AInK : projInS);
+      if (AInS == nullptr) return 1;
+    }
     invnoise = buildInvNugget(dbin, model, params);
-    if (!useCholesky)
+    if (!flagCholesky)
       invnoisep = new MatrixSymmetricSim(invnoise);
   }
-  const ProjMultiMatrix* Aout = _defineProjMulti(dbout, model, meshLocal, nullptr);
-
+  const ProjMultiMatrix* AoutK = _defineProjMulti(dbout, model, meshLocalK, nullptr);
+  bool flagAoutSConstruct = (! flagCholesky) && (meshLocalK != meshLocalS);
+  const ProjMultiMatrix* AoutS = flagAoutSConstruct ? _defineProjMulti(dbout, model, meshLocalS, nullptr) : AoutK;
+  
   SPDEOp* spdeop              = nullptr;
   PrecisionOpMulti* Qop       = nullptr;
+  PrecisionOpMulti* QopS      = nullptr;
   PrecisionOpMultiMatrix* Qom = nullptr;
-  if (useCholesky)
+  if (flagCholesky)
   {
-    Qom    = new PrecisionOpMultiMatrix(model, meshLocal);
-    spdeop = new SPDEOpMatrix(Qom, AIn, invnoise);
+    Qom    = new PrecisionOpMultiMatrix(model, meshLocalK);
+    spdeop = new SPDEOpMatrix(Qom, AInK, invnoise, AoutK);
   }
   else
   {
-    Qop          = new PrecisionOpMulti(model, meshLocal, params.getUseStencil());
-    spdeop       = new SPDEOp(Qop, AIn, invnoisep);
+    Qop = new PrecisionOpMulti(model, meshLocalK, params.getUseStencil());
+    if (!meshLocalS.empty())
+      QopS = new PrecisionOpMulti(model, meshLocalS, params.getUseStencil());
+    spdeop = new SPDEOp(Qop, AInK, invnoisep, QopS, AInS, AoutK, AoutS);
     spdeop->setMaxIterations(params.getCGparams().getNIterMax());
     spdeop->setTolerance(params.getCGparams().getEps());
   }
 
-  // Calculating the drift coefficient (optional) and Centering the Data
+  VectorDouble Z;
   VectorDouble driftCoeffs;
+
   if (flagCond)
+  {
+    // Read information from the input Db
+    Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
+
+    // Calculating the drift coefficient (optional) and Centering the Data
     driftCoeffs = _centerDataByDriftInPlace(spdeop, dbin, model, Z);
+  }
 
   // Perform the Simulation and storage.
   // All is done in ONE step to avoid additional storage
+  int nvar    = model->getNVar();
   int iuid    = dbout->addColumnsByConstant(nvar * nbsimu);
   int nechred = dbout->getNSample(true);
   VectorDouble local(nechred);
@@ -1293,8 +1328,7 @@ int simulateSPDE(Db* dbin,
 
   for (int isimu = 0; isimu < nbsimu; isimu++)
   {
-    VectorDouble resultmesh = (flagCond) ? spdeop->simCond(Z) : spdeop->simNonCond();
-    Aout->mesh2point(resultmesh, result); 
+    result = (flagCond) ? spdeop->simCond(Z) : spdeop->simNonCond();
     _addNuggetToResult(model, result, nechred);
     _uncenterResultByDriftInPlace(dbout, model, result, driftCoeffs);
 
@@ -1314,13 +1348,119 @@ int simulateSPDE(Db* dbin,
   delete Qop;
   delete invnoise;
   delete invnoisep;
-  delete Aout;
+  delete AoutK;
+  if (flagAoutSConstruct)
+    delete AoutS;
+  if (projInS == nullptr && AInS != AInK)
+  {
+    delete AInS;
+    AInS = nullptr;
+  }
+  if (projInK == nullptr)
+  {
+    delete AInK;
+    AInK = nullptr;
+  }
+  return 0;
+}
+
+/**
+ * Calculate the Log-Likelihood under the SPDE framework
+ *
+ * @param dbin Input Db (must contain the variable to be estimated)
+ * @param model Model definition
+ * @param useCholesky Define the choice regarding Cholesky (see _defineCholesky)
+ * @param meshes Meshes description (optional)
+ * @param projIn Matrix of projection (optional)
+ * @param params Set of SPDE parameters
+ * @param verbose True for verbose output
+ * @return Returned value
+ */
+double logLikelihoodSPDE(Db* dbin,
+                         Model* model,
+                         int useCholesky,
+                         const VectorMeshes& meshes,
+                         const ProjMultiMatrix* projIn,
+                         const SPDEParam& params,
+                         bool verbose)
+{
+  bool flagCholesky = _defineCholesky(useCholesky, model);
+  if (dbin == nullptr) return 1;
+  if (model == nullptr) return 1;
+  if (dbin->getNLoc(ELoc::Z) != 1)
+  {
+    messerr("'dbin' must contain ONE variable (Z locator)");
+    return 1;
+  }
+
+  VectorDouble Z = dbin->getColumnsActiveAndDefined(ELoc::Z);
+
+  // Define optional parameters
+  VectorMeshes meshLocal = meshes;
+  bool flagProjCreated   = (projIn == nullptr);
+  if (_defineMeshes(dbin, nullptr, model, meshLocal, params, true)) return 1;
+  const ProjMultiMatrix* AIn = _defineProjMulti(dbin, model, meshLocal, projIn, true);
+  if (AIn == nullptr) return 1;
+
+  // Auxiliary information
+  MatrixSparse* invnoise        = buildInvNugget(dbin, model, params);
+  MatrixSymmetricSim* invnoisep = nullptr;
+  if (!flagCholesky)
+    invnoisep = new MatrixSymmetricSim(invnoise);
+
+  SPDEOp* spdeop              = nullptr;
+  PrecisionOpMulti* Qop       = nullptr;
+  PrecisionOpMultiMatrix* Qom = nullptr;
+  if (flagCholesky)
+  {
+    Qom    = new PrecisionOpMultiMatrix(model, meshLocal);
+    spdeop = new SPDEOpMatrix(Qom, AIn, invnoise);
+  }
+  else
+  {
+    Qop    = new PrecisionOpMulti(model, meshLocal, params.getUseStencil());
+    spdeop = new SPDEOp(Qop, AIn, invnoisep);
+    spdeop->setMaxIterations(params.getCGparams().getNIterMax());
+    spdeop->setTolerance(params.getCGparams().getEps());
+  }
+
+  // Calculating the drift coefficient (optional) and Centering the Data
+  VectorDouble driftCoeffs = _centerDataByDriftInPlace(spdeop, dbin, model, Z);
+
+  // Performing the task
+  int seedLocal = params.getSeedMC();
+  int nMC       = params.getNMC();
+
+  int size       = (int)Z.size();
+  double logdet  = spdeop->computeTotalLogDet(nMC, seedLocal);
+  double quad    = spdeop->computeQuadratic(Z);
+  double loglike = TEST;
+  if (!FFFF(logdet) && !FFFF(quad))
+    loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
+
+  if (verbose)
+  {
+    message("Likelihood calculation:\n");
+    message("Nb. active samples = %d\n",  size);
+    message("Nb. Monte-Carlo    = %d\n",  nMC);
+    message("Cholesky           = %d\n",  flagCholesky);
+    message("Log-Determinant    = %lf\n", logdet);
+    message("Quadratic term     = %lf\n", quad);
+    message("Log-likelihood     = %lf\n", loglike);
+  }
+
+  // Cleaning phase
+  delete spdeop;
+  delete Qom;
+  delete Qop;
+  delete invnoise;
+  delete invnoisep;
   if (flagProjCreated)
   {
     delete AIn;
     AIn = nullptr;
   }
-  return 0;
+  return loglike;
 }
 
 /**

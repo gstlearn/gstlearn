@@ -544,6 +544,16 @@ double VectorHelper::cumul(const VectorDouble& vec)
   return total;
 }
 
+double VectorHelper::cumulLog(const VectorDouble& vec)
+{
+  double total = 0.;
+  for (const auto& v: vec)
+  {
+    if (!FFFF(v)) total += log(v);
+  }
+  return total;
+}
+
 VectorInt VectorHelper::cumulIncrement(const VectorVectorInt& vec)
 {
   int nvar = (int) vec.size();
@@ -1885,6 +1895,7 @@ void VectorHelper::mean1AndMean2ToStdev(const VectorDouble &mean1,
                                         VectorDouble &std,
                                         int number)
 {
+  double dnumber = (double) number;
   int size = (int) mean1.size();
   if ((int) mean2.size() != size)
   {
@@ -1905,7 +1916,9 @@ void VectorHelper::mean1AndMean2ToStdev(const VectorDouble &mean1,
       std[i] = TEST;
     else
     {
-      double value = (mean2[i] - mean1[i] * mean1[i]) / (double) number;
+      double dmean1 = mean1[i] / dnumber;
+      double dmean2 = mean2[i] / dnumber;
+      double value = dmean2 - dmean1 * dmean1;
       std[i] = (value > 0) ? sqrt(value) : 0.;
     }
   }

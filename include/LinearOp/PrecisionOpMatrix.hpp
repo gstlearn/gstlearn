@@ -40,7 +40,7 @@ public:
   int _addToDest(const constvect inv, vect outv) const override;
 #endif
 
-  double getLogDeterminant(int nbsimu = 1) override;
+  double getLogDeterminant(int nMC = 1) override;
   VectorDouble extractDiag() const override;
 
   //void evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam) override;

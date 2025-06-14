@@ -36,7 +36,9 @@ add_dependencies(prepare_check_r r_install)
 # Create the main target
 # Look parent CMakeLists for MY_CTEST_COMMAND definition
 add_custom_target(check_r
-                  COMMAND ${MY_CTEST_COMMAND})
+  COMMAND ${MY_CTEST_COMMAND}
+  JOB_POOL console
+)
 
 # Add dependency for check_r
 add_dependencies(check_r prepare_check_r)

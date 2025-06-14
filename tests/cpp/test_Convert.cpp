@@ -35,7 +35,6 @@ int main(int argc, char *argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   defineDefaultSpace(ESpaceType::RN, ndim);
-  ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Convert-");
 
   // Generate the output grid
