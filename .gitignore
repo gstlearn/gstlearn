@@ -2,6 +2,7 @@ build*
 python/doc/documentation.i
 tests/data/*/*.out
 __pycache__
+.venv
 .ipynb_checkpoints
 ./*.ascii
 .project

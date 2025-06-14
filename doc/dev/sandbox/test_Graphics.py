@@ -40,7 +40,7 @@ if draw_grid:
 	ecr = 1
 	for i in range(2):
 		for j in range(2):
-			ax = gp.grid(grid,"Simu."+str(ecr),ax=axs[j,i],flagLegend=False)
+			ax = gp.raster(grid,"Simu."+str(ecr),ax=axs[j,i],flagLegend=False)
 			ecr = ecr + 1
 #	cbar = fig.colorbar(im,ax=axs[0:,:],location='right',shrink=0.5)
 	plt.show()
