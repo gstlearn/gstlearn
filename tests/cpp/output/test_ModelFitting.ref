@@ -1,6 +1,4 @@
-
-Sill fitting from Variogram (old version)
-=========================================
+Model used for simulating the Data
 
 Model characteristics
 =====================
@@ -13,15 +11,64 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      1.457
+- Sill         =      2.000
 Spherical
-- Sill         =      2.688
+- Sill         =      3.000
 - Range        =      0.250
-Total Sill     =      4.145
+Total Sill     =      5.000
+Known Mean(s)     0.000
+Initial Model used for Test
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      2.000
+Spherical
+- Sill         =      3.000
+- Range        =      0.250
+Total Sill     =      5.000
 Known Mean(s)     0.000
 
 Model fitting from Variogram (new version)
 ==========================================
+- Anisotropy                   ON
+- Anisotropy Rotation          ON
+- Global Rotation              OFF
+- Rotation around Z only       OFF
+- Lock third dimension         OFF
+- Lock 2-D Isotropy            OFF
+- Use the Goulard option       ON
+- Optimization weighting mode  2
+- Maximum number of iterations 1000
+- Stopping Criterion (scaled)  1e-06
+
+List of Parameters:
+-------------------
+1 - Scale in Dimension 1
+    Value: 0.250000
+    Absolute Bounds: 0 inf 
+    User Bounds: 0.001 inf 
+2 - Scale in Dimension 2
+    Value: 0.250000
+    Absolute Bounds: 0 inf 
+    User Bounds: 0.001 inf 
+3 - Angle in Dimension 1
+    Value: 0.000000
+    Absolute Bounds: -inf inf 
+    User Bounds: -inf inf 
+Summary of Optimization procedure - Count of Iterations =  207 - Final Cost = 0.608012
+- Final parameters:     0.286     0.340    -0.034
+  Summary of Sill Fitting - Count of Iterations = 1263 - Final Cost = 0.015080
+  - Covariance 1: Final parameters = 1.595086 
+  - Covariance 2: Final parameters = 2.603593 
 
 Model characteristics
 =====================
@@ -34,20 +81,18 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      1.569
+- Sill         =      1.595
 Spherical
-- Sill         =      2.621
-- Ranges       =      0.280     0.529
-- Angles       =      1.039     0.000
+- Sill         =      2.604
+- Ranges       =      0.286     0.340
+- Angles       =    179.966     0.000
 - Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     1.000    -0.018
-     [  1,]     0.018     1.000
-Total Sill     =      4.190
+     [  0,]     1.000     0.001
+     [  1,]    -0.001     1.000
+Total Sill     =      4.199
 Known Mean(s)     0.000
-
-Sill Fitting from Variogram Map (new version)
-=============================================
+Resulting Model
 
 Model characteristics
 =====================
@@ -60,14 +105,14 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      1.893
+- Sill         =      1.595
 Spherical
-- Sill         =      2.800
-- Ranges       =      0.213     0.252
-- Angles       =      7.128     0.000
+- Sill         =      2.604
+- Ranges       =      0.286     0.340
+- Angles       =    179.966     0.000
 - Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.992    -0.124
-     [  1,]     0.124     0.992
-Total Sill     =      4.693
+     [  0,]     1.000     0.001
+     [  1,]    -0.001     1.000
+Total Sill     =      4.199
 Known Mean(s)     0.000

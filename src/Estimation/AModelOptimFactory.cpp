@@ -301,7 +301,7 @@ static int _modifyModelForMop(const ModelOptimParam& mop,
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar < nvar; jvar++)
         {
-          ParamInfo paraminfo = covbase->getParamInfoCholSills(ivar, jvar);
+          ParamInfo& paraminfo = covbase->getParamInfoCholSills(ivar, jvar);
           paraminfo.setFixed(true);
         }
     }

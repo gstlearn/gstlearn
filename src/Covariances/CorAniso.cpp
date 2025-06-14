@@ -1496,7 +1496,6 @@ void CorAniso::appendParams(ListParams& listparams)
   listparams.addParams(_angles);
 }
 
-
 void CorAniso::updateCov()
 {
   if (_corfunc->hasRange())

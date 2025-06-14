@@ -76,6 +76,7 @@ static void _secondTest(Db* db2D,
   ModelOptimParam mop = ModelOptimParam();
   mop.setWmode(2);
   mop.setFlagGoulard(true);
+  mop.display();
   model->fitNew(nullptr, vario, nullptr, nullptr, mop, ITEST, verbose, trace);
   (void)model->dumpToNF("ModelFromVario.ascii");
   model->display();

@@ -41,10 +41,9 @@ double myfunc2(const std::vector<double>& x)
 
 static void _firstTest()
 {
-  mestitle(0,"Minimization of a Function");
-  int npar = 1;
+  mestitle(0, "Minimization of a Function");
   std::vector<double> x = {1.};
-  Optim* opt     = new Optim(NELDERMEAD, npar);
+  Optim* opt            = new Optim(NELDERMEAD, (int) x.size());
 
   // Bounds for each parameter
   VectorDouble lb = {1., 10.};

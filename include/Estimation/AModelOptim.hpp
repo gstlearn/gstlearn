@@ -30,15 +30,18 @@ public:
     , _trace(false)
   {
     if (_model == nullptr)
-    {
       throw std::invalid_argument("Model cannot be null");
-    }
-    _params = _model->generateListParams();
+
+    bool useGradient = false;
+    _params          = _model->generateListParams();
     _model->initParams();
     _x    = _params->getOptimizableValues();
     _xmin = _params->getMinValues();
     _xmax = _params->getMaxValues();
-    _opt  = new Optim(LBFGS, (int) _x.size());
+    if (useGradient)
+      _opt = new Optim(LBFGS, (int)_x.size());
+    else
+      _opt = new Optim(NELDERMEAD, (int)_x.size());
     _opt->setLowerBounds(_xmin);
     _opt->setUpperBounds(_xmax);
     _opt->setXtolRel(EPSILON6);

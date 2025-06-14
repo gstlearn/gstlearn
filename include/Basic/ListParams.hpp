@@ -34,8 +34,8 @@ public:
   size_t getNOptimizableParams() const { return _dispatchIndex.size(); }
   size_t getNParams() const { return _params.size(); }
   void updateDispatch();
+
 private:
-  
   
   // Example: The model has 6 parameters, but only 4 are used in the optimization.
   // [0, 1, 2, 3, 4, 5] with 1 = 3 and 4 = 5
@@ -45,5 +45,4 @@ private:
   std::vector<std::reference_wrapper<ParamInfo>> _params; // List of parameters
   std::vector<size_t> _dispatch;
   std::vector<size_t> _dispatchIndex; // Indexes for dispatching parameters
-
 };

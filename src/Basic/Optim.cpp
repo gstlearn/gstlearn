@@ -103,7 +103,6 @@ double Optim::callback(unsigned n, const double* x, double* grad, void* f_data)
       }
     }
   }
-
   return (*(that->_objective))(xvec);
 }
 
