@@ -6,6 +6,14 @@ Release 1.8.0
 =============
 - Fix gstlearn_to_terra and terra_to_gstlearn (issue #566)
 
+Release 1.7.4
+=============
+- Fix SEGY importation procedure for grid files
+
+Release 1.7.3
+=============
+- Fix plots of model in the case of multi-direction variograms in Python
+
 Release 1.7.2
 =============
 - Fix memory leak in Python Swig wrapper
