@@ -77,7 +77,11 @@ public:
     if (trace) _verbose = true;
 
     // In the verbose case, first print the list of parameters
-    if (verbose || trace) _params->display();
+    if (verbose || trace) 
+    {
+
+    }
+    _params->display();
   }
 
   double eval(const std::vector<double>& x)
@@ -100,7 +104,8 @@ public:
 
   void _printSummary(double minf, const std::vector<double>& x) const
   {
-    message("Summary of Optimization procedure - Count of Iterations = %4d - Final Cost = %lf\n",
+    message("Summary of Optimization procedure:\n");
+    message("Count of Iterations = %4d - Final Cost = %lf\n",
             _iter, minf);
     VH::dump("- Final parameters", x, false);
     ModelCovList* mcv   = dynamic_cast<ModelCovList*>(_model);

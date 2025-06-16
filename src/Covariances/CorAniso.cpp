@@ -100,6 +100,8 @@ CorAniso::CorAniso(const ECov& type,
 CorAniso::CorAniso(const CorAniso& r)
   : ACov(r)
   , _corfunc(CovFactory::duplicateCovFunc(*r._corfunc))
+  , _scales(r._scales)
+  , _angles(r._angles)
   , _aniso(r._aniso)
   , _noStatFactor(r._noStatFactor)
   , _optimNoAniso(r._optimNoAniso)
@@ -113,6 +115,8 @@ CorAniso& CorAniso::operator=(const CorAniso& r)
   {
     ACov::operator=(r);
     _corfunc        = CovFactory::duplicateCovFunc(*r._corfunc);
+    _scales         = r._scales;
+    _angles         = r._angles;
     _aniso          = r._aniso;
     _noStatFactor   = r._noStatFactor;
     _optimNoAniso   = r._optimNoAniso;
@@ -1493,8 +1497,17 @@ void CorAniso::appendParams(ListParams& listparams,
                             std::vector<std::function<double(double)>>* gradFuncs) 
 {
   DECLARE_UNUSED(gradFuncs)
-  _initParamInfo();
   listparams.addParams(_scales);
+  int count = (int)_scales.size();
+  if (count > 0)
+  {
+    int ref = _scales[0].getAddress();
+    if (_optimNoAniso)
+      for (int i = 1; i < count; i++)
+        _scales[i].setAddress(ref);
+    if (_optimLockIso2d && count > 1)
+      _scales[1].setAddress(ref);
+  }
   listparams.addParams(_angles);
 }
 

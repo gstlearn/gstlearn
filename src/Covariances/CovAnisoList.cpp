@@ -597,5 +597,4 @@ void CovAnisoList::appendParams(ListParams& listParams,
       }
     }
   }
-  listParams.updateDispatch();
 }
