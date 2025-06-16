@@ -239,5 +239,5 @@ double ModelOptimVario::computeCost(bool verbose)
     double delta      = vexp - vtheo;
     total += lag._weight * delta * delta;
   }
-  return -total;
+  return total;
 }

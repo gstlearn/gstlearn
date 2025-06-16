@@ -1087,13 +1087,11 @@ void AModelFitSills::printFitSillSummary(int niter) const
   }
 }
 
-int AModelFitSills::_fitSills(bool verbose, bool trace)
+int AModelFitSills::_fitSills()
 {
   int status = 0;
   _crit      = 0.;
   _iterg     = 0;
-  _verbose   = verbose;
-  _trace     = trace;
   if (!_mop.getFlagIntrinsic())
   {
 

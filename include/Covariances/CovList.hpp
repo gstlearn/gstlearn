@@ -11,6 +11,7 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Enum/ECalcMember.hpp"
+#include "Model/AModelFitSills.hpp"
 #include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
@@ -27,7 +28,7 @@ class CovBase;
 class CovContext;
 class AStringFormat;
 class AAnam;
-
+class AModelFitSills;
 /**
  * \brief
  * This class describes the **Covariance** as a list of elementary covariances (see CovBase.hpp for more details)
@@ -77,7 +78,7 @@ public:
                               SpacePoint& pin,
                               SpacePoint& pout,
                               VectorDouble& tabwork,
-                              double lambda = 1,
+                              double lambda                 = 1,
                               const ECalcMember& calcMember = ECalcMember::RHS) const override;
 #endif
   void setCovFiltered(int icov, bool filtered);
@@ -121,12 +122,17 @@ public:
                      const String& namecol   = String()) override;
   void makeSillNoStatDb(int icov, const String& namecol, int ivar = 0, int jvar = 0);
   void makeSillStationary(int icov, int ivar = 0, int jvar = 0);
-  void makeSillsStationary(int icov,bool silent = false);
+  void makeSillsStationary(int icov, bool silent = false);
   void makeSillNoStatFunctional(int icov, const AFunctional* func, int ivar = 0, int jvar = 0);
 
   virtual void appendParams(ListParams& listParams) override;
   void updateCov() override;
   void initParams() override;
+  void deleteFitSills() const;
+
+  void setFitSills(AModelFitSills* amopts) const;
+  AModelFitSills* getFitSills() const;
+
 protected:
   bool _isCovarianceIndexValid(int icov) const;
   void _load(const SpacePoint& p, bool case1) const override;
@@ -162,4 +168,7 @@ protected:
   mutable VectorInt _allActiveCovList; /*! List of indices of all covariances */
   mutable VectorInt _activeCovList;    /*! List of indices of the active covariances */
 #endif
+
+private:
+  mutable AModelFitSills* _modelFitSills; /* Model fitting procedure for Sills */
 };

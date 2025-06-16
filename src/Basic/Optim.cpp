@@ -10,7 +10,7 @@
 /******************************************************************************/
 
 #include "Basic/Optim.hpp"
-#include "geoslib_define.h"
+#include "Basic/AStringable.hpp"
 #include <nlopt.h>
 
 Optim::Optim(opt_algorithm algo, int dim)
@@ -57,11 +57,11 @@ void Optim::setUpperBounds(const std::vector<double>& ub)
   nlopt_set_upper_bounds(_opt, ub.data());
 }
 
-double Optim::optimize(std::vector<double>& x)
+double Optim::minimize(std::vector<double>& x)
 {
   double minf;
   nlopt_result res = nlopt_optimize(_opt, x.data(), &minf);
-  if (res < 0) throw std::runtime_error("Échec de l'optimisation");
+  if (res < 0) message("Warning, optimization return code is %d\n", res);
   return minf;
 }
 
@@ -90,8 +90,7 @@ double Optim::callback(unsigned n, const double* x, double* grad, void* f_data)
       const double eps = EPSILON8;
       std::vector<double> x_cur = xvec;
       for (unsigned i = 0; i < n; ++i)
-      {
-        
+      { 
         x_cur[i] += eps;
         double f_plus = (*(that->_objective))(x_cur);
 

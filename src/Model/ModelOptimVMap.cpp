@@ -177,7 +177,7 @@ double ModelOptimVMap::computeCost(bool verbose)
         total += delta * delta;
       }
   }
-  return -total;
+  return total;
 }
 
 ModelOptimVMap* ModelOptimVMap::createForOptim(ModelGeneric* model,

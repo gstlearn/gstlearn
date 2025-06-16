@@ -43,11 +43,13 @@ public:
   virtual int fitSills(bool verbose = false, bool trace = false) { DECLARE_UNUSED(verbose, trace); return 0; }
   int getNiter() const { return _iterg; }
   void printFitSillSummary(int niter) const;
+  void setTrace(bool trace) { _trace = trace;}
+  void setVerbose(bool verbose) { _verbose = verbose;}
 
 protected:
   void _resetInitialSill(std::vector<MatrixSymmetric>& sill) const;
   void _allocateInternalArrays(bool flag_exp = true);
-  int  _fitSills(bool verbose = false, bool trace = false);
+  int  _fitSills();
 
 private:
   int _sillFittingIntrinsic();

@@ -32,6 +32,7 @@ public:
 
   void init(bool verbose = false);
   double computeCost(bool verbose = false) override;
+  double computeLogLikelihood(bool verbose = false);
 
 private:
   virtual void _updateModel(bool verbose = false)

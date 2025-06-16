@@ -46,7 +46,7 @@ double logLikelihood(const Db* db,
                      bool verbose)
 {
   Likelihood* vec = Likelihood::createForOptim(model, db);
-  double result   = vec->computeCost(verbose);
+  double result   = vec->computeLogLikelihood(verbose);
   delete vec;
   return result;
 }

@@ -53,7 +53,7 @@ static void _firstTest()
   auto func = [](const std::vector<double>& x) { return myfunc2(x);};
   opt -> setObjective(func);
   opt->setXtolRel(EPSILON4);
-  double minf = opt->optimize(x);
+  double minf = opt->minimize(x);
   std::cout << "Optimum: x = " << x[0] << " -> Minimum value = " << minf << std::endl;
 }
 

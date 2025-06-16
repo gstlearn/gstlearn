@@ -35,6 +35,7 @@ CovList::CovList(const CovContext& ctxt)
   , _allActiveCov(true)
   , _allActiveCovList()
   , _activeCovList()
+  , _modelFitSills(nullptr)
 {
   _updateLists();
 }
@@ -50,6 +51,7 @@ CovList::CovList(const CovList& r)
   _allActiveCov     = r._allActiveCov;
   _allActiveCovList = r._allActiveCovList;
   _activeCovList    = r._activeCovList;
+  _modelFitSills    = (r._modelFitSills != nullptr) ? (AModelFitSills*)r._modelFitSills->clone() : nullptr;
   _updateLists();
 }
 
@@ -67,6 +69,7 @@ CovList& CovList::operator=(const CovList& r)
     _allActiveCov     = r._allActiveCov;
     _allActiveCovList = r._allActiveCovList;
     _activeCovList    = r._activeCovList;
+    _modelFitSills    = (r._modelFitSills != nullptr) ? (AModelFitSills*)r._modelFitSills->clone() : nullptr;
   }
   _updateLists();
   return *this;
@@ -74,6 +77,8 @@ CovList& CovList::operator=(const CovList& r)
 
 CovList::~CovList()
 {
+  delete _modelFitSills;
+  _modelFitSills = nullptr;
   delAllCov();
 }
 
@@ -145,7 +150,8 @@ void CovList::delAllCov()
 bool CovList::_isNoStat() const
 {
   // return true if any of the covariances is not stationary
-  return std::any_of(_covs.cbegin(), _covs.cend(), [](const auto& e) { return e->isNoStat(); });
+  return std::any_of(_covs.cbegin(), _covs.cend(), [](const auto& e)
+                     { return e->isNoStat(); });
 }
 
 void CovList::_makeStationary()
@@ -154,7 +160,7 @@ void CovList::_makeStationary()
     e->makeStationary();
 }
 
-void CovList::_attachNoStatDb(const Db* db) 
+void CovList::_attachNoStatDb(const Db* db)
 {
   DECLARE_UNUSED(db)
   std::shared_ptr<const Db> dbptr = _tabNoStat->getDbNoStatRef();
@@ -184,7 +190,7 @@ void CovList::makeSillStationary(int icov, int ivar, int jvar)
   if (!_isCovarianceIndexValid(icov)) return;
   getCovModify(icov)->makeSillStationary(ivar, jvar);
 }
-void CovList::makeSillsStationary(int icov,bool silent)
+void CovList::makeSillsStationary(int icov, bool silent)
 {
   if (!_isCovarianceIndexValid(icov)) return;
   getCovModify(icov)->makeSillsStationary(silent);
@@ -335,7 +341,6 @@ const CovBase* CovList::getCov(int icov) const
   if (!_isCovarianceIndexValid(icov)) return nullptr;
   return _covs[icov];
 }
-
 
 CovBase* CovList::getCovModify(int icov)
 {
@@ -514,7 +519,8 @@ void CovList::setCovFiltered(int icov, bool filtered)
   _updateLists();
 }
 
-void CovList::appendParams(ListParams& listParams){
+void CovList::appendParams(ListParams& listParams)
+{
   for (const auto& cov: _covs)
   {
     cov->appendParams(listParams);
@@ -534,4 +540,30 @@ void CovList::updateCov()
   {
     cov->updateCov();
   }
+  // Check if Goulard must be applied
+
+  if (_modelFitSills)
+    _modelFitSills->fitSills();
+}
+
+void CovList::deleteFitSills() const
+{
+  delete _modelFitSills;
+  _modelFitSills = nullptr;
+}
+
+void CovList::setFitSills(AModelFitSills* amopts) const
+{
+  if (amopts == nullptr) return;
+
+  // Delete previously existing structure
+  delete _modelFitSills;
+
+  // Store the new pointer
+  _modelFitSills = amopts;
+}
+
+AModelFitSills* CovList::getFitSills() const
+{
+  return _modelFitSills;
 }

@@ -89,7 +89,7 @@ void ALikelihood::init(bool verbose)
   _init();
 }
 
-double ALikelihood::computeCost(bool verbose)
+double ALikelihood::computeLogLikelihood(bool verbose)
 {
   _updateModel(verbose);
 
@@ -153,4 +153,9 @@ double ALikelihood::computeCost(bool verbose)
     message("Log-likelihood  = %lf\n", loglike);
   }
   return loglike;
+}
+
+double ALikelihood::computeCost(bool verbose)
+{
+  return -computeLogLikelihood(verbose);
 }

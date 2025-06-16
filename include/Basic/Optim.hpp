@@ -117,13 +117,12 @@ public:
   void setXtolRel(double tol);
   void setLowerBounds(const std::vector<double>& lb);
   void setUpperBounds(const std::vector<double>& ub);
-  double optimize(std::vector<double>& x);
+  double minimize(std::vector<double>& x);
 
 private:
   static double callback(unsigned n, const double* x, double* grad, void* f_data);
 
   nlopt_opt_s* _opt;
-
   std::shared_ptr<std::function<double(const std::vector<double>&)>> _objective;
   std::shared_ptr<std::function<void(const std::vector<double>&, vect)>> _gradient;
   std::vector<std::function<double(const std::vector<double>&)>> _gradientPartials;

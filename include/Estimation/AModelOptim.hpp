@@ -32,7 +32,7 @@ public:
     if (_model == nullptr)
       throw std::invalid_argument("Model cannot be null");
 
-    bool useGradient = false;
+    bool useGradient = true;
     _params          = _model->generateListParams();
     _model->initParams();
     _x    = _params->getOptimizableValues();
@@ -95,18 +95,7 @@ public:
       VH::dump(" - Current parameters", x, false);
     }
 
-    // Check if Goulard must be applied
-    ModelCovList* mcv = dynamic_cast<ModelCovList*>(_model);
-    if (mcv != nullptr)
-    {
-      AModelFitSills* amf = mcv->getFitSills();
-      if (amf != nullptr)
-      {
-        amf->fitSills(_verbose, _trace);
-        _itergCum += amf->getNiter();
-      }
-    }
-    return -result;
+    return result;
   };
 
   void _printSummary(double minf, const std::vector<double>& x) const
@@ -121,7 +110,7 @@ public:
 
   void run()
   {
-    double minf = _opt->optimize(_x);
+    double minf = _opt->minimize(_x);
 
     if (_verbose) _printSummary(minf, _x);
   }

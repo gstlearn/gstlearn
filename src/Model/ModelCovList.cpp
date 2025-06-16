@@ -13,7 +13,6 @@
 
 ModelCovList::ModelCovList(const CovContext& ctxt)
   : ModelGeneric(ctxt)
-  , _modelFitSills(nullptr)
 {
   _cova = nullptr;
 }
@@ -21,7 +20,7 @@ ModelCovList::ModelCovList(const CovContext& ctxt)
 ModelCovList::ModelCovList(const ModelCovList &m)
   : ModelGeneric(m)
 {
-  _modelFitSills = (m._modelFitSills != nullptr) ? (AModelFitSills*)m._modelFitSills->clone() : nullptr;
+  
 
 }
 ModelCovList& ModelCovList:: operator= (const ModelCovList &m)
@@ -29,8 +28,6 @@ ModelCovList& ModelCovList:: operator= (const ModelCovList &m)
   if (this != &m)
   {
     ModelGeneric::operator=(m);
-    _modelFitSills = (m._modelFitSills != nullptr) ? (AModelFitSills*)m._modelFitSills->clone() : nullptr;
-
   }
   return *this;
 }
@@ -42,8 +39,7 @@ void ModelCovList::setCovList(CovList* covs)
 
 ModelCovList::~ModelCovList() 
 {
-  delete _modelFitSills;
-  _modelFitSills = nullptr;
+
 }
 
 void ModelCovList::addCov(const CovBase* cov)
@@ -68,24 +64,3 @@ void ModelCovList::addCov(const CovBase* cov)
   getCovListModify()->addCov(cov);
 }
 
-void ModelCovList::deleteFitSills() const
-{
-  delete _modelFitSills;
-  _modelFitSills = nullptr;
-}
-
-void ModelCovList::setFitSills(AModelFitSills* amopts)
-{
-  if (amopts == nullptr) return;
-
-  // Delete previously existing structure
-  delete _modelFitSills;
-
-  // Store the new pointer
-  _modelFitSills = amopts;
-}
-
-AModelFitSills* ModelCovList::getFitSills() const
-{
-  return _modelFitSills;
-}

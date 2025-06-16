@@ -131,7 +131,9 @@ int ModelFitSillsVario::fitSills(bool verbose, bool trace)
 
   // In this iterative manner of Fitting Sills, the verbose flag is switched OFF
   // in order to avoid intermediate printouts
-  int status =  _fitSills(false, trace);
+  setTrace(trace);
+  setVerbose(false);
+  int status =  _fitSills();
 
   return status;
 }

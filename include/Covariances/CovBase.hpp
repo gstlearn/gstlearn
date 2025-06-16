@@ -18,6 +18,7 @@
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Model/AModelFitSills.hpp"
 #include "Model/CovInternal.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
