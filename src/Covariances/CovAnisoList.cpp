@@ -26,6 +26,7 @@
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Db/Db.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
+#include "geoslib_define.h"
 
 #include <cstddef>
 #include <math.h>
@@ -553,11 +554,13 @@ void CovAnisoList::makeParamStationary(int icov)
   getCovAniso(icov)->makeParamStationary();
 }
 
-void CovAnisoList::appendParams(ListParams& listParams)
+void CovAnisoList::appendParams(ListParams& listParams,
+                                std::vector<std::function<double(double)>>* gradFuncs)
 {
+  DECLARE_UNUSED(gradFuncs);
   if (!_sameRotation)
   {
-    CovList::appendParams(listParams);
+    CovList::appendParams(listParams, gradFuncs);
     return;
   }
 
@@ -571,15 +574,15 @@ void CovAnisoList::appendParams(ListParams& listParams)
   {
 
     CovAniso* cova = getCovAniso(jcov);
-    cova->appendParams(listParams);
+    cova->appendParams(listParams, gradFuncs);
     if (cova->getFlagRotation()) // If rotation
     {
       paramscur = &cova->getAnglesParam(); // get the current angles
 
       if (!found) // If first time
       {
-        found         = true;
-        paramsref     = paramscur; // The ref becomes the current
+        found     = true;
+        paramsref = paramscur;    // The ref becomes the current
         for (auto& p: *paramsref) // Create the vector of current locations
         {
           anglesrefLoc.push_back(p.getAddress());

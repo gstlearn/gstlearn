@@ -471,9 +471,10 @@ public:
   const Db* getDbNoStatRaw() const;
   void setNoStatDbIfNecessary(const Db* db);
   void setNoStatDbIfNecessary(std::shared_ptr<const Db>& db);
-  virtual void appendParams(ListParams& listParams) 
+  virtual void appendParams(ListParams& listParams,
+                            std::vector<std::function<double(double)>>* gradFuncs = nullptr)
   {
-    DECLARE_UNUSED(listParams);
+    DECLARE_UNUSED(listParams, gradFuncs);
   }
   virtual void updateCov()
   {

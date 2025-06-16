@@ -60,7 +60,7 @@ public:
   CorAniso(const CorAniso& r);
   CorAniso& operator=(const CorAniso& r);
   virtual ~CorAniso();
-  
+
   /// ICloneable Interface
   IMPLEMENT_CLONING(CorAniso)
 
@@ -257,7 +257,8 @@ public:
   void optimizationTransformSPNew(const SpacePoint& ptin, SpacePoint& ptout) const;
   String toStringParams(const AStringFormat* strfmt = nullptr) const;
   String toStringNoStat(const AStringFormat* strfmt = nullptr, int i = 0) const;
-  void appendParams(ListParams& listParams) override;
+  void appendParams(ListParams& listParams,
+                    std::vector<std::function<double(double)>>* gradFuncs = nullptr) override;
   void updateCov() override;
   void initParams() override;
   ParamInfo& getParamInfoScale(int idim) { return _scales[idim]; }
@@ -313,13 +314,13 @@ private:
                        const CovCalcMode* mode = nullptr) const override;
 
 private:
-  ACovFunc* _corfunc;    /// Basic correlation function
+  ACovFunc* _corfunc; /// Basic correlation function
   std::vector<ParamInfo> _scales;
   std::vector<ParamInfo> _angles;
-  mutable Tensor _aniso; /// Anisotropy parameters
+  mutable Tensor _aniso;        /// Anisotropy parameters
   mutable double _noStatFactor; /// Correcting factor for non-stationarity
 
-  bool _optimNoAniso; // All ranges should be equal
+  bool _optimNoAniso;   // All ranges should be equal
   bool _optimLockIso2d; // Range U and V should be equal
 
   const std::array<EConsElem, 4> _listaniso = {EConsElem::RANGE,
@@ -328,6 +329,4 @@ private:
                                                EConsElem::ANGLE};
   // These temporary information is used to speed up processing (optimization functions)
   // They are in a protected section as they may be modified by class hierarchy
-
-
 };

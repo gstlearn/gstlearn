@@ -26,9 +26,9 @@
 ParamInfo CovBase::createParamInfoForCholSill()
 {
   return ParamInfo(String("Cholesky sill"),
-                 TEST,
-                 {-INF, INF},
-                 String("Term of the Cholesky decomposition of the sill matrix"));
+                   TEST,
+                   {-INF, INF},
+                   String("Term of the Cholesky decomposition of the sill matrix"));
 }
 CovBase::CovBase(ACov* cor,
                  const MatrixSymmetric& sill)
@@ -41,7 +41,7 @@ CovBase::CovBase(ACov* cor,
   createNoStatTab();
 
   _ctxt.setNVar(sill.getNSize());
-  
+
   if (cor != nullptr)
   {
     _ctxt = cor->getContextCopy();
@@ -159,7 +159,6 @@ void CovBase::_initFromContext()
   _cor->initFromContext();
   _sillCur.reset(_ctxt.getNVar(), _ctxt.getNVar());
   setOptimEnabled(true);
-
 }
 void CovBase::initSill(double value)
 {
@@ -182,7 +181,7 @@ int CovBase::addEvalCovVecRHSInPlace(vect vect,
                                      const ECalcMember& calcMember) const
 {
   DECLARE_UNUSED(lambda)
-  return  _cor->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, getSill(0, 0), calcMember);
+  return _cor->addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, getSill(0, 0), calcMember);
 }
 
 double CovBase::_eval(const SpacePoint& p1,
@@ -276,11 +275,9 @@ int CovBase::makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFun
 {
   int a = ACov::makeElemNoStat(econs, iv1, iv2, func, db, namecol);
   if (a) return 1;
-  
-  return _cor->makeElemNoStat(econs, iv1, iv2, func, db, namecol);
-  
-}
 
+  return _cor->makeElemNoStat(econs, iv1, iv2, func, db, namecol);
+}
 
 ///////////////////// Sill ////////////////////////
 
@@ -509,7 +506,7 @@ bool CovBase::_isNoStat() const
 int CovBase::getNSills() const
 {
   TabNoStatSills* tabnostat = getTabNoStatSills();
-   if (tabnostat == nullptr) return 0;
+  if (tabnostat == nullptr) return 0;
   return tabnostat->getNSills();
 }
 
@@ -520,9 +517,10 @@ bool CovBase::isNoStatForVariance() const
   return tabnostat->isDefinedForVariance();
 }
 
-void CovBase::appendParams(ListParams& listParams)
+void CovBase::appendParams(ListParams& listParams,
+                           std::vector<std::function<double(double)>>* gradFuncs)
 {
-  _cor->appendParams(listParams);
+  _cor->appendParams(listParams, gradFuncs);
   for (size_t ivar = 0, n = getNVar(); ivar < n; ivar++)
   {
 

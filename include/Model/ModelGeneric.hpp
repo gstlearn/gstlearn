@@ -204,7 +204,7 @@ private:
 
 protected:               // TODO : pass into private to finish clean
   ACov* _cova;           /* Generic Covariance structure */
-  std::vector<std::function<double(double)>> _gradFuncs;
+  mutable std::vector<std::function<double(double)>> _gradFuncs;
   DriftList* _driftList; /* Series of Drift functions */
   CovContext _ctxt;      /* Context */
 };

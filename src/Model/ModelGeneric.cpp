@@ -320,7 +320,7 @@ std::shared_ptr<ListParams> ModelGeneric::generateListParams() const
   // Add Covariance parameters
   if (_cova != nullptr)
   {
-    _cova->appendParams(*listParams);
+    _cova->appendParams(*listParams,&_gradFuncs);
   }
 
   // Add Drift parameters

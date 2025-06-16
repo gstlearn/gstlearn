@@ -54,7 +54,7 @@ public:
   const ACov* getCor() const { return _cor; }
 
   double getSill(int ivar, int jvar) const;
-  
+
   void makeSillNoStatDb(const String& namecol, int ivar = 0, int jvar = 0, const Db* db = nullptr);
   void makeSillStationary(int ivar = 0, int jvar = 0);
   void makeSillsStationary(bool silent = false);
@@ -85,7 +85,7 @@ public:
 
   double getValue(const EConsElem& econs, int iv1, int iv2) const override;
   void nostatUpdate(CovInternal* covint) const;
-  #ifndef SWIG
+#ifndef SWIG
   int addEvalCovVecRHSInPlace(vect vect,
                               const VectorInt& index1,
                               int iech2,
@@ -103,10 +103,11 @@ public:
   }
   int makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String()) override;
 
-  void appendParams(ListParams& listParams) override;
+  void appendParams(ListParams& listParams,
+                    std::vector<std::function<double(double)>>* gradFuncs = nullptr) override;
   void updateCov() override;
   void initParams() override;
-  ParamInfo& getParamInfoCholSills(int ivar, int jvar) { return _cholSillsInfo(ivar,jvar); }
+  ParamInfo& getParamInfoCholSills(int ivar, int jvar) { return _cholSillsInfo(ivar, jvar); }
 
 protected:
   void _attachNoStatDb(const Db* db) override;
@@ -148,10 +149,10 @@ private:
                        const CovCalcMode* mode = nullptr) const override;
 
 protected:
-  MatrixT<ParamInfo>      _cholSillsInfo;
-  mutable MatrixSquare    _cholSills;
+  MatrixT<ParamInfo> _cholSillsInfo;
+  mutable MatrixSquare _cholSills;
   mutable MatrixSymmetric _sillCur;
-  mutable MatrixSquare    _workMat;
+  mutable MatrixSquare _workMat;
 
 private:
   ACov* _cor;

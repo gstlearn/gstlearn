@@ -519,11 +519,12 @@ void CovList::setCovFiltered(int icov, bool filtered)
   _updateLists();
 }
 
-void CovList::appendParams(ListParams& listParams)
+void CovList::appendParams(ListParams& listParams,
+                           std::vector<std::function<double(double)>>* gradFuncs)
 {
   for (const auto& cov: _covs)
   {
-    cov->appendParams(listParams);
+    cov->appendParams(listParams, gradFuncs);
   }
 }
 
