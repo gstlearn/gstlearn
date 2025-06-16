@@ -11,8 +11,13 @@
 
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
+#include "Estimation/CalcKriging.hpp"
 #include "Model/Model.hpp"
 #include "Estimation/CalcGlobal.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Neigh/NeighMoving.hpp"
+#include "Variogram/Vario.hpp"
+#include "Variogram/VarioParam.hpp"
 
 /**
  * This file is meant to perform any test that needs to be coded for a quick trial
@@ -24,20 +29,39 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  Db myDb = Db();
-  myDb.addColumns({0, 1}, "longitude", ELoc::X, 0);
-  myDb.addColumns({0, 1}, "latitude", ELoc::X, 1);
-  myDb.addColumns({3, 7}, "density", ELoc::Z, 0);
-  myDb.display();
+  int ndim = 2;
+  defineDefaultSpace(ESpaceType::RN, ndim);
 
-  DbGrid* myGrid = DbGrid::create({10, 10});
-  myGrid->display();
+  Db* dat = Db::createFillRandom(20, 2, 2);
+  dat->display();
 
-  Model* myModel = Model::createFromParam(ECov::LINEAR, 10, 1);
+  DbGrid* target = DbGrid::createFillRandom({10,10}, 1);
+  target->display();
+  dat->setLocators({"z-1", "z-2"}, ELoc::Z);
+  target->setLocators({"z"}, ELoc::Z);
 
-  Global_Result res = global_kriging(&myDb, myGrid, myModel, 0, true);
+  VarioParam* varioparam = VarioParam::createMultiple(2, 30, 10);
+  Vario vario_raw2dir    = Vario(*varioparam);
+  (void) vario_raw2dir.compute(dat);
 
-  delete myGrid;
-  delete myModel;
+  Model fitmod_raw = Model();
+  (void) fitmod_raw.fit(&vario_raw2dir,
+                        {ECov::NUGGET, ECov::EXPONENTIAL, ECov::CUBIC, ECov::LINEAR});
+  fitmod_raw.setDriftIRF(0, 0);
+  fitmod_raw.display();
+
+  KrigOpt krigopt          = KrigOpt();
+  NeighUnique* uniqueNeigh = NeighUnique::create();
+  NeighMoving* movingNeigh = NeighMoving::create(20, 100);
+
+  krigopt.setColCok({1, -1});
+
+  // this one throws an error
+  (void)kriging(dat, target, &fitmod_raw, uniqueNeigh,true,false,false,
+                krigopt, NamingConvention("COLCOK"));
+
+  // this one runs but results are not correct
+  (void)kriging(dat, target, &fitmod_raw, movingNeigh,true,false,false,
+                krigopt, NamingConvention("COLCOK"));
   return (0);
 }
