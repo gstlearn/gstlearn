@@ -57,8 +57,8 @@ static int _modifyMopForVMap(const DbGrid* dbmap,
                              ModelOptimParam& mop)
 {
   // Clever setting of options 
-  mop.setAuthAniso(1);
-  mop.setAuthRotation(1);
+  mop.setAuthAniso(true);
+  mop.setAuthRotation(true);
   mop.setLockNo3d(dbmap->getNDim() <= 2);
 
   // Case when properties are defined: Goulard is switch off
@@ -127,24 +127,24 @@ static int _modifyMopForVario(const Vario* vario,
 
   /* Clever setting of options */
 
-  if (ndir <= ndim) mop.setAuthRotation(0);
-  if (ndir <= 1 || ndim <= 1) mop.setAuthAniso(0);
-  if (ndir <= 1 || ndim <= 1) mop.setAuthRotation(0);
+  if (ndir <= ndim) mop.setAuthRotation(false);
+  if (ndir <= 1 || ndim <= 1) mop.setAuthAniso(false);
+  if (ndir <= 1 || ndim <= 1) mop.setAuthRotation(false);
 
-  if (ndim == 3 && n_3d <= 0) mop.setLockNo3d(1);
-  if (n_2d <= 1) mop.setLockIso2d(1);
-  if (mop.getLockIso2d()) mop.setAuthRotation(0);
-  if (mop.getLockNo3d()) mop.setLockRot2d(1);
+  if (ndim == 3 && n_3d <= 0) mop.setLockNo3d(true);
+  if (n_2d <= 1) mop.setLockIso2d(true);
+  if (mop.getLockIso2d()) mop.setAuthRotation(false);
+  if (mop.getLockNo3d()) mop.setLockRot2d(true);
 
   /* Consequences of no anisotropy */
 
   if (!mop.getAuthAniso())
   {
-    mop.setAuthRotation(0);
-    mop.setLockSamerot(0);
-    mop.setLockRot2d(0);
-    mop.setLockNo3d(0);
-    mop.setLockIso2d(0);
+    mop.setAuthRotation(false);
+    mop.setLockSamerot(false);
+    mop.setLockRot2d(false);
+    mop.setLockNo3d(false);
+    mop.setLockIso2d(false);
   }
 
   /* Case when properties are defined: Goulard is switch off */
@@ -276,6 +276,28 @@ static int _modifyModelForConstraints(Constraints* constraints,
   return 0;
 }
 
+static void _fixAllAnglesFromIndex(CorAniso* coraniso,
+                                   int start,
+                                   bool resetToZero = false)
+{
+  std::vector<ParamInfo>& params = coraniso->getParamInfoAngles();
+  for (int ipar = start, npar = (int)params.size(); ipar < npar; ipar++)
+  {
+    if (resetToZero) params[ipar].setValue(0.);
+    params[ipar].setFixed(true);
+  }
+}
+
+static void _fixAllScalesFromIndex(CorAniso* coraniso, int start = 0)
+{
+  std::vector<ParamInfo>& params = coraniso->getParamInfoScales();
+  for (int ipar = start, npar = (int)params.size(); ipar < npar; ipar++)
+  {
+    params[ipar].setValue(0.);
+    params[ipar].setFixed(true);
+  }
+}
+
 static int _modifyModelForMop(const ModelOptimParam& mop,
                               ModelGeneric* model)
 {
@@ -292,7 +314,6 @@ static int _modifyModelForMop(const ModelOptimParam& mop,
   {
     CovBase* covbase = mcv->getCovBase(icov);
     if (covbase == nullptr) continue;
-
 
     // Set the Goulard constraints
     if (mop.getFlagGoulard())
@@ -321,43 +342,28 @@ static int _modifyModelForMop(const ModelOptimParam& mop,
 
       if (mop.getLockNo3d())
       {
-        std::vector<ParamInfo>& params = coraniso->getParamInfoScales();
-        for (int ipar = 2, npar = (int) params.size(); ipar < npar; ipar++)
-        {
-          params[ipar].setValue(0.);
-          params[ipar].setFixed(true);
-        }
+        _fixAllScalesFromIndex(coraniso, 2);
       }
 
       // Anisotropy rotation
       if (mop.getAuthRotation())
       {
         // Anisotropy rotation is authorized
-
         if (mop.getLockRot2d())
         {
-          std::vector<ParamInfo>& params = coraniso->getParamInfoAngles();
-          for (int ipar = 1, npar = (int)params.size(); ipar < npar; ipar++)
-          {
-            params[ipar].setValue(0.);
-            params[ipar].setFixed(true);
-          }
+          _fixAllAnglesFromIndex(coraniso, 1, true);
         }
       }
       else
       {
-        std::vector<ParamInfo>& params = coraniso->getParamInfoAngles();
-        for (int ipar = 0, npar = (int) params.size(); ipar < npar; ipar++)
-        {
-          params[ipar].setFixed(true);
-        }
+        _fixAllAnglesFromIndex(coraniso, 0, false);
       }
     }
     else 
     {
 
       // Anisotropy forbidden
-      if (coraniso == nullptr) continue;
+      _fixAllAnglesFromIndex(coraniso, 0, false);
       coraniso->setOptimNoAniso(true);
     }
   }
@@ -389,7 +395,7 @@ AModelOptim* AModelOptimFactory::create(ModelGeneric* model,
     if ((int)model->getNDim() != dbmap->getNDim()) return nullptr;
     if (_modifyModelForConstraints(constraints, model)) return nullptr;
     if (_modifyMopForVMap(dbmap, model, constraints, mopLocal)) return nullptr;
-    if (_modifyModelForMop(mop, model)) return nullptr;
+    if (_modifyModelForMop(mopLocal, model)) return nullptr;
     return ModelOptimVMap::createForOptim(model, dbmap, constraints, mopLocal);
   }
 
@@ -399,7 +405,8 @@ AModelOptim* AModelOptimFactory::create(ModelGeneric* model,
     if ((int)model->getNDim() != vario->getNDim()) return nullptr;
     if (_modifyMopForVario(vario, model, constraints, mopLocal)) return nullptr;
     if (_modifyModelForConstraints(constraints, model)) return nullptr;
-    if (_modifyModelForMop(mop, model)) return nullptr;
+    mopLocal.display();
+    if (_modifyModelForMop(mopLocal, model)) return nullptr;
     return ModelOptimVario::createForOptim(model, vario, constraints, mopLocal);
   }
   return nullptr;

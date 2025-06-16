@@ -525,13 +525,9 @@ void CovBase::appendParams(ListParams& listParams)
   _cor->appendParams(listParams);
   for (size_t ivar = 0, n = getNVar(); ivar < n; ivar++)
   {
-
     for (size_t jvar = 0; jvar <= ivar; jvar++)
     {
-      if (!_cholSillsInfo(ivar, jvar).isFixed())
-      {
-        listParams.addParam(_cholSillsInfo(ivar, jvar));
-      }
+      listParams.addParam(_cholSillsInfo(ivar, jvar));
     }
   }
 }

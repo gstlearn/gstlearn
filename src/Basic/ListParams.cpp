@@ -22,6 +22,7 @@ void ListParams::updateDispatch()
 
 void ListParams::addParam(ParamInfo& param)
 {
+  if (param.isFixed()) return;
   _params.push_back(param);
   _dispatch.push_back(_params.size() - 1);
   _dispatchIndex.push_back(_params.size() - 1);
@@ -80,9 +81,10 @@ String ListParams::toString(const AStringFormat* strfmt) const
   DECLARE_UNUSED(strfmt);
   std::stringstream result;
   result << toTitle(1,"List of Parameters:");
-  for (int ipar = 0, npar = (int) _params.size(); ipar < npar; ipar++)
+  for (int ipar = 0, jpar = 0, npar = (int) _dispatchIndex.size(); ipar < npar; ipar++)
   {
-    result << ipar+1 << " - " << _params[ipar].get().toString() << std::endl;
+    jpar++;
+    result << jpar << " - " << _params[_dispatchIndex[ipar]].get().toString() << std::endl;
   }
   return result.str();
 }

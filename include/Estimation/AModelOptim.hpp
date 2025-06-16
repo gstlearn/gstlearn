@@ -32,7 +32,7 @@ public:
     if (_model == nullptr)
       throw std::invalid_argument("Model cannot be null");
 
-    bool useGradient = true;
+    bool useGradient = false;
     _params          = _model->generateListParams();
     _model->initParams();
     _x    = _params->getOptimizableValues();
@@ -77,7 +77,11 @@ public:
     if (trace) _verbose = true;
 
     // In the verbose case, first print the list of parameters
-    if (verbose || trace) _params->display();
+    if (verbose || trace) 
+    {
+
+    }
+    _params->display();
   }
 
   double eval(const std::vector<double>& x)

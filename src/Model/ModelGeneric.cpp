@@ -22,7 +22,6 @@
 #include "Estimation/AModelOptimFactory.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Estimation/Likelihood.hpp"
-#include "geoslib_define.h"
 #include <memory>
 
 ModelGeneric::ModelGeneric(const CovContext& ctxt)
