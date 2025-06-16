@@ -85,17 +85,17 @@ public:
   int getDriftSize() const { return (!_X.empty()) ? _X.getNCols() : 0; }
   int getNrhs() const { return (!_Sigma0.empty()) ? _Sigma0.getNCols() : 0; }
 
-  VectorInt             getSampleNbgh() const { return _nbgh; }
-  VectorVectorDouble    getSampleCoordinates() const;
-  VectorDouble          getSampleData() const { return _Z; };
-  MatrixSymmetric getLHS() const { return _Sigma; }
-  MatrixDense     getLHSF() const { return _Sigma0; }
-  MatrixDense     getRHS() const { return _Sigma0; }
-  MatrixDense     getRHSF() const { return _X0; }
-  MatrixSquare   getVariance() const { return _Sigma00; }
-  MatrixDense     getWeights() const;
-  MatrixDense     getMu() const;
-  double                getLTerm() const { return _algebra.getLTerm(); }
+  VectorInt          getSampleNbgh() const { return _nbgh; }
+  VectorVectorDouble getSampleCoordinates() const;
+  VectorDouble       getSampleData() const { return _Z; };
+  MatrixSymmetric    getLHS() const { return _Sigma; }
+  MatrixDense        getLHSF() const { return _Sigma0; }
+  MatrixDense        getRHS() const { return _Sigma0; }
+  MatrixDense        getRHSF() const { return _X0; }
+  MatrixSquare       getVariance() const { return _Sigma00; }
+  MatrixDense        getWeights() const;
+  MatrixDense        getMu() const;
+  double             getLTerm() const { return _algebra.getLTerm(); }
 
 private:
   int    _getNVar() const;
@@ -128,9 +128,9 @@ private:
   void   _setInternalShortCutVariablesModel();
   int    _setInternalShortCutVariablesNeigh();
 
-  Model* _castInOldModel();
+  Model*    _castInOldModel();
   VectorInt _xvalidUniqueIndices() const;
-  int  _updateForColCokMoving();
+  int       _updateForColCokMoving();
 
   // Deprecated function
   double _continuousMultiplier(int rank1, int rank2, double eps = EPSILON4);
