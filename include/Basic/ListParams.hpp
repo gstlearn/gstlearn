@@ -7,6 +7,7 @@
 #include "Basic/AStringFormat.hpp"
 #include "Basic/ParamInfo.hpp"
 #include <vector>
+#include <functional>
 
 class GSTLEARN_EXPORT ListParams: public AStringable
 {
