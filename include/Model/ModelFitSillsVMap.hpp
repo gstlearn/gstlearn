@@ -40,7 +40,7 @@ public:
 
   IMPLEMENT_CLONING(ModelFitSillsVMap)
 
-  int fitSills(bool verbose = false, bool trace = false) override;
+  int fitSills() override;
 
   static ModelFitSillsVMap* createForOptim(const DbGrid* dbmap,
                                            ModelGeneric* model,

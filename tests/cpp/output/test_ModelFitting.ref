@@ -39,8 +39,8 @@ Known Mean(s)     0.000
 
 Model fitting from Variogram (new version)
 ==========================================
-- Anisotropy                   ON
-- Anisotropy Rotation          ON
+- Anisotropy                   OFF
+- Anisotropy Rotation          OFF
 - Global Rotation              OFF
 - Rotation around Z only       OFF
 - Lock third dimension         OFF
@@ -53,22 +53,15 @@ Model fitting from Variogram (new version)
 List of Parameters:
 -------------------
 1 - Scale in Dimension 1
-    Value: 0.250000
+    Value: 1.000000
     Absolute Bounds: 0 inf 
     User Bounds: 0.001 inf 
-2 - Scale in Dimension 2
-    Value: 0.250000
-    Absolute Bounds: 0 inf 
-    User Bounds: 0.001 inf 
-3 - Angle in Dimension 1
-    Value: 0.000000
-    Absolute Bounds: -inf inf 
-    User Bounds: -inf inf 
-Summary of Optimization procedure - Count of Iterations =  207 - Final Cost = 0.608012
-- Final parameters:     0.286     0.340    -0.034
-  Summary of Sill Fitting - Count of Iterations = 1263 - Final Cost = 0.015080
-  - Covariance 1: Final parameters = 1.595086 
-  - Covariance 2: Final parameters = 2.603593 
+Summary of Optimization procedure:
+Count of Iterations =   84 - Final Cost = 0.015039
+- Final parameters:     0.291
+  Summary of Sill Fitting - Count of Iterations =  595 - Final Cost = 0.015039
+  - Covariance 1: Final parameters = 1.611915 
+  - Covariance 2: Final parameters = 2.592578 
 
 Model characteristics
 =====================
@@ -81,38 +74,9 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      1.595
+- Sill         =      1.612
 Spherical
-- Sill         =      2.604
-- Ranges       =      0.286     0.340
-- Angles       =    179.966     0.000
-- Rotation Matrix
-               [,  0]    [,  1]
-     [  0,]     1.000     0.001
-     [  1,]    -0.001     1.000
-Total Sill     =      4.199
-Known Mean(s)     0.000
-Resulting Model
-
-Model characteristics
-=====================
-Space dimension              = 2
-Number of variable(s)        = 1
-Number of basic structure(s) = 2
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
-
-Covariance Part
----------------
-Nugget Effect
-- Sill         =      1.595
-Spherical
-- Sill         =      2.604
-- Ranges       =      0.286     0.340
-- Angles       =    179.966     0.000
-- Rotation Matrix
-               [,  0]    [,  1]
-     [  0,]     1.000     0.001
-     [  1,]    -0.001     1.000
-Total Sill     =      4.199
+- Sill         =      2.593
+- Range        =      0.291
+Total Sill     =      4.204
 Known Mean(s)     0.000

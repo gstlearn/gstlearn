@@ -97,13 +97,9 @@ int ModelFitSillsVMap::_prepare()
  **
  ** \return  Error return code
  **
- ** \param[in]  verbose     Verbose flag
- ** \param[in]  trace       Trace flag
- **
  *****************************************************************************/
-int ModelFitSillsVMap::fitSills(bool verbose, bool trace)
+int ModelFitSillsVMap::fitSills()
 {
-  DECLARE_UNUSED(verbose)
 
   // Initialize Model-dependent quantities
   _updateFromModel();
@@ -111,7 +107,6 @@ int ModelFitSillsVMap::fitSills(bool verbose, bool trace)
   // In this iterative manner of Fitting Sills, the verbose flag is switched OFF
   // in order to avoid intermediate printouts
   setVerbose(false);
-  setTrace(trace);
   int status =  _fitSills();
 
   return status;

@@ -45,7 +45,7 @@ public:
   FORWARD_METHOD_NON_CONST(getCovListModify, setSills)
   FORWARD_METHOD_NON_CONST(getCovListModify, normalize)
 
-  FORWARD_METHOD(getCovList,setFitSills)
+  FORWARD_METHOD(getCovList, setFitSills)
   FORWARD_METHOD(getCovList, deleteFitSills)
   FORWARD_METHOD(getCovList, getNCov)
   FORWARD_METHOD(getCovList, getSills)
@@ -57,5 +57,4 @@ public:
   void setCovList(CovList* covs);
   virtual void addCov(const CovBase* cov);
   CovBase* getCovBase(int icov) const { return getCovListModify()->getCovModify(icov); }
-
 };

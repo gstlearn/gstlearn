@@ -86,18 +86,31 @@ public:
     _trace   = trace;
     if (trace) _verbose = true;
 
+    // Export 'verbose' and 'trace' flags down to FitSill (if defined)
+    ModelCovList* mcv = dynamic_cast<ModelCovList*>(_model);
+    if (mcv != nullptr)
+    {
+      AModelFitSills* amf = mcv->getFitSills();
+      if (amf != nullptr)
+      {
+        amf->setVerbose(verbose);
+        amf->setTrace(trace);
+      }
+    }
+
     // In the verbose case, first print the list of parameters
     if (verbose || trace) 
-    {
-
-    }
-    _params->display();
+      _params->display();
   }
 
   double eval(const std::vector<double>& x)
   {
     _iter++;
+
+    // Set the current parameters inside the Model
     _params->setValues(x);
+
+    // Update the different parameters of the Model
     _model->updateModel();
 
     // Calculate the cost
@@ -120,7 +133,11 @@ public:
     VH::dump("- Final parameters", x, false);
     ModelCovList* mcv   = dynamic_cast<ModelCovList*>(_model);
     AModelFitSills* amf = mcv->getFitSills();
-    if (amf != nullptr) amf->printFitSillSummary(_itergCum);
+    if (amf != nullptr) 
+    {
+      int nitergCum = mcv->getCovList()->getNitergCum();
+      amf->printFitSillSummary(nitergCum);
+    }
   }
 
   void run()
@@ -133,7 +150,6 @@ public:
   void resetIter()
   {
     _iter = 0;
-    _itergCum = 0;
   }
   virtual double computeCost(bool verbose = false) = 0;
   virtual void _updateGradients() {}
@@ -149,5 +165,4 @@ private:
   std::vector<double> _xmin;
   std::vector<double> _xmax;
   int _iter;
-  int _itergCum;
 };

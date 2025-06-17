@@ -40,7 +40,7 @@ public:
 
   IMPLEMENT_CLONING(ModelFitSillsVario)
 
-  int fitSills(bool verbose = false, bool trace = false) override;
+  int fitSills() override;
 
   static ModelFitSillsVario* createForOptim(Vario* vario,
                                             ModelGeneric* model,

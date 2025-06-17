@@ -496,14 +496,14 @@ def _fig_varmod(fig, vario=None, model=None, **kwargs):
     return _ax_varmod(axs, vario=vario, model=model, **kwargs)
 
 def _ax_varmod(axs, vario=None, model=None, ivar=-1, jvar=-1, idir=-1,
-                nh = 100, hmax = None, codir=None,
-                showPairs=False, asCov=False, 
-                flagDrawVariance = True,
-                varioLinestyle = 'dashed', modelLinestyle = 'solid',
-                varColor='black', varLinestyle="dotted",
-                envColor='black', envLinestyle="dotted",
-                cmap=None, flagLegend=False,
-                **kwargs):
+               nh = 100, hmax = None, codir=None,
+               showPairs=False, asCov=False, 
+               flagDrawVariance = True,
+               varioLinestyle = 'dashed', modelLinestyle = 'solid',
+               varColor='black', varLinestyle="dotted",
+               envColor='black', envLinestyle="dotted",
+               cmap=None, flagLegend=False,
+               **kwargs):
     """
     Construct a figure for plotting experimental variogram(s) and model. Both of them are optional
     
@@ -608,6 +608,10 @@ def _ax_varmod(axs, vario=None, model=None, ivar=-1, jvar=-1, idir=-1,
                     ax.set_xlim(left=0)
                 if vario.drawOnlyPositiveY(iv, jv):
                     ax.set_ylim(bottom=0)
+
+            # Add the point (0,0) to fix the scale of the graphic
+            # This should be valid for any representation of Variogram and/or Model
+            ax.plot(0., 0.)
     
     return axs
 

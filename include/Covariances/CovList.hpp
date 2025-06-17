@@ -133,6 +133,7 @@ public:
 
   void setFitSills(AModelFitSills* amopts) const;
   AModelFitSills* getFitSills() const;
+  int getNitergCum() const { return _itergCum; }
 
 protected:
   bool _isCovarianceIndexValid(int icov) const;
@@ -172,4 +173,5 @@ protected:
 
 private:
   mutable AModelFitSills* _modelFitSills; /* Model fitting procedure for Sills */
+  mutable int _itergCum;
 };
