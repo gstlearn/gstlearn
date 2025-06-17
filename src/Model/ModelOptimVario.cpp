@@ -154,7 +154,7 @@ int ModelOptimVario::_buildExperimental()
       int ijvar = 0;
       for (int ivar = ijvar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-          _lags[ecr]._weight = WT(ijvar, ipadir);
+          _lags[ecr++]._weight = WT(ijvar, ipadir);
     }
 
   return 0;
@@ -229,15 +229,14 @@ double ModelOptimVario::computeCost(bool verbose)
 
   // Evaluate the Cost function
   int nlags    = (int)_lags.size();
-  double total = 0.;
+  double score = 0.;
   SpacePoint origin;
   for (int ilag = 0; ilag < nlags; ilag++)
   {
     const OneLag& lag = _lags[ilag];
-    double vexp       = lag._gg;
     double vtheo      = _model->evalCov(origin, lag._P, lag._ivar, lag._jvar, &_calcmode);
-    double delta      = vexp - vtheo;
-    total += lag._weight * delta * delta;
+    double delta      = lag._gg - vtheo;
+    score += lag._weight * delta * delta;
   }
-  return total;
+  return score;
 }

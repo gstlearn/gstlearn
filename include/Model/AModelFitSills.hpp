@@ -40,8 +40,8 @@ public:
   AModelFitSills& operator=(const AModelFitSills& m);
   virtual ~AModelFitSills();
 
-  virtual int fitSills(bool verbose = false, bool trace = false) { DECLARE_UNUSED(verbose, trace); return 0; }
-  int getNiter() const { return _iterg; }
+  virtual int fitSills() { return 0; }
+  int  getNiter() const { return _iterg; }
   void printFitSillSummary(int niter) const;
   void setTrace(bool trace) { _trace = trace;}
   void setVerbose(bool verbose) { _verbose = verbose;}
@@ -68,7 +68,12 @@ private:
   void _initializeGoulard();
   int _truncateNegativeEigen(int icov0);
   double _sumSills(int ivar0, std::vector<MatrixSymmetric>& alpha) const;
-  double _score();
+  double _score() const;
+  double _scoreMP(int nvar,
+                  int npadir,
+                  VectorDouble& wt,
+                  VectorDouble& gg,
+                  const MatrixDense& mp) const;
   static int _combineVariables(int ivar0, int jvar0);
   double _minimizeP4(int icov0,
                      int ivar0,
@@ -118,7 +123,7 @@ protected:
   bool _verbose;
   bool _trace;
   mutable int _iterg;
-  mutable double _crit;
+  mutable double score;
 
   // Storing external pointers or references (not to be deleted)
   ModelCovList*      _model;

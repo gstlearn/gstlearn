@@ -476,15 +476,8 @@ public:
   {
     DECLARE_UNUSED(listParams, gradFuncs);
   }
-  virtual void updateCov()
-  {
-    
-  }
-
-  virtual void initParams()
-  {
-
-  }
+  virtual void updateCov() { }
+  virtual void initParams() { }
 
 private:
   virtual void _setContext(const CovContext& ctxt) { DECLARE_UNUSED(ctxt); }

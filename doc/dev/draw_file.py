@@ -3,6 +3,7 @@
 
 import sys
 import os
+
 import gstlearn as gl
 import gstlearn.plot as gp
 import matplotlib.pyplot as plt
@@ -41,10 +42,10 @@ if nargs > 2:
 ranks = args[2:nargs]
 
 # Get the Type of the File and stop if returned empty (file not found)
-filetype = gl.ASerializable.getFileIdentity(filename)
+filetype = gl.ASerializable.getFileIdentity(filename, False)
 if filetype == "":
     exit()
-filetaux = gl.ASerializable.getFileIdentity(fileaux)
+filetaux = gl.ASerializable.getFileIdentity(fileaux, False)
 
 if filetype == "Db":
     db = gl.Db.createFromNF(filename,False)

@@ -173,12 +173,14 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
  */
 String ASerializable::getFileIdentity(const String& filename, bool verbose)
 {
-  // Preliminary check
+  // Preliminary check (no message if string is empty ... even in verbose)
   if (filename.empty())
   {
-    if (verbose) messerr("The Neutral File Name cannot be left empty");
     return String();
   }
+
+  if (verbose)
+    message("Input File Name = %s\n", filename.c_str());
 
   // Open the File
   std::ifstream file(filename);
@@ -198,6 +200,8 @@ String ASerializable::getFileIdentity(const String& filename, bool verbose)
 
   // Close the file
   file.clear();
+
+  if (verbose) message("Decoded Type = %s\n", filetype.c_str());
 
   return filetype;
 }

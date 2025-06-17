@@ -36,9 +36,11 @@ CovList::CovList(const CovContext& ctxt)
   , _allActiveCovList()
   , _activeCovList()
   , _modelFitSills(nullptr)
+  , _itergCum(0)
 {
   _updateLists();
 }
+
 
 CovList::CovList(const CovList& r)
   : ACov(r)
@@ -52,6 +54,7 @@ CovList::CovList(const CovList& r)
   _allActiveCovList = r._allActiveCovList;
   _activeCovList    = r._activeCovList;
   _modelFitSills    = (r._modelFitSills != nullptr) ? (AModelFitSills*)r._modelFitSills->clone() : nullptr;
+  _itergCum         = r._itergCum;
   _updateLists();
 }
 
@@ -70,6 +73,7 @@ CovList& CovList::operator=(const CovList& r)
     _allActiveCovList = r._allActiveCovList;
     _activeCovList    = r._activeCovList;
     _modelFitSills    = (r._modelFitSills != nullptr) ? (AModelFitSills*)r._modelFitSills->clone() : nullptr;
+    _itergCum         = r._itergCum;
   }
   _updateLists();
   return *this;
@@ -538,13 +542,13 @@ void CovList::initParams()
 void CovList::updateCov()
 {
   for (const auto& cov: _covs)
-  {
     cov->updateCov();
-  }
-  // Check if Goulard must be applied
 
   if (_modelFitSills)
+  {
     _modelFitSills->fitSills();
+    _itergCum += _modelFitSills->getNiter();
+  }
 }
 
 void CovList::deleteFitSills() const

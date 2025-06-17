@@ -57,7 +57,7 @@ static void _firstTest(Db* db2D, Model* model, const ECalcVario& calcul, bool ve
   Vario* vario = _computeVariogram(db2D, calcul);
 
   (void) model_fitting_sills(vario, model);
-  (void)model->dumpToNF("SillsFromVario_Old.ascii");
+  (void)model->dumpToNF("Model_Sills.ascii");
   model->display();
 
   delete vario;
@@ -75,8 +75,9 @@ static void _secondTest(Db* db2D,
   ModelOptimParam mop = ModelOptimParam();
   mop.setWmode(2);
   mop.setFlagGoulard(true);
-  model->fitNew(nullptr, vario, nullptr, nullptr, mop, ITEST, verbose, trace);
-  (void)model->dumpToNF("ModelFromVario.ascii");
+  model->fitNew(nullptr, vario, nullptr, nullptr, mop, ITEST,
+                verbose, trace);
+  (void)model->dumpToNF("Model_Vario.ascii");
   model->display();
 
   delete vario;
@@ -96,8 +97,9 @@ static void _thirdTest(DbGrid* dbgrid,
   ModelOptimParam mop = ModelOptimParam();
   mop.setWmode(2);
   mop.setFlagGoulard(false);
-  model->fitNew(nullptr, nullptr, dbmap, nullptr, mop, ITEST, verbose, trace);
-  (void)model->dumpToNF("SillsFromVMap.ascii");
+  model->fitNew(nullptr, nullptr, dbmap, nullptr, mop, ITEST,
+                verbose, trace);
+  (void)model->dumpToNF("Model_VMap.ascii");
   model->display();
 
   delete dbmap;
@@ -134,7 +136,7 @@ int main(int argc, char* argv[])
                               VectorDouble(), sill1);
   message("Model used for simulating the Data\n");
   model_simu->display();
-  model_simu->dumpToNF("Reference_Model.ascii");
+  model_simu->dumpToNF("Model_Ref.ascii");
 
   // Data set
   int nech = 100;
@@ -174,14 +176,6 @@ int main(int argc, char* argv[])
     model_test = model_simu->clone();
     _thirdTest(dbgrid, model_test, calcul, verbose, trace);
   }
-
-  // Printing the resulting Model
-  if (verbose)
-  {
-    message("Resulting Model\n");
-    model_test->display();
-  }
-  model_test->dumpToNF("Resulting_Model.ascii");
 
   delete db2D;
   delete dbgrid;

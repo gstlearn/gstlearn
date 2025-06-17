@@ -46,6 +46,16 @@ Exponential
 - Theo. Range  =      0.334
 Total Sill     =      1.000
 Known Mean(s)     0.000
+- Anisotropy                   ON
+- Anisotropy Rotation          ON
+- Global Rotation              OFF
+- Rotation around Z only       OFF
+- Lock third dimension         OFF
+- Lock 2-D Isotropy            OFF
+- Use the Goulard option       ON
+- Optimization weighting mode  2
+- Maximum number of iterations 1000
+- Stopping Criterion (scaled)  1e-06
 
 Fitted Model
 ------------
@@ -61,13 +71,13 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      2.184
-- Ranges       =      0.141     0.371
-- Theo. Ranges =      0.047     0.124
-- Angles       =     30.066     0.000
+- Sill         =      2.187
+- Ranges       =      0.143     0.364
+- Theo. Ranges =      0.048     0.121
+- Angles       =     30.102     0.000
 - Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.865    -0.501
-     [  1,]     0.501     0.865
-Total Sill     =      2.184
+     [  0,]     0.865    -0.502
+     [  1,]     0.502     0.865
+Total Sill     =      2.187
 Known Mean(s)     0.000
