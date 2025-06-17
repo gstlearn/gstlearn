@@ -33,7 +33,7 @@ public:
     if (_model == nullptr)
       throw std::invalid_argument("Model cannot be null");
 
-    bool useGradient = false;
+    bool useGradient = true;
     _params          = _model->generateListParams();
     _model->initParams();
     _x    = _params->getOptimizableValues();
