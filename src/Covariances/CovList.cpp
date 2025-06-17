@@ -520,7 +520,7 @@ void CovList::setCovFiltered(int icov, bool filtered)
 }
 
 void CovList::appendParams(ListParams& listParams,
-                           std::vector<std::function<double(double)>>* gradFuncs)
+                           std::vector<covmaptype>* gradFuncs)
 {
   for (const auto& cov: _covs)
   {

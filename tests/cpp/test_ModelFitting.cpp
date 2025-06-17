@@ -74,7 +74,7 @@ static void _secondTest(Db* db2D,
   Vario* vario = _computeVariogram(db2D, calcul);
   ModelOptimParam mop = ModelOptimParam();
   mop.setWmode(2);
-  mop.setFlagGoulard(true);
+  mop.setFlagGoulard(false);
   model->fitNew(nullptr, vario, nullptr, nullptr, mop, ITEST, verbose, trace);
   (void)model->dumpToNF("ModelFromVario.ascii");
   model->display();
@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
   // Optimization tests
   int mode     = 2;
   bool verbose = true;
-  bool trace = false;
+  bool trace = true;
   Model* model_test;
 
   if (mode == 0 || mode == 1)

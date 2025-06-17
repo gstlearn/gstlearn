@@ -104,7 +104,7 @@ public:
   int makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String()) override;
 
   void appendParams(ListParams& listParams,
-                    std::vector<std::function<double(double)>>* gradFuncs = nullptr) override;
+                    std::vector<covmaptype>* gradFuncs = nullptr) override;
   void updateCov() override;
   void initParams() override;
   ParamInfo& getParamInfoCholSills(int ivar, int jvar) { return _cholSillsInfo(ivar, jvar); }

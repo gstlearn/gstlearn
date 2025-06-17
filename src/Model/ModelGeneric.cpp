@@ -315,7 +315,7 @@ int computeDriftMatSVCRHSInPlace(MatrixDense& mat,
 std::shared_ptr<ListParams> ModelGeneric::generateListParams() const
 {
   auto listParams = std::make_shared<ListParams>();
-
+  _gradFuncs.clear();
   // Add Covariance parameters
   if (_cova != nullptr)
   {

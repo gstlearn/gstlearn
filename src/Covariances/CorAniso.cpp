@@ -462,6 +462,18 @@ double CorAniso::_eval(const SpacePoint& p1,
   return cov;
 }
 
+double CorAniso::evalDerivativeBasis(const SpacePoint& p1,
+                                     const SpacePoint& p2,
+                                     int ivar,
+                                     int jvar) const
+{
+  DECLARE_UNUSED(ivar, jvar)
+  double h = getSpace()->getDistance(p1, p2, _aniso);
+  if (h == 0.)
+    return 0.;
+  return _corfunc->evalDerivative(h) / h;
+}
+
 double CorAniso::evalCovOnSphere(double alpha,
                                  int degree,
                                  bool flagScaleDistance,
@@ -1494,10 +1506,23 @@ void CorAniso::_optimizationSetTarget(SpacePoint& p) const
 }
 
 void CorAniso::appendParams(ListParams& listparams,
-                            std::vector<std::function<double(double)>>* gradFuncs) 
+                            std::vector<covmaptype>* gradFuncs)
 {
   DECLARE_UNUSED(gradFuncs)
   listparams.addParams(_scales);
+  int i = 0;
+  for (auto& sc: _scales)
+  {
+    gradFuncs->push_back(
+      [this, &sc,i](const SpacePoint& p1, const SpacePoint& p2, int ivar, int jvar) -> double
+      {
+        VectorDouble incr = p1.getIncrement(p2);
+        VectorDouble res(incr.size());
+        this->_aniso.getRotation().rotateDirect(incr, res);
+        return -this->evalDerivativeBasis(p1, p2, ivar, jvar) * res[i] / pow(sc.getValue(), 3);
+      });
+      i++;
+  }
   int count = (int)_scales.size();
   if (count > 0)
   {

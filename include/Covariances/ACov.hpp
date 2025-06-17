@@ -32,6 +32,7 @@
 
 #include <vector>
 
+typedef std::function<double(SpacePoint&,SpacePoint&,int,int)> covmaptype;
 class Db;
 class DbGrid;
 class MatrixSquare;
@@ -472,7 +473,7 @@ public:
   void setNoStatDbIfNecessary(const Db* db);
   void setNoStatDbIfNecessary(std::shared_ptr<const Db>& db);
   virtual void appendParams(ListParams& listParams,
-                            std::vector<std::function<double(double)>>* gradFuncs = nullptr)
+                            std::vector<covmaptype>* gradFuncs = nullptr)
   {
     DECLARE_UNUSED(listParams, gradFuncs);
   }

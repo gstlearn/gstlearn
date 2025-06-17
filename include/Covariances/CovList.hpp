@@ -126,7 +126,7 @@ public:
   void makeSillNoStatFunctional(int icov, const AFunctional* func, int ivar = 0, int jvar = 0);
 
   virtual void appendParams(ListParams& listParams,
-                            std::vector<std::function<double(double)>>* gradFuncs = nullptr) override;
+                            std::vector<covmaptype>* gradFuncs = nullptr) override;
   void updateCov() override;
   void initParams() override;
   void deleteFitSills() const;

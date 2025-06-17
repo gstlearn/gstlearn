@@ -258,7 +258,11 @@ public:
   String toStringParams(const AStringFormat* strfmt = nullptr) const;
   String toStringNoStat(const AStringFormat* strfmt = nullptr, int i = 0) const;
   void appendParams(ListParams& listParams,
-                    std::vector<std::function<double(double)>>* gradFuncs = nullptr) override;
+                    std::vector<covmaptype>* gradFuncs = nullptr) override;
+  double evalDerivativeBasis(const SpacePoint& p1,
+                             const SpacePoint& p2,
+                             int ivar,
+                             int jvar) const;
   void updateCov() override;
   void initParams() override;
   ParamInfo& getParamInfoScale(int idim) { return _scales[idim]; }
@@ -281,6 +285,7 @@ public:
                               double lambda                 = 1.,
                               const ECalcMember& calcMember = ECalcMember::RHS) const override;
 #endif
+
 
 protected:
   /// Update internal parameters consistency with the context

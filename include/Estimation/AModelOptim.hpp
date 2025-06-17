@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/AStringable.hpp"
+#include "Covariances/ACov.hpp"
 #include "Model/AModelFitSills.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "Model/ModelCovList.hpp"
@@ -32,7 +33,7 @@ public:
     if (_model == nullptr)
       throw std::invalid_argument("Model cannot be null");
 
-    bool useGradient = true;
+    bool useGradient = false;
     _params          = _model->generateListParams();
     _model->initParams();
     _x    = _params->getOptimizableValues();
@@ -70,6 +71,15 @@ public:
     delete _opt;
   }
 
+  void setGradients(std::vector<std::function<double(const std::vector<double>&)>> &gradients)
+  {
+    if (_opt == nullptr)
+    {
+      messerr("Optimizer is not initialized");
+      return;
+    }
+    _opt->setGradientComponents(gradients);
+  }
   void setVerbose(bool verbose = false, bool trace = false)
   {
     _verbose = verbose;
@@ -126,7 +136,7 @@ public:
     _itergCum = 0;
   }
   virtual double computeCost(bool verbose = false) = 0;
-
+  virtual void _updateGradients() {}
 protected:
   ModelGeneric* _model; // Pointer to the model being optimized
 

@@ -63,6 +63,10 @@ public:
   ACov*       _getCovModify() { return _cova; }
   CovContext* _getContextModify() { return &_ctxt; }
   DriftList*  _getDriftListModify() { return _driftList; }
+  std::vector<covmaptype>& getGradients()
+  {
+    return _gradFuncs;
+  }
   
 public:
   // Forwarding the methods from _cova
@@ -204,7 +208,7 @@ private:
 
 protected:               // TODO : pass into private to finish clean
   ACov* _cova;           /* Generic Covariance structure */
-  mutable std::vector<std::function<double(double)>> _gradFuncs;
+  mutable std::vector<covmaptype> _gradFuncs;
   DriftList* _driftList; /* Series of Drift functions */
   CovContext _ctxt;      /* Context */
 };

@@ -518,7 +518,7 @@ bool CovBase::isNoStatForVariance() const
 }
 
 void CovBase::appendParams(ListParams& listParams,
-                           std::vector<std::function<double(double)>>* gradFuncs)
+                           std::vector<covmaptype>* gradFuncs)
 {
   _cor->appendParams(listParams, gradFuncs);
   for (size_t ivar = 0, n = getNVar(); ivar < n; ivar++)

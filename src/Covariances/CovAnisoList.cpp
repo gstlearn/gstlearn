@@ -555,7 +555,7 @@ void CovAnisoList::makeParamStationary(int icov)
 }
 
 void CovAnisoList::appendParams(ListParams& listParams,
-                                std::vector<std::function<double(double)>>* gradFuncs)
+                                std::vector<covmaptype>* gradFuncs)
 {
   DECLARE_UNUSED(gradFuncs);
   if (!_sameRotation)

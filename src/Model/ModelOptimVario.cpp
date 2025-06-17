@@ -219,7 +219,7 @@ ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
 
   // Perform the Fitting in terms of variograms
   optim->_calcmode.setAsVario(true);
-
+ 
   return optim;
 }
 
@@ -239,5 +239,28 @@ double ModelOptimVario::computeCost(bool verbose)
     double delta      = vexp - vtheo;
     total += lag._weight * delta * delta;
   }
+  return total;
+}
+
+void ModelOptimVario::_updateGradients()
+{
+
+}
+
+double ModelOptimVario::computeDerivatives(std::vector<double>& params)
+{
+
+  // Evaluate the Cost function
+  int nlags    = (int)_lags.size();
+  double total = 0.;
+  // SpacePoint origin;
+  // for (int ilag = 0; ilag < nlags; ilag++)
+  // {
+  //   const OneLag& lag = _lags[ilag];
+  //   double vexp       = lag._gg;
+  //   double vtheo      = _model->getGradients()[0](origin, lag._P, lag._ivar, lag._jvar);
+  //   double delta      = vexp - vtheo;
+  //   total += lag._weight * delta * delta;
+  // }
   return total;
 }

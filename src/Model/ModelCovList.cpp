@@ -59,7 +59,7 @@ void ModelCovList::addCov(const CovBase* cov)
   if (getCovList() == nullptr)
   {
     messerr("Error: Covariance List is nullptr");
-    return;
+    return; 
   }
   getCovListModify()->addCov(cov);
 }

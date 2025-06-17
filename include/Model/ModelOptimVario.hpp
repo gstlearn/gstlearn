@@ -34,6 +34,7 @@ public:
   virtual ~ModelOptimVario();
 
   double computeCost(bool verbose = false) override;
+  double computeDerivatives(std::vector<double>& params);
 
   static ModelOptimVario* createForOptim(ModelGeneric* model,
                                          Vario* vario,
@@ -51,6 +52,7 @@ protected:
   };
 
 private:
+  void _updateGradients() override;
   int  _buildExperimental();
   bool _checkConsistency();
   OneLag _createOneLag(int ndim, int idir, int ivar, int jvar, double gg, double dist) const;
