@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
 
   // Optimization tests
   int mode     = 2;
-  bool verbose = true;
+  bool verbose = false;
   bool trace = false;
   Model* model_test;
 

@@ -537,10 +537,7 @@ void CovBase::initParams()
     for (size_t jvar = 0; jvar <= ivar; jvar++)
     {
       double value = ivar == jvar ? 1.0 : 0.0; // Diagonal elements are initialized to 1, others to 0
-      if (!_cholSillsInfo(ivar, jvar).isFixed())
-      {
-        _cholSillsInfo(ivar, jvar).setValue(value);
-      }
+     _cholSillsInfo(ivar, jvar).setValue(value);
     }
   }
   _cor->initParams();

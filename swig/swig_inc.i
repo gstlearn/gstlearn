@@ -393,6 +393,7 @@
 %include std_vector.i
 %include std_string.i
 %template(DoNotUseVectorIntStd)     std::vector< int >;
+%template(DoNotUseVectorSizeT)      std::vector< size_t >; // Keep size_t here otherwise asptr fails!
 %template(DoNotUseVectorDoubleStd)  std::vector< double >;
 %template(DoNotUseVectorStringStd)  std::vector< std::string >; // Keep std::string here otherwise asptr fails!
 %template(DoNotUseVectorFloatStd)   std::vector< float >;
