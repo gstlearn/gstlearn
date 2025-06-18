@@ -259,5 +259,5 @@ double ModelOptimVario::computeDerivatives(std::vector<double>& params)
   //   double delta      = vexp - vtheo;
   //   total += lag._weight * delta * delta;
   // }
-  return total;
+  return TEST;
 }
