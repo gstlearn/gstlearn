@@ -250,9 +250,7 @@ double ModelOptimVario::computeDerivatives(std::vector<double>& params)
 {
 
   // Evaluate the Cost function
-  int nlags    = (int)_lags.size();
-  double total = 0.;
-  // SpacePoint origin;
+  //t origin;
   // for (int ilag = 0; ilag < nlags; ilag++)
   // {
   //   const OneLag& lag = _lags[ilag];
