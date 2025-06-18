@@ -319,6 +319,11 @@ public:
                            int posy = 1,
                            const VectorInt& corner = VectorInt(),
                            bool useSel = false) const;
+  VectorDouble getOneSliceForCoordinate(int idim,
+                                        int posx                = 0,
+                                        int posy                = 1,
+                                        const VectorInt& corner = VectorInt(),
+                                        bool useSel             = false) const;
   int assignGridColumn(const String& name,
                        int idim,
                        int rank,
