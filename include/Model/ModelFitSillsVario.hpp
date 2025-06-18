@@ -32,7 +32,7 @@ class GSTLEARN_EXPORT ModelFitSillsVario: public AModelFitSills
 public:
   ModelFitSillsVario(Vario* vario,
                      ModelCovList* model,
-                     Constraints* constraints   = nullptr,
+                     const Constraints* constraints   = nullptr,
                      const ModelOptimParam& mop = ModelOptimParam());
   ModelFitSillsVario(const ModelFitSillsVario& m);
   ModelFitSillsVario& operator=(const ModelFitSillsVario& m);
@@ -44,7 +44,7 @@ public:
 
   static ModelFitSillsVario* createForOptim(Vario* vario,
                                             ModelGeneric* model,
-                                            Constraints* constraints   = nullptr,
+                                            const Constraints* constraints   = nullptr,
                                             const ModelOptimParam& mop = ModelOptimParam());
 
 private:

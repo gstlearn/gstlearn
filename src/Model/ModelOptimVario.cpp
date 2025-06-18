@@ -21,7 +21,7 @@
 #define WT(ijvar, ipadir)     wt[IJDIR(ijvar, ipadir)]
 
 ModelOptimVario::ModelOptimVario(ModelGeneric* model,
-                                 Constraints* constraints,
+                                 const Constraints* constraints,
                                  const ModelOptimParam& mop)
   : AModelOptim(model)
   , _mop(mop)
@@ -181,7 +181,7 @@ ModelOptimVario::OneLag ModelOptimVario::_createOneLag(int ndim,
 
 ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
                                                  Vario* vario,
-                                                 Constraints* constraints,
+                                                 const Constraints* constraints,
                                                  const ModelOptimParam& mop)
 {
   auto* optim = new ModelOptimVario(model, constraints, mop);
@@ -248,7 +248,8 @@ void ModelOptimVario::_updateGradients()
 
 double ModelOptimVario::computeDerivatives(std::vector<double>& params)
 {
-
+  DECLARE_UNUSED(params);
+  double total = 0.;
   // Evaluate the Cost function
   //t origin;
   // for (int ilag = 0; ilag < nlags; ilag++)

@@ -37,7 +37,7 @@
 
 ModelFitSillsVario::ModelFitSillsVario(Vario* vario,
                                        ModelCovList* model,
-                                       Constraints* constraints,
+                                       const Constraints* constraints,
                                        const ModelOptimParam& mop)
   : AModelFitSills(model, constraints, mop)
   , _vario(vario)
@@ -69,7 +69,7 @@ ModelFitSillsVario::~ModelFitSillsVario()
 
 ModelFitSillsVario* ModelFitSillsVario::createForOptim(Vario* vario,
                                                        ModelGeneric* model,
-                                                       Constraints* constraints,
+                                                       const Constraints* constraints,
                                                        const ModelOptimParam& mop)
 {
   ModelCovList* mcv = dynamic_cast<ModelCovList*>(model);

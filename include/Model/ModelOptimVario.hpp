@@ -27,7 +27,7 @@ class GSTLEARN_EXPORT ModelOptimVario: public AModelOptim
 {
 public:
   ModelOptimVario(ModelGeneric* model,
-                  Constraints* constraints   = nullptr,
+                  const Constraints* constraints   = nullptr,
                   const ModelOptimParam& mop = ModelOptimParam());
   ModelOptimVario(const ModelOptimVario& m);
   ModelOptimVario& operator=(const ModelOptimVario& m);
@@ -38,7 +38,7 @@ public:
 
   static ModelOptimVario* createForOptim(ModelGeneric* model,
                                          Vario* vario,
-                                         Constraints* constraints   = nullptr,
+                                         const Constraints* constraints   = nullptr,
                                          const ModelOptimParam& mop = ModelOptimParam());
 
 protected:
@@ -62,7 +62,9 @@ protected:
   ModelOptimParam _mop;
 
   // Set of constraints
-  Constraints* _constraints;
+  const Constraints* _constraints;
+
+  // Calculation option
   CovCalcMode _calcmode;
 
   // Part relative to the Experimental variograms

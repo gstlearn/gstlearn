@@ -21,7 +21,7 @@
 #define _GG(ijvar, ipadir)   _gg[IJDIR(ijvar, ipadir)]
 
 ModelOptimVMap::ModelOptimVMap(ModelGeneric* model,
-                               Constraints* constraints,
+                               const Constraints* constraints,
                                const ModelOptimParam& mop)
   : AModelOptim(model)
   , _mop(mop)
@@ -182,7 +182,7 @@ double ModelOptimVMap::computeCost(bool verbose)
 
 ModelOptimVMap* ModelOptimVMap::createForOptim(ModelGeneric* model,
                                                const DbGrid* dbmap,
-                                               Constraints* constraints,
+                                               const Constraints* constraints,
                                                const ModelOptimParam& mop)
 {
   auto* optim = new ModelOptimVMap(model, constraints, mop);
