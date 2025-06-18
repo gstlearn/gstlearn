@@ -2,6 +2,10 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.7.4
+=============
+- Fix SEGY importation procedure for grid files
+
 Release 1.7.3
 =============
 - Fix plots of model in the case of multi-direction variograms in Python
