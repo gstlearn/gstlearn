@@ -581,7 +581,7 @@ def _ax_varmod(axs, vario=None, model=None, ivar=-1, jvar=-1, idir=-1,
                     kwargs.update({'color':cols(idirUtil)})
                 if varioLinestyle is not None:
                     kwargs.update({'linestyle': varioLinestyle})
-                codir = _getCodir(codir, idirUtil, vario, model)
+                codirLoc = _getCodir(codir, idirUtil, vario, model)
                 
                 # Plotting the Variogram (optional)
                 if vario is not None:
@@ -596,11 +596,11 @@ def _ax_varmod(axs, vario=None, model=None, ivar=-1, jvar=-1, idir=-1,
                 if model is not None:
                     if modelLinestyle is not None:
                         kwargs.update({'linestyle': modelLinestyle})
-                    _ax_modelElem(ax, model, ivar=iv, jvar=jv, codir=codir, 
-                                   hmax=hmax, nh=nh, asCov=asCov,
-                                   envColor=envColor, envLinestyle=envLinestyle, 
-                                   flagLabelDir=flagLabelDir, flagLegend=flagLegend, 
-                                   **kwargs)
+                    _ax_modelElem(ax, model, ivar=iv, jvar=jv, codir=codirLoc, 
+                                  hmax=hmax, nh=nh, asCov=asCov,
+                                  envColor=envColor, envLinestyle=envLinestyle, 
+                                  flagLabelDir=flagLabelDir, flagLegend=flagLegend, 
+                                  **kwargs)
 
             ax.autoscale(True)
             
@@ -631,10 +631,17 @@ def variogram(vario, ivar=0, jvar=0, *args, **kwargs):
 def _getCodir(codir, idir, vario, model):
     if codir is not None:
         return codir
+    ndim = 0
     if vario is not None:
+        ndim = vario.getNDim()
         return vario.getCodirs(idir)
+    if model is not None:
+        ndim = model.getNDim()
+    if ndim <= 0:
+        print("You must define either 'vario' or 'model' or both")
+        return None
     else:
-        codir = [0] * model.getNDim()
+        codir = np.zeros(ndim)
         codir[0] = 1
         return codir
         
@@ -675,10 +682,10 @@ def _ax_variogram(axs, vario, ivar=0, jvar=0, idir=0, *args, **kwargs):
                       *args, **kwargs)
 
 def _ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
-                   nh = 100, hmax = None, asCov=False,
-                   envColor='black', envLinestyle='dashed',
-                   label=None, flagLabelDir=False, flagEnvelop = True, flagLegend=False, 
-                   **kwargs):
+                  nh = 100, hmax = None, asCov=False,
+                  envColor='black', envLinestyle='dashed',
+                  label=None, flagLabelDir=False, flagEnvelop = True, flagLegend=False, 
+                  **kwargs):
     """
     Construct a Layer for plotting a model
     
@@ -721,7 +728,7 @@ def _ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
     mode.setAsVario(not asCov)
     gg = modelobj.sample(hh, codir, ivar, jvar, mode)
     res = ax.plot(hh[istart:], gg[istart:], label=label, **kwargs)
-    
+
     # Represent the coregionalization envelop (optional)
     if ivar != jvar and flagEnvelop:
         ggp = modelobj.envelop(hh, ivar, jvar, +1, codir, mode)
@@ -1072,7 +1079,7 @@ def cell(dbgrid, *args, **kwargs):
     ax = _getNewAxes()
     return _ax_cell(ax, dbgrid, *args, **kwargs)
 
-def _ax_cell(ax, dbgrid, posX=0, posY=1, step=1, **kwargs):
+def _ax_cell(ax, dbgrid, posX=0, posY=1, corner=None, step=1, **kwargs):
     '''
     Plotting the cell edges from a DbGrid 
 
@@ -1083,22 +1090,25 @@ def _ax_cell(ax, dbgrid, posX=0, posY=1, step=1, **kwargs):
     step: step for representing the cell edge every 'step' values
     **kwargs : arguments passed to subsequent functions
     '''
-    indices = np.zeros(dbgrid.getNDim())
     shift = np.ones(dbgrid.getNDim()) * (-1)
+    if corner is None:
+        corner = np.zeros(dbgrid.getNDim())
+    indices = corner
+        
     for i in range(0,dbgrid.getNX(posX)+1,step):
         indices[posX] = i
         indices[posY] = 0
         tab1 = dbgrid.getCoordinatesByIndice(indices, True, shift)
         indices[posY] = dbgrid.getNX(posY)
         tab2 = dbgrid.getCoordinatesByIndice(indices, True, shift)
-        ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
+        ax.plot([tab1[posX],tab2[posX]],[tab1[posY],tab2[posY]], **kwargs)
     for i in range(0,dbgrid.getNX(posY)+1,step):
         indices[posX] = 0
         indices[posY] = i
         tab1 = dbgrid.getCoordinatesByIndice(indices, True, shift)
         indices[posX] = dbgrid.getNX(posX)
         tab2 = dbgrid.getCoordinatesByIndice(indices, True, shift)
-        ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
+        ax.plot([tab1[posX],tab2[posX]],[tab1[posY],tab2[posY]], **kwargs)
     return
 
 def _ax_box(ax, dbgrid, posX=0, posY=1, step=1, **kwargs):
