@@ -1,0 +1,195 @@
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Spherical
+- Sill         =      1.000
+- Ranges       =     50.000    30.000
+- Angles       =     30.000     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.866    -0.500
+     [  1,]     0.500     0.866
+Total Sill     =      1.000
+Known Mean(s)     0.000
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 15000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        100       150
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Data - Locator = z1
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = rank.1 - Locator = NA
+Column = 2 - Name = x1 - Locator = x1
+Column = 3 - Name = x2 - Locator = x2
+Column = 4 - Name = Data - Locator = z1
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 2
+Space dimension             = 2
+Variable(s)                 = [Data]
+
+Variance-Covariance Matrix     1.052
+
+Direction #1
+------------
+Number of lags              = 25
+Direction coefficients      =      0.866     0.500
+Direction angles (degrees)  =     30.000
+Tolerance on direction      =     45.000 (degrees)
+Calculation lag             =      2.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         1     6.000     2.120     0.147
+         2     6.000     4.211     0.115
+         3    13.000     5.700     0.088
+         4    14.000     7.807     0.721
+         5    18.000     9.926     0.295
+         6    17.000    11.917     0.276
+         7    25.000    13.492     0.584
+         8    32.000    15.815     0.568
+         9    31.000    17.831     0.428
+        10    29.000    20.000     0.452
+        11    29.000    22.061     0.500
+        12    47.000    23.801     0.662
+        13    50.000    26.008     1.118
+        14    48.000    27.920     0.724
+        15    45.000    29.942     0.494
+        16    52.000    31.992     0.987
+        17    40.000    34.009     1.392
+        18    52.000    36.037     0.675
+        19    43.000    37.765     0.954
+        20    55.000    39.961     1.249
+        21    38.000    41.940     0.895
+        22    44.000    43.921     1.364
+        23    52.000    45.953     0.866
+        24    42.000    47.829     0.974
+
+Direction #2
+------------
+Number of lags              = 25
+Direction coefficients      =     -0.500     0.866
+Direction angles (degrees)  =    120.000
+Tolerance on direction      =     45.000 (degrees)
+Calculation lag             =      2.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         1     4.000     2.118     0.132
+         2     6.000     3.727     0.213
+         3    10.000     5.720     0.267
+         4    16.000     7.815     0.327
+         5    21.000    10.114     0.407
+         6    15.000    12.226     0.303
+         7    36.000    13.933     0.354
+         8    20.000    15.991     0.564
+         9    33.000    17.844     1.018
+        10    35.000    19.845     0.847
+        11    32.000    21.989     0.935
+        12    44.000    23.885     1.059
+        13    35.000    25.901     0.896
+        14    48.000    27.813     0.560
+        15    43.000    29.752     0.767
+        16    49.000    32.020     1.227
+        17    52.000    33.883     0.689
+        18    45.000    35.889     1.335
+        19    59.000    37.964     0.861
+        20    65.000    40.057     0.751
+        21    65.000    41.966     0.906
+        22    65.000    43.974     1.059
+        23    57.000    45.946     0.735
+        24    59.000    47.895     1.008
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 6
+Total number of samples      = 15000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        100       150
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Data - Locator = NA
+Column = 4 - Name = Kriging.Data.estim - Locator = z1
+Column = 5 - Name = Kriging.Data.stdev - Locator = NA
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 8
+Total number of samples      = 15000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        100       150
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Data - Locator = NA
+Column = 4 - Name = Kriging.Data.estim - Locator = NA
+Column = 5 - Name = Kriging.Data.stdev - Locator = NA
+Column = 6 - Name = Simu.Data.1 - Locator = z1
+Column = 7 - Name = Simu.Data.2 - Locator = z2
