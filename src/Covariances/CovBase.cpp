@@ -20,6 +20,7 @@
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/NoStatArray.hpp"
+#include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
 #include <cstddef>
 
@@ -520,7 +521,19 @@ bool CovBase::isNoStatForVariance() const
 void CovBase::appendParams(ListParams& listParams,
                            std::vector<covmaptype>* gradFuncs)
 {
+
+  const auto oldSize = gradFuncs->size();
   _cor->appendParams(listParams, gradFuncs);
+  const auto newSize = gradFuncs->size(); // snapshot après append
+
+  for (size_t i = oldSize; i < newSize; ++i)
+  {
+    const covmaptype f = (*gradFuncs)[i];
+    (*gradFuncs)[i] = [f, this](const SpacePoint& p1, const SpacePoint& p2, int ivar, int jvar,const CovCalcMode* mode) {
+    double result = f(p1, p2, ivar, jvar, mode) * this->getSill(ivar, jvar);
+      return result;
+     };
+  }
   for (size_t ivar = 0, n = getNVar(); ivar < n; ivar++)
   {
     for (size_t jvar = 0; jvar <= ivar; jvar++)

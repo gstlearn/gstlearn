@@ -47,6 +47,12 @@ public:
     _opt->setUpperBounds(_xmax);
     _opt->setXtolRel(EPSILON6);
     _opt->setObjective([this](const std::vector<double>& x) { return this->eval(x); });
+    _opt->setGradient([this](const std::vector<double>& x, vect grad) 
+                            {
+                              DECLARE_UNUSED(x)
+                              this->evalGrad(grad);
+                            },
+                              _params->getDispatch());
     resetIter();
   };
 
@@ -66,6 +72,15 @@ public:
     return *this;
   }
 
+  void setAuthorizedAnalyticalGradients(bool authorized)
+  {
+    if (_opt == nullptr)
+    {
+      messerr("Optimizer is not initialized");
+      return;
+    }
+    _opt->setAuthorizedAnalyticalGradients(authorized);
+  }
   virtual ~AModelOptim()
   {
     delete _opt;
@@ -125,6 +140,7 @@ public:
     return result;
   };
 
+  virtual void evalGrad(vect res){DECLARE_UNUSED(res)};
   void _printSummary(double minf, const std::vector<double>& x) const
   {
     message("Summary of Optimization procedure:\n");
@@ -152,7 +168,6 @@ public:
     _iter = 0;
   }
   virtual double computeCost(bool verbose = false) = 0;
-  virtual void _updateGradients() {}
 protected:
   ModelGeneric* _model; // Pointer to the model being optimized
 

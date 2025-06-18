@@ -32,7 +32,7 @@
 
 #include <vector>
 
-typedef std::function<double(SpacePoint&,SpacePoint&,int,int)> covmaptype;
+typedef std::function<double(const SpacePoint&,const SpacePoint&,int,int,const CovCalcMode* calcmode)> covmaptype;
 class Db;
 class DbGrid;
 class MatrixSquare;

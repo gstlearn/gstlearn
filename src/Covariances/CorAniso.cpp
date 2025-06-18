@@ -36,6 +36,7 @@
 #include "Geometry/GeometryHelper.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
+#include <algorithm>
 #include <math.h>
 #include <functional>
 #include <vector>
@@ -465,13 +466,29 @@ double CorAniso::_eval(const SpacePoint& p1,
 double CorAniso::evalDerivativeBasis(const SpacePoint& p1,
                                      const SpacePoint& p2,
                                      int ivar,
-                                     int jvar) const
+                                     int jvar,
+                                     const CovCalcMode* mode) const
 {
   DECLARE_UNUSED(ivar, jvar)
   double h = getSpace()->getDistance(p1, p2, _aniso);
   if (h == 0.)
     return 0.;
-  return _corfunc->evalDerivative(h) / h;
+  if (mode == nullptr)
+    return _corfunc->evalDerivative(h) / h;
+
+  double cov = 0.;
+  int norder = mode->getOrderVario();
+  if (norder == 0)
+  {
+
+    // Traditional Covariance or Variogram
+    cov = _corfunc->evalDerivative(h) / h;
+
+    // Convert into a variogram
+    if (mode->getAsVario()) cov = -cov;
+  }
+
+return cov;
 }
 
 double CorAniso::evalCovOnSphere(double alpha,
@@ -1514,14 +1531,18 @@ void CorAniso::appendParams(ListParams& listparams,
   for (auto& sc: _scales)
   {
     gradFuncs->push_back(
-      [this, &sc,i](const SpacePoint& p1, const SpacePoint& p2, int ivar, int jvar) -> double
+      [this, &sc, i](const SpacePoint& p1, const SpacePoint& p2, int ivar, int jvar, const CovCalcMode* mode) -> double
       {
         VectorDouble incr = p1.getIncrement(p2);
+        if (std::all_of(incr.begin(), incr.end(), [](double v)
+                        { return isZero(v); }))
+          return 0.;
         VectorDouble res(incr.size());
         this->_aniso.getRotation().rotateDirect(incr, res);
-        return -this->evalDerivativeBasis(p1, p2, ivar, jvar) * res[i] / pow(sc.getValue(), 3);
+        double result = -this->evalDerivativeBasis(p1, p2, ivar, jvar, mode) * pow(res[i], 2) / pow(sc.getValue(), 3);
+        return result;
       });
-      i++;
+    i++;
   }
   int count = (int)_scales.size();
   if (count > 0)

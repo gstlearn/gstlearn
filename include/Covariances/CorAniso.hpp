@@ -262,7 +262,8 @@ public:
   double evalDerivativeBasis(const SpacePoint& p1,
                              const SpacePoint& p2,
                              int ivar,
-                             int jvar) const;
+                             int jvar,
+                             const CovCalcMode* mode) const;
   void updateCov() override;
   void initParams() override;
   ParamInfo& getParamInfoScale(int idim) { return _scales[idim]; }

@@ -16,9 +16,10 @@
 
 #include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
+#include <cstddef>
 
-#define IJDIR(ijvar, ipadir) ((ijvar)*npadir + (ipadir))
-#define WT(ijvar, ipadir)     wt[IJDIR(ijvar, ipadir)]
+#define IJDIR(ijvar, ipadir) ((ijvar) * npadir + (ipadir))
+#define WT(ijvar, ipadir)    wt[IJDIR(ijvar, ipadir)]
 
 ModelOptimVario::ModelOptimVario(ModelGeneric* model,
                                  Constraints* constraints,
@@ -29,6 +30,7 @@ ModelOptimVario::ModelOptimVario(ModelGeneric* model,
   , _vario()
   , _lags()
 {
+  setAuthorizedAnalyticalGradients(false);
 }
 
 ModelOptimVario::ModelOptimVario(const ModelOptimVario& m)
@@ -70,7 +72,7 @@ bool ModelOptimVario::_checkConsistency()
   if (_vario->getNVar() != _model->getNVar())
   {
     messerr("'_vario'(%d) and '_model'(%d) should have same number of Variables",
-      _vario->getNVar(), _model->getNVar());
+            _vario->getNVar(), _model->getNVar());
     return false;
   }
   return true;
@@ -106,8 +108,8 @@ int ModelOptimVario::_buildExperimental()
           double gg   = TEST;
           if (_vario->getFlagAsym())
           {
-            int iad = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
-            int jad = _vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
+            int iad    = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+            int jad    = _vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
             double c00 = _vario->getC00(idir, ivar, jvar);
             double n1  = _vario->getSwByIndex(idir, iad);
             double n2  = _vario->getSwByIndex(idir, jad);
@@ -119,7 +121,8 @@ int ModelOptimVario::_buildExperimental()
               {
                 gg   = c00 - (n1 * g1 + n2 * g2) / (n1 + n2);
                 dist = (ABS(_vario->getHhByIndex(idir, iad)) +
-                        ABS(_vario->getHhByIndex(idir, jad))) / 2.;
+                        ABS(_vario->getHhByIndex(idir, jad))) /
+                       2.;
               }
             }
           }
@@ -189,7 +192,7 @@ ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
   optim->_vario = vario;
 
   // Constitute the experimental material (using '_vario')
-  if (optim->_buildExperimental()) 
+  if (optim->_buildExperimental())
   {
     delete optim;
     return nullptr;
@@ -219,7 +222,7 @@ ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
 
   // Perform the Fitting in terms of variograms
   optim->_calcmode.setAsVario(true);
- 
+
   return optim;
 }
 
@@ -231,35 +234,35 @@ double ModelOptimVario::computeCost(bool verbose)
   int nlags    = (int)_lags.size();
   double score = 0.;
   SpacePoint origin;
+  _resid.resize(nlags);
   for (int ilag = 0; ilag < nlags; ilag++)
   {
     const OneLag& lag = _lags[ilag];
     double vtheo      = _model->evalCov(origin, lag._P, lag._ivar, lag._jvar, &_calcmode);
-    double delta      = lag._gg - vtheo;
-    score += lag._weight * delta * delta;
+    
+    double resid      = lag._gg - vtheo;
+    score += lag._weight * resid * resid;
+    _resid[ilag] = lag._weight * resid;
   }
   return score;
 }
 
-void ModelOptimVario::_updateGradients()
+void ModelOptimVario::evalGrad(vect res)
 {
 
-}
-
-double ModelOptimVario::computeDerivatives(std::vector<double>& params)
-{
-
-  // Evaluate the Cost function
+  auto gradcov = _model->getGradients();
   int nlags    = (int)_lags.size();
-  double total = 0.;
-  // SpacePoint origin;
-  // for (int ilag = 0; ilag < nlags; ilag++)
-  // {
-  //   const OneLag& lag = _lags[ilag];
-  //   double vexp       = lag._gg;
-  //   double vtheo      = _model->getGradients()[0](origin, lag._P, lag._ivar, lag._jvar);
-  //   double delta      = vexp - vtheo;
-  //   total += lag._weight * delta * delta;
-  // }
-  return total;
+  SpacePoint origin;
+
+  for (size_t i = 0; i < gradcov.size(); i++)
+  {
+    res[i] = 0.;
+    for (int ilag = 0; ilag < nlags; ilag++)
+    {
+      const OneLag& lag = _lags[ilag];
+      double dvtheo = gradcov[i](origin, lag._P, lag._ivar, lag._jvar, &_calcmode);
+      res[i] += -2. * _resid[ilag] * dvtheo;
+    }
+  }
+
 }
