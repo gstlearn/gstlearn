@@ -37,7 +37,7 @@ public:
   double computeDerivatives(std::vector<double>& params);
 
   static ModelOptimVario* createForOptim(ModelGeneric* model,
-                                         Vario* vario,
+                                         const Vario* vario,
                                          const Constraints* constraints   = nullptr,
                                          const ModelOptimParam& mop = ModelOptimParam());
 

@@ -180,7 +180,7 @@ ModelOptimVario::OneLag ModelOptimVario::_createOneLag(int ndim,
 }
 
 ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
-                                                 Vario* vario,
+                                                 const Vario* vario,
                                                  const Constraints* constraints,
                                                  const ModelOptimParam& mop)
 {
