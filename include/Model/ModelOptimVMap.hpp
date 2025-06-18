@@ -29,7 +29,7 @@ class GSTLEARN_EXPORT ModelOptimVMap: public AModelOptim
 {
 public:
   ModelOptimVMap(ModelGeneric* model,
-                 Constraints* constraints   = nullptr,
+                 const Constraints* constraints   = nullptr,
                  const ModelOptimParam& mop = ModelOptimParam());
   ModelOptimVMap(const ModelOptimVMap& m);
   ModelOptimVMap& operator=(const ModelOptimVMap& m);
@@ -39,7 +39,7 @@ public:
 
   static ModelOptimVMap* createForOptim(ModelGeneric* model,
                                         const DbGrid* dbmap,
-                                        Constraints* constraints   = nullptr,
+                                        const Constraints* constraints   = nullptr,
                                         const ModelOptimParam& mop = ModelOptimParam());
 
 private:
@@ -52,7 +52,7 @@ protected:
   ModelOptimParam _mop;
 
   // Set of constraints
-  Constraints* _constraints;
+  const Constraints* _constraints;
 
   // Calculation option
   CovCalcMode _calcmode;

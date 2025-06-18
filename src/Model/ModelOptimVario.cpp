@@ -22,7 +22,7 @@
 #define WT(ijvar, ipadir)    wt[IJDIR(ijvar, ipadir)]
 
 ModelOptimVario::ModelOptimVario(ModelGeneric* model,
-                                 Constraints* constraints,
+                                 const Constraints* constraints,
                                  const ModelOptimParam& mop)
   : AModelOptim(model)
   , _mop(mop)
@@ -183,8 +183,8 @@ ModelOptimVario::OneLag ModelOptimVario::_createOneLag(int ndim,
 }
 
 ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
-                                                 Vario* vario,
-                                                 Constraints* constraints,
+                                                 const Vario* vario,
+                                                 const Constraints* constraints,
                                                  const ModelOptimParam& mop)
 {
   auto* optim = new ModelOptimVario(model, constraints, mop);

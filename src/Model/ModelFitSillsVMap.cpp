@@ -24,7 +24,7 @@
 
 ModelFitSillsVMap::ModelFitSillsVMap(const DbGrid* dbmap,
                                      ModelCovList* model,
-                                     Constraints* constraints,
+                                     const Constraints* constraints,
                                      const ModelOptimParam& mop)
   : AModelFitSills(model, constraints, mop)
   , _dbmap(dbmap)
@@ -56,7 +56,7 @@ ModelFitSillsVMap::~ModelFitSillsVMap()
 
 ModelFitSillsVMap* ModelFitSillsVMap::createForOptim(const DbGrid* dbmap,
                                                      ModelGeneric* model,
-                                                     Constraints* constraints,
+                                                     const Constraints* constraints,
                                                      const ModelOptimParam& mop)
 {
   ModelCovList* modelLocal = dynamic_cast<ModelCovList*>(model);

@@ -35,9 +35,9 @@
    isZero(_vario->getSwByIndex(idir, k)) || \
    FFFF(_vario->getSwByIndex(idir, k)) || FFFF(_vario->getGgByIndex(idir, k)))
 
-ModelFitSillsVario::ModelFitSillsVario(Vario* vario,
+ModelFitSillsVario::ModelFitSillsVario(const Vario* vario,
                                        ModelCovList* model,
-                                       Constraints* constraints,
+                                       const Constraints* constraints,
                                        const ModelOptimParam& mop)
   : AModelFitSills(model, constraints, mop)
   , _vario(vario)
@@ -67,9 +67,9 @@ ModelFitSillsVario::~ModelFitSillsVario()
 {
 }
 
-ModelFitSillsVario* ModelFitSillsVario::createForOptim(Vario* vario,
+ModelFitSillsVario* ModelFitSillsVario::createForOptim(const Vario* vario,
                                                        ModelGeneric* model,
-                                                       Constraints* constraints,
+                                                       const Constraints* constraints,
                                                        const ModelOptimParam& mop)
 {
   ModelCovList* mcv = dynamic_cast<ModelCovList*>(model);
@@ -171,7 +171,7 @@ int ModelFitSillsVario::_getDimensions()
           if (!_vario->getFlagAsym())
           {
             hh0 = hh1 * sw0 / sw1;
-            _vario->setHhByIndex(idir, iad0, hh0);
+            // _vario->setHhByIndex(idir, iad0, hh0); // TODO: to be set in the calculation of WT
           }
         }
       }

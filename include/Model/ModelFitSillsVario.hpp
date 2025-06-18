@@ -30,9 +30,9 @@ class MatrixSymmetric;
 class GSTLEARN_EXPORT ModelFitSillsVario: public AModelFitSills
 {
 public:
-  ModelFitSillsVario(Vario* vario,
+  ModelFitSillsVario(const Vario* vario,
                      ModelCovList* model,
-                     Constraints* constraints   = nullptr,
+                     const Constraints* constraints   = nullptr,
                      const ModelOptimParam& mop = ModelOptimParam());
   ModelFitSillsVario(const ModelFitSillsVario& m);
   ModelFitSillsVario& operator=(const ModelFitSillsVario& m);
@@ -42,9 +42,9 @@ public:
 
   int fitSills() override;
 
-  static ModelFitSillsVario* createForOptim(Vario* vario,
+  static ModelFitSillsVario* createForOptim(const Vario* vario,
                                             ModelGeneric* model,
-                                            Constraints* constraints   = nullptr,
+                                            const Constraints* constraints   = nullptr,
                                             const ModelOptimParam& mop = ModelOptimParam());
 
 private:
@@ -56,5 +56,5 @@ private:
   void _updateFromModel();
 
 private:
-  Vario* _vario;
+  const Vario* _vario;
 };
