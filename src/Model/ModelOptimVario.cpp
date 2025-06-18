@@ -249,7 +249,7 @@ void ModelOptimVario::_updateGradients()
 double ModelOptimVario::computeDerivatives(std::vector<double>& params)
 {
   DECLARE_UNUSED(params);
-  double total = 0.;
+  //double total = 0.;
   // Evaluate the Cost function
   //t origin;
   // for (int ilag = 0; ilag < nlags; ilag++)
