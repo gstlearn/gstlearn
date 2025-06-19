@@ -117,6 +117,10 @@ public:
   {
     _authorizedAnalyticalGradients = authorized;
   }
+  bool getAuthorizedAnalyticalGradients() const
+  {
+    return _authorizedAnalyticalGradients;
+  }
   void setGradientComponents(const std::vector<std::function<double(const std::vector<double>&)>>& partials);
 
   void setXtolRel(double tol);

@@ -81,6 +81,17 @@ public:
     }
     _opt->setAuthorizedAnalyticalGradients(authorized);
   }
+  
+  bool getAuthorizedAnalyticalGradients() const
+  {
+    if (_opt == nullptr)
+    {
+      messerr("Optimizer is not initialized");
+      return false;
+    }
+    return _opt->getAuthorizedAnalyticalGradients();
+  } 
+  
   virtual ~AModelOptim()
   {
     delete _opt;

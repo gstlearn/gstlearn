@@ -41,6 +41,7 @@ ModelOptimVario::ModelOptimVario(const ModelOptimVario& m)
   , _vario(m._vario)
   , _lags(m._lags)
 {
+  setAuthorizedAnalyticalGradients(m.getAuthorizedAnalyticalGradients());
 }
 
 ModelOptimVario& ModelOptimVario::operator=(const ModelOptimVario& m)
@@ -53,6 +54,8 @@ ModelOptimVario& ModelOptimVario::operator=(const ModelOptimVario& m)
     _calcmode    = m._calcmode;
     _vario       = m._vario;
     _lags        = m._lags;
+
+    setAuthorizedAnalyticalGradients(m.getAuthorizedAnalyticalGradients());
   }
   return (*this);
 }
