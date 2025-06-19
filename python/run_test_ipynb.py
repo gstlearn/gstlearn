@@ -107,7 +107,7 @@ if (out_type == "asciidoc"):
     notebook_node = re.sub(r".*CholmodTypeConversionWarning", "XXX: CholmodTypeConversionWarning", notebook_node)
     
     # Remove panda frame decoration that can vary according the version/OS i.e. :
-    notebook_node = re.sub(r"\\|====+", "|===", notebook_node)
+    notebook_node = re.sub(r"\|=+", "|===", notebook_node)
     notebook_node = re.sub(r"\[.*options=\"header\"\,]", "", notebook_node)
     
     # Remove pip install output
