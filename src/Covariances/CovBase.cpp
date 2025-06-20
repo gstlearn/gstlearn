@@ -16,6 +16,7 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/TabNoStatSills.hpp"
+#include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Db/Db.hpp"
@@ -572,17 +573,20 @@ void CovBase::appendParams(ListParams& listParams,
   }
 }
 
-void CovBase::initParams()
+void CovBase::initParams(const MatrixSymmetric& vars, double href)
 {
+  CholeskyDense chol(&vars);
   for (size_t ivar = 0, n = getNVar(); ivar < n; ivar++)
   {
     for (size_t jvar = 0; jvar <= ivar; jvar++)
     {
+      double value = chol.getLowerTriangle(ivar, jvar);
+      _cholSillsInfo(ivar, jvar).setValue(value);
       double value = ivar == jvar ? 1.0 : 0.0; // Diagonal elements are initialized to 1, others to 0
       _cholSillsInfo(ivar, jvar).setValue(value);
     }
   }
-  _cor->initParams();
+  _cor->initParams(vars, href);
 }
 
 void CovBase::updateCov()

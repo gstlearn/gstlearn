@@ -35,6 +35,7 @@ ModelOptimVMap::ModelOptimVMap(ModelGeneric* model,
   , _nech(0)
   , _npadir(0)
 {
+  setAuthorizedAnalyticalGradients(false);
 }
 
 ModelOptimVMap::ModelOptimVMap(const ModelOptimVMap& m)
@@ -50,6 +51,7 @@ ModelOptimVMap::ModelOptimVMap(const ModelOptimVMap& m)
   , _nech(m._nech)
   , _npadir(m._npadir)
 {
+  setAuthorizedAnalyticalGradients(m.getAuthorizedAnalyticalGradients());
 }
 
 ModelOptimVMap& ModelOptimVMap::operator=(const ModelOptimVMap& m)
@@ -67,6 +69,8 @@ ModelOptimVMap& ModelOptimVMap::operator=(const ModelOptimVMap& m)
     _nvar        = m._nvar;
     _nech        = m._nech;
     _npadir      = m._npadir;
+
+    setAuthorizedAnalyticalGradients(m.getAuthorizedAnalyticalGradients());
   }
   return (*this);
 }
@@ -158,13 +162,18 @@ double ModelOptimVMap::computeCost(bool verbose)
   double total = 0.;
   VectorDouble d0(_ndim);
   _dbmap->rankToIndice(_nech / 2, _indg1);
+  for (int idim = 0; idim < _ndim; idim++)
+    d0[idim] = _indg1[idim] * _dbmap->getDX(idim);
+  SpacePoint origin(d0);
+  SpacePoint P;
 
   /* Loop on the experimental conditions */
   for (int iech = 0; iech < _nech; iech++)
   {
     _dbmap->rankToIndice(iech, _indg2);
     for (int idim = 0; idim < _ndim; idim++)
-      d0[idim] = (_indg2[idim] - _indg1[idim]) * _dbmap->getDX(idim);
+      d0[idim] = _indg2[idim] * _dbmap->getDX(idim);
+    P.setCoords(d0);
 
     int ijvar = 0;
     for (int ivar = 0; ivar < _nvar; ivar++)
@@ -172,7 +181,7 @@ double ModelOptimVMap::computeCost(bool verbose)
       {
         double vexp = _dbmap->getZVariable(iech, ijvar);
         if (FFFF(vexp)) continue;
-        double vtheo = _model->evalIvarIpas(1., d0, ivar, jvar, &_calcmode);
+        double vtheo = _model->evalCov(origin, P, ivar, jvar, &_calcmode);
         double delta = vexp - vtheo;
         total += delta * delta;
       }
@@ -187,6 +196,9 @@ ModelOptimVMap* ModelOptimVMap::createForOptim(ModelGeneric* model,
 {
   auto* optim = new ModelOptimVMap(model, constraints, mop);
 
+  MatrixSymmetric vars = MatrixSymmetric(model->getNVar());
+  double hmax = dbmap->getExtensionDiagonal();
+  optim->setEnvironment(vars, hmax);
   optim->_dbmap = dbmap;
 
   // Get internal dimension

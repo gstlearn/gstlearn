@@ -41,6 +41,7 @@ ModelOptimVario::ModelOptimVario(const ModelOptimVario& m)
   , _vario(m._vario)
   , _lags(m._lags)
 {
+  setAuthorizedAnalyticalGradients(m.getAuthorizedAnalyticalGradients());
 }
 
 ModelOptimVario& ModelOptimVario::operator=(const ModelOptimVario& m)
@@ -53,6 +54,8 @@ ModelOptimVario& ModelOptimVario::operator=(const ModelOptimVario& m)
     _calcmode    = m._calcmode;
     _vario       = m._vario;
     _lags        = m._lags;
+
+    setAuthorizedAnalyticalGradients(m.getAuthorizedAnalyticalGradients());
   }
   return (*this);
 }
@@ -187,8 +190,12 @@ ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
                                                  const Constraints* constraints,
                                                  const ModelOptimParam& mop)
 {
+
   auto* optim = new ModelOptimVario(model, constraints, mop);
 
+  MatrixSymmetric vars = vario->getVarMatrix();
+  double hmax          = vario->getHmax();
+  optim->setEnvironment(vars, hmax);
   optim->_vario = vario;
 
   // Constitute the experimental material (using '_vario')

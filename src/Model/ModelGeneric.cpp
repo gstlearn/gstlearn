@@ -352,18 +352,18 @@ void ModelGeneric::updateModel()
   }
 }
 
-void ModelGeneric::initParams()
+void ModelGeneric::initParams(const MatrixSymmetric& vars, double href)
 {
   // Initialize the parameters in the Covariance
   if (_cova != nullptr)
   {
-    _cova->initParams();
+    _cova->initParams(vars, href);
   }
 
   // Initialize the parameters in the DriftList
   if (_driftList != nullptr)
   {
-    _driftList->initParams();
+    _driftList->initParams(vars, href);
   }
 }
 

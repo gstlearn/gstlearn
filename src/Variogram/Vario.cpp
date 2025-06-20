@@ -4779,12 +4779,21 @@ String Vario::getVariableName(int ivar) const
 
 bool Vario::isLagCorrect(int idir, int k) const
 {
-  double hh = getHhByIndex(idir, k);
-  if (isZero(hh) || FFFF(hh)) return false;
+  // Check on the number of pairs
   double sw = getSwByIndex(idir, k);
   if (isZero(sw) || FFFF(sw)) return false;
+
+  // Check on the variogram value
   double gg = getGgByIndex(idir, k);
-  return !FFFF(gg);
+  if (FFFF(gg)) return false;
+
+  // Check on the distance
+  double hh = getHhByIndex(idir, k);
+  if (FFFF(hh)) return false;
+  if (!isZero(hh)) return true;
+
+  // Although the distance if zero, the lag remains valid in the symetrical case
+  return (!getFlagAsym());
 }
 
 double Vario::getC00(int idir, int ivar, int jvar) const
@@ -4954,7 +4963,30 @@ VectorDouble Vario::computeWeightsFromVario(int wmode) const
               if (!isLagCorrect(idir, iad)) continue;
               double nn = getSwByIndex(idir, iad);
               double dd = ABS(getHhByIndex(idir, iad));
-              if (dd > 0) WT(ijvar, ipadir) = nn / dd;
+              if (dd > 0) 
+                WT(ijvar, ipadir) = nn / dd;
+              else
+              {
+                // Possibly update the distance for lag 0 if:
+                // - distance is equal to 0 
+                // - the corresponding number of pairs is large
+                // This patch is only performed for symetrical case 
+                if (ilag == 0)
+                {
+                  double sw0 = getSwByIndex(idir, iad);
+                  // The test on the number of pairs avoids hacking in the case
+                  // of a conventional construction where the number of pairs
+                  // for the first lag is arbitrarily set to 1.
+                  if (sw0 > 1.)
+                  {
+                    int iad1   = iad + 1;
+                    double sw1 = getSwByIndex(idir, iad1);
+                    double hh1 = getHhByIndex(idir, iad1);
+                    double ddmod = hh1 * sw0 / sw1;
+                    if (ddmod > 0) WT(ijvar, ipadir) = nn / ddmod;
+                  }
+                }
+              }
             }
           }
         }

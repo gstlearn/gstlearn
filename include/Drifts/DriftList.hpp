@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/VectorNumT.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
@@ -171,11 +172,11 @@ public:
     
   }
 
-  void initParams()
+  void initParams(const MatrixSymmetric& vars, double href = 1.)
   {
-
+    DECLARE_UNUSED(vars, href);
   }
-  
+
 private:
   void _update();
   bool _isDriftIndexValid(int i) const;

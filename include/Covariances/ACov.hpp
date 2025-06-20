@@ -19,6 +19,7 @@
 #include "Enum/ECalcMember.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Model/CovInternal.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
@@ -483,7 +484,11 @@ public:
     DECLARE_UNUSED(listParams, gradFuncs);
   }
   virtual void updateCov() {}
-  virtual void initParams() {}
+  virtual void initParams(const MatrixSymmetric& vars,
+                          double href                 = 1.)
+  {
+    DECLARE_UNUSED(vars, href);
+  }
 
 private:
   virtual void _setContext(const CovContext& ctxt) { DECLARE_UNUSED(ctxt); }

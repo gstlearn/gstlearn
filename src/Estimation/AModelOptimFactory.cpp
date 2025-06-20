@@ -393,8 +393,8 @@ AModelOptim* AModelOptimFactory::create(ModelGeneric* model,
   if (dbmap != nullptr)
   {
     if ((int)model->getNDim() != dbmap->getNDim()) return nullptr;
-    if (_modifyModelForConstraints(constraints, model)) return nullptr;
     if (_modifyMopForVMap(dbmap, model, constraints, mopLocal)) return nullptr;
+    if (_modifyModelForConstraints(constraints, model)) return nullptr;
     if (_modifyModelForMop(mopLocal, model)) return nullptr;
     return ModelOptimVMap::createForOptim(model, dbmap, constraints, mopLocal);
   }
@@ -405,7 +405,6 @@ AModelOptim* AModelOptimFactory::create(ModelGeneric* model,
     if ((int)model->getNDim() != vario->getNDim()) return nullptr;
     if (_modifyMopForVario(vario, model, constraints, mopLocal)) return nullptr;
     if (_modifyModelForConstraints(constraints, model)) return nullptr;
-    mopLocal.display();
     if (_modifyModelForMop(mopLocal, model)) return nullptr;
     return ModelOptimVario::createForOptim(model, vario, constraints, mopLocal);
   }
