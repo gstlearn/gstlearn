@@ -27,7 +27,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TEST_DST_DIR})
 # Create the output directory for logs
 add_custom_target(prepare_check_py
                   COMMAND ${CMAKE_COMMAND} -E make_directory "${TEST_DST_DIR}"
-                  COMMAND ${UV} pip install ${NO_INTERNET_ARG} "mlxtend") // Add here required package for python tests
+                  COMMAND ${UV} pip install ${NO_INTERNET_ARG} "mlxtend") # Add here required package for python tests
 
 # Create the main target
 # Look parent CMakeLists for MY_CTEST_COMMAND definition
