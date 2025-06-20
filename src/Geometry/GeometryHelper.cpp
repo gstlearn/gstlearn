@@ -216,14 +216,14 @@ void GeometryHelper::rotationMatrixInPlace(int ndim,
 }
 
 void GeometryHelper::rotationMatrixDerivativesInPlace(int ndim,
-                                                      VectorDouble& angles,
-                                                      std::vector<MatrixSquare>& dR)
+                                                      const VectorDouble& angles,
+                                                      std::vector<MatrixSquare>& dR) 
 {
 
   if (ndim == 2)
   {
     dR.resize(1);
-    dR[0].reset(2, 2);
+    dR[0].resize(2, 2);
     rotation2DMatrixDerivativesInPlace(angles[0], dR[0]);
   }
   else if (ndim == 3)
@@ -246,9 +246,6 @@ void GeometryHelper::rotation2DMatrixDerivativesInPlace(double angle, MatrixSqua
 
   GH::rotationGetSinCos(angle, &ca, &sa);
 
-  /* Define the 2-D rotation matrix */
-
-  GH::rotationGetSinCos(angle, &ca, &sa);
 
   /* Define the 2-D rotation matrix */
 
@@ -258,7 +255,7 @@ void GeometryHelper::rotation2DMatrixDerivativesInPlace(double angle, MatrixSqua
   dR.setValue(1, 1, -sa);
 }
 
-void GeometryHelper::rotation3DMatrixDerivativesInPlace(VectorDouble& angles,
+void GeometryHelper::rotation3DMatrixDerivativesInPlace(const VectorDouble& angles,
                                                         std::vector<MatrixSquare>& dR)
 {
   double ca[3], sa[3];

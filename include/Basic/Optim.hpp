@@ -112,7 +112,8 @@ public:
 
   void setObjective(std::function<double(const std::vector<double>&)> objective);
   void setGradient(std::function<void(const std::vector<double>&, vect)> gradient,
-                   const std::vector<size_t>& dispatch = {});
+                   const std::vector<size_t>& dispatch = {},
+                   const std::vector<size_t>& dispatchIndex = {});
   void setAuthorizedAnalyticalGradients(bool authorized)
   {
     _authorizedAnalyticalGradients = authorized;

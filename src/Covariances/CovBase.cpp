@@ -529,16 +529,45 @@ void CovBase::appendParams(ListParams& listParams,
   for (size_t i = oldSize; i < newSize; ++i)
   {
     const covmaptype f = (*gradFuncs)[i];
-    (*gradFuncs)[i] = [f, this](const SpacePoint& p1, const SpacePoint& p2, int ivar, int jvar,const CovCalcMode* mode) {
-    double result = f(p1, p2, ivar, jvar, mode) * this->getSill(ivar, jvar);
+    (*gradFuncs)[i]    = [f, this](const SpacePoint& p1, const SpacePoint& p2, int ivar, int jvar, const CovCalcMode* mode)
+    {
+      double result = f(p1, p2, ivar, jvar, mode) * this->getSill(ivar, jvar);
       return result;
-     };
+    };
   }
   for (size_t ivar = 0, n = getNVar(); ivar < n; ivar++)
   {
     for (size_t jvar = 0; jvar <= ivar; jvar++)
     {
       listParams.addParam(_cholSillsInfo(ivar, jvar));
+    }
+  }
+
+  for (size_t ivard = 0, n = getNVar(); ivard < n; ivard++)
+  {
+    for (size_t jvard = 0; jvard <= ivard; jvard++)
+    {
+
+      if (_cholSillsInfo(ivard, jvard).isFixed()) continue; // Skip fixed parameters
+      gradFuncs->emplace_back(
+        [ivard,jvard, this](const SpacePoint& p1, const SpacePoint& p2, int ivar, int jvar, const CovCalcMode* mode) -> double
+        {
+          MatrixSymmetric dSillDChol(this->getNVar());
+          dSillDChol.fill(0.);
+          for (int i = jvard; i < this->getNVar(); i++)
+          {
+            double val = this->_cholSillsInfo.getValue(i, jvard).getValue();
+            if (i == (int)ivard)
+            {
+              val *= 2; // Derivative of the diagonal element is 2
+            }
+            dSillDChol.setValue(i, ivard, val);
+            dSillDChol.setValue(ivard, i, val);
+          }
+        
+          double cor    = this->_eval(p1, p2, ivar, jvar, mode);
+          return dSillDChol.getValue(ivar,jvar) * cor;
+        });
     }
   }
 }
@@ -550,7 +579,7 @@ void CovBase::initParams()
     for (size_t jvar = 0; jvar <= ivar; jvar++)
     {
       double value = ivar == jvar ? 1.0 : 0.0; // Diagonal elements are initialized to 1, others to 0
-     _cholSillsInfo(ivar, jvar).setValue(value);
+      _cholSillsInfo(ivar, jvar).setValue(value);
     }
   }
   _cor->initParams();

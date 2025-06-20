@@ -22,6 +22,7 @@
 #include "Geometry/GeometryHelper.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/ListParams.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -34,6 +35,7 @@
 #include "Variogram/Vario.hpp"
 #include "Estimation/KrigOpt.hpp"
 
+#include <cstddef>
 #include <vector>
 #include <math.h>
 
@@ -97,6 +99,25 @@ double ACov::evalCov(const SpacePoint& p1,
                      const CovCalcMode* mode) const
 {
   return _eval(p1, p2, ivar, jvar, mode);
+}
+
+std::vector<double> ACov::evalCovGrad(const SpacePoint& p1,
+                         const SpacePoint& p2,
+                         int ivar,
+                         int jvar,
+                         const CovCalcMode* mode)
+{
+  std::vector<covmaptype> gradFuncs;
+  auto listParams = std::make_shared<ListParams>();
+  appendParams(*listParams,&gradFuncs);
+  listParams->updateDispatch();
+  updateCov();
+  VectorDouble res(gradFuncs.size());
+  for (size_t i = 0; i < gradFuncs.size(); ++i)
+  {
+    res[i] = gradFuncs[i](p1, p2, ivar, jvar, mode);
+  }
+  return res;
 }
 void ACov::optimizationPostProcess() const
 {
@@ -710,7 +731,7 @@ void ACov::evalPointToDb(VectorDouble& values,
 
   VectorInt index2;
   db2->getSampleRanksPerVariable(index2, nbgh2, jvar, useSel);
-  int nech2        = (int)index2.size();
+  int nech2 = (int)index2.size();
   if (nech2 != (int)values.size()) values.resize(nech2);
 
   int irow = 0;
@@ -2456,4 +2477,3 @@ void ACov::setContext(const CovContext& ctxt)
   _ctxt = ctxt;
   _setContext(ctxt);
 }
-

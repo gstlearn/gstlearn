@@ -29,6 +29,7 @@
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
 #include "Space/SpacePoint.hpp"
+#include <algorithm>
 #include <array>
 #include <vector>
 
@@ -274,6 +275,7 @@ public:
   void setOptimLockIso2d(bool status) { _optimLockIso2d = status; }
   bool getOptimNoAniso() const { return _optimNoAniso; };
   void setOptimNoAniso(bool status) { _optimNoAniso = status; }
+  std::vector<MatrixSquare>& getDRot() const { return _dRot; }
 
 #ifndef SWIG
   int addEvalCovVecRHSInPlace(vect vect,
@@ -286,7 +288,6 @@ public:
                               double lambda                 = 1.,
                               const ECalcMember& calcMember = ECalcMember::RHS) const override;
 #endif
-
 
 protected:
   /// Update internal parameters consistency with the context
@@ -328,7 +329,8 @@ private:
 
   bool _optimNoAniso;   // All ranges should be equal
   bool _optimLockIso2d; // Range U and V should be equal
-
+  mutable std::vector<MatrixSquare> _dRot;
+  mutable double _derivCache;
   const std::array<EConsElem, 4> _listaniso = {EConsElem::RANGE,
                                                EConsElem::SCALE,
                                                EConsElem::TENSOR,
@@ -336,3 +338,51 @@ private:
   // These temporary information is used to speed up processing (optimization functions)
   // They are in a protected section as they may be modified by class hierarchy
 };
+
+#ifndef SWIG
+struct DerivCache
+{
+  mutable const SpacePoint* cachedP1 = nullptr;
+  mutable const SpacePoint* cachedP2 = nullptr;
+  mutable double deriv               = 0.0;
+  mutable std::vector<double> angles = {};
+  mutable bool isInitialized         = false;
+
+  double get(CorAniso* cor,
+             const SpacePoint& p1,
+             const SpacePoint& p2,
+             int ivar,
+             int jvar,
+             const CovCalcMode* mode) const
+  {
+    if (!VH::isEqual(angles, cor->getAnisoAngles()))
+    {
+       if (!cor->getParamInfoAngles().empty())
+          cor->getAniso().getRotation().getDerivativesInPlace(cor->getDRot());
+       angles = cor->getAnisoAngles();
+    }
+
+    bool useCache = cachedP1 == &p1 && cachedP2 == &p2;
+    if (useCache)
+    {
+      auto incr1  = cachedP1->getIncrement(p1);
+      bool equal1 = std::all_of(incr1.begin(), incr1.end(),
+                                [](double val)
+                                { return val == 0.0; });
+      auto incr2  = cachedP2->getIncrement(p2);
+      bool equal2 = std::all_of(incr2.begin(), incr2.end(),
+                                [](double val)
+                                { return val == 0.0; });
+      useCache    = equal1 && equal2;
+    }
+
+    if (!useCache)
+    {
+      deriv    = cor->evalDerivativeBasis(p1, p2, ivar, jvar, mode);
+      cachedP1 = &p1;
+      cachedP2 = &p2;
+    }
+    return deriv;
+  }
+};
+#endif // SWIG

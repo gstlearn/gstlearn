@@ -33,7 +33,8 @@ void Optim::setObjective(std::function<double(const std::vector<double>&)> objec
 }
 
 void Optim::setGradient(std::function<void(const std::vector<double>&, vect)> gradient,
-                        const std::vector<size_t>& dispatch)
+                        const std::vector<size_t>& dispatch,
+                        const std::vector<size_t>& dispatchIndex)
 {
   if (dispatch.empty())
   {
@@ -44,7 +45,7 @@ void Optim::setGradient(std::function<void(const std::vector<double>&, vect)> gr
   {
 
     _gradient = std::make_shared<std::function<void(const std::vector<double>&, vect)>>(
-        [gradient, dispatch, this](const std::vector<double>& x, vect grad_reduced)
+        [gradient, dispatch,dispatchIndex, this](const std::vector<double>& x, vect grad_reduced)
         {
             // Gradient complet, taille = dispatch.size() (i.e. taille initiale)
             this->_gradBuffer.resize(dispatch.size());
@@ -55,7 +56,7 @@ void Optim::setGradient(std::function<void(const std::vector<double>&, vect)> gr
 
             // Agréger les contributions selon dispatch
             for (size_t i = 0; i < dispatch.size(); ++i)
-                grad_reduced[dispatch[i]] += this->_gradBuffer[i];
+               grad_reduced[dispatch[i]] += this->_gradBuffer[i];
         }
     );
   }

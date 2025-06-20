@@ -32,7 +32,7 @@
 
 #include <vector>
 
-typedef std::function<double(const SpacePoint&,const SpacePoint&,int,int,const CovCalcMode* calcmode)> covmaptype;
+typedef std::function<double(const SpacePoint&, const SpacePoint&, int, int, const CovCalcMode* calcmode)> covmaptype;
 class Db;
 class DbGrid;
 class MatrixSquare;
@@ -81,6 +81,11 @@ public:
                  int jvar                = 0,
                  const CovCalcMode* mode = nullptr) const;
 
+  std::vector<double> evalCovGrad(const SpacePoint& p1,
+                                  const SpacePoint& p2,
+                                  int ivar                = 0,
+                                  int jvar                = 0,
+                                  const CovCalcMode* mode = nullptr);
   virtual double evalCovOnSphere(double alpha,
                                  int degree              = 50,
                                  bool flagScaleDistance  = false,
@@ -216,7 +221,7 @@ public:
                            SpacePoint& pin,
                            SpacePoint& pout,
                            VectorDouble& tabwork,
-                           double lambda = 1.,
+                           double lambda                 = 1.,
                            const ECalcMember& calcMember = ECalcMember::RHS) const;
   int evalCovMatOptimInPlace(MatrixDense& mat,
                              const Db* dbin,
@@ -232,7 +237,7 @@ public:
                                       SpacePoint& pin,
                                       SpacePoint& pout,
                                       VectorDouble& tabwork,
-                                      double lambda = 1.,
+                                      double lambda                 = 1.,
                                       const ECalcMember& calcMember = ECalcMember::RHS) const;
 #endif
   /////////////////////////////////////////////////////////////////////////////////
@@ -477,8 +482,8 @@ public:
   {
     DECLARE_UNUSED(listParams, gradFuncs);
   }
-  virtual void updateCov() { }
-  virtual void initParams() { }
+  virtual void updateCov() {}
+  virtual void initParams() {}
 
 private:
   virtual void _setContext(const CovContext& ctxt) { DECLARE_UNUSED(ctxt); }

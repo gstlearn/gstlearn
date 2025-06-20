@@ -1525,24 +1525,57 @@ void CorAniso::_optimizationSetTarget(SpacePoint& p) const
 void CorAniso::appendParams(ListParams& listparams,
                             std::vector<covmaptype>* gradFuncs)
 {
-  DECLARE_UNUSED(gradFuncs)
   listparams.addParams(_scales);
+  listparams.addParams(_angles);
+  auto derivCache = std::make_shared<DerivCache>();
+
+
   int i = 0;
+
+  
   for (auto& sc: _scales)
   {
-    gradFuncs->push_back(
-      [this, &sc, i](const SpacePoint& p1, const SpacePoint& p2, int ivar, int jvar, const CovCalcMode* mode) -> double
+    gradFuncs->emplace_back(
+      [this, &sc, i,derivCache](const SpacePoint& p1, const SpacePoint& p2, int ivar, int jvar, const CovCalcMode* mode) -> double
       {
         VectorDouble incr = p1.getIncrement(p2);
         if (std::all_of(incr.begin(), incr.end(), [](double v)
                         { return isZero(v); }))
           return 0.;
+        double deriv = derivCache->get(this, p1, p2, ivar, jvar, mode);
         VectorDouble res(incr.size());
-        this->_aniso.getRotation().rotateDirect(incr, res);
-        double result = -this->evalDerivativeBasis(p1, p2, ivar, jvar, mode) * pow(res[i], 2) / pow(sc.getValue(), 3);
+        this->_aniso.getRotation().rotateInverse(incr, res);
+        double result = -deriv * pow(res[i], 2) / pow(sc.getValue(), 3);
         return result;
       });
     i++;
+  }
+
+
+  for (size_t i = 0; i < _angles.size(); i++)
+  {
+    gradFuncs->emplace_back(
+      [this, i, derivCache](const SpacePoint& p1, const SpacePoint& p2, int ivar, int jvar, const CovCalcMode* mode) -> double
+      {
+        double deriv = derivCache->get(this, p1, p2, ivar, jvar, mode);
+        VectorDouble incr = p1.getIncrement(p2);
+        if (std::all_of(incr.begin(), incr.end(), [](double v)
+                        { return isZero(v); }))
+          return 0.;
+        VectorDouble res(incr.size());
+        VectorDouble temp(incr.size());
+        const VectorDouble& radius = this->_aniso.getRadius();
+
+        this->_aniso.getRotation().rotateInverse(incr, temp);
+        VH::divideInPlace(temp, radius);
+        VH::divideInPlace(temp, radius);
+
+        this->_dRot[i].prodMatVecInPlace(temp,res);
+
+        double dist2 = VH::innerProduct(res,incr);
+        double result =  deriv * dist2;
+        return result;
+      });
   }
   int count = (int)_scales.size();
   if (count > 0)
@@ -1554,7 +1587,6 @@ void CorAniso::appendParams(ListParams& listparams,
     if (_optimLockIso2d && count > 1)
       _scales[1].setAddress(ref);
   }
-  listparams.addParams(_angles);
 }
 
 void CorAniso::updateCov()

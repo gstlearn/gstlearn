@@ -17,10 +17,12 @@ void ListParams::updateDispatch()
   for (size_t i = 0; i < _params.size(); ++i)
   {
     size_t index = _params[i].get().getAddress();
+ 
     if (index > nmax)
     {
       nmax = nmax + 1;
       _dispatch.push_back(nmax);
+
     }
     else
     {
@@ -104,11 +106,13 @@ String ListParams::toString(const AStringFormat* strfmt) const
 void ListParams::makeDispatchIndexFromDispatch()
 {
   _dispatchIndex.clear();
-  for (size_t i = 0; i < getNParams(); ++i)
+  size_t nmax = 0;
+  for (size_t i = 0; i < _dispatch.size(); ++i)
   {
-    if (std::find(_dispatchIndex.begin(), _dispatchIndex.end(), _dispatch[i]) == _dispatchIndex.end())
+    if (_dispatch[i] >= nmax)
     {
-      _dispatchIndex.push_back(_dispatch[i]);
+      _dispatchIndex.push_back(i);
+      nmax = _dispatch[i] + 1;
     }
   }
 }

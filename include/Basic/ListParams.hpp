@@ -41,7 +41,8 @@ private:
   // Example: The model has 6 parameters, but only 4 are used in the optimization.
   // [0, 1, 2, 3, 4, 5] with 1 = 3 and 4 = 5
   // _params will contain references to all 6 parameters (0, 1, 2, 3, 4, 5),
-  // _dispatch = {0, 1, 2, 1, 3, 3}
+  // but the optimizable parameters will be [0, 1, 2, 4]
+  // _dispatch = {0, 1, 2, 1, 3, 3} says how to get the value inside the vector of optimizable parameters
   // _dispatchIndex = {0, 1, 2, 4} 
   std::vector<std::reference_wrapper<ParamInfo>> _params; // List of parameters
   std::vector<size_t> _dispatch;

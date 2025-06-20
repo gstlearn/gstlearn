@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/VectorNumT.hpp"
 #include "Model/AModelFitSills.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
@@ -122,6 +123,7 @@ public:
   FORWARD_METHOD_NON_CONST(getCov, makeStationary)
 
   FORWARD_METHOD_NON_CONST(_getCovModify, setContext)
+  FORWARD_METHOD_NON_CONST(_getCovModify, evalCovGrad,VectorDouble())
 
   // Forwarding the methods from _driftList
   

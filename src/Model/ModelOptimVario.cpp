@@ -30,7 +30,7 @@ ModelOptimVario::ModelOptimVario(ModelGeneric* model,
   , _vario()
   , _lags()
 {
-  setAuthorizedAnalyticalGradients(false);
+  setAuthorizedAnalyticalGradients(true);
 }
 
 ModelOptimVario::ModelOptimVario(const ModelOptimVario& m)

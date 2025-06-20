@@ -52,7 +52,8 @@ public:
                               DECLARE_UNUSED(x)
                               this->evalGrad(grad);
                             },
-                              _params->getDispatch());
+                              _params->getDispatch(),
+                             _params->getDispatchIndex());
     resetIter();
   };
 

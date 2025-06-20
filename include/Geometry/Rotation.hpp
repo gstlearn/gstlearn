@@ -33,7 +33,7 @@ public:
   const MatrixSquare& getMatrixInverse() const { return _rotInv; }
   const VectorDouble& getAngles() const { return _angles; }
   double getAngle(int idim) const { return _angles[idim]; }
-  int getDerivativesInPlace(std::vector<MatrixSquare>& res);
+  int getDerivativesInPlace(std::vector<MatrixSquare>& res) const;
   std::vector<MatrixSquare> getDerivatives();
   void resetFromSpaceDimension(unsigned int ndim);
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
