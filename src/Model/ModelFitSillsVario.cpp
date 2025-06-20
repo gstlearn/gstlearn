@@ -136,36 +136,6 @@ int ModelFitSillsVario::_getDimensions()
   int nbexp  = 0;
   int npadir = 0;
 
-  // Possibly update the distance for first lag
-  // if equal to 0 but corresponds to lots of pairs attached
-  // This patch is not performed for asymetrical case as the h=0 is only
-  // conventional.
-  for (int idir = 0; idir < _vario->getNDir(); idir++)
-  {
-    for (int ivar = 0; ivar < _nvar; ivar++)
-      for (int jvar = 0; jvar <= ivar; jvar++)
-      {
-        int iad0   = _vario->getCenter(ivar, jvar, idir);
-        double sw0 = _vario->getSwByIndex(idir, iad0);
-        double hh0 = _vario->getHhByIndex(idir, iad0);
-        // The test on the number of pairs avoids hacking in the case
-        // of a conventional construction where the number of pairs
-        // for the first lag is arbitrarily set to 1.
-        if (isZero(hh0) && sw0 > 1.)
-        {
-          int iad    = _vario->getNext(ivar, jvar, idir);
-          double sw1 = _vario->getSwByIndex(idir, iad);
-          double hh1 = _vario->getHhByIndex(idir, iad);
-
-          if (!_vario->getFlagAsym())
-          {
-            hh0 = hh1 * sw0 / sw1;
-            // _vario->setHhByIndex(idir, iad0, hh0); // TODO: to be set in the calculation of WT
-          }
-        }
-      }
-  }
-
   /* Calculate the total number of lags */
 
   for (int idir = 0; idir < _vario->getNDir(); idir++)
