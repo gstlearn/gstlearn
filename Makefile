@@ -246,13 +246,13 @@ check_rmd: cmake-r
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_rmd -- $(N_PROC_OPT)
 
 check_test_cpp: cmake
-	@cd $(BUILD_DIR); make $(TEST); CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
+	@cd $(BUILD_DIR); make $(TEST); CTEST_OUTPUT_ON_FAILURE=1 ctest -R '^$(TEST)$$'
 
 check_test_py: cmake-python
-	@cd $(BUILD_DIR); make python_install; make prepare_check_py; make prepare_check_ipynb; CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
+	@cd $(BUILD_DIR); make python_install; make prepare_check_py; make prepare_check_ipynb; CTEST_OUTPUT_ON_FAILURE=1 ctest '^$(TEST)$$'
 
 check_test_r: cmake-r
-	@cd $(BUILD_DIR); make r_install; make prepare_check_r; make prepare_check_rmd; CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
+	@cd $(BUILD_DIR); make r_install; make prepare_check_r; make prepare_check_rmd; CTEST_OUTPUT_ON_FAILURE=1 ctest '^$(TEST)$$'
 
 dump_test_cpp: cmake
 	@cd $(BUILD_DIR); make $(TEST); "tests/cpp/$(BUILD_TYPE)/$(TEST)" dummy
