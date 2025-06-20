@@ -63,6 +63,8 @@
 #  - USE_HDF5=0         To remove HDF5 support (default =1)
 #  - NO_INTERNET=1      To prevent python pip from looking for dependencies through Internet
 #                       (useful when there is no Internet available) (default =0)
+#  - NO_BYTE_COMPILE=1  To prevent R from byte-compiling the R package during the installation
+#                       (useful to accelerate installation process) (default =0) 
 #  - EIGEN3_ROOT=<path> Path to Eigen3 library (optional)
 #  - BOOST_ROOT=<path>  Path to Boost library (optional)
 #  - NLOPT_ROOT=<path>  Path to NLopt library (optional)
@@ -84,6 +86,12 @@ ifeq ($(NO_INTERNET), 1)
   NO_INTERNET = ON
  else
   NO_INTERNET = OFF 
+endif
+
+ifeq ($(NO_BYTE_COMPILE), 1)
+  NO_BYTE_COMPILE = ON
+ else
+  NO_BYTE_COMPILE = OFF
 endif
 
 ifeq ($(USE_HDF5), 0)
@@ -166,10 +174,10 @@ cmake-python:
 	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOC=$(BUILD_DOC) -DBUILD_PYTHON=ON -DNO_INTERNET=$(NO_INTERNET)
 
 cmake-r:
-	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOC=$(BUILD_DOC) -DBUILD_R=ON
+	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOC=$(BUILD_DOC) -DBUILD_R=ON -DNO_BYTE_COMPILE=$(NO_BYTE_COMPILE)
 
 cmake-python-r:
-	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOC=$(BUILD_DOC) -DBUILD_PYTHON=ON -DBUILD_R=ON -DNO_INTERNET=$(NO_INTERNET)
+	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOC=$(BUILD_DOC) -DBUILD_PYTHON=ON -DBUILD_R=ON -DNO_INTERNET=$(NO_INTERNET) -DNO_BYTE_COMPILE=$(NO_BYTE_COMPILE)
 
 cmake-doxygen:
 	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOC=ON
@@ -178,10 +186,10 @@ cmake-python-doxygen:
 	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOC=ON -DBUILD_PYTHON=ON -DNO_INTERNET=$(NO_INTERNET)
 
 cmake-r-doxygen:
-	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOC=ON -DBUILD_R=ON
+	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOC=ON -DBUILD_R=ON -DNO_BYTE_COMPILE=$(NO_BYTE_COMPILE)
 
 cmake-python-r-doxygen:
-	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOC=ON -DBUILD_PYTHON=ON -DBUILD_R=ON
+	@cmake -B$(BUILD_DIR) -S. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOC=ON -DBUILD_PYTHON=ON -DBUILD_R=ON -DNO_INTERNET=$(NO_INTERNET) -DNO_BYTE_COMPILE=$(NO_BYTE_COMPILE)
 
 print_version: cmake
 	@cmake --build $(BUILD_DIR) --target print_version --

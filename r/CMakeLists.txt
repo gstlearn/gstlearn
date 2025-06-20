@@ -256,13 +256,22 @@ else()
     set(DST_ARCHIVE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}.tar.gz")
   endif()
 endif()
+set(R_FLAGS "")
+
+# By default, byte-compile the R package
+option(NO_BYTE_COMPILE "Do not byte-compile the R package" OFF)
+message(STATUS "NO_BYTE_COMPILE=" ${NO_BYTE_COMPILE})
+
+if (NO_BYTE_COMPILE)
+  set(R_FLAGS ${R_FLAGS} --no-byte-compile)
+endif()
+
 add_custom_target(r_install
   # Empty Makevars (compilation already done by r_build target) - only 64 bits (no multi arch)
   COMMAND ${CMAKE_COMMAND} -E touch ${R_PACKAGE_SRC_FOLDER}/Makevars
   COMMAND ${CMAKE_COMMAND} -E touch ${R_PACKAGE_SRC_FOLDER}/Makevars.win
   COMMAND ${CMAKE_COMMAND} -E touch ${R_PACKAGE_SRC_FOLDER}/Makevars.ucrt
-  COMMAND ${R_EXECUTABLE} CMD INSTALL --build --no-multiarch ${R_PACKAGE_DESTINATION_FOLDER}
-#  COMMAND ${R_EXECUTABLE} CMD INSTALL --no-multiarch --no-byte-compile ${R_PACKAGE_DESTINATION_FOLDER}
+  COMMAND ${R_EXECUTABLE} CMD INSTALL --build --no-multiarch ${R_FLAGS} ${R_PACKAGE_DESTINATION_FOLDER}
   COMMAND ${CMAKE_COMMAND} -E copy ${ARCHIVE_FILE_NAME} ${R_PACKAGE_ROOT_FOLDER}/${DST_ARCHIVE_FILE_NAME}
   COMMENT "Installing R package"
   VERBATIM
