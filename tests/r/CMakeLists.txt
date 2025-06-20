@@ -30,9 +30,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TEST_DST_DIR})
 add_custom_target(prepare_check_r
                   COMMAND ${CMAKE_COMMAND} -E make_directory "${TEST_DST_DIR}")
 
-# Add dependency for prepare_check_r
-add_dependencies(prepare_check_r r_install)
-
 # Create the main target
 # Look parent CMakeLists for MY_CTEST_COMMAND definition
 add_custom_target(check_r
@@ -41,7 +38,7 @@ add_custom_target(check_r
 )
 
 # Add dependency for check_r
-add_dependencies(check_r prepare_check_r)
+add_dependencies(check_r prepare_check_r r_install)
 
 # Display test output in case of failure
 set(CTEST_OUTPUT_ON_FAILURE ON)

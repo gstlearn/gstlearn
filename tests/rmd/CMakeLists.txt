@@ -36,9 +36,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TEST_DST_DIR})
 add_custom_target(prepare_check_rmd
                   COMMAND ${CMAKE_COMMAND} -E make_directory "${TEST_DST_DIR}")
 
-# Add dependency for prepare_check_rmd
-add_dependencies(prepare_check_rmd r_install)
-
 # Create the target and the output directory for logs
 # Look parent CMakeLists for MY_CTEST_COMMAND definition
 add_custom_target(check_rmd
@@ -47,7 +44,7 @@ add_custom_target(check_rmd
 )
 
 # Add dependency for check_rmd
-add_dependencies(check_rmd prepare_check_rmd)
+add_dependencies(check_rmd prepare_check_rmd r_install)
 
 # Rmd script test runner path
 cmake_path(APPEND CMAKE_SOURCE_DIR r run_test_rmd.R

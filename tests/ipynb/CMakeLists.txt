@@ -41,10 +41,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TEST_DST_DIR})
 # Create the output directory for logs
 add_custom_target(prepare_check_ipynb
                   COMMAND ${CMAKE_COMMAND} -E make_directory "${TEST_DST_DIR}"
-                  COMMAND ${UV} pip install ${NO_INTERNET_ARG} jupyter notebook dash scikit-sparse)
-
-# Add dependency for prepare_check_ipynb
-add_dependencies(prepare_check_ipynb python_install)
+                  COMMAND ${UV} pip install ${NO_INTERNET_ARG} jupyter notebook dash scikit-sparse) // Add here required python packages for ipynb tests
 
 # Create the target and the output directory for logs
 # Look parent CMakeLists for MY_CTEST_COMMAND definition
@@ -54,7 +51,7 @@ add_custom_target(check_ipynb
 )
 
 # Add dependency for check_ipynb
-add_dependencies(check_ipynb prepare_check_ipynb)
+add_dependencies(check_ipynb prepare_check_ipynb python_install)
 
 # Jupyter notebook script test runner path
 cmake_path(APPEND CMAKE_SOURCE_DIR python run_test_ipynb.py
