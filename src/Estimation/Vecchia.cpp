@@ -19,6 +19,7 @@
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixT.hpp"
 #include "Model/ModelGeneric.hpp"
+#include "Stats/Classical.hpp"
 #include "geoslib_define.h"
 
 Vecchia::Vecchia(ModelGeneric* model,
@@ -375,6 +376,9 @@ Vecchia* Vecchia::createForOptim(ModelGeneric* model,
                                  int nb_neigh)
 {
   auto* vec = new Vecchia(model, nb_neigh, db, nullptr);
+  MatrixSymmetric vars = dbVarianceMatrix(db);
+  double hmax          = db->getExtensionDiagonal();
+  vec->setEnvironment(vars, hmax);
   vec->init();
   return vec;
 }

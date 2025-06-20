@@ -187,7 +187,7 @@ public:
   void addDrift(const ADrift* drift); // TODO: check that the same driftM has not been already defined
   void setDrifts(const VectorString& driftSymbols);
 
-  void initParams();
+  void initParams(const MatrixSymmetric& vars, double href = 1.);
 
   std::shared_ptr<ListParams> generateListParams() const;
   // Version for python test

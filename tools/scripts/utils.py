@@ -67,8 +67,6 @@ def find_function_return_type_in_file(method_name, header_path):
     print(f"❓ Signature non reconnue pour {method_name} dans {header_path}")
     return None
 
-
-
 def find_include_folder_in_file(classname, file_path):
     """
     Dans un fichier donné, retrouve la ligne `#include "Folder/Classname.hpp"`

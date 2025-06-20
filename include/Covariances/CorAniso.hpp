@@ -265,7 +265,8 @@ public:
                              int jvar,
                              const CovCalcMode* mode) const;
   void updateCov() override;
-  void initParams() override;
+  void initParams(const MatrixSymmetric& vars,
+                  double href                 = 1.) override;
   ParamInfo& getParamInfoScale(int idim) { return _scales[idim]; }
   ParamInfo& getParamInfoAngle(int idim) { return _angles[idim]; }
   std::vector<ParamInfo>& getParamInfoScales() { return _scales; }

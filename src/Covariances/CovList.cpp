@@ -325,6 +325,16 @@ int CovList::getNCov() const
   return ncov;
 }
 
+int CovList::getNCovNuggetExcluded() const
+{
+  int ntotal = 0;
+  for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
+  {
+    if (getCovType(icov) != ECov::NUGGET) ntotal++;
+  }
+  return ntotal;
+}
+
 bool CovList::isFiltered(int icov) const
 {
   if (!_isCovarianceIndexValid(icov)) return false;
@@ -532,13 +542,26 @@ void CovList::appendParams(ListParams& listParams,
   }
 }
 
-void CovList::initParams()
+void CovList::initParams(const MatrixSymmetric& vars, double href)
 {
-  for (const auto& cov: _covs)
+  int ncov = getNCov();
+  MatrixSymmetric varsPerStructure = vars;
+  for (size_t ivar = 0, nvar = getNVar(); ivar < nvar; ivar++)
+    for (size_t jvar = 0; jvar <= ivar; jvar++)
+      varsPerStructure.setValue(ivar, jvar, vars.getValue(ivar, jvar) / ncov);
+
+  int jcov = 0;
+  int ntotal = getNCovNuggetExcluded();
+  double hlocal = href / ntotal / 2;
+  for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
   {
-    cov->initParams();
+    if (getCovType(icov) == ECov::NUGGET) continue;
+    CovBase* cov = getCovModify(icov);
+    jcov++;
+    cov->initParams(varsPerStructure, hlocal * jcov);
   }
 }
+
 void CovList::updateCov()
 {
   for (const auto& cov: _covs)

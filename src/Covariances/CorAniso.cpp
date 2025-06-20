@@ -808,11 +808,13 @@ void CorAniso::_initParamInfo()
   }
 }
 
-void CorAniso::initParams()
+void CorAniso::initParams(const MatrixSymmetric& vars, double href)
 {
+  DECLARE_UNUSED(vars);
   for (auto& sc: _scales)
   {
-    sc.increaseMin(EPSILON3); // TODO use Db extensions
+    sc.increaseMin(href * EPSILON3);
+    sc.setValue(href);
   }
 }
 

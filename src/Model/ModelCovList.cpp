@@ -20,9 +20,8 @@ ModelCovList::ModelCovList(const CovContext& ctxt)
 ModelCovList::ModelCovList(const ModelCovList &m)
   : ModelGeneric(m)
 {
-  
-
 }
+
 ModelCovList& ModelCovList:: operator= (const ModelCovList &m)
 {
   if (this != &m)

@@ -106,7 +106,8 @@ public:
   void appendParams(ListParams& listParams,
                     std::vector<covmaptype>* gradFuncs = nullptr) override;
   void updateCov() override;
-  void initParams() override;
+  void initParams(const MatrixSymmetric& vars,
+                  double href                 = 1.) override;
   ParamInfo& getParamInfoCholSills(int ivar, int jvar) { return _cholSillsInfo(ivar, jvar); }
 
 protected:

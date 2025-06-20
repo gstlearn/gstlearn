@@ -46,16 +46,6 @@ Exponential
 - Theo. Range  =      0.334
 Total Sill     =      1.000
 Known Mean(s)     0.000
-- Anisotropy                   ON
-- Anisotropy Rotation          ON
-- Global Rotation              OFF
-- Rotation around Z only       OFF
-- Lock third dimension         OFF
-- Lock 2-D Isotropy            OFF
-- Use the Goulard option       ON
-- Optimization weighting mode  2
-- Maximum number of iterations 1000
-- Stopping Criterion (scaled)  1e-06
 
 Fitted Model
 ------------

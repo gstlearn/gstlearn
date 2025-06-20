@@ -12,6 +12,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Covariances/ACov.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Model/AModelFitSills.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "Model/ModelCovList.hpp"
@@ -25,7 +26,8 @@ class ModelGeneric;
 class GSTLEARN_EXPORT AModelOptim
 {
 public:
-  AModelOptim(ModelGeneric* model = nullptr, bool verbose = false)
+  AModelOptim(ModelGeneric* model = nullptr,
+              bool verbose = false)
     : _model(model)
     , _verbose(verbose)
     , _trace(false)
@@ -35,7 +37,11 @@ public:
 
     bool useGradient = true;
     _params          = _model->generateListParams();
-    _model->initParams();
+
+    int nvar = _model->getNVar();
+    MatrixSymmetric varsUnit = MatrixSymmetric(nvar);
+    for (int ivar = 0; ivar < nvar; ivar++) varsUnit.setValue(ivar, ivar, 1.);
+    _model->initParams(varsUnit, 1.);
     _x    = _params->getOptimizableValues();
     _xmin = _params->getMinValues();
     _xmax = _params->getMaxValues();
@@ -56,11 +62,11 @@ public:
     resetIter();
   };
 
-  AModelOptim(const AModelOptim& r) 
+   void setEnvironment(const MatrixSymmetric& vars, double href)
   {
-    DECLARE_UNUSED(r)
-    throw std::runtime_error("You shoudln't arrive here!");
-  };
+    _model->initParams(vars, href);
+    _x = _params->getOptimizableValues();
+  }
 
   AModelOptim& operator=(const AModelOptim& r)
   {

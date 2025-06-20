@@ -190,8 +190,12 @@ ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
                                                  const Constraints* constraints,
                                                  const ModelOptimParam& mop)
 {
+
   auto* optim = new ModelOptimVario(model, constraints, mop);
 
+  MatrixSymmetric vars = vario->getVarMatrix();
+  double hmax          = vario->getHmax();
+  optim->setEnvironment(vars, hmax);
   optim->_vario = vario;
 
   // Constitute the experimental material (using '_vario')

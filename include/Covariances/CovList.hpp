@@ -83,6 +83,7 @@ public:
 #endif
   void setCovFiltered(int icov, bool filtered);
   int getNCov() const;
+  int getNCovNuggetExcluded() const;
   bool isFiltered(int icov) const;
   virtual double getTotalSill(int ivar = 0, int jvar = 0) const;
   MatrixSymmetric getTotalSills() const;
@@ -128,7 +129,7 @@ public:
   virtual void appendParams(ListParams& listParams,
                             std::vector<covmaptype>* gradFuncs = nullptr) override;
   void updateCov() override;
-  void initParams() override;
+  void initParams(const MatrixSymmetric& vars, double href = 1.) override;
   void deleteFitSills() const;
 
   void setFitSills(AModelFitSills* amopts) const;
