@@ -111,7 +111,7 @@ public:
   ~Optim();
 
   void setObjective(std::function<double(const std::vector<double>&)> objective);
-  void setGradient(std::function<void(const std::vector<double>&, vect)> gradient,
+  void setGradient(std::function<void(vect)> gradient,
                    const std::vector<size_t>& dispatch = {},
                    const std::vector<size_t>& dispatchIndex = {});
   void setAuthorizedAnalyticalGradients(bool authorized)
@@ -134,7 +134,7 @@ private:
 
   nlopt_opt_s* _opt;
   std::shared_ptr<std::function<double(const std::vector<double>&)>> _objective;
-  std::shared_ptr<std::function<void(const std::vector<double>&, vect)>> _gradient;
+  std::shared_ptr<std::function<void(vect)>> _gradient;
   std::vector<std::function<double(const std::vector<double>&)>> _gradientPartials;
   mutable std::vector<double> _gradBuffer; // Buffer for gradient evaluation
   bool _authorizedAnalyticalGradients;

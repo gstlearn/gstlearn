@@ -27,7 +27,7 @@ class GSTLEARN_EXPORT AModelOptim
 {
 public:
   AModelOptim(ModelGeneric* model = nullptr,
-              bool verbose = false)
+              bool verbose        = false)
     : _model(model)
     , _verbose(verbose)
     , _trace(false)
@@ -38,7 +38,7 @@ public:
     bool useGradient = true;
     _params          = _model->generateListParams();
 
-    int nvar = _model->getNVar();
+    int nvar                 = _model->getNVar();
     MatrixSymmetric varsUnit = MatrixSymmetric(nvar);
     for (int ivar = 0; ivar < nvar; ivar++) varsUnit.setValue(ivar, ivar, 1.);
     _model->initParams(varsUnit, 1.);
@@ -52,18 +52,16 @@ public:
     _opt->setLowerBounds(_xmin);
     _opt->setUpperBounds(_xmax);
     _opt->setXtolRel(EPSILON6);
-    _opt->setObjective([this](const std::vector<double>& x) { return this->eval(x); });
-    _opt->setGradient([this](const std::vector<double>& x, vect grad) 
-                            {
-                              DECLARE_UNUSED(x)
-                              this->evalGrad(grad);
-                            },
-                              _params->getDispatch(),
-                             _params->getDispatchIndex());
+    _opt->setObjective([this](const std::vector<double>& x)
+                       { return this->eval(x); });
+    _opt->setGradient([this](vect grad)
+                      { this->evalGrad(grad); },
+                      _params->getDispatch(),
+                      _params->getDispatchIndex());
     resetIter();
   };
 
-   void setEnvironment(const MatrixSymmetric& vars, double href)
+  void setEnvironment(const MatrixSymmetric& vars, double href)
   {
     _model->initParams(vars, href);
     _x = _params->getOptimizableValues();
@@ -88,7 +86,7 @@ public:
     }
     _opt->setAuthorizedAnalyticalGradients(authorized);
   }
-  
+
   bool getAuthorizedAnalyticalGradients() const
   {
     if (_opt == nullptr)
@@ -97,14 +95,14 @@ public:
       return false;
     }
     return _opt->getAuthorizedAnalyticalGradients();
-  } 
-  
+  }
+
   virtual ~AModelOptim()
   {
     delete _opt;
   }
 
-  void setGradients(std::vector<std::function<double(const std::vector<double>&)>> &gradients)
+  void setGradients(std::vector<std::function<double(const std::vector<double>&)>>& gradients)
   {
     if (_opt == nullptr)
     {
@@ -132,7 +130,7 @@ public:
     }
 
     // In the verbose case, first print the list of parameters
-    if (verbose || trace) 
+    if (verbose || trace)
       _params->display();
   }
 
@@ -158,7 +156,9 @@ public:
     return result;
   };
 
-  virtual void evalGrad(vect res){DECLARE_UNUSED(res)};
+  virtual void evalGrad(vect res) {
+    DECLARE_UNUSED(res)
+  };
   void _printSummary(double minf, const std::vector<double>& x) const
   {
     message("Summary of Optimization procedure:\n");
@@ -167,7 +167,7 @@ public:
     VH::dump("- Final parameters", x, false);
     ModelCovList* mcv   = dynamic_cast<ModelCovList*>(_model);
     AModelFitSills* amf = mcv->getFitSills();
-    if (amf != nullptr) 
+    if (amf != nullptr)
     {
       int nitergCum = mcv->getCovList()->getNitergCum();
       amf->printFitSillSummary(nitergCum);
@@ -186,6 +186,7 @@ public:
     _iter = 0;
   }
   virtual double computeCost(bool verbose = false) = 0;
+
 protected:
   ModelGeneric* _model; // Pointer to the model being optimized
 

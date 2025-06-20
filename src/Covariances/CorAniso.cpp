@@ -488,7 +488,7 @@ double CorAniso::evalDerivativeBasis(const SpacePoint& p1,
     if (mode->getAsVario()) cov = -cov;
   }
 
-return cov;
+  return cov;
 }
 
 double CorAniso::evalCovOnSphere(double alpha,
@@ -1530,15 +1530,12 @@ void CorAniso::appendParams(ListParams& listparams,
   listparams.addParams(_scales);
   listparams.addParams(_angles);
   auto derivCache = std::make_shared<DerivCache>();
-
-
+  _handleConstraints();
   int i = 0;
-
-  
   for (auto& sc: _scales)
   {
     gradFuncs->emplace_back(
-      [this, &sc, i,derivCache](const SpacePoint& p1, const SpacePoint& p2, int ivar, int jvar, const CovCalcMode* mode) -> double
+      [this, &sc, i, derivCache](const SpacePoint& p1, const SpacePoint& p2, int ivar, int jvar, const CovCalcMode* mode) -> double
       {
         VectorDouble incr = p1.getIncrement(p2);
         if (std::all_of(incr.begin(), incr.end(), [](double v)
@@ -1553,13 +1550,18 @@ void CorAniso::appendParams(ListParams& listparams,
     i++;
   }
 
-
-  for (size_t i = 0; i < _angles.size(); i++)
+  size_t istart = 0;
+  if (getNDim() == 3 && _optimLockIso2d)
+  {
+    // In 3D, the first angle is locked
+    istart = 1;
+  }
+  for (size_t i = istart; i < _angles.size(); i++)
   {
     gradFuncs->emplace_back(
       [this, i, derivCache](const SpacePoint& p1, const SpacePoint& p2, int ivar, int jvar, const CovCalcMode* mode) -> double
       {
-        double deriv = derivCache->get(this, p1, p2, ivar, jvar, mode);
+        double deriv      = derivCache->get(this, p1, p2, ivar, jvar, mode);
         VectorDouble incr = p1.getIncrement(p2);
         if (std::all_of(incr.begin(), incr.end(), [](double v)
                         { return isZero(v); }))
@@ -1572,22 +1574,31 @@ void CorAniso::appendParams(ListParams& listparams,
         VH::divideInPlace(temp, radius);
         VH::divideInPlace(temp, radius);
 
-        this->_dRot[i].prodMatVecInPlace(temp,res);
+        this->_dRot[i].prodMatVecInPlace(temp, res);
 
-        double dist2 = VH::innerProduct(res,incr);
-        double result =  deriv * dist2;
+        double dist2  = VH::innerProduct(res, incr);
+        double result = deriv * dist2;
         return result;
       });
   }
+}
+void CorAniso::_handleConstraints()
+{
   int count = (int)_scales.size();
   if (count > 0)
   {
     int ref = _scales[0].getAddress();
     if (_optimNoAniso)
+    {
       for (int i = 1; i < count; i++)
         _scales[i].setAddress(ref);
+      _angles.clear();
+    }
     if (_optimLockIso2d && count > 1)
+    {
       _scales[1].setAddress(ref);
+      _angles.erase(_angles.begin()); // TODO : need to fix for gradients.
+    }
   }
 }
 

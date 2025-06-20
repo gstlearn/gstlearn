@@ -32,24 +32,24 @@ void Optim::setObjective(std::function<double(const std::vector<double>&)> objec
   nlopt_set_min_objective(_opt, &Optim::callback, this);
 }
 
-void Optim::setGradient(std::function<void(const std::vector<double>&, vect)> gradient,
+void Optim::setGradient(std::function<void(vect)> gradient,
                         const std::vector<size_t>& dispatch,
                         const std::vector<size_t>& dispatchIndex)
 {
   if (dispatch.empty())
   {
-    _gradient = std::make_shared<std::function<void(const std::vector<double>&, vect)>>(
+    _gradient = std::make_shared<std::function<void(vect)>>(
     std::move(gradient));
   }
   else 
   {
 
-    _gradient = std::make_shared<std::function<void(const std::vector<double>&, vect)>>(
-        [gradient, dispatch,dispatchIndex, this](const std::vector<double>& x, vect grad_reduced)
+    _gradient = std::make_shared<std::function<void(vect)>>(
+        [gradient, dispatch,dispatchIndex, this](vect grad_reduced)
         {
             // Gradient complet, taille = dispatch.size() (i.e. taille initiale)
             this->_gradBuffer.resize(dispatch.size());
-            gradient(x, this->_gradBuffer);
+            gradient(this->_gradBuffer);
 
             // Initialiser le gradient réduit
             std::fill(grad_reduced.begin(), grad_reduced.end(), 0.0);
@@ -102,7 +102,7 @@ double Optim::callback(unsigned n, const double* x, double* grad, void* f_data)
     if (that->_gradient && gradAnalytic)
     {
       vect grad_span(grad, n);
-      (*(that->_gradient))(xvec, grad_span);
+      (*(that->_gradient))(grad_span);
     }
     else if (!that->_gradientPartials.empty() && gradAnalytic)
     {

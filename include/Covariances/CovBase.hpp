@@ -11,6 +11,7 @@
 #pragma once
 #include "Basic/AFunctional.hpp"
 #include "Basic/ICloneable.hpp"
+#include "Basic/LowerTriangularRange.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "Covariances/TabNoStatSills.hpp"
@@ -107,7 +108,7 @@ public:
                     std::vector<covmaptype>* gradFuncs = nullptr) override;
   void updateCov() override;
   void initParams(const MatrixSymmetric& vars,
-                  double href                 = 1.) override;
+                  double href = 1.) override;
   ParamInfo& getParamInfoCholSills(int ivar, int jvar) { return _cholSillsInfo(ivar, jvar); }
 
 protected:
@@ -148,13 +149,14 @@ private:
                        int ivar                = 0,
                        int jvar                = 0,
                        const CovCalcMode* mode = nullptr) const override;
+void _multiplyCorDerivativesBySills(int oldSize, std::vector<covmaptype>* gradFuncs);
 
-protected:
-  MatrixT<ParamInfo> _cholSillsInfo;
+  protected: MatrixT<ParamInfo> _cholSillsInfo;
   mutable MatrixSquare _cholSills;
   mutable MatrixSymmetric _sillCur;
   mutable MatrixSquare _workMat;
 
 private:
   ACov* _cor;
+  LowerTriangularRange _itRange;
 };

@@ -246,8 +246,8 @@ double ModelOptimVario::computeCost(bool verbose)
   {
     const OneLag& lag = _lags[ilag];
     double vtheo      = _model->evalCov(origin, lag._P, lag._ivar, lag._jvar, &_calcmode);
-    
-    double resid      = lag._gg - vtheo;
+
+    double resid = lag._gg - vtheo;
     score += lag._weight * resid * resid;
     _resid[ilag] = lag._weight * resid;
   }
@@ -262,14 +262,15 @@ void ModelOptimVario::evalGrad(vect res)
   SpacePoint origin;
 
   for (size_t i = 0; i < gradcov.size(); i++)
-  {
     res[i] = 0.;
-    for (int ilag = 0; ilag < nlags; ilag++)
-    {
-      const OneLag& lag = _lags[ilag];
-      double dvtheo = gradcov[i](origin, lag._P, lag._ivar, lag._jvar, &_calcmode);
-      res[i] += -2. * _resid[ilag] * dvtheo;
-    }
-  }
 
+  for (int ilag = 0; ilag < nlags; ilag++)
+    for (size_t i = 0; i < gradcov.size(); i++)
+    {
+      {
+        const OneLag& lag = _lags[ilag];
+        double dvtheo     = gradcov[i](origin, lag._P, lag._ivar, lag._jvar, &_calcmode);
+        res[i] += -2. * _resid[ilag] * dvtheo;
+      }
+    }
 }

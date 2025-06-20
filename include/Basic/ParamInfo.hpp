@@ -50,12 +50,13 @@ public:
       _value = value;
       _currentValue = value;
     }
+    String getName() const {return _name;};
     double getUserMin() const {return _userBounds[0];};
     double getUserMax() const {return _userBounds[1];};
     void   setFixed(bool isFixed) {_isFixed = isFixed;};
     bool   isFixed() const {return _isFixed;};
-    void   setAddress(int addr) const {address = addr;};
-    size_t getAddress() const {return address;};
+    void   setAddress(int addr) const {_address = addr;};
+    size_t getAddress() const {return _address;};
     String toString(const AStringFormat* strfmt = nullptr) const override;
 
 private:
@@ -66,5 +67,5 @@ private:
   std::array<double, 2> _userBounds;
   bool _isFixed;
   String _description;
-  mutable size_t address;
+  mutable size_t _address;
 };

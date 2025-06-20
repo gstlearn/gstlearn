@@ -75,7 +75,6 @@ static void _secondTest(Db* db2D,
   ModelOptimParam mop = ModelOptimParam();
   mop.setWmode(2);
   mop.setFlagGoulard(false);
-  mop.setFlagGoulard(false);
   model->fitNew(nullptr, vario, nullptr, nullptr, mop, ITEST,
                 verbose, trace);
   (void)model->dumpToNF("Model_Vario.ascii");
@@ -97,7 +96,7 @@ static void _thirdTest(DbGrid* dbgrid,
 
   ModelOptimParam mop = ModelOptimParam();
   mop.setWmode(2);
-  mop.setFlagGoulard(false);
+  mop.setFlagGoulard(true);
   model->fitNew(nullptr, nullptr, dbmap, nullptr, mop, ITEST,
                 verbose, trace);
   (void)model->dumpToNF("Model_VMap.ascii");

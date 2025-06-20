@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Covariances/CovList.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/LowerTriangularRange.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovBase.hpp"
@@ -546,8 +547,8 @@ void CovList::initParams(const MatrixSymmetric& vars, double href)
 {
   int ncov = getNCov();
   MatrixSymmetric varsPerStructure = vars;
-  for (size_t ivar = 0, nvar = getNVar(); ivar < nvar; ivar++)
-    for (size_t jvar = 0; jvar <= ivar; jvar++)
+  LowerTriangularRange itRange(getNVar());
+  for (const auto& [ivar, jvar]: itRange)
       varsPerStructure.setValue(ivar, jvar, vars.getValue(ivar, jvar) / ncov);
 
   int jcov = 0;
@@ -555,9 +556,9 @@ void CovList::initParams(const MatrixSymmetric& vars, double href)
   double hlocal = href / ntotal / 2;
   for (int icov = 0, ncov = getNCov(); icov < ncov; icov++)
   {
-    if (getCovType(icov) == ECov::NUGGET) continue;
+    if (getCovType(icov) != ECov::NUGGET) 
+      jcov++;
     CovBase* cov = getCovModify(icov);
-    jcov++;
     cov->initParams(varsPerStructure, hlocal * jcov);
   }
 }

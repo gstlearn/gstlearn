@@ -296,6 +296,8 @@ protected:
 
 private:
   void _initParamInfo();
+  void _handleConstraints();
+
   bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;
   TabNoStat* _createNoStatTab() override;

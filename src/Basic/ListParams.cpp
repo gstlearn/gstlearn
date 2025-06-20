@@ -37,6 +37,7 @@ void ListParams::addParam(ParamInfo& param)
 {
   if (param.isFixed()) return;
   _params.push_back(param);
+
   _dispatch.push_back(_params.size() - 1);
   _dispatchIndex.push_back(_params.size() - 1);
   param.setAddress(_params.size() - 1);
