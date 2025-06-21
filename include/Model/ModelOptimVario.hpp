@@ -10,10 +10,11 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/VectorNumT.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Space/SpacePoint.hpp"
-#include "Estimation/AModelOptimNew.hpp"
+#include "Estimation/AModelOptim.hpp"
 
 class ModelGeneric;
 class Vario;
@@ -23,21 +24,22 @@ class Vario;
  * Class which, starting from an experimental variogram, enables fitting the
  * various parameters of a Covariance part of a Model
  */
-class GSTLEARN_EXPORT ModelOptimVario: public AModelOptimNew
+class GSTLEARN_EXPORT ModelOptimVario: public AModelOptim
 {
 public:
   ModelOptimVario(ModelGeneric* model,
-                  Constraints* constraints   = nullptr,
+                  const Constraints* constraints   = nullptr,
                   const ModelOptimParam& mop = ModelOptimParam());
   ModelOptimVario(const ModelOptimVario& m);
   ModelOptimVario& operator=(const ModelOptimVario& m);
   virtual ~ModelOptimVario();
 
   double computeCost(bool verbose = false) override;
+  void evalGrad(vect res) override;
 
   static ModelOptimVario* createForOptim(ModelGeneric* model,
-                                         Vario* vario,
-                                         Constraints* constraints   = nullptr,
+                                         const Vario* vario,
+                                         const Constraints* constraints   = nullptr,
                                          const ModelOptimParam& mop = ModelOptimParam());
 
 protected:
@@ -54,13 +56,15 @@ private:
   int  _buildExperimental();
   bool _checkConsistency();
   OneLag _createOneLag(int ndim, int idir, int ivar, int jvar, double gg, double dist) const;
-
+  VectorDouble _resid;
 protected:
   // Model fitting options
   ModelOptimParam _mop;
 
   // Set of constraints
-  Constraints* _constraints;
+  const Constraints* _constraints;
+
+  // Calculation option
   CovCalcMode _calcmode;
 
   // Part relative to the Experimental variograms

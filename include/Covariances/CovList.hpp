@@ -11,6 +11,7 @@
 
 #include "Basic/VectorNumT.hpp"
 #include "Enum/ECalcMember.hpp"
+#include "Model/AModelFitSills.hpp"
 #include "Space/ASpace.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
@@ -27,7 +28,7 @@ class CovBase;
 class CovContext;
 class AStringFormat;
 class AAnam;
-
+class AModelFitSills;
 /**
  * \brief
  * This class describes the **Covariance** as a list of elementary covariances (see CovBase.hpp for more details)
@@ -77,11 +78,12 @@ public:
                               SpacePoint& pin,
                               SpacePoint& pout,
                               VectorDouble& tabwork,
-                              double lambda = 1,
+                              double lambda                 = 1,
                               const ECalcMember& calcMember = ECalcMember::RHS) const override;
 #endif
   void setCovFiltered(int icov, bool filtered);
   int getNCov() const;
+  int getNCovNuggetExcluded() const;
   bool isFiltered(int icov) const;
   virtual double getTotalSill(int ivar = 0, int jvar = 0) const;
   MatrixSymmetric getTotalSills() const;
@@ -121,12 +123,19 @@ public:
                      const String& namecol   = String()) override;
   void makeSillNoStatDb(int icov, const String& namecol, int ivar = 0, int jvar = 0);
   void makeSillStationary(int icov, int ivar = 0, int jvar = 0);
-  void makeSillsStationary(int icov,bool silent = false);
+  void makeSillsStationary(int icov, bool silent = false);
   void makeSillNoStatFunctional(int icov, const AFunctional* func, int ivar = 0, int jvar = 0);
 
-  void appendParams(ListParams& listParams) override;
+  virtual void appendParams(ListParams& listParams,
+                            std::vector<covmaptype>* gradFuncs = nullptr) override;
   void updateCov() override;
-  void initParams() override;
+  void initParams(const MatrixSymmetric& vars, double href = 1.) override;
+  void deleteFitSills() const;
+
+  void setFitSills(AModelFitSills* amopts) const;
+  AModelFitSills* getFitSills() const;
+  int getNitergCum() const { return _itergCum; }
+
 protected:
   bool _isCovarianceIndexValid(int icov) const;
   void _load(const SpacePoint& p, bool case1) const override;
@@ -162,4 +171,8 @@ protected:
   mutable VectorInt _allActiveCovList; /*! List of indices of all covariances */
   mutable VectorInt _activeCovList;    /*! List of indices of the active covariances */
 #endif
+
+private:
+  mutable AModelFitSills* _modelFitSills; /* Model fitting procedure for Sills */
+  mutable int _itergCum;
 };

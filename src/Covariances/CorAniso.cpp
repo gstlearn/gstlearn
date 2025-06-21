@@ -36,6 +36,7 @@
 #include "Geometry/GeometryHelper.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
+#include <algorithm>
 #include <math.h>
 #include <functional>
 #include <vector>
@@ -53,6 +54,8 @@ CorAniso::CorAniso(const ECov& type, const CovContext& ctxt)
   _corfunc(CovFactory::createCovFunc(type, ctxt))
   , _aniso(ctxt.getSpace()->getNDim())
   , _noStatFactor(1.)
+  , _optimNoAniso(false)
+  , _optimLockIso2d(false)
 {
   initFromContext();
 }
@@ -63,6 +66,8 @@ CorAniso::CorAniso(const String& symbol, const CovContext& ctxt)
   _corfunc()
   , _aniso(ctxt.getSpace()->getNDim())
   , _noStatFactor(1.)
+  , _optimNoAniso(false)
+  , _optimLockIso2d(false)
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
   _corfunc     = CovFactory::createCovFunc(covtype, ctxt);
@@ -78,6 +83,8 @@ CorAniso::CorAniso(const ECov& type,
   , _corfunc(CovFactory::createCovFunc(type, ctxt))
   , _aniso(ctxt.getSpace()->getNDim())
   , _noStatFactor(1.)
+  , _optimNoAniso(false)
+  , _optimLockIso2d(false)
 {
   initFromContext();
 
@@ -94,8 +101,12 @@ CorAniso::CorAniso(const ECov& type,
 CorAniso::CorAniso(const CorAniso& r)
   : ACov(r)
   , _corfunc(CovFactory::duplicateCovFunc(*r._corfunc))
+  , _scales(r._scales)
+  , _angles(r._angles)
   , _aniso(r._aniso)
   , _noStatFactor(r._noStatFactor)
+  , _optimNoAniso(r._optimNoAniso)
+  , _optimLockIso2d(r._optimLockIso2d)
 {
 }
 
@@ -104,9 +115,13 @@ CorAniso& CorAniso::operator=(const CorAniso& r)
   if (this != &r)
   {
     ACov::operator=(r);
-    _corfunc           = CovFactory::duplicateCovFunc(*r._corfunc);
-    _aniso             = r._aniso;
-    _noStatFactor      = r._noStatFactor;
+    _corfunc        = CovFactory::duplicateCovFunc(*r._corfunc);
+    _scales         = r._scales;
+    _angles         = r._angles;
+    _aniso          = r._aniso;
+    _noStatFactor   = r._noStatFactor;
+    _optimNoAniso   = r._optimNoAniso;
+    _optimLockIso2d = r._optimLockIso2d;
   }
   return *this;
 }
@@ -118,7 +133,7 @@ CorAniso::~CorAniso()
 
 TabNoStat* CorAniso::_createNoStatTab()
 {
-  _tabNoStat= new TabNoStatCovAniso();
+  _tabNoStat = new TabNoStatCovAniso();
   return _tabNoStat;
 }
 void CorAniso::computeCorrec()
@@ -186,7 +201,7 @@ void CorAniso::setRange(int idim, double range)
     return;
   }
   double scadef = _corfunc->getScadef();
-  setScale(idim, range / scadef);
+  setScaleDim(idim, range / scadef);
 }
 
 void CorAniso::setScale(double scale)
@@ -218,7 +233,7 @@ void CorAniso::setScales(const VectorDouble& scales)
   _corfunc->setField(scadef * VH::maximum(scales));
 }
 
-void CorAniso::setScale(int idim, double scale)
+void CorAniso::setScaleDim(int idim, double scale)
 {
   if (scale <= EPSILON10)
   {
@@ -230,7 +245,7 @@ void CorAniso::setScale(int idim, double scale)
   _corfunc->setField(scadef * VH::maximum(_aniso.getRadius()));
 }
 
-void CorAniso::setAnisoRotation(const Rotation& rot)
+void CorAniso::setAnisoRotationMat(const Rotation& rot)
 {
   if (!hasRange()) return;
   _aniso.setRotation(rot);
@@ -415,22 +430,22 @@ int CorAniso::addEvalCovVecRHSInPlace(vect vect,
 {
   if (!isOptimEnabled())
     return ACov::addEvalCovVecRHSInPlace(vect, index1, iech2, krigopt, pin, pout, tabwork, lambda, calcMember);
-  auto space = pin.getSpace();
+  auto space              = pin.getSpace();
   const CovCalcMode& mode = krigopt.getMode();
   if (pin.isProjected())
   {
     space->getDistancePointVectInPlace(*_pw1, _p1As, tabwork, index1);
   }
-  else 
+  else
   {
     optimizationTransformSPNew(pin, pout);
     space->getDistancePointVectInPlace(pout, _p1As, tabwork, index1);
   }
-  
-  //TODO adapt to Moving
-  
+
+  // TODO adapt to Moving
+
   double* dists = tabwork.data();
-  //const int* ind = index1.data();
+  // const int* ind = index1.data();
   for (int i = 0; i < (int)index1.size(); i++)
   {
     vect[i] += lambda * evalCorFromH(dists[i], &mode);
@@ -448,6 +463,34 @@ double CorAniso::_eval(const SpacePoint& p1,
   return cov;
 }
 
+double CorAniso::evalDerivativeBasis(const SpacePoint& p1,
+                                     const SpacePoint& p2,
+                                     int ivar,
+                                     int jvar,
+                                     const CovCalcMode* mode) const
+{
+  DECLARE_UNUSED(ivar, jvar)
+  double h = getSpace()->getDistance(p1, p2, _aniso);
+  if (h == 0.)
+    return 0.;
+  if (mode == nullptr)
+    return _corfunc->evalDerivative(h) / h;
+
+  double cov = 0.;
+  int norder = mode->getOrderVario();
+  if (norder == 0)
+  {
+
+    // Traditional Covariance or Variogram
+    cov = _corfunc->evalDerivative(h) / h;
+
+    // Convert into a variogram
+    if (mode->getAsVario()) cov = -cov;
+  }
+
+  return cov;
+}
+
 double CorAniso::evalCovOnSphere(double alpha,
                                  int degree,
                                  bool flagScaleDistance,
@@ -458,7 +501,7 @@ double CorAniso::evalCovOnSphere(double alpha,
   const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
   if (spaceSn == nullptr) return TEST;
 
-  double scale = getScale();
+  double scale = getScaleIso();
   if (flagScaleDistance)
   {
     double radius = spaceSn->getRadius();
@@ -481,7 +524,7 @@ VectorDouble CorAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool f
   const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
   if (spaceSn == nullptr) return VectorDouble();
 
-  double scale = getScale();
+  double scale = getScaleIso();
   if (flagNormDistance)
   {
     double radius = spaceSn->getRadius();
@@ -566,7 +609,7 @@ double CorAniso::normalizeOnSphere(int n) const
 {
   const ASpace* space    = getDefaultSpaceSh().get();
   const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
-  double scale           = getScale();
+  double scale           = getScaleIso();
   double radius          = spaceSn->getRadius();
   scale                  = scale / radius;
   return _corfunc->normalizeOnSphere(n, scale);
@@ -687,7 +730,7 @@ void CorAniso::setType(const ECov& type)
  * In the anisotropic case, it returns the largest range over all directions
  * @return
  */
-double CorAniso::getRange() const
+double CorAniso::getRangeIso() const
 {
   if (!hasRange()) return 0.;
   if (isIsotropic())
@@ -695,7 +738,7 @@ double CorAniso::getRange() const
   return VH::maximum(getRanges());
 }
 
-double CorAniso::getScale() const
+double CorAniso::getScaleIso() const
 {
   if (!hasRange()) return 0.;
   if (isIsotropic())
@@ -748,16 +791,16 @@ void CorAniso::_initParamInfo()
     {
       for (int idim = 0; idim < getNDim(); idim++)
       {
-        String name = "Scale_" + std::to_string(idim);
+        String name  = "Scale_" + std::to_string(idim);
         double value = _aniso.getRadius(idim);
-        ParamInfo pis(name, value, {0, INF}, "Scale in Dimension " + std::to_string(idim+1));               
+        ParamInfo pis(name, value, {0, INF}, "Scale in Dimension " + std::to_string(idim + 1));
         _scales.push_back(pis);
-        
+
         if (getNDim() > 2 || idim < 1)
         {
-          name = "Angle_" + std::to_string(idim);
+          name  = "Angle_" + std::to_string(idim);
           value = _aniso.getAngle(idim);
-          ParamInfo pia(name, value, {-INF, INF}, "Angle in Dimension " + std::to_string(idim+1));               
+          ParamInfo pia(name, value, {-INF, INF}, "Angle in Dimension " + std::to_string(idim + 1));
           _angles.push_back(pia);
         }
       }
@@ -765,11 +808,13 @@ void CorAniso::_initParamInfo()
   }
 }
 
-void CorAniso::initParams()
+void CorAniso::initParams(const MatrixSymmetric& vars, double href)
 {
-  for (auto &sc : _scales)
+  DECLARE_UNUSED(vars);
+  for (auto& sc: _scales)
   {
-    sc.increaseMin(EPSILON3); //TODO use Db extensions
+    sc.increaseMin(5* href * EPSILON2);
+    sc.setValue(href);
   }
 }
 
@@ -1216,9 +1261,7 @@ double CorAniso::getValue(const EConsElem& econs, int iv1, int iv2) const
 void CorAniso::informMeshByMeshForAnisotropy(const AMesh* amesh) const
 {
   for (const auto& e: _listaniso)
-  {
     getTabNoStatCovAniso()->informMeshByMesh(amesh, e);
-  }
 }
 
 void CorAniso::informMeshByApexForAnisotropy(const AMesh* amesh) const
@@ -1348,12 +1391,12 @@ void CorAniso::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
     // Extract the direct tensor at first point and square it
     setRotationAnglesAndRadius(angle1, range1, scale1);
     MatrixSymmetric direct1 = getAniso().getTensorDirect2();
-    double det1                   = pow(direct1.determinant(), 0.25);
+    double det1             = pow(direct1.determinant(), 0.25);
 
     // Extract the direct tensor at second point and square it
     setRotationAnglesAndRadius(angle2, range2, scale2);
     MatrixSymmetric direct2 = getAniso().getTensorDirect2();
-    double det2                   = pow(direct2.determinant(), 0.25);
+    double det2             = pow(direct2.determinant(), 0.25);
 
     // Calculate average squared tensor
     direct2.addMatInPlace(direct1, 0.5, 0.5);
@@ -1481,13 +1524,83 @@ void CorAniso::_optimizationSetTarget(SpacePoint& p) const
   _pw2 = &_p2As[iech];
 }
 
-void CorAniso::appendParams(ListParams& listparams)
+void CorAniso::appendParams(ListParams& listparams,
+                            std::vector<covmaptype>* gradFuncs)
 {
-  _initParamInfo();
   listparams.addParams(_scales);
   listparams.addParams(_angles);
-}
+  auto derivCache = std::make_shared<DerivCache>();
+  _handleConstraints();
+  int i = 0;
+  for (auto& sc: _scales)
+  {
+    gradFuncs->emplace_back(
+      [this, &sc, i, derivCache](const SpacePoint& p1, const SpacePoint& p2, int ivar, int jvar, const CovCalcMode* mode) -> double
+      {
+        VectorDouble incr = p1.getIncrement(p2);
+        if (std::all_of(incr.begin(), incr.end(), [](double v)
+                        { return isZero(v); }))
+          return 0.;
+        double deriv = derivCache->get(this, p1, p2, ivar, jvar, mode);
+        VectorDouble res(incr.size());
+        this->_aniso.getRotation().rotateInverse(incr, res);
+        double result = -deriv * pow(res[i], 2) / pow(sc.getValue(), 3);
+        return result;
+      });
+    i++;
+  }
 
+  size_t istart = 0;
+  if (getNDim() == 3 && _optimLockIso2d)
+  {
+    // In 3D, the first angle is locked
+    istart = 1;
+  }
+  for (size_t i = istart; i < _angles.size(); i++)
+  {
+    gradFuncs->emplace_back(
+      [this, i, derivCache](const SpacePoint& p1, const SpacePoint& p2, int ivar, int jvar, const CovCalcMode* mode) -> double
+      {
+        double deriv      = derivCache->get(this, p1, p2, ivar, jvar, mode);
+        VectorDouble incr = p1.getIncrement(p2);
+        if (std::all_of(incr.begin(), incr.end(), [](double v)
+                        { return isZero(v); }))
+          return 0.;
+        VectorDouble res(incr.size());
+        VectorDouble temp(incr.size());
+        const VectorDouble& radius = this->_aniso.getRadius();
+
+        this->_aniso.getRotation().rotateInverse(incr, temp);
+        VH::divideInPlace(temp, radius);
+        VH::divideInPlace(temp, radius);
+
+        this->_dRot[i].prodMatVecInPlace(temp, res);
+
+        double dist2  = VH::innerProduct(res, incr);
+        double result = deriv * dist2;
+        return result;
+      });
+  }
+}
+void CorAniso::_handleConstraints()
+{
+  int count = (int)_scales.size();
+  if (count > 0)
+  {
+    int ref = _scales[0].getAddress();
+    if (_optimNoAniso)
+    {
+      for (int i = 1; i < count; i++)
+        _scales[i].setAddress(ref);
+      _angles.clear();
+    }
+    if (_optimLockIso2d && count > 1)
+    {
+      _scales[1].setAddress(ref);
+      _angles.erase(_angles.begin()); // TODO : need to fix for gradients.
+    }
+  }
+}
 
 void CorAniso::updateCov()
 {
@@ -1500,6 +1613,6 @@ void CorAniso::updateCov()
         _aniso.setRotationAngle(idim, _angles[idim].getValue());
       }
       _aniso.setRadiusDir(idim, _scales[idim].getValue());
-     }
+    }
   }
 }

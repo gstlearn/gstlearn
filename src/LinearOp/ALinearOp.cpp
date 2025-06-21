@@ -15,8 +15,29 @@ ALinearOp::ALinearOp()
 : _usefactor(false)
 , _idfactor(0.)
 , _factor(1.)
+, _temp()
 {
 }
+
+// ALinearOp::ALinearOp(const ALinearOp &m)
+//   : _usefactor(m._usefactor)
+//   , _idfactor(m._idfactor)
+//   , _factor(m._factor)
+//   , _temp(m._temp)
+// {
+// }
+
+// ALinearOp& ALinearOp::operator=(const ALinearOp& m)
+// {
+//   if (this != &m)
+//   {
+//     _usefactor = m._usefactor;
+//     _idfactor  = m._idfactor;
+//     _factor    = m._factor;
+//     _temp      = m._temp;
+//   }
+//   return *this;
+// }
 
 VectorDouble ALinearOp::evalDirect(const VectorDouble& in) const
 {

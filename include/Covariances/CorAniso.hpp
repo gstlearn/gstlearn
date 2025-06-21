@@ -29,6 +29,7 @@
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
 #include "Space/SpacePoint.hpp"
+#include <algorithm>
 #include <array>
 #include <vector>
 
@@ -60,7 +61,7 @@ public:
   CorAniso(const CorAniso& r);
   CorAniso& operator=(const CorAniso& r);
   virtual ~CorAniso();
-  
+
   /// ICloneable Interface
   IMPLEMENT_CLONING(CorAniso)
 
@@ -141,10 +142,10 @@ public:
   void setRanges(const VectorDouble& ranges);
 
   void setScale(double scale); /// Make the covariance isotropic
-  void setScale(int idim, double scale);
+  void setScaleDim(int idim, double scale);
   void setScales(const VectorDouble& scales);
 
-  void setAnisoRotation(const Rotation& rot);
+  void setAnisoRotationMat(const Rotation& rot);
   void setAnisoRotation(const VectorDouble& rot);
   void setAnisoAngles(const VectorDouble& angles);
   void setAnisoAngle(int idim, double angle);
@@ -154,23 +155,23 @@ public:
                                   const VectorDouble& scales = VectorDouble()) const;
 
   VectorDouble getRanges() const;
+  double getRange(int idim) const { return getRanges()[idim]; }
+  double getScale(int idim) const { return getScales()[idim]; }
   const Rotation& getAnisoRotation() const { return _aniso.getRotation(); }
   const VectorDouble& getScales() const { return _aniso.getRadius(); }
 
   void setType(const ECov& type);
-  double getRange() const;
-  double getScale() const;
+  double getRangeIso() const;
+  double getScaleIso() const;
   bool getFlagAniso() const { return !isIsotropic(); }
   bool getFlagRotation() const { return hasRotation(); }
-  double getRange(int idim) const { return getRanges()[idim]; }
-  double getScale(int idim) const { return getScales()[idim]; }
   VectorDouble getAnisoAngles() const { return _aniso.getAngles(); }
   const MatrixSquare& getAnisoRotMat() const { return _aniso.getMatrixDirect(); }
   const MatrixSquare& getAnisoInvMat() const { return _aniso.getMatrixInverse(); }
   VectorDouble getAnisoCoeffs() const;
   double getAnisoAngles(int idim) const { return getAnisoAngles()[idim]; }
   double getAnisoRotMat(int idim, int jdim) const { return _aniso.getMatrixDirect().getValue(idim, jdim); }
-  double getAnisoCoeffs(int idim) const { return getAnisoCoeffs()[idim]; }
+  double getAnisoCoeff(int idim) const { return getAnisoCoeffs()[idim]; }
   const ECov& getType() const { return _corfunc->getType(); }
   double getParam() const;
   double getScadef() const { return _corfunc->getScadef(); }
@@ -257,10 +258,27 @@ public:
   void optimizationTransformSPNew(const SpacePoint& ptin, SpacePoint& ptout) const;
   String toStringParams(const AStringFormat* strfmt = nullptr) const;
   String toStringNoStat(const AStringFormat* strfmt = nullptr, int i = 0) const;
-  void appendParams(ListParams& listParams) override;
+  void appendParams(ListParams& listParams,
+                    std::vector<covmaptype>* gradFuncs = nullptr) override;
+  double evalDerivativeBasis(const SpacePoint& p1,
+                             const SpacePoint& p2,
+                             int ivar,
+                             int jvar,
+                             const CovCalcMode* mode) const;
   void updateCov() override;
-  void initParams() override;
-  #ifndef SWIG
+  void initParams(const MatrixSymmetric& vars,
+                  double href                 = 1.) override;
+  ParamInfo& getParamInfoScale(int idim) { return _scales[idim]; }
+  ParamInfo& getParamInfoAngle(int idim) { return _angles[idim]; }
+  std::vector<ParamInfo>& getParamInfoScales() { return _scales; }
+  std::vector<ParamInfo>& getParamInfoAngles() { return _angles; }
+  bool getOptimLockIso2d() const { return _optimLockIso2d; }
+  void setOptimLockIso2d(bool status) { _optimLockIso2d = status; }
+  bool getOptimNoAniso() const { return _optimNoAniso; };
+  void setOptimNoAniso(bool status) { _optimNoAniso = status; }
+  std::vector<MatrixSquare>& getDRot() const { return _dRot; }
+
+#ifndef SWIG
   int addEvalCovVecRHSInPlace(vect vect,
                               const VectorInt& index1,
                               int iech2,
@@ -268,15 +286,18 @@ public:
                               SpacePoint& pin,
                               SpacePoint& pout,
                               VectorDouble& tabwork,
-                              double lambda = 1., 
+                              double lambda                 = 1.,
                               const ECalcMember& calcMember = ECalcMember::RHS) const override;
-  #endif
+#endif
+
 protected:
   /// Update internal parameters consistency with the context
   void _initFromContext() override;
 
 private:
   void _initParamInfo();
+  void _handleConstraints();
+
   bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;
   TabNoStat* _createNoStatTab() override;
@@ -303,11 +324,16 @@ private:
                        const CovCalcMode* mode = nullptr) const override;
 
 private:
-  ACovFunc* _corfunc;    /// Basic correlation function
+  ACovFunc* _corfunc; /// Basic correlation function
   std::vector<ParamInfo> _scales;
   std::vector<ParamInfo> _angles;
-  mutable Tensor _aniso; /// Anisotropy parameters
+  mutable Tensor _aniso;        /// Anisotropy parameters
   mutable double _noStatFactor; /// Correcting factor for non-stationarity
+
+  bool _optimNoAniso;   // All ranges should be equal
+  bool _optimLockIso2d; // Range U and V should be equal
+  mutable std::vector<MatrixSquare> _dRot;
+  mutable double _derivCache;
   const std::array<EConsElem, 4> _listaniso = {EConsElem::RANGE,
                                                EConsElem::SCALE,
                                                EConsElem::TENSOR,
@@ -315,3 +341,51 @@ private:
   // These temporary information is used to speed up processing (optimization functions)
   // They are in a protected section as they may be modified by class hierarchy
 };
+
+#ifndef SWIG
+struct DerivCache
+{
+  mutable const SpacePoint* cachedP1 = nullptr;
+  mutable const SpacePoint* cachedP2 = nullptr;
+  mutable double deriv               = 0.0;
+  mutable std::vector<double> angles = {};
+  mutable bool isInitialized         = false;
+
+  double get(CorAniso* cor,
+             const SpacePoint& p1,
+             const SpacePoint& p2,
+             int ivar,
+             int jvar,
+             const CovCalcMode* mode) const
+  {
+    if (!VH::isEqual(angles, cor->getAnisoAngles()))
+    {
+       if (!cor->getParamInfoAngles().empty())
+          cor->getAniso().getRotation().getDerivativesInPlace(cor->getDRot());
+       angles = cor->getAnisoAngles();
+    }
+
+    bool useCache = cachedP1 == &p1 && cachedP2 == &p2;
+    if (useCache)
+    {
+      auto incr1  = cachedP1->getIncrement(p1);
+      bool equal1 = std::all_of(incr1.begin(), incr1.end(),
+                                [](double val)
+                                { return val == 0.0; });
+      auto incr2  = cachedP2->getIncrement(p2);
+      bool equal2 = std::all_of(incr2.begin(), incr2.end(),
+                                [](double val)
+                                { return val == 0.0; });
+      useCache    = equal1 && equal2;
+    }
+
+    if (!useCache)
+    {
+      deriv    = cor->evalDerivativeBasis(p1, p2, ivar, jvar, mode);
+      cachedP1 = &p1;
+      cachedP2 = &p2;
+    }
+    return deriv;
+  }
+};
+#endif // SWIG

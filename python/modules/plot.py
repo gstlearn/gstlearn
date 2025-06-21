@@ -6,7 +6,6 @@
 # License: BSD 3-clause                                                        #
 #                                                                              #
 ################################################################################
-
 try:
     import matplotlib
     import matplotlib.pyplot     as plt
@@ -130,13 +129,13 @@ def _ax_geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
     if aspect is not None:
         ax.set_aspect(aspect)
             
-def decoration(xlabel=None, ylabel=None, title=None, **kwargs):
+def decoration(title=None, xlabel=None, ylabel=None, **kwargs):
     '''
     Attach a decoration to the current graphic (either current Figure or current Axes)
 
+    title: Title assigned to the Figure
     xlabel: Label on the X-axis (only for the current Axes)
     ylabel: Label on the Y-axis (only for the current Axes)
-    title: Title assigned to the Figure
     '''
     fig = plt.gcf()
     if fig is None:
@@ -148,7 +147,7 @@ def decoration(xlabel=None, ylabel=None, title=None, **kwargs):
     else:
         ax  = _getCurrentAx(fig)
         if ax is not None:
-            _ax_decoration(ax, xlabel=xlabel, ylabel=ylabel, title=title, **kwargs)
+            _ax_decoration(ax, title=title, xlabel=xlabel, ylabel=ylabel, **kwargs)
         return
     
 def _fig_decoration(fig, title=None, **kwargs):
@@ -160,13 +159,13 @@ def _fig_decoration(fig, title=None, **kwargs):
     if title is not None:
         fig.suptitle(title, **kwargs)
     
-def _ax_decoration(ax, xlabel=None, ylabel=None, title=None, **kwargs):
+def _ax_decoration(ax, title=None, xlabel=None, ylabel=None, **kwargs):
     '''
     Add the decoration to a Axes.
     ax: matplotlib.Axes
+    title: title contents (for the main for a collection of Axes)
     xlabel: label along the horizontal axis
     ylabel: label along the vertical axis
-    title: title contents (for the main for a collection of Axes)
     '''
     if title is not None:
         ax.set_title(title, **kwargs)
@@ -497,14 +496,14 @@ def _fig_varmod(fig, vario=None, model=None, **kwargs):
     return _ax_varmod(axs, vario=vario, model=model, **kwargs)
 
 def _ax_varmod(axs, vario=None, model=None, ivar=-1, jvar=-1, idir=-1,
-                nh = 100, hmax = None, codir=None,
-                showPairs=False, asCov=False, 
-                flagDrawVariance = True,
-                varioLinestyle = 'dashed', modelLinestyle = 'solid',
-                varColor='black', varLinestyle="dotted",
-                envColor='black', envLinestyle="dotted",
-                cmap=None, flagLegend=False,
-                **kwargs):
+               nh = 100, hmax = None, codir=None,
+               showPairs=False, asCov=False, 
+               flagDrawVariance = True,
+               varioLinestyle = 'dashed', modelLinestyle = 'solid',
+               varColor='black', varLinestyle="dotted",
+               envColor='black', envLinestyle="dotted",
+               cmap=None, flagLegend=False,
+               **kwargs):
     """
     Construct a figure for plotting experimental variogram(s) and model. Both of them are optional
     
@@ -609,6 +608,10 @@ def _ax_varmod(axs, vario=None, model=None, ivar=-1, jvar=-1, idir=-1,
                     ax.set_xlim(left=0)
                 if vario.drawOnlyPositiveY(iv, jv):
                     ax.set_ylim(bottom=0)
+
+            # Add the point (0,0) to fix the scale of the graphic
+            # This should be valid for any representation of Variogram and/or Model
+            ax.plot(0., 0.)
     
     return axs
 
@@ -2147,3 +2150,5 @@ setattr(plt.Figure, "varmod",      gp._fig_varmod)
 setattr(plt.Figure, "variogram",   gp._fig_variogram)
 setattr(plt.Figure, "model",       gp._fig_model)
 setattr(plt.Figure, "decoration",  gp._fig_decoration)
+
+setattr(gl.DbGrid, "plot",         gp.raster)

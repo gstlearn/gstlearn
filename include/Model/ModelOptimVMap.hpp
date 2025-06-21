@@ -10,7 +10,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "Estimation/AModelOptimNew.hpp"
+#include "Estimation/AModelOptim.hpp"
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
@@ -25,12 +25,12 @@ class Constraints;
  * Class which, starting from an experimental variogram, enables fitting the
  * various parameters of a Covariance part of a Model
  */
-class GSTLEARN_EXPORT ModelOptimVMap: public AModelOptimNew
+class GSTLEARN_EXPORT ModelOptimVMap: public AModelOptim
 {
 public:
   ModelOptimVMap(ModelGeneric* model,
-                 Constraints* constraints   = nullptr,
-                 const ModelOptimParam& mop = ModelOptimParam());
+                 const Constraints* constraints = nullptr,
+                 const ModelOptimParam& mop     = ModelOptimParam());
   ModelOptimVMap(const ModelOptimVMap& m);
   ModelOptimVMap& operator=(const ModelOptimVMap& m);
   virtual ~ModelOptimVMap();
@@ -39,12 +39,13 @@ public:
 
   static ModelOptimVMap* createForOptim(ModelGeneric* model,
                                         const DbGrid* dbmap,
-                                        Constraints* constraints   = nullptr,
-                                        const ModelOptimParam& mop = ModelOptimParam());
+                                        const Constraints* constraints = nullptr,
+                                        const ModelOptimParam& mop     = ModelOptimParam());
+  void evalGrad(vect res) override;
 
 private:
   bool _checkConsistency();
-  int  _getDimensions();
+  int _getDimensions();
   void _allocateInternalArrays();
 
 protected:
@@ -52,7 +53,7 @@ protected:
   ModelOptimParam _mop;
 
   // Set of constraints
-  Constraints* _constraints;
+  const Constraints* _constraints;
 
   // Calculation option
   CovCalcMode _calcmode;

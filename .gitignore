@@ -50,5 +50,5 @@ doc/details/*.pdf
 doc/details/*.fdb_latexmk
 doc/details/*.fls
 doc/details/*.synctex.gz
-
+.venv
 2

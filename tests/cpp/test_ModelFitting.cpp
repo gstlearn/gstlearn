@@ -49,37 +49,45 @@ static Vario* _computeVariogram(Db* db2D, const ECalcVario& calcul)
   return vario;
 }
 
-static void _firstTest(Db* db2D, Model* model, const ECalcVario& calcul, bool converge)
+static void _firstTest(Db* db2D, Model* model, const ECalcVario& calcul, bool verbose)
 {
-  DECLARE_UNUSED(converge);
+  DECLARE_UNUSED(verbose);
   mestitle(0, "Sill fitting from Variogram (old version)");
 
   Vario* vario = _computeVariogram(db2D, calcul);
 
   (void) model_fitting_sills(vario, model);
-  (void)model->dumpToNF("SillsFromVario_Old.ascii");
+  (void)model->dumpToNF("Model_Sills.ascii");
   model->display();
 
   delete vario;
 }
 
-static void _secondTest(Db* db2D, Model* model, const ECalcVario& calcul, bool converge)
+static void _secondTest(Db* db2D,
+                        Model* model,
+                        const ECalcVario& calcul,
+                        bool verbose,
+                        bool trace)
 {
   mestitle(0, "Model fitting from Variogram (new version)");
 
   Vario* vario = _computeVariogram(db2D, calcul);
-
   ModelOptimParam mop = ModelOptimParam();
   mop.setWmode(2);
-  mop.setFlagGoulard(true);
-  model->fitNew(nullptr, vario, nullptr, nullptr, mop, ITEST, converge);
-  (void)model->dumpToNF("ModelFromVario.ascii");
+  mop.setFlagGoulard(false);
+  model->fitNew(nullptr, vario, nullptr, nullptr, mop, ITEST,
+                verbose, trace);
+  (void)model->dumpToNF("Model_Vario.ascii");
   model->display();
 
   delete vario;
 }
 
-static void _thirdTest(DbGrid* dbgrid, Model* model, const ECalcVario& calcul, bool converge)
+static void _thirdTest(DbGrid* dbgrid,
+                       Model* model,
+                       const ECalcVario& calcul,
+                       bool verbose,
+                       bool trace)
 {
   mestitle(0, "Sill Fitting from Variogram Map (new version)");
 
@@ -88,9 +96,10 @@ static void _thirdTest(DbGrid* dbgrid, Model* model, const ECalcVario& calcul, b
 
   ModelOptimParam mop = ModelOptimParam();
   mop.setWmode(2);
-  mop.setFlagGoulard(false);
-  model->fitNew(nullptr, nullptr, dbmap, nullptr, mop, ITEST, converge);
-  (void)model->dumpToNF("SillsFromVMap.ascii");
+  mop.setFlagGoulard(true);
+  model->fitNew(nullptr, nullptr, dbmap, nullptr, mop, ITEST,
+                verbose, trace);
+  (void)model->dumpToNF("Model_VMap.ascii");
   model->display();
 
   delete dbmap;
@@ -113,7 +122,6 @@ int main(int argc, char* argv[])
   // Global parameters
   int nvar                = 1;
   const ECalcVario calcul = ECalcVario::VARIOGRAM;
-  bool verbose            = false;
 
   // Creating the Model used to simulate the Data
   Model* model_simu           = new Model(nvar);
@@ -126,12 +134,9 @@ int main(int argc, char* argv[])
   MatrixSymmetric sill1 = _buildSillMatrix(nvar, 3.);
   model_simu->addCovFromParam(ECov::SPHERICAL, range1, 0., param1,
                               VectorDouble(), sill1);
-  if (verbose)
-  {
-    message("Model used for simulating the Data\n");
-    model_simu->display();
-  }
-  model_simu->dumpToNF("Reference_Model.ascii");
+  message("Model used for simulating the Data\n");
+  model_simu->display();
+  model_simu->dumpToNF("Model_Ref.ascii");
 
   // Data set
   int nech = 100;
@@ -147,40 +152,30 @@ int main(int argc, char* argv[])
   (void)dbgrid->dumpToNF("dbgrid.ascii");
 
   // Creating the testing Model
-  if (verbose)
-  {
-    message("Initial Model used for Test\n");
-    model_simu->display();
-  }
+  message("Initial Model used for Test\n");
+  model_simu->display();
 
   // Optimization tests
-  int mode      = 0;
-  bool converge = false;
+  int mode     = 2;
+  bool verbose = false;
+  bool trace = false;
   Model* model_test;
 
   if (mode == 0 || mode == 1)
   {
     model_test = model_simu->clone();
-    _firstTest(db2D, model_test, calcul, converge);
+    _firstTest(db2D, model_test, calcul, verbose);
   }
   if (mode == 0 || mode == 2)
   {
     model_test = model_simu->clone();
-    _secondTest(db2D, model_test, calcul, converge);
+    _secondTest(db2D, model_test, calcul, verbose, trace);
   }
   if (mode == 0 || mode == 3)
   {
     model_test = model_simu->clone();
-    _thirdTest(dbgrid, model_test, calcul, converge);
+    _thirdTest(dbgrid, model_test, calcul, verbose, trace);
   }
-
-  // Printing the resulting Model
-  if (verbose)
-  {
-    message("Resulting Model\n");
-    model_test->display();
-  }
-  model_test->dumpToNF("Resulting_Model.ascii");
 
   delete db2D;
   delete dbgrid;

@@ -571,7 +571,7 @@ void ShiftOpMatrix::_loadHHGrad(const AMesh *amesh,
       auto covini = _getCovAniso();
       auto covaderiv = cloneAndCast(covini);
       _updateCova(covaderiv, ipref);
-      _getCovAniso()->setAnisoAngle(ir, covaderiv->getAnisoAngles(ir) + 90.);
+      _getCovAniso()->setAnisoAngle(ir, covaderiv->getAnisoAngle(ir) + 90.);
       const MatrixSquare &drotmat = covaderiv->getAnisoRotMat();
 
       VH::divideConstant(diag, 180. / GV_PI); // Necessary as angles are provided in degrees. Factor 2 is for derivative

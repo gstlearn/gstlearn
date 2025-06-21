@@ -17,6 +17,7 @@ ParamInfo::ParamInfo(const String& name,
   , _userBounds(absoluteBounds)
   , _isFixed(isfixed)
   , _description(description)
+  , _address(ITEST)
 {
 }
 
@@ -29,6 +30,7 @@ ParamInfo::ParamInfo(const ParamInfo& other)
   , _userBounds(other._userBounds)
   , _isFixed(other._isFixed)
   , _description(other._description)
+  , _address(ITEST)
 {
 }
 
@@ -44,6 +46,7 @@ ParamInfo& ParamInfo::operator=(const ParamInfo& other)
     _userBounds     = other._userBounds;
     _isFixed        = other._isFixed;
     _description    = other._description;
+    _address        = ITEST;
   }
   return *this;
 }

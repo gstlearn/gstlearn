@@ -326,7 +326,7 @@ MatrixSymmetric* MatrixSymmetric::createFromTLTU(int neq,
 
 /*****************************************************************************/
 /*!
- **  Fill a square matrix with a triangular matrix
+ **  Fill a square matrix with a triangular matrix 
  **
  ** \param[in]  mode   0: TL (upper); 1: TL (lower)
  ** \param[in]  neq    number of equations in the system

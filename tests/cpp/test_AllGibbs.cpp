@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
   int nbsimu   = 1;
   double sill  = 1.;
   int nlag     = 20;
-  VectorDouble ranges = { range, range};
+  VectorDouble ranges = {range, range};
   bool verbose          = true;
   bool flag_moving      = true;
   bool flag_propagation = false;

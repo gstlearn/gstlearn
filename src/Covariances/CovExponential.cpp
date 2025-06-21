@@ -113,3 +113,10 @@ VectorDouble CovExponential::_evaluateSpectrumOnSphere(int n, double scale) cons
 
   return sp;
 }
+
+double CovExponential::_evaluateCovDerivative(double h) const
+{
+  if (h > MAX_EXP) return (0.);
+  double cov = -exp(-h);
+  return (cov);
+}

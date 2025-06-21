@@ -59,7 +59,8 @@ int main(int argc, char *argv[])
   CovAnisoList covlmc = CovAnisoList(ctxt);
   // Build the Elementary Covariances
   CovAniso cov1 = CovAniso(ECov::CUBIC,ctxt);
-  cov1.setRanges({1.2,2.1});
+  VectorDouble ranges = {1.2, 2.1};
+  cov1.setRanges(ranges);
   cov1.setSill(1.5);
   covlmc.addCov(&cov1);
   CovAniso cov2 = CovAniso(ECov::NUGGET,ctxt);

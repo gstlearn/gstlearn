@@ -15,6 +15,7 @@
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/ModelGeneric.hpp"
+#include "Stats/Classical.hpp"
 #include "geoslib_define.h"
 
 Likelihood::Likelihood(ModelGeneric* model,
@@ -46,7 +47,7 @@ double logLikelihood(const Db* db,
                      bool verbose)
 {
   Likelihood* vec = Likelihood::createForOptim(model, db);
-  double result   = vec->computeCost(verbose);
+  double result   = vec->computeLogLikelihood(verbose);
   delete vec;
   return result;
 }
@@ -55,6 +56,9 @@ Likelihood* Likelihood::createForOptim(ModelGeneric* model,
                                        const Db* db)
 {
   auto* vec = new Likelihood(model, db);
+  MatrixSymmetric vars = dbVarianceMatrix(db);
+  double hmax          = db->getExtensionDiagonal();
+  vec->setEnvironment(vars, hmax);
   vec->init();
   return vec;
 }

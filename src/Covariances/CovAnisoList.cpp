@@ -9,8 +9,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovAnisoList.hpp"
+#include "Basic/ParamInfo.hpp"
 #include "Enum/EModelProperty.hpp"
 
+#include "Basic/ListParams.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovList.hpp"
@@ -24,7 +26,9 @@
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Db/Db.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
+#include "geoslib_define.h"
 
+#include <cstddef>
 #include <math.h>
 #include <vector>
 
@@ -37,13 +41,10 @@ CovAnisoList::CovAnisoList(const CovContext& ctxt)
 CovAnisoList::CovAnisoList(const CovAnisoList& r)
   : CovList(r)
 {
-  
 }
 
-CovAnisoList& CovAnisoList::operator=(const CovAnisoList &r)
+CovAnisoList& CovAnisoList::operator=(const CovAnisoList& r)
 {
-
-  
 
   if (this != &r)
   {
@@ -63,7 +64,7 @@ void CovAnisoList::addCovList(const CovAnisoList* covs)
     addCov(covs->getCovAniso(icov));
 }
 
-void CovAnisoList::addCov(const CovBase* cov) 
+void CovAnisoList::addCov(const CovBase* cov)
 {
   if (dynamic_cast<const CovAniso*>(cov) == nullptr)
   {
@@ -110,7 +111,7 @@ int CovAnisoList::getNVar() const
 
 double CovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
-  double cov      = 0.;
+  double cov            = 0.;
   const VectorInt& list = _getListActiveCovariances(mode);
   for (const auto& j: list.getVector())
   {
@@ -196,14 +197,14 @@ int CovAnisoList::getCovMinIRFOrder() const
   for (unsigned i = 0, n = getNCov(); i < n; i++)
   {
     const CovAniso* covaniso = _getCovAniso(i);
-    if (covaniso == nullptr) continue; 
+    if (covaniso == nullptr) continue;
     int locmini = covaniso->getMinOrder();
     if (locmini > nmini) nmini = locmini;
   }
   return nmini;
 }
 
-CovAniso* CovAnisoList::getCovAniso(int icov) 
+CovAniso* CovAnisoList::getCovAniso(int icov)
 {
   if (!_isCovarianceIndexValid(icov)) return nullptr;
   return _getCovAnisoModify(icov);
@@ -213,7 +214,7 @@ const CovAniso* CovAnisoList::getCovAniso(int icov) const
   if (!_isCovarianceIndexValid(icov)) return nullptr;
   return _getCovAniso(icov);
 }
-void CovAnisoList::setCov(int icov, const CovBase* covs) 
+void CovAnisoList::setCov(int icov, const CovBase* covs)
 // TODO rename into setOneCov
 // to be different from the one in ModelGeneric
 {
@@ -267,7 +268,7 @@ double CovAnisoList::getRange(int icov) const
     messerr("The argument should be of type 'CovAniso*'");
     return 0.;
   }
-  return covaniso->getRange();
+  return covaniso->getRangeIso();
 }
 VectorDouble CovAnisoList::getRanges(int icov) const
 {
@@ -383,7 +384,7 @@ double CovAnisoList::getMaximumDistance() const
   {
     const CovAniso* cova = getCovAniso(icov);
     if (!cova->hasRange()) continue;
-    double range = cova->getRange();
+    double range = cova->getRangeIso();
     if (range > maxdist) maxdist = range;
   }
   return maxdist;
@@ -416,7 +417,7 @@ const CovAnisoList* CovAnisoList::createReduce(const VectorInt& validVars) const
     CovAniso* covs = newcovlist->getCovAniso(is);
     newcovlist->setCov(is, covs->createReduce(validVars));
   }
-  newcovlist->setNVar((int) validVars.size());
+  newcovlist->setNVar((int)validVars.size());
   return newcovlist;
 }
 
@@ -474,7 +475,6 @@ const EModelProperty& CovAnisoList::getCovMode() const
   return EModelProperty::NONE;
 }
 
-
 void CovAnisoList::makeRangeNoStatDb(int icov, const String& namecol, int idim)
 {
   if (!_isCovarianceIndexValid(icov)) return;
@@ -485,7 +485,6 @@ void CovAnisoList::makeScaleNoStatDb(int icov, const String& namecol, int idim)
 {
   if (!_isCovarianceIndexValid(icov)) return;
   getCovAniso(icov)->makeScaleNoStatDb(namecol, idim, nullptr);
-
 }
 void CovAnisoList::makeAngleNoStatDb(int icov, const String& namecol, int idim)
 {
@@ -497,7 +496,6 @@ void CovAnisoList::makeTensorNoStatDb(int icov, const String& namecol, int idim,
 {
   if (!_isCovarianceIndexValid(icov)) return;
   getCovAniso(icov)->makeTensorNoStatDb(namecol, idim, jdim);
-
 }
 void CovAnisoList::makeParamNoStatDb(int icov, const String& namecol)
 {
@@ -554,4 +552,49 @@ void CovAnisoList::makeParamStationary(int icov)
 {
   if (!_isCovarianceIndexValid(icov)) return;
   getCovAniso(icov)->makeParamStationary();
+}
+
+void CovAnisoList::appendParams(ListParams& listParams,
+                                std::vector<covmaptype>* gradFuncs)
+{
+  DECLARE_UNUSED(gradFuncs);
+  if (!_sameRotation)
+  {
+    CovList::appendParams(listParams, gradFuncs);
+    return;
+  }
+
+  // Find the first structure with a rotation
+  bool found = false;
+  int ncov   = getNCov();
+  std::vector<ParamInfo>* paramscur;
+  std::vector<ParamInfo>* paramsref;
+  std::vector<size_t> anglesrefLoc;
+  for (int jcov = 0; jcov < ncov; jcov++)
+  {
+
+    CovAniso* cova = getCovAniso(jcov);
+    cova->appendParams(listParams, gradFuncs);
+    if (cova->getFlagRotation()) // If rotation
+    {
+      paramscur = &cova->getAnglesParam(); // get the current angles
+
+      if (!found) // If first time
+      {
+        found     = true;
+        paramsref = paramscur;    // The ref becomes the current
+        for (auto& p: *paramsref) // Create the vector of current locations
+        {
+          anglesrefLoc.push_back(p.getAddress());
+        }
+      }
+      else
+      {
+        for (size_t i = 0; i < anglesrefLoc.size(); i++)
+        {
+          paramscur->at(i).setAddress(anglesrefLoc[i]);
+        }
+      }
+    }
+  }
 }

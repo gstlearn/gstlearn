@@ -16,14 +16,14 @@
 #include "Model/Model.hpp"
 #include "Db/DbGrid.hpp"
 
-#define IJDIR(ijvar, ipadir) ((ijvar)*npadir + (ipadir))
+#define IJDIR(ijvar, ipadir) ((ijvar) * npadir + (ipadir))
 #define _WT(ijvar, ipadir)   _wt[IJDIR(ijvar, ipadir)]
 #define _GG(ijvar, ipadir)   _gg[IJDIR(ijvar, ipadir)]
 
 ModelOptimVMap::ModelOptimVMap(ModelGeneric* model,
-                               Constraints* constraints,
+                               const Constraints* constraints,
                                const ModelOptimParam& mop)
-  : AModelOptimNew(model)
+  : AModelOptim(model)
   , _mop(mop)
   , _constraints(constraints)
   , _calcmode()
@@ -35,10 +35,11 @@ ModelOptimVMap::ModelOptimVMap(ModelGeneric* model,
   , _nech(0)
   , _npadir(0)
 {
+  setAuthorizedAnalyticalGradients(true);
 }
 
 ModelOptimVMap::ModelOptimVMap(const ModelOptimVMap& m)
-  : AModelOptimNew(m)
+  : AModelOptim(m)
   , _mop(m._mop)
   , _constraints(m._constraints)
   , _calcmode(m._calcmode)
@@ -50,13 +51,14 @@ ModelOptimVMap::ModelOptimVMap(const ModelOptimVMap& m)
   , _nech(m._nech)
   , _npadir(m._npadir)
 {
+  setAuthorizedAnalyticalGradients(m.getAuthorizedAnalyticalGradients());
 }
 
 ModelOptimVMap& ModelOptimVMap::operator=(const ModelOptimVMap& m)
 {
   if (this != &m)
   {
-    AModelOptimNew::operator=(m);
+    AModelOptim::operator=(m);
     _mop         = m._mop;
     _constraints = m._constraints;
     _calcmode    = m._calcmode;
@@ -67,6 +69,8 @@ ModelOptimVMap& ModelOptimVMap::operator=(const ModelOptimVMap& m)
     _nvar        = m._nvar;
     _nech        = m._nech;
     _npadir      = m._npadir;
+
+    setAuthorizedAnalyticalGradients(m.getAuthorizedAnalyticalGradients());
   }
   return (*this);
 }
@@ -82,7 +86,7 @@ bool ModelOptimVMap::_checkConsistency()
     messerr("You must have defined 'dbmap' beforehand");
     return false;
   }
-  int nvar = _dbmap->getNLoc(ELoc::Z);
+  int nvar          = _dbmap->getNLoc(ELoc::Z);
   unsigned int ndim = _dbmap->getNLoc(ELoc::X);
 
   if (_model->getNVar() != nvar)
@@ -94,7 +98,7 @@ bool ModelOptimVMap::_checkConsistency()
   if (_model->getNDim() != ndim)
   {
     messerr("'_dbmap'(%d) and '_model'(%d) should have same Space Dimensions",
-      ndim, _model->getNDim());
+            ndim, _model->getNDim());
     return false;
   }
   // if (_constraints->isConstraintSillDefined())
@@ -158,13 +162,18 @@ double ModelOptimVMap::computeCost(bool verbose)
   double total = 0.;
   VectorDouble d0(_ndim);
   _dbmap->rankToIndice(_nech / 2, _indg1);
+  for (int idim = 0; idim < _ndim; idim++)
+    d0[idim] = _indg1[idim] * _dbmap->getDX(idim);
+  SpacePoint origin(d0);
+  SpacePoint P;
 
   /* Loop on the experimental conditions */
   for (int iech = 0; iech < _nech; iech++)
   {
     _dbmap->rankToIndice(iech, _indg2);
     for (int idim = 0; idim < _ndim; idim++)
-      d0[idim] = (_indg2[idim] - _indg1[idim]) * _dbmap->getDX(idim);
+      d0[idim] = _indg2[idim] * _dbmap->getDX(idim);
+    P.setCoords(d0);
 
     int ijvar = 0;
     for (int ivar = 0; ivar < _nvar; ivar++)
@@ -172,32 +181,72 @@ double ModelOptimVMap::computeCost(bool verbose)
       {
         double vexp = _dbmap->getZVariable(iech, ijvar);
         if (FFFF(vexp)) continue;
-        double vtheo = _model->evalIvarIpas(1., d0, ivar, jvar, &_calcmode);
+        double vtheo = _model->evalCov(origin, P, ivar, jvar, &_calcmode);
         double delta = vexp - vtheo;
         total += delta * delta;
       }
   }
-  return -total;
+  return total;
+}
+
+void ModelOptimVMap::evalGrad(vect res)
+{
+
+  VectorDouble d0(_ndim);
+  _dbmap->rankToIndice(_nech / 2, _indg1);
+  for (int idim = 0; idim < _ndim; idim++)
+    d0[idim] = _indg1[idim] * _dbmap->getDX(idim);
+  SpacePoint origin(d0);
+  SpacePoint P;
+
+  /* Loop on the experimental conditions */
+  auto gradcov = _model->getGradients();
+
+  for (size_t i = 0; i < gradcov.size(); i++)
+  {
+    res[i] = 0.;
+    for (int iech = 0; iech < _nech; iech++)
+    {
+      _dbmap->rankToIndice(iech, _indg2);
+      for (int idim = 0; idim < _ndim; idim++)
+        d0[idim] = _indg2[idim] * _dbmap->getDX(idim);
+      P.setCoords(d0);
+
+      int ijvar = 0;
+      for (int ivar = 0; ivar < _nvar; ivar++)
+        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+        {
+          double vexp = _dbmap->getZVariable(iech, ijvar);
+          if (FFFF(vexp)) continue;
+          double vtheo  = _model->evalCov(origin, P, ivar, jvar, &_calcmode);
+          double dvtheo = gradcov[i](origin, P, ivar, jvar, &_calcmode);
+          res[i] += -2. * (vexp - vtheo) * dvtheo;
+        }
+    }
+  }
 }
 
 ModelOptimVMap* ModelOptimVMap::createForOptim(ModelGeneric* model,
                                                const DbGrid* dbmap,
-                                               Constraints* constraints,
+                                               const Constraints* constraints,
                                                const ModelOptimParam& mop)
 {
   auto* optim = new ModelOptimVMap(model, constraints, mop);
 
+  MatrixSymmetric vars = MatrixSymmetric(model->getNVar());
+  double hmax          = dbmap->getExtensionDiagonal();
+  optim->setEnvironment(vars, hmax);
   optim->_dbmap = dbmap;
 
   // Get internal dimension
-  if (optim->_getDimensions()) 
+  if (optim->_getDimensions())
   {
     delete optim;
     return nullptr;
   }
 
   // Check consistency
-  if (!optim->_checkConsistency()) 
+  if (!optim->_checkConsistency())
   {
     delete optim;
     return nullptr;
@@ -209,9 +258,8 @@ ModelOptimVMap* ModelOptimVMap::createForOptim(ModelGeneric* model,
     ModelCovList* mcv = dynamic_cast<ModelCovList*>(model);
     if (mcv != nullptr)
     {
-      delete mcv->_modelFitSills;
-      mcv->_modelFitSills = ModelFitSillsVMap::createForOptim(dbmap, model, constraints, mop);
-      if (mcv->_modelFitSills == nullptr)
+      mcv->setFitSills(ModelFitSillsVMap::createForOptim(dbmap, model, constraints, mop));
+      if (mcv->getFitSills() == nullptr)
       {
         delete optim;
         return nullptr;

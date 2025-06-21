@@ -43,8 +43,8 @@ print("Difference for temporal covariance " + str(ct - np.exp(-np.abs(coords1[2]
 al = sep/2
 
 covspatCopy = gl.CovAniso(covspat)
-covspatCopy.setScale(0,covspat.getScale(0)/ct**al)
-covspatCopy.setScale(1,covspat.getScale(1)/ct**al)
+covspatCopy.setScaleDim(0,covspat.getScale(0)/ct**al)
+covspatCopy.setScaleDim(1,covspat.getScale(1)/ct**al)
 
 cs = covspatCopy.evalCov(p1_0,p2_0)
 

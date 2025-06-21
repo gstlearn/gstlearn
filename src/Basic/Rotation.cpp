@@ -111,7 +111,7 @@ int Rotation::setAngles(const VectorDouble& angles)
   return 0;
 }
 
-int Rotation::getDerivativesInPlace(std::vector<MatrixSquare>& res)
+int Rotation::getDerivativesInPlace(std::vector<MatrixSquare>& res) const
 {
  
   GH::rotationMatrixDerivativesInPlace(_nDim, _angles, res);

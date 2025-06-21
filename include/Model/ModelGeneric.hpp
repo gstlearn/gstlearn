@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/VectorNumT.hpp"
 #include "Model/AModelFitSills.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
@@ -63,6 +64,10 @@ public:
   ACov*       _getCovModify() { return _cova; }
   CovContext* _getContextModify() { return &_ctxt; }
   DriftList*  _getDriftListModify() { return _driftList; }
+  std::vector<covmaptype>& getGradients()
+  {
+    return _gradFuncs;
+  }
   
 public:
   // Forwarding the methods from _cova
@@ -118,6 +123,7 @@ public:
   FORWARD_METHOD_NON_CONST(getCov, makeStationary)
 
   FORWARD_METHOD_NON_CONST(_getCovModify, setContext)
+  FORWARD_METHOD_NON_CONST(_getCovModify, evalCovGrad,VectorDouble())
 
   // Forwarding the methods from _driftList
   
@@ -183,28 +189,28 @@ public:
   void addDrift(const ADrift* drift); // TODO: check that the same driftM has not been already defined
   void setDrifts(const VectorString& driftSymbols);
 
-  void initParams();
+  void initParams(const MatrixSymmetric& vars, double href = 1.);
 
-  #ifndef SWIG
   std::shared_ptr<ListParams> generateListParams() const;
-  #endif
+  // Version for python test
+  static ListParams* createListParams(std::shared_ptr<ListParams>& lp);
   void updateModel();
   double computeLogLikelihood(const Db* db, bool verbose = false);
-  double evalGradParam(int iparam, SpacePoint& p1, SpacePoint& p2,int ivar = 0, int jvar = 0);
-  void fitNew(const Db* db = nullptr,
-              Vario* vario = nullptr,
-              const DbGrid* dbmap = nullptr,
-              Constraints* constraints = nullptr,
+  void fitNew(const Db* db               = nullptr,
+              Vario* vario               = nullptr,
+              const DbGrid* dbmap        = nullptr,
+              Constraints* constraints   = nullptr,
               const ModelOptimParam& mop = ModelOptimParam(),
-              int nb_neighVecchia = 30,
-              bool verbose = false);
+              int nb_neighVecchia        = 30,
+              bool verbose               = false,
+              bool trace                 = false);
 
 private:
   virtual bool _isValid() const;
 
 protected:               // TODO : pass into private to finish clean
   ACov* _cova;           /* Generic Covariance structure */
-  std::vector<std::function<double(double)>> _gradFuncs;
+  mutable std::vector<covmaptype> _gradFuncs;
   DriftList* _driftList; /* Series of Drift functions */
   CovContext _ctxt;      /* Context */
 };

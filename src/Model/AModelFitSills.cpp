@@ -48,6 +48,10 @@ AModelFitSills::AModelFitSills(ModelCovList* model,
   , _alphau()
   , _sill1()
   , _sill()
+  , _verbose(false)
+  , _trace(false)
+  , _iterg(0)
+  , score(0)
   , _model(model)
   , _constraints(constraints)
   , _mop(mop)
@@ -75,6 +79,10 @@ AModelFitSills::AModelFitSills(const AModelFitSills& m)
   , _alphau(m._alphau)
   , _sill1(m._sill1)
   , _sill(m._sill)
+  , _verbose(m._verbose)
+  , _trace(m._trace)
+  , _iterg(m._iterg)
+  , score(m.score)
   , _model(m._model)
   , _constraints(m._constraints)
   , _mop(m._mop)
@@ -105,6 +113,10 @@ AModelFitSills& AModelFitSills::operator=(const AModelFitSills& m)
     _alphau      = m._alphau;
     _sill1       = m._sill1;
     _sill        = m._sill;
+    _verbose     = m._verbose;
+    _trace       = m._trace;
+    _iterg       = m._iterg;
+    score        = m.score;
     _model       = m._model;
     _constraints = m._constraints;
     _mop         = m._mop;
@@ -183,9 +195,9 @@ void AModelFitSills::_allocateInternalArrays(bool flag_exp)
   }
 }
 
-int AModelFitSills::_goulardWithConstraints(double *crit_arg)
+int AModelFitSills::_goulardWithConstraints()
 {
-  double crit = 0.;
+  score = 0.;
   VectorDouble consSill = _constraints->getConstantSills();
 
   /* Core allocation */
@@ -219,10 +231,9 @@ int AModelFitSills::_goulardWithConstraints(double *crit_arg)
 
     /* Perform the optimization under constraints */
 
-    _optimizeUnderConstraints(&crit);
+    _optimizeUnderConstraints();
   }
 
-  *crit_arg = crit;
   return (0);
 }
 
@@ -356,7 +367,7 @@ int AModelFitSills::_makeDefinitePositive(int icov0, double eps)
   return flag_positive;
 }
 
-void AModelFitSills::_optimizeUnderConstraints(double* score)
+void AModelFitSills::_optimizeUnderConstraints()
 {
   double score_old, xrmax;
 
@@ -368,12 +379,10 @@ void AModelFitSills::_optimizeUnderConstraints(double* score)
   alpha.reserve(_ncova);
   for (int icova = 0; icova < _ncova; icova++)
     alpha.push_back(MatrixSymmetric(_nvar));
-  int iter = 0;
 
   /* Calculate the initial score */
 
   double score_new = _score();
-
   for (int icov = 0; icov < _ncova; icov++) alpha[icov] = _sill[icov];
 
   /***********************/
@@ -390,8 +399,9 @@ void AModelFitSills::_optimizeUnderConstraints(double* score)
       xr[ivar] = sqrt(consSill[ivar] / _sumSills(ivar, alpha));
   }
 
-  for (iter = 0; iter < _mop.getMaxiter(); iter++)
+  for (int iter = 0; iter < _mop.getMaxiter(); iter++)
   {
+    _iterg++;
     for (int icov0 = 0; icov0 < _ncova; icov0++)
     {
       for (int ivar0 = 0; ivar0 < _nvar; ivar0++)
@@ -450,12 +460,12 @@ void AModelFitSills::_optimizeUnderConstraints(double* score)
 
     score_old = score_new;
     score_new = _score();
-    if (_convergenceReached(score_new, score_old)) break;
+    if (_convergenceReached(iter, score_new, score_old)) break;
   }
 
   /* Optional printout */
 
-  *score = score_new;
+  score = score_new;
 }
 
 int AModelFitSills::_truncateNegativeEigen(int icov0)
@@ -492,25 +502,70 @@ int AModelFitSills::_truncateNegativeEigen(int icov0)
   return flag_positive;
 }
 
-double AModelFitSills::_score()
+double AModelFitSills::_score() const
 {
+  double coeff;
+  double ggloc;
+  double geloc;
+  double wtloc;
+  double temp;
+
+  message("Score\n");
   double score = 0.;
-  int ijvar    = 0;
-  for (int ivar = 0; ivar < _nvar; ivar++)
+  for (int ivar = 0, ijvar = 0; ivar < _nvar; ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
     {
-      double coeff = (ivar == jvar) ? 1 : 2;
+      coeff = (ivar == jvar) ? 1 : 2;
       for (int ipadir = 0; ipadir < _npadir; ipadir++)
       {
-        double dd = _GG(ijvar, ipadir);
-        if (FFFF(dd)) continue;
+        ggloc = _GG(ijvar, ipadir);
+        if (FFFF(ggloc)) continue;
+        wtloc = _WT(ijvar, ipadir);
+        if (wtloc <= 0.) continue;
+
+        geloc = 0.;
         for (int icov = 0; icov < _ncova; icov++)
-          dd -= _sill[icov].getValue(ivar, jvar) *
+          geloc += _sill[icov].getValue(ivar, jvar) *
                 _ge[icov].getValue(ijvar, ipadir);
-        score += coeff * _WT(ijvar, ipadir) * dd * dd;
+        temp = ggloc - geloc;
+        score += coeff * wtloc * temp * temp;
+
+        message("ipadir=%d wt=%lf gg=%lf ge=%lf\n",
+                ipadir, wtloc, ggloc, geloc);
       }
     }
-  return (score);
+
+  message("---> Resulting score = %lf\n", score);
+  return score;
+}
+
+double AModelFitSills::_scoreMP(int nvar,
+                                int npadir,
+                                VectorDouble& wt,
+                                VectorDouble& gg,
+                                const MatrixDense& mp) const
+{
+  double temp;
+  double coeff;
+  double ggloc;
+  double wtloc;
+
+  score = 0.;
+  for (int ivar = 0, ijvar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+    {
+      coeff = (ivar != jvar) ? 2. : 1.;
+      for (int ipadir = 0; ipadir < npadir; ipadir++)
+      {
+        ggloc = GG(ijvar, ipadir);
+        if (FFFF(ggloc)) continue;
+        wtloc = WT(ijvar, ipadir);
+        if (wtloc <= 0.) continue;
+        temp = ggloc - mp.getValue(ijvar, ipadir);
+        score += coeff * wtloc * temp * temp;
+      }
+    }
+  return score;
 }
 
 double AModelFitSills::_sumSills(int ivar0,
@@ -787,9 +842,9 @@ int AModelFitSills::_combineVariables(int ivar0, int jvar0)
   return (jvar0 + ivar0 * (ivar0 + 1) / 2);
 }
 
-int AModelFitSills::_sillFittingIntrinsic(double* crit_arg)
+int AModelFitSills::_sillFittingIntrinsic()
 {
-  double crit     = 0.;
+  score           = 0.;
   double crit_mem = 1.e30;
   for (int icov = 0; icov < _ncova; icov++) _alphau[icov] = 1. / (double)_ncova;
 
@@ -797,6 +852,7 @@ int AModelFitSills::_sillFittingIntrinsic(double* crit_arg)
 
   for (int iter = 0; iter < _mop.getMaxiter(); iter++)
   {
+    _iterg++;
 
     /* Initialize the arrays for the first pass */
 
@@ -819,7 +875,7 @@ int AModelFitSills::_sillFittingIntrinsic(double* crit_arg)
 
     _resetInitialSill(_sill1);
     if (_goulardWithoutConstraint(1, _nvar, 1, _npadir, _wt, _gg, _ge1,
-                                  _sill1, &crit)) return 1;
+                                  _sill1)) return 1;
 
     /* Initialize the arrays for the second pass */
 
@@ -840,12 +896,12 @@ int AModelFitSills::_sillFittingIntrinsic(double* crit_arg)
     /* Call Goulard with 1 variable (no constraint) */
 
     if (_goulardWithoutConstraint(1, 1, _ncova, _npadir * _nvs2, _wt2,
-                                  _gg2, _ge2, _alphau, &crit)) return 1;
+                                  _gg2, _ge2, _alphau)) return 1;
 
     /* Stopping criterion */
 
-    if (_convergenceReached(crit, crit_mem)) break;
-    crit_mem = crit;
+    if (_convergenceReached(iter, score, crit_mem)) break;
+    crit_mem = score;
   }
 
   /* Patch the final model */
@@ -861,8 +917,6 @@ int AModelFitSills::_sillFittingIntrinsic(double* crit_arg)
         _model->setSill(icov, jvar, ivar, newval);
       }
   }
-
-  *crit_arg = crit;
   return 0;
 }
 
@@ -873,11 +927,10 @@ int AModelFitSills::_goulardWithoutConstraint(int niter,
                                               VectorDouble& wt,
                                               VectorDouble& gg,
                                               std::vector<MatrixDense>& ge,
-                                              std::vector<MatrixSymmetric>& sill,
-                                              double* crit_arg) const
+                                              std::vector<MatrixSymmetric>& sill) const
 {
   int allpos;
-  double temp, crit, crit_mem, value;
+  double temp, crit, crit_mem, coeff;
   VectorDouble valpro;
   const MatrixSquare* vecpro;
 
@@ -941,17 +994,7 @@ int AModelFitSills::_goulardWithoutConstraint(int niter,
         alphak[icov].setValue(ivar, jvar, 1. / sum2);
         aic[icov].setValue(ivar, jvar, sum1 / sum2);
       }
-
-  crit = 0.;
-  for (int ivar = 0, ijvar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-      for (int ipadir = 0; ipadir < npadir; ipadir++)
-      {
-        if (FFFF(WT(ijvar, ipadir))) continue;
-        temp  = GG(ijvar, ipadir) - mp.getValue(ijvar, ipadir);
-        value = (ivar != jvar) ? 2. : 1.;
-        crit += value * WT(ijvar, ipadir) * temp * temp;
-      }
+  crit = _scoreMP(nvar, npadir, wt, gg, mp);
 
   /***********************/
   /* Iterative procedure */
@@ -959,6 +1002,7 @@ int AModelFitSills::_goulardWithoutConstraint(int niter,
 
   for (int iter = 0; iter < niter; iter++)
   {
+    _iterg++;
 
     /* Loop on the elementary structures */
 
@@ -979,10 +1023,10 @@ int AModelFitSills::_goulardWithoutConstraint(int niter,
                             ge[icov].getValue(ijvar, ipadir));
             sum += fk[icov].getValue(ijvar, ipadir) * mp.getValue(ijvar, ipadir);
           }
-          value = aic[icov].getValue(ivar, jvar) -
+          coeff = aic[icov].getValue(ivar, jvar) -
                   alphak[icov].getValue(ivar, jvar) * sum;
-          cc.setValue(ivar, jvar, value);
-          cc.setValue(jvar, ivar, value);
+          cc.setValue(ivar, jvar, coeff);
+          cc.setValue(jvar, ivar, coeff);
         }
 
       /* Computing and sorting the eigen values and eigen vectors */
@@ -1026,50 +1070,53 @@ int AModelFitSills::_goulardWithoutConstraint(int niter,
     /* Update the global criterion */
 
     crit_mem = crit;
-    crit     = 0.;
-    for (int ipadir = 0; ipadir < npadir; ipadir++)
-      for (int ivar = 0, ijvar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-        {
-          if (FFFF(WT(ijvar, ipadir))) continue;
-          temp  = GG(ijvar, ipadir) - mp.getValue(ijvar, ipadir);
-          value = (ivar != jvar) ? 2. : 1.;
-          crit += value * WT(ijvar, ipadir) * temp * temp;
-        }
+    crit = _scoreMP(nvar, npadir, wt, gg, mp);
 
     /* Stopping criterion */
 
-    if (_convergenceReached(crit, crit_mem)) break;
+    if (_convergenceReached(iter, crit, crit_mem)) break;
   }
 
-  *crit_arg = crit;
+  score = crit;
   return (0);
 }
 
-bool AModelFitSills::_convergenceReached(double crit,
+bool AModelFitSills::_convergenceReached(int iter,
+                                         double crit,
                                          double crit_mem) const
 {
+  if (_trace)
+  {
+    message("  Sill Fitting Iteration %3d - Cost = %lf\n", iter + 1, crit);
+    for (int icova = 0; icova < _ncova; icova++)
+    {
+      message("  - Covariance %d :", icova + 1);
+      VH::dump(" Current parameters ", _sill[icova].getValues(), false);
+    }
+  }
   double eps = _mop.getTolred();
   return (ABS(crit) < eps || ABS(crit - crit_mem) / ABS(crit) < eps);
 }
 
-void AModelFitSills::_printResults(double crit) const
+void AModelFitSills::printFitSillSummary(int niter) const
 {
-  int ncov = _model->getNCov();
-  for (int icov = 0; icov < ncov; icov++)
+  message("  Summary of Sill Fitting - Count of Iterations = %4d - Final Cost = %lf\n",
+          niter, score);
+  for (int icova = 0; icova < _ncova; icova++)
   {
-    message("- Sill Fitting Procedure: Cost = %lf - Current Sills = ", crit);
+    message("  - Covariance %d: Final parameters = ", icova + 1);
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int jvar = 0; jvar < _nvar; jvar++)
-        message("%lf ", _model->getSill(icov, ivar, jvar));
+        message("%lf ", _model->getSill(icova, ivar, jvar));
     message("\n");
   }
 }
 
-int AModelFitSills::_fitSills(bool verbose)
+int AModelFitSills::_fitSills()
 {
-  int status  = 0;
-  double crit = 0.;
+  int status = 0;
+  score      = 0.;
+  _iterg     = 0;
   if (!_mop.getFlagIntrinsic())
   {
 
@@ -1081,13 +1128,13 @@ int AModelFitSills::_fitSills(bool verbose)
 
       status = _goulardWithoutConstraint(_mop.getMaxiter(),
                                          _nvar, _ncova, _npadir, _wt,
-                                         _gg, _ge, _sill, &crit);
+                                         _gg, _ge, _sill);
     }
     else
     {
       /* With constraint on the sill */
 
-      status = _goulardWithConstraints(&crit);
+      status = _goulardWithConstraints();
     }
 
     // Store the sills into the Model
@@ -1095,10 +1142,10 @@ int AModelFitSills::_fitSills(bool verbose)
   }
   else
   {
-    status = _sillFittingIntrinsic(&crit);
+    status = _sillFittingIntrinsic();
   }
 
-  if (verbose) _printResults(crit);
+  if (_verbose) printFitSillSummary(_iterg);
 
   return (status);
 }

@@ -19,6 +19,7 @@
 #include "Enum/ECalcMember.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Model/CovInternal.hpp"
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
@@ -32,6 +33,7 @@
 
 #include <vector>
 
+typedef std::function<double(const SpacePoint&, const SpacePoint&, int, int, const CovCalcMode* calcmode)> covmaptype;
 class Db;
 class DbGrid;
 class MatrixSquare;
@@ -80,6 +82,11 @@ public:
                  int jvar                = 0,
                  const CovCalcMode* mode = nullptr) const;
 
+  std::vector<double> evalCovGrad(const SpacePoint& p1,
+                                  const SpacePoint& p2,
+                                  int ivar                = 0,
+                                  int jvar                = 0,
+                                  const CovCalcMode* mode = nullptr);
   virtual double evalCovOnSphere(double alpha,
                                  int degree              = 50,
                                  bool flagScaleDistance  = false,
@@ -215,7 +222,7 @@ public:
                            SpacePoint& pin,
                            SpacePoint& pout,
                            VectorDouble& tabwork,
-                           double lambda = 1.,
+                           double lambda                 = 1.,
                            const ECalcMember& calcMember = ECalcMember::RHS) const;
   int evalCovMatOptimInPlace(MatrixDense& mat,
                              const Db* dbin,
@@ -231,7 +238,7 @@ public:
                                       SpacePoint& pin,
                                       SpacePoint& pout,
                                       VectorDouble& tabwork,
-                                      double lambda = 1.,
+                                      double lambda                 = 1.,
                                       const ECalcMember& calcMember = ECalcMember::RHS) const;
 #endif
   /////////////////////////////////////////////////////////////////////////////////
@@ -471,18 +478,16 @@ public:
   const Db* getDbNoStatRaw() const;
   void setNoStatDbIfNecessary(const Db* db);
   void setNoStatDbIfNecessary(std::shared_ptr<const Db>& db);
-  virtual void appendParams(ListParams& listParams) 
+  virtual void appendParams(ListParams& listParams,
+                            std::vector<covmaptype>* gradFuncs = nullptr)
   {
-    DECLARE_UNUSED(listParams);
+    DECLARE_UNUSED(listParams, gradFuncs);
   }
-  virtual void updateCov()
+  virtual void updateCov() {}
+  virtual void initParams(const MatrixSymmetric& vars,
+                          double href                 = 1.)
   {
-    
-  }
-
-  virtual void initParams()
-  {
-
+    DECLARE_UNUSED(vars, href);
   }
 
 private:

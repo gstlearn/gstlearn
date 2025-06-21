@@ -33,17 +33,17 @@ class EModelProperty;
 
 /**
  * \brief
- * This class describes the **Covariance** as a list of elementary covariances 
+ * This class describes the **Covariance** as a list of elementary covariances
  * (see CovAniso.hpp for more details)
  * where the calculation rule is simple: the returned value is the **sum** of each elementary (active) covariance function.
  */
-class GSTLEARN_EXPORT CovAnisoList : public CovList
+class GSTLEARN_EXPORT CovAnisoList: public CovList
 // TODO : rename CovAnisoList (this is not an abstract class)
 {
 public:
   CovAnisoList(const CovContext& ctxt = CovContext());
-  CovAnisoList(const CovAnisoList &r);
-  CovAnisoList& operator= (const CovAnisoList &r);
+  CovAnisoList(const CovAnisoList& r);
+  CovAnisoList& operator=(const CovAnisoList& r);
   virtual ~CovAnisoList();
 
   /// ICloneable interface
@@ -53,10 +53,10 @@ public:
   virtual bool isConsistent(const ASpace* space) const override;
 
   /// Interface for ACov
-  virtual int    getNVar() const override;
-  virtual bool   isIndexable() const override { return true; }
-  virtual double eval0(int ivar = 0,
-                       int jvar = 0,
+  virtual int getNVar() const override;
+  virtual bool isIndexable() const override { return true; }
+  virtual double eval0(int ivar                = 0,
+                       int jvar                = 0,
                        const CovCalcMode* mode = nullptr) const override;
 
   /// Interface for AStringable Interface
@@ -69,45 +69,46 @@ public:
   const EModelProperty& getCovMode() const;
   virtual bool hasAnam() const { return false; }
   virtual const AAnam* getAnam() const { return nullptr; }
-  virtual void setActiveFactor(int /*iclass*/) { }
+  virtual void setActiveFactor(int /*iclass*/) {}
   virtual int getActiveFactor() const { return 0; }
   virtual int getAnamNClass() const { return 0; }
 
   void addCovList(const CovAnisoList* covs);
 
-  int             getNCov(bool skipNugget = false) const;
-  bool            hasRange() const;
-  bool            isStationary() const;
-  double          getMaximumDistance() const;
-  double          getTotalSill(int ivar = 0, int jvar = 0) const override;
+  int getNCov(bool skipNugget = false) const;
+  bool hasRange() const;
+  bool isStationary() const;
+  double getMaximumDistance() const;
+  double getTotalSill(int ivar = 0, int jvar = 0) const override;
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
-  const CovAniso*    getCovAniso(int icov) const;
-  CovAniso*          getCovAniso(int icov); // TODO : beurk :(
-  void               setCov(int icov, const CovBase* cov) override;
-  const ECov&        getCovType(int icov) const override;
-  String             getCovName(int icov) const override;
-  void               setRangeIsotropic(int icov, double range);
-  void               setType(int icov, const ECov& type);
-  void               setParam(int icov, double value);
-  void               setMarkovCoeffs(int icov, const VectorDouble& coeffs);
-  double             getParam(int icov) const;
-  double             getRange(int icov) const;
-  VectorDouble       getRanges(int icov) const;
-  VectorDouble       getAngles(int icov) const;
-  int                getNGradParam(int icov) const;
-  CovAniso           extractCova(int icov) const;
-  int                getCovMinIRFOrder() const;
-  double             getBallRadius() const;
-  int                hasExternalCov() const;
-  bool               isChangeSupportDefined() const;
+  const CovAniso* getCovAniso(int icov) const;
+  CovAniso* getCovAniso(int icov); // TODO : beurk :(
+  void setCov(int icov, const CovBase* cov) override;
+  const ECov& getCovType(int icov) const override;
+  String getCovName(int icov) const override;
+  void setRangeIsotropic(int icov, double range);
+  void setType(int icov, const ECov& type);
+  void setParam(int icov, double value);
+  void setMarkovCoeffs(int icov, const VectorDouble& coeffs);
+  double getParam(int icov) const;
+  double getRange(int icov) const;
+  VectorDouble getRanges(int icov) const;
+  VectorDouble getAngles(int icov) const;
+  int getNGradParam(int icov) const;
+  CovAniso extractCova(int icov) const;
+  int getCovMinIRFOrder() const;
+  double getBallRadius() const;
+  int hasExternalCov() const;
+  bool isChangeSupportDefined() const;
+  void appendParams(ListParams& listParams,
+                    std::vector<covmaptype>* gradFuncs = nullptr) override;
   // Methods necessary for Optimization
-
   bool hasNugget() const;
-  int  getRankNugget() const;
+  int getRankNugget() const;
   const CovAnisoList* createReduce(const VectorInt& validVars) const;
 
-  //Non-stationary parameters
+  // Non-stationary parameters
   void makeRangeNoStatDb(int icov, const String& namecol, int idim = 0);
   void makeScaleNoStatDb(int icov, const String& namecol, int idim = 0);
   void makeAngleNoStatDb(int icov, const String& namecol, int idim = 0);
@@ -125,6 +126,10 @@ public:
 
   void makeTensorStationary(int icov, int idim, int jdim);
   void makeParamStationary(int icov);
+
+  bool getSameRotation() const { return _sameRotation; }
+  void setSameRotation(bool samerot) { _sameRotation = samerot; }
+
 private:
   // Returns a pointer on an existing Cov and cast it to CovAniso
   const CovAniso* _getCovAniso(int icov) const;
@@ -132,4 +137,7 @@ private:
 
 protected:
   bool _isCovarianceIndexValid(int icov) const;
+
+private:
+  bool _sameRotation;
 };

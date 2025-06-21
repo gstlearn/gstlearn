@@ -11,13 +11,13 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-
+#include "geoslib_define.h"
 #include <vector>
 #include <functional>
 #include <memory>
 
-
-typedef enum {
+typedef enum
+{
   /* Naming conventions:
 
      NLOPT_{G/L}{D/N}_*
@@ -45,7 +45,7 @@ typedef enum {
 
   // NLOPT_LD_LBFGS_NOCEDAL,
 
-  // NLOPT_LD_LBFGS,
+  LBFGS = 11,
 
   // NLOPT_LN_PRAXIS,
 
@@ -71,7 +71,7 @@ typedef enum {
   // NLOPT_LN_NEWUOA,
   // NLOPT_LN_NEWUOA_BOUND,
 
-    NELDERMEAD = 28,
+  NELDERMEAD = 28,
   // NLOPT_LN_SBPLX,
 
   // NLOPT_LN_AUGLAG,
@@ -98,7 +98,6 @@ typedef enum {
 
   // NLOPT_GN_AGS,
 
-  // NLOPT_NUM_ALGORITHMS        /* not an algorithm, just the number of them */
 } opt_algorithm;
 
 struct nlopt_opt_s;
@@ -107,21 +106,36 @@ class GSTLEARN_EXPORT Optim
 {
 public:
   Optim(opt_algorithm algo, int dim);
-  Optim(const Optim&) = delete; 
-  Optim& operator=(const Optim&) = delete; 
+  Optim(const Optim&)            = delete;
+  Optim& operator=(const Optim&) = delete;
   ~Optim();
 
   void setObjective(std::function<double(const std::vector<double>&)> objective);
+  void setGradient(std::function<void(vect)> gradient,
+                   const std::vector<size_t>& dispatch = {},
+                   const std::vector<size_t>& dispatchIndex = {});
+  void setAuthorizedAnalyticalGradients(bool authorized)
+  {
+    _authorizedAnalyticalGradients = authorized;
+  }
+  bool getAuthorizedAnalyticalGradients() const
+  {
+    return _authorizedAnalyticalGradients;
+  }
+  void setGradientComponents(const std::vector<std::function<double(const std::vector<double>&)>>& partials);
+
   void setXtolRel(double tol);
-  double optimize(std::vector<double>& x);
-
   void setLowerBounds(const std::vector<double>& lb);
-
   void setUpperBounds(const std::vector<double>& ub);
-  static double callback(unsigned n, const double* x, double* grad, void* f_data);
+  double minimize(std::vector<double>& x);
 
 private:
+  static double callback(unsigned n, const double* x, double* grad, void* f_data);
+
   nlopt_opt_s* _opt;
   std::shared_ptr<std::function<double(const std::vector<double>&)>> _objective;
-
+  std::shared_ptr<std::function<void(vect)>> _gradient;
+  std::vector<std::function<double(const std::vector<double>&)>> _gradientPartials;
+  mutable std::vector<double> _gradBuffer; // Buffer for gradient evaluation
+  bool _authorizedAnalyticalGradients;
 };

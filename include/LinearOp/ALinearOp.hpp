@@ -22,7 +22,8 @@ class GSTLEARN_EXPORT ALinearOp
 {
 public:
   ALinearOp();
-  ALinearOp(const ALinearOp& op) = delete;
+  ALinearOp(const ALinearOp &m) = delete;
+  ALinearOp& operator= (const ALinearOp &m) = delete;
   virtual ~ALinearOp() {}
   virtual int getSize() const = 0;
 

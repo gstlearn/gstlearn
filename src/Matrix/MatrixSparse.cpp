@@ -61,6 +61,7 @@ MatrixSparse::MatrixSparse(const cs* A)
 
 MatrixSparse::MatrixSparse(const MatrixSparse& m)
   : AMatrix(m)
+  // , ALinearOp(m)
   , _csMatrix(nullptr)
   , _eigenMatrix()
   , _flagEigen(m._flagEigen)
@@ -76,6 +77,7 @@ MatrixSparse& MatrixSparse::operator=(const MatrixSparse& m)
   if (this != &m)
   {
     AMatrix::operator=(m);
+    // ALinearOp::operator=(m);
     if (!m.empty())
     {
       _flagEigen = m._flagEigen;

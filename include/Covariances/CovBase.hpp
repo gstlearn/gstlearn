@@ -11,6 +11,7 @@
 #pragma once
 #include "Basic/AFunctional.hpp"
 #include "Basic/ICloneable.hpp"
+#include "Basic/LowerTriangularRange.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "Covariances/TabNoStatSills.hpp"
@@ -18,6 +19,7 @@
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Model/AModelFitSills.hpp"
 #include "Model/CovInternal.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
@@ -53,7 +55,7 @@ public:
   const ACov* getCor() const { return _cor; }
 
   double getSill(int ivar, int jvar) const;
-  
+
   void makeSillNoStatDb(const String& namecol, int ivar = 0, int jvar = 0, const Db* db = nullptr);
   void makeSillStationary(int ivar = 0, int jvar = 0);
   void makeSillsStationary(bool silent = false);
@@ -84,7 +86,7 @@ public:
 
   double getValue(const EConsElem& econs, int iv1, int iv2) const override;
   void nostatUpdate(CovInternal* covint) const;
-  #ifndef SWIG
+#ifndef SWIG
   int addEvalCovVecRHSInPlace(vect vect,
                               const VectorInt& index1,
                               int iech2,
@@ -102,9 +104,13 @@ public:
   }
   int makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String()) override;
 
-  void appendParams(ListParams& listParams) override;
+  void appendParams(ListParams& listParams,
+                    std::vector<covmaptype>* gradFuncs = nullptr) override;
   void updateCov() override;
-  void initParams() override;
+  void initParams(const MatrixSymmetric& vars,
+                  double href = 1.) override;
+  ParamInfo& getParamInfoCholSills(int ivar, int jvar) { return _cholSillsInfo(ivar, jvar); }
+
 protected:
   void _attachNoStatDb(const Db* db) override;
 
@@ -143,13 +149,14 @@ private:
                        int ivar                = 0,
                        int jvar                = 0,
                        const CovCalcMode* mode = nullptr) const override;
+void _multiplyCorDerivativesBySills(int oldSize, std::vector<covmaptype>* gradFuncs);
 
-protected:
-  MatrixT<ParamInfo> _cholSillsInfo;
+  protected: MatrixT<ParamInfo> _cholSillsInfo;
   mutable MatrixSquare _cholSills;
   mutable MatrixSymmetric _sillCur;
   mutable MatrixSquare _workMat;
 
 private:
   ACov* _cor;
+  LowerTriangularRange _itRange;
 };

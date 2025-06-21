@@ -16,41 +16,46 @@
 
 #include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
+#include <cstddef>
 
-#define IJDIR(ijvar, ipadir) ((ijvar)*npadir + (ipadir))
-#define WT(ijvar, ipadir)     wt[IJDIR(ijvar, ipadir)]
+#define IJDIR(ijvar, ipadir) ((ijvar) * npadir + (ipadir))
+#define WT(ijvar, ipadir)    wt[IJDIR(ijvar, ipadir)]
 
 ModelOptimVario::ModelOptimVario(ModelGeneric* model,
-                                 Constraints* constraints,
+                                 const Constraints* constraints,
                                  const ModelOptimParam& mop)
-  : AModelOptimNew(model)
+  : AModelOptim(model)
   , _mop(mop)
   , _constraints(constraints)
   , _vario()
   , _lags()
 {
+  setAuthorizedAnalyticalGradients(true);
 }
 
 ModelOptimVario::ModelOptimVario(const ModelOptimVario& m)
-  : AModelOptimNew(m)
+  : AModelOptim(m)
   , _mop(m._mop)
   , _constraints(m._constraints)
   , _calcmode(m._calcmode)
   , _vario(m._vario)
   , _lags(m._lags)
 {
+  setAuthorizedAnalyticalGradients(m.getAuthorizedAnalyticalGradients());
 }
 
 ModelOptimVario& ModelOptimVario::operator=(const ModelOptimVario& m)
 {
   if (this != &m)
   {
-    AModelOptimNew::operator=(m);
+    AModelOptim::operator=(m);
     _mop         = m._mop;
     _constraints = m._constraints;
     _calcmode    = m._calcmode;
     _vario       = m._vario;
     _lags        = m._lags;
+
+    setAuthorizedAnalyticalGradients(m.getAuthorizedAnalyticalGradients());
   }
   return (*this);
 }
@@ -70,7 +75,7 @@ bool ModelOptimVario::_checkConsistency()
   if (_vario->getNVar() != _model->getNVar())
   {
     messerr("'_vario'(%d) and '_model'(%d) should have same number of Variables",
-      _vario->getNVar(), _model->getNVar());
+            _vario->getNVar(), _model->getNVar());
     return false;
   }
   return true;
@@ -106,8 +111,8 @@ int ModelOptimVario::_buildExperimental()
           double gg   = TEST;
           if (_vario->getFlagAsym())
           {
-            int iad = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
-            int jad = _vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
+            int iad    = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+            int jad    = _vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
             double c00 = _vario->getC00(idir, ivar, jvar);
             double n1  = _vario->getSwByIndex(idir, iad);
             double n2  = _vario->getSwByIndex(idir, jad);
@@ -119,7 +124,8 @@ int ModelOptimVario::_buildExperimental()
               {
                 gg   = c00 - (n1 * g1 + n2 * g2) / (n1 + n2);
                 dist = (ABS(_vario->getHhByIndex(idir, iad)) +
-                        ABS(_vario->getHhByIndex(idir, jad))) / 2.;
+                        ABS(_vario->getHhByIndex(idir, jad))) /
+                       2.;
               }
             }
           }
@@ -154,7 +160,7 @@ int ModelOptimVario::_buildExperimental()
       int ijvar = 0;
       for (int ivar = ijvar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-          _lags[ecr]._weight = WT(ijvar, ipadir);
+          _lags[ecr++]._weight = WT(ijvar, ipadir);
     }
 
   return 0;
@@ -180,16 +186,20 @@ ModelOptimVario::OneLag ModelOptimVario::_createOneLag(int ndim,
 }
 
 ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
-                                                 Vario* vario,
-                                                 Constraints* constraints,
+                                                 const Vario* vario,
+                                                 const Constraints* constraints,
                                                  const ModelOptimParam& mop)
 {
+
   auto* optim = new ModelOptimVario(model, constraints, mop);
 
+  MatrixSymmetric vars = vario->getVarMatrix();
+  double hmax          = vario->getHmax();
+  optim->setEnvironment(vars, hmax);
   optim->_vario = vario;
 
   // Constitute the experimental material (using '_vario')
-  if (optim->_buildExperimental()) 
+  if (optim->_buildExperimental())
   {
     delete optim;
     return nullptr;
@@ -208,9 +218,8 @@ ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
     ModelCovList* mcv = dynamic_cast<ModelCovList*>(model);
     if (mcv != nullptr)
     {
-      delete mcv->_modelFitSills;
-      mcv->_modelFitSills = ModelFitSillsVario::createForOptim(vario, model, constraints, mop);
-      if (mcv->_modelFitSills == nullptr)
+      mcv->setFitSills(ModelFitSillsVario::createForOptim(vario, model, constraints, mop));
+      if (mcv->getFitSills() == nullptr)
       {
         delete optim;
         return nullptr;
@@ -230,15 +239,38 @@ double ModelOptimVario::computeCost(bool verbose)
 
   // Evaluate the Cost function
   int nlags    = (int)_lags.size();
-  double total = 0.;
+  double score = 0.;
   SpacePoint origin;
+  _resid.resize(nlags);
   for (int ilag = 0; ilag < nlags; ilag++)
   {
     const OneLag& lag = _lags[ilag];
-    double vexp       = lag._gg;
     double vtheo      = _model->evalCov(origin, lag._P, lag._ivar, lag._jvar, &_calcmode);
-    double delta      = vexp - vtheo;
-    total += lag._weight * delta * delta;
+
+    double resid = lag._gg - vtheo;
+    score += lag._weight * resid * resid;
+    _resid[ilag] = lag._weight * resid;
   }
-  return -total;
+  return score;
+}
+
+void ModelOptimVario::evalGrad(vect res)
+{
+
+  auto gradcov = _model->getGradients();
+  int nlags    = (int)_lags.size();
+  SpacePoint origin;
+
+  for (size_t i = 0; i < gradcov.size(); i++)
+    res[i] = 0.;
+
+  for (int ilag = 0; ilag < nlags; ilag++)
+    for (size_t i = 0; i < gradcov.size(); i++)
+    {
+      {
+        const OneLag& lag = _lags[ilag];
+        double dvtheo     = gradcov[i](origin, lag._P, lag._ivar, lag._jvar, &_calcmode);
+        res[i] += -2. * _resid[ilag] * dvtheo;
+      }
+    }
 }

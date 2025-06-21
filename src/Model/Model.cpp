@@ -890,7 +890,7 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
   {
     const CovAniso *cova = getCovAniso(icova);
     ret = ret && _recordWrite<int>(os, "", cova->getType().getValue());
-    ret = ret && _recordWrite<double>(os, "", cova->getRange());
+    ret = ret && _recordWrite<double>(os, "", cova->getRangeIso());
     ret = ret && _recordWrite<double>(os, "Covariance characteristics", cova->getParam());
 
     // Writing the Anisotropy information
@@ -900,7 +900,7 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
     if (!cova->getFlagAniso()) continue;
 
     for (unsigned int idim = 0; ret && idim < getNDim(); idim++)
-      ret = ret && _recordWrite<double>(os, "", cova->getAnisoCoeffs(idim));
+      ret = ret && _recordWrite<double>(os, "", cova->getAnisoCoeff(idim));
     ret = ret && _commentWrite(os, "Anisotropy Coefficients");
     ret = ret && _recordWrite<int>(os, "Anisotropy Rotation Flag", (int) cova->getFlagRotation());
 
@@ -909,7 +909,7 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
     // Storing the rotation matrix by Column (compatibility)
     for (unsigned int idim = 0; ret && idim < getNDim(); idim++)
       for (unsigned int jdim = 0; ret && jdim < getNDim(); jdim++)
-        ret = ret && _recordWrite<double>(os, "", cova->getAnisoRotMat(jdim, idim));
+        ret = ret && _recordWrite<double>(os, "", cova->getAnisoRotMatElement(jdim, idim));
     ret = ret && _commentWrite(os, "Anisotropy Rotation Matrix");
   }
 

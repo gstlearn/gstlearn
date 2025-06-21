@@ -24,7 +24,7 @@
 
 ModelFitSillsVMap::ModelFitSillsVMap(const DbGrid* dbmap,
                                      ModelCovList* model,
-                                     Constraints* constraints,
+                                     const Constraints* constraints,
                                      const ModelOptimParam& mop)
   : AModelFitSills(model, constraints, mop)
   , _dbmap(dbmap)
@@ -56,7 +56,7 @@ ModelFitSillsVMap::~ModelFitSillsVMap()
 
 ModelFitSillsVMap* ModelFitSillsVMap::createForOptim(const DbGrid* dbmap,
                                                      ModelGeneric* model,
-                                                     Constraints* constraints,
+                                                     const Constraints* constraints,
                                                      const ModelOptimParam& mop)
 {
   ModelCovList* modelLocal = dynamic_cast<ModelCovList*>(model);
@@ -97,16 +97,19 @@ int ModelFitSillsVMap::_prepare()
  **
  ** \return  Error return code
  **
- ** \param[in]  verbose     Verbose flag
- **
  *****************************************************************************/
-int ModelFitSillsVMap::fitSills(bool verbose)
+int ModelFitSillsVMap::fitSills()
 {
+
   // Initialize Model-dependent quantities
   _updateFromModel();
 
-  // Perform the sill fitting
-  return _fitSills(verbose);
+  // In this iterative manner of Fitting Sills, the verbose flag is switched OFF
+  // in order to avoid intermediate printouts
+  setVerbose(false);
+  int status =  _fitSills();
+
+  return status;
 }
 
 /****************************************************************************/

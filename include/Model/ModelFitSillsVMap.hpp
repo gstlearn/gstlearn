@@ -32,7 +32,7 @@ class GSTLEARN_EXPORT ModelFitSillsVMap: public AModelFitSills
 public:
   ModelFitSillsVMap(const DbGrid* dbmap,
                     ModelCovList* model,
-                    Constraints* constraints   = nullptr,
+                    const Constraints* constraints   = nullptr,
                     const ModelOptimParam& mop = ModelOptimParam());
   ModelFitSillsVMap(const ModelFitSillsVMap& m);
   ModelFitSillsVMap& operator=(const ModelFitSillsVMap& m);
@@ -40,11 +40,11 @@ public:
 
   IMPLEMENT_CLONING(ModelFitSillsVMap)
 
-  int fitSills(bool verbose = false) override;
+  int fitSills() override;
 
   static ModelFitSillsVMap* createForOptim(const DbGrid* dbmap,
                                            ModelGeneric* model,
-                                           Constraints* constraints   = nullptr,
+                                           const Constraints* constraints   = nullptr,
                                            const ModelOptimParam& mop = ModelOptimParam());
 
 private:

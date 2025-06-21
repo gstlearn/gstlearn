@@ -11,7 +11,7 @@
 #include "Model/ModelGeneric.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ListParams.hpp"
-#include "Estimation/AModelOptimNew.hpp"
+#include "Estimation/AModelOptim.hpp"
 #include "Model/AModelFitSills.hpp"
 #include "Model/Model.hpp"
 #include "Model/ModelOptimVario.hpp"
@@ -21,7 +21,8 @@
 #include "Db/Db.hpp"
 #include "Estimation/AModelOptimFactory.hpp"
 #include "Drifts/DriftFactory.hpp"
-#include "geoslib_define.h"
+#include "Estimation/Likelihood.hpp"
+#include <memory>
 
 ModelGeneric::ModelGeneric(const CovContext& ctxt)
   : _cova(nullptr)
@@ -314,11 +315,11 @@ int computeDriftMatSVCRHSInPlace(MatrixDense& mat,
 std::shared_ptr<ListParams> ModelGeneric::generateListParams() const
 {
   auto listParams = std::make_shared<ListParams>();
-
+  _gradFuncs.clear();
   // Add Covariance parameters
   if (_cova != nullptr)
   {
-    _cova->appendParams(*listParams);
+    _cova->appendParams(*listParams,&_gradFuncs);
   }
 
   // Add Drift parameters
@@ -326,8 +327,14 @@ std::shared_ptr<ListParams> ModelGeneric::generateListParams() const
   {
     _driftList->appendParams(*listParams);
   }
+  listParams->updateDispatch();
 
   return listParams;
+}
+
+ListParams* ModelGeneric::createListParams(std::shared_ptr<ListParams>& lp)
+{
+  return lp.get();
 }
 
 void ModelGeneric::updateModel()
@@ -345,18 +352,18 @@ void ModelGeneric::updateModel()
   }
 }
 
-void ModelGeneric::initParams()
+void ModelGeneric::initParams(const MatrixSymmetric& vars, double href)
 {
   // Initialize the parameters in the Covariance
   if (_cova != nullptr)
   {
-    _cova->initParams();
+    _cova->initParams(vars, href);
   }
 
   // Initialize the parameters in the DriftList
   if (_driftList != nullptr)
   {
-    _driftList->initParams();
+    _driftList->initParams(vars, href);
   }
 }
 
@@ -366,12 +373,13 @@ void ModelGeneric::fitNew(const Db* db,
                           Constraints* constraints,
                           const ModelOptimParam& mop,
                           int nb_neighVecchia,
-                          bool verbose)
+                          bool verbose,
+                          bool trace)
 {
-  AModelOptimNew* amopt = AModelOptimFactory::create(this, db, vario, dbmap, 
-                                                     constraints, mop, 
-                                                     nb_neighVecchia);
-  amopt->setVerbose(verbose);
+  AModelOptim* amopt = AModelOptimFactory::create(this, db, vario, dbmap,
+                                                  constraints, mop,
+                                                  nb_neighVecchia);
+  amopt->setVerbose(verbose, trace);
   amopt->resetIter();
   amopt->run();
   delete amopt;
@@ -380,30 +388,6 @@ void ModelGeneric::fitNew(const Db* db,
   ModelCovList* mcv = dynamic_cast<ModelCovList*>(this);
   if (mcv != nullptr)
   {
-    delete mcv->_modelFitSills;
-    mcv->_modelFitSills = nullptr;
+    mcv->deleteFitSills();
   }
-}
-
-double ModelGeneric::evalGradParam(int iparam, SpacePoint& p1, SpacePoint& p2, int ivar, int jvar)
-{
-
-  double eps = EPSILON4;
-  auto params = generateListParams();
-  double valcur = params->getValue(iparam);
-  params->setValue(iparam, valcur + eps);
-  updateModel();
-  double valplus = evalCov(p1, p2, ivar, jvar);
-  if (valplus == TEST)
-  {
-    return TEST;
-  }
-  params->setValue(iparam, valcur - eps);
-  updateModel();
-  double valminus = evalCov(p1, p2, ivar, jvar);
-  if (valminus == TEST)
-  {
-    return TEST;
-  }
-  return  ( valplus - valminus ) / (2. * eps);
 }

@@ -115,7 +115,7 @@ class PrecisionOpMultiLocal:
  
             modelMono = gl.Model.createFromParam(cova.getType(),
                                                  param = cova.getParam(),
-                                                 range = cova.getRange(),
+                                                 range = cova.getRangeIso(),
                                                  sill = 1)
             covatemp = modelMono.getCovAniso(0)
             self.Qop += [createQ(meshes[i],covatemp)]

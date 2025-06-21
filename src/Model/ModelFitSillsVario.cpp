@@ -24,20 +24,9 @@
 #define TAB(ijvar, ipadir)      tabin[IJDIR(ijvar, ipadir)]
 #define DD(idim, ijvar, ipadir) _dd[idim][IJDIR(ijvar, ipadir)]
 
-#define CORRECT(idir, k)                    \
-  (!isZero(_vario->getHhByIndex(idir, k)) && \
-   !FFFF(_vario->getHhByIndex(idir, k)) &&   \
-   !isZero(_vario->getSwByIndex(idir, k)) && \
-   !FFFF(_vario->getSwByIndex(idir, k)) && !FFFF(_vario->getGgByIndex(idir, k)))
-#define INCORRECT(idir, k)                 \
-  (isZero(_vario->getHhByIndex(idir, k)) || \
-   FFFF(_vario->getHhByIndex(idir, k)) ||   \
-   isZero(_vario->getSwByIndex(idir, k)) || \
-   FFFF(_vario->getSwByIndex(idir, k)) || FFFF(_vario->getGgByIndex(idir, k)))
-
-ModelFitSillsVario::ModelFitSillsVario(Vario* vario,
+ModelFitSillsVario::ModelFitSillsVario(const Vario* vario,
                                        ModelCovList* model,
-                                       Constraints* constraints,
+                                       const Constraints* constraints,
                                        const ModelOptimParam& mop)
   : AModelFitSills(model, constraints, mop)
   , _vario(vario)
@@ -67,9 +56,9 @@ ModelFitSillsVario::~ModelFitSillsVario()
 {
 }
 
-ModelFitSillsVario* ModelFitSillsVario::createForOptim(Vario* vario,
+ModelFitSillsVario* ModelFitSillsVario::createForOptim(const Vario* vario,
                                                        ModelGeneric* model,
-                                                       Constraints* constraints,
+                                                       const Constraints* constraints,
                                                        const ModelOptimParam& mop)
 {
   ModelCovList* mcv = dynamic_cast<ModelCovList*>(model);
@@ -118,16 +107,18 @@ int ModelFitSillsVario::_prepare()
  **
  ** \return  Error return code
  **
- ** \param[in]  verbose     Verbose flag
- **
  *****************************************************************************/
-int ModelFitSillsVario::fitSills(bool verbose)
+int ModelFitSillsVario::fitSills()
 {
   // Initialize Model-dependent quantities
   _updateFromModel();
 
-  // Perform the sill fitting
-  return _fitSills(verbose);
+  // In this iterative manner of Fitting Sills, the verbose flag is switched OFF
+  // in order to avoid intermediate printouts
+  setVerbose(false);
+  int status = _fitSills();
+
+  return status;
 }
 
 /****************************************************************************/
@@ -145,36 +136,6 @@ int ModelFitSillsVario::_getDimensions()
   int nbexp  = 0;
   int npadir = 0;
 
-  // Possibly update the distance for first lag
-  // if equal to 0 but corresponds to lots of pairs attached
-  // This patch is not performed for asymetrical case as the h=0 is only
-  // conventional.
-  for (int idir = 0; idir < _vario->getNDir(); idir++)
-  {
-    for (int ivar = 0; ivar < _nvar; ivar++)
-      for (int jvar = 0; jvar <= ivar; jvar++)
-      {
-        int iad0   = _vario->getCenter(ivar, jvar, idir);
-        double sw0 = _vario->getSwByIndex(idir, iad0);
-        double hh0 = _vario->getHhByIndex(idir, iad0);
-        // The test on the number of pairs avoids hacking in the case
-        // of a conventional construction where the number of pairs
-        // for the first lag is arbitrarily set to 1.
-        if (isZero(hh0) && sw0 > 1.)
-        {
-          int iad    = _vario->getNext(ivar, jvar, idir);
-          double sw1 = _vario->getSwByIndex(idir, iad);
-          double hh1 = _vario->getHhByIndex(idir, iad);
-
-          if (!_vario->getFlagAsym())
-          {
-            hh0 = hh1 * sw0 / sw1;
-            _vario->setHhByIndex(idir, iad0, hh0);
-          }
-        }
-      }
-  }
-
   /* Calculate the total number of lags */
 
   for (int idir = 0; idir < _vario->getNDir(); idir++)
@@ -185,7 +146,7 @@ int ModelFitSillsVario::_getDimensions()
         for (int jvar = 0; jvar <= ivar; jvar++)
         {
           int i = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
-          if (CORRECT(idir, i)) nbexp++;
+          if (_vario->isLagCorrect(idir, i)) nbexp++;
         }
   }
 
@@ -231,7 +192,8 @@ void ModelFitSillsVario::_computeGg()
             {
               double g1 = _vario->getGgByIndex(idir, iad);
               double g2 = _vario->getGgByIndex(idir, jad);
-              if (CORRECT(idir, iad) && CORRECT(idir, jad))
+              if (_vario->isLagCorrect(idir, iad) &&
+                  _vario->isLagCorrect(idir, jad))
               {
                 _GG(ijvar, ipadir) = c00 - (n1 * g1 + n2 * g2) / (n1 + n2);
                 dist               = (ABS(_vario->getHhByIndex(idir, iad)) +
@@ -242,7 +204,7 @@ void ModelFitSillsVario::_computeGg()
           else
           {
             int iad = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
-            if (CORRECT(idir, iad))
+            if (_vario->isLagCorrect(idir, iad))
             {
               _GG(ijvar, ipadir) = _vario->getGgByIndex(idir, iad);
               dist               = ABS(_vario->getHhByIndex(idir, iad));
@@ -253,7 +215,7 @@ void ModelFitSillsVario::_computeGg()
           int i = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
           for (int idim = 0; idim < _ndim; idim++)
           {
-            if (INCORRECT(idir, i)) continue;
+            if (!_vario->isLagCorrect(idir, i)) continue;
             DD(idim, ijvar, ipadir) = dist * _vario->getCodir(idir, idim);
           }
         }
@@ -297,14 +259,15 @@ void ModelFitSillsVario::_updateFromModel()
             {
               int iad = shift + _vario->getNLag(idir) + ilag + 1;
               int jad = shift + _vario->getNLag(idir) - ilag - 1;
-              if (INCORRECT(idir, iad) || INCORRECT(idir, jad)) continue;
+              if (!_vario->isLagCorrect(idir, iad) ||
+                  !_vario->isLagCorrect(idir, jad)) continue;
               dist = (ABS(_vario->getHhByIndex(idir, iad)) +
                       ABS(_vario->getHhByIndex(idir, jad))) / 2.;
             }
             else
             {
               int iad = shift + ilag;
-              if (INCORRECT(idir, iad)) continue;
+              if (!_vario->isLagCorrect(idir, iad)) continue;
               dist = ABS(_vario->getHhByIndex(idir, iad));
             }
             for (int idim = 0; idim < _ndim; idim++)
@@ -399,3 +362,4 @@ void ModelFitSillsVario::_compressArray(const VectorDouble& tabin,
         }
     }
 }
+

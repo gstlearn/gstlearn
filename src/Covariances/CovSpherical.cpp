@@ -43,6 +43,13 @@ double CovSpherical::_evaluateCov(double h) const
   return (cov);
 }
 
+double CovSpherical::_evaluateCovDerivative(double h) const
+{
+  double cov = 0.;
+  if (h < 1) cov = -1.5 + 1.5 * h * h;
+  return (cov);
+}
+
 String CovSpherical::getFormula() const
 {
   return "C(h)=1-\\frac{3}{2}\\left(\\frac{h}{a}\\right)+ \\frac{1}{2}\\left(\\frac{h}{a}\\right)^3";

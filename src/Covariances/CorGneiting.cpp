@@ -109,7 +109,7 @@ double CorGneiting::_eval(const SpacePoint& p1,
 
   double scale = pow(ct, _separability / _covSCopy.getNDim(0));
   for (int i = 0; i < (int)_covSCopy.getNDim(); i++)
-    _covSCopy.setScale(i, _covS->getScale(i) / scale);
+    _covSCopy.setScaleDim(i, _covS->getScale(i) / scale);
   double cs = _covSCopy.evalCov(p1_S, p2_S, ivar, jvar, mode);
 
   return cs * ct;

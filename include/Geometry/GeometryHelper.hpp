@@ -42,10 +42,10 @@ public:
   static void rotationCopy(int ndim, const double* rotin, double* rotout);
   static bool rotationIsIdentity(int ndim, const double* rot, double eps = EPSILON10);
   static void rotationMatrixDerivativesInPlace(int ndim,
-                                               VectorDouble& angles,
+                                               const VectorDouble& angles,
                                                std::vector<MatrixSquare>& dR);
   static void rotation2DMatrixDerivativesInPlace(double angle, MatrixSquare& dR);
-  static void rotation3DMatrixDerivativesInPlace(VectorDouble& angles,
+  static void rotation3DMatrixDerivativesInPlace(const VectorDouble& angles,
                                                  std::vector<MatrixSquare>& dR);
 
   static MatrixSquare EulerToRotation(const VectorDouble& angles,

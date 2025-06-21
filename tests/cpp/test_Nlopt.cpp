@@ -18,13 +18,10 @@
  *    variogram and retrieve the parameters of the Model
  */
 
+#include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
+#include "Basic/Optim.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Model/Model.hpp"
-#include "Db/Db.hpp"
-#include "Variogram/Vario.hpp"
-#include "Variogram/VarioParam.hpp"
-#include "Model/ModelOptimVario.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
 
 #include "geoslib_define.h"
 
@@ -44,10 +41,9 @@ double myfunc2(const std::vector<double>& x)
 
 static void _firstTest()
 {
-  mestitle(0,"Minimization of a Function");
-  int npar = 1;
+  mestitle(0, "Minimization of a Function");
   std::vector<double> x = {1.};
-  Optim* opt     = new Optim(opt_algorithm::NELDERMEAD, npar);
+  Optim* opt            = new Optim(NELDERMEAD, (int) x.size());
 
   // Bounds for each parameter
   VectorDouble lb = {1., 10.};
@@ -56,11 +52,8 @@ static void _firstTest()
   opt->setUpperBounds(ub);
   auto func = [](const std::vector<double>& x) { return myfunc2(x);};
   opt -> setObjective(func);
-  // opt->setObjective([this](const std::vector<double>& x)
-  //                   { return this->eval(x); });
-  // nlopt_set_min_objective(opt, myfunc, nullptr);
   opt->setXtolRel(EPSILON4);
-  double minf = opt->optimize(x);
+  double minf = opt->minimize(x);
   std::cout << "Optimum: x = " << x[0] << " -> Minimum value = " << minf << std::endl;
 }
 

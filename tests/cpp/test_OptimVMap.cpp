@@ -54,8 +54,11 @@ int main(int argc, char* argv[])
 
   // Fit the Model
   ModelOptimParam mop = ModelOptimParam();
-  mop.setFlagGoulard(false);
-  modelfit->fitNew(nullptr, nullptr, dbmap, nullptr, mop, ITEST, false);
+  mop.setFlagGoulard(true);
+  bool verbose = false;
+  bool trace = false;
+  modelfit->fitNew(nullptr, nullptr, dbmap, nullptr, mop,
+                   ITEST, verbose, trace);
 
   // Fitting procedure
   mestitle(1, "Fitted Model");

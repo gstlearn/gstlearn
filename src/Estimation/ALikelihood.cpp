@@ -8,22 +8,22 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-
 #include "Estimation/ALikelihood.hpp"
 #include "Db/Db.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "LinearOp/CholeskyDense.hpp"
+
 ALikelihood::ALikelihood(ModelGeneric* model,
                          const Db* db)
-  : AModelOptimNew(model)
+  : AModelOptim(model)
   , _db(db)
 {
 }
 
 ALikelihood::ALikelihood(const ALikelihood& r)
-  : AModelOptimNew(r)
+  : AModelOptim(r)
   , _db(r._db)
   , _Y(r._Y)
   , _X(r._X)
@@ -35,7 +35,7 @@ ALikelihood& ALikelihood::operator=(const ALikelihood& r)
 {
   if (this != &r)
   {
-    AModelOptimNew::operator=(r);
+    AModelOptim::operator=(r);
     _db   = r._db;
     _Y    = r._Y;
     _X    = r._X;
@@ -89,7 +89,7 @@ void ALikelihood::init(bool verbose)
   _init();
 }
 
-double ALikelihood::computeCost(bool verbose)
+double ALikelihood::computeLogLikelihood(bool verbose)
 {
   _updateModel(verbose);
 
@@ -153,4 +153,9 @@ double ALikelihood::computeCost(bool verbose)
     message("Log-likelihood  = %lf\n", loglike);
   }
   return loglike;
+}
+
+double ALikelihood::computeCost(bool verbose)
+{
+  return -computeLogLikelihood(verbose);
 }

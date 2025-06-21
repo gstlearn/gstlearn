@@ -1016,7 +1016,7 @@ static double st_get_model_mean(int ivar)
  *****************************************************************************/
 static double st_get_cova_range(void)
 {
-  return (st_get_cova()->getRange());
+  return (st_get_cova()->getRangeIso());
 }
 
 /****************************************************************************/
@@ -1104,7 +1104,7 @@ static void st_print_all(const char *title)
   message("Total Sill            = %lf\n", st_get_sill_total(0, 0));
   message("Ranges                = ");
   for (int idim = 0; idim < ndim; idim++)
-    message("%lf ", st_get_cova_range() * cova->getAnisoCoeffs(idim));
+    message("%lf ", st_get_cova_range() * cova->getAnisoCoeff(idim));
   message("\n");
 
   /* 'H' Rotation */
@@ -1294,7 +1294,7 @@ static void st_convert_exponential2matern(CovAniso *cova)
 
   if (cova->getType() != ECov::EXPONENTIAL) return;
 
-  range_exp = cova->getRange();
+  range_exp = cova->getRangeIso();
   scale_exp = range2scale(ECov::EXPONENTIAL, range_exp, 0.);
 
   scale_bes = scale_exp;
