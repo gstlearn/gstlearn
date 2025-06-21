@@ -813,7 +813,7 @@ void CorAniso::initParams(const MatrixSymmetric& vars, double href)
   DECLARE_UNUSED(vars);
   for (auto& sc: _scales)
   {
-    sc.increaseMin(href * EPSILON3);
+    sc.increaseMin(5* href * EPSILON2);
     sc.setValue(href);
   }
 }

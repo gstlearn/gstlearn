@@ -55,8 +55,8 @@ int main(int argc, char* argv[])
   // Fit the Model
   ModelOptimParam mop = ModelOptimParam();
   mop.setFlagGoulard(true);
-  bool verbose = true;
-  bool trace = true;
+  bool verbose = false;
+  bool trace = false;
   modelfit->fitNew(nullptr, nullptr, dbmap, nullptr, mop,
                    ITEST, verbose, trace);
 
