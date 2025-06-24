@@ -63,6 +63,12 @@ KrigingSystem::KrigingSystem(Db* dbin,
   , _Z()
   , _means()
   , _meansTarget()
+  , _sampleRanks_CCK()
+  , _Sigma00_CCK()
+  , _Sigma_CCK()
+  , _X_CCK()
+  , _Sigma0_CCK()
+  , _Z_CCK()
   , _iptrEst(-1)
   , _iptrStd(-1)
   , _iptrVarZ(-1)
@@ -646,6 +652,12 @@ int KrigingSystem::estimate(int iech_out)
     if (status) goto label_store;
   }
 
+  // In Colcok and Moving Neighborhood, reset Algebra
+  // (even if the neighborhood has not changed) as the LHS and RHS dimension
+  // have been changed by the ColCok option
+  if (_krigopt.hasColcok() && _neigh->getType() == ENeigh::MOVING)
+    _algebra.resetNewData();
+
   // Establish the pre-calculation involving the data information
 
   if (caseXvalidUnique) _neigh->setFlagXvalid(true);
@@ -674,7 +686,7 @@ int KrigingSystem::estimate(int iech_out)
     if (_algebra.setRHS(&_Sigma0, &_X0)) return 1;
   };
 
-  // Special patch for Colocated CoKriging
+  // Special patch for Colocated CoKriging in Unique Neighbohood
   if (_krigopt.hasColcok())
   {
     if (_neigh->getType() == ENeigh::MOVING)
@@ -684,8 +696,10 @@ int KrigingSystem::estimate(int iech_out)
     else
     {
       int nvar = _model->getNVar();
-      _valuesColcok.resize(nvar);
+      // Vector loaded with the Z variable from dbout
       _valuesColcok = _dbout->getLocVariables(ELoc::Z, _iechOut);
+      // Vector is resized as all variables may not be defined in previous statement
+      _valuesColcok.resize(nvar);
       if (_X.empty()) VH::subtractInPlace(_valuesColcok, _means);
       if (_algebra.setColCokUnique(&_valuesColcok, &_krigopt.getRankColcok())) return 1;
     }
@@ -707,7 +721,7 @@ int KrigingSystem::estimate(int iech_out)
 
   /* Perform the final estimation */
 
-  label_store:
+label_store:
   // If status is not zero, cancel the current Neighborhood search status
   if (status) _neigh->setIsChanged();
 
@@ -739,6 +753,12 @@ int KrigingSystem::estimate(int iech_out)
     else
       _dumpKrigingResults(status);
   }
+
+  // Reset in case of Colocated CoKriging in Moving Neighborhood
+  if (_krigopt.hasColcok() && _neigh->getType() == ENeigh::MOVING)
+  {
+    _resetForColCokMoving();
+  }
   return 0;
 }
 
@@ -748,17 +768,17 @@ int KrigingSystem::_updateForColCokMoving()
   int nbfl = _X.getNCols();
   int nrhs = _Sigma0.getNCols();
   int ndim = _dbin->getNDim();
+  VectorDouble coor = _dbout->getSampleCoordinates(_iechOut);
 
   // If the target coincides with a data point, do not do anything
   // (otherwise the new CoKriging system will be regular)
-  VectorDouble coor = _dbout->getSampleCoordinates(_iechOut);
   for (int jech = 0, nech = (int) _nbgh.size(); jech < nech; jech++)
   {
     int iech          = _nbgh[jech];
     bool flagCoincide = true;
     for (int idim = 0; idim < ndim && flagCoincide; idim++)
     {
-      if (ABS(_dbin->getCoordinate(iech, idim)) > EPSILON3) flagCoincide = false;
+      if (ABS(_dbin->getCoordinate(iech, idim) - coor[idim]) > EPSILON3) flagCoincide = false;
     }
     if (flagCoincide) return 0;
   }
@@ -776,7 +796,6 @@ int KrigingSystem::_updateForColCokMoving()
     nAdd++;
   }
   if (nAdd <= 0) return 0;
-
   int oldSize = (int)_Z.size();
   int newSize = oldSize + nAdd;
 
@@ -788,26 +807,24 @@ int KrigingSystem::_updateForColCokMoving()
   {
     for (int i = 0, n = (int)_sampleRanks[ivar].size(); i < n; i++, lec++)
       adds[ecr++] = 1 + lec;
-    if (! FFFF(newValues[ivar])) adds[ecr++] = -1 - ivar;
+    if (! FFFF(newValues[ivar])) adds[ecr++] = - 1 - ivar;
   }
 
   // Update _sampleRanks
-  VectorVectorInt newVVI(nvar);
+  _sampleRanks_CCK.resize(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    newVVI[ivar] = _sampleRanks[ivar];
-    if (! FFFF(newValues[ivar])) newVVI[ivar].push_back(-1);
+    _sampleRanks_CCK[ivar] = _sampleRanks[ivar];
+    if (! FFFF(newValues[ivar])) _sampleRanks_CCK[ivar].push_back(-1);
   }
-  _sampleRanks = newVVI;
 
   // Update Z vector
-  VectorDouble newZ = VectorDouble(newSize);
+  _Z_CCK = VectorDouble(newSize);
   for (int i = 0; i < newSize; i++)
-    newZ[i] = (adds[i] > 0) ? _Z[adds[i] - 1] : newValues[-adds[i] - 1];
-  _Z = newZ;
+    _Z_CCK[i] = (adds[i] > 0) ? _Z[adds[i] - 1] : newValues[-adds[i] - 1];
 
   // Update _Sigma (symmetric square matrix)
-  MatrixSymmetric newS = MatrixSymmetric(newSize);
+  _Sigma_CCK = MatrixSymmetric(newSize);
   for (int i = 0; i < newSize; i++)
     for (int j = 0; j <= i; j++)
     {
@@ -824,14 +841,21 @@ int KrigingSystem::_updateForColCokMoving()
         if (adds[j] > 0)
           value = _Sigma0.getValue(adds[j] - 1, -adds[i] - 1);
         else
-          value = _Sigma00.getValue(-adds[i] - 1, -adds[j] - 1);
+        {
+          if (!_Sigma00.empty())
+            value = _Sigma00.getValue(-adds[i] - 1, -adds[j] - 1);
+          else
+            // Sigma00 may be undefined (! flag_std), we replace by a
+            // quick local evaluation of the covariance
+            // (this is not the best solution, but it is a workaround)
+            value = _model->eval0(-adds[i] - 1, -adds[j] - 1);
+        }
       }
-      newS.setValue(i, j, value);
+      _Sigma_CCK.setValue(i, j, value);
     }
-  _Sigma = newS;
 
   // Update X
-  MatrixDense newX = MatrixDense(newSize, nbfl);
+  _X_CCK = MatrixDense(newSize, nbfl);
   for (int i = 0; i < newSize; i++)
     for (int j = 0; j < nbfl; j++)
     {
@@ -840,12 +864,11 @@ int KrigingSystem::_updateForColCokMoving()
         value = _X.getValue(adds[i] - 1, j);
       else
         value = _X0.getValue(-adds[i] - 1, j);
-      newX.setValue(i, j, value);
+      _X_CCK.setValue(i, j, value);
     }
-  _X = newX;
 
   // Update Sigma0
-  MatrixDense newS0 = MatrixDense(newSize, nrhs);
+  _Sigma0_CCK = MatrixDense(newSize, nrhs);
   for (int i = 0; i < newSize; i++)
     for (int j = 0; j < nrhs; j++)
     {
@@ -853,13 +876,27 @@ int KrigingSystem::_updateForColCokMoving()
       if (adds[i] > 0)
         value = _Sigma0.getValue(adds[i] - 1, j);
       else
-        value = _Sigma00.getValue(-adds[i] - 1, j);
-      newS0.setValue(i, j, value);
+      {
+        if (! _Sigma00.empty())
+          value = _Sigma00.getValue(-adds[i] - 1, j);
+        else
+          value = _model->eval0(-adds[i] - 1, j);
+      }
+      _Sigma0_CCK.setValue(i, j, value);
     }
-  _Sigma0 = newS0;
 
   // Store the result of Colocated updating in Moving Neighborhood
   if (!_isAuthorized()) return 1;
+  _algebra.resetNewData();
+  if (_algebra.setData(&_Z_CCK, &_sampleRanks_CCK, &_meansTarget)) return 1;
+  if (_algebra.setLHS(&_Sigma_CCK, &_X_CCK)) return 1;
+  if (_algebra.setRHS(&_Sigma0_CCK, &_X0)) return 1;
+
+  return 0;
+}
+
+int KrigingSystem::_resetForColCokMoving()
+{
   _algebra.resetNewData();
   if (_algebra.setData(&_Z, &_sampleRanks, &_meansTarget)) return 1;
   if (_algebra.setLHS(&_Sigma, &_X)) return 1;

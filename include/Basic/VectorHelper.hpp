@@ -41,14 +41,20 @@ public:
   static String toStringAsVS(const VectorString& vec);
   static String toStringAsVI(const VectorInt& vec);
 
-  #ifndef SWIG
+#ifndef SWIG
   static void dumpStats(const String& title, constvect vect, int nmax = -1);
   static void dumpRange(const String& title, constvect vect, int nmax = -1);
 #endif
   static void dumpStats(const String& title, const VectorDouble& vectin, int nmax = -1);
-  static void dumpRange(const String &title, const VectorDouble& vectin, int nmax = -1);
-  static void dumpRange(const String &title, const VectorInt &vect);
-  static void dumpNNZ(const String &title, const VectorDouble &vect, int nclass = 10);
+  static void dumpRange(const String& title, const VectorDouble& vectin, int nmax = -1);
+  static void dumpRange(const String& title, const VectorInt& vect);
+  static void dumpNNZ(const String& title, const VectorDouble& vect, int nclass = 10);
+  static int difference(const String& title1,
+                        const String& title2,
+                        const VectorDouble& vec1,
+                        const VectorDouble& vec2,
+                        double epsilon = EPSILON2,
+                        bool verbose   = false);
 
   static int maximum(const VectorInt &vec, bool flagAbs = false);
   static int minimum(const VectorInt &vec, bool flagAbs = false);

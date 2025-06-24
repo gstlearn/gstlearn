@@ -309,6 +309,52 @@ void VectorHelper::dumpNNZ(const String &title, const VectorDouble &vect, int nc
     message("Count below 10.e-%d = %d\n", ic+1, total[ic]);
 }
 
+int VectorHelper::difference(const String& title1,
+                             const String& title2,
+                             const VectorDouble& vec1,
+                             const VectorDouble& vec2,
+                             double epsilon, 
+                             bool verbose)
+{
+  if (vec1.size() != vec2.size())
+  {
+    messerr("Vectors '%s' and '%s' have different sizes (%d vs %d)",
+            title1.c_str(), title2.c_str(), (int) vec1.size(), (int) vec2.size());
+            messerr("Comparison is not possible");
+    return 1;
+  }
+
+  int count = 0;
+  int n = (int) vec1.size();
+  for (int i = 0; i < n; i++)
+  {
+    double diff = 100. * ABS(vec1[i] - vec2[i]) / (ABS(vec1[i]) + ABS(vec2[i]) + EPSILON20);
+    if (diff > epsilon)
+    {
+      if (count == 0)
+        message("Significant difference(s) between '%s' and '%s':\n", title1.c_str(), title2.c_str());
+      message("Index %3d: %lf - %lf = %5.2lf %%\n",
+              i, vec1[i], vec2[i], diff);
+      count++;
+    }
+  }
+
+  if (verbose)
+  {
+    if (count > 0)
+    {
+      message("Total number of significant differences between '%s' and '%s': %d / %d\n",
+              title1.c_str(), title2.c_str(), count, n);
+    }
+    else
+    {
+      message("No significant difference found between '%s' and '%s'\n",
+              title1.c_str(), title2.c_str());
+    }
+  }
+  return (count > 0);
+}
+
 bool VectorHelper::hasUndefined(const VectorDouble& vec)
 {
   for (int i = 0, n = (int) vec.size(); i < n; i++)

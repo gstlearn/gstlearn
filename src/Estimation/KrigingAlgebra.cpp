@@ -508,16 +508,14 @@ bool KrigingAlgebra::_checkDimensionMatrix(const String& name,
  * @note The argument 'Zp' must be corrected by the mean of the variables
  * for the use of Collocated Option in Simple Kriging
  */
-int KrigingAlgebra::setColCokUnique(const VectorDouble* Zp, const VectorInt* rankColCok) {
+int KrigingAlgebra::setColCokUnique(const VectorDouble* Zp,
+                                    const VectorInt* rankColCok)
+{
   _resetLinkedToColCok();
 
   if (Zp == nullptr || rankColCok == nullptr) {
     _ncck = 0;
     return 0;
-  }
-  if (_flagDual) {
-    messerr("Colocated Cokriging is incompatible with 'Dual'");
-    return 1;
   }
 
   // Argument Zp

@@ -10,6 +10,7 @@
 /******************************************************************************/
 
 #include "Basic/File.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Estimation/CalcKriging.hpp"
 #include "Model/Model.hpp"
@@ -30,38 +31,57 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   int ndim = 2;
+  int nvar = 2;
+  int ndat = 6;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
-  Db* dat = Db::createFillRandom(20, 2, 2);
-  dat->display();
+  // Input Data File
+  Db* dat = Db::createFillRandom(ndat, ndim, nvar);
 
-  DbGrid* target = DbGrid::createFillRandom({10,10}, 1);
-  target->display();
+  // Output Target file
+  DbGrid* target = DbGrid::createFillRandom({5, 5}, 1);
   dat->setLocators({"z-1", "z-2"}, ELoc::Z);
+  dat->display();
   target->setLocators({"z"}, ELoc::Z);
+  target->display();
 
-  VarioParam* varioparam = VarioParam::createMultiple(2, 30, 10);
-  Vario vario_raw2dir    = Vario(*varioparam);
-  (void) vario_raw2dir.compute(dat);
+  // Model
+  MatrixSymmetric* sills = MatrixSymmetric::createFromVD({2, 1, 1, 4});
+  Model* model          = Model::createFromParam(ECov::EXPONENTIAL, 0.4, TEST, TEST,
+                                                  VectorDouble(), *sills);
+  model->setDriftIRF(0, 0);
+  model->display();
 
-  Model fitmod_raw = Model();
-  (void) fitmod_raw.fit(&vario_raw2dir,
-                        {ECov::NUGGET, ECov::EXPONENTIAL, ECov::CUBIC, ECov::LINEAR});
-  fitmod_raw.setDriftIRF(0, 0);
-  fitmod_raw.display();
-
-  KrigOpt krigopt          = KrigOpt();
-  NeighUnique* uniqueNeigh = NeighUnique::create();
+  // Neighborhood (moving)
   NeighMoving* movingNeigh = NeighMoving::create(20, 100);
+  NeighUnique* uniqueNeigh = NeighUnique::create();
 
-  krigopt.setColCok({1, -1});
+  KrigOpt krigopt = KrigOpt();
+  krigopt.setColCok({0, -1});
+  OptDbg::setReference(14);
 
-  // this one throws an error
-  (void)kriging(dat, target, &fitmod_raw, uniqueNeigh,true,false,false,
-                krigopt, NamingConvention("COLCOK"));
+  // // In Unique Neighborhood
+  // (void)kriging(dat, target, model, uniqueNeigh, true, true, false,
+  //               krigopt, NamingConvention("CCKU", true, true, false));
 
-  // this one runs but results are not correct
-  (void)kriging(dat, target, &fitmod_raw, movingNeigh,true,false,false,
-                krigopt, NamingConvention("COLCOK"));
+  // In Moving Neighborhood
+  (void)kriging(dat, target, model, movingNeigh, true, true, false,
+                krigopt, NamingConvention("CCKM", true, true, false));
+
+  // Various comparisons
+  (void)VH::difference("CCKM.z1.estim", "z",
+                       target->getColumn("CCKM.z-1.estim"),
+                       target->getColumn("z"), EPSILON2, true);
+  // (void)VH::difference("CCKU.z1.estim", "z",
+  //                      target->getColumn("CCKU.z-1.estim"),
+  //                      target->getColumn("z"), EPSILON2, true);
+
+  // Cleaning
+  delete dat;
+  delete target;
+  delete movingNeigh;
+  delete uniqueNeigh;
+  delete sills;
+  delete model;
   return (0);
 }

@@ -120,6 +120,10 @@ void ACov::optimizationPreProcessForData(const Db* db1) const
   if (db1 != nullptr)
   {
     db1->getSamplesAsSP(ps, getSpace());
+
+    // A SpacePoint is added for possible colocated option (copy of the first one)
+    ps.push_back(ps[0]);
+
     _optimizationPreProcess(1, ps);
   }
 

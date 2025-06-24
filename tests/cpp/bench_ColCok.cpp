@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   data->display(dbfmt);
 
   // Generate the target file (variables must also exist in Target for ColCok)
-  Db* target = Db::createFillRandom(1, ndim, nvar, 0);
+  Db* target = Db::createFillRandom(2, ndim, nvar, 0);
 
   // Create the Model
   int order    = (flagSK) ? -1 : 0;
@@ -72,12 +72,16 @@ int main(int argc, char* argv[])
   // Define the verbose option
   if (debug) OptDbg::setReference(1);
 
-  // Test on Collocated CoKriging in Unique Neighborhood
+  // Test on Collocated CoKriging
   VectorInt rank_colcok = {0, -1, 2};
   KrigOpt krigopt;
   krigopt.setColCok(rank_colcok);
   kriging(data, target, model, neigh, true, true, false, krigopt);
-  dbfmt = DbStringFormat::create(FLAG_STATS, {"Kriging.*"});
+  dbfmt = DbStringFormat::create(FLAG_ARRAY, {"z*"});
+  target->display(dbfmt);
+  dbfmt = DbStringFormat::create(FLAG_ARRAY, {"Kriging.*.estim"});
+  target->display(dbfmt);
+  dbfmt = DbStringFormat::create(FLAG_ARRAY, {"Kriging.*.stdev"});
   target->display(dbfmt);
 
   // Free pointers

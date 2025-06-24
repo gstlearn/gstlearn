@@ -131,9 +131,10 @@ private:
   Model*    _castInOldModel();
   VectorInt _xvalidUniqueIndices() const;
   int       _updateForColCokMoving();
+  int       _resetForColCokMoving();
 
-  // Deprecated function
-  double _continuousMultiplier(int rank1, int rank2, double eps = EPSILON4);
+    // Deprecated function
+    double _continuousMultiplier(int rank1, int rank2, double eps = EPSILON4);
 
 private:
   Db* _dbin;
@@ -156,6 +157,14 @@ private:
   VectorDouble           _Z;           // Vector of Data
   VectorDouble           _means;       // Means of the variables (used to center variables)
   VectorDouble           _meansTarget; // Means for target (possible using matLC)
+
+  /// Backup for ColCok in Moving Neighborhood
+  VectorVectorInt _sampleRanks_CCK; // Vector of vector of sample indices
+  MatrixSymmetric _Sigma00_CCK;     // Covariance part for variance
+  MatrixSymmetric _Sigma_CCK;       // Covariance part for LHS
+  MatrixDense _X_CCK;               // Drift part for LHS
+  MatrixDense _Sigma0_CCK;          // Covariance part for RHS
+  VectorDouble _Z_CCK;              // Vector of Data
 
   /// UID for storage
   int  _iptrEst;
@@ -186,9 +195,9 @@ private:
 
   /// Option for Bayesian
   bool _flagBayes;
-  VectorDouble          _priorMean; 
+  VectorDouble    _priorMean; 
   MatrixSymmetric _priorCov;  
-  VectorDouble          _postMean;
+  VectorDouble    _postMean;
   MatrixSymmetric _postCov;
   MatrixDense     _postSimu; 
   MatrixSymmetric _varCorrec;

@@ -242,6 +242,11 @@ bool CalcKriging::_run()
   {
     if (ksys.updKrigOptNeighOnly(_iptrNeigh)) return false;
   }
+
+  if (getKrigopt().hasColcok())
+  {
+    getModel()->setOptimEnabled(false);
+  }
   if (!ksys.isReady()) return false;
 
   /***************************************/
