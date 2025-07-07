@@ -809,17 +809,18 @@ namespace gstlrn
 %typemap(freearg) std::map<std::string, std::vector<double, std::allocator<double> > > * {
   delete $1;
 }
-// This for automatically converting R string to NamingConvention
+
+// This for automatically converting Python strings to NamingConvention
 
 %typemap(in) NamingConvention, NamingConvention &, const NamingConvention, const NamingConvention &
+    (NamingConvention tmp)
 {
   String value;
-  NamingConvention* localNC=nullptr;
+  NamingConvention *localNC = &tmp;
   int myres = SWIG_AsVal_std_string($input, &value);
   if (SWIG_IsOK(myres))
   {
-    // TODO: Memory leak
-    localNC = new NamingConvention(value);
+    tmp = NamingConvention(value);
   }
   else
   {
@@ -831,7 +832,7 @@ namespace gstlrn
       SWIG_exception_fail(SWIG_ArgError(myres), "in method $symname, invalid null reference of type $type");
     }
   }
-  $1 = reinterpret_cast<NamingConvention *>(localNC);
+  $1 = localNC;
 }
 
 %typemap(typecheck, precedence=SWIG_TYPECHECK_STRING) const std::string_view {
