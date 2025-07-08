@@ -588,4 +588,35 @@ AModelFitSills* CovList::getFitSills() const
 {
   return _modelFitSills;
 }
+
+bool CovList::isValidForSpectral() const
+{
+    ESpaceType type = getDefaultSpaceType();
+  if (getNCov() != 1)
+  {
+    messerr("This method only considers Model with a single covariance structure");
+    return false;
+  }
+
+  /* Loop on the structures */
+
+  for (int is = 0; is < getNCov(); is++)
+  {
+    const ACov* cova = getCov(is);
+    if (! cova->isValidForSpectral())
+    {
+      messerr("The current structure is not valid for Spectral Simulation on Rn");
+      return false;
+    }
+  }
+  return true;
+
+}
+
+
+MatrixDense CovList::simulateSpectralOmega(int ns) const
+{
+  return getCov(0)->simulateSpectralOmega(ns);
+}
+
 }
