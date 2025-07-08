@@ -405,6 +405,7 @@ MatrixDense CorAniso::simulateSpectralOmega(int nb) const
 {
   MatrixDense omega = _corfunc->simulateSpectralOmega(nb);
   MatrixSquare tensor = getAniso().getTensorInverse();
+  // omega = omega * tensor;
   omega.prodMatInPlace(&tensor);
   return omega;
 }
