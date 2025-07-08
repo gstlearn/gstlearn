@@ -591,7 +591,7 @@ AModelFitSills* CovList::getFitSills() const
 
 bool CovList::isValidForSpectral() const
 {
-    ESpaceType type = getDefaultSpaceType();
+  ESpaceType type = getDefaultSpaceType();
   if (getNCov() != 1)
   {
     messerr("This method only considers Model with a single covariance structure");
