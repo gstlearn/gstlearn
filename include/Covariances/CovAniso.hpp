@@ -170,7 +170,6 @@ public:
   FORWARD_METHOD(getCorAniso, isValidForTurningBand, false)
   FORWARD_METHOD(getCorAniso, simulateTurningBand, TEST)
   FORWARD_METHOD(getCorAniso, isValidForSpectral, false)
-  FORWARD_METHOD(getCorAniso, simulateSpectralOmega, MatrixDense())
   FORWARD_METHOD(getCorAniso, getRanges, VectorDouble())
   FORWARD_METHOD(getCorAniso, getScales, VectorDouble())
   FORWARD_METHOD(getCorAniso, getRangeIso, TEST)
