@@ -30,6 +30,7 @@
 #include "Db/Db.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Space/ASpace.hpp"
@@ -402,7 +403,10 @@ bool CorAniso::isValidForSpectral() const
 }
 MatrixDense CorAniso::simulateSpectralOmega(int nb) const
 {
-  return _corfunc->simulateSpectralOmega(nb);
+  MatrixDense omega = _corfunc->simulateSpectralOmega(nb);
+  MatrixSquare tensor = getAniso().getTensorInverse();
+  omega.prodMatInPlace(&tensor);
+  return omega;
 }
 bool CorAniso::isConsistent(const ASpace* space) const
 {
