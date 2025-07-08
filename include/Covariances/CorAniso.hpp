@@ -109,8 +109,8 @@ public:
 
   bool isValidForTurningBand() const;
   double simulateTurningBand(double t0, TurningBandOperate& operTB) const;
-  bool isValidForSpectral() const;
-  MatrixDense simulateSpectralOmega(int nb) const;
+  bool isValidForSpectral() const override;
+  MatrixDense simulateSpectralOmega(int nb) const override;
 
   static CorAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,

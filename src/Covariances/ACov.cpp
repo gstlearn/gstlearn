@@ -2481,4 +2481,17 @@ void ACov::setContext(const CovContext& ctxt)
   _ctxt = ctxt;
   _setContext(ctxt);
 }
+
+bool ACov::isValidForSpectral() const 
+{
+  return false;
 }
+
+MatrixDense ACov::simulateSpectralOmega(int ns) const 
+{
+  DECLARE_UNUSED(ns);
+  messerr("Spectral method is not implemented for this covariance");
+  return MatrixDense();
+}
+}
+

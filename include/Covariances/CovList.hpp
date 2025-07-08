@@ -137,6 +137,8 @@ public:
   AModelFitSills* getFitSills() const;
   int getNitergCum() const { return _itergCum; }
 
+  bool isValidForSpectral() const override;
+  MatrixDense simulateSpectralOmega(int ns) const override;
 protected:
   bool _isCovarianceIndexValid(int icov) const;
   void _load(const SpacePoint& p, bool case1) const override;
