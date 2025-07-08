@@ -58,7 +58,7 @@ nb <- 1000 # number of spectral components
 ns <- 10   # number of simulations
 seed <- 13112 # Seed for the first simulation
 
-err = simuSpectral(NULL, grid, mod, ns, nb, seed=seed , namconv = NamingConvention("S"))
+err = simuSpectral(NULL, grid, mod, ns, nb, seed=seed, namconv = NamingConvention("S"))
 ```
 
 

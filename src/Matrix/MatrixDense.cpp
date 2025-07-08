@@ -317,22 +317,22 @@ void MatrixDense::prodMatMatInPlace(const AMatrix* x,
     {
       if (transposeY)
       {
-        getEigenMat().noalias() = xm->getEigenMat().transpose() * ym->getEigenMat().transpose();
+        getEigenMat() = xm->getEigenMat().transpose() * ym->getEigenMat().transpose();
       }
       else
       {
-        getEigenMat().noalias() = xm->getEigenMat().transpose() * ym->getEigenMat();
+        getEigenMat() = xm->getEigenMat().transpose() * ym->getEigenMat();
       }
     }
     else
     {
       if (transposeY)
       {
-        getEigenMat().noalias() = xm->getEigenMat() * ym->getEigenMat().transpose();
+        getEigenMat() = xm->getEigenMat() * ym->getEigenMat().transpose();
       }
       else
       {
-        getEigenMat().noalias() = xm->getEigenMat() * ym->getEigenMat();
+        getEigenMat() = xm->getEigenMat() * ym->getEigenMat();
       }
     }
   }

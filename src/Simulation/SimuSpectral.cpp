@@ -13,9 +13,6 @@
 #include "Basic/VectorHelper.hpp"
 #include "Stats/Classical.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include "Matrix/MatrixFactory.hpp"
-#include "Covariances/CovAnisoList.hpp"
-#include "Covariances/CovAniso.hpp"
 #include "Covariances/ACov.hpp"
 #include "Model/ModelGeneric.hpp"
 #include "Db/Db.hpp"
@@ -210,13 +207,7 @@ void SimuSpectral::_simulateOnSphere(int nd, bool verbose)
 void SimuSpectral::_computeOnRn(Db *dbout, int iuid, bool verbose)
 {
   int nech = dbout->getNSample(true);
-
-  // Preparation
-  auto covanisolist =  dynamic_cast<const CovAnisoList*>(_cova);
-  MatrixSquare tensor = covanisolist->getCovAniso(0)->getAniso().getTensorInverse();
   double scale = sqrt(2. / _ns);
-  AMatrix *res = MatrixFactory::prodMatMat(&_omega, &tensor);
-
   // Optional printout
   if (verbose)
   {
@@ -234,7 +225,7 @@ void SimuSpectral::_computeOnRn(Db *dbout, int iuid, bool verbose)
   {
     int iech = ranks[jech];
     dbout->getCoordinatesInPlace(coor, iech);
-    VectorDouble u = res->prodMatVec(coor);
+    VectorDouble u = _omega.prodMatVec(coor);
 
     double value = 0.;
     for (int ib = 0; ib < _ns; ib++)
@@ -243,9 +234,6 @@ void SimuSpectral::_computeOnRn(Db *dbout, int iuid, bool verbose)
 
     dbout->setArray(iech, iuid, value);
   }
-
-  // Delete temporary matrix
-  delete res;
 }
 
 /**
