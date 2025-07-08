@@ -95,9 +95,13 @@ MatrixDense CovGaussian::simulateSpectralOmega(int nb) const
 {
   int ndim = getContext().getNDim();
   MatrixDense mat(nb, ndim);
-  for (int irow = 0; irow < nb; irow++)
-    for (int icol = 0; icol < ndim; icol++)
-      mat.setValue(irow, icol, law_gaussian() * sqrt(2.));
+  double sqrt2 = sqrt(2.0);
+  for (int icol = 0; icol < ndim; icol++)
+  { 
+    auto view = mat.getViewOnColumnModify(icol);
+    for (int irow = 0; irow < nb; irow++)
+      view[irow] =  sqrt2 * law_gaussian();
+  }
   return mat;
 }
 }
