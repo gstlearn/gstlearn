@@ -55,27 +55,27 @@ double CovGaussian::_evaluateCov(double h) const
 
 double CovGaussian::_evaluateCovDerivative(int degree, double h) const
 {
-  double r2 = h * h;
-  if (r2 > MAX_EXP) return 0.;
+  double h2 = h * h;
+  if (h2 > MAX_EXP) return 0.;
 
   double cov = 0.;
   switch (degree)
   {
     case 1: // First order derivative
-      cov = -2. * h * exp(-r2);
+      cov = -2. * h * exp(-h2); // Derivative of e^(-h^2) is -2h * e^(-h^2)
       break;
 
     case 2: // Second order derivative
-      cov = (4. * r2 - 2.) * exp(-r2);
+      cov = (4. * h2 - 2.) * exp(-h2); // 
       break;
 
     case 3: // Third order derivative
-      cov = 4. * exp(-r2) * h * (3 - 2. * r2);
+      cov = 4. * exp(-h2) * h * (3 - 2. * h2); //[-2h * (4h^2-2) +8h]e^(-h^2) = (12h -8h^3)e(-h2)  
       break;
 
     case 4: // Fourth order derivative
-      double r4 = r2 * r2;
-      cov       = 8. * exp(-r2) * (6. - 15. * r2 + r4);
+      double h4 = h2 * h2;
+      cov       = 4. * exp(-h2) * (3. - 12. * h2 + 4 * h4);  //[(12-24h2) -2h(12h-8h^3)]e(-h^2) = (12-48h2 + 16h4)
       break;
   }
   return (cov);
