@@ -88,7 +88,8 @@ for (ivar in 1:nvar) {
   }
 }
 
-model = Model()
+ctxt = CovContext(nvar = 3)
+model = ModelGeneric(ctxt)
 model$setCov(cor_tri)
 grid = DbGrid_create(c(100,100))
 simuSpectral(, dbout = grid, model = model, nbsimu = 1, seed = 43431, ns = 100, nd = 100, 
