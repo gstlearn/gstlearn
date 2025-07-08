@@ -301,7 +301,7 @@ void MatrixDense::prodScalar(double v)
 void MatrixDense::addMatInPlace(const MatrixDense& y, double cx, double cy)
 {
   if (y.getEigenMat().size() <= 0) return;
-  getEigenMat().noalias() = cx * getEigenMat() + cy * y.getEigenMat();
+  getEigenMat() = cx * getEigenMat() + cy * y.getEigenMat();
 }
 
 void MatrixDense::prodMatMatInPlace(const AMatrix* x,
@@ -352,22 +352,22 @@ void MatrixDense::prodMatMatInPlaceOptim(const MatrixDense* x,
   {
     if (transposeY)
     {
-      getEigenMat().noalias() = x->getEigenMat().transpose() * y->getEigenMat().transpose();
+      getEigenMat() = x->getEigenMat().transpose() * y->getEigenMat().transpose();
     }
     else
     {
-      getEigenMat().noalias() = x->getEigenMat().transpose() * y->getEigenMat();
+      getEigenMat() = x->getEigenMat().transpose() * y->getEigenMat();
     }
   }
   else
   {
     if (transposeY)
     {
-      getEigenMat().noalias() = x->getEigenMat() * y->getEigenMat().transpose();
+      getEigenMat() = x->getEigenMat() * y->getEigenMat().transpose();
     }
     else
     {
-      getEigenMat().noalias() = x->getEigenMat() * y->getEigenMat();
+      getEigenMat() = x->getEigenMat() * y->getEigenMat();
     }
   }
 }
@@ -389,11 +389,11 @@ void MatrixDense::prodNormMatMatInPlace(const MatrixDense* a,
 {
   if (transpose)
   {
-    getEigenMat().noalias() = a->getEigenMat().transpose() * m->getEigenMat() * a->getEigenMat();
+    getEigenMat() = a->getEigenMat().transpose() * m->getEigenMat() * a->getEigenMat();
   }
   else
   {
-    getEigenMat().noalias() = a->getEigenMat() * m->getEigenMat() * a->getEigenMat().transpose();
+    getEigenMat() = a->getEigenMat() * m->getEigenMat() * a->getEigenMat().transpose();
   }
 }
 
@@ -409,21 +409,21 @@ void MatrixDense::prodNormMatVecInPlace(const MatrixDense& a, const VectorDouble
   if (transpose)
   {
     if (vec.empty())
-      getEigenMat().noalias() = a.getEigenMat().transpose() * a.getEigenMat();
+      getEigenMat() = a.getEigenMat().transpose() * a.getEigenMat();
     else
     {
       Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
-      getEigenMat().noalias() = a.getEigenMat().transpose() * vecm * a.getEigenMat();
+      getEigenMat() = a.getEigenMat().transpose() * vecm * a.getEigenMat();
     }
   }
   else
   {
     if (vec.empty())
-      getEigenMat().noalias() = a.getEigenMat() * a.getEigenMat().transpose();
+      getEigenMat() = a.getEigenMat() * a.getEigenMat().transpose();
     else
     {
       Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
-      getEigenMat().noalias() = a.getEigenMat() * vecm * a.getEigenMat().transpose();
+      getEigenMat() = a.getEigenMat() * vecm * a.getEigenMat().transpose();
     }
   }
 }
@@ -864,7 +864,7 @@ void MatrixDense::sum(const MatrixDense* mat1,
                       const MatrixDense* mat2,
                       MatrixDense* mat3)
 {
-  mat3->getEigenMat().noalias() = mat1->getEigenMat() + mat2->getEigenMat();
+  mat3->getEigenMat() = mat1->getEigenMat() + mat2->getEigenMat();
 }
 
 }
