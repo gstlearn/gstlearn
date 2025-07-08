@@ -83,7 +83,7 @@ double CovGaussian::_evaluateCovDerivative(int degree, double h) const
 
 String CovGaussian::getFormula() const
 {
-  return "C(h)=1-\\frac{7h^2}{a^2}+\\frac{35h^3}{4a^3}-\\frac{7h^5}{2a^5}-\\frac{3h^7}{4a^7}";
+  return "C(h)=1-e^{-h^2}";
 }
 
 double CovGaussian::simulateTurningBand(double t0, TurningBandOperate& operTB) const
@@ -97,7 +97,7 @@ MatrixDense CovGaussian::simulateSpectralOmega(int nb) const
   MatrixDense mat(nb, ndim);
   for (int irow = 0; irow < nb; irow++)
     for (int icol = 0; icol < ndim; icol++)
-      mat.setValue(irow, icol, law_gaussian());
+      mat.setValue(irow, icol, law_gaussian() * sqrt(2.));
   return mat;
 }
 }
