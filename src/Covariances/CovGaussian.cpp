@@ -62,7 +62,7 @@ double CovGaussian::_evaluateCovDerivative(int degree, double h) const
   switch (degree)
   {
     case 1: // First order derivative
-      cov = 2. * exp(-r2);
+      cov = -2. * h * exp(-r2);
       break;
 
     case 2: // Second order derivative
