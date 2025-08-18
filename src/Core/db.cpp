@@ -781,7 +781,7 @@ Id point_to_grid(const DbGrid* db,
   Id out = 0;
   for (Id idim = 0; idim < ndim; idim++)
   {
-    Id ix = (Id)(floor(work2[idim] / db->getDX(idim) + 0.5));
+    Id ix = static_cast<Id>(floor(work2[idim] / db->getDX(idim) + 0.5));
     if (ix < 0)
     {
       if (flag_outside > 0)
@@ -866,7 +866,7 @@ Id point_to_bench(const DbGrid* db, double* coor, Id flag_outside, Id* indb)
   if (dz <= 0.)
     iz = 0;
   else
-    iz = (Id)(floor(z / dz + 0.5));
+    iz = static_cast<Id>(floor(z / dz + 0.5));
 
   // message("iz = %d & nz = %d\n", iz, nz);
 
@@ -969,7 +969,7 @@ Id point_inside_grid(Db* db, Id iech, const DbGrid* dbgrid)
 
   for (Id idim = 0; idim < ndim; idim++)
   {
-    Id ix = (Id)(floor(work2[idim] / dbgrid->getDX(idim) + 0.5));
+    Id ix = static_cast<Id>(floor(work2[idim] / dbgrid->getDX(idim) + 0.5));
     if (ix < 0 || ix >= dbgrid->getNX(idim)) return (0);
   }
   return (1);

@@ -556,7 +556,7 @@ static void st_check_facies_data2grid(Db* dbin,
     for (isimu = 0; isimu < nbsimu; isimu++)
     {
       facres = static_cast<Id>(dbgrid->getSimvar(ELoc::FACIES, jech, isimu, 0, ipgs,
-                                     nbsimu, 1));
+                                                 nbsimu, 1));
       if (flag_show)
       {
         if (facdat == facres)

@@ -4120,8 +4120,8 @@ static void st_calcul_covmatrix(Local_Pgs* local_pgs,
   else if (rule->getModeRule() == ERule::SHIFT)
   {
     auto* ruleshift = (RuleShift*)rule;
-    cov[0]               = covh.getValue(0, 0);                                     /* C11(h)  */
-    cov[5]               = (nvar == 1) ? covh.getValue(0, 0) : covh.getValue(1, 1); /* C22(h)  */
+    cov[0]          = covh.getValue(0, 0);                                     /* C11(h)  */
+    cov[5]          = (nvar == 1) ? covh.getValue(0, 0) : covh.getValue(1, 1); /* C22(h)  */
 
     for (size_t i = 0; i < local_pgs->model->getNDim(); i++)
       local_pgs->d0[i] = ruleshift->getShift(i);

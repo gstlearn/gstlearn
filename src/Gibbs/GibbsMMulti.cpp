@@ -24,7 +24,7 @@
 static bool storeSparse = true;
 
 namespace gstlrn
-{ 
+{
 
 GibbsMMulti::GibbsMMulti()
   : GibbsMulti()
@@ -112,7 +112,7 @@ Id GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
   Model* model          = getModel();
   auto nvar             = _getNVar();
   auto nact             = _getSampleRankNumber();
-  Id nvardb            = db->getNLoc(ELoc::Z);
+  Id nvardb             = db->getNLoc(ELoc::Z);
   bool flag_var_defined = nvardb > 0;
 
   // Consistency check
@@ -240,8 +240,8 @@ Id GibbsMMulti::_getColumn(Id iact, Id ivar) const
 void GibbsMMulti::_splitCol(Id icol, Id* iact, Id* ivar) const
 {
   auto nact = _getSampleRankNumber();
-  *ivar    = icol / nact;
-  *iact    = icol - nact * (*ivar);
+  *ivar     = icol / nact;
+  *iact     = icol - nact * (*ivar);
 }
 
 /**
@@ -422,7 +422,7 @@ double GibbsMMulti::_getEstimate(Id ipgs,
   {
     auto nvar = _getNVar();
     auto nact = _getSampleRankNumber();
-    Id irow = 0;
+    Id irow   = 0;
     for (jvar = 0; jvar < nvar; jvar++)
     {
       jcase = getRank(ipgs, jvar);
@@ -434,4 +434,4 @@ double GibbsMMulti::_getEstimate(Id ipgs,
   }
   return yk;
 }
-}
+} // namespace gstlrn

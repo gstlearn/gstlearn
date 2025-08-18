@@ -113,8 +113,8 @@ Id CalcGlobal::_globalKriging()
   VectorDouble rhsCum;
   Db* dbin  = getDbin();
   Db* dbout = getDbout();
-  Id nvar  = _modelLocal->getNVar();
-  Id ng    = 0;
+  Id nvar   = _modelLocal->getNVar();
+  Id ng     = 0;
   VectorDouble wgt;
 
   KrigOpt krigopt;
@@ -177,8 +177,8 @@ Id CalcGlobal::_globalKriging()
 
   /* Preliminary checks */
 
-  Id ntot       = dbin->getNSample(false);
-  Id np         = dbin->getNSample(true);
+  Id ntot        = dbin->getNSample(false);
+  Id np          = dbin->getNSample(true);
   double cell    = 1.;
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
   if (dbgrid != nullptr) cell = dbgrid->getCellSize();
@@ -242,7 +242,7 @@ Id CalcGlobal::_globalArithmetic()
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   auto ntot      = getDbin()->getNSample(false);
   auto np        = getDbin()->getNSample(true);
-  Id ng         = dbgrid->getNSample(true);
+  Id ng          = dbgrid->getNSample(true);
   double surface = ng * dbgrid->getCellSize();
 
   /* Average covariance over the data */

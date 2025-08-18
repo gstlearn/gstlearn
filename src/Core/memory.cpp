@@ -175,7 +175,7 @@ char* mem_free_(const char* call_file,
 
   if (MEMORY_DEBUG)
   {
-    (void)memcpy((char*)&size_eff, (char*)tab_aux, sizeof(Id));
+    (void)memcpy(reinterpret_cast<char*>(&size_eff), tab_aux, sizeof(Id));
     st_mem_update(-size_eff);
     st_mem_message(call_file, call_line, "De-allocation", -1, size_eff);
   }

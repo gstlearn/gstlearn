@@ -1843,8 +1843,8 @@ void VectorHelper::copy(const VectorDouble& vecin, VectorDouble& vecout, Id size
   if (size > static_cast<Id>(vecout.size()))
     my_throw("Wrong size");
 
-  VectorDouble::iterator itout(vecout.begin());
-  VectorDouble::const_iterator itin(vecin.begin());
+  auto itout(vecout.begin());
+  auto itin(vecin.begin());
   for (Id i = 0; i < size; i++)
   {
     (*itout) = (*itin);
@@ -1859,8 +1859,8 @@ void VectorHelper::copy(const VectorInt& vecin, VectorInt& vecout, Id size)
   if (size > static_cast<Id>(vecout.size()))
     my_throw("Wrong size");
 
-  VectorInt::iterator itout(vecout.begin());
-  VectorInt::const_iterator itin(vecin.begin());
+  auto itout(vecout.begin());
+  auto itin(vecin.begin());
   for (Id i = 0; i < size; i++)
   {
     (*itout) = (*itin);

@@ -710,6 +710,8 @@ double ACov::evalAverageIncrToIncr(const VectorVectorDouble& d1,
 {
   Id nincr1 = static_cast<Id>(d1.size());
   Id nincr2 = static_cast<Id>(d2.size());
+  Id nincr1 = static_cast<Id>(d1.size());
+  Id nincr2 = static_cast<Id>(d2.size());
 
   /* Loop on the first sample */
 

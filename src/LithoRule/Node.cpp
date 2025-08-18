@@ -10,10 +10,10 @@
 /******************************************************************************/
 #include "geoslib_enum.h"
 
-#include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "LithoRule/Node.hpp"
 #include "Basic/MathFunc.hpp"
+#include "Basic/Utilities.hpp"
+#include "LithoRule/Node.hpp"
 #include "LithoRule/Rule.hpp"
 
 #include <sstream>
@@ -22,61 +22,59 @@
 #define THRESH_Y1   1
 #define THRESH_Y2   2
 
-#define NODES(inode,i)       (nodes[6 * (inode) + (i)])
-#define FROM_TYPE(inode)     (nodes[6 * (inode) + 0])
-#define FROM_RANK(inode)     (nodes[6 * (inode) + 1])
-#define FROM_VERS(inode)     (nodes[6 * (inode) + 2])
-#define NODE_TYPE(inode)     (nodes[6 * (inode) + 3])
-#define NODE_RANK(inode)     (nodes[6 * (inode) + 4])
-#define FACIES(inode)        (nodes[6 * (inode) + 5])
+#define NODES(inode, i)  (nodes[6 * (inode) + (i)])
+#define FROM_TYPE(inode) (nodes[6 * (inode) + 0])
+#define FROM_RANK(inode) (nodes[6 * (inode) + 1])
+#define FROM_VERS(inode) (nodes[6 * (inode) + 2])
+#define NODE_TYPE(inode) (nodes[6 * (inode) + 3])
+#define NODE_RANK(inode) (nodes[6 * (inode) + 4])
+#define FACIES(inode)    (nodes[6 * (inode) + 5])
 
 namespace gstlrn
-{ 
-static const VectorString symbol = {"F","S","T"};
+{
+static const VectorString symbol = {"F", "S", "T"};
 
 Node::Node(const String& nodnam, Id orient, Id facies)
-    : AStringable(),
-      _nodnam(nodnam),
-      _r1(nullptr),
-      _r2(nullptr),
-      _orient(orient),
-      _facies((orient == THRESH_IDLE) ? facies : ITEST),
-      _prop(0.),
-      _thresh(0.),
-      _p1(0.),
-      _p2(0.),
-      _t1min(0.),
-      _t1max(0.),
-      _t2min(0.),
-      _t2max(0.),
-      _cdf1min(0.),
-      _cdf1max(0.),
-      _cdf2min(0.),
-      _cdf2max(0.)
+  : AStringable()
+  , _nodnam(nodnam)
+  , _r1(nullptr)
+  , _r2(nullptr)
+  , _orient(orient)
+  , _facies((orient == THRESH_IDLE) ? facies : ITEST)
+  , _prop(0.)
+  , _thresh(0.)
+  , _p1(0.)
+  , _p2(0.)
+  , _t1min(0.)
+  , _t1max(0.)
+  , _t2min(0.)
+  , _t2max(0.)
+  , _cdf1min(0.)
+  , _cdf1max(0.)
+  , _cdf2min(0.)
+  , _cdf2max(0.)
 {
-
 }
 
-Node::Node(const String& nodnam, const VectorInt& n_type, const VectorInt& n_facs,
-           Id *ipos, Id *n_fac, Id *n_y1, Id *n_y2)
-    : AStringable(),
-      _nodnam(nodnam),
-      _r1(nullptr),
-      _r2(nullptr),
-      _orient(0),
-      _facies(0),
-      _prop(0.),
-      _thresh(0.),
-      _p1(0.),
-      _p2(0.),
-      _t1min(0.),
-      _t1max(0.),
-      _t2min(0.),
-      _t2max(0.),
-      _cdf1min(0.),
-      _cdf1max(0.),
-      _cdf2min(0.),
-      _cdf2max(0.)
+Node::Node(const String& nodnam, const VectorInt& n_type, const VectorInt& n_facs, Id* ipos, Id* n_fac, Id* n_y1, Id* n_y2)
+  : AStringable()
+  , _nodnam(nodnam)
+  , _r1(nullptr)
+  , _r2(nullptr)
+  , _orient(0)
+  , _facies(0)
+  , _prop(0.)
+  , _thresh(0.)
+  , _p1(0.)
+  , _p2(0.)
+  , _t1min(0.)
+  , _t1max(0.)
+  , _t2min(0.)
+  , _t2max(0.)
+  , _cdf1min(0.)
+  , _cdf1max(0.)
+  , _cdf2min(0.)
+  , _cdf2max(0.)
 {
   std::stringstream sstr;
 
@@ -92,17 +90,17 @@ Node::Node(const String& nodnam, const VectorInt& n_type, const VectorInt& n_fac
   switch (type)
   {
     case THRESH_IDLE:
-      rank = ++(*n_fac);
+      rank    = ++(*n_fac);
       _facies = n_facs[jpos];
       break;
 
     case THRESH_Y1:
-      rank = ++(*n_y1);
+      rank    = ++(*n_y1);
       _facies = 0;
       break;
 
     case THRESH_Y2:
-      rank = ++(*n_y2);
+      rank    = ++(*n_y2);
       _facies = 0;
       break;
   }
@@ -117,60 +115,60 @@ Node::Node(const String& nodnam, const VectorInt& n_type, const VectorInt& n_fac
     case THRESH_Y1:
     case THRESH_Y2:
       sstr << _nodnam << "[Low]";
-      _r1 = new Node(sstr.str(),n_type,n_facs,ipos,n_fac,n_y1,n_y2);
+      _r1 = new Node(sstr.str(), n_type, n_facs, ipos, n_fac, n_y1, n_y2);
       if (_r1 == nullptr) return;
       sstr << _nodnam << "[Sup]";
-      _r2 = new Node(sstr.str(),n_type,n_facs,ipos,n_fac,n_y1,n_y2);
+      _r2 = new Node(sstr.str(), n_type, n_facs, ipos, n_fac, n_y1, n_y2);
       if (_r2 == nullptr) return;
       break;
   }
 }
 
 Node::Node(bool /*flagShadow*/)
-    : AStringable(),
-      _nodnam("S1"),
-      _r1(nullptr),
-      _r2(nullptr),
-      _orient(THRESH_Y1),
-      _facies(0),
-      _prop(0.),
-      _thresh(0.),
-      _p1(0.),
-      _p2(0.),
-      _t1min(0.),
-      _t1max(0.),
-      _t2min(0.),
-      _t2max(0.),
-      _cdf1min(0.),
-      _cdf1max(0.),
-      _cdf2min(0.),
-      _cdf2max(0.)
+  : AStringable()
+  , _nodnam("S1")
+  , _r1(nullptr)
+  , _r2(nullptr)
+  , _orient(THRESH_Y1)
+  , _facies(0)
+  , _prop(0.)
+  , _thresh(0.)
+  , _p1(0.)
+  , _p2(0.)
+  , _t1min(0.)
+  , _t1max(0.)
+  , _t2min(0.)
+  , _t2max(0.)
+  , _cdf1min(0.)
+  , _cdf1max(0.)
+  , _cdf2min(0.)
+  , _cdf2max(0.)
 {
-  _r1 = new Node("T1",THRESH_Y2,0);
-  _r1->_r1 = new Node("F3",THRESH_IDLE,SHADOW_SHADOW);
-  _r1->_r2 = new Node("F2",THRESH_IDLE,SHADOW_WATER);
-  _r2 =  new Node("F1",THRESH_IDLE,SHADOW_ISLAND);
+  _r1      = new Node("T1", THRESH_Y2, 0);
+  _r1->_r1 = new Node("F3", THRESH_IDLE, SHADOW_SHADOW);
+  _r1->_r2 = new Node("F2", THRESH_IDLE, SHADOW_WATER);
+  _r2      = new Node("F1", THRESH_IDLE, SHADOW_ISLAND);
 }
 
 Node::Node(const Node& m)
-    : AStringable(m),
-      _nodnam(m._nodnam),
-      _r1(nullptr),
-      _r2(nullptr),
-      _orient(m._orient),
-      _facies(m._facies),
-      _prop(m._prop),
-      _thresh(m._thresh),
-      _p1(m._p1),
-      _p2(m._p2),
-      _t1min(m._t1min),
-      _t1max(m._t1max),
-      _t2min(m._t2min),
-      _t2max(m._t2max),
-      _cdf1min(m._cdf1min),
-      _cdf1max(m._cdf1max),
-      _cdf2min(m._cdf2min),
-      _cdf2max(m._cdf2max)
+  : AStringable(m)
+  , _nodnam(m._nodnam)
+  , _r1(nullptr)
+  , _r2(nullptr)
+  , _orient(m._orient)
+  , _facies(m._facies)
+  , _prop(m._prop)
+  , _thresh(m._thresh)
+  , _p1(m._p1)
+  , _p2(m._p2)
+  , _t1min(m._t1min)
+  , _t1max(m._t1max)
+  , _t2min(m._t2min)
+  , _t2max(m._t2max)
+  , _cdf1min(m._cdf1min)
+  , _cdf1max(m._cdf1max)
+  , _cdf2min(m._cdf2min)
+  , _cdf2max(m._cdf2max)
 {
   if (m._r1 != nullptr)
     _r1 = new Node(*m._r1);
@@ -192,16 +190,16 @@ Node& Node::operator=(const Node& m)
       _r2 = new Node(*m._r2);
     else
       _r2 = nullptr;
-    _orient = m._orient;
-    _facies = m._facies;
-    _prop = m._prop;
-    _thresh = m._thresh;
-    _p1 = m._p1;
-    _p2 = m._p2;
-    _t1min = m._t1min;
-    _t1max = m._t1max;
-    _t2min = m._t2min;
-    _t2max = m._t2max;
+    _orient  = m._orient;
+    _facies  = m._facies;
+    _prop    = m._prop;
+    _thresh  = m._thresh;
+    _p1      = m._p1;
+    _p2      = m._p2;
+    _t1min   = m._t1min;
+    _t1max   = m._t1max;
+    _t2min   = m._t2min;
+    _t2max   = m._t2max;
     _cdf1min = m._cdf1min;
     _cdf1max = m._cdf1max;
     _cdf2min = m._cdf2min;
@@ -322,35 +320,35 @@ String Node::nodePrintShadow(bool flagProp, bool flagThresh) const
 ** \remark  as arguments of the call
 **
 *****************************************************************************/
-void Node::getStatistics(Id *node_tot,
-                         Id *nfac_tot,
-                         Id *ny1_tot,
-                         Id *ny2_tot,
-                         double *prop_tot)
+void Node::getStatistics(Id* node_tot,
+                         Id* nfac_tot,
+                         Id* ny1_tot,
+                         Id* ny2_tot,
+                         double* prop_tot)
 {
   *node_tot = 0;
   *nfac_tot = 0;
   *ny1_tot  = 0;
   *ny2_tot  = 0;
   *prop_tot = 0.;
-  _getStatistics(node_tot,nfac_tot,ny1_tot,ny2_tot,prop_tot);
+  _getStatistics(node_tot, nfac_tot, ny1_tot, ny2_tot, prop_tot);
 }
 
-void Node::_getStatistics(Id *node_tot,
-                          Id *nfac_tot,
-                          Id *ny1_tot,
-                          Id *ny2_tot,
-                          double *prop_tot)
+void Node::_getStatistics(Id* node_tot,
+                          Id* nfac_tot,
+                          Id* ny1_tot,
+                          Id* ny2_tot,
+                          double* prop_tot)
 {
-  double p1_loc,p2_loc;
+  double p1_loc, p2_loc;
 
   p1_loc = 0.;
   if (_r1 != nullptr)
-    _r1->_getStatistics(node_tot,nfac_tot,ny1_tot,ny2_tot,&p1_loc);
+    _r1->_getStatistics(node_tot, nfac_tot, ny1_tot, ny2_tot, &p1_loc);
 
   p2_loc = 0.;
   if (_r2 != nullptr)
-    _r2->_getStatistics(node_tot,nfac_tot,ny1_tot,ny2_tot,&p2_loc);
+    _r2->_getStatistics(node_tot, nfac_tot, ny1_tot, ny2_tot, &p2_loc);
 
   _p1 = p1_loc;
   _p2 = p2_loc;
@@ -387,28 +385,28 @@ Id Node::isValid(VectorInt& facies)
 {
   if (_r1 != nullptr)
   {
-    if (_r1->isValid(facies)) return(1);
+    if (_r1->isValid(facies)) return (1);
   }
   if (_r2 != nullptr)
   {
-    if (_r2->isValid(facies)) return(1);
+    if (_r2->isValid(facies)) return (1);
   }
 
-  if (_orient != THRESH_IDLE) return(0);
-  Id nfac = static_cast<Id> (facies.size());
+  if (_orient != THRESH_IDLE) return (0);
+  Id nfac = static_cast<Id>(facies.size());
   if (IFFFF(_facies))
   {
-    messerr("The facies of node %s has not been defined",_nodnam.c_str());
-    return(1);
+    messerr("The facies of node %s has not been defined", _nodnam.c_str());
+    return (1);
   }
   if (_facies < 1 || _facies > nfac)
   {
     messerr("Error in the facies rank (%d) at node %s: it should lie within [1,%d]",
-            _facies,_nodnam.c_str(),nfac);
-    return(1);
+            _facies, _nodnam.c_str(), nfac);
+    return (1);
   }
   facies[_facies - 1]++;
-  return(0);
+  return (0);
 }
 
 /****************************************************************************/
@@ -440,11 +438,11 @@ Id Node::proportionDefine(const VectorDouble& props)
 
   if (_r1 != nullptr)
   {
-    if (_r1->proportionDefine(props)) return(1);
+    if (_r1->proportionDefine(props)) return (1);
   }
   if (_r2 != nullptr)
   {
-    if (_r2->proportionDefine(props)) return(1);
+    if (_r2->proportionDefine(props)) return (1);
   }
 
   /* Assign the proportion of the current facies */
@@ -452,23 +450,23 @@ Id Node::proportionDefine(const VectorDouble& props)
   if (_orient == THRESH_IDLE) // [FO] 21/09/13 => nothing to do in splitting nodes (facies=0)
   {
     Id facies = _facies;
-    if (IFFFF(facies)) return(0);
+    if (IFFFF(facies)) return (0);
 
     double propval = props[facies - 1];
-    if (! FFFF(propval))
+    if (!FFFF(propval))
     {
       if (propval < (0. - eps) || propval > (1. + eps))
       {
         messerr("Wrong proportion for facies %d (%lf): it should lie in [0,1]",
-                facies,propval);
-        return(1);
+                facies, propval);
+        return (1);
       }
       if (propval < 0.) propval = 0.;
       if (propval > 1.) propval = 1.;
     }
     _prop = propval;
   }
-  return(0);
+  return (0);
 }
 
 /**
@@ -477,19 +475,19 @@ Id Node::proportionDefine(const VectorDouble& props)
  * @param prop   Returned proportion
  * @return 1 if the facies is found; 0 otherwise
  */
-Id Node::getProportion(Id facies, double *prop)
+Id Node::getProportion(Id facies, double* prop)
 {
   if (_r1 != nullptr)
   {
-    if (_r1->getProportion(facies,prop)) return(1);
+    if (_r1->getProportion(facies, prop)) return (1);
   }
   if (_r2 != nullptr)
   {
-    if (_r2->getProportion(facies,prop)) return(1);
+    if (_r2->getProportion(facies, prop)) return (1);
   }
-  if (_facies != facies) return(0);
+  if (_facies != facies) return (0);
   *prop = _prop;
-  return(1);
+  return (1);
 }
 
 /****************************************************************************/
@@ -513,14 +511,14 @@ Id Node::getProportion(Id facies, double *prop)
 ** \remark Argument 'rank' must be initialized to 0 in the calling function
 **
 *****************************************************************************/
-Id Node::getThresh(Id  mode,
-                    Id  istop,
-                    Id *rank,
-                    Id *facies,
-                    double *t1min,
-                    double *t1max,
-                    double *t2min,
-                    double *t2max)
+Id Node::getThresh(Id mode,
+                   Id istop,
+                   Id* rank,
+                   Id* facies,
+                   double* t1min,
+                   double* t1max,
+                   double* t2min,
+                   double* t2max)
 {
   if (_r1 != nullptr)
   {
@@ -537,12 +535,12 @@ Id Node::getThresh(Id  mode,
 
   if (mode == 1)
   {
-    if (_facies != istop) return(0);
+    if (_facies != istop) return (0);
   }
   else
   {
-    if (! (IFFFF(_facies))) (*rank)++;
-    if ((*rank) != istop) return(0);
+    if (!(IFFFF(_facies))) (*rank)++;
+    if ((*rank) != istop) return (0);
   }
 
   *facies = _facies;
@@ -550,7 +548,7 @@ Id Node::getThresh(Id  mode,
   *t1max  = _t1max;
   *t2min  = _t2min;
   *t2max  = _t2max;
-  return(1);
+  return (1);
 }
 
 /****************************************************************************/
@@ -574,10 +572,10 @@ void Node::proportionToThresh(double rho,
   _t1max   = t1max;
   _t2min   = t2min;
   _t2max   = t2max;
-  _cdf1min = _transform(-1,t1min);
-  _cdf1max = _transform(-1,t1max);
-  _cdf2min = _transform(-1,t2min);
-  _cdf2max = _transform(-1,t2max);
+  _cdf1min = _transform(-1, t1min);
+  _cdf1max = _transform(-1, t1max);
+  _cdf2min = _transform(-1, t2min);
+  _cdf2max = _transform(-1, t2max);
 
   _thresh = _threshFromPropcum(rho);
 
@@ -630,7 +628,7 @@ double Node::_transform(Id mode, double value)
 *****************************************************************************/
 double Node::_threshFromPropcum(double rho)
 {
-  double gval,sump;
+  double gval, sump;
   static double eps_small = 1.e-04;
 
   /* Initializations */
@@ -683,11 +681,11 @@ double Node::_threshFromPropcum(double rho)
 *****************************************************************************/
 double Node::_threshDichotomy(double rho) const
 {
-  double low[2],sup[2],mini[2],maxi[2],prop,error;
-  Id    i,infin[2],ier,ind;
+  double low[2], sup[2], mini[2], maxi[2], prop, error;
+  Id i, infin[2], ier, ind;
   static double abseps = 1.e-08;
   static double releps = 0.;
-  static Id maxpts    = 40000;
+  static Id maxpts     = 40000;
 
   /* Initializations */
 
@@ -695,17 +693,17 @@ double Node::_threshDichotomy(double rho) const
   low[1] = mini[1] = _t2min;
   sup[0] = maxi[0] = _t1max;
   sup[1] = maxi[1] = _t2max;
-  for ( i = 0 ; i < 2 ; i++ ) infin[i] = mvndst_infin(low[i],sup[i]);
+  for (i = 0; i < 2; i++) infin[i] = mvndst_infin(low[i], sup[i]);
   ind = (_orient == THRESH_Y1) ? 0 : 1;
 
   /* Convergence loop */
 
   do
   {
-    sup[ind]   = (mini[ind] + maxi[ind]) / 2.;
+    sup[ind] = (mini[ind] + maxi[ind]) / 2.;
     if (sup[ind] >= get_rule_extreme(+1)) break;
-    infin[ind] = mvndst_infin(low[ind],sup[ind]);
-    mvndst(2,low,sup,infin,&rho,maxpts,abseps,releps,&error,&prop,&ier);
+    infin[ind] = mvndst_infin(low[ind], sup[ind]);
+    mvndst(2, low, sup, infin, &rho, maxpts, abseps, releps, &error, &prop, &ier);
     if (ier) messageAbort("Fatal error in mvndst");
     if (prop < _p1)
       mini[ind] = sup[ind];
@@ -713,7 +711,7 @@ double Node::_threshDichotomy(double rho) const
       maxi[ind] = sup[ind];
   } while (ABS(_p1 - prop) > abseps);
 
-  return(sup[ind]);
+  return (sup[ind]);
 }
 
 /****************************************************************************/
@@ -728,24 +726,24 @@ double Node::_threshDichotomy(double rho) const
 ** \param[out]  facies Facies value
 **
 *****************************************************************************/
-Id Node::gaussianToFacies(double y1, double y2, double *facies)
+Id Node::gaussianToFacies(double y1, double y2, double* facies)
 {
   if (_r1 != nullptr)
   {
-    if (_r1->gaussianToFacies(y1,y2,facies)) return(1);
+    if (_r1->gaussianToFacies(y1, y2, facies)) return (1);
   }
   if (_r2 != nullptr)
   {
-    if (_r2->gaussianToFacies(y1,y2,facies)) return(1);
+    if (_r2->gaussianToFacies(y1, y2, facies)) return (1);
   }
 
-  if (_orient != THRESH_IDLE) return(0);
-  if (_t1min > get_rule_extreme(-1) && y1 < _t1min) return(0);
-  if (_t1max < get_rule_extreme(+1) && y1 > _t1max) return(0);
-  if (_t2min > get_rule_extreme(-1) && y2 < _t2min) return(0);
-  if (_t2max < get_rule_extreme(+1) && y2 > _t2max) return(0);
+  if (_orient != THRESH_IDLE) return (0);
+  if (_t1min > get_rule_extreme(-1) && y1 < _t1min) return (0);
+  if (_t1max < get_rule_extreme(+1) && y1 > _t1max) return (0);
+  if (_t2min > get_rule_extreme(-1) && y2 < _t2min) return (0);
+  if (_t2max < get_rule_extreme(+1) && y2 > _t2max) return (0);
   *facies = static_cast<double>(_facies);
-  return(1);
+  return (1);
 }
 
 /****************************************************************************/
@@ -762,66 +760,66 @@ Id Node::gaussianToFacies(double y1, double y2, double *facies)
 ** \param[in]  n_y2        Number of the threshold along Y2
 **
 *****************************************************************************/
-void Node::_getInfo(Id *nodes,
+void Node::_getInfo(Id* nodes,
                     Id parent_type,
                     Id parent_rank,
                     Id parent_vers,
-                    Id *rank,
-                    Id *n_fac,
-                    Id *n_y1,
-                    Id *n_y2) const
+                    Id* rank,
+                    Id* n_fac,
+                    Id* n_y1,
+                    Id* n_y2) const
 {
-  Id type,number;
+  Id type, number;
 
   /* Load the parameters of the parent node */
 
-  NODES(*rank,0) = parent_type;
-  NODES(*rank,1) = parent_rank;
-  NODES(*rank,2) = parent_vers;
+  NODES(*rank, 0) = parent_type;
+  NODES(*rank, 1) = parent_rank;
+  NODES(*rank, 2) = parent_vers;
 
   /* Load the parameters of the current node */
 
-  NODES(*rank,3) = _orient;
+  NODES(*rank, 3) = _orient;
   switch (_orient)
   {
     case THRESH_IDLE:
-      NODES(*rank,4) = ++(*n_fac);
-      NODES(*rank,5) = _facies;
+      NODES(*rank, 4) = ++(*n_fac);
+      NODES(*rank, 5) = _facies;
       break;
 
     case THRESH_Y1:
-      NODES(*rank,4) = ++(*n_y1);
-      NODES(*rank,5) = 0;
+      NODES(*rank, 4) = ++(*n_y1);
+      NODES(*rank, 5) = 0;
       break;
 
     case THRESH_Y2:
-      NODES(*rank,4) = ++(*n_y2);
-      NODES(*rank,5) = 0;
+      NODES(*rank, 4) = ++(*n_y2);
+      NODES(*rank, 5) = 0;
       break;
   }
-  type   = NODES(*rank,3);
-  number = NODES(*rank,4);
+  type   = NODES(*rank, 3);
+  number = NODES(*rank, 4);
 
   /* Process the subsequent tree */
 
   if (_r1 != nullptr)
   {
     (*rank)++;
-    _r1->_getInfo(nodes,type,number,1,rank,n_fac,n_y1,n_y2);
+    _r1->_getInfo(nodes, type, number, 1, rank, n_fac, n_y1, n_y2);
   }
   if (_r2 != nullptr)
   {
     (*rank)++;
-    _r2->_getInfo(nodes,type,number,2,rank,n_fac,n_y1,n_y2);
+    _r2->_getInfo(nodes, type, number, 2, rank, n_fac, n_y1, n_y2);
   }
 }
 
-void Node::getInfo(Id *nodes) const
+void Node::getInfo(Id* nodes) const
 {
-  Id rank = 0;
+  Id rank  = 0;
   Id n_fac = 0;
-  Id n_y1 = 0;
-  Id n_y2 = 0;
+  Id n_y1  = 0;
+  Id n_y2  = 0;
   _getInfo(nodes, 0, 0, 0, &rank, &n_fac, &n_y1, &n_y2);
 }
-}
+} // namespace gstlrn

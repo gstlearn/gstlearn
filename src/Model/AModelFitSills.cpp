@@ -13,10 +13,10 @@
 #include "Basic/MathFunc.hpp"
 #include "Covariances/CovAniso.hpp"
 
-#include "Model/ModelCovList.hpp"
 #include "Model/Constraints.hpp"
+#include "Model/ModelCovList.hpp"
 
-#define IJDIR(ijvar, ipadir) ((ijvar) * _npadir + (ipadir))
+#define IJDIR(ijvar, ipadir)    ((ijvar) * _npadir + (ipadir))
 #define WT(ijvar, ipadir)       wt[IJDIR(ijvar, ipadir)]
 #define GG(ijvar, ipadir)       gg[IJDIR(ijvar, ipadir)]
 #define _WT(ijvar, ipadir)      _wt[IJDIR(ijvar, ipadir)]
@@ -199,7 +199,7 @@ void AModelFitSills::_allocateInternalArrays(bool flag_exp)
 
 Id AModelFitSills::_goulardWithConstraints()
 {
-  score = 0.;
+  score                 = 0.;
   VectorDouble consSill = _constraints->getConstantSills();
 
   /* Core allocation */
@@ -528,7 +528,7 @@ double AModelFitSills::_score() const
         geloc = 0.;
         for (Id icov = 0; icov < _ncova; icov++)
           geloc += _sill[icov].getValue(ivar, jvar) *
-                _ge[icov].getValue(ijvar, ipadir);
+                   _ge[icov].getValue(ijvar, ipadir);
         temp = ggloc - geloc;
         score += coeff * wtloc * temp * temp;
 
@@ -593,10 +593,10 @@ double AModelFitSills::_sumSills(Id ivar0,
  **
  *****************************************************************************/
 double AModelFitSills::_minimizeP4(Id icov0,
-                                    Id ivar0,
-                                    double xrmax,
-                                    VectorDouble& xr,
-                                    std::vector<MatrixSymmetric>& alpha)
+                                   Id ivar0,
+                                   double xrmax,
+                                   VectorDouble& xr,
+                                   std::vector<MatrixSymmetric>& alpha)
 {
   double retval, a, c, d, s;
 
@@ -617,7 +617,7 @@ double AModelFitSills::_minimizeP4(Id icov0,
 
   for (Id ivar = 0; ivar < _nvar; ivar++)
   {
-    Id irl     = _combineVariables(ivar0, ivar);
+    Id irl      = _combineVariables(ivar0, ivar);
     Nir_v[ivar] = 0.;
     for (Id k = 0; k < _npadir; k++)
       Nir_v[ivar] +=
@@ -638,7 +638,7 @@ double AModelFitSills::_minimizeP4(Id icov0,
   for (Id k = 0; k < _npadir; k++)
     for (Id ivar = 0; ivar < _nvar; ivar++)
     {
-      Id irl      = _combineVariables(ivar0, ivar);
+      Id irl       = _combineVariables(ivar0, ivar);
       double value = 0.;
       for (Id l = 0; l < _npadir; l++)
         value += _WT(irl, l) * _GG(irl, l) * _ge[icov0].getValue(0, l);
@@ -679,7 +679,7 @@ double AModelFitSills::_minimizeP4(Id icov0,
       if (ivar != ivar0)
       {
         Id irl = _combineVariables(ivar0, ivar);
-        s       = xr[ivar] * Birk_v.getValue(k, ivar);
+        s      = xr[ivar] * Birk_v.getValue(k, ivar);
         c += _WT(irl, k) * s * s;
       }
       else
@@ -710,8 +710,8 @@ double AModelFitSills::_minimizeP4(Id icov0,
     case 3:
     {
       Id nin = 0;
-      xx[0]   = x[0];
-      xx[1]   = x[2];
+      xx[0]  = x[0];
+      xx[1]  = x[2];
       for (Id k = 0; k < 2; k++)
       {
         xt[k] = MAX(0., MIN(xrmax, xx[k]));
@@ -743,20 +743,20 @@ double AModelFitSills::_minimizeP4(Id icov0,
 }
 
 void AModelFitSills::_updateAlphaDiag(Id icov0,
-                                       Id ivar0,
-                                       VectorDouble& xr,
-                                       std::vector<MatrixSymmetric>& alpha)
+                                      Id ivar0,
+                                      VectorDouble& xr,
+                                      std::vector<MatrixSymmetric>& alpha)
 {
   VectorDouble consSill = _constraints->getConstantSills();
-  double srm   = _sumSills(ivar0, alpha) - alpha[icov0].getValue(ivar0, ivar0);
-  double value = consSill[ivar0] / (xr[ivar0] * xr[ivar0]) - srm;
+  double srm            = _sumSills(ivar0, alpha) - alpha[icov0].getValue(ivar0, ivar0);
+  double value          = consSill[ivar0] / (xr[ivar0] * xr[ivar0]) - srm;
   alpha[icov0].setValue(ivar0, ivar0, MAX(0., value));
 }
 
 void AModelFitSills::_updateOtherSills(Id icov0,
-                                        Id ivar0,
-                                        std::vector<MatrixSymmetric>& alpha,
-                                        VectorDouble& xr)
+                                       Id ivar0,
+                                       std::vector<MatrixSymmetric>& alpha,
+                                       VectorDouble& xr)
 {
   for (Id jcov = 0; jcov < _ncova; jcov++)
   {
@@ -794,7 +794,7 @@ void AModelFitSills::_updateCurrentSillGoulard(Id icov0, Id ivar0)
 
     double tot1 = 0.;
     double tot2 = 0.;
-    Id ivs2    = _combineVariables(ivar0, ivar);
+    Id ivs2     = _combineVariables(ivar0, ivar);
 
     for (Id ilagdir = 0; ilagdir < _npadir; ilagdir++)
     {
@@ -815,9 +815,9 @@ void AModelFitSills::_updateCurrentSillGoulard(Id icov0, Id ivar0)
 }
 
 void AModelFitSills::_updateCurrentSillDiag(Id icov0,
-                                             Id ivar0,
-                                             std::vector<MatrixSymmetric>& alpha,
-                                             VectorDouble& xr)
+                                            Id ivar0,
+                                            std::vector<MatrixSymmetric>& alpha,
+                                            VectorDouble& xr)
 {
   double value = xr[ivar0] * xr[ivar0] * alpha[icov0].getValue(ivar0, ivar0);
   if (value < 0.) value = 0.;
@@ -825,9 +825,9 @@ void AModelFitSills::_updateCurrentSillDiag(Id icov0,
 }
 
 void AModelFitSills::_updateAlphaNoDiag(Id icov0,
-                                         Id ivar0,
-                                         VectorDouble& xr,
-                                         std::vector<MatrixSymmetric>& alpha)
+                                        Id ivar0,
+                                        VectorDouble& xr,
+                                        std::vector<MatrixSymmetric>& alpha)
 {
   VectorDouble consSill = _constraints->getConstantSills();
   for (Id ivar = 0; ivar < _nvar; ivar++)
@@ -923,13 +923,13 @@ Id AModelFitSills::_sillFittingIntrinsic()
 }
 
 Id AModelFitSills::_goulardWithoutConstraint(Id niter,
-                                              Id nvar,
-                                              Id ncova,
-                                              Id npadir,
-                                              VectorDouble& wt,
-                                              VectorDouble& gg,
-                                              std::vector<MatrixDense>& ge,
-                                              std::vector<MatrixSymmetric>& sill) const
+                                             Id nvar,
+                                             Id ncova,
+                                             Id npadir,
+                                             VectorDouble& wt,
+                                             VectorDouble& gg,
+                                             std::vector<MatrixDense>& ge,
+                                             std::vector<MatrixSymmetric>& sill) const
 {
   Id allpos;
   double temp, crit, crit_mem, coeff;
@@ -940,9 +940,9 @@ Id AModelFitSills::_goulardWithoutConstraint(Id niter,
   /* Initializations */
   /*******************/
 
-  double sum    = 0.;
-  double sum1   = 0.;
-  double sum2   = 0.;
+  double sum   = 0.;
+  double sum1  = 0.;
+  double sum2  = 0.;
   Id nvs2Local = nvar * (nvar + 1) / 2;
 
   /* Core allocation */
@@ -976,7 +976,7 @@ Id AModelFitSills::_goulardWithoutConstraint(Id niter,
           mp.setValue(ijvar, ipadir,
                       mp.getValue(ijvar, ipadir) +
                         (sill[icov].getValue(ivar, jvar) *
-                          ge[icov].getValue(ijvar, ipadir)));
+                         ge[icov].getValue(ijvar, ipadir)));
       }
 
   for (Id icov = 0; icov < ncova; icov++)
@@ -1022,7 +1022,7 @@ Id AModelFitSills::_goulardWithoutConstraint(Id niter,
             mp.setValue(ijvar, ipadir,
                         mp.getValue(ijvar, ipadir) -
                           (sill[icov].getValue(ivar, jvar) *
-                            ge[icov].getValue(ijvar, ipadir)));
+                           ge[icov].getValue(ijvar, ipadir)));
             sum += fk[icov].getValue(ijvar, ipadir) * mp.getValue(ijvar, ipadir);
           }
           coeff = aic[icov].getValue(ivar, jvar) -
@@ -1038,7 +1038,7 @@ Id AModelFitSills::_goulardWithoutConstraint(Id niter,
       vecpro = cc.getEigenVectors();
 
       Id kvar = 0;
-      allpos   = 1;
+      allpos  = 1;
       while ((kvar < nvar) && allpos)
       {
         if (valpro[kvar++] < 0) allpos = 0;
@@ -1065,14 +1065,14 @@ Id AModelFitSills::_goulardWithoutConstraint(Id niter,
             mp.setValue(ijvar, ipadir,
                         mp.getValue(ijvar, ipadir) +
                           (sill[icov].getValue(ivar, jvar) *
-                            ge[icov].getValue(ijvar, ipadir)));
+                           ge[icov].getValue(ijvar, ipadir)));
         }
     }
 
     /* Update the global criterion */
 
     crit_mem = crit;
-    crit = _scoreMP(nvar, npadir, wt, gg, mp);
+    crit     = _scoreMP(nvar, npadir, wt, gg, mp);
 
     /* Stopping criterion */
 
@@ -1117,8 +1117,8 @@ void AModelFitSills::printFitSillSummary(Id niter) const
 Id AModelFitSills::_fitSillMatrices()
 {
   Id status = 0;
-  score      = 0.;
-  _iterg     = 0;
+  score     = 0.;
+  _iterg    = 0;
   if (!_mop.getFlagIntrinsic())
   {
 
@@ -1151,4 +1151,4 @@ Id AModelFitSills::_fitSillMatrices()
 
   return (status);
 }
-}
+} // namespace gstlrn
