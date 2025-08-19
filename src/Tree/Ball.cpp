@@ -148,10 +148,10 @@ Id Ball::queryClosest(const VectorDouble& test)
 }
 
 Id Ball::queryOneInPlace(const VectorDouble& test,
-                          Id n_neighbors,
-                          VectorInt& indices,
-                          VectorDouble& distances,
-                          Id rank)
+                         Id n_neighbors,
+                         VectorInt& indices,
+                         VectorDouble& distances,
+                         Id rank)
 {
   KNN knn;
   Id n_features = static_cast<Id>(test.size());
@@ -206,12 +206,12 @@ Id Ball::resetConstraints(bool status)
 }
 
 MatrixT<Id> findNN(const Db* dbin,
-                    const Db* dbout,
-                    Id nb_neigh,
-                    bool flagShuffle,
-                    bool verbose,
-                    Id leaf_size,
-                    Id default_distance_function)
+                   const Db* dbout,
+                   Id nb_neigh,
+                   bool flagShuffle,
+                   bool verbose,
+                   Id leaf_size,
+                   Id default_distance_function)
 {
   MatrixT<Id> mat;
 

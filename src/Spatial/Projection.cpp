@@ -10,21 +10,21 @@
 /******************************************************************************/
 #include "Spatial/Projection.hpp"
 
-#include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
+#include "Polygon/Polygons.hpp"
 namespace gstlrn
 {
 Projection::Projection(bool flag_mean, double xcenter, double ycenter)
-    : _flagMean(flag_mean),
-      _xcenter(xcenter),
-      _ycenter(ycenter)
+  : _flagMean(flag_mean)
+  , _xcenter(xcenter)
+  , _ycenter(ycenter)
 {
 }
 
 Projection::Projection(bool flag_mean, Db* db)
-: _flagMean(flag_mean),
-  _xcenter(TEST),
-  _ycenter(TEST)
+  : _flagMean(flag_mean)
+  , _xcenter(TEST)
+  , _ycenter(TEST)
 {
   Id ndim = db->getNLoc(ELoc::X);
   if (ndim != 2)
@@ -40,20 +40,20 @@ Projection::Projection(bool flag_mean, Db* db)
   _ycenter = VH::mean(y);
 }
 
-Projection::Projection(const Projection &r)
-    : _flagMean(r._flagMean),
-      _xcenter(r._xcenter),
-      _ycenter(r._ycenter)
+Projection::Projection(const Projection& r)
+  : _flagMean(r._flagMean)
+  , _xcenter(r._xcenter)
+  , _ycenter(r._ycenter)
 {
 }
 
-Projection& Projection::operator=(const Projection &r)
+Projection& Projection::operator=(const Projection& r)
 {
   if (this != &r)
   {
     _flagMean = r._flagMean;
-    _xcenter = r._xcenter;
-    _ycenter = r._ycenter;
+    _xcenter  = r._xcenter;
+    _ycenter  = r._ycenter;
   }
   return *this;
 }
@@ -137,7 +137,7 @@ Id Projection::operateVecInPlace(VectorDouble& x, VectorDouble& y) const
   return 0;
 }
 
-Id Projection::operateOnDb(Db *db) const
+Id Projection::operateOnDb(Db* db) const
 {
   if (db == nullptr) return 0;
   if (db->getNLoc(ELoc::X) < 2)
@@ -179,4 +179,4 @@ Id Projection::operateOnPolygons(Polygons* poly) const
   }
   return 0;
 }
-}
+} // namespace gstlrn

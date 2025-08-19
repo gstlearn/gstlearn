@@ -12,71 +12,71 @@
 
 namespace gstlrn
 {
- TurningBandOperate:: TurningBandOperate()
-    : _nt0(0),
-      _flagScaled(false),
-      _vexp(0.),
-      _tdeb(0.),
-      _omega(0.),
-      _phi(0.),
-      _offset(0.),
-      _scale(1.),
-      _t(),
-      _v0(),
-      _v1(),
-      _v2()
+TurningBandOperate::TurningBandOperate()
+  : _nt0(0)
+  , _flagScaled(false)
+  , _vexp(0.)
+  , _tdeb(0.)
+  , _omega(0.)
+  , _phi(0.)
+  , _offset(0.)
+  , _scale(1.)
+  , _t()
+  , _v0()
+  , _v1()
+  , _v2()
 {
 }
 
- TurningBandOperate:: TurningBandOperate(const  TurningBandOperate &r)
-    : _nt0(r._nt0),
-      _flagScaled(r._flagScaled),
-      _vexp(r._vexp),
-      _tdeb(r._tdeb),
-      _omega(r._omega),
-      _phi(r._phi),
-      _offset(r._offset),
-      _scale(r._scale),
-      _t(r._t),
-      _v0(r._v0),
-      _v1(r._v1),
-      _v2(r._v2)
+TurningBandOperate::TurningBandOperate(const TurningBandOperate& r)
+  : _nt0(r._nt0)
+  , _flagScaled(r._flagScaled)
+  , _vexp(r._vexp)
+  , _tdeb(r._tdeb)
+  , _omega(r._omega)
+  , _phi(r._phi)
+  , _offset(r._offset)
+  , _scale(r._scale)
+  , _t(r._t)
+  , _v0(r._v0)
+  , _v1(r._v1)
+  , _v2(r._v2)
 {
 }
 
- TurningBandOperate&  TurningBandOperate::operator=(const  TurningBandOperate &r)
+TurningBandOperate& TurningBandOperate::operator=(const TurningBandOperate& r)
 {
   if (this != &r)
   {
-    _nt0 = r._nt0;
+    _nt0        = r._nt0;
     _flagScaled = r._flagScaled;
-    _vexp = r._vexp;
-    _tdeb = r._tdeb;
-    _omega = r._omega;
-    _phi = r._phi;
-    _offset = r._offset;
-    _scale = r._scale;
-    _t = r._t;
-    _v0 = r._v0;
-    _v1 = r._v1;
-    _v2 = r._v2;
+    _vexp       = r._vexp;
+    _tdeb       = r._tdeb;
+    _omega      = r._omega;
+    _phi        = r._phi;
+    _offset     = r._offset;
+    _scale      = r._scale;
+    _t          = r._t;
+    _v0         = r._v0;
+    _v1         = r._v1;
+    _v2         = r._v2;
   }
   return *this;
 }
 
- TurningBandOperate::~ TurningBandOperate()
+TurningBandOperate::~TurningBandOperate()
 {
 }
 
 void TurningBandOperate::reset()
 {
-  _nt0 = 0;
-  _vexp = 0.;
-  _tdeb = 0.;
-  _omega = 0.;
-  _phi = 0.;
+  _nt0    = 0;
+  _vexp   = 0.;
+  _tdeb   = 0.;
+  _omega  = 0.;
+  _phi    = 0.;
   _offset = 0.;
-  _scale = 1.;
+  _scale  = 1.;
   _t.clear();
   _v0.clear();
   _v1.clear();
@@ -86,10 +86,10 @@ void TurningBandOperate::reset()
 double TurningBandOperate::shotNoiseAffineOne(double t0)
 {
   double scale = getScale();
-  if (! isFlagScaled()) t0 /= scale;
+  if (!isFlagScaled()) t0 /= scale;
 
-  double dt = t0 - getTdeb() / scale;
-  Id nt0 = static_cast<Id>(dt);
+  double dt  = t0 - getTdeb() / scale;
+  Id nt0     = static_cast<Id>(dt);
   double dt0 = dt - nt0;
   return _t[nt0] * (2. * dt0 - 1.);
 }
@@ -97,10 +97,10 @@ double TurningBandOperate::shotNoiseAffineOne(double t0)
 double TurningBandOperate::shotNoiseCubicOne(double t0)
 {
   double scale = getScale();
-  if (! isFlagScaled()) t0 /= scale;
+  if (!isFlagScaled()) t0 /= scale;
 
-  double dt = t0 - getTdeb() / scale;
-  Id nt0 = static_cast<Id>(dt);
+  double dt  = t0 - getTdeb() / scale;
+  Id nt0     = static_cast<Id>(dt);
   double dt0 = dt - nt0;
   return _t[nt0] * dt0 * (dt0 - 0.5) * (dt0 - 1.);
 }
@@ -174,8 +174,8 @@ double TurningBandOperate::_irfProcessSample(Id nt0, double t0)
  **
  *****************************************************************************/
 Id TurningBandOperate::_rankInPoisson(Id def_rank,
-                                       double t0,
-                                       const VectorDouble &t)
+                                      double t0,
+                                      const VectorDouble& t)
 {
   Id it, itp, itn;
 
@@ -224,4 +224,4 @@ void TurningBandOperate::pushV2(double value)
 {
   _v2.push_back(value);
 }
-}
+} // namespace gstlrn

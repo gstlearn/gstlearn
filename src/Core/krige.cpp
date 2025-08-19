@@ -3075,7 +3075,7 @@ static Id st_sampling_krige_data(Db* db,
         isort[i] = i;
       }
       ut_sort_double(1, npart, isort.data(), vsort.data());
-      nmax = MIN(npart, (Id)(beta * (double)npart));
+      nmax = MIN(npart, static_cast<Id>(beta * static_cast<double>(npart)));
       for (i = 0; i < nmax; i++)
         for (j = 0; j < nsize2; j++)
           spart->setValue(isort[i], j, 0.);

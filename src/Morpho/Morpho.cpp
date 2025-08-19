@@ -43,7 +43,7 @@ static Id LARGE = 9999999;
  *****************************************************************************/
 void _st_morpho_image_radius_define(const VectorInt& radius)
 {
-  Id size  = static_cast<Id>(radius.size());
+  Id size   = static_cast<Id>(radius.size());
   RADIUS[0] = (size > 0) ? radius[0] : 0;
   RADIUS[1] = (size > 1) ? radius[1] : 0;
   RADIUS[2] = (size > 2) ? radius[2] : 0;
@@ -63,8 +63,8 @@ void _st_morpho_image_radius_define(const VectorInt& radius)
  **
  *****************************************************************************/
 Id _st_morpho_label_size(const VectorDouble& compnum,
-                          Id nbcomp,
-                          VectorInt& sizes)
+                         Id nbcomp,
+                         VectorInt& sizes)
 {
   Id total = 0;
   for (Id i = 0; i < static_cast<Id>(compnum.size()); i++)
@@ -131,31 +131,31 @@ VectorDouble morpho_labelling(Id option,
   VectorInt list_array, sizes, order;
   VectorDouble compnum;
   Id id[26][3] = {{-1, 00, 00},
-                   {00, -1, 00},
-                   {00, 00, -1},
-                   {01, 00, 00},
-                   {00, 01, 00},
-                   {00, 00, 01},
-                   {-1, -1, -1},
-                   {00, -1, -1},
-                   {01, -1, -1},
-                   {-1, 00, -1},
-                   {-1, 01, -1},
-                   {00, 01, -1},
-                   {01, 00, -1},
-                   {01, 01, -1},
-                   {-1, -1, 00},
-                   {-1, 01, 00},
-                   {01, -1, 00},
-                   {01, 01, 00},
-                   {-1, -1, 01},
-                   {00, -1, 01},
-                   {01, -1, 01},
-                   {-1, 00, 01},
-                   {-1, 01, 01},
-                   {00, 01, 01},
-                   {01, 00, 01},
-                   {01, 01, 01}};
+                  {00, -1, 00},
+                  {00, 00, -1},
+                  {01, 00, 00},
+                  {00, 01, 00},
+                  {00, 00, 01},
+                  {-1, -1, -1},
+                  {00, -1, -1},
+                  {01, -1, -1},
+                  {-1, 00, -1},
+                  {-1, 01, -1},
+                  {00, 01, -1},
+                  {01, 00, -1},
+                  {01, 01, -1},
+                  {-1, -1, 00},
+                  {-1, 01, 00},
+                  {01, -1, 00},
+                  {01, 01, 00},
+                  {-1, -1, 01},
+                  {00, -1, 01},
+                  {01, -1, 01},
+                  {-1, 00, 01},
+                  {-1, 01, 01},
+                  {00, 01, 01},
+                  {01, 00, 01},
+                  {01, 01, 01}};
   Id ndel[2]   = {6, 26};
   Id quantum   = 100;
 
@@ -168,7 +168,7 @@ VectorDouble morpho_labelling(Id option,
   /* Attempt to allocate the initial quantum */
 
   auto nxyz = imagin.getNPixels();
-  size     = MIN(quantum, nxyz);
+  size      = MIN(quantum, nxyz);
   list_array.resize(size);
   compnum.resize(nxyz);
   for (i = 0; i < nxyz; i++) compnum[i] = 0.;
@@ -317,7 +317,7 @@ VectorInt morpho_labelsize(Id option, const BImage& imagin)
 {
   VectorInt sizes;
   VectorDouble compnum = morpho_labelling(option, 0, imagin, TEST);
-  Id nbcomp           = static_cast<Id>(compnum.size());
+  Id nbcomp            = static_cast<Id>(compnum.size());
   if (nbcomp > 0)
   {
     sizes.resize(nbcomp, 0);
@@ -639,8 +639,8 @@ void morpho_double2imageInPlace(const VectorInt& nx,
   imagout.init(nx);
   VectorInt NX      = imagout.getNDimsExt(3);
   unsigned char mot = 0;
-  Id ind           = 0;
-  Id ecr           = 0;
+  Id ind            = 0;
+  Id ecr            = 0;
   for (Id iz = 0; iz < imagout.getNDims(2); iz++)
     for (Id iy = 0; iy < imagout.getNDims(1); iy++)
       for (Id ix = 0; ix < imagout.getNDims(0); ix++)
@@ -946,7 +946,7 @@ void db_morpho_gradients(DbGrid* dbgrid, Id iptr)
   /* Preliminary check */
 
   VectorInt NX = dbgrid->getNXsExt(3);
-  Id ndim     = dbgrid->getNDim();
+  Id ndim      = dbgrid->getNDim();
   VectorInt indg(ndim);
   Id iptrz = dbgrid->getColIdxByLocator(ELoc::Z);
 
@@ -962,7 +962,7 @@ void db_morpho_gradients(DbGrid* dbgrid, Id iptr)
           if (ndim >= 2) indg[1] = iy;
           if (ndim >= 3) indg[2] = iz;
 
-          Id nmax    = dbgrid->getNX(idim);
+          Id nmax     = dbgrid->getNX(idim);
           double dinc = dbgrid->getDX(idim);
 
           double v1 = 0.;
@@ -1020,16 +1020,16 @@ void db_morpho_gradients(DbGrid* dbgrid, Id iptr)
  * Perform a morphological operation with a DbGrid
  */
 Id db_morpho_calc(DbGrid* dbgrid,
-                   Id iptr0,
-                   const EMorpho& oper,
-                   double vmin,
-                   double vmax,
-                   Id option,
-                   const VectorInt& radius,
-                   bool flagDistErode,
-                   bool verbose)
+                  Id iptr0,
+                  const EMorpho& oper,
+                  double vmin,
+                  double vmax,
+                  Id option,
+                  const VectorInt& radius,
+                  bool flagDistErode,
+                  bool verbose)
 {
-  Id ntotal    = dbgrid->getNSample();
+  Id ntotal     = dbgrid->getNSample();
   VectorInt nxy = dbgrid->getNXs();
 
   VectorDouble tabin = dbgrid->getColumnByLocator(ELoc::Z);
@@ -1041,8 +1041,8 @@ Id db_morpho_calc(DbGrid* dbgrid,
     message("Initial image = %d/%d\n", morpho_count(image), ntotal);
   }
 
-  bool alreadyLoaded  = false;
-  bool alreadySaved   = false;
+  bool alreadyLoaded = false;
+  bool alreadySaved  = false;
   BImage image2(nxy);
   VectorDouble tabout(ntotal, TEST);
   if (oper == EMorpho::THRESH)
@@ -1154,7 +1154,7 @@ Spill_Res spillPoint(DbGrid* dbgrid,
   double h;
   Id ix0, iy0;
 
-  double th     = 0.;
+  double th    = 0.;
   Id ind_depth = dbgrid->getUID(name_depth);
   Id ind_data  = dbgrid->getUID(name_data);
   if (ind_depth < 0 || ind_data < 0)
@@ -1165,7 +1165,7 @@ Spill_Res spillPoint(DbGrid* dbgrid,
   }
 
   Id error = spill_point(dbgrid, ind_depth, ind_data, option, flag_up,
-                          verbose_step, hmax, &h, &th, &ix0, &iy0);
+                         verbose_step, hmax, &h, &th, &ix0, &iy0);
 
   res.success = (error == 0);
   res.h       = h;

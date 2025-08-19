@@ -396,8 +396,8 @@ Id CalcSimuEden::_getFACIES(Id iech) const
 Id CalcSimuEden::_getPERM(Id iech) const
 {
   if (_indPerm <= 0) return (1);
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  double perm    = dbgrid->getArray(iech, _indPerm);
+  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  double perm  = dbgrid->getArray(iech, _indPerm);
   if (FFFF(perm) || perm < 0.) perm = 0.;
   return (static_cast<Id>(perm));
 }
@@ -434,8 +434,8 @@ double CalcSimuEden::_getDATE(Id iech)
  *****************************************************************************/
 Id CalcSimuEden::_getFLUID(Id iech) const
 {
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  Id ifluid      = static_cast<Id>(dbgrid->getArray(iech, _indFluid));
+  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  Id ifluid    = static_cast<Id>(dbgrid->getArray(iech, _indFluid));
   if (ifluid < 0 || ifluid > _nfluids || IFFFF(ifluid)) ifluid = UNDEF_FLUID;
   return (ifluid);
 }
@@ -452,8 +452,8 @@ Id CalcSimuEden::_getFLUID(Id iech) const
  *****************************************************************************/
 Id CalcSimuEden::_getFLUID_OLD(Id iech) const
 {
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  double ifluid  = dbgrid->getArray(iech, _indFluid);
+  auto* dbgrid  = dynamic_cast<DbGrid*>(getDbout());
+  double ifluid = dbgrid->getArray(iech, _indFluid);
   if (ifluid < 0 || ifluid > _nfluids) ifluid = UNDEF_FLUID;
   return (static_cast<Id>(ifluid));
 }
@@ -628,8 +628,8 @@ void CalcSimuEden::_setFACIES(Id iech, Id ifacies)
  *****************************************************************************/
 void CalcSimuEden::_setFACIES_CORK(Id iech)
 {
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  Id ifacies     = static_cast<Id>(dbgrid->getArray(iech, _indFacies));
+  auto* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  Id ifacies   = static_cast<Id>(dbgrid->getArray(iech, _indFacies));
   dbgrid->setArray(iech, _indFacies, -ifacies);
 }
 

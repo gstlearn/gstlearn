@@ -11,12 +11,12 @@
 #include "Spatial/SpatialIndices.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
+#include "Calculators/CalcMigrate.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Enum/ECalcVario.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Polygon/Polygons.hpp"
-#include "Calculators/CalcMigrate.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Variogram/VMap.hpp"
 #include "geoslib_define.h"
@@ -54,27 +54,28 @@ SpatialIndices::SpatialIndices(const SpatialIndices& r)
 {
 }
 
-SpatialIndices &SpatialIndices::operator=(const SpatialIndices &r) {
-  if (this != &r) {
+SpatialIndices& SpatialIndices::operator=(const SpatialIndices& r)
+{
+  if (this != &r)
+  {
     AStringable::operator=(r);
-    _db = r._db;
-    _center = r._center;
-    _mvalues = r._mvalues;
+    _db       = r._db;
+    _center   = r._center;
+    _mvalues  = r._mvalues;
     _mvectors = r._mvectors;
-    _inertia = r._inertia;
-    _wztot = r._wztot;
-    _iso = r._iso;
-    _nvalid = r._nvalid;
-    _theta = r._theta;
-    _ra = r._ra;
-    _rb = r._rb;
+    _inertia  = r._inertia;
+    _wztot    = r._wztot;
+    _iso      = r._iso;
+    _nvalid   = r._nvalid;
+    _theta    = r._theta;
+    _ra       = r._ra;
+    _rb       = r._rb;
   }
   return *this;
 }
 
 SpatialIndices::~SpatialIndices()
 {
-  
 }
 
 /****************************************************************************/
@@ -103,12 +104,12 @@ bool SpatialIndices::_discardData(bool flag_w,
 {
   // Check if the sample is masked off
 
-  if (! _db->isActive(iech)) return 1;
+  if (!_db->isActive(iech)) return 1;
 
   /* Check if the variable is defined */
 
   *value = 1.;
-  if (! name.empty())
+  if (!name.empty())
   {
     *value = _db->getValue(name, iech);
     if (FFFF(*value)) return true;
@@ -157,17 +158,17 @@ bool SpatialIndices::_discardData(bool flag_w,
  ** \param[in]  name Name of the optional attribute
  **
  *****************************************************************************/
-Id SpatialIndices::computeCGI(const String &name)
+Id SpatialIndices::computeCGI(const String& name)
 {
   // Initializations
   double wvalue, value, weight;
-  Id nech = _db->getNSample();
-  Id ndim = _db->getNDim();
+  Id nech     = _db->getNSample();
+  Id ndim     = _db->getNDim();
   bool flag_w = _db->hasLocVariable(ELoc::W);
 
   /* Calculate the Center of Gravity */
 
-  _wztot = 0.;
+  _wztot  = 0.;
   _nvalid = 0;
   _center.resize(ndim, 0.);
   VectorDouble coor(ndim, 0.);
@@ -212,37 +213,37 @@ Id SpatialIndices::computeCGI(const String &name)
 
   /* Calculate the eigen values and vectors */
   if (mm.computeEigen()) return 1;
-  _mvalues = mm.getEigenValues();
+  _mvalues  = mm.getEigenValues();
   _mvectors = *mm.getEigenVectors();
 
   double r  = _mvalues[0] / _mvalues[1];
-  double e2 = (_mvectors.getValue(1,0) / _mvectors.getValue(0,0));
-  e2 = e2 * e2;
-  _iso = 1. / sqrt(r);
+  double e2 = (_mvectors.getValue(1, 0) / _mvectors.getValue(0, 0));
+  e2        = e2 * e2;
+  _iso      = 1. / sqrt(r);
 
   MatrixDense axes = getMatrixInertia();
-  double dx1 = axes.getValue(1, 0) - axes.getValue(0, 0);
-  double dy1 = axes.getValue(1, 1) - axes.getValue(0, 1);
-  double dx2 = axes.getValue(3, 0) - axes.getValue(2, 0);
-  double dy2 = axes.getValue(3, 1) - axes.getValue(2, 1);
-  _theta = atan(dy1 / dx1) * 180. / GV_PI;
-  _ra = 0.5 * sqrt(dx1*dx1 + dy1*dy1);
-  _rb = 0.5 * sqrt(dx2*dx2 + dy2*dy2);
+  double dx1       = axes.getValue(1, 0) - axes.getValue(0, 0);
+  double dy1       = axes.getValue(1, 1) - axes.getValue(0, 1);
+  double dx2       = axes.getValue(3, 0) - axes.getValue(2, 0);
+  double dy2       = axes.getValue(3, 1) - axes.getValue(2, 1);
+  _theta           = atan(dy1 / dx1) * 180. / GV_PI;
+  _ra              = 0.5 * sqrt(dx1 * dx1 + dy1 * dy1);
+  _rb              = 0.5 * sqrt(dx2 * dx2 + dy2 * dy2);
 
-   return 0;
+  return 0;
 }
 
-double SpatialIndices::getLIC(const String &name1, const String &name2)
+double SpatialIndices::getLIC(const String& name1, const String& name2)
 {
   // Initializations
   double wvalue, value1, value2, weight;
-  Id nech = _db->getNSample();
-  Id ndim = _db->getNDim();
+  Id nech     = _db->getNSample();
+  Id ndim     = _db->getNDim();
   bool flag_w = _db->hasLocVariable(ELoc::W);
 
   /* Calculate the Local Index of Collocation */
 
-  Id number = 0;
+  Id number      = 0;
   double lic_z11 = 0.;
   double lic_z12 = 0.;
   double lic_z22 = 0.;
@@ -265,20 +266,20 @@ double SpatialIndices::getLIC(const String &name1, const String &name2)
   return lic;
 }
 
-double SpatialIndices::getGIC(const String &name1, const String &name2)
+double SpatialIndices::getGIC(const String& name1, const String& name2)
 {
   if (computeCGI(name1) != 0)
     return TEST;
   VectorDouble center1 = getCenter();
-  double inertia1 = getInertia();
+  double inertia1      = getInertia();
   if (computeCGI(name2) != 0)
     return TEST;
   VectorDouble center2 = getCenter();
-  double inertia2 = getInertia();
+  double inertia2      = getInertia();
 
-  double dx = center1[0] - center2[0];
-  double dy = center1[1] - center2[1];
-  double d2 = dx * dx + dy * dy;
+  double dx  = center1[0] - center2[0];
+  double dy  = center1[1] - center2[1];
+  double d2  = dx * dx + dy * dy;
   double gic = 1. - d2 / (d2 + inertia1 + inertia2);
   return gic;
 }
@@ -298,10 +299,10 @@ VectorVectorDouble SpatialIndices::getAxes() const
   }
 
   MatrixDense axes = getMatrixInertia();
-  vec[0] = {axes.getValue(0, 0), axes.getValue(1, 0)};
-  vec[1] = {axes.getValue(0, 1), axes.getValue(1, 1)};
-  vec[2] = {axes.getValue(2, 0), axes.getValue(3, 0)};
-  vec[3] = {axes.getValue(2, 1), axes.getValue(3, 1)};
+  vec[0]           = {axes.getValue(0, 0), axes.getValue(1, 0)};
+  vec[1]           = {axes.getValue(0, 1), axes.getValue(1, 1)};
+  vec[2]           = {axes.getValue(2, 0), axes.getValue(3, 0)};
+  vec[3]           = {axes.getValue(2, 1), axes.getValue(3, 1)};
   return vec;
 }
 
@@ -327,10 +328,10 @@ MatrixDense SpatialIndices::getMatrixEllipse() const
     return axes;
   }
 
-  double r = _mvalues[0] / _mvalues[1];
-  double K = sqrt(r) * (3. + r) / (2. * sqrt(2.) * pow(1. + r, 1.5));
+  double r  = _mvalues[0] / _mvalues[1];
+  double K  = sqrt(r) * (3. + r) / (2. * sqrt(2.) * pow(1. + r, 1.5));
   double e2 = (_mvectors.getValue(1, 0) / _mvectors.getValue(0, 0));
-  e2 = e2 * e2;
+  e2        = e2 * e2;
 
   double sx1 = _mvectors.getValue(0, 0) / ABS(_mvectors.getValue(0, 0));
   double sy1 = _mvectors.getValue(1, 0) / ABS(_mvectors.getValue(1, 0));
@@ -359,7 +360,7 @@ MatrixDense SpatialIndices::getMatrixInertia() const
 
   double r1 = _mvalues[0] / (_mvalues[0] + _mvalues[1]);
   double e2 = (_mvectors.getValue(1, 0) / _mvectors.getValue(0, 0));
-  e2 = e2 * e2;
+  e2        = e2 * e2;
 
   double sx1 = _mvectors.getValue(0, 0) / ABS(_mvectors.getValue(0, 0));
   double sy1 = _mvectors.getValue(1, 0) / ABS(_mvectors.getValue(1, 0));
@@ -385,16 +386,16 @@ MatrixDense SpatialIndices::getMatrixInertia() const
  * \remark This functions have been developped in the scope of the UE
  * \remark program Fisboat, DG-Fish, STREP #502572
  */
-void SpatialIndices::spatial(const String &name)
+void SpatialIndices::spatial(const String& name)
 {
   double maille = 1.;
   if (_db->isGrid())
   {
-    DbGrid *dbgrid = dynamic_cast<DbGrid *>(_db);
-    maille = dbgrid->getCellSize();
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(_db);
+    maille         = dbgrid->getCellSize();
   }
   double wvalue, value, weight;
-  Id ndim = _db->getNDim();
+  Id ndim     = _db->getNDim();
   bool flag_w = _db->hasLocVariable(ELoc::W);
   VectorDouble coor(ndim, 0.);
 
@@ -422,7 +423,8 @@ void SpatialIndices::spatial(const String &name)
   message("Equivalent Area = %lf\n", eqarea);
 }
 
-String SpatialIndices::toString(const AStringFormat *strfmt) const {
+String SpatialIndices::toString(const AStringFormat* strfmt) const
+{
   DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
@@ -430,22 +432,22 @@ String SpatialIndices::toString(const AStringFormat *strfmt) const {
 
   if (!_center.empty())
     sstr << "Gravity Center" << toVectorDouble(_center) << std::endl;
-  if (! FFFF(_inertia))
+  if (!FFFF(_inertia))
     sstr << "Inertia = " << _inertia << std::endl;
-  if (! FFFF(_iso))
+  if (!FFFF(_iso))
     sstr << "Isotropy = " << _iso << std::endl;
- 
+
   return sstr.str();
 }
 
-VectorVectorDouble SpatialIndices::getQT(const String &name) const
+VectorVectorDouble SpatialIndices::getQT(const String& name) const
 {
   VectorVectorDouble vec;
   vec.resize(2);
 
   // Initializations
   double wvalue, value, weight;
-  Id ndim = _db->getNDim();
+  Id ndim     = _db->getNDim();
   bool flag_w = _db->hasLocVariable(ELoc::W);
   VectorDouble coor(ndim, 0.);
 
@@ -471,8 +473,8 @@ VectorVectorDouble SpatialIndices::getQT(const String &name) const
   VectorDouble wzs = VH::reorder(wz, ranks);
 
   // Calculate the Spreading Area
-  double Q = VH::cumul(wzs);
-  double SA = 0.;
+  double Q        = VH::cumul(wzs);
+  double SA       = 0.;
   VectorDouble QT = VH::cumsum(wzs, true);
   for (Id ib = 0, nb = static_cast<Id>(ww.size()); ib < nb; ib++)
     SA += (QT[ib] + QT[ib + 1]) * wws[ib];
@@ -486,7 +488,7 @@ VectorVectorDouble SpatialIndices::getQT(const String &name) const
   // Upgrade Q(T) into (Q-Q(T))/Q
   for (Id i = 0, n = static_cast<Id>(vec[1].size()); i < n; i++)
     vec[1][i] = (Q - vec[1][i]) / Q;
-  
+
   return vec;
 }
 
@@ -498,12 +500,12 @@ double SpatialIndices::getMicroStructure(const String& name,
 {
   // Initializations
   double wvalue, value, weight;
-  Id ndim = _db->getNDim();
+  Id ndim     = _db->getNDim();
   bool flag_w = _db->hasLocVariable(ELoc::W);
   VectorDouble coor(ndim, 0.);
 
-  // Calculate the Field extension 
-  Id number = 0;
+  // Calculate the Field extension
+  Id number   = 0;
   double xmin = MAXIMUM_BIG;
   double xmax = MINIMUM_BIG;
   double ymin = MAXIMUM_BIG;
@@ -526,19 +528,19 @@ double SpatialIndices::getMicroStructure(const String& name,
   if (number <= 0)
     return TEST;
 
-  double dx = xmax - xmin;
-  double dy = ymax - ymin;
+  double dx     = xmax - xmin;
+  double dy     = ymax - ymin;
   double extend = 2. * MAX(dlim / dx, dlim / dy);
   xmin -= dx * extend;
   xmax += dx * extend;
   ymin -= dy * extend;
   ymax += dy * extend;
-  dx = (xmax - xmin) / static_cast<double>(ndisc);
-  dy = (ymax - ymin) / static_cast<double>(ndisc);
+  dx            = (xmax - xmin) / static_cast<double>(ndisc);
+  dy            = (ymax - ymin) / static_cast<double>(ndisc);
   double maille = dx * dy;
 
   // Create the internal Grid
-  DbGrid *grid = DbGrid::create({ndisc, ndisc}, {dx, dy}, {xmin, ymin});
+  DbGrid* grid = DbGrid::create({ndisc, ndisc}, {dx, dy}, {xmin, ymin});
 
   // Select grid nodes inside the polygon (if defined)
   if (polygon != nullptr)
@@ -569,7 +571,7 @@ double SpatialIndices::getMicroStructure(const String& name,
   Id icenter = nrow * ncol / 2;
   double gh0 = vmap->getValue("VMAP.Migrate.Var", icenter);
 
-  double mi   = (g0 - gh0) / g0;
+  double mi = (g0 - gh0) / g0;
 
   // Delete the internal storage
   delete grid;
@@ -591,10 +593,10 @@ static void _updateGravityCenter(const VectorDouble& xxs,
   // Review the list of SpacePoints assigned to the current target group
   // to update the center of gravity
 
-  double xt = 0.;
-  double xb = 0.;
-  double yt = 0.;
-  double yb = 0.;
+  double xt    = 0.;
+  double xb    = 0.;
+  double yt    = 0.;
+  double yb    = 0.;
   double paval = 0.;
   double pbval = 0.;
   for (Id iech = 0, nech = static_cast<Id>(ig.size()); iech < nech; iech++)
@@ -627,9 +629,10 @@ static SpacePoint _calculateGlobalGravityCenter(const VectorDouble& xxs,
   double xb = 0.;
   double yt = 0.;
   double yb = 0.;
-  (*patot) = 0.;
-  (*pbtot) = 0.;
-  for (Id iech = 0, nech = static_cast<Id>(xxs.size()); iech < nech; iech++) {
+  (*patot)  = 0.;
+  (*pbtot)  = 0.;
+  for (Id iech = 0, nech = static_cast<Id>(xxs.size()); iech < nech; iech++)
+  {
     xt += wws[iech] * zzs[iech] * xxs[iech];
     xb += wws[iech] * zzs[iech];
     yt += wws[iech] * zzs[iech] * yys[iech];
@@ -664,14 +667,14 @@ static void _createNewPatch(Id iech,
 }
 
 /**
-* Returns the list of center of gravity of the different patches
-* The last center of gravity is the global one
-*
-* @param name Name of the target variable
-* @param Dmin Minimum rejection distance between patches
-* @param Amin Abundance percentage above which patches are displayed
-*/
-std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
+ * Returns the list of center of gravity of the different patches
+ * The last center of gravity is the global one
+ *
+ * @param name Name of the target variable
+ * @param Dmin Minimum rejection distance between patches
+ * @param Amin Abundance percentage above which patches are displayed
+ */
+std::vector<SpacePoint> SpatialIndices::getPatches(const String& name,
                                                    double Dmin,
                                                    double Amin)
 {
@@ -681,7 +684,7 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
 
   // Initializations
   double wvalue, value, weight;
-  Id ndim = _db->getNDim();
+  Id ndim     = _db->getNDim();
   bool flag_w = _db->hasLocVariable(ELoc::W);
   VectorDouble coor(ndim, 0.);
 
@@ -708,16 +711,16 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
   VH::normalize(ww, 1); // Normalize the weights
 
   // Sort the values by decreasing values
-  VectorInt ranks = VH::orderRanks(zz, false);
+  VectorInt ranks  = VH::orderRanks(zz, false);
   VectorDouble xxs = VH::reorder(xx, ranks);
   VectorDouble yys = VH::reorder(yy, ranks);
   VectorDouble zzs = VH::reorder(zz, ranks);
   VectorDouble wws = VH::reorder(ww, ranks);
-  VectorInt origs = VH::reorder(origRank, ranks);
+  VectorInt origs  = VH::reorder(origRank, ranks);
   VectorInt ig(nech, -1);
 
-   // The first point is automatically assigned to the first center of gravity
-  Id iech = 0;
+  // The first point is automatically assigned to the first center of gravity
+  Id iech  = 0;
   ig[iech] = static_cast<Id>(centers.size());
   _createNewPatch(0, xxs, yys, zzs, wws, centers, pa, pb);
 
@@ -729,7 +732,7 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
     current.setCoord(1, yys[jech]);
 
     // Find which gravity center the current point aggregates to
-    Id found = -1;
+    Id found    = -1;
     double dmin = MAXIMUM_BIG;
     for (Id ic = 0, ncenter = static_cast<Id>(centers.size()); ic < ncenter; ic++)
     {
@@ -737,13 +740,14 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
       if (dist > dmin)
         continue;
       found = ic;
-      dmin = dist;
+      dmin  = dist;
     }
 
     if (dmin < Dmin)
     {
       // The current sample has been assigned to group 'found': update gravity center
-      ig[jech] = found; _updateGravityCenter(xxs, yys, zzs, wws, centers, pa, pb, ig, found);
+      ig[jech] = found;
+      _updateGravityCenter(xxs, yys, zzs, wws, centers, pa, pb, ig, found);
     }
     else
     {
@@ -779,13 +783,15 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
   }
   message("- Number of patches with abundance > %3.0lf %% = %d\n", Amin, nover);
   message("- Percentage of abundance in these patches = ");
-  for (Id ic = 0; ic < ncenter; ic++) {
+  for (Id ic = 0; ic < ncenter; ic++)
+  {
     if (pb[ic] > Amin / 100)
       message(" %6.3lf", 100. * pb[ic]);
   }
   message("\n");
   message("- Percentage of area in these patches = ");
-  for (Id ic = 0; ic < ncenter; ic++) {
+  for (Id ic = 0; ic < ncenter; ic++)
+  {
     if (pb[ic] > Amin / 100)
       message(" %6.3lf", 100. * pa[ic]);
   }
@@ -794,4 +800,4 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
   centers.push_back(globalCenter);
   return centers;
 }
-}
+} // namespace gstlrn

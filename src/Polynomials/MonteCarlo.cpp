@@ -26,7 +26,7 @@ namespace gstlrn
  */
 double integralGaussHermite(double yc, double r, const VectorDouble& psi)
 {
-  Id nbpoly        = static_cast<Id>(psi.size()) - 1;
+  Id nbpoly         = static_cast<Id>(psi.size()) - 1;
   VectorDouble vect = hermitePolynomials(yc, 1., nbpoly);
   double value      = hermiteSeries(vect, psi);
   return r * r * value;

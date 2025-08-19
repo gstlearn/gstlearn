@@ -4568,7 +4568,7 @@ Id Vario::transformCut(Id nh, double ycut)
     return 1;
   }
   static double disc = 0.01;
-  Id ndisc          = static_cast<Id>(2. / disc + 1.);
+  Id ndisc           = static_cast<Id>(2. / disc + 1.);
 
   /* Core allocation */
 

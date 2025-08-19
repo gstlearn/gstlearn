@@ -381,7 +381,7 @@ void dbStatisticsVariables(Db* db,
   if (noper <= 0) return;
   if (names.empty()) return;
   VectorInt iuids = db->getUIDs(names);
-  Id niuid       = static_cast<Id>(iuids.size());
+  Id niuid        = static_cast<Id>(iuids.size());
 
   /* Loop on the samples */
 
@@ -392,8 +392,8 @@ void dbStatisticsVariables(Db* db,
 
     /* Loop on the variables */
 
-    Id neff     = 0;
-    Id nperc    = 0;
+    Id neff      = 0;
+    Id nperc     = 0;
     double mean  = 0.;
     double var   = 0.;
     double stdv  = 0.;
@@ -403,7 +403,7 @@ void dbStatisticsVariables(Db* db,
     double maxi  = MINIMUM_BIG;
     for (Id iuid = 0; iuid < niuid; iuid++)
     {
-      Id juid     = iuids[iuid];
+      Id juid      = iuids[iuid];
       double value = db->getArray(iech, juid);
       if (FFFF(value)) continue;
 
@@ -490,9 +490,9 @@ Table dbStatisticsMono(Db* db,
 {
   Table table;
   VectorInt iuids = db->getUIDs(names);
-  Id niuid       = static_cast<Id>(iuids.size());
-  Id noper       = static_cast<Id>(opers.size());
-  Id nech        = db->getNSample();
+  Id niuid        = static_cast<Id>(iuids.size());
+  Id noper        = static_cast<Id>(opers.size());
+  Id nech         = db->getNSample();
 
   // Find the Isotopic samples (optional)
 
@@ -504,7 +504,7 @@ Table dbStatisticsMono(Db* db,
     accept[iech] = false;
     if (!db->isActive(iech)) continue;
     accept[iech] = true;
-    Id nundef   = 0;
+    Id nundef    = 0;
     for (Id iuid = 0; iuid < niuid; iuid++)
     {
       double value = db->getArray(iech, iuids[iuid]);
@@ -517,8 +517,8 @@ Table dbStatisticsMono(Db* db,
 
   for (Id iuid = 0; iuid < niuid; iuid++)
   {
-    Id neff      = 0;
-    Id nperc     = 0;
+    Id neff       = 0;
+    Id nperc      = 0;
     double mean   = 0.;
     double var    = 0.;
     double stdv   = 0.;
@@ -718,7 +718,7 @@ double dbStatisticsIndicator(Db* db)
   // Calculate the proportions
 
   double prop = 0.;
-  Id neff    = 0;
+  Id neff     = 0;
   for (Id iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
@@ -743,7 +743,7 @@ double dbStatisticsIndicator(Db* db)
 Table dbStatisticsCorrel(Db* db, const VectorString& names, bool flagIso, const String& title)
 {
   VectorInt iuids = db->getUIDs(names);
-  Id niuid       = static_cast<Id>(iuids.size());
+  Id niuid        = static_cast<Id>(iuids.size());
 
   /* Core allocation */
 
@@ -818,7 +818,7 @@ Table dbStatisticsCorrel(Db* db, const VectorString& names, bool flagIso, const 
 
   // Store the results in the symmetric square matrix
   VectorString namloc = db->getNames(names);
-  Id nvar            = static_cast<Id>(namloc.size());
+  Id nvar             = static_cast<Id>(namloc.size());
 
   Table table;
   if (title.empty())
@@ -905,10 +905,10 @@ MatrixSymmetric dbVarianceMatrix(const Db* db)
  **
  *****************************************************************************/
 Id statisticsProportion(DbGrid* dbin,
-                         DbGrid* dbout,
-                         Id pos,
-                         Id nfacies,
-                         Id radius)
+                        DbGrid* dbout,
+                        Id pos,
+                        Id nfacies,
+                        Id radius)
 {
   Id ndim = dbin->getNDim();
   if (ndim != 2 && ndim != 3)
@@ -1001,11 +1001,11 @@ Id statisticsProportion(DbGrid* dbin,
  **
  *****************************************************************************/
 Id statisticsTransition(DbGrid* dbin,
-                         DbGrid* dbout,
-                         Id pos,
-                         Id nfacies,
-                         Id radius,
-                         Id orient)
+                        DbGrid* dbout,
+                        Id pos,
+                        Id nfacies,
+                        Id radius,
+                        Id orient)
 {
   Id ndim = dbin->getNDim();
   if (ndim != 2 && ndim != 3)
@@ -1363,9 +1363,9 @@ VectorDouble dbStatisticsPerCell(Db* db,
   if (!name2.empty()) juid = db->getUID(name2);
   double z1 = 0.;
   double z2 = 0.;
-  Id nxyz  = dbgrid->getNSample();
-  Id ncut  = static_cast<Id>(cuts.size());
-  Id ndim  = dbgrid->getNDim();
+  Id nxyz   = dbgrid->getNSample();
+  Id ncut   = static_cast<Id>(cuts.size());
+  Id ndim   = dbgrid->getNDim();
   if (juid < 0) juid = iuid;
 
   bool flag1       = false;
@@ -1613,9 +1613,9 @@ Table dbStatisticsMulti(Db* db,
   /* Initializations */
 
   VectorInt cols = db->getUIDs(names);
-  Id ncol       = static_cast<Id>(cols.size());
-  Id nech       = db->getNSample();
-  Id ncol2      = ncol * ncol;
+  Id ncol        = static_cast<Id>(cols.size());
+  Id nech        = db->getNSample();
+  Id ncol2       = ncol * ncol;
 
   /* Check that all variables are defined */
 
@@ -1673,7 +1673,7 @@ Table dbStatisticsMulti(Db* db,
 
     for (Id icol1 = 0; icol1 < ncol; icol1++)
     {
-      Id jcol1   = cols[icol1];
+      Id jcol1    = cols[icol1];
       double val1 = db->getArray(iech, jcol1);
       if (FFFF(val1)) continue;
 
@@ -1681,7 +1681,7 @@ Table dbStatisticsMulti(Db* db,
 
       for (Id icol2 = 0; icol2 < ncol; icol2++)
       {
-        Id jcol2   = cols[icol2];
+        Id jcol2    = cols[icol2];
         double val2 = db->getArray(iech, jcol2);
         if (FFFF(val2)) continue;
 
@@ -1828,19 +1828,19 @@ Table dbStatisticsMulti(Db* db,
  **
  *****************************************************************************/
 Id dbStatisticsInGridTool(Db* db,
-                           DbGrid* dbgrid,
-                           const VectorString& names,
-                           const EStatOption& oper,
-                           Id radius,
-                           Id iptr0)
+                          DbGrid* dbgrid,
+                          const VectorString& names,
+                          const EStatOption& oper,
+                          Id radius,
+                          Id iptr0)
 {
-  Id iptm        = -1;
-  Id iptn        = -1;
-  Id nxyz        = dbgrid->getNSample();
-  Id ndim        = dbgrid->getNDim();
+  Id iptm         = -1;
+  Id iptn         = -1;
+  Id nxyz         = dbgrid->getNSample();
+  Id ndim         = dbgrid->getNDim();
   VectorInt iuids = db->getUIDs(names);
-  Id nuid        = static_cast<Id>(iuids.size());
-  Id count       = static_cast<Id>(pow(2. * radius + 1., static_cast<double>(ndim)));
+  Id nuid         = static_cast<Id>(iuids.size());
+  Id count        = static_cast<Id>(pow(2. * radius + 1., static_cast<double>(ndim)));
 
   /* Check the validity of the requested function */
 
@@ -2051,9 +2051,9 @@ VectorVectorInt correlationPairs(Db* db1,
     return indices;
   }
 
-  Id nech   = db1->getNSample();
-  Id ndim   = db1->getNDim();
-  Id shift  = (flagFrom1) ? 1 : 0;
+  Id nech    = db1->getNSample();
+  Id ndim    = db1->getNDim();
+  Id shift   = (flagFrom1) ? 1 : 0;
   auto space = SpaceRN::create(ndim);
   SpaceTarget T1(space);
   SpaceTarget T2(space);
@@ -2131,8 +2131,8 @@ VectorVectorInt hscatterPairs(Db* db,
   /* Initializations */
 
   const DirParam dirparam = varioparam->getDirParam(idir);
-  Id nech                = db->getNSample();
-  Id ndim                = db->getNDim();
+  Id nech                 = db->getNSample();
+  Id ndim                 = db->getNDim();
   auto space              = SpaceRN::create(ndim);
   SpaceTarget T1(space);
   SpaceTarget T2(space);
@@ -2213,10 +2213,10 @@ VectorVectorInt hscatterPairs(Db* db,
  **
  *****************************************************************************/
 Id correlationIdentify(Db* db1,
-                        Db* db2,
-                        Id icol1,
-                        Id icol2,
-                        Polygons* polygon)
+                       Db* db2,
+                       Id icol1,
+                       Id icol2,
+                       Polygons* polygon)
 {
   if (db1 == nullptr) return (1);
   if (db2 == nullptr) return (1);
@@ -2336,7 +2336,7 @@ std::map<Id, Id> contingencyTable(const VectorInt& values)
 }
 
 std::map<Id, std::map<Id, Id>> contingencyTable2(const VectorInt& values,
-                                                    const VectorInt& bins)
+                                                 const VectorInt& bins)
 {
   std::map<Id, std::map<Id, Id>> table;
   if (static_cast<Id>(values.size()) != static_cast<Id>(bins.size()))

@@ -368,7 +368,7 @@ std::vector<DirParam> DirParam::createSeveral2D(const VectorDouble& angles,
 
   VectorDouble anglesloc(1);
   VectorDouble codir(ndim);
-  Id ndir               = static_cast<Id>(angles.size());
+  Id ndir = static_cast<Id>(angles.size());
   if (FFFF(tolang)) tolang = 90. / ndir;
   for (Id idir = 0; idir < ndir; idir++)
   {

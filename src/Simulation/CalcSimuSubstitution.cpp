@@ -153,7 +153,7 @@ bool CalcSimuSubstitution::_simulate()
     messerr("before the Coding Process takes place");
     return false;
   }
-  np = lround(vmax - vmin + 0.5);
+  np = static_cast<Id>(lround(vmax - vmin));
 
   /******************/
   /* Coding process */

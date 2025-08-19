@@ -161,7 +161,7 @@ Id GridBmp::writeInFile()
 
   /* Preliminary checks */
 
-  Id ncolor            = _ncolor;
+  Id ncolor             = _ncolor;
   bool flag_color_scale = (_ncolor > 0 && !_reds.empty() && !_greens.empty() && !_blues.empty());
   if (!flag_color_scale) ncolor = 256;
 
@@ -217,10 +217,10 @@ Id GridBmp::writeInFile()
 
   /* Writing the pixels */
 
-  indg[0]  = 0;
-  indg[1]  = 0;
+  indg[0] = 0;
+  indg[1] = 0;
   Id ipad = nx * _nmult;
-  ipad     = ipad - 4 * ((ipad / 4));
+  ipad    = ipad - 4 * (static_cast<Id>(static_cast<double>(ipad) / 4));
   for (Id iy = 0; iy < ny; iy++)
   {
     if (iy % _nsampley != 0) continue;
@@ -229,8 +229,8 @@ Id GridBmp::writeInFile()
       for (Id ix = 0; ix < nx; ix++)
       {
         if (ix % _nsamplex != 0) continue;
-        indg[0]  = ix;
-        indg[1]  = iy;
+        indg[0] = ix;
+        indg[1] = iy;
         Id iech = _dbgrid->indiceToRank(indg);
         Id rank = _colorRank(iech, ncolor, vmin, vmax);
         _colorInRGB(rank, flag_color_scale, &ired, &igreen, &iblue);

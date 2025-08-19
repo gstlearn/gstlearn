@@ -24,7 +24,7 @@ SpaceComposite::SpaceComposite(const std::vector<ASpaceSharedPtr>& vectspace)
   : ASpace(0)
   , _comps()
 {
-  for (const auto &sp : vectspace)
+  for (const auto& sp: vectspace)
   {
     addSpaceComponent(sp);
   }
@@ -34,7 +34,7 @@ SpaceComposite::SpaceComposite(const SpaceComposite& r)
   : ASpace(r)
   , _comps()
 {
-  for(const auto& c : r._comps)
+  for (const auto& c: r._comps)
   {
     _comps.push_back(c);
   }
@@ -45,7 +45,7 @@ SpaceComposite& SpaceComposite::operator=(const SpaceComposite& r)
   if (this != &r)
   {
     ASpace::operator=(r);
-    for(const auto& c : r._comps)
+    for (const auto& c: r._comps)
     {
       _comps.push_back(c);
     }
@@ -57,20 +57,20 @@ SpaceComposite::~SpaceComposite()
 {
 }
 
-void SpaceComposite::setOrigin(const VectorDouble& origin) 
+void SpaceComposite::setOrigin(const VectorDouble& origin)
 {
   if (origin.size() != ASpace::getNDim())
   {
     std::cout << "Error: Inconsistent space origin. Origin not changed." << std::endl;
     return;
   }
-  _origin = origin;
+  _origin    = origin;
   auto first = origin.cbegin();
-  auto last = origin.cbegin();
-  for(const auto& c : _comps)
+  auto last  = origin.cbegin();
+  for (const auto& c: _comps)
   {
     first = last;
-    last = last + c->getNDim();
+    last  = last + c->getNDim();
     c->setOrigin(VectorDouble(first, last));
   }
 }
@@ -212,9 +212,9 @@ double SpaceComposite::_getDistance(const SpacePoint& p1,
 /// Return the distance in frequential domain between two space points with the
 /// given tensor
 double SpaceComposite::_getFrequentialDistance(const SpacePoint& p1,
-                                              const SpacePoint& p2,
-                                              const Tensor& tensor,
-                                              Id ispace) const
+                                               const SpacePoint& p2,
+                                               const Tensor& tensor,
+                                               Id ispace) const
 {
   if (ispace < 0 || ispace >= static_cast<Id>(getNComponents()))
   {

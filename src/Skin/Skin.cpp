@@ -22,11 +22,11 @@ namespace gstlrn
 static Id ndir[4]   = {0, 2, 4, 6};
 static Id invdir[6] = {1, 0, 3, 2, 5, 4};
 static Id id[6][3]  = {{1, 0, 0},
-                        {-1, 0, 0},
-                        {0, 1, 0},
-                        {0, -1, 0},
-                        {0, 0, 1},
-                        {0, 0, -1}};
+                       {-1, 0, 0},
+                       {0, 1, 0},
+                       {0, -1, 0},
+                       {0, 0, 1},
+                       {0, 0, -1}};
 
 Skin::Skin(const ISkinFunctions* skf, DbGrid* dbgrid)
   : _skf(skf)
@@ -393,7 +393,7 @@ Id Skin::unstack(Id rank0, Id ipos0)
     /* Discard the neighboring cell if it cannot filled */
 
     if (!_skf->isToBeFilled(ecr)) continue;
-    local    = static_cast<Id>(_skf->getWeight(ipos0, dir));
+    local   = static_cast<Id>(_skf->getWeight(ipos0, dir));
     Id rank = _cellAlreadyFilled(ecr);
     if (rank < 0)
     {

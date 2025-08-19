@@ -10,39 +10,39 @@
 /******************************************************************************/
 #include "geoslib_define.h"
 
-#include "Variogram/VCloud.hpp"
-#include "Variogram/Vario.hpp"
+#include "Anamorphosis/AAnam.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
+#include "Basic/AStringable.hpp"
+#include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
-#include "Variogram/VarioParam.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
-#include "Stats/Classical.hpp"
-#include "Anamorphosis/AAnam.hpp"
-#include "Anamorphosis/AnamHermite.hpp"
 #include "Polygon/Polygons.hpp"
+#include "Stats/Classical.hpp"
+#include "Variogram/VCloud.hpp"
+#include "Variogram/Vario.hpp"
+#include "Variogram/VarioParam.hpp"
 
 namespace gstlrn
 {
-  
+
 static Id IPTR;
 static Polygons* POLYGON = nullptr;
 static VectorDouble IDS;
 
 VCloud::VCloud(DbGrid* dbcloud,
                const VarioParam* varioparam)
-    : AVario(),
-      _dbcloud(dbcloud),
-      _varioparam(varioparam)
+  : AVario()
+  , _dbcloud(dbcloud)
+  , _varioparam(varioparam)
 {
 }
 
 VCloud::VCloud(const VCloud& r)
-    : AVario(r),
-      _dbcloud(r._dbcloud),
-      _varioparam(r._varioparam)
+  : AVario(r)
+  , _dbcloud(r._dbcloud)
+  , _varioparam(r._varioparam)
 {
 }
 
@@ -51,7 +51,7 @@ VCloud& VCloud::operator=(const VCloud& r)
   if (this != &r)
   {
     AVario::operator=(r);
-    _dbcloud = r._dbcloud;
+    _dbcloud    = r._dbcloud;
     _varioparam = r._varioparam;
   }
   return *this;
@@ -61,9 +61,9 @@ VCloud::~VCloud()
 {
 }
 
-double VCloud::_getIVAR(const Db *db, Id iech, Id ivar) const
+double VCloud::_getIVAR(const Db* db, Id iech, Id ivar) const
 {
-  return db->getZVariable( iech, ivar);
+  return db->getZVariable(iech, ivar);
 }
 
 /****************************************************************************/
@@ -114,7 +114,7 @@ void VCloud::_setResult(Id iech1,
     VectorDouble coor(2);
     _dbcloud->rankToIndice(igrid, indg);
     _dbcloud->indicesToCoordinateInPlace(indg, coor);
-    if (! POLYGON->inside(coor, false)) return;
+    if (!POLYGON->inside(coor, false)) return;
     {
       IDS[iech1] += 1.;
       IDS[iech2] += 1.;
@@ -133,7 +133,7 @@ void VCloud::_setResult(Id iech1,
  ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
-Id VCloud::compute(Db *db, const NamingConvention &namconv)
+Id VCloud::compute(Db* db, const NamingConvention& namconv)
 {
   if (db == nullptr) return (1);
 
@@ -201,7 +201,7 @@ void VCloud::_final_discretization_grid()
  ** \param[in]  idir    Rank of the Direction
  **
  *****************************************************************************/
-void VCloud::_variogram_cloud(Db *db, Id idir)
+void VCloud::_variogram_cloud(Db* db, Id idir)
 {
   double dist;
   SpaceTarget T1(_varioparam->getSpace());
@@ -214,8 +214,8 @@ void VCloud::_variogram_cloud(Db *db, Id idir)
 
   // Local variables to speed up calculations
   bool hasSel = db->hasLocVariable(ELoc::SEL);
-  Id nech = db->getNSample();
-  Id nvar = db->getNLoc(ELoc::Z);
+  Id nech     = db->getNSample();
+  Id nvar     = db->getNLoc(ELoc::Z);
 
   /* Loop on the first point */
 
@@ -231,7 +231,7 @@ void VCloud::_variogram_cloud(Db *db, Id idir)
       db->getSampleAsSTInPlace(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
-      if (! vario->keepPair(idir, T1, T2, &dist)) continue;
+      if (!vario->keepPair(idir, T1, T2, &dist)) continue;
 
       (this->*_evaluate)(db, nvar, iech, jech, 0, dist, false);
     }
@@ -253,7 +253,7 @@ void VCloud::_variogram_cloud(Db *db, Id idir)
 Id VCloud::_update_discretization_grid(double x, double y)
 {
   Id ndim = _dbcloud->getNDim();
-  VectorInt indg(ndim,0);
+  VectorInt indg(ndim, 0);
 
   Id ix = static_cast<Id>(floor((x - _dbcloud->getX0(0)) / _dbcloud->getDX(0) + 0.5));
   Id iy = static_cast<Id>(floor((y - _dbcloud->getX0(1)) / _dbcloud->getDX(1) + 0.5));
@@ -284,13 +284,13 @@ Id VCloud::_update_discretization_grid(double x, double y)
  ** variance of the first variable (Z_locator)
  **
  *****************************************************************************/
-DbGrid* db_vcloud(Db *db,
-                  const VarioParam *varioparam,
+DbGrid* db_vcloud(Db* db,
+                  const VarioParam* varioparam,
                   double lagmax,
                   double varmax,
                   Id lagnb,
                   Id varnb,
-                  const NamingConvention &namconv)
+                  const NamingConvention& namconv)
 {
   if (FFFF(lagmax)) lagmax = db->getExtensionDiagonal();
   if (FFFF(varmax)) varmax = 3. * db->getVariance(db->getNameByLocator(ELoc::Z));
@@ -304,9 +304,9 @@ DbGrid* db_vcloud(Db *db,
   dx[0] = lagmax / static_cast<double>(lagnb);
   dx[1] = varmax / static_cast<double>(varnb);
   VectorDouble x0(2);
-  x0[0] = 0.;
-  x0[1] = 0.;
-  DbGrid *dbgrid = DbGrid::create(nx, dx, x0);
+  x0[0]          = 0.;
+  x0[1]          = 0.;
+  DbGrid* dbgrid = DbGrid::create(nx, dx, x0);
 
   // Calling the variogram cloud calculation function
 
@@ -333,7 +333,7 @@ DbGrid* db_vcloud(Db *db,
  ** \param[in]  idir    Rank of the direction of itnerest
  **
  *****************************************************************************/
-Id VCloud::selectFromPolygon(Db *db, Polygons *polygon, Id idir)
+Id VCloud::selectFromPolygon(Db* db, Polygons* polygon, Id idir)
 {
   POLYGON = polygon;
   Id nech = db->getNSample();
@@ -372,4 +372,4 @@ String VCloud::toString(const AStringFormat* strfmt) const
 
   return sstr.str();
 }
-}
+} // namespace gstlrn

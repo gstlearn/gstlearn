@@ -15,24 +15,24 @@
 namespace gstlrn
 {
 Regression::Regression()
-    : AStringable(),
-      _count(0),
-      _nvar(0),
-      _flagCst(true),
-      _coeffs(),
-      _variance(0.),
-      _varres(0.)
+  : AStringable()
+  , _count(0)
+  , _nvar(0)
+  , _flagCst(true)
+  , _coeffs()
+  , _variance(0.)
+  , _varres(0.)
 {
 }
 
 Regression::Regression(const Regression& r)
-    : AStringable(r),
-      _count(r._count),
-      _nvar(r._nvar),
-      _flagCst(r._flagCst),
-      _coeffs(r._coeffs),
-      _variance(r._variance),
-      _varres(r._varres)
+  : AStringable(r)
+  , _count(r._count)
+  , _nvar(r._nvar)
+  , _flagCst(r._flagCst)
+  , _coeffs(r._coeffs)
+  , _variance(r._variance)
+  , _varres(r._varres)
 {
 }
 
@@ -41,12 +41,12 @@ Regression& Regression::operator=(const Regression& r)
   if (this != &r)
   {
     AStringable::operator=(r);
-    _count = r._count;
-    _nvar = r._nvar;
-    _flagCst = r._flagCst;
-    _coeffs = r._coeffs;
+    _count    = r._count;
+    _nvar     = r._nvar;
+    _flagCst  = r._flagCst;
+    _coeffs   = r._coeffs;
     _variance = r._variance;
-    _varres = r._varres;
+    _varres   = r._varres;
   }
   return *this;
 }
@@ -64,14 +64,14 @@ String Regression::toString(const AStringFormat* strfmt) const
   sstr << toTitle(1, "Linear Regression");
   sstr << "- Calculated on " << _count << " active values" << std::endl;
 
-  Id ecr = 0;
+  Id ecr  = 0;
   Id nvar = _nvar;
   if (_flagCst) nvar--;
 
   if (_flagCst)
     sstr << "- Constant term           = " << _coeffs[ecr++] << std::endl;
   for (Id ivar = 0; ivar < nvar; ivar++)
-    sstr << "- Explanatory Variable #" << ivar+1 << " = " << _coeffs[ecr++] << std::endl;
+    sstr << "- Explanatory Variable #" << ivar + 1 << " = " << _coeffs[ecr++] << std::endl;
 
   sstr << "- Initial variance        = " << _variance << std::endl;
   sstr << "- Variance of residuals   = " << _varres << std::endl;
@@ -79,12 +79,12 @@ String Regression::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-bool _regressionCheck(Db *db1,
+bool _regressionCheck(Db* db1,
                       Id icol0,
-                      const VectorInt &icols,
+                      const VectorInt& icols,
                       Id mode,
-                      Db *db2,
-                      const Model *model)
+                      Db* db2,
+                      const Model* model)
 {
   Id ncol = static_cast<Id>(icols.size());
   Id nfex = db2->getNLoc(ELoc::F);
@@ -133,21 +133,21 @@ bool _regressionCheck(Db *db1,
   return true;
 }
 
-bool _regressionLoad(Db *db1,
-                     Db *db2,
+bool _regressionLoad(Db* db1,
+                     Db* db2,
                      Id iech,
                      Id icol0,
-                     const VectorInt &icols,
+                     const VectorInt& icols,
                      Id mode,
                      Id flagCst,
-                     const Model *model,
-                     double *value,
-                     VectorDouble &x)
+                     const Model* model,
+                     double* value,
+                     VectorDouble& x)
 {
   Id nfex = 0;
   Id nbfl = 0;
 
-  Id ecr  = 0;
+  Id ecr = 0;
   switch (mode)
   {
     case 0:
@@ -158,18 +158,18 @@ bool _regressionLoad(Db *db1,
       break;
 
     case 1:
-      nfex = db2->getNLoc(ELoc::F);
+      nfex   = db2->getNLoc(ELoc::F);
       *value = db1->getZVariable(iech, 0);
       if (flagCst) x[ecr++] = 1.;
       for (Id i = 0; i < nfex; i++)
-        x[ecr++] = db2->getLocVariable(ELoc::F,iech, i);
+        x[ecr++] = db2->getLocVariable(ELoc::F, iech, i);
       break;
 
     case 2:
-      nbfl = model->getNDrift();
+      nbfl   = model->getNDrift();
       *value = db1->getZVariable(iech, 0);
       for (Id i = 0; i < nbfl; i++)
-         x[ecr++] = model->evalDrift(db2, iech, i, ECalcMember::LHS);
+        x[ecr++] = model->evalDrift(db2, iech, i, ECalcMember::LHS);
       break;
   }
 
@@ -178,7 +178,6 @@ bool _regressionLoad(Db *db1,
     flagTest = FFFF(x[i]);
   return (FFFF(*value) || flagTest);
 }
-
 
 /**
  * Calculate the coefficients of the Deming regression (with 2 variables)
@@ -190,11 +189,11 @@ bool _regressionLoad(Db *db1,
  * @remark Both input vectors are assumed to contain valid values
  * @remark From: https://en.wikipedia.org/wiki/Deming_regression
  */
-VectorDouble regressionDeming(const VectorDouble &x,
-                              const VectorDouble &y,
+VectorDouble regressionDeming(const VectorDouble& x,
+                              const VectorDouble& y,
                               double delta)
 {
-  VectorDouble beta(2,TEST);
+  VectorDouble beta(2, TEST);
   Id nech = static_cast<Id>(x.size());
   if (nech <= 1) return beta;
 
@@ -224,8 +223,8 @@ VectorDouble regressionDeming(const VectorDouble &x,
   syy /= static_cast<double>(nech);
 
   double T = syy - delta * sxx;
-  beta[1] = (T + sqrt(T * T + 4. * delta * sxy * sxy)) / (2. * sxy);
-  beta[0] = ymean - beta[1] * xmean;
+  beta[1]  = (T + sqrt(T * T + 4. * delta * sxy * sxy)) / (2. * sxy);
+  beta[0]  = ymean - beta[1] * xmean;
   return beta;
 }
 
@@ -251,20 +250,20 @@ VectorDouble regressionDeming(const VectorDouble &x,
  ** \remark  1 : Z1 as a function of the different Fi's
  **
  *****************************************************************************/
-Regression regression(Db *db1,
-                      const String &nameResp,
-                      const VectorString &nameAux,
+Regression regression(Db* db1,
+                      const String& nameResp,
+                      const VectorString& nameAux,
                       Id mode,
                       bool flagCst,
-                      Db *db2,
-                      const Model *model)
+                      Db* db2,
+                      const Model* model)
 {
   Regression regr;
 
   if (db1 == nullptr) return regr;
   if (db2 == nullptr) db2 = db1;
 
-  Id icol0 = db1->getUID(nameResp);
+  Id icol0        = db1->getUID(nameResp);
   VectorInt icols = db2->getUIDs(nameAux);
 
   Id nfex = db2->getNLoc(ELoc::F);
@@ -288,24 +287,24 @@ Regression regression(Db *db1,
 
   /* Preliminary checks */
 
-  if (! _regressionCheck(db1, icol0, icols, mode, db2, model)) return regr;
+  if (!_regressionCheck(db1, icol0, icols, mode, db2, model)) return regr;
 
   /* Core allocation */
 
-  VectorDouble x(size,0.);
-  VectorDouble b(size,0.);
+  VectorDouble x(size, 0.);
+  VectorDouble b(size, 0.);
   MatrixSymmetric a(size);
 
   /* Loop on the samples */
 
-  Id number = 0;
-  double prod = 0.;
-  double mean = 0.;
+  Id number    = 0;
+  double prod  = 0.;
+  double mean  = 0.;
   double value = 0.;
 
-  for (Id iech=0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
-    if (! db1->isActive(iech)) continue;
+    if (!db1->isActive(iech)) continue;
 
     /* Get the information for the current sample */
 
@@ -321,8 +320,8 @@ Regression regression(Db *db1,
     for (Id i = 0; i < size; i++)
     {
       b[i] += value * x[i];
-      for (Id j=0; j<=i; j++)
-        a.setValue(i, j, a.getValue(i,j) + x[i] * x[j]);
+      for (Id j = 0; j <= i; j++)
+        a.setValue(i, j, a.getValue(i, j) + x[i] * x[j]);
     }
   }
 
@@ -355,7 +354,7 @@ Regression regression(Db *db1,
   {
     prod -= 2. * x[i] * b[i];
     for (Id j = 0; j < size; j++)
-      prod += x[i] * x[j] * a.getValue(i,j);
+      prod += x[i] * x[j] * a.getValue(i, j);
   }
   regr.setVarres(prod / number);
 
@@ -390,23 +389,23 @@ Regression regression(Db *db1,
  ** \remark  been calculated).
  **
  *****************************************************************************/
-Id Regression::apply(Db *db1,
-                      Id iptr0,
-                      const String &nameResp,
-                      const VectorString &nameAux,
-                      Id mode,
-                      bool flagCst,
-                      Db *db2,
-                      const Model *model) const
+Id Regression::apply(Db* db1,
+                     Id iptr0,
+                     const String& nameResp,
+                     const VectorString& nameAux,
+                     Id mode,
+                     bool flagCst,
+                     Db* db2,
+                     const Model* model) const
 {
   if (db2 == nullptr) db2 = db1;
   Id icol0 = db1->getUID(nameResp);
   VectorInt icols;
-  if (! nameAux.empty()) icols = db2->getUIDs(nameAux);
+  if (!nameAux.empty()) icols = db2->getUIDs(nameAux);
 
   /* Store the regression error at sample points */
 
-  Id size = static_cast<Id>(getCoeffs().size());
+  Id size      = static_cast<Id>(getCoeffs().size());
   double value = 0;
   VectorDouble x(size);
 
@@ -431,4 +430,4 @@ Id Regression::apply(Db *db1,
   }
   return 0;
 }
-}
+} // namespace gstlrn
