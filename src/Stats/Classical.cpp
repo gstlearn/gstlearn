@@ -1236,7 +1236,7 @@ void dbStatisticsPrint(const Db* db,
   for (Id icol = 0; icol < ncol; icol++)
   {
     _getRowname(radix, ncol, icol, db->getNameByUID(iuids[icol]), string);
-    taille = MAX(taille, static_cast<Id>(strlen(string)));
+    taille = MAX(taille, static_cast<Id>(string.size()));
   }
 
   /* Print the header of the monovariate statistics */
