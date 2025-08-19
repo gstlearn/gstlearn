@@ -474,7 +474,6 @@ void PCA::_uncenter(VectorDouble& data,
                     bool flag_center,
                     bool flag_scale)
 {
-  Id ivar;
   Id nvar = static_cast<Id>(mean.size());
 
   for (Id ivar = 0; ivar < nvar; ivar++)
