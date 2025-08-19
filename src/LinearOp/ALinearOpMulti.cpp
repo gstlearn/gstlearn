@@ -17,7 +17,8 @@
 #include "Basic/VectorHelper.hpp"
 #include <vector>
 
-namespace gstlrn{
+namespace gstlrn
+{
 ALinearOpMulti::ALinearOpMulti(Id nitermax, double eps)
   : _nIterMax(nitermax)
   , _nIterRestart(0)
@@ -87,7 +88,7 @@ void ALinearOpMulti::prepare() const
   if (_initialized) return;
 
   _initialized = true;
-  Id ns       = sizes();
+  Id ns        = sizes();
   _r.resize(ns);
   _p.resize(ns);
   _temp.resize(ns);
@@ -231,7 +232,7 @@ void ALinearOpMulti::evalInverse(const std::vector<std::vector<double>>& vecin,
     crit = rsnew / nb;
 
     if (OptDbg::query(EDbg::CONVERGE))
-      message("%d iterations (max=%d)  crit %lg \n", niter, _nIterMax, crit);
+      message("%ld iterations (max=%ld)  crit %lg \n", niter, _nIterMax, crit);
     rsold = rsnew;
   }
 
@@ -286,4 +287,4 @@ void ALinearOpMulti::_updated() const
 {
   _initialized = false;
 }
-}
+} // namespace gstlrn

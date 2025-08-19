@@ -443,7 +443,7 @@ static void st_print_upscale(const char* title, Id* nxyz, const double* valtab)
 
   message("%11s ", title);
   message("(%3d %3d %3d) : ", nxyz[0], nxyz[1], nxyz[2]);
-  message("%lf %lf (Def=%d)\n", mini, maxi, ndef);
+  message("%lf %lf (Def=%ld)\n", mini, maxi, ndef);
 }
 
 /****************************************************************************/

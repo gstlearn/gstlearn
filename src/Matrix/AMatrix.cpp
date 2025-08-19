@@ -837,7 +837,7 @@ void AMatrix::dumpElements(const String& title, Id ifrom, Id ito) const
 
 void AMatrix::dumpStatistics(const String& title) const
 {
-  message("%s : %d rows and %d columns\n", title.c_str(), _nRows, _nCols);
+  message("%s : %ld rows and %ld columns\n", title.c_str(), _nRows, _nCols);
 }
 
 bool AMatrix::_identifyRowAndCol(const AMatrix* mat,

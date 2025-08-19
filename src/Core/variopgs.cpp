@@ -333,7 +333,7 @@ static void st_rules_print(const char* title,
                            const VectorInt& fipos)
 {
   if (nrule <= 0) return;
-  message("%s (Nrule=%d, Nbyrule=%d):\n", title, nrule, nbyrule);
+  message("%s (Nrule=%ld, Nbyrule=%ld):\n", title, nrule, nbyrule);
   for (Id ir = 0; ir < nrule; ir++)
     st_rule_print(ir, nbyrule, rules, fipos, false, -1, -1, TEST);
 }

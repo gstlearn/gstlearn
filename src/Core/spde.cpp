@@ -5368,7 +5368,7 @@ static void st_print_sample(const char* title,
   double zmin, zmax;
 
   nech = dbc->getNSample();
-  message("%s - Sample #%d/%d\n", title, iech + 1, nech);
+  message("%s - Sample #%ld/%ld\n", title, iech + 1, nech);
 
   for (Id ilayer = 0; ilayer < nlayer; ilayer++)
   {
@@ -5583,7 +5583,7 @@ static Id st_check_gibbs_data(const char* title,
     if (error == 0)
       message("%s: No inconsistency\n", title);
     else
-      message("%s: %d error(s) found\n", title, error);
+      message("%s: %ld error(s) found\n", title, error);
   }
   return (error);
 }

@@ -1078,7 +1078,7 @@ static double st_mvndnt(Id* n,
                         double* d,
                         double* e)
 {
-  return st_mvndfn_0(1, n, (double*)0, correl, lower, upper, infin,
+  return st_mvndfn_0(1, n, nullptr, correl, lower, upper, infin,
                      infis, d, e);
 }
 
@@ -1440,7 +1440,8 @@ L10:
 static double st_mvndfn(Id* n,
                         double* w)
 {
-  return st_mvndfn_0(0, n, w, (double*)0, (double*)0, (double*)0, (Id*)0, (Id*)0, (double*)0, (double*)0);
+  return st_mvndfn_0(0, n, w, nullptr, nullptr, nullptr, nullptr, nullptr,
+                     nullptr, nullptr);
 }
 
 /****************************************************************************/

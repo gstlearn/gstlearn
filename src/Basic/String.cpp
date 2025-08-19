@@ -958,7 +958,7 @@ VectorInt decodeGridSorting(const String& string,
     for (Id i = 0; i < ndim; i++)
     {
       Id a_order = ABS(order[i]);
-      message("%d - Dimension=%d - N%d=%d", i + 1, a_order, a_order,
+      message("%ld - Dimension=%ld - N%ld=%ld", i + 1, a_order, a_order,
               nx[a_order - 1]);
       if (order[i] > 0)
         message(" - Increasing\n");

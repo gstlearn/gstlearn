@@ -427,7 +427,7 @@ void mes_process(const char* string, Id ntot, Id iech)
 
   /* Conditional printout */
 
-  if (quant != quant_memo) message("%s - Rank : %d (Quantile : %d / %d)\n", string, iech, quant, nproc);
+  if (quant != quant_memo) message("%s - Rank : %ld (Quantile : %ld / %ld)\n", string, iech, quant, nproc);
   quant_memo = quant;
 }
 

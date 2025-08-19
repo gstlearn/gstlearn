@@ -144,7 +144,7 @@ PrecisionOp& PrecisionOp::operator=(const PrecisionOp& pmat)
 
     if (_destroyShiftOp)
     {
-      _shiftOp = (AShiftOp*)pmat._shiftOp->clone();
+      _shiftOp = static_cast<AShiftOp*>(pmat._shiftOp->clone());
     }
     else
       _shiftOp = pmat._shiftOp;
@@ -234,7 +234,7 @@ void PrecisionOp::setPolynomialFromPoly(APolynomial* polynomial)
 {
   _purge();
   _userPoly                   = true;
-  _polynomials[EPowerPT::ONE] = std::unique_ptr<APolynomial>((APolynomial*)polynomial->clone());
+  _polynomials[EPowerPT::ONE] = std::unique_ptr<APolynomial>(static_cast<APolynomial*>(polynomial->clone()));
   _preparePoly(EPowerPT::MINUSONE, true);
   _preparePoly(EPowerPT::MINUSHALF, true);
   _preparePoly(EPowerPT::LOG, true);
@@ -250,8 +250,8 @@ Id PrecisionOp::_prepareChebychev(const EPowerPT& power) const
 
   double b                                = _shiftOp->getMaxEigenValue();
   std::unique_ptr<APolynomial> chebMatern = std::make_unique<Chebychev>();
-  ((Chebychev*)chebMatern.get())->setA(0);
-  ((Chebychev*)chebMatern.get())->setB(b);
+  static_cast<Chebychev*>(chebMatern.get())->setA(0);
+  static_cast<Chebychev*>(chebMatern.get())->setB(b);
 
   std::function<double(double)> f;
 
@@ -294,7 +294,7 @@ Id PrecisionOp::reset(const AShiftOp* shiftop,
 
     _cova    = cova;
     _verbose = verbose;
-    _shiftOp = (AShiftOp*)shiftop->clone();
+    _shiftOp = static_cast<AShiftOp*>(shiftop->clone());
 
     _purge();
   }
@@ -405,7 +405,7 @@ Id PrecisionOp::_addEvalPoly(const EPowerPT& power,
       messerr("only available for ShiftOpMatrix\n");
       return 1;
     }
-    ((ClassicalPolynomial*)_polynomials[power].get())->evalOpTraining(a->getS(), invs, _workPoly, _work5);
+    static_cast<ClassicalPolynomial*>(_polynomials[power].get())->evalOpTraining(a->getS(), invs, _workPoly, _work5);
 
     for (Id i = 0; i < static_cast<Id>(inv.size()); i++)
     {

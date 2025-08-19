@@ -43,9 +43,9 @@ int main(int argc, char* argv[])
 
   /* Initializations */
 
-  dbout             = (DbGrid*)NULL;
-  vario             = (Vario*)NULL;
-  model             = (Model*)NULL;
+  dbout             = nullptr;
+  vario             = nullptr;
+  model             = nullptr;
   flag_norm_sill    = 0;
   flag_goulard_used = 1;
 
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
   /* Create the output name (for storage of dump files) */
 
   VectorString subparts = separateKeywords(argv[1]);
-  int nargs             = (int)subparts.size();
+  int nargs             = static_cast<int>(subparts.size());
   String outname        = concatenateStrings("", subparts[nargs - 2], subparts[nargs - 1], "-");
   ASerializable::setPrefixName(outname);
 
@@ -92,8 +92,8 @@ int main(int argc, char* argv[])
 
   /* Define the model */
 
-  ascii_filename("Model", 0, 0, filename);
-  model = Model::createFromNF(filename, verbose);
+  ascii_filename("Model", 0, 0, filename.data());
+  model = Model::createFromNF(filename.data(), verbose);
   if (model == nullptr) goto label_end;
 
   // Define and store the Space
