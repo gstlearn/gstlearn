@@ -1148,7 +1148,8 @@ static Id st_varcalc_from_vario_stat(Vario* vario,
       for (Id igrf = 0; igrf < ngrf; igrf++)
       {
         local_pgs->igrfcur = igrf;
-        result             = golden_search(st_func_search_stat, static_cast<void*>(local_pgs),
+        result             = golden_search(st_func_search_stat,
+                                           static_cast<void*>(local_pgs),
                                            GS_TOLSTOP, -1., 1., &testval, &niter);
         trace_define(local_pgs, idir + 1, ilag + 1, 2 * igrf, 1, &testval);
         trace_define(local_pgs, idir + 1, ilag + 1, 2 * igrf + 1, 1, &niter);
@@ -1249,7 +1250,8 @@ static void st_varcalc_uncorrelated_grf(Local_Pgs* local_pgs, Id idir)
     for (igrf = 0; igrf < ngrf; igrf++)
     {
       local_pgs->igrfcur = igrf;
-      result             = golden_search(st_func_search_nostat, static_cast<void*>(local_pgs),
+      result             = golden_search(st_func_search_nostat,
+                                         static_cast<void*>(local_pgs),
                                          GS_TOLSTOP, -1., 1., &testval, &niter);
       trace_define(local_pgs, idir + 1, ilag + 1, 2 * igrf, 1, &testval);
       trace_define(local_pgs, idir + 1, ilag + 1, 2 * igrf + 1, 1, &niter);
@@ -3820,8 +3822,8 @@ static Id st_variopgs_calcul_rho(Vario* vario,
 
   st_make_some_lags_inactive(vario);
   st_set_rho(
-    golden_search(st_rho_search, static_cast<void*>(local_pgs), GS_TOLSTOP_RHO, -1., 1.,
-                  &testval, &niter),
+    golden_search(st_rho_search, static_cast<void*>(local_pgs),
+                  GS_TOLSTOP_RHO, -1., 1., &testval, &niter),
     local_pgs);
   st_make_all_lags_active(vario);
 
@@ -4119,7 +4121,7 @@ static void st_calcul_covmatrix(Local_Pgs* local_pgs,
   }
   else if (rule->getModeRule() == ERule::SHIFT)
   {
-    auto* ruleshift = (RuleShift*)rule;
+    auto* ruleshift = static_cast<RuleShift*>(const_cast<Rule*>(rule));
     cov[0]          = covh.getValue(0, 0);                                     /* C11(h)  */
     cov[5]          = (nvar == 1) ? covh.getValue(0, 0) : covh.getValue(1, 1); /* C22(h)  */
 

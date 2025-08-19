@@ -12,15 +12,14 @@
 // This test is meant to demonstrate the Potential Model
 // through estimation, cross-validation and simulations
 
-#include "Enum/ECov.hpp"
-#include "Enum/ESpaceType.hpp"
-
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Core/Potential.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Enum/ECov.hpp"
+#include "Enum/ESpaceType.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Space/ASpaceObject.hpp"
