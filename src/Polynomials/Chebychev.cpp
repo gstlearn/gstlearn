@@ -237,7 +237,7 @@ void Chebychev::_fillCoeffs(const std::function<double(double)>& f, double a, do
 /* v1 *= 2.;
 v2 *= 2.;
 
-for (Id ib = 2; ib < (Id) _coeffs.size(); ib++)
+for (Id ib = 2; ib < static_cast<Id>(_coeffs.size()); ib++)
 {
   // t0 = (v1 Op + v2 I) tm1
   Op->evalDirect(*tm1, *t0);

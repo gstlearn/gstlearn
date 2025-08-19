@@ -822,7 +822,7 @@ void FracList::_updateRepulsion(double x0,
                                 VectorDouble& denstab)
 {
   Id idisc0 = static_cast<Id>((x0 - _xorigin) / _step);
-  Id nrange = MAX(1, (Id)(range / _step));
+  Id nrange = MAX(1, static_cast<Id>(range / _step));
 
   /* Central cell */
   if (_isValidDisc(idisc0)) denstab[idisc0] = _low0;
@@ -1129,7 +1129,7 @@ FracList* FracList::fractureImport(const VectorDouble& frac_segs,
     double xx     = FRACSEG(i, 3);
     double yy     = FRACSEG(i, 4);
     double orient = FRACSEG(i, 5);
-    bool flag_new = static_cast<bool>(FRACSEG(i, 6));
+    bool flag_new = static_cast<Id>(FRACSEG(i, 6));
 
     if (flag_new || icur < 0)
     {

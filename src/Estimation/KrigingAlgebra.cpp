@@ -388,8 +388,8 @@ void KrigingAlgebra::resetNewData()
  * @note kept unchanged (even if its contents may have been updated)
  */
 Id KrigingAlgebra::setData(const VectorDouble* Z,
-                            const VectorVectorInt* indices,
-                            const VectorDouble* Means)
+                           const VectorVectorInt* indices,
+                           const VectorDouble* Means)
 {
   _resetLinkedToZ();
   _resetLinkedToSampleRanks();
@@ -428,7 +428,7 @@ Id KrigingAlgebra::setData(const VectorDouble* Z,
  * @note kept unchanged (even if its contents may have been updated)
  */
 Id KrigingAlgebra::setLHS(const MatrixSymmetric* Sigma,
-                           const MatrixDense* X)
+                          const MatrixDense* X)
 {
   _resetLinkedToLHS();
 
@@ -466,7 +466,7 @@ Id KrigingAlgebra::setVariance(const MatrixSymmetric* Sigma00)
 }
 
 Id KrigingAlgebra::setRHS(const MatrixDense* Sigma0,
-                           const MatrixDense* X0)
+                          const MatrixDense* X0)
 {
   _resetLinkedToRHS();
 
@@ -631,7 +631,7 @@ Id KrigingAlgebra::setColCokUnique(const VectorDouble* Zp, const VectorInt* rank
  * mean of the correct cross-validated variable (SK only). It is optional in OK
  */
 Id KrigingAlgebra::setXvalidUnique(const VectorInt* rankXvalidEqs,
-                                    const VectorInt* rankXvalidVars)
+                                   const VectorInt* rankXvalidVars)
 {
   if (rankXvalidEqs == nullptr || rankXvalidVars == nullptr) return 1;
   if (rankXvalidEqs->size() <= 0) return 1;
@@ -644,7 +644,7 @@ Id KrigingAlgebra::setXvalidUnique(const VectorInt* rankXvalidEqs,
 }
 
 Id KrigingAlgebra::setBayes(const VectorDouble* PriorMean,
-                             const MatrixSymmetric* PriorCov)
+                            const MatrixSymmetric* PriorCov)
 {
   _resetLinkedToBayes();
 
@@ -1703,4 +1703,4 @@ void KrigingAlgebra::dumpAux()
     message("\n");
   }
 }
-}
+} // namespace gstlrn

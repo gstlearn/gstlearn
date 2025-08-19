@@ -22,7 +22,7 @@
 #define WT(ijvar, ipadir)    wt[IJDIR(ijvar, ipadir)]
 
 namespace gstlrn
-{ 
+{
 
 ModelOptimVario::ModelOptimVario(ModelGeneric* model,
                                  const Constraints* constraints,
@@ -33,7 +33,7 @@ ModelOptimVario::ModelOptimVario(ModelGeneric* model,
   , _vario()
   , _lags()
 {
-  bool useGradientsAnalytical = static_cast<bool>(OptCustom::query("AnalyticalGradients",1));
+  bool useGradientsAnalytical = static_cast<bool>(OptCustom::query("AnalyticalGradients", 1));
   setAuthorizedAnalyticalGradients(useGradientsAnalytical);
 }
 
@@ -115,8 +115,8 @@ Id ModelOptimVario::_buildExperimental()
           double gg   = TEST;
           if (_vario->getFlagAsym())
           {
-            Id iad    = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
-            Id jad    = _vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
+            Id iad     = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+            Id jad     = _vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
             double c00 = _vario->getC00(idir, ivar, jvar);
             double n1  = _vario->getSwByIndex(idir, iad);
             double n2  = _vario->getSwByIndex(idir, jad);
@@ -154,9 +154,9 @@ Id ModelOptimVario::_buildExperimental()
 
   // Update the weight
   VectorDouble wt = _vario->computeWeightsFromVario(_mop.getWmode());
-  Id npadir      = _vario->getTotalLagsPerDirection();
-  Id ecr         = 0;
-  Id ipadir      = 0;
+  Id npadir       = _vario->getTotalLagsPerDirection();
+  Id ecr          = 0;
+  Id ipadir       = 0;
 
   for (Id idir = 0, ndir = _vario->getNDir(); idir < ndir; idir++)
     for (Id ilag = 0, nlag = _vario->getNLag(idir); ilag < nlag; ilag++, ipadir++)
@@ -242,7 +242,7 @@ double ModelOptimVario::computeCost(bool verbose)
   DECLARE_UNUSED(verbose);
 
   // Evaluate the Cost function
-  Id nlags    = static_cast<Id>(_lags.size());
+  Id nlags     = static_cast<Id>(_lags.size());
   double score = 0.;
   SpacePoint origin;
   _resid.resize(nlags);
@@ -262,7 +262,7 @@ void ModelOptimVario::evalGrad(vect res)
 {
 
   auto gradcov = _model->getGradients();
-  Id nlags    = static_cast<Id>(_lags.size());
+  Id nlags     = static_cast<Id>(_lags.size());
   SpacePoint origin;
 
   for (size_t i = 0; i < gradcov.size(); i++)
@@ -279,4 +279,4 @@ void ModelOptimVario::evalGrad(vect res)
     }
 }
 
-}
+} // namespace gstlrn

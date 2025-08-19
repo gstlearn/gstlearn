@@ -39,7 +39,7 @@
 #include <cmath>
 
 namespace gstlrn
-{ 
+{
 KrigingSystem::KrigingSystem(Db* dbin,
                              Db* dbout,
                              const ModelGeneric* model,
@@ -413,7 +413,7 @@ void KrigingSystem::_estimateCalcul(Id status)
       {
         if (status != 0) continue;
         double wgt = _algebra.getLambda()->getValue(jech, ivarCL);
-        Id iech   = _nbgh[jech];
+        Id iech    = _nbgh[jech];
         if (_flagSet)
           _dbin->setArray(iech, _iptrWeights + ivarCL, wgt);
         else
@@ -753,7 +753,7 @@ Id KrigingSystem::_updateForColCokMoving()
   VectorDouble coor = _dbout->getSampleCoordinates(_iechOut);
   for (Id jech = 0, nech = static_cast<Id>(_nbgh.size()); jech < nech; jech++)
   {
-    Id iech          = _nbgh[jech];
+    Id iech           = _nbgh[jech];
     bool flagCoincide = true;
     for (Id idim = 0; idim < ndim && flagCoincide; idim++)
     {
@@ -1026,9 +1026,9 @@ void KrigingSystem::_dumpSimulationResults(Id status)
  * @remark If a term must not be calculated, its UID must be negative
  */
 Id KrigingSystem::updKrigOptEstim(Id iptrEst,
-                                   Id iptrStd,
-                                   Id iptrVarZ,
-                                   bool forceNoDual)
+                                  Id iptrStd,
+                                  Id iptrVarZ,
+                                  bool forceNoDual)
 {
   _iptrEst  = iptrEst;
   _iptrStd  = iptrStd;
@@ -1068,7 +1068,7 @@ Id KrigingSystem::updKrigOptNeighOnly(Id iptrNeigh)
 
 Id KrigingSystem::setKrigOptDataWeights(Id iptrWeights, bool flagSet)
 {
-  _isReady = false;
+  _isReady  = false;
   auto nvar = _getNVar();
   if (iptrWeights >= 0 && nvar > 1)
   {
@@ -1088,8 +1088,8 @@ Id KrigingSystem::setKrigOpt(const KrigOpt& krigopt)
 }
 
 Id KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
-                                    const VectorInt& ndiscs,
-                                    bool flag_per_cell)
+                                   const VectorInt& ndiscs,
+                                   bool flag_per_cell)
 {
   _isReady = false;
   return _krigopt.setOptionCalcul(calcul, ndiscs, flag_per_cell);
@@ -1111,10 +1111,10 @@ Id KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
  * @remark - all samples with same code as Target if KFold is True
  */
 Id KrigingSystem::setKrigOptXValid(bool flag_xvalid,
-                                    bool flag_kfold,
-                                    bool optionXValidEstim,
-                                    bool optionXValidStdev,
-                                    bool optionXValidVarZ)
+                                   bool flag_kfold,
+                                   bool optionXValidEstim,
+                                   bool optionXValidStdev,
+                                   bool optionXValidVarZ)
 {
   _isReady = false;
   if (!flag_xvalid)
@@ -1144,10 +1144,10 @@ Id KrigingSystem::setKrigOptXValid(bool flag_xvalid,
 }
 
 Id KrigingSystem::setKrigOptBayes(bool flag_bayes,
-                                   const VectorDouble& prior_mean,
-                                   const MatrixSymmetric& prior_cov)
+                                  const VectorDouble& prior_mean,
+                                  const MatrixSymmetric& prior_cov)
 {
-  _isReady = false;
+  _isReady  = false;
   auto nfeq = _getNFeq();
   if (flag_bayes)
   {
@@ -1244,7 +1244,7 @@ Model* KrigingSystem::_castInOldModel()
 Id KrigingSystem::setKrigOptAnamophosis(AAnam* anam)
 {
 
-  _isReady = false;
+  _isReady  = false;
   auto nvar = _getNVar();
   if (nvar != 1)
   {
@@ -1714,4 +1714,4 @@ MatrixDense KrigingSystem::getMu() const
   if (mu == nullptr) return MatrixDense();
   return *mu;
 }
-}
+} // namespace gstlrn

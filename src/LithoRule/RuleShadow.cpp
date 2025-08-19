@@ -175,10 +175,10 @@ String RuleShadow::displaySpecific() const
  **
  *****************************************************************************/
 Id RuleShadow::particularities(Db* db,
-                                const Db* dbprop,
-                                Model* model,
-                                Id /*flag_grid_check*/,
-                                Id flag_stat) const
+                               const Db* dbprop,
+                               Model* model,
+                               Id /*flag_grid_check*/,
+                               Id flag_stat) const
 {
   double sh_dsup_max, sh_down_max;
   Id ndim = (model != nullptr) ? model->getNDim() : 0;
@@ -247,10 +247,10 @@ double RuleShadow::_st_grid_eval(DbGrid* dbgrid,
 {
   double top = 0.;
   double bot = 0.;
-  Id ndim   = dbgrid->getNDim();
+  Id ndim    = dbgrid->getNDim();
 
   /* First point */
-  Id iech = dbgrid->indiceToRank(_ind2);
+  Id iech  = dbgrid->indiceToRank(_ind2);
   double z = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
   if (!FFFF(z))
   {
@@ -345,12 +345,12 @@ double RuleShadow::_st_grid_eval(DbGrid* dbgrid,
  **
  *****************************************************************************/
 Id RuleShadow::gaus2facData(PropDef* propdef,
-                             Db* dbin,
-                             Db* /*dbout*/,
-                             Id* flag_used,
-                             Id ipgs,
-                             Id isimu,
-                             Id nbsimu)
+                            Db* dbin,
+                            Db* /*dbout*/,
+                            Id* flag_used,
+                            Id ipgs,
+                            Id isimu,
+                            Id nbsimu)
 {
   double y[2], facies, t1min, t1max, t2min, t2max, sh_dsup, sh_down;
 
@@ -408,11 +408,11 @@ Id RuleShadow::gaus2facData(PropDef* propdef,
  **
  *****************************************************************************/
 Id RuleShadow::gaus2facResult(PropDef* propdef,
-                               Db* dbout,
-                               Id* /*flag_used*/,
-                               Id ipgs,
-                               Id isimu,
-                               Id nbsimu) const
+                              Db* dbout,
+                              Id* /*flag_used*/,
+                              Id ipgs,
+                              Id isimu,
+                              Id nbsimu) const
 {
   Id ndim, nech, iech, jech, error, idim, nstep, istep, flag, flag_shadow, igrf, icase;
   double y[2], facies, dinc, dy, ys, yc_dsup, yc_down;
@@ -519,12 +519,12 @@ label_end:
  **
  *****************************************************************************/
 Id RuleShadow::evaluateBounds(PropDef* propdef,
-                               Db* dbin,
-                               Db* dbout,
-                               Id isimu,
-                               Id igrf,
-                               Id ipgs,
-                               Id nbsimu) const
+                              Db* dbin,
+                              Db* dbout,
+                              Id isimu,
+                              Id igrf,
+                              Id ipgs,
+                              Id nbsimu) const
 {
   Id iech, jech, nadd, nech, idim, facies, nstep, istep, valid;
   double dist, t1min, t1max, t2min, t2max, s1min, s1max, s2min, s2max;

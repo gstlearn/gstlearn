@@ -310,4 +310,4 @@ void RankHandler::dump(bool flagFull) const
     message("\n");
   }
 }
-}
+} // namespace gstlrn

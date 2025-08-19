@@ -2645,11 +2645,11 @@ Id Db::getNZValues() const
 bool Db::hasLocVariable(const ELoc& loctype) const
 {
   if (loctype == ELoc::UNKNOWN) return false;
-  return hasLocator(loctype);
+  return static_cast<Id>(hasLocator(loctype));
 }
 bool Db::hasZVariable() const
 {
-  return hasLocator(ELoc::Z);
+  return static_cast<Id>(hasLocator(ELoc::Z));
 }
 
 /**

@@ -54,33 +54,33 @@ Id MSS(Id ndim, Id ipol, Id icas, Id icorn, Id idim)
 
   constexpr Id S1D[1][1][2][1] = {{{{0}, {1}}}};
   constexpr Id S2D[2][2][3][2] = {{{{0, 0}, {1, 0}, {0, 1}},
-                                    {{0, 1}, {1, 0}, {1, 1}}},
-                                   {{{0, 0}, {1, 0}, {1, 1}},
-                                    {{0, 0}, {0, 1}, {1, 1}}}};
+                                   {{0, 1}, {1, 0}, {1, 1}}},
+                                  {{{0, 0}, {1, 0}, {1, 1}},
+                                   {{0, 0}, {0, 1}, {1, 1}}}};
   constexpr Id S3D[1][6][4][3] = {{{{0, 0, 0},
-                                     {1, 0, 0},
-                                     {1, 0, 1},
-                                     {1, 1, 1}},
-                                    {{0, 0, 0},
-                                     {0, 0, 1},
-                                     {1, 0, 1},
-                                     {1, 1, 1}},
-                                    {{0, 0, 0},
-                                     {0, 0, 1},
-                                     {0, 1, 1},
-                                     {1, 1, 1}},
-                                    {{0, 0, 0},
-                                     {0, 1, 0},
-                                     {0, 1, 1},
-                                     {1, 1, 1}},
-                                    {{0, 0, 0},
-                                     {1, 0, 0},
-                                     {1, 1, 0},
-                                     {1, 1, 1}},
-                                    {{0, 0, 0},
-                                     {0, 1, 0},
-                                     {1, 1, 0},
-                                     {1, 1, 1}}}};
+                                    {1, 0, 0},
+                                    {1, 0, 1},
+                                    {1, 1, 1}},
+                                   {{0, 0, 0},
+                                    {0, 0, 1},
+                                    {1, 0, 1},
+                                    {1, 1, 1}},
+                                   {{0, 0, 0},
+                                    {0, 0, 1},
+                                    {0, 1, 1},
+                                    {1, 1, 1}},
+                                   {{0, 0, 0},
+                                    {0, 1, 0},
+                                    {0, 1, 1},
+                                    {1, 1, 1}},
+                                   {{0, 0, 0},
+                                    {1, 0, 0},
+                                    {1, 1, 0},
+                                    {1, 1, 1}},
+                                   {{0, 0, 0},
+                                    {0, 1, 0},
+                                    {1, 1, 0},
+                                    {1, 1, 1}}}};
 
   Id ival = 0;
   if (ipol < 0 || icorn < 0 || icas < 0 || idim < 0) return ival;
@@ -196,7 +196,7 @@ VectorDouble extend_point(Db* db, const VectorDouble& gext, Id* nout)
     for (Id idim = ndim - 1; idim >= 0; idim--)
     {
       Id ival = rank / ndiv;
-      rank     = rank - ndiv * ival;
+      rank    = rank - ndiv * ival;
       ndiv /= 2;
       coor[idim] = (ival == 0) ? mini[idim] - gext[idim] : maxi[idim] + gext[idim];
     }
@@ -262,7 +262,7 @@ VectorDouble get_db_extension(Db* dbin, Db* dbout, Id* nout)
     for (Id idim = ndim - 1; idim >= 0; idim--)
     {
       Id ival = rank / ndiv;
-      rank     = rank - ndiv * ival;
+      rank    = rank - ndiv * ival;
       ndiv /= 2;
       coor[idim] = (ival == 0) ? mini_abs[idim] : maxi_abs[idim];
     }
@@ -293,11 +293,11 @@ VectorDouble get_db_extension(Db* dbin, Db* dbout, Id* nout)
  **
  *****************************************************************************/
 static Id st_load_segment(DbGrid* dbgrid,
-                           VectorInt& mesh,
-                           VectorInt& order,
-                           Id ipos,
-                           Id ix1,
-                           Id ix2)
+                          VectorInt& mesh,
+                          VectorInt& order,
+                          Id ipos,
+                          Id ix1,
+                          Id ix2)
 {
   Id iech1, iech2, imask1, imask2;
   VectorInt indg(1);
@@ -347,15 +347,15 @@ static Id st_load_segment(DbGrid* dbgrid,
  **
  *****************************************************************************/
 static Id st_load_triangle(DbGrid* dbgrid,
-                            VectorInt& mesh,
-                            VectorInt& order,
-                            Id ipos,
-                            Id ix1,
-                            Id iy1,
-                            Id ix2,
-                            Id iy2,
-                            Id ix3,
-                            Id iy3)
+                           VectorInt& mesh,
+                           VectorInt& order,
+                           Id ipos,
+                           Id ix1,
+                           Id iy1,
+                           Id ix2,
+                           Id iy2,
+                           Id ix3,
+                           Id iy3)
 {
   Id iech1, iech2, iech3, imask1, imask2, imask3;
   VectorInt indg(2);
@@ -420,21 +420,21 @@ static Id st_load_triangle(DbGrid* dbgrid,
  **
  *****************************************************************************/
 static Id st_load_tetra(DbGrid* dbgrid,
-                         VectorInt& mesh,
-                         VectorInt& order,
-                         Id ipos,
-                         Id ix1,
-                         Id iy1,
-                         Id iz1,
-                         Id ix2,
-                         Id iy2,
-                         Id iz2,
-                         Id ix3,
-                         Id iy3,
-                         Id iz3,
-                         Id ix4,
-                         Id iy4,
-                         Id iz4)
+                        VectorInt& mesh,
+                        VectorInt& order,
+                        Id ipos,
+                        Id ix1,
+                        Id iy1,
+                        Id iz1,
+                        Id ix2,
+                        Id iy2,
+                        Id iz2,
+                        Id ix3,
+                        Id iy3,
+                        Id iz3,
+                        Id ix4,
+                        Id iy4,
+                        Id iz4)
 {
   Id iech1, iech2, iech3, iech4, imask1, imask2, imask3, imask4;
   VectorInt indg(3);
@@ -625,15 +625,15 @@ AMesh* meshes_turbo_2D_grid_build(DbGrid* dbgrid)
  **
  *****************************************************************************/
 Id meshes_2D_write(const char* file_name,
-                    const char* obj_name,
-                    Id verbose,
-                    Id ndim,
-                    Id ncode,
-                    Id ntri,
-                    Id npoints,
-                    const VectorInt& ntcode,
-                    const VectorInt& triangles,
-                    const VectorDouble& points)
+                   const char* obj_name,
+                   Id verbose,
+                   Id ndim,
+                   Id ncode,
+                   Id ntri,
+                   Id npoints,
+                   const VectorInt& ntcode,
+                   const VectorInt& triangles,
+                   const VectorDouble& points)
 {
   FILE* file;
   Id i, itri, ntriloc;

@@ -330,7 +330,7 @@ void ClassicalPolynomial::evalOpTraining(
 //                                            Id igparam)
 // {
 //   DECLARE_UNUSED(shiftOp,temp1,temp2,outv,workpoly,iapex,igparam)
-//   // Id degree = (Id) _coeffs.size();
+//   // Id degree = static_cast<Id>(_coeffs.size());
 
 //   // MatrixSparse* S = shiftOp->getS();
 //   // MatrixSparse* gradS = shiftOp->getSGrad(iapex,igparam);

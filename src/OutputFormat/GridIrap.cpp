@@ -13,7 +13,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 
-#define N_SAMPLE(nx,nsample) ((Id) ((nx-1) / nsample) + 1)
+#define N_SAMPLE(nx,nsample) (static_cast<Id> ((nx-1) / nsample) + 1)
 
 namespace gstlrn
 {

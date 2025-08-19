@@ -14,9 +14,9 @@
 
 namespace gstlrn
 {
-DriftM::DriftM(const VectorInt &powers)
-    : ADrift(),
-      _monomialPower(powers)
+DriftM::DriftM(const VectorInt& powers)
+  : ADrift()
+  , _monomialPower(powers)
 {
 }
 
@@ -130,11 +130,11 @@ DriftM* DriftM::createByIdentifier(const String& driftname)
 
     // Decode the power
     Id rank = atoi(input.c_str());
-    input    = input.substr(1, input.size() - 1);
+    input   = input.substr(1, input.size() - 1);
     if (rank > rank_max) rank_max = rank;
 
     // Attempt to read the exponentiation
-    Id power = 1;
+    Id power  = 1;
     substring = "^";
     found     = input.find(substring);
     if (found == 0)
@@ -160,4 +160,4 @@ DriftM* DriftM::createByIdentifier(const String& driftname)
   powers.resize(rank_max);
   return new DriftM(powers);
 }
-}
+} // namespace gstlrn

@@ -21,7 +21,7 @@
 #define COLOR_FFFF            -2
 #define COLOR_LOWER           -3
 #define COLOR_UPPER           -4
-#define N_SAMPLE(nx, nsample) ((Id)((nx - 1) / nsample) + 1)
+#define N_SAMPLE(nx, nsample) (static_cast<Id>((nx - 1) / nsample) + 1)
 
 namespace gstlrn
 {

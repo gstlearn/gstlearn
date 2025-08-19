@@ -139,10 +139,10 @@ Id Vecchia::_getAddressInMatrix(Id ip, Id ivar) const
 }
 
 Id Vecchia::_buildNeighborhood(const MatrixT<Id>& Ranks,
-                                Id isample,
-                                Id ivar,
-                                Id nb_neigh,
-                                std::vector<std::array<Id, 4>>& neighDescr) const
+                               Id isample,
+                               Id ivar,
+                               Id nb_neigh,
+                               std::vector<std::array<Id, 4>>& neighDescr) const
 {
   // Loop on the ranks of the neighboring samples
   Id nitems = 0;
@@ -252,7 +252,7 @@ void Vecchia::_buildRHS(Id icase2,
 void Vecchia::_loadDataFlattened()
 {
   auto icase = _getCase();
-  Id ecr   = 0;
+  Id ecr     = 0;
   if (icase == 1)
   {
     _Y.resize(_Ntot1);
@@ -336,7 +336,7 @@ Id Vecchia::computeLower(const MatrixT<Id>& Ranks, bool verbose)
   {
     for (Id isample = 0; isample < nsample; isample++)
     {
-      Id target = Ranks(isample, 0);
+      Id target   = Ranks(isample, 0);
       auto icase1 = _getSampleCase(target);
       auto iabs1  = _getAddressAbsolute(target);
       auto irel1  = _getAddressInMatrix(target, ivar);
@@ -473,11 +473,11 @@ MatrixSparse* Vecchia::calculateW(const VectorDouble& D_dd) const
 }
 
 Id krigingVecchia(Db* dbin,
-                   Db* dbout,
-                   ModelGeneric* model,
-                   Id nb_neigh,
-                   bool verbose,
-                   const NamingConvention& namconv)
+                  Db* dbout,
+                  ModelGeneric* model,
+                  Id nb_neigh,
+                  bool verbose,
+                  const NamingConvention& namconv)
 {
   Vecchia V(model, nb_neigh, dbout, dbin);
 
@@ -488,7 +488,7 @@ Id krigingVecchia(Db* dbin,
   VectorDouble DFull = V.getDFull();
   auto nd            = V.getND();
   auto nt            = V.getNT();
-  Id nvar           = model->getNVar();
+  Id nvar            = model->getNVar();
   VectorDouble D_dd(nd);
   VH::extractInPlace(DFull, D_dd, nt);
 

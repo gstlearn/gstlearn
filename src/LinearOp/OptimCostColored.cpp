@@ -39,7 +39,7 @@ OptimCostColored::OptimCostColored(Id nprop,
 }
 
 OptimCostColored::OptimCostColored(const OptimCostColored& m)
-  : OptimCostBinary(m)
+  : OptimCostBinary()
   , _nprop(m._nprop)
   , _splits(m._splits)
   , _meanProps(m._meanProps)

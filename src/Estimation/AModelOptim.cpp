@@ -15,7 +15,7 @@
 #include "Model/ModelCovList.hpp"
 
 namespace gstlrn
-{ 
+{
 AModelOptim::AModelOptim(ModelGeneric* model, bool verbose)
   : _model(model)
   , _verbose(verbose)
@@ -31,7 +31,7 @@ AModelOptim::AModelOptim(ModelGeneric* model, bool verbose)
   // MatrixSymmetric varsUnit = MatrixSymmetric(nvar);
   // for (Id ivar = 0; ivar < nvar; ivar++) varsUnit.setValue(ivar, ivar, 1.);
   // _model->initParams(varsUnit, 1.);
-  _x    = _params->getOptimizableValues();
+  _x = _params->getOptimizableValues();
   if (useGradient)
     _opt = new Optim(LBFGS, static_cast<Id>(_x.size()));
   else
@@ -175,4 +175,4 @@ void AModelOptim::resetIter()
 {
   _iter = 0;
 }
-}
+} // namespace gstlrn

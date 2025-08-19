@@ -325,8 +325,9 @@ static void st_convert(double hspill)
 static SPIMG* st_image_free(SPIMG* image)
 {
   if (image == nullptr) return (image);
-  delete image;
-  image = nullptr;
+
+  image = (SPIMG*)mem_free((char*)image);
+
   return (image);
 }
 

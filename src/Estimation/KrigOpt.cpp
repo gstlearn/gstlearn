@@ -106,8 +106,8 @@ Id KrigOpt::setMatLC(const MatrixDense* matLC)
 }
 
 Id KrigOpt::setOptionCalcul(const EKrigOpt& calcul,
-                             const VectorInt& ndiscs,
-                             bool flag_per_cell)
+                            const VectorInt& ndiscs,
+                            bool flag_per_cell)
 {
   _calcul = calcul;
 
@@ -219,7 +219,7 @@ bool KrigOpt::_isValidCalcul(const Db* dbout, const ANeigh* neigh) const
   if (_calcul == EKrigOpt::BLOCK)
   {
     const auto* dbgrid = dynamic_cast<const DbGrid*>(dbout);
-    _dbgrid              = dbgrid;
+    _dbgrid            = dbgrid;
     if (dbgrid == nullptr)
     {
       messerr("Block Estimation is only possible for Grid '_dbout'");
@@ -281,13 +281,13 @@ bool KrigOpt::_isValidMatLC(const ModelGeneric* model) const
 
   if (nrows > nvar)
   {
-    messerr("First dimension of 'matLC' (%ld)", nrows);
+    messerr("First dimension of 'matLC' (%d)", nrows);
     messerr("should be smaller than the number of variables in the model (%d)", nvar);
     return false;
   }
   if (ncols != nvar)
   {
-    messerr("Second dimension of 'matLC' (%ld)", ncols);
+    messerr("Second dimension of 'matLC' (%d)", ncols);
     messerr("should be equal to the number of variables in the model (%d)", nvar);
     return false;
   }

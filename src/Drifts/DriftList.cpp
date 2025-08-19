@@ -168,8 +168,8 @@ String DriftList::getDriftName(Id il) const
 
 Id DriftList::getNDriftEquation() const
 {
-  auto nbfl                = getNDrift();
-  auto nvar                = getNVar();
+  auto nbfl               = getNDrift();
+  auto nvar               = getNVar();
   Id ndriftEquationNumber = (_flagLinked) ? nbfl : nbfl * nvar;
   return ndriftEquationNumber;
 }
@@ -292,7 +292,7 @@ bool DriftList::isDriftSampleDefined(const Db* db,
                                      const ELoc& loctype) const
 {
   auto nbfl = getNDrift();
-  Id nvar = db->getNLoc(loctype);
+  Id nvar   = db->getNLoc(loctype);
 
   if (_flagCombined)
   {
@@ -323,7 +323,7 @@ VectorVectorDouble DriftList::getDrifts(const Db* db, bool useSel) const
 {
   VectorVectorDouble vecvec;
   auto nbfl = getNDrift();
-  Id nech = db->getNSample(useSel);
+  Id nech   = db->getNSample(useSel);
   VectorDouble vec(nech);
 
   for (Id ib = 0; ib < nbfl; ib++)
@@ -341,7 +341,7 @@ VectorVectorDouble DriftList::getDrifts(const Db* db, bool useSel) const
 
 double DriftList::evalDriftCoef(const Db* db, Id iech, const VectorDouble& coeffs) const
 {
-  auto nbfl  = getNDrift();
+  auto nbfl = getNDrift();
   Id ncoeff = static_cast<Id>(coeffs.size());
   if (nbfl != ncoeff)
   {
@@ -371,7 +371,7 @@ VectorDouble DriftList::evalDriftCoefs(const Db* db,
                                        bool useSel) const
 {
   VectorDouble vec;
-  auto nbfl  = getNDrift();
+  auto nbfl = getNDrift();
   Id ncoeff = static_cast<Id>(coeffs.size());
   if (ncoeff != nbfl)
   {
@@ -398,7 +398,7 @@ Id DriftList::getDriftMaxIRFOrder() const
   for (Id il = 0, nbfl = getNDrift(); il < nbfl; il++)
   {
     const ADrift* drft = _drifts[il];
-    Id order          = drft->getOrderIRF();
+    Id order           = drft->getOrderIRF();
     if (order > max_order) max_order = order;
   }
   return (max_order);
@@ -512,9 +512,9 @@ MatrixDense DriftList::evalDriftMat(const Db* db,
 }
 
 Id DriftList::evalDriftMatInPlace(MatrixDense& mat,
-                                   const Db* db,
-                                   const VectorInt& nbgh,
-                                   const ECalcMember& member) const
+                                  const Db* db,
+                                  const VectorInt& nbgh,
+                                  const ECalcMember& member) const
 {
   VectorInt ivars = _getActiveVariables(-1);
   if (ivars.empty()) return 1;
@@ -534,9 +534,9 @@ Id DriftList::evalDriftMatInPlace(MatrixDense& mat,
  * @return Id Error returned code
  */
 Id DriftList::evalDriftMatByRanksInPlace(MatrixDense& mat,
-                                          const Db* db,
-                                          const VectorVectorInt& sampleRanks,
-                                          const ECalcMember& member) const
+                                         const Db* db,
+                                         const VectorVectorInt& sampleRanks,
+                                         const ECalcMember& member) const
 {
   VectorVectorInt sampleRanksLoc = sampleRanks;
   if (sampleRanksLoc.empty())
@@ -555,7 +555,7 @@ Id DriftList::evalDriftMatByRanksInPlace(MatrixDense& mat,
   auto nvar = getNVar();
   auto nbfl = getNDrift();
   auto nfeq = getNDriftEquation();
-  Id ncols = (isFlagLinked()) ? nfeq : nvar * nbfl;
+  Id ncols  = (isFlagLinked()) ? nfeq : nvar * nbfl;
   if (ncols <= 0) return 0;
   mat.resize(neq, ncols);
   mat.fill(0.);
@@ -648,9 +648,9 @@ thread_local VectorInt ivars;
  **
  *****************************************************************************/
 Id DriftList::evalDriftMatByTargetInPlace(MatrixDense& mat,
-                                           const Db* db,
-                                           Id iech2,
-                                           const KrigOpt& krigopt) const
+                                          const Db* db,
+                                          Id iech2,
+                                          const KrigOpt& krigopt) const
 {
   VH::sequenceInPlace(getNVar(), ivars);
   if (ivars.empty()) return 1;
@@ -671,7 +671,7 @@ Id DriftList::evalDriftMatByTargetInPlace(MatrixDense& mat,
   auto nvar = getNVar();
   auto nbfl = getNDrift();
   auto nfeq = getNDriftEquation();
-  Id ncols = (isFlagLinked()) ? nfeq : nvar * nbfl;
+  Id ncols  = (isFlagLinked()) ? nfeq : nvar * nbfl;
   if (ncols <= 0) return 0;
   mat.resize(neq, ncols);
   mat.fill(0.);
@@ -860,4 +860,4 @@ DriftList::evalDriftVarCoefs(const Db* db, const VectorDouble& coeffs, bool useS
   vec = evalDriftCoefs(db, coeffs, useSel);
   return vec;
 }
-}
+} // namespace gstlrn

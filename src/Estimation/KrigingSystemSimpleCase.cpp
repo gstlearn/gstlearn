@@ -41,7 +41,7 @@
 #include <cmath>
 
 namespace gstlrn
-{ 
+{
 
 KrigingSystemSimpleCase::KrigingSystemSimpleCase(Db* dbin,
                                                  Db* dbout,
@@ -243,7 +243,7 @@ void KrigingSystemSimpleCase::_estimateCalcul(Id status,
       {
         if (status != 0) continue;
         double wgt = algebra.getLambda()->getValue(jech, ivarCL);
-        Id iech   = (*algebra.getSampleRanksByVariable(0))[jech];
+        Id iech    = (*algebra.getSampleRanksByVariable(0))[jech];
         if (_flagSet)
           _dbin->setArray(iech, _iptrWeights + ivarCL, wgt);
         else
@@ -400,12 +400,12 @@ void KrigingSystemSimpleCase::conclusion()
 }
 
 Id KrigingSystemSimpleCase::estimate(Id iechout,
-                                      SpacePoint& pin,
-                                      SpacePoint& pout,
-                                      VectorDouble& tabwork,
-                                      KrigingAlgebraSimpleCase& algebra,
-                                      ModelGeneric& model,
-                                      ANeigh* neigh)
+                                     SpacePoint& pin,
+                                     SpacePoint& pout,
+                                     VectorDouble& tabwork,
+                                     KrigingAlgebraSimpleCase& algebra,
+                                     ModelGeneric& model,
+                                     ANeigh* neigh)
 {
 
   if (!_dbout->isActive(iechout)) return 0;
@@ -562,9 +562,9 @@ void KrigingSystemSimpleCase::_dumpKrigingResults(Id status,
  * @remark If a term must not be calculated, its UID must be negative
  */
 Id KrigingSystemSimpleCase::updKrigOptEstim(Id iptrEst,
-                                             Id iptrStd,
-                                             Id iptrVarZ,
-                                             bool forceNoDual)
+                                            Id iptrStd,
+                                            Id iptrVarZ,
+                                            bool forceNoDual)
 {
   _iptrEst  = iptrEst;
   _iptrStd  = iptrStd;
@@ -591,7 +591,7 @@ Id KrigingSystemSimpleCase::updKrigOptEstim(Id iptrEst,
 
 Id KrigingSystemSimpleCase::setKrigOptDataWeights(Id iptrWeights, bool flagSet)
 {
-  _isReady = false;
+  _isReady  = false;
   auto nvar = _getNVar();
   if (iptrWeights >= 0 && nvar > 1)
   {
@@ -873,4 +873,4 @@ MatrixDense KrigingSystemSimpleCase::getMu(KrigingAlgebraSimpleCase& algebra)
   if (mu == nullptr) return MatrixDense();
   return *mu;
 }
-}
+} // namespace gstlrn

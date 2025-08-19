@@ -105,8 +105,8 @@ Id RuleShift::resetFromFaciesCount(Id nfacies, const VectorDouble& shift)
 }
 
 Id RuleShift::resetFromNumericalCoding(const VectorInt& n_type,
-                                        const VectorInt& n_facs,
-                                        const VectorDouble& shift)
+                                       const VectorInt& n_facs,
+                                       const VectorDouble& shift)
 {
   _shift = shift;
   setModeRule(ERule::SHIFT);
@@ -175,10 +175,10 @@ String RuleShift::displaySpecific() const
 **
 *****************************************************************************/
 Id RuleShift::particularities(Db* db,
-                               const Db* /*dbprop*/,
-                               Model* model,
-                               Id flag_grid_check,
-                               Id /*flag_stat*/) const
+                              const Db* /*dbprop*/,
+                              Model* model,
+                              Id flag_grid_check,
+                              Id /*flag_stat*/) const
 {
   Id ndim = (model != nullptr) ? model->getNDim() : 0;
   VectorDouble wxyz(ndim);
@@ -274,11 +274,11 @@ bool RuleShift::checkModel(const Model* model, Id nvar) const
 **
 *****************************************************************************/
 Id RuleShift::gaus2facResult(PropDef* propdef,
-                              Db* dbout,
-                              Id* /*flag_used*/,
-                              Id ipgs,
-                              Id isimu,
-                              Id nbsimu) const
+                             Db* dbout,
+                             Id* /*flag_used*/,
+                             Id ipgs,
+                             Id isimu,
+                             Id nbsimu) const
 {
   Id ndim, iech, jech, idim, igrf, icase;
   double t1min, t1max, t2min, t2max, facies, y[2];
@@ -341,12 +341,12 @@ Id RuleShift::gaus2facResult(PropDef* propdef,
 **
 *****************************************************************************/
 Id RuleShift::evaluateBounds(PropDef* propdef,
-                              Db* dbin,
-                              Db* dbout,
-                              Id isimu,
-                              Id igrf,
-                              Id ipgs,
-                              Id nbsimu) const
+                             Db* dbin,
+                             Db* dbout,
+                             Id isimu,
+                             Id igrf,
+                             Id ipgs,
+                             Id nbsimu) const
 {
   Id iech, jech, nadd, nech, idim, facies;
   double t1min, t1max, t2min, t2max, s1min, s1max, s2min, s2max;

@@ -1526,7 +1526,7 @@ Id db_smooth_vpc(DbGrid* db, Id width, double range)
   if (FFFF(range))
     range = dz * width / quant0;
   else if (IFFFF(width))
-    width = (Id)(range * quant0 / dz);
+    width = static_cast<Id>(range * quant0 / dz);
   else
   {
     messerr("You must define either 'width' or 'range'");

@@ -245,7 +245,7 @@ void ANeigh::_display(const VectorInt& ranks) const
   Id ncode = _dbin->getNLoc(ELoc::C);
   Id nblex = _dbin->getNLoc(ELoc::BLEX);
   Id nvar  = _dbin->getNLoc(ELoc::Z);
-  nvar      = 0;
+  nvar     = 0;
 
   /* Title */
 
@@ -459,7 +459,7 @@ bool ANeigh::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
 
   /* Read the grid characteristics */
   bool ret = true;
-  Id ndim = 0;
+  Id ndim  = 0;
 
   ret = ret && SerializeHDF5::readValue(*aneighG, "NDim", ndim);
 

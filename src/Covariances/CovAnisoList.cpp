@@ -438,7 +438,7 @@ double CovAnisoList::getBallRadius() const
 
 Id CovAnisoList::hasExternalCov() const
 {
-  for (Id icov = 0; icov < static_cast<Id>(getNCov()); icov++)
+  for (Id icov = 0; icov < getNCov(); icov++)
   {
     if (getCovType(icov) == ECov::FUNCTION) return 1;
   }

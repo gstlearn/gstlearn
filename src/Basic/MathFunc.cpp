@@ -2372,7 +2372,7 @@ Id besselk(double x, double alpha, Id nb, double* bk)
     if (iend == 1) return (ncalc);
 
     /* Computing MIN */
-    m = MIN((Id)(wminf - enu), iend);
+    m = MIN(static_cast<Id>(wminf - enu), iend);
     for (i = 2; i <= m; ++i)
     {
       t1  = bk1;

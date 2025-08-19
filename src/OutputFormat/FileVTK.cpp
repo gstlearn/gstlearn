@@ -9,10 +9,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include "OutputFormat/FileVTK.hpp"
-#include "OutputFormat/AOF.hpp"
-#include "OutputFormat/vtk.h"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "OutputFormat/AOF.hpp"
+#include "OutputFormat/vtk.h"
 
 namespace gstlrn
 {
@@ -62,10 +62,10 @@ Id FileVTK::writeInFile()
 
   /* Preliminary checks */
 
-  Id ndim       = _db->getNDim();
-  Id ncol       = static_cast<Id>(_cols.size());
-  Id nech       = _db->getNSample();
-  Id nactive    = _db->getNSample(true);
+  Id ndim        = _db->getNDim();
+  Id ncol        = static_cast<Id>(_cols.size());
+  Id nech        = _db->getNSample();
+  Id nactive     = _db->getNSample(true);
   bool flag_grid = _db->isGrid();
 
   /* Define the reading parameters */
@@ -200,4 +200,4 @@ Id FileVTK::writeInFile()
   _fileClose();
   return 0;
 }
-}
+} // namespace gstlrn

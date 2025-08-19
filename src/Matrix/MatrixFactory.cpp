@@ -115,7 +115,7 @@ MatrixSquare* MatrixFactory::createMatrixSquare(const MatrixSquare* x,
                                                 Id nrow)
 {
   /// TODO : use typeinfo
-  const auto* mxsg     = dynamic_cast<const MatrixSquare*>(x);
+  const auto* mxsg  = dynamic_cast<const MatrixSquare*>(x);
   const auto* mxsym = dynamic_cast<const MatrixSymmetric*>(x);
 
   MatrixSquare* res = nullptr;
@@ -183,9 +183,9 @@ AMatrix* MatrixFactory::createReduce(const AMatrix* x,
   bool flagSame = (localSelRows == localSelCols);
 
   /// TODO : use typeinfo
-  AMatrix* res                 = nullptr;
-  const auto* mxrg      = dynamic_cast<const MatrixDense*>(x);
-  const auto* mxsg     = dynamic_cast<const MatrixSquare*>(x);
+  AMatrix* res      = nullptr;
+  const auto* mxrg  = dynamic_cast<const MatrixDense*>(x);
+  const auto* mxsg  = dynamic_cast<const MatrixSquare*>(x);
   const auto* mxsym = dynamic_cast<const MatrixSymmetric*>(x);
 
   if (mxsym != nullptr)

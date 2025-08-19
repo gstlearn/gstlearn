@@ -80,8 +80,8 @@ Table* Table::create(Id nrow, Id ncol)
 Table* Table::createFromNames(const VectorString& rownames,
                               const VectorString& colnames)
 {
-  Id nrow    = static_cast<Id>(rownames.size());
-  Id ncol    = static_cast<Id>(colnames.size());
+  Id nrow     = static_cast<Id>(rownames.size());
+  Id ncol     = static_cast<Id>(colnames.size());
   auto* table = new Table(nrow, ncol);
   table->setRowNames(rownames);
   table->setColumnNames(colnames);
@@ -147,8 +147,8 @@ bool Table::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 
 bool Table::_deserializeAscii(std::istream& is, bool /*verbose*/)
 {
-  Id nrows    = 0;
-  Id ncols    = 0;
+  Id nrows     = 0;
+  Id ncols     = 0;
   double value = 0.;
 
   bool ret = true;
