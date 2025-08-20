@@ -9,10 +9,10 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Core/io.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Utilities.hpp"
 #include "geoslib_define.h"
 #include "geoslib_io.h"
 #include <cmath>
@@ -27,7 +27,6 @@
 
 namespace gstlrn
 {
-static char BUFFER[STRING_LENGTH];
 static char DEL_COM = '#';
 static char DEL_BLK = ' ';
 static char DEL_SEP = ' ';
@@ -41,10 +40,8 @@ static void (*WARN_FUNC)(const char*)        = static_cast<void (*)(const char*)
 static void (*READ_FUNC)(const char*, char*) = st_read;
 static void (*EXIT_FUNC)(void)               = st_exit;
 
-static char* LCUR;
-static String cur;
-static String LINE;
-static String LINE_MEM;
+static std::string currentLine;
+static size_t pos = 0;
 
 // https://stackoverflow.com/a/26359433/3952924
 #ifdef _MSC_VER
@@ -86,13 +83,14 @@ static void st_print(const char* string)
  *****************************************************************************/
 static void st_read(const char* prompt, char* buffer)
 {
+  Id buffer_length = 1000; // TODO to be adjusted dependeing on calling function
   message("%s :", prompt);
 
   String ligne;
   if (std::getline(std::cin, ligne))
   {
     // ligne contient le texte lu (sans le '\n')
-    (void)gslStrcpy(buffer, ligne.data());
+    (void)gslStrcpy(buffer, buffer_length, ligne.data());
     buffer[strlen(buffer) - 1] = '\0';
   }
   else
@@ -301,7 +299,6 @@ FILE* _file_open(const char* filename, Id mode)
   else
     file = gslFopen(filename, "w");
 
-  _erase_current_string();
   return (file);
 }
 
@@ -330,19 +327,7 @@ void _token_delimitors(const char del_com, const char del_sep, const char del_bl
  *****************************************************************************/
 void print_current_line(void)
 {
-  messerr("Current Line: %s", LINE_MEM.data());
-}
-
-/****************************************************************************/
-/*!
- **  Erase the current decoding string
- **
- ** This method is not documented on purpose. It should remain private
- **
- *****************************************************************************/
-void _erase_current_string(void)
-{
-  LCUR = NULL;
+  messerr("Current Line: %s", currentLine.data());
 }
 
 static Id _stripToken(std::string& token, const char* format)
@@ -373,7 +358,7 @@ static Id _decodeToken(const std::string& token, const char* format, void* out)
   if (strcmp(format, "%ld") == 0)
   {
     char* endptr;
-    int val = std::strtol(token.c_str(), &endptr, 10);
+    Id val = std::strtol(token.c_str(), &endptr, 10);
     if (*endptr != '\0') return 1; // conversion échouée
     *static_cast<Id*>(out) = val;
     return 0;
@@ -396,8 +381,7 @@ static Id _decodeToken(const std::string& token, const char* format, void* out)
   }
   if (strcmp(format, "%s") == 0)
   {
-    std::string& val = *static_cast<std::string*>(out);
-    val              = token;
+    *static_cast<std::string*>(out) = token;
     return 0;
   }
   return 1;
@@ -421,8 +405,6 @@ static Id _decodeToken(const std::string& token, const char* format, void* out)
  *****************************************************************************/
 Id _buffer_read(const String& line, const char* format, void* out)
 {
-  static std::string currentLine;
-  static size_t pos = 0;
 
   // initialisation au premier appel
   if (currentLine.empty())
@@ -636,294 +618,6 @@ void _buffer_write(String& buffer, const char* format, va_list ap)
 
 /****************************************************************************/
 /*!
- **  Read astring
- **
- ** \param[in]  question  Question to be asked
- ** \param[in]  flag_def  1 if the default is authorized; 0 otherwise
- ** \param[in]  valdef    Default string
- **
- ** \param[out] answer    Answering string
- **
- ** This method is not documented on purpose. It should remain private
- **
- *****************************************************************************/
-void _lire_string(const char* question,
-                  Id flag_def,
-                  const char* valdef,
-                  char* answer)
-{
-  LINE.resize(LONG_SIZE);
-loop:
-
-  /* Compose the question */
-
-  (void)gslSPrintf2(LINE, "%s ", question);
-  if (flag_def) (void)gslSPrintfCat2(LINE, "(Def=%s) ", valdef);
-  (void)gslStrcat2(LINE, ": ");
-
-  /* Read the answer */
-
-  READ_FUNC(LINE.data(), BUFFER);
-
-  /* Handle the default value */
-
-  if (strlen(BUFFER) <= 0)
-  {
-    if (flag_def)
-    {
-      (void)gslStrcpy(answer, valdef);
-    }
-    else
-    {
-      messerr("No default value provided");
-      goto loop;
-    }
-  }
-  else
-  {
-    (void)gslStrcpy(answer, BUFFER);
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Read an integer value
- **
- ** \return  Integer value
- **
- ** \param[in]  question  Question to be asked
- ** \param[in]  flag_def  1 if the default is authorized; 0 otherwise
- ** \param[in]  valdef    Default value or ITEST
- ** \param[in]  valmin    Minimum authorized value or ITEST
- ** \param[in]  valmax    Maximum authorized value or ITEST
- **
- ** This method is not documented on purpose. It should remain private
- **
- *****************************************************************************/
-Id _lire_int(const char* question,
-             Id flag_def,
-             Id valdef,
-             Id valmin,
-             Id valmax)
-{
-  Id rep;
-  LINE.resize(LONG_SIZE);
-loop:
-
-  /* Compose the question */
-
-  (void)gslSPrintf2(LINE, "%s ", question);
-  if (!IFFFF(valmin) && !IFFFF(valmax) && valmin > valmax)
-    valmin = valmax = ITEST;
-  if (!IFFFF(valmin) && !IFFFF(valdef) && valdef < valmin) valdef = valmin;
-  if (!IFFFF(valmax) && !IFFFF(valdef) && valdef > valmax) valdef = valmax;
-  if (flag_def && !IFFFF(valdef))
-    (void)gslSPrintfCat2(LINE, "(Def=%d) ", valdef);
-  if (IFFFF(valmin))
-    (void)gslStrcat2(LINE, "[NA,");
-  else
-    (void)gslSPrintfCat2(LINE, "[%d,", valmin);
-  if (IFFFF(valmax))
-    (void)gslStrcat2(LINE, "NA] ");
-  else
-    (void)gslSPrintfCat2(LINE, "%d] ", valmax);
-  (void)gslStrcat2(LINE, ": ");
-
-  /* Read the answer */
-
-  READ_FUNC(LINE.data(), BUFFER);
-
-  /* Handle the default value */
-
-  if (strlen(BUFFER) <= 0)
-  {
-    if (flag_def && !IFFFF(valdef))
-    {
-      rep = valdef;
-    }
-    else
-    {
-      messerr("No default value provided");
-      goto loop;
-    }
-  }
-  else
-  {
-    if (!strcmp(BUFFER, STRING_NA)) return (ITEST);
-    rep = atoi(BUFFER);
-  }
-
-  /* Check the bounds */
-
-  if (!IFFFF(valmin) && rep < valmin)
-  {
-    messerr("Answer (%d) must be larger than Minimum (%d)", rep, valmin);
-    goto loop;
-  }
-  if (!IFFFF(valmax) && rep > valmax)
-  {
-    messerr("Answer (%d) must be smaller than Maximum (%d)", rep, valmax);
-    goto loop;
-  }
-  return (rep);
-}
-
-/****************************************************************************/
-/*!
- **  Read a double value
- **
- ** \return  Double value
- **
- ** \param[in]  question  Question to be asked
- ** \param[in]  flag_def  1 if the default is authorized; 0 otherwise
- ** \param[in]  valdef    Default value or TEST
- ** \param[in]  valmin    Minimum authorized value or TEST
- ** \param[in]  valmax    Maximum authorized value or TEST
- **
- ** This method is not documented on purpose. It should remain private
- **
- *****************************************************************************/
-double _lire_double(const char* question,
-                    Id flag_def,
-                    double valdef,
-                    double valmin,
-                    double valmax)
-{
-  double rep;
-  LINE.resize(LONG_SIZE);
-loop:
-
-  /* Compose the question */
-
-  (void)gslSPrintf2(LINE, "%s ", question);
-  if (!FFFF(valmin) && !FFFF(valmax) && valmin > valmax) valmin = valmax = TEST;
-  if (!FFFF(valmin) && !FFFF(valdef) && valdef < valmin) valdef = valmin;
-  if (!FFFF(valmax) && !FFFF(valdef) && valdef > valmax) valdef = valmax;
-  if (flag_def && !FFFF(valdef))
-    (void)gslSPrintfCat2(LINE, "(Def=%lf) ", valdef);
-  if (FFFF(valmin))
-    (void)gslStrcat2(LINE, "[NA,");
-  else
-    (void)gslSPrintfCat2(LINE, "[%lf,", valmin);
-  if (FFFF(valmax))
-    (void)gslStrcat2(LINE, "NA] ");
-  else
-    (void)gslSPrintfCat2(LINE, "%lf] ", valmax);
-  (void)gslStrcat2(LINE, ": ");
-
-  /* Read the answer */
-
-  READ_FUNC(LINE.data(), BUFFER);
-
-  /* Handle the default value */
-
-  if (strlen(BUFFER) <= 0)
-  {
-    if (flag_def)
-    {
-      rep = valdef;
-    }
-    else
-    {
-      messerr("No default value provided");
-      goto loop;
-    }
-  }
-  else
-  {
-    if (!strcmp(BUFFER, STRING_NA)) return (TEST);
-    rep = atof(BUFFER);
-  }
-
-  /* Check the bounds */
-
-  if (!FFFF(valmin) && rep < valmin)
-  {
-    messerr("Answer (%lf) must be larger than Minimum (%lf)", rep, valmin);
-    goto loop;
-  }
-  if (!FFFF(valmax) && rep > valmax)
-  {
-    messerr("Answer (%lf) must be smaller than Maximum (%lf)", rep, valmax);
-    goto loop;
-  }
-  return (rep);
-}
-
-/****************************************************************************/
-/*!
- **  Read a boolean answer
- **
- ** \return  Integer value: 1 for 'yes' and 0 for 'no'
- **
- ** \param[in]  question  Question to be asked
- ** \param[in]  flag_def  1 if the default is authorized; 0 otherwise
- ** \param[in]  valdef    Default value (0 for NO and 1 for YES)
- **
- ** This method is not documented on purpose. It should remain private
- **
- *****************************************************************************/
-Id _lire_logical(const char* question, Id flag_def, Id valdef)
-{
-  LINE.resize(LONG_SIZE);
-loop:
-
-  /* Compose the question */
-
-  (void)gslSPrintf2(LINE, "%s ", question);
-  if (flag_def && !IFFFF(valdef))
-  {
-    if (valdef == 0)
-      (void)gslStrcat2(LINE, "(Def=n)");
-    else
-      (void)gslStrcat2(LINE, "(Def=y)");
-  }
-  (void)gslStrcat2(LINE, " [y,n] : ");
-
-  /* Read the answer */
-
-  READ_FUNC(LINE.data(), BUFFER);
-
-  /* Handle the default value */
-
-  if (strlen(BUFFER) <= 0)
-  {
-    if (flag_def && !IFFFF(valdef))
-    {
-      return (valdef);
-    }
-    messerr("No default value provided");
-    goto loop;
-  }
-  else
-  {
-
-    /* Check the authorized values */
-
-    if (!strcasecmp(BUFFER, "Y")) return (1);
-    if (!strcasecmp(BUFFER, "N")) return (0);
-    message("The only authorized answers are 'y' or 'n'\n");
-    goto loop;
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Read the next record
- **
- ** This method is not documented on purpose. It should remain private
- **
- *****************************************************************************/
-void record_close(void)
-{
-  cur.clear();
-  LINE.clear();
-  LINE_MEM.clear();
-  LCUR = NULL;
-}
-
-/****************************************************************************/
-/*!
  **  Read the next record
  **
  ** \return Error return code
@@ -932,14 +626,12 @@ void record_close(void)
  ** \param[in]  format     Encoding format
  ** \param[in]  out        Output argumentn
  **
+ ** \return returned arguent: 0 for OK; 1 for error; -1 for EOF
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
 Id _record_read(FILE* file, const char* format, void* out)
 {
-  static std::string currentLine;
-  static size_t pos = 0; // position du prochain token dans currentLine
-
   while (true)
   {
     // lire une nouvelle ligne si nécessaire
@@ -947,7 +639,7 @@ Id _record_read(FILE* file, const char* format, void* out)
     {
       char temp[1024];
       if (!fgets(temp, sizeof(temp), file))
-        return 1; // EOF ou erreur
+        return -1; // EOF ou erreur
 
       if (OptDbg::query(EDbg::INTERFACE)) message("Lecture ASCII = %s", temp);
       currentLine = temp;

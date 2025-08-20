@@ -71,7 +71,7 @@ static char Fichier_frac[]    = "Frac";
  *****************************************************************************/
 static Id st_record_read(const char* title, const char* format, void* out)
 {
-  Id error;
+  Id error = 0;
 
   if (FILE_MEM != nullptr)
   {
@@ -273,7 +273,7 @@ static FILE* st_file_open(const String& filename,
                           bool verbose)
 {
   FILE* file;
-  char idtype[LONG_SIZE];
+  String idtype;
 
   /* Open the file */
 
@@ -294,15 +294,15 @@ static FILE* st_file_open(const String& filename,
 
   if (mode == OLD)
   {
-    if (st_record_read("File Type", "%s", idtype))
+    if (st_record_read("File Type", "%s", &idtype))
     {
       FILE_MEM = NULL;
       return (NULL);
     }
-    if (strcmp(idtype, filetype) != 0)
+    if (idtype != filetype)
     {
       messerr("Error: in the File (%s), its Type (%s) does not match the requested one (%s)",
-              filename.data(), idtype, filetype);
+              filename.data(), idtype.c_str(), filetype);
       FILE_MEM = NULL;
       return (NULL);
     }
@@ -331,7 +331,7 @@ void ascii_environ_read(String& filename, bool verbose)
 
 {
   FILE* file;
-  char name[10];
+  String name;
   Id debug;
 
   /* Opening the Data file */
@@ -343,13 +343,12 @@ void ascii_environ_read(String& filename, bool verbose)
 
   while (1)
   {
-    if (st_record_read("Debug Keyword", "%s", name)) goto label_end;
+    if (st_record_read("Debug Keyword", "%s", &name)) goto label_end;
     if (st_record_read("Debug Value", "%ld", &debug)) goto label_end;
-    String s = toUpper(String(name));
     if (debug == 1)
-      OptDbg::defineByKey(s);
+      OptDbg::defineByKey(name);
     else
-      OptDbg::undefineByKey(s);
+      OptDbg::undefineByKey(name);
   }
 
 label_end:
@@ -389,9 +388,9 @@ void ascii_simu_read(String& filename,
 
   /* Read the parameters */
 
-  if (st_record_read("Number of simulations", "%ld", &nbsimu)) return;
-  if (st_record_read("Number of Turning Bands", "%ld", &nbtuba)) return;
-  if (st_record_read("Random Seed", "%ld", &seed)) return;
+  if (st_record_read("Number of simulations", "%ld", nbsimu)) return;
+  if (st_record_read("Number of Turning Bands", "%ld", nbtuba)) return;
+  if (st_record_read("Random Seed", "%ld", seed)) return;
 
   st_file_close(file);
 }
@@ -420,7 +419,8 @@ Id ascii_option_defined(const String& filename,
                         void* answer)
 {
   FILE* file;
-  char keyword[100], keyval[100];
+  String keyword;
+  String keyval;
   double rval;
   Id lrep, ival;
 
@@ -437,26 +437,26 @@ Id ascii_option_defined(const String& filename,
 
   while (1)
   {
-    if (st_record_read("Option Keyword", "%s", keyword)) goto label_end;
-    if (st_record_read("Option Key-value", "%s", keyval)) goto label_end;
-    if (strcmp(keyword, option_name) != 0) continue;
+    if (st_record_read("Option Keyword", "%s", &keyword)) goto label_end;
+    if (st_record_read("Option Key-value", "%s", &keyval)) goto label_end;
+    if (keyword != option_name) continue;
 
     /* The keyword matches the option name */
     switch (type)
     {
       case 0:
         ival = 0;
-        if (!strcmp(keyval, "Y") || !strcmp(keyval, "YES") || !strcmp(keyval, "y") || !strcmp(keyval, "yes") || atoi(keyval) == 1) ival = 1;
+        if (keyval != "Y" || keyval != "YES" || keyval != "y" || keyval != "yes" || atoi(keyval.data()) == 1) ival = 1;
         *(static_cast<Id*>(answer)) = ival;
         break;
 
       case 1:
-        ival                        = atoi(keyval);
+        ival                        = atoi(keyval.data());
         *(static_cast<Id*>(answer)) = ival;
         break;
 
       case 2:
-        rval                            = atof(keyval);
+        rval                            = atof(keyval.data());
         *(static_cast<double*>(answer)) = rval;
         break;
     }

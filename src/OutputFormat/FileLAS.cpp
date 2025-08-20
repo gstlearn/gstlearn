@@ -98,7 +98,7 @@ Db* FileLAS::readFromFile()
   // Loop on the lines
 
   Id numline = 0;
-  (void)gslStrcpy(string, "");
+  (void)gslStrcpy(string, 1000, "");
 
   // Decode the header
   if (_readFind(s_length, "~Well", &numline, string)) return db;

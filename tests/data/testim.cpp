@@ -9,14 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
-#include "Enum/EFormatNF.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
-
 #include "Basic/File.hpp"
 #include "Core/Ascii.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Enum/EFormatNF.hpp"
 #include "Estimation/CalcKriging.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeigh.hpp"
@@ -27,6 +24,8 @@
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Variogram/Vario.hpp"
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
 
 using namespace gstlrn;
 

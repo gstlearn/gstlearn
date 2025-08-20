@@ -55,6 +55,7 @@ Id GridZycor::writeInFile()
   char card[100]; /* Size = nbyline * 20 */
   static Id nbyline     = 5;
   static double testval = MAXIMUM_BIG;
+  static Id card_size   = 100;
 
   /* Open the file */
 
@@ -104,14 +105,14 @@ Id GridZycor::writeInFile()
           Id ind = yy * 15;
           if (!FFFF(buff[yy]))
           {
-            gslSPrintf(&card[ind], "%15g", buff[yy]);
+            gslSPrintf(&card[ind], card_size, "%15g", buff[yy]);
           }
           else
           {
-            memcpy(&card[ind], (char*)ZYCOR_NULL_CH, 15);
+            gslStrcpy(&card[ind], card_size, ZYCOR_NULL_CH);
           }
         }
-        gslSPrintf(&card[15 * nbyline], "\n");
+        gslSPrintf(&card[15 * nbyline], card_size, "\n");
         fprintf(_file, "%s", card);
         kk = 0;
       }
@@ -124,14 +125,14 @@ Id GridZycor::writeInFile()
         Id ind = yy * 15;
         if (!FFFF(buff[yy]))
         {
-          gslSPrintf(&card[ind], "%15g", buff[yy]);
+          gslSPrintf(&card[ind], card_size, "%15g", buff[yy]);
         }
         else
         {
-          memcpy(&card[ind], (char*)ZYCOR_NULL_CH, 15);
+          gslStrcpy(&card[ind], card_size, ZYCOR_NULL_CH);
         }
       }
-      gslSPrintf(&card[15 * kk], "\n");
+      gslSPrintf(&card[15 * kk], card_size, "\n");
       fprintf(_file, "%s", card);
     }
   }
@@ -145,11 +146,12 @@ DbGrid* GridZycor::readGridFromFile()
   DbGrid* dbgrid = nullptr;
   String string;
   ;
-  double xf[2], rbid1, rbid2, rbid3, test, value;
+  double rbid1, rbid2, rbid3, test, value;
   Id nval, ibid1, ibid2, ibid3;
   VectorInt nx(2);
   VectorDouble dx(2);
   VectorDouble x0(2);
+  VectorDouble xf(2);
 
   /* Open the file */
 
@@ -176,19 +178,18 @@ DbGrid* GridZycor::readGridFromFile()
   if (_record_read(_file, "%ld", &nval)) return dbgrid;
   if (_record_read(_file, "%ld", &ibid1)) return dbgrid;
   if (_record_read(_file, "%lg", &test)) return dbgrid;
-  if (_record_read(_file, "%s", &string)) return dbgrid;
+  if (_record_read(_file, "%s",  &string)) return dbgrid;
   if (_record_read(_file, "%ld", &ibid2)) return dbgrid;
   if (_record_read(_file, "%ld", &ibid3)) return dbgrid;
-  if (_record_read(_file, "%ld", &nx[1])) return dbgrid;
-  if (_record_read(_file, "%ld", &nx[0])) return dbgrid;
-  if (_record_read(_file, "%lf", &x0[0])) return dbgrid;
-  if (_record_read(_file, "%lf", &xf[0])) return dbgrid;
-  if (_record_read(_file, "%lf", &x0[1])) return dbgrid;
-  if (_record_read(_file, "%lf", &xf[1])) return dbgrid;
+  if (_record_read(_file, "%ld", nx.data() + 1)) return dbgrid;
+  if (_record_read(_file, "%ld", nx.data() + 0)) return dbgrid;
+  if (_record_read(_file, "%lf", x0.data() + 0)) return dbgrid;
+  if (_record_read(_file, "%lf", xf.data() + 0)) return dbgrid;
+  if (_record_read(_file, "%lf", x0.data() + 1)) return dbgrid;
+  if (_record_read(_file, "%lf", xf.data() + 1)) return dbgrid;
   if (_record_read(_file, "%lf", &rbid1)) return dbgrid;
   if (_record_read(_file, "%lf", &rbid2)) return dbgrid;
   if (_record_read(_file, "%lf", &rbid3)) return dbgrid;
-
   if (_record_read(_file, "%s", &string)) return dbgrid;
   if (string != "@")
   {

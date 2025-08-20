@@ -58,7 +58,7 @@ static Id st_match_keypair(const char* keyword, Id flag_exact)
   Keypair* keypair;
   char keyloc[STRING_LENGTH];
 
-  (void)gslStrcpy(keyloc, keyword);
+  (void)gslStrcpy(keyloc, STRING_LENGTH, keyword);
   string_strip_blanks(keyloc, 0);
 
   for (Id i = 0; i < KEYPAIR_NTAB; i++)
@@ -119,9 +119,9 @@ static Keypair* st_get_keypair_address(const char* keyword)
   /* Store the attribute (compressing the name and suppressing blanks) */
 
   keypair = &KEYPAIR_TABS[found];
-  (void)gslStrcpy(keyloc, keyword);
+  (void)gslStrcpy(keyloc, STRING_LENGTH, keyword);
   string_strip_blanks(keyloc, 0);
-  (void)gslStrcpy(keypair->keyword, keyloc);
+  (void)gslStrcpy(keypair->keyword, STRING_LENGTH, keyloc);
 
   /* Initialize the attributes (for a new keypair) */
 

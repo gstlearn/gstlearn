@@ -287,11 +287,11 @@ String _printTrailer(Id ncols, Id nrows, Id ncols_util, Id nrows_util)
 void message(const char* format, ...)
 {
   char str[LONG_SIZE];
-
   va_list ap;
   va_start(ap, format);
   (void)vsnprintf(str, sizeof(str), format, ap);
   va_end(ap);
+
   message_extern(str);
 }
 
@@ -304,10 +304,10 @@ void messageNoDiff(const char* format, ...)
 {
   char str[LONG_SIZE];
   va_list ap;
-
   va_start(ap, format);
   (void)vsnprintf(str, sizeof(str), format, ap);
   va_end(ap);
+
   std::stringstream sstr;
   sstr << "#NO_DIFF# " << str;
   message_extern(sstr.str().c_str());
@@ -368,40 +368,40 @@ bool checkArg(const char* title, Id current, Id nmax)
  */
 void mestitle(Id level, const char* format, ...)
 {
-  char STRING[1000];
-  va_list ap;
-
   message_extern("\n");
-  va_start(ap, format);
-  (void)vsnprintf(STRING, sizeof(STRING), format, ap);
-  va_end(ap);
-  Id size = static_cast<Id>(strlen(STRING));
 
-  (void)gslStrcat(STRING, "\n");
-  message_extern(STRING);
+  char str[LONG_SIZE];
+  va_list ap;
+  va_start(ap, format);
+  (void)vsnprintf(str, sizeof(str), format, ap);
+  va_end(ap);
+
+  Id size = static_cast<Id>(strlen(str));
+  (void)gslStrcat(str, LONG_SIZE, "\n");
+  message_extern(str);
 
   /* Underline the string */
 
-  (void)gslStrcpy(STRING, "");
+  (void)gslStrcpy(str, LONG_SIZE, "");
   for (Id i = 0; i < size; i++)
   {
     switch (level)
     {
       case 0:
-        (void)gslStrcat(STRING, "=");
+        (void)gslStrcat(str, LONG_SIZE, "=");
         break;
 
       case 1:
-        (void)gslStrcat(STRING, "-");
+        (void)gslStrcat(str, LONG_SIZE, "-");
         break;
 
       case 2:
-        (void)gslStrcat(STRING, ".");
+        (void)gslStrcat(str, LONG_SIZE, ".");
         break;
     }
   }
-  (void)gslStrcat(STRING, "\n");
-  message_extern(STRING);
+  (void)gslStrcat(str, LONG_SIZE, "\n");
+  message_extern(str);
 }
 
 /**
@@ -440,37 +440,38 @@ void mes_process(const char* string, Id ntot, Id iech)
 String toTitle(Id level, const char* format, ...)
 {
   std::stringstream sstr;
-  char STRING[1000];
-  va_list ap;
-
   sstr << std::endl;
+
+  char str[LONG_SIZE];
+  va_list ap;
   va_start(ap, format);
-  (void)vsnprintf(STRING, sizeof(STRING), format, ap);
+  (void)vsnprintf(str, sizeof(str), format, ap);
   va_end(ap);
-  sstr << STRING << std::endl;
+
+  sstr << str << std::endl;
 
   /* Underline the string */
 
-  Id size = static_cast<Id>(strlen(STRING));
-  (void)gslStrcpy(STRING, "");
+  Id size = static_cast<Id>(strlen(str));
+  (void)gslStrcpy(str, LONG_SIZE, "");
   for (Id i = 0; i < size; i++)
   {
     switch (level)
     {
       case 0:
-        (void)gslStrcat(STRING, "=");
+        (void)gslStrcat(str, LONG_SIZE, "=");
         break;
 
       case 1:
-        (void)gslStrcat(STRING, "-");
+        (void)gslStrcat(str, LONG_SIZE, "-");
         break;
 
       case 2:
-        (void)gslStrcat(STRING, ".");
+        (void)gslStrcat(str, LONG_SIZE, ".");
         break;
     }
   }
-  sstr << STRING << std::endl;
+  sstr << str << std::endl;
 
   return sstr.str();
 }
@@ -482,14 +483,14 @@ String toTitle(Id level, const char* format, ...)
  */
 void messageAbort(const char* format, ...)
 {
-  char STRING[1000];
+  char str[LONG_SIZE];
   va_list ap;
-
   va_start(ap, format);
-  (void)vsnprintf(STRING, sizeof(STRING), format, ap);
+  (void)vsnprintf(str, sizeof(str), format, ap);
   va_end(ap);
+
   message_extern("Abort : ");
-  message_extern(STRING);
+  message_extern(str);
   message_extern("\n");
   exit_extern();
 }
@@ -1579,9 +1580,8 @@ void print_ivector(const char* title,
  */
 void messerr(const char* format, ...)
 {
-  char str[1000];
+  char str[LONG_SIZE];
   va_list ap;
-
   va_start(ap, format);
   (void)vsnprintf(str, sizeof(str), format, ap);
   va_end(ap);

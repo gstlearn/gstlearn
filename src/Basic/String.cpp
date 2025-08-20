@@ -711,9 +711,9 @@ String erase(const String& s, const String& t)
   return d;
 }
 
-char* gslStrcpy(char* dst, const char* src)
+char* gslStrcpy(char* dst, Id n, const char* src)
 {
-  return strcpy(dst, src);
+  return strncpy(dst, src, n);
 }
 
 void gslStrcpy2(String& dst, const char* src)
@@ -744,9 +744,9 @@ void gslStrcpy2(String& dst, const String& src)
   std::memcpy(dst.data(), src.data(), len);
 }
 
-char* gslStrcat(char* dst, const char* src)
+char* gslStrcat(char* dst, Id n, const char* src)
 {
-  return strcat(dst, src);
+  return strncat(dst, src, n);
 }
 
 void gslStrcat2(String& dst, const char* src)
@@ -775,13 +775,13 @@ void gslStrcat2(String& dst, const String& src)
   std::memcpy(&dst[old_len], src.data(), add_len);
 }
 
-Id gslSPrintf(char* dst, const char* fmt, ...)
+Id gslSPrintf(char* dst, Id n, const char* fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
-  Id n = vsprintf(dst, fmt, ap);
+  Id n2 = vsnprintf(dst, n, fmt, ap);
   va_end(ap);
-  return n;
+  return n2;
 }
 
 Id gslSPrintfCat2(String& dst, const char* fmt, ...)
@@ -958,7 +958,7 @@ VectorInt decodeGridSorting(const String& string,
     for (Id i = 0; i < ndim; i++)
     {
       Id a_order = ABS(order[i]);
-      message("%ld - Dimension=%ld - N%ld=%ld", i + 1, a_order, a_order,
+      message("%d - Dimension=%d - N%d=%d", i + 1, a_order, a_order,
               nx[a_order - 1]);
       if (order[i] > 0)
         message(" - Increasing\n");
