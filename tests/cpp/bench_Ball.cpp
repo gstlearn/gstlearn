@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 
     // - for the closest sample
     Id ineigh = ball.queryClosest(target);
-    message("The closest sample to the Target is : %d\n", ineigh);
+    message("The closest sample to the Target is : %ld\n", ineigh);
 
     // - for a set of neighboring samples
     neighs = ball.getIndices(pt1, nb_neigh);

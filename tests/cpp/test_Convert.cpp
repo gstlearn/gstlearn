@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
@@ -44,7 +43,7 @@ int main(int argc, char* argv[])
   DbStringFormat dbfmt(FLAG_STATS);
 
   // Create the Model
-  Model* model = Model::createFromParam(ECov::SPHERICAL, 25., 0., 2.);
+  Model* model = Model::createFromParam(ECov::SPHERICAL, 25., 1., 2.);
 
   // Perform a non-conditional simulation
   simtub(nullptr, grid, model);

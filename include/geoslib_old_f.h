@@ -316,7 +316,6 @@ GSTLEARN_EXPORT Id surface(Db* db_point,
                            double dlim,
                            double* dtab,
                            double* gtab);
-GSTLEARN_EXPORT Id db_edit(Db* db, Id* flag_valid);
 GSTLEARN_EXPORT Id db_grid_copy(DbGrid* db1,
                                 DbGrid* db2,
                                 const Id* ind1,

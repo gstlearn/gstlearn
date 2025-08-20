@@ -10,12 +10,6 @@
 /******************************************************************************/
 #pragma once
 
-#include "Space/ASpace.hpp"
-#include "gstlearn_export.hpp"
-
-#include "Enum/ELoadBy.hpp"
-#include "Enum/EStatOption.hpp"
-
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/CSVformat.hpp"
@@ -23,8 +17,12 @@
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Db/PtrGeos.hpp"
+#include "Enum/ELoadBy.hpp"
+#include "Enum/EStatOption.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/Table.hpp"
+#include "Space/ASpace.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
@@ -120,40 +118,40 @@ public:
    *  @{
    */
   Id resetFromSamples(Id nech,
-                       const ELoadBy& order             = ELoadBy::fromKey("SAMPLE"),
-                       const VectorDouble& tab          = VectorDouble(),
-                       const VectorString& names        = VectorString(),
-                       const VectorString& locatorNames = VectorString(),
-                       bool flagAddSampleRank           = true);
+                      const ELoadBy& order             = ELoadBy::fromKey("SAMPLE"),
+                      const VectorDouble& tab          = VectorDouble(),
+                      const VectorString& names        = VectorString(),
+                      const VectorString& locatorNames = VectorString(),
+                      bool flagAddSampleRank           = true);
   Id resetFromCSV(const String& filename,
-                   bool verbose,
-                   const CSVformat& csvfmt,
-                   Id ncol_max           = -1,
-                   Id nrow_max           = -1,
-                   bool flagAddSampleRank = true);
+                  bool verbose,
+                  const CSVformat& csvfmt,
+                  Id ncol_max            = -1,
+                  Id nrow_max            = -1,
+                  bool flagAddSampleRank = true);
   Id resetFromBox(Id nech,
-                   const VectorDouble& coormin,
-                   const VectorDouble& coormax,
-                   Id ndim               = 2,
-                   double extend          = 0.,
-                   Id seed               = 321415,
-                   bool flagAddSampleRank = true);
+                  const VectorDouble& coormin,
+                  const VectorDouble& coormax,
+                  Id ndim                = 2,
+                  double extend          = 0.,
+                  Id seed                = 321415,
+                  bool flagAddSampleRank = true);
   Id resetFromOnePoint(const VectorDouble& tab = VectorDouble(),
-                        bool flagAddSampleRank  = true);
+                       bool flagAddSampleRank  = true);
   Id resetSamplingDb(const Db* dbin,
-                      double proportion         = 0,
-                      Id number                = 0,
-                      const VectorString& names = VectorString(),
-                      Id seed                  = 23241,
-                      bool verbose              = false,
-                      bool flagAddSampleRank    = true);
+                     double proportion         = 0,
+                     Id number                 = 0,
+                     const VectorString& names = VectorString(),
+                     Id seed                   = 23241,
+                     bool verbose              = false,
+                     bool flagAddSampleRank    = true);
   Id resetReduce(const Db* dbin,
-                  const VectorString& names = VectorString(),
-                  const VectorInt& ranks    = VectorInt(),
-                  bool verbose              = false);
+                 const VectorString& names = VectorString(),
+                 const VectorInt& ranks    = VectorInt(),
+                 bool verbose              = false);
   Id resetFromGridRandomized(const DbGrid* dbin,
-                              double randperc        = 0.,
-                              bool flagAddSampleRank = true);
+                             double randperc        = 0.,
+                             bool flagAddSampleRank = true);
   /**@}*/
 
   /** @addtogroup DB_Creators Creating a Db structure
@@ -175,13 +173,13 @@ public:
   static Db* createFromCSV(const String& filename,
                            const CSVformat& csv   = CSVformat(),
                            bool verbose           = false,
-                           Id ncol_max           = -1,
-                           Id nrow_max           = -1,
+                           Id ncol_max            = -1,
+                           Id nrow_max            = -1,
                            bool flagAddSampleRank = true);
   static Db* createFromBox(Id nech,
                            const VectorDouble& coormin,
                            const VectorDouble& coormax,
-                           Id seed               = 43241,
+                           Id seed                = 43241,
                            bool flag_exact        = true,
                            bool flag_repulsion    = false,
                            double range           = 0.,
@@ -192,14 +190,14 @@ public:
                                 bool flagAddSampleRank  = true);
   static Db* createSamplingDb(const Db* dbin,
                               double proportion         = 0.,
-                              Id number                = 0,
+                              Id number                 = 0,
                               const VectorString& names = VectorString(),
-                              Id seed                  = 23241,
+                              Id seed                   = 23241,
                               bool verbose              = false,
                               bool flagAddSampleRank    = true);
   static Db* createFromDbGrid(Id nech,
                               DbGrid* dbgrid,
-                              Id seed               = 432423,
+                              Id seed                = 432423,
                               bool flag_exact        = true,
                               bool flag_repulsion    = false,
                               double range           = 0.,
@@ -210,22 +208,22 @@ public:
                           const VectorInt& ranks    = VectorInt(),
                           bool verbose              = false);
   static Db* createFillRandom(Id ndat,
-                              Id ndim                        = 2,
-                              Id nvar                        = 1,
-                              Id nfex                        = 0,
-                              Id ncode                       = 0,
+                              Id ndim                         = 2,
+                              Id nvar                         = 1,
+                              Id nfex                         = 0,
+                              Id ncode                        = 0,
                               double varmax                   = 0.,
                               double selRatio                 = 0.,
                               const VectorDouble& heteroRatio = VectorDouble(),
                               const VectorDouble& coormin     = VectorDouble(),
                               const VectorDouble& coormax     = VectorDouble(),
-                              Id seed                        = 124234,
+                              Id seed                         = 124234,
                               bool flagAddSampleRank          = true);
   static Db* createEmpty(Id ndat,
-                         Id ndim               = 2,
-                         Id nvar               = 1,
-                         Id nfex               = 0,
-                         Id ncode              = 0,
+                         Id ndim                = 2,
+                         Id nvar                = 1,
+                         Id nfex                = 0,
+                         Id ncode               = 0,
                          bool flagVerr          = false,
                          bool flagSel           = false,
                          bool flagAddSampleRank = true);
@@ -281,81 +279,81 @@ public:
   void clearSelection() { clearLocators(ELoc::SEL); }
   void setLocatorByUID(Id iuid,
                        const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                       Id locatorIndex        = 0,
+                       Id locatorIndex         = 0,
                        bool cleanSameLocator   = false);
   void setLocatorByColIdx(Id icol,
                           const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                          Id locatorIndex        = 0,
+                          Id locatorIndex         = 0,
                           bool cleanSameLocator   = false);
   void setLocator(const String& name,
                   const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                  Id locatorIndex        = 0,
+                  Id locatorIndex         = 0,
                   bool cleanSameLocator   = false);
   void setLocators(const VectorString& names,
                    const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                   Id locatorIndex        = 0,
+                   Id locatorIndex         = 0,
                    bool cleanSameLocator   = false);
   void setLocatorsByUID(Id number,
                         Id iuid,
                         const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                        Id locatorIndex        = 0,
+                        Id locatorIndex         = 0,
                         bool cleanSameLocator   = false);
   void setLocatorsByUID(const VectorInt& iuids,
                         const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                        Id locatorIndex        = 0,
+                        Id locatorIndex         = 0,
                         bool cleanSameLocator   = false);
   void setLocatorsByColIdx(const VectorInt& icols,
                            const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                           Id locatorIndex        = 0,
+                           Id locatorIndex         = 0,
                            bool cleanSameLocator   = false);
   void addColumnsByVVD(const VectorVectorDouble& tab,
                        const String& radix,
                        const ELoc& locatorType,
                        Id locatorIndex = 0,
-                       bool useSel      = false);
+                       bool useSel     = false);
   Id addColumns(const VectorDouble& tab,
-                 const String& radix     = "New",
-                 const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                 Id locatorIndex        = 0,
-                 bool useSel             = false,
-                 double valinit          = 0.,
-                 Id nvar                = 1);
-  Id addColumnsByConstant(Id nadd                = 1,
-                           double valinit          = 0.,
-                           const String& radix     = "New",
-                           const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                           Id locatorIndex        = 0,
-                           Id nechInit            = 0);
+                const String& radix     = "New",
+                const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
+                Id locatorIndex         = 0,
+                bool useSel             = false,
+                double valinit          = 0.,
+                Id nvar                 = 1);
+  Id addColumnsByConstant(Id nadd                 = 1,
+                          double valinit          = 0.,
+                          const String& radix     = "New",
+                          const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
+                          Id locatorIndex         = 0,
+                          Id nechInit             = 0);
   Id addColumnsRandom(Id nadd,
-                       const String& radix     = "New",
-                       const ELoc& locatorType = ELoc::fromKey("Z"),
-                       Id locatorIndex        = 0,
-                       Id seed                = 1352,
-                       Id nechInit            = 0);
+                      const String& radix     = "New",
+                      const ELoc& locatorType = ELoc::fromKey("Z"),
+                      Id locatorIndex         = 0,
+                      Id seed                 = 1352,
+                      Id nechInit             = 0);
 
   Id addSelection(const VectorDouble& tab = VectorDouble(),
-                   const String& name      = "NewSel",
-                   const String& combine   = "set");
+                  const String& name      = "NewSel",
+                  const String& combine   = "set");
   Id addSelectionByVariable(const String& varname,
-                             double lower             = TEST,
-                             double upper             = TEST,
-                             const String& name       = "NewSel",
-                             const String& oldSelName = "");
+                            double lower             = TEST,
+                            double upper             = TEST,
+                            const String& name       = "NewSel",
+                            const String& oldSelName = "");
   Id addSelectionByRanks(const VectorInt& ranks,
-                          const String& name    = "NewSel",
-                          const String& combine = "set");
-  Id addSelectionByLimit(const String& testvar,
-                          const Limits& limits  = Limits(),
-                          const String& name    = "NewSel",
-                          const String& combine = "set");
-  Id addSelectionFromDbByConvexHull(Db* db,
-                                     double dilate                   = 0.,
-                                     bool verbose                    = false,
-                                     const NamingConvention& namconv = NamingConvention("Hull", true, true, true, ELoc::fromKey("SEL")));
-  Id addSelectionRandom(double prop,
-                         Id seed              = 138213,
                          const String& name    = "NewSel",
                          const String& combine = "set");
+  Id addSelectionByLimit(const String& testvar,
+                         const Limits& limits  = Limits(),
+                         const String& name    = "NewSel",
+                         const String& combine = "set");
+  Id addSelectionFromDbByConvexHull(Db* db,
+                                    double dilate                   = 0.,
+                                    bool verbose                    = false,
+                                    const NamingConvention& namconv = NamingConvention("Hull", true, true, true, ELoc::fromKey("SEL")));
+  Id addSelectionRandom(double prop,
+                        Id seed               = 138213,
+                        const String& name    = "NewSel",
+                        const String& combine = "set");
 
   Id addSamples(Id nadd, double valinit = TEST);
   Id deleteSample(Id e_del);
@@ -375,7 +373,7 @@ public:
   void setColumn(const VectorDouble& tab,
                  const String& name,
                  const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                 Id locatorIndex        = 0,
+                 Id locatorIndex         = 0,
                  bool useSel             = false);
   void setColumnByUIDOldStyle(const double* tab, Id iuid, bool useSel = false);
   void setColumnByUID(const VectorDouble& tab, Id iuid, bool useSel = false);
@@ -404,26 +402,26 @@ public:
   VectorString getItemNames(const ELoc& locatorType) const;
 
   Id setItem(const VectorInt& rows,
-              const VectorString& colnames,
-              const VectorVectorDouble& values,
-              bool useSel = false);
+             const VectorString& colnames,
+             const VectorVectorDouble& values,
+             bool useSel = false);
   Id setItem(const VectorInt& rows,
-              const ELoc& locatorType,
-              const VectorVectorDouble& values,
-              bool useSel = false);
+             const ELoc& locatorType,
+             const VectorVectorDouble& values,
+             bool useSel = false);
   Id setItem(const VectorString& colnames,
-              const VectorVectorDouble& values,
-              bool useSel = false);
+             const VectorVectorDouble& values,
+             bool useSel = false);
   Id setItem(const ELoc& locatorType,
-              const VectorVectorDouble& values,
-              bool useSel = false);
+             const VectorVectorDouble& values,
+             bool useSel = false);
   Id setItem(const VectorInt& rows,
-              const String& colname,
-              const VectorDouble& values,
-              bool useSel = false);
+             const String& colname,
+             const VectorDouble& values,
+             bool useSel = false);
   Id setItem(const String& colname,
-              const VectorDouble& values,
-              bool useSel = false);
+             const VectorDouble& values,
+             bool useSel = false);
 
   bool getLocator(const String& name,
                   ELoc* ret_locatorType,
@@ -574,7 +572,7 @@ public:
   VectorDouble getSelections(void) const;
   void getSampleRanksPerVariable(VectorInt& ranks,
                                  const VectorInt& nbgh = VectorInt(),
-                                 Id ivar              = -1,
+                                 Id ivar               = -1,
                                  bool useSel           = true,
                                  bool useZ             = true,
                                  bool useVerr          = false,
@@ -606,12 +604,12 @@ public:
                                                 const VectorInt& ivars = VectorInt(),
                                                 const VectorInt& nbgh  = VectorInt());
   Id getListOfSampleIndicesPerVariableInPlace(VectorInt& ranks,
-                                               Id ivar    = 0,
-                                               bool useSel = true) const;
+                                              Id ivar     = 0,
+                                              bool useSel = true) const;
   Id getListOfSampleIndicesInPlace(Id nvar,
-                                    VectorInt& cumul,
-                                    VectorVectorInt& ranks,
-                                    bool useSel = true) const;
+                                   VectorInt& cumul,
+                                   VectorVectorInt& ranks,
+                                   bool useSel = true) const;
   double getWeight(Id iech) const;
   VectorDouble getWeights(bool useSel = false) const;
 
@@ -703,7 +701,7 @@ public:
                               bool useSel       = false,
                               bool flagCompress = true) const;
   VectorDouble getColumnByLocator(const ELoc& locatorType,
-                                  Id locatorIndex  = 0,
+                                  Id locatorIndex   = 0,
                                   bool useSel       = false,
                                   bool flagCompress = true) const;
   VectorDouble getColumnByColIdx(Id icol,
@@ -999,10 +997,10 @@ protected:
   void _loadValues(const Db* db, const VectorString& names, const VectorInt& ranks, Id shift = 0);
 
 private:
-  Id _ncol;                  //!< Number of Columns of data
-  Id _nech;                  //!< Number of samples
+  Id _ncol;                   //!< Number of Columns of data
+  Id _nech;                   //!< Number of samples
   std::vector<double> _array; //!< Array of values
-  std::vector<Id> _uidcol;   //!< UID to Column
+  std::vector<Id> _uidcol;    //!< UID to Column
   VectorString _colNames;     //!< Names of the variables
   std::vector<PtrGeos> _p;    //!< Locator characteristics
 

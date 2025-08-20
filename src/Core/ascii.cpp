@@ -66,7 +66,7 @@ static char Fichier_frac[]    = "Frac";
  **
  ** \param[in]  title      Name of the quantity to be read
  ** \param[in]  format     Encoding format
- ** \param[in]  ...        Value to be written
+ ** \param[in]  out        Output argument
  **
  *****************************************************************************/
 static Id st_record_read(const char* title, const char* format, void* out)

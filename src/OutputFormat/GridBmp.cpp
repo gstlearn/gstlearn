@@ -220,7 +220,7 @@ Id GridBmp::writeInFile()
   indg[0] = 0;
   indg[1] = 0;
   Id ipad = nx * _nmult;
-  ipad    = ipad - 4 * (static_cast<Id>(static_cast<double>(ipad) / 4));
+  ipad    = ipad - 4 * (static_cast<Id>(static_cast<double>(ipad) / 4.));
   for (Id iy = 0; iy < ny; iy++)
   {
     if (iy % _nsampley != 0) continue;

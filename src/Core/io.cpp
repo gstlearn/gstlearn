@@ -411,10 +411,10 @@ static Id _decodeToken(const std::string& token, const char* format, void* out)
  ** \return   1 for a decoding error
  ** \return   0 otherwise
  **
- ** \param[in]  buffer     Buffer to be read
+ ** \param[in]  line       Line to be read
  ** \param[in]  format     format
  **
- ** \param[out] ap         va_list containing the read variables
+ ** \param[out] out        Output argument
  **
  ** This method is not documented on purpose. It should remain private
  **
@@ -930,7 +930,7 @@ void record_close(void)
  **
  ** \param[in]  file       Pointer to the file to be read
  ** \param[in]  format     Encoding format
- ** \param[in]  ...        Value to be written
+ ** \param[in]  out        Output argumentn
  **
  ** This method is not documented on purpose. It should remain private
  **

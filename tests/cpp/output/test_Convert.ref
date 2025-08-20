@@ -31,11 +31,11 @@ Data Base Statistics
 4 - Name Simu - Locator z1
  Nb of data          =        750
  Nb of active values =        750
- Minimum value       =     -0.946
- Maximum value       =      3.446
- Mean value          =      1.431
- Standard Deviation  =      0.808
- Variance            =      0.652
+ Minimum value       =     -0.669
+ Maximum value       =      2.437
+ Mean value          =      1.012
+ Standard Deviation  =      0.571
+ Variance            =      0.326
 
 Writing VTK Grid
 ----------------
@@ -78,11 +78,11 @@ Data Base Statistics
 4 - Name New.1 - Locator NA
  Nb of data          =        750
  Nb of active values =        750
- Minimum value       =     -0.946
- Maximum value       =      3.446
- Mean value          =      1.431
- Standard Deviation  =      0.808
- Variance            =      0.652
+ Minimum value       =     -0.669
+ Maximum value       =      2.437
+ Mean value          =      1.012
+ Standard Deviation  =      0.571
+ Variance            =      0.326
 
 Writing BMP Grid
 ----------------
@@ -128,7 +128,7 @@ Data Base Statistics
  Standard Deviation  =     46.153
  Variance            =   2130.130
 
-Writing Irap Grid
+Writing IRAP Grid
 -----------------
 
 Writing IfpEn Grid
@@ -177,20 +177,17 @@ Data Base Statistics
 5 - Name IfpEn-1 - Locator NA
  Nb of data          =        750
  Nb of active values =        750
- Minimum value       =     -0.946
- Maximum value       =      3.446
- Mean value          =      1.431
- Standard Deviation  =      0.808
- Variance            =      0.652
+ Minimum value       =     -0.669
+ Maximum value       =      2.437
+ Mean value          =      1.012
+ Standard Deviation  =      0.571
+ Variance            =      0.326
 
 Writing Eclipse Grid
 --------------------
 
 Writing XYZ Grid
 ----------------
-
-Writing VTK Format
-------------------
 
 Writing ArcGis Format
 ---------------------
