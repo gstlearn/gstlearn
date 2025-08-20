@@ -20,12 +20,10 @@ class VectorUChar;
 
 namespace gstlrn
 {
-GSTLEARN_EXPORT Id _file_read(FILE* file, const char* format, va_list ap);
-GSTLEARN_EXPORT Id _file_get_ncol(FILE* file);
-GSTLEARN_EXPORT void _file_delimitors(char del_com, const char* del_sep, char del_blk);
+GSTLEARN_EXPORT void _token_delimitors(const char del_com, const char del_sep, const char del_blk);
 GSTLEARN_EXPORT FILE* _file_open(const char* filename, Id mode);
-GSTLEARN_EXPORT Id _record_read(FILE* file, const char* format, ...);
-GSTLEARN_EXPORT Id _buffer_read(char** buffer, const char* format, va_list ap);
+GSTLEARN_EXPORT Id _record_read(FILE* file, const char* format, void* out);
+GSTLEARN_EXPORT Id _buffer_read(const String& line, const char* format, void* out);
 GSTLEARN_EXPORT void _file_write(FILE* file, const char* format, va_list ap);
 GSTLEARN_EXPORT void _buffer_write(String& buffer, const char* format, va_list ap);
 GSTLEARN_EXPORT void _lire_string(const char* question,

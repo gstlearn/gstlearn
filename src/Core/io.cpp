@@ -13,6 +13,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
+#include "geoslib_define.h"
 #include "geoslib_io.h"
 #include <cmath>
 #include <cstdarg>
@@ -29,7 +30,7 @@ namespace gstlrn
 static char BUFFER[STRING_LENGTH];
 static char DEL_COM = '#';
 static char DEL_BLK = ' ';
-const char* DEL_SEP = " ";
+static char DEL_SEP = ' ';
 
 // TODO : No more char* and printf ! Use std::string and iostream
 static void st_print(const char* string);
@@ -40,8 +41,10 @@ static void (*WARN_FUNC)(const char*)        = static_cast<void (*)(const char*)
 static void (*READ_FUNC)(const char*, char*) = st_read;
 static void (*EXIT_FUNC)(void)               = st_exit;
 
-static char LINE[LONG_SIZE], LINE_MEM[LONG_SIZE], *LCUR, *LINEB;
-static char* cur = NULL;
+static char* LCUR;
+static String cur;
+static String LINE;
+static String LINE_MEM;
 
 // https://stackoverflow.com/a/26359433/3952924
 #ifdef _MSC_VER
@@ -85,10 +88,17 @@ static void st_read(const char* prompt, char* buffer)
 {
   message("%s :", prompt);
 
-  while (fgets(LINE, LONG_SIZE, stdin) == nullptr);
-
-  (void)gslStrcpy(buffer, LINE);
-  buffer[strlen(buffer) - 1] = '\0';
+  String ligne;
+  if (std::getline(std::cin, ligne))
+  {
+    // ligne contient le texte lu (sans le '\n')
+    (void)gslStrcpy(buffer, ligne.data());
+    buffer[strlen(buffer) - 1] = '\0';
+  }
+  else
+  {
+    ligne.clear(); // rien lu (EOF ou erreur)
+  }
 }
 
 /****************************************************************************/
@@ -306,7 +316,7 @@ FILE* _file_open(const char* filename, Id mode)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-void _file_delimitors(char del_com, const char* del_sep, char del_blk)
+void _token_delimitors(const char del_com, const char del_sep, const char del_blk)
 {
   DEL_COM = del_com;
   DEL_SEP = del_sep;
@@ -320,220 +330,7 @@ void _file_delimitors(char del_com, const char* del_sep, char del_blk)
  *****************************************************************************/
 void print_current_line(void)
 {
-  messerr("Current Line: %s", LINE_MEM);
-}
-
-/****************************************************************************/
-/*!
- **  Check if a string is composed of blanks only
- **
- ** \return  1 if it is only blanks
- **
- ** \param[in]  string     String to be checked
- **
- *****************************************************************************/
-static Id st_only_blanks(char* string)
-{
-  Id number;
-
-  number = static_cast<Id>(strlen(string));
-  for (Id i = 0; i < number; i++)
-  {
-    if (string[i] != ' ') return (0);
-  }
-  return (1);
-}
-
-/****************************************************************************/
-/*!
- **  Read the next token from the file
- **
- ** \return  -1 if the end-of-file has been found
- ** \return   1 for a decoding error
- ** \return   0 otherwise
- **
- ** \param[in]  file       FILE structure
- ** \param[in]  format     format
- ** \param[in]  ap         Value to be read
- **
- ** This method is not documented on purpose. It should remain private
- **
- *****************************************************************************/
-Id _file_read(FILE* file, const char* format, va_list ap)
-{
-  Id flag_com;
-  size_t ideb, i;
-  const char* fmt;
-  Id* ret_i;
-  float* ret_f;
-  double* ret_d;
-  char* ret_s;
-
-  /* Loop on the elements to read (from the format) */
-
-  ideb = 0;
-  while (ideb < strlen(format))
-  {
-    /* Eliminate the blanks */
-
-    if (format[ideb] == DEL_BLK)
-    {
-      ideb++;
-      continue;
-    }
-
-  label_start:
-    fmt = &format[ideb];
-    if (LCUR == nullptr)
-    {
-
-      /* Read the next line */
-
-      if (fgets(LINE, LONG_SIZE, file) == nullptr) return (-1);
-      LINE[strlen(LINE) - 1] = '\0';
-      (void)gslStrcpy(LINE_MEM, LINE);
-      if (OptDbg::query(EDbg::INTERFACE)) message("Lecture ASCII = %s\n", LINE);
-
-      /* Eliminate the comments */
-
-      flag_com = 0;
-      for (i = 0; i < strlen(LINE); i++)
-      {
-        if (LINE[i] == DEL_COM)
-        {
-          flag_com = 1 - flag_com;
-          LINE[i]  = '\0';
-        }
-        else
-        {
-          if (flag_com) LINE[i] = '\0';
-        }
-      }
-      cur = LINE;
-    }
-
-    /* Decode the line looking for the next token */
-
-    LCUR = gslStrtok(cur, DEL_SEP);
-    cur  = NULL;
-    if (LCUR == nullptr) goto label_start;
-    if (OptDbg::query(EDbg::INTERFACE)) message("String to be decoded = '%s'\n", LCUR);
-
-    /* Reading */
-
-    if (!strcmp(fmt, "%s"))
-    {
-      ret_s = va_arg(ap, char*);
-      if (!st_only_blanks(LCUR))
-      {
-        if (gslSScanf(LCUR, "%s", ret_s) <= 0) return (1);
-      }
-      ideb += 2;
-      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded String = %s\n", ret_s);
-    }
-    else if (!strcmp(fmt, "%d"))
-    {
-      ret_i = va_arg(ap, Id*);
-      if (gslSScanf(LCUR, "%d", ret_i) <= 0) return (1);
-      ideb += 2;
-      if (*ret_i == static_cast<Id>(ASCII_TEST)) *ret_i = ITEST;
-      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Integer = %i\n", *ret_i);
-    }
-    else if (!strcmp(fmt, "%ld"))
-    {
-      ret_i = va_arg(ap, Id*);
-      if (gslSScanf(LCUR, "%ld", ret_i) <= 0) return (1);
-      ideb += 3;
-      if (*ret_i == static_cast<Id>(ASCII_TEST)) *ret_i = ITEST;
-      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Large Integer = %i\n", *ret_i);
-    }
-    else if (!strcmp(fmt, "%f"))
-    {
-      ret_f = va_arg(ap, float*);
-      if (gslSScanf(LCUR, "%f", ret_f) <= 0) return (1);
-      ideb += 2;
-      if (*ret_f == ASCII_TEST) *ret_f = static_cast<float>(TEST);
-      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Float = %s\n", *ret_f);
-    }
-    else if (!strcmp(fmt, "%lf"))
-    {
-      ret_d = va_arg(ap, double*);
-      if (gslSScanf(LCUR, "%lf", ret_d) <= 0) return (1);
-      ideb += 3;
-      if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Double = %lf\n", *ret_d);
-    }
-    else if (!strcmp(fmt, "%lg"))
-    {
-      ret_d = va_arg(ap, double*);
-      if (gslSScanf(LCUR, "%lg", ret_d) <= 0) return (1);
-      ideb += 3;
-      if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Double = %lg\n", *ret_d);
-    }
-    else
-    {
-      messerr("Wrong format %s", fmt);
-      va_end(ap);
-      return (2);
-    }
-  }
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Get the number of tokens in the line
- **
- ** \return   Number of tokens
- **
- ** \param[in]  file       FILE structure
- **
- ** This method is not documented on purpose. It should remain private
- **
- *****************************************************************************/
-Id _file_get_ncol(FILE* file)
-
-{
-  Id ncol, flag_com, i;
-
-  /* Initializations */
-
-  ncol = 0;
-
-  /* Read the next line */
-
-  if (fgets(LINE, LONG_SIZE, file) == nullptr) return (ncol);
-  LINE[strlen(LINE) - 1] = '\0';
-  if (OptDbg::query(EDbg::INTERFACE)) message("Lecture ASCII = %s\n", LINE);
-
-  /* Eliminate the comments */
-
-  flag_com = 0;
-  for (i = 0; i < static_cast<Id>(strlen(LINE)); i++)
-  {
-    if (LINE[i] == DEL_COM)
-    {
-      flag_com = 1 - flag_com;
-      LINE[i]  = '\0';
-    }
-    else
-    {
-      if (flag_com) LINE[i] = '\0';
-    }
-  }
-
-  /* Get the number of tokens */
-
-  if (gslStrtok(LINE, DEL_SEP) != nullptr)
-  {
-    ncol++;
-    while (gslStrtok(NULL, DEL_SEP) != nullptr)
-      ncol++;
-  }
-
-  if (OptDbg::query(EDbg::INTERFACE)) message("Number of columns = %d\n", ncol);
-  return (ncol);
+  messerr("Current Line: %s", LINE_MEM.data());
 }
 
 /****************************************************************************/
@@ -546,6 +343,64 @@ Id _file_get_ncol(FILE* file)
 void _erase_current_string(void)
 {
   LCUR = NULL;
+}
+
+static Id _stripToken(std::string& token, const char* format)
+{
+  if (strcmp(format, "%s") != 0)
+  {
+    // pour %d/%f/%lf, ignorer token vide
+    size_t tStart = token.find_first_not_of(DEL_BLK);
+    if (tStart == std::string::npos) return 1;
+    size_t tEnd = token.find_last_not_of(DEL_BLK);
+    token       = token.substr(tStart, tEnd - tStart + 1);
+  }
+  else
+  {
+    // pour %s, garder token même s'il est vide
+    size_t tStart = token.find_first_not_of(DEL_BLK);
+    size_t tEnd   = token.find_last_not_of(DEL_BLK);
+    if (tStart != std::string::npos)
+      token = token.substr(tStart, tEnd - tStart + 1);
+    else
+      token = ""; // token vide
+  }
+  return 0;
+}
+
+static Id _decodeToken(const std::string& token, const char* format, void* out)
+{
+  if (strcmp(format, "%ld") == 0)
+  {
+    char* endptr;
+    int val = std::strtol(token.c_str(), &endptr, 10);
+    if (*endptr != '\0') return 1; // conversion échouée
+    *static_cast<Id*>(out) = val;
+    return 0;
+  }
+  if (strcmp(format, "%f") == 0)
+  {
+    char* endptr;
+    float val = std::strtof(token.c_str(), &endptr);
+    if (*endptr != '\0') return 1;
+    *static_cast<float*>(out) = val;
+    return 0;
+  }
+  if (strcmp(format, "%lf") == 0 || strcmp(format, "%lg") == 0)
+  {
+    char* endptr;
+    double val = std::strtod(token.c_str(), &endptr);
+    if (*endptr != '\0') return 1;
+    *static_cast<double*>(out) = val;
+    return 0;
+  }
+  if (strcmp(format, "%s") == 0)
+  {
+    std::string& val = *static_cast<std::string*>(out);
+    val              = token;
+    return 0;
+  }
+  return 1;
 }
 
 /****************************************************************************/
@@ -564,126 +419,49 @@ void _erase_current_string(void)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-Id _buffer_read(char** buffer, const char* format, va_list ap)
+Id _buffer_read(const String& line, const char* format, void* out)
 {
-  Id flag_com;
-  size_t ideb, i;
-  const char* fmt;
-  Id* ret_i;
-  float* ret_f;
-  double* ret_d;
-  char* ret_s;
+  static std::string currentLine;
+  static size_t pos = 0;
 
-  /* Loop on the elements to read (from the format) */
-
-  ideb = 0;
-  while (ideb < strlen(format))
+  // initialisation au premier appel
+  if (currentLine.empty())
   {
-    /* Eliminate the blanks */
+    currentLine = line;
+    pos         = 0;
 
-    if (format[ideb] == DEL_BLK)
-    {
-      ideb++;
-      continue;
-    }
+    // supprimer les commentaires
+    size_t cmt = currentLine.find(DEL_COM);
+    if (cmt != std::string::npos)
+      currentLine.erase(cmt);
 
-    /* Loop on the buffer to be decode */
-
-  label_start:
-    fmt = &format[ideb];
-    if (LCUR == nullptr)
-    {
-
-      /* Read the next line */
-
-      LINEB = strsep(buffer, "\n");
-      if (LINEB == nullptr) return (-1);
-      (void)gslStrcpy(LINE_MEM, LINEB);
-      if (OptDbg::query(EDbg::INTERFACE)) message("Lecture ASCII = %s\n", LINEB);
-
-      /* Eliminate the comments */
-
-      flag_com = 0;
-      for (i = 0; i < strlen(LINEB); i++)
-      {
-        if (LINEB[i] == DEL_COM)
-        {
-          flag_com = 1 - flag_com;
-          LINEB[i] = '\0';
-        }
-        else
-        {
-          if (flag_com) LINEB[i] = '\0';
-        }
-      }
-      cur = LINEB;
-    }
-
-    /* Decode the line looking for the next token */
-
-    LCUR = gslStrtok(cur, DEL_SEP);
-    cur  = NULL;
-    if (LCUR == nullptr) goto label_start;
-    if (OptDbg::query(EDbg::INTERFACE))
-      message("String to be decoded = '%s'\n", LCUR);
-
-    /* Reading */
-
-    if (!strcmp(fmt, "%s"))
-    {
-      ret_s = va_arg(ap, char*);
-      if (gslSScanf(LCUR, "%s", ret_s) <= 0) return (1);
-      ideb += 2;
-      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded String = %s\n", ret_s);
-    }
-    else if (!strcmp(fmt, "%d"))
-    {
-      ret_i = va_arg(ap, Id*);
-      if (gslSScanf(LCUR, "%d", ret_i) <= 0) return (1);
-      ideb += 2;
-      if (*ret_i == static_cast<Id>(ASCII_TEST)) *ret_i = ITEST;
-      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Integer = %i\n", *ret_i);
-    }
-    else if (!strcmp(fmt, "%ld"))
-    {
-      ret_i = va_arg(ap, Id*);
-      if (gslSScanf(LCUR, "%ld", ret_i) <= 0) return (1);
-      ideb += 3;
-      if (*ret_i == static_cast<Id>(ASCII_TEST)) *ret_i = ITEST;
-      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Large Integer = %i\n", *ret_i);
-    }
-    else if (!strcmp(fmt, "%f"))
-    {
-      ret_f = va_arg(ap, float*);
-      if (gslSScanf(LCUR, "%f", ret_f) <= 0) return (1);
-      ideb += 2;
-      if (*ret_f == ASCII_TEST) *ret_f = static_cast<float>(TEST);
-      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Float = %s\n", *ret_f);
-    }
-    else if (!strcmp(fmt, "%lf"))
-    {
-      ret_d = va_arg(ap, double*);
-      if (gslSScanf(LCUR, "%lf", ret_d) <= 0) return (1);
-      ideb += 3;
-      if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Double = %lf\n", *ret_d);
-    }
-    else if (!strcmp(fmt, "%lg"))
-    {
-      ret_d = va_arg(ap, double*);
-      if (gslSScanf(LCUR, "%lg", ret_d) <= 0) return (1);
-      ideb += 3;
-      if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Double = %lg\n", *ret_d);
-    }
-    else
-    {
-      messerr("Wrong format %s", fmt);
-      va_end(ap);
-      return (2);
-    }
+    // supprimer CR/LF fin de ligne
+    while (!currentLine.empty() &&
+           (currentLine.back() == '\n' || currentLine.back() == '\r'))
+      currentLine.pop_back();
   }
-  return (0);
+
+  if (pos >= currentLine.size()) return 1; // plus de tokens
+
+  // extraire le prochain token jusqu'au séparateur
+  size_t sepPos = currentLine.find(DEL_SEP, pos);
+  std::string token;
+  if (sepPos != std::string::npos)
+  {
+    token = currentLine.substr(pos, sepPos - pos);
+    pos   = sepPos + 1;
+  }
+  else
+  {
+    token = currentLine.substr(pos);
+    pos   = currentLine.size();
+  }
+
+  // supprimer blancs autour du token
+  if (_stripToken(token, format)) return 1;
+
+  // conversion selon format
+  return _decodeToken(token, format, out);
 }
 
 /****************************************************************************/
@@ -715,7 +493,7 @@ void _file_write(FILE* file, const char* format, va_list ap)
     fprintf(file, "%s", ret_s);
     if (OptDbg::query(EDbg::INTERFACE)) message("Encoded String = %s\n", ret_s);
   }
-  else if (!strcmp(format, "%d"))
+  else if (!strcmp(format, "%ld"))
   {
     ret_i = va_arg(ap, Id);
     if (ret_i == TEST)
@@ -800,13 +578,13 @@ void _buffer_write(String& buffer, const char* format, va_list ap)
     (void)gslSPrintf2(buffer, "%s", ret_s);
     if (OptDbg::query(EDbg::INTERFACE)) message("Encoded String = %s\n", ret_s);
   }
-  else if (!strcmp(format, "%d"))
+  else if (!strcmp(format, "%ld"))
   {
     ret_i = va_arg(ap, Id);
     if (ret_i == TEST)
       (void)gslSPrintf2(buffer, "%5.1lf", ASCII_TEST);
     else
-      (void)gslSPrintf2(buffer, "%d", ret_i);
+      (void)gslSPrintf2(buffer, "%ld", ret_i);
     if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Integer = %i\n", ret_i);
   }
   else if (!strcmp(format, "%f"))
@@ -874,18 +652,18 @@ void _lire_string(const char* question,
                   const char* valdef,
                   char* answer)
 {
-
+  LINE.resize(LONG_SIZE);
 loop:
 
   /* Compose the question */
 
-  (void)gslSPrintf(LINE, "%s ", question);
-  if (flag_def) (void)gslSPrintf(&LINE[strlen(LINE)], "(Def=%s) ", valdef);
-  (void)gslStrcat(LINE, ": ");
+  (void)gslSPrintf2(LINE, "%s ", question);
+  if (flag_def) (void)gslSPrintfCat2(LINE, "(Def=%s) ", valdef);
+  (void)gslStrcat2(LINE, ": ");
 
   /* Read the answer */
 
-  READ_FUNC(LINE, BUFFER);
+  READ_FUNC(LINE.data(), BUFFER);
 
   /* Handle the default value */
 
@@ -929,31 +707,31 @@ Id _lire_int(const char* question,
              Id valmax)
 {
   Id rep;
-
+  LINE.resize(LONG_SIZE);
 loop:
 
   /* Compose the question */
 
-  (void)gslSPrintf(LINE, "%s ", question);
+  (void)gslSPrintf2(LINE, "%s ", question);
   if (!IFFFF(valmin) && !IFFFF(valmax) && valmin > valmax)
     valmin = valmax = ITEST;
   if (!IFFFF(valmin) && !IFFFF(valdef) && valdef < valmin) valdef = valmin;
   if (!IFFFF(valmax) && !IFFFF(valdef) && valdef > valmax) valdef = valmax;
   if (flag_def && !IFFFF(valdef))
-    (void)gslSPrintf(&LINE[strlen(LINE)], "(Def=%d) ", valdef);
+    (void)gslSPrintfCat2(LINE, "(Def=%d) ", valdef);
   if (IFFFF(valmin))
-    (void)gslStrcat(LINE, "[NA,");
+    (void)gslStrcat2(LINE, "[NA,");
   else
-    (void)gslSPrintf(&LINE[strlen(LINE)], "[%d,", valmin);
+    (void)gslSPrintfCat2(LINE, "[%d,", valmin);
   if (IFFFF(valmax))
-    (void)gslStrcat(LINE, "NA] ");
+    (void)gslStrcat2(LINE, "NA] ");
   else
-    (void)gslSPrintf(&LINE[strlen(LINE)], "%d] ", valmax);
-  (void)gslStrcat(LINE, ": ");
+    (void)gslSPrintfCat2(LINE, "%d] ", valmax);
+  (void)gslStrcat2(LINE, ": ");
 
   /* Read the answer */
 
-  READ_FUNC(LINE, BUFFER);
+  READ_FUNC(LINE.data(), BUFFER);
 
   /* Handle the default value */
 
@@ -1012,30 +790,30 @@ double _lire_double(const char* question,
                     double valmax)
 {
   double rep;
-
+  LINE.resize(LONG_SIZE);
 loop:
 
   /* Compose the question */
 
-  (void)gslSPrintf(LINE, "%s ", question);
+  (void)gslSPrintf2(LINE, "%s ", question);
   if (!FFFF(valmin) && !FFFF(valmax) && valmin > valmax) valmin = valmax = TEST;
   if (!FFFF(valmin) && !FFFF(valdef) && valdef < valmin) valdef = valmin;
   if (!FFFF(valmax) && !FFFF(valdef) && valdef > valmax) valdef = valmax;
   if (flag_def && !FFFF(valdef))
-    (void)gslSPrintf(&LINE[strlen(LINE)], "(Def=%lf) ", valdef);
+    (void)gslSPrintfCat2(LINE, "(Def=%lf) ", valdef);
   if (FFFF(valmin))
-    (void)gslStrcat(LINE, "[NA,");
+    (void)gslStrcat2(LINE, "[NA,");
   else
-    (void)gslSPrintf(&LINE[strlen(LINE)], "[%lf,", valmin);
+    (void)gslSPrintfCat2(LINE, "[%lf,", valmin);
   if (FFFF(valmax))
-    (void)gslStrcat(LINE, "NA] ");
+    (void)gslStrcat2(LINE, "NA] ");
   else
-    (void)gslSPrintf(&LINE[strlen(LINE)], "%lf] ", valmax);
-  (void)gslStrcat(LINE, ": ");
+    (void)gslSPrintfCat2(LINE, "%lf] ", valmax);
+  (void)gslStrcat2(LINE, ": ");
 
   /* Read the answer */
 
-  READ_FUNC(LINE, BUFFER);
+  READ_FUNC(LINE.data(), BUFFER);
 
   /* Handle the default value */
 
@@ -1087,23 +865,24 @@ loop:
  *****************************************************************************/
 Id _lire_logical(const char* question, Id flag_def, Id valdef)
 {
+  LINE.resize(LONG_SIZE);
 loop:
 
   /* Compose the question */
 
-  (void)gslSPrintf(LINE, "%s ", question);
+  (void)gslSPrintf2(LINE, "%s ", question);
   if (flag_def && !IFFFF(valdef))
   {
     if (valdef == 0)
-      (void)gslStrcat(LINE, "(Def=n)");
+      (void)gslStrcat2(LINE, "(Def=n)");
     else
-      (void)gslStrcat(LINE, "(Def=y)");
+      (void)gslStrcat2(LINE, "(Def=y)");
   }
-  (void)gslStrcat(LINE, " [y,n] : ");
+  (void)gslStrcat2(LINE, " [y,n] : ");
 
   /* Read the answer */
 
-  READ_FUNC(LINE, BUFFER);
+  READ_FUNC(LINE.data(), BUFFER);
 
   /* Handle the default value */
 
@@ -1137,10 +916,10 @@ loop:
  *****************************************************************************/
 void record_close(void)
 {
-  cur         = NULL;
-  LCUR        = NULL;
-  LINE[0]     = '\0';
-  LINE_MEM[0] = '\0';
+  cur.clear();
+  LINE.clear();
+  LINE_MEM.clear();
+  LCUR = NULL;
 }
 
 /****************************************************************************/
@@ -1156,16 +935,64 @@ void record_close(void)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-Id _record_read(FILE* file, const char* format, ...)
+Id _record_read(FILE* file, const char* format, void* out)
 {
-  va_list ap;
-  Id error;
+  static std::string currentLine;
+  static size_t pos = 0; // position du prochain token dans currentLine
 
-  error = 0;
-  va_start(ap, format);
-  error = _file_read(file, format, ap);
-  va_end(ap);
-  return (error);
+  while (true)
+  {
+    // lire une nouvelle ligne si nécessaire
+    if (currentLine.empty() || pos >= currentLine.size())
+    {
+      char temp[1024];
+      if (!fgets(temp, sizeof(temp), file))
+        return 1; // EOF ou erreur
+
+      if (OptDbg::query(EDbg::INTERFACE)) message("Lecture ASCII = %s", temp);
+      currentLine = temp;
+      pos         = 0;
+
+      // supprimer les commentaires
+      size_t cmt = currentLine.find(DEL_COM);
+      if (cmt != std::string::npos)
+        currentLine.erase(cmt);
+
+      // supprimer CR/LF en fin de ligne
+      while (!currentLine.empty() &&
+             (currentLine.back() == '\n' || currentLine.back() == '\r'))
+        currentLine.pop_back();
+
+      // supprimer blancs en début et fin
+      size_t start = currentLine.find_first_not_of(DEL_BLK);
+      size_t end   = currentLine.find_last_not_of(DEL_BLK);
+      if (start == std::string::npos)
+      {
+        currentLine.clear(); // ligne vide
+        continue;
+      }
+      currentLine = currentLine.substr(start, end - start + 1);
+    }
+
+    // extraire le prochain token jusqu'au séparateur
+    size_t sepPos = currentLine.find(DEL_SEP, pos);
+    std::string token;
+    if (sepPos != std::string::npos)
+    {
+      token = currentLine.substr(pos, sepPos - pos);
+      pos   = sepPos + 1;
+    }
+    else
+    {
+      token = currentLine.substr(pos);
+      pos   = currentLine.size();
+    }
+
+    // Check empty line
+    if (_stripToken(token, format)) continue;
+
+    // conversion selon format
+    return _decodeToken(token, format, out);
+  }
 }
-
 } // namespace gstlrn

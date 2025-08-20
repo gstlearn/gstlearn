@@ -12,7 +12,6 @@
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Basic/Memory.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/String.hpp"
 #include "Core/CSV.hpp"
@@ -38,8 +37,8 @@ namespace gstlrn
 
 static Id ASCII_BUFFER_LENGTH = 0;
 static Id ASCII_BUFFER_QUANT  = 1000;
-static char* ASCII_BUFFER     = NULL;
-static FILE* FILE_MEM         = NULL;
+static String ASCII_BUFFER;
+static FILE* FILE_MEM = NULL;
 static String FILE_NAME_MEM;
 
 /*! \endcond */
@@ -70,20 +69,17 @@ static char Fichier_frac[]    = "Frac";
  ** \param[in]  ...        Value to be written
  **
  *****************************************************************************/
-static Id st_record_read(const char* title, const char* format, ...)
+static Id st_record_read(const char* title, const char* format, void* out)
 {
-  va_list ap;
-
   Id error;
-  va_start(ap, format);
 
   if (FILE_MEM != nullptr)
   {
-    error = _file_read(FILE_MEM, format, ap);
+    error = _record_read(FILE_MEM, format, out);
   }
   else
   {
-    error = _buffer_read(&ASCII_BUFFER, format, ap);
+    error = _buffer_read(ASCII_BUFFER, format, out);
   }
 
   if (error > 0)
@@ -92,7 +88,6 @@ static Id st_record_read(const char* title, const char* format, ...)
     print_current_line();
   }
 
-  va_end(ap);
   return (error);
 }
 
@@ -119,13 +114,13 @@ static void st_record_write(const char* format, ...)
   {
     _buffer_write(buf, format, ap);
     long1 = buf.size();
-    long2 = (ASCII_BUFFER != NULL) ? static_cast<Id>(strlen(ASCII_BUFFER)) : 0;
+    long2 = (!ASCII_BUFFER.empty()) ? ASCII_BUFFER.size() : 0;
     while (long1 + long2 > ASCII_BUFFER_LENGTH)
     {
       ASCII_BUFFER_LENGTH += ASCII_BUFFER_QUANT;
-      ASCII_BUFFER = mem_realloc(ASCII_BUFFER, ASCII_BUFFER_LENGTH, 1);
+      ASCII_BUFFER.resize(ASCII_BUFFER_LENGTH);
     }
-    (void)gslStrcat(ASCII_BUFFER, buf.data());
+    (void)gslStrcat2(ASCII_BUFFER, buf.data());
   }
 
   va_end(ap);
@@ -394,9 +389,9 @@ void ascii_simu_read(String& filename,
 
   /* Read the parameters */
 
-  if (st_record_read("Number of simulations", "%d", nbsimu)) return;
-  if (st_record_read("Number of Turning Bands", "%d", nbtuba)) return;
-  if (st_record_read("Random Seed", "%ld", seed)) return;
+  if (st_record_read("Number of simulations", "%ld", &nbsimu)) return;
+  if (st_record_read("Number of Turning Bands", "%ld", &nbtuba)) return;
+  if (st_record_read("Random Seed", "%ld", &seed)) return;
 
   st_file_close(file);
 }
@@ -456,12 +451,12 @@ Id ascii_option_defined(const String& filename,
         break;
 
       case 1:
-        ival           = atoi(keyval);
+        ival                        = atoi(keyval);
         *(static_cast<Id*>(answer)) = ival;
         break;
 
       case 2:
-        rval               = atof(keyval);
+        rval                            = atof(keyval);
         *(static_cast<double*>(answer)) = rval;
         break;
     }

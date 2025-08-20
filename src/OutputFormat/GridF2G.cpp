@@ -76,12 +76,12 @@ DbGrid* GridF2G::readGridFromFile()
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy2(refchar, "F2G_DIM");
   if (strcmp(string, refchar.data()) != 0) return dbgrid;
-  if (_record_read(_file, "%d", &ndim)) return dbgrid;
+  if (_record_read(_file, "%ld", &ndim)) return dbgrid;
 
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy2(refchar, "F2G_VERSION");
   if (strcmp(string, refchar.data()) != 0) return dbgrid;
-  if (_record_read(_file, "%d", &version)) return dbgrid;
+  if (_record_read(_file, "%ld", &version)) return dbgrid;
 
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy2(refchar, "F2G_LOCATION");
@@ -92,7 +92,7 @@ DbGrid* GridF2G::readGridFromFile()
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy2(refchar, "F2G_ROTATION");
   if (strcmp(string, refchar.data()) != 0) return dbgrid;
-  if (_record_read(_file, "%lf", angles[0])) return dbgrid;
+  if (_record_read(_file, "%lf", &angles[0])) return dbgrid;
 
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy2(refchar, "F2G_ORIGIN");
@@ -104,7 +104,7 @@ DbGrid* GridF2G::readGridFromFile()
   (void) gslStrcpy2(refchar, "F2G_NB_NODES");
   if (strcmp(string, refchar.data()) != 0) return dbgrid;
   for (Id idim = 0; idim < ndim; idim++)
-    if (_record_read(_file, "%d", &nx[idim])) return dbgrid;
+    if (_record_read(_file, "%ld", &nx[idim])) return dbgrid;
 
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy2(refchar, "F2G_LAGS");
@@ -128,7 +128,7 @@ DbGrid* GridF2G::readGridFromFile()
   if (_record_read(_file, "%s", string)) return dbgrid;
   (void) gslStrcpy2(refchar, "F2G_NB_VARIABLES");
   if (strcmp(string, refchar.data()) != 0) return dbgrid;
-  if (_record_read(_file, "%d", &ncol)) return dbgrid;
+  if (_record_read(_file, "%ld", &ncol)) return dbgrid;
 
   for (Id i = 0; i < ncol; i++)
   {

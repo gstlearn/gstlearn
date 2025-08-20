@@ -143,7 +143,8 @@ Id GridZycor::writeInFile()
 DbGrid* GridZycor::readGridFromFile()
 {
   DbGrid* dbgrid = nullptr;
-  char string[100];
+  String string;
+  ;
   double xf[2], rbid1, rbid2, rbid3, test, value;
   Id nval, ibid1, ibid2, ibid3;
   VectorInt nx(2);
@@ -156,30 +157,30 @@ DbGrid* GridZycor::readGridFromFile()
 
   /* Define the delimitors */
 
-  _file_delimitors('!', ",", '_');
+  _token_delimitors('!', ',', ' ');
 
   /* Read the lines */
 
-  if (_record_read(_file, "%s", string)) return dbgrid;
+  if (_record_read(_file, "%s", &string)) return dbgrid;
   if (string[0] != '@')
   {
-    messerr("Missing string starting with (@). Instead: '%s'", string);
+    messerr("Missing string starting with (@). Instead: '%s'", string.c_str());
     return dbgrid;
   }
-  if (_record_read(_file, "%s", string)) return dbgrid;
-  if (strcmp(string, "GRID") != 0)
+  if (_record_read(_file, "%s", &string)) return dbgrid;
+  if (string != "GRID")
   {
-    messerr("Missing string (GRID). Instead: '%s'", string);
+    messerr("Missing string (GRID). Instead: '%s'", string.c_str());
     return dbgrid;
   }
-  if (_record_read(_file, "%d", &nval)) return dbgrid;
-  if (_record_read(_file, "%d", &ibid1)) return dbgrid;
+  if (_record_read(_file, "%ld", &nval)) return dbgrid;
+  if (_record_read(_file, "%ld", &ibid1)) return dbgrid;
   if (_record_read(_file, "%lg", &test)) return dbgrid;
-  if (_record_read(_file, "%s", string)) return dbgrid;
-  if (_record_read(_file, "%d", &ibid2)) return dbgrid;
-  if (_record_read(_file, "%d", &ibid3)) return dbgrid;
-  if (_record_read(_file, "%d", &nx[1])) return dbgrid;
-  if (_record_read(_file, "%d", &nx[0])) return dbgrid;
+  if (_record_read(_file, "%s", &string)) return dbgrid;
+  if (_record_read(_file, "%ld", &ibid2)) return dbgrid;
+  if (_record_read(_file, "%ld", &ibid3)) return dbgrid;
+  if (_record_read(_file, "%ld", &nx[1])) return dbgrid;
+  if (_record_read(_file, "%ld", &nx[0])) return dbgrid;
   if (_record_read(_file, "%lf", &x0[0])) return dbgrid;
   if (_record_read(_file, "%lf", &xf[0])) return dbgrid;
   if (_record_read(_file, "%lf", &x0[1])) return dbgrid;
@@ -188,10 +189,10 @@ DbGrid* GridZycor::readGridFromFile()
   if (_record_read(_file, "%lf", &rbid2)) return dbgrid;
   if (_record_read(_file, "%lf", &rbid3)) return dbgrid;
 
-  if (_record_read(_file, "%s", string)) return dbgrid;
-  if (strcmp(string, "@") != 0)
+  if (_record_read(_file, "%s", &string)) return dbgrid;
+  if (string != "@")
   {
-    messerr("Missing string (@). Instead: %s", string);
+    messerr("Missing string (@). Instead: %s", string.c_str());
     return dbgrid;
   }
 
@@ -202,7 +203,7 @@ DbGrid* GridZycor::readGridFromFile()
 
   /* Reset the delimitors */
 
-  _file_delimitors('#', " ", ' ');
+  _token_delimitors('#', ' ', ' ');
 
   /* Core allocation */
 

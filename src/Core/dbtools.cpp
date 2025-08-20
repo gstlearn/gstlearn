@@ -356,9 +356,7 @@ static Id st_edit_ask(Id* item, Id* rank, double* vmin, double* vmax)
   static double mem_vmax = 1.;
 
 label_loop:
-  _lire_string("Enter Command (or 'stop' or 'quit' or '?')", 0,
-               NULL,
-               string);
+  _lire_string("Enter Command (or 'stop' or 'quit' or '?')", 0, NULL, string);
 
   /* Look for the string */
 
