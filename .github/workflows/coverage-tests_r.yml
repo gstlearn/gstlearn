@@ -73,4 +73,5 @@ jobs:
         Rscript tests/r/test_Arguments.R
         Rscript tests/r/test_Assessors.R
         Rscript tests/r/test_Matrix.R
+        Rscript tests/r/test_dumpToNF.R
 

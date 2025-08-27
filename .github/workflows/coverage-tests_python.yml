@@ -52,3 +52,4 @@ jobs:
         python tests/py/test_Arguments.py
         python tests/py/test_Assessors.py
         python tests/py/test_Matrix.py
+        python tests/py/test_h5.py
