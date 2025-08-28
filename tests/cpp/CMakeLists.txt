@@ -19,6 +19,9 @@ if(NOT USE_HDF5)
   list(FILTER TEST_SOURCES EXCLUDE REGEX "bench_H5.cpp")
 endif()
 
+# Find Boost filesystem
+find_package(Boost REQUIRED COMPONENTS filesystem system)
+
 # Generation folder
 if (IS_MULTI_CONFIG)
   cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR $<CONFIG>
@@ -63,6 +66,8 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     list(APPEND TARGETS_EXE ${TEST_NAME})
     # Define sources list for the target executable
     add_executable(${TEST_NAME} ${TEST_SOURCE_FILE})
+    # Link against boost filesystem
+    target_link_libraries(${TEST_NAME} PRIVATE Boost::filesystem Boost::system)
     # Link each test to shared library
     target_link_libraries(${TEST_NAME} PRIVATE ${PROJECT_NAME}::shared)
     # Pass CMAKE_SOURCE_DIR to executables (for the `getTestData' function)

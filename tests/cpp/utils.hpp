@@ -14,7 +14,7 @@
 #include <geoslib_define.h>
 #include <Basic/File.hpp>
 
-#include <filesystem>
+#include <boost/filesystem.hpp>
 
 #ifndef CMAKE_SOURCE_DIR
 #  warning "CMAKE_SOURCE_DIR not defined, using GSTLEARN_DIR env var instead"
@@ -34,7 +34,7 @@ namespace gstlrn
    */
   inline String getTestData(const String& subdir, const String& filename)
   {
-    std::filesystem::path p {CMAKE_SOURCE_DIR};
+    boost::filesystem::path p {CMAKE_SOURCE_DIR};
     return (p / "doc" / "data" / subdir / filename).string();
   }
 

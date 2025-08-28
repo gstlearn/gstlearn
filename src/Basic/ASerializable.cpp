@@ -16,7 +16,7 @@
 #include "Basic/String.hpp"
 #include "Enum/EFormatNF.hpp"
 
-#include <filesystem>
+#include <boost/filesystem.hpp>
 #include <fstream>
 #include <iostream>
 
@@ -178,7 +178,7 @@ String ASerializable::buildFileName(Id status, const String& filename, bool ensu
   // - if 'filename' is absolute (starts with '/' or second character is ':'): do nothing
   // - otherwise, add the 'containerName' and 'prefixName' (if defined)
 
-  std::filesystem::path fileLocal {filename};
+  boost::filesystem::path fileLocal {filename};
 
   if (status == 1 && fileLocal.is_absolute())
   {
@@ -197,12 +197,12 @@ String ASerializable::buildFileName(Id status, const String& filename, bool ensu
   }
   else
   {
-    fileLocal = std::filesystem::current_path();
+    fileLocal = boost::filesystem::current_path();
   }
 
   if (ensureDirExist)
   {
-    std::filesystem::create_directory(fileLocal);
+    boost::filesystem::create_directory(fileLocal);
   }
 
   const auto fname = _myPrefixName + filename;

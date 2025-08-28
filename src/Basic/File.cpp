@@ -17,7 +17,7 @@
 #include <cstring>
 #include <iostream>
 
-#include <filesystem>
+#include <boost/filesystem.hpp>
 #include <fstream>
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -146,7 +146,7 @@ bool gslFileExist(const String& path, const String& mode)
 
 String gslBaseName(const String& path, bool keepExtension)
 {
-  std::filesystem::path p {path};
+  boost::filesystem::path p {path};
   return (keepExtension ? p.filename() : p.stem()).string();
 }
 

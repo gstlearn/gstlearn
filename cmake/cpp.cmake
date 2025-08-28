@@ -114,8 +114,17 @@ endif()
 #set(CMAKE_FIND_DEBUG_MODE TRUE)
 
 # Look for Boost
+if(CMAKE_COMPILER_IS_GNUCC)
+  # Use of boost::filesystem needs at least GCC 8.0
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+    message(SEND_ERROR "GCC>=8.0 is needed to build gstlearn")
+  elseif(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
+    # GCC 8.0 link statically to boost for cross-platform consideration (RHLE 8 vs Ubuntu 22)
+    set(Boost_USE_STATIC_LIBS ON)
+  endif()
+endif()
 #set(Boost_DEBUG 1)
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS filesystem system)
 # TODO : If Boost not found, fetch it from the web ?
 
 # Look for OpenMP
@@ -209,6 +218,7 @@ foreach(FLAVOR ${FLAVORS})
   else()
     target_link_libraries(${FLAVOR} PRIVATE Boost::boost)
   endif()
+  target_link_libraries(${FLAVOR} PRIVATE Boost::filesystem Boost::system)
 
   # Link to NLopt
   target_link_libraries(${FLAVOR} PRIVATE NLopt::nlopt)
@@ -226,16 +236,6 @@ foreach(FLAVOR ${FLAVORS})
   endif()
   if (MINGW)
     target_link_libraries(${FLAVOR} PUBLIC -liphlpapi -lrpcrt4)
-  endif()
-
-  if(CMAKE_COMPILER_IS_GNUCC)
-    # Use of std::filesystem needs at least GCC 8.0
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
-      message(SEND_ERROR "GCC>=8.0 is needed to build gstlearn")
-    elseif(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
-      # GCC 8.0 doesn't link automatically to std::filesystem
-      target_link_libraries(${FLAVOR} PUBLIC stdc++fs)
-    endif()
   endif()
 
   # Build a cmake file to be imported by library users
