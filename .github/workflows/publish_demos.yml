@@ -47,7 +47,7 @@ jobs:
           libhdf5-dev \
           libsuitesparse-dev \
           libopenmpi-dev \
-          libboost-dev \
+          libboost-all-dev \
           libeigen3-dev \
           libpng-dev \
           libhdf5-dev \

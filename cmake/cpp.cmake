@@ -15,6 +15,11 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Test GCC version
+if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+  message(SEND_ERROR "GCC>=8.0 is needed to build gstlearn")
+endif()
+
 # Warning fiesta!
 # https://cmake.org/cmake/help/latest/command/add_compile_options.html
 if (MSVC)
@@ -114,18 +119,12 @@ endif()
 #set(CMAKE_FIND_DEBUG_MODE TRUE)
 
 # Look for Boost
-if(CMAKE_COMPILER_IS_GNUCC)
-  # Use of boost::filesystem needs at least GCC 8.0
-  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
-    message(SEND_ERROR "GCC>=8.0 is needed to build gstlearn")
-  elseif(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
-    # GCC 8.0 link statically to boost for cross-platform consideration (RHLE 8 vs Ubuntu 22)
-    set(Boost_USE_STATIC_LIBS ON)
-  endif()
-endif()
 #set(Boost_DEBUG 1)
-find_package(Boost REQUIRED COMPONENTS filesystem system)
-# TODO : If Boost not found, fetch it from the web ?
+if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
+  set(Boost_USE_STATIC_LIBS ON) # mandatory for GCC < 9 (provided that boost is -fPIC)
+endif()
+find_package(Boost REQUIRED CONFIG COMPONENTS filesystem system)
+message(STATUS "Found Boost: ${Boost_INCLUDE_DIRS} (found version \"${Boost_VERSION}\")")
 
 # Look for OpenMP
 find_package(OpenMP REQUIRED)
@@ -192,9 +191,12 @@ foreach(FLAVOR ${FLAVORS})
   set_target_properties(${FLAVOR} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
   # append a 'd' to the output file name of the debug build targets
   set_target_properties(${FLAVOR} PROPERTIES DEBUG_POSTFIX "d")
-  
+
   # Set library version
   set_target_properties(${FLAVOR} PROPERTIES VERSION ${PROJECT_FULL_VERSION})
+
+  # Link to Boost
+  target_link_libraries(${FLAVOR} PRIVATE ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
 
   if(USE_BOOST_SPAN)
     target_compile_definitions(${FLAVOR} PUBLIC USE_BOOST_SPAN)
@@ -208,17 +210,6 @@ foreach(FLAVOR ${FLAVORS})
 
   # Link to Eigen
   target_link_libraries(${FLAVOR} PUBLIC Eigen3::Eigen)
-
-  # Link to Boost (use headers)
-  # Target for header-only dependencies. (Boost include directory)
-  # Currently Boost headers are only used in .cpp so a PRIVATE link minimizes
-  # dependencies for projects using gstlearn, except with USE_BOOST_SPAN.
-  if(USE_BOOST_SPAN)
-    target_link_libraries(${FLAVOR} PUBLIC Boost::boost)
-  else()
-    target_link_libraries(${FLAVOR} PRIVATE Boost::boost)
-  endif()
-  target_link_libraries(${FLAVOR} PRIVATE Boost::filesystem Boost::system)
 
   # Link to NLopt
   target_link_libraries(${FLAVOR} PRIVATE NLopt::nlopt)
@@ -293,7 +284,7 @@ set_target_properties(static PROPERTIES
   COMPILE_FLAGS -D${PROJECT_NAME_UP}_STATIC_DEFINE
 )
 
-# we need a specific name for the static library otherwise Ninja on
+# We need a specific name for the static library otherwise Ninja on
 # Windows not happy...
 if (WIN32 AND CMAKE_GENERATOR MATCHES "Ninja")
   set_target_properties(static PROPERTIES OUTPUT_NAME ${PROJECT_NAME}_static)

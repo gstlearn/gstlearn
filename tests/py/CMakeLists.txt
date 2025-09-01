@@ -41,6 +41,7 @@ add_dependencies(check_py prepare_check_py python_install)
 
 # Look for Python3 (needed here because Python3_EXECUTABLE not populated everywhere)
 find_package(Python3 REQUIRED)
+
 # Python script test runner path
 cmake_path(APPEND CMAKE_SOURCE_DIR python run_test_py.py
            OUTPUT_VARIABLE RUN_TEST_SCRIPT)

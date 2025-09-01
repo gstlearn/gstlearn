@@ -42,7 +42,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq \
           libopenmpi-dev \
-          libboost-dev \
+          libboost-all-dev \
           libeigen3-dev \
           libhdf5-dev \
           libnlopt-dev

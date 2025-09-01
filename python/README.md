@@ -286,6 +286,11 @@ To uninstall the *gstlearn* Python package, execute following command:
 python3 -m pip uninstall gstlearn
 ```
 
+Or if you were using 'uv' environment (Development)
+```
+uv pip uninstall gstlearn
+```
+
 Note : You may need to directly modify your *site-packages* folder by:
 
 * Removing the reference to the old gstlearn package version (see [this topic](https://stackoverflow.com/questions/43177200/assertionerror-egg-link-does-not-match-installed-location-of-reviewboard-at))
