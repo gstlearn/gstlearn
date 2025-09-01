@@ -18,6 +18,7 @@ on:
         default: ''
 
 env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   CMAKE_BUILD_TYPE : Release
   BUILD_DIR : build
   PYTHON_VERSION : "3.13"
@@ -38,7 +39,7 @@ jobs:
           libhdf5-dev \
           libsuitesparse-dev \
           libopenmpi-dev \
-          libboost-dev \
+          libboost-all-dev \
           libeigen3-dev \
           libnlopt-dev \
           libpng-dev \
@@ -50,7 +51,7 @@ jobs:
         python-version: ${{env.PYTHON_VERSION}}
         activate-environment: true
 
-    - name: Install Python dependencies
+    - name: Install python dependencies
       run: |
         uv pip install numpy
         uv pip install jupyter
