@@ -17,6 +17,8 @@
 #include <Eigen/SparseCore>
 #include <Eigen/SparseCholesky>
 
+#include "geoslib_define.h"
+
 namespace gstlrn
 {
 typedef Eigen::SparseMatrix<double>::StorageIndex StorageIndex;
