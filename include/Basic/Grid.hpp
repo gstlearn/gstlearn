@@ -25,7 +25,7 @@ class GSTLEARN_EXPORT Grid: public AStringable, public ASerializable
 {
 
 public:
-  Grid(Id ndim               = 0,
+  Grid(Id ndim                = 0,
        const VectorInt& nx    = VectorInt(),
        const VectorDouble& x0 = VectorDouble(),
        const VectorDouble& dx = VectorDouble());
@@ -45,9 +45,9 @@ public:
   void resetFromSpaceDimension(Id ndim);
   void resetFromGrid(Grid* grid);
   Id resetFromVector(const VectorInt& nx        = VectorInt(),
-                      const VectorDouble& dx     = VectorDouble(),
-                      const VectorDouble& x0     = VectorDouble(),
-                      const VectorDouble& angles = VectorDouble());
+                     const VectorDouble& dx     = VectorDouble(),
+                     const VectorDouble& x0     = VectorDouble(),
+                     const VectorDouble& angles = VectorDouble());
   void setX0(Id idim, double value);
   void setDX(Id idim, double value);
   void setNX(Id idim, Id value);
@@ -125,12 +125,12 @@ public:
                                   bool centered,
                                   double eps) const;
   Id coordinateToIndicesInPlace(const VectorDouble& coor,
-                                 VectorInt& indice,
-                                 bool centered = false,
-                                 double eps    = EPSILON6) const;
+                                VectorInt& indice,
+                                bool centered = false,
+                                double eps    = EPSILON6) const;
   Id coordinateToRank(const VectorDouble& coor,
-                       bool centered = false,
-                       double eps    = EPSILON6) const;
+                      bool centered = false,
+                      double eps    = EPSILON6) const;
   VectorInt getCenterIndices(bool flagSup = false) const;
   void getCenterIndicesInPlace(VectorInt& indices, bool flagSup) const;
   VectorInt generateGridIndices(const String& string,
@@ -153,6 +153,7 @@ public:
   VectorDouble getX0s() const { return _x0; }
   VectorDouble getDXs() const { return _dx; }
   const Rotation& getRotation() const { return _rotation; }
+  void setRotation(const Rotation& rotation) { _rotation = rotation; }
   bool isSame(const Grid& grid) const;
   bool isSameMesh(const Grid& grid) const;
   bool isRotated() const { return _rotation.isRotated(); }
