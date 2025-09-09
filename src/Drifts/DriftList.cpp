@@ -552,7 +552,7 @@ Id DriftList::evalDriftMatByRanksInPlace(MatrixDense& mat,
     return 1;
   }
 
-  auto nvar = static_cast<Id>(sampleRanks.size());
+  auto nvar = getNVar();
   auto nbfl = getNDrift();
   auto nfeq = (isFlagLinked()) ? nbfl : nvar * nbfl;
   if (nfeq <= 0) return 0;
@@ -615,7 +615,7 @@ VectorDouble DriftList::evalMeanVecByRanks(const Db* db,
     messerr("The returned matrix has no valid sample and no valid variable");
     return 1;
   }
-  auto nvar = static_cast<Id>(sampleRanks.size());
+  auto nvar = getNVar();
 
   VectorDouble vec(neq, 0.);
 
@@ -667,7 +667,7 @@ Id DriftList::evalDriftMatByTargetInPlace(MatrixDense& mat,
     return 1;
   }
 
-  auto nvar = static_cast<Id>(index.size());
+  auto nvar = getNVar();
   auto nbfl = getNDrift();
   auto nfeq = getNDriftEquation();
   Id ncols  = (isFlagLinked()) ? nfeq : nvar * nbfl;
