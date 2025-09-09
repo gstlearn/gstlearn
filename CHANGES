@@ -9,11 +9,9 @@ Release 1.9.0
 - New API functions for launching Gradient and Potential based methods
 - The old-style memory management is not used anymore (mem_alloc, mem_free, ...)
 
-
 Release 1.8.0
 =============
 - Take Sample Selection into account i early phases of Moving Neighborhood search
-- Correction in Wendland1 and Wendland2 covariance functions (polynomial formula)
 - New API functions for launching Gradient and Potential based methods
 - Export all gstlearn classes and functions through a C++ namespace 'gstlrn" (#108)
 - Replace all integers (32 bits) with long (64 bits) using 'Id' type (#446)
