@@ -3631,7 +3631,7 @@ void Db::getValuesByRanksInPlace(VectorDouble* values,
                                  const VectorDouble& means,
                                  bool subtractMean) const
 {
-  auto nvar       = getNLoc(ELoc::Z);
+  auto nvar       = static_cast<Id>(sampleRanks.size());
   VectorInt jvars = VH::sequence(nvar);
   values->clear();
   for (Id ivar = 0; ivar < nvar; ivar++)

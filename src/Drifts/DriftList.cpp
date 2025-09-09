@@ -552,12 +552,11 @@ Id DriftList::evalDriftMatByRanksInPlace(MatrixDense& mat,
     return 1;
   }
 
-  auto nvar = getNVar();
+  auto nvar = static_cast<Id>(sampleRanks.size());
   auto nbfl = getNDrift();
-  auto nfeq = getNDriftEquation();
-  Id ncols  = (isFlagLinked()) ? nfeq : nvar * nbfl;
-  if (ncols <= 0) return 0;
-  mat.resize(neq, ncols);
+  auto nfeq = (isFlagLinked()) ? nbfl : nvar * nbfl;
+  if (nfeq <= 0) return 0;
+  mat.resize(neq, nfeq);
   mat.fill(0.);
 
   for (Id ivar = 0, irow = 0; ivar < nvar; ivar++)
@@ -616,7 +615,7 @@ VectorDouble DriftList::evalMeanVecByRanks(const Db* db,
     messerr("The returned matrix has no valid sample and no valid variable");
     return 1;
   }
-  auto nvar = getNVar();
+  auto nvar = static_cast<Id>(sampleRanks.size());
 
   VectorDouble vec(neq, 0.);
 
@@ -668,7 +667,7 @@ Id DriftList::evalDriftMatByTargetInPlace(MatrixDense& mat,
     return 1;
   }
 
-  auto nvar = getNVar();
+  auto nvar = static_cast<Id>(index.size());
   auto nbfl = getNDrift();
   auto nfeq = getNDriftEquation();
   Id ncols  = (isFlagLinked()) ? nfeq : nvar * nbfl;
@@ -853,11 +852,13 @@ double DriftList::evalDriftVarCoef(const Db* db,
  * mean
  */
 
-VectorDouble
-DriftList::evalDriftVarCoefs(const Db* db, const VectorDouble& coeffs, bool useSel) const
+VectorDouble DriftList::evalDriftVarCoefs(const Db* db,
+                                          const VectorDouble& coeffs,
+                                          bool useSel) const
 {
   VectorDouble vec;
   vec = evalDriftCoefs(db, coeffs, useSel);
   return vec;
 }
+
 } // namespace gstlrn

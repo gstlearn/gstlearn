@@ -113,8 +113,8 @@ Id CalcGlobal::_globalKriging()
   VectorDouble rhsCum;
   Db* dbin  = getDbin();
   Db* dbout = getDbout();
-  Id nvar  = _modelLocal->getNVar();
-  Id ng    = 0;
+  Id nvar   = _modelLocal->getNVar();
+  Id ng     = 0;
   VectorDouble wgt;
 
   KrigOpt krigopt;
@@ -123,9 +123,8 @@ Id CalcGlobal::_globalKriging()
 
   // Get the Covariance between data (Unique Neighborhood)
   CovCalcMode mode(ECalcMember::LHS);
-  VectorVectorInt sampleRanks = dbin->getSampleRanks({_ivar0});
-  VectorDouble Z              = dbin->getValuesByRanks(sampleRanks,
-                                                       _modelLocal->getMeans(),
+  VectorVectorInt sampleRanks = dbin->getSampleRanks();
+  VectorDouble Z              = dbin->getValuesByRanks(sampleRanks, _modelLocal->getMeans(),
                                                        !_modelLocal->hasDrift());
   if (_modelLocal->evalCovMatSymInPlaceFromIdx(Sigma, dbin, sampleRanks, &mode, false)) return 1;
   if (_modelLocal->evalDriftMatByRanksInPlace(X, dbin, sampleRanks, ECalcMember::LHS)) return 1;
@@ -136,8 +135,8 @@ Id CalcGlobal::_globalKriging()
   algebra.setLHS(&Sigma, &X);
 
   // Prepare the cumulative matrices
-  MatrixDense Sigma0Cum(Sigma.getNRows(), 1);
-  MatrixDense X0Cum(1, X.getNCols());
+  MatrixDense Sigma0Cum(Sigma.getNRows(), nvar);
+  MatrixDense X0Cum(nvar, X.getNCols());
   MatrixDense Sigma0;
   MatrixDense X0;
   MatrixSymmetric Sigma00;
@@ -166,8 +165,8 @@ Id CalcGlobal::_globalKriging()
   if (_modelLocal->evalCovMat0InPlace(Sigma00, dbout, 0)) return 1;
   algebra.setVariance(&Sigma00);
 
-  double estim = algebra.getEstimation()[0];
-  double stdv  = algebra.getStdv()[0];
+  double estim = algebra.getEstimation()[_ivar0];
+  double stdv  = algebra.getStdv()[_ivar0];
   // The previous term corresponds to the standard deviation calculated
   // with a punctual target. Therefore the corresponding variance
   // must be corrected (C00 -> Cvv) to pass to a correct Territory variance
@@ -177,10 +176,10 @@ Id CalcGlobal::_globalKriging()
 
   /* Preliminary checks */
 
-  Id ntot       = dbin->getNSample(false);
-  Id np         = dbin->getNSample(true);
-  double cell    = 1.;
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  Id ntot      = dbin->getNSample(false);
+  Id np        = dbin->getNSample(true);
+  double cell  = 1.;
+  auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
   if (dbgrid != nullptr) cell = dbgrid->getCellSize();
   double surface = ng * cell;
 
@@ -192,7 +191,6 @@ Id CalcGlobal::_globalKriging()
   /* Perform the estimation */
 
   double cvvgeo = stdv * stdv - c00 + cvv;
-
   double stdgeo = (cvvgeo > 0) ? sqrt(cvvgeo) : 0.;
   double cvgeo  = (isZero(estim) || FFFF(estim)) ? TEST : stdgeo / estim;
 
@@ -242,7 +240,7 @@ Id CalcGlobal::_globalArithmetic()
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   auto ntot      = getDbin()->getNSample(false);
   auto np        = getDbin()->getNSample(true);
-  Id ng         = dbgrid->getNSample(true);
+  Id ng          = dbgrid->getNSample(true);
   double surface = ng * dbgrid->getCellSize();
 
   /* Average covariance over the data */
