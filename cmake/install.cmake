@@ -54,7 +54,7 @@ if (WIN32)
     TARGETS shared
     EXPORT ${PROJECT_NAME}_corelibs
     RUNTIME DESTINATION lib # for DLL, default destination is bin
-    ARCHIVE
+    ARCHIVE DESTINATION lib # destination is the default (lib) but needed to install both
   )
 else()
   # gmtsph is built by gstlearn itself (and always as a static library), so it
