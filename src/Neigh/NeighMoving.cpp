@@ -553,6 +553,10 @@ Id NeighMoving::_moving(Id iech_out, VectorInt& ranks, double eps)
       if (!_dbin->isActive(iech)) continue;
     }
 
+    /* Discard sample if masked by a selection */
+
+    if (!_dbin->isActive(iech)) continue;
+
     /* Discard samples where all variables are undefined */
 
     if (_discardUndefined(iech)) continue;
