@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.9.0
 =============
+- Take Sample Selection into account i early phases of Moving Neighborhood search
 - Correction in Wendland1 and Wendland2 covariance functions (polynomial formula)
 - Take Sample Selection into account in early phases of Moving Neighborhood search
 - New API functions for launching Gradient and Potential based methods
