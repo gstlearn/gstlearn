@@ -34,7 +34,7 @@
 #define V(i, j)       v[SQ(j, i, neq)]
 /*! \endcond */
 
-static bool RENARD  = true;
+static bool RENARD  = false;
 static bool RENARD2 = false;
 
 namespace gstlrn
