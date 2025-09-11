@@ -356,7 +356,8 @@ double matrix_determinant(Id neq, const VectorDouble& b)
  *****************************************************************************/
 Id matrix_cholesky_decompose(const double* a, double* tl, Id neq)
 {
-  if (RENARD)
+  bool RENARD2 = false;
+  if (RENARD2)
   {
     MatrixSymmetric mata(neq);
     mata.resetFromArray(neq, neq, a);
