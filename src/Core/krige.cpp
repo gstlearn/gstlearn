@@ -3117,8 +3117,7 @@ static Id st_sampling_krige_data(Db* db,
     ecr++;
   }
   mat_s = model->evalCovMatSym(db, rutil, -1);
-  if (matrix_prod_norme(-1, nutil, ntot, tutil.getValues().data(), mat_s.getValues().data(),
-                        invsig.getValues().data())) goto label_end;
+  invsig.prodNormMatMatInPlace(&mat_s, &tutil, true);
   if (matrix_invert(invsig.getValues().data(), ntot, 0)) goto label_end;
   utab.clear();
 

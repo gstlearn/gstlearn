@@ -23,8 +23,12 @@ namespace gstlrn
 class Db;
 class DbGrid;
 class KrigingSystem;
-class GSTLEARN_EXPORT Global_Result
+class GSTLEARN_EXPORT Global_Result: public AStringable
 {
+public:
+  /// AStringable Interface
+  String toString(const AStringFormat* strfmt = nullptr) const override;
+
 public:
   Id ntot;              // Total Number of Data
   Id np;                // Number of active Data
@@ -36,7 +40,7 @@ public:
   double cvv;           // Variance of Domain
   VectorDouble weights; // Weights attached to data
 
-  /// Has a specific implementation in the Target language
+  /// Has a specific implementation in the Target language (for R only)
   DECLARE_TOTL;
 };
 

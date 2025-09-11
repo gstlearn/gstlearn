@@ -343,6 +343,13 @@ bool CovList::isAllActiveCovList() const
   return true;
 }
 
+void CovList::setAllCovActive()
+{
+  for (Id icov = 0, ncov = static_cast<Id>(_filtered.size()); icov < ncov; icov++)
+    _filtered[icov] = false;
+  _updateLists();
+}
+
 const CovBase* CovList::getCov(Id icov) const
 {
   if (!_isCovarianceIndexValid(icov)) return nullptr;
@@ -465,12 +472,16 @@ void CovList::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const
 
 void CovList::setActiveCovListFromOne(Id keepOnlyCovIdx) const
 {
-  _allActiveCov = true;
-  _activeCovList.clear();
   if (keepOnlyCovIdx >= 0)
   {
+    _activeCovList.clear();
     _activeCovList.push_back(keepOnlyCovIdx);
     _allActiveCov = false;
+  }
+  else
+  {
+    _allActiveCov  = true;
+    _activeCovList = _allActiveCovList;
   }
 }
 

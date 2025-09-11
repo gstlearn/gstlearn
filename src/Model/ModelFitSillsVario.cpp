@@ -332,6 +332,7 @@ void ModelFitSillsVario::_prepareGoulard()
         }
     }
   }
+  cova->setActiveCovListFromOne(-1);
 }
 
 /****************************************************************************/

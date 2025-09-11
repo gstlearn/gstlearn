@@ -56,7 +56,7 @@ class Ball;
  * - Possibility to exclude the target (or samples sharing some characteristics with
  * the Target). This is the cross-validation option.
  */
-class GSTLEARN_EXPORT ANeigh:  public ASpaceObject, public ASerializable, public ICloneable
+class GSTLEARN_EXPORT ANeigh: public ASpaceObject, public ASerializable, public ICloneable
 {
 public:
   ANeigh(const ASpaceSharedPtr& space = ASpaceSharedPtr());
@@ -64,7 +64,11 @@ public:
   ANeigh& operator=(const ANeigh& r);
   virtual ~ANeigh();
   /// ASpaceObject Interface
-  bool isConsistent(const ASpace* space) const override { DECLARE_UNUSED(space); return true; }
+  bool isConsistent(const ASpace* space) const override
+  {
+    DECLARE_UNUSED(space);
+    return true;
+  }
 
   /// Interface for ANeigh
   virtual Id attach(const Db* dbin, const Db* dbout);
@@ -93,8 +97,8 @@ public:
   bool getFlagKFold() const { return _flagKFold; }
 
   void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
-  void setFlagKFold(bool flagKFold)   { _flagKFold = flagKFold; }
-  void setFlagSimu(bool flagSimu)     { _flagSimu = flagSimu; }
+  void setFlagKFold(bool flagKFold) { _flagKFold = flagKFold; }
+  void setFlagSimu(bool flagSimu) { _flagSimu = flagSimu; }
 
   void setBallSearch(bool status, Id leaf_size = 10);
   void attachBall();
@@ -102,7 +106,7 @@ public:
 protected:
   bool _isNbghMemoEmpty() const { return _nbghMemo.empty(); }
   static void _neighCompress(VectorInt& ranks);
-  void _display(const VectorInt& ranks) const;
+  void _display(const VectorInt& ranks, bool flagCompress = false) const;
   bool _discardUndefined(Id iech);
   Id _xvalid(Id iech_in, Id iech_out, double eps = EPSILON9);
   bool _isDimensionValid(Id idim) const;
@@ -138,4 +142,4 @@ private:
   mutable VectorInt _nbghMemo;
   mutable Ball _ball;
 };
-}
+} // namespace gstlrn

@@ -1,0 +1,129 @@
+-----------------------------------------------------
+Test on Pollution dataset
+
+List of Parameters:
+-------------------
+1 - log Scale in Dimension 1
+    Value: 3.097909
+    Absolute Bounds: -inf inf 
+    User Bounds: 0.102177 6.09364 
+2 - log Scale in Dimension 2
+    Value: 3.097909
+    Absolute Bounds: -inf inf 
+    User Bounds: 0.102177 6.09364 
+3 - Angle in Dimension 1
+    Value: 0.000000
+    Absolute Bounds: -inf inf 
+    User Bounds: -inf inf 
+4 - Term of the Cholesky decomposition of the sill matrix
+    Value: 4.695870
+    Absolute Bounds: -inf inf 
+    User Bounds: -inf 9.40984 
+Summary of Optimization procedure:
+Count of Iterations =   48 - Final Cost = 306.902489
+- Final parameters:     0.102     0.102    -0.001     5.476
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 1
+
+Covariance Part
+---------------
+Exponential
+- Sill         =     30.034
+- Range        =      3.318
+- Theo. Range  =      1.108
+Total Sill     =     30.034
+
+Drift Part
+----------
+Universality_Condition
+-----------------------------------------------------
+Test on Scotland Temperatures dataset
+
+List of Parameters:
+-------------------
+1 - log Scale in Dimension 1
+    Value: 5.964722
+    Absolute Bounds: -inf inf 
+    User Bounds: 2.96899 6.09364 
+2 - log Scale in Dimension 2
+    Value: 5.964722
+    Absolute Bounds: -inf inf 
+    User Bounds: 2.96899 6.09364 
+3 - Angle in Dimension 1
+    Value: -0.000624
+    Absolute Bounds: -inf inf 
+    User Bounds: -inf inf 
+4 - Term of the Cholesky decomposition of the sill matrix
+    Value: 0.556856
+    Absolute Bounds: -inf inf 
+    User Bounds: -inf 1.87732 
+Summary of Optimization procedure:
+Count of Iterations =   36 - Final Cost = 126.446628
+- Final parameters:     4.498     4.127    -5.973     0.680
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 1
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      1.187
+- Ranges       =    269.254   185.678
+- Theo. Ranges =     89.879    61.981
+- Angles       =    174.027     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.995     0.104
+     [  1,]    -0.104     0.995
+Total Sill     =      1.187
+
+Drift Part
+----------
+Universality_Condition
+-----------------------------------------------------
+Test on Scotland Temperatures dataset without API
+
+List of Parameters:
+-------------------
+1 - log Scale in Dimension 1
+    Value: 5.964722
+    Absolute Bounds: -inf inf 
+    User Bounds: 2.96899 6.09364 
+2 - Term of the Cholesky decomposition of the sill matrix
+    Value: 0.556856
+    Absolute Bounds: -inf inf 
+    User Bounds: -inf 1.87732 
+Summary of Optimization procedure:
+Count of Iterations =   33 - Final Cost = 127.960303
+- Final parameters:     4.248     0.660
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 1
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      1.159
+- Range        =    209.498
+- Theo. Range  =     69.932
+Total Sill     =      1.159
+
+Drift Part
+----------
+Universality_Condition

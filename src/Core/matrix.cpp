@@ -65,6 +65,7 @@ void matrix_product_safe(Id n1,
                          const double* v2,
                          double* v3)
 {
+
   if (RENARD)
   {
     MatrixDense matv1(n1, n2);
@@ -122,13 +123,11 @@ Id matrix_prod_norme(Id transpose, Id n1, Id n2, const double* v1, const double*
     MatrixSquare matw;
     if (transpose)
     {
-      mata.reset(n1, n1);
       mata.resetFromArray(n1, n1, a);
       matw.reset(n2, n2);
     }
     else
     {
-      mata.reset(n2, n2);
       mata.resetFromArray(n2, n2, a);
       matw.reset(n1, n1);
     }
@@ -356,6 +355,7 @@ double matrix_determinant(Id neq, const VectorDouble& b)
  *****************************************************************************/
 Id matrix_cholesky_decompose(const double* a, double* tl, Id neq)
 {
+
   if (RENARD)
   {
     MatrixSymmetric mata(neq);
