@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.9.0
 =============
+- Attempt to suppress old-style memory management methods
 - Correction in Wendland1 and Wendland2 covariance functions (polynomial formula)
 - New API functions for launching Gradient and Potential based methods
 - The old-style memory management is not used anymore (mem_alloc, mem_free, ...)
