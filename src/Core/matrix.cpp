@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "LinearOp/CholeskyDense.hpp"
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
 #include <cmath>
@@ -33,6 +34,8 @@
 #define V(i, j)       v[SQ(j, i, neq)]
 /*! \endcond */
 
+static bool RENARD = true;
+
 namespace gstlrn
 {
 static double _getTolInvert()
@@ -55,8 +58,24 @@ static double _getTolInvert()
  ** \remark  The matrix v3[] may NOT coincide with one of the two initial ones
  **
  *****************************************************************************/
-void matrix_product_safe(Id n1, Id n2, Id n3, const double* v1, const double* v2, double* v3)
+void matrix_product_safe(Id n1,
+                         Id n2,
+                         Id n3,
+                         const double* v1,
+                         const double* v2,
+                         double* v3)
 {
+  if (RENARD)
+  {
+    MatrixDense matv1(n1, n2);
+    matv1.resetFromArray(n1, n2, v1);
+    MatrixDense matv2(n2, n3);
+    matv2.resetFromArray(n2, n3, v2);
+    MatrixDense matv3(n1, n3);
+    matv3.prodMatMatInPlace(&matv1, &matv2);
+    (void)memcpy(v3, matv3.getValues().data(), n1 * n3 * sizeof(double));
+    return;
+  }
   Id i1, i2, i3, i4;
 
   if (v1 == v3 || v2 == v3)
@@ -86,15 +105,37 @@ void matrix_product_safe(Id n1, Id n2, Id n3, const double* v1, const double* v2
  ** \param[out] w         square matrix
  **
  ** \remarks According to the value of 'transpose':
- ** \remarks -1: the output array has dimension (n2,n2)
- ** \remarks +1: the output array has dimension (n1,n1)
+ ** \remarks -1: the output array 'w' has dimension (n2,n2)
+ ** \remarks +1: the output array 'w' has dimension (n1,n1)
  ** \remarks According to the value of 'transpose':
- ** \remarks -1: the optional array A has dimension (n1,n1)
- ** \remarks +1: the optional array A has dimension (n2,n2)
+ ** \remarks -1: the optional array 'a' has dimension (n1,n1)
+ ** \remarks +1: the optional array 'a' has dimension (n2,n2)
  **
  *****************************************************************************/
 Id matrix_prod_norme(Id transpose, Id n1, Id n2, const double* v1, const double* a, double* w)
 {
+  if (RENARD)
+  {
+    MatrixDense matv1(n1, n2);
+    matv1.resetFromArray(n1, n2, v1);
+    MatrixSquare mata;
+    MatrixSquare matw;
+    if (transpose)
+    {
+      mata.reset(n1, n1);
+      mata.resetFromArray(n1, n1, a);
+      matw.reset(n2, n2);
+    }
+    else
+    {
+      mata.reset(n2, n2);
+      mata.resetFromArray(n2, n2, a);
+      matw.reset(n1, n1);
+    }
+    matw.prodNormMatMatInPlace(&matv1, &mata, transpose);
+    (void)memcpy(w, matw.getValues().data(), matw.getNSize() * sizeof(double));
+    return 0;
+  }
   Id i1, j1, i2, j2, ecr, neq;
   double value, vala, vi;
 
@@ -169,6 +210,14 @@ Id matrix_prod_norme(Id transpose, Id n1, Id n2, const double* v1, const double*
  *****************************************************************************/
 void matrix_transpose(Id n1, Id n2, VectorDouble& v1, VectorDouble& w1)
 {
+  if (RENARD)
+  {
+    MatrixDense matv1(n1, n2);
+    matv1.resetFromVD(n1, n2, v1);
+    matv1.transposeInPlace();
+    (void)memcpy(w1.data(), matv1.getValues().data(), n1 * n2 * sizeof(double));
+    return;
+  }
   Id ecr = 0;
   for (Id i1 = 0; i1 < n1; i1++)
     for (Id i2 = 0; i2 < n2; i2++)
@@ -195,6 +244,14 @@ void matrix_transpose(Id n1, Id n2, VectorDouble& v1, VectorDouble& w1)
  *****************************************************************************/
 Id matrix_invert(double* a, Id neq, Id rank)
 {
+  if (RENARD)
+  {
+    MatrixSquare mata(neq);
+    mata.resetFromArray(neq, neq, a);
+    mata.invert();
+    (void)memcpy(a, mata.getValues().data(), neq * neq * sizeof(double));
+    return 0;
+  }
   for (Id k = 0; k < neq; k++)
   {
     double biga = A(k, k);
@@ -240,6 +297,12 @@ Id matrix_invert(double* a, Id neq, Id rank)
  *****************************************************************************/
 double matrix_determinant(Id neq, const VectorDouble& b)
 {
+  if (RENARD)
+  {
+    MatrixSquare matb(neq);
+    matb.resetFromArray(neq, neq, b.data());
+    return matb.determinant();
+  }
   switch (neq)
   {
     case 1:
@@ -293,6 +356,15 @@ double matrix_determinant(Id neq, const VectorDouble& b)
  *****************************************************************************/
 Id matrix_cholesky_decompose(const double* a, double* tl, Id neq)
 {
+  if (RENARD)
+  {
+    MatrixSymmetric mata(neq);
+    mata.resetFromArray(neq, neq, a);
+    CholeskyDense chol(mata);
+    VectorDouble mattl = chol.getLowerTriangle();
+    (void)memcpy(tl, mattl.data(), mattl.size() * sizeof(double));
+    return 0;
+  }
   double prod;
   Id ip, jp, kp;
 
