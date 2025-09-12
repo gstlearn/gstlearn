@@ -50,9 +50,12 @@ jobs:
       with:
         r-version: ${{env.R_VERSION}}
 
-    - name: Install R dependencies
-      run: |
-        Rscript -e "install.packages (c('ggpubr', 'ggplot2', 'ggnewscale', 'vctrs', 'lares', 'rgl', 'Matrix', 'FNN', 'tidyr', 'geigen', 'callr', 'knitr', 'callr', 'readxl', 'tictoc'))"
+    # In R 4.2 ggplot2 & ggpubr prefer older Matrix version
+    - name: Install R Matrix dependency
+      run: Rscript -e "install.packages ('https://cran.r-project.org/src/contrib/Archive/Matrix/Matrix_1.6-5.tar.gz')"
+
+    - name: Install R dependencies (binary)
+      run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale', 'roxygen2', 'pkgbuild', 'vctrs', 'lares', 'rgl', 'FNN', 'tidyr', 'geigen', 'callr', 'knitr', 'callr', 'readxl', 'tictoc'), type='binary')"
 
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-unix-action@v1
