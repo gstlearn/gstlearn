@@ -11,20 +11,17 @@
 #include "Model/Model.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovAnisoList.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovFactory.hpp"
-#include "Covariances/CovGradientNumerical.hpp"
+#include "Covariances/CovGradientGeneric.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovLMCTapering.hpp"
-#include "Covariances/CovLMGradient.hpp"
 #include "Db/Db.hpp"
 #include "Drifts/ADrift.hpp"
-#include "Drifts/DriftFactory.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Model/CovInternal.hpp"
 #include "Space/SpaceRN.hpp"
@@ -50,122 +47,6 @@ namespace gstlrn
 Id NDIM_LOCAL = 0;
 VectorDouble X1_LOCAL;
 VectorDouble X2_LOCAL;
-
-/****************************************************************************/
-/*!
- **  Duplicates a Model from another Model for Gradients
- **
- ** \return  The modified Model structure
- **
- ** \param[in]  model       Input Model
- ** \param[in]  ball_radius Radius for Gradient calculation
- **
- *****************************************************************************/
-Model* model_duplicate_for_gradient(const Model* model, double ball_radius)
-
-{
-  Model* new_model;
-  const CovAniso* cova;
-  Id new_nvar, nfact;
-  double sill;
-
-  // Preliminary checks
-
-  new_model = nullptr;
-  Id nvar   = model->getNVar();
-  Id ndim   = static_cast<Id>(model->getNDim());
-  Id ncova  = model->getNCov();
-
-  // Create the new model (linked drift functions)
-
-  if (nvar != 1 || ndim != 2)
-  {
-    messerr("This procedure is limited to a single variable in 2-D");
-    return new_model;
-  }
-
-  new_nvar = 3;
-  nfact    = 6;
-  CovContext ctxt(*model->getContext());
-  ctxt.setNVar(new_nvar);
-  new_model = new Model(ctxt);
-  if (new_model == nullptr) return new_model;
-
-  // **************************************
-  // Create the basic covariance structures
-  // **************************************
-
-  CovAnisoList* covs = new CovLMGradient(ctxt);
-
-  Id lec = 0;
-  for (Id icov = 0; icov < ncova; icov++)
-  {
-    cova = model->getCovAniso(icov);
-    sill = model->getSill(icov, 0, 0);
-    for (Id ifact = 0; ifact < nfact; ifact++, lec++)
-    {
-      CovAniso* covnew = nullptr;
-      covnew           = new CovGradientNumerical(cova->getType(), ball_radius, ctxt);
-      covnew->setParam(cova->getParam());
-      if (cova->getFlagAniso())
-      {
-        covnew->setRanges(cova->getRanges());
-        if (cova->getFlagRotation())
-          covnew->setAnisoRotationMat(cova->getAnisoRotation());
-      }
-      else
-        covnew->setRangeIsotropic(cova->getRangeIso());
-
-      /* Modify the Sill */;
-
-      covnew->initSill(0.);
-      if (ifact == 0)
-      {
-        covnew->setSill(0, 0, sill);
-      }
-      else if (ifact == 1)
-      {
-        covnew->setSill(0, 1, -sill);
-        covnew->setSill(1, 0, sill);
-      }
-      else if (ifact == 2)
-      {
-        covnew->setSill(1, 1, sill);
-      }
-      else if (ifact == 3)
-      {
-        covnew->setSill(0, 2, -sill);
-        covnew->setSill(2, 0, sill);
-      }
-      else if (ifact == 4)
-      {
-        covnew->setSill(1, 2, -sill);
-        covnew->setSill(2, 1, -sill);
-      }
-      else if (ifact == 5)
-      {
-        covnew->setSill(2, 2, sill);
-      }
-      else
-      {
-        my_throw("Argument 'ifact' invalid");
-      }
-      covs->addCov(*covnew);
-      delete covnew;
-    }
-  }
-  new_model->setCovAnisoList(covs);
-  delete covs;
-
-  // *********************************
-  // Create the basic drift structures
-  // *********************************
-
-  DriftList* drifts = DriftFactory::createDriftListForGradients(model->getDriftList(), ctxt);
-  new_model->setDriftList(drifts);
-  delete drifts;
-  return (new_model);
-}
 
 /****************************************************************************/
 /*!

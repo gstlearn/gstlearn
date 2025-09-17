@@ -34,8 +34,8 @@ public:
   ModelCovList& operator= (const ModelCovList &m);
   virtual ~ModelCovList();
 
-  const CovList* getCovList() const { return (const CovList*)getCov(); }
-  CovList* getCovListModify() const { return  (CovList*)getCov(); }
+  const CovList* getCovList() const { return static_cast<const CovList*>(getCov()); }
+  CovList* getCovListModify() { return static_cast<CovList*>(_getCovModify()); }
 
   FORWARD_METHOD_NON_CONST(getCovListModify, delCov)
   FORWARD_METHOD_NON_CONST(getCovListModify, delAllCov)
@@ -60,7 +60,8 @@ public:
 
   void setCovList(const CovList* covs);
   virtual void addCov(const CovBase& cov);
-  CovBase* getCovBase(Id icov) const { return getCovListModify()->getCovModify(icov); }
+  const CovBase* getCovBase(Id icov) const { return getCovList()->getCov(icov); }
+  CovBase* getCovBase(Id icov) { return getCovListModify()->getCovModify(icov); }
 
   void fitSills(Vario* vario = nullptr,
                 const DbGrid* dbmap = nullptr,

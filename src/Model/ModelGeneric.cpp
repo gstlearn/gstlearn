@@ -65,6 +65,12 @@ void ModelGeneric::setField(double field)
   copyCovContext(_ctxt);
 }
 
+void ModelGeneric::setContext(const CovContext& ctxt)
+{
+  _ctxt = ctxt;
+  _cova->setContext(ctxt);
+}
+
 bool ModelGeneric::isValid() const
 {
   return _isValid();

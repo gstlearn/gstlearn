@@ -20,7 +20,6 @@
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovLMCTapering.hpp"
-#include "Covariances/CovLMGradient.hpp"
 #include "Covariances/CovList.hpp"
 #include "Db/Db.hpp"
 #include "Enum/EModelProperty.hpp"
@@ -471,8 +470,6 @@ const EModelProperty& CovAnisoList::getCovMode() const
 
   if (dynamic_cast<const CovLMCAnamorphosis*>(this) != nullptr)
     return EModelProperty::ANAM;
-
-  if (dynamic_cast<const CovLMGradient*>(this) != nullptr) return EModelProperty::GRAD;
 
   return EModelProperty::NONE;
 }

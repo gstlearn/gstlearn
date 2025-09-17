@@ -126,12 +126,6 @@ GSTLEARN_EXPORT void matrix_transpose(Id n1, Id n2, VectorDouble& v1, VectorDoub
 GSTLEARN_EXPORT Id matrix_cholesky_decompose(const double* a,
                                              double* tl,
                                              Id neq);
-GSTLEARN_EXPORT void matrix_combine(Id nval,
-                                    double coeffa,
-                                    const double* a,
-                                    double coeffb,
-                                    const double* b,
-                                    double* c);
 
 /*****************************************/
 /* Prototyping the functions in morpho.c */
@@ -171,8 +165,6 @@ GSTLEARN_EXPORT Id model_covmat_inchol(Id verbose,
                                        VectorInt& pvec,
                                        VectorDouble& Gmatrix,
                                        const CovCalcMode* mode = nullptr);
-GSTLEARN_EXPORT Model* model_duplicate_for_gradient(const Model* model,
-                                                    double ball_radius);
 GSTLEARN_EXPORT void model_cova_characteristics(const ECov& type,
                                                 char cov_name[STRING_LENGTH],
                                                 Id* flag_range,
@@ -304,7 +296,6 @@ GSTLEARN_EXPORT void db_monostat(Db* db,
                                  double* var,
                                  double* mini,
                                  double* maxi);
-GSTLEARN_EXPORT Id db_gradient_update(Db* db);
 GSTLEARN_EXPORT Id surface(Db* db_point,
                            DbGrid* db_grid,
                            Id icol,

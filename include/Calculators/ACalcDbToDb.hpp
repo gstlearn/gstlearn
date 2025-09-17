@@ -41,6 +41,7 @@ public:
   Db* getDbout() const { return _dbout; }
   DbGrid* getGridin() const;
   DbGrid* getGridout() const;
+  const NamingConvention& getNamingConvention() const { return _namconv; }
 
   bool hasDbin(bool verbose = true) const;
   bool hasDbout(bool verbose = true) const;
@@ -56,11 +57,11 @@ protected:
   bool _setNvar(Id nvar, bool flagForce = false);
 
   Id _addVariableDb(Id whichDb,
-                     Id status,
-                     const ELoc& locatorType,
-                     Id locatorIndex = 0,
-                     Id number       = 1,
-                     double valinit   = 0.);
+                    Id status,
+                    const ELoc& locatorType,
+                    Id locatorIndex = 0,
+                    Id number       = 1,
+                    double valinit  = 0.);
   void _renameVariable(Id whichDb,
                        const VectorString& names,
                        const ELoc& locatorType,
@@ -69,7 +70,7 @@ protected:
                        const String& qualifier,
                        Id count,
                        bool flagSetLocator = true,
-                       Id locatorShift    = 0);
+                       Id locatorShift     = 0);
   void _storeInVariableList(Id whichDb, Id status, const VectorInt& iuids);
   Id _expandInformation(Id mode, const ELoc& locatorType) const;
   void _cleanVariableDb(Id status);

@@ -320,41 +320,4 @@ Id matrix_cholesky_decompose(const double* a, double* tl, Id neq)
   return (0);
 }
 
-/*****************************************************************************/
-/*!
- **  Perform a linear combination of matrices or vectors
- **            [C] = 'coeffa' * [A] + 'coeffb' * [B]
- **
- ** \param[in]  nval    Number of elements of the matrices or vectors
- ** \param[in]  coeffa  Coefficient applied to the first matrix or vector
- ** \param[in]  a       First matrix or vector (not used if NULL)
- ** \param[in]  coeffb  Coefficient applied to the second matrix or vector
- ** \param[in]  b       Second matrix or vector (not used if NULL)
- **
- ** \param[out] c       Resulting matrix or vector
- **
- ** \remark  No test is performed to check that the three matrices or vectors
- ** \remark  have the same dimensions
- ** \remark  Matrix c[] can coincide with matrices a[] or b[]
- **
- *****************************************************************************/
-void matrix_combine(Id nval,
-                    double coeffa,
-                    const double* a,
-                    double coeffb,
-                    const double* b,
-                    double* c)
-{
-  Id i;
-  double value;
-
-  for (i = 0; i < nval; i++)
-  {
-    value = 0.;
-    if (a != nullptr) value += coeffa * a[i];
-    if (b != nullptr) value += coeffb * b[i];
-    c[i] = value;
-  }
-}
-
 } // namespace gstlrn

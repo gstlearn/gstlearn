@@ -129,22 +129,6 @@ public:
     DECLARE_UNUSED(iech2);
   }
 
-  double evalZGNumeric(const SpacePoint& p1,
-                       const SpacePoint& p2,
-                       Id ivar,
-                       Id jvar,
-                       Id idim,
-                       double radius,
-                       const CovCalcMode* mode) const;
-  double evalGGNumeric(const SpacePoint& p1,
-                       const SpacePoint& p2,
-                       Id ivar,
-                       Id jvar,
-                       Id idim,
-                       Id jdim,
-                       double radius,
-                       const CovCalcMode* mode) const;
-
   void attachNoStatDb(const Db* db);
 
   ASpaceSharedPtr getSpace() const { return _ctxt.getSpace(); }

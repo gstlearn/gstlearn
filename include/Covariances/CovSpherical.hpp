@@ -36,7 +36,7 @@ public:
 
 protected:
   double _evaluateCov(double h) const override;
-  double _evaluateCovDerivative(double h) const override;
+  double _evaluateCovFirstDerivative(double h) const override;
 };
 
 }

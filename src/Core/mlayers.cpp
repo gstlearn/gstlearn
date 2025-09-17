@@ -2271,7 +2271,9 @@ static Id st_evaluate_lag(LMlayers* lmlayers,
   for (Id ipair = ifirst; ipair < ilast; ipair++)
   {
     vario_order_get_indices(vorder, ipair, &iiech, &jjech, &dist);
-    vario_order_get_auxiliary(vorder, ipair, (char*)&iech, (char*)&jech);
+    vario_order_get_auxiliary(vorder, ipair,
+                              reinterpret_cast<char*>(&iech),
+                              reinterpret_cast<char*>(&jech));
     z1 = zval[iiech];
     z2 = zval[jjech];
     (*distsum) += dist;

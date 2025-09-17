@@ -18,7 +18,6 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovFactory.hpp"
-#include "Covariances/CovLMGradient.hpp"
 #include "Db/Db.hpp"
 #include "Enum/ECalcMember.hpp"
 #include "Model/ModelFitSillsVMap.hpp"
@@ -58,7 +57,7 @@ CovList::CovList(const CovList& r)
   _allActiveCov     = r._allActiveCov;
   _allActiveCovList = r._allActiveCovList;
   _activeCovList    = r._activeCovList;
-  _modelFitSills    = (r._modelFitSills != nullptr) ? (AModelFitSills*)r._modelFitSills->clone() : nullptr;
+  _modelFitSills    = (r._modelFitSills != nullptr) ? static_cast<AModelFitSills*>(r._modelFitSills->clone()) : nullptr;
   _itergCum         = r._itergCum;
   _updateLists();
 }
@@ -77,7 +76,7 @@ CovList& CovList::operator=(const CovList& r)
     _allActiveCov     = r._allActiveCov;
     _allActiveCovList = r._allActiveCovList;
     _activeCovList    = r._activeCovList;
-    _modelFitSills    = (r._modelFitSills != nullptr) ? (AModelFitSills*)r._modelFitSills->clone() : nullptr;
+    _modelFitSills    = (r._modelFitSills != nullptr) ? static_cast<AModelFitSills*>(r._modelFitSills->clone()) : nullptr;
     _itergCum         = r._itergCum;
   }
   _updateLists();

@@ -8,38 +8,30 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Model/Model.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/SerializeHDF5.hpp"
-#include "Model/ModelCovList.hpp"
-#include "Space/ASpace.hpp"
-#include "Space/ASpaceObject.hpp"
-#include "geoslib_define.h"
-#include "geoslib_f.h"
-
-#include "Enum/ECov.hpp"
-#include "Enum/EModelProperty.hpp"
-
-#include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAnisoList.hpp"
-#include "Covariances/CovGradientFunctional.hpp"
-#include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovLMCTapering.hpp"
-#include "Covariances/CovLMGradient.hpp"
+#include "Db/Db.hpp"
 #include "Drifts/ADrift.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/DriftList.hpp"
+#include "Enum/ECov.hpp"
 #include "Model/CovInternal.hpp"
-#include "Model/Model.hpp"
+#include "Model/ModelCovList.hpp"
 #include "Model/Option_AutoFit.hpp"
+#include "Space/ASpace.hpp"
+#include "Space/ASpaceObject.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Variogram/Vario.hpp"
-
-#include "Db/Db.hpp"
-
+#include "geoslib_define.h"
+#include "geoslib_f.h"
 #include <cmath>
 
 namespace gstlrn
@@ -264,7 +256,6 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   if (ncov <= 0 && ndrift <= 0) return sstr.str();
 
   sstr << toTitle(0, "Model characteristics");
-  if (isFlagGradient()) sstr << "(Specific for Handling Gradient)" << std::endl;
   sstr << "Space dimension              = " << getNDim()
        << std::endl;
   sstr << "Number of variable(s)        = " << getNVar() << std::endl;
@@ -512,32 +503,6 @@ double Model::evalCovFromIncr(const VectorDouble& incr,
 }
 
 /**
- * Switch to a Model dedicated to Gradients
- * (transforms it from CovAnisoList to CovLMGradient)
- */
-void Model::switchToGradient()
-{
-  // If the Model is already dedicated to Gradient: do nothing
-  if (isFlagGradient()) return;
-
-  // If no covariance has been defined yet: do nothing
-  if (_cova == nullptr)
-  {
-    auto* covg = new CovLMGradient(_ctxt);
-    ModelCovList::setCovList(covg);
-    delete covg;
-  }
-  else
-  {
-    const CovAnisoList* covalist = castInCovAnisoListConst();
-    if (covalist == nullptr) return;
-    auto* covg = new CovLMGradient(*covalist);
-    ModelCovList::setCovList(covg);
-    delete covg;
-  }
-}
-
-/**
  * Defining an Anamorphosis information for the Model
  * (in fact, this is added to CovAnisoList part and transforms it from CovAnisoList to CovLMCAnamorphosis
  * @param anam Pointer to the anamorphosis
@@ -554,7 +519,7 @@ Id Model::setAnam(const gstlrn::AAnam* anam, const VectorInt& strcnt)
   if (hasAnam())
   {
     // CovAnisoList is already a covLMCAnamorphosis, simply update the anamorphosis
-    CovLMCAnamorphosis* cov = dynamic_cast<CovLMCAnamorphosis*>(_cova.get());
+    auto* cov = dynamic_cast<CovLMCAnamorphosis*>(_cova.get());
     if (cov == nullptr)
     {
       messerr("Impossible to reach the internal CovLMCAnamorphosis structure");
@@ -589,7 +554,7 @@ Id Model::unsetAnam()
     // CovAnisoList does not have any Anam: do nothing
     return 0;
   }
-  CovAnisoList* cov = dynamic_cast<CovAnisoList*>(_cova.get());
+  auto* cov = dynamic_cast<CovAnisoList*>(_cova.get());
   if (cov == nullptr)
   {
     messerr("Impossible to unset 'anam' from the covariance part of the Model");
@@ -1003,34 +968,6 @@ Model* Model::createReduce(const VectorInt& validVars) const
   return model;
 }
 
-bool Model::isFlagGradient() const
-{
-  if (_cova == nullptr) return false;
-  return getCovMode() == EModelProperty::GRAD;
-}
-
-bool Model::isFlagGradientNumerical() const
-{
-  if (!isFlagGradient()) return false;
-
-  // Check is performed on the first covariance
-  const CovAnisoList* covalist = castInCovAnisoListConst(0);
-  if (covalist == nullptr) return false;
-  const auto* cova = dynamic_cast<const CovGradientNumerical*>(covalist->getCovAniso(0));
-  return (cova != nullptr);
-}
-
-bool Model::isFlagGradientFunctional() const
-{
-  if (!isFlagGradient()) return false;
-
-  // Check is performed on the first covariance
-  const CovAnisoList* covalist = castInCovAnisoListConst(0);
-  if (covalist == nullptr) return false;
-  const auto* cova = dynamic_cast<const CovGradientFunctional*>(covalist->getCovAniso(0));
-  return (cova != nullptr);
-}
-
 VectorECov Model::initCovList(const VectorInt& covranks)
 {
   VectorECov list;
@@ -1117,35 +1054,13 @@ const CovAnisoList* Model::castInCovAnisoListConst(Id icov) const
 
 CovLMCTapering* Model::_castInCovLMCTapering()
 {
-  CovLMCTapering* covtape = dynamic_cast<CovLMCTapering*>(_cova.get());
+  auto* covtape = dynamic_cast<CovLMCTapering*>(_cova.get());
   if (covtape == nullptr)
   {
     messerr("The member '_cova' in this model cannot be converted into a pointer to CovLMCTapering");
     return nullptr;
   }
   return covtape;
-}
-
-CovLMGradient* Model::_castInCovLMGradient()
-{
-  CovLMGradient* covg = dynamic_cast<CovLMGradient*>(_cova.get());
-  if (covg == nullptr)
-  {
-    messerr("The member '_cova' in this model cannot be converted into a pointer to CovLMGradient");
-    return nullptr;
-  }
-  return covg;
-}
-
-const CovLMGradient* Model::castInCovLMGradientConst() const
-{
-  const auto* covg = dynamic_cast<const CovLMGradient*>(_cova.get());
-  if (covg == nullptr)
-  {
-    messerr("The member '_cova' in this model cannot be converted into a pointer to CovLMGradient");
-    return nullptr;
-  }
-  return covg;
 }
 
 const CovLMCTapering* Model::castInCovLMCTaperingConst() const
@@ -1171,7 +1086,7 @@ const CovLMCAnamorphosis* Model::castInCovLMCAnamorphosisConst() const
 
 CovLMCAnamorphosis* Model::_castInCovLMCAnamorphosis()
 {
-  CovLMCAnamorphosis* covtape = dynamic_cast<CovLMCAnamorphosis*>(_cova.get());
+  auto* covtape = dynamic_cast<CovLMCAnamorphosis*>(_cova.get());
   if (covtape == nullptr)
   {
     messerr("The member '_cova' in this model cannot be converted into a pointer to CovLMCAnamorphosis");
@@ -1183,7 +1098,7 @@ CovLMCAnamorphosis* Model::_castInCovLMCAnamorphosis()
 CovAnisoList* Model::_castInCovAnisoList(Id icov)
 {
   // Check the cast procedure
-  CovAnisoList* covalist = dynamic_cast<CovAnisoList*>(_getCovModify());
+  auto* covalist = dynamic_cast<CovAnisoList*>(_getCovModify());
   if (covalist == nullptr)
   {
     messerr("The member '_cova' in this model cannot be converted into a pointer to CovAnisoList");
@@ -1310,12 +1225,6 @@ void Model::gofDisplay(double gof,
 
 Id Model::getNVar() const
 {
-  // TODO/ the strange next line have been commented out.
-  // There should be either validated or suppressed
-  // if (isFlagGradient())
-  //      return 3; // This strange number of variables is linked to the Gradient calculation
-  //    else
-  // However, note used for Gradient (Functional type) in Potential
   Id nvar = _cova->getNVar();
   if (nvar <= 0)
     nvar = _ctxt.getNVar();

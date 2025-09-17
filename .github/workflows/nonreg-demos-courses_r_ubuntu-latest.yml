@@ -51,6 +51,7 @@ jobs:
         r-version: ${{env.R_VERSION}}
 
     - name: Install R dependencies
+
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
         packages: ggpubr, ggplot2, ggnewscale, vctrs, lares, rgl, Matrix, FNN, tidyr, geigen, callr, knitr, readxl, tictoc

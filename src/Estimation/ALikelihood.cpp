@@ -129,9 +129,7 @@ double ALikelihood::computeLogLikelihood(bool verbose)
     // model->setBetaHat(beta);
 
     if (verbose)
-    {
       VH::dump("Optimal Drift coefficients = ", _beta);
-    }
 
     // Center the data by the optimal drift: Y = Y - beta * X
     VH::subtractInPlace(_Y, _X.prodMatVec(_beta));
@@ -148,7 +146,7 @@ double ALikelihood::computeLogLikelihood(bool verbose)
   double quad = VH::innerProduct(_Y, _Cm1Y);
 
   // Derive the log-likelihood
-  Id size       = static_cast<Id>(_Y.size());
+  Id size        = static_cast<Id>(_Y.size());
   double loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
   if (_reml && _model->getNDriftEquation() > 0)
   {

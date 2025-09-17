@@ -67,10 +67,7 @@ public:
   ACov* _getCovModify() { return _cova.get(); }
   CovContext* _getContextModify() { return &_ctxt; }
   DriftList* _getDriftListModify() { return _driftList; }
-  std::vector<covmaptype>& getGradients()
-  {
-    return _gradFuncs;
-  }
+  std::vector<covmaptype>& getGradients() { return _gradFuncs; }
 
 public:
   // Forwarding the methods from _cova
@@ -121,11 +118,9 @@ public:
   FORWARD_METHOD(getCov, manage)
   FORWARD_METHOD(getCov, optimizationPreProcessForData)
   FORWARD_METHOD(getCov, optimizationPostProcess)
-  FORWARD_METHOD_NON_CONST(getCov, setOptimEnabled)
-  FORWARD_METHOD_NON_CONST(getCov, attachNoStatDb)
-  FORWARD_METHOD_NON_CONST(getCov, makeStationary)
-
-  FORWARD_METHOD_NON_CONST(_getCovModify, setContext)
+  FORWARD_METHOD_NON_CONST(_getCovModify, setOptimEnabled)
+  FORWARD_METHOD_NON_CONST(_getCovModify, attachNoStatDb)
+  FORWARD_METHOD_NON_CONST(_getCovModify, makeStationary)
   FORWARD_METHOD_NON_CONST(_getCovModify, evalCovGrad, VectorDouble())
 
   // Forwarding the methods from _driftList
@@ -185,6 +180,7 @@ public:
   void setField(double field);
   bool isValid() const;
 
+  void setContext(const CovContext& ctxt);
   void setCov(const ACov* cova);
 
   void setDriftList(const DriftList* driftlist);

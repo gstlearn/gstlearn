@@ -51,12 +51,23 @@ double CovGCspline2::_evaluateCov(double h) const
   return (cov);
 }
 
+double CovGCspline2::_evaluateCovFirstDerivativeOverH(double h) const
+{
+  double B      = 1.;
+  double C      = (-7. - 2. * B) / 12.;
+  double h2     = h * h;
+  double logval = (h < EPSILON5) ? 0. : log(h);
+
+  double cov = 2. * B + h2 * (1. + 4. * (C + logval));
+  return cov;
+}
+
 double CovGCspline2::_evaluateCovDerivative(Id degree, double h) const
 {
   double B      = 1.;
   double C      = (-7. - 2. * B) / 12.;
   double h2     = h * h;
-  double logval = (h < 10.e-5) ? 0. : log(h);
+  double logval = (h < EPSILON5) ? 0. : log(h);
 
   double cov = 0.;
   switch (degree)

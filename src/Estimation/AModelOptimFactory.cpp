@@ -216,7 +216,7 @@ static Id _modifyModelForConstraints(Constraints* constraints,
     Id iv2                   = consitem->getIV2();
 
     CovBase* covbase   = mcv->getCovBase(icov);
-    CovAniso* covaniso = dynamic_cast<CovAniso*>(covbase);
+    auto* covaniso = dynamic_cast<CovAniso*>(covbase);
     ParamInfo* param   = nullptr;
 
     if (igrf != 0)
@@ -302,7 +302,7 @@ static void _fixAllScalesFromIndex(CorAniso* coraniso, Id start = 0)
 static Id _modifyModelForMop(const ModelOptimParam& mop,
                              ModelGeneric* model)
 {
-  ModelCovList* mcv = dynamic_cast<ModelCovList*>(model);
+  auto* mcv = dynamic_cast<ModelCovList*>(model);
   if (mcv == nullptr) return 0;
 
   // Note that the creation of the dedicated area in case of Goulard will

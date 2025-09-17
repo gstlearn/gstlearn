@@ -88,7 +88,7 @@ VectorDouble CovExponential::_evaluateSpectrumOnSphere(Id n, double scale) const
   return sp;
 }
 
-// double CovExponential::_evaluateCovDerivative(double h) const
+// double CovExponential::_evaluateCovFirstDerivative(double h) const
 // {
 //   if (h > MAX_EXP) return (0.);
 //   double cov = -exp(-h);

@@ -38,11 +38,22 @@ CovWendland2::~CovWendland2()
 
 double CovWendland2::_evaluateCov(double h) const
 {
+  // From "Computed Supported Correlation Functions" by T. Gneiting with n=4
   double cov = 0.;
   double h2  = h * h;
   if (h < 1)
-    cov = 1 - h2 * ((28. / 3.) - h2 * (70. - h * ((448. / 3.) - h * (140. - h * (64 - h * (35. / 3.))))));
+    cov = (1 + 6. * h + h2 * (35. / 3.)) * pow(1 - h, 6.);
   return (cov);
+}
+
+double CovWendland2::_evaluateCovFirstDerivativeOverH(double h) const
+{
+  double res;
+
+  res = 0.;
+  if (h > 1) return res;
+  res = (-(56. / 3.) - h * (280. / 3.)) * pow(1 - h, 5);
+  return res;
 }
 
 double CovWendland2::_evaluateCovDerivative(Id degree, double h) const
@@ -56,21 +67,13 @@ double CovWendland2::_evaluateCovDerivative(Id degree, double h) const
   switch (degree)
   {
     case 1:
-      res = -h * (56. - h2 * (840. - h * (2240. - h * (2520. - h * (1344. - h * 280.)))));
+      res = (-h * 56. - h2 * 280.) * pow(1 - h, 5) / 3.;
       break;
 
     case 2:
-      res = -56. + h2 * (2520. - h * (8960. - h * (12600. - h * (8064. - h * 1960.))));
-      break;
-
-    case 3:
-      res = h * (5040. - h * (26880. - h * (50400. - h * (40320. - h * 11760.))));
-      break;
-
-    case 4:
-      res = 5040. - h * (53760. - h * (151200. - h * (161280. - h * 58800.)));
+      res = (-56. + 784. * h + 840. * h2) * pow(1 - h, 4.);
       break;
   }
   return (res);
 }
-}
+} // namespace gstlrn

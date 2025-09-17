@@ -24,12 +24,12 @@ class Koption
 {
 public:
   EKrigOpt calcul;    /* Type of calculation (EKrigOpt) */
-  Id ndim;           /* Space dimension */
-  Id ntot;           /* Number of discretization points */
+  Id ndim;            /* Space dimension */
+  Id ntot;            /* Number of discretization points */
   VectorInt ndisc;    /* Array of discretization counts */
   VectorDouble disc1; /* Discretization coordinates */
   VectorDouble disc2; /* Discretization randomized coordinates */
-  Id flag_data_disc; /* Discretization flag */
+  Id flag_data_disc;  /* Discretization flag */
   VectorDouble dsize;
 };
 
@@ -100,9 +100,9 @@ typedef struct
 class Cheb_Elem
 {
 public:
-  Id ncoeffs;  /* Number of coefficients */
-  Id ncmax;    /* Maximum number of polynomials */
-  Id ndisc;    /* Number of discretizations */
+  Id ncoeffs;   /* Number of coefficients */
+  Id ncmax;     /* Maximum number of polynomials */
+  Id ndisc;     /* Number of discretizations */
   double power; /* Power of the transform */
   double a;
   double b;
@@ -119,9 +119,9 @@ typedef struct
   MatrixSparse* S;
   MatrixSparse* Aproj;
   QChol* QC;
-  QChol** QCov;
-  double* Isill;
-  double* Csill;
+  std::vector<QChol*> QCov;
+  VectorDouble Isill;
+  VectorDouble Csill;
   QSimu* qsimu;
   Cheb_Elem* s_cheb;
   AMesh* amesh;
@@ -142,9 +142,9 @@ typedef struct
 
 typedef struct
 {
-  Id nconf;              // Number of covariance configurations
-  Id ndisc;              // Number of discretization steps
-  Id flag_cumul;         // 1 if storing integer from -infinity to value
+  Id nconf;               // Number of covariance configurations
+  Id ndisc;               // Number of discretization steps
+  Id flag_cumul;          // 1 if storing integer from -infinity to value
                           // 0 if storing the value per discretized class
   double cmin;            // Minimum correlation value
   double cmax;            // Maximum correlation value
@@ -158,9 +158,9 @@ struct Local_Relem;
 
 struct Local_Split
 {
-  Id oper;               // Rank of operator
-  Id nrule;              // Number of generated rules
-  Id nbyrule;            // Number of symbols in the Rules
+  Id oper;                // Rank of operator
+  Id nrule;               // Number of generated rules
+  Id nbyrule;             // Number of symbols in the Rules
   VectorInt Srules;       // List of rules (Dim: [nitem][NRULE])
   VectorInt Sfipos;       // Position of facies (Dim: [nprod][NCOLOR])
   Local_Relem* old_relem; // Not allocated
@@ -170,9 +170,9 @@ struct Local_Split
 struct Local_Relem
 {
   VectorInt facies;       // List of facies
-  Id nrule;              // Number of generated rules
-  Id nbyrule;            // Number of symbols in the Rules
-  Id nsplit;             // Number of splits
+  Id nrule;               // Number of generated rules
+  Id nbyrule;             // Number of symbols in the Rules
+  Id nsplit;              // Number of splits
   VectorInt Rrules;       // List of rules (Dim: [nitem][NRULE])
   VectorInt Rfipos;       // Position of facies (Dim: [nprod][NCOLOR])
   Local_Split* old_split; // Not allocated

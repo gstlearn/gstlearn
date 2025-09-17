@@ -107,7 +107,7 @@ bool CalcKrigingFactors::_preprocess()
       // Center the information in the blocks of the output grid
       // Duplicating the coordinate variable names before centering
       _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
-      Id error  = _centerDataToGrid(dbgrid);
+      Id error   = _centerDataToGrid(dbgrid);
       if (error) return false;
     }
     if (getKrigopt().hasDiscs())
@@ -116,7 +116,7 @@ bool CalcKrigingFactors::_preprocess()
       VectorInt ndiscs = getKrigopt().getDiscs();
       DbGrid* dbsmu    = DbGrid::createDivider(dbgrid, ndiscs, 1);
       _nameCoord       = getDbin()->getNamesByLocator(ELoc::X);
-      Id error        = _centerDataToGrid(dbsmu);
+      Id error         = _centerDataToGrid(dbsmu);
       delete dbsmu;
       if (error) return false;
     }
@@ -180,7 +180,7 @@ bool CalcKrigingFactors::_run()
   // Loop on the targets to be processed
 
   auto ntotal = getDbout()->getNSample() * _getNFactors();
-  Id iproc  = 0;
+  Id iproc    = 0;
   for (Id iclass = 1; iclass <= _getNFactors(); iclass++)
   {
     Id jptr_est = (_flagEst) ? _iptrEst + iclass - 1 : -1;
@@ -223,13 +223,13 @@ bool CalcKrigingFactors::_run()
  **
  *****************************************************************************/
 Id krigingFactors(Db* dbin,
-                   Db* dbout,
-                   Model* model,
-                   ANeigh* neigh,
-                   bool flag_est,
-                   bool flag_std,
-                   const KrigOpt& krigopt,
-                   const NamingConvention& namconv)
+                  Db* dbout,
+                  Model* model,
+                  ANeigh* neigh,
+                  bool flag_est,
+                  bool flag_std,
+                  const KrigOpt& krigopt,
+                  const NamingConvention& namconv)
 {
   CalcKrigingFactors krige(flag_est, flag_std);
   krige.setDbin(dbin);
@@ -245,4 +245,4 @@ Id krigingFactors(Db* dbin,
   Id error = (krige.run()) ? 0 : 1;
   return error;
 }
-}
+} // namespace gstlrn

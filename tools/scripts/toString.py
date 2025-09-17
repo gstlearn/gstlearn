@@ -122,9 +122,8 @@ if __name__ == "__main__":
     include_path = os.path.join("..", "..", "include")
     Astringable_classes = sorted(find_classes_inheriting_from_AStringable(include_path))
     with open(output_txt_file, "w", encoding='utf-8') as file:
-        excluded = ["AStringable","PrecisionOpMulti", "PrecisionOpMultiMatrix","MatrixSparse","Node", "CovGradientFunctional", "GibbsUPropMono",
-                    "Tapering", "GibbsUPropMultiMono", 
-                    "CovGradientNumerical", "ElemNostat",
+        excluded = ["AStringable","PrecisionOpMulti", "PrecisionOpMultiMatrix","MatrixSparse","Node", "GibbsUPropMono",
+                    "Tapering", "GibbsUPropMultiMono", "ElemNostat",
                     "GibbsMultiMono", "RuleShift", "GibbsUMultiMono",
                     "SpaceSN", "RuleShadow"]
         for class_name in Astringable_classes:

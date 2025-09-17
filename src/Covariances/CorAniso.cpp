@@ -24,7 +24,6 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovFactory.hpp"
-#include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Enum/EConsElem.hpp"

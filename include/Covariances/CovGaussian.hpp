@@ -43,6 +43,7 @@ public:
 protected:
   double _evaluateCov(double h) const override;
   double _evaluateCovDerivative(Id degree, double h) const override;
+  double _evaluateCovFirstDerivativeOverH(double h) const override;
 };
 
 } // namespace gstlrn

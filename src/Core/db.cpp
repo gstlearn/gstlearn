@@ -381,48 +381,6 @@ Id db_grid_define_coordinates(DbGrid* db)
   return (0);
 }
 
-/****************************************************************************/
-/*!
- **  Update the Data Base for Kriging with Gradient components
- **  This update is limited to the 2-D Monovariate case
- **
- ** \return  Error return code
- **
- ** \param[in]  db Input/output Db
- **
- ** \remark  In the case of Kriging with Gradient, the gradient
- *components
- ** \remark  are transformed into additional variables
- **
- *****************************************************************************/
-Id db_gradient_update(Db* db)
-
-{
-  Id ndim  = db->getNDim();
-  Id ngrad = db->getNLoc(ELoc::G);
-  Id nvar  = db->getNLoc(ELoc::Z);
-
-  /* Preliminary checks */
-
-  if (nvar != 1)
-  {
-    messerr("Kriging with Gradients if limited to the Monovariate case");
-    return (1);
-  }
-  if (ndim != ngrad)
-  {
-    messerr("The number of Gradient components (%d) must coincide with "
-            "Space dimension (%d)",
-            ngrad, ndim);
-    return (1);
-  }
-
-  // Turn the locators from Gradients into Variables
-  db->switchLocator(ELoc::G, ELoc::Z);
-
-  return (0);
-}
-
 /*****************************************************************************/
 /*!
  **  Select a 2-D grid from a Grid Db

@@ -18,7 +18,6 @@
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/CovLMCTapering.hpp"
-#include "Covariances/CovLMGradient.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Enum/ECalcMember.hpp"
 #include "Enum/ECov.hpp"
@@ -37,7 +36,6 @@ namespace gstlrn
 class Db;
 class CovLMCTapering;
 class CovLMCAnamorphosis;
-class CovLMGradient;
 class CovInternal;
 class CovCalcMode;
 
@@ -83,13 +81,11 @@ public:
 public:
   const CovAnisoList* castInCovAnisoListConst(Id icov = -1) const;
   const CovLMCTapering* castInCovLMCTaperingConst() const;
-  const CovLMGradient* castInCovLMGradientConst() const;
   const CovLMCAnamorphosis* castInCovLMCAnamorphosisConst() const;
 
 public:
   CovAnisoList* _castInCovAnisoList(Id icov = -1);
   CovLMCTapering* _castInCovLMCTapering();
-  CovLMGradient* _castInCovLMGradient();
   CovLMCAnamorphosis* _castInCovLMCAnamorphosis();
 
 public:
@@ -194,14 +190,9 @@ public:
   FORWARD_METHOD_NON_CONST(_castInCovAnisoList, makeParamStationary);
 
   FORWARD_METHOD_NON_CONST(_castInCovLMCTapering, setTapeRange)
-  FORWARD_METHOD(castInCovLMGradientConst, evalZAndGradients)
 
   Id setAnam(const AAnam* anam, const VectorInt& strcnt = VectorInt());
   Id unsetAnam();
-  bool isFlagGradient() const;
-  bool isFlagGradientNumerical() const;
-  bool isFlagGradientFunctional() const;
-  void switchToGradient();
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of CovAnisoList)

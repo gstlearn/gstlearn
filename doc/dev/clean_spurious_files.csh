@@ -6,7 +6,17 @@
 # The search is performed from the current directory
 # This script requires the environment variable GSTLEARN_DIR
 #
-set DIR = $GSTLEARN_DIR/gstlearn
+# Syntax: clean_spurious_files [dirname]
+# where 'dirname' stands for the directory to be searched (default: "gstlearn")
+#
+set nargs = $#argv
+if ($nargs > 0) then
+		set maindir = "$argv[1]"
+else
+		set maindir = "gstlearn"
+endif
+
+set DIR = $GSTLEARN_DIR/$maindir
 cd $DIR
 
 # Check the list of targeted files:

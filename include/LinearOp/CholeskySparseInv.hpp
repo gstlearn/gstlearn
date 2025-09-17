@@ -100,7 +100,7 @@ public:
 template<typename SpChol, typename SpMat>
 typename SpChol::MatrixType partial_inverse(
   const SpChol& llt,
-  const SpMat& pattern)
+  [[maybe_unused]] const SpMat& pattern)
 {
   typedef typename SpMat::ReverseInnerIterator reverse_it;
   StorageIndex ncols = llt.cols();

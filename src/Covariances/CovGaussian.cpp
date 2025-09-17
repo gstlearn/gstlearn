@@ -54,29 +54,38 @@ double CovGaussian::_evaluateCov(double h) const
   return (cov);
 }
 
+double CovGaussian::_evaluateCovFirstDerivativeOverH(double h) const
+{
+  double r2 = h * h;
+  if (r2 > MAX_EXP) return 0.;
+  double cov = -2. * exp(-r2);
+  return cov;
+}
+
 double CovGaussian::_evaluateCovDerivative(Id degree, double h) const
 {
   double r2 = h * h;
   if (r2 > MAX_EXP) return 0.;
 
-  double cov = 0.;
+  double cov   = 0.;
+  double expr2 = exp(-r2);
   switch (degree)
   {
     case 1: // First order derivative
-      cov = 2. * exp(-r2);
+      cov = -2. * h * expr2;
       break;
 
     case 2: // Second order derivative
-      cov = (4. * r2 - 2.) * exp(-r2);
+      cov = (4. * r2 - 2.) * expr2;
       break;
 
     case 3: // Third order derivative
-      cov = 4. * exp(-r2) * h * (3 - 2. * r2);
+      cov = 4. * expr2 * h * (3 - 2. * r2);
       break;
 
     case 4: // Fourth order derivative
       double r4 = r2 * r2;
-      cov       = 8. * exp(-r2) * (6. - 15. * r2 + r4);
+      cov       = 4. * expr2 * (3. - 12. * r2 + 4. * r4);
       break;
   }
   return (cov);
