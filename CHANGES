@@ -2,6 +2,11 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.8.2
+=============
+- Fix R package deployment platform (no impact on package compatibility)
+
+
 Release 1.8.1
 =============
 - Take Sample Selection into account in early phases of Moving Neighborhood search (fix xvalid with kfold option)
