@@ -5,9 +5,20 @@ This file contains the logs between consecutive releases
 Release 1.9.0
 =============
 - Correction in Wendland1 and Wendland2 covariance functions (polynomial formula)
-- Take Sample Selection into account in early phases of Moving Neighborhood search
 - New API functions for launching Gradient and Potential based methods
 - The old-style memory management is not used anymore (mem_alloc, mem_free, ...)
+
+
+Release 1.8.2
+=============
+- Fix R package deployment platform (no impact on package compatibility)
+
+
+Release 1.8.1
+=============
+- Take Sample Selection into account in early phases of Moving Neighborhood search (fix xvalid with kfold option)
+- Add the possibility to create a new (empty) DbGrid from a Grid structure (DbGrid::createFromGrid)
+- Make global estimation compatible with multivariable
 
 
 Release 1.8.0

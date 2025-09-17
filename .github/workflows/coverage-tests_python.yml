@@ -31,10 +31,9 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install dependencies
+      if: ${{ contains(matrix.os, 'macos') }}
       run: |
-        if [[ "${{ matrix.os }}" =~ ^"macos" ]]; then
-          brew install llvm
-        fi
+        brew install llvm
       shell: bash
 
     - name: Setup Python
