@@ -22,6 +22,7 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Db/DbCol.hpp"
 #include "Db/PtrGeos.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/Table.hpp"
@@ -1107,11 +1108,11 @@ namespace gstlrn
       auto icol = getColIdxByUID(iuid);
       if (!isColIdxValid(icol)) return dummy;
       if (!isSampleIndexValid(iech)) return dummy;
-      auto iad = _getAddress(iech, icol);
-      return _array[iad];
+      auto& vec = _data.GetArray(icol)->get().getVector<VectorDouble>()->get();
+      return vec[iech];
     }
 
-    const double& operator()(Id iech, const String& name) const
+    double operator()(Id iech, const String& name) const
     {
       static const double dummy = std::numeric_limits<double>::quiet_NaN();
       auto iuid = getUID(name);
@@ -1119,8 +1120,7 @@ namespace gstlrn
       auto icol = getColIdxByUID(iuid);
       if (!isColIdxValid(icol)) return dummy;
       if (!isSampleIndexValid(iech)) return dummy;
-      auto iad = _getAddress(iech, icol);
-      return _array[iad];
+      return *_data.getValue<double>(iech, icol);
     }
 
   protected:
@@ -1218,7 +1218,7 @@ namespace gstlrn
   private:
     Id _ncol; //!< Number of Columns of data
     Id _nech; //!< Number of samples
-    VectorDouble _array; //!< Array of values
+    DbData _data;
     VectorInt _uidcol; //!< UID to Column
     VectorString _colNames; //!< Names of the variables
     std::vector<PtrGeos> _p; //!< Locator characteristics
