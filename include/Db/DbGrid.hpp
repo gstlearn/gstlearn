@@ -152,35 +152,36 @@ public:
   static DbGrid* createMultiple(DbGrid* dbin, const VectorInt& nmult, bool flagAddSampleRank);
   static DbGrid* createDivider(DbGrid* dbin, const VectorInt& nmult, bool flagAddSampleRank);
   static DbGrid* createFillRandom(const VectorInt& nx,
-                                  Id nvar                        = 1,
-                                  Id nfex                        = 0,
-                                  Id ncode                       = 0,
+                                  Id nvar                         = 1,
+                                  Id nfex                         = 0,
+                                  Id ncode                        = 0,
                                   double varmax                   = 0.,
                                   double selRatio                 = 0.,
                                   const VectorDouble& heteroRatio = VectorDouble(),
                                   const VectorDouble& means       = VectorDouble(),
                                   const VectorDouble& x0          = VectorDouble(),
-                                  Id seed                        = 1367843);
+                                  Id seed                         = 1367843);
+  static DbGrid* createFromGrid(const Grid& grid);
 
   Id reset(const VectorInt& nx,
-            const VectorDouble& dx           = VectorDouble(),
-            const VectorDouble& x0           = VectorDouble(),
-            const VectorDouble& angles       = VectorDouble(),
-            const ELoadBy& order             = ELoadBy::fromKey("SAMPLE"),
-            const VectorDouble& tab          = VectorDouble(),
-            const VectorString& names        = VectorString(),
-            const VectorString& locatorNames = VectorString(),
-            bool flagAddSampleRank           = true,
-            bool flagAddCoordinates          = true);
+           const VectorDouble& dx           = VectorDouble(),
+           const VectorDouble& x0           = VectorDouble(),
+           const VectorDouble& angles       = VectorDouble(),
+           const ELoadBy& order             = ELoadBy::fromKey("SAMPLE"),
+           const VectorDouble& tab          = VectorDouble(),
+           const VectorString& names        = VectorString(),
+           const VectorString& locatorNames = VectorString(),
+           bool flagAddSampleRank           = true,
+           bool flagAddCoordinates          = true);
   Id resetCoveringDb(const Db* db,
-                      const VectorInt& nx        = VectorInt(),
-                      const VectorDouble& dx     = VectorDouble(),
-                      const VectorDouble& x0     = VectorDouble(),
-                      const VectorDouble& margin = VectorDouble());
+                     const VectorInt& nx        = VectorInt(),
+                     const VectorDouble& dx     = VectorDouble(),
+                     const VectorDouble& x0     = VectorDouble(),
+                     const VectorDouble& margin = VectorDouble());
   Id resetFromPolygon(Polygons* polygon,
-                       const VectorInt& nodes,
-                       const VectorDouble& dcell,
-                       bool flagAddSampleRank = true);
+                      const VectorInt& nodes,
+                      const VectorDouble& dcell,
+                      bool flagAddSampleRank = true);
 
   DbGrid* coarsify(const VectorInt& nmult);
   DbGrid* refine(const VectorInt& nmult);
@@ -194,9 +195,9 @@ public:
                                 bool useSel = false);
 
   Id gridDefine(const VectorInt& nx,
-                 const VectorDouble& dx     = VectorDouble(),
-                 const VectorDouble& x0     = VectorDouble(),
-                 const VectorDouble& angles = VectorDouble());
+                const VectorDouble& dx     = VectorDouble(),
+                const VectorDouble& x0     = VectorDouble(),
+                const VectorDouble& angles = VectorDouble());
   void gridCopyParams(Id mode, const Grid& gridaux);
   bool isSameGrid(const Grid& grid) const;
   bool isSameGridMesh(const DbGrid& dbaux) const;
@@ -223,6 +224,7 @@ public:
   void setNX(Id idim, Id value) { _grid.setNX(idim, value); }
   void setX0(Id idim, double value) { _grid.setX0(idim, value); }
   void setDX(Id idim, double value) { _grid.setDX(idim, value); }
+  void setRotation(const Rotation& rotation) { _grid.setRotation(rotation); }
   VectorDouble getGridAxis(Id idim) const { return _grid.getAxis(idim); }
   VectorDouble getCoordinateFromCorner(const VectorInt& icorner) const
   {
@@ -256,15 +258,15 @@ public:
     _grid.getCoordinatesByRankInPlace(coor, iech, flag_rotate);
   }
   Id coordinateToRank(const VectorDouble& coor,
-                       bool centered = false,
-                       double eps    = EPSILON6) const;
+                      bool centered = false,
+                      double eps    = EPSILON6) const;
   VectorInt coordinateToIndices(const VectorDouble& coor,
                                 bool centered = false,
                                 double eps    = EPSILON6) const;
   Id coordinateToIndicesInPlace(const VectorDouble& coor,
-                                 VectorInt& indices,
-                                 bool centered = false,
-                                 double eps    = EPSILON6) const;
+                                VectorInt& indices,
+                                bool centered = false,
+                                double eps    = EPSILON6) const;
   VectorInt getCenterIndices(bool flagSup = false) const
   {
     return _grid.getCenterIndices(flagSup);
@@ -308,9 +310,9 @@ public:
   }
 
   Id centerCoordinateInPlace(VectorDouble& coor,
-                              bool centered  = false,
-                              bool stopIfOut = false,
-                              double eps     = EPSILON6) const;
+                             bool centered  = false,
+                             bool stopIfOut = false,
+                             double eps     = EPSILON6) const;
 
   VectorInt locateDataInGrid(const Db* data,
                              const VectorInt& rankIn = VectorInt(),
@@ -323,24 +325,24 @@ public:
   }
 
   VectorVectorDouble getSlice(const String& name,
-                              Id pos     = 0,
-                              Id indice  = 0,
+                              Id pos      = 0,
+                              Id indice   = 0,
                               bool useSel = false) const;
   VectorDouble getOneSlice(const String& name,
-                           Id posx                = 0,
-                           Id posy                = 1,
+                           Id posx                 = 0,
+                           Id posy                 = 1,
                            const VectorInt& corner = VectorInt(),
                            bool useSel             = false) const;
   VectorDouble getOneSliceForCoordinate(Id idim,
-                                        Id posx                = 0,
-                                        Id posy                = 1,
+                                        Id posx                 = 0,
+                                        Id posy                 = 1,
                                         const VectorInt& corner = VectorInt(),
                                         bool useSel             = false) const;
   Id assignGridColumn(const String& name,
-                       Id idim,
-                       Id rank,
-                       double value,
-                       bool useSel = false);
+                      Id idim,
+                      Id rank,
+                      double value,
+                      bool useSel = false);
   VectorDouble getBlockExtensions(Id node) const;
   VectorVectorDouble getCellEdges(Id node = 0, bool forceGridMesh = false) const;
   VectorVectorDouble getAllCellsEdges(bool forceGridMesh = false) const;
@@ -357,33 +359,33 @@ public:
                            bool verbose          = false);
 
   Id morpho(const EMorpho& oper,
-             double vmin                     = 0.5,
-             double vmax                     = 1.5,
-             Id option                      = 0,
-             const VectorInt& radius         = VectorInt(),
-             bool flagDistErode              = false,
-             bool verbose                    = false,
-             const NamingConvention& namconv = NamingConvention("Morpho"));
+            double vmin                     = 0.5,
+            double vmax                     = 1.5,
+            Id option                       = 0,
+            const VectorInt& radius         = VectorInt(),
+            bool flagDistErode              = false,
+            bool verbose                    = false,
+            const NamingConvention& namconv = NamingConvention("Morpho"));
   Id smooth(ANeigh* neigh,
-             Id type                        = 1,
-             double range                    = 1.,
-             const NamingConvention& namconv = NamingConvention("Smooth"));
+            Id type                         = 1,
+            double range                    = 1.,
+            const NamingConvention& namconv = NamingConvention("Smooth"));
 
   Id addSelectionFromDbByMorpho(Db* db,
-                                 Id nmin                        = 0,
-                                 Id radius                      = 0,
-                                 Id option                      = 0,
-                                 const VectorInt& dilation       = VectorInt(),
-                                 bool verbose                    = false,
-                                 const NamingConvention& namconv = NamingConvention("Morpho", false, false, true, ELoc::fromKey("SEL")));
+                                Id nmin                         = 0,
+                                Id radius                       = 0,
+                                Id option                       = 0,
+                                const VectorInt& dilation       = VectorInt(),
+                                bool verbose                    = false,
+                                const NamingConvention& namconv = NamingConvention("Morpho", false, false, true, ELoc::fromKey("SEL")));
 
   void getSampleAsSTInPlace(Id iech, SpaceTarget& P) const override;
 
   VectorVectorDouble getDiscretizedBlock(const VectorInt& ndiscs,
-                                         Id iech         = 0,
+                                         Id iech          = 0,
                                          bool flagPerCell = false,
                                          bool flagRandom  = false,
-                                         Id seed         = 132433) const;
+                                         Id seed          = 132433) const;
 
   void getGridPileInPlace(Id iuid,
                           const VectorInt& indg,

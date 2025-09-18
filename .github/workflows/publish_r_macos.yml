@@ -64,19 +64,12 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
-    # https://stackoverflow.com/questions/69639782/installing-gfortran-on-macbook-with-apple-m1-chip-for-use-in-r
-    - name: Fix gfortran path for R
-      run: |
-        mkdir -p ~/.R
-        echo "FC      = /usr/local/bin/gfortran" >> ~/.R/Makevars
-        echo "F77     = /usr/local/bin/gfortran" >> ~/.R/Makevars
-        echo "FLIBS   = -L/usr/local/bin/gfortran/lib" >> ~/.R/Makevars
+    # In R 4.2 ggplot2 & ggpubr prefer older Matrix version
+    - name: Install R Matrix dependency
+      run: Rscript -e "install.packages ('https://cran.r-project.org/src/contrib/Archive/Matrix/Matrix_1.6-5.tar.gz')"
 
-    - name: Install R dependencies
-      uses: r-lib/actions/setup-r-dependencies@v2
-      with:
-        packages: ggpubr, ggplot2, ggnewscale, roxygen2, pkgbuild
-        install-pandoc: false
+    - name: Install R dependencies (binary)
+      run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale', 'roxygen2', 'pkgbuild'), type='binary')"
 
     - name: Install the customized SWIG from source
       uses: fabien-ors/install-swig-unix-action@v1
@@ -163,19 +156,12 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
-    # https://stackoverflow.com/questions/69639782/installing-gfortran-on-macbook-with-apple-m1-chip-for-use-in-r
-    - name: Fix gfortran path for R
-      run: |
-        mkdir -p ~/.R
-        echo "FC      = /usr/local/bin/gfortran" >> ~/.R/Makevars
-        echo "F77     = /usr/local/bin/gfortran" >> ~/.R/Makevars
-        echo "FLIBS   = -L/usr/local/bin/gfortran/lib" >> ~/.R/Makevars
+    # In R 4.2 ggplot2 & ggpubr prefer older Matrix version
+    - name: Install R Matrix dependency
+      run: Rscript -e "install.packages ('https://cran.r-project.org/src/contrib/Archive/Matrix/Matrix_1.6-5.tar.gz')"
 
-    - name: Install R dependencies
-      uses: r-lib/actions/setup-r-dependencies@v2
-      with:
-        packages: ggpubr, ggplot2, ggnewscale
-        install-pandoc: false
+    - name: Install R dependencies (binary)
+      run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale'), type='binary')"
         
     - name: Install R package
       run: Rscript -e "install.packages(\"$(ls *.tgz)\", repos=NULL, type='source')"
