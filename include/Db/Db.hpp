@@ -82,9 +82,11 @@ namespace gstlrn
   {
   public:
     Db();
-    Db(const Db& r);
-    Db& operator=(const Db& r);
-    virtual ~Db();
+    Db(const Db& r) = default;
+    Db& operator=(const Db& r) = default;
+    Db(Db&& r) = default;
+    Db& operator=(Db&& r) = default;
+    ~Db() override = default;
 
   public:
     /// Has a specific implementation in the Target language
@@ -273,8 +275,6 @@ namespace gstlrn
       bool flagAddSampleRank = true);
 
     /**@}*/
-
-    const VectorDouble& getArrays() const { return _array; }
 
     /** @addtogroup DB_Names Manipulating Names of the variables contained in a Db
      * \ingroup DB
@@ -613,7 +613,6 @@ namespace gstlrn
       double value);
 
     double getValueByColIdx(Id iech, Id icol, bool flagCheck = true) const;
-    const double* getColAdressByColIdx(Id icol) const;
 
     void
       setValueByColIdx(Id iech, Id icol, double value, bool flagCheck = true);
@@ -1149,11 +1148,6 @@ namespace gstlrn
 
   private:
     Id _getNextLocator(const ELoc& locatorType) const;
-
-    const VectorInt& _getUIDcol() const { return _uidcol; }
-
-    VectorString _getNames() const { return _colNames; }
-
     Id _getUIDcol(Id iuid) const;
     Id _getAddress(Id iech, Id icol) const;
     void _columnInit(

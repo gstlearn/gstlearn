@@ -55,37 +55,6 @@ namespace gstlrn
   {
     _clear();
   }
-
-  Db::Db(const Db& r)
-    : AStringable(r)
-    , ASerializable(r)
-    , _ncol(r._ncol)
-    , _nech(r._nech)
-    , _array(r._array)
-    , _uidcol(r._uidcol)
-    , _colNames(r._colNames)
-    , _p(r._p)
-  {
-  }
-
-  Db& Db::operator=(const Db& r)
-  {
-    if (this != &r)
-    {
-      AStringable::operator=(r);
-      ASerializable::operator=(r);
-      _ncol = r._ncol;
-      _nech = r._nech;
-      _array = r._array;
-      _uidcol = r._uidcol;
-      _colNames = r._colNames;
-      _p = r._p;
-    }
-    return *this;
-  }
-
-  Db::~Db() {}
-
   Id Db::resetFromSamples(
     Id nech,
     const ELoadBy& order,
@@ -2641,11 +2610,6 @@ namespace gstlrn
       if (!isColIdxValid(icol)) return TEST;
     }
     return (_array[_getAddress(iech, icol)]);
-  }
-
-  const double* Db::getColAdressByColIdx(Id icol) const
-  {
-    return &_array[_getAddress(0, icol)];
   }
 
   VectorDouble Db::getValuesByNames(
