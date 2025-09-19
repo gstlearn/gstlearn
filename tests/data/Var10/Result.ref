@@ -5,7 +5,6 @@ Number of variable(s)       = 1
 Number of direction(s)      = 2
 Space dimension             = 3
 Variable(s)                 = [Unknown]
-
 Variance-Covariance Matrix    39.616
 
 Direction #1
@@ -80,7 +79,7 @@ Covariance Part
 ---------------
 Spherical
 - Sill         =     39.044
-- Ranges       =    580.129    51.486   580.129
+- Ranges       =    580.103    51.485   580.103
 - Angles       =     50.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
