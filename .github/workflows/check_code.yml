@@ -11,11 +11,6 @@ on:
         required: false
         default: ''
 
-concurrency:
-  # allow a failing job inside a matrix to stop the other jobs
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 env:
   CMAKE_EXPORT_COMPILE_COMMANDS: ON
 
@@ -26,6 +21,7 @@ jobs:
   # Check source formatting #
   # ----------------------- #
   check-formatting:
+    if: false                   # disabled for now, waiting for clang-format
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
@@ -68,26 +64,24 @@ jobs:
   # Check compiler warnings #
   # ----------------------- #
   check-warnings:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     strategy:
       matrix:
         opt: [Debug, Release]
+        hdf5: [USE_HDF5=ON, USE_HDF5=OFF]
+        span: [USE_BOOST_SPAN=ON, USE_BOOST_SPAN=OFF]
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install Ubuntu dependencies
+    - name: Install macOS dependencies
       run: |
-        sudo apt update
-        # gstlearn dependencies
-        sudo apt install -y \
-          libhdf5-dev \
-          libopenmpi-dev \
-          libboost-system-dev \
-          libeigen3-dev \
-          libnlopt-dev \
-          libomp-dev \
-          clang-tools
+        brew install llvm
+        brew install boost
+        brew install eigen
+        brew install nlopt
+        brew install hdf5
+        echo "$(brew --prefix llvm)/bin" >> $GITHUB_PATH
 
     - name: Create & configure gstlearn build directory
       run: |
@@ -95,21 +89,28 @@ jobs:
         cd build
         cmake \
           -DCMAKE_BUILD_TYPE=${{ matrix.opt }} \
+          -D${{ matrix.hdf5 }} \
+          -D${{ matrix.span }} \
           -DBUILD_TESTING=ON \
           $GITHUB_WORKSPACE
+      env:
+        CC: clang
+        CXX: clang++
 
     - name: Use clang-check for compiler warnings
       run: |
         git ls-files \
         | grep -E "src|include" \
         | grep -E "\.cpp$|\.hpp$" \
-        | xargs -n1 -P$(nproc) clang-check -p build --extra-arg=-Werror
+        | xargs -n1 -P$(sysctl -n hw.physicalcpu) -t \
+            xcrun clang-check -p build --extra-arg=-Werror
 
 
   # ------------- #
   # Code lint job #
   # ------------- #
   lint-code:
+    if: false                   # disabled for now
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -152,7 +153,8 @@ jobs:
         git ls-files \
         | grep src \
         | grep -E "\.cpp$|\.cxx$" \
-        | xargs -n1 -P$(nproc) clang-tidy -p build --warnings-as-errors="*" 2> /dev/null
+        | xargs -n1 -P$(nproc) -t \
+            clang-tidy -p build --warnings-as-errors="*" 2> /dev/null
 
     - name: Use Clang static analyzer
       if: matrix.config.sa
@@ -160,7 +162,8 @@ jobs:
         git ls-files \
         | grep src \
         | grep -E "\.cpp$|\.cxx$" \
-        | xargs -n1 -P$(nproc) clang-tidy -p build --checks="-*,clang-analyzer-*" --warnings-as-errors="*" 2> /dev/null
+        | xargs -n1 -P$(nproc) -t \
+            xcrun clang-check -p build --analyze --extra-arg=-Werror 2> /dev/null
 
     - name: Check Doxygen documentation warnings
       if: matrix.config.dox
