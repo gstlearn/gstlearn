@@ -34,8 +34,7 @@
 #define V(i, j)       v[SQ(j, i, neq)]
 /*! \endcond */
 
-static bool RENARD  = false;
-static bool RENARD2 = false;
+static bool RENARD = false;
 
 namespace gstlrn
 {
@@ -211,7 +210,7 @@ Id matrix_prod_norme(Id transpose, Id n1, Id n2, const double* v1, const double*
  *****************************************************************************/
 void matrix_transpose(Id n1, Id n2, VectorDouble& v1, VectorDouble& w1)
 {
-  if (RENARD2)
+  if (RENARD)
   {
     MatrixDense matv1(n1, n2);
     matv1.resetFromVD(n1, n2, v1);
@@ -358,7 +357,7 @@ double matrix_determinant(Id neq, const VectorDouble& b)
 Id matrix_cholesky_decompose(const double* a, double* tl, Id neq)
 {
 
-  if (RENARD2)
+  if (RENARD)
   {
     MatrixSymmetric mata(neq);
     mata.resetFromArray(neq, neq, a);
