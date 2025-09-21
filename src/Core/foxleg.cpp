@@ -455,17 +455,23 @@ static Id st_define_constraints(Id mode,
 ** \param[out] hgnadm       Admissible Hgn array
 **
 *****************************************************************************/
-static void st_minimum(VectorInt& /*ind_util*/,
-                       VectorInt& flag,
-                       MatrixDense& bords_red,
+static void st_minimum(const VectorInt& /*ind_util*/,
+                       const VectorInt& flag,
+                       const MatrixDense& bords_red,
                        const VectorDouble& top,
                        const VectorDouble& bot,
-                       VectorDouble& hgnc,
+                       const VectorDouble& hgnc,
                        VectorDouble& hgnadm)
 {
   Id jparac        = -1;
   double bordval   = MINIMUM_BIG;
   double alpha_inf = MAXIMUM_BIG;
+  message("dans st_minimum\n");
+  bords_red.display();
+  VH::dump("top", top);
+  VH::dump("bot", bot);
+  VH::dump("hgnc", hgnc);
+  VH::dump("hgnadm avant", hgnadm);
 
   Id iparac2 = 0;
   for (Id ic = 0; ic < 2; ic++)
@@ -487,9 +493,11 @@ static void st_minimum(VectorInt& /*ind_util*/,
     }
   if (jparac < 0) messageAbort("Fatal error in st_minimum");
 
+  message("alpha_in=%lf\n", alpha_inf);
   for (Id iparac = 0; iparac < NPARAC; iparac++)
     hgnadm[iparac] += alpha_inf * (hgnc[iparac] - hgnadm[iparac]);
   hgnadm[jparac] = bordval;
+  VH::dump("hgnadm apres", hgnadm);
 }
 
 /****************************************************************************/
@@ -832,9 +840,7 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
   /* Find an initial admissible point */
 
   matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), hgnc.data(), b1.data());
-  VH::dump("avant minimum hgnadm", hgnadm);
   st_minimum(ind_util, flag_actaux, bords_red, VectorDouble(), b1, hgnc, hgnadm);
-  VH::dump("apres minimum hgnadm", hgnadm);
   st_check(ind_util, hgnadm, acont);
 
   /* Calculate the constraints vector */
