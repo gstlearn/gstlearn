@@ -187,8 +187,8 @@ static double st_norm_hgn(const VectorDouble& hgn, const VectorDouble& scale)
  ** \param[in]  gauss_red  Reduced Gauss matrix
  **
  *****************************************************************************/
-static double st_essai(VectorDouble& hgnadm,
-                       VectorDouble& grad_red,
+static double st_essai(const VectorDouble& hgnadm,
+                       const VectorDouble& grad_red,
                        MatrixSquare& gauss_red)
 {
   double v1     = VH::innerProduct(hgnadm, grad_red);
@@ -387,7 +387,7 @@ static Id st_possibilities(Id npar,
 static Id st_define_constraints(Id mode,
                                 MatrixDense& bords_red,
                                 VectorDouble& ai_red,
-                                VectorDouble& hgnc,
+                                const VectorDouble& hgnc,
                                 MatrixDense& consts,
                                 VectorInt& flag,
                                 VectorDouble& temp)
@@ -748,7 +748,7 @@ static Id st_establish_minimization(Id nactive,
  **
  *****************************************************************************/
 static void st_check(VectorInt& ind_util,
-                     VectorDouble& hgnc,
+                     const VectorDouble& hgnc,
                      const MatrixDense& acont)
 {
   double temp;
@@ -816,6 +816,7 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
 
   // Clean out arrays
   hgnadm.fill(0.);
+  VH::dump("hgnadm dans suppress init", hgnadm);
 
   /* Calculate the constraints vector */
 
@@ -828,17 +829,20 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
     st_check(ind_util, hgnadm, acont);
     return (0);
   }
+  VH::dump("hgnadm dans suppress apres define", hgnadm);
 
   /* Find an initial admissible point */
 
   matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), hgnc.data(), b1.data());
   st_minimum(ind_util, flag_actaux, bords_red, VectorDouble(), b1, hgnc, hgnadm);
   st_check(ind_util, hgnadm, acont);
+  VH::dump("dans suppress minimum hgnadm", hgnadm);
 
   /* Calculate the constraints vector */
 
-  nactive      = st_define_constraints(0, bords_red, ai_red, hgnadm, consts,
-                                       flag_active, temp);
+  nactive = st_define_constraints(0, bords_red, ai_red, hgnadm, consts,
+                                  flag_active, temp);
+  VH::dump("dans suppress define hgnadm", hgnadm);
   min_adm_best = st_essai(hgnadm, grad_red, gauss_red);
   if (VERBOSE_GQO && OptDbg::query(EDbg::CONVERGE))
     message("GQO(  0) : Gain for initial solution  = %lg\n", -min_adm_best);
@@ -870,6 +874,7 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
 
       nactive     = st_define_constraints(1, bords_red, ai_red, hgnadm, consts,
                                           flag_active, temp);
+      VH::dump("dans suppress define if nactaux>0 hgnadm", hgnadm);
       min_adm_cur = st_essai(hgnadm, grad_red, gauss_red);
       if (VERBOSE_GQO && OptDbg::query(EDbg::CONVERGE))
         message("GQO(%3d) : Gain for infeasible case   = %lg\n", SOUSITER,
@@ -881,6 +886,7 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
     {
       for (iparac = 0; iparac < NPARAC; iparac++)
         hgnadm[iparac] = hgnc[iparac];
+      VH::dump("dans suppress else hgnadm", hgnadm);
       if (lambda_neg >= 0)
       {
         flag_active[lambda_neg] = 0;
@@ -1309,7 +1315,6 @@ Id foxleg_f(Id ndat,
     /* Update values for the next iteration */
 
     VH::dump("hgnadm", hgnadm);
-    VH::dump("param", param);
     iparac = 0;
     for (Id ipar = 0; ipar < NPAR; ipar++)
     {
@@ -1319,8 +1324,6 @@ Id foxleg_f(Id ndat,
       hgn[ipar] = hgnadm[iparac++];
       paramaux[ipar] += hgn[ipar];
     }
-    VH::dump("early hgn", hgn);
-    VH::dump("paramaux", paramaux);
 
     double denom = st_essai(hgnadm, grad_red, gauss_red);
     if (isZero(denom)) goto label_ok;
