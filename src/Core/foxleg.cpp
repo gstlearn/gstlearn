@@ -705,8 +705,12 @@ static Id st_establish_minimization(Id nactive,
 
   *lambda_neg = -1;
   size        = NPARAC + NCONT + nactive;
+  a.reset(size, size);
   a.fill(0.);
+  b.resize(size);
   b.fill(0.);
+  temp.resize(size);
+  temp.fill(0.);
 
   /* Fill the L.H.S. and R.H.S. matrices */
 
@@ -1224,27 +1228,31 @@ Id foxleg_f(Id ndat,
   VectorInt flag_active(NPAR2, 0);
   VectorInt flag_actaux(NPAR2, 0);
 
+  VectorDouble temp(NPCT2, 0.);
+  MatrixSquare a(NPCT2);
   VectorDouble b1(NPCT2, 0.);
   VectorDouble b2(NPAR2, 0.);
   VectorDouble b3(NPAR2, 0.);
-  VectorDouble temp(NPCT2, 0.);
+
   VectorDouble param1(NPAR, 0.);
   VectorDouble param2(NPAR, 0.);
+  VectorDouble hgn(NPAR, 0.);
+  VectorDouble paramaux(NPAR, 0.);
+
   VectorDouble grad(NPCT, 0.);
   VectorDouble grad_red(NPCT, 0.);
-  VectorDouble hgn(NPAR, 0.);
   VectorDouble hgnc(NPCT, 0.);
   VectorDouble hgnadm(NPCT, 0.);
-  VectorDouble paramaux(NPAR, 0.);
+  MatrixSquare gauss(NPCT);
+  MatrixSquare gauss_red(NPCT);
+
   VectorDouble residuals(NDAT, 0.);
   VectorDouble tabmod1(NDAT, 0.);
   VectorDouble tabmod2(NDAT, 0.);
+
   VectorDouble ai(NPAR * NPAR2, 0.);
   VectorDouble ai_red(NPAR * NPAR2, 0.);
 
-  MatrixSquare a(NPCT2);
-  MatrixSquare gauss(NPCT);
-  MatrixSquare gauss_red(NPCT);
   MatrixDense Jr(NDAT, NPAR);
   MatrixDense consts(2, NPAR);
   MatrixDense bords(2, NPAR);

@@ -65,6 +65,7 @@ void matrix_product_safe(Id n1,
                          const double* v2,
                          double* v3)
 {
+
   if (RENARD)
   {
     MatrixDense matv1(n1, n2);
@@ -116,7 +117,6 @@ Id matrix_prod_norme(Id transpose, Id n1, Id n2, const double* v1, const double*
 {
   if (RENARD)
   {
-    message("In matrix_prod_norm\n");
     MatrixDense matv1(n1, n2);
     matv1.resetFromArray(n1, n2, v1);
     MatrixSquare mata;
@@ -211,7 +211,6 @@ void matrix_transpose(Id n1, Id n2, VectorDouble& v1, VectorDouble& w1)
 {
   if (RENARD)
   {
-    message("In matrix_transpose\n");
     MatrixDense matv1(n1, n2);
     matv1.resetFromVD(n1, n2, v1);
     matv1.transposeInPlace();
@@ -246,7 +245,6 @@ Id matrix_invert(double* a, Id neq, Id rank)
 {
   if (RENARD)
   {
-    message("In matrix_invert\n");
     MatrixSquare mata(neq);
     mata.resetFromArray(neq, neq, a);
     mata.invert();
@@ -300,7 +298,6 @@ double matrix_determinant(Id neq, const VectorDouble& b)
 {
   if (RENARD)
   {
-    message("In matrix_determinant\n");
     MatrixSquare matb(neq);
     matb.resetFromArray(neq, neq, b.data());
     return matb.determinant();
@@ -361,7 +358,6 @@ Id matrix_cholesky_decompose(const double* a, double* tl, Id neq)
 
   if (RENARD)
   {
-    message("In matrix_cholesky_decompose\n");
     MatrixSymmetric mata(neq);
     mata.resetFromArray(neq, neq, a);
     CholeskyDense chol(mata);
