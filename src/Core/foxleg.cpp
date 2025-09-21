@@ -834,8 +834,8 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
   matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), hgnc.data(), b1.data());
   VH::dump("avant minimum hgnadm", hgnadm);
   st_minimum(ind_util, flag_actaux, bords_red, VectorDouble(), b1, hgnc, hgnadm);
-  st_check(ind_util, hgnadm, acont);
   VH::dump("apres minimum hgnadm", hgnadm);
+  st_check(ind_util, hgnadm, acont);
 
   /* Calculate the constraints vector */
 
