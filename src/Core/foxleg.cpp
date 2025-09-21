@@ -159,7 +159,7 @@ static void st_determine_gauss(MatrixDense& Jr, MatrixSquare& gauss)
 
 /****************************************************************************/
 /*!
- **  Calculate the Norm of the HGN vector
+ **  Calculate the L1-Norm of the HGN vector
  **
  ** \return  The norm value
  **
@@ -167,7 +167,7 @@ static void st_determine_gauss(MatrixDense& Jr, MatrixSquare& gauss)
  ** \param[in]  scale        Scaling values
  **
  *****************************************************************************/
-static double st_norm_hgn(VectorDouble& hgn, VectorDouble& scale)
+static double st_norm_hgn(const VectorDouble& hgn, const VectorDouble& scale)
 {
   double norme = 0.;
   for (Id ipar = 0; ipar < NPAR; ipar++)
@@ -1339,7 +1339,13 @@ Id foxleg_f(Id ndat,
       st_constraints_init(ind_util, ai);
       flag_moved = true;
       if (denom < 0 && rho > 0.75)
+      {
         delta = MAX(delta, 3. * st_norm_hgn(hgn, scale));
+        // TODO: suppress this debug
+        message("denom=%lf rho=%lf\n", denom, rho);
+        VH::dump("hgn", hgn);
+        VH::dump("scale", scale);
+      }
     }
     else
       flag_moved = false;
