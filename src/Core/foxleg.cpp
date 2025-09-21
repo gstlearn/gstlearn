@@ -19,7 +19,6 @@
 /*! \cond */
 #define IAD(ic, ipar)              ((ipar) + NPAR * (ic))
 #define IADAC(ic, iparac)          ((iparac) + NPARAC * (ic))
-#define AI(ic, ipar, jpar)         (ai[(jpar) * NPAR2 + IAD(ic, ipar)])
 #define AI_RED(ic, iparac, jparac) (ai_red[(jparac) * NPARAC2 + IADAC(ic, iparac)])
 #define POSSIBLE(ipar)             (ind_util[ipar] > 0)
 #define SIGNE(ic)                  ((ic == 0) ? +1 : -1)
@@ -351,14 +350,14 @@ static Id st_calcul0(VectorDouble& param,
  *****************************************************************************/
 static Id st_possibilities(Id npar,
                            MatrixDense& bords,
-                           VectorDouble& ai,
+                           MatrixDense& ai,
                            VectorDouble& hgnc,
                            VectorInt& flag,
                            VectorDouble& temp)
 {
-  Id flag_imposs;
+  bool flag_imposs;
 
-  matrix_product_safe(2 * npar, npar, 1, ai.data(), hgnc.data(), temp.data());
+  ai.prodMatVecInPlace(hgnc, temp);
 
   Id n_imposs = 0;
   Id ipar2    = 0;
@@ -391,7 +390,7 @@ static Id st_possibilities(Id npar,
  *****************************************************************************/
 static Id st_define_constraints(Id mode,
                                 MatrixDense& bords_red,
-                                VectorDouble& ai_red,
+                                MatrixDense& ai_red,
                                 const VectorDouble& hgnc,
                                 MatrixDense& consts,
                                 VectorInt& flag,
@@ -401,7 +400,7 @@ static Id st_define_constraints(Id mode,
 
   /* Calculate the constraints */
 
-  matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), hgnc.data(), temp.data());
+  ai_red.prodMatVecInPlace(hgnc, temp);
 
   iparac2 = 0;
   for (Id ic = 0; ic < 2; ic++)
@@ -562,13 +561,13 @@ static void st_update_bords(MatrixDense& bords,
  **
  *****************************************************************************/
 static Id st_suppress_unused_constraints(MatrixDense& bords,
-                                         VectorDouble& ai,
+                                         MatrixDense& ai,
                                          VectorDouble& grad,
                                          MatrixSquare& gauss,
                                          VectorDouble& hgnc,
                                          VectorInt& ind_util,
                                          MatrixDense& bords_red,
-                                         VectorDouble& ai_red,
+                                         MatrixDense& ai_red,
                                          VectorDouble& grad_red,
                                          MatrixSquare& gauss_red,
                                          VectorInt& flag1,
@@ -585,7 +584,7 @@ static Id st_suppress_unused_constraints(MatrixDense& bords,
   gauss_red.fill(0.);
   bords_red.reset(2, NPAR);
   bords_red.fill(0.);
-  ai_red.resize(NPAR * NPAR2);
+  ai_red.reset(NPAR2, NPAR);
   ai_red.fill(0.);
 
   /* Get the set of constraints to be discarded */
@@ -644,7 +643,7 @@ static Id st_suppress_unused_constraints(MatrixDense& bords,
         for (jpar = jparac = 0; jpar < NPAR; jpar++)
         {
           if (!POSSIBLE(jpar)) continue;
-          AI_RED(ic, iparac, jparac) = AI(ic, ipar, jpar);
+          ai_red.setValue(IADAC(ic, iparac), jparac, ai.getValue(IAD(ic, ipar), jpar));
           jparac++;
         }
         iparac++;
@@ -691,7 +690,7 @@ static Id st_suppress_unused_constraints(MatrixDense& bords,
 static Id st_establish_minimization(Id nactive,
                                     VectorInt& flag_active,
                                     MatrixDense& bords_red,
-                                    VectorDouble& ai_red,
+                                    MatrixDense& ai_red,
                                     VectorDouble& grad_red,
                                     MatrixSquare& gauss_red,
                                     Id* lambda_neg,
@@ -729,8 +728,9 @@ static Id st_establish_minimization(Id nactive,
       b[NPARAC + NCONT + iecr] = bords_red.getValue(ic, iparac);
       for (jparac = 0; jparac < NPARAC; jparac++)
       {
-        a.setValue(NPARAC + NCONT + iecr, jparac, AI_RED(ic, iparac, jparac));
-        a.setValue(jparac, NPARAC + NCONT + iecr, AI_RED(ic, iparac, jparac));
+        double value = ai_red.getValue(IADAC(ic, iparac), jparac);
+        a.setValue(NPARAC + NCONT + iecr, jparac, value);
+        a.setValue(jparac, NPARAC + NCONT + iecr, value);
       }
       iecr++;
     }
@@ -820,7 +820,7 @@ static void st_check(VectorInt& ind_util,
  *****************************************************************************/
 static Id st_minimization_under_constraints(VectorInt& ind_util,
                                             MatrixDense& bords_red,
-                                            VectorDouble& ai_red,
+                                            MatrixDense& ai_red,
                                             VectorDouble& grad_red,
                                             MatrixSquare& gauss_red,
                                             MatrixDense& consts,
@@ -856,7 +856,7 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
 
   /* Find an initial admissible point */
 
-  matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), hgnc.data(), b1.data());
+  ai_red.prodMatVecInPlace(hgnc, b1);
   st_minimum(ind_util, flag_actaux, bords_red, VectorDouble(), b1, hgnc, hgnadm);
   st_check(ind_util, hgnadm, acont);
 
@@ -888,8 +888,8 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
     {
       for (iparac = 0; iparac < NPARAC; iparac++)
         b3[iparac] = hgnc[iparac] - hgnadm[iparac];
-      matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), hgnadm.data(), b1.data());
-      matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), b3.data(), b2.data());
+      ai_red.prodMatVecInPlace(hgnadm, b1);
+      ai_red.prodMatVecInPlace(b3, b2);
       st_minimum(ind_util, flag_actaux, bords_red, b1, b2, hgnc, hgnadm);
       st_check(ind_util, hgnadm, acont);
 
@@ -933,7 +933,7 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
  ** \param[in]  ai           AI matrix
  **
  *****************************************************************************/
-static void st_constraints_init(VectorInt& ind_util, VectorDouble& ai)
+static void st_constraints_init(VectorInt& ind_util, MatrixDense& ai)
 {
   Id ipar, jpar, ic;
 
@@ -943,7 +943,7 @@ static void st_constraints_init(VectorInt& ind_util, VectorDouble& ai)
   for (ic = 0; ic < 2; ic++)
     for (ipar = 0; ipar < NPAR; ipar++)
       for (jpar = 0; jpar < NPAR; jpar++)
-        AI(ic, ipar, jpar) = (ipar == jpar);
+        ai.setValue(IAD(ic, ipar), jpar, (ipar == jpar));
 }
 
 /****************************************************************************/
@@ -1251,8 +1251,8 @@ Id foxleg_f(Id ndat,
   VectorDouble tabmod1(NDAT);
   VectorDouble tabmod2(NDAT);
 
-  VectorDouble ai(NPAR * NPAR2);
-  VectorDouble ai_red(NPAR * NPAR2);
+  MatrixDense ai(NPAR2, NPAR);
+  MatrixDense ai_red(NPAR2, NPAR);
 
   MatrixDense Jr(NDAT, NPAR);
   MatrixDense consts(2, NPAR);
