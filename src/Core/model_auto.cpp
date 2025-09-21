@@ -2040,7 +2040,7 @@ static void st_model_auto_pardef(StrMod* strmod,
  *****************************************************************************/
 static void st_model_auto_strmod_define(StrMod* strmod,
                                         Id npar,
-                                        VectorDouble& param)
+                                        const VectorDouble& param)
 {
   Id icov, ntot, imod, ivar, jvar;
   Model* model;
@@ -4057,7 +4057,7 @@ static Id st_model_auto_count(const Vario* vario,
  *****************************************************************************/
 static void st_strmod_vario_evaluate(Id nbexp,
                                      Id npar,
-                                     VectorDouble& param,
+                                     const VectorDouble& param,
                                      VectorDouble& tabge)
 {
   /* Define the current values of the parameters */
@@ -4144,7 +4144,7 @@ static void st_prepar_goulard_vmap(Id imod)
  *****************************************************************************/
 static void st_strmod_vmap_evaluate(Id nbexp,
                                     Id npar,
-                                    VectorDouble& param,
+                                    const VectorDouble& param,
                                     VectorDouble& tabge)
 {
   DECLARE_UNUSED(nbexp)

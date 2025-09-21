@@ -34,7 +34,7 @@ static Id NPAR, NPAR2, NPARAC, NPARAC2, NDAT, NCONT, NPCT, NPCT2;
 static Id ITERATION, SOUSITER;
 static void (*FUNC_EVALUATE)(Id ndat,
                              Id npar,
-                             VectorDouble& param,
+                             const VectorDouble& param,
                              VectorDouble& work);
 
 static bool doit()
@@ -61,10 +61,10 @@ static bool doit()
  **
  *****************************************************************************/
 static void st_gradient(VectorDouble& param,
-                        VectorDouble& lower,
-                        VectorDouble& upper,
-                        VectorDouble& scale,
-                        VectorDouble& tabwgt,
+                        const VectorDouble& lower,
+                        const VectorDouble& upper,
+                        const VectorDouble& scale,
+                        const VectorDouble& tabwgt,
                         MatrixDense& Jr,
                         VectorDouble& param1,
                         VectorDouble& param2,
@@ -119,9 +119,9 @@ static void st_gradient(VectorDouble& param,
  ** \param[out] residuals Array of residuals
  **
  *****************************************************************************/
-static double st_residuals(VectorDouble& param,
-                           VectorDouble& tabexp,
-                           VectorDouble& tabwgt,
+static double st_residuals(const VectorDouble& param,
+                           const VectorDouble& tabexp,
+                           const VectorDouble& tabwgt,
                            VectorDouble& tabmod,
                            VectorDouble& residuals)
 {
@@ -250,8 +250,7 @@ static Id st_solve_hgnc(Id npar,
     return (1);
   }
 
-  matrix_product_safe(npar, npar, 1, tempMat.getValues().data(), tempVec.data(),
-                      hgnc.data());
+  tempMat.prodMatVecInPlace(tempVec, hgnc);
 
   for (Id i = 0; i < npar; i++)
   {
@@ -313,11 +312,11 @@ static void st_fill_constraints(const MatrixDense& acont,
  **
  *****************************************************************************/
 static Id st_calcul0(VectorDouble& param,
-                     VectorDouble& lower,
-                     VectorDouble& upper,
-                     VectorDouble& scale,
+                     const VectorDouble& lower,
+                     const VectorDouble& upper,
+                     const VectorDouble& scale,
                      const MatrixDense& acont,
-                     VectorDouble& tabwgt,
+                     const VectorDouble& tabwgt,
                      VectorDouble& residuals,
                      MatrixDense& Jr,
                      VectorDouble& grad,
@@ -329,7 +328,7 @@ static Id st_calcul0(VectorDouble& param,
                      VectorDouble& tabmod2)
 {
   st_gradient(param, lower, upper, scale, tabwgt, Jr, param1, param2, tabmod1, tabmod2);
-  matrix_product_safe(1, NDAT, NPAR, residuals.data(), Jr.getValues().data(), grad.data());
+  Jr.prodVecMatInPlace(residuals, grad);
   st_determine_gauss(Jr, gauss);
   st_fill_constraints(acont, grad, gauss);
   return st_solve_hgnc(NPAR + NCONT, grad, gauss, hgnc, 1);
@@ -960,10 +959,10 @@ static void st_constraints_init(VectorInt& ind_util, VectorDouble& ai)
  ** \param[out] bords      Value for the bounds
  **
  *****************************************************************************/
-static void st_define_bounds(VectorDouble& param,
-                             VectorDouble& lower,
-                             VectorDouble& upper,
-                             VectorDouble& scale,
+static void st_define_bounds(const VectorDouble& param,
+                             const VectorDouble& lower,
+                             const VectorDouble& upper,
+                             const VectorDouble& scale,
                              double delta,
                              MatrixDense& bords)
 {
@@ -1062,8 +1061,8 @@ static void st_foxleg_debug_current(double mscur,
 static void st_linear_interpolate(double mscur,
                                   VectorDouble& param,
                                   const MatrixDense& acont,
-                                  VectorDouble& tabexp,
-                                  VectorDouble& tabwgt,
+                                  const VectorDouble& tabexp,
+                                  const VectorDouble& tabwgt,
                                   MatrixDense& bords,
                                   VectorDouble& grad,
                                   double* msaux,
@@ -1119,8 +1118,8 @@ static void st_linear_interpolate(double mscur,
  **
  *****************************************************************************/
 static Id st_check_param(VectorDouble& param,
-                         VectorDouble& lower,
-                         VectorDouble& upper)
+                         const VectorDouble& lower,
+                         const VectorDouble& upper)
 {
   Id ipar;
 
@@ -1197,14 +1196,14 @@ Id foxleg_f(Id ndat,
             Id ncont,
             const MatrixDense& acont,
             VectorDouble& param,
-            VectorDouble& lower,
-            VectorDouble& upper,
-            VectorDouble& scale,
+            const VectorDouble& lower,
+            const VectorDouble& upper,
+            const VectorDouble& scale,
             const Option_AutoFit& mauto,
             Id flag_title,
             void (*func_evaluate)(Id ndat,
                                   Id npar,
-                                  VectorDouble& param,
+                                  const VectorDouble& param,
                                   VectorDouble& work),
             VectorDouble& tabexp,
             VectorDouble& tabwgt)
@@ -1226,34 +1225,34 @@ Id foxleg_f(Id ndat,
 
   /* Core allocation */
 
-  VectorInt ind_util(NPCT, 0);
-  VectorInt flag_active(NPAR2, 0);
-  VectorInt flag_actaux(NPAR2, 0);
+  VectorInt ind_util(NPCT);
+  VectorInt flag_active(NPAR2);
+  VectorInt flag_actaux(NPAR2);
 
-  VectorDouble temp(NPCT2, 0.);
+  VectorDouble temp(NPCT2);
   MatrixSquare a(NPCT2);
-  VectorDouble b1(NPCT2, 0.);
-  VectorDouble b2(NPAR2, 0.);
-  VectorDouble b3(NPAR2, 0.);
+  VectorDouble b1(NPCT2);
+  VectorDouble b2(NPAR2);
+  VectorDouble b3(NPAR2);
 
-  VectorDouble param1(NPAR, 0.);
-  VectorDouble param2(NPAR, 0.);
-  VectorDouble hgn(NPAR, 0.);
-  VectorDouble paramaux(NPAR, 0.);
+  VectorDouble param1(NPAR);
+  VectorDouble param2(NPAR);
+  VectorDouble hgn(NPAR);
+  VectorDouble paramaux(NPAR);
 
-  VectorDouble grad(NPCT, 0.);
-  VectorDouble grad_red(NPCT, 0.);
-  VectorDouble hgnc(NPCT, 0.);
-  VectorDouble hgnadm(NPCT, 0.);
+  VectorDouble grad(NPCT);
+  VectorDouble grad_red(NPCT);
+  VectorDouble hgnc(NPCT);
+  VectorDouble hgnadm(NPCT);
   MatrixSquare gauss(NPCT);
   MatrixSquare gauss_red(NPCT);
 
-  VectorDouble residuals(NDAT, 0.);
-  VectorDouble tabmod1(NDAT, 0.);
-  VectorDouble tabmod2(NDAT, 0.);
+  VectorDouble residuals(NDAT);
+  VectorDouble tabmod1(NDAT);
+  VectorDouble tabmod2(NDAT);
 
-  VectorDouble ai(NPAR * NPAR2, 0.);
-  VectorDouble ai_red(NPAR * NPAR2, 0.);
+  VectorDouble ai(NPAR * NPAR2);
+  VectorDouble ai_red(NPAR * NPAR2);
 
   MatrixDense Jr(NDAT, NPAR);
   MatrixDense consts(2, NPAR);
