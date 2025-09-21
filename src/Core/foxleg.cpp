@@ -698,13 +698,13 @@ static Id st_establish_minimization(Id nactive,
                                     VectorDouble& b,
                                     VectorDouble& temp)
 {
-  Id size, ic, iparac, jparac, iparac2, iecr;
+  Id ic, iparac, jparac, iparac2, iecr;
   DECLARE_UNUSED(ind_util);
 
   /* Initialization */
 
   *lambda_neg = -1;
-  size        = NPARAC + NCONT + nactive;
+  Id size     = NPARAC + NCONT + nactive;
   a.reset(size, size);
   a.fill(0.);
   b.resize(size);
