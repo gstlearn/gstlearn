@@ -579,9 +579,13 @@ static Id st_suppress_unused_constraints(MatrixDense& bords,
 
   // Blanking out the arrays
 
+  grad_red.resize(NPCT);
   grad_red.fill(0.);
+  gauss_red.reset(NPCT, NPCT);
   gauss_red.fill(0.);
+  bords_red.reset(2, NPAR);
   bords_red.fill(0.);
+  ai_red.resize(NPAR * NPAR2);
   ai_red.fill(0.);
 
   /* Get the set of constraints to be discarded */
@@ -671,7 +675,6 @@ static Id st_suppress_unused_constraints(MatrixDense& bords,
 ** \return  Error returned code
 **
 ** \param[in]  nactive      Number of active constraints
-** \param[in]  ind_util   List of retained constraint indices
 ** \param[in]  flag_active  Array of indices with zero valid constraint
 ** \param[in]  bords_red    Reduced array containing the bounds
 ** \param[in]  ai_red       Reduced AI matrix
@@ -686,7 +689,6 @@ static Id st_suppress_unused_constraints(MatrixDense& bords,
 **
 *****************************************************************************/
 static Id st_establish_minimization(Id nactive,
-                                    VectorInt& ind_util,
                                     VectorInt& flag_active,
                                     MatrixDense& bords_red,
                                     VectorDouble& ai_red,
@@ -699,7 +701,6 @@ static Id st_establish_minimization(Id nactive,
                                     VectorDouble& temp)
 {
   Id ic, iparac, jparac, iparac2, iecr;
-  DECLARE_UNUSED(ind_util);
 
   /* Initialization */
 
@@ -874,7 +875,7 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
 
     /* Load the minimization matrix */
 
-    if (st_establish_minimization(nactive, ind_util, flag_active, bords_red,
+    if (st_establish_minimization(nactive, flag_active, bords_red,
                                   ai_red, grad_red, gauss_red, &lambda_neg,
                                   hgnc, a, b1, temp)) return (1);
     st_check(ind_util, hgnc, acont);
