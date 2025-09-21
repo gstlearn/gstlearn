@@ -37,6 +37,11 @@ static void (*FUNC_EVALUATE)(Id ndat,
                              VectorDouble& param,
                              VectorDouble& work);
 
+static bool doit()
+{
+  return OptDbg::query(EDbg::CONVERGE);
+}
+
 /****************************************************************************/
 /*!
  **  Calculate the gradient
@@ -466,12 +471,15 @@ static void st_minimum(const VectorInt& /*ind_util*/,
   Id jparac        = -1;
   double bordval   = MINIMUM_BIG;
   double alpha_inf = MAXIMUM_BIG;
-  message("dans st_minimum\n");
-  bords_red.display();
-  VH::dump("top", top);
-  VH::dump("bot", bot);
-  VH::dump("hgnc", hgnc);
-  VH::dump("hgnadm avant", hgnadm);
+  if (doit())
+  {
+    message("dans st_minimum\n");
+    bords_red.display();
+    VH::dump("top", top);
+    VH::dump("bot", bot);
+    VH::dump("hgnc", hgnc);
+    VH::dump("hgnadm avant", hgnadm);
+  }
 
   Id iparac2 = 0;
   for (Id ic = 0; ic < 2; ic++)
@@ -493,11 +501,15 @@ static void st_minimum(const VectorInt& /*ind_util*/,
     }
   if (jparac < 0) messageAbort("Fatal error in st_minimum");
 
-  message("alpha_in=%lf\n", alpha_inf);
   for (Id iparac = 0; iparac < NPARAC; iparac++)
     hgnadm[iparac] += alpha_inf * (hgnc[iparac] - hgnadm[iparac]);
   hgnadm[jparac] = bordval;
-  VH::dump("hgnadm apres", hgnadm);
+
+  if (doit())
+  {
+    message("alpha_in=%lf\n", alpha_inf);
+    VH::dump("hgnadm apres", hgnadm);
+  }
 }
 
 /****************************************************************************/
@@ -990,9 +1002,9 @@ static void st_define_bounds(VectorDouble& param,
 static void st_foxleg_debug_title(void)
 
 {
-  String string;
-
   if (!OptDbg::query(EDbg::CONVERGE)) return;
+
+  String string;
   mestitle(1, "Trajectory of parameters in Foxleg Algorithm");
   tab_prints(NULL, "Iteration");
   tab_prints(NULL, "Score");
@@ -1014,13 +1026,11 @@ static void st_foxleg_debug_current(double mscur,
                                     double delta,
                                     VectorDouble& param)
 {
-  Id ipar;
-
   if (!OptDbg::query(EDbg::CONVERGE)) return;
   tab_printi(NULL, ITERATION);
   tab_printd(NULL, mscur);
   tab_printd(NULL, delta);
-  for (ipar = 0; ipar < NPAR; ipar++)
+  for (Id ipar = 0; ipar < NPAR; ipar++)
     tab_printg(NULL, param[ipar]);
   message("\n");
 }
@@ -1316,7 +1326,7 @@ Id foxleg_f(Id ndat,
 
     /* Update values for the next iteration */
 
-    VH::dump("hgnadm", hgnadm);
+    if (doit()) VH::dump("hgnadm", hgnadm);
     iparac = 0;
     for (Id ipar = 0; ipar < NPAR; ipar++)
     {
@@ -1350,9 +1360,11 @@ Id foxleg_f(Id ndat,
       if (denom < 0 && rho > 0.75)
       {
         delta = MAX(delta, 3. * st_norm_hgn(hgn, scale));
-        // TODO: suppress this debug
-        message("denom=%lf rho=%lf\n", denom, rho);
-        VH::dump("hgn", hgn);
+        if (doit())
+        {
+          message("denom=%lf rho=%lf\n", denom, rho);
+          VH::dump("hgn", hgn);
+        }
       }
     }
     else
