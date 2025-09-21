@@ -816,7 +816,6 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
 
   // Clean out arrays
   hgnadm.fill(0.);
-  VH::dump("hgnadm dans suppress init", hgnadm);
 
   /* Calculate the constraints vector */
 
@@ -829,20 +828,19 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
     st_check(ind_util, hgnadm, acont);
     return (0);
   }
-  VH::dump("hgnadm dans suppress apres define", hgnadm);
 
   /* Find an initial admissible point */
 
   matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), hgnc.data(), b1.data());
+  VH::dump("avant minimum hgnadm", hgnadm);
   st_minimum(ind_util, flag_actaux, bords_red, VectorDouble(), b1, hgnc, hgnadm);
   st_check(ind_util, hgnadm, acont);
-  VH::dump("dans suppress minimum hgnadm", hgnadm);
+  VH::dump("apres minimum hgnadm", hgnadm);
 
   /* Calculate the constraints vector */
 
-  nactive = st_define_constraints(0, bords_red, ai_red, hgnadm, consts,
-                                  flag_active, temp);
-  VH::dump("dans suppress define hgnadm", hgnadm);
+  nactive      = st_define_constraints(0, bords_red, ai_red, hgnadm, consts,
+                                       flag_active, temp);
   min_adm_best = st_essai(hgnadm, grad_red, gauss_red);
   if (VERBOSE_GQO && OptDbg::query(EDbg::CONVERGE))
     message("GQO(  0) : Gain for initial solution  = %lg\n", -min_adm_best);
@@ -874,7 +872,6 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
 
       nactive     = st_define_constraints(1, bords_red, ai_red, hgnadm, consts,
                                           flag_active, temp);
-      VH::dump("dans suppress define if nactaux>0 hgnadm", hgnadm);
       min_adm_cur = st_essai(hgnadm, grad_red, gauss_red);
       if (VERBOSE_GQO && OptDbg::query(EDbg::CONVERGE))
         message("GQO(%3d) : Gain for infeasible case   = %lg\n", SOUSITER,
@@ -886,7 +883,6 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
     {
       for (iparac = 0; iparac < NPARAC; iparac++)
         hgnadm[iparac] = hgnc[iparac];
-      VH::dump("dans suppress else hgnadm", hgnadm);
       if (lambda_neg >= 0)
       {
         flag_active[lambda_neg] = 0;
