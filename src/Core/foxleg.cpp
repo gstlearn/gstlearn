@@ -39,7 +39,8 @@ static void (*FUNC_EVALUATE)(Id ndat,
 
 static bool doit()
 {
-  return OptDbg::query(EDbg::CONVERGE);
+  // return OptDbg::query(EDbg::CONVERGE);
+  return false;
 }
 
 /****************************************************************************/
