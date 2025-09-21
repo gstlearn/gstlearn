@@ -1308,6 +1308,8 @@ Id foxleg_f(Id ndat,
 
     /* Update values for the next iteration */
 
+    VH::dump("hgnadm", hgnadm);
+    VH::dump("param", param);
     iparac = 0;
     for (Id ipar = 0; ipar < NPAR; ipar++)
     {
@@ -1317,6 +1319,8 @@ Id foxleg_f(Id ndat,
       hgn[ipar] = hgnadm[iparac++];
       paramaux[ipar] += hgn[ipar];
     }
+    VH::dump("early hgn", hgn);
+    VH::dump("paramaux", paramaux);
 
     double denom = st_essai(hgnadm, grad_red, gauss_red);
     if (isZero(denom)) goto label_ok;
@@ -1344,7 +1348,6 @@ Id foxleg_f(Id ndat,
         // TODO: suppress this debug
         message("denom=%lf rho=%lf\n", denom, rho);
         VH::dump("hgn", hgn);
-        VH::dump("scale", scale);
       }
     }
     else
