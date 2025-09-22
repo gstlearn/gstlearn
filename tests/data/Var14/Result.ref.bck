@@ -238,8 +238,8 @@ Covariance Part
 Nugget Effect
 - Sill         =      0.399
 Cubic
-- Sill         =      1.042
-- Ranges       =   1874.176  1445.444  1874.176
+- Sill         =      1.043
+- Ranges       =   1879.829  1447.152  1879.829
 - Angles       =     90.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
@@ -247,9 +247,9 @@ Cubic
      [  1,]     1.000     0.000     0.000
      [  2,]     0.000     0.000     1.000
 Exponential
-- Sill         =      0.582
-- Ranges       =   1322.500   853.117  1322.500
-- Theo. Ranges =    441.461   284.777   441.461
+- Sill         =      0.586
+- Ranges       =   1332.681   857.390  1332.681
+- Theo. Ranges =    444.860   286.204   444.860
 - Angles       =     90.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
@@ -257,14 +257,14 @@ Exponential
      [  1,]     1.000     0.000     0.000
      [  2,]     0.000     0.000     1.000
 Spherical
-- Sill         =      0.840
-- Ranges       =   1617.695 17451.201  1617.695
+- Sill         =      0.836
+- Ranges       =   1604.703 17969.463  1604.703
 - Angles       =     90.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
      [  0,]     0.000    -1.000     0.000
      [  1,]     1.000     0.000     0.000
      [  2,]     0.000     0.000     1.000
-Total Sill     =      2.864
+Total Sill     =      2.863
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #1 (1 for very good)
