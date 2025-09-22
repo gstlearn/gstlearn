@@ -853,7 +853,6 @@ namespace gstlrn {
       {
         if (!argp) {
           %argument_nullref("$type", $symname, $argnum);
-          $1 = nullptr;
         }
         else
           $1 = %reinterpret_cast(argp, $ltype);
@@ -892,7 +891,6 @@ namespace gstlrn {
       {
         if (!argp) {
           %argument_nullref("$type", $symname, $argnum);
-          $1 = nullptr;
         }
         else
           $1 = %reinterpret_cast(argp, $ltype);
