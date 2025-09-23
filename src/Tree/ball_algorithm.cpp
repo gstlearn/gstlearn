@@ -157,7 +157,7 @@ void t_btree::recursive_build(Id i_node, Id idx_start, Id idx_end)
 t_btree::t_btree(MatrixT<double>&& data,
                  Id n_samples,
                  Id n_features,
-                 bool has_constraints,
+                 bool all_available,
                  Id leaf_size,
                  Id default_distance_function)
   : data(std::move(data))
@@ -166,8 +166,7 @@ t_btree::t_btree(MatrixT<double>&& data,
   , n_nodes(0)
   , default_distance_function(default_distance_function)
 {
-  if (has_constraints)
-    this->accept.resize(n_samples, false);
+  this->available.resize(n_samples, all_available);
   this->leaf_size = leaf_size;
 
   if (leaf_size < 1)
@@ -223,8 +222,7 @@ Id t_btree::query_depth_first(Id i_node, const constvect pt, Id i_pt, t_nheap& h
     for (Id i = node_info.idx_start; i < node_info.idx_end; i++)
     {
       Id j = this->idx_array[i];
-      if (!this->accept.empty() && !this->accept[j])
-        continue;
+      if (!this->available[j]) continue;
       dist_pt = dist_func(pt.data(), this->data.getRow(j).data(), this->n_features);
       if (dist_pt < heap.largest(i_pt))
         heap.push(i_pt, dist_pt, j);

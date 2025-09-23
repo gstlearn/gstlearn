@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
     mestitle(0, "Traditional use of the Ball Tree");
 
     // Constructing the Ball Tree
-    Ball ball(data, nullptr, 10, false);
+    Ball ball(data, nullptr, 10);
     if (verbose) ball.display(0);
 
     // My target sample
@@ -93,15 +93,15 @@ int main(int argc, char* argv[])
 
   if (mode == 0 || mode == 2)
   {
-    // =====================
-    // Ball with constraints
-    // =====================
+    // ===========================
+    // Ball with 'Available flags'
+    // ===========================
     mestitle(0, "Use of the Ball Tree with Constraints (FNN search)");
-    bool has_constraints = true;
-    verbose              = true;
+    bool all_available = false;
+    verbose            = true;
 
     // Constructing the Ball Tree from Db(s)
-    Ball ball(data, nullptr, 10, has_constraints);
+    Ball ball(data, nullptr, 10, all_available);
     if (verbose) ball.display(1);
 
     // Loop on the samples for the FNN search
@@ -112,8 +112,8 @@ int main(int argc, char* argv[])
     {
       Id iech = ranks[jech];
       data->getSampleAsSPInPlace(pt2, iech);
-      ball.setConstraint(iech, true);
-      (void)ball.queryOneInPlace(pt2.getCoordUnprotected(), nb_neigh, neighs, distances);
+      ball.setAvailable(iech, true);
+      (void)ball.queryOneInPlace(pt2.getCoordsRef(), nb_neigh, neighs, distances);
       VH::dump("Indices of the neighbors", neighs);
     }
   }

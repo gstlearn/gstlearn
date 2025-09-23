@@ -34,10 +34,12 @@ public:
   /// TODO : should also test the space definition
   bool operator==(const SpacePoint& v) const { return (_coord == v._coord); }
 
-  constvect getCoords() const;
+  constvect getCoordsAsConstVect() const;
+  vect getCoordsAsVect() { return vect(_coord.data(), getNDim()); }
 
-  vect getCoordRef() { return vect(_coord.data(), getNDim()); }
-  VectorDouble& getCoordUnprotected() { return _coord; }
+  const VectorDouble& getCoords() { return _coord; }
+  VectorDouble& getCoordsRef() { return _coord; }
+
   double getCoord(Id idim) const; 
   void setCoord(double coord);
   void setCoord(Id i, double val) { _coord[i] = val; }

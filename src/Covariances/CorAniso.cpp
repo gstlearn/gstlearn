@@ -1073,7 +1073,7 @@ void CorAniso::optimizationTransformSP(const SpacePoint& ptin,
 
   if (isOptimEnabled())
   {
-    _aniso.applyInverseInPlace(ptin.getCoords(), ptout.getCoordRef());
+    _aniso.applyInverseInPlace(ptin.getCoordsAsConstVect(), ptout.getCoordsAsVect());
     ptout.setProjected(true);
   }
 }
@@ -1081,7 +1081,7 @@ void CorAniso::optimizationTransformSP(const SpacePoint& ptin,
 void CorAniso::optimizationTransformSPNew(const SpacePoint& ptin,
                                           SpacePoint& ptout) const
 {
-  _aniso.applyInverseInPlace(ptin.getCoords(), ptout.getCoordRef());
+  _aniso.applyInverseInPlace(ptin.getCoordsAsConstVect(), ptout.getCoordsAsVect());
 }
 /**
  * Transform a set of Space Points using the anisotropy tensor
