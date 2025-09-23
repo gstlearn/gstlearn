@@ -288,6 +288,18 @@ bool NeighMoving::getFlagSector() const
   return (getNDim() > 1 && _nSect > 1);
 }
 
+double NeighMoving::getMaxRadius() const
+{
+  double radius = _biPtDist->getRadius();
+  if (!getFlagAniso()) return radius;
+  double max = -1.0;
+  for (auto anisoRatio : getAnisoCoeffs())
+  {
+    if (anisoRatio * radius > max) max = anisoRatio * radius;
+  }
+  return max;
+}
+
 bool NeighMoving::_getAnisotropyElements(double* rx, double* ry, double* theta, double* cosp, double* sinp) const
 {
   double radius = _getRadius();
@@ -521,7 +533,7 @@ Id NeighMoving::_moving(Id iech_out, VectorInt& ranks, double eps)
   Id isect = 0;
   if (nech < getNMini()) return 1;
 
-  /* Loop on the data points */
+  // Loop on the data points
 
   double distmax = 0.;
   Id nsel        = 0;
@@ -532,36 +544,25 @@ Id NeighMoving::_moving(Id iech_out, VectorInt& ranks, double eps)
   else
     _dbout->getSampleAsSTInPlace(iech_out, _T1);
 
-  // Select the elligible points when using Ball Tree search
-  VectorInt elligibles;
-  if (_useBallSearch)
-  {
-    elligibles = getBall().getIndices(_T1, _nMaxi);
-    nech       = static_cast<Id>(elligibles.size());
-  }
-
+  // Parse all samples
   for (Id jech = 0; jech < nech; jech++)
   {
-    Id iech;
+    Id iech = jech;
     if (_useBallSearch)
     {
-      iech = elligibles[jech];
-    }
-    else
-    {
-      iech = jech;
-      if (!_dbin->isActive(iech)) continue;
+      iech = getBall().queryClosest(_T1.getCoords());
+      getBall().setAvailable(iech, false);
     }
 
-    /* Discard sample if masked by a selection */
+    // Discard sample if masked by a selection
 
     if (!_dbin->isActive(iech)) continue;
 
-    /* Discard samples where all variables are undefined */
+    // Discard samples where all variables are undefined
 
     if (_discardUndefined(iech)) continue;
 
-    /* Discard the target sample for the cross-validation option */
+    // Discard the target sample for the cross-validation option
 
     if (getFlagXvalid())
     {
@@ -584,11 +585,18 @@ Id NeighMoving::_moving(Id iech_out, VectorInt& ranks, double eps)
     // The rejection with respect to maximum distance is bypassed if
     // '_forceWithinCell'
 
-    if (!_biPtDist->isOK(_T1, _T2)) continue;
+    if (!_biPtDist->isOK(_T1, _T2)) 
+    {
+      // Shortcut
+      if (_useBallSearch) break;
+
+      continue;
+    }
+
     double dist = _biPtDist->getDistance();
     if (dist > distmax) distmax = dist;
 
-    /* Calculate the angular sector to which the sample belongs */
+    // Calculate the angular sector to which the sample belongs
 
     if (getFlagSector())
     {
@@ -596,26 +604,39 @@ Id NeighMoving::_moving(Id iech_out, VectorInt& ranks, double eps)
       isect                    = _movingSectorDefine(incr[0], incr[1]);
     }
 
-    /* The sample may be selected */
+    // The sample may be selected
 
     _movingInd[nsel] = iech;
     _movingDst[nsel] = dist;
     ranks[iech]      = isect;
     nsel++;
+
+    if (_useBallSearch)
+    {
+      // Shortcut
+       if (nsel >= getNMaxi()) break;
+    }
   }
+
+  if (_useBallSearch)
+  {
+    // Reset available flags before returning
+    getBall().resetAvailable(true);
+  }
+
   if (nsel < getNMini()) return 1;
 
-  /* Slightly modify the distances in order to ensure the sorting results */
-  /* In the case of equal distances                                       */
+  // Slightly modify the distances in order to ensure the sorting results
+  // In the case of equal distances                                      
 
   for (Id isel = 0; isel < nsel; isel++)
     _movingDst[isel] += distmax * isel * eps;
 
-  /* Sort the selected samples according to the distance */
+  // Sort the selected samples according to the distance
 
   VH::arrangeInPlace(0, _movingInd, _movingDst, true, nsel);
 
-  /* For each angular sector, select the first sample up to the maximum */
+  // For each angular sector, select the first sample up to the maximum
 
   if (getFlagSector() && getNSMax() > 0)
   {
@@ -623,7 +644,7 @@ Id NeighMoving::_moving(Id iech_out, VectorInt& ranks, double eps)
     if (nsel < getNMini()) return 1;
   }
 
-  /* Select the first data samples (skipped if forcing all samples in block) */
+  // Select the first data samples (skipped if forcing all samples in block)
 
   _movingSelect(nsel, ranks);
 

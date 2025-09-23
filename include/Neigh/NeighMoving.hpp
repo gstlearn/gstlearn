@@ -102,6 +102,7 @@ public:
   bool getFlagAniso() const { return _biPtDist->getFlagAniso(); }
   bool getFlagRotation() const { return _biPtDist->getFlagRotation(); }
   double getRadius() const { return _biPtDist->getRadius(); }
+  double getMaxRadius() const;
   const VectorDouble& getAnisoRotMats() const { return _biPtDist->getAnisoRotMats(); }
   const VectorDouble& getAnisoCoeffs() const { return _biPtDist->getAnisoCoeffs(); }
   double getAnisoCoeff(Id i) const { return _biPtDist->getAnisoCoeff(i); }
