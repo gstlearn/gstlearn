@@ -34,10 +34,14 @@ public:
   /// TODO : should also test the space definition
   bool operator==(const SpacePoint& v) const { return (_coord == v._coord); }
 
-  constvect getCoords() const;
+#ifndef SWIG
+  constvect getCoordsView() const { return {_coord.data(), getNDim()}; }
+  vect getCoordsView() { return {_coord.data(), getNDim()}; }
+#endif
 
-  vect getCoordRef() { return vect(_coord.data(), getNDim()); }
-  VectorDouble& getCoordUnprotected() { return _coord; }
+  const VectorDouble& getCoords() const { return _coord; }
+  VectorDouble& getCoordsUnprotected() { return _coord; }
+
   double getCoord(Id idim) const; 
   void setCoord(double coord);
   void setCoord(Id i, double val) { _coord[i] = val; }

@@ -65,7 +65,7 @@ struct t_nodedata
 struct t_btree
 {
   MatrixT<double> data;
-  VectorBool accept;
+  VectorBool available;
   VectorInt idx_array;
   std::vector<t_nodedata> node_data;
   MatrixT<double> node_bounds;
@@ -82,7 +82,7 @@ struct t_btree
   t_btree(MatrixT<double>&& data,
           Id n_samples,
           Id n_features,
-          bool has_constraints,
+          bool all_available,
           Id leaf_size,
           Id default_distance_function);
 

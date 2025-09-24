@@ -1,0 +1,30 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 6
+Total number of samples      = 7
+Number of active samples     = 5
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = S - Locator = sel
+Column = 4 - Name = C - Locator = code
+Column = 5 - Name = V - Locator = z1
+
+Neigh ranks for each taget:
+===========================
+Neigh ranks [0]: None
+Neigh ranks [1]:   2  3
+Neigh ranks [2]:   1
+Neigh ranks [3]:   1
+Neigh ranks [4]:   1
+Neigh ranks [5]: None
+Neigh ranks [6]: None

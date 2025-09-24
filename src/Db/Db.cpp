@@ -723,7 +723,7 @@ void Db::getSampleAsSPInPlace(SpacePoint& P, Id iabs) const
   // Next line is unsafe: it directly loads the coordinates extracted from the Db
   // into the VectorDouble 'coord' of the Space Point 'P'
   // Dimensions should match!!!
-  getCoordinatesInPlace(P.getCoordUnprotected(), iabs);
+  getCoordinatesInPlace(P.getCoordsUnprotected(), iabs);
 }
 
 VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& jechs) const
