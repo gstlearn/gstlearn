@@ -248,7 +248,7 @@ void CovGradientAnalytic::_evalZAndGradients(const SpacePoint& p1,
   if (covfunc->getType() == ECov::NUGGET) return;
 
   // Calculate distance and plunge into a 3-D vector
-  VectorDouble d1 = VH::subtract(p1.getCoordsAsConstVect(), p2.getCoordsAsConstVect());
+  VectorDouble d1 = VH::subtract(p1.getCoordsView(), p2.getCoordsView());
   for (Id i = 0; i < 3; i++)
     _dF[i] = (i < static_cast<Id>(d1.size())) ? d1[i] : 0.;
 

@@ -62,11 +62,6 @@ double SpacePoint::getCoord(Id idim) const
   return _coord[idim];
 }
 
-constvect SpacePoint::getCoordsAsConstVect() const
-{
-  return constvect(_coord.data(), getNDim());
-}
-
 SpacePoint& SpacePoint::operator=(const SpacePoint& r)
 {
   if (this != &r)

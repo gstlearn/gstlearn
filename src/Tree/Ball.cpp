@@ -46,7 +46,7 @@ Ball::Ball(const Db* dbin,
 }
 
 /**
- * @brief Construct a new Ball treeobject based on the barycenters of the meshes
+ * @brief Construct a new Ball tree object based on the barycenters of the meshes
  *
  * @param mesh  AMesh description
  * @param leaf_size Number of elements in the leafs of the Ball tree
@@ -254,7 +254,7 @@ MatrixT<Id> findNN(const Db* dbin,
     Id iech = ranks[jech];
     dbin->getSampleAsSPInPlace(pt, iech);
     ball.setAvailable(iech, true);
-    (void)ball.queryOneInPlace(pt.getCoordsRef(), nb_neigh, neighs, distances);
+    (void)ball.queryOneInPlace(pt.getCoordsUnprotected(), nb_neigh, neighs, distances);
     for (Id i = 0; i < nb_neigh; i++) mat(jech, i) = neighs[i];
 
     if (verbose)
@@ -272,7 +272,7 @@ MatrixT<Id> findNN(const Db* dbin,
       Id iech = ranks[jech];
       dbout->getSampleAsSPInPlace(pt, iech);
       ball.setAvailable(iech + n1, true);
-      (void)ball.queryOneInPlace(pt.getCoordsRef(), nb_neigh, neighs, distances);
+      (void)ball.queryOneInPlace(pt.getCoordsUnprotected(), nb_neigh, neighs, distances);
       for (Id i = 0; i < nb_neigh; i++) mat(n1 + jech, i) = neighs[i];
 
       if (verbose)

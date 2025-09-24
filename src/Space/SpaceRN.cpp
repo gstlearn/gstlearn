@@ -144,11 +144,11 @@ void SpaceRN::getDistancePointVectInPlace(const SpacePoint& p1,
   double s;
   res.resize(ranks.size());
   double* ptr = res.data();
-  auto pt1    = p1.getCoordsAsConstVect();
+  auto pt1    = p1.getCoordsView();
   for (const auto& i: ranks)
   {
     s       = 0.;
-    auto pt = p2[i].getCoordsAsConstVect();
+    auto pt = p2[i].getCoordsView();
     for (size_t idim = 0; idim < _nDim; idim++)
     {
       ti = pt1[idim] - pt[idim];
