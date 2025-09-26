@@ -34,10 +34,12 @@ public:
   ALikelihood& operator=(const ALikelihood& r);
   virtual ~ALikelihood();
 
-  void init(bool verbose = false);
+  
   double computeCost(bool verbose = false) override;
   double computeLogLikelihood(bool verbose = false);
 
+protected:
+    void _initLikelihood(bool verbose = false);
 private:
   virtual void _updateModel(bool verbose = false)
   {

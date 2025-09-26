@@ -58,7 +58,7 @@ ALikelihood::~ALikelihood()
 {
 }
 
-void ALikelihood::init(bool verbose)
+void ALikelihood::_initLikelihood(bool verbose)
 {
   Id nvar = _db->getNLoc(ELoc::Z);
   if (nvar < 1)
@@ -69,10 +69,9 @@ void ALikelihood::init(bool verbose)
   // Establish the vector of multivariate data
   Id nDrift = _model->getNDriftEquation();
   if (nDrift > 0)
-    _Y = _db->getColumnsByLocator(ELoc::Z, true, true);
+    _Y = _db->getColumnsActiveAndDefined(ELoc::Z);
   else
-    _Y = _db->getColumnsByLocator(ELoc::Z, true, true, _model->getMeans());
-
+    _Y = _db->getColumnsActiveAndDefined(ELoc::Z, _model->getMeans());
   Id size = static_cast<Id>(_Y.size());
   if (verbose)
   {
@@ -94,7 +93,7 @@ void ALikelihood::init(bool verbose)
 
     _beta.resize(nDrift);
   }
-  _init();
+
 }
 
 double ALikelihood::computeLogLikelihood(bool verbose)

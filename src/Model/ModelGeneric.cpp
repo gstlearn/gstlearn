@@ -95,7 +95,6 @@ bool ModelGeneric::_isValid() const
 double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
 {
   auto* like = Likelihood::createForOptim(this, db);
-  like->init(verbose);
   return like->computeLogLikelihood(verbose);
 }
 

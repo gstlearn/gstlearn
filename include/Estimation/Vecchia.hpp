@@ -60,7 +60,7 @@ public:
   VectorDouble calculateLdY(const VectorDouble& Y) const;
   VectorDouble calculateFtLdY(const VectorDouble& LdY) const;
   MatrixSparse* calculateW(const VectorDouble& D_dd) const;
-
+  VectorDouble computeAndGetY();
 private:
   void _init(bool verbose = false) override;
   void _updateModel(bool verbose = false) override;
@@ -97,7 +97,6 @@ private:
   MatrixSymmetric _matCov;
   MatrixDense _vectCov;
   VectorDouble _work; // Work vector for calculations
-  mutable VectorDouble _Y;
   mutable VectorDouble _LdY;
   mutable VectorDouble _DFull;
   mutable MatrixSparse _LFull;

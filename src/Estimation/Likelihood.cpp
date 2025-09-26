@@ -70,7 +70,7 @@ Likelihood* Likelihood::createForOptim(ModelGeneric* model,
   MatrixSymmetric vars = dbVarianceMatrix(db);
   double hmax          = db->getExtensionDiagonal();
   vec->setEnvironment(vars, hmax);
-  vec->init();
+  vec->_initLikelihood();
   return vec;
 }
 

@@ -14,10 +14,12 @@
  * method and using the Vecchia approximation.
  */
 #include "Covariances/CovAniso.hpp"
+#include "Enum/ELoc.hpp"
 #include "Enum/ESpaceType.hpp"
 #include "Model/Model.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "geoslib_define.h"
+#include "utils.hpp"
 using namespace gstlrn;
 
 int main(int argc, char* argv[])
@@ -25,14 +27,14 @@ int main(int argc, char* argv[])
   DECLARE_UNUSED(argc);
   DECLARE_UNUSED(argv);
 
-  defineDefaultSpace(ESpaceType::RN, 3);
+  String filename = getTestData("Scotland", "Scotland_Temperatures.csv");
+  Db* db          = Db::createFromCSV(filename, CSVformat(), false);
 
-  double range = 10.;
-  Model* model = Model::createFromParam(ECov::LINEAR, range);
-  model->display();
+  db->setLocators({"Longitude", "Latitude"}, ELoc::X);
+  db->setLocator("January_temp", ELoc::Z);
 
-  model->getCovAniso(0)->getCorAnisoModify()->setRanges({30, 20, 10});
-  model->display();
-
-  exit(0);
+  Model* model = Model::createFromParam(ECov::EXPONENTIAL, 20, 1, 1);
+  model->setDriftIRF(0);
+  model->fitNew(db, nullptr, nullptr, nullptr, ModelOptimParam(),
+                ITEST, true, false);
 }
