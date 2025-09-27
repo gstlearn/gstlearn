@@ -64,10 +64,11 @@ double logLikelihood(const Db* db,
 
 Likelihood* Likelihood::createForOptim(ModelGeneric* model,
                                        const Db* db,
-                                       bool reml)
+                                       bool reml,
+                                       bool verbose)
 {
   auto* vec = new Likelihood(model, db, reml);
-  vec->_initLikelihood();
+  vec->_initLikelihood(verbose);
   return vec;
 }
 

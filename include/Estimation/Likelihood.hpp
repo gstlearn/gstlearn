@@ -29,7 +29,8 @@ public:
   Likelihood& operator=(const Likelihood& r);
   virtual ~Likelihood();
 
-  static Likelihood* createForOptim(ModelGeneric* model, const Db* db, bool reml = false);
+  static Likelihood* createForOptim(ModelGeneric* model, const Db* db, 
+        bool reml = false, bool verbose = false);
   void evalGrad(vect res) override;
 
 private:
