@@ -86,5 +86,6 @@ GSTLEARN_EXPORT MatrixT<Id> findNN(const Db* dbin,
                                    bool flagShuffle             = false,
                                    bool verbose                 = false,
                                    Id leaf_size                 = 10,
-                                   Id default_distance_function = 1);
+                                   Id default_distance_function = 1,
+                                   bool likelihood               = false);
 } // namespace gstlrn

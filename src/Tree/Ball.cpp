@@ -12,9 +12,11 @@
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
+#include "Db/RankHandler.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Tree/ball_algorithm.h"
+#include "geoslib_define.h"
 
 namespace gstlrn
 {
@@ -217,8 +219,10 @@ MatrixT<Id> findNN(const Db* dbin,
                    bool flagShuffle,
                    bool verbose,
                    Id leaf_size,
-                   Id default_distance_function)
+                   Id default_distance_function,
+                   bool likelihood)
 {
+  DECLARE_UNUSED(likelihood)
   MatrixT<Id> mat;
 
   // Preliminary checks
@@ -235,6 +239,9 @@ MatrixT<Id> findNN(const Db* dbin,
   if (verbose) ball.display(1);
 
   // Dimensioning the output matrix
+  //RankHandler rh = RankHandler(dbin, true, true, true, likelihood);
+  //rh.defineSampleRanks();
+  
   Id n1 = dbin->getNSample(true);
   Id n2 = (dbout != nullptr) ? dbout->getNSample(true) : 0;
   mat.resize(n1 + n2, nb_neigh);

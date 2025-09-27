@@ -107,8 +107,6 @@ Vecchia::~Vecchia()
 void Vecchia::_init(bool verbose)
 {
   _Ranks = findNN(_db, nullptr, _nbNeigh + 1, false, verbose);
-  if (_db2 == nullptr)
-    _initLikelihood(verbose);
 }
 
 Id Vecchia::_getAddressAbsolute(Id ip) const
@@ -578,9 +576,8 @@ Vecchia* Vecchia::createForOptim(ModelGeneric* model,
 {
 
   auto* vec            = new Vecchia(model, nb_neigh, db, nullptr, reml);
-  MatrixSymmetric vars = dbVarianceMatrix(db);
-  double hmax          = db->getExtensionDiagonal();
-  vec->setEnvironment(vars, hmax);
+  
+  vec->_initLikelihood();
   return vec;
 }
 
@@ -589,10 +586,10 @@ void Vecchia::_computeCm1X()
   productMatVecchia(_X, _Cm1X);
 }
 
-void Vecchia::_computeCm1Y()
+void Vecchia::_computeCm1Yc()
 {
-  _Cm1Y.resize(_Y.size());
-  productVecchia(_Y, _Cm1Y);
+  _Cm1Yc.resize(_Yc.size());
+  productVecchia(_Yc, _Cm1Yc);
 }
 
 double Vecchia::_computeLogDet() const

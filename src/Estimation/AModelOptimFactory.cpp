@@ -215,9 +215,9 @@ static Id _modifyModelForConstraints(Constraints* constraints,
     Id iv1                   = consitem->getIV1();
     Id iv2                   = consitem->getIV2();
 
-    CovBase* covbase   = mcv->getCovBase(icov);
-    auto* covaniso = dynamic_cast<CovAniso*>(covbase);
-    ParamInfo* param   = nullptr;
+    CovBase* covbase = mcv->getCovBase(icov);
+    auto* covaniso   = dynamic_cast<CovAniso*>(covbase);
+    ParamInfo* param = nullptr;
 
     if (igrf != 0)
     {
@@ -300,7 +300,8 @@ static void _fixAllScalesFromIndex(CorAniso* coraniso, Id start = 0)
 }
 
 static Id _modifyModelForMop(const ModelOptimParam& mop,
-                             ModelGeneric* model)
+                             ModelGeneric* model,
+                             bool likelihood = false)
 {
   auto* mcv = dynamic_cast<ModelCovList*>(model);
   if (mcv == nullptr) return 0;
@@ -317,7 +318,7 @@ static Id _modifyModelForMop(const ModelOptimParam& mop,
     if (covbase == nullptr) continue;
 
     // Set the Goulard constraints
-    if (mop.getFlagGoulard())
+    if (mop.getFlagGoulard() && !likelihood)
     {
       // Fix the sills
       for (Id ivar = 0; ivar < nvar; ivar++)
@@ -385,7 +386,14 @@ AModelOptim* AModelOptimFactory::create(ModelGeneric* model,
   // Fitting from LogLikelihood
   if (db != nullptr)
   {
+    if (db->getNLoc(ELoc::Z) <= 0)
+    {
+      messerr("No variable with locator Z in the Db");
+      return nullptr;
+    }
     if (static_cast<Id>(model->getNDim()) != db->getNDim()) return nullptr;
+    if (_modifyModelForConstraints(constraints, model)) return nullptr;
+    if (_modifyModelForMop(mopLocal, model, true)) return nullptr;
     if (nb_neighVecchia != ITEST) return Vecchia::createForOptim(model, db, nb_neighVecchia, reml);
     return Likelihood::createForOptim(model, db, reml);
   }

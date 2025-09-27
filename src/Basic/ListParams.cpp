@@ -126,24 +126,24 @@ std::vector<double> ListParams::getOptimizableValues() const
   return values;
 }
 
-std::vector<double> ListParams::getMinValues() const
+std::vector<double> ListParams::getMinValues(double epsilon) const
 {
   size_t nparam = _params.size();
   std::vector<double> values(nparam);
   for (size_t i = 0; i < nparam; ++i)
   {
-    values[i] = _params[i].get().getUserMin();
+    values[i] = _params[i].get().getUserMin() + epsilon;
   }
   return values;
 }
 
-std::vector<double> ListParams::getMaxValues() const
+std::vector<double> ListParams::getMaxValues(double epsilon) const
 {
   size_t nparam = _params.size();
   std::vector<double> values(nparam);
   for (size_t i = 0; i < nparam; ++i)
   {
-    values[i] = _params[i].get().getUserMax();
+    values[i] = _params[i].get().getUserMax() - epsilon;
   }
   return values;
 }

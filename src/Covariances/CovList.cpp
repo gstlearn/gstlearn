@@ -544,7 +544,7 @@ void CovList::initParams(const MatrixSymmetric& vars, double href)
 
   Id jcov       = 0;
   auto ntotal   = getNCovNuggetExcluded();
-  double hlocal = href / ntotal / 2;
+  double hlocal = href / ntotal / 2.;
   for (Id icov = 0; icov < ncov; icov++)
   {
     if (getCovType(icov) != ECov::NUGGET)

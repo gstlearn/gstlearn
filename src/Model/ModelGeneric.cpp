@@ -387,13 +387,20 @@ void ModelGeneric::fitNew(const Db* db,
                                                   constraints, mop,
                                                   nb_neighVecchia,
                                                   reml);
+
+  if (amopt == nullptr)
+  {
+    messerr("No Optimizer could be created");
+    return;
+  }
+
   amopt->setVerbose(verbose, trace);
   amopt->resetIter();
   amopt->run();
   delete amopt;
 
   // Cancel the structure possibly used for Goulard (to be improved)
-  ModelCovList* mcv = dynamic_cast<ModelCovList*>(this);
+  auto* mcv = dynamic_cast<ModelCovList*>(this);
   if (mcv != nullptr)
     mcv->deleteFitSills();
 }

@@ -66,10 +66,7 @@ Likelihood* Likelihood::createForOptim(ModelGeneric* model,
                                        const Db* db,
                                        bool reml)
 {
-  auto* vec            = new Likelihood(model, db, reml);
-  MatrixSymmetric vars = dbVarianceMatrix(db);
-  double hmax          = db->getExtensionDiagonal();
-  vec->setEnvironment(vars, hmax);
+  auto* vec = new Likelihood(model, db, reml);
   vec->_initLikelihood();
   return vec;
 }
@@ -82,10 +79,10 @@ void Likelihood::_computeCm1X()
   }
 }
 
-void Likelihood::_computeCm1Y()
+void Likelihood::_computeCm1Yc()
 {
-  _Cm1Y.resize(_Y.size());
-  if (_covChol.solve(_Y, _Cm1Y))
+  _Cm1Yc.resize(_Yc.size());
+  if (_covChol.solve(_Yc, _Cm1Yc))
   {
     messerr("Error when calculating Cm1Z");
   }
@@ -105,13 +102,13 @@ void Likelihood::_updateModel(bool verbose)
 
 void Likelihood::evalGrad(vect res)
 {
-  _temp.resize(_Y.size());
-  _gradCovMatTimesInvCov.resize(static_cast<Id>(_Y.size()), static_cast<Id>(_Y.size()));
+  _temp.resize(_Yc.size());
+  _gradCovMatTimesInvCov.resize(static_cast<Id>(_Yc.size()), static_cast<Id>(_Yc.size()));
   auto invcov = _covChol.inverse();
   RankHandler rkh(_db);
   rkh.defineSampleRanks();
   auto gradcov = _model->getGradients();
-  _gradCovMat.resize(static_cast<Id>(_Y.size()), static_cast<Id>(_Y.size()));
+  _gradCovMat.resize(static_cast<Id>(_Yc.size()), static_cast<Id>(_Yc.size()));
   CholeskyDense XtCm1XChol;
   MatrixSymmetric invXtCm1X;
   if (_reml && _model->getNDriftEquation() > 0)
@@ -122,8 +119,8 @@ void Likelihood::evalGrad(vect res)
   for (size_t iparam = 0; iparam < gradcov.size(); iparam++)
   {
     _fillGradCovMat(rkh, gradcov[iparam]);
-    _gradCovMat.prodMatVecInPlace(_Cm1Y, _temp);
-    double dquad = -VH::innerProduct(_Cm1Y, _temp);
+    _gradCovMat.prodMatVecInPlace(_Cm1Yc, _temp);
+    double dquad = -VH::innerProduct(_Cm1Yc, _temp);
     res[iparam]  = 0.0;
     if (_reml && _model->getNDriftEquation() > 0)
     {
