@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
   Db* db = nullptr;
 
   model->setDriftIRF(0);
-  Id caset = 0;
+  Id caset = 3;
   if (caset == 0 || caset == 1)
   {
     message("-----------------------------------------------------\n");
@@ -77,6 +77,10 @@ int main(int argc, char* argv[])
     db->setLocators({"Longitude", "Latitude"}, ELoc::X);
     db->setLocator("January_temp", ELoc::Z);
 
+    delete model;
+    model = Model::createFromParam(ECov::EXPONENTIAL, 20, 1, 1);
+    model->addCovFromParam(ECov::SPHERICAL);
+    model->addCovFromParam(ECov::NUGGET);
     model->setDriftIRF(0);
 
     bool reml            = false;
