@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
   Db* db = nullptr;
 
   model->setDriftIRF(0);
-  Id caset = 3;
+  Id caset = 0;
   if (caset == 0 || caset == 1)
   {
     message("-----------------------------------------------------\n");
