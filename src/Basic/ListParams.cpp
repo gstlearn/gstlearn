@@ -1,67 +1,68 @@
 #include "Basic/ListParams.hpp"
 #include "Basic/AStringable.hpp"
 #include "geoslib_define.h"
-#include <unordered_map>
 #include <algorithm>
 #include <cstddef>
 #include <sstream>
+#include <unordered_map>
 
 namespace gstlrn
 {
 
-
-struct DSU {
-    std::vector<int> parent;
-    DSU(int n) : parent(n) {
-        for (int i = 0; i < n; i++) parent[i] = i;
-    }
-    int find(int x) {
-        return parent[x] == x ? x : parent[x] = find(parent[x]);
-    }
-    void unite(int x, int y) {
-        int rx = find(x), ry = find(y);
-        if (rx != ry) parent[ry] = rx;
-    }
+struct DSU
+{
+  std::vector<int> parent;
+  DSU(int n)
+    : parent(n)
+  {
+    for (int i = 0; i < n; i++) parent[i] = i;
+  }
+  int find(int x)
+  {
+    return parent[x] == x ? x : parent[x] = find(parent[x]);
+  }
+  void unite(int x, int y)
+  {
+    int rx = find(x), ry = find(y);
+    if (rx != ry) parent[ry] = rx;
+  }
 };
 
- void  reindex(const VectorInt& v, std::vector<size_t>& result) {
-    if (v.empty()) 
+void reindex(const VectorInt& v, std::vector<size_t>& result)
+{
+  if (v.empty())
+  {
+    result.clear();
+    return;
+  }
+
+  auto maxVal = *std::max_element(v.begin(), v.end());
+  DSU dsu(maxVal + 1);
+
+  for (size_t i = 0; i < v.size(); i++)
+  {
+    dsu.unite(v[i], v[i]);
+  }
+
+  std::unordered_map<int, int> newIndex;
+  int next = 0;
+  result.resize(v.size());
+
+  for (size_t i = 0; i < v.size(); i++)
+  {
+    int root = dsu.find(v[i]);
+    if (!newIndex.count(root))
     {
-      result.clear();
-      return;
+      newIndex[root] = next++;
     }
-
-    int maxVal = *std::max_element(v.begin(), v.end());
-    DSU dsu(maxVal + 1);
-
-    // 1) Construire les équivalences : si v[i] et v[j] sont identiques,
-    //    on les considère liés indirectement.
-    for (size_t i = 0; i < v.size(); i++) {
-        // Ici, tu peux mettre tes règles de fusion si besoin
-        // Dans ton exemple, on suppose que les mêmes nombres dans v signifient la même classe
-        dsu.unite(v[i], v[i]); 
-    }
-
-    // 2) Trouver les représentants uniques et leur attribuer de nouvelles étiquettes compactes
-    std::unordered_map<int, int> newIndex;
-    int next = 0;
-    result.resize(v.size());
-
-    for (size_t i = 0; i < v.size(); i++) {
-        int root = dsu.find(v[i]);
-        if (!newIndex.count(root)) {
-            newIndex[root] = next++;
-        }
-        result[i] = newIndex[root];
-    }
+    result[i] = newIndex[root];
+  }
 }
 
 ListParams::ListParams()
   : AStringable()
 {
 }
-
-
 
 void ListParams::updateDispatch()
 {
@@ -70,8 +71,8 @@ void ListParams::updateDispatch()
   VectorInt adresses(_params.size());
   for (size_t i = 0; i < _params.size(); ++i)
     adresses[i] = static_cast<int>(_params[i].get().getAddress());
-  
-  reindex(adresses,_dispatch);
+
+  reindex(adresses, _dispatch);
   makeDispatchIndexFromDispatch();
 }
 
