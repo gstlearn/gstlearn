@@ -11,19 +11,19 @@ namespace gstlrn
 
 struct DSU
 {
-  std::vector<int> parent;
-  DSU(int n)
+  std::vector<Id> parent;
+  DSU(Id n)
     : parent(n)
   {
-    for (int i = 0; i < n; i++) parent[i] = i;
+    for (Id i = 0; i < n; i++) parent[i] = i;
   }
-  int find(int x)
+  Id find(Id x)
   {
     return parent[x] == x ? x : parent[x] = find(parent[x]);
   }
-  void unite(int x, int y)
+  void unite(Id x, Id y)
   {
-    int rx = find(x), ry = find(y);
+    Id rx = find(x), ry = find(y);
     if (rx != ry) parent[ry] = rx;
   }
 };
@@ -44,13 +44,13 @@ void reindex(const VectorInt& v, std::vector<size_t>& result)
     dsu.unite(v[i], v[i]);
   }
 
-  std::unordered_map<int, int> newIndex;
-  int next = 0;
+  std::unordered_map<Id, Id> newIndex;
+  Id next = 0;
   result.resize(v.size());
 
   for (size_t i = 0; i < v.size(); i++)
   {
-    int root = dsu.find(v[i]);
+    Id root = dsu.find(v[i]);
     if (!newIndex.count(root))
     {
       newIndex[root] = next++;
@@ -70,7 +70,7 @@ void ListParams::updateDispatch()
   _dispatchIndex.clear();
   VectorInt adresses(_params.size());
   for (size_t i = 0; i < _params.size(); ++i)
-    adresses[i] = static_cast<int>(_params[i].get().getAddress());
+    adresses[i] = static_cast<Id>(_params[i].get().getAddress());
 
   reindex(adresses, _dispatch);
   makeDispatchIndexFromDispatch();
