@@ -572,40 +572,73 @@ double ACov::evalAverageDbToDb(const Db* db1,
                                Id seed,
                                const CovCalcMode* mode) const
 {
-  auto memo = law_get_random_seed();
+  bool flagSame = db1 == db2;
+  auto memo     = law_get_random_seed();
   if (eps > 0. && seed > 0)
     law_set_random_seed(seed);
 
-  /* Loop on the first sample */
-
   double norme = 0.;
   double total = 0.;
-  for (Id iech1 = 0; iech1 < db1->getNSample(); iech1++)
+
+  if (!flagSame)
   {
-    if (!db1->isActive(iech1)) continue;
-    double w1 = db1->getWeight(iech1);
-    if (isZero(w1)) continue;
-    SpacePoint p1(db1->getSampleCoordinates(iech1));
-
-    /* Loop on the second sample */
-
-    for (Id iech2 = 0; iech2 < db2->getNSample(); iech2++)
+    /* Loop on the first sample */
+    Id nech1 = db1->getNSample();
+    for (Id iech1 = 0; iech1 < nech1; iech1++)
     {
-      if (!db2->isActive(iech2)) continue;
-      double w2 = db2->getWeight(iech2);
-      if (isZero(w2)) continue;
-      VectorDouble coord2 = db2->getSampleCoordinates(iech2);
-      if (eps > 0)
+      if (!db1->isActive(iech1)) continue;
+      double w1 = db1->getWeight(iech1);
+      if (isZero(w1)) continue;
+      SpacePoint p1(db1->getSampleCoordinates(iech1));
+
+      /* Loop on the second sample */
+      for (Id iech2 = 0; iech2 <= iech1; iech2++)
       {
-        for (Id idim = 0, ndim = getNDim(); idim < ndim; idim++)
-          coord2[idim] += eps * law_uniform(-0.5, 0.5);
+        if (!db2->isActive(iech2)) continue;
+        double w2 = db2->getWeight(iech2);
+        if (isZero(w2)) continue;
+        VectorDouble coord2 = db2->getSampleCoordinates(iech2);
+
+        if (eps > 0)
+        {
+          for (Id idim = 0, ndim = getNDim(); idim < ndim; idim++)
+            coord2[idim] += eps * law_uniform(-0.5, 0.5);
+        }
+        SpacePoint p2(coord2);
+
+        Id count = (iech1 == iech2) ? 1 : 2;
+        total += w1 * w2 * count * evalCov(p1, p2, ivar, jvar, mode);
+        norme += w1 * w2 * count;
       }
-      SpacePoint p2(coord2);
+    }
+  }
+  else
+  {
+    /* Loop on the first sample */
+    for (Id iech1 = 0, nech1 = db1->getNSample(); iech1 < nech1; iech1++)
+    {
+      if (!db1->isActive(iech1)) continue;
+      double w1 = db1->getWeight(iech1);
+      if (isZero(w1)) continue;
+      SpacePoint p1(db1->getSampleCoordinates(iech1));
 
-      /* Loop on the dimension of the space */
+      /* Loop on the second sample */
+      for (Id iech2 = 0, nech2 = db2->getNSample(); iech2 < nech2; iech2++)
+      {
+        if (!db2->isActive(iech2)) continue;
+        double w2 = db2->getWeight(iech2);
+        if (isZero(w2)) continue;
+        VectorDouble coord2 = db2->getSampleCoordinates(iech2);
+        if (eps > 0)
+        {
+          for (Id idim = 0, ndim = getNDim(); idim < ndim; idim++)
+            coord2[idim] += eps * law_uniform(-0.5, 0.5);
+        }
+        SpacePoint p2(coord2);
 
-      total += w1 * w2 * evalCov(p1, p2, ivar, jvar, mode);
-      norme += w1 * w2;
+        total += w1 * w2 * evalCov(p1, p2, ivar, jvar, mode);
+        norme += w1 * w2;
+      }
     }
   }
 

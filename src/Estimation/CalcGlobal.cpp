@@ -22,6 +22,24 @@
 
 namespace gstlrn
 {
+
+String Global_Result::toString(const AStringFormat* strfmt) const
+{
+  DECLARE_UNUSED(strfmt);
+
+  std::stringstream sstr;
+  sstr << "Global Results" << std::endl;
+  sstr << "Total number of data     = " << ntot << std::endl;
+  sstr << "Number of active data    = " << np << std::endl;
+  sstr << "Number of grid nodes     = " << ng << std::endl;
+  sstr << "Surface                  = " << surface << std::endl;
+  sstr << "Estimation               = " << zest << std::endl;
+  sstr << "St. dev. of estimation   = " << sse << std::endl;
+  sstr << "Coefficient of Variation = " << cvgeo << std::endl;
+  sstr << "Variance over Domain     = " << cvv << std::endl;
+  return sstr.str();
+};
+
 CalcGlobal::CalcGlobal(Id ivar0, bool verbose)
   : ACalcInterpolator()
   , _flagArithmetic(false)
@@ -156,12 +174,13 @@ Id CalcGlobal::_globalKriging()
     ng++;
   }
 
-  // Normalize the cumulative R.H.S.
+  // Normalize the cumulative R.H.S. to fake the RHS corresponding to the average target
   double oneOverNG = 1. / static_cast<double>(ng);
   Sigma0Cum.prodScalar(oneOverNG);
-  X0Cum.prodScalar(oneOverNG);
+  if (X0Cum.size() > 0) X0Cum.prodScalar(oneOverNG);
   algebra.setRHS(&Sigma0Cum, &X0Cum);
 
+  // Get matrix of covariances between last target and itself (C00) for all variables
   if (_modelLocal->evalCovMat0InPlace(Sigma00, dbout, 0)) return 1;
   algebra.setVariance(&Sigma00);
 
@@ -184,9 +203,7 @@ Id CalcGlobal::_globalKriging()
   double surface = ng * cell;
 
   /* Average covariance over the territory */
-
-  double cvv = _modelLocal->evalAverageDbToDb(dbout, dbout, _ivar0, _ivar0,
-                                              dbin->getExtensionDiagonal() / 1.e3, 0);
+  double cvv = _modelLocal->evalAverageDbToDb(dbout, dbout, _ivar0, _ivar0);
 
   /* Perform the estimation */
 
@@ -237,7 +254,7 @@ Id CalcGlobal::_globalKriging()
 
 Id CalcGlobal::_globalArithmetic()
 {
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  auto* dbgrid   = dynamic_cast<DbGrid*>(getDbout());
   auto ntot      = getDbin()->getNSample(false);
   auto np        = getDbin()->getNSample(true);
   Id ng          = dbgrid->getNSample(true);
