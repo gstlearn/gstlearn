@@ -3733,9 +3733,9 @@ Id Db::getListOfSampleIndicesPerVariableInPlace(VectorInt& ranks,
     // - either the value of the target variable ('ivar') for the target sample is undefined
     // - or the file does not have any variable (LOC::Z) defined
     if (FFFF(value) && nvar > 0)
-      ranks[ecr] = ITEST;
-    else
-      ranks[ecr] = count++;
+      continue;
+    
+    ranks[ecr] = count++;
     ecr++;
   }
   ranks.resize(ecr);

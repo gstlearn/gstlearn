@@ -14,6 +14,7 @@
 #include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/ModelGeneric.hpp"
+#include "Stats/Classical.hpp"
 
 namespace gstlrn
 {
@@ -24,19 +25,23 @@ ALikelihood::ALikelihood(ModelGeneric* model,
   , _db(db)
   , _reml(reml)
 {
+  _nDrift = _model->getNDriftEquation();
 }
 
 ALikelihood::ALikelihood(const ALikelihood& r)
   : AModelOptim(r)
   , _db(r._db)
   , _Y(r._Y)
+  , _Yc(r._Yc)
   , _X(r._X)
   , _beta(r._beta)
   , _Cm1X(r._Cm1X)
-  , _Cm1Y(r._Cm1Y)
+  , _Cm1Yc(r._Cm1Yc)
   , _XtCm1X(r._XtCm1X)
-  , _reml(r._reml) {};
-
+  , _reml(r._reml)
+  , _nDrift(r._nDrift)
+   {};
+   
 ALikelihood& ALikelihood::operator=(const ALikelihood& r)
 {
   if (this != &r)
@@ -44,12 +49,14 @@ ALikelihood& ALikelihood::operator=(const ALikelihood& r)
     AModelOptim::operator=(r);
     _db     = r._db;
     _Y      = r._Y;
+    _Yc     = r._Yc;
     _X      = r._X;
     _beta   = r._beta;
     _Cm1X   = r._Cm1X;
-    _Cm1Y   = r._Cm1Y;
+    _Cm1Yc   = r._Cm1Yc;
     _XtCm1X = r._XtCm1X;
     _reml   = r._reml;
+    _nDrift = r._nDrift;
   }
   return *this;
 }
@@ -58,8 +65,11 @@ ALikelihood::~ALikelihood()
 {
 }
 
-void ALikelihood::init(bool verbose)
+void ALikelihood::_initLikelihood(bool verbose)
 {
+  MatrixSymmetric vars = dbVarianceMatrix(_db);
+  double hmax          = _db->getExtensionDiagonal();
+  setEnvironment(vars, hmax);
   Id nvar = _db->getNLoc(ELoc::Z);
   if (nvar < 1)
   {
@@ -67,41 +77,42 @@ void ALikelihood::init(bool verbose)
   }
 
   // Establish the vector of multivariate data
-  Id nDrift = _model->getNDriftEquation();
-  if (nDrift > 0)
-    _Y = _db->getColumnsByLocator(ELoc::Z, true, true);
+  if (_nDrift > 0)
+  {
+      _Y = _db->getColumnsActiveAndDefined(ELoc::Z);
+      _Yc.resize(_Y.size());
+  }
   else
-    _Y = _db->getColumnsByLocator(ELoc::Z, true, true, _model->getMeans());
-
-  Id size = static_cast<Id>(_Y.size());
+    _Yc = _db->getColumnsActiveAndDefined(ELoc::Z, _model->getMeans());
+  Id size = static_cast<Id>(_Yc.size());
   if (verbose)
   {
     message("Likelihood calculation:\n");
     message("- Number of active samples     = %d\n", _db->getNSample(true));
     message("- Number of variables          = %d\n", nvar);
     message("- Length of Information Vector = %d\n", size);
-    if (nDrift > 0)
-      message("- Number of drift conditions = %d\n", nDrift);
+    if (_nDrift > 0)
+      message("- Number of drift conditions = %d\n", _nDrift);
     else
       VH::dump("Constant Mean(s)", _model->getMeans());
   }
 
   // If Drift function is present, evaluate the optimal Drift coefficients
-  if (nDrift > 0)
+  if (_nDrift > 0)
   {
     // Extract the matrix of drifts at samples X
     _X = _model->evalDriftMat(_db);
 
-    _beta.resize(nDrift);
+    _beta.resize(_nDrift);
   }
-  _init();
+
 }
 
 double ALikelihood::computeLogLikelihood(bool verbose)
 {
   _updateModel(verbose);
 
-  if (_model->getNDriftEquation() > 0)
+  if (_nDrift > 0)
   {
     // Calculate t(L-1) %*% D-1 %*% L-1 applied to X (L and D from Vecchia)
     _computeCm1X();
@@ -126,29 +137,29 @@ double ALikelihood::computeLogLikelihood(bool verbose)
       messerr("Error when calculating Likelihood");
       return TEST;
     }
-    // model->setBetaHat(beta);
+    _model->setBetaHat(_beta);
 
     if (verbose)
       VH::dump("Optimal Drift coefficients = ", _beta);
 
     // Center the data by the optimal drift: Y = Y - beta * X
-    VH::subtractInPlace(_Y, _X.prodMatVec(_beta));
+    VH::subtractInPlace(_X.prodMatVec(_beta), _Y, _Yc);
   }
 
   // Calculate t(L-1) %*% D-1 %*% L-1 applied to Y (L and D from Vecchia)
 
-  _computeCm1Y();
+  _computeCm1Yc();
 
   // Calculate the log-determinant
 
   double logdet = _computeLogDet();
   // Calculate quad = Zt * Cm1Z
-  double quad = VH::innerProduct(_Y, _Cm1Y);
+  double quad = VH::innerProduct(_Yc, _Cm1Yc);
 
   // Derive the log-likelihood
-  Id size        = static_cast<Id>(_Y.size());
+  Id size        = static_cast<Id>(_Yc.size());
   double loglike = -0.5 * (logdet + quad + size * log(2. * GV_PI));
-  if (_reml && _model->getNDriftEquation() > 0)
+  if (_reml && _nDrift > 0)
   {
     CholeskyDense XtCm1XChol(_XtCm1X);
     loglike -= 0.5 * XtCm1XChol.computeLogDeterminant();

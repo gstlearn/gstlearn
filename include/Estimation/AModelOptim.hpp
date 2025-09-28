@@ -27,7 +27,7 @@ class GSTLEARN_EXPORT AModelOptim
 public:
   AModelOptim(ModelGeneric* model = nullptr,
               bool verbose        = false);
-  void setEnvironment(const MatrixSymmetric& vars, double href);
+  void setEnvironment(const MatrixSymmetric& vars, double href, double epsilon = EPSILON6);
 
   AModelOptim& operator=(const AModelOptim& r);
 
@@ -44,12 +44,13 @@ public:
   double eval(const std::vector<double>& x);
 
   virtual void evalGrad(vect res);
-  void run();
+  double run();
 
   void resetIter();
 
   virtual double computeCost(bool verbose = false) = 0;
-
+  std::shared_ptr<ListParams> getParams() const { return _params; }
+  void evalGradInEffectiveDimension(vect res);
 private:
   void _printSummary(double minf, const std::vector<double>& x) const;
 

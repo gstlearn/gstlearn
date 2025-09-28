@@ -200,7 +200,7 @@ public:
               const DbGrid* dbmap        = nullptr,
               Constraints* constraints   = nullptr,
               const ModelOptimParam& mop = ModelOptimParam(),
-              Id nb_neighVecchia         = 30,
+              Id nb_neighVecchia         = ITEST,
               bool verbose               = false,
               bool trace                 = false,
               bool reml                  = false);
