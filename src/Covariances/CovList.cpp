@@ -345,7 +345,7 @@ bool CovList::isAllActiveCovList() const
 
 void CovList::setAllCovActive()
 {
-  for (int icov = 0, ncov = static_cast<Id>(_filtered.size()); icov < ncov; icov++)
+  for (Id icov = 0, ncov = static_cast<Id>(_filtered.size()); icov < ncov; icov++)
     _filtered[icov] = false;
   _updateLists();
 }
