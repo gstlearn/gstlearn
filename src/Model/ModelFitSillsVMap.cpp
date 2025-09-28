@@ -10,17 +10,17 @@
 /******************************************************************************/
 #include "Model/ModelFitSillsVMap.hpp"
 
-#include "Model/Model.hpp"
-#include "Model/Constraints.hpp"
 #include "Db/DbGrid.hpp"
+#include "Model/Constraints.hpp"
+#include "Model/Model.hpp"
 
 #include "geoslib_old_f.h"
 
 #define IJDIR(ijvar, ipadir) ((ijvar) * _npadir + (ipadir))
-#define WT(ijvar, ipadir)       wt[IJDIR(ijvar, ipadir)]
-#define GG(ijvar, ipadir)       gg[IJDIR(ijvar, ipadir)]
-#define _WT(ijvar, ipadir)     _wt[IJDIR(ijvar, ipadir)]
-#define _GG(ijvar, ipadir)     _gg[IJDIR(ijvar, ipadir)]
+#define WT(ijvar, ipadir)    wt[IJDIR(ijvar, ipadir)]
+#define GG(ijvar, ipadir)    gg[IJDIR(ijvar, ipadir)]
+#define _WT(ijvar, ipadir)   _wt[IJDIR(ijvar, ipadir)]
+#define _GG(ijvar, ipadir)   _gg[IJDIR(ijvar, ipadir)]
 
 namespace gstlrn
 {
@@ -31,7 +31,7 @@ ModelFitSillsVMap::ModelFitSillsVMap(const DbGrid* dbmap,
   : AModelFitSills(model, constraints, mop)
   , _dbmap(dbmap)
 {
-  (void) _prepare();
+  (void)_prepare();
 }
 
 ModelFitSillsVMap::ModelFitSillsVMap(const ModelFitSillsVMap& m)
@@ -106,7 +106,7 @@ Id ModelFitSillsVMap::fitSillMatrices()
   // Initialize Model-dependent quantities
   _updateFromModel();
 
-  Id status =  _fitSillMatrices();
+  Id status = _fitSillMatrices();
 
   return status;
 }
@@ -192,17 +192,18 @@ void ModelFitSillsVMap::_updateFromModel()
           _ge[icov].setValue(ijvar, ipadir, _model->evalCov(origin, P, ivar, jvar, &_calcmode));
     }
   }
+  cova->setActiveCovListFromOne(-1);
 }
 
 Id ModelFitSillsVMap::_getDimensions()
 {
   Id nbexp  = 0;
   Id npadir = 0;
-  _nech      = _dbmap->getNSample();
-  _nvar      = _dbmap->getNLoc(ELoc::Z);
-  _ndim      = _dbmap->getNLoc(ELoc::X);
-  _nvs2      = _nvar * (_nvar + 1) / 2;
-  _ncova     = _model->getNCov();
+  _nech     = _dbmap->getNSample();
+  _nvar     = _dbmap->getNLoc(ELoc::Z);
+  _ndim     = _dbmap->getNLoc(ELoc::X);
+  _nvs2     = _nvar * (_nvar + 1) / 2;
+  _ncova    = _model->getNCov();
   _indg1.resize(_ndim);
   _indg2.resize(_ndim);
 
@@ -229,4 +230,4 @@ Id ModelFitSillsVMap::_getDimensions()
   }
   return (0);
 }
-}
+} // namespace gstlrn

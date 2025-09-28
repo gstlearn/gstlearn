@@ -27,25 +27,25 @@ Known Mean(s)     0.000----
 
 #NO_DIFF#XXX
 ----
-Extension Variance = 2.697
+Extension Variance = 6.767
 ----
 
 
 #NO_DIFF#XXX
 ----
-Spatial Sampling Density Variance = 26972.85 m².m²
+Spatial Sampling Density Variance = 67668.94 m².m²
 ----
 
 
 #NO_DIFF#XXX
 ----
-Specific Area (case #1) = 269.73 m²
+Specific Area (case #1) = 676.69 m²
 ----
 
 
 #NO_DIFF#XXX
 ----
-Specific Area (small block) = 45.77 m²
+Specific Area (small block) = 99.56 m²
 ----
 
 
@@ -72,19 +72,18 @@ Known Mean(s)     0.000----
 
 #NO_DIFF#XXX
 ----
-Specific Area (case #2) = 518.70 m²
+Specific Area (case #2) = 670.68 m²
 ----
 
 
 #NO_DIFF#XXX
 ----
-Coefficient of Variation = 21.20
+Coefficient of Variation = 33.58
 ----
 
 
 #NO_DIFF#XXX
 ----
-Specific area (case #1) = 107891.40 m²
-
-Specific area (case #2) = 207479.07 m²
+Specific area (case #1) = 270675.76 m²
+Specific area (case #2) = 268270.76 m²
 ----

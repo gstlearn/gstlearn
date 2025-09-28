@@ -76,10 +76,10 @@ Global estimation kriging
 Total number of data             = 4
 Number of active data            = 4
 Number of variables              = 1
-Cvv                              = 1.150804
+Cvv                              = 1.150849
 Estimation by kriging            = -0.831554
-Estimation St. Dev. of the mean  = 0.612683
-CVgeo                            = -0.736793
+Estimation St. Dev. of the mean  = 0.612720
+CVgeo                            = -0.736837
 Surface                          = 1.000000
 Q (Estimation * Surface)         = -0.831554
 

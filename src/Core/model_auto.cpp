@@ -941,6 +941,7 @@ static void st_prepar_goulard_vario(Id imod)
         }
     }
   }
+  cova->setActiveCovListFromOne(-1);
 }
 
 /*****************************************************************************/
@@ -4129,6 +4130,7 @@ static void st_prepar_goulard_vmap(Id imod)
           ge[icov].setValue(ijvar, ipadir, tab.getValue(ivar, jvar));
     }
   }
+  cova->setActiveCovListFromOne(-1);
 }
 
 /****************************************************************************/
@@ -4508,7 +4510,6 @@ Id model_auto_fit(Vario* vario,
   st_model_auto_constraints_apply(strmod, npar, constraints, param, lower, upper);
 
   /* Minimization algorithm */
-
   STREXPS           = strexps;
   STRMOD            = strmod;
   MAUTO             = mauto;
@@ -4566,6 +4567,7 @@ Id model_auto_fit(Vario* vario,
   /* Store the sills in the keypair mechanism */
 
   st_keypair_sill(1, model);
+  model->_castInCovAnisoList()->setAllCovActive();
 
   /* Set the error return code */
 

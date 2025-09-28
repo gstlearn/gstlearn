@@ -4,6 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.9.0
 =============
+- Correct the Global estimation by Kriging (estimation and variance of estimation error)
+- Make th results of Global estimation displayable.
 - Attempt to suppress old-style memory management methods
 - Correction in Wendland1 and Wendland2 covariance functions (polynomial formula)
 - New API functions for launching Gradient and Potential based methods
