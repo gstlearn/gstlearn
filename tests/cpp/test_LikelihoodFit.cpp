@@ -77,10 +77,6 @@ int main(int argc, char* argv[])
     db->setLocators({"Longitude", "Latitude"}, ELoc::X);
     db->setLocator("January_temp", ELoc::Z);
 
-    delete model;
-    model = Model::createFromParam(ECov::EXPONENTIAL, 20, 1, 1);
-    model->addCovFromParam(ECov::SPHERICAL);
-    model->addCovFromParam(ECov::NUGGET);
     model->setDriftIRF(0);
 
     bool reml            = false;
