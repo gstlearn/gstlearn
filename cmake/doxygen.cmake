@@ -47,6 +47,8 @@ set(DOXYGEN_PREDEFINED "GSTLEARN_EXPORT="
                        "VectorVectorFloat" "VectorT<VectorFloat>"
                        "protected=private")
 
+set(DOXYGEN_MARKDOWN_ID_STYLE GITHUB)
+
 # Ajoutez ces lignes pour mieux gérer les surcharges
 set(DOXYGEN_HIDE_SCOPE_NAMES NO)
 set(DOXYGEN_QUALIFY_CLASSES YES)

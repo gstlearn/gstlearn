@@ -110,13 +110,12 @@ jobs:
   # Code lint job #
   # ------------- #
   lint-code:
-    if: false                   # disabled for now
     runs-on: ubuntu-latest
     strategy:
       matrix:
         config:
-          - {tidy: true, sa: false, dox: false}
-          - {tidy: false, sa: true, dox: false}
+          # - {tidy: true, sa: false, dox: false}
+          # - {tidy: false, sa: true, dox: false}
           - {tidy: false, sa: false, dox: true}
 
     steps:

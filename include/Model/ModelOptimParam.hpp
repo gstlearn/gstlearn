@@ -85,10 +85,10 @@ class GSTLEARN_EXPORT ModelOptimParam: public AStringable
    * @param wmode       type of weighting function (0, 1, 2 or 3, see above)
    * @note The default value for wmode is 2
    */
-  Id    getWmode() const { return _wmode; }
   void   setWmode(Id wmode) { _wmode = wmode; }
-  Id    getMaxiter() const { return _maxiter; }
+  Id    getWmode() const { return _wmode; }
   void   setMaxiter(Id maxiter) { _maxiter = maxiter; }
+  Id    getMaxiter() const { return _maxiter; }
   double getTolred() const { return _tolred; }
   void   setTolred(double tolred) { _tolred = tolred; }
 
