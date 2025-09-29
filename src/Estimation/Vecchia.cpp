@@ -38,7 +38,6 @@ Vecchia::Vecchia(ModelGeneric* model,
   , _matCov()
   , _vectCov()
   , _work()
-  , _Y()
   , _DFull()
   , _LFull()
   , _Ndb1(0)
@@ -51,6 +50,7 @@ Vecchia::Vecchia(ModelGeneric* model,
 {
   setAuthorizedAnalyticalGradients(false);
   _chol = new CholeskyDense();
+  _init();
 }
 
 Vecchia::Vecchia(const Vecchia& r)
@@ -62,7 +62,6 @@ Vecchia::Vecchia(const Vecchia& r)
   , _matCov(r._matCov)
   , _vectCov(r._vectCov)
   , _work(r._work)
-  , _Y(r._Y)
   , _DFull(r._DFull)
   , _LFull(r._LFull)
   , _Ndb1(r._Ndb1)
@@ -326,9 +325,6 @@ Id Vecchia::computeLower(const MatrixT<Id>& Ranks, bool verbose)
   _DFull.resize(ntot);
   _LFull = MatrixSparse(ntot, ntot, nb_neigh + 1);
 
-  // Define the vector of flattened multivariate data information
-  _loadDataFlattened();
-
   // Loop on the samples
   Id nmax = nb_neigh * nvar + nvar; // Multivariate neighborhood + Collocation
   std::vector<std::array<Id, 4>> neighDescr(nmax);
@@ -472,6 +468,11 @@ MatrixSparse* Vecchia::calculateW(const VectorDouble& D_dd) const
   return W;
 }
 
+VectorDouble Vecchia::computeAndGetY() 
+{
+  _loadDataFlattened();
+  return _Y;
+}
 Id krigingVecchia(Db* dbin,
                   Db* dbout,
                   ModelGeneric* model,
@@ -493,7 +494,7 @@ Id krigingVecchia(Db* dbin,
   VH::extractInPlace(DFull, D_dd, nt);
 
   // Calculate LdY
-  const VectorDouble& Y = V.getY();
+  const VectorDouble& Y = V.computeAndGetY();
   VectorDouble LdY      = V.calculateLdY(Y);
   VH::multiplyInPlace(LdY, D_dd);
 
@@ -575,10 +576,8 @@ Vecchia* Vecchia::createForOptim(ModelGeneric* model,
 {
 
   auto* vec            = new Vecchia(model, nb_neigh, db, nullptr, reml);
-  MatrixSymmetric vars = dbVarianceMatrix(db);
-  double hmax          = db->getExtensionDiagonal();
-  vec->setEnvironment(vars, hmax);
-  vec->init();
+  
+  vec->_initLikelihood();
   return vec;
 }
 
@@ -587,10 +586,10 @@ void Vecchia::_computeCm1X()
   productMatVecchia(_X, _Cm1X);
 }
 
-void Vecchia::_computeCm1Y()
+void Vecchia::_computeCm1Yc()
 {
-  _Cm1Y.resize(_Y.size());
-  productVecchia(_Y, _Cm1Y);
+  _Cm1Yc.resize(_Yc.size());
+  productVecchia(_Yc, _Cm1Yc);
 }
 
 double Vecchia::_computeLogDet() const

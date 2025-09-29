@@ -101,21 +101,33 @@ void ParamInfo::setMinValue(double value)
   if (value < _absoluteBounds[0])
   {
     _userBounds[0] = value;
+    _value         = std::max(_userBounds[0], _value);
+    _currentValue  = _value;
   }
   else
   {
-    messerr("Value is less than the minimum authorized value");
-    messerr("Setting the minimum user value to the minimum authorized value");
+    messerr("Warning for parameter: %s", _name.c_str());
+    messerr("Minimum value %f is less than the minimum authorized value %f", value, _absoluteBounds[0]);
+    messerr("The minimum user value is set to the minimum authorized value");
     _userBounds[0] = _absoluteBounds[0];
   }
 }
 
 void ParamInfo::setValue(double value)
 {
+
   if (value < _userBounds[0] || value > _userBounds[1])
   {
-    messerr("Value is out of user bounds");
-    messerr("Setting the value to the closest bound");
+    String parenthesisleft  = "[";
+    String parenthesisright = "]";
+    if (_userBounds[0] == -INF)
+      parenthesisleft = "(";
+    if (_userBounds[1] == INF)
+      parenthesisright = ")";
+    messerr("Warning for parameter: %s", _name.c_str());
+    messerr("Input value: %f", value);
+    messerr(" is out of user bounds: %s %f, %f %s", parenthesisleft.c_str(), _userBounds[0], _userBounds[1], parenthesisright.c_str());
+    messerr("The value is set to the closest bound");
     _value = std::clamp(value, _userBounds[0], _userBounds[1]);
   }
   else
@@ -127,14 +139,17 @@ void ParamInfo::setValue(double value)
 
 void ParamInfo::setMaxValue(double value)
 {
-  if (value > _absoluteBounds[1])
+  if (value < _absoluteBounds[1])
   {
     _userBounds[1] = value;
+    _value         = std::min(_userBounds[1], _value);
+    _currentValue  = _value;
   }
   else
   {
-    messerr("Value is greater than the maximum authorized value");
-    messerr("Setting the maximum user value to the maximum authorized value");
+    messerr("Warning for parameter: %s", _name.c_str());
+    messerr("Maximum value %f is greater than the maximum authorized value %f", value, _absoluteBounds[1]);
+    messerr("The maximum user value is set to the maximum authorized value");
     _userBounds[1] = value;
   }
 }

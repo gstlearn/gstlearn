@@ -168,6 +168,7 @@ target_compile_definitions(r_build PRIVATE -D${PROJECT_NAME_UP}_STATIC_DEFINE)
 
 # Prevent some SWIG C++/R warnings
 target_compile_options(r_build PRIVATE
+  -Wno-unknown-warning-option
   -Wno-free-nonheap-object
   -Wno-maybe-uninitialized
   -Wno-unused-variable

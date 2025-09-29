@@ -15,15 +15,15 @@
 
 namespace gstlrn
 {
-  // Forward declaration
+// Forward declaration
 class CovContext;
 class TurningBandOperate;
 
-class GSTLEARN_EXPORT CovExponential: 
-#ifndef SWIG 
-public ACovFuncWithAutoDiff<CovExponential>
+class GSTLEARN_EXPORT CovExponential:
+#ifndef SWIG
+  public ACovFuncWithAutoDiff<CovExponential>
 #else
-public ACovFunc
+  public ACovFunc
 #endif
 {
 public:
@@ -72,8 +72,8 @@ public:
 protected:
   double _evaluateCovOnSphere(double alpha,
                               double scale = 1.,
-                              Id degree   = 50) const override;
+                              Id degree    = 50) const override;
   VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1.) const override;
- // double _evaluateCovDerivative(double h) const override;
+  // double _evaluateCovFirstDerivative(double h) const override;
 };
-}
+} // namespace gstlrn

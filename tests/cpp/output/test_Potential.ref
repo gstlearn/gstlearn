@@ -1,4 +1,48 @@
 
+Example in 1-D
+==============
+LHS
+                  [,1]       [,2]       [,3]
+       [1,]      0.005      0.016      0.003
+       [2,]      0.016      1.996      0.498
+       [3,]      0.003      0.498      0.442
+[LHS]-1
+                  [,1]       [,2]       [,3]
+       [1,]    205.215     -1.748      0.493
+       [2,]     -1.748      0.711     -0.788
+       [3,]      0.493     -0.788      3.144
+
+[Z]
+                  [,1]
+       [1,]      1.000
+       [2,]      0.000
+       [3,]      0.000
+
+[Z] * [LHS]-1
+                  [,1]
+       [1,]    205.215
+       [2,]     -1.748
+       [3,]      0.493
+
+Target location
+---------------
+Sample #2 (from 101)
+Coordinate #1 = 1.000000
+RHS
+                  [,1]       [,2]       [,3]
+       [1,]     -0.005     -0.020      0.018
+       [2,]     -0.122      0.005      0.004
+Results
+                  [,1]
+       [1,]     -0.820
+       [2,]      0.989
+
+Estimation (centered) = 0.882248
+Gradient 1 = 0.989274
+
+Example in 2-D
+==============
+
 Environment summary
 ===================
 Space dimension         = 2
@@ -16,77 +60,24 @@ Information completed at Data Points
 
 Iso-Potential Information
 -------------------------
- 1 - 1 - Coor = 7.000000 6.000000 - Pot* =   0.00000 - Grad* =   -0.12226   -0.04850
- 1 - 2 - Coor = 5.000000 6.000000 - Pot* =   0.00000 - Grad* =    0.03085   -0.00455
- 1 - 3 - Coor = 6.000000 5.000000 - Pot* =   0.00000 - Grad* =    0.14008    0.07527
- 2 - 1 - Coor = 3.000000 6.000000 - Pot* =  -0.09173 - Grad* =    0.08726   -0.01142
- 2 - 2 - Coor = 7.000000 7.000000 - Pot* =  -0.09173 - Grad* =   -0.12661   -0.21736
- 2 - 3 - Coor = 8.000000 3.000000 - Pot* =  -0.09173 - Grad* =   -0.34517    0.21194
- 3 - 1 - Coor = 8.000000 1.000000 - Pot* =  -1.27914 - Grad* =   -0.60965    0.61288
- 3 - 2 - Coor = 7.000000 9.000000 - Pot* =  -1.27914 - Grad* =    0.01315   -0.36666
- 3 - 3 - Coor = 10.000000 5.000000 - Pot* =  -1.27914 - Grad* =   -0.46261    0.07252
- 3 - 4 - Coor = 3.000000 1.000000 - Pot* =  -1.27914 - Grad* =   -0.00294    0.02734
+  1 -  1 - Coor =  7.0000  6.0000 - Pot* =   0.00000 - Grad* =   -0.12226   -0.04850
+  1 -  2 - Coor =  5.0000  6.0000 - Pot* =   0.00000 - Grad* =    0.03085   -0.00455
+  1 -  3 - Coor =  6.0000  5.0000 - Pot* =   0.00000 - Grad* =    0.14008    0.07527
+  2 -  1 - Coor =  3.0000  6.0000 - Pot* =   0.09173 - Grad* =    0.08726   -0.01142
+  2 -  2 - Coor =  7.0000  7.0000 - Pot* =   0.09173 - Grad* =   -0.12661   -0.21736
+  2 -  3 - Coor =  8.0000  3.0000 - Pot* =   0.09173 - Grad* =   -0.34517    0.21194
+  3 -  1 - Coor =  8.0000  1.0000 - Pot* =   1.27914 - Grad* =   -0.60965    0.61288
+  3 -  2 - Coor =  7.0000  9.0000 - Pot* =   1.27914 - Grad* =    0.01315   -0.36666
+  3 -  3 - Coor = 10.0000  5.0000 - Pot* =   1.27914 - Grad* =   -0.46261    0.07252
+  3 -  4 - Coor =  3.0000  1.0000 - Pot* =   1.27914 - Grad* =   -0.00294    0.02734
 
 Gradient Information
 --------------------
-  1 - Coor = 1.000000 6.000000 - Pot* =  -1.02142 - Grad* =    1.00000    0.00000
-  2 - Coor = 9.000000 2.000000 - Pot* =  -1.28588 - Grad* =   -1.00000    1.00000
-  3 - Coor = 7.000000 8.000000 - Pot* =  -0.64295 - Grad* =    0.00000   -1.00000
+  1 - Coor =  1.0000  6.0000 - Pot* =   1.02142 - Grad* =    1.00000    0.00000
+  2 - Coor =  9.0000  2.0000 - Pot* =   1.28588 - Grad* =   -1.00000    1.00000
+  3 - Coor =  7.0000  8.0000 - Pot* =   0.64295 - Grad* =    0.00000   -1.00000
 
 Tangent Information
 -------------------
-  1 - Coor = 3.000000 7.000000 - Pot* =  -0.25454 - Grad* =    0.00000   -0.29469 - Tangent=    0.00000
-  2 - Coor = 9.000000 7.000000 - Pot* =  -0.78250 - Grad* =   -0.23520   -0.23520 - Tangent=    0.00000
-
-Working in 1-D
-==============
-
-Environment summary
-===================
-Space dimension         = 1
-Number of Iso-Potential = 2
-Number of Gradients     = 1
-Number of Tangents      = 0
-Number of Isovalues     = 4
-Order of the drift      = 0
-Number of Drifts        = 0
-Number of Ext. Drifts   = 0
-Number of Equations     = 3
-
-Information completed at Data Points
-====================================
-
-Iso-Potential Information
--------------------------
- 1 - 1 - Coor = 30.000000 - Pot* =   0.00000 - Grad* =    0.35795
- 1 - 2 - Coor = 80.000000 - Pot* =   0.00000 - Grad* =   -0.00649
- 2 - 1 - Coor = 40.000000 - Pot* =  -2.06321 - Grad* =    0.07248
- 2 - 2 - Coor = 50.000000 - Pot* =  -2.06321 - Grad* =   -0.04751
-
-Gradient Information
---------------------
-  1 - Coor = 0.000000 - Pot* =  -1.78509 - Grad* =    1.00000
-
-Environment summary
-===================
-Space dimension         = 1
-Number of Iso-Potential = 2
-Number of Gradients     = 1
-Number of Tangents      = 0
-Number of Isovalues     = 4
-Order of the drift      = 0
-Number of Drifts        = 0
-Number of Ext. Drifts   = 0
-Number of Equations     = 3
-
-Iso-Potential #1
-Cross-validation Error: Mean=-2.434777 St. Dev.=0.000000
-Standardized Error    : Mean=-2.011378 St. Dev.=0.000000
-Euclidean Distance    : Mean=4.127093 St. Dev.=0.000000
-Geodetic Distance     : Mean=34.831898 St. Dev.=0.000000
-
-Iso-Potential #2
-Cross-validation Error: Mean=-2.285751 St. Dev.=0.000000
-Standardized Error    : Mean=-1.747219 St. Dev.=0.000000
-Euclidean Distance    : Mean=10.815096 St. Dev.=0.000000
-Geodetic Distance     : Mean=41.333725 St. Dev.=0.000000
+  1 - Coor =  3.0000  7.0000 - Pot* =   0.25454 - Grad* =    0.00000   -0.29469 - Tang* =    0.00000
+  2 - Coor =  9.0000  7.0000 - Pot* =   0.78250 - Grad* =   -0.23520   -0.23520 - Tang* =    0.00000

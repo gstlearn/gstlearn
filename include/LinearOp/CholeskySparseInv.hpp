@@ -17,6 +17,8 @@
 #include <Eigen/SparseCore>
 #include <Eigen/SparseCholesky>
 
+#include "geoslib_define.h"
+
 namespace gstlrn
 {
 typedef Eigen::SparseMatrix<double>::StorageIndex StorageIndex;
@@ -100,7 +102,7 @@ public:
 template<typename SpChol, typename SpMat>
 typename SpChol::MatrixType partial_inverse(
   const SpChol& llt,
-  const SpMat& pattern)
+  [[maybe_unused]] const SpMat& pattern)
 {
   typedef typename SpMat::ReverseInnerIterator reverse_it;
   StorageIndex ncols = llt.cols();

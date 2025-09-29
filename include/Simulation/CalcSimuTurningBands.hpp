@@ -55,7 +55,7 @@ public:
                        Db* dbgrd,
                        Db* dbtgt,
                        Db* dbout,
-                       Model* model,
+                       ModelGeneric* model,
                        double delta);
 
   static bool isValidForTurningBands(const Model* model);

@@ -212,14 +212,13 @@
   #include "Covariances/CovAnisoList.hpp"
   #include "Covariances/CovAnisoList.hpp"
   #include "Covariances/CovAniso.hpp"
-  #include "Covariances/ACovGradient.hpp"
   #include "Covariances/CovGradientGeneric.hpp"
+  #include "Covariances/CovGradientAnalytic.hpp"
   #include "Covariances/CorGneiting.hpp"
   #include "Covariances/CorMatern.hpp"
   #include "Covariances/CovLMCTapering.hpp"
   #include "Covariances/CovLMCConvolution.hpp"
   #include "Covariances/CovLMCAnamorphosis.hpp"
-  #include "Covariances/CovLMGradient.hpp"
   #include "Covariances/CovContext.hpp"
   #include "Covariances/CovCalcMode.hpp"
   #include "Covariances/CovBesselJ.hpp"
@@ -273,11 +272,11 @@
   #include "Matrix/Table.hpp"
   #include "LinearOp/InvNuggetOp.hpp"
 
-  
   #include "API/SPDE.hpp"
   #include "API/TestInheritance.hpp"
   #include "API/Style.hpp"
   #include "API/SPDEParam.hpp"
+  #include "API/Potential.hpp"
   
   #include "Db/Db.hpp"
   #include "Db/DbGrid.hpp"
@@ -322,11 +321,13 @@
   #include "Estimation/KrigingAlgebra.hpp"
   #include "Estimation/CalcKriging.hpp"
   #include "Estimation/CalcKrigingFactors.hpp"
+  #include "Estimation/CalcKrigingGradient.hpp"
   #include "Estimation/CalcSimpleInterpolation.hpp"
   #include "Estimation/CalcImage.hpp"
   #include "Estimation/CalcGlobal.hpp"
   #include "Estimation/KrigOpt.hpp"
   #include "Estimation/AModelOptim.hpp"
+  #include "Estimation/AModelOptimFactory.hpp"
   #include "Estimation/ALikelihood.hpp"
   #include "Estimation/Vecchia.hpp"
   #include "Estimation/Likelihood.hpp"
@@ -378,7 +379,6 @@
   #include "Spatial/SpatialIndices.hpp"
 
   #include "Core/Acknowledge.hpp"
-  #include "Core/Potential.hpp"
   #include "Core/Seismic.hpp"
 
   #include "API/newAPIs.hpp"
@@ -854,7 +854,6 @@ namespace gstlrn {
       {
         if (!argp) {
           %argument_nullref("$type", $symname, $argnum);
-          $1 = nullptr;
         }
         else
           $1 = %reinterpret_cast(argp, $ltype);
@@ -893,7 +892,6 @@ namespace gstlrn {
       {
         if (!argp) {
           %argument_nullref("$type", $symname, $argnum);
-          $1 = nullptr;
         }
         else
           $1 = %reinterpret_cast(argp, $ltype);

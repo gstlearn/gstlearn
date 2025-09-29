@@ -11,7 +11,6 @@
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
-#include "Basic/Memory.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -91,14 +90,14 @@ namespace gstlrn
 typedef struct
 {
   std::vector<SPDE_Matelem> Matelems;
-  Id ndata;                /* Number of active data */
-  Id* ndata1;              /* Number of data per variable (icov=0) */
-  Id* ntarget1;            /* Number of target per variable (icov=0) */
-  Model* model;            /* Pointer to the Model */
-  double* Csill;           /* Array of LU of sill matrices */
-  MatrixSparse** Bnugget;  /* Sparse matrices for nugget effect (nvs2) */
-  MatrixSparse** BheteroD; /* Sparse matrices for heterotopy (nvar)*/
-  MatrixSparse** BheteroT; /* Sparse matrices for heterotopy (nvar)*/
+  Id ndata;                            /* Number of active data */
+  VectorInt ndata1;                    /* Number of data per variable (icov=0) */
+  VectorInt ntarget1;                  /* Number of target per variable (icov=0) */
+  Model* model;                        /* Pointer to the Model */
+  VectorDouble Csill;                  /* Array of LU of sill matrices */
+  std::vector<MatrixSparse*> Bnugget;  /* Sparse matrices for nugget effect (nvs2) */
+  std::vector<MatrixSparse*> BheteroD; /* Sparse matrices for heterotopy (nvar)*/
+  std::vector<MatrixSparse*> BheteroT; /* Sparse matrices for heterotopy (nvar)*/
 } SPDE_SS_Environ;
 
 typedef struct
@@ -142,7 +141,7 @@ typedef struct
   double dmini;
   double dmaxi;
   double ystdv;
-  double* dcoef;
+  VectorDouble dcoef;
 } M2D_Environ;
 
 typedef struct
@@ -339,7 +338,7 @@ static void st_matelem_print(Id icov)
   message("S is defined:      %s\n", NOK[Matelem.S != NULL]);
   message("Aproj is defined:  %s\n", NOK[Matelem.Aproj != NULL]);
   message("QC is defined:     %s\n", NOK[Matelem.QC != NULL]);
-  message("QCov are defined:  %s\n", NOK[Matelem.QCov != NULL]);
+  message("QCov are defined:  %s\n", NOK[!Matelem.QCov.empty()]);
   message("Lambda is defined: %s\n", NOK[!Matelem.Lambda.empty()]);
   message("qsimu is defined:  %s\n", NOK[Matelem.qsimu != NULL]);
   message("s_cheb is defined: %s\n", NOK[Matelem.s_cheb != NULL]);
@@ -458,14 +457,11 @@ static void st_environ_init(void)
   S_ENV.ngrfs = 0;
   for (Id igrf = 0; igrf < SPDE_MAX_NGRF; igrf++)
   {
-    SS           = &S_ENV.SS_ENV[igrf];
-    SS->ndata    = 0;
-    SS->ndata1   = nullptr;
-    SS->ntarget1 = nullptr;
-    SS->model    = nullptr;
-    SS->Bnugget  = nullptr;
-    SS->BheteroD = nullptr;
-    SS->BheteroT = nullptr;
+    SS        = &S_ENV.SS_ENV[igrf];
+    SS->ndata = 0;
+    SS->ndata1.clear();
+    SS->ntarget1.clear();
+    SS->model = nullptr;
   }
 }
 
@@ -566,16 +562,6 @@ static void st_set_model(Model* model)
 
 /****************************************************************************/
 /*!
- **  Return the number of variables of the environment
- **
- *****************************************************************************/
-static Id st_get_nvs2(void)
-{
-  return (S_ENV.nvar * (S_ENV.nvar + 1) / 2);
-}
-
-/****************************************************************************/
-/*!
  **  Return if a nugget effect component must be filtered
  **
  *****************************************************************************/
@@ -609,62 +595,6 @@ static double st_get_isill(Id icov, Id ivar, Id jvar)
   const SPDE_Matelem& Maticov = spde_get_current_matelem(icov);
   double value                = Maticov.Isill[(jvar) + nvar * (ivar)];
   return (value);
-}
-
-/****************************************************************************/
-/*!
- **  Clean the Bhetero sparse matrices
- **
- *****************************************************************************/
-static void st_clean_Bhetero(void)
-{
-  SPDE_SS_Environ* SS;
-
-  SS = MATGRF(SPDE_CURRENT_IGRF);
-
-  /* Clean the vector of number of data / target per variable */
-
-  SS->ndata1   = (Id*)mem_free((char*)SS->ndata1);
-  SS->ntarget1 = (Id*)mem_free((char*)SS->ntarget1);
-
-  /* Clean the sparse matrices for heterotopy at data points */
-
-  if (SS->BheteroD != nullptr)
-  {
-    for (Id ivar = 0; ivar < S_ENV.nvar; ivar++)
-      delete SS->BheteroD[ivar];
-    delete SS->BheteroD;
-    SS->BheteroD = nullptr;
-  }
-
-  /* Clean the sparse matrices for heterotopy at targets */
-
-  if (SS->BheteroT != nullptr)
-  {
-    for (Id ivar = 0; ivar < S_ENV.nvar; ivar++)
-      delete SS->BheteroT[ivar];
-    delete SS->BheteroT;
-    SS->BheteroT = nullptr;
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Clean the Bnugget sparse matrices
- **
- *****************************************************************************/
-static void st_clean_Bnugget(void)
-{
-  SPDE_SS_Environ* SS;
-
-  SS = MATGRF(SPDE_CURRENT_IGRF);
-  if (SS->Bnugget != nullptr)
-  {
-    for (Id i = 0; i < st_get_nvs2(); i++)
-      delete SS->Bnugget[i];
-    delete SS->Bnugget;
-    SS->Bnugget = nullptr;
-  }
 }
 
 /****************************************************************************/
@@ -756,7 +686,7 @@ static QChol* st_qchol_manage(Id mode, QChol* QC)
   switch (mode)
   {
     case 1: /* Allocation */
-      QC       = (QChol*)mem_alloc(sizeof(QChol), 1);
+      QC       = new QChol;
       QC->Q    = nullptr;
       QC->chol = nullptr;
       break;
@@ -765,7 +695,8 @@ static QChol* st_qchol_manage(Id mode, QChol* QC)
       if (QC == nullptr) return (QC);
       delete QC->Q;
       delete QC->chol;
-      QC = (QChol*)mem_free((char*)QC);
+      delete QC;
+      QC = nullptr;
       break;
   }
   return (QC);
@@ -845,8 +776,7 @@ static QSimu* st_qsimu_manage(Id mode, QSimu* qsimu)
   {
     case 1: /* Allocation */
       if (VERBOSE) st_title(0, 0, 1, "Building Environment");
-      qsimu = (QSimu*)mem_alloc(sizeof(QSimu), 0);
-      if (qsimu == nullptr) return (qsimu);
+      qsimu = new QSimu;
 
       /* Extract sub-matrices */
 
@@ -870,7 +800,8 @@ static QSimu* st_qsimu_manage(Id mode, QSimu* qsimu)
       if (qsimu == nullptr) return (qsimu);
       qsimu->QCtt = st_qchol_manage(-1, qsimu->QCtt);
       qsimu->QCtd = st_qchol_manage(-1, qsimu->QCtd);
-      qsimu       = (QSimu*)mem_free((char*)qsimu);
+      delete qsimu;
+      qsimu = nullptr;
       break;
   }
 
@@ -1461,15 +1392,14 @@ static Id st_kriging_cholesky(QChol* QC,
  ** \remark The array returned by this function must be deallocated
  **
  *****************************************************************************/
-static double* st_spde_get_mesh_dimension(AMesh* amesh)
+static VectorDouble st_spde_get_mesh_dimension(AMesh* amesh)
 
 {
-  double* units;
+  VectorDouble units;
   VectorDouble mat(9);
 
   /* Initializations */
 
-  units            = nullptr;
   Id ndim          = amesh->getNDim();
   Id nmesh         = amesh->getNMeshes();
   Id ncorner       = amesh->getNApexPerMesh();
@@ -1477,8 +1407,7 @@ static double* st_spde_get_mesh_dimension(AMesh* amesh)
 
   /* Core allocation */
 
-  units = (double*)mem_alloc(sizeof(double) * nmesh, 0);
-  if (units == nullptr) return (units);
+  units.resize(nmesh);
 
   /* Dispatch */
 
@@ -1576,7 +1505,7 @@ static void st_calcul_update_nostat(AMesh* amesh, Id imesh0)
  *****************************************************************************/
 static Id st_fill_Isill(void)
 {
-  double* mcova;
+  VectorDouble mcova;
   Id nvar, nvar2, error, icov, ecr;
 
   /* Initializations */
@@ -1584,14 +1513,12 @@ static Id st_fill_Isill(void)
   error                 = 1;
   nvar                  = S_ENV.nvar;
   nvar2                 = nvar * nvar;
-  mcova                 = nullptr;
   icov                  = SPDE_CURRENT_ICOV;
   SPDE_Matelem& Matelem = spde_get_current_matelem(icov);
 
   /* Core allocation */
 
-  mcova = (double*)mem_alloc(sizeof(double) * nvar2, 0);
-  if (mcova == nullptr) goto label_end;
+  mcova.resize(nvar2);
 
   /* Load the sill of the covariance */
 
@@ -1602,7 +1529,7 @@ static Id st_fill_Isill(void)
 
   /* Loop on the structures to invert the sill matrices */
 
-  if (matrix_invert(mcova, nvar, -1)) goto label_end;
+  if (matrix_invert(mcova.data(), nvar, -1)) goto label_end;
 
   /* Optional printout */
 
@@ -1613,7 +1540,7 @@ static Id st_fill_Isill(void)
   error = 0;
 
 label_end:
-  if (error) mcova = (double*)mem_free((char*)mcova);
+  if (error) mcova.clear();
   Matelem.Isill = mcova;
   return (error);
 }
@@ -1631,7 +1558,7 @@ label_end:
 static Id st_fill_Csill(void)
 {
   Model* model;
-  double* mcova;
+  VectorDouble mcova;
   Id nvar, nvs2, error, icov;
 
   /* Initializations */
@@ -1640,18 +1567,17 @@ static Id st_fill_Csill(void)
   model                 = st_get_model();
   nvar                  = S_ENV.nvar;
   nvs2                  = nvar * (nvar + 1) / 2;
-  mcova                 = nullptr;
   icov                  = SPDE_CURRENT_ICOV;
   SPDE_Matelem& Matelem = spde_get_current_matelem(icov);
 
   /* Core allocation */
 
-  mcova = (double*)mem_alloc(sizeof(double) * nvs2, 0);
-  if (mcova == nullptr) goto label_end;
+  mcova.resize(nvs2);
 
   /* Load the sills of continuous covariance elements */
 
-  if (matrix_cholesky_decompose(model->getSills(icov).getValues().data(), mcova, nvar))
+  if (matrix_cholesky_decompose(model->getSills(icov).getValues().data(),
+                                mcova.data(), nvar))
     goto label_end;
 
   /* Optional printout */
@@ -1663,7 +1589,7 @@ static Id st_fill_Csill(void)
   error = 0;
 
 label_end:
-  if (error) mcova = (double*)mem_free((char*)mcova);
+  if (error) mcova.clear();
   Matelem.Csill = mcova;
   return (error);
 }
@@ -1682,24 +1608,23 @@ label_end:
  *****************************************************************************/
 static Id st_fill_Bnugget(Db* dbin)
 {
-  double *mat, *local, *local0;
-  Id *ind, error, ndata, nvar, nvs2, nvar2, size, ecr, nvr, ivar, jvar, iad;
+  VectorDouble local;
+  VectorDouble local0;
+  VectorDouble mat;
+  VectorInt ind;
+  Id ndata, nvar, nvs2, nvar2, size, ecr, nvr, ivar, jvar, iad;
   Id flag_nostat_sillnug;
   DECLARE_UNUSED(nvr, iad, flag_nostat_sillnug)
   Model* model;
-  MatrixSparse** Bnugget;
+  std::vector<MatrixSparse*> Bnugget;
 
   /* Initializations */
 
-  error = 1;
   model = st_get_model();
   ndata = dbin->getNSample(true);
   nvar  = model->getNVar();
   nvar2 = nvar * nvar;
   nvs2  = nvar * (nvar + 1) / 2;
-  mat = local = local0 = nullptr;
-  ind                  = nullptr;
-  Bnugget              = nullptr;
 
   /* In the non-stationary case, identify the rank of the parameter */
   /* which corresponds to the sill of the nugget effect */
@@ -1713,17 +1638,11 @@ static Id st_fill_Bnugget(Db* dbin)
 
   /* Core allocation */
 
-  size  = ndata * nvs2;
-  local = (double*)mem_alloc(sizeof(double) * nvar2, 0);
-  if (local == nullptr) goto label_end;
-  local0 = (double*)mem_alloc(sizeof(double) * nvar2, 0);
-  if (local0 == nullptr) goto label_end;
-  ind = (Id*)mem_alloc(sizeof(Id) * ndata, 0);
-  if (ind == nullptr) goto label_end;
-  mat = (double*)mem_alloc(sizeof(double) * size, 0);
-  if (mat == nullptr) goto label_end;
-  for (Id i = 0; i < size; i++)
-    mat[i] = 0.;
+  size = ndata * nvs2;
+  local.resize(nvar2);
+  local0.resize(nvar2);
+  ind.resize(ndata);
+  mat.resize(size, 0);
 
   /* Establish the nugget sill matrix for isotopic case (only in stationary) */
 
@@ -1809,35 +1728,21 @@ static Id st_fill_Bnugget(Db* dbin)
 */
   /* Define the sparse matrices */
 
-  Bnugget = (MatrixSparse**)mem_alloc(sizeof(MatrixSparse*) * nvs2, 0);
-  if (Bnugget == nullptr) goto label_end;
-  for (Id ivs2 = 0; ivs2 < nvs2; ivs2++)
-    Bnugget[ivs2] = nullptr;
   ecr = 0;
   for (ivar = 0; ivar < nvar; ivar++)
     for (jvar = 0; jvar <= ivar; jvar++, ecr++)
     {
       VectorDouble diag = VH::initVDouble(&mat[ecr * ndata], ndata);
-      Bnugget[ecr]      = MatrixSparse::diagVec(diag);
+      Bnugget.push_back(MatrixSparse::diagVec(diag));
     }
 
   /* Optional printout */
 
   if (VERBOSE) message("Calculation of Bnugget (%d sparse matrices)\n", nvs2);
 
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  if (error) st_clean_Bnugget();
   MATGRF(SPDE_CURRENT_IGRF)->Bnugget = Bnugget;
   MATGRF(SPDE_CURRENT_IGRF)->ndata   = ndata;
-  mem_free((char*)ind);
-  mem_free((char*)local);
-  mem_free((char*)local0);
-  mem_free((char*)mat);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -1861,7 +1766,7 @@ label_end:
  ** \remarks Dimension: nvertex
  **
  *****************************************************************************/
-static Id* st_get_vertex_ranks(AMesh* amesh, Db* dbin, Db* dbout)
+static VectorInt st_get_vertex_ranks(AMesh* amesh, Db* dbin, Db* dbout)
 {
   Id nvertex = amesh->getNApices();
   Id n_in    = (dbin != nullptr) ? dbin->getNSample(true) : 0;
@@ -1872,9 +1777,7 @@ static Id* st_get_vertex_ranks(AMesh* amesh, Db* dbin, Db* dbout)
 
   /* Core allocation */
 
-  Id* ranks = (Id*)mem_alloc(sizeof(Id) * nvertex, 0);
-  if (ranks == nullptr) return (ranks);
-  for (Id i = 0; i < nvertex; i++) ranks[i] = 0;
+  VectorInt ranks(nvertex, 0);
 
   /* Identify the vertices */
 
@@ -1908,46 +1811,37 @@ static Id* st_get_vertex_ranks(AMesh* amesh, Db* dbin, Db* dbout)
 static Id st_fill_Bhetero(Db* dbin, Db* dbout)
 
 {
-  Id *ranks, *ndata1, *ntarget1;
-  Id ndata, nvar, ecrT, nvertex, flag_add, iech, error;
+  VectorInt ranks;
+  VectorInt ndata1;
+  VectorInt ntarget1;
+  Id ndata, nvar, ecrT, nvertex, flag_add, iech;
   double value;
   Model* model;
-  MatrixSparse **BheteroD, **BheteroT;
+  std::vector<MatrixSparse*> BheteroD;
+  std::vector<MatrixSparse*> BheteroT;
   AMesh* amesh;
 
   /* Initializations */
 
-  error    = 1;
-  model    = st_get_model();
-  ndata    = dbin->getNSample(true);
-  nvar     = model->getNVar();
-  BheteroD = BheteroT = nullptr;
-  ranks = ndata1 = ntarget1 = nullptr;
-  SPDE_Matelem& Mat1        = spde_get_current_matelem(0);
-  amesh                     = Mat1.amesh;
-  nvertex                   = amesh->getNApices();
+  model              = st_get_model();
+  ndata              = dbin->getNSample(true);
+  nvar               = model->getNVar();
+  SPDE_Matelem& Mat1 = spde_get_current_matelem(0);
+  amesh              = Mat1.amesh;
+  nvertex            = amesh->getNApices();
 
   /* Core allocation */
 
   ranks = st_get_vertex_ranks(amesh, dbin, dbout);
-  if (ranks == nullptr) goto label_end;
 
   /* Define the sparse matrices */
 
-  ndata1 = (Id*)mem_alloc(sizeof(Id) * nvar, 0);
-  if (ndata1 == nullptr) goto label_end;
-  for (Id ivar = 0; ivar < nvar; ivar++)
-    ndata1[ivar] = 0;
-  ntarget1 = (Id*)mem_alloc(sizeof(Id) * nvar, 0);
-  if (ntarget1 == nullptr) goto label_end;
-  for (Id ivar = 0; ivar < nvar; ivar++)
-    ntarget1[ivar] = 0;
-  BheteroD = (MatrixSparse**)mem_alloc(sizeof(MatrixSparse*) * nvar, 0);
-  if (BheteroD == nullptr) goto label_end;
+  ndata1.resize(nvar, 0.);
+  ntarget1.resize(nvar, 0);
+  BheteroD.resize(nvar);
   for (Id ivar = 0; ivar < nvar; ivar++)
     BheteroD[ivar] = nullptr;
-  BheteroT = (MatrixSparse**)mem_alloc(sizeof(MatrixSparse*) * nvar, 0);
-  if (BheteroT == nullptr) goto label_end;
+  BheteroT.resize(nvar);
   for (Id ivar = 0; ivar < nvar; ivar++)
     BheteroT[ivar] = nullptr;
 
@@ -2031,17 +1925,12 @@ static Id st_fill_Bhetero(Db* dbin, Db* dbout)
 
   /* Set the error return code */
 
-  error = 0;
-
-label_end:
   MATGRF(SPDE_CURRENT_IGRF)->BheteroD = BheteroD;
   MATGRF(SPDE_CURRENT_IGRF)->BheteroT = BheteroT;
   MATGRF(SPDE_CURRENT_IGRF)->ndata    = ndata;
   MATGRF(SPDE_CURRENT_IGRF)->ndata1   = ndata1;
   MATGRF(SPDE_CURRENT_IGRF)->ntarget1 = ntarget1;
-  mem_free((char*)ranks);
-  if (error) st_clean_Bhetero();
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -2525,7 +2414,7 @@ static Id st_build_QCov(SPDE_Matelem& Matelem)
 {
   Id error, nvar, icov0, nrows, ncols;
   MatrixSparse *B0, *Bi;
-  QChol** QCov;
+  std::vector<QChol*> QCov;
   SPDE_SS_Environ* SS;
 
   /* Initializations */
@@ -2539,7 +2428,7 @@ static Id st_build_QCov(SPDE_Matelem& Matelem)
 
   /* Core allocation */
 
-  QCov = (QChol**)mem_alloc(sizeof(QChol*) * nvar, 1);
+  QCov.resize(nvar);
   for (Id ivar = 0; ivar < nvar; ivar++)
     QCov[ivar] = st_qchol_manage(1, NULL);
 
@@ -2552,7 +2441,7 @@ static Id st_build_QCov(SPDE_Matelem& Matelem)
     /* Case when a nugget effect is present */
     /****************************************/
 
-    if (Matelem.Aproj == NULL || SS->Bnugget == nullptr) return (1);
+    if (Matelem.Aproj == NULL || SS->Bnugget.empty()) return (1);
 
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
@@ -2574,7 +2463,7 @@ static Id st_build_QCov(SPDE_Matelem& Matelem)
     /* Case when there is no nugget effect */
     /***************************************/
 
-    if (Matelem.Aproj == NULL || SS->BheteroD == NULL || SS->BheteroT == nullptr)
+    if (Matelem.Aproj == NULL || SS->BheteroD.empty() || SS->BheteroT.empty())
       return (1);
 
     for (Id ivar = 0; ivar < nvar; ivar++)
@@ -2614,7 +2503,7 @@ label_end:
   delete Bi;
   if (error)
   {
-    if (QCov != nullptr)
+    if (!QCov.empty())
     {
       for (Id ivar = 0; ivar < nvar; ivar++)
         QCov[ivar] = st_qchol_manage(-1, QCov[ivar]);
@@ -2737,7 +2626,7 @@ static Id st_spde_build_matrices(Model* model, Id verbose)
 {
   Id error = 1;
   VectorDouble tildec;
-  double* units         = nullptr;
+  VectorDouble units;
   VERBOSE               = verbose;
   SPDE_Matelem& Matelem = spde_get_current_matelem(-1);
   AMesh* amesh          = Matelem.amesh;
@@ -2745,17 +2634,16 @@ static Id st_spde_build_matrices(Model* model, Id verbose)
   /* Calculate the units of the meshes */
 
   units = st_spde_get_mesh_dimension(amesh);
-  if (units == nullptr) goto label_end;
 
   /* Fill S sparse matrix */
 
-  Matelem.S = st_spde_fill_S(amesh, model, units);
+  Matelem.S = st_spde_fill_S(amesh, model, units.data());
   if (Matelem.S == nullptr) goto label_end;
   if (VERBOSE) message("Filling S Sparse Matrix performed successfully\n");
 
   /* Fill the TildeC vector */
 
-  tildec = st_spde_fill_TildeC(amesh, units);
+  tildec = st_spde_fill_TildeC(amesh, units.data());
   if (VERBOSE) message("Filling TildeC Sparse Matrix performed successfully\n");
 
   /* Construct the matrix for the sill correction array */
@@ -2779,7 +2667,6 @@ static Id st_spde_build_matrices(Model* model, Id verbose)
   error = 0;
 
 label_end:
-  mem_free((char*)units);
   return (error);
 }
 
@@ -3047,9 +2934,6 @@ static void st_matelem_manage(Id mode)
         Matelem.S             = nullptr;
         Matelem.Aproj         = nullptr;
         Matelem.QC            = nullptr;
-        Matelem.QCov          = nullptr;
-        Matelem.Isill         = nullptr;
-        Matelem.Csill         = nullptr;
         Matelem.qsimu         = nullptr;
         Matelem.s_cheb        = nullptr;
         Matelem.amesh         = nullptr;
@@ -3063,13 +2947,13 @@ static void st_matelem_manage(Id mode)
         delete Matelem.S;
         delete Matelem.Aproj;
         Matelem.QC = st_qchol_manage(-1, Matelem.QC);
-        if (Matelem.QCov != nullptr)
+        if (!Matelem.QCov.empty())
         {
           for (Id ivar = 0; ivar < S_ENV.nvar; ivar++)
             Matelem.QCov[ivar] = st_qchol_manage(-1, Matelem.QCov[ivar]);
         }
-        Matelem.Isill  = (double*)mem_free((char*)Matelem.Isill);
-        Matelem.Csill  = (double*)mem_free((char*)Matelem.Csill);
+        Matelem.Isill.clear();
+        Matelem.Csill.clear();
         Matelem.qsimu  = st_qsimu_manage(-1, Matelem.qsimu);
         Matelem.s_cheb = st_spde_cheb_manage(-1, 0, 0, VectorDouble(), NULL, Matelem.s_cheb);
         delete Matelem.amesh;
@@ -4438,7 +4322,8 @@ static Id st_m2d_drift_manage(M2D_Environ* m2denv,
                               Id* iatt_f)
 {
   Id nechin, error, nb;
-  double *dval, value, delta;
+  VectorDouble dval;
+  double value, delta;
   static double percent = 0.05;
   VectorInt cols(1);
 
@@ -4446,15 +4331,13 @@ static Id st_m2d_drift_manage(M2D_Environ* m2denv,
 
   error     = 1;
   nechin    = dbin->getNSample();
-  dval      = nullptr;
   (*iatt_f) = -1;
 
   /* Core allocation */
 
   if (m2denv->flag_ed)
   {
-    dval = (double*)mem_alloc(sizeof(double) * nechin, 0);
-    if (dval == nullptr) goto label_end;
+    dval.resize(nechin);
   }
 
   /* Add attributes to 'dbin' */
@@ -4538,7 +4421,6 @@ static Id st_m2d_drift_manage(M2D_Environ* m2denv,
   error = 0;
 
 label_end:
-  mem_free((char*)dval);
   return (error);
 }
 
@@ -4600,24 +4482,21 @@ static Id st_m2d_drift_fitting(M2D_Environ* m2denv,
                                Id number_hard,
                                Id verbose)
 {
-  Id nech, error, numb, nbfl;
-  double ff, *a, *b, mean, ffmean, stdv, epais, mini, maxi, ffmini, ffmaxi;
+  Id nech, numb, nbfl;
+  double ff, mean, ffmean, stdv, epais, mini, maxi, ffmini, ffmaxi;
+  VectorDouble a;
+  VectorDouble b;
 
   /* Initializations */
 
-  error = 1;
-  nech  = MIN(number_hard, dbc->getNSample());
-  nbfl  = 1;
-  a = b = nullptr;
+  nech = MIN(number_hard, dbc->getNSample());
+  nbfl = 1;
 
   /* Core allocation */
 
-  m2denv->dcoef = (double*)mem_alloc(sizeof(double) * nlayer, 0);
-  if (m2denv->dcoef == nullptr) goto label_end;
-  a = (double*)mem_alloc(sizeof(double) * nbfl * nbfl, 0);
-  if (a == nullptr) goto label_end;
-  b = (double*)mem_alloc(sizeof(double) * nbfl, 0);
-  if (b == nullptr) goto label_end;
+  m2denv->dcoef.resize(nlayer);
+  a.resize(nbfl * nbfl);
+  b.resize(nbfl);
 
   /* Loop on the layers */
 
@@ -4708,15 +4587,7 @@ static Id st_m2d_drift_fitting(M2D_Environ* m2denv,
       message("  . Maximum       = %lf\n", maxi);
     }
   }
-
-  /* Set the error return cde */
-
-  error = 0;
-
-label_end:
-  mem_free((char*)a);
-  mem_free((char*)b);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -5615,8 +5486,7 @@ static M2D_Environ* st_m2denv_manage(Id mode,
 
     // Allocation
 
-    m2denv = (M2D_Environ*)mem_alloc(sizeof(M2D_Environ), 0);
-    if (m2denv == nullptr) return (m2denv);
+    m2denv          = new M2D_Environ;
     m2denv->flag_ed = flag_ed;
     m2denv->iatt_fd = -1;
     m2denv->iatt_fg = -1;
@@ -5628,7 +5498,7 @@ static M2D_Environ* st_m2denv_manage(Id mode,
     m2denv->dmini   = TEST;
     m2denv->dmaxi   = TEST;
     m2denv->ystdv   = ystdv;
-    m2denv->dcoef   = nullptr;
+    m2denv->dcoef.clear();
   }
   else
   {
@@ -5636,8 +5506,9 @@ static M2D_Environ* st_m2denv_manage(Id mode,
     if (m2denv != nullptr)
 
     {
-      m2denv->dcoef = (double*)mem_free((char*)m2denv->dcoef);
-      m2denv        = (M2D_Environ*)mem_free((char*)m2denv);
+      m2denv->dcoef.clear();
+      delete m2denv;
+      m2denv = nullptr;
     }
   }
   return (m2denv);
@@ -5817,7 +5688,8 @@ Id m2d_gibbs_spde(Db* dbin,
 {
   Id error, iatt_f, iatt_out, nvertex, nech, ngrid, ndim, number_hard, nfois;
   Id iptr_ce, iptr_cstd, ecr;
-  double *gwork, nugget, ysigma, vartot;
+  double nugget, ysigma, vartot;
+  VectorDouble gwork;
   VectorDouble ydat;
   VectorDouble ymean;
   VectorDouble yvert;
@@ -5839,7 +5711,6 @@ Id m2d_gibbs_spde(Db* dbin,
 
   error  = 1;
   iatt_f = iatt_out = -1;
-  gwork             = nullptr;
   dbc               = nullptr;
   Qc                = nullptr;
   m2denv            = nullptr;
@@ -5978,9 +5849,8 @@ Id m2d_gibbs_spde(Db* dbin,
 
   if (flag_drift)
   {
-    gwork = (double*)mem_alloc(sizeof(double) * ngrid * nlayer, 0);
-    if (gwork == nullptr) goto label_end;
-    st_m2d_drift_save(m2denv, dbout, nlayer, gwork);
+    gwork.resize(ngrid * nlayer);
+    st_m2d_drift_save(m2denv, dbout, nlayer, gwork.data());
     for (Id ilayer = 0; ilayer < nlayer; ilayer++)
     {
       dbout->setColumnByUIDOldStyle(&GWORK(ilayer, 0), iatt_out + ilayer);
@@ -6109,8 +5979,7 @@ Id m2d_gibbs_spde(Db* dbin,
 
       Bproj = dynamic_cast<MatrixSparse*>(Matelem.amesh->createProjMatrix(dbout, -1, false));
       if (Bproj == nullptr) goto label_end;
-      gwork = (double*)mem_alloc(sizeof(double) * ngrid * nlayer, 0);
-      if (gwork == nullptr) goto label_end;
+      gwork.resize(ngrid * nlayer);
 
       /* Project from vertices to grid nodes */
 
@@ -6133,7 +6002,7 @@ Id m2d_gibbs_spde(Db* dbin,
           GWORK(ilayer, igrid) = lwork[ilayer];
       }
 
-      st_m2d_stats_gaus("Depth on grid", nlayer, ngrid, gwork);
+      st_m2d_stats_gaus("Depth on grid", nlayer, ngrid, gwork.data());
       for (Id ilayer = 0; ilayer < nlayer; ilayer++)
       {
         dbout->setColumnByUIDOldStyle(&GWORK(ilayer, 0),
@@ -6207,7 +6076,6 @@ label_end:
   st_m2denv_manage(-1, flag_ed, 0., m2denv);
   st_qchol_manage(-1, Qc);
   delete Bproj;
-  mem_free((char*)gwork);
   if (iatt_f >= 0) dbin->deleteColumnsByUIDRange(iatt_f, nlayer);
   if (error && iatt_out >= 0)
     dbout->deleteColumnsByUIDRange(iatt_out, nlayer);

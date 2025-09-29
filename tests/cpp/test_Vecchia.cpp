@@ -19,7 +19,6 @@
 #include "Estimation/CalcImage.hpp"
 #include "Estimation/CalcKriging.hpp"
 #include "Estimation/Vecchia.hpp"
-#include "Matrix/MatrixT.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighMoving.hpp"
@@ -33,8 +32,8 @@ using namespace gstlrn;
 
 static Db* _createDb(Id nvar = 1, Id ndat = 5, bool verbose = false)
 {
-  Id ndim  = 2;
-  Db* db   = Db::createFillRandom(ndat, ndim, nvar);
+  Id ndim = 2;
+  Db* db  = Db::createFillRandom(ndat, ndim, nvar);
   // db->setZVariable(3, 0, TEST);
   DbStringFormat dbfmt1(FLAG_ARRAY);
   if (verbose) db->display(&dbfmt1);
@@ -83,8 +82,8 @@ int main(int argc, char* argv[])
   {
     mestitle(0, "Checking Vecchia Class");
     _dumpLimit(1);
-    Db* db             = _createDb(1, 5, true);
-    Model* model       = _createModel(1);
+    Db* db       = _createDb(1, 5, true);
+    Model* model = _createModel(1);
     Vecchia V(model, nb_vecchia, db);
     auto Ranks = findNN(db, nullptr, nb_vecchia + 1, false, true);
     (void)V.computeLower(Ranks, true);
@@ -113,7 +112,7 @@ int main(int argc, char* argv[])
     mestitle(0, "Log-Likelihood");
     Db* db              = _createDb(1, 20000, false);
     Model* model        = _createModel(1);
-    const double result = logLikelihoodVecchia(db, model, 10, false);
+    const double result = logLikelihoodVecchia(db, model, nb_vecchia, false);
     message("Log-likelihood = %f\n", result);
     delete db;
     delete model;

@@ -617,7 +617,7 @@ Id KrigingSystem::estimate(Id iech_out)
   {
     if (_flagFactorKriging)
     {
-      CovLMCAnamorphosis* cova = dynamic_cast<CovLMCAnamorphosis*>(_model->_getCovModify());
+      auto* cova = dynamic_cast<CovLMCAnamorphosis*>(_model->_getCovModify());
       if (cova != nullptr)
         message("\nProcessing Factor %d / %d\n", cova->getActiveFactor(), _nclasses);
     }

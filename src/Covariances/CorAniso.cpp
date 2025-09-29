@@ -24,7 +24,6 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovFactory.hpp"
-#include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/TabNoStatCovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Enum/EConsElem.hpp"
@@ -1074,7 +1073,7 @@ void CorAniso::optimizationTransformSP(const SpacePoint& ptin,
 
   if (isOptimEnabled())
   {
-    _aniso.applyInverseInPlace(ptin.getCoords(), ptout.getCoordRef());
+    _aniso.applyInverseInPlace(ptin.getCoordsView(), ptout.getCoordsView());
     ptout.setProjected(true);
   }
 }
@@ -1082,7 +1081,7 @@ void CorAniso::optimizationTransformSP(const SpacePoint& ptin,
 void CorAniso::optimizationTransformSPNew(const SpacePoint& ptin,
                                           SpacePoint& ptout) const
 {
-  _aniso.applyInverseInPlace(ptin.getCoords(), ptout.getCoordRef());
+  _aniso.applyInverseInPlace(ptin.getCoordsView(), ptout.getCoordsView());
 }
 /**
  * Transform a set of Space Points using the anisotropy tensor
@@ -1584,6 +1583,8 @@ void CorAniso::appendParams(ListParams& listparams,
 {
   listparams.addParams(_scales);
   listparams.addParams(_angles);
+  if (_scales.size () == 0 && _angles.size() == 0)
+    return;
   auto derivCache = std::make_shared<DerivCache>();
   _handleConstraints();
   Id i = 0;

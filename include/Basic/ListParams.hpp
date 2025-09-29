@@ -29,8 +29,8 @@ public:
   void setValue(Id index, double value);
   std::vector<double> getOptimizableValues() const;
   void setValues(const std::vector<double>& values);
-  std::vector<double> getMinValues() const;
-  std::vector<double> getMaxValues() const;
+  std::vector<double> getMinValues(double epsilon = 0.) const;
+  std::vector<double> getMaxValues(double epsilon = 0.) const;
   void makeDispatchIndexFromDispatch();
   double getOptimizableValue(size_t index) const;
 

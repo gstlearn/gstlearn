@@ -74,7 +74,7 @@ double CovMatern::_newMatern(double h) const
   return 2. * pow(h / 2., third) * _besselK(getParam(), h) / exp(loggamma(third));
 }
 
-double CovMatern::_evaluateCovDerivative(double h) const
+double CovMatern::_evaluateCovFirstDerivative(double h) const
 {
   if (h == 0) return 1;
   double nu    = getParam();

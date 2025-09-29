@@ -76,7 +76,10 @@ double ACovFunc::evalCovDerivative(Id degree, double h) const
 {
   return _evaluateCovDerivative(degree, h);
 }
-
+double ACovFunc::evalCovFirstDerivativeOverH(double h) const
+{
+  return _evaluateCovFirstDerivativeOverH(h);
+}
 double ACovFunc::evalCovOnSphere(double alpha,
                                  double scale,
                                  Id degree) const
@@ -89,21 +92,6 @@ VectorDouble ACovFunc::evalSpectrumOnSphere(Id n, double scale) const
   return _evaluateSpectrumOnSphere(n, scale);
 }
 
-VectorDouble ACovFunc::evalCovVec(const VectorDouble& vech) const
-{
-  VectorDouble vec;
-  for (const auto& h: vech)
-    vec.push_back(evalCorFunc(h));
-  return vec;
-}
-VectorDouble ACovFunc::evalCovDerivativeVec(Id degree,
-                                            const VectorDouble& vech) const
-{
-  VectorDouble vec;
-  for (const auto& i: vech)
-    vec.push_back(evalCovDerivative(degree, i));
-  return vec;
-}
 String ACovFunc::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;

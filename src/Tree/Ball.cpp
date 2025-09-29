@@ -12,17 +12,28 @@
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
+#include "Db/RankHandler.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Tree/ball_algorithm.h"
+#include "geoslib_define.h"
 
 namespace gstlrn
 {
-
+/**
+ * @brief Construct a new Ball tree object
+ *
+ * @param dbin  Input database
+ * @param dbout Output database (appended to input) (can be null)
+ * @param leaf_size Number of elements in the leafs of the Ball tree
+ * @param all_available True if samples are available for selection at the beginning (True by default)
+ * @param default_distance_function 1 for Euclidean distance, 2 for Manhattan
+ * @param useSel True if only the selected samples of dbin are used to build the Ball tree
+ */
 Ball::Ball(const Db* dbin,
            const Db* dbout,
            Id leaf_size,
-           bool has_constraints,
+           bool all_available,
            Id default_distance_function,
            bool useSel)
   : _tree()
@@ -32,21 +43,21 @@ Ball::Ball(const Db* dbin,
   auto internal = _getInformationFromDb(dbin, dbout, useSel, &n_samples, &n_features);
   if (internal.empty()) return;
 
-  _tree = t_btree(std::move(internal), n_samples, n_features, has_constraints,
+  _tree = t_btree(std::move(internal), n_samples, n_features, all_available,
                   leaf_size, default_distance_function);
 }
 
 /**
- * @brief Construct a new Ball object based on the barycenters of the meshes
+ * @brief Construct a new Ball tree object based on the barycenters of the meshes
  *
  * @param mesh  AMesh description
  * @param leaf_size Number of elements in the leafs of the Ball tree
- * @param has_constraints True if constraints are applied on the Ball Tree
+ * @param all_available True if samples are available for selection at the beginning
  * @param default_distance_function 1 for Euclidean distance, 2 for Manhattan
  */
 Ball::Ball(const AMesh* mesh,
            Id leaf_size,
-           bool has_constraints,
+           bool all_available,
            Id default_distance_function)
 {
   Id n_samples;
@@ -54,12 +65,21 @@ Ball::Ball(const AMesh* mesh,
   auto internal = _getInformationFromMesh(mesh, &n_samples, &n_features);
   if (internal.empty()) return;
 
-  _tree = t_btree(std::move(internal), n_samples, n_features, has_constraints,
+  _tree = t_btree(std::move(internal), n_samples, n_features, all_available,
                   leaf_size, default_distance_function);
 }
-
+/**
+ * @brief Construct a new Ball tree object
+ *
+ * @param db  Input database
+ * @param leaf_size Number of elements in the leafs of the Ball tree
+ * @param all_available True if samples are available for selection at the beginning (True by default)
+ * @param default_distance_function 1 for Euclidean distance, 2 for Manhattan
+ * @param useSel True if only the selected samples of dbin are used to build the Ball tree
+ */
 void Ball::init(const Db* db,
                 Id leaf_size,
+                bool all_available,
                 Id default_distance_function,
                 bool useSel)
 {
@@ -68,7 +88,7 @@ void Ball::init(const Db* db,
   auto internal = _getInformationFromDb(db, nullptr, useSel, &n_samples, &n_features);
   if (internal.empty()) return;
 
-  _tree = t_btree(std::move(internal), n_samples, n_features, false, leaf_size, default_distance_function);
+  _tree = t_btree(std::move(internal), n_samples, n_features, all_available, leaf_size, default_distance_function);
 }
 
 KNN Ball::queryAsVVD(const VectorVectorDouble& test, Id n_neighbors)
@@ -177,31 +197,19 @@ void Ball::display(Id level) const
   _tree.display(level);
 }
 
-bool Ball::_isConstraintDefined() const
-{
-  if (_tree.accept.empty())
-  {
-    messerr("You may not set one Constraint if not initialized in Ball constructor");
-    return false;
-  }
-  return true;
-}
-
-Id Ball::setConstraint(Id rank, bool status)
+Id Ball::setAvailable(Id rank, bool status)
 {
   if (empty()) return 1;
-  if (!_isConstraintDefined()) return 1;
   if (rank < 0 || rank >= _tree.n_samples) return 1;
-  _tree.accept[rank] = status;
+  _tree.available[rank] = status;
   return 0;
 }
 
-Id Ball::resetConstraints(bool status)
+Id Ball::resetAvailable(bool status)
 {
   if (empty()) return 1;
-  if (!_isConstraintDefined()) return 1;
   for (Id i = 0, n = _tree.n_samples; i < n; i++)
-    _tree.accept[i] = status;
+    _tree.available[i] = status;
   return 0;
 }
 
@@ -211,8 +219,10 @@ MatrixT<Id> findNN(const Db* dbin,
                    bool flagShuffle,
                    bool verbose,
                    Id leaf_size,
-                   Id default_distance_function)
+                   Id default_distance_function,
+                   bool likelihood)
 {
+  DECLARE_UNUSED(likelihood)
   MatrixT<Id> mat;
 
   // Preliminary checks
@@ -225,10 +235,13 @@ MatrixT<Id> findNN(const Db* dbin,
   }
 
   // Creating the Ball tree
-  Ball ball(dbin, dbout, leaf_size, true, default_distance_function);
+  Ball ball(dbin, dbout, leaf_size, false, default_distance_function);
   if (verbose) ball.display(1);
 
   // Dimensioning the output matrix
+  //RankHandler rh = RankHandler(dbin, true, true, true, likelihood);
+  //rh.defineSampleRanks();
+  
   Id n1 = dbin->getNSample(true);
   Id n2 = (dbout != nullptr) ? dbout->getNSample(true) : 0;
   mat.resize(n1 + n2, nb_neigh);
@@ -247,8 +260,8 @@ MatrixT<Id> findNN(const Db* dbin,
   {
     Id iech = ranks[jech];
     dbin->getSampleAsSPInPlace(pt, iech);
-    ball.setConstraint(iech, true);
-    (void)ball.queryOneInPlace(pt.getCoordUnprotected(), nb_neigh, neighs, distances);
+    ball.setAvailable(iech, true);
+    (void)ball.queryOneInPlace(pt.getCoordsUnprotected(), nb_neigh, neighs, distances);
     for (Id i = 0; i < nb_neigh; i++) mat(jech, i) = neighs[i];
 
     if (verbose)
@@ -265,8 +278,8 @@ MatrixT<Id> findNN(const Db* dbin,
     {
       Id iech = ranks[jech];
       dbout->getSampleAsSPInPlace(pt, iech);
-      ball.setConstraint(iech + n1, true);
-      (void)ball.queryOneInPlace(pt.getCoordUnprotected(), nb_neigh, neighs, distances);
+      ball.setAvailable(iech + n1, true);
+      (void)ball.queryOneInPlace(pt.getCoordsUnprotected(), nb_neigh, neighs, distances);
       for (Id i = 0; i < nb_neigh; i++) mat(n1 + jech, i) = neighs[i];
 
       if (verbose)

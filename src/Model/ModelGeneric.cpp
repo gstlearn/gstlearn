@@ -65,6 +65,12 @@ void ModelGeneric::setField(double field)
   copyCovContext(_ctxt);
 }
 
+void ModelGeneric::setContext(const CovContext& ctxt)
+{
+  _ctxt = ctxt;
+  _cova->setContext(ctxt);
+}
+
 bool ModelGeneric::isValid() const
 {
   return _isValid();
@@ -88,8 +94,7 @@ bool ModelGeneric::_isValid() const
  */
 double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
 {
-  auto* like = Likelihood::createForOptim(this, db);
-  like->init(verbose);
+  auto* like = Likelihood::createForOptim(this, db, false, verbose);
   return like->computeLogLikelihood(verbose);
 }
 
@@ -382,13 +387,20 @@ void ModelGeneric::fitNew(const Db* db,
                                                   constraints, mop,
                                                   nb_neighVecchia,
                                                   reml);
+
+  if (amopt == nullptr)
+  {
+    messerr("No Optimizer could be created");
+    return;
+  }
+
   amopt->setVerbose(verbose, trace);
   amopt->resetIter();
   amopt->run();
   delete amopt;
 
   // Cancel the structure possibly used for Goulard (to be improved)
-  ModelCovList* mcv = dynamic_cast<ModelCovList*>(this);
+  auto* mcv = dynamic_cast<ModelCovList*>(this);
   if (mcv != nullptr)
     mcv->deleteFitSills();
 }

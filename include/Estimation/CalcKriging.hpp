@@ -28,12 +28,12 @@ class DbGrid;
 class GSTLEARN_EXPORT Krigtest_Res
 {
 public:
-  Id ndim;               // Space dimension
-  Id nvar;               // Number of variables
-  Id nech;               // Number of Neighboring samples
-  Id CSize;              // Number of drift equations in the Drift part
-  Id DSize;              // Number of Equations of the Covariance part
-  Id nrhs;               // Number of R.H.S. vectors
+  Id ndim;                // Space dimension
+  Id nvar;                // Number of variables
+  Id nech;                // Number of Neighboring samples
+  Id CSize;               // Number of drift equations in the Drift part
+  Id DSize;               // Number of Equations of the Covariance part
+  Id nrhs;                // Number of R.H.S. vectors
   VectorInt nbgh;         // Ranks of the neighboring samples
   VectorVectorDouble xyz; // Coordinates of the neighboring samples [ndim][nech]
   VectorDouble data;      // Usable values at neighboring samples [neq]
@@ -118,56 +118,56 @@ private:
 };
 
 GSTLEARN_EXPORT Id kriging(Db* dbin,
+                           Db* dbout,
+                           ModelGeneric* model,
+                           ANeigh* neigh,
+                           bool flag_est                   = true,
+                           bool flag_std                   = true,
+                           bool flag_varz                  = false,
+                           const KrigOpt& krigopt          = KrigOpt(),
+                           const NamingConvention& namconv = NamingConvention("Kriging"));
+GSTLEARN_EXPORT Id krigcell(Db* dbin,
                             Db* dbout,
                             ModelGeneric* model,
                             ANeigh* neigh,
                             bool flag_est                   = true,
                             bool flag_std                   = true,
-                            bool flag_varz                  = false,
                             const KrigOpt& krigopt          = KrigOpt(),
-                            const NamingConvention& namconv = NamingConvention("Kriging"));
-GSTLEARN_EXPORT Id krigcell(Db* dbin,
-                             Db* dbout,
-                             ModelGeneric* model,
-                             ANeigh* neigh,
-                             bool flag_est                   = true,
-                             bool flag_std                   = true,
-                             const KrigOpt& krigopt          = KrigOpt(),
-                             const NamingConvention& namconv = NamingConvention("KrigCell"));
+                            const NamingConvention& namconv = NamingConvention("KrigCell"));
 GSTLEARN_EXPORT Id kribayes(Db* dbin,
-                             Db* dbout,
-                             ModelGeneric* model,
-                             ANeigh* neigh,
-                             const VectorDouble& prior_mean   = VectorDouble(),
-                             const MatrixSymmetric& prior_cov = MatrixSymmetric(),
-                             bool flag_est                    = true,
-                             bool flag_std                    = true,
-                             const NamingConvention& namconv  = NamingConvention("Bayes"));
-GSTLEARN_EXPORT Id kriggam(Db* dbin,
                             Db* dbout,
                             ModelGeneric* model,
                             ANeigh* neigh,
-                            AAnam* anam,
-                            const NamingConvention& namconv = NamingConvention("KrigGam"));
+                            const VectorDouble& prior_mean   = VectorDouble(),
+                            const MatrixSymmetric& prior_cov = MatrixSymmetric(),
+                            bool flag_est                    = true,
+                            bool flag_std                    = true,
+                            const NamingConvention& namconv  = NamingConvention("Bayes"));
+GSTLEARN_EXPORT Id kriggam(Db* dbin,
+                           Db* dbout,
+                           ModelGeneric* model,
+                           ANeigh* neigh,
+                           AAnam* anam,
+                           const NamingConvention& namconv = NamingConvention("KrigGam"));
 GSTLEARN_EXPORT Krigtest_Res krigtest(Db* dbin,
                                       Db* dbout,
                                       ModelGeneric* model,
                                       ANeigh* neigh,
-                                      Id iech0              = 0,
+                                      Id iech0               = 0,
                                       const KrigOpt& krigopt = KrigOpt(),
                                       bool verbose           = true);
 GSTLEARN_EXPORT Id xvalid(Db* db,
-                           ModelGeneric* model,
-                           ANeigh* neigh,
-                           bool flag_kfold                 = false,
-                           Id flag_xvalid_est             = 1,
-                           Id flag_xvalid_std             = 1,
-                           Id flag_xvalid_varz            = 0,
-                           const KrigOpt& krigopt          = KrigOpt(),
-                           const NamingConvention& namconv = NamingConvention("Xvalid"));
+                          ModelGeneric* model,
+                          ANeigh* neigh,
+                          bool flag_kfold                 = false,
+                          Id flag_xvalid_est              = 1,
+                          Id flag_xvalid_std              = 1,
+                          Id flag_xvalid_varz             = 0,
+                          const KrigOpt& krigopt          = KrigOpt(),
+                          const NamingConvention& namconv = NamingConvention("Xvalid"));
 GSTLEARN_EXPORT Id test_neigh(Db* dbin,
-                               Db* dbout,
-                               ModelGeneric* model,
-                               ANeigh* neigh,
-                               const NamingConvention& namconv = NamingConvention("Neigh"));
+                              Db* dbout,
+                              ModelGeneric* model,
+                              ANeigh* neigh,
+                              const NamingConvention& namconv = NamingConvention("Neigh"));
 } // namespace gstlrn

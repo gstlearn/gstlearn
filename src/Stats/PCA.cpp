@@ -213,8 +213,8 @@ String PCA::toString(const AStringFormat* strfmt) const
 }
 
 Id PCA::dbZ2F(Db* db,
-               bool verbose,
-               const NamingConvention& namconv)
+              bool verbose,
+              const NamingConvention& namconv)
 {
   if (db == nullptr)
   {
@@ -261,8 +261,8 @@ Id PCA::dbZ2F(Db* db,
 }
 
 Id PCA::dbF2Z(Db* db,
-               bool verbose,
-               const NamingConvention& namconv)
+              bool verbose,
+              const NamingConvention& namconv)
 {
   if (db == nullptr)
   {
@@ -628,10 +628,10 @@ Id PCA::maf_compute_interval(Db* db, double hmin, double hmax, bool verbose)
  **
  *****************************************************************************/
 Id PCA::maf_compute(Db* db,
-                     const VarioParam& varioparam,
-                     Id ilag0,
-                     Id idir0,
-                     bool verbose)
+                    const VarioParam& varioparam,
+                    Id ilag0,
+                    Id idir0,
+                    bool verbose)
 {
   return _mafCompute(db, varioparam, ilag0, idir0, TEST, TEST, verbose);
 }
@@ -656,12 +656,12 @@ Id PCA::maf_compute(Db* db,
  **
  *****************************************************************************/
 Id PCA::_mafCompute(Db* db,
-                     const VarioParam& varioparam,
-                     Id ilag0,
-                     Id idir0,
-                     double hmin,
-                     double hmax,
-                     bool verbose)
+                    const VarioParam& varioparam,
+                    Id ilag0,
+                    Id idir0,
+                    double hmin,
+                    double hmax,
+                    bool verbose)
 {
   /* Initializations */
 
@@ -822,7 +822,7 @@ void PCA::_variogramh(Db* db,
 
 VectorBool PCA::_getVectorIsotopic(const Db* db)
 {
-  Id nech           = db->getNSample();
+  Id nech = db->getNSample();
   VectorBool isoFlag(nech);
 
   for (Id iech = 0; iech < nech; iech++)
@@ -846,7 +846,7 @@ VectorDouble PCA::mafOfIndex() const
 {
   // Calculate the probability of each interval
   VectorDouble w = _mean;
-  Id ncut       = static_cast<Id>(_mean.size());
+  Id ncut        = static_cast<Id>(_mean.size());
   w.push_back(1 - VH::cumul(_mean));
   Id nclass = static_cast<Id>(w.size());
 

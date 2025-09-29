@@ -49,8 +49,8 @@ Id ProjComposition::_addPoint2mesh(const constvect in, vect out) const
   if (_projs.size() == 0) return -1;
   if (_projs.size() == 1) return _projs[0]->addPoint2mesh(in, out);
 
-  // Call point2mesh() on 'in' to initialise the temporary result to 0, but
-  // use addPoint2Mesh() for the rest to preserve what's already in 'out'.
+  // Call point2mesh() to initialise temporary results to 0, but use
+  // addPoint2Mesh() at the end to preserve what's already in 'out'.
   size_t idx = _projs.size()-1;
 
   // Unroll a bit the loop because first/last use different in/out arrays.
@@ -61,7 +61,7 @@ Id ProjComposition::_addPoint2mesh(const constvect in, vect out) const
 
   while (idx > 0)
   {
-    ret = _projs[idx]->addPoint2mesh(_works[idx], _works[idx-1]);
+    ret = _projs[idx]->point2mesh(_works[idx], _works[idx-1]);
     if (ret != 0) return ret;
     idx--;
   }
@@ -81,7 +81,7 @@ Id ProjComposition::_addMesh2point(const constvect in, vect out) const {
 
   while (idx < _projs.size() - 1)
   {
-    ret = _projs[idx]->addMesh2point(_works[idx-1], _works[idx]);
+    ret = _projs[idx]->mesh2point(_works[idx-1], _works[idx]);
     if (ret != 0) return ret;
     idx++;
   }

@@ -121,90 +121,6 @@ std::vector<double> ACov::evalCovGrad(const SpacePoint& p1,
   return res;
 }
 
-double ACov::evalZGNumeric(const SpacePoint& p1,
-                           const SpacePoint& p2,
-                           Id ivar,
-                           Id jvar,
-                           Id idim,
-                           double radius,
-                           const CovCalcMode* mode) const
-{
-  SpacePoint paux;
-  auto ndim = getContext().getNDim();
-  VectorDouble vec(ndim, 0);
-
-  vec[idim] = +radius / 2.;
-  paux      = p2;
-  paux.move(vec);
-  double covp0 = _eval(p1, paux, ivar, jvar, mode);
-  vec[idim]    = -radius / 2.;
-  paux         = p2;
-  paux.move(vec);
-  double covm0 = _eval(p1, paux, ivar, jvar, mode);
-
-  double cov = (covm0 - covp0) / radius;
-  return (cov);
-}
-
-double ACov::evalGGNumeric(const SpacePoint& p1,
-                           const SpacePoint& p2,
-                           Id ivar,
-                           Id jvar,
-                           Id idim,
-                           Id jdim,
-                           double radius,
-                           const CovCalcMode* mode) const
-{
-  SpacePoint paux;
-  auto ndim = getContext().getNDim();
-  VectorDouble vec(ndim, 0);
-
-  double cov;
-  if (idim != jdim)
-  {
-    vec[idim] = -radius / 2.;
-    vec[jdim] = +radius / 2.;
-    paux      = p2;
-    paux.move(vec);
-    double covmp = _eval(p1, paux, ivar, jvar, mode);
-    vec[idim]    = -radius / 2.;
-    vec[jdim]    = -radius / 2.;
-    paux         = p2;
-    paux.move(vec);
-    double covmm = _eval(p1, paux, ivar, jvar, mode);
-    vec[idim]    = +radius / 2.;
-    vec[jdim]    = -radius / 2.;
-    paux         = p2;
-    paux.move(vec);
-    double covpm = _eval(p1, paux, ivar, jvar, mode);
-    vec[idim]    = +radius / 2.;
-    vec[jdim]    = +radius / 2.;
-    paux         = p2;
-    paux.move(vec);
-    double covpp = _eval(p1, paux, ivar, jvar, mode);
-
-    cov = (covmm + covpp - covmp - covpm) / (radius * radius);
-  }
-  else
-  {
-    vec[idim] = +radius;
-    paux      = p2;
-    paux.move(vec);
-    double cov2m = _eval(p1, paux, ivar, jvar, mode);
-    vec[idim]    = -radius;
-    paux         = p2;
-    paux.move(vec);
-    double cov2p = _eval(p1, paux, ivar, jvar, mode);
-    vec[idim]    = 0;
-    paux         = p2;
-    paux.move(vec);
-    double cov00 = _eval(p1, paux, ivar, jvar, mode);
-
-    cov = -2. * (cov2p - 2. * cov00 + cov2m) / (radius * radius);
-  }
-  return (cov);
-}
-
 void ACov::optimizationPostProcess() const
 {
   _p1As.clear();
@@ -1357,6 +1273,7 @@ Id ACov::evalCovMatRHSInPlaceFromIdx(MatrixDense& mat,
   else if (calcul == EKrigOpt::DRIFT)
   {
     // No calculation needed for Large scale drift estimation
+    // Returned covariance is 0.
   }
   else
   {

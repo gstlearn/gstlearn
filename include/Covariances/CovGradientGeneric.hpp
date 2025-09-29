@@ -42,14 +42,8 @@ public:
   /// AStringable Interface
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  bool isConsistent(const ASpace* space) const override
-  {
-    DECLARE_UNUSED(space)
-    return true;
-  }
-
-  /// ACov Interface
-  Id getNVar() const override { return _nVar; }
+  double getBallRadius() const { return _ballRadius; }
+  const ACov& getCovRef() const { return _covRef; }
 
 protected:
   double _eval(const SpacePoint& p1,
@@ -60,12 +54,20 @@ protected:
   void _optimizationSetTarget(SpacePoint& pt) const override;
 
 private:
-  bool _isValidForGradient() const;
+  virtual bool _isValid() const;
+  double _evalZGradientNumeric(const SpacePoint& p1,
+                               const SpacePoint& p2,
+                               Id idim,
+                               const CovCalcMode* mode) const;
+  double _evalGradientGradientNumeric(const SpacePoint& p1,
+                                      const SpacePoint& p2,
+                                      Id idim,
+                                      Id jdim,
+                                      const CovCalcMode* mode) const;
 
 private:
-  Id _nVar;
   double _ballRadius;
-  const ACov& _covRef;
+  const ACov& _covRef; // Monovariate Reference structure
 };
 
 } // namespace gstlrn

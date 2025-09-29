@@ -12,7 +12,6 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/Memory.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/String.hpp"
@@ -25,7 +24,9 @@
 #include "Drifts/DriftList.hpp"
 #include "Enum/ECalcMember.hpp"
 #include "Estimation/KrigingSystem.hpp"
+#include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixFactory.hpp"
+#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/CovInternal.hpp"
 #include "Model/Model.hpp"
@@ -61,7 +62,6 @@
 #define NEI_REF(ix, iy, iz)     nei_ref[IAD(ix, iy, iz, nei_nn, nei_ss)]
 #define CC(iz, jz)              (cc[(jz) * ((jz) + 1) / 2 + (iz)])
 #define UTAB(i, j)              (utab[(i) + ndat * (j)])
-#define TUTIL(i, j)             (tutil[(i) + nutil * (j)])
 #define SPART(i, j)             (spart[(i) + npart * (j)])
 #define COVSS(is, js)           (covss[(js) + ns * (is)])
 #define COVGEN(i1, i2)          (covgen[(i2) + n2 * (i1)])
@@ -2971,7 +2971,7 @@ static VectorInt st_ranks_other(Id nech,
  ** \param[out] ntot_arg   Number of pivots
  ** \param[out] nutil_arg  Number of active samples
  ** \param[out] rutil      Rank of the active samples
- ** \param[out] tutil      Returned array for the U array
+ ** \param[out] tutil      Returned Matrix for the U array
  ** \param[out] invsig     Returned array for Inverse Sigma
  **
  *****************************************************************************/
@@ -2984,13 +2984,11 @@ static Id st_sampling_krige_data(Db* db,
                                  Id* ntot_arg,
                                  Id* nutil_arg,
                                  VectorInt& rutil,
-                                 VectorDouble& tutil,
-                                 VectorDouble& invsig)
+                                 MatrixDense& tutil,
+                                 MatrixSquare& invsig)
 {
   Id i, j, ecr, nmax;
-  VectorDouble utab;
   double sumval;
-  VectorInt ralls;
   VectorInt isort;
   VectorDouble vsort;
 
@@ -3007,10 +3005,8 @@ static Id st_sampling_krige_data(Db* db,
 
   /* Core allocation */
 
-  utab.resize(ndat * ntot);
-  for (i = 0; i < ndat * ntot; i++)
-    utab[i] = 0.;
-  ralls.resize(ndat, 0);
+  VectorDouble utab(ndat * ntot, 0.);
+  VectorDouble ralls(ndat, 0.);
 
   /* Defining 'utab' for exact pivots */
 
@@ -3106,8 +3102,8 @@ static Id st_sampling_krige_data(Db* db,
   /* Create the output arrays */
 
   rutil.resize(nutil, 0);
-  tutil.resize(ntot * nutil);
-  invsig.resize(ntot * ntot);
+  tutil.reset(nutil, ntot);
+  invsig.reset(ntot, ntot);
 
   for (i = ecr = 0; i < ndat; i++)
   {
@@ -3117,13 +3113,13 @@ static Id st_sampling_krige_data(Db* db,
     if (sumval <= 0.) continue;
     rutil[ecr] = ralls[i];
     for (j = 0; j < ntot; j++)
-      TUTIL(ecr, j) = UTAB(i, j);
+      tutil.setValue(ecr, j, UTAB(i, j));
     ecr++;
   }
   mat_s = model->evalCovMatSym(db, rutil, -1);
-  if (matrix_prod_norme(-1, nutil, ntot, tutil.data(), mat_s.getValues().data(),
-                        invsig.data())) goto label_end;
-  if (matrix_invert(invsig.data(), ntot, 0)) goto label_end;
+  if (matrix_prod_norme(-1, nutil, ntot, tutil.getValues().data(), mat_s.getValues().data(),
+                        invsig.getValues().data())) goto label_end;
+  if (matrix_invert(invsig.getValues().data(), ntot, 0)) goto label_end;
   utab.clear();
 
   /* Returning arguments */
@@ -3167,15 +3163,9 @@ Id st_krige_data(Db* db,
                  double* data_est,
                  double* data_var)
 {
-  double estim, variance, true_value;
   VectorInt rutil;
-  VectorDouble tutil;
-  VectorDouble invsig;
-
-  /* Initializations */
-
-  double* s   = nullptr;
-  double* c00 = nullptr;
+  MatrixDense tutil;
+  MatrixSquare invsig;
 
   /* Core allocation */
 
@@ -3196,14 +3186,16 @@ Id st_krige_data(Db* db,
   VectorDouble aux2(ntot);
   VectorDouble aux3(ntot);
   VectorDouble aux4(ntot);
+  VectorDouble s;
+  VectorDouble c00;
 
   /* Get the vector of active data and subtract the mean */
 
   VectorDouble data = db->getColumnByLocator(ELoc::Z);
   for (Id i = 0; i < nutil; i++)
     datm[i] = data[rutil[i]] - model->getMean(0);
-  matrix_product_safe(1, nutil, ntot, datm.data(), tutil.data(), aux1.data());
-  matrix_product_safe(1, ntot, ntot, aux1.data(), invsig.data(), aux2.data());
+  tutil.prodVecMatInPlace(datm, aux1);
+  invsig.prodVecMatInPlace(aux1, aux2);
 
   /* Perform the estimation at all non pivot samples */
 
@@ -3213,32 +3205,26 @@ Id st_krige_data(Db* db,
     if (!db->isActive(iech)) continue;
     if (rother[iech] < 0) continue;
     VectorInt vech = {iech};
-    c00            = model->evalCovMat(db, db, -1, -1, vech, vech).getValues().data();
-    s              = model->evalCovMat(db, db, -1, -1, rutil, vech).getValues().data();
+    c00            = model->evalCovMat(db, db, -1, -1, vech, vech).getValues();
+    s              = model->evalCovMat(db, db, -1, -1, rutil, vech).getValues();
 
-    matrix_product_safe(1, nutil, ntot, s, tutil.data(), aux3.data());
-    matrix_product_safe(1, ntot, 1, aux2.data(), aux3.data(), &estim);
+    tutil.prodVecMatInPlace(s, aux3);
+    double estim   = VH::innerProduct(aux2, aux3);
     data_est[iech] = estim + model->getMean(0);
 
     if (flag_abs)
     {
-      true_value = db->getZVariable(iech, 0);
+      double true_value = db->getZVariable(iech, 0);
       if (FFFF(true_value))
         data_est[iech] = TEST;
       else
         data_est[iech] = ABS(data_est[iech] - true_value);
     }
 
-    matrix_product_safe(1, ntot, ntot, aux3.data(), invsig.data(), aux4.data());
-    matrix_product_safe(1, ntot, 1, aux3.data(), aux4.data(), &variance);
-    data_var[iech] = c00[0] - variance;
-
-    s   = (double*)mem_free((char*)s);
-    c00 = (double*)mem_free((char*)c00);
+    invsig.prodVecMatInPlace(aux3, aux4);
+    double variance = VH::innerProduct(aux3, aux4);
+    data_var[iech]  = c00[0] - variance;
   }
-
-  mem_free((char*)s);
-  mem_free((char*)c00);
   return 0;
 }
 
@@ -3263,15 +3249,13 @@ Id st_crit_global(Db* db,
                   double* crit)
 {
   Id ecr;
-  double *c00, *invc, *cs, *cs1;
-  double *temp_loc, estim, sigma, value;
+  double estim, sigma, value;
 
   /* Initializations */
 
   Id nsize1 = static_cast<Id>(ranks1.size());
   Id ndat   = db->getNSample(true);
   Id nutil  = ndat - nsize1;
-  c00 = invc = cs = cs1 = nullptr;
   if (nsize1 <= 0) return 1;
 
   /* Core allocation */
@@ -3279,14 +3263,18 @@ Id st_crit_global(Db* db,
   VectorDouble datm(ndat);
   VectorDouble olderr(nutil);
   VectorDouble olddiv(nutil);
-  VectorDouble temp(nsize1 * nutil, 0);
+  MatrixDense temp(nsize1, nutil);
   VectorDouble aux1(nutil);
+  MatrixSymmetric invc;
+  VectorDouble c00;
+  VectorDouble cs;
+  VectorDouble cs1;
+  VectorDouble temp_loc;
 
   /* Establish the Kriging matrix on the pivot samples */
 
-  invc = model->evalCovMat(db, db, -1, -1, ranks1, ranks1).getValues().data();
-  if (invc == nullptr) return 1;
-  if (matrix_invert(invc, nsize1, 0)) return 1;
+  invc = model->evalCovMatSym(db, ranks1, -1);
+  invc.invert();
 
   /* Set the data vector (corrected by the mean */
 
@@ -3298,26 +3286,21 @@ Id st_crit_global(Db* db,
 
   for (Id iech = ecr = 0; iech < ndat; iech++)
   {
-    temp_loc = &temp[ecr * nsize1];
     if (!db->isActive(iech)) continue;
     if (rother[iech] < 0) continue;
 
     VectorInt vech = {iech};
-    c00            = model->evalCovMat(db, db, -1, -1, vech, vech).getValues().data();
-    if (c00 == nullptr) return 1;
 
-    cs = model->evalCovMat(db, db, -1, -1, ranks1, vech).getValues().data();
-    if (cs == nullptr) return 1;
+    c00 = model->evalCovMat(db, db, -1, -1, vech, vech).getValues();
+    cs  = model->evalCovMat(db, db, -1, -1, ranks1, vech).getValues();
+    invc.prodMatVecInPlace(cs, temp_loc);
+    temp.setColumn(ecr, temp_loc);
 
-    matrix_product_safe(nsize1, nsize1, 1, invc, cs, temp_loc);
-    matrix_product_safe(1, nsize1, 1, datm.data(), temp_loc, &estim);
+    estim       = VH::innerProduct(datm, temp_loc);
     olderr[ecr] = estim + model->getMean(0) - db->getZVariable(iech, 0);
 
-    matrix_product_safe(1, nsize1, 1, cs, temp_loc, &sigma);
+    sigma       = VH::innerProduct(cs, temp_loc);
     olddiv[ecr] = olderr[ecr] / (c00[0] - sigma);
-
-    c00 = (double*)mem_free((char*)c00);
-    cs  = (double*)mem_free((char*)cs);
     ecr++;
   }
 
@@ -3330,30 +3313,21 @@ Id st_crit_global(Db* db,
     if (rother[iech] < 0) continue;
 
     VectorInt vech = {iech};
-    cs             = model->evalCovMat(db, db, -1, -1, vech, ranks1).getValues().data();
-    if (cs == nullptr) return 1;
 
-    cs1 = model->evalCovMat(db, db, -1, -1, vech, rother).getValues().data();
-    if (cs1 == nullptr) return 1;
+    cs  = model->evalCovMat(db, db, -1, -1, vech, ranks1).getValues();
+    cs1 = model->evalCovMat(db, db, -1, -1, vech, rother).getValues();
 
-    matrix_product_safe(1, nsize1, nutil, cs, temp.data(), aux1.data());
-    matrix_combine(nutil, 1, cs1, -1, aux1.data(), cs1);
-    matrix_combine(nutil, 1, olderr.data(), -olddiv[ecr], cs1, cs1);
+    temp.prodVecMatInPlace(cs, aux1);
+    VH::linearCombinationInPlace(1., cs1, -1, aux1, cs1);
+    VH::linearCombinationInPlace(1., olderr, -olddiv[ecr], cs1, cs1);
 
     value = 0.;
     for (Id i = 0; i < nutil; i++)
       value += cs1[i] * cs1[i];
     crit[iech] = value / nutil;
 
-    cs  = (double*)mem_free((char*)cs);
-    cs1 = (double*)mem_free((char*)cs1);
     ecr++;
   }
-
-  mem_free((char*)c00);
-  mem_free((char*)invc);
-  mem_free((char*)cs);
-  mem_free((char*)cs1);
   return 0;
 }
 
@@ -3505,18 +3479,16 @@ Id krigsampling_f(Db* dbin,
                   Id verbose)
 {
   Id ntot, nutil, i;
-  double *s, *c00;
   double estim;
   VectorInt rutil;
-  VectorDouble tutil;
-  VectorDouble invsig;
+  MatrixDense tutil;
+  MatrixSquare invsig;
 
   /* Preliminary checks */
 
   Id nsize1    = static_cast<Id>(ranks1.size());
   Id nsize2    = static_cast<Id>(ranks2.size());
   double sigma = 0.;
-  s = c00 = nullptr;
   st_global_init(dbin, dbout);
   FLAG_EST = true;
   FLAG_STD = flag_std;
@@ -3566,8 +3538,8 @@ Id krigsampling_f(Db* dbin,
   {
     message("Printout of intermediate arrays\n");
     print_imatrix("Pivot ranks", 0, 1, 1, ntot, NULL, rutil.data());
-    print_matrix("Inv-Sigma", 0, 1, ntot, ntot, NULL, invsig.data());
-    print_matrix("U", 0, 1, ntot, nutil, NULL, tutil.data());
+    print_matrix("Inv-Sigma", 0, 1, ntot, ntot, NULL, invsig.getValues().data());
+    print_matrix("U", 0, 1, ntot, nutil, NULL, tutil.getValues().data());
   }
 
   /* Second core allocation */
@@ -3577,6 +3549,8 @@ Id krigsampling_f(Db* dbin,
   VectorDouble aux2(ntot, 0);
   VectorDouble aux3(ntot, 0);
   VectorDouble aux4;
+  VectorDouble s;
+  VectorDouble c00;
   if (FLAG_STD)
     aux4.resize(ntot, 0);
 
@@ -3585,8 +3559,8 @@ Id krigsampling_f(Db* dbin,
   VectorDouble data = dbin->getColumnByLocator(ELoc::Z);
   for (i = 0; i < nutil; i++)
     datm[i] = data[rutil[i]] - model->getMean(0);
-  matrix_product_safe(1, nutil, ntot, datm.data(), tutil.data(), aux1.data());
-  matrix_product_safe(1, ntot, ntot, aux1.data(), invsig.data(), aux2.data());
+  tutil.prodVecMatInPlace(datm, aux1);
+  invsig.prodVecMatInPlace(aux1, aux2);
 
   /* Loop on the target samples */
 
@@ -3602,23 +3576,18 @@ Id krigsampling_f(Db* dbin,
     }
 
     VectorInt vech = {IECH_OUT};
-    s              = model->evalCovMat(dbin, dbout, -1, -1, rutil, vech).getValues().data();
-    if (s == nullptr) return 1;
+    s              = model->evalCovMat(dbin, dbout, -1, -1, rutil, vech).getValues();
     if (FLAG_STD)
-    {
-      c00 = model->evalCovMat(dbout, dbout, -1, -1, vech, vech).getValues().data();
-      if (c00 == nullptr) return 1;
-    }
+      c00 = model->evalCovMat(dbout, dbout, -1, -1, vech, vech).getValues();
 
-    matrix_product_safe(1, nutil, ntot, s, tutil.data(), aux3.data());
-    matrix_product_safe(1, ntot, 1, aux2.data(), aux3.data(), &estim);
-    estim += model->getMean(0);
+    tutil.prodVecMatInPlace(s, aux3);
+    estim = VH::innerProduct(aux2, aux3) + model->getMean(0);
     DBOUT->setArray(IECH_OUT, IPTR_EST, estim);
 
     if (FLAG_STD)
     {
-      matrix_product_safe(1, ntot, ntot, aux3.data(), invsig.data(), aux4.data());
-      matrix_product_safe(1, ntot, 1, aux3.data(), aux4.data(), &sigma);
+      invsig.prodVecMatInPlace(aux3, aux4);
+      sigma = VH::innerProduct(aux3, aux4);
       sigma = c00[0] - sigma;
       sigma = (sigma > 0) ? sqrt(sigma) : 0.;
       DBOUT->setArray(IECH_OUT, IPTR_STD, sigma);
@@ -3636,15 +3605,7 @@ Id krigsampling_f(Db* dbin,
         message("\n");
       }
     }
-
-    /* Core deallocation */
-
-    s   = (double*)mem_free((char*)s);
-    c00 = (double*)mem_free((char*)c00);
   }
-
-  mem_free((char*)s);
-  mem_free((char*)c00);
   return 0;
 }
 

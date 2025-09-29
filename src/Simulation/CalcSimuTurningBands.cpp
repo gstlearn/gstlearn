@@ -2043,7 +2043,7 @@ Id CalcSimuTurningBands::simulatePotential(Db* dbiso,
                                            Db* dbgrd,
                                            Db* dbtgt,
                                            Db* dbout,
-                                           Model* model,
+                                           ModelGeneric* model,
                                            double delta)
 {
   setDbout(dbout);
@@ -2095,7 +2095,7 @@ Id CalcSimuTurningBands::simulatePotential(Db* dbiso,
 
   if (dbout->isGrid())
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+    auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
     _simulateGrid(dbgrid, aic, icase, 0);
   }
   else

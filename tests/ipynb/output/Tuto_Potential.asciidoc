@@ -12,61 +12,11 @@
 
 #NO_DIFF#XXX
 ----
-
-Model characteristics
-=====================
-(Specific for Handling Gradient)
-Space dimension              = 2
-Number of variable(s)        = 1
-Number of basic structure(s) = 1
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
-
-Covariance Part
----------------
-Cubic
-- Sill         =      1.000
-- Range        =      8.000
-Total Sill     =      1.000
-Known Mean(s)     0.000
-----
-
+Potential value at Intercept families = [0.     0.2837 1.6514]
+Potential values at Gradient samples = [0.9826 1.2818 1.6521]
+Potential values at Tangent samples = [0.3921 0.9813]
 
 #NO_DIFF#XXX
-----
-Potential value at Intercept families = [-1.6514 -0.2837  0.    ]
-Potential values at Gradient samples = [-1.6521 -1.2818 -0.9826]
-Potential values at Tangent samples = [-0.9813 -0.3921]
-
-#NO_DIFF#XXX
-----
-
-
-#NO_DIFF#XXX
-----
-
-Model characteristics
-=====================
-(Specific for Handling Gradient)
-Space dimension              = 3
-Number of variable(s)        = 1
-Number of basic structure(s) = 1
-Number of drift function(s)  = 4
-Number of drift equation(s)  = 4
-
-Covariance Part
----------------
-Cubic
-- Sill         =      1.000
-- Range        =     10.000
-Total Sill     =      1.000
-
-Drift Part
-----------
-Universality_Condition
-Drift:x1
-Drift:x2
-Drift:x3
 ----
 
 

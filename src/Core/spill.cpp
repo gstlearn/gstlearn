@@ -8,13 +8,11 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/Memory.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "geoslib_old_f.h"
-
 #include <cstring>
 
 namespace gstlrn
@@ -53,10 +51,10 @@ static Id SXY;
 static Id STEP  = 0;
 static Id Hsize = 0;
 
-static double **Heap, HMAX, HINIT, HTOP, BIGVAL;
-static Id Offset_mark_out, Offset_out_in, SIGNE, OPTION;
-static Id VERBOSE_STEP;
+static double HMAX, HINIT, HTOP, BIGVAL;
+static Id Offset_mark_out, Offset_out_in, SIGNE, OPTION, VERBOSE_STEP;
 static DbGrid* DB;
+static std::vector<double*> Heap;
 
 static SPIMG* SPIMG_OUT  = nullptr;
 static SPIMG* SPIMG_IN   = nullptr;
@@ -703,8 +701,7 @@ Id spill_point(DbGrid* dbgrid,
   /* Creation of the Heap-search Pile */
 
   Hsize = 0;
-  Heap  = (double**)mem_alloc(sizeof(double*) * TXY, 0);
-  if (Heap == nullptr) return (1);
+  Heap.resize(TXY);
 
   /***************************/
   /* Add markers to the Heap */
@@ -775,7 +772,7 @@ Id spill_point(DbGrid* dbgrid,
     st_change(pt_out, SURFACE_INSIDE);
     st_dump(false, String(), pt_out, SPIMG_OUT);
   }
-  Heap = (double**)mem_free((char*)Heap);
+  Heap.clear();
   st_dump(true, "After Filling Flat Boundaries", NULL, SPIMG_OUT);
 
   /***********************************/

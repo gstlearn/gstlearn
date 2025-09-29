@@ -46,6 +46,17 @@ double CovCubic::_evaluateCov(double h) const
   return (cov);
 }
 
+double CovCubic::_evaluateCovFirstDerivativeOverH(double h) const
+{
+  double h2, res;
+
+  res = 0.;
+  h2  = h * h;
+  if (h2 >= 1) return res;
+  res = -14. + h * (26.25 - h2 * (17.5 - 5.25 * h2));
+  return res;
+}
+
 double CovCubic::_evaluateCovDerivative(Id degree, double h) const
 {
   double h2, res;
@@ -57,11 +68,11 @@ double CovCubic::_evaluateCovDerivative(Id degree, double h) const
   switch (degree)
   {
     case 1:
-      res = -14. + h * (26.25 - h2 * (17.5 - 5.25 * h2));
+      res = -14. * h + h2 * (26.25 - h2 * (17.5 - 5.25 * h2));
       break;
 
     case 2:
-      res = -14. + h * (52.5 + h2 * (-70. + 31.5 * h2)); // TODO a verifier
+      res = -14. + h * (52.5 + h2 * (-70. + 31.5 * h2)); 
       break;
   }
   return (res);
@@ -76,4 +87,4 @@ double CovCubic::simulateTurningBand(double t0, TurningBandOperate& operTB) cons
 {
   return operTB.shotNoiseCubicOne(t0);
 }
-}
+} // namespace gstlrn

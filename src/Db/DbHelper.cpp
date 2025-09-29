@@ -16,12 +16,11 @@
 #include "Skin/Skin.hpp"
 #include "geoslib_old_f.h"
 
-
-#define R(i,j)              (R[(i) * n + (j)])
+#define R(i, j) (R[(i) * n + (j)])
 
 namespace gstlrn
 {
-static DbGrid *DB_GRID_FILL;
+static DbGrid* DB_GRID_FILL;
 
 class LocalSkin: public ISkinFunctions
 {
@@ -79,11 +78,11 @@ class LocalSkin: public ISkinFunctions
  **
  *****************************************************************************/
 static Id st_code_comparable(const Db* db1,
-                              const Db* db2,
-                              Id iech,
-                              Id jech,
-                              Id opt_code,
-                              Id tolcode)
+                             const Db* db2,
+                             Id iech,
+                             Id jech,
+                             Id opt_code,
+                             Id tolcode)
 {
   double code1, code2;
 
@@ -194,10 +193,10 @@ static void st_grid_fill_neigh(Id ipos,
  **
  *****************************************************************************/
 static Id st_grid_fill_calculate(Id ipos,
-                                  Id mode,
-                                  Id nech,
-                                  Id* tabind,
-                                  const double* tabval)
+                                 Id mode,
+                                 Id nech,
+                                 Id* tabind,
+                                 const double* tabval)
 {
   double dist, dist2, dmin;
 
@@ -206,7 +205,7 @@ static Id st_grid_fill_calculate(Id ipos,
   double result = 0.;
   double top    = 0.;
   double bot    = 0.;
-  Id ndim      = DB_GRID_FILL->getNDim();
+  Id ndim       = DB_GRID_FILL->getNDim();
 
   /* Dispatch according to the extrapolation mode */
 
@@ -324,12 +323,12 @@ static void st_write_active_sample(Db* db,
  **
  *****************************************************************************/
 static Id st_read_active_sample(Db* db,
-                                 Id flag_zero,
-                                 Id iech,
-                                 Id nvar,
-                                 Id* iatt,
-                                 double eps,
-                                 double* tab)
+                                Id flag_zero,
+                                Id iech,
+                                Id nvar,
+                                Id* iatt,
+                                double eps,
+                                double* tab)
 {
   Id ivar, number;
 
@@ -422,7 +421,7 @@ static void st_grid1D_interpolate_linear(Db* dbgrid,
   {
     if (!dbgrid->isActive(iech)) continue;
     double x = dbgrid->getCoordinate(iech, 0);
-    Id k    = st_find_interval(x, ndef, X);
+    Id k     = st_find_interval(x, ndef, X);
     if (k < 0) continue;
     double y = Y[k] + (Y[k + 1] - Y[k]) * (x - X[k]) / (X[k + 1] - X[k]);
     dbgrid->setLocVariable(ELoc::Z, iech, ivar, y);
@@ -444,12 +443,13 @@ static void st_grid1D_interpolate_linear(Db* dbgrid,
  **
  *****************************************************************************/
 static Id st_grid1D_interpolate_spline(Db* dbgrid,
-                                        Id ivar,
-                                        Id ndef,
-                                        const double* X,
-                                        const double* Y)
+                                       Id ivar,
+                                       Id ndef,
+                                       const double* X,
+                                       const double* Y)
 {
-  VectorDouble h, F, R, M, C, Cp;
+  VectorDouble h, F, M, C, Cp;
+  MatrixSquare R;
   Id nech = dbgrid->getNSample();
 
   // Preliminary calculations
@@ -467,19 +467,19 @@ static Id st_grid1D_interpolate_spline(Db* dbgrid,
   F[0]   = 0;
   F[nm1] = 0;
 
-  R.resize(n * n, 0);
-  R(0, 0)     = 1;
-  R(nm1, nm1) = 1.;
+  R.reset(n, n);
+  R.setValue(0, 0, 1);
+  R.setValue(nm1, nm1, 1.);
   for (Id i = 1; i < nm1; i++)
   {
-    R(i, i)     = (h[i - 1] + h[i]) / 3;
-    R(i, i + 1) = h[i] / 6;
-    R(i, i - 1) = h[i - 1] / 6;
+    R.setValue(i, i, (h[i - 1] + h[i]) / 3);
+    R.setValue(i, i + 1, h[i] / 6);
+    R.setValue(i, i - 1, h[i - 1] / 6);
   }
 
   M.resize(n, 0);
-  if (matrix_invert(R.data(), n, -1)) return 1;
-  matrix_product_safe(n, n, 1, R.data(), F.data(), M.data());
+  R.invert();
+  R.prodMatVecInPlace(F, M);
 
   C.resize(nm1, 0);
   Cp.resize(nm1, 0);
@@ -497,7 +497,7 @@ static Id st_grid1D_interpolate_spline(Db* dbgrid,
     if (dbgrid->isActive(iech))
     {
       double x = dbgrid->getCoordinate(iech, 0);
-      Id k    = st_find_interval(x, ndef, X);
+      Id k     = st_find_interval(x, ndef, X);
       if (k >= 0)
       {
         double d1 = X[k + 1] - x;
@@ -592,16 +592,16 @@ Id DbHelper::centerPointToGrid(Db* db_point, DbGrid* db_grid, double eps_random)
  **
  *****************************************************************************/
 Id DbHelper::findDuplicates(Db* db1,
-                             Db* db2,
-                             bool flag_same,
-                             bool verbose,
-                             Id opt_code,
-                             double tolcode,
-                             const VectorDouble& dist,
-                             VectorDouble& sel)
+                            Db* db2,
+                            bool flag_same,
+                            bool verbose,
+                            Id opt_code,
+                            double tolcode,
+                            const VectorDouble& dist,
+                            VectorDouble& sel)
 {
   bool flag_code = db1->hasLocVariable(ELoc::C) && db2->hasLocVariable(ELoc::C);
-  Id nmerge     = 0;
+  Id nmerge      = 0;
 
   // Title (optional)
 
@@ -688,10 +688,10 @@ Id DbHelper::findDuplicates(Db* db1,
  **
  *****************************************************************************/
 Id DbHelper::normalizeVariables(Db* db,
-                                 const char* oper,
-                                 const VectorInt& cols,
-                                 double center,
-                                 double stdv)
+                                const char* oper,
+                                const VectorInt& cols,
+                                double center,
+                                double stdv)
 {
   Id jcol, ndef, iptr;
   double proptot, value;
@@ -869,11 +869,11 @@ Id DbHelper::normalizeVariables(Db* db,
  **
  *****************************************************************************/
 Id DbHelper::dbgrid_filling(DbGrid* dbgrid,
-                             Id mode,
-                             Id seed,
-                             Id radius,
-                             bool verbose,
-                             const NamingConvention& namconv)
+                            Id mode,
+                            Id seed,
+                            Id radius,
+                            bool verbose,
+                            const NamingConvention& namconv)
 {
   Skin* skin = nullptr;
   Id error, rank, ipos, ndim, count, nech;
@@ -991,11 +991,11 @@ label_end:
  **
  *****************************************************************************/
 Id DbHelper::db_duplicate(Db* db,
-                           bool verbose,
-                           const VectorDouble& dist,
-                           Id opt_code,
-                           double tolcode,
-                           const NamingConvention& namconv)
+                          bool verbose,
+                          const VectorDouble& dist,
+                          Id opt_code,
+                          double tolcode,
+                          const NamingConvention& namconv)
 {
   if (db == nullptr)
   {
@@ -1057,13 +1057,13 @@ Id DbHelper::db_duplicate(Db* db,
  **
  *****************************************************************************/
 Id DbHelper::db_compositional_transform(Db* db,
-                                         Id verbose,
-                                         Id mode,
-                                         Id type,
-                                         Id number,
-                                         Id* iatt_in,
-                                         Id* iatt_out,
-                                         Id* numout)
+                                        Id verbose,
+                                        Id mode,
+                                        Id type,
+                                        Id number,
+                                        Id* iatt_in,
+                                        Id* iatt_out,
+                                        Id* numout)
 {
   Id nech, number1, iech, ivar, jvar;
   double sum, eps;
@@ -1340,9 +1340,9 @@ label_end:
  **
  *****************************************************************************/
 Id DbHelper::db_grid1D_fill(DbGrid* dbgrid,
-                             Id mode,
-                             Id seed,
-                             const NamingConvention& namconv)
+                            Id mode,
+                            Id seed,
+                            const NamingConvention& namconv)
 {
   /* Preliminary checks */
 
@@ -1423,4 +1423,4 @@ Id DbHelper::db_grid1D_fill(DbGrid* dbgrid,
   return 0;
 }
 
-}
+} // namespace gstlrn

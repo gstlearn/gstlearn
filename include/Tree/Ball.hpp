@@ -30,16 +30,17 @@ public:
   Ball(const Db* dbin,
        const Db* dbout              = nullptr,
        Id leaf_size                 = 10,
-       bool has_constraints         = false,
+       bool all_available           = true,
        Id default_distance_function = 1,
        bool useSel                  = false);
   Ball(const AMesh* mesh,
        Id leaf_size                 = 10,
-       bool has_constraints         = false,
+       bool all_available           = true,
        Id default_distance_function = 1);
 
   void init(const Db* db,
             Id leaf_size                 = 10,
+            bool all_available           = true,
             Id default_distance_function = 1,
             bool useSel                  = false);
 
@@ -55,8 +56,8 @@ public:
                      VectorDouble& distances,
                      Id rank = 0);
   void display(Id level = -1) const;
-  Id setConstraint(Id rank, bool status);
-  Id resetConstraints(bool status);
+  Id setAvailable(Id rank, bool status);
+  Id resetAvailable(bool status);
   bool empty() const { return _tree.data.empty(); }
 
 protected:
@@ -65,7 +66,7 @@ protected:
   Id _getNSample() const { return _tree.n_samples; }
 
 private:
-  bool _isConstraintDefined() const;
+  bool _isAvailableDefined() const;
   static MatrixT<double> _getInformationFromDb(const Db* dbin,
                                                const Db* dbout,
                                                bool useSel,
@@ -85,5 +86,6 @@ GSTLEARN_EXPORT MatrixT<Id> findNN(const Db* dbin,
                                    bool flagShuffle             = false,
                                    bool verbose                 = false,
                                    Id leaf_size                 = 10,
-                                   Id default_distance_function = 1);
+                                   Id default_distance_function = 1,
+                                   bool likelihood               = false);
 } // namespace gstlrn

@@ -44,7 +44,7 @@ double CovSpherical::_evaluateCov(double h) const
   return (cov);
 }
 
-double CovSpherical::_evaluateCovDerivative(double h) const
+double CovSpherical::_evaluateCovFirstDerivative(double h) const
 {
   double cov = 0.;
   if (h < 1) cov = -1.5 + 1.5 * h * h;

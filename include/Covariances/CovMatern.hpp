@@ -56,7 +56,7 @@ public:
 
 protected:
   double _evaluateCov(double h) const override;
-  double _evaluateCovDerivative(double h) const override;
+  double _evaluateCovFirstDerivative(double h) const override;
   VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1.) const override;
 
 private:
