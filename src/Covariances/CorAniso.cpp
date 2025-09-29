@@ -1583,6 +1583,8 @@ void CorAniso::appendParams(ListParams& listparams,
 {
   listparams.addParams(_scales);
   listparams.addParams(_angles);
+  if (_scales.size () == 0 && _angles.size() == 0)
+    return;
   auto derivCache = std::make_shared<DerivCache>();
   _handleConstraints();
   Id i = 0;
