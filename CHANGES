@@ -2,6 +2,10 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.10.0
+==============
+
+
 Release 1.9.0
 =============
 - Correction in Wendland1 and Wendland2 covariance functions (polynomial formula)
@@ -11,6 +15,7 @@ Release 1.9.0
 - Fix ProjComposition when composing more than 2 matrices (issue #674)
 - Fix Moving Neighborhood using XValid with K-Fold and Ball Tree 
 - Fix Maximum Likelihood for more complex variogram models contexts
+
 
 Release 1.8.2
 =============
