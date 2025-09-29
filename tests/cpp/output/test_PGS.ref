@@ -371,7 +371,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Matern (Third Parameter = 99.6019)
+Matern (Third Parameter = 99.4619)
 - Sill         =      1.000
 - Range        =      0.145
 - Theo. Range  =      0.004
@@ -440,7 +440,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Matern (Third Parameter = 99.6019)
+Matern (Third Parameter = 99.4619)
 - Sill         =      1.000
 - Range        =      0.145
 - Theo. Range  =      0.004
@@ -457,7 +457,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Matern (Third Parameter = 99.6019)
+Matern (Third Parameter = 99.4619)
 - Sill         =      1.000
 - Range        =      0.145
 - Theo. Range  =      0.004
@@ -533,10 +533,10 @@ For variable 2
          0   277.000     0.009     0.055
          1  2009.000     0.029     0.109
          2  3964.000     0.053     0.158
-         3  5931.000     0.079     0.196
+         3  5931.000     0.079     0.195
          4  7553.000     0.106     0.221
          5  9094.000     0.132     0.236
-         6 10192.000     0.158     0.244
+         6 10192.000     0.158     0.243
          7 11761.000     0.184     0.247
          8 12879.000     0.211     0.249
          9 13959.000     0.237     0.250
@@ -578,7 +578,7 @@ For variables 3 and 2
          1  2009.000     0.029    -0.047
          2  3964.000     0.053    -0.083
          3  5931.000     0.079    -0.112
-         4  7553.000     0.106    -0.132
+         4  7553.000     0.106    -0.131
          5  9094.000     0.132    -0.142
          6 10192.000     0.158    -0.147
          7 11761.000     0.184    -0.149
@@ -599,7 +599,7 @@ For variable 3
          0   277.000     0.009     0.023
          1  2009.000     0.029     0.066
          2  3964.000     0.053     0.116
-         3  5931.000     0.079     0.157
+         3  5931.000     0.079     0.156
          4  7553.000     0.106     0.184
          5  9094.000     0.132     0.199
          6 10192.000     0.158     0.206
@@ -626,7 +626,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Matern (Third Parameter = 99.6019)
+Matern (Third Parameter = 99.4619)
 - Sill         =      1.000
 - Range        =      0.145
 - Theo. Range  =      0.004
