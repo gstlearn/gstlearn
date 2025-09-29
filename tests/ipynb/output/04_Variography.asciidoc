@@ -376,12 +376,12 @@ Nugget Effect
 - Sill         =      0.249
 Cubic
 - Sill         =      0.951
-- Ranges       =    214.240   154.558
-- Angles       =     65.119     0.000
+- Ranges       =    155.284   213.126
+- Angles       =    155.282     0.000
 - Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.421    -0.907
-     [  1,]     0.907     0.421
+     [  0,]     0.908     0.418
+     [  1,]    -0.418     0.908
 Total Sill     =      1.200
 Known Mean(s)     0.000----
 
