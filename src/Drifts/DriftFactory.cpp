@@ -115,7 +115,7 @@ ADrift* DriftFactory::createDriftByIdentifier(const String& driftname)
  * @param ctxt  Cov_context
  * @return
  *
- * @remarks: this function is limited to order<=2 and ndim<= 3
+ * @remarks: this function is limited to order<=3 and ndim<= 3
  */
 DriftList* DriftFactory::createDriftListFromIRF(Id order,
                                                 Id nfex,
@@ -166,6 +166,45 @@ DriftList* DriftFactory::createDriftListFromIRF(Id order,
         drifts->addDrift(new DriftM(VectorInt({0, 1, 1}))); // ZY
         drifts->addDrift(new DriftM(VectorInt({0, 0, 2}))); // Z^2
       }
+      break;
+
+    case 3:
+      drifts->addDrift(new DriftM()); // 1
+      if (ndim >= 1)
+      {
+        drifts->addDrift(new DriftM(VectorInt({1}))); // X
+        drifts->addDrift(new DriftM(VectorInt({2}))); // X^2
+        drifts->addDrift(new DriftM(VectorInt({3}))); // X^3
+      }
+      if (ndim >= 2)
+      {
+        drifts->addDrift(new DriftM(VectorInt({0, 1}))); // Y
+        drifts->addDrift(new DriftM(VectorInt({1, 1}))); // XY
+        drifts->addDrift(new DriftM(VectorInt({0, 2}))); // Y^2
+        drifts->addDrift(new DriftM(VectorInt({2, 1}))); // X^2Y
+        drifts->addDrift(new DriftM(VectorInt({1, 2}))); // XY^2
+        drifts->addDrift(new DriftM(VectorInt({0, 3}))); // Y^3
+      }
+      if (ndim >= 3)
+      {
+        drifts->addDrift(new DriftM(VectorInt({0, 0, 1}))); // Z
+        drifts->addDrift(new DriftM(VectorInt({1, 0, 1}))); // XZ
+        drifts->addDrift(new DriftM(VectorInt({0, 1, 1}))); // YZ
+        drifts->addDrift(new DriftM(VectorInt({0, 0, 2}))); // Z^2
+        drifts->addDrift(new DriftM(VectorInt({2, 0, 1}))); // X^2Z
+        drifts->addDrift(new DriftM(VectorInt({1, 1, 1}))); // XYZ
+        drifts->addDrift(new DriftM(VectorInt({0, 2, 1}))); // Y^2Z
+        drifts->addDrift(new DriftM(VectorInt({1, 0, 2}))); // XZ^2
+        drifts->addDrift(new DriftM(VectorInt({0, 1, 2}))); // YZ^2
+        drifts->addDrift(new DriftM(VectorInt({0, 0, 3}))); // Z^3
+      }
+      break;
+
+    default:
+      // For order > 3, return an error since the current implementation is limited
+      messerr("IRF order %d is not supported. Maximum supported order is 3.", order);
+      delete drifts;
+      return nullptr;
   }
 
   if (nfex > 0)
