@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
 
   RuleProp* ruleprop2;
   if (flagStationary)
-    ruleprop2 = RuleProp::createFromRule((Rule*)NULL, props);
+    ruleprop2 = RuleProp::createFromRule(nullptr, props);
   else
     ruleprop2 = RuleProp::createFromDb(dbprop, VectorDouble());
   error = ruleprop2->fit(db, &varioparam2, 2, true);

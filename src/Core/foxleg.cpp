@@ -19,7 +19,6 @@
 /*! \cond */
 #define IAD(ic, ipar)              ((ipar) + NPAR * (ic))
 #define IADAC(ic, iparac)          ((iparac) + NPARAC * (ic))
-#define AI(ic, ipar, jpar)         (ai[(jpar) * NPAR2 + IAD(ic, ipar)])
 #define AI_RED(ic, iparac, jparac) (ai_red[(jparac) * NPARAC2 + IADAC(ic, iparac)])
 #define POSSIBLE(ipar)             (ind_util[ipar] > 0)
 #define SIGNE(ic)                  ((ic == 0) ? +1 : -1)
@@ -34,8 +33,14 @@ static Id NPAR, NPAR2, NPARAC, NPARAC2, NDAT, NCONT, NPCT, NPCT2;
 static Id ITERATION, SOUSITER;
 static void (*FUNC_EVALUATE)(Id ndat,
                              Id npar,
-                             VectorDouble& param,
+                             const VectorDouble& param,
                              VectorDouble& work);
+
+static bool doit()
+{
+  // return OptDbg::query(EDbg::CONVERGE);
+  return false;
+}
 
 /****************************************************************************/
 /*!
@@ -55,10 +60,10 @@ static void (*FUNC_EVALUATE)(Id ndat,
  **
  *****************************************************************************/
 static void st_gradient(VectorDouble& param,
-                        VectorDouble& lower,
-                        VectorDouble& upper,
-                        VectorDouble& scale,
-                        VectorDouble& tabwgt,
+                        const VectorDouble& lower,
+                        const VectorDouble& upper,
+                        const VectorDouble& scale,
+                        const VectorDouble& tabwgt,
                         MatrixDense& Jr,
                         VectorDouble& param1,
                         VectorDouble& param2,
@@ -113,9 +118,9 @@ static void st_gradient(VectorDouble& param,
  ** \param[out] residuals Array of residuals
  **
  *****************************************************************************/
-static double st_residuals(VectorDouble& param,
-                           VectorDouble& tabexp,
-                           VectorDouble& tabwgt,
+static double st_residuals(const VectorDouble& param,
+                           const VectorDouble& tabexp,
+                           const VectorDouble& tabwgt,
                            VectorDouble& tabmod,
                            VectorDouble& residuals)
 {
@@ -159,7 +164,7 @@ static void st_determine_gauss(MatrixDense& Jr, MatrixSquare& gauss)
 
 /****************************************************************************/
 /*!
- **  Calculate the Norm of the HGN vector
+ **  Calculate the L1-Norm of the HGN vector
  **
  ** \return  The norm value
  **
@@ -167,7 +172,7 @@ static void st_determine_gauss(MatrixDense& Jr, MatrixSquare& gauss)
  ** \param[in]  scale        Scaling values
  **
  *****************************************************************************/
-static double st_norm_hgn(VectorDouble& hgn, VectorDouble& scale)
+static double st_norm_hgn(const VectorDouble& hgn, const VectorDouble& scale)
 {
   double norme = 0.;
   for (Id ipar = 0; ipar < NPAR; ipar++)
@@ -187,8 +192,8 @@ static double st_norm_hgn(VectorDouble& hgn, VectorDouble& scale)
  ** \param[in]  gauss_red  Reduced Gauss matrix
  **
  *****************************************************************************/
-static double st_essai(VectorDouble& hgnadm,
-                       VectorDouble& grad_red,
+static double st_essai(const VectorDouble& hgnadm,
+                       const VectorDouble& grad_red,
                        MatrixSquare& gauss_red)
 {
   double v1     = VH::innerProduct(hgnadm, grad_red);
@@ -244,8 +249,7 @@ static Id st_solve_hgnc(Id npar,
     return (1);
   }
 
-  matrix_product_safe(npar, npar, 1, tempMat.getValues().data(), tempVec.data(),
-                      hgnc.data());
+  tempMat.prodMatVecInPlace(tempVec, hgnc);
 
   for (Id i = 0; i < npar; i++)
   {
@@ -307,11 +311,11 @@ static void st_fill_constraints(const MatrixDense& acont,
  **
  *****************************************************************************/
 static Id st_calcul0(VectorDouble& param,
-                     VectorDouble& lower,
-                     VectorDouble& upper,
-                     VectorDouble& scale,
+                     const VectorDouble& lower,
+                     const VectorDouble& upper,
+                     const VectorDouble& scale,
                      const MatrixDense& acont,
-                     VectorDouble& tabwgt,
+                     const VectorDouble& tabwgt,
                      VectorDouble& residuals,
                      MatrixDense& Jr,
                      VectorDouble& grad,
@@ -323,7 +327,7 @@ static Id st_calcul0(VectorDouble& param,
                      VectorDouble& tabmod2)
 {
   st_gradient(param, lower, upper, scale, tabwgt, Jr, param1, param2, tabmod1, tabmod2);
-  matrix_product_safe(1, NDAT, NPAR, residuals.data(), Jr.getValues().data(), grad.data());
+  Jr.prodVecMatInPlace(residuals, grad);
   st_determine_gauss(Jr, gauss);
   st_fill_constraints(acont, grad, gauss);
   return st_solve_hgnc(NPAR + NCONT, grad, gauss, hgnc, 1);
@@ -346,14 +350,14 @@ static Id st_calcul0(VectorDouble& param,
  *****************************************************************************/
 static Id st_possibilities(Id npar,
                            MatrixDense& bords,
-                           VectorDouble& ai,
+                           MatrixDense& ai,
                            VectorDouble& hgnc,
                            VectorInt& flag,
                            VectorDouble& temp)
 {
-  Id flag_imposs;
+  bool flag_imposs;
 
-  matrix_product_safe(2 * npar, npar, 1, ai.data(), hgnc.data(), temp.data());
+  ai.prodMatVecInPlace(hgnc, temp);
 
   Id n_imposs = 0;
   Id ipar2    = 0;
@@ -386,8 +390,8 @@ static Id st_possibilities(Id npar,
  *****************************************************************************/
 static Id st_define_constraints(Id mode,
                                 MatrixDense& bords_red,
-                                VectorDouble& ai_red,
-                                VectorDouble& hgnc,
+                                MatrixDense& ai_red,
+                                const VectorDouble& hgnc,
                                 MatrixDense& consts,
                                 VectorInt& flag,
                                 VectorDouble& temp)
@@ -396,7 +400,7 @@ static Id st_define_constraints(Id mode,
 
   /* Calculate the constraints */
 
-  matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), hgnc.data(), temp.data());
+  ai_red.prodMatVecInPlace(hgnc, temp);
 
   iparac2 = 0;
   for (Id ic = 0; ic < 2; ic++)
@@ -455,17 +459,26 @@ static Id st_define_constraints(Id mode,
 ** \param[out] hgnadm       Admissible Hgn array
 **
 *****************************************************************************/
-static void st_minimum(VectorInt& /*ind_util*/,
-                       VectorInt& flag,
-                       MatrixDense& bords_red,
+static void st_minimum(const VectorInt& /*ind_util*/,
+                       const VectorInt& flag,
+                       const MatrixDense& bords_red,
                        const VectorDouble& top,
                        const VectorDouble& bot,
-                       VectorDouble& hgnc,
+                       const VectorDouble& hgnc,
                        VectorDouble& hgnadm)
 {
   Id jparac        = -1;
   double bordval   = MINIMUM_BIG;
   double alpha_inf = MAXIMUM_BIG;
+  if (doit())
+  {
+    message("dans st_minimum\n");
+    bords_red.display();
+    VH::dump("top", top);
+    VH::dump("bot", bot);
+    VH::dump("hgnc", hgnc);
+    VH::dump("hgnadm avant", hgnadm);
+  }
 
   Id iparac2 = 0;
   for (Id ic = 0; ic < 2; ic++)
@@ -490,6 +503,12 @@ static void st_minimum(VectorInt& /*ind_util*/,
   for (Id iparac = 0; iparac < NPARAC; iparac++)
     hgnadm[iparac] += alpha_inf * (hgnc[iparac] - hgnadm[iparac]);
   hgnadm[jparac] = bordval;
+
+  if (doit())
+  {
+    message("alpha_in=%lf\n", alpha_inf);
+    VH::dump("hgnadm apres", hgnadm);
+  }
 }
 
 /****************************************************************************/
@@ -542,13 +561,13 @@ static void st_update_bords(MatrixDense& bords,
  **
  *****************************************************************************/
 static Id st_suppress_unused_constraints(MatrixDense& bords,
-                                         VectorDouble& ai,
+                                         MatrixDense& ai,
                                          VectorDouble& grad,
                                          MatrixSquare& gauss,
                                          VectorDouble& hgnc,
                                          VectorInt& ind_util,
                                          MatrixDense& bords_red,
-                                         VectorDouble& ai_red,
+                                         MatrixDense& ai_red,
                                          VectorDouble& grad_red,
                                          MatrixSquare& gauss_red,
                                          VectorInt& flag1,
@@ -559,9 +578,13 @@ static Id st_suppress_unused_constraints(MatrixDense& bords,
 
   // Blanking out the arrays
 
+  grad_red.resize(NPCT);
   grad_red.fill(0.);
+  gauss_red.reset(NPCT, NPCT);
   gauss_red.fill(0.);
+  bords_red.reset(2, NPAR);
   bords_red.fill(0.);
+  ai_red.reset(NPAR2, NPAR);
   ai_red.fill(0.);
 
   /* Get the set of constraints to be discarded */
@@ -620,7 +643,7 @@ static Id st_suppress_unused_constraints(MatrixDense& bords,
         for (jpar = jparac = 0; jpar < NPAR; jpar++)
         {
           if (!POSSIBLE(jpar)) continue;
-          AI_RED(ic, iparac, jparac) = AI(ic, ipar, jpar);
+          ai_red.setValue(IADAC(ic, iparac), jparac, ai.getValue(IAD(ic, ipar), jpar));
           jparac++;
         }
         iparac++;
@@ -651,7 +674,6 @@ static Id st_suppress_unused_constraints(MatrixDense& bords,
 ** \return  Error returned code
 **
 ** \param[in]  nactive      Number of active constraints
-** \param[in]  ind_util   List of retained constraint indices
 ** \param[in]  flag_active  Array of indices with zero valid constraint
 ** \param[in]  bords_red    Reduced array containing the bounds
 ** \param[in]  ai_red       Reduced AI matrix
@@ -666,10 +688,9 @@ static Id st_suppress_unused_constraints(MatrixDense& bords,
 **
 *****************************************************************************/
 static Id st_establish_minimization(Id nactive,
-                                    VectorInt& ind_util,
                                     VectorInt& flag_active,
                                     MatrixDense& bords_red,
-                                    VectorDouble& ai_red,
+                                    MatrixDense& ai_red,
                                     VectorDouble& grad_red,
                                     MatrixSquare& gauss_red,
                                     Id* lambda_neg,
@@ -678,15 +699,18 @@ static Id st_establish_minimization(Id nactive,
                                     VectorDouble& b,
                                     VectorDouble& temp)
 {
-  Id size, ic, iparac, jparac, iparac2, iecr;
-  DECLARE_UNUSED(ind_util);
+  Id ic, iparac, jparac, iparac2, iecr;
 
   /* Initialization */
 
   *lambda_neg = -1;
-  size        = NPARAC + NCONT + nactive;
+  Id size     = NPARAC + NCONT + nactive;
+  a.reset(size, size);
   a.fill(0.);
+  b.resize(size);
   b.fill(0.);
+  temp.resize(size);
+  temp.fill(0.);
 
   /* Fill the L.H.S. and R.H.S. matrices */
 
@@ -704,8 +728,9 @@ static Id st_establish_minimization(Id nactive,
       b[NPARAC + NCONT + iecr] = bords_red.getValue(ic, iparac);
       for (jparac = 0; jparac < NPARAC; jparac++)
       {
-        a.setValue(NPARAC + NCONT + iecr, jparac, AI_RED(ic, iparac, jparac));
-        a.setValue(jparac, NPARAC + NCONT + iecr, AI_RED(ic, iparac, jparac));
+        double value = ai_red.getValue(IADAC(ic, iparac), jparac);
+        a.setValue(NPARAC + NCONT + iecr, jparac, value);
+        a.setValue(jparac, NPARAC + NCONT + iecr, value);
       }
       iecr++;
     }
@@ -748,7 +773,7 @@ static Id st_establish_minimization(Id nactive,
  **
  *****************************************************************************/
 static void st_check(VectorInt& ind_util,
-                     VectorDouble& hgnc,
+                     const VectorDouble& hgnc,
                      const MatrixDense& acont)
 {
   double temp;
@@ -795,7 +820,7 @@ static void st_check(VectorInt& ind_util,
  *****************************************************************************/
 static Id st_minimization_under_constraints(VectorInt& ind_util,
                                             MatrixDense& bords_red,
-                                            VectorDouble& ai_red,
+                                            MatrixDense& ai_red,
                                             VectorDouble& grad_red,
                                             MatrixSquare& gauss_red,
                                             MatrixDense& consts,
@@ -831,7 +856,7 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
 
   /* Find an initial admissible point */
 
-  matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), hgnc.data(), b1.data());
+  ai_red.prodMatVecInPlace(hgnc, b1);
   st_minimum(ind_util, flag_actaux, bords_red, VectorDouble(), b1, hgnc, hgnadm);
   st_check(ind_util, hgnadm, acont);
 
@@ -850,7 +875,7 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
 
     /* Load the minimization matrix */
 
-    if (st_establish_minimization(nactive, ind_util, flag_active, bords_red,
+    if (st_establish_minimization(nactive, flag_active, bords_red,
                                   ai_red, grad_red, gauss_red, &lambda_neg,
                                   hgnc, a, b1, temp)) return (1);
     st_check(ind_util, hgnc, acont);
@@ -863,8 +888,8 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
     {
       for (iparac = 0; iparac < NPARAC; iparac++)
         b3[iparac] = hgnc[iparac] - hgnadm[iparac];
-      matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), hgnadm.data(), b1.data());
-      matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), b3.data(), b2.data());
+      ai_red.prodMatVecInPlace(hgnadm, b1);
+      ai_red.prodMatVecInPlace(b3, b2);
       st_minimum(ind_util, flag_actaux, bords_red, b1, b2, hgnc, hgnadm);
       st_check(ind_util, hgnadm, acont);
 
@@ -908,7 +933,7 @@ static Id st_minimization_under_constraints(VectorInt& ind_util,
  ** \param[in]  ai           AI matrix
  **
  *****************************************************************************/
-static void st_constraints_init(VectorInt& ind_util, VectorDouble& ai)
+static void st_constraints_init(VectorInt& ind_util, MatrixDense& ai)
 {
   Id ipar, jpar, ic;
 
@@ -918,7 +943,7 @@ static void st_constraints_init(VectorInt& ind_util, VectorDouble& ai)
   for (ic = 0; ic < 2; ic++)
     for (ipar = 0; ipar < NPAR; ipar++)
       for (jpar = 0; jpar < NPAR; jpar++)
-        AI(ic, ipar, jpar) = (ipar == jpar);
+        ai.setValue(IAD(ic, ipar), jpar, (ipar == jpar));
 }
 
 /****************************************************************************/
@@ -934,10 +959,10 @@ static void st_constraints_init(VectorInt& ind_util, VectorDouble& ai)
  ** \param[out] bords      Value for the bounds
  **
  *****************************************************************************/
-static void st_define_bounds(VectorDouble& param,
-                             VectorDouble& lower,
-                             VectorDouble& upper,
-                             VectorDouble& scale,
+static void st_define_bounds(const VectorDouble& param,
+                             const VectorDouble& lower,
+                             const VectorDouble& upper,
+                             const VectorDouble& scale,
                              double delta,
                              MatrixDense& bords)
 {
@@ -982,9 +1007,9 @@ static void st_define_bounds(VectorDouble& param,
 static void st_foxleg_debug_title(void)
 
 {
-  String string;
-
   if (!OptDbg::query(EDbg::CONVERGE)) return;
+
+  String string;
   mestitle(1, "Trajectory of parameters in Foxleg Algorithm");
   tab_prints(NULL, "Iteration");
   tab_prints(NULL, "Score");
@@ -1006,13 +1031,11 @@ static void st_foxleg_debug_current(double mscur,
                                     double delta,
                                     VectorDouble& param)
 {
-  Id ipar;
-
   if (!OptDbg::query(EDbg::CONVERGE)) return;
   tab_printi(NULL, ITERATION);
   tab_printd(NULL, mscur);
   tab_printd(NULL, delta);
-  for (ipar = 0; ipar < NPAR; ipar++)
+  for (Id ipar = 0; ipar < NPAR; ipar++)
     tab_printg(NULL, param[ipar]);
   message("\n");
 }
@@ -1038,8 +1061,8 @@ static void st_foxleg_debug_current(double mscur,
 static void st_linear_interpolate(double mscur,
                                   VectorDouble& param,
                                   const MatrixDense& acont,
-                                  VectorDouble& tabexp,
-                                  VectorDouble& tabwgt,
+                                  const VectorDouble& tabexp,
+                                  const VectorDouble& tabwgt,
                                   MatrixDense& bords,
                                   VectorDouble& grad,
                                   double* msaux,
@@ -1095,8 +1118,8 @@ static void st_linear_interpolate(double mscur,
  **
  *****************************************************************************/
 static Id st_check_param(VectorDouble& param,
-                         VectorDouble& lower,
-                         VectorDouble& upper)
+                         const VectorDouble& lower,
+                         const VectorDouble& upper)
 {
   Id ipar;
 
@@ -1173,14 +1196,14 @@ Id foxleg_f(Id ndat,
             Id ncont,
             const MatrixDense& acont,
             VectorDouble& param,
-            VectorDouble& lower,
-            VectorDouble& upper,
-            VectorDouble& scale,
+            const VectorDouble& lower,
+            const VectorDouble& upper,
+            const VectorDouble& scale,
             const Option_AutoFit& mauto,
             Id flag_title,
             void (*func_evaluate)(Id ndat,
                                   Id npar,
-                                  VectorDouble& param,
+                                  const VectorDouble& param,
                                   VectorDouble& work),
             VectorDouble& tabexp,
             VectorDouble& tabwgt)
@@ -1202,31 +1225,35 @@ Id foxleg_f(Id ndat,
 
   /* Core allocation */
 
-  VectorInt ind_util(NPCT, 0);
-  VectorInt flag_active(NPAR2, 0);
-  VectorInt flag_actaux(NPAR2, 0);
+  VectorInt ind_util(NPCT);
+  VectorInt flag_active(NPAR2);
+  VectorInt flag_actaux(NPAR2);
 
-  VectorDouble b1(NPCT2, 0.);
-  VectorDouble b2(NPAR2, 0.);
-  VectorDouble b3(NPAR2, 0.);
-  VectorDouble temp(NPCT2, 0.);
-  VectorDouble param1(NPAR, 0.);
-  VectorDouble param2(NPAR, 0.);
-  VectorDouble grad(NPCT, 0.);
-  VectorDouble grad_red(NPCT, 0.);
-  VectorDouble hgn(NPAR, 0.);
-  VectorDouble hgnc(NPCT, 0.);
-  VectorDouble hgnadm(NPCT, 0.);
-  VectorDouble paramaux(NPAR, 0.);
-  VectorDouble residuals(NDAT, 0.);
-  VectorDouble tabmod1(NDAT, 0.);
-  VectorDouble tabmod2(NDAT, 0.);
-  VectorDouble ai(NPAR * NPAR2, 0.);
-  VectorDouble ai_red(NPAR * NPAR2, 0.);
-
+  VectorDouble temp(NPCT2);
   MatrixSquare a(NPCT2);
+  VectorDouble b1(NPCT2);
+  VectorDouble b2(NPAR2);
+  VectorDouble b3(NPAR2);
+
+  VectorDouble param1(NPAR);
+  VectorDouble param2(NPAR);
+  VectorDouble hgn(NPAR);
+  VectorDouble paramaux(NPAR);
+
+  VectorDouble grad(NPCT);
+  VectorDouble grad_red(NPCT);
+  VectorDouble hgnc(NPCT);
+  VectorDouble hgnadm(NPCT);
   MatrixSquare gauss(NPCT);
   MatrixSquare gauss_red(NPCT);
+
+  VectorDouble residuals(NDAT);
+  VectorDouble tabmod1(NDAT);
+  VectorDouble tabmod2(NDAT);
+
+  MatrixDense ai(NPAR2, NPAR);
+  MatrixDense ai_red(NPAR2, NPAR);
+
   MatrixDense Jr(NDAT, NPAR);
   MatrixDense consts(2, NPAR);
   MatrixDense bords(2, NPAR);
@@ -1308,6 +1335,7 @@ Id foxleg_f(Id ndat,
 
     /* Update values for the next iteration */
 
+    if (doit()) VH::dump("hgnadm", hgnadm);
     iparac = 0;
     for (Id ipar = 0; ipar < NPAR; ipar++)
     {
@@ -1339,7 +1367,14 @@ Id foxleg_f(Id ndat,
       st_constraints_init(ind_util, ai);
       flag_moved = true;
       if (denom < 0 && rho > 0.75)
+      {
         delta = MAX(delta, 3. * st_norm_hgn(hgn, scale));
+        if (doit())
+        {
+          message("denom=%lf rho=%lf\n", denom, rho);
+          VH::dump("hgn", hgn);
+        }
+      }
     }
     else
       flag_moved = false;

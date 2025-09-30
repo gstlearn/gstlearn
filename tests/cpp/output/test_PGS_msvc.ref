@@ -371,7 +371,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Matern (Third Parameter = 99.4094)
+Matern (Third Parameter = 99.2888)
 - Sill         =      1.000
 - Range        =      0.145
 - Theo. Range  =      0.004
@@ -388,14 +388,14 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Matern (Third Parameter = 99.0338)
-- Sill         =      0.706
-- Range        =      0.183
+Matern (Third Parameter = 99.1952)
+- Sill         =      0.588
+- Range        =      0.188
 - Theo. Range  =      0.005
 Exponential
-- Sill         =      0.294
-- Range        =      0.064
-- Theo. Range  =      0.022
+- Sill         =      0.412
+- Range        =      0.118
+- Theo. Range  =      0.039
 Total Sill     =      1.000
 Known Mean(s)     0.000
 
@@ -440,7 +440,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Matern (Third Parameter = 99.4094)
+Matern (Third Parameter = 99.2888)
 - Sill         =      1.000
 - Range        =      0.145
 - Theo. Range  =      0.004
@@ -457,7 +457,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Matern (Third Parameter = 99.4094)
+Matern (Third Parameter = 99.2888)
 - Sill         =      1.000
 - Range        =      0.145
 - Theo. Range  =      0.004
@@ -486,9 +486,9 @@ Tolerance on distance       =     50.000 (Percent of the lag value)
 
 For variable 1
       Rank    Npairs  Distance     Value
-         0   277.000     0.009     0.049
-         1  2009.000     0.029     0.082
-         2  3964.000     0.053     0.108
+         0   277.000     0.009     0.045
+         1  2009.000     0.029     0.080
+         2  3964.000     0.053     0.109
          3  5931.000     0.079     0.128
          4  7553.000     0.106     0.142
          5  9094.000     0.132     0.150
@@ -508,10 +508,10 @@ For variable 1
 
 For variables 2 and 1
       Rank    Npairs  Distance     Value
-         0   277.000     0.009    -0.042
-         1  2009.000     0.029    -0.063
+         0   277.000     0.009    -0.039
+         1  2009.000     0.029    -0.062
          2  3964.000     0.053    -0.075
-         3  5931.000     0.079    -0.083
+         3  5931.000     0.079    -0.084
          4  7553.000     0.106    -0.089
          5  9094.000     0.132    -0.093
          6 10192.000     0.158    -0.096
@@ -530,11 +530,11 @@ For variables 2 and 1
 
 For variable 2
       Rank    Npairs  Distance     Value
-         0   277.000     0.009     0.059
-         1  2009.000     0.029     0.110
+         0   277.000     0.009     0.055
+         1  2009.000     0.029     0.109
          2  3964.000     0.053     0.158
-         3  5931.000     0.079     0.195
-         4  7553.000     0.106     0.220
+         3  5931.000     0.079     0.196
+         4  7553.000     0.106     0.221
          5  9094.000     0.132     0.236
          6 10192.000     0.158     0.244
          7 11761.000     0.184     0.247
@@ -626,7 +626,7 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Matern (Third Parameter = 99.4094)
+Matern (Third Parameter = 99.2888)
 - Sill         =      1.000
 - Range        =      0.145
 - Theo. Range  =      0.004

@@ -5,6 +5,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 2
 Space dimension             = 3
 Variable(s)                 = [Unknown]
+
 Variance-Covariance Matrix     2.408
 
 Direction #1
@@ -237,8 +238,8 @@ Covariance Part
 Nugget Effect
 - Sill         =      0.399
 Cubic
-- Sill         =      1.042
-- Ranges       =   1875.962  1445.918  1875.962
+- Sill         =      1.045
+- Ranges       =   1878.257  1453.208  1878.257
 - Angles       =     90.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
@@ -246,9 +247,9 @@ Cubic
      [  1,]     1.000     0.000     0.000
      [  2,]     0.000     0.000     1.000
 Exponential
-- Sill         =      0.583
-- Ranges       =   1325.553   854.326  1325.553
-- Theo. Ranges =    442.481   285.181   442.481
+- Sill         =      0.597
+- Ranges       =   1345.058   870.659  1345.058
+- Theo. Ranges =    448.991   290.633   448.991
 - Angles       =     90.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
@@ -256,14 +257,14 @@ Exponential
      [  1,]     1.000     0.000     0.000
      [  2,]     0.000     0.000     1.000
 Spherical
-- Sill         =      0.837
-- Ranges       =   1608.137 17604.242  1608.137
+- Sill         =      0.825
+- Ranges       =   1614.034 20977.142  1614.034
 - Angles       =     90.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]
      [  0,]     0.000    -1.000     0.000
      [  1,]     1.000     0.000     0.000
      [  2,]     0.000     0.000     1.000
-Total Sill     =      2.862
+Total Sill     =      2.866
 Known Mean(s)     0.000
 Goodness-of-fit (as a percentage of the variance) corresponds to level #1 (1 for very good)

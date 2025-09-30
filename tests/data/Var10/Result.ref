@@ -5,6 +5,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 2
 Space dimension             = 3
 Variable(s)                 = [Unknown]
+
 Variance-Covariance Matrix    39.616
 
 Direction #1
@@ -67,6 +68,28 @@ For variable 1
         18525482.000   220.865    38.566
         19367630.000   232.375    38.816
 
+Trajectory of parameters in Foxleg Algorithm
+--------------------------------------------
+  Iteration      Score      Delta      Par-1      Par-2      Par-3      Par-4
+          1    0.00422          1    433.536    433.536    650.303    650.303
+          2    0.00329          3    650.303    650.303    867.071    433.536
+          3    0.00181          9   1300.607    325.152   1283.522    216.768
+          4    0.00067          9    650.304    162.576    664.071    108.385
+          5   1.83e-05          9    325.152    518.208    620.306     54.193
+          6    7.7e-06         27    162.577   2469.118    579.019     51.296
+          7   7.68e-06         27    162.577   2469.118    580.124     51.511
+          8   7.68e-06         27    162.577   2469.118    580.104     51.487
+
+Suppressing the unnecessary basic structures
+============================================
+Structure 'Nugget Effect' in model #1 is suppressed
+Structure 'Cubic' in model #1 is suppressed
+
+Trajectory of parameters in Foxleg Algorithm
+--------------------------------------------
+  Iteration      Score      Delta      Par-1      Par-2
+          1   7.68e-06          1    580.104     51.487
+
 Model characteristics
 =====================
 Space dimension              = 3
@@ -79,7 +102,7 @@ Covariance Part
 ---------------
 Spherical
 - Sill         =     39.044
-- Ranges       =    580.103    51.485   580.103
+- Ranges       =    580.104    51.487   580.104
 - Angles       =     50.000     0.000     0.000
 - Rotation Matrix
                [,  0]    [,  1]    [,  2]

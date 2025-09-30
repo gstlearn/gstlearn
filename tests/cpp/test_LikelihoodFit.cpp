@@ -13,7 +13,6 @@
  * and to fit the values of these parameters according to the Maximum LogLikelihood
  * method and using the Vecchia approximation.
  */
-#include "Basic/VectorHelper.hpp"
 #include "Enum/ELoc.hpp"
 #include "Estimation/ALikelihood.hpp"
 #include "Estimation/AModelOptimFactory.hpp"
@@ -63,7 +62,7 @@ int main(int argc, char* argv[])
 
     model->setDriftIRF(0);
     model->fitNew(db, nullptr, nullptr, nullptr, ModelOptimParam(),
-                 ITEST, verbose, trace);
+                  ITEST, verbose, trace);
     model->display();
     delete db;
   }

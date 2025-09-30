@@ -241,16 +241,16 @@ public:
 #endif
 
 protected:
-  virtual void _allocate()                                         = 0;
-  virtual void _deallocate()                                       = 0;
-  virtual Id _getIndexToRank(Id irow, Id icol) const            = 0;
+  virtual void _allocate()                                        = 0;
+  virtual void _deallocate()                                      = 0;
+  virtual Id _getIndexToRank(Id irow, Id icol) const              = 0;
   virtual void _setValueByRank(Id rank, double value)             = 0;
-  virtual void _transposeInPlace()                                 = 0;
+  virtual void _transposeInPlace()                                = 0;
   virtual Id _invert()                                            = 0;
   virtual Id _solve(const VectorDouble& b, VectorDouble& x) const = 0;
   virtual Id _getMatrixPhysicalSize() const                       = 0;
   virtual double _getValueByRank(Id rank) const                   = 0;
-  virtual double& _getValueRef(Id irow, Id icol)                 = 0;
+  virtual double& _getValueRef(Id irow, Id icol)                  = 0;
 
 #ifndef SWIG
   virtual void _addProdMatVecInPlacePtr(constvect x,
@@ -284,13 +284,13 @@ protected:
   // Static functions
   static bool _isMatrixCompatible(const String& name,
                                   const AMatrix* mat1 = nullptr,
-                                  Id vsize1          = 0,
+                                  Id vsize1           = 0,
                                   bool transpose1     = false,
                                   const AMatrix* mat2 = nullptr,
-                                  Id vsize2          = 0,
+                                  Id vsize2           = 0,
                                   bool transpose2     = false,
                                   const AMatrix* mat3 = nullptr,
-                                  Id vsize3          = 0,
+                                  Id vsize3           = 0,
                                   bool transpose3     = false);
   static bool _identifyRowAndCol(const AMatrix* mat,
                                  Id vsize,
