@@ -1,16 +1,16 @@
 Test case 1: order=0, ndim=1
 Number of drifts: 1
-  Drift:
+  Universality_Condition
 
 Test case 2: order=1, ndim=2
 Number of drifts: 3
-  Drift:
+  Universality_Condition
   Drift:x1
   Drift:x2
 
 Test case 3: order=2, ndim=2
 Number of drifts: 6
-  Drift:
+  Universality_Condition
   Drift:x1
   Drift:x1^2
   Drift:x2
@@ -19,7 +19,7 @@ Number of drifts: 6
 
 Test case 4: order=3, ndim=2
 Number of drifts: 10
-  Drift:
+  Universality_Condition
   Drift:x1
   Drift:x1^2
   Drift:x1^3
@@ -32,7 +32,7 @@ Number of drifts: 10
 
 Test case 5: order=3, ndim=3
 Number of drifts: 20
-  Drift:
+  Universality_Condition
   Drift:x1
   Drift:x1^2
   Drift:x1^3
@@ -55,7 +55,7 @@ Number of drifts: 20
 
 Test case 6: order=4, ndim=1
 Number of drifts: 5
-  Drift:
+  Universality_Condition
   Drift:x1
   Drift:x1^2
   Drift:x1^3
@@ -63,7 +63,7 @@ Number of drifts: 5
 
 Test case 7: order=2, ndim=3 (backward compatibility test)
 Number of drifts: 10
-  Drift:
+  Universality_Condition
   Drift:x1
   Drift:x1^2
   Drift:x2
@@ -76,7 +76,7 @@ Number of drifts: 10
 
 Test case 8: order=1, ndim=3, nfex=2
 Number of drifts: 6
-  Drift:
+  Universality_Condition
   Drift:x1
   Drift:x2
   Drift:x3

@@ -121,7 +121,19 @@ static void _generateMonomials(VectorInt& powers,
   // Base case: processed all dimensions
   if (dim < 0)
   {
-    drifts->addDrift(new DriftM(powers));
+    // Create a monomial with the current powers
+    // Remove trailing zeros to match the old implementation behavior
+    VectorInt compactPowers;
+    for (Id i = 0; i < static_cast<Id>(powers.size()); i++)
+    {
+      if (powers[i] > 0)
+      {
+        // Ensure we have enough elements
+        compactPowers.resize(i + 1, 0);
+        compactPowers[i] = powers[i];
+      }
+    }
+    drifts->addDrift(new DriftM(compactPowers));
     return;
   }
 
