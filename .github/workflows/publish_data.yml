@@ -35,22 +35,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # TODO : This shoudn't be needed for PRINT_VERSION target
-    - name: Install dependencies
-      run: |
-        sudo rm /etc/apt/sources.list.d/microsoft-prod.list
-        sudo apt-get update
-        sudo apt-get install -yq \
-          libopenmpi-dev \
-          libboost-dev \
-          libeigen3-dev \
-          libhdf5-dev \
-          libnlopt-dev
-
     - name: Get project version
       id: main_step
       run: |
-        cmake -B${{env.BUILD_DIR}} -DBUILD_PYTHON=OFF -DBUILD_R=OFF
+        cmake -B${{env.BUILD_DIR}} -DBUILD_CPP=OFF -DBUILD_PYTHON=OFF -DBUILD_R=OFF
         PROJECT_FULL_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_FULL_VERSION | cut -d "=" -f2 | xargs)
         echo "PROJECT_FULL_VERSION=${PROJECT_FULL_VERSION}" >> "$GITHUB_OUTPUT"
 

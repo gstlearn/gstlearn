@@ -2,6 +2,13 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 1.10.0
+==============
+- Correct the Global estimation by Kriging (estimation and variance of estimation error)
+- Make the results of Global estimation displayable
+- Attempt to suppress old-style memory management methods
+
+
 Release 1.9.0
 =============
 - Correct the Global estimation by Kriging (estimation and variance of estimation error)
@@ -13,6 +20,7 @@ Release 1.9.0
 - Really install shared library export lib file under windows (issue #672)
 - Fix ProjComposition when composing more than 2 matrices (issue #674)
 - Fix Moving Neighborhood using XValid with K-Fold and Ball Tree 
+- Fix Maximum Likelihood for more complex variogram models contexts
 
 
 Release 1.8.2

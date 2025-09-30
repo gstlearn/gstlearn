@@ -3,12 +3,12 @@ cmake_minimum_required(VERSION 3.20)
 
 # Define project here
 project(gstlearn
-        VERSION      1.9.0 # Make it consistent with CHANGES
+        VERSION      1.10.0 # Make it consistent with CHANGES
         DESCRIPTION  "Geostatistics & Machine Learning toolbox"
         HOMEPAGE_URL "https://gstlearn.org"
         LANGUAGES    C CXX) # Enable C language for third party libraries
 # Use one of the following lines if you want to deliver a pre-release
-set (PROJECT_VERSION_SUFFIX a2)  # Alpha (new feature not yet stable)
+set (PROJECT_VERSION_SUFFIX a1)  # Alpha (new feature not yet stable)
 #set (PROJECT_VERSION_SUFFIX b1)  # Beta (new feature finished to be tested)
 #set (PROJECT_VERSION_SUFFIX rc1) # Release Candidate (only small bugs to be fixed before the release)
 
@@ -69,6 +69,8 @@ get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 #set(CMAKE_FIND_DEBUG_MODE TRUE)
 
 # Options
+option(BUILD_CPP     "Build C++ library"                        ON)
+mark_as_advanced(BUILD_CPP)
 # By default, deactivate R and python packages
 option(BUILD_PYTHON  "Build Python package"                     OFF)
 option(BUILD_R       "Build R package"                          OFF)
@@ -84,6 +86,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   # Clang compiler detected (define the shortcut variable)
   set(CLANG ON)
 endif()
+message(STATUS "BUILD_CPP="     ${BUILD_CPP})
 message(STATUS "BUILD_PYTHON="  ${BUILD_PYTHON})
 message(STATUS "BUILD_R="       ${BUILD_R})
 message(STATUS "BUILD_TESTING=" ${BUILD_TESTING})
@@ -102,11 +105,11 @@ add_subdirectory(3rd-party/gmtsph)
 
 include(cmake/version.cmake)
 include(cmake/doc.cmake)
-# TODO : Add BUILD_CPP option (not needed for print_version or doxygen targets)
-#if (BUILD_CPP)
+# BUILD_CPP option not needed for print_version or doxygen targets
+if (BUILD_CPP)
   include(cmake/cpp.cmake)
   include(cmake/install.cmake)
-#endif()
+endif()
 if (BUILD_DOC)
   include(cmake/doxygen.cmake)
 endif()

@@ -1,11 +1,64 @@
 #include "Basic/ListParams.hpp"
 #include "Basic/AStringable.hpp"
 #include "geoslib_define.h"
+#include <algorithm>
 #include <cstddef>
 #include <sstream>
+#include <unordered_map>
 
 namespace gstlrn
 {
+
+struct DSU
+{
+  std::vector<Id> parent;
+  DSU(Id n)
+    : parent(n)
+  {
+    for (Id i = 0; i < n; i++) parent[i] = i;
+  }
+  Id find(Id x)
+  {
+    return parent[x] == x ? x : parent[x] = find(parent[x]);
+  }
+  void unite(Id x, Id y)
+  {
+    Id rx = find(x), ry = find(y);
+    if (rx != ry) parent[ry] = rx;
+  }
+};
+
+void reindex(const VectorInt& v, std::vector<size_t>& result)
+{
+  if (v.empty())
+  {
+    result.clear();
+    return;
+  }
+
+  auto maxVal = *std::max_element(v.begin(), v.end());
+  DSU dsu(maxVal + 1);
+
+  for (size_t i = 0; i < v.size(); i++)
+  {
+    dsu.unite(v[i], v[i]);
+  }
+
+  std::unordered_map<Id, Id> newIndex;
+  Id next = 0;
+  result.resize(v.size());
+
+  for (size_t i = 0; i < v.size(); i++)
+  {
+    Id root = dsu.find(v[i]);
+    if (!newIndex.count(root))
+    {
+      newIndex[root] = next++;
+    }
+    result[i] = newIndex[root];
+  }
+}
+
 ListParams::ListParams()
   : AStringable()
 {
@@ -15,21 +68,11 @@ void ListParams::updateDispatch()
 {
   _dispatch.clear();
   _dispatchIndex.clear();
-  size_t nmax = 0;
+  VectorInt adresses(_params.size());
   for (size_t i = 0; i < _params.size(); ++i)
-  {
-    size_t index = _params[i].get().getAddress();
+    adresses[i] = static_cast<Id>(_params[i].get().getAddress());
 
-    if (index > nmax)
-    {
-      nmax = nmax + 1;
-      _dispatch.push_back(nmax);
-    }
-    else
-    {
-      _dispatch.push_back(index);
-    }
-  }
+  reindex(adresses, _dispatch);
   makeDispatchIndexFromDispatch();
 }
 
