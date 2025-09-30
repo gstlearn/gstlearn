@@ -155,7 +155,7 @@ void ModelGeneric::addDrift(const ADrift* drift)
 {
   if (drift == nullptr) return;
   if (_driftList == nullptr) _driftList = new DriftList(_ctxt);
-  ADrift* drift_loc = dynamic_cast<ADrift*>(drift->clone());
+  auto* drift_loc = dynamic_cast<ADrift*>(drift->clone());
   _driftList->addDrift(drift_loc);
 
   // Check that the DriftList has the same type of CovContext as the Model
