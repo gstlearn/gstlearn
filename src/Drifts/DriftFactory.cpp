@@ -107,6 +107,33 @@ ADrift* DriftFactory::createDriftByIdentifier(const String& driftname)
 }
 
 /**
+ * Helper function to recursively generate all monomials up to a given order
+ * @param powers Current monomial powers (modified in-place)
+ * @param dim Current dimension being processed (counting from ndim-1 down to 0)
+ * @param remainingOrder Remaining order available for current and subsequent dimensions
+ * @param drifts DriftList to which monomials are added
+ */
+static void _generateMonomials(VectorInt& powers,
+                               Id dim,
+                               Id remainingOrder,
+                               DriftList* drifts)
+{
+  // Base case: processed all dimensions
+  if (dim < 0)
+  {
+    drifts->addDrift(new DriftM(powers));
+    return;
+  }
+
+  // Try all possible powers for current dimension (from 0 to remainingOrder)
+  for (Id power = 0; power <= remainingOrder; power++)
+  {
+    powers[dim] = power;
+    _generateMonomials(powers, dim - 1, remainingOrder - power, drifts);
+  }
+}
+
+/**
  * Creating the list of Drift functions correspondaing to the following constraints:
  * - Rank of the IRF
  * - Number of external drift functions
@@ -115,7 +142,7 @@ ADrift* DriftFactory::createDriftByIdentifier(const String& driftname)
  * @param ctxt  Cov_context
  * @return
  *
- * @remarks: this function is limited to order<=2 and ndim<= 3
+ * @remarks: this function works for any order and any dimension
  */
 DriftList* DriftFactory::createDriftListFromIRF(Id order,
                                                 Id nfex,
@@ -124,48 +151,17 @@ DriftList* DriftFactory::createDriftListFromIRF(Id order,
   auto* drifts = new DriftList(ctxt);
   auto ndim    = ctxt.getNDim();
 
-  // Standard monomials
-  switch (order)
+  // In the strict stationary case, no drift is defined (even external)
+  if (order == -1)
   {
-    case -1:
-      // In the strict stationary case, no drift is defined (even external)
-      return drifts;
-      break;
+    return drifts;
+  }
 
-    case 0:
-      drifts->addDrift(new DriftM(VectorInt())); // 1
-      break;
-
-    case 1:
-      drifts->addDrift(new DriftM(VectorInt())); // 1
-      if (ndim >= 1)
-        drifts->addDrift(new DriftM(VectorInt({1}))); // X
-      if (ndim >= 2)
-        drifts->addDrift(new DriftM(VectorInt({0, 1}))); // Y
-      if (ndim >= 3)
-        drifts->addDrift(new DriftM(VectorInt({0, 0, 1}))); // Z
-      break;
-
-    case 2:
-      drifts->addDrift(new DriftM()); // 1
-      if (ndim >= 1)
-      {
-        drifts->addDrift(new DriftM(VectorInt({1}))); // X
-        drifts->addDrift(new DriftM(VectorInt({2}))); // X^2
-      }
-      if (ndim >= 2)
-      {
-        drifts->addDrift(new DriftM(VectorInt({0, 1}))); // Y
-        drifts->addDrift(new DriftM(VectorInt({1, 1}))); // YX
-        drifts->addDrift(new DriftM(VectorInt({0, 2}))); // Y^2
-      }
-      if (ndim >= 3)
-      {
-        drifts->addDrift(new DriftM(VectorInt({0, 0, 1}))); // Z
-        drifts->addDrift(new DriftM(VectorInt({1, 0, 1}))); // ZX
-        drifts->addDrift(new DriftM(VectorInt({0, 1, 1}))); // ZY
-        drifts->addDrift(new DriftM(VectorInt({0, 0, 2}))); // Z^2
-      }
+  // Generate all monomials up to the given order
+  if (order >= 0)
+  {
+    VectorInt powers(ndim, 0);
+    _generateMonomials(powers, ndim - 1, order, drifts);
   }
 
   if (nfex > 0)
