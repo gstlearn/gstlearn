@@ -53,3 +53,7 @@ doc/details/*.fls
 doc/details/*.synctex.gz
 .venv
 2
+
+# Test output files
+*.out
+test_Model-*
