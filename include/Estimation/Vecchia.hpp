@@ -31,7 +31,7 @@ class GSTLEARN_EXPORT Vecchia: public ALikelihood
 {
 public:
   Vecchia(ModelGeneric* model,
-          Id nb_neigh,
+          Id nb_vecchia,
           const Db* db1,
           const Db* db2 = nullptr,
           bool reml     = false);
@@ -42,8 +42,8 @@ public:
 public:
   static Vecchia* createForOptim(ModelGeneric* model,
                                  const Db* db1,
-                                 Id nb_neigh = 30,
-                                 bool reml   = false);
+                                 Id nb_vecchia = 30,
+                                 bool reml     = false);
 
   Id computeLower(const MatrixT<Id>& Ranks, bool verbose = false);
   const MatrixSparse& getLFull() const { return _LFull; }
@@ -61,6 +61,7 @@ public:
   VectorDouble calculateFtLdY(const VectorDouble& LdY) const;
   MatrixSparse* calculateW(const VectorDouble& D_dd) const;
   VectorDouble computeAndGetY();
+
 private:
   void _init(bool verbose = false) override;
   void _updateModel(bool verbose = false) override;
@@ -70,7 +71,7 @@ private:
   Id _buildNeighborhood(const MatrixT<Id>& Ranks,
                         Id isample,
                         Id ivar,
-                        Id nb_neigh,
+                        Id nb_vecchia,
                         std::vector<std::array<Id, 4>>& neighDescr) const;
   void _buildLHS(Id nitems,
                  const std::vector<std::array<Id, 4>>& neighDescr,
@@ -89,7 +90,7 @@ private:
 
 private:
   // Following members are copies of pointers (not to be deleted)
-  Id _nbNeigh;
+  Id _nbVecchia;
   const Db* _db1;
   const Db* _db2;
 
@@ -114,11 +115,11 @@ private:
 GSTLEARN_EXPORT Id krigingVecchia(Db* dbin,
                                   Db* dbout,
                                   ModelGeneric* model,
-                                  Id nb_neigh                     = 5,
+                                  Id nb_vecchia                   = 5,
                                   bool verbose                    = false,
                                   const NamingConvention& namconv = NamingConvention("Vecchia"));
 GSTLEARN_EXPORT double logLikelihoodVecchia(const Db* db,
                                             ModelGeneric* model,
-                                            Id nb_neigh  = 5,
-                                            bool verbose = false);
+                                            Id nb_vecchia = 5,
+                                            bool verbose  = false);
 } // namespace gstlrn

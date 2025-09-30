@@ -26,12 +26,12 @@
 namespace gstlrn
 {
 Vecchia::Vecchia(ModelGeneric* model,
-                 Id nb_neigh,
+                 Id nb_vecchia,
                  const Db* db1,
                  const Db* db2,
                  bool reml)
   : ALikelihood(model, db1, reml)
-  , _nbNeigh(nb_neigh)
+  , _nbVecchia(nb_vecchia)
   , _db1(db1)
   , _db2(db2)
   , _Ranks()
@@ -55,7 +55,7 @@ Vecchia::Vecchia(ModelGeneric* model,
 
 Vecchia::Vecchia(const Vecchia& r)
   : ALikelihood(r)
-  , _nbNeigh(r._nbNeigh)
+  , _nbVecchia(r._nbVecchia)
   , _db1(r._db1)
   , _db2(r._db2)
   , _Ranks(r._Ranks)
@@ -79,7 +79,7 @@ Vecchia& Vecchia::operator=(const Vecchia& r)
   if (this != &r)
   {
     ALikelihood::operator=(r);
-    _nbNeigh     = r._nbNeigh;
+    _nbVecchia   = r._nbVecchia;
     _db1         = r._db1;
     _db2         = r._db2;
     _Y           = r._Y;
@@ -106,7 +106,7 @@ Vecchia::~Vecchia()
 
 void Vecchia::_init(bool verbose)
 {
-  _Ranks = findNN(_db, nullptr, _nbNeigh + 1, false, verbose);
+  _Ranks = findNN(_db, nullptr, _nbVecchia + 1, false, verbose);
 }
 
 Id Vecchia::_getAddressAbsolute(Id ip) const
@@ -140,12 +140,12 @@ Id Vecchia::_getAddressInMatrix(Id ip, Id ivar) const
 Id Vecchia::_buildNeighborhood(const MatrixT<Id>& Ranks,
                                Id isample,
                                Id ivar,
-                               Id nb_neigh,
+                               Id nb_vecchia,
                                std::vector<std::array<Id, 4>>& neighDescr) const
 {
   // Loop on the ranks of the neighboring samples
   Id nitems = 0;
-  for (Id jp = 0; jp < nb_neigh; jp++)
+  for (Id jp = 0; jp < nb_vecchia; jp++)
   {
     Id ip = Ranks(isample, jp + 1);
 
@@ -309,8 +309,8 @@ Id Vecchia::computeLower(const MatrixT<Id>& Ranks, bool verbose)
     return 1;
   }
 
-  Id nsample  = static_cast<Id>(Ranks.getNRows());
-  Id nb_neigh = static_cast<Id>(Ranks.getNCols()) - 1;
+  Id nsample    = static_cast<Id>(Ranks.getNRows());
+  Id nb_vecchia = static_cast<Id>(Ranks.getNCols()) - 1;
 
   _Ntot1 = 0;
   if (_db1 != nullptr)
@@ -323,13 +323,14 @@ Id Vecchia::computeLower(const MatrixT<Id>& Ranks, bool verbose)
   // Resizing
   Id ntot = _Ntot1 + _Ntot2;
   _DFull.resize(ntot);
-  _LFull = MatrixSparse(ntot, ntot, nb_neigh + 1);
+  _LFull = MatrixSparse(ntot, ntot, nb_vecchia + 1);
 
   // Loop on the samples
-  Id nmax = nb_neigh * nvar + nvar; // Multivariate neighborhood + Collocation
+  Id nmax = nb_vecchia * nvar + nvar; // Multivariate neighborhood + Collocation
   std::vector<std::array<Id, 4>> neighDescr(nmax);
   for (Id ivar = 0; ivar < nvar; ivar++)
   {
+    double varK = _model->eval0(ivar, ivar);
     for (Id isample = 0; isample < nsample; isample++)
     {
       Id target   = Ranks(isample, 0);
@@ -338,26 +339,25 @@ Id Vecchia::computeLower(const MatrixT<Id>& Ranks, bool verbose)
       auto irel1  = _getAddressInMatrix(target, ivar);
 
       // Build the list of neighboring information
-      Id nitems = _buildNeighborhood(Ranks, isample, ivar, nb_neigh, neighDescr);
+      Id nitems = _buildNeighborhood(Ranks, isample, ivar, nb_vecchia, neighDescr);
 
       // Optional printout
-      if (debug)
+      if (verbose)
       {
-        message("Row=%d Case=%d Variable=%d Sample=%d\n",
+        message("Row=%d Db=%d Var=%d Sample=%d\n",
                 irel1, icase1, ivar, iabs1);
         for (Id item = 0; item < nitems; item++)
-          message("- Column=%d Case=%d Variable=%d Sample=%d\n",
+          message("- Col=%d Db=%d Var=%d Sample=%d\n",
                   neighDescr[item][2], neighDescr[item][0],
                   neighDescr[item][1], neighDescr[item][3]);
       }
 
       // Fill the full matrix
       _LFull.setValue(irel1, irel1, 1.);
-      double varK = _model->eval0(ivar, ivar);
+
       if (nitems <= 0)
       {
         // Case with no previous information available
-
         _DFull[irel1] = 1. / varK;
       }
       else
@@ -468,7 +468,7 @@ MatrixSparse* Vecchia::calculateW(const VectorDouble& D_dd) const
   return W;
 }
 
-VectorDouble Vecchia::computeAndGetY() 
+VectorDouble Vecchia::computeAndGetY()
 {
   _loadDataFlattened();
   return _Y;
@@ -476,13 +476,13 @@ VectorDouble Vecchia::computeAndGetY()
 Id krigingVecchia(Db* dbin,
                   Db* dbout,
                   ModelGeneric* model,
-                  Id nb_neigh,
+                  Id nb_vecchia,
                   bool verbose,
                   const NamingConvention& namconv)
 {
-  Vecchia V(model, nb_neigh, dbout, dbin);
+  Vecchia V(model, nb_vecchia, dbout, dbin);
 
-  MatrixT<Id> Ranks = findNN(dbout, dbin, nb_neigh + 1, false, verbose);
+  MatrixT<Id> Ranks = findNN(dbout, dbin, nb_vecchia + 1, false, verbose);
   if (V.computeLower(Ranks, verbose)) return 1;
 
   // Extract sub-part of 'Diagonal' vector
@@ -551,7 +551,7 @@ void Vecchia::productMatVecchia(const MatrixDense& X, MatrixDense& resmat) const
  *
  * @param db  Db structure where variable are loaded from
  * @param model ModelGeneric structure used for the calculation
- * @param nb_neigh Number of neighbors to consider in the Vecchia approximation
+ * @param nb_vecchia Number of neighbors to consider in the Vecchia approximation
  * @param verbose Verbose flag
  *
  * @remarks The calculation considers all the active samples.
@@ -560,10 +560,10 @@ void Vecchia::productMatVecchia(const MatrixDense& X, MatrixDense& resmat) const
  */
 double logLikelihoodVecchia(const Db* db,
                             ModelGeneric* model,
-                            Id nb_neigh,
+                            Id nb_vecchia,
                             bool verbose)
 {
-  Vecchia* vec  = Vecchia::createForOptim(model, db, nb_neigh);
+  Vecchia* vec  = Vecchia::createForOptim(model, db, nb_vecchia);
   double result = vec->computeCost(verbose);
   delete vec;
   return result;
@@ -571,12 +571,12 @@ double logLikelihoodVecchia(const Db* db,
 
 Vecchia* Vecchia::createForOptim(ModelGeneric* model,
                                  const Db* db,
-                                 Id nb_neigh,
+                                 Id nb_vecchia,
                                  bool reml)
 {
 
-  auto* vec            = new Vecchia(model, nb_neigh, db, nullptr, reml);
-  
+  auto* vec = new Vecchia(model, nb_vecchia, db, nullptr, reml);
+
   vec->_initLikelihood();
   return vec;
 }

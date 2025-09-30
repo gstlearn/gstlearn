@@ -11,8 +11,8 @@
 #pragma once
 
 #include "Basic/VectorNumT.hpp"
-#include "Matrix/MatrixDense.hpp"
 #include "Estimation/AModelOptim.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
@@ -34,19 +34,20 @@ public:
   ALikelihood& operator=(const ALikelihood& r);
   virtual ~ALikelihood();
 
-  
   double computeCost(bool verbose = false) override;
   double computeLogLikelihood(bool verbose = false);
   VectorDouble getBeta() const { return _beta; }
+
 protected:
-    void _initLikelihood(bool verbose = false);
+  void _initLikelihood(bool verbose = false);
+
 private:
   virtual void _updateModel(bool verbose = false)
   {
     DECLARE_UNUSED(verbose);
   }
   virtual void _computeCm1X()           = 0;
-  virtual void _computeCm1Yc()           = 0;
+  virtual void _computeCm1Yc()          = 0;
   virtual double _computeLogDet() const = 0;
   virtual void _init(bool verbose = false)
   {
@@ -55,9 +56,9 @@ private:
 
 protected:
   const Db* _db;
-  VectorDouble _Y; // Vector of multivariate data
+  VectorDouble _Y;  // Vector of multivariate data
   VectorDouble _Yc; // Centered data
-  MatrixDense _X;  // Matrix of drifts
+  MatrixDense _X;   // Matrix of drifts
   VectorDouble _beta;
   MatrixDense _Cm1X;
   VectorDouble _Cm1Yc;
@@ -65,4 +66,4 @@ protected:
   bool _reml;
   Id _nDrift;
 };
-}
+} // namespace gstlrn

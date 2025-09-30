@@ -239,11 +239,9 @@ MatrixT<Id> findNN(const Db* dbin,
   if (verbose) ball.display(1);
 
   // Dimensioning the output matrix
-  //RankHandler rh = RankHandler(dbin, true, true, true, likelihood);
-  //rh.defineSampleRanks();
-  
-  Id n1 = dbin->getNSample(true);
-  Id n2 = (dbout != nullptr) ? dbout->getNSample(true) : 0;
+  nb_neigh = MIN(nb_neigh, ball.getNSample());
+  Id n1    = dbin->getNSample(true);
+  Id n2    = (dbout != nullptr) ? dbout->getNSample(true) : 0;
   mat.resize(n1 + n2, nb_neigh);
 
   // Loop on the samples for the FNN search

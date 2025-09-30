@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 
   // Global parameters
   Id mode       = 0;
-  Id nb_vecchia = 3;
+  Id nbVecchia = 3;
   DbStringFormat dbfmt(FLAG_STATS, {"Vecchia*"});
 
   if (mode == 0 || mode == 1)
@@ -84,8 +84,8 @@ int main(int argc, char* argv[])
     _dumpLimit(1);
     Db* db       = _createDb(1, 5, true);
     Model* model = _createModel(1);
-    Vecchia V(model, nb_vecchia, db);
-    auto Ranks = findNN(db, nullptr, nb_vecchia + 1, false, true);
+    Vecchia V(model, nbVecchia, db);
+    auto Ranks = findNN(db, nullptr, nbVecchia + 1, false, true);
     (void)V.computeLower(Ranks, true);
     delete db;
     delete model;
@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
     Db* db       = _createDb(1, 5, false);
     Model* model = _createModel(1);
     DbGrid* grid = _createGrid();
-    krigingVecchia(db, grid, model, nb_vecchia, true);
+    krigingVecchia(db, grid, model, nbVecchia, true);
     grid->display(&dbfmt);
     delete db;
     delete model;
@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
     mestitle(0, "Log-Likelihood");
     Db* db              = _createDb(1, 20000, false);
     Model* model        = _createModel(1);
-    const double result = logLikelihoodVecchia(db, model, nb_vecchia, false);
+    const double result = logLikelihoodVecchia(db, model, nbVecchia, false);
     message("Log-likelihood = %f\n", result);
     delete db;
     delete model;
@@ -120,12 +120,12 @@ int main(int argc, char* argv[])
 
   if (mode == 0 || mode == 4)
   {
-    nb_vecchia = 2;
+    nbVecchia = 2;
     mestitle(0, "Kriging with Vecchia approximation (nvar=2)");
     Db* db       = _createDb(2, 10, false);
     Model* model = _createModel(2);
     DbGrid* grid = _createGrid(100);
-    krigingVecchia(db, grid, model, nb_vecchia, false);
+    krigingVecchia(db, grid, model, nbVecchia, false);
     grid->display(&dbfmt);
     delete db;
     delete model;

@@ -30,33 +30,44 @@ int main(int argc, char* argv[])
   auto* model = Model::createFromParam(ECov::EXPONENTIAL);
   model->setDriftIRF(0);
 
-  Id nbvecchia = 4;
+  Id nbVecchia = 8;
   double like;
   bool verbose = true;
 
-  Id nvar  = 1;
-  Id dim   = 2;
-  Id ndat  = 6;
-  Id indNa = 3;
-  Db* db   = Db::createFillRandom(ndat, dim, nvar, 0, 0, 0);
-  db->setValue("z", indNa, TEST);
-  auto dbfmt = DbStringFormat(FLAG_ARRAY, VectorString(), VectorInt(), false);
-  db->display(&dbfmt);
-
-  like = logLikelihoodVecchia(db, model, nbvecchia, verbose);
-  message("Likelihood without filtering %lf\n", like);
-
+  Id nvar    = 1;
+  Id dim     = 2;
+  Id ndat    = 6;
+  Id indNa   = 3;
+  auto dbfmt = DbStringFormat(FLAG_VARS | FLAG_ARRAY, VectorString(), VectorInt(), false);
+  Db* dbref  = Db::createFillRandom(ndat, dim, nvar, 0, 0, 0);
+  dbref->setValue("z", indNa, TEST);
   VectorDouble sel(ndat, 1.);
   sel[indNa] = 0.;
-  db->addSelection(sel, "sel");
-  db->display(&dbfmt);
-  like = logLikelihoodVecchia(db, model, nbvecchia, verbose);
-  message("Likelihood with selection %lf\n", like);
+  dbref->addSelection(sel, "sel");
+  Db* db;
 
+  mestitle(0, "Removing the bad sample");
+  db = dbref->clone();
   db->deleteSample(indNa);
   db->display(&dbfmt);
-  like = logLikelihoodVecchia(db, model, nbvecchia, verbose);
-  message("Likelihood after deleting the NA sample %lf\n", like);
+  like = logLikelihoodVecchia(db, model, nbVecchia, verbose);
+  message("Likelihood = %lf\n", like);
+  delete db;
+
+  mestitle(0, "With Selection");
+  db = dbref->clone();
+  db->display(&dbfmt);
+  like = logLikelihoodVecchia(db, model, nbVecchia, verbose);
+  message("Likelihood = %lf\n", like);
+  delete db;
+
+  mestitle(0, "Without filtering");
+  db = dbref->clone();
+  db->clearSelection();
+  db->display(&dbfmt);
+  like = logLikelihoodVecchia(db, model, nbVecchia, verbose);
+  message("Likelihood = %lf\n", like);
+  delete db;
 
   return 0;
 }
