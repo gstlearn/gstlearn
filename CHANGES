@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 1.10.0
 ==============
+- Extend the ability to generate drift functions for any space and IRF order (setDriftIRF)
 - Correct the Global estimation by Kriging (estimation and variance of estimation error)
 - Make the results of Global estimation displayable
 - Attempt to suppress old-style memory management methods

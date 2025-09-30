@@ -18,7 +18,7 @@
 #include "Drifts/DriftM.hpp"
 
 namespace gstlrn
-{ 
+{
 /**
  * This Drift identification is used for interpreting old serialized files
  * where the drift function was encoded by its rank.
@@ -106,14 +106,51 @@ ADrift* DriftFactory::createDriftByIdentifier(const String& driftname)
   return drift;
 }
 
+static void _generateRecursive(Id ndim,
+                               Id order,
+                               Id startVar,
+                               Id remainingDegree,
+                               VectorInt& exps,
+                               DriftList* drifts)
+{
+  if (remainingDegree == 0)
+  {
+    drifts->addDrift(new DriftM(exps));
+    return;
+  }
+
+  for (Id i = startVar; i < ndim; ++i)
+  {
+    for (Id d = 1; d <= remainingDegree; ++d)
+    {
+      exps[i] = d;
+      _generateRecursive(ndim, order, i + 1, remainingDegree - d, exps, drifts);
+      exps[i] = 0;
+    }
+  }
+}
+
+static void _generateDrifts(Id ndim, Id order, DriftList* drifts)
+{
+  // 1. Constant Term
+  drifts->addDrift(new DriftM(VectorInt()));
+
+  // 2. For each degree d = 1..order
+  for (Id deg = 1; deg <= order; ++deg)
+  {
+    VectorInt exps(ndim, 0);
+    _generateRecursive(ndim, deg, 0, deg, exps, drifts);
+  }
+}
+
 /**
- * Creating the list of Drift functions correspondaing to the following constraints:
- * - Rank of the IRF
- * - Number of external drift functions
+ * Create the list of Drift functions corresponding to the following constraints:
+ * - Rank of the IRF (order)
+ * - Number of external drift functions (nfex)
  * @param order Rank of the IRF
  * @param nfex  Number of external drift functions
  * @param ctxt  Cov_context
- * @return
+ * @return The list of Drift functions
  *
  * @remarks: this function is limited to order<=2 and ndim<= 3
  */
@@ -124,53 +161,17 @@ DriftList* DriftFactory::createDriftListFromIRF(Id order,
   auto* drifts = new DriftList(ctxt);
   auto ndim    = ctxt.getNDim();
 
+  // In the strict stationary case, no drift is defined (even external)
+  if (order < 0)
+    // In the strict stationary case, no drift is defined (even external)
+    return drifts;
+
   // Standard monomials
-  switch (order)
-  {
-    case -1:
-      // In the strict stationary case, no drift is defined (even external)
-      return drifts;
-      break;
+  _generateDrifts(ndim, order, drifts);
 
-    case 0:
-      drifts->addDrift(new DriftM(VectorInt())); // 1
-      break;
-
-    case 1:
-      drifts->addDrift(new DriftM(VectorInt())); // 1
-      if (ndim >= 1)
-        drifts->addDrift(new DriftM(VectorInt({1}))); // X
-      if (ndim >= 2)
-        drifts->addDrift(new DriftM(VectorInt({0, 1}))); // Y
-      if (ndim >= 3)
-        drifts->addDrift(new DriftM(VectorInt({0, 0, 1}))); // Z
-      break;
-
-    case 2:
-      drifts->addDrift(new DriftM()); // 1
-      if (ndim >= 1)
-      {
-        drifts->addDrift(new DriftM(VectorInt({1}))); // X
-        drifts->addDrift(new DriftM(VectorInt({2}))); // X^2
-      }
-      if (ndim >= 2)
-      {
-        drifts->addDrift(new DriftM(VectorInt({0, 1}))); // Y
-        drifts->addDrift(new DriftM(VectorInt({1, 1}))); // YX
-        drifts->addDrift(new DriftM(VectorInt({0, 2}))); // Y^2
-      }
-      if (ndim >= 3)
-      {
-        drifts->addDrift(new DriftM(VectorInt({0, 0, 1}))); // Z
-        drifts->addDrift(new DriftM(VectorInt({1, 0, 1}))); // ZX
-        drifts->addDrift(new DriftM(VectorInt({0, 1, 1}))); // ZY
-        drifts->addDrift(new DriftM(VectorInt({0, 0, 2}))); // Z^2
-      }
-  }
-
+  // External drifts
   if (nfex > 0)
   {
-    // Adding the external drift(s)
     for (Id ifex = 0; ifex < nfex; ifex++)
       drifts->addDrift(new DriftF(ifex));
   }
@@ -193,7 +194,7 @@ DriftList* DriftFactory::createDriftListForGradients(const DriftList* olddrifts,
   auto* newdrifts = new DriftList(ctxt);
   newdrifts->setFlagLinked(true);
   auto ndim = ctxt.getNDim();
-  Id order = olddrifts->getDriftMaxIRFOrder();
+  Id order  = olddrifts->getDriftMaxIRFOrder();
 
   if (olddrifts->hasExternalDrift())
   {
@@ -307,4 +308,5 @@ DriftList* DriftFactory::createDriftListForGradients(const DriftList* olddrifts,
 
   return newdrifts;
 }
-}
+
+} // namespace gstlrn
