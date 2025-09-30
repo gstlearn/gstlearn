@@ -159,7 +159,7 @@ DriftList* DriftFactory::createDriftListFromIRF(Id order,
                                                 const CovContext& ctxt)
 {
   auto* drifts = new DriftList(ctxt);
-  Id ndim      = ctxt.getNDim();
+  Id ndim      = static_cast<Id>(ctxt.getNDim());
 
   // In the strict stationary case, no drift is defined (even external)
   if (order < 0)
