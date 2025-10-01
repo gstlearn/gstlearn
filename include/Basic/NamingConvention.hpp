@@ -57,6 +57,20 @@ class Db;
  * - MyPrefix.var.2 (for second simulation)
  * ...
  *
+ * For multivariate simulations, the new setNamesAndLocatorsForSimulations method
+ * provides consistent naming with explicit Variable and Simulation indicators:
+ * 
+ * Non-conditional multivariate simulations (e.g., 2 variables, 2 simulations):
+ * - MyPrefix.V1.S1, MyPrefix.V1.S2, MyPrefix.V2.S1, MyPrefix.V2.S2
+ *
+ * Conditional multivariate simulations (e.g., variables Fe and Al, 2 simulations):
+ * - MyPrefix.Fe.S1, MyPrefix.Fe.S2, MyPrefix.Al.S1, MyPrefix.Al.S2
+ *
+ * This ensures:
+ * - Clear distinction between Variables (V) and Simulations (S)
+ * - Consistent naming whether nsim=1 or nsim>1
+ * - Support for both storage orders (simulation-first or variable-first)
+ *
  * Ultimately, the newly created variables are assigned a locator.
  */
 class GSTLEARN_EXPORT NamingConvention: public AStringable
