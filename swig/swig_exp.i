@@ -12,16 +12,16 @@
 // Export VectorXXX classes
 %include Basic/VectorT.hpp
 %include Basic/VectorNumT.hpp
-%template(VectorTInt)         gstlrn::VectorT< long >;
+%template(VectorTInt)         gstlrn::VectorT< long long >;
 %template(VectorTDouble)      gstlrn::VectorT< double >;
 %template(VectorTFloat)       gstlrn::VectorT< float >;
 %template(VectorBool)         gstlrn::VectorT< UChar >; // See VectorT.hpp
 %template(VectorString)       gstlrn::VectorT< String >;
-%template(VectorInt)          gstlrn::VectorNumT< long >;
+%template(VectorInt)          gstlrn::VectorNumT< long long >;
 %template(VectorDouble)       gstlrn::VectorNumT< double >;
 %template(VectorFloat)        gstlrn::VectorNumT< float >;
 %template(VectorUChar)        gstlrn::VectorNumT< UChar >;
-%template(VectorVectorInt)    gstlrn::VectorT< VectorNumT< long > >;
+%template(VectorVectorInt)    gstlrn::VectorT< VectorNumT< long long > >;
 %template(VectorVectorDouble) gstlrn::VectorT< VectorNumT< double > >;
 %template(VectorVectorFloat)  gstlrn::VectorT< VectorNumT< float > >;
 //}

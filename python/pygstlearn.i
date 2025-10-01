@@ -105,18 +105,15 @@
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
 
-    long long v = 0; // Biggest integer type whatever the platform
-    int myres = SWIG_AsVal_long_SS_long(obj, &v);
+    int myres = SWIG_AsVal_long_SS_long(obj, &value);
     //std::cout << "convertToCpp(int): v=" << v << std::endl;
     if (SWIG_IsOK(myres) || myres == SWIG_OverflowError)
     {
-      if (myres == SWIG_OverflowError || v == NPY_INT_NA) // NaN, Inf or out of bound value becomes NA
+      if (myres == SWIG_OverflowError || value == NPY_INT_NA) // NaN, Inf or out of bound value becomes NA
       {
-        myres = SWIG_OK;
         value = getNA<Id>();
       }
-      else
-        myres = SWIG_AsVal_long(obj, &value);
+      myres = SWIG_OK;
     }
     return myres;
   }
@@ -489,7 +486,7 @@ namespace gstlrn
   template <> NPY_TYPES numpyType<bool>()    { return NPY_BOOL; }
   
   template<typename Type> struct TypeHelper;
-  template <> struct TypeHelper<Id>    { static bool hasFixedSize() { return true; } };
+  template <> struct TypeHelper<Id>     { static bool hasFixedSize() { return true; } };
   template <> struct TypeHelper<double> { static bool hasFixedSize() { return true; } };
   template <> struct TypeHelper<String> { static bool hasFixedSize() { return false; } };
   template <> struct TypeHelper<float>  { static bool hasFixedSize() { return true; } };
@@ -900,7 +897,7 @@ namespace gstlrn {
 %extend VectorT<String> {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorNumT<long> {
+%extend VectorNumT<long long> {
   std::string __repr__() {  return $self->toString(); }
 }
 %extend VectorNumT<double> {
@@ -912,7 +909,7 @@ namespace gstlrn {
 %extend VectorNumT<UChar> {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorT<VectorNumT<long> > {
+%extend VectorT<VectorNumT<long long> > {
   std::string __repr__() {  return $self->toString(); }
 }
 %extend VectorT<VectorNumT<double> >{

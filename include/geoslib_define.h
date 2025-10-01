@@ -28,7 +28,7 @@ typedef unsigned char UChar;
 
 /// Main type for gstlearn 64-bits integers, to be used in priority
 /// when an integer is needed.
-using Id = long;
+using Id = long long;
 
 /// Secondary integer type. To be used instead of "int". No "int"
 /// should be voluntarily introduced in gstlearn.
