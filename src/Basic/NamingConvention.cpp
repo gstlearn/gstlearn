@@ -355,6 +355,99 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
     setLocators(dbout, iattout_start, 1, nitems, locatorShift);
  }
 
+/**
+ * Newly created variables for multivariate simulations are named with explicit V/S indicators.
+ *
+ * For non-conditional simulations (names empty):
+ *   Names are: prefix.V1.S1, prefix.V2.S1, ..., prefix.Vnvar.S1, prefix.V1.S2, ...
+ * 
+ * For conditional simulations (names provided):
+ *   Names are: prefix.name1.S1, prefix.name2.S1, ..., prefix.nameN.S1, prefix.name1.S2, ...
+ *
+ * @param dbin  Pointer to the input Db (optional, for getting variable names)
+ * @param names Vector of variable names (empty for non-conditional simulations)
+ * @param locatorInType Locator Type of the variables in Input Db
+ * @param nvar Number of variables
+ * @param dbout Pointer to the output Db
+ * @param iattout_start Starting attribute index
+ * @param nbsimu Number of simulations
+ * @param flagSimuFirst True if simulations vary first in storage order (default: true)
+ * @param flagSetLocator True if the variable must be assigned the locator
+ * @param locatorShift Shift to be applied to the locator currently defined
+ */
+void NamingConvention::setNamesAndLocatorsForSimulations(const Db *dbin,
+                                                         const VectorString& names,
+                                                         const ELoc& locatorInType,
+                                                         Id nvar,
+                                                         Db* dbout,
+                                                         Id iattout_start,
+                                                         Id nbsimu,
+                                                         bool flagSimuFirst,
+                                                         bool flagSetLocator,
+                                                         Id locatorShift) const
+{
+  if (iattout_start < 0) return;
+  
+  // Update the list of variable names
+  VectorString namloc = names;
+  if (namloc.empty())
+  {
+    // No list of variable names is provided. Attempt to construct it
+    if (dbin != nullptr && locatorInType != ELoc::UNKNOWN)
+    {
+      // Variables are designated using the locator in a 'db'.
+      namloc = dbin->getNamesByLocator(locatorInType);
+      if (nvar <= 0)
+        nvar = static_cast<Id>(namloc.size());
+      else
+        namloc.resize(nvar);
+    }
+    else
+    {
+      // 'namloc' remains empty for non-conditional simulations
+      if (nvar < 0)
+        nvar = 1;
+    }
+  }
+  else
+  {
+    // The number items in 'namloc' overrides 'nvar'
+    nvar = static_cast<Id>(namloc.size());
+  }
+  
+  // Create simulation names
+  VectorString outnames = _createSimulationNames(namloc, nvar, nbsimu, flagSimuFirst);
+  
+  // Debug: print the names we're creating
+  // std::cout << "DEBUG: Created names: ";
+  // for (size_t i = 0; i < outnames.size(); i++) {
+  //   std::cout << outnames[i];
+  //   if (i < outnames.size() - 1) std::cout << ", ";
+  // }
+  // std::cout << std::endl;
+  
+  // Set the names in the database
+  Id ntotal = nvar * nbsimu;
+  for (Id i = 0; i < ntotal; i++)
+  {
+    dbout->setNameByUID(iattout_start + i, outnames[i]);
+  }
+  
+  if (flagSetLocator)
+  {
+    if (_flagLocator && _locatorOutType != ELoc::UNKNOWN)
+    {
+      // Erase already existing locators of the same Type
+      if (_cleanSameLocator && locatorShift == 0)
+        dbout->clearLocators(_locatorOutType);
+
+      // Set the locator for all variables
+      for (Id i = 0; i < ntotal; i++)
+        dbout->setLocatorByUID(iattout_start + i, _locatorOutType, i + locatorShift);
+    }
+  }
+}
+
 void NamingConvention::setLocators(Db *dbout,
                                    Id iattout_start,
                                    Id nvar,
@@ -479,6 +572,84 @@ VectorString NamingConvention::_createNames(const VectorString &names,
       outnames.push_back(name);
     }
   }
+  return outnames;
+}
+
+/**
+ * Creates names for multivariate simulations with explicit V/S indicators
+ *
+ * @param names Vector of variable names (empty for non-conditional simulations)
+ * @param nvar Number of variables
+ * @param nbsimu Number of simulations
+ * @param flagSimuFirst True if simulations vary first (storage order)
+ *
+ * @return outnames An array of variable names (Dimension: nvar * nbsimu)
+ *
+ * @remarks For non-conditional simulations (names empty):
+ *   Names are: prefix.V1.S1, prefix.V2.S1, ..., prefix.Vnvar.S1, prefix.V1.S2, ...
+ *   (if flagSimuFirst=true, order is: prefix.V1.S1, prefix.V1.S2, ..., prefix.V2.S1, ...)
+ * 
+ * @remarks For conditional simulations (names provided):
+ *   Names are: prefix.name1.S1, prefix.name2.S1, ..., prefix.nameN.S1, prefix.name1.S2, ...
+ */
+VectorString NamingConvention::_createSimulationNames(const VectorString &names,
+                                                      Id nvar,
+                                                      Id nbsimu,
+                                                      bool flagSimuFirst) const
+{
+  VectorString outnames;
+  
+  // Determine variable names
+  VectorString varnames;
+  bool isConditional = !names.empty();
+  
+  if (isConditional)
+  {
+    // Conditional simulation: use provided variable names
+    varnames = names;
+    if (static_cast<Id>(varnames.size()) != nvar && nvar > 0)
+      varnames.resize(nvar);
+  }
+  else
+  {
+    // Non-conditional simulation: use V1, V2, ... format
+    for (Id ivar = 0; ivar < nvar; ivar++)
+    {
+      String varname = "V" + std::to_string(ivar + 1);
+      varnames.push_back(varname);
+    }
+  }
+  
+  // Create names based on storage order
+  if (flagSimuFirst)
+  {
+    // Simulation varies first: V1.S1, V1.S2, ..., V1.Sn, V2.S1, V2.S2, ...
+    for (Id ivar = 0; ivar < nvar; ivar++)
+    {
+      for (Id isimu = 0; isimu < nbsimu; isimu++)
+      {
+        String simuname = "S" + std::to_string(isimu + 1);
+        String name = concatenateStrings(_delim, _prefix, varnames[ivar], simuname);
+        if (name.empty()) name = "Dummy";
+        outnames.push_back(name);
+      }
+    }
+  }
+  else
+  {
+    // Variable varies first: V1.S1, V2.S1, ..., Vn.S1, V1.S2, V2.S2, ...
+    for (Id isimu = 0; isimu < nbsimu; isimu++)
+    {
+      for (Id ivar = 0; ivar < nvar; ivar++)
+      {
+        String simuname = "S" + std::to_string(isimu + 1);
+        String name = concatenateStrings(_delim, _prefix, varnames[ivar], simuname);
+        if (name.empty()) name = "Dummy";
+        outnames.push_back(name);
+      }
+    }
+  }
+  
   return outnames;
 }
 

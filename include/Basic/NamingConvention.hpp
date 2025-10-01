@@ -135,6 +135,16 @@ public:
                            Id nitems = 1,
                            bool flagSetLocator = true,
                            Id locatorShift = 0) const;
+  void setNamesAndLocatorsForSimulations(const Db *dbin,
+                                         const VectorString& names,
+                                         const ELoc& locatorInType,
+                                         Id nvar,
+                                         Db* dbout,
+                                         Id iattout_start,
+                                         Id nbsimu,
+                                         bool flagSimuFirst = true,
+                                         bool flagSetLocator = true,
+                                         Id locatorShift = 0) const;
 
   void setDelim(const String& delim)    { _delim = delim; }
   void setLocatorOutType(const ELoc& l) { _locatorOutType = l; }
@@ -160,6 +170,10 @@ private:
                             Id nvar,
                             const String &qualifier = "",
                             Id nitems = 1) const;
+  VectorString _createSimulationNames(const VectorString &names,
+                                      Id nvar,
+                                      Id nbsimu,
+                                      bool flagSimuFirst) const;
   static Id _getNameCount(const VectorString& names, Id nvar);
 
 private:
