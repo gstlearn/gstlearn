@@ -151,7 +151,7 @@ bool Vecchia::_identifyDbAndAbsoluteRank(const MatrixT<Id>& Ranks,
  * @brief Returns the address in the covariance matrix for a given sample and variable
  *
  * @param icaseDb Rank of the current Db (1 or 2)
- * @param ip  Rank of the sample
+ * @param ipAbs Rank of the sample
  * @param ivar  Rank of the variable
  * @return Rank within the matrix
  */
