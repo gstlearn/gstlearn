@@ -182,9 +182,9 @@ Id Vecchia::_buildNeighborhood(const MatrixT<Id>& Ranks,
                                bool verbose) const
 {
   // Loop on the ranks of the neighboring samples
-  Id icaseDb;
-  Id ipAbs;
-  Id ipAbs0;
+  Id icaseDb = 0;
+  Id ipAbs   = 0;
+  Id ipAbs0  = 0;
 
   Id nitems = 0;
   for (Id jp = 0; jp < nb_vecchia; jp++)

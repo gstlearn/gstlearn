@@ -273,8 +273,8 @@ MatrixT<Id> findNN(const Db* dbin,
     message("All samples ranks are given in Absolute mode\n");
   }
 
-  int nech = dbin->getNSample(false);
-  ranks    = (flagShuffle) ? law_random_path(nech) : VH::sequence(nech);
+  Id nech = dbin->getNSample(false);
+  ranks   = (flagShuffle) ? law_random_path(nech) : VH::sequence(nech);
   for (Id jech = 0; jech < nech; jech++)
   {
     Id iech = ranks[jech];
