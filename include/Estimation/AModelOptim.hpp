@@ -10,11 +10,11 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/Optim.hpp"
 #include "Covariances/ACov.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/AModelFitSills.hpp"
 #include "Model/ModelGeneric.hpp"
-#include "Basic/Optim.hpp"
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
@@ -48,9 +48,10 @@ public:
 
   void resetIter();
 
-  virtual double computeCost(bool verbose = false) = 0;
+  virtual double computeCost(bool flagPrint = false, bool verbose = false) = 0;
   std::shared_ptr<ListParams> getParams() const { return _params; }
   void evalGradInEffectiveDimension(vect res);
+
 private:
   void _printSummary(double minf, const std::vector<double>& x) const;
 
@@ -65,4 +66,4 @@ private:
   std::vector<double> _x;
   Id _iter;
 };
-}
+} // namespace gstlrn

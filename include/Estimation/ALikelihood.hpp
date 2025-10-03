@@ -34,25 +34,19 @@ public:
   ALikelihood& operator=(const ALikelihood& r);
   virtual ~ALikelihood();
 
-  double computeCost(bool verbose = false) override;
-  double computeLogLikelihood(bool verbose = false);
+  double computeCost(bool flagPrint = false, bool verbose = false) override;
+  double computeLogLikelihood(bool flagPrint = false, bool verbose = false);
   VectorDouble getBeta() const { return _beta; }
 
 protected:
   void _initLikelihood(bool verbose = false);
 
 private:
-  virtual void _updateModel(bool verbose = false)
-  {
-    DECLARE_UNUSED(verbose);
-  }
+  virtual void _updateModel(bool verbose = false) { DECLARE_UNUSED(verbose); }
   virtual void _computeCm1X()           = 0;
   virtual void _computeCm1Yc()          = 0;
   virtual double _computeLogDet() const = 0;
-  virtual void _init(bool verbose = false)
-  {
-    DECLARE_UNUSED(verbose);
-  }
+  virtual void _init(bool verbose = false) { DECLARE_UNUSED(verbose); }
 
 protected:
   const Db* _db;

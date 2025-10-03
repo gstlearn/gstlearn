@@ -1121,7 +1121,7 @@ void VectorHelper::concatenateInPlace(VectorDouble& veca, const VectorDouble& ve
 
 void VectorHelper::cumulateInPlace(VectorDouble& vec)
 {
-  VectorDouble::iterator it(vec.begin());
+  auto it(vec.begin());
   double old = 0.;
   while (it < vec.end())
   {

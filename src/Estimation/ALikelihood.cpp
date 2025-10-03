@@ -39,9 +39,8 @@ ALikelihood::ALikelihood(const ALikelihood& r)
   , _Cm1Yc(r._Cm1Yc)
   , _XtCm1X(r._XtCm1X)
   , _reml(r._reml)
-  , _nDrift(r._nDrift)
-   {};
-   
+  , _nDrift(r._nDrift) {};
+
 ALikelihood& ALikelihood::operator=(const ALikelihood& r)
 {
   if (this != &r)
@@ -53,7 +52,7 @@ ALikelihood& ALikelihood::operator=(const ALikelihood& r)
     _X      = r._X;
     _beta   = r._beta;
     _Cm1X   = r._Cm1X;
-    _Cm1Yc   = r._Cm1Yc;
+    _Cm1Yc  = r._Cm1Yc;
     _XtCm1X = r._XtCm1X;
     _reml   = r._reml;
     _nDrift = r._nDrift;
@@ -79,8 +78,8 @@ void ALikelihood::_initLikelihood(bool verbose)
   // Establish the vector of multivariate data
   if (_nDrift > 0)
   {
-      _Y = _db->getColumnsActiveAndDefined(ELoc::Z);
-      _Yc.resize(_Y.size());
+    _Y = _db->getColumnsActiveAndDefined(ELoc::Z);
+    _Yc.resize(_Y.size());
   }
   else
     _Yc = _db->getColumnsActiveAndDefined(ELoc::Z, _model->getMeans());
@@ -92,7 +91,7 @@ void ALikelihood::_initLikelihood(bool verbose)
     message("- Number of variables          = %d\n", nvar);
     message("- Length of Information Vector = %d\n", size);
     if (_nDrift > 0)
-      message("- Number of drift conditions = %d\n", _nDrift);
+      message("- Number of drift conditions   = %d\n", _nDrift);
     else
       VH::dump("Constant Mean(s)", _model->getMeans());
   }
@@ -105,10 +104,9 @@ void ALikelihood::_initLikelihood(bool verbose)
 
     _beta.resize(_nDrift);
   }
-
 }
 
-double ALikelihood::computeLogLikelihood(bool verbose)
+double ALikelihood::computeLogLikelihood(bool flagPrint, bool verbose)
 {
   _updateModel(verbose);
 
@@ -166,7 +164,7 @@ double ALikelihood::computeLogLikelihood(bool verbose)
   }
 
   // Optional printout
-  if (verbose)
+  if (flagPrint)
   {
     message("Log-Determinant = %lf\n", logdet);
     message("Quadratic term  = %lf\n", quad);
@@ -175,8 +173,8 @@ double ALikelihood::computeLogLikelihood(bool verbose)
   return loglike;
 }
 
-double ALikelihood::computeCost(bool verbose)
+double ALikelihood::computeCost(bool flagPrint, bool verbose)
 {
-  return -computeLogLikelihood(verbose);
+  return -computeLogLikelihood(flagPrint, verbose);
 }
 } // namespace gstlrn
