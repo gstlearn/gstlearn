@@ -428,8 +428,8 @@ Id Vecchia::computeLower(const MatrixT<Id>& Ranks, bool verbose)
   // Loop on the samples
   Id nmax = nvar * (nb_vecchia + 1); // Multivariate neighborhood + Collocation
   std::vector<std::array<Id, 4>> neighDescr(nmax);
-  Id icaseDb; // Indication of the current Db (1 or 2)
-  Id ipAbs;   // Absolute sample rank in the current Db
+  Id icaseDb = 0; // Indication of the current Db (1 or 2)
+  Id ipAbs   = 0; // Absolute sample rank in the current Db
   for (Id ivar = 0; ivar < nvar; ivar++)
   {
     double varK = _model->eval0(ivar, ivar);
