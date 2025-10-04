@@ -8,22 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-/**
- * This file is meant to parametrized the ModelGeneric in terms of ParamInfo
- * and to fit the values of these parameters according to the Maximum LogLikelihood
- * method and using the Vecchia approximation.
- */
-#include "Basic/OptDbg.hpp"
-#include "Db/DbGrid.hpp"
+#include "Basic/OptCst.hpp"
+#include "Basic/VectorT.hpp"
+#include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Enum/ESpaceType.hpp"
-#include "Estimation/CalcGlobal.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/Vecchia.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Model.hpp"
-#include "Neigh/NeighUnique.hpp"
-#include "Space/ASpaceObject.hpp"
-#include "Variogram/DirParam.hpp"
-#include "Variogram/Vario.hpp"
 #include "geoslib_define.h"
 
 using namespace gstlrn;
@@ -33,74 +24,129 @@ int main(int argc, char* argv[])
   DECLARE_UNUSED(argc);
   DECLARE_UNUSED(argv);
 
-  defineDefaultSpace(ESpaceType::RN, 2);
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str(), argc, argv);
+  ASerializable::setPrefixName("test_a_template-");
+  OptCst::define(ECst::NTCOL, -1);
+  OptCst::define(ECst::NTROW, -1);
 
-  String filename = "/home/drenard/Rtest/Bez/myDb.NF";
-  bool hasDrift   = true;
-  bool flagLocal  = false;
-  double propSel  = 0.1;
-  Id optDebug     = 0;
+  auto* model1 = Model::createFromParam(ECov::EXPONENTIAL);
+  model1->setDriftIRF(0);
+  MatrixSymmetric* sills = MatrixSymmetric::createRandomDefinitePositive(2);
+  auto* model2           = Model::createFromParam(ECov::EXPONENTIAL, 1, 0., 1., VectorDouble(), *sills);
+  model2->setDriftIRF(0);
 
-  Db* myDb = Db::createFromNF(filename);
-  myDb->setLocators({"longitude", "latitude"}, ELoc::X);
-  myDb->setLocators({"density", "depth"}, ELoc::Z);
-  myDb->deleteColumnsByLocator(ELoc::SEL);
-  if (propSel > 0)
-    myDb->addSelectionRandom(propSel);
-  else
-    myDb->clearSelection();
+  Id nbVecchia = 8;
+  double like;
+  bool verbose = false;
+  int mode     = 0;
 
-  DbStringFormat* dbfmt = DbStringFormat::createFromFlags(false, false, false, true, true);
-  myDb->display(dbfmt);
-  message("Number of active samples = %d\n", myDb->getNSampleActive());
+  Id nvar  = 1;
+  Id dim   = 2;
+  Id ndat  = 6;
+  Id indNa = 3;
+  VectorDouble sel(ndat, 1.);
+  sel[indNa] = 0.;
+  auto dbfmt = DbStringFormat(FLAG_VARS | FLAG_ARRAY, VectorString(), VectorInt(), false);
 
-  DbGrid* myGrid = DbGrid::createCoveringDb(myDb, VectorInt(), {10, 10});
-  message("Number of grid nodes = %d\n", myGrid->getNSample());
+  // Constructing a Monovariate Db
+  nvar       = 1;
+  Db* dbref1 = Db::createFillRandom(ndat, dim, nvar, 0, 0, 0);
+  dbref1->setValue("z", indNa, TEST);
+  dbref1->addSelection(sel, "sel");
 
-  NeighUnique myNeighU = NeighUnique();
+  // Constructing a bivariate Db
+  nvar       = 2;
+  Db* dbref2 = Db::createFillRandom(ndat, dim, nvar, 0, 0, 0);
+  dbref2->setValue("z-1", indNa, TEST);
+  dbref2->setValue("z-2", indNa, TEST);
+  dbref2->addSelection(sel, "sel");
 
-  VarioParam* varioparam = VarioParam::createOmniDirection(10, 50);
-  Vario* myVarioOmni     = Vario::computeFromDb(*varioparam, myDb);
-
-  Model myModelBi;
-  myModelBi.fit(myVarioOmni, {ECov::NUGGET, ECov::EXPONENTIAL, ECov::SPHERICAL});
-  if (hasDrift) myModelBi.setDriftIRF(0, 0);
-
-  OptDbg::setReference(optDebug);
-  Id mode = 0;
-
-  if (mode == 0 || mode == 2)
+  if (mode == 0 || mode == 10 || mode == 11)
   {
-    // CoKriging
-    myDb->setLocators({"density", "depth"}, ELoc::Z);
-    if (flagLocal)
-    {
-      (void)kriging(myDb, myGrid, &myModelBi, &myNeighU, true, true, false, KrigOpt(),
-                    NamingConvention("CoK"));
-    }
-    else
-    {
-      Global_Result resBivariate = global_kriging(myDb, myGrid, &myModelBi);
-      resBivariate.display();
-    }
+    message("\n>>>>> Db1 when removing the bad sample\n");
+    Db* db = dbref1->clone();
+    db->deleteSample(indNa);
+    if (verbose) db->display(&dbfmt);
+    like = logLikelihoodVecchia(db, model1, nbVecchia, verbose);
+    message("Likelihood = %lf\n", like);
+    delete db;
   }
 
-  if (mode == 0 || mode == 1)
+  if (mode == 0 || mode == 10 || mode == 12)
   {
-    // Kriging of first variable
-
-    myDb->setLocator("density", ELoc::Z, 0);
-    Model* myModelUni = myModelBi.createReduce({0});
-    if (flagLocal)
-    {
-      (void)kriging(myDb, myGrid, myModelUni, &myNeighU, true, true, false, KrigOpt(),
-                    NamingConvention("K"));
-    }
-    else
-    {
-      Global_Result resUnivariate = global_kriging(myDb, myGrid, myModelUni);
-      resUnivariate.display();
-    }
-    delete myModelUni;
+    message("\n>>>>> Db1 with Selection\n");
+    Db* db = dbref1->clone();
+    if (verbose) db->display(&dbfmt);
+    like = logLikelihoodVecchia(db, model1, nbVecchia, verbose);
+    message("Likelihood = %lf\n", like);
+    delete db;
   }
+
+  if (mode == 0 || mode == 10 || mode == 13)
+  {
+    message("\n>>>>> Db1 with TEST values\n");
+    Db* db = dbref1->clone();
+    db->clearSelection();
+    if (verbose) db->display(&dbfmt);
+    like = logLikelihoodVecchia(db, model1, nbVecchia, verbose);
+    message("Likelihood = %lf\n", like);
+    delete db;
+  }
+
+  if (mode == 0 || mode == 10 || mode == 14)
+  {
+    message("\n>>>>> Db1 with TEST values using traditional LogLikelihood\n");
+    Db* db = dbref1->clone();
+    db->clearSelection();
+    if (verbose) db->display(&dbfmt);
+    like = -model1->computeLogLikelihood(db, verbose);
+    message("Likelihood = %lf\n", like);
+    delete db;
+  }
+
+  if (mode == 0 || mode == 20 || mode == 21)
+  {
+    message("\n>>>>> Db2 when removing the bad sample\n");
+    Db* db = dbref2->clone();
+    db->deleteSample(indNa);
+    if (verbose) db->display(&dbfmt);
+    like = logLikelihoodVecchia(db, model2, nbVecchia, verbose);
+    message("Likelihood = %lf\n", like);
+    delete db;
+  }
+
+  if (mode == 0 || mode == 20 || mode == 22)
+  {
+    message("\n>>>>> Db2 with Selection\n");
+    Db* db = dbref2->clone();
+    if (verbose) db->display(&dbfmt);
+    like = logLikelihoodVecchia(db, model2, nbVecchia, verbose);
+    message("Likelihood = %lf\n", like);
+    delete db;
+  }
+
+  if (mode == 0 || mode == 20 || mode == 23)
+  {
+    message("\n>>>>> Db2 with TEST values\n");
+    Db* db = dbref2->clone();
+    db->clearSelection();
+    if (verbose) db->display(&dbfmt);
+    like = logLikelihoodVecchia(db, model2, nbVecchia, verbose);
+    message("Likelihood = %lf\n", like);
+    delete db;
+  }
+
+  if (mode == 0 || mode == 20 || mode == 24)
+  {
+    message("\n>>>>> Db2 with TEST values using traditional LogLikelihood\n");
+    Db* db = dbref2->clone();
+    db->clearSelection();
+    if (verbose) db->display(&dbfmt);
+    like = -model2->computeLogLikelihood(db, verbose);
+    message("Likelihood = %lf\n", like);
+    delete db;
+  }
+  return 0;
 }

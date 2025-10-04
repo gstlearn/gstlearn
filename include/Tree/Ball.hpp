@@ -59,11 +59,11 @@ public:
   Id setAvailable(Id rank, bool status);
   Id resetAvailable(bool status);
   bool empty() const { return _tree.data.empty(); }
+  Id getNSample() const { return _tree.n_samples; }
 
 protected:
   Id _getFeatureNumber() const { return _tree.n_features; }
   Id _getLeafSize() const { return _tree.leaf_size; }
-  Id _getNSample() const { return _tree.n_samples; }
 
 private:
   bool _isAvailableDefined() const;
@@ -87,5 +87,5 @@ GSTLEARN_EXPORT MatrixT<Id> findNN(const Db* dbin,
                                    bool verbose                 = false,
                                    Id leaf_size                 = 10,
                                    Id default_distance_function = 1,
-                                   bool likelihood               = false);
+                                   bool likelihood              = false);
 } // namespace gstlrn

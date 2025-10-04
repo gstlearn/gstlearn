@@ -308,5 +308,4 @@ DriftList* DriftFactory::createDriftListForGradients(const DriftList* olddrifts,
 
   return newdrifts;
 }
-
 } // namespace gstlrn

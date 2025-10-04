@@ -135,7 +135,7 @@ double AModelOptim::eval(const std::vector<double>& x)
   _model->updateModel();
 
   // Calculate the cost
-  double result = computeCost(false);
+  double result = computeCost(false, false);
 
   if (_trace)
   {

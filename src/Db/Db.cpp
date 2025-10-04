@@ -29,6 +29,7 @@
 #include "Geometry/GeometryHelper.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/Table.hpp"
+#include "Model/ModelGeneric.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceTarget.hpp"
@@ -2356,44 +2357,51 @@ bool Db::hasSameDimension(const Db* dbaux) const
  * The first or the second Db must be undefined
  * When both are undefined, FALSE if returned
  *
- * @param db1
- * @param db2
+ * @param db1 First Db
+ * @param db2 Second Db
+ * @param model Model
  * @param ndim Common space dimension
- * @return true
- * @return false
+ * @return true or false
  */
-bool haveSameNDim(const Db* db1, const Db* db2, Id* ndim)
+bool haveSameNDim(const Db* db1, const Db* db2, const ModelGeneric* model, Id* ndim)
 {
-  if (db1 == nullptr)
+  *ndim = 0;
+
+  // Db1 is defined
+  if (db1 != nullptr)
   {
-    // Db1 is undefined
-    if (db2 == nullptr)
+    Id ndimDb1 = db1->getNDim();
+    if (*ndim > 0 && *ndim != ndimDb1)
     {
-      // Db2 is undefined
+      messerr("Db1 (%d) should share common Space Dimension (%d)", ndimDb1, *ndim);
       return false;
     }
-
-    // Db2 is defined
-    *ndim = db2->getNDim();
-    return true;
+    *ndim = ndimDb1;
   }
-  // Db1 is defined
-  if (db2 == nullptr)
+
+  // Db2 is defined
+  if (db2 != nullptr)
   {
-    // Db2 is undefined
-    *ndim = db1->getNDim();
-    return true;
+    Id ndimDb2 = db2->getNDim();
+    if (*ndim > 0 && *ndim != ndimDb2)
+    {
+      messerr("Db2 (%d) should share common Space Dimension (%d)", ndimDb2, *ndim);
+      return false;
+    }
+    *ndim = ndimDb2;
   }
 
-  // Db1 and Db2 are defined
-  if (db1->getNDim() != db2->getNDim())
+  // Model is defined
+  if (model != nullptr)
   {
-    messerr("Db1 (%d) and Dbé (%d) should share the same Space Dimension",
-            db1->getNDim(), db2->getNDim());
-    return false;
+    Id ndimModel = static_cast<Id>(model->getNDim());
+    if (*ndim > 0 && *ndim != ndimModel)
+    {
+      messerr("Model (%d) should share common Space Dimension (%d)", ndimModel, *ndim);
+      return false;
+    }
+    *ndim = ndimModel;
   }
-
-  *ndim = db1->getNDim();
   return true;
 }
 
@@ -2402,38 +2410,54 @@ bool haveSameNDim(const Db* db1, const Db* db2, Id* ndim)
  * The first or the second Db must be undefined
  * When both are undefined, FALSE if returned
  * When both are defined, return the Maximum value
+ * When Model is defined, check that the previous value is equal to the one defined by Model
  *
- * @param db1
- * @param db2
+ * @param db1 First Db
+ * @param db2 Second Db
+ * @param model Model
  * @param nvar Common number of variables
- * @return true
- * @return false
+ * @return true or false
  */
-bool haveCompatibleNVar(const Db* db1, const Db* db2, Id* nvar)
+bool haveCompatibleNVar(const Db* db1, const Db* db2, const ModelGeneric* model, Id* nvar)
 {
-  if (db1 == nullptr)
+  *nvar = 0;
+
+  // Db1 is defined
+  if (db1 != nullptr)
   {
-    // Db1 is undefined
-    if (db2 == nullptr)
+    Id nvarDb1 = db1->getNLoc(ELoc::Z);
+    if (*nvar > 0 && nvarDb1 < *nvar)
     {
-      // Db2 is undefined
+      messerr("Db1 (%d) should have at least %d variables", nvarDb1, *nvar);
       return false;
     }
-
-    // Db2 is defined
-    *nvar = db2->getNLoc(ELoc::Z);
-    return true;
+    *nvar = nvarDb1;
   }
-  // Db1 is defined
-  if (db2 == nullptr)
+
+  // Db2 is defined
+  if (db2 != nullptr)
   {
-    // Db2 is undefined
-    *nvar = db1->getNLoc(ELoc::Z);
-    return true;
+    Id nvarDb2 = db2->getNLoc(ELoc::Z);
+    if (*nvar > 0 && nvarDb2 < *nvar)
+    {
+      messerr("Db2 (%d) should have at least %d variables", nvarDb2, *nvar);
+      return false;
+    }
+    *nvar = nvarDb2;
   }
 
-  // Db1 and Db2 are defined
-  *nvar = MAX(db1->getNLoc(ELoc::Z), db2->getNLoc(ELoc::Z));
+  // Model is defined
+  if (model != nullptr)
+  {
+    Id nvarModel = model->getNVar();
+    if (*nvar > 0 && nvarModel != *nvar)
+    {
+      messerr("Model (%d) should have a consistent number of variables (%d)",
+              nvarModel, *nvar);
+      return false;
+    }
+    *nvar = nvarModel;
+  }
   return true;
 }
 
@@ -3701,51 +3725,41 @@ VectorInt Db::getMultipleSelectedVariables(const VectorVectorInt& index,
 }
 
 /**
- * @brief Returns the vector of indices for samples with variable 'ivar' defined
- * For the target variable 'ivar' and for sample 'iech',
- * - ranks[iech] = IFFFF if variable 'ivar' is not defined for sample 'iech'
- * - ranks[iech] = 'ipos' if the variable 'ivar' is defined for sample 'iech',
- * where 'ipos' is rank within the list of samples where 'ivar' is defined
+ * @brief Returns the vector of indices for active samples.
+ * @brief A sample is discarded if:
+ * @brief - it is masked off (if 'useSel' is True)
+ * @brief - the variable 'ivar' exists but sample is not defined
  *
  * @param ranks Vector of the (defined) sample indices
  * @param ivar Index of the variable of interest
  * @param useSel  Discard the masked samples (if True)
  * @return Count of samples defined
- *
- * @remark When the file has NO Z-locator variable defined, we consider
- * that all active samples are available
  */
-Id Db::getListOfSampleIndicesPerVariableInPlace(VectorInt& ranks,
-                                                Id ivar,
-                                                bool useSel) const
+Id Db::_getListOfSampleIndicesPerVariableInPlace(VectorInt& ranks,
+                                                 Id ivar,
+                                                 bool useSel) const
 {
   auto nech = getNSample();
   auto nvar = getNLoc(ELoc::Z);
   ranks.resize(nech);
 
-  Id ecr   = 0;
   Id count = 0;
   for (Id iech = 0; iech < nech; iech++)
   {
     if (useSel && !isActive(iech)) continue;
     double value = getLocVariable(ELoc::Z, iech, ivar);
-    // The following strange line tells that the rank of a target sample ('iech') is set to ITEST if:
-    // - either the value of the target variable ('ivar') for the target sample is undefined
-    // - or the file does not have any variable (LOC::Z) defined
-    if (FFFF(value) && nvar > 0)
-      continue;
-    
-    ranks[ecr] = count++;
-    ecr++;
+    if (FFFF(value) && nvar > 0) continue;
+
+    ranks[count++] = iech;
   }
-  ranks.resize(ecr);
+  ranks.resize(count);
   return count;
 }
 
 /**
  * @brief Updates (and resizes) the two arguments:
- * - cumul cumulated number of samples where each variable is defined
- * - ranks Each vector gives the ranks of defined samples (or ITEST) if not defined
+ * - cumul Cumulated number of samples per variable
+ * - ranks Ranks of defined samples (or ITEST) if not defined
  * These two arguments have 'nvar' as first dimension
  *
  * @param nvar Number of variables
@@ -3770,7 +3784,7 @@ Id Db::getListOfSampleIndicesInPlace(Id nvar,
   Id total = 0;
   for (Id ivar = 0; ivar < nvar; ivar++)
   {
-    auto number = getListOfSampleIndicesPerVariableInPlace(ranks[ivar], ivar, useSel);
+    auto number = _getListOfSampleIndicesPerVariableInPlace(ranks[ivar], ivar, useSel);
     cumul[ivar] = total;
     total += number;
   }

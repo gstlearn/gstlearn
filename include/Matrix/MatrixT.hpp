@@ -42,6 +42,13 @@ public:
     return &_data[row * _ncol];
   }
 
+  void clear()
+  {
+    _nrow = 0;
+    _ncol = 0;
+    _data.clear();
+  }
+
 #ifdef USE_BOOST_SPAN
   using span      = boost::span<T>;
   using constspan = boost::span<const T>;

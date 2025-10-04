@@ -12,9 +12,9 @@
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
 
-#include "Model/ModelOptimVMap.hpp"
-#include "Model/Model.hpp"
 #include "Db/DbGrid.hpp"
+#include "Model/Model.hpp"
+#include "Model/ModelOptimVMap.hpp"
 
 #define IJDIR(ijvar, ipadir) ((ijvar) * npadir + (ipadir))
 #define _WT(ijvar, ipadir)   _wt[IJDIR(ijvar, ipadir)]
@@ -88,8 +88,8 @@ bool ModelOptimVMap::_checkConsistency()
     messerr("You must have defined 'dbmap' beforehand");
     return false;
   }
-  Id nvar          = _dbmap->getNLoc(ELoc::Z);
-  size_t ndim       = _dbmap->getNLoc(ELoc::X);
+  Id nvar     = _dbmap->getNLoc(ELoc::Z);
+  size_t ndim = _dbmap->getNLoc(ELoc::X);
 
   if (_model->getNVar() != nvar)
   {
@@ -156,8 +156,9 @@ Id ModelOptimVMap::_getDimensions()
   return 0;
 }
 
-double ModelOptimVMap::computeCost(bool verbose)
+double ModelOptimVMap::computeCost(bool flagPrint, bool verbose)
 {
+  DECLARE_UNUSED(flagPrint);
   DECLARE_UNUSED(verbose);
 
   // Evaluate the Cost function
@@ -188,7 +189,7 @@ double ModelOptimVMap::computeCost(bool verbose)
         if (FFFF(vexp)) continue;
         double vtheo = _model->evalCov(origin, P, ivar, jvar, &_calcmode);
         double delta = vexp - vtheo;
-        total  += wgt * delta * delta;
+        total += wgt * delta * delta;
       }
   }
   return total;
@@ -208,7 +209,7 @@ void ModelOptimVMap::evalGrad(vect res)
 
   for (size_t i = 0, ngrad = gradcov.size(); i < ngrad; i++)
   {
-    double total  = 0.;
+    double total = 0.;
     for (Id iech = 0; iech < _nech; iech++)
     {
       _dbmap->rankToIndice(iech, _indg2);
@@ -228,10 +229,10 @@ void ModelOptimVMap::evalGrad(vect res)
           double vtheo  = _model->evalCov(origin, P, ivar, jvar, &_calcmode);
           double dvtheo = gradcov[i](origin, P, ivar, jvar, &_calcmode);
           double delta  = vexp - vtheo;
-          total  += -2. * wgt * delta * dvtheo;
+          total += -2. * wgt * delta * dvtheo;
         }
     }
-    res[i] = total;  
+    res[i] = total;
   }
 }
 
@@ -243,7 +244,7 @@ ModelOptimVMap* ModelOptimVMap::createForOptim(ModelGeneric* model,
   auto* optim = new ModelOptimVMap(model, constraints, mop);
 
   MatrixSymmetric vars(model->getNVar());
-  double hmax          = dbmap->getExtensionDiagonal();
+  double hmax = dbmap->getExtensionDiagonal();
   optim->setEnvironment(vars, hmax);
   optim->_dbmap = dbmap;
 
@@ -286,4 +287,4 @@ ModelOptimVMap* ModelOptimVMap::createForOptim(ModelGeneric* model,
 
   return optim;
 }
-}
+} // namespace gstlrn
