@@ -2828,6 +2828,28 @@ Id VectorHelper::whereElement(const VectorInt& tab, Id target)
   return -1;
 }
 
+/*
+ * Returns the rank where 'target' has been found within 'tab' starting from 'start'
+ * This optimized version is useful when the vector is sorted and we're searching
+ * for increasing values sequentially.
+ *
+ * @param tab Vector of integer values to be searched (assumed to be sorted)
+ * @param target Target value to be searched for
+ * @param start Starting position for the search (default: 0)
+ *
+ * @return Rank at which the target value has been found (-1 if not found)
+ */
+Id VectorHelper::whereElement(const VectorInt& tab, Id target, Id start)
+{
+  Id ntab = static_cast<Id>(tab.size());
+  // Search from start to end
+  for (Id i = start; i < ntab; i++)
+  {
+    if (tab[i] == target) return i;
+  }
+  return -1;
+}
+
 /**
  * Reduce the input vector 'vecin' by suppressing the element referred by 'index'
  *
