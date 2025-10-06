@@ -1552,51 +1552,54 @@ Id gibbs_sampler(Db* dbin,
   }
   else
   {
-    if (dbin->getNLoc(ELoc::L) != nvar)
+    if (dbin->getNInterval() > 0)
     {
-      messerr("There must be as many Lower bound variables (%d)",
-              dbin->getNInterval());
-      messerr("as there are variables defined in the Model (%d)", nvar);
-      return 1;
-    }
-    if (dbin->getNLoc(ELoc::U) != nvar)
-    {
-      messerr("There must be as many Upper bound variables (%d)",
-              dbin->getNInterval());
-      messerr("as there are variables defined in the Model (%d)", nvar);
-      return 1;
-    }
-
-    // Check the consistency of the bounds
-    // If Z-locator is defined, check the consistency with the bounds
-    Id nvarDb = dbin->getNLoc(ELoc::Z);
-    if (nvarDb > 0)
-    {
-      if (nvarDb != nvar)
+      if (dbin->getNLoc(ELoc::L) != nvar)
       {
-        messerr("Some Z-variables are defined");
-        messerr("Their count (%d) must match the number of variables defined in the Model (%d)",
-                nvarDb, nvar);
+        messerr("There must be as many Lower bound variables (%d)",
+                dbin->getNInterval());
+        messerr("as there are variables defined in the Model (%d)", nvar);
+        return 1;
+      }
+      if (dbin->getNLoc(ELoc::U) != nvar)
+      {
+        messerr("There must be as many Upper bound variables (%d)",
+                dbin->getNInterval());
+        messerr("as there are variables defined in the Model (%d)", nvar);
         return 1;
       }
 
-      // Convert the Z-values into bounds
-      for (Id iech = 0; iech < dbin->getNSample(); iech++)
+      // Check the consistency of the bounds
+      // If Z-locator is defined, check the consistency with the bounds
+      Id nvarDb = dbin->getNLoc(ELoc::Z);
+      if (nvarDb > 0)
       {
-        if (!dbin->isActive(iech)) continue;
-        for (Id ivar = 0; ivar < nvar; ivar++)
+        if (nvarDb != nvar)
         {
-          double value = dbin->getLocVariable(ELoc::Z, iech, ivar);
-          if (FFFF(value)) continue;
-
-          // Set the bounds to the known exact value
-          dbin->setLocVariable(ELoc::L, iech, ivar, value);
-          dbin->setLocVariable(ELoc::U, iech, ivar, value);
+          messerr("Some Z-variables are defined");
+          messerr("Their count (%d) must match the number of variables defined in the Model (%d)",
+                  nvarDb, nvar);
+          return 1;
         }
-      }
 
-      // Cancel the Z-locator for the rest of the Gibbs function
-      dbin->clearLocators(ELoc::Z);
+        // Convert the Z-values into bounds
+        for (Id iech = 0; iech < dbin->getNSample(); iech++)
+        {
+          if (!dbin->isActive(iech)) continue;
+          for (Id ivar = 0; ivar < nvar; ivar++)
+          {
+            double value = dbin->getLocVariable(ELoc::Z, iech, ivar);
+            if (FFFF(value)) continue;
+
+            // Set the bounds to the known exact value
+            dbin->setLocVariable(ELoc::L, iech, ivar, value);
+            dbin->setLocVariable(ELoc::U, iech, ivar, value);
+          }
+        }
+
+        // Cancel the Z-locator for the rest of the Gibbs function
+        dbin->clearLocators(ELoc::Z);
+      }
     }
   }
 
