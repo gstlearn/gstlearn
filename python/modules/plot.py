@@ -908,6 +908,8 @@ def _ax_literal(ax, db, name=None,
     if len(tabx) <= 0: 
         return
     
+    name = _getDefaultVariableName(db, name)
+
     labval = _getVariable(db, name, posX, posY, None, useSel, False)
     valid = ~np.isnan(labval)
 
@@ -917,7 +919,7 @@ def _ax_literal(ax, db, name=None,
         if not np.isnan(txt):
             ax.annotate(round(txt,2), (tabx[i], taby[i]), fontsize=fontsize)
   
-    name = _getDefaultVariableName(db, name)
+
     
     if len(ax.get_title()) <= 0:
         ax.decoration(title = db.getName(name)[0])
@@ -1204,6 +1206,8 @@ def _ax_isoline(ax, dbgrid, name=None, useSel = True,
     
     **kwargs : arguments passed to matplotlib.pyplot.contour
     '''    
+    name = _getDefaultVariableName(dbgrid, name)
+    
     x0, y0, X, Y, Xrot, Yrot, data, tr = _getGridVariable(dbgrid, name, useSel, posX=posX, posY=posY, corner=corner, shading="nearest")
     ax.set_xlim(np.nanmin(Xrot), np.nanmax(Xrot))
     ax.set_ylim(np.nanmin(Yrot), np.nanmax(Yrot))
@@ -1214,8 +1218,6 @@ def _ax_isoline(ax, dbgrid, name=None, useSel = True,
         levels = np.linspace(np.nanmin(data), np.nanmax(data), nlevel)
 
     res = ax.contour(Xrot, Yrot, data, levels, **kwargs)
-    
-    name = _getDefaultVariableName(dbgrid, name)
         
     if len(ax.get_title()) <= 0:
         ax.decoration(title = dbgrid.getName(name)[0])
