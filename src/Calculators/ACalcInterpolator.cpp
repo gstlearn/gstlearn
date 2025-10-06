@@ -104,20 +104,31 @@ bool ACalcInterpolator::_check()
   auto nvar = _getNVar();
   if (_model != nullptr)
   {
+    Id nvarModel = _model->getNVar();
     if (nvar > 0)
     {
-      if (nvar != _model->getNVar())
+      if (nvar != nvarModel)
       {
         messerr("Inconsistent Variable Number:");
         messerr("- Current number = %d", nvar);
-        messerr("- Number of variables in 'model' = %d", _model->getNVar());
+        messerr("- Number of variables in 'model' = %d", nvarModel);
         return false;
       }
     }
-    else
+
+    // Check consistency with the number of Z-variables present in _dbin (if defined)
+    // already stored in _getNVar() and the number of variables in the Model: they should match
+    if (getDbin() != nullptr)
     {
-      //      nvar = _model->getNVar(); // Never reached
+      if (nvar != nvarModel)
+      {
+        messerr("The number of variables defined in Dbin (%d)", nvar);
+        messerr("should match the number of variables defined in the Model (%d)",
+                nvarModel);
+        return false;
+      }
     }
+    _setNvar(nvarModel);
   }
 
   /************************************************************/

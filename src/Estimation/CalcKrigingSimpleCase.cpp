@@ -45,7 +45,7 @@ bool CalcKrigingSimpleCase::_check()
 {
   if (!ACalcInterpolator::_check()) return false;
 
-  if (!hasDbin()) return false;
+  if (!hasDbin())  return false;
   if (!hasDbout()) return false;
   if (!hasModel()) return false;
   if (!hasNeigh()) return false;
