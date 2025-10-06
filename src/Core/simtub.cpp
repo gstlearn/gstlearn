@@ -1589,6 +1589,7 @@ Id gibbs_sampler(Db* dbin,
           double value = dbin->getLocVariable(ELoc::Z, iech, ivar);
           if (FFFF(value)) continue;
 
+          // Set the bounds to the known exact value
           dbin->setLocVariable(ELoc::L, iech, ivar, value);
           dbin->setLocVariable(ELoc::U, iech, ivar, value);
         }
