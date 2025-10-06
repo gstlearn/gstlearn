@@ -4,6 +4,9 @@ This file contains the logs between consecutive releases
 
 Release 1.10.0
 ==============
+- For generating a VectorDouble containing the sequence of values, please now use VH::sequenceVD() 
+- Db() offers the possibility to overload operators.
+- Db::createReduce() and Db::resetReduce() have a new mode for keeping only isotopic samples
 - Extend the ability to generate drift functions for any space and IRF order (setDriftIRF)
 - Correct the Global estimation by Kriging (estimation and variance of estimation error)
 - Make the results of Global estimation displayable

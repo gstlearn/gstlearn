@@ -366,13 +366,13 @@ int main(int argc, char* argv[])
 
   Id icol0 = 1;
   message("Setting Column (%d) to a vector (sequence from 1 to %d)\n", icol0, nrow);
-  VectorDouble myCol = VH::sequence(1., static_cast<double>(nrow));
+  VectorDouble myCol = VH::sequenceVD(1., static_cast<double>(nrow));
   MSG.setColumn(icol0, myCol);
   MSG.display();
 
   Id irow0 = 2;
   message("Setting Row (%d) to a vector (sequence from 1 to %d)\n", irow0, ncol);
-  VectorDouble myRow = VH::sequence(1., static_cast<double>(ncol));
+  VectorDouble myRow = VH::sequenceVD(1., static_cast<double>(ncol));
   MSG.setRow(irow0, myRow);
   MSG.display();
 
@@ -403,22 +403,22 @@ int main(int argc, char* argv[])
   MSG.display();
 
   message("Multiplying current matrix column-wise by a vector (sequence)\n");
-  myCol = VH::sequence(1., static_cast<double>(nrow));
+  myCol = VH::sequenceVD(1., static_cast<double>(nrow));
   MSG.multiplyColumn(myCol);
   MSG.display();
 
   message("Dividing current matrix column-wise by a vector (sequence)\n");
-  myCol = VH::sequence(1., static_cast<double>(nrow));
+  myCol = VH::sequenceVD(1., static_cast<double>(nrow));
   MSG.divideColumn(myCol);
   MSG.display();
 
   message("Multiplying current matrix row-wise by a vector (sequence)\n");
-  myRow = VH::sequence(1., static_cast<double>(ncol));
+  myRow = VH::sequenceVD(1., static_cast<double>(ncol));
   MSG.multiplyRow(myRow);
   MSG.display();
 
   message("Dividing current matrix row-wise by a vector (sequence)\n");
-  myRow = VH::sequence(1., static_cast<double>(ncol));
+  myRow = VH::sequenceVD(1., static_cast<double>(ncol));
   MSG.divideRow(myRow);
   MSG.display();
 
@@ -426,22 +426,22 @@ int main(int argc, char* argv[])
   VectorDouble myColRes;
 
   message("Multiplying sequence vector by matrix\n");
-  myCol    = VH::sequence(1., static_cast<double>(nrow));
+  myCol    = VH::sequenceVD(1., static_cast<double>(nrow));
   myRowRes = MSG.prodVecMat(myCol, false);
   VH::dump("Resulting Vector", myRowRes);
 
   message("Multiplying matrix (transposed) by sequence vector\n");
-  myCol    = VH::sequence(1., static_cast<double>(nrow));
+  myCol    = VH::sequenceVD(1., static_cast<double>(nrow));
   myRowRes = MSG.prodMatVec(myCol, true);
   VH::dump("Resulting Vector", myRowRes);
 
   message("Multiplying matrix by sequence vector\n");
-  myRow    = VH::sequence(1., static_cast<double>(ncol));
+  myRow    = VH::sequenceVD(1., static_cast<double>(ncol));
   myColRes = MSG.prodMatVec(myRow, false);
   VH::dump("Resulting Vector", myColRes);
 
   message("Multiplying sequence vector by matrix (transposed)\n");
-  myRow    = VH::sequence(1., static_cast<double>(ncol));
+  myRow    = VH::sequenceVD(1., static_cast<double>(ncol));
   myColRes = MSG.prodVecMat(myRow, true);
   VH::dump("Resulting Vector", myColRes);
 
@@ -451,7 +451,7 @@ int main(int argc, char* argv[])
   MSG.display();
 
   message("Clearing matrix and Setting Diagonal to a vector (sequence from 1 to %d)\n", ncol);
-  VectorDouble myDiag = VH::sequence(1., static_cast<double>(ncol));
+  VectorDouble myDiag = VH::sequenceVD(1., static_cast<double>(ncol));
   MSG.setDiagonal(myDiag);
   MSG.display();
 
@@ -465,12 +465,12 @@ int main(int argc, char* argv[])
   MSP->display();
 
   message("Setting terms of Column (%d) to a vector (sequence from 1 to %d)\n", icol0, nrow);
-  myCol = VH::sequence(1., static_cast<double>(nrow));
+  myCol = VH::sequenceVD(1., static_cast<double>(nrow));
   MSP->setColumn(icol0, myCol);
   MSP->display();
 
   message("Setting terms of Row (%d) to a vector (sequence from 1 to %d)\n", irow0, ncol);
-  myRow = VH::sequence(1., static_cast<double>(ncol));
+  myRow = VH::sequenceVD(1., static_cast<double>(ncol));
   MSP->setRow(irow0, myRow);
   MSP->display();
 
@@ -496,42 +496,42 @@ int main(int argc, char* argv[])
   MSP->display();
 
   message("Multiplying current matrix column-wise by a vector (sequence)\n");
-  myCol = VH::sequence(1., static_cast<double>(nrow));
+  myCol = VH::sequenceVD(1., static_cast<double>(nrow));
   MSP->multiplyColumn(myCol);
   MSP->display();
 
   message("Dividing current matrix column-wise by a vector (sequence)\n");
-  myCol = VH::sequence(1., static_cast<double>(nrow));
+  myCol = VH::sequenceVD(1., static_cast<double>(nrow));
   MSP->divideColumn(myCol);
   MSP->display();
 
   message("Multiplying current matrix row-wise by a vector (sequence)\n");
-  myRow = VH::sequence(1., static_cast<double>(ncol));
+  myRow = VH::sequenceVD(1., static_cast<double>(ncol));
   MSP->multiplyRow(myRow);
   MSP->display();
 
   message("Dividing current matrix row-wise by a vector (sequence)\n");
-  myRow = VH::sequence(1., static_cast<double>(ncol));
+  myRow = VH::sequenceVD(1., static_cast<double>(ncol));
   MSP->divideRow(myRow);
   MSP->display();
 
   message("Multiplying sequence vector by matrix\n");
-  myCol    = VH::sequence(1., static_cast<double>(nrow));
+  myCol    = VH::sequenceVD(1., static_cast<double>(nrow));
   myRowRes = MSP->prodVecMat(myCol, false);
   VH::dump("Resulting Vector", myRowRes);
 
   message("Multiplying matrix (transposed) by sequence vector\n");
-  myCol    = VH::sequence(1., static_cast<double>(nrow));
+  myCol    = VH::sequenceVD(1., static_cast<double>(nrow));
   myRowRes = MSP->prodMatVec(myCol, true);
   VH::dump("Resulting Vector", myRowRes);
 
   message("Multiplying matrix by sequence vector\n");
-  myRow    = VH::sequence(1., static_cast<double>(ncol));
+  myRow    = VH::sequenceVD(1., static_cast<double>(ncol));
   myColRes = MSP->prodMatVec(myRow, false);
   VH::dump("Resulting Vector", myColRes);
 
   message("Multiplying sequence vector by matrix (transposed)\n");
-  myRow    = VH::sequence(1., static_cast<double>(ncol));
+  myRow    = VH::sequenceVD(1., static_cast<double>(ncol));
   myColRes = MSP->prodVecMat(myRow, true);
   VH::dump("Resulting Vector", myColRes);
 
@@ -541,7 +541,7 @@ int main(int argc, char* argv[])
   MSP->display();
 
   message("Clearing matrix and Setting Diagonal to a vector (sequence from 1 to %d)\n", ncol);
-  myDiag = VH::sequence(1., static_cast<double>(ncol));
+  myDiag = VH::sequenceVD(1., static_cast<double>(ncol));
   MSP->setDiagonal(myDiag);
   MSP->display();
 

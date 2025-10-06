@@ -1031,10 +1031,10 @@ VectorInt VectorHelper::sequence(Id number, Id ideb, Id step)
  * @param ratio   The whole sequence can be ultimately scaled by 'ratio'
  * @return
  */
-VectorDouble VectorHelper::sequence(double valFrom,
-                                    double valTo,
-                                    double valStep,
-                                    double ratio)
+VectorDouble VectorHelper::sequenceVD(double valFrom,
+                                      double valTo,
+                                      double valStep,
+                                      double ratio)
 {
   VectorDouble vec;
 

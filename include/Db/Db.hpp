@@ -151,6 +151,7 @@ public:
   Id resetReduce(const Db* dbin,
                  const VectorString& names = VectorString(),
                  const VectorInt& ranks    = VectorInt(),
+                 bool flagIsotopic         = false,
                  bool verbose              = false);
   Id resetFromGridRandomized(const DbGrid* dbin,
                              double randperc        = 0.,
@@ -209,6 +210,7 @@ public:
   static Db* createReduce(const Db* dbin,
                           const VectorString& names = VectorString(),
                           const VectorInt& ranks    = VectorInt(),
+                          bool flagIsotopic         = false,
                           bool verbose              = false);
   static Db* createFillRandom(Id ndat,
                               Id ndim                         = 2,
@@ -924,6 +926,23 @@ public:
                        bool skipTitle            = false) const;
 
   void dumpGeometry(Id iech, Id jech) const;
+
+  // Operator overload
+  double& operator()(Id iech, const String& name)
+  {
+    auto iuid = getUID(name);
+    auto icol = getColIdxByUID(iuid);
+    auto iad  = _getAddress(iech, icol);
+    return _array[iad];
+  }
+
+  const double& operator()(Id iech, const String& name) const
+  {
+    auto iuid = getUID(name);
+    auto icol = getColIdxByUID(iuid);
+    auto iad  = _getAddress(iech, icol);
+    return _array[iad];
+  }
 
 protected:
   bool _deserializeAscii(std::istream& is, bool verbose = false) override;

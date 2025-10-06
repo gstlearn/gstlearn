@@ -4766,7 +4766,7 @@ void Db::_addRank(Id nech)
             "Nothing is done");
     return;
   }
-  VectorDouble ranks = VH::sequence(1., static_cast<double>(nech));
+  VectorDouble ranks = VH::sequenceVD(1., static_cast<double>(nech));
   addColumns(ranks, "rank");
 }
 
@@ -5359,13 +5359,30 @@ void Db::_loadValues(const Db* db,
   }
 }
 
+/**
+ * @brief Copy in 'this' the contents of 'dbin' while:
+ * - reducing the list of variables
+ * - reducing the count of samples
+ * - restricting to the isotopic sub dataset
+ *
+ * @param dbin Input Db
+ * @param names List of saved variable names
+ * @param ranks List of saved samples
+ * @param flagIsotopic When True, restrict copy to isotropic samples
+ * @param verbose Verbose flag
+ * @return Id
+ */
 Id Db::resetReduce(const Db* dbin,
                    const VectorString& names,
                    const VectorInt& ranks,
+                   bool flagIsotopic,
                    bool verbose)
 {
-  // Creating the vector of selected samples
+  // Creating the vector of variables
+  VectorString namloc = names;
+  if (namloc.empty()) namloc = dbin->getAllNames();
 
+  // Creating the vector of selected samples
   VectorInt ranksel = ranks;
   if (ranksel.empty())
   {
@@ -5374,19 +5391,32 @@ Id Db::resetReduce(const Db* dbin,
     else
       ranksel = VH::sequence(dbin->getNSample());
   }
-  _nech         = static_cast<Id>(ranksel.size());
+
+  // Restrict to the isotopic sub dataset (optional)
+
+  if (flagIsotopic)
+  {
+    VectorInt rankInit = ranksel;
+    ranksel.clear();
+    for (Id jech = 0, ninter = static_cast<Id>(rankInit.size()); jech < ninter; jech++)
+    {
+      Id iech   = rankInit[jech];
+      bool keep = true;
+      for (Id ivar = 0, nvar = static_cast<Id>(namloc.size()); ivar < nvar && keep; ivar++)
+      {
+        if (FFFF(dbin->getValue(namloc[ivar], iech))) keep = false;
+      }
+      if (keep) ranksel.push_back(iech);
+    }
+  }
+  _nech = static_cast<Id>(ranksel.size());
+
   bool flagMask = _nech != dbin->getNSample();
   if (verbose)
     message("From %d samples, the extraction concerns %d samples\n",
             dbin->getNSample(), _nech);
 
-  // Creating the vector of variables
-
-  VectorString namloc = names;
-  if (namloc.empty()) namloc = dbin->getAllNames();
-
   // Create the (empty) architecture
-
   _ncol = static_cast<Id>(namloc.size());
   resetDims(_ncol, _nech);
 
@@ -5405,8 +5435,7 @@ Id Db::resetReduce(const Db* dbin,
 
   if (getNLoc(ELoc::X) <= 0)
   {
-    // Extract vector of coordinates from input 'Db' (converted into a
-    // 'DbGrid')
+    // Extract vector of coordinates from input 'Db' (converted into 'DbGrid')
     const auto* dbgrid = dynamic_cast<const DbGrid*>(dbin);
     if (dbgrid != nullptr)
     {
@@ -5430,7 +5459,6 @@ Id Db::resetReduce(const Db* dbin,
       }
     }
   }
-
   return 0;
 }
 
@@ -5724,10 +5752,11 @@ Db* Db::createSamplingDb(const Db* dbin,
 Db* Db::createReduce(const Db* dbin,
                      const VectorString& names,
                      const VectorInt& ranks,
+                     bool flagIsotopic,
                      bool verbose)
 {
   Db* db = new Db;
-  if (db->resetReduce(dbin, names, ranks, verbose) != 0)
+  if (db->resetReduce(dbin, names, ranks, flagIsotopic, verbose) != 0)
   {
     db = dbin->clone();
   }

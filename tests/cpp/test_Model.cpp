@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
   result.display();
 
   // Sample the Model at regular steps
-  VectorDouble hh = VH::sequence(0., 3., 3. / 50.);
+  VectorDouble hh = VH::sequenceVD(0., 3., 3. / 50.);
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
   VH::dump("\nModel sampled", modellmc.sample(hh, VectorDouble(), 0, 0, &mode));
@@ -232,7 +232,7 @@ int main(int argc, char* argv[])
   defineDefaultSpace(ESpaceType::SN, 2);
   Id ns             = 20;
   Id nincr          = 30;
-  VectorDouble incr = VH::sequence(0., GV_PI + EPSILON10, GV_PI / (nincr - 1.));
+  VectorDouble incr = VH::sequenceVD(0., GV_PI + EPSILON10, GV_PI / (nincr - 1.));
   double mu         = 1.0;
   double kappa      = 2.0;
 
