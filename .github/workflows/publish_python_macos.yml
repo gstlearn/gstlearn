@@ -98,6 +98,8 @@ jobs:
     - name : Create Wheel
       run : |
         cd ${{env.BUILD_DIR}}/python/${{env.CMAKE_BUILD_TYPE}}
+        cp ${{matrix.arch.pat}}/opt/llvm/lib/libomp.dylib gstlearn
+        install_name_tool -change ${{matrix.arch.pat}}/opt/llvm/lib/libomp.dylib @loader_path/libomp.dylib gstlearn/_gstlearn.so
         # Note: wheel must be declared not pure (see setup.py)
         uv build --wheel
         cd ../../..
@@ -145,9 +147,6 @@ jobs:
       with:
         python-version: ${{ matrix.python.py }}
         activate-environment: true
-
-    - name: Install macOS dependencies
-      run: brew install llvm
 
     - name: Install Python package
       run: |
