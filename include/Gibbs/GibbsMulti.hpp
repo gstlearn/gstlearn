@@ -10,8 +10,8 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Gibbs/AGibbs.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
@@ -23,12 +23,12 @@ class GSTLEARN_EXPORT GibbsMulti: public AGibbs
 public:
   GibbsMulti();
   GibbsMulti(Db* db, Model* model);
-  GibbsMulti(const GibbsMulti &r);
-  GibbsMulti& operator=(const GibbsMulti &r);
+  GibbsMulti(const GibbsMulti& r);
+  GibbsMulti& operator=(const GibbsMulti& r);
   virtual ~GibbsMulti();
 
   /// Interface for AGibbs
-  Id calculInitialize(VectorVectorDouble &y, Id isimu, Id ipgs) override;
+  Id calculInitialize(VectorVectorDouble& y, Id isimu, Id ipgs) override;
   double getSimulate(VectorVectorDouble& y,
                      double yk,
                      double sk,
@@ -44,4 +44,4 @@ public:
 private:
   Model* _model;
 };
-}
+} // namespace gstlrn

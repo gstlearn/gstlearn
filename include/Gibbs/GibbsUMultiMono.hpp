@@ -12,8 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "GibbsMultiMono.hpp"
 #include "Gibbs/AGibbs.hpp"
+#include "GibbsMultiMono.hpp"
 
 namespace gstlrn
 {
@@ -26,16 +26,16 @@ class Model;
  * - Multivariate case: Multiple Monovariate systems
  * (even if the model is provided as multivariate)
  */
-class GSTLEARN_EXPORT GibbsUMultiMono : public GibbsMultiMono
+class GSTLEARN_EXPORT GibbsUMultiMono: public GibbsMultiMono
 {
 public:
   GibbsUMultiMono();
-  GibbsUMultiMono(Db* db, const std::vector<Model *>& models, double rho);
-  GibbsUMultiMono(const GibbsUMultiMono &r);
-  GibbsUMultiMono& operator=(const GibbsUMultiMono &r);
+  GibbsUMultiMono(Db* db, const std::vector<Model*>& models, double rho);
+  GibbsUMultiMono(const GibbsUMultiMono& r);
+  GibbsUMultiMono& operator=(const GibbsUMultiMono& r);
   virtual ~GibbsUMultiMono();
 
-  void update(VectorVectorDouble &y, Id isimu, Id ipgs, Id iter) override;
+  void update(VectorVectorDouble& y, Id isimu, Id ipgs, Id iter) override;
   Id covmatAlloc(bool verbose, bool verboseTimer = false) override;
 
 private:
@@ -45,4 +45,4 @@ private:
 private:
   VectorVectorDouble _covmat; // One matrix per variable
 };
-}
+} // namespace gstlrn

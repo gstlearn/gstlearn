@@ -69,9 +69,9 @@ Id GibbsUMulti::covmatAlloc(bool verbose, bool /*verboseTimer*/)
   if (verbose) mestitle(1, "Gibbs using Unique Neighborhood");
   Db* db       = getDb();
   Model* model = getModel();
-  Id nvar     = model->getNVar();
+  Id nvar      = model->getNVar();
   auto nact    = _getSampleRankNumber();
-  Id neq      = nvar * nact;
+  Id neq       = nvar * nact;
 
   // Establish Covariance Matrix
 
@@ -181,4 +181,4 @@ void GibbsUMulti::update(VectorVectorDouble& y,
 
   _updateStats(y, ipgs, iter);
 }
-}
+} // namespace gstlrn
