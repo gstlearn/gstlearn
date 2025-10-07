@@ -556,7 +556,7 @@ static void st_check_facies_data2grid(Db* dbin,
     for (isimu = 0; isimu < nbsimu; isimu++)
     {
       facres = static_cast<Id>(dbgrid->getSimvar(ELoc::FACIES, jech, isimu, 0, ipgs,
-                                     nbsimu, 1));
+                                                 nbsimu, 1));
       if (flag_show)
       {
         if (facdat == facres)
@@ -1505,20 +1505,40 @@ Id gibbs_sampler(Db* dbin,
                  const NamingConvention& namconv)
 {
   DECLARE_UNUSED(flag_sym_neigh);
-  Id error, iptr, npgs, nvar, iptr_ce, iptr_cstd;
-  PropDef* propdef;
+  Id iptr;
 
   /* Initializations */
 
-  error   = 1;
-  npgs    = 1;
-  nvar    = 0;
-  iptr_ce = iptr_cstd = -1;
-  propdef             = nullptr;
+  Id error         = 1;
+  Id npgs          = 1;
+  Id nvar          = 0;
+  Id iptr_ce       = -1;
+  Id iptr_cstd     = -1;
+  PropDef* propdef = nullptr;
+  AGibbs* gibbs    = nullptr;
+  std::vector<Model*> modvec;
+  VectorVectorDouble y;
 
   /**********************/
   /* Preliminary checks */
   /**********************/
+
+  /* Model */
+
+  if (model == nullptr)
+  {
+    messerr("No Model is provided");
+    return 1;
+  }
+  nvar = model->getNVar();
+  if (!flag_propagation)
+  {
+    if (model->stabilize(percent, true)) return 1;
+  }
+  if (flag_norm)
+  {
+    if (model->standardize(true)) return 1;
+  }
 
   /* Db */
 
@@ -1527,77 +1547,106 @@ Id gibbs_sampler(Db* dbin,
     if (dbin->getNInterval() > 0)
     {
       messerr("The propagation algorithm is incompatible with bounds");
-      goto label_end;
+      return 1;
     }
   }
+  else
+  {
+    if (dbin->getNInterval() > 0)
+    {
+      if (dbin->getNLoc(ELoc::L) != nvar)
+      {
+        messerr("There must be as many Lower bound variables (%d)",
+                dbin->getNInterval());
+        messerr("as there are variables defined in the Model (%d)", nvar);
+        return 1;
+      }
+      if (dbin->getNLoc(ELoc::U) != nvar)
+      {
+        messerr("There must be as many Upper bound variables (%d)",
+                dbin->getNInterval());
+        messerr("as there are variables defined in the Model (%d)", nvar);
+        return 1;
+      }
 
-  /* Model */
+      // Check the consistency of the bounds
+      // If Z-locator is defined, check the consistency with the bounds
+      Id nvarDb = dbin->getNLoc(ELoc::Z);
+      if (nvarDb > 0)
+      {
+        if (nvarDb != nvar)
+        {
+          messerr("Some Z-variables are defined");
+          messerr("Their count (%d) must match the number of variables defined in the Model (%d)",
+                  nvarDb, nvar);
+          return 1;
+        }
 
-  if (model == nullptr)
-  {
-    messerr("No Model is provided");
-    goto label_end;
-  }
-  nvar = model->getNVar();
-  if (!flag_propagation)
-  {
-    if (model->stabilize(percent, true)) goto label_end;
-  }
-  if (flag_norm)
-  {
-    if (model->standardize(true)) goto label_end;
+        // Convert the Z-values into bounds
+        for (Id iech = 0; iech < dbin->getNSample(); iech++)
+        {
+          if (!dbin->isActive(iech)) continue;
+          for (Id ivar = 0; ivar < nvar; ivar++)
+          {
+            double value = dbin->getLocVariable(ELoc::Z, iech, ivar);
+            if (FFFF(value)) continue;
+
+            // Set the bounds to the known exact value
+            dbin->setLocVariable(ELoc::L, iech, ivar, value);
+            dbin->setLocVariable(ELoc::U, iech, ivar, value);
+          }
+        }
+
+        // Cancel the Z-locator for the rest of the Gibbs function
+        dbin->clearLocators(ELoc::Z);
+      }
+    }
   }
 
   /*******************/
   /* Core allocation */
   /*******************/
 
-  propdef = proportion_manage(1, 0, 1, 1, 0, nvar, 0, dbin, NULL,
-                              VectorDouble(), propdef);
+  propdef = proportion_manage(1, 0, 1, 1, 0, nvar, 0, dbin, NULL, VectorDouble(), propdef);
   if (propdef == nullptr) goto label_end;
 
   /**********************/
   /* Add the attributes */
   /**********************/
 
-  if (db_locator_attribute_add(dbin, ELoc::GAUSFAC, nbsimu * nvar, 0, 0.,
-                               &iptr)) goto label_end;
+  if (db_locator_attribute_add(dbin, ELoc::GAUSFAC, nbsimu * nvar, 0, 0., &iptr)) goto label_end;
 
   /*****************/
   /* Gibbs sampler */
   /*****************/
 
+  if (!flag_multi_mono)
   {
-    AGibbs* gibbs;
-    if (!flag_multi_mono)
-    {
-      gibbs = GibbsFactory::createGibbs(dbin, model, flag_moving);
-    }
-    else
-    {
-      std::vector<Model*> modvec;
-      modvec.push_back(model);
-      gibbs = GibbsFactory::createGibbs(dbin, modvec, 0., flag_propagation);
-    }
-    if (gibbs == nullptr) goto label_end;
-    gibbs->setOptionStats(gibbs_optstats);
-    gibbs->init(npgs, nvar, gibbs_nburn, gibbs_niter, seed);
-
-    // Allocate the Gaussian vector
-
-    VectorVectorDouble y = gibbs->allocY();
-
-    /* Allocate the covariance matrix inverted */
-
-    if (gibbs->covmatAlloc(verbose)) goto label_end;
-
-    // Invoke the Gibbs calculator
-
-    for (Id isimu = 0; isimu < nbsimu; isimu++)
-      if (gibbs->run(y, 0, isimu)) goto label_end;
-
-    delete gibbs;
+    gibbs = GibbsFactory::createGibbs(dbin, model, flag_moving);
   }
+  else
+  {
+    modvec.push_back(model);
+    gibbs = GibbsFactory::createGibbs(dbin, modvec, 0., flag_propagation);
+  }
+  if (gibbs == nullptr) goto label_end;
+  gibbs->setOptionStats(gibbs_optstats);
+  gibbs->init(npgs, nvar, gibbs_nburn, gibbs_niter, seed);
+
+  // Allocate the Gaussian vector
+
+  y = gibbs->allocY();
+
+  /* Allocate the covariance matrix inverted */
+
+  if (gibbs->covmatAlloc(verbose)) goto label_end;
+
+  // Invoke the Gibbs calculator
+
+  for (Id isimu = 0; isimu < nbsimu; isimu++)
+    if (gibbs->run(y, 0, isimu)) goto label_end;
+
+  delete gibbs;
 
   /* Convert the simulations */
 
@@ -1624,8 +1673,7 @@ Id gibbs_sampler(Db* dbin,
   /* Set the error return flag */
 
   error = 0;
-  namconv.setNamesAndLocators(dbin, VectorString(), ELoc::UNKNOWN, nvar, dbin, iptr, String(),
-                              nbsimu);
+  namconv.setNamesAndLocators(dbin, VectorString(), ELoc::UNKNOWN, nvar, dbin, iptr, String(), nbsimu);
 
 label_end:
   proportion_manage(-1, 0, 1, 1, 0, nvar, 0, dbin, NULL, VectorDouble(), propdef);

@@ -8,12 +8,14 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+
 #include "Basic/OptCst.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorT.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
+#include "Neigh/NeighUnique.hpp"
 #include "geoslib_define.h"
 
 using namespace gstlrn;
@@ -27,8 +29,6 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
   ASerializable::setPrefixName("test_a_template-");
-  OptCst::define(ECst::NTCOL, -1);
-  OptCst::define(ECst::NTROW, -1);
 
   Id nvar    = 3;
   Id ndim    = 2;
@@ -71,5 +71,6 @@ int main(int argc, char* argv[])
   message("Valeur initiale = %f\n", value);
   (*db)(3, "z-1") = 12.;
   db->display(&dbfmt);
+
   return 0;
 }
