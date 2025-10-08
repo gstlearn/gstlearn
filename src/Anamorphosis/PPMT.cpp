@@ -412,7 +412,7 @@ Id PPMT::fitFromMatrix(AMatrix* Y, Id niter, bool verbose)
   _generateAllDirections();
 
   Id np                = Y->getNRows();
-  VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
+  VectorDouble sequence = VH::sequenceVD(1., np, 1., 1. + np);
   VectorDouble N0       = VH::qnormVec(sequence);
 
   // Optional Pre-processing
@@ -506,7 +506,7 @@ Id PPMT::rawToGaussian(Db* db,
   if (niter <= 0) niter = getNiter();
   niter = MIN(niter, getNiter());
 
-  VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
+  VectorDouble sequence = VH::sequenceVD(1., np, 1., 1. + np);
   VectorDouble N0       = VH::qnormVec(sequence);
 
   // Pre-processing
@@ -560,7 +560,7 @@ Id PPMT::gaussianToRaw(Db* db,
   if (niter <= 0) niter = getNiter();
   niter = MIN(niter, getNiter());
 
-  VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
+  VectorDouble sequence = VH::sequenceVD(1., np, 1., 1. + np);
   VectorDouble N0       = VH::qnormVec(sequence);
 
   // Loop on the iterations (reverse order)

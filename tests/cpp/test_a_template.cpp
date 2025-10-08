@@ -8,10 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+
+#include "Basic/OptCst.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Basic/VectorT.hpp"
 #include "Db/Db.hpp"
-#include "Db/DbGrid.hpp"
-#include "Estimation/CalcKriging.hpp"
-#include "Estimation/Vecchia.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "geoslib_define.h"
@@ -28,18 +30,47 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
   ASerializable::setPrefixName("test_a_template-");
 
-  auto* model = Model::createFromParam(ECov::EXPONENTIAL);
+  Id nvar    = 3;
+  Id ndim    = 2;
+  Id ndat    = 15;
+  auto dbfmt = DbStringFormat(FLAG_ARRAY, VectorString(), VectorInt(), false);
+  VectorDouble hetero(nvar, 0.1);
+  auto* db           = Db::createFillRandom(ndat, ndim, nvar, 0, 0, 0., 0.1, hetero);
+  VectorString names = {"z-1", "z-3"};
+  VectorInt ranks    = VH::sequence(5., 3, 1);
+  Db* dbaux;
 
-  Id ndat  = 10;
-  Id ndim  = 2;
-  Id nvar  = 0;
-  auto* db = Db::createFillRandom(ndat, ndim, nvar);
+  // Complete file
+  mestitle(1, "Initial data set");
+  db->display(&dbfmt);
 
-  auto* grid = DbGrid::createFillRandom({4, 4});
+  message("\n---> Reducing by:\n");
+  message(" - selecting some variables (z-1 and z-3)\n");
+  message(" - suppressing masked samples\n");
+  dbaux = Db::createReduce(db, names);
+  dbaux->display(&dbfmt);
+  delete dbaux;
 
-  auto neigh = NeighUnique(ndim);
+  message("\n---> Reducing by:\n");
+  message(" - selecting some variables (z-1 and z-3)\n");
+  message(" - selecting some sample ranks (5 samples starting from rank 3)\n");
+  dbaux = Db::createReduce(db, names, ranks);
+  dbaux->display(&dbfmt);
+  delete dbaux;
 
-  Id err = kriging(db, grid, model, &neigh);
-  messerr("Error = %ld", err);
+  message("\n---> Reducing by:\n");
+  message(" - selecting some variables (z-1 and z-3)\n");
+  message(" - selecting only samples where all variables are defined\n");
+  dbaux = Db::createReduce(db, names, VectorInt(), true);
+  dbaux->display(&dbfmt);
+  delete dbaux;
+
+  // Checking operators
+  db->display(&dbfmt);
+  double value = (*db)(3, "z-1");
+  message("Valeur initiale = %f\n", value);
+  (*db)(3, "z-1") = 12.;
+  db->display(&dbfmt);
+
   return 0;
 }
