@@ -42,15 +42,14 @@ int main(int argc, char* argv[])
 
   if (mode == 0 || mode == 1)
   {
+    mestitle(0, "Testing selection management");
     // Creating the Grid Rotated Db
     DbGrid* grid = DbGrid::create({6, 4}, {1., 2.}, {10., 20.}, {10., 0.});
-    grid->display();
-    auto nech = grid->getNSample();
+    auto nech    = grid->getNSample();
 
     // Creating the Model
     Model* model = Model::createFromParam(ECov::CUBIC, 0., 1., 1., {10., 45.},
                                           MatrixSymmetric(), {30., 0.});
-    model->display();
 
     // First selection generated with Bernoulli (proba=0.6)
     VectorDouble sel1 = VH::simulateBernoulli(nech, 0.6);
@@ -82,25 +81,44 @@ int main(int argc, char* argv[])
     delete model;
   }
 
+  //////////////////////////////////
+  // Testing getRanks() functions //
+  //////////////////////////////////
+
+  if (mode == 0 || mode == 2)
+  {
+    mestitle(0, "Testing Db::getRanks functions");
+    Id ndim    = 2;
+    Id ndat    = 15;
+    auto* db   = Db::createFillRandom(ndat, ndim, 0, 0, 0, 0., 0.3);
+    auto dbfmt = DbStringFormat(FLAG_ARRAY, VectorString(), VectorInt(), false);
+    db->display(&dbfmt);
+
+    VH::dump("Vector of Relative ranks of active samples",
+             db->getRankAbsoluteToRelativeVec());
+
+    VH::dump("Vector of Absolute ranks of active samples",
+             db->getRankRelativeToAbsoluteVec());
+    delete db;
+  }
+
   ///////////////////////
   // Testing db_reduce //
   ///////////////////////
 
-  if (mode == 0 || mode == 2)
+  if (mode == 0 || mode == 3)
   {
+    mestitle(0, "Testing db_reduce facility");
     Id nvar    = 3;
     Id ndim    = 2;
     Id ndat    = 15;
     auto dbfmt = DbStringFormat(FLAG_ARRAY, VectorString(), VectorInt(), false);
     VectorDouble hetero(nvar, 0.1);
-    auto* db           = Db::createFillRandom(ndat, ndim, nvar, 0, 0, 0., 0.1, hetero);
+    auto* db = Db::createFillRandom(ndat, ndim, nvar, 0, 0, 0., 0.1, hetero);
+    db->display(&dbfmt);
     VectorString names = {"z-1", "z-3"};
     VectorInt ranks    = VH::sequence(5., 3, 1);
     Db* dbaux;
-
-    // Complete file
-    mestitle(1, "Initial data set");
-    db->display(&dbfmt);
 
     message("\n---> Reducing by:\n");
     message(" - selecting some variables (z-1 and z-3)\n");
@@ -122,13 +140,16 @@ int main(int argc, char* argv[])
     dbaux = Db::createReduce(db, names, VectorInt(), true);
     dbaux->display(&dbfmt);
     delete dbaux;
+
+    delete db;
   }
 
   ///////////////////////////////
   // Testing operator overload //
   ///////////////////////////////
-  if (mode == 0 || mode == 3)
+  if (mode == 0 || mode == 4)
   {
+    mestitle(0, "Testing operator overload");
     Id nvar    = 3;
     Id ndim    = 2;
     Id ndat    = 15;
@@ -138,9 +159,21 @@ int main(int argc, char* argv[])
     VectorString names = {"z-1", "z-3"};
     db->display(&dbfmt);
     double value = (*db)(3, "z-1");
-    message("Valeur initiale = %f\n", value);
+    message("Initial Value = %f\n", value);
     (*db)(3, "z-1") = 12.;
     db->display(&dbfmt);
-    return 0;
+
+    // Testing invalid answers
+    value = (*db)(3000, "z-1");
+    messerr("This should be an error = %f", value);
+    value = (*db)(3, "stupid");
+    messerr("This should be an error = %f", value);
+
+    (*db)(30000, "z-1") = 12.;
+    messerr("Previous statement is an error");
+    (*db)(3, "stupid") = 12.;
+    messerr("Previous statement is an error");
+    delete db;
   }
+  return 0;
 }
