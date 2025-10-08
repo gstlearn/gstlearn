@@ -12,7 +12,6 @@
 
 #include "API/SPDE.hpp"
 #include "Basic/File.hpp"
-#include "Basic/Law.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
@@ -35,52 +34,113 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   ASerializable::setPrefixName("test_Db-");
-  Id seed = 10355;
-  law_set_random_seed(seed);
+  int mode = 0;
 
-  // Creating the Grid Rotated Db
-  DbGrid* grid = DbGrid::create({6, 4}, {1., 2.}, {10., 20.}, {10., 0.});
-  grid->display();
+  ////////////////////////////
+  // Testing the selections //
+  ////////////////////////////
 
-  // Creating the Model
-  Model* model = Model::createFromParam(ECov::CUBIC, 0., 1., 1., {10., 45.},
-                                        MatrixSymmetric(), {30., 0.});
-  model->display();
+  if (mode == 0 || mode == 1)
+  {
+    // Creating the Grid Rotated Db
+    DbGrid* grid = DbGrid::create({6, 4}, {1., 2.}, {10., 20.}, {10., 0.});
+    grid->display();
+    auto nech = grid->getNSample();
 
-  /////////////////////////
-  // Testing the selections
-  /////////////////////////
+    // Creating the Model
+    Model* model = Model::createFromParam(ECov::CUBIC, 0., 1., 1., {10., 45.},
+                                          MatrixSymmetric(), {30., 0.});
+    model->display();
 
-  auto nech = grid->getNSample();
+    // First selection generated with Bernoulli (proba=0.6)
+    VectorDouble sel1 = VH::simulateBernoulli(nech, 0.6);
+    VH::dump("sel1", sel1);
+    grid->addSelection(sel1, "Sel1");
 
-  // First selection generated with Bernoulli (proba=0.6)
-  VectorDouble sel1 = VH::simulateBernoulli(nech, 0.6);
-  VH::dump("sel1", sel1);
-  grid->addSelection(sel1, "Sel1");
+    // Second selection generated with Bernoulli (proba=0.4) combined with previous one
+    VectorDouble sel2 = VH::simulateBernoulli(nech, 0.4);
+    VH::dump("sel2", sel2);
+    grid->addSelection(sel2, "Sel2", "and");
 
-  // Second selection generated with Bernoulli (proba=0.4) combined with previous one
-  VectorDouble sel2 = VH::simulateBernoulli(nech, 0.4);
-  VH::dump("sel2", sel2);
-  grid->addSelection(sel2, "Sel2", "and");
+    // Retrieve resulting selection for check
+    VectorDouble sel3 = grid->getSelections();
+    VH::dump("sel1 && sel2", sel3);
 
-  // Retrieve resulting selection for check
-  VectorDouble sel3 = grid->getSelections();
-  VH::dump("sel1 && sel2", sel3);
+    // Testing Filters on Db printout (only Statistics on the variables "Sel*")
+    DbStringFormat dbfmt(FLAG_VARS | FLAG_STATS, {"Sel*"});
+    grid->display(&dbfmt);
 
-  // Testing Filters on Db printout (only Statistics on the variables "Sel*")
-  DbStringFormat dbfmt(FLAG_VARS | FLAG_STATS, {"Sel*"});
-  grid->display(&dbfmt);
+    // Creating a Selection by setting individual values
+    OptCst::define(ECst::NTROW, -1);
+    DbStringFormat dbfmt2(FLAG_VARS | FLAG_ARRAY);
+    grid->addSelection(VectorDouble(), "mySel");
+    grid->setValue("mySel", 12, 0.);
+    grid->setValue("mySel", 19, 0.);
+    grid->display(&dbfmt2);
 
-  // Creating a Selection by setting individual values
-  OptCst::define(ECst::NTROW, -1);
-  DbStringFormat dbfmt2(FLAG_VARS | FLAG_ARRAY);
-  grid->addSelection(VectorDouble(), "mySel");
-  grid->setValue("mySel", 12, 0.);
-  grid->setValue("mySel", 19, 0.);
-  grid->display(&dbfmt2);
+    delete grid;
+    delete model;
+  }
 
-  delete grid;
-  delete model;
+  ///////////////////////
+  // Testing db_reduce //
+  ///////////////////////
 
-  return 0;
+  if (mode == 0 || mode == 2)
+  {
+    Id nvar    = 3;
+    Id ndim    = 2;
+    Id ndat    = 15;
+    auto dbfmt = DbStringFormat(FLAG_ARRAY, VectorString(), VectorInt(), false);
+    VectorDouble hetero(nvar, 0.1);
+    auto* db           = Db::createFillRandom(ndat, ndim, nvar, 0, 0, 0., 0.1, hetero);
+    VectorString names = {"z-1", "z-3"};
+    VectorInt ranks    = VH::sequence(5., 3, 1);
+    Db* dbaux;
+
+    // Complete file
+    mestitle(1, "Initial data set");
+    db->display(&dbfmt);
+
+    message("\n---> Reducing by:\n");
+    message(" - selecting some variables (z-1 and z-3)\n");
+    message(" - suppressing masked samples\n");
+    dbaux = Db::createReduce(db, names);
+    dbaux->display(&dbfmt);
+    delete dbaux;
+
+    message("\n---> Reducing by:\n");
+    message(" - selecting some variables (z-1 and z-3)\n");
+    message(" - selecting some sample ranks (5 samples starting from rank 3)\n");
+    dbaux = Db::createReduce(db, names, ranks);
+    dbaux->display(&dbfmt);
+    delete dbaux;
+
+    message("\n---> Reducing by:\n");
+    message(" - selecting some variables (z-1 and z-3)\n");
+    message(" - selecting only samples where all variables are defined\n");
+    dbaux = Db::createReduce(db, names, VectorInt(), true);
+    dbaux->display(&dbfmt);
+    delete dbaux;
+  }
+
+  ///////////////////////////////
+  // Testing operator overload //
+  ///////////////////////////////
+  if (mode == 0 || mode == 3)
+  {
+    Id nvar    = 3;
+    Id ndim    = 2;
+    Id ndat    = 15;
+    auto dbfmt = DbStringFormat(FLAG_ARRAY, VectorString(), VectorInt(), false);
+    VectorDouble hetero(nvar, 0.1);
+    auto* db           = Db::createFillRandom(ndat, ndim, nvar, 0, 0, 0., 0.1, hetero);
+    VectorString names = {"z-1", "z-3"};
+    db->display(&dbfmt);
+    double value = (*db)(3, "z-1");
+    message("Valeur initiale = %f\n", value);
+    (*db)(3, "z-1") = 12.;
+    db->display(&dbfmt);
+    return 0;
+  }
 }
