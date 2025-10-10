@@ -53,14 +53,15 @@ public:
   static void dumpRange(const String& title, const VectorInt& vect);
   static void dumpNNZ(const String& title, const VectorDouble& vect, Id nclass = 10);
 
-  static Id maximum(const VectorInt& vec, bool flagAbs = false);
-  static Id minimum(const VectorInt& vec, bool flagAbs = false);
+  static Id maximumVI(const VectorInt& vec, bool flagAbs = false);
+  static Id minimumVI(const VectorInt& vec, bool flagAbs = false);
   static double maximum(const VectorDouble& vec, bool flagAbs = false, const VectorDouble& aux = VectorDouble(), Id mode = 0);
   static double minimum(const VectorDouble& vec, bool flagAbs = false, const VectorDouble& aux = VectorDouble(), Id mode = 0);
-  static double maximum(const VectorVectorDouble& vec, bool flagAbs = false);
+  static double maximumVVD(const VectorVectorDouble& vec, bool flagAbs = false);
   static double maximum(const std::vector<std::vector<double>>& vec, bool flagAbs = false);
-
-  static double minimum(const VectorVectorDouble& vec, bool flagAbs = false);
+  static double minimumVVD(const VectorVectorDouble& vec, bool flagAbs = false);
+  static void capInPlace(VectorDouble& vec, double vmin = TEST, double vmax = TEST);
+  static void capInPlaceVVD(VectorVectorDouble& vec, double vmin = TEST, double vmax = TEST);
   static Id product(const VectorInt& vec);
   static double product(const VectorDouble& vec);
   static Id countUndefined(const VectorDouble& vec);

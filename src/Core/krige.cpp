@@ -178,7 +178,7 @@ static VectorInt st_relative_position_array(Id neq)
  ** \param[in]  dbout  output Db structure
  **
  *****************************************************************************/
-static void st_global_init(Db* dbin, Db* dbout)
+void global_init(Db* dbin, Db* dbout)
 {
   FLAG_COLK = FLAG_PROF = FLAG_SIMU = 0;
   IPTR_EST = IPTR_STD = IPTR_VARZ = IPTR_NBGH = 0;
@@ -1499,7 +1499,7 @@ Id global_transitive(DbGrid* dbgrid,
   /* Initializations */
 
   cvv = wtot = dsse = gint = dsum = 0.;
-  st_global_init(dbgrid, dbgrid);
+  global_init(dbgrid, dbgrid);
   if (st_check_environment(0, 1, model)) return 1;
   ;
   Id ndim = dbgrid->getNDim();
@@ -1926,7 +1926,7 @@ Id anakexp_f(DbGrid* db,
   /* Initializations */
 
   error = 1;
-  st_global_init(db, db);
+  global_init(db, db);
   FLAG_EST    = true;
   ndim        = db->getNDim();
   nvarin      = db->getNLoc(ELoc::Z);
@@ -2598,7 +2598,7 @@ Id anakexp_3D(DbGrid* db,
   /* Initializations */
 
   error = 1;
-  st_global_init(db, db);
+  global_init(db, db);
   FLAG_EST = true;
   fildmp   = nullptr;
   ndim     = db->getNDim();
@@ -3488,7 +3488,7 @@ Id krigsampling_f(Db* dbin,
   Id nsize1    = static_cast<Id>(ranks1.size());
   Id nsize2    = static_cast<Id>(ranks2.size());
   double sigma = 0.;
-  st_global_init(dbin, dbout);
+  global_init(dbin, dbout);
   FLAG_EST = true;
   FLAG_STD = flag_std;
   if (st_check_environment(1, 1, model)) return 1;
@@ -4539,7 +4539,7 @@ Id inhomogeneous_kriging(Db* dbdat,
 
   error = nvar        = 1;
   NeighUnique* neighU = NeighUnique::create(false);
-  st_global_init(dbdat, dbout);
+  global_init(dbdat, dbout);
   FLAG_EST = true;
   FLAG_STD = true;
   if (st_check_environment(1, 1, model_dat)) goto label_end;

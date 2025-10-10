@@ -176,7 +176,7 @@ VectorDouble hermitePolynomials(double y, double r, const VectorInt& ifacs)
   Id nfact = static_cast<Id>(ifacs.size());
   VectorDouble vec(nfact);
 
-  Id nbpoly         = VH::maximum(ifacs);
+  Id nbpoly         = VH::maximumVI(ifacs);
   VectorDouble poly = hermitePolynomials(y, r, nbpoly + 1);
 
   for (Id ifac = 0; ifac < nfact; ifac++)

@@ -408,7 +408,7 @@ void SimuSpectral::_computeOnSphere(Db* dbout, Id iuid, bool verbose)
     auto nmax = _getKey1Maximum(_spSims[is]);
     if (nmax > N_max) N_max = nmax;
   }
-  Id K_max = VH::maximum(K_list);
+  Id K_max = VH::maximumVI(K_list);
 
   // Optional printout
   if (verbose)
@@ -464,7 +464,7 @@ void SimuSpectral::_computeOnSphere(Db* dbout, Id iuid, bool verbose)
                 _getSumValue(spsimK));
 
       // From n-1 to n
-      Id NK_max = VH::maximum(N_list);
+      Id NK_max = VH::maximumVI(N_list);
       for (Id n = m; n <= NK_max; n++)
       {
         if (n == m)

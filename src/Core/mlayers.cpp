@@ -16,8 +16,8 @@
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeigh.hpp"
+#include "geoslib_f.h"
 #include "geoslib_old_f.h"
-
 #include <cmath>
 
 /*! \cond */
@@ -1330,7 +1330,7 @@ static void st_estimate_bayes(LMlayers* lmlayers,
                               VectorDouble& zval,
                               VectorDouble& b,
                               double* wgt,
-                              double* post_mean,
+                              VectorDouble& post_mean,
                               double* a0,
                               double* cc,
                               double* ss,
@@ -1366,7 +1366,7 @@ static void st_estimate_bayes(LMlayers* lmlayers,
   matrix_product_safe(nech, nech, 1, cc, c2.data(), wgt);
 
   matrix_product_safe(1, nech, 1, wgt, zval.data(), &estim1);
-  matrix_product_safe(1, npar, 1, ff0, post_mean, &estim2);
+  matrix_product_safe(1, npar, 1, ff0, post_mean.data(), &estim2);
   *estim = estim1 + estim2;
 
   /* Calculate the standard deviation */
@@ -1405,6 +1405,7 @@ static void st_estimate_bayes(LMlayers* lmlayers,
 ** \param[in]  a          L.H.S. (square) inverted matrix
 ** \param[in]  zval       Data vector (extended)
 ** \param[in]  dual       Dual vector
+** \param[in] prior_mean  Array of prior means
 **
 ** \param[out] prop1      Working array (Dimension: nlayers)
 ** \param[out] prop2      Working array (Dimension: nlayers)
@@ -1418,7 +1419,7 @@ static void st_estimate_bayes(LMlayers* lmlayers,
 ** \param[out] cc         Output value
 ** \param[out] ss         Output value
 ** \param[out] gs         Output value
-** \param[out] post_mean  Array of posterior mean
+** \param[out] post_mean  Array of posterior means
 **
 *****************************************************************************/
 static void st_estimate(LMlayers* lmlayers,
@@ -1431,6 +1432,7 @@ static void st_estimate(LMlayers* lmlayers,
                         double* a,
                         VectorDouble& zval,
                         double* dual,
+                        const VectorDouble& prior_mean,
                         VectorDouble& prop1,
                         VectorDouble& prop2,
                         MatrixSquare& covtab,
@@ -1444,9 +1446,9 @@ static void st_estimate(LMlayers* lmlayers,
                         double* cc,
                         double* ss,
                         double* gs,
-                        double* /*prior_mean*/,
-                        double* post_mean)
+                        VectorDouble& post_mean)
 {
+  DECLARE_UNUSED(prior_mean);
   double estim, cx, coor[2], coefb, botval, ratio, stdv;
   Id iechout, ilayer, flag_correc, nlayers, neq;
 
@@ -1797,8 +1799,8 @@ static Id st_drift_data(LMlayers* lmlayers,
  *****************************************************************************/
 static Id st_drift_bayes(LMlayers* lmlayers,
                          Id verbose,
-                         double* prior_mean,
-                         const double* prior_vars,
+                         const VectorDouble& prior_mean,
+                         const VectorDouble& prior_vars,
                          double* acov,
                          VectorDouble& zval,
                          VectorDouble& fftab,
@@ -1843,7 +1845,7 @@ static Id st_drift_bayes(LMlayers* lmlayers,
 
   if (verbose)
   {
-    print_matrix("Prior Mean", 0, 1, lmlayers->nlayers, lmlayers->nbfl, NULL, prior_mean);
+    print_matrix("Prior Mean", 0, 1, lmlayers->nlayers, lmlayers->nbfl, NULL, prior_mean.data());
     print_matrix("Prior Variance", 0, 1, lmlayers->npar, lmlayers->npar, NULL, invS.data());
   }
 
@@ -1880,7 +1882,7 @@ static Id st_drift_bayes(LMlayers* lmlayers,
 
   /* Calculate the Posterior Mean vector */
 
-  matrix_product_safe(npar, npar, 1, invS.data(), prior_mean, post_mean);
+  matrix_product_safe(npar, npar, 1, invS.data(), prior_mean.data(), post_mean);
   for (Id i = 0; i < npar; i++)
     fm1z[i] += post_mean[i];
   matrix_product_safe(npar, npar, 1, post_S, fm1z.data(), post_mean);
@@ -1959,6 +1961,7 @@ label_end:
  ** \param[in]  colreft    Rank of the reference Time variable in Dbout
  ** \param[in]  colrefb    Rank of the Bottom Depth variable in Dbout (or -1)
  ** \param[in]  verbose    Verbose option
+ ** \param[in]  namconv    Naming convention for output variables
  **
  *****************************************************************************/
 Id multilayers_kriging(Db* dbin,
@@ -1975,14 +1978,15 @@ Id multilayers_kriging(Db* dbin,
                        Id irf_rank,
                        Id match_time,
                        Id dim_prior,
-                       double* prior_mean,
-                       double* prior_vars,
+                       const VectorDouble& prior_mean,
+                       const VectorDouble& prior_vars,
                        Id colrefd,
                        Id colreft,
                        Id colrefb,
-                       Id verbose)
+                       Id verbose,
+                       const NamingConvention& namconv)
 {
-  Id nlayers, ilayer, nechmax, nech, iech, neq, nvar, npar, error;
+  Id nlayers, ilayer, nechmax, nech, iech, neq, nvar, npar, error, iptr;
   double* a;
   MatrixSquare covtab;
   bool flag_created;
@@ -2017,6 +2021,7 @@ Id multilayers_kriging(Db* dbin,
   nlayers      = model->getNVar();
   nechmax      = dbin->getNSample();
   ptime        = (match_time) ? ELoc::F : ELoc::TIME;
+  global_init(dbin, dbout);
   if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
   if (dbin->getNDim() != 2)
@@ -2079,7 +2084,7 @@ Id multilayers_kriging(Db* dbin,
     messerr("directly expressed in Depth (rather than Thickness)");
     goto label_end;
   }
-  if (prior_mean == nullptr || prior_vars == nullptr) flag_bayes = 0;
+  if (prior_mean.empty() || prior_vars.empty()) flag_bayes = 0;
   if (flag_bayes && dim_prior != st_get_number_drift(irf_rank, flag_ext) * nlayers)
   {
     messerr("The dimension of the Prior information (%d)", dim_prior);
@@ -2092,7 +2097,7 @@ Id multilayers_kriging(Db* dbin,
 
   nvar = nlayers;
   if (flag_std) nvar += nlayers;
-  (void)dbout->addColumnsByConstant(nvar, TEST, String(), ELoc::Z);
+  iptr = dbout->addColumnsByConstant(nvar, TEST, String(), ELoc::Z);
 
   /* Fill the Multi-Layers internal structure */
 
@@ -2191,14 +2196,16 @@ Id multilayers_kriging(Db* dbin,
   /* Perform the estimation over the grid nodes */
 
   st_estimate(lmlayers, dbin, dbout, model, seltab, flag_bayes, flag_std, a,
-              zval, dual.data(), prop1, prop2, covtab, b, b2.data(),
+              zval, dual.data(), prior_mean, prop1, prop2, covtab, b, b2.data(),
               baux, wgt.data(), c00.data(), fftab,
-              a0.data(), cc.data(), ss.data(), gs.data(),
-              prior_mean, post_mean.data());
+              a0.data(), cc.data(), ss.data(), gs.data(), post_mean);
 
   /* Reconstitute the surfaces (optional) */
 
   st_convert_results(lmlayers, dbout, flag_std);
+
+  // Rename the output variables
+  namconv.setNamesAndLocators(dbout, iptr, "estim", nvar);
 
   /* Set the error return code */
 
@@ -2694,10 +2701,6 @@ static Id st_get_prior(Id nech,
  ** \param[in]  colrefb    Rank of the Bottom Depth variable in Dbout (or -1)
  ** \param[in]  verbose    Verbose option
  **
- ** \param[out] npar_arg   Number of drift terms
- ** \param[out] mean       Array of means
- ** \param[out] vars       Array of variances
- **
  *****************************************************************************/
 Id multilayers_get_prior(Db* dbin,
                          DbGrid* dbout,
@@ -2710,10 +2713,7 @@ Id multilayers_get_prior(Db* dbin,
                          Id colrefd,
                          Id colreft,
                          Id colrefb,
-                         Id verbose,
-                         Id* npar_arg,
-                         VectorDouble& mean,
-                         VectorDouble& vars)
+                         Id verbose)
 {
   Id nlayers, ilayer, nechmax, nech, iech, npar, error, neq;
   bool flag_created;
@@ -2723,6 +2723,8 @@ Id multilayers_get_prior(Db* dbin,
   VectorDouble fftab;
   ELoc ptime;
   LMlayers* lmlayers;
+  VectorDouble mean;
+  VectorDouble vars;
 
   /* Preliminary checks */
 
@@ -2822,10 +2824,14 @@ Id multilayers_get_prior(Db* dbin,
 
   if (st_get_prior(nech, npar, zval, fftab, mean.data(), vars.data())) goto label_end;
 
+  /* Print the resulting values */
+  message("Number of parameters = %d\n", npar);
+  VH::dump("Means", mean);
+  VH::dump("Variances", vars);
+
   /* Set the error return code */
 
-  *npar_arg = npar;
-  error     = 0;
+  error = 0;
 
 label_end:
   (void)krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());

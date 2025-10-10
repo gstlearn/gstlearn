@@ -968,13 +968,112 @@ Id manageExternalInformation(Id mode,
   return 0;
 }
 
+/**
+ * @brief Create a list of values at some control points (NP) in a space of dimension NDIM
+ * for a set of NSURF variables(ht eZ-locators).
+ *
+ * @param dbgrid  DbGrid containing the surfaces
+ * @param xp      Vector of coordinates along X for discretization points
+ * @param yp      Vector of coordinates along Y for discretization points
+ * @param zp      Vector of coordinates along Z for discretization points
+ * @param ptype   Type of the variable to be plotted
+ * @param checkOrder Ensure variable order (-2, -1, 0, 1, 2)
+ * @param flagCap when TRUE, cap between Min and Max of the surfaces
+ * @return VectorVectorDouble
+ *
+ * @remarks At each site, when comparing the surface N to the surface N-1:
+ * @remarks If checkOrder>0, if surf_N < surf_N-1 then surf_N = surf_N-1
+ * @remarks If checkOrder<0, if surf_N > surf_N-1 then surf_N = surf_N-1
+ */
+VectorVectorDouble interpolateVariablesToPoint(DbGrid* dbgrid,
+                                               const VectorDouble& xp,
+                                               const VectorDouble& yp,
+                                               const VectorDouble& zp,
+                                               const ELoc& ptype,
+                                               Id checkOrder,
+                                               bool flagCap)
+{
+  VectorVectorDouble tab;
+  VectorInt iatts = dbgrid->getUIDsByLocator(ptype);
+  Id nsurf        = static_cast<Id>(iatts.size());
+  if (nsurf <= 0) return tab;
+
+  tab.resize(nsurf);
+  for (Id isurf = 0; isurf < nsurf; isurf++)
+    if (interpolateVariableToPoint(dbgrid, iatts[isurf], xp, yp, zp, tab[isurf])) break;
+
+  // Check order consistency between surfaces
+  if (checkOrder != 0)
+  {
+    for (Id ip = 0, np = static_cast<Id>(tab[0].size()); ip < np; ip++)
+    {
+      // Checking upwards
+      if (checkOrder > 0)
+      {
+        for (Id isurf = 1; isurf < nsurf; isurf++)
+        {
+          double value  = tab[isurf][ip];
+          double refval = tab[isurf - 1][ip];
+          if (FFFF(refval)) continue;
+          if (FFFF(value))
+          {
+            tab[isurf][ip] = refval;
+            continue;
+          }
+          if (checkOrder == 1)
+          {
+            if (value < refval) value = refval;
+          }
+          else
+          {
+            if (value > refval) value = refval;
+          }
+          tab[isurf][ip] = value;
+        }
+      }
+      else
+      {
+        for (Id isurf = nsurf - 2; isurf >= 0; isurf--)
+        {
+          double value  = tab[isurf][ip];
+          double refval = tab[isurf + 1][ip];
+          if (FFFF(refval)) continue;
+          if (FFFF(value))
+          {
+            tab[isurf][ip] = refval;
+            continue;
+          }
+          if (checkOrder == -1)
+          {
+            if (value < refval) value = refval;
+          }
+          else
+          {
+            if (value > refval) value = refval;
+          }
+          tab[isurf][ip] = value;
+        }
+      }
+    }
+  }
+
+  // Cap between the Min and the Max of the interpolated surfaces
+  if (flagCap)
+  {
+    double mini = VH::minimumVVD(tab);
+    double maxi = VH::maximumVVD(tab);
+    VH::capInPlaceVVD(tab, mini, maxi);
+  }
+
+  return tab;
+}
+
 /*****************************************************************************/
 /*!
  ** Interpolate a variable from a grid Db on discretization points
  **
- ** \param[in]  db_grid   Descriptor of the grid parameters
+ ** \param[in]  dbgrid    Descriptor of the grid parameters
  ** \param[in]  iatt      Rank of the attribute in db_grid
- ** \param[in]  np        Number of discretized points
  ** \param[in]  xp        Array of first coordinates
  ** \param[in]  yp        Array of second coordinates
  ** \param[in]  zp        Array of third coordinates
@@ -988,33 +1087,31 @@ Id manageExternalInformation(Id mode,
  ** \remark (in all space dimensions) is always set to FFFF
  **
  *****************************************************************************/
-Id interpolateVariableToPoint(DbGrid* db_grid,
+Id interpolateVariableToPoint(DbGrid* dbgrid,
                               Id iatt,
-                              Id np,
-                              const double* xp,
-                              const double* yp,
-                              const double* zp,
-                              double* tab)
+                              const VectorDouble& xp,
+                              const VectorDouble& yp,
+                              const VectorDouble& zp,
+                              VectorDouble& tab)
 {
-  Id error, ndim;
-  VectorDouble coor(3);
+  VectorDouble coor;
+  Id np = static_cast<Id>(xp.size());
+  tab.resize(np);
 
   /* Initializations */
 
-  error = 1;
-  for (Id idim = 0; idim < 3; idim++)
-    coor[idim] = 0.;
-  ndim = db_grid->getNDim();
+  coor.fill(0., 3);
+  Id ndim = dbgrid->getNDim();
   if (ndim > 3)
   {
     messerr("This procedure is limited to 3-D grid");
-    goto label_end;
+    return 1;
   }
-  if ((ndim >= 1 && xp == nullptr) || (ndim >= 2 && yp == nullptr) || (ndim >= 3 && zp == nullptr))
+  if ((ndim >= 1 && xp.empty()) || (ndim >= 2 && yp.empty()) || (ndim >= 3 && zp.empty()))
   {
     messerr("The Grid space dimension (%d) must be in accordance with", ndim);
     messerr("the definition of arguments 'xp', 'yp' and 'zp'");
-    goto label_end;
+    return 1;
   }
 
   /* Loop on the point samples */
@@ -1024,17 +1121,9 @@ Id interpolateVariableToPoint(DbGrid* db_grid,
     if (ndim >= 1) coor[0] = xp[ip];
     if (ndim >= 2) coor[1] = yp[ip];
     if (ndim >= 3) coor[2] = zp[ip];
-    tab[ip] = st_multilinear_interpolation(db_grid, iatt, 0, VectorDouble(), coor);
+    tab[ip] = st_multilinear_interpolation(dbgrid, iatt, 0, VectorDouble(), coor);
   }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  /* Core deallocation */
-
-label_end:
-  return (error);
+  return 0;
 }
 
 /*****************************************************************************/
@@ -1061,11 +1150,11 @@ label_end:
  ** \remarks The program returns the list of all these intersection coordinates
  *****************************************************************************/
 VectorDouble dbgridLineSampling(DbGrid* dbgrid,
-                                const double* x1,
-                                const double* x2,
+                                const VectorDouble& x1,
+                                const VectorDouble& x2,
                                 Id ndisc,
                                 Id ncut,
-                                const double* cuts,
+                                const VectorDouble& cuts,
                                 Id* nval_ret)
 {
   double delta, vi1, vi2, cut, v1, v2;

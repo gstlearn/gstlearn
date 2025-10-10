@@ -1,0 +1,106 @@
+#NO_DIFF#XXX
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 14
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = z1 - Locator = z1
+Column = 3 - Name = layer - Locator = layer
+Column = 4 - Name = well - Locator = NA----
+
+
+#NO_DIFF#XXX
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 9
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = reference - Locator = NA
+Column = 4 - Name = bottom - Locator = NA
+Column = 5 - Name = Time1000 - Locator = time1
+Column = 6 - Name = Time1200 - Locator = time2
+Column = 7 - Name = Time1400 - Locator = time3
+Column = 8 - Name = Time1600 - Locator = time4----
+
+
+#NO_DIFF#XXX
+----- Number of rows    = 3
+- Number of columns = 2
+               [,  0]    [,  1]
+     [  0,]     0.000     0.000
+     [  1,]    50.000    50.000
+     [  2,]   100.000   100.000----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 13
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = reference - Locator = NA
+Column = 4 - Name = bottom - Locator = NA
+Column = 5 - Name = Time1000 - Locator = time1
+Column = 6 - Name = Time1200 - Locator = time2
+Column = 7 - Name = Time1400 - Locator = time3
+Column = 8 - Name = Time1600 - Locator = time4
+Column = 9 - Name = MLayerKriging.estim.1 - Locator = z1
+Column = 10 - Name = MLayerKriging.estim.2 - Locator = z2
+Column = 11 - Name = MLayerKriging.estim.3 - Locator = z3
+Column = 12 - Name = MLayerKriging.estim.4 - Locator = z4----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----

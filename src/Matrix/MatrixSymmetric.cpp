@@ -918,4 +918,24 @@ MatrixSymmetric MatrixSymmetric::compress0MatLC(const MatrixDense& matLC)
   return mat;
 }
 
+/**
+ * @brief Create a square matrix from one diagonal
+ *
+ * @param vecdiag Vector of information along the diagonal
+ * @return Returned matrix
+ */
+MatrixSymmetric* MatrixSymmetric::createFromDiagonal(const VectorDouble& vecdiag)
+{
+  /* Initializations */
+  Id neq    = static_cast<Id>(vecdiag.size());
+  auto* res = new MatrixSymmetric(neq);
+  res->fill(0.);
+
+  for (Id i = 0; i < neq; i++)
+  {
+    res->setValue(i, i, vecdiag[i]);
+  }
+  return res;
+}
+
 } // namespace gstlrn

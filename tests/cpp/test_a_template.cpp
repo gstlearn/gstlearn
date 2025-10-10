@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-
-#include "Basic/OptCst.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorT.hpp"
 #include "Db/Db.hpp"

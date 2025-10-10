@@ -59,6 +59,7 @@ public:
                                              Id neq,
                                              const VectorDouble& tl);
   static MatrixSymmetric* createRandomDefinitePositive(Id neq, Id seed = 13242);
+  static MatrixSymmetric* createFromDiagonal(const VectorDouble& vecdiag);
   static bool sample(MatrixSymmetric& res,
                      const MatrixSymmetric& A,
                      const VectorInt& rowKeep,
