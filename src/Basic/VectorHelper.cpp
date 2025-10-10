@@ -3003,7 +3003,7 @@ bool VectorHelper::isIsotropic(const VectorVectorInt& sampleRanks)
 
 void VectorHelper::capInPlace(VectorDouble& vec, double vmin, double vmax)
 {
-  for (int i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
+  for (Id i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
   {
     double value = vec[i];
     if (!FFFF(vmin))
