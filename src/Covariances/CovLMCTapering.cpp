@@ -15,7 +15,8 @@
 #include "Enum/ETape.hpp"
 #include "Model/Model.hpp"
 #include "Space/ASpace.hpp"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {
@@ -215,4 +216,4 @@ std::string_view CovLMCTapering::getName() const
 {
   return _tapeType.getDescr();
 }
-}
+} // namespace gstlrn

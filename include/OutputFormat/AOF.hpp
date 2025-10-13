@@ -13,7 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include <stdio.h>
+#include <cstdio>
 
 namespace gstlrn
 {
@@ -33,7 +33,7 @@ public:
   virtual bool mustBeForNDim(int /*ndim*/) const { return true; }
   virtual bool mustBeForRotation(int /*mode*/) const { return true; }
   virtual bool isAuthorized() const;
-  virtual int  writeInFile()  { return 1; }
+  virtual int writeInFile() { return 1; }
   virtual Db* readFromFile() { return nullptr; }
   virtual DbGrid* readGridFromFile() { return nullptr; }
 
@@ -49,15 +49,15 @@ public:
   const String& getFilename() const { return _filename; }
 
 protected:
-  int  _fileWriteOpen();
-  int  _fileReadOpen();
+  int _fileWriteOpen();
+  int _fileReadOpen();
   void _fileClose();
 
 protected:
   String _filename;
-  const Db*     _db;
+  const Db* _db;
   const DbGrid* _dbgrid;
-  VectorInt     _cols;
+  VectorInt _cols;
   FILE* _file;
 };
 
@@ -109,4 +109,4 @@ GSTLEARN_EXPORT Db* db_well_read_las(const char* filename,
                                      double ywell,
                                      double cwell,
                                      int verbose = 0);
-}
+} // namespace gstlrn

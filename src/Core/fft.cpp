@@ -54,9 +54,9 @@ License: BSD 3-clause
 */
 #include "Basic/AStringable.hpp"
 #include "Core/fftn.hpp"
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 
 /*! \cond */
 #define MD_PI      3.14159265358979323846264338327950288 /* Pi with many decimals */
@@ -1012,4 +1012,4 @@ Dimension_Error:
   fft_free(); /* free-up memory */
   return -1;
 }
-}
+} // namespace gstlrn

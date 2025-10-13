@@ -9,15 +9,15 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/MatrixDense.hpp"
+#include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Matrix/AMatrix.hpp"
+#include "Matrix/MatrixFactory.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
-#include "Matrix/MatrixFactory.hpp"
-#include "Matrix/AMatrix.hpp"
-#include "Basic/VectorHelper.hpp"
-#include "Basic/Utilities.hpp"
 #include "geoslib_define.h"
 
-#include <math.h>
+#include <cmath>
 #include <omp.h>
 
 namespace gstlrn
@@ -867,4 +867,4 @@ void MatrixDense::sum(const MatrixDense* mat1,
   mat3->getEigenMat() = mat1->getEigenMat() + mat2->getEigenMat();
 }
 
-}
+} // namespace gstlrn

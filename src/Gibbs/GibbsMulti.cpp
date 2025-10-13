@@ -17,7 +17,8 @@
 #include "Gibbs/AGibbs.hpp"
 #include "Model/Model.hpp"
 #include "geoslib_define.h"
-#include <math.h>
+
+#include <cmath>
 
 #define COVMAT(i, j) (covmat[(i) * neq + (j)])
 

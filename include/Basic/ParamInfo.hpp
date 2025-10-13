@@ -11,7 +11,6 @@
 #include <limits>
 #include <string>
 
-
 #define INF std::numeric_limits<double>::infinity()
 
 namespace gstlrn

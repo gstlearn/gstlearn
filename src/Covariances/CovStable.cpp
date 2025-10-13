@@ -11,7 +11,8 @@
 #include "Covariances/CovStable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Simulation/TurningBandOperate.hpp"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {
@@ -58,4 +59,4 @@ double CovStable::simulateTurningBand(double t0, TurningBandOperate& operTB) con
     return operTB.cosineOne(t0);
   return operTB.spectralOne(t0);
 }
-}
+} // namespace gstlrn

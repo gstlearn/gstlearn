@@ -12,7 +12,8 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Space/ASpace.hpp"
-#include <math.h>
+
+#include <cmath>
 
 #define TR(i, j) (Tr[3 * (i) + (j)])
 
@@ -203,4 +204,4 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
     }
   }
 }
-}
+} // namespace gstlrn

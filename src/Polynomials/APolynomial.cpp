@@ -10,18 +10,18 @@
 /******************************************************************************/
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/VectorNumT.hpp"
-
 #include "Matrix/MatrixSparse.hpp"
-#include <string>
+
 #include <algorithm>
-#include <sstream>
+#include <cmath>
 #include <iterator>
-#include <math.h>
+#include <sstream>
+#include <string>
 
 namespace gstlrn
 {
 APolynomial::APolynomial()
-    : AStringable()
+  : AStringable()
 {
 }
 
@@ -31,23 +31,22 @@ APolynomial::APolynomial(const VectorDouble& coeffs)
   init(coeffs);
 }
 
-APolynomial::APolynomial(const APolynomial &m)
-    : AStringable(m),
-      _coeffs(m._coeffs)
+APolynomial::APolynomial(const APolynomial& m)
+  : AStringable(m)
+  , _coeffs(m._coeffs)
 {
 }
 
 APolynomial::~APolynomial()
 {
-
 }
 
-APolynomial & APolynomial::operator=(const APolynomial& p)
+APolynomial& APolynomial::operator=(const APolynomial& p)
 {
-  if (this !=& p)
+  if (this != &p)
   {
     AStringable::operator=(p);
-    _coeffs=p._coeffs;
+    _coeffs = p._coeffs;
   }
   return *this;
 }
@@ -56,7 +55,7 @@ VectorDouble APolynomial::evalOp(MatrixSparse* Op, const constvect in) const
 {
   VectorDouble result(in.size());
   vect results(result);
-  evalOp(Op,in,results);
+  evalOp(Op, in, results);
   return result;
 }
 
@@ -67,13 +66,13 @@ String APolynomial::toString(const AStringFormat* /*strfmt*/) const
   if (_coeffs.size() <= 0) return str;
 
   std::ostringstream oss;
-  str += "Polynomials of degree " + std::to_string(_coeffs.size()-1) + "\n";
+  str += "Polynomials of degree " + std::to_string(_coeffs.size() - 1) + "\n";
   if (!_coeffs.empty())
   {
     std::copy(_coeffs.begin(), _coeffs.end(),
-    std::ostream_iterator<double>(oss, " "));
+              std::ostream_iterator<double>(oss, " "));
   }
-  str +=oss.str() + "\n";
+  str += oss.str() + "\n";
   return str;
 }
 void APolynomial::init(const VectorDouble& coeffs)
@@ -85,4 +84,4 @@ void APolynomial::addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const
 {
   _addEvalOp(Op, inv, outv);
 }
-}
+} // namespace gstlrn

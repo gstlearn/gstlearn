@@ -23,14 +23,14 @@ namespace gstlrn
 class Koption
 {
 public:
-  EKrigOpt calcul; /* Type of calculation (EKrigOpt) */
-  int ndim; /* Space dimension */
-  int ntot; /* Number of discretization points */
-  int *ndisc; /* Array of discretization counts */
-  double *disc1; /* Discretization coordinates */
-  double *disc2; /* Discretization randomized coordinates */
+  EKrigOpt calcul;    /* Type of calculation (EKrigOpt) */
+  int ndim;           /* Space dimension */
+  int ntot;           /* Number of discretization points */
+  int* ndisc;         /* Array of discretization counts */
+  double* disc1;      /* Discretization coordinates */
+  double* disc2;      /* Discretization randomized coordinates */
   int flag_data_disc; /* Discretization flag */
-  double *dsize;
+  double* dsize;
 };
 
 class Model;
@@ -39,9 +39,9 @@ typedef struct
   int norder;
   int nmodel;
   int npar_init;
-  Model *models[2];
+  Model* models[2];
   Option_VarioFit optvar;
-  void *user_data;
+  void* user_data;
   VectorInt parid;
   VectorDouble covtab;
 } StrMod;
@@ -49,21 +49,21 @@ typedef struct
 class Db;
 typedef struct
 {
-  int case_facies; /* TRUE when Gibbs used for Facies */
-  int case_stat; /* TRUE if proportions are constant */
+  int case_facies;      /* TRUE when Gibbs used for Facies */
+  int case_stat;        /* TRUE if proportions are constant */
   int case_prop_interp; /* TRUE when props are given in proportion file */
-  int ngrf[2]; /* Number of GRF for the PGSs */
-  int nfac[2]; /* Number of facies for the PGSs */
-  int nfaccur; /* Number of facies for current PGS */
-  int nfacprod; /* Product of the number of facies */
-  int nfacmax; /* Maximum number of facies over all PGS */
-  int mode; /* Type of process */
+  int ngrf[2];          /* Number of GRF for the PGSs */
+  int nfac[2];          /* Number of facies for the PGSs */
+  int nfaccur;          /* Number of facies for current PGS */
+  int nfacprod;         /* Product of the number of facies */
+  int nfacmax;          /* Maximum number of facies over all PGS */
+  int mode;             /* Type of process */
   VectorDouble propfix;
   VectorDouble propmem;
   VectorDouble propwrk;
   VectorDouble proploc;
   VectorDouble coor;
-  const Db *dbprop; /* Pointer to the Proportion file */
+  const Db* dbprop; /* Pointer to the Proportion file */
 } Props;
 
 class Rule;
@@ -72,8 +72,8 @@ typedef struct
 {
   int ipgs;
   int flag_used[2];
-  const Rule  *rule;
-  PropDef *propdef;
+  const Rule* rule;
+  PropDef* propdef;
 } Modif_Categorical;
 
 typedef struct
@@ -93,23 +93,23 @@ typedef struct
 class QChol;
 typedef struct
 {
-  QChol *QCtt;
-  QChol *QCtd;
+  QChol* QCtt;
+  QChol* QCtd;
 } QSimu;
 
 class Cheb_Elem
 {
 public:
-  int ncoeffs; /* Number of coefficients */
-  int ncmax; /* Maximum number of polynomials */
-  int ndisc; /* Number of discretizations */
+  int ncoeffs;  /* Number of coefficients */
+  int ncmax;    /* Maximum number of polynomials */
+  int ndisc;    /* Number of discretizations */
   double power; /* Power of the transform */
   double a;
   double b;
   double v1;
   double v2;
-  double tol; /* Tolerance */
-  double *coeffs; /* Array of coefficients */
+  double tol;     /* Tolerance */
+  double* coeffs; /* Array of coefficients */
 };
 
 #ifndef SWIG
@@ -117,16 +117,16 @@ class cs_MGS;
 typedef struct
 {
   VectorDouble Lambda;
-  MatrixSparse *S;
-  MatrixSparse *Aproj;
-  QChol *QC;
-  QChol **QCov;
-  double *Isill;
-  double *Csill;
-  QSimu *qsimu;
-  cs_MGS *mgs;
-  Cheb_Elem *s_cheb;
-  AMesh *amesh;
+  MatrixSparse* S;
+  MatrixSparse* Aproj;
+  QChol* QC;
+  QChol** QCov;
+  double* Isill;
+  double* Csill;
+  QSimu* qsimu;
+  cs_MGS* mgs;
+  Cheb_Elem* s_cheb;
+  AMesh* amesh;
 } SPDE_Matelem;
 #endif
 
@@ -144,20 +144,20 @@ typedef struct
 
 typedef struct
 {
-  double *res;
+  VectorDouble res;
 } CTable;
 
 typedef struct
 {
-  int nconf;                // Number of covariance configurations
-  int ndisc;                // Number of discretization steps
-  int flag_cumul;           // 1 if storing integer from -infinity to value
-                            // 0 if storing the value per discretized class
-  double cmin;              // Minimum correlation value
-  double cmax;              // Maximum correlation value
-  double dc;                // Covariance class interval
-  double dp;                // Probability quantum for discretization
-  double *v;                // Array of thresholds (Dim: ndisc+1)
+  int nconf;      // Number of covariance configurations
+  int ndisc;      // Number of discretization steps
+  int flag_cumul; // 1 if storing integer from -infinity to value
+                  // 0 if storing the value per discretized class
+  double cmin;    // Minimum correlation value
+  double cmax;    // Maximum correlation value
+  double dc;      // Covariance class interval
+  double dp;      // Probability quantum for discretization
+  double* v;      // Array of thresholds (Dim: ndisc+1)
   CTable** CT;
 } CTables;
 
@@ -165,25 +165,25 @@ struct Local_Relem;
 
 struct Local_Split
 {
-  int oper;                   // Rank of operator
-  int nrule;                  // Number of generated rules
-  int nbyrule;                // Number of symbols in the Rules
-  int *Srules;                // List of rules (Dim: [nitem][NRULE])
-  int *Sfipos;                // Position of facies (Dim: [nprod][NCOLOR])
-  Local_Relem *old_relem;     // Not allocated
-  std::vector<Local_Relem *> relems;
+  int oper;               // Rank of operator
+  int nrule;              // Number of generated rules
+  int nbyrule;            // Number of symbols in the Rules
+  int* Srules;            // List of rules (Dim: [nitem][NRULE])
+  int* Sfipos;            // Position of facies (Dim: [nprod][NCOLOR])
+  Local_Relem* old_relem; // Not allocated
+  std::vector<Local_Relem*> relems;
 };
 
 struct Local_Relem
 {
-  VectorInt facies;           // List of facies
-  int nrule;                  // Number of generated rules
-  int nbyrule;                // Number of symbols in the Rules
-  int nsplit;                 // Number of splits
-  int *Rrules;                // List of rules (Dim: [nitem][NRULE])
-  int *Rfipos;                // Position of facies (Dim: [nprod][NCOLOR])
-  Local_Split *old_split;     // Not allocated
-  std::vector<Local_Split *> splits;
+  VectorInt facies;       // List of facies
+  int nrule;              // Number of generated rules
+  int nbyrule;            // Number of symbols in the Rules
+  int nsplit;             // Number of splits
+  int* Rrules;            // List of rules (Dim: [nitem][NRULE])
+  int* Rfipos;            // Position of facies (Dim: [nprod][NCOLOR])
+  Local_Split* old_split; // Not allocated
+  std::vector<Local_Split*> splits;
 };
 
 typedef struct Local_Relem Relem;

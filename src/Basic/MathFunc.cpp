@@ -18,11 +18,10 @@
 #include "Core/fftn.hpp"
 #include "Basic/Memory.hpp"
 
-#include <math.h>
+#include <cmath>
 #include <boost/math/special_functions/legendre.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
 #include <Geometry/GeometryHelper.hpp>
-
 
 DISABLE_WARNING_PUSH
 

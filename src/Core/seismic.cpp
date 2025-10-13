@@ -8,35 +8,43 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
 #include "geoslib_enum.h"
+#include "geoslib_old_f.h"
 
 #include "Enum/EJustify.hpp"
 
 #include "Basic/Law.hpp"
+#include "Basic/Memory.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Basic/String.hpp"
+#include "Basic/Utilities.hpp"
+#include "Core/Seismic.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/String.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Basic/Memory.hpp"
-#include "Core/Seismic.hpp"
 
-#include <math.h>
+#include <cmath>
 
 /*! \cond */
 #define LTABLE 8
 #define NTABLE 513
 
-#define ARRAY(ix,iy)      (array[(iy) * NX + (ix)])
-#define LIMIT(ix,iy)      (limit[(iy) * NX + (ix)])
-#define VV(itr,iz)        (db_v->getArray(iatt_v,NTRACE * (iz) + itr) / VFACT)
-#define C00(ivar,jvar)    (c00   [(jvar) * NVAR + (ivar)])
-#define LB(ivar,jvar)     (lb    [(jvar) * NVAR + (ivar)])
-#define IND(iech,ivar)    ((iech) + (ivar) * nech)
-#define LHS(i,iv,j,jv)    (lhs [IND(i,iv) + neqmax * IND(j,jv)])
-#define RHS(i,iv,jv)      (rhs [IND(i,iv) + neqmax * (jv)])
+#define ARRAY(ix, iy)     (array[(iy) * NX + (ix)])
+#define LIMIT(ix, iy)     (limit[(iy) * NX + (ix)])
+#define VV(itr, iz)       (db_v->getArray(iatt_v, NTRACE * (iz) + itr) / VFACT)
+#define C00(ivar, jvar)   (c00[(jvar) * NVAR + (ivar)])
+#define LB(ivar, jvar)    (lb[(jvar) * NVAR + (ivar)])
+#define IND(iech, ivar)   ((iech) + (ivar) * nech)
+#define LHS(i, iv, j, jv) (lhs[IND(i, iv) + neqmax * IND(j, jv)])
+#define RHS(i, iv, jv)    (rhs[IND(i, iv) + neqmax * (jv)])
+#define ARRAY(ix, iy)     (array[(iy) * NX + (ix)])
+#define LIMIT(ix, iy)     (limit[(iy) * NX + (ix)])
+#define VV(itr, iz)       (db_v->getArray(iatt_v, NTRACE * (iz) + itr) / VFACT)
+#define C00(ivar, jvar)   (c00[(jvar) * NVAR + (ivar)])
+#define LB(ivar, jvar)    (lb[(jvar) * NVAR + (ivar)])
+#define IND(iech, ivar)   ((iech) + (ivar) * nech)
+#define LHS(i, iv, j, jv) (lhs[IND(i, iv) + neqmax * IND(j, jv)])
+#define RHS(i, iv, jv)    (rhs[IND(i, iv) + neqmax * (jv)])
 /*! \endcond */
 
 namespace gstlrn
@@ -74,17 +82,17 @@ typedef struct
  **
  *****************************************************************************/
 static int st_velocity_minmax(int nech,
-                              double *vv,
-                              double *v0,
-                              double *v1,
-                              double *vmin,
-                              double *vmax)
+                              double* vv,
+                              double* v0,
+                              double* v1,
+                              double* vmin,
+                              double* vmax)
 {
   int i, number;
   double vvdef, delta;
 
-  (*v0) = MAXIMUM_BIG;
-  (*v1) = MAXIMUM_BIG;
+  (*v0)   = MAXIMUM_BIG;
+  (*v1)   = MAXIMUM_BIG;
   (*vmin) = MAXIMUM_BIG;
   (*vmax) = MINIMUM_BIG;
 
@@ -151,13 +159,13 @@ static int st_velocity_minmax(int nech,
 static void st_yxtoxy(int nx,
                       double dx,
                       double x0,
-                      const double *y,
+                      const double* y,
                       int ny,
                       double dy,
                       double y0,
                       double xylo,
                       double xyhi,
-                      double *x)
+                      double* x)
 {
   int nxi, nyo, jxi1, jxi2, jyo;
   double dxi, fxi, dyo, fyo, fyi, yo, xi1, yi1, yi2;
@@ -185,7 +193,7 @@ static void st_yxtoxy(int nx,
   }
   jxi1 = 0;
   jxi2 = 1;
-  xi1 = fxi;
+  xi1  = fxi;
   while (jxi2 < nxi && jyo < nyo)
   {
     yi1 = y[jxi1];
@@ -245,7 +253,7 @@ static double dsinc(double x)
  ** \remark assumed symmetric.
  **
  *****************************************************************************/
-static void stoepd(int n, const double *r, const double *g, double *f, double *a)
+static void stoepd(int n, const double* r, const double* g, double* f, double* a)
 {
   int i, j;
   double v, e, c, w, bot;
@@ -253,7 +261,7 @@ static void stoepd(int n, const double *r, const double *g, double *f, double *a
   if (r[0] == 0.0) return;
 
   a[0] = 1.0;
-  v = r[0];
+  v    = r[0];
   f[0] = g[0] / r[0];
 
   for (j = 1; j < n; j++)
@@ -309,13 +317,13 @@ static void stoepd(int n, const double *r, const double *g, double *f, double *a
  ** \remark than fmax, the error should be less than 1.0 percent.
 
  *****************************************************************************/
-static void st_mksinc(double d, int lsinc, double *sinc)
+static void st_mksinc(double d, int lsinc, double* sinc)
 {
   int j;
   double s[20], a[20], c[20], work[20], fmax;
 
   /* compute auto-correlation and cross-correlation arrays */
-  fmax = 0.066 + 0.265 * log((double) lsinc);
+  fmax = 0.066 + 0.265 * log((double)lsinc);
   fmax = (fmax < 1.0) ? fmax : 1.0;
   for (j = 0; j < lsinc; j++)
   {
@@ -372,46 +380,39 @@ static void st_intt8r(int ntable,
                       int nxin,
                       double dxin,
                       double fxin,
-                      const double *yin,
+                      const double* yin,
                       double yinl,
                       double yinr,
                       int nxout,
-                      const double *xout,
-                      double *yout)
+                      const double* xout,
+                      double* yout)
 {
   int ioutb, nxinm8, ixout, ixoutn, kyin, ktable, itable;
   double xoutb, xoutf, xoutn, frac, fntablem1, yini, sum;
 
   /* compute constants */
-  ioutb = -3 - 8;
-  xoutf = fxin;
-  xoutb = 8.0 - xoutf / dxin;
-  fntablem1 = (double) (ntable - 1);
-  nxinm8 = nxin - 8;
+  ioutb     = -3 - 8;
+  xoutf     = fxin;
+  xoutb     = 8.0 - xoutf / dxin;
+  fntablem1 = (double)(ntable - 1);
+  nxinm8    = nxin - 8;
 
   /* loop over output samples */
   for (ixout = 0; ixout < nxout; ixout++)
   {
 
     /* determine pointers into table and yin */
-    sum = 0.;
-    xoutn = xoutb + xout[ixout] / dxin;
-    ixoutn = (int) xoutn;
-    kyin = ioutb + ixoutn;
-    frac = xoutn - (double) ixoutn;
-    ktable = (int) ((frac >= 0.0) ? frac * fntablem1 + 0.5 :
-                                    (frac + 1.0) * fntablem1 - 0.5);
+    sum    = 0.;
+    xoutn  = xoutb + xout[ixout] / dxin;
+    ixoutn = (int)xoutn;
+    kyin   = ioutb + ixoutn;
+    frac   = xoutn - (double)ixoutn;
+    ktable = (int)((frac >= 0.0) ? frac * fntablem1 + 0.5 : (frac + 1.0) * fntablem1 - 0.5);
 
     /* if totally within input array, use fast method */
     if (kyin >= 0 && kyin <= nxinm8)
     {
-      sum = yin[kyin + 0] * table[ktable][0] + yin[kyin + 1] * table[ktable][1]
-            + yin[kyin + 2] * table[ktable][2]
-            + yin[kyin + 3] * table[ktable][3]
-            + yin[kyin + 4] * table[ktable][4]
-            + yin[kyin + 5] * table[ktable][5]
-            + yin[kyin + 6] * table[ktable][6]
-            + yin[kyin + 7] * table[ktable][7];
+      sum = yin[kyin + 0] * table[ktable][0] + yin[kyin + 1] * table[ktable][1] + yin[kyin + 2] * table[ktable][2] + yin[kyin + 3] * table[ktable][3] + yin[kyin + 4] * table[ktable][4] + yin[kyin + 5] * table[ktable][5] + yin[kyin + 6] * table[ktable][6] + yin[kyin + 7] * table[ktable][7];
 
       /* else handle end effects with care */
     }
@@ -452,15 +453,15 @@ static void st_weights(double table[][LTABLE])
 
   for (jtable = 1; jtable < NTABLE - 1; jtable++)
   {
-    frac = (double) jtable / (double) (NTABLE - 1);
+    frac = (double)jtable / (double)(NTABLE - 1);
     st_mksinc(frac, LTABLE, &table[jtable][0]);
   }
   for (jtable = 0; jtable < LTABLE; jtable++)
   {
-    table[0][jtable] = 0.0;
+    table[0][jtable]          = 0.0;
     table[NTABLE - 1][jtable] = 0.0;
   }
-  table[0][LTABLE / 2 - 1] = 1.0;
+  table[0][LTABLE / 2 - 1]      = 1.0;
   table[NTABLE - 1][LTABLE / 2] = 1.0;
 }
 
@@ -541,18 +542,18 @@ static void st_seismic_debug(int rankz,
  **
  *****************************************************************************/
 int seismic_z2t_grid(int verbose,
-                     DbGrid *db_z,
+                     DbGrid* db_z,
                      int iatt_v,
-                     int *nx,
-                     double *x0,
-                     double *dx)
+                     int* nx,
+                     double* x0,
+                     double* dx)
 {
   double z0, t0, v0, v1, dz, dt, vmin, vmax;
   int ndim, nech, nt, nz, i;
 
   /* Initializations */
 
-  if (! db_z->isGrid())
+  if (!db_z->isGrid())
   {
     messerr("This procedure requires an input Grid Db");
     return 1;
@@ -581,7 +582,7 @@ int seismic_z2t_grid(int verbose,
   dz = db_z->getDX(ndim - 1);
   dt = 2. * dz / vmin;
   t0 = 2. * z0 / v0;
-  nt = (int) (1 + (nz - 1) * (2. * dz) / (dt * vmax));
+  nt = (int)(1 + (nz - 1) * (2. * dz) / (dt * vmax));
   dt *= VFACT;
   t0 *= VFACT;
   dx[ndim - 1] = dt;
@@ -611,18 +612,18 @@ int seismic_z2t_grid(int verbose,
  **
  *****************************************************************************/
 int seismic_t2z_grid(int verbose,
-                     DbGrid *db_t,
+                     DbGrid* db_t,
                      int iatt_v,
-                     int *nx,
-                     double *x0,
-                     double *dx)
+                     int* nx,
+                     double* x0,
+                     double* dx)
 {
   double z0, t0, v0, v1, dz, dt, vmin, vmax;
   int ndim, nech, nt, nz, i;
 
   /* Initializations */
 
-  if (! db_t->isGrid())
+  if (!db_t->isGrid())
   {
     messerr("This procedure requires an input Grid Db");
     return (1);
@@ -651,7 +652,7 @@ int seismic_t2z_grid(int verbose,
   dt = db_t->getDX(ndim - 1);
   dz = vmin * dt / 2.;
   z0 = v0 * t0 / 2.;
-  nz = (int) (1 + (nt - 1) * (dt * vmax) / (2. * dz));
+  nz = (int)(1 + (nt - 1) * (dt * vmax) / (2. * dz));
   dz /= VFACT;
   z0 /= VFACT;
   dx[ndim - 1] = dz;
@@ -678,12 +679,12 @@ int seismic_t2z_grid(int verbose,
  ** \param[in]  tab   Array containing the column of values
  **
  *****************************************************************************/
-static void st_copy(int mode, DbGrid *db, int iatt, int ival, double *tab)
+static void st_copy(int mode, DbGrid* db, int iatt, int ival, double* tab)
 {
   int ndim = db->getNDim();
   int nech = db->getNSample();
   int nval = db->getNX(ndim - 1);
-  int nby = nech / nval;
+  int nby  = nech / nval;
 
   /* Dispatch */
 
@@ -713,17 +714,17 @@ static void st_copy(int mode, DbGrid *db, int iatt, int ival, double *tab)
  ** \remark  In case of error, a message is displayed
  **
  *****************************************************************************/
-static int st_match(DbGrid *db_z, DbGrid *db_t)
+static int st_match(DbGrid* db_z, DbGrid* db_t)
 {
   int idim, ndim, nech, nz, error;
 
   /* Initializations */
 
   NTRACE = 0;
-  error = 1;
-  nech = db_z->getNSample();
-  ndim = db_z->getNDim();
-  nz = db_z->getNX(ndim - 1);
+  error  = 1;
+  nech   = db_z->getNSample();
+  ndim   = db_z->getNDim();
+  nz     = db_z->getNX(ndim - 1);
 
   /* Check the grid characteristics */
 
@@ -786,25 +787,25 @@ label_end:
 ** \remark determine interval velocities at times not specified.
 **
 *****************************************************************************/
-static void st_seismic_z2t_convert(DbGrid *db_z,
-                                   int    iatt_z,
-                                   int    nz,
+static void st_seismic_z2t_convert(DbGrid* db_z,
+                                   int iatt_z,
+                                   int nz,
                                    double z0,
                                    double /*z1*/,
                                    double dz,
-                                   DbGrid *db_t,
+                                   DbGrid* db_t,
                                    int iatt_t,
                                    int nt,
                                    double t0,
                                    double t1,
                                    double dt,
-                                   DbGrid *db_v,
+                                   DbGrid* db_v,
                                    int iatt_v,
                                    int natt,
-                                   double *tz,
-                                   double *zt,
-                                   double *at,
-                                   double *az)
+                                   double* tz,
+                                   double* zt,
+                                   double* at,
+                                   double* az)
 {
   double t, vz0, vz1, table[NTABLE][LTABLE];
   int itrace, iz, it, iatt;
@@ -878,25 +879,25 @@ static void st_seismic_z2t_convert(DbGrid *db_z,
  ** \remark determine interval velocities at times not specified.
  **
  *****************************************************************************/
-static void st_seismic_t2z_convert(DbGrid *db_t,
+static void st_seismic_t2z_convert(DbGrid* db_t,
                                    int iatt_t,
                                    int nt,
                                    double t0,
                                    double t1,
                                    double dt,
-                                   DbGrid *db_z,
+                                   DbGrid* db_z,
                                    int iatt_z,
                                    int nz,
                                    double z0,
                                    double z1,
                                    double dz,
-                                   DbGrid *db_v,
+                                   DbGrid* db_v,
                                    int iatt_v,
                                    int natt,
-                                   double *tz,
-                                   double *zt,
-                                   double *at,
-                                   double *az)
+                                   double* tz,
+                                   double* zt,
+                                   double* at,
+                                   double* az)
 {
   double z, vt0, vt1, table[NTABLE][LTABLE];
   int itrace, it, iz, iatt;
@@ -954,7 +955,7 @@ static void st_seismic_t2z_convert(DbGrid *db_t,
  ** \param[in]  it        Rank of the sample on the trace
  **
  *****************************************************************************/
-static double TR_IN(Db *db, int iatt_in, int iatt, int itrace, int it)
+static double TR_IN(Db* db, int iatt_in, int iatt, int itrace, int it)
 {
   return (db->getArray(iatt_in + iatt, NTRACE * (it) + (itrace)));
 }
@@ -971,7 +972,7 @@ static double TR_IN(Db *db, int iatt_in, int iatt, int itrace, int it)
  ** \param[in]  value     Value to be stored
  **
  *****************************************************************************/
-static void TR_OUT(Db *db,
+static void TR_OUT(Db* db,
                    int iatt_out,
                    int iatt,
                    int itr,
@@ -999,7 +1000,7 @@ static void TR_OUT(Db *db,
  ** \remark the input contains 0 values, 0 values are returned.
  **
  *****************************************************************************/
-static int st_seismic_operate(Db *db,
+static int st_seismic_operate(Db* db,
                               int oper,
                               int natt,
                               int nt,
@@ -1349,27 +1350,25 @@ static int st_seismic_operate(Db *db,
  ** \param[in]  distort   wavelet distortion factor (Ricker)
  **
  *****************************************************************************/
-static double* st_seismic_wavelet(int verbose,
-                                  int type,
-                                  int ntw,
-                                  int tindex,
-                                  double dt,
-                                  double fpeak,
-                                  double period,
-                                  double amplitude,
-                                  double distort)
+static VectorDouble st_seismic_wavelet(int verbose,
+                                       int type,
+                                       int ntw,
+                                       int tindex,
+                                       double dt,
+                                       double fpeak,
+                                       double period,
+                                       double amplitude,
+                                       double distort)
 {
   int it, ntw2;
-  double *wavelet, t, t1, t0, tnorm, value, wsym;
+  double t, t1, t0, tnorm, value, wsym;
+  VectorDouble wavelet;
 
   /* Initializations */
 
   ntw2 = 2 * ntw + 1;
-  t0 = ntw * dt;
-  wavelet = (double*) mem_alloc(sizeof(double) * ntw2, 0);
-  if (wavelet == nullptr) return (wavelet);
-  for (it = 0; it < ntw2; it++)
-    wavelet[it] = 0.;
+  t0   = ntw * dt;
+  wavelet.resize(ntw2, 0);
 
   /* Dispatch */
 
@@ -1382,9 +1381,9 @@ static double* st_seismic_wavelet(int verbose,
     case WAVELET_RICKER1:
       for (it = 0; it < ntw2; it++)
       {
-        t1 = it * dt;
-        value = GV_PI * fpeak * (t1 - t0);
-        value = value * value;
+        t1          = it * dt;
+        value       = GV_PI * fpeak * (t1 - t0);
+        value       = value * value;
         wavelet[it] = (1. - 2. * value) * exp(-value);
       }
       break;
@@ -1393,9 +1392,9 @@ static double* st_seismic_wavelet(int verbose,
       t = 0.;
       for (it = 0; it <= ntw; it++, t += dt)
       {
-        tnorm = t / period;
-        value = (2.5 * tnorm) * (2.5 * tnorm);
-        wsym = amplitude * (1. - 2. * value) * exp(-value);
+        tnorm             = t / period;
+        value             = (2.5 * tnorm) * (2.5 * tnorm);
+        wsym              = amplitude * (1. - 2. * value) * exp(-value);
         wavelet[ntw + it] = wsym * (1. - 2. * distort * tnorm);
         wavelet[ntw - it] = wsym * (1. + 2. * distort * tnorm);
       }
@@ -1404,9 +1403,9 @@ static double* st_seismic_wavelet(int verbose,
     case WAVELET_AKB:
       for (it = 0; it < ntw2; it++)
       {
-        t1 = it * dt;
-        value = fpeak * (t1 - t0);
-        value = value * value;
+        t1          = it * dt;
+        value       = fpeak * (t1 - t0);
+        value       = value * value;
         wavelet[it] = -amplitude * (t1 - t0) * exp(-2. * value);
       }
       break;
@@ -1429,7 +1428,7 @@ static double* st_seismic_wavelet(int verbose,
 
   if (verbose) print_vector("Wavelet", 0, ntw2, wavelet);
 
-  return (wavelet);
+  return wavelet;
 }
 
 /****************************************************************************/
@@ -1465,13 +1464,13 @@ static double* st_seismic_wavelet(int verbose,
  *****************************************************************************/
 static void st_seismic_convolve(int nx,
                                 int ix0,
-                                const double *x,
+                                const double* x,
                                 int ny,
                                 int iy0,
-                                const double *y,
+                                const double* y,
                                 int nz,
                                 int iz0,
-                                double *z)
+                                double* z)
 {
   int ix1, iy1, iz1, i, j, j0, j1;
   double sum;
@@ -1511,10 +1510,10 @@ static void st_seismic_convolve(int nx,
  ** \remark determine interval velocities at times not specified.
  **
  *****************************************************************************/
-int seismic_z2t_convert(DbGrid *db_z, int iatt_v, DbGrid *db_t)
+int seismic_z2t_convert(DbGrid* db_z, int iatt_v, DbGrid* db_t)
 {
-  DbGrid *db_v;
-  double  z0, z1, t0, t1, dz, dt;
+  DbGrid* db_v;
+  double z0, z1, t0, t1, dz, dt;
   int nz, nt, ndim, natt, iatt_t, iatt_z, error;
   VectorDouble zt;
   VectorDouble tz;
@@ -1525,17 +1524,17 @@ int seismic_z2t_convert(DbGrid *db_z, int iatt_v, DbGrid *db_t)
 
   if (st_match(db_z, db_t)) return (1);
   error = 1;
-  db_v = db_z;
-  ndim = db_z->getNDim();
-  natt = db_z->getNLoc(ELoc::Z);
-  nz = db_z->getNX(ndim - 1);
-  nt = db_t->getNX(ndim - 1);
-  z0 = db_z->getX0(ndim - 1);
-  t0 = db_t->getX0(ndim - 1);
-  dz = db_z->getDX(ndim - 1);
-  dt = db_t->getDX(ndim - 1);
-  t1 = t0 + (nt - 1) * dt;
-  z1 = z0 + (nz - 1) * dz;
+  db_v  = db_z;
+  ndim  = db_z->getNDim();
+  natt  = db_z->getNLoc(ELoc::Z);
+  nz    = db_z->getNX(ndim - 1);
+  nt    = db_t->getNX(ndim - 1);
+  z0    = db_z->getX0(ndim - 1);
+  t0    = db_t->getX0(ndim - 1);
+  dz    = db_z->getDX(ndim - 1);
+  dt    = db_t->getDX(ndim - 1);
+  t1    = t0 + (nt - 1) * dt;
+  z1    = z0 + (nz - 1) * dz;
 
   /* Create the output variables */
 
@@ -1553,15 +1552,15 @@ int seismic_z2t_convert(DbGrid *db_z, int iatt_v, DbGrid *db_t)
   /* Perform the conversion from Depth to Time */
 
   st_seismic_z2t_convert(db_z, iatt_z, nz, z0, z1, dz, db_t, iatt_t, nt, t0, t1,
-                         dt, db_v, iatt_v, natt, 
-                         tz.data(), zt.data(), 
+                         dt, db_v, iatt_v, natt,
+                         tz.data(), zt.data(),
                          at.data(), az.data());
 
   /* Set the error return code */
 
   error = 0;
 
-  label_end:
+label_end:
   return (error);
 }
 
@@ -1580,10 +1579,10 @@ int seismic_z2t_convert(DbGrid *db_z, int iatt_v, DbGrid *db_t)
  ** \remark determine interval velocities at times not specified.
  **
  *****************************************************************************/
-int seismic_t2z_convert(DbGrid *db_t, int iatt_v, DbGrid *db_z)
+int seismic_t2z_convert(DbGrid* db_t, int iatt_v, DbGrid* db_z)
 {
-  DbGrid *db_v;
-  double  z0, z1, t0, t1, dz, dt;
+  DbGrid* db_v;
+  double z0, z1, t0, t1, dz, dt;
   int nz, nt, ndim, natt, iatt_z, iatt_t, error;
   VectorDouble zt;
   VectorDouble tz;
@@ -1594,17 +1593,17 @@ int seismic_t2z_convert(DbGrid *db_t, int iatt_v, DbGrid *db_z)
 
   if (st_match(db_z, db_t)) return (1);
   error = 1;
-  db_v = db_t;
-  ndim = db_t->getNDim();
-  natt = db_t->getNLoc(ELoc::Z);
-  nz = db_z->getNX(ndim - 1);
-  nt = db_t->getNX(ndim - 1);
-  z0 = db_z->getX0(ndim - 1);
-  t0 = db_t->getX0(ndim - 1);
-  dz = db_z->getDX(ndim - 1);
-  dt = db_t->getDX(ndim - 1);
-  t1 = t0 + (nt - 1) * dt;
-  z1 = z0 + (nz - 1) * dz;
+  db_v  = db_t;
+  ndim  = db_t->getNDim();
+  natt  = db_t->getNLoc(ELoc::Z);
+  nz    = db_z->getNX(ndim - 1);
+  nt    = db_t->getNX(ndim - 1);
+  z0    = db_z->getX0(ndim - 1);
+  t0    = db_t->getX0(ndim - 1);
+  dz    = db_z->getDX(ndim - 1);
+  dt    = db_t->getDX(ndim - 1);
+  t1    = t0 + (nt - 1) * dt;
+  z1    = z0 + (nz - 1) * dz;
 
   /* Create the output variables */
 
@@ -1622,15 +1621,15 @@ int seismic_t2z_convert(DbGrid *db_t, int iatt_v, DbGrid *db_z)
   /* Perform the conversion from Time to Depth */
 
   st_seismic_t2z_convert(db_t, iatt_t, nt, t0, t1, dt, db_z, iatt_z, nz, z0, z1,
-                         dz, db_v, iatt_v, natt, 
-                         tz.data(), zt.data(), 
+                         dz, db_v, iatt_v, natt,
+                         tz.data(), zt.data(),
                          at.data(), az.data());
 
   /* Set the error return code */
 
   error = 0;
 
-  label_end:
+label_end:
   return (error);
 }
 
@@ -1647,7 +1646,7 @@ int seismic_t2z_convert(DbGrid *db_t, int iatt_v, DbGrid *db_z)
  ** \remark the input contains 0 values, 0 values are returned.
  **
  *****************************************************************************/
-int seismic_operate(DbGrid *db, int oper)
+int seismic_operate(DbGrid* db, int oper)
 {
   int ndim, natt, nt, iatt_in, iatt_out;
   double dt;
@@ -1657,8 +1656,8 @@ int seismic_operate(DbGrid *db, int oper)
   if (st_match(db, nullptr)) return (1);
   ndim = db->getNDim();
   natt = db->getNLoc(ELoc::Z);
-  nt = db->getNX(ndim - 1);
-  dt = db->getDX(ndim - 1);
+  nt   = db->getNX(ndim - 1);
+  dt   = db->getDX(ndim - 1);
 
   /* Create the output variables */
 
@@ -1690,14 +1689,14 @@ int seismic_operate(DbGrid *db, int oper)
 ** \param[out] tab1        Output array (Dimension: nz)
 **
 *****************************************************************************/
-static void st_seismic_affect(Db     * /*db*/,
-                              int     nz,
-                              int     shift,
-                              double  val_before,
-                              double  val_middle,
-                              double  val_after,
-                              const double *tab0,
-                              double *tab1)
+static void st_seismic_affect(Db* /*db*/,
+                              int nz,
+                              int shift,
+                              double val_before,
+                              double val_middle,
+                              double val_after,
+                              const double* tab0,
+                              double* tab1)
 {
   int iz, flag_already;
   double value;
@@ -1717,8 +1716,7 @@ static void st_seismic_affect(Db     * /*db*/,
     value = tab0[iz];
     if (FFFF(value))
     {
-      value = (flag_already) ? val_middle :
-                               val_before;
+      value = (flag_already) ? val_middle : val_before;
     }
     else
     {
@@ -1737,7 +1735,7 @@ static void st_seismic_affect(Db     * /*db*/,
  ** \param[out] tab      Output array (Dimension: nz)
  **
  *****************************************************************************/
-static void st_seismic_contrast(int nz, double *tab)
+static void st_seismic_contrast(int nz, double* tab)
 {
   int iz;
   double denom, x, y;
@@ -1752,9 +1750,8 @@ static void st_seismic_contrast(int nz, double *tab)
       tab[iz] = TEST;
     else
     {
-      denom = (x + y);
-      tab[iz] = (denom == 0.) ? TEST :
-                                (x - y) / denom;
+      denom   = (x + y);
+      tab[iz] = (denom == 0.) ? TEST : (x - y) / denom;
     }
   }
   tab[0] = TEST;
@@ -1769,28 +1766,28 @@ static void st_seismic_contrast(int nz, double *tab)
  ** \param[in]  db            Db structure
  ** \param[in]  flag_operate  1 to perform the convolution; 0 otherwise
  ** \param[in]  flag_contrast 1 to perform contrast; 0 otherwise
- ** \param[in]  type          Type of the wavelet (ENUM_WAVELETS)
- ** \param[in]  ntw           half-length of the wavelet excluding center (samples)
- ** \param[in]  option        option used to perform the convolution
- ** \li                       -1 : erode the edge (on ntw pixels)
- ** \li                        0 : truncate the wavelet on the edge
- ** \li                       +1 : extend the trace with padding before convolution
- ** \li                       +2 : extend the trace with the last informed values
- ** \param[in]  tindex        time index to locate the spike (Spike)
- ** \param[in]  fpeak         peak frequency of the Ricker wavelet
- ** \param[in]  period        wavelet period (s) (Ricker)
- ** \param[in]  amplitude     wavelet amplitude (Ricker)
- ** \param[in]  distort       wavelet distortion factor (Ricker)
- ** \param[in]  val_before    Replacement value for undefined element
- **                           before first defined sample
- ** \param[in]  val_middle    Replacement value for undefined element
- **                           between defined samples
- ** \param[in]  val_after     Replacement value for undefined element
- **                           after last defined sample
- ** \param[in]  wavelet       Wavelet defined as input (Dimension: 2*ntw+1)
+ ** \param[in]  type        Type of the wavelet (ENUM_WAVELETS)
+ ** \param[in]  ntw         half-length of the wavelet excluding center (samples)
+ ** \param[in]  option      option used to perform the convolution
+ ** \li                     -1 : erode the edge (on ntw pixels)
+ ** \li                      0 : truncate the wavelet on the edge
+ ** \li                     +1 : extend the trace with padding before convolution
+ ** \li                     +2 : extend the trace with the last informed values
+ ** \param[in]  tindex      time index to locate the spike (Spike)
+ ** \param[in]  fpeak       peak frequency of the Ricker wavelet
+ ** \param[in]  period      wavelet period (s) (Ricker)
+ ** \param[in]  amplitude   wavelet amplitude (Ricker)
+ ** \param[in]  distort     wavelet distortion factor (Ricker)
+ ** \param[in]  val_before  Replacement value for undefined element
+ **                         before first defined sample
+ ** \param[in]  val_middle  Replacement value for undefined element
+ **                         between defined samples
+ ** \param[in]  val_after   Replacement value for undefined element
+ **                         after last defined sample
+ ** \param[in]  wavelet     Wavelet defined as input (Dimension: 2*ntw+1)
  **
  *****************************************************************************/
-int seismic_convolve(DbGrid *db,
+int seismic_convolve(DbGrid* db,
                      int flag_operate,
                      int flag_contrast,
                      int type,
@@ -1804,7 +1801,7 @@ int seismic_convolve(DbGrid *db,
                      double val_before,
                      double val_middle,
                      double val_after,
-                     double *wavelet)
+                     VectorDouble& wavelet)
 {
   int ndim, iatt, natt, itrace, iz, nz, iatt_in, iatt_out, error, size, shift;
   double dz;
@@ -1815,10 +1812,10 @@ int seismic_convolve(DbGrid *db,
   /* Initializations */
 
   if (st_match(db, nullptr)) return (1);
-  ndim = db->getNDim();
-  natt = db->getNLoc(ELoc::Z);
-  nz = db->getNX(ndim - 1);
-  dz = db->getDX(ndim - 1);
+  ndim  = db->getNDim();
+  natt  = db->getNLoc(ELoc::Z);
+  nz    = db->getNX(ndim - 1);
+  dz    = db->getDX(ndim - 1);
   error = 0;
 
   /* Generation of the wavelet */
@@ -1828,12 +1825,12 @@ int seismic_convolve(DbGrid *db,
     wavelet = st_seismic_wavelet(!flag_operate, type, ntw, tindex, dz, fpeak,
                                  period, amplitude, distort);
   }
-  if (wavelet == nullptr) goto label_end;
+  if (wavelet.empty()) goto label_end;
   if (!flag_operate) goto label_end;
 
   /* Create the output variables */
 
-  error = 1;
+  error   = 1;
   iatt_in = db->getUIDByLocator(ELoc::Z, 0);
   if (iatt_in < 0) return (1);
   iatt_out = db->addColumnsByConstant(natt, 0.);
@@ -1841,9 +1838,8 @@ int seismic_convolve(DbGrid *db,
 
   /* Core allocation */
 
-  shift = (option > 0) ? ntw :
-                         0;
-  size = nz + 2 * shift;
+  shift = (option > 0) ? ntw : 0;
+  size  = nz + 2 * shift;
   tab0.resize(size);
   tab1.resize(size);
   tab2.resize(size);
@@ -1867,7 +1863,7 @@ int seismic_convolve(DbGrid *db,
       if (option == 2)
       {
         val_before = tab0[0];
-        val_after = tab0[nz - 1];
+        val_after  = tab0[nz - 1];
       }
 
       /* Load the input attribute */
@@ -1877,13 +1873,14 @@ int seismic_convolve(DbGrid *db,
 
       /* Perform the convolution */
 
-      st_seismic_convolve(2 * ntw + 1, -ntw, wavelet, size, 0, tab1.data(), size, 0,
+      st_seismic_convolve(2 * ntw + 1, -ntw, wavelet.data(), size, 0, tab1.data(), size, 0,
                           tab2.data());
 
       /* In case of edge erosion, set the edge to FFFF */
 
-      if (option < 0) for (iz = 0; iz < ntw; iz++)
-        tab2[iz] = tab2[nz - iz - 1] = TEST;
+      if (option < 0)
+        for (iz = 0; iz < ntw; iz++)
+          tab2[iz] = tab2[nz - iz - 1] = TEST;
 
       /* Save the output attribute */
 
@@ -1897,8 +1894,8 @@ int seismic_convolve(DbGrid *db,
 
   error = 0;
 
-  label_end:
-  if (type >= 0) mem_free((char* ) wavelet);
+label_end:
+  if (type >= 0) wavelet.clear();
   return (error);
 }
 
@@ -1913,10 +1910,10 @@ int seismic_convolve(DbGrid *db,
  ** \param[in]  iz        Rank of the target sample within the target trace
  **
  *****************************************************************************/
-static int st_absolute_index(DbGrid *db, int ix, int iz)
+static int st_absolute_index(DbGrid* db, int ix, int iz)
 {
   int ndim = db->getNDim();
-  VectorInt indg(ndim,0);
+  VectorInt indg(ndim, 0);
 
   indg[0] = ix;
   indg[1] = 0;
@@ -1932,7 +1929,7 @@ static int st_absolute_index(DbGrid *db, int ix, int iz)
  ** \param[in,out]  ngh        ST_Seismic_Neigh structure
  **
  *****************************************************************************/
-static void st_sample_remove_central(ST_Seismic_Neigh *ngh)
+static void st_sample_remove_central(ST_Seismic_Neigh* ngh)
 
 {
   int lec, ecr;
@@ -1968,13 +1965,13 @@ static void st_sample_remove_central(ST_Seismic_Neigh *ngh)
  ** \param[in,out] ngh     ST_Seismic_Neigh structure
  **
  *****************************************************************************/
-static void st_sample_add(DbGrid *db,
+static void st_sample_add(DbGrid* db,
                           int iatt_z1,
                           int iatt_z2,
                           int flag_test,
                           int ix,
                           int iz,
-                          ST_Seismic_Neigh *ngh)
+                          ST_Seismic_Neigh* ngh)
 {
   int iech, i, found;
   double v1, v2;
@@ -2022,10 +2019,10 @@ static void st_sample_add(DbGrid *db,
  ** \param[out] presence  Array giving the number of valid samples per trace
  **
  *****************************************************************************/
-static void st_estimate_check_presence(DbGrid *db,
+static void st_estimate_check_presence(DbGrid* db,
                                        int ivar,
-                                       int *npres,
-                                       int *presence)
+                                       int* npres,
+                                       int* presence)
 {
   int ix, iz, iech;
 
@@ -2054,14 +2051,14 @@ static void st_estimate_check_presence(DbGrid *db,
  ** \param[in]  ngh      ST_Seismic_Neigh structure to be freed (if mode<0)
  **
  *****************************************************************************/
-static void st_estimate_neigh_init(ST_Seismic_Neigh *ngh)
+static void st_estimate_neigh_init(ST_Seismic_Neigh* ngh)
 
 {
   int i;
 
   ngh->nactive = 0;
-  ngh->n_v1 = 0;
-  ngh->n_v2 = 0;
+  ngh->n_v1    = 0;
+  ngh->n_v2    = 0;
   for (i = 0; i < ngh->nvois; i++)
   {
     ngh->ix_ngh[i] = ITEST;
@@ -2086,7 +2083,7 @@ static void st_estimate_neigh_init(ST_Seismic_Neigh *ngh)
  *****************************************************************************/
 static ST_Seismic_Neigh* st_estimate_neigh_management(int mode,
                                                       int nvois,
-                                                      ST_Seismic_Neigh *ngh)
+                                                      ST_Seismic_Neigh* ngh)
 {
   /* Dispatch */
 
@@ -2095,12 +2092,12 @@ static ST_Seismic_Neigh* st_estimate_neigh_management(int mode,
 
     /* Allocation */
 
-    ngh = (ST_Seismic_Neigh*) mem_alloc(sizeof(ST_Seismic_Neigh), 0);
+    ngh = (ST_Seismic_Neigh*)mem_alloc(sizeof(ST_Seismic_Neigh), 0);
     if (ngh == nullptr) return (ngh);
-    ngh->nvois = nvois;
+    ngh->nvois   = nvois;
     ngh->nactive = 0;
-    ngh->n_v1 = 0;
-    ngh->n_v2 = 0;
+    ngh->n_v1    = 0;
+    ngh->n_v2    = 0;
 
     ngh->ix_ngh.resize(nvois);
     ngh->iz_ngh.resize(nvois);
@@ -2116,7 +2113,7 @@ static ST_Seismic_Neigh* st_estimate_neigh_management(int mode,
     ngh->iz_ngh.clear();
     ngh->v1_ngh.clear();
     ngh->v2_ngh.clear();
-    mem_free((char* ) ngh);
+    mem_free((char*)ngh);
   }
   return (ngh);
 }
@@ -2131,8 +2128,8 @@ static ST_Seismic_Neigh* st_estimate_neigh_management(int mode,
  ** \param[in]  ngh_cur   Current ST_Seismic_Neigh structure
  **
  *****************************************************************************/
-static int st_estimate_neigh_unchanged(ST_Seismic_Neigh *ngh_old,
-                                       ST_Seismic_Neigh *ngh_cur)
+static int st_estimate_neigh_unchanged(ST_Seismic_Neigh* ngh_old,
+                                       ST_Seismic_Neigh* ngh_cur)
 {
   int i, flag_unchanged;
 
@@ -2145,15 +2142,14 @@ static int st_estimate_neigh_unchanged(ST_Seismic_Neigh *ngh_old,
 
   for (i = 0; i < ngh_old->nactive; i++)
   {
-    if (ngh_cur->ix_ngh[i] != ngh_old->ix_ngh[i] || ngh_cur->iz_ngh[i]
-        != ngh_old->iz_ngh[i]) goto label_end;
+    if (ngh_cur->ix_ngh[i] != ngh_old->ix_ngh[i] || ngh_cur->iz_ngh[i] != ngh_old->iz_ngh[i]) goto label_end;
   }
 
   /* The neighborhood is unchanged */
 
   flag_unchanged = 1;
 
-  label_end:
+label_end:
 
   /* Optional printout */
 
@@ -2172,8 +2168,8 @@ static int st_estimate_neigh_unchanged(ST_Seismic_Neigh *ngh_old,
  ** \param[out]  ngh_old  Old ST_Seismic_Neigh structure
  **
  *****************************************************************************/
-static void st_estimate_neigh_copy(ST_Seismic_Neigh *ngh_cur,
-                                   ST_Seismic_Neigh *ngh_old)
+static void st_estimate_neigh_copy(ST_Seismic_Neigh* ngh_cur,
+                                   ST_Seismic_Neigh* ngh_old)
 {
   int i;
 
@@ -2202,7 +2198,7 @@ static void st_estimate_neigh_copy(ST_Seismic_Neigh *ngh_cur,
  ** \param[in]  iz0       Rank of the target sample within the target trace
  **
  *****************************************************************************/
-static void st_estimate_neigh_print(ST_Seismic_Neigh *ngh, int ix0, int iz0)
+static void st_estimate_neigh_print(ST_Seismic_Neigh* ngh, int ix0, int iz0)
 {
   int i;
 
@@ -2251,7 +2247,7 @@ static void st_estimate_neigh_print(ST_Seismic_Neigh *ngh, int ix0, int iz0)
  ** \param[out]  ngh      Current ST_Seismic_Neigh structure
  **
  *****************************************************************************/
-static int st_estimate_neigh_create(DbGrid *db,
+static int st_estimate_neigh_create(DbGrid* db,
                                     int flag_exc,
                                     int iatt_z1,
                                     int iatt_z2,
@@ -2260,8 +2256,8 @@ static int st_estimate_neigh_create(DbGrid *db,
                                     int nbench,
                                     int nv2max,
                                     int /*npres*/[2],
-                                    int *presence[2],
-                                    ST_Seismic_Neigh *ngh)
+                                    int* presence[2],
+                                    ST_Seismic_Neigh* ngh)
 {
   int i, idx, ix, iz, jz, count, flag_valid;
 
@@ -2373,17 +2369,17 @@ static int st_estimate_neigh_create(DbGrid *db,
  ** \param[out] nred      Reduced number of equations
  **
  *****************************************************************************/
-static void st_estimate_flag(ST_Seismic_Neigh *ngh,
+static void st_estimate_flag(ST_Seismic_Neigh* ngh,
                              int nfeq,
-                             int *flag,
-                             int *nred)
+                             int* flag,
+                             int* nred)
 {
   double value;
   int i, ivar, nech, neqmax, nvalid;
 
   /* Initializations */
 
-  nech = ngh->nactive;
+  nech   = ngh->nactive;
   neqmax = NVAR * (nech + nfeq);
 
   /* Initialize the flag array */
@@ -2396,8 +2392,7 @@ static void st_estimate_flag(ST_Seismic_Neigh *ngh,
   for (ivar = 0; ivar < NVAR; ivar++)
     for (i = 0; i < nech; i++)
     {
-      value = (ivar == 0) ? ngh->v1_ngh[i] :
-                            ngh->v2_ngh[i];
+      value = (ivar == 0) ? ngh->v1_ngh[i] : ngh->v2_ngh[i];
       if (FFFF(value)) flag[ivar * nech + i] = 0;
     }
 
@@ -2429,7 +2424,7 @@ static void st_estimate_flag(ST_Seismic_Neigh *ngh,
  ** \param[out] var0      Array containing the C00 terms (Dimension: NVAR)
  **
  *****************************************************************************/
-static void st_estimate_var0(Model *model, double *var0)
+static void st_estimate_var0(Model* model, double* var0)
 {
   VectorDouble d1(model->getNDim());
   CovCalcMode mode(ECalcMember::VAR);
@@ -2448,7 +2443,7 @@ static void st_estimate_var0(Model *model, double *var0)
  ** \param[out] c00      Array containing the C00 terms (Dimension: NVAR * NVAR)
  **
  *****************************************************************************/
-static void st_estimate_c00(Model *model, double *c00)
+static void st_estimate_c00(Model* model, double* c00)
 {
   VectorDouble d1(model->getNDim());
   CovCalcMode mode(ECalcMember::VAR);
@@ -2456,7 +2451,7 @@ static void st_estimate_c00(Model *model, double *c00)
 
   for (int ivar = 0; ivar < NVAR; ivar++)
     for (int jvar = 0; jvar < NVAR; jvar++)
-      C00(ivar,jvar) = covtab.getValue(ivar, jvar);
+      C00(ivar, jvar) = covtab.getValue(ivar, jvar);
 }
 
 /****************************************************************************/
@@ -2472,12 +2467,12 @@ static void st_estimate_c00(Model *model, double *c00)
  ** \param[out] lhs       Array containing the Kriging L.H.S.
  **
  *****************************************************************************/
-static void st_estimate_lhs(ST_Seismic_Neigh *ngh,
-                            Model *model,
+static void st_estimate_lhs(ST_Seismic_Neigh* ngh,
+                            Model* model,
                             int nfeq,
                             int nred,
-                            int *flag,
-                            double *lhs)
+                            int* flag,
+                            double* lhs)
 {
   int iech, jech, ivar, jvar, nech, neqmax, i, j, lec, ecr;
   VectorDouble d1;
@@ -2485,7 +2480,7 @@ static void st_estimate_lhs(ST_Seismic_Neigh *ngh,
   /* Initializations */
 
   d1.resize(3, 0.);
-  nech = ngh->nactive;
+  nech   = ngh->nactive;
   neqmax = NVAR * (nech + nfeq);
 
   /* Initialize the L.H.S. array */
@@ -2504,7 +2499,7 @@ static void st_estimate_lhs(ST_Seismic_Neigh *ngh,
 
       for (ivar = 0; ivar < NVAR; ivar++)
         for (jvar = 0; jvar < NVAR; jvar++)
-          LHS(iech,ivar,jech,jvar) = covtab.getValue(ivar, jvar);
+          LHS(iech, ivar, jech, jvar) = covtab.getValue(ivar, jvar);
     }
 
   /* Establish the drift part */
@@ -2515,8 +2510,8 @@ static void st_estimate_lhs(ST_Seismic_Neigh *ngh,
       for (ivar = 0; ivar < NVAR; ivar++)
         for (jvar = 0; jvar < NVAR; jvar++)
         {
-          LHS(iech,ivar,jvar,NVAR) = (ivar == jvar);
-          LHS(jvar,NVAR,iech,ivar) = (ivar == jvar);
+          LHS(iech, ivar, jvar, NVAR) = (ivar == jvar);
+          LHS(jvar, NVAR, iech, ivar) = (ivar == jvar);
         }
   }
 
@@ -2543,12 +2538,12 @@ static void st_estimate_lhs(ST_Seismic_Neigh *ngh,
  ** \param[out] rhs       Array containing the Kriging R.H.S.
  **
  *****************************************************************************/
-static void st_estimate_rhs(ST_Seismic_Neigh *ngh,
-                            Model *model,
+static void st_estimate_rhs(ST_Seismic_Neigh* ngh,
+                            Model* model,
                             int nfeq,
                             int nred,
-                            int *flag,
-                            double *rhs)
+                            int* flag,
+                            double* rhs)
 {
   int iech, nech, ivar, jvar, neqmax, lec, ecr, i;
   VectorDouble d1;
@@ -2557,7 +2552,7 @@ static void st_estimate_rhs(ST_Seismic_Neigh *ngh,
   /* Initializations */
 
   d1.resize(3, 0.);
-  nech = ngh->nactive;
+  nech   = ngh->nactive;
   neqmax = NVAR * (nech + nfeq);
   mode.setMember(ECalcMember::RHS);
 
@@ -2576,7 +2571,7 @@ static void st_estimate_rhs(ST_Seismic_Neigh *ngh,
 
     for (ivar = 0; ivar < NVAR; ivar++)
       for (jvar = 0; jvar < NVAR; jvar++)
-        RHS(iech,ivar,jvar) = covtab.getValue(ivar, jvar);
+        RHS(iech, ivar, jvar) = covtab.getValue(ivar, jvar);
   }
 
   /* Establish the drift part */
@@ -2585,7 +2580,7 @@ static void st_estimate_rhs(ST_Seismic_Neigh *ngh,
   {
     for (ivar = 0; ivar < NVAR; ivar++)
       for (jvar = 0; jvar < NVAR; jvar++)
-        RHS(jvar,NVAR,ivar) = (ivar == jvar);
+        RHS(jvar, NVAR, ivar) = (ivar == jvar);
   }
 
   /* Compress from isotopic to heterotopic */
@@ -2611,12 +2606,12 @@ static void st_estimate_rhs(ST_Seismic_Neigh *ngh,
  ** \param[in]  wgt     Array of Kriging weights
  **
  *****************************************************************************/
-static void st_wgt_print(ST_Seismic_Neigh *ngh,
+static void st_wgt_print(ST_Seismic_Neigh* ngh,
                          int nvar,
                          int nech,
                          int nred,
-                         const int *flag,
-                         const double *wgt)
+                         const int* flag,
+                         const double* wgt)
 {
   double sum[2], value;
   int iwgt, ivar, jvar, iech, lec, cumflag;
@@ -2634,7 +2629,7 @@ static void st_wgt_print(ST_Seismic_Neigh *ngh,
   tab_prints(NULL, "Data");
   for (ivar = 0; ivar < nvar; ivar++)
   {
-    (void) gslSPrintf(string, "Z%d*", ivar + 1);
+    (void)gslSPrintf(string, "Z%d*", ivar + 1);
     tab_prints(NULL, string);
   }
   message("\n");
@@ -2661,9 +2656,8 @@ static void st_wgt_print(ST_Seismic_Neigh *ngh,
 
       for (ivar = 0; ivar < nvar; ivar++)
       {
-        iwgt = nred * ivar + cumflag;
-        value = (flag[lec]) ? wgt[iwgt] :
-                              TEST;
+        iwgt  = nred * ivar + cumflag;
+        value = (flag[lec]) ? wgt[iwgt] : TEST;
         if (!FFFF(value)) sum[ivar] += value;
         tab_printg(NULL, value);
       }
@@ -2693,13 +2687,13 @@ static void st_wgt_print(ST_Seismic_Neigh *ngh,
 ** \param[out] wgt       Array containing the Kriging Weights
 **
 *****************************************************************************/
-static int st_estimate_wgt(ST_Seismic_Neigh *ngh,
-                           Model  * /*model*/,
-                           int     nred,
-                           int    *flag,
-                           double *lhs,
-                           double *rhs,
-                           double *wgt)
+static int st_estimate_wgt(ST_Seismic_Neigh* ngh,
+                           Model* /*model*/,
+                           int nred,
+                           int* flag,
+                           double* lhs,
+                           double* rhs,
+                           double* wgt)
 {
   int nech;
 
@@ -2734,17 +2728,17 @@ static int st_estimate_wgt(ST_Seismic_Neigh *ngh,
 ** \param[in]  iatt_std  Array of pointers to the variance of estimation
 **
 *****************************************************************************/
-static void st_estimate_result(Db     *db,
-                               ST_Seismic_Neigh *ngh,
-                               int     flag_std,
-                               int     /*nfeq*/,
-                               int     nred,
-                               const int    *flag,
-                               const double *wgt,
-                               const double *rhs,
-                               const double *var0,
-                               int *iatt_est,
-                               int *iatt_std)
+static void st_estimate_result(Db* db,
+                               ST_Seismic_Neigh* ngh,
+                               int flag_std,
+                               int /*nfeq*/,
+                               int nred,
+                               const int* flag,
+                               const double* wgt,
+                               const double* rhs,
+                               const double* var0,
+                               int* iatt_est,
+                               int* iatt_std)
 {
   int i, ivar, jvar, nech, lec;
   double result, value, stdev;
@@ -2762,13 +2756,12 @@ static void st_estimate_result(Db     *db,
     /* Estimation */
 
     result = stdev = 0.;
-    lec = ivar * nred;
+    lec            = ivar * nred;
     for (jvar = 0; jvar < NVAR; jvar++)
       for (i = 0; i < nech; i++)
       {
         if (!flag[jvar * nech + i]) continue;
-        value = (jvar == 0) ? ngh->v1_ngh[i] :
-                              ngh->v2_ngh[i];
+        value = (jvar == 0) ? ngh->v1_ngh[i] : ngh->v2_ngh[i];
         result += wgt[lec++] * value;
       }
     db->setArray(IECH_OUT, iatt_est[ivar], result);
@@ -2778,11 +2771,10 @@ static void st_estimate_result(Db     *db,
     if (flag_std)
     {
       stdev = var0[ivar];
-      lec = ivar * nred;
+      lec   = ivar * nred;
       for (i = 0; i < nred; i++)
         stdev -= rhs[lec + i] * wgt[lec + i];
-      stdev = (stdev > 0) ? sqrt(stdev) :
-                            0.;
+      stdev = (stdev > 0) ? sqrt(stdev) : 0.;
       db->setArray(IECH_OUT, iatt_std[ivar], stdev);
     }
 
@@ -2813,18 +2805,18 @@ static void st_estimate_result(Db     *db,
 ** \param[in]  iatt_sim  Array of pointers to the simulated results
 **
 *****************************************************************************/
-static void st_simulate_result(DbGrid *db,
-                               int     ix0,
-                               int     iz0,
-                               ST_Seismic_Neigh *ngh,
-                               int     nbsimu,
-                               int     /*nfeq*/,
-                               int     nred,
-                               const int    *flag,
-                               const double *wgt,
-                               const double *rhs,
-                               const double *c00,
-                               int *iatt_sim)
+static void st_simulate_result(DbGrid* db,
+                               int ix0,
+                               int iz0,
+                               ST_Seismic_Neigh* ngh,
+                               int nbsimu,
+                               int /*nfeq*/,
+                               int nred,
+                               const int* flag,
+                               const double* wgt,
+                               const double* rhs,
+                               const double* c00,
+                               int* iatt_sim)
 {
   int i, ivar, jvar, nech, lec, isimu, iech;
   double result[2], value, sigma0, sigma1, sigma2, z1, z2, l0, lb[4];
@@ -2842,7 +2834,7 @@ static void st_simulate_result(DbGrid *db,
       value = 0.;
       for (i = 0; i < nred; i++)
         value += wgt[nred * ivar + i] * rhs[nred * jvar + i];
-      LB(ivar,jvar) = value;
+      LB(ivar, jvar) = value;
     }
 
   /* Loop on the simulations */
@@ -2858,13 +2850,13 @@ static void st_simulate_result(DbGrid *db,
       /* Estimation */
 
       result[ivar] = 0.;
-      lec = ivar * nred;
+      lec          = ivar * nred;
       for (jvar = 0; jvar < NVAR; jvar++)
         for (i = 0; i < nech; i++)
         {
           if (!flag[jvar * nech + i]) continue;
-          iech = st_absolute_index(db, ix0 + ngh->ix_ngh[i],
-                                   iz0 + ngh->iz_ngh[i]);
+          iech  = st_absolute_index(db, ix0 + ngh->ix_ngh[i],
+                                    iz0 + ngh->iz_ngh[i]);
           value = db->getArray(iech, iatt_sim[jvar] + isimu);
           result[ivar] += wgt[lec++] * value;
         }
@@ -2872,18 +2864,18 @@ static void st_simulate_result(DbGrid *db,
 
     /* Link the two variables */
 
-    sigma1 = C00(0,0) - LB(0, 0);
-    sigma2 = C00(1,1) - LB(1, 1);
+    sigma1 = C00(0, 0) - LB(0, 0);
+    sigma2 = C00(1, 1) - LB(1, 1);
 
     z2 = db->getArray(IECH_OUT, iatt_sim[1] + isimu);
     if (FFFF(z2)) z2 = result[1] + sqrt(MAX(0, sigma2)) * law_gaussian();
     z1 = db->getArray(IECH_OUT, iatt_sim[0] + isimu);
     if (FFFF(z1) && sigma2 > 0)
     {
-      l0 = (C00(0,1) - LB(0, 1)) / sigma2;
-      sigma0 = sigma1 - l0 * (C00(0,1) - LB(1, 0));
+      l0     = (C00(0, 1) - LB(0, 1)) / sigma2;
+      sigma0 = sigma1 - l0 * (C00(0, 1) - LB(1, 0));
       sigma0 = sqrt(MAX(0, sigma0));
-      z1 = result[0] + (z2 - result[1]) * l0 + sigma0 * law_gaussian();
+      z1     = result[0] + (z2 - result[1]) * l0 + sigma0 * law_gaussian();
     }
     result[0] = z1;
     result[1] = z2;
@@ -2915,7 +2907,7 @@ static void st_simulate_result(DbGrid *db,
  ** \param[out] rank     Array giving the order of the traces
  **
  *****************************************************************************/
-static int st_estimate_sort(const int *presence, int *rank)
+static int st_estimate_sort(const int* presence, int* rank)
 {
   double distmin, distval;
   int ix, jx;
@@ -2925,7 +2917,7 @@ static int st_estimate_sort(const int *presence, int *rank)
   for (ix = 0; ix < NX; ix++)
   {
     rank[ix] = ix;
-    distmin = MAXIMUM_BIG;
+    distmin  = MAXIMUM_BIG;
     for (jx = 0; jx < NX; jx++)
     {
       if (presence[jx] <= 0) continue;
@@ -2958,8 +2950,8 @@ static int st_estimate_sort(const int *presence, int *rank)
  ** \param[in]  flag_stat  1 for producing final statistics
  **
  *****************************************************************************/
-int seismic_estimate_XZ(DbGrid *db,
-                        Model *model,
+int seismic_estimate_XZ(DbGrid* db,
+                        Model* model,
                         int nbench,
                         int nv2max,
                         int flag_ks,
@@ -2982,30 +2974,30 @@ int seismic_estimate_XZ(DbGrid *db,
 
   error = 1;
   nvois = nred = nb_total = nb_process = nb_calcul = 0;
-  nfeq = (flag_ks) ? 0 : 1;
+  nfeq                                             = (flag_ks) ? 0 : 1;
   ngh_cur = ngh_old = nullptr;
   for (i = 0; i < 2; i++)
   {
     iatt_est[i] = -1;
     iatt_std[i] = -1;
     presence[i] = nullptr;
-    npres[i] = 0;
+    npres[i]    = 0;
   }
   if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt())) goto label_end;
 
   /* Check that the grid is XZ */
 
-  if (! db->isGrid())
+  if (!db->isGrid())
   {
     messerr("The Db structure must be a Grid Db");
     return (1);
   }
-  NX = db->getNX(0);
-  NY = db->getNX(1);
-  NZ = db->getNX(2);
-  DX = db->getDX(0);
-  DZ = db->getDX(2);
-  NVAR = db->getNLoc(ELoc::Z);
+  NX      = db->getNX(0);
+  NY      = db->getNX(1);
+  NZ      = db->getNX(2);
+  DX      = db->getDX(0);
+  DZ      = db->getDX(2);
+  NVAR    = db->getNLoc(ELoc::Z);
   iatt_z1 = db->getUIDByLocator(ELoc::Z, 0);
   iatt_z2 = db->getUIDByLocator(ELoc::Z, 1);
 
@@ -3024,7 +3016,7 @@ int seismic_estimate_XZ(DbGrid *db,
 
   for (i = 0; i < 2; i++)
   {
-    presence[i] = (int*) mem_alloc(sizeof(int) * NX, 0);
+    presence[i] = (int*)mem_alloc(sizeof(int) * NX, 0);
     if (presence[i] == nullptr) goto label_end;
   }
 
@@ -3036,7 +3028,7 @@ int seismic_estimate_XZ(DbGrid *db,
   /* Maximum dimension of the neighborhood */
 
   nvois = (2 * nbench + 1) * (npres[0] + 2 * nv2max + 1);
-  size = NVAR * (nvois + nfeq);
+  size  = NVAR * (nvois + nfeq);
 
   /* Core allocation (second) */
 
@@ -3060,11 +3052,12 @@ int seismic_estimate_XZ(DbGrid *db,
     iatt_est[i] = db->addColumnsByConstant(1, TEST);
     if (iatt_est[i] < 0) goto label_end;
   }
-  if (flag_std) for (i = 0; i < 2; i++)
-  {
-    iatt_std[i] = db->addColumnsByConstant(1, TEST);
-    if (iatt_std[i] < 0) goto label_end;
-  }
+  if (flag_std)
+    for (i = 0; i < 2; i++)
+    {
+      iatt_std[i] = db->addColumnsByConstant(1, TEST);
+      if (iatt_std[i] < 0) goto label_end;
+    }
 
   /* Calculate the constant terms for the variances */
 
@@ -3132,7 +3125,8 @@ int seismic_estimate_XZ(DbGrid *db,
 
   error = 0;
 
-  label_end: OptDbg::setCurrentIndex(0);
+label_end:
+  OptDbg::setCurrentIndex(0);
   if (flag_stat)
   {
     message("Statistics on the number of nodes:\n");
@@ -3142,11 +3136,11 @@ int seismic_estimate_XZ(DbGrid *db,
   }
   for (i = 0; i < 2; i++)
   {
-    presence[i] = (int*) mem_free((char* ) presence[i]);
+    presence[i] = (int*)mem_free((char*)presence[i]);
     if (error && iatt_est[i] >= 0) db->deleteColumnByUID(iatt_est[i]);
     if (error && iatt_std[i] >= 0) db->deleteColumnByUID(iatt_std[i]);
   }
-  (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
+  (void)krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   st_estimate_neigh_management(-1, nvois, ngh_cur);
   st_estimate_neigh_management(-1, nvois, ngh_old);
 
@@ -3162,7 +3156,7 @@ int seismic_estimate_XZ(DbGrid *db,
  ** \param[in]  iatt     Address of the first item for each variable
  **
  *****************************************************************************/
-static void st_copy_attribute(Db *db, int nbsimu, int *iatt)
+static void st_copy_attribute(Db* db, int nbsimu, int* iatt)
 {
   int ivar, isimu, iech, nech;
   double value;
@@ -3210,8 +3204,8 @@ static void st_copy_attribute(Db *db, int nbsimu, int *iatt)
  ** \param[in]  flag_stat  1 for producing final statistics
  **
  *****************************************************************************/
-int seismic_simulate_XZ(DbGrid *db,
-                        Model *model,
+int seismic_simulate_XZ(DbGrid* db,
+                        Model* model,
                         int nbench,
                         int nv2max,
                         int nbsimu,
@@ -3235,27 +3229,27 @@ int seismic_simulate_XZ(DbGrid *db,
 
   error = 1;
   nvois = nred = nb_total = nb_process = nb_calcul = 0;
-  nfeq = (flag_ks) ? 0 : 1;
+  nfeq                                             = (flag_ks) ? 0 : 1;
   ngh_cur = ngh_old = nullptr;
   for (i = 0; i < 2; i++)
   {
     iatt_sim[i] = -1;
     presence[i] = nullptr;
-    npres[i] = 0;
+    npres[i]    = 0;
   }
 
   /* Check that the grid is XZ */
 
-  if (! db->isGrid())
+  if (!db->isGrid())
   {
     messerr("The Db structure must be a Grid Db");
     return (1);
   }
-  NX = db->getNX(0);
-  NY = db->getNX(1);
-  NZ = db->getNX(2);
-  DX = db->getDX(0);
-  DZ = db->getDX(2);
+  NX   = db->getNX(0);
+  NY   = db->getNX(1);
+  NZ   = db->getNX(2);
+  DX   = db->getDX(0);
+  DZ   = db->getDX(2);
   NVAR = db->getNLoc(ELoc::Z);
 
   if (NX <= 1 || NY != 1 || NZ <= 1)
@@ -3273,7 +3267,7 @@ int seismic_simulate_XZ(DbGrid *db,
 
   for (i = 0; i < 2; i++)
   {
-    presence[i] = (int*) mem_alloc(sizeof(int) * NX, 0);
+    presence[i] = (int*)mem_alloc(sizeof(int) * NX, 0);
     if (presence[i] == nullptr) goto label_end;
   }
 
@@ -3286,7 +3280,7 @@ int seismic_simulate_XZ(DbGrid *db,
   /* Maximum dimension of the neighborhood */
 
   nvois = (2 * nbench + 1) * (npres[0] + 2 * nv2max + 1);
-  size = NVAR * (nvois + nfeq);
+  size  = NVAR * (nvois + nfeq);
 
   /* Core allocation (second) */
 
@@ -3382,7 +3376,8 @@ int seismic_simulate_XZ(DbGrid *db,
 
   error = 0;
 
-  label_end: OptDbg::setCurrentIndex(0);
+label_end:
+  OptDbg::setCurrentIndex(0);
   if (flag_stat)
   {
     message("Statistics on the number of nodes:\n");
@@ -3392,13 +3387,14 @@ int seismic_simulate_XZ(DbGrid *db,
   }
   for (i = 0; i < 2; i++)
   {
-    mem_free((char* ) presence[i]);
-    if (error) for (isimu = 0; isimu < nbsimu; isimu++)
-      db->deleteColumnByUID(iatt_sim[i] + isimu);
+    mem_free((char*)presence[i]);
+    if (error)
+      for (isimu = 0; isimu < nbsimu; isimu++)
+        db->deleteColumnByUID(iatt_sim[i] + isimu);
   }
   st_estimate_neigh_management(-1, nvois, ngh_cur);
   st_estimate_neigh_management(-1, nvois, ngh_old);
 
   return (error);
 }
-}
+} // namespace gstlrn

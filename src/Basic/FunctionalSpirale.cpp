@@ -10,24 +10,24 @@
 /******************************************************************************/
 #include "geoslib_define.h"
 
-#include "Db/Db.hpp"
+#include "Basic/AFunctional.hpp"
+#include "Basic/FunctionalSpirale.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Db/Db.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
-#include "Basic/FunctionalSpirale.hpp"
-#include "Basic/AFunctional.hpp"
-#include <math.h>
+#include <cmath>
 
 namespace gstlrn
 {
 FunctionalSpirale::FunctionalSpirale()
-    : AFunctional(2),
-      _a(0.),
-      _b(0.),
-      _c(0.),
-      _d(0.),
-      _xcenter(0.),
-      _ycenter(0.)
+  : AFunctional(2)
+  , _a(0.)
+  , _b(0.)
+  , _c(0.)
+  , _d(0.)
+  , _xcenter(0.)
+  , _ycenter(0.)
 {
 }
 
@@ -37,36 +37,36 @@ FunctionalSpirale::FunctionalSpirale(double a,
                                      double d,
                                      double sx,
                                      double sy)
-    : AFunctional(2),
-      _a(a),
-      _b(b),
-      _c(c),
-      _d(d),
-      _xcenter(sx),
-      _ycenter(sy)
+  : AFunctional(2)
+  , _a(a)
+  , _b(b)
+  , _c(c)
+  , _d(d)
+  , _xcenter(sx)
+  , _ycenter(sy)
 {
 }
 
-FunctionalSpirale::FunctionalSpirale(const FunctionalSpirale &m)
-    : AFunctional(m),
-      _a(m._a),
-      _b(m._b),
-      _c(m._c),
-      _d(m._d),
-      _xcenter(m._xcenter),
-      _ycenter(m._ycenter)
+FunctionalSpirale::FunctionalSpirale(const FunctionalSpirale& m)
+  : AFunctional(m)
+  , _a(m._a)
+  , _b(m._b)
+  , _c(m._c)
+  , _d(m._d)
+  , _xcenter(m._xcenter)
+  , _ycenter(m._ycenter)
 {
 }
 
-FunctionalSpirale& FunctionalSpirale::operator=(const FunctionalSpirale &m)
+FunctionalSpirale& FunctionalSpirale::operator=(const FunctionalSpirale& m)
 {
   if (this != &m)
   {
     AFunctional::operator=(m);
-    _a = m._a;
-    _b = m._b;
-    _c = m._c;
-    _d = m._d;
+    _a       = m._a;
+    _b       = m._b;
+    _c       = m._c;
+    _d       = m._d;
     _xcenter = m._xcenter;
     _ycenter = m._ycenter;
   }
@@ -79,7 +79,7 @@ FunctionalSpirale::~FunctionalSpirale()
 
 double FunctionalSpirale::_linearCombination(double x, double y, double a, double b)
 {
-    return a*x + b*y;
+  return a * x + b * y;
 }
 
 /**
@@ -109,20 +109,20 @@ double FunctionalSpirale::getFunctionValue(const VectorDouble& coor) const
  */
 MatrixSquare FunctionalSpirale::getFunctionMatrix(const VectorDouble& coor) const
 {
-  int ndim = 2;
+  int ndim          = 2;
   MatrixSquare dirs = MatrixSquare(ndim);
 
   double angle = getFunctionValue(coor) * GV_PI / 180.;
-  double u1 = cos(angle);
-  double u2 = sin(angle);
-  dirs.setValue(0, 0,  u1);
+  double u1    = cos(angle);
+  double u2    = sin(angle);
+  dirs.setValue(0, 0, u1);
   dirs.setValue(1, 0, -u2);
-  dirs.setValue(0, 1,  u2);
-  dirs.setValue(1, 1,  u1);
+  dirs.setValue(0, 1, u2);
+  dirs.setValue(1, 1, u1);
   return dirs;
 }
 
-VectorVectorDouble FunctionalSpirale::getFunctionVectors(const Db *db, const CovAniso* cova) const
+VectorVectorDouble FunctionalSpirale::getFunctionVectors(const Db* db, const CovAniso* cova) const
 {
   if (db == nullptr) return VectorVectorDouble();
   if (getNdim() != db->getNDim())
@@ -144,15 +144,15 @@ VectorVectorDouble FunctionalSpirale::getFunctionVectors(const Db *db, const Cov
 
   for (int iech = 0; iech < nech; iech++)
   {
-    VectorDouble coor = db->getSampleCoordinates(iech);
+    VectorDouble coor   = db->getSampleCoordinates(iech);
     MatrixSquare rotmat = getFunctionMatrix(coor);
     hh.normMatrix(rotmat, temp);
 
-    vec[0][iech] = hh.getValue(0,0);
-    vec[1][iech] = hh.getValue(0,1);
-    vec[2][iech] = hh.getValue(1,1);
+    vec[0][iech] = hh.getValue(0, 0);
+    vec[1][iech] = hh.getValue(0, 1);
+    vec[2][iech] = hh.getValue(1, 1);
   }
 
   return vec;
 }
-}
+} // namespace gstlrn

@@ -9,19 +9,19 @@
 /*                                                                            */
 /******************************************************************************/
 #include "OutputFormat/GridBmp.hpp"
-#include "OutputFormat/AOF.hpp"
+#include "Basic/AStringable.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Basic/AStringable.hpp"
+#include "OutputFormat/AOF.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 
-#define BF_TYPE 0x4D42             /* "MB" */
-#define COLOR_MASK   -1
-#define COLOR_FFFF   -2
-#define COLOR_LOWER  -3
-#define COLOR_UPPER  -4
-#define N_SAMPLE(nx,nsample) ((int) ((nx-1) / nsample) + 1)
+#define BF_TYPE               0x4D42 /* "MB" */
+#define COLOR_MASK            -1
+#define COLOR_FFFF            -2
+#define COLOR_LOWER           -3
+#define COLOR_UPPER           -4
+#define N_SAMPLE(nx, nsample) ((int)((nx - 1) / nsample) + 1)
 
 namespace gstlrn
 {
@@ -54,30 +54,30 @@ GridBmp::GridBmp(const char* filename, const Db* db)
 }
 
 GridBmp::GridBmp(const GridBmp& r)
-    : AOF(r),
-      _nsamplex(r._nsamplex),
-      _nsampley(r._nsampley),
-      _nmult(r._nmult),
-      _ncolor(r._ncolor),
-      _flag_low(r._flag_low),
-      _flag_high(r._flag_high),
-      _mask_red(r._mask_red),
-      _mask_green(r._mask_green),
-      _mask_blue(r._mask_blue),
-      _ffff_red(r._ffff_red),
-      _ffff_green(r._ffff_green),
-      _ffff_blue(r._ffff_blue),
-      _low_red(r._low_red),
-      _low_green(r._low_green),
-      _low_blue(r._low_blue),
-      _high_red(r._high_red),
-      _high_green(r._high_green),
-      _high_blue(r._high_blue),
-      _valmin(r._valmin),
-      _valmax(r._valmax),
-      _reds(r._reds),
-      _greens(r._greens),
-      _blues(r._blues)
+  : AOF(r)
+  , _nsamplex(r._nsamplex)
+  , _nsampley(r._nsampley)
+  , _nmult(r._nmult)
+  , _ncolor(r._ncolor)
+  , _flag_low(r._flag_low)
+  , _flag_high(r._flag_high)
+  , _mask_red(r._mask_red)
+  , _mask_green(r._mask_green)
+  , _mask_blue(r._mask_blue)
+  , _ffff_red(r._ffff_red)
+  , _ffff_green(r._ffff_green)
+  , _ffff_blue(r._ffff_blue)
+  , _low_red(r._low_red)
+  , _low_green(r._low_green)
+  , _low_blue(r._low_blue)
+  , _high_red(r._high_red)
+  , _high_green(r._high_green)
+  , _high_blue(r._high_blue)
+  , _valmin(r._valmin)
+  , _valmax(r._valmax)
+  , _reds(r._reds)
+  , _greens(r._greens)
+  , _blues(r._blues)
 {
 }
 
@@ -86,29 +86,29 @@ GridBmp& GridBmp::operator=(const GridBmp& r)
   if (this != &r)
   {
     AOF::operator=(r);
-    _nsamplex = r._nsamplex;
-    _nsampley = r._nsampley;
-    _nmult = r._nmult;
-    _ncolor = r._ncolor;
-    _flag_low = r._flag_low;
-    _flag_high = r._flag_high;
-    _mask_red = r._mask_red;
+    _nsamplex   = r._nsamplex;
+    _nsampley   = r._nsampley;
+    _nmult      = r._nmult;
+    _ncolor     = r._ncolor;
+    _flag_low   = r._flag_low;
+    _flag_high  = r._flag_high;
+    _mask_red   = r._mask_red;
     _mask_green = r._mask_green;
-    _mask_blue = r._mask_blue;
-    _ffff_red = r._ffff_red;
+    _mask_blue  = r._mask_blue;
+    _ffff_red   = r._ffff_red;
     _ffff_green = r._ffff_green;
-    _ffff_blue = r._ffff_blue;
-    _low_red = r._low_red;
-    _low_green = r._low_green;
-    _low_blue = r._low_blue;
-    _high_red = r._high_red;
+    _ffff_blue  = r._ffff_blue;
+    _low_red    = r._low_red;
+    _low_green  = r._low_green;
+    _low_blue   = r._low_blue;
+    _high_red   = r._high_red;
     _high_green = r._high_green;
-    _high_blue = r._high_blue;
-    _valmin = r._valmin;
-    _valmax = r._valmax;
-    _reds = r._reds;
-    _greens = r._greens;
-    _blues = r._blues;
+    _high_blue  = r._high_blue;
+    _valmin     = r._valmin;
+    _valmax     = r._valmax;
+    _reds       = r._reds;
+    _greens     = r._greens;
+    _blues      = r._blues;
   }
   return *this;
 }
@@ -119,35 +119,35 @@ GridBmp::~GridBmp()
 
 void GridBmp::setColors(const VectorInt& reds, const VectorInt& greens, const VectorInt& blues)
 {
-  _reds = reds;
+  _reds   = reds;
   _greens = greens;
-  _blues = blues;
+  _blues  = blues;
 }
 
 void GridBmp::setFFFF(int red, int green, int blue)
 {
-  _ffff_red = red;
+  _ffff_red   = red;
   _ffff_green = green;
-  _ffff_blue = blue;
+  _ffff_blue  = blue;
 }
 
 void GridBmp::setHigh(int red, int green, int blue)
 {
-  _high_red = red;
+  _high_red   = red;
   _high_green = green;
-  _high_blue = blue;
+  _high_blue  = blue;
 }
 void GridBmp::setLow(int red, int green, int blue)
 {
-  _low_red = red;
+  _low_red   = red;
   _low_green = green;
-  _low_blue = blue;
+  _low_blue  = blue;
 }
 void GridBmp::setMask(int red, int green, int blue)
 {
-  _mask_red = red;
+  _mask_red   = red;
   _mask_green = green;
-  _mask_blue = blue;
+  _mask_blue  = blue;
 }
 
 int GridBmp::writeInFile()
@@ -161,10 +161,9 @@ int GridBmp::writeInFile()
 
   /* Preliminary checks */
 
-  int ncolor = _ncolor;
-  bool flag_color_scale = (_ncolor > 0 && ! _reds.empty() && ! _greens.empty()
-      && ! _blues.empty());
-  if (! flag_color_scale) ncolor = 256;
+  int ncolor            = _ncolor;
+  bool flag_color_scale = (_ncolor > 0 && !_reds.empty() && !_greens.empty() && !_blues.empty());
+  if (!flag_color_scale) ncolor = 256;
 
   /* Initializations */
 
@@ -177,7 +176,7 @@ int GridBmp::writeInFile()
   double vmax = MINIMUM_BIG;
   for (int i = 0; i < nx * ny; i++)
   {
-    if (! _dbgrid->isActive(i)) continue;
+    if (!_dbgrid->isActive(i)) continue;
     double value = _dbgrid->getArray(i, _cols[0]);
     if (FFFF(value)) continue;
     if (value < vmin) vmin = value;
@@ -186,42 +185,42 @@ int GridBmp::writeInFile()
   double delta = (vmax - vmin);
   vmin -= delta / 100.;
   vmax += delta / 100.;
-  if (! FFFF(_valmin)) vmin = _valmin;
-  if (! FFFF(_valmax)) vmax = _valmax;
+  if (!FFFF(_valmin)) vmin = _valmin;
+  if (!FFFF(_valmax)) vmax = _valmax;
 
   /* Figure out the constants */
 
-  int infosize = 40;
+  int infosize   = 40;
   int headersize = 14;
-  int width  = _nmult * N_SAMPLE(nx, _nsamplex);
-  int height = _nmult * N_SAMPLE(ny, _nsampley);
-  int imagesize = 3 * width * height;
+  int width      = _nmult * N_SAMPLE(nx, _nsamplex);
+  int height     = _nmult * N_SAMPLE(ny, _nsampley);
+  int imagesize  = 3 * width * height;
 
   /* Write the file header, bitmap information, and bitmap pixel data... */
-  _writeOut( 0, BF_TYPE);
-  _writeOut( 1, headersize); /* Size of File Header */
-  _writeOut( 0, 0); /* Reserved */
-  _writeOut( 0, 0); /* Reserved */
-  _writeOut( 1, headersize + infosize); /* Offset */
+  _writeOut(0, BF_TYPE);
+  _writeOut(1, headersize);            /* Size of File Header */
+  _writeOut(0, 0);                     /* Reserved */
+  _writeOut(0, 0);                     /* Reserved */
+  _writeOut(1, headersize + infosize); /* Offset */
 
-  _writeOut( 1, infosize); /* Size of Information Block */
-  _writeOut( 2, width); /* Width */
-  _writeOut( 2, height); /* Height */
-  _writeOut( 0, 1); /* Number of planes */
-  _writeOut( 0, 24); /* 24-bits per pixel */
-  _writeOut( 1, 0); /* No compression */
-  _writeOut( 1, imagesize); /* Image size */
-  _writeOut( 2, 0);
-  _writeOut( 2, 0);
-  _writeOut( 1, 0);
-  _writeOut( 1, 0);
+  _writeOut(1, infosize);  /* Size of Information Block */
+  _writeOut(2, width);     /* Width */
+  _writeOut(2, height);    /* Height */
+  _writeOut(0, 1);         /* Number of planes */
+  _writeOut(0, 24);        /* 24-bits per pixel */
+  _writeOut(1, 0);         /* No compression */
+  _writeOut(1, imagesize); /* Image size */
+  _writeOut(2, 0);
+  _writeOut(2, 0);
+  _writeOut(1, 0);
+  _writeOut(1, 0);
 
   /* Writing the pixels */
 
-  indg[0] = 0;
-  indg[1] = 0;
+  indg[0]  = 0;
+  indg[1]  = 0;
   int ipad = nx * _nmult;
-  ipad = ipad - 4 * ((int) (ipad / 4));
+  ipad     = ipad - 4 * ((int)(ipad / 4));
   for (int iy = 0; iy < ny; iy++)
   {
     if (iy % _nsampley != 0) continue;
@@ -230,17 +229,17 @@ int GridBmp::writeInFile()
       for (int ix = 0; ix < nx; ix++)
       {
         if (ix % _nsamplex != 0) continue;
-        indg[0] = ix;
-        indg[1] = iy;
+        indg[0]  = ix;
+        indg[1]  = iy;
         int iech = _dbgrid->indiceToRank(indg);
         int rank = _colorRank(iech, ncolor, vmin, vmax);
         _colorInRGB(rank, flag_color_scale, &ired, &igreen, &iblue);
 
         for (int imult = 0; imult < _nmult; imult++)
         {
-          (void) fwrite(&iblue, 1, 1, _file);
-          (void) fwrite(&igreen, 1, 1, _file);
-          (void) fwrite(&ired, 1, 1, _file);
+          (void)fwrite(&iblue, 1, 1, _file);
+          (void)fwrite(&igreen, 1, 1, _file);
+          (void)fwrite(&ired, 1, 1, _file);
         }
       }
 
@@ -248,7 +247,7 @@ int GridBmp::writeInFile()
 
       int color = 0;
       for (int i = 0; i < ipad; i++)
-        (void) fwrite(&color, 1, 1, _file);
+        (void)fwrite(&color, 1, 1, _file);
     }
   }
 
@@ -284,7 +283,7 @@ void GridBmp::_writeOut(int mode, unsigned int ival)
       break;
 
     case 2: /* Signed 32-bit */
-      int jval = (int) ival;
+      int jval = (int)ival;
       putc(jval, _file);
       putc(jval >> 8, _file);
       putc(jval >> 16, _file);
@@ -312,7 +311,7 @@ void GridBmp::_writeOut(int mode, unsigned int ival)
 int GridBmp::_colorRank(int iech, int ncolor, double vmin, double vmax)
 {
   /* Check if the sample is masked off */
-  if (! _dbgrid->isActive(iech)) return COLOR_MASK;
+  if (!_dbgrid->isActive(iech)) return COLOR_MASK;
 
   /* Read the value */
   double value = _dbgrid->getArray(iech, _cols[0]);
@@ -321,7 +320,7 @@ int GridBmp::_colorRank(int iech, int ncolor, double vmin, double vmax)
   if (FFFF(value)) return COLOR_FFFF;
 
   /* Find the color */
-  int ival = (int) (ncolor * (value - vmin) / (vmax - vmin));
+  int ival = (int)(ncolor * (value - vmin) / (vmax - vmin));
 
   /* Value lower than vmin */
   if (ival < 0)
@@ -358,53 +357,53 @@ int GridBmp::_colorRank(int iech, int ncolor, double vmin, double vmax)
  *****************************************************************************/
 void GridBmp::_colorInRGB(int rank,
                           bool flag_color_scale,
-                          unsigned char *ired,
-                          unsigned char *igreen,
-                          unsigned char *iblue)
+                          unsigned char* ired,
+                          unsigned char* igreen,
+                          unsigned char* iblue)
 {
   switch (rank)
   {
     case COLOR_MASK:
-      *ired = (unsigned char) _mask_red;
-      *igreen = (unsigned char) _mask_green;
-      *iblue = (unsigned char) _mask_blue;
+      *ired   = (unsigned char)_mask_red;
+      *igreen = (unsigned char)_mask_green;
+      *iblue  = (unsigned char)_mask_blue;
       break;
 
     case COLOR_FFFF:
-      *ired = (unsigned char) _ffff_red;
-      *igreen = (unsigned char) _ffff_green;
-      *iblue = (unsigned char) _ffff_blue;
+      *ired   = (unsigned char)_ffff_red;
+      *igreen = (unsigned char)_ffff_green;
+      *iblue  = (unsigned char)_ffff_blue;
       break;
 
     case COLOR_LOWER:
-      *ired = (unsigned char) _low_red;
-      *igreen = (unsigned char) _low_green;
-      *iblue = (unsigned char) _low_blue;
+      *ired   = (unsigned char)_low_red;
+      *igreen = (unsigned char)_low_green;
+      *iblue  = (unsigned char)_low_blue;
       break;
 
     case COLOR_UPPER:
-      *ired = (unsigned char) _high_red;
-      *igreen = (unsigned char) _high_green;
-      *iblue = (unsigned char) _high_blue;
+      *ired   = (unsigned char)_high_red;
+      *igreen = (unsigned char)_high_green;
+      *iblue  = (unsigned char)_high_blue;
       break;
 
     default:
       if (flag_color_scale)
       {
-        *ired = (unsigned char) _reds[rank];
-        *igreen = (unsigned char) _greens[rank];
-        *iblue = (unsigned char) _blues[rank];
+        *ired   = (unsigned char)_reds[rank];
+        *igreen = (unsigned char)_greens[rank];
+        *iblue  = (unsigned char)_blues[rank];
       }
       else
       {
-        *ired = (unsigned char) rank;
-        *igreen = (unsigned char) rank;
-        *iblue = (unsigned char) rank;
+        *ired   = (unsigned char)rank;
+        *igreen = (unsigned char)rank;
+        *iblue  = (unsigned char)rank;
       }
   }
 }
 
-DbGrid*  GridBmp::readGridFromFile()
+DbGrid* GridBmp::readGridFromFile()
 {
   DbGrid* dbgrid = nullptr;
   int ir[256], ig[256], ib[256];
@@ -425,24 +424,24 @@ DbGrid*  GridBmp::readGridFromFile()
 
   /* Reading the file header */
 
-  (void) _compose( 2);
-  (void) _compose( 4);
-  (void) _compose( 4);
-  (void) _compose( 4);
+  (void)_compose(2);
+  (void)_compose(4);
+  (void)_compose(4);
+  (void)_compose(4);
 
   /* Reading the bitmap information header */
 
-  (void) _compose( 4);
-  nx[0] = _compose( 4);
-  nx[1] = _compose( 4);
-  (void) _compose( 2);
-  int nbits = _compose( 2);
-  int compress = _compose( 4);
-  (void) _compose( 4);
-  int ndx = _compose( 4);
-  int ndy = _compose( 4);
-  int ncol = _compose( 4);
-  (void) _compose( 4);
+  (void)_compose(4);
+  nx[0] = _compose(4);
+  nx[1] = _compose(4);
+  (void)_compose(2);
+  int nbits    = _compose(2);
+  int compress = _compose(4);
+  (void)_compose(4);
+  int ndx  = _compose(4);
+  int ndy  = _compose(4);
+  int ncol = _compose(4);
+  (void)_compose(4);
   if (ncol > 256)
   {
     messerr("Your file seems to contain more than 256 colors");
@@ -457,7 +456,7 @@ DbGrid*  GridBmp::readGridFromFile()
     ir[icol] = _readIn();
     ig[icol] = _readIn();
     ib[icol] = _readIn();
-    (void) _readIn();
+    (void)_readIn();
   }
 
   /* Final checks */
@@ -470,8 +469,8 @@ DbGrid*  GridBmp::readGridFromFile()
 
   /* Final results */
 
-  if (ndx > 0) dx[0] = 100. / (double) ndx;
-  if (ndy > 0) dx[1] = 100. / (double) ndy;
+  if (ndx > 0) dx[0] = 100. / (double)ndx;
+  if (ndy > 0) dx[1] = 100. / (double)ndy;
 
   /* Reading the image (from bottom to up) */
 
@@ -506,11 +505,11 @@ DbGrid*  GridBmp::readGridFromFile()
 
     /* Reading the padding */
 
-    for (int ix = 0; ix < npad; ix++) (void) _readIn();
+    for (int ix = 0; ix < npad; ix++) (void)_readIn();
   }
 
-   dbgrid = new DbGrid();
-   dbgrid->reset(nx,dx,x0,VectorDouble(),ELoadBy::SAMPLE,tab);
+  dbgrid = new DbGrid();
+  dbgrid->reset(nx, dx, x0, VectorDouble(), ELoadBy::SAMPLE, tab);
 
   // Close the file
 
@@ -536,7 +535,7 @@ int GridBmp::_compose(int nb)
 
   /* Initializations */
 
-  value = 0;
+  value  = 0;
   factor = 1;
 
   for (i = 0; i < nb; i++)
@@ -557,7 +556,7 @@ unsigned char GridBmp::_readIn()
 
 {
   unsigned char c;
-  c = (unsigned char) fgetc(_file);
+  c = (unsigned char)fgetc(_file);
   if (!feof(_file)) return c;
   return (c);
 }
@@ -599,16 +598,16 @@ void GridBmp::_rgb2num(int red,
                        int green,
                        int blue,
                        int a,
-                       unsigned char *c)
+                       unsigned char* c)
 {
   DECLARE_UNUSED(a);
   double value;
 
-  value = (double) (red + green + blue) / 3.;
+  value = (double)(red + green + blue) / 3.;
 
   if (value < 0.) value = 0.;
   if (value > 255.) value = 255.;
-  *c = (unsigned char) value;
+  *c = (unsigned char)value;
 }
 
-}
+} // namespace gstlrn

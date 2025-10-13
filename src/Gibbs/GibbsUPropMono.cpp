@@ -14,7 +14,8 @@
 #include "Db/Db.hpp"
 #include "Model/CovInternal.hpp"
 #include "Model/Model.hpp"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {

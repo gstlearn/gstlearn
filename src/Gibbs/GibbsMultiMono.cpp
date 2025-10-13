@@ -16,7 +16,8 @@
 #include "Db/Db.hpp"
 #include "Gibbs/AGibbs.hpp"
 #include "Model/Model.hpp"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {

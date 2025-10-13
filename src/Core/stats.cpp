@@ -20,8 +20,9 @@
 #include "Morpho/Morpho.hpp"
 #include "Stats/Classical.hpp"
 #include "geoslib_old_f.h"
-#include <math.h>
-#include <string.h>
+
+#include <cmath>
+#include <cstring>
 
 /*! \cond */
 #define G_ADDRESS(ix, iy, iz, nxyz) ((ix) + nxyz[0] * ((iy) + nxyz[1] * (iz)))
@@ -1502,4 +1503,4 @@ int stats_residuals(int verbose,
   (*mean)    = moyenne;
   return (0);
 }
-}
+} // namespace gstlrn

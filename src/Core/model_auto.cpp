@@ -33,7 +33,7 @@
 #include "Variogram/Vario.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
-#include <math.h>
+#include <cmath>
 
 /*! \cond */
 #define TAKE_ROT ((optvar.getLockSamerot() && first_covrot < 0) || \
@@ -4986,4 +4986,4 @@ label_end:
   st_model_auto_strmod_free(strmod);
   return (error);
 }
-}
+} // namespace gstlrn

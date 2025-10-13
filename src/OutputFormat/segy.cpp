@@ -9,16 +9,15 @@
 /*                                                                            */
 /******************************************************************************/
 #include "OutputFormat/segy.h"
-
-#include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "geoslib_old_f.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
 
 namespace gstlrn
 {
@@ -66,12 +65,12 @@ struct RefStats
   double modif_scale;
 };
 
-#define MAT(i,j)            (mat[2 * (i) + (j)])
-#define SWAP_INT16(x)	(x) = ((0x00ff & ((x))>>8) | (0xff00 & ((x))<<8))
-#define SWAP_INT32(x)	(x) = ((0x000000ff & ((x))>>24) | \
-                             (0x0000ff00 & ((x))>>8) |  \
-                             (0x00ff0000 & ((x))<<8) |  \
-                             (0xff000000 & ((x))<<24))
+#define MAT(i, j)     (mat[2 * (i) + (j)])
+#define SWAP_INT16(x) (x) = ((0x00ff & ((x)) >> 8) | (0xff00 & ((x)) << 8))
+#define SWAP_INT32(x) (x) = ((0x000000ff & ((x)) >> 24) | \
+                             (0x0000ff00 & ((x)) >> 8) |  \
+                             (0x00ff0000 & ((x)) << 8) |  \
+                             (0xff000000 & ((x)) << 24))
 
 /****************************************************************************/
 /*!
@@ -105,12 +104,12 @@ static int st_to_i(int a)
 {
   unsigned short int tmp1 = (a >> 16);
   unsigned short int tmp2 = (a * 0x0000FFFF);
-  tmp2 = st_to_u(tmp2);
-  tmp1 = st_to_u(tmp1);
+  tmp2                    = st_to_u(tmp2);
+  tmp1                    = st_to_u(tmp1);
 
-  int b = (int) tmp2;
-  b = b << 16;
-  b = b | (int) tmp1;
+  int b = (int)tmp2;
+  b     = b << 16;
+  b     = b | (int)tmp1;
 
   return b;
 }
@@ -130,12 +129,10 @@ static float st_ibm2ieee(const float ibm)
   src.f = ibm;
 
   // CONVERT TO FLOAT
-  long IntMantissa = ((long) src.c[1] << 16) + ((long) src.c[2] << 8)
-                     + src.c[3];
+  long IntMantissa = ((long)src.c[1] << 16) + ((long)src.c[2] << 8) + src.c[3];
 
-  float Mantissa = float(IntMantissa) / float(0x1000000);
-  float PosResult = Mantissa
-      * (float) pow(16.0, double((src.c[0] & 0x7F) - 64));
+  float Mantissa  = float(IntMantissa) / float(0x1000000);
+  float PosResult = Mantissa * (float)pow(16.0, double((src.c[0] & 0x7F) - 64));
 
   if (src.c[0] & 0x80)
     return -PosResult;
@@ -156,9 +153,9 @@ static double st_scaling(int coor, int scale)
 {
   double value = coor;
   if (scale < 0)
-    value /= (double) ABS(scale);
+    value /= (double)ABS(scale);
   else
-    value *= (double) ABS(scale);
+    value *= (double)ABS(scale);
   return value;
 }
 
@@ -170,7 +167,7 @@ static double st_scaling(int coor, int scale)
  ** \param[in]  numTrace  Rank of the trace
  **
  *****************************************************************************/
-static void st_print_traceHead(traceHead *Theader, int numTrace)
+static void st_print_traceHead(traceHead* Theader, int numTrace)
 {
   message("\nTrace Header #%d\n", numTrace);
   message("TRACE_SEQ_GLOBAL    : %i \n", st_to_i(Theader->TRACE_SEQ_GLOBAL));
@@ -265,7 +262,7 @@ static void st_print_traceHead(traceHead *Theader, int numTrace)
  ** \param[in]  Bheader   Pointer to the Binary File header
  **
  *****************************************************************************/
-static void st_print_BFileHead(binaryFileHeader *Bheader)
+static void st_print_BFileHead(binaryFileHeader* Bheader)
 {
   message("\nBinary File Header\n");
   message("JOB_ID               :%i  \n", st_to_i(Bheader->JOB_ID));
@@ -304,38 +301,38 @@ static binaryFileHeader st_binaryFileHeader_init()
 {
   binaryFileHeader binfile;
 
-  binfile.JOB_ID = 0;
-  binfile.LINE_NUM = 0;
-  binfile.REEL_NUM = 0;
-  binfile.NUM_OF_TRACE = 0;
-  binfile.NUM_OF_AUX = 0;
-  binfile.INTERVAL_MS = 0;
-  binfile.INTERVAL_MS_ORI = 0;
-  binfile.NUM_OF_SAMPLES = 0;
-  binfile.NUM_OF_SAMPLES_ORI = 0;
-  binfile.SAMPLE_FORMAT = 0;
-  binfile.ENSEMBLE = 0;
-  binfile.TRACE_SORT = 0;
-  binfile.VERT_SUM = 0;
-  binfile.SWEEP_FREQ_START = 0;
-  binfile.SWEEP_FREQ_END = 0;
-  binfile.SWEEP_LENGTH = 0;
-  binfile.SWEEP_TYPE = 0;
-  binfile.SWEEP_NUM_CHANNEL = 0;
+  binfile.JOB_ID                = 0;
+  binfile.LINE_NUM              = 0;
+  binfile.REEL_NUM              = 0;
+  binfile.NUM_OF_TRACE          = 0;
+  binfile.NUM_OF_AUX            = 0;
+  binfile.INTERVAL_MS           = 0;
+  binfile.INTERVAL_MS_ORI       = 0;
+  binfile.NUM_OF_SAMPLES        = 0;
+  binfile.NUM_OF_SAMPLES_ORI    = 0;
+  binfile.SAMPLE_FORMAT         = 0;
+  binfile.ENSEMBLE              = 0;
+  binfile.TRACE_SORT            = 0;
+  binfile.VERT_SUM              = 0;
+  binfile.SWEEP_FREQ_START      = 0;
+  binfile.SWEEP_FREQ_END        = 0;
+  binfile.SWEEP_LENGTH          = 0;
+  binfile.SWEEP_TYPE            = 0;
+  binfile.SWEEP_NUM_CHANNEL     = 0;
   binfile.SWEEP_TAPER_LEN_START = 0;
-  binfile.SWEEP_TAPER_LEN_END = 0;
-  binfile.TAPER_TYPE = 0;
-  binfile.CORRELATED = 0;
-  binfile.BINARY_GAIN = 0;
-  binfile.AMP_RECOR = 0;
-  binfile.MEASURE_SYSTEM = 0;
-  binfile.IMPULSE_POLAR = 0;
-  binfile.POLAR_CODE = 0;
-  memset(binfile.UNNASSIGNED1,0,240);
+  binfile.SWEEP_TAPER_LEN_END   = 0;
+  binfile.TAPER_TYPE            = 0;
+  binfile.CORRELATED            = 0;
+  binfile.BINARY_GAIN           = 0;
+  binfile.AMP_RECOR             = 0;
+  binfile.MEASURE_SYSTEM        = 0;
+  binfile.IMPULSE_POLAR         = 0;
+  binfile.POLAR_CODE            = 0;
+  memset(binfile.UNNASSIGNED1, 0, 240);
   binfile.SEGY_REV_NUM = 0;
-  binfile.FIXED_LEN = 0;
+  binfile.FIXED_LEN    = 0;
   binfile.NUM_EXT_HEAD = 0;
-  memset(binfile.UNNASSIGNED2,0,94);
+  memset(binfile.UNNASSIGNED2, 0, 94);
 
   return binfile;
 }
@@ -351,10 +348,10 @@ static binaryFileHeader st_binaryFileHeader_init()
  ** \param[out] delta    Distance between two consecutive vertical samples
  **
  *****************************************************************************/
-static int st_readFileHeader(FILE *file,
+static int st_readFileHeader(FILE* file,
                              int verbOption,
-                             int *NPerTrace,
-                             double *delta)
+                             int* NPerTrace,
+                             double* delta)
 {
   unsigned char TFileHead_[3200];
   binaryFileHeader BFileHead_ = st_binaryFileHeader_init();
@@ -363,31 +360,31 @@ static int st_readFileHeader(FILE *file,
   if (fread(&BFileHead_, 1, sizeof(BFileHead_), file) == 0) return (1);
   if (verbOption >= 1) st_print_BFileHead(&BFileHead_);
   *NPerTrace = st_to_s(BFileHead_.NUM_OF_SAMPLES);
-  *delta = (double) st_to_s(BFileHead_.INTERVAL_MS) / 1000;
+  *delta     = (double)st_to_s(BFileHead_.INTERVAL_MS) / 1000;
   return (0);
 }
 
-static int st_read_trace(FILE *file,
+static int st_read_trace(FILE* file,
                          int codefmt,
                          int numtrace,
                          int nPerTrace,
                          double delta,
                          int verbOption,
-                         VectorDouble &values,
-                         VectorDouble &cotes)
+                         VectorDouble& values,
+                         VectorDouble& cotes)
 {
   short svalue;
   int minsamp, maxsamp, ivalue, imaxvalue, iminvalue;
   float fvalue, fmaxvalue, fminvalue, cote;
 
-  cote       = 0;
-  ivalue     = 0;
-  imaxvalue  = 0;
-  iminvalue  = 0;
-  fminvalue  = 0.0;
-  fmaxvalue  = 0.0;
-  minsamp    = -1;
-  maxsamp    = -1;
+  cote      = 0;
+  ivalue    = 0;
+  imaxvalue = 0;
+  iminvalue = 0;
+  fminvalue = 0.0;
+  fmaxvalue = 0.0;
+  minsamp   = -1;
+  maxsamp   = -1;
 
   if (verbOption >= 2) message("Trace %5d: ", numtrace);
   if (codefmt == 1 || codefmt == 5)
@@ -401,17 +398,17 @@ static int st_read_trace(FILE *file,
       if (fvalue > fmaxvalue)
       {
         fmaxvalue = fvalue;
-        maxsamp = i + 1;
+        maxsamp   = i + 1;
       }
       if (fvalue < fminvalue)
       {
         fminvalue = fvalue;
-        minsamp = i + 1;
+        minsamp   = i + 1;
       }
-      values[i] = (double) fvalue;
+      values[i] = (double)fvalue;
       if (ABS(values[i]) < 0.01) values[i] = TEST;
-      cotes[i] = (double) cote;
-      cote -= (float) delta;
+      cotes[i] = (double)cote;
+      cote -= (float)delta;
     }
     if (verbOption >= 2)
       message("Min(%6d) = %11.0f - Max(%6d) = %11.0f\n", minsamp, fminvalue,
@@ -430,23 +427,23 @@ static int st_read_trace(FILE *file,
       if (codefmt == 3)
       {
         if (fread(&svalue, 2, 1, file) == 0) return (1);
-        ivalue = (int) svalue;
+        ivalue = (int)svalue;
       }
 
       if (ivalue > imaxvalue)
       {
         imaxvalue = ivalue;
-        maxsamp = i + 1;
+        maxsamp   = i + 1;
       }
       if (ivalue < iminvalue)
       {
         iminvalue = ivalue;
-        minsamp = i + 1;
+        minsamp   = i + 1;
       }
-      values[i] = (double) ivalue;
+      values[i] = (double)ivalue;
       if (ABS(values[i]) < 0.01) values[i] = TEST;
-      cotes[i] = (double) cote;
-      cote -= (float) delta;
+      cotes[i] = (double)cote;
+      cote -= (float)delta;
     }
     if (verbOption >= 2)
       message("Min(%6d) = %11d - Max(%6d) = %11d\n", minsamp, iminvalue,
@@ -520,14 +517,14 @@ static int st_surface_identify(int verbOption,
   }
 
   *iaux_top = -1;
-  if (! aux_top.empty())
+  if (!aux_top.empty())
   {
     *iaux_top = surfaces->getUID(aux_top);
     if (*iaux_top < 0) return 1;
   }
 
   *iaux_bot = -1;
-  if (! aux_bot.empty())
+  if (!aux_bot.empty())
   {
     *iaux_bot = surfaces->getUID(aux_bot);
     if (*iaux_bot < 0) return 1;
@@ -559,15 +556,15 @@ static int st_surface_identify(int verbOption,
  ** \param[out] czbot     Coordinate for the Bottom along Z (or TEST)
  **
  *****************************************************************************/
-static int st_get_cuts(Db *surfaces,
+static int st_get_cuts(Db* surfaces,
                        int rank,
                        int iatt_top,
                        int iatt_bot,
                        double /*xtrace*/,
                        double /*ytrace*/,
                        double thickmin,
-                       double *cztop,
-                       double *czbot)
+                       double* cztop,
+                       double* czbot)
 {
 
   // Initializations
@@ -617,7 +614,7 @@ static int st_get_cuts(Db *surfaces,
  **
  *****************************************************************************/
 static void st_verify_refpt(RefPt refpt[3],
-                            RefStats &refstats,
+                            RefStats& refstats,
                             int nbrefpt,
                             double x0,
                             double y0,
@@ -659,12 +656,12 @@ static void st_verify_refpt(RefPt refpt[3],
  **
  *****************************************************************************/
 static void st_grid_from_3refpt(RefPt refpt[3],
-                                RefStats &refstats,
+                                RefStats& refstats,
                                 double dz,
-                                Grid &def_grid)
+                                Grid& def_grid)
 {
   double dx12, dy12, di12, dj12, dx13, dy13, di13, dj13, mat[4], a[2], di10,
-      dj10;
+    dj10;
   double dxs, dxc, dys, dyc, dx, dy, theta, det, x0, y0, cost, sint;
   int nz;
 
@@ -684,41 +681,41 @@ static void st_grid_from_3refpt(RefPt refpt[3],
 
   // Fill the matrix and vector
 
-  MAT(0,0) = +di12;
-  MAT(0,1) = -dj12;
-  MAT(1,0) = +di13;
-  MAT(1,1) = -dj13;
-  a[0] = dx12;
-  a[1] = dx13;
+  MAT(0, 0) = +di12;
+  MAT(0, 1) = -dj12;
+  MAT(1, 0) = +di13;
+  MAT(1, 1) = -dj13;
+  a[0]      = dx12;
+  a[1]      = dx13;
 
-  det = (MAT(0,0) * MAT(1, 1) - MAT(1,0) * MAT(0, 1));
+  det = (MAT(0, 0) * MAT(1, 1) - MAT(1, 0) * MAT(0, 1));
   dxc = (a[0] * MAT(1, 1) - a[1] * MAT(0, 1)) / det;
-  dys = (MAT(0,0) * a[1] - MAT(1,0) * a[0]) / det;
+  dys = (MAT(0, 0) * a[1] - MAT(1, 0) * a[0]) / det;
 
-  MAT(0,0) = +di12;
-  MAT(0,1) = +dj12;
-  MAT(1,0) = +di13;
-  MAT(1,1) = +dj13;
-  a[0] = dy12;
-  a[1] = dy13;
+  MAT(0, 0) = +di12;
+  MAT(0, 1) = +dj12;
+  MAT(1, 0) = +di13;
+  MAT(1, 1) = +dj13;
+  a[0]      = dy12;
+  a[1]      = dy13;
 
-  det = (MAT(0,0) * MAT(1, 1) - MAT(1,0) * MAT(0, 1));
+  det = (MAT(0, 0) * MAT(1, 1) - MAT(1, 0) * MAT(0, 1));
   dxs = (a[0] * MAT(1, 1) - a[1] * MAT(0, 1)) / det;
-  dyc = (MAT(0,0) * a[1] - MAT(1,0) * a[0]) / det;
+  dyc = (MAT(0, 0) * a[1] - MAT(1, 0) * a[0]) / det;
 
-  dx = sqrt(dxs * dxs + dxc * dxc);
-  dy = sqrt(dys * dys + dyc * dyc);
+  dx    = sqrt(dxs * dxs + dxc * dxc);
+  dy    = sqrt(dys * dys + dyc * dyc);
   theta = 0.5 * (atan2(dxs, dxc) + atan2(dys, dyc)) * 180. / GV_PI;
-  cost = 0.5 * (dxc / dx + dyc / dy);
-  sint = 0.5 * (dxs / dx + dys / dy);
+  cost  = 0.5 * (dxc / dx + dyc / dy);
+  sint  = 0.5 * (dxs / dx + dys / dy);
 
   // Origin of the grid
 
   di10 = refpt[0].iline - refstats.ilming;
   dj10 = refpt[0].xline - refstats.xlming;
-  x0 = refpt[0].xtrace - di10 * dx * cost + dj10 * dy * sint;
-  y0 = refpt[0].ytrace - di10 * dx * sint - dj10 * dy * cost;
-  nz = static_cast<int>((refstats.zmaxl - refstats.zminl) / dz);
+  x0   = refpt[0].xtrace - di10 * dx * cost + dj10 * dy * sint;
+  y0   = refpt[0].ytrace - di10 * dx * sint - dj10 * dy * cost;
+  nz   = static_cast<int>((refstats.zmaxl - refstats.zminl) / dz);
 
   // Fill the Grid structure
 
@@ -751,9 +748,9 @@ static void st_grid_from_3refpt(RefPt refpt[3],
  **
  *****************************************************************************/
 static void st_grid_from_2refpt(RefPt refpt[3],
-                                RefStats &refstats,
+                                RefStats& refstats,
                                 double dz,
-                                Grid &def_grid)
+                                Grid& def_grid)
 {
   double dx12, dy12, di12, dj12, di10, dj10;
   double dx, dy, theta, x0, y0, sint, cost;
@@ -761,10 +758,10 @@ static void st_grid_from_2refpt(RefPt refpt[3],
 
   // Initializations
 
-  cost = 0.;
-  sint = 0.;
-  dx = 0.;
-  dy = 0.;
+  cost  = 0.;
+  sint  = 0.;
+  dx    = 0.;
+  dy    = 0.;
   theta = 0.;
 
   // Comparing points 1 and 2
@@ -777,27 +774,27 @@ static void st_grid_from_2refpt(RefPt refpt[3],
   if (dj12 == 0)
   {
     theta = atan2(dy12, dx12) * 180. / GV_PI;
-    dx = sqrt((dx12 * dx12 + dy12 * dy12) / (di12 * di12));
-    dy = 0.;
-    cost = dx12 / (dx * di12);
-    sint = dy12 / (dx * di12);
+    dx    = sqrt((dx12 * dx12 + dy12 * dy12) / (di12 * di12));
+    dy    = 0.;
+    cost  = dx12 / (dx * di12);
+    sint  = dy12 / (dx * di12);
   }
   else if (di12 == 0)
   {
     theta = atan2(dy12, dx12) * 180. / GV_PI - 90.;
-    dy = sqrt((dx12 * dx12 + dy12 * dy12) / (dj12 * dj12));
-    dx = 0.;
-    sint = -dx12 / (dy * dj12);
-    cost = dy12 / (dy * dj12);
+    dy    = sqrt((dx12 * dx12 + dy12 * dy12) / (dj12 * dj12));
+    dx    = 0.;
+    sint  = -dx12 / (dy * dj12);
+    cost  = dy12 / (dy * dj12);
   }
 
   // Origin of the grid
 
   di10 = refpt[0].iline - refstats.ilming;
   dj10 = refpt[0].xline - refstats.xlming;
-  x0 = refpt[0].xtrace - di10 * dx * cost + dj10 * dy * sint;
-  y0 = refpt[0].ytrace - di10 * dx * sint - dj10 * dy * cost;
-  nz = static_cast<int>((refstats.zmaxl - refstats.zminl) / dz);
+  x0   = refpt[0].xtrace - di10 * dx * cost + dj10 * dy * sint;
+  y0   = refpt[0].ytrace - di10 * dx * sint - dj10 * dy * cost;
+  nz   = static_cast<int>((refstats.zmaxl - refstats.zminl) / dz);
 
   // Fill the Grid structure
 
@@ -860,9 +857,9 @@ static int st_store_refpt(int nbrefpt,
 
   // Store the new Reference point
 
-  ref0 = &refpt[nbrefpt];
-  ref0->iline = iline;
-  ref0->xline = xline;
+  ref0         = &refpt[nbrefpt];
+  ref0->iline  = iline;
+  ref0->xline  = xline;
   ref0->xtrace = xtrace;
   ref0->ytrace = ytrace;
   nbrefpt++;
@@ -876,7 +873,7 @@ static int st_store_refpt(int nbrefpt,
  ** \param[in]  def_grid  Pointer to the Grid structure
  **
  *****************************************************************************/
-static void st_print_grid(const Grid &def_grid)
+static void st_print_grid(const Grid& def_grid)
 {
   message("\n");
   message("- Resulting Grid of SEGY traces\n");
@@ -893,7 +890,7 @@ static void st_print_grid(const Grid &def_grid)
  ** \param[in,out] tab    Vector
  **
  *****************************************************************************/
-static int st_complete_squeeze_and_stretch(int ntab, VectorDouble &tab)
+static int st_complete_squeeze_and_stretch(int ntab, VectorDouble& tab)
 {
   double v1;
 
@@ -979,7 +976,7 @@ static bool st_within_layer(double z0,
       if (FFFF(cztop)) return false;
       iz1 = iz2 = static_cast<int>((nz - 1) - (cztop - cote) / delta);
       if (ABS(iz1) > nz) return false;
-      *cote_ret = cztop - delta * (nz - iz1 -1);
+      *cote_ret = cztop - delta * (nz - iz1 - 1);
       break;
 
     case 2: // Vertical averaging (iz1 & iz2 are not used)
@@ -991,17 +988,17 @@ static bool st_within_layer(double z0,
       if (FFFF(czbot)) return false;
       if (FFFF(cztop)) return false;
       if (cztop < czbot) return false;
-      double dz = (cztop - czbot) / (double) (nz - 1);
-      iz1 = static_cast<int>(floor((cote - czbot) / dz));
-      iz2 = static_cast<int>(ceil((cote - czbot + delta) / dz));
+      double dz = (cztop - czbot) / (double)(nz - 1);
+      iz1       = static_cast<int>(floor((cote - czbot) / dz));
+      iz2       = static_cast<int>(ceil((cote - czbot + delta) / dz));
       *cote_ret = czbot + dz * iz1;
       break;
   }
 
   // Calculate the vertical index
 
-  iz1 = MAX(0, MIN(iz1, nz-1));
-  iz2 = MAX(0, MIN(iz2, nz-1));
+  iz1 = MAX(0, MIN(iz1, nz - 1));
+  iz2 = MAX(0, MIN(iz2, nz - 1));
 
   // Returning arguments
 
@@ -1015,18 +1012,17 @@ static bool st_within_layer(double z0,
  ** Calculate the average
  **
  *****************************************************************************/
-static double st_get_average(int nz, const VectorDouble &writes)
+static double st_get_average(int nz, const VectorDouble& writes)
 {
   double dmean = 0.;
-  int nmean = 0;
+  int nmean    = 0;
   for (int iz = 0; iz < nz; iz++)
   {
     if (FFFF(writes[iz])) continue;
     dmean += writes[iz];
     nmean++;
   }
-  dmean = (nmean > 0) ? dmean / (double) nmean :
-                        TEST;
+  dmean = (nmean > 0) ? dmean / (double)nmean : TEST;
   return dmean;
 }
 
@@ -1043,19 +1039,19 @@ static int st_identify_trace_rank(DbGrid* surfaces,
                                   double xtrace,
                                   double ytrace)
 {
-    // Check if the surface file has been defined
+  // Check if the surface file has been defined
 
-    if (surfaces == nullptr) return -1;
+  if (surfaces == nullptr) return -1;
 
-    // The surface is valid, return the vertical bounds along trace
+  // The surface is valid, return the vertical bounds along trace
 
-    VectorDouble coor(2);
-    coor[0] = xtrace;
-    coor[1] = ytrace;
+  VectorDouble coor(2);
+  coor[0] = xtrace;
+  coor[1] = ytrace;
 
-    // Find the index of grid node
+  // Find the index of grid node
 
-    return surfaces->coordinateToRank(coor);
+  return surfaces->coordinateToRank(coor);
 }
 
 /**
@@ -1093,20 +1089,20 @@ static void st_auxiliary(Db* surfaces,
 
   if (iaux_top >= 0)
   {
-    double cote = surfaces->getArray(rank, iaux_top);
+    double cote     = surfaces->getArray(rank, iaux_top);
     refstats.auxtop = TEST;
-    (void) st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1,
-                           &iz2, &refstats.auxtop);
+    (void)st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1,
+                          &iz2, &refstats.auxtop);
   }
 
   // Project optional Auxiliary Bottom surface
 
   if (iaux_bot >= 0)
   {
-    double cote = surfaces->getArray(rank, iaux_bot);
+    double cote     = surfaces->getArray(rank, iaux_bot);
     refstats.auxbot = TEST;
-    (void) st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1,
-                           &iz2, &refstats.auxbot);
+    (void)st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1,
+                          &iz2, &refstats.auxbot);
   }
 }
 
@@ -1161,7 +1157,7 @@ static int st_load_trace(int nPerTrace,
 
     // Dispatch
 
-    if (! st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1, &iz2, &cote_ret))
+    if (!st_within_layer(z0, delta, cztop, czbot, cote, option, nz, &iz1, &iz2, &cote_ret))
       continue;
 
     // Update statistics
@@ -1204,12 +1200,12 @@ static int st_load_trace(int nPerTrace,
 static void st_print_results(int nPerTrace,
                              bool flag_surf,
                              double delta,
-                             RefStats &refstats)
+                             RefStats& refstats)
 {
   mestitle(1, "Extracting information from the SEGY file");
   if (flag_surf)
     message(
-        "(Statistics are calculated taking Surface information into account)\n");
+      "(Statistics are calculated taking Surface information into account)\n");
   message("- Number of samples per Trace    = %d \n", nPerTrace);
   message("- Interval between samples       = %lf\n", delta);
   message("- Minimum Inline number          = %d \n", refstats.ilming);
@@ -1245,19 +1241,19 @@ static void st_print_results(int nPerTrace,
  ** Get Trace characteristics
  **
  *****************************************************************************/
-void st_get_trace_params(traceHead *Theader,
-                         int *iline,
-                         int *xline,
-                         double *delta,
-                         double *xtrace,
-                         double *ytrace)
+void st_get_trace_params(traceHead* Theader,
+                         int* iline,
+                         int* xline,
+                         double* delta,
+                         double* xtrace,
+                         double* ytrace)
 {
   int scacsv = st_to_s(Theader->SCALE_COOR);
-  *delta = (double) st_to_s(Theader->SAMPLE_INTRVL) / 1000;
-  *xtrace = st_scaling(st_to_f(Theader->ENS_COOR_X), scacsv);
-  *ytrace = st_scaling(st_to_f(Theader->ENS_COOR_Y), scacsv);
-  *iline = st_to_i(Theader->INLINE);
-  *xline = st_to_i(Theader->CROSS);
+  *delta     = (double)st_to_s(Theader->SAMPLE_INTRVL) / 1000;
+  *xtrace    = st_scaling(st_to_f(Theader->ENS_COOR_X), scacsv);
+  *ytrace    = st_scaling(st_to_f(Theader->ENS_COOR_Y), scacsv);
+  *iline     = st_to_i(Theader->INLINE);
+  *xline     = st_to_i(Theader->CROSS);
 }
 
 /****************************************************************************/
@@ -1288,7 +1284,7 @@ static void st_refstats_update(int iline,
                                int xline,
                                double xtrace,
                                double ytrace,
-                               RefStats &refstats)
+                               RefStats& refstats)
 {
   if (xtrace < refstats.xming || FFFF(refstats.xming)) refstats.xming = xtrace;
   if (xtrace > refstats.xmaxg || FFFF(refstats.xmaxg)) refstats.xmaxg = xtrace;
@@ -1310,7 +1306,7 @@ static void st_refstats_update(int iline,
  ** Initialize statistics
  **
  *****************************************************************************/
-static void st_refstats_init(RefStats &refstats,
+static void st_refstats_init(RefStats& refstats,
                              double modif_high,
                              double modif_low,
                              double modif_scale)
@@ -1344,8 +1340,8 @@ static void st_refstats_init(RefStats &refstats,
   refstats.vmaxg = TEST;
   refstats.thicg = TEST;
 
-  refstats.modif_low = modif_low;
-  refstats.modif_high = modif_high;
+  refstats.modif_low   = modif_low;
+  refstats.modif_high  = modif_high;
   refstats.modif_scale = modif_scale;
 }
 
@@ -1353,93 +1349,93 @@ static traceHead st_traceHead_init()
 {
   traceHead trace;
 
-  trace.TRACE_SEQ_GLOBAL = 0;
-  trace.TRACE_SEQ_LOCAL = 0;
-  trace.ORI_RECORD_NUM = 0;
-  trace.TRACE_NUM_FIELD = 0;
-  trace.SOURCE_POINT = 0;
-  trace.ENSEMBLE_NUM = 0;
-  trace.ENS_TRACE_NUM = 0;
-  trace.TRACE_CODE = 0;
-  trace.NUM_VERT_SUM = 0;
-  trace.NUM_HORZ_SUM = 0;
-  trace.DATA_USE = 0;
-  trace.DIST_CENT_RECV = 0;
-  trace.RECV_GRP_ELEV = 0;
-  trace.SURF_ELEV_SRC = 0;
-  trace.SOURCE_DEPTH = 0;
-  trace.DATUM_ELEV_RECV = 0;
-  trace.DATUM_ELAV_SRC = 0;
-  trace.WATER_DEPTH_SRC = 0;
-  trace.WATER_DEPTH_GRP = 0;
-  trace.SCALE_DEPTH = 0;
-  trace.SCALE_COOR = 0;
-  trace.SRC_COOR_X = 0;
-  trace.SRC_COOR_Y = 0;
-  trace.GRP_COOR_X = 0;
-  trace.GRP_COOR_Y = 0;
-  trace.COOR_UNIT = 0;
-  trace.WEATHER_VEL = 0;
-  trace.SWEATHER_VEL = 0;
-  trace.UPHOLE_T_SRC = 0;
-  trace.UPHOLE_T_GRP = 0;
-  trace.SRC_STA_CORRC = 0;
-  trace.GRP_STA_CORRC = 0;
-  trace.TOTAL_STA = 0;
-  trace.LAG_TIME_A = 0;
-  trace.LAG_TIME_B = 0;
-  trace.DELAY_T = 0;
-  trace.MUTE_T_STRT = 0;
-  trace.MUTE_T_END = 0;
-  trace.NUM_OF_SAMPL = 0;
-  trace.SAMPLE_INTRVL = 0;
-  trace.GAIN_TYPE = 0;
-  trace.GAIN_CONST = 0;
-  trace.GAIN_INIT = 0;
-  trace.CORRLTD = 0;
-  trace.SWEEP_FREQ_START = 0;
-  trace.SWEEP_FREQ_END = 0;
-  trace.SWEEP_LENGTH = 0;
-  trace.SWEEP_TYPE = 0;
+  trace.TRACE_SEQ_GLOBAL      = 0;
+  trace.TRACE_SEQ_LOCAL       = 0;
+  trace.ORI_RECORD_NUM        = 0;
+  trace.TRACE_NUM_FIELD       = 0;
+  trace.SOURCE_POINT          = 0;
+  trace.ENSEMBLE_NUM          = 0;
+  trace.ENS_TRACE_NUM         = 0;
+  trace.TRACE_CODE            = 0;
+  trace.NUM_VERT_SUM          = 0;
+  trace.NUM_HORZ_SUM          = 0;
+  trace.DATA_USE              = 0;
+  trace.DIST_CENT_RECV        = 0;
+  trace.RECV_GRP_ELEV         = 0;
+  trace.SURF_ELEV_SRC         = 0;
+  trace.SOURCE_DEPTH          = 0;
+  trace.DATUM_ELEV_RECV       = 0;
+  trace.DATUM_ELAV_SRC        = 0;
+  trace.WATER_DEPTH_SRC       = 0;
+  trace.WATER_DEPTH_GRP       = 0;
+  trace.SCALE_DEPTH           = 0;
+  trace.SCALE_COOR            = 0;
+  trace.SRC_COOR_X            = 0;
+  trace.SRC_COOR_Y            = 0;
+  trace.GRP_COOR_X            = 0;
+  trace.GRP_COOR_Y            = 0;
+  trace.COOR_UNIT             = 0;
+  trace.WEATHER_VEL           = 0;
+  trace.SWEATHER_VEL          = 0;
+  trace.UPHOLE_T_SRC          = 0;
+  trace.UPHOLE_T_GRP          = 0;
+  trace.SRC_STA_CORRC         = 0;
+  trace.GRP_STA_CORRC         = 0;
+  trace.TOTAL_STA             = 0;
+  trace.LAG_TIME_A            = 0;
+  trace.LAG_TIME_B            = 0;
+  trace.DELAY_T               = 0;
+  trace.MUTE_T_STRT           = 0;
+  trace.MUTE_T_END            = 0;
+  trace.NUM_OF_SAMPL          = 0;
+  trace.SAMPLE_INTRVL         = 0;
+  trace.GAIN_TYPE             = 0;
+  trace.GAIN_CONST            = 0;
+  trace.GAIN_INIT             = 0;
+  trace.CORRLTD               = 0;
+  trace.SWEEP_FREQ_START      = 0;
+  trace.SWEEP_FREQ_END        = 0;
+  trace.SWEEP_LENGTH          = 0;
+  trace.SWEEP_TYPE            = 0;
   trace.SWEEP_TAPER_LEN_START = 0;
-  trace.SWEEP_TAPER_LEN_END = 0;
-  trace.TAPER_TYPE = 0;
-  trace.ALIAS_FREQ = 0;
-  trace.ALIAS_SLOPE = 0;
-  trace.NOTCH_FREQ = 0;
-  trace.NOTCH_SLOPE = 0;
-  trace.LOWCUT_FREQ = 0;
-  trace.HIGHCUT_FREQ = 0;
-  trace.LOWCUT_SLOPE = 0;
-  trace.HIGHCUT_SLOPE = 0;
-  trace.YEAR = 0;
-  trace.DAY = 0;
-  trace.HOUR = 0;
-  trace.MINUTE = 0;
-  trace.SECOND = 0;
-  trace.TIME_CODE = 0;
-  trace.WEIGHT_FACT = 0;
-  trace.GEOPHNE_ROLL = 0;
-  trace.GEOPHNE_TRACE = 0;
-  trace.GEOPHNE_LAST = 0;
-  trace.GAP_SIZE = 0;
-  trace.OVER_TRAVEL = 0;
-  trace.ENS_COOR_X = 0;
-  trace.ENS_COOR_Y = 0;
-  trace.INLINE = 0;
-  trace.CROSS = 0;
-  trace.SHOOTPOINT = 0;
-  trace.SHOOTPOINT_SCALE = 0;
-  trace.TRACE_UNIT = 0;
-  memset(trace.TRANSD_CONST,0,6);
+  trace.SWEEP_TAPER_LEN_END   = 0;
+  trace.TAPER_TYPE            = 0;
+  trace.ALIAS_FREQ            = 0;
+  trace.ALIAS_SLOPE           = 0;
+  trace.NOTCH_FREQ            = 0;
+  trace.NOTCH_SLOPE           = 0;
+  trace.LOWCUT_FREQ           = 0;
+  trace.HIGHCUT_FREQ          = 0;
+  trace.LOWCUT_SLOPE          = 0;
+  trace.HIGHCUT_SLOPE         = 0;
+  trace.YEAR                  = 0;
+  trace.DAY                   = 0;
+  trace.HOUR                  = 0;
+  trace.MINUTE                = 0;
+  trace.SECOND                = 0;
+  trace.TIME_CODE             = 0;
+  trace.WEIGHT_FACT           = 0;
+  trace.GEOPHNE_ROLL          = 0;
+  trace.GEOPHNE_TRACE         = 0;
+  trace.GEOPHNE_LAST          = 0;
+  trace.GAP_SIZE              = 0;
+  trace.OVER_TRAVEL           = 0;
+  trace.ENS_COOR_X            = 0;
+  trace.ENS_COOR_Y            = 0;
+  trace.INLINE                = 0;
+  trace.CROSS                 = 0;
+  trace.SHOOTPOINT            = 0;
+  trace.SHOOTPOINT_SCALE      = 0;
+  trace.TRACE_UNIT            = 0;
+  memset(trace.TRANSD_CONST, 0, 6);
   trace.TRANSD_UNIT = 0;
   trace.TRACE_IDENT = 0;
-  trace.SCALE_TIME = 0;
-  trace.SRC_ORIENT = 0;
-  memset(trace.SRC_DIRECTION,0,6);
-  memset(trace.SRC_MEASUREMT,0,6);
+  trace.SCALE_TIME  = 0;
+  trace.SRC_ORIENT  = 0;
+  memset(trace.SRC_DIRECTION, 0, 6);
+  memset(trace.SRC_MEASUREMT, 0, 6);
   trace.SRC_UNIT = 0;
-  memset(trace.UNNASSIGNED1,0,6);
+  memset(trace.UNNASSIGNED1, 0, 6);
 
   return trace;
 }
@@ -1496,8 +1492,8 @@ static traceHead st_traceHead_init()
  ** \details is meaningless. It is fixed by the user.
  **
  *****************************************************************************/
-SegYArg segy_array(const char *filesegy,
-                   DbGrid *surf2D,
+SegYArg segy_array(const char* filesegy,
+                   DbGrid* surf2D,
                    const String& top_name,
                    const String& bot_name,
                    const String& top_aux,
@@ -1525,13 +1521,13 @@ SegYArg segy_array(const char *filesegy,
 
   // Initializations
 
-  FILE* file = nullptr;
-  int nbrefpt = 0;
-  int nz = 0;
-  double delta = 0.;
-  double z0 = 0.;
-  double cztop = 0.;
-  double czbot = 0.;
+  FILE* file           = nullptr;
+  int nbrefpt          = 0;
+  int nz               = 0;
+  double delta         = 0.;
+  double z0            = 0.;
+  double cztop         = 0.;
+  double czbot         = 0.;
   traceHead traceHead_ = st_traceHead_init();
   st_refstats_init(refstats, modif_high, modif_low, modif_scale);
   segyarg.error = 1;
@@ -1539,8 +1535,8 @@ SegYArg segy_array(const char *filesegy,
   // Preliminary checks
 
   bool flag_surf = (surf2D != nullptr);
-  bool flag_top = flag_surf && (option ==  1 || option == -2);
-  bool flag_bot = flag_surf && (option == -1 || option == -2);
+  bool flag_top  = flag_surf && (option == 1 || option == -2);
+  bool flag_bot  = flag_surf && (option == -1 || option == -2);
   if (st_surface_identify(verbOption, surf2D,
                           bot_name, flag_bot, &iatt_bot,
                           top_name, flag_top, &iatt_top,
@@ -1698,10 +1694,10 @@ SegYArg segy_array(const char *filesegy,
  ** \details: by the output grid (if flag_store == 1)
  **
  *****************************************************************************/
-Grid segy_summary(const char *filesegy,
-                  DbGrid *surf2D,
-                  const String &name_top,
-                  const String &name_bot,
+Grid segy_summary(const char* filesegy,
+                  DbGrid* surf2D,
+                  const String& name_top,
+                  const String& name_bot,
                   double thickmin,
                   int option,
                   int nz_ss,
@@ -1715,21 +1711,21 @@ Grid segy_summary(const char *filesegy,
                   double modif_scale,
                   int codefmt)
 {
-  double   xtrace,ytrace;
-  int      iline,xline,nbvalues;
-  int      nPerTrace,iatt_top = 0,iatt_bot = 0,iaux_top = 0,iaux_bot = 0;
-  RefPt    refpt[3];
+  double xtrace, ytrace;
+  int iline, xline, nbvalues;
+  int nPerTrace, iatt_top = 0, iatt_bot = 0, iaux_top = 0, iaux_bot = 0;
+  RefPt refpt[3];
   RefStats refstats;
   Grid def_grid;
   VectorDouble values, cotes, writes;
 
   // Initializations
 
-  FILE* file = nullptr;
-  int nbrefpt = 0;
-  int nz = 0;
+  FILE* file   = nullptr;
+  int nbrefpt  = 0;
+  int nz       = 0;
   double delta = 0.;
-  double z0 = 0.;
+  double z0    = 0.;
   double czbot = 0.;
   double cztop = 0.;
   st_refstats_init(refstats, modif_high, modif_low, modif_scale);
@@ -1738,8 +1734,8 @@ Grid segy_summary(const char *filesegy,
   // Preliminary checks
 
   bool flag_surf = (surf2D != nullptr);
-  bool flag_top = flag_surf && (option ==  1 || option == -2);
-  bool flag_bot = flag_surf && (option == -1 || option == -2);
+  bool flag_top  = flag_surf && (option == 1 || option == -2);
+  bool flag_bot  = flag_surf && (option == -1 || option == -2);
   if (st_surface_identify(verbOption, surf2D,
                           name_bot, flag_bot, &iatt_bot,
                           name_top, flag_top, &iatt_top,
@@ -1878,11 +1874,11 @@ Grid segy_summary(const char *filesegy,
  ** \remarks - no attention is paid to the vertical mesh value.
  **
  *****************************************************************************/
-int db_segy(const char *filesegy,
-            DbGrid *grid3D,
-            DbGrid *surf2D,
-            const String &name_top,
-            const String &name_bot,
+int db_segy(const char* filesegy,
+            DbGrid* grid3D,
+            DbGrid* surf2D,
+            const String& name_top,
+            const String& name_bot,
             double thickmin,
             int option,
             int nz_ss,
@@ -1908,11 +1904,11 @@ int db_segy(const char *filesegy,
   // Initializations
 
   int nPerTrace;
-  FILE* file = nullptr;
-  int nbrefpt = 0;
-  int nz = 0;
+  FILE* file   = nullptr;
+  int nbrefpt  = 0;
+  int nz       = 0;
   double delta = 0.;
-  double z0 = 0.;
+  double z0    = 0.;
   double czbot = 0.;
   double cztop = 0.;
   int ndim     = grid3D->getNDim();
@@ -1923,8 +1919,8 @@ int db_segy(const char *filesegy,
   // Preliminary checks
 
   bool flag_surf = (surf2D != nullptr);
-  bool flag_top = flag_surf && (option == 1 || option == -2);
-  bool flag_bot = flag_surf && (option == -1 || option == -2);
+  bool flag_top  = flag_surf && (option == 1 || option == -2);
+  bool flag_bot  = flag_surf && (option == -1 || option == -2);
   if (st_surface_identify(verbOption, surf2D,
                           name_bot, flag_bot, &iatt_bot,
                           name_top, flag_top, &iatt_top,
@@ -2022,8 +2018,8 @@ int db_segy(const char *filesegy,
     if (option == 2)
     {
       double dmean = st_get_average(nz, writes);
-      indg[2] = 0;
-      rank = grid3D->indiceToRank(indg);
+      indg[2]      = 0;
+      rank         = grid3D->indiceToRank(indg);
       if (rank >= 0) grid3D->setArray(rank, iatt, dmean);
     }
     else
@@ -2031,7 +2027,7 @@ int db_segy(const char *filesegy,
       for (int iz = 0; iz < nz; iz++)
       {
         indg[2] = iz;
-        rank = grid3D->indiceToRank(indg);
+        rank    = grid3D->indiceToRank(indg);
         if (rank < 0) continue;
         grid3D->setArray(rank, iatt, writes[iz]);
       }
@@ -2053,4 +2049,4 @@ int db_segy(const char *filesegy,
   return 0;
 }
 
-}
+} // namespace gstlrn

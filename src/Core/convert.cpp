@@ -30,9 +30,10 @@
 #include "OutputFormat/GridZycor.hpp"
 #include "OutputFormat/vtk.h"
 #include "geoslib_define.h"
+
+#include <cstdio>
+#include <cstring>
 #include <sstream>
-#include <stdio.h>
-#include <string.h>
 #include <string>
 
 /*! \cond */
@@ -627,5 +628,4 @@ int csv_table_read(const String& filename,
 
   return 0;
 }
-
-}
+} // namespace gstlrn

@@ -8,38 +8,38 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Db/DbGrid.hpp"
-#include "Db/Db.hpp"
-#include "Model/ModelGeneric.hpp"
-#include "Simulation/ACalcSimulation.hpp"
-#include "Simulation/SimuFFTParam.hpp"
 #include "Simulation/CalcSimuFFT.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Core/fftn.hpp"
+#include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
+#include "Model/ModelGeneric.hpp"
+#include "Simulation/ACalcSimulation.hpp"
+#include "Simulation/SimuFFTParam.hpp"
 
-#include <math.h>
+#include <cmath>
 
-#define IND(ix,iy,iz) ((iz) + _dims[2] * ((iy) + _dims[1] * (ix)))
-#define U(ix,iy,iz)   (_u[IND(ix,iy,iz)])
+#define IND(ix, iy, iz) ((iz) + _dims[2] * ((iy) + _dims[1] * (ix)))
+#define U(ix, iy, iz)   (_u[IND(ix, iy, iz)])
 
 namespace gstlrn
 {
 CalcSimuFFT::CalcSimuFFT(int nbsimu, bool verbose, int seed)
-    : ACalcSimulation(nbsimu, seed),
-      _iattOut(-1),
-      _verbose(verbose),
-      _param(),
-      _nxyz(0),
-      _nx(),
-      _shift(),
-      _dims(),
-      _dim2(),
-      _sizes_alloc(0),
-      _cmat(),
-      _rnd(),
-      _u(),
-      _v()
+  : ACalcSimulation(nbsimu, seed)
+  , _iattOut(-1)
+  , _verbose(verbose)
+  , _param()
+  , _nxyz(0)
+  , _nx()
+  , _shift()
+  , _dims()
+  , _dim2()
+  , _sizes_alloc(0)
+  , _cmat()
+  , _rnd()
+  , _u()
+  , _v()
 {
 }
 
@@ -89,10 +89,10 @@ void CalcSimuFFT::_alloc()
 {
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
 
-  _nx.resize(3,0);
-  _shift.resize(3,0);
-  _dims.resize(3,0);
-  _dim2.resize(3,0);
+  _nx.resize(3, 0);
+  _shift.resize(3, 0);
+  _dims.resize(3, 0);
+  _dim2.resize(3, 0);
   _nxyz = 1;
   for (int i = 0; i < 3; i++)
   {
@@ -166,8 +166,8 @@ int CalcSimuFFT::_getNOptimalEven(int number, int largeFactor)
   while (answer)
   {
     VectorInt factors = _getFactors(local);
-    int nfact = (int) factors.size();
-    answer = false;
+    int nfact         = (int)factors.size();
+    answer            = false;
     for (int i = 0; i < nfact; i++)
       if (factors[i] > largeFactor) answer = 1;
     if (answer) local += 2;
@@ -212,8 +212,7 @@ VectorInt CalcSimuFFT::_getFactors(int number)
       local /= j;
     }
     j += 2;
-  }
-  while (j <= local);
+  } while (j <= local);
 
   if (nfact <= 0)
     factors.push_back(1);
@@ -263,9 +262,9 @@ void CalcSimuFFT::_gridDilate()
   /* Evaluate the count of elementary grid mesh (in each direction) */
   /* for the covariance to become negligeable (<percent)*/
 
-  int ndx = 1;
-  int ndy = 1;
-  int ndz = 1;
+  int ndx     = 1;
+  int ndy     = 1;
+  int ndz     = 1;
   bool not_ok = true;
 
   while (not_ok)
@@ -375,13 +374,13 @@ void CalcSimuFFT::_gridDilate()
  **                      covariance is considered as small enough for dilation
  **
  *****************************************************************************/
-bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble &xyz,
+bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble& xyz,
                                 int ix,
                                 int iy,
                                 int iz,
                                 double percent)
 {
-  int ndim = _getNDim();
+  int ndim            = _getNDim();
   ModelGeneric* model = getModel();
 
   /* Calculate the reference C(0) value */
@@ -393,7 +392,7 @@ bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble &xyz,
   VectorDouble d(ndim, 0.);
   for (int i = 0; i < ndim; i++)
     d[i] = ix * xyz[i][0] + iy * xyz[i][1] + iz * xyz[i][2];
-  double hh = VH::norm(d);
+  double hh    = VH::norm(d);
   double value = model->evaluateOneIncr(hh);
 
   return (value / refval <= percent / 100);
@@ -417,7 +416,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
   VectorInt indg(3);
   VectorInt jnd(3);
   VectorVectorDouble xyz1(3);
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  DbGrid* dbgrid      = dynamic_cast<DbGrid*>(getDbout());
   ModelGeneric* model = getModel();
 
   /* Initializations */
@@ -431,7 +430,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
   double hnorm = 1.;
   for (int i = 0; i < 3; i++)
   {
-    indg[i] = 0;
+    indg[i]  = 0;
     delta[i] = del[i] = 0.;
     xyz[i] = xyz0[i] = 0.;
     xyz1[i].resize(3);
@@ -439,7 +438,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
       xyz1[i][j] = 0.;
   }
   dbgrid->rankToCoordinatesInPlace(dbgrid->indiceToRank(indg), xyz0);
-  xyz0.resize(3,0.);
+  xyz0.resize(3, 0.);
 
   for (int i = 0; i < 3; i++)
   {
@@ -449,7 +448,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
     if (i < _getNDim())
     {
       dbgrid->rankToCoordinatesInPlace(dbgrid->indiceToRank(indg), xyz1[i]);
-      xyz1[i].resize(3,0.);
+      xyz1[i].resize(3, 0.);
       for (int j = 0; j < 3; j++)
         xyz1[i][j] -= xyz0[j];
       delta[i] = dbgrid->getDX(i) * dbgrid->getNX(i);
@@ -485,14 +484,14 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
           del[0] = k1 * delta[0];
           del[1] = k2 * delta[1];
           del[2] = k3 * delta[2];
-          hnorm = VH::norm(del);
-          value = model->evaluateOneIncr(hnorm);
+          hnorm  = VH::norm(del);
+          value  = model->evaluateOneIncr(hnorm);
           scale += value;
         }
     for (int i = 0; i < 3; i++)
       del[i] = 0.;
-    hnorm = VH::norm(del);
-    value = model->evaluateOneIncr(hnorm);
+    hnorm        = VH::norm(del);
+    value        = model->evaluateOneIncr(hnorm);
     double coeff = value / scale;
 
     int ecr = 0;
@@ -517,23 +516,23 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
                 del[0] = xyz[0] + k1 * delta[0];
                 del[1] = xyz[1] + k2 * delta[1];
                 del[2] = xyz[2] + k3 * delta[2];
-                hnorm = VH::norm(del);
-                value = model->evaluateOneIncr(hnorm);
+                hnorm  = VH::norm(del);
+                value  = model->evaluateOneIncr(hnorm);
                 cplx[ecr] += coeff * value;
               }
         }
 
     /* Perform the Fast Fourier Transform */
 
-    (void) fftn(_getNDim(), _dims.data(), cplx.data(), cply.data(), -1, 1.);
+    (void)fftn(_getNDim(), _dims.data(), cplx.data(), cply.data(), -1, 1.);
 
     /* Looking for negative terms */
 
-    double total_plus = 0.;
+    double total_plus  = 0.;
     double total_moins = 0.;
     for (int i = 0; i < _sizes_alloc; i++)
     {
-      cplx[i] /= (double) _sizes_alloc;
+      cplx[i] /= (double)_sizes_alloc;
       if (cplx[i] < 0)
         total_moins -= cplx[i];
       else
@@ -892,9 +891,9 @@ void CalcSimuFFT::_setConjugate(int ix, int iy, int iz, int jx, int jy, int jz)
  ** \param[in]  iad   address for writing the simulation
  **
  *****************************************************************************/
-void CalcSimuFFT::_final(DbGrid *db, int iad)
+void CalcSimuFFT::_final(DbGrid* db, int iad)
 {
-  (void) fftn(_getNDim(), _dims.data(), _u.data(), _v.data(), 1, 1.);
+  (void)fftn(_getNDim(), _dims.data(), _u.data(), _v.data(), 1, 1.);
   int nx = MAX(_nx[0], 1);
   int ny = MAX(_nx[1], 1);
   int nz = MAX(_nx[2], 1);
@@ -973,7 +972,7 @@ double CalcSimuFFT::_support1(double sigma)
   double value = 0.;
   for (int ix = -_nx[0]; ix <= _nx[0]; ix++)
   {
-    int iix = (ix < 0) ? _dims[0] + ix : ix;
+    int iix    = (ix < 0) ? _dims[0] + ix : ix;
     double rho = _rhoSigma(sigma, iix, 0, 0);
     value += (_nx[0] - ABS(ix)) * rho;
   }
@@ -995,8 +994,8 @@ double CalcSimuFFT::_support2(double sigma)
   for (int ix = -_nx[0]; ix <= _nx[0]; ix++)
     for (int iy = -_nx[1]; iy <= _nx[1]; iy++)
     {
-      int iix = (ix < 0) ? _dims[0] + ix : ix;
-      int iiy = (iy < 0) ? _dims[1] + iy : iy;
+      int iix    = (ix < 0) ? _dims[0] + ix : ix;
+      int iiy    = (iy < 0) ? _dims[1] + iy : iy;
       double rho = _rhoSigma(sigma, iix, iiy, 0);
       value += ((_nx[0] - ABS(ix)) * (_nx[1] - ABS(iy)) * rho);
     }
@@ -1019,9 +1018,9 @@ double CalcSimuFFT::_support3(double sigma)
     for (int iy = -_nx[1]; iy <= _nx[1]; iy++)
       for (int iz = -_nx[2]; iz <= _nx[2]; iz++)
       {
-        int iix = (ix < 0) ? _dims[0] + ix : ix;
-        int iiy = (iy < 0) ? _dims[1] + iy : iy;
-        int iiz = (iz < 0) ? _dims[2] + iz : iz;
+        int iix    = (ix < 0) ? _dims[0] + ix : ix;
+        int iiy    = (iy < 0) ? _dims[1] + iy : iy;
+        int iiz    = (iz < 0) ? _dims[2] + iz : iz;
         double rho = _rhoSigma(sigma, iix, iiy, iiz);
         value += ((_nx[0] - ABS(ix)) * (_nx[1] - ABS(iy)) * (_nx[2] - ABS(iz)) * rho);
       }
@@ -1049,7 +1048,7 @@ double CalcSimuFFT::_rhoSigma(double sigma, int ix, int iy, int iz)
 
 bool CalcSimuFFT::_check()
 {
-  if (! ACalcSimulation::_check()) return false;
+  if (!ACalcSimulation::_check()) return false;
 
   if (!hasDbout()) return false;
   if (!hasModel()) return false;
@@ -1061,7 +1060,7 @@ bool CalcSimuFFT::_check()
     messerr("for this Space Dimension (%d)", ndim);
     return false;
   }
-  if (! getDbout()->isGrid())
+  if (!getDbout()->isGrid())
   {
     messerr("The argument 'dbout' should be a grid");
     return false;
@@ -1105,7 +1104,7 @@ void CalcSimuFFT::_rollback()
   _cleanVariableDb(1);
 }
 
-VectorDouble CalcSimuFFT::changeSupport(const VectorDouble &sigma)
+VectorDouble CalcSimuFFT::changeSupport(const VectorDouble& sigma)
 {
   // Allocation
 
@@ -1117,11 +1116,11 @@ VectorDouble CalcSimuFFT::changeSupport(const VectorDouble &sigma)
 
   /* Calculate the correlation matrix (possibly rescaled) */
 
-  (void) fftn(_getNDim(), _dims.data(), _cmat.data(), _rnd.data(), 1, 1.);
+  (void)fftn(_getNDim(), _dims.data(), _cmat.data(), _rnd.data(), 1, 1.);
 
   /* Loop on the different lognormal variances */
 
-  int nval = (int) sigma.size();
+  int nval = (int)sigma.size();
   VectorDouble r2val;
   if (nval > 0)
   {
@@ -1152,8 +1151,8 @@ VectorDouble CalcSimuFFT::changeSupport(const VectorDouble &sigma)
  ** \param[in]  namconv Naming Convention
  **
  *****************************************************************************/
-int simfft(DbGrid *db,
-           ModelGeneric *model,
+int simfft(DbGrid* db,
+           ModelGeneric* model,
            SimuFFTParam& param,
            int nbsimu,
            int seed,
@@ -1185,10 +1184,10 @@ int simfft(DbGrid *db,
  ** \param[in]  verbose Verbose flag
  **
  *****************************************************************************/
-VectorDouble getChangeSupport(DbGrid *db,
-                              ModelGeneric *model,
-                              const SimuFFTParam &param,
-                              const VectorDouble &sigma,
+VectorDouble getChangeSupport(DbGrid* db,
+                              ModelGeneric* model,
+                              const SimuFFTParam& param,
+                              const VectorDouble& sigma,
                               int seed,
                               bool verbose)
 {
@@ -1198,4 +1197,4 @@ VectorDouble getChangeSupport(DbGrid *db,
   simfft.setParam(param);
   return simfft.changeSupport(sigma);
 }
-}
+} // namespace gstlrn

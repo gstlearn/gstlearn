@@ -11,7 +11,8 @@
 #include "Fractures/FracDesc.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {

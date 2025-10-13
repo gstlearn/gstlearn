@@ -16,7 +16,7 @@
 #include "Core/io.hpp"
 #include "OutputFormat/GridIfpEn.hpp"
 
-#include <string.h>
+#include <cstring>
 
 namespace gstlrn
 {

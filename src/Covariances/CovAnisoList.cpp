@@ -27,8 +27,8 @@
 #include "Space/ASpace.hpp"
 #include "geoslib_define.h"
 
+#include <cmath>
 #include <cstddef>
-#include <math.h>
 #include <vector>
 
 namespace gstlrn
@@ -600,4 +600,4 @@ void CovAnisoList::appendParams(ListParams& listParams,
     }
   }
 }
-}
+} // namespace gstlrn

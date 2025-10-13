@@ -10,70 +10,69 @@
 /******************************************************************************/
 #include "Anamorphosis/AnamEmpirical.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
-#include "Matrix/Table.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorHelper.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/SerializeHDF5.hpp"
+#include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Matrix/Table.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #define ANAM_YMIN -10.
-#define ANAM_YMAX  10.
+#define ANAM_YMAX 10.
 
 namespace gstlrn
-{ 
+{
 
 AnamEmpirical::AnamEmpirical(int ndisc, double sigma2e, bool flagDilution, bool flagGaussian)
-    : AnamContinuous(),
-      _flagDilution(flagDilution),
-      _flagGaussian(flagGaussian),
-      _nDisc(ndisc),
-      _sigma2e(sigma2e),
-      _ZDisc(),
-      _YDisc()
+  : AnamContinuous()
+  , _flagDilution(flagDilution)
+  , _flagGaussian(flagGaussian)
+  , _nDisc(ndisc)
+  , _sigma2e(sigma2e)
+  , _ZDisc()
+  , _YDisc()
 {
   _ZDisc.resize(ndisc);
   _YDisc.resize(ndisc);
 }
 
-AnamEmpirical::AnamEmpirical(const AnamEmpirical &m)
-    : AnamContinuous(m),
-      _flagDilution(m._flagDilution),
-      _flagGaussian(m._flagGaussian),
-      _nDisc(m._nDisc),
-      _sigma2e(m._sigma2e),
-      _ZDisc(m._ZDisc),
-      _YDisc(m._YDisc)
+AnamEmpirical::AnamEmpirical(const AnamEmpirical& m)
+  : AnamContinuous(m)
+  , _flagDilution(m._flagDilution)
+  , _flagGaussian(m._flagGaussian)
+  , _nDisc(m._nDisc)
+  , _sigma2e(m._sigma2e)
+  , _ZDisc(m._ZDisc)
+  , _YDisc(m._YDisc)
 {
 }
 
-AnamEmpirical& AnamEmpirical::operator=(const AnamEmpirical &m)
+AnamEmpirical& AnamEmpirical::operator=(const AnamEmpirical& m)
 {
   if (this != &m)
   {
     AnamContinuous::operator=(m);
     _flagDilution = m._flagDilution;
     _flagGaussian = m._flagGaussian;
-    _nDisc = m._nDisc;
-    _sigma2e = m._sigma2e;
-    _ZDisc = m._ZDisc;
-    _YDisc = m._YDisc;
+    _nDisc        = m._nDisc;
+    _sigma2e      = m._sigma2e;
+    _ZDisc        = m._ZDisc;
+    _YDisc        = m._YDisc;
   }
   return *this;
 }
 
 AnamEmpirical::~AnamEmpirical()
 {
-
 }
 
 String AnamEmpirical::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(1,"Empirical Anamorphosis");
+  sstr << toTitle(1, "Empirical Anamorphosis");
 
   if (_flagDilution)
   {
@@ -86,7 +85,7 @@ String AnamEmpirical::toString(const AStringFormat* /*strfmt*/) const
     sstr << "Additional variance           = " << _sigma2e << std::endl;
   }
 
-  if (! _isFitted()) return sstr.str();
+  if (!_isFitted()) return sstr.str();
 
   Table ZY(_nDisc, 2, false, true);
   ZY.setTitle("Discretization Intervals");
@@ -140,40 +139,40 @@ void AnamEmpirical::setNDisc(int ndisc)
 void AnamEmpirical::setDisc(const VectorDouble& zdisc,
                             const VectorDouble& ydisc)
 {
-  if ((int) zdisc.size() != (int) ydisc.size())
+  if ((int)zdisc.size() != (int)ydisc.size())
   {
     messerr("Argumznts 'zdisc' and 'ydisc' should have the same dimension");
     return;
   }
   _ZDisc = zdisc;
   _YDisc = ydisc;
-  _nDisc = static_cast<int> (zdisc.size());
+  _nDisc = static_cast<int>(zdisc.size());
 }
 
 double AnamEmpirical::rawToTransformValue(double zz) const
 {
-  double za,zb,ya,yb;
-  int    idisc,found;
+  double za, zb, ya, yb;
+  int idisc, found;
 
   /* Initialization */
 
-  if (zz < _ZDisc[0])        zz = _ZDisc[0];
-  if (zz > _ZDisc[_nDisc-1]) zz = _ZDisc[_nDisc-1];
+  if (zz < _ZDisc[0]) zz = _ZDisc[0];
+  if (zz > _ZDisc[_nDisc - 1]) zz = _ZDisc[_nDisc - 1];
   ya = yb = za = zb = zz;
 
   for (idisc = found = 0; idisc < _nDisc && found == 0; idisc++)
   {
     if (zz > _ZDisc[idisc]) continue;
-    yb = _YDisc[idisc];
-    zb = _ZDisc[idisc];
+    yb    = _YDisc[idisc];
+    zb    = _ZDisc[idisc];
     found = 1;
   }
 
   for (idisc = _nDisc - 1, found = 0; idisc >= 0 && found == 0; idisc--)
   {
     if (zz < _ZDisc[idisc]) continue;
-    ya = _YDisc[idisc];
-    za = _ZDisc[idisc];
+    ya    = _YDisc[idisc];
+    za    = _ZDisc[idisc];
     found = 1;
   }
 
@@ -183,33 +182,33 @@ double AnamEmpirical::rawToTransformValue(double zz) const
   else
     yy = ((zb - zz) * ya + (zz - za) * yb) / (zb - za);
 
-  return(yy);
+  return (yy);
 }
 
 double AnamEmpirical::transformToRawValue(double yy) const
 {
-  double zz,za,zb,ya,yb;
-  int    idisc,found;
+  double zz, za, zb, ya, yb;
+  int idisc, found;
 
   /* Initialization */
 
-  if (yy < _YDisc[0])        yy = _YDisc[0];
-  if (yy > _YDisc[_nDisc-1]) yy = _YDisc[_nDisc-1];
+  if (yy < _YDisc[0]) yy = _YDisc[0];
+  if (yy > _YDisc[_nDisc - 1]) yy = _YDisc[_nDisc - 1];
   zz = za = zb = ya = yb = yy;
 
-  for (idisc=found=0; idisc<_nDisc && found==0; idisc++)
+  for (idisc = found = 0; idisc < _nDisc && found == 0; idisc++)
   {
     if (yy > _YDisc[idisc]) continue;
-    yb = _YDisc[idisc];
-    zb = _ZDisc[idisc];
+    yb    = _YDisc[idisc];
+    zb    = _ZDisc[idisc];
     found = 1;
   }
 
-  for (idisc=_nDisc-1, found=0; idisc>=0 && found==0; idisc--)
+  for (idisc = _nDisc - 1, found = 0; idisc >= 0 && found == 0; idisc--)
   {
     if (yy < _YDisc[idisc]) continue;
-    ya = _YDisc[idisc];
-    za = _ZDisc[idisc];
+    ya    = _YDisc[idisc];
+    za    = _ZDisc[idisc];
     found = 1;
   }
 
@@ -218,7 +217,7 @@ double AnamEmpirical::transformToRawValue(double yy) const
   else
     zz = ((yb - yy) * za + (yy - ya) * zb) / (yb - ya);
 
-  return(zz);
+  return (zz);
 }
 
 void AnamEmpirical::calculateMeanAndVariance()
@@ -226,16 +225,16 @@ void AnamEmpirical::calculateMeanAndVariance()
   messerr("This function is not available for Empirical Anamorphosis");
 }
 
-int AnamEmpirical::_getStatistics(const VectorDouble &tab,
-                                  int *count,
-                                  double *mean,
-                                  double *mean2,
-                                  double *mini,
-                                  double *maxi,
-                                  double *var)
+int AnamEmpirical::_getStatistics(const VectorDouble& tab,
+                                  int* count,
+                                  double* mean,
+                                  double* mean2,
+                                  double* mini,
+                                  double* maxi,
+                                  double* var)
 {
-  int nech = static_cast<int> (tab.size());
-  int number = 0;
+  int nech      = static_cast<int>(tab.size());
+  int number    = 0;
   double dmean  = 0.;
   double dmean2 = 0.;
   double dmaxi  = MINIMUM_BIG;
@@ -244,8 +243,8 @@ int AnamEmpirical::_getStatistics(const VectorDouble &tab,
   {
     double value = tab[iech];
     if (FFFF(value)) continue;
-    number ++;
-    dmean  += value;
+    number++;
+    dmean += value;
     dmean2 += value * value;
     if (value > dmaxi) dmaxi = value;
     if (value < dmini) dmini = value;
@@ -256,21 +255,21 @@ int AnamEmpirical::_getStatistics(const VectorDouble &tab,
     return 1;
   }
   dmean /= number;
-  dmean2 = dmean2 / number;
+  dmean2          = dmean2 / number;
   double variance = dmean2 - dmean * dmean;
 
   // Returning arguments
 
   *count = number;
-  *mean = dmean;
+  *mean  = dmean;
   *mean2 = dmean2;
-  *mini = dmini;
-  *maxi = dmaxi;
-  *var = variance;
+  *mini  = dmini;
+  *maxi  = dmaxi;
+  *var   = variance;
   return 0;
 }
 
-int AnamEmpirical::_fitWithDilutionGaussian(const VectorDouble &tab)
+int AnamEmpirical::_fitWithDilutionGaussian(const VectorDouble& tab)
 {
   int number;
   double dmean, dmean2, dmini, dmaxi, variance;
@@ -278,13 +277,13 @@ int AnamEmpirical::_fitWithDilutionGaussian(const VectorDouble &tab)
   /* Calculate the constants */
 
   if (_getStatistics(tab, &number, &dmean, &dmean2, &dmini, &dmaxi, &variance)) return 1;
-  int nech = static_cast<int> (tab.size());
+  int nech = static_cast<int>(tab.size());
 
   /* Calculation parameters */
 
   if (FFFF(_sigma2e)) _sigma2e = variance / (2. * number);
-  double sigma = sqrt(_sigma2e);
-  double ecart  = dmaxi - dmini;
+  double sigma     = sqrt(_sigma2e);
+  double ecart     = dmaxi - dmini;
   double disc_val  = 3 * ecart / (_nDisc - 2);
   double disc_init = dmini - MIN(disc_val / 2., dmini / 10000.);
 
@@ -320,13 +319,13 @@ int AnamEmpirical::_fitWithDilutionGaussian(const VectorDouble &tab)
   _YDisc.resize(ndisc_util);
   _nDisc = ndisc_util;
 
-  for (int idisc=0; idisc<_nDisc; idisc++)
+  for (int idisc = 0; idisc < _nDisc; idisc++)
     _YDisc[idisc] = law_invcdf_gaussian(_YDisc[idisc]);
 
   return 0;
 }
 
-int AnamEmpirical::_fitWithDilutionLognormal(const VectorDouble &tab)
+int AnamEmpirical::_fitWithDilutionLognormal(const VectorDouble& tab)
 {
   int number;
   double dmean, dmean2, dmini, dmaxi, variance;
@@ -334,7 +333,7 @@ int AnamEmpirical::_fitWithDilutionLognormal(const VectorDouble &tab)
   /* Calculate the constants */
 
   if (_getStatistics(tab, &number, &dmean, &dmean2, &dmini, &dmaxi, &variance)) return 1;
-  int nech = static_cast<int> (tab.size());
+  int nech = static_cast<int>(tab.size());
   if (dmini < 0.)
   {
     messerr("The Anamorphosis by Lognormal Dilution is not compatible with negative data values");
@@ -344,8 +343,8 @@ int AnamEmpirical::_fitWithDilutionLognormal(const VectorDouble &tab)
   /* Calculation parameters */
 
   if (FFFF(_sigma2e)) _sigma2e = variance / (2. * number);
-  double sigma  = sqrt(log(1. + _sigma2e / dmean2));
-  double ecart  = dmaxi - dmini;
+  double sigma     = sqrt(log(1. + _sigma2e / dmean2));
+  double ecart     = dmaxi - dmini;
   double disc_val  = 3 * ecart / (_nDisc - 2);
   double disc_init = dmini - MIN(disc_val / 2., dmini / 10000.);
 
@@ -379,17 +378,17 @@ int AnamEmpirical::_fitWithDilutionLognormal(const VectorDouble &tab)
   _YDisc.resize(ndisc_util);
   _nDisc = ndisc_util;
 
-  for (int idisc=0; idisc<_nDisc; idisc++)
+  for (int idisc = 0; idisc < _nDisc; idisc++)
     _YDisc[idisc] = law_invcdf_gaussian(1. - _YDisc[idisc]);
   return 0;
 }
 
-int AnamEmpirical::_fitNormalScore(const VectorDouble &tab)
+int AnamEmpirical::_fitNormalScore(const VectorDouble& tab)
 {
   _ZDisc.clear();
   _YDisc.clear();
 
-  for (int iech = 0, nech = (int) tab.size(); iech < nech; iech++)
+  for (int iech = 0, nech = (int)tab.size(); iech < nech; iech++)
   {
     if (FFFF(tab[iech])) continue;
     _ZDisc.push_back(tab[iech]);
@@ -398,7 +397,7 @@ int AnamEmpirical::_fitNormalScore(const VectorDouble &tab)
   // Sort the Z-values by ascending order
   VH::sortInPlace(_ZDisc);
   _YDisc = VH::normalScore(_ZDisc);
-  _nDisc = (int) _ZDisc.size();
+  _nDisc = (int)_ZDisc.size();
 
   return 0;
 }
@@ -424,7 +423,7 @@ int AnamEmpirical::fitFromArray(const VectorDouble& tab,
     if (_fitNormalScore(tab)) return 1;
   }
 
-  for (int idisc=0; idisc<_nDisc; idisc++)
+  for (int idisc = 0; idisc < _nDisc; idisc++)
   {
     if (_YDisc[idisc] < ANAM_YMIN) _YDisc[idisc] = ANAM_YMIN;
     if (_YDisc[idisc] > ANAM_YMAX) _YDisc[idisc] = ANAM_YMAX;
@@ -436,7 +435,7 @@ int AnamEmpirical::fitFromArray(const VectorDouble& tab,
   double pymin = MAXIMUM_BIG;
   double pzmax = MINIMUM_BIG;
   double pymax = MINIMUM_BIG;
-  for (int idisc=0; idisc<_nDisc; idisc++)
+  for (int idisc = 0; idisc < _nDisc; idisc++)
   {
     if (_ZDisc[idisc] < pzmin) pzmin = _ZDisc[idisc];
     if (_ZDisc[idisc] > pzmax) pzmax = _ZDisc[idisc];
@@ -455,24 +454,24 @@ int AnamEmpirical::fitFromArray(const VectorDouble& tab,
 bool AnamEmpirical::_serializeAscii(std::ostream& os, bool verbose) const
 {
   bool ret = true;
-  ret = ret && AnamContinuous::_serializeAscii(os, verbose);
-  ret = ret && _recordWrite<int>(os, "Number of Discretization lags", getNDisc());
-  ret = ret && _recordWrite<double>(os, "additional variance", getSigma2e());
-  ret = ret && _tableWrite(os, "Z Values", getNDisc(), getZDisc());
-  ret = ret && _tableWrite(os, "Y Values", getNDisc(), getYDisc());
+  ret      = ret && AnamContinuous::_serializeAscii(os, verbose);
+  ret      = ret && _recordWrite<int>(os, "Number of Discretization lags", getNDisc());
+  ret      = ret && _recordWrite<double>(os, "additional variance", getSigma2e());
+  ret      = ret && _tableWrite(os, "Z Values", getNDisc(), getZDisc());
+  ret      = ret && _tableWrite(os, "Y Values", getNDisc(), getYDisc());
   return ret;
 }
 
 bool AnamEmpirical::_deserializeAscii(std::istream& is, bool verbose)
 {
-  int ndisc = 0;
+  int ndisc      = 0;
   double sigma2e = TEST;
   VectorDouble zdisc, ydisc;
 
   bool ret = true;
-  ret = ret && AnamContinuous::_deserializeAscii(is, verbose);
-  ret = ret && _recordRead<int>(is, "Number of Discretization classes", ndisc);
-  ret = ret && _recordRead<double>(is, "Experimental Error Variance", sigma2e);
+  ret      = ret && AnamContinuous::_deserializeAscii(is, verbose);
+  ret      = ret && _recordRead<int>(is, "Number of Discretization classes", ndisc);
+  ret      = ret && _recordRead<double>(is, "Experimental Error Variance", sigma2e);
 
   if (ret)
   {
@@ -500,8 +499,8 @@ bool AnamEmpirical::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose
   }
 
   /* Read the grid characteristics */
-  bool ret = true;
-  int ndisc = 0;
+  bool ret       = true;
+  int ndisc      = 0;
   double sigma2e = 0.;
   VectorDouble zdisc;
   VectorDouble ydisc;
@@ -539,4 +538,4 @@ bool AnamEmpirical::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) 
   return ret;
 }
 #endif
-}
+} // namespace gstlrn

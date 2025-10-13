@@ -15,7 +15,8 @@
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Simulation/TurningBandOperate.hpp"
-#include "math.h"
+
+#include <cmath>
 
 #define MAXTAB 100
 namespace gstlrn

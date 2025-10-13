@@ -35,7 +35,8 @@
 #include "Space/SpaceRN.hpp"
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 { 

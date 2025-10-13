@@ -10,16 +10,17 @@
 /******************************************************************************/
 #include "Covariances/CovMarkov.hpp"
 #include "Covariances/CovContext.hpp"
-#include "math.h"
+
+#include <cmath>
 
 #define MAXTAB 100
 
 namespace gstlrn
 {
-CovMarkov::CovMarkov(const CovContext &ctxt)
-    : ACovFunc(ECov::MARKOV, ctxt),
-      _markovCoeffs(),
-      _correc(1.)
+CovMarkov::CovMarkov(const CovContext& ctxt)
+  : ACovFunc(ECov::MARKOV, ctxt)
+  , _markovCoeffs()
+  , _correc(1.)
 {
   setParam(1);
   _markovCoeffs.push_back(1.);
@@ -104,6 +105,6 @@ double CovMarkov::evaluateSpectrum(double freq) const
   {
     s += _markovCoeffs[i] * pow(freq, i);
   }
-  return 1. /  s;
+  return 1. / s;
 }
-}
+} // namespace gstlrn

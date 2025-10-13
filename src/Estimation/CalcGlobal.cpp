@@ -17,7 +17,8 @@
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "geoslib_old_f.h"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {

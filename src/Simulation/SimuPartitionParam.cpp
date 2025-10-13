@@ -8,39 +8,39 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/AStringable.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
+#include "Basic/AStringable.hpp"
 
-#include <math.h>
+#include <cmath>
 
 namespace gstlrn
 {
 SimuPartitionParam::SimuPartitionParam(int nbtuba,
                                        double intensity,
                                        const VectorDouble& dilate)
-    : AStringable(),
-      _nbtuba(nbtuba),
-      _intensity(intensity),
-      _dilate(dilate)
+  : AStringable()
+  , _nbtuba(nbtuba)
+  , _intensity(intensity)
+  , _dilate(dilate)
 {
 }
 
-SimuPartitionParam::SimuPartitionParam(const SimuPartitionParam &r)
-    : AStringable(r),
-      _nbtuba(r._nbtuba),
-      _intensity(r._intensity),
-      _dilate(r._dilate)
+SimuPartitionParam::SimuPartitionParam(const SimuPartitionParam& r)
+  : AStringable(r)
+  , _nbtuba(r._nbtuba)
+  , _intensity(r._intensity)
+  , _dilate(r._dilate)
 {
 }
 
-SimuPartitionParam& SimuPartitionParam::operator=(const SimuPartitionParam &r)
+SimuPartitionParam& SimuPartitionParam::operator=(const SimuPartitionParam& r)
 {
   if (this != &r)
   {
-    AStringable::operator =(r);
-    _nbtuba = r._nbtuba;
+    AStringable::operator=(r);
+    _nbtuba    = r._nbtuba;
     _intensity = r._intensity;
-    _dilate = r._dilate;
+    _dilate    = r._dilate;
   }
   return *this;
 }
@@ -55,8 +55,8 @@ String SimuPartitionParam::toString(const AStringFormat* /*strfmt*/) const
 
   sstr << "Intensity of Poisson Law = " << _intensity << std::endl;
   sstr << "Number of Bands used for valuation simulation = " << _nbtuba << std::endl;
-  if (! _dilate.empty())
-    sstr << toVector("Dilation (used for Poisson)",_dilate);
+  if (!_dilate.empty())
+    sstr << toVector("Dilation (used for Poisson)", _dilate);
 
   return sstr.str();
 }
@@ -67,4 +67,4 @@ double SimuPartitionParam::getDilate(int idim) const
   return _dilate[idim];
 }
 
-}
+} // namespace gstlrn

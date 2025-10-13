@@ -10,7 +10,8 @@
 /******************************************************************************/
 #include "Covariances/CovStorkey.hpp"
 #include "Covariances/CovContext.hpp"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {

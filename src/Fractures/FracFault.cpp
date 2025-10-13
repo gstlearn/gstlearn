@@ -12,7 +12,9 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/Utilities.hpp"
-#include <math.h>
+
+#include <cmath>
+
 namespace gstlrn
 {
 FracFault::FracFault(double coord, double orient)

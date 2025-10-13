@@ -9,16 +9,15 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Space/SpacePoint.hpp"
-#include "Basic/AStringable.hpp"
-#include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/VectorHelper.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "geoslib_define.h"
 
 #include <cmath>
-#include <math.h>
 
 namespace gstlrn
 {
@@ -105,7 +104,7 @@ SpacePoint SpacePoint::spacePointOnSubspace(int ispace) const
 
   /// TODO : Memory copies
   VectorDouble vec = getSpace()->projCoord(_coord, ispace);
-  const auto sp = getSpace()->getComponent(ispace);
+  const auto sp    = getSpace()->getComponent(ispace);
   SpacePoint p(vec, _iech, sp);
   return p;
 }
@@ -116,7 +115,7 @@ void SpacePoint::setCoords(const double* coord, int size)
     std::cout << "Error: Wrong number of coordinates. Point not modified." << std::endl;
   else
     for (int idim = 0; idim < size; idim++)
-     _coord[idim] = coord[idim];
+      _coord[idim] = coord[idim];
 }
 
 bool SpacePoint::isConsistent(const ASpace* space) const
@@ -152,7 +151,7 @@ void SpacePoint::getIncrementInPlace(VectorDouble& inc, const SpacePoint& pt, in
 
 String SpacePoint::toString(const AStringFormat* /*strfmt*/) const
 {
-  return VH::toStringAsSpan(constvect(_coord.data(),getNDim()));
+  return VH::toStringAsSpan(constvect(_coord.data(), getNDim()));
 }
 
 void SpacePoint::setFFFF()
@@ -163,16 +162,16 @@ void SpacePoint::setFFFF()
 bool SpacePoint::isFFFF() const
 {
   for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
-    if (! FFFF(_coord[idim])) return false;
+    if (!FFFF(_coord[idim])) return false;
   return true;
 }
 
-double SpacePoint::getCosineToDirection(const SpacePoint &T2,
-                                        const VectorDouble &codir) const
+double SpacePoint::getCosineToDirection(const SpacePoint& T2,
+                                        const VectorDouble& codir) const
 {
   double cosdir = 0.;
-  double dn1 = 0.;
-  double dn2 = 0.;
+  double dn1    = 0.;
+  double dn2    = 0.;
   _delta.clear();
   _delta.resize(getNDim());
   getIncrementInPlace(_delta, T2);
@@ -187,12 +186,12 @@ double SpacePoint::getCosineToDirection(const SpacePoint &T2,
   return (cosdir / sqrt(prod));
 }
 
-double SpacePoint::getOrthogonalDistance(const SpacePoint &P2,
-                                         const VectorDouble &codir) const
+double SpacePoint::getOrthogonalDistance(const SpacePoint& P2,
+                                         const VectorDouble& codir) const
 {
-  double dn1 = 0.;
-  double dn2 = 0.;
-  double v = 0.;
+  double dn1   = 0.;
+  double dn2   = 0.;
+  double v     = 0.;
   double dproj = 0.;
   _delta.clear();
   _delta.resize(getNDim());
@@ -226,8 +225,8 @@ void SpacePoint::setCoordFromAngle(const VectorDouble& angles)
     {
       std::cout << "Warning: Extra angle values ignored" << std::endl;
     }
-    _coord[0] = cos( GV_PI * angles[0] / 180);
-    _coord[1] = sin( GV_PI * angles[0] / 180);
+    _coord[0] = cos(GV_PI * angles[0] / 180);
+    _coord[1] = sin(GV_PI * angles[0] / 180);
   }
   else
   {
@@ -235,4 +234,4 @@ void SpacePoint::setCoordFromAngle(const VectorDouble& angles)
   }
 }
 
-}
+} // namespace gstlrn

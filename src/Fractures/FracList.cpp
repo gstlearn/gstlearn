@@ -22,7 +22,8 @@
 #include "Fractures/FracFault.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include <math.h>
+
+#include <cmath>
 
 #define FRACSEG(ifrac, i) (frac_segs[NBYFRAC * (ifrac) + (i)])
 #define WELL(iw, i)       (well[2 * (iw) + (i)])

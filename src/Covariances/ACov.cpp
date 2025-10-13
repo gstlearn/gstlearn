@@ -34,11 +34,12 @@
 #include "Space/SpacePoint.hpp"
 #include "Variogram/Vario.hpp"
 #include "geoslib_define.h"
+
+#include <cmath>
 #include <cstddef>
-#include <math.h>
 #include <vector>
 
-namespace gstlrn 
+namespace gstlrn
 {
 
 ACov::ACov(const CovContext& ctxt)

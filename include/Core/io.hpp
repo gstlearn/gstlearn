@@ -12,11 +12,11 @@
 
 #include "gstlearn_export.hpp"
 
-#include <stdarg.h>
-#include <stdio.h>
+#include <cstdarg>
+#include <cstdio>
 
 namespace gstlrn
-{   
+{
 GSTLEARN_EXPORT int _file_read(FILE* file, const char* format, va_list ap);
 GSTLEARN_EXPORT int _file_get_ncol(FILE* file);
 GSTLEARN_EXPORT void _file_delimitors(char del_com, const char* del_sep, char del_blk);
@@ -37,4 +37,4 @@ GSTLEARN_EXPORT double _lire_double(const char* question,
                                     double valmax);
 GSTLEARN_EXPORT int _lire_logical(const char* question, int flag_def, int valdef);
 GSTLEARN_EXPORT void _erase_current_string(void);
-}
+} // namespace gstlrn

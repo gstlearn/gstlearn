@@ -18,6 +18,9 @@
 #define INTRESX(ic, i)        (ctables->CT[ic]->res[(i)])
 #define COVAL(ctables, iconf) (ctables->cmin + iconf * ctables->dc)
 #define NELEM(ctables)        ((ctables->flag_cumul) ? ctables->ndisc + 1 : ctables->ndisc)
+#define INTRESX(ic, i)        (ctables->CT[ic]->res[(i)])
+#define COVAL(ctables, iconf) (ctables->cmin + iconf * ctables->dc)
+#define NELEM(ctables)        ((ctables->flag_cumul) ? ctables->ndisc + 1 : ctables->ndisc)
 /*! \endcond */
 
 namespace gstlrn
@@ -66,8 +69,8 @@ static void st_tableone_manage(CTables* ctables,
     {
       if (ctables->CT[rank] == NULL)
       {
-        ctables->CT[rank]      = (CTable*)mem_alloc(sizeof(CTable), 1);
-        ctables->CT[rank]->res = (double*)mem_alloc(sizeof(double) * size, 1);
+        ctables->CT[rank] = (CTable*)mem_alloc(sizeof(CTable), 1);
+        ctables->CT[rank]->res.resize(size);
         for (int i = 0; i < size; i++)
           INTRESX(rank, i) = TEST;
         return;
@@ -81,8 +84,7 @@ static void st_tableone_manage(CTables* ctables,
       number = 0;
       for (int i = 0; i < size; i++)
         if (FFFF(INTRESX(rank, i))) number++;
-      ctables->CT[rank]->res = (double*)mem_free(
-        (char*)ctables->CT[rank]->res);
+      ctables->CT[rank]->res.clear();
       *nb_used          = number;
       ctables->CT[rank] = (CTable*)mem_alloc(sizeof(CTable), 1);
       return;
@@ -364,7 +366,7 @@ void ct_tables_print(CTables* ctables, int flag_print)
                 COVAL(ctables, iconf));
 
       if (flag_print == 2)
-        print_matrix(NULL, 0, 1, nelem, nelem, NULL, &INTRESX(iconf, 0));
+        print_matrix(NULL, 0, 1, nelem, nelem, NULL, ctables->CT[iconf]->res.data());
     }
     message("\n");
   }
@@ -674,4 +676,4 @@ int ct_tableone_getrank_from_proba(CTables* ctables,
 
   return (iad);
 }
-}
+} // namespace gstlrn

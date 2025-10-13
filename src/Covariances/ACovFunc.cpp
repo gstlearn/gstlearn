@@ -12,7 +12,8 @@
 #include "Basic/AException.hpp"
 #include "Basic/FFT.hpp"
 #include "Basic/Utilities.hpp"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {
@@ -345,4 +346,4 @@ void ACovFunc::computeCorrec(int ndim)
   setCorrec(correc);
 }
 
-}
+} // namespace gstlrn

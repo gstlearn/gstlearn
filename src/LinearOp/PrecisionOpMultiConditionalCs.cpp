@@ -12,19 +12,18 @@
 #include "LinearOp/PrecisionOpMatrix.hpp"
 
 #include "Basic/VectorHelper.hpp"
-#include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixFactory.hpp"
+#include "Matrix/MatrixSparse.hpp"
 
-#include <math.h>
+#include <cmath>
 #include <vector>
 
 namespace gstlrn
 {
 PrecisionOpMultiConditionalCs::PrecisionOpMultiConditionalCs()
-    : _QpAtA(nullptr)
-    , _chol(nullptr)
+  : _QpAtA(nullptr)
+  , _chol(nullptr)
 {
-
 }
 
 PrecisionOpMultiConditionalCs::~PrecisionOpMultiConditionalCs()
@@ -64,7 +63,7 @@ double PrecisionOpMultiConditionalCs::computeLogDetOp(int nbsimu) const
 MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
 {
   MatrixSparse* Qmult = nullptr;
-  int number = sizes();
+  int number          = sizes();
 
   if (number <= 0)
   {
@@ -81,14 +80,14 @@ MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
   else
   {
     const PrecisionOpMatrix* pmat1 = dynamic_cast<const PrecisionOpMatrix*>(getMultiPrecisionOp(0));
-    const MatrixSparse* Qref = pmat1->getQ();
+    const MatrixSparse* Qref       = pmat1->getQ();
 
     for (int is = 1; is < number; is++)
     {
       const PrecisionOpMatrix* pmataux = dynamic_cast<const PrecisionOpMatrix*>(getMultiPrecisionOp(is));
       delete Qmult;
       Qmult = dynamic_cast<MatrixSparse*>(MatrixFactory::createGlue(Qref, pmataux->getQ(), true, true));
-      Qref = Qmult;
+      Qref  = Qmult;
     }
   }
   return Qmult;
@@ -97,7 +96,7 @@ MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
 ProjMatrix* PrecisionOpMultiConditionalCs::_buildAmult() const
 {
   ProjMatrix* Pmult = nullptr;
-  int number = sizes();
+  int number        = sizes();
   if (number <= 0)
   {
     messerr("This method requires at least one registered projection matrix");
@@ -112,14 +111,14 @@ ProjMatrix* PrecisionOpMultiConditionalCs::_buildAmult() const
   }
   else
   {
-    MatrixSparse* mstemp = nullptr;
+    MatrixSparse* mstemp      = nullptr;
     const MatrixSparse* msref = dynamic_cast<const MatrixSparse*>(getProjMatrix(0));
     for (int is = 1; is < number; is++)
     {
       const MatrixSparse* msaux = dynamic_cast<const MatrixSparse*>(getProjMatrix(is));
       delete mstemp;
       mstemp = dynamic_cast<MatrixSparse*>(MatrixFactory::createGlue(msref, msaux, false, true));
-      msref = mstemp;
+      msref  = mstemp;
     }
     Pmult = new ProjMatrix(mstemp);
     delete mstemp;
@@ -142,7 +141,7 @@ int PrecisionOpMultiConditionalCs::_buildQpAtA()
   // Create the conditional multiple precision matrix 'Q'
   VectorDouble invsigma = VectorHelper::inverse(getAllVarianceData());
   MatrixSparse* AtAsVar = prodNormMat(Amult, invsigma, true);
-  _QpAtA = MatrixSparse::addMatMat(Qmult, AtAsVar, 1., 1.);
+  _QpAtA                = MatrixSparse::addMatMat(Qmult, AtAsVar, 1., 1.);
 
   // Free core allocated
   delete Amult;
@@ -152,8 +151,8 @@ int PrecisionOpMultiConditionalCs::_buildQpAtA()
   return 0;
 }
 
-void PrecisionOpMultiConditionalCs::evalInverse(const std::vector<std::vector<double>> &vecin,
-                                                std::vector<std::vector<double>> &vecout) const
+void PrecisionOpMultiConditionalCs::evalInverse(const std::vector<std::vector<double>>& vecin,
+                                                std::vector<std::vector<double>>& vecout) const
 {
   if (_chol == nullptr)
     _chol = new CholeskySparse(_QpAtA);
@@ -168,4 +167,4 @@ void PrecisionOpMultiConditionalCs::makeReady()
   // Perform Cholesky decomposition (if not already performed)
   _buildQpAtA();
 }
-}
+} // namespace gstlrn

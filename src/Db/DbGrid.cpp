@@ -25,8 +25,9 @@
 #include "Space/SpaceTarget.hpp"
 #include "Stats/Classical.hpp"
 #include "geoslib_define.h"
+
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 namespace gstlrn
 {

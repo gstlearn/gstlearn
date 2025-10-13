@@ -9,16 +9,16 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/MatrixSquare.hpp"
-#include "Matrix/MatrixFactory.hpp"
-#include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Matrix/AMatrix.hpp"
+#include "Matrix/MatrixFactory.hpp"
 
-#include <math.h>
+#include <cmath>
 
 namespace gstlrn
-{ 
+{
 MatrixSquare::MatrixSquare(int nrow)
   : MatrixDense(nrow, nrow)
 {
@@ -89,8 +89,8 @@ double MatrixSquare::trace() const
  * \remarks The output matrix is square with dimension equal to the number of columns of Y
  */
 void MatrixSquare::innerMatrix(const MatrixSquare& x,
-                                const AMatrix& r1,
-                                const AMatrix& r2)
+                               const AMatrix& r1,
+                               const AMatrix& r2)
 {
   int n = x.getNSize();
   if (n != r1.getNRows())
@@ -265,9 +265,9 @@ MatrixSquare* MatrixSquare::createFromVVD(const VectorVectorDouble& X)
 }
 
 MatrixSquare* MatrixSquare::createFromVD(const VectorDouble& X,
-                                           int nrow,
-                                           bool byCol,
-                                           bool invertColumnOrder)
+                                         int nrow,
+                                         bool byCol,
+                                         bool invertColumnOrder)
 {
   int ncol = nrow;
   if (nrow * ncol != (int)X.size())
@@ -308,8 +308,8 @@ MatrixSquare* MatrixSquare::createFromVD(const VectorDouble& X,
  * @remarks The output matrices 'tus'  and 'tls' must be dimensioned beforehand
  */
 int MatrixSquare::decomposeLU(MatrixSquare& tls,
-                               MatrixSquare& tus,
-                               double eps)
+                              MatrixSquare& tus,
+                              double eps)
 {
   int neq = getNRows();
   tls.fill(0.);
@@ -388,9 +388,9 @@ int MatrixSquare::_invertLU()
 }
 
 int MatrixSquare::_solveLU(const MatrixSquare& tus,
-                            const MatrixSquare& tls,
-                            const double* b,
-                            double* x)
+                           const MatrixSquare& tls,
+                           const double* b,
+                           double* x)
 {
   int neq = getNRows();
   VectorDouble y(neq);
@@ -464,10 +464,10 @@ int MatrixSquare::_backwardLU(const MatrixSquare& tus, const double* b, double* 
 }
 
 MatrixSquare* prodNormMatMat(const MatrixDense* a,
-                              const MatrixDense* m,
-                              bool transpose)
+                             const MatrixDense* m,
+                             bool transpose)
 {
-  int nrow           = (transpose) ? a->getNCols() : a->getNRows();
+  int nrow          = (transpose) ? a->getNCols() : a->getNRows();
   MatrixSquare* mat = new MatrixSquare(nrow);
   mat->prodNormMatMatInPlace(a, m, transpose);
   return mat;
@@ -475,9 +475,9 @@ MatrixSquare* prodNormMatMat(const MatrixDense* a,
 
 MatrixSquare* prodNormMat(const MatrixDense& a, const VectorDouble& vec, bool transpose)
 {
-  int nsym           = (transpose) ? a.getNCols() : a.getNRows();
+  int nsym          = (transpose) ? a.getNCols() : a.getNRows();
   MatrixSquare* mat = new MatrixSquare(nsym);
   mat->prodNormMatVecInPlace(a, vec, transpose);
   return mat;
 }
-}
+} // namespace gstlrn

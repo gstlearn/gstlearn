@@ -18,15 +18,15 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/NamingConvention.hpp"
 
+namespace gstlrn
+{
 
 class Polygons;
 class Table;
 class VarioParam;
-
-namespace gstlrn
-{
 class Db;
 class DbGrid;
+
 GSTLEARN_EXPORT VectorString statOptionToName(const std::vector<EStatOption>& opers);
 GSTLEARN_EXPORT std::vector<EStatOption> KeysToStatOptions(const VectorString& opers);
 

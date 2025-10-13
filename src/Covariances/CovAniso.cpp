@@ -30,492 +30,491 @@
 #include "Space/SpaceRN.hpp"
 #include "Space/SpaceSN.hpp"
 
+#include <cmath>
 #include <functional>
-#include <math.h>
-#include <math.h>
 #include <ostream>
 
 namespace gstlrn
 {
 
-  CovAniso::CovAniso(const ECov& type, const CovContext& ctxt)
-    : CovProportional(nullptr, MatrixSymmetric(ctxt.getNVar()))
+CovAniso::CovAniso(const ECov& type, const CovContext& ctxt)
+  : CovProportional(nullptr, MatrixSymmetric(ctxt.getNVar()))
+{
+  auto tempcor = CorAniso(type, ctxt);
+  CovProportional::setCor(&tempcor);
+  _initFromContext();
+}
+
+CovAniso::CovAniso(const String& symbol, const CovContext& ctxt)
+  : CovProportional(new CorAniso(symbol, ctxt))
+{
+  ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
+  _initFromContext();
+}
+
+CovAniso::CovAniso(const ECov& type,
+                   double range,
+                   double param,
+                   double sill,
+                   const CovContext& ctxt,
+                   bool flagRange)
+  : CovProportional(nullptr, MatrixSymmetric(ctxt.getNVar()))
+{
+  auto temp = CorAniso(type, range, param, ctxt, flagRange);
+  setCor(&temp);
+  _initFromContext();
+
+  // Sill
+  if (ctxt.getNVar() == 1)
+    _sillCur.setValue(0, 0, sill);
+  else
   {
-    auto tempcor = CorAniso(type, ctxt);
-    CovProportional::setCor(&tempcor);
-    _initFromContext();
+    int nvar = ctxt.getNVar();
+    _sillCur.fill(0);
+    for (int ivar = 0; ivar < nvar; ivar++)
+      _sillCur.setValue(ivar, ivar, sill);
   }
 
-  CovAniso::CovAniso(const String& symbol, const CovContext& ctxt)
-    : CovProportional(new CorAniso(symbol, ctxt))
+  // Param
+  setParam(param);
+
+  // Range
+  if (flagRange)
+    setRangeIsotropic(range);
+  else
+    setScale(range);
+}
+
+CovAniso::CovAniso(const CovAniso& r)
+  : CovProportional(r)
+{
+  _ctxt.setNVar(r.getNVar());
+}
+
+CovAniso& CovAniso::operator=(const CovAniso& r)
+{
+  if (this != &r)
   {
-    ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
-    _initFromContext();
+    setCor(new CorAniso(*r.getCorAniso()));
+    _ctxt    = r._ctxt;
+    _sillCur = r._sillCur;
   }
+  return *this;
+}
 
-  CovAniso::CovAniso(const ECov& type,
-                     double range,
-                     double param,
-                     double sill,
-                     const CovContext& ctxt,
-                     bool flagRange)
-    : CovProportional(nullptr, MatrixSymmetric(ctxt.getNVar()))
+CovAniso::~CovAniso()
+{
+}
+
+CorAniso* CovAniso::getCorAniso()
+{
+  return (CorAniso*)getCor();
+}
+
+double CovAniso::_getSillValue(int ivar, int jvar, const CovCalcMode* mode) const
+{
+  if (mode != nullptr && mode->getUnitary()) return 1.;
+  return getSill(ivar, jvar);
+}
+
+double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
+{
+  double cov = getCorAniso()->evalCorFromH(0, mode);
+  return cov * _getSillValue(ivar, jvar, mode);
+}
+
+double CovAniso::_eval(const SpacePoint& p1,
+                       const SpacePoint& p2,
+                       int ivar,
+                       int jvar,
+                       const CovCalcMode* mode) const
+{
+  double cov = getCorAniso()->evalCor(p1, p2, mode);
+  return cov * _getSillValue(ivar, jvar, mode);
+}
+
+double CovAniso::evalCovOnSphere(double alpha,
+                                 int degree,
+                                 bool flagScaleDistance,
+                                 const CovCalcMode* mode) const
+{
+  double value = getCorAniso()->evalCovOnSphere(alpha, degree, flagScaleDistance, mode);
+  return value * _getSillValue(0, 0, mode);
+}
+
+VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool flagCumul) const
+{
+  return getCorAniso()->evalSpectrumOnSphere(n, flagNormDistance, flagCumul);
+}
+
+double CovAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) const
+{
+  if (!getCorAniso()->hasSpectrumOnRn()) return TEST;
+  return _sillCur.getValue(ivar, jvar) * getCorAniso()->evalSpectrum(freq, ivar, jvar);
+}
+
+VectorDouble CovAniso::evalCovOnSphereVec(const VectorDouble& alpha,
+                                          int degree,
+                                          bool flagScaleDistance,
+                                          const CovCalcMode* mode) const
+{
+  int n = (int)alpha.size();
+  VectorDouble vec(n);
+  for (int i = 0; i < n; i++)
+    vec[i] = evalCovOnSphere(alpha[i], degree, flagScaleDistance, mode);
+  return vec;
+}
+
+String CovAniso::toString(const AStringFormat* strfmt) const
+{
+  std::stringstream sstr;
+
+  sstr << getCorAniso()->getCorFunc()->toString();
+
+  // Sill - Factor / Slope information
+  if (getCorAniso()->hasRange() >= 0)
   {
-    auto temp = CorAniso(type, range, param, ctxt, flagRange);
-    setCor(&temp);
-    _initFromContext();
+    // A sill is defined
 
-    // Sill
-    if (ctxt.getNVar() == 1)
-      _sillCur.setValue(0, 0, sill);
-    else
+    if (getNVar() > 1)
     {
-      int nvar = ctxt.getNVar();
-      _sillCur.fill(0);
-      for (int ivar = 0; ivar < nvar; ivar++)
-        _sillCur.setValue(ivar, ivar, sill);
-    }
-
-    // Param
-    setParam(param);
-
-    // Range
-    if (flagRange)
-      setRangeIsotropic(range);
-    else
-      setScale(range);
-  }
-
-  CovAniso::CovAniso(const CovAniso& r)
-    : CovProportional(r)
-  {
-    _ctxt.setNVar(r.getNVar());
-  }
-
-  CovAniso& CovAniso::operator=(const CovAniso& r)
-  {
-    if (this != &r)
-    {
-      setCor(new CorAniso(*r.getCorAniso()));
-      _ctxt    = r._ctxt;
-      _sillCur = r._sillCur;
-    }
-    return *this;
-  }
-
-  CovAniso::~CovAniso()
-  {
-  }
-
-  CorAniso* CovAniso::getCorAniso()
-  {
-    return (CorAniso*)getCor();
-  }
-
-  double CovAniso::_getSillValue(int ivar, int jvar, const CovCalcMode* mode) const
-  {
-    if (mode != nullptr && mode->getUnitary()) return 1.;
-    return getSill(ivar, jvar);
-  }
-
-  double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
-  {
-    double cov = getCorAniso()->evalCorFromH(0, mode);
-    return cov * _getSillValue(ivar, jvar, mode);
-  }
-
-  double CovAniso::_eval(const SpacePoint& p1,
-                         const SpacePoint& p2,
-                         int ivar,
-                         int jvar,
-                         const CovCalcMode* mode) const
-  {
-    double cov = getCorAniso()->evalCor(p1, p2, mode);
-    return cov * _getSillValue(ivar, jvar, mode);
-  }
-
-  double CovAniso::evalCovOnSphere(double alpha,
-                                   int degree,
-                                   bool flagScaleDistance,
-                                   const CovCalcMode* mode) const
-  {
-    double value = getCorAniso()->evalCovOnSphere(alpha, degree, flagScaleDistance, mode);
-    return value * _getSillValue(0, 0, mode);
-  }
-
-  VectorDouble CovAniso::evalSpectrumOnSphere(int n, bool flagNormDistance, bool flagCumul) const
-  {
-    return getCorAniso()->evalSpectrumOnSphere(n, flagNormDistance, flagCumul);
-  }
-
-  double CovAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) const
-  {
-    if (!getCorAniso()->hasSpectrumOnRn()) return TEST;
-    return _sillCur.getValue(ivar, jvar) * getCorAniso()->evalSpectrum(freq, ivar, jvar);
-  }
-
-  VectorDouble CovAniso::evalCovOnSphereVec(const VectorDouble& alpha,
-                                            int degree,
-                                            bool flagScaleDistance,
-                                            const CovCalcMode* mode) const
-  {
-    int n = (int)alpha.size();
-    VectorDouble vec(n);
-    for (int i = 0; i < n; i++)
-      vec[i] = evalCovOnSphere(alpha[i], degree, flagScaleDistance, mode);
-    return vec;
-  }
-
-  String CovAniso::toString(const AStringFormat* strfmt) const
-  {
-    std::stringstream sstr;
-
-    sstr << getCorAniso()->getCorFunc()->toString();
-
-    // Sill - Factor / Slope information
-    if (getCorAniso()->hasRange() >= 0)
-    {
-      // A sill is defined
-
-      if (getNVar() > 1)
-      {
-        sstr << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
-                         getNVar(), getNVar(), _sillCur.getValues());
-      }
-      else
-      {
-        sstr << "- Sill         = " << toDouble(_sillCur.getValue(0, 0)) << std::endl;
-      }
+      sstr << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
+                       getNVar(), getNVar(), _sillCur.getValues());
     }
     else
     {
-      // The sill is not defined: use slope instead
-
-      if (getNVar() > 1)
-      {
-        MatrixSquare slopes = _sillCur;
-        double range        = getRange(0);
-        for (int ivar = 0; ivar < getNVar(); ivar++)
-          for (int jvar = 0; jvar < getNVar(); jvar++)
-            slopes.setValue(ivar, jvar, _sillCur.getValue(ivar, jvar) / range);
-        sstr << toMatrix("- Slope matrix:", VectorString(), VectorString(), 0,
-                         getNVar(), getNVar(), slopes.getValues());
-      }
-      else
-      {
-        sstr << "- Slope        = " << toDouble(getSlope(0, 0)) << std::endl;
-      }
+      sstr << "- Sill         = " << toDouble(_sillCur.getValue(0, 0)) << std::endl;
     }
+  }
+  else
+  {
+    // The sill is not defined: use slope instead
 
-    // Covariance Parameters
-    sstr << getCorAniso()->toStringParams(strfmt);
-
-    // Non-stationary parameters
-
-    if (isNoStat())
+    if (getNVar() > 1)
     {
-      sstr << toTitle(1, "Non-Stationary Parameters");
-      sstr << _tabNoStat->toString(strfmt);
-      int i = getTabNoStatSills()->getNSills();
-      sstr << getCorAniso()->toStringNoStat(strfmt, i);
+      MatrixSquare slopes = _sillCur;
+      double range        = getRange(0);
+      for (int ivar = 0; ivar < getNVar(); ivar++)
+        for (int jvar = 0; jvar < getNVar(); jvar++)
+          slopes.setValue(ivar, jvar, _sillCur.getValue(ivar, jvar) / range);
+      sstr << toMatrix("- Slope matrix:", VectorString(), VectorString(), 0,
+                       getNVar(), getNVar(), slopes.getValues());
     }
-    return sstr.str();
+    else
+    {
+      sstr << "- Slope        = " << toDouble(getSlope(0, 0)) << std::endl;
+    }
   }
 
-  /**
-   * Return the Slope calculated as the sill / range(idim=0)
-   * @param ivar Rank of the first variable
-   * @param jvar Rank of the second variable
-   * @return
-   */
-  double CovAniso::getSlope(int ivar, int jvar) const
+  // Covariance Parameters
+  sstr << getCorAniso()->toStringParams(strfmt);
+
+  // Non-stationary parameters
+
+  if (isNoStat())
   {
-    if (hasRange() == 0) return TEST;
-    double range = getRange(0);
-    return _sillCur.getValue(ivar, jvar) / range;
+    sstr << toTitle(1, "Non-Stationary Parameters");
+    sstr << _tabNoStat->toString(strfmt);
+    int i = getTabNoStatSills()->getNSills();
+    sstr << getCorAniso()->toStringNoStat(strfmt, i);
   }
+  return sstr.str();
+}
 
-  /**
-   * Calculate the Integral Range in various Space Dimension (1, 2 or 3)
-   * @return
-   */
-  double CovAniso::getIntegralRange(int ndisc, double hmax) const
+/**
+ * Return the Slope calculated as the sill / range(idim=0)
+ * @param ivar Rank of the first variable
+ * @param jvar Rank of the second variable
+ * @return
+ */
+double CovAniso::getSlope(int ivar, int jvar) const
+{
+  if (hasRange() == 0) return TEST;
+  double range = getRange(0);
+  return _sillCur.getValue(ivar, jvar) / range;
+}
+
+/**
+ * Calculate the Integral Range in various Space Dimension (1, 2 or 3)
+ * @return
+ */
+double CovAniso::getIntegralRange(int ndisc, double hmax) const
+{
+  return _sillCur.getValue(0, 0) * getCorAniso()->getIntegralRange(ndisc, hmax);
+}
+
+CovAniso* CovAniso::createIsotropic(const CovContext& ctxt,
+                                    const ECov& type,
+                                    double range,
+                                    double sill,
+                                    double param,
+                                    bool flagRange)
+{
+  if (ctxt.getNVar() != 1)
   {
-    return _sillCur.getValue(0, 0) * getCorAniso()->getIntegralRange(ndisc, hmax);
+    messerr("This function is dedicated to the Monovariate case");
+    return nullptr;
   }
+  return new CovAniso(type, range, param, sill, ctxt, flagRange);
+}
 
-  CovAniso* CovAniso::createIsotropic(const CovContext& ctxt,
+CovAniso* CovAniso::createAnisotropic(const CovContext& ctxt,
                                       const ECov& type,
-                                      double range,
+                                      const VectorDouble& ranges,
                                       double sill,
                                       double param,
+                                      const VectorDouble& angles,
                                       bool flagRange)
+{
+  if (ctxt.getNVar() != 1)
   {
-    if (ctxt.getNVar() != 1)
-    {
-      messerr("This function is dedicated to the Monovariate case");
-      return nullptr;
-    }
-    return new CovAniso(type, range, param, sill, ctxt, flagRange);
+    messerr("This function is dedicated to the Monovariate case");
+    return nullptr;
+  }
+  int ndim = (int)ranges.size();
+  if ((int)ctxt.getNDim() != ndim)
+  {
+    messerr("Mismatch in Space Dimension between 'ranges'(%d) and 'ctxt'(%d)",
+            ndim, ctxt.getNDim());
+    return nullptr;
   }
 
-  CovAniso* CovAniso::createAnisotropic(const CovContext& ctxt,
-                                        const ECov& type,
-                                        const VectorDouble& ranges,
-                                        double sill,
-                                        double param,
-                                        const VectorDouble& angles,
-                                        bool flagRange)
-  {
-    if (ctxt.getNVar() != 1)
-    {
-      messerr("This function is dedicated to the Monovariate case");
-      return nullptr;
-    }
-    int ndim = (int)ranges.size();
-    if ((int)ctxt.getNDim() != ndim)
-    {
-      messerr("Mismatch in Space Dimension between 'ranges'(%d) and 'ctxt'(%d)",
-              ndim, ctxt.getNDim());
-      return nullptr;
-    }
+  CovAniso* cov = new CovAniso(type, ctxt);
+  if (flagRange)
+    cov->setRanges(ranges);
+  else
+    cov->setScales(ranges);
+  cov->setSill(sill);
+  cov->setParam(param);
+  if (!angles.empty()) cov->setAnisoAngles(angles);
+  return cov;
+}
 
-    CovAniso* cov = new CovAniso(type, ctxt);
+CovAniso* CovAniso::createIsotropicMulti(const CovContext& ctxt,
+                                         const ECov& type,
+                                         double range,
+                                         const MatrixSymmetric& sills,
+                                         double param,
+                                         bool flagRange)
+{
+  CovAniso* cov = new CovAniso(type, ctxt);
+  int nvar      = sills.getNSize();
+  if (ctxt.getNVar() != nvar)
+  {
+    messerr(
+      "Mismatch in the number of variables between 'sills'(%d) and 'ctxt'(%d)",
+      nvar, ctxt.getNVar());
+    return nullptr;
+  }
+  if (flagRange)
+    cov->setRangeIsotropic(range);
+  else
+    cov->setScale(range);
+  cov->setSill(sills);
+  cov->setParam(param);
+  return cov;
+}
+
+CovAniso* CovAniso::createAnisotropicMulti(const CovContext& ctxt,
+                                           const ECov& type,
+                                           const VectorDouble& ranges,
+                                           const MatrixSymmetric& sills,
+                                           double param,
+                                           const VectorDouble& angles,
+                                           bool flagRange)
+{
+
+  int nvar = sills.getNSize();
+  if (ctxt.getNVar() != nvar)
+  {
+    messerr(
+      "Mismatch in the number of variables between 'sills'(%d) and 'ctxt'(%d)",
+      nvar, ctxt.getNVar());
+    return nullptr;
+  }
+  int ndim = (int)ranges.size();
+  if ((int)ctxt.getNDim() != ndim)
+  {
+    messerr("Mismatch in Space Dimension between 'ranges'(%d) and 'ctxt'(%d)",
+            ndim, ctxt.getNDim());
+    return nullptr;
+  }
+
+  CovAniso* cov = new CovAniso(type, ctxt);
+  if (flagRange)
+    cov->setRanges(ranges);
+  else
+    cov->setScales(ranges);
+  cov->setSill(sills);
+  cov->setParam(param);
+  if (!angles.empty()) cov->setAnisoAngles(angles);
+  return cov;
+}
+
+CovAniso* CovAniso::createFromParam(const ECov& type,
+                                    double range,
+                                    double sill,
+                                    double param,
+                                    const VectorDouble& ranges,
+                                    const MatrixSymmetric& sills,
+                                    const VectorDouble& angles,
+                                    const ASpaceSharedPtr& space,
+                                    bool flagRange)
+{
+  // Check consistency with parameters of the model
+
+  int ndim = 0;
+  if (!ranges.empty())
+  {
+    if (ndim > 0 && (int)ranges.size() != ndim)
+    {
+      messerr("Mismatch between the dimension of 'ranges' (%d)",
+              (int)ranges.size());
+      messerr("and the Space dimension stored in the Model (%d)", ndim);
+      messerr("Operation is cancelled");
+      return nullptr;
+    }
+    ndim = (int)ranges.size();
+  }
+  if (!angles.empty())
+  {
+    if (ndim > 0 && (int)angles.size() != ndim)
+    {
+      messerr("Mismatch between the dimension of 'angles' (%d)",
+              (int)angles.size());
+      messerr("and the Space dimension stored in the Model (%d)", ndim);
+      messerr("Operation is cancelled");
+      return nullptr;
+    }
+    ndim = (int)angles.size();
+  }
+  if (space != nullptr)
+  {
+    if (ndim > 0 && (int)space->getNDim() != ndim)
+    {
+      messerr("Mismatch between the space dimension in 'space' (%d)",
+              (int)space->getNDim());
+      messerr("and the Space dimension stored in the Model (%d)", ndim);
+      messerr("Operation is cancelled");
+      return nullptr;
+    }
+    ndim = (int)space->getNDim();
+  }
+  if (ndim <= 0)
+  {
+    messerr("You must define the SPace dimension");
+    return nullptr;
+  }
+
+  int nvar = 0;
+  if (!sills.empty())
+  {
+    if (nvar > 0 && nvar != sills.getNCols())
+    {
+      messerr("Mismatch between the number of rows 'sills' (%d)", sills.getNRows());
+      messerr("and the Number of variables stored in the Model (%d)", nvar);
+      messerr("Operation is cancelled");
+      return nullptr;
+    }
+    nvar = (int)sqrt((double)sills.size());
+  }
+  if (nvar <= 0) nvar = 1;
+
+  // Define the covariance
+
+  const CovContext& ctxt = CovContext(nvar, space);
+  CovAniso* cov          = new CovAniso(type, ctxt);
+
+  // Define the Third parameter
+  double parmax = cov->getParMax();
+  if (param > parmax) param = parmax;
+  cov->setParam(param);
+
+  // Define the range
+  if (!ranges.empty())
+  {
     if (flagRange)
       cov->setRanges(ranges);
     else
       cov->setScales(ranges);
-    cov->setSill(sill);
-    cov->setParam(param);
-    if (!angles.empty()) cov->setAnisoAngles(angles);
-    return cov;
   }
-
-  CovAniso* CovAniso::createIsotropicMulti(const CovContext& ctxt,
-                                           const ECov& type,
-                                           double range,
-                                           const MatrixSymmetric& sills,
-                                           double param,
-                                           bool flagRange)
+  else
   {
-    CovAniso* cov = new CovAniso(type, ctxt);
-    int nvar      = sills.getNSize();
-    if (ctxt.getNVar() != nvar)
-    {
-      messerr(
-        "Mismatch in the number of variables between 'sills'(%d) and 'ctxt'(%d)",
-        nvar, ctxt.getNVar());
-      return nullptr;
-    }
     if (flagRange)
       cov->setRangeIsotropic(range);
     else
       cov->setScale(range);
+  }
+
+  // Define the sill
+  if (!sills.empty())
     cov->setSill(sills);
-    cov->setParam(param);
-    return cov;
-  }
-
-  CovAniso* CovAniso::createAnisotropicMulti(const CovContext& ctxt,
-                                             const ECov& type,
-                                             const VectorDouble& ranges,
-                                             const MatrixSymmetric& sills,
-                                             double param,
-                                             const VectorDouble& angles,
-                                             bool flagRange)
+  else
   {
-
-    int nvar = sills.getNSize();
-    if (ctxt.getNVar() != nvar)
-    {
-      messerr(
-        "Mismatch in the number of variables between 'sills'(%d) and 'ctxt'(%d)",
-        nvar, ctxt.getNVar());
-      return nullptr;
-    }
-    int ndim = (int)ranges.size();
-    if ((int)ctxt.getNDim() != ndim)
-    {
-      messerr("Mismatch in Space Dimension between 'ranges'(%d) and 'ctxt'(%d)",
-              ndim, ctxt.getNDim());
-      return nullptr;
-    }
-
-    CovAniso* cov = new CovAniso(type, ctxt);
-    if (flagRange)
-      cov->setRanges(ranges);
-    else
-      cov->setScales(ranges);
-    cov->setSill(sills);
-    cov->setParam(param);
-    if (!angles.empty()) cov->setAnisoAngles(angles);
-    return cov;
-  }
-
-  CovAniso* CovAniso::createFromParam(const ECov& type,
-                                      double range,
-                                      double sill,
-                                      double param,
-                                      const VectorDouble& ranges,
-                                      const MatrixSymmetric& sills,
-                                      const VectorDouble& angles,
-                                      const ASpaceSharedPtr& space,
-                                      bool flagRange)
-  {
-    // Check consistency with parameters of the model
-
-    int ndim = 0;
-    if (!ranges.empty())
-    {
-      if (ndim > 0 && (int)ranges.size() != ndim)
-      {
-        messerr("Mismatch between the dimension of 'ranges' (%d)",
-                (int)ranges.size());
-        messerr("and the Space dimension stored in the Model (%d)", ndim);
-        messerr("Operation is cancelled");
-        return nullptr;
-      }
-      ndim = (int)ranges.size();
-    }
-    if (!angles.empty())
-    {
-      if (ndim > 0 && (int)angles.size() != ndim)
-      {
-        messerr("Mismatch between the dimension of 'angles' (%d)",
-                (int)angles.size());
-        messerr("and the Space dimension stored in the Model (%d)", ndim);
-        messerr("Operation is cancelled");
-        return nullptr;
-      }
-      ndim = (int)angles.size();
-    }
-    if (space != nullptr)
-    {
-      if (ndim > 0 && (int)space->getNDim() != ndim)
-      {
-        messerr("Mismatch between the space dimension in 'space' (%d)",
-                (int)space->getNDim());
-        messerr("and the Space dimension stored in the Model (%d)", ndim);
-        messerr("Operation is cancelled");
-        return nullptr;
-      }
-      ndim = (int)space->getNDim();
-    }
-    if (ndim <= 0)
-    {
-      messerr("You must define the SPace dimension");
-      return nullptr;
-    }
-
-    int nvar = 0;
-    if (!sills.empty())
-    {
-      if (nvar > 0 && nvar != sills.getNCols())
-      {
-        messerr("Mismatch between the number of rows 'sills' (%d)", sills.getNRows());
-        messerr("and the Number of variables stored in the Model (%d)", nvar);
-        messerr("Operation is cancelled");
-        return nullptr;
-      }
-      nvar = (int)sqrt((double)sills.size());
-    }
-    if (nvar <= 0) nvar = 1;
-
-    // Define the covariance
-
-    const CovContext& ctxt = CovContext(nvar, space);
-    CovAniso* cov          = new CovAniso(type, ctxt);
-
-    // Define the Third parameter
-    double parmax = cov->getParMax();
-    if (param > parmax) param = parmax;
-    cov->setParam(param);
-
-    // Define the range
-    if (!ranges.empty())
-    {
-      if (flagRange)
-        cov->setRanges(ranges);
-      else
-        cov->setScales(ranges);
-    }
+    if (nvar <= 1)
+      cov->setSill(sill);
     else
     {
-      if (flagRange)
-        cov->setRangeIsotropic(range);
-      else
-        cov->setScale(range);
+      MatrixSymmetric locsills(nvar);
+      locsills.setIdentity(sill);
+      cov->setSill(locsills);
     }
-
-    // Define the sill
-    if (!sills.empty())
-      cov->setSill(sills);
-    else
-    {
-      if (nvar <= 1)
-        cov->setSill(sill);
-      else
-      {
-        MatrixSymmetric locsills(nvar);
-        locsills.setIdentity(sill);
-        cov->setSill(locsills);
-      }
-    }
-
-    if (!angles.empty()) cov->setAnisoAngles(angles);
-    return cov;
   }
 
-  Array CovAniso::evalCovFFT(const VectorDouble& hmax,
-                             int N,
-                             int ivar,
-                             int jvar) const
+  if (!angles.empty()) cov->setAnisoAngles(angles);
+  return cov;
+}
+
+Array CovAniso::evalCovFFT(const VectorDouble& hmax,
+                           int N,
+                           int ivar,
+                           int jvar) const
+{
+  if (!hasSpectrumOnRn()) return Array();
+
+  std::function<double(const VectorDouble&)> funcSpectrum;
+  funcSpectrum = [this, ivar, jvar](const VectorDouble& freq)
   {
-    if (!hasSpectrumOnRn()) return Array();
+    return evalSpectrum(freq, ivar, jvar) * getDetTensor();
+  };
+  return evalCovFFTSpatial(hmax, N, funcSpectrum);
+}
 
-    std::function<double(const VectorDouble&)> funcSpectrum;
-    funcSpectrum = [this, ivar, jvar](const VectorDouble& freq)
-    {
-      return evalSpectrum(freq, ivar, jvar) * getDetTensor();
-    };
-    return evalCovFFTSpatial(hmax, N, funcSpectrum);
-  }
+const CorAniso* CovAniso::getCorAniso() const
+{
+  return dynamic_cast<const CorAniso*>(getCor());
+}
 
-  const CorAniso* CovAniso::getCorAniso() const
-  {
-    return dynamic_cast<const CorAniso*>(getCor());
-  }
-  
-  CovAniso* CovAniso::createReduce(const VectorInt& validVars) const
-  {
-    CovAniso* newCovAniso = this->clone();
+CovAniso* CovAniso::createReduce(const VectorInt& validVars) const
+{
+  CovAniso* newCovAniso = this->clone();
 
-    // Modify the CovContext
-    int nvar        = (int)validVars.size();
-    CovContext ctxt = CovContext(nvar);
+  // Modify the CovContext
+  int nvar        = (int)validVars.size();
+  CovContext ctxt = CovContext(nvar);
 
-    // Modify the Matrix of sills
-    newCovAniso->setContext(ctxt);
-    MatrixSymmetric* newsill = dynamic_cast<MatrixSymmetric*>(MatrixFactory::createReduce(&_sillCur, validVars, validVars));
-    newCovAniso->setSill(*newsill);
-    return newCovAniso;
-  }
+  // Modify the Matrix of sills
+  newCovAniso->setContext(ctxt);
+  MatrixSymmetric* newsill = dynamic_cast<MatrixSymmetric*>(MatrixFactory::createReduce(&_sillCur, validVars, validVars));
+  newCovAniso->setSill(*newsill);
+  return newCovAniso;
+}
 
-  double scale2range(const ECov& type, double scale, double param)
-  {
-    CovContext ctxt = CovContext(1, 1);
-    ACovFunc* cova  = CovFactory::createCovFunc(type, ctxt);
-    cova->setParam(param);
-    double scadef = cova->getScadef();
-    return scale * scadef;
-  }
+double scale2range(const ECov& type, double scale, double param)
+{
+  CovContext ctxt = CovContext(1, 1);
+  ACovFunc* cova  = CovFactory::createCovFunc(type, ctxt);
+  cova->setParam(param);
+  double scadef = cova->getScadef();
+  return scale * scadef;
+}
 
-  double range2scale(const ECov& type, double range, double param)
-  {
-    CovContext ctxt = CovContext(1, 1);
-    ACovFunc* cova  = CovFactory::createCovFunc(type, ctxt);
-    cova->setParam(param);
-    double scadef = cova->getScadef();
-    return range / scadef;
-  }
+double range2scale(const ECov& type, double range, double param)
+{
+  CovContext ctxt = CovContext(1, 1);
+  ACovFunc* cova  = CovFactory::createCovFunc(type, ctxt);
+  cova->setParam(param);
+  double scadef = cova->getScadef();
+  return range / scadef;
+}
 } // namespace gstlrn

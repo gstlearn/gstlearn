@@ -33,11 +33,13 @@
 #include "Tree/Ball.hpp"
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
-#include <math.h>
-#include <string.h>
+#include <cmath>
+#include <cstring>
 
 // https://stackoverflow.com/a/26359433/3952924
 #ifdef _MSC_VER
+#  define strncasecmp _strnicmp
+#  define strcasecmp  _stricmp
 #  define strncasecmp _strnicmp
 #  define strcasecmp  _stricmp
 #endif
@@ -50,7 +52,15 @@
 #define WTAB(iz, icode, ivar) (wtab[(ivar) + nvar * ((iz) + nz * (icode))])
 #define WCOR(iz, icode, idim) (wcor[(idim) + ndim * ((iz) + nz * (icode))])
 #define WCNT(iz, icode)       (wcnt[(iz) + nz * (icode)])
+#define TRACE(i, iseg)        (trace[(i) * nseg + (iseg)])
+#define LINE(nbline, i)       (line[npline * (nbline) + (i)])
+#define PROP1(iz, iprop)      (prop1[(iz) * nprop + (iprop)])
+#define PROP2(iz, iprop)      (prop2[(iz) * nprop + (iprop)])
+#define WTAB(iz, icode, ivar) (wtab[(ivar) + nvar * ((iz) + nz * (icode))])
+#define WCOR(iz, icode, idim) (wcor[(idim) + ndim * ((iz) + nz * (icode))])
+#define WCNT(iz, icode)       (wcnt[(iz) + nz * (icode)])
 
+#define R(i, j) (R[(i) * n + (j)])
 #define R(i, j) (R[(i) * n + (j)])
 
 namespace gstlrn
@@ -565,10 +575,10 @@ int db_edit(Db* db, int* flag_valid)
  ** \param[in]  disc   Discretization distance
  **
  ** \param[out] np_arg   Number of discretized points
- ** \param[out] xp_arg   Array of first coordinates
- ** \param[out] yp_arg   Array of second coordinates
- ** \param[out] dd_arg   Array of distances between discretized points
- ** \param[out] del_arg  Array of distances between vertices
+ ** \param[out] xp       Array of first coordinates
+ ** \param[out] yp       Array of second coordinates
+ ** \param[out] dd       Array of distances between discretized points
+ ** \param[out] del      Array of distances between vertices
  ** \param[out] dist_arg Total distance of the trace
  **
  *****************************************************************************/
@@ -576,22 +586,21 @@ void ut_trace_discretize(int nseg,
                          const double* trace,
                          double disc,
                          int* np_arg,
-                         double** xp_arg,
-                         double** yp_arg,
-                         double** dd_arg,
-                         double** del_arg,
+                         VectorDouble& xp,
+                         VectorDouble& yp,
+                         VectorDouble& dd,
+                         VectorDouble& del,
                          double* dist_arg)
 {
-  double *xp, *yp, *dd, *del, deltax, deltay, x0, y0, x1, y1, dist;
+  double deltax, deltay, x0, y0, x1, y1, dist;
   int iseg, np, ecr, nloc, ip;
 
   /* Initializations */
 
-  xp = yp = dd = nullptr;
   (*np_arg) = np = 0;
   (*dist_arg) = x1 = y1 = 0.;
-  del                   = (double*)mem_alloc(sizeof(double) * nseg, 1);
-  del[0]                = 0.;
+  del.resize(nseg);
+  del[0] = 0.;
 
   /* Loop on the trace segments */
 
@@ -615,8 +624,8 @@ void ut_trace_discretize(int nseg,
     nloc = (int)floor(dist / disc);
     if (ABS(nloc * disc - dist) < dist / 1000) nloc--;
     np += nloc;
-    xp = (double*)mem_realloc((char*)xp, sizeof(double) * np, 1);
-    yp = (double*)mem_realloc((char*)yp, sizeof(double) * np, 1);
+    xp.resize(np);
+    yp.resize(np);
 
     for (ip = 0; ip < nloc; ip++, ecr++)
     {
@@ -628,15 +637,15 @@ void ut_trace_discretize(int nseg,
   /* Adding the last vertex */
 
   np++;
-  xp      = (double*)mem_realloc((char*)xp, sizeof(double) * np, 1);
-  yp      = (double*)mem_realloc((char*)yp, sizeof(double) * np, 1);
+  xp.resize(np);
+  yp.resize(np);
   xp[ecr] = x1;
   yp[ecr] = y1;
   ecr++;
 
   /* Elaborate the vector of distances */
 
-  dd    = (double*)mem_alloc(sizeof(double) * np, 1);
+  dd.resize(np);
   dd[0] = 0.;
   for (ip = 0; ip < np - 1; ip++)
   {
@@ -644,14 +653,6 @@ void ut_trace_discretize(int nseg,
     deltay     = yp[ip + 1] - yp[ip];
     dd[ip + 1] = dd[ip] + sqrt(deltax * deltax + deltay * deltay);
   }
-
-  /* Returning arguments */
-
-  (*np_arg)  = np;
-  (*xp_arg)  = xp;
-  (*yp_arg)  = yp;
-  (*dd_arg)  = dd;
-  (*del_arg) = del;
 }
 
 /*****************************************************************************/
@@ -1521,7 +1522,10 @@ label_end:
 int db_smooth_vpc(DbGrid* db, int width, double range)
 {
   int iz, nz, nprop, ecr, nkern, jz, error;
-  double *prop1, *prop2, *kernel, total, propval, dz, quant, quant0;
+  double total, propval, dz, quant, quant0;
+  VectorDouble prop1;
+  VectorDouble prop2;
+  VectorDouble kernel;
 
   /* Initializations */
 
@@ -1529,7 +1533,6 @@ int db_smooth_vpc(DbGrid* db, int width, double range)
   nprop = db->getNLoc(ELoc::P);
   nz    = db->getNX(2);
   dz    = db->getDX(2);
-  prop1 = prop2 = kernel = nullptr;
 
   /* Core allocation */
 
@@ -1543,10 +1546,10 @@ int db_smooth_vpc(DbGrid* db, int width, double range)
     messerr("You must define either 'width' or 'range'");
     goto label_end;
   }
-  nkern  = 2 * width + 1;
-  prop1  = (double*)mem_alloc(sizeof(double) * nz * nprop, 1);
-  prop2  = (double*)mem_alloc(sizeof(double) * nz * nprop, 1);
-  kernel = (double*)mem_alloc(sizeof(double) * nkern, 1);
+  nkern = 2 * width + 1;
+  prop1.resize(nz * nprop);
+  prop2.resize(nz * nprop);
+  kernel.resize(nkern);
 
   /* Establish the Kernel */
 
@@ -1568,7 +1571,7 @@ int db_smooth_vpc(DbGrid* db, int width, double range)
 
       /* Load the proportions */
 
-      if (db_prop_read(db, ix, iy, prop1)) goto label_end;
+      if (db_prop_read(db, ix, iy, prop1.data())) goto label_end;
 
       /* Loop on the proportions */
 
@@ -1592,7 +1595,7 @@ int db_smooth_vpc(DbGrid* db, int width, double range)
           PROP2(iz, iprop) = total;
         }
       }
-      if (db_prop_write(db, ix, iy, prop2)) goto label_end;
+      if (db_prop_write(db, ix, iy, prop2.data())) goto label_end;
     }
 
   /* Set the error return code */
@@ -1600,9 +1603,6 @@ int db_smooth_vpc(DbGrid* db, int width, double range)
   error = 0;
 
 label_end:
-  mem_free((char*)prop1);
-  mem_free((char*)prop2);
-  mem_free((char*)kernel);
   return (error);
 }
 
@@ -1786,8 +1786,8 @@ label_end:
  ** \param[in]  nmini       Minimum number of nodes before drawing
  **
  ** \param[out] nech_ret    Number of selected samples
- ** \param[out] coor_ret    Array of coordinates
- ** \param[out] data_ret    Array of variables
+ ** \param[out] coor        Array of coordinates
+ ** \param[out] data        Array of variables
  **
  ** \remarks The returned arrays 'coor' and 'data' must be freed by
  ** \remarks the calling function
@@ -1800,13 +1800,12 @@ int db_grid2point_sampling(DbGrid* dbgrid,
                            int npcell,
                            int nmini,
                            int* nech_ret,
-                           double** coor_ret,
-                           double** data_ret)
+                           VectorDouble& coor,
+                           VectorDouble& data)
 {
   int ndim, ntotal, nech, nret, nfine, iech, ecrc, ecrd, error;
-  int* retain;
-  double *coor, *data;
   VectorInt ranks;
+  VectorInt retain;
   VectorDouble rndval;
 
   // Initializations
@@ -1814,11 +1813,9 @@ int db_grid2point_sampling(DbGrid* dbgrid,
   *nech_ret = 0;
 
   error = 1;
-  coor = data = nullptr;
-  retain      = nullptr;
-  ndim        = dbgrid->getNDim();
-  nfine       = dbgrid->getNSample();
-  nmini       = MAX(nmini, npcell);
+  ndim  = dbgrid->getNDim();
+  nfine = dbgrid->getNSample();
+  nmini = MAX(nmini, npcell);
   VectorInt indg(ndim, 0);
   if (ndim > 3)
   {
@@ -1833,8 +1830,7 @@ int db_grid2point_sampling(DbGrid* dbgrid,
     ntotal *= npacks[idim];
   rndval.resize(ntotal);
   ranks.resize(ntotal);
-  retain = (int*)mem_alloc(sizeof(int) * nfine, 0);
-  if (retain == nullptr) goto label_end;
+  retain.resize(nfine);
 
   // Dispatch
 
@@ -1932,10 +1928,8 @@ int db_grid2point_sampling(DbGrid* dbgrid,
 
   // Allocate the array for coordinates and data
 
-  coor = (double*)mem_alloc(sizeof(double) * ndim * nret, 0);
-  if (coor == nullptr) goto label_end;
-  data = (double*)mem_alloc(sizeof(double) * nvar * nret, 0);
-  if (data == nullptr) goto label_end;
+  coor.resize(ndim * nret);
+  data.resize(nvar * nret);
 
   // Load the returned arrays
 
@@ -1952,14 +1946,11 @@ int db_grid2point_sampling(DbGrid* dbgrid,
   // Set the error return code
 
   *nech_ret = nret;
-  *coor_ret = coor;
-  *data_ret = data;
   error     = 0;
 
   // Core deallocation
 
 label_end:
-  retain = (int*)mem_free((char*)retain);
   return (error);
 }
 
@@ -2143,4 +2134,4 @@ int db_proportion_estimate(Db* dbin,
 
   return 0;
 }
-}
+} // namespace gstlrn

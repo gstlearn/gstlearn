@@ -14,7 +14,8 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "geoslib_old_f.h"
-#include <string.h>
+
+#include <cstring>
 
 namespace gstlrn
 {

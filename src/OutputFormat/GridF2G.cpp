@@ -15,7 +15,7 @@
 #include "Basic/String.hpp"
 #include "Core/io.hpp"
 
-#include <string.h>
+#include <cstring>
 
 #define F2G(ix,iy,iz,icol)  (tab[(ix) + nx[0] * ((iy) + nx[1] * ((iz) + nx[2] * (icol)))])
 

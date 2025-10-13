@@ -10,7 +10,8 @@
 /******************************************************************************/
 #include "LinearOp/AShiftOp.hpp"
 #include "Covariances/CovAniso.hpp"
-#include <math.h>
+
+#include <cmath>
 
 using namespace gstlrn;
 

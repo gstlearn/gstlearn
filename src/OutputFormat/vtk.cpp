@@ -60,7 +60,7 @@ License: BSD 3-clause
 #include "Basic/String.hpp"
 #include "Basic/File.hpp"
 
-#include <string.h>
+#include <cstring>
 
 /*
  * Globals.

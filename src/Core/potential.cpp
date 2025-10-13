@@ -23,8 +23,9 @@
 #include "Neigh/ANeigh.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "geoslib_old_f.h"
-#include <math.h>
-#include <string.h>
+
+#include <cmath>
+#include <cstring>
 
 /*! \cond */
 
@@ -3671,4 +3672,4 @@ int potential_cov(Model* model,
 
   return (0);
 }
-}
+} // namespace gstlrn

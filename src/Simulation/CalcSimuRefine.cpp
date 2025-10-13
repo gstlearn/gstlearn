@@ -8,21 +8,20 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Simulation/CalcSimuRefine.hpp"
+#include "Basic/Law.hpp"
+#include "Covariances/CovCalcMode.hpp"
+#include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
+#include "Model/Model.hpp"
+#include "Simulation/ACalcSimulation.hpp"
+#include "Simulation/SimuRefineParam.hpp"
 #include "geoslib_old_f.h"
 
-#include "Db/DbGrid.hpp"
-#include "Db/Db.hpp"
-#include "Model/Model.hpp"
-#include "Covariances/CovCalcMode.hpp"
-#include "Simulation/CalcSimuRefine.hpp"
-#include "Simulation/SimuRefineParam.hpp"
-#include "Simulation/ACalcSimulation.hpp"
-#include "Basic/Law.hpp"
+#include <cmath>
 
-#include <math.h>
-
-#define LHS(i,j) (lhs[(i) * neq + (j)])
-#define RHS(i)   (rhs[(i)])
+#define LHS(i, j) (lhs[(i) * neq + (j)])
+#define RHS(i)    (rhs[(i)])
 
 namespace gstlrn
 {
@@ -52,7 +51,7 @@ int CalcSimuRefine::_simulate()
 
   DbGrid* dbin = getGridin();
   db1 = db2 = nullptr;
-  db1 = dbin;
+  db1       = dbin;
   law_set_random_seed(getSeed());
   int ndim = _getNDim();
 
@@ -96,15 +95,15 @@ int CalcSimuRefine::_simulate()
 
     if (db1 != dbin) delete db1;
     _dim_2_to_1(db2);
-    VectorInt nx1 = _nx1;
+    VectorInt nx1    = _nx1;
     VectorDouble x01 = _x01;
     VectorDouble dx1 = _dx1;
     nx1.resize(ndim);
     x01.resize(ndim);
     dx1.resize(ndim);
-    db1 = DbGrid::create(nx1, dx1, x01, dbin->getGrid().getRotAngles(),
-                         ELoadBy::SAMPLE, VectorDouble(),
-                         VectorString(), VectorString(), 1);
+    db1   = DbGrid::create(nx1, dx1, x01, dbin->getGrid().getRotAngles(),
+                           ELoadBy::SAMPLE, VectorDouble(),
+                           VectorString(), VectorString(), 1);
     iatt1 = db1->addColumnsByConstant(1, TEST);
 
     /* Truncate the output grid for next step */
@@ -128,7 +127,7 @@ int CalcSimuRefine::_simulate()
  ** \param[in]  db  Staring grid Db structure
  **
  *****************************************************************************/
-void CalcSimuRefine::_dim_1_to_2(DbGrid *db)
+void CalcSimuRefine::_dim_1_to_2(DbGrid* db)
 
 {
   int ndim = _getNDim();
@@ -149,13 +148,13 @@ void CalcSimuRefine::_dim_1_to_2(DbGrid *db)
 
   _nx2[0] = (ndim >= 1) ? _nx1[0] * 2 + 1 : 1;
   _nx2[1] = (ndim >= 2) ? _nx1[1] * 2 + 1 : 1;
-  _nx2[2] = (ndim >= 3) ? _nx1[2]         : 1;
-  _dx2[0] = (ndim >= 1) ? _dx1[0] / 2.    : 1.;
-  _dx2[1] = (ndim >= 2) ? _dx1[1] / 2.    : 1.;
-  _dx2[2] = (ndim >= 3) ? _dx1[2]         : 1.;
+  _nx2[2] = (ndim >= 3) ? _nx1[2] : 1;
+  _dx2[0] = (ndim >= 1) ? _dx1[0] / 2. : 1.;
+  _dx2[1] = (ndim >= 2) ? _dx1[1] / 2. : 1.;
+  _dx2[2] = (ndim >= 3) ? _dx1[2] : 1.;
   _x02[0] = (ndim >= 1) ? _x01[0] - _dx2[0] : 0.;
   _x02[1] = (ndim >= 2) ? _x01[1] - _dx2[1] : 0.;
-  _x02[2] = (ndim >= 3) ? _x01[2]           : 0.;
+  _x02[2] = (ndim >= 3) ? _x01[2] : 0.;
 }
 
 /****************************************************************************/
@@ -165,7 +164,7 @@ void CalcSimuRefine::_dim_1_to_2(DbGrid *db)
  ** \param[in]  db  Starting grid Db structure
  **
  *****************************************************************************/
-void CalcSimuRefine::_dim_2_to_1(DbGrid *db)
+void CalcSimuRefine::_dim_2_to_1(DbGrid* db)
 
 {
   int ndim = _getNDim();
@@ -186,13 +185,13 @@ void CalcSimuRefine::_dim_2_to_1(DbGrid *db)
 
   _nx1[0] = (ndim >= 1) ? _nx2[0] - 2 : 1;
   _nx1[1] = (ndim >= 2) ? _nx2[1] - 2 : 1;
-  _nx1[2] = (ndim >= 3) ? _nx2[2]     : 1;
-  _dx1[0] = (ndim >= 1) ? _dx2[0]     : 1.;
-  _dx1[1] = (ndim >= 2) ? _dx2[1]     : 1.;
-  _dx1[2] = (ndim >= 3) ? _dx2[2]     : 1.;
+  _nx1[2] = (ndim >= 3) ? _nx2[2] : 1;
+  _dx1[0] = (ndim >= 1) ? _dx2[0] : 1.;
+  _dx1[1] = (ndim >= 2) ? _dx2[1] : 1.;
+  _dx1[2] = (ndim >= 3) ? _dx2[2] : 1.;
   _x01[0] = (ndim >= 1) ? _x02[0] + _dx2[0] : 0.;
   _x01[1] = (ndim >= 2) ? _x02[1] + _dx2[1] : 0.;
-  _x01[2] = (ndim >= 3) ? _x02[2]           : 0.;
+  _x01[2] = (ndim >= 3) ? _x02[2] : 0.;
 }
 
 /****************************************************************************/
@@ -207,22 +206,22 @@ int CalcSimuRefine::_kriging_define()
 
   /* Define the kriging system for the cell centers */
 
-  _neigh_simfine(0, 0, -1, -1,  0);
-  _neigh_simfine(0, 1,  1, -1,  0);
-  _neigh_simfine(0, 2,  1,  1,  0);
-  _neigh_simfine(0, 3, -1,  1,  0);
-  _neigh_simfine(0, 4,  0,  0, -1);
+  _neigh_simfine(0, 0, -1, -1, 0);
+  _neigh_simfine(0, 1, 1, -1, 0);
+  _neigh_simfine(0, 2, 1, 1, 0);
+  _neigh_simfine(0, 3, -1, 1, 0);
+  _neigh_simfine(0, 4, 0, 0, -1);
 
   if (_kriging_solve(0, 0, 4)) return (1);
   if (_kriging_solve(0, 1, 5)) return (1);
 
   /* Define the Kriging system for the mid-vertices */
 
-  _neigh_simfine(1, 0, -1,  0,  0);
-  _neigh_simfine(1, 1,  0, -1,  0);
-  _neigh_simfine(1, 2,  1,  0,  0);
-  _neigh_simfine(1, 3,  0,  1,  0);
-  _neigh_simfine(1, 4,  0,  0, -1);
+  _neigh_simfine(1, 0, -1, 0, 0);
+  _neigh_simfine(1, 1, 0, -1, 0);
+  _neigh_simfine(1, 2, 1, 0, 0);
+  _neigh_simfine(1, 3, 0, 1, 0);
+  _neigh_simfine(1, 4, 0, 0, -1);
 
   if (_kriging_solve(1, 0, 4)) return (1);
   if (_kriging_solve(1, 1, 5)) return (1);
@@ -261,15 +260,15 @@ void CalcSimuRefine::_neigh_simfine(int type, int rank, int idx, int idy, int id
  ** \param[in]  iatt2   Rank of the attribute to be written into db2
  **
  *****************************************************************************/
-void CalcSimuRefine::_merge_data(DbGrid *db1, int iatt1, DbGrid *db2, int iatt2)
+void CalcSimuRefine::_merge_data(DbGrid* db1, int iatt1, DbGrid* db2, int iatt2)
 {
   for (int ix1 = 0; ix1 < _nx1[0]; ix1++)
     for (int iy1 = 0; iy1 < _nx1[1]; iy1++)
       for (int iz1 = 0; iz1 < _nx1[2]; iz1++)
       {
-        int ix2 = 1 + 2 * ix1;
-        int iy2 = 1 + 2 * iy1;
-        int iz2 = iz1;
+        int ix2      = 1 + 2 * ix1;
+        int iy2      = 1 + 2 * iy1;
+        int iz2      = iz1;
         double value = _read(db1, iatt1, ix1, iy1, iz1, 0, 0, 0);
         _write(db2, iatt2, ix2, iy2, iz2, value);
       }
@@ -301,7 +300,7 @@ double CalcSimuRefine::_read(DbGrid* db,
                              int idz)
 {
   int ndim = _getNDim();
-  VectorInt ind(ndim,0);
+  VectorInt ind(ndim, 0);
   if (ndim >= 1)
   {
     int ix = ix0 + idx;
@@ -336,12 +335,12 @@ double CalcSimuRefine::_read(DbGrid* db,
  ** \param[in]  value  Value to be written
  **
  *****************************************************************************/
-void CalcSimuRefine::_write(DbGrid *db, int iatt, int ix0, int iy0, int iz0, double value)
+void CalcSimuRefine::_write(DbGrid* db, int iatt, int ix0, int iy0, int iz0, double value)
 {
   VectorInt ind(3);
-  ind[0] = ix0;
-  ind[1] = iy0;
-  ind[2] = iz0;
+  ind[0]  = ix0;
+  ind[1]  = iy0;
+  ind[2]  = iz0;
   int iad = db->indiceToRank(ind);
   db->setArray(iad, iatt, value);
 }
@@ -356,7 +355,7 @@ void CalcSimuRefine::_write(DbGrid *db, int iatt, int ix0, int iy0, int iz0, dou
  ** \param[in]  iatt1   Rank of the attribute to be written into db1
  **
  *****************************************************************************/
-void CalcSimuRefine::_truncate_result(DbGrid *db2, int iatt2, DbGrid *db1, int iatt1)
+void CalcSimuRefine::_truncate_result(DbGrid* db2, int iatt2, DbGrid* db1, int iatt1)
 {
   for (int ix = 0; ix < _nx1[0]; ix++)
     for (int iy = 0; iy < _nx1[1]; iy++)
@@ -381,7 +380,7 @@ void CalcSimuRefine::_truncate_result(DbGrid *db2, int iatt2, DbGrid *db1, int i
  *****************************************************************************/
 int CalcSimuRefine::_kriging_solve(int type, int rank, int nb, bool verbose)
 {
-  int neq = (_param.isFlagSK()) ? nb : nb + 1;
+  int neq  = (_param.isFlagSK()) ? nb : nb + 1;
   int ndim = _getNDim();
   VectorDouble d1(ndim);
   VectorDouble lhs(36);
@@ -397,7 +396,7 @@ int CalcSimuRefine::_kriging_solve(int type, int rank, int nb, bool verbose)
       if (ndim >= 1) d1[0] = _XYZN[0][type][i] - _XYZN[0][type][j];
       if (ndim >= 2) d1[1] = _XYZN[1][type][i] - _XYZN[1][type][j];
       if (ndim >= 3) d1[2] = _XYZN[2][type][i] - _XYZN[2][type][j];
-      LHS(i,j) = getModel()->evaluateOneGeneric(nullptr, d1);
+      LHS(i, j) = getModel()->evaluateOneGeneric(nullptr, d1);
     }
 
   /* Establish the kriging R.H.S. */
@@ -412,15 +411,15 @@ int CalcSimuRefine::_kriging_solve(int type, int rank, int nb, bool verbose)
 
   /* Add the Universality condition (optional) */
 
-  if (! _param.isFlagSK())
+  if (!_param.isFlagSK())
   {
     for (int i = 0; i < nb; i++)
     {
-      LHS(i,nb) = 1.;
-      LHS(nb,i) = 1.;
+      LHS(i, nb) = 1.;
+      LHS(nb, i) = 1.;
     }
-    LHS(nb,nb) = 0;
-    RHS(nb) = 1.;
+    LHS(nb, nb) = 0;
+    RHS(nb)     = 1.;
   }
 
   /* Derive the Kriging weights */
@@ -439,8 +438,8 @@ int CalcSimuRefine::_kriging_solve(int type, int rank, int nb, bool verbose)
   for (int i = 0; i < ndim; i++) d1[i] = 0.;
   double var0 = getModel()->evaluateOneGeneric(nullptr, d1, 1., &mode);
   double var1 = 0.;
-  matrix_product_safe(1, neq, 1, rhs.data(),_WGT[type][rank], &var1);
-  double variance = var0 - var1;
+  matrix_product_safe(1, neq, 1, rhs.data(), _WGT[type][rank], &var1);
+  double variance   = var0 - var1;
   _STDV[type][rank] = (variance > 0) ? sqrt(variance) : 0.;
 
   /* Printout of the weights */
@@ -467,7 +466,7 @@ int CalcSimuRefine::_kriging_solve(int type, int rank, int nb, bool verbose)
  ** \param[in]  iatt   Rank of the column
  **
  *****************************************************************************/
-void CalcSimuRefine::_simulate_nodes(DbGrid *db, int iatt)
+void CalcSimuRefine::_simulate_nodes(DbGrid* db, int iatt)
 {
   for (int iz = 0; iz < _nx2[2]; iz++)
     for (int ix = 0; ix < _nx2[0]; ix++)
@@ -505,8 +504,7 @@ void CalcSimuRefine::_simulate_target(DbGrid* db, int type, int iatt, int ix0, i
     /* Case of the first layer */
 
     for (int i = 0; i < 4; i++)
-      value += (_WGT[type][0][i]
-          * _read(db, iatt, ix0, iy0, iz0, _IXYZ[0][type][i], _IXYZ[1][type][i], _IXYZ[2][type][i]));
+      value += (_WGT[type][0][i] * _read(db, iatt, ix0, iy0, iz0, _IXYZ[0][type][i], _IXYZ[1][type][i], _IXYZ[2][type][i]));
     value += _STDV[type][0] * law_gaussian();
   }
   else
@@ -515,8 +513,7 @@ void CalcSimuRefine::_simulate_target(DbGrid* db, int type, int iatt, int ix0, i
     /* Case of a subsequent layer */
 
     for (int i = 0; i < 5; i++)
-      value += (_WGT[type][1][i]
-          * _read(db, iatt, ix0, iy0, iz0, _IXYZ[0][type][i], _IXYZ[1][type][i], _IXYZ[2][type][i]));
+      value += (_WGT[type][1][i] * _read(db, iatt, ix0, iy0, iz0, _IXYZ[0][type][i], _IXYZ[1][type][i], _IXYZ[2][type][i]));
     value += _STDV[type][1] * law_gaussian();
   }
 
@@ -540,7 +537,7 @@ bool CalcSimuRefine::_check()
     messerr("This method can only be used with 1 variable");
     return false;
   }
-  
+
   return true;
 }
 
@@ -590,4 +587,4 @@ DbGrid* simulation_refine(DbGrid* dbin,
 
   return (simfine.run()) ? simfine.getResultingGrid() : nullptr;
 }
-}
+} // namespace gstlrn

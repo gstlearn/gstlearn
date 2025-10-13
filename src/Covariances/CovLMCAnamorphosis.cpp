@@ -21,7 +21,8 @@
 #include "Enum/ECalcMember.hpp"
 #include "Model/Model.hpp"
 #include "Space/ASpace.hpp"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {

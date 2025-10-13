@@ -13,7 +13,7 @@
 #include "Db/Db.hpp"
 #include "Basic/String.hpp"
 
-#include <string.h>
+#include <cstring>
 #include <cctype>
 
 #if defined(_WIN32) || defined(_WIN64)

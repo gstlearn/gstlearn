@@ -11,7 +11,8 @@
 #include "Covariances/CovGeometric.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/CovContext.hpp"
-#include "math.h"
+
+#include <cmath>
 
 namespace gstlrn
 {
@@ -64,4 +65,4 @@ VectorDouble CovGeometric::_evaluateSpectrumOnSphere(int n, double scale) const
 
   return sp;
 }
-}
+} // namespace gstlrn

@@ -13,7 +13,7 @@
 #include "Covariances/CovContext.hpp"
 #include "Simulation/TurningBandOperate.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #define MAXTAB 100
 
@@ -73,4 +73,4 @@ double CovBesselJ::simulateTurningBand(double t0, TurningBandOperate& operTB) co
 {
   return operTB.cosineOne(t0);
 }
-}
+} // namespace gstlrn

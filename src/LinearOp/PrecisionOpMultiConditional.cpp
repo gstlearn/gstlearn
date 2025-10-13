@@ -16,40 +16,39 @@
 #include "geoslib_define.h"
 #include <functional>
 
-#include <math.h>
-#include <vector>
 #include <algorithm>
+#include <cmath>
+#include <vector>
 
-namespace gstlrn{
-PrecisionOpMultiConditional::PrecisionOpMultiConditional()
-  :_multiPrecisionOp(std::vector<PrecisionOp*>())
-  ,_multiProjData(std::vector<IProj*>())
-  ,_varianceData()
-  ,_ndat(0)
-  ,_ncova(0)
-  ,_work1()
-  ,_work1bis()
-  ,_work1ter()
-  ,_workdata()
-  ,_work2()
-  ,_work3()
+namespace gstlrn
 {
-
+PrecisionOpMultiConditional::PrecisionOpMultiConditional()
+  : _multiPrecisionOp(std::vector<PrecisionOp*>())
+  , _multiProjData(std::vector<IProj*>())
+  , _varianceData()
+  , _ndat(0)
+  , _ncova(0)
+  , _work1()
+  , _work1bis()
+  , _work1ter()
+  , _workdata()
+  , _work2()
+  , _work3()
+{
 }
 
 PrecisionOpMultiConditional::~PrecisionOpMultiConditional()
 {
 }
 
-
 std::vector<std::vector<double>> PrecisionOpMultiConditional::computeRhs(const std::vector<double>& datVal) const
 {
-  std::vector<std::vector<double>>rhs(sizes());
-  for(int i = 0, n = sizes(); i < n; i++)
+  std::vector<std::vector<double>> rhs(sizes());
+  for (int i = 0, n = sizes(); i < n; i++)
   {
     rhs[i].resize(size(i));
   }
-  computeRhsInPlace(datVal,rhs);
+  computeRhsInPlace(datVal, rhs);
   return rhs;
 }
 
@@ -57,12 +56,12 @@ void PrecisionOpMultiConditional::computeRhsInPlace(const std::vector<double>& d
 {
   std::vector<double> temp(datVal.size());
 
-  for(int i = 0; i < static_cast<int>(datVal.size()) ; i++)
+  for (int i = 0; i < static_cast<int>(datVal.size()); i++)
   {
     temp[i] = datVal[i] / getVarianceData(i);
   }
 
-  for(int i = 0, n = sizes(); i < n; i++)
+  for (int i = 0, n = sizes(); i < n; i++)
   {
     constvect tempm(temp);
     vect rhsm(rhs[i]);
@@ -70,14 +69,13 @@ void PrecisionOpMultiConditional::computeRhsInPlace(const std::vector<double>& d
   }
 }
 
-
-int PrecisionOpMultiConditional::push_back(PrecisionOp *pmatElem,
-                                           IProj *projDataElem)
+int PrecisionOpMultiConditional::push_back(PrecisionOp* pmatElem,
+                                           IProj* projDataElem)
 {
   if (sizes() == 0 && projDataElem != nullptr)
   {
     // From the first element of the list, get the number of data and set _ndat
-    _ndat = projDataElem->getNPoint(); //TODO Vérifier la cohérence. _ndat doit coïncider pour tous les projDataElem.
+    _ndat = projDataElem->getNPoint(); // TODO Vérifier la cohérence. _ndat doit coïncider pour tous les projDataElem.
     _work1.resize(_ndat);
     _workdata.resize(_ndat);
   }
@@ -89,7 +87,7 @@ int PrecisionOpMultiConditional::push_back(PrecisionOp *pmatElem,
     int ndatloc = _multiProjData[i]->getNPoint();
     if (ndatloc != _ndat)
     {
-      messerr("The Projection matrix for element %d refers to %d data",i,ndatloc);
+      messerr("The Projection matrix for element %d refers to %d data", i, ndatloc);
       messerr("It should be %d as for the others", _ndat);
       return 1;
     }
@@ -102,15 +100,15 @@ int PrecisionOpMultiConditional::push_back(PrecisionOp *pmatElem,
   return 0;
 }
 
-std::pair<double,double> PrecisionOpMultiConditional::rangeEigenValQ() const
+std::pair<double, double> PrecisionOpMultiConditional::rangeEigenValQ() const
 {
-  std::pair<double,double> result = _multiPrecisionOp[0]->getRangeEigenVal();
+  std::pair<double, double> result = _multiPrecisionOp[0]->getRangeEigenVal();
 
   for (int i = 1; i < (int)_multiPrecisionOp.size(); i++)
   {
-    std::pair<double,double> vals =_multiPrecisionOp[i]->getRangeEigenVal();
-    result.first  = MIN(result.first ,vals.first);
-    result.second = MAX(result.second,vals.second);
+    std::pair<double, double> vals = _multiPrecisionOp[i]->getRangeEigenVal();
+    result.first                   = MIN(result.first, vals.first);
+    result.second                  = MAX(result.second, vals.second);
   }
   return result;
 }
@@ -121,49 +119,50 @@ double PrecisionOpMultiConditional::getMaxEigenValProj() const
 {
 
   _allocate(3);
-  for (auto &e: _work3)
+  for (auto& e: _work3)
   {
-    std::fill(e.begin(),e.end(), 1.);
+    std::fill(e.begin(), e.end(), 1.);
   }
-  _AtA(_work3,_work2);
+  _AtA(_work3, _work2);
   return VectorHelper::maximum(_work2);
 }
 
-std::pair<double,double> PrecisionOpMultiConditional::computeRangeEigenVal() const
+std::pair<double, double> PrecisionOpMultiConditional::computeRangeEigenVal() const
 {
-  std::pair<double,double> result = rangeEigenValQ();
+  std::pair<double, double> result = rangeEigenValQ();
   result.second += getMaxEigenValProj();
   return result;
 }
 
- void PrecisionOpMultiConditional::preparePoly(Chebychev& logPoly) const
+void PrecisionOpMultiConditional::preparePoly(Chebychev& logPoly) const
 {
-  std::pair<double,double> ranges = computeRangeEigenVal();
-  double a = ranges.first;
-  double b = ranges.second;
+  std::pair<double, double> ranges = computeRangeEigenVal();
+  double a                         = ranges.first;
+  double b                         = ranges.second;
   logPoly.setA(a);
   logPoly.setB(b);
   logPoly.setNcMax(1500);
   std::function<double(double)> f;
-  f = [] (double val){return log(val);};
-  logPoly.fit(f,a,b,2*EPSILON4/(a+b));
+  f = [](double val)
+  { return log(val); };
+  logPoly.fit(f, a, b, 2 * EPSILON4 / (a + b));
 }
 
 double PrecisionOpMultiConditional::computeLogDetOp(int nbsimu) const
 {
   Chebychev logPoly;
-  preparePoly(logPoly);  
+  preparePoly(logPoly);
   double val = 0.;
   for (int i = 0; i < nbsimu; i++)
   {
     for (int j = 0; j < _ncova; j++)
-    { 
+    {
       VH::simulateGaussianInPlace(_work1);
-      std::fill(_work1bis.begin(),_work1bis.end(),0.);
+      std::fill(_work1bis.begin(), _work1bis.end(), 0.);
       vect w1s(_work1);
       vect w1bis(_work1bis);
       logPoly.addEvalOp(_multiPrecisionOp[j], w1s, w1bis);
-      val += VH::innerProduct(_work1bis,_work1);
+      val += VH::innerProduct(_work1bis, _work1);
     }
   }
   return val / nbsimu;
@@ -172,7 +171,7 @@ double PrecisionOpMultiConditional::computeLogDetOp(int nbsimu) const
 double PrecisionOpMultiConditional::computeLogDetQ(int nMC) const
 {
   double result = 0.;
-  for (const auto &e : _multiPrecisionOp)
+  for (const auto& e: _multiPrecisionOp)
   {
     result += e->getLogDeterminant(nMC);
   }
@@ -182,7 +181,7 @@ double PrecisionOpMultiConditional::computeLogDetQ(int nMC) const
 double PrecisionOpMultiConditional::computeLogDetNoise() const
 {
   double s = 0.;
-  for (const auto &e : _varianceData)
+  for (const auto& e: _varianceData)
   {
     s += log(e);
   }
@@ -208,23 +207,23 @@ double PrecisionOpMultiConditional::computeTotalLogDet(int nMC, int seed) const
 
 double PrecisionOpMultiConditional::computeQuadratic(const std::vector<double>& x) const
 {
-  evalInvCov(x,_work1ter);
-  return VH::innerProduct(_work1ter,x);
+  evalInvCov(x, _work1ter);
+  return VH::innerProduct(_work1ter, x);
 }
 
 void PrecisionOpMultiConditional::_AtA(const std::vector<std::vector<double>>& inv, std::vector<std::vector<double>>& outv) const
 {
-  std::fill(_workdata.begin(),_workdata.end(),0.);
+  std::fill(_workdata.begin(), _workdata.end(), 0.);
 
   for (int imod = 0; imod < sizes(); imod++)
   {
     constvect invs(inv[imod]);
     vect w1s(_work1);
     _multiProjData[imod]->mesh2point(invs, w1s);
-    VH::addInPlace(_workdata,_work1);
+    VH::addInPlace(_workdata, _work1);
   }
 
-  VH::divideInPlace(_workdata,_varianceData);
+  VH::divideInPlace(_workdata, _varianceData);
 
   for (int imod = 0; imod < sizes(); imod++)
   {
@@ -250,7 +249,7 @@ void PrecisionOpMultiConditional::_evalDirect(const std::vector<std::vector<doub
                                               std::vector<std::vector<double>>& outv) const
 {
   prepare();
-  _AtA(inv,_work2);
+  _AtA(inv, _work2);
   for (int imod = 0; imod < sizes(); imod++)
   {
     constvect invm(inv[imod]);
@@ -260,13 +259,13 @@ void PrecisionOpMultiConditional::_evalDirect(const std::vector<std::vector<doub
   VH::addInPlace(_work2, outv, outv);
 }
 
-void PrecisionOpMultiConditional::simulateOnMeshings(std::vector<std::vector<double>> &result) const
+void PrecisionOpMultiConditional::simulateOnMeshings(std::vector<std::vector<double>>& result) const
 {
-  for (int icov = 0, ncov = (int) _multiPrecisionOp.size(); icov < ncov; icov++)
+  for (int icov = 0, ncov = (int)_multiPrecisionOp.size(); icov < ncov; icov++)
     simulateOnMeshing(result[icov], icov);
 }
 
-void PrecisionOpMultiConditional::simulateOnMeshing(std::vector<double> &result,
+void PrecisionOpMultiConditional::simulateOnMeshing(std::vector<double>& result,
                                                     int icov) const
 {
   VectorDouble gauss(_multiPrecisionOp[icov]->getSize());
@@ -277,23 +276,23 @@ void PrecisionOpMultiConditional::simulateOnMeshing(std::vector<double> &result,
   _multiPrecisionOp[icov]->evalSimulate(gaussm, resultm);
 }
 
-void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const std::vector<std::vector<double>> &simus,
+void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const std::vector<std::vector<double>>& simus,
                                                                   std::vector<double>& result) const
 {
   result.resize(_ndat);
-  std::fill(result.begin(),result.end(),0.);
+  std::fill(result.begin(), result.end(), 0.);
 
-  for(int icov = 0; icov <  sizes(); icov++)
+  for (int icov = 0; icov < sizes(); icov++)
   {
     constvect simuss(simus[icov]);
     vect w1s(_work1);
-    _multiProjData[icov]->mesh2point(simuss,w1s);
-    VH::addInPlace(result,_work1);
+    _multiProjData[icov]->mesh2point(simuss, w1s);
+    VH::addInPlace(result, _work1);
   }
 
-  for(int idat = 0; idat < _ndat; idat++)
+  for (int idat = 0; idat < _ndat; idat++)
   {
-    result[idat]+= sqrt(_varianceData[idat]) * law_gaussian();
+    result[idat] += sqrt(_varianceData[idat]) * law_gaussian();
   }
 }
 
@@ -402,4 +401,4 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y,
 
   return result;
 }
-}
+} // namespace gstlrn

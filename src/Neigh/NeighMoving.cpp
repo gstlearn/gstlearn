@@ -8,21 +8,21 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Geometry/BiTargetCheckDistance.hpp"
-#include "Geometry/GeometryHelper.hpp"
-
 #include "Neigh/NeighMoving.hpp"
 #include "Basic/OptCustom.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/SerializeHDF5.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Basic/SerializeHDF5.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include <math.h>
+#include "Geometry/BiTargetCheckDistance.hpp"
+#include "Geometry/GeometryHelper.hpp"
+
+#include <cmath>
 
 namespace gstlrn
-{ 
+{
 
 NeighMoving::NeighMoving(bool flag_xvalid,
                          int nmaxi,
@@ -35,20 +35,20 @@ NeighMoving::NeighMoving(bool flag_xvalid,
                          bool useBallTree,
                          int leaf_size,
                          const ASpaceSharedPtr& space)
-    : ANeigh(space),
-      _nMini(nmini),
-      _nMaxi(nmaxi),
-      _nSect(nsect),
-      _nSMax(nsmax),
-      _distCont(TEST),
-      _biPtDist(nullptr),
-      _bipts(),
-      _movingInd(),
-      _movingIsect(),
-      _movingNsect(),
-      _movingDst(),
-      _T1(space),
-      _T2(space)
+  : ANeigh(space)
+  , _nMini(nmini)
+  , _nMaxi(nmaxi)
+  , _nSect(nsect)
+  , _nSMax(nsmax)
+  , _distCont(TEST)
+  , _biPtDist(nullptr)
+  , _bipts()
+  , _movingInd()
+  , _movingIsect()
+  , _movingNsect()
+  , _movingDst()
+  , _T1(space)
+  , _T2(space)
 {
   setFlagXvalid(flag_xvalid);
 
@@ -76,7 +76,7 @@ NeighMoving::NeighMoving(const NeighMoving& r)
 {
   for (int ipt = 0, npt = (int)r._bipts.size(); ipt < npt; ipt++)
     _bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
-    //_bipts.push_back(r._bipts[ipt]);
+  //_bipts.push_back(r._bipts[ipt]);
 
   // _biPtDist = r._biPtDist;
   _biPtDist = new BiTargetCheckDistance(*r._biPtDist);
@@ -87,7 +87,7 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
   if (this != &r)
   {
     ANeigh::operator=(r);
-    _nMini = r._nMini;
+    _nMini       = r._nMini;
     _nMaxi       = r._nMaxi;
     _nSect       = r._nSect;
     _nSMax       = r._nSMax;
@@ -103,7 +103,7 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
       //_bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
       _bipts.push_back(r._bipts[ipt]);
     delete _biPtDist;
-  //  _biPtDist = r._biPtDist;
+    //  _biPtDist = r._biPtDist;
     _biPtDist = new BiTargetCheckDistance(*r._biPtDist);
   }
   return *this;
@@ -123,7 +123,7 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(0,"Moving Neighborhood");
+  sstr << toTitle(0, "Moving Neighborhood");
 
   if (_nMini > 0)
     sstr << "Minimum number of samples           = " << _nMini << std::endl;
@@ -157,18 +157,18 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
 bool NeighMoving::_deserializeAscii(std::istream& is, bool verbose)
 {
   bool ret = true;
-  ret = ret && ANeigh::_deserializeAscii(is, verbose);
-  if (! ret) return ret;
+  ret      = ret && ANeigh::_deserializeAscii(is, verbose);
+  if (!ret) return ret;
 
   int ndim = getNDim();
   VectorDouble radius(ndim);
   VectorDouble nbgh_coeffs;
   VectorDouble nbgh_rotmat;
 
-  int flag_aniso = 0;
+  int flag_aniso    = 0;
   int flag_rotation = 0;
-  int flag_sector = 0;
-  double dmax = 0.;
+  int flag_sector   = 0;
+  double dmax       = 0.;
 
   ret = true;
   ret = ret && _recordRead<int>(is, "NeighMovingborhood sector search", flag_sector);
@@ -186,21 +186,21 @@ bool NeighMoving::_deserializeAscii(std::istream& is, bool verbose)
     ret = ret && _recordRead<int>(is, "Anisotropy Rotation Flag", flag_rotation);
     if (flag_rotation)
     {
-      nbgh_rotmat.resize(ndim*ndim);
+      nbgh_rotmat.resize(ndim * ndim);
       int lec = 0;
       for (int idim = 0; ret && idim < ndim; idim++)
         for (int jdim = 0; ret && jdim < ndim; jdim++, lec++)
           ret = ret && _recordRead<double>(is, "Anisotropy Rotation Matrix", nbgh_rotmat[lec]);
     }
   }
-  if (! ret) return ret;
+  if (!ret) return ret;
 
   setNSect((getFlagSector()) ? MAX(_nSect, 1) : 1);
 
   delete _biPtDist;
   _biPtDist = BiTargetCheckDistance::create(dmax, nbgh_coeffs);
   _biPtDist->setFlagRotation(flag_rotation);
-  if (! nbgh_rotmat.empty())
+  if (!nbgh_rotmat.empty())
     _biPtDist->setAnisoRotMat(nbgh_rotmat);
 
   return ret;
@@ -209,13 +209,13 @@ bool NeighMoving::_deserializeAscii(std::istream& is, bool verbose)
 bool NeighMoving::_serializeAscii(std::ostream& os, bool verbose) const
 {
   bool ret = true;
-  ret = ret && ANeigh::_serializeAscii(os, verbose);
-  ret = ret && _recordWrite<int>(os, "Use angular sectors", getFlagSector());
-  ret = ret && _recordWrite<int>(os, "", getNMini());
-  ret = ret && _recordWrite<int>(os, "", getNMaxi());
-  ret = ret && _recordWrite<int>(os, "", getNSect());
-  ret = ret && _recordWrite<int>(os, "", getNSMax());
-  ret = ret && _commentWrite(os, "Parameters (nmini,nmaxi,nsect,nsmax)");
+  ret      = ret && ANeigh::_serializeAscii(os, verbose);
+  ret      = ret && _recordWrite<int>(os, "Use angular sectors", getFlagSector());
+  ret      = ret && _recordWrite<int>(os, "", getNMini());
+  ret      = ret && _recordWrite<int>(os, "", getNMaxi());
+  ret      = ret && _recordWrite<int>(os, "", getNSect());
+  ret      = ret && _recordWrite<int>(os, "", getNSMax());
+  ret      = ret && _commentWrite(os, "Parameters (nmini,nmaxi,nsect,nsmax)");
 
   // Store information from the Bipoint Checker based on distances
   ret = ret && _recordWrite<double>(os, "Maximum distance radius", _biPtDist->getRadius());
@@ -228,7 +228,7 @@ bool NeighMoving::_serializeAscii(std::ostream& os, bool verbose) const
       ret = ret && _recordWrite<double>(os, "", _biPtDist->getAnisoCoeff(idim));
     ret = ret && _commentWrite(os, "Anisotropy Coefficients");
     ret = ret && _recordWrite<int>(os, "Anisotropy Rotation Flag",
-                             _biPtDist->getFlagRotation());
+                                   _biPtDist->getFlagRotation());
     if (_biPtDist->getFlagRotation())
     {
       int ecr = 0;
@@ -292,28 +292,28 @@ bool NeighMoving::getFlagSector() const
   return (getNDim() > 1 && _nSect > 1);
 }
 
-bool NeighMoving::_getAnisotropyElements(double *rx, double *ry, double *theta, double *cosp, double *sinp) const
+bool NeighMoving::_getAnisotropyElements(double* rx, double* ry, double* theta, double* cosp, double* sinp) const
 {
   double radius = _getRadius();
   if (FFFF(radius)) return false;
   VectorDouble anisoRatio = getAnisoCoeffs();
-  int ndim = (int)anisoRatio.size();
+  int ndim                = (int)anisoRatio.size();
   if (ndim != 2) return false;
   *rx = radius * anisoRatio[0];
   *ry = radius * anisoRatio[1];
   VectorDouble angrot(ndim);
   GH::rotationGetAnglesInPlace(getAnisoRotMats(), angrot);
   double angref = angrot[0] * GV_PI / 180.;
-  *theta = angrot[0];
-  *cosp = cos(angref);
-  *sinp = sin(angref);
+  *theta        = angrot[0];
+  *cosp         = cos(angref);
+  *sinp         = sin(angref);
   return true;
 }
 
 VectorVectorDouble NeighMoving::getEllipsoid(const VectorDouble& target, int count) const
 {
   double rx, ry, theta, cosp, sinp;
-  if (! _getAnisotropyElements(&rx, &ry, &theta, &cosp, &sinp)) return VectorVectorDouble();
+  if (!_getAnisotropyElements(&rx, &ry, &theta, &cosp, &sinp)) return VectorVectorDouble();
 
   return GH::getEllipse(target, rx, ry, theta, count);
 }
@@ -321,7 +321,7 @@ VectorVectorDouble NeighMoving::getEllipsoid(const VectorDouble& target, int cou
 VectorVectorDouble NeighMoving::getZoomLimits(const VectorDouble& target, double percent) const
 {
   double rx, ry, theta, cosp, sinp;
-  if (! _getAnisotropyElements(&rx, &ry, &theta, &cosp, &sinp)) return VectorVectorDouble();
+  if (!_getAnisotropyElements(&rx, &ry, &theta, &cosp, &sinp)) return VectorVectorDouble();
   double radius = MAX(rx, ry);
 
   VectorVectorDouble coords(2);
@@ -343,17 +343,17 @@ VectorVectorDouble NeighMoving::getZoomLimits(const VectorDouble& target, double
 VectorVectorDouble NeighMoving::getSectors(const VectorDouble& target) const
 {
   double rx, ry, theta, cosp, sinp;
-  if (! _getAnisotropyElements(&rx, &ry, &theta, &cosp, &sinp)) return VectorVectorDouble();
+  if (!_getAnisotropyElements(&rx, &ry, &theta, &cosp, &sinp)) return VectorVectorDouble();
 
   VectorVectorDouble coords(2);
-  coords[0].resize(_nSect,0.);
-  coords[1].resize(_nSect,0.);
+  coords[0].resize(_nSect, 0.);
+  coords[1].resize(_nSect, 0.);
 
   for (int i = 0; i < _nSect; i++)
   {
     double angle = 2. * i * GV_PI / _nSect;
-    double cosa = cos(angle);
-    double sina = sin(angle);
+    double cosa  = cos(angle);
+    double sina  = sin(angle);
     coords[0][i] = target[0] + rx * cosa * cosp - ry * sina * sinp;
     coords[1][i] = target[1] + rx * cosa * sinp + ry * sina * cosp;
   }
@@ -368,7 +368,7 @@ VectorVectorDouble NeighMoving::getSectors(const VectorDouble& target) const
  ** \param[in]  dbout         output Db structure (optional)
  **
  *****************************************************************************/
-int NeighMoving::attach(const Db *dbin, const Db *dbout)
+int NeighMoving::attach(const Db* dbin, const Db* dbout)
 {
   if (ANeigh::attach(dbin, dbout)) return 1;
 
@@ -376,13 +376,13 @@ int NeighMoving::attach(const Db *dbin, const Db *dbout)
 
   for (int ipt = 0, nbt = _getNBiPts(); ipt < nbt; ipt++)
   {
-    if (! _bipts[ipt]->isValid(dbin, dbout)) return 1;
+    if (!_bipts[ipt]->isValid(dbin, dbout)) return 1;
   }
 
-  int nech = _dbin->getNSample();
-  int nsect = getNSect();
-  _movingInd = VectorInt(nech);
-  _movingDst = VectorDouble(nech);
+  int nech     = _dbin->getNSample();
+  int nsect    = getNSect();
+  _movingInd   = VectorInt(nech);
+  _movingDst   = VectorDouble(nech);
   _movingIsect = VectorInt(nsect);
   _movingNsect = VectorInt(nsect);
 
@@ -403,14 +403,14 @@ int NeighMoving::attach(const Db *dbin, const Db *dbout)
  *****************************************************************************/
 VectorDouble NeighMoving::summary(int iech_out)
 {
-  VectorDouble tab(5,0.);
+  VectorDouble tab(5, 0.);
 
   /* Number of selected samples */
 
   VectorInt nbgh_ranks;
   select(iech_out, nbgh_ranks);
-  int nsel = (int) nbgh_ranks.size();
-  tab[0] = (double) nsel;
+  int nsel = (int)nbgh_ranks.size();
+  tab[0]   = (double)nsel;
 
   /* Maximum distance */
 
@@ -439,11 +439,11 @@ VectorDouble NeighMoving::summary(int iech_out)
   {
     if (_movingNsect[isect] > 0) number++;
   }
-  tab[3] = (double) number;
+  tab[3] = (double)number;
 
   /* Number of consecutive empty sectors */
 
-  number = 0;
+  number      = 0;
   int n_empty = 0;
   for (int isect = 0; isect < getNSect(); isect++)
   {
@@ -457,7 +457,7 @@ VectorDouble NeighMoving::summary(int iech_out)
   }
   if (getNSect() > 0)
   {
-    if(_movingNsect[0] > 0)
+    if (_movingNsect[0] > 0)
       n_empty = 0;
     else
     {
@@ -465,7 +465,7 @@ VectorDouble NeighMoving::summary(int iech_out)
       if (n_empty > number) number = n_empty;
     }
   }
-  tab[4] = (double) number;
+  tab[4] = (double)number;
 
   return tab;
 }
@@ -495,7 +495,7 @@ void NeighMoving::getNeigh(int iech_out, VectorInt& ranks)
 
   // In case of debug option, dump out neighborhood characteristics
   int optim = OptCustom::query("Optim", 0);
-  if (!optim ||(optim && (iech_out + 1 == OptDbg::getReference())))
+  if (!optim || (optim && (iech_out + 1 == OptDbg::getReference())))
     if (OptDbg::query(EDbg::NBGH)) _display(ranks);
 
   // Compress the vector of returned sample ranks
@@ -528,7 +528,7 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
   /* Loop on the data points */
 
   double distmax = 0.;
-  int nsel = 0;
+  int nsel       = 0;
 
   // Load the target sample as a Space Point
   if (_dbgrid != nullptr)
@@ -593,7 +593,7 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
     if (getFlagSector())
     {
       const VectorDouble& incr = _biPtDist->getIncr();
-      isect             = _movingSectorDefine(incr[0], incr[1]);
+      isect                    = _movingSectorDefine(incr[0], incr[1]);
     }
 
     /* The sample may be selected */
@@ -823,7 +823,7 @@ bool NeighMoving::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) co
 
   ret = ret && ANeigh::_serializeH5(neighG, verbose);
 
-  ret = ret && SerializeHDF5::writeValue(neighG, "UseSectors", (int) getFlagSector());
+  ret = ret && SerializeHDF5::writeValue(neighG, "UseSectors", (int)getFlagSector());
   ret = ret && SerializeHDF5::writeValue(neighG, "NMini", getNMini());
   ret = ret && SerializeHDF5::writeValue(neighG, "NMaxi", getNMaxi());
   ret = ret && SerializeHDF5::writeValue(neighG, "NSect", getNSect());
@@ -843,4 +843,4 @@ bool NeighMoving::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) co
   return ret;
 }
 #endif
-}
+} // namespace gstlrn

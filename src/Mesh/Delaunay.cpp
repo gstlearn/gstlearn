@@ -8,22 +8,22 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Mesh/Delaunay.hpp"
 #include "Basic/Utilities.hpp"
+#include "Core/io.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshEStandard.hpp"
-#include "Mesh/Delaunay.hpp"
-#include "Core/io.hpp"
 
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdio>
 
 /*! \cond */
-#define TRIANGLES(itri,j) (triangles[(itri) * 3 + (j)] - 1)
-#define MESHES(imesh,j)   (meshes[(imesh) * ncorner + (j)] - 1)
-#define POINTS(ip,idim)   (points[(ip) * ndim + (idim)])
-#define EXT(idim,ip)      (ext[(idim) * number + (ip)])
+#define TRIANGLES(itri, j) (triangles[(itri) * 3 + (j)] - 1)
+#define MESHES(imesh, j)   (meshes[(imesh) * ncorner + (j)] - 1)
+#define POINTS(ip, idim)   (points[(ip) * ndim + (idim)])
+#define EXT(idim, ip)      (ext[(idim) * number + (ip)])
 
 /*! \endcond */
 
@@ -52,35 +52,35 @@ int MSS(int ndim, int ipol, int icas, int icorn, int idim)
 {
   // Arrays S*D are provided for [ipol][icas][icorn][idim]
 
-  constexpr int S1D[1][1][2][1] = { { { { 0 }, { 1 } } } };
-  constexpr int S2D[2][2][3][2] = { { { { 0, 0 }, { 1, 0 }, { 0, 1 } },
-                                      { { 0, 1 }, { 1, 0 }, { 1, 1 } } },
-                                    { { { 0, 0 }, { 1, 0 }, { 1, 1 } },
-                                      { { 0, 0 }, { 0, 1 }, { 1, 1 } } } };
-  constexpr int S3D[1][6][4][3] = { { { { 0, 0, 0 },
-                                        { 1, 0, 0 },
-                                        { 1, 0, 1 },
-                                        { 1, 1, 1 } },
-                                      { { 0, 0, 0 },
-                                        { 0, 0, 1 },
-                                        { 1, 0, 1 },
-                                        { 1, 1, 1 } },
-                                      { { 0, 0, 0 },
-                                        { 0, 0, 1 },
-                                        { 0, 1, 1 },
-                                        { 1, 1, 1 } },
-                                      { { 0, 0, 0 },
-                                        { 0, 1, 0 },
-                                        { 0, 1, 1 },
-                                        { 1, 1, 1 } },
-                                      { { 0, 0, 0 },
-                                        { 1, 0, 0 },
-                                        { 1, 1, 0 },
-                                        { 1, 1, 1 } },
-                                      { { 0, 0, 0 },
-                                        { 0, 1, 0 },
-                                        { 1, 1, 0 },
-                                        { 1, 1, 1 } } } };
+  constexpr int S1D[1][1][2][1] = {{{{0}, {1}}}};
+  constexpr int S2D[2][2][3][2] = {{{{0, 0}, {1, 0}, {0, 1}},
+                                    {{0, 1}, {1, 0}, {1, 1}}},
+                                   {{{0, 0}, {1, 0}, {1, 1}},
+                                    {{0, 0}, {0, 1}, {1, 1}}}};
+  constexpr int S3D[1][6][4][3] = {{{{0, 0, 0},
+                                     {1, 0, 0},
+                                     {1, 0, 1},
+                                     {1, 1, 1}},
+                                    {{0, 0, 0},
+                                     {0, 0, 1},
+                                     {1, 0, 1},
+                                     {1, 1, 1}},
+                                    {{0, 0, 0},
+                                     {0, 0, 1},
+                                     {0, 1, 1},
+                                     {1, 1, 1}},
+                                    {{0, 0, 0},
+                                     {0, 1, 0},
+                                     {0, 1, 1},
+                                     {1, 1, 1}},
+                                    {{0, 0, 0},
+                                     {1, 0, 0},
+                                     {1, 1, 0},
+                                     {1, 1, 1}},
+                                    {{0, 0, 0},
+                                     {0, 1, 0},
+                                     {1, 1, 0},
+                                     {1, 1, 1}}}};
 
   int ival = 0;
   if (ipol < 0 || icorn < 0 || icas < 0 || idim < 0) return ival;
@@ -114,16 +114,16 @@ int MSS(int ndim, int ipol, int icas, int icorn, int idim)
  ** \remarks The returned array 'ext' must be freed by the calling function
  **
  *****************************************************************************/
-VectorDouble extend_grid(DbGrid *db, const VectorDouble& gext, int *nout)
+VectorDouble extend_grid(DbGrid* db, const VectorDouble& gext, int* nout)
 {
   int ndim, number, ndiv, ndiv0, rank, ival, delta;
 
   /* Initializations */
 
-  ndim = db->getNDim();
-  number = (int) pow(2., ndim);
-  ndiv0 = (int) pow(2., ndim - 1);
-  *nout = 0;
+  ndim   = db->getNDim();
+  number = (int)pow(2., ndim);
+  ndiv0  = (int)pow(2., ndim - 1);
+  *nout  = 0;
 
   /* Core allocation */
 
@@ -140,15 +140,15 @@ VectorDouble extend_grid(DbGrid *db, const VectorDouble& gext, int *nout)
     for (int idim = ndim - 1; idim >= 0; idim--)
     {
       delta = static_cast<int>((ceil)(gext[idim] / db->getDX(idim)));
-      ival = rank / ndiv;
-      rank = rank - ndiv * ival;
+      ival  = rank / ndiv;
+      rank  = rank - ndiv * ival;
       ndiv /= 2;
       indg[idim] = (ival == 0) ? -delta : db->getNX(idim) + delta;
     }
     db->indicesToCoordinateInPlace(indg, coor);
 
     for (int idim = 0; idim < ndim; idim++)
-      EXT(idim,corner) = coor[idim];
+      EXT(idim, corner) = coor[idim];
   }
 
   *nout = number;
@@ -169,11 +169,11 @@ VectorDouble extend_grid(DbGrid *db, const VectorDouble& gext, int *nout)
  ** \remarks The returned array 'ext' must be freed by the calling function
  **
  *****************************************************************************/
-VectorDouble extend_point(Db *db, const VectorDouble& gext, int *nout)
+VectorDouble extend_point(Db* db, const VectorDouble& gext, int* nout)
 {
-  int ndim = db->getNDim();
-  int number = (int) pow(2., ndim);
-  int ndiv0 = (int) pow(2., ndim - 1);
+  int ndim   = db->getNDim();
+  int number = (int)pow(2., ndim);
+  int ndiv0  = (int)pow(2., ndim - 1);
 
   /* Core allocation */
 
@@ -196,14 +196,13 @@ VectorDouble extend_point(Db *db, const VectorDouble& gext, int *nout)
     for (int idim = ndim - 1; idim >= 0; idim--)
     {
       int ival = rank / ndiv;
-      rank = rank - ndiv * ival;
+      rank     = rank - ndiv * ival;
       ndiv /= 2;
-      coor[idim] = (ival == 0) ? mini[idim] - gext[idim] :
-                                 maxi[idim] + gext[idim];
+      coor[idim] = (ival == 0) ? mini[idim] - gext[idim] : maxi[idim] + gext[idim];
     }
 
     for (int idim = 0; idim < ndim; idim++)
-      EXT(idim,corner) = coor[idim];
+      EXT(idim, corner) = coor[idim];
   }
 
   *nout = number;
@@ -225,13 +224,13 @@ VectorDouble extend_point(Db *db, const VectorDouble& gext, int *nout)
  ** \remarks with its dimension: ndim * 2^ndim
  **
  *****************************************************************************/
-VectorDouble get_db_extension(Db *dbin, Db *dbout, int *nout)
+VectorDouble get_db_extension(Db* dbin, Db* dbout, int* nout)
 {
   int ndim = 0;
   if (dbin != nullptr) ndim = dbin->getNDim();
   if (dbout != nullptr) ndim = dbout->getNDim();
-  int number = (int) pow(2., ndim);
-  int ndiv0 = (int) pow(2., ndim - 1);
+  int number = (int)pow(2., ndim);
+  int ndiv0  = (int)pow(2., ndim - 1);
 
   /* Core allocation */
 
@@ -240,8 +239,8 @@ VectorDouble get_db_extension(Db *dbin, Db *dbout, int *nout)
   VectorDouble coor(ndim);
   VectorDouble mini_abs;
   VectorDouble maxi_abs;
-  mini_abs.resize(ndim,TEST);
-  maxi_abs.resize(ndim,TEST);
+  mini_abs.resize(ndim, TEST);
+  maxi_abs.resize(ndim, TEST);
 
   /* Get the extension */
 
@@ -263,12 +262,12 @@ VectorDouble get_db_extension(Db *dbin, Db *dbout, int *nout)
     for (int idim = ndim - 1; idim >= 0; idim--)
     {
       int ival = rank / ndiv;
-      rank = rank - ndiv * ival;
+      rank     = rank - ndiv * ival;
       ndiv /= 2;
       coor[idim] = (ival == 0) ? mini_abs[idim] : maxi_abs[idim];
     }
     for (int idim = 0; idim < ndim; idim++)
-      EXT(idim,corner) = coor[idim];
+      EXT(idim, corner) = coor[idim];
   }
 
   *nout = number;
@@ -293,7 +292,7 @@ VectorDouble get_db_extension(Db *dbin, Db *dbout, int *nout)
  ** \remarks negative if the grid node is masked off
  **
  *****************************************************************************/
-static int st_load_segment(DbGrid *dbgrid,
+static int st_load_segment(DbGrid* dbgrid,
                            VectorInt& mesh,
                            VectorInt& order,
                            int ipos,
@@ -305,16 +304,16 @@ static int st_load_segment(DbGrid *dbgrid,
 
   int nactive = 0;
 
-  indg[0] = ix1;
-  iech1 = dbgrid->indiceToRank(indg);
+  indg[0]        = ix1;
+  iech1          = dbgrid->indiceToRank(indg);
   mesh[ipos + 0] = iech1;
-  imask1 = dbgrid->isActive(iech1);
+  imask1         = dbgrid->isActive(iech1);
   nactive += imask1;
 
-  indg[0] = ix2;
-  iech2 = dbgrid->indiceToRank(indg);
+  indg[0]        = ix2;
+  iech2          = dbgrid->indiceToRank(indg);
   mesh[ipos + 1] = iech2;
-  imask2 = dbgrid->isActive(iech2);
+  imask2         = dbgrid->isActive(iech2);
   nactive += imask2;
 
   if (nactive <= 0) return (0);
@@ -347,7 +346,7 @@ static int st_load_segment(DbGrid *dbgrid,
  ** \remarks negative if the grid node is masked off
  **
  *****************************************************************************/
-static int st_load_triangle(DbGrid *dbgrid,
+static int st_load_triangle(DbGrid* dbgrid,
                             VectorInt& mesh,
                             VectorInt& order,
                             int ipos,
@@ -363,25 +362,25 @@ static int st_load_triangle(DbGrid *dbgrid,
 
   int nactive = 0;
 
-  indg[0] = ix1;
-  indg[1] = iy1;
-  iech1 = dbgrid->indiceToRank(indg);
+  indg[0]        = ix1;
+  indg[1]        = iy1;
+  iech1          = dbgrid->indiceToRank(indg);
   mesh[ipos + 0] = iech1;
-  imask1 = dbgrid->isActive(iech1);
+  imask1         = dbgrid->isActive(iech1);
   nactive += imask1;
 
-  indg[0] = ix2;
-  indg[1] = iy2;
-  iech2 = dbgrid->indiceToRank(indg);
+  indg[0]        = ix2;
+  indg[1]        = iy2;
+  iech2          = dbgrid->indiceToRank(indg);
   mesh[ipos + 1] = iech2;
-  imask2 = dbgrid->isActive(iech2);
+  imask2         = dbgrid->isActive(iech2);
   nactive += imask2;
 
-  indg[0] = ix3;
-  indg[1] = iy3;
-  iech3 = dbgrid->indiceToRank(indg);
+  indg[0]        = ix3;
+  indg[1]        = iy3;
+  iech3          = dbgrid->indiceToRank(indg);
   mesh[ipos + 2] = iech3;
-  imask3 = dbgrid->isActive(iech3);
+  imask3         = dbgrid->isActive(iech3);
   nactive += imask3;
 
   if (nactive <= 0) return (0);
@@ -420,7 +419,7 @@ static int st_load_triangle(DbGrid *dbgrid,
  ** \remarks negative if the grid node is masked off
  **
  *****************************************************************************/
-static int st_load_tetra(DbGrid *dbgrid,
+static int st_load_tetra(DbGrid* dbgrid,
                          VectorInt& mesh,
                          VectorInt& order,
                          int ipos,
@@ -442,36 +441,36 @@ static int st_load_tetra(DbGrid *dbgrid,
 
   int nactive = 0;
 
-  indg[0] = ix1;
-  indg[1] = iy1;
-  indg[2] = iz1;
-  iech1 = dbgrid->indiceToRank(indg);
+  indg[0]        = ix1;
+  indg[1]        = iy1;
+  indg[2]        = iz1;
+  iech1          = dbgrid->indiceToRank(indg);
   mesh[ipos + 0] = iech1;
-  imask1 = dbgrid->isActive(iech1);
+  imask1         = dbgrid->isActive(iech1);
   nactive += imask1;
 
-  indg[0] = ix2;
-  indg[1] = iy2;
-  indg[2] = iz2;
-  iech2 = dbgrid->indiceToRank(indg);
+  indg[0]        = ix2;
+  indg[1]        = iy2;
+  indg[2]        = iz2;
+  iech2          = dbgrid->indiceToRank(indg);
   mesh[ipos + 1] = iech2;
-  imask2 = dbgrid->isActive(iech2);
+  imask2         = dbgrid->isActive(iech2);
   nactive += imask1;
 
-  indg[0] = ix3;
-  indg[1] = iy3;
-  indg[2] = iz3;
-  iech3 = dbgrid->indiceToRank(indg);
+  indg[0]        = ix3;
+  indg[1]        = iy3;
+  indg[2]        = iz3;
+  iech3          = dbgrid->indiceToRank(indg);
   mesh[ipos + 2] = iech3;
-  imask3 = dbgrid->isActive(iech3);
+  imask3         = dbgrid->isActive(iech3);
   nactive += imask1;
 
-  indg[0] = ix4;
-  indg[1] = iy4;
-  indg[2] = iz4;
-  iech4 = dbgrid->indiceToRank(indg);
+  indg[0]        = ix4;
+  indg[1]        = iy4;
+  indg[2]        = iz4;
+  iech4          = dbgrid->indiceToRank(indg);
   mesh[ipos + 3] = iech4;
-  imask4 = dbgrid->isActive(iech4);
+  imask4         = dbgrid->isActive(iech4);
   nactive += imask1;
 
   if (nactive <= 0) return (0);
@@ -498,7 +497,7 @@ static int st_load_tetra(DbGrid *dbgrid,
  ** \param[in] order    Array of relative ranks
  **
  *****************************************************************************/
-static MeshEStandard* st_ultimate_regular_grid(Db *dbgrid,
+static MeshEStandard* st_ultimate_regular_grid(Db* dbgrid,
                                                int ndim,
                                                int nmesh,
                                                int ncorner,
@@ -507,9 +506,9 @@ static MeshEStandard* st_ultimate_regular_grid(Db *dbgrid,
 {
   /* Count the number of active vertices */
 
-  int number = dbgrid->getNSample();
+  int number  = dbgrid->getNSample();
   int nvertex = 0;
-  int nin = 0;
+  int nin     = 0;
   for (int iech = 0; iech < number; iech++)
   {
     int local = order[iech];
@@ -520,7 +519,7 @@ static MeshEStandard* st_ultimate_regular_grid(Db *dbgrid,
 
   /* Define the addresses assigned to information */
 
-  int rank_in = 0;
+  int rank_in  = 0;
   int rank_out = nin;
   VectorInt ranks(number);
   for (int iech = 0; iech < number; iech++)
@@ -567,13 +566,13 @@ static MeshEStandard* st_ultimate_regular_grid(Db *dbgrid,
  ** \param[in]  dbgrid    Db structure
  **
  *****************************************************************************/
-AMesh* meshes_turbo_2D_grid_build(DbGrid *dbgrid)
+AMesh* meshes_turbo_2D_grid_build(DbGrid* dbgrid)
 {
-  int ndim = 2;
+  int ndim    = 2;
   int ncorner = 3;
-  int nx = dbgrid->getNX(0);
-  int ny = dbgrid->getNX(1);
-  int number = nx * ny;
+  int nx      = dbgrid->getNX(0);
+  int ny      = dbgrid->getNX(1);
+  int number  = nx * ny;
 
   /* Core allocation */
 
@@ -588,7 +587,7 @@ AMesh* meshes_turbo_2D_grid_build(DbGrid *dbgrid)
     {
       int ipol = ((ix + iy) % 2 == 1) ? 0 : 1;
       for (int i = 0; i < 2; i++)
-        if (st_load_triangle(dbgrid, meshes, order, nmesh*ncorner,
+        if (st_load_triangle(dbgrid, meshes, order, nmesh * ncorner,
                              ix + MSS(2, ipol, i, 0, 0),
                              iy + MSS(2, ipol, i, 0, 1),
                              ix + MSS(2, ipol, i, 1, 0),
@@ -601,7 +600,7 @@ AMesh* meshes_turbo_2D_grid_build(DbGrid *dbgrid)
 
   meshes.resize(nmesh * ncorner);
 
-  // Perform the ultimate tasks 
+  // Perform the ultimate tasks
 
   AMesh* amesh = st_ultimate_regular_grid(dbgrid, ndim, nmesh, ncorner, meshes, order);
 
@@ -625,8 +624,8 @@ AMesh* meshes_turbo_2D_grid_build(DbGrid *dbgrid)
  ** \param[in]  points    Array of 3-D coordinates for triangle vertices
  **
  *****************************************************************************/
-int meshes_2D_write(const char *file_name,
-                    const char *obj_name,
+int meshes_2D_write(const char* file_name,
+                    const char* obj_name,
                     int verbose,
                     int ndim,
                     int ncode,
@@ -636,7 +635,7 @@ int meshes_2D_write(const char *file_name,
                     const VectorInt& triangles,
                     const VectorDouble& points)
 {
-  FILE *file;
+  FILE* file;
   int i, itri, ntriloc;
   double normal[3];
 
@@ -771,14 +770,14 @@ void mesh_stats(int ndim, int ncorner, int nmesh, const int* meshes, const doubl
  ** \param[in]  dbgrid    Db structure
  **
  *****************************************************************************/
-AMesh* meshes_turbo_3D_grid_build(DbGrid *dbgrid)
+AMesh* meshes_turbo_3D_grid_build(DbGrid* dbgrid)
 {
-  int ndim = 3;
+  int ndim    = 3;
   int ncorner = 4;
-  int nx = dbgrid->getNX(0);
-  int ny = dbgrid->getNX(1);
-  int nz = dbgrid->getNX(2);
-  int number = nx * ny * nz;
+  int nx      = dbgrid->getNX(0);
+  int ny      = dbgrid->getNX(1);
+  int nz      = dbgrid->getNX(2);
+  int number  = nx * ny * nz;
 
   /* Core allocation */
 
@@ -793,7 +792,7 @@ AMesh* meshes_turbo_3D_grid_build(DbGrid *dbgrid)
       for (int iz = 0; iz < nz - 1; iz++)
         for (int i = 0; i < 6; i++)
         {
-          if (st_load_tetra(dbgrid, meshes, order, nmesh*ncorner,
+          if (st_load_tetra(dbgrid, meshes, order, nmesh * ncorner,
                             ix + MSS(3, 0, i, 0, 0), iy + MSS(3, 0, i, 0, 1),
                             iz + MSS(3, 0, i, 0, 2), ix + MSS(3, 0, i, 1, 0),
                             iy + MSS(3, 0, i, 1, 1), iz + MSS(3, 0, i, 1, 2),
@@ -807,7 +806,7 @@ AMesh* meshes_turbo_3D_grid_build(DbGrid *dbgrid)
 
   meshes.resize(nmesh * ncorner);
 
-  // Perform the ultimate tasks 
+  // Perform the ultimate tasks
 
   AMesh* amesh = st_ultimate_regular_grid(dbgrid, ndim, nmesh, ncorner, meshes, order);
 
@@ -823,12 +822,12 @@ AMesh* meshes_turbo_3D_grid_build(DbGrid *dbgrid)
  ** \param[in]  dbgrid    Db structure
  **
  *****************************************************************************/
-AMesh* meshes_turbo_1D_grid_build(DbGrid *dbgrid)
+AMesh* meshes_turbo_1D_grid_build(DbGrid* dbgrid)
 {
-  int ndim = 1;
+  int ndim    = 1;
   int ncorner = 2;
-  int nx = dbgrid->getNX(0);
-  int number = nx - 1;
+  int nx      = dbgrid->getNX(0);
+  int number  = nx - 1;
 
   /* Core allocation */
 
@@ -840,7 +839,7 @@ AMesh* meshes_turbo_1D_grid_build(DbGrid *dbgrid)
   int nmesh = 0;
   for (int ix = 0; ix < nx - 1; ix++)
   {
-    if (st_load_segment(dbgrid, meshes, order, nmesh*ncorner,
+    if (st_load_segment(dbgrid, meshes, order, nmesh * ncorner,
                         ix + MSS(1, 0, 1, 0, 0), ix + MSS(1, 0, 1, 1, 0)))
       nmesh++;
   }
@@ -849,11 +848,11 @@ AMesh* meshes_turbo_1D_grid_build(DbGrid *dbgrid)
 
   meshes.resize(nmesh * ncorner);
 
-  // Perform the ultimate tasks 
+  // Perform the ultimate tasks
 
   AMesh* amesh = st_ultimate_regular_grid(dbgrid, ndim, nmesh, ncorner, meshes, order);
 
   return amesh;
 }
 
-}
+} // namespace gstlrn

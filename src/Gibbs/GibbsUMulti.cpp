@@ -13,7 +13,8 @@
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "geoslib_old_f.h"
-#include <math.h>
+
+#include <cmath>
 
 #define COVMAT(i, j) (_covmat[(i) * neq + (j)])
 

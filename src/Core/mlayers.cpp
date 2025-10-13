@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/Memory.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/Utilities.hpp"
 #include "Calculators/CalcMigrate.hpp"
@@ -17,11 +16,25 @@
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeigh.hpp"
-#include "Variogram/Vario.hpp"
 #include "geoslib_old_f.h"
-#include <math.h>
+
+#include <cmath>
 
 /*! \cond */
+#define IAD(n, i, j)       ((n) * (i) + (j))
+#define A(i, j)            (a[IAD(neq, i, j)])
+#define ACOV(i, j)         (acov[IAD(nech, i, j)])
+#define GS(i, j)           (gs[IAD(npar, i, j)])
+#define PHIA(i, ilayer)    (phia[IAD(nlayers, i, ilayer)])
+#define PHIB(i, ilayer)    (phib[IAD(nlayers, i, ilayer)])
+#define AA(i, ilayer2)     (aa[IAD(nlayer2, i, ilayer2)])
+#define A2(n, i, j)        (a2[IAD(n, i, j)])
+#define B2(n, i, j)        (b2[IAD(n, i, j)])
+#define INVS(npar, i, j)   (invS[IAD(npar, i, j)])
+#define FFTAB(ipar, iech)  (fftab[(iech) * npar + (ipar)])
+#define POST_S(npar, i, j) (post_S[IAD(npar, i, j)])
+#define ATAB(n, i, j)      (atab[IAD(n, i, j)])
+#define VARS(n, i, j)      (vars[IAD(n, i, j)])
 #define IAD(n, i, j)       ((n) * (i) + (j))
 #define A(i, j)            (a[IAD(neq, i, j)])
 #define ACOV(i, j)         (acov[IAD(nech, i, j)])
@@ -71,7 +84,8 @@ typedef struct
 static LMlayers* lmlayers_free(LMlayers* lmlayers)
 {
   if (lmlayers == nullptr) return (lmlayers);
-  lmlayers = (LMlayers*)mem_free((char*)lmlayers);
+  delete lmlayers;
+  lmlayers = nullptr;
   return (lmlayers);
 }
 
@@ -146,9 +160,7 @@ static LMlayers* lmlayers_alloc(int flag_same,
                                 int match_time,
                                 int nlayers)
 {
-  LMlayers* lmlayers;
-
-  lmlayers             = (LMlayers*)mem_alloc(sizeof(LMlayers), 1);
+  LMlayers* lmlayers   = new LMlayers;
   lmlayers->flag_same  = flag_same;
   lmlayers->flag_vel   = flag_vel;
   lmlayers->flag_cumul = flag_cumul;
@@ -2703,8 +2715,8 @@ int multilayers_get_prior(Db* dbin,
                           int colrefb,
                           int verbose,
                           int* npar_arg,
-                          double** mean,
-                          double** vars)
+                          VectorDouble& mean,
+                          VectorDouble& vars)
 {
   int nlayers, ilayer, nechmax, nech, iech, npar, error, neq;
   bool flag_created;
@@ -2798,8 +2810,8 @@ int multilayers_get_prior(Db* dbin,
   neq  = lmlayers->nech + npar;
   zval.resize(neq);
   fftab.resize(nech * npar);
-  *mean = (double*)mem_alloc(sizeof(double) * npar, 1);
-  *vars = (double*)mem_alloc(sizeof(double) * npar * npar, 1);
+  mean.resize(npar);
+  vars.resize(npar * npar);
 
   /* Establish the data vector */
 
@@ -2811,7 +2823,7 @@ int multilayers_get_prior(Db* dbin,
 
   /* Estimate the optimal drift matrices */
 
-  if (st_get_prior(nech, npar, zval, fftab, *mean, *vars)) goto label_end;
+  if (st_get_prior(nech, npar, zval, fftab, mean.data(), vars.data())) goto label_end;
 
   /* Set the error return code */
 
@@ -2822,11 +2834,6 @@ label_end:
   (void)krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   (void)manageExternalInformation(-1, ELoc::F, dbin, dbout, &flag_created);
   lmlayers = lmlayers_free(lmlayers);
-  if (error)
-  {
-    *mean = (double*)mem_free((char*)*mean);
-    *vars = (double*)mem_free((char*)*vars);
-  }
   return (error);
 }
-}
+} // namespace gstlrn

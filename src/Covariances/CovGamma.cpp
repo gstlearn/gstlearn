@@ -10,7 +10,8 @@
 /******************************************************************************/
 #include "Covariances/CovGamma.hpp"
 #include "Covariances/CovContext.hpp"
-#include "math.h"
+
+#include <cmath>
 
 namespace gstlrn
 {
@@ -57,4 +58,4 @@ String CovGamma::getFormula() const
 {
   return "C(h)=\\frac{1}{\\left( 1+ \\frac{h}{a_t} \\right)^\\alpha";
 }
-}
+} // namespace gstlrn

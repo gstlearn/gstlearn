@@ -8,35 +8,35 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/AStringable.hpp"
 #include "Simulation/SimuFFTParam.hpp"
+#include "Basic/AStringable.hpp"
 
-#include <math.h>
+#include <cmath>
 
 namespace gstlrn
 {
 SimuFFTParam::SimuFFTParam(bool flag_aliasing,
                            double percent)
-    : AStringable(),
-      _flagAliasing(flag_aliasing),
-      _percent(percent)
+  : AStringable()
+  , _flagAliasing(flag_aliasing)
+  , _percent(percent)
 {
 }
 
-SimuFFTParam::SimuFFTParam(const SimuFFTParam &r)
-    : AStringable(r),
-      _flagAliasing(r._flagAliasing),
-      _percent(r._percent)
+SimuFFTParam::SimuFFTParam(const SimuFFTParam& r)
+  : AStringable(r)
+  , _flagAliasing(r._flagAliasing)
+  , _percent(r._percent)
 {
 }
 
-SimuFFTParam& SimuFFTParam::operator=(const SimuFFTParam &r)
+SimuFFTParam& SimuFFTParam::operator=(const SimuFFTParam& r)
 {
   if (this != &r)
   {
-    AStringable::operator =(r);
+    AStringable::operator=(r);
     _flagAliasing = r._flagAliasing;
-    _percent = r._percent;
+    _percent      = r._percent;
   }
   return *this;
 }
@@ -55,4 +55,4 @@ String SimuFFTParam::toString(const AStringFormat* /*strfmt*/) const
 
   return sstr.str();
 }
-}
+} // namespace gstlrn

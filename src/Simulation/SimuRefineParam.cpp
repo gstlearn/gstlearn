@@ -8,34 +8,34 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/AStringable.hpp"
 #include "Simulation/SimuRefineParam.hpp"
+#include "Basic/AStringable.hpp"
 
-#include <math.h>
+#include <cmath>
 
 namespace gstlrn
 {
 SimuRefineParam::SimuRefineParam(int nmult, bool flag_SK)
-    : AStringable(),
-      _nmult(nmult),
-      _flagSK(flag_SK)
+  : AStringable()
+  , _nmult(nmult)
+  , _flagSK(flag_SK)
 {
 }
 
-SimuRefineParam::SimuRefineParam(const SimuRefineParam &r)
-    : AStringable(r),
-      _nmult(r._nmult),
-      _flagSK(r._flagSK)
+SimuRefineParam::SimuRefineParam(const SimuRefineParam& r)
+  : AStringable(r)
+  , _nmult(r._nmult)
+  , _flagSK(r._flagSK)
 {
 }
 
-SimuRefineParam& SimuRefineParam::operator=(const SimuRefineParam &r)
+SimuRefineParam& SimuRefineParam::operator=(const SimuRefineParam& r)
 {
   if (this != &r)
   {
-    AStringable::operator =(r);
-    _nmult = r._nmult;
-    _flagSK = r._flagSK ;
+    AStringable::operator=(r);
+    _nmult  = r._nmult;
+    _flagSK = r._flagSK;
   }
   return *this;
 }
@@ -57,4 +57,4 @@ String SimuRefineParam::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-}
+} // namespace gstlrn

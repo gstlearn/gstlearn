@@ -21,7 +21,7 @@
 #include "Mesh/AMesh.hpp"
 #include "Mesh/Delaunay.hpp"
 
-#include <math.h>
+#include <cmath>
 
 namespace gstlrn
 {
@@ -1138,4 +1138,4 @@ bool MeshETurbo::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) con
   return ret;
 }
 #endif
-}
+} // namespace gstlrn

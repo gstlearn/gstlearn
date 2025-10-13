@@ -8,70 +8,70 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Skin/ISkinFunctions.hpp"
 #include "Skin/Skin.hpp"
-#include "Db/DbGrid.hpp"
 #include "Basic/Law.hpp"
+#include "Db/DbGrid.hpp"
+#include "Skin/ISkinFunctions.hpp"
 
-#include "math.h"
+#include <cmath>
 
-#define SKIN_QUANT  1000
+#define SKIN_QUANT 1000
 
 namespace gstlrn
 {
-static int ndir[4] = { 0, 2, 4, 6 };
-static int invdir[6] = { 1, 0, 3, 2, 5, 4 };
-static int id[6][3] = { { 1, 0, 0 },
-                        { -1, 0, 0 },
-                        { 0, 1, 0 },
-                        { 0, -1, 0 },
-                        { 0, 0, 1 },
-                        { 0, 0, -1 } };
+static int ndir[4]   = {0, 2, 4, 6};
+static int invdir[6] = {1, 0, 3, 2, 5, 4};
+static int id[6][3]  = {{1, 0, 0},
+                        {-1, 0, 0},
+                        {0, 1, 0},
+                        {0, -1, 0},
+                        {0, 0, 1},
+                        {0, 0, -1}};
 
 Skin::Skin(const ISkinFunctions* skf, DbGrid* dbgrid)
-    : _skf(skf),
-      _dbgrid(dbgrid),
-      _nxyz(0),
-      _nval(0),
-      _date(0),
-      _nvalMax(0),
-      _total(0.),
-      _totalMax(0.),
-      _address(),
-      _energy()
+  : _skf(skf)
+  , _dbgrid(dbgrid)
+  , _nxyz(0)
+  , _nval(0)
+  , _date(0)
+  , _nvalMax(0)
+  , _total(0.)
+  , _totalMax(0.)
+  , _address()
+  , _energy()
 {
   if (dbgrid != nullptr)
     _nxyz = _dbgrid->getNSample();
 }
 
-Skin::Skin(const Skin &r)
-    : _skf(r._skf),
-      _dbgrid(r._dbgrid),
-      _nxyz(r._nxyz),
-      _nval(r._nval),
-      _date(r._date),
-      _nvalMax(r._nvalMax),
-      _total(r._total),
-      _totalMax(r._totalMax),
-      _address(r._address),
-      _energy(r._energy)
+Skin::Skin(const Skin& r)
+  : _skf(r._skf)
+  , _dbgrid(r._dbgrid)
+  , _nxyz(r._nxyz)
+  , _nval(r._nval)
+  , _date(r._date)
+  , _nvalMax(r._nvalMax)
+  , _total(r._total)
+  , _totalMax(r._totalMax)
+  , _address(r._address)
+  , _energy(r._energy)
 {
 }
 
-Skin& Skin::operator=(const Skin &r)
+Skin& Skin::operator=(const Skin& r)
 {
   if (this != &r)
   {
-    _skf = r._skf;
-    _dbgrid = r._dbgrid;
-    _nxyz = r._nxyz;
-    _nval = r._nval;
-    _date = r._date;
-    _nvalMax = r._nvalMax;
-    _total = r._total;
+    _skf      = r._skf;
+    _dbgrid   = r._dbgrid;
+    _nxyz     = r._nxyz;
+    _nval     = r._nval;
+    _date     = r._date;
+    _nvalMax  = r._nvalMax;
+    _total    = r._total;
     _totalMax = r._totalMax;
-    _address = r._address;
-    _energy = r._energy;
+    _address  = r._address;
+    _energy   = r._energy;
   }
   return *this;
 }
@@ -108,7 +108,7 @@ double Skin::_getWeight(int ipos, int idir)
 int Skin::_gridShift(const VectorInt& indg0, int dir)
 {
   VectorInt indg = indg0;
-  int ndim = _getNDim();
+  int ndim       = _getNDim();
 
   /* Shift the target grid node and check if it belongs to the grid */
 
@@ -160,7 +160,7 @@ void Skin::_cellDelete(int rank)
 
   _nval--;
   _address[rank] = _address[_nval];
-  _energy[rank] = _energy[_nval];
+  _energy[rank]  = _energy[_nval];
 
   /* Deallocate complementary room in the skin */
 
@@ -215,7 +215,7 @@ int Skin::_cellAdd(int ipos, double energy)
   _address.resize(_nval + 1);
   _energy.resize(_nval + 1);
   _address[rank] = ipos;
-  _energy[rank] = 0.;
+  _energy[rank]  = 0.;
   _nval++;
   if (_nval > _nvalMax) _nvalMax = _nval;
 
@@ -324,7 +324,7 @@ int Skin::remains(bool verbose)
   if (verbose)
     message("Skin iteration:%5d - Length:%4d - Energy:%lf\n",
             _date, _nval, _total);
-  return ((int) _total);
+  return ((int)_total);
 }
 
 /*****************************************************************************/
@@ -335,7 +335,7 @@ int Skin::remains(bool verbose)
  ** \param[out] ipos     Cell location
  **
  *****************************************************************************/
-void Skin::getNext(int *rank, int *ipos)
+void Skin::getNext(int* rank, int* ipos)
 {
   /* Draw a random cell */
 
@@ -351,10 +351,10 @@ void Skin::getNext(int *rank, int *ipos)
     {
       *rank = i;
       *ipos = _address[i];
-      if (! _skf->isToBeFilled(*ipos))
+      if (!_skf->isToBeFilled(*ipos))
         messageAbort(
-            "Elligible cell (%d ipos=%d) of the skin is already filled", i,
-            *ipos);
+          "Elligible cell (%d ipos=%d) of the skin is already filled", i,
+          *ipos);
       return;
     }
   }
@@ -392,8 +392,8 @@ int Skin::unstack(int rank0, int ipos0)
 
     /* Discard the neighboring cell if it cannot filled */
 
-    if (! _skf->isToBeFilled(ecr)) continue;
-    local = (int) _skf->getWeight(ipos0, dir);
+    if (!_skf->isToBeFilled(ecr)) continue;
+    local    = (int)_skf->getWeight(ipos0, dir);
     int rank = _cellAlreadyFilled(ecr);
     if (rank < 0)
     {
@@ -431,4 +431,4 @@ int Skin::_getNDim() const
     return _dbgrid->getNDim();
   return 0;
 }
-}
+} // namespace gstlrn

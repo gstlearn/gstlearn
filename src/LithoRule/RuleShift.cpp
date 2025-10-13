@@ -8,47 +8,46 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
 #include "geoslib_enum.h"
+#include "geoslib_old_f.h"
 
 #include "Enum/ERule.hpp"
 
-#include "Basic/Utilities.hpp"
 #include "Basic/SerializeHDF5.hpp"
-#include "LithoRule/RuleShift.hpp"
-#include "LithoRule/Rule.hpp"
-#include "LithoRule/Node.hpp"
-#include "LithoRule/PropDef.hpp"
-#include "Model/Model.hpp"
+#include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "LithoRule/PropDef.hpp"
+#include "LithoRule/Rule.hpp"
+#include "LithoRule/RuleShift.hpp"
+#include "Model/Model.hpp"
 
+#include <cmath>
 #include <sstream>
-#include <math.h>
 
 namespace gstlrn
 {
 RuleShift::RuleShift()
-    : Rule(),
-      _shDsup(0.),
-      _shDown(0.),
-      _slope(0.),
-      _shift(),
-      _incr(TEST),
-      _xyz(),
-      _ind1(),
-      _ind2()
+  : Rule()
+  , _shDsup(0.)
+  , _shDown(0.)
+  , _slope(0.)
+  , _shift()
+  , _incr(TEST)
+  , _xyz()
+  , _ind1()
+  , _ind2()
 {
   setModeRule(ERule::SHIFT);
 }
 
 RuleShift::RuleShift(const RuleShift& m)
-    :  Rule(m),
-      _shDsup(m._shDsup),
-      _shDown(m._shDown),
-      _slope(m._slope),
-      _shift(m._shift),
-      _incr(m._incr)
+  : Rule(m)
+  , _shDsup(m._shDsup)
+  , _shDown(m._shDown)
+  , _slope(m._slope)
+  , _shift(m._shift)
+  , _incr(m._incr)
 {
 }
 
@@ -56,12 +55,12 @@ RuleShift& RuleShift::operator=(const RuleShift& m)
 {
   if (this != &m)
   {
-    Rule::operator =(m);
+    Rule::operator=(m);
     _shDsup = m._shDsup;
     _shDown = m._shDown;
-    _slope = m._slope;
-    _shift = m._shift;
-    _incr = m._incr;
+    _slope  = m._slope;
+    _shift  = m._shift;
+    _incr   = m._incr;
   }
   return *this;
 }
@@ -133,9 +132,9 @@ bool RuleShift::_deserializeAscii(std::istream& is, bool /*verbose*/)
 
 bool RuleShift::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 {
-  double slope  = (FFFF(_slope)) ? 0. : _slope;
-  double shdown = (FFFF(_shDown)) ? 0. : _shDown;
-  double shdsup = (FFFF(_shDsup)) ? 0. : _shDsup;
+  double slope          = (FFFF(_slope)) ? 0. : _slope;
+  double shdown         = (FFFF(_shDown)) ? 0. : _shDown;
+  double shdsup         = (FFFF(_shDsup)) ? 0. : _shDsup;
   VectorDouble shiftloc = _shift;
   shiftloc.resize(3);
 
@@ -155,8 +154,8 @@ bool RuleShift::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 String RuleShift::displaySpecific() const
 {
   std::stringstream sstr;
-  sstr << toTitle(2,"Shift Option");
-  sstr << toVector("Translation Vector",_shift);
+  sstr << toTitle(2, "Shift Option");
+  sstr << toVector("Translation Vector", _shift);
   sstr << "(With the 'Shift' option, only the first GRF is used)" << std::endl;
   return sstr.str();
 }
@@ -209,7 +208,7 @@ int RuleShift::particularities(Db* db,
   return (0);
 }
 
-int RuleShift::_st_shift_on_grid(Db *db, int ndim, int flag_grid_check) const
+int RuleShift::_st_shift_on_grid(Db* db, int ndim, int flag_grid_check) const
 {
   _xyz.resize(ndim);
   _ind1.resize(ndim);
@@ -217,28 +216,28 @@ int RuleShift::_st_shift_on_grid(Db *db, int ndim, int flag_grid_check) const
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
   if (dbgrid == nullptr)
   {
-    if (! flag_grid_check) return(0);
+    if (!flag_grid_check) return (0);
     messerr("The shift Rule requires a Grid Db");
-    return(1);
+    return (1);
   }
 
-  for (int idim=0; idim<ndim; idim++)
+  for (int idim = 0; idim < ndim; idim++)
     _xyz[idim] = _shift[idim] + dbgrid->getX0(idim);
 
-  (void) point_to_grid(dbgrid,_xyz.data(),-1,_ind1.data());
+  (void)point_to_grid(dbgrid, _xyz.data(), -1, _ind1.data());
 
   /* Check that the translation is significant */
 
   int ntot = 0;
-  for (int idim=0; idim<ndim; idim++)
+  for (int idim = 0; idim < ndim; idim++)
     ntot += ABS(_ind1[idim]);
   if (ntot <= 0)
   {
     messerr("The shift of the Lithotype Rule cannot be rendered");
     messerr("using the Output Grid characteristics");
-    return(1);
+    return (1);
   }
-  return(0);
+  return (0);
 }
 
 bool RuleShift::checkModel(const Model* model, int nvar) const
@@ -281,30 +280,30 @@ int RuleShift::gaus2facResult(PropDef* propdef,
                               int isimu,
                               int nbsimu) const
 {
-  int    ndim,iech,jech,idim,igrf,icase;
-  double t1min,t1max,t2min,t2max,facies,y[2];
+  int ndim, iech, jech, idim, igrf, icase;
+  double t1min, t1max, t2min, t2max, facies, y[2];
 
   /* Initializations */
 
-  check_mandatory_attribute("rule_gaus2fac_result",dbout,ELoc::FACIES);
-  check_mandatory_attribute("rule_gaus2fac_result",dbout,ELoc::SIMU);
+  check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::FACIES);
+  check_mandatory_attribute("rule_gaus2fac_result", dbout, ELoc::SIMU);
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
   if (dbgrid == nullptr) return 1;
-  ndim   = dbgrid->getNDim();
+  ndim = dbgrid->getNDim();
   _xyz.resize(ndim);
   _ind1.resize(ndim);
   _ind2.resize(ndim);
 
   /* Processing the translation */
 
-  for (iech=0; iech<dbgrid->getNSample(); iech++)
+  for (iech = 0; iech < dbgrid->getNSample(); iech++)
   {
-    if (! dbgrid->isActive(iech)) continue;
+    if (!dbgrid->isActive(iech)) continue;
 
     facies = TEST;
-    for (igrf=0; igrf<2; igrf++) y[igrf] = TEST;
+    for (igrf = 0; igrf < 2; igrf++) y[igrf] = TEST;
     icase = get_rank_from_propdef(propdef, ipgs, 0);
-    y[0] = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
+    y[0]  = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
     if (FFFF(y[0])) break;
 
     if (rule_thresh_define(propdef, dbgrid, this, ITEST, iech, isimu, nbsimu, 1,
@@ -321,7 +320,7 @@ int RuleShift::gaus2facResult(PropDef* propdef,
 
     /* Combine the underlying GRFs to derive Facies */
 
-    dbgrid->setSimvar(ELoc::FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
+    dbgrid->setSimvar(ELoc::FACIES, iech, isimu, 0, ipgs, nbsimu, 1, facies);
   }
   return 0;
 }
@@ -341,20 +340,20 @@ int RuleShift::gaus2facResult(PropDef* propdef,
 ** \param[in]  nbsimu     Number of simulations (if EProcessOper::CONDITIONAL)
 **
 *****************************************************************************/
-int RuleShift::evaluateBounds(PropDef *propdef,
-                              Db *dbin,
-                              Db *dbout,
+int RuleShift::evaluateBounds(PropDef* propdef,
+                              Db* dbin,
+                              Db* dbout,
                               int isimu,
                               int igrf,
                               int ipgs,
                               int nbsimu) const
 {
-  int    iech,jech,nadd,nech,idim,facies;
-  double t1min,t1max,t2min,t2max,s1min,s1max,s2min,s2max;
+  int iech, jech, nadd, nech, idim, facies;
+  double t1min, t1max, t2min, t2max, s1min, s1max, s2min, s2max;
 
   /* Initializations */
 
-  if (dbin == nullptr) return(0);
+  if (dbin == nullptr) return (0);
   nadd = 0;
   nech = dbin->getNSample();
 
@@ -367,13 +366,13 @@ int RuleShift::evaluateBounds(PropDef *propdef,
   {
     /* Convert the proportions into thresholds for data point */
     if (!dbin->isActive(iech)) continue;
-    facies = (int) dbin->getZVariable(iech, 0);
+    facies = (int)dbin->getZVariable(iech, 0);
     if (rule_thresh_define(propdef, dbin, this, facies, iech, isimu, nbsimu, 1,
                            &t1min, &t1max, &t2min, &t2max)) return (1);
-    dbin->setLocVariable(ELoc::L,iech, get_rank_from_propdef(propdef, ipgs, igrf),
-                        t1min);
-    dbin->setLocVariable(ELoc::U,iech, get_rank_from_propdef(propdef, ipgs, igrf),
-                        t1max);
+    dbin->setLocVariable(ELoc::L, iech, get_rank_from_propdef(propdef, ipgs, igrf),
+                         t1min);
+    dbin->setLocVariable(ELoc::U, iech, get_rank_from_propdef(propdef, ipgs, igrf),
+                         t1max);
     if (facies == SHADOW_ISLAND) continue;
 
     /* Add one replicate */
@@ -388,7 +387,7 @@ int RuleShift::evaluateBounds(PropDef *propdef,
     /* Can the replicate be added */
     if (replicateInvalid(dbin, dbout, jech))
     {
-      (void) dbin->deleteSample(jech);
+      (void)dbin->deleteSample(jech);
       return (1);
     }
 
@@ -396,17 +395,17 @@ int RuleShift::evaluateBounds(PropDef *propdef,
     if (rule_thresh_define(propdef, dbin, this, facies, jech, isimu, nbsimu, 1,
                            &s1min, &s1max, &s2min, &s2max))
     {
-      (void) dbin->deleteSample(jech);
+      (void)dbin->deleteSample(jech);
       return (1);
     }
 
     /* Set the attributes of the replicate */
-    if (facies == SHADOW_WATER) dbin->setLocVariable(ELoc::Z,jech, 0, SHADOW_WATER);
-    if (facies == SHADOW_SHADOW) dbin->setLocVariable(ELoc::Z,jech, 0, SHADOW_ISLAND);
-    dbin->setLocVariable(ELoc::L,jech, get_rank_from_propdef(propdef, ipgs, igrf),
-                        s2min);
-    dbin->setLocVariable(ELoc::U,jech, get_rank_from_propdef(propdef, ipgs, igrf),
-                        s2max);
+    if (facies == SHADOW_WATER) dbin->setLocVariable(ELoc::Z, jech, 0, SHADOW_WATER);
+    if (facies == SHADOW_SHADOW) dbin->setLocVariable(ELoc::Z, jech, 0, SHADOW_ISLAND);
+    dbin->setLocVariable(ELoc::L, jech, get_rank_from_propdef(propdef, ipgs, igrf),
+                         s2min);
+    dbin->setLocVariable(ELoc::U, jech, get_rank_from_propdef(propdef, ipgs, igrf),
+                         s2max);
     nadd++;
   }
 
@@ -496,7 +495,6 @@ bool RuleShift::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) cons
 
   bool ret = true;
 
-
   double slope          = (FFFF(_slope)) ? 0. : _slope;
   double shdown         = (FFFF(_shDown)) ? 0. : _shDown;
   double shdsup         = (FFFF(_shDsup)) ? 0. : _shDsup;
@@ -513,4 +511,4 @@ bool RuleShift::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) cons
   return ret;
 }
 #endif
-}
+} // namespace gstlrn

@@ -8,18 +8,17 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ELoadBy.hpp"
-
 #include "OutputFormat/GridZycor.hpp"
-#include "OutputFormat/AOF.hpp"
-#include "Db/Db.hpp"
-#include "Db/DbGrid.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Core/io.hpp"
+#include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
+#include "Enum/ELoadBy.hpp"
+#include "OutputFormat/AOF.hpp"
 
-#include <string.h>
-#include <stdio.h>
+#include <cstdio>
+#include <cstring>
 
 #define ZYCOR_NULL_CH "  0.1000000E+31"
 
@@ -31,7 +30,7 @@ GridZycor::GridZycor(const char* filename, const Db* db)
 }
 
 GridZycor::GridZycor(const GridZycor& r)
-    : AOF(r)
+  : AOF(r)
 {
 }
 
@@ -54,7 +53,7 @@ int GridZycor::writeInFile()
   double rbid, x0[2], xf[2], dx[2];
   double buff[5]; /* Size = nbyline */
   char card[100]; /* Size = nbyline * 20 */
-  static int nbyline = 5;
+  static int nbyline    = 5;
   static double testval = MAXIMUM_BIG;
 
   /* Open the file */
@@ -109,7 +108,7 @@ int GridZycor::writeInFile()
           }
           else
           {
-            memcpy(&card[ind], (char*) ZYCOR_NULL_CH, 15);
+            memcpy(&card[ind], (char*)ZYCOR_NULL_CH, 15);
           }
         }
         gslSPrintf(&card[15 * nbyline], "\n");
@@ -129,7 +128,7 @@ int GridZycor::writeInFile()
         }
         else
         {
-          memcpy(&card[ind], (char*) ZYCOR_NULL_CH, 15);
+          memcpy(&card[ind], (char*)ZYCOR_NULL_CH, 15);
         }
       }
       gslSPrintf(&card[15 * kk], "\n");
@@ -141,7 +140,7 @@ int GridZycor::writeInFile()
   return 0;
 }
 
-DbGrid*  GridZycor::readGridFromFile()
+DbGrid* GridZycor::readGridFromFile()
 {
   DbGrid* dbgrid = nullptr;
   char string[100];
@@ -155,73 +154,73 @@ DbGrid*  GridZycor::readGridFromFile()
 
   if (_fileReadOpen()) return dbgrid;
 
-   /* Define the delimitors */
+  /* Define the delimitors */
 
-   _file_delimitors('!', ",", '_');
+  _file_delimitors('!', ",", '_');
 
-   /* Read the lines */
+  /* Read the lines */
 
-   if (_record_read(_file, "%s", string)) return dbgrid;
-   if (string[0] != '@')
-   {
-     messerr("Missing string starting with (@). Instead: '%s'", string);
-     return dbgrid;
-   }
-   if (_record_read(_file, "%s", string)) return dbgrid;
-   if (strcmp(string, "GRID") != 0)
-   {
-     messerr("Missing string (GRID). Instead: '%s'", string);
-     return dbgrid;
-   }
-   if (_record_read(_file, "%d", &nval)) return dbgrid;
-   if (_record_read(_file, "%d", &ibid1)) return dbgrid;
-   if (_record_read(_file, "%lg", &test)) return dbgrid;
-   if (_record_read(_file, "%s", string)) return dbgrid;
-   if (_record_read(_file, "%d", &ibid2)) return dbgrid;
-   if (_record_read(_file, "%d", &ibid3)) return dbgrid;
-   if (_record_read(_file, "%d", &nx[1])) return dbgrid;
-   if (_record_read(_file, "%d", &nx[0])) return dbgrid;
-   if (_record_read(_file, "%lf", &x0[0])) return dbgrid;
-   if (_record_read(_file, "%lf", &xf[0])) return dbgrid;
-   if (_record_read(_file, "%lf", &x0[1])) return dbgrid;
-   if (_record_read(_file, "%lf", &xf[1])) return dbgrid;
-   if (_record_read(_file, "%lf", &rbid1)) return dbgrid;
-   if (_record_read(_file, "%lf", &rbid2)) return dbgrid;
-   if (_record_read(_file, "%lf", &rbid3)) return dbgrid;
+  if (_record_read(_file, "%s", string)) return dbgrid;
+  if (string[0] != '@')
+  {
+    messerr("Missing string starting with (@). Instead: '%s'", string);
+    return dbgrid;
+  }
+  if (_record_read(_file, "%s", string)) return dbgrid;
+  if (strcmp(string, "GRID") != 0)
+  {
+    messerr("Missing string (GRID). Instead: '%s'", string);
+    return dbgrid;
+  }
+  if (_record_read(_file, "%d", &nval)) return dbgrid;
+  if (_record_read(_file, "%d", &ibid1)) return dbgrid;
+  if (_record_read(_file, "%lg", &test)) return dbgrid;
+  if (_record_read(_file, "%s", string)) return dbgrid;
+  if (_record_read(_file, "%d", &ibid2)) return dbgrid;
+  if (_record_read(_file, "%d", &ibid3)) return dbgrid;
+  if (_record_read(_file, "%d", &nx[1])) return dbgrid;
+  if (_record_read(_file, "%d", &nx[0])) return dbgrid;
+  if (_record_read(_file, "%lf", &x0[0])) return dbgrid;
+  if (_record_read(_file, "%lf", &xf[0])) return dbgrid;
+  if (_record_read(_file, "%lf", &x0[1])) return dbgrid;
+  if (_record_read(_file, "%lf", &xf[1])) return dbgrid;
+  if (_record_read(_file, "%lf", &rbid1)) return dbgrid;
+  if (_record_read(_file, "%lf", &rbid2)) return dbgrid;
+  if (_record_read(_file, "%lf", &rbid3)) return dbgrid;
 
-   if (_record_read(_file, "%s", string)) return dbgrid;
-   if (strcmp(string, "@") != 0)
-   {
-     messerr("Missing string (@). Instead: %s", string);
-     return dbgrid;
-   }
+  if (_record_read(_file, "%s", string)) return dbgrid;
+  if (strcmp(string, "@") != 0)
+  {
+    messerr("Missing string (@). Instead: %s", string);
+    return dbgrid;
+  }
 
-   /* Final calculations */
+  /* Final calculations */
 
-   dx[0] = (xf[0] - x0[0]) / (nx[0] - 1);
-   dx[1] = (xf[1] - x0[1]) / (nx[1] - 1);
+  dx[0] = (xf[0] - x0[0]) / (nx[0] - 1);
+  dx[1] = (xf[1] - x0[1]) / (nx[1] - 1);
 
-   /* Reset the delimitors */
+  /* Reset the delimitors */
 
-   _file_delimitors('#', " ", ' ');
+  _file_delimitors('#', " ", ' ');
 
-   /* Core allocation */
+  /* Core allocation */
 
-   int size = nx[0] * nx[1];
-   VectorDouble tab(size);
+  int size = nx[0] * nx[1];
+  VectorDouble tab(size);
 
-   /* Read the array of real values */
+  /* Read the array of real values */
 
-   for (int ix = 0; ix < nx[0]; ix++)
-     for (int iy = 0; iy < nx[1]; iy++)
-     {
-       if (_record_read(_file, "%lf", &value)) break;
-       if (value == test) value = TEST;
-       tab[(nx[1] - iy - 1) * nx[0] + ix] = value;
-     }
+  for (int ix = 0; ix < nx[0]; ix++)
+    for (int iy = 0; iy < nx[1]; iy++)
+    {
+      if (_record_read(_file, "%lf", &value)) break;
+      if (value == test) value = TEST;
+      tab[(nx[1] - iy - 1) * nx[0] + ix] = value;
+    }
 
-   dbgrid = new DbGrid();
-   dbgrid->reset(nx,dx,x0,VectorDouble(),ELoadBy::SAMPLE,tab);
+  dbgrid = new DbGrid();
+  dbgrid->reset(nx, dx, x0, VectorDouble(), ELoadBy::SAMPLE, tab);
 
   // Close the file
 
@@ -229,4 +228,4 @@ DbGrid*  GridZycor::readGridFromFile()
 
   return dbgrid;
 }
-}
+} // namespace gstlrn

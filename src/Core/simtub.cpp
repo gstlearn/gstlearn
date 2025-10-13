@@ -41,8 +41,9 @@
 #include "Simulation/SimuSphericalParam.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
-#include <math.h>
-#include <string.h>
+
+#include <cmath>
+#include <cstring>
 
 /*! \cond */
 #define DATA   0
@@ -55,7 +56,8 @@
 
 /*! \endcond */
 
-namespace gstlrn{
+namespace gstlrn
+{
 
 static double GIBBS_RHO, GIBBS_SQR;
 static Modif_Categorical ModCat = {0, {0, 0}, NULL, NULL};
@@ -2931,4 +2933,4 @@ MatrixDense fluid_extract(DbGrid* dbgrid,
   }
   return tab;
 }
-}
+} // namespace gstlrn

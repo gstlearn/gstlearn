@@ -31,7 +31,8 @@
 #include "Space/SpaceRN.hpp"
 #include "Variogram/Vario.hpp"
 #include "geoslib_old_f.h"
-#include <math.h>
+
+#include <cmath>
 
 /*! \cond */
 #define AD(ivar, jvar)        (ivar) + nvar*(jvar)
@@ -47,7 +48,7 @@
 
 namespace gstlrn
 {
-int NDIM_LOCAL = 0;
+int NDIM_LOCAL        = 0;
 VectorDouble X1_LOCAL = VectorDouble();
 VectorDouble X2_LOCAL = VectorDouble();
 
@@ -727,5 +728,4 @@ label_end:
   mem_free((char*)G);
   return (error);
 }
-
-}
+} // namespace gstlrn

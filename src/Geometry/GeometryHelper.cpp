@@ -17,7 +17,8 @@
 #include "Matrix/MatrixSquare.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {
@@ -1905,4 +1906,4 @@ VectorVectorDouble GeometryHelper::getEllipse(const VectorDouble& center,
   coords[1][count] = coords[1][0];
   return coords;
 }
-}
+} // namespace gstlrn

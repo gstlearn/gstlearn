@@ -8,30 +8,29 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Stats/Classical.hpp"
+#include "Basic/AStringable.hpp"
+#include "Basic/String.hpp"
+#include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Stats/Classical.hpp"
-#include "Basic/Utilities.hpp"
-#include "Basic/String.hpp"
-#include "Basic/AStringable.hpp"
 #include "Enum/EOperator.hpp"
-#include "Matrix/MatrixSymmetric.hpp"
+#include "Enum/EStatOption.hpp"
 #include "Matrix/MatrixFactory.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
+#include "Matrix/Table.hpp"
 #include "Model/Model.hpp"
+#include "Polygon/Polygons.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Space/SpaceTarget.hpp"
-#include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
-#include "Polygon/Polygons.hpp"
-#include "Enum/EStatOption.hpp"
 #include "geoslib_define.h"
 
-#include <math.h>
-#include <Matrix/Table.hpp>
-#include <string.h>
+#include <cmath>
+#include <cstring>
 
 namespace gstlrn
-{ 
+{
 /****************************************************************************/
 /*!
  **  Check the operator name
@@ -48,7 +47,7 @@ namespace gstlrn
  ** \remarks If an error occurred, the message is printed
  **
  *****************************************************************************/
-bool _operStatisticsCheck(const EStatOption &oper,
+bool _operStatisticsCheck(const EStatOption& oper,
                           int flag_multi,
                           int flag_indic,
                           int flag_sum,
@@ -63,9 +62,9 @@ bool _operStatisticsCheck(const EStatOption &oper,
 
   /* Monovariate check */
 
-  if (oper == EStatOption::NUM)  valid = true;
+  if (oper == EStatOption::NUM) valid = true;
   if (oper == EStatOption::MEAN) valid = true;
-  if (oper == EStatOption::VAR)  valid = true;
+  if (oper == EStatOption::VAR) valid = true;
   if (oper == EStatOption::CORR) valid = true;
   if (oper == EStatOption::STDV) valid = true;
   if (oper == EStatOption::MINI) valid = true;
@@ -84,7 +83,7 @@ bool _operStatisticsCheck(const EStatOption &oper,
   if (flag_multi)
   {
     if (oper == EStatOption::MEAN2) valid = true;
-    if (oper == EStatOption::VAR2)  valid = true;
+    if (oper == EStatOption::VAR2) valid = true;
     if (oper == EStatOption::STDV2) valid = true;
     if (flag_sum)
     {
@@ -96,16 +95,16 @@ bool _operStatisticsCheck(const EStatOption &oper,
 
   if (flag_indic)
   {
-    if (oper == EStatOption::PLUS)  valid = true;
+    if (oper == EStatOption::PLUS) valid = true;
     if (oper == EStatOption::MOINS) valid = true;
-    if (oper == EStatOption::ZERO)  valid = true;
+    if (oper == EStatOption::ZERO) valid = true;
   }
 
   /* QT variables check */
 
   if (flag_qt)
   {
-    if (oper == EStatOption::ORE)   valid = true;
+    if (oper == EStatOption::ORE) valid = true;
     if (oper == EStatOption::METAL) valid = true;
   }
 
@@ -125,13 +124,13 @@ bool _operStatisticsCheck(const EStatOption &oper,
  ** \param[out] prop       Array of proportions
  **
  *****************************************************************************/
-void _updateProportions(DbGrid *dbin,
-                        VectorInt &indg,
+void _updateProportions(DbGrid* dbin,
+                        VectorInt& indg,
                         int nfacies,
-                        VectorDouble &prop)
+                        VectorDouble& prop)
 {
   int rank = dbin->getGrid().indiceToRank(indg);
-  int ifac = (int) dbin->getZVariable(rank, 0);
+  int ifac = (int)dbin->getZVariable(rank, 0);
   if (ifac < 1 || ifac > nfacies) return;
   prop[ifac - 1] += 1.;
 }
@@ -149,7 +148,7 @@ void _updateProportions(DbGrid *dbin,
  ** \param[out] trans      Array of transitions
  **
  *****************************************************************************/
-void _updateTransition(DbGrid *dbin,
+void _updateTransition(DbGrid* dbin,
                        int pos,
                        VectorInt& indg,
                        int nfacies,
@@ -158,9 +157,9 @@ void _updateTransition(DbGrid *dbin,
 {
   int jpos = indg[pos] + orient;
   if (jpos <= 0 || jpos >= dbin->getNX(pos)) return;
-  int ifac1 = (int) dbin->getZVariable(dbin->getGrid().indiceToRank(indg), 0);
+  int ifac1 = (int)dbin->getZVariable(dbin->getGrid().indiceToRank(indg), 0);
   indg[pos] += orient;
-  int ifac2 = (int) dbin->getZVariable(dbin->getGrid().indiceToRank(indg), 0);
+  int ifac2 = (int)dbin->getZVariable(dbin->getGrid().indiceToRank(indg), 0);
   indg[pos] -= orient;
 
   if (ifac1 < 1 || ifac1 > nfacies || ifac2 < 1 || ifac2 > nfacies) return;
@@ -178,11 +177,11 @@ void _updateTransition(DbGrid *dbin,
  ** \param[in]  tab        Array of cumulative statistics
  **
  *****************************************************************************/
-void _scaleAndAffect(Db *dbout,
+void _scaleAndAffect(Db* dbout,
                      int iptr,
                      int iech,
                      int nitem,
-                     VectorDouble &tab)
+                     VectorDouble& tab)
 {
   double value;
 
@@ -254,8 +253,8 @@ void _refactor(int ncol, VectorDouble& tab)
  *****************************************************************************/
 void _copyResults(int nx,
                   int ny,
-                  const VectorDouble &tabin,
-                  VectorDouble &tabout)
+                  const VectorDouble& tabin,
+                  VectorDouble& tabout)
 {
   int ix, iy, lec;
 
@@ -279,15 +278,15 @@ void _copyResults(int nx,
 void _neighboringCell(int ndim,
                       int radius,
                       int rank0,
-                      const VectorInt &indg0,
-                      VectorInt &indg)
+                      const VectorInt& indg0,
+                      VectorInt& indg)
 {
   int nei1d, value, divid, count, reste, ratio, idim;
 
   /* Initializations */
 
   nei1d = 2 * radius + 1;
-  count = (int) pow(nei1d, (double) ndim);
+  count = (int)pow(nei1d, (double)ndim);
   value = rank0;
 
   /* Loop on the space dimensions */
@@ -297,9 +296,9 @@ void _neighboringCell(int ndim,
   {
     idim = ndim - jdim - 1;
     divid /= nei1d;
-    ratio = value / divid;
-    reste = value - ratio * divid;
-    value = reste;
+    ratio      = value / divid;
+    reste      = value - ratio * divid;
+    value      = reste;
     indg[idim] = indg0[idim] + ratio - radius;
   }
 }
@@ -315,7 +314,7 @@ void _neighboringCell(int ndim,
  ** \param[in]  proba Probability value (between 0 and 1)
  **
  *****************************************************************************/
-double _getQuantile(VectorDouble &tab, int ntab, double proba)
+double _getQuantile(VectorDouble& tab, int ntab, double proba)
 {
   int rank;
   double p1, p2, v1, v2, value;
@@ -323,14 +322,14 @@ double _getQuantile(VectorDouble &tab, int ntab, double proba)
   if (FFFF(proba)) return (TEST);
 
   VH::sortInPlace(tab, true, ntab);
-  rank = (int) (proba * (double) ntab);
-  v1 = tab[rank];
+  rank = (int)(proba * (double)ntab);
+  v1   = tab[rank];
 
   if (rank < ntab - 1)
   {
-    v2 = tab[rank + 1];
-    p1 = (double) rank / (double) ntab;
-    p2 = (double) (1 + rank) / (double) ntab;
+    v2    = tab[rank + 1];
+    p1    = (double)rank / (double)ntab;
+    p2    = (double)(1 + rank) / (double)ntab;
     value = v1 + (proba - p1) * (v2 - v1) / (p2 - p1);
   }
   else
@@ -343,10 +342,10 @@ double _getQuantile(VectorDouble &tab, int ntab, double proba)
 VectorString statOptionToName(const std::vector<EStatOption>& opers)
 {
   VectorString names;
-  for (int i = 0; i < (int) opers.size(); i++)
+  for (int i = 0; i < (int)opers.size(); i++)
   {
     const EStatOption& oper = opers[i];
-    names.push_back(String{oper.getKey()});
+    names.push_back(String {oper.getKey()});
   }
   return names;
 }
@@ -355,7 +354,7 @@ std::vector<EStatOption> KeysToStatOptions(const VectorString& opers)
 {
   std::vector<EStatOption> options;
 
-  for (int i = 0; i < (int) opers.size(); i++)
+  for (int i = 0; i < (int)opers.size(); i++)
   {
     EStatOption opt = EStatOption::fromKey(opers[i]);
     if (opt != EStatOption::UNKNOWN) options.push_back(opt);
@@ -370,9 +369,9 @@ std::vector<EStatOption> KeysToStatOptions(const VectorString& opers)
  * in this same Db in variables already created.
  * These functions should not be used in Target Language.
  */
-void dbStatisticsVariables(Db *db,
-                           const VectorString &names,
-                           const std::vector<EStatOption> &opers,
+void dbStatisticsVariables(Db* db,
+                           const VectorString& names,
+                           const std::vector<EStatOption>& opers,
                            int iptr0,
                            double proba,
                            double vmin,
@@ -382,7 +381,7 @@ void dbStatisticsVariables(Db *db,
   if (noper <= 0) return;
   if (names.empty()) return;
   VectorInt iuids = db->getUIDs(names);
-  int niuid = static_cast<int>(iuids.size());
+  int niuid       = static_cast<int>(iuids.size());
 
   /* Loop on the samples */
 
@@ -393,26 +392,26 @@ void dbStatisticsVariables(Db *db,
 
     /* Loop on the variables */
 
-    int neff = 0;
-    int nperc = 0;
-    double mean = 0.;
-    double var = 0.;
-    double stdv = 0.;
-    double sum = 0.;
+    int neff     = 0;
+    int nperc    = 0;
+    double mean  = 0.;
+    double var   = 0.;
+    double stdv  = 0.;
+    double sum   = 0.;
     double metal = 0.;
-    double mini = MAXIMUM_BIG;
-    double maxi = MINIMUM_BIG;
+    double mini  = MAXIMUM_BIG;
+    double maxi  = MINIMUM_BIG;
     for (int iuid = 0; iuid < niuid; iuid++)
     {
-      int juid = iuids[iuid];
+      int juid     = iuids[iuid];
       double value = db->getArray(iech, juid);
       if (FFFF(value)) continue;
 
       local[neff] = value;
       neff++;
       mean += value;
-      sum  += value;
-      var  += value * value;
+      sum += value;
+      var += value * value;
       if (value < mini) mini = value;
       if (value > maxi) maxi = value;
       if (!FFFF(vmin) && value < vmin) continue;
@@ -426,7 +425,7 @@ void dbStatisticsVariables(Db *db,
     if (neff > 0)
     {
       mean /= neff;
-      var = var / neff - mean * mean;
+      var  = var / neff - mean * mean;
       stdv = (var >= 0) ? sqrt(var) : 0.;
     }
 
@@ -438,7 +437,7 @@ void dbStatisticsVariables(Db *db,
       if (neff > 0)
       {
         if (opers[i] == EStatOption::NUM)
-          tab = (double) neff;
+          tab = (double)neff;
         else if (opers[i] == EStatOption::MEAN)
           tab = mean;
         else if (opers[i] == EStatOption::VAR)
@@ -456,11 +455,11 @@ void dbStatisticsVariables(Db *db,
         else if (opers[i] == EStatOption::QUANT)
           tab = _getQuantile(local, neff, proba);
         else if (opers[i] == EStatOption::Q)
-          tab = metal / (double) neff;
+          tab = metal / (double)neff;
         else if (opers[i] == EStatOption::M)
-          tab = (nperc > 0) ? metal / (double) nperc : TEST;
+          tab = (nperc > 0) ? metal / (double)nperc : TEST;
         else if (opers[i] == EStatOption::B)
-          tab = (!FFFF(vmin)) ? (metal - vmin) / (double) neff : TEST;
+          tab = (!FFFF(vmin)) ? (metal - vmin) / (double)neff : TEST;
         else
           return;
       }
@@ -480,9 +479,9 @@ void dbStatisticsVariables(Db *db,
  *
  * @return A Table containing the results
  */
-Table dbStatisticsMono(Db *db,
-                       const VectorString &names,
-                       const std::vector<EStatOption> &opers,
+Table dbStatisticsMono(Db* db,
+                       const VectorString& names,
+                       const std::vector<EStatOption>& opers,
                        bool flagIso,
                        double proba,
                        double vmin,
@@ -491,9 +490,9 @@ Table dbStatisticsMono(Db *db,
 {
   Table table;
   VectorInt iuids = db->getUIDs(names);
-  int niuid = static_cast<int>(iuids.size());
-  int noper = static_cast<int>(opers.size());
-  int nech = db->getNSample();
+  int niuid       = static_cast<int>(iuids.size());
+  int noper       = static_cast<int>(opers.size());
+  int nech        = db->getNSample();
 
   // Find the Isotopic samples (optional)
 
@@ -503,9 +502,9 @@ Table dbStatisticsMono(Db *db,
   for (int iech = 0; iech < nech; iech++)
   {
     accept[iech] = false;
-    if (! db->isActive(iech)) continue;
+    if (!db->isActive(iech)) continue;
     accept[iech] = true;
-    int nundef = 0;
+    int nundef   = 0;
     for (int iuid = 0; iuid < niuid; iuid++)
     {
       double value = db->getArray(iech, iuids[iuid]);
@@ -518,15 +517,15 @@ Table dbStatisticsMono(Db *db,
 
   for (int iuid = 0; iuid < niuid; iuid++)
   {
-    int neff = 0;
-    int nperc = 0;
-    double mean = 0.;
-    double var = 0.;
-    double stdv = 0.;
-    double sum = 0.;
-    double metal = 0.;
-    double mini = MAXIMUM_BIG;
-    double maxi = MINIMUM_BIG;
+    int neff      = 0;
+    int nperc     = 0;
+    double mean   = 0.;
+    double var    = 0.;
+    double stdv   = 0.;
+    double sum    = 0.;
+    double metal  = 0.;
+    double mini   = MAXIMUM_BIG;
+    double maxi   = MINIMUM_BIG;
     double median = TEST;
     VectorDouble valmed;
 
@@ -534,7 +533,7 @@ Table dbStatisticsMono(Db *db,
 
     for (int iech = 0; iech < nech; iech++)
     {
-      if (! accept[iech]) continue;
+      if (!accept[iech]) continue;
       double value = db->getArray(iech, iuids[iuid]);
       // Skip TEST values (this is necessary when flagIso is set to FALSE)
       if (FFFF(value)) continue;
@@ -558,14 +557,14 @@ Table dbStatisticsMono(Db *db,
     if (neff > 0)
     {
       mean /= neff;
-      var = var / neff - mean * mean;
+      var  = var / neff - mean * mean;
       stdv = (var >= 0) ? sqrt(var) : 0.;
       VH::sortInPlace(valmed);
       if (isOdd(neff))
-        median = valmed[neff/2];
+        median = valmed[neff / 2];
       else
       {
-        median = 0.5 * (valmed[neff/2] + valmed[neff/2 - 1]);
+        median = 0.5 * (valmed[neff / 2] + valmed[neff / 2 - 1]);
       }
     }
 
@@ -590,7 +589,7 @@ Table dbStatisticsMono(Db *db,
         else if (opers[i] == EStatOption::SUM)
           tab.push_back(sum);
         else if (opers[i] == EStatOption::PROP || opers[i] == EStatOption::T)
-            tab.push_back((double)nperc / (double)neff);
+          tab.push_back((double)nperc / (double)neff);
         else if (opers[i] == EStatOption::QUANT)
           tab.push_back(_getQuantile(local, neff, proba));
         else if (opers[i] == EStatOption::Q)
@@ -641,10 +640,10 @@ Table dbStatisticsMono(Db *db,
   table.setSkipDescription(true);
   table.resetFromVD(niuid, noper, tab, false);
 
-  for (int irow=0; irow<niuid; irow++)
+  for (int irow = 0; irow < niuid; irow++)
     table.setRowName(irow, db->getNameByUID(iuids[irow]));
-  for (int icol=0; icol<noper; icol++)
-    table.setColumnName(icol, String{opers[icol].getDescr()});
+  for (int icol = 0; icol < noper; icol++)
+    table.setColumnName(icol, String {opers[icol].getDescr()});
 
   return table;
 }
@@ -659,15 +658,15 @@ Table dbStatisticsMono(Db *db,
  ** \param[in]  db         Db structure
  **
  *****************************************************************************/
-VectorDouble dbStatisticsFacies(Db *db)
+VectorDouble dbStatisticsFacies(Db* db)
 {
   VectorDouble props;
 
   if (db->getNLoc(ELoc::Z) != 1)
   {
     messerr(
-        "This function requires the number of variables (%d) to be equal to 1",
-        db->getNLoc(ELoc::Z));
+      "This function requires the number of variables (%d) to be equal to 1",
+      db->getNLoc(ELoc::Z));
     return props;
   }
   int nech = db->getNSample();
@@ -680,7 +679,7 @@ VectorDouble dbStatisticsFacies(Db *db)
   for (int iech = 0; iech < nech; iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
-    int ifac = (int) db->getZVariable(iech, 0);
+    int ifac = (int)db->getZVariable(iech, 0);
     if (ifac <= 0) continue;
     props[ifac - 1] += 1.;
     neff++;
@@ -691,7 +690,7 @@ VectorDouble dbStatisticsFacies(Db *db)
   if (neff > 0)
   {
     for (int ifac = 0; ifac < nfac; ifac++)
-      props[ifac] /= (double) neff;
+      props[ifac] /= (double)neff;
   }
   return props;
 }
@@ -706,24 +705,24 @@ VectorDouble dbStatisticsFacies(Db *db)
  ** \param[in]  db         Db structure
  **
  *****************************************************************************/
-double dbStatisticsIndicator(Db *db)
+double dbStatisticsIndicator(Db* db)
 {
   if (db->getNLoc(ELoc::Z) != 1)
   {
     messerr(
-        "This function requires the number of variables (%d) to be equal to 1",
-        db->getNLoc(ELoc::Z));
+      "This function requires the number of variables (%d) to be equal to 1",
+      db->getNLoc(ELoc::Z));
     return TEST;
   }
 
   // Calculate the proportions
 
   double prop = 0.;
-  int neff = 0;
+  int neff    = 0;
   for (int iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
-    int ifac = (int) db->getZVariable(iech, 0);
+    int ifac = (int)db->getZVariable(iech, 0);
     if (ifac == 1) prop += 1.;
     neff++;
   }
@@ -741,10 +740,10 @@ double dbStatisticsIndicator(Db *db)
  *
  * @return A Table containing the correlation matrix
  */
-Table dbStatisticsCorrel(Db *db, const VectorString &names, bool flagIso, const String& title)
+Table dbStatisticsCorrel(Db* db, const VectorString& names, bool flagIso, const String& title)
 {
   VectorInt iuids = db->getUIDs(names);
-  int niuid = static_cast<int>(iuids.size());
+  int niuid       = static_cast<int>(iuids.size());
 
   /* Core allocation */
 
@@ -819,7 +818,7 @@ Table dbStatisticsCorrel(Db *db, const VectorString &names, bool flagIso, const 
 
   // Store the results in the symmetric square matrix
   VectorString namloc = db->getNames(names);
-  int nvar = (int) namloc.size();
+  int nvar            = (int)namloc.size();
 
   Table table;
   if (title.empty())
@@ -839,7 +838,7 @@ Table dbStatisticsCorrel(Db *db, const VectorString &names, bool flagIso, const 
 /**
  * @brief Calculate the variance-covariance matrix on the isotopic data set
  * from the Z-locator variables
- * 
+ *
  * @param db Target Data Base
  */
 MatrixSymmetric dbVarianceMatrix(const Db* db)
@@ -885,7 +884,7 @@ MatrixSymmetric dbVarianceMatrix(const Db* db)
     for (int jvar = 0; jvar <= ivar; jvar++)
     {
       double value = mat.getValue(ivar, jvar);
-      value = value / numiso - mean[ivar] * mean[jvar];
+      value        = value / numiso - mean[ivar] * mean[jvar];
       mat.setValue(ivar, jvar, value);
     }
 
@@ -905,8 +904,8 @@ MatrixSymmetric dbVarianceMatrix(const Db* db)
  ** \param[in]  radius     Radius of the neighborhood
  **
  *****************************************************************************/
-int statisticsProportion(DbGrid *dbin,
-                         DbGrid *dbout,
+int statisticsProportion(DbGrid* dbin,
+                         DbGrid* dbout,
                          int pos,
                          int nfacies,
                          int radius)
@@ -1001,8 +1000,8 @@ int statisticsProportion(DbGrid *dbin,
  ** \param[in]  orient     Orientation (+1 or -1)
  **
  *****************************************************************************/
-int statisticsTransition(DbGrid *dbin,
-                         DbGrid *dbout,
+int statisticsTransition(DbGrid* dbin,
+                         DbGrid* dbout,
                          int pos,
                          int nfacies,
                          int radius,
@@ -1097,20 +1096,20 @@ int statisticsTransition(DbGrid *dbin,
  ** \param[in]  string      String array
  **
  *****************************************************************************/
-void _getRowname(const String &radix,
+void _getRowname(const String& radix,
                  int ncol,
                  int icol,
-                 const String &name,
-                 char *string)
+                 const String& name,
+                 char* string)
 {
   if (!radix.empty())
-    (void) gslSPrintf(string, "%s-%d", radix.c_str(), icol + 1);
+    (void)gslSPrintf(string, "%s-%d", radix.c_str(), icol + 1);
   else if (!name.empty())
-    (void) gslSPrintf(string, "%s", name.c_str());
+    (void)gslSPrintf(string, "%s", name.c_str());
   else if (ncol > 1)
-    (void) gslSPrintf(string, "Variable-%d", icol + 1);
+    (void)gslSPrintf(string, "Variable-%d", icol + 1);
   else
-    (void) gslSPrintf(string, "Variable");
+    (void)gslSPrintf(string, "Variable");
 }
 
 /**
@@ -1121,13 +1120,13 @@ void _getRowname(const String &radix,
  * @param flagCorrel Print the correlation matrix
  * @param radix      Radix given to the printout
  */
-void dbStatisticsPrint(const Db *db,
-                       const VectorString &names,
-                       const std::vector<EStatOption> &opers,
+void dbStatisticsPrint(const Db* db,
+                       const VectorString& names,
+                       const std::vector<EStatOption>& opers,
                        bool flagIso,
                        bool flagCorrel,
-                       const String &title,
-                       const String &radix)
+                       const String& title,
+                       const String& radix)
 {
   VectorInt iuids = db->getUIDs(names);
   if (iuids.empty()) return;
@@ -1146,20 +1145,20 @@ void dbStatisticsPrint(const Db *db,
   VectorDouble mean(ncol, 0.);
   VectorDouble mini(ncol, 0.);
   VectorDouble maxi(ncol, 0.);
-  VectorDouble var(ncol,  0.);
-  VectorDouble num(ncol,  0.);
+  VectorDouble var(ncol, 0.);
+  VectorDouble num(ncol, 0.);
   VectorDouble cov;
   if (flagCorrel) cov.resize(ncol * ncol, 0.);
 
   /* Initializations */
 
   int numiso = 0;
-  int ijcol = 0;
+  int ijcol  = 0;
   for (int icol = 0; icol < ncol; icol++)
   {
     mean[icol] = var[icol] = num[icol] = 0.;
-    mini[icol] = MAXIMUM_BIG;
-    maxi[icol] = MINIMUM_BIG;
+    mini[icol]                         = MAXIMUM_BIG;
+    maxi[icol]                         = MINIMUM_BIG;
     if (flagCorrel)
       for (int jcol = 0; jcol < ncol; jcol++, ijcol++)
         cov[ijcol] = 0.;
@@ -1229,7 +1228,7 @@ void dbStatisticsPrint(const Db *db,
   /* Printout */
   /************/
 
-  if (! title.empty()) mestitle(1, title.c_str());
+  if (!title.empty()) mestitle(1, title.c_str());
 
   /* Calculate the maximum size of the variable */
 
@@ -1237,7 +1236,7 @@ void dbStatisticsPrint(const Db *db,
   for (int icol = 0; icol < ncol; icol++)
   {
     _getRowname(radix, ncol, icol, db->getNameByUID(iuids[icol]), string);
-    taille = MAX(taille, (int ) strlen(string));
+    taille = MAX(taille, (int)strlen(string));
   }
 
   /* Print the header of the monovariate statistics */
@@ -1265,7 +1264,7 @@ void dbStatisticsPrint(const Db *db,
     tab_print_rowname(string, taille);
 
     if (_operExists(opers, EStatOption::NUM))
-      tab_printi(NULL, (int) num[icol]);
+      tab_printi(NULL, (int)num[icol]);
     if (num[icol] > 0)
     {
       if (_operExists(opers, EStatOption::MINI))
@@ -1304,7 +1303,6 @@ void dbStatisticsPrint(const Db *db,
     print_matrix("Correlation matrix", 0, 1, ncol, ncol, NULL, cov.data());
     message("\n");
   }
-
 }
 
 /**
@@ -1321,23 +1319,23 @@ MatrixSquare* sphering(const AMatrix* X)
   int nech = X->getNRows();
   int nvar = X->getNCols();
 
-  AMatrix* TX = X->transpose();
-  AMatrix* prod = MatrixFactory::prodMatMat(TX, X);
+  AMatrix* TX              = X->transpose();
+  AMatrix* prod            = MatrixFactory::prodMatMat(TX, X);
   MatrixSymmetric* prodsym = dynamic_cast<MatrixSymmetric*>(prod);
   if (prodsym == nullptr) return nullptr;
 
-  prodsym->prodScalar(1. / (double) nech);
+  prodsym->prodScalar(1. / (double)nech);
   if (prodsym->computeEigen()) return nullptr;
   VectorDouble eigen_values = prodsym->getEigenValues();
-  MatrixSquare* S = prodsym->getEigenVectors()->clone();
+  MatrixSquare* S           = prodsym->getEigenVectors()->clone();
 
   // Invert the sign of the second Eigen vector (for compatibility with R output)
-  for (int ivar = 0; ivar < nvar ; ivar++)
+  for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
-      double signe = (jvar < nvar-1) ? 1 : -1;
+      double signe = (jvar < nvar - 1) ? 1 : -1;
       S->setValue(ivar, jvar,
-                 signe * S->getValue(ivar, jvar) / sqrt(eigen_values[jvar]));
+                  signe * S->getValue(ivar, jvar) / sqrt(eigen_values[jvar]));
     }
 
   delete TX;
@@ -1352,40 +1350,40 @@ MatrixSquare* sphering(const AMatrix* X)
  * @return Vector of results
  *
  */
-VectorDouble dbStatisticsPerCell(Db *db,
-                                 DbGrid *dbgrid,
-                                 const EStatOption &oper,
+VectorDouble dbStatisticsPerCell(Db* db,
+                                 DbGrid* dbgrid,
+                                 const EStatOption& oper,
                                  const String& name1,
                                  const String& name2,
-                                 const VectorDouble &cuts)
+                                 const VectorDouble& cuts)
 {
   VectorDouble result;
   int iuid = db->getUID(name1);
   int juid = -1;
-  if (! name2.empty()) juid = db->getUID(name2);
+  if (!name2.empty()) juid = db->getUID(name2);
   double z1 = 0.;
   double z2 = 0.;
-  int nxyz = dbgrid->getNSample();
-  int ncut = (int) cuts.size();
-  int ndim = dbgrid->getNDim();
+  int nxyz  = dbgrid->getNSample();
+  int ncut  = (int)cuts.size();
+  int ndim  = dbgrid->getNDim();
   if (juid < 0) juid = iuid;
 
-  bool flag1 = false;
-  bool flag2 = false;
+  bool flag1       = false;
+  bool flag2       = false;
   bool flag_denorm = false;
-  bool flag_q = false;
-  bool flag_t = false;
-  bool flag_s1 = false;
-  bool flag_s2 = false;
-  bool flag_v1 = false;
-  bool flag_v2 = false;
-  bool flag_v12 = false;
-  bool flag_mini = false;
-  bool flag_maxi = false;
+  bool flag_q      = false;
+  bool flag_t      = false;
+  bool flag_s1     = false;
+  bool flag_s2     = false;
+  bool flag_v1     = false;
+  bool flag_v2     = false;
+  bool flag_v12    = false;
+  bool flag_mini   = false;
+  bool flag_maxi   = false;
 
   /* Check the operator validity */
 
-  if (! _operStatisticsCheck(oper, 1, 0, 1, 0, 1)) return VectorDouble();
+  if (!_operStatisticsCheck(oper, 1, 0, 1, 0, 1)) return VectorDouble();
 
   /* Set the relevant flags */
 
@@ -1519,8 +1517,9 @@ VectorDouble dbStatisticsPerCell(Db *db,
       if (flag_v12) v12[i] = TEST;
       if (flag_mini) mini[i] = TEST;
       if (flag_maxi) maxi[i] = TEST;
-      if (flag_t || flag_q) for (int icut = 0; icut < ncut; icut++)
-        cutval[icut + i * ncut] = TEST;
+      if (flag_t || flag_q)
+        for (int icut = 0; icut < ncut; icut++)
+          cutval[icut + i * ncut] = TEST;
     }
     else
     {
@@ -1595,7 +1594,6 @@ VectorDouble dbStatisticsPerCell(Db *db,
   return result;
 }
 
-
 /**
  * \copydoc STATS_0
  *
@@ -1604,9 +1602,9 @@ VectorDouble dbStatisticsPerCell(Db *db,
  *
  * @return A Table containing the results
  */
-Table dbStatisticsMulti(Db *db,
-                        const VectorString &names,
-                        const EStatOption &oper,
+Table dbStatisticsMulti(Db* db,
+                        const VectorString& names,
+                        const EStatOption& oper,
                         bool flagMono,
                         const String& title)
 {
@@ -1615,9 +1613,9 @@ Table dbStatisticsMulti(Db *db,
   /* Initializations */
 
   VectorInt cols = db->getUIDs(names);
-  int ncol = (int) cols.size();
-  int nech = db->getNSample();
-  int ncol2 = ncol * ncol;
+  int ncol       = (int)cols.size();
+  int nech       = db->getNSample();
+  int ncol2      = ncol * ncol;
 
   /* Check that all variables are defined */
 
@@ -1633,7 +1631,7 @@ Table dbStatisticsMulti(Db *db,
 
   /* Check the validity of the operator */
 
-  if (! _operStatisticsCheck(oper, 0, 1, 0, 0, 0)) return Table();
+  if (!_operStatisticsCheck(oper, 0, 1, 0, 0, 0)) return Table();
 
   /* Core allocation */
 
@@ -1660,8 +1658,8 @@ Table dbStatisticsMulti(Db *db,
   {
     num[i] = m1[i] = m2[i] = v1[i] = v2[i] = v12[i] = 0.;
     plus[i] = moins[i] = zero[i] = 0;
-    mini[i] = MAXIMUM_BIG;
-    maxi[i] = MINIMUM_BIG;
+    mini[i]                      = MAXIMUM_BIG;
+    maxi[i]                      = MINIMUM_BIG;
   }
 
   /* Loop on the samples */
@@ -1675,7 +1673,7 @@ Table dbStatisticsMulti(Db *db,
 
     for (int icol1 = 0; icol1 < ncol; icol1++)
     {
-      int jcol1 = cols[icol1];
+      int jcol1   = cols[icol1];
       double val1 = db->getArray(iech, jcol1);
       if (FFFF(val1)) continue;
 
@@ -1683,7 +1681,7 @@ Table dbStatisticsMulti(Db *db,
 
       for (int icol2 = 0; icol2 < ncol; icol2++)
       {
-        int jcol2 = cols[icol2];
+        int jcol2   = cols[icol2];
         double val2 = db->getArray(iech, jcol2);
         if (FFFF(val2)) continue;
 
@@ -1713,23 +1711,23 @@ Table dbStatisticsMulti(Db *db,
       int iad = icol1 * ncol + icol2;
       if (num[iad] <= 0)
       {
-        m1[iad] = TEST;
-        m2[iad] = TEST;
-        v1[iad] = TEST;
-        m2[iad] = TEST;
-        v12[iad] = TEST;
-        mini[iad] = TEST;
-        maxi[iad] = TEST;
-        plus[iad] = TEST;
+        m1[iad]    = TEST;
+        m2[iad]    = TEST;
+        v1[iad]    = TEST;
+        m2[iad]    = TEST;
+        v12[iad]   = TEST;
+        mini[iad]  = TEST;
+        maxi[iad]  = TEST;
+        plus[iad]  = TEST;
         moins[iad] = TEST;
-        zero[iad] = TEST;
+        zero[iad]  = TEST;
       }
       else
       {
         m1[iad] /= num[iad];
         m2[iad] /= num[iad];
-        v1[iad] = v1[iad] / num[iad] - m1[iad] * m1[iad];
-        v2[iad] = v2[iad] / num[iad] - m2[iad] * m2[iad];
+        v1[iad]  = v1[iad] / num[iad] - m1[iad] * m1[iad];
+        v2[iad]  = v2[iad] / num[iad] - m2[iad] * m2[iad];
         v12[iad] = v12[iad] / num[iad] - m1[iad] * m2[iad];
 
         if (oper == EStatOption::STDV)
@@ -1794,9 +1792,9 @@ Table dbStatisticsMulti(Db *db,
 
   Table table;
   if (title.empty())
-    table.setTitle(String{oper.getDescr()});
+    table.setTitle(String {oper.getDescr()});
   else
-    table.setTitle(concatenateStrings(":",title,String{oper.getDescr()}));
+    table.setTitle(concatenateStrings(":", title, String {oper.getDescr()}));
   table.setSkipDescription(true);
 
   if (flagMono)
@@ -1806,11 +1804,11 @@ Table dbStatisticsMulti(Db *db,
   else
   {
     table.resetFromVD(ncol, ncol, result, false);
-    for (int icol=0; icol<ncol; icol++)
+    for (int icol = 0; icol < ncol; icol++)
       table.setColumnName(icol, db->getNameByUID(cols[icol]));
   }
-  for (int irow=0; irow<ncol; irow++)
-      table.setRowName(irow, db->getNameByUID(cols[irow]));
+  for (int irow = 0; irow < ncol; irow++)
+    table.setRowName(irow, db->getNameByUID(cols[irow]));
 
   return table;
 }
@@ -1829,24 +1827,24 @@ Table dbStatisticsMulti(Db *db,
  ** \param[in]  iptr0  Storage address (first variable)
  **
  *****************************************************************************/
-int dbStatisticsInGridTool(Db *db,
-                           DbGrid *dbgrid,
+int dbStatisticsInGridTool(Db* db,
+                           DbGrid* dbgrid,
                            const VectorString& names,
-                           const EStatOption &oper,
+                           const EStatOption& oper,
                            int radius,
                            int iptr0)
 {
-  int iptm = -1;
-  int iptn = -1;
-  int nxyz = dbgrid->getNSample();
-  int ndim = dbgrid->getNDim();
+  int iptm        = -1;
+  int iptn        = -1;
+  int nxyz        = dbgrid->getNSample();
+  int ndim        = dbgrid->getNDim();
   VectorInt iuids = db->getUIDs(names);
-  int nuid = (int) iuids.size();
-  int count = (int) pow(2. * radius + 1., (double) ndim);
+  int nuid        = (int)iuids.size();
+  int count       = (int)pow(2. * radius + 1., (double)ndim);
 
   /* Check the validity of the requested function */
 
-  if (! _operStatisticsCheck(oper, 0, 1, 0, 1, 0)) return 1;
+  if (!_operStatisticsCheck(oper, 0, 1, 0, 1, 0)) return 1;
 
   /* Create the attributes */
 
@@ -1965,7 +1963,7 @@ int dbStatisticsInGridTool(Db *db,
           dbgrid->setArray(i, iptr, TEST);
         else
         {
-          double mean = dbgrid->getArray(i, iptm) / ratio;
+          double mean  = dbgrid->getArray(i, iptm) / ratio;
           double value = dbgrid->getArray(i, iptr) / ratio - mean * mean;
           if (value < 0) value = 0.;
           if (oper == EStatOption::VAR)
@@ -2003,8 +2001,7 @@ int dbStatisticsInGridTool(Db *db,
 
   /* Delete auxiliary attributes for local calculations */
 
-  if ((oper == EStatOption::MEAN || oper == EStatOption::VAR || oper == EStatOption::STDV)
-      && iptn > 0) dbgrid->deleteColumnByUID(iptn);
+  if ((oper == EStatOption::MEAN || oper == EStatOption::VAR || oper == EStatOption::STDV) && iptn > 0) dbgrid->deleteColumnByUID(iptn);
   if ((oper == EStatOption::VAR || oper == EStatOption::STDV) && iptm > 0)
     dbgrid->deleteColumnByUID(iptm);
 
@@ -2034,8 +2031,8 @@ int dbStatisticsInGridTool(Db *db,
  ** \remarks The indices are numbered starting from 0
  **
  *****************************************************************************/
-VectorVectorInt correlationPairs(Db *db1,
-                                 Db *db2,
+VectorVectorInt correlationPairs(Db* db1,
+                                 Db* db2,
                                  const String& name1,
                                  const String& name2,
                                  bool flagFrom1,
@@ -2054,9 +2051,9 @@ VectorVectorInt correlationPairs(Db *db1,
     return indices;
   }
 
-  int nech = db1->getNSample();
-  int ndim = db1->getNDim();
-  int shift = (flagFrom1) ? 1 : 0;
+  int nech   = db1->getNSample();
+  int ndim   = db1->getNDim();
+  int shift  = (flagFrom1) ? 1 : 0;
   auto space = SpaceRN::create(ndim);
   SpaceTarget T1(space);
   SpaceTarget T2(space);
@@ -2114,10 +2111,10 @@ VectorVectorInt correlationPairs(Db *db1,
  ** \remarks The indices are numbered starting from 1
  **
  *****************************************************************************/
-VectorVectorInt hscatterPairs(Db *db,
+VectorVectorInt hscatterPairs(Db* db,
                               const String& name1,
                               const String& name2,
-                              VarioParam *varioparam,
+                              VarioParam* varioparam,
                               int ilag,
                               int idir,
                               bool verbose)
@@ -2134,16 +2131,16 @@ VectorVectorInt hscatterPairs(Db *db,
   /* Initializations */
 
   const DirParam dirparam = varioparam->getDirParam(idir);
-  int nech = db->getNSample();
-  int ndim = db->getNDim();
-  auto space = SpaceRN::create(ndim);
+  int nech                = db->getNSample();
+  int ndim                = db->getNDim();
+  auto space              = SpaceRN::create(ndim);
   SpaceTarget T1(space);
   SpaceTarget T2(space);
   indices.resize(2);
 
   // Creating a local Vario structure from VarioParam (in order to constitute the BiTargetCheck list)
 
-  Vario *vario = Vario::create(*varioparam);
+  Vario* vario = Vario::create(*varioparam);
   vario->setDb(db);
   if (vario->prepare()) return 1;
 
@@ -2193,7 +2190,7 @@ VectorVectorInt hscatterPairs(Db *db,
     if (verbose)
     {
       message("Total number of samples = %d\n", nech);
-      message("Number of pairs used for translated correlation = %d\n", (int) nb);
+      message("Number of pairs used for translated correlation = %d\n", (int)nb);
     }
   }
   return indices;
@@ -2215,15 +2212,15 @@ VectorVectorInt hscatterPairs(Db *db,
  ** \remarks same set of coordinates and same optional selection)
  **
  *****************************************************************************/
-int correlationIdentify(Db *db1,
-                        Db *db2,
+int correlationIdentify(Db* db1,
+                        Db* db2,
                         int icol1,
                         int icol2,
-                        Polygons *polygon)
+                        Polygons* polygon)
 {
   if (db1 == nullptr) return (1);
   if (db2 == nullptr) return (1);
-  int nech = db1->getNSample();
+  int nech   = db1->getNSample();
   int number = 0;
 
   /* Correlation */
@@ -2267,8 +2264,8 @@ int correlationIdentify(Db *db1,
  ** \param[in]  verbose       Verbose flag
  **
  *****************************************************************************/
-VectorVectorDouble condexp(Db *db1,
-                           Db *db2,
+VectorVectorDouble condexp(Db* db1,
+                           Db* db2,
                            int icol1,
                            int icol2,
                            double mini,
@@ -2279,7 +2276,7 @@ VectorVectorDouble condexp(Db *db1,
   VectorVectorDouble xycond(2);
   xycond[0].resize(nclass);
   xycond[1].resize(nclass);
-  VectorInt ncond(nclass,0);
+  VectorInt ncond(nclass, 0);
 
   /* Loop on the samples */
 
@@ -2333,7 +2330,7 @@ VectorVectorDouble condexp(Db *db1,
 std::map<int, int> contingencyTable(const VectorInt& values)
 {
   std::map<int, int> table;
-  for (int i = 0, size = (int) values.size(); i < size; i++)
+  for (int i = 0, size = (int)values.size(); i < size; i++)
     table[values[i]]++;
   return table;
 }
@@ -2342,14 +2339,14 @@ std::map<int, std::map<int, int>> contingencyTable2(const VectorInt& values,
                                                     const VectorInt& bins)
 {
   std::map<int, std::map<int, int>> table;
-  if ((int) values.size() != (int) bins.size())
+  if ((int)values.size() != (int)bins.size())
   {
     messerr("Arguments 'values' and 'bins' should have the same dimension");
     return table;
   }
-  for (int i = 0, size = (int) values.size(); i < size; i++)
+  for (int i = 0, size = (int)values.size(); i < size; i++)
     table[values[i]][bins[i]]++;
   return table;
 }
 
-}
+} // namespace gstlrn

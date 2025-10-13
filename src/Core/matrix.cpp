@@ -12,7 +12,6 @@
 #include "Basic/Utilities.hpp"
 #include "geoslib_old_f.h"
 #include <cmath>
-#include <math.h>
 
 /*! \cond */
 #define TRI(i)        (((i) * ((i) + 1)) / 2)
@@ -873,4 +872,4 @@ int matrix_eigen_tridiagonal(const double* vecdiag,
   mem_free((char*)e);
   return (0);
 }
-}
+} // namespace gstlrn

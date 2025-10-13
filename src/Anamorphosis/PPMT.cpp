@@ -10,19 +10,19 @@
 /******************************************************************************/
 #include "geoslib_define.h"
 
-#include "Anamorphosis/PPMT.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
+#include "Anamorphosis/PPMT.hpp"
+#include "Basic/MathFunc.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Db/Db.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include "Db/Db.hpp"
 #include "Stats/Classical.hpp"
-#include "Geometry/GeometryHelper.hpp"
-#include "Basic/VectorHelper.hpp"
-#include "Basic/MathFunc.hpp"
 
-#include <math.h>
+#include <cmath>
 
-namespace gstlrn 
+namespace gstlrn
 {
 
 PPMT::PPMT(int ndir,
@@ -31,66 +31,66 @@ PPMT::PPMT(int ndir,
            const EGaussInv& methodTrans,
            int nbpoly,
            double alpha)
-    : AStringable(),
-      _niter(0),
-      _ndir(ndir),
-      _nbpoly(nbpoly),
-      _alpha(alpha),
-      _methodDir(methodDir),
-      _methodTrans(methodTrans),
-      _flagPreprocessing(flagPreprocessing),
-      _isFitted(false),
-      _ndim(0),
-      _serieAngle(),
-      _serieScore(),
-      _dirmat(nullptr),
-      _anams(),
-      _initAnams(),
-      _initSphering(nullptr)
+  : AStringable()
+  , _niter(0)
+  , _ndir(ndir)
+  , _nbpoly(nbpoly)
+  , _alpha(alpha)
+  , _methodDir(methodDir)
+  , _methodTrans(methodTrans)
+  , _flagPreprocessing(flagPreprocessing)
+  , _isFitted(false)
+  , _ndim(0)
+  , _serieAngle()
+  , _serieScore()
+  , _dirmat(nullptr)
+  , _anams()
+  , _initAnams()
+  , _initSphering(nullptr)
 {
 }
 
-PPMT::PPMT(const PPMT &m)
-    : AStringable(m),
-      _niter(m._niter),
-      _ndir(m._ndir),
-      _nbpoly(m._nbpoly),
-      _alpha(m._alpha),
-      _methodDir(m._methodDir),
-      _methodTrans(m._methodTrans),
-      _flagPreprocessing(m._flagPreprocessing),
-      _isFitted(m._isFitted),
-      _ndim(m._ndim),
-      _serieAngle(m._serieAngle),
-      _serieScore(m._serieScore),
-      _dirmat(m._dirmat),
-      _anams(m._anams),
-      _initAnams(m._initAnams),
-      _initSphering(m._initSphering)
+PPMT::PPMT(const PPMT& m)
+  : AStringable(m)
+  , _niter(m._niter)
+  , _ndir(m._ndir)
+  , _nbpoly(m._nbpoly)
+  , _alpha(m._alpha)
+  , _methodDir(m._methodDir)
+  , _methodTrans(m._methodTrans)
+  , _flagPreprocessing(m._flagPreprocessing)
+  , _isFitted(m._isFitted)
+  , _ndim(m._ndim)
+  , _serieAngle(m._serieAngle)
+  , _serieScore(m._serieScore)
+  , _dirmat(m._dirmat)
+  , _anams(m._anams)
+  , _initAnams(m._initAnams)
+  , _initSphering(m._initSphering)
 {
 }
 
-PPMT& PPMT::operator=(const PPMT &m)
+PPMT& PPMT::operator=(const PPMT& m)
 {
   if (this != &m)
   {
     AStringable::operator=(m);
-    _niter = m._niter;
-    _ndir = m._ndir;
-    _nbpoly = m._nbpoly;
-    _ndim = m._ndim;
-    _alpha = m._alpha;
-    _methodDir = m._methodDir;
-    _methodTrans = m._methodTrans;
+    _niter             = m._niter;
+    _ndir              = m._ndir;
+    _nbpoly            = m._nbpoly;
+    _ndim              = m._ndim;
+    _alpha             = m._alpha;
+    _methodDir         = m._methodDir;
+    _methodTrans       = m._methodTrans;
     _flagPreprocessing = m._flagPreprocessing;
-    _isFitted = m._isFitted;
-    _ndim = m._ndim;
-    _serieAngle = m._serieAngle;
-    _serieScore = m._serieScore;
-    _dirmat = m._dirmat;
-    _anams = m._anams;
-    _initAnams = m._initAnams;
-    _initSphering = m._initSphering;
+    _isFitted          = m._isFitted;
+    _ndim              = m._ndim;
+    _serieAngle        = m._serieAngle;
+    _serieScore        = m._serieScore;
+    _dirmat            = m._dirmat;
+    _anams             = m._anams;
+    _initAnams         = m._initAnams;
+    _initSphering      = m._initSphering;
   }
   return *this;
 }
@@ -98,14 +98,14 @@ PPMT& PPMT::operator=(const PPMT &m)
 PPMT::~PPMT()
 {
   delete _dirmat;
-  if (! _anams.empty())
+  if (!_anams.empty())
   {
-    for (int i = 0; i < (int) _anams.size(); i++)
+    for (int i = 0; i < (int)_anams.size(); i++)
       delete _anams[i];
   }
-  if (! _initAnams.empty())
+  if (!_initAnams.empty())
   {
-    for (int i = 0; i < (int) _initAnams.size(); i++)
+    for (int i = 0; i < (int)_initAnams.size(); i++)
       delete _initAnams[i];
   }
   delete _initSphering;
@@ -161,8 +161,8 @@ String PPMT::toString(const AStringFormat* strfmt) const
 
 double PPMT::_gaussianizeForward(double Yi,
                                  int rank,
-                                 const AnamHermite *anam,
-                                 const VectorDouble &N0)
+                                 const AnamHermite* anam,
+                                 const VectorDouble& N0)
 {
   double theo = 0.;
   if (anam != nullptr)
@@ -178,7 +178,7 @@ double PPMT::_gaussianizeForward(double Yi,
  * @param anam Anamorphosis
  * @return The back-anamorphosed value
  */
-double PPMT::_gaussianizeBackward(double Yi, const AnamHermite *anam)
+double PPMT::_gaussianizeBackward(double Yi, const AnamHermite* anam)
 {
   double theo = anam->transformToRawValue(Yi);
   return (theo - Yi);
@@ -208,11 +208,11 @@ void PPMT::_initGaussianizeBackward(AMatrix* Y)
   }
 }
 
-double PPMT::_getGaussianDistance(const VectorDouble &Yi,
-                                  const VectorInt &Ri,
-                                  const VectorDouble &N0) const
+double PPMT::_getGaussianDistance(const VectorDouble& Yi,
+                                  const VectorInt& Ri,
+                                  const VectorDouble& N0) const
 {
-  int np = (int) Yi.size();
+  int np = (int)Yi.size();
 
   double di = 0.;
   for (int ip = 0; ip < np; ip++)
@@ -220,11 +220,11 @@ double PPMT::_getGaussianDistance(const VectorDouble &Yi,
     double value = _gaussianizeForward(Yi[ip], Ri[ip], nullptr, N0);
     di += pow(ABS(value), getAlpha());
   }
-  di /= (double) np;
+  di /= (double)np;
   return di;
 }
 
-void PPMT::_iterationFit(AMatrix *Y, const VectorDouble& N0)
+void PPMT::_iterationFit(AMatrix* Y, const VectorDouble& N0)
 {
   int np = Y->getNRows();
 
@@ -232,13 +232,13 @@ void PPMT::_iterationFit(AMatrix *Y, const VectorDouble& N0)
 
   VectorDouble Y0(np, TEST);
   VectorDouble Yi(np, TEST);
-  VectorInt    R0(np, ITEST);
-  int    idmax = -1;
+  VectorInt R0(np, ITEST);
+  int idmax    = -1;
   double ddmax = MINIMUM_BIG;
 
   // Loop on directions
 
-  AnamHermite* anam = nullptr;
+  AnamHermite* anam      = nullptr;
   const bool flagHermite = (getMethodTrans() == EGaussInv::HMT);
   if (flagHermite) anam = new AnamHermite(getNbpoly());
 
@@ -258,8 +258,8 @@ void PPMT::_iterationFit(AMatrix *Y, const VectorDouble& N0)
     {
       idmax = id;
       ddmax = di;
-      Y0 = Yi;
-      R0 = Ri;
+      Y0    = Yi;
+      R0    = Ri;
     }
   }
 
@@ -272,12 +272,12 @@ void PPMT::_iterationFit(AMatrix *Y, const VectorDouble& N0)
   if (flagHermite) _anams.push_back(anam);
 }
 
-void PPMT::_shiftForward(AMatrix *Y,
+void PPMT::_shiftForward(AMatrix* Y,
                          int id,
-                         const AnamHermite *anam,
-                         const VectorDouble &Y0,
-                         const VectorInt    &R0,
-                         const VectorDouble &N0) const
+                         const AnamHermite* anam,
+                         const VectorDouble& Y0,
+                         const VectorInt& R0,
+                         const VectorDouble& N0) const
 {
   int np   = Y->getNRows();
   int ndim = getNdim();
@@ -293,10 +293,10 @@ void PPMT::_shiftForward(AMatrix *Y,
   }
 }
 
-void PPMT::_shiftBackward(AMatrix *Y,
+void PPMT::_shiftBackward(AMatrix* Y,
                           int id,
-                          const AnamHermite *anam,
-                          const VectorDouble &Y0) const
+                          const AnamHermite* anam,
+                          const VectorDouble& Y0) const
 {
   int np   = Y->getNRows();
   int ndim = getNdim();
@@ -332,7 +332,7 @@ void PPMT::_projectOnDirection(const AMatrix* Y, int id, VectorDouble& Y0)
   }
 }
 
-void PPMT::_iterationForward(AMatrix *Y, const VectorDouble& N0, int iter)
+void PPMT::_iterationForward(AMatrix* Y, const VectorDouble& N0, int iter)
 {
   int np    = Y->getNRows();
   int idmax = _serieAngle[iter];
@@ -348,7 +348,7 @@ void PPMT::_iterationForward(AMatrix *Y, const VectorDouble& N0, int iter)
   _shiftForward(Y, idmax, _anams[iter], Y0, R0, N0);
 }
 
-void PPMT::_iterationBackward(AMatrix *Y, const VectorDouble& N0, int iter)
+void PPMT::_iterationBackward(AMatrix* Y, const VectorDouble& N0, int iter)
 {
   DECLARE_UNUSED(N0);
   int np    = Y->getNRows();
@@ -374,7 +374,7 @@ void PPMT::_generateAllDirections()
   else
   {
     VectorDouble X = VH::simulateUniform(ndir * _ndim);
-    Umat = MatrixDense::createFromVD(X, ndir, _ndim);
+    Umat           = MatrixDense::createFromVD(X, ndir, _ndim);
   }
   _dirmat = GeometryHelper::getDirectionsInRn(Umat);
   delete Umat;
@@ -393,7 +393,7 @@ void PPMT::_fitInitHermite(AMatrix* Y)
   }
 }
 
-int PPMT::fitFromMatrix(AMatrix *Y, int niter, bool verbose)
+int PPMT::fitFromMatrix(AMatrix* Y, int niter, bool verbose)
 {
   if (Y == nullptr)
   {
@@ -411,9 +411,9 @@ int PPMT::fitFromMatrix(AMatrix *Y, int niter, bool verbose)
   // Creating the directions
   _generateAllDirections();
 
-  int np = Y->getNRows();
+  int np                = Y->getNRows();
   VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
-  VectorDouble N0 = VH::qnormVec(sequence);
+  VectorDouble N0       = VH::qnormVec(sequence);
 
   // Optional Pre-processing
   if (_flagPreprocessing)
@@ -440,7 +440,7 @@ int PPMT::fitFromMatrix(AMatrix *Y, int niter, bool verbose)
 
     if (verbose)
     {
-      message("Iteration %3d/%3d: Score = %lf\n",iter+1,niter, _serieScore[iter]);
+      message("Iteration %3d/%3d: Score = %lf\n", iter + 1, niter, _serieScore[iter]);
     }
   }
 
@@ -450,15 +450,15 @@ int PPMT::fitFromMatrix(AMatrix *Y, int niter, bool verbose)
   return 0;
 }
 
-int PPMT::fit(Db *db,
-              const VectorString &names,
+int PPMT::fit(Db* db,
+              const VectorString& names,
               bool flagStoreInDb,
               int niter,
               bool verbose,
-              const NamingConvention &namconv)
+              const NamingConvention& namconv)
 {
   VectorString exp_names = db->expandNameList(names);
-  MatrixDense Y = db->getColumnsAsMatrix(exp_names, true);
+  MatrixDense Y          = db->getColumnsAsMatrix(exp_names, true);
   if (Y.empty())
   {
     messerr("This Multivariate Transform requires several variables to be defined");
@@ -478,10 +478,10 @@ int PPMT::fit(Db *db,
   return 0;
 }
 
-int PPMT::rawToGaussian(Db *db,
-                        const VectorString &names,
+int PPMT::rawToGaussian(Db* db,
+                        const VectorString& names,
                         int niter,
-                        const NamingConvention &namconv)
+                        const NamingConvention& namconv)
 {
   // Extract the relevant information
 
@@ -491,13 +491,13 @@ int PPMT::rawToGaussian(Db *db,
     return 1;
   }
   VectorString exp_names = db->expandNameList(names);
-  MatrixDense Y = db->getColumnsAsMatrix(exp_names, true);
+  MatrixDense Y          = db->getColumnsAsMatrix(exp_names, true);
   if (Y.empty())
   {
     messerr("This Multivariate Transform requires several variables to be defined");
     return 1;
   }
-  if (! isFitted())
+  if (!isFitted())
   {
     messerr("You must Fit PPMT beforehand");
     return 1;
@@ -507,7 +507,7 @@ int PPMT::rawToGaussian(Db *db,
   niter = MIN(niter, getNiter());
 
   VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
-  VectorDouble N0 = VH::qnormVec(sequence);
+  VectorDouble N0       = VH::qnormVec(sequence);
 
   // Pre-processing
   if (_flagPreprocessing)
@@ -527,10 +527,10 @@ int PPMT::rawToGaussian(Db *db,
   return 0;
 }
 
-int PPMT::gaussianToRaw(Db *db,
-                        const VectorString &names,
+int PPMT::gaussianToRaw(Db* db,
+                        const VectorString& names,
                         int niter,
-                        const NamingConvention &namconv)
+                        const NamingConvention& namconv)
 {
   // Extract the relevant information
 
@@ -540,7 +540,7 @@ int PPMT::gaussianToRaw(Db *db,
     return 1;
   }
   VectorString exp_names = db->expandNameList(names);
-  MatrixDense Y = db->getColumnsAsMatrix(exp_names, true);
+  MatrixDense Y          = db->getColumnsAsMatrix(exp_names, true);
   if (Y.empty())
   {
     messerr("This Multivariate Back-Transform requires several variables to be defined");
@@ -551,7 +551,7 @@ int PPMT::gaussianToRaw(Db *db,
     messerr("The PPMT back-trasform is only available when methodTrans = 'hermite'");
     return 1;
   }
-  if (! isFitted())
+  if (!isFitted())
   {
     messerr("You must Fit PPMT beforehand");
     return 1;
@@ -561,10 +561,10 @@ int PPMT::gaussianToRaw(Db *db,
   niter = MIN(niter, getNiter());
 
   VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
-  VectorDouble N0 = VH::qnormVec(sequence);
+  VectorDouble N0       = VH::qnormVec(sequence);
 
   // Loop on the iterations (reverse order)
-  for (int iter = niter-1; iter >= 0; iter--)
+  for (int iter = niter - 1; iter >= 0; iter--)
     _iterationBackward(&Y, N0, iter);
 
   // Post-processing
@@ -594,4 +594,4 @@ VectorDouble PPMT::getSerieScore(bool flagLog) const
   }
   return vec;
 }
-}
+} // namespace gstlrn

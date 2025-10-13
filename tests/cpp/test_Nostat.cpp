@@ -9,17 +9,15 @@
 /*                                                                            */
 /******************************************************************************/
 #include "API/SPDE.hpp"
+#include "Basic/File.hpp"
+#include "Basic/FunctionalSpirale.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
-#include "Basic/FunctionalSpirale.hpp"
-#include "Basic/File.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/VectorHelper.hpp"
-
-#include <math.h>
 
 #define __USE_MATH_DEFINES
 #include <cmath>
@@ -36,7 +34,7 @@ using namespace gstlrn;
  ** - by defining a vector containing the non-stationary angle (flagDirect = false and flagByAngle = true)
  ** - by defining the vector of local tensor matrices (flagDirect = false and flagByAngle = false)
  *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
@@ -48,7 +46,7 @@ int main(int argc, char *argv[])
   ASerializable::setPrefixName("test_nostat-");
 
   // Creating the 2-D Db
-  auto nx = { 101, 101 };
+  auto nx            = {101, 101};
   DbGrid* workingDbc = DbGrid::create(nx);
 
   // Creating the Non-stationary Model
@@ -71,7 +69,7 @@ int main(int argc, char *argv[])
     {
       VectorDouble angle = spirale.getFunctionValues(workingDbc);
       workingDbc->addColumns(angle, "Angle");
-      cova->makeAngleNoStatDb("Angle",0,workingDbc);
+      cova->makeAngleNoStatDb("Angle", 0, workingDbc);
     }
     else
     {
@@ -79,16 +77,16 @@ int main(int argc, char *argv[])
       workingDbc->addColumns(hh[0], "H1-1", ELoc::NOSTAT, 0);
       workingDbc->addColumns(hh[1], "H1-2", ELoc::NOSTAT, 1);
       workingDbc->addColumns(hh[2], "H2-2", ELoc::NOSTAT, 2);
-      cova->makeTensorNoStatDb("H1-1",0,0,workingDbc);
-      cova->makeTensorNoStatDb("H1-2",0,1,workingDbc);
-      cova->makeTensorNoStatDb("H2-2",1,1,workingDbc);
+      cova->makeTensorNoStatDb("H1-1", 0, 0, workingDbc);
+      cova->makeTensorNoStatDb("H1-2", 0, 1, workingDbc);
+      cova->makeTensorNoStatDb("H2-2", 1, 1, workingDbc);
     }
   }
 
   // Inquiry the value of the Non-stationary parameters at a given sample
   if (flagInquiry)
   {
-    int target = 1000;
+    int target        = 1000;
     VectorDouble vect = workingDbc->getSampleLocators(ELoc::NOSTAT, target);
     VH::dump("Non-stationary parameters at sample", vect);
   }
@@ -96,13 +94,13 @@ int main(int argc, char *argv[])
   int useCholesky = 0;
   law_set_random_seed(13256);
   (void)gstlrn::simulateSPDE(nullptr, workingDbc, model, 1, useCholesky,
-                     VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(),
-                     NamingConvention("Simu", true, false));
+                             VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(),
+                             NamingConvention("Simu", true, false));
 
-  DbStringFormat dbfmt(FLAG_STATS,{"Simu"});
+  DbStringFormat dbfmt(FLAG_STATS, {"Simu"});
   workingDbc->display(&dbfmt);
 
-  (void) workingDbc->dumpToNF("spirale.NF");
+  (void)workingDbc->dumpToNF("spirale.NF");
 
   message("Test performed successfully\n");
 

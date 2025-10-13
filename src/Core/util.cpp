@@ -16,8 +16,9 @@
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
 #include "geoslib_old_f.h"
+
 #include <cmath>
-#include <string.h>
+#include <cstring>
 
 /*! \cond */
 #define TAB(ix, iy)  (tab[(ix) * ny + (iy)])

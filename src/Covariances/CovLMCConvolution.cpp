@@ -17,7 +17,8 @@
 #include "Matrix/MatrixDense.hpp"
 #include "Model/Model.hpp"
 #include "Space/ASpace.hpp"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {
@@ -336,4 +337,4 @@ double CovLMCConvolution::_eval(const SpacePoint& p1,
   }
   return cov;
 }
-}
+} // namespace gstlrn

@@ -10,12 +10,12 @@
 /******************************************************************************/
 #include "Basic/Law.hpp"
 
-#include "Basic/Utilities.hpp"
 #include "Basic/MathFunc.hpp"
+#include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "geoslib_define.h"
 
-#include <math.h>
+#include <cmath>
 #include <random>
 
 namespace gstlrn
@@ -27,11 +27,11 @@ static bool Random_Old_Style = true;
 std::mt19937 Random_gen;
 
 /*! \cond */
-#define TABIN_BY_COL(iech,ivar)       (tabin [(ivar) * nechin  + (iech)])
-#define TABIN_BY_LINE(iech,ivar)      (tabin [(iech) * nvarin  + (ivar)])
-#define TABOUT_BY_COL(iech,ivar)      (tabout[(ivar) * nechout + (iech)])
-#define TABOUT_BY_LINE(iech,ivar)     (tabout[(iech) * nvarout + (ivar)])
-#define CONSTS(iconst,ivar1)          (consts[(iconst) * nvar1 + (ivar1)])
+#define TABIN_BY_COL(iech, ivar)   (tabin[(ivar) * nechin + (iech)])
+#define TABIN_BY_LINE(iech, ivar)  (tabin[(iech) * nvarin + (ivar)])
+#define TABOUT_BY_COL(iech, ivar)  (tabout[(ivar) * nechout + (iech)])
+#define TABOUT_BY_LINE(iech, ivar) (tabout[(iech) * nvarout + (ivar)])
+#define CONSTS(iconst, ivar1)      (consts[(iconst) * nvar1 + (ivar1)])
 /*! \endcond */
 
 /**
@@ -68,8 +68,8 @@ void law_set_random_seed(int seed)
   if (seed > 0)
   {
     Random_value = seed;
-    if (! Random_Old_Style)
-      Random_gen.seed((unsigned) seed);
+    if (!Random_Old_Style)
+      Random_gen.seed((unsigned)seed);
   }
 }
 
@@ -92,13 +92,13 @@ double law_uniform(double mini, double maxi)
   {
     unsigned int random_product;
     random_product = Random_factor * Random_value;
-    Random_value = random_product % Random_congruent;
-    value = (double) Random_value / (double) Random_congruent;
-    value = mini + value * (maxi - mini);
+    Random_value   = random_product % Random_congruent;
+    value          = (double)Random_value / (double)Random_congruent;
+    value          = mini + value * (maxi - mini);
   }
   else
   {
-    std::uniform_real_distribution<double> d{mini,maxi};
+    std::uniform_real_distribution<double> d {mini, maxi};
     value = d(Random_gen);
   }
   return (value);
@@ -120,8 +120,8 @@ int law_int_uniform(int mini, int maxi)
   int number, rank;
 
   number = maxi - mini + 1;
-  rndval = law_uniform(0., (double) number);
-  rank = (int) floor(rndval);
+  rndval = law_uniform(0., (double)number);
+  rank   = (int)floor(rndval);
   return (rank + mini);
 }
 
@@ -144,12 +144,12 @@ double law_gaussian(double mean, double sigma)
   {
     double random1 = law_uniform();
     double random2 = law_uniform(0., 2. * GV_PI);
-    value = sqrt(-2. * log(random1)) * cos(random2);
-    value = value * sigma + mean;
+    value          = sqrt(-2. * log(random1)) * cos(random2);
+    value          = value * sigma + mean;
   }
   else
   {
-    std::normal_distribution<double> d{mean,sigma};
+    std::normal_distribution<double> d {mean, sigma};
     value = d(Random_gen);
   }
   return value;
@@ -254,13 +254,13 @@ double law_stable_standard_abgd(double alpha)
 {
   double unif, expo, temp, ialpha, b, res;
 
-  b = GV_PI / 2;
-  unif = law_uniform(-b, b);
-  expo = law_exponential(1.);
+  b      = GV_PI / 2;
+  unif   = law_uniform(-b, b);
+  expo   = law_exponential(1.);
   ialpha = 1. / alpha;
   if (alpha > 1) b *= (1 - 2. / alpha);
   temp = alpha * (unif + b);
-  res = sin(temp) / pow(cos(unif), ialpha);
+  res  = sin(temp) / pow(cos(unif), ialpha);
   res *= pow(cos(unif - temp) / expo, ialpha - 1.);
   res = (!FFFF(unif) && !FFFF(expo)) ? res : TEST;
   return (res);
@@ -280,19 +280,18 @@ double law_stable_standard_agd(double alpha, double beta)
 {
   double unif, expo, unif_norm, ialpha, temp, temp1, b, temp2, temp3, res;
 
-  temp = alpha * GV_PI / 2;
-  ialpha = 1. / alpha;
-  unif = law_uniform(-temp, temp);
-  expo = law_exponential(1.);
+  temp      = alpha * GV_PI / 2;
+  ialpha    = 1. / alpha;
+  unif      = law_uniform(-temp, temp);
+  expo      = law_exponential(1.);
   unif_norm = unif * ialpha;
-  temp1 = beta * tan(temp);
-  b = atan(temp1);
-  temp2 = pow(1 + temp1 * temp1, ialpha / 2);
-  temp3 = unif + b;
-  res = temp2 * sin(temp3) / pow(cos(unif_norm), ialpha);
+  temp1     = beta * tan(temp);
+  b         = atan(temp1);
+  temp2     = pow(1 + temp1 * temp1, ialpha / 2);
+  temp3     = unif + b;
+  res       = temp2 * sin(temp3) / pow(cos(unif_norm), ialpha);
   res *= pow(cos(unif_norm - temp3) / expo, ialpha - 1);
-  res = (!FFFF(unif) && !FFFF(expo)) ? res :
-                                       TEST;
+  res = (!FFFF(unif) && !FFFF(expo)) ? res : TEST;
   return (res);
 }
 
@@ -308,15 +307,14 @@ double law_stable_standard_a1gd(double beta)
 {
   double unif, expo, temp, temp2, res;
 
-  temp = GV_PI / 2;
-  unif = law_uniform(-temp, temp);
-  expo = law_exponential(1.);
+  temp  = GV_PI / 2;
+  unif  = law_uniform(-temp, temp);
+  expo  = law_exponential(1.);
   temp2 = temp + beta * unif;
-  res = temp2 * tan(unif);
+  res   = temp2 * tan(unif);
   res -= beta * log(expo * cos(unif) / temp2);
   res /= temp;
-  res = (!FFFF(unif) && !FFFF(expo)) ? res :
-                                       TEST;
+  res = (!FFFF(unif) && !FFFF(expo)) ? res : TEST;
   return (res);
 }
 
@@ -335,9 +333,8 @@ double law_stable_a(double alpha, double beta, double gamma, double delta)
 {
   double stable, res;
   stable = law_stable_standard_agd(alpha, beta);
-  res = pow(gamma, 1. / alpha) * stable + gamma * delta;
-  res = (!FFFF(stable)) ? res :
-                          TEST;
+  res    = pow(gamma, 1. / alpha) * stable + gamma * delta;
+  res    = (!FFFF(stable)) ? res : TEST;
   return (res);
 }
 
@@ -355,9 +352,8 @@ double law_stable_a1(double beta, double gamma, double delta)
 {
   double stable, res;
   stable = law_stable_standard_a1gd(beta);
-  res = gamma * (stable + delta + 2. / GV_PI * beta * log(gamma));
-  res = (!FFFF(stable)) ? res :
-                          TEST;
+  res    = gamma * (stable + delta + 2. / GV_PI * beta * log(gamma));
+  res    = (!FFFF(stable)) ? res : TEST;
   return (res);
 }
 
@@ -397,8 +393,8 @@ double law_beta1(double parameter1, double parameter2)
 {
   double a, b, res;
 
-  a = law_gamma(parameter1,1.);
-  b = law_gamma(parameter2,1.);
+  a = law_gamma(parameter1, 1.);
+  b = law_gamma(parameter2, 1.);
 
   res = (!FFFF(a) && !FFFF(b)) ? a / (a + b) : TEST;
   return (res);
@@ -418,8 +414,8 @@ double law_beta2(double parameter1, double parameter2)
 {
   double a, b, res;
 
-  a = law_gamma(parameter1,1.);
-  b = law_gamma(parameter2,1.);
+  a = law_gamma(parameter1, 1.);
+  b = law_gamma(parameter2, 1.);
 
   res = (!FFFF(a) && !FFFF(b)) ? a / b : TEST;
   return (res);
@@ -481,12 +477,12 @@ double law_dnorm(double value, double mean, double std)
  *****************************************************************************/
 double law_cdf_gaussian(double value)
 {
-  static double b[] = { 0.319381530,
-                        -0.356563782,
-                        1.781477937,
-                        -1.821255978,
-                        1.330274429 };
-  static double p = 0.2316419;
+  static double b[] = {0.319381530,
+                       -0.356563782,
+                       1.781477937,
+                       -1.821255978,
+                       1.330274429};
+  static double p   = 0.2316419;
   double u, v, x, t;
   int i;
 
@@ -521,31 +517,28 @@ double law_cdf_gaussian(double value)
 double law_invcdf_gaussian(double value)
 
 {
-  static double b[] = { 0.319381530,
-                        -0.356563782,
-                        1.781477937,
-                        -1.821255978,
-                        1.330274429 };
-  static double c[] = { 2.515517, 0.802853, 0.010328 };
-  static double d[] = { 1.432788, 0.189269, 0.001308 };
-  static double p = 0.2316419;
+  static double b[] = {0.319381530,
+                       -0.356563782,
+                       1.781477937,
+                       -1.821255978,
+                       1.330274429};
+  static double c[] = {2.515517, 0.802853, 0.010328};
+  static double d[] = {1.432788, 0.189269, 0.001308};
+  static double p   = 0.2316419;
   double xmin, xmax, v, t, freq, x = 0.;
 
   if (value <= 0.) return (-10.);
   if (value >= 1.) return (10.);
-  v = (value < 0.5) ? 1 - value :
-                      value;
-  t = sqrt(-2 * log(1 - v));
-  xmin = t
-      - (c[0] + t * (c[1] + t * c[2])) / (1.
-          + t * (d[0] + t * (d[1] + t * d[2])));
+  v    = (value < 0.5) ? 1 - value : value;
+  t    = sqrt(-2 * log(1 - v));
+  xmin = t - (c[0] + t * (c[1] + t * c[2])) / (1. + t * (d[0] + t * (d[1] + t * d[2])));
   xmin = xmin - 0.001;
   xmax = xmin + 0.002;
 
   while ((xmax - xmin) > 0.0000001)
   {
-    x = (xmin + xmax) / 2.;
-    t = 1. / (1. + p * x);
+    x    = (xmin + xmax) / 2.;
+    t    = 1. / (1. + p * x);
     freq = t * (b[0] + t * (b[1] + t * (b[2] + t * (b[3] + t * b[4]))));
     if (freq * exp(-x * x / 2) / sqrt(2. * GV_PI) > 1. - v)
       xmin = x;
@@ -575,70 +568,70 @@ double law_gaussian_between_bounds(double binf, double bsup)
   int k, n, isim, type, ok, rank, itab[4];
   static double seuil = 2.;
   static double large = 20.;
-  static double sqe = 1.6487212707;
+  static double sqe   = 1.6487212707;
 
   x = 0.;
 
   /* Loop on the intervals */
 
-  n = 0;
-  a = (FFFF(binf)) ? -large : binf;
-  b = (FFFF(bsup)) ? large : bsup;
+  n  = 0;
+  a  = (FFFF(binf)) ? -large : binf;
+  b  = (FFFF(bsup)) ? large : bsup;
   aa = a;
   bb = b;
 
   if (aa < -seuil)
   {
-    atab[n] = aa;
-    btab[n] = MIN(bb, -seuil);
+    atab[n]   = aa;
+    btab[n]   = MIN(bb, -seuil);
     itab[n++] = 1;
-    aa = -seuil;
+    aa        = -seuil;
     if (aa >= bb) goto label_norme;
   }
   if (aa < 0)
   {
-    atab[n] = aa;
-    btab[n] = MIN(bb, 0.);
+    atab[n]   = aa;
+    btab[n]   = MIN(bb, 0.);
     itab[n++] = 2;
-    aa = 0.;
+    aa        = 0.;
     if (aa >= bb) goto label_norme;
   }
   if (aa < seuil)
   {
-    atab[n] = aa;
-    btab[n] = MIN(bb, seuil);
+    atab[n]   = aa;
+    btab[n]   = MIN(bb, seuil);
     itab[n++] = 3;
-    aa = seuil;
+    aa        = seuil;
     if (aa >= bb) goto label_norme;
   }
-  atab[n] = aa;
-  btab[n] = bb;
+  atab[n]   = aa;
+  btab[n]   = bb;
   itab[n++] = 4;
 
-  label_norme:
+label_norme:
   total = 0.;
   double wgt;
   for (k = 0; k < n; k++)
   {
-    aa = atab[k];
-    bb = btab[k];
+    aa   = atab[k];
+    bb   = btab[k];
     type = itab[k];
-    wgt = 0.;
+    wgt  = 0.;
     if (ABS(aa - bb) > 0.) switch (type)
-    {
-      case 1:
-        wgt = (exp(-aa * aa / 2.) - exp(-bb * bb / 2.)) / bb;
-        break;
-      case 2:
-        wgt = sqe * (exp(bb) - exp(aa));
-        break;
-      case 3:
-        wgt = sqe * (exp(-aa) - exp(-bb));
-        break;
-      case 4:
-        wgt = (exp(-aa * aa / 2.) - exp(-bb * bb / 2.)) / aa;
-        break;
-    }
+      {
+        case 1:
+          wgt = (exp(-aa * aa / 2.) - exp(-bb * bb / 2.)) / bb;
+          break;
+        case 2:
+          wgt = sqe * (exp(bb) - exp(aa));
+          break;
+        case 3:
+          wgt = sqe * (exp(-aa) - exp(-bb));
+          break;
+        case 4:
+          wgt = (exp(-aa * aa / 2.) - exp(-bb * bb / 2.)) / aa;
+          break;
+      }
     total += wgt;
     ptab[k] = total;
   }
@@ -647,8 +640,8 @@ double law_gaussian_between_bounds(double binf, double bsup)
 
   if (total <= 0.)
   {
-    rank = (int) ((double) n * law_uniform(0., 1.));
-    x = atab[rank];
+    rank = (int)((double)n * law_uniform(0., 1.));
+    x    = atab[rank];
     return (x);
   }
 
@@ -661,24 +654,24 @@ double law_gaussian_between_bounds(double binf, double bsup)
   while (ok)
   {
     isim = 0;
-    u = law_uniform(0., 1.);
+    u    = law_uniform(0., 1.);
     while (ptab[isim] < u)
       isim++;
 
     /* Simulate a value in the interval */
 
     type = itab[isim];
-    aa = atab[isim];
-    bb = btab[isim];
-    a2 = aa * aa;
-    b2 = bb * bb;
+    aa   = atab[isim];
+    bb   = btab[isim];
+    a2   = aa * aa;
+    b2   = bb * bb;
 
     u = law_uniform(0., 1.);
     switch (type)
     {
       case 1:
         c2 = 1. - exp((b2 - a2) / 2.);
-        x = -sqrt(b2 - 2. * log(1. - u * c2));
+        x  = -sqrt(b2 - 2. * log(1. - u * c2));
         break;
 
       case 2:
@@ -691,7 +684,7 @@ double law_gaussian_between_bounds(double binf, double bsup)
 
       case 4:
         c2 = 1. - exp((a2 - b2) / 2.);
-        x = sqrt(a2 - 2. * log(1. - u * c2));
+        x  = sqrt(a2 - 2. * log(1. - u * c2));
         break;
     }
 
@@ -731,16 +724,16 @@ double law_gaussian_between_bounds(double binf, double bsup)
  ** \param[in]  correl Correlation matrix (Dimension: 2*2)
  **
  *****************************************************************************/
-double law_df_bigaussian(VectorDouble &vect,
-                         VectorDouble &mean,
+double law_df_bigaussian(VectorDouble& vect,
+                         VectorDouble& mean,
                          MatrixSymmetric& correl)
 {
   VectorDouble xc(2);
-  xc[0] = vect[0] - mean[0];
-  xc[1] = vect[1] - mean[1];
-  double detv = correl.getValue(0,0) * correl.getValue(1,1) - correl.getValue(0,1) * correl.getValue(1,0);
-  double det2 = (correl.getValue(1,1) * xc[0] * xc[0] - 2. * correl.getValue(0,1) * xc[0] * xc[1] + correl.getValue(0,0) * xc[1] * xc[1]);
-  double logres = 2. * log(2. * GV_PI) + log(detv) + det2 / detv;
+  xc[0]          = vect[0] - mean[0];
+  xc[1]          = vect[1] - mean[1];
+  double detv    = correl.getValue(0, 0) * correl.getValue(1, 1) - correl.getValue(0, 1) * correl.getValue(1, 0);
+  double det2    = (correl.getValue(1, 1) * xc[0] * xc[0] - 2. * correl.getValue(0, 1) * xc[0] * xc[1] + correl.getValue(0, 0) * xc[1] * xc[1]);
+  double logres  = 2. * log(2. * GV_PI) + log(detv) + det2 / detv;
   double density = exp(-logres / 2.);
   return (density);
 }
@@ -757,7 +750,7 @@ double law_df_bigaussian(VectorDouble &vect,
  *****************************************************************************/
 double law_df_quadgaussian(VectorDouble& vect, MatrixSymmetric& correl)
 {
-  int nvar = (int) vect.size();
+  int nvar       = (int)vect.size();
   double density = -2. * log(2 * GV_PI);
 
   if (correl.computeEigen()) return TEST;
@@ -787,7 +780,7 @@ double law_df_quadgaussian(VectorDouble& vect, MatrixSymmetric& correl)
 double law_df_multigaussian(VectorDouble& vect, MatrixSymmetric& correl)
 
 {
-  int nvar = (int) vect.size();
+  int nvar       = (int)vect.size();
   double density = -0.5 * nvar * log(2 * GV_PI);
 
   if (correl.computeEigen()) return TEST;
@@ -806,7 +799,7 @@ double law_df_multigaussian(VectorDouble& vect, MatrixSymmetric& correl)
 
 VectorDouble law_df_poisson_vec(VectorInt is, double parameter)
 {
-  int size = (int) is.size();
+  int size = (int)is.size();
   VectorDouble res(size);
   for (int ii = 0; ii < size; ii++)
     res[ii] = law_df_poisson(is[ii], parameter);
@@ -836,7 +829,7 @@ int law_poisson(double parameter)
     double x, p, q;
     int n, ok;
 
-    int k = 0;
+    int k    = 0;
     double t = parameter;
 
     while (t >= 16)
@@ -890,7 +883,7 @@ VectorInt law_random_path(int nech)
 
   for (int i = 0; i < nech; i++)
   {
-    path[i] = i;
+    path[i]  = i;
     order[i] = law_uniform(0., 1.);
   }
   VH::arrangeInPlace(0, path, order, true, nech);
@@ -914,9 +907,9 @@ int law_binomial(int n, double p)
   {
     const double s = p / q;
     const double a = (n + 1) * s;
-    double r = exp(n * log(q)); /* pow() causes a crash on AIX */
-    int x = 0;
-    double u = law_uniform(0., 1.);
+    double r       = exp(n * log(q)); /* pow() causes a crash on AIX */
+    int x          = 0;
+    double u       = law_uniform(0., 1.);
     while (1)
     {
       if (u < r) return x;
@@ -928,20 +921,20 @@ int law_binomial(int n, double p)
   else /* Algorithm BTPE */
   {
     /* Step 0 */
-    const double fm = n * p + p;
-    const int m = (int) fm;
-    const double p1 = floor(2.195 * sqrt(n * p * q) - 4.6 * q) + 0.5;
-    const double xm = m + 0.5;
-    const double xl = xm - p1;
-    const double xr = xm + p1;
-    const double c = 0.134 + 20.5 / (15.3 + m);
-    const double a = (fm - xl) / (fm - xl * p);
-    const double b = (xr - fm) / (xr * q);
+    const double fm      = n * p + p;
+    const int m          = (int)fm;
+    const double p1      = floor(2.195 * sqrt(n * p * q) - 4.6 * q) + 0.5;
+    const double xm      = m + 0.5;
+    const double xl      = xm - p1;
+    const double xr      = xm + p1;
+    const double c       = 0.134 + 20.5 / (15.3 + m);
+    const double a       = (fm - xl) / (fm - xl * p);
+    const double b       = (xr - fm) / (xr * q);
     const double lambdal = a * (1.0 + 0.5 * a);
     const double lambdar = b * (1.0 + 0.5 * b);
-    const double p2 = p1 * (1 + 2 * c);
-    const double p3 = p2 + c / lambdal;
-    const double p4 = p3 + c / lambdar;
+    const double p2      = p1 * (1 + 2 * c);
+    const double p3      = p2 + c / lambdal;
+    const double p4      = p3 + c / lambdar;
     while (1)
     {
       /* Step 1 */
@@ -950,7 +943,7 @@ int law_binomial(int n, double p)
       double u = law_uniform(0., 1.);
       double v = law_uniform(0., 1.);
       u *= p4;
-      if (u <= p1) return (int) (xm - p1 * v + u);
+      if (u <= p1) return (int)(xm - p1 * v + u);
       /* Step 2 */
       if (u > p2)
       {
@@ -958,14 +951,14 @@ int law_binomial(int n, double p)
         if (u > p3)
         {
           /* Step 4 */
-          y = (int) (xr - log(v) / lambdar);
+          y = (int)(xr - log(v) / lambdar);
           if (y > n) continue;
           /* Go to step 5 */
           v = v * (u - p3) * lambdar;
         }
         else
         {
-          y = (int) (xl + log(v) / lambdal);
+          y = (int)(xl + log(v) / lambdal);
           if (y < 0) continue;
           /* Go to step 5 */
           v = v * (u - p2) * lambdal;
@@ -974,10 +967,10 @@ int law_binomial(int n, double p)
       else
       {
         const double x = xl + (u - p1) / c;
-        v = v * c + 1.0 - fabs(m - x + 0.5) / p1;
+        v              = v * c + 1.0 - fabs(m - x + 0.5) / p1;
         if (v > 1) continue;
         /* Go to step 5 */
-        y = (int) x;
+        y = (int)x;
       }
       /* Step 5 */
       /* Step 5.0 */
@@ -985,10 +978,9 @@ int law_binomial(int n, double p)
       if (k > 20 && k < 0.5 * n * p * q - 1.0)
       {
         /* Step 5.2 */
-        double rho = (k / (n * p * q))
-            * ((k * (k / 3.0 + 0.625) + 0.1666666666666) / (n * p * q) + 0.5);
-        double t = -k * k / (2 * n * p * q);
-        double A = log(v);
+        double rho = (k / (n * p * q)) * ((k * (k / 3.0 + 0.625) + 0.1666666666666) / (n * p * q) + 0.5);
+        double t   = -k * k / (2 * n * p * q);
+        double A   = log(v);
         if (A < t - rho) return y;
         if (A > t + rho) continue;
         /* Step 5.3 */
@@ -1019,10 +1011,8 @@ int law_binomial(int n, double p)
       const double s  = p / q;
       const double aa = s * (n + 1);
       double f        = 1.0;
-      for (i = m; i < y; f *= (aa / (++i) - s))
-        ;
-      for (i = y; i < m; f /= (aa / (++i) - s))
-        ;
+      for (i = m; i < y; f *= (aa / (++i) - s));
+      for (i = y; i < m; f /= (aa / (++i) - s));
       if (v > f) continue;
       return y;
     }
@@ -1080,7 +1070,7 @@ VectorDouble law_exp_sample(const double* tabin,
 
   law_set_random_seed(seed);
   nvarin = nvarout = nvar;
-  nvar1 = nvar + 1;
+  nvar1            = nvar + 1;
 
   /* Internal core allocation */
 
@@ -1096,8 +1086,7 @@ VectorDouble law_exp_sample(const double* tabin,
   {
     for (int ivar = 0; ivar < nvarin; ivar++)
     {
-      value = (mode == 1) ? TABIN_BY_COL(iechin, ivar) :
-                            TABIN_BY_LINE(iechin, ivar);
+      value = (mode == 1) ? TABIN_BY_COL(iechin, ivar) : TABIN_BY_LINE(iechin, ivar);
       if (FFFF(value))
       {
         messerr("The sample %d of the Training Data Base", iechin + 1);
@@ -1115,8 +1104,8 @@ VectorDouble law_exp_sample(const double* tabin,
 
   for (int ivar = 0; ivar < nvarin; ivar++)
   {
-    mean[ivar] /= (double) nechin;
-    stdv[ivar] = stdv[ivar] / (double) nechin - mean[ivar] * mean[ivar];
+    mean[ivar] /= (double)nechin;
+    stdv[ivar] = stdv[ivar] / (double)nechin - mean[ivar] * mean[ivar];
     stdv[ivar] = (stdv[ivar] > 0) ? sqrt(stdv[ivar]) : 0.;
     stdv[ivar] *= percent / 100.;
   }
@@ -1138,7 +1127,7 @@ VectorDouble law_exp_sample(const double* tabin,
 
       /* Get the closest experimental sample (the reference) */
 
-      selec = (int) law_uniform(1., (double) nechin);
+      selec            = (int)law_uniform(1., (double)nechin);
       auto placeholder = (selec + 0.5);
       iechin           = (int)placeholder;
       if (iechin < 0) iechin = 0;
@@ -1150,9 +1139,9 @@ VectorDouble law_exp_sample(const double* tabin,
       {
         rab = stdv[ivar] * law_gaussian();
         if (mode == 1)
-          temp[ivar] = TABIN_BY_COL(iechin,ivar) + rab;
+          temp[ivar] = TABIN_BY_COL(iechin, ivar) + rab;
         else
-          temp[ivar] = TABIN_BY_LINE(iechin,ivar) + rab;
+          temp[ivar] = TABIN_BY_LINE(iechin, ivar) + rab;
       }
       temp[nvar] = 1;
 
@@ -1165,7 +1154,7 @@ VectorDouble law_exp_sample(const double* tabin,
         {
           total = 0.;
           for (int ivar1 = 0; ivar1 < nvar1; ivar1++)
-            total += CONSTS(iconst,ivar1) * temp[ivar1];
+            total += CONSTS(iconst, ivar1) * temp[ivar1];
           if (total < 0) flag_ok = 0;
         }
       }
@@ -1177,9 +1166,9 @@ VectorDouble law_exp_sample(const double* tabin,
         for (int ivar = 0; ivar < nvar; ivar++)
         {
           if (mode == 1)
-            TABOUT_BY_COL(iechout,ivar) = temp[ivar];
+            TABOUT_BY_COL(iechout, ivar) = temp[ivar];
           else
-            TABOUT_BY_LINE(iechout,ivar) = temp[ivar];
+            TABOUT_BY_LINE(iechout, ivar) = temp[ivar];
         }
         flag_cont = 0;
       }
@@ -1212,8 +1201,8 @@ int sampleInteger(int mini, int maxi)
 {
   double rmini = mini - 0.5;
   double rmaxi = maxi + 0.5;
-  double rand = law_uniform(rmini, rmaxi);
-  int retval = (rand > 0) ? (int) trunc(rand + 0.5) : (int) -trunc(-rand + 0.5);
+  double rand  = law_uniform(rmini, rmaxi);
+  int retval   = (rand > 0) ? (int)trunc(rand + 0.5) : (int)-trunc(-rand + 0.5);
   return retval;
 }
-}
+} // namespace gstlrn

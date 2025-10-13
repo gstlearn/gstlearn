@@ -12,44 +12,43 @@
 #include "Basic/Law.hpp"
 #include "Db/DbGrid.hpp"
 
-#include <math.h>
+#include <cmath>
 
 namespace gstlrn
 {
 Plane::Plane()
-    : AStringable(),
-      _coor(3),
-      _intercept(0),
-      _value(0.),
-      _rndval(0.)
+  : AStringable()
+  , _coor(3)
+  , _intercept(0)
+  , _value(0.)
+  , _rndval(0.)
 {
 }
 
-Plane::Plane(const Plane &m)
-    : AStringable(m),
-      _coor(m._coor),
-      _intercept(m._intercept),
-      _value(m._value),
-      _rndval(m._rndval)
+Plane::Plane(const Plane& m)
+  : AStringable(m)
+  , _coor(m._coor)
+  , _intercept(m._intercept)
+  , _value(m._value)
+  , _rndval(m._rndval)
 {
 }
 
-Plane& Plane::operator=(const Plane &m)
+Plane& Plane::operator=(const Plane& m)
 {
   if (this != &m)
   {
     AStringable::operator=(m);
-    _coor = m._coor;
+    _coor      = m._coor;
     _intercept = m._intercept;
-    _value = m._value;
-    _rndval = m._rndval;
+    _value     = m._value;
+    _rndval    = m._rndval;
   }
   return *this;
 }
 
 Plane::~Plane()
 {
-
 }
 
 String Plane::toString(const AStringFormat* /*strfmt*/) const
@@ -70,12 +69,12 @@ String Plane::toString(const AStringFormat* /*strfmt*/) const
  ** \remarks  The valuation of each line is assigned a uniform value [0,1]
  **
  *****************************************************************************/
-std::vector<Plane> Plane::poissonPlanesGenerate(DbGrid *dbgrid, int np)
+std::vector<Plane> Plane::poissonPlanesGenerate(DbGrid* dbgrid, int np)
 {
   double ap[3];
 
   VectorDouble center = dbgrid->getCenters();
-  center.resize(3,0.);
+  center.resize(3, 0.);
   double diagonal = dbgrid->getExtensionDiagonal();
   std::vector<Plane> planes;
   planes.resize(np);
@@ -85,7 +84,7 @@ std::vector<Plane> Plane::poissonPlanesGenerate(DbGrid *dbgrid, int np)
   for (int ip = 0; ip < np; ip++)
   {
     double d0 = diagonal * law_uniform(-1., 1.) / 2.;
-    double u = 0.;
+    double u  = 0.;
     for (int idim = 0; idim < 3; idim++)
     {
       ap[idim] = law_gaussian();
@@ -97,7 +96,7 @@ std::vector<Plane> Plane::poissonPlanesGenerate(DbGrid *dbgrid, int np)
       ap[idim] /= u;
     }
     // Check position of the Center (in its OWN space dimension)
-    for (int idim = 0; idim < (int) center.size(); idim++)
+    for (int idim = 0; idim < (int)center.size(); idim++)
     {
       d0 -= ap[idim] * center[idim];
     }
@@ -121,14 +120,14 @@ std::vector<Plane> Plane::poissonPlanesGenerate(DbGrid *dbgrid, int np)
 
 double Plane::getCoor(int idim) const
 {
-  if (idim < (int) _coor.size())
+  if (idim < (int)_coor.size())
     return _coor[idim];
   return 0.;
 }
 
 void Plane::setCoor(int idim, double value)
 {
-  if (idim < (int) _coor.size())
+  if (idim < (int)_coor.size())
     _coor[idim] = value;
 }
-}
+} // namespace gstlrn

@@ -10,23 +10,23 @@
 /******************************************************************************/
 #pragma once
 
+#include "Basic/AStringable.hpp"
 #include "Basic/SerializeNeutralFile.hpp"
 #include "Enum/EFormatNF.hpp"
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
-#include "Basic/AStringable.hpp"
-
-#include <iostream>
-#include <stdarg.h>
+#include <cstdarg>
 #include <fstream>
+#include <iostream>
 
 namespace H5
 {
-  class Group;
+class Group;
 };
 
-namespace gstlrn{
+namespace gstlrn
+{
 
 class GSTLEARN_EXPORT ASerializable
 {
@@ -78,20 +78,20 @@ protected:
 
   static bool _commentWrite(std::ostream& os,
                             const String& comment);
-  template <typename T>
+  template<typename T>
   static bool _recordWrite(std::ostream& os,
-                            const String& title,
-                            const T& val);
-  template <typename T>
-  static bool _recordWriteVec(std::ostream& os,
-                               const String& title,
-                               const std::vector<T>& vec);
-
-  template <typename T>
-  static bool _recordRead(std::istream& is,
                            const String& title,
-                           T& val);
-  template <typename T>
+                           const T& val);
+  template<typename T>
+  static bool _recordWriteVec(std::ostream& os,
+                              const String& title,
+                              const std::vector<T>& vec);
+
+  template<typename T>
+  static bool _recordRead(std::istream& is,
+                          const String& title,
+                          T& val);
+  template<typename T>
   static bool _recordReadVec(std::istream& is,
                              const String& title,
                              VectorT<T>& vec,
@@ -99,22 +99,22 @@ protected:
 
   template<typename T>
   static bool _recordReadVecInPlace(std::istream& is,
-                             const String& title,
-                             VectorDouble::iterator& it,
-                             int nvalues);
+                                    const String& title,
+                                    VectorDouble::iterator& it,
+                                    int nvalues);
 
-  static bool _tableRead(std::istream &is,
-                         const String &string,
+  static bool _tableRead(std::istream& is,
+                         const String& string,
                          int ntab,
-                         double *tab);
-  static bool _tableWrite(std::ostream &os,
-                          const String &string,
+                         double* tab);
+  static bool _tableWrite(std::ostream& os,
+                          const String& string,
                           int ntab,
-                          const VectorDouble &tab);
+                          const VectorDouble& tab);
 
 private:
   static String _myPrefixName;
-  EFormatNF _defaultFormatNF{EFormatNF::H5};
+  EFormatNF _defaultFormatNF {EFormatNF::H5};
 };
 
 template<typename T>
@@ -154,4 +154,4 @@ bool ASerializable::_recordReadVecInPlace(std::istream& is,
 {
   return SerializeNeutralFile::recordReadVecInPlace<T>(is, title, it, nvalues);
 }
-}
+} // namespace gstlrn

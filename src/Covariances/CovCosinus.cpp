@@ -10,7 +10,8 @@
 /******************************************************************************/
 #include "Covariances/CovCosinus.hpp"
 #include "Covariances/CovContext.hpp"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {
@@ -42,4 +43,4 @@ double CovCosinus::_evaluateCov(double h) const
   double cov = cos(2. * GV_PI * h);
   return (cov);
 }
-}
+} // namespace gstlrn

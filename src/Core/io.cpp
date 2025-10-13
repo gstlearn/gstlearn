@@ -14,9 +14,9 @@
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
 #include "geoslib_io.h"
-#include <math.h>
-#include <stdarg.h>
-#include <string.h>
+#include <cmath>
+#include <cstdarg>
+#include <cstring>
 
 /*! \cond */
 #define OLD 0
@@ -48,7 +48,6 @@ static char* cur = NULL;
 #  define strncasecmp _strnicmp
 #  define strcasecmp  _stricmp
 #endif
-
 
 /****************************************************************************/
 /*!
@@ -1153,4 +1152,4 @@ int _record_read(FILE* file, const char* format, ...)
   return (error);
 }
 
-}
+} // namespace gstlrn

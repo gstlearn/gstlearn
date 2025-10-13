@@ -14,7 +14,8 @@
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Simulation/TurningBandOperate.hpp"
-#include "math.h"
+
+#include <cmath>
 
 namespace gstlrn
 {
@@ -94,4 +95,4 @@ VectorDouble CovExponential::_evaluateSpectrumOnSphere(int n, double scale) cons
 //   return (cov);
 // }
 
-}
+} // namespace gstlrn

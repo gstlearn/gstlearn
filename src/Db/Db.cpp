@@ -35,8 +35,9 @@
 #include "Stats/Classical.hpp"
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
-#include <math.h>
-#include <stdio.h>
+
+#include <cmath>
+#include <cstdio>
 #include <vector>
 
 namespace gstlrn
@@ -5890,4 +5891,4 @@ void Db::dumpGeometry(int iech, int jech) const
   VH::dump("- Angles (deg) = ", angles, false);
 }
 
-}
+} // namespace gstlrn

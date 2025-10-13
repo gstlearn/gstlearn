@@ -9,18 +9,18 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/TurboOptimizer.hpp"
+
 #include <algorithm>
-#include <iostream>
-#include <string>
-#include <math.h>
 #include <cmath>
 #include <iomanip>
+#include <iostream>
+#include <string>
 
 #define GETADR(nrows, irow, icol) ((icol) * (nrows) + (irow))
-#define U(i,j)   (uu[GETADR(TO_ncorner,i,j)])
-#define V(i,j)   (vv[GETADR(TO_ncorner,i,j)])
-#define H(i,j)   (hh[GETADR(TO_ndim,i,j)])
-#define W(i,j)   (ww[GETADR(TO_ndim,i,j)])
+#define U(i, j)                   (uu[GETADR(TO_ncorner, i, j)])
+#define V(i, j)                   (vv[GETADR(TO_ncorner, i, j)])
+#define H(i, j)                   (hh[GETADR(TO_ndim, i, j)])
+#define W(i, j)                   (ww[GETADR(TO_ndim, i, j)])
 
 namespace gstlrn
 {
@@ -56,7 +56,7 @@ TurboOptimizer::TurboOptimizer(int nx,
 {
 }
 
-TurboOptimizer::TurboOptimizer(const TurboOptimizer &tbo)
+TurboOptimizer::TurboOptimizer(const TurboOptimizer& tbo)
   : _isCalculated(tbo._isCalculated)
   , _nx(tbo._nx)
   , _ny(tbo._ny)
@@ -79,29 +79,29 @@ TurboOptimizer::TurboOptimizer(const TurboOptimizer &tbo)
 {
 }
 
-TurboOptimizer& TurboOptimizer::operator=(const TurboOptimizer &tbo)
+TurboOptimizer& TurboOptimizer::operator=(const TurboOptimizer& tbo)
 {
   if (this != &tbo)
   {
     _isCalculated = tbo._isCalculated;
-    _nx = tbo._nx;
-    _ny = tbo._ny;
-    _dx = tbo._dx;
-    _dy = tbo._dy;
-    _x0 = tbo._x0;
-    _y0 = tbo._y0;
-    _scale = tbo._scale;
-    _sill  = tbo._sill;
-    _param = tbo._param;
-    _poncif = tbo._poncif;
-    _center = tbo._center;
-    _nxred = tbo._nxred;
-    _half = tbo._half;
-    _flagOne = tbo._flagOne;
-    _TildeC_T = tbo._TildeC_T;
-    _Lambda_T = tbo._Lambda_T;
-    _S_T = tbo._S_T;
-    _Q_T = tbo._Q_T;
+    _nx           = tbo._nx;
+    _ny           = tbo._ny;
+    _dx           = tbo._dx;
+    _dy           = tbo._dy;
+    _x0           = tbo._x0;
+    _y0           = tbo._y0;
+    _scale        = tbo._scale;
+    _sill         = tbo._sill;
+    _param        = tbo._param;
+    _poncif       = tbo._poncif;
+    _center       = tbo._center;
+    _nxred        = tbo._nxred;
+    _half         = tbo._half;
+    _flagOne      = tbo._flagOne;
+    _TildeC_T     = tbo._TildeC_T;
+    _Lambda_T     = tbo._Lambda_T;
+    _S_T          = tbo._S_T;
+    _Q_T          = tbo._Q_T;
   }
   return *this;
 }
@@ -142,7 +142,7 @@ void TurboOptimizer::setGrid(int nx,
  */
 void TurboOptimizer::setModelByRange(double range, double sill, int param)
 {
-  _sill = sill;
+  _sill  = sill;
   _param = param;
   _scale = _rangeToScale(range); // Performed after setting 'param'
 }
@@ -156,7 +156,7 @@ void TurboOptimizer::setModelByRange(double range, double sill, int param)
 void TurboOptimizer::setModelByScale(double scale, double sill, int param)
 {
   _scale = scale;
-  _sill = sill;
+  _sill  = sill;
   _param = param;
 }
 
@@ -178,26 +178,26 @@ double TurboOptimizer::_rangeToScale(double range) const
 int TurboOptimizer::_getVertex(int imesh, int rank) const
 {
   VectorInt indice(2);
-  int node,icas;
-  _fromMeshToIndex(imesh,&node,&icas);
-  _rankToIndice(node,indice,false);
+  int node, icas;
+  _fromMeshToIndex(imesh, &node, &icas);
+  _rankToIndice(node, indice, false);
   for (int idim = 0; idim < TO_ndim; idim++)
     indice[idim] += _MSS(icas, rank, idim);
   return _indiceToRank(indice);
 }
 
-void TurboOptimizer::_fromMeshToIndex(int imesh, int *node, int *icas) const
+void TurboOptimizer::_fromMeshToIndex(int imesh, int* node, int* icas) const
 {
   VectorInt indice(2);
   int rank = imesh / TO_npercell;
-  _rankToIndice(rank,indice,true);
+  _rankToIndice(rank, indice, true);
   *icas = imesh - rank * TO_npercell;
   *node = _indiceToRank(indice);
 }
 
 int TurboOptimizer::_MSS(int icas, int icorn, int idim0)
 {
-  static int S2D[2][3][2] = {{{0,0}, {1,0}, {0,1}}, {{0,1}, {1,0}, {1,1}}};
+  static int S2D[2][3][2] = {{{0, 0}, {1, 0}, {0, 1}}, {{0, 1}, {1, 0}, {1, 1}}};
   return S2D[icas][icorn][idim0];
 }
 
@@ -205,7 +205,7 @@ void TurboOptimizer::_rankToIndice(int rank, VectorInt& indice, bool minusOne) c
 {
   if ((int)indice.size() < 2)
     my_throw("Argument indice should have the correct size");
-  int nval = minusOne? (_ny - 1) : _ny;
+  int nval  = minusOne ? (_ny - 1) : _ny;
   indice[1] = rank / nval;
   rank -= indice[1] * nval;
   indice[0] = rank;
@@ -231,7 +231,6 @@ double TurboOptimizer::_indiceToCoordinate(int idim0,
   return (_y0 + indice[1] * _dy);
 }
 
-
 double TurboOptimizer::_getCoor(int node, int idim0) const
 {
   VectorInt indice(TO_ndim);
@@ -242,8 +241,8 @@ double TurboOptimizer::_getCoor(int node, int idim0) const
 double TurboOptimizer::_getCoorByMesh(int imesh, int rank, int idim0) const
 {
   VectorInt indice(TO_ndim);
-  int node = _getVertex(imesh,rank);
-  return _getCoor(node,idim0);
+  int node = _getVertex(imesh, rank);
+  return _getCoor(node, idim0);
 }
 
 void TurboOptimizer::_printVector(const std::string& title,
@@ -251,7 +250,7 @@ void TurboOptimizer::_printVector(const std::string& title,
                                   int width,
                                   int ndec)
 {
-  int nval = static_cast<int> (uu.size());
+  int nval = static_cast<int>(uu.size());
   std::cout << title << std::endl;
   for (int i = 0; i < nval; i++)
   {
@@ -273,25 +272,25 @@ void TurboOptimizer::_printMatrix(const std::string& title,
                                   int ndec)
 {
   // Initializations
-  int nbatch = 1 + (ncol-1) / nper_batch;
+  int nbatch = 1 + (ncol - 1) / nper_batch;
 
   // Printout
   std::cout << title << std::endl;
   for (int ibatch = 0; ibatch < nbatch; ibatch++)
   {
     int ncol_min = ibatch * nper_batch;
-    int ncol_max = std::min((ibatch+1) * nper_batch, ncol);
+    int ncol_max = std::min((ibatch + 1) * nper_batch, ncol);
 
     std::cout << "     ";
     for (int icol = ncol_min; icol < ncol_max; icol++)
     {
-      std::cout << std::setw(width-2) << "[," << icol+col_shift+1 << "]";
+      std::cout << std::setw(width - 2) << "[," << icol + col_shift + 1 << "]";
     }
     std::cout << std::endl;
 
     for (int irow = 0; irow < nrow; irow++)
     {
-      std::cout << "[" << std::setw(3) << irow+row_shift+1 << ",]";
+      std::cout << "[" << std::setw(3) << irow + row_shift + 1 << ",]";
       for (int icol = ncol_min; icol < ncol_max; icol++)
       {
         std::cout << " ";
@@ -309,23 +308,23 @@ void TurboOptimizer::_invert_3x3(VectorDouble& uu,
                                  VectorDouble& vv,
                                  double tol)
 {
-  double det00 = U(1,1) * U(2,2) - U(2,1) * U(1,2);
-  double det01 = U(1,0) * U(2,2) - U(2,0) * U(1,2);
-  double det02 = U(1,0) * U(2,1) - U(2,0) * U(1,1);
-  double det   = U(0,0) * det00 - U(0,1) * det01 + U(0,2) * det02;
+  double det00 = U(1, 1) * U(2, 2) - U(2, 1) * U(1, 2);
+  double det01 = U(1, 0) * U(2, 2) - U(2, 0) * U(1, 2);
+  double det02 = U(1, 0) * U(2, 1) - U(2, 0) * U(1, 1);
+  double det   = U(0, 0) * det00 - U(0, 1) * det01 + U(0, 2) * det02;
   double toto  = ABS(det);
   if (toto < tol) my_throw("Matrix is not invertible");
   if (ABS(det) < tol) my_throw("Matrix is not invertible");
 
-  V(0,0) =  (U(1,1) * U(2,2) - U(2,1) * U(1,2)) / det;
-  V(0,1) = -(U(0,1) * U(2,2) - U(2,1) * U(0,2)) / det;
-  V(0,2) =  (U(0,1) * U(1,2) - U(1,1) * U(0,2)) / det;
-  V(1,0) = -(U(1,0) * U(2,2) - U(2,0) * U(1,2)) / det;
-  V(1,1) =  (U(0,0) * U(2,2) - U(2,0) * U(0,2)) / det;
-  V(1,2) = -(U(0,0) * U(1,2) - U(1,0) * U(0,2)) / det;
-  V(2,0) =  (U(1,0) * U(2,1) - U(2,0) * U(1,1)) / det;
-  V(2,1) = -(U(0,0) * U(2,1) - U(2,0) * U(0,1)) / det;
-  V(2,2) =  (U(0,0) * U(1,1) - U(1,0) * U(0,1)) / det;
+  V(0, 0) = (U(1, 1) * U(2, 2) - U(2, 1) * U(1, 2)) / det;
+  V(0, 1) = -(U(0, 1) * U(2, 2) - U(2, 1) * U(0, 2)) / det;
+  V(0, 2) = (U(0, 1) * U(1, 2) - U(1, 1) * U(0, 2)) / det;
+  V(1, 0) = -(U(1, 0) * U(2, 2) - U(2, 0) * U(1, 2)) / det;
+  V(1, 1) = (U(0, 0) * U(2, 2) - U(2, 0) * U(0, 2)) / det;
+  V(1, 2) = -(U(0, 0) * U(1, 2) - U(1, 0) * U(0, 2)) / det;
+  V(2, 0) = (U(1, 0) * U(2, 1) - U(2, 0) * U(1, 1)) / det;
+  V(2, 1) = -(U(0, 0) * U(2, 1) - U(2, 0) * U(0, 1)) / det;
+  V(2, 2) = (U(0, 0) * U(1, 1) - U(1, 0) * U(0, 1)) / det;
 }
 
 /**
@@ -345,15 +344,15 @@ void TurboOptimizer::_prodMatrix(int size,
     {
       double value = 0.;
       for (int k = 0; k < size; k++)
-        value += aa[GETADR(size,i,k)] * bb[GETADR(size,k,j)];
-      cc[GETADR(size,i,j)] = value;
+        value += aa[GETADR(size, i, k)] * bb[GETADR(size, k, j)];
+      cc[GETADR(size, i, j)] = value;
     }
 }
 
 void TurboOptimizer::_prodMatrixVector(int size,
-                                       const VectorDouble &aa,
-                                       const VectorDouble &bb,
-                                       VectorDouble &cc)
+                                       const VectorDouble& aa,
+                                       const VectorDouble& bb,
+                                       VectorDouble& cc)
 {
   for (int i = 0; i < size; i++)
   {
@@ -367,11 +366,11 @@ void TurboOptimizer::_prodMatrixVector(int size,
 VectorDouble TurboOptimizer::_buildS(const VectorDouble& TildeC) const
 {
   int nvertex_red = _getNVertices_red();
-  VectorDouble ss(nvertex_red*nvertex_red,0.);
-  VectorDouble hh(TO_ndim    * TO_ndim);
+  VectorDouble ss(nvertex_red * nvertex_red, 0.);
+  VectorDouble hh(TO_ndim * TO_ndim);
   VectorDouble uu(TO_ncorner * TO_ncorner);
   VectorDouble vv(TO_ncorner * TO_ncorner);
-  VectorDouble ww(TO_ndim    * TO_ncorner);
+  VectorDouble ww(TO_ndim * TO_ncorner);
 
   // Load the matrix HH which accounts for the Model
 
@@ -385,17 +384,17 @@ VectorDouble TurboOptimizer::_buildS(const VectorDouble& TildeC) const
     {
       // Filling the 3x3 matrix
       for (int idim = 0; idim < TO_ndim; idim++)
-        V(idim,icorn) = _getCoorByMesh(imesh, icorn, idim);
-      V(TO_ndim,icorn) = 1.;
+        V(idim, icorn) = _getCoorByMesh(imesh, icorn, idim);
+      V(TO_ndim, icorn) = 1.;
     }
 
     // Inverting matrix
     _invert_3x3(vv, uu);
 
-      // Transposing and compressing the matrix
+    // Transposing and compressing the matrix
     for (int icorn = 0; icorn < TO_ncorner; icorn++)
       for (int idim = 0; idim < TO_ndim; idim++)
-        W(idim,icorn) = U(icorn,idim);
+        W(idim, icorn) = U(icorn, idim);
 
     for (int irow = 0; irow < TO_ncorner; irow++)
       for (int icol = 0; icol < TO_ncorner; icol++)
@@ -403,18 +402,18 @@ VectorDouble TurboOptimizer::_buildS(const VectorDouble& TildeC) const
         double value = 0.;
         for (int k = 0; k < TO_ndim; k++)
           for (int l = 0; l < TO_ndim; l++)
-            value += W(k,irow) * H(k,l) * W(l,icol);
+            value += W(k, irow) * H(k, l) * W(l, icol);
 
         int ip1 = _getVertex(imesh, irow);
         int ip2 = _getVertex(imesh, icol);
-        ss[GETADR(nvertex_red,ip1,ip2)] += _getMeshSize() * value;
+        ss[GETADR(nvertex_red, ip1, ip2)] += _getMeshSize() * value;
       }
   }
 
   // Normalize S matrix by TildeC
   for (int ip = 0; ip < nvertex_red; ip++)
     for (int jp = 0; jp < nvertex_red; jp++)
-      ss[GETADR(nvertex_red,ip,jp)] /= sqrt(TildeC[ip] * TildeC[jp]);
+      ss[GETADR(nvertex_red, ip, jp)] /= sqrt(TildeC[ip] * TildeC[jp]);
 
   return ss;
 }
@@ -429,7 +428,7 @@ int TurboOptimizer::_determineInternalGrid(bool verbose)
 
   if (verbose)
   {
-    std::cout << "Internal Grid Determination"<< std::endl;
+    std::cout << "Internal Grid Determination" << std::endl;
     std::cout << "- Matérn parameter = " << _param << std::endl;
     std::cout << "- Dimension of Internal Square Grid = " << _nxred << std::endl;
   }
@@ -437,7 +436,7 @@ int TurboOptimizer::_determineInternalGrid(bool verbose)
   if (_nx < _nxred || _ny < _nxred)
   {
     std::cout << "The output grid must be larger than the internal one ("
-        << _nxred << ")" << std::endl;
+              << _nxred << ")" << std::endl;
     return 1;
   }
   return 0;
@@ -456,48 +455,48 @@ void TurboOptimizer::run(bool verbose)
 
   // Modify the Grid dimension to the Template one
   if (_determineInternalGrid(verbose)) my_throw("Incompatible Grid sizes");
-  _nx = _nxred;
-  _ny = _nxred;
+  _nx             = _nxred;
+  _ny             = _nxred;
   int nvertex_red = _getNVertices();
 
   if (verbose)
     std::cout << "Scale = " << _scale << std::endl;
 
   _Blin = _buildBlin();
-  if (verbose) _printVector("Template Blin Vector",_Blin);
+  if (verbose) _printVector("Template Blin Vector", _Blin);
 
   // Build TildeC template vector
   _TildeC_T = _buildTildeC();
-  if (verbose) _printVector("Template TildeC Vector",_TildeC_T);
+  if (verbose) _printVector("Template TildeC Vector", _TildeC_T);
 
   // Build Lambda template vector
   _Lambda_T = _buildLambda(_TildeC_T);
-  if (verbose) _printVector("Template Lambda Vector",_Lambda_T);
+  if (verbose) _printVector("Template Lambda Vector", _Lambda_T);
 
   // Build S template matrix
   _S_T = _buildS(_TildeC_T);
-  if (verbose) _printMatrix("Template S Matrix",nvertex_red,nvertex_red,_S_T,7);
+  if (verbose) _printMatrix("Template S Matrix", nvertex_red, nvertex_red, _S_T, 7);
 
   // Build Q matrix
   _Q_T = _buildQ(_S_T, _Blin, _Lambda_T);
-  if (verbose) _printMatrix("Template Q Matrix",nvertex_red,nvertex_red,_Q_T,6);
+  if (verbose) _printMatrix("Template Q Matrix", nvertex_red, nvertex_red, _Q_T, 6);
 
   // Restore the initial Grid dimensions
-  _nx = nx_memo;
-  _ny = ny_memo;
+  _nx           = nx_memo;
+  _ny           = ny_memo;
   _isCalculated = true;
 }
 
 VectorDouble TurboOptimizer::_buildTildeC() const
 {
   int nvertex = _getNVertices();
-  VectorDouble TildeC(nvertex,0.);
+  VectorDouble TildeC(nvertex, 0.);
 
   /* Loop on the meshes */
 
-  for (int imesh=0; imesh<_getNMeshes(); imesh++)
+  for (int imesh = 0; imesh < _getNMeshes(); imesh++)
   {
-    for (int icorn=0; icorn<TO_ncorner; icorn++)
+    for (int icorn = 0; icorn < TO_ncorner; icorn++)
     {
       int jp = _getVertex(imesh, icorn);
       TildeC[jp] += _getMeshSize();
@@ -506,7 +505,7 @@ VectorDouble TurboOptimizer::_buildTildeC() const
 
   /* Scaling */
 
-  for (int ip=0; ip<nvertex; ip++)
+  for (int ip = 0; ip < nvertex; ip++)
     TildeC[ip] /= TO_ncorner;
 
   return TildeC;
@@ -515,7 +514,7 @@ VectorDouble TurboOptimizer::_buildTildeC() const
 VectorDouble TurboOptimizer::_buildLambda(const VectorDouble& TildeC) const
 {
   int nvertex = _getNVertices();
-  VectorDouble Lambda(nvertex,0);
+  VectorDouble Lambda(nvertex, 0);
   double value = _scale * _scale;
   for (int ip = 0; ip < _getNVertices(); ip++)
     Lambda[ip] = sqrt(TildeC[ip] / (value * _sill));
@@ -528,19 +527,19 @@ VectorDouble TurboOptimizer::_buildBlin() const
   double PI = 3.14159265358979323846;
   double v1, v2;
 
-  int ndims2 = static_cast<int> (TO_ndim / 2.);
-  int p = _param + ndims2;
+  int ndims2 = static_cast<int>(TO_ndim / 2.);
+  int p      = _param + ndims2;
 
   double gammap = 0.;
   for (int i = 1; i < _param; i++)
-    gammap += log((double) i);
-  gammap = exp(gammap);
+    gammap += log((double)i);
+  gammap        = exp(gammap);
   double gammaa = 0.;
-  for (int i = 1; i< _param + ndims2; i++)
-    gammaa += log((double) i);
+  for (int i = 1; i < _param + ndims2; i++)
+    gammaa += log((double)i);
   gammaa = exp(gammaa);
 
-  double g0 = pow(4. * PI, ndims2);
+  double g0     = pow(4. * PI, ndims2);
   double correc = gammap / (g0 * gammaa);
 
   VectorDouble blin(p + 1, 0.);
@@ -554,7 +553,7 @@ VectorDouble TurboOptimizer::_buildBlin() const
       v2 += log(j + 1);
     }
     double cnp = exp(v1 - v2);
-    blin[i] = cnp * correc;
+    blin[i]    = cnp * correc;
   }
   return blin;
 }
@@ -564,7 +563,7 @@ VectorDouble TurboOptimizer::_buildQ(const VectorDouble& ss,
                                      const VectorDouble& lambda) const
 {
   int nvertex = _getNVertices();
-  int nblin = static_cast<int> (blin.size());
+  int nblin   = static_cast<int>(blin.size());
   VectorDouble qq(nvertex * nvertex, 0.);
   VectorDouble bi(nvertex * nvertex, 0.);
   VectorDouble be(nvertex * nvertex, 0.);
@@ -598,10 +597,10 @@ VectorDouble TurboOptimizer::_buildQ(const VectorDouble& ss,
 void TurboOptimizer::_loadHH(VectorDouble& hh) const
 {
   double value = _scale * _scale;
-  H(0,0) = value;
-  H(0,1) = 0.;
-  H(1,0) = 0.;
-  H(1,1) = value;
+  H(0, 0)      = value;
+  H(0, 1)      = 0.;
+  H(1, 0)      = 0.;
+  H(1, 1)      = value;
 }
 
 /**
@@ -617,9 +616,9 @@ void TurboOptimizer::printClass() const
   std::cout << "X0 = " << _x0 << std::endl;
   std::cout << "Y0 = " << _y0 << std::endl;
   std::cout << std::endl;
-  std::cout << "Model Definition"   << std::endl;
+  std::cout << "Model Definition" << std::endl;
   std::cout << "Scale = " << _scale << std::endl;
-  std::cout << "Sill  = " << _sill  << std::endl;
+  std::cout << "Sill  = " << _sill << std::endl;
   std::cout << "Param = " << _param << std::endl;
   std::cout << "Triplet Numbering starting value = " << _flagOne << std::endl;
 }
@@ -629,23 +628,23 @@ void TurboOptimizer::printClass() const
  */
 void TurboOptimizer::printMeshes() const
 {
-  std::cout << "Number of Meshes   '       = " << _getNMeshes()     << std::endl;
-  std::cout << "Number of Corners per Mesh = " << TO_ncorner      << std::endl;
+  std::cout << "Number of Meshes   '       = " << _getNMeshes() << std::endl;
+  std::cout << "Number of Corners per Mesh = " << TO_ncorner << std::endl;
   std::cout << "Number of Vertices         = " << _getNVertices() << std::endl;
-  std::cout << "Number of Coordinates      = " << TO_ndim         << std::endl;
+  std::cout << "Number of Coordinates      = " << TO_ndim << std::endl;
 
   for (int imesh = 0; imesh < _getNMeshes(); imesh++)
   {
-    std::cout << "Mesh #" << imesh+1 << " : ";
+    std::cout << "Mesh #" << imesh + 1 << " : ";
     for (int ic = 0; ic < TO_ncorner; ic++)
       std::cout << _getVertex(imesh, ic) << " ";
     std::cout << std::endl;
   }
-  std::cout<<std::endl;
+  std::cout << std::endl;
 
   for (int node = 0; node < _getNVertices(); node++)
   {
-    std::cout << "Vertex #" << node+1 << " : ";
+    std::cout << "Vertex #" << node + 1 << " : ";
     for (int idim = 0; idim < TO_ndim; idim++)
       std::cout << _getCoor(node, idim) << " ";
     std::cout << std::endl;
@@ -671,10 +670,10 @@ void TurboOptimizer::_getRankInTemplate(VectorInt& indice1,
 {
   int decalx = indice2[0] - indice1[0];
   int decaly = indice2[1] - indice1[1];
-  _updateMargin(0,indice1);
-  _updateMargin(1,indice1);
-  _updateMargin(0,indice2);
-  _updateMargin(1,indice2);
+  _updateMargin(0, indice1);
+  _updateMargin(1, indice1);
+  _updateMargin(0, indice2);
+  _updateMargin(1, indice2);
   indice2[0] = indice1[0] + decalx;
   indice2[1] = indice1[1] + decaly;
 }
@@ -682,21 +681,21 @@ void TurboOptimizer::_getRankInTemplate(VectorInt& indice1,
 VectorDouble TurboOptimizer::_getVectorFromTemplate(const VectorDouble& vecin) const
 {
   int nvertex = _getNVertices();
-  VectorDouble vecout(nvertex,0.);
-  if (! _isCalculated)
+  VectorDouble vecout(nvertex, 0.);
+  if (!_isCalculated)
     my_throw("You must use the method 'run' beforehand");
 
-  VectorInt indice(TO_ndim,0);
+  VectorInt indice(TO_ndim, 0);
 
-  for (int ix = 0; ix< _nx; ix++)
+  for (int ix = 0; ix < _nx; ix++)
     for (int iy = 0; iy < _ny; iy++)
     {
       indice[0] = ix;
       indice[1] = iy;
-      int ecr = _indiceToRank(indice);
-      _updateMargin(0,indice);
-      _updateMargin(1,indice);
-      int lec = _indiceToRank(indice, false);
+      int ecr   = _indiceToRank(indice);
+      _updateMargin(0, indice);
+      _updateMargin(1, indice);
+      int lec     = _indiceToRank(indice, false);
       vecout[ecr] = vecin[lec];
     }
   return vecout;
@@ -705,8 +704,8 @@ VectorDouble TurboOptimizer::_getVectorFromTemplate(const VectorDouble& vecin) c
 TripletND TurboOptimizer::_getMatrixFromTemplate(const VectorDouble& matin,
                                                  int nperline) const
 {
-  VectorInt indice1(TO_ndim,0);
-  VectorInt indice2(TO_ndim,0);
+  VectorInt indice1(TO_ndim, 0);
+  VectorInt indice2(TO_ndim, 0);
 
   // Pre-dimensioning of TripletND structure (to avoid iterative concatenations
   // Trying to guess the number of non-zero terms in matrices
@@ -716,7 +715,7 @@ TripletND TurboOptimizer::_getMatrixFromTemplate(const VectorDouble& matin,
   triplet.rows.resize(estimated_size);
   triplet.cols.resize(estimated_size);
   triplet.values.resize(estimated_size);
-  if (! _isCalculated)
+  if (!_isCalculated)
     my_throw("You must use the method 'run' beforehand");
 
   // Loop on the vertices (first point)
@@ -728,9 +727,9 @@ TripletND TurboOptimizer::_getMatrixFromTemplate(const VectorDouble& matin,
 
       // Loop on the vertices (second point)
 
-      int ix2min = MAX(0,   ix1 - _poncif);
+      int ix2min = MAX(0, ix1 - _poncif);
       int ix2max = MIN(_nx, ix1 + _poncif);
-      int iy2min = MAX(0,   iy1 - _poncif);
+      int iy2min = MAX(0, iy1 - _poncif);
       int iy2max = MIN(_ny, iy1 + _poncif);
 
       for (int iy2 = iy2min; iy2 < iy2max; iy2++)
@@ -745,13 +744,13 @@ TripletND TurboOptimizer::_getMatrixFromTemplate(const VectorDouble& matin,
           indice1[1] = iy1;
           indice2[0] = ix2;
           indice2[1] = iy2;
-          int ecr1 = _indiceToRank(indice1, true);
-          int ecr2 = _indiceToRank(indice2, true);
+          int ecr1   = _indiceToRank(indice1, true);
+          int ecr2   = _indiceToRank(indice2, true);
           _getRankInTemplate(indice1, indice2);
           int lec1 = _indiceToRank(indice1, false);
           int lec2 = _indiceToRank(indice2, false);
 
-          double value = matin[GETADR(_getNVertices_red(),lec1,lec2)];
+          double value = matin[GETADR(_getNVertices_red(), lec1, lec2)];
           if (value != 0.)
           {
             triplet.rows[added_element]   = (ecr1 + _flagOne);
@@ -762,13 +761,13 @@ TripletND TurboOptimizer::_getMatrixFromTemplate(const VectorDouble& matin,
               my_throw("Reconsider the pre-estimation of matrix dimensions");
           }
         }
-  }
+    }
 
   // Final resizing
   if (estimated_size != added_element)
   {
-    triplet.rows.resize  (added_element);
-    triplet.cols.resize  (added_element);
+    triplet.rows.resize(added_element);
+    triplet.cols.resize(added_element);
     triplet.values.resize(added_element);
   }
   return triplet;
@@ -780,7 +779,7 @@ TripletND TurboOptimizer::_getMatrixFromTemplate(const VectorDouble& matin,
  */
 VectorDouble TurboOptimizer::getBlin() const
 {
-  if (! _isCalculated)
+  if (!_isCalculated)
     my_throw("You must use the method 'run' beforehand");
   return _Blin;
 }
@@ -820,7 +819,7 @@ TripletND TurboOptimizer::getS() const
  */
 TripletND TurboOptimizer::getQ() const
 {
-  int nbp1 = static_cast<int> (_Blin.size()) - 1;
+  int nbp1     = static_cast<int>(_Blin.size()) - 1;
   int nperline = 4 * nbp1 * nbp1;
   return _getMatrixFromTemplate(_Q_T, nperline);
 }
@@ -831,10 +830,10 @@ int TurboOptimizer::_coordinateToIndice(double x,
 {
   if ((int)indice.size() < 2)
     my_throw("Argument indice should have the correct size");
-  int ix = (int) floor((x - _x0) / _dx);
+  int ix = (int)floor((x - _x0) / _dx);
   if (ix < 0 || ix >= _nx) return 1;
   indice[0] = ix;
-  int iy = (int) floor((y - _y0) / _dy);
+  int iy    = (int)floor((y - _y0) / _dy);
   if (iy < 0 || iy >= _ny) return 1;
   indice[1] = iy;
   return 0;
@@ -850,21 +849,21 @@ int TurboOptimizer::_addWeights(int icas,
   VectorDouble lhs(TO_ncorner * TO_ncorner);
   VectorDouble lhsinv(TO_ncorner * TO_ncorner);
   VectorDouble rhs(TO_ncorner);
-  VectorInt    indgg(2);
+  VectorInt indgg(2);
 
-  for (int icorner=0; icorner<TO_ncorner; icorner++)
+  for (int icorner = 0; icorner < TO_ncorner; icorner++)
   {
     // Generate the indices of the mesh apex
-    for (int idim=0; idim<TO_ndim; idim++)
-      indgg[idim] = indg0[idim] + _MSS(icas,icorner,idim);
+    for (int idim = 0; idim < TO_ndim; idim++)
+      indgg[idim] = indg0[idim] + _MSS(icas, icorner, idim);
     if (indgg[0] < 0 || indgg[0] >= _nx) return 1;
     if (indgg[1] < 0 || indgg[1] >= _ny) return 1;
     indices[icorner] = _indiceToRank(indgg);
 
     // Update the LHS matrix
-    for (int idim=0; idim<TO_ndim; idim++)
-      lhs[GETADR(TO_ncorner,idim,icorner)] = _indiceToCoordinate(idim,indgg);
-    lhs[GETADR(TO_ncorner,TO_ndim,icorner)] = 1.;
+    for (int idim = 0; idim < TO_ndim; idim++)
+      lhs[GETADR(TO_ncorner, idim, icorner)] = _indiceToCoordinate(idim, indgg);
+    lhs[GETADR(TO_ncorner, TO_ndim, icorner)] = 1.;
   }
 
   // Generate the right-hand side
@@ -873,10 +872,10 @@ int TurboOptimizer::_addWeights(int icas,
   rhs[2] = 1.;
 
   // Invert the matrix
-  _invert_3x3(lhs,lhsinv);
+  _invert_3x3(lhs, lhsinv);
 
   // Calculate the weights
-  _prodMatrixVector(TO_ncorner,lhsinv,rhs,lambda);
+  _prodMatrixVector(TO_ncorner, lhsinv, rhs, lambda);
 
   // Check that all weights are positive
   for (int idim = 0; idim < TO_ndim; idim++)
@@ -901,28 +900,28 @@ TripletND TurboOptimizer::interpolate(const VectorDouble& x,
   VectorInt indg0(2);
   VectorInt indices(TO_ncorner);
   VectorDouble lambda(TO_ncorner);
-  int nech = static_cast<int> (x.size());
+  int nech = static_cast<int>(x.size());
 
   // Pre-allocate the triplet structure
 
   TripletND triplet;
   int size = TO_ncorner * nech;
-  triplet.rows.resize(size,-1);
-  triplet.cols.resize(size,-1);
-  triplet.values.resize(size,0.);
+  triplet.rows.resize(size, -1);
+  triplet.cols.resize(size, -1);
+  triplet.values.resize(size, 0.);
 
   /* Loop on the samples */
 
   int ecr = 0;
-  for (int iech=0; iech<nech; iech++)
+  for (int iech = 0; iech < nech; iech++)
   {
 
     /* Calculate the grid indices */
 
-    if (_coordinateToIndice(x[iech],y[iech],indg0) == 0)
+    if (_coordinateToIndice(x[iech], y[iech], indg0) == 0)
     {
 
-    /* Loop on the different meshes constituting the cell */
+      /* Loop on the different meshes constituting the cell */
 
       int found = -1;
       for (int icas = 0; icas < TO_npercell && found < 0; icas++)
@@ -963,7 +962,7 @@ VectorDouble TurboOptimizer::_expandTripletToMatrix(int row_begin,
   int nrows = row_end - row_begin + 1;
   int ncols = col_end - col_begin + 1;
   VectorDouble mat(nrows * ncols, 0.);
-  int size = static_cast<int> (triplet.rows.size());
+  int size = static_cast<int>(triplet.rows.size());
 
   for (int i = 0; i < size; i++)
   {
@@ -984,16 +983,16 @@ void TurboOptimizer::printS(int nper_batch,
 {
   // Convert from IHM to internal numbering
   if (row_begin > 0) row_begin--;
-  if (row_end   > 0) row_end--;
+  if (row_end > 0) row_end--;
   if (col_begin > 0) col_begin--;
-  if (col_end   > 0) col_end--;
+  if (col_end > 0) col_end--;
   if (row_end <= 0 || row_end >= _getNVertices()) row_end = _getNVertices() - 1;
   if (col_end <= 0 || col_end >= _getNVertices()) col_end = _getNVertices() - 1;
 
   VectorDouble temp = _expandTripletToMatrix(row_begin, row_end,
-                                                    col_begin, col_end, getS());
-  int nrows = row_end - row_begin + 1;
-  int ncols = col_end - col_begin + 1;
+                                             col_begin, col_end, getS());
+  int nrows         = row_end - row_begin + 1;
+  int ncols         = col_end - col_begin + 1;
   _printMatrix("Matrix S", nrows, ncols, temp, nper_batch, row_begin, col_begin);
 }
 
@@ -1005,17 +1004,16 @@ void TurboOptimizer::printQ(int nper_batch,
 {
   // Convert from IHM to internal numbering
   if (row_begin > 0) row_begin--;
-  if (row_end   > 0) row_end--;
+  if (row_end > 0) row_end--;
   if (col_begin > 0) col_begin--;
-  if (col_end   > 0) col_end--;
+  if (col_end > 0) col_end--;
   if (row_end <= 0 || row_end >= _getNVertices()) row_end = _getNVertices() - 1;
   if (col_end <= 0 || col_end >= _getNVertices()) col_end = _getNVertices() - 1;
 
   VectorDouble temp = _expandTripletToMatrix(row_begin, row_end,
-                                                    col_begin, col_end, getQ());
-  int nrows = row_end - row_begin + 1;
-  int ncols = col_end - col_begin + 1;
+                                             col_begin, col_end, getQ());
+  int nrows         = row_end - row_begin + 1;
+  int ncols         = col_end - col_begin + 1;
   _printMatrix("Matrix Q", nrows, ncols, temp, nper_batch, row_begin, col_begin);
-
 }
-}
+} // namespace gstlrn

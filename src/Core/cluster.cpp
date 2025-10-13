@@ -24,7 +24,7 @@ License: BSD 3-clause
 
 #include "Basic/Law.hpp"
 #include "geoslib_old_f.h"
-#include <limits.h>
+#include <climits>
 
 #define DATA(iech, ivar)  (data[(iech) * nvar + (ivar)])
 #define DATA1(iech, ivar) (data1[(iech) * nvar + (ivar)])

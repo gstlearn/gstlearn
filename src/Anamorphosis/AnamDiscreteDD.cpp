@@ -8,48 +8,48 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/SerializeHDF5.hpp"
+#include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
-#include "Stats/Selectivity.hpp"
 #include "LinearOp/CholeskyDense.hpp"
+#include "Stats/Selectivity.hpp"
+#include "geoslib_old_f.h"
 
-#include <math.h>
+#include <cmath>
 
-#define EIGVEC(i,j)      eigvec[(i)*nclass+(j)]
-#define CHI(i,j)         chi[(i)*nclass+(j)]
-#define C_S(i,j)         c_s[(i)*nclass+(j)]
+#define EIGVEC(i, j) eigvec[(i) * nclass + (j)]
+#define CHI(i, j)    chi[(i) * nclass + (j)]
+#define C_S(i, j)    c_s[(i) * nclass + (j)]
 
 namespace gstlrn
 {
 AnamDiscreteDD::AnamDiscreteDD(double mu, double scoef)
-    : AnamDiscrete(),
-      _mu(mu),
-      _sCoef(scoef),
-      _maf(),
-      _i2Chi()
+  : AnamDiscrete()
+  , _mu(mu)
+  , _sCoef(scoef)
+  , _maf()
+  , _i2Chi()
 {
 }
 
-AnamDiscreteDD::AnamDiscreteDD(const AnamDiscreteDD &m)
-    : AnamDiscrete(m),
-      _mu(m._mu),
-      _sCoef(m._sCoef),
-      _maf(m._maf),
-      _i2Chi(m._i2Chi)
+AnamDiscreteDD::AnamDiscreteDD(const AnamDiscreteDD& m)
+  : AnamDiscrete(m)
+  , _mu(m._mu)
+  , _sCoef(m._sCoef)
+  , _maf(m._maf)
+  , _i2Chi(m._i2Chi)
 {
 }
 
-AnamDiscreteDD& AnamDiscreteDD::operator=(const AnamDiscreteDD &m)
+AnamDiscreteDD& AnamDiscreteDD::operator=(const AnamDiscreteDD& m)
 {
   if (this != &m)
   {
     AnamDiscrete::operator=(m);
-    _mu = m._mu;
+    _mu    = m._mu;
     _sCoef = m._sCoef;
-    _maf = m._maf;
+    _maf   = m._maf;
     _i2Chi = m._i2Chi;
   }
   return *this;
@@ -57,7 +57,6 @@ AnamDiscreteDD& AnamDiscreteDD::operator=(const AnamDiscreteDD &m)
 
 AnamDiscreteDD::~AnamDiscreteDD()
 {
-
 }
 
 AnamDiscreteDD* AnamDiscreteDD::createFromNF(const String& NFFilename, bool verbose)
@@ -76,10 +75,10 @@ AnamDiscreteDD* AnamDiscreteDD::create(double mu, double scoef)
 void AnamDiscreteDD::reset(int ncut,
                            double scoef,
                            double mu,
-                           const VectorDouble &zcut,
-                           const MatrixSquare &pcaz2f,
-                           const MatrixSquare &pcaf2z,
-                           const VectorDouble &stats)
+                           const VectorDouble& zcut,
+                           const MatrixSquare& pcaz2f,
+                           const MatrixSquare& pcaf2z,
+                           const VectorDouble& stats)
 {
   setNCut(ncut);
   setZCut(zcut);
@@ -100,7 +99,7 @@ String AnamDiscreteDD::toString(const AStringFormat* strfmt) const
 
   sstr << AnamDiscrete::toString(strfmt);
 
-  if (! _isFitted()) return sstr.str();
+  if (!_isFitted()) return sstr.str();
 
   if (_sCoef != 0.)
   {
@@ -123,15 +122,15 @@ String AnamDiscreteDD::toString(const AStringFormat* strfmt) const
 
 void AnamDiscreteDD::calculateMeanAndVariance()
 {
-  double var,mean;
+  double var, mean;
 
   mean = var = 0.;
-  for (int iclass=0; iclass<getNClass(); iclass++)
+  for (int iclass = 0; iclass < getNClass(); iclass++)
   {
-    double prop  = getDDStatProp(iclass);
-    double zval  = getDDStatZmoy(iclass);
+    double prop = getDDStatProp(iclass);
+    double zval = getDDStatZmoy(iclass);
     mean += zval * prop;
-    var  += zval * zval * prop;
+    var += zval * zval * prop;
   }
   var -= mean * mean;
   setMean(mean);
@@ -143,11 +142,11 @@ int AnamDiscreteDD::fitFromArray(const VectorDouble& tab,
 {
   VectorDouble chi;
 
-  int nech = static_cast<int> (tab.size());
+  int nech = static_cast<int>(tab.size());
 
   // Calculate statistics on data
 
-  _stats(nech,tab);
+  _stats(nech, tab);
 
   // Modeling the diffusion process
 
@@ -168,29 +167,29 @@ int AnamDiscreteDD::fitFromArray(const VectorDouble& tab,
 
 int AnamDiscreteDD::_stats(int nech, const VectorDouble& tab)
 {
-  double zmin,zmax;
+  double zmin, zmax;
   int nclass = getNClass();
 
   /* Reset the statistics */
 
-  for (int iclass=0; iclass<nclass; iclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
   {
-    setDDStatProp(iclass,0.);
-    setDDStatZmoy(iclass,0.);
+    setDDStatProp(iclass, 0.);
+    setDDStatZmoy(iclass, 0.);
   }
 
   /* Loop on the samples */
 
   int nactive = 0;
-  for (int iech=0; iech<nech; iech++)
+  for (int iech = 0; iech < nech; iech++)
   {
     if (FFFF(tab[iech])) continue;
     nactive++;
-    for (int iclass=0; iclass<nclass; iclass++)
+    for (int iclass = 0; iclass < nclass; iclass++)
     {
-      zmin = (iclass ==        0) ? 0     : getZCut(iclass-1);
-      zmax = (iclass == nclass-1) ? MAXIMUM_BIG : getZCut(iclass);
-      if (tab[iech] <  zmin || tab[iech] >= zmax) continue;
+      zmin = (iclass == 0) ? 0 : getZCut(iclass - 1);
+      zmax = (iclass == nclass - 1) ? MAXIMUM_BIG : getZCut(iclass);
+      if (tab[iech] < zmin || tab[iech] >= zmax) continue;
       setDDStatProp(iclass, getDDStatProp(iclass) + 1.);
       setDDStatZmoy(iclass, getDDStatZmoy(iclass) + tab[iech]);
     }
@@ -198,14 +197,14 @@ int AnamDiscreteDD::_stats(int nech, const VectorDouble& tab)
   if (nactive <= 0)
   {
     messerr("No active sample");
-    return(1);
+    return (1);
   }
   for (int iclass = 0; iclass < nclass; iclass++)
   {
     setDDStatZmoy(iclass, getDDStatZmoy(iclass) / getDDStatProp(iclass));
     setDDStatProp(iclass, getDDStatProp(iclass) / nactive);
   }
-  return(0);
+  return (0);
 }
 
 VectorDouble AnamDiscreteDD::factors_exp(bool verbose)
@@ -231,40 +230,40 @@ VectorDouble AnamDiscreteDD::factors_exp(bool verbose)
 
   /* Calculate the array 'F1' (based on the first MAF) */
 
-  for (int iclass=0; iclass<nclass; iclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
     f1[iclass] = maf[iclass] / maf[0];
 
   /* Establish the tri-diagonal matrix */
 
-  for (int iclass=0; iclass<nclass; iclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
   {
     veca[iclass] = vecb[iclass] = vecc[iclass] = 0.;
-    if (iclass < nclass-1)
+    if (iclass < nclass - 1)
     {
-      for (int jclass=0; jclass<=iclass; jclass++)
+      for (int jclass = 0; jclass <= iclass; jclass++)
         veca[iclass] -= getDDStatProp(jclass) * f1[jclass];
-      veca[iclass] /= getDDStatProp(iclass) * (f1[iclass+1] - f1[iclass]);
+      veca[iclass] /= getDDStatProp(iclass) * (f1[iclass + 1] - f1[iclass]);
     }
     if (iclass > 0)
       vecb[iclass] =
-        veca[iclass-1] * getDDStatProp(iclass-1) / getDDStatProp(iclass);
+        veca[iclass - 1] * getDDStatProp(iclass - 1) / getDDStatProp(iclass);
     vecc[iclass] = -(veca[iclass] + vecb[iclass]);
   }
 
   /* Calculate the infinitesimal generator */
 
-  chi = _generator(vecc,veca,vecb,eigvec,eigval);
+  chi = _generator(vecc, veca, vecb, eigvec, eigval);
   if (chi.empty()) return chi;
 
   /* Calculate the lambda vector from eigen values */
 
-  for (int iclass=0; iclass<nclass; iclass++)
-    setDDStatLambda(iclass,-eigval[iclass]);
+  for (int iclass = 0; iclass < nclass; iclass++)
+    setDDStatLambda(iclass, -eigval[iclass]);
   lambda.resize(nclass);
-  for (int iclass=0; iclass<nclass; iclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
     lambda[iclass] = getDDStatLambda(iclass);
   VH::sortInPlace(lambda);
-  for (int iclass=0; iclass<nclass; iclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
     setDDStatLambda(iclass, lambda[iclass]);
   setDDStatLambda(0, 0.);
   setDDStatLambda(1, 1.);
@@ -275,30 +274,30 @@ VectorDouble AnamDiscreteDD::factors_exp(bool verbose)
 
   /* Calculate the spectrum weighting function */
 
-  for (int iclass=0; iclass<nclass; iclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
   {
     double sum = 0.;
-    for (int jclass=0; jclass<nclass; jclass++)
+    for (int jclass = 0; jclass < nclass; jclass++)
       sum += getDDStatProp(jclass) *
-        EIGVEC(iclass,jclass) * EIGVEC(iclass,jclass);
+             EIGVEC(iclass, jclass) * EIGVEC(iclass, jclass);
     setDDStatU(iclass, getDDStatProp(0) / sum);
   }
 
   /* Calculate the array of point C_i (normalized polynomials) */
 
-  for (int iclass=0; iclass<nclass; iclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
   {
     double value = 0.;
-    for (int jclass=0; jclass<nclass; jclass++)
+    for (int jclass = 0; jclass < nclass; jclass++)
       value += getDDStatZmoy(jclass) * getDDStatProp(jclass) *
-        CHI(iclass,jclass);
+               CHI(iclass, jclass);
     setDDStatCnorm(iclass, value);
   }
 
   /* Verbose option */
 
   if (verbose)
-    print_matrix("Factors",0,1,nclass,nclass,NULL,chi.data());
+    print_matrix("Factors", 0, 1, nclass, nclass, NULL, chi.data());
 
   return chi;
 }
@@ -311,26 +310,26 @@ VectorDouble AnamDiscreteDD::factors_maf(bool verbose)
 
   /* Core allocation */
 
-  maf.resize(nclass * nclass,0);
-  tab.resize(nclass * nclass,0);
+  maf.resize(nclass * nclass, 0);
+  tab.resize(nclass * nclass, 0);
 
   /* Calculate the experimental MAF array */
 
   int ecr = 0;
-  for (int icut=0; icut<ncut; icut++)
-    for (int iclass=0; iclass<nclass; iclass++,ecr++)
+  for (int icut = 0; icut < ncut; icut++)
+    for (int iclass = 0; iclass < nclass; iclass++, ecr++)
     {
-      double bval = (iclass >=     icut) ? 1 : 0;
-      double cval = (iclass >= (icut+1)) ? 1 : 0;
+      double bval = (iclass >= icut) ? 1 : 0;
+      double cval = (iclass >= (icut + 1)) ? 1 : 0;
       double prop = getDDStatProp(icut);
-      tab[ecr] = ((bval - cval) - prop) / sqrt(prop * (1. - prop));
+      tab[ecr]    = ((bval - cval) - prop) / sqrt(prop * (1. - prop));
     }
-  matrix_product_safe(nclass,ncut,ncut,tab.data(),getPcaZ2Fs().getValues().data(),maf.data());
+  matrix_product_safe(nclass, ncut, ncut, tab.data(), getPcaZ2Fs().getValues().data(), maf.data());
 
   /* Verbose option */
 
   if (verbose)
-    print_matrix("MAF",0,1,ncut,nclass,NULL,maf.data());
+    print_matrix("MAF", 0, 1, ncut, nclass, NULL, maf.data());
 
   return maf;
 }
@@ -344,11 +343,11 @@ VectorDouble AnamDiscreteDD::factors_maf(bool verbose)
  * @param eigval Returned Eigen values
  * @return Calculate the infinitesimal generator
  */
-VectorDouble AnamDiscreteDD::_generator(const VectorDouble &vecc,
-                                        const VectorDouble &veca,
-                                        const VectorDouble &vecb,
-                                        VectorDouble &eigvec,
-                                        VectorDouble &eigval)
+VectorDouble AnamDiscreteDD::_generator(const VectorDouble& vecc,
+                                        const VectorDouble& veca,
+                                        const VectorDouble& vecb,
+                                        VectorDouble& eigvec,
+                                        VectorDouble& eigval)
 {
   VectorDouble hvar, chi;
 
@@ -358,18 +357,18 @@ VectorDouble AnamDiscreteDD::_generator(const VectorDouble &vecc,
 
   /* Preliminary checks */
 
-  for (int iclass=0; iclass<nclass; iclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
   {
     if (veca[iclass] < 0)
     {
       messerr("Diffusion hypothesis invalid: superdiagonal term (class=%d) is not positive",
-              iclass+1);
+              iclass + 1);
       return chi;
     }
     if (vecb[iclass] < 0)
     {
       messerr("Diffusion hypothesis invalid: subdiagonal term (class=%d) is not positive",
-              iclass+1);
+              iclass + 1);
       return chi;
     }
   }
@@ -377,43 +376,42 @@ VectorDouble AnamDiscreteDD::_generator(const VectorDouble &vecc,
   /* Core allocation */
 
   hvar.resize(nclass);
-  chi.resize(nclass * nclass,0);
+  chi.resize(nclass * nclass, 0);
 
   /* Diagonalize the infinitesimal generator */
 
-  matrix_eigen_tridiagonal(vecc.data(),vecb.data(),veca.data(),
-                           nclass,eigvec.data(),eigval.data());
+  matrix_eigen_tridiagonal(vecc.data(), vecb.data(), veca.data(),
+                           nclass, eigvec.data(), eigval.data());
 
   /* Choose to set the Hn(0) = 1 */
 
-  for (int iclass=0; iclass<nclass; iclass++)
-    for (int jclass=nclass-1; jclass>=0; jclass--)
-      EIGVEC(iclass,jclass) /= EIGVEC(iclass,0);
+  for (int iclass = 0; iclass < nclass; iclass++)
+    for (int jclass = nclass - 1; jclass >= 0; jclass--)
+      EIGVEC(iclass, jclass) /= EIGVEC(iclass, 0);
 
   /* Calculate the statistics on the factors */
 
-  for (int iclass=0; iclass<nclass; iclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
   {
     double sum = 0.;
-    for (int jclass=0; jclass<nclass; jclass++)
+    for (int jclass = 0; jclass < nclass; jclass++)
       sum += getDDStatProp(jclass) *
-        EIGVEC(iclass,jclass) * EIGVEC(iclass,jclass);
+             EIGVEC(iclass, jclass) * EIGVEC(iclass, jclass);
     hvar[iclass] = sum;
   }
 
   /* Normalize the factors */
 
-  for (int iclass=0; iclass<nclass; iclass++)
-    for (int jclass=0; jclass<nclass; jclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
+    for (int jclass = 0; jclass < nclass; jclass++)
     {
       if (iclass == 0)
-        CHI(iclass,jclass) = 1.;
+        CHI(iclass, jclass) = 1.;
       else
-        CHI(iclass,jclass) = EIGVEC(iclass,jclass) / sqrt(hvar[iclass]);
+        CHI(iclass, jclass) = EIGVEC(iclass, jclass) / sqrt(hvar[iclass]);
     }
   return chi;
 }
-
 
 void AnamDiscreteDD::_lambdaToMul()
 {
@@ -423,24 +421,24 @@ void AnamDiscreteDD::_lambdaToMul()
 
   /* Loop on the classes */
 
-  for (int iclass=0; iclass<nclass; iclass++)
-    setDDStatMul(iclass, pow(mu / (mu + getDDStatLambda(iclass)),scoef/2.));
+  for (int iclass = 0; iclass < nclass; iclass++)
+    setDDStatMul(iclass, pow(mu / (mu + getDDStatLambda(iclass)), scoef / 2.));
 }
 
 VectorDouble AnamDiscreteDD::z2factor(double z, const VectorInt& ifacs) const
 {
   VectorDouble factors;
-  int nfact = (int) ifacs.size();
-  factors.resize(nfact,0);
+  int nfact = (int)ifacs.size();
+  factors.resize(nfact, 0);
 
   int nclass = getNClass();
-  for (int ifac=0; ifac<nfact; ifac++)
+  for (int ifac = 0; ifac < nfact; ifac++)
   {
     double value = 0.;
-    for (int iclass=0; iclass<nclass; iclass++)
+    for (int iclass = 0; iclass < nclass; iclass++)
     {
-      double zmax   = (iclass == nclass-1) ? MAXIMUM_BIG : getZCut(iclass);
-      value += _i2Chi.getValue(iclass,ifacs[ifac]);
+      double zmax = (iclass == nclass - 1) ? MAXIMUM_BIG : getZCut(iclass);
+      value += _i2Chi.getValue(iclass, ifacs[ifac]);
       if (zmax > z) break;
     }
     factors[ifac] = value;
@@ -454,7 +452,7 @@ VectorDouble AnamDiscreteDD::factors_mod()
   /* Initializations */
 
   int nclass = getNClass();
-  int ntri = nclass * (nclass + 1) / 2;
+  int ntri   = nclass * (nclass + 1) / 2;
 
   /* Core allocation */
 
@@ -473,52 +471,52 @@ VectorDouble AnamDiscreteDD::factors_mod()
 
   /* Calculate the monomials */
 
-  for (int iclass=0; iclass<nclass; iclass++)
-    for (int jclass=0; jclass<nclass; jclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
+    for (int jclass = 0; jclass < nclass; jclass++)
     {
       double value = 0.;
-      for (int ic=0; ic<nclass; ic++)
-        value += getDDStatU(ic) * pow(getDDStatLambda(ic),iclass);
-      ptab.setValue(iclass,jclass,pow(getDDStatLambda(jclass),iclass) / sqrt(value));
+      for (int ic = 0; ic < nclass; ic++)
+        value += getDDStatU(ic) * pow(getDDStatLambda(ic), iclass);
+      ptab.setValue(iclass, jclass, pow(getDDStatLambda(jclass), iclass) / sqrt(value));
     }
 
   /* Covariance of monomials in L2(R,u) */
 
-  for (int iclass=0; iclass<nclass; iclass++)
-    for (int jclass=0; jclass<=iclass; jclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
+    for (int jclass = 0; jclass <= iclass; jclass++)
     {
       double value = 0.;
-      for (int ic=0; ic<nclass; ic++)
-        value += ptab.getValue(iclass,ic) * getDDStatU(ic) * ptab.getValue(jclass,ic);
-      c_s.setValue(iclass,jclass,value);
+      for (int ic = 0; ic < nclass; ic++)
+        value += ptab.getValue(iclass, ic) * getDDStatU(ic) * ptab.getValue(jclass, ic);
+      c_s.setValue(iclass, jclass, value);
     }
 
   if (c_sChol.setMatrix(&c_s)) return VectorDouble();
   VectorDouble tri1 = c_sChol.getLowerTriangle();
   c_sChol.matProductInPlace(2, ptab, q_s);
 
-  for (int jclass=nclass-1; jclass>=0; jclass--)
-    for (int iclass=0; iclass<nclass; iclass++)
-      q_s.setValue(iclass,jclass, q_s.getValue(iclass, jclass) / q_s.getValue(iclass,0));
+  for (int jclass = nclass - 1; jclass >= 0; jclass--)
+    for (int iclass = 0; iclass < nclass; iclass++)
+      q_s.setValue(iclass, jclass, q_s.getValue(iclass, jclass) / q_s.getValue(iclass, 0));
 
   double sum = 0.;
-  for (int iclass=0; iclass<nclass; iclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
   {
     double value = 0.;
-    for (int ic=0; ic<nclass; ic++)
-      value += q_s.getValue(iclass,ic) * getDDStatU(ic) * q_s.getValue(iclass,ic);
+    for (int ic = 0; ic < nclass; ic++)
+      value += q_s.getValue(iclass, ic) * getDDStatU(ic) * q_s.getValue(iclass, ic);
     q2_s[iclass] = value;
     sum += 1. / q2_s[iclass];
   }
 
   /* Derive the Stationary probabilities */
 
-  for (int iclass=0; iclass<nclass; iclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
     setDDStatProp(iclass, (1. / q2_s[iclass]) / sum);
 
   /* Calculation of the diffusion coefficients */
 
-  for (int iclass=0; iclass<nclass-1; iclass++)
+  for (int iclass = 0; iclass < nclass - 1; iclass++)
   {
     double local = 0.;
     for (int ic = 0; ic < nclass; ic++)
@@ -526,10 +524,10 @@ VectorDouble AnamDiscreteDD::factors_mod()
                 getDDStatU(ic) * q_s.getValue(iclass + 1, ic));
     veca[iclass] = local / q2_s[iclass + 1];
   }
-  veca[nclass-1] = 0.;
+  veca[nclass - 1] = 0.;
 
   vecb[0] = 0.;
-  for (int iclass=1; iclass<nclass; iclass++)
+  for (int iclass = 1; iclass < nclass; iclass++)
   {
     double local = 0.;
     for (int ic = 0; ic < nclass; ic++)
@@ -538,24 +536,24 @@ VectorDouble AnamDiscreteDD::factors_mod()
     vecb[iclass] = local / q2_s[iclass - 1];
   }
 
-  for (int iclass=0; iclass<nclass; iclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
     vecc[iclass] = -(veca[iclass] + vecb[iclass]);
 
   /* Calculate the infinitesimal generator */
 
-  return _generator(vecc,veca,vecb,eigvec,eigval);
+  return _generator(vecc, veca, vecb, eigvec, eigval);
 }
 
 /**
  *
  * @param chi Chi Matrix
  * @param mode Type of recovery function
-** \li                  1 : Indicator
-** \li                  2 : Metal quantity
-** \li                  3 : Benefit
+ ** \li                  1 : Indicator
+ ** \li                  2 : Metal quantity
+ ** \li                  3 : Benefit
  * @return Calculate the transition matrix from factor to a recovery item
-**  i.e. Indicator, Metal Quantity or Benefit (according to mode)
-**  (Diffusion Discrete)
+ **  i.e. Indicator, Metal Quantity or Benefit (according to mode)
+ **  (Diffusion Discrete)
  */
 MatrixSquare AnamDiscreteDD::chi2I(const VectorDouble& chi, int mode)
 {
@@ -567,32 +565,31 @@ MatrixSquare AnamDiscreteDD::chi2I(const VectorDouble& chi, int mode)
 
   /* 'mati' contains the matrix of indicators */
 
-  for (int iclass=0; iclass<nclass; iclass++)
-    for (int jclass=0; jclass<nclass; jclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
+    for (int jclass = 0; jclass < nclass; jclass++)
       switch (mode)
       {
         case 1:
-          mati.setValue(iclass,jclass,jclass >= iclass);
+          mati.setValue(iclass, jclass, jclass >= iclass);
           break;
 
         case 2:
-          mati.setValue(iclass,jclass,(jclass >= iclass) * getDDStatZmoy(jclass));
+          mati.setValue(iclass, jclass, (jclass >= iclass) * getDDStatZmoy(jclass));
           break;
 
         case 3:
-          mati.setValue(iclass,jclass, (jclass >= iclass) *
-            (getDDStatZmoy(jclass) - getDDStatZmoy(iclass)));
+          mati.setValue(iclass, jclass, (jclass >= iclass) * (getDDStatZmoy(jclass) - getDDStatZmoy(iclass)));
           break;
       }
 
   /* Calculate the matrix for CHI_2_I */
 
-  for (int iclass=0; iclass<nclass; iclass++)
-    for (int jclass=0; jclass<nclass; jclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
+    for (int jclass = 0; jclass < nclass; jclass++)
     {
       double value = 0;
-      for (int ic=0; ic<nclass; ic++)
-        value += mati.getValue(iclass,ic) * getDDStatProp(ic) * CHI(jclass,ic);
+      for (int ic = 0; ic < nclass; ic++)
+        value += mati.getValue(iclass, ic) * getDDStatProp(ic) * CHI(jclass, ic);
       chi2i.setValue(iclass, jclass, value);
     }
   return chi2i;
@@ -601,24 +598,24 @@ MatrixSquare AnamDiscreteDD::chi2I(const VectorDouble& chi, int mode)
 bool AnamDiscreteDD::_serializeAscii(std::ostream& os, bool verbose) const
 {
   bool ret = true;
-  ret = ret && AnamDiscrete::_serializeAscii(os, verbose);
-  ret = ret && _recordWrite<double>(os, "Change of support coefficient", getSCoef());
-  ret = ret && _recordWrite<double>(os, "Additional Mu coefficient", getMu());
-  ret = ret && _tableWrite(os, "PCA Z2Y", getNCut() * getNCut(), getPcaZ2Fs().getValues());
-  ret = ret && _tableWrite(os, "PCA Y2Z", getNCut() * getNCut(), getPcaF2Zs().getValues());
+  ret      = ret && AnamDiscrete::_serializeAscii(os, verbose);
+  ret      = ret && _recordWrite<double>(os, "Change of support coefficient", getSCoef());
+  ret      = ret && _recordWrite<double>(os, "Additional Mu coefficient", getMu());
+  ret      = ret && _tableWrite(os, "PCA Z2Y", getNCut() * getNCut(), getPcaZ2Fs().getValues());
+  ret      = ret && _tableWrite(os, "PCA Y2Z", getNCut() * getNCut(), getPcaF2Zs().getValues());
   return ret;
 }
 
 bool AnamDiscreteDD::_deserializeAscii(std::istream& is, bool verbose)
 {
   MatrixSquare pcaf2z, pcaz2f;
-  double s = TEST;
+  double s  = TEST;
   double mu = TEST;
 
   bool ret = true;
-  ret = ret && AnamDiscrete::_deserializeAscii(is, verbose);
-  ret = ret && _recordRead<double>(is, "Anamorphosis 's' coefficient", s);
-  ret = ret && _recordRead<double>(is, "Anamorphosis 'mu' coefficient", mu);
+  ret      = ret && AnamDiscrete::_deserializeAscii(is, verbose);
+  ret      = ret && _recordRead<double>(is, "Anamorphosis 's' coefficient", s);
+  ret      = ret && _recordRead<double>(is, "Anamorphosis 'mu' coefficient", mu);
 
   int ncut = getNCut();
   if (ret)
@@ -647,7 +644,7 @@ bool AnamDiscreteDD::_deserializeAscii(std::istream& is, bool verbose)
 
 double AnamDiscreteDD::computeVariance(double sval) const
 {
-  if (! allowChangeSupport()) return TEST;
+  if (!allowChangeSupport()) return TEST;
   int nclass = getNClass();
 
   // At this stage (point -> block)) cnorm designate the point C_i
@@ -663,7 +660,7 @@ double AnamDiscreteDD::computeVariance(double sval) const
 
 int AnamDiscreteDD::updatePointToBlock(double r_coef)
 {
-  if (! allowChangeSupport()) return 1;
+  if (!allowChangeSupport()) return 1;
   setRCoef(r_coef);
   int nclass = getNClass();
 
@@ -676,7 +673,7 @@ int AnamDiscreteDD::updatePointToBlock(double r_coef)
   double sum = 0.;
   for (int iclass = 0; iclass < nclass; iclass++)
   {
-    double mul = getDDStatMul(iclass);
+    double mul  = getDDStatMul(iclass);
     double newU = getDDStatU(iclass) / (mul * mul);
     setDDStatU(iclass, newU);
     sum += newU;
@@ -693,7 +690,7 @@ int AnamDiscreteDD::updatePointToBlock(double r_coef)
   for (int iclass = 0; iclass < nclass; iclass++)
   {
     double cnorm = getDDStatCnorm(iclass);
-    double mul = getDDStatMul(iclass);
+    double mul   = getDDStatMul(iclass);
     setDDStatCnorm(iclass, cnorm * mul);
   }
 
@@ -771,9 +768,9 @@ void AnamDiscreteDD::_globalSelectivity(Selectivity* selectivity)
       tval += getDDStatProp(ic);
       qval += getDDStatProp(ic) * getDDStatZmoy(ic);
     }
-    selloc->setZcut(ncut-icut-1, zval);
-    selloc->setTest(ncut-icut-1, tval);
-    selloc->setQest(ncut-icut-1, qval);
+    selloc->setZcut(ncut - icut - 1, zval);
+    selloc->setTest(ncut - icut - 1, tval);
+    selloc->setQest(ncut - icut - 1, qval);
   }
 
   /* Correct order relationship */
@@ -807,17 +804,17 @@ void AnamDiscreteDD::_globalSelectivity(Selectivity* selectivity)
  ** \param[in]  iptr0        Rank for storing the results
  **
  *****************************************************************************/
-int AnamDiscreteDD::factor2Selectivity(Db *db,
+int AnamDiscreteDD::factor2Selectivity(Db* db,
                                        Selectivity* selectivity,
                                        const VectorInt& cols_est,
                                        const VectorInt& cols_std,
                                        int iptr0)
 {
-  int nclass   = getNClass();
-  int nech     = db->getNSample();
-  int nb_est   = (int) cols_est.size();
-  int nb_std   = (int) cols_std.size();
-  int ncleff   = MAX(nb_est, nb_std);
+  int nclass      = getNClass();
+  int nech        = db->getNSample();
+  int nb_est      = (int)cols_est.size();
+  int nb_std      = (int)cols_std.size();
+  int ncleff      = MAX(nb_est, nb_std);
   bool cutDefined = (selectivity->getNCuts() > 0);
 
   /* Preliminary checks */
@@ -891,7 +888,7 @@ int AnamDiscreteDD::factor2Selectivity(Db *db,
         for (int ivar = 0; ivar < ncleff - 1; ivar++)
         {
           double value = (ivar < nb_std) ? db->getArray(iech, cols_std[ivar]) : 1.;
-          double prod = value * ct.getValue(ivar + 1, iclass);
+          double prod  = value * ct.getValue(ivar + 1, iclass);
           total += prod * prod;
         }
         selloc->setTstd(iclass, sqrt(total));
@@ -902,12 +899,10 @@ int AnamDiscreteDD::factor2Selectivity(Db *db,
 
     if (selectivity->isUsedEst(ESelectivity::Q))
     {
-      selloc->setQest(nclass-1, getDDStatZmoy(ncleff - 1)
-                     * selloc->getTest(ncleff - 1));
+      selloc->setQest(nclass - 1, getDDStatZmoy(ncleff - 1) * selloc->getTest(ncleff - 1));
       for (int iclass = ncleff - 2; iclass >= 0; iclass--)
-        selloc->setQest(iclass, selloc->getQest(iclass + 1)
-                       + getDDStatZmoy(iclass) *
-                       (selloc->getTest(iclass) - selloc->getTest(iclass + 1)));
+        selloc->setQest(iclass, selloc->getQest(iclass + 1) + getDDStatZmoy(iclass) *
+                                                                (selloc->getTest(iclass) - selloc->getTest(iclass + 1)));
     }
 
     /* Metal Quantity: Standard Deviation */
@@ -919,9 +914,8 @@ int AnamDiscreteDD::factor2Selectivity(Db *db,
         double total = 0.;
         for (int ivar = 0; ivar < ncleff - 1; ivar++)
         {
-          double value = (ivar < nb_std) ?
-              db->getArray(iech, cols_std[ivar]) : 1.;
-          double prod = value * cq.getValue(ivar + 1, iclass);
+          double value = (ivar < nb_std) ? db->getArray(iech, cols_std[ivar]) : 1.;
+          double prod  = value * cq.getValue(ivar + 1, iclass);
           total += prod * prod;
         }
         selloc->setQstd(iclass, sqrt(total));
@@ -935,8 +929,7 @@ int AnamDiscreteDD::factor2Selectivity(Db *db,
     {
       zestim = getDDStatZmoy(ncleff - 1) * selloc->getTest(ncleff - 1);
       for (int iclass = 0; iclass < ncleff - 1; iclass++)
-        zestim += getDDStatZmoy(iclass)
-            * (selloc->getTest(iclass) - selloc->getTest(iclass + 1));
+        zestim += getDDStatZmoy(iclass) * (selloc->getTest(iclass) - selloc->getTest(iclass + 1));
     }
 
     /* Z: Standard Deviation */
@@ -947,9 +940,8 @@ int AnamDiscreteDD::factor2Selectivity(Db *db,
       double total = 0;
       for (int ivar = 0; ivar < ncleff - 1; ivar++)
       {
-        double value = (ivar < nb_std) ?
-            db->getArray(iech, cols_std[ivar]) : 1.;
-        double prod = value * getDDStatCnorm(ivar);
+        double value = (ivar < nb_std) ? db->getArray(iech, cols_std[ivar]) : 1.;
+        double prod  = value * getDDStatCnorm(ivar);
         total += prod * prod;
       }
       zstdev = sqrt(total);
@@ -982,8 +974,8 @@ bool AnamDiscreteDD::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbos
   }
 
   /* Read the grid characteristics */
-  bool ret = true;
-  double s = 0.;
+  bool ret  = true;
+  double s  = 0.;
   double mu = 0.;
   VectorDouble z2f;
   VectorDouble f2z;
@@ -995,7 +987,6 @@ bool AnamDiscreteDD::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbos
 
   ret = ret && AnamDiscrete::_deserializeH5(*anamG, verbose);
 
-
   if (ret)
   {
     int ncut = getNCut();
@@ -1006,7 +997,7 @@ bool AnamDiscreteDD::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbos
     MatrixSquare pcaz2f;
     pcaz2f.resetFromVD(ncut, ncut, z2f);
     setPcaZ2F(pcaz2f);
-    
+
     MatrixSquare pcaf2z;
     pcaf2z.resetFromVD(ncut, ncut, f2z);
     setPcaF2Z(pcaf2z);
@@ -1031,4 +1022,4 @@ bool AnamDiscreteDD::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   return ret;
 }
 #endif
-}
+} // namespace gstlrn

@@ -11,7 +11,8 @@
 #include "Covariances/CovLinearSph.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/CovContext.hpp"
-#include "math.h"
+
+#include <cmath>
 
 namespace gstlrn
 {

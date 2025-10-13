@@ -20,67 +20,67 @@
 #include "Enum/EModelProperty.hpp"
 
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Model/Model.hpp"
-#include "Model/Option_AutoFit.hpp"
-#include "Model/CovInternal.hpp"
-#include "Drifts/DriftFactory.hpp"
-#include "Space/SpaceRN.hpp"
-#include "Variogram/Vario.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAnisoList.hpp"
-#include "Covariances/CovLMGradient.hpp"
+#include "Covariances/CovGradientFunctional.hpp"
+#include "Covariances/CovGradientNumerical.hpp"
+#include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovLMCTapering.hpp"
-#include "Covariances/CovLMCAnamorphosis.hpp"
-#include "Covariances/CovGradientNumerical.hpp"
-#include "Covariances/CovGradientFunctional.hpp"
-#include "Drifts/DriftList.hpp"
+#include "Covariances/CovLMGradient.hpp"
 #include "Drifts/ADrift.hpp"
+#include "Drifts/DriftFactory.hpp"
+#include "Drifts/DriftList.hpp"
 #include "LinearOp/CholeskyDense.hpp"
+#include "Model/CovInternal.hpp"
+#include "Model/Model.hpp"
+#include "Model/Option_AutoFit.hpp"
+#include "Space/SpaceRN.hpp"
+#include "Variogram/Vario.hpp"
 
 #include "Db/Db.hpp"
 
-#include <math.h>
+#include <cmath>
 
-namespace gstlrn 
+namespace gstlrn
 {
-Model::Model(const CovContext &ctxt)
-    : AStringable(),
-      ASerializable(),
-      ModelCovList(ctxt)
+Model::Model(const CovContext& ctxt)
+  : AStringable()
+  , ASerializable()
+  , ModelCovList(ctxt)
 {
   _create();
 }
 
 Model::Model(int nvar, int ndim)
-    : AStringable(),
-      ASerializable(),
-      ModelCovList()
+  : AStringable()
+  , ASerializable()
+  , ModelCovList()
 {
   auto space = SpaceRN::create(ndim);
-  _ctxt = CovContext(nvar, space);
+  _ctxt      = CovContext(nvar, space);
   _create();
 }
 
-Model::Model(const Model &m)
-    : AStringable(m),
-      ASerializable(m),
-      ModelCovList(m)
+Model::Model(const Model& m)
+  : AStringable(m)
+  , ASerializable(m)
+  , ModelCovList(m)
 {
 }
 
-Model& Model::operator=(const Model &m)
+Model& Model::operator=(const Model& m)
 {
   if (this != &m)
-  { 
-   ModelCovList::operator=(m);
-   AStringable::operator=(m);
-   ASerializable::operator=(m);
-   setCovAnisoList(dynamic_cast<CovAnisoList*>(m.getCovAnisoList()->clone()));
-   if (m._driftList != nullptr)
+  {
+    ModelCovList::operator=(m);
+    AStringable::operator=(m);
+    ASerializable::operator=(m);
+    setCovAnisoList(dynamic_cast<CovAnisoList*>(m.getCovAnisoList()->clone()));
+    if (m._driftList != nullptr)
       _driftList = m._driftList->clone();
-   _ctxt = m._ctxt;
+    _ctxt = m._ctxt;
   }
   return (*this);
 }
@@ -90,17 +90,16 @@ Model::~Model()
   _clear();
 }
 
-int Model::resetFromDb(const Db *db)
+int Model::resetFromDb(const Db* db)
 {
   int ndim = db->getNDim();
   int nvar = db->getNLoc(ELoc::Z);
   if (nvar <= 0) nvar = 1;
   auto space = SpaceRN::create(ndim);
-  _ctxt = CovContext(nvar, space);
+  _ctxt      = CovContext(nvar, space);
   _create();
   return 0;
 }
-
 
 bool Model::_isValid() const
 {
@@ -195,14 +194,14 @@ Model* Model::createFromParamOldStyle(const ECov& type,
                                       bool flagRange)
 {
   int nvar = 1;
-  if (! sills.empty())
-    nvar = (int)  sqrt(sills.size());
+  if (!sills.empty())
+    nvar = (int)sqrt(sills.size());
 
   auto spaceloc = ASpace::getDefaultSpaceIfNull(space);
- 
-  if (! ranges.empty())
+
+  if (!ranges.empty())
   {
-    int ndim = spaceloc->getNDim();
+    int ndim       = spaceloc->getNDim();
     int ndimRanges = (int)ranges.size();
     if (ndimRanges != 1 && ndimRanges != ndim)
     {
@@ -213,8 +212,8 @@ Model* Model::createFromParamOldStyle(const ECov& type,
     }
   }
 
-  CovContext ctxt = CovContext(nvar,spaceloc);
-  Model* model = new Model(ctxt);
+  CovContext ctxt = CovContext(nvar, spaceloc);
+  Model* model    = new Model(ctxt);
   model->addCovFromParamOldStyle(type, range, sill, param, ranges, sills,
                                  angles, flagRange);
 
@@ -286,16 +285,14 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
 
   if (ndrift > 0)
     sstr << toTitle(1, "Drift Part");
-  
+
   sstr << _driftList->toString();
 
   if (isFlagLinked())
     sstr << "Drifts are linked" << std::endl;
-  
 
   return sstr.str();
 }
-
 
 /**
  * Add a list of Covariances. This operation cleans any previously stored covariance
@@ -323,45 +320,45 @@ void Model::addCovFromParamOldStyle(const ECov& type,
   // Check consistency with parameters of the model
 
   int ndim = getNDim();
-  if (! ranges.empty())
+  if (!ranges.empty())
   {
-    if (ndim > 0 && (int) ranges.size() != ndim)
+    if (ndim > 0 && (int)ranges.size() != ndim)
     {
-      messerr("Mismatch between the dimension of 'ranges' (%d)",(int) ranges.size());
-      messerr("and the Space dimension stored in the Model (%d)",ndim);
+      messerr("Mismatch between the dimension of 'ranges' (%d)", (int)ranges.size());
+      messerr("and the Space dimension stored in the Model (%d)", ndim);
       messerr("Operation is cancelled");
       return;
     }
-    ndim = (int) ranges.size();
+    ndim = (int)ranges.size();
   }
-  if (! angles.empty())
+  if (!angles.empty())
   {
-    if (ndim > 0 && (int) angles.size() != ndim)
+    if (ndim > 0 && (int)angles.size() != ndim)
     {
-      messerr("Mismatch between the dimension of 'angles' (%d)",(int) angles.size());
-      messerr("and the Space dimension stored in the Model (%d)",ndim);
+      messerr("Mismatch between the dimension of 'angles' (%d)", (int)angles.size());
+      messerr("and the Space dimension stored in the Model (%d)", ndim);
       messerr("Operation is cancelled");
       return;
     }
-    ndim = (int) angles.size();
+    ndim = (int)angles.size();
   }
   int nvar = getNVar();
-  if (! sills.empty())
+  if (!sills.empty())
   {
-    if (nvar > 0 && (int) sills.size() != nvar * nvar)
+    if (nvar > 0 && (int)sills.size() != nvar * nvar)
     {
-      messerr("Mismatch between the size of 'sills' (%d)",(int) sills.size());
-      messerr("and the Number of variables stored in the Model (%d)",nvar);
+      messerr("Mismatch between the size of 'sills' (%d)", (int)sills.size());
+      messerr("and the Number of variables stored in the Model (%d)", nvar);
       messerr("Operation is cancelled");
       return;
     }
-    nvar = (int) sqrt((double) sills.size());
+    nvar = (int)sqrt((double)sills.size());
   }
 
   // Define the covariance
 
   auto space = SpaceRN::create(ndim);
-  _ctxt = CovContext(nvar, space);
+  _ctxt      = CovContext(nvar, space);
   CovAniso cov(type, _ctxt);
 
   // Define the Third parameter
@@ -370,7 +367,7 @@ void Model::addCovFromParamOldStyle(const ECov& type,
   cov.setParam(param);
 
   // Define the range
-  if (! ranges.empty())
+  if (!ranges.empty())
   {
     if (flagRange)
       cov.setRanges(ranges);
@@ -400,7 +397,7 @@ void Model::addCovFromParamOldStyle(const ECov& type,
     }
   }
 
-  if (! angles.empty())
+  if (!angles.empty())
     cov.setAnisoAngles(angles);
   addCov(cov);
 }
@@ -495,16 +492,16 @@ void Model::addCovFromParam(const ECov& type,
       cov.setSill(locsills);
     }
   }
- 
+
   _ctxt.setNVar(cov.getNVar());
   _copyCovContext();
   if (!angles.empty()) cov.setAnisoAngles(angles);
   addCovAniso(cov);
 }
 
-double Model::evalCovFromIncr(const VectorDouble &incr,
-                      int icov,
-                      const ECalcMember &member) const
+double Model::evalCovFromIncr(const VectorDouble& incr,
+                              int icov,
+                              const ECalcMember& member) const
 {
   if (_cova == nullptr) return TEST;
   const CovAnisoList* covalist = castInCovAnisoListConst(icov);
@@ -514,7 +511,6 @@ double Model::evalCovFromIncr(const VectorDouble &incr,
     return (0.);
   return getCovAniso(icov)->evalIvarIpas(1., incr);
 }
-
 
 /**
  * Switch to a Model dedicated to Gradients
@@ -528,7 +524,7 @@ void Model::switchToGradient()
   // If no covariance has been defined yet: do nothing
   if (_cova == nullptr)
   {
-    CovLMGradient* covg  = new CovLMGradient(_ctxt);
+    CovLMGradient* covg = new CovLMGradient(_ctxt);
     ModelCovList::setCovList(covg);
     delete covg;
   }
@@ -594,13 +590,13 @@ int Model::unsetAnam()
     // CovAnisoList does not have any Anam: do nothing
     return 0;
   }
-    CovAnisoList* cov = dynamic_cast<CovAnisoList*>(_cova.get());
-    if (cov == nullptr)
-    {
-      messerr("Impossible to unset 'anam' from the covariance part of the Model");
-      messerr("The original covariance is probably not valid");
-      return 1;
-    }
+  CovAnisoList* cov = dynamic_cast<CovAnisoList*>(_cova.get());
+  if (cov == nullptr)
+  {
+    messerr("Impossible to unset 'anam' from the covariance part of the Model");
+    messerr("The original covariance is probably not valid");
+    return 1;
+  }
 
   // Initiate a new CovAnisoList class
   CovAnisoList* newcov = new CovAnisoList(*cov);
@@ -615,7 +611,7 @@ int Model::unsetAnam()
 void Model::_copyCovContext()
 {
   if (_cova == nullptr) return;
-  CovAnisoList *covalist = _castInCovAnisoList();
+  CovAnisoList* covalist = _castInCovAnisoList();
   if (covalist != nullptr) covalist->copyCovContext(_ctxt);
   if (_driftList != nullptr) _driftList->copyCovContext(_ctxt);
 }
@@ -632,9 +628,9 @@ void Model::_copyCovContext()
  *
  * @return 0 if no error, 1 otherwise
  */
-int Model::fitFromCovIndices(Vario *vario,
-                             const VectorECov &types,
-                             const Constraints &constraints,
+int Model::fitFromCovIndices(Vario* vario,
+                             const VectorECov& types,
+                             const Constraints& constraints,
                              const Option_VarioFit& optvar,
                              const Option_AutoFit& mauto,
                              bool verbose)
@@ -648,7 +644,7 @@ int Model::fitFromCovIndices(Vario *vario,
   // Add the relevant covariances
 
   _ctxt = CovContext(vario); /// TODO : What to do with that ?
-  for (int is = 0; is < (int) types.size(); is++)
+  for (int is = 0; is < (int)types.size(); is++)
   {
     CovAniso cov = CovAniso(types[is], _ctxt);
     addCov(cov);
@@ -690,7 +686,7 @@ int Model::fit(Vario* vario,
   _ctxt = CovContext(vario); /// TODO : What to do with that ?
   _driftList->copyCovContext(_ctxt);
 
-  for (int is = 0; is < (int) types.size(); is++)
+  for (int is = 0; is < (int)types.size(); is++)
   {
     CovAniso cov = CovAniso(types[is], _ctxt);
     addCov(cov);
@@ -725,7 +721,7 @@ int Model::fitFromVMap(DbGrid* dbmap,
 
   // Add the relevant covariances
 
-  for (int is = 0; is < (int) types.size(); is++)
+  for (int is = 0; is < (int)types.size(); is++)
   {
     CovAniso cov = CovAniso(types[is], _ctxt);
     addCov(cov);
@@ -735,12 +731,12 @@ int Model::fitFromVMap(DbGrid* dbmap,
 
 bool Model::_deserializeAscii(std::istream& is, bool /*verbose*/)
 {
-  int ndim = 0;
-  int nvar = 0;
-  int ncova = 0;
-  int nbfl = 0;
-  int type = 0;
-  int flag_aniso = 0;
+  int ndim          = 0;
+  int nvar          = 0;
+  int ncova         = 0;
+  int nbfl          = 0;
+  int type          = 0;
+  int flag_aniso    = 0;
   int flag_rotation = 0;
 
   double field = 0.;
@@ -754,12 +750,12 @@ bool Model::_deserializeAscii(std::istream& is, bool /*verbose*/)
   /* Create the Model structure */
 
   bool ret = true;
-  ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
-  ret = ret && _recordRead<int>(is, "Number of Variables", nvar);
-  ret = ret && _recordRead<double>(is, "Field dimension", field);
-  ret = ret && _recordRead<int>(is, "Number of Basic Structures", ncova);
-  ret = ret && _recordRead<int>(is, "Number of Basic Drift Functions", nbfl);
-  if (! ret) return ret;
+  ret      = ret && _recordRead<int>(is, "Space Dimension", ndim);
+  ret      = ret && _recordRead<int>(is, "Number of Variables", nvar);
+  ret      = ret && _recordRead<double>(is, "Field dimension", field);
+  ret      = ret && _recordRead<int>(is, "Number of Basic Structures", ncova);
+  ret      = ret && _recordRead<int>(is, "Number of Basic Drift Functions", nbfl);
+  if (!ret) return ret;
 
   /// TODO : Force SpaceRN creation (deserialization doesn't know yet how to manage other space types)
   _ctxt = CovContext(nvar, ndim);
@@ -778,7 +774,7 @@ bool Model::_deserializeAscii(std::istream& is, bool /*verbose*/)
     ret = ret && _recordRead<double>(is, "Isotropic Range", range);
     ret = ret && _recordRead<double>(is, "Model third Parameter", param);
     ret = ret && _recordRead(is, "Flag for Anisotropy", flag_aniso);
-    if (! ret) return ret;
+    if (!ret) return ret;
     if (flag_aniso != 0)
     {
       aniso_ranges.resize(ndim);
@@ -786,12 +782,12 @@ bool Model::_deserializeAscii(std::istream& is, bool /*verbose*/)
       // After reading, we must turn them into anisotropic ranges
       for (int idim = 0; idim < ndim; idim++)
         ret = ret && _recordRead<double>(is, "Anisotropy coefficient", aniso_ranges[idim]);
-      if (! ret) return ret;
+      if (!ret) return ret;
       for (int idim = 0; idim < ndim; idim++)
         aniso_ranges[idim] *= range;
 
       ret = ret && _recordRead<int>(is, "Flag for Anisotropy Rotation", flag_rotation);
-      if (! ret) return ret;
+      if (!ret) return ret;
       if (flag_rotation != 0)
       {
         // Warning: the storage in the File is performed by column
@@ -803,7 +799,7 @@ bool Model::_deserializeAscii(std::istream& is, bool /*verbose*/)
             ret = ret && _recordRead<double>(is, "Anisotropy Rotation Matrix", aniso_rotmat[lec++]);
       }
     }
-    if (! ret) return ret;
+    if (!ret) return ret;
 
     CovAniso cova(ECov::fromValue(type), _ctxt);
     cova.setParam(param);
@@ -826,7 +822,7 @@ bool Model::_deserializeAscii(std::istream& is, bool /*verbose*/)
   {
     ret = true; // Reset 'ret' to continue reading after previous error...
     String driftname;
-    ret = ret && _recordRead<String>(is, "Drift Identifier", driftname);
+    ret   = ret && _recordRead<String>(is, "Drift Identifier", driftname);
     drift = DriftFactory::createDriftByIdentifier(driftname);
     drifts.addDrift(drift);
     delete drift;
@@ -839,9 +835,9 @@ bool Model::_deserializeAscii(std::istream& is, bool /*verbose*/)
     for (int ivar = 0; ret && ivar < nvar; ivar++)
     {
       double mean = 0.;
-      ret = ret && _recordRead<double>(is, "Mean of Variable", mean);
+      ret         = ret && _recordRead<double>(is, "Mean of Variable", mean);
       setMean(mean, ivar);
-  }
+    }
 
   /* Reading the matrices of sills (optional) */
 
@@ -884,21 +880,21 @@ bool Model::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 
   for (int icova = 0; ret && icova < getNCov(); icova++)
   {
-    const CovAniso *cova = getCovAniso(icova);
-    ret = ret && _recordWrite<int>(os, "", cova->getType().getValue());
-    ret = ret && _recordWrite<double>(os, "", cova->getRangeIso());
-    ret = ret && _recordWrite<double>(os, "Covariance characteristics", cova->getParam());
+    const CovAniso* cova = getCovAniso(icova);
+    ret                  = ret && _recordWrite<int>(os, "", cova->getType().getValue());
+    ret                  = ret && _recordWrite<double>(os, "", cova->getRangeIso());
+    ret                  = ret && _recordWrite<double>(os, "Covariance characteristics", cova->getParam());
 
     // Writing the Anisotropy information
 
-    ret = ret && _recordWrite<int>(os, "Anisotropy Flag", (int) cova->getFlagAniso());
+    ret = ret && _recordWrite<int>(os, "Anisotropy Flag", (int)cova->getFlagAniso());
 
     if (!cova->getFlagAniso()) continue;
 
     for (unsigned int idim = 0; ret && idim < getNDim(); idim++)
       ret = ret && _recordWrite<double>(os, "", cova->getAnisoCoeff(idim));
     ret = ret && _commentWrite(os, "Anisotropy Coefficients");
-    ret = ret && _recordWrite<int>(os, "Anisotropy Rotation Flag", (int) cova->getFlagRotation());
+    ret = ret && _recordWrite<int>(os, "Anisotropy Rotation Flag", (int)cova->getFlagRotation());
 
     if (!cova->getFlagRotation()) continue;
 
@@ -913,8 +909,8 @@ bool Model::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 
   for (int ibfl = 0; ret && ibfl < getNDrift(); ibfl++)
   {
-    const ADrift *drift = getDrift(ibfl);
-    ret = ret && _recordWrite<String>(os,"Drift Identifier", drift->getDriftName());
+    const ADrift* drift = getDrift(ibfl);
+    ret                 = ret && _recordWrite<String>(os, "Drift Identifier", drift->getDriftName());
   }
 
   /* Writing the matrix of means (if nbfl <= 0) */
@@ -987,19 +983,18 @@ Model* Model::duplicate() const
 Model* Model::createReduce(const VectorInt& validVars) const
 {
   VectorInt localValidVars = VH::filter(validVars, 0, getNVar());
-  int nvar = (int) localValidVars.size();
+  int nvar                 = (int)localValidVars.size();
   if (nvar <= 0)
   {
     messerr("Your new Model has no variable left");
     return nullptr;
   }
 
-  Model* model = new Model(*_ctxt.createReduce(validVars)); //TODO LEAK
+  Model* model = new Model(*_ctxt.createReduce(validVars)); // TODO LEAK
 
-   /* Add the list of Drifts */
+  /* Add the list of Drifts */
 
-   model->setDriftList(getDriftList());
-
+  model->setDriftList(getDriftList());
 
   /* Add the list of Covariances */
 
@@ -1016,7 +1011,7 @@ bool Model::isFlagGradient() const
 
 bool Model::isFlagGradientNumerical() const
 {
-  if (! isFlagGradient()) return false;
+  if (!isFlagGradient()) return false;
 
   // Check is performed on the first covariance
   const CovAnisoList* covalist = castInCovAnisoListConst(0);
@@ -1027,7 +1022,7 @@ bool Model::isFlagGradientNumerical() const
 
 bool Model::isFlagGradientFunctional() const
 {
-  if (! isFlagGradient()) return false;
+  if (!isFlagGradient()) return false;
 
   // Check is performed on the first covariance
   const CovAnisoList* covalist = castInCovAnisoListConst(0);
@@ -1036,11 +1031,11 @@ bool Model::isFlagGradientFunctional() const
   return (cova != nullptr);
 }
 
-VectorECov Model::initCovList(const VectorInt & covranks)
+VectorECov Model::initCovList(const VectorInt& covranks)
 {
   VectorECov list;
 
-  for (int i = 0; i < (int) covranks.size(); i++)
+  for (int i = 0; i < (int)covranks.size(); i++)
   {
     ECov ec = ECov::fromValue(covranks[i]);
     if (ec == ECov::UNKNOWN)
@@ -1066,12 +1061,12 @@ bool Model::isValid() const
   // Drifts: there should be valid
   if (_driftList != nullptr)
   {
-    if (! _driftList->isValid()) return false;
+    if (!_driftList->isValid()) return false;
   }
 
   // Check the consistency between the Covariance and the Drift parts
   int irf_drift = getDriftMaxIRFOrder();
-  int irf_cova = getCovMinIRFOrder();
+  int irf_cova  = getCovMinIRFOrder();
   if (irf_cova > irf_drift)
   {
     messerr("Model if invalid due to IRF degree inconsistency");
@@ -1174,7 +1169,7 @@ const CovLMCAnamorphosis* Model::castInCovLMCAnamorphosisConst() const
   return covtape;
 }
 
-CovLMCAnamorphosis* Model::_castInCovLMCAnamorphosis() 
+CovLMCAnamorphosis* Model::_castInCovLMCAnamorphosis()
 {
   CovLMCAnamorphosis* covtape = dynamic_cast<CovLMCAnamorphosis*>(_cova.get());
   if (covtape == nullptr)
@@ -1270,7 +1265,7 @@ int Model::standardize(bool verbose)
 {
   int nvar = getNVar();
   int ncov = getNCov();
-  VectorDouble total(nvar,0.);
+  VectorDouble total(nvar, 0.);
 
   /* Calculate the total sills for each variable */
 
@@ -1289,7 +1284,7 @@ int Model::standardize(bool verbose)
     for (int jvar = 0; jvar < nvar; jvar++)
       for (int icov = 0; icov < ncov; icov++)
       {
-        double sill = getSill(icov,ivar, jvar);
+        double sill = getSill(icov, ivar, jvar);
         sill /= total[ivar] * total[jvar];
         setSill(icov, ivar, jvar, sill);
       }
@@ -1308,22 +1303,23 @@ int Model::standardize(bool verbose)
 
 void Model::gofDisplay(double gof,
                        bool byValue,
-                       const VectorDouble& thresholds) {
+                       const VectorDouble& thresholds)
+{
   ACov::gofDisplay(gof, byValue, thresholds);
 }
 
 int Model::getNVar() const
 {
-    // TODO/ the strange next line have been commented out.
-    // There should be either validated or suppressed
-    //if (isFlagGradient())
-    //      return 3; // This strange number of variables is linked to the Gradient calculation
-    //    else
-    // However, note used for Gradient (Functional type) in Potential
-    int nvar = _cova->getNVar();
-    if (nvar <= 0)
-      nvar = _ctxt.getNVar();
-    return nvar;
+  // TODO/ the strange next line have been commented out.
+  // There should be either validated or suppressed
+  // if (isFlagGradient())
+  //      return 3; // This strange number of variables is linked to the Gradient calculation
+  //    else
+  // However, note used for Gradient (Functional type) in Potential
+  int nvar = _cova->getNVar();
+  if (nvar <= 0)
+    nvar = _ctxt.getNVar();
+  return nvar;
 }
 
 Model* Model::createFillRandom(int ndim,
@@ -1332,10 +1328,11 @@ Model* Model::createFillRandom(int ndim,
                                double hmax,
                                int order,
                                int nfex,
-                               int seed) {
+                               int seed)
+{
   // Create the Covariance Part
-  Model* model = Model::create(CovContext(nvar, ndim));
-  int ncov     = (int)types.size();
+  Model* model   = Model::create(CovContext(nvar, ndim));
+  int ncov       = (int)types.size();
   int seed_local = seed;
   for (int icov = 0; icov < ncov; icov++)
   {
@@ -1373,10 +1370,10 @@ bool Model::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   int ndrift   = 0;
   double field = 0.;
 
-  ret = ret && SerializeHDF5::readValue(*modelG, "NDim",   ndim);
-  ret = ret && SerializeHDF5::readValue(*modelG, "NVar",   nvar);
-  ret = ret && SerializeHDF5::readValue(*modelG, "Field",  field);
-  ret = ret && SerializeHDF5::readValue(*modelG, "NCov",   ncov);
+  ret = ret && SerializeHDF5::readValue(*modelG, "NDim", ndim);
+  ret = ret && SerializeHDF5::readValue(*modelG, "NVar", nvar);
+  ret = ret && SerializeHDF5::readValue(*modelG, "Field", field);
+  ret = ret && SerializeHDF5::readValue(*modelG, "NCov", ncov);
   ret = ret && SerializeHDF5::readValue(*modelG, "NDrift", ndrift);
   if (!ret) return ret;
 
@@ -1397,10 +1394,10 @@ bool Model::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
     if (!covG) return false;
 
     // General characteristics
-    int vartype = 0;
-    double range = 0.;
-    double param = 0.;
-    int flag_aniso = 0;
+    int vartype       = 0;
+    double range      = 0.;
+    double param      = 0.;
+    int flag_aniso    = 0;
     int flag_rotation = 0;
     VectorDouble aniso_ranges;
     VectorDouble aniso_rotmat;
@@ -1454,7 +1451,7 @@ bool Model::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
     auto driftG    = SerializeHDF5::getGroup(*driftsG, locName);
     if (!driftG) return false;
 
-    ret   = ret && SerializeHDF5::readValue(*driftG, "Name", driftname);
+    ret = ret && SerializeHDF5::readValue(*driftG, "Name", driftname);
 
     drift = DriftFactory::createDriftByIdentifier(driftname);
     drifts.addDrift(drift);
@@ -1483,11 +1480,11 @@ bool Model::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
   auto modelG = grp.createGroup("Model");
 
   bool ret = true;
-  ret = ret && SerializeHDF5::writeValue(modelG, "NDim",   (int) getNDim());
-  ret = ret && SerializeHDF5::writeValue(modelG, "NVar",   getNVar());
-  ret = ret && SerializeHDF5::writeValue(modelG, "Field",  getField());
-  ret = ret && SerializeHDF5::writeValue(modelG, "NCov",   getNCov());
-  ret = ret && SerializeHDF5::writeValue(modelG, "NDrift", getNDrift());
+  ret      = ret && SerializeHDF5::writeValue(modelG, "NDim", (int)getNDim());
+  ret      = ret && SerializeHDF5::writeValue(modelG, "NVar", getNVar());
+  ret      = ret && SerializeHDF5::writeValue(modelG, "Field", getField());
+  ret      = ret && SerializeHDF5::writeValue(modelG, "NCov", getNCov());
+  ret      = ret && SerializeHDF5::writeValue(modelG, "NDrift", getNDrift());
 
   // Writing the covariance part
   auto covsG = modelG.createGroup("Covs");
@@ -1528,14 +1525,14 @@ bool Model::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
     ret = ret && SerializeHDF5::writeValue(driftG, "Name", drift->getDriftName());
   }
 
-  // Writing the matrix of means (if nbfl <= 0) 
+  // Writing the matrix of means (if nbfl <= 0)
   if (getNDrift() <= 0)
     ret = ret && SerializeHDF5::writeVec(modelG, "Means", getMeans());
 
-  /// Writing the variance-covariance at the origin (optional) 
+  /// Writing the variance-covariance at the origin (optional)
   ret = ret && SerializeHDF5::writeVec(modelG, "Covar", getCovar0());
 
   return ret;
 }
 #endif
-}
+} // namespace gstlrn

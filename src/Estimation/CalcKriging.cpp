@@ -20,7 +20,8 @@
 #include "Model/Model.hpp"
 #include "Neigh/NeighBench.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {

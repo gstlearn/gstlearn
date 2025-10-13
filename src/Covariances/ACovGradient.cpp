@@ -9,7 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Covariances/ACovGradient.hpp"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {
@@ -41,4 +42,4 @@ ACovGradient& ACovGradient::operator=(const ACovGradient& r)
 ACovGradient::~ACovGradient()
 {
 }
-}
+} // namespace gstlrn

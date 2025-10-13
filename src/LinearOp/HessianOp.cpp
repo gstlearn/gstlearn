@@ -12,11 +12,9 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
-
-#include "LinearOp/ALinearOp.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 
-#include <math.h>
+#include <cmath>
 
 using namespace gstlrn;
 HessianOp::HessianOp()

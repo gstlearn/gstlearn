@@ -18,7 +18,8 @@
 #include "Model/Model.hpp"
 #include <Eigen/Sparse>
 #include <Eigen/SparseCholesky>
-#include <math.h>
+
+#include <cmath>
 
 static bool storeSparse = true;
 

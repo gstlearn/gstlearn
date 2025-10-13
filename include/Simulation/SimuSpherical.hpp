@@ -17,10 +17,10 @@
 #include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/SimuSphericalParam.hpp"
 
-class MeshSpherical;
-
 namespace gstlrn
 {
+
+class MeshSpherical;
 
 class GSTLEARN_EXPORT SimuSpherical: public ACalcSimulation
 {

@@ -8,19 +8,18 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ESelectivity.hpp"
-
-#include "Basic/VectorHelper.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/Utilities.hpp"
-#include "Db/Db.hpp"
+#include "Stats/Selectivity.hpp"
 #include "Anamorphosis/AAnam.hpp"
-#include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
-#include "Stats/Selectivity.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
+#include "Basic/AStringable.hpp"
+#include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Db/Db.hpp"
+#include "Enum/ESelectivity.hpp"
 
-#include <math.h>
+#include <cmath>
 
 #define NCOLS 7
 #define Z_CUT 0
@@ -34,66 +33,66 @@
 namespace gstlrn
 {
 Selectivity::Selectivity(int ncut)
-    : AStringable(),
-      _Zcut(ncut),
-      _stats(ncut, NCOLS),
-      _zmax(TEST),
-      _proba(TEST),
-      _flagTonnageCorrect(false),
-      _numberQT(),
-      _rankQT(),
-      _flagOnlyZDefined(false)
+  : AStringable()
+  , _Zcut(ncut)
+  , _stats(ncut, NCOLS)
+  , _zmax(TEST)
+  , _proba(TEST)
+  , _flagTonnageCorrect(false)
+  , _numberQT()
+  , _rankQT()
+  , _flagOnlyZDefined(false)
 {
   VH::fill(_Zcut, TEST);
   _stats.setColumnNames(_getAllNames());
   _stats.fill(TEST);
 }
 
-Selectivity::Selectivity(const VectorDouble &zcuts,
+Selectivity::Selectivity(const VectorDouble& zcuts,
                          double zmax,
                          double proba,
                          bool flag_tonnage_correct)
-    : AStringable(),
-      _Zcut(zcuts),
-      _stats(),
-      _zmax(zmax),
-      _proba(proba),
-      _flagTonnageCorrect(flag_tonnage_correct),
-      _numberQT(),
-      _rankQT(),
-      _flagOnlyZDefined(false)
+  : AStringable()
+  , _Zcut(zcuts)
+  , _stats()
+  , _zmax(zmax)
+  , _proba(proba)
+  , _flagTonnageCorrect(flag_tonnage_correct)
+  , _numberQT()
+  , _rankQT()
+  , _flagOnlyZDefined(false)
 {
   _stats.reset(getNCuts(), NCOLS);
   _stats.setColumnNames(_getAllNames());
   _stats.fill(TEST);
 }
 
-Selectivity::Selectivity(const Selectivity &m)
-    : AStringable(m),
-      _Zcut(m._Zcut),
-      _stats(m._stats),
-      _zmax(m._zmax),
-      _proba(m._proba),
-      _flagTonnageCorrect(m._flagTonnageCorrect),
-      _numberQT(m._numberQT),
-      _rankQT(m._rankQT),
-      _flagOnlyZDefined(m._flagOnlyZDefined)
+Selectivity::Selectivity(const Selectivity& m)
+  : AStringable(m)
+  , _Zcut(m._Zcut)
+  , _stats(m._stats)
+  , _zmax(m._zmax)
+  , _proba(m._proba)
+  , _flagTonnageCorrect(m._flagTonnageCorrect)
+  , _numberQT(m._numberQT)
+  , _rankQT(m._rankQT)
+  , _flagOnlyZDefined(m._flagOnlyZDefined)
 {
 }
 
-Selectivity& Selectivity::operator=(const Selectivity &m)
+Selectivity& Selectivity::operator=(const Selectivity& m)
 {
   if (this != &m)
   {
     AStringable::operator=(m);
-    _Zcut  = m._Zcut;
-    _stats = m._stats;
-    _zmax  = m._zmax;
-    _proba = m._proba;
+    _Zcut               = m._Zcut;
+    _stats              = m._stats;
+    _zmax               = m._zmax;
+    _proba              = m._proba;
     _flagTonnageCorrect = m._flagTonnageCorrect;
-    _numberQT = m._numberQT;
-    _rankQT = m._rankQT;
-    _flagOnlyZDefined = m._flagOnlyZDefined;
+    _numberQT           = m._numberQT;
+    _rankQT             = m._rankQT;
+    _flagOnlyZDefined   = m._flagOnlyZDefined;
   }
   return *this;
 }
@@ -137,7 +136,7 @@ Selectivity* Selectivity::createByKeys(const VectorString& keys,
 {
   std::vector<ESelectivity> codes;
 
-  for (int i = 0; i < (int) keys.size(); i++)
+  for (int i = 0; i < (int)keys.size(); i++)
   {
     ESelectivity code = ESelectivity::fromKey(keys[i]);
     if (code == ESelectivity::UNKNOWN) continue;
@@ -184,8 +183,8 @@ int Selectivity::calculateFromDb(const Db* db, bool autoCuts)
   return calculateFromArray(tab, wtab, autoCuts);
 }
 
-int Selectivity::calculateFromArray(const VectorDouble &tab,
-                                    const VectorDouble &weights,
+int Selectivity::calculateFromArray(const VectorDouble& tab,
+                                    const VectorDouble& weights,
                                     bool autoCuts)
 {
   if (getNCuts() <= 0)
@@ -199,15 +198,15 @@ int Selectivity::calculateFromArray(const VectorDouble &tab,
     return 1;
   }
 
-  int nech = (int) tab.size();
+  int nech          = (int)tab.size();
   VectorDouble wtab = weights;
   if (wtab.empty())
   {
-    wtab.resize(nech,1);
+    wtab.resize(nech, 1);
   }
   else
   {
-    if (nech != (int) wtab.size())
+    if (nech != (int)wtab.size())
     {
       messerr("Arguments 'tab' and 'weights' should have same dimension");
       return 1;
@@ -231,19 +230,19 @@ int Selectivity::calculateFromArray(const VectorDouble &tab,
     double coupure = getZcut(icut);
 
     double tonnage = 0.;
-    double metal = 0.;
+    double metal   = 0.;
     for (int iech = 0; iech < nech; iech++)
     {
-      double x = tab[iech];
-      double w = wtab[iech];
+      double x     = tab[iech];
+      double w     = wtab[iech];
       double indic = (x >= coupure);
 
       tonnage += w * indic;
-      metal   += x * w * indic;
+      metal += x * w * indic;
     }
 
     tonnage /= tonref;
-    metal   /= tonref;
+    metal /= tonref;
     double benefit = metal - tonnage * coupure;
     double grade;
     if (tonnage <= 0.)
@@ -290,29 +289,29 @@ int Selectivity::calculateFromAnamorphosis(AAnam* anam)
   return 1;
 }
 
-Table Selectivity::eval(const Db *db, bool autoCuts)
+Table Selectivity::eval(const Db* db, bool autoCuts)
 {
-  (void) calculateFromDb(db, autoCuts);
+  (void)calculateFromDb(db, autoCuts);
   return getStats();
 }
-Table Selectivity::evalFromArray(const VectorDouble &tab,
-                                       const VectorDouble &weights,
-                                       bool autoCuts)
+Table Selectivity::evalFromArray(const VectorDouble& tab,
+                                 const VectorDouble& weights,
+                                 bool autoCuts)
 {
-  (void) calculateFromArray(tab, weights, autoCuts);
+  (void)calculateFromArray(tab, weights, autoCuts);
   return getStats();
 }
-Table Selectivity::evalFromAnamorphosis(AAnam *anam)
+Table Selectivity::evalFromAnamorphosis(AAnam* anam)
 {
-  (void) calculateFromAnamorphosis(anam);
+  (void)calculateFromAnamorphosis(anam);
   return getStats();
 }
 
 Table Selectivity::getStats() const
 {
   VectorString names = _getAllNames();
-  int nrow = _stats.getNRows();
-  int ncol = _stats.getNColDefined();
+  int nrow           = _stats.getNRows();
+  int ncol           = _stats.getNColDefined();
 
   // Allocate the output Table
   Table rtable(nrow, ncol, false, true);
@@ -322,7 +321,7 @@ Table Selectivity::getStats() const
   int icol_ecr = 0;
   for (int icol = 0, ncolmax = _stats.getNCols(); icol < ncolmax; icol++)
   {
-    if (! _stats.isColumnDefined(icol)) continue;
+    if (!_stats.isColumnDefined(icol)) continue;
     rtable.setColumn(icol_ecr, _stats.getColumn(icol));
     rtable.setColumnName(icol_ecr, names[icol]);
     icol_ecr++;
@@ -346,7 +345,7 @@ Selectivity* Selectivity::createInterpolation(const VectorDouble& zcuts,
   double tval, qval;
 
   int nclass = selecin.getNCuts();
-  int ncuts = (int) zcuts.size();
+  int ncuts  = (int)zcuts.size();
 
   Selectivity* selectivity = new Selectivity(ncuts);
   for (int icut = 0; icut < ncuts; icut++)
@@ -394,74 +393,74 @@ Selectivity* Selectivity::createInterpolation(const VectorDouble& zcuts,
 
 void Selectivity::setZcut(int iclass, double zcut)
 {
-  if (! _isValidCut(iclass)) return;
+  if (!_isValidCut(iclass)) return;
   _stats.setValue(iclass, Z_CUT, zcut);
   _Zcut[iclass] = zcut;
 }
 double Selectivity::getZcut(int iclass) const
 {
-  if (! _isValidCut(iclass)) return(TEST);
+  if (!_isValidCut(iclass)) return (TEST);
   return _Zcut[iclass];
 }
 void Selectivity::setBest(int iclass, double best)
 {
-  if (! _isValidCut(iclass)) return;
+  if (!_isValidCut(iclass)) return;
   _stats.setValue(iclass, B_EST, best);
 }
 void Selectivity::setMest(int iclass, double mest)
 {
-  if (! _isValidCut(iclass)) return;
+  if (!_isValidCut(iclass)) return;
   _stats.setValue(iclass, M_EST, mest);
 }
 
 void Selectivity::setQest(int iclass, double qest)
 {
-  if (! _isValidCut(iclass)) return;
+  if (!_isValidCut(iclass)) return;
   _stats.setValue(iclass, Q_EST, qest);
 }
 void Selectivity::setQstd(int iclass, double qstd)
 {
-  if (! _isValidCut(iclass)) return;
+  if (!_isValidCut(iclass)) return;
   _stats.setValue(iclass, Q_STD, qstd);
 }
 void Selectivity::setTest(int iclass, double test)
 {
-  if (! _isValidCut(iclass)) return;
+  if (!_isValidCut(iclass)) return;
   _stats.setValue(iclass, T_EST, test);
 }
 void Selectivity::setTstd(int iclass, double tstd)
 {
-  if (! _isValidCut(iclass)) return;
+  if (!_isValidCut(iclass)) return;
   _stats.setValue(iclass, T_STD, tstd);
 }
 double Selectivity::getBest(int iclass) const
 {
-  if (! _isValidCut(iclass)) return(TEST);
+  if (!_isValidCut(iclass)) return (TEST);
   return _stats.getValue(iclass, B_EST);
 }
 double Selectivity::getMest(int iclass) const
 {
-  if (! _isValidCut(iclass)) return(TEST);
+  if (!_isValidCut(iclass)) return (TEST);
   return _stats.getValue(iclass, M_EST);
 }
 double Selectivity::getQest(int iclass) const
 {
-  if (! _isValidCut(iclass)) return(TEST);
+  if (!_isValidCut(iclass)) return (TEST);
   return _stats.getValue(iclass, Q_EST);
 }
 double Selectivity::getQstd(int iclass) const
 {
-  if (! _isValidCut(iclass)) return(TEST);
+  if (!_isValidCut(iclass)) return (TEST);
   return _stats.getValue(iclass, Q_STD);
 }
 double Selectivity::getTest(int iclass) const
 {
-  if (! _isValidCut(iclass)) return(TEST);
+  if (!_isValidCut(iclass)) return (TEST);
   return _stats.getValue(iclass, T_EST);
 }
 double Selectivity::getTstd(int iclass) const
 {
-  if (! _isValidCut(iclass)) return(TEST);
+  if (!_isValidCut(iclass)) return (TEST);
   return _stats.getValue(iclass, T_STD);
 }
 
@@ -487,8 +486,8 @@ void Selectivity::defineRecoveries(const std::vector<ESelectivity>& codes,
                                    double proba,
                                    bool verbose)
 {
-  int ncode = (int) codes.size();
-  _proba = proba;
+  int ncode = (int)codes.size();
+  _proba    = proba;
   _numberQT.reset(getNQT(), 2);
   _numberQT.fill(0);
 
@@ -666,51 +665,51 @@ String Selectivity::getVariableName(const ESelectivity& code, int icut, int mode
 
     case ESelectivity::E_Z:
       if (mode == 0)
-        return("Z-estim");
+        return ("Z-estim");
       else
-        return("Z-stdev");
+        return ("Z-stdev");
       break;
 
     case ESelectivity::E_T:
       if (mode == 0)
-        return(concatenateString("T-estim", _Zcut[icut]));
+        return (concatenateString("T-estim", _Zcut[icut]));
       else
-        return(concatenateString("T-stdev", _Zcut[icut]));
+        return (concatenateString("T-stdev", _Zcut[icut]));
       break;
 
     case ESelectivity::E_Q:
       if (mode == 0)
-        return(concatenateString("Q-estim", _Zcut[icut]));
+        return (concatenateString("Q-estim", _Zcut[icut]));
       else
-        return(concatenateString("Q-stdev", _Zcut[icut]));
+        return (concatenateString("Q-stdev", _Zcut[icut]));
       break;
 
     case ESelectivity::E_B:
       if (mode == 0)
-        return(concatenateString("B-estim", _Zcut[icut]));
+        return (concatenateString("B-estim", _Zcut[icut]));
       else
-        return(concatenateString("B-stdev", _Zcut[icut]));
+        return (concatenateString("B-stdev", _Zcut[icut]));
       break;
 
     case ESelectivity::E_M:
       if (mode == 0)
-        return(concatenateString("M-estim", _Zcut[icut]));
+        return (concatenateString("M-estim", _Zcut[icut]));
       else
-        return(concatenateString("M-stdev", _Zcut[icut]));
+        return (concatenateString("M-stdev", _Zcut[icut]));
       break;
 
     case ESelectivity::E_PROP:
       if (mode == 0)
-        return("Proba-estim");
+        return ("Proba-estim");
       else
-        return("Proba-stdev");
+        return ("Proba-stdev");
       break;
 
     case ESelectivity::E_QUANT:
       if (mode == 0)
-        return("Quant-estim");
+        return ("Quant-estim");
       else
-        return("Quant-stdev");
+        return ("Quant-stdev");
       break;
   }
 
@@ -763,7 +762,7 @@ String Selectivity::getVariableName(int rank0) const
  ** \param[in]  number       Number of cutoffs
  **
  *****************************************************************************/
-void Selectivity::_printQTvars(const char *title, int type, int number)
+void Selectivity::_printQTvars(const char* title, int type, int number)
 {
   message("- %s", title);
   if (type == 1)
@@ -786,7 +785,7 @@ bool Selectivity::_isRecoveryDefined() const
 int Selectivity::getNVar() const
 {
   int ntotal = 0;
-  if (! _isRecoveryDefined()) return ntotal;
+  if (!_isRecoveryDefined()) return ntotal;
   for (int i = 0; i < getNQT(); i++)
   {
     ntotal += _numberQT.getValue(i, 0);
@@ -798,7 +797,7 @@ int Selectivity::getNVar() const
 bool Selectivity::isUsed(const ESelectivity& code) const
 {
   if (code == ESelectivity::UNKNOWN) return false;
-  if (! _isRecoveryDefined()) return false;
+  if (!_isRecoveryDefined()) return false;
   int key = code.getValue();
   if (_numberQT.getValue(key, 0) > 0) return true;
   if (_numberQT.getValue(key, 1) > 0) return true;
@@ -808,7 +807,7 @@ bool Selectivity::isUsed(const ESelectivity& code) const
 bool Selectivity::isUsedEst(const ESelectivity& code) const
 {
   if (code == ESelectivity::UNKNOWN) return false;
-  if (! _isRecoveryDefined()) return false;
+  if (!_isRecoveryDefined()) return false;
   int key = code.getValue();
   return (_numberQT.getValue(key, 0) > 0);
 }
@@ -848,7 +847,7 @@ int Selectivity::getAddressQTEst(const ESelectivity& code, int iptr0, int rank) 
 int Selectivity::getAddressQTStd(const ESelectivity& code, int iptr0, int rank) const
 {
   if (code == ESelectivity::UNKNOWN) return -1;
-  if (! _isRecoveryDefined()) return -1;
+  if (!_isRecoveryDefined()) return -1;
   int key = code.getValue();
   if (rank < 0 || rank >= _numberQT.getValue(key, 1)) return -1;
   return (iptr0 + _rankQT.getValue(key, 1) + rank);
@@ -872,7 +871,7 @@ void Selectivity::calculateBenefitAndGrade()
     tval = getTest(iclass);
     qval = getQest(iclass);
     setBest(iclass, qval - zval * tval);
-    setMest(iclass ,(ABS(tval) < EPSILON6) ? TEST : qval / tval);
+    setMest(iclass, (ABS(tval) < EPSILON6) ? TEST : qval / tval);
   }
 }
 
@@ -887,9 +886,7 @@ void Selectivity::dumpGini() const
 
   double gini = 1.;
   for (int iclass = 0; iclass < nclass - 1; iclass++)
-    gini -= ((getTest(iclass)
-        - getTest(iclass + 1))
-             * (getQest(iclass) + getQest(iclass + 1)));
+    gini -= ((getTest(iclass) - getTest(iclass + 1)) * (getQest(iclass) + getQest(iclass + 1)));
 
   message("Gini calculated on %d classes\n", nclass);
   message("Value of the Gini index = %lf\n", gini);
@@ -902,7 +899,7 @@ void Selectivity::dumpGini() const
  *****************************************************************************/
 void Selectivity::correctTonnageOrder()
 {
-  if (! isFlagTonnageCorrect()) return;
+  if (!isFlagTonnageCorrect()) return;
   int nclass = getNCuts();
   VectorDouble ta(nclass);
   VectorDouble tb(nclass);
@@ -949,14 +946,14 @@ void Selectivity::_interpolateInterval(double zval,
                                        double ti1,
                                        double qi0,
                                        double qi1,
-                                       double *tval,
-                                       double *qval,
+                                       double* tval,
+                                       double* qval,
                                        double tol)
 {
-  double dzi = zi1 - zi0;
-  double dti = ti1 - ti0;
+  double dzi  = zi1 - zi0;
+  double dti  = ti1 - ti0;
   double zmoy = (qi1 - qi0) / (ti1 - ti0);
-  double aa0 = (zi1 - zmoy) / (zmoy - zi0);
+  double aa0  = (zi1 - zmoy) / (zmoy - zi0);
 
   if (ABS(zval - zi0) < tol)
   {
@@ -973,10 +970,8 @@ void Selectivity::_interpolateInterval(double zval,
   }
 
   double u = (zval - zi0) / dzi;
-  (*tval) = (u <= 0.) ? ti0 : ti0 + dti * pow(u, 1. / aa0);
-  (*qval) = (u <= 0.) ? qi0 :
-      qi0 + zi0 * ((*tval) - ti0)
-      + dzi * dti * pow(u, 1. + 1. / aa0) / (1. + aa0);
+  (*tval)  = (u <= 0.) ? ti0 : ti0 + dti * pow(u, 1. / aa0);
+  (*qval)  = (u <= 0.) ? qi0 : qi0 + zi0 * ((*tval) - ti0) + dzi * dti * pow(u, 1. + 1. / aa0) / (1. + aa0);
 }
 
 /****************************************************************************/
@@ -990,7 +985,7 @@ void Selectivity::_interpolateInterval(double zval,
  ** \param[in]  zstdev      St. dev.
  **
  *****************************************************************************/
-void Selectivity::storeInDb(Db *db,
+void Selectivity::storeInDb(Db* db,
                             int iech0,
                             int iptr,
                             double zestim,
@@ -1058,7 +1053,7 @@ void Selectivity::interpolateSelectivity(const Selectivity* selecin)
   double tval, qval;
 
   double z_max = getZmax();
-  int nclass = selecin->getNCuts();
+  int nclass   = selecin->getNCuts();
   int ncutmine = getNCuts();
   VectorDouble zz(nclass + 2);
   VectorDouble TT(nclass + 2);
@@ -1155,7 +1150,7 @@ void Selectivity::_defineAutomaticCutoffs(const VectorDouble& tab, double eps)
 {
   double zmin = VH::minimum(tab);
   double zmax = VH::maximum(tab) + eps;
-  int ncuts = getNCuts();
+  int ncuts   = getNCuts();
 
   if (ncuts <= 1)
   {
@@ -1163,20 +1158,20 @@ void Selectivity::_defineAutomaticCutoffs(const VectorDouble& tab, double eps)
     return;
   }
   for (int icut = 0; icut < ncuts; icut++)
-    _Zcut[icut] = zmin + (zmax - zmin) * (double) icut / ((double) (ncuts - 1));
+    _Zcut[icut] = zmin + (zmax - zmin) * (double)icut / ((double)(ncuts - 1));
 }
 
-int dbSelectivity(Db *db,
-                  const String &name,
-                  const VectorDouble &zcuts,
-                  const NamingConvention &namconv)
+int dbSelectivity(Db* db,
+                  const String& name,
+                  const VectorDouble& zcuts,
+                  const NamingConvention& namconv)
 {
   if (db == nullptr)
   {
     messerr("You need a 'Db' already defined");
     return 1;
   }
-  int ncuts = (int) zcuts.size();
+  int ncuts = (int)zcuts.size();
   if (ncuts <= 0)
   {
     messerr("argument 'zcuts' must have some cutoffs defined");
@@ -1200,7 +1195,7 @@ int dbSelectivity(Db *db,
 
   for (int iech = 0; iech < db->getNSample(); iech++)
   {
-    if (! db->isActive(iech)) continue;
+    if (!db->isActive(iech)) continue;
     double value = db->getArray(iech, iuid);
 
     for (int icut = 0; icut < ncuts; icut++)
@@ -1219,4 +1214,4 @@ int dbSelectivity(Db *db,
   return 0;
 }
 
-}
+} // namespace gstlrn

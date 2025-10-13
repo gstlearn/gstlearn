@@ -11,7 +11,7 @@
 #include "Covariances/CovCauchy.hpp"
 #include "Covariances/CovContext.hpp"
 
-#include "math.h"
+#include <cmath>
 
 namespace gstlrn
 {
@@ -54,4 +54,4 @@ String CovCauchy::getFormula() const
 {
   return "C(h)=\\frac{1}{\\left( 1+ \\frac{h^2}{a_t^2} \\right)^\\alpha";
 }
-}
+} // namespace gstlrn

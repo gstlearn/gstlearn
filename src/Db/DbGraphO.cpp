@@ -18,7 +18,8 @@
 #include "Polygon/Polygons.hpp"
 #include "Stats/Classical.hpp"
 #include "geoslib_define.h"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {

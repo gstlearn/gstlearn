@@ -9,13 +9,14 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Db/Db.hpp"
+
 #include "Basic/Grid.hpp"
-#include "Basic/Memory.hpp"
 #include "Basic/Utilities.hpp"
 #include "Db/DbGrid.hpp"
 #include "Polygon/Polygons.hpp"
 #include "geoslib_old_f.h"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {
@@ -1497,23 +1498,23 @@ int db_prop_write(DbGrid* db, int ix, int iy, double* props)
  ** \param[out] dmax    Maximum distance
  **
  ** \remarks The returned array must be freed by calling routine
- ** \remarks When the two Dbs coincide, the distance calculation
- *excludes
+ ** \remarks When the two Dbs coincide, the distance calculation excludes
  ** \remarks the comparison between one sample and itself
  **
  *****************************************************************************/
-double* db_distances_general(Db* db1,
-                             Db* db2,
-                             int niso,
-                             int mode,
-                             int flag_same,
-                             int* n1,
-                             int* n2,
-                             double* dmin,
-                             double* dmax)
+VectorDouble db_distances_general(Db* db1,
+                                  Db* db2,
+                                  int niso,
+                                  int mode,
+                                  int flag_same,
+                                  int* n1,
+                                  int* n2,
+                                  double* dmin,
+                                  double* dmax)
 {
   int nech1, nech2, iech1, iech2, ecr, max_all, nvalid;
-  double *dist, dlocmin, dloc, dist_min, dist_max;
+  double dlocmin, dloc, dist_min, dist_max;
+  VectorDouble dist;
 
   /* Preliminary calculations */
 
@@ -1521,7 +1522,6 @@ double* db_distances_general(Db* db1,
   *n2     = 0;
   nech1   = db1->getNSample(true);
   nech2   = db2->getNSample(true);
-  dist    = nullptr;
   max_all = nech1 * nech2;
 
   /* Preliminary checks */
@@ -1532,15 +1532,14 @@ double* db_distances_general(Db* db1,
             niso);
     messerr("But the input 'Db' have %d and %d variables defined",
             db1->getNLoc(ELoc::Z), db2->getNLoc(ELoc::Z));
-    return (dist);
+    return dist;
   }
 
   /* Core allocation */
 
   if (mode > 0)
   {
-    dist = (double*)mem_alloc(sizeof(double) * max_all, 0);
-    if (dist == nullptr) return (dist);
+    dist.resize(max_all);
     for (int i = 0; i < max_all; i++) dist[i] = 0.;
   }
 
@@ -1586,10 +1585,7 @@ double* db_distances_general(Db* db1,
   /* Reallocate the distance array */
 
   if (mode > 0 && ecr < max_all)
-  {
-    dist = (double*)mem_realloc((char*)dist, sizeof(double) * ecr, 0);
-    if (dist == nullptr) return (dist);
-  }
+    dist.resize(ecr);
 
   /* Returned arguments */
 
@@ -1605,7 +1601,7 @@ double* db_distances_general(Db* db1,
     *n1 = nvalid;
     *n2 = nvalid;
   }
-  return (dist);
+  return dist;
 }
 
 /****************************************************************************/
@@ -2422,4 +2418,4 @@ VectorInt grid_iterator_next(Grid* grid)
   VectorInt indices = grid->iteratorNext();
   return (indices);
 }
-}
+} // namespace gstlrn

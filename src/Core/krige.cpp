@@ -35,10 +35,10 @@
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
-#include <limits.h>
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
+#include <climits>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
 
 /*! \cond */
 #define NBYPAS                  5
@@ -96,9 +96,7 @@ static int INH_FLAG_VERBOSE = 0;
 static int INH_FLAG_LIMIT   = 1;
 static char string[100];
 
-
 static CovInternal COVINT;
-
 
 typedef struct
 {
@@ -5172,4 +5170,4 @@ void _image_smoother(DbGrid* dbgrid,
     dbgrid->setArray(iech_out, iptr0, estim);
   }
 }
-}
+} // namespace gstlrn

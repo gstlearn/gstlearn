@@ -8,26 +8,24 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Calculators/CalcMigrate.hpp"
+#include "Basic/Memory.hpp"
+#include "Basic/NamingConvention.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Calculators/ACalcDbToDb.hpp"
+#include "Core/Keypair.hpp"
+#include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
+#include "Enum/ELoc.hpp"
+#include "Geometry/GeometryHelper.hpp"
+#include "Morpho/Morpho.hpp"
+#include "Tree/Ball.hpp"
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
 
-#include "Enum/ELoc.hpp"
+#include <cmath>
 
-#include "Basic/NamingConvention.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Calculators/CalcMigrate.hpp"
-#include "Calculators/ACalcDbToDb.hpp"
-#include "Geometry/GeometryHelper.hpp"
-#include "Db/DbGrid.hpp"
-#include "Db/Db.hpp"
-#include "Morpho/Morpho.hpp"
-#include "Tree/Ball.hpp"
-#include "Basic/Memory.hpp"
-#include "Core/Keypair.hpp"
-
-#include <math.h>
-
-#define RES(nval,idim)      (res[(idim) + (ndim+1) * (nval)])
+#define RES(nval, idim) (res[(idim) + (ndim + 1) * (nval)])
 
 namespace gstlrn
 {
@@ -49,18 +47,18 @@ namespace gstlrn
  **
  *****************************************************************************/
 static void st_shift(int rank,
-                     Db *dbgrid,
-                     const VectorInt &indg1,
-                     const VectorDouble &prop,
-                     VectorInt &indg2,
-                     double *weight)
+                     Db* dbgrid,
+                     const VectorInt& indg1,
+                     const VectorDouble& prop,
+                     VectorInt& indg2,
+                     double* weight)
 {
   int idim, ndiv, ival, ndim;
   double wgt;
 
-  wgt = 1.;
+  wgt  = 1.;
   ndim = dbgrid->getNDim();
-  ndiv = (int) pow(2., ndim - 1);
+  ndiv = (int)pow(2., ndim - 1);
   for (idim = ndim - 1; idim >= 0; idim--)
   {
     ival = rank / ndiv;
@@ -86,10 +84,10 @@ static void st_shift(int rank,
  ** \param[out]  value    Output value
  **
  *****************************************************************************/
-static int st_multilinear_evaluate(DbGrid *db_grid,
-                                   const VectorInt &indg,
+static int st_multilinear_evaluate(DbGrid* db_grid,
+                                   const VectorInt& indg,
                                    int iatt,
-                                   double *value)
+                                   double* value)
 {
   int jech = db_grid->indiceToRank(indg);
   if (jech < 0) return (1);
@@ -113,14 +111,14 @@ static int st_multilinear_evaluate(DbGrid *db_grid,
  ** \param[in]  coor      Coordinates of the target point
  **
  *****************************************************************************/
-static double st_multilinear_interpolation(DbGrid *dbgrid,
+static double st_multilinear_interpolation(DbGrid* dbgrid,
                                            int iatt,
                                            int distType,
                                            const VectorDouble& dmax,
                                            const VectorDouble& coor)
 {
-  int ndim = dbgrid->getNDim();
-  int number = (int) pow(2., ndim);
+  int ndim   = dbgrid->getNDim();
+  int number = (int)pow(2., ndim);
   VectorInt iwork2(ndim);
   VectorInt indg(ndim);
   VectorDouble aux(ndim);
@@ -133,31 +131,31 @@ static double st_multilinear_interpolation(DbGrid *dbgrid,
 
   /* Calculate distance to lower corner as proportion of the grid mesh */
 
-  double rtot = 0.;
+  double rtot    = 0.;
   bool dmaxEmpty = dmax.empty();
   for (int idim = 0; idim < ndim; idim++)
   {
-    double mesh = dbgrid->getDX(idim);
+    double mesh  = dbgrid->getDX(idim);
     double delta = coor[idim] - aux[idim];
     if (delta < 0)
     {
       indg[idim]--;
       delta += mesh;
     }
-    if (! dmaxEmpty && distType == 1)
+    if (!dmaxEmpty && distType == 1)
     {
       if (dmax[idim] <= 0) return TEST;
       double ratio = delta / dmax[idim];
       rtot += ratio * ratio;
     }
-    if (! dmaxEmpty && delta > dmax[idim]) return TEST;
+    if (!dmaxEmpty && delta > dmax[idim]) return TEST;
     prop[idim] = delta / mesh;
   }
-  if (! dmaxEmpty && distType == 1 && rtot > 1.) return TEST;
+  if (!dmaxEmpty && distType == 1 && rtot > 1.) return TEST;
 
   /* Calculate the estimation */
 
-  double estim = 0.;
+  double estim   = 0.;
   double wgt_tot = 0.;
   for (int i = 0; i < number; i++)
   {
@@ -205,8 +203,8 @@ static double st_distance_modify(DbGrid* dbgrid,
   {
     double cosa, sina, x, y, dloc;
 
-    int ndim = dbgrid->getNDim();
-    double angle = 0.;
+    int ndim      = dbgrid->getNDim();
+    double angle  = 0.;
     double scaleu = 1.;
     double scalev = 1.;
     double scalew = 1.;
@@ -216,8 +214,8 @@ static double st_distance_modify(DbGrid* dbgrid,
     {
       angle = dbgrid->getArray(ig, iatt_angle);
       GH::rotationGetSinCos(angle, &cosa, &sina);
-      x = dvect[0];
-      y = dvect[1];
+      x        = dvect[0];
+      y        = dvect[1];
       dvect[0] = x * cosa + y * sina;
       dvect[1] = y * cosa - x * sina;
     }
@@ -295,9 +293,9 @@ static double st_distance_modify(DbGrid* dbgrid,
  ** \remarks Only positive Time Shifts are considered
  **
  *****************************************************************************/
-void st_get_closest_sample(DbGrid *dbgrid,
+void st_get_closest_sample(DbGrid* dbgrid,
                            int ig,
-                           Db *dbpoint,
+                           Db* dbpoint,
                            int ip,
                            int flag_aniso,
                            int iatt_time,
@@ -305,8 +303,8 @@ void st_get_closest_sample(DbGrid *dbgrid,
                            int iatt_scaleu,
                            int iatt_scalev,
                            int iatt_scalew,
-                           int *ipmin,
-                           double *ddmin,
+                           int* ipmin,
+                           double* ddmin,
                            VectorDouble& dvect)
 {
   // Calculate the euclidean distance
@@ -318,7 +316,7 @@ void st_get_closest_sample(DbGrid *dbgrid,
     double dd2 = st_distance_modify(dbgrid, ig, dbpoint, ip, dvect, flag_aniso,
                                     iatt_time, iatt_angle,
                                     iatt_scaleu, iatt_scalev, iatt_scalew);
-    if (! FFFF(dd2)) dd = dd2;
+    if (!FFFF(dd2)) dd = dd2;
   }
 
   // Evaluate the closest distance
@@ -343,11 +341,11 @@ void st_get_closest_sample(DbGrid *dbgrid,
  * @note: The use of 'ip0_init' which could be different from 0 has been abandoned temporarily
  */
 int st_next_sample(int ip0_init,
-                   const VectorInt    &rank,
-                   const VectorDouble &xtab,
+                   const VectorInt& rank,
+                   const VectorDouble& xtab,
                    double xtarget)
 {
-  int np = (int) rank.size();
+  int np = (int)rank.size();
   for (int ip = 0; ip < np; ip++)
   {
     int jp = ip0_init + ip;
@@ -373,10 +371,10 @@ int st_next_sample(int ip0_init,
  ** \remark  even if the sample does not lie within the grid
  **
  *****************************************************************************/
-static int st_locate_point_on_grid(const Db *db_point,
-                                   const DbGrid *db_grid,
-                                   VectorDouble &coor,
-                                   VectorDouble &tab)
+static int st_locate_point_on_grid(const Db* db_point,
+                                   const DbGrid* db_grid,
+                                   VectorDouble& coor,
+                                   VectorDouble& tab)
 {
   int ndim = db_grid->getNDim();
 
@@ -417,12 +415,12 @@ static int st_locate_point_on_grid(const Db *db_point,
  *****************************************************************************/
 static int st_locate_coor_on_grid(int np,
                                   const VectorVectorDouble& coords,
-                                  const DbGrid *db_grid,
+                                  const DbGrid* db_grid,
                                   VectorDouble& tab)
 {
   int iech, iad, number;
-  int ndim = (int) coords.size();
-  VectorDouble local(ndim,0.);
+  int ndim = (int)coords.size();
+  VectorDouble local(ndim, 0.);
 
   /* Loop on the point samples */
 
@@ -460,9 +458,9 @@ static int st_locate_coor_on_grid(int np,
  **
  *****************************************************************************/
 static int st_larger_than_dmax(int ndim,
-                               const VectorDouble &dvect,
+                               const VectorDouble& dvect,
                                int distType,
-                               const VectorDouble &dmax)
+                               const VectorDouble& dmax)
 {
   double ratio, rtot;
 
@@ -516,11 +514,11 @@ static int st_larger_than_dmax(int ndim,
  **
  *****************************************************************************/
 static void st_expand(int flag_size,
-                      DbGrid *dbgrid,
-                      VectorDouble &tab1,
+                      DbGrid* dbgrid,
+                      VectorDouble& tab1,
                       VectorInt& indg0,
                       VectorInt& indg,
-                      VectorDouble &tab2)
+                      VectorDouble& tab2)
 {
   int nech = dbgrid->getNSample();
   int ndim = dbgrid->getNDim();
@@ -587,17 +585,17 @@ int CalcMigrate::_migrateGridToPoint(DbGrid* db_grid,
 
   /* Locate the samples on the grid */
 
-  (void) st_locate_point_on_grid(db_point, db_grid, coor, tab);
+  (void)st_locate_point_on_grid(db_point, db_grid, coor, tab);
 
   /* Loop on the point samples */
 
   for (int iech = 0; iech < db_point->getNSample(); iech++)
   {
     if (FFFF(tab[iech])) continue;
-    int rank = (int) tab[iech];
-    if (! dmax.empty())
+    int rank = (int)tab[iech];
+    if (!dmax.empty())
     {
-      (void) distance_inter(db_grid, db_point, rank, iech, dvect.data());
+      (void)distance_inter(db_grid, db_point, rank, iech, dvect.data());
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
     }
     tab[iech] = db_grid->getArray(rank, iatt);
@@ -606,15 +604,15 @@ int CalcMigrate::_migrateGridToPoint(DbGrid* db_grid,
 }
 
 CalcMigrate::CalcMigrate()
-    : ACalcDbToDb(false),
-      _iattOut(-1),
-      _iuids(),
-      _distType(1),
-      _dmax(),
-      _flagFill(false),
-      _flagInter(false),
-      _flagLocate(false),
-      _locatorType(ELoc::Z)
+  : ACalcDbToDb(false)
+  , _iattOut(-1)
+  , _iuids()
+  , _distType(1)
+  , _dmax()
+  , _flagFill(false)
+  , _flagInter(false)
+  , _flagLocate(false)
+  , _locatorType(ELoc::Z)
 {
 }
 
@@ -624,10 +622,10 @@ CalcMigrate::~CalcMigrate()
 
 bool CalcMigrate::_check()
 {
-  if (! ACalcDbToDb::_check()) return false;
+  if (!ACalcDbToDb::_check()) return false;
 
-  if (! hasDbin()) return false;
-  if (! hasDbout()) return false;
+  if (!hasDbin()) return false;
+  if (!hasDbout()) return false;
 
   if (_iuids.empty())
   {
@@ -638,7 +636,7 @@ bool CalcMigrate::_check()
   _setNvar((int)_iuids.size(), true);
   if (_distType != 1 && _distType != 2)
   {
-    messerr("Argument 'dist_type'(%d)  should be 1 (for L1 distance) or 2 (for L2 distance",_distType);
+    messerr("Argument 'dist_type'(%d)  should be 1 (for L1 distance) or 2 (for L2 distance", _distType);
     return false;
   }
   return true;
@@ -660,7 +658,7 @@ bool CalcMigrate::_postprocess()
 
   int nvar = _getNVar();
   _renameVariable(2, getDbin()->getNamesByUID(_iuids), ELoc::UNKNOWN, nvar,
-                    _iattOut, String(), 1);
+                  _iattOut, String(), 1);
 
   if (_flagLocate)
     getDbout()->setLocatorsByUID(nvar, _iattOut, _locatorType, 0);
@@ -715,15 +713,15 @@ bool CalcMigrate::_run()
  ** \param[in]  namconv    Naming convention
  **
  *****************************************************************************/
-int migrate(Db *dbin,
-            Db *dbout,
-            const String &name,
+int migrate(Db* dbin,
+            Db* dbout,
+            const String& name,
             int dist_type,
             const VectorDouble& dmax,
             bool flag_fill,
             bool flag_inter,
             bool flag_ball,
-            const NamingConvention &namconv)
+            const NamingConvention& namconv)
 {
   CalcMigrate migrate;
   migrate.setDbin(dbin);
@@ -763,15 +761,15 @@ int migrate(Db *dbin,
  ** \param[in]  namconv    Naming convention
  **
  *****************************************************************************/
-int migrateMulti(Db *dbin,
-                 Db *dbout,
-                 const VectorString &names,
+int migrateMulti(Db* dbin,
+                 Db* dbout,
+                 const VectorString& names,
                  int dist_type,
                  const VectorDouble& dmax,
                  bool flag_fill,
                  bool flag_inter,
                  bool flag_ball,
-                 const NamingConvention &namconv)
+                 const NamingConvention& namconv)
 {
   CalcMigrate migrate;
   migrate.setDbin(dbin);
@@ -809,15 +807,15 @@ int migrateMulti(Db *dbin,
  ** \param[in]  namconv    Naming Convention
  **
  *****************************************************************************/
-int migrateByAttribute(Db *dbin,
-                       Db *dbout,
+int migrateByAttribute(Db* dbin,
+                       Db* dbout,
                        const VectorInt& atts,
                        int dist_type,
                        const VectorDouble& dmax,
                        bool flag_fill,
                        bool flag_inter,
                        bool flag_ball,
-                       const NamingConvention &namconv)
+                       const NamingConvention& namconv)
 {
   CalcMigrate migrate;
   migrate.setDbin(dbin);
@@ -859,15 +857,15 @@ int migrateByAttribute(Db *dbin,
  ** \remark The output variable receive the same locator as the input variables
  **
  *****************************************************************************/
-int migrateByLocator(Db *dbin,
-                     Db *dbout,
+int migrateByLocator(Db* dbin,
+                     Db* dbout,
                      const ELoc& locatorType,
                      int dist_type,
                      const VectorDouble& dmax,
                      bool flag_fill,
                      bool flag_inter,
                      bool flag_ball,
-                     const NamingConvention &namconv)
+                     const NamingConvention& namconv)
 {
   CalcMigrate migrate;
   migrate.setDbin(dbin);
@@ -875,7 +873,7 @@ int migrateByLocator(Db *dbin,
   migrate.setNamingConvention(namconv);
 
   VectorString names = dbin->getNamesByLocator(locatorType);
-  VectorInt iuids = dbin->getUIDs(names);
+  VectorInt iuids    = dbin->getUIDs(names);
   migrate.setIuids(iuids);
   migrate.setDistType(dist_type);
   migrate.setDmax(dmax);
@@ -912,10 +910,10 @@ int migrateByLocator(Db *dbin,
  **
  *****************************************************************************/
 int manageExternalInformation(int mode,
-                              const ELoc &locatorType,
-                              Db *dbin,
-                              Db *dbout,
-                              bool *flag_created)
+                              const ELoc& locatorType,
+                              Db* dbin,
+                              Db* dbout,
+                              bool* flag_created)
 {
   //  VectorDouble tab;
 
@@ -991,13 +989,13 @@ int manageExternalInformation(int mode,
  ** \remark (in all space dimensions) is always set to FFFF
  **
  *****************************************************************************/
-int interpolateVariableToPoint(DbGrid *db_grid,
+int interpolateVariableToPoint(DbGrid* db_grid,
                                int iatt,
                                int np,
-                               const double *xp,
-                               const double *yp,
-                               const double *zp,
-                               double *tab)
+                               const double* xp,
+                               const double* yp,
+                               const double* zp,
+                               double* tab)
 {
   int error, ndim;
   VectorDouble coor(3);
@@ -1013,8 +1011,7 @@ int interpolateVariableToPoint(DbGrid *db_grid,
     messerr("This procedure is limited to 3-D grid");
     goto label_end;
   }
-  if ((ndim >= 1 && xp == nullptr) || (ndim >= 2 && yp == nullptr)
-      || (ndim >= 3 && zp == nullptr))
+  if ((ndim >= 1 && xp == nullptr) || (ndim >= 2 && yp == nullptr) || (ndim >= 3 && zp == nullptr))
   {
     messerr("The Grid space dimension (%d) must be in accordance with", ndim);
     messerr("the definition of arguments 'xp', 'yp' and 'zp'");
@@ -1037,7 +1034,8 @@ int interpolateVariableToPoint(DbGrid *db_grid,
 
   /* Core deallocation */
 
-  label_end: return (error);
+label_end:
+  return (error);
 }
 
 /*****************************************************************************/
@@ -1065,13 +1063,13 @@ int interpolateVariableToPoint(DbGrid *db_grid,
  **
  ** TODO FUTURE_REFACTOR
  *****************************************************************************/
-double* dbgridLineSampling(DbGrid *dbgrid,
-                           const double *x1,
-                           const double *x2,
+double* dbgridLineSampling(DbGrid* dbgrid,
+                           const double* x1,
+                           const double* x2,
                            int ndisc,
                            int ncut,
-                           const double *cuts,
-                           int *nval_ret)
+                           const double* cuts,
+                           int* nval_ret)
 {
   double *res, delta, vi1, vi2, cut, v1, v2;
   int ndim, iatt, nval;
@@ -1081,9 +1079,9 @@ double* dbgridLineSampling(DbGrid *dbgrid,
   /* Initializations */
 
   *nval_ret = 0;
-  res = nullptr;
-  ndim = dbgrid->getNDim();
-  iatt = dbgrid->getColIdxByLocator(ELoc::Z, 0);
+  res       = nullptr;
+  ndim      = dbgrid->getNDim();
+  iatt      = dbgrid->getColIdxByLocator(ELoc::Z, 0);
 
   /* Preliminary checks */
 
@@ -1113,17 +1111,17 @@ double* dbgridLineSampling(DbGrid *dbgrid,
 
     for (int idim = 0; idim < ndim; idim++)
     {
-      delta = (x2[idim] - x1[idim]) / (double) ndisc;
-      xi1[idim] = x1[idim] + delta * (double) (idisc);
-      xi2[idim] = x1[idim] + delta * (double) (idisc + 1);
+      delta     = (x2[idim] - x1[idim]) / (double)ndisc;
+      xi1[idim] = x1[idim] + delta * (double)(idisc);
+      xi2[idim] = x1[idim] + delta * (double)(idisc + 1);
     }
 
     /* Calculate the target variable value at segment endpoints */
 
     vi1 = st_multilinear_interpolation(dbgrid, iatt, 0, VectorDouble(), xi1);
     vi2 = st_multilinear_interpolation(dbgrid, iatt, 0, VectorDouble(), xi2);
-    v1 = MIN(vi1, vi2);
-    v2 = MAX(vi1, vi2);
+    v1  = MIN(vi1, vi2);
+    v2  = MAX(vi1, vi2);
 
     /* Loop on the cutoffs */
 
@@ -1131,22 +1129,22 @@ double* dbgridLineSampling(DbGrid *dbgrid,
     {
       cut = cuts[icut];
       if (cut < v1 || cut > v2) continue;
-      res = (double*) mem_realloc((char* ) res,
-                                  (ndim + 1) * (nval + 1) * sizeof(double), 0);
+      res = (double*)mem_realloc((char*)res,
+                                 (ndim + 1) * (nval + 1) * sizeof(double), 0);
       if (res == nullptr) goto label_end;
 
       for (int idim = 0; idim < ndim; idim++)
       {
-        delta = (v2 > v1) ? (xi2[idim] - xi1[idim]) / (v2 - v1) : 0.;
-        RES(nval,idim) = xi1[idim] + delta * (cut - v1);
+        delta           = (v2 > v1) ? (xi2[idim] - xi1[idim]) / (v2 - v1) : 0.;
+        RES(nval, idim) = xi1[idim] + delta * (cut - v1);
       }
-      RES(nval,ndim) = icut + 1;
+      RES(nval, ndim) = icut + 1;
       nval++;
     }
   }
   *nval_ret = nval;
 
-  label_end:
+label_end:
   return (res);
 }
 
@@ -1179,8 +1177,8 @@ double* dbgridLineSampling(DbGrid *dbgrid,
  ** \remarks Only positive Time Shifts are considered
  **
  *****************************************************************************/
-int expandPointToGrid(Db *db_point,
-                      DbGrid *db_grid,
+int expandPointToGrid(Db* db_point,
+                      DbGrid* db_grid,
                       int iatt,
                       int iatt_time,
                       int iatt_angle,
@@ -1189,8 +1187,8 @@ int expandPointToGrid(Db *db_point,
                       int iatt_scalew,
                       int flag_index,
                       int distType,
-                      const VectorDouble &dmax,
-                      VectorDouble &tab)
+                      const VectorDouble& dmax,
+                      VectorDouble& tab)
 {
   double dd1d, ddmin;
   int jpmin;
@@ -1198,15 +1196,15 @@ int expandPointToGrid(Db *db_point,
   /* Preliminary checks */
 
   if (!db_point->hasLargerDimension(db_grid)) return 1;
-  int ndim_min = MIN(db_point->getNDim(), db_grid->getNDim());
-  int ndim_max = MAX(db_point->getNDim(), db_grid->getNDim());
+  int ndim_min    = MIN(db_point->getNDim(), db_grid->getNDim());
+  int ndim_max    = MAX(db_point->getNDim(), db_grid->getNDim());
   bool flag_aniso = 0;
   if (ndim_min >= 1 && iatt_scaleu >= 0) flag_aniso = 1;
   if (ndim_min >= 2 && iatt_scalev >= 0) flag_aniso = 1;
   if (ndim_min >= 3 && iatt_scalew >= 0) flag_aniso = 1;
-  int idim_ref = ndim_min - 1;
+  int idim_ref    = ndim_min - 1;
   double dmax_ref = MAXIMUM_BIG;
-  if (! dmax.empty()) dmax_ref = dmax[idim_ref];
+  if (!dmax.empty()) dmax_ref = dmax[idim_ref];
 
   // Core allocation
 
@@ -1260,7 +1258,7 @@ int expandPointToGrid(Db *db_point,
     for (int ip = ip0; ip >= 0; ip--)
     {
       int jp = rank[ip];
-      dd1d = ABS(xtab[jp] - xtarget);
+      dd1d   = ABS(xtab[jp] - xtarget);
       if (dd1d >= ddmin)
         break;
       st_get_closest_sample(db_grid, ig, db_point, jp, flag_aniso, iatt_time,
@@ -1273,7 +1271,7 @@ int expandPointToGrid(Db *db_point,
     for (int ip = ip0 + 1; ip < np; ip++)
     {
       int jp = rank[ip];
-      dd1d = ABS(xtab[jp] - xtarget);
+      dd1d   = ABS(xtab[jp] - xtarget);
       if (dd1d >= ddmin)
         break;
       st_get_closest_sample(db_grid, ig, db_point, jp, flag_aniso, iatt_time,
@@ -1283,9 +1281,9 @@ int expandPointToGrid(Db *db_point,
 
     /* Truncation by 'dmax' if provided */
 
-    if (! dmax.empty() && jpmin >= 0)
+    if (!dmax.empty() && jpmin >= 0)
     {
-      (void) distance_inter(db_grid, db_point, ig, jpmin, dvect.data());
+      (void)distance_inter(db_grid, db_point, ig, jpmin, dvect.data());
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
     }
 
@@ -1296,7 +1294,7 @@ int expandPointToGrid(Db *db_point,
     else
     {
       if (flag_index)
-        tab[ig] = (double) jpmin;
+        tab[ig] = (double)jpmin;
       else
         tab[ig] = db_point->getArray(jpmin, iatt);
     }
@@ -1318,19 +1316,19 @@ int expandPointToGrid(Db *db_point,
  ** \param[out]  tab      Output array (Dimension: number of discretized points)
  **
  *****************************************************************************/
-int expandPointToCoor(const Db *db1,
+int expandPointToCoor(const Db* db1,
                       int iatt,
-                      const VectorVectorDouble &coords,
-                      VectorDouble &tab)
+                      const VectorVectorDouble& coords,
+                      VectorDouble& tab)
 {
-  double *tab1 = nullptr;
-  double *tab2 = nullptr;
+  double* tab1 = nullptr;
+  double* tab2 = nullptr;
 
   /* Preliminary checks */
 
-  int ndim = db1->getNDim();
-  int ndimp = (int) coords.size();
-  int np = (int) coords[0].size();
+  int ndim  = db1->getNDim();
+  int ndimp = (int)coords.size();
+  int np    = (int)coords[0].size();
   if (ndim != ndimp)
   {
     messerr("The Space Dimension of the First Db (%d)", ndim);
@@ -1354,7 +1352,7 @@ int expandPointToCoor(const Db *db1,
     /* Loop on the input structure */
 
     double distmin = MAXIMUM_BIG;
-    int iechmin = -1;
+    int iechmin    = -1;
     for (int iech1 = 0; iech1 < db1->getNSample(); iech1++)
     {
       if (!db1->isActive(iech1)) continue;
@@ -1399,8 +1397,8 @@ int expandPointToCoor(const Db *db1,
  ** \remarks using: set_keypair("PTB_flag_index")
  **
  *****************************************************************************/
-int pointToBlock(Db *dbpoint,
-                 DbGrid *dbgrid,
+int pointToBlock(Db* dbpoint,
+                 DbGrid* dbgrid,
                  int option,
                  int flag_size,
                  int iatt_time,
@@ -1417,16 +1415,17 @@ int pointToBlock(Db *dbpoint,
 
   /* Initializations */
 
-  error = 1;
+  error     = 1;
   iatt_rank = -1;
   if (!dbgrid->hasSameDimension(dbpoint)) return 1;
-  ndim = dbgrid->getNDim();
-  flag_index = (int) get_keypone("PTB_Flag_Index", 0.);
+  ndim       = dbgrid->getNDim();
+  flag_index = (int)get_keypone("PTB_Flag_Index", 0.);
 
   /* Core allocation */
 
   VectorInt indg0(ndim);
-  VectorInt indg(ndim);;
+  VectorInt indg(ndim);
+  ;
   tab1.resize(dbgrid->getNSample());
   tab2.resize(dbgrid->getNSample(), -1.);
 
@@ -1446,7 +1445,7 @@ int pointToBlock(Db *dbpoint,
   /* Create the sample rank attribute and expand it over the grid */
 
   for (int iech = 0; iech < dbpoint->getNSample(); iech++)
-    dbpoint->setArray(iech, iatt_rank, (double) iech);
+    dbpoint->setArray(iech, iatt_rank, (double)iech);
   if (expandPointToGrid(dbpoint, dbgrid, iatt_rank, iatt_time, iatt_angle,
                         iatt_scaleu, iatt_scalev, iatt_scalew, flag_index, 0,
                         VectorDouble(), tab1)) goto label_end;
@@ -1463,7 +1462,7 @@ int pointToBlock(Db *dbpoint,
   /* Define the neighboring elements */
 
   indret = gridcell_neigh(ndim, option, 1, 1, 0);
-  nvois = (int) indret.size() / ndim;
+  nvois  = (int)indret.size() / ndim;
 
   /* Loop on the grid nodes */
 
@@ -1498,7 +1497,7 @@ int pointToBlock(Db *dbpoint,
       else
       {
         if (!dbgrid->isActive(jech)) continue;
-        val_jech = (int) tab1[jech];
+        val_jech = (int)tab1[jech];
         if (val_iech == val_jech) continue;
 
         /* Increment the perimeter by one */
@@ -1533,7 +1532,8 @@ int pointToBlock(Db *dbpoint,
 
   /* Save the array 'tab' in the Grid Db file */
 
-  label_suite: dbgrid->setColumnByUID(tab2, iatt_edge);
+label_suite:
+  dbgrid->setColumnByUID(tab2, iatt_edge);
 
   /* Set the error return code */
 
@@ -1541,8 +1541,8 @@ int pointToBlock(Db *dbpoint,
 
   /* Core deallocation */
 
-  label_end:
-    if (iatt_rank >= 0) dbpoint->deleteColumnByUID(iatt_rank);
+label_end:
+  if (iatt_rank >= 0) dbpoint->deleteColumnByUID(iatt_rank);
   return (error);
 }
 
@@ -1560,13 +1560,13 @@ int pointToBlock(Db *dbpoint,
  ** \param[out]  tab      Output array (Dimension: number of discretized points)
  **
  *****************************************************************************/
-int migrateGridToCoor(const DbGrid *db_grid,
+int migrateGridToCoor(const DbGrid* db_grid,
                       int iatt,
-                      const VectorVectorDouble &coords,
-                      VectorDouble &tab)
+                      const VectorVectorDouble& coords,
+                      VectorDouble& tab)
 {
-  int ndim = (int) coords.size();
-  int np = (int) coords[0].size();
+  int ndim = (int)coords.size();
+  int np   = (int)coords[0].size();
   if (db_grid->getNDim() != ndim)
   {
     messerr("The Space Dimension of the First Db (%d)", db_grid->getNDim());
@@ -1577,14 +1577,14 @@ int migrateGridToCoor(const DbGrid *db_grid,
 
   /* Locate the samples on the grid */
 
-  (void) st_locate_coor_on_grid(np, coords, db_grid, tab);
+  (void)st_locate_coor_on_grid(np, coords, db_grid, tab);
 
   /* Loop on the point samples */
 
   for (int iech = 0; iech < np; iech++)
   {
     if (FFFF(tab[iech])) continue;
-    tab[iech] = db_grid->getArray((int) tab[iech], iatt);
+    tab[iech] = db_grid->getArray((int)tab[iech], iatt);
   }
   return 0;
 }
@@ -1603,19 +1603,19 @@ int migrateGridToCoor(const DbGrid *db_grid,
  ** \param[out]  tab      Output array (Dimension: number of discretized points)
  **
  *****************************************************************************/
-int expand_point_to_coor(const Db *db1,
+int expand_point_to_coor(const Db* db1,
                          int iatt,
                          const VectorVectorDouble& coords,
                          VectorDouble& tab)
 {
-  double *tab1 = nullptr;
-  double *tab2 = nullptr;
+  double* tab1 = nullptr;
+  double* tab2 = nullptr;
 
   /* Preliminary checks */
 
-  int ndim = db1->getNDim();
-  int ndimp = (int) coords.size();
-  int np = (int) coords[0].size();
+  int ndim  = db1->getNDim();
+  int ndimp = (int)coords.size();
+  int np    = (int)coords[0].size();
   if (ndim != ndimp)
   {
     messerr("The Space Dimension of the First Db (%d)", ndim);
@@ -1639,7 +1639,7 @@ int expand_point_to_coor(const Db *db1,
     /* Loop on the input structure */
 
     double distmin = MAXIMUM_BIG;
-    int iechmin = -1;
+    int iechmin    = -1;
     for (int iech1 = 0; iech1 < db1->getNSample(); iech1++)
     {
       if (!db1->isActive(iech1)) continue;
@@ -1676,12 +1676,12 @@ int expand_point_to_coor(const Db *db1,
  ** \param[in]  flag_ball  Use the BallTree sort for speeding up calculations
  **
  *****************************************************************************/
-int CalcMigrate::_migrate(Db *db1,
-                          Db *db2,
+int CalcMigrate::_migrate(Db* db1,
+                          Db* db2,
                           int iatt1,
                           int iatt2,
                           int distType,
-                          const VectorDouble &dmax,
+                          const VectorDouble& dmax,
                           bool flag_fill,
                           bool flag_inter,
                           bool flag_ball)
@@ -1805,12 +1805,12 @@ int CalcMigrate::_migrate(Db *db1,
  ** \param[out] tab       Output array
  **
  *****************************************************************************/
-int CalcMigrate::_migratePointToGrid(Db *db_point,
-                                        DbGrid *db_grid,
-                                        int iatt,
-                                        int distType,
-                                        const VectorDouble &dmax,
-                                        VectorDouble &tab)
+int CalcMigrate::_migratePointToGrid(Db* db_point,
+                                     DbGrid* db_grid,
+                                     int iatt,
+                                     int distType,
+                                     const VectorDouble& dmax,
+                                     VectorDouble& tab)
 {
   if (!db_point->hasLargerDimension(db_grid)) return 1;
   int ndim_min = MIN(db_point->getNDim(), db_grid->getNDim());
@@ -1825,7 +1825,7 @@ int CalcMigrate::_migratePointToGrid(Db *db_point,
 
   /* Locate the samples on the grid */
 
-  (void) st_locate_point_on_grid(db_point, db_grid, coor, local);
+  (void)st_locate_point_on_grid(db_point, db_grid, coor, local);
 
   /* Assign the index of the closest sample to each grid node */
 
@@ -1834,7 +1834,7 @@ int CalcMigrate::_migratePointToGrid(Db *db_point,
   {
     if (FFFF(local[iech])) continue;
     if (FFFF(db_point->getArray(iech, iatt))) continue;
-    int inode = (int) local[iech];
+    int inode = (int)local[iech];
     nb_assign++;
     if (FFFF(tab[inode]))
     {
@@ -1846,7 +1846,7 @@ int CalcMigrate::_migratePointToGrid(Db *db_point,
     {
       /* If the grid is not empty, find the closest sample */
 
-      int jech = (int) tab[inode];
+      int jech     = (int)tab[inode];
       double dist1 = distance_inter(db_grid, db_point, inode, iech, dvect.data());
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
       double dist2 = distance_inter(db_grid, db_point, inode, jech, dvect.data());
@@ -1863,7 +1863,7 @@ int CalcMigrate::_migratePointToGrid(Db *db_point,
   for (int jnode = 0; jnode < db_grid->getNSample(); jnode++)
   {
     if (FFFF(tab[jnode])) continue;
-    tab[jnode] = db_point->getArray((int) tab[jnode], iatt);
+    tab[jnode] = db_point->getArray((int)tab[jnode], iatt);
   }
   return 0;
 }
@@ -1887,14 +1887,14 @@ int CalcMigrate::_migratePointToGrid(Db *db_point,
  ** \remarks Method is designed when the two 'Db' share the same space dimension
  **
  *****************************************************************************/
-int CalcMigrate::_expandPointToPointBall(Db *db1,
-                                         Db *db2,
+int CalcMigrate::_expandPointToPointBall(Db* db1,
+                                         Db* db2,
                                          int iatt,
                                          int distType,
-                                         const VectorDouble &dmax,
-                                         VectorDouble &tab)
+                                         const VectorDouble& dmax,
+                                         VectorDouble& tab)
 {
-  if (! db1->hasSameDimension(db2)) return 1;
+  if (!db1->hasSameDimension(db2)) return 1;
   int ndim = db1->getNDim();
   VectorDouble coor(ndim);
   VectorDouble dvect(ndim);
@@ -1908,13 +1908,13 @@ int CalcMigrate::_expandPointToPointBall(Db *db1,
 
   for (int inode = 0; inode < db2->getNSample(); inode++)
   {
-    if (! db2->isActive(inode)) continue;
+    if (!db2->isActive(inode)) continue;
     db2->getCoordinatesInPlace(coor, inode);
     int iech = ball.queryClosest(coor);
 
-    if (! dmax.empty())
+    if (!dmax.empty())
     {
-      (void) distance_inter(db2, db1, inode, iech, dvect.data());
+      (void)distance_inter(db2, db1, inode, iech, dvect.data());
       if (st_larger_than_dmax(ndim, dvect, distType, dmax)) continue;
     }
 
@@ -1940,18 +1940,18 @@ int CalcMigrate::_expandPointToPointBall(Db *db1,
  ** \param[out]  tab      Output array
  **
  *****************************************************************************/
-int CalcMigrate::_migrateGridToGrid(DbGrid *db_gridin,
-                                    DbGrid *db_gridout,
+int CalcMigrate::_migrateGridToGrid(DbGrid* db_gridin,
+                                    DbGrid* db_gridout,
                                     int iatt,
                                     int distType,
-                                    const VectorDouble &dmax,
-                                    VectorDouble &tab)
+                                    const VectorDouble& dmax,
+                                    VectorDouble& tab)
 {
   if (!db_gridin->hasLargerDimension(db_gridout)) return 1;
   int ndim_min = MIN(db_gridin->getNDim(), db_gridout->getNDim());
   int ndim_max = MAX(db_gridin->getNDim(), db_gridout->getNDim());
-  if (! db_gridin->isGrid()) return 1;
-  if (! db_gridout->isGrid()) return 1;
+  if (!db_gridin->isGrid()) return 1;
+  if (!db_gridout->isGrid()) return 1;
 
   /* Core allocation */
 
@@ -1980,7 +1980,7 @@ int CalcMigrate::_migrateGridToGrid(DbGrid *db_gridin,
     double dist_loc = distance_inter(db_gridin, db_gridout, iech, jech, dvect.data());
     if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
     if (dist_loc > dist[jech]) continue;
-    tab[jech] = value;
+    tab[jech]  = value;
     dist[jech] = dist_loc;
   }
   return 0;
@@ -2007,12 +2007,12 @@ int CalcMigrate::_migrateGridToGrid(DbGrid *db_gridin,
  ** \remark: In that case, 'dmax' must be defined for the smallest Space Dimension
  **
  *****************************************************************************/
-int CalcMigrate::_expandPointToPoint(Db *db1,
-                                    Db *db2,
-                                    int iatt,
-                                    int distType,
-                                    const VectorDouble &dmax,
-                                    VectorDouble &tab)
+int CalcMigrate::_expandPointToPoint(Db* db1,
+                                     Db* db2,
+                                     int iatt,
+                                     int distType,
+                                     const VectorDouble& dmax,
+                                     VectorDouble& tab)
 {
   if (!db1->hasLargerDimension(db2)) return 1;
   int ndim_min = MIN(db1->getNDim(), db2->getNDim());
@@ -2031,7 +2031,7 @@ int CalcMigrate::_expandPointToPoint(Db *db1,
     /* Loop on the input structure */
 
     double distmin = MAXIMUM_BIG;
-    int iechmin = -1;
+    int iechmin    = -1;
     for (int iech1 = 0; iech1 < db1->getNSample(); iech1++)
     {
       if (!db1->isActive(iech1)) continue;
@@ -2066,12 +2066,12 @@ int CalcMigrate::_expandPointToPoint(Db *db1,
  ** \param[out]  tab      Output array
  **
  *****************************************************************************/
-int CalcMigrate::_expandGridToGrid(DbGrid *db_gridin,
-                                      DbGrid *db_gridout,
-                                      int iatt,
-                                      int distType,
-                                      const VectorDouble &dmax,
-                                      VectorDouble &tab)
+int CalcMigrate::_expandGridToGrid(DbGrid* db_gridin,
+                                   DbGrid* db_gridout,
+                                   int iatt,
+                                   int distType,
+                                   const VectorDouble& dmax,
+                                   VectorDouble& tab)
 {
   if (!db_gridin->hasLargerDimension(db_gridout)) return 1;
   if (!db_gridin->isGrid())
@@ -2109,7 +2109,7 @@ int CalcMigrate::_expandGridToGrid(DbGrid *db_gridin,
                                      dvect.data());
     if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
     if (dist_loc > dist[iech]) continue;
-    tab[iech] = db_gridin->getArray(jech, iatt);
+    tab[iech]  = db_gridin->getArray(jech, iatt);
     dist[iech] = dist_loc;
   }
   return 0;
@@ -2135,12 +2135,12 @@ int CalcMigrate::_expandGridToGrid(DbGrid *db_gridin,
  ** \remark (in all space dimensions) is always set to FFFF
  **
  *****************************************************************************/
-int CalcMigrate::_interpolateGridToPoint(DbGrid *db_grid,
-                                         Db *db_point,
+int CalcMigrate::_interpolateGridToPoint(DbGrid* db_grid,
+                                         Db* db_point,
                                          int iatt,
                                          int distType,
-                                         const VectorDouble &dmax,
-                                         VectorDouble &tab)
+                                         const VectorDouble& dmax,
+                                         VectorDouble& tab)
 {
   if (!db_grid->hasLargerDimension(db_point)) return 1;
 
@@ -2158,4 +2158,4 @@ int CalcMigrate::_interpolateGridToPoint(DbGrid *db_grid,
   }
   return 0;
 }
-}
+} // namespace gstlrn

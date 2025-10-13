@@ -8,11 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/VectorNumT.hpp"
 #include "Basic/FFT.hpp"
 #include "Arrays/Array.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Core/fftn.hpp"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {
@@ -30,8 +31,8 @@ int FFTn(int ndim,
          int iSign,
          double scaling)
 {
-  int n = (int) Re.size();
-  Im.resize(n,0.);
+  int n = (int)Re.size();
+  Im.resize(n, 0.);
   return fftn(ndim, dims.data(), Re.data(), Im.data(), iSign, scaling);
 }
 
@@ -48,21 +49,21 @@ Array evalCovFFTTimeSlice(const VectorDouble& hmax,
                           int N,
                           const std::function<std::complex<double>(VectorDouble, double)>& funcSpectrum)
 {
-  int ndim = (int) hmax.size();
+  int ndim = (int)hmax.size();
   VectorInt nxs(ndim);
   for (int idim = 0; idim < ndim; idim++)
-    nxs[idim] = N ;
+    nxs[idim] = N;
   Array array(nxs);
 
-  int ntotal = (int) pow(N, ndim);
+  int ntotal = (int)pow(N, ndim);
   VectorDouble a(ndim);
   double coeff = 0;
-  double prod = 1.;
+  double prod  = 1.;
 
-  for(int idim = 0; idim < ndim; idim++)
+  for (int idim = 0; idim < ndim; idim++)
   {
-    coeff = 1. / (2. * hmax[idim]);
-    a[idim] = GV_PI * (N-1) / (hmax[idim]);
+    coeff   = 1. / (2. * hmax[idim]);
+    a[idim] = GV_PI * (N - 1) / (hmax[idim]);
     prod *= coeff;
   }
 
@@ -72,7 +73,7 @@ Array evalCovFFTTimeSlice(const VectorDouble& hmax,
   VectorDouble temp(ndim);
   for (int iad = 0; iad < ntotal; iad++)
   {
-    array.rankToIndice(iad,indices);
+    array.rankToIndice(iad, indices);
 
     int s = 1;
     for (int idim = 0; idim < ndim; idim++)
@@ -81,9 +82,9 @@ Array evalCovFFTTimeSlice(const VectorDouble& hmax,
       s *= (indices[idim] % 2) ? -1 : 1;
     }
 
-    std::complex<double> fourier = funcSpectrum(temp,time);
-    Re[iad] = s * prod * fourier.real();
-    Im[iad] = s * prod * fourier.imag();
+    std::complex<double> fourier = funcSpectrum(temp, time);
+    Re[iad]                      = s * prod * fourier.real();
+    Im[iad]                      = s * prod * fourier.imag();
   }
   FFTn(ndim, nxs, Re, Im);
 
@@ -91,35 +92,35 @@ Array evalCovFFTTimeSlice(const VectorDouble& hmax,
 
   for (int iad = 0; iad < ntotal; iad++)
   {
-    array.rankToIndice(iad,indices);
+    array.rankToIndice(iad, indices);
     int s = 1;
-    for (int idim = 0;  idim < ndim; idim++)
+    for (int idim = 0; idim < ndim; idim++)
     {
       s *= (indices[idim] % 2) ? -1 : 1;
     }
-    array.setValue(indices,Re[iad] * s);
+    array.setValue(indices, Re[iad] * s);
   }
   return array;
 }
 
-Array evalCovFFTSpatial(const VectorDouble &hmax,
+Array evalCovFFTSpatial(const VectorDouble& hmax,
                         int N,
                         const std::function<double(const VectorDouble&)>& funcSpectrum)
 {
-  int ndim = (int) hmax.size();
+  int ndim = (int)hmax.size();
   VectorInt nxs(ndim);
   for (int idim = 0; idim < ndim; idim++)
     nxs[idim] = N;
   Array array(nxs);
 
-  int ntotal = (int) pow(N, ndim);
+  int ntotal = (int)pow(N, ndim);
   VectorDouble a(ndim);
   double coeff = 0;
-  double prod = 1.;
+  double prod  = 1.;
 
   for (int idim = 0; idim < ndim; idim++)
   {
-    coeff = 1. / (2. * hmax[idim]);
+    coeff   = 1. / (2. * hmax[idim]);
     a[idim] = GV_PI * (N - 1) / (hmax[idim]);
     prod *= coeff;
   }
@@ -136,7 +137,7 @@ Array evalCovFFTSpatial(const VectorDouble &hmax,
     int s = 1;
     for (int idim = 0; idim < ndim; idim++)
     {
-      temp[idim] = a[idim] * ((double) indices[idim] / (N - 1) - 0.5);
+      temp[idim] = a[idim] * ((double)indices[idim] / (N - 1) - 0.5);
       s *= (indices[idim] % 2) ? -1 : 1;
     }
     Re[iad] = s * prod * funcSpectrum(temp);
@@ -147,13 +148,13 @@ Array evalCovFFTSpatial(const VectorDouble &hmax,
 
   for (int iad = 0; iad < ntotal; iad++)
   {
-    array.rankToIndice(iad,indices);
+    array.rankToIndice(iad, indices);
     int s = 1;
-    for (int idim = 0;  idim < ndim; idim++)
+    for (int idim = 0; idim < ndim; idim++)
     {
       s *= (indices[idim] % 2) ? -1 : 1;
     }
-    array.setValue(indices,Re[iad] * s);
+    array.setValue(indices, Re[iad] * s);
   }
 
   return array;
@@ -194,7 +195,7 @@ static int _getIndex(int ndim, const VectorInt& strides, const VectorInt& indice
 // Fonction pour effectuer un fftshift sur un tenseur nD stocké en 1D
 void fftshift(const VectorInt& dims, VectorDouble& data)
 {
-  int ndim = (int) dims.size();
+  int ndim       = (int)dims.size();
   int total_size = (int)data.size();
 
   // Calcul des moitiés des dimensions
@@ -222,8 +223,8 @@ void fftshift(const VectorInt& dims, VectorDouble& data)
       coords_new[dim] = (coords_old[dim] + half[dim]) % dims[dim];
 
     // Reconvertir en index linéaire
-    int new_index = _getIndex(ndim, strides, coords_new);
+    int new_index   = _getIndex(ndim, strides, coords_new);
     data[new_index] = temp[index];
   }
 }
-}
+} // namespace gstlrn

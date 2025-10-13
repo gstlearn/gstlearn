@@ -14,7 +14,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "geoslib_old_f.h"
-#include <math.h>
+#include <cmath>
 
 /*! \cond */
 #define IAD(ic, ipar)              ((ipar) + NPAR * (ic))
@@ -34,9 +34,8 @@ static int NPAR, NPAR2, NPARAC, NPARAC2, NDAT, NCONT, NPCT, NPCT2;
 static int ITERATION, SOUSITER;
 static void (*FUNC_EVALUATE)(int ndat,
                              int npar,
-                             VectorDouble &param,
-                             VectorDouble &work);
-
+                             VectorDouble& param,
+                             VectorDouble& work);
 
 /****************************************************************************/
 /*!
@@ -1362,4 +1361,4 @@ label_ok:
   }
 }
 
-}
+} // namespace gstlrn

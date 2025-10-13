@@ -12,7 +12,7 @@
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
 
-#include <math.h>
+#include <cmath>
 
 namespace gstlrn
 {
@@ -4128,4 +4128,4 @@ static int scan_z_fb(int x_start,
 }
 /*--------------------------------------------END_Z_SIDE()--------------------*/
 /*********************************************END_TIME_3D**********************/
-}
+} // namespace gstlrn

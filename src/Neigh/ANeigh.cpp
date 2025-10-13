@@ -10,17 +10,17 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
-#include "Neigh/NeighUnique.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/SerializeHDF5.hpp"
-#include "Neigh/ANeigh.hpp"
-#include "Neigh/NeighMoving.hpp"
-#include "Neigh/NeighBench.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Neigh/ANeigh.hpp"
+#include "Neigh/NeighBench.hpp"
+#include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighUnique.hpp"
 
-#include <math.h>
 #include <algorithm>
+#include <cmath>
 
 namespace gstlrn
 {
@@ -58,27 +58,26 @@ ANeigh::ANeigh(const ANeigh& r)
   , _nbghMemo(r._nbghMemo)
   , _ball(r._ball)
 {
-
 }
 
-ANeigh& ANeigh::operator=(const ANeigh &r)
+ANeigh& ANeigh::operator=(const ANeigh& r)
 {
   if (this != &r)
   {
     ASpaceObject::operator=(r);
     ASerializable::operator=(r);
-    _dbin = r._dbin;
-    _dbout = r._dbout;
-    _dbgrid = r._dbgrid;
-    _iechMemo = r._iechMemo;
-    _flagSimu = r._flagSimu;
-    _flagXvalid = r._flagXvalid;
-    _flagKFold  = r._flagKFold;
-    _useBallSearch = r._useBallSearch;
-    _ballLeafSize = r._ballLeafSize;
+    _dbin            = r._dbin;
+    _dbout           = r._dbout;
+    _dbgrid          = r._dbgrid;
+    _iechMemo        = r._iechMemo;
+    _flagSimu        = r._flagSimu;
+    _flagXvalid      = r._flagXvalid;
+    _flagKFold       = r._flagKFold;
+    _useBallSearch   = r._useBallSearch;
+    _ballLeafSize    = r._ballLeafSize;
     _flagIsUnchanged = r._flagIsUnchanged;
-    _nbghMemo = r._nbghMemo;
-    _ball = r._ball;
+    _nbghMemo        = r._nbghMemo;
+    _ball            = r._ball;
   }
   return *this;
 }
@@ -87,7 +86,7 @@ ANeigh::~ANeigh()
 {
 }
 
-int ANeigh::attach(const Db *dbin, const Db *dbout)
+int ANeigh::attach(const Db* dbin, const Db* dbout)
 {
   if (dbin == nullptr || dbout == nullptr) return 1;
   _dbin  = dbin;
@@ -147,7 +146,7 @@ void ANeigh::select(int iech_out, VectorInt& ranks)
     messageAbort("'dbin' and 'dbout' must have been attached beforehand");
     return;
   }
-  if (! _dbout->isSampleIndexValid(iech_out))
+  if (!_dbout->isSampleIndexValid(iech_out))
   {
     ranks.clear();
     return;
@@ -157,7 +156,7 @@ void ANeigh::select(int iech_out, VectorInt& ranks)
   // Then do not do anything (even in presence of colocation)
   if (_isSameTarget(iech_out))
   {
-    ranks = _nbghMemo;
+    ranks            = _nbghMemo;
     _flagIsUnchanged = true;
     return;
   }
@@ -174,12 +173,12 @@ void ANeigh::select(int iech_out, VectorInt& ranks)
   }
   else
   {
-    ranks = _nbghMemo;
+    ranks            = _nbghMemo;
     _flagIsUnchanged = true;
   }
 
   // Stop the neighborhood search if not enough point is available
-  if ((int) ranks.size() <= 0) return;
+  if ((int)ranks.size() <= 0) return;
 }
 
 /**
@@ -201,7 +200,7 @@ bool ANeigh::_isSameTarget(int iech_out)
   return flagSame;
 }
 
-void ANeigh::_checkUnchanged(int iech_out, const VectorInt &ranks)
+void ANeigh::_checkUnchanged(int iech_out, const VectorInt& ranks)
 {
   VectorInt rsorted = ranks;
   std::sort(rsorted.begin(), rsorted.end());
@@ -248,7 +247,7 @@ void ANeigh::_display(const VectorInt& ranks) const
   int ncode = _dbin->getNLoc(ELoc::C);
   int nblex = _dbin->getNLoc(ELoc::BLEX);
   int nvar  = _dbin->getNLoc(ELoc::Z);
-  nvar = 0;
+  nvar      = 0;
 
   /* Title */
 
@@ -339,7 +338,7 @@ void ANeigh::_display(const VectorInt& ranks) const
     if (nblex > 0)
     {
       for (int idim = 0; idim < ndim; idim++)
-        tab_printg(NULL, _dbin->getLocVariable(ELoc::BLEX,iech, idim));
+        tab_printg(NULL, _dbin->getLocVariable(ELoc::BLEX, iech, idim));
     }
 
     // Sector
@@ -349,7 +348,7 @@ void ANeigh::_display(const VectorInt& ranks) const
     message("\n");
     nsel++;
   }
-  }
+}
 
 /****************************************************************************/
 /*!
@@ -368,7 +367,7 @@ bool ANeigh::_discardUndefined(int iech)
 {
   if (_dbin->getNLoc(ELoc::Z) <= 0) return 0;
 
-  if (! _flagSimu)
+  if (!_flagSimu)
   {
     if (_dbin->isAllUndefined(iech)) return 0;
   }
@@ -394,25 +393,25 @@ bool ANeigh::_discardUndefined(int iech)
  *****************************************************************************/
 int ANeigh::_xvalid(int iech_in, int iech_out, double eps)
 {
-  if (! getFlagXvalid()) return 0;
-  if (! getFlagKFold())
+  if (!getFlagXvalid()) return 0;
+  if (!getFlagKFold())
   {
     if (distance_inter(_dbin, _dbout, iech_in, iech_out, NULL) < eps) return 1;
   }
   else
   {
-    if (! _dbin->hasLocVariable(ELoc::C)) return 0;
-    if (_dbin->getLocVariable(ELoc::C,iech_in,0) ==
-        _dbout->getLocVariable(ELoc::C,iech_out,0)) return 1;
+    if (!_dbin->hasLocVariable(ELoc::C)) return 0;
+    if (_dbin->getLocVariable(ELoc::C, iech_in, 0) ==
+        _dbout->getLocVariable(ELoc::C, iech_out, 0)) return 1;
   }
   return 0;
 }
 
 bool ANeigh::_isDimensionValid(int idim) const
 {
-  if (idim < 0 || idim >= (int) getNDim())
+  if (idim < 0 || idim >= (int)getNDim())
   {
-    messerr("Error in 'idim'(%d). It should lie within [0,%d[",idim,getNDim());
+    messerr("Error in 'idim'(%d). It should lie within [0,%d[", idim, getNDim());
     return false;
   }
   return true;
@@ -423,7 +422,7 @@ bool ANeigh::_deserializeAscii(std::istream& is, bool /*verbose*/)
   int ndim = 0;
 
   bool ret = true;
-  ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
+  ret      = ret && _recordRead<int>(is, "Space Dimension", ndim);
   if (ret) setNDim(ndim);
   return ret;
 }
@@ -431,7 +430,7 @@ bool ANeigh::_deserializeAscii(std::istream& is, bool /*verbose*/)
 bool ANeigh::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = true;
-  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
+  ret      = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
 
   return ret;
 }
@@ -440,10 +439,11 @@ void ANeigh::setBallSearch(bool status, int leaf_size)
 {
   if (leaf_size <= 0) status = false;
   _useBallSearch = status;
-  _ballLeafSize = leaf_size;
+  _ballLeafSize  = leaf_size;
 }
 
-void ANeigh::_neighCompress(VectorInt& ranks) {
+void ANeigh::_neighCompress(VectorInt& ranks)
+{
   int necr   = 0;
   int number = (int)ranks.size();
   for (int i = 0; i < number; i++)
@@ -481,4 +481,4 @@ bool ANeigh::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
   return ret;
 }
 #endif
-}
+} // namespace gstlrn

@@ -9,12 +9,12 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Space/SpaceRN.hpp"
-#include "Space/ASpace.hpp"
-#include "Space/SpacePoint.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Space/ASpace.hpp"
+#include "Space/SpacePoint.hpp"
 
-#include <math.h>
+#include <cmath>
 #include <memory>
 
 namespace gstlrn
@@ -144,10 +144,10 @@ void SpaceRN::getDistancePointVectInPlace(const SpacePoint& p1,
   double s;
   res.resize(ranks.size());
   double* ptr = res.data();
-  auto pt1 = p1.getCoords();
-  for (const auto &i : ranks)
+  auto pt1    = p1.getCoords();
+  for (const auto& i: ranks)
   {
-    s = 0.;
+    s       = 0.;
     auto pt = p2[i].getCoords();
     for (unsigned int idim = 0; idim < _nDim; idim++)
     {
@@ -158,4 +158,4 @@ void SpaceRN::getDistancePointVectInPlace(const SpacePoint& p1,
     *ptr++ = sqrt(s);
   }
 }
-}
+} // namespace gstlrn

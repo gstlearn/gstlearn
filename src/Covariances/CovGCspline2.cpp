@@ -10,7 +10,8 @@
 /******************************************************************************/
 #include "Covariances/CovGCspline2.hpp"
 #include "Covariances/CovContext.hpp"
-#include <math.h>
+
+#include <cmath>
 
 namespace gstlrn
 {
@@ -71,4 +72,4 @@ double CovGCspline2::_evaluateCovDerivative(int degree, double h) const
 
   return (cov);
 }
-}
+} // namespace gstlrn

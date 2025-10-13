@@ -26,7 +26,8 @@
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
-#include <math.h>
+
+#include <cmath>
 #include <memory>
 #include <vector>
 

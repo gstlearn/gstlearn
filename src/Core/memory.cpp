@@ -12,7 +12,8 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Core/Keypair.hpp"
-#include <string.h>
+
+#include <cstring>
 
 /*! \cond */
 #define STORE_NAME_LENGTH 10

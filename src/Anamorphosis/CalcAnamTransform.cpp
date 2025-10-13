@@ -12,43 +12,43 @@
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
 
-#include "Db/Db.hpp"
-#include "Basic/VectorHelper.hpp"
-#include "Basic/Law.hpp"
 #include "Anamorphosis/AAnam.hpp"
-#include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
-#include "Anamorphosis/AnamHermite.hpp"
-#include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
+#include "Anamorphosis/AnamDiscreteIR.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
+#include "Anamorphosis/CalcAnamTransform.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Db/Db.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Polynomials/MonteCarlo.hpp"
 
-#include <math.h>
+#include <cmath>
 
 namespace gstlrn
-{ 
+{
 
 CalcAnamTransform::CalcAnamTransform(AAnam* anam)
-    : ACalcDbVarCreator(),
-      _iattVar(-1),
-      _iattFac(-1),
-      _iattSel(-1),
-      _flagVars(false),
-      _flagToFactors(false),
-      _flagDisjKrig(false),
-      _flagCondExp(false),
-      _flagUniCond(false),
-      _flagZToY(true),
-      _flagNormalScore(false),
-      _ifacs(),
-      _iptrEst(),
-      _iptrStd(),
-      _nbsimu(0),
-      _flagOK(false),
-      _proba(TEST),
-      _anam(anam),
-      _selectivity(nullptr)
+  : ACalcDbVarCreator()
+  , _iattVar(-1)
+  , _iattFac(-1)
+  , _iattSel(-1)
+  , _flagVars(false)
+  , _flagToFactors(false)
+  , _flagDisjKrig(false)
+  , _flagCondExp(false)
+  , _flagUniCond(false)
+  , _flagZToY(true)
+  , _flagNormalScore(false)
+  , _ifacs()
+  , _iptrEst()
+  , _iptrStd()
+  , _nbsimu(0)
+  , _flagOK(false)
+  , _proba(TEST)
+  , _anam(anam)
+  , _selectivity(nullptr)
 {
 }
 
@@ -82,7 +82,7 @@ bool CalcAnamTransform::_hasInputVarDefined(int mode) const
   }
 
   // Check that the UID are valid
-  for (int i = 0; i < (int) _iptrEst.size(); i++)
+  for (int i = 0; i < (int)_iptrEst.size(); i++)
     if (_iptrEst[i] < 0)
     {
       messerr("An estimation variable is not correctly defined");
@@ -100,7 +100,7 @@ bool CalcAnamTransform::_hasInputVarDefined(int mode) const
   }
 
   // Check that the UID are valid
-  for (int i = 0; i < (int) _iptrStd.size(); i++)
+  for (int i = 0; i < (int)_iptrStd.size(); i++)
     if (_iptrStd[i] < 0)
     {
       if (mode == 0)
@@ -116,7 +116,7 @@ bool CalcAnamTransform::_hasInputVarDefined(int mode) const
 bool CalcAnamTransform::_hasSelectivity() const
 {
   int ncuts = _selectivity->getNCuts();
-  if (ncuts <= 0 && ! _selectivity->isOnlyZDefined())
+  if (ncuts <= 0 && !_selectivity->isOnlyZDefined())
   {
     messerr("You must define some cutoff values");
     return false;
@@ -133,7 +133,7 @@ bool CalcAnamTransform::_hasSelectivity() const
 bool CalcAnamTransform::_hasVariableNumber(bool equal1) const
 {
   int number = getDb()->getNLoc(ELoc::Z);
-  if (! equal1)
+  if (!equal1)
   {
     if (number <= 0)
     {
@@ -157,8 +157,8 @@ bool CalcAnamTransform::_check()
   if (!ACalcDbVarCreator::_check()) return false;
 
   if (!hasDb()) return false;
-  if (! _hasAnam()) return false;
-  if (! _hasVariableNumber()) return false;
+  if (!_hasAnam()) return false;
+  if (!_hasVariableNumber()) return false;
 
   if (_flagVars)
   {
@@ -173,8 +173,8 @@ bool CalcAnamTransform::_check()
 
   if (_flagToFactors)
   {
-    if (! _hasVariableNumber(true)) return false;
-    int nmax = _anam->getNFactor();
+    if (!_hasVariableNumber(true)) return false;
+    int nmax  = _anam->getNFactor();
     int nfact = _getNfact();
     for (int ifac = 0; ifac < nfact; ifac++)
       if (_ifacs[ifac] < 1 || _ifacs[ifac] > nmax)
@@ -188,25 +188,25 @@ bool CalcAnamTransform::_check()
 
   if (_flagDisjKrig)
   {
-    if (! _hasAnam(EAnam::HERMITIAN)) return false;
-    if (! _hasInputVarDefined()) return false;
-    if (! _hasSelectivity()) return false;
+    if (!_hasAnam(EAnam::HERMITIAN)) return false;
+    if (!_hasInputVarDefined()) return false;
+    if (!_hasSelectivity()) return false;
     return true;
   }
 
   if (_flagCondExp)
   {
-    if (! _hasAnam(EAnam::HERMITIAN)) return false;
-    if (! _hasInputVarDefined()) return false;
-    if (! _hasSelectivity()) return false;
+    if (!_hasAnam(EAnam::HERMITIAN)) return false;
+    if (!_hasInputVarDefined()) return false;
+    if (!_hasSelectivity()) return false;
     return true;
   }
 
   if (_flagUniCond)
   {
-    if (! _hasAnam(EAnam::HERMITIAN)) return false;
-    if (! _hasInputVarDefined(1)) return false;
-    if (! _hasSelectivity()) return false;
+    if (!_hasAnam(EAnam::HERMITIAN)) return false;
+    if (!_hasInputVarDefined(1)) return false;
+    if (!_hasSelectivity()) return false;
     if (_selectivity->isUsed(ESelectivity::Z))
     {
       messerr("The recovery option 'Z' is not available in this function");
@@ -222,7 +222,7 @@ bool CalcAnamTransform::_check()
 bool CalcAnamTransform::_preprocess()
 {
   if (!ACalcDbVarCreator::_preprocess()) return false;
-  
+
   if (_flagVars)
   {
     int nvar = _getNVar();
@@ -233,14 +233,14 @@ bool CalcAnamTransform::_preprocess()
   if (_flagToFactors)
   {
     int nfact = _getNfact();
-    _iattFac = getDb()->addColumnsByConstant(nfact);
+    _iattFac  = getDb()->addColumnsByConstant(nfact);
     return (_iattFac >= 0);
   }
 
   if (_flagDisjKrig)
   {
     int nvarout = _getNSel();
-    _iattSel = getDb()->addColumnsByConstant(nvarout, TEST);
+    _iattSel    = getDb()->addColumnsByConstant(nvarout, TEST);
     if (_iattSel < 0) return 1;
     return true;
   }
@@ -248,7 +248,7 @@ bool CalcAnamTransform::_preprocess()
   if (_flagCondExp)
   {
     int nvarout = _getNSel();
-    _iattSel = getDb()->addColumnsByConstant(nvarout, TEST);
+    _iattSel    = getDb()->addColumnsByConstant(nvarout, TEST);
     if (_iattSel < 0) return 1;
     return true;
   }
@@ -256,7 +256,7 @@ bool CalcAnamTransform::_preprocess()
   if (_flagUniCond)
   {
     int nvarout = _getNSel();
-    _iattSel = getDb()->addColumnsByConstant(nvarout, TEST);
+    _iattSel    = getDb()->addColumnsByConstant(nvarout, TEST);
     if (_iattSel < 0) return 1;
     return true;
   }
@@ -287,7 +287,7 @@ bool CalcAnamTransform::_postprocess()
   {
     int nsel = _getNSel();
     for (int i = 0; i < nsel; i++)
-      _renameVariable(1, _iattSel+i, ELoc::UNKNOWN, _selectivity->getVariableName(i), 1);
+      _renameVariable(1, _iattSel + i, ELoc::UNKNOWN, _selectivity->getVariableName(i), 1);
     return true;
   }
 
@@ -295,7 +295,7 @@ bool CalcAnamTransform::_postprocess()
   {
     int nsel = _getNSel();
     for (int i = 0; i < nsel; i++)
-      _renameVariable(1, _iattSel+i, ELoc::Z, _selectivity->getVariableName(i), 1);
+      _renameVariable(1, _iattSel + i, ELoc::Z, _selectivity->getVariableName(i), 1);
     return true;
   }
 
@@ -303,7 +303,7 @@ bool CalcAnamTransform::_postprocess()
   {
     int nsel = _getNSel();
     for (int i = 0; i < nsel; i++)
-      _renameVariable(1, _iattSel+i, ELoc::Z, _selectivity->getVariableName(i), 1);
+      _renameVariable(1, _iattSel + i, ELoc::Z, _selectivity->getVariableName(i), 1);
     return true;
   }
 
@@ -357,8 +357,8 @@ bool CalcAnamTransform::_run()
   if (_flagCondExp)
   {
     return (!_conditionalExpectation(getDb(), _anam, _selectivity, _iattSel,
-                                 _iptrEst[0], _iptrStd[0], _flagOK, _proba,
-                                 _nbsimu));
+                                     _iptrEst[0], _iptrStd[0], _flagOK, _proba,
+                                     _nbsimu));
   }
 
   if (_flagUniCond)
@@ -389,8 +389,8 @@ bool CalcAnamTransform::_ZToYByNormalScore()
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     VectorDouble data = getDb()->getColumnByLocator(ELoc::Z, ivar);
-    VectorDouble vec = VH::normalScore(data, wt);
-    if (! vec.empty())
+    VectorDouble vec  = VH::normalScore(data, wt);
+    if (!vec.empty())
       getDb()->setColumnByUID(vec, _iattVar + ivar);
   }
   return true;
@@ -398,7 +398,7 @@ bool CalcAnamTransform::_ZToYByNormalScore()
 
 bool CalcAnamTransform::_ZToYByHermite()
 {
-  int nvar = _getNVar();
+  int nvar                    = _getNVar();
   const AnamContinuous* anamC = dynamic_cast<const AnamContinuous*>(getAnam());
 
   for (int ivar = 0; ivar < nvar; ivar++)
@@ -413,7 +413,7 @@ bool CalcAnamTransform::_ZToYByHermite()
 
 bool CalcAnamTransform::_YToZByHermite()
 {
-  int nvar = _getNVar();
+  int nvar                    = _getNVar();
   const AnamContinuous* anamC = dynamic_cast<const AnamContinuous*>(getAnam());
 
   for (int ivar = 0; ivar < nvar; ivar++)
@@ -432,7 +432,7 @@ bool CalcAnamTransform::_ZToFactors()
 
   for (int iech = 0; iech < getDb()->getNSample(); iech++)
   {
-    if (! getDb()->isActive(iech)) continue;
+    if (!getDb()->isActive(iech)) continue;
     double zval = getDb()->getZVariable(iech, 0);
     if (FFFF(zval)) continue;
     VectorDouble factors = _anam->z2factor(zval, _ifacs);
@@ -445,9 +445,9 @@ bool CalcAnamTransform::_ZToFactors()
 
 bool CalcAnamTransform::_FactorsToSelectivity()
 {
-  AnamHermite    *anam_hermite     = dynamic_cast<AnamHermite*>(_anam);
-  AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(_anam);
-  AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(_anam);
+  AnamHermite* anam_hermite        = dynamic_cast<AnamHermite*>(_anam);
+  AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(_anam);
+  AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(_anam);
 
   /* Dispatch according to the type of Anamorphosis */
 
@@ -474,7 +474,6 @@ bool CalcAnamTransform::_FactorsToSelectivity()
   }
 }
 
-
 /*****************************************************************************/
 /*!
  **  Calculate the recoveries (z,T,Q,m,B) starting from the factors
@@ -489,12 +488,12 @@ bool CalcAnamTransform::_FactorsToSelectivity()
  ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
-int DisjunctiveKriging(Db *db,
-                        AAnam *anam,
-                        Selectivity *selectivity,
-                        const VectorString &name_est,
-                        const VectorString &name_std,
-                        const NamingConvention &namconv)
+int DisjunctiveKriging(Db* db,
+                       AAnam* anam,
+                       Selectivity* selectivity,
+                       const VectorString& name_est,
+                       const VectorString& name_std,
+                       const NamingConvention& namconv)
 {
   CalcAnamTransform transfo(anam);
   transfo.setDb(db);
@@ -526,15 +525,15 @@ int DisjunctiveKriging(Db *db,
  ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
-int ConditionalExpectation(Db *db,
-                           AAnam *anam,
-                           Selectivity *selectivity,
-                           const String &name_est,
-                           const String &name_std,
+int ConditionalExpectation(Db* db,
+                           AAnam* anam,
+                           Selectivity* selectivity,
+                           const String& name_est,
+                           const String& name_std,
                            bool flag_OK,
                            double proba,
                            int nbsimu,
-                           const NamingConvention &namconv)
+                           const NamingConvention& namconv)
 {
   CalcAnamTransform transfo(anam);
   transfo.setDb(db);
@@ -569,12 +568,12 @@ int ConditionalExpectation(Db *db,
  ** \remark temporarily stored in a member names iptrStd.
  **
  *****************************************************************************/
-int UniformConditioning(Db *db,
-                        AAnam *anam,
-                        Selectivity *selectivity,
-                        const String &name_est,
-                        const String &name_varz,
-                        const NamingConvention &namconv)
+int UniformConditioning(Db* db,
+                        AAnam* anam,
+                        Selectivity* selectivity,
+                        const String& name_est,
+                        const String& name_varz,
+                        const NamingConvention& namconv)
 {
   CalcAnamTransform transfo(anam);
   transfo.setDb(db);
@@ -628,7 +627,7 @@ int CalcAnamTransform::_conditionalExpectation(Db* db,
   if (selectivity->isUsed(ESelectivity::Z))
   {
     if (_ceZ(db, anam_hermite, selectivity, iptr0, col_est, col_std, nbsimu,
-                flag_OK))
+             flag_OK))
       return 1;
   }
 
@@ -637,7 +636,7 @@ int CalcAnamTransform::_conditionalExpectation(Db* db,
   if (selectivity->isUsed(ESelectivity::T))
   {
     if (_ceT(1, db, selectivity, iptr0, col_est, col_std, ycuts, nbsimu,
-                flag_OK))
+             flag_OK))
       return 1;
   }
 
@@ -646,7 +645,7 @@ int CalcAnamTransform::_conditionalExpectation(Db* db,
   if (selectivity->isUsed(ESelectivity::Q))
   {
     if (_ceQ(db, anam_hermite, selectivity, iptr0, col_est, col_std, ycuts,
-                nbsimu, flag_OK))
+             nbsimu, flag_OK))
       return 1;
   }
 
@@ -669,7 +668,7 @@ int CalcAnamTransform::_conditionalExpectation(Db* db,
   if (selectivity->isUsed(ESelectivity::PROP) && need_T)
   {
     if (_ceT(2, db, selectivity, iptr0, col_est, col_std, ycuts, nbsimu,
-                flag_OK))
+             flag_OK))
       return 1;
   }
 
@@ -678,7 +677,7 @@ int CalcAnamTransform::_conditionalExpectation(Db* db,
   if (selectivity->isUsed(ESelectivity::QUANT))
   {
     if (_ceQuant(db, anam_hermite, selectivity, iptr0, col_est, col_std,
-                    proba, flag_OK))
+                 proba, flag_OK))
       return 1;
   }
 
@@ -873,11 +872,11 @@ void CalcAnamTransform::_correctForOK(Db* db,
  **
  *****************************************************************************/
 void CalcAnamTransform::_getVectorsForCE(Db* db,
-                                          int col_est,
-                                          int col_std,
-                                          bool flag_OK,
-                                          VectorDouble& krigest,
-                                          VectorDouble& krigstd)
+                                         int col_est,
+                                         int col_std,
+                                         bool flag_OK,
+                                         VectorDouble& krigest,
+                                         VectorDouble& krigstd)
 {
   int nech = db->getNSample();
   krigest.resize(nech);
@@ -1295,4 +1294,4 @@ int anamPointToBlock(AAnam* anam, int verbose, double cvv, double coeff, double 
 
   return 0;
 }
-}
+} // namespace gstlrn

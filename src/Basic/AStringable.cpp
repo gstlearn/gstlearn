@@ -9,26 +9,25 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorNumT.hpp"
+#include "Basic/OptCst.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/OptCst.hpp"
+#include "Basic/VectorNumT.hpp"
 
+#include <cmath>
+#include <cstdarg>
+#include <cstdio>
+#include <cstring>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <typeinfo>
-#include <iomanip>
-#include <stdio.h>
-#include <stdarg.h>
-#include <math.h>
-#include <string.h>
 
 #define CASE_DOUBLE 0
 #define CASE_REAL   1
 #define CASE_INT    2
 #define CASE_COL    3
 #define CASE_ROW    4
-
 
 namespace gstlrn
 {
@@ -40,62 +39,62 @@ static char TABSTR[100];
 
 static int _getColumnRank()
 {
-  return (int) OptCst::query(ECst::NTRANK);
+  return (int)OptCst::query(ECst::NTRANK);
 }
 static int _getColumnName()
 {
-  return (int) OptCst::query(ECst::NTNAME);
+  return (int)OptCst::query(ECst::NTNAME);
 }
 static int _getColumnSize()
 {
-  return (int) OptCst::query(ECst::NTCAR);
+  return (int)OptCst::query(ECst::NTCAR);
 }
 static int _getDecimalNumber()
 {
-  return (int) OptCst::query(ECst::NTDEC);
+  return (int)OptCst::query(ECst::NTDEC);
 }
 static double _getThresh()
 {
-  int ndec = (int) OptCst::query(ECst::NTDEC);
-  double thresh = (0.5 * pow(10, - ndec));
+  int ndec      = (int)OptCst::query(ECst::NTDEC);
+  double thresh = (0.5 * pow(10, -ndec));
   return thresh;
 }
 static int _getMaxNCols()
 {
-  return (int) OptCst::query(ECst::NTCOL);
+  return (int)OptCst::query(ECst::NTCOL);
 }
 static int _getMaxNRows()
 {
-  return (int) OptCst::query(ECst::NTROW);
+  return (int)OptCst::query(ECst::NTROW);
 }
 static int _getNBatch()
 {
-  return (int) OptCst::query(ECst::NTBATCH);
+  return (int)OptCst::query(ECst::NTBATCH);
 }
 static void _buildFormat(int mode)
 {
   switch (mode)
   {
     case CASE_INT:
-      (void) gslSPrintf(FORMAT, "%%%dd", (int) OptCst::query(ECst::NTCAR));
+      (void)gslSPrintf(FORMAT, "%%%dd", (int)OptCst::query(ECst::NTCAR));
       break;
 
     case CASE_REAL:
-      (void) gslSPrintf(FORMAT, "%%%d.%dlf", (int) OptCst::query(ECst::NTCAR),
-                        (int) OptCst::query(ECst::NTDEC));
+      (void)gslSPrintf(FORMAT, "%%%d.%dlf", (int)OptCst::query(ECst::NTCAR),
+                       (int)OptCst::query(ECst::NTDEC));
       break;
 
     case CASE_DOUBLE:
-      (void) gslSPrintf(FORMAT, "%%%d.%dlg", (int) OptCst::query(ECst::NTCAR),
-                        (int) OptCst::query(ECst::NTDEC));
+      (void)gslSPrintf(FORMAT, "%%%d.%dlg", (int)OptCst::query(ECst::NTCAR),
+                       (int)OptCst::query(ECst::NTDEC));
       break;
 
     case CASE_COL:
-      (void) gslSPrintf(FORMAT, "[,%%%dd]", (int) OptCst::query(ECst::NTCAR) - 3);
+      (void)gslSPrintf(FORMAT, "[,%%%dd]", (int)OptCst::query(ECst::NTCAR) - 3);
       break;
 
     case CASE_ROW:
-      (void) gslSPrintf(FORMAT, "[%%%dd,]", (int) OptCst::query(ECst::NTCAR) - 3);
+      (void)gslSPrintf(FORMAT, "[%%%dd,]", (int)OptCst::query(ECst::NTCAR) - 3);
       break;
   }
 }
@@ -117,7 +116,6 @@ AStringable& AStringable::operator=(const AStringable& /*r*/)
 {
   return *this;
 }
-
 
 AStringable::~AStringable()
 {
@@ -147,8 +145,8 @@ String _tabPrintString(const String& string,
                        int localSize = 0)
 {
   std::stringstream sstr = _formatColumn(justify, localSize);
-  int size = static_cast<int> (string.size());
-  int truncSize = (localSize > 0) ? localSize : _getColumnSize();
+  int size               = static_cast<int>(string.size());
+  int truncSize          = (localSize > 0) ? localSize : _getColumnSize();
   if (size > truncSize)
   {
     // String must be truncated
@@ -283,13 +281,13 @@ String _printTrailer(int ncols, int nrows, int ncols_util, int nrows_util)
  * @param format Output format
  * @param ...    Additional arguments
  */
-void message(const char *format, ...)
+void message(const char* format, ...)
 {
   char str[LONG_SIZE];
 
   va_list ap;
   va_start(ap, format);
-  (void) vsnprintf(str, sizeof(str), format, ap);
+  (void)vsnprintf(str, sizeof(str), format, ap);
   va_end(ap);
   message_extern(str);
 }
@@ -299,13 +297,13 @@ void message(const char *format, ...)
  * @param format Output format
  * @param ...    Additional arguments
  */
-void messageNoDiff(const char *format, ...)
+void messageNoDiff(const char* format, ...)
 {
   char str[LONG_SIZE];
   va_list ap;
 
   va_start(ap, format);
-  (void) vsnprintf(str, sizeof(str), format, ap);
+  (void)vsnprintf(str, sizeof(str), format, ap);
   va_end(ap);
   std::stringstream sstr;
   sstr << "#NO_DIFF# " << str;
@@ -332,7 +330,6 @@ void messerrFlush(const String& string)
 {
   message_extern(string.c_str());
 }
-
 
 /**
  * Print a standard Error Message if an argument does not lie in Interval
@@ -366,41 +363,41 @@ bool checkArg(const char* title, int current, int nmax)
  * @param format Output format
  * @param ...    Additional arguments
  */
-void mestitle(int level, const char *format, ...)
+void mestitle(int level, const char* format, ...)
 {
   char STRING[1000];
   va_list ap;
 
   message_extern("\n");
   va_start(ap, format);
-  (void) vsnprintf(STRING, sizeof(STRING), format, ap);
+  (void)vsnprintf(STRING, sizeof(STRING), format, ap);
   va_end(ap);
-  int size = (int) strlen(STRING);
+  int size = (int)strlen(STRING);
 
-  (void) gslStrcat(STRING, "\n");
+  (void)gslStrcat(STRING, "\n");
   message_extern(STRING);
 
   /* Underline the string */
 
-  (void) gslStrcpy(STRING, "");
+  (void)gslStrcpy(STRING, "");
   for (int i = 0; i < size; i++)
   {
     switch (level)
     {
       case 0:
-        (void) gslStrcat(STRING, "=");
+        (void)gslStrcat(STRING, "=");
         break;
 
       case 1:
-        (void) gslStrcat(STRING, "-");
+        (void)gslStrcat(STRING, "-");
         break;
 
       case 2:
-        (void) gslStrcat(STRING, ".");
+        (void)gslStrcat(STRING, ".");
         break;
     }
   }
-  (void) gslStrcat(STRING, "\n");
+  (void)gslStrcat(STRING, "\n");
   message_extern(STRING);
 }
 
@@ -413,17 +410,17 @@ void mestitle(int level, const char *format, ...)
  * @remarks The value 'nproc' designates the quantile such that,
  * @remarks when changed, the printout is provoked.
  */
-void mes_process(const char *string, int ntot, int iech)
+void mes_process(const char* string, int ntot, int iech)
 {
   static int quant_memo = 0;
-  int nproc = (int) OptCst::query(ECst::NPROC);
+  int nproc             = (int)OptCst::query(ECst::NPROC);
   if (nproc <= 0) return;
   int jech = iech + 1;
 
   /* Calculate the current quantile */
 
-  double ratio = nproc * (double) jech / (double) ntot;
-  int quant = (int) (ratio);
+  double ratio = nproc * (double)jech / (double)ntot;
+  int quant    = (int)(ratio);
 
   /* Conditional printout */
 
@@ -445,28 +442,28 @@ String toTitle(int level, const char* format, ...)
 
   sstr << std::endl;
   va_start(ap, format);
-  (void) vsnprintf(STRING, sizeof(STRING), format, ap);
+  (void)vsnprintf(STRING, sizeof(STRING), format, ap);
   va_end(ap);
   sstr << STRING << std::endl;
 
   /* Underline the string */
 
-  int size = (int) strlen(STRING);
-  (void) gslStrcpy(STRING, "");
+  int size = (int)strlen(STRING);
+  (void)gslStrcpy(STRING, "");
   for (int i = 0; i < size; i++)
   {
     switch (level)
     {
       case 0:
-        (void) gslStrcat(STRING, "=");
+        (void)gslStrcat(STRING, "=");
         break;
 
       case 1:
-        (void) gslStrcat(STRING, "-");
+        (void)gslStrcat(STRING, "-");
         break;
 
       case 2:
-        (void) gslStrcat(STRING, ".");
+        (void)gslStrcat(STRING, ".");
         break;
     }
   }
@@ -480,13 +477,13 @@ String toTitle(int level, const char* format, ...)
  * @param format Fatal error format
  * @param ...    Additional arguments
  */
-void messageAbort(const char *format, ...)
+void messageAbort(const char* format, ...)
 {
   char STRING[1000];
   va_list ap;
 
   va_start(ap, format);
-  (void) vsnprintf(STRING, sizeof(STRING), format, ap);
+  (void)vsnprintf(STRING, sizeof(STRING), format, ap);
   va_end(ap);
   message_extern("Abort : ");
   message_extern(STRING);
@@ -525,8 +522,8 @@ void AStringable::display(int level) const
  * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
  *                     always true for sparse matrix
  */
-String toMatrix(const String &title,
-                const AMatrix &mat,
+String toMatrix(const String& title,
+                const AMatrix& mat,
                 bool flagOverride,
                 bool flagSkipZero)
 {
@@ -571,22 +568,22 @@ String toMatrix(const String& title,
  * @param title        Title of the printout
  * @param colnames     Names of the columns (optional)
  * @param rownames     Names of the rows (optional)
- * @param bycol        true if values as sorted by column; false otherwise     
+ * @param bycol        true if values as sorted by column; false otherwise
  * @param nrows        Number of rows
  * @param ncols        Number of columns
  * @param tab          VectorDouble containing the values
  * @param flagOverride true to override printout limitations
  * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
- */ 
-  String toMatrix(const String& title,
-                  const VectorString& colnames,
-                  const VectorString& rownames,
-                  bool bycol,
-                  int nrows,
-                  int ncols,
-                  const double* tab,
-                  bool flagOverride,
-                  bool flagSkipZero)
+ */
+String toMatrix(const String& title,
+                const VectorString& colnames,
+                const VectorString& rownames,
+                bool bycol,
+                int nrows,
+                int ncols,
+                const double* tab,
+                bool flagOverride,
+                bool flagSkipZero)
 {
   std::stringstream sstr;
 
@@ -596,7 +593,7 @@ String toMatrix(const String& title,
   int nrutil = nrows;
   if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
   if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
-  int npass = (int) ceil((double) ncutil / (double) _getNBatch());
+  int npass      = (int)ceil((double)ncutil / (double)_getNBatch());
   bool multi_row = nrutil > 1 || npass > 1;
 
   int colSize = 0;
@@ -615,7 +612,7 @@ String toMatrix(const String& title,
 
   /* Print the title (optional) */
 
-  if (! title.empty())
+  if (!title.empty())
   {
     sstr << title;
     if (multi_row) sstr << std::endl;
@@ -678,7 +675,7 @@ String toMatrix(const String& title,
                 bool bycol,
                 int nrows,
                 int ncols,
-                const VectorInt &tab,
+                const VectorInt& tab,
                 bool flagOverride,
                 bool flagSkipZero)
 {
@@ -691,7 +688,7 @@ String toMatrix(const String& title,
   int nrutil = nrows;
   if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
   if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
-  int npass = (int) ceil((double) ncutil / (double) _getNBatch());
+  int npass      = (int)ceil((double)ncutil / (double)_getNBatch());
   bool multi_row = nrutil > 1 || npass > 1;
 
   int colSize = 0;
@@ -710,7 +707,7 @@ String toMatrix(const String& title,
 
   /* Print the title (optional) */
 
-  if (! title.empty())
+  if (!title.empty())
   {
     sstr << title;
     if (multi_row) sstr << std::endl;
@@ -767,14 +764,14 @@ String toVector(const String& title, const VectorDouble& tab, bool flagOverride)
   std::stringstream sstr;
   if (tab.empty()) return sstr.str();
 
-  int ncols = static_cast<int> (tab.size());
+  int ncols  = static_cast<int>(tab.size());
   int ncutil = ncols;
   if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
   bool multi_row = ncutil > _getNBatch();
 
   /* Print the title (optional) */
 
-  if (! title.empty())
+  if (!title.empty())
   {
     sstr << title;
     if (multi_row) sstr << std::endl;
@@ -815,14 +812,14 @@ String toVector(const String& title, constvect tab, bool flagOverride)
   std::stringstream sstr;
   if (tab.empty()) return sstr.str();
 
-  int ncols = static_cast<int> (tab.size());
+  int ncols  = static_cast<int>(tab.size());
   int ncutil = ncols;
   if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
   bool multi_row = ncutil > _getNBatch();
 
   /* Print the title (optional) */
 
-  if (! title.empty())
+  if (!title.empty())
   {
     sstr << title;
     if (multi_row) sstr << std::endl;
@@ -863,10 +860,10 @@ String toVector(const String& title, const VectorVectorDouble& tab, bool flagOve
   std::stringstream sstr;
   if (tab.empty()) return sstr.str();
 
-  if (! title.empty())
+  if (!title.empty())
     sstr << title << std::endl;
 
-  int nrows = (int) tab.size();
+  int nrows  = (int)tab.size();
   int nrutil = nrows;
   if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
 
@@ -922,14 +919,14 @@ String toVector(const String& title, const VectorString& tab, bool flagOverride)
   std::stringstream sstr;
   if (tab.empty()) return sstr.str();
 
-  int ncols = static_cast<int> (tab.size());
+  int ncols  = static_cast<int>(tab.size());
   int ncutil = ncols;
   if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
   bool multi_row = ncutil > _getNBatch();
 
   /* Print the title (optional) */
 
-  if (! title.empty())
+  if (!title.empty())
   {
     sstr << title;
     if (multi_row) sstr << std::endl;
@@ -971,14 +968,14 @@ String toVector(const String& title, const VectorInt& tab, bool flagOverride)
   std::stringstream sstr;
   if (tab.empty()) return sstr.str();
 
-  int ncols = static_cast<int> (tab.size());
+  int ncols  = static_cast<int>(tab.size());
   int ncutil = ncols;
   if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
   bool multi_row = ncutil > _getNBatch();
 
   /* Print the title (optional) */
 
-  if (! title.empty())
+  if (!title.empty())
   {
     sstr << title;
     if (multi_row) sstr << std::endl;
@@ -1023,7 +1020,7 @@ String toDouble(double value, const EJustify& justify)
 VectorString toVectorDouble(const VectorDouble& values, const EJustify& justify)
 {
   VectorString strings;
-  for (int i = 0; i < (int) values.size(); i++)
+  for (int i = 0; i < (int)values.size(); i++)
     strings.push_back(toDouble(values[i], justify));
   return strings;
 }
@@ -1065,17 +1062,17 @@ String toInterval(double zmin, double zmax)
  **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
  **
  *****************************************************************************/
-void tab_prints(const char *title,
-                const char *string,
+void tab_prints(const char* title,
+                const char* string,
                 int ncol,
-                const EJustify &justify)
+                const EJustify& justify)
 {
-  int taille = (1 + (int) OptCst::query(ECst::NTCAR)) * ncol;
-  int size = static_cast<int>(strlen(string));
-  int neff = MIN(taille, size);
-  int nrst = taille - neff;
-  int n1 = nrst / 2;
-  int n2 = taille - size - n1;
+  int taille = (1 + (int)OptCst::query(ECst::NTCAR)) * ncol;
+  int size   = static_cast<int>(strlen(string));
+  int neff   = MIN(taille, size);
+  int nrst   = taille - neff;
+  int n1     = nrst / 2;
+  int n2     = taille - size - n1;
 
   /* Encode the title (if defined) */
 
@@ -1083,32 +1080,32 @@ void tab_prints(const char *title,
 
   /* Blank the string out */
 
-  (void) gslStrcpy(TABSTR, "");
+  (void)gslStrcpy(TABSTR, "");
 
   /* Switch according to the justification */
 
   switch (justify.toEnum())
   {
     case EJustify::E_LEFT:
-      (void) gslStrncpy(TABSTR, string, neff);
+      (void)gslStrncpy(TABSTR, string, neff);
       TABSTR[neff] = '\0';
       for (int i = 0; i < nrst; i++)
-        (void) gslStrcat(TABSTR, " ");
+        (void)gslStrcat(TABSTR, " ");
       break;
 
     case EJustify::E_CENTER:
       for (int i = 0; i < n1; i++)
-        (void) gslStrcat(TABSTR, " ");
-      (void) gslStrncpy(&TABSTR[n1], string, neff);
+        (void)gslStrcat(TABSTR, " ");
+      (void)gslStrncpy(&TABSTR[n1], string, neff);
       TABSTR[n1 + neff] = '\0';
       for (int i = 0; i < n2; i++)
-        (void) gslStrcat(TABSTR, " ");
+        (void)gslStrcat(TABSTR, " ");
       break;
 
     case EJustify::E_RIGHT:
       for (int i = 0; i < nrst; i++)
-        (void) gslStrcat(TABSTR, " ");
-      (void) gslStrncpy(&TABSTR[nrst], string, neff);
+        (void)gslStrcat(TABSTR, " ");
+      (void)gslStrncpy(&TABSTR[nrst], string, neff);
       TABSTR[nrst + neff] = '\0';
       break;
   }
@@ -1126,20 +1123,20 @@ void tab_prints(const char *title,
  **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
  **
  *****************************************************************************/
-void tab_printg(const char *title,
+void tab_printg(const char* title,
                 double value,
                 int ncol,
-                const EJustify &justify)
+                const EJustify& justify)
 {
   _buildFormat(CASE_REAL);
 
   if (FFFF(value))
-    (void) gslStrcpy(DECODE, "N/A");
+    (void)gslStrcpy(DECODE, "N/A");
   else
   {
     // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
     value = (ABS(value) < _getThresh()) ? 0. : value;
-    (void) gslSPrintf(DECODE, FORMAT, value);
+    (void)gslSPrintf(DECODE, FORMAT, value);
   }
   tab_prints(title, DECODE, ncol, justify);
 }
@@ -1155,17 +1152,17 @@ void tab_printg(const char *title,
  **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
  **
  *****************************************************************************/
-void tab_printd(const char *title,
+void tab_printd(const char* title,
                 double value,
                 int ncol,
-                const EJustify &justify)
+                const EJustify& justify)
 {
   _buildFormat(CASE_DOUBLE);
 
   if (FFFF(value))
-    (void) gslStrcpy(DECODE, "N/A");
+    (void)gslStrcpy(DECODE, "N/A");
   else
-    (void) gslSPrintf(DECODE, FORMAT, value);
+    (void)gslSPrintf(DECODE, FORMAT, value);
 
   tab_prints(title, DECODE, ncol, justify);
 }
@@ -1181,14 +1178,14 @@ void tab_printd(const char *title,
  **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
  **
  *****************************************************************************/
-void tab_printi(const char *title, int value, int ncol, const EJustify &justify)
+void tab_printi(const char* title, int value, int ncol, const EJustify& justify)
 {
   _buildFormat(CASE_INT);
 
   if (IFFFF(value))
-    (void) gslStrcpy(DECODE, "N/A");
+    (void)gslStrcpy(DECODE, "N/A");
   else
-    (void) gslSPrintf(DECODE, FORMAT, value);
+    (void)gslSPrintf(DECODE, FORMAT, value);
 
   tab_prints(title, DECODE, ncol, justify);
 }
@@ -1205,15 +1202,15 @@ void tab_printi(const char *title, int value, int ncol, const EJustify &justify)
  **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
  **
  *****************************************************************************/
-void tab_print_rc(const char *title,
+void tab_print_rc(const char* title,
                   int mode,
                   int value,
                   int ncol,
-                  const EJustify &justify)
+                  const EJustify& justify)
 {
   _buildFormat(mode);
 
-  (void) gslSPrintf(DECODE, FORMAT, value);
+  (void)gslSPrintf(DECODE, FORMAT, value);
   string_strip_blanks(DECODE, 0);
   tab_prints(title, DECODE, ncol, justify);
 }
@@ -1228,7 +1225,7 @@ void tab_print_rc(const char *title,
  ** \remarks The string is printed (left-adjusted) on 'taille' characters
  **
  *****************************************************************************/
-void tab_print_rowname(const char *string, int taille)
+void tab_print_rowname(const char* string, int taille)
 {
   int size = static_cast<int>(strlen(string));
   int neff = MIN(taille, size);
@@ -1236,11 +1233,11 @@ void tab_print_rowname(const char *string, int taille)
 
   /* Blank the string out */
 
-  (void) gslStrcpy(TABSTR, "");
-  (void) gslStrncpy(TABSTR, string, neff);
+  (void)gslStrcpy(TABSTR, "");
+  (void)gslStrncpy(TABSTR, string, neff);
   TABSTR[neff] = '\0';
   for (int i = 0; i < nrst; i++)
-    (void) gslStrcat(TABSTR, " ");
+    (void)gslStrcat(TABSTR, " ");
   message(TABSTR);
 }
 
@@ -1262,19 +1259,17 @@ void tab_print_rowname(const char *string, int taille)
  ** \remarks of the one used in R-packages where dim[1]=nrow and dim[2]=ncol
  **
  *****************************************************************************/
-void print_matrix(const char *title,
+void print_matrix(const char* title,
                   int flag_limit,
                   int bycol,
                   int nx,
                   int ny,
-                  const double *sel,
-                  const double *tab)
+                  const double* sel,
+                  const double* tab)
 {
   if (tab == nullptr || nx <= 0 || ny <= 0) return;
-  int nx_util = (flag_limit && (int) OptCst::query(ECst::NTCOL) > 0) ?
-      MIN((int) OptCst::query(ECst::NTCOL), nx) : nx;
-  int ny_util = (flag_limit && (int) OptCst::query(ECst::NTROW) > 0) ?
-      MIN((int) OptCst::query(ECst::NTROW), ny) : ny;
+  int nx_util   = (flag_limit && (int)OptCst::query(ECst::NTCOL) > 0) ? MIN((int)OptCst::query(ECst::NTCOL), nx) : nx;
+  int ny_util   = (flag_limit && (int)OptCst::query(ECst::NTROW) > 0) ? MIN((int)OptCst::query(ECst::NTROW), ny) : ny;
   int multi_row = (ny > 1 || title == NULL);
 
   /* Print the title (optional) */
@@ -1331,9 +1326,9 @@ void print_matrix(const char *title,
   }
 }
 
-void print_matrix(const char *title,
+void print_matrix(const char* title,
                   int flag_limit,
-                  const AMatrix &mat)
+                  const AMatrix& mat)
 {
   print_matrix(title, flag_limit, true, mat.getNCols(), mat.getNRows(), nullptr, mat.getValues().data());
 }
@@ -1351,11 +1346,11 @@ void print_matrix(const char *title,
  ** \remarks The ordering (compatible with matrix_solve is mode==2)
  **
  *****************************************************************************/
-void print_trimat(const char *title, int mode, int neq, const double *tl)
+void print_trimat(const char* title, int mode, int neq, const double* tl)
 {
-#define TRI(i)        (((i) * ((i) + 1)) / 2)
-#define TL1(i,j)      (tl[(j)*neq+(i)-TRI(j)])  /* only for i >= j */
-#define TL2(i,j)      (tl[TRI(i)+(j)])          /* only for i >= j */
+#define TRI(i)    (((i) * ((i) + 1)) / 2)
+#define TL1(i, j) (tl[(j) * neq + (i) - TRI(j)]) /* only for i >= j */
+#define TL2(i, j) (tl[TRI(i) + (j)])             /* only for i >= j */
 
   /* Initializations */
 
@@ -1411,19 +1406,17 @@ void print_trimat(const char *title, int mode, int neq, const double *tl)
  ** \param[in]  tab    array containing the matrix
  **
  *****************************************************************************/
-void print_imatrix(const char *title,
+void print_imatrix(const char* title,
                    int flag_limit,
                    int bycol,
                    int nx,
                    int ny,
-                   const double *sel,
-                   const int *tab)
+                   const double* sel,
+                   const int* tab)
 {
   if (tab == nullptr || nx <= 0 || ny <= 0) return;
-  int nx_util = (flag_limit && (int) OptCst::query(ECst::NTCOL) > 0) ?
-      MIN((int) OptCst::query(ECst::NTCOL), nx) : nx;
-  int ny_util = (flag_limit && (int) OptCst::query(ECst::NTROW) > 0) ?
-      MIN((int) OptCst::query(ECst::NTROW), ny) : ny;
+  int nx_util   = (flag_limit && (int)OptCst::query(ECst::NTCOL) > 0) ? MIN((int)OptCst::query(ECst::NTCOL), nx) : nx;
+  int ny_util   = (flag_limit && (int)OptCst::query(ECst::NTROW) > 0) ? MIN((int)OptCst::query(ECst::NTROW), ny) : ny;
   int multi_row = (ny > 1 || title == NULL);
 
   /* Print the title (optional) */
@@ -1490,18 +1483,17 @@ void print_imatrix(const char *title,
  ** \param[in]  tab        Array to be printed
  **
  *****************************************************************************/
-void print_vector(const char *title,
+void print_vector(const char* title,
                   int flag_limit,
                   int ntab,
-                  const double *tab)
+                  const double* tab)
 {
   static int nby_def = 5;
 
   /* Initializations */
 
   if (ntab <= 0) return;
-  int nby = (flag_limit && (int) OptCst::query(ECst::NTCOL) >= 0) ?
-      (int) OptCst::query(ECst::NTCOL) : nby_def;
+  int nby        = (flag_limit && (int)OptCst::query(ECst::NTCOL) >= 0) ? (int)OptCst::query(ECst::NTCOL) : nby_def;
   bool flag_many = (ntab > nby);
 
   if (title != NULL)
@@ -1523,10 +1515,10 @@ void print_vector(const char *title,
   }
 }
 
-void print_vector(const char *title,
+void print_vector(const char* title,
                   int flag_limit,
                   int ntab,
-                  const VectorDouble &tab)
+                  const VectorDouble& tab)
 {
   print_vector(title, flag_limit, ntab, tab.data());
 }
@@ -1541,15 +1533,14 @@ void print_vector(const char *title,
  ** \param[in]  itab       Array to be printed
  **
  *****************************************************************************/
-void print_ivector(const char *title, int flag_limit, int ntab, const int *itab)
+void print_ivector(const char* title, int flag_limit, int ntab, const int* itab)
 {
   static int nby_def = 5;
 
   /* Initializations */
 
   if (ntab <= 0) return;
-  int nby = (flag_limit && (int) OptCst::query(ECst::NTCOL) >= 0) ?
-      (int) OptCst::query(ECst::NTCOL) : nby_def;
+  int nby        = (flag_limit && (int)OptCst::query(ECst::NTCOL) >= 0) ? (int)OptCst::query(ECst::NTCOL) : nby_def;
   bool flag_many = (ntab > nby);
 
   if (title != NULL)
@@ -1571,31 +1562,29 @@ void print_ivector(const char *title, int flag_limit, int ntab, const int *itab)
   }
 }
 
-void print_ivector(const char *title,
+void print_ivector(const char* title,
                    int flag_limit,
                    int ntab,
-                   const VectorInt &itab)
+                   const VectorInt& itab)
 {
   print_ivector(title, flag_limit, ntab, itab.data());
 }
-
-
 
 /**
  * Print Error message
  * @param format Output format
  * @param ...    Additional arguments
  */
-void messerr(const char *format, ...)
+void messerr(const char* format, ...)
 {
   char str[1000];
   va_list ap;
 
   va_start(ap, format);
-  (void) vsnprintf(str, sizeof(str), format, ap);
+  (void)vsnprintf(str, sizeof(str), format, ap);
   va_end(ap);
 
   message_extern(str);
   message_extern("\n");
 }
-}
+} // namespace gstlrn

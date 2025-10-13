@@ -12,8 +12,9 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
+
 #include <sstream>
-#include <string.h>
+#include <cstring>
 
 namespace gstlrn
 {

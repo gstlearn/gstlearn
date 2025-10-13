@@ -33,7 +33,7 @@ EmptyLineBeforeAccessModifier: Always
 IndentCaseLabels: true
 IndentWidth: 2
 IndentPPDirectives: AfterHash
-NamespaceIndentation: All
+NamespaceIndentation: None
 PackConstructorInitializers: Never
 PenaltyReturnTypeOnItsOwnLine: 10  # Strongly discourages breaking return type
 PenaltyBreakBeforeFirstCallParameter: 100  # Keeps function name & first parameter together

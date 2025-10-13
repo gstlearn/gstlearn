@@ -17,7 +17,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 
-#include <math.h>
+#include <cmath>
 
 namespace gstlrn
 {

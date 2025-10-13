@@ -8,11 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Polynomials/Hermite.hpp"
 #include "Polynomials/MonteCarlo.hpp"
 #include "Basic/Law.hpp"
+#include "Polynomials/Hermite.hpp"
 
-#include <math.h>
+#include <cmath>
+
 namespace gstlrn
 {
 /**
@@ -23,29 +24,28 @@ namespace gstlrn
  * @param psi Vector of Hermite coefficients
  * @return Vector of returned values for all Hermite coefficients
  */
-double integralGaussHermite(double yc, double r, const VectorDouble &psi)
+double integralGaussHermite(double yc, double r, const VectorDouble& psi)
 {
-  int nbpoly = static_cast<int>(psi.size()) - 1;
+  int nbpoly        = static_cast<int>(psi.size()) - 1;
   VectorDouble vect = hermitePolynomials(yc, 1., nbpoly);
-  double value = hermiteSeries(vect, psi);
+  double value      = hermiteSeries(vect, psi);
   return r * r * value;
 }
-void normalizeResults(int nbsimu, double &valest)
+void normalizeResults(int nbsimu, double& valest)
 {
-  valest /= (double) nbsimu;
+  valest /= (double)nbsimu;
 }
 
-void normalizeResults(int nbsimu, double &valest, double &valstd)
+void normalizeResults(int nbsimu, double& valest, double& valstd)
 {
-  valest /= (double) nbsimu;
+  valest /= (double)nbsimu;
   valstd = valstd / nbsimu - valest * valest;
-  valstd = (valstd > 0.) ? sqrt(valstd) :
-                           0.;
+  valstd = (valstd > 0.) ? sqrt(valstd) : 0.;
 }
 
 VectorDouble MCCondExp(VectorDouble krigest,
                        VectorDouble krigstd,
-                       const VectorDouble &psi,
+                       const VectorDouble& psi,
                        int nbsimu)
 {
   VectorDouble condexp;
@@ -70,7 +70,7 @@ VectorDouble MCCondExp(VectorDouble krigest,
 
 double MCCondExpElement(double krigest,
                         double krigstd,
-                        const VectorDouble &psi,
+                        const VectorDouble& psi,
                         int nbsimu)
 {
   double valest = 0.;
@@ -86,7 +86,7 @@ double MCCondExpElement(double krigest,
 
 VectorDouble MCCondStd(VectorDouble krigest,
                        VectorDouble krigstd,
-                       const VectorDouble &psi,
+                       const VectorDouble& psi,
                        int nbsimu)
 {
   VectorDouble condstd;
@@ -113,7 +113,7 @@ VectorDouble MCCondStd(VectorDouble krigest,
 
 double MCCondStdElement(double krigest,
                         double krigstd,
-                        const VectorDouble &psi,
+                        const VectorDouble& psi,
                         int nbsimu)
 {
   double valest = 0.;
@@ -182,7 +182,7 @@ VectorDouble MCIndicatorStd(double yc,
 
   for (int iech = 0; iech < nech; iech++)
   {
-    double proba = probstd[iech];
+    double proba  = probstd[iech];
     probstd[iech] = sqrt(proba * (1. - proba));
   }
   return probstd;
@@ -193,7 +193,7 @@ double MCIndicatorStdElement(double yc,
                              double krigstd,
                              int nbsimu)
 {
-  double proba = MCIndicatorElement(yc, krigest, krigstd, nbsimu);
+  double proba   = MCIndicatorElement(yc, krigest, krigstd, nbsimu);
   double probstd = sqrt(proba * (1. - proba));
   return probstd;
 }
@@ -201,7 +201,7 @@ double MCIndicatorStdElement(double yc,
 VectorDouble MCMetal(double yc,
                      VectorDouble krigest,
                      VectorDouble krigstd,
-                     const VectorDouble &psi,
+                     const VectorDouble& psi,
                      int nbsimu)
 {
   VectorDouble metal;
@@ -229,7 +229,7 @@ VectorDouble MCMetal(double yc,
 double MCMetalElement(double yc,
                       double krigest,
                       double krigstd,
-                      const VectorDouble &psi,
+                      const VectorDouble& psi,
                       int nbsimu)
 {
   double metal = 0.;
@@ -248,7 +248,7 @@ double MCMetalElement(double yc,
 VectorDouble MCMetalStd(double yc,
                         VectorDouble krigest,
                         VectorDouble krigstd,
-                        const VectorDouble &psi,
+                        const VectorDouble& psi,
                         int nbsimu)
 {
   VectorDouble metstd;
@@ -279,7 +279,7 @@ VectorDouble MCMetalStd(double yc,
 double MCMetalStdElement(double yc,
                          double krigest,
                          double krigstd,
-                         const VectorDouble &psi,
+                         const VectorDouble& psi,
                          int nbsimu)
 {
   double metstd = 0.;
@@ -298,4 +298,4 @@ double MCMetalStdElement(double yc,
   return metstd;
 }
 
-}
+} // namespace gstlrn

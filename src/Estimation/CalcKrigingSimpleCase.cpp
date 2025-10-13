@@ -18,7 +18,8 @@
 #include "Model/Model.hpp"
 #include "Neigh/ANeigh.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include <math.h>
+
+#include <cmath>
 #include <omp.h>
 
 namespace gstlrn

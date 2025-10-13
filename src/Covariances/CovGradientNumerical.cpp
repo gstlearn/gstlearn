@@ -12,7 +12,8 @@
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovFactory.hpp"
-#include <math.h>
+
+#include <cmath>
 
 #define TR(i, j) (Tr[(i) * 3 + (j)])
 

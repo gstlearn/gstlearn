@@ -13,30 +13,29 @@
 #include "Basic/Utilities.hpp"
 
 #include <algorithm>
+#include <cstring>
 #include <iostream>
-#include <sstream>
-#include <string.h>
-#include <regex>
 #include <locale>
+#include <regex>
+#include <sstream>
 
-#include <ctype.h>
-#include <stdio.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdarg.h>
-#include <math.h>
+#include <cctype>
+#include <cmath>
+#include <cstdarg>
+#include <cstddef>
+#include <cstdio>
 
 namespace gstlrn
-{ 
+{
 /**
  * Protect the matching pattern against Crash which happens when the string
  * contains "*" without any preceding character
  * @param match Initial matching pattern
  * @return The std::regex item used for further comparisons
  */
-std::regex _protectRegexp(const String &match)
+std::regex _protectRegexp(const String& match)
 {
-  String str = match;
+  String str        = match;
   std::size_t found = str.find('*');
   if (found != String::npos)
   {
@@ -49,32 +48,28 @@ std::regex _protectRegexp(const String &match)
 
 String toUpper(const std::string_view string)
 {
-  String str{string};
+  String str {string};
   toUpper(str);
   return (str);
 }
 
 String toLower(const std::string_view string)
 {
-  String str{string};
+  String str {string};
   toLower(str);
   return (str);
 }
 
-void toUpper(String &string)
+void toUpper(String& string)
 {
-  std::for_each(string.begin(), string.end(), [](char &c)
-  {
-    c = static_cast<char>(::toupper(c));
-  });
+  std::for_each(string.begin(), string.end(), [](char& c)
+                { c = static_cast<char>(::toupper(c)); });
 }
 
-void toLower(String &string)
+void toLower(String& string)
 {
-  std::for_each(string.begin(), string.end(), [](char &c)
-  {
-    c = static_cast<char>(::tolower(c));
-  });
+  std::for_each(string.begin(), string.end(), [](char& c)
+                { c = static_cast<char>(::tolower(c)); });
 }
 
 enum charTypeT
@@ -91,29 +86,29 @@ charTypeT _charType(char c)
   return other;
 }
 
-String incrementStringVersion(const String &string,
+String incrementStringVersion(const String& string,
                               int rank,
-                              const String &delim)
+                              const String& delim)
 {
   std::stringstream ss;
   ss << string << delim << rank;
   return ss.str();
 }
 
-String concatenateString(const String &string,
+String concatenateString(const String& string,
                          double value,
-                         const String &delim)
+                         const String& delim)
 {
   std::stringstream ss;
   ss << string << delim << value;
   return ss.str();
 }
 
-String concatenateStrings(const String &delim,
-                          const String &string1,
-                          const String &string2,
-                          const String &string3,
-                          const String &string4)
+String concatenateStrings(const String& delim,
+                          const String& string1,
+                          const String& string2,
+                          const String& string3,
+                          const String& string4)
 {
   bool started = false;
   std::stringstream ss;
@@ -138,12 +133,12 @@ String concatenateStrings(const String &delim,
   {
     if (started) ss << delim;
     ss << string4;
-//    started = true; // never reached
+    //    started = true; // never reached
   }
   return ss.str();
 }
 
-VectorString generateMultipleNames(const String &radix, int number, const String& delim)
+VectorString generateMultipleNames(const String& radix, int number, const String& delim)
 {
   VectorString list;
 
@@ -159,14 +154,14 @@ VectorString generateMultipleNames(const String &radix, int number, const String
  * If it does, increment its name by a version number.
  * @param list
  */
-void correctNamesForDuplicates(VectorString &list)
+void correctNamesForDuplicates(VectorString& list)
 {
   int number = static_cast<int>(list.size());
   for (int i = 1; i < number; i++)
   {
     // Check that a similar name does not appear among the previous names in list
 
-    label_try:
+  label_try:
     int found = -1;
     for (int j = 0; j < i && found < 0; j++)
     {
@@ -181,10 +176,10 @@ void correctNamesForDuplicates(VectorString &list)
   }
 }
 
-void correctNewNameForDuplicates(VectorString &list, int rank)
+void correctNewNameForDuplicates(VectorString& list, int rank)
 {
   int number = static_cast<int>(list.size());
-  int found = 1;
+  int found  = 1;
   while (found > 0)
   {
     found = 0;
@@ -193,7 +188,8 @@ void correctNewNameForDuplicates(VectorString &list, int rank)
       if (i == rank) continue;
       if (list[rank] == list[i]) found++;
     }
-    if (found <= 0) break;;
+    if (found <= 0) break;
+    ;
 
     // We have found a similar name
 
@@ -212,7 +208,7 @@ int getRankInList(const VectorString& list,
                   const String& match,
                   bool caseSensitive)
 {
-  for (int i = 0; i < (int) list.size(); i++)
+  for (int i = 0; i < (int)list.size(); i++)
   {
     if (matchRegexp(list[i], match, caseSensitive)) return i;
   }
@@ -229,10 +225,10 @@ int getRankInList(const VectorString& list,
  * @param caseSensitive
  * @return Error returned code
  */
-int decodeInString(const String &symbol,
-                                   const String &node,
-                                   int *facies,
-                                   bool caseSensitive)
+int decodeInString(const String& symbol,
+                   const String& node,
+                   int* facies,
+                   bool caseSensitive)
 {
   String locnode = node;
   String locsymb = symbol;
@@ -246,7 +242,7 @@ int decodeInString(const String &symbol,
 
   // Decode the remaining part: it should be an integer
 
-  for (char &c : locnode)
+  for (char& c: locnode)
   {
     if (!isdigit(c)) c = ' ';
   }
@@ -274,7 +270,7 @@ int decodeInList(const VectorString& symbols,
                  int* facies,
                  bool caseSensitive)
 {
-  for (int i = 0; i < (int) symbols.size(); i++)
+  for (int i = 0; i < (int)symbols.size(); i++)
   {
     if (decodeInString(symbols[i], node, facies, caseSensitive)) continue;
     *rank = i;
@@ -291,8 +287,8 @@ int decodeInList(const VectorString& symbols,
  * Otherwise, both strings are converted into upper case before comparison
  * @return true if both keywords are identical; false otherwise
  */
-bool matchRegexp(const String &string1,
-                 const String &string2,
+bool matchRegexp(const String& string1,
+                 const String& string2,
                  bool caseSensitive)
 {
   String local1 = string1;
@@ -314,8 +310,8 @@ bool matchRegexp(const String &string1,
  * Otherwise, both strings are converted into upper case before comparison
  * @return true if both keywords are identical; false otherwise
  */
-bool matchKeyword(const String &string1,
-                  const String &string2,
+bool matchKeyword(const String& string1,
+                  const String& string2,
                   bool caseSensitive)
 {
   String local1 = string1;
@@ -338,14 +334,14 @@ bool matchKeyword(const String &string1,
  *       several matches have been found but onlyOne flag is True (message issued).
  * @remark Example:  expandList(["x", "y", "xcol"], "x.*") -> ("x", "xcol")
  */
-VectorString expandList(const VectorString &list,
-                        const String &match,
+VectorString expandList(const VectorString& list,
+                        const String& match,
                         bool onlyOne)
 {
   std::regex regexpr = _protectRegexp(match);
 
   VectorString sublist;
-  for (int i = 0; i < (int) list.size(); i++)
+  for (int i = 0; i < (int)list.size(); i++)
   {
     const String& toto = list[i];
     if (std::regex_match(toto, regexpr)) sublist.push_back(toto);
@@ -357,9 +353,9 @@ VectorString expandList(const VectorString &list,
     if (number > 1)
     {
       messerr(
-          "The name (%s) has been expanded to several matching possibilities",
-          match.c_str());
-      for (int i = 0; i < (int) sublist.size(); i++)
+        "The name (%s) has been expanded to several matching possibilities",
+        match.c_str());
+      for (int i = 0; i < (int)sublist.size(); i++)
         messerr("- %s", sublist[i].c_str());
     }
     else
@@ -371,15 +367,15 @@ VectorString expandList(const VectorString &list,
   return sublist;
 }
 
-VectorString expandList(const VectorString &list, const VectorString &matches)
+VectorString expandList(const VectorString& list, const VectorString& matches)
 {
   VectorString sublist;
 
   // Loop on the patterns to be matched
-  for (int i = 0; i < (int) matches.size(); i++)
+  for (int i = 0; i < (int)matches.size(); i++)
   {
     // Loop for eligible names
-    for (int j = 0; j < (int) list.size(); j++)
+    for (int j = 0; j < (int)list.size(); j++)
     {
       std::regex regexpr = _protectRegexp(matches[i]);
       if (std::regex_match(list[j], regexpr))
@@ -394,7 +390,7 @@ VectorString expandList(const VectorString &list, const VectorString &matches)
         }
 
         // If the name is not already registered: add it
-        if (! already) sublist.push_back(list[j]);
+        if (!already) sublist.push_back(list[j]);
       }
     }
   }
@@ -406,11 +402,11 @@ VectorString expandList(const VectorString &list, const VectorString &matches)
  * @param list List of strings
  * @return The maximum number of characters
  */
-int getMaxStringSize(const VectorString &list)
+int getMaxStringSize(const VectorString& list)
 {
   int size = 0;
   if (list.empty()) return size;
-  for (int i = 0; i < (int) list.size(); i++)
+  for (int i = 0; i < (int)list.size(); i++)
   {
     int local = static_cast<int>(list[i].length());
     if (local > size) size = local;
@@ -424,16 +420,14 @@ int getMaxStringSize(const VectorString &list)
  * @param code String to be split
  * @return
  */
-VectorString separateKeywords(const String &code)
+VectorString separateKeywords(const String& code)
 {
   VectorString result;
   String oString;
   charTypeT st = other;
-  for (auto c : code)
+  for (auto c: code)
   {
-    if ((st == alpha && _charType(c) != alpha) || (st == digit
-        && _charType(c) != digit)
-        || (st == other && _charType(c) != other))
+    if ((st == alpha && _charType(c) != alpha) || (st == digit && _charType(c) != digit) || (st == other && _charType(c) != other))
     {
       if (oString.size() > 0) result.push_back(oString);
       oString = "";
@@ -450,7 +444,7 @@ VectorString separateKeywords(const String &code)
  * @param v String to be decoded
  * @return The integer value or ITEST (in case of failure)
  */
-int toInteger(const String &v)
+int toInteger(const String& v)
 {
   std::istringstream iss(v);
   int number;
@@ -470,10 +464,10 @@ class dec_separator: public std::numpunct<T>
 {
 public:
   dec_separator(char dec = ',')
-      :
-      _dec(dec)
+    : _dec(dec)
   {
   }
+
 private:
   typename std::numpunct<T>::char_type do_decimal_point() const
   {
@@ -482,7 +476,7 @@ private:
   char _dec;
 };
 
-double toDouble(const String &v, char dec)
+double toDouble(const String& v, char dec)
 {
   std::istringstream iss(v);
   double number;
@@ -512,10 +506,10 @@ String toString(double value)
  * @param defval Default value (or IFFFF)
  * @param authTest True if TEST value is authorized (TEST)
  */
-int askInt(const String &text, int defval, bool authTest)
+int askInt(const String& text, int defval, bool authTest)
 {
   bool hasDefault = !IFFFF(defval) || authTest;
-  int answer = defval;
+  int answer      = defval;
   std::cin.exceptions(std::istream::failbit | std::istream::badbit);
 
   try
@@ -559,7 +553,7 @@ int askInt(const String &text, int defval, bool authTest)
       std::cout << "The answer is not a valid integer!" << std::endl;
     }
   }
-  catch (std::istream::failure &e)
+  catch (std::istream::failure& e)
   {
     std::cerr << "Problem when reading integer:" << e.what() << std::endl;
   }
@@ -572,12 +566,12 @@ int askInt(const String &text, int defval, bool authTest)
  * @param defval Default value (or IFFFF)
  * @param authTest True if a TEST answer is authorized (TEST)
  */
-double askDouble(const String &text,
-                                 double defval,
-                                 bool authTest)
+double askDouble(const String& text,
+                 double defval,
+                 bool authTest)
 {
   bool hasDefault = !FFFF(defval) || authTest;
-  double answer = defval;
+  double answer   = defval;
   std::cin.exceptions(std::istream::failbit | std::istream::badbit);
 
   try
@@ -620,7 +614,7 @@ double askDouble(const String &text,
       std::cout << "The answer is not a valid double!" << std::endl;
     }
   }
-  catch (std::istream::failure &e)
+  catch (std::istream::failure& e)
   {
     std::cerr << "Problem when reading double:" << e.what() << std::endl;
   }
@@ -632,10 +626,10 @@ double askDouble(const String &text,
  * @param text Text of the question
  * @param defval Default value
  */
-int askBool(const String &text, bool defval)
+int askBool(const String& text, bool defval)
 {
   bool hasDefault = !IFFFF(defval);
-  bool answer = defval;
+  bool answer     = defval;
   std::cin.exceptions(std::istream::failbit | std::istream::badbit);
 
   try
@@ -681,14 +675,14 @@ int askBool(const String &text, bool defval)
       std::cout << "The answer is not a valid bool!" << std::endl;
     }
   }
-  catch (std::istream::failure &e)
+  catch (std::istream::failure& e)
   {
     std::cerr << "Problem when reading bool:" << e.what() << std::endl;
   }
   return answer;
 }
 
-String trimRight(const String &s, const String &t)
+String trimRight(const String& s, const String& t)
 {
   String d(s);
   String::size_type i(d.find_last_not_of(t));
@@ -696,19 +690,19 @@ String trimRight(const String &s, const String &t)
   return d.erase(d.find_last_not_of(t) + 1);
 }
 
-String trimLeft(const String &s, const String &t)
+String trimLeft(const String& s, const String& t)
 {
   String d(s);
   return d.erase(0, s.find_first_not_of(t));
 }
 
-String trim(const String &s, const String &t)
+String trim(const String& s, const String& t)
 {
   const String& d(s);
   return trimLeft(trimRight(d, t), t);
 }
 
-String erase(const String &s, const String &t)
+String erase(const String& s, const String& t)
 {
   String d(s);
   for (unsigned int i = 0; i < t.size(); i++)
@@ -716,22 +710,22 @@ String erase(const String &s, const String &t)
   return d;
 }
 
-char* gslStrcpy(char *dst, const char *src)
+char* gslStrcpy(char* dst, const char* src)
 {
   return strcpy(dst, src);
   //(void)gslSPrintf(dst, "%s", src);
-  //return dst;
+  // return dst;
 }
 
-char* gslStrcat(char *dst, const char *src)
+char* gslStrcat(char* dst, const char* src)
 {
   return strcat(dst, src);
-//  size_t size = String(dst).size();
-//  (void)gslSPrintf(&dst[size], "%s%s", dst, src);
-//  return dst;
+  //  size_t size = String(dst).size();
+  //  (void)gslSPrintf(&dst[size], "%s%s", dst, src);
+  //  return dst;
 }
 
-int gslSPrintf(char *dst, const char *fmt, ...)
+int gslSPrintf(char* dst, const char* fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
@@ -740,7 +734,7 @@ int gslSPrintf(char *dst, const char *fmt, ...)
   return n;
 }
 
-int gslScanf(const char *format, ...)
+int gslScanf(const char* format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -749,7 +743,7 @@ int gslScanf(const char *format, ...)
   return n;
 }
 
-int gslSScanf(const char *str, const char *format, ...)
+int gslSScanf(const char* str, const char* format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -758,7 +752,7 @@ int gslSScanf(const char *str, const char *format, ...)
   return n;
 }
 
-int gslFScanf(FILE *stream, const char *format, ...)
+int gslFScanf(FILE* stream, const char* format, ...)
 {
   va_list ap;
   va_start(ap, format);
@@ -767,12 +761,12 @@ int gslFScanf(FILE *stream, const char *format, ...)
   return n;
 }
 
-char* gslStrtok(char *str, const char *delim)
+char* gslStrtok(char* str, const char* delim)
 {
   return strtok(str, delim);
 }
 
-char* gslStrncpy(char *dest, const char *src, size_t n)
+char* gslStrncpy(char* dest, const char* src, size_t n)
 {
   return strncpy(dest, src, n);
 }
@@ -798,22 +792,22 @@ VectorInt decodeGridSorting(const String& string,
                             const VectorInt& nx,
                             bool verbose)
 {
-  int ndim = (int) nx.size();
-  VectorInt order(ndim,0);
-  VectorInt ranks(ndim,0);
+  int ndim = (int)nx.size();
+  VectorInt order(ndim, 0);
+  VectorInt ranks(ndim, 0);
 
   // Loop on the character string
 
-  int idim = 0;
-  int ind = 0;
-  int length = (int) string.size();
+  int idim   = 0;
+  int ind    = 0;
+  int length = (int)string.size();
 
   while (ind < length)
   {
     int orient = 0;
-    if (string[ind] == '-' && (string[ind+1] == 'x' && isdigit(string[ind+2])))
+    if (string[ind] == '-' && (string[ind + 1] == 'x' && isdigit(string[ind + 2])))
       orient = -1;
-    else if (string[ind] == '+' && (string[ind+1] == 'x' && isdigit(string[ind+2])))
+    else if (string[ind] == '+' && (string[ind + 1] == 'x' && isdigit(string[ind + 2])))
       orient = 1;
     else
       orient = 0;
@@ -827,13 +821,13 @@ VectorInt decodeGridSorting(const String& string,
       int num = string[ind] - '0';
       if (idim >= ndim)
       {
-        messerr("'order' contains more terms (%d) than the space dimension (%d)", idim+1, ndim);
+        messerr("'order' contains more terms (%d) than the space dimension (%d)", idim + 1, ndim);
         return VectorInt();
       }
       order[idim] = orient * num;
       if (num > ndim)
       {
-        messerr("'order' refers to 'x%d' while space dimension is %d", num,ndim);
+        messerr("'order' refers to 'x%d' while space dimension is %d", num, ndim);
         return VectorInt();
       }
       ranks[num - 1] = orient;
@@ -875,4 +869,4 @@ VectorInt decodeGridSorting(const String& string,
   }
   return (order);
 }
-}
+} // namespace gstlrn
