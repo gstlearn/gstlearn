@@ -66,7 +66,7 @@ bool AOF::isValidForGrid() const
 
 bool AOF::isValidForVariable() const
 {
-  int ncol = (int)_cols.size();
+  Id ncol = static_cast<Id>(_cols.size());
   if (mustBeOneVariable() && ncol > 1)
   {
     messerr("This function requires a single Variable but ncol = %d", ncol);
@@ -77,7 +77,7 @@ bool AOF::isValidForVariable() const
 
 bool AOF::isValidForNDim() const
 {
-  int ndim = _dbgrid->getNDim();
+  Id ndim = _dbgrid->getNDim();
   if (!mustBeForNDim(ndim))
   {
     messerr("This function is not valid for the Space Dimension (%d)", ndim);
@@ -88,14 +88,14 @@ bool AOF::isValidForNDim() const
 
 bool AOF::isValidForRotation() const
 {
-  int ndim = _dbgrid->getNDim();
+  Id ndim = _dbgrid->getNDim();
 
-  int mode = 0;
+  Id mode = 0;
   if (_dbgrid->isGridRotated())
   {
     mode                = 1;
     VectorDouble angles = _dbgrid->getAngles();
-    for (int idim = 1; idim < ndim; idim++)
+    for (Id idim = 1; idim < ndim; idim++)
       if (ABS(angles[idim]) > 1.e-6) mode = 2;
   }
   if (!mustBeForRotation(mode))
@@ -106,7 +106,7 @@ bool AOF::isValidForRotation() const
   return true;
 }
 
-int AOF::_fileWriteOpen()
+Id AOF::_fileWriteOpen()
 {
   _file = gslFopen(_filename.c_str(), "w");
   if (_file == nullptr)
@@ -117,7 +117,7 @@ int AOF::_fileWriteOpen()
   return 0;
 }
 
-int AOF::_fileReadOpen()
+Id AOF::_fileReadOpen()
 {
   _file = gslFopen(_filename.c_str(), "r");
   if (_file == nullptr)
@@ -135,14 +135,14 @@ void AOF::_fileClose()
   _file = nullptr;
 }
 
-void AOF::setCols(int ncol, const int* icols)
+void AOF::setCols(Id ncol, const Id* icols)
 {
   _cols = VectorInt(ncol);
-  for (int icol = 0; icol < ncol; icol++)
+  for (Id icol = 0; icol < ncol; icol++)
     _cols[icol] = icols[icol];
 }
 
-void AOF::setCol(int icol)
+void AOF::setCol(Id icol)
 {
   _cols    = VectorInt(1);
   _cols[0] = icol;

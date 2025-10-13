@@ -52,21 +52,21 @@ bool Convolution::_isDbGridDefined() const
   return true;
 }
 
-int Convolution::ConvolveSparse(int iatt,
+Id Convolution::ConvolveSparse(Id iatt,
                                 const VectorVectorInt& ranks,
                                 const MatrixDense& wgt,
                                 const VectorDouble& means,
-                                int optionVerbose)
+                                Id optionVerbose)
 {
   if (! _isDbGridDefined()) return 1;
-  int ndim    = _dbgrid->getNDim();
-  int nvar    = _dbgrid->getNLoc(ELoc::Z);
-  int nbneigh = (int)ranks.size();
+  Id ndim    = _dbgrid->getNDim();
+  Id nvar    = _dbgrid->getNLoc(ELoc::Z);
+  Id nbneigh = static_cast<Id>(ranks.size());
 
   // Preliminary checks
-  if (ndim != (int)ranks[0].size())
+  if (ndim != static_cast<Id>(ranks[0].size()))
   {
-    messerr("The second dimension of 'ranks' (%d)", (int)ranks[0].size());
+    messerr("The second dimension of 'ranks' (%d)", static_cast<Id>(ranks[0].size()));
     messerr("must be equal to the space dimension (%d)", ndim);
     return 1;
     }
@@ -93,9 +93,9 @@ int Convolution::ConvolveSparse(int iatt,
       Table table(nvar * nvar, 2);
       table.setColumnName(0, "Minimum");
       table.setColumnName(1, "Maximum");
-      for (int ivar = 0, irow = 0; ivar < nvar; ivar++)
+      for (Id ivar = 0, irow = 0; ivar < nvar; ivar++)
       {
-        for (int jvar = 0; jvar < nvar; jvar++, irow++)
+        for (Id jvar = 0; jvar < nvar; jvar++, irow++)
         {
           VectorDouble vect = wgt.getColumnByRowRange(ivar, nbneigh * jvar, nbneigh * (jvar + 1));
           table.setRowName(irow, "Weight of Z" + std::to_string(jvar + 1) +
@@ -116,7 +116,7 @@ int Convolution::ConvolveSparse(int iatt,
   VectorDouble result(nvar);
 
   // Loop on the target samples
-  for (int iech = 0, nech = _dbgrid->getNSample(); iech < nech; iech++)
+  for (Id iech = 0, nech = _dbgrid->getNSample(); iech < nech; iech++)
   {
     if (!_dbgrid->isActive(iech)) continue;
     _dbgrid->rankToIndice(iech, indTarget);
@@ -124,7 +124,7 @@ int Convolution::ConvolveSparse(int iatt,
     // Loop on the neighborhing samples
     result.fill(0.);
     bool correct = true;
-    for (int ineigh = 0; ineigh < nbneigh && correct; ineigh++)
+    for (Id ineigh = 0; ineigh < nbneigh && correct; ineigh++)
     {
       VH::addInPlace(indTarget, ranks[ineigh], current);
       correct = _dbgrid->getGrid().isInside(current);
@@ -135,8 +135,8 @@ int Convolution::ConvolveSparse(int iatt,
       // Load the mutlivariate set of values at location 'jech'
       // Variable 'valid' is set to false if one data value is undefined 
       bool valid = true;
-      int jech   = _dbgrid->indiceToRank(current);
-      for (int ivar = 0; ivar < nvar && valid; ivar++)
+      Id jech   = _dbgrid->indiceToRank(current);
+      for (Id ivar = 0; ivar < nvar && valid; ivar++)
       {
         double value = _dbgrid->getZVariable(jech, ivar);
         if (FFFF(value))
@@ -156,12 +156,12 @@ int Convolution::ConvolveSparse(int iatt,
       }
 
       // Loop on data variable
-      for (int jvar = 0; jvar < nvar; jvar++)
+      for (Id jvar = 0; jvar < nvar; jvar++)
       {
-        int irow = jvar * nbneigh + ineigh;
+        Id irow = jvar * nbneigh + ineigh;
           
         // Loop on target variable
-        for (int ivar = 0; ivar < nvar; ivar++)
+        for (Id ivar = 0; ivar < nvar; ivar++)
         {
           result[ivar] += data[jvar] * wgt.getValue(irow, ivar);
         }
@@ -169,7 +169,7 @@ int Convolution::ConvolveSparse(int iatt,
     }
 
     // Store the results
-    for (int ivar = 0; ivar < nvar; ivar++)
+    for (Id ivar = 0; ivar < nvar; ivar++)
     {
       double value = TEST;
       if (correct)
@@ -183,16 +183,16 @@ int Convolution::ConvolveSparse(int iatt,
   return 0;
 }
 
-int Convolution::ConvolveFFT(int iatt,
-                             int nvar,
+Id Convolution::ConvolveFFT(Id iatt,
+                             Id nvar,
                              const DbGrid* marpat,
                              const VectorDouble& means)
 {
-  int ndim       = _dbgrid->getNDim();
-  int nv2        = nvar * nvar;
+  Id ndim       = _dbgrid->getNDim();
+  Id nv2        = nvar * nvar;
   VectorInt dims = _dbgrid->getNXs();
-  int sImage     = VH::product(dims);
-  double rImage  = (double) sImage;
+  Id sImage     = VH::product(dims);
+  auto rImage  = static_cast<double>(sImage);
 
   // Find the center of kernel
   VectorInt cKernel = marpat->getCenterIndices(false);
@@ -210,7 +210,7 @@ int Convolution::ConvolveFFT(int iatt,
   std::vector<VectorDouble> kernelIm;
   kernelRe.resize(nv2);
   kernelIm.resize(nv2);
-  for (int iv2 = 0; iv2 < nv2; iv2++)
+  for (Id iv2 = 0; iv2 < nv2; iv2++)
   {
     kernelRe[iv2].fill(0., sImage);
     kernelIm[iv2].fill(0., sImage);
@@ -218,19 +218,19 @@ int Convolution::ConvolveFFT(int iatt,
 
   // For each pair or variable (ivar, jvar), plunge the corresponding
   // set of weights (given by 'marpat') in the "middle" of each 'kernel'
-  int sKernel = VH::product(marpat->getNXs());
-  for (int i = 0; i < sKernel; i++)
+  Id sKernel = VH::product(marpat->getNXs());
+  for (Id i = 0; i < sKernel; i++)
   {
     marpat->rankToIndice(i, indices);
     VH::addInPlace(indices, shift);
-    int j = _dbgrid->indiceToRank(indices);
+    Id j = _dbgrid->indiceToRank(indices);
 
-    for (int iv2 = 0; iv2 < nv2; iv2++)
+    for (Id iv2 = 0; iv2 < nv2; iv2++)
       kernelRe[iv2][j] = marpat->getLocVariable(ELoc::Z, i, iv2);
   }
 
   // Perform the FFT forward transform for each kernel
-  for (int iv2 = 0; iv2 < nv2; iv2++)
+  for (Id iv2 = 0; iv2 < nv2; iv2++)
     if (fftn(ndim, dims.data(), kernelRe[iv2].data(), kernelIm[iv2].data(), 1)) return 1;
   
   // Retreive the vector of images (real and imaginary parts)
@@ -238,7 +238,7 @@ int Convolution::ConvolveFFT(int iatt,
   std::vector<VectorDouble> imageIm;
   imageRe.resize(nvar);
   imageIm.resize(nvar);
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (Id ivar = 0; ivar < nvar; ivar++)
   {
     imageRe[ivar] = _dbgrid->getColumnByLocator(ELoc::Z, ivar);
     if (!means.empty()) VH::addConstant(imageRe[ivar], -means[ivar]);
@@ -253,11 +253,11 @@ int Convolution::ConvolveFFT(int iatt,
   VectorDouble localIm(sImage);
 
   // Loop on the output variables
-  int iv2 = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  Id iv2 = 0;
+  for (Id ivar = 0; ivar < nvar; ivar++)
   {
     result.fill(0.);
-    for (int jvar = 0; jvar < nvar; jvar++, iv2++)
+    for (Id jvar = 0; jvar < nvar; jvar++, iv2++)
     {
 
       // Perform the element-wise product of complex vectors

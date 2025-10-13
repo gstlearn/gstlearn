@@ -1,30 +1,35 @@
 #NO_DIFF#XXX
-----<IPython.core.display.Javascript object>----
+----
+
+<IPython.core.display.Javascript object>----
 
 
 #NO_DIFF#XXX
 ----
-Model characteristics
-=====================
-Space dimension              = 2
-Number of variable(s)        = 1
-Number of basic structure(s) = 2
-Number of drift function(s)  = 1
-Number of drift equation(s)  = 1
 
-Covariance Part
----------------
-Matern (Third Parameter = 1)
-- Sill         =      1.000
-- Range        =      0.200
-- Theo. Range  =      0.058
-Nugget Effect
-- Sill         =      0.100
-Total Sill     =      1.100
+Contents of the VectorMeshes
+----------------------------
+It contains 1 mesh(es)
 
-Drift Part
-----------
-Universality_Condition----
+Turbo Meshing
+=============
+
+Grid characteristics:
+---------------------
+Origin :     -0.250    -0.250
+Mesh   :      0.020     0.020
+Number :         75        75
+Euclidean Geometry
+Space Dimension           = 2
+Number of Apices per Mesh = 3
+Number of Meshes          = 10952
+Number of Apices          = 5625
+
+Bounding Box Extension
+----------------------
+Dim #1 - Min:-0.25 - Max:1.23
+Dim #2 - Min:-0.25 - Max:1.23
+----
 
 
 #NO_DIFF#XXX
@@ -48,7 +53,7 @@ Number :         50        50
 
 Data Base Statistics
 --------------------
-4 - Name spde - Locator z1
+4 - Name SimuSPDE - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
  Minimum value       =     -3.342
@@ -62,7 +67,7 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = spde - Locator = z1
+Column = 3 - Name = SimuSPDE - Locator = z1
 ----
 
 
@@ -87,20 +92,32 @@ Total number of samples      = 1000
 
 Data Base Statistics
 --------------------
-3 - Name spde - Locator z1
+3 - Name SimuSPDE - Locator z1
  Nb of data          =       1000
  Nb of active values =       1000
- Minimum value       =     -2.993
- Maximum value       =      2.428
- Mean value          =     -0.157
- Standard Deviation  =      1.014
- Variance            =      1.028
+ Minimum value       =     -2.990
+ Maximum value       =      2.941
+ Mean value          =      0.079
+ Standard Deviation  =      0.969
+ Variance            =      0.939
 
 Variables
 ---------
 Column = 0 - Name = x - Locator = x1
 Column = 1 - Name = y - Locator = x2
-Column = 2 - Name = spde - Locator = z1
+Column = 2 - Name = SimuSPDE - Locator = z1
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
 ----
 
 
@@ -114,47 +131,87 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 5
-Total number of samples      = 2500
+Number of Columns            = 6
+Total number of samples      = 5625
+Number of active samples     = 2500
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
+Origin :     -0.250    -0.250
 Mesh   :      0.020     0.020
-Number :         50        50
+Number :         75        75
 
 Data Base Statistics
 --------------------
-4 - Name spde - Locator NA
- Nb of data          =       2500
+1 - Name rank - Locator NA
+ Nb of data          =       5625
  Nb of active values =       2500
- Minimum value       =     -3.342
- Maximum value       =      3.300
- Mean value          =     -0.121
- Standard Deviation  =      1.007
- Variance            =      1.014
-5 - Name spde.spde.estim - Locator z1
- Nb of data          =       2500
+ Minimum value       =    989.000
+ Maximum value       =   4713.000
+ Mean value          =   2851.000
+ Standard Deviation  =   1082.411
+ Variance            = 1171614.500
+2 - Name x1 - Locator x1
+ Nb of data          =       5625
  Nb of active values =       2500
- Minimum value       =     -2.554
- Maximum value       =      2.025
- Mean value          =     -0.137
- Standard Deviation  =      0.885
- Variance            =      0.783
+ Minimum value       =      0.010
+ Maximum value       =      0.990
+ Mean value          =      0.500
+ Standard Deviation  =      0.289
+ Variance            =      0.083
+3 - Name x2 - Locator x2
+ Nb of data          =       5625
+ Nb of active values =       2500
+ Minimum value       =      0.010
+ Maximum value       =      0.990
+ Mean value          =      0.500
+ Standard Deviation  =      0.289
+ Variance            =      0.083
+4 - Name NewSel - Locator sel
+ Nb of data          =       5625
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+5 - Name KrigingSPDE-Free.SimuSPDE.estim - Locator NA
+ Nb of data          =       5625
+ Nb of active values =       2500
+ Minimum value       =     -2.550
+ Maximum value       =      2.549
+ Mean value          =      0.108
+ Standard Deviation  =      0.867
+ Variance            =      0.752
+6 - Name KrigingSPDE-Chol.SimuSPDE.estim - Locator z1
+ Nb of data          =       5625
+ Nb of active values =       2500
+ Minimum value       =     -2.550
+ Maximum value       =      2.549
+ Mean value          =      0.108
+ Standard Deviation  =      0.867
+ Variance            =      0.752
 
 Variables
 ---------
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = spde - Locator = NA
-Column = 4 - Name = spde.spde.estim - Locator = z1
+Column = 3 - Name = NewSel - Locator = sel
+Column = 4 - Name = KrigingSPDE-Free.SimuSPDE.estim - Locator = NA
+Column = 5 - Name = KrigingSPDE-Chol.SimuSPDE.estim - Locator = z1
 ----
 
 
 #NO_DIFF#XXX
 ----
-#NO_DIFF#XXX
+Input Mesh is provided and used as is
+- Mesh #1/1: NMeshes = 10952, NApices = 5625
+Projection of 'dbin' for Kriging: Created from Db and Mesh(es)
+- Number of variables = 1
+- Number of Latents   = 1
+- Number of Apices    = 5625
+- Number of Points    = 1000
 ----
 
 
@@ -174,30 +231,42 @@ Variance = 1.1733
 
 #NO_DIFF#XXX
 ----
-Value for MU = -0.063
+Value for MU = 0.065
 ----
 
 
 #NO_DIFF#XXX
 ----
-Quadratic (manual)  = 1118.4871
-Quadratic (api-old) = 1118.4871
+Input Mesh is provided and used as is
+- Mesh #1/1: NMeshes = 10952, NApices = 5625
+Projection of 'dbin' for Kriging: Created from Db and Mesh(es)
+- Number of variables = 1
+- Number of Latents   = 1
+- Number of Apices    = 5625
+- Number of Points    = 1000
+----
+
+
+#NO_DIFF#XXX
+----
+Quadratic (manual) = 1105.1477
+Quadratic (spde)   = 1105.1477
 -> Relative difference quadratic = 0.0%
 ----
 
 
 #NO_DIFF#XXX
 ----
-log_det_op (manual)  = 12296.9389
-log_det_op (api-old) = 12296.9389
+log_det_op (manual) = 12296.9389
+log_det_op (spde)   = 12296.9389
 -> Relative difference = 0.0%
 ----
 
 
 #NO_DIFF#XXX
 ----
-log_det_Q (manual)  = 11255.7151
-log_det_Q (api-old) = 11255.7151
+log_det_Q (manual) = 11255.7151
+log_det_Q (spde)   = 11255.7151
 -> Relative difference = 0.0%
 ----
 
@@ -209,46 +278,74 @@ log_det_op      = 12296.9389
 log_det_Q       = 11255.7151
 log_det_Noise   = -2302.5851
 log_determinant = -1261.3613
-Quadratic term  = 1118.4871
--> Likelihood (manual) = -847.5015
+Quadratic term  = 1105.1477
+-> Likelihood (manual) = -840.8318
 ----
 
 
 #NO_DIFF#XXX
 ----
-Likelihood calculation:
-- Length of Information Vector = 1000
-- Number of Simulations = 100
-- Cholesky = 1
-Log-Determinant = -1261.361258
-Quadratic term  = 1118.487113
-Log-likelihood  = -847.501461
--> likelihood (api-old) = -847.5015
-----
 
-
-#NO_DIFF#XXX
-----
+Log-likelhood calculation in SPDE framework( Cholesky=1)
+--------------------------------------------------------
+Input Mesh is provided and used as is
+- Mesh #1/1: NMeshes = 10952, NApices = 5625
+Projection of 'dbin' for Kriging: Created from Db and Mesh(es)
+- Number of variables = 1
+- Number of Latents   = 1
+- Number of Apices    = 5625
+- Number of Points    = 1000
+Drift coefficients = 
+     0.065
+LogDet of Q + ADA': 12296.938911
+LogDet of Q: 11255.715075
+LogDet of InvNoise: 2302.585093
 Likelihood calculation:
 Nb. active samples = 1000
-Nb. Monte-Carlo    = 100
+Nb. Monte-Carlo    = 10
 Cholesky           = 1
 Log-Determinant    = -1261.361258
-Quadratic term     = 1118.487113
-Log-likelihood     = -847.501461
--> likelihood (api-new) cholesky=1 -847.5015
+Quadratic term     = 1105.147718
+Log-likelihood     = -840.831763
+-> likelihood (api) cholesky=1 -840.8318
 ----
 
 
 #NO_DIFF#XXX
 ----
-Not implemented yet in Matrix-free version
+Input Mesh is provided and used as is
+- Mesh #1/1: NMeshes = 10952, NApices = 5625
+Projection of 'dbin' for Kriging: Created from Db and Mesh(es)
+- Number of variables = 1
+- Number of Latents   = 1
+- Number of Apices    = 5625
+- Number of Points    = 1000
+----
+
+
+#NO_DIFF#XXX
+----
+
+Log-likelhood calculation in SPDE framework( Cholesky=0)
+--------------------------------------------------------
+Input Mesh is provided and used as is
+- Mesh #1/1: NMeshes = 10952, NApices = 5625
+Projection of 'dbin' for Kriging: Created from Db and Mesh(es)
+- Number of variables = 1
+- Number of Latents   = 1
+- Number of Apices    = 5625
+- Number of Points    = 1000
+Drift coefficients = 
+     0.079
+LogDet of Q + ADA': 11569.018180
+LogDet of Q: 11585.782711
+LogDet of InvNoise: 2302.585093
 Likelihood calculation:
 Nb. active samples = 1000
 Nb. Monte-Carlo    = 100
 Cholesky           = 0
-Log-Determinant    = 1233999999999999958672482500608.000000
-Quadratic term     = -9157.277613
-Log-likelihood     = 1233999999999999958672482500608.000000
--> likelihood by New API with cholesky=0 nan
+Log-Determinant    = -2319.349624
+Quadratic term     = 1105.223469
+Log-likelihood     = -311.875456
+-> likelihood by New API with cholesky=0 -311.8755
 ----

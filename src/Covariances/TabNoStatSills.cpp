@@ -43,7 +43,7 @@ String TabNoStatSills::toString(const AStringFormat* strfmt) const
 {
   return toStringInside(strfmt, 0);
 }
-String TabNoStatSills::toStringInside(const AStringFormat* strfmt, int i) const
+String TabNoStatSills::toStringInside(const AStringFormat* strfmt, Id i) const
 {
   std::stringstream sstr;
   if (empty()) return sstr.str();
@@ -63,7 +63,7 @@ bool TabNoStatSills::isDefinedForVariance() const
   return !empty();
 }
 
-int TabNoStatSills::getNSills() const
+Id TabNoStatSills::getNSills() const
 {
   return size();
 }

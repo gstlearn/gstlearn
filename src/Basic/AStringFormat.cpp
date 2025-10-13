@@ -12,7 +12,7 @@
 
 namespace gstlrn
 {
-AStringFormat::AStringFormat(int level)
+AStringFormat::AStringFormat(Id level)
   : _level(level)
   , _title()
 {

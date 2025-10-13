@@ -8,46 +8,46 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/Law.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Model/Model.hpp"
-#include "Simulation/CalcSimuTurningBands.hpp"
-#include "Variogram/VarioParam.hpp"
-#include "Variogram/Vario.hpp"
-#include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
-#include "Basic/Law.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Variogram/Vario.hpp"
+#include "Variogram/VarioParam.hpp"
 
 using namespace gstlrn;
 /**
  * This file is used as a demonstration showing the versatility of 'gstlearn'.
  * It also exists in RMarkdown and Jupyter-notebook formats.
  */
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   defineDefaultSpace(ESpaceType::RN, 2);
-  ASerializable::setPrefixName("Basic-");
+  ASerializable::setPrefixName("test_Basic-");
   law_set_old_style(true); // Added to ensure the similarity of non-regression tests per platform
 
   // We create a grid of 150 by 100 square cells of 1m edge, called mygrid.
 
-  VectorInt nx = { 100, 150 };
-  VectorDouble dx = { 1., 1. };
-  DbGrid* mygrid = DbGrid::create(nx, dx);
+  VectorInt nx    = {100, 150};
+  VectorDouble dx = {1., 1.};
+  DbGrid* mygrid  = DbGrid::create(nx, dx);
 
   // We create a Geostatistical Model constituted of a single Spherical anisotropic structure
   // with a sill of 1, a shortest range of 30m and a longest one of 50m.
   // The orientation of the long range is in direction 30 degrees counted counter-clockwise from East.
 
-  double sill = 1.;
-  VectorDouble ranges = { 50., 30.};
-  VectorDouble angles = { 30., 0.};
-  Model *mymodel = Model::createFromParam(ECov::SPHERICAL, 1., sill, 1., ranges,
-                                          MatrixSymmetric(), angles);
+  double sill         = 1.;
+  VectorDouble ranges = {50., 30.};
+  VectorDouble angles = {30., 0.};
+  Model* mymodel      = Model::createFromParam(ECov::SPHERICAL, 1., sill, 1., ranges,
+                                               MatrixSymmetric(), angles);
   mymodel->display();
 
   // We perform one non-conditional simulation using the Turning Band method
@@ -55,10 +55,10 @@ int main(int argc, char *argv[])
   // This results in adding a field (commonly referred to as a variable) in mygrid which is called Data.
   // Typing the name of the grid data base is an easy way to get a summary of its contents.
 
-  int nbtuba = 1000;
-  int seed = 14341;
-  (void) simtub(nullptr, mygrid, mymodel, nullptr, 1, seed, nbtuba, false, false,
-                NamingConvention("Data"));
+  Id nbtuba = 1000;
+  Id seed   = 14341;
+  (void)simtub(nullptr, mygrid, mymodel, nullptr, 1, seed, nbtuba, false, false,
+               NamingConvention("Data"));
   mygrid->display();
 
   // We sample the grid on a set of 100 samples randomly located within the area covered by the grid.
@@ -69,11 +69,11 @@ int main(int argc, char *argv[])
 
   // We calculate a variogram along the two main directions of the Model, i.e. 30 and 120 degrees.
 
-  int nlag = 25;
-  double dlag = 2.;
-  angles = { 30., 120.};
+  Id nlag                = 25;
+  double dlag            = 2.;
+  angles                 = {30., 120.};
   VarioParam* varioparam = VarioParam::createSeveral2D(angles, nlag, dlag);
-  Vario* myvario = Vario::computeFromDb(*varioparam, mypoints);
+  Vario* myvario         = Vario::computeFromDb(*varioparam, mypoints);
   myvario->display();
 
   // In the next step, we consider that the initial model (mymodel) has been correctly
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
   // - the one corresponding to the estimation result (called Kriging.Data.estim)
   // - the one corresponding to the standard deviation of the estimation error (called Kriging.Data.stdev)
 
-  (void) kriging(mypoints, mygrid, mymodel, myneigh);
+  (void)kriging(mypoints, mygrid, mymodel, myneigh);
   mygrid->display();
 
   // We can now construct 2 conditional simulations, using the Turning Bands algorithm again,
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
   // Each simulation outcome reproduces the spatial characteristics provided by the Model and
   // honors the information provided at sample points.
 
-  (void) simtub(mypoints, mygrid, mymodel, myneigh, 2, seed, nbtuba);
+  (void)simtub(mypoints, mygrid, mymodel, myneigh, 2, seed, nbtuba);
   mygrid->display();
 
   // We can save the final version of the data base in Neutral File format

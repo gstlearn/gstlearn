@@ -27,7 +27,7 @@ DbMeshTurbo::DbMeshTurbo(const VectorInt& nx,
                          const VectorString& locatorNames,
                          bool flag_polarized,
                          bool verbose,
-                         int mode)
+                         Id mode)
   : DbGrid()
   , _mesh(nx, dx, x0, angles, flag_polarized, verbose, mode)
 {
@@ -58,7 +58,7 @@ String DbMeshTurbo::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  const DbStringFormat* dbfmt = dynamic_cast<const DbStringFormat*>(strfmt);
+  const auto* dbfmt = dynamic_cast<const DbStringFormat*>(strfmt);
   DbStringFormat dsf;
   if (dbfmt != nullptr) dsf = *dbfmt;
 
@@ -88,7 +88,7 @@ DbMeshTurbo* DbMeshTurbo::create(const VectorInt& nx,
                                  bool verbose)
 {
   // Creating the MeshETurbo internal storage
-  DbMeshTurbo* dbmesh = new DbMeshTurbo(nx, dx, x0, angles, order, tab, names,
+  auto* dbmesh = new DbMeshTurbo(nx, dx, x0, angles, order, tab, names,
                                         locatorNames, flag_polarized, verbose);
   if (dbmesh == nullptr)
   {
@@ -101,12 +101,12 @@ DbMeshTurbo* DbMeshTurbo::create(const VectorInt& nx,
 
 bool DbMeshTurbo::_deserializeAscii(std::istream& is, bool verbose)
 {
-  int ndim = 0;
+  Id ndim = 0;
   bool ret = true;
 
   // Reading the header
 
-  ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
+  ret = ret && _recordRead<Id>(is, "Space Dimension", ndim);
 
   // Reading the meshing information
 
@@ -125,7 +125,7 @@ bool DbMeshTurbo::_serializeAscii(std::ostream& os, bool verbose) const
 
   /* Writing the header */
 
-  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
+  ret = ret && _recordWrite<Id>(os, "Space Dimension", getNDim());
 
   // Writing the Meshing information
 
@@ -163,7 +163,7 @@ DbMeshTurbo* DbMeshTurbo::createFromNF(const String& NFFilename, bool verbose)
 bool DbMeshTurbo::isConsistent() const
 {
   // Check on the count of addresses
-  int nech = getNSample();
+  auto nech = getNSample();
   if (_mesh.getNApices() > nech)
   {
     messerr("Number of meshes (%d)", _mesh.getNApices());
@@ -183,7 +183,7 @@ bool DbMeshTurbo::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
 
   /* Read the grid characteristics */
   bool ret = true;
-  int ndim = 0;
+  Id ndim = 0;
 
   ret = ret && SerializeHDF5::readValue(*dbg, "NDim", ndim);
 

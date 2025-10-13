@@ -43,7 +43,7 @@ double CovLinear::_evaluateCov(double h) const
 
   r = getContext().getField();
 
-  int ndim = getContext().getNDim();
+  auto ndim = getContext().getNDim();
   if (ndim == 1)
     cov = r - h;
   else if (ndim == 2)

@@ -41,7 +41,7 @@ double CovGC5::_evaluateCov(double h) const
 {
   double cov;
   double r  = getContext().getField();
-  int ndim  = getContext().getNDim();
+  auto ndim = getContext().getNDim();
   double h2 = h * h;
   double r2 = r * r;
   double h4 = h2 * h2;

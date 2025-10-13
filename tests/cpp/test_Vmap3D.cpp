@@ -14,14 +14,14 @@
 #include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
 
-#include "Variogram/Vario.hpp"
-#include "Variogram/VMap.hpp"
-#include "Model/Model.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Model/Model.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
+#include "Variogram/VMap.hpp"
+#include "Variogram/Vario.hpp"
 
 using namespace gstlrn;
 /****************************************************************************/
@@ -29,20 +29,20 @@ using namespace gstlrn;
 ** Main Program for testing the sparse matrix algebra
 **
 *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setPrefixName("Vmap3D-");
+  ASerializable::setPrefixName("test_Vmap3D-");
 
-  int ndim = 3;
+  Id ndim = 3;
   defineDefaultSpace(ESpaceType::RN, ndim);
-  CovContext ctxt(1,ndim,1.); // use default space
+  CovContext ctxt(1, ndim, 1.); // use default space
 
   // Creating a grid
-  VectorInt nx = { 50, 40, 20 };
+  VectorInt nx = {50, 40, 20};
   DbGrid* grid = DbGrid::create(nx);
   grid->display();
 
@@ -51,22 +51,22 @@ int main(int argc, char *argv[])
   model->display();
 
   // Perform a non-conditional simulation on the Db and on the Grid
-  (void) simtub(nullptr,grid,model);
+  (void)simtub(nullptr, grid, model);
   grid->display();
 
   // =================================
   // Calculating Variogram Map on Grid
   // =================================
 
-  DbGrid* vmap = db_vmap(grid, ECalcVario::VARIOGRAM,{10,10,3});
-  DbStringFormat dbfmt(FLAG_STATS,{"VMAP*"});
+  DbGrid* vmap = db_vmap(grid, ECalcVario::VARIOGRAM, {10, 10, 3});
+  DbStringFormat dbfmt(FLAG_STATS, {"VMAP*"});
   vmap->display(&dbfmt);
 
-  (void) vmap->dumpToNF("vmap.NF");
+  (void)vmap->dumpToNF("vmap.NF");
 
   delete grid;
   delete vmap;
   delete model;
-  
+
   return 0;
 }

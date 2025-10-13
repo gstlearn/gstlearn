@@ -9,19 +9,19 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/MatrixSymmetric.hpp"
+#include "Basic/AException.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
-#include "Basic/VectorHelper.hpp"
-#include "Basic/AException.hpp"
 
 #define TRI(i)        (((i) * ((i) + 1)) / 2)
-#define SQ(i,j,neq)   ((j) * neq + (i))
-#define TL(i,j)        tl[SQ(i,j,neq)-TRI(j)] /* for i >= j */
-#define HA(i,j)        ha[SQ(i,j,neq)]
+#define SQ(i, j, neq) ((j) * neq + (i))
+#define TL(i, j)      tl[SQ(i, j, neq) - TRI(j)] /* for i >= j */
+#define HA(i, j)      ha[SQ(i, j, neq)]
 
 namespace gstlrn
 {
-MatrixSymmetric::MatrixSymmetric(int nrow)
+MatrixSymmetric::MatrixSymmetric(Id nrow)
   : MatrixSquare(nrow)
 {
 }
@@ -34,16 +34,26 @@ MatrixSymmetric::MatrixSymmetric(const MatrixSymmetric& m)
 MatrixSymmetric::MatrixSymmetric(const AMatrix& m)
   : MatrixSquare(m)
 {
-  if (!m.isSymmetric())
+  if (!m.isSquare())
   {
-    messerr("The input matrix should be Symmetric");
+    messerr("The input matrix should be Square");
     _clear();
     return;
   }
+
   copyElements(m);
+
+  if (!m.isSymmetric())
+  {
+    messerr("The input matrix should be Symmetric");
+    messerr("It has been symetrized by computing (this + this^T)/2");
+    this->transposeInPlace();
+    this->addMat(m);
+    this->prodScalar(0.5);
+  }
 }
 
-MatrixSymmetric& MatrixSymmetric::operator= (const MatrixSymmetric &m)
+MatrixSymmetric& MatrixSymmetric::operator=(const MatrixSymmetric& m)
 {
   if (this != &m)
   {
@@ -66,26 +76,26 @@ MatrixSymmetric::~MatrixSymmetric()
  */
 MatrixSymmetric* MatrixSymmetric::createFromVVD(const VectorVectorDouble& X)
 {
-  int nrow = (int) X.size();
-  int ncol = (int) X[0].size();
+  Id nrow = static_cast<Id>(X.size());
+  Id ncol = static_cast<Id>(X[0].size());
   if (nrow != ncol)
   {
     messerr("The matrix does not seem to be square");
     return nullptr;
   }
-  MatrixSymmetric* mat = new MatrixSymmetric(nrow);
+  auto* mat = new MatrixSymmetric(nrow);
   mat->_fillFromVVD(X);
   return mat;
 }
 
-MatrixSymmetric* MatrixSymmetric::createFromVD(const VectorDouble &X)
+MatrixSymmetric* MatrixSymmetric::createFromVD(const VectorDouble& X)
 {
-  int ncol = sqrt((int)X.size());
-  int nrow = ncol;
+  Id ncol = sqrt(static_cast<Id>(X.size()));
+  Id nrow = ncol;
 
   // Check symmetry
   MatrixDense* mattemp = MatrixDense::createFromVD(X, nrow, ncol);
-  if (! mattemp->isSymmetric())
+  if (!mattemp->isSymmetric())
   {
     messerr("The input matrix does not seem to be Square and symmetric");
     delete mattemp;
@@ -93,11 +103,11 @@ MatrixSymmetric* MatrixSymmetric::createFromVD(const VectorDouble &X)
   }
   delete mattemp;
 
-  MatrixSymmetric *mat = new MatrixSymmetric(nrow);
+  auto* mat = new MatrixSymmetric(nrow);
 
-  int lec = 0;
-  for (int irow = 0; irow < nrow; irow++)
-    for (int icol = 0; icol < ncol; icol++)
+  Id lec = 0;
+  for (Id irow = 0; irow < nrow; irow++)
+    for (Id icol = 0; icol < ncol; icol++)
       mat->setValue(irow, icol, X[lec++]);
   return mat;
 }
@@ -108,15 +118,15 @@ MatrixSymmetric* MatrixSymmetric::createFromVD(const VectorDouble &X)
 void MatrixSymmetric::_setValues(const double* values, bool byCol)
 {
   // Check that the input argument corresponds to a square symmetric matrix
-  for (int icol = 0; icol < getNCols(); icol++)
-    for (int irow = 0; irow < getNRows(); irow++)
+  for (Id icol = 0; icol < getNCols(); icol++)
+    for (Id irow = 0; irow < getNRows(); irow++)
     {
       double val1 = values[icol * getNRows() + irow];
       double val2 = values[irow * getNCols() + icol];
       if (ABS(val1 - val2) > EPSILON10)
       {
         messerr(
-            "Argument 'values' must correspond to a Square Symmetric Matrix");
+          "Argument 'values' must correspond to a Square Symmetric Matrix");
         messerr("- Element[%d,%d] = %lf", icol, irow, val1);
         messerr("- Element(%d,%d) = %lf", irow, icol, val2);
         messerr("Operation is aborted");
@@ -127,12 +137,12 @@ void MatrixSymmetric::_setValues(const double* values, bool byCol)
   MatrixDense::_setValues(values, byCol);
 }
 
-int MatrixSymmetric::_invert()
+Id MatrixSymmetric::_invert()
 {
   return MatrixDense::_invert();
 }
 
-bool MatrixSymmetric::_isPhysicallyPresent(int irow, int icol) const
+bool MatrixSymmetric::_isPhysicallyPresent(Id irow, Id icol) const
 {
   return (icol <= irow);
 }
@@ -163,7 +173,7 @@ void MatrixSymmetric::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
 void MatrixSymmetric::normMatrix(const AMatrix& y, const MatrixSquare& x, bool transpose)
 {
   bool xEmpty = x.empty();
-  int n = 0;
+  Id n        = 0;
 
   if (xEmpty)
   {
@@ -196,61 +206,61 @@ void MatrixSymmetric::normMatrix(const AMatrix& y, const MatrixSquare& x, bool t
     }
   }
 
-  int nout = getNSize();
-  for (int irow = 0; irow < nout; irow++)
-    for (int icol = 0; icol <= irow; icol++)
+  auto nout = getNSize();
+  for (Id irow = 0; irow < nout; irow++)
+    for (Id icol = 0; icol <= irow; icol++)
     {
       double value = 0.;
 
       if (xEmpty)
       {
-        if (! transpose)
+        if (!transpose)
         {
-          for (int k = 0; k < n; k++)
-            value += y.getValue(k,irow) * y.getValue(k,icol);
+          for (Id k = 0; k < n; k++)
+            value += y.getValue(k, irow) * y.getValue(k, icol);
         }
         else
         {
-          for (int k = 0; k < n; k++)
-            value += y.getValue(irow,k) * y.getValue(icol,k);
+          for (Id k = 0; k < n; k++)
+            value += y.getValue(irow, k) * y.getValue(icol, k);
         }
       }
       else
       {
         if (!transpose)
         {
-          for (int k = 0; k < n; k++)
-            for (int l = 0; l < n; l++)
+          for (Id k = 0; k < n; k++)
+            for (Id l = 0; l < n; l++)
               value += y.getValue(k, irow) * x.getValue(k, l) * y.getValue(l, icol);
         }
         else
         {
-          for (int k = 0; k < n; k++)
-            for (int l = 0; l < n; l++)
+          for (Id k = 0; k < n; k++)
+            for (Id l = 0; l < n; l++)
               value += y.getValue(irow, k) * x.getValue(k, l) * y.getValue(icol, l);
         }
       }
 
-      setValue(irow,icol,value);
+      setValue(irow, icol, value);
     }
 }
 
-int MatrixSymmetric::computeEigen(bool optionPositive)
+Id MatrixSymmetric::computeEigen(bool optionPositive)
 {
   return MatrixDense::_computeEigen(optionPositive);
 }
 
-int MatrixSymmetric::computeGeneralizedEigen(const MatrixSymmetric& b, bool optionPositive)
+Id MatrixSymmetric::computeGeneralizedEigen(const MatrixSymmetric& b, bool optionPositive)
 {
   return MatrixDense::_computeGeneralizedEigen(b, optionPositive);
 }
 
-int MatrixSymmetric::_terminateEigen(const VectorDouble &eigenValues,
-                                           const VectorDouble &eigenVectors,
-                                           bool optionPositive,
-                                           bool changeOrder)
+Id MatrixSymmetric::_terminateEigen(const VectorDouble& eigenValues,
+                                    const VectorDouble& eigenVectors,
+                                    bool optionPositive,
+                                    bool changeOrder)
 {
-  int nrows = getNRows();
+  auto nrows = getNRows();
 
   _eigenValues = eigenValues;
 
@@ -262,8 +272,6 @@ int MatrixSymmetric::_terminateEigen(const VectorDouble &eigenValues,
   _eigenVectors = MatrixSquare::createFromVD(eigenVectors, nrows, false, changeOrder);
 
   if (optionPositive) _eigenVectors->makePositiveColumn();
-
-  _flagEigenDecompose = true;
 
   return 0;
 }
@@ -279,7 +287,7 @@ bool MatrixSymmetric::isDefinitePositive()
 {
   /* Calculate the eigen values and vectors */
 
-  if (computeEigen() != 0) messageAbort("matrix_eigen");
+  if (computeEigen() != 0) messageAbort("Abort in computeEigen");
 
   // Get the Eigen values
 
@@ -287,7 +295,7 @@ bool MatrixSymmetric::isDefinitePositive()
 
   /* Check if the eigen values are all positive */
 
-  for (int i = 0, n = (int) valpro.size(); i < n; i++)
+  for (Id i = 0, n = static_cast<Id>(valpro.size()); i < n; i++)
   {
     if (valpro[i] < -1.0e-10)
     {
@@ -307,19 +315,19 @@ bool MatrixSymmetric::isDefinitePositive()
  ** \param[in]  tl     Lower triangular matrix defined by column (Dimension; neq*(neq+1)/2)
  **
  *****************************************************************************/
-MatrixSymmetric* MatrixSymmetric::createFromTLTU(int neq,
-                                                             const VectorDouble &tl)
+MatrixSymmetric* MatrixSymmetric::createFromTLTU(Id neq,
+                                                 const VectorDouble& tl)
 {
-  MatrixSymmetric *mat = new MatrixSymmetric(neq);
+  auto* mat = new MatrixSymmetric(neq);
 
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++)
+  for (Id i = 0; i < neq; i++)
+    for (Id j = 0; j < neq; j++)
     {
       double value = 0.;
-      for (int k = 0; k < neq; k++)
+      for (Id k = 0; k < neq; k++)
       {
         if (k > i || k > j) continue;
-        value += TL(i,k) * TL(j,k);
+        value += TL(i, k) * TL(j, k);
       }
       mat->setValue(i, j, value);
     }
@@ -328,23 +336,23 @@ MatrixSymmetric* MatrixSymmetric::createFromTLTU(int neq,
 
 /*****************************************************************************/
 /*!
- **  Fill a square matrix with a triangular matrix 
+ **  Fill a square matrix with a triangular matrix
  **
  ** \param[in]  mode   0: TL (upper); 1: TL (lower)
  ** \param[in]  neq    number of equations in the system
  ** \param[in]  tl     Triangular matrix (any part)
  **
  *****************************************************************************/
-MatrixSymmetric* MatrixSymmetric::createFromTriangle(int mode,
-                                                                 int neq,
-                                                                 const VectorDouble &tl)
+MatrixSymmetric* MatrixSymmetric::createFromTriangle(Id mode,
+                                                     Id neq,
+                                                     const VectorDouble& tl)
 {
-  MatrixSymmetric* mat = new MatrixSymmetric(neq);
+  auto* mat = new MatrixSymmetric(neq);
 
   mat->fill(0.);
 
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++)
+  for (Id i = 0; i < neq; i++)
+    for (Id j = 0; j < neq; j++)
     {
       if (mode == 0)
       {
@@ -358,10 +366,10 @@ MatrixSymmetric* MatrixSymmetric::createFromTriangle(int mode,
   return mat;
 }
 
-int MatrixSymmetric::_getTriangleSize() const
+Id MatrixSymmetric::_getTriangleSize() const
 {
-  int neq = getNRows();
-  int size = neq * (neq + 1) / 2;
+  auto neq = getNRows();
+  Id size  = neq * (neq + 1) / 2;
   return size;
 }
 
@@ -378,7 +386,7 @@ int MatrixSymmetric::_getTriangleSize() const
  ** \remark In output, 'this' contains the inverse matrix
  **
  *****************************************************************************/
-int MatrixSymmetric::_matrix_qo(const VectorDouble& gmat, VectorDouble& xmat)
+Id MatrixSymmetric::_matrix_qo(const VectorDouble& gmat, VectorDouble& xmat)
 {
   if (computeGeneralizedInverse(*this) != 0) return 1;
   prodMatVecInPlace(gmat, xmat);
@@ -410,19 +418,19 @@ int MatrixSymmetric::_matrix_qo(const VectorDouble& gmat, VectorDouble& xmat)
  ** \remark In output, H contains the inverse matrix
  **
  *****************************************************************************/
-int MatrixSymmetric::_matrix_qoc(bool flag_invert,
-                                       const VectorDouble& gmat,
-                                       int na,
-                                       const MatrixDense& amat,
-                                       const VectorDouble& bmat,
-                                       VectorDouble& xmat,
-                                       VectorDouble& lambda)
+Id MatrixSymmetric::_matrix_qoc(bool flag_invert,
+                                const VectorDouble& gmat,
+                                Id na,
+                                const MatrixDense& amat,
+                                const VectorDouble& bmat,
+                                VectorDouble& xmat,
+                                VectorDouble& lambda)
 {
   double value;
 
   /* Initializations */
 
-  int neq = getNRows();
+  auto neq = getNRows();
 
   /* Core allocation */
 
@@ -439,57 +447,57 @@ int MatrixSymmetric::_matrix_qoc(bool flag_invert,
 
   /* Product HA = H %*% A */
 
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < na; j++)
+  for (Id i = 0; i < neq; i++)
+    for (Id j = 0; j < na; j++)
     {
       value = 0.;
-      for (int k = 0; k < neq; k++)
-        value += getValue(i,k) * amat.getValue(k,j);
-      HA(i,j) = value;
+      for (Id k = 0; k < neq; k++)
+        value += getValue(i, k) * amat.getValue(k, j);
+      HA(i, j) = value;
     }
 
-    /* Product temp = t(A) %*% H %*% A */
+  /* Product temp = t(A) %*% H %*% A */
 
-  for (int i = 0; i < na; i++)
-    for (int j = 0; j < na; j++)
+  for (Id i = 0; i < na; i++)
+    for (Id j = 0; j < na; j++)
     {
       value = 0.;
-      for (int k = 0; k < neq; k++)
-        value += amat.getValue(k,i) * HA(k,j);
-      temp.setValue(i,j,value);
+      for (Id k = 0; k < neq; k++)
+        value += amat.getValue(k, i) * HA(k, j);
+      temp.setValue(i, j, value);
     }
 
-    /* Generalized inverse of temp */
+  /* Generalized inverse of temp */
 
   if (temp.computeGeneralizedInverse(temp) != 0) return 1;
 
   /* Evaluate evec = t(A) %*% x - b */
 
-  for (int i = 0; i < na; i++)
+  for (Id i = 0; i < na; i++)
   {
     value = 0.;
-    for (int j = 0; j < neq; j++)
-      value += amat.getValue(j,i) * xmat[j];
+    for (Id j = 0; j < neq; j++)
+      value += amat.getValue(j, i) * xmat[j];
     evec[i] = value - bmat[i];
   }
 
   /* Evaluate lambda = temp %*% evec */
 
-  for (int i = 0; i < na; i++)
+  for (Id i = 0; i < na; i++)
   {
     value = 0.;
-    for (int j = 0; j < na; j++)
-      value += temp.getValue(i,j) * evec[j];
+    for (Id j = 0; j < na; j++)
+      value += temp.getValue(i, j) * evec[j];
     lambda[i] = value;
   }
 
   /* Evaluate x = x - H %*% A %*% lambda */
 
-  for (int i = 0; i < neq; i++)
+  for (Id i = 0; i < neq; i++)
   {
     value = 0.;
-    for (int j = 0; j < na; j++)
-      value += HA(i,j) * lambda[j];
+    for (Id j = 0; j < na; j++)
+      value += HA(i, j) * lambda[j];
     xmat[i] -= value;
   }
 
@@ -515,22 +523,22 @@ int MatrixSymmetric::_matrix_qoc(bool flag_invert,
  ** REMARKS:    The initial xmat has to be satisfied by all the constraints.
  **
  *****************************************************************************/
-int MatrixSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gmat,
-                                                          const MatrixDense& aemat,
-                                                          const VectorDouble& bemat,
-                                                          const MatrixDense& aimat,
-                                                          const VectorDouble& bimat,
-                                                          VectorDouble& xmat)
+Id MatrixSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gmat,
+                                                   const MatrixDense& aemat,
+                                                   const VectorDouble& bemat,
+                                                   const MatrixDense& aimat,
+                                                   const VectorDouble& bimat,
+                                                   VectorDouble& xmat)
 {
-  int ncur, first, lec;
+  Id ncur, first, lec;
   double omega, omin, value;
 
   /* Initializations */
 
-  int neq = getNRows();
-  int nae = aemat.getNCols();
-  int nai = aimat.getNCols();
-  int namax = nae + nai;
+  auto neq = getNRows();
+  auto nae = aemat.getNCols();
+  auto nai = aimat.getNCols();
+  Id namax = nae + nai;
 
   /* Case when there is no equality nor inequality constraints */
 
@@ -555,7 +563,7 @@ int MatrixSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gmat,
   if (_matrix_qoc(false, gmat, nae, aemat, bemat, xcand, lambda) != 0) return 1;
   if (nai <= 0)
   {
-    for (int i = 0; i < neq; i++)
+    for (Id i = 0; i < neq; i++)
       xmat[i] = xcand[i];
     return 0;
   }
@@ -564,7 +572,7 @@ int MatrixSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gmat,
 
   if (_constraintsError(VectorInt(), aimat, bimat, xcand, emptyDouble, active) == 0)
   {
-    for (int i = 0; i < neq; i++)
+    for (Id i = 0; i < neq; i++)
       xmat[i] = xcand[i];
     return 0;
   }
@@ -583,17 +591,17 @@ int MatrixSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gmat,
 
     if (_constraintsError(active, aimat, bimat, xcand, vmat, emptyInt) == 0)
     {
-      for (int i = 0; i < neq; i++)
+      for (Id i = 0; i < neq; i++)
         xmat[i] = xcand[i];
 
       /* Look for the constraint that should not be used */
 
       first = -1;
-      lec = nae;
-      for (int i = 0; i < nai; i++)
+      lec   = nae;
+      for (Id i = 0; i < nai; i++)
       {
         if (active[i] == 0) continue;
-        active[i] = (int) (lambda[lec] >= 0);
+        active[i] = static_cast<Id>(lambda[lec] >= 0);
         if (active[i] != 0) first = i;
         lec++;
       }
@@ -616,20 +624,20 @@ int MatrixSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gmat,
       /* Find an admissible solution between previous and new candidates */
 
       first = -1;
-      omin = MAXIMUM_BIG;
-      for (int i = 0; i < nai; i++)
+      omin  = MAXIMUM_BIG;
+      for (Id i = 0; i < nai; i++)
       {
         if (active[i] != 0) continue;
         value = 0.;
-        for (int j = 0; j < neq; j++)
-          value += aimat.getValue(j,i)* (xcand[j] - xmat[j]);
+        for (Id j = 0; j < neq; j++)
+          value += aimat.getValue(j, i) * (xcand[j] - xmat[j]);
         omega = vmat[i] / value;
         if (omega > omin) continue;
         first = i;
-        omin = omega;
+        omin  = omega;
       }
 
-      for (int i = 0; i < neq; i++)
+      for (Id i = 0; i < neq; i++)
         xmat[i] += omin * (xcand[i] - xmat[i]);
       active[first] = 1;
     }
@@ -652,38 +660,38 @@ int MatrixSymmetric::minimizeWithConstraintsInPlace(const VectorDouble& gmat,
  ** \param[out] flag     array specifying if constraint is active (if not NULL)
  **
  *****************************************************************************/
-int MatrixSymmetric::_constraintsError(const VectorInt& active,
-                                             const MatrixDense& aimat,
-                                             const VectorDouble& bimat,
-                                             const VectorDouble& xmat,
-                                             VectorDouble& vmat,
-                                             VectorInt& flag)
+Id MatrixSymmetric::_constraintsError(const VectorInt& active,
+                                      const MatrixDense& aimat,
+                                      const VectorDouble& bimat,
+                                      const VectorDouble& xmat,
+                                      VectorDouble& vmat,
+                                      VectorInt& flag)
 {
   double eps = EPSILON10;
 
-  int neq = getNRows();
-  int nai = aimat.getNCols();
-  int number = 0;
-  int ecr = 0;
-  for (int i = 0; i < nai; i++)
+  auto neq  = getNRows();
+  auto nai  = aimat.getNCols();
+  Id number = 0;
+  Id ecr    = 0;
+  for (Id i = 0; i < nai; i++)
   {
-    if (! active.empty() && active[i] != 0) continue;
+    if (!active.empty() && active[i] != 0) continue;
 
     /* Calculate: T(a) %*% x */
 
     double value = 0.;
-    for (int j = 0; j < neq; j++)
-      value += aimat.getValue(j,i) * xmat[j];
+    for (Id j = 0; j < neq; j++)
+      value += aimat.getValue(j, i) * xmat[j];
 
-      /* Calculate: T(a) %*% x - b */
+    /* Calculate: T(a) %*% x - b */
 
     double ecart = value - bimat[i];
 
     /* Store the results */
 
-    if (! vmat.empty()) vmat[ecr] = ecart;
+    if (!vmat.empty()) vmat[ecr] = ecart;
     bool flag_active = (ecart < -eps);
-    if (! flag.empty()) flag[ecr] = (int) flag_active;
+    if (!flag.empty()) flag[ecr] = static_cast<Id>(flag_active);
     if (flag_active) number++;
     ecr++;
   }
@@ -706,34 +714,34 @@ int MatrixSymmetric::_constraintsError(const VectorInt& active,
  ** \param[out] tabout   Output array
  **
  *****************************************************************************/
-int MatrixSymmetric::_constraintsConcatenateMat(int nae,
-                                                      int nai,
-                                                      int neq,
-                                                      const VectorInt& active,
-                                                      const MatrixDense &tabemat,
-                                                      const MatrixDense &tabimat,
-                                                      MatrixDense &tabout)
+Id MatrixSymmetric::_constraintsConcatenateMat(Id nae,
+                                               Id nai,
+                                               Id neq,
+                                               const VectorInt& active,
+                                               const MatrixDense& tabemat,
+                                               const MatrixDense& tabimat,
+                                               MatrixDense& tabout)
 {
   /* Copy the equalities */
 
-  int number = 0;
-  for (int i = 0; i < nae; i++)
+  Id number = 0;
+  for (Id i = 0; i < nae; i++)
   {
-    for (int j = 0; j < neq; j++)
+    for (Id j = 0; j < neq; j++)
     {
-      tabout.setValue(j,number,tabemat.getValue(j,i));
+      tabout.setValue(j, number, tabemat.getValue(j, i));
     }
     number++;
   }
 
-    /* Copy the active inequalities */
+  /* Copy the active inequalities */
 
-  for (int i = 0; i < nai; i++)
+  for (Id i = 0; i < nai; i++)
   {
     if (active[i] == 0) continue;
-    for (int j = 0; j < neq; j++)
+    for (Id j = 0; j < neq; j++)
     {
-      tabout.setValue(j,number,tabimat.getValue(j,i));
+      tabout.setValue(j, number, tabimat.getValue(j, i));
     }
     number++;
   }
@@ -755,25 +763,25 @@ int MatrixSymmetric::_constraintsConcatenateMat(int nae,
  ** \param[out] tabout   Output array
  **
  *****************************************************************************/
-int MatrixSymmetric::_constraintsConcatenateVD(int nae,
-                                                     int nai,
-                                                     const VectorInt &active,
-                                                     const VectorDouble &tabemat,
-                                                     const VectorDouble &tabimat,
-                                                     VectorDouble &tabout)
+Id MatrixSymmetric::_constraintsConcatenateVD(Id nae,
+                                              Id nai,
+                                              const VectorInt& active,
+                                              const VectorDouble& tabemat,
+                                              const VectorDouble& tabimat,
+                                              VectorDouble& tabout)
 {
   /* Copy the equalities */
 
-  int number = 0;
-  for (int i = 0; i < nae; i++)
+  Id number = 0;
+  for (Id i = 0; i < nae; i++)
   {
     tabout[number] = tabemat[i];
     number++;
   }
 
-    /* Copy the active inequalities */
+  /* Copy the active inequalities */
 
-  for (int i = 0; i < nai; i++)
+  for (Id i = 0; i < nai; i++)
   {
     if (active[i] == 0) continue;
     tabout[number] = tabimat[i];
@@ -792,10 +800,10 @@ int MatrixSymmetric::_constraintsConcatenateVD(int nae,
  ** \param[in]  active Array of constraint status
  **
  *****************************************************************************/
-int MatrixSymmetric::_constraintsCount(int nai, VectorInt& active)
+Id MatrixSymmetric::_constraintsCount(Id nai, VectorInt& active)
 {
-  int number = 0;
-  for (int i = 0; i < nai; i++)
+  Id number = 0;
+  for (Id i = 0; i < nai; i++)
     if (active[i] != 0) number++;
   return (number);
 }
@@ -814,20 +822,16 @@ int MatrixSymmetric::_constraintsCount(int nai, VectorInt& active)
  ** \remark The input and output matrices can match
  **
  *****************************************************************************/
-int MatrixSymmetric::computeGeneralizedInverse(MatrixSymmetric &tabout,
-                                                     double maxicond,
-                                                     double eps)
+Id MatrixSymmetric::computeGeneralizedInverse(MatrixSymmetric& tabout,
+                                              double maxicond,
+                                              double eps)
 {
-  if (! isSameSize(tabout))
-  {
-    messerr("The argument 'tabout' must have same dimensions as input matrix");
-    return 1;
-  }
+  if (!isSameSize(tabout)) return 1;
 
   // Calculate the Eigen vectors
   if (computeEigen() != 0) return 1;
-  VectorDouble eigval = getEigenValues();
-  const MatrixSquare *eigvec = getEigenVectors();
+  VectorDouble eigval        = getEigenValues();
+  const MatrixSquare* eigvec = getEigenVectors();
 
   // Compute the conditioning
 
@@ -837,15 +841,15 @@ int MatrixSymmetric::computeGeneralizedInverse(MatrixSymmetric &tabout,
 
   /* Calculate the generalized inverse */
 
-  int neq = getNRows();
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++)
+  auto neq = getNRows();
+  for (Id i = 0; i < neq; i++)
+    for (Id j = 0; j < neq; j++)
     {
       double value = 0.;
-      for (int k = 0; k < neq; k++)
+      for (Id k = 0; k < neq; k++)
       {
         if (ABS(eigval[k]) > valcond * eps)
-          value += eigvec->getValue(i,k) * eigvec->getValue(j,k) / eigval[k];
+          value += eigvec->getValue(i, k) * eigvec->getValue(j, k) / eigval[k];
       }
       tabout.setValue(i, j, value);
     }
@@ -860,57 +864,58 @@ columns)
  * @param res      Output Square Symmetric Matrix
  * @param A        Input Square Symmetric Matrix
  * @param rowKeep  Set of Rows (same for columns) to be kept
- * @param flagInvert when True, transform 'rowKeep' into 'rowDrop' 
+ * @param flagInvert when True, transform 'rowKeep' into 'rowDrop'
  */
 bool MatrixSymmetric::sample(MatrixSymmetric& res,
                              const MatrixSymmetric& A,
                              const VectorInt& rowKeep,
                              bool flagInvert)
 {
-  int ntotal     = A.getNRows();
+  auto ntotal    = A.getNRows();
   VectorInt rows = rowKeep;
   if (rows.empty()) rows = VH::sequence(ntotal);
   if (flagInvert) rows = VH::complement(VH::sequence(ntotal), rows);
 
-  int nrows = (int)rows.size();
+  Id nrows = static_cast<Id>(rows.size());
   if (nrows <= 0) return false;
 
-  for (int irow = 0; irow < nrows; irow++)
+  for (Id irow = 0; irow < nrows; irow++)
   {
     if (!checkArg("Selected Row index", rows[irow], ntotal)) return false;
   }
 
   res.resize(nrows, nrows);
-  for (int irow = 0; irow < nrows; irow++)
-    for (int icol = 0; icol <= irow; icol++)
+  for (Id irow = 0; irow < nrows; irow++)
+    for (Id icol = 0; icol <= irow; icol++)
       res.setValue(irow, icol, A.getValue(rows[irow], rows[icol]));
   return true;
 }
 
-MatrixSymmetric* MatrixSymmetric::createRandomDefinitePositive(int neq, int seed)
+MatrixSymmetric* MatrixSymmetric::createRandomDefinitePositive(Id neq, Id seed)
 {
   MatrixSymmetric local(neq);
   local.fillRandom(seed);
-  MatrixSymmetric* mat = new MatrixSymmetric(neq);
+  auto* mat = new MatrixSymmetric(neq);
   mat->prodMatMatInPlace(&local, &local, true);
   return mat;
 }
 
 MatrixSymmetric MatrixSymmetric::compress0MatLC(const MatrixDense& matLC)
 {
-  int nvar                = getNCols();
-  int nvarCL              = matLC.getNRows();
-  MatrixSymmetric mat = MatrixSymmetric(nvarCL);
-  for (int jvarCL = 0; jvarCL < nvarCL; jvarCL++)
-    for (int ivarCL = 0; ivarCL <= jvarCL; ivarCL++)
+  auto nvar   = getNCols();
+  auto nvarCL = matLC.getNRows();
+  MatrixSymmetric mat(nvarCL);
+  for (Id jvarCL = 0; jvarCL < nvarCL; jvarCL++)
+    for (Id ivarCL = 0; ivarCL <= jvarCL; ivarCL++)
     {
       double value = 0.;
-      for (int jvar = 0; jvar < nvar; jvar++)
-        for (int ivar = 0; ivar < nvar; ivar++)
+      for (Id jvar = 0; jvar < nvar; jvar++)
+        for (Id ivar = 0; ivar < nvar; ivar++)
           value += matLC.getValue(jvarCL, jvar) * matLC.getValue(ivarCL, ivar) *
                    getValue(ivar, jvar);
       mat.setValue(ivarCL, jvarCL, value);
     }
   return mat;
 }
-}
+
+} // namespace gstlrn

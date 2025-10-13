@@ -31,11 +31,11 @@ public:
   TurningBandOperate& operator=(const TurningBandOperate& r);
   virtual ~TurningBandOperate();
 
-  const VectorDouble& getT()  const { return _t; }
+  const VectorDouble& getT() const { return _t; }
   const VectorDouble& getV0() const { return _v0; }
   const VectorDouble& getV1() const { return _v1; }
   const VectorDouble& getV2() const { return _v2; }
-  int getNt0() const { return _nt0; }
+  Id getNt0() const { return _nt0; }
   bool isFlagScaled() const { return _flagScaled; }
   double getVexp() const { return _vexp; }
   double getTdeb() const { return _tdeb; }
@@ -44,11 +44,11 @@ public:
   double getOffset() const { return _offset; }
   double getScale() const { return _scale; }
 
-  void setT(const VectorDouble &t)   { _t  = t; }
-  void setV0(const VectorDouble &v0) { _v0 = v0; }
-  void setV1(const VectorDouble &v1) { _v1 = v1; }
-  void setV2(const VectorDouble &v2) { _v2 = v2; }
-  void setNt0(int nt0) { _nt0 = nt0; }
+  void setT(const VectorDouble& t) { _t = t; }
+  void setV0(const VectorDouble& v0) { _v0 = v0; }
+  void setV1(const VectorDouble& v1) { _v1 = v1; }
+  void setV2(const VectorDouble& v2) { _v2 = v2; }
+  void setNt0(Id nt0) { _nt0 = nt0; }
   void setFlagScaled(bool flagScaled) { _flagScaled = flagScaled; }
   void setVexp(double vexp) { _vexp = vexp; }
   void setTdeb(double tdeb) { _tdeb = tdeb; }
@@ -57,7 +57,7 @@ public:
   void setOffset(double offset) { _offset = offset; }
   void setScale(double scale) { _scale = scale; }
 
-  int getTsize() const { return (int) _t.size(); }
+  Id getTsize() const { return static_cast<Id>(_t.size()); }
   void pushT(double value);
   void pushV0(double value);
   void pushV1(double value);
@@ -71,11 +71,11 @@ public:
   double cosineOne(double t0) const;
 
 private:
-  double _irfProcessSample(int nt0, double t0);
-  static int _rankInPoisson(int def_rank, double t0, const VectorDouble &t);
+  double _irfProcessSample(Id nt0, double t0);
+  static Id _rankInPoisson(Id def_rank, double t0, const VectorDouble& t);
 
 private:
-  int _nt0;
+  Id _nt0;
   bool _flagScaled;
   double _vexp;
   double _tdeb;
@@ -88,4 +88,4 @@ private:
   VectorDouble _v1;
   VectorDouble _v2;
 };
-}
+} // namespace gstlrn

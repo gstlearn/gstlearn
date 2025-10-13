@@ -23,17 +23,17 @@
  * - calcul: tu run the fitting in variogram or in covariance
  */
 
+#include "Basic/OptCustom.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Model/Model.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Variogram/Vario.hpp"
-#include "Variogram/VMap.hpp"
-#include "Variogram/VarioParam.hpp"
-#include "Model/ModelOptimVario.hpp"
+#include "Model/Model.hpp"
 #include "Model/ModelOptimVMap.hpp"
+#include "Model/ModelOptimVario.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
-#include "Basic/OptCustom.hpp"
+#include "Variogram/VMap.hpp"
+#include "Variogram/Vario.hpp"
+#include "Variogram/VarioParam.hpp"
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
 
@@ -42,7 +42,7 @@ using namespace gstlrn;
 static Vario* _computeVariogram(Db* db2D, const ECalcVario& calcul)
 {
   double hmax            = db2D->getExtensionDiagonal();
-  int nlag               = 10;
+  Id nlag                = 10;
   double dlag            = hmax / 2. / nlag;
   VarioParam* varioparam = VarioParam::createOmniDirection(nlag, dlag);
   Vario* vario           = Vario::computeFromDb(*varioparam, db2D, calcul);
@@ -96,8 +96,8 @@ static void _thirdTest(DbGrid* dbgrid,
 {
   mestitle(0, "Sill Fitting from Variogram Map (new version)");
 
-  DbGrid* dbmap = db_vmap(dbgrid, calcul, {50,50});
-  (void) dbmap->dumpToNF("VMap.NF");
+  DbGrid* dbmap = db_vmap(dbgrid, calcul, {50, 50});
+  (void)dbmap->dumpToNF("VMap.NF");
 
   model->fitNew(nullptr, nullptr, dbmap, nullptr, mop, ITEST,
                 verbose, trace);
@@ -107,10 +107,10 @@ static void _thirdTest(DbGrid* dbgrid,
   delete dbmap;
 }
 
-static MatrixSymmetric _buildSillMatrix(int nvar, double value)
+static MatrixSymmetric _buildSillMatrix(Id nvar, double value)
 {
   MatrixSymmetric mat(nvar);
-  for (int ivar = 0; ivar < nvar; ivar++) mat.setValue(ivar, ivar, value);
+  for (Id ivar = 0; ivar < nvar; ivar++) mat.setValue(ivar, ivar, value);
   return mat;
 }
 
@@ -119,14 +119,14 @@ int main(int argc, char* argv[])
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
-  ASerializable::setPrefixName("ModelFit-");
+  ASerializable::setPrefixName("test_ModelFitting-");
 
   // Global parameters
-  int nvar                = 1;
+  Id nvar                 = 1;
   const ECalcVario calcul = ECalcVario::VARIOGRAM;
 
   // Creating the Model used to simulate the Data
-  Model* model_simu           = new Model(nvar);
+  auto* model_simu           = new Model(nvar);
   MatrixSymmetric sill_nugget = _buildSillMatrix(nvar, 2.);
   model_simu->addCovFromParam(ECov::NUGGET, 0., 0., 0., VectorDouble(),
                               sill_nugget);
@@ -141,13 +141,13 @@ int main(int argc, char* argv[])
   model_simu->dumpToNF("Model_Ref.NF");
 
   // Data set
-  int nech = 100;
+  Id nech  = 100;
   Db* db2D = Db::createFromBox(nech, {0., 0.}, {1., 1.});
   (void)simtub(nullptr, db2D, model_simu);
   (void)db2D->dumpToNF("db.NF");
 
   // Grid Data set
-  int nx         = 100;
+  Id nx          = 100;
   double dx      = 1. / nx;
   DbGrid* dbgrid = DbGrid::create({nx, nx}, {dx, dx});
   (void)simtub(nullptr, dbgrid, model_simu);
@@ -158,11 +158,11 @@ int main(int argc, char* argv[])
   model_simu->display();
 
   // Optimization tests
-  int mode     = 0;
+  Id mode      = 0;
   bool verbose = false;
   bool trace   = false;
   Model* model_test;
-  ModelOptimParam mop = ModelOptimParam();
+  ModelOptimParam mop;
   mop.setWmode(2);
 
   OptCustom::define("UseGradient", 1);

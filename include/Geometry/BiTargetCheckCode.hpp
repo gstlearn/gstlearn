@@ -19,7 +19,7 @@ namespace gstlrn
 class GSTLEARN_EXPORT BiTargetCheckCode: public ABiTargetCheck
 {
 public:
-  BiTargetCheckCode(int optcode=1, double tolcode=EPSILON6);
+  BiTargetCheckCode(Id optcode=1, double tolcode=EPSILON6);
   BiTargetCheckCode(const BiTargetCheckCode& r);
   BiTargetCheckCode& operator=(const BiTargetCheckCode& r);
   virtual ~BiTargetCheckCode();
@@ -27,15 +27,15 @@ public:
   /// ICloneable Interface
   IMPLEMENT_CLONING(BiTargetCheckCode)
 
-  virtual bool isOK(const SpaceTarget &T1, const SpaceTarget &T2) const override;
+  bool isOK(const SpaceTarget &T1, const SpaceTarget &T2) const override;
 
   /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static BiTargetCheckCode* create(int optcode=1, double tolcode=EPSILON6);
+  static BiTargetCheckCode* create(Id optcode=1, double tolcode=EPSILON6);
 
 private:
-  int _optCode;
+  Id _optCode;
   double _tolCode;
 };
 }

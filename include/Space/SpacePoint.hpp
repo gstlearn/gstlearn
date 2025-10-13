@@ -24,41 +24,45 @@ class GSTLEARN_EXPORT SpacePoint : public ASpaceObject
 public:
   SpacePoint(const ASpaceSharedPtr& space = ASpaceSharedPtr());
   SpacePoint(const SpacePoint& r);
-  SpacePoint(const VectorDouble& coord, int iech = -1,
+  SpacePoint(const VectorDouble& coord, Id iech = -1,
              const ASpaceSharedPtr& space = ASpaceSharedPtr());
   SpacePoint& operator=(const SpacePoint& r);
   virtual ~SpacePoint();
 
-  SpacePoint spacePointOnSubspace(int ispace = -1) const;
+  SpacePoint spacePointOnSubspace(Id ispace = -1) const;
 
   /// TODO : should also test the space definition
   bool operator==(const SpacePoint& v) const { return (_coord == v._coord); }
 
-  constvect getCoords() const;
+#ifndef SWIG
+  constvect getCoordsView() const { return {_coord.data(), getNDim()}; }
+  vect getCoordsView() { return {_coord.data(), getNDim()}; }
+#endif
 
-  vect getCoordRef() { return vect(_coord.data(), getNDim()); }
-  VectorDouble& getCoordUnprotected() { return _coord; }
-  double getCoord(int idim) const; 
+  const VectorDouble& getCoords() const { return _coord; }
+  VectorDouble& getCoordsUnprotected() { return _coord; }
+
+  double getCoord(Id idim) const; 
   void setCoord(double coord);
-  void setCoord(int i, double val) { _coord[i] = val; }
+  void setCoord(Id i, double val) { _coord[i] = val; }
   void setCoords(const VectorDouble& coord);
-  void setCoords(const double* coord, int size);
-  void setIech(int iech) const { _iech = iech; }
+  void setCoords(const double* coord, Id size);
+  void setIech(Id iech) const { _iech = iech; }
   void setProjected(bool status) { _isProjected = status; }
-  int getIech() const { return _iech; }
+  Id getIech() const { return _iech; }
   bool isProjected() const { return _isProjected; }
   /// Return true if the point is consistent with the provided space
-  virtual bool isConsistent(const ASpace* space) const override;
+  bool isConsistent(const ASpace* space) const override;
 
   /// Move me by the given vector
   void move(const VectorDouble& vec);
   /// Return the distance between 'this' and another point
-  double getDistance(const SpacePoint& pt, int ispace = -1) const;
+  double getDistance(const SpacePoint& pt, Id ispace = -1) const;
   /// Return all the distance (space composits) between 'this' and another point
   VectorDouble getDistances(const SpacePoint& pt) const;
   /// Return the increment vector between 'this' and another point
-  VectorDouble getIncrement(const SpacePoint& pt, int ispace = -1) const;
-  void getIncrementInPlace(VectorDouble &inc, const SpacePoint& pt, int ispace = -1) const;
+  VectorDouble getIncrement(const SpacePoint& pt, Id ispace = -1) const;
+  void getIncrementInPlace(VectorDouble &inc, const SpacePoint& pt, Id ispace = -1) const;
   /// Fill with TEST values to simulate a missing Space Point
   void setFFFF();
   /// Check if the SpacePoint is actually defined
@@ -74,13 +78,13 @@ public:
   void setCoordFromAngle(const VectorDouble& angles);
 
   /// Convert space point to string
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
 protected:
   /// Points coordinates (whatever the space context)
   VectorDouble _coord; // Coordinates (initial or projected)
   mutable VectorDouble _delta; // Increment results
-  mutable int _iech;   // Absolute rank of the sample within the Db
+  mutable Id _iech;   // Absolute rank of the sample within the Db
   mutable bool _isProjected; // True if the coordinates are projected
 };
 }

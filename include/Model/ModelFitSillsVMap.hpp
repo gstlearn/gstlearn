@@ -43,7 +43,7 @@ public:
 
   IMPLEMENT_CLONING(ModelFitSillsVMap)
 
-  int fitSillMatrices() override;
+  Id fitSillMatrices() override;
 
   static ModelFitSillsVMap* createForOptim(const DbGrid* dbmap,
                                            ModelGeneric* model,
@@ -51,8 +51,8 @@ public:
                                            const ModelOptimParam& mop = ModelOptimParam());
 
 private:
-  int _prepare();
-  int  _getDimensions();
+  Id _prepare();
+  Id  _getDimensions();
   void _computeVMap();
   void _updateFromModel();
 
@@ -60,6 +60,6 @@ private:
   const DbGrid* _dbmap;
   VectorInt _indg1;
   VectorInt _indg2;
-  int _nech;
+  Id _nech;
 };
 }

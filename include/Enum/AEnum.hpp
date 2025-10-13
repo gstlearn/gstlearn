@@ -30,7 +30,7 @@ public:
   inline const std::string_view getKey() const { return _key; }
 
   //! Return enum value as an integer value (max 32 enum)
-  inline int getValue() const { return _value; }
+  inline Id getValue() const { return _value; }
 
   //! Return the enum description as a string
   inline const std::string_view getDescr() const { return _descr; }
@@ -38,7 +38,7 @@ public:
 #ifndef SWIG
   // Remove this: too much dangerous (implicit casts)
   // => Force compilation error where enum were used as integer
-  //operator int() const { return _value; }
+  //operator Id() const { return _value; }
 #endif
 
   inline bool operator< (const AEnum& e) const { return _value <  e._value; }
@@ -58,7 +58,7 @@ public:
   void printEnum() const;
 
 protected:
-  AEnum(const std::string_view key, int value, const std::string_view descr)
+  AEnum(const std::string_view key, Id value, const std::string_view descr)
   : _key(key), _value(value), _descr(descr)
   {
   }
@@ -74,7 +74,7 @@ protected:
  
 private:
   std::string_view _key;
-  int    _value;
+  Id    _value;
   std::string_view _descr;
 };
 }
@@ -95,7 +95,7 @@ namespace gstlrn\
 {\
 class NAME;\
 \
-typedef ::std::map<int, NAME*> NAME ## Map;\
+typedef ::std::map<Id, NAME*> NAME ## Map;\
 \
 class GSTLEARN_EXPORT NAME ## Iterator\
 {\
@@ -113,7 +113,7 @@ public:\
   const NAME& toNext();\
   const NAME& toFront();\
   const NAME& getEnum() const;\
-  int getValue() const;\
+  Id getValue() const;\
   const std::string_view getKey() const;\
   const std::string_view getDescr() const;\
 \
@@ -129,25 +129,25 @@ public:\
   NAME();\
   ~NAME();\
   NAME(const NAME&) = default;\
-  NAME(int value);\
+  NAME(Id value);\
   NAME(const std::string_view key);\
   NAME& operator=(const NAME&) = default;\
 \
   static size_t getSize();\
   static NAME ## Iterator getIterator();\
   static void printAll();\
-  static VectorString getAllKeys(int from = -10);\
-  static VectorString getAllDescr(int from = -10);\
+  static VectorString getAllKeys(Id from = -10);\
+  static VectorString getAllDescr(Id from = -10);\
 \
   static bool existsKey(const std::string_view key);\
-  static bool existsValue(int value);\
+  static bool existsValue(Id value);\
   static const NAME& fromKey(const std::string_view key);\
-  static const NAME& fromValue(int value);\
+  static const NAME& fromValue(Id value);\
   static std::vector<NAME> fromKeys(const VectorString& keys);\
   static std::vector<NAME> fromValues(const VectorInt& values);\
 \
 private:\
-  NAME(const std::string_view key, int value, const std::string_view descr);\
+  NAME(const std::string_view key, Id value, const std::string_view descr);\
 \
   static NAME ## Map      _map;\
   static NAME ## Iterator _iterator;\
@@ -180,7 +180,7 @@ NAME::NAME()\
 {\
 }\
 \
-NAME::NAME(int value)\
+NAME::NAME(Id value)\
 : AEnum(fromValue(value))\
 {\
 }\
@@ -190,7 +190,7 @@ NAME::NAME(const std::string_view key)\
 {\
 }\
 \
-NAME::NAME(const std::string_view key, int value, const std::string_view descr)\
+NAME::NAME(const std::string_view key, Id value, const std::string_view descr)\
 : AEnum(key, value, descr)\
 {\
   if (_map.find(value) != _map.end())\
@@ -224,7 +224,7 @@ void NAME::printAll()\
   }\
 }\
 \
-VectorString NAME::getAllKeys(int from)\
+VectorString NAME::getAllKeys(Id from)\
 {\
   VectorString keys;\
   auto it(getIterator());\
@@ -237,7 +237,7 @@ VectorString NAME::getAllKeys(int from)\
   return keys;\
 }\
 \
-VectorString NAME::getAllDescr(int from)\
+VectorString NAME::getAllDescr(Id from)\
 {\
   VectorString descr;\
   auto it(getIterator());\
@@ -262,7 +262,7 @@ bool NAME::existsKey(const std::string_view key)\
   return false;\
 }\
 \
-bool NAME::existsValue(int value)\
+bool NAME::existsValue(Id value)\
 {\
   return (_map.find(value) != _map.end());\
 }\
@@ -280,7 +280,7 @@ const NAME& NAME::fromKey(const std::string_view key)\
   return *_default;\
 }\
 \
-const NAME& NAME::fromValue(int value)\
+const NAME& NAME::fromValue(Id value)\
 {\
   if (existsValue(value))\
     return (*(_map[value]));\
@@ -343,7 +343,7 @@ const NAME& NAME ## Iterator::getEnum() const\
   return (*(_stditer->second));\
 }\
 \
-int NAME ## Iterator::getValue() const\
+Id NAME ## Iterator::getValue() const\
 {\
   return (_stditer->second->getValue());\
 }\

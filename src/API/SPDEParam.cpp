@@ -12,15 +12,15 @@
 
 namespace gstlrn
 {
-SPDEParam::SPDEParam(int refineK,
-                     int refineS,
-                     int border,
+SPDEParam::SPDEParam(Id refineK,
+                     Id refineS,
+                     Id border,
                      bool flag_polarized,
-                     int nxmax,
+                     Id nxmax,
                      double epsNugget,
                      bool useStencil,
-                     int nMC,
-                     int seedMC,
+                     Id nMC,
+                     Id seedMC,
                      const CGParam& cgparams)
   : AStringable()
   , _refineK(refineK)
@@ -74,15 +74,15 @@ SPDEParam::~SPDEParam()
 {
 }
 
-SPDEParam* SPDEParam::create(int refineK,
-                             int refineS,
-                             int border,
+SPDEParam* SPDEParam::create(Id refineK,
+                             Id refineS,
+                             Id border,
                              bool flag_polarized,
-                             int nxmax,
+                             Id nxmax,
                              double epsNugget,
                              bool useStencil,
-                             int nMC,
-                             int seedMC,
+                             Id nMC,
+                             Id seedMC,
                              const CGParam& cgparams)
 {
   return new SPDEParam(refineK, refineS, border, flag_polarized, nxmax,

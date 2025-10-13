@@ -31,17 +31,17 @@ public:
   virtual ~RuleProp();
 
   /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int resetFromDb(const Db* dbprop,
+  Id resetFromDb(const Db* dbprop,
                   const VectorDouble& propcst = VectorDouble());
-  int resetFromRule(const Rule* rule,
+  Id resetFromRule(const Rule* rule,
                     const VectorDouble& propcst = VectorDouble());
-  int resetFromRuleAndDb(const Rule* rule, const Db* dbprop);
-  int resetFromRules(const Rule* rule1,
+  Id resetFromRuleAndDb(const Rule* rule, const Db* dbprop);
+  Id resetFromRules(const Rule* rule1,
                      const Rule* rule2,
                      const VectorDouble& propcst = VectorDouble());
-  int resetFromRulesAndDb(const Rule* rule1,
+  Id resetFromRulesAndDb(const Rule* rule1,
                           const Rule* rule2,
                           const Db* dbprop);
 
@@ -63,26 +63,26 @@ public:
   void setFlagStat(bool flagStat) { _flagStat = flagStat; }
   const VectorDouble& getPropCst() const { return _propcst; }
   void setPropCst(const VectorDouble& propcst) { _propcst = propcst; }
-  const Rule* getRule(int rank = 0) const;
+  const Rule* getRule(Id rank = 0) const;
   void addRule(const Rule* rule);
   void clearRule();
-  int getNRule() const { return static_cast<int>(_rules.size()); }
+  Id getNRule() const { return static_cast<Id>(_rules.size()); }
 
-  int fit(Db* db,
+  Id fit(Db* db,
           const VarioParam* varioparam,
-          int ngrfmax = 1,
+          Id ngrfmax = 1,
           bool verbose = false);
-  int gaussToCategory(Db *db,
+  Id gaussToCategory(Db *db,
                       const NamingConvention &namconv = NamingConvention(
                           "Facies", true, true, true, ELoc::fromKey("FACIES"))) const;
-  int categoryToThresh(Db *db, const NamingConvention& namconv = NamingConvention("Bounds")) const;
-  int computeAllThreshes(Db *db, const NamingConvention& namconv = NamingConvention("Thresh")) const;
+  Id categoryToThresh(Db *db, const NamingConvention& namconv = NamingConvention("Bounds")) const;
+  Id computeAllThreshes(Db *db, const NamingConvention& namconv = NamingConvention("Thresh")) const;
 
 private:
   void _clear();
   bool _checkConsistency();
-  bool _checkRuleRank(int rank) const;
-  int _getNFacies();
+  bool _checkRuleRank(Id rank) const;
+  Id _getNFacies();
 
 private:
   bool _flagStat;

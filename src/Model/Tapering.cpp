@@ -47,7 +47,7 @@ Tapering::~Tapering()
 {
 }
 
-int Tapering::init(int tape_type, double tape_range)
+Id Tapering::init(Id tape_type, double tape_range)
 {
 
   /* Preliminary check */
@@ -69,13 +69,13 @@ int Tapering::init(int tape_type, double tape_range)
   return 0;
 }
 
-int Tapering::getNTape()
+Id Tapering::getNTape()
 {
-  int N_DEF_TAPERING = 7;
+  Id N_DEF_TAPERING = 7;
   return N_DEF_TAPERING;
 }
 
-Def_Tapering& D_TAPE(int rank)
+Def_Tapering& D_TAPE(Id rank)
 {
   static Def_Tapering DEF_TAPES[] =
     {

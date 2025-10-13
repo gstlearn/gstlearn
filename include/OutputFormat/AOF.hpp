@@ -30,10 +30,10 @@ public:
 
   virtual bool mustBeGrid() const { return false; }
   virtual bool mustBeOneVariable() const { return false; }
-  virtual bool mustBeForNDim(int /*ndim*/) const { return true; }
-  virtual bool mustBeForRotation(int /*mode*/) const { return true; }
+  virtual bool mustBeForNDim(Id /*ndim*/) const { return true; }
+  virtual bool mustBeForRotation(Id /*mode*/) const { return true; }
   virtual bool isAuthorized() const;
-  virtual int writeInFile() { return 1; }
+  virtual Id writeInFile() { return 1; }
   virtual Db* readFromFile() { return nullptr; }
   virtual DbGrid* readGridFromFile() { return nullptr; }
 
@@ -43,14 +43,14 @@ public:
   bool isValidForRotation() const;
 
   void setCols(const VectorInt& cols) { _cols = cols; }
-  void setCols(int ncol, const int* icols);
-  void setCol(int icol);
+  void setCols(Id ncol, const Id* icols);
+  void setCol(Id icol);
 
   const String& getFilename() const { return _filename; }
 
 protected:
-  int _fileWriteOpen();
-  int _fileReadOpen();
+  Id _fileWriteOpen();
+  Id _fileReadOpen();
   void _fileClose();
 
 protected:
@@ -61,52 +61,52 @@ protected:
   FILE* _file;
 };
 
-GSTLEARN_EXPORT DbGrid* db_grid_read_f2g(const char* filename, int verbose = 0);
-GSTLEARN_EXPORT int db_grid_write_zycor(const char* filename, DbGrid* db, int icol);
+GSTLEARN_EXPORT DbGrid* db_grid_read_f2g(const char* filename, Id verbose = 0);
+GSTLEARN_EXPORT Id db_grid_write_zycor(const char* filename, DbGrid* db, Id icol);
 GSTLEARN_EXPORT DbGrid* db_grid_read_zycor(const char* filename,
-                                           int verbose = 0);
-GSTLEARN_EXPORT int db_grid_write_arcgis(const char* filename, DbGrid* db, int icol);
-GSTLEARN_EXPORT int db_grid_write_XYZ(const char* filename, DbGrid* db, int icol);
-GSTLEARN_EXPORT int db_write_vtk(const char* filename, DbGrid* db, const VectorInt& cols);
-GSTLEARN_EXPORT int db_grid_write_bmp(const char* filename,
+                                           Id verbose = 0);
+GSTLEARN_EXPORT Id db_grid_write_arcgis(const char* filename, DbGrid* db, Id icol);
+GSTLEARN_EXPORT Id db_grid_write_XYZ(const char* filename, DbGrid* db, Id icol);
+GSTLEARN_EXPORT Id db_write_vtk(const char* filename, DbGrid* db, const VectorInt& cols);
+GSTLEARN_EXPORT Id db_grid_write_bmp(const char* filename,
                                       DbGrid* db,
-                                      int icol,
-                                      int nsamplex   = 1,
-                                      int nsampley   = 1,
-                                      int nmult      = 1,
-                                      int ncolor     = 1,
-                                      int flag_low   = 1,
-                                      int flag_high  = 1,
+                                      Id icol,
+                                      Id nsamplex   = 1,
+                                      Id nsampley   = 1,
+                                      Id nmult      = 1,
+                                      Id ncolor     = 1,
+                                      Id flag_low   = 1,
+                                      Id flag_high  = 1,
                                       double valmin  = TEST,
                                       double valmax  = TEST,
-                                      int* red       = nullptr,
-                                      int* green     = nullptr,
-                                      int* blue      = nullptr,
-                                      int mask_red   = 0,
-                                      int mask_green = 0,
-                                      int mask_blue  = 0,
-                                      int ffff_red   = 232,
-                                      int ffff_green = 232,
-                                      int ffff_blue  = 0,
-                                      int low_red    = 255,
-                                      int low_green  = 255,
-                                      int low_blue   = 255,
-                                      int high_red   = 255,
-                                      int high_green = 0,
-                                      int high_blue  = 0);
-GSTLEARN_EXPORT DbGrid* db_grid_read_bmp(const char* filename, int verbose = 0);
-GSTLEARN_EXPORT int db_grid_write_irap(const char* filename,
+                                      Id* red       = nullptr,
+                                      Id* green     = nullptr,
+                                      Id* blue      = nullptr,
+                                      Id mask_red   = 0,
+                                      Id mask_green = 0,
+                                      Id mask_blue  = 0,
+                                      Id ffff_red   = 232,
+                                      Id ffff_green = 232,
+                                      Id ffff_blue  = 0,
+                                      Id low_red    = 255,
+                                      Id low_green  = 255,
+                                      Id low_blue   = 255,
+                                      Id high_red   = 255,
+                                      Id high_green = 0,
+                                      Id high_blue  = 0);
+GSTLEARN_EXPORT DbGrid* db_grid_read_bmp(const char* filename, Id verbose = 0);
+GSTLEARN_EXPORT Id db_grid_write_irap(const char* filename,
                                        DbGrid* db,
-                                       int icol,
-                                       int nsamplex = 1,
-                                       int nsampley = 1);
-GSTLEARN_EXPORT int db_grid_write_ifpen(const char* filename, DbGrid* db, int ncol, int* icols);
+                                       Id icol,
+                                       Id nsamplex = 1,
+                                       Id nsampley = 1);
+GSTLEARN_EXPORT Id db_grid_write_ifpen(const char* filename, DbGrid* db, Id ncol, Id* icols);
 GSTLEARN_EXPORT DbGrid* db_grid_read_ifpen(const char* filename,
-                                           int verbose = 0);
-GSTLEARN_EXPORT int db_grid_write_eclipse(const char* filename, DbGrid* db, int icol);
+                                           Id verbose = 0);
+GSTLEARN_EXPORT Id db_grid_write_eclipse(const char* filename, DbGrid* db, Id icol);
 GSTLEARN_EXPORT Db* db_well_read_las(const char* filename,
                                      double xwell,
                                      double ywell,
                                      double cwell,
-                                     int verbose = 0);
+                                     Id verbose = 0);
 } // namespace gstlrn

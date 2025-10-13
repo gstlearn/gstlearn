@@ -43,29 +43,29 @@ public:
   DECLARE_TOTL;
 
   /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// AVCloud Interface
-  double _getIVAR(const Db *db, int iech, int ivar) const override;
-  void _setResult(int iech1,
-                  int iech2,
-                  int nvar,
-                  int ilag,
-                  int ivar,
-                  int jvar,
-                  int orient,
+  double _getIVAR(const Db *db, Id iech, Id ivar) const override;
+  void _setResult(Id iech1,
+                  Id iech2,
+                  Id nvar,
+                  Id ilag,
+                  Id ivar,
+                  Id jvar,
+                  Id orient,
                   double ww,
                   double dist,
                   double value) override;
 
-  int compute(Db *db, const NamingConvention &namconv = NamingConvention("Cloud"));
+  Id compute(Db *db, const NamingConvention &namconv = NamingConvention("Cloud"));
 
-  int selectFromPolygon(Db *db, Polygons *polygon, int idir = 0);
+  Id selectFromPolygon(Db *db, Polygons *polygon, Id idir = 0);
 
 private:
-  void _variogram_cloud(Db *db, int idir);
+  void _variogram_cloud(Db *db, Id idir);
   void _final_discretization_grid();
-  int  _update_discretization_grid(double x, double y);
+  Id  _update_discretization_grid(double x, double y);
 
 private:
   DbGrid* _dbcloud; // Pointer to the already existing output DbGrid (not to be deleted)
@@ -76,8 +76,8 @@ GSTLEARN_EXPORT DbGrid* db_vcloud(Db *db,
                                   const VarioParam *varioparam,
                                   double lagmax = TEST,
                                   double varmax = TEST,
-                                  int lagnb = 100,
-                                  int varnb = 100,
+                                  Id lagnb = 100,
+                                  Id varnb = 100,
                                   const NamingConvention &namconv = NamingConvention("Cloud"));
 
 }

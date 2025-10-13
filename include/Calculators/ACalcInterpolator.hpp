@@ -15,8 +15,6 @@
 
 #include "Calculators/ACalcDbToDb.hpp"
 
-
-
 namespace gstlrn
 {
 class ELoc;
@@ -26,15 +24,15 @@ class GSTLEARN_EXPORT ACalcInterpolator: public ACalcDbToDb
 {
 public:
   ACalcInterpolator();
-  ACalcInterpolator(const ACalcInterpolator &r) = delete;
-  ACalcInterpolator& operator=(const ACalcInterpolator &r) = delete;
+  ACalcInterpolator(const ACalcInterpolator& r)            = delete;
+  ACalcInterpolator& operator=(const ACalcInterpolator& r) = delete;
   virtual ~ACalcInterpolator();
 
   void setModel(ModelGeneric* model) { _model = model; }
   void setNeigh(ANeigh* neigh) { _neigh = neigh; }
   void setKrigopt(const KrigOpt& krigopt) { _krigopt = krigopt; }
 
-  ModelGeneric*  getModel() const { return _model; }
+  ModelGeneric* getModel() const { return _model; }
   ANeigh* getNeigh() const { return _neigh; }
   const KrigOpt& getKrigopt() const { return _krigopt; }
 
@@ -42,17 +40,17 @@ public:
   bool hasNeigh(bool verbose = true) const;
 
 protected:
-  virtual bool _check() override;
-  virtual bool _preprocess() override;
-  int  _getNCov() const { return _ncova; }
-  bool _setNCov(int ncova);
+  bool _check() override;
+  bool _preprocess() override;
+  Id _getNCov() const { return _ncova; }
+  bool _setNCov(Id ncova);
 
-  int _centerDataToGrid(DbGrid* dbgrid);
+  Id _centerDataToGrid(DbGrid* dbgrid);
 
 private:
-  ModelGeneric*  _model;
+  ModelGeneric* _model;
   ANeigh* _neigh;
   KrigOpt _krigopt;
-  int _ncova;
+  Id _ncova;
 };
-}
+} // namespace gstlrn

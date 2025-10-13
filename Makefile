@@ -60,6 +60,7 @@
 #  - BUILD_DOC=1        Configure cmake to build documentation (default =0)
 #  - TEST=<test-target> Name of the test target to be launched (e.g. test_Model_py or test_simTub)
 #  - ASAN=1             Build with Address Sanitizer (default =0)
+#  - COVERAGE=1         Build with code coverage (default =0)
 #  - USE_HDF5=0         To remove HDF5 support (default =1)
 #  - NO_INTERNET=1      To prevent python pip from looking for dependencies through Internet
 #                       (useful when there is no Internet available) (default =0)
@@ -127,6 +128,12 @@ ifeq ($(ASAN), 1)
   BUILD_ASAN = OFF
 endif
 
+ifeq ($(COVERAGE), 1)
+  BUILD_COVERAGE = ON
+ else
+  BUILD_COVERAGE = OFF
+endif
+
 ifndef BUILD_DIR
   ifeq ($(OS),Windows_NT)
     # Assume MinGW (via RTools) => so MSYS build folder
@@ -149,7 +156,7 @@ endif
 # Add  "| tee /dev/null" because Ninja prints output in a single line :
 # https://stackoverflow.com/questions/46970462/how-to-enable-multiline-logs-instead-of-single-line-progress-logs
 
-CMAKE_DEFINES := -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5) -DBUILD_ASAN=$(BUILD_ASAN) -DBUILD_TESTING=ON
+CMAKE_DEFINES := -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5) -DBUILD_ASAN=$(BUILD_ASAN) -DBUILD_TESTING=ON -DBUILD_COVERAGE=$(BUILD_COVERAGE)
 ifdef SWIG_EXEC
   CMAKE_DEFINES := $(CMAKE_DEFINES) -DSWIG_EXECUTABLE=$(SWIG_EXEC)
 endif

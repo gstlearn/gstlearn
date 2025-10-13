@@ -10,19 +10,20 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-#include "geoslib_define.h"
 #include "Anamorphosis/AAnam.hpp"
 #include "Basic/Interval.hpp"
+#include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
 /**
  * Output structure
  */
 
-namespace gstlrn{
+namespace gstlrn
+{
 class AnamContinuousFit
 {
-  private:
+private:
   VectorDouble _y;
   VectorDouble _z;
   VectorDouble _aylim;
@@ -30,7 +31,7 @@ class AnamContinuousFit
   VectorDouble _pylim;
   VectorDouble _pzlim;
 
-  public:
+public:
   const VectorDouble& getAylim() const { return _aylim; }
   void setAylim(const VectorDouble& aylim) { _aylim = aylim; }
   const VectorDouble& getAzlim() const { return _azlim; }
@@ -49,19 +50,19 @@ class GSTLEARN_EXPORT AnamContinuous: public AAnam
 {
 public:
   AnamContinuous();
-  AnamContinuous(const AnamContinuous &m);
-  AnamContinuous& operator=(const AnamContinuous &m);
+  AnamContinuous(const AnamContinuous& m);
+  AnamContinuous& operator=(const AnamContinuous& m);
   virtual ~AnamContinuous();
 
   /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// AAnam interface
   bool hasGaussian() const override { return true; }
 
   /// Interface for AnamContinuous
-  virtual void   calculateMeanAndVariance();
-  virtual double getVariance() const override { return _variance; }
+  virtual void calculateMeanAndVariance();
+  double getVariance() const override { return _variance; }
 
   void setABounds(double azmin = TEST,
                   double azmax = TEST,
@@ -72,10 +73,10 @@ public:
                   double pymin = TEST,
                   double pymax = TEST);
 
-  VectorDouble rawToGaussianVector(const VectorDouble &z) const;
-  VectorDouble gaussianToRawVector(const VectorDouble &y) const;
+  VectorDouble rawToGaussianVector(const VectorDouble& z) const;
+  VectorDouble gaussianToRawVector(const VectorDouble& y) const;
 
-  AnamContinuousFit sample(int ndisc = 100,
+  AnamContinuousFit sample(Id ndisc    = 100,
                            double aymin = -10,
                            double aymax = +10);
 
@@ -98,13 +99,13 @@ public:
   void setPzmax(double pzmax) { _pz.setVmax(pzmax); }
   void setPymin(double pymin) { _py.setVmin(pymin); }
   void setPymax(double pymax) { _py.setVmax(pymax); }
-  void setMean(double mean)   { _mean = mean; }
+  void setMean(double mean) { _mean = mean; }
   void setVariance(double variance) { _variance = variance; }
 
 protected:
   /// ASerializable Interface
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
@@ -119,4 +120,4 @@ protected:
   double _mean;
   double _variance;
 };
-}
+} // namespace gstlrn

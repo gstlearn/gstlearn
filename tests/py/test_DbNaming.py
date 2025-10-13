@@ -18,7 +18,7 @@ gl.mestitle(0,"Preparing the Environment")
 
 ndim = 2
 gl.defineDefaultSpace(gl.ESpaceType.RN,ndim)
-gl.ASerializable.setPrefixName("DbTest-");
+gl.ASerializable.setPrefixName("test_DbNaling-");
 
 # The following object will enable having a complete view of
 # the column / attribute manipulation. It will be used later in the notebook.

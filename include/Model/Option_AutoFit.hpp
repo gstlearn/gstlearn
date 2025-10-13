@@ -38,19 +38,19 @@ class GSTLEARN_EXPORT Option_AutoFit : public AStringable
   Option_AutoFit& operator= (const Option_AutoFit &m);
   virtual ~Option_AutoFit();
 
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   double getEpsdelta() const { return _epsdelta; }
   double getInitdelta() const { return _initdelta; }
-  int getMaxiter() const { return _maxiter; }
+  Id getMaxiter() const { return _maxiter; }
   double getTolred() const { return _tolred; }
   double getTolsigma() const { return _tolsigma; }
   double getTolstop() const { return _tolstop; }
   bool getVerbose() const { return _verbose; }
-  int getWmode() const { return _wmode; }
+  Id getWmode() const { return _wmode; }
   void setEpsdelta(double epsdelta) { _epsdelta = epsdelta; }
   void setInitdelta(double initdelta) { _initdelta = initdelta; }
-  void setMaxiter(int maxiter) { _maxiter = maxiter; }
+  void setMaxiter(Id maxiter) { _maxiter = maxiter; }
   void setTolred(double tolred) { _tolred = tolred; }
   void setTolsigma(double tolsigma) { _tolsigma = tolsigma; }
   void setTolstop(double tolstop) { _tolstop = tolstop; }
@@ -66,12 +66,12 @@ class GSTLEARN_EXPORT Option_AutoFit : public AStringable
    * @param wmode       type of weighting function (0, 1, 2 or 3, see above)
    * @note The default value for wmode is 2
    */
-  void setWmode(int wmode) { _wmode = wmode; }
+  void setWmode(Id wmode) { _wmode = wmode; }
 
 private:
   bool _verbose;     /* Verbose option */
-  int _wmode;        /* Weighting option (used in Goulard) */
-  int _maxiter;      /* Maximum number of iterations */
+  Id _wmode;        /* Weighting option (used in Goulard) */
+  Id _maxiter;      /* Maximum number of iterations */
   double _tolstop;   /* Tolerance for the stopping criterion */
   double _tolred;    /* Scaled tolerance (used in calculations) */
   double _epsdelta;  /* Tolerance for the search */

@@ -12,19 +12,18 @@
 #include "Basic/AFunctional.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/Iterators.hpp"
+#include "Basic/ParamInfo.hpp"
 #include "Covariances/ACov.hpp"
+#include "Covariances/CovContext.hpp"
 #include "Covariances/TabNoStat.hpp"
 #include "Covariances/TabNoStatSills.hpp"
-#include "LinearOp/CholeskyDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
-#include "Covariances/CovContext.hpp"
+#include "Matrix/MatrixT.hpp"
 #include "Model/AModelFitSills.hpp"
 #include "Model/CovInternal.hpp"
 #include "Space/SpacePoint.hpp"
 #include "geoslib_define.h"
-#include "Matrix/MatrixT.hpp"
-#include "Basic/ParamInfo.hpp"
 class AFunctional;
 class CovInternal;
 
@@ -41,39 +40,40 @@ public:
   IMPLEMENT_CLONING(CovBase)
   static ParamInfo createParamInfoForCholSill();
 
-  virtual bool isConsistent(const ASpace* space) const override;
-  virtual int getNVar() const override { return _ctxt.getNVar(); }
+  bool isConsistent(const ASpace* space) const override;
+  Id getNVar() const override { return _ctxt.getNVar(); }
   bool isOptimizationInitialized(const Db* db = nullptr) const;
 
-  void setCholSill(int ivar, int jvar, double val) const;
+  void setCholSill(Id ivar, Id jvar, double val) const;
   virtual void setSill(double sill) const; /// Only valid when there is only one variable (in the context)
   virtual void setSill(const MatrixSymmetric& sill) const;
   virtual void setSill(const VectorDouble& sill) const;
-  virtual void setSill(int ivar, int jvar, double sill) const;
+  virtual void setSill(Id ivar, Id jvar, double sill) const;
   void initSill(double value = 0.);
 
   const MatrixSymmetric& getSill() const { return _sillCur; }
   virtual void setCor(ACov* cor);
   const ACov* getCor() const { return _cor.get(); }
+  ACov* getCorModify() { return _cor.get(); }
 
-  double getSill(int ivar, int jvar) const;
+  double getSill(Id ivar, Id jvar) const;
 
-  void makeSillNoStatDb(const String& namecol, int ivar = 0, int jvar = 0, const Db* db = nullptr);
-  void makeSillStationary(int ivar = 0, int jvar = 0);
+  void makeSillNoStatDb(const String& namecol, Id ivar = 0, Id jvar = 0, const Db* db = nullptr);
+  void makeSillStationary(Id ivar = 0, Id jvar = 0);
   void makeSillsStationary(bool silent = false);
-  void makeSillNoStatFunctional(const AFunctional* func, int ivar = 0, int jvar = 0);
+  void makeSillNoStatFunctional(const AFunctional* func, Id ivar = 0, Id jvar = 0);
 
-  TabNoStatSills* getTabNoStatSills() const { return (TabNoStatSills*)_tabNoStat; }
+  TabNoStatSills* getTabNoStatSills() const { return static_cast<TabNoStatSills*>(_tabNoStat); }
 
-  int getNSills() const;
+  Id getNSills() const;
   bool isNoStatForVariance() const;
 
   void informMeshByMesh(const AMesh* amesh) const;
   void informMeshByApex(const AMesh* amesh) const;
   VectorDouble informCoords(const VectorVectorDouble& coords,
                             const EConsElem& econs,
-                            int iv1 = 0,
-                            int iv2 = 0) const;
+                            Id iv1 = 0,
+                            Id iv2 = 0) const;
   void informDbIn(const Db* dbin) const;
   void informDbOut(const Db* dbout) const;
   void informMeshByMeshForSills(const AMesh* amesh) const;
@@ -83,49 +83,49 @@ public:
 
   /// Tell if the use of Optimization is enabled or not
 
-  void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const override;
-  void updateCovByMesh(int imesh, bool aniso = true) const override;
+  void updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const override;
+  void updateCovByMesh(Id imesh, bool aniso = true) const override;
 
-  double getValue(const EConsElem& econs, int iv1, int iv2) const override;
+  double getValue(const EConsElem& econs, Id iv1, Id iv2) const override;
   void nostatUpdate(CovInternal* covint) const;
 #ifndef SWIG
-  int addEvalCovVecRHSInPlace(vect vect,
-                              const VectorInt& index1,
-                              int iech2,
-                              const KrigOpt& krigopt,
-                              SpacePoint& pin,
-                              SpacePoint& pout,
-                              VectorDouble& tabwork,
-                              double lambda                 = 1.,
-                              const ECalcMember& calcMember = ECalcMember::RHS) const override;
+  Id addEvalCovVecRHSInPlace(vect vect,
+                             const VectorInt& index1,
+                             Id iech2,
+                             const KrigOpt& krigopt,
+                             SpacePoint& pin,
+                             SpacePoint& pout,
+                             VectorDouble& tabwork,
+                             double lambda                 = 1.,
+                             const ECalcMember& calcMember = ECalcMember::RHS) const override;
 #endif
   void setOptimEnabled(bool flag) const override
   {
     _optimEnabled = flag;
     _cor->setOptimEnabled(flag);
   }
-  int makeElemNoStat(const EConsElem& econs, int iv1, int iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String()) override;
+  Id makeElemNoStat(const EConsElem& econs, Id iv1, Id iv2, const AFunctional* func = nullptr, const Db* db = nullptr, const String& namecol = String()) override;
 
   void appendParams(ListParams& listParams,
                     std::vector<covmaptype>* gradFuncs = nullptr) override;
   void updateCov() override;
   void initParams(const MatrixSymmetric& vars,
                   double href = 1.) override;
-  ParamInfo& getParamInfoCholSills(int ivar, int jvar) { return _cholSillsInfo(ivar, jvar); }
+  ParamInfo& getParamInfoCholSills(Id ivar, Id jvar) { return _cholSillsInfo(ivar, jvar); }
 
 protected:
   void _attachNoStatDb(const Db* db) override;
 
   void _manage(const Db* db1, const Db* db2) const override;
 
-  bool _checkSill(int ivar = 0, int jvar = 0) const;
-  bool _checkDims(int idim, int jdim) const;
+  bool _checkSill(Id ivar = 0, Id jvar = 0) const;
+  bool _checkDims(Id idim, Id jdim) const;
 
-  bool _isVariableValid(int ivar) const;
+  bool _isVariableValid(Id ivar) const;
 
   /// Update internal parameters consistency with the context
-  virtual void _updateFromContext() override;
-  virtual void _initFromContext() override;
+  void _updateFromContext() override;
+  void _initFromContext() override;
   void _copyCovContext(const CovContext& ctxt) override;
 
 private:
@@ -135,8 +135,8 @@ private:
   bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;
 
-  void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
-  SpacePoint& _optimizationLoadInPlace(int iech, int mode, int rank) const override;
+  void _optimizationPreProcess(Id mode, const std::vector<SpacePoint>& ps) const override;
+  SpacePoint& _optimizationLoadInPlace(Id iech, Id mode, Id rank) const override;
   void _optimizationPostProcess() const override;
 
   void _evalOptim(SpacePoint* p1A,
@@ -147,12 +147,13 @@ private:
   void _optimizationSetTarget(SpacePoint& pt) const override;
   virtual double _eval(const SpacePoint& p1,
                        const SpacePoint& p2,
-                       int ivar                = 0,
-                       int jvar                = 0,
+                       Id ivar                 = 0,
+                       Id jvar                 = 0,
                        const CovCalcMode* mode = nullptr) const override;
-void _multiplyCorDerivativesBySills(int oldSize, std::vector<covmaptype>* gradFuncs);
+  void _multiplyCorDerivativesBySills(Id oldSize, std::vector<covmaptype>* gradFuncs);
 
-  protected: MatrixT<ParamInfo> _cholSillsInfo;
+protected:
+  MatrixT<ParamInfo> _cholSillsInfo;
   mutable MatrixSquare _cholSills;
   mutable MatrixSymmetric _sillCur;
   mutable MatrixSquare _workMat;
@@ -161,4 +162,4 @@ private:
   std::shared_ptr<ACov> _cor;
   LowerTriangularRange _itRange;
 };
-}
+} // namespace gstlrn

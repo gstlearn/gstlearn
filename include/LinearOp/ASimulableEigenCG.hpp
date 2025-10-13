@@ -34,7 +34,7 @@ public:
   // Required typedefs, constants, and method:
   typedef double Scalar;
   typedef double RealScalar;
-  typedef int StorageIndex;
+  typedef Id StorageIndex;
   enum
   {
     ColsAtCompileTime    = Eigen::Dynamic,

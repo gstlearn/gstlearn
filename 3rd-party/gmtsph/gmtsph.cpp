@@ -51,7 +51,7 @@ Website: https://gstlearn.org
 
 #include <math.h>
 
-#define ABS(a) (((a) <  0.) ? -(a) : (a))
+#define ABS(a) (((a) < 0.) ? -(a) : (a))
 
 /******************************************************************************/
 /*                                                              From STRIPACK */
@@ -90,7 +90,7 @@ Website: https://gstlearn.org
 /*             Applied Statistics, Vol. 31, No. 2, 1982,       */
 /*             pp. 188-190.                                    */
 /* *********************************************************** */
-int jrand_(int *n, int *ix, int *iy, int *iz)
+int jrand_(int* n, int* ix, int* iy, int* iz)
 {
   /* System generated locals */
   int ret_val;
@@ -105,13 +105,12 @@ int jrand_(int *n, int *ix, int *iy, int *iz)
   /* X = Pseudo-random number in the range 0 to 3 whose frac- */
   /*       tional part is U. */
 
-  *ix = *ix * 171 % 30269;
-  *iy = *iy * 172 % 30307;
-  *iz = *iz * 170 % 30323;
-  x = (double) (*ix) / 30269. + (double) (*iy) / 30307.
-      + (double) (*iz) / 30323.;
-  u = x - (int) x;
-  ret_val = (int) ((double) (*n) * u + 1.);
+  *ix     = *ix * 171 % 30269;
+  *iy     = *iy * 172 % 30307;
+  *iz     = *iz * 170 % 30323;
+  x       = static_cast<double>(*ix) / 30269. + static_cast<double>(*iy) / 30307. + static_cast<double>(*iz) / 30323.;
+  u       = x - static_cast<int>(x);
+  ret_val = static_cast<int>(static_cast<double>(*n) * u + 1.);
   return ret_val;
 }
 
@@ -139,7 +138,7 @@ int jrand_(int *n, int *ix, int *iy, int *iz)
 /*                        addition of node K.                  */
 /*                                                             */
 /* *********************************************************** */
-int insert_(int *k, int *lp, int *list, int *lptr, int *lnew)
+int insert_(int* k, int* lp, int* list, int* lptr, int* lnew)
 {
   static int lsav;
 
@@ -148,8 +147,8 @@ int insert_(int *k, int *lp, int *list, int *lptr, int *lnew)
   --list;
 
   /* Function Body */
-  lsav = lptr[*lp];
-  lptr[*lp] = *lnew;
+  lsav        = lptr[*lp];
+  lptr[*lp]   = *lnew;
   list[*lnew] = *k;
   lptr[*lnew] = lsav;
   ++(*lnew);
@@ -181,7 +180,7 @@ int insert_(int *k, int *lp, int *list, int *lptr, int *lnew)
 /*                neighbor of N0, in which case LSTPTR = LPL.  */
 /*                                                             */
 /* *********************************************************** */
-int lstptr_(int *lpl, int *nb, int *list, int *lptr)
+int lstptr_(int* lpl, int* nb, int* list, int* lptr)
 {
   /* System generated locals */
   int ret_val;
@@ -200,7 +199,8 @@ int lstptr_(int *lpl, int *nb, int *list, int *lptr)
 
   /* Function Body */
   lp = lptr[*lpl];
-  L1: nd = list[lp];
+L1:
+  nd = list[lp];
   if (nd == *nb)
   {
     goto L2;
@@ -211,7 +211,8 @@ int lstptr_(int *lpl, int *nb, int *list, int *lptr)
     goto L1;
   }
 
-  L2: ret_val = lp;
+L2:
+  ret_val = lp;
   return ret_val;
 }
 
@@ -250,14 +251,14 @@ int lstptr_(int *lpl, int *nb, int *list, int *lptr)
 /*              adjacent on input, in which case LP21 = 0.     */
 /*                                                             */
 /* *********************************************************** */
-int swap_(int *in1,
-          int *in2,
-          int *io1,
-          int *io2,
-          int *list,
-          int *lptr,
-          int *lend,
-          int *lp21)
+int swap_(int* in1,
+          int* in2,
+          int* io1,
+          int* io2,
+          int* list,
+          int* lptr,
+          int* lend,
+          int* lp21)
 {
   /* System generated locals */
   int i__1;
@@ -284,8 +285,8 @@ int swap_(int *in1,
 
   /* Delete IO2 as a neighbor of IO1. */
 
-  lp = lstptr_(&lend[*io1], in2, &list[1], &lptr[1]);
-  lph = lptr[lp];
+  lp       = lstptr_(&lend[*io1], in2, &list[1], &lptr[1]);
+  lph      = lptr[lp];
   lptr[lp] = lptr[lph];
 
   /* If IO2 is the last neighbor of IO1, make IN2 the */
@@ -299,16 +300,16 @@ int swap_(int *in1,
   /* Insert IN2 as a neighbor of IN1 following IO1 */
   /*   using the hole created above. */
 
-  lp = lstptr_(&lend[*in1], io1, &list[1], &lptr[1]);
-  lpsav = lptr[lp];
-  lptr[lp] = lph;
+  lp        = lstptr_(&lend[*in1], io1, &list[1], &lptr[1]);
+  lpsav     = lptr[lp];
+  lptr[lp]  = lph;
   list[lph] = *in2;
   lptr[lph] = lpsav;
 
   /* Delete IO1 as a neighbor of IO2. */
 
-  lp = lstptr_(&lend[*io2], in1, &list[1], &lptr[1]);
-  lph = lptr[lp];
+  lp       = lstptr_(&lend[*io2], in1, &list[1], &lptr[1]);
+  lph      = lptr[lp];
   lptr[lp] = lptr[lph];
 
   /* If IO1 is the last neighbor of IO2, make IN1 the */
@@ -321,12 +322,12 @@ int swap_(int *in1,
 
   /* Insert IN1 as a neighbor of IN2 following IO2. */
 
-  lp = lstptr_(&lend[*in2], io2, &list[1], &lptr[1]);
-  lpsav = lptr[lp];
-  lptr[lp] = lph;
+  lp        = lstptr_(&lend[*in2], io2, &list[1], &lptr[1]);
+  lpsav     = lptr[lp];
+  lptr[lp]  = lph;
   list[lph] = *in1;
   lptr[lph] = lpsav;
-  *lp21 = lph;
+  *lp21     = lph;
   return 0;
 }
 
@@ -339,12 +340,12 @@ int swap_(int *in1,
 /* high precision registers.                                   */
 /*                                                             */
 /* *********************************************************** */
-double store_(double *x)
+double store_(double* x)
 {
   /* System generated locals */
   double ret_val;
 
-  ret_val = (double) *x;
+  ret_val = *x;
   return ret_val;
 }
 
@@ -380,7 +381,7 @@ double store_(double *x)
 /*                             triangulation contains no       */
 /*                             boundary nodes.                 */
 /* *********************************************************** */
-int covsph_(int *kk, int *n0, int *list, int *lptr, int *lend, int *lnew)
+int covsph_(int* kk, int* n0, int* list, int* lptr, int* lend, int* lnew)
 {
   static int k, lp, nst, lsav, next;
 
@@ -398,7 +399,7 @@ int covsph_(int *kk, int *n0, int *list, int *lptr, int *lend, int *lnew)
   --list;
 
   /* Function Body */
-  k = *kk;
+  k   = *kk;
   nst = *n0;
 
   /* Traverse the boundary in clockwise order, inserting K as */
@@ -406,9 +407,10 @@ int covsph_(int *kk, int *n0, int *list, int *lptr, int *lend, int *lnew)
   /*   the boundary node to an interior node. */
 
   next = nst;
-  L1: lp = lend[next];
+L1:
+  lp = lend[next];
   insert_(&k, &lp, &list[1], &lptr[1], lnew);
-  next = -list[lp];
+  next     = -list[lp];
   list[lp] = next;
   if (next != nst)
   {
@@ -419,7 +421,8 @@ int covsph_(int *kk, int *n0, int *list, int *lptr, int *lend, int *lnew)
   /*   adjacency list. */
 
   lsav = *lnew;
-  L2: lp = lend[next];
+L2:
+  lp          = lend[next];
   list[*lnew] = next;
   lptr[*lnew] = *lnew + 1;
   ++(*lnew);
@@ -430,7 +433,7 @@ int covsph_(int *kk, int *n0, int *list, int *lptr, int *lend, int *lnew)
   }
 
   lptr[*lnew - 1] = lsav;
-  lend[k] = *lnew - 1;
+  lend[k]         = *lnew - 1;
   return 0;
 }
 
@@ -480,21 +483,21 @@ int covsph_(int *kk, int *n0, int *list, int *lptr, int *lend, int *lnew)
 /*                  nodes are coplanar (lie on a common great  */
 /*                  circle.                                    */
 /* *********************************************************** */
-int trfind_(int *nst,
-            double *p,
-            int *n,
-            double *x,
-            double *y,
-            double *z__,
-            int *list,
-            int *lptr,
-            int *lend,
-            double *b1,
-            double *b2,
-            double *b3,
-            int *i1,
-            int *i2,
-            int *i3)
+int trfind_(int* nst,
+            double* p,
+            int* n,
+            double* x,
+            double* y,
+            double* z__,
+            int* list,
+            int* lptr,
+            int* lend,
+            double* b1,
+            double* b2,
+            double* b3,
+            int* i1,
+            int* i2,
+            int* i3)
 {
   /* Initialized data */
 
@@ -583,7 +586,8 @@ int trfind_(int *nst,
   /* Compute the relative machine precision EPS and TOL. */
 
   eps = 1.;
-  L1: eps /= 2.;
+L1:
+  eps /= 2.;
   d__1 = eps + 1.;
   if (store_(&d__1) > 1.)
   {
@@ -595,7 +599,8 @@ int trfind_(int *nst,
   /* Set NF and NL to the first and last neighbors of N0, and */
   /*   initialize N1 = NF. */
 
-  L2: lp = lend[n0];
+L2:
+  lp = lend[n0];
   nl = list[lp];
   lp = lptr[lp];
   nf = list[lp];
@@ -609,10 +614,8 @@ int trfind_(int *nst,
 
     /*   N0 is an interior node.  Find N1. */
 
-    L3: if (xp * (y[n0] * z__[n1] - y[n1] * z__[n0])
-        - yp * (x[n0] * z__[n1] - x[n1] * z__[n0])
-            + zp * (x[n0] * y[n1] - x[n1] * y[n0])
-            < 0.)
+  L3:
+    if (xp * (y[n0] * z__[n1] - y[n1] * z__[n0]) - yp * (x[n0] * z__[n1] - x[n1] * z__[n0]) + zp * (x[n0] * y[n1] - x[n1] * y[n0]) < 0.)
     {
       lp = lptr[lp];
       n1 = list[lp];
@@ -629,10 +632,7 @@ int trfind_(int *nst,
     /*   N0 is a boundary node.  Test for P exterior. */
 
     nl = -nl;
-    if (xp * (y[n0] * z__[nf] - y[nf] * z__[n0]) - yp
-        * (x[n0] * z__[nf] - x[nf] * z__[n0])
-        + zp * (x[n0] * y[nf] - x[nf] * y[n0])
-        < 0.)
+    if (xp * (y[n0] * z__[nf] - y[nf] * z__[n0]) - yp * (x[n0] * z__[nf] - x[nf] * z__[n0]) + zp * (x[n0] * y[nf] - x[nf] * y[n0]) < 0.)
     {
 
       /*   P is to the right of the boundary edge N0->NF. */
@@ -641,10 +641,7 @@ int trfind_(int *nst,
       n2 = nf;
       goto L9;
     }
-    if (xp * (y[nl] * z__[n0] - y[n0] * z__[nl]) - yp
-        * (x[nl] * z__[n0] - x[n0] * z__[nl])
-        + zp * (x[nl] * y[n0] - x[n0] * y[nl])
-        < 0.)
+    if (xp * (y[nl] * z__[n0] - y[n0] * z__[nl]) - yp * (x[nl] * z__[n0] - x[n0] * z__[nl]) + zp * (x[nl] * y[n0] - x[n0] * y[nl]) < 0.)
     {
 
       /*   P is to the right of the boundary edge NL->N0. */
@@ -658,12 +655,10 @@ int trfind_(int *nst,
   /* P is to the left of arcs N0->N1 and NL->N0.  Set N2 to the */
   /*   next neighbor of N0 (following N1). */
 
-  L4: lp = lptr[lp];
+L4:
+  lp = lptr[lp];
   n2 = (i__1 = list[lp], ABS(i__1));
-  if (xp * (y[n0] * z__[n2] - y[n2] * z__[n0]) - yp
-      * (x[n0] * z__[n2] - x[n2] * z__[n0])
-      + zp * (x[n0] * y[n2] - x[n2] * y[n0])
-      < 0.)
+  if (xp * (y[n0] * z__[n2] - y[n2] * z__[n0]) - yp * (x[n0] * z__[n2] - x[n2] * z__[n0]) + zp * (x[n0] * y[n2] - x[n2] * y[n0]) < 0.)
   {
     goto L7;
   }
@@ -672,10 +667,7 @@ int trfind_(int *nst,
   {
     goto L4;
   }
-  if (xp * (y[n0] * z__[nf] - y[nf] * z__[n0]) - yp
-      * (x[n0] * z__[nf] - x[nf] * z__[n0])
-      + zp * (x[n0] * y[nf] - x[nf] * y[n0])
-      < 0.)
+  if (xp * (y[n0] * z__[nf] - y[nf] * z__[n0]) - yp * (x[n0] * z__[nf] - x[nf] * z__[n0]) + zp * (x[n0] * y[nf] - x[nf] * y[n0]) < 0.)
   {
     goto L6;
   }
@@ -691,10 +683,8 @@ int trfind_(int *nst,
     /*     neighbors NB of N0.  Search the neighbors of N0. */
     /*     Note:  N1 = NL and LP points to NL. */
 
-    L5: if (xp * (y[n1] * z__[n0] - y[n0] * z__[n1])
-        - yp * (x[n1] * z__[n0] - x[n0] * z__[n1])
-            + zp * (x[n1] * y[n0] - x[n0] * y[n1])
-            >= 0.)
+  L5:
+    if (xp * (y[n1] * z__[n0] - y[n0] * z__[n1]) - yp * (x[n1] * z__[n0] - x[n0] * z__[n1]) + zp * (x[n1] * y[n0] - x[n0] * y[n1]) >= 0.)
     {
       lp = lptr[lp];
       n1 = (i__1 = list[lp], ABS(i__1));
@@ -714,21 +704,22 @@ int trfind_(int *nst,
 
   /* P is between arcs N0->N1 and N0->NF. */
 
-  L6: n2 = nf;
+L6:
+  n2 = nf;
 
   /* P is contained in a wedge defined by geodesics N0-N1 and */
   /*   N0-N2, where N1 is adjacent to N2.  Save N1 and N2 to */
   /*   test for cycling. */
 
-  L7: n3 = n0;
+L7:
+  n3  = n0;
   n1s = n1;
   n2s = n2;
 
   /* Top of edge-hopping loop: */
 
-  L8: *b3 = xp * (y[n1] * z__[n2] - y[n2] * z__[n1])
-      - yp * (x[n1] * z__[n2] - x[n2] * z__[n1])
-            + zp * (x[n1] * y[n2] - x[n2] * y[n1]);
+L8:
+  *b3 = xp * (y[n1] * z__[n2] - y[n2] * z__[n1]) - yp * (x[n1] * z__[n2] - x[n2] * z__[n1]) + zp * (x[n1] * y[n2] - x[n2] * y[n1]);
   if (*b3 < 0.)
   {
 
@@ -746,13 +737,10 @@ int trfind_(int *nst,
     /*   Define a new arc N1->N2 which intersects the geodesic */
     /*     N0-P. */
 
-    if (xp * (y[n0] * z__[n4] - y[n4] * z__[n0]) - yp
-        * (x[n0] * z__[n4] - x[n4] * z__[n0])
-        + zp * (x[n0] * y[n4] - x[n4] * y[n0])
-        < 0.)
+    if (xp * (y[n0] * z__[n4] - y[n4] * z__[n0]) - yp * (x[n0] * z__[n4] - x[n4] * z__[n0]) + zp * (x[n0] * y[n4] - x[n4] * y[n0]) < 0.)
     {
-      n3 = n2;
-      n2 = n4;
+      n3  = n2;
+      n2  = n4;
       n1s = n1;
       if (n2 != n2s && n2 != n0)
       {
@@ -761,8 +749,8 @@ int trfind_(int *nst,
     }
     else
     {
-      n3 = n1;
-      n1 = n4;
+      n3  = n1;
+      n1  = n4;
       n2s = n2;
       if (n1 != n1s && n1 != n0)
       {
@@ -786,12 +774,8 @@ int trfind_(int *nst,
 
     /*   B3 .NE. 0. */
 
-    *b1 = xp * (y[n2] * z__[n3] - y[n3] * z__[n2])
-        - yp * (x[n2] * z__[n3] - x[n3] * z__[n2])
-          + zp * (x[n2] * y[n3] - x[n3] * y[n2]);
-    *b2 = xp * (y[n3] * z__[n1] - y[n1] * z__[n3])
-        - yp * (x[n3] * z__[n1] - x[n1] * z__[n3])
-          + zp * (x[n3] * y[n1] - x[n1] * y[n3]);
+    *b1 = xp * (y[n2] * z__[n3] - y[n3] * z__[n2]) - yp * (x[n2] * z__[n3] - x[n3] * z__[n2]) + zp * (x[n2] * y[n3] - x[n3] * y[n2]);
+    *b2 = xp * (y[n3] * z__[n1] - y[n1] * z__[n3]) - yp * (x[n3] * z__[n1] - x[n1] * z__[n3]) + zp * (x[n3] * y[n1] - x[n1] * y[n3]);
     if (*b1 < -tol || *b2 < -tol)
     {
 
@@ -807,12 +791,12 @@ int trfind_(int *nst,
     /*   B3 = 0 and thus P lies on N1->N2. Compute */
     /*     B1 = Det(P,N2 X N1,N2) and B2 = Det(P,N1,N2 X N1). */
 
-    *b3 = 0.;
-    s12 = x[n1] * x[n2] + y[n1] * y[n2] + z__[n1] * z__[n2];
+    *b3  = 0.;
+    s12  = x[n1] * x[n2] + y[n1] * y[n2] + z__[n1] * z__[n2];
     ptn1 = xp * x[n1] + yp * y[n1] + zp * z__[n1];
     ptn2 = xp * x[n2] + yp * y[n2] + zp * z__[n2];
-    *b1 = ptn1 - s12 * ptn2;
-    *b2 = ptn2 - s12 * ptn1;
+    *b1  = ptn1 - s12 * ptn2;
+    *b2  = ptn2 - s12 * ptn1;
     if (*b1 < -tol || *b2 < -tol)
     {
 
@@ -842,25 +826,24 @@ int trfind_(int *nst,
   /*   Save N1 and N2, and set NL = 0 to indicate that */
   /*   NL has not yet been found. */
 
-  L9: n1s = n1;
+L9:
+  n1s = n1;
   n2s = n2;
-  nl = 0;
+  nl  = 0;
 
   /*           Counterclockwise Boundary Traversal: */
 
-  L10: lp = lend[n2];
-  lp = lptr[lp];
+L10:
+  lp   = lend[n2];
+  lp   = lptr[lp];
   next = list[lp];
-  if (xp * (y[n2] * z__[next] - y[next] * z__[n2]) - yp
-      * (x[n2] * z__[next] - x[next] * z__[n2])
-      + zp * (x[n2] * y[next] - x[next] * y[n2])
-      >= 0.)
+  if (xp * (y[n2] * z__[next] - y[next] * z__[n2]) - yp * (x[n2] * z__[next] - x[next] * z__[n2]) + zp * (x[n2] * y[next] - x[next] * y[n2]) >= 0.)
   {
 
     /*   N2 is the rightmost visible node if P Forward N2->N1 */
     /*     or NEXT Forward N2->N1.  Set Q to (N2 X N1) X N2. */
 
-    s12 = x[n1] * x[n2] + y[n1] * y[n2] + z__[n1] * z__[n2];
+    s12  = x[n1] * x[n2] + y[n1] * y[n2] + z__[n1] * z__[n2];
     q[0] = x[n1] - s12 * x[n2];
     q[1] = y[n1] - s12 * y[n2];
     q[2] = z__[n1] - s12 * z__[n2];
@@ -897,7 +880,8 @@ int trfind_(int *nst,
 
   /* N2 is the rightmost visible node. */
 
-  L11: nf = n2;
+L11:
+  nf = n2;
   if (nl == 0)
   {
 
@@ -909,18 +893,16 @@ int trfind_(int *nst,
 
     /*           Clockwise Boundary Traversal: */
 
-    L12: lp = lend[n1];
+  L12:
+    lp   = lend[n1];
     next = -list[lp];
-    if (xp * (y[next] * z__[n1] - y[n1] * z__[next]) - yp
-        * (x[next] * z__[n1] - x[n1] * z__[next])
-        + zp * (x[next] * y[n1] - x[n1] * y[next])
-        >= 0.)
+    if (xp * (y[next] * z__[n1] - y[n1] * z__[next]) - yp * (x[next] * z__[n1] - x[n1] * z__[next]) + zp * (x[next] * y[n1] - x[n1] * y[next]) >= 0.)
     {
 
       /*   N1 is the leftmost visible node if P or NEXT is */
       /*     forward of N1->N2.  Compute Q = N1 X (N2 X N1). */
 
-      s12 = x[n1] * x[n2] + y[n1] * y[n2] + z__[n1] * z__[n2];
+      s12  = x[n1] * x[n2] + y[n1] * y[n2] + z__[n1] * z__[n2];
       q[0] = x[n2] - s12 * x[n1];
       q[1] = y[n2] - s12 * y[n1];
       q[2] = z__[n2] - s12 * z__[n1];
@@ -957,7 +939,8 @@ int trfind_(int *nst,
 
     /* N1 is the leftmost visible node. */
 
-    L13: nl = n1;
+  L13:
+    nl = n1;
   }
 
   /* NF and NL have been found. */
@@ -969,7 +952,8 @@ int trfind_(int *nst,
 
   /* All points are collinear (coplanar). */
 
-  L14: *i1 = 0;
+L14:
+  *i1 = 0;
   *i2 = 0;
   *i3 = 0;
   return 0;
@@ -1009,14 +993,14 @@ int trfind_(int *nst,
 /*                             will be connected to nodes I1,  */
 /*                             I2, and I3.                     */
 /* *********************************************************** */
-int intadd_(int *kk,
-            int *i1,
-            int *i2,
-            int *i3,
-            int *list,
-            int *lptr,
-            int *lend,
-            int *lnew)
+int intadd_(int* kk,
+            int* i1,
+            int* i2,
+            int* i3,
+            int* list,
+            int* lptr,
+            int* lend,
+            int* lnew)
 {
   static int k, n1, n2, n3, lp;
 
@@ -1051,13 +1035,13 @@ int intadd_(int *kk,
 
   /* Add I1, I2, and I3 as neighbors of K. */
 
-  list[*lnew] = n1;
+  list[*lnew]     = n1;
   list[*lnew + 1] = n2;
   list[*lnew + 2] = n3;
-  lptr[*lnew] = *lnew + 1;
+  lptr[*lnew]     = *lnew + 1;
   lptr[*lnew + 1] = *lnew + 2;
   lptr[*lnew + 2] = *lnew;
-  lend[k] = *lnew + 2;
+  lend[k]         = *lnew + 2;
   *lnew += 3;
   return 0;
 }
@@ -1094,13 +1078,13 @@ int intadd_(int *kk,
 /*                and N2 should be swapped for an arc con-     */
 /*                necting N3 and N4.                           */
 /* *********************************************************** */
-long int swptst_(int *n1,
-                 int *n2,
-                 int *n3,
-                 int *n4,
-                 double *x,
-                 double *y,
-                 double *z__)
+long int swptst_(int* n1,
+                 int* n2,
+                 int* n3,
+                 int* n4,
+                 double* x,
+                 double* y,
+                 double* z__)
 {
   /* System generated locals */
   long int ret_val;
@@ -1121,9 +1105,9 @@ long int swptst_(int *n1,
   --x;
 
   /* Function Body */
-  x4 = x[*n4];
-  y4 = y[*n4];
-  z4 = z__[*n4];
+  x4  = x[*n4];
+  y4  = y[*n4];
+  z4  = z__[*n4];
   dx1 = x[*n1] - x4;
   dx2 = x[*n2] - x4;
   dx3 = x[*n3] - x4;
@@ -1138,9 +1122,7 @@ long int swptst_(int *n1,
   /*   the plane of (N2,N1,N4) iff Det(N3-N4,N2-N4,N1-N4) = */
   /*   (N3-N4,N2-N4 X N1-N4) > 0. */
 
-  ret_val = dx3 * (dy2 * dz1 - dy1 * dz2) - dy3 * (dx2 * dz1 - dx1 * dz2)
-      + dz3 * (dx2 * dy1 - dx1 * dy2)
-            > 0.;
+  ret_val = dx3 * (dy2 * dz1 - dy1 * dz2) - dy3 * (dx2 * dz1 - dx1 * dz2) + dz3 * (dx2 * dy1 - dx1 * dy2) > 0.;
   return ret_val;
 }
 
@@ -1178,13 +1160,13 @@ long int swptst_(int *n1,
 /*                             KK is connected to I1, I2, and  */
 /*                             all boundary nodes in between.  */
 /* *********************************************************** */
-int bdyadd_(int *kk,
-            int *i1,
-            int *i2,
-            int *list,
-            int *lptr,
-            int *lend,
-            int *lnew)
+int bdyadd_(int* kk,
+            int* i1,
+            int* i2,
+            int* list,
+            int* lptr,
+            int* lend,
+            int* lnew)
 {
   static int k, n1, n2, lp, lsav, nsav, next;
 
@@ -1203,59 +1185,63 @@ int bdyadd_(int *kk,
   --list;
 
   /* Function Body */
-  k = *kk;
+  k  = *kk;
   n1 = *i1;
   n2 = *i2;
 
   /* Add K as the last neighbor of N1. */
 
-  lp = lend[n1];
-  lsav = lptr[lp];
-  lptr[lp] = *lnew;
+  lp          = lend[n1];
+  lsav        = lptr[lp];
+  lptr[lp]    = *lnew;
   list[*lnew] = -k;
   lptr[*lnew] = lsav;
-  lend[n1] = *lnew;
+  lend[n1]    = *lnew;
   ++(*lnew);
-  next = -list[lp];
+  next     = -list[lp];
   list[lp] = next;
-  nsav = next;
+  nsav     = next;
 
   /* Loop on the remaining boundary nodes between N1 and N2, */
   /*   adding K as the first neighbor. */
 
-  L1: lp = lend[next];
+L1:
+  lp = lend[next];
   insert_(&k, &lp, &list[1], &lptr[1], lnew);
   if (next == n2)
   {
     goto L2;
   }
-  next = -list[lp];
+  next     = -list[lp];
   list[lp] = next;
   goto L1;
 
   /* Add the boundary nodes between N1 and N2 as neighbors */
   /*   of node K. */
 
-  L2: lsav = *lnew;
+L2:
+  lsav        = *lnew;
   list[*lnew] = n1;
   lptr[*lnew] = *lnew + 1;
   ++(*lnew);
   next = nsav;
 
-  L3: if (next == n2)
+L3:
+  if (next == n2)
   {
     goto L4;
   }
   list[*lnew] = next;
   lptr[*lnew] = *lnew + 1;
   ++(*lnew);
-  lp = lend[next];
+  lp   = lend[next];
   next = list[lp];
   goto L3;
 
-  L4: list[*lnew] = -n2;
+L4:
+  list[*lnew] = -n2;
   lptr[*lnew] = lsav;
-  lend[k] = *lnew;
+  lend[k]     = *lnew;
   ++(*lnew);
   return 0;
 }
@@ -1277,22 +1263,20 @@ int bdyadd_(int *kk,
 /*              left hemisphere.                               */
 /*       LEFT = TRUE iff <N0,N1 X N2> = det(N0,N1,N2) .GE. 0.  */
 /************************************************************* */
-static long int left_(double *x1,
-                      double *y1,
-                      double *z1,
-                      double *x2,
-                      double *y2,
-                      double *z2,
-                      double *x0,
-                      double *y0,
-                      double *z0)
+static long int left_(double* x1,
+                      double* y1,
+                      double* z1,
+                      double* x2,
+                      double* y2,
+                      double* z2,
+                      double* x0,
+                      double* y0,
+                      double* z0)
 {
   /* System generated locals */
   long int ret_val;
 
-  ret_val = *x0 * (*y1 * *z2 - *y2 * *z1) - *y0 * (*x1 * *z2 - *x2 * *z1)
-      + *z0 * (*x1 * *y2 - *x2 * *y1)
-            >= -0.000001;
+  ret_val = *x0 * (*y1 * *z2 - *y2 * *z1) - *y0 * (*x1 * *z2 - *x2 * *z1) + *z0 * (*x1 * *y2 - *x2 * *y1) >= -0.000001;
 
   return ret_val;
 }
@@ -1350,16 +1334,16 @@ static long int left_(double *x1,
 /*                      L < K.  Refer to TOL below.            */
 /*                                                             */
 /* *********************************************************** */
-static int addnod_(int *nst,
-                   int *k,
-                   double *x,
-                   double *y,
-                   double *z__,
-                   int *list,
-                   int *lptr,
-                   int *lend,
-                   int *lnew,
-                   int *ier)
+static int addnod_(int* nst,
+                   int* k,
+                   double* x,
+                   double* y,
+                   double* z__,
+                   int* list,
+                   int* lptr,
+                   int* lend,
+                   int* lnew,
+                   int* ier)
 {
   /* Initialized data */
 
@@ -1471,20 +1455,21 @@ static int addnod_(int *nst,
 
   /* Initialize variables for optimization of the */
   /*   triangulation. */
-  lp = lend[kk];
-  lpf = lptr[lp];
-  io2 = list[lpf];
+  lp   = lend[kk];
+  lpf  = lptr[lp];
+  io2  = list[lpf];
   lpo1 = lptr[lpf];
-  io1 = (i__1 = list[lpo1], ABS(i__1));
+  io1  = (i__1 = list[lpo1], ABS(i__1));
 
   /* Begin loop:  find the node opposite K. */
 
-  L1: lp = lstptr_(&lend[io1], &io2, &list[1], &lptr[1]);
+L1:
+  lp = lstptr_(&lend[io1], &io2, &list[1], &lptr[1]);
   if (list[lp] < 0)
   {
     goto L2;
   }
-  lp = lptr[lp];
+  lp  = lptr[lp];
   in1 = (i__1 = list[lp], ABS(i__1));
 
   /* Swap test:  if a swap occurs, two new arcs are */
@@ -1513,28 +1498,32 @@ static int addnod_(int *nst,
   /* No swap occurred.  Test for termination and reset */
   /*   IO2 and IO1. */
 
-  L2: if (lpo1 == lpf || list[lpo1] < 0)
+L2:
+  if (lpo1 == lpf || list[lpo1] < 0)
   {
     return 0;
   }
-  io2 = io1;
+  io2  = io1;
   lpo1 = lptr[lpo1];
-  io1 = (i__1 = list[lpo1], ABS(i__1));
+  io1  = (i__1 = list[lpo1], ABS(i__1));
   goto L1;
 
   /* KK < 4. */
 
-  L3: *ier = -1;
+L3:
+  *ier = -1;
   return 0;
 
   /* All nodes are collinear. */
 
-  L4: *ier = -2;
+L4:
+  *ier = -2;
   return 0;
 
   /* Nodes L and K coincide. */
 
-  L5: *ier = l;
+L5:
+  *ier = l;
   return 0;
 }
 
@@ -1631,18 +1620,18 @@ static int addnod_(int *nst,
 /*                      a triangulation of nodes 1 to M-1 in   */
 /*                      this case.                             */
 /* *********************************************************** */
-int trmesh_(int *n,
-            double *x,
-            double *y,
-            double *z__,
-            int *list,
-            int *lptr,
-            int *lend,
-            int *lnew,
-            int *near__,
-            int *next,
-            double *dist,
-            int *ier)
+int trmesh_(int* n,
+            double* x,
+            double* y,
+            double* z__,
+            int* list,
+            int* lptr,
+            int* lend,
+            int* lnew,
+            int* near__,
+            int* next,
+            double* dist,
+            int* ier)
 {
   /* System generated locals */
   int i__1, i__2;
@@ -1713,7 +1702,6 @@ int trmesh_(int *n,
     list[6] = -1;
     lptr[6] = 5;
     lend[3] = 6;
-
   }
   else if (!left_(&x[2], &y[2], &z__[2], &x[1], &y[1], &z__[1], &x[3], &y[3],
                   &z__[3]))
@@ -1740,7 +1728,6 @@ int trmesh_(int *n,
     list[6] = -2;
     lptr[6] = 5;
     lend[3] = 6;
-
   }
   else
   {
@@ -1797,22 +1784,22 @@ int trmesh_(int *n,
     if (d1 <= d2 && d1 <= d3)
     {
       near__[k] = 1;
-      dist[k] = d1;
-      next[k] = near__[1];
+      dist[k]   = d1;
+      next[k]   = near__[1];
       near__[1] = k;
     }
     else if (d2 <= d1 && d2 <= d3)
     {
       near__[k] = 2;
-      dist[k] = d2;
-      next[k] = near__[2];
+      dist[k]   = d2;
+      next[k]   = near__[2];
       near__[2] = k;
     }
     else
     {
       near__[k] = 3;
-      dist[k] = d3;
-      next[k] = near__[3];
+      dist[k]   = d3;
+      next[k]   = near__[3];
       near__[3] = k;
     }
     /* L1: */
@@ -1841,7 +1828,8 @@ int trmesh_(int *n,
     else
     {
       i__ = near__[i__];
-      L2: i0 = i__;
+    L2:
+      i0  = i__;
       i__ = next[i0];
       if (i__ != k)
       {
@@ -1854,9 +1842,10 @@ int trmesh_(int *n,
     /* Loop on neighbors J of node K. */
 
     lpl = lend[k];
-    lp = lpl;
-    L3: lp = lptr[lp];
-    j = (i__2 = list[lp], ABS(i__2));
+    lp  = lpl;
+  L3:
+    lp = lptr[lp];
+    j  = (i__2 = list[lp], ABS(i__2));
 
     /* Loop on elements I in the sequence of unprocessed nodes */
     /*   associated with J:  K is a candidate for replacing J */
@@ -1865,7 +1854,8 @@ int trmesh_(int *n,
     /*   is moved because it is altered by adding I to K's set. */
 
     i__ = near__[j];
-    L4: if (i__ == 0)
+  L4:
+    if (i__ == 0)
     {
       goto L5;
     }
@@ -1883,7 +1873,7 @@ int trmesh_(int *n,
       /*   of unprocessed nodes and add it to K's set. */
 
       near__[i__] = k;
-      dist[i__] = d__;
+      dist[i__]   = d__;
       if (i__ == near__[j])
       {
         near__[j] = nexti;
@@ -1907,7 +1897,8 @@ int trmesh_(int *n,
 
     /* Bottom of loop on neighbors J. */
 
-    L5: if (lp != lpl)
+  L5:
+    if (lp != lpl)
     {
       goto L3;
     }
@@ -1981,14 +1972,14 @@ int trmesh_(int *n,
 /*                     completely tested for validity.         */
 /*                                                             */
 /* *********************************************************** */
-int trlist_(int *n,
-            int *list,
-            int *lptr,
-            int *lend,
-            int *nrow,
-            int *nt,
-            int *ltri,
-            int *ier)
+int trlist_(int* n,
+            int* list,
+            int* lptr,
+            int* lend,
+            int* nrow,
+            int* nt,
+            int* ltri,
+            int* ier)
 {
   /* System generated locals */
   int ltri_dim1, ltri_offset, i__1, i__2;
@@ -2024,7 +2015,7 @@ int trlist_(int *n,
   --lend;
   --list;
   --lptr;
-  ltri_dim1 = *nrow;
+  ltri_dim1   = *nrow;
   ltri_offset = 1 + ltri_dim1;
   ltri -= ltri_offset;
 
@@ -2042,9 +2033,9 @@ int trlist_(int *n,
   /*   NM2 = Upper bound on candidates for N1. */
 
   arcs = *nrow == 9;
-  ka = 0;
-  kt = 0;
-  nm2 = *n - 2;
+  ka   = 0;
+  kt   = 0;
+  nm2  = *n - 2;
 
   /* Loop on nodes N1. */
 
@@ -2056,11 +2047,12 @@ int trlist_(int *n,
     /*   to the last neighbor of N1, and LP2 points to N2. */
 
     lpln1 = lend[n1];
-    lp2 = lpln1;
-    L1: lp2 = lptr[lp2];
-    n2 = list[lp2];
-    lp = lptr[lp2];
-    n3 = (i__2 = list[lp], ABS(i__2));
+    lp2   = lpln1;
+  L1:
+    lp2 = lptr[lp2];
+    n2  = list[lp2];
+    lp  = lptr[lp2];
+    n3  = (i__2 = list[lp], ABS(i__2));
     if (n2 < n1 || n3 < n1)
     {
       goto L8;
@@ -2098,8 +2090,9 @@ int trlist_(int *n,
       /*   I2->I1 is a boundary arc. */
 
       lpl = lend[i1];
-      lp = lptr[lpl];
-      L2: if (list[lp] == i2)
+      lp  = lptr[lpl];
+    L2:
+      if (list[lp] == i2)
       {
         goto L3;
       }
@@ -2126,7 +2119,8 @@ int trlist_(int *n,
       /*   I2->I1 is not a boundary arc, and LP points to I2 as */
       /*     a neighbor of I1. */
 
-      L3: lp = lptr[lp];
+    L3:
+      lp = lptr[lp];
       i3 = (i__2 = list[lp], ABS(i__2));
 
       /* Find J such that LTRI(J,KN) = I3 (not used if KN > KT), */
@@ -2139,19 +2133,19 @@ int trlist_(int *n,
       }
       else if (i2 < i3)
       {
-        j = 2;
+        j   = 2;
         isv = i1;
-        i1 = i2;
-        i2 = i3;
-        i3 = isv;
+        i1  = i2;
+        i2  = i3;
+        i3  = isv;
       }
       else
       {
-        j = 1;
+        j   = 1;
         isv = i1;
-        i1 = i3;
-        i3 = i2;
-        i2 = isv;
+        i1  = i3;
+        i3  = i2;
+        i2  = isv;
       }
 
       /* Test for KN > KT (triangle index not yet assigned). */
@@ -2166,8 +2160,7 @@ int trlist_(int *n,
 
       for (kn = kt - 1; kn >= 1; --kn)
       {
-        if (ltri[kn * ltri_dim1 + 1] == i1 && ltri[kn * ltri_dim1 + 2] == i2
-            && ltri[kn * ltri_dim1 + 3] == i3)
+        if (ltri[kn * ltri_dim1 + 1] == i1 && ltri[kn * ltri_dim1 + 2] == i2 && ltri[kn * ltri_dim1 + 3] == i3)
         {
           goto L5;
         }
@@ -2177,11 +2170,13 @@ int trlist_(int *n,
 
       /* Store KT as a neighbor of KN. */
 
-      L5: ltri[j + 3 + kn * ltri_dim1] = kt;
+    L5:
+      ltri[j + 3 + kn * ltri_dim1] = kt;
 
       /* Store KN as a neighbor of KT, and add a new arc KA. */
 
-      L6: ltri[i__ + 3 + kt * ltri_dim1] = kn;
+    L6:
+      ltri[i__ + 3 + kt * ltri_dim1] = kn;
       if (arcs)
       {
         ++ka;
@@ -2191,12 +2186,13 @@ int trlist_(int *n,
           ltri[j + 6 + kn * ltri_dim1] = ka;
         }
       }
-      L7: ;
+    L7:;
     }
 
     /* Bottom of loop on triangles. */
 
-    L8: if (lp2 != lpln1)
+  L8:
+    if (lp2 != lpln1)
     {
       goto L1;
     }
@@ -2205,20 +2201,22 @@ int trlist_(int *n,
 
   /* No errors encountered. */
 
-  *nt = kt;
+  *nt  = kt;
   *ier = 0;
   return 0;
 
   /* Invalid input parameter. */
 
-  L11: *nt = 0;
+L11:
+  *nt  = 0;
   *ier = 1;
   return 0;
 
   /* Invalid triangulation data structure:  I1 is a neighbor of */
   /*   I2, but I2 is not a neighbor of I1. */
 
-  L12: *nt = 0;
+L12:
+  *nt  = 0;
   *ier = 2;
   return 0;
 }

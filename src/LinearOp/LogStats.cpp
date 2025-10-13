@@ -81,7 +81,7 @@ void LogStats::incrementStatsDirect(double time) const
   _directTime   += time * 1000;
 }
 
-void LogStats::incrementStatsInverseCG(int niter, double time) const
+void LogStats::incrementStatsInverseCG(Id niter, double time) const
 {
   _inverseCGNumber ++;
   _inverseCGNIter  += niter;

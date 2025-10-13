@@ -11,7 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include <assert.h>
+#include <cassert>
 #include <memory>
 
 namespace gstlrn
@@ -28,7 +28,7 @@ public:
   virtual ~ICloneable() {};
 
   virtual ICloneable* clone() const = 0;
-  #ifndef SWIG
+#ifndef SWIG
   std::shared_ptr<ICloneable> cloneShared() const
   {
     return std::shared_ptr<ICloneable>(clone());
@@ -37,20 +37,20 @@ public:
   {
     return std::unique_ptr<ICloneable>(clone());
   }
-  #endif
+#endif
 };
 
 // Thanks to here (macro way):
 // https://alfps.wordpress.com/2010/06/12/cppx-3-ways-to-mix-in-a-generic-cloning-implementation/
 #define IMPLEMENT_CLONING(Class)                   \
+                                                   \
 public:                                            \
   inline virtual Class* clone() const override     \
   {                                                \
     static_assert(                                 \
-      ! std::is_abstract<Class>::value,            \
-      "Class cannot be cloned as it is abstract"   \
-    );                                             \
+      !std::is_abstract<Class>::value,             \
+      "Class cannot be cloned as it is abstract"); \
     assert(typeid(*this) == typeid(Class));        \
     return (new Class(*this));                     \
   }
-}
+} // namespace gstlrn

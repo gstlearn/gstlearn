@@ -29,34 +29,34 @@ public:
   virtual ~Regression();
 
   /// Interface for AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void setCoeffs(const VectorDouble& coeffs) { _coeffs = coeffs; }
-  void setCount(int count) { _count = count; }
+  void setCount(Id count) { _count = count; }
   void setFlagCst(bool flagCst) { _flagCst = flagCst; }
-  void setNvar(int nvar) { _nvar = nvar; }
+  void setNvar(Id nvar) { _nvar = nvar; }
   void setVariance(double variance) { _variance = variance; }
   void setVarres(double varres) { _varres = varres; }
 
   VectorDouble getCoeffs() const { return _coeffs; }
-  double getCoeff(int i) const { return _coeffs[i]; }
-  int getNvar() const { return _nvar; }
-  int getCount() const { return _count; }
+  double getCoeff(Id i) const { return _coeffs[i]; }
+  Id getNvar() const { return _nvar; }
+  Id getCount() const { return _count; }
   double getVariance() const { return _variance; }
   double getVarres() const { return _varres; }
 
-  int apply(Db *db1,
-            int iptr0,
+  Id apply(Db *db1,
+            Id iptr0,
             const String &nameResp,
             const VectorString &nameAux,
-            int mode = 0,
+            Id mode = 0,
             bool flagCst = false,
             Db *db2 = nullptr,
             const Model *model = nullptr) const;
 
 private:
-  int _count;
-  int _nvar;
+  Id _count;
+  Id _nvar;
   bool _flagCst;
   VectorDouble _coeffs;
   double _variance;
@@ -66,7 +66,7 @@ private:
 GSTLEARN_EXPORT Regression regression(Db *db1,
                                       const String &nameResp,
                                       const VectorString &nameAux = VectorString(),
-                                      int mode = 0,
+                                      Id mode = 0,
                                       bool flagCst = false,
                                       Db *db2 = nullptr,
                                       const Model *model = nullptr);

@@ -1,5 +1,7 @@
 #NO_DIFF#XXX
-----<IPython.core.display.Javascript object>----
+----
+
+<IPython.core.display.Javascript object>----
 
 
 #NO_DIFF#XXX
@@ -166,6 +168,5 @@ Non-Stationary Parameters
 -------------------------
 1 - Angle      : IdAngle=1
 Functional
-
 Total Sill     =      1.000
 Known Mean(s)     0.000----

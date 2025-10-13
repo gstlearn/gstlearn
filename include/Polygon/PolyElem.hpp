@@ -28,14 +28,14 @@ public:
   PolyElem& operator=(const PolyElem& r);
   virtual ~PolyElem();
 
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static PolyElem* create();
   static PolyElem* createFromNF(const String& NFFilename, bool verbose = true);
   const VectorDouble& getX() const { return PolyLine2D::getX(); }
   const VectorDouble& getY() const { return PolyLine2D::getY(); }
-  double getX(int i) const { return PolyLine2D::getX(i); }
-  double getY(int i) const { return PolyLine2D::getY(i); }
+  double getX(Id i) const { return PolyLine2D::getX(i); }
+  double getY(Id i) const { return PolyLine2D::getY(i); }
   double getZmax() const { return _zmax; }
   double getZmin() const { return _zmin; }
 
@@ -55,8 +55,8 @@ public:
   PolyElem reduceComplexity(double distmin) const;
 
 protected:
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;

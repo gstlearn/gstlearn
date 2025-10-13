@@ -26,13 +26,13 @@ public:
   CovBesselJ& operator= (const CovBesselJ &r);
   virtual ~CovBesselJ();
 
-  bool         hasParam() const override { return true; }
-  double       getParMax() const override { return 2; }
+  bool hasParam() const override { return true; }
+  double getParMax() const override { return 2; }
 
-  virtual String getFormula() const override;
-  String         getCovName() const override { return "J-Bessel"; }
-  int            getMinOrder() const override { return -1; }
-  bool           getCompatibleSpaceR() const override { return true; }
+  String getFormula() const override;
+  String getCovName() const override { return "J-Bessel"; }
+  Id getMinOrder() const override { return -1; }
+  bool getCompatibleSpaceR() const override { return true; }
 
   bool isValidForTurningBand() const override { return true; }
   double simulateTurningBand(double t0, TurningBandOperate &operTB) const override;

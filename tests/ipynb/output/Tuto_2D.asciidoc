@@ -1,5 +1,7 @@
 #NO_DIFF#XXX
-----<IPython.core.display.Javascript object>----
+----
+
+<IPython.core.display.Javascript object>----
 
 
 #NO_DIFF#XXX
@@ -133,6 +135,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
 Variable(s)                 = [Pb]
+
 Variance-Covariance Matrix     2.881
 
 Direction #1
@@ -174,6 +177,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 4
 Space dimension             = 2
 Variable(s)                 = [Pb]
+
 Variance-Covariance Matrix     2.881
 
 Direction #1
@@ -1941,6 +1945,7 @@ Number of variable(s)       = 3
 Number of direction(s)      = 1
 Space dimension             = 2
 Variable(s)                 = [Indicator.Pb.Class.1 Indicator.Pb.Class.2 Indicator.Pb.Class.3]
+
 Variance-Covariance Matrix
                [,  0]    [,  1]    [,  2]
      [  0,]     0.107    -0.062    -0.044

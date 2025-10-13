@@ -25,15 +25,15 @@ class MeshSpherical;
 class GSTLEARN_EXPORT SimuSpherical: public ACalcSimulation
 {
 public:
-  SimuSpherical(int nbsimu = 1, int seed = 4324324);
+  SimuSpherical(Id nbsimu = 1, Id seed = 4324324);
   SimuSpherical(const SimuSpherical &r) = delete;
   SimuSpherical& operator=(const SimuSpherical &r) = delete;
   virtual ~SimuSpherical();
 
-  int simulate(DbGrid *db,
+  Id simulate(DbGrid *db,
                Model *model,
                const SimuSphericalParam& sphepar,
-               int iptr,
+               Id iptr,
                bool verbose = false);
 
   VectorDouble simulate_mesh(MeshSpherical *mesh,
@@ -42,23 +42,23 @@ public:
                              bool verbose = false);
 
 private:
-  virtual bool _run() override;
+  bool _run() override;
 
   static VectorDouble _spectrum_chentsov(const SimuSphericalParam& sphepar);
   static VectorDouble _spectrum_exponential(Model *model, const SimuSphericalParam& sphepar);
   static VectorDouble _spectrum_any(Model *model, const SimuSphericalParam& sphepar);
-  static void _spectrum_normalize(int verbose, VectorDouble& freqs);
-  static int _gdiscrete(VectorDouble& freqs);
-  static int _check_degree_order(const VectorDouble& freqs,
+  static void _spectrum_normalize(Id verbose, VectorDouble& freqs);
+  static Id _gdiscrete(VectorDouble& freqs);
+  static Id _check_degree_order(const VectorDouble& freqs,
                                  VectorInt& degree,
                                  VectorInt& order,
-                                 int verbose);
+                                 Id verbose);
 };
 
-GSTLEARN_EXPORT int simsph(DbGrid *db,
+GSTLEARN_EXPORT Id simsph(DbGrid *db,
                            Model *model,
                            const SimuSphericalParam& sphepar,
-                           int seed,
+                           Id seed,
                            bool verbose,
                            const NamingConvention& namconv = NamingConvention("SimSphe"));
 }

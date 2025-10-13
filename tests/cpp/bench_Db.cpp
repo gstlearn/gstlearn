@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
   defineDefaultSpace(ESpaceType::RN, 2);
 
   // Generate the output grid
-  int nsample = 1000000;
+  Id nsample = 1000000;
   Db* data = Db::createFillRandom(nsample);
   if (verbose) data->display();
 
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
   SpacePoint p0;
   SpacePoint p;
   data->getSampleAsSPInPlace(p0, 0);
-  for (int i = 0; i < nsample; i++)
+  for (Id i = 0; i < nsample; i++)
   {
     data->getSampleAsSPInPlace(p, i);
     dist[i] = p0.getDistance(p);

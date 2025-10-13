@@ -7,25 +7,32 @@ np.random.seed(1312)
 # %%
 # Nouvelle fonction renvoyant directement l'inverse de la matrice
 def computeNew(dat, model, debug=False):
-    mat = gl.buildInvNugget(dat, model)
-    
+    param = gl.SPDEParam()
+    invnug = gl.InvNuggetOp(dat,model, param, True)
+    mat = invnug.cloneInvNuggetMatrix()
+    chol = invnug.cloneCholNuggetMatrix()
+    cholsill = chol.toTL().todense()
+    logdet = invnug.computeLogDet()
+    minval = invnug.getMinEigenValue()
+    maxval = invnug.getMaxEigenValue()    
     if debug:
         mat.display()
         
-    return mat
+    return mat, logdet, minval, maxval, cholsill
 
 # %%
 #Fonction pour calculer l'inverse de la matrice de covariance correspondant au bruit. 
 def computeRef(dat,model,debug=False):
     mat = model.evalCovMatSym(db1=dat)
-
+    cholsill = np.linalg.cholesky(mat.toTL())
     #matinv = np.linalg.inv(mat.toTL())
     mat.invert()
     
     if debug:
         mat.display()
-
-    return mat
+    _ ,logdet = np.linalg.slogdet(mat.toTL())
+    eigvals = np.linalg.eigvals(mat.toTL()) 
+    return mat, logdet, np.min(eigvals), np.max(eigvals), cholsill
 
 # %%
 #Renvoie un vecteur de bool indiquant pour chaque variable d'un échantillon donné
@@ -259,9 +266,11 @@ def testInvNoise(dat,model, debug=False):
     if dat == None:
         return
     
-    ref = computeRef(dat,model, debug=debug).toTL()
+    ref, logdetref, minvalref, maxvalref, cholref = computeRef(dat,model, debug=debug)
+    ref = ref.toTL()  # Convert to dense matrix for comparison
     
-    refnew = computeNew(dat, model, debug=debug).toTL()
+    refnew,logdetnew, minval, maxval, cholsill = computeNew(dat, model, debug=debug)
+    refnew = refnew.toTL()
     
     result = computeInvNoise(dat,model,True, debug=debug).toTL()
     
@@ -271,12 +280,37 @@ def testInvNoise(dat,model, debug=False):
         print(f"Pb between ref and new")
         
     error = np.sum(np.abs(refnew.toarray()-ref))
+    errorlogdet = np.abs(logdetnew - logdetref)
+    errormin = np.abs(minval - minvalref)
+    errormax = np.abs(maxval - maxvalref)
+    errorchol = np.max(np.abs(cholsill - cholref))
     
     if error < 1e-13:
-        print(f"Error = ",1e-13)
+        print(f"Diff < ",1e-13)
     else: 
-        print(error)
+        print(f"Error",np.round(error,5))
+    
+    if errorlogdet < 1e-13:
+        print(f"Diff logdet < ",1e-13)
+    else:
+        print(f"Error logdet",np.round(errorlogdet,5))
+    
+    if errormin < 1e-13:
+        print(f"Diff min eigenvalue < ",1e-13)
+    else:
+        print(f"Error min eigenvalue",np.round(errormin,5))
+    
+    if errormax < 1e-13:
+        print(f"Diff max eigenvalue < ",1e-13)
+    else:
+        print(f"Error max eigenvalue",np.round(errormax,5))
 
+    if errorchol < 1e-13:
+        print(f"Diff chol < ",1e-13)
+    else:
+        print(f"Error chol",np.round(errorchol,5))
+        print(f"Chol ref:\n{np.round(cholref,2)}")
+        print(f"Chol new:\n{np.round(cholsill,2)}")
 # %%
 ndat= 10
 

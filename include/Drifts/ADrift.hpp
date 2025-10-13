@@ -54,18 +54,18 @@ public:
   virtual ~ADrift();
 
   /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface for daughter classes
   virtual VectorInt getPowers() const { return VectorInt(); }
-  virtual int       getRankFex() const { return 0; }
+  virtual Id       getRankFex() const { return 0; }
 
   // ADriftelem Interface
   virtual String getDriftName() const = 0;
-  virtual int    getOrderIRF() const = 0;
-  virtual int    getOrderIRFIdim(int idim) const = 0;
-  virtual double eval(const Db* db,int iech) const = 0;
-  virtual int    getDriftNDimMax() const { return 0; }
+  virtual Id    getOrderIRF() const = 0;
+  virtual Id    getOrderIRFIdim(Id idim) const = 0;
+  virtual double eval(const Db* db,Id iech) const = 0;
+  virtual Id    getDriftNDimMax() const { return 0; }
   virtual bool   isDriftExternal() const { return false; }
 };
 }

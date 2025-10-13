@@ -31,11 +31,11 @@ using namespace gstlrn;
 int main(int argc, char *argv[])
 {
   double eps = 1.e-6;
-  int error = 1;
+  Id error   = 1;
 
-  int ndim = 2;
-  int nvar = 1;
-  int nbsimu = 5;
+  Id ndim   = 2;
+  Id nvar   = 1;
+  Id nbsimu = 5;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
   CovContext ctxt(nvar,ndim);
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
-  int nech = 1000;
+  Id nech = 1000;
   Db* db = Db::createFromBox(nech,{0.,0.},{1.,1.}, 432423);
 
   // Creating the Model(s) of the Underlying GRF(s)
@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
   // Comparing initial and back-transformed variables
   VectorString names1 = generateMultipleNames("Simu" , nbsimu, ".");
   VectorString names2 = generateMultipleNames("PCA.Z", nbsimu, ".");
-  for (int i = 0; i < nbsimu; i++)
+  for (Id i = 0; i < nbsimu; i++)
     (void) db->areSame(names1[i], names2[i], eps);
 
   // ============
@@ -96,11 +96,11 @@ int main(int argc, char *argv[])
 
   names1 = generateMultipleNames("Simu" , nbsimu, ".");
   names2 = generateMultipleNames("MAF.Z", nbsimu, ".");
-  for (int i = 0; i < nbsimu; i++)
+  for (Id i = 0; i < nbsimu; i++)
     (void) db->areSame(names1[i], names2[i], eps);
 
   delete db;
   delete models;
-  
-  return (error);
+
+  return static_cast<int>(error);
 }

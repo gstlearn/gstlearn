@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Global parameters
-  int ndim = 2;
+  Id ndim = 2;
   law_set_random_seed(32131);
   defineDefaultSpace(ESpaceType::RN, ndim);
 
@@ -45,8 +45,8 @@ int main(int argc, char* argv[])
   bool flagSK     = false;
   bool flagUnique = false;
   bool verbose    = true;
-  int nech        = 3;
-  int nvar        = (flagUnique) ? 1 : 2;
+  Id nech         = 3;
+  Id nvar         = (flagUnique) ? 1 : 2;
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, 0);
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
 
   // Unique Neighborhood
   ANeigh* neigh;
-  int nmaxi     = nech;
+  Id nmaxi      = nech;
   double radius = 5.;
   if (flagUnique)
     neigh = NeighUnique::create();

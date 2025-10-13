@@ -49,7 +49,7 @@ bool GridArcGis::isAuthorized() const
   return true;
 }
 
-int GridArcGis::writeInFile()
+Id GridArcGis::writeInFile()
 {
   static double noValue = -9999.;
 
@@ -59,8 +59,8 @@ int GridArcGis::writeInFile()
 
   /* Write a comment */
 
-  fprintf(_file, "NCOLS %d\n", _dbgrid->getNX(0));
-  fprintf(_file, "NROWS %d\n", _dbgrid->getNX(1));
+  fprintf(_file, "NCOLS %ld\n", _dbgrid->getNX(0));
+  fprintf(_file, "NROWS %ld\n", _dbgrid->getNX(1));
   fprintf(_file, "XLLCORNER %lf\n", _dbgrid->getX0(0));
   fprintf(_file, "YLLCORNER %lf\n", _dbgrid->getX0(1));
   fprintf(_file, "CELLSIZE %lf\n", _dbgrid->getDX(0));
@@ -68,9 +68,9 @@ int GridArcGis::writeInFile()
 
   /* Write the set of values */
 
-  int lec = 0;
-  for (int ix = 0; ix < _dbgrid->getNX(0); ix++)
-    for (int iy = 0; iy < _dbgrid->getNX(1); iy++)
+  Id lec = 0;
+  for (Id ix = 0; ix < _dbgrid->getNX(0); ix++)
+    for (Id iy = 0; iy < _dbgrid->getNX(1); iy++)
     {
       double value = _dbgrid->getArray(lec, _cols[0]);
       if (FFFF(value))

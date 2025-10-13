@@ -56,17 +56,17 @@ public:
   static void undefineAll();
   static void display();
 
-  static void setCurrentIndex(int cur_index) { _currentIndex = cur_index; }
+  static void setCurrentIndex(Id cur_index) { _currentIndex = cur_index; }
   static bool isReferenceDefined() { return _reference >= 0; }
-  static void setReference(int index) { _reference = index; }
-  static int  getReference() { return _reference; }
+  static void setReference(Id index) { _reference = index; }
+  static Id  getReference() { return _reference; }
   static bool force();
 
-  static int getCurrentIndex() { return _currentIndex; }
+  static Id getCurrentIndex() { return _currentIndex; }
 
 private:
   static std::vector<EDbg> _dbg;
-  static int _currentIndex;
-  static int _reference;
+  static Id _currentIndex;
+  static Id _reference;
 };
 }

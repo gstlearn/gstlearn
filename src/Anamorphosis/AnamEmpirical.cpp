@@ -25,7 +25,7 @@
 namespace gstlrn
 {
 
-AnamEmpirical::AnamEmpirical(int ndisc, double sigma2e, bool flagDilution, bool flagGaussian)
+AnamEmpirical::AnamEmpirical(Id ndisc, double sigma2e, bool flagDilution, bool flagGaussian)
   : AnamContinuous()
   , _flagDilution(flagDilution)
   , _flagGaussian(flagGaussian)
@@ -99,12 +99,12 @@ String AnamEmpirical::toString(const AStringFormat* /*strfmt*/) const
 
 AnamEmpirical* AnamEmpirical::createFromNF(const String& NFFilename, bool verbose)
 {
-  AnamEmpirical* anam = new AnamEmpirical();
+  auto* anam = new AnamEmpirical();
   if (anam->_fileOpenAndDeserialize(NFFilename, verbose)) return anam;
   return nullptr;
 }
 
-void AnamEmpirical::reset(int ndisc,
+void AnamEmpirical::reset(Id ndisc,
                           double pymin,
                           double pzmin,
                           double pymax,
@@ -124,12 +124,12 @@ void AnamEmpirical::reset(int ndisc,
   setPBounds(pzmin, pzmax, pymin, pymax);
 }
 
-AnamEmpirical* AnamEmpirical::create(int ndisc, double sigma2e)
+AnamEmpirical* AnamEmpirical::create(Id ndisc, double sigma2e)
 {
   return new AnamEmpirical(ndisc, sigma2e);
 }
 
-void AnamEmpirical::setNDisc(int ndisc)
+void AnamEmpirical::setNDisc(Id ndisc)
 {
   _nDisc = ndisc;
   _ZDisc.resize(ndisc);
@@ -139,20 +139,20 @@ void AnamEmpirical::setNDisc(int ndisc)
 void AnamEmpirical::setDisc(const VectorDouble& zdisc,
                             const VectorDouble& ydisc)
 {
-  if ((int)zdisc.size() != (int)ydisc.size())
+  if (zdisc.size() != ydisc.size())
   {
     messerr("Argumznts 'zdisc' and 'ydisc' should have the same dimension");
     return;
   }
   _ZDisc = zdisc;
   _YDisc = ydisc;
-  _nDisc = static_cast<int>(zdisc.size());
+  _nDisc = static_cast<Id>(zdisc.size());
 }
 
 double AnamEmpirical::rawToTransformValue(double zz) const
 {
   double za, zb, ya, yb;
-  int idisc, found;
+  Id idisc, found;
 
   /* Initialization */
 
@@ -188,7 +188,7 @@ double AnamEmpirical::rawToTransformValue(double zz) const
 double AnamEmpirical::transformToRawValue(double yy) const
 {
   double zz, za, zb, ya, yb;
-  int idisc, found;
+  Id idisc, found;
 
   /* Initialization */
 
@@ -225,21 +225,21 @@ void AnamEmpirical::calculateMeanAndVariance()
   messerr("This function is not available for Empirical Anamorphosis");
 }
 
-int AnamEmpirical::_getStatistics(const VectorDouble& tab,
-                                  int* count,
-                                  double* mean,
-                                  double* mean2,
-                                  double* mini,
-                                  double* maxi,
-                                  double* var)
+Id AnamEmpirical::_getStatistics(const VectorDouble& tab,
+                                 Id* count,
+                                 double* mean,
+                                 double* mean2,
+                                 double* mini,
+                                 double* maxi,
+                                 double* var)
 {
-  int nech      = static_cast<int>(tab.size());
-  int number    = 0;
+  Id nech       = static_cast<Id>(tab.size());
+  Id number     = 0;
   double dmean  = 0.;
   double dmean2 = 0.;
   double dmaxi  = MINIMUM_BIG;
   double dmini  = MAXIMUM_BIG;
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     double value = tab[iech];
     if (FFFF(value)) continue;
@@ -269,15 +269,15 @@ int AnamEmpirical::_getStatistics(const VectorDouble& tab,
   return 0;
 }
 
-int AnamEmpirical::_fitWithDilutionGaussian(const VectorDouble& tab)
+Id AnamEmpirical::_fitWithDilutionGaussian(const VectorDouble& tab)
 {
-  int number;
+  Id number;
   double dmean, dmean2, dmini, dmaxi, variance;
 
   /* Calculate the constants */
 
   if (_getStatistics(tab, &number, &dmean, &dmean2, &dmini, &dmaxi, &variance)) return 1;
-  int nech = static_cast<int>(tab.size());
+  Id nech = static_cast<Id>(tab.size());
 
   /* Calculation parameters */
 
@@ -291,14 +291,14 @@ int AnamEmpirical::_fitWithDilutionGaussian(const VectorDouble& tab)
 
   _ZDisc[0] = disc_init - disc_val;
   _ZDisc[1] = disc_init;
-  for (int idisc = 2; idisc < _nDisc; idisc++)
+  for (Id idisc = 2; idisc < _nDisc; idisc++)
     _ZDisc[idisc] = disc_init + (idisc - 1) * disc_val;
 
-  for (int idisc = 0; idisc < _nDisc; idisc++)
+  for (Id idisc = 0; idisc < _nDisc; idisc++)
   {
     double zval  = _ZDisc[idisc];
     double total = 0.;
-    for (int iech = 0; iech < nech; iech++)
+    for (Id iech = 0; iech < nech; iech++)
     {
       double value = tab[iech];
       if (FFFF(value) || value <= 0) continue;
@@ -309,8 +309,8 @@ int AnamEmpirical::_fitWithDilutionGaussian(const VectorDouble& tab)
 
   /* Re-allocate memory to the only necessary bits */
 
-  int ndisc_util = 0;
-  for (int idisc = 0; idisc < _nDisc; idisc++)
+  Id ndisc_util = 0;
+  for (Id idisc = 0; idisc < _nDisc; idisc++)
   {
     if (_YDisc[idisc] >= 1.) break;
     ndisc_util++;
@@ -319,21 +319,21 @@ int AnamEmpirical::_fitWithDilutionGaussian(const VectorDouble& tab)
   _YDisc.resize(ndisc_util);
   _nDisc = ndisc_util;
 
-  for (int idisc = 0; idisc < _nDisc; idisc++)
+  for (Id idisc = 0; idisc < _nDisc; idisc++)
     _YDisc[idisc] = law_invcdf_gaussian(_YDisc[idisc]);
 
   return 0;
 }
 
-int AnamEmpirical::_fitWithDilutionLognormal(const VectorDouble& tab)
+Id AnamEmpirical::_fitWithDilutionLognormal(const VectorDouble& tab)
 {
-  int number;
+  Id number;
   double dmean, dmean2, dmini, dmaxi, variance;
 
   /* Calculate the constants */
 
   if (_getStatistics(tab, &number, &dmean, &dmean2, &dmini, &dmaxi, &variance)) return 1;
-  int nech = static_cast<int>(tab.size());
+  Id nech = static_cast<Id>(tab.size());
   if (dmini < 0.)
   {
     messerr("The Anamorphosis by Lognormal Dilution is not compatible with negative data values");
@@ -352,15 +352,15 @@ int AnamEmpirical::_fitWithDilutionLognormal(const VectorDouble& tab)
 
   _ZDisc[0] = disc_init - disc_val;
   _ZDisc[1] = disc_init;
-  for (int idisc = 2; idisc < _nDisc; idisc++)
+  for (Id idisc = 2; idisc < _nDisc; idisc++)
     _ZDisc[idisc] = disc_init + (idisc - 1) * disc_val;
 
   _YDisc[0] = 1.;
-  for (int idisc = 1; idisc < _nDisc; idisc++)
+  for (Id idisc = 1; idisc < _nDisc; idisc++)
   {
     double zval  = _ZDisc[idisc];
     double total = 0.;
-    for (int iech = 0; iech < nech; iech++)
+    for (Id iech = 0; iech < nech; iech++)
     {
       double value = tab[iech];
       if (FFFF(value) || value <= 0) continue;
@@ -371,24 +371,24 @@ int AnamEmpirical::_fitWithDilutionLognormal(const VectorDouble& tab)
 
   /* Re-allocate memory to the only necessary bits */
 
-  int ndisc_util = 0;
-  for (int idisc = 0; idisc < _nDisc; idisc++)
+  Id ndisc_util = 0;
+  for (Id idisc = 0; idisc < _nDisc; idisc++)
     if (_YDisc[idisc] > 0) ndisc_util++;
   _ZDisc.resize(ndisc_util);
   _YDisc.resize(ndisc_util);
   _nDisc = ndisc_util;
 
-  for (int idisc = 0; idisc < _nDisc; idisc++)
+  for (Id idisc = 0; idisc < _nDisc; idisc++)
     _YDisc[idisc] = law_invcdf_gaussian(1. - _YDisc[idisc]);
   return 0;
 }
 
-int AnamEmpirical::_fitNormalScore(const VectorDouble& tab)
+Id AnamEmpirical::_fitNormalScore(const VectorDouble& tab)
 {
   _ZDisc.clear();
   _YDisc.clear();
 
-  for (int iech = 0, nech = (int)tab.size(); iech < nech; iech++)
+  for (Id iech = 0, nech = static_cast<Id>(tab.size()); iech < nech; iech++)
   {
     if (FFFF(tab[iech])) continue;
     _ZDisc.push_back(tab[iech]);
@@ -397,13 +397,13 @@ int AnamEmpirical::_fitNormalScore(const VectorDouble& tab)
   // Sort the Z-values by ascending order
   VH::sortInPlace(_ZDisc);
   _YDisc = VH::normalScore(_ZDisc);
-  _nDisc = (int)_ZDisc.size();
+  _nDisc = static_cast<Id>(_ZDisc.size());
 
   return 0;
 }
 
-int AnamEmpirical::fitFromArray(const VectorDouble& tab,
-                                const VectorDouble& wt)
+Id AnamEmpirical::fitFromArray(const VectorDouble& tab,
+                               const VectorDouble& wt)
 {
   DECLARE_UNUSED(wt);
 
@@ -423,7 +423,7 @@ int AnamEmpirical::fitFromArray(const VectorDouble& tab,
     if (_fitNormalScore(tab)) return 1;
   }
 
-  for (int idisc = 0; idisc < _nDisc; idisc++)
+  for (Id idisc = 0; idisc < _nDisc; idisc++)
   {
     if (_YDisc[idisc] < ANAM_YMIN) _YDisc[idisc] = ANAM_YMIN;
     if (_YDisc[idisc] > ANAM_YMAX) _YDisc[idisc] = ANAM_YMAX;
@@ -435,7 +435,7 @@ int AnamEmpirical::fitFromArray(const VectorDouble& tab,
   double pymin = MAXIMUM_BIG;
   double pzmax = MINIMUM_BIG;
   double pymax = MINIMUM_BIG;
-  for (int idisc = 0; idisc < _nDisc; idisc++)
+  for (Id idisc = 0; idisc < _nDisc; idisc++)
   {
     if (_ZDisc[idisc] < pzmin) pzmin = _ZDisc[idisc];
     if (_ZDisc[idisc] > pzmax) pzmax = _ZDisc[idisc];
@@ -455,7 +455,7 @@ bool AnamEmpirical::_serializeAscii(std::ostream& os, bool verbose) const
 {
   bool ret = true;
   ret      = ret && AnamContinuous::_serializeAscii(os, verbose);
-  ret      = ret && _recordWrite<int>(os, "Number of Discretization lags", getNDisc());
+  ret      = ret && _recordWrite<Id>(os, "Number of Discretization lags", getNDisc());
   ret      = ret && _recordWrite<double>(os, "additional variance", getSigma2e());
   ret      = ret && _tableWrite(os, "Z Values", getNDisc(), getZDisc());
   ret      = ret && _tableWrite(os, "Y Values", getNDisc(), getYDisc());
@@ -464,13 +464,13 @@ bool AnamEmpirical::_serializeAscii(std::ostream& os, bool verbose) const
 
 bool AnamEmpirical::_deserializeAscii(std::istream& is, bool verbose)
 {
-  int ndisc      = 0;
+  Id ndisc       = 0;
   double sigma2e = TEST;
   VectorDouble zdisc, ydisc;
 
   bool ret = true;
   ret      = ret && AnamContinuous::_deserializeAscii(is, verbose);
-  ret      = ret && _recordRead<int>(is, "Number of Discretization classes", ndisc);
+  ret      = ret && _recordRead<Id>(is, "Number of Discretization classes", ndisc);
   ret      = ret && _recordRead<double>(is, "Experimental Error Variance", sigma2e);
 
   if (ret)
@@ -500,7 +500,7 @@ bool AnamEmpirical::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose
 
   /* Read the grid characteristics */
   bool ret       = true;
-  int ndisc      = 0;
+  Id ndisc       = 0;
   double sigma2e = 0.;
   VectorDouble zdisc;
   VectorDouble ydisc;

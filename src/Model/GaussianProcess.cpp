@@ -81,7 +81,7 @@ void GaussianProcess::init(const ModelGeneric* model, const Db* data)
     _data = std::shared_ptr<Db>(data->clone());
 }
 
-void GaussianProcess::fit(int nb_neighVecchia,
+void GaussianProcess::fit(Id nb_neighVecchia,
                           bool reml,
                           bool verbose,
                           bool trace)
@@ -102,7 +102,7 @@ void GaussianProcess::predict(Db* out)
   }
 }
 
-void GaussianProcess::simulate(Db* out, int nbsimus)
+void GaussianProcess::simulate(Db* out, Id nbsimus)
 {
   NeighUnique neigh;
   auto seed = law_get_random_seed();

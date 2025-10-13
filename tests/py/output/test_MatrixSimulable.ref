@@ -1,18 +1,14 @@
+The input matrix should be Symmetric
+It has been symetrized by computing (this + this^T)/2
 ------------------
 -- Test --A with inverse True
 0.0
 ------------------
 -- Test --B with inverse True
-The Input matrix is not valid
-It should be either:
-- a MatrixSparse
-- a MatrixSymmetric
+0.0
 ------------------
 -- Test --C with inverse True
-The Input matrix is not valid
-It should be either:
-- a MatrixSparse
-- a MatrixSymmetric
+0.0
 ------------------
 -- Test --D with inverse True
 0.0
@@ -20,23 +16,27 @@ It should be either:
 -- Test --E with inverse True
 The matrix must be square!
 ------------------
+-- Test --F with inverse True
+The input matrix should be Symmetric
+It has been symetrized by computing (this + this^T)/2
+4.2070949331285
+------------------
 -- Test --A with inverse False
 0.0
 ------------------
 -- Test --B with inverse False
-The Input matrix is not valid
-It should be either:
-- a MatrixSparse
-- a MatrixSymmetric
+0.0
 ------------------
 -- Test --C with inverse False
-The Input matrix is not valid
-It should be either:
-- a MatrixSparse
-- a MatrixSymmetric
+0.0
 ------------------
 -- Test --D with inverse False
 0.0
 ------------------
 -- Test --E with inverse False
 The matrix must be square!
+------------------
+-- Test --F with inverse False
+The input matrix should be Symmetric
+It has been symetrized by computing (this + this^T)/2
+2.887892247196

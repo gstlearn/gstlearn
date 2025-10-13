@@ -1,5 +1,7 @@
 #NO_DIFF#XXX
-----<IPython.core.display.Javascript object>----
+----
+
+<IPython.core.display.Javascript object>----
 
 
 #NO_DIFF#XXX
@@ -26,7 +28,7 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -52,7 +54,7 @@ Parallelepiped - Proportion=0.6
 - Y-Extension: Constant=7
 - Z-Extension: Constant=1
 - Orientation Angle: Constant=0
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -103,22 +105,22 @@ Column = 4 - Name = NC.Rank - Locator = NA----
 #NO_DIFF#XXX
 ----
 
- Boolean simulation
- ==================
- - Conditioning option               = YES
- 
- Simulating the initial tokens
- -----------------------------
- - Number of grains to be covered    = 9
- - Number of conditioning pores      = 11
- - Number of Initial Objects = 8
- - Number of iterations      = 8
- 
- Simulating the secondary tokens
- -------------------------------
- - Ending number of primary objects  = 0
- - Total number of objects           = 93
- 
+Boolean simulation
+==================
+- Conditioning option               = YES
+
+Simulating the initial tokens
+-----------------------------
+- Number of grains to be covered    = 9
+- Number of conditioning pores      = 11
+- Number of Initial Objects = 8
+- Number of iterations      = 8
+
+Simulating the secondary tokens
+-------------------------------
+- Ending number of primary objects  = 0
+- Total number of objects           = 93
+
 Data Base Grid Characteristics
 ==============================
 
@@ -161,22 +163,22 @@ Column = 6 - Name = CD1.Facies1.Rank - Locator = NA----
 #NO_DIFF#XXX
 ----
 
- Boolean simulation
- ==================
- - Conditioning option               = YES
- 
- Simulating the initial tokens
- -----------------------------
- - Number of grains to be covered    = 13
- - Number of conditioning pores      = 7
- - Number of Initial Objects = 12
- - Number of iterations      = 14
- 
- Simulating the secondary tokens
- -------------------------------
- - Ending number of primary objects  = 0
- - Total number of objects           = 96
- 
+Boolean simulation
+==================
+- Conditioning option               = YES
+
+Simulating the initial tokens
+-----------------------------
+- Number of grains to be covered    = 13
+- Number of conditioning pores      = 7
+- Number of Initial Objects = 12
+- Number of iterations      = 14
+
+Simulating the secondary tokens
+-------------------------------
+- Ending number of primary objects  = 0
+- Total number of objects           = 96
+
 Data Base Grid Characteristics
 ==============================
 

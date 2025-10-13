@@ -18,7 +18,7 @@ ShapeHalfParaboloid::ShapeHalfParaboloid(double proportion,
                                          double yext,
                                          double zext,
                                          double theta)
-    : AShape()
+  : AShape()
 {
   initParams(getNParams());
   setParamDefault(0, "X-Extension", xext);
@@ -28,16 +28,16 @@ ShapeHalfParaboloid::ShapeHalfParaboloid(double proportion,
   setProportion(proportion);
 }
 
-ShapeHalfParaboloid::ShapeHalfParaboloid(const ShapeHalfParaboloid &r)
-    : AShape(r)
+ShapeHalfParaboloid::ShapeHalfParaboloid(const ShapeHalfParaboloid& r)
+  : AShape(r)
 {
 }
 
-ShapeHalfParaboloid& ShapeHalfParaboloid::operator=(const ShapeHalfParaboloid &r)
+ShapeHalfParaboloid& ShapeHalfParaboloid::operator=(const ShapeHalfParaboloid& r)
 {
   if (this != &r)
   {
-    AShape::operator =(r);
+    AShape::operator=(r);
   }
   return *this;
 }
@@ -53,10 +53,10 @@ ShapeHalfParaboloid::~ShapeHalfParaboloid()
  ** \param[in]  ndim    Space dimension
  **
  *****************************************************************************/
-BooleanObject* ShapeHalfParaboloid::generateObject(int ndim)
+BooleanObject* ShapeHalfParaboloid::generateObject(Id ndim)
 
 {
-  BooleanObject* object = new BooleanObject(this);
+  auto* object = new BooleanObject(this);
   if (ndim >= 1) object->setExtension(0, generateParam(0));
   if (ndim >= 2) object->setExtension(1, generateParam(1));
   if (ndim >= 3) object->setExtension(2, generateParam(2));
@@ -74,10 +74,10 @@ BooleanObject* ShapeHalfParaboloid::generateObject(int ndim)
 bool ShapeHalfParaboloid::belongObject(const VectorDouble& coor,
                                        const BooleanObject* object) const
 {
-  int ndim = (int) coor.size();
+  Id ndim   = static_cast<Id>(coor.size());
   double dx = (ndim >= 1) ? coor[0] / (object->getExtension(0) / 2.) : 0.;
   double dy = (ndim >= 2) ? coor[1] / (object->getExtension(1) / 2.) : 0.;
-  double dz = (ndim >= 3) ? coor[2] / (object->getExtension(2))      : 0.;
+  double dz = (ndim >= 3) ? coor[2] / (object->getExtension(2)) : 0.;
   return (dx * dx + dy * dy - dz <= 1);
 }
-}
+} // namespace gstlrn

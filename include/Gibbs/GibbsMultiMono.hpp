@@ -10,41 +10,41 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Gibbs/AGibbs.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
 class Db;
 class Model;
 
-class GSTLEARN_EXPORT GibbsMultiMono : public AGibbs
+class GSTLEARN_EXPORT GibbsMultiMono: public AGibbs
 {
 public:
   GibbsMultiMono();
   GibbsMultiMono(Db* db, const std::vector<Model*>& models, double rho);
-  GibbsMultiMono(const GibbsMultiMono &r);
-  GibbsMultiMono& operator=(const GibbsMultiMono &r);
+  GibbsMultiMono(const GibbsMultiMono& r);
+  GibbsMultiMono& operator=(const GibbsMultiMono& r);
   virtual ~GibbsMultiMono();
 
-  Model* getModels(int ivar) const { return _models[ivar]; } // TODO: protect by const asap
+  Model* getModels(Id ivar) const { return _models[ivar]; } // TODO: protect by const asap
   double getRho() const { return _rho; }
-  int getNVar() const { return static_cast<int>(_models.size()); }
+  Id getNVar() const { return static_cast<Id>(_models.size()); }
 
   /// Interface for AGibbs
-  int calculInitialize(VectorVectorDouble &y, int isimu, int ipgs) override;
+  Id calculInitialize(VectorVectorDouble& y, Id isimu, Id ipgs) override;
   double getSimulate(VectorVectorDouble& y,
                      double yk,
                      double sk,
-                     int icase,
-                     int ipgs,
-                     int ivar,
-                     int iact,
-                     int iter) override;
-  int checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs) override;
+                     Id icase,
+                     Id ipgs,
+                     Id ivar,
+                     Id iact,
+                     Id iter) override;
+  Id checkGibbs(const VectorVectorDouble& y, Id isimu, Id ipgs) override;
 
 private:
-  std::vector<Model *> _models;
+  std::vector<Model*> _models;
   double _rho;
 };
-}
+} // namespace gstlrn

@@ -57,6 +57,20 @@ class Db;
  * - MyPrefix.var.2 (for second simulation)
  * ...
  *
+ * For multivariate simulations, the new setNamesAndLocatorsForSimulations method
+ * provides consistent naming with explicit Variable and Simulation indicators:
+ * 
+ * Non-conditional multivariate simulations (e.g., 2 variables, 2 simulations):
+ * - MyPrefix.V1.S1, MyPrefix.V1.S2, MyPrefix.V2.S1, MyPrefix.V2.S2
+ *
+ * Conditional multivariate simulations (e.g., variables Fe and Al, 2 simulations):
+ * - MyPrefix.Fe.S1, MyPrefix.Fe.S2, MyPrefix.Al.S1, MyPrefix.Al.S2
+ *
+ * This ensures:
+ * - Clear distinction between Variables (V) and Simulations (S)
+ * - Consistent naming whether nsim=1 or nsim>1
+ * - Support for both storage orders (simulation-first or variable-first)
+ *
  * Ultimately, the newly created variables are assigned a locator.
  */
 class GSTLEARN_EXPORT NamingConvention: public AStringable
@@ -74,7 +88,7 @@ public:
   virtual ~NamingConvention();
 
   /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static NamingConvention* create(const String& prefix = "",
                                   bool flag_varname = true,
@@ -85,82 +99,96 @@ public:
                                   bool cleanSameLocator = true);
 
   void setNamesAndLocators(Db* dbout,
-                           int iattout_start,
+                           Id iattout_start,
                            const String& qualifier = "",
-                           int nitems = 1,
+                           Id nitems = 1,
                            bool flagSetLocator = true,
-                           int locatorShift = 0) const;
+                           Id locatorShift = 0) const;
   void setNamesAndLocators(const VectorString& names,
                            Db* dbout,
-                           int iattout_start,
+                           Id iattout_start,
                            const String& qualifier = "",
-                           int nitems = 1,
+                           Id nitems = 1,
                            bool flagSetLocator = true,
-                           int locatorShift = 0) const;
+                           Id locatorShift = 0) const;
   void setNamesAndLocators(Db* dbout,
-                           int iattout_start,
+                           Id iattout_start,
                            const VectorString& names,
                            bool flagSetLocator = true,
-                           int locatorShift = 0) const;
+                           Id locatorShift = 0) const;
   void setNamesAndLocators(const String& namin,
                            Db* dbout,
-                           int iattout_start,
+                           Id iattout_start,
                            const String& qualifier = "",
-                           int nitems = 1,
+                           Id nitems = 1,
                            bool flagSetLocator = true,
-                           int locatorShift = 0) const;
+                           Id locatorShift = 0) const;
   void setNamesAndLocators(const Db *dbin,
                            const VectorString& names,
                            const ELoc& locatorInType,
-                           int nvar,
+                           Id nvar,
                            Db* dbout,
-                           int iattout_start,
+                           Id iattout_start,
                            const String& qualifier = "",
-                           int nitems = 1,
+                           Id nitems = 1,
                            bool flagSetLocator = true,
-                           int locatorShift = 0) const;
+                           Id locatorShift = 0) const;
   void setNamesAndLocators(const Db *dbin,
                            const VectorInt& iatts,
                            Db* dbout,
-                           int iattout_start,
+                           Id iattout_start,
                            const String& qualifier = "",
-                           int nitems = 1,
+                           Id nitems = 1,
                            bool flagSetLocator = true,
-                           int locatorShift = 0) const;
+                           Id locatorShift = 0) const;
   void setNamesAndLocators(const Db *dbin,
-                           int iatt,
+                           Id iatt,
                            Db* dbout,
-                           int iattout_start,
+                           Id iattout_start,
                            const String& qualifier = "",
-                           int nitems = 1,
+                           Id nitems = 1,
                            bool flagSetLocator = true,
-                           int locatorShift = 0) const;
+                           Id locatorShift = 0) const;
+  void setNamesAndLocatorsForSimulations(const Db *dbin,
+                                         const VectorString& names,
+                                         const ELoc& locatorInType,
+                                         Id nvar,
+                                         Db* dbout,
+                                         Id iattout_start,
+                                         Id nbsimu,
+                                         bool flagSimuFirst = true,
+                                         bool flagSetLocator = true,
+                                         Id locatorShift = 0) const;
 
   void setDelim(const String& delim)    { _delim = delim; }
   void setLocatorOutType(const ELoc& l) { _locatorOutType = l; }
   void setPrefix(const String& prefix)    { _prefix = prefix; }
   void setFlagClean(bool cleanSameLocator) { _cleanSameLocator = cleanSameLocator; }
   void setLocators(Db *dbout,
-                   int iattout_start,
-                   int nvar,
-                   int nitems = 1,
-                   int locatorShift = 0) const;
+                   Id iattout_start,
+                   Id nvar,
+                   Id nitems = 1,
+                   Id locatorShift = 0) const;
 
   bool isFlagQualifier() const { return _flagQualifier; }
   bool isFlagVarname()   const { return _flagVarname; }
 
 private:
   void _setNames(Db *dbout,
-                 int iattout_start,
+                 Id iattout_start,
                  const VectorString& names,
-                 int nvar,
+                 Id nvar,
                  const String& qualifier,
-                 int nitems) const;
+                 Id nitems) const;
   VectorString _createNames(const VectorString &names,
-                            int nvar,
+                            Id nvar,
                             const String &qualifier = "",
-                            int nitems = 1) const;
-  static int _getNameCount(const VectorString& names, int nvar);
+                            Id nitems = 1) const;
+  VectorString _createSimulationNames(const VectorString &names,
+                                      Id nvar,
+                                      Id nbsimu,
+                                      bool flagSimuFirst) const;
+  static Id _getNameCount(const VectorString& names, Id nvar);
 
 private:
   String _prefix; //!< String used as 'prefix'

@@ -42,7 +42,7 @@ public:
                 const EFormatNF& format = EFormatNF::fromKey("DEFAULT"),
                 bool verbose            = false) const;
 
-  static String buildFileName(int status, const String& filename, bool ensureDirExist = false);
+  static String buildFileName(Id status, const String& filename, bool ensureDirExist = false);
 
   static String getFileIdentity(const String& filename, bool verbose = false);
   static void setPrefixName(const String& prefixName);
@@ -74,7 +74,7 @@ protected:
   bool _fileOpenRead(const String& filename,
                      std::ifstream& is,
                      bool verbose = false) const;
-  bool _fileOpenAndDeserialize(const String& filename, bool verbose);
+  bool _fileOpenAndDeserialize(const String& filename, bool verbose = true);
 
   static bool _commentWrite(std::ostream& os,
                             const String& comment);
@@ -95,21 +95,21 @@ protected:
   static bool _recordReadVec(std::istream& is,
                              const String& title,
                              VectorT<T>& vec,
-                             int nvalues);
+                             Id nvalues);
 
   template<typename T>
   static bool _recordReadVecInPlace(std::istream& is,
                                     const String& title,
                                     VectorDouble::iterator& it,
-                                    int nvalues);
+                                    Id nvalues);
 
   static bool _tableRead(std::istream& is,
                          const String& string,
-                         int ntab,
+                         Id ntab,
                          double* tab);
   static bool _tableWrite(std::ostream& os,
                           const String& string,
-                          int ntab,
+                          Id ntab,
                           const VectorDouble& tab);
 
 private:
@@ -141,7 +141,7 @@ template<typename T>
 bool ASerializable::_recordReadVec(std::istream& is,
                                    const String& title,
                                    VectorT<T>& vec,
-                                   int nvalues)
+                                   Id nvalues)
 {
   return SerializeNeutralFile::recordReadVec(is, title, vec, nvalues);
 }
@@ -150,7 +150,7 @@ template<typename T>
 bool ASerializable::_recordReadVecInPlace(std::istream& is,
                                           const String& title,
                                           VectorDouble::iterator& it,
-                                          int nvalues)
+                                          Id nvalues)
 {
   return SerializeNeutralFile::recordReadVecInPlace<T>(is, title, it, nvalues);
 }

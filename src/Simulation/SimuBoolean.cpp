@@ -23,7 +23,7 @@
 namespace gstlrn
 {
 
-SimuBoolean::SimuBoolean(int nbsimu, int seed)
+SimuBoolean::SimuBoolean(Id nbsimu, Id seed)
   : ACalcSimulation(nbsimu, seed)
   , AStringable()
   , _objlist()
@@ -39,7 +39,7 @@ SimuBoolean::~SimuBoolean()
 void SimuBoolean::_clearAllObjects()
 {
   if (_objlist.empty()) return;
-  for (int iobj = 0; iobj < _getNObjects(); iobj++)
+  for (Id iobj = 0; iobj < _getNObjects(); iobj++)
     delete _objlist[iobj];
 }
 
@@ -47,7 +47,7 @@ String SimuBoolean::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  for (int iobj = 0; iobj < _getNObjects(); iobj++)
+  for (Id iobj = 0; iobj < _getNObjects(); iobj++)
   {
     sstr << "Characteristics of the Object: " << iobj + 1 << std::endl;
     sstr << _objlist[iobj]->toString(strfmt);
@@ -55,14 +55,14 @@ String SimuBoolean::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int SimuBoolean::simulate(Db* dbin,
-                          DbGrid* dbout,
-                          ModelBoolean* tokens,
-                          const SimuBooleanParam& boolparam,
-                          int iptr_simu,
-                          int iptr_rank,
-                          int iptr_cover,
-                          bool verbose)
+Id SimuBoolean::simulate(Db* dbin,
+                         DbGrid* dbout,
+                         ModelBoolean* tokens,
+                         const SimuBooleanParam& boolparam,
+                         Id iptr_simu,
+                         Id iptr_rank,
+                         Id iptr_cover,
+                         bool verbose)
 {
   /* Define the global variables */
 
@@ -106,22 +106,22 @@ int SimuBoolean::simulate(Db* dbin,
  *****************************************************************************/
 void SimuBoolean::_projectToGrid(DbGrid* dbout,
                                  const SimuBooleanParam& boolparam,
-                                 int iptr_simu,
-                                 int iptr_rank)
+                                 Id iptr_simu,
+                                 Id iptr_rank)
 {
-  for (int iobj = 0; iobj < _getNObjects(); iobj++)
+  for (Id iobj = 0; iobj < _getNObjects(); iobj++)
   {
     _objlist[iobj]->projectToGrid(dbout, iptr_simu, iptr_rank,
-                                  (int)boolparam.getFacies(), iobj + 1);
+                                  static_cast<Id>(boolparam.getFacies()), iobj + 1);
   }
 }
 
-int SimuBoolean::_countConditioningPore(const Db* db)
+Id SimuBoolean::_countConditioningPore(const Db* db)
 {
   if (db == nullptr) return 0;
 
-  int nbpore = 0;
-  for (int iech = 0; iech < db->getNSample(); iech++)
+  Id nbpore = 0;
+  for (Id iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     double data = db->getZVariable(iech, 0);
@@ -132,12 +132,12 @@ int SimuBoolean::_countConditioningPore(const Db* db)
   return nbpore;
 }
 
-int SimuBoolean::_countConditioningGrain(const Db* db)
+Id SimuBoolean::_countConditioningGrain(const Db* db)
 {
   if (db == nullptr) return 0;
 
-  int nbgrain = 0;
-  for (int iech = 0; iech < db->getNSample(); iech++)
+  Id nbgrain = 0;
+  for (Id iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
     double data = db->getZVariable(iech, 0);
@@ -148,15 +148,15 @@ int SimuBoolean::_countConditioningGrain(const Db* db)
   return nbgrain;
 }
 
-int SimuBoolean::_getRankUncovered(const Db* db, int rank) const
+Id SimuBoolean::_getRankUncovered(const Db* db, Id rank) const
 {
-  int number = 0;
-  for (int iech = 0; iech < db->getNSample(); iech++)
+  Id number = 0;
+  for (Id iech = 0; iech < db->getNSample(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    int data = (int)db->getZVariable(iech, 0);
+    Id data = static_cast<Id>(db->getZVariable(iech, 0));
     if (data <= 0) continue;
-    int cover = db->getArray(iech, _iptrCover);
+    Id cover = db->getArray(iech, _iptrCover);
     if (cover > 0) continue;
     if (number == rank) return iech;
     number++;
@@ -165,29 +165,29 @@ int SimuBoolean::_getRankUncovered(const Db* db, int rank) const
   return -1;
 }
 
-int SimuBoolean::_getNObjects(int mode) const
+Id SimuBoolean::_getNObjects(Id mode) const
 {
-  if (mode == 0) return (int)_objlist.size();
-  int number = 0;
-  for (int iobj = 0; iobj < (int)_objlist.size(); iobj++)
+  if (mode == 0) return static_cast<Id>(_objlist.size());
+  Id number = 0;
+  for (Id iobj = 0; iobj < static_cast<Id>(_objlist.size()); iobj++)
   {
     if (_objlist[iobj]->getMode() == mode) number++;
   }
   return number;
 }
 
-int SimuBoolean::_generatePrimary(Db* dbin,
-                                  DbGrid* dbout,
-                                  const ModelBoolean* tokens,
-                                  const SimuBooleanParam& boolparam,
-                                  bool verbose)
+Id SimuBoolean::_generatePrimary(Db* dbin,
+                                 DbGrid* dbout,
+                                 const ModelBoolean* tokens,
+                                 const SimuBooleanParam& boolparam,
+                                 bool verbose)
 {
   if (dbin == nullptr) return 0;
-  int ndim = dbout->getNDim();
+  Id ndim = dbout->getNDim();
 
   // Count the conditioning information
-  int nbpore  = _countConditioningPore(dbin);
-  int nbgrain = _countConditioningGrain(dbin);
+  Id nbpore  = _countConditioningPore(dbin);
+  Id nbgrain = _countConditioningGrain(dbin);
   VectorDouble cdgrain(ndim);
 
   if (verbose)
@@ -199,8 +199,8 @@ int SimuBoolean::_generatePrimary(Db* dbin,
   }
 
   // Generate the initial objects
-  int draw_more = nbgrain;
-  int iter      = 0;
+  Id draw_more = nbgrain;
+  Id iter      = 0;
   while (draw_more)
   {
     iter++;
@@ -215,8 +215,8 @@ int SimuBoolean::_generatePrimary(Db* dbin,
 
     /* Look for a non-covered grain */
 
-    int rank = (int)(draw_more * law_uniform(0., 1.));
-    int iref = _getRankUncovered(dbin, rank);
+    Id rank   = static_cast<Id>(draw_more * law_uniform(0., 1.));
+    auto iref = _getRankUncovered(dbin, rank);
     if (iref < 0) return 1;
     dbin->getCoordinatesInPlace(cdgrain, iref);
 
@@ -252,15 +252,15 @@ int SimuBoolean::_generatePrimary(Db* dbin,
   return 0;
 }
 
-int SimuBoolean::_generateSecondary(Db* dbin,
-                                    DbGrid* dbout,
-                                    const ModelBoolean* tokens,
-                                    const SimuBooleanParam& boolparam,
-                                    bool verbose)
+Id SimuBoolean::_generateSecondary(Db* dbin,
+                                   DbGrid* dbout,
+                                   const ModelBoolean* tokens,
+                                   const SimuBooleanParam& boolparam,
+                                   bool verbose)
 {
-  int iter       = 0;
+  Id iter        = 0;
   double tabtime = 0.;
-  int nb_average = _getAverageCount(dbout, tokens, boolparam);
+  Id nb_average  = _getAverageCount(dbout, tokens, boolparam);
 
   if (verbose)
   {
@@ -272,7 +272,7 @@ int SimuBoolean::_generateSecondary(Db* dbin,
     iter++;
     if (iter >= boolparam.getMaxiter()) break;
 
-    int nbObject = _getNObjects();
+    auto nbObject = _getNObjects();
     // The next line is not correct but is kept for compatibility.
     // The correct version should be implemented on next case study
     // update.
@@ -280,7 +280,7 @@ int SimuBoolean::_generateSecondary(Db* dbin,
     // This should be the right version
     //    tabtime += law_exponential();
 
-    double ratio = (double)nb_average / (double)(nb_average + nbObject);
+    double ratio = static_cast<double>(nb_average) / static_cast<double>(nb_average + nbObject);
 
     if (law_uniform(0., 1.) <= ratio)
     {
@@ -332,12 +332,12 @@ int SimuBoolean::_generateSecondary(Db* dbin,
   return 0;
 }
 
-int SimuBoolean::_getObjectRank(int mode, int rank)
+Id SimuBoolean::_getObjectRank(Id mode, Id rank)
 {
-  int nb_objects = _getNObjects();
+  Id nb_objects = _getNObjects();
 
-  int number = 0;
-  for (int iobj = 0; iobj < nb_objects; iobj++)
+  Id number = 0;
+  for (Id iobj = 0; iobj < nb_objects; iobj++)
   {
     if (_objlist[iobj]->getMode() != mode) continue;
     if (number == rank) return iobj;
@@ -356,14 +356,14 @@ int SimuBoolean::_getObjectRank(int mode, int rank)
  ** \param[in]  dbin     Db structure
  **
  *****************************************************************************/
-int SimuBoolean::_deleteObject(int mode, Db* dbin)
+Id SimuBoolean::_deleteObject(Id mode, Db* dbin)
 {
   /* Search for the object to be deleted */
 
-  int count = _getNObjects(mode);
+  auto count = _getNObjects(mode);
   if (count <= 0) return 1;
-  int rank = (int)(count * law_uniform(0., 1.));
-  int iref = _getObjectRank(mode, rank);
+  Id rank   = static_cast<Id>(count * law_uniform(0., 1.));
+  auto iref = _getObjectRank(mode, rank);
   if (iref < 0) return 1;
 
   /* Check if the object can be deleted */
@@ -386,9 +386,9 @@ int SimuBoolean::_deleteObject(int mode, Db* dbin)
   return 0;
 }
 
-int SimuBoolean::_getAverageCount(const DbGrid* dbout,
-                                  const ModelBoolean* tokens,
-                                  const SimuBooleanParam& boolparam)
+Id SimuBoolean::_getAverageCount(const DbGrid* dbout,
+                                 const ModelBoolean* tokens,
+                                 const SimuBooleanParam& boolparam)
 {
   double theta;
   if (tokens->isFlagStat())
@@ -405,21 +405,21 @@ int SimuBoolean::_getAverageCount(const DbGrid* dbout,
 
   // Dilate the field (optional)
 
-  int ndim      = dbout->getNDim();
+  Id ndim       = dbout->getNDim();
   double volume = 1.;
-  for (int idim = 0; idim < ndim; idim++)
+  for (Id idim = 0; idim < ndim; idim++)
   {
     field[idim] += 2 * boolparam.getDilate(idim);
     volume *= field[idim];
   }
-  return (int)(theta * volume);
+  return static_cast<Id>(theta * volume);
 }
 
 VectorDouble SimuBoolean::extractObjects() const
 {
   VectorDouble tabs;
 
-  for (int iobj = 0; iobj < _getNObjects(); iobj++)
+  for (Id iobj = 0; iobj < _getNObjects(); iobj++)
   {
     VectorDouble tab = _objlist[iobj]->getValues();
     tabs.insert(tab.end(), tab.begin(), tab.end());
@@ -449,17 +449,17 @@ bool SimuBoolean::_run()
  ** \param[in]  namconv       Naming convention
  **
  *****************************************************************************/
-int simbool(Db* dbin,
-            DbGrid* dbout,
-            ModelBoolean* tokens,
-            const SimuBooleanParam& boolparam,
-            int seed,
-            bool flag_simu,
-            bool flag_rank,
-            bool verbose,
-            const NamingConvention& namconv)
+Id simbool(Db* dbin,
+           DbGrid* dbout,
+           ModelBoolean* tokens,
+           const SimuBooleanParam& boolparam,
+           Id seed,
+           bool flag_simu,
+           bool flag_rank,
+           bool verbose,
+           const NamingConvention& namconv)
 {
-  int iptr_cover = -1;
+  Id iptr_cover = -1;
   if (dbin != nullptr)
   {
     if (dbin->getNLoc(ELoc::Z) != 1)
@@ -473,13 +473,13 @@ int simbool(Db* dbin,
 
   /* Add the attributes for storing the simulation */
 
-  int iptr_simu = -1;
+  Id iptr_simu = -1;
   if (flag_simu)
   {
     iptr_simu = dbout->addColumnsByConstant(1, boolparam.getBackground());
     if (iptr_simu < 0) return 1;
   }
-  int iptr_rank = -1;
+  Id iptr_rank = -1;
   if (flag_rank)
   {
     iptr_rank = dbout->addColumnsByConstant(1, boolparam.getBackground());

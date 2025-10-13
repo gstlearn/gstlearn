@@ -36,9 +36,9 @@ public:
   IMPLEMENT_CLONING(ShapeHalfEllipsoid)
 
   EShape getType() const override { return EShape::fromKey("HALFELLIPSOID"); }
-  int  getNParams() const override { return 4; }
+  Id  getNParams() const override { return 4; }
   bool getFlagCutZ() const override { return true; }
-  BooleanObject* generateObject(int ndim = 3) override;
+  BooleanObject* generateObject(Id ndim = 3) override;
   bool belongObject(const VectorDouble& coor, const BooleanObject* object) const override;
 };
 }

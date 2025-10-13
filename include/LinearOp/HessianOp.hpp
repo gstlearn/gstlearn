@@ -13,15 +13,11 @@
 #include "LinearOp/ProjMatrix.hpp"
 
 #ifndef SWIG
-  #include <Eigen/Core>
-  #include <Eigen/Dense>
-  #include <Eigen/src/Core/Matrix.h>
+#  include <Eigen/Core>
+#  include <Eigen/Dense>
+#  include <Eigen/src/Core/Matrix.h>
 #endif
 
-namespace gstlrn
-{
-class PrecisionOp;
-}
 #ifndef SWIG
 #  include "LinearOp/ALinearOpEigenCG.hpp"
 DECLARE_EIGEN_TRAITS(HessianOp)
@@ -29,7 +25,9 @@ DECLARE_EIGEN_TRAITS(HessianOp)
 #  include "LinearOp/ALinearOp.hpp"
 #endif
 
-using namespace gstlrn;
+namespace gstlrn
+{
+class PrecisionOp;
 
 class GSTLEARN_EXPORT HessianOp:
 #ifndef SWIG
@@ -40,46 +38,49 @@ class GSTLEARN_EXPORT HessianOp:
 {
 
 public:
-	HessianOp();
-	virtual ~HessianOp();
+  HessianOp();
+  virtual ~HessianOp();
 
-  int  init(PrecisionOp*  pmat,
-            const ProjMatrix*   projdata,
-            const ProjMatrix*   projseis,
-            const VectorDouble& indic,
-            const VectorDouble& propseis,
-            const VectorDouble& varseis);
+  Id init(PrecisionOp* pmat,
+          const ProjMatrix* projdata,
+          const ProjMatrix* projseis,
+          const VectorDouble& indic,
+          const VectorDouble& propseis,
+          const VectorDouble& varseis);
 
   /*!  Returns the dimension of the matrix */
-  int  getSize() const override;
+  Id getSize() const override;
   /*!  Set the initial vector */
 
- void setLambda(const VectorDouble& lambda) 
+  void setLambda(const VectorDouble& lambda)
   {
-    for (int i = 0; i < (int)_lambda.size(); i++) 
-      _lambda[i] = lambda[i]; 
+    for (Id i = 0; i < static_cast<Id>(_lambda.size()); i++)
+      _lambda[i] = lambda[i];
   }
 
 #ifndef SWIG
+
 protected:
-  int _addToDest(const constvect inv, vect outv) const override;
+  Id _addToDest(const constvect inv, vect outv) const override;
 
 private:
-  bool                 _isInitialized;
-  bool                 _flagSeismic;
-  PrecisionOp*         _pMat;     // External pointer
-  const ProjMatrix*    _projData; // External pointer
-  const ProjMatrix*    _projSeis; // External pointer
-  std::vector<double>         _indic;
-  std::vector<double>          _propSeis;
-  std::vector<double>          _varSeis;
-  std::vector<double>          _lambda;
-  mutable std::vector<double>  _workp;
-  mutable std::vector<double>  _workx;
-  mutable std::vector<double>  _workv;
-  mutable std::vector<double>  _works;
+  bool _isInitialized;
+  bool _flagSeismic;
+  PrecisionOp* _pMat;          // External pointer
+  const ProjMatrix* _projData; // External pointer
+  const ProjMatrix* _projSeis; // External pointer
+  std::vector<double> _indic;
+  std::vector<double> _propSeis;
+  std::vector<double> _varSeis;
+  std::vector<double> _lambda;
+  mutable std::vector<double> _workp;
+  mutable std::vector<double> _workx;
+  mutable std::vector<double> _workv;
+  mutable std::vector<double> _works;
 #endif
 };
+
+} // namespace gstlrn
 
 #ifndef SWIG
 DECLARE_EIGEN_PRODUCT(HessianOp)

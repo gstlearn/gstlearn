@@ -41,6 +41,7 @@ jobs:
         brew install eigen
         brew install nlopt
         brew install hdf5
+        brew install gdal  # for terra
         echo "$(brew --prefix bison)/bin" >> $GITHUB_PATH
 
     - name: Setup uv
@@ -78,6 +79,7 @@ jobs:
       run: |
         cmake \
           -B${{ env.BUILD_DIR }} \
+          -DCMAKE_COMPILE_WARNING_AS_ERROR=ON \
           -DBUILD_TESTING=ON \
           -DBUILD_PYTHON=ON \
           -DBUILD_R=ON \

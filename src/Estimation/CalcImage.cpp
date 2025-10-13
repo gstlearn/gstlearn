@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Estimation/CalcImage.hpp"
 #include "Basic/Convolution.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Calculators/ACalcInterpolator.hpp"
 #include "Db/DbGrid.hpp"
@@ -56,7 +57,7 @@ bool CalcImage::_check()
   if (!ACalcInterpolator::_check()) return false;
 
   if (!hasDbin()) return false;
-  int nvar = getDbin()->getNLoc(ELoc::Z);
+  auto nvar = getDbin()->getNLoc(ELoc::Z);
   if (!getDbin()->isGrid())
   {
     messerr("This method requires the Db to be a Grid");
@@ -65,7 +66,7 @@ bool CalcImage::_check()
 
   if (_flagFilter)
   {
-    const ModelCovList* model = dynamic_cast<const ModelCovList*>(getModel());
+    const auto* model = dynamic_cast<const ModelCovList*>(getModel());
     if (model == nullptr)
     {
       messerr("Model should be a ModelCovList");
@@ -108,7 +109,7 @@ bool CalcImage::_preprocess()
 {
   if (!ACalcInterpolator::_preprocess()) return false;
 
-  int nvar = _getNVar();
+  auto nvar = _getNVar();
   if (_flagFilter)
     _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, nvar, 0.);
 
@@ -152,15 +153,15 @@ void CalcImage::_rollback()
  */
 VectorVectorInt CalcImage::_getActiveRanks(const DbGrid* dblocal)
 {
-  int ndim = dblocal->getNDim();
-  int nech = dblocal->getNSample();
+  Id ndim = dblocal->getNDim();
+  Id nech = dblocal->getNSample();
 
   // Get the indices of the center grid node
   VectorInt center = dblocal->getCenterIndices();
 
   VectorVectorInt ranks;
   VectorInt local(ndim);
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     if (FFFF(dblocal->getZVariable(iech, 0))) continue;
 
@@ -181,15 +182,15 @@ bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelCovList* model)
   VectorDouble means;
   if (model->getNDrift() == 0) means = model->getMeans();
 
-  int ndim = dbgrid->getNDim();
-  int nvar = _getNVar();
+  Id ndim = dbgrid->getNDim();
+  auto nvar = _getNVar();
 
-  const NeighImage* neighI = dynamic_cast<const NeighImage*>(getNeigh());
+  const auto* neighI = dynamic_cast<const NeighImage*>(getNeigh());
   DbGrid* dblocal          = neighI->buildImageGrid(dbgrid, _seed);
   VectorVectorInt ranks    = _getActiveRanks(dblocal);
 
   Db* target = Db::createFromOnePoint(VectorDouble(ndim));
-  int iuid   = target->addColumnsByConstant(nvar);
+  auto iuid  = target->addColumnsByConstant(nvar);
 
   // We perform a Kriging of the center 'dbaux' in Unique Neighborhood
   NeighUnique* neighU = NeighUnique::create();
@@ -207,14 +208,14 @@ bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelCovList* model)
   // Perform the Sparse convolution
   Convolution conv(dbgrid);
 
-  int retcode = 0;
+  Id retcode = 0;
   if (!_flagFFT)
   {
-    retcode = conv.ConvolveSparse(_iattOut, ranks, wgt, means, (int)_verbose);
+    retcode = conv.ConvolveSparse(_iattOut, ranks, wgt, means, static_cast<Id>(_verbose));
   }
   else
   {
-    DbGrid* marpat = _buildMarpat(neighI, ranks, wgt, (int)_verbose);
+    DbGrid* marpat = _buildMarpat(neighI, ranks, wgt, static_cast<Id>(_verbose));
     retcode        = conv.ConvolveFFT(_iattOut, nvar, marpat, means);
     delete marpat;
   }
@@ -234,32 +235,32 @@ bool CalcImage::_filterImage(DbGrid* dbgrid, const ModelCovList* model)
 DbGrid* CalcImage::_buildMarpat(const NeighImage* neigh,
                                 const VectorVectorInt& ranks,
                                 const MatrixDense& wgt,
-                                int optionVerbose)
+                                Id optionVerbose)
 {
-  int nbneigh = (int)ranks.size();
-  int ndim    = (int)ranks[0].size();
-  int nvar    = wgt.getNCols();
+  Id nbneigh = static_cast<Id>(ranks.size());
+  Id ndim    = static_cast<Id>(ranks[0].size());
+  auto nvar   = wgt.getNCols();
   VectorInt nx(ndim);
-  for (int i = 0; i < ndim; i++)
+  for (Id i = 0; i < ndim; i++)
     nx[i] = 2 * neigh->getImageRadius(i) + 1;
 
   // Create the relevant DbGrid
   DbGrid* dbgrid   = DbGrid::create(nx);
-  int iuid         = dbgrid->addColumnsByConstant(nvar * nvar, 0., "Weights", ELoc::Z);
+  Id iuid         = dbgrid->addColumnsByConstant(nvar * nvar, 0., "Weights", ELoc::Z);
   VectorInt center = dbgrid->getCenterIndices();
 
   // Loop on the valid weights
   VectorInt local(ndim);
-  for (int ineigh = 0; ineigh < nbneigh; ineigh++)
+  for (Id ineigh = 0; ineigh < nbneigh; ineigh++)
   {
     local = ranks[ineigh];
     VH::addInPlace(local, center);
-    int iadd = dbgrid->indiceToRank(local);
+    Id iadd = dbgrid->indiceToRank(local);
 
     // Load the weights as variables
-    int ecr = 0;
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++, ecr++)
+    Id ecr = 0;
+    for (Id ivar = 0; ivar < nvar; ivar++)
+      for (Id jvar = 0; jvar < nvar; jvar++, ecr++)
         dbgrid->setArray(iadd, iuid + ecr, wgt.getValue(nbneigh * jvar + ineigh, ivar));
   }
 
@@ -271,8 +272,8 @@ DbGrid* CalcImage::_buildMarpat(const NeighImage* neigh,
     {
       Table table = dbStatisticsMono(dbgrid, {"Weights*"},
                                      {EStatOption::MINI, EStatOption::MAXI});
-      for (int ivar = 0, irow = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar < nvar; jvar++, irow++)
+      for (Id ivar = 0, irow = 0; ivar < nvar; ivar++)
+        for (Id jvar = 0; jvar < nvar; jvar++, irow++)
           table.setRowName(irow, "Weight of Z" + std::to_string(jvar + 1) +
                                    " for Z*" + std::to_string(ivar + 1));
       table.display();
@@ -301,7 +302,7 @@ bool CalcImage::_run()
 
   if (_flagFilter)
   {
-    const ModelCovList* model = dynamic_cast<const ModelCovList*>(getModel());
+    const auto* model = dynamic_cast<const ModelCovList*>(getModel());
     if (!_filterImage(dbgrid, model)) return false;
   }
 
@@ -313,11 +314,102 @@ bool CalcImage::_run()
 
   if (_flagSmooth)
   {
-    const NeighImage* neighI = dynamic_cast<const NeighImage*>(getNeigh());
+    const auto* neighI = dynamic_cast<const NeighImage*>(getNeigh());
     _image_smoother(dbgrid, neighI, _smoothType, _smoothRange, _iattOut);
   }
 
   return true;
+}
+
+/****************************************************************************/
+/*!
+**  Smooth a regular grid
+**
+** \param[in]  dbgrid    input and output Db grid structure
+** \param[in]  neigh     Neigh structure
+** \param[in]  type      1 for Uniform; 2 for Gaussian
+** \param[in]  range     Range (used for Gaussian only)
+** \param[in]  iptr0     Storage address
+**
+** \remarks Limited to the monovariate case
+**
+*****************************************************************************/
+void CalcImage::_image_smoother(DbGrid* dbgrid,
+                                const NeighImage* neigh,
+                                Id type,
+                                double range,
+                                Id iptr0)
+{
+  Id ndim  = dbgrid->getNDim();
+  double r2 = (type == 1) ? 1. : range * range;
+
+  /* Core allocation */
+
+  VectorInt indg0(ndim);
+  VectorInt indgl(ndim);
+  VectorInt indn0(ndim);
+  VectorInt indnl(ndim);
+
+  /* Create the secondary grid for image processing */
+
+  VectorInt nx(ndim);
+  Id nech = 1;
+  for (Id idim = 0; idim < ndim; idim++)
+  {
+    nx[idim] = 2 * neigh->getImageRadius(idim) + 1;
+    nech *= nx[idim];
+  }
+
+  law_set_random_seed(12345);
+  double seuil = 1. / neigh->getSkip();
+  VectorDouble tab(nech);
+  for (Id iech = 0; iech < nech; iech++)
+    tab[iech] = (law_uniform(0., 1.) < seuil) ? 0. : TEST;
+
+  DbGrid* dbaux =
+    DbGrid::create(nx, dbgrid->getDXs(), dbgrid->getX0s(), dbgrid->getAngles(),
+                   ELoadBy::COLUMN, tab, {"test"}, {String {ELoc::Z.getKey()}}, 1);
+
+  Id nb_neigh = dbaux->getNSample(true);
+  dbaux->rankToIndice(nb_neigh / 2, indn0);
+
+  /* Loop on the targets to be processed */
+
+  for (Id iech_out = 0; iech_out < dbgrid->getNSample(); iech_out++)
+  {
+    if (!dbgrid->isActive(iech_out)) continue;
+    dbgrid->rankToIndice(iech_out, indg0);
+
+    /* Loop on the neighboring points */
+
+    double estim = 0.;
+    double total = 0.;
+    for (Id iech = 0; iech < nb_neigh; iech++)
+    {
+      if (FFFF(dbaux->getZVariable(iech, 0))) continue;
+      dbaux->rankToIndice(iech, indnl);
+      double d2 = 0.;
+      for (Id i = 0; i < ndim; i++)
+      {
+        Id idelta   = (indnl[i] - indn0[i]);
+        double delta = idelta * dbgrid->getDX(i);
+        d2 += delta * delta;
+        indgl[i] = indg0[i] + idelta;
+        indgl[i] = dbgrid->getMirrorIndex(i, indgl[i]);
+      }
+
+      Id jech    = dbgrid->indiceToRank(indgl);
+      double data = dbgrid->getZVariable(jech, 0);
+      if (!FFFF(data))
+      {
+        double weight = (type == 1) ? 1. : exp(-d2 / r2);
+        estim += data * weight;
+        total += weight;
+      }
+    }
+    estim = (total <= 0.) ? TEST : estim / total;
+    dbgrid->setArray(iech_out, iptr0, estim);
+  }
 }
 
 /****************************************************************************/
@@ -335,12 +427,12 @@ bool CalcImage::_run()
  ** \param[in]  namconv    Naming Convention
  **
  *****************************************************************************/
-int krimage(DbGrid* dbgrid,
+Id krimage(DbGrid* dbgrid,
             Model* model,
             ANeigh* neigh,
             bool flagFFT,
             bool verbose,
-            int seed,
+            Id seed,
             const NamingConvention& namconv)
 {
   CalcImage image;
@@ -357,7 +449,7 @@ int krimage(DbGrid* dbgrid,
   image.setFlagFilter(true);
 
   // Run the calculator
-  int error = (image.run()) ? 0 : 1;
+  Id error = (image.run()) ? 0 : 1;
   return error;
 }
 
@@ -374,9 +466,9 @@ int krimage(DbGrid* dbgrid,
  ** \param[in]  namconv    Naming Convention
  **
  *****************************************************************************/
-int dbSmoother(DbGrid* dbgrid,
+Id dbSmoother(DbGrid* dbgrid,
                ANeigh* neigh,
-               int type,
+               Id type,
                double range,
                const NamingConvention& namconv)
 {
@@ -392,7 +484,7 @@ int dbSmoother(DbGrid* dbgrid,
   image.setSmoothRange(range);
 
   // Run the calculator
-  int error = (image.run()) ? 0 : 1;
+  Id error = (image.run()) ? 0 : 1;
   return error;
 }
 
@@ -409,11 +501,11 @@ int dbSmoother(DbGrid* dbgrid,
  * @param namconv Naming convention
  * @return
  */
-GSTLEARN_EXPORT int dbMorpho(DbGrid* dbgrid,
+GSTLEARN_EXPORT Id dbMorpho(DbGrid* dbgrid,
                              const EMorpho& oper,
                              double vmin,
                              double vmax,
-                             int option,
+                             Id option,
                              const VectorInt& radius,
                              bool flagDistErode,
                              bool verbose,
@@ -435,12 +527,13 @@ GSTLEARN_EXPORT int dbMorpho(DbGrid* dbgrid,
   image.setVerbose(verbose);
 
   // Particular case of the number of output variables
-  int nvar = 1;
+  Id nvar = 1;
   if (oper == EMorpho::GRADIENT) nvar = dbgrid->getNDim();
   image.setNvarMorpho(nvar);
 
   // Run the calculator
-  int error = (image.run()) ? 0 : 1;
+  Id error = (image.run()) ? 0 : 1;
   return error;
 }
-}
+
+} // namespace gstlrn

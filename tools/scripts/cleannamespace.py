@@ -5,7 +5,6 @@ import os
 import utils
     
 def replace_gstlrn_prefix(filename: str) -> None:
-    print("coucou")
     with open(filename, 'r', encoding='utf-8') as f:
         content = f.read()
 

@@ -12,10 +12,9 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Basic/PolyLine2D.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-
+#include "Basic/AStringable.hpp"
+#include "Basic/PolyLine2D.hpp"
 
 namespace gstlrn
 {
@@ -30,22 +29,22 @@ public:
   virtual ~Faults();
 
   /// Interface for AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static Faults* createFromNF(const String& NFFilename, bool verbose = true);
 
-  int getNFaults() const { return (int) _faults.size(); }
+  Id getNFaults() const { return static_cast<Id>(_faults.size()); }
   void addFault(const PolyLine2D& fault);
 
   inline const std::vector<PolyLine2D>& getFaults() const { return _faults; }
-  inline const PolyLine2D& getFault(int ifault) const { return _faults[ifault]; }
+  inline const PolyLine2D& getFault(Id ifault) const { return _faults[ifault]; }
 
-  bool isSplitByFault(double xt1,double yt1, double xt2, double yt2) const;
+  bool isSplitByFault(double xt1, double yt1, double xt2, double yt2) const;
   bool isSplitByFaultSP(const SpacePoint& P1, const SpacePoint& P2) const;
 
 protected:
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
@@ -55,4 +54,4 @@ protected:
 private:
   std::vector<PolyLine2D> _faults;
 };
-}
+} // namespace gstlrn

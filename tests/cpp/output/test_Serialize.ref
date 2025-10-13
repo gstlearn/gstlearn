@@ -149,6 +149,82 @@ For variable 1
          8     5.000     0.158     0.158
          9     2.000     0.179     0.912
 
+Covariance characteristics
+==========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 2
+Variable(s)                 = [myvar1]
+
+Variance-Covariance Matrix     0.763
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =      0.020
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+       -10     2.000    -0.179    -0.293
+        -9     5.000    -0.158     0.509
+        -8     4.000    -0.133    -0.048
+        -7     3.000    -0.119     0.111
+        -6     4.000    -0.101     0.131
+        -5     3.000    -0.084    -0.089
+        -4     1.000    -0.052     2.980
+        -3     2.000    -0.043    -0.492
+         0    20.000     0.000     0.763
+         3     2.000     0.043    -0.492
+         4     1.000     0.052     2.980
+         5     3.000     0.084    -0.089
+         6     4.000     0.101     0.131
+         7     3.000     0.119     0.111
+         8     4.000     0.133    -0.048
+         9     5.000     0.158     0.509
+        10     2.000     0.179    -0.293
+
+Covariance characteristics
+==========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 2
+Variable(s)                 = [myvar1]
+
+Variance-Covariance Matrix     0.763
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =      0.020
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+       -10     2.000    -0.179    -0.293
+        -9     5.000    -0.158     0.509
+        -8     4.000    -0.133    -0.048
+        -7     3.000    -0.119     0.111
+        -6     4.000    -0.101     0.131
+        -5     3.000    -0.084    -0.089
+        -4     1.000    -0.052     2.980
+        -3     2.000    -0.043    -0.492
+         0    20.000     0.000     0.763
+         3     2.000     0.043    -0.492
+         4     1.000     0.052     2.980
+         5     3.000     0.084    -0.089
+         6     4.000     0.101     0.131
+         7     3.000     0.119     0.111
+         8     4.000     0.133    -0.048
+         9     5.000     0.158     0.509
+        10     2.000     0.179    -0.293
+
 Model characteristics
 =====================
 Space dimension              = 2

@@ -11,7 +11,8 @@
 #include "LinearOp/ALinearOp.hpp"
 #include "Basic/VectorNumT.hpp"
 
-namespace gstlrn{
+namespace gstlrn
+{
 ALinearOp::ALinearOp()
   : _usefactor(false)
   , _idfactor(0.)
@@ -47,15 +48,15 @@ VectorDouble ALinearOp::evalDirect(const VectorDouble& in) const
   return res;
 }
 
-int ALinearOp::addToDest(const ::Eigen::VectorXd& inv,
-                         ::Eigen::VectorXd& outv) const
+Id ALinearOp::addToDest(const ::Eigen::VectorXd& inv,
+                        ::Eigen::VectorXd& outv) const
 {
   constvect ins(inv.data(), inv.size());
   vect outs(outv.data(), outv.size());
   return addToDest(ins, outs);
 }
 
-int ALinearOp::addToDest(const constvect inv, vect outv) const
+Id ALinearOp::addToDest(const constvect inv, vect outv) const
 {
 
   if (!_usefactor)
@@ -64,19 +65,19 @@ int ALinearOp::addToDest(const constvect inv, vect outv) const
   _temp.resize(outv.size());
   vect ctemp(_temp.data(), _temp.size());
   std::fill(ctemp.begin(), ctemp.end(), 0.);
-  int err = _addToDest(inv, ctemp);
-  for (int i = 0; i < (int)outv.size(); i++)
+  Id err = _addToDest(inv, ctemp);
+  for (Id i = 0; i < static_cast<Id>(outv.size()); i++)
     outv[i] = _idfactor * inv[i] + _factor * ctemp[i];
   return err;
 }
 
-int ALinearOp::evalDirect(constvect inv, vect outv) const
+Id ALinearOp::evalDirect(constvect inv, vect outv) const
 {
   std::fill(outv.begin(), outv.end(), 0.);
   return addToDest(inv, outv);
 }
 
-int ALinearOp::evalDirect(const VectorDouble& inv, VectorDouble& outv) const
+Id ALinearOp::evalDirect(const VectorDouble& inv, VectorDouble& outv) const
 {
   outv.resize(inv.size());
   constvect in(inv);
@@ -84,17 +85,17 @@ int ALinearOp::evalDirect(const VectorDouble& inv, VectorDouble& outv) const
   return evalDirect(in, out);
 }
 
-void ALinearOp::multiplyByValueAndAddDiagonal(double v1, double v2)
+void ALinearOp::multiplyByValueAndAddDiagonal(double v1, double v2) const
 {
   _usefactor = true;
   _idfactor  = v2;
   _factor    = v1;
 }
 
-void ALinearOp::resetModif()
+void ALinearOp::resetModif() const
 {
   _usefactor = false;
   _idfactor  = 0.;
   _factor    = 1.;
 }
-}
+} // namespace gstlrn

@@ -29,71 +29,42 @@ License: BSD 3-clause
 
 namespace gstlrn
 {
-void dual_swap(double* darr, int* iarr, int i1, int i2)
+void dual_swap(double* darr, Id* iarr, Id i1, Id i2)
 {
-  double dtmp = darr[i1];
-  darr[i1]    = darr[i2];
-  darr[i2]    = dtmp;
-  int itmp    = iarr[i1];
-  iarr[i1]    = iarr[i2];
-  iarr[i2]    = itmp;
+  std::swap(darr[i1], darr[i2]);
+  std::swap(iarr[i1], iarr[i2]);
 }
 
-t_nheap* nheap_init(int n_pts, int n_nbrs)
+void t_nheap::resize(Id n_ptsLocal, Id n_nbrsLocal)
 {
-  t_nheap* h   = (t_nheap*)malloc(sizeof(t_nheap));
-  h->n_pts     = n_pts;
-  h->n_nbrs    = n_nbrs;
-  h->distances = (double**)malloc(sizeof(double*) * n_pts);
-  for (int i = 0; i < n_pts; i++)
-  {
-    h->distances[i] = (double*)malloc(sizeof(double) * n_nbrs);
-    for (int j = 0; j < n_nbrs; j++) h->distances[i][j] = INFINITY;
-  }
-  h->indices = (int**)malloc(sizeof(int*) * n_pts);
-  for (int i = 0; i < n_pts; i++)
-  {
-    h->indices[i] = (int*)calloc(n_nbrs, sizeof(int));
-    for (int j = 0; j < n_nbrs; j++) h->indices[i][j] = ITEST;
-  }
-  return (h);
+  this->n_pts  = n_ptsLocal;
+  this->n_nbrs = n_nbrsLocal;
+  this->distances.resize(n_ptsLocal, n_nbrsLocal, INFINITY);
+  this->indices.resize(n_ptsLocal, n_nbrsLocal, ITEST);
 }
 
-t_nheap* nheap_free(t_nheap* heap)
-{
-  if (heap == nullptr) return heap;
-  int n_pts = heap->n_pts;
-  for (int i = 0; i < n_pts; i++) free(heap->distances[i]);
-  free(heap->distances);
-  for (int i = 0; i < n_pts; i++) free(heap->indices[i]);
-  free(heap->indices);
-  free(heap);
-  heap = nullptr;
-  return heap;
-}
-
-void nheap_load(t_nheap* heap, t_btree* b, const double** x)
+void t_nheap::load(const t_btree& b, const MatrixT<double>& x)
 {
   double dist;
-  for (int i = 0; i < heap->n_pts; i++)
+  for (Id i = 0; i < n_pts; i++)
   {
-    dist = min_dist(b, 0, x[i]);
-    query_depth_first(b, 0, x[i], i, heap, dist);
+    dist = b.min_dist(0, x.getRow(i));
+    b.query_depth_first(0, x.getRow(i), i, *this, dist);
   }
 }
 
-double nheap_largest(t_nheap* h, int row)
+double t_nheap::largest(Id row) const
 {
-  return h->distances[row][0];
+  return distances.getRow(row)[0];
 }
 
-int nheap_push(t_nheap* h, int row, double val, int i_val)
+Id t_nheap::push(Id row, double val, Id i_val)
 {
-  int ic1, ic2, i_swap;
+  Id ic1, ic2, i_swap;
 
-  int size         = h->n_nbrs;
-  double* dist_arr = h->distances[row];
-  int* ind_arr     = h->indices[row];
+  Id size       = n_nbrs;
+  auto dist_arr = distances.getRow(row);
+  auto ind_arr  = indices.getRow(row);
 
   // if distance is already greater than the furthest element, don't push
   if (val > dist_arr[0]) return (0);
@@ -103,8 +74,8 @@ int nheap_push(t_nheap* h, int row, double val, int i_val)
   ind_arr[0]  = i_val;
 
   // descend the heap, swapping values until the max heap criterion is met
-  int i = 0;
-  while (TRUE)
+  Id i = 0;
+  while (true)
   {
     ic1 = 2 * i + 1;
     ic2 = ic1 + 1;
@@ -143,9 +114,9 @@ int nheap_push(t_nheap* h, int row, double val, int i_val)
   return (0);
 }
 
-void simultaneous_sort(double* dist, int* idx, int size)
+void simultaneous_sort(double* dist, Id* idx, Id size)
 {
-  int pivot_idx, store_idx;
+  Id pivot_idx, store_idx;
   double pivot_val;
 
   if (size <= 1)
@@ -175,7 +146,7 @@ void simultaneous_sort(double* dist, int* idx, int size)
     pivot_val = dist[size - 1];
 
     store_idx = 0;
-    for (int i = 0; i < size - 1; i++)
+    for (Id i = 0; i < size - 1; i++)
     {
       if (dist[i] < pivot_val)
       {
@@ -192,9 +163,9 @@ void simultaneous_sort(double* dist, int* idx, int size)
   }
 }
 
-void nheap_sort(t_nheap* h)
+void t_nheap::sort()
 {
-  for (int row = 0; row < h->n_pts; row++)
-    simultaneous_sort(h->distances[row], h->indices[row], h->n_nbrs);
+  for (Id row = 0; row < n_pts; row++)
+    simultaneous_sort(distances.getRow(row).data(), indices.getRow(row).data(), n_nbrs);
 }
-}
+} // namespace gstlrn

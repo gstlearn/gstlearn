@@ -32,9 +32,9 @@ public:
   virtual ~SpatialIndices();
 
   /// Interface to AStringable
-  virtual String toString(const AStringFormat *strfmt = nullptr) const override;
+  String toString(const AStringFormat *strfmt = nullptr) const override;
 
-  int  computeCGI(const String &name);
+  Id  computeCGI(const String &name);
   void spatial(const String &name);
   double getLIC(const String &name1, const String &name2);
   double getGIC(const String &name1, const String &name2);
@@ -42,7 +42,7 @@ public:
   MatrixDense getMatrixEllipse() const;
   MatrixDense getMatrixInertia() const;
   VectorVectorDouble getAxes() const;
-  VectorDouble getAxe(int rank) const;
+  VectorDouble getAxe(Id rank) const;
   const VectorDouble& getCenter() const { return _center; }
   double getInertia() const { return _inertia; }
   double getIso() const { return _iso; }
@@ -51,12 +51,12 @@ public:
                            double h0,
                            const Polygons* polygon = nullptr,
                            double dlim             = 0.,
-                           int ndisc               = 100);
+                           Id ndisc               = 100);
   std::vector<SpacePoint> getPatches(const String &name, double Dmin, double Amin = 0);
 
 private:
   bool _discardData(bool flag_w,
-                    int iech,
+                    Id iech,
                     const String& name,
                     VectorDouble& coor,
                     double* value,
@@ -71,7 +71,7 @@ private:
   double _inertia;             // Value of the inertia
   double _wztot;               // Sum of weights
   double _iso;                 // Iso index
-  int _nvalid;                 // Number of valid samples
+  Id _nvalid;                 // Number of valid samples
 
   double _theta;
   double _ra;

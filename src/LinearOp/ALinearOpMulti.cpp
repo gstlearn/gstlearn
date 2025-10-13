@@ -18,7 +18,7 @@
 #include <vector>
 
 namespace gstlrn{
-ALinearOpMulti::ALinearOpMulti(int nitermax, double eps)
+ALinearOpMulti::ALinearOpMulti(Id nitermax, double eps)
   : _nIterMax(nitermax)
   , _nIterRestart(0)
   , _eps(eps)
@@ -87,15 +87,15 @@ void ALinearOpMulti::prepare() const
   if (_initialized) return;
 
   _initialized = true;
-  int ns       = sizes();
+  Id ns       = sizes();
   _r.resize(ns);
   _p.resize(ns);
   _temp.resize(ns);
   _z.resize(ns);
 
-  for (int is = 0; is < ns; is++)
+  for (Id is = 0; is < ns; is++)
   {
-    int n = size(is);
+    Id n = size(is);
     _r[is].resize(n);
     _p[is].resize(n);
     _temp[is].resize(n);
@@ -140,7 +140,7 @@ void ALinearOpMulti::evalInverse(const std::vector<std::vector<double>>& vecin,
                                  std::vector<std::vector<double>>& vecout) const
 {
   prepare();
-  int n = sizes();
+  Id n = sizes();
   if (n <= 0) my_throw("ALinearOpMulti size not defined. Call setSize before");
 
   double rsnew;
@@ -198,7 +198,7 @@ void ALinearOpMulti::evalInverse(const std::vector<std::vector<double>>& vecin,
 
   crit /= nb;
 
-  int niter = 0;
+  Id niter = 0;
 
   while (niter < _nIterMax && crit > _eps)
   {
@@ -251,7 +251,7 @@ void ALinearOpMulti::initLk(const std::vector<std::vector<double>>& inv,
                             std::vector<std::vector<double>>& outv) const
 {
   prepare();
-  int n = sizes();
+  Id n = sizes();
   if (n <= 0) my_throw("ALinearOpMulti size not defined. Call setSize before");
 
   for (auto& e: outv)
@@ -275,7 +275,7 @@ void ALinearOpMulti::initLk(const std::vector<std::vector<double>>& inv,
  ** \remarks When 'precond' argument is not provided, 'status' is forced to 0
  **
  *****************************************************************************/
-void ALinearOpMulti::setPrecond(const ALinearOpMulti* precond, int status)
+void ALinearOpMulti::setPrecond(const ALinearOpMulti* precond, Id status)
 {
   _precond       = precond;
   _precondStatus = status;

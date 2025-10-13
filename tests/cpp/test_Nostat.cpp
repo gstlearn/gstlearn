@@ -40,13 +40,13 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  int seed = 10355;
+  Id seed = 10355;
   law_set_random_seed(seed);
 
-  ASerializable::setPrefixName("test_nostat-");
+  ASerializable::setPrefixName("test_Nostat-");
 
   // Creating the 2-D Db
-  auto nx            = {101, 101};
+  VectorInt nx       = {101, 101};
   DbGrid* workingDbc = DbGrid::create(nx);
 
   // Creating the Non-stationary Model
@@ -86,16 +86,16 @@ int main(int argc, char* argv[])
   // Inquiry the value of the Non-stationary parameters at a given sample
   if (flagInquiry)
   {
-    int target        = 1000;
+    Id target         = 1000;
     VectorDouble vect = workingDbc->getSampleLocators(ELoc::NOSTAT, target);
     VH::dump("Non-stationary parameters at sample", vect);
   }
 
-  int useCholesky = 0;
+  Id useCholesky = 0;
   law_set_random_seed(13256);
-  (void)gstlrn::simulateSPDE(nullptr, workingDbc, model, 1, useCholesky,
-                             VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(),
-                             NamingConvention("Simu", true, false));
+  (void)simulateSPDE(nullptr, workingDbc, model, 1, useCholesky,
+                     nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, SPDEParam(), false,
+                     NamingConvention("Simu", true, false));
 
   DbStringFormat dbfmt(FLAG_STATS, {"Simu"});
   workingDbc->display(&dbfmt);

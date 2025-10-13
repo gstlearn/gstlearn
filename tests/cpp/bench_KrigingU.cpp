@@ -9,18 +9,18 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Basic/OptCustom.hpp"
-#include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
+#include "Enum/ESpaceType.hpp"
 
-#include "Space/ASpaceObject.hpp"
+#include "Basic/File.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Basic/Timer.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Model/Model.hpp"
-#include "Basic/File.hpp"
-#include "Basic/Timer.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 
@@ -29,36 +29,36 @@ using namespace gstlrn;
  ** Main Program
  **
  *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setPrefixName("BenchKrigingU-");
-  
-  OptCustom::define("Cholesky",0);
-  OptCustom::define("ompthreads",5);
+  ASerializable::setPrefixName("bench_KrigingU-");
+
+  OptCustom::define("Cholesky", 0);
+  OptCustom::define("ompthreads", 5);
   bool flag_std = true;
   // Global parameters
-  int ndim = 2;
+  Id ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Generate the data base
-  int nech = 100;
-  int nvar = 1;
+  Id nech      = 100;
+  Id nvar      = 1;
   bool verbose = false;
-  Db* data = Db::createFillRandom(nech, ndim, nvar);
+  Db* data     = Db::createFillRandom(nech, ndim, nvar);
 
   // Generate the output grid
-  int ncell = 100;
-  VectorInt nx = {ncell, ncell};
+  Id ncell        = 100;
+  VectorInt nx    = {ncell, ncell};
   VectorDouble dx = {1. / ncell, 1. / ncell};
-  DbGrid* grid = DbGrid::create(nx, dx);
+  DbGrid* grid    = DbGrid::create(nx, dx);
 
   // Create the Model
   double range = 1. / 5.;
-  double sill = 2.;
+  double sill  = 2.;
   Model* model = Model::createFromParam(ECov::SPHERICAL, range, sill);
 
   // Unique Neighborhood

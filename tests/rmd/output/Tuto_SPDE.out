@@ -1,20 +1,40 @@
 
-Model characteristics
-=====================
-Space dimension              = 2
-Number of variable(s)        = 1
-Number of basic structure(s) = 2
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
 
-Covariance Part
----------------
-Matern (Third Parameter = 1)
-- Sill         =      1.000
-- Range        =      0.200
-- Theo. Range  =      0.058
-Nugget Effect
-- Sill         =      0.000
-Total Sill     =      1.000
-Known Mean(s)     0.000
-NULL
+Table: Estimations
+
+|                  | Number| Minimum| Maximum|   Mean| St. Dev.|
+|:-----------------|------:|-------:|-------:|------:|--------:|
+|standardK.Z.estim |  40000|  -2.670|   1.845| -0.105|    0.717|
+|spdeK.Z.estim     |  40000|  -2.757|   1.851| -0.107|    0.719|
+
+
+Table: St. dev. of Estimation error
+
+|                  | Number| Minimum| Maximum|  Mean| St. Dev.|
+|:-----------------|------:|-------:|-------:|-----:|--------:|
+|standardK.Z.stdev |  40000|   0.005|   0.997| 0.651|    0.195|
+|spdeK.Z.stdev     |  40000|   0.067|   1.040| 0.640|    0.197|
+
+
+Table: Non conditional simulations
+
+|         | Number| Minimum| Maximum|   Mean| St. Dev.|
+|:--------|------:|-------:|-------:|------:|--------:|
+|spdeNC.1 |  40000|  -3.291|   2.787|  0.052|    0.997|
+|spdeNC.2 |  40000|  -4.367|   3.226| -0.165|    0.963|
+|spdeNC.3 |  40000|  -3.488|   3.529| -0.013|    1.049|
+|spdeNC.4 |  40000|  -3.285|   3.346| -0.050|    1.007|
+
+
+Table: Conditional simulations
+
+|               | Number| Minimum| Maximum|   Mean| St. Dev.|
+|:--------------|------:|-------:|-------:|------:|--------:|
+|standardCD.Z.1 |  40000|  -3.282|   2.692| -0.084|    0.970|
+|standardCD.Z.2 |  40000|  -3.272|   2.716| -0.077|    0.962|
+|standardCD.Z.3 |  40000|  -3.390|   2.709| -0.120|    0.952|
+|standardCD.Z.4 |  40000|  -3.157|   2.807| -0.006|    0.963|
+|spdeCD.Z.1     |  40000|  -3.567|   2.575| -0.206|    1.019|
+|spdeCD.Z.2     |  40000|  -3.374|   3.312| -0.080|    1.010|
+|spdeCD.Z.3     |  40000|  -3.506|   2.965| -0.089|    0.886|
+|spdeCD.Z.4     |  40000|  -4.082|   2.496| -0.243|    1.043|

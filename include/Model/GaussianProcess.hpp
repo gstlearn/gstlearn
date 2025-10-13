@@ -32,12 +32,12 @@ public:
 
   void init(const ModelGeneric* model, const Db* data);
   String toString(const AStringFormat* strfmt = nullptr) const override;
-  void fit(int nb_neighVecchia = ITEST,
+  void fit(Id nb_neighVecchia = ITEST,
            bool reml           = false,
            bool verbose        = false,
            bool trace          = false);
   void predict(Db* out);
-  void simulate(Db* out, int nbsimus = 1);
+  void simulate(Db* out, Id nbsimus = 1);
   Model* getRawModel() { return _getRawModel(); }
 #ifndef SWIG
   auto getModel() { return _model; }

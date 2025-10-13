@@ -44,7 +44,7 @@ public:
   NeighBench(bool flag_xvalid             = false,
              double width                 = 0.,
              bool useBallTree             = false,
-             int leaf_size                = 10,
+             Id leaf_size                = 10,
              const ASpaceSharedPtr& space = ASpaceSharedPtr());
   NeighBench(const NeighBench& r);
   NeighBench& operator=(const NeighBench& r);
@@ -52,27 +52,27 @@ public:
 
   IMPLEMENT_CLONING(NeighBench)
   /// Interface for ANeigh
-  virtual int attach(const Db *dbin, const Db *dbout = nullptr) override;
-  virtual void getNeigh(int iech_out, VectorInt& ranks) override;
-  virtual bool hasChanged(int iech_out) const override;
-  virtual int getNSampleMax(const Db* db) const override;
-  virtual ENeigh getType() const override { return ENeigh::fromKey("BENCH"); }
+  Id attach(const Db *dbin, const Db *dbout = nullptr) override;
+  void getNeigh(Id iech_out, VectorInt& ranks) override;
+  bool hasChanged(Id iech_out) const override;
+  Id getNSampleMax(const Db* db) const override;
+  ENeigh getType() const override { return ENeigh::fromKey("BENCH"); }
 
   /// Interface for AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static NeighBench* create(bool flag_xvalid             = false,
                             double width                 = 0,
                             bool useBallTree             = false,
-                            int leaf_size                = 10,
+                            Id leaf_size                = 10,
                             const ASpaceSharedPtr& space = ASpaceSharedPtr());
   static NeighBench* createFromNF(const String& NFFilename, bool verbose = true);
 
   double getWidth() const { return _width; }
 
 protected:
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
@@ -80,8 +80,8 @@ protected:
   String _getNFName() const override { return "NeighBench"; }
 
 private:
-  bool _isSameTargetBench(int iech_out) const;
-  void _bench(int iech_out, VectorInt& ranks);
+  bool _isSameTargetBench(Id iech_out) const;
+  void _bench(Id iech_out, VectorInt& ranks);
 
 private:
   double _width;

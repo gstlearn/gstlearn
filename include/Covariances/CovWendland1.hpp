@@ -30,10 +30,10 @@ public:
   CovWendland1& operator= (const CovWendland1 &r);
   virtual ~CovWendland1();
 
-  unsigned int getMaxNDim()   const  override { return 3; }
+  size_t getMaxNDim() const override { return 3; }
 
   String         getCovName() const override { return "Wendland-3,1"; }
-  int            getMinOrder() const override { return -1; }
+  Id            getMinOrder() const override { return -1; }
   bool           getCompatibleSpaceR() const override { return true; }
 
 protected:

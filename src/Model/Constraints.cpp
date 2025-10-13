@@ -53,7 +53,7 @@ Constraints& Constraints::operator=(const Constraints& m)
 
 Constraints::~Constraints()
 {
-  for (int i = 0, n = (int)_consItems.size(); i < n; i++) delete _consItems[i];
+  for (Id i = 0, n = static_cast<Id>(_consItems.size()); i < n; i++) delete _consItems[i];
   _consItems.clear();
 }
 
@@ -63,9 +63,9 @@ void Constraints::addItem(const ConsItem* item)
 }
 
 void Constraints::addItemFromParamId(const EConsElem& elem,
-                                     int icov,
-                                     int iv1,
-                                     int iv2,
+                                     Id icov,
+                                     Id iv1,
+                                     Id iv2,
                                      const EConsType& type,
                                      double value)
 {
@@ -76,12 +76,12 @@ void Constraints::addItemFromParamId(const EConsElem& elem,
 String Constraints::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  int nitem = static_cast<int>(_consItems.size());
+  Id nitem = static_cast<Id>(_consItems.size());
 
   if (nitem > 0)
     sstr << toTitle(0, "Constraints to be fulfilled in Fitting procedure");
 
-  for (int i = 0; i < nitem; i++)
+  for (Id i = 0; i < nitem; i++)
   {
     sstr << "Constraint #" << i + 1 << std::endl;
     sstr << _consItems[i]->toString(strfmt);
@@ -93,10 +93,10 @@ String Constraints::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int Constraints::isDefinedForSill() const
+Id Constraints::isDefinedForSill() const
 {
   if (_consItems.size() <= 0) return (0);
-  for (int i = 0; i < (int)_consItems.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(_consItems.size()); i++)
   {
     if (_consItems[i]->getType() == EConsElem::SILL) return (1);
   }
@@ -105,7 +105,7 @@ int Constraints::isDefinedForSill() const
 
 void Constraints::modifyConstraintsForSill()
 {
-  for (int i = 0; i < (int)getNConsItem(); i++)
+  for (Id i = 0; i < getNConsItem(); i++)
   {
     const ConsItem* consitem = getConsItems(i);
     if (consitem->getType() != EConsElem::SILL) continue;
@@ -113,12 +113,12 @@ void Constraints::modifyConstraintsForSill()
   }
 }
 
-void Constraints::setValue(int item, double value)
+void Constraints::setValue(Id item, double value)
 {
   _consItems[item]->setValue(value);
 }
 
-void Constraints::expandConstantSill(int nvar)
+void Constraints::expandConstantSill(Id nvar)
 {
   _constantSills.resize(nvar, _constantSillValue);
 }
@@ -155,11 +155,11 @@ void constraints_print(const Constraints& constraints)
  ** \param[in]  constraints  Constraints structure
  **
  *****************************************************************************/
-int modify_constraints_on_sill(Constraints& constraints)
+Id modify_constraints_on_sill(Constraints& constraints)
 
 {
-  int ncons = (int)constraints.getNConsItem();
-  for (int i = 0; i < ncons; i++)
+  Id ncons = constraints.getNConsItem();
+  for (Id i = 0; i < ncons; i++)
   {
     const ConsItem* consitem = constraints.getConsItems(i);
     if (consitem->getType() != EConsElem::SILL) continue;
@@ -171,7 +171,7 @@ int modify_constraints_on_sill(Constraints& constraints)
     if (consitem->getIV1() == 0 && consitem->getIV2() == 0 &&
         consitem->getIcase() == EConsType::UPPER)
     {
-      ConsItem* consjtem = new ConsItem(*consitem);
+      auto* consjtem = new ConsItem(*consitem);
       consjtem->setValue(-consjtem->getValue());
       consjtem->setIcase(EConsType::LOWER);
       constraints.addItem(consjtem);
@@ -197,15 +197,15 @@ int modify_constraints_on_sill(Constraints& constraints)
  *****************************************************************************/
 double constraints_get(const Constraints& constraints,
                        const EConsType& icase,
-                       int igrf,
-                       int icov,
+                       Id igrf,
+                       Id icov,
                        const EConsElem& icons,
-                       int iv1,
-                       int iv2)
+                       Id iv1,
+                       Id iv2)
 {
   if (!constraints.isDefined()) return (TEST);
 
-  for (int i = 0; i < (int)constraints.getNConsItem(); i++)
+  for (Id i = 0; i < constraints.getNConsItem(); i++)
   {
     const ConsItem* item = constraints.getConsItems(i);
     if (item->getIGrf() != igrf || item->getICov() != icov ||
@@ -236,7 +236,7 @@ double constraints_get(const Constraints& constraints,
  ** \param[in]  constantSill Constant value for the Sill as a constraint
  **
  *****************************************************************************/
-int add_sill_constraints(Constraints& constraints, double constantSill)
+Id add_sill_constraints(Constraints& constraints, double constantSill)
 {
   constraints.setConstantSillValue(constantSill);
 
@@ -252,7 +252,7 @@ int add_sill_constraints(Constraints& constraints, double constantSill)
  ** \param[in]  constraints   Constraints structure
  **
  *****************************************************************************/
-int add_unit_sill_constraints(Constraints& constraints)
+Id add_unit_sill_constraints(Constraints& constraints)
 {
   constraints.setConstantSillValue(1.);
   return (0);

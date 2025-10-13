@@ -27,7 +27,7 @@ public:
   FunctionalSpirale& operator=(const FunctionalSpirale &m);
   virtual ~FunctionalSpirale();
 
-  virtual double getFunctionValue(const VectorDouble& coor) const override;
+  double getFunctionValue(const VectorDouble& coor) const override;
 
   MatrixSquare getFunctionMatrix(const VectorDouble& coor) const;
   VectorVectorDouble getFunctionVectors(const Db *db, const CovAniso* cova) const;

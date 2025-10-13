@@ -17,7 +17,7 @@
 namespace gstlrn
 {
 /**
- * Calculate: int phi(r*y + u * sqrt(1-r^2)) g(u) du
+ * Calculate: Id phi(r*y + u * sqrt(1-r^2)) g(u) du
  *
  * @param yc Cutoff value
  * @param r  Change of support coefficient
@@ -26,19 +26,19 @@ namespace gstlrn
  */
 double integralGaussHermite(double yc, double r, const VectorDouble& psi)
 {
-  int nbpoly        = static_cast<int>(psi.size()) - 1;
+  Id nbpoly        = static_cast<Id>(psi.size()) - 1;
   VectorDouble vect = hermitePolynomials(yc, 1., nbpoly);
   double value      = hermiteSeries(vect, psi);
   return r * r * value;
 }
-void normalizeResults(int nbsimu, double& valest)
+void normalizeResults(Id nbsimu, double& valest)
 {
-  valest /= (double)nbsimu;
+  valest /= static_cast<double>(nbsimu);
 }
 
-void normalizeResults(int nbsimu, double& valest, double& valstd)
+void normalizeResults(Id nbsimu, double& valest, double& valstd)
 {
-  valest /= (double)nbsimu;
+  valest /= static_cast<double>(nbsimu);
   valstd = valstd / nbsimu - valest * valest;
   valstd = (valstd > 0.) ? sqrt(valstd) : 0.;
 }
@@ -46,17 +46,17 @@ void normalizeResults(int nbsimu, double& valest, double& valstd)
 VectorDouble MCCondExp(VectorDouble krigest,
                        VectorDouble krigstd,
                        const VectorDouble& psi,
-                       int nbsimu)
+                       Id nbsimu)
 {
   VectorDouble condexp;
 
-  int nech = static_cast<int>(krigest.size());
+  Id nech = static_cast<Id>(krigest.size());
   condexp.resize(nech, 0.);
 
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     double valest = 0.;
-    for (int isimu = 0; isimu < nbsimu; isimu++)
+    for (Id isimu = 0; isimu < nbsimu; isimu++)
     {
       double y = krigest[iech] + krigstd[iech] * law_gaussian();
       double z = hermiteCondExpElement(y, 0., psi);
@@ -71,10 +71,10 @@ VectorDouble MCCondExp(VectorDouble krigest,
 double MCCondExpElement(double krigest,
                         double krigstd,
                         const VectorDouble& psi,
-                        int nbsimu)
+                        Id nbsimu)
 {
   double valest = 0.;
-  for (int isimu = 0; isimu < nbsimu; isimu++)
+  for (Id isimu = 0; isimu < nbsimu; isimu++)
   {
     double y = krigest + krigstd * law_gaussian();
     double z = hermiteCondExpElement(y, 0., psi);
@@ -87,18 +87,18 @@ double MCCondExpElement(double krigest,
 VectorDouble MCCondStd(VectorDouble krigest,
                        VectorDouble krigstd,
                        const VectorDouble& psi,
-                       int nbsimu)
+                       Id nbsimu)
 {
   VectorDouble condstd;
 
-  int nech = static_cast<int>(krigest.size());
+  Id nech = static_cast<Id>(krigest.size());
   condstd.resize(nech);
 
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     double valest = 0.;
     double valstd = 0.;
-    for (int isimu = 0; isimu < nbsimu; isimu++)
+    for (Id isimu = 0; isimu < nbsimu; isimu++)
     {
       double y = krigest[iech] + krigstd[iech] * law_gaussian();
       double z = hermiteCondExpElement(y, 0., psi);
@@ -114,11 +114,11 @@ VectorDouble MCCondStd(VectorDouble krigest,
 double MCCondStdElement(double krigest,
                         double krigstd,
                         const VectorDouble& psi,
-                        int nbsimu)
+                        Id nbsimu)
 {
   double valest = 0.;
   double valstd = 0.;
-  for (int isimu = 0; isimu < nbsimu; isimu++)
+  for (Id isimu = 0; isimu < nbsimu; isimu++)
   {
     double y = krigest + krigstd * law_gaussian();
     double z = hermiteCondExpElement(y, 0., psi);
@@ -132,17 +132,17 @@ double MCCondStdElement(double krigest,
 VectorDouble MCIndicator(double yc,
                          VectorDouble krigest,
                          VectorDouble krigstd,
-                         int nbsimu)
+                         Id nbsimu)
 {
   VectorDouble proba;
 
-  int nech = static_cast<int>(krigest.size());
+  Id nech = static_cast<Id>(krigest.size());
   proba.resize(nech, 0.);
 
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     double valest = 0.;
-    for (int isimu = 0; isimu < nbsimu; isimu++)
+    for (Id isimu = 0; isimu < nbsimu; isimu++)
     {
       double y = krigest[iech] + krigstd[iech] * law_gaussian();
       if (y > yc)
@@ -156,10 +156,10 @@ VectorDouble MCIndicator(double yc,
   return proba;
 }
 
-double MCIndicatorElement(double yc, double krigest, double krigstd, int nbsimu)
+double MCIndicatorElement(double yc, double krigest, double krigstd, Id nbsimu)
 {
   double proba = 0.;
-  for (int isimu = 0; isimu < nbsimu; isimu++)
+  for (Id isimu = 0; isimu < nbsimu; isimu++)
   {
     double y = krigest + krigstd * law_gaussian();
     if (y > yc)
@@ -174,13 +174,13 @@ double MCIndicatorElement(double yc, double krigest, double krigstd, int nbsimu)
 VectorDouble MCIndicatorStd(double yc,
                             const VectorDouble& krigest,
                             const VectorDouble& krigstd,
-                            int nbsimu)
+                            Id nbsimu)
 {
   VectorDouble probstd = MCIndicator(yc, krigest, krigstd, nbsimu);
 
-  int nech = static_cast<int>(krigest.size());
+  Id nech = static_cast<Id>(krigest.size());
 
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     double proba  = probstd[iech];
     probstd[iech] = sqrt(proba * (1. - proba));
@@ -191,7 +191,7 @@ VectorDouble MCIndicatorStd(double yc,
 double MCIndicatorStdElement(double yc,
                              double krigest,
                              double krigstd,
-                             int nbsimu)
+                             Id nbsimu)
 {
   double proba   = MCIndicatorElement(yc, krigest, krigstd, nbsimu);
   double probstd = sqrt(proba * (1. - proba));
@@ -202,17 +202,17 @@ VectorDouble MCMetal(double yc,
                      VectorDouble krigest,
                      VectorDouble krigstd,
                      const VectorDouble& psi,
-                     int nbsimu)
+                     Id nbsimu)
 {
   VectorDouble metal;
 
-  int nech = static_cast<int>(krigest.size());
+  Id nech = static_cast<Id>(krigest.size());
   metal.resize(nech, 0.);
 
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     double valest = 0.;
-    for (int isimu = 0; isimu < nbsimu; isimu++)
+    for (Id isimu = 0; isimu < nbsimu; isimu++)
     {
       double y = krigest[iech] + krigstd[iech] * law_gaussian();
       if (y > yc)
@@ -230,10 +230,10 @@ double MCMetalElement(double yc,
                       double krigest,
                       double krigstd,
                       const VectorDouble& psi,
-                      int nbsimu)
+                      Id nbsimu)
 {
   double metal = 0.;
-  for (int isimu = 0; isimu < nbsimu; isimu++)
+  for (Id isimu = 0; isimu < nbsimu; isimu++)
   {
     double y = krigest + krigstd * law_gaussian();
     if (y > yc)
@@ -249,18 +249,18 @@ VectorDouble MCMetalStd(double yc,
                         VectorDouble krigest,
                         VectorDouble krigstd,
                         const VectorDouble& psi,
-                        int nbsimu)
+                        Id nbsimu)
 {
   VectorDouble metstd;
 
-  int nech = static_cast<int>(krigest.size());
+  Id nech = static_cast<Id>(krigest.size());
   metstd.resize(nech, 0.);
 
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     double valest = 0.;
     double valstd = 0.;
-    for (int isimu = 0; isimu < nbsimu; isimu++)
+    for (Id isimu = 0; isimu < nbsimu; isimu++)
     {
       double y = krigest[iech] + krigstd[iech] * law_gaussian();
       if (y > yc)
@@ -280,11 +280,11 @@ double MCMetalStdElement(double yc,
                          double krigest,
                          double krigstd,
                          const VectorDouble& psi,
-                         int nbsimu)
+                         Id nbsimu)
 {
   double metstd = 0.;
   double metest = 0.;
-  for (int isimu = 0; isimu < nbsimu; isimu++)
+  for (Id isimu = 0; isimu < nbsimu; isimu++)
   {
     double y = krigest + krigstd * law_gaussian();
     if (y > yc)

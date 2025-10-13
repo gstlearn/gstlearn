@@ -38,7 +38,7 @@ GridXYZ::~GridXYZ()
 {
 }
 
-int GridXYZ::writeInFile()
+Id GridXYZ::writeInFile()
 {
   /* Open the file */
 
@@ -51,11 +51,11 @@ int GridXYZ::writeInFile()
 
   /* Write the set of values */
 
-  int lec = 0;
-  for (int ix = 0; ix < _dbgrid->getNX(0); ix++)
-    for (int iy = 0; iy < _dbgrid->getNX(1); iy++)
+  Id lec = 0;
+  for (Id ix = 0; ix < _dbgrid->getNX(0); ix++)
+    for (Id iy = 0; iy < _dbgrid->getNX(1); iy++)
     {
-      for (int i = 0; i < _dbgrid->getNDim(); i++)
+      for (Id i = 0; i < _dbgrid->getNDim(); i++)
         fprintf(_file, "%lf,", _dbgrid->getCoordinate(lec, i));
       double value = _dbgrid->getArray(lec, _cols[0]);
       if (FFFF(value))

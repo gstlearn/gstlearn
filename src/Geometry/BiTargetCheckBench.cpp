@@ -13,7 +13,7 @@
 
 namespace gstlrn
 {
-BiTargetCheckBench::BiTargetCheckBench(int idim_bench, double width)
+BiTargetCheckBench::BiTargetCheckBench(Id idim_bench, double width)
   : ABiTargetCheck()
   , _idimBench(idim_bench)
   , _width(width)
@@ -42,7 +42,7 @@ BiTargetCheckBench::~BiTargetCheckBench()
 {
 }
 
-BiTargetCheckBench* BiTargetCheckBench::create(int idim_bench, double width)
+BiTargetCheckBench* BiTargetCheckBench::create(Id idim_bench, double width)
 {
   return new BiTargetCheckBench(idim_bench, width);
 }

@@ -26,7 +26,7 @@ Projection::Projection(bool flag_mean, Db* db)
   _xcenter(TEST),
   _ycenter(TEST)
 {
-  int ndim = db->getNLoc(ELoc::X);
+  Id ndim = db->getNLoc(ELoc::X);
   if (ndim != 2)
   {
     messerr("The Projection structure is only valid for 2-D space");
@@ -113,10 +113,10 @@ VectorDouble Projection::operateInvert(const VectorDouble& coor) const
   return res;
 }
 
-int Projection::operateVecInPlace(VectorDouble& x, VectorDouble& y) const
+Id Projection::operateVecInPlace(VectorDouble& x, VectorDouble& y) const
 {
-  int nech = (int) x.size();
-  if (nech != (int) y.size())
+  Id nech = static_cast<Id>(x.size());
+  if (nech != static_cast<Id>(y.size()))
   {
     messerr("Arguments 'x' and 'y' should have same dimension");
     return 1;
@@ -125,7 +125,7 @@ int Projection::operateVecInPlace(VectorDouble& x, VectorDouble& y) const
   // Loop on the samples to be projected
 
   VectorDouble coor(2);
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     coor[0] = x[iech];
     coor[1] = y[iech];
@@ -137,7 +137,7 @@ int Projection::operateVecInPlace(VectorDouble& x, VectorDouble& y) const
   return 0;
 }
 
-int Projection::operateOnDb(Db *db) const
+Id Projection::operateOnDb(Db *db) const
 {
   if (db == nullptr) return 0;
   if (db->getNLoc(ELoc::X) < 2)
@@ -160,13 +160,13 @@ int Projection::operateOnDb(Db *db) const
   return 0;
 }
 
-int Projection::operateOnPolygons(Polygons* poly) const
+Id Projection::operateOnPolygons(Polygons* poly) const
 {
   if (poly == nullptr) return 0;
-  int npol = poly->getNPolyElem();
+  Id npol = poly->getNPolyElem();
 
   // Loop on the Polygon elements
-  for (int ipol = 0; ipol < npol; ipol++)
+  for (Id ipol = 0; ipol < npol; ipol++)
   {
     VectorDouble xx = poly->getX(ipol);
     VectorDouble yy = poly->getY(ipol);

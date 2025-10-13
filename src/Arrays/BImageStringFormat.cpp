@@ -50,15 +50,15 @@ BImageStringFormat::~BImageStringFormat()
 {
 }
 
-int BImageStringFormat::getIndMin(int idim) const
+Id BImageStringFormat::getIndMin(Id idim) const
 {
-  if (idim < (int)_indMin.size()) return _indMin[idim];
+  if (idim < static_cast<Id>(_indMin.size())) return _indMin[idim];
   return 0;
 }
 
-int BImageStringFormat::getIndMax(int idim) const
+Id BImageStringFormat::getIndMax(Id idim) const
 {
-  if (idim < (int)_indMax.size()) return _indMax[idim];
+  if (idim < static_cast<Id>(_indMax.size())) return _indMax[idim];
   return ITEST;
 }
 }

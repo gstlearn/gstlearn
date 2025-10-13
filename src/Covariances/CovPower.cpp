@@ -45,7 +45,7 @@ double CovPower::_evaluateCov(double h) const
 {
   double a;
 
-  int ndim     = getContext().getNDim();
+  auto ndim    = getContext().getNDim();
   double alpha = getParam();
   double r     = getContext().getField();
   double ra    = pow(r, alpha);

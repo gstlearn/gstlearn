@@ -27,7 +27,7 @@ public:
   MeshSphericalExt& operator=(const MeshSphericalExt &m);
   virtual ~MeshSphericalExt();
 
-  int resetFromDb(Db* dbin,
+  Id resetFromDb(Db* dbin,
                    Db* dbout,
                    const String& triswitch = "nqQ",
                    bool verbose            = false);

@@ -212,13 +212,13 @@
   #include "Covariances/CovAnisoList.hpp"
   #include "Covariances/CovAnisoList.hpp"
   #include "Covariances/CovAniso.hpp"
-  #include "Covariances/ACovGradient.hpp"
+  #include "Covariances/CovGradientGeneric.hpp"
+  #include "Covariances/CovGradientAnalytic.hpp"
   #include "Covariances/CorGneiting.hpp"
   #include "Covariances/CorMatern.hpp"
   #include "Covariances/CovLMCTapering.hpp"
   #include "Covariances/CovLMCConvolution.hpp"
   #include "Covariances/CovLMCAnamorphosis.hpp"
-  #include "Covariances/CovLMGradient.hpp"
   #include "Covariances/CovContext.hpp"
   #include "Covariances/CovCalcMode.hpp"
   #include "Covariances/CovBesselJ.hpp"
@@ -264,19 +264,19 @@
   #include "Matrix/AMatrix.hpp"
   #include "Matrix/MatrixDense.hpp"
   #include "Matrix/MatrixSparse.hpp"
-  #include "Matrix/LinkMatrixSparse.hpp"
   #include "Matrix/MatrixSquare.hpp"
   #include "Matrix/NF_Triplet.hpp"
   #include "Matrix/MatrixSymmetric.hpp"
   #include "Matrix/MatrixFactory.hpp"
   #include "Matrix/MatrixInt.hpp"
   #include "Matrix/Table.hpp"
-  
+  #include "LinearOp/InvNuggetOp.hpp"
+
   #include "API/SPDE.hpp"
-  #include "API/PGSSPDE.hpp"
   #include "API/TestInheritance.hpp"
   #include "API/Style.hpp"
   #include "API/SPDEParam.hpp"
+  #include "API/Potential.hpp"
   
   #include "Db/Db.hpp"
   #include "Db/DbGrid.hpp"
@@ -321,11 +321,13 @@
   #include "Estimation/KrigingAlgebra.hpp"
   #include "Estimation/CalcKriging.hpp"
   #include "Estimation/CalcKrigingFactors.hpp"
+  #include "Estimation/CalcKrigingGradient.hpp"
   #include "Estimation/CalcSimpleInterpolation.hpp"
   #include "Estimation/CalcImage.hpp"
   #include "Estimation/CalcGlobal.hpp"
   #include "Estimation/KrigOpt.hpp"
   #include "Estimation/AModelOptim.hpp"
+  #include "Estimation/AModelOptimFactory.hpp"
   #include "Estimation/ALikelihood.hpp"
   #include "Estimation/Vecchia.hpp"
   #include "Estimation/Likelihood.hpp"
@@ -377,7 +379,6 @@
   #include "Spatial/SpatialIndices.hpp"
 
   #include "Core/Acknowledge.hpp"
-  #include "Core/Potential.hpp"
   #include "Core/Seismic.hpp"
 
   #include "API/newAPIs.hpp"
@@ -396,6 +397,7 @@
 %include std_vector.i
 %include std_string.i
 %template(DoNotUseVectorIntStd)     std::vector< int >;
+%template(DoNotUseVectorLongStd)    std::vector< long >;
 %template(DoNotUseVectorSizeT)      std::vector< size_t >; // Keep size_t here otherwise asptr fails!
 %template(DoNotUseVectorDoubleStd)  std::vector< double >;
 %template(DoNotUseVectorStringStd)  std::vector< std::string >; // Keep std::string here otherwise asptr fails!
@@ -403,6 +405,7 @@
 %template(DoNotUseVectorUCharStd)   std::vector< unsigned char >; // Keep unsigned char here
 %template(DoNotUseVectorBoolStd)    std::vector< bool >;
 %template(DoNotUseVVectorIntStd)    std::vector< std::vector< int > >;
+%template(DoNotUseVVectorLongStd)   std::vector< std::vector< long > >;
 %template(DoNotUseVVectorDoubleStd) std::vector< std::vector< double > >;
 %template(DoNotUseVVectorFloatStd)  std::vector< std::vector< float > >; 
 
@@ -433,7 +436,7 @@ namespace gstlrn {
 //          functions must be defined in ToCpp fragment
 
 // Convert scalar arguments by value
-%typemap(in, fragment="ToCpp") int,
+%typemap(in, fragment="ToCpp") Id,
                                double,
                                String,
                                float,
@@ -468,8 +471,8 @@ namespace gstlrn {
 
 // Convert scalar argument by reference
 // Don't add String or char here otherwise "res2 not declared" / "alloc1 not declared"
-%typemap(in, fragment="ToCpp") int*       (int val), const int*       (int val),
-                               int&       (int val), const int&       (int val),
+%typemap(in, fragment="ToCpp") Id*     (Id val),     const Id*     (Id val),
+                               Id&     (Id val),     const Id&     (Id val),
                                double* (double val), const double* (double val),
                                double& (double val), const double& (double val), 
                                float*   (float val), const float*   (float val),
@@ -636,7 +639,7 @@ namespace gstlrn {
 %typemap(in, fragment="ToCpp") const VectorDouble* (void *argp)
 {
   // Try to convert from any target language vector
-  VectorDouble* vec = new VectorDouble();
+  auto* vec = new VectorDouble();
   int errcode = vectorToCpp($input, *vec);
   if (errcode == SWIG_NullReferenceError)
   {
@@ -673,7 +676,8 @@ namespace gstlrn {
 %typemap(in, fragment="ToCpp") const VectorInt*    (void *argp, VectorInt vec)
 {
   // Try to convert from any target language vector
-  VectorInt* vec = new VectorInt();
+
+  auto* vec = new VectorInt();
   int errcode = vectorToCpp($input, *vec);
   if (errcode == SWIG_NullReferenceError)
   {
@@ -711,7 +715,7 @@ namespace gstlrn {
 %typemap(in, fragment="ToCpp") const VectorVectorInt*    (void *argp, VectorVectorInt vec)
 {
   // Try to convert from any target language vector
-  VectorVectorInt* vec = new VectorVectorInt();
+  auto* vec = new VectorVectorInt();
   int errcode = vectorVectorToCpp($input, *vec);
   if (errcode == SWIG_NullReferenceError)
   {
@@ -850,7 +854,6 @@ namespace gstlrn {
       {
         if (!argp) {
           %argument_nullref("$type", $symname, $argnum);
-          $1 = nullptr;
         }
         else
           $1 = %reinterpret_cast(argp, $ltype);
@@ -889,7 +892,6 @@ namespace gstlrn {
       {
         if (!argp) {
           %argument_nullref("$type", $symname, $argnum);
-          $1 = nullptr;
         }
         else
           $1 = %reinterpret_cast(argp, $ltype);
@@ -917,7 +919,7 @@ namespace gstlrn {
 //        - matrixDenseFromCpp, matrixSparseFromCpp, objectFromCpp 
 //          functions must be defined in FromCpp fragment
 
-%typemap(out, fragment="FromCpp") int,
+%typemap(out, fragment="FromCpp") Id,
                                   double,
                                   String,
                                   float,
@@ -932,7 +934,7 @@ namespace gstlrn {
   $result = objectFromCpp(tmp);
 }
 
-%typemap(out, fragment="FromCpp") int*,    const int*,    int&,    const int&,
+%typemap(out, fragment="FromCpp") Id*,     const Id*,     Id&,     const Id&,
                                   double*, const double*, double&, const double&,
                                   String*, const String*, String&, const String&,
                                   float*,  const float*,  float&,  const float&,
@@ -1054,12 +1056,12 @@ namespace gstlrn {
     return $self->indiceToCoordinate(idim0, indice.getVector(), percent.getVector(), flag_rotate);
   }
 
-  int indiceToRank(const VectorInt &indice) const
+  Id indiceToRank(const VectorInt &indice) const
   {
     return $self->indiceToRank(indice.getVector());
   }
 
-  void rankToIndice(int rank, VectorInt &indices, bool minusOne = false) const
+  void rankToIndice(Id rank, VectorInt &indices, bool minusOne = false) const
   {
     return $self->rankToIndice(rank, indices.getVector(), minusOne);
   }
@@ -1075,12 +1077,19 @@ namespace gstlrn {
 
 %extend gstlrn::Rule {
   // Don't return std::array to wrapping languages
-  VectorDouble getThresh(int facies) const
+  VectorDouble getThresh(Id facies) const
   {
     const auto thresh = $self->getThresh(facies);
     return VectorDouble{thresh.begin(), thresh.end()};
   }
 };
+
+%extend gstlrn::KNN {
+  VectorInt getIndices(int rank = 0) const {
+    const auto view = $self->getIndices(rank);
+    return {view.begin(), view.end()};
+  }
+}
 
 // Prevent memory leaks from 'create*' and 'clone' methods
 
@@ -1096,6 +1105,33 @@ namespace gstlrn {
 %{
   #include <memory>
 %}
+
+//quick and dirty way to handle shared_ptrs for one python test
+// This is not a good practice, but it works for now
+// better solution would be to use a shared_ptr 
+%typemap(in) const std::shared_ptr<const gstlrn::ASimulable> & {
+  gstlrn::ASimulable* ptr = nullptr;
+  int res = SWIG_ConvertPtr($input, (void**)&ptr, SWIGTYPE_p_gstlrn__ASimulable, 0);
+
+  if (SWIG_IsOK(res) && ptr != nullptr) {
+    *$1 = std::shared_ptr<const gstlrn::ASimulable>(ptr);
+  } else {
+    SWIG_exception_fail(SWIG_TypeError, "Expected ASimulable-derived object");
+  }
+}
+
+%typemap(in) const std::shared_ptr<const gstlrn::MatrixSparse> & {
+  gstlrn::MatrixSparse* ptr = nullptr;
+  int res = SWIG_ConvertPtr($input, (void**)&ptr, SWIGTYPE_p_gstlrn__MatrixSparse, 0);
+
+  if (SWIG_IsOK(res) && ptr != nullptr) {
+    *$1 = std::shared_ptr<const gstlrn::MatrixSparse>(ptr);
+  } else {
+    SWIG_exception_fail(SWIG_TypeError, "Expected MatrixSparse object");
+  }
+}
+
 %include <std_shared_ptr.i>
 %template(ASpaceSharedPtr)    std::shared_ptr<const gstlrn::ASpace>;
 %template(ASpaceSharedPtrVector)   std::vector< gstlrn::ASpaceSharedPtr>;
+%template(MatrixSparseSh) std::shared_ptr<const gstlrn::MatrixSparse >;

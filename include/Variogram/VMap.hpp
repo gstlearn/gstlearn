@@ -45,60 +45,60 @@ public:
   DECLARE_TOTL;
 
   /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// AVario Interface
-  double _getIVAR(const Db *db, int iech, int ivar) const override;
-  void _setResult(int iech1,
-                  int iech2,
-                  int nvar,
-                  int ilag,
-                  int ivar,
-                  int jvar,
-                  int orient,
+  double _getIVAR(const Db *db, Id iech, Id ivar) const override;
+  void _setResult(Id iech1,
+                  Id iech2,
+                  Id nvar,
+                  Id ilag,
+                  Id ivar,
+                  Id jvar,
+                  Id orient,
                   double ww,
                   double dist,
                   double value) override;
 
-  int compute(Db *db,
+  Id compute(Db *db,
               const ECalcVario &calcul_type,
-              int radius,
+              Id radius,
               bool flag_FFT = true,
               const NamingConvention &namconv = NamingConvention("VMAP"));
 
 private:
-  int _grid_fft(DbGrid *dbgrid,
+  Id _grid_fft(DbGrid *dbgrid,
                 const NamingConvention &namconv);
-  static void _extract(const int* nxmap,
-                       const int* nxgrid,
-                       int* dims,
+  static void _extract(const Id* nxmap,
+                       const Id* nxgrid,
+                       Id* dims,
                        VectorDouble& tabin,
                        VectorDouble& tabout);
-  int _vmap_general(Db *db,
-                    int radius,
+  Id _vmap_general(Db *db,
+                    Id radius,
                     const NamingConvention &namconv);
-  int _vmap_grid(DbGrid *dbgrid,
+  Id _vmap_grid(DbGrid *dbgrid,
                  const NamingConvention &namconv);
-  static int _get_variable_order(int nvar, int ivar0, int jvar0);
-  static void _complexArrayAlloc(int size, VectorVectorDouble& tab);
-  static int _vmap_load_simple(DbGrid* dbgrid,
-                               int ndim,
-                               int sizetot,
-                               const int* dims,
-                               int* dinv,
-                               int ivar,
-                               int jvar,
+  static Id _get_variable_order(Id nvar, Id ivar0, Id jvar0);
+  static void _complexArrayAlloc(Id size, VectorVectorDouble& tab);
+  static Id _vmap_load_simple(DbGrid* dbgrid,
+                               Id ndim,
+                               Id sizetot,
+                               const Id* dims,
+                               Id* dinv,
+                               Id ivar,
+                               Id jvar,
                                VectorVectorDouble& i1i2,
                                VectorVectorDouble& z1i2,
                                VectorVectorDouble& z2i1,
                                VectorVectorDouble& z2z1);
-  static int _vmap_load_cross(DbGrid* dbgrid,
-                              int ndim,
-                              int sizetot,
-                              const int* dims,
-                              int* dinv,
-                              int ivar,
-                              int jvar,
+  static Id _vmap_load_cross(DbGrid* dbgrid,
+                              Id ndim,
+                              Id sizetot,
+                              const Id* dims,
+                              Id* dinv,
+                              Id ivar,
+                              Id jvar,
                               VectorVectorDouble& i1i1,
                               VectorVectorDouble& z1i1,
                               VectorVectorDouble& i2i2,
@@ -110,9 +110,9 @@ private:
                                  VectorVectorDouble& tab);
   static void _vmap_rescale(double scale, VectorDouble& tab1, VectorDouble& tab2);
   static void _vmap_shift(VectorDouble& tab, VectorDouble& tabm1, VectorDouble& tabm2);
-  void _vmap_store(VectorDouble& tab, int iptr);
-  void _vmap_normalize(int nv2);
-  int _findNeighCell(const VectorInt& indg0, const VectorInt& neigh, int rank, VectorInt& indg1);
+  void _vmap_store(VectorDouble& tab, Id iptr);
+  void _vmap_normalize(Id nv2);
+  Id _findNeighCell(const VectorInt& indg0, const VectorInt& neigh, Id rank, VectorInt& indg1);
 
 private:
   DbGrid* _dbmap; // Pointer to the already existing output DbGrid (not to be deleted)
@@ -122,7 +122,7 @@ GSTLEARN_EXPORT DbGrid* db_vmap(Db *db,
                                 const ECalcVario &calcul_type = ECalcVario::fromKey("VARIOGRAM"),
                                 const VectorInt &nxx = VectorInt(),
                                 const VectorDouble &dxx = VectorDouble(),
-                                int radius = 0,
+                                Id radius = 0,
                                 bool flag_FFT = true,
                                 const NamingConvention &namconv = NamingConvention("VMAP"));
 }

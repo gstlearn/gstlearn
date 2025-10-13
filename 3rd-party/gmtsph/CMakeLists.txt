@@ -13,7 +13,7 @@ add_library(gmtsph STATIC ${SOURCES})
 # Include directories
 target_include_directories(gmtsph PUBLIC
   # Add includes path for compiling the library
-  $<BUILD_INTERFACE: ${INCLUDES}>
+  "$<BUILD_INTERFACE:${INCLUDES}>"
 )
 
 # Set some target properties

@@ -70,7 +70,7 @@ SpaceTarget* SpaceTarget::create(const VectorDouble& center,
                                  double date,
                                  const ASpaceSharedPtr& space)
 {
-  SpaceTarget* st = new SpaceTarget(space);
+  auto* st = new SpaceTarget(space);
   st->setCoords(center);
   st->setExtend(extend);
   st->setCode(code);
@@ -82,14 +82,14 @@ void SpaceTarget::_initialize()
 {
   // Fill the extension with zeroes
   if (_extend.empty())
-    VH::fill(_extend, 0., getNDim());
+    VH::fill(_extend, 0., static_cast<Id>(getNDim()));
 }
 
 String SpaceTarget::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << "- Center    = " << VH::toStringAsSpan(getCoords());
+  sstr << "- Center    = " << VH::toStringAsSpan(getCoordsView());
   if (_checkExtend)
   {
     if (!_extend.empty())

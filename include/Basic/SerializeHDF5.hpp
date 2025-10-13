@@ -30,7 +30,7 @@ namespace SerializeHDF5
   /**
    * @brief Map values to corresponding HDF5 C++ types
    */
-  inline H5::DataType getHDF5Type([[maybe_unused]] const int a)
+  inline H5::DataType getHDF5Type([[maybe_unused]] const I32 a)
   {
     return H5::PredType::NATIVE_INT;
   }
@@ -389,5 +389,6 @@ bool SerializeHDF5::writeValue(H5::H5Object& grp, const String& name, const T& v
   return true;
 }
 
+} // namespace gstlrn
+
 #endif // HDF5
-}

@@ -80,13 +80,13 @@ KrigOpt::~KrigOpt()
 {
 }
 
-int KrigOpt::getNvarLC() const
+Id KrigOpt::getNvarLC() const
 {
   if (_matLC == nullptr) return 0;
   return _matLC->getNRows();
 }
 
-double KrigOpt::getMatLCValue(int ivarcl, int ivar) const
+double KrigOpt::getMatLCValue(Id ivarcl, Id ivar) const
 {
   if (_matLC == nullptr) return TEST;
   return _matLC->getValue(ivarcl, ivar);
@@ -99,13 +99,13 @@ double KrigOpt::getMatLCValue(int ivarcl, int ivar) const
  * @remarks The number of Rows of 'matLC' is the number of Output variables
  * @remarks The number of Columns of 'matLC' is the number of input Variables.
  */
-int KrigOpt::setMatLC(const MatrixDense* matLC)
+Id KrigOpt::setMatLC(const MatrixDense* matLC)
 {
   _matLC = matLC;
   return 0;
 }
 
-int KrigOpt::setOptionCalcul(const EKrigOpt& calcul,
+Id KrigOpt::setOptionCalcul(const EKrigOpt& calcul,
                              const VectorInt& ndiscs,
                              bool flag_per_cell)
 {
@@ -132,11 +132,11 @@ int KrigOpt::setOptionCalcul(const EKrigOpt& calcul,
     _flagPerCell = flag_per_cell;
 
     // Prepare auxiliary storage
-    _nDiscDim    = (int)ndiscs.size();
+    _nDiscDim    = static_cast<Id>(ndiscs.size());
     _nDiscNumber = VH::product(_ndiscs);
     _disc1.resize(_nDiscNumber);
     _disc2.resize(_nDiscNumber);
-    for (int i = 0; i < _nDiscNumber; i++)
+    for (Id i = 0; i < _nDiscNumber; i++)
     {
       _disc1[i].resize(_nDiscDim);
       _disc2[i].resize(_nDiscDim);
@@ -149,14 +149,14 @@ int KrigOpt::setOptionCalcul(const EKrigOpt& calcul,
   return 0;
 }
 
-int KrigOpt::setColCok(const VectorInt& rank_colcok)
+Id KrigOpt::setColCok(const VectorInt& rank_colcok)
 {
   _rankColcok = rank_colcok;
   _flagColcok = !rank_colcok.empty();
   return 0;
 }
 
-void KrigOpt::blockDiscretize(int iechout, bool flagRandom, int seed) const
+void KrigOpt::blockDiscretize(Id iechout, bool flagRandom, Id seed) const
 {
   _disc1 = _dbgrid->getDiscretizedBlock(_ndiscs, iechout, _flagPerCell, false);
 
@@ -164,36 +164,36 @@ void KrigOpt::blockDiscretize(int iechout, bool flagRandom, int seed) const
     _disc2 = _dbgrid->getDiscretizedBlock(_ndiscs, iechout, _flagPerCell, true, seed);
 }
 
-double KrigOpt::_getDisc1(int idisc, int idim) const
+double KrigOpt::_getDisc1(Id idisc, Id idim) const
 {
   return _disc1[idisc][idim];
 }
-VectorDouble KrigOpt::getDisc1VD(int idisc) const
+VectorDouble KrigOpt::getDisc1VD(Id idisc) const
 {
   VectorDouble vec(_nDiscDim);
-  for (int idim = 0; idim < _nDiscDim; idim++) vec[idim] = _disc1[idisc][idim];
+  for (Id idim = 0; idim < _nDiscDim; idim++) vec[idim] = _disc1[idisc][idim];
   return vec;
 }
 VectorVectorDouble KrigOpt::getDisc1VVD() const
 {
   VectorVectorDouble vecvec(_nDiscNumber);
-  for (int idisc = 0; idisc < _nDiscNumber; idisc++) vecvec[idisc] = getDisc1VD(idisc);
+  for (Id idisc = 0; idisc < _nDiscNumber; idisc++) vecvec[idisc] = getDisc1VD(idisc);
   return vecvec;
 }
-double KrigOpt::_getDisc2(int idisc, int idim) const
+double KrigOpt::_getDisc2(Id idisc, Id idim) const
 {
   return _disc2[idisc][idim];
 }
-VectorDouble KrigOpt::getDisc2VD(int idisc) const
+VectorDouble KrigOpt::getDisc2VD(Id idisc) const
 {
   VectorDouble vec(_nDiscDim);
-  for (int idim = 0; idim < _nDiscDim; idim++) vec[idim] = _disc2[idisc][idim];
+  for (Id idim = 0; idim < _nDiscDim; idim++) vec[idim] = _disc2[idisc][idim];
   return vec;
 }
 VectorVectorDouble KrigOpt::getDisc2VVD() const
 {
   VectorVectorDouble vecvec(_nDiscNumber);
-  for (int idisc = 0; idisc < _nDiscNumber; idisc++) vecvec[idisc] = getDisc2VD(idisc);
+  for (Id idisc = 0; idisc < _nDiscNumber; idisc++) vecvec[idisc] = getDisc2VD(idisc);
   return vecvec;
 }
 
@@ -218,7 +218,7 @@ bool KrigOpt::_isValidCalcul(const Db* dbout, const ANeigh* neigh) const
   // Check the Block calculation
   if (_calcul == EKrigOpt::BLOCK)
   {
-    const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(dbout);
+    const auto* dbgrid = dynamic_cast<const DbGrid*>(dbout);
     _dbgrid              = dbgrid;
     if (dbgrid == nullptr)
     {
@@ -250,13 +250,13 @@ bool KrigOpt::_isValidColcok(const Db* dbout, const ModelGeneric* model) const
 {
   if (!_flagColcok) return true;
 
-  int nvar = model->getNVar();
+  Id nvar = model->getNVar();
 
   /* Loop on the ranks of the colocated variables */
 
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (Id ivar = 0; ivar < nvar; ivar++)
   {
-    int jvar = _rankColcok[ivar];
+    Id jvar = _rankColcok[ivar];
     if (jvar < 0) continue;
     if (jvar > dbout->getNLoc(ELoc::Z))
     {
@@ -275,19 +275,19 @@ bool KrigOpt::_isValidMatLC(const ModelGeneric* model) const
 {
   if (_matLC == nullptr) return true;
   if (_matLC->empty()) return true;
-  int nvar  = model->getNVar();
-  int nrows = (int)_matLC->getNRows();
-  int ncols = (int)_matLC->getNCols();
+  Id nvar  = model->getNVar();
+  Id nrows = _matLC->getNRows();
+  Id ncols = _matLC->getNCols();
 
   if (nrows > nvar)
   {
-    messerr("First dimension of 'matLC' (%d)", (int)nrows);
+    messerr("First dimension of 'matLC' (%ld)", nrows);
     messerr("should be smaller than the number of variables in the model (%d)", nvar);
     return false;
   }
   if (ncols != nvar)
   {
-    messerr("Second dimension of 'matLC' (%d)", (int)ncols);
+    messerr("Second dimension of 'matLC' (%ld)", ncols);
     messerr("should be equal to the number of variables in the model (%d)", nvar);
     return false;
   }
@@ -297,14 +297,14 @@ bool KrigOpt::_isValidMatLC(const ModelGeneric* model) const
 bool KrigOpt::_isValidDGM(const Db* dbout, const ModelGeneric* model) const
 {
   if (!_flagDGM) return true;
-  int nvar = model->getNVar();
+  Id nvar = model->getNVar();
 
   if (!dbout->isGrid())
   {
     messerr("For DGM option, the argument 'dbout'  should be a Grid");
     return false;
   }
-  const Model* modelAniso = dynamic_cast<const Model*>(model);
+  const auto* modelAniso = dynamic_cast<const Model*>(model);
   if (modelAniso == nullptr)
   {
     messerr("The option DGM is limited to model Aniso");
@@ -373,10 +373,10 @@ void KrigOpt::dumpOptions() const
     case EKrigOpt::E_BLOCK:
     {
       message("Block Estimation : Discretization = ");
-      for (int idim = 0; idim < _nDiscDim; idim++)
+      for (Id idim = 0; idim < _nDiscDim; idim++)
       {
         if (idim != 0) message(" x ");
-        message("%d", getDisc(idim));
+        message("%ld", getDisc(idim));
       }
       message("\n");
       break;
@@ -396,4 +396,4 @@ void KrigOpt::dumpOptions() const
   }
   message("\n");
 }
-}
+} // namespace gstlrn

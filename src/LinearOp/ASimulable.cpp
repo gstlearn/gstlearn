@@ -16,6 +16,10 @@
 
 namespace gstlrn
 {
+
+ASimulable::ASimulable()
+{
+}
 VectorDouble ASimulable::evalSimulate(const VectorDouble& whitenoise) const
 {
   VectorDouble res;
@@ -31,8 +35,8 @@ VectorDouble ASimulable::simulate() const
   evalSimulate(whitenoise, res);
   return res;
 }
-int ASimulable::evalSimulate(const VectorDouble& whitenoise,
-                             VectorDouble& outv) const
+Id ASimulable::evalSimulate(const VectorDouble& whitenoise,
+                            VectorDouble& outv) const
 {
   outv.resize(whitenoise.size());
   constvect ws(whitenoise);
@@ -40,21 +44,21 @@ int ASimulable::evalSimulate(const VectorDouble& whitenoise,
   return evalSimulate(ws, outs);
 }
 
-int ASimulable::evalSimulate(const constvect whitenoise, vect result) const
+Id ASimulable::evalSimulate(const constvect whitenoise, vect result) const
 {
   std::fill(result.begin(), result.end(), 0.);
   return _addSimulateToDest(whitenoise, result);
 }
 
-int ASimulable::addSimulateToDest(const constvect whitenoise, vect outv) const
+Id ASimulable::addSimulateToDest(const constvect whitenoise, vect outv) const
 {
   return _addSimulateToDest(whitenoise, outv);
 }
 
-double ASimulable::computeLogDet(int nMC) const
+double ASimulable::computeLogDet(Id nMC) const
 {
   DECLARE_UNUSED(nMC);
   messerr("computeLogDet not implemented in ASimulable");
   return TEST;
 }
-}
+} // namespace gstlrn

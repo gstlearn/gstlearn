@@ -25,7 +25,7 @@ namespace gstlrn
  * @param nvar         Number of variables
  * @param space        Space definition
  */
-CovContext::CovContext(int nvar, const ASpaceSharedPtr& space)
+CovContext::CovContext(Id nvar, const ASpaceSharedPtr& space)
 
   : ASpaceObject(space)
   , _nVar(nvar)
@@ -42,8 +42,8 @@ CovContext::CovContext(int nvar, const ASpaceSharedPtr& space)
  * @param ndim         Number of dimension of the euclidean space (RN)
  * @param covar0       Vector of variance-covariance
  */
-CovContext::CovContext(int nvar,
-                       int ndim,
+CovContext::CovContext(Id nvar,
+                       Id ndim,
                        const VectorDouble& covar0)
   : ASpaceObject(SpaceRN::create(ndim))
   , _nVar(nvar)
@@ -66,8 +66,8 @@ CovContext::CovContext(const Db* db, const ASpaceSharedPtr& space)
   _update();
 }
 
-CovContext::CovContext(const Vario* vario, const ASpaceSharedPtr& space)
-  : ASpaceObject(space)
+CovContext::CovContext(const Vario* vario)
+  : ASpaceObject(vario->getSpace())
   , _nVar(0)
   , _field(TEST)
   , _covar0()
@@ -113,9 +113,9 @@ String CovContext::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-CovContext* CovContext::create(int nvar, int ndim)
+CovContext* CovContext::create(Id nvar, Id ndim)
 {
-  CovContext* ctxt = new CovContext(nvar, ndim);
+  auto* ctxt = new CovContext(nvar, ndim);
   return ctxt;
 }
 
@@ -137,10 +137,10 @@ bool CovContext::isEqual(const CovContext& r) const
   return (_nVar == r.getNVar() && _space->isEqual(r.getSpace().get()));
 }
 
-double CovContext::getCovar0(int ivar, int jvar) const
+double CovContext::getCovar0(Id ivar, Id jvar) const
 {
-  int rank = _getIndex(ivar, jvar);
-  if (rank < 0 || rank >= (int)_covar0.size())
+  auto rank = _getIndex(ivar, jvar);
+  if (rank < 0 || rank >= static_cast<Id>(_covar0.size()))
     my_throw("Invalid argument in _setCovar0");
   return _covar0[rank];
 }
@@ -155,22 +155,22 @@ void CovContext::setCovar0s(const VectorDouble& covar0)
     _covar0 = covar0;
 }
 
-void CovContext::setCovar0(int ivar, int jvar, double covar0)
+void CovContext::setCovar0(Id ivar, Id jvar, double covar0)
 {
-  int rank = _getIndex(ivar, jvar);
-  if (rank < 0 || rank >= (int)_covar0.size())
+  auto rank = _getIndex(ivar, jvar);
+  if (rank < 0 || rank >= static_cast<Id>(_covar0.size()))
     my_throw("Invalid argument in _setCovar0");
   _covar0[rank] = covar0;
 }
 
-int CovContext::_getIndex(int ivar, int jvar) const
+Id CovContext::_getIndex(Id ivar, Id jvar) const
 {
   return ivar * getNVar() + jvar;
 }
 
 void CovContext::_update()
 {
-  if (_nVar * _nVar != (int)_covar0.size())
+  if (_nVar * _nVar != static_cast<Id>(_covar0.size()))
   {
     MatrixSymmetric Id(_nVar);
     Id.setIdentity();
@@ -201,17 +201,17 @@ void CovContext::copyCovContext(const CovContext& ctxt, bool severe)
 
 const CovContext* CovContext::createReduce(const VectorInt& validVars) const
 {
-  int ecr, lec;
-  int nvar = (int)validVars.size();
-  int ndim = getNDim();
+  Id ecr, lec;
+  Id nvar   = static_cast<Id>(validVars.size());
+  auto ndim = getNDim();
   VectorBool valids(_nVar, false);
-  for (int ivar = 0; ivar < nvar; ivar++) valids[validVars[ivar]] = true;
+  for (Id ivar = 0; ivar < nvar; ivar++) valids[validVars[ivar]] = true;
 
   VectorDouble covar0(nvar * nvar, 0);
   ecr = 0;
   lec = 0;
-  for (int ivar = 0; ivar < _nVar; ivar++)
-    for (int jvar = 0; jvar < _nVar; jvar++)
+  for (Id ivar = 0; ivar < _nVar; ivar++)
+    for (Id jvar = 0; jvar < _nVar; jvar++)
     {
       if (valids[ivar] && valids[jvar])
       {
@@ -220,7 +220,7 @@ const CovContext* CovContext::createReduce(const VectorInt& validVars) const
       lec++;
     }
 
-  CovContext* newctxt = new CovContext(nvar, ndim, covar0);
+  auto* newctxt = new CovContext(nvar, static_cast<Id>(ndim), covar0);
   return newctxt;
 }
-}
+} // namespace gstlrn

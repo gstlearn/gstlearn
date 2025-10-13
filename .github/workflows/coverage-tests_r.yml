@@ -48,23 +48,17 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
-    # https://stackoverflow.com/questions/69639782/installing-gfortran-on-macbook-with-apple-m1-chip-for-use-in-r
-    - name: Fix gfortran path for R
-      run: |
-        if [[ "${{ matrix.os }}" =~ ^"macos" ]]; then
-          mkdir -p ~/.R
-          echo "FC      = /usr/local/bin/gfortran" >> ~/.R/Makevars
-          echo "F77     = /usr/local/bin/gfortran" >> ~/.R/Makevars
-          echo "FLIBS   = -L/usr/local/bin/gfortran/lib" >> ~/.R/Makevars
-        fi
-      shell: bash
-
     - name: Install R dependencies
+      if: ${{ contains(matrix.os, 'ubuntu') }}
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
         packages: ggpubr, ggplot2, ggnewscale
         install-pandoc: false
-        
+
+    - name: Install R dependencies (binary)
+      if: ${{ !contains(matrix.os, 'ubuntu') }}
+      run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale'), type='binary')"
+
     - name: Install gstlearn
       run: Rscript -e "install.packages(c('gstlearn'), repos='https://soft.mines-paristech.fr/cran/', dependencies = TRUE)"
 
@@ -73,4 +67,5 @@ jobs:
         Rscript tests/r/test_Arguments.R
         Rscript tests/r/test_Assessors.R
         Rscript tests/r/test_Matrix.R
+        Rscript tests/r/test_dumpToNF.R
 

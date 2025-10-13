@@ -28,9 +28,9 @@
 namespace gstlrn
 {
 StdoutRedirect::StdoutRedirect(const String& file,
-                               int argc,
+                               Id argc,
                                char* argv[],
-                               int number)
+                               Id number)
   : _flagActive(true)
   ,
 #if defined(_WIN32) || defined(_WIN64)
@@ -64,7 +64,7 @@ void StdoutRedirect::start(const String& file)
   _old_stdout       = GetStdHandle(STD_OUTPUT_HANDLE);
   HANDLE new_stdout = CreateFileA(file.c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
   SetStdHandle(STD_OUTPUT_HANDLE, new_stdout);
-  int fd = _open_osfhandle((intptr_t)new_stdout, _O_WRONLY | _O_TEXT);
+  Id fd = _open_osfhandle((intptr_t)new_stdout, _O_WRONLY | _O_TEXT);
   _dup2(fd, _fileno(stdout));
   _close(fd);
 #else
@@ -82,7 +82,7 @@ void StdoutRedirect::stop()
 #if defined(_WIN32) || defined(_WIN64)
   // https://stackoverflow.com/questions/32185512/output-to-console-from-a-win32-gui-application-on-windows-10
   SetStdHandle(STD_OUTPUT_HANDLE, _old_stdout);
-  int fd = _open_osfhandle((intptr_t)_old_stdout, _O_WRONLY | _O_TEXT);
+  Id fd = _open_osfhandle((intptr_t)_old_stdout, _O_WRONLY | _O_TEXT);
   if (fd >= 0) // fd could be negative for an unknown reason (https://github.com/gstlearn/gstlearn/issues/111)
   {
     FILE* fp = _fdopen(fd, "w");
@@ -160,7 +160,7 @@ String gslGetEnv(const String& name)
     text = String(buffer);
 #elif defined(__linux__) || defined(__APPLE__)
   char* value = std::getenv(name.c_str());
-  if (value != NULL)
+  if (value != nullptr)
     text = String(value);
 #endif
   return text;
@@ -181,7 +181,7 @@ std::istream& gslSafeGetline(std::istream& is, String& t)
 
   for (;;)
   {
-    int c = sb->sbumpc();
+    Id c = sb->sbumpc();
     switch (c)
     {
       case '\n':

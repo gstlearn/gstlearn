@@ -109,8 +109,8 @@ double FunctionalSpirale::getFunctionValue(const VectorDouble& coor) const
  */
 MatrixSquare FunctionalSpirale::getFunctionMatrix(const VectorDouble& coor) const
 {
-  int ndim          = 2;
-  MatrixSquare dirs = MatrixSquare(ndim);
+  Id ndim          = 2;
+  MatrixSquare dirs(ndim);
 
   double angle = getFunctionValue(coor) * GV_PI / 180.;
   double u1    = cos(angle);
@@ -131,7 +131,7 @@ VectorVectorDouble FunctionalSpirale::getFunctionVectors(const Db* db, const Cov
     return VectorVectorDouble();
   }
 
-  int nech = db->getNSample();
+  Id nech = db->getNSample();
   VectorVectorDouble vec(3);
   vec[0].resize(nech);
   vec[1].resize(nech);
@@ -142,7 +142,7 @@ VectorVectorDouble FunctionalSpirale::getFunctionVectors(const Db* db, const Cov
   VectorDouble diag = VH::power(cova->getScales(), 2.);
   temp.setDiagonal(diag);
 
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     VectorDouble coor   = db->getSampleCoordinates(iech);
     MatrixSquare rotmat = getFunctionMatrix(coor);

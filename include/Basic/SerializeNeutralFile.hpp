@@ -44,18 +44,18 @@ namespace SerializeNeutralFile
   bool recordRead(std::istream& is, const String& title, T& val);
   template<typename T>
   bool
-  recordReadVec(std::istream& is, const String& title, VectorT<T>& vec, int nvalues);
+  recordReadVec(std::istream& is, const String& title, VectorT<T>& vec, Id nvalues);
 
   template<typename T>
   bool recordReadVecInPlace(std::istream& is,
                             const String& title,
                             VectorDouble::iterator& it,
-                            int nvalues);
+                            Id nvalues);
   bool onlyBlanks(char* string);
 
-  bool tableRead(std::istream& is, const String& string, int ntab, double* tab);
+  bool tableRead(std::istream& is, const String& string, Id ntab, double* tab);
   bool
-  tableWrite(std::ostream& os, const String& string, int ntab, const VectorDouble& tab);
+  tableWrite(std::ostream& os, const String& string, Id ntab, const VectorDouble& tab);
 
 } // namespace SerializeNeutralFile
 
@@ -75,7 +75,7 @@ bool SerializeNeutralFile::recordWrite(std::ostream& os,
     }
     else
     {
-      int prec = os.precision();
+      Id prec = os.precision();
       os.precision(15);
       if (title.empty())
         os << val << " ";
@@ -96,7 +96,7 @@ bool SerializeNeutralFile::recordWriteVec(std::ostream& os,
   {
     if (!title.empty()) os << "# " << title << '\n';
 
-    int prec = os.precision();
+    Id prec = os.precision();
     os.precision(15);
     for (auto val: vec)
     {
@@ -163,10 +163,10 @@ template<typename T>
 bool SerializeNeutralFile::recordReadVec(std::istream& is,
                                          const String& title,
                                          VectorT<T>& vec,
-                                         int nvalues)
+                                         Id nvalues)
 {
   vec.resize(nvalues);
-  int ecr = 0;
+  Id ecr = 0;
   if (is.good())
   {
     String line;
@@ -237,9 +237,9 @@ template<typename T>
 bool SerializeNeutralFile::recordReadVecInPlace(std::istream& is,
                                                 const String& title,
                                                 VectorDouble::iterator& it,
-                                                int nvalues)
+                                                Id nvalues)
 {
-  int ecr = 0;
+  Id ecr = 0;
   if (is.good())
   {
     String line;

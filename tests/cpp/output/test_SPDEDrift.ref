@@ -71,6 +71,7 @@ Number of variable(s)       = 1
 Number of direction(s)      = 1
 Space dimension             = 2
 Variable(s)                 = [Unknown]
+
 Variance-Covariance Matrix     0.363
 
 Direction #1
@@ -134,11 +135,19 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-5 - Name spde.January_temp.estim - Locator NA
+5 - Name KrigingSPDE.January_temp.estim - Locator NA
  Nb of data          =      11097
  Nb of active values =       3092
- Minimum value       =     -5.630
- Maximum value       =      4.938
- Mean value          =      1.838
- Standard Deviation  =      1.524
- Variance            =      2.324
+ Minimum value       =     -9.430
+ Maximum value       =      4.943
+ Mean value          =      1.250
+ Standard Deviation  =      2.094
+ Variance            =      4.383
+6 - Name Kriging.January_temp.estim - Locator z1
+ Nb of data          =      11097
+ Nb of active values =       3092
+ Minimum value       =     -5.585
+ Maximum value       =      4.942
+ Mean value          =      1.843
+ Standard Deviation  =      1.519
+ Variance            =      2.309

@@ -15,12 +15,12 @@
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
+#include "Basic/ICloneable.hpp"
+#include "Basic/ListParams.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Drifts/DriftList.hpp"
-#include "Basic/ListParams.hpp"
-#include "Basic/ICloneable.hpp"
 #include "Db/RankHandler.hpp"
+#include "Drifts/DriftList.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/ModelOptimParam.hpp"
@@ -47,7 +47,7 @@ class Model;
  * - the field extension: this information is needed to get a *stationary* version to any covariance
  * - the experimental mean vector and the variance-covariance matrix (used to calibrate the Model)
  */
-class GSTLEARN_EXPORT ModelGeneric : public ICloneable
+class GSTLEARN_EXPORT ModelGeneric: public ICloneable
 {
 public:
   ModelGeneric(const CovContext& ctxt = CovContext());
@@ -55,22 +55,19 @@ public:
   ModelGeneric& operator=(const ModelGeneric& r);
   virtual ~ModelGeneric();
 
-  //getters for member pointers
-  const ACov*       getCov()             const { return  _cova.get();     }
-  const CovContext* getContext()         const { return &_ctxt;     }
-  const DriftList*  getDriftList()       const { return  _driftList;}
+  // getters for member pointers
+  const ACov* getCov() const { return _cova.get(); }
+  const CovContext* getContext() const { return &_ctxt; }
+  const DriftList* getDriftList() const { return _driftList; }
 
 public:
   /// ICloneable interface
   IMPLEMENT_CLONING(ModelGeneric)
 
-  ACov*       _getCovModify() { return _cova.get(); }
+  ACov* _getCovModify() { return _cova.get(); }
   CovContext* _getContextModify() { return &_ctxt; }
   DriftList* _getDriftListModify() { return _driftList; }
-  std::vector<covmaptype>& getGradients()
-  {
-    return _gradFuncs;
-  }
+  std::vector<covmaptype>& getGradients() { return _gradFuncs; }
 
 public:
   // Forwarding the methods from _cova
@@ -187,10 +184,11 @@ public:
   void setField(double field);
   bool isValid() const;
 
+  void setContext(const CovContext& ctxt);
   void setCov(const ACov* cova);
-  
+
   void setDriftList(const DriftList* driftlist);
-  void setDriftIRF(int order = 0, int nfex = 0);
+  void setDriftIRF(Id order = 0, Id nfex = 0);
   void addDrift(const ADrift* drift); // TODO: check that the same driftM has not been already defined
   void setDrifts(const VectorString& driftSymbols);
 
@@ -206,7 +204,7 @@ public:
               const DbGrid* dbmap        = nullptr,
               Constraints* constraints   = nullptr,
               const ModelOptimParam& mop = ModelOptimParam(),
-              int nb_neighVecchia        = 30,
+              Id nb_neighVecchia         = ITEST,
               bool verbose               = false,
               bool trace                 = false,
               bool reml                  = false);
@@ -214,29 +212,29 @@ public:
 private:
   virtual bool _isValid() const;
 
-protected:               // TODO : pass into private to finish clean
-  std::shared_ptr<ACov> _cova;           /* Generic Covariance structure */
+protected:                     // TODO : pass into private to finish clean
+  std::shared_ptr<ACov> _cova; /* Generic Covariance structure */
   mutable std::vector<covmaptype> _gradFuncs;
   DriftList* _driftList; /* Series of Drift functions */
   CovContext _ctxt;      /* Context */
 };
 
-GSTLEARN_EXPORT int computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,
-                                               const MatrixSymmetric& Sigma,
-                                               const MatrixDense& F1,
-                                               int type = 1,
-                                               int idx  = 0);
-GSTLEARN_EXPORT int computeCovMatSVCRHSInPlace(MatrixDense& cov,
-                                               const MatrixSymmetric& Sigma,
-                                               const MatrixDense& F1,
-                                               const MatrixDense& F2,
-                                               int type1 = 1,
-                                               int idx1  = 0,
-                                               int type2 = 1,
-                                               int idx2  = 0);
-GSTLEARN_EXPORT int computeDriftMatSVCRHSInPlace(MatrixDense& mat,
-                                                 const MatrixDense& F,
-                                                 int type                 = 1,
-                                                 int idx                  = 0,
-                                                 bool flagCenteredFactors = true);
-}
+GSTLEARN_EXPORT Id computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,
+                                              const MatrixSymmetric& Sigma,
+                                              const MatrixDense& F1,
+                                              Id type = 1,
+                                              Id idx  = 0);
+GSTLEARN_EXPORT Id computeCovMatSVCRHSInPlace(MatrixDense& cov,
+                                              const MatrixSymmetric& Sigma,
+                                              const MatrixDense& F1,
+                                              const MatrixDense& F2,
+                                              Id type1 = 1,
+                                              Id idx1  = 0,
+                                              Id type2 = 1,
+                                              Id idx2  = 0);
+GSTLEARN_EXPORT Id computeDriftMatSVCRHSInPlace(MatrixDense& mat,
+                                                const MatrixDense& F,
+                                                Id type                  = 1,
+                                                Id idx                   = 0,
+                                                bool flagCenteredFactors = true);
+} // namespace gstlrn

@@ -110,15 +110,15 @@ void OptimCostBinary::reset(PrecisionOp* pmat,
   _varSeis  = varseis;
 
   // Copy the memory chunks passed as arguments
-  int nvertex = _projData->getNApex();
-  int npoint  = _projData->getNPoint();
+  Id nvertex = _projData->getNApex();
+  Id npoint  = _projData->getNPoint();
 
   // Particular case of the Seismic
 
-  _flagSeismic = (projseis != (ProjMatrix*)NULL && projseis->getNPoint() > 0);
+  _flagSeismic = (projseis != nullptr && projseis->getNPoint() > 0);
   if (_flagSeismic)
   {
-    int nseis = _projSeis->getNPoint();
+    Id nseis = _projSeis->getNPoint();
     _works.resize(nseis);
   }
 
@@ -151,12 +151,12 @@ void OptimCostBinary::reset(PrecisionOp* pmat,
 *****************************************************************************/
 VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
                                        bool verbose,
-                                       int maxiter,
+                                       Id maxiter,
                                        double eps)
 {
   double normgrad, costv;
   bool flagContinue;
-  int iter;
+  Id iter;
   HessianOp* hess = nullptr;
   VectorDouble propfac;
   // Statistics on the input data (only for verbose option)
@@ -171,7 +171,7 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
   {
     if (!_isInitialized)
       my_throw("'OptimCostBinary' must be initialized beforehand");
-    int nvertex = _pMat->getSize();
+    Id nvertex = _pMat->getSize();
 
     // Instantiate the Hessian
 
@@ -213,21 +213,21 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
       bool flagSortie = false;
       while (!flagSortie)
       {
-        for (int i = 0; i < nvertex; i++) lambdat[i] = propfac[i] - step[i];
+        for (Id i = 0; i < nvertex; i++) lambdat[i] = propfac[i] - step[i];
         double costt = _evaluateCost(indic, lambdat);
         if (costt < costv * 1.000001)
         {
           costv = costt;
-          for (int i = 0; i < nvertex; i++) propfac[i] = lambdat[i];
+          for (Id i = 0; i < nvertex; i++) propfac[i] = lambdat[i];
           flagSortie = true;
         }
-        for (int i = 0; i < nvertex; i++) step[i] /= 2.;
+        for (Id i = 0; i < nvertex; i++) step[i] /= 2.;
       }
     }
 
     // Final conversion from Gaussian to Proportion scale
 
-    for (int i = 0; i < nvertex; i++)
+    for (Id i = 0; i < nvertex; i++)
       propfac[i] = 1. - law_cdf_gaussian(propfac[i]);
 
     // Calculate the Proportion statistics (verbose option)
@@ -266,7 +266,7 @@ void OptimCostBinary::calculateGradient(const VectorDouble& indic,
 
   _evaluateGrad(indic, lambda, &normgrad);
 
-  for (int i = 0; i < _projData->getNApex(); i++) out[i] = _grad[i];
+  for (Id i = 0; i < _projData->getNApex(); i++) out[i] = _grad[i];
 }
 
 /*****************************************************************************/
@@ -274,7 +274,7 @@ void OptimCostBinary::calculateGradient(const VectorDouble& indic,
 **  Returns the Number of Data Points
 **
 *****************************************************************************/
-int OptimCostBinary::getNPoint() const
+Id OptimCostBinary::getNPoint() const
 {
   if (!_isInitialized)
     my_throw("'OptimCostBinary' must be initialized beforehand");
@@ -286,7 +286,7 @@ int OptimCostBinary::getNPoint() const
 **  Returns the Number of Meshing Vertices
 **
 *****************************************************************************/
-int OptimCostBinary::getNVertex() const
+Id OptimCostBinary::getNVertex() const
 {
   if (!_isInitialized)
     my_throw("'OptimCostBinary' must be initialized beforehand");
@@ -306,7 +306,7 @@ int OptimCostBinary::getNVertex() const
 void OptimCostBinary::toggleSeismic(bool status)
 {
   // When Seismic is not defined, this precedure is useless
-  if (_projSeis == (ProjMatrix*)NULL || _projSeis->getNPoint() <= 0)
+  if (_projSeis == nullptr || _projSeis->getNPoint() <= 0)
     return;
 
   _flagSeismic = status;
@@ -319,7 +319,7 @@ void OptimCostBinary::toggleSeismic(bool status)
 ** \param[in]  meanprop     Value of the mean proportion (raw scale)
 **
 *****************************************************************************/
-int OptimCostBinary::setMeanProportion(double meanprop)
+Id OptimCostBinary::setMeanProportion(double meanprop)
 {
   if (meanprop < 0 || meanprop > 1)
   {
@@ -351,7 +351,7 @@ double OptimCostBinary::_evaluateCost(const VectorDouble& indic,
 
   double sum_pos = 0.;
   double sum_neg = 0.;
-  for (int i = 0; i < _projData->getNPoint(); i++)
+  for (Id i = 0; i < _projData->getNPoint(); i++)
   {
     if (FFFF(indic[i])) continue;
     if (indic[i] > 0.)
@@ -363,12 +363,12 @@ double OptimCostBinary::_evaluateCost(const VectorDouble& indic,
 
   // Contribution of the spatial structure
 
-  for (int i = 0; i < _projData->getNApex(); i++)
+  for (Id i = 0; i < _projData->getNApex(); i++)
     _lambdav[i] = lambda[i] - _meanPropGaus;
   _pMat->evalDirect(_lambdav, _workv);
 
   double sum_str = 0.;
-  for (int i = 0; i < _projData->getNApex(); i++)
+  for (Id i = 0; i < _projData->getNApex(); i++)
     sum_str += 0.5 * _lambdav[i] * _workv[i];
   result += sum_str;
 
@@ -379,7 +379,7 @@ double OptimCostBinary::_evaluateCost(const VectorDouble& indic,
     _contributeSeismic(lambda);
 
     double sum_seis = 0.;
-    for (int i = 0; i < _projSeis->getNPoint(); i++)
+    for (Id i = 0; i < _projSeis->getNPoint(); i++)
       sum_seis += 0.5 * _works[i] * _varSeis[i] * _works[i];
 
     result += sum_seis;
@@ -406,14 +406,14 @@ void OptimCostBinary::_evaluateGrad(const VectorDouble& indic,
   // Contribution of the spatial structure
   // Array 'lambda' must be corrected from the contribution of the 'mean'
 
-  for (int i = 0; i < _projData->getNApex(); i++)
+  for (Id i = 0; i < _projData->getNApex(); i++)
     _lambdav[i] = lambda[i] - _meanPropGaus;
   _pMat->evalDirect(_lambdav, _grad);
 
   // Contribution of the Data
 
   _projData->mesh2point(lambda, _workp);
-  for (int i = 0; i < _projData->getNPoint(); i++)
+  for (Id i = 0; i < _projData->getNPoint(); i++)
   {
     if (FFFF(indic[i]))
       _workp[i] = 0.; // TODO: to be checked
@@ -422,19 +422,19 @@ void OptimCostBinary::_evaluateGrad(const VectorDouble& indic,
         law_df_gaussian(_workp[i]) / (indic[i] - law_cdf_gaussian(_workp[i]));
   }
   _projData->point2mesh(_workp, _workv);
-  for (int i = 0; i < _projData->getNApex(); i++) _grad[i] += _workv[i];
+  for (Id i = 0; i < _projData->getNApex(); i++) _grad[i] += _workv[i];
 
   // Contribution of the Seismic
 
   if (_flagSeismic)
   {
     _contributeSeismicDerivative(lambda);
-    for (int i = 0; i < _projData->getNApex(); i++) _grad[i] += _workv[i];
+    for (Id i = 0; i < _projData->getNApex(); i++) _grad[i] += _workv[i];
   }
 
   // Evaluate the norm of the gradient
   (*normgrad) = 0.;
-  for (int i = 0; i < _projData->getNApex(); i++)
+  for (Id i = 0; i < _projData->getNApex(); i++)
     (*normgrad) += _grad[i] * _grad[i];
 }
 
@@ -447,10 +447,10 @@ void OptimCostBinary::_evaluateGrad(const VectorDouble& indic,
 *****************************************************************************/
 void OptimCostBinary::_contributeSeismic(const VectorDouble& lambda)
 {
-  for (int i = 0; i < _projSeis->getNApex(); i++)
+  for (Id i = 0; i < _projSeis->getNApex(); i++)
     _workv[i] = law_cdf_gaussian(lambda[i]);
   _projSeis->mesh2point(_workv, _works);
-  for (int i = 0; i < _projSeis->getNPoint(); i++)
+  for (Id i = 0; i < _projSeis->getNPoint(); i++)
     _works[i] -= _propSeis[i];
 }
 
@@ -465,10 +465,10 @@ void OptimCostBinary::_contributeSeismicDerivative(const VectorDouble& lambda)
 {
   _contributeSeismic(lambda);
 
-  for (int i = 0; i < _projSeis->getNPoint(); i++)
+  for (Id i = 0; i < _projSeis->getNPoint(); i++)
     _works[i] *= _varSeis[i];
   _projSeis->point2mesh(_works, _workv);
-  for (int i = 0; i < _projSeis->getNApex(); i++)
+  for (Id i = 0; i < _projSeis->getNApex(); i++)
     _workv[i] *= law_df_gaussian(lambda[i]);
 }
 } // namespace gstlrn

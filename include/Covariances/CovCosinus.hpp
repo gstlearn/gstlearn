@@ -26,10 +26,10 @@ public:
   CovCosinus& operator= (const CovCosinus &r);
   virtual ~CovCosinus();
 
-  unsigned int getMaxNDim() const override { return 1; }
+  size_t getMaxNDim() const override { return 1; }
 
   String         getCovName() const override { return "Cosinus"; }
-  int            getMinOrder() const override { return -1; }
+  Id            getMinOrder() const override { return -1; }
   bool           getCompatibleSpaceR() const override { return true; }
 
 protected:

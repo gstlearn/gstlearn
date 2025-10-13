@@ -1,5 +1,7 @@
 #NO_DIFF#XXX
-----<IPython.core.display.Javascript object>----
+----
+
+<IPython.core.display.Javascript object>----
 
 
 #NO_DIFF#XXX
@@ -30,7 +32,7 @@ Column = 3 - Name = Bidon1 - Locator = NA
 Column = 4 - Name = Simu - Locator = z1
 Column = 5 - Name = Bidon2-1 - Locator = NA
 Column = 6 - Name = Bidon2-2 - Locator = NA
- ----
+----
 
 
 #NO_DIFF#XXX

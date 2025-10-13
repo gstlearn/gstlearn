@@ -17,6 +17,8 @@
 #include <Eigen/SparseCore>
 #include <Eigen/SparseCholesky>
 
+#include "geoslib_define.h"
+
 namespace gstlrn
 {
 typedef Eigen::SparseMatrix<double>::StorageIndex StorageIndex;
@@ -25,9 +27,9 @@ template<typename SpMat>
 class MatchPattern
 {
   using T = typename SpMat::value_type;
-  StorageIndex* m_outer;
-  StorageIndex* m_inner;
-  T* m_val;
+  std::vector<StorageIndex> m_outer;
+  std::vector<StorageIndex> m_inner;
+  std::vector<T> m_val;
   StorageIndex m_cols;
   StorageIndex m_nnz;
 
@@ -37,14 +39,14 @@ public:
     m_cols = pattern.cols();
     m_nnz  = pattern.nonZeros();
 
-    m_outer = new StorageIndex[m_cols + 1];
-    std::copy(pattern.outerIndexPtr(), pattern.outerIndexPtr() + m_cols + 1, m_outer);
-    m_inner = new StorageIndex[m_nnz];
-    std::copy(pattern.innerIndexPtr(), pattern.innerIndexPtr() + m_nnz, m_inner);
-    m_val = new T[m_nnz];
+    m_outer.resize(m_cols + 1);
+    std::copy(pattern.outerIndexPtr(), pattern.outerIndexPtr() + m_cols + 1, m_outer.begin());
+    m_inner.resize(m_nnz);
+    std::copy(pattern.innerIndexPtr(), pattern.innerIndexPtr() + m_nnz, m_inner.begin());
+    m_val.resize(m_nnz);
 
-    T* valptr = m_val;
-    for (int j = 0; j < m_cols; ++j)
+    T* valptr = m_val.data();
+    for (I32 j = 0; j < m_cols; ++j)
     {
       typename SpMat::InnerIterator Acol(A, j);
       for (typename SpMat::InnerIterator pattern_col(pattern, j);
@@ -68,14 +70,14 @@ public:
   {
     m_cols  = pattern.cols();
     m_nnz   = pattern.nonZeros();
-    m_outer = new StorageIndex[m_cols + 1];
-    std::copy(pattern.outerIndexPtr(), pattern.outerIndexPtr() + m_cols + 1, m_outer);
-    m_inner = new StorageIndex[m_nnz];
-    std::copy(pattern.innerIndexPtr(), pattern.innerIndexPtr() + m_nnz, m_inner);
-    m_val = new T[m_nnz];
+    m_outer.resize(m_cols + 1);
+    std::copy(pattern.outerIndexPtr(), pattern.outerIndexPtr() + m_cols + 1, m_outer.begin());
+    m_inner.resize(m_nnz);
+    std::copy(pattern.innerIndexPtr(), pattern.innerIndexPtr() + m_nnz, m_inner.begin());
+    m_val.resize(m_nnz);
 
-    T* valptr = m_val;
-    for (int j = 0; j < m_cols; ++j)
+    T* valptr = m_val.data();
+    for (I32 j = 0; j < m_cols; ++j)
     {
       for (typename SpMat::InnerIterator pattern_col(pattern, j);
            pattern_col; ++pattern_col)
@@ -85,36 +87,29 @@ public:
     }
   }
 
-  ~MatchPattern()
-  {
-    delete[] m_inner;
-    delete[] m_outer;
-    delete[] m_val;
-  }
-
   SpMat operator()()
   {
     return Eigen::Map<SpMat>(
       m_cols,
       m_cols,
       m_nnz,
-      m_outer,
-      m_inner,
-      m_val);
+      m_outer.data(),
+      m_inner.data(),
+      m_val.data());
   }
 };
 
 template<typename SpChol, typename SpMat>
 typename SpChol::MatrixType partial_inverse(
   const SpChol& llt,
-  const SpMat& pattern)
+  [[maybe_unused]] const SpMat& pattern)
 {
   typedef typename SpMat::ReverseInnerIterator reverse_it;
   StorageIndex ncols = llt.cols();
   const SpMat& L     = llt.matrixL();
   SpMat Qinv         = L.template selfadjointView<Eigen::Lower>();
 
-  for (int i = ncols - 1; i >= 0; --i)
+  for (Id i = ncols - 1; i >= 0; --i)
   {
     reverse_it QinvcolI(Qinv, i);
     for (reverse_it LcolI_slow(L, i); LcolI_slow; --LcolI_slow)

@@ -10,21 +10,19 @@
 /******************************************************************************/
 #pragma once
 
-#include "LinearOp/ALinearOp.hpp"
-#include "LinearOp/AShiftOp.hpp"
-#include "Polynomials/APolynomial.hpp"
 #include "Basic/ICloneable.hpp"
+#include "LinearOp/ALinearOp.hpp"
+#include "Polynomials/APolynomial.hpp"
 #include "geoslib_define.h"
 
 #include <functional>
 
-
 class ALinearOpMulti;
 class AShiftOp;
 
-namespace gstlrn {  
+namespace gstlrn
+{
 class AFunction;
-class cs; /// TODO : Dependency to csparse to be removed
 
 class GSTLEARN_EXPORT Chebychev: public APolynomial
 {
@@ -38,49 +36,51 @@ public:
   /// Interface for Apolynomial
 #ifndef SWIG
   void evalOp(MatrixSparse* S, const constvect x, vect y) const override;
+
 protected:
-  void _addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const override;
+  void _addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const override;
 
   /* void evalOp(const ALinearOpMulti *Op,
               const std::vector<Eigen::VectorXd> &inv,
               std::vector<Eigen::VectorXd> &outv) const override; */
- #endif
-  public:
-    double eval(double x) const override;
-    int fit(const std::function<double(double)>& f,
-            double a = 0.,
-           double b = 1.,
-           double tol = EPSILON5) override;
+#endif
 
-    void init(int ncMax=10001,int nDisc=100,double a = 0.,double b=1.,bool verbose=false);
-    static Chebychev* createFromCoeffs(const VectorDouble& coeffs);
-    void setCoeffs(const VectorDouble& coeffs){_coeffs = coeffs;}
-    int getNcMax() const {return _ncMax;}
-    int getNDisc() const {return _nDisc;}
-    double getA() const {return _a;}
-    double getB() const {return _b;}
-    bool getVerbose() const {return _verbose;}
-    void setA(double a){_a=a;}
-    void setB(double b){_b=b;}
-    void setNcMax(int ncMax){_ncMax=ncMax;}
-    void setNDisc(int nDisc){_nDisc=nDisc;}
-    void setVerbose(bool verbose){_verbose = verbose;}
+public:
+  double eval(double x) const override;
+  Id fit(const std::function<double(double)>& f,
+          double a   = 0.,
+          double b   = 1.,
+          double tol = EPSILON5) override;
 
-    int fit2(AFunction *f, double a = 0., double b = 1., double tol = EPSILON5);
+  void init(Id ncMax = 10001, Id nDisc = 100, double a = 0., double b = 1., bool verbose = false);
+  static Chebychev* createFromCoeffs(const VectorDouble& coeffs);
+  void setCoeffs(const VectorDouble& coeffs) { _coeffs = coeffs; }
+  Id getNcMax() const { return _ncMax; }
+  Id getNDisc() const { return _nDisc; }
+  double getA() const { return _a; }
+  double getB() const { return _b; }
+  bool getVerbose() const { return _verbose; }
+  void setA(double a) { _a = a; }
+  void setB(double b) { _b = b; }
+  void setNcMax(Id ncMax) { _ncMax = ncMax; }
+  void setNDisc(Id nDisc) { _nDisc = nDisc; }
+  void setVerbose(bool verbose) { _verbose = verbose; }
+
+  Id fit2(AFunction* f, double a = 0., double b = 1., double tol = EPSILON5);
 
 private:
   bool _isReady() const { return !_coeffs.empty(); }
   void _fillCoeffs(const std::function<double(double)>& f, double a, double b);
-  int _countCoeffs(const std::function<double(double)>& f,
+  Id _countCoeffs(const std::function<double(double)>& f,
                    double x,
                    double a,
                    double b,
                    double tol = EPSILON5) const;
 
-  int _ncMax ;
-  int _nDisc ;
+  Id _ncMax;
+  Id _nDisc;
   double _a;
   double _b;
   bool _verbose;
 };
-}
+} // namespace gstlrn

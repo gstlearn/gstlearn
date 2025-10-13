@@ -28,13 +28,13 @@ public:
   virtual ~ModelBoolean();
 
   /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int getNbTokens() const { return (int) _shapes.size(); }
+  Id getNbTokens() const { return static_cast<Id>(_shapes.size()); }
   void addToken(const AShape& token);
   void normalizeProportions();
-  BooleanObject* generateObject(int ndim) const;
-  const AShape* getToken(int itok) const { return _shapes[itok]; }
+  BooleanObject* generateObject(Id ndim) const;
+  const AShape* getToken(Id itok) const { return _shapes[itok]; }
 
   bool   isFlagStat() const { return _flagStat; }
   double getThetaCst() const { return _thetaCst; }

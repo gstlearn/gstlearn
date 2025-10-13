@@ -107,7 +107,7 @@ bool CalcKrigingFactors::_preprocess()
       // Center the information in the blocks of the output grid
       // Duplicating the coordinate variable names before centering
       _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
-      int error  = _centerDataToGrid(dbgrid);
+      Id error   = _centerDataToGrid(dbgrid);
       if (error) return false;
     }
     if (getKrigopt().hasDiscs())
@@ -116,7 +116,7 @@ bool CalcKrigingFactors::_preprocess()
       VectorInt ndiscs = getKrigopt().getDiscs();
       DbGrid* dbsmu    = DbGrid::createDivider(dbgrid, ndiscs, 1);
       _nameCoord       = getDbin()->getNamesByLocator(ELoc::X);
-      int error        = _centerDataToGrid(dbsmu);
+      Id error         = _centerDataToGrid(dbsmu);
       delete dbsmu;
       if (error) return false;
     }
@@ -142,7 +142,7 @@ bool CalcKrigingFactors::_postprocess()
 
   getDbin()->setLocatorsByUID(_iuidFactors, ELoc::Z, 0);
 
-  int nfactor = _getNFactors();
+  auto nfactor = _getNFactors();
   _renameVariable(2, VectorString(), ELoc::Z, nfactor, _iptrStd, "stdev", 1);
   _renameVariable(2, VectorString(), ELoc::Z, nfactor, _iptrEst, "estim", 1);
 
@@ -158,9 +158,9 @@ void CalcKrigingFactors::_rollback()
   _cleanVariableDb(1);
 }
 
-int CalcKrigingFactors::_getNFactors() const
+Id CalcKrigingFactors::_getNFactors() const
 {
-  return (int)_iuidFactors.size();
+  return static_cast<Id>(_iuidFactors.size());
 }
 
 /****************************************************************************/
@@ -179,18 +179,18 @@ bool CalcKrigingFactors::_run()
 
   // Loop on the targets to be processed
 
-  int ntotal = getDbout()->getNSample() * _getNFactors();
-  int iproc  = 0;
-  for (int iclass = 1; iclass <= _getNFactors(); iclass++)
+  auto ntotal = getDbout()->getNSample() * _getNFactors();
+  Id iproc    = 0;
+  for (Id iclass = 1; iclass <= _getNFactors(); iclass++)
   {
-    int jptr_est = (_flagEst) ? _iptrEst + iclass - 1 : -1;
-    int jptr_std = (_flagStd) ? _iptrStd + iclass - 1 : -1;
+    Id jptr_est = (_flagEst) ? _iptrEst + iclass - 1 : -1;
+    Id jptr_std = (_flagStd) ? _iptrStd + iclass - 1 : -1;
     getDbin()->clearLocators(ELoc::Z);
     getDbin()->setLocatorByUID(_iuidFactors[iclass - 1], ELoc::Z, 0);
     if (ksys.updKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
     if (ksys.updKrigOptIclass(iclass, _getNFactors())) return 1;
 
-    for (int iech_out = 0; iech_out < getDbout()->getNSample(); iech_out++)
+    for (Id iech_out = 0; iech_out < getDbout()->getNSample(); iech_out++)
     {
       mes_process("Disjunctive Kriging for cell", ntotal, iproc);
       if (ksys.estimate(iech_out)) return 1;
@@ -222,14 +222,14 @@ bool CalcKrigingFactors::_run()
  ** \remark have to be defined
  **
  *****************************************************************************/
-int krigingFactors(Db* dbin,
-                   Db* dbout,
-                   Model* model,
-                   ANeigh* neigh,
-                   bool flag_est,
-                   bool flag_std,
-                   const KrigOpt& krigopt,
-                   const NamingConvention& namconv)
+Id krigingFactors(Db* dbin,
+                  Db* dbout,
+                  Model* model,
+                  ANeigh* neigh,
+                  bool flag_est,
+                  bool flag_std,
+                  const KrigOpt& krigopt,
+                  const NamingConvention& namconv)
 {
   CalcKrigingFactors krige(flag_est, flag_std);
   krige.setDbin(dbin);
@@ -242,7 +242,7 @@ int krigingFactors(Db* dbin,
   krige.setIuidFactors(dbin->getUIDsByLocator(ELoc::Z));
 
   // Run the calculator
-  int error = (krige.run()) ? 0 : 1;
+  Id error = (krige.run()) ? 0 : 1;
   return error;
 }
-}
+} // namespace gstlrn

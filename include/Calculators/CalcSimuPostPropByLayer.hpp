@@ -42,7 +42,7 @@ public:
 protected:
   bool _check() override;
 
-  int _getTransfoNvar() const override;
+  Id _getTransfoNvar() const override;
   void _transformFunction(const VectorDouble& Z_n_k_s,
                           VectorDouble& Y_p_k_s) const override;
 
@@ -52,7 +52,7 @@ private:
 
 };
 
-GSTLEARN_EXPORT int simuPostPropByLayer(Db *dbin,
+GSTLEARN_EXPORT Id simuPostPropByLayer(Db *dbin,
                                         DbGrid *dbout,
                                         const VectorString &names,
                                         bool flag_match = false,
@@ -61,6 +61,6 @@ GSTLEARN_EXPORT int simuPostPropByLayer(Db *dbin,
                                         const std::vector<EPostStat> &stats = EPostStat::fromKeys({"MEAN"}),
                                         bool verbose = false,
                                         const VectorInt& check_targets = VectorInt(),
-                                        int check_level = 0,
+                                        Id check_level = 0,
                                         const NamingConvention &namconv = NamingConvention("Prop"));
 }

@@ -13,30 +13,30 @@
 
 namespace gstlrn
 {
-MatrixInt::MatrixInt(int nrows, int ncols)
-    : AStringable(),
-      _nRows(nrows),
-      _nCols(ncols),
-      _rectMatrix()
+MatrixInt::MatrixInt(Id nrows, Id ncols)
+  : AStringable()
+  , _nRows(nrows)
+  , _nCols(ncols)
+  , _rectMatrix()
 {
   _allocate();
 }
 
-MatrixInt::MatrixInt(const MatrixInt &r)
-  : AStringable(r),
-    _nRows(r._nRows),
-    _nCols(r._nCols),
-    _rectMatrix(r._rectMatrix)
+MatrixInt::MatrixInt(const MatrixInt& r)
+  : AStringable(r)
+  , _nRows(r._nRows)
+  , _nCols(r._nCols)
+  , _rectMatrix(r._rectMatrix)
 {
 }
 
-MatrixInt& MatrixInt::operator= (const MatrixInt &r)
+MatrixInt& MatrixInt::operator=(const MatrixInt& r)
 {
   if (this != &r)
   {
     AStringable::operator=(r);
-    _nRows = r._nRows;
-    _nCols = r._nCols;
+    _nRows      = r._nRows;
+    _nCols      = r._nCols;
     _rectMatrix = r._rectMatrix;
   }
   return *this;
@@ -47,35 +47,35 @@ MatrixInt::~MatrixInt()
   _deallocate();
 }
 
-int MatrixInt::getValue(int irow, int icol) const
+Id MatrixInt::getValue(Id irow, Id icol) const
 {
-  if (! _isIndexValid(irow,icol)) return ITEST;
-  int rank = _getIndexToRank(irow,icol);
+  if (!_isIndexValid(irow, icol)) return ITEST;
+  auto rank = _getIndexToRank(irow, icol);
   return _rectMatrix[rank];
 }
 
-int MatrixInt::getValue(int irank) const
+Id MatrixInt::getValue(Id irank) const
 {
-  if (! _isRankValid(irank)) return ITEST;
+  if (!_isRankValid(irank)) return ITEST;
   return _rectMatrix[irank];
 }
 
-int& MatrixInt::_getValueRef(int irow, int icol)
+Id& MatrixInt::_getValueRef(Id irow, Id icol)
 {
-  int rank = _getIndexToRank(irow,icol);
+  auto rank = _getIndexToRank(irow, icol);
   return _rectMatrix[rank];
 }
 
-void MatrixInt::setValueByRank(int irank, int value)
+void MatrixInt::setValueByRank(Id irank, Id value)
 {
   _isRankValid(irank);
   _rectMatrix[irank] = value;
 }
 
-void MatrixInt::setValue(int irow, int icol, int value)
+void MatrixInt::setValue(Id irow, Id icol, Id value)
 {
-  if (! _isIndexValid(irow, icol)) return;
-  int rank = _getIndexToRank(irow, icol);
+  if (!_isIndexValid(irow, icol)) return;
+  auto rank         = _getIndexToRank(irow, icol);
   _rectMatrix[rank] = value;
 }
 
@@ -84,21 +84,21 @@ void MatrixInt::transposeInPlace()
   VectorInt old(getNRows() * getNCols());
   _transposeInPlace(getNRows(), getNCols(), _rectMatrix.data(), old.data());
   _rectMatrix = old;
-  int temp = getNCols();
+  auto temp   = getNCols();
   setNCols(getNRows());
   setNRows(temp);
 }
 
-void MatrixInt::fill(int value)
+void MatrixInt::fill(Id value)
 {
-  int size = getMatrixSize();
-  for (int i = 0; i < size; i++)
+  auto size = getMatrixSize();
+  for (Id i = 0; i < size; i++)
     _rectMatrix[i] = value;
 }
 
 void MatrixInt::_allocate()
 {
-  _rectMatrix.resize(getMatrixSize(),0);
+  _rectMatrix.resize(getMatrixSize(), 0);
   fill(0);
 }
 
@@ -109,25 +109,25 @@ void MatrixInt::_deallocate()
   _rectMatrix.clear();
 }
 
-int MatrixInt::_getIndexToRank(int irow, int icol) const
+Id MatrixInt::_getIndexToRank(Id irow, Id icol) const
 {
-  int rank = icol * getNRows() + irow;
+  Id rank = icol * getNRows() + irow;
   return rank;
 }
 
-int MatrixInt::getMatrixSize() const
+Id MatrixInt::getMatrixSize() const
 {
   return (getNRows() * getNCols());
 }
 
-bool MatrixInt::_isIndexValid(int irow, int icol) const
+bool MatrixInt::_isIndexValid(Id irow, Id icol) const
 {
   if (!checkArg("Row index invalid", irow, getNRows())) return false;
   if (!checkArg("Column index invalid", icol, getNCols())) return false;
   return true;
 }
 
-bool MatrixInt::_isRankValid(int rank) const
+bool MatrixInt::_isRankValid(Id rank) const
 {
   return (rank >= 0 && rank < getMatrixSize());
 }
@@ -135,32 +135,32 @@ bool MatrixInt::_isRankValid(int rank) const
 VectorInt MatrixInt::getValues() const
 {
   VectorInt vect;
-  for (int icol = 0; icol < _nCols; icol++)
-    for (int irow = 0; irow < _nRows; irow++)
+  for (Id icol = 0; icol < _nCols; icol++)
+    for (Id irow = 0; irow < _nRows; irow++)
     {
-      int value = getValue(irow,icol);
+      auto value = getValue(irow, icol);
       vect.push_back(value);
     }
   return vect;
 }
 
-VectorInt MatrixInt::getValuesPerRow(int irow) const
+VectorInt MatrixInt::getValuesPerRow(Id irow) const
 {
   VectorInt vect;
-  for (int icol = 0; icol < _nCols; icol++)
+  for (Id icol = 0; icol < _nCols; icol++)
   {
-    int value = getValue(irow,icol);
+    auto value = getValue(irow, icol);
     vect.push_back(value);
   }
   return vect;
 }
 
-VectorInt MatrixInt::getValuesPerColumn(int icol) const
+VectorInt MatrixInt::getValuesPerColumn(Id icol) const
 {
   VectorInt vect;
-  for (int irow = 0; irow < _nRows; irow++)
+  for (Id irow = 0; irow < _nRows; irow++)
   {
-    int value = getValue(irow,icol);
+    auto value = getValue(irow, icol);
     vect.push_back(value);
   }
   return vect;
@@ -168,13 +168,14 @@ VectorInt MatrixInt::getValuesPerColumn(int icol) const
 
 VectorVectorInt MatrixInt::getMatrix() const
 {
-  VectorVectorInt vect(_nRows);;
-  for (int irow = 0; irow < _nRows; irow++)
+  VectorVectorInt vect(_nRows);
+  ;
+  for (Id irow = 0; irow < _nRows; irow++)
   {
     vect[irow].resize(_nCols);
-    for (int icol = 0; icol < _nCols; icol++)
+    for (Id icol = 0; icol < _nCols; icol++)
     {
-      int value = getValue(irow,icol);
+      auto value       = getValue(irow, icol);
       vect[irow][icol] = value;
     }
   }
@@ -186,7 +187,7 @@ VectorVectorInt MatrixInt::getMatrix() const
  * Note that this array is ALWAYS dimensioned to the total number
  * of elements in the matrix.
  * Kept for compatibility with old code where matrix contents was stored as
- * a int* array
+ * a Id* array
  * @param values Input array (Dimension: nrow * ncol)
  * @param byCol true for Column major; false for Row Major
  */
@@ -194,47 +195,47 @@ void MatrixInt::setValues(const VectorInt& values, bool byCol)
 {
   if (byCol)
   {
-    int ecr = 0;
-    for (int icol = 0; icol < getNCols(); icol++)
-      for (int irow = 0; irow < getNRows(); irow++, ecr++)
+    Id ecr = 0;
+    for (Id icol = 0; icol < getNCols(); icol++)
+      for (Id irow = 0; irow < getNRows(); irow++, ecr++)
       {
         setValue(irow, icol, values[ecr]);
       }
   }
   else
   {
-    int ecr = 0;
-    for (int irow = 0; irow < getNRows(); irow++)
-      for (int icol = 0; icol < getNCols(); icol++, ecr++)
+    Id ecr = 0;
+    for (Id irow = 0; irow < getNRows(); irow++)
+      for (Id icol = 0; icol < getNCols(); icol++, ecr++)
       {
         setValue(irow, icol, values[ecr]);
       }
   }
 }
 
-void MatrixInt::setValuesOldStyle(const int* values, bool byCol)
+void MatrixInt::setValuesOldStyle(const Id* values, bool byCol)
 {
   if (byCol)
   {
-    int ecr = 0;
-    for (int icol = 0; icol < getNCols(); icol++)
-      for (int irow = 0; irow < getNRows(); irow++, ecr++)
+    Id ecr = 0;
+    for (Id icol = 0; icol < getNCols(); icol++)
+      for (Id irow = 0; irow < getNRows(); irow++, ecr++)
       {
         setValue(irow, icol, values[ecr]);
       }
   }
   else
   {
-    int ecr = 0;
-    for (int irow = 0; irow < getNRows(); irow++)
-      for (int icol = 0; icol < getNCols(); icol++, ecr++)
+    Id ecr = 0;
+    for (Id irow = 0; irow < getNRows(); irow++)
+      for (Id icol = 0; icol < getNCols(); icol++, ecr++)
       {
         setValue(irow, icol, values[ecr]);
       }
   }
 }
 
-void MatrixInt::reset(int nrows, int ncols)
+void MatrixInt::reset(Id nrows, Id ncols)
 {
   _isNumbersValid(nrows, ncols);
   _deallocate();
@@ -243,26 +244,26 @@ void MatrixInt::reset(int nrows, int ncols)
   _allocate();
 }
 
-void MatrixInt::resetFromArray(int nrows, int ncols, const int* tab, bool byCol)
+void MatrixInt::resetFromArray(Id nrows, Id ncols, const Id* tab, bool byCol)
 {
   reset(nrows, ncols);
 
-  int lec = 0;
+  Id lec = 0;
   if (byCol)
   {
-    for (int icol=0; icol<ncols; icol++)
-      for (int irow=0; irow<nrows; irow++)
-        setValue(irow,icol,tab[lec++]);
+    for (Id icol = 0; icol < ncols; icol++)
+      for (Id irow = 0; irow < nrows; irow++)
+        setValue(irow, icol, tab[lec++]);
   }
   else
   {
-    for (int irow=0; irow<nrows; irow++)
-      for (int icol=0; icol<ncols; icol++)
-        setValue(irow,icol,tab[lec++]);
+    for (Id irow = 0; irow < nrows; irow++)
+      for (Id icol = 0; icol < ncols; icol++)
+        setValue(irow, icol, tab[lec++]);
   }
 }
 
-bool MatrixInt::_isNumbersValid(int nrows, int ncols)
+bool MatrixInt::_isNumbersValid(Id nrows, Id ncols)
 {
   if (nrows < 0)
   {
@@ -281,8 +282,8 @@ String MatrixInt::toString(const AStringFormat* /* strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << "- Number of rows    = " <<  _nRows << std::endl;
-  sstr << "- Number of columns = " <<  _nCols << std::endl;
+  sstr << "- Number of rows    = " << _nRows << std::endl;
+  sstr << "- Number of columns = " << _nCols << std::endl;
 
   sstr << toMatrix(String(), VectorString(), VectorString(), true, _nRows, _nCols,
                    getValues());
@@ -299,42 +300,42 @@ String MatrixInt::toString(const AStringFormat* /* strfmt*/) const
  */
 MatrixInt* MatrixInt::createFromVVI(const VectorVectorInt& X)
 {
-  int nrow = (int) X.size();
-  int ncol = (int) X[0].size();
+  Id nrow = static_cast<Id>(X.size());
+  Id ncol = static_cast<Id>(X[0].size());
 
-  MatrixInt* mat = new MatrixInt(nrow, ncol);
-  for (int irow = 0; irow < nrow; irow++)
-    for (int icol = 0; icol < ncol; icol++)
+  auto* mat = new MatrixInt(nrow, ncol);
+  for (Id irow = 0; irow < nrow; irow++)
+    for (Id icol = 0; icol < ncol; icol++)
       mat->setValue(irow, icol, X[irow][icol]);
 
   return mat;
 }
 
-MatrixInt* MatrixInt::createFromVI(const VectorInt &X,
-                                   int nrow,
-                                   int ncol,
+MatrixInt* MatrixInt::createFromVI(const VectorInt& X,
+                                   Id nrow,
+                                   Id ncol,
                                    bool byCol)
 {
-  if (nrow * ncol != (int) X.size())
+  if (nrow * ncol != static_cast<Id>(X.size()))
   {
     messerr("Inconsistency between arguments 'nrow'(%d) and 'ncol'(%d)", nrow, ncol);
-    messerr("and the dimension of the input Vector (%d)", (int) X.size());
+    messerr("and the dimension of the input Vector (%d)", static_cast<Id>(X.size()));
   }
-  MatrixInt* mat = new MatrixInt(nrow, ncol);
+  auto* mat = new MatrixInt(nrow, ncol);
 
-  int lec = 0;
+  Id lec = 0;
   if (byCol)
   {
-    for (int irow = 0; irow < nrow; irow++)
-      for (int icol = 0; icol < ncol; icol++)
+    for (Id irow = 0; irow < nrow; irow++)
+      for (Id icol = 0; icol < ncol; icol++)
       {
         mat->setValue(irow, icol, X[lec++]);
       }
   }
   else
   {
-    for (int icol = 0; icol < ncol; icol++)
-      for (int irow = 0; irow < nrow; irow++)
+    for (Id icol = 0; icol < ncol; icol++)
+      for (Id irow = 0; irow < nrow; irow++)
       {
         mat->setValue(irow, icol, X[lec++]);
       }
@@ -355,14 +356,14 @@ MatrixInt* MatrixInt::createFromVI(const VectorInt &X,
  ** \remark  The matrix w1[] may NOT coincide with v1[]
  **
  *****************************************************************************/
-void MatrixInt::_transposeInPlace(int n1, int n2, const int *v1, int *w1)
+void MatrixInt::_transposeInPlace(Id n1, Id n2, const Id* v1, Id* w1)
 {
-#define SQ(i,j,neq)   ((j) * neq + (i))
-#define V1(i,j)        v1[SQ(i,j,n1)]
-  int ecr = 0;
-  for (int i1 = 0; i1 < n1; i1++)
-    for (int i2 = 0; i2 < n2; i2++)
+#define SQ(i, j, neq) ((j) * neq + (i))
+#define V1(i, j)      v1[SQ(i, j, n1)]
+  Id ecr = 0;
+  for (Id i1 = 0; i1 < n1; i1++)
+    for (Id i2 = 0; i2 < n2; i2++)
       w1[ecr++] = V1(i1, i2);
 }
 
-}
+} // namespace gstlrn

@@ -23,7 +23,7 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Simu - Locator = z1
- 
+
 Data Base Characteristics
 =========================
 
@@ -40,7 +40,7 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Simu - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -57,7 +57,7 @@ Moving Neighborhood
 Minimum number of samples           = 5
 Maximum number of samples           = 5
 Maximum horizontal distance         = 0.2
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -86,7 +86,7 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Simu - Locator = NA
 Column = 4 - Name = MovAve.Simu.estim - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -122,7 +122,7 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Simu - Locator = NA
 Column = 4 - Name = MovAve.Simu.estim - Locator = NA
 Column = 5 - Name = InvDist.Simu.estim - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -139,7 +139,7 @@ Moving Neighborhood
 Minimum number of samples           = 5
 Maximum number of samples           = 10
 Maximum horizontal distance         = 0.5
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -170,7 +170,7 @@ Column = 3 - Name = Simu - Locator = NA
 Column = 4 - Name = MovAve.Simu.estim - Locator = NA
 Column = 5 - Name = InvDist.Simu.estim - Locator = NA
 Column = 6 - Name = LstSqr.Simu.estim - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX

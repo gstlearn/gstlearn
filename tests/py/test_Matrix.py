@@ -130,12 +130,12 @@ reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 cx =  1.3
 cy = -0.3
 
-MRR.addMatInPlace(MRR,cx,cy)
-MSG.addMatInPlace(MSG,cx,cy)
+MRR.addMat(MRR,cx,cy)
+MSG.addMat(MSG,cx,cy)
 print("Are results for MRR and MSG similar: ",MRR.isSame(MSG))
-MSS.addMatInPlace(MSS,cx,cy)
+MSS.addMat(MSS,cx,cy)
 print("Are results for MRR and MSS similar: ",MRR.isSame(MSS))
-MSP.addMatInPlace(MSP,cx,cy)
+MSP.addMat(MSP,cx,cy)
 print("Are results for MRR and MSP similar: ",MRR.isSame(MSP))
 
 #

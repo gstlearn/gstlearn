@@ -15,7 +15,7 @@
 
 namespace gstlrn
 {
-SimuRefineParam::SimuRefineParam(int nmult, bool flag_SK)
+SimuRefineParam::SimuRefineParam(Id nmult, bool flag_SK)
   : AStringable()
   , _nmult(nmult)
   , _flagSK(flag_SK)

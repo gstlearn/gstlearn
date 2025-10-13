@@ -38,40 +38,42 @@ class AMesh;
  */
 class GSTLEARN_EXPORT ShiftOpStencil: public AShiftOp
 {
-  public:
-    ShiftOpStencil(const MeshETurbo* mesh = nullptr,
-                   const CovAniso* cova   = nullptr,
-                   bool verbose     = false);
-    ShiftOpStencil(const ShiftOpStencil& shift);
-    ShiftOpStencil& operator=(const ShiftOpStencil& shift);
-    virtual ~ShiftOpStencil();
-    /// ICloneable interface
-    IMPLEMENT_CLONING(ShiftOpStencil)
+public:
+  ShiftOpStencil(const MeshETurbo* mesh = nullptr,
+                 const CovAniso* cova   = nullptr,
+                 bool verbose           = false);
+  ShiftOpStencil(const ShiftOpStencil& shift);
+  ShiftOpStencil& operator=(const ShiftOpStencil& shift);
+  virtual ~ShiftOpStencil();
+  /// ICloneable interface
+  IMPLEMENT_CLONING(ShiftOpStencil)
 
-    void normalizeLambdaBySills(const AMesh* mesh) override;
-    void multiplyByValueAndAddDiagonal(double v1 = 1., double v2 = 0.) override;
-    void resetModif() override;
-    double getMaxEigenValue() const override;
-    double getLambda(int iapex) const override;
+  void normalizeLambdaBySills(const AMesh* mesh) override;
+  void multiplyByValueAndAddDiagonal(double v1 = 1., double v2 = 0.) const override;
+  void resetModif() const override;
+
+  double getLambda(Id iapex) const override;
+  double logDetLambda() const override;
 
 #ifndef SWIG
-  int _addToDest(const constvect inv, vect outv) const override;
+  Id _addToDest(const constvect inv, vect outv) const override;
 #endif
 
 private:
-  int _buildInternal(const MeshETurbo* mesh, const CovAniso* cova, bool verbose);
+  double _getMaxEigenValue() const override;
+  Id _buildInternal(const MeshETurbo* mesh, const CovAniso* cova, bool verbose);
   void _printStencil() const;
-  int _getNWeights() const { return (int) _weights.size(); }
+  Id _getNWeights() const { return static_cast<Id>(_weights.size()); }
 
 private:
   VectorVectorInt _relativeShifts;
   VectorInt _absoluteShifts;
   VectorDouble _weights;
   mutable VectorDouble _weightsSimu;
-  VectorBool _isInside; 
+  VectorBool _isInside;
   double _lambdaVal;
   bool _useLambdaSingleVal;
-  bool _useModifiedShift;
+  mutable bool _useModifiedShift;
   const MeshETurbo* _mesh; // not to be deleted
 };
-}
+} // namespace gstlrn

@@ -13,9 +13,9 @@
 
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/OptCst.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/DbGraphO.hpp"
-#include "Basic/OptCst.hpp"
 
 using namespace gstlrn;
 /****************************************************************************/
@@ -26,12 +26,11 @@ using namespace gstlrn;
  ** with an Oriented Graph organization
  **
  *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
-
 
   // Creating the Lines (in a 2-D space)
   defineDefaultSpace(ESpaceType::RN, 2);
@@ -54,19 +53,19 @@ int main(int argc, char *argv[])
   NF_Triplet NF_arcs;
   law_set_random_seed(1314);
   VectorInt ind1 = {0, 1, 2, 3, 4, 5, 2, 7, 8, 9, 10, 11, 8, 13, 14, 7, 15, 16};
-  VectorInt ind2 = {1,  2,  3,  4,  5,  6,  7,  8,  9,
+  VectorInt ind2 = {1, 2, 3, 4, 5, 6, 7, 8, 9,
                     10, 11, 12, 13, 14, 11, 15, 16, 17};
-  int narcs = (int) ind1.size();
-  for (int iarc = 0; iarc < narcs; iarc++)
+  Id narcs       = static_cast<Id>(ind1.size());
+  for (Id iarc = 0; iarc < narcs; iarc++)
     NF_arcs.add(ind1[iarc], ind2[iarc], law_uniform(0.3, 0.9));
 
   DbGraphO* dbgraphO =
-    DbGraphO::createFromSamples((int)x1.size(), ELoadBy::COLUMN, tab, NF_arcs,
+    DbGraphO::createFromSamples(static_cast<Id>(x1.size()), ELoadBy::COLUMN, tab, NF_arcs,
                                 {"x1", "x2", "z1"}, {"x1", "x2", "z1"});
   if (dbgraphO == nullptr) return 1;
 
   mestitle(1, "Reference Oriented Graph File");
-   dbgraphO->display();
+  dbgraphO->display();
 
   // Dump into a Neutral File
   dbgraphO->dumpToNF("GraphO.NF");

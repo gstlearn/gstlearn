@@ -1,10 +1,51 @@
 
-Checking Vecchia Class
-======================
+Checking Vecchia Class (based on 2 Dbs with NA)
+===============================================
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                 rank       x-1       x-2         z       sel
+     [  0,]     1.000     0.017     0.122     1.090     1.000
+     [  1,]     2.000     0.798     0.820     0.334     1.000
+     [  2,]     3.000     0.749     0.066     0.454     1.000
+     [  3,]     4.000     0.672     0.901       N/A     1.000
+     [  4,]     5.000     0.544     0.632    -1.893     1.000
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z - Locator = z1
+Column = 4 - Name = sel - Locator = sel
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                 rank       x-1       x-2         z       sel
+     [  0,]     1.000     0.022     0.959    -1.209     1.000
+     [  1,]     2.000     0.317     0.715    -1.136     1.000
+     [  2,]     3.000     0.331     0.033       N/A     1.000
+     [  3,]     4.000     0.738     0.474     0.667     1.000
+     [  4,]     5.000     0.517     0.773     1.211     1.000
+     [  5,]     6.000     0.257     0.166     1.334     1.000
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z - Locator = z1
+Column = 4 - Name = sel - Locator = sel
 
 Ball Tree
 =========
-- Number of samples = 4
+- Number of samples = 11
 - Number of Features = 2
 - Number of levels = 1
 - Number of nodes = 1
@@ -12,30 +53,193 @@ Ball Tree
 
 List of nodes
 -------------
-Node #  0/  1 - Indices [    0;     4[ - Radius = 0.534435 - Centroid = 0.478135 0.406664 
- Sample indices =  0 1 2 3
+Node #  0/  1 - Indices [    0;    11[ - Radius = 0.617832 - Centroid = 0.451086 0.514594 
+ Sample indices =  0 1 2 3 4 5 6 7 8 9 10
 
-List of Neighborhoors for NN search
------------------------------------
-Sample_1   0 :         0       N/A       N/A       N/A
-Sample_1   1 :         1         0       N/A       N/A
-Sample_1   2 :         2         0         1       N/A
-Sample_1   3 :         3         1         0         2
-Matrix L
-- Number of rows    = 4
-- Number of columns = 4
+List of Neighbors for NN search
+-------------------------------
+All samples ranks are given in Absolute mode
+For Db_1   0 :         0       N/A       N/A       N/A
+For Db_1   1 :         1         0       N/A       N/A
+For Db_1   2 :         2         0         1       N/A
+For Db_1   3 :         3         1         2         0
+For Db_1   4 :         4         3         1         2
+For Db_2   5 :         5         4         3         1
+For Db_2   6 :         6         4         5         3
+For Db_2   7 :         7         0         2         4
+For Db_2   8 :         8         4         1         2
+For Db_2   9 :         9         4         3         6
+For Db_2  10 :        10         7         0         2
+
+
+Processing Neighborhood for constructing Lower Matrix for Vecchia
+-----------------------------------------------------------------
+Row Number    0 (Db 1 Var 0) - Abs Rank =    0 - Coors:     0.017     0.122
+Row Number    1 (Db 1 Var 0) - Abs Rank =    1 - Coors:     0.798     0.820
+ Db | Var | Col Number | Abs Rank |           Coors
+  1 |   0 |       0    |      0   |     0.017     0.122
+Row Number    2 (Db 1 Var 0) - Abs Rank =    2 - Coors:     0.749     0.066
+ Db | Var | Col Number | Abs Rank |           Coors
+  1 |   0 |       0    |      0   |     0.017     0.122
+  1 |   0 |       1    |      1   |     0.798     0.820
+Row Number    4 (Db 1 Var 0) - Abs Rank =    4 - Coors:     0.544     0.632
+ Db | Var | Col Number | Abs Rank |           Coors
+  1 |   0 |       1    |      1   |     0.798     0.820
+  1 |   0 |       2    |      2   |     0.749     0.066
+Row Number    5 (Db 2 Var 0) - Abs Rank =    0 - Coors:     0.022     0.959
+ Db | Var | Col Number | Abs Rank |           Coors
+  1 |   0 |       3    |      4   |     0.544     0.632
+  1 |   0 |       1    |      1   |     0.798     0.820
+Row Number    6 (Db 2 Var 0) - Abs Rank =    1 - Coors:     0.317     0.715
+ Db | Var | Col Number | Abs Rank |           Coors
+  1 |   0 |       3    |      4   |     0.544     0.632
+  2 |   0 |       4    |      0   |     0.022     0.959
+Row Number    8 (Db 2 Var 0) - Abs Rank =    3 - Coors:     0.738     0.474
+ Db | Var | Col Number | Abs Rank |           Coors
+  1 |   0 |       3    |      4   |     0.544     0.632
+  1 |   0 |       1    |      1   |     0.798     0.820
+  1 |   0 |       2    |      2   |     0.749     0.066
+Row Number    9 (Db 2 Var 0) - Abs Rank =    4 - Coors:     0.517     0.773
+ Db | Var | Col Number | Abs Rank |           Coors
+  1 |   0 |       3    |      4   |     0.544     0.632
+  2 |   0 |       5    |      1   |     0.317     0.715
+Row Number   10 (Db 2 Var 0) - Abs Rank =    5 - Coors:     0.257     0.166
+ Db | Var | Col Number | Abs Rank |           Coors
+  1 |   0 |       0    |      0   |     0.017     0.122
+  1 |   0 |       2    |      2   |     0.749     0.066
+
+Lower Vecchia Matrix
+--------------------
+- Number of rows    = 9
+- Number of columns = 9
 - Sparse Format
-               [,  0]    [,  1]    [,  2]    [,  3]
-     [  0,]     1.000         .         .         .
-     [  1,]    -0.286     1.000         .         .
-     [  2,]    -0.458    -0.049     1.000         .
-     [  3,]     0.000    -0.036    -0.001     1.000
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     1.000         .         .         .         .         .         .
+     [  1,]     0.000     1.000         .         .         .         .         .
+     [  2,]     0.000     0.000     1.000         .         .         .         .
+     [  3,]         .    -0.009     0.000     1.000         .         .         .
+     [  4,]         .     0.000         .     0.000     1.000         .         .
+     [  5,]         .         .         .    -0.027    -0.003     1.000         .
+     [  6,]         .    -0.005    -0.002    -0.023         .         .     1.000
+     [  7,]         .         .         .    -0.116         .    -0.041         .
+     [  8,]    -0.026         .    -0.001         .         .         .         .
+               [,  7]    [,  8]
+     [  0,]         .         .
+     [  1,]         .         .
+     [  2,]         .         .
+     [  3,]         .         .
+     [  4,]         .         .
+     [  5,]         .         .
+     [  6,]         .         .
+     [  7,]     1.000         .
+     [  8,]         .     1.000
 
-Diagonal D
-     1.000     1.089     1.291     1.001
+Diagonal of Vecchia Matrix
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.446     0.446     0.446     0.446     0.446     0.446     0.446
+     [  7,]     0.453     0.446
 
 Kriging with Vecchia approximation
 ==================================
+
+Ball Tree
+=========
+- Number of samples = 9
+- Number of Features = 2
+- Number of levels = 1
+- Number of nodes = 1
+- Size of leaf = 10
+
+List of nodes
+-------------
+Node #  0/  1 - Indices [    0;     9[ - Radius = 0.642982 - Centroid = 0.390982 0.454540 
+ Sample indices =  0 1 2 3 4 5 6 7 8
+
+List of Neighbors for NN search
+-------------------------------
+All samples ranks are given in Absolute mode
+For Db_1   0 :         0       N/A       N/A       N/A
+For Db_1   1 :         1         0       N/A       N/A
+For Db_1   2 :         2         0         1       N/A
+For Db_1   3 :         3         2         1         0
+For Db_2   4 :         4         2         3         0
+For Db_2   5 :         5         1         0         3
+For Db_2   6 :         6         3         4         2
+For Db_2   7 :         7         6         3         1
+For Db_2   8 :         8         7         3         6
+
+
+Processing Neighborhood for constructing Lower Matrix for Vecchia
+-----------------------------------------------------------------
+Row Number    0 (Db 1 Var 0) - Abs Rank =    0 - Coors:     0.000     0.000
+Row Number    1 (Db 1 Var 0) - Abs Rank =    1 - Coors:     0.500     0.000
+ Db | Var | Col Number | Abs Rank |           Coors
+  1 |   0 |       0    |      0   |     0.000     0.000
+Row Number    2 (Db 1 Var 0) - Abs Rank =    2 - Coors:     0.000     0.500
+ Db | Var | Col Number | Abs Rank |           Coors
+  1 |   0 |       0    |      0   |     0.000     0.000
+  1 |   0 |       1    |      1   |     0.500     0.000
+Row Number    3 (Db 1 Var 0) - Abs Rank =    3 - Coors:     0.500     0.500
+ Db | Var | Col Number | Abs Rank |           Coors
+  1 |   0 |       2    |      2   |     0.000     0.500
+  1 |   0 |       1    |      1   |     0.500     0.000
+  1 |   0 |       0    |      0   |     0.000     0.000
+Row Number    4 (Db 2 Var 0) - Abs Rank =    0 - Coors:     0.022     0.981
+ Db | Var | Col Number | Abs Rank |           Coors
+  1 |   0 |       2    |      2   |     0.000     0.500
+  1 |   0 |       3    |      3   |     0.500     0.500
+  1 |   0 |       0    |      0   |     0.000     0.000
+Row Number    5 (Db 2 Var 0) - Abs Rank =    1 - Coors:     0.339     0.037
+ Db | Var | Col Number | Abs Rank |           Coors
+  1 |   0 |       1    |      1   |     0.500     0.000
+  1 |   0 |       0    |      0   |     0.000     0.000
+  1 |   0 |       3    |      3   |     0.500     0.500
+Row Number    6 (Db 2 Var 0) - Abs Rank =    2 - Coors:     0.588     0.892
+ Db | Var | Col Number | Abs Rank |           Coors
+  1 |   0 |       3    |      3   |     0.500     0.500
+  2 |   0 |       4    |      0   |     0.022     0.981
+  1 |   0 |       2    |      2   |     0.000     0.500
+Row Number    7 (Db 2 Var 0) - Abs Rank =    3 - Coors:     0.760     0.662
+ Db | Var | Col Number | Abs Rank |           Coors
+  2 |   0 |       6    |      2   |     0.588     0.892
+  1 |   0 |       3    |      3   |     0.500     0.500
+  1 |   0 |       1    |      1   |     0.500     0.000
+Row Number    8 (Db 2 Var 0) - Abs Rank =    4 - Coors:     0.809     0.518
+ Db | Var | Col Number | Abs Rank |           Coors
+  2 |   0 |       7    |      3   |     0.760     0.662
+  1 |   0 |       3    |      3   |     0.500     0.500
+  2 |   0 |       6    |      2   |     0.588     0.892
+
+Lower Vecchia Matrix
+--------------------
+- Number of rows    = 9
+- Number of columns = 9
+- Sparse Format
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     1.000         .         .         .         .         .         .
+     [  1,]    -0.001     1.000         .         .         .         .         .
+     [  2,]    -0.001     0.000     1.000         .         .         .         .
+     [  3,]     0.000    -0.001    -0.001     1.000         .         .         .
+     [  4,]     0.000         .    -0.001     0.000     1.000         .         .
+     [  5,]    -0.006    -0.084         .    -0.001         .     1.000         .
+     [  6,]         .         .     0.000    -0.002     0.000         .     1.000
+     [  7,]         .     0.000         .    -0.010         .         .    -0.014
+     [  8,]         .         .         .    -0.009         .         .     0.000
+               [,  7]    [,  8]
+     [  0,]         .         .
+     [  1,]         .         .
+     [  2,]         .         .
+     [  3,]         .         .
+     [  4,]         .         .
+     [  5,]         .         .
+     [  6,]         .         .
+     [  7,]     1.000         .
+     [  8,]    -0.103     1.000
+
+Diagonal of Vecchia Matrix
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.446     0.446     0.446     0.446     0.446     0.449     0.446
+     [  7,]     0.446     0.451
 
 Data Base Grid Characteristics
 ==============================
@@ -45,9 +249,37 @@ Data Base Statistics
 4 - Name Vecchia.estim - Locator z1
  Nb of data          =          4
  Nb of active values =          4
- Minimum value       =     -0.371
- Maximum value       =      0.315
- Mean value          =     -0.034
- Standard Deviation  =      0.245
- Variance            =      0.060
-Log-likelihood = 526809.132330
+ Minimum value       =      0.000
+ Maximum value       =      0.006
+ Mean value          =      0.002
+ Standard Deviation  =      0.002
+ Variance            =      0.000
+
+Log-Likelihood
+==============
+Log-likelihood = -95547.483503
+
+Kriging with Vecchia approximation (nvar=2)
+===========================================
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+4 - Name Vecchia.estim.1 - Locator z1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =     -0.710
+ Maximum value       =      1.409
+ Mean value          =      0.084
+ Standard Deviation  =      0.160
+ Variance            =      0.026
+5 - Name Vecchia.estim.2 - Locator z2
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =     -1.071
+ Maximum value       =      0.543
+ Mean value          =     -0.063
+ Standard Deviation  =      0.122
+ Variance            =      0.015

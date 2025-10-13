@@ -12,9 +12,9 @@
 #include "geoslib_define.h"
 #include "geoslib_old_f.h"
 
-#include "Model/ModelOptimVMap.hpp"
-#include "Model/Model.hpp"
 #include "Db/DbGrid.hpp"
+#include "Model/Model.hpp"
+#include "Model/ModelOptimVMap.hpp"
 
 #define IJDIR(ijvar, ipadir) ((ijvar) * npadir + (ipadir))
 #define _WT(ijvar, ipadir)   _wt[IJDIR(ijvar, ipadir)]
@@ -88,8 +88,8 @@ bool ModelOptimVMap::_checkConsistency()
     messerr("You must have defined 'dbmap' beforehand");
     return false;
   }
-  int nvar          = _dbmap->getNLoc(ELoc::Z);
-  unsigned int ndim = _dbmap->getNLoc(ELoc::X);
+  Id nvar     = _dbmap->getNLoc(ELoc::Z);
+  size_t ndim = _dbmap->getNLoc(ELoc::X);
 
   if (_model->getNVar() != nvar)
   {
@@ -120,25 +120,25 @@ bool ModelOptimVMap::_checkConsistency()
   return true;
 }
 
-int ModelOptimVMap::_getDimensions()
+Id ModelOptimVMap::_getDimensions()
 {
   if (_dbmap == nullptr)
   {
     messerr("You must have defined 'dbmap' beforehand");
     return 1;
   }
-  int nbexp  = 0;
-  int npadir = 0;
-  int nvar   = _dbmap->getNLoc(ELoc::Z);
-  int nech   = _dbmap->getNSample();
-  int nvs2   = nvar * (nvar + 1) / 2;
+  Id nbexp  = 0;
+  Id npadir = 0;
+  Id nvar   = _dbmap->getNLoc(ELoc::Z);
+  Id nech   = _dbmap->getNSample();
+  Id nvs2   = nvar * (nvar + 1) / 2;
 
   /* Calculate the total number of lags */
 
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
-    int ndef = 0;
-    for (int ijvar = 0; ijvar < nvs2; ijvar++)
+    Id ndef = 0;
+    for (Id ijvar = 0; ijvar < nvs2; ijvar++)
       if (!FFFF(_dbmap->getZVariable(iech, ijvar))) ndef++;
     nbexp += ndef;
     if (ndef > 0) npadir++;
@@ -156,39 +156,40 @@ int ModelOptimVMap::_getDimensions()
   return 0;
 }
 
-double ModelOptimVMap::computeCost(bool verbose)
+double ModelOptimVMap::computeCost(bool flagPrint, bool verbose)
 {
+  DECLARE_UNUSED(flagPrint);
   DECLARE_UNUSED(verbose);
 
   // Evaluate the Cost function
   VectorDouble d0(_ndim);
   _dbmap->rankToIndice(_nech / 2, _indg1);
-  for (int idim = 0; idim < _ndim; idim++)
+  for (Id idim = 0; idim < _ndim; idim++)
     d0[idim] = _indg1[idim] * _dbmap->getDX(idim);
   SpacePoint origin(d0);
   SpacePoint P = origin;
 
   /* Loop on the experimental conditions */
   double total = 0.;
-  for (int iech = 0; iech < _nech; iech++)
+  for (Id iech = 0; iech < _nech; iech++)
   {
     _dbmap->rankToIndice(iech, _indg2);
-    for (int idim = 0; idim < _ndim; idim++)
+    for (Id idim = 0; idim < _ndim; idim++)
       d0[idim] = _indg2[idim] * _dbmap->getDX(idim);
     P.setCoords(d0);
 
     double dist = distance_intra(_dbmap, _nech / 2, iech, NULL);
     double wgt  = (dist > 0) ? 1. / dist : 0.;
 
-    int ijvar = 0;
-    for (int ivar = 0; ivar < _nvar; ivar++)
-      for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+    Id ijvar = 0;
+    for (Id ivar = 0; ivar < _nvar; ivar++)
+      for (Id jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
         double vexp = _dbmap->getZVariable(iech, ijvar);
         if (FFFF(vexp)) continue;
         double vtheo = _model->evalCov(origin, P, ivar, jvar, &_calcmode);
         double delta = vexp - vtheo;
-        total  += wgt * delta * delta;
+        total += wgt * delta * delta;
       }
   }
   return total;
@@ -198,7 +199,7 @@ void ModelOptimVMap::evalGrad(vect res)
 {
   VectorDouble d0(_ndim);
   _dbmap->rankToIndice(_nech / 2, _indg1);
-  for (int idim = 0; idim < _ndim; idim++)
+  for (Id idim = 0; idim < _ndim; idim++)
     d0[idim] = _indg1[idim] * _dbmap->getDX(idim);
   SpacePoint origin(d0);
   SpacePoint P = origin;
@@ -208,30 +209,30 @@ void ModelOptimVMap::evalGrad(vect res)
 
   for (size_t i = 0, ngrad = gradcov.size(); i < ngrad; i++)
   {
-    double total  = 0.;
-    for (int iech = 0; iech < _nech; iech++)
+    double total = 0.;
+    for (Id iech = 0; iech < _nech; iech++)
     {
       _dbmap->rankToIndice(iech, _indg2);
-      for (int idim = 0; idim < _ndim; idim++)
+      for (Id idim = 0; idim < _ndim; idim++)
         d0[idim] = _indg2[idim] * _dbmap->getDX(idim);
       P.setCoords(d0);
 
       double dist = distance_intra(_dbmap, _nech / 2, iech, NULL);
       double wgt  = (dist > 0) ? 1. / dist : 0.;
 
-      int ijvar = 0;
-      for (int ivar = 0; ivar < _nvar; ivar++)
-        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+      Id ijvar = 0;
+      for (Id ivar = 0; ivar < _nvar; ivar++)
+        for (Id jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
           double vexp = _dbmap->getZVariable(iech, ijvar);
           if (FFFF(vexp)) continue;
           double vtheo  = _model->evalCov(origin, P, ivar, jvar, &_calcmode);
           double dvtheo = gradcov[i](origin, P, ivar, jvar, &_calcmode);
           double delta  = vexp - vtheo;
-          total  += -2. * wgt * delta * dvtheo;
+          total += -2. * wgt * delta * dvtheo;
         }
     }
-    res[i] = total;  
+    res[i] = total;
   }
 }
 
@@ -242,8 +243,8 @@ ModelOptimVMap* ModelOptimVMap::createForOptim(ModelGeneric* model,
 {
   auto* optim = new ModelOptimVMap(model, constraints, mop);
 
-  MatrixSymmetric vars = MatrixSymmetric(model->getNVar());
-  double hmax          = dbmap->getExtensionDiagonal();
+  MatrixSymmetric vars(model->getNVar());
+  double hmax = dbmap->getExtensionDiagonal();
   optim->setEnvironment(vars, hmax);
   optim->_dbmap = dbmap;
 
@@ -286,4 +287,4 @@ ModelOptimVMap* ModelOptimVMap::createForOptim(ModelGeneric* model,
 
   return optim;
 }
-}
+} // namespace gstlrn

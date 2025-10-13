@@ -28,7 +28,7 @@
 
 namespace gstlrn
 {
-AnamHermite::AnamHermite(int nbpoly, bool flagBound, double rCoef)
+AnamHermite::AnamHermite(Id nbpoly, bool flagBound, double rCoef)
   : AnamContinuous()
   , _flagBound(flagBound)
   , _rCoef(rCoef)
@@ -64,7 +64,7 @@ AnamHermite::~AnamHermite()
 String AnamHermite::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  int nbpoly = getNbPoly();
+  auto nbpoly = getNbPoly();
   if (nbpoly <= 0) return sstr.str();
 
   sstr << toTitle(1, "Hermitian Anamorphosis");
@@ -85,13 +85,13 @@ String AnamHermite::toString(const AStringFormat* strfmt) const
 
 AnamHermite* AnamHermite::createFromNF(const String& NFFilename, bool verbose)
 {
-  AnamHermite* anam = new AnamHermite();
+  auto* anam = new AnamHermite();
   if (anam->_fileOpenAndDeserialize(NFFilename, verbose)) return anam;
   delete anam;
   return nullptr;
 }
 
-AnamHermite* AnamHermite::create(int nbpoly, bool flagBound, double rCoef)
+AnamHermite* AnamHermite::create(Id nbpoly, bool flagBound, double rCoef)
 {
   return new AnamHermite(nbpoly, flagBound, rCoef);
 }
@@ -117,7 +117,7 @@ void AnamHermite::reset(double pymin,
 double AnamHermite::rawToTransformValue(double z) const
 {
   double y, y1, y2, yg, z1, z2, zg, dz, dzmax, dy, dymax;
-  int i, iter;
+  Id i, iter;
 
   /* Initializations */
 
@@ -275,10 +275,10 @@ double AnamHermite::transformToRawValue(double y) const
  */
 double AnamHermite::computeVariance(double chh) const
 {
-  int nbpoly = getNbPoly();
-  double rho = 1.;
-  double var = 0.;
-  for (int ih = 1; ih < nbpoly; ih++)
+  auto nbpoly = getNbPoly();
+  double rho  = 1.;
+  double var  = 0.;
+  for (Id ih = 1; ih < nbpoly; ih++)
   {
     rho *= chh;
     var += getPsiHn(ih) * getPsiHn(ih) * rho;
@@ -290,11 +290,11 @@ VectorDouble AnamHermite::cumulateVarianceRatio(double chh) const
 {
   VectorDouble vec;
 
-  int nbpoly   = getNbPoly();
+  auto nbpoly  = getNbPoly();
   double rho   = 1.;
   double var   = 0.;
   double total = getVariance();
-  for (int ih = 1; ih < nbpoly; ih++)
+  for (Id ih = 1; ih < nbpoly; ih++)
   {
     rho *= chh;
     var += getPsiHn(ih) * getPsiHn(ih) * rho;
@@ -315,16 +315,16 @@ void AnamHermite::setRCoef(double r_coef)
   calculateMeanAndVariance();
 }
 
-int AnamHermite::fitFromArray(const VectorDouble& tab, const VectorDouble& wt)
+Id AnamHermite::fitFromArray(const VectorDouble& tab, const VectorDouble& wt)
 {
-  int icl, ih, ncl;
+  Id icl, ih, ncl;
   double Gcy1, Gcy2, Gy1, Gy2;
   VectorDouble psi, h1, h2, zs, ys;
 
-  int nech = static_cast<int>(tab.size());
+  Id nech = static_cast<Id>(tab.size());
   if (nech <= 0) return 1;
 
-  int nbpoly = getNbPoly();
+  auto nbpoly = getNbPoly();
   zs.resize(nech + 2);
   ys.resize(nech + 2);
   _psiHn.resize(nbpoly, 0.);
@@ -356,7 +356,7 @@ int AnamHermite::fitFromArray(const VectorDouble& tab, const VectorDouble& wt)
     Gy2 = law_df_gaussian(ys[icl]);
 
     for (ih = 1; ih < nbpoly; ih++)
-      _psiHn[ih] += zs[icl] * (h2[ih - 1] * Gy2 - h1[ih - 1] * Gy1) / sqrt((double)ih);
+      _psiHn[ih] += zs[icl] * (h2[ih - 1] * Gy2 - h1[ih - 1] * Gy1) / sqrt(static_cast<double>(ih));
 
     Gy1 = Gy2;
     for (ih = 0; ih < nbpoly; ih++) h1[ih] = h2[ih];
@@ -371,12 +371,12 @@ int AnamHermite::fitFromArray(const VectorDouble& tab, const VectorDouble& wt)
   return 0;
 }
 
-double AnamHermite::getPsiHn(int ih) const
+double AnamHermite::getPsiHn(Id ih) const
 {
   if (!_isIndexValid(ih)) return TEST;
   double value = _psiHn[ih];
   if (isChangeSupportDefined())
-    value *= pow(_rCoef, (double)ih);
+    value *= pow(_rCoef, static_cast<double>(ih));
   return value;
 }
 
@@ -386,7 +386,7 @@ VectorDouble AnamHermite::getPsiHns() const
   {
     VectorDouble psi = _psiHn;
     double rval      = 1.;
-    for (int ih = 1; ih < getNbPoly(); ih++)
+    for (Id ih = 1; ih < getNbPoly(); ih++)
     {
       rval *= _rCoef;
       psi[ih] *= rval;
@@ -396,13 +396,13 @@ VectorDouble AnamHermite::getPsiHns() const
   return _psiHn;
 }
 
-void AnamHermite::setPsiHn(int i, double psi_hn)
+void AnamHermite::setPsiHn(Id i, double psi_hn)
 {
   if (!_isIndexValid(i)) return;
   _psiHn[i] = psi_hn;
 }
 
-bool AnamHermite::_isIndexValid(int i) const
+bool AnamHermite::_isIndexValid(Id i) const
 {
   return checkArg("Hermite Polynomial Index", i, getNbPoly());
 }
@@ -416,7 +416,7 @@ void AnamHermite::_defineBounds(double pymin,
                                 double aymax,
                                 double azmax)
 {
-  int nlag, ind, ind0;
+  Id nlag, ind, ind0;
   VectorDouble ym, zm;
 
   // Switch off the flagBound during the calculation of bounds
@@ -426,7 +426,7 @@ void AnamHermite::_defineBounds(double pymin,
 
   /* Initializations */
 
-  nlag = (int)((ANAM_YMAX - ANAM_YMIN) / YPAS) + 1;
+  nlag = static_cast<Id>(((ANAM_YMAX - ANAM_YMIN) / YPAS) + 1);
   if (FFFF(azmin)) azmin = pzmin;
   if (FFFF(aymin)) aymin = pymin;
   if (FFFF(azmax)) azmax = pzmax;
@@ -459,7 +459,7 @@ void AnamHermite::_defineBounds(double pymin,
     if (ym[ind0] > pymin) break;
   for (; ind0 < nlag; ind0++)
     if (zm[ind0] > (pzmin + pzmax) / 2.) break;
-  if (ind0 == nlag) ind0 = (int)(nlag / 2.);
+  if (ind0 == nlag) ind0 = static_cast<Id>(nlag / 2.);
 
   /* Look for the first non-monotonous point, starting from the median */
 
@@ -523,14 +523,14 @@ void AnamHermite::_defineBounds(double pymin,
   setFlagBound(flagBoundMemo);
 }
 
-int AnamHermite::_data_sort(int nech,
-                            const VectorDouble& z,
-                            const VectorDouble& wt,
-                            VectorDouble& zs,
-                            VectorDouble& ys)
+Id AnamHermite::_data_sort(Id nech,
+                           const VectorDouble& z,
+                           const VectorDouble& wt,
+                           VectorDouble& zs,
+                           VectorDouble& ys)
 {
   double sum, frc, eps, wgt;
-  int i, ncl, nval;
+  Id i, ncl, nval;
 
   /* Initializations */
 
@@ -614,7 +614,7 @@ bool AnamHermite::_serializeAscii(std::ostream& os, bool verbose) const
   bool ret = true;
   ret&& ret&& AnamContinuous::_serializeAscii(os, verbose);
   ret = ret && _recordWrite<double>(os, "Change of support coefficient", getRCoef());
-  ret = ret && _recordWrite<int>(os, "Number of Hermite Polynomials", getNbPoly());
+  ret = ret && _recordWrite<Id>(os, "Number of Hermite Polynomials", getNbPoly());
   ret = ret && _tableWrite(os, "Hermite Polynomial", getNbPoly(), getPsiHns());
   return ret;
 }
@@ -622,14 +622,14 @@ bool AnamHermite::_serializeAscii(std::ostream& os, bool verbose) const
 bool AnamHermite::_deserializeAscii(std::istream& is, bool verbose)
 {
   VectorDouble hermite;
-  double r   = TEST;
-  int nbpoly = 0;
+  double r  = TEST;
+  Id nbpoly = 0;
 
   bool ret = true;
 
   ret = ret && AnamContinuous::_deserializeAscii(is, verbose);
   ret = ret && _recordRead<double>(is, "Change of Support Coefficient", r);
-  ret = ret && _recordRead<int>(is, "Number of Hermite Polynomials", nbpoly);
+  ret = ret && _recordRead<Id>(is, "Number of Hermite Polynomials", nbpoly);
   if (ret) hermite.resize(nbpoly);
   ret = ret && _tableRead(is, "Hermite Polynomial", nbpoly, hermite.data());
   if (ret)
@@ -646,7 +646,7 @@ VectorDouble AnamHermite::z2factor(double z, const VectorInt& ifacs) const
   return hermitePolynomials(z, 1., ifacs);
 }
 
-int AnamHermite::updatePointToBlock(double r_coef)
+Id AnamHermite::updatePointToBlock(double r_coef)
 {
   if (!allowChangeSupport()) return 1;
   setRCoef(r_coef);
@@ -665,13 +665,13 @@ int AnamHermite::updatePointToBlock(double r_coef)
  *****************************************************************************/
 void AnamHermite::_globalSelectivity(Selectivity* selectivity)
 {
-  int nbpoly = getNbPoly();
+  auto nbpoly = getNbPoly();
   setFlagBound(0);
-  int ncut = selectivity->getNCuts();
+  Id ncut = selectivity->getNCuts();
 
   /* Loop on the cutoff values */
 
-  for (int icut = 0; icut < ncut; icut++)
+  for (Id icut = 0; icut < ncut; icut++)
   {
     double zval     = selectivity->getZcut(icut);
     double yval     = rawToTransformValue(zval);
@@ -679,8 +679,8 @@ void AnamHermite::_globalSelectivity(Selectivity* selectivity)
     double gval     = law_df_gaussian(yval);
     VectorDouble hn = hermitePolynomials(yval, 1., nbpoly);
     double qval     = getPsiHn(0) * (1. - law_cdf_gaussian(yval));
-    for (int ih = 1; ih < nbpoly; ih++)
-      qval -= getPsiHn(ih) * hn[ih - 1] * gval / sqrt((double)ih);
+    for (Id ih = 1; ih < nbpoly; ih++)
+      qval -= getPsiHn(ih) * hn[ih - 1] * gval / sqrt(static_cast<double>(ih));
     selectivity->setTest(icut, zval);
     selectivity->setTest(icut, tval);
     selectivity->setQest(icut, qval);
@@ -702,19 +702,19 @@ void AnamHermite::_globalSelectivity(Selectivity* selectivity)
  ** \param[in]  iptr0        Rank for storing the results
  **
  *****************************************************************************/
-int AnamHermite::factor2Selectivity(Db* db,
-                                    Selectivity* selectivity,
-                                    const VectorInt& cols_est,
-                                    const VectorInt& cols_std,
-                                    int iptr0)
+Id AnamHermite::factor2Selectivity(Db* db,
+                                   Selectivity* selectivity,
+                                   const VectorInt& cols_est,
+                                   const VectorInt& cols_std,
+                                   Id iptr0)
 {
   setFlagBound(1);
-  int nbpoly  = getNbPoly();
+  auto nbpoly = getNbPoly();
   bool need_T = selectivity->isNeededT();
   bool need_Q = selectivity->isNeededQ();
-  int ncut    = selectivity->getNCuts();
-  int nb_est  = (int)cols_est.size();
-  int nb_std  = (int)cols_std.size();
+  Id ncut     = selectivity->getNCuts();
+  Id nb_est   = static_cast<Id>(cols_est.size());
+  Id nb_std   = static_cast<Id>(cols_std.size());
 
   /* Preliminary checks */
 
@@ -726,7 +726,7 @@ int AnamHermite::factor2Selectivity(Db* db,
 
   /* Get the number of initial cutoffs */
 
-  int nfactor = MAX(nb_est, nb_std);
+  Id nfactor = MAX(nb_est, nb_std);
   if (nfactor >= getNbPoly())
   {
     messerr("Number of Factors (%d) must be smaller than Number of Hermite polynomials (%d)",
@@ -740,7 +740,7 @@ int AnamHermite::factor2Selectivity(Db* db,
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < db->getNSample(); iech++)
+  for (Id iech = 0; iech < db->getNSample(); iech++)
   {
     if (_isSampleSkipped(db, iech, cols_est, cols_std)) continue;
 
@@ -750,7 +750,7 @@ int AnamHermite::factor2Selectivity(Db* db,
     if (selectivity->isUsedEst(ESelectivity::Z))
     {
       double total = coeffs[0];
-      for (int ivar = 0; ivar < nb_est; ivar++)
+      for (Id ivar = 0; ivar < nb_est; ivar++)
       {
         double value = db->getArray(iech, cols_est[ivar]);
         total += coeffs[ivar + 1] * value;
@@ -768,7 +768,7 @@ int AnamHermite::factor2Selectivity(Db* db,
     if (selectivity->isUsedStD(ESelectivity::Z))
     {
       double total = 0.;
-      for (int ivar = 0; ivar < nbpoly - 1; ivar++)
+      for (Id ivar = 0; ivar < nbpoly - 1; ivar++)
       {
         double value = 1.0;
         if (ivar < nb_std)
@@ -782,7 +782,7 @@ int AnamHermite::factor2Selectivity(Db* db,
 
     /* Loop on the cutoffs */
 
-    for (int icut = 0; icut < ncut; icut++)
+    for (Id icut = 0; icut < ncut; icut++)
     {
       double yc = rawToTransformValue(selectivity->getZcut(icut));
       if (need_T)
@@ -794,7 +794,7 @@ int AnamHermite::factor2Selectivity(Db* db,
         if (selectivity->isUsedEst(ESelectivity::T))
         {
           double total = s_cc[0];
-          for (int ivar = 0; ivar < nb_est; ivar++)
+          for (Id ivar = 0; ivar < nb_est; ivar++)
           {
             double value = db->getArray(iech, cols_est[ivar]);
             total += s_cc[ivar + 1] * value;
@@ -807,7 +807,7 @@ int AnamHermite::factor2Selectivity(Db* db,
         if (selectivity->isUsedStD(ESelectivity::T))
         {
           double total = 0.;
-          for (int ivar = 0; ivar < nbpoly - 1; ivar++)
+          for (Id ivar = 0; ivar < nbpoly - 1; ivar++)
           {
             double value = 1.0;
             if (ivar < nb_std)
@@ -829,7 +829,7 @@ int AnamHermite::factor2Selectivity(Db* db,
         if (selectivity->isUsedEst(ESelectivity::Q))
         {
           double total = s_cc[0];
-          for (int ivar = 0; ivar < nb_est; ivar++)
+          for (Id ivar = 0; ivar < nb_est; ivar++)
           {
             double value = db->getArray(iech, cols_est[ivar]);
             total += s_cc[ivar + 1] * value;
@@ -842,7 +842,7 @@ int AnamHermite::factor2Selectivity(Db* db,
         if (selectivity->isUsedStD(ESelectivity::Q))
         {
           double total = 0.;
-          for (int ivar = 0; ivar < nbpoly - 1; ivar++)
+          for (Id ivar = 0; ivar < nbpoly - 1; ivar++)
           {
             double value = 1.0;
             if (ivar < nb_std)
@@ -864,7 +864,7 @@ int AnamHermite::factor2Selectivity(Db* db,
   return (0);
 }
 
-double AnamHermite::evalSupportCoefficient(int option,
+double AnamHermite::evalSupportCoefficient(Id option,
                                            Model* model,
                                            const VectorDouble& dxs,
                                            const VectorInt& ndisc,
@@ -909,9 +909,9 @@ bool AnamHermite::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   }
 
   /* Read the grid characteristics */
-  bool ret   = true;
-  double r   = 0.;
-  int nbpoly = 0;
+  bool ret  = true;
+  double r  = 0.;
+  Id nbpoly = 0;
   VectorDouble hermite;
 
   ret = ret && AnamContinuous::_deserializeH5(*anamG, verbose);

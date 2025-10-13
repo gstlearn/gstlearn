@@ -42,7 +42,7 @@ public:
 
   IMPLEMENT_CLONING(ModelFitSillsVario)
 
-  int fitSillMatrices() override;
+  Id fitSillMatrices() override;
 
   static ModelFitSillsVario* createForOptim(const Vario* vario,
                                             ModelGeneric* model,
@@ -50,8 +50,8 @@ public:
                                             const ModelOptimParam& mop = ModelOptimParam());
 
 private:
-  int _prepare();
-  int _getDimensions();
+  Id _prepare();
+  Id _getDimensions();
   void _computeGg();
   void _compressArray(const VectorDouble& tabin, VectorDouble& tabout);
   void _prepareGoulard();

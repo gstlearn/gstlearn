@@ -27,16 +27,16 @@ PrecisionOpMultiMatrix::PrecisionOpMultiMatrix(Model* model,
   _prepareMatrix();
 }
 
-MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixStationary(int icov, const MatrixSparse* Q) const
+MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixStationary(Id icov, const MatrixSparse* Q) const
 {
-  MatrixSymmetric sills = *_invCholSillsStat[icov].getMatrix();
+  MatrixSymmetric sills = _sills[icov];
   sills.invert();
     
-  MatrixSparse current = MatrixSparse(0,0);
-  for (int jvar = 0; jvar < _getNVar(); jvar++)
+  MatrixSparse current(0,0);
+  for (Id jvar = 0; jvar < _getNVar(); jvar++)
   {
-    MatrixSparse currentCol = MatrixSparse(0,0);
-    for (int ivar = 0; ivar < _getNVar(); ivar++)
+    MatrixSparse currentCol(0,0);
+    for (Id ivar = 0; ivar < _getNVar(); ivar++)
     {
       MatrixSparse copy = *Q;
       copy.prodScalar(sills.getValue(ivar,jvar));
@@ -48,23 +48,23 @@ MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixStationary(int icov, const Ma
   return current;
 }
 
-MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixNoStat(int icov, const MatrixSparse* Q) const
+MatrixSparse PrecisionOpMultiMatrix::_prepareMatrixNoStat(Id icov, const MatrixSparse* Q) const
 {
-  int n = PrecisionOpMulti::size(icov);
-  int nvar = _getNVar();
+  Id n = PrecisionOpMulti::size(icov);
+  auto nvar = _getNVar();
   const MatrixSparse empty(n,n);
   MatrixSparse diag(n,n);
 
-  MatrixSparse bigQ = MatrixSparse(0,0);
-  for (int jvar = 0; jvar < nvar; jvar++)
+  MatrixSparse bigQ(0,0);
+  for (Id jvar = 0; jvar < nvar; jvar++)
   {
     MatrixSparse::glueInPlace(&bigQ, Q, 1,1);
   }
-  MatrixSparse bigLambda = MatrixSparse(0,0);
-  for (int ivar = 0; ivar < nvar; ivar++)
+  MatrixSparse bigLambda(0,0);
+  for (Id ivar = 0; ivar < nvar; ivar++)
   {
     MatrixSparse currentRow(0,0);
-    for (int jvar = 0; jvar < nvar; jvar++)
+    for (Id jvar = 0; jvar < nvar; jvar++)
     {
       if (jvar <= ivar)
       {
@@ -100,7 +100,7 @@ void PrecisionOpMultiMatrix::_prepareMatrix()
   if (_isSingle()) return;
 
   MatrixSparse current(0, 0);
-  for (int istruct = 0; istruct < _getNCov(); istruct++)
+  for (Id istruct = 0; istruct < _getNCov(); istruct++)
   {
     const MatrixSparse* Q = ((PrecisionOpMatrix*)_pops[istruct])->getQ();
 
@@ -134,15 +134,14 @@ void PrecisionOpMultiMatrix::_buildQop(bool stencil)
   {
     messerr("PrecisionOpMultiMatrix does not support stencil option\n");
   }
-  for (int icov = 0, number = _getNCov(); icov < number; icov++)
+  for (Id icov = 0, number = _getNCov(); icov < number; icov++)
   {
     CovAniso* cova = _model->getCovAniso(_getCovInd(icov));
     _pops.push_back(new PrecisionOpMatrix(_meshes[icov], cova));
   }
 }
 
-int PrecisionOpMultiMatrix::_addToDest(const constvect vecin,
-                                       vect vecout) const
+Id PrecisionOpMultiMatrix::_addToDest(const constvect vecin, vect vecout) const
 {
   return getQ()->addToDest(vecin, vecout);
 }

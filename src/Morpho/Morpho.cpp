@@ -17,8 +17,11 @@
 
 #include <cmath>
 
-static int RADIUS[3];
-static int LARGE = 9999999;
+namespace gstlrn
+{
+
+static Id RADIUS[3];
+static Id LARGE = 9999999;
 
 /*! \cond */
 #define CROSS 0
@@ -31,8 +34,6 @@ static int LARGE = 9999999;
 #define COMPNUM(i, j, k)     (compnum[GRID_ADD(i, j, k)])
 /*! \endcond */
 
-namespace gstlrn
-{
 /*****************************************************************************/
 /*!
  **  Defines the image radius (global variables)
@@ -42,7 +43,7 @@ namespace gstlrn
  *****************************************************************************/
 void _st_morpho_image_radius_define(const VectorInt& radius)
 {
-  int size  = static_cast<int>(radius.size());
+  Id size  = static_cast<Id>(radius.size());
   RADIUS[0] = (size > 0) ? radius[0] : 0;
   RADIUS[1] = (size > 1) ? radius[1] : 0;
   RADIUS[2] = (size > 2) ? radius[2] : 0;
@@ -61,14 +62,14 @@ void _st_morpho_image_radius_define(const VectorInt& radius)
  **                   labelled from 1 to nbcomp
  **
  *****************************************************************************/
-int _st_morpho_label_size(const VectorDouble& compnum,
-                          int nbcomp,
+Id _st_morpho_label_size(const VectorDouble& compnum,
+                          Id nbcomp,
                           VectorInt& sizes)
 {
-  int total = 0;
-  for (int i = 0; i < (int)compnum.size(); i++)
+  Id total = 0;
+  for (Id i = 0; i < static_cast<Id>(compnum.size()); i++)
   {
-    int val = (int)compnum[i];
+    Id val = static_cast<Id>(compnum[i]);
     if (val > 0 && val <= nbcomp)
     {
       sizes[val - 1]++;
@@ -89,14 +90,14 @@ int _st_morpho_label_size(const VectorDouble& compnum,
  *****************************************************************************/
 void _st_morpho_label_order(VectorDouble& compnum,
                             const VectorInt& order,
-                            int nbcomp)
+                            Id nbcomp)
 {
-  for (int i = 0; i < (int)compnum.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(compnum.size()); i++)
   {
-    int val = (int)compnum[i];
+    Id val = static_cast<Id>(compnum[i]);
     if (val <= 0) continue;
-    int found = -1;
-    for (int j = nbcomp - 1; j >= 0 && found < 0; j--)
+    Id found = -1;
+    for (Id j = nbcomp - 1; j >= 0 && found < 0; j--)
       if (val == order[j]) found = j;
     if (found < 0) messageAbort("st_morpho_label_order");
     compnum[i] = nbcomp - found;
@@ -119,17 +120,17 @@ void morpho_duplicate(const BImage& imagin, BImage& imagout)
  * @remarks The labels are sorted by decreasing sizes and an optional message
  * is issued for displaying the component sizes
  */
-VectorDouble morpho_labelling(int option,
-                              int flag_size,
+VectorDouble morpho_labelling(Id option,
+                              Id flag_size,
                               const BImage& imagin,
                               double ccvoid,
                               bool verbose)
 {
-  int jx, jy, jz, total, count, ref, iad, local, part_grain;
-  int i, size, nbtest, nbcomp, ix, iy, iz, icomp, ival, itest, il, jcomp[26];
+  Id jx, jy, jz, total, count, ref, iad, local, part_grain;
+  Id i, size, nbtest, nbcomp, ix, iy, iz, icomp, ival, itest, il, jcomp[26];
   VectorInt list_array, sizes, order;
   VectorDouble compnum;
-  int id[26][3] = {{-1, 00, 00},
+  Id id[26][3] = {{-1, 00, 00},
                    {00, -1, 00},
                    {00, 00, -1},
                    {01, 00, 00},
@@ -155,8 +156,8 @@ VectorDouble morpho_labelling(int option,
                    {00, 01, 01},
                    {01, 00, 01},
                    {01, 01, 01}};
-  int ndel[2]   = {6, 26};
-  int quantum   = 100;
+  Id ndel[2]   = {6, 26};
+  Id quantum   = 100;
 
   /* Initializations */
 
@@ -166,7 +167,7 @@ VectorDouble morpho_labelling(int option,
 
   /* Attempt to allocate the initial quantum */
 
-  int nxyz = imagin.getNPixels();
+  auto nxyz = imagin.getNPixels();
   size     = MIN(quantum, nxyz);
   list_array.resize(size);
   compnum.resize(nxyz);
@@ -189,7 +190,7 @@ VectorDouble morpho_labelling(int option,
             jz           = iz + id[itest][2];
             if (imagin.isInside(jx, jy, jz))
             {
-              ival = (int)COMPNUM(jx, jy, jz);
+              ival = static_cast<Id>(COMPNUM(jx, jy, jz));
               if (ival > 0)
               {
                 jcomp[itest] = list_array[ival - 1];
@@ -221,7 +222,7 @@ VectorDouble morpho_labelling(int option,
         {
           icomp = 0;
         }
-        COMPNUM(ix, iy, iz) = (double)icomp;
+        COMPNUM(ix, iy, iz) = static_cast<double>(icomp);
       }
 
   /* Compressing the list */
@@ -239,7 +240,7 @@ VectorDouble morpho_labelling(int option,
     for (iy = 0; iy < imagin.getNDims(1); iy++)
       for (ix = 0; ix < imagin.getNDims(0); ix++)
       {
-        iad = (int)COMPNUM(ix, iy, iz);
+        iad = static_cast<Id>(COMPNUM(ix, iy, iz));
         if (iad != 0)
           COMPNUM(ix, iy, iz) = list_array[iad - 1];
         else
@@ -262,7 +263,7 @@ VectorDouble morpho_labelling(int option,
       for (i = 0; i < nxyz; i++)
       {
         if (FFFF(compnum[i])) continue;
-        ival       = (int)compnum[i];
+        ival       = static_cast<Id>(compnum[i]);
         compnum[i] = sizes[ival - 1];
       }
 
@@ -312,11 +313,11 @@ VectorDouble morpho_labelling(int option,
  * @remarks The labels are sorted by decreasing sizes and an optional message
  * is issued for displaying the component sizes
  */
-VectorInt morpho_labelsize(int option, const BImage& imagin)
+VectorInt morpho_labelsize(Id option, const BImage& imagin)
 {
   VectorInt sizes;
   VectorDouble compnum = morpho_labelling(option, 0, imagin, TEST);
-  int nbcomp           = (int)compnum.size();
+  Id nbcomp           = static_cast<Id>(compnum.size());
   if (nbcomp > 0)
   {
     sizes.resize(nbcomp, 0);
@@ -328,14 +329,14 @@ VectorInt morpho_labelsize(int option, const BImage& imagin)
 /**
  * Perform the "erosion" of the input image
  */
-void morpho_erosion(int option,
+void morpho_erosion(Id option,
                     const VectorInt& radius,
                     const BImage& imagin,
                     BImage& imagout,
                     bool verbose)
 {
   BImage imagtmp;
-  int ix, iy, iz, jx, jy, jz, nx1, nx2, ny1, ny2, nz1, nz2, nbin;
+  Id ix, iy, iz, jx, jy, jz, nx1, nx2, ny1, ny2, nz1, nz2, nbin;
 
   /* Initializations */
 
@@ -422,14 +423,14 @@ void morpho_erosion(int option,
 /**
  * Perform the "dilation" of the input image
  */
-void morpho_dilation(int option,
+void morpho_dilation(Id option,
                      const VectorInt& radius,
                      const BImage& imagin,
                      BImage& imagout,
                      bool verbose)
 {
   BImage imagtmp;
-  int ix, iy, iz, jx, jy, jz, nx1, nx2, ny1, ny2, nz1, nz2, nbin;
+  Id ix, iy, iz, jx, jy, jz, nx1, nx2, ny1, ny2, nz1, nz2, nbin;
 
   /* Initializations */
 
@@ -521,8 +522,8 @@ void morpho_intersection(const BImage& image1,
                          BImage& imagout,
                          bool verbose)
 {
-  int nbin1 = 0;
-  int nbin2 = 0;
+  Id nbin1 = 0;
+  Id nbin2 = 0;
 
   if (verbose)
   {
@@ -530,7 +531,7 @@ void morpho_intersection(const BImage& image1,
     nbin2 = morpho_count(image2);
   }
 
-  for (int i = 0; i < image1.getAllocSize(); i++)
+  for (Id i = 0; i < image1.getAllocSize(); i++)
     imagout.setValue(i, image1.getValue(i) & image2.getValue(i));
 
   if (verbose)
@@ -546,8 +547,8 @@ void morpho_union(const BImage& image1,
                   BImage& imagout,
                   bool verbose)
 {
-  int nbin1 = 0;
-  int nbin2 = 0;
+  Id nbin1 = 0;
+  Id nbin2 = 0;
 
   if (verbose)
   {
@@ -555,7 +556,7 @@ void morpho_union(const BImage& image1,
     nbin2 = morpho_count(image2);
   }
 
-  for (int i = 0; i < image1.getAllocSize(); i++)
+  for (Id i = 0; i < image1.getAllocSize(); i++)
     imagout.setValue(i, image1.getValue(i) | image2.getValue(i));
 
   if (verbose)
@@ -570,11 +571,11 @@ void morpho_negation(const BImage& imagin,
                      BImage& imagout,
                      bool verbose)
 {
-  int nbin = 0;
+  Id nbin = 0;
 
   if (verbose) nbin = morpho_count(imagin);
 
-  for (int i = 0; i < imagin.getAllocSize(); i++)
+  for (Id i = 0; i < imagin.getAllocSize(); i++)
     imagout.setValue(i, ~imagin.getValue(i));
 
   if (verbose) message("Negation: %d -> %d\n", nbin, morpho_count(imagout));
@@ -583,12 +584,12 @@ void morpho_negation(const BImage& imagin,
 /**
  * Returns the volume (number of pixels) assigned to the grain (Binary Image == 1)
  */
-int morpho_count(const BImage& imagin)
+Id morpho_count(const BImage& imagin)
 {
-  int ncount = 0;
-  for (int iz = 0; iz < imagin.getNDims(2); iz++)
-    for (int iy = 0; iy < imagin.getNDims(1); iy++)
-      for (int ix = 0; ix < imagin.getNDims(0); ix++)
+  Id ncount = 0;
+  for (Id iz = 0; iz < imagin.getNDims(2); iz++)
+    for (Id iy = 0; iy < imagin.getNDims(1); iy++)
+      for (Id ix = 0; ix < imagin.getNDims(0); ix++)
         if (imagin.getValue(ix, iy, iz)) ncount++;
   return (ncount);
 }
@@ -596,7 +597,7 @@ int morpho_count(const BImage& imagin)
 /**
  * Perform the "opening" of the input image (i.e. an erosion followed by a dilation)
  */
-void morpho_opening(int option,
+void morpho_opening(Id option,
                     const VectorInt& radius,
                     const BImage& imagin,
                     BImage& imagout,
@@ -612,7 +613,7 @@ void morpho_opening(int option,
 /**
  * Perform the "closing" of the input image (i.e. a dilation followed by an erosion)
  */
-void morpho_closing(int option,
+void morpho_closing(Id option,
                     const VectorInt& radius,
                     const BImage& imagin,
                     BImage& imagout,
@@ -638,11 +639,11 @@ void morpho_double2imageInPlace(const VectorInt& nx,
   imagout.init(nx);
   VectorInt NX      = imagout.getNDimsExt(3);
   unsigned char mot = 0;
-  int ind           = 0;
-  int ecr           = 0;
-  for (int iz = 0; iz < imagout.getNDims(2); iz++)
-    for (int iy = 0; iy < imagout.getNDims(1); iy++)
-      for (int ix = 0; ix < imagout.getNDims(0); ix++)
+  Id ind           = 0;
+  Id ecr           = 0;
+  for (Id iz = 0; iz < imagout.getNDims(2); iz++)
+    for (Id iy = 0; iy < imagout.getNDims(1); iy++)
+      for (Id ix = 0; ix < imagout.getNDims(0); ix++)
       {
         ind++;
         double val    = TAB(ix, iy, iz);
@@ -650,7 +651,7 @@ void morpho_double2imageInPlace(const VectorInt& nx,
         if (FFFF(val)) result = 0.;
         if (!FFFF(vmin) && val < vmin) result = 0.;
         if (!FFFF(vmax) && val >= vmax) result = 0.;
-        mot = (mot << 1) + (unsigned char)result;
+        mot = (mot << 1) + static_cast<unsigned char>(result);
         if (ind == 8)
         {
           imagout.setValue(ecr, mot);
@@ -684,20 +685,20 @@ BImage morpho_double2image(const VectorInt& nx,
  * Converts an image into an array (double)
  */
 void morpho_image2double(const BImage& imagin,
-                         int mode,
+                         Id mode,
                          double grain,
                          double pore,
                          VectorDouble& tab,
                          bool verbose)
 {
   VectorInt NX = imagin.getNDimsExt(3);
-  int nxyz     = imagin.getNPixels();
+  auto nxyz    = imagin.getNPixels();
   if (verbose)
     message("Translation: %d / %d\n", morpho_count(imagin), nxyz);
 
-  for (int iz = 0; iz < imagin.getNDims(2); iz++)
-    for (int iy = 0; iy < imagin.getNDims(1); iy++)
-      for (int ix = 0; ix < imagin.getNDims(0); ix++)
+  for (Id iz = 0; iz < imagin.getNDims(2); iz++)
+    for (Id iy = 0; iy < imagin.getNDims(1); iy++)
+      for (Id ix = 0; ix < imagin.getNDims(0); ix++)
       {
         double value = imagin.getValue(ix, iy, iz) ? grain : pore;
         switch (mode)
@@ -720,7 +721,7 @@ void morpho_image2double(const BImage& imagin,
 /**
  * Returns the vector of distances from the grain to the edge
  */
-void morpho_distance(int option,
+void morpho_distance(Id option,
                      const VectorInt& radius,
                      bool flagDistErode,
                      BImage& imagin,
@@ -728,7 +729,7 @@ void morpho_distance(int option,
                      bool verbose)
 {
   BImage imagout = imagin;
-  int nxyz       = imagin.getNPixels();
+  auto nxyz      = imagin.getNPixels();
 
   /* Copy the initial image in the distance array */
 
@@ -736,7 +737,7 @@ void morpho_distance(int option,
 
   /* Processing loop */
 
-  int iter = 0;
+  Id iter = 0;
   if (flagDistErode)
   {
     while (morpho_count(imagin) != 0)
@@ -747,14 +748,14 @@ void morpho_distance(int option,
       morpho_image2double(imagin, 1, 1, 0, dist);
       if (verbose)
       {
-        int count = morpho_count(imagin);
+        Id count = morpho_count(imagin);
         message("Iteration %d: Current (%d/%d)\n", iter, count, nxyz);
       }
     }
   }
   else
   {
-    int incr = 0;
+    Id incr = 0;
     while (morpho_count(imagin) != nxyz)
     {
       iter++;
@@ -764,7 +765,7 @@ void morpho_distance(int option,
       morpho_image2double(imagin, -1, 1, 0, dist);
       if (verbose)
       {
-        int count = morpho_count(imagin);
+        Id count = morpho_count(imagin);
         message("Iteration %d: Current (%d/%d)\n", iter, count, nxyz);
       }
     }
@@ -773,7 +774,7 @@ void morpho_distance(int option,
 
   /* Turn the distance to a positive value */
 
-  for (int i = 0; i < nxyz; i++)
+  for (Id i = 0; i < nxyz; i++)
     dist[i] = ABS(dist[i]);
 }
 
@@ -781,25 +782,25 @@ void morpho_distance(int option,
  * Create the array of index shifts (relatively to the center cell) for a dilation by 'radius' of a
  * regular grid
  */
-VectorInt gridcell_neigh(int ndim,
-                         int option,
-                         int radius,
+VectorInt gridcell_neigh(Id ndim,
+                         Id option,
+                         Id radius,
                          bool flag_center,
                          bool verbose)
 {
-  int ecr, flag_count, nech;
+  Id ecr, flag_count, nech;
   VectorInt indret;
 
   /* Initializations */
 
-  int nvois = 0;
+  Id nvois = 0;
 
   /* Create the grid attributes */
 
   VectorInt nx(ndim);
   VectorDouble x0(ndim);
   VectorDouble dx(ndim);
-  for (int idim = 0; idim < ndim; idim++)
+  for (Id idim = 0; idim < ndim; idim++)
   {
     dx[idim] = 1.;
     nx[idim] = 1 + 2 * radius;
@@ -821,11 +822,11 @@ VectorInt gridcell_neigh(int ndim,
 
   ecr = 0;
   grid->rankToIndice(nech / 2, indg0);
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     grid->rankToIndice(iech, indg1);
     flag_count = 0;
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
     {
       indg1[idim] -= indg0[idim];
       if (indg1[idim] != 0) flag_count++;
@@ -836,7 +837,7 @@ VectorInt gridcell_neigh(int ndim,
 
     /* Add this cell */
 
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
       indret[ecr++] = indg1[idim];
   }
 
@@ -851,10 +852,10 @@ VectorInt gridcell_neigh(int ndim,
   {
     ecr = 0;
     message("Grid Dilation: %d samples\n", nvois);
-    for (int i = 0; i < nvois; i++)
+    for (Id i = 0; i < nvois; i++)
     {
       message("  Neigh %3d:", i + 1);
-      for (int idim = 0; idim < ndim; idim++)
+      for (Id idim = 0; idim < ndim; idim++)
         message(" %2d", indret[ecr++]);
       message("\n");
     }
@@ -867,9 +868,9 @@ VectorInt gridcell_neigh(int ndim,
 /**
  * Calculate the gradient orientations of a colored image
  */
-void db_morpho_angle2D(DbGrid* dbgrid, const VectorInt& radius, int iptr0)
+void db_morpho_angle2D(DbGrid* dbgrid, const VectorInt& radius, Id iptr0)
 {
-  int iad;
+  Id iad;
   double result;
   MatrixSymmetric a(2);
   VectorDouble b(2);
@@ -879,15 +880,15 @@ void db_morpho_angle2D(DbGrid* dbgrid, const VectorInt& radius, int iptr0)
 
   VectorInt NX = dbgrid->getNXsExt(2);
   _st_morpho_image_radius_define(radius);
-  int ndim = dbgrid->getNDim();
+  Id ndim = dbgrid->getNDim();
   VectorInt indg(ndim);
-  int iptrz = dbgrid->getColIdxByLocator(ELoc::Z);
+  Id iptrz = dbgrid->getColIdxByLocator(ELoc::Z);
 
   /* Processing */
 
-  int iiz = 0;
-  for (int iiy = 0; iiy < NX[1]; iiy++)
-    for (int iix = 0; iix < NX[0]; iix++)
+  Id iiz = 0;
+  for (Id iiy = 0; iiy < NX[1]; iiy++)
+    for (Id iix = 0; iix < NX[0]; iix++)
     {
       a.fill(0.);
       b.fill(0.);
@@ -898,12 +899,12 @@ void db_morpho_angle2D(DbGrid* dbgrid, const VectorInt& radius, int iptr0)
       double z0 = dbgrid->getArray(iad, iptrz);
       if (FFFF(z0)) continue;
 
-      for (int jx = -RADIUS[0]; jx <= RADIUS[0]; jx++)
-        for (int jy = -RADIUS[1]; jy <= RADIUS[1]; jy++)
+      for (Id jx = -RADIUS[0]; jx <= RADIUS[0]; jx++)
+        for (Id jy = -RADIUS[1]; jy <= RADIUS[1]; jy++)
         {
-          int ix = iix + jx;
+          Id ix = iix + jx;
           if (ix < 0 || ix >= NX[0]) continue;
-          int iy = iiy + jy;
+          Id iy = iiy + jy;
           if (iy < 0 || iy >= NX[1]) continue;
           indg[0]   = ix;
           indg[1]   = iy;
@@ -938,30 +939,30 @@ void db_morpho_angle2D(DbGrid* dbgrid, const VectorInt& radius, int iptr0)
 /**
  * Calculate the gradient components of a colord image
  */
-void db_morpho_gradients(DbGrid* dbgrid, int iptr)
+void db_morpho_gradients(DbGrid* dbgrid, Id iptr)
 {
-  int j1, j2, number;
+  Id j1, j2, number;
 
   /* Preliminary check */
 
   VectorInt NX = dbgrid->getNXsExt(3);
-  int ndim     = dbgrid->getNDim();
+  Id ndim     = dbgrid->getNDim();
   VectorInt indg(ndim);
-  int iptrz = dbgrid->getColIdxByLocator(ELoc::Z);
+  Id iptrz = dbgrid->getColIdxByLocator(ELoc::Z);
 
   /* Calculate the Gradient components */
 
-  for (int ix = 0; ix < NX[0]; ix++)
-    for (int iy = 0; iy < NX[1]; iy++)
-      for (int iz = 0; iz < NX[2]; iz++)
+  for (Id ix = 0; ix < NX[0]; ix++)
+    for (Id iy = 0; iy < NX[1]; iy++)
+      for (Id iz = 0; iz < NX[2]; iz++)
       {
-        for (int idim = 0; idim < ndim; idim++)
+        for (Id idim = 0; idim < ndim; idim++)
         {
           if (ndim >= 1) indg[0] = ix;
           if (ndim >= 2) indg[1] = iy;
           if (ndim >= 3) indg[2] = iz;
 
-          int nmax    = dbgrid->getNX(idim);
+          Id nmax    = dbgrid->getNX(idim);
           double dinc = dbgrid->getDX(idim);
 
           double v1 = 0.;
@@ -1018,17 +1019,17 @@ void db_morpho_gradients(DbGrid* dbgrid, int iptr)
 /**
  * Perform a morphological operation with a DbGrid
  */
-int db_morpho_calc(DbGrid* dbgrid,
-                   int iptr0,
+Id db_morpho_calc(DbGrid* dbgrid,
+                   Id iptr0,
                    const EMorpho& oper,
                    double vmin,
                    double vmax,
-                   int option,
+                   Id option,
                    const VectorInt& radius,
                    bool flagDistErode,
                    bool verbose)
 {
-  int ntotal    = dbgrid->getNSample();
+  Id ntotal    = dbgrid->getNSample();
   VectorInt nxy = dbgrid->getNXs();
 
   VectorDouble tabin = dbgrid->getColumnByLocator(ELoc::Z);
@@ -1042,8 +1043,8 @@ int db_morpho_calc(DbGrid* dbgrid,
 
   bool alreadyLoaded  = false;
   bool alreadySaved   = false;
-  BImage image2       = BImage(nxy);
-  VectorDouble tabout = VectorDouble(ntotal, TEST);
+  BImage image2(nxy);
+  VectorDouble tabout(ntotal, TEST);
   if (oper == EMorpho::THRESH)
   {
     morpho_duplicate(image, image2);
@@ -1144,18 +1145,18 @@ int db_morpho_calc(DbGrid* dbgrid,
 Spill_Res spillPoint(DbGrid* dbgrid,
                      const String& name_depth,
                      const String& name_data,
-                     int option,
+                     Id option,
                      bool flag_up,
-                     int verbose_step,
+                     Id verbose_step,
                      double hmax)
 {
   Spill_Res res;
   double h;
-  int ix0, iy0;
+  Id ix0, iy0;
 
   double th     = 0.;
-  int ind_depth = dbgrid->getUID(name_depth);
-  int ind_data  = dbgrid->getUID(name_data);
+  Id ind_depth = dbgrid->getUID(name_depth);
+  Id ind_data  = dbgrid->getUID(name_data);
   if (ind_depth < 0 || ind_data < 0)
   {
     messerr("Variables 'name_depth' and 'name_data' are compulsory");
@@ -1163,7 +1164,7 @@ Spill_Res spillPoint(DbGrid* dbgrid,
     return res;
   }
 
-  int error = spill_point(dbgrid, ind_depth, ind_data, option, flag_up,
+  Id error = spill_point(dbgrid, ind_depth, ind_data, option, flag_up,
                           verbose_step, hmax, &h, &th, &ix0, &iy0);
 
   res.success = (error == 0);

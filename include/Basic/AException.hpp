@@ -10,6 +10,7 @@
 /******************************************************************************/
 #pragma once
 
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
 #include <exception>
@@ -33,9 +34,9 @@ private:
 [[noreturn]]
 GSTLEARN_EXPORT void throw_exp(const std::string& msg = "",
                                const std::string& file = "",
-                               int line = 0);
+                               Id line = 0);
 
 #define my_throw(msg) throw_exp(msg, __FILE__, __LINE__)
 
 #define my_throw_impossible(msg) throw_exp(msg, __FILE__, __LINE__)
-}
+} // namespace gstlrn

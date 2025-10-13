@@ -41,7 +41,7 @@ CovGCspline::~CovGCspline()
 
 double CovGCspline::_evaluateCov(double h) const
 {
-  int ndim      = getContext().getNDim();
+  auto ndim     = getContext().getNDim();
   double r      = getContext().getField();
   double r2     = r * r;
   double h2     = h * h;

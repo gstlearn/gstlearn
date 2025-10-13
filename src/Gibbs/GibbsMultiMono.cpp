@@ -68,12 +68,12 @@ GibbsMultiMono::~GibbsMultiMono()
 ** \param[in]  ipgs          Rank of the GS
 **
 *****************************************************************************/
-int GibbsMultiMono::calculInitialize(VectorVectorDouble& y,
-                                     int isimu,
-                                     int ipgs)
+Id GibbsMultiMono::calculInitialize(VectorVectorDouble& y,
+                                     Id isimu,
+                                     Id ipgs)
 {
-  int nact = _getSampleRankNumber();
-  int nvar = getNvar();
+  auto nact = _getSampleRankNumber();
+  auto nvar = getNvar();
 
   /* Print the title */
 
@@ -83,14 +83,14 @@ int GibbsMultiMono::calculInitialize(VectorVectorDouble& y,
 
   /* Loop on the variables */
 
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (Id ivar = 0; ivar < nvar; ivar++)
   {
-    int icase = getRank(ipgs, ivar);
+    auto icase = getRank(ipgs, ivar);
 
     /* Loop on the samples */
 
     double sk = sqrt(getModels(ivar)->getTotalSill(0, 0));
-    for (int iact = 0; iact < nact; iact++)
+    for (Id iact = 0; iact < nact; iact++)
     {
       double vmin, vmax;
       if (_boundsCheck(ipgs, ivar, iact, &vmin, &vmax)) return 1;
@@ -120,15 +120,15 @@ int GibbsMultiMono::calculInitialize(VectorVectorDouble& y,
 double GibbsMultiMono::getSimulate(VectorVectorDouble& y,
                                    double yk,
                                    double sk,
-                                   int icase,
-                                   int ipgs,
-                                   int ivar,
-                                   int iact,
-                                   int iter)
+                                   Id icase,
+                                   Id ipgs,
+                                   Id ivar,
+                                   Id iact,
+                                   Id iter)
 {
   // Define the environment
 
-  int iech = getSampleRank(iact);
+  auto iech = getSampleRank(iact);
 
   // Read the Bounds
 
@@ -146,7 +146,7 @@ double GibbsMultiMono::getSimulate(VectorVectorDouble& y,
   double sval;
   if (ivar > 0)
   {
-    int icase0 = getRank(ipgs, 0);
+    auto icase0 = getRank(ipgs, 0);
     double rho = getRho();
     double sqr = sqrt(1. - rho * rho);
     yval       = yk * sqr + rho * y[icase0][iact];
@@ -181,29 +181,29 @@ double GibbsMultiMono::getSimulate(VectorVectorDouble& y,
 ** \param[in]  ipgs       Rank of the GS
 **
 *****************************************************************************/
-int GibbsMultiMono::checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs)
+Id GibbsMultiMono::checkGibbs(const VectorVectorDouble& y, Id isimu, Id ipgs)
 {
   Db* db   = getDb();
-  int nact = _getSampleRankNumber();
-  int nvar = getNvar();
+  auto nact = _getSampleRankNumber();
+  auto nvar = getNvar();
   mestitle(1, "Checking gaussian values from Gibbs vs. bounds (PGS=%d Simu=%d)",
            ipgs + 1, isimu + 1);
 
-  int nerror = 0;
+  Id nerror = 0;
   double sqr = sqrt(1. - _rho * _rho);
 
   /* Loop on the variables */
 
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (Id ivar = 0; ivar < nvar; ivar++)
   {
-    int icase  = getRank(ipgs, ivar);
-    int icase0 = getRank(ipgs, 0);
+    auto icase = getRank(ipgs, ivar);
+    auto icase0 = getRank(ipgs, 0);
 
     /* Loop on the data */
 
-    for (int iact = 0; iact < nact; iact++)
+    for (Id iact = 0; iact < nact; iact++)
     {
-      int iech    = getSampleRank(iact);
+      auto iech   = getSampleRank(iact);
       double vmin = db->getLocVariable(ELoc::L, iech, icase);
       double vmax = db->getLocVariable(ELoc::U, iech, icase);
       if (FFFF(vmin)) vmin = MINIMUM_BIG;

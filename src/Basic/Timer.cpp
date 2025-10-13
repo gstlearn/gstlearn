@@ -51,7 +51,7 @@ void Timer::reset()
  * @param flag_reset    True if the Reference must be set to current Time
  */
 void Timer::displayIntervalSeconds(const String& title,
-                                   int expected_time,
+                                   Id expected_time,
                                    bool flag_reset)
 {
   double sec = getIntervalSeconds(flag_reset);
@@ -67,13 +67,13 @@ double Timer::getIntervalSeconds(bool flag_reset)
   return fs.count();
 }
 
-void Timer::displaySeconds(const String& title, double sec, int expected_time)
+void Timer::displaySeconds(const String& title, double sec, Id expected_time)
 {
   String loc_title = title.empty() ? "Timer" : title;
   if (expected_time > 0)
-    messageNoDiff("%s: %d s. (Ref = %d s.)\n", title.c_str(), (int)sec, expected_time);
+    messageNoDiff("%s: %d s. (Ref = %d s.)\n", title.c_str(), static_cast<Id>(sec), expected_time);
   else
-    messageNoDiff("%s: %d s.\n", title.c_str(), (int)sec);
+    messageNoDiff("%s: %d s.\n", title.c_str(), static_cast<Id>(sec));
 }
 
 /**
@@ -83,7 +83,7 @@ void Timer::displaySeconds(const String& title, double sec, int expected_time)
  * @param flag_reset    True if the Reference must be set to current Time
  */
 void Timer::displayIntervalMilliseconds(const String& title,
-                                        int expected_time,
+                                        Id expected_time,
                                         bool flag_reset)
 {
   double msec = getIntervalMilliseconds(flag_reset);
@@ -96,15 +96,15 @@ double Timer::getIntervalMilliseconds(bool flag_reset)
   sec fs       = newTime - _refTime;
   ms inter     = std::chrono::duration_cast<ms>(fs);
   if (flag_reset) _refTime = newTime;
-  return ((double)inter.count());
+  return (static_cast<double>(inter.count()));
 }
 
-void Timer::displayMilliseconds(const String& title, double msec, int expected_time)
+void Timer::displayMilliseconds(const String& title, double msec, Id expected_time)
 {
   String loc_title = title.empty() ? "Timer" : title;
   if (expected_time > 0)
-    messageNoDiff("%s: %d ms. (Ref = %d ms.)\n", title.c_str(), (int)msec, expected_time);
+    messageNoDiff("%s: %d ms. (Ref = %d ms.)\n", title.c_str(), static_cast<Id>(msec), expected_time);
   else
-    messageNoDiff("%s: %d ms.\n", title.c_str(), (int)msec);
+    messageNoDiff("%s: %d ms.\n", title.c_str(), static_cast<Id>(msec));
 }
-}
+} // namespace gstlrn

@@ -26,17 +26,17 @@ class Model;
  * - Propagation algorithm (no need to establish and invert Covariance matrix)
  * - No bound provided
  */
-class GSTLEARN_EXPORT GibbsUPropMono : public GibbsMultiMono
+class GSTLEARN_EXPORT GibbsUPropMono: public GibbsMultiMono
 {
 public:
   GibbsUPropMono();
-  GibbsUPropMono(Db* db, const std::vector<Model *>& models, double rho);
-  GibbsUPropMono(const GibbsUPropMono &r);
-  GibbsUPropMono& operator=(const GibbsUPropMono &r);
+  GibbsUPropMono(Db* db, const std::vector<Model*>& models, double rho);
+  GibbsUPropMono(const GibbsUPropMono& r);
+  GibbsUPropMono& operator=(const GibbsUPropMono& r);
   virtual ~GibbsUPropMono();
 
-  void update(VectorVectorDouble &y, int isimu, int ipgs, int iter) override;
-  int covmatAlloc(bool verbose, bool verboseTimer = false) override;
+  void update(VectorVectorDouble& y, Id isimu, Id ipgs, Id iter) override;
+  Id covmatAlloc(bool verbose, bool verboseTimer = false) override;
 
   double getEps() const { return _eps; }
   void setEps(double eps) { _eps = eps; }
@@ -47,4 +47,4 @@ private:
   double _rval;
   double _eps;
 };
-}
+} // namespace gstlrn

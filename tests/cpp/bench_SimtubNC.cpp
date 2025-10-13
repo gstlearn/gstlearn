@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  int ndim = 2;
+  Id ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
   bool verbose = false;
 
@@ -50,8 +50,8 @@ int main(int argc, char *argv[])
   Model* model = Model::createFromParam(ECov::SPHERICAL,0.2);
 
   // Perform a non-conditional simulation on the Grid
-  int nbsimu = 1;
-  int nbtuba = 1000;
+  Id nbsimu = 1;
+  Id nbtuba = 1000;
 
   if (verbose)
   {

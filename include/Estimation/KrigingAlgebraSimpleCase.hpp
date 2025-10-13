@@ -46,34 +46,34 @@ public:
                            const RankHandler* rankhandler       = nullptr,
                            const VectorDouble* Z                = nullptr,
                            const VectorDouble& Means            = VectorDouble(),
-                           int flagchol                         = false,
+                           Id flagchol                         = false,
                            bool neighUnique                     = OptCustom::query("unique", 1));
   KrigingAlgebraSimpleCase(KrigingAlgebraSimpleCase& r);
   KrigingAlgebraSimpleCase& operator=(const KrigingAlgebraSimpleCase& r) = delete;
   virtual ~KrigingAlgebraSimpleCase();
-  int prepare();
+  Id prepare();
   void setDual(bool status);
   void setNeighUnique(bool nu = false) { _neighUnique = nu; }
   void resetNewData();
   void setZ(std::shared_ptr<VectorDouble>& Z);
-  int setData(const VectorDouble* Z          = nullptr,
+  Id setData(const VectorDouble* Z          = nullptr,
               const RankHandler* rankhandler = nullptr,
               const VectorDouble& Means      = VectorDouble());
-  int setLHS(const MatrixSymmetric* Sigma = nullptr,
+  Id setLHS(const MatrixSymmetric* Sigma = nullptr,
              const MatrixDense* X         = nullptr);
-  int setRHS(MatrixDense* Sigma0 = nullptr,
+  Id setRHS(MatrixDense* Sigma0 = nullptr,
              MatrixDense* X0     = nullptr);
-  int setVariance(const MatrixSymmetric* Sigma00 = nullptr);
+  Id setVariance(const MatrixSymmetric* Sigma00 = nullptr);
 
   void printStatus() const;
-  void dumpLHS(int nbypas = 5) const;
+  void dumpLHS(Id nbypas = 5) const;
   void dumpRHS() const;
   void dumpWGT();
   void dumpAux();
 
   VectorDouble& getEstimation();
   const VectorDouble &getStdv();
-  double getVarianceZstar(int i);
+  double getVarianceZstar(Id i);
   VectorDouble getVarianceZstar();
   const MatrixSymmetric* getStdvMat();
   const MatrixSymmetric* getVarianceZstarMat();
@@ -81,7 +81,7 @@ public:
   const MatrixDense* getLambda0();
   const MatrixDense* getMu();
   double getLTerm();
-  int updateRHS();
+  Id updateRHS();
 
   bool isDual() const { return _flagDual; }
   VectorDouble* getZ() { return _Z.get(); }
@@ -93,7 +93,7 @@ public:
   void updateRankHandler();
   MatrixDense* getX0() { return _X0.get(); }
   const VectorVectorInt* getSampleRanks() { return &_rankHandler->getSampleRanks(); }
-  VectorInt* getSampleRanksByVariable(int ivar) { return &_rankHandler->getSampleRanksByVariable(ivar); }
+  VectorInt* getSampleRanksByVariable(Id ivar) { return &_rankHandler->getSampleRanksByVariable(ivar); }
   RankHandler* getRankHandler() { return _rankHandler.get();}
   void setRankHandler(std::shared_ptr<RankHandler> &rkh){ _rankHandler = rkh;}
   VectorInt* getNbgh() { return _nbgh.get(); }
@@ -107,10 +107,10 @@ private:
   void _copyFlags(const KrigingAlgebraSimpleCase& r);
   void _copyModelQuantities(const KrigingAlgebraSimpleCase& r);
 
-  static bool _checkDimensionMatrix(const String& name, const AMatrix* mat, int* nrowsRef, int* ncolsRef);
-  static bool _checkDimensionVD(const String& name, const VectorDouble* vec, int* sizeRef);
-  static bool _checkDimensionVI(const String& name, const VectorInt* vec, int* sizeRef);
-  static bool _checkDimensionVVI(const String& name, const VectorVectorInt* vec, int* size1Ref, int* size2Ref);
+  static bool _checkDimensionMatrix(const String& name, const AMatrix* mat, Id* nrowsRef, Id* ncolsRef);
+  static bool _checkDimensionVD(const String& name, const VectorDouble* vec, Id* sizeRef);
+  static bool _checkDimensionVI(const String& name, const VectorInt* vec, Id* sizeRef);
+  static bool _checkDimensionVVI(const String& name, const VectorVectorInt* vec, Id* size1Ref, Id* size2Ref);
 
   static bool _isPresentMatrix(const String& name, const AMatrix* mat);
   static bool _isPresentVector(const String& name, const VectorDouble* vec);
@@ -137,24 +137,24 @@ private:
   void _resetLinkedToSigma0();
   void _resetLinkedToSigma00();
 
-  int _needInvSigma();
-  int _needXtInvSigma();
-  int _needXtInvSigmaZ();
-  int _needSigmac();
-  int _needBeta();
-  int _needDual();
+  Id _needInvSigma();
+  Id _needXtInvSigma();
+  Id _needXtInvSigmaZ();
+  Id _needSigmac();
+  Id _needBeta();
+  Id _needDual();
 
-  int _needLambdaSK();
-  int _needLambdaUK();
-  int _needMuUK();
+  Id _needLambdaSK();
+  Id _needLambdaUK();
+  Id _needMuUK();
 
-  int _needZstar();
-  int _needStdv();
-  int _needVarZSK();
-  int _needVarZUK();
+  Id _needZstar();
+  Id _needStdv();
+  Id _needVarZSK();
+  Id _needVarZUK();
 
-  int _computeZstarWithDual();
-  int _computeZstarSK();
+  Id _computeZstarWithDual();
+  Id _computeZstarSK();
 
   void _deleteBeta();
   void _deleteInvSigma();
@@ -219,10 +219,10 @@ private:
   VectorDouble _X0Beta;
 
   // Additional parameters
-  int _nvar;
-  int _neq;
-  int _nbfl;
-  int _nrhs;
+  Id _nvar;
+  Id _neq;
+  Id _nbfl;
+  Id _nrhs;
 
   //  Flags
   bool _flagSK;

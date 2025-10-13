@@ -10,7 +10,11 @@
 /******************************************************************************/
 #pragma once
 
+#include "geoslib_define.h"
 #include "gstlearn_export.hpp"
+
+namespace gstlrn
+{
 
 class GSTLEARN_EXPORT ISkinFunctions
 {
@@ -18,7 +22,9 @@ public:
   ISkinFunctions() {};
   virtual ~ISkinFunctions() {};
 
-  virtual int isAlreadyFilled(int /*ipos*/) const = 0;
-  virtual int isToBeFilled(int /*ipos*/) const = 0;
-  virtual double getWeight(int /*ipos*/, int /*idir*/) const { return 1; }
+  virtual Id isAlreadyFilled(Id /*ipos*/) const = 0;
+  virtual Id isToBeFilled(Id /*ipos*/) const    = 0;
+  virtual double getWeight(Id /*ipos*/, Id /*idir*/) const { return 1; }
 };
+
+} // namespace gstlrn

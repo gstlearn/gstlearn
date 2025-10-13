@@ -40,31 +40,31 @@ License: BSD 3-clause
 
 namespace gstlrn
 { 
-int sparseinv /* returns -1 on error, or flop count if OK */
+Id sparseinv /* returns -1 on error, or flop count if OK */
 (
 /* inputs, not modified on output: */
- int n, /* L, U, D, and Z are n-by-n */
- int *Lp, /* L is sparse, lower triangular, stored by column */
- int *Li, /* the row indices of L must be sorted */
+ Id n, /* L, U, D, and Z are n-by-n */
+ Id *Lp, /* L is sparse, lower triangular, stored by column */
+ Id *Li, /* the row indices of L must be sorted */
  double *Lx, /* diagonal of L, if present, is ignored */
  double *d, /* diagonal of D, of size n */
- int *Up, /* U is sparse, upper triangular, stored by row */
- int *Uj, /* the column indices of U need not be sorted */
+ Id *Up, /* U is sparse, upper triangular, stored by row */
+ Id *Uj, /* the column indices of U need not be sorted */
  double *Ux, /* diagonal of U, if present, is ignored */
- int *Zp, /* Z is sparse, stored by column */
- int *Zi, /* the row indices of Z must be sorted */
+ Id *Zp, /* Z is sparse, stored by column */
+ Id *Zi, /* the row indices of Z must be sorted */
 
  /* output, not defined on input */
  double *Zx,
 
  /* workspace: */
  double *z, /* size n, zero on input, restored as such on output */
- int *Zdiagp, /* size n */
- int *Lmunch /* size n */
+ Id *Zdiagp, /* size n */
+ Id *Lmunch /* size n */
  )
 {
   double ljk, zkj;
-  int j, i, k, p, znz, pdiag, up, zp, flops = n;
+  Id j, i, k, p, znz, pdiag, up, zp, flops = n;
 
   /* ---------------------------------------------------------------------- */
   /* initializations */

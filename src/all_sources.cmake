@@ -9,7 +9,6 @@ set(SRC
   Fractures/FracFault.cpp
   Fractures/FracDesc.cpp
   Fractures/FracList.cpp
-  Matrix/LinkMatrixSparse.cpp
   Matrix/AMatrix.cpp
   Matrix/MatrixSparse.cpp
   Matrix/MatrixInt.cpp
@@ -19,11 +18,11 @@ set(SRC
   Matrix/MatrixFactory.cpp
   Matrix/Table.cpp
   Matrix/NF_Triplet.cpp
-  API/PGSSPDE.cpp
   API/SPDE.cpp
   API/Style.cpp
   API/SPDEParam.cpp
   API/TestInheritance.cpp
+  API/Potential.cpp
   Gibbs/GibbsUPropMono.cpp
   Gibbs/GibbsFactory.cpp
   Gibbs/GibbsMultiMono.cpp
@@ -79,9 +78,9 @@ set(SRC
   Covariances/CovWendland0.cpp
   Covariances/CovWendland1.cpp
   Covariances/CovWendland2.cpp
-  Covariances/CovGradientFunctional.cpp
+  Covariances/CovGradientGeneric.cpp
+  Covariances/CovGradientAnalytic.cpp
   Covariances/CovMatern.cpp
-  Covariances/CovLMGradient.cpp
   Covariances/CovPower.cpp
   Covariances/CovStorkey.cpp
   Covariances/CovGC5.cpp
@@ -96,7 +95,6 @@ set(SRC
   Covariances/CovLMCTapering.cpp
   Covariances/CovLMCConvolution.cpp
   Covariances/CovLMCAnamorphosis.cpp
-  Covariances/ACovGradient.cpp
   Covariances/CorGneiting.cpp
   Covariances/CorMatern.cpp
   Covariances/CovGCspline2.cpp
@@ -111,7 +109,6 @@ set(SRC
   Covariances/ACovFunc.cpp
   Covariances/CorAniso.cpp
   Covariances/CovAniso.cpp
-  Covariances/CovGradientNumerical.cpp
   Covariances/CovCubic.cpp
   Covariances/CovNugget.cpp
   Covariances/CovBesselJ.cpp
@@ -127,7 +124,6 @@ set(SRC
   Covariances/CovHelper.cpp
   Polygon/Polygons.cpp
   Polygon/PolyElem.cpp
-  Core/surface.cpp
   Core/math.cpp
   Core/stats.cpp
   Core/io.cpp
@@ -140,7 +136,6 @@ set(SRC
   Core/spill.cpp
   Core/acknowledge.cpp
   Core/geophy.cpp
-  Core/potential.cpp
   Core/foxleg.cpp
   Core/util.cpp
   Core/ascii.cpp
@@ -148,7 +143,6 @@ set(SRC
   Core/thresh.cpp
   Core/fft.cpp
   Core/convert.cpp
-  Core/memory.cpp
   Core/model.cpp
   Core/krige.cpp
   Core/seismic.cpp
@@ -177,6 +171,7 @@ set(SRC
   Db/RankHandler.cpp
   LinearOp/LogStats.cpp
   LinearOp/CGParam.cpp
+  LinearOp/InvNuggetOp.cpp
   LinearOp/PrecisionOp.cpp
   LinearOp/TurboOptimizer.cpp
   LinearOp/ProjMatrix.cpp
@@ -197,7 +192,6 @@ set(SRC
   LinearOp/PrecisionOpMulti.cpp
   LinearOp/PrecisionOpMultiMatrix.cpp
   LinearOp/PrecisionOpMultiConditional.cpp
-  LinearOp/PrecisionOpMultiConditionalCs.cpp
   LinearOp/OptimCostColored.cpp
   LinearOp/ProjConvolution.cpp
   LinearOp/ACholesky.cpp
@@ -320,6 +314,7 @@ set(SRC
   Estimation/CalcKriging.cpp
   Estimation/CalcKrigingSimpleCase.cpp
   Estimation/CalcKrigingFactors.cpp
+  Estimation/CalcKrigingGradient.cpp
   Estimation/CalcSimpleInterpolation.cpp
   Estimation/CalcImage.cpp
   Estimation/CalcGlobal.cpp

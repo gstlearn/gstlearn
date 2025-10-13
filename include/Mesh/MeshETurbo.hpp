@@ -21,8 +21,6 @@
 
 namespace gstlrn
 {
-class cs;
-
 class DbGrid;
 class CovAniso;
 /**
@@ -33,35 +31,35 @@ class CovAniso;
 class GSTLEARN_EXPORT MeshETurbo: public AMesh
 {
 public:
-  MeshETurbo(int mode = 1);
+  MeshETurbo(Id mode = 1);
   MeshETurbo(const VectorInt& nx,
              const VectorDouble& dx = VectorDouble(),
              const VectorDouble& x0 = VectorDouble(),
              const VectorDouble& angles = VectorDouble(),
              bool flag_polarized = false,
              bool verbose = false,
-             int mode = 1);
+             Id mode = 1);
   MeshETurbo(const DbGrid *dbgrid,
              bool flag_polarized = false,
              bool verbose = false,
-             int mode = 1);
+             Id mode = 1);
   MeshETurbo(const MeshETurbo &r);
   MeshETurbo& operator=(const MeshETurbo &r);
   virtual ~MeshETurbo();
 
   /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface to AMesh
-  int     getNApices() const override;
-  int     getNMeshes() const override;
-  int     getApex(int imesh, int rank) const override;
-  double  getCoor(int imesh, int rank, int idim) const override;
-  void    getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const override;
-  double  getApexCoor(int i, int idim) const override;
-  void    getApexCoordinatesInPlace(int i, VectorDouble& coords) const override;
-  double  getMeshSize(int imesh) const override;
-  void    resetProjFromDb(ProjMatrix* m, const Db *db, int rankZ = -1, bool verbose = false) const override;
+  Id     getNApices() const override;
+  Id     getNMeshes() const override;
+  Id     getApex(Id imesh, Id rank) const override;
+  double  getCoor(Id imesh, Id rank, Id idim) const override;
+  void    getCoordinatesPerMeshInPlace(Id imesh, Id rank, VectorDouble& coords) const override;
+  double  getApexCoor(Id i, Id idim) const override;
+  void    getApexCoordinatesInPlace(Id i, VectorDouble& coords) const override;
+  double  getMeshSize(Id imesh) const override;
+  void    resetProjFromDb(ProjMatrix* m, const Db *db, Id rankZ = -1, bool verbose = false) const override;
   void    setPolarized(bool flag) { _isPolarized = flag; }
 
   static MeshETurbo* create(const VectorInt& nx,
@@ -74,83 +72,83 @@ public:
   static MeshETurbo* createFromGrid(const DbGrid *dbgrid,
                                     bool flag_polarized = false,
                                     bool verbose = false,
-                                    int mode = 1);
+                                    Id mode = 1);
   static MeshETurbo* createFromGridInfo(const Grid *grid,
                                         bool flag_polarized = false,
                                         bool verbose = false,
-                                        int mode = 1);
+                                        Id mode = 1);
   static MeshETurbo* createFromCova(const CovAniso& cova,
                                     const Db* field,
                                     double ratio,
-                                    int nbExt = 0,
+                                    Id nbExt = 0,
                                     bool isPolarized = false,
                                     bool useSel = true,
-                                    int nxmax = 300,
+                                    Id nxmax = 300,
                                     bool verbose = false);
 
-  int initFromExtend(const VectorDouble& extendmin,
+  Id initFromExtend(const VectorDouble& extendmin,
                      const VectorDouble& extendmax,
                      const VectorDouble& cellsize,
                      const VectorDouble& rotmat = VectorDouble(),
                      bool flag_polarized = false,
                      bool verbose = false);
-  int initFromGridByMatrix(const VectorInt& nx,
+  Id initFromGridByMatrix(const VectorInt& nx,
                            const VectorDouble& dx     = VectorDouble(),
                            const VectorDouble& x0     = VectorDouble(),
                            const VectorDouble& rotmat = VectorDouble(),
                            const VectorDouble& sel    = VectorDouble(),
                            bool flag_polarized        = false,
                            bool verbose               = false);
-  int initFromGridByAngles(const VectorInt& nx,
+  Id initFromGridByAngles(const VectorInt& nx,
                            const VectorDouble& dx     = VectorDouble(),
                            const VectorDouble& x0     = VectorDouble(),
                            const VectorDouble& angles = VectorDouble(),
                            const VectorDouble& sel    = VectorDouble(),
                            bool flag_polarized        = false,
                            bool verbose               = false);
-  int initFromCova(const CovAniso& cova,
+  Id initFromCova(const CovAniso& cova,
                    const Db* field,
                    double ratio,
-                   int nbExt = 0,
+                   Id nbExt = 0,
                    bool isPolarized = false,
                    bool useSel = true,
-                   int nxmax = 300,
+                   Id nxmax = 300,
                    bool verbose = false);
   const Grid& getGrid() const { return _grid; }
 
   const Indirection& getGridIndirect() const { return _gridIndirect; }
   const Indirection& getMeshIndirect() const { return _meshIndirect; }
-  void getApexIndicesInPlace(int i, VectorInt& indg) const;
-  int getMeshFromCoordinates(const VectorDouble& coor,
+  void getApexIndicesInPlace(Id i, VectorInt& indg) const;
+  Id getMeshFromCoordinates(const VectorDouble& coor,
                              VectorInt& indices,
                              VectorDouble& lambdas) const;
 
 private:
-  int _defineGrid(const VectorDouble& cellsize);
+  Id _defineGrid(const VectorDouble& cellsize);
   void _setNElementPerCell();
-  int _getPolarized(const constvectint indg) const;
-  int _addWeights(int icas,
+  Id _getPolarized(const constvectint indg) const;
+  Id _addWeights(Id icas,
                   const constvectint indg0,
                   const constvect coor,
                   const vectint indices,
                   const vect lambda,
                   bool verbose = false) const;
   void _deallocate();
-  void _getGridFromMesh(int imesh, int* node, int* icas) const;
+  void _getGridFromMesh(Id imesh, Id* node, Id* icas) const;
   void _buildMaskInMeshing(const VectorDouble& sel);
-  int  _nmeshInCompleteGrid() const;
+  Id  _nmeshInCompleteGrid() const;
   bool _addElementToTriplet(NF_Triplet& NF_T,
-                            int iech,
+                            Id iech,
                             const VectorDouble& coor,
                             const VectorInt& indg0,
                             bool verbose) const;
-  int _initFromGridInternal(const VectorDouble& sel,
+  Id _initFromGridInternal(const VectorDouble& sel,
                             bool flag_polarized,
                             bool verbose);
 
 protected:
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  virtual bool _serializeAscii(std::ostream& os,bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os,bool verbose = false) const override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
@@ -159,17 +157,17 @@ protected:
 
 private:
   Grid  _grid;
-  int   _nPerCell;
+  Id   _nPerCell;
   bool  _isPolarized;
   Indirection _meshIndirect;
   Indirection _gridIndirect;
 
   /// factor allocations
-  mutable std::vector<int>    _indg;
-  mutable std::vector<int>    _indices;
+  mutable std::vector<Id>    _indg;
+  mutable std::vector<Id>    _indices;
   mutable std::vector<double> _lambdas;
   mutable std::vector<double> _rhs;
-  mutable std::vector<int>    _indgg;
+  mutable std::vector<Id>    _indgg;
 
   friend class DbMeshTurbo;
 };

@@ -13,7 +13,7 @@
 
 namespace gstlrn
 { 
-Indirection::Indirection(int mode)
+Indirection::Indirection(Id mode)
     : AStringable(),
       _defined(false),
       _mode(mode),
@@ -80,7 +80,7 @@ void Indirection::_resetMap()
   _vecRToA.clear();
 }
 
-void Indirection::setMode(int mode)
+void Indirection::setMode(Id mode)
 {
   if (mode == _mode) return;
   _resetMap();
@@ -95,11 +95,11 @@ void Indirection::setMode(int mode)
 void Indirection::buildFromSel(const VectorDouble& sel)
 {
   _resetMap();
-  _nabs = (int) sel.size();
+  _nabs = static_cast<Id>(sel.size());
   if (_mode == 0) _vecAToR.resize(_nabs,-1);
 
-  int irel = 0;
-  for (int iabs = 0; iabs < _nabs; iabs++)
+  Id irel = 0;
+  for (Id iabs = 0; iabs < _nabs; iabs++)
   {
     if (! sel[iabs]) continue;
     if (_mode == 0)
@@ -113,11 +113,11 @@ void Indirection::buildFromSel(const VectorDouble& sel)
   _defined = true;
 }
 
-void Indirection::buildFromMap(const std::map<int, int> &map, int nabs)
+void Indirection::buildFromMap(const std::map<Id, Id> &map, Id nabs)
 {
   _resetMap();
   _nabs = nabs;
-  _nrel = (int) map.size();
+  _nrel = static_cast<Id>(map.size());
 
   if (_mode == 0)
     _vecAToR.resize(_nabs, -1);
@@ -133,16 +133,16 @@ void Indirection::buildFromMap(const std::map<int, int> &map, int nabs)
   _defined = true;
 }
 
-void Indirection::buildFromRankRInA(const VectorInt& rels, int nabs)
+void Indirection::buildFromRankRInA(const VectorInt& rels, Id nabs)
 {
   _resetMap();
   _nabs = nabs;
-  _nrel = (int) rels.size();
+  _nrel = static_cast<Id>(rels.size());
 
   if (_mode == 0) _vecAToR.resize(_nabs,-1);
 
-  int iabs;
-  for (int irel = 0; irel < _nrel; irel++)
+  Id iabs;
+  for (Id irel = 0; irel < _nrel; irel++)
   {
     iabs = rels[irel];
     if (_mode == 0)
@@ -154,30 +154,30 @@ void Indirection::buildFromRankRInA(const VectorInt& rels, int nabs)
   _defined = true;
 }
 
-int Indirection::getAToR(int iabs) const
+Id Indirection::getAToR(Id iabs) const
 {
   if (_mode == 0) return _getArrayAToR(iabs);
   return _getMapAToR(iabs);
 }
 
-int Indirection::getRToA(int irel) const
+Id Indirection::getRToA(Id irel) const
 {
   if (_vecRToA.empty()) return irel;
   if (! _isValidRel(irel)) return ITEST;
   return _vecRToA[irel];
 }
 
-bool Indirection::_isValidAbs(int iabs) const
+bool Indirection::_isValidAbs(Id iabs) const
 {
   return checkArg("Absolute Rank", iabs, getAbsSize());
 }
 
-bool Indirection::_isValidRel(int irel) const
+bool Indirection::_isValidRel(Id irel) const
 {
   return checkArg("Relative Rank", irel, getRelSize());
 }
 
-int Indirection::_getArrayAToR(int iabs) const
+Id Indirection::_getArrayAToR(Id iabs) const
 {
   if (_vecAToR.empty()) return iabs;
   if (! _isValidAbs(iabs)) return ITEST;
@@ -189,11 +189,11 @@ int Indirection::_getArrayAToR(int iabs) const
  * @param iabs Absolute rank of the grid node
  * @return Rank of the corresponding active (relative) grid node (or -1 is not found)
  */
-int Indirection::_getMapAToR(int iabs) const
+Id Indirection::_getMapAToR(Id iabs) const
 {
   if (_mapAToR.empty()) return iabs;
   if (_mapAToR.find(iabs) == _mapAToR.end()) return -1;
-  int irel = _mapAToR.find(iabs)->second;
+  Id irel = _mapAToR.find(iabs)->second;
   return irel;
 }
 }

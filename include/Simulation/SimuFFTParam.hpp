@@ -25,7 +25,7 @@ public:
   virtual ~SimuFFTParam();
 
   /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   bool isFlagAliasing() const { return _flagAliasing; }
   void setFlagAliasing(bool flagAliasing) { _flagAliasing = flagAliasing; }

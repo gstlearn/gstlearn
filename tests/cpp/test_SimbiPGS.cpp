@@ -16,19 +16,19 @@
 
 #include "Enum/ECov.hpp"
 
+#include "Basic/File.hpp"
+#include "Covariances/CovAniso.hpp"
+#include "Covariances/CovAnisoList.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Covariances/CovAniso.hpp"
-#include "Covariances/CovAnisoList.hpp"
-#include "Variogram/Vario.hpp"
-#include "Neigh/NeighUnique.hpp"
-#include "Model/Model.hpp"
-#include "Basic/File.hpp"
 #include "LithoRule/Rule.hpp"
-#include "LithoRule/RuleShift.hpp"
-#include "LithoRule/RuleShadow.hpp"
 #include "LithoRule/RuleProp.hpp"
+#include "LithoRule/RuleShadow.hpp"
+#include "LithoRule/RuleShift.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Variogram/Vario.hpp"
 
 using namespace gstlrn;
 /****************************************************************************/
@@ -36,25 +36,25 @@ using namespace gstlrn;
 ** Main Program
 **
 *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setPrefixName("simbiPGS-");
-  int error = 0;
-  int ndim = 2;
-  int nbsimu = 2;
+  ASerializable::setPrefixName("test_SimbiPGS-");
+  Id error  = 0;
+  Id ndim   = 2;
+  Id nbsimu = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
-  CovContext ctxt(1,2,1.); // use default space
+  CovContext ctxt(1, 2, 1.); // use default space
   DbStringFormat dbfmt;
 
   // Prepare the Discrete process with Discretized Option
   set_test_discrete(false);
 
   // Creating an output Grid Db
-  DbGrid* dbgrid = DbGrid::create({100,100},{0.01,0.01},{0.,0.});
+  DbGrid* dbgrid = DbGrid::create({100, 100}, {0.01, 0.01}, {0., 0.});
 
   // Creating the proportions for simPGS
   VectorDouble props1({0.2, 0.5, 0.3});
@@ -63,106 +63,106 @@ int main(int argc, char *argv[])
   Model model1(ctxt);
   CovAnisoList covs1(ctxt);
   double range1 = 0.2;
-  CovAniso cova1(ECov::MATERN,range1,1.,1.,ctxt);
+  CovAniso cova1(ECov::MATERN, range1, 1., 1., ctxt);
   covs1.addCov(cova1);
   model1.setCovAnisoList(&covs1);
   model1.display();
-  (void) model1.dumpToNF("PGSmodel1.NF");
+  (void)model1.dumpToNF("PGSmodel1.NF");
 
   Model model2(ctxt);
   CovAnisoList covs2(ctxt);
   double range2 = 0.3;
-  CovAniso cova2(ECov::EXPONENTIAL,range2,1.,1.,ctxt);
+  CovAniso cova2(ECov::EXPONENTIAL, range2, 1., 1., ctxt);
   covs2.addCov(cova2);
   model2.setCovAnisoList(&covs2);
   model2.display();
-  (void) model2.dumpToNF("PGSmodel2.NF");
+  (void)model2.dumpToNF("PGSmodel2.NF");
 
   Model model3(ctxt);
   CovAnisoList covs3(ctxt);
   double range3 = 0.2;
-  CovAniso cova3(ECov::MATERN,range3,1.,1.,ctxt);
+  CovAniso cova3(ECov::MATERN, range3, 1., 1., ctxt);
   covs3.addCov(cova3);
   model3.setCovAnisoList(&covs3);
   model3.display();
-  (void) model3.dumpToNF("PGSmodel3.NF");
+  (void)model3.dumpToNF("PGSmodel3.NF");
 
   Model model4(ctxt);
   CovAnisoList covs4(ctxt);
   double range4 = 0.1;
-  CovAniso cova4(ECov::SPHERICAL,range4,1.,1.,ctxt);
+  CovAniso cova4(ECov::SPHERICAL, range4, 1., 1., ctxt);
   covs4.addCov(cova4);
   model4.setCovAnisoList(&covs4);
   model4.display();
-  (void) model4.dumpToNF("PGSmodel4.NF");
+  (void)model4.dumpToNF("PGSmodel4.NF");
 
   // Creating the Neighborhood
   NeighUnique* neighU = NeighUnique::create();
   neighU->display();
 
   // Creating the Rules
-  Rule* rule1 = Rule::createFromNames({"S","S","F1","F2","F3"});
+  Rule* rule1 = Rule::createFromNames({"S", "S", "F1", "F2", "F3"});
   rule1->display();
-  (void) rule1->dumpToNF("PGSrule1.NF");
+  (void)rule1->dumpToNF("PGSrule1.NF");
 
   // Creating the RuleProp structure for simPGS
   RuleProp* ruleprop1 = RuleProp::createFromRule(rule1, props1);
 
   // Perform a non-conditional PGS simulation on a grid
-  error = simpgs(nullptr,dbgrid,ruleprop1,&model1,&model2,neighU,nbsimu);
-  dbgrid->setNameByLocator(ELoc::FACIES,"PGS-Facies");
-  dbfmt = DbStringFormat(FLAG_STATS,{"PGS-Facies*"});
+  error = simpgs(nullptr, dbgrid, ruleprop1, &model1, &model2, neighU, nbsimu);
+  dbgrid->setNameByLocator(ELoc::FACIES, "PGS-Facies");
+  dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Facies*"});
   dbgrid->display(&dbfmt);
-  (void) dbgrid->dumpToNF("simupgs.NF");
+  (void)dbgrid->dumpToNF("simupgs.NF");
 
   // Creating the RuleProp for simBiPGS
   VectorDouble props2({0.1, 0.2, 0.1, 0.3, 0.1, 0.2});
-  Rule* rule2 = Rule::createFromNames({"S","F1","F2"});
+  Rule* rule2 = Rule::createFromNames({"S", "F1", "F2"});
   rule2->display();
-  (void) rule2->dumpToNF("PGSrule2.NF");
+  (void)rule2->dumpToNF("PGSrule2.NF");
   RuleProp* rulepropbi = RuleProp::createFromRules(rule1, rule2, props2);
 
   // Perform a non-conditional BiPGS simulation on a grid
-  error = simbipgs(nullptr,dbgrid,rulepropbi,
-                   &model1,&model2,&model3,&model4,neighU,nbsimu);
-  dbgrid->setNameByLocator(ELoc::FACIES,"BiPGS-Facies");
-  dbfmt = DbStringFormat(FLAG_STATS,{"BiPGS-Facies*"});
+  error = simbipgs(nullptr, dbgrid, rulepropbi,
+                   &model1, &model2, &model3, &model4, neighU, nbsimu);
+  dbgrid->setNameByLocator(ELoc::FACIES, "BiPGS-Facies");
+  dbfmt = DbStringFormat(FLAG_STATS, {"BiPGS-Facies*"});
   dbgrid->display(&dbfmt);
-  (void) dbgrid->dumpToNF("simubipgs.NF");
+  (void)dbgrid->dumpToNF("simubipgs.NF");
 
   // Performing a PGS simulation using Shift
-  VectorDouble shift = {0.2, 0.3};
-  VectorDouble propshift = { 0.1, 0.2, 0.3, 0.4 };
-  RuleShift* ruleshift = RuleShift::createFromNames({"S","S","S","F1","F2","F3","F4"},shift);
+  VectorDouble shift     = {0.2, 0.3};
+  VectorDouble propshift = {0.1, 0.2, 0.3, 0.4};
+  RuleShift* ruleshift   = RuleShift::createFromNames({"S", "S", "S", "F1", "F2", "F3", "F4"}, shift);
   ruleshift->display();
-  (void) ruleshift->dumpToNF("PGSruleshift.NF");
+  (void)ruleshift->dumpToNF("PGSruleshift.NF");
 
   RuleProp* rulepropshift = RuleProp::createFromRule(ruleshift, propshift);
 
   // Perform a non-conditional PGS Shift simulation on a grid
-  error = simpgs(nullptr,dbgrid,rulepropshift,&model1,nullptr,neighU,nbsimu);
-  dbgrid->setNameByLocator(ELoc::FACIES,"PGS-Shift-Facies");
-  dbfmt = DbStringFormat(FLAG_STATS,{"PGS-Shift-Facies*"});
+  error = simpgs(nullptr, dbgrid, rulepropshift, &model1, nullptr, neighU, nbsimu);
+  dbgrid->setNameByLocator(ELoc::FACIES, "PGS-Shift-Facies");
+  dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Shift-Facies*"});
   dbgrid->display(&dbfmt);
-  (void) dbgrid->dumpToNF("simushiftpgs.NF");
+  (void)dbgrid->dumpToNF("simushiftpgs.NF");
 
   // Performing a PGS simulation using Shadow
-  double slope = 0.5;
-  double shdown = -0.2;
-  double shdsup = +0.5;
-  RuleShadow* ruleshadow = new RuleShadow(slope,shdsup,shdown,shift);
+  double slope           = 0.5;
+  double shdown          = -0.2;
+  double shdsup          = +0.5;
+  auto* ruleshadow = new RuleShadow(slope, shdsup, shdown, shift);
   ruleshadow->display();
-  (void) ruleshadow->dumpToNF("PGSruleshadow.NF");
+  (void)ruleshadow->dumpToNF("PGSruleshadow.NF");
 
-  VectorDouble propshadow = { 0.4, 0.2, 0.3 };
+  VectorDouble propshadow  = {0.4, 0.2, 0.3};
   RuleProp* rulepropshadow = RuleProp::createFromRule(ruleshadow, propshadow);
 
   // Perform a non-conditional PGS Shadow simulation on a grid
-  error = simpgs(nullptr,dbgrid,rulepropshadow,&model1,nullptr,neighU,nbsimu);
-  dbgrid->setNameByLocator(ELoc::FACIES,"PGS-Shadow-Facies");
-  dbfmt = DbStringFormat(FLAG_STATS,{"PGS-Shadow-Facies*"});
+  error = simpgs(nullptr, dbgrid, rulepropshadow, &model1, nullptr, neighU, nbsimu);
+  dbgrid->setNameByLocator(ELoc::FACIES, "PGS-Shadow-Facies");
+  dbfmt = DbStringFormat(FLAG_STATS, {"PGS-Shadow-Facies*"});
   dbgrid->display(&dbfmt);
-  (void) dbgrid->dumpToNF("simushadowpgs.NF");
+  (void)dbgrid->dumpToNF("simushadowpgs.NF");
 
   delete dbgrid;
   delete rule1;
@@ -174,5 +174,5 @@ int main(int argc, char *argv[])
   delete rulepropshift;
   delete rulepropshadow;
   delete neighU;
-  return(error);
+  return static_cast<int>(error);
 }

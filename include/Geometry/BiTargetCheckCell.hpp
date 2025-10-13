@@ -25,15 +25,14 @@ public:
   BiTargetCheckCell& operator=(const BiTargetCheckCell& r);
   virtual ~BiTargetCheckCell();
 
-  virtual bool isOK(const SpaceTarget &T1,
-                    const SpaceTarget &T2) const override;
-  virtual bool isValid(const Db* dbin, const Db* dbout) override;
+  bool isOK(const SpaceTarget &T1,  const SpaceTarget &T2) const override;
+  bool isValid(const Db* dbin, const Db* dbout) override;
 
   /// ICloneable Interface
   IMPLEMENT_CLONING(BiTargetCheckCell)
 
   /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static BiTargetCheckCell* create(const DbGrid* dbgrid = nullptr);
 

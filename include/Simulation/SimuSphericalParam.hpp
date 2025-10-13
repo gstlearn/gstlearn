@@ -19,38 +19,38 @@ namespace gstlrn
 class GSTLEARN_EXPORT SimuSphericalParam: public AStringable
 {
 public:
-  SimuSphericalParam(int special = 0,
-                     int nbf = 1,
-                     int nfmax = -1,
-                     int degmax = -1,
-                     int ndisc = 360,
+  SimuSphericalParam(Id special = 0,
+                     Id nbf = 1,
+                     Id nfmax = -1,
+                     Id degmax = -1,
+                     Id ndisc = 360,
                      double tol = 1.e-5);
   SimuSphericalParam(const SimuSphericalParam &r);
   SimuSphericalParam& operator=(const SimuSphericalParam &r);
   virtual ~SimuSphericalParam();
 
   /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int getNbf() const { return _nbf; }
-  void setNbf(int nbf) { _nbf = nbf; }
-  int getNdisc() const { return _ndisc; }
-  void setNdisc(int ndisc) { _ndisc = ndisc; }
-  int getNfmax() const { return _nfmax; }
-  void setNfmax(int nfmax) { _nfmax = nfmax; }
-  int getSpecial() const { return _special; }
-  void setSpecial(int special) { _special = special; }
+  Id getNbf() const { return _nbf; }
+  void setNbf(Id nbf) { _nbf = nbf; }
+  Id getNdisc() const { return _ndisc; }
+  void setNdisc(Id ndisc) { _ndisc = ndisc; }
+  Id getNfmax() const { return _nfmax; }
+  void setNfmax(Id nfmax) { _nfmax = nfmax; }
+  Id getSpecial() const { return _special; }
+  void setSpecial(Id special) { _special = special; }
   double getTol() const { return _tol; }
   void setTol(double tol) { _tol = tol; }
-  int getDegmax() const { return _degmax; }
-  void setDegmax(int degmax) { _degmax = degmax; }
+  Id getDegmax() const { return _degmax; }
+  void setDegmax(Id degmax) { _degmax = degmax; }
 
 private:
-  int _special; // 0: standard; 1 : Chentsov; 2 : Exponential
-  int _nbf;     // Number of basic functions
-  int _nfmax;   // Maximum number of frequencies (or <0)
-  int _degmax;  // Maximum Degree
-  int _ndisc;   // Number of discretization
+  Id _special; // 0: standard; 1 : Chentsov; 2 : Exponential
+  Id _nbf;     // Number of basic functions
+  Id _nfmax;   // Maximum number of frequencies (or <0)
+  Id _degmax;  // Maximum Degree
+  Id _ndisc;   // Number of discretization
   double _tol;  // Spectrum tolerance
 };
 }

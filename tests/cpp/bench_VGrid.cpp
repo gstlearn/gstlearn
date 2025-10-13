@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  int ndim = 2;
+  Id ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Creating a regular grid
@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
   // On Grid samples
   // ===============
 
-  int nlag = 10;
-  int ndimax = 1;
+  Id nlag   = 10;
+  Id ndimax = 1;
   timer.reset();
   VarioParam* varioparamG =
     VarioParam::createMultipleFromGrid(grid, nlag, 0., VectorDouble(), nullptr, ndimax);

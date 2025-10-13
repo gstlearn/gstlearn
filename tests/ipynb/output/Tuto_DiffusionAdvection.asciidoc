@@ -4,7 +4,7 @@ Markov (Third Parameter = 1)
 - Sill         =      3.000
 - Range        =     12.000
 - Theo. Range  =      2.000
- ----
+----
 
 
 #NO_DIFF#XXX

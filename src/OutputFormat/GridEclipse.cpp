@@ -38,9 +38,9 @@ GridEclipse::~GridEclipse()
 {
 }
 
-int GridEclipse::writeInFile()
+Id GridEclipse::writeInFile()
 {
-  static int nbyline = 6;
+  static Id nbyline = 6;
   static double valtest = -9999.;
 
   /* Open the file */
@@ -49,8 +49,8 @@ int GridEclipse::writeInFile()
 
   // Preliminary calculations
 
-  int nxyz = 1;
-  for (int idim = 0; idim < _dbgrid->getNDim(); idim++)
+  Id nxyz = 1;
+  for (Id idim = 0; idim < _dbgrid->getNDim(); idim++)
     nxyz *= _dbgrid->getNX(idim);
 
   /* Write a comment */
@@ -59,8 +59,8 @@ int GridEclipse::writeInFile()
 
   /* Write the set of values */
 
-  int ninline = 0;
-  for (int i = 0; i < nxyz; i++)
+  Id ninline = 0;
+  for (Id i = 0; i < nxyz; i++)
   {
     double valprt = valtest;
     if (_dbgrid->getSelection(i))

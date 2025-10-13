@@ -9,8 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 
-#include "Basic/ASerializable.hpp"
 #include "Basic/SerializeNeutralFile.hpp"
+#include "Basic/ASerializable.hpp"
 namespace gstlrn
 {
 
@@ -45,7 +45,7 @@ bool SerializeNeutralFile::fileOpenRead(const ASerializable& parent,
 
   // Build the multi-platform filename
   String filepath = ASerializable::buildFileName(1, filename, true);
-  
+
   // Open new stream
   is.open(filepath, std::ios::in);
   if (!is.is_open())
@@ -81,36 +81,36 @@ bool SerializeNeutralFile::commentWrite(std::ostream& os, const String& comment)
 
 bool SerializeNeutralFile::tableWrite(std::ostream& os,
                                       const String& string,
-                                      int ntab,
+                                      Id ntab,
                                       const VectorDouble& tab)
 {
   bool ret = true;
   VectorDouble loctab(ntab);
-  for (int i = 0; i < ntab; i++) loctab[i] = tab[i];
+  for (Id i = 0; i < ntab; i++) loctab[i] = tab[i];
   ret = ret && recordWriteVec<double>(os, string, loctab);
   return ret;
 }
 
 bool SerializeNeutralFile::tableRead(std::istream& is,
                                      const String& string,
-                                     int ntab,
+                                     Id ntab,
                                      double* tab)
 {
   bool ret = true;
   VectorDouble loctab(ntab);
   ret = ret && recordReadVec<double>(is, string, loctab, ntab);
   if (!ret) return 1;
-  for (int i = 0; i < ntab; i++) tab[i] = loctab[i];
+  for (Id i = 0; i < ntab; i++) tab[i] = loctab[i];
   return ret;
 }
 
 bool SerializeNeutralFile::onlyBlanks(char* string)
 {
-  int number = static_cast<int>(strlen(string));
-  for (int i = 0; i < number; i++)
+  Id number = static_cast<Id>(strlen(string));
+  for (Id i = 0; i < number; i++)
   {
     if (string[i] != ' ') return false;
   }
   return true;
 }
-}
+} // namespace gstlrn

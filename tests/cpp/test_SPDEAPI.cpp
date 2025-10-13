@@ -8,15 +8,15 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/VectorHelper.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/FunctionalSpirale.hpp"
-#include "Basic/File.hpp"
-#include "Basic/OptCst.hpp"
-#include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
-#include "Db/DbGrid.hpp"
 #include "API/SPDE.hpp"
+#include "Basic/File.hpp"
+#include "Basic/FunctionalSpirale.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/OptCst.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 
 using namespace gstlrn;
@@ -26,23 +26,24 @@ using namespace gstlrn;
  ** Main Program
  **
  *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   ASerializable::setPrefixName("test_SPDEAPI-");
-  int seed = 10355;
-  int nbsimu = 3;
+  Id seed      = 10355;
+  Id nbsimu    = 3;
+  bool verbose = false;
   law_set_random_seed(seed);
 
   // Creating the resulting Grid
-  auto nx = { 101, 101 };
-  DbGrid *grid = DbGrid::create(nx);
+  VectorInt nx = {101, 101};
+  DbGrid* grid = DbGrid::create(nx);
 
   // Creating the Model
-  Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10.,30.});
+  Model* model = Model::createFromParam(ECov::MATERN, 1., 1., 1., {10., 30.});
 
   // Creating non-stationarity field (spiral) and attaching it to the Model
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
@@ -50,32 +51,32 @@ int main(int argc, char *argv[])
   model->display();
 
   // Creating Data
-  int ndata = 100;
-  Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.}, 43246);
-  VectorDouble z = VH::simulateGaussian(ndata);
-  int useCholesky = 0;
+  Id ndata        = 100;
+  Db* dat         = Db::createFromBox(ndata, {0., 0.}, {100., 100.}, 43246);
+  VectorDouble z  = VH::simulateGaussian(ndata);
+  Id useCholesky  = 0;
   law_set_random_seed(132341);
-  (void)gstlrn::simulateSPDE(nullptr, dat, model, 1, useCholesky,
-                     VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(),
+  (void)simulateSPDE(nullptr, dat, model, 1, useCholesky,
+                     nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, SPDEParam(), verbose,
                      NamingConvention("variable", false, false));
   dat->display();
 
   // Estimation and simulations
-  (void)gstlrn::krigingSPDE(dat, grid, model, true, false, useCholesky, 
-                    VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(), 
+  (void)krigingSPDE(dat, grid, model, true, false, useCholesky,
+                    nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, SPDEParam(), verbose,
                     NamingConvention("K-spirale"));
   law_set_random_seed(132341);
 
-  (void)gstlrn::simulateSPDE(nullptr, grid, model, nbsimu, useCholesky, 
-                     VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(), 
+  (void)simulateSPDE(nullptr, grid, model, nbsimu, useCholesky,
+                     nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, SPDEParam(), verbose,
                      NamingConvention("NCS-spirale"));
   law_set_random_seed(132341);
-  (void)gstlrn::simulateSPDE(dat, grid, model, nbsimu, useCholesky,
-                     VectorMeshes(), nullptr, VectorMeshes(), nullptr, SPDEParam(), 
+  (void)simulateSPDE(dat, grid, model, nbsimu, useCholesky,
+                     nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, SPDEParam(), verbose,
                      NamingConvention("CDS-spirale"));
 
-  (void) grid->dumpToNF("grid.NF");
-  DbStringFormat dbfmt(FLAG_STATS,{"spde*"});
+  (void)grid->dumpToNF("grid.NF");
+  DbStringFormat dbfmt(FLAG_STATS, {"spde*"});
   // To prevent diff between some platforms (round to 10^-2)
   OptCst::define(ECst::NTDEC, 2);
   grid->display(&dbfmt);
@@ -85,4 +86,3 @@ int main(int argc, char *argv[])
   delete model;
   return 0;
 }
-

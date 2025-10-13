@@ -17,7 +17,7 @@
 
 namespace gstlrn
 {
-SimuSubstitutionParam::SimuSubstitutionParam(int nfacies,
+SimuSubstitutionParam::SimuSubstitutionParam(Id nfacies,
                                              double intensity,
                                              bool flag_direct,
                                              bool flag_coding,
@@ -164,26 +164,26 @@ bool SimuSubstitutionParam::_isIrreductibility(bool verbose)
 
   /* Check that the transition matrix is correct */
 
-  for (int i = 0; i < _nfacies; i++)
+  for (Id i = 0; i < _nfacies; i++)
   {
     double total = 0.;
-    for (int j = 0; j < _nfacies; j++)
+    for (Id j = 0; j < _nfacies; j++)
     {
       if (TRANS(i, j) < 0. || TRANS(i, j) > 1.) return false;
       total += TRANS(i, j);
     }
     if (total <= 0.) return false;
-    for (int j = 0; j < _nfacies; j++)
+    for (Id j = 0; j < _nfacies; j++)
       TRANS(i, j) /= total;
   }
 
   /* Check the irreductibility */
 
   VectorInt flag(_nfacies);
-  flag[0]  = 0;
-  int nend = 0;
-  int ndeb = 0;
-  for (int i = 1; i < _nfacies; i++)
+  flag[0] = 0;
+  Id nend = 0;
+  Id ndeb = 0;
+  for (Id i = 1; i < _nfacies; i++)
   {
     flag[i] = 0;
     if (TRANS(i, 0) > 0)
@@ -195,12 +195,12 @@ bool SimuSubstitutionParam::_isIrreductibility(bool verbose)
 
   while (ndeb != nend)
   {
-    for (int i = 0; i < _nfacies; i++)
+    for (Id i = 0; i < _nfacies; i++)
       if (flag[i])
-        for (int j = 0; j < _nfacies; j++)
+        for (Id j = 0; j < _nfacies; j++)
           if (i != j && TRANS(j, i) > 0) flag[j] = 1;
     ndeb = nend;
-    for (int i = nend = 0; i < _nfacies; i++)
+    for (Id i = nend = 0; i < _nfacies; i++)
       nend += flag[i];
   }
   if (nend != _nfacies) return false;
@@ -223,9 +223,9 @@ bool SimuSubstitutionParam::_isIrreductibility(bool verbose)
 void SimuSubstitutionParam::isValidOrientation(VectorDouble& vector,
                                                bool verbose)
 {
-  int ndim     = (int)vector.size();
+  Id ndim      = static_cast<Id>(vector.size());
   double total = 0.;
-  for (int i = 0; i < ndim; i++)
+  for (Id i = 0; i < ndim; i++)
     total += vector[i] * vector[i];
   if (total <= 0.)
   {
@@ -237,7 +237,7 @@ void SimuSubstitutionParam::isValidOrientation(VectorDouble& vector,
     vector[0] = 1.;
     total     = 1.;
   }
-  for (int i = 0; i < ndim; i++)
+  for (Id i = 0; i < ndim; i++)
     vector[i] /= sqrt(total);
 }
 
@@ -249,7 +249,7 @@ void SimuSubstitutionParam::isValidOrientation(VectorDouble& vector,
  ** \param[in]  verbose     Verbose option
  **
  *****************************************************************************/
-void SimuSubstitutionParam::isValidFactor(double* factor, bool verbose) const
+void SimuSubstitutionParam::isValidFactor(double* factor, bool verbose)
 {
   if (*factor < 0.)
   {
@@ -274,7 +274,7 @@ void SimuSubstitutionParam::isValidFactor(double* factor, bool verbose) const
 bool SimuSubstitutionParam::isAngleLocal() const
 {
   if (_colang.empty()) return false;
-  for (int i = 0; i < (int)_colang.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(_colang.size()); i++)
     if (_colang[i] >= 0) return true;
   return false;
 }
@@ -286,12 +286,12 @@ bool SimuSubstitutionParam::isLocal() const
 
 bool SimuSubstitutionParam::_isValidTransition(bool verbose, double eps)
 {
-  if ((int)_trans.size() != _nfacies * _nfacies) return false;
+  if (static_cast<Id>(_trans.size()) != _nfacies * _nfacies) return false;
 
-  for (int irow = 0; irow < _nfacies; irow++)
+  for (Id irow = 0; irow < _nfacies; irow++)
   {
     double total = 0.;
-    for (int icol = 0; icol < _nfacies; icol++)
+    for (Id icol = 0; icol < _nfacies; icol++)
     {
       total += TRANS(irow, icol);
     }
@@ -306,9 +306,9 @@ bool SimuSubstitutionParam::_isValidTransition(bool verbose, double eps)
   return true;
 }
 
-int SimuSubstitutionParam::getColang(int idim) const
+Id SimuSubstitutionParam::getColang(Id idim) const
 {
-  if (idim < (int)_colang.size())
+  if (idim < static_cast<Id>(_colang.size()))
     return _colang[idim];
   return 0.;
 }

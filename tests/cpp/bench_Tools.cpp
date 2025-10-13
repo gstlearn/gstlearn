@@ -37,8 +37,8 @@ int main(int argc, char *argv[])
 
   // Assigning values in a matrix
 
-  int nx = 10000;
-  int naffect = 5000000;
+  Id nx             = 10000;
+  Id naffect        = 5000000;
   VectorDouble vecS = VH::simulateUniform(nx * nx);
   MatrixSquare matS(nx);
   matS.resetFromVD(nx, nx, vecS);
@@ -49,26 +49,26 @@ int main(int argc, char *argv[])
 
   message("- Assigning value to the vector of dimension %d\n",nx*nx);
   timer.reset();
-  for (int itime = 0; itime < naffect; itime++)
+  for (Id itime = 0; itime < naffect; itime++)
   {
-    int rank = law_uniform(0, nx*nx);
+    Id rank    = law_uniform(0, nx * nx);
     vecS[rank] = bidon;
   }
   timer.displayIntervalMilliseconds("Assignment to vector", 120);
 
   message("- Assigning value to the square matrix of dimension %d x %d\n",nx,nx);
   timer.reset();
-  for (int itime = 0; itime < naffect; itime++)
+  for (Id itime = 0; itime < naffect; itime++)
   {
-    int rank = law_uniform(0, nx);
+    Id rank = law_uniform(0, nx);
     matS.setValue(rank, rank, bidon);
   }
   timer.displayIntervalMilliseconds("Assignment to matrix", 75);
 
   // Comparing several uses of VectorDouble calculations
   // ===================================================
-  int ntimes = 5000;
-  int nsize = 30000;
+  Id ntimes = 5000;
+  Id nsize  = 30000;
 
   VectorDouble a = VH::simulateGaussian(nsize);
   VectorDouble b = VH::simulateGaussian(nsize);
@@ -79,10 +79,10 @@ int main(int argc, char *argv[])
   message("- using: sum_i a[i] * b[i]\n");
   timer.reset();
 
-  for (int itime = 0; itime < ntimes; itime++)
+  for (Id itime = 0; itime < ntimes; itime++)
   {
     result = 0.;
-    for (int ielem = 0; ielem < nsize; ielem++)
+    for (Id ielem = 0; ielem < nsize; ielem++)
     {
       result += a[ielem] * b[ielem];
     }
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 
   message("- using iterators\n");
   timer.reset();
-  for (int itime = 0; itime < ntimes; itime++)
+  for (Id itime = 0; itime < ntimes; itime++)
   {
     VectorDouble::const_iterator ita(a.begin());
     VectorDouble::const_iterator itb(b.begin());
@@ -110,12 +110,12 @@ int main(int argc, char *argv[])
 
   message("- using pointers to double\n");
   timer.reset();
-  for (int itime = 0; itime < ntimes; itime++)
+  for (Id itime = 0; itime < ntimes; itime++)
   {
     double* pta = a.data();
     double* ptb = b.data();
     result = 0.;
-    for (int ielem = 0; ielem < nsize; ielem++)
+    for (Id ielem = 0; ielem < nsize; ielem++)
     {
       result += (*pta) * (*ptb);
       pta++;
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 
   message("- using VectorHelper\n");
   timer.reset();
-  for (int itime = 0; itime < ntimes; itime++)
+  for (Id itime = 0; itime < ntimes; itime++)
     result = VH::innerProduct(a, b);
   timer.displayIntervalMilliseconds("with VectorHelper", 200);
   if (ABS(result - result_ref) > ABS(result_ref) * EPSILON6)
@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
   timer.reset();
   const double* ptra = a.data();
   const double* ptrb = b.data();
-  for (int itime = 0; itime < ntimes; itime++)
+  for (Id itime = 0; itime < ntimes; itime++)
     result = VH::innerProduct(ptra, ptrb, nsize);
   timer.displayIntervalMilliseconds("with VectorHelper (double)", 200);
   if (ABS(result - result_ref) > ABS(result_ref) * EPSILON6)
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
   matb.resetFromVD(nsize, 1, b);
   MatrixDense res(1,1);
   timer.reset();
-  for (int itime = 0; itime < ntimes; itime++)
+  for (Id itime = 0; itime < ntimes; itime++)
   {
     res.prodMatMatInPlace(&mata, &matb);
     result = res(0,0);
@@ -163,8 +163,8 @@ int main(int argc, char *argv[])
   /// Sorting the contents of a vector
 
   mestitle(1,"Testing sorting algorithms");
-  int nech = 10;
-  int size = 7;
+  Id nech  = 10;
+  Id size  = 7;
   message("We consider a vector of %d values and the corresponding vector of ranks\n", nech);
   message("Only the first %d positions are used\n",size);
   message("This paragraph is not bench-marked as time consumption is too short\n");

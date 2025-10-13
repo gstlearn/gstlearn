@@ -1,5 +1,7 @@
 #NO_DIFF#XXX
-----<IPython.core.display.Javascript object>----
+----
+
+<IPython.core.display.Javascript object>----
 
 
 #NO_DIFF#XXX
@@ -74,19 +76,19 @@ SD3     -0.186      0.002      1.000----
 
 #NO_DIFF#XXX
 ----
-         Number        Mean    St. Dev. 
- SD1         100       0.161       1.028 
- SD2         100      -0.293       1.020 
- SD3         100       0.118       0.910 
- 
- Number of isotopic active samples = 100
- Correlation matrix
-                    [,1]        [,2]        [,3] 
-        [1,]       1.000      -0.006      -0.186 
-        [2,]      -0.006       1.000       0.002 
-        [3,]      -0.186       0.002       1.000 
- 
- ----
+        Number       Mean   St. Dev.
+SD1        100      0.161      1.028
+SD2        100     -0.293      1.020
+SD3        100      0.118      0.910
+
+Number of isotopic active samples = 100
+Correlation matrix
+                  [,1]       [,2]       [,3]
+       [1,]      1.000     -0.006     -0.186
+       [2,]     -0.006      1.000      0.002
+       [3,]     -0.186      0.002      1.000
+
+----
 
 
 #NO_DIFF#XXX

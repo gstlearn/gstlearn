@@ -45,16 +45,16 @@ namespace gstlrn
  ** \param[in]  index2    Rank of the second sample
  **
  *****************************************************************************/
-static double st_distance(int nvar,
+static double st_distance(Id nvar,
                           const VectorDouble& data1,
                           const VectorDouble& data2,
-                          int index1,
-                          int index2)
+                          Id index1,
+                          Id index2)
 {
   double result, term, weight;
 
   result = weight = 0.;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (Id ivar = 0; ivar < nvar; ivar++)
   {
     term = DATA1(index1, ivar) - DATA2(index2, ivar);
     result += term * term;
@@ -74,15 +74,15 @@ static double st_distance(int nvar,
  ** \param[out] clusterid Array of cluster number for each sample
  **
  *****************************************************************************/
-static void st_randomassign(int nclusters,
-                            int nech,
+static void st_randomassign(Id nclusters,
+                            Id nech,
                             VectorInt& clusterid)
 {
-  int i, j;
-  int k = 0;
+  Id i, j;
+  Id k = 0;
   double p;
 
-  int n = nech - nclusters;
+  Id n = nech - nclusters;
   /* Draw the number of elements in each cluster from a multinomial
    * distribution, reserving ncluster elements to set independently
    * in order to guarantee that none of the clusters are empty.
@@ -104,7 +104,7 @@ static void st_randomassign(int nclusters,
   /* Create a random permutation of the cluster assignments */
   for (i = 0; i < nech; i++)
   {
-    j            = (int)(i + (nech - i) * law_uniform(0., 1.));
+    j            = (Id)(i + (nech - i) * law_uniform(0., 1.));
     k            = clusterid[j];
     clusterid[j] = clusterid[i];
     clusterid[i] = k;
@@ -120,12 +120,12 @@ static void st_randomassign(int nclusters,
  ** \param[in]  clusterid Array of cluster number for each sample
  **
  *****************************************************************************/
-static void st_printclusterlist(int nclusters,
-                                int nech,
+static void st_printclusterlist(Id nclusters,
+                                Id nech,
                                 const VectorInt& clusterid)
 {
   message("Population of %d clusters\n", nclusters);
-  for (int i = 0; i < nech; i++)
+  for (Id i = 0; i < nech; i++)
     message("Sample %3d: cluster %d\n", i + 1, clusterid[i]);
 }
 
@@ -138,17 +138,17 @@ static void st_printclusterlist(int nclusters,
  ** \param[in]  clusterid Array of cluster number for each sample
  **
  *****************************************************************************/
-static void st_printclustercount(int nclusters,
-                                 int nech,
+static void st_printclustercount(Id nclusters,
+                                 Id nech,
                                  const VectorInt& clusterid)
 {
-  int j, count;
+  Id j, count;
 
   message("Population of %d clusters\n", nclusters);
-  for (int i = 0; i < nclusters; i++)
+  for (Id i = 0; i < nclusters; i++)
   {
     count = 0;
-    for (int k = 0; k < nech; k++)
+    for (Id k = 0; k < nech; k++)
     {
       j = clusterid[k];
       if (i == j) count++;
@@ -172,14 +172,14 @@ static void st_printclustercount(int nclusters,
  **
  *****************************************************************************/
 static void st_getclustermeans(const VectorDouble& data,
-                               int nvar,
-                               int nech,
-                               int nclusters,
+                               Id nvar,
+                               Id nech,
+                               Id nclusters,
                                const VectorInt& clusterid,
                                VectorDouble& cdata,
                                VectorInt& cmask)
 {
-  int i, j, k;
+  Id i, j, k;
 
   for (i = 0; i < nclusters; i++)
   {
@@ -216,14 +216,14 @@ static void st_getclustermeans(const VectorDouble& data,
  **
  *****************************************************************************/
 static void st_getclustermedian(const VectorDouble& data,
-                                int nvar,
-                                int nech,
-                                int nclusters,
+                                Id nvar,
+                                Id nech,
+                                Id nclusters,
                                 const VectorInt& clusterid,
                                 VectorDouble& cdata,
                                 VectorDouble& cache)
 {
-  int i, j, k, count;
+  Id i, j, k, count;
 
   for (i = 0; i < nclusters; i++)
   {
@@ -258,8 +258,8 @@ static void st_getclustermedian(const VectorDouble& data,
  **
  *****************************************************************************/
 static void st_get_distmatrix(const VectorDouble& data,
-                              int nvar,
-                              int nech,
+                              Id nvar,
+                              Id nech,
                               VectorDouble& distmatrix)
 {
   /* Core allocation */
@@ -268,8 +268,8 @@ static void st_get_distmatrix(const VectorDouble& data,
 
   /* Calculate the distance matrix */
 
-  for (int i = 0; i < nech; i++)
-    for (int j = 0; j < i; j++)
+  for (Id i = 0; i < nech; i++)
+    for (Id j = 0; j < i; j++)
       DISTMATRIX(i, j) = st_distance(nvar, data, data, i, j);
 }
 
@@ -286,24 +286,24 @@ static void st_get_distmatrix(const VectorDouble& data,
  ** \param[out] errors     Array containing within-cluster distances
  **
  *****************************************************************************/
-static void st_getclustermedoids(int nech,
-                                 int nclusters,
+static void st_getclustermedoids(Id nech,
+                                 Id nclusters,
                                  const VectorDouble& distmatrix,
                                  const VectorInt& clusterid,
                                  VectorInt& centroids,
                                  VectorDouble& errors)
 {
   double d;
-  int j;
+  Id j;
 
-  for (int i = 0; i < nclusters; i++)
+  for (Id i = 0; i < nclusters; i++)
     errors[i] = MAXIMUM_BIG;
 
-  for (int i = 0; i < nech; i++)
+  for (Id i = 0; i < nech; i++)
   {
     d = 0.0;
     j = clusterid[i];
-    for (int k = 0; k < nech; k++)
+    for (Id k = 0; k < nech; k++)
     {
       if (i == k || clusterid[k] != j) continue;
       d += (i < k ? DISTMATRIX(k, i) : DISTMATRIX(i, k));
@@ -334,14 +334,14 @@ static void st_getclustermedoids(int nech,
  **
  ****************************************************************************/
 VectorDouble kclusters(const VectorDouble& data,
-                       int nvar,
-                       int nech,
-                       int nclusters,
-                       int npass,
-                       int mode,
-                       int verbose)
+                       Id nvar,
+                       Id nech,
+                       Id nclusters,
+                       Id npass,
+                       Id mode,
+                       Id verbose)
 {
-  int i, j, k, niter, period, flag_same;
+  Id i, j, k, niter, period, flag_same;
   double total, previous, distance, tdistance, distot;
   VectorInt clusterid;
   VectorInt tclusterid;
@@ -375,7 +375,7 @@ VectorDouble kclusters(const VectorDouble& data,
 
   distot = MAXIMUM_BIG;
 
-  for (int ipass = 0; ipass < npass; ipass++)
+  for (Id ipass = 0; ipass < npass; ipass++)
   {
     if (verbose) message("Pass #%d\n", ipass + 1);
     total  = MAXIMUM_BIG;
@@ -504,13 +504,13 @@ label_end:
  **
  *****************************************************************************/
 VectorInt kmedoids(const VectorDouble& data,
-                   int nvar,
-                   int nech,
-                   int nclusters,
-                   int npass,
-                   int verbose)
+                   Id nvar,
+                   Id nech,
+                   Id nclusters,
+                   Id npass,
+                   Id verbose)
 {
-  int i, j, niter, period, flag_same;
+  Id i, j, niter, period, flag_same;
   double distot, total, previous, distance;
   VectorDouble distmatrix;
   VectorInt clusterid;
@@ -542,7 +542,7 @@ VectorInt kmedoids(const VectorDouble& data,
   st_get_distmatrix(data, nvar, nech, distmatrix);
   distot = MAXIMUM_BIG;
 
-  for (int ipass = 0; ipass < npass; ipass++)
+  for (Id ipass = 0; ipass < npass; ipass++)
   {
     if (verbose) message("Pass #%d\n", ipass + 1);
     total  = MAXIMUM_BIG;
@@ -576,7 +576,7 @@ VectorInt kmedoids(const VectorDouble& data,
         /* Calculate the distance */
 
         distance = MAXIMUM_BIG;
-        for (int icluster = 0; icluster < nclusters; icluster++)
+        for (Id icluster = 0; icluster < nclusters; icluster++)
         {
           double tdistance;
           j = centroids[icluster];

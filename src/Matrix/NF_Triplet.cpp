@@ -9,31 +9,30 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/NF_Triplet.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 namespace gstlrn
 {
 NF_Triplet::NF_Triplet()
-    : _nrowmax(0),
-      _ncolmax(0),
-      _eigenT()
+  : _nrowmax(0)
+  , _ncolmax(0)
+  , _eigenT()
 {
 }
 
-NF_Triplet::NF_Triplet(const NF_Triplet &r)
-  : _nrowmax(r._nrowmax),
-    _ncolmax(r._ncolmax),
-    _eigenT(r._eigenT)
+NF_Triplet::NF_Triplet(const NF_Triplet& r)
+  : _nrowmax(r._nrowmax)
+  , _ncolmax(r._ncolmax)
+  , _eigenT(r._eigenT)
 {
 }
 
-NF_Triplet& NF_Triplet::operator= (const NF_Triplet &r)
+NF_Triplet& NF_Triplet::operator=(const NF_Triplet& r)
 {
   if (this != &r)
   {
     _nrowmax = r._nrowmax;
     _ncolmax = r._ncolmax;
-    _eigenT = r._eigenT;
+    _eigenT  = r._eigenT;
   }
   return *this;
 }
@@ -42,7 +41,7 @@ NF_Triplet::~NF_Triplet()
 {
 }
 
-void NF_Triplet::add(int irow, int icol, double value)
+void NF_Triplet::add(Id irow, Id icol, double value)
 {
   if (irow > _nrowmax) _nrowmax = irow;
   if (icol > _ncolmax) _ncolmax = icol;
@@ -55,74 +54,57 @@ void NF_Triplet::add(int irow, int icol, double value)
  * @param nrow    Ultimate number of rows
  * @param ncol    Ultimate number of columns
  */
-void NF_Triplet::force(int nrow, int ncol)
+void NF_Triplet::force(Id nrow, Id ncol)
 {
   // Check if the maximum positions have been reached
-  int nrow_max = getNRows();
-  int ncol_max = getNCols();
+  Id nrow_max = getNRows();
+  Id ncol_max = getNCols();
   if (nrow_max < nrow || ncol_max < ncol)
     add(nrow - 1, ncol - 1, 0.);
 }
 
-#ifndef SWIG
-cs* NF_Triplet::buildCsFromTriplet() const
-{
-  cs* local = cs_spalloc2(0,0,1,1,1);
-  for (int i = 0, n = getNElements(); i < n; i++)
-    (void) cs_entry2(local, getRow(i), getCol(i), getValue(i));
-  cs* Q = cs_triplet2(local);
-  cs_spfree2(local);
-  return Q;
-}
-
-NF_Triplet NF_Triplet::createFromCs(const cs* mat, int shiftRow, int shiftCol)
-{
-  return csToTriplet(mat, shiftRow, shiftCol);
-}
-#endif
-
 Eigen::SparseMatrix<double> NF_Triplet::buildEigenFromTriplet() const
 {
-  Eigen::SparseMatrix<double> mat(_nrowmax+1, _ncolmax+1);
+  Eigen::SparseMatrix<double> mat(_nrowmax + 1, _ncolmax + 1);
   mat.setFromTriplets(_eigenT.begin(), _eigenT.end());
-//  mat.prune(EPSILON10);
+  //  mat.prune(EPSILON10);
   return mat;
 }
 
-NF_Triplet NF_Triplet::createFromEigen(const Eigen::SparseMatrix<double>& mat, int shiftRow, int shiftCol)
+NF_Triplet NF_Triplet::createFromEigen(const Eigen::SparseMatrix<double>& mat, Id shiftRow, Id shiftCol)
 {
   NF_Triplet NF_T;
   std::vector<T> v;
-  int row_max = 0;
-  int col_max = 0;
-  for(int i = 0; i < mat.outerSize(); i++)
-    for(typename Eigen::SparseMatrix<double>::InnerIterator it(mat,i); it; ++it)
+  Id row_max = 0;
+  Id col_max = 0;
+  for (Id i = 0; i < mat.outerSize(); i++)
+    for (typename Eigen::SparseMatrix<double>::InnerIterator it(mat, i); it; ++it)
     {
-      int irow = it.row() + shiftRow;
-      int icol = it.col() + shiftCol;
+      Id irow = it.row() + shiftRow;
+      Id icol = it.col() + shiftCol;
       if (irow > row_max) row_max = irow;
       if (icol > col_max) col_max = icol;
-      v.emplace_back(irow,icol,it.value());
+      v.emplace_back(irow, icol, it.value());
     }
   NF_T._nrowmax = row_max;
   NF_T._ncolmax = col_max;
-  NF_T._eigenT = v;
+  NF_T._eigenT  = v;
   return NF_T;
 }
 
-int NF_Triplet::getRow(int i) const
+Id NF_Triplet::getRow(Id i) const
 {
   if (i < 0 || i >= getNElements()) return ITEST;
   return _eigenT[i].row();
 }
 
-int NF_Triplet::getCol(int i) const
+Id NF_Triplet::getCol(Id i) const
 {
   if (i < 0 || i >= getNElements()) return ITEST;
   return _eigenT[i].col();
 }
 
-double NF_Triplet::getValue(int i) const
+double NF_Triplet::getValue(Id i) const
 {
   if (i < 0 || i >= getNElements()) return TEST;
   return _eigenT[i].value();
@@ -130,29 +112,29 @@ double NF_Triplet::getValue(int i) const
 
 VectorDouble NF_Triplet::getValues() const
 {
-  int n = getNElements();
+  auto n = getNElements();
   VectorDouble vec(n);
-  for (int i = 0; i< n; i++)
+  for (Id i = 0; i < n; i++)
     vec[i] = _eigenT[i].value();
   return vec;
 }
 
 VectorInt NF_Triplet::getRows(bool flag_from_1) const
 {
-  int n = getNElements();
-  int shift = (flag_from_1) ? 1 : 0;
+  auto n    = getNElements();
+  Id shift = (flag_from_1) ? 1 : 0;
   VectorInt vec(n);
-  for (int i = 0; i < n; i++)
+  for (Id i = 0; i < n; i++)
     vec[i] = _eigenT[i].row() + shift;
   return vec;
 }
 
 VectorInt NF_Triplet::getCols(bool flag_from_1) const
 {
-  int n = getNElements();
-  int shift = (flag_from_1) ? 1 : 0;
+  auto n    = getNElements();
+  Id shift = (flag_from_1) ? 1 : 0;
   VectorInt vec(n);
-  for (int i = 0; i < n; i++)
+  for (Id i = 0; i < n; i++)
     vec[i] = _eigenT[i].col() + shift;
   return vec;
 }
@@ -163,15 +145,15 @@ VectorInt NF_Triplet::getCols(bool flag_from_1) const
  */
 void NF_Triplet::appendInPlace(const NF_Triplet& T2)
 {
-  _eigenT.insert( _eigenT.end(), T2._eigenT.begin(), T2._eigenT.end() );
+  _eigenT.insert(_eigenT.end(), T2._eigenT.begin(), T2._eigenT.end());
 
   // Update the maxima for rows and columns
-  for (int i = 0, n = T2.getNElements(); i < n; i++)
+  for (Id i = 0, n = T2.getNElements(); i < n; i++)
   {
-    int irow = T2.getRow(i);
-    int icol = T2.getCol(i);
+    auto irow = T2.getRow(i);
+    auto icol = T2.getCol(i);
     if (irow > _nrowmax) _nrowmax = irow;
     if (icol > _ncolmax) _ncolmax = icol;
   }
 }
-}
+} // namespace gstlrn

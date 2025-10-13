@@ -26,24 +26,24 @@ class GSTLEARN_EXPORT GeometryHelper
 public:
   static void rotationGetSinCos(double angle, double* cosa, double* sina);
 
-  static void rotationMatrixIdentityInPlace(int ndim, VectorDouble& rot);
+  static void rotationMatrixIdentityInPlace(Id ndim, VectorDouble& rot);
   static void rotation2DMatrixInPlace(double angle, VectorDouble& rot);
   static void rotation3DMatrixInPlace(double alpha,
                                       double beta,
                                       double gamma,
                                       VectorDouble& rot);
-  static void rotationMatrixInPlace(int ndim,
+  static void rotationMatrixInPlace(Id ndim,
                                     const VectorDouble& angles,
                                     VectorDouble& rot);
-  static VectorDouble rotationMatrix(int ndim, const VectorDouble& angles);
-  static void rotationGetAnglesInPlace(int ndim,
+  static VectorDouble rotationMatrix(Id ndim, const VectorDouble& angles);
+  static void rotationGetAnglesInPlace(Id ndim,
                                        const double* rot,
                                        double* angles);
   static void rotationGetAnglesInPlace(const VectorDouble& rot,
                                        VectorDouble& angles);
-  static void rotationCopy(int ndim, const double* rotin, double* rotout);
-  static bool rotationIsIdentity(int ndim, const double* rot, double eps = EPSILON10);
-  static void rotationMatrixDerivativesInPlace(int ndim,
+  static void rotationCopy(Id ndim, const double* rotin, double* rotout);
+  static bool rotationIsIdentity(Id ndim, const double* rot, double eps = EPSILON10);
+  static void rotationMatrixDerivativesInPlace(Id ndim,
                                                const VectorDouble& angles,
                                                std::vector<MatrixSquare>& dR);
   static void rotation2DMatrixDerivativesInPlace(double angle, MatrixSquare& dR);
@@ -64,7 +64,7 @@ public:
                                          double* codir);
   static void rotationGetDirection2D(const VectorDouble& angles,
                                      VectorDouble& codir);
-  static void rotationGetDirectionDefault(int ndim, VectorDouble& codir);
+  static void rotationGetDirectionDefault(Id ndim, VectorDouble& codir);
   static void rotationGetAnglesFromCodirInPlace(const VectorDouble& codir,
                                                 VectorDouble& angles);
   static VectorDouble rotationGetAngles(const VectorDouble& codir,
@@ -84,7 +84,7 @@ public:
                                        double y2,
                                        double* xd,
                                        double* yd,
-                                       int* nint);
+                                       Id* nint);
   static bool segmentIntersect(double xd1,
                                double yd1,
                                double xe1,
@@ -179,14 +179,14 @@ public:
                                        double rx,
                                        double ry,
                                        double theta,
-                                       int count = 360);
+                                       Id count = 360);
 
 private:
   static void _decodeConvRot(const ERotation& convrot,
-                             int* firstaxis,
-                             int* parity,
-                             int* repetition,
-                             int* frame);
+                             Id* firstaxis,
+                             Id* parity,
+                             Id* repetition,
+                             Id* frame);
 };
 
 // typedef GeometryHelper GH;

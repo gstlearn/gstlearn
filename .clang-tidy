@@ -7,6 +7,9 @@ Checks: >-
   -bugprone-macro-parentheses,
   -bugprone-reserved-identifier,
   modernize-deprecated-headers,
+  modernize-use-auto,
+  modernize-use-override,
+  google-readability-casting,
   mpi-*,
   openmp-*,
   -openmp-use-default-none,
@@ -24,6 +27,6 @@ Checks: >-
   -readability-implicit-bool-conversion, # TODO: to be removed
 CheckOptions:
   - key: readability-function-cognitive-complexity.Threshold
-    value: 300
+    value: 500
 HeaderFilterRegex: 'include'
 UseColor: true

@@ -1,5 +1,7 @@
 #NO_DIFF#XXX
-----<IPython.core.display.Javascript object>----
+----
+
+<IPython.core.display.Javascript object>----
 
 
 #NO_DIFF#XXX
@@ -31,7 +33,7 @@ Normalized coefficients for Hermite polynomials (punctual variable)
      [ 14,]    -0.017    -0.008     0.019     0.004    -0.020    -0.001     0.020
      [ 21,]    -0.002    -0.018     0.004     0.016    -0.005    -0.014     0.006
      [ 28,]     0.011    -0.005
- ----
+----
 
 
 #NO_DIFF#XXX

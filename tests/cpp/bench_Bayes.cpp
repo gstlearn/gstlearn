@@ -39,14 +39,14 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Global parameters
-  int ndim = 2;
+  Id ndim = 2;
   law_set_random_seed(32131);
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
   bool verbose    = false;
-  int nech        = 3;
-  int nvar        = 1;
+  Id nech         = 3;
+  Id nvar         = 1;
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, 0);

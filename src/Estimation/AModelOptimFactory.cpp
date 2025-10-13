@@ -28,11 +28,11 @@
 #include "geoslib_define.h"
 
 namespace gstlrn
-{ 
+{
 static void _modifyMopForAnam(ModelGeneric* model,
                               ModelOptimParam& mop)
 {
-  const CovLMCAnamorphosis* covanam = dynamic_cast<const CovLMCAnamorphosis*>(model->_getCovModify());
+  const auto* covanam = dynamic_cast<const CovLMCAnamorphosis*>(model->_getCovModify());
   if (covanam != nullptr)
   {
     EAnam anamtype = covanam->getAnamType();
@@ -52,10 +52,10 @@ static void _modifyMopForAnam(ModelGeneric* model,
  ** \param[out]  mop        ModelOptimParam structure
  **
  *****************************************************************************/
-static int _modifyMopForVMap(const DbGrid* dbmap,
-                             ModelGeneric* model,
-                             Constraints* constraints,
-                             ModelOptimParam& mop)
+static Id _modifyMopForVMap(const DbGrid* dbmap,
+                            ModelGeneric* model,
+                            Constraints* constraints,
+                            ModelOptimParam& mop)
 {
   // Clever setting of options
   mop.setAuthAniso(true);
@@ -95,15 +95,15 @@ static int _modifyMopForVMap(const DbGrid* dbmap,
  ** \param[out]  mop        ModelOptimParam structure
  **
  *****************************************************************************/
-static int _modifyMopForVario(const Vario* vario,
-                              ModelGeneric* model,
-                              Constraints* constraints,
-                              ModelOptimParam& mop)
+static Id _modifyMopForVario(const Vario* vario,
+                             ModelGeneric* model,
+                             Constraints* constraints,
+                             ModelOptimParam& mop)
 {
-  int ndim = model->getNDim();
-  int ndir = vario->getNDir();
-  int n_2d = 0;
-  int n_3d = 0;
+  Id ndim = static_cast<Id>(model->getNDim());
+  Id ndir = vario->getNDir();
+  Id n_2d = 0;
+  Id n_3d = 0;
 
   /* 2-D case */
   if (ndim == 2)
@@ -115,7 +115,7 @@ static int _modifyMopForVario(const Vario* vario,
   /* 3-D case */
   if (ndim == 3)
   {
-    for (int idir = 0; idir < ndir; idir++)
+    for (Id idir = 0; idir < ndir; idir++)
     {
       if (isZero(vario->getCodir(idir, 2)))
         n_2d++;
@@ -190,34 +190,34 @@ static void _modifyOneParam(const EConsType& cas,
   }
 }
 
-static int _modifyModelForConstraints(Constraints* constraints,
-                                      ModelGeneric* model)
+static Id _modifyModelForConstraints(Constraints* constraints,
+                                     ModelGeneric* model)
 {
   // Check the constraints
   if (constraints == nullptr) return 0;
-  int ncons = constraints->getNConsItem();
+  Id ncons = constraints->getNConsItem();
   if (ncons <= 0) return 0;
 
   // Check the ModelCovList
-  ModelCovList* mcv = dynamic_cast<ModelCovList*>(model);
+  auto* mcv = dynamic_cast<ModelCovList*>(model);
   if (mcv == nullptr) return 1;
 
-  int ndim = model->getNDim();
-  int nvar = model->getNVar();
-  for (int i = 0; i < ncons; i++)
+  Id ndim = static_cast<Id>(model->getNDim());
+  Id nvar = model->getNVar();
+  for (Id i = 0; i < ncons; i++)
   {
     const ConsItem* consitem = constraints->getConsItems(i);
     const EConsElem type     = consitem->getType();
     const EConsType cas      = consitem->getIcase();
     double value             = consitem->getValue();
-    int igrf                 = consitem->getIGrf();
-    int icov                 = consitem->getICov();
-    int iv1                  = consitem->getIV1();
-    int iv2                  = consitem->getIV2();
+    Id igrf                  = consitem->getIGrf();
+    Id icov                  = consitem->getICov();
+    Id iv1                   = consitem->getIV1();
+    Id iv2                   = consitem->getIV2();
 
-    CovBase* covbase   = mcv->getCovBase(icov);
-    CovAniso* covaniso = dynamic_cast<CovAniso*>(covbase);
-    ParamInfo* param   = nullptr;
+    CovBase* covbase = mcv->getCovBase(icov);
+    auto* covaniso   = dynamic_cast<CovAniso*>(covbase);
+    ParamInfo* param = nullptr;
 
     if (igrf != 0)
     {
@@ -231,7 +231,7 @@ static int _modifyModelForConstraints(Constraints* constraints,
         messerr("Setting Angle(%d) not possible as ndim=%d", iv1, ndim);
         return 1;
       }
-      param = &covaniso->getCorAniso()->getParamInfoAngle(iv1);
+      param = &covaniso->getCorAnisoModify()->getParamInfoAngle(iv1);
     }
     else if (type == EConsElem::RANGE)
     {
@@ -243,7 +243,7 @@ static int _modifyModelForConstraints(Constraints* constraints,
       // Convert range into scale (using the current value for 'param')
       double scadef = covaniso->getCorAniso()->getScadef();
       value *= scadef;
-      param = &covaniso->getCorAniso()->getParamInfoScale(iv1);
+      param = &covaniso->getCorAnisoModify()->getParamInfoScale(iv1);
     }
     else if (type == EConsElem::SCALE)
     {
@@ -252,7 +252,7 @@ static int _modifyModelForConstraints(Constraints* constraints,
         messerr("Setting Scale(%d) not possible as ndim=%d", iv1, ndim);
         return 1;
       }
-      param = &covaniso->getCorAniso()->getParamInfoScale(iv1);
+      param = &covaniso->getCorAnisoModify()->getParamInfoScale(iv1);
     }
     else if (type == EConsElem::SILL)
     {
@@ -278,31 +278,32 @@ static int _modifyModelForConstraints(Constraints* constraints,
 }
 
 static void _fixAllAnglesFromIndex(CorAniso* coraniso,
-                                   int start,
+                                   Id start,
                                    bool resetToZero = false)
 {
   std::vector<ParamInfo>& params = coraniso->getParamInfoAngles();
-  for (int ipar = start, npar = (int)params.size(); ipar < npar; ipar++)
+  for (Id ipar = start, npar = static_cast<Id>(params.size()); ipar < npar; ipar++)
   {
     if (resetToZero) params[ipar].setValue(0.);
     params[ipar].setFixed(true);
   }
 }
 
-static void _fixAllScalesFromIndex(CorAniso* coraniso, int start = 0)
+static void _fixAllScalesFromIndex(CorAniso* coraniso, Id start = 0)
 {
   std::vector<ParamInfo>& params = coraniso->getParamInfoScales();
-  for (int ipar = start, npar = (int)params.size(); ipar < npar; ipar++)
+  for (Id ipar = start, npar = static_cast<Id>(params.size()); ipar < npar; ipar++)
   {
     params[ipar].setValue(0.);
     params[ipar].setFixed(true);
   }
 }
 
-static int _modifyModelForMop(const ModelOptimParam& mop,
-                              ModelGeneric* model)
+static Id _modifyModelForMop(const ModelOptimParam& mop,
+                             ModelGeneric* model,
+                             bool likelihood = false)
 {
-  ModelCovList* mcv = dynamic_cast<ModelCovList*>(model);
+  auto* mcv = dynamic_cast<ModelCovList*>(model);
   if (mcv == nullptr) return 0;
 
   // Note that the creation of the dedicated area in case of Goulard will
@@ -310,27 +311,27 @@ static int _modifyModelForMop(const ModelOptimParam& mop,
   // calling function (Vario or Vmap)
 
   // Loop on the structures
-  int nvar = model->getNVar();
-  for (int icov = 0, ncov = mcv->getNCov(); icov < ncov; icov++)
+  Id nvar = model->getNVar();
+  for (Id icov = 0, ncov = mcv->getNCov(); icov < ncov; icov++)
   {
     CovBase* covbase = mcv->getCovBase(icov);
     if (covbase == nullptr) continue;
 
     // Set the Goulard constraints
-    if (mop.getFlagGoulard())
+    if (mop.getFlagGoulard() && !likelihood)
     {
       // Fix the sills
-      for (int ivar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar <= ivar; jvar++)
+      for (Id ivar = 0; ivar < nvar; ivar++)
+        for (Id jvar = 0; jvar <= ivar; jvar++)
         {
           ParamInfo& paraminfo = covbase->getParamInfoCholSills(ivar, jvar);
           paraminfo.setFixed(true);
         }
     }
 
-    CovAniso* covaniso = dynamic_cast<CovAniso*>(covbase);
+    auto* covaniso = dynamic_cast<CovAniso*>(covbase);
     if (covaniso == nullptr) continue;
-    CorAniso* coraniso = covaniso->getCorAniso();
+    CorAniso* coraniso = covaniso->getCorAnisoModify();
     if (coraniso == nullptr) continue;
 
     // Anisotropy
@@ -377,7 +378,7 @@ AModelOptim* AModelOptimFactory::create(ModelGeneric* model,
                                         const DbGrid* dbmap,
                                         Constraints* constraints,
                                         const ModelOptimParam& mop,
-                                        int nb_neighVecchia,
+                                        Id nb_neighVecchia,
                                         bool reml)
 {
   ModelOptimParam mopLocal = mop;
@@ -385,7 +386,14 @@ AModelOptim* AModelOptimFactory::create(ModelGeneric* model,
   // Fitting from LogLikelihood
   if (db != nullptr)
   {
-    if ((int)model->getNDim() != db->getNDim()) return nullptr;
+    if (db->getNLoc(ELoc::Z) <= 0)
+    {
+      messerr("No variable with locator Z in the Db");
+      return nullptr;
+    }
+    if (static_cast<Id>(model->getNDim()) != db->getNDim()) return nullptr;
+    if (_modifyModelForConstraints(constraints, model)) return nullptr;
+    if (_modifyModelForMop(mopLocal, model, true)) return nullptr;
     if (nb_neighVecchia != ITEST) return Vecchia::createForOptim(model, db, nb_neighVecchia, reml);
     return Likelihood::createForOptim(model, db, reml);
   }
@@ -393,7 +401,7 @@ AModelOptim* AModelOptimFactory::create(ModelGeneric* model,
   // Fitting from a Variogram Map
   if (dbmap != nullptr)
   {
-    if ((int)model->getNDim() != dbmap->getNDim()) return nullptr;
+    if (static_cast<Id>(model->getNDim()) != dbmap->getNDim()) return nullptr;
     if (_modifyMopForVMap(dbmap, model, constraints, mopLocal)) return nullptr;
     if (_modifyModelForConstraints(constraints, model)) return nullptr;
     if (_modifyModelForMop(mopLocal, model)) return nullptr;
@@ -403,7 +411,7 @@ AModelOptim* AModelOptimFactory::create(ModelGeneric* model,
   // Fitting from an experimental Variogram
   if (vario != nullptr)
   {
-    if ((int)model->getNDim() != vario->getNDim()) return nullptr;
+    if (static_cast<Id>(model->getNDim()) != vario->getNDim()) return nullptr;
     if (_modifyMopForVario(vario, model, constraints, mopLocal)) return nullptr;
     if (_modifyModelForConstraints(constraints, model)) return nullptr;
     if (_modifyModelForMop(mopLocal, model)) return nullptr;
@@ -411,4 +419,4 @@ AModelOptim* AModelOptimFactory::create(ModelGeneric* model,
   }
   return nullptr;
 }
-}
+} // namespace gstlrn

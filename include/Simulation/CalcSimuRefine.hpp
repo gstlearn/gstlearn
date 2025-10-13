@@ -16,8 +16,6 @@
 #include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/SimuRefineParam.hpp"
 
-
-
 namespace gstlrn
 {
 class Db;
@@ -25,9 +23,9 @@ class DbGrid;
 class GSTLEARN_EXPORT CalcSimuRefine: public ACalcSimulation
 {
 public:
-  CalcSimuRefine(int nbsimu = 0, int seed = 4324324);
-  CalcSimuRefine(const CalcSimuRefine &r) = delete;
-  CalcSimuRefine& operator=(const CalcSimuRefine &r) = delete;
+  CalcSimuRefine(Id nbsimu = 0, Id seed = 4324324);
+  CalcSimuRefine(const CalcSimuRefine& r)            = delete;
+  CalcSimuRefine& operator=(const CalcSimuRefine& r) = delete;
   virtual ~CalcSimuRefine();
 
   const SimuRefineParam& getParam() const { return _param; }
@@ -35,25 +33,25 @@ public:
   DbGrid* getResultingGrid() const { return _dbres->clone(); }
 
 private:
-  virtual bool _check() override;
-  virtual bool _preprocess() override;
-  virtual bool _run() override;
+  bool _check() override;
+  bool _preprocess() override;
+  bool _run() override;
 
-  void _dim_1_to_2(DbGrid *db);
-  void _dim_2_to_1(DbGrid *db);
-  int _kriging_define();
-  void _neigh_simfine(int type, int rank, int idx, int idy, int idz);
-  void _merge_data(DbGrid *db1, int iatt1, DbGrid *db2, int iatt2);
-  double _read(DbGrid* db, int iatt, int ix0, int iy0, int iz0, int idx, int idy, int idz);
-  static void _write(DbGrid* db, int iatt, int ix0, int iy0, int iz0, double value);
-  void _truncate_result(DbGrid *db2, int iatt2, DbGrid *db1, int iatt1);
-  int _kriging_solve(int type,
-                     int rank,
-                     int nb,
+  void _dim_1_to_2(DbGrid* db);
+  void _dim_2_to_1(DbGrid* db);
+  Id _kriging_define();
+  void _neigh_simfine(Id type, Id rank, Id idx, Id idy, Id idz);
+  void _merge_data(DbGrid* db1, Id iatt1, DbGrid* db2, Id iatt2);
+  double _read(DbGrid* db, Id iatt, Id ix0, Id iy0, Id iz0, Id idx, Id idy, Id idz);
+  static void _write(DbGrid* db, Id iatt, Id ix0, Id iy0, Id iz0, double value);
+  void _truncate_result(DbGrid* db2, Id iatt2, DbGrid* db1, Id iatt1);
+  Id _kriging_solve(Id type,
+                     Id rank,
+                     Id nb,
                      bool verbose = false);
-  void _simulate_nodes(DbGrid *db, int iatt);
-  void _simulate_target(DbGrid* db, int type, int iatt, int ix0, int iy0, int iz0);
-  int _simulate();
+  void _simulate_nodes(DbGrid* db, Id iatt);
+  void _simulate_target(DbGrid* db, Id type, Id iatt, Id ix0, Id iy0, Id iz0);
+  Id _simulate();
 
 private:
   SimuRefineParam _param;
@@ -65,7 +63,7 @@ private:
   VectorDouble _x02;
 
   DbGrid* _dbres; // Resulting Grid
-  int _IXYZ[3][2][5];
+  Id _IXYZ[3][2][5];
   double _XYZN[3][2][5];
   double _WGT[2][2][5];
   double _STDV[2][2];
@@ -74,6 +72,6 @@ private:
 GSTLEARN_EXPORT DbGrid* simulation_refine(DbGrid* dbin,
                                           Model* model,
                                           const SimuRefineParam& param,
-                                          int seed                        = 432432,
+                                          Id seed                        = 432432,
                                           const NamingConvention& namconv = NamingConvention("Refine"));
-}
+} // namespace gstlrn

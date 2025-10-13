@@ -41,7 +41,7 @@
 #include <cmath>
 
 namespace gstlrn
-{ 
+{
 
 KrigingSystemSimpleCase::KrigingSystemSimpleCase(Db* dbin,
                                                  Db* dbout,
@@ -125,9 +125,9 @@ KrigingSystemSimpleCase::~KrigingSystemSimpleCase()
   }
 }
 
-int KrigingSystemSimpleCase::_getNVar() const
+Id KrigingSystemSimpleCase::_getNVar() const
 {
-  int nvar = 0;
+  Id nvar = 0;
   if (_model != nullptr)
   {
     if (nvar > 0 && nvar != _model->getNVar())
@@ -144,21 +144,21 @@ int KrigingSystemSimpleCase::_getNVar() const
   return nvar;
 }
 
-int KrigingSystemSimpleCase::_getNbfl() const
+Id KrigingSystemSimpleCase::_getNbfl() const
 {
   if (_model == nullptr) return 0;
   return _model->getNDrift();
 }
 
-int KrigingSystemSimpleCase::_getNFeq() const
+Id KrigingSystemSimpleCase::_getNFeq() const
 {
   if (_model == nullptr) return 0;
   return _model->getNDriftEquation();
 }
 
-int KrigingSystemSimpleCase::_getNeq(int nech) const
+Id KrigingSystemSimpleCase::_getNeq(Id nech) const
 {
-  int neq = (_nvar * nech) + _nfeq;
+  Id neq = (_nvar * nech) + _nfeq;
   return neq;
 }
 
@@ -186,7 +186,7 @@ void KrigingSystemSimpleCase::_setInternalShortCutVariablesGeneral()
 }
 void KrigingSystemSimpleCase::_rhsDump(KrigingAlgebraSimpleCase& algebra) const
 {
-  int nech = (int)algebra.getSampleRanksByVariable(0)->size();
+  Id nech = static_cast<Id>(algebra.getSampleRanksByVariable(0)->size());
   mestitle(0, "RHS of Kriging matrix");
   if (nech > 0) message("Number of active samples    = %d\n", nech);
   message("Total number of equations   = %d\n", _getNeq(nech));
@@ -215,11 +215,11 @@ void KrigingSystemSimpleCase::_wgtDump(KrigingAlgebraSimpleCase& algebra)
  ** \param[in] algebra  Kriging algebra
  **
  *****************************************************************************/
-void KrigingSystemSimpleCase::_estimateCalcul(int status,
-                                              int iechout,
+void KrigingSystemSimpleCase::_estimateCalcul(Id status,
+                                              Id iechout,
                                               KrigingAlgebraSimpleCase& algebra) const
 {
-  int nech = (int)algebra.getSampleRanksByVariable(0)->size();
+  Id nech = static_cast<Id>(algebra.getSampleRanksByVariable(0)->size());
   if (_flagEst)
     _estimateEstim(status, algebra, iechout);
 
@@ -237,13 +237,13 @@ void KrigingSystemSimpleCase::_estimateCalcul(int status,
 
   if (_flagWeights != 0)
   {
-    for (int ivarCL = 0; ivarCL < 1; ivarCL++)
+    for (Id ivarCL = 0; ivarCL < 1; ivarCL++)
     {
-      for (int jech = 0; jech < nech; jech++)
+      for (Id jech = 0; jech < nech; jech++)
       {
         if (status != 0) continue;
         double wgt = algebra.getLambda()->getValue(jech, ivarCL);
-        int iech   = (*algebra.getSampleRanksByVariable(0))[jech];
+        Id iech    = (*algebra.getSampleRanksByVariable(0))[jech];
         if (_flagSet)
           _dbin->setArray(iech, _iptrWeights + ivarCL, wgt);
         else
@@ -253,10 +253,10 @@ void KrigingSystemSimpleCase::_estimateCalcul(int status,
   }
 }
 
-void KrigingSystemSimpleCase::_neighCalcul(int status, const VectorDouble& tab, int iechout)
+void KrigingSystemSimpleCase::_neighCalcul(Id status, const VectorDouble& tab, Id iechout)
 {
-  int ntab = (int)tab.size();
-  for (int i = 0; i < ntab; i++)
+  Id ntab = static_cast<Id>(tab.size());
+  for (Id i = 0; i < ntab; i++)
   {
 
     /* Store the parameter */
@@ -269,11 +269,11 @@ void KrigingSystemSimpleCase::_neighCalcul(int status, const VectorDouble& tab, 
   {
     mestitle(0, "Neighborhood Parameters");
 
-    message("Number of selected samples          = %d\n", (int)tab[0]);
+    message("Number of selected samples          = %d\n", static_cast<Id>(tab[0]));
     message("Maximum neighborhood distance       = %lf\n", tab[1]);
     message("Minimum neighborhood distance       = %lf\n", tab[2]);
-    message("Number of non-empty sectors         = %d\n", (int)tab[3]);
-    message("Number of consecutive empty sectors = %d\n", (int)tab[4]);
+    message("Number of non-empty sectors         = %d\n", static_cast<Id>(tab[3]));
+    message("Number of consecutive empty sectors = %d\n", static_cast<Id>(tab[4]));
   }
 }
 
@@ -286,7 +286,7 @@ void KrigingSystemSimpleCase::_neighCalcul(int status, const VectorDouble& tab, 
  ** \param[in]  algebra  Kriging algebra
  **
  *****************************************************************************/
-void KrigingSystemSimpleCase::_estimateEstim(int status, KrigingAlgebraSimpleCase& algebra, int iechout) const
+void KrigingSystemSimpleCase::_estimateEstim(Id status, KrigingAlgebraSimpleCase& algebra, Id iechout) const
 {
   VectorDouble& local = algebra.getEstimation();
   if (local.size() <= 0) return;
@@ -296,7 +296,7 @@ void KrigingSystemSimpleCase::_estimateEstim(int status, KrigingAlgebraSimpleCas
     messerr("KrigingSystemSimpleCase::_estimateEstim: local[0] is FFFF");
     return;
   }
-  for (int ivarCL = 0; ivarCL < 1; ivarCL++)
+  for (Id ivarCL = 0; ivarCL < 1; ivarCL++)
     _dbout->setArray(iechout, _iptrEst + ivarCL, local[ivarCL]);
 }
 
@@ -309,11 +309,11 @@ void KrigingSystemSimpleCase::_estimateEstim(int status, KrigingAlgebraSimpleCas
  ** \param[in]  algebra  Kriging algebra
  **
  *****************************************************************************/
-void KrigingSystemSimpleCase::_estimateStdv(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const
+void KrigingSystemSimpleCase::_estimateStdv(Id status, Id iechout, KrigingAlgebraSimpleCase& algebra) const
 {
   const VectorDouble& local = algebra.getStdv();
   if (local.size() <= 0) return;
-  for (int ivarCL = 0; ivarCL < 1; ivarCL++)
+  for (Id ivarCL = 0; ivarCL < 1; ivarCL++)
     _dbout->setArray(iechout, _iptrStd + ivarCL, status ? TEST : local[ivarCL]);
 }
 
@@ -326,10 +326,10 @@ void KrigingSystemSimpleCase::_estimateStdv(int status, int iechout, KrigingAlge
  ** \param[in]  algebra  Kriging algebra
  **
  *****************************************************************************/
-void KrigingSystemSimpleCase::_estimateVarZ(int status, int iechout, KrigingAlgebraSimpleCase& algebra) const
+void KrigingSystemSimpleCase::_estimateVarZ(Id status, Id iechout, KrigingAlgebraSimpleCase& algebra) const
 {
   DECLARE_UNUSED(status)
-  for (int ivarCL = 0; ivarCL < 1; ivarCL++)
+  for (Id ivarCL = 0; ivarCL < 1; ivarCL++)
     _dbout->setArray(iechout, _iptrVarZ + ivarCL, algebra.getVarianceZstar(ivarCL));
 }
 
@@ -399,13 +399,13 @@ void KrigingSystemSimpleCase::conclusion()
   _model->optimizationPostProcess();
 }
 
-int KrigingSystemSimpleCase::estimate(int iechout,
-                                      SpacePoint& pin,
-                                      SpacePoint& pout,
-                                      VectorDouble& tabwork,
-                                      KrigingAlgebraSimpleCase& algebra,
-                                      ModelGeneric& model,
-                                      ANeigh* neigh)
+Id KrigingSystemSimpleCase::estimate(Id iechout,
+                                     SpacePoint& pin,
+                                     SpacePoint& pout,
+                                     VectorDouble& tabwork,
+                                     KrigingAlgebraSimpleCase& algebra,
+                                     ModelGeneric& model,
+                                     ANeigh* neigh)
 {
 
   if (!_dbout->isActive(iechout)) return 0;
@@ -420,7 +420,7 @@ int KrigingSystemSimpleCase::estimate(int iechout,
 
   //  // Store the Rank of the Target sample
 
-  int status = 0;
+  Id status = 0;
 
   /* Establish the Kriging R.H.S. */
   MatrixDense* Sigma0 = algebra.getSigma0();
@@ -509,8 +509,8 @@ int KrigingSystemSimpleCase::estimate(int iechout,
  ** \param[in] algebra  Pointer to KrigingAlgebraSimpleCase
  **
  *****************************************************************************/
-void KrigingSystemSimpleCase::_dumpKrigingResults(int status,
-                                                  int iechout,
+void KrigingSystemSimpleCase::_dumpKrigingResults(Id status,
+                                                  Id iechout,
                                                   KrigingAlgebraSimpleCase* algebra) const
 {
 
@@ -519,7 +519,7 @@ void KrigingSystemSimpleCase::_dumpKrigingResults(int status,
 
   /* Loop on the results */
 
-  for (int ivar = 0; ivar < 1; ivar++)
+  for (Id ivar = 0; ivar < 1; ivar++)
   {
 
     // Printout of the Estimation
@@ -561,10 +561,10 @@ void KrigingSystemSimpleCase::_dumpKrigingResults(int status,
  * @return Error returned code
  * @remark If a term must not be calculated, its UID must be negative
  */
-int KrigingSystemSimpleCase::updKrigOptEstim(int iptrEst,
-                                             int iptrStd,
-                                             int iptrVarZ,
-                                             bool forceNoDual)
+Id KrigingSystemSimpleCase::updKrigOptEstim(Id iptrEst,
+                                            Id iptrStd,
+                                            Id iptrVarZ,
+                                            bool forceNoDual)
 {
   _iptrEst  = iptrEst;
   _iptrStd  = iptrStd;
@@ -589,10 +589,10 @@ int KrigingSystemSimpleCase::updKrigOptEstim(int iptrEst,
   return 0;
 }
 
-int KrigingSystemSimpleCase::setKrigOptDataWeights(int iptrWeights, bool flagSet)
+Id KrigingSystemSimpleCase::setKrigOptDataWeights(Id iptrWeights, bool flagSet)
 {
-  _isReady = false;
-  int nvar = _getNVar();
+  _isReady  = false;
+  auto nvar = _getNVar();
   if (iptrWeights >= 0 && nvar > 1)
   {
     messerr("The storage of the weights is only coded for Monovariate case");
@@ -604,14 +604,14 @@ int KrigingSystemSimpleCase::setKrigOptDataWeights(int iptrWeights, bool flagSet
   return 0;
 }
 
-int KrigingSystemSimpleCase::setKrigOptCalcul(const EKrigOpt& calcul)
+Id KrigingSystemSimpleCase::setKrigOptCalcul(const EKrigOpt& calcul)
 {
   _isReady = false;
   _krigopt.setOptionCalcul(calcul);
   return 0;
 }
 
-int KrigingSystemSimpleCase::setKrigOptFlagGlobal(bool flag_global)
+Id KrigingSystemSimpleCase::setKrigOptFlagGlobal(bool flag_global)
 {
   _isReady = false;
   if (!flag_global) return 0;
@@ -626,7 +626,7 @@ int KrigingSystemSimpleCase::setKrigOptFlagGlobal(bool flag_global)
  * @remark The calculated value can be retrieved using _getLTerm() method
  */
 
-int KrigingSystemSimpleCase::setKrigOptFlagLTerm(bool flag_lterm)
+Id KrigingSystemSimpleCase::setKrigOptFlagLTerm(bool flag_lterm)
 {
   _isReady   = false;
   _flagLTerm = flag_lterm;
@@ -639,7 +639,7 @@ bool KrigingSystemSimpleCase::_isCorrect()
   /* Checking Space Dimension */
   /****************************/
 
-  int ndim = 0;
+  Id ndim = 0;
   if (_dbin != nullptr)
   {
     if (ndim > 0 && ndim != _dbin->getNDim())
@@ -660,28 +660,28 @@ bool KrigingSystemSimpleCase::_isCorrect()
   }
   if (_model != nullptr)
   {
-    if (ndim > 0 && ndim != (int)_model->getNDim())
+    if (ndim > 0 && ndim != static_cast<Id>(_model->getNDim()))
     {
       messerr("Incompatible Space Dimension of '_ model'");
       return false;
     }
-    ndim = _model->getNDim();
+    ndim = static_cast<Id>(_model->getNDim());
   }
   if (_neigh != nullptr)
   {
-    if (ndim > 0 && ndim != (int)_neigh->getNDim())
+    if (ndim > 0 && ndim != static_cast<Id>(_neigh->getNDim()))
     {
       messerr("Incompatible Space Dimension of '_neigh'");
       return false;
     }
-    ndim = (int)_neigh->getNDim();
+    ndim = static_cast<Id>(_neigh->getNDim());
   }
 
   /****************************/
   /* Checking Variable Number */
   /****************************/
 
-  int nvar = 0;
+  Id nvar = 0;
   if (_dbin != nullptr)
   {
     if (nvar > 0 && nvar != _dbin->getNLoc(ELoc::Z))
@@ -723,7 +723,7 @@ bool KrigingSystemSimpleCase::_isCorrect()
   /* Checking the Number of External Drifts */
   /******************************************/
 
-  int nfex = 0;
+  Id nfex = 0;
   if (_model != nullptr)
   {
     if (nfex > 0 && nfex != _model->getNExtDrift())
@@ -842,16 +842,16 @@ bool KrigingSystemSimpleCase::_preparNoStat()
  * Returns the coordinates of the neighboring samples
  * @return Array organized by Coordinate (minor) then by Sample (major)
  */
-VectorVectorDouble KrigingSystemSimpleCase::getSampleCoordinates(KrigingAlgebraSimpleCase& algebra, int iechout) const
+VectorVectorDouble KrigingSystemSimpleCase::getSampleCoordinates(KrigingAlgebraSimpleCase& algebra, Id iechout) const
 {
-  int nech = (int)algebra.getSampleRanksByVariable(0)->size();
+  Id nech = static_cast<Id>(algebra.getSampleRanksByVariable(0)->size());
   VectorVectorDouble xyz(_ndim);
-  for (int idim = 0; idim < _ndim; idim++)
+  for (Id idim = 0; idim < _ndim; idim++)
   {
     xyz[idim].resize(nech);
-    for (int iech = 0; iech < nech; iech++)
+    for (Id iech = 0; iech < nech; iech++)
     {
-      int jech = (*algebra.getSampleRanksByVariable(0))[iech];
+      Id jech = (*algebra.getSampleRanksByVariable(0))[iech];
       if (jech >= 0)
         xyz[idim][iech] = _dbin->getCoordinate(jech, idim);
       else
@@ -873,4 +873,4 @@ MatrixDense KrigingSystemSimpleCase::getMu(KrigingAlgebraSimpleCase& algebra)
   if (mu == nullptr) return MatrixDense();
   return *mu;
 }
-}
+} // namespace gstlrn

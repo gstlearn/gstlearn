@@ -25,7 +25,7 @@
 
 namespace gstlrn
 {
-CalcSimuFFT::CalcSimuFFT(int nbsimu, bool verbose, int seed)
+CalcSimuFFT::CalcSimuFFT(Id nbsimu, bool verbose, Id seed)
   : ACalcSimulation(nbsimu, seed)
   , _iattOut(-1)
   , _verbose(verbose)
@@ -61,7 +61,7 @@ bool CalcSimuFFT::_simulate()
 
   /* Processing */
 
-  for (int isimu = 0; isimu < getNbSimu(); isimu++)
+  for (Id isimu = 0; isimu < getNbSimu(); isimu++)
   {
 
     /* Initiate the random normal values */
@@ -94,7 +94,7 @@ void CalcSimuFFT::_alloc()
   _dims.resize(3, 0);
   _dim2.resize(3, 0);
   _nxyz = 1;
-  for (int i = 0; i < 3; i++)
+  for (Id i = 0; i < 3; i++)
   {
     if (i < _getNDim())
     {
@@ -109,13 +109,13 @@ void CalcSimuFFT::_alloc()
 
   /* Determine the grid extension */
 
-  for (int i = 0; i < 3; i++)
+  for (Id i = 0; i < 3; i++)
   {
     if (i < _getNDim())
     {
-      int nval = _getNOptimalEven(_shift[i] + dbgrid->getNX(i));
-      _dims[i] = nval;
-      _dim2[i] = nval / 2;
+      auto nval = _getNOptimalEven(_shift[i] + dbgrid->getNX(i));
+      _dims[i]  = nval;
+      _dim2[i]  = nval / 2;
     }
     else
     {
@@ -124,8 +124,8 @@ void CalcSimuFFT::_alloc()
     }
   }
 
-  int total = 1;
-  for (int idim = 0; idim < _getNDim(); idim++)
+  Id total = 1;
+  for (Id idim = 0; idim < _getNDim(); idim++)
     total *= _dims[idim];
   _sizes_alloc = total;
 
@@ -157,18 +157,18 @@ void CalcSimuFFT::_alloc()
  ** \param[in]  largeFactor Maximum value for a Factor
  **
  *****************************************************************************/
-int CalcSimuFFT::_getNOptimalEven(int number, int largeFactor)
+Id CalcSimuFFT::_getNOptimalEven(Id number, Id largeFactor)
 {
-  int local = number;
+  Id local = number;
   if ((local % 2) == 1) local++;
 
   bool answer = true;
   while (answer)
   {
     VectorInt factors = _getFactors(local);
-    int nfact         = (int)factors.size();
+    Id nfact          = static_cast<Id>(factors.size());
     answer            = false;
-    for (int i = 0; i < nfact; i++)
+    for (Id i = 0; i < nfact; i++)
       if (factors[i] > largeFactor) answer = 1;
     if (answer) local += 2;
   }
@@ -184,15 +184,15 @@ int CalcSimuFFT::_getNOptimalEven(int number, int largeFactor)
  ** \param[in]  number  number to be decomposed
  **
  *****************************************************************************/
-VectorInt CalcSimuFFT::_getFactors(int number)
+VectorInt CalcSimuFFT::_getFactors(Id number)
 {
   VectorInt factors;
-  int local = number;
-  int nfact = 0;
+  Id local = number;
+  Id nfact = 0;
 
   /* Decomposition in multiples of 2 */
 
-  int j = 2;
+  Id j = 2;
   while ((local % j) == 0)
   {
     factors.push_back(j);
@@ -235,16 +235,16 @@ void CalcSimuFFT::_gridDilate()
 
   /* Origin of the grid */
 
-  for (int i = 0; i < 3; i++) indg[i] = 0;
+  for (Id i = 0; i < 3; i++) indg[i] = 0;
   dbgrid->rankToCoordinatesInPlace(dbgrid->indiceToRank(indg), xyz0);
   xyz0.resize(3, 0.);
   xyz.resize(3);
 
   /* Location of the elementary end point */
 
-  for (int i = 0; i < 3; i++)
+  for (Id i = 0; i < 3; i++)
   {
-    for (int j = 0; j < 3; j++) indg[j] = 0;
+    for (Id j = 0; j < 3; j++) indg[j] = 0;
     indg[i] = 1;
     xyz[i].resize(3);
     dbgrid->rankToCoordinatesInPlace(dbgrid->indiceToRank(indg), xyz[i]);
@@ -252,8 +252,8 @@ void CalcSimuFFT::_gridDilate()
 
   /* Coordinates of the grid vector in the rotated space */
 
-  for (int j = 0; j < 3; j++)
-    for (int i = 0; i < 3; i++)
+  for (Id j = 0; j < 3; j++)
+    for (Id i = 0; i < 3; i++)
     {
       xyz[j][i] -= xyz0[i];
       if (j >= _getNDim()) xyz[j][i] = 0.;
@@ -262,9 +262,9 @@ void CalcSimuFFT::_gridDilate()
   /* Evaluate the count of elementary grid mesh (in each direction) */
   /* for the covariance to become negligeable (<percent)*/
 
-  int ndx     = 1;
-  int ndy     = 1;
-  int ndz     = 1;
+  Id ndx      = 1;
+  Id ndy      = 1;
+  Id ndz      = 1;
   bool not_ok = true;
 
   while (not_ok)
@@ -279,8 +279,8 @@ void CalcSimuFFT::_gridDilate()
       while (not_ok_dir)
       {
         bool correct = true;
-        for (int idy = 0; idy < ndy && correct; idy++)
-          for (int idz = 0; idz < ndz && correct; idz++)
+        for (Id idy = 0; idy < ndy && correct; idy++)
+          for (Id idz = 0; idz < ndz && correct; idz++)
             correct = _checkCorrect(xyz, ndx, idy, idz, percent);
 
         if (correct)
@@ -301,8 +301,8 @@ void CalcSimuFFT::_gridDilate()
       while (not_ok_dir)
       {
         bool correct = true;
-        for (int idx = 0; idx < ndx && correct; idx++)
-          for (int idz = 0; idz < ndz && correct; idz++)
+        for (Id idx = 0; idx < ndx && correct; idx++)
+          for (Id idz = 0; idz < ndz && correct; idz++)
             correct = _checkCorrect(xyz, idx, ndy, idz, percent);
 
         if (correct)
@@ -323,8 +323,8 @@ void CalcSimuFFT::_gridDilate()
       while (not_ok_dir)
       {
         bool correct = true;
-        for (int idx = 0; idx < ndx && correct; idx++)
-          for (int idy = 0; idy < ndy && correct; idy++)
+        for (Id idx = 0; idx < ndx && correct; idx++)
+          for (Id idy = 0; idy < ndy && correct; idy++)
             correct = _checkCorrect(xyz, idx, idy, ndz, percent);
 
         if (correct)
@@ -375,12 +375,12 @@ void CalcSimuFFT::_gridDilate()
  **
  *****************************************************************************/
 bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble& xyz,
-                                int ix,
-                                int iy,
-                                int iz,
+                                Id ix,
+                                Id iy,
+                                Id iz,
                                 double percent)
 {
-  int ndim            = _getNDim();
+  auto ndim           = _getNDim();
   ModelGeneric* model = getModel();
 
   /* Calculate the reference C(0) value */
@@ -390,7 +390,7 @@ bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble& xyz,
   /* Evaluate the covariance value */
 
   VectorDouble d(ndim, 0.);
-  for (int i = 0; i < ndim; i++)
+  for (Id i = 0; i < ndim; i++)
     d[i] = ix * xyz[i][0] + iy * xyz[i][1] + iz * xyz[i][2];
   double hh    = VH::norm(d);
   double value = model->evaluateOneIncr(hh);
@@ -421,41 +421,41 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
 
   /* Initializations */
 
-  int kbmax = (_param.isFlagAliasing()) ? 1 : 0;
+  Id kbmax = (_param.isFlagAliasing()) ? 1 : 0;
   VectorDouble cplx(_sizes_alloc);
   VectorDouble cply(_sizes_alloc);
 
   /* Local core allocation */
 
   double hnorm = 1.;
-  for (int i = 0; i < 3; i++)
+  for (Id i = 0; i < 3; i++)
   {
     indg[i]  = 0;
     delta[i] = del[i] = 0.;
     xyz[i] = xyz0[i] = 0.;
     xyz1[i].resize(3);
-    for (int j = 0; j < 3; j++)
+    for (Id j = 0; j < 3; j++)
       xyz1[i][j] = 0.;
   }
   dbgrid->rankToCoordinatesInPlace(dbgrid->indiceToRank(indg), xyz0);
   xyz0.resize(3, 0.);
 
-  for (int i = 0; i < 3; i++)
+  for (Id i = 0; i < 3; i++)
   {
-    for (int j = 0; j < 3; j++) indg[j] = 0;
+    for (Id j = 0; j < 3; j++) indg[j] = 0;
     indg[i] = 1;
     xyz1[i].resize(3);
     if (i < _getNDim())
     {
       dbgrid->rankToCoordinatesInPlace(dbgrid->indiceToRank(indg), xyz1[i]);
       xyz1[i].resize(3, 0.);
-      for (int j = 0; j < 3; j++)
+      for (Id j = 0; j < 3; j++)
         xyz1[i][j] -= xyz0[j];
       delta[i] = dbgrid->getDX(i) * dbgrid->getNX(i);
     }
     else
     {
-      for (int j = 0; j < 3; j++)
+      for (Id j = 0; j < 3; j++)
         xyz1[i][j] = 0.;
       delta[i] = 0.;
     }
@@ -463,23 +463,23 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
 
   /* Loop for anti-aliasing */
 
-  for (int kbound = 0; kbound <= kbmax; kbound++)
+  for (Id kbound = 0; kbound <= kbmax; kbound++)
   {
 
     /* Local initializations */
 
-    int kb1 = (_getNDim() >= 1) ? kbound : 0;
-    int kb2 = (_getNDim() >= 2) ? kbound : 0;
-    int kb3 = (_getNDim() >= 3) ? kbound : 0;
-    for (int i = 0; i < _sizes_alloc; i++)
+    Id kb1 = (_getNDim() >= 1) ? kbound : 0;
+    Id kb2 = (_getNDim() >= 2) ? kbound : 0;
+    Id kb3 = (_getNDim() >= 3) ? kbound : 0;
+    for (Id i = 0; i < _sizes_alloc; i++)
       cplx[i] = cply[i] = 0.;
 
     /* Calculate the normation scale */
 
     double scale = 0.;
-    for (int k1 = -kb1; k1 <= kb1; k1++)
-      for (int k2 = -kb2; k2 <= kb2; k2++)
-        for (int k3 = -kb3; k3 <= kb3; k3++)
+    for (Id k1 = -kb1; k1 <= kb1; k1++)
+      for (Id k2 = -kb2; k2 <= kb2; k2++)
+        for (Id k3 = -kb3; k3 <= kb3; k3++)
         {
           del[0] = k1 * delta[0];
           del[1] = k2 * delta[1];
@@ -488,30 +488,30 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
           value  = model->evaluateOneIncr(hnorm);
           scale += value;
         }
-    for (int i = 0; i < 3; i++)
+    for (Id i = 0; i < 3; i++)
       del[i] = 0.;
     hnorm        = VH::norm(del);
     value        = model->evaluateOneIncr(hnorm);
     double coeff = value / scale;
 
-    int ecr = 0;
-    for (int iz = 0; iz < _dims[2]; iz++)
-      for (int iy = 0; iy < _dims[1]; iy++)
-        for (int ix = 0; ix < _dims[0]; ix++, ecr++)
+    Id ecr = 0;
+    for (Id iz = 0; iz < _dims[2]; iz++)
+      for (Id iy = 0; iy < _dims[1]; iy++)
+        for (Id ix = 0; ix < _dims[0]; ix++, ecr++)
         {
           jnd[0] = (ix <= _dim2[0]) ? ix : ix - _dims[0];
           jnd[1] = (iy <= _dim2[1]) ? iy : iy - _dims[1];
           jnd[2] = (iz <= _dim2[2]) ? iz : iz - _dims[2];
-          for (int i = 0; i < 3; i++)
+          for (Id i = 0; i < 3; i++)
           {
             double proj = 0.;
-            for (int j = 0; j < 3; j++)
+            for (Id j = 0; j < 3; j++)
               proj += jnd[j] * xyz1[j][i];
             xyz[i] = (i < _getNDim()) ? proj : 0.;
           }
-          for (int k1 = -kb1; k1 <= kb1; k1++)
-            for (int k2 = -kb2; k2 <= kb2; k2++)
-              for (int k3 = -kb3; k3 <= kb3; k3++)
+          for (Id k1 = -kb1; k1 <= kb1; k1++)
+            for (Id k2 = -kb2; k2 <= kb2; k2++)
+              for (Id k3 = -kb3; k3 <= kb3; k3++)
               {
                 del[0] = xyz[0] + k1 * delta[0];
                 del[1] = xyz[1] + k2 * delta[1];
@@ -530,9 +530,9 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
 
     double total_plus  = 0.;
     double total_moins = 0.;
-    for (int i = 0; i < _sizes_alloc; i++)
+    for (Id i = 0; i < _sizes_alloc; i++)
     {
-      cplx[i] /= (double)_sizes_alloc;
+      cplx[i] /= static_cast<double>(_sizes_alloc);
       if (cplx[i] < 0)
         total_moins -= cplx[i];
       else
@@ -544,7 +544,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
     double correc = (total_plus - total_moins) / total_plus;
     if (total_moins > 0)
     {
-      for (int i = 0; i < _sizes_alloc; i++)
+      for (Id i = 0; i < _sizes_alloc; i++)
         if (cplx[i] < 0.)
           cplx[i] = 0.;
         else
@@ -554,7 +554,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
     /* Converting into amplitude */
 
     if (flag_amplitude)
-      for (int i = 0; i < _sizes_alloc; i++)
+      for (Id i = 0; i < _sizes_alloc; i++)
         cplx[i] = sqrt(cplx[i] / 2.);
 
     // Returned arguments
@@ -587,28 +587,28 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
 void CalcSimuFFT::_defineRandom()
 
 {
-  for (int i = 0; i < _sizes_alloc; i++)
+  for (Id i = 0; i < _sizes_alloc; i++)
     _u[i] = _cmat[i] * law_gaussian();
-  for (int i = 0; i < _sizes_alloc; i++)
+  for (Id i = 0; i < _sizes_alloc; i++)
     _v[i] = _cmat[i] * law_gaussian();
 
   switch (_getNDim())
   {
     case 1:
-      for (int ix = 0; ix < _dims[0]; ix += _dim2[0])
+      for (Id ix = 0; ix < _dims[0]; ix += _dim2[0])
         _setVariance(ix, 0, 0);
       break;
 
     case 2:
-      for (int iy = 0; iy < _dims[1]; iy += _dim2[1])
-        for (int ix = 0; ix < _dims[0]; ix += _dim2[0])
+      for (Id iy = 0; iy < _dims[1]; iy += _dim2[1])
+        for (Id ix = 0; ix < _dims[0]; ix += _dim2[0])
           _setVariance(ix, iy, 0);
       break;
 
     case 3:
-      for (int iz = 0; iz < _dims[2]; iz += _dim2[2])
-        for (int iy = 0; iy < _dims[1]; iy += _dim2[1])
-          for (int ix = 0; ix < _dims[0]; ix += _dim2[0])
+      for (Id iz = 0; iz < _dims[2]; iz += _dim2[2])
+        for (Id iy = 0; iy < _dims[1]; iy += _dim2[1])
+          for (Id ix = 0; ix < _dims[0]; ix += _dim2[0])
             _setVariance(ix, iy, iz);
       break;
 
@@ -626,9 +626,9 @@ void CalcSimuFFT::_defineRandom()
  ** \param[in]  iz    Cell location along Z
  **
  *****************************************************************************/
-void CalcSimuFFT::_setVariance(int ix, int iy, int iz)
+void CalcSimuFFT::_setVariance(Id ix, Id iy, Id iz)
 {
-  int ind = IND(ix, iy, iz);
+  Id ind = IND(ix, iy, iz);
   _u[ind] *= sqrt(2.0);
   _v[ind] = 0.;
 }
@@ -671,13 +671,13 @@ void CalcSimuFFT::_defineSym1()
 
 {
   // A(1) and A(N1/2+1) are real
-  for (int ix = 0; ix < _dims[0]; ix += _dim2[0])
+  for (Id ix = 0; ix < _dims[0]; ix += _dim2[0])
     _setZero(ix, 0, 0);
 
   // A(j) = A*(N1-j+2) for j in [2,N1/2]
-  for (int ix = 1; ix < _dim2[0]; ix++)
+  for (Id ix = 1; ix < _dim2[0]; ix++)
   {
-    int jx = _dims[0] - ix;
+    Id jx = _dims[0] - ix;
     _setConjugate(ix, 0, 0, jx, 0, 0);
   }
 }
@@ -689,46 +689,46 @@ void CalcSimuFFT::_defineSym1()
  ** \param[in]  iz0   fixed third index
  **
  *****************************************************************************/
-void CalcSimuFFT::_defineSym2(int iz0)
+void CalcSimuFFT::_defineSym2(Id iz0)
 {
   // A(1,1), A(N1/2,1), A(1,N2/2) and A(N1/2,N2/2) real
-  for (int iy = 0; iy < _dims[1]; iy += _dim2[1])
-    for (int ix = 0; ix < _dims[0]; ix += _dim2[0])
+  for (Id iy = 0; iy < _dims[1]; iy += _dim2[1])
+    for (Id ix = 0; ix < _dims[0]; ix += _dim2[0])
       _setZero(ix, iy, iz0);
 
   // A(1,k)      = A*(1,N2-k+2)      for k in [2,N2/2]
   // A(N2/2+1,k) = A*(N2/2+1,N2-k+2) for k in [2,N2/2]
-  for (int iy = 1; iy < _dim2[1]; iy++)
-    for (int ix = 0; ix < _dims[0]; ix += _dim2[0])
+  for (Id iy = 1; iy < _dim2[1]; iy++)
+    for (Id ix = 0; ix < _dims[0]; ix += _dim2[0])
     {
-      int jy = _dims[1] - iy;
+      Id jy = _dims[1] - iy;
       _setConjugate(ix, iy, iz0, ix, jy, iz0);
     }
 
   // A(j,1)      = A*(N1-j+2,1)      for j in [2,N1/2]
   // A(j,N2/2+1) = A*(N1-j+2,N2/2+1) for j in [2,N1/2]
-  for (int iy = 0; iy < _dims[1]; iy += _dim2[1])
-    for (int ix = 1; ix < _dim2[0]; ix++)
+  for (Id iy = 0; iy < _dims[1]; iy += _dim2[1])
+    for (Id ix = 1; ix < _dim2[0]; ix++)
     {
-      int jx = _dims[0] - ix;
+      Id jx = _dims[0] - ix;
       _setConjugate(ix, iy, iz0, jx, iy, iz0);
     }
 
   // A(j,k) = A*(N1-j+2,N2-k+2) for j in [2,N1/2] and k in [2,N2/2]
-  for (int iy = 1; iy < _dim2[1]; iy++)
-    for (int ix = 1; ix < _dim2[0]; ix++)
+  for (Id iy = 1; iy < _dim2[1]; iy++)
+    for (Id ix = 1; ix < _dim2[0]; ix++)
     {
-      int jx = _dims[0] - ix;
-      int jy = _dims[1] - iy;
+      Id jx = _dims[0] - ix;
+      Id jy = _dims[1] - iy;
       _setConjugate(ix, iy, iz0, jx, jy, iz0);
     }
 
   // A(j,N2-k+2) = A*(N1-j+2,k) for j in [2,N1/2] and k in [2,N2/2]
-  for (int iy = 1; iy < _dim2[1]; iy++)
-    for (int ix = 1; ix < _dim2[0]; ix++)
+  for (Id iy = 1; iy < _dim2[1]; iy++)
+    for (Id ix = 1; ix < _dim2[0]; ix++)
     {
-      int jx = _dims[0] - ix;
-      int jy = _dims[1] - iy;
+      Id jx = _dims[0] - ix;
+      Id jy = _dims[1] - iy;
       _setConjugate(ix, jy, iz0, jx, iy, iz0);
     }
 }
@@ -742,7 +742,7 @@ void CalcSimuFFT::_defineSym3()
 
 {
   // For l=1 or N3/2+1, use the 2-D symmetry
-  for (int iz = 0; iz < _dims[2]; iz += _dim2[2])
+  for (Id iz = 0; iz < _dims[2]; iz += _dim2[2])
     _defineSym2(iz);
 
   // For the other planes:
@@ -751,99 +751,99 @@ void CalcSimuFFT::_defineSym3()
   // A(N1/2+1,1,l)      = A*(N1/2+1,1,N3-l+2)      for l in [2,N3/2]
   // A(1,N2/2+1,l)      = A*(1,N2/2+1,N3-l+2)      for l in [2,N3/2]
   // A(N1/2+1,N2/2+1,l) = A*(N1/2+1,N2/2+1,N3-l+2) for l in [2,N3/2]
-  for (int iz = 1; iz < _dim2[2]; iz++)
-    for (int iy = 0; iy < _dims[1]; iy += _dim2[1])
-      for (int ix = 0; ix < _dims[0]; ix += _dim2[0])
+  for (Id iz = 1; iz < _dim2[2]; iz++)
+    for (Id iy = 0; iy < _dims[1]; iy += _dim2[1])
+      for (Id ix = 0; ix < _dims[0]; ix += _dim2[0])
       {
-        int jz = _dims[2] - iz;
+        Id jz = _dims[2] - iz;
         _setConjugate(ix, iy, iz, ix, iy, jz);
       }
 
   // A(1,k,l)      = A*(1,N2-k+2,N3-l+2)      for k in [2,N2/2] and l in [2,N3/2]
   // A(N1/2+1,k,l) = A*(N1/2+1,N2-k+2,N3-l+2) for k in [2,N2/2] and l in [2,N3/2]
-  for (int iz = 1; iz < _dim2[2]; iz++)
-    for (int iy = 1; iy < _dim2[1]; iy++)
-      for (int ix = 0; ix < _dims[0]; ix += _dim2[0])
+  for (Id iz = 1; iz < _dim2[2]; iz++)
+    for (Id iy = 1; iy < _dim2[1]; iy++)
+      for (Id ix = 0; ix < _dims[0]; ix += _dim2[0])
       {
-        int jy = _dims[1] - iy;
-        int jz = _dims[2] - iz;
+        Id jy = _dims[1] - iy;
+        Id jz = _dims[2] - iz;
         _setConjugate(ix, iy, iz, ix, jy, jz);
       }
 
   // A(1,N2-k+2,l)      = A*(1,k,N3/-l+2)      for k in [2,N2/2] and l in [2,N3/2]
   // A(N1/2+1,N2-k+2,l) = A*(N1/2+1,k,N3/-l+2) for k in [2,N2/2] and l in [2,N3/2]
-  for (int iz = 1; iz < _dim2[2]; iz++)
-    for (int iy = 1; iy < _dim2[1]; iy++)
-      for (int ix = 0; ix < _dims[0]; ix += _dim2[0])
+  for (Id iz = 1; iz < _dim2[2]; iz++)
+    for (Id iy = 1; iy < _dim2[1]; iy++)
+      for (Id ix = 0; ix < _dims[0]; ix += _dim2[0])
       {
-        int jy = _dims[1] - iy;
-        int jz = _dims[2] - iz;
+        Id jy = _dims[1] - iy;
+        Id jz = _dims[2] - iz;
         _setConjugate(ix, jy, iz, ix, iy, jz);
       }
 
   // A(j,1,l)      = A*(N1-j+2,1,N3-l+2)      for j in [2,N1/2] and l in [2,N3/2]
   // A(j,N2/2+1,l) = A*(N1-j+2,N2/2+1,N3-l+2) for j in [2,N1/2] and l in [2,N3/2]
-  for (int iz = 1; iz < _dim2[2]; iz++)
-    for (int iy = 0; iy < _dims[1]; iy += _dim2[1])
-      for (int ix = 1; ix < _dim2[0]; ix++)
+  for (Id iz = 1; iz < _dim2[2]; iz++)
+    for (Id iy = 0; iy < _dims[1]; iy += _dim2[1])
+      for (Id ix = 1; ix < _dim2[0]; ix++)
       {
-        int jx = _dims[0] - ix;
-        int jz = _dims[2] - iz;
+        Id jx = _dims[0] - ix;
+        Id jz = _dims[2] - iz;
         _setConjugate(ix, iy, iz, jx, iy, jz);
       }
 
   // A(N1-j+2,1,l)      = A*(j,1,N3-l+2)      for j in [2,N1/2] and l in [2,N3/2]
   // A(N1-j+2,N2/2+1,l) = A*(j,N2/2+1,N3-l+2) for j in [2,N1/2] and l in [2,N3/2]
-  for (int iz = 1; iz < _dim2[2]; iz++)
-    for (int iy = 0; iy < _dims[1]; iy += _dim2[1])
-      for (int ix = 1; ix < _dim2[0]; ix++)
+  for (Id iz = 1; iz < _dim2[2]; iz++)
+    for (Id iy = 0; iy < _dims[1]; iy += _dim2[1])
+      for (Id ix = 1; ix < _dim2[0]; ix++)
       {
-        int jx = _dims[0] - ix;
-        int jz = _dims[2] - iz;
+        Id jx = _dims[0] - ix;
+        Id jz = _dims[2] - iz;
         _setConjugate(jx, iy, iz, ix, iy, jz);
       }
 
   // A(j,k,l) = A*(N1-j+2,N2-k+2,N3-l+2) for j in [2,N1/2], k in [2,N2/2] and l in [2,N3/2]
-  for (int iz = 1; iz < _dim2[2]; iz++)
-    for (int iy = 1; iy < _dim2[1]; iy++)
-      for (int ix = 1; ix < _dim2[0]; ix++)
+  for (Id iz = 1; iz < _dim2[2]; iz++)
+    for (Id iy = 1; iy < _dim2[1]; iy++)
+      for (Id ix = 1; ix < _dim2[0]; ix++)
       {
-        int jx = _dims[0] - ix;
-        int jy = _dims[1] - iy;
-        int jz = _dims[2] - iz;
+        Id jx = _dims[0] - ix;
+        Id jy = _dims[1] - iy;
+        Id jz = _dims[2] - iz;
         _setConjugate(ix, iy, iz, jx, jy, jz);
       }
 
   // A(N1-j+2,N2-k+2,l) = A*(j,k,N3-l+2) for j in [2,N1/2], k in [2,N2/2] and l in [2,N3/2]
-  for (int iz = 1; iz < _dim2[2]; iz++)
-    for (int iy = 1; iy < _dim2[1]; iy++)
-      for (int ix = 1; ix < _dim2[0]; ix++)
+  for (Id iz = 1; iz < _dim2[2]; iz++)
+    for (Id iy = 1; iy < _dim2[1]; iy++)
+      for (Id ix = 1; ix < _dim2[0]; ix++)
       {
-        int jx = _dims[0] - ix;
-        int jy = _dims[1] - iy;
-        int jz = _dims[2] - iz;
+        Id jx = _dims[0] - ix;
+        Id jy = _dims[1] - iy;
+        Id jz = _dims[2] - iz;
         _setConjugate(jx, jy, iz, ix, iy, jz);
       }
 
   // A(j,N2-k+2,l) = A*(N2-j+2,k,N3-l+2) for j in [2,N1/2], k in [2,N2/2] and l in [2,N3/2]
-  for (int iz = 1; iz < _dim2[2]; iz++)
-    for (int iy = 1; iy < _dim2[1]; iy++)
-      for (int ix = 1; ix < _dim2[0]; ix++)
+  for (Id iz = 1; iz < _dim2[2]; iz++)
+    for (Id iy = 1; iy < _dim2[1]; iy++)
+      for (Id ix = 1; ix < _dim2[0]; ix++)
       {
-        int jx = _dims[0] - ix;
-        int jy = _dims[1] - iy;
-        int jz = _dims[2] - iz;
+        Id jx = _dims[0] - ix;
+        Id jy = _dims[1] - iy;
+        Id jz = _dims[2] - iz;
         _setConjugate(ix, jy, iz, jx, iy, jz);
       }
 
   // A(N1-j+2,k,l) = A*(j,k,N3-l+2) for j in [2,N1/2], k in [2,N2/2] and l in [2,N3/2]
-  for (int iz = 1; iz < _dim2[2]; iz++)
-    for (int iy = 1; iy < _dim2[1]; iy++)
-      for (int ix = 1; ix < _dim2[0]; ix++)
+  for (Id iz = 1; iz < _dim2[2]; iz++)
+    for (Id iy = 1; iy < _dim2[1]; iy++)
+      for (Id ix = 1; ix < _dim2[0]; ix++)
       {
-        int jx = _dims[0] - ix;
-        int jy = _dims[1] - iy;
-        int jz = _dims[2] - iz;
+        Id jx = _dims[0] - ix;
+        Id jy = _dims[1] - iy;
+        Id jz = _dims[2] - iz;
         _setConjugate(jx, iy, iz, ix, jy, jz);
       }
 }
@@ -857,9 +857,9 @@ void CalcSimuFFT::_defineSym3()
  ** \param[in]  iz    Cell location along Z
  **
  *****************************************************************************/
-void CalcSimuFFT::_setZero(int ix, int iy, int iz)
+void CalcSimuFFT::_setZero(Id ix, Id iy, Id iz)
 {
-  int ind = IND(ix, iy, iz);
+  Id ind  = IND(ix, iy, iz);
   _v[ind] = 0.;
 }
 
@@ -875,10 +875,10 @@ void CalcSimuFFT::_setZero(int ix, int iy, int iz)
  ** \param[in]  jz    Target cell location along Z
  **
  *****************************************************************************/
-void CalcSimuFFT::_setConjugate(int ix, int iy, int iz, int jx, int jy, int jz)
+void CalcSimuFFT::_setConjugate(Id ix, Id iy, Id iz, Id jx, Id jy, Id jz)
 {
-  int ind1 = IND(ix, iy, iz);
-  int ind2 = IND(jx, jy, jz);
+  Id ind1  = IND(ix, iy, iz);
+  Id ind2  = IND(jx, jy, jz);
   _u[ind2] = _u[ind1];
   _v[ind2] = -_v[ind1];
 }
@@ -891,23 +891,23 @@ void CalcSimuFFT::_setConjugate(int ix, int iy, int iz, int jx, int jy, int jz)
  ** \param[in]  iad   address for writing the simulation
  **
  *****************************************************************************/
-void CalcSimuFFT::_final(DbGrid* db, int iad)
+void CalcSimuFFT::_final(DbGrid* db, Id iad)
 {
   (void)fftn(_getNDim(), _dims.data(), _u.data(), _v.data(), 1, 1.);
-  int nx = MAX(_nx[0], 1);
-  int ny = MAX(_nx[1], 1);
-  int nz = MAX(_nx[2], 1);
+  Id nx = MAX(_nx[0], 1);
+  Id ny = MAX(_nx[1], 1);
+  Id nz = MAX(_nx[2], 1);
 
   /* Retrieving the simulation */
 
-  int ecr = 0;
-  for (int iz = 0; iz < nz; iz++)
-    for (int iy = 0; iy < ny; iy++)
-      for (int ix = 0; ix < nx; ix++, ecr++)
+  Id ecr = 0;
+  for (Id iz = 0; iz < nz; iz++)
+    for (Id iy = 0; iy < ny; iy++)
+      for (Id ix = 0; ix < nx; ix++, ecr++)
       {
-        int jx = ix + _shift[0];
-        int jy = iy + _shift[1];
-        int jz = iz + _shift[2];
+        Id jx = ix + _shift[0];
+        Id jy = iy + _shift[1];
+        Id jz = iz + _shift[2];
         db->updArray(ecr, iad, EOperator::DEFINE, U(jx, jy, jz));
       }
 }
@@ -947,7 +947,7 @@ double CalcSimuFFT::_support(double sigma)
   /* Calculate the scale */
 
   double scale = 1.;
-  for (int idim = 0; idim < _getNDim(); idim++)
+  for (Id idim = 0; idim < _getNDim(); idim++)
     scale *= (_nx[idim] * _nx[idim]);
   value /= scale;
 
@@ -970,9 +970,9 @@ double CalcSimuFFT::_support(double sigma)
 double CalcSimuFFT::_support1(double sigma)
 {
   double value = 0.;
-  for (int ix = -_nx[0]; ix <= _nx[0]; ix++)
+  for (Id ix = -_nx[0]; ix <= _nx[0]; ix++)
   {
-    int iix    = (ix < 0) ? _dims[0] + ix : ix;
+    Id iix     = (ix < 0) ? _dims[0] + ix : ix;
     double rho = _rhoSigma(sigma, iix, 0, 0);
     value += (_nx[0] - ABS(ix)) * rho;
   }
@@ -991,11 +991,11 @@ double CalcSimuFFT::_support1(double sigma)
 double CalcSimuFFT::_support2(double sigma)
 {
   double value = 0.;
-  for (int ix = -_nx[0]; ix <= _nx[0]; ix++)
-    for (int iy = -_nx[1]; iy <= _nx[1]; iy++)
+  for (Id ix = -_nx[0]; ix <= _nx[0]; ix++)
+    for (Id iy = -_nx[1]; iy <= _nx[1]; iy++)
     {
-      int iix    = (ix < 0) ? _dims[0] + ix : ix;
-      int iiy    = (iy < 0) ? _dims[1] + iy : iy;
+      Id iix     = (ix < 0) ? _dims[0] + ix : ix;
+      Id iiy     = (iy < 0) ? _dims[1] + iy : iy;
       double rho = _rhoSigma(sigma, iix, iiy, 0);
       value += ((_nx[0] - ABS(ix)) * (_nx[1] - ABS(iy)) * rho);
     }
@@ -1014,13 +1014,13 @@ double CalcSimuFFT::_support2(double sigma)
 double CalcSimuFFT::_support3(double sigma)
 {
   double value = 0.;
-  for (int ix = -_nx[0]; ix <= _nx[0]; ix++)
-    for (int iy = -_nx[1]; iy <= _nx[1]; iy++)
-      for (int iz = -_nx[2]; iz <= _nx[2]; iz++)
+  for (Id ix = -_nx[0]; ix <= _nx[0]; ix++)
+    for (Id iy = -_nx[1]; iy <= _nx[1]; iy++)
+      for (Id iz = -_nx[2]; iz <= _nx[2]; iz++)
       {
-        int iix    = (ix < 0) ? _dims[0] + ix : ix;
-        int iiy    = (iy < 0) ? _dims[1] + iy : iy;
-        int iiz    = (iz < 0) ? _dims[2] + iz : iz;
+        Id iix     = (ix < 0) ? _dims[0] + ix : ix;
+        Id iiy     = (iy < 0) ? _dims[1] + iy : iy;
+        Id iiz     = (iz < 0) ? _dims[2] + iz : iz;
         double rho = _rhoSigma(sigma, iix, iiy, iiz);
         value += ((_nx[0] - ABS(ix)) * (_nx[1] - ABS(iy)) * (_nx[2] - ABS(iz)) * rho);
       }
@@ -1039,7 +1039,7 @@ double CalcSimuFFT::_support3(double sigma)
  ** \param[in]  iz     Index for the discretized covariance along Z
  **
  *****************************************************************************/
-double CalcSimuFFT::_rhoSigma(double sigma, int ix, int iy, int iz)
+double CalcSimuFFT::_rhoSigma(double sigma, Id ix, Id iy, Id iz)
 {
   double rho = _cmat[IND(ix, iy, iz)];
   if (!FFFF(sigma)) rho = exp(sigma * sigma * rho);
@@ -1052,8 +1052,8 @@ bool CalcSimuFFT::_check()
 
   if (!hasDbout()) return false;
   if (!hasModel()) return false;
-  int ndim = getModel()->getNDim();
-  int nvar = getModel()->getNVar();
+  auto ndim = getModel()->getNDim();
+  auto nvar = getModel()->getNVar();
   if (ndim < 1 || ndim > 3)
   {
     messerr("The FFT Method is not a relevant simulation model");
@@ -1120,12 +1120,12 @@ VectorDouble CalcSimuFFT::changeSupport(const VectorDouble& sigma)
 
   /* Loop on the different lognormal variances */
 
-  int nval = (int)sigma.size();
+  Id nval = static_cast<Id>(sigma.size());
   VectorDouble r2val;
   if (nval > 0)
   {
     r2val.resize(nval, TEST);
-    for (int ival = 0; ival < nval; ival++)
+    for (Id ival = 0; ival < nval; ival++)
       r2val[ival] = _support(sigma[ival]);
   }
   else
@@ -1151,13 +1151,13 @@ VectorDouble CalcSimuFFT::changeSupport(const VectorDouble& sigma)
  ** \param[in]  namconv Naming Convention
  **
  *****************************************************************************/
-int simfft(DbGrid* db,
-           ModelGeneric* model,
-           SimuFFTParam& param,
-           int nbsimu,
-           int seed,
-           int verbose,
-           const NamingConvention& namconv)
+Id simfft(DbGrid* db,
+          ModelGeneric* model,
+          SimuFFTParam& param,
+          Id nbsimu,
+          Id seed,
+          Id verbose,
+          const NamingConvention& namconv)
 {
   CalcSimuFFT simfft(nbsimu, verbose, seed);
   simfft.setDbout(db);
@@ -1165,7 +1165,7 @@ int simfft(DbGrid* db,
   simfft.setNamingConvention(namconv);
   simfft.setParam(param);
 
-  int error = (simfft.run()) ? 0 : 1;
+  Id error = (simfft.run()) ? 0 : 1;
   return error;
 }
 
@@ -1188,7 +1188,7 @@ VectorDouble getChangeSupport(DbGrid* db,
                               ModelGeneric* model,
                               const SimuFFTParam& param,
                               const VectorDouble& sigma,
-                              int seed,
+                              Id seed,
                               bool verbose)
 {
   CalcSimuFFT simfft(1, verbose, seed);

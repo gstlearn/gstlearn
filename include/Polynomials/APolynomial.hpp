@@ -22,7 +22,6 @@
 
 
 namespace gstlrn {
-class cs;
 class MatrixSparse;
 
 class GSTLEARN_EXPORT APolynomial: public AStringable, public ICloneable
@@ -35,7 +34,7 @@ public:
   virtual ~APolynomial();
 
   /// Interface for AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void init(const VectorDouble& coeffs);
   virtual double eval(double x) const = 0;
@@ -54,7 +53,7 @@ public:
     DECLARE_UNUSED(Op, inv, outv, work);
   };
 
-  virtual double evalOpByRank(MatrixSparse* Op, int rank) const
+  virtual double evalOpByRank(MatrixSparse* Op, Id rank) const
   {
     DECLARE_UNUSED(Op);
     DECLARE_UNUSED(rank);
@@ -62,17 +61,17 @@ public:
   }
 
   //virtual void evalOp(const ALinearOpMulti* Op,const std::vector<Eigen::VectorXd>& inv, std::vector<Eigen::VectorXd>& outv) const;
-    void addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const;
+    void addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const;
   protected:
-    virtual void _addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const = 0;
+    virtual void _addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const = 0;
 
 #endif
   public:
     VectorDouble getCoeffs() const { return _coeffs; }
     void setCoeffs(const VectorDouble& coeffs) {_coeffs = coeffs;}
 
-    int getDegree() const { return static_cast<int>(_coeffs.size());}
-    virtual int fit(const std::function<double(double)>& f,
+    Id getDegree() const { return static_cast<Id>(_coeffs.size());}
+    virtual Id fit(const std::function<double(double)>& f,
                   double from = 0.,
                   double to = 1.,
                   double tol = EPSILON5)

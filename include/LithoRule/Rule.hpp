@@ -34,12 +34,12 @@ public:
   Rule& operator=(const Rule& m);
   virtual ~Rule();
 
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int resetFromNames(const VectorString& nodnames,double rho = 0.);
-  int resetFromCodes(const VectorInt& nodes,double rho = 0.);
-  int resetFromNumericalCoding(const VectorInt& n_type, const VectorInt& n_facs, double rho = 0.);
-  int resetFromFaciesCount(int nfacies, double rho = 0.);
+  Id resetFromNames(const VectorString& nodnames,double rho = 0.);
+  Id resetFromCodes(const VectorInt& nodes,double rho = 0.);
+  Id resetFromNumericalCoding(const VectorInt& n_type, const VectorInt& n_facs, double rho = 0.);
+  Id resetFromFaciesCount(Id nfacies, double rho = 0.);
 
   static Rule* create(double rho = 0.);
   static Rule* createFromNF(const String& NFFilename, bool verbose = true);
@@ -48,75 +48,75 @@ public:
   static Rule* createFromNumericalCoding(const VectorInt& n_type,
                                          const VectorInt& n_facs,
                                          double rho = 0.);
-  static Rule* createFromFaciesCount(int nfacies, double rho = 0.);
+  static Rule* createFromFaciesCount(Id nfacies, double rho = 0.);
 
   virtual String displaySpecific() const;
 
-  virtual int particularities(Db *db,
+  virtual Id particularities(Db *db,
                               const Db *dbprop,
                               Model *model,
-                              int flag_grid_check,
-                              int flag_stat) const;
-  virtual bool checkModel(const Model* model, int nvar = 0) const;
-  virtual int gaus2facData(PropDef *propdef,
+                              Id flag_grid_check,
+                              Id flag_stat) const;
+  virtual bool checkModel(const Model* model, Id nvar = 0) const;
+  virtual Id gaus2facData(PropDef *propdef,
                            Db *dbin,
                            Db *dbout,
-                           int *flag_used,
-                           int ipgs,
-                           int isimu,
-                           int nbsimu);
-  virtual int gaus2facResult(PropDef *propdef,
+                           Id *flag_used,
+                           Id ipgs,
+                           Id isimu,
+                           Id nbsimu);
+  virtual Id gaus2facResult(PropDef *propdef,
                              Db *dbout,
-                             int *flag_used,
-                             int ipgs,
-                             int isimu,
-                             int nbsimu) const;
-  virtual int evaluateBounds(PropDef *propdef,
+                             Id *flag_used,
+                             Id ipgs,
+                             Id isimu,
+                             Id nbsimu) const;
+  virtual Id evaluateBounds(PropDef *propdef,
                              Db *dbin,
                              Db *dbout,
-                             int isimu,
-                             int igrf,
-                             int ipgs,
-                             int nbsimu) const;
+                             Id isimu,
+                             Id igrf,
+                             Id ipgs,
+                             Id nbsimu) const;
 
-  int          getFlagProp() const { return _flagProp; }
+  Id          getFlagProp() const { return _flagProp; }
   const ERule& getModeRule() const { return _modeRule; }
   double       getRho()      const { return _rho; }
   const Node*  getMainNode() const { return _mainNode; }
 
-  void setFlagProp(int flagProp)          { _flagProp = flagProp; }
+  void setFlagProp(Id flagProp)          { _flagProp = flagProp; }
   void setRho(double rho) const           { _rho = rho; } /// TODO : Check if mutable is really necessary
   void setModeRule(const ERule& modeRule) { _modeRule = modeRule; }
 
-  int setProportions(const VectorDouble& proportions = VectorDouble()) const;
+  Id setProportions(const VectorDouble& proportions = VectorDouble()) const;
 
-  int statistics(int  verbose,
-                 int *node_tot,
-                 int *nfac_tot,
-                 int *nmax_tot,
-                 int *ny1_tot,
-                 int *ny2_tot,
+  Id statistics(Id  verbose,
+                 Id *node_tot,
+                 Id *nfac_tot,
+                 Id *nmax_tot,
+                 Id *ny1_tot,
+                 Id *ny2_tot,
                  double *prop_tot) const;
 
-  int  getNFacies() const;
-  int  getNGRF() const;
-  int  getNY1() const;
-  int  getNY2() const;
-  bool isYUsed(int igrf) const;
+  Id  getNFacies() const;
+  Id  getNGRF() const;
+  Id  getNY1() const;
+  Id  getNY2() const;
+  bool isYUsed(Id igrf) const;
   VectorInt whichGRFUsed() const;
-  double getProportion(int facies);
+  double getProportion(Id facies);
 #ifndef SWIG
-  std::array<double, 4> getThresh(int facies) const;
+  std::array<double, 4> getThresh(Id facies) const;
 #endif
-  VectorDouble getThreshFromRectangle(int rect, int *facies);
-  int getFaciesFromGaussian(double y1, double y2) const;
+  VectorDouble getThreshFromRectangle(Id rect, Id *facies);
+  Id getFaciesFromGaussian(double y1, double y2) const;
   VectorInt getNodes() const;
 
   void updateShift() const;
 
 protected:
-  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
@@ -126,17 +126,17 @@ protected:
   void setMainNodeFromNodNames(const VectorInt& n_type,
                                const VectorInt& n_facs);
   void setMainNodeFromNodNames(const VectorString& nodnames);
-  int  setMainNodeFromNodNames(const VectorInt& nodes);
-  static int replicateInvalid(Db *dbin, Db *dbout, int jech);
-  static VectorString buildNodNames(int nfacies);
+  Id  setMainNodeFromNodNames(const VectorInt& nodes);
+  static Id replicateInvalid(Db *dbin, Db *dbout, Id jech);
+  static VectorString buildNodNames(Id nfacies);
 
 private:
   void _ruleDefine(std::ostream& os,
                    const Node *node,
-                   int from_type,
-                   int from_rank,
-                   int from_vers,
-                   int *rank) const;
+                   Id from_type,
+                   Id from_rank,
+                   Id from_vers,
+                   Id *rank) const;
   static void _nodNamesToIds(const VectorString& nodes,
                              VectorInt& n_type,
                              VectorInt& n_facs);
@@ -144,7 +144,7 @@ private:
 
 private:
   ERule          _modeRule;  /* Type of usage (ERule) */
-  mutable int    _flagProp;  /* 1 if proportions are defined; 0 otherwise */
+  mutable Id    _flagProp;  /* 1 if proportions are defined; 0 otherwise */
   mutable double _rho;       /* Correlation between GRFs */
   Node*          _mainNode;
 
@@ -152,16 +152,16 @@ private:
   mutable VectorDouble _props;
 };
 
-GSTLEARN_EXPORT void   set_rule_mode(int rule_mode);
-GSTLEARN_EXPORT int    get_rule_mode(void);
-GSTLEARN_EXPORT double get_rule_extreme(int mode);
+GSTLEARN_EXPORT void   set_rule_mode(Id rule_mode);
+GSTLEARN_EXPORT Id    get_rule_mode(void);
+GSTLEARN_EXPORT double get_rule_extreme(Id mode);
 GSTLEARN_EXPORT Rule* rule_free(const Rule* rule);
 GSTLEARN_EXPORT Model* model_rule_combine(const Model* model1, const Model* model2, const Rule* rule);
-GSTLEARN_EXPORT int db_rule_shadow(Db* db,
+GSTLEARN_EXPORT Id db_rule_shadow(Db* db,
                                    Db* dbprop,
                                    RuleShadow* rule,
                                    Model* model1,
                                    const VectorDouble& props,
-                                   int flag_stat,
-                                   int nfacies);
+                                   Id flag_stat,
+                                   Id nfacies);
 }

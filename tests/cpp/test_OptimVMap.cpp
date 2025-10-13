@@ -14,9 +14,9 @@
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
+#include "Variogram/VMap.hpp"
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
-#include "Variogram/VMap.hpp"
 
 using namespace gstlrn;
 
@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
-  ASerializable::setPrefixName("OptimVMap-");
+  ASerializable::setPrefixName("test_OptimVMap-");
 
   Model* model    = Model::createFromParam(ECov::EXPONENTIAL, TEST, 2., 1., {0.1, 0.3}, MatrixSymmetric(), {30., 0});
   Model* modelfit = Model::createFromParam(ECov::EXPONENTIAL, TEST, 1, 1, {1., 1}, MatrixSymmetric(), {0, 0});
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
   model->display();
 
   // Simulating the Input file
-  int nx         = 100;
+  Id nx          = 100;
   double dx      = 1. / nx;
   DbGrid* dbgrid = DbGrid::create({nx, nx}, {dx, dx});
   (void)simtub(nullptr, dbgrid, model);
@@ -54,10 +54,10 @@ int main(int argc, char* argv[])
   modelfit->display();
 
   // Fit the Model
-  ModelOptimParam mop = ModelOptimParam();
+  ModelOptimParam mop;
   mop.setFlagGoulard(true);
   bool verbose = false;
-  bool trace = false;
+  bool trace   = false;
   modelfit->fitNew(nullptr, nullptr, dbmap, nullptr, mop,
                    ITEST, verbose, trace);
 

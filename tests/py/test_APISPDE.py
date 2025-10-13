@@ -29,51 +29,46 @@ def spirale(db,a=0,b=-1.4,c=1.,d=1.,plot = False):
 
 gl.ASerializable.setPrefixName("test_APISPDE-")
 
-resultDb = gl.DbGrid.create([200,200],[0.5,0.5]) 
-x1 = resultDb['x1']
-x2 = resultDb['x2']
-theta = spirale(resultDb)
-iatt = resultDb['theta'] = theta
-resultDb
+# Create a grid for Model parametrization
+paramDb = gl.DbGrid.create([200,200],[0.5,0.5]) 
+x1 = paramDb['x1']
+x2 = paramDb['x2']
+theta = spirale(paramDb)
+paramDb['theta'] = theta
 
-np.random.seed(124)
-ndat=10000
-coords=np.random.uniform(1,99,size=(ndat,2))
-dat = gl.Db()
-dat["X"]= coords[:,0]
-dat["Y"]= coords[:,1]
-dat.setLocators(['X','Y'],gl.ELoc.X)
+# Creating the output grid
+resultDb = gl.DbGrid.create([101,101],[1.,1.]) 
 
+# Creating the Model (and add the non-stationary parametrization)
 model = gl.Model.createFromParam(gl.ECov.MATERN, 1., 1., 1., [4.,45.])
-workingDb = gl.DbGrid.create([101,101],[1.,1.]) 
-mesh = gl.MeshETurbo(workingDb, False)
 cova = model.getCovAniso(0)
-cova.makeAngleNoStatDb("theta",0,resultDb)
+cova.makeAngleNoStatDb("theta",0,paramDb)
 
-S = gl.ShiftOpMatrix(mesh, cova, resultDb)
+# Perform a simulation "by hand"
+mesh = gl.MeshETurbo(resultDb, False)
+S = gl.ShiftOpMatrix(mesh, cova, paramDb)
 Qsimu = gl.PrecisionOp(S, cova, False)
+tab = Qsimu.simulateOne()
+resultDb.addColumns(tab,"Simu",gl.ELoc.Z)
 
-result = Qsimu.simulateOne()
-workingDb.addColumns(result,"Simu",gl.ELoc.Z)
-
-ind = np.random.choice(workingDb.getNSampleActive(), size=100, replace=False)
+# Prepare the conditioning file (if necessary) by sampling the previous simulation
+ind = np.random.choice(resultDb.getNSampleActive(), size=100, replace=False)
 data = gl.Db()
-data['x1'] = workingDb['x1'][ind]
-data['x2'] = workingDb['x1'][ind]
-data['z']  = workingDb['Simu'][ind]
+data['x1'] = resultDb['x1'][ind]
+data['x2'] = resultDb['x1'][ind]
+data['z']  = resultDb['Simu'][ind]
 data.setLocator('x*',gl.ELoc.X)
 data.setLocator('z',gl.ELoc.Z)
 data
 
-meshes = gl.defineMeshesFromDbs(data, resultDb, model, gl.SPDEParam(), False)
-#spde = gl.SPDE(model, resultDb, data, gl.ESPDECalcMode.SIMUNONCOND,None,0)
-gl.law_set_random_seed(131351)
-#spde.compute(workingDb)
-err = gl.simulateSPDE(None, workingDb, model, 1, -1, meshes)
+# Perform a non conditional simulation
+err = gl.simulateSPDE(None, resultDb, model)
 
+# Produce statistics
 dbfmt = gl.DbStringFormat()
 dbfmt.setFlags(flag_stats=True)
-workingDb.display(dbfmt)
+resultDb.display(dbfmt)
 
-resultDb.dumpToNF("spirale-param.NF")
-workingDb.dumpToNF("spirale.NF")
+# Store results 
+paramDb.dumpToNF("param.NF")
+resultDb.dumpToNF("grid.NF")

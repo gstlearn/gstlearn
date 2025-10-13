@@ -24,8 +24,8 @@ public:
   bool   success; // TRUE if algorithm has been successfully performed
   double h;       // Elevation of the spill point
   double th;      // Maximum reservoir thickness
-  int    ix0;     // Location of the Spill point grid node along X
-  int    iy0;     // Location of the Spill point grid node along Y
+  Id    ix0;     // Location of the Spill point grid node along X
+  Id    iy0;     // Location of the Spill point grid node along Y
 };
 
 /**
@@ -41,7 +41,7 @@ public:
  *                    (It must have been allocated beforehand: same dimension as 'imagin')
  *  @{
  */
-GSTLEARN_EXPORT int morpho_count(const BImage& imagin);
+GSTLEARN_EXPORT Id morpho_count(const BImage& imagin);
 GSTLEARN_EXPORT void morpho_duplicate(const BImage &imagin, BImage &imagout);
 /**@}*/
 
@@ -62,22 +62,22 @@ GSTLEARN_EXPORT void morpho_duplicate(const BImage &imagin, BImage &imagout);
  *          - for BLOCK: (i-1,j-1); (i-1,j); (i-1,j+1); (i,j-1); (i,j+1); (i+1,j-1); (i+1,j); (i+1,j+1)
  *  @{
  */
-GSTLEARN_EXPORT void morpho_erosion(int option,
+GSTLEARN_EXPORT void morpho_erosion(Id option,
                                     const VectorInt &radius,
                                     const BImage& imagin,
                                     BImage& imagout,
                                     bool verbose = false);
-GSTLEARN_EXPORT void morpho_dilation(int option,
+GSTLEARN_EXPORT void morpho_dilation(Id option,
                                      const VectorInt &radius,
                                      const BImage& imagin,
                                      BImage& imagout,
                                      bool verbose = false);
-GSTLEARN_EXPORT void morpho_opening(int option,
+GSTLEARN_EXPORT void morpho_opening(Id option,
                                     const VectorInt &radius,
                                     const BImage& imagin,
                                     BImage& imagout,
                                     bool verbose = false);
-GSTLEARN_EXPORT void morpho_closing(int option,
+GSTLEARN_EXPORT void morpho_closing(Id option,
                                     const VectorInt &radius,
                                     const BImage& imagin,
                                     BImage& imagout,
@@ -139,7 +139,7 @@ GSTLEARN_EXPORT BImage morpho_double2image(const VectorInt &nx,
                                            double vmax,
                                            bool verbose = false);
 GSTLEARN_EXPORT void morpho_image2double(const BImage& imagin,
-                                         int mode,
+                                         Id mode,
                                          double grain,
                                          double pore,
                                          VectorDouble &tabout,
@@ -164,12 +164,12 @@ GSTLEARN_EXPORT void morpho_image2double(const BImage& imagin,
  *
  *  @{
  */
-GSTLEARN_EXPORT VectorDouble morpho_labelling(int option,
-                                              int flag_size,
+GSTLEARN_EXPORT VectorDouble morpho_labelling(Id option,
+                                              Id flag_size,
                                               const BImage& imagin,
                                               double ccvoid,
                                               bool verbose = false);
-GSTLEARN_EXPORT VectorInt morpho_labelsize(int option,
+GSTLEARN_EXPORT VectorInt morpho_labelsize(Id option,
                                            const BImage& imagin);
 /**@}*/
 
@@ -194,15 +194,15 @@ GSTLEARN_EXPORT VectorInt morpho_labelsize(int option,
  *
  *  @{
  */
-GSTLEARN_EXPORT void morpho_distance(int option,
+GSTLEARN_EXPORT void morpho_distance(Id option,
                                      const VectorInt &radius,
                                      bool flagDistErode,
                                      BImage& imagin,
                                      VectorDouble &dist,
                                      bool verbose = false);
-GSTLEARN_EXPORT VectorInt gridcell_neigh(int ndim,
-                                         int option,
-                                         int radius,
+GSTLEARN_EXPORT VectorInt gridcell_neigh(Id ndim,
+                                         Id option,
+                                         Id radius,
                                          bool flag_center = true,
                                          bool verbose = false);
 /**@}*/
@@ -210,20 +210,20 @@ GSTLEARN_EXPORT VectorInt gridcell_neigh(int ndim,
 GSTLEARN_EXPORT Spill_Res spillPoint(DbGrid *dbgrid,
                                      const String& name_depth,
                                      const String& name_data,
-                                     int option = 0,
+                                     Id option = 0,
                                      bool flag_up = true,
-                                     int verbose_step = 0,
+                                     Id verbose_step = 0,
                                      double hmax = TEST);
 
-GSTLEARN_EXPORT int db_morpho_calc(DbGrid* dbgrid,
-                                   int iptr0,
+GSTLEARN_EXPORT Id db_morpho_calc(DbGrid* dbgrid,
+                                   Id iptr0,
                                    const EMorpho& oper,
                                    double vmin,
                                    double vmax,
-                                   int option,
+                                   Id option,
                                    const VectorInt& radius,
                                    bool flagDistErode,
                                    bool verbose);
-GSTLEARN_EXPORT void db_morpho_angle2D(DbGrid* dbgrid, const VectorInt& radius, int iptr0);
-GSTLEARN_EXPORT void db_morpho_gradients(DbGrid* dbgrid, int iptr0);
+GSTLEARN_EXPORT void db_morpho_angle2D(DbGrid* dbgrid, const VectorInt& radius, Id iptr0);
+GSTLEARN_EXPORT void db_morpho_gradients(DbGrid* dbgrid, Id iptr0);
 }

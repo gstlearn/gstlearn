@@ -89,12 +89,12 @@ NeighUnique* NeighUnique::createFromNF(const String& NFFilename, bool verbose)
  * @param db Pointer to the target Db
  * @return
  */
-int NeighUnique::getNSampleMax(const Db* db) const
+Id NeighUnique::getNSampleMax(const Db* db) const
 {
   return db->getNSample(true);
 }
 
-bool NeighUnique::hasChanged(int iech_out) const
+bool NeighUnique::hasChanged(Id iech_out) const
 {
   DECLARE_UNUSED(iech_out);
   return (_iechMemo < 0 || _isNbghMemoEmpty());
@@ -105,9 +105,9 @@ bool NeighUnique::hasChanged(int iech_out) const
  * @param iech_out Valid Rank of the sample in the output Db
  * @param ranks Vector of sample ranks in neighborhood (empty when error)
  */
-void NeighUnique::getNeigh(int iech_out, VectorInt& ranks)
+void NeighUnique::getNeigh(Id iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getNSample();
+  Id nech = _dbin->getNSample();
   ranks.resize(nech);
   ranks.fill(-1);
 
@@ -130,13 +130,13 @@ void NeighUnique::getNeigh(int iech_out, VectorInt& ranks)
  ** \param[out]  ranks   Vector of samples elected in the Neighborhood
  **
  *****************************************************************************/
-void NeighUnique::_unique(int iech_out, VectorInt& ranks)
+void NeighUnique::_unique(Id iech_out, VectorInt& ranks)
 {
-  int nech = _dbin->getNSample();
+  Id nech = _dbin->getNSample();
 
   /* Loop on samples */
 
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     /* Discard the masked input sample */
 

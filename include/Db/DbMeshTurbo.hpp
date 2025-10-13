@@ -42,7 +42,7 @@ public:
               const VectorString& locatorNames = VectorString(),
               bool flag_polarized              = false,
               bool verbose                     = false,
-              int mode                         = 1);
+              Id mode                         = 1);
   DbMeshTurbo(const DbMeshTurbo& r);
   DbMeshTurbo& operator=(const DbMeshTurbo& r);
   virtual ~DbMeshTurbo();
@@ -52,7 +52,7 @@ public:
   IMPLEMENT_CLONING(DbMeshTurbo)
 
   /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Db Interface
   bool isMesh() const override { return true; }
@@ -71,33 +71,33 @@ public:
                              bool verbose                     = false);
   static DbMeshTurbo* createFromNF(const String& NFFilename, bool verbose = true);
 
-  int getNApices() const { return _mesh.getNApices(); }
-  int getNMeshes() const { return _mesh.getNMeshes(); }
-  int getApex(int imesh, int rank) const { return _mesh.getApex(imesh, rank); }
-  double getCoor(int imesh, int rank, int idim) const
+  Id getNApices() const { return _mesh.getNApices(); }
+  Id getNMeshes() const { return _mesh.getNMeshes(); }
+  Id getApex(Id imesh, Id rank) const { return _mesh.getApex(imesh, rank); }
+  double getCoor(Id imesh, Id rank, Id idim) const
   {
     return _mesh.getCoor(imesh, rank, idim);
   }
-  void getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const
+  void getCoordinatesPerMeshInPlace(Id imesh, Id rank, VectorDouble& coords) const
   {
     _mesh.getCoordinatesPerMeshInPlace(imesh, rank, coords);
   }
-  double getApexCoor(int i, int idim) const
+  double getApexCoor(Id i, Id idim) const
   {
     return _mesh.getApexCoor(i, idim);
   }
-  void getApexCoordinatesInPlace(int i, VectorDouble& coords) const
+  void getApexCoordinatesInPlace(Id i, VectorDouble& coords) const
   {
     _mesh.getApexCoordinatesInPlace(i, coords);
   }
-  VectorDouble getCoordinatesPerMesh(int imesh, int idim, bool flagClose = false) const
+  VectorDouble getCoordinatesPerMesh(Id imesh, Id idim, bool flagClose = false) const
   {
     return _mesh.getCoordinatesPerMesh(imesh, idim, flagClose);
   }
   
 protected:
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;

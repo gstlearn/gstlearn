@@ -24,7 +24,7 @@ See [https://gstlearn.org](https://gstlearn.org) for more details.
 
 ## References
 
-The *gstlearn* C++ library is the successor of the *Geoslib* C/C++ library which was proposed through the [RGeostats R package](http://cg.ensmp.fr/rgeostats).
+The *gstlearn* C++ library is the successor of the *Geoslib* C/C++ library which was proposed through the [RGeostats R package](https://rgeostats.free.fr).
 
 The *gstlearn* C++ library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the Geosciences Center ([MINES Paris - PSL University](https://www.minesparis.psl.eu) - France)
 
@@ -412,7 +412,7 @@ firefox build/doxygen/html/index.html
 
 ### Derivative work
 
-The *gstlearn* C++ library is a derivative work based on the *swigex0* project (see license in [**doc/licenses**](doc/licenses)):
+The *gstlearn* C++ library is a derivative work based on the *swigex0* project (see license in [**doc/licenses**](https://github.com/gstlearn/gstlearn/tree/dev/doc/licenses)):
 
 | Name           | License        | URL                                                            | Copyright
 |----------------|----------------|----------------------------------------------------------------|-----------
@@ -421,17 +421,16 @@ The *gstlearn* C++ library is a derivative work based on the *swigex0* project (
 
 ### Third party libraries
 
-The *gstlearn* C++ library depends on the following third-party source code, slightly modified and compiled in separate libraries (see [**3rd-party**](3rd-party) folder):
+The *gstlearn* C++ library depends on the following third-party source code, slightly modified and compiled in separate libraries (see [**3rd-party**](https://github.com/gstlearn/gstlearn/tree/dev/3rd-party) folder):
 
 | Name           | License        | URL                                                            | Copyright
 |----------------|----------------|----------------------------------------------------------------|-----------
-| csparse        | LGPL v2.1      | https://people.math.sc.edu/Burkardt/c_src/csparse/csparse.html | Copyright 2006, Timothy A. Davis
 | stripack (GMT) | LGPL v3        | https://www.generic-mapping-tools.org                          | Copyright(c) 2020, the GMT Team
 
 
 ### Third party source code
 
-The *gstlearn* C++ library includes external source codes (see licenses notices in [**doc/licenses**](doc/licenses)):
+The *gstlearn* C++ library includes external source codes (see licenses notices in [**doc/licenses**](https://github.com/gstlearn/gstlearn/tree/dev/doc/licenses)):
 
 | Name                    | License        | URL                                            | Copyright
 |-------------------------|----------------|------------------------------------------------|-----------
@@ -441,7 +440,7 @@ The *gstlearn* C++ library includes external source codes (see licenses notices 
 | sparseinv (SuiteSparse) | BSD 3-clause   | http://www.suitesparse.com                     | Copyright 2011, Timothy A. Davis
 | vtk (VisIt)             | BSD 3-clause   | https://visit.llnl.gov                         | Copyright (c) 2000 - 2008, Lawrence Livermore National Security, LLC
 
-The *gstlearn* C++ library also depends on the following third-party libraries (see licenses notices in [**doc/licenses**](doc/licenses)):
+The *gstlearn* C++ library also depends on the following third-party libraries (see licenses notices in [**doc/licenses**](https://github.com/gstlearn/gstlearn/tree/dev/doc/licenses)):
 
 | Name           | License        | URL                                                            | Copyright
 |----------------|----------------|----------------------------------------------------------------|-----------
@@ -455,7 +454,7 @@ The *gstlearn* C++ library also depends on the following third-party libraries (
 
 The *gstlearn* C++ library comes with several data files that are used for our [documentation](https://gstlearn.org/?page_id=50) (tutorials and courses).
 
-Here are the credits and licenses for the different data files available in each directories of [**doc/data**](doc/data):
+Here are the credits and licenses for the different data files available in each directories of [**doc/data**](https://github.com/gstlearn/gstlearn/tree/dev/doc/data):
 
 | Name          | License        | URL                                            | Copyright
 |---------------|----------------|------------------------------------------------|-----------

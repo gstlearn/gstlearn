@@ -10,21 +10,22 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
 #include "Enum/EMorpho.hpp"
 
 #include "Calculators/ACalcInterpolator.hpp"
 
-
-namespace gstlrn {
+namespace gstlrn
+{
 
 class DbGrid;
 class ANeigh;
 class NeighImage;
 class ModelCovList;
-class GSTLEARN_EXPORT CalcImage: public ACalcInterpolator {
+class GSTLEARN_EXPORT CalcImage: public ACalcInterpolator
+{
 public:
   CalcImage();
   CalcImage(const CalcImage& r)            = delete;
@@ -33,75 +34,80 @@ public:
 
   void setFlagFilter(bool flagFilter) { _flagFilter = flagFilter; }
   void setFlagFFT(bool flagFFT) { _flagFFT = flagFFT; }
-  void setSeed(int seed) { _seed = seed; }
+  void setSeed(Id seed) { _seed = seed; }
   void setFlagMorpho(bool flagMorpho) { _flagMorpho = flagMorpho; }
   void setOper(const EMorpho& oper) { _oper = oper; }
-  void setOption(int option) { _option = option; }
+  void setOption(Id option) { _option = option; }
   void setRadius(const VectorInt& radius) { _radius = radius; }
   void setVmin(double vmin) { _vmin = vmin; }
   void setVmax(double vmax) { _vmax = vmax; }
   void setVerbose(bool verbose) { _verbose = verbose; }
   void setDistErode(bool distErode) { _distErode = distErode; }
-  void setNvarMorpho(int nvarMorpho) { _nvarMorpho = nvarMorpho; }
+  void setNvarMorpho(Id nvarMorpho) { _nvarMorpho = nvarMorpho; }
   void setFlagSmooth(bool flagSmooth) { _flagSmooth = flagSmooth; }
   void setSmoothRange(double smoothRange) { _smoothRange = smoothRange; }
-  void setSmoothType(int smoothType) { _smoothType = smoothType; }
+  void setSmoothType(Id smoothType) { _smoothType = smoothType; }
 
 private:
-  virtual bool _check() override;
-  virtual bool _preprocess() override;
-  virtual bool _run() override;
-  virtual bool _postprocess() override;
-  virtual void _rollback() override;
+  bool _check() override;
+  bool _preprocess() override;
+  bool _run() override;
+  bool _postprocess() override;
+  void _rollback() override;
 
   bool _filterImage(DbGrid* dbgrid, const ModelCovList* model);
+  static void _image_smoother(DbGrid* dbgrid,
+                              const NeighImage* neigh,
+                              Id type,
+                              double range,
+                              Id iptr0);
   static DbGrid* _buildMarpat(const NeighImage* neigh,
                               const VectorVectorInt& ranks,
                               const MatrixDense& wgt,
-                              int optionVerbose = 0);
+                              Id optionVerbose = 0);
   static VectorVectorInt _getActiveRanks(const DbGrid* dblocal);
 
 private:
-  int _iattOut;
+  Id _iattOut;
 
   bool _flagFilter;
   bool _flagFFT;
-  int _seed;
+  Id _seed;
 
   bool _flagMorpho;
-  int _nvarMorpho;
+  Id _nvarMorpho;
   EMorpho _oper;
   double _vmin;
   double _vmax;
-  int _option;
+  Id _option;
   VectorInt _radius;
   bool _distErode;
   bool _verbose;
 
   bool _flagSmooth;
-  int _smoothType;
+  Id _smoothType;
   double _smoothRange;
 };
 
-GSTLEARN_EXPORT int   krimage(DbGrid* dbgrid,
+GSTLEARN_EXPORT Id krimage(DbGrid* dbgrid,
                             Model* model,
                             ANeigh* neigh,
                             bool flagFFT                    = false,
                             bool verbose                    = false,
-                            int seed                        = 13431,
+                            Id seed                        = 13431,
                             const NamingConvention& namconv = NamingConvention("Filtering"));
-GSTLEARN_EXPORT int dbMorpho(DbGrid* dbgrid,
+GSTLEARN_EXPORT Id dbMorpho(DbGrid* dbgrid,
                              const EMorpho& oper,
                              double vmin                     = 0.,
                              double vmax                     = 1.5,
-                             int option                      = 0,
+                             Id option                      = 0,
                              const VectorInt& radius         = VectorInt(),
                              bool flagDistErode              = false,
                              bool verbose                    = false,
                              const NamingConvention& namconv = NamingConvention("Morpho"));
-GSTLEARN_EXPORT int dbSmoother(DbGrid* dbgrid,
+GSTLEARN_EXPORT Id dbSmoother(DbGrid* dbgrid,
                                ANeigh* neigh,
-                               int type                        = 1,
+                               Id type                        = 1,
                                double range                    = 1.,
                                const NamingConvention& namconv = NamingConvention("Smooth"));
-}
+} // namespace gstlrn

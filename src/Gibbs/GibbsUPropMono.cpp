@@ -65,7 +65,7 @@ GibbsUPropMono::~GibbsUPropMono()
 ** \param[in]  verboseTimer True to show elapse times
 **
 *****************************************************************************/
-int GibbsUPropMono::covmatAlloc(bool verbose, bool /*verboseTimer*/)
+Id GibbsUPropMono::covmatAlloc(bool verbose, bool /*verboseTimer*/)
 {
   if (verbose) mestitle(1, "Gibbs using Unique Neighborhood in Propagative case");
 
@@ -87,9 +87,9 @@ int GibbsUPropMono::covmatAlloc(bool verbose, bool /*verboseTimer*/)
 **
 *****************************************************************************/
 void GibbsUPropMono::update(VectorVectorDouble& y,
-                            int isimu,
-                            int ipgs,
-                            int iter)
+                            Id isimu,
+                            Id ipgs,
+                            Id iter)
 {
   CovCalcMode mode;
 
@@ -97,9 +97,9 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
 
   Db* db       = getDb();
   Model* model = getModels(0);
-  int nact     = _getSampleRankNumber();
-  int ndim     = model->getNDim();
-  int icase    = getRank(ipgs, 0);
+  auto nact    = _getSampleRankNumber();
+  Id ndim      = static_cast<Id>(model->getNDim());
+  auto icase   = getRank(ipgs, 0);
 
   double eps = getEps();
   double r   = getRval();
@@ -117,14 +117,14 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
 
   /* Loop on the samples */
 
-  for (int iact = 0; iact < nact; iact++)
+  for (Id iact = 0; iact < nact; iact++)
   {
-    int iech = getSampleRank(iact);
+    auto iech = getSampleRank(iact);
 
     /* Covariance vector between the current datum and the other samples */
 
     double sigval;
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
       d1[idim] = 0.;
     if (model->getCovAnisoList()->isNoStat())
     {
@@ -141,13 +141,13 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
 
     /* Update the gaussian vector */
 
-    for (int jact = 0; jact < nact; jact++)
+    for (Id jact = 0; jact < nact; jact++)
     {
       if (iter > 0 && !img[nact * iact + jact]) continue;
-      int jech = getSampleRank(jact);
+      auto jech = getSampleRank(jact);
 
       double sigloc;
-      for (int idim = 0; idim < ndim; idim++)
+      for (Id idim = 0; idim < ndim; idim++)
         d1[idim] = db->getCoordinate(iech, idim) - db->getCoordinate(jech, idim);
       if (model->getCovAnisoList()->isNoStat())
       {
@@ -169,4 +169,4 @@ void GibbsUPropMono::update(VectorVectorDouble& y,
 
   _updateStats(y, ipgs, iter);
 }
-}
+} // namespace gstlrn

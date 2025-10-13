@@ -23,34 +23,34 @@ class GSTLEARN_EXPORT Node: public AStringable
 class Db;
 class Model;
 public:
-  Node(const String& nodnam, int orient, int facies);
+  Node(const String& nodnam, Id orient, Id facies);
   Node(const String& nodnam,
        const VectorInt& n_type,
        const VectorInt& n_facs,
-       int *ipos,
-       int *n_fac,
-       int *n_y1,
-       int *n_y2);
+       Id *ipos,
+       Id *n_fac,
+       Id *n_y1,
+       Id *n_y2);
   Node(bool flagShadow = true);
   Node(const Node& m);
   Node& operator=(const Node& m);
   virtual ~Node();
 
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  void getStatistics(int *node_tot,
-                     int *nfac_tot,
-                     int *ny1_tot,
-                     int *ny2_tot,
+  void getStatistics(Id *node_tot,
+                     Id *nfac_tot,
+                     Id *ny1_tot,
+                     Id *ny2_tot,
                      double *prop_tot);
-  int  isValid(VectorInt& facies);
+  Id  isValid(VectorInt& facies);
   void scaleProp(double scale);
-  int  proportionDefine(const VectorDouble& props);
-  int  getProportion(int facies, double *prop);
-  int getThresh(int mode,
-                int istop,
-                int *rank,
-                int *facies,
+  Id  proportionDefine(const VectorDouble& props);
+  Id  getProportion(Id facies, double *prop);
+  Id getThresh(Id mode,
+                Id istop,
+                Id *rank,
+                Id *facies,
                 double *t1min,
                 double *t1max,
                 double *t2min,
@@ -60,8 +60,8 @@ public:
                           double t1max,
                           double t2min,
                           double t2max);
-  int  gaussianToFacies(double y1, double y2, double *facies);
-  void getInfo(int *nodes) const;
+  Id  gaussianToFacies(double y1, double y2, double *facies);
+  void getInfo(Id *nodes) const;
 
   String nodePrint(bool flagProp, bool flagThresh) const;
   String nodePrintShadow(bool flagProp, bool flagThresh) const;
@@ -78,9 +78,9 @@ public:
   double getCdf1min() const       { return _cdf1min; }
   double getCdf2max() const       { return _cdf2max; }
   double getCdf2min() const       { return _cdf2min; }
-  int getFacies() const           { return _facies; }
+  Id getFacies() const           { return _facies; }
   const String& getNodnam() const { return _nodnam; }
-  int getOrient() const           { return _orient; }
+  Id getOrient() const           { return _orient; }
   double getP1() const            { return _p1; }
   double getP2() const            { return _p2; }
   double getProp() const          { return _prop; }
@@ -97,20 +97,20 @@ public:
   void setR2(Node* r2) { _r2 = r2; }
 
 private:
-  void _getStatistics(int *node_tot,
-                      int *nfac_tot,
-                      int *ny1_tot,
-                      int *ny2_tot,
+  void _getStatistics(Id *node_tot,
+                      Id *nfac_tot,
+                      Id *ny1_tot,
+                      Id *ny2_tot,
                       double *prop_tot);
-  void _getInfo(int *nodes,
-                int parent_type,
-                int parent_rank,
-                int parent_vers,
-                int *rank,
-                int *n_fac,
-                int *n_y1,
-                int *n_y2) const;
-  static double _transform(int mode, double value);
+  void _getInfo(Id *nodes,
+                Id parent_type,
+                Id parent_rank,
+                Id parent_vers,
+                Id *rank,
+                Id *n_fac,
+                Id *n_y1,
+                Id *n_y2) const;
+  static double _transform(Id mode, double value);
   double _threshFromPropcum(double rho);
   double _threshDichotomy(double rho) const;
 
@@ -118,8 +118,8 @@ private:
   String _nodnam;  /* Name of the node */
   Node  *_r1;      /* Pointer to the left-side */
   Node  *_r2;      /* Pointer to the right-side */
-  int    _orient;  /* Orientation */
-  int    _facies;  /* Facies number */
+  Id    _orient;  /* Orientation */
+  Id    _facies;  /* Facies number */
   double _prop;    /* Proportion */
   double _thresh;  /* Threshold value */
   double _p1;      /* Cumulative proportion on the left-side */

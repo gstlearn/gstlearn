@@ -79,10 +79,10 @@ CovDiffusionAdvection::~CovDiffusionAdvection()
 CovDiffusionAdvection* CovDiffusionAdvection::create(CovAniso* markovL,
                                                      CovAniso* markovR,
                                                      double scaleTime,
-                                                     VectorDouble vel,
+                                                     const VectorDouble& vel,
                                                      double sigma2)
 {
-  CovDiffusionAdvection* cov = new CovDiffusionAdvection();
+  auto* cov = new CovDiffusionAdvection();
   cov->setMarkovL(markovL);
   cov->setMarkovR(markovR);
   cov->setScaleTime(scaleTime);
@@ -105,8 +105,8 @@ void CovDiffusionAdvection::_init()
   double correcR = 1.;
   double correcL = 1.;
 
-  _ctxt    = cova->getContext();
-  int ndim = cova->getNDim();
+  _ctxt   = cova->getContext();
+  Id ndim = cova->getNDim();
 
   VectorDouble temp(ndim, 1.);
   if (_markovL == nullptr)
@@ -161,12 +161,12 @@ void CovDiffusionAdvection::_computeSpatialTrace()
 
   VectorDouble coeffsL = _markovL->getMarkovCoeffs();
   VectorDouble coeffsR = _markovR->getMarkovCoeffs();
-  int degree           = ((int)coeffsL.size() + (int)coeffsR.size() - 2);
+  Id degree            = (static_cast<Id>(coeffsL.size()) + static_cast<Id>(coeffsR.size()) - 2);
   VectorDouble coeffs;
   coeffs.resize(degree + 1, 0.);
 
-  for (int i = 0; i < (int)coeffsR.size(); i++)
-    for (int j = 0; j < (int)coeffsL.size(); j++)
+  for (Id i = 0; i < static_cast<Id>(coeffsR.size()); i++)
+    for (Id j = 0; j < static_cast<Id>(coeffsL.size()); j++)
     {
       coeffs[i + j] += coeffsR[i] * coeffsL[j];
     }
@@ -179,7 +179,7 @@ std::complex<double> CovDiffusionAdvection::evalSpatialSpectrum(VectorDouble fre
 
   double velinner = 0.;
 
-  for (int i = 0; i < (int)freq.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(freq.size()); i++)
   {
     velinner += _vel[i] * freq[i];
   }
@@ -202,7 +202,7 @@ std::complex<double> CovDiffusionAdvection::evalSpatialSpectrum(VectorDouble fre
   return ratio * exp(temp);
 }
 
-Array CovDiffusionAdvection::evalCovFFT(const VectorDouble& hmax, double time, int N) const
+Array CovDiffusionAdvection::evalCovFFT(const VectorDouble& hmax, double time, Id N) const
 {
   std::function<std::complex<double>(VectorDouble, double)> funcSpectrum;
   funcSpectrum = [this](VectorDouble freq, double time)
@@ -210,4 +210,4 @@ Array CovDiffusionAdvection::evalCovFFT(const VectorDouble& hmax, double time, i
 
   return evalCovFFTTimeSlice(hmax, time, N, funcSpectrum);
 }
-}
+} // namespace gstlrn

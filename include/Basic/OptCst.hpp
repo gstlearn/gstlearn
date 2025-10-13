@@ -43,6 +43,6 @@ public:
 
 private:
 //  static std::map<const ECst, double> _cst;
-  static std::map<int, double> _cst;
+  static std::map<Id, double> _cst;
 };
 }

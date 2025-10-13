@@ -28,29 +28,29 @@ namespace gstlrn
  */
 class GSTLEARN_EXPORT PtrGeos {
 public:
-  bool isLocatorIndexValid(int locatorIndex) const;
-  int  getLocatorByIndex(int locatorIndex) const { return _r[locatorIndex]; }
-  void setLocatorByIndex(int locatorIndex, int value) { _r[locatorIndex] = value; }
-  int  getNLoc() const { return static_cast<int>(_r.size()); }
+  bool isLocatorIndexValid(Id locatorIndex) const;
+  Id  getLocatorByIndex(Id locatorIndex) const { return _r[locatorIndex]; }
+  void setLocatorByIndex(Id locatorIndex, Id value) { _r[locatorIndex] = value; }
+  Id  getNLoc() const { return static_cast<Id>(_r.size()); }
   bool hasLocator() const { return ! _r.empty(); }
-  int  findUIDInLocator(int iuid) const;
-  void erase(int locatorIndex);
+  Id  findUIDInLocator(Id iuid) const;
+  void erase(Id locatorIndex);
   void clear();
-  void resize(int count) { _r.resize(count,0); }
-  String dumpLocator(int rank, const ELoc& locatorType) const;
+  void resize(Id count) { _r.resize(count,0); }
+  String dumpLocator(Id rank, const ELoc& locatorType) const;
 
 private:
   VectorInt _r;    /* Rank of the attribute */
 };
 
-GSTLEARN_EXPORT int getLocatorTypeFromName(const String& name_type);
-GSTLEARN_EXPORT int locatorIdentify(String string,
+GSTLEARN_EXPORT Id getLocatorTypeFromName(const String& name_type);
+GSTLEARN_EXPORT Id locatorIdentify(String string,
                                     ELoc* ret_locatorType,
-                                    int* ret_locatorIndex,
-                                    int* ret_mult);
+                                    Id* ret_locatorIndex,
+                                    Id* ret_mult);
 GSTLEARN_EXPORT bool isLocatorTypeValid(const ELoc& locatorType,
                                         bool unknownValid = false);
-GSTLEARN_EXPORT String getLocatorName(const ELoc& locatorType, int locatorIndex=1);
+GSTLEARN_EXPORT String getLocatorName(const ELoc& locatorType, Id locatorIndex=1);
 GSTLEARN_EXPORT void   printLocatorList();
 GSTLEARN_EXPORT VectorString getLocatorNames();
 GSTLEARN_EXPORT VectorInt    getLocatorMultiples();

@@ -31,7 +31,7 @@ public:
   double getParMax() const override { return 2; }
 
   String         getCovName() const override { return "Stable"; }
-  int            getMinOrder() const override { return -1; }
+  Id            getMinOrder() const override { return -1; }
   bool           getCompatibleSpaceR() const override { return true; }
 
   bool isValidForTurningBand() const override { return true; }

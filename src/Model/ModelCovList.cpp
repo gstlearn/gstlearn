@@ -47,7 +47,6 @@ ModelCovList::~ModelCovList()
 
 void ModelCovList::addCov(const CovBase& cov)
 {
-
   if (!cov.getContext().isEqual(_ctxt))
   {
     messerr("Error: Covariance should share the same Context as 'Model'");

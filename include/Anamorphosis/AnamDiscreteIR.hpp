@@ -10,66 +10,67 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
 #include "Enum/EAnam.hpp"
 
 #include "Anamorphosis/AnamDiscrete.hpp"
 #include "Stats/Selectivity.hpp"
 
-namespace gstlrn {
+namespace gstlrn
+{
 class Db;
 
 class GSTLEARN_EXPORT AnamDiscreteIR: public AnamDiscrete
 {
 public:
   AnamDiscreteIR(double rcoef = 0.);
-  AnamDiscreteIR(const AnamDiscreteIR &m);
-  AnamDiscreteIR& operator= (const AnamDiscreteIR &m);
+  AnamDiscreteIR(const AnamDiscreteIR& m);
+  AnamDiscreteIR& operator=(const AnamDiscreteIR& m);
   virtual ~AnamDiscreteIR();
 
   /// ICloneable Interface
   IMPLEMENT_CLONING(AnamDiscreteIR)
 
   /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// ASerializable Interface
   static AnamDiscreteIR* createFromNF(const String& NFFilename, bool verbose = true);
 
   /// AAnam Interface
-  const EAnam&  getType() const override { return EAnam::fromKey("DISCRETE_IR"); }
+  const EAnam& getType() const override { return EAnam::fromKey("DISCRETE_IR"); }
   bool hasFactor() const override { return true; }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
   double computeVariance(double sval) const override;
-  int updatePointToBlock(double r_coef) override;
+  Id updatePointToBlock(double r_coef) override;
   bool allowChangeSupport() const override { return true; }
   bool isChangeSupportDefined() const override { return (_sCoef > 0.); }
-  int fitFromArray(const VectorDouble &tab,
-                   const VectorDouble &wt = VectorDouble()) override;
+  Id fitFromArray(const VectorDouble& tab,
+                   const VectorDouble& wt = VectorDouble()) override;
 
   /// AnamDiscrete Interface
   void calculateMeanAndVariance() override;
 
   static AnamDiscreteIR* create(double rcoef = 0.);
-  void reset(int ncut,
+  void reset(Id ncut,
              double r_coef,
-             const VectorDouble &zcut,
-             const VectorDouble &stats);
+             const VectorDouble& zcut,
+             const VectorDouble& stats);
 
   double getRCoef() const { return _sCoef; }
-  void   setRCoef(double rcoef) { _sCoef = rcoef; }
+  void setRCoef(double rcoef) { _sCoef = rcoef; }
 
-  int factor2Selectivity(Db *db,
+  Id factor2Selectivity(Db* db,
                          Selectivity* selectivity,
                          const VectorInt& cols_est,
                          const VectorInt& cols_std,
-                         int iptr0);
+                         Id iptr0);
 
 protected:
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
@@ -77,15 +78,15 @@ protected:
   String _getNFName() const override { return "AnamDiscreteIR"; }
 
 private:
-  int _stats_residuals(int verbose,
-                       int nech,
+  Id _stats_residuals(Id verbose,
+                       Id nech,
                        const VectorDouble& tab,
-                       int *nsorted,
-                       double *mean,
-                       double *residuals,
-                       double *T,
-                       double *Q);
-  double _getResidual(int iclass, double z) const;
+                       Id* nsorted,
+                       double* mean,
+                       double* residuals,
+                       double* T,
+                       double* Q);
+  double _getResidual(Id iclass, double z) const;
   void _globalSelectivity(Selectivity* selectivity);
 
 private:
@@ -93,4 +94,4 @@ private:
 
   friend class Selectivity;
 };
-}
+} // namespace gstlrn

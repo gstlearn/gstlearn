@@ -20,7 +20,7 @@ namespace gstlrn
 class GSTLEARN_EXPORT SimuPartitionParam: public AStringable
 {
 public:
-  SimuPartitionParam(int nbtuba = 100,
+  SimuPartitionParam(Id nbtuba = 100,
                      double intensity = 0.1,
                      const VectorDouble& dilate = VectorDouble());
   SimuPartitionParam(const SimuPartitionParam &r);
@@ -28,18 +28,18 @@ public:
   virtual ~SimuPartitionParam();
 
   /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   VectorDouble getDilate() const { return _dilate; }
   void setDilate(const VectorDouble& dilate) { _dilate = dilate; }
   double getIntensity() const { return _intensity; }
   void setIntensity(double intensity) { _intensity = intensity; }
-  int getNbtuba() const { return _nbtuba; }
-  void setNbtuba(int nbtuba) { _nbtuba = nbtuba; }
-  double getDilate(int idim) const;
+  Id getNbtuba() const { return _nbtuba; }
+  void setNbtuba(Id nbtuba) { _nbtuba = nbtuba; }
+  double getDilate(Id idim) const;
 
 private:
-  int _nbtuba;
+  Id _nbtuba;
   double _intensity;
   VectorDouble _dilate;
 };

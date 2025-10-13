@@ -27,8 +27,8 @@ public:
 
   bool mustBeGrid() const override { return true; }
   bool mustBeOneVariable() const override { return true; }
-  bool mustBeForNDim(int /*ndim*/) const override { return true; }
-  bool mustBeForRotation(int mode) const override { return mode <= 1; }
-  int  writeInFile() override;
+  bool mustBeForNDim(Id /*ndim*/) const override { return true; }
+  bool mustBeForRotation(Id mode) const override { return mode <= 1; }
+  Id  writeInFile() override;
 };
 }

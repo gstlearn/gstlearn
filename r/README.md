@@ -9,9 +9,9 @@ All *gstlearn* outputs can be ploted using *plot* generic function which relies 
 
 ## References
 
-The *gstlearn* R package is a R wrapper of the [gstlearn C++ Library](https://gstlearn.org). It's the successor of the [RGeostats R package](http://cg.ensmp.fr/rgeostats).
+The *gstlearn* R package is a R wrapper of the [gstlearn C++ Library](https://gstlearn.org). It's the successor of the [RGeostats R package](https://rgeostats.free.fr).
 
-This package contains a modified copy of [findR.cmake](https://github.com/root-project/root) script (see LICENSE.root in *root* folder).q
+This package contains a modified copy of [findR.cmake](https://github.com/root-project/root) script (see LICENSE.root in *root* folder of the [github repo of gstlearn](https://github.com/gstlearn/gstlearn)).
 
 The *gstlearn* R package is a derivative work based on the *swigex0* project: [https://github.com/fabien-ors/swigex0](https://github.com/fabien-ors/swigex0)
 
@@ -80,7 +80,7 @@ Please, look at [CHANGES file](https://github.com/gstlearn/gstlearn/blob/main/CH
 
 For building the *gstlearn* R package, the requirements for building *gstlearn C++ library* must be installed beforehand. Then, the following additional tools must be also available:
 
-* SWIG 4.2.0 **customized by Fabien Ors** (not the official version!)
+* SWIG 4.3.0 **customized by Fabien Ors** (not the official version!)
 * R 4.2 or higher
 * RTools 4.2 or higher (for Windows users only)
 * *roxygen2* R package (for generating R documentation)
@@ -108,21 +108,21 @@ sudo apt install pcre2-devel # Ubuntu 18
 sudo apt install libpcre2-dev # Ubuntu 20
 ````
 
-4. In a directory of your choice, get the source of SWIG 4.2.0 [customized] by executing following commands (in the same shell):
+4. In a directory of your choice, get the source of SWIG 4.3.0 [customized] by executing following commands (in the same shell):
 
 ````
 git clone https://github.com/fabien-ors/swig.git
 cd swig
 ````
 
-Next time (if a new version of SWIG 4.2.0 [customized] is delivered), you will only need to pull the repository
+Next time (if a new version of SWIG 4.3.0 [customized] is delivered), you will only need to pull the repository
 
 ````
 cd swig
 git pull
 ````
 
-5. Then compile and install SWIG 4.2.0 [customized] :
+5. Then compile and install SWIG 4.3.0 [customized] :
 
 ````
 cmake -Bbuild
@@ -153,21 +153,21 @@ brew install bison
 brew install pcre2-devel
 ````
 
-4. In a directory of your choice, get the source of SWIG 4.2.0 [customized] by executing following commands (in the same shell):
+4. In a directory of your choice, get the source of SWIG 4.3.0 [customized] by executing following commands (in the same shell):
 
 ````
 git clone https://github.com/fabien-ors/swig.git
 cd swig
 ````
 
-Next time (if a new version of SWIG 4.2.0 [customized] is delivered), you will only need to pull the repository
+Next time (if a new version of SWIG 4.3.0 [customized] is delivered), you will only need to pull the repository
 
 ````
 cd swig
 git pull
 ````
 
-5. Then compile and install SWIG 4.2.0 [customized] :
+5. Then compile and install SWIG 4.3.0 [customized] :
 
 ````
 cmake -Bbuild
@@ -201,21 +201,21 @@ pacman -Sy bison
 pacman -Sy mingw-w64-x86_64-pcre2
 ````
 
-4. In a directory of your choice, get the source of SWIG 4.2.0 [customized] by executing following commands (in the same shell):
+4. In a directory of your choice, get the source of SWIG 4.3.0 [customized] by executing following commands (in the same shell):
 
 ````
 git clone https://github.com/fabien-ors/swig.git
 cd swig
 ````
 
-Next time (if a new version of SWIG 4.2.0 [customized] is delivered), you will only need to pull the repository
+Next time (if a new version of SWIG 4.3.0 [customized] is delivered), you will only need to pull the repository
 
 ````
 cd swig
 git pull
 ````
 
-5. Then compile and install SWIG 4.2.0 [customized] :
+5. Then compile and install SWIG 4.3.0 [customized] :
 
 ````
 cmake -G "MSYS Makefiles" -Bbuild -DCMAKE_INSTALL_PREFIX:PATH=/mingw64/
@@ -281,7 +281,7 @@ make check_r
 ### Important Notes
 
 * ggnewscale and ggplot2 packages must be installed/updated together! Otherwise, you could have troubles when using plotting feature.
-* Under Linux or MacOS, if you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs/swig4.2.0b` (adapt installation folder) in the `cmake` command above.
+* Under Linux or MacOS, if you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs/swig4.3.0b` (adapt installation folder) in the `cmake` command above.
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 * You may need to reconnect to your session after installing some requirements
 * If you experience the following issue: `Error: ERROR: no permission to install to directory...`, we suggest you to run the `install.packages` command (at least one time). This will create a *personal R library folder* having writing permissions.

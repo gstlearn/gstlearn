@@ -24,46 +24,46 @@ class DbGrid;
 class GSTLEARN_EXPORT DbHelper
 {
 public:
-  static int findDuplicates(Db *db1,
+  static Id findDuplicates(Db *db1,
                             Db *db2,
                             bool flag_same,
                             bool verbose,
-                            int opt_code,
+                            Id opt_code,
                             double tolcode,
                             const VectorDouble &dist,
                             VectorDouble &sel);
-  static int centerPointToGrid(Db *db_point, DbGrid *db_grid, double eps_random=EPSILON6);
-  static int normalizeVariables(Db *db,
+  static Id centerPointToGrid(Db *db_point, DbGrid *db_grid, double eps_random=EPSILON6);
+  static Id normalizeVariables(Db *db,
                                 const char *oper,
                                 const VectorInt& cols,
                                 double center,
                                 double stdv);
-  static int dbgrid_filling(DbGrid *dbgrid,
-                            int mode = 0,
-                            int seed = 34342,
-                            int radius = 1,
+  static Id dbgrid_filling(DbGrid *dbgrid,
+                            Id mode = 0,
+                            Id seed = 34342,
+                            Id radius = 1,
                             bool verbose = false,
                             const NamingConvention &namconv = NamingConvention("Fill"));
-  static int db_duplicate(Db *db,
+  static Id db_duplicate(Db *db,
                           bool verbose = false,
                           const VectorDouble &dist = VectorDouble(),
-                          int opt_code = 0,
+                          Id opt_code = 0,
                           double tolcode = 0.,
                           const NamingConvention &namconv = NamingConvention("Duplicate", true, true, true,
                                                                              ELoc::fromKey("SEL")));
 
-  static int db_compositional_transform(Db *db,
-                                        int verbose,
-                                        int mode,
-                                        int type,
-                                        int number,
-                                        int *iatt_in,
-                                        int *iatt_out,
-                                        int *numout);
+  static Id db_compositional_transform(Db *db,
+                                        Id verbose,
+                                        Id mode,
+                                        Id type,
+                                        Id number,
+                                        Id *iatt_in,
+                                        Id *iatt_out,
+                                        Id *numout);
   static DbGrid* dbgrid_sampling(DbGrid *dbin, const VectorInt &nmult);
-  static int db_grid1D_fill(DbGrid *dbgrid,
-                            int mode = 0,
-                            int seed = 34243,
+  static Id db_grid1D_fill(DbGrid *dbgrid,
+                            Id mode = 0,
+                            Id seed = 34243,
                             const NamingConvention &namconv = NamingConvention("Fill"));
 };
 

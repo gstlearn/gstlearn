@@ -27,13 +27,13 @@ public:
 
 #ifndef SWIG
 protected:
-  int _addPoint2mesh(const constvect in, vect out) const override;
-  int _addMesh2point(const constvect in, vect out) const override;
+  Id _addPoint2mesh(const constvect in, vect out) const override;
+  Id _addMesh2point(const constvect in, vect out) const override;
 #endif
 
 public:
-  int getNApex() const override { return (_projs.size() == 0 ? 0 : _projs.front()->getNApex()); }
-  int getNPoint() const override { return (_projs.size() == 0 ? 0 : _projs.back()->getNPoint()); }
+  Id getNApex() const override { return (_projs.size() == 0 ? 0 : _projs.front()->getNApex()); }
+  Id getNPoint() const override { return (_projs.size() == 0 ? 0 : _projs.back()->getNPoint()); }
 
 private:
   std::vector<std::unique_ptr<const IProj>> _projs;

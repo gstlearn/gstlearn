@@ -17,7 +17,7 @@
 #include "geoslib_define.h"
 #include <memory>
 
-namespace gstlrn 
+namespace gstlrn
 {
 
 TabNoStat::TabNoStat()
@@ -43,10 +43,10 @@ TabNoStat& TabNoStat::operator=(const TabNoStat& m)
   return *this;
 }
 
-int TabNoStat::removeElem(const EConsElem& econs, int iv1, int iv2)
+Id TabNoStat::removeElem(const EConsElem& econs, Id iv1, Id iv2)
 {
   ParamId param(econs, iv1, iv2);
-  int res = (int)_items.erase(param);
+  Id res = static_cast<Id>(_items.erase(param));
   updateDescription();
   return res;
 }
@@ -72,13 +72,13 @@ void TabNoStat::updateDescription()
   _updateDescription();
 }
 
-bool TabNoStat::isElemDefined(const EConsElem& econs, int iv1, int iv2) const
+bool TabNoStat::isElemDefined(const EConsElem& econs, Id iv1, Id iv2) const
 {
   ParamId conselem(econs, iv1, iv2);
   return _items.count(conselem) > 0; // Warning : use count for C++17 compatibility
 }
 
-std::shared_ptr<ANoStat> TabNoStat::getElem(const EConsElem& econs, int iv1, int iv2)
+std::shared_ptr<ANoStat> TabNoStat::getElem(const EConsElem& econs, Id iv1, Id iv2)
 {
   ParamId conselem(econs, iv1, iv2);
   return _items[conselem];
@@ -88,7 +88,7 @@ String TabNoStat::toString(const AStringFormat* strfmt) const
 {
   return toStringInside(strfmt, 0);
 }
-String TabNoStat::toStringInside(const AStringFormat* strfmt, int i) const
+String TabNoStat::toStringInside(const AStringFormat* strfmt, Id i) const
 {
   std::stringstream sstr;
   if (_items.empty()) return sstr.str();
@@ -105,8 +105,8 @@ String TabNoStat::toStringInside(const AStringFormat* strfmt, int i) const
 
 void TabNoStat::informCoords(const VectorVectorDouble& coords,
                              const EConsElem& econs,
-                             int iv1,
-                             int iv2,
+                             Id iv1,
+                             Id iv2,
                              VectorDouble& result) const
 {
   ParamId conselem(econs, iv1, iv2);
@@ -114,12 +114,12 @@ void TabNoStat::informCoords(const VectorVectorDouble& coords,
     _items.at(conselem)->informField(coords, result);
 }
 
-int TabNoStat::addElem(std::shared_ptr<ANoStat>& nostat, const EConsElem& econs, int iv1, int iv2)
+Id TabNoStat::addElem(std::shared_ptr<ANoStat>& nostat, const EConsElem& econs, Id iv1, Id iv2)
 {
   if (!isValid(econs))
     return 0;
   ParamId param(econs, iv1, iv2);
-  int res       = (int)_items.count(param);
+  Id res        = static_cast<Id>(_items.count(param));
   _items[param] = nostat;
   if (res == 1)
   {
@@ -223,4 +223,4 @@ void TabNoStat::informDbOut(const Db* dbout, const EConsElem& econs) const
 TabNoStat::~TabNoStat()
 {
 }
-}
+} // namespace gstlrn

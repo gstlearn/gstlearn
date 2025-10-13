@@ -35,38 +35,38 @@ public:
   virtual ~AShape();
 
   /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface for AShape
   virtual EShape getType() const = 0;
-  virtual int  getNParams() const = 0;
+  virtual Id  getNParams() const = 0;
   virtual bool getFlagCutZ() const = 0;
-  virtual BooleanObject* generateObject(int ndim = 3) = 0;
+  virtual BooleanObject* generateObject(Id ndim = 3) = 0;
   virtual bool belongObject(const VectorDouble& coor, const BooleanObject* object) const = 0;
 
   double getFactorX2Y() const { return _factorX2Y; }
   double getFactorX2Z() const { return _factorX2Z; }
   double getFactorY2Z() const { return _factorY2Z; }
   double getProportion() const { return _proportion; }
-  String getParamName(int ipar) const;
-  double getParam(int ipar, int iarg) const;
-  const ShapeParameter& getParam(int ipar) const;
+  String getParamName(Id ipar) const;
+  double getParam(Id ipar, Id iarg) const;
+  const ShapeParameter& getParam(Id ipar) const;
 
   void setFactorX2Y(double factorX2Y) { _factorX2Y = factorX2Y; }
   void setFactorX2Z(double factorX2Z) { _factorX2Z = factorX2Z; }
   void setFactorY2Z(double factorY2Z) { _factorY2Z = factorY2Z; }
   void setProportion(double proportion) { _proportion = proportion; }
-  void setParamName(int ipar, const String& name);
-  void setParam(int ipar, int iarg, double value);
-  void setParamDefault(int ipar, const String& name, double value);
-  void setLaw(int ipar, const ELaw& law);
+  void setParamName(Id ipar, const String& name);
+  void setParam(Id ipar, Id iarg, double value);
+  void setParamDefault(Id ipar, const String& name, double value);
+  void setLaw(Id ipar, const ELaw& law);
 
-  void initParams(int count);
+  void initParams(Id count);
 
-  double generateParam(int ipar) const;
+  double generateParam(Id ipar) const;
 
 private:
-  bool _isValidParamIndex(int ipar) const;
+  bool _isValidParamIndex(Id ipar) const;
 
 private:
   double _factorX2Y; /* Link factor for the geometry from x to y */

@@ -8,13 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "OutputFormat/AOF.hpp"
-#include "Db/Db.hpp"
-#include "Db/DbGrid.hpp"
+#include "OutputFormat/GridIfpEn.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Core/io.hpp"
-#include "OutputFormat/GridIfpEn.hpp"
+#include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
+#include "OutputFormat/AOF.hpp"
 
 #include <cstring>
 
@@ -26,7 +26,7 @@ GridIfpEn::GridIfpEn(const char* filename, const Db* db)
 }
 
 GridIfpEn::GridIfpEn(const GridIfpEn& r)
-    : AOF(r)
+  : AOF(r)
 {
 }
 
@@ -43,7 +43,7 @@ GridIfpEn::~GridIfpEn()
 {
 }
 
-int GridIfpEn::writeInFile()
+Id GridIfpEn::writeInFile()
 {
   static double valnull = 3.0;
 
@@ -52,48 +52,48 @@ int GridIfpEn::writeInFile()
   if (_fileWriteOpen()) return 1;
 
   // Preliminary calculations
-  int ncol = (int) _cols.size();
-  VectorInt nx = _dbgrid->getNXsExt(3);
+  Id ncol             = static_cast<Id>(_cols.size());
+  VectorInt nx        = _dbgrid->getNXsExt(3);
   VectorDouble angles = _dbgrid->getAngles();
-  int ntot = 1;
-  for (int idim = 0; idim < 3; idim++)
+  Id ntot             = 1;
+  for (Id idim = 0; idim < 3; idim++)
   {
     ntot *= nx[idim];
   }
 
   /* Write the header */
 
-  _writeLine( 0, "##########################", 0, 0., NULL);
-  _writeLine( 0, "FILE_DESCRIPTION         # PROP", 0, 0., NULL);
-  _writeLine( 0, "APPLICATION              #", 0, 0., "# CobraFlow");
-  _writeLine( 0, "SURVEY_NAME              #", 0, 0., NULL);
-  _writeLine( 0, "MATRIX_NAME              # VPCMatrix_test_export", 0,
-                 0., NULL);
-  _writeLine( 0, "METHOD                   # BY_CPV", 0, 0., NULL);
-  _writeLine( 2, "FLOAT_NULL_VALUE         #", 0, valnull, NULL);
-  _writeLine( 0, "ROW_COLUMN_ORIENTATION   # ROW", 0, 0., NULL);
-  _writeLine( 0, "REPRESENTATION_CODE      # ASCII", 0, 0., NULL);
-  _writeLine( 0, "##########################", 0, 0., NULL);
-  _writeLine( 2, "ANGLE                    #", 0, angles[0], "# DEG");
-  _writeLine( 1, "ROW_COUNT                #", nx[1], 0., NULL);
-  _writeLine( 1, "COLUMN_COUNT             #", nx[0], 0., NULL);
-  _writeLine( 2, "ROW_DISTANCE             #", 0, _dbgrid->getDX(1), "# m");
-  _writeLine( 2, "COLUMN_DISTANCE          #", 0, _dbgrid->getDX(0), "# m");
-  _writeLine( 1, "LAYER_COUNT              #", nx[2], 0., NULL);
-  _writeLine( 2, "X_ORIGIN                 #", 0, _dbgrid->getX0(0), "# m");
-  _writeLine( 2, "Y_ORIGIN                 #", 0, _dbgrid->getX0(1), "# m");
-  _writeLine( 1, "FACIES_COUNT             #", ncol, 0., NULL);
-  _writeLine( 0, "DATA_PROP                # CHANNEL1", 0, 0.,
-                 "# Facies proportion");
-  _writeLine( 0, "##########################", 0, 0., NULL);
+  _writeLine(0, "##########################", 0, 0., NULL);
+  _writeLine(0, "FILE_DESCRIPTION         # PROP", 0, 0., NULL);
+  _writeLine(0, "APPLICATION              #", 0, 0., "# CobraFlow");
+  _writeLine(0, "SURVEY_NAME              #", 0, 0., NULL);
+  _writeLine(0, "MATRIX_NAME              # VPCMatrix_test_export", 0,
+             0., NULL);
+  _writeLine(0, "METHOD                   # BY_CPV", 0, 0., NULL);
+  _writeLine(2, "FLOAT_NULL_VALUE         #", 0, valnull, NULL);
+  _writeLine(0, "ROW_COLUMN_ORIENTATION   # ROW", 0, 0., NULL);
+  _writeLine(0, "REPRESENTATION_CODE      # ASCII", 0, 0., NULL);
+  _writeLine(0, "##########################", 0, 0., NULL);
+  _writeLine(2, "ANGLE                    #", 0, angles[0], "# DEG");
+  _writeLine(1, "ROW_COUNT                #", nx[1], 0., NULL);
+  _writeLine(1, "COLUMN_COUNT             #", nx[0], 0., NULL);
+  _writeLine(2, "ROW_DISTANCE             #", 0, _dbgrid->getDX(1), "# m");
+  _writeLine(2, "COLUMN_DISTANCE          #", 0, _dbgrid->getDX(0), "# m");
+  _writeLine(1, "LAYER_COUNT              #", nx[2], 0., NULL);
+  _writeLine(2, "X_ORIGIN                 #", 0, _dbgrid->getX0(0), "# m");
+  _writeLine(2, "Y_ORIGIN                 #", 0, _dbgrid->getX0(1), "# m");
+  _writeLine(1, "FACIES_COUNT             #", ncol, 0., NULL);
+  _writeLine(0, "DATA_PROP                # CHANNEL1", 0, 0.,
+             "# Facies proportion");
+  _writeLine(0, "##########################", 0, 0., NULL);
 
   /* Grid description */
 
-  for (int j = 0; j < ncol; j++)
-    for (int i = 0; i < ntot; i++)
+  for (Id j = 0; j < ncol; j++)
+    for (Id i = 0; i < ntot; i++)
     {
       double value = _dbgrid->getArray(i, _cols[j]);
-      _writeLine( 2, NULL, 0, value, NULL);
+      _writeLine(2, NULL, 0, value, NULL);
     }
 
   _fileClose();
@@ -114,55 +114,45 @@ int GridIfpEn::writeInFile()
  ** \param[in]  combis     Second comment (or NULL)
  **
  *****************************************************************************/
-void GridIfpEn::_writeLine(int mode,
-                          const char *comment,
-                          int valint,
-                          double valrel,
-                          const char *combis)
+void GridIfpEn::_writeLine(Id mode,
+                           const char* comment,
+                           Id valint,
+                           double valrel,
+                           const char* combis)
 {
   std::stringstream sstr;
-
-  //char line[1000];
-
-  /* Initialize the string */
-
-  //(void) gslStrcpy(line, "");
 
   /* Comment */
 
   if (comment != NULL)
-    //(void) gslSPrintf(&line[strlen(line)], "%s", comment);
     sstr << comment;
 
   /* Encoding the value */
 
   if (mode == 1)
   {
-    // (void) gslSPrintf(&line[strlen(line)], " %d", valint);
     sstr << " " << valint;
   }
   else if (mode == 2)
   {
-    // (void) gslSPrintf(&line[strlen(line)], " %lf", valrel);
     sstr << " " << valrel;
   }
 
   /* Secondary comment */
 
   if (combis != NULL)
-    //(void) gslSPrintf(&line[strlen(line)], " %s", combis);
     sstr << " " << combis;
 
   /* Print the line */
 
-  //fprintf(_file, "%s\n", line);
+  // fprintf(_file, "%s\n", line);
   fprintf(_file, "%s\n", sstr.str().c_str());
 }
 
 DbGrid* GridIfpEn::readGridFromFile()
 {
   DbGrid* dbgrid = nullptr;
-  int dumint, ncol;
+  Id dumint, ncol;
   double dumrel, test, value;
   VectorDouble x0(3);
   VectorDouble dx(3);
@@ -175,48 +165,48 @@ DbGrid* GridIfpEn::readGridFromFile()
 
   /* Read the grid characteristics */
 
-  for (int i = 0; i < 3; i++)
+  for (Id i = 0; i < 3; i++)
   {
-    nx[i] = 1;
-    dx[i] = 1.;
-    x0[i] = 0.;
+    nx[i]     = 1;
+    dx[i]     = 1.;
+    x0[i]     = 0.;
     angles[i] = 0.;
   }
 
   /* Read the header */
 
-  if (_readLine( 0, "##########################", &dumint, &dumrel))        return dbgrid;
-  if (_readLine( 0, "FILE_DESCRIPTION         #", &dumint, &dumrel))        return dbgrid;
-  if (_readLine( 0, "APPLICATION              #", &dumint, &dumrel))        return dbgrid;
-  if (_readLine( 0, "SURVEY_NAME              #", &dumint, &dumrel))        return dbgrid;
-  if (_readLine( 0, "MATRIX_NAME              #", &dumint, &dumrel))        return dbgrid;
-  if (_readLine( 0, "METHOD                   #", &dumint, &dumrel))        return dbgrid;
-  if (_readLine( 2, "FLOAT_NULL_VALUE         #", &dumint, &test))          return dbgrid;
-  if (_readLine( 0, "ROW_COLUMN_ORIENTATION   #", &dumint, &dumrel))        return dbgrid;
-  if (_readLine( 0, "REPRESENTATION_CODE      #", &dumint, &dumrel))        return dbgrid;
-  if (_readLine( 0, "##########################", &dumint, &dumrel))        return dbgrid;
-  if (_readLine( 2, "ANGLE                    #", &dumint, angles.data()))  return dbgrid;
-  if (_readLine( 1, "ROW_COUNT                #", &nx[1], &dumrel))         return dbgrid;
-  if (_readLine( 1, "COLUMN_COUNT             #", nx.data(), &dumrel))      return dbgrid;
-  if (_readLine( 2, "ROW_DISTANCE             #", &dumint, &dx[1]))         return dbgrid;
-  if (_readLine( 2, "COLUMN_DISTANCE          #", &dumint, dx.data()))      return dbgrid;
-  if (_readLine( 1, "LAYER_COUNT              #", &nx[2], &dumrel))         return dbgrid;
-  if (_readLine( 2, "X_ORIGIN                 #", &dumint, x0.data()))      return dbgrid;
-  if (_readLine( 2, "Y_ORIGIN                 #", &dumint, &x0[1]))         return dbgrid;
-  if (_readLine( 1, "FACIES_COUNT             #", &ncol, &dumrel))          return dbgrid;
-  if (_readLine( 0, "DATA_PROP                #", &dumint, &dumrel))        return dbgrid;
-  if (_readLine( 0, "##########################", &dumint, &dumrel))        return dbgrid;
+  if (_readLine(0, "##########################", &dumint, &dumrel)) return dbgrid;
+  if (_readLine(0, "FILE_DESCRIPTION         #", &dumint, &dumrel)) return dbgrid;
+  if (_readLine(0, "APPLICATION              #", &dumint, &dumrel)) return dbgrid;
+  if (_readLine(0, "SURVEY_NAME              #", &dumint, &dumrel)) return dbgrid;
+  if (_readLine(0, "MATRIX_NAME              #", &dumint, &dumrel)) return dbgrid;
+  if (_readLine(0, "METHOD                   #", &dumint, &dumrel)) return dbgrid;
+  if (_readLine(2, "FLOAT_NULL_VALUE         #", &dumint, &test)) return dbgrid;
+  if (_readLine(0, "ROW_COLUMN_ORIENTATION   #", &dumint, &dumrel)) return dbgrid;
+  if (_readLine(0, "REPRESENTATION_CODE      #", &dumint, &dumrel)) return dbgrid;
+  if (_readLine(0, "##########################", &dumint, &dumrel)) return dbgrid;
+  if (_readLine(2, "ANGLE                    #", &dumint, angles.data())) return dbgrid;
+  if (_readLine(1, "ROW_COUNT                #", &nx[1], &dumrel)) return dbgrid;
+  if (_readLine(1, "COLUMN_COUNT             #", nx.data(), &dumrel)) return dbgrid;
+  if (_readLine(2, "ROW_DISTANCE             #", &dumint, &dx[1])) return dbgrid;
+  if (_readLine(2, "COLUMN_DISTANCE          #", &dumint, dx.data())) return dbgrid;
+  if (_readLine(1, "LAYER_COUNT              #", &nx[2], &dumrel)) return dbgrid;
+  if (_readLine(2, "X_ORIGIN                 #", &dumint, x0.data())) return dbgrid;
+  if (_readLine(2, "Y_ORIGIN                 #", &dumint, &x0[1])) return dbgrid;
+  if (_readLine(1, "FACIES_COUNT             #", &ncol, &dumrel)) return dbgrid;
+  if (_readLine(0, "DATA_PROP                #", &dumint, &dumrel)) return dbgrid;
+  if (_readLine(0, "##########################", &dumint, &dumrel)) return dbgrid;
 
   /* Read the array of real values */
 
-  int lec = 0;
-  int nech = nx[0] * nx[1] * nx[2];
+  Id lec  = 0;
+  Id nech = nx[0] * nx[1] * nx[2];
   VectorDouble tab(nech * ncol);
 
-  for (int icol = 0; icol < ncol; icol++)
-    for (int ix = 0; ix < nx[0]; ix++)
-      for (int iy = 0; iy < nx[1]; iy++)
-        for (int iz = 0; iz < nx[2]; iz++)
+  for (Id icol = 0; icol < ncol; icol++)
+    for (Id ix = 0; ix < nx[0]; ix++)
+      for (Id iy = 0; iy < nx[1]; iy++)
+        for (Id iz = 0; iz < nx[2]; iz++)
         {
           if (_record_read(_file, "%lf", &value)) break;
           if (value == test) value = TEST;
@@ -233,9 +223,9 @@ DbGrid* GridIfpEn::readGridFromFile()
 
   /* Set the error return code */
 
-  dbgrid = new DbGrid();
+  dbgrid             = new DbGrid();
   VectorString names = generateMultipleNames("IfpEn", ncol);
-  dbgrid->reset(nx,dx,x0,angles,ELoadBy::SAMPLE,tab,names);
+  dbgrid->reset(nx, dx, x0, angles, ELoadBy::SAMPLE, tab, names);
 
   // Close the file
 
@@ -258,33 +248,33 @@ DbGrid* GridIfpEn::readGridFromFile()
  ** \param[out]  valrel     Float value
  **
  *****************************************************************************/
-int GridIfpEn::_readLine(int mode,
-                         const char *comment,
-                         int *valint,
-                         double *valrel)
+Id GridIfpEn::_readLine(Id mode,
+                        const char* comment,
+                        Id* valint,
+                        double* valrel)
 {
   char line[100];
-  int start;
+  Id start;
 
   /* Reading the line */
 
-  if (fgets(line, 100, _file) == NULL) return (1);
+  if (fgets(line, 100, _file) == nullptr) return (1);
   line[strlen(line) - 1] = '\0';
 
   /* Check the comment */
 
   start = 0;
-  if (comment != NULL)
+  if (comment != nullptr)
   {
     if (strcmp(line, comment) < 0) return (1);
-    start = static_cast<int>(strlen(comment));
+    start = static_cast<Id>(strlen(comment));
   }
 
   /* Decoding the value */
 
   if (mode == 1)
   {
-    if (gslSScanf(&line[start], "%d", valint) != 1) return (1);
+    if (gslSScanf(&line[start], "%ld", valint) != 1) return (1);
   }
   else if (mode == 2)
   {
@@ -292,4 +282,4 @@ int GridIfpEn::_readLine(int mode,
   }
   return (0);
 }
-}
+} // namespace gstlrn

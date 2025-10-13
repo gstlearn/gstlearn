@@ -21,19 +21,19 @@ namespace gstlrn
 class GSTLEARN_EXPORT ALinearOpMulti {
 
 public:
-  ALinearOpMulti(int nitermax = 1000, double eps = EPSILON8);
+  ALinearOpMulti(Id nitermax = 1000, double eps = EPSILON8);
   ALinearOpMulti(const ALinearOpMulti &m);
   ALinearOpMulti& operator=(const ALinearOpMulti &m);
   virtual ~ALinearOpMulti();
 
   void initLk(const std::vector<std::vector<double>> &inv, std::vector<std::vector<double>> &outv) const;
-  virtual int sizes() const = 0;
-  virtual int size(int) const = 0;
+  virtual Id sizes() const = 0;
+  virtual Id size(Id) const = 0;
 
-  void setNIterMax(int nitermax) { _nIterMax = nitermax; }
-  void setNIterRestart(int niterrestart) { _nIterRestart = niterrestart; }
+  void setNIterMax(Id nitermax) { _nIterMax = nitermax; }
+  void setNIterRestart(Id niterrestart) { _nIterRestart = niterrestart; }
   void setEps(double eps) { _eps = eps; }
-  void setPrecond(const ALinearOpMulti* precond, int status);
+  void setPrecond(const ALinearOpMulti* precond, Id status);
 
   const LogStats& getLogStats() const { return _logStats; }
 
@@ -58,8 +58,8 @@ protected:
   void _updated() const;
 
 private:
-  int                       _nIterMax;
-  int                       _nIterRestart;
+  Id                       _nIterMax;
+  Id                       _nIterRestart;
   double                    _eps;
   bool                      _precondStatus;
   bool                      _userInitialValue;

@@ -49,7 +49,7 @@ MeshEStandard::~MeshEStandard()
 ** \returns Number of apices
 **
 *****************************************************************************/
-int MeshEStandard::getNApices() const 
+Id MeshEStandard::getNApices() const 
 {
   return _apices.getNRows();
 }
@@ -61,9 +61,9 @@ int MeshEStandard::getNApices() const
 ** \returns Number of meshes
 **
 *****************************************************************************/
-int MeshEStandard::getNMeshes() const
+Id MeshEStandard::getNMeshes() const
 {
-  return (static_cast<int> (_meshes.size()) / getNApexPerMesh());
+  return (static_cast<Id> (_meshes.size()) / getNApexPerMesh());
 }
 
 /****************************************************************************/
@@ -75,18 +75,18 @@ int MeshEStandard::getNMeshes() const
 ** \param[in]  imesh    Rank of the Mesh (from 0 to _nMeshes-1))
 **
 *****************************************************************************/
-double MeshEStandard::getMeshSize(int imesh) const
+double MeshEStandard::getMeshSize(Id imesh) const
 {
   VectorVectorDouble corners = getCoordinatesPerMesh(imesh);
   return _getMeshUnit(corners);
 }
 
-int MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
+Id MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
 {
-  int ndim     = turbo.getNDim();
-  int napices  = turbo.getNApices();
-  int nmeshes  = turbo.getNMeshes();
-  int npermesh = turbo.getNApexPerMesh();
+  auto ndim     = turbo.getNDim();
+  auto napices  = turbo.getNApices();
+  auto nmeshes  = turbo.getNMeshes();
+  auto npermesh = turbo.getNApexPerMesh();
 
   // Dimension the members
 
@@ -95,16 +95,16 @@ int MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
 
   // Load the apices;
   VectorDouble local(ndim);
-  for (int ip = 0; ip < napices; ip++)
+  for (Id ip = 0; ip < napices; ip++)
   {
     turbo.getApexCoordinatesInPlace(ip, local);
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
       _apices.setValue(ip, idim, local[idim]);
   }
 
   // Load the meshes
-  for (int imesh = 0; imesh < nmeshes; imesh++)
-    for (int rank = 0; rank < npermesh; rank++)
+  for (Id imesh = 0; imesh < nmeshes; imesh++)
+    for (Id rank = 0; rank < npermesh; rank++)
       _meshes.setValue(imesh,  rank, turbo.getApex(imesh, rank));
 
   // Check consistency
@@ -131,11 +131,11 @@ int MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
 ** \param[in]  verbose         Verbose flag
 **
 *****************************************************************************/
-int MeshEStandard::reset(const MatrixDense& apices,
+Id MeshEStandard::reset(const MatrixDense& apices,
                          const MatrixInt& meshes,
                          bool verbose)
 {
-  int ndim = apices.getNCols();
+  auto ndim = apices.getNCols();
   _setNDim(ndim);
 
   // Core allocation
@@ -172,16 +172,16 @@ int MeshEStandard::reset(const MatrixDense& apices,
 ** \remark The argument 'byCol' concerns 'apices' and 'meshes'
 **
 *****************************************************************************/
-int MeshEStandard::reset(int ndim,
-                         int napexpermesh,
+Id MeshEStandard::reset(Id ndim,
+                         Id napexpermesh,
                          const VectorDouble &apices,
                          const VectorInt &meshes,
                          bool byCol,
                          bool verbose)
 {
   _setNDim(ndim);
-  int npoints = static_cast<int> (apices.size()) / ndim;
-  int nmeshes = static_cast<int> (meshes.size()) / napexpermesh;
+  Id npoints = static_cast<Id> (apices.size()) / ndim;
+  Id nmeshes = static_cast<Id> (meshes.size()) / napexpermesh;
 
   // Core allocation
 
@@ -215,12 +215,12 @@ int MeshEStandard::reset(int ndim,
 ** \param[in]  rank     Rank of Apex within a Mesh (from 0 to _nApexPerMesh)
 **
 *****************************************************************************/
-int MeshEStandard::getApex(int imesh, int rank) const
+Id MeshEStandard::getApex(Id imesh, Id rank) const
 {
   return _meshes.getValue(imesh,rank);
 }
 
-void MeshEStandard::_setApex(int imesh, int rank, int value)
+void MeshEStandard::_setApex(Id imesh, Id rank, Id value)
 {
   _meshes.setValue(imesh,rank,value);
 }
@@ -236,9 +236,9 @@ void MeshEStandard::_setApex(int imesh, int rank, int value)
 ** \param[in]  idim     Rank of the coordinate (from 0 to _nDim-1)
 **
 *****************************************************************************/
-double MeshEStandard::getCoor(int imesh,
-                              int rank,
-                              int idim) const
+double MeshEStandard::getCoor(Id imesh,
+                              Id rank,
+                              Id idim) const
 {
   return _apices(getApex(imesh,rank),idim);
 }
@@ -294,16 +294,16 @@ VectorDouble MeshEStandard::getPointList(bool byCol) const
 
   if (byCol)
   {
-    for (int idim = 0; idim < getNDim(); idim++)
-      for (int irow = 0; irow < getNApices(); irow++)
+    for (Id idim = 0; idim < getNDim(); idim++)
+      for (Id irow = 0; irow < getNApices(); irow++)
       {
         list.push_back(getApexCoor(irow, idim));
       }
   }
   else
   {
-    for (int irow = 0; irow < getNApices(); irow++)
-      for (int idim = 0; idim < getNDim(); idim++)
+    for (Id irow = 0; irow < getNApices(); irow++)
+      for (Id idim = 0; idim < getNDim(); idim++)
       {
         list.push_back(getApexCoor(irow, idim));
       }
@@ -311,7 +311,7 @@ VectorDouble MeshEStandard::getPointList(bool byCol) const
   return list;
 }
 
-double MeshEStandard::getApexCoor(int i, int idim) const
+double MeshEStandard::getApexCoor(Id i, Id idim) const
 {
   return _apices(i, idim);
 }
@@ -332,7 +332,7 @@ double MeshEStandard::getApexCoor(int i, int idim) const
 **
 *****************************************************************************/
 bool MeshEStandard::_coorInMesh(const VectorDouble& coor,
-                                int imesh,
+                                Id imesh,
                                 double meshsize,
                                 VectorDouble& weights) const
 {
@@ -345,7 +345,7 @@ void MeshEStandard::_deallocate()
 
 }
 
-int MeshEStandard::_recopy(const MeshEStandard &m)
+Id MeshEStandard::_recopy(const MeshEStandard &m)
 {
   _deallocate();
 
@@ -361,10 +361,10 @@ int MeshEStandard::_recopy(const MeshEStandard &m)
  */
 void MeshEStandard::_checkConsistency() const
 {
-  for (int imesh = 0; imesh < getNMeshes(); imesh++)
-    for (int ic = 0; ic < getNApexPerMesh(); ic++)
+  for (Id imesh = 0; imesh < getNMeshes(); imesh++)
+    for (Id ic = 0; ic < getNApexPerMesh(); ic++)
     {
-      int apex = getApex(imesh, ic);
+      auto apex = getApex(imesh, ic);
       if (apex < 0 || apex >= getNApices())
       {
         my_throw("Mesh indices are not compatible with the Points");
@@ -375,16 +375,16 @@ void MeshEStandard::_checkConsistency() const
 bool MeshEStandard::_deserializeAscii(std::istream& is, bool verbose)
 {
   DECLARE_UNUSED(verbose);
-  int ndim = 0;
-  int napices = 0;
-  int napexpermesh = 0;
-  int nmeshes = 0;
+  Id ndim = 0;
+  Id napices = 0;
+  Id napexpermesh = 0;
+  Id nmeshes = 0;
 
   bool ret = true;
-  ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
-  ret = ret && _recordRead<int>(is, "Napices", napices);
-  ret = ret && _recordRead<int>(is, "Number of Apices per Mesh", napexpermesh);
-  ret = ret && _recordRead<int>(is, "Number of Meshes", nmeshes);
+  ret = ret && _recordRead<Id>(is, "Space Dimension", ndim);
+  ret = ret && _recordRead<Id>(is, "Napices", napices);
+  ret = ret && _recordRead<Id>(is, "Number of Apices per Mesh", napexpermesh);
+  ret = ret && _recordRead<Id>(is, "Number of Meshes", nmeshes);
 
   if (ret)
   {
@@ -397,7 +397,7 @@ bool MeshEStandard::_deserializeAscii(std::istream& is, bool verbose)
   if (ret)
   {
     VectorInt meshes_local;
-    ret = ret && _recordReadVec<int>(is, "Meshes", meshes_local, nmeshes * napexpermesh);
+    ret = ret && _recordReadVec<Id>(is, "Meshes", meshes_local, nmeshes * napexpermesh);
     _meshes = MatrixInt(nmeshes, napexpermesh);
     _meshes.setValues(meshes_local);
   }
@@ -408,12 +408,12 @@ bool MeshEStandard::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = true;
 
-  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
-  ret = ret && _recordWrite<int>(os, "Napices", getNApices());
-  ret = ret && _recordWrite<int>(os, "Number of Apices per Mesh", getNApexPerMesh());
-  ret = ret && _recordWrite<int>(os, "Number of Meshes", getNMeshes());
+  ret = ret && _recordWrite<Id>(os, "Space Dimension", getNDim());
+  ret = ret && _recordWrite<Id>(os, "Napices", getNApices());
+  ret = ret && _recordWrite<Id>(os, "Number of Apices per Mesh", getNApexPerMesh());
+  ret = ret && _recordWrite<Id>(os, "Number of Meshes", getNMeshes());
   ret = ret && _recordWriteVec<double>(os, "Apices", _apices.getValues());
-  ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes.getValues());
+  ret = ret && _recordWriteVec<Id>(os, "Meshes", _meshes.getValues());
   return ret;
 }
 
@@ -431,13 +431,13 @@ void MeshEStandard::_validate()
   // If equal to , the mesh numbering must be modified in order to start from 0
   // This code is temporary and there to cope with different numberings
 
-  int nmeshes = getNMeshes();
-  int ncorner = getNApexPerMesh();
-  int shift_min = 1000;
-  for (int imesh = 0; imesh < nmeshes; imesh++)
-    for (int ic = 0; ic < ncorner; ic++)
+  auto nmeshes  = getNMeshes();
+  auto ncorner  = getNApexPerMesh();
+  Id shift_min = 1000;
+  for (Id imesh = 0; imesh < nmeshes; imesh++)
+    for (Id ic = 0; ic < ncorner; ic++)
     {
-      int ipos = getApex(imesh, ic);
+      auto ipos = getApex(imesh, ic);
       if (ipos < shift_min) shift_min = ipos;
     }
 
@@ -446,8 +446,8 @@ void MeshEStandard::_validate()
 
   if (shift_min == 1)
   {
-    for (int imesh = 0; imesh < nmeshes; imesh++)
-      for (int ic = 0; ic < ncorner; ic++)
+    for (Id imesh = 0; imesh < nmeshes; imesh++)
+      for (Id ic = 0; ic < ncorner; ic++)
         _setApex(imesh, ic, getApex(imesh, ic) - shift_min);
   }
 }
@@ -456,20 +456,20 @@ void MeshEStandard::_defineBoundingBox(void)
 {
   VectorDouble extendmin, extendmax;
   double coor,mini,maxi;
-  int ndim = getNDim();
+  auto ndim = getNDim();
 
   // Initializations
   extendmin.resize(ndim);
   extendmax.resize(ndim);
 
   // Loop on the Space dimensions
-  for (int idim=0; idim<ndim; idim++)
+  for (Id idim=0; idim<ndim; idim++)
   {
     mini = MAXIMUM_BIG;
     maxi = MINIMUM_BIG;
 
     // Loop on the apices
-    for (int i=0; i<getNApices(); i++)
+    for (Id i=0; i<getNApices(); i++)
     {
       coor = getApexCoor(i,idim);
       if (coor < mini) mini = coor;
@@ -494,10 +494,10 @@ bool MeshEStandard::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose
 
   /* Read the grid characteristics */
   bool ret = true;
-  int ndim = 0;
-  int napices = 0;
-  int npermesh = 0;
-  int nmeshes = 0;
+  Id ndim = 0;
+  Id napices = 0;
+  Id npermesh = 0;
+  Id nmeshes = 0;
   VectorDouble apices;
   VectorInt meshes;
 

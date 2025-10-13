@@ -11,17 +11,17 @@
 #include "Model/ModelGeneric.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ListParams.hpp"
+#include "Db/Db.hpp"
+#include "Drifts/DriftFactory.hpp"
 #include "Estimation/AModelOptim.hpp"
+#include "Estimation/AModelOptimFactory.hpp"
+#include "Estimation/Likelihood.hpp"
+#include "LinearOp/CholeskyDense.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include "Model/AModelFitSills.hpp"
 #include "Model/Model.hpp"
-#include "Model/ModelOptimVario.hpp"
 #include "Model/ModelOptimVMap.hpp"
-#include "Matrix/MatrixSymmetric.hpp"
-#include "LinearOp/CholeskyDense.hpp"
-#include "Db/Db.hpp"
-#include "Estimation/AModelOptimFactory.hpp"
-#include "Drifts/DriftFactory.hpp"
-#include "Estimation/Likelihood.hpp"
+#include "Model/ModelOptimVario.hpp"
 #include <memory>
 
 namespace gstlrn
@@ -65,6 +65,12 @@ void ModelGeneric::setField(double field)
   copyCovContext(_ctxt);
 }
 
+void ModelGeneric::setContext(const CovContext& ctxt)
+{
+  _ctxt = ctxt;
+  _cova->setContext(ctxt);
+}
+
 bool ModelGeneric::isValid() const
 {
   return _isValid();
@@ -88,8 +94,7 @@ bool ModelGeneric::_isValid() const
  */
 double ModelGeneric::computeLogLikelihood(const Db* db, bool verbose)
 {
-  auto* like = Likelihood::createForOptim(this, db);
-  like->init(verbose);
+  auto* like = Likelihood::createForOptim(this, db, false, verbose);
   return like->computeLogLikelihood(verbose);
 }
 
@@ -140,7 +145,7 @@ void ModelGeneric::setCov(const ACov* cova)
  * - the space dimension
  * - the number of variables
  */
-void ModelGeneric::setDriftIRF(int order, int nfex)
+void ModelGeneric::setDriftIRF(Id order, Id nfex)
 {
   delete _driftList;
   _driftList = DriftFactory::createDriftListFromIRF(order, nfex, _ctxt);
@@ -150,7 +155,7 @@ void ModelGeneric::addDrift(const ADrift* drift)
 {
   if (drift == nullptr) return;
   if (_driftList == nullptr) _driftList = new DriftList(_ctxt);
-  ADrift* drift_loc = dynamic_cast<ADrift*>(drift->clone());
+  auto* drift_loc = dynamic_cast<ADrift*>(drift->clone());
   _driftList->addDrift(drift_loc);
 
   // Check that the DriftList has the same type of CovContext as the Model
@@ -164,14 +169,14 @@ void ModelGeneric::setDrifts(const VectorString& driftSymbols)
   else
     delAllDrifts();
 
-  for (int i = 0; i < (int)driftSymbols.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(driftSymbols.size()); i++)
   {
     ADrift* drift = DriftFactory::createDriftBySymbol(driftSymbols[i]);
     addDrift(drift);
   }
 }
 
-static MatrixDense _transformF(const MatrixDense& F1, int type, int idx)
+static MatrixDense _transformF(const MatrixDense& F1, Id type, Id idx)
 {
   MatrixDense F1loc;
   switch (type)
@@ -187,36 +192,36 @@ static MatrixDense _transformF(const MatrixDense& F1, int type, int idx)
     case 4:
       F1loc = F1;
       F1loc.fill(0.);
-      for (int i = 0; i < F1.getNRows(); i++)
+      for (Id i = 0; i < F1.getNRows(); i++)
         F1loc.setValue(i, idx, 1.);
       break;
   }
   return (F1loc);
 }
 
-int computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,
-                               const MatrixSymmetric& Sigma,
-                               const MatrixDense& F1,
-                               int type,
-                               int idx)
+Id computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,
+                              const MatrixSymmetric& Sigma,
+                              const MatrixDense& F1,
+                              Id type,
+                              Id idx)
 {
   MatrixDense F1loc = _transformF(F1, type, idx);
-  int nech          = F1.getNRows();
-  int nvar          = Sigma.getNRows() / nech;
+  auto nech         = F1.getNRows();
+  auto nvar         = Sigma.getNRows() / nech;
   cov.resize(nech, nech);
 
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
-    for (int jech = 0; jech < nech; jech++)
+    for (Id jech = 0; jech < nech; jech++)
     {
       if (iech > jech) continue;
       double value = 0.;
-      for (int lvar = 0; lvar < nvar; lvar++)
+      for (Id lvar = 0; lvar < nvar; lvar++)
       {
-        for (int pvar = 0; pvar < nvar; pvar++)
+        for (Id pvar = 0; pvar < nvar; pvar++)
         {
-          int shifti = lvar * nech;
-          int shiftj = pvar * nech;
+          Id shifti = lvar * nech;
+          Id shiftj = pvar * nech;
           value += Sigma.getValue(shifti + iech, shiftj + jech) *
                    F1loc.getValue(iech, lvar) *
                    F1loc.getValue(jech, pvar);
@@ -228,33 +233,33 @@ int computeCovMatSVCLHSInPlace(MatrixSymmetric& cov,
   return 0;
 }
 
-int computeCovMatSVCRHSInPlace(MatrixDense& cov,
-                               const MatrixSymmetric& Sigma,
-                               const MatrixDense& F1,
-                               const MatrixDense& F2,
-                               int type1,
-                               int idx1,
-                               int type2,
-                               int idx2)
+Id computeCovMatSVCRHSInPlace(MatrixDense& cov,
+                              const MatrixSymmetric& Sigma,
+                              const MatrixDense& F1,
+                              const MatrixDense& F2,
+                              Id type1,
+                              Id idx1,
+                              Id type2,
+                              Id idx2)
 {
   MatrixDense F1loc = _transformF(F1, type1, idx1);
   MatrixDense F2loc = _transformF(F2, type2, idx2);
-  int nech1         = F1.getNRows();
-  int nech2         = F2.getNRows();
-  int nvar          = Sigma.getNCols();
+  auto nech1        = F1.getNRows();
+  auto nech2        = F2.getNRows();
+  auto nvar         = Sigma.getNCols();
   cov.resize(nech1, nech2);
 
-  for (int iech = 0; iech < nech1; iech++)
+  for (Id iech = 0; iech < nech1; iech++)
   {
-    for (int jech = 0; jech < nech2; jech++)
+    for (Id jech = 0; jech < nech2; jech++)
     {
       double value = 0.;
-      for (int lvar = 0; lvar < nvar; lvar++)
+      for (Id lvar = 0; lvar < nvar; lvar++)
       {
-        for (int pvar = 0; pvar < nvar; pvar++)
+        for (Id pvar = 0; pvar < nvar; pvar++)
         {
-          int shifti = lvar * nech1;
-          int shiftj = pvar * nech2;
+          Id shifti = lvar * nech1;
+          Id shiftj = pvar * nech2;
           value += Sigma.getValue(shifti + iech, shiftj + jech) *
                    F1loc.getValue(iech, lvar) *
                    F2loc.getValue(jech, pvar);
@@ -266,11 +271,11 @@ int computeCovMatSVCRHSInPlace(MatrixDense& cov,
   return 0;
 }
 
-int computeDriftMatSVCRHSInPlace(MatrixDense& mat,
-                                 const MatrixDense& F,
-                                 int type,
-                                 int idx,
-                                 bool flagCenteredFactors)
+Id computeDriftMatSVCRHSInPlace(MatrixDense& mat,
+                                const MatrixDense& F,
+                                Id type,
+                                Id idx,
+                                bool flagCenteredFactors)
 {
   if (flagCenteredFactors)
   {
@@ -320,7 +325,7 @@ std::shared_ptr<ListParams> ModelGeneric::generateListParams() const
   // Add Covariance parameters
   if (_cova != nullptr)
   {
-    _cova->appendParams(*listParams,&_gradFuncs);
+    _cova->appendParams(*listParams, &_gradFuncs);
   }
 
   // Add Drift parameters
@@ -364,7 +369,7 @@ void ModelGeneric::initParams(const MatrixSymmetric& vars, double href)
   // Initialize the parameters in the DriftList
   if (_driftList != nullptr)
   {
-    _driftList->initParams(vars, href);
+    gstlrn::DriftList::initParams(vars, href);
   }
 }
 
@@ -373,7 +378,7 @@ void ModelGeneric::fitNew(const Db* db,
                           const DbGrid* dbmap,
                           Constraints* constraints,
                           const ModelOptimParam& mop,
-                          int nb_neighVecchia,
+                          Id nb_neighVecchia,
                           bool verbose,
                           bool trace,
                           bool reml)
@@ -382,14 +387,21 @@ void ModelGeneric::fitNew(const Db* db,
                                                   constraints, mop,
                                                   nb_neighVecchia,
                                                   reml);
+
+  if (amopt == nullptr)
+  {
+    messerr("No Optimizer could be created");
+    return;
+  }
+
   amopt->setVerbose(verbose, trace);
   amopt->resetIter();
   amopt->run();
   delete amopt;
 
   // Cancel the structure possibly used for Goulard (to be improved)
-  ModelCovList* mcv = dynamic_cast<ModelCovList*>(this);
+  auto* mcv = dynamic_cast<ModelCovList*>(this);
   if (mcv != nullptr)
     mcv->deleteFitSills();
 }
-}
+} // namespace gstlrn

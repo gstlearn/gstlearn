@@ -172,6 +172,10 @@ if (MSVC OR APPLE)
   target_link_libraries(python_build PRIVATE Python3::Module)
 endif()
 
+if (CLANG)
+  target_compile_options(python_build PRIVATE -Wno-unused-parameter)
+endif()
+
 # Tell that we need to generate docstring files before building python package (if required)
 if (BUILD_DOC)
   add_dependencies(python_build python_doc)
@@ -256,10 +260,16 @@ else()
   set(NO_INTERNET_ARG "")
 endif()
 
+if (BUILD_COVERAGE)
+  set(INSTALL_EDITABLE "-e")
+else()
+  set(INSTALL_EDITABLE "")
+endif()
+
 # Add a custom target for python package installation
 # TODO: Do also installation each time setup.py.in or README.md is modified
 add_custom_target(python_install
-  COMMAND ${UV} pip install ${NO_INTERNET_ARG} "${PYTHON_PACKAGE_ROOT_FOLDER}[plot,conv,doc]"
+  COMMAND ${UV} pip install ${NO_INTERNET_ARG} ${INSTALL_EDITABLE} "${PYTHON_PACKAGE_ROOT_FOLDER}[plot,conv,doc]"
   COMMENT "Installing python package"
 )
 

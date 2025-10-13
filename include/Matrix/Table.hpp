@@ -26,7 +26,7 @@ namespace gstlrn
 class GSTLEARN_EXPORT Table : public MatrixDense, public ASerializable {
 
 public:
-  Table(int nrow = 0, int ncol = 0, bool skip_title = false, bool skip_description = false);
+  Table(Id nrow = 0, Id ncol = 0, bool skip_title = false, bool skip_description = false);
   Table(const Table &m);
   Table& operator= (const Table &m);
   virtual ~Table();
@@ -37,29 +37,29 @@ public:
   /// Cloneable interface
   IMPLEMENT_CLONING(MatrixDense)
 
-  virtual void reset(int nrows, int ncols) override;
+  void reset(Id nrows, Id ncols) override;
 
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static Table* create(int nrow = 0, int ncol = 0);
+  static Table* create(Id nrow = 0, Id ncol = 0);
   static Table* createFromNames(const VectorString &rownames,
                                 const VectorString &colnames);
   static Table* createFromNF(const String& NFFilename, bool verbose = true);
   static Table* createFromTable(const Table& table);
 
-  VectorDouble getRange(int icol) const;
+  VectorDouble getRange(Id icol) const;
   VectorDouble getAllRange() const;
-  void plot(int isimu) const;
+  void plot(Id isimu) const;
 
   void setColumnNames(const VectorString &colNames);
-  void setColumnName(int icol, const String& name);
+  void setColumnName(Id icol, const String& name);
   void setRowNames(const VectorString &rowNames);
-  void setRowName(int irow, const String& name);
+  void setRowName(Id irow, const String& name);
 
   VectorString getColumnNames() const {  return _colNames; }
   VectorString getRowNames() const {  return _rowNames; }
-  String getColumnName(int icol) const;
-  String getRowName(int irow) const;
+  String getColumnName(Id icol) const;
+  String getRowName(Id irow) const;
 
   const String& getTitle() const { return _title; }
   void setTitle(const String &title) { _title = title; }
@@ -67,8 +67,8 @@ public:
   void setSkipTitle(bool skipTitle) { _skipTitle = skipTitle; }
 
 protected:
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;

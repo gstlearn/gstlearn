@@ -15,7 +15,7 @@
 
 using namespace gstlrn;
 
-AShiftOp::AShiftOp(CovAniso* cova, int napices)
+AShiftOp::AShiftOp(CovAniso* cova, Id napices)
   : _Lambda()
   , _napices(napices)
   , _cova(cova)
@@ -77,28 +77,41 @@ void AShiftOp::prodLambda(const VectorDouble& x,
   prodLambda(xv, yv, power);
 }
 
+double AShiftOp::logDetLambda() const
+{
+  double res = 0.;
+  for (const auto& e: _Lambda)
+    res += log(e);
+  return 2. * res;
+}
+
+double AShiftOp::getMaxEigenValue() const
+{
+  double val = _getMaxEigenValue();
+  return val;
+}
 void AShiftOp::addProdLambda(const constvect x,
                              vect y,
                              const EPowerPT& power) const
 {
   if (power == EPowerPT::ONE)
   {
-    for (int i = 0, n = getSize(); i < n; i++)
+    for (Id i = 0, n = getSize(); i < n; i++)
       y[i] += x[i] * getLambda(i);
   }
   else if (power == EPowerPT::MINUSONE)
   {
-    for (int i = 0, n = getSize(); i < n; i++)
+    for (Id i = 0, n = getSize(); i < n; i++)
       y[i] += x[i] / getLambda(i);
   }
   else if (power == EPowerPT::HALF)
   {
-    for (int i = 0, n = getSize(); i < n; i++)
+    for (Id i = 0, n = getSize(); i < n; i++)
       y[i] += x[i] * sqrt(getLambda(i));
   }
   else if (power == EPowerPT::MINUSHALF)
   {
-    for (int i = 0, n = getSize(); i < n; i++)
+    for (Id i = 0, n = getSize(); i < n; i++)
       y[i] += x[i] / sqrt(getLambda(i));
   }
   else
@@ -109,12 +122,12 @@ void AShiftOp::addProdLambda(const constvect x,
 
 std::shared_ptr<CovAniso> AShiftOp::cloneAndCast(const std::shared_ptr<CovAniso>& cova)
 {
-  return std::shared_ptr<CovAniso>((CovAniso*)cova->clone());
+  return std::shared_ptr<CovAniso>(cova->clone());
 }
 
 std::shared_ptr<CovAniso> AShiftOp::cloneAndCast(const CovAniso* cova)
 {
-  return std::shared_ptr<CovAniso>((CovAniso*)cova->clone());
+  return std::shared_ptr<CovAniso>(cova->clone());
 }
 
 void AShiftOp::normalizeLambdaBySills(const AMesh* mesh)
@@ -124,9 +137,9 @@ void AShiftOp::normalizeLambdaBySills(const AMesh* mesh)
   if (_cova->isNoStatForVariance())
   {
     _cova->informMeshByApexForSills(mesh);
-    int number = (int)_Lambda.size();
+    Id number = static_cast<Id>(_Lambda.size());
 
-    for (int imesh = 0; imesh < number; imesh++)
+    for (Id imesh = 0; imesh < number; imesh++)
     {
       _cova->updateCovByMesh(imesh, false);
       double sill      = _cova->getSill(0, 0);

@@ -50,7 +50,7 @@ double CovBesselJ::_evaluateCov(double h) const
 
   double cov   = 0.;
   double third = getParam();
-  int nb       = (int)floor(third);
+  Id nb        = static_cast<Id>(floor(third));
   double alpha = third - nb;
   if (third <= 0 || nb >= MAXTAB) return (cov);
   double coeff = (h > 0) ? pow(h / 2., third) : 1.;

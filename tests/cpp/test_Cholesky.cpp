@@ -19,13 +19,13 @@
 #include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/NF_Triplet.hpp"
 
-using  namespace gstlrn;
-MatrixSparse* _createSparseMatrix(int n, double proba)
+using namespace gstlrn;
+MatrixSparse* _createSparseMatrix(Id n, double proba)
 {
   // We create a square matrix
   NF_Triplet NF_T;
-  for (int icol = 0; icol < n; icol++)
-    for (int irow = 0; irow < n; irow++)
+  for (Id icol = 0; icol < n; icol++)
+    for (Id irow = 0; irow < n; irow++)
     {
       double value  = law_gaussian();
       double tirage = law_uniform(0., 1.);
@@ -44,17 +44,22 @@ MatrixSparse* _createSparseMatrix(int n, double proba)
   return Q;
 }
 
-MatrixSymmetric* _createDenseMatrix(int n, const MatrixSparse* Q)
+MatrixSymmetric* _createDenseMatrix(Id n, const MatrixSparse* Q)
 {
   // Create the corresponding Symmetric matrix
-  MatrixSymmetric* M = new MatrixSymmetric(n);
-  for (int icol = 0; icol < n; icol++)
-    for (int irow = 0; irow < n; irow++)
+  auto* M = new MatrixSymmetric(n);
+  for (Id icol = 0; icol < n; icol++)
+    for (Id irow = 0; irow < n; irow++)
     {
       double value = Q->getValue(irow, icol);
       M->setValue(irow, icol, value);
     }
   return M;
+}
+
+void printError(const String& name)
+{
+  message(">>> Function '%s' is INVALID =======================\n", name.c_str());
 }
 
 /****************************************************************************/
@@ -69,7 +74,7 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  int size           = 10;
+  Id size            = 10;
   double proba       = 0.05;
   MatrixSparse* Q    = _createSparseMatrix(size, proba);
   MatrixSymmetric* M = _createDenseMatrix(size, Q);
@@ -82,8 +87,9 @@ int main(int argc, char* argv[])
   VectorDouble vecref(size);
 
   // Creating the Cholesky objects
-  CholeskySparse cholSparse(Q);
-  CholeskyDense cholDense(M);
+  CholeskySparse cholSparse(*Q);
+
+  CholeskyDense cholDense(*M);
 
   // Checking the Cholesky decomposition
   M->prodMatVecInPlace(vecin, vecref);
@@ -99,7 +105,7 @@ int main(int argc, char* argv[])
     VH::dump("LLt (by Matrix)", vecref);
     VH::dump("LLt (by CholeskySparse)", vecout1);
     VH::dump("LLt (by CholeskyDense)", vecout2);
-    message(">>> Function 'LLt' is INVALID =======================\n");
+    printError("LLt");
   }
 
   // Checking method 'solve'
@@ -114,7 +120,7 @@ int main(int argc, char* argv[])
     VH::dump("Solve (by Matrix)", vecref);
     VH::dump("Solve (by CholeskySparse)", vecout1);
     VH::dump("Solve (by CholeskyDense)", vecout2);
-    message(">>> Function 'solve' is INVALID =======================\n");
+    printError("solve");
   }
 
   // Checking method 'LX' followed by 'InvLX'
@@ -130,7 +136,7 @@ int main(int argc, char* argv[])
     VH::dump("Function 'InvLX(LX)' (by Matrix)", vecin);
     VH::dump("Function 'InvLX(LX)' (by CholeskySparse)", vecout1);
     VH::dump("Function 'InvLX(LX)' (by CholeskyDense)", vecout2);
-    message(">>> Function 'InvLX(LX)' is INVALID ========================\n");
+    printError("InvLX(LX)");
   }
 
   // Checking method 'InvLtX' followed by 'LtX'
@@ -146,7 +152,7 @@ int main(int argc, char* argv[])
     VH::dump("Function 'LtX(InvLtX)' (by Matrix)", vecin);
     VH::dump("Function 'LtX(InvLtX)' (by CholeskySparse)", vecout1);
     VH::dump("Function 'LtX(InvLtX)' (by CholeskyDense)", vecout2);
-    message(">>> Function 'LtX(InvLtX)' is INVALID ========================\n");
+    printError("LtX(InvLtX)");
   }
 
   // Checking the Stdev vector
@@ -155,8 +161,8 @@ int main(int argc, char* argv[])
   VectorDouble vecout1b = MP.getDiagonal();
 
   MatrixSparse* M2 = MatrixSparse::createFromTriplet(
-    M->getMatrixToTriplet(), M->getNRows(), M->getNCols(), -1, 1);
-  CholeskySparse Qchol(M2);
+    M->getMatrixToTriplet(), M->getNRows(), M->getNCols(), -1);
+  CholeskySparse Qchol(*M2);
   MatrixSparse* proj = MatrixSparse::Identity(M->getNRows());
   Qchol.stdev(vecout2, proj, false);
   delete proj;
@@ -167,7 +173,7 @@ int main(int argc, char* argv[])
   {
     VH::dump("Standard Deviation (by Matrix)", vecout1b);
     VH::dump("Standard Deviation (by Cholesky)", vecout2);
-    message(">>> Function 'stdev' is INVALID =============================\n");
+    printError("stdev");
   }
 
   // Checking the calculation of Log(Det)
@@ -179,13 +185,12 @@ int main(int argc, char* argv[])
   {
     message("Log(Det) (by Matrix) = %lf\n", res1);
     message("Log(Det) (by Cholesky) = %lf\n", res2);
-    message(">>> Log(Det) is INVALID =============================\n");
+    printError("Log(Det)");
   }
 
   // Free the pointers
   delete Q;
   delete M;
-  delete M2;
 
   return (0);
 }

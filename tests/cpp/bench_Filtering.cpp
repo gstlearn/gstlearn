@@ -36,15 +36,15 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Global parameters
-  int ndim = 2;
+  Id ndim = 2;
   law_set_random_seed(32131);
   AStringFormat format;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
   bool verbose    = true;
-  int nech        = 3;
-  int nvar        = 2; 
+  Id nech         = 3;
+  Id nvar         = 2;
   bool flagSK     = true;
 
   // Generate the data base
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
   target->setCoordinate(0, 1, data->getCoordinate(0, 1));
 
   // Create the Model
-  int order = (flagSK) ? -1 : 0;
+  Id order     = (flagSK) ? -1 : 0;
   Model* model = Model::createFillRandom(ndim, nvar, {ECov::NUGGET, ECov::SPHERICAL},
                                          1., order);
   model->setCovFiltered(0, true);

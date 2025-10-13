@@ -10,8 +10,8 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Covariances/ACovFunc.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
@@ -19,30 +19,31 @@ class CovContext;
 class TurningBandOperate;
 class MatrixDense;
 
-class GSTLEARN_EXPORT CovGaussian : public ACovFunc
+class GSTLEARN_EXPORT CovGaussian: public ACovFunc
 {
 public:
   CovGaussian(const CovContext& ctx);
-  CovGaussian(const CovGaussian &r);
-  CovGaussian& operator= (const CovGaussian &r);
+  CovGaussian(const CovGaussian& r);
+  CovGaussian& operator=(const CovGaussian& r);
   virtual ~CovGaussian();
 
-  virtual String getFormula() const override;
-  String         getCovName() const override { return "Gaussian"; }
-  int            getMinOrder() const override { return -1; }
-  double         getScadef() const override;
-  virtual bool   hasCovDerivative() const override { return true; }
-  bool           getCompatibleSpaceR() const override { return true; }
+  String getFormula() const override;
+  String getCovName() const override { return "Gaussian"; }
+  Id getMinOrder() const override { return -1; }
+  double getScadef() const override;
+  bool hasCovDerivative() const override { return true; }
+  bool getCompatibleSpaceR() const override { return true; }
 
   bool isValidForTurningBand() const override { return true; }
-  double simulateTurningBand(double t0, TurningBandOperate &operTB) const override;
+  double simulateTurningBand(double t0, TurningBandOperate& operTB) const override;
 
   bool isValidForSpectral() const override { return true; }
-  MatrixDense simulateSpectralOmega(int nb) const override;
+  MatrixDense simulateSpectralOmega(Id nb) const override;
 
 protected:
-  double _evaluateCov(double h)  const override;
-  double _evaluateCovDerivative(int degree, double h) const override;
+  double _evaluateCov(double h) const override;
+  double _evaluateCovDerivative(Id degree, double h) const override;
+  double _evaluateCovFirstDerivativeOverH(double h) const override;
 };
 
-}
+} // namespace gstlrn

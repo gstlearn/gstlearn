@@ -84,11 +84,11 @@ void PolyElem::getExtension(double *xmin,
 
 double PolyElem::getSurface() const
 {
-  int np = getNPoints();
+  auto np        = getNPoints();
   double x0 = getX(0);
   double y0 = getY(0);
   double surface = 0.;
-  for (int i=1; i<np-2; i++)
+  for (Id i=1; i<np-2; i++)
   {
     double x1 = getX(i) - x0;
     double y1 = getY(i) - y0;
@@ -140,7 +140,7 @@ PolyElem* PolyElem::create()
 
 PolyElem* PolyElem::createFromNF(const String& NFFilename, bool verbose)
 {
-  PolyElem* polyelem = new PolyElem();
+  auto* polyelem = new PolyElem();
   if (polyelem->_fileOpenAndDeserialize(NFFilename, verbose)) return polyelem;
   delete polyelem;
   return nullptr;
@@ -148,7 +148,7 @@ PolyElem* PolyElem::createFromNF(const String& NFFilename, bool verbose)
 
 bool PolyElem::_isClosed() const
 {
-  int nvert = getNPoints();
+  auto nvert = getNPoints();
   return (ABS(getX(0) - getX(nvert - 1)) <= EPSILON5 &&
           ABS(getY(0) - getY(nvert - 1)) <= EPSILON5);
 }
@@ -174,14 +174,14 @@ bool PolyElem::inside(const VectorDouble& coor)
 {
   double dx, dy, xj0, xj1, yj0, yj1, xinter;
 
-  int inter = 0;
-  int np = getNPoints();
+  Id inter = 0;
+  auto np   = getNPoints();
   double xx = coor[0];
   double yy = coor[1];
 
   /* Loop on the polygon vertices */
 
-  for (int j = 0; j < np - 1; j++)
+  for (Id j = 0; j < np - 1; j++)
   {
     xj0 = getX(j);
     xj1 = getX(j+1);
@@ -261,7 +261,7 @@ bool PolyElem::inside3D(double zz) const
 
 PolyElem PolyElem::reduceComplexity(double distmin) const
 {
-  int np = getNPoints();
+  auto np      = getNPoints();
   double dmin2 = distmin * distmin;
   PolyElem newpolyelem;
 
@@ -271,7 +271,7 @@ PolyElem PolyElem::reduceComplexity(double distmin) const
   double ycur = getY(0);
   newpolyelem.addPoint(xcur, ycur);
 
-  int ecr = 1;
+  Id ecr = 1;
   while (ecr < np)
   {
     double xnext = getX(ecr);

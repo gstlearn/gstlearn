@@ -12,8 +12,9 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Tree/ball_algorithm.h"
 #include "Matrix/MatrixT.hpp"
+#include "Tree/KNN.hpp"
+#include "Tree/ball_algorithm.h"
 
 namespace gstlrn
 {
@@ -24,93 +25,67 @@ class SpacePoint;
 class GSTLEARN_EXPORT Ball
 {
 public:
-
-  Ball(const double** data = nullptr,
-       int n_samples = 0,
-       int n_features = 0,
-       double (*dist_function)(const double* x1,
-                               const double* x2,
-                               int n_features) = nullptr,
-       int leaf_size                           = 10,
-       int default_distance_function           = 1);
+  Ball() = default;
 
   Ball(const Db* dbin,
-       const Db* dbout                         = nullptr,
-       double (*dist_function)(const double* x1,
-                               const double* x2,
-                               int n_features) = nullptr,
-       int leaf_size                           = 10,
-       bool has_constraints                    = false,
-       int default_distance_function           = 1,
-       bool useSel                             = false);
+       const Db* dbout              = nullptr,
+       Id leaf_size                 = 10,
+       bool all_available           = true,
+       Id default_distance_function = 1,
+       bool useSel                  = false);
   Ball(const AMesh* mesh,
-       double (*dist_function)(const double* x1,
-                               const double* x2,
-                               int n_features) = nullptr,
-       int leaf_size                           = 10,
-       bool has_constraints                    = false,
-       int default_distance_function           = 1);
-  Ball(const Ball& r);
-  Ball& operator=(const Ball& p);
-  virtual ~Ball();
+       Id leaf_size                 = 10,
+       bool all_available           = true,
+       Id default_distance_function = 1);
 
   void init(const Db* db,
-            double (*dist_function)(const double* x1,
-                                    const double* x2,
-                                    int n_features) = nullptr,
-            int leaf_size                           = 10,
-            int default_distance_function           = 1,
-            bool useSel                             = false);
+            Id leaf_size                 = 10,
+            bool all_available           = true,
+            Id default_distance_function = 1,
+            bool useSel                  = false);
 
-  KNN query(const double** test,
-            int n_samples,
-            int n_features,
-            int n_neighbors = 1);
-  KNN queryAsVVD(const VectorVectorDouble& test, int n_neighbors = 1);
-  KNN queryOne(const double* test, int n_features, int n_neighbors = 1);
-  KNN queryOneAsVD(const VectorDouble& test, int n_neighbors = 1);
-  KNN queryOneAsVDFromSP(const SpacePoint& Pt, int n_neighbors = 1);
-  VectorInt getIndices(const SpacePoint& Pt, int n_neighbors = 1);
-  int queryClosest(const VectorDouble& test);
-  int queryOneInPlace(const VectorDouble& test,
-                      int n_neighbors,
-                      VectorInt& indices,
-                      VectorDouble& distances,
-                      int rank = 0);
-  void display(int level = -1) const;
-  int setConstraint(int rank, bool status);
-  int resetConstraints(bool status);
-  bool empty() const { return _tree == nullptr; }
+  KNN queryAsVVD(const VectorVectorDouble& test, Id n_neighbors = 1);
+  KNN queryOne(const double* test, Id n_features, Id n_neighbors = 1);
+  KNN queryOneAsVD(const VectorDouble& test, Id n_neighbors = 1);
+  KNN queryOneAsVDFromSP(const SpacePoint& Pt, Id n_neighbors = 1);
+  VectorInt getIndices(const SpacePoint& Pt, Id n_neighbors = 1);
+  Id queryClosest(const VectorDouble& test);
+  Id queryOneInPlace(const VectorDouble& test,
+                     Id n_neighbors,
+                     VectorInt& indices,
+                     VectorDouble& distances,
+                     Id rank = 0);
+  void display(Id level = -1) const;
+  Id setAvailable(Id rank, bool status);
+  Id resetAvailable(bool status);
+  bool empty() const { return _tree.data.empty(); }
+  Id getNSample() const { return _tree.n_samples; }
 
 protected:
-  int _getFeatureNumber() const { return _tree->n_features; }
-  int _getLeafSize() const { return _tree->leaf_size; }
-  int _getNSample() const { return _tree->n_samples; }
+  Id _getFeatureNumber() const { return _tree.n_features; }
+  Id _getLeafSize() const { return _tree.leaf_size; }
 
 private:
-  bool _isConstraintDefined() const;
-  static double** _getInformationFromDb(const Db* dbin,
-                                        const Db* dbout,
-                                        bool useSel,
-                                        int* n_samples,
-                                        int* n_features);
-  static double** _getInformationFromMesh(const AMesh* mesh,
-                                          int* n_samples,
-                                          int* n_features);
+  bool _isAvailableDefined() const;
+  static MatrixT<double> _getInformationFromDb(const Db* dbin,
+                                               const Db* dbout,
+                                               bool useSel,
+                                               Id* n_samples,
+                                               Id* n_features);
+  static MatrixT<double> _getInformationFromMesh(const AMesh* mesh,
+                                                 Id* n_samples,
+                                                 Id* n_features);
 
 private:
-  t_btree* _tree;
-  bool _master;
+  t_btree _tree;
 };
 
-GSTLEARN_EXPORT MatrixT<int> findNN(const Db* dbin,
-                                    const Db* dbout                               = nullptr,
-                                    int nb_neigh                            = 3,
-                                    bool flagShuffle                        = false,
-                                    bool verbose                            = false,
-                                    double (*dist_function)(const double* x1,
-                                                            const double* x2,
-                                                            int n_features) = nullptr,
-                                    int leaf_size                           = 10,
-                                    int default_distance_function           = 1);
-  }
+GSTLEARN_EXPORT MatrixT<Id> findNN(const Db* dbin,
+                                   const Db* dbout              = nullptr,
+                                   Id nb_neigh                  = 3,
+                                   bool flagShuffle             = false,
+                                   bool verbose                 = false,
+                                   Id leaf_size                 = 10,
+                                   Id default_distance_function = 1,
+                                   bool likelihood              = false);
+} // namespace gstlrn

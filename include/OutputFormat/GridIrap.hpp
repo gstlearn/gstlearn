@@ -27,17 +27,17 @@ public:
 
   bool mustBeGrid() const override { return true; }
   bool mustBeOneVariable() const override { return true; }
-  bool mustBeForNDim(int ndim) const override { return ndim == 2; }
-  bool mustBeForRotation(int mode) const override { return mode == 0; }
-  int  writeInFile() override;
+  bool mustBeForNDim(Id ndim) const override { return ndim == 2; }
+  bool mustBeForRotation(Id mode) const override { return mode == 0; }
+  Id  writeInFile() override;
 
-  int getNsamplex() const { return _nsamplex; }
-  void setNsamplex(int nsamplex) { _nsamplex = nsamplex; }
-  int getNsampley() const { return _nsampley; }
-  void setNsampley(int nsampley) { _nsampley = nsampley; }
+  Id getNsamplex() const { return _nsamplex; }
+  void setNsamplex(Id nsamplex) { _nsamplex = nsamplex; }
+  Id getNsampley() const { return _nsampley; }
+  void setNsampley(Id nsampley) { _nsampley = nsampley; }
 
 private:
-  int _nsamplex;
-  int _nsampley;
+  Id _nsamplex;
+  Id _nsampley;
 };
 }

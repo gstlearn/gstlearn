@@ -1,5 +1,7 @@
 #NO_DIFF#XXX
-----<IPython.core.display.Javascript object>----
+----
+
+<IPython.core.display.Javascript object>----
 
 
 #NO_DIFF#XXX
@@ -20,7 +22,7 @@ Spherical
 - Range        =    135.133
 Total Sill     =      1.155
 Known Mean(s)     0.000
- ----
+----
 
 
 #NO_DIFF#XXX

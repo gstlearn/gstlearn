@@ -11,6 +11,7 @@
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorNumT.hpp"
 
 #include <algorithm>
 #include <cstring>
@@ -87,7 +88,7 @@ charTypeT _charType(char c)
 }
 
 String incrementStringVersion(const String& string,
-                              int rank,
+                              Id rank,
                               const String& delim)
 {
   std::stringstream ss;
@@ -138,11 +139,11 @@ String concatenateStrings(const String& delim,
   return ss.str();
 }
 
-VectorString generateMultipleNames(const String& radix, int number, const String& delim)
+VectorString generateMultipleNames(const String& radix, Id number, const String& delim)
 {
   VectorString list;
 
-  for (int i = 0; i < number; i++)
+  for (Id i = 0; i < number; i++)
   {
     list.push_back(incrementStringVersion(radix, i + 1, delim));
   }
@@ -156,14 +157,14 @@ VectorString generateMultipleNames(const String& radix, int number, const String
  */
 void correctNamesForDuplicates(VectorString& list)
 {
-  int number = static_cast<int>(list.size());
-  for (int i = 1; i < number; i++)
+  Id number = static_cast<Id>(list.size());
+  for (Id i = 1; i < number; i++)
   {
     // Check that a similar name does not appear among the previous names in list
 
   label_try:
-    int found = -1;
-    for (int j = 0; j < i && found < 0; j++)
+    Id found = -1;
+    for (Id j = 0; j < i && found < 0; j++)
     {
       if (list[i] == list[j]) found = j;
     }
@@ -176,14 +177,14 @@ void correctNamesForDuplicates(VectorString& list)
   }
 }
 
-void correctNewNameForDuplicates(VectorString& list, int rank)
+void correctNewNameForDuplicates(VectorString& list, Id rank)
 {
-  int number = static_cast<int>(list.size());
-  int found  = 1;
+  Id number = static_cast<Id>(list.size());
+  Id found  = 1;
   while (found > 0)
   {
     found = 0;
-    for (int i = 0; i < number; i++)
+    for (Id i = 0; i < number; i++)
     {
       if (i == rank) continue;
       if (list[rank] == list[i]) found++;
@@ -204,11 +205,11 @@ void correctNewNameForDuplicates(VectorString& list, int rank)
  * @param caseSensitive Case Sensitive flag
  * @return The index of the matching item or -1
  */
-int getRankInList(const VectorString& list,
-                  const String& match,
-                  bool caseSensitive)
+Id getRankInList(const VectorString& list,
+                 const String& match,
+                 bool caseSensitive)
 {
-  for (int i = 0; i < (int)list.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(list.size()); i++)
   {
     if (matchRegexp(list[i], match, caseSensitive)) return i;
   }
@@ -225,10 +226,10 @@ int getRankInList(const VectorString& list,
  * @param caseSensitive
  * @return Error returned code
  */
-int decodeInString(const String& symbol,
-                   const String& node,
-                   int* facies,
-                   bool caseSensitive)
+Id decodeInString(const String& symbol,
+                  const String& node,
+                  Id* facies,
+                  bool caseSensitive)
 {
   String locnode = node;
   String locsymb = symbol;
@@ -264,13 +265,13 @@ int decodeInString(const String& symbol,
  * @param caseSensitive
  * @return Error returned code
  */
-int decodeInList(const VectorString& symbols,
-                 const String& node,
-                 int* rank,
-                 int* facies,
-                 bool caseSensitive)
+Id decodeInList(const VectorString& symbols,
+                const String& node,
+                Id* rank,
+                Id* facies,
+                bool caseSensitive)
 {
-  for (int i = 0; i < (int)symbols.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(symbols.size()); i++)
   {
     if (decodeInString(symbols[i], node, facies, caseSensitive)) continue;
     *rank = i;
@@ -341,13 +342,13 @@ VectorString expandList(const VectorString& list,
   std::regex regexpr = _protectRegexp(match);
 
   VectorString sublist;
-  for (int i = 0; i < (int)list.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(list.size()); i++)
   {
     const String& toto = list[i];
     if (std::regex_match(toto, regexpr)) sublist.push_back(toto);
   }
 
-  int number = static_cast<int>(sublist.size());
+  Id number = static_cast<Id>(sublist.size());
   if (onlyOne && number != 1)
   {
     if (number > 1)
@@ -355,7 +356,7 @@ VectorString expandList(const VectorString& list,
       messerr(
         "The name (%s) has been expanded to several matching possibilities",
         match.c_str());
-      for (int i = 0; i < (int)sublist.size(); i++)
+      for (Id i = 0; i < static_cast<Id>(sublist.size()); i++)
         messerr("- %s", sublist[i].c_str());
     }
     else
@@ -372,10 +373,10 @@ VectorString expandList(const VectorString& list, const VectorString& matches)
   VectorString sublist;
 
   // Loop on the patterns to be matched
-  for (int i = 0; i < (int)matches.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(matches.size()); i++)
   {
     // Loop for eligible names
-    for (int j = 0; j < (int)list.size(); j++)
+    for (Id j = 0; j < static_cast<Id>(list.size()); j++)
     {
       std::regex regexpr = _protectRegexp(matches[i]);
       if (std::regex_match(list[j], regexpr))
@@ -402,13 +403,13 @@ VectorString expandList(const VectorString& list, const VectorString& matches)
  * @param list List of strings
  * @return The maximum number of characters
  */
-int getMaxStringSize(const VectorString& list)
+Id getMaxStringSize(const VectorString& list)
 {
-  int size = 0;
+  Id size = 0;
   if (list.empty()) return size;
-  for (int i = 0; i < (int)list.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(list.size()); i++)
   {
-    int local = static_cast<int>(list[i].length());
+    Id local = static_cast<Id>(list[i].length());
     if (local > size) size = local;
   }
   return size;
@@ -444,10 +445,10 @@ VectorString separateKeywords(const String& code)
  * @param v String to be decoded
  * @return The integer value or ITEST (in case of failure)
  */
-int toInteger(const String& v)
+Id toInteger(const String& v)
 {
   std::istringstream iss(v);
-  int number;
+  Id number;
   iss >> number;
   if (iss.fail()) return ITEST;
   return number;
@@ -486,7 +487,7 @@ double toDouble(const String& v, char dec)
   return number;
 }
 
-String toString(int value)
+String toString(Id value)
 {
   std::stringstream sstr;
   sstr << value;
@@ -506,10 +507,10 @@ String toString(double value)
  * @param defval Default value (or IFFFF)
  * @param authTest True if TEST value is authorized (TEST)
  */
-int askInt(const String& text, int defval, bool authTest)
+Id askInt(const String& text, Id defval, bool authTest)
 {
   bool hasDefault = !IFFFF(defval) || authTest;
-  int answer      = defval;
+  Id answer       = defval;
   std::cin.exceptions(std::istream::failbit | std::istream::badbit);
 
   try
@@ -561,7 +562,7 @@ int askInt(const String& text, int defval, bool authTest)
 }
 
 /**
- * Ask interactively for the value of one Real (Double)
+ * Ask interactively for the value of one Real (Double value)
  * @param text Text of the question
  * @param defval Default value (or IFFFF)
  * @param authTest True if a TEST answer is authorized (TEST)
@@ -626,7 +627,7 @@ double askDouble(const String& text,
  * @param text Text of the question
  * @param defval Default value
  */
-int askBool(const String& text, bool defval)
+Id askBool(const String& text, bool defval)
 {
   bool hasDefault = !IFFFF(defval);
   bool answer     = defval;
@@ -705,58 +706,162 @@ String trim(const String& s, const String& t)
 String erase(const String& s, const String& t)
 {
   String d(s);
-  for (unsigned int i = 0; i < t.size(); i++)
+  for (size_t i = 0; i < t.size(); i++)
     d.erase(std::remove(d.begin(), d.end(), t[i]), d.end());
   return d;
 }
 
-char* gslStrcpy(char* dst, const char* src)
+char* gslStrcpy(char* dst, Id n, const char* src)
 {
-  return strcpy(dst, src);
-  //(void)gslSPrintf(dst, "%s", src);
-  // return dst;
+  return strncpy(dst, src, n);
 }
 
-char* gslStrcat(char* dst, const char* src)
+void gslStrcpy(String& dst, const char* src)
 {
-  return strcat(dst, src);
-  //  size_t size = String(dst).size();
-  //  (void)gslSPrintf(&dst[size], "%s%s", dst, src);
-  //  return dst;
+  if (!src)
+  {
+    dst.clear();
+    return;
+  }
+
+  size_t len = std::strlen(src);
+
+  // ajuster la taille du string
+  dst.resize(len);
+
+  // copier le contenu
+  std::memcpy(dst.data(), src, len);
 }
 
-int gslSPrintf(char* dst, const char* fmt, ...)
+void gslStrcpy(String& dst, const String& src)
+{
+  size_t len = src.size();
+
+  // redimensionner dst pour accueillir exactement src
+  dst.resize(len);
+
+  // copier le contenu
+  std::memcpy(dst.data(), src.data(), len);
+}
+
+char* gslStrcat(char* dst, Id n, const char* src)
+{
+  return strncat(dst, src, n);
+}
+
+void gslStrcat(String& dst, const char* src)
+{
+  if (!src) return; // sécurité
+
+  size_t old_len = dst.size();
+  size_t add_len = std::strlen(src);
+
+  // on redimensionne pour accueillir l'ajout
+  dst.resize(old_len + add_len);
+
+  // on copie le nouveau contenu à la fin
+  std::memcpy(&dst[old_len], src, add_len);
+}
+
+void gslStrcat(String& dst, const String& src)
+{
+  size_t old_len = dst.size();
+  size_t add_len = src.size();
+
+  // redimensionner dst pour accueillir l'ajout
+  dst.resize(old_len + add_len);
+
+  // copier directement les caractères de src
+  std::memcpy(&dst[old_len], src.data(), add_len);
+}
+
+Id gslSPrintf(char* dst, Id n, const char* fmt, ...)
+{
+  DECLARE_UNUSED(n);
+  va_list ap;
+  va_start(ap, fmt);
+  Id nout = vsnprintf(dst, n, fmt, ap);
+  va_end(ap);
+  return nout;
+}
+
+Id gslSPrintfCat(String& dst, const char* fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
-  int n = vsprintf(dst, fmt, ap);
+
+  // calculer la taille du texte formaté
+  va_list ap_copy;
+  va_copy(ap_copy, ap);
+  int size = std::vsnprintf(nullptr, 0, fmt, ap_copy);
+  va_end(ap_copy);
+
+  if (size < 0)
+  {
+    va_end(ap);
+    return -1; // erreur
+  }
+
+  // mémoriser l'ancienne longueur
+  size_t old_len = dst.size();
+
+  // redimensionner dst pour contenir l'ancien contenu + nouveau texte + '\0'
+  dst.resize(old_len + size + 1);
+
+  // écrire le texte formaté à la fin
+  std::vsnprintf(&dst[old_len], size + 1, fmt, ap);
+  va_end(ap);
+
+  // redimensionner pour enlever le '\0' final
+  dst.resize(old_len + size);
+
+  return size;
+}
+
+Id gslSPrintf(String& dst, const char* fmt, ...)
+{
+  va_list ap;
+  va_start(ap, fmt);
+
+  // On calcule la taille nécessaire
+  va_list ap_copy;
+  va_copy(ap_copy, ap);
+  int size = std::vsnprintf(nullptr, 0, fmt, ap_copy);
+  va_end(ap_copy);
+
+  if (size < 0)
+  {
+    va_end(ap);
+    return -1; // erreur
+  }
+
+  // Redimensionner pour contenir le texte + '\0'
+  dst.resize(size + 1);
+
+  // Ecrire la chaîne formatée
+  std::vsnprintf(dst.data(), dst.size(), fmt, ap);
+  va_end(ap);
+
+  // Enlever le '\0' final pour que dst.size() == longueur réelle
+  dst.resize(size);
+
+  return size;
+}
+
+Id gslScanf(const char* fmt, ...)
+{
+  va_list ap;
+  va_start(ap, fmt);
+  Id n = vscanf(fmt, ap);
   va_end(ap);
   return n;
 }
 
-int gslScanf(const char* format, ...)
+Id gslSScanf(const char* str, const char* fmt, ...)
 {
   va_list ap;
-  va_start(ap, format);
-  int n = vscanf(format, ap);
-  va_end(ap);
-  return n;
-}
-
-int gslSScanf(const char* str, const char* format, ...)
-{
-  va_list ap;
-  va_start(ap, format);
-  int n = vsscanf(str, format, ap);
-  va_end(ap);
-  return n;
-}
-
-int gslFScanf(FILE* stream, const char* format, ...)
-{
-  va_list ap;
-  va_start(ap, format);
-  int n = vfscanf(stream, format, ap);
+  va_start(ap, fmt);
+  Id n = vsscanf(str, fmt, ap);
   va_end(ap);
   return n;
 }
@@ -764,11 +869,6 @@ int gslFScanf(FILE* stream, const char* format, ...)
 char* gslStrtok(char* str, const char* delim)
 {
   return strtok(str, delim);
-}
-
-char* gslStrncpy(char* dest, const char* src, size_t n)
-{
-  return strncpy(dest, src, n);
 }
 
 /****************************************************************************/
@@ -792,19 +892,19 @@ VectorInt decodeGridSorting(const String& string,
                             const VectorInt& nx,
                             bool verbose)
 {
-  int ndim = (int)nx.size();
+  Id ndim = static_cast<Id>(nx.size());
   VectorInt order(ndim, 0);
   VectorInt ranks(ndim, 0);
 
   // Loop on the character string
 
-  int idim   = 0;
-  int ind    = 0;
-  int length = (int)string.size();
+  Id idim   = 0;
+  Id ind    = 0;
+  Id length = static_cast<Id>(string.size());
 
   while (ind < length)
   {
-    int orient = 0;
+    Id orient = 0;
     if (string[ind] == '-' && (string[ind + 1] == 'x' && isdigit(string[ind + 2])))
       orient = -1;
     else if (string[ind] == '+' && (string[ind + 1] == 'x' && isdigit(string[ind + 2])))
@@ -818,7 +918,7 @@ VectorInt decodeGridSorting(const String& string,
       // The string '+x*' or '-x*' has been encountered
 
       ind += 2;
-      int num = string[ind] - '0';
+      Id num = string[ind] - '0';
       if (idim >= ndim)
       {
         messerr("'order' contains more terms (%d) than the space dimension (%d)", idim + 1, ndim);
@@ -841,7 +941,7 @@ VectorInt decodeGridSorting(const String& string,
 
   // Check that all indices (within space dimension) have been specified
 
-  for (int i = 0; i < ndim; i++)
+  for (Id i = 0; i < ndim; i++)
   {
     if (ranks[i] != 0) continue;
     messerr("'x%d' is not mentioned in the input string", i + 1);
@@ -853,12 +953,12 @@ VectorInt decodeGridSorting(const String& string,
   if (verbose)
   {
     message("Decoding the sorting rule (%s) with nx = (", string.c_str());
-    for (int i = 0; i < ndim; i++)
+    for (Id i = 0; i < ndim; i++)
       message(" %d", nx[i]);
     message(" )\n");
-    for (int i = 0; i < ndim; i++)
+    for (Id i = 0; i < ndim; i++)
     {
-      int a_order = ABS(order[i]);
+      Id a_order = ABS(order[i]);
       message("%d - Dimension=%d - N%d=%d", i + 1, a_order, a_order,
               nx[a_order - 1]);
       if (order[i] > 0)

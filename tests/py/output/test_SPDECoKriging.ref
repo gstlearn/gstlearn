@@ -24,9 +24,13 @@ Co-Kriging using SPDE (Matrix-Free)
                       Mean
 KF.Data.1.estim      1.497
 KF.Data.2.estim      0.061
-KF.Data.1.stdev      7.504
-KF.Data.2.stdev      6.285
+KF.Data.1.stdev      7.515
+KF.Data.2.stdev      6.280
 Difference with Kriging.Data.1.estim  = 0.04644
 Difference with Kriging.Data.2.estim  = 0.04052
-Difference with Kriging.Data.1.stdev  = 0.02645
-Difference with Kriging.Data.2.stdev  = 0.01891
+Difference with Kriging.Data.1.stdev  = 0.02787
+Difference with Kriging.Data.2.stdev  = 0.02032
+Difference between Matrix-Free and Matrix (estim) for variable .estim 1  = 0.01678
+Difference between Matrix-Free and Matrix (estim) for variable .estim 2  = 0.00996
+Difference between Matrix-Free and Matrix (stdev) for variable .stdev 1  = 0.02711
+Difference between Matrix-Free and Matrix (stdev) for variable .stdev 2  = 0.01871

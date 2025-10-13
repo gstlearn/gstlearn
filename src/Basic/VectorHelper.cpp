@@ -23,65 +23,73 @@
 
 namespace gstlrn
 {
-VectorInt VectorHelper::initVInt(int nval, int value)
+VectorInt VectorHelper::initVInt(Id nval, Id value)
 {
   VectorInt tab(nval, value);
   return tab;
 }
 
-VectorDouble VectorHelper::initVDouble(int nval, double value)
+VectorDouble VectorHelper::initVDouble(Id nval, double value)
 {
   VectorDouble tab(nval, value);
   return tab;
 }
 
-VectorVectorDouble VectorHelper::initVVDouble(int nval1, int nval2, double value)
+VectorVectorDouble VectorHelper::initVVDouble(Id nval1, Id nval2, double value)
 {
   VectorVectorDouble tab(nval1, VectorDouble(nval2, value));
   return tab;
 }
 
-VectorVectorInt VectorHelper::initVVInt(int nval1, int nval2, int value)
+VectorVectorInt VectorHelper::initVVInt(Id nval1, Id nval2, Id value)
 {
   VectorVectorInt tab(nval1, VectorInt(nval2, value));
   return tab;
 }
 
-VectorInt VectorHelper::initVInt(const int* values, int number)
+VectorInt VectorHelper::initVInt(const Id* values, Id number)
 {
   if (values == nullptr) return VectorInt();
   VectorInt vec(number);
-  for (int i = 0; i < number; i++) vec[i] = values[i];
+  for (Id i = 0; i < number; i++) vec[i] = values[i];
   return vec;
 }
 
-VectorDouble VectorHelper::initVDouble(const double* values, int number)
+VectorInt VectorHelper::initVInt(const I32* values, Id number)
+{
+  if (values == nullptr) return VectorInt();
+  VectorInt vec(number);
+  for (Id i = 0; i < number; i++) vec[i] = values[i];
+  return vec;
+}
+
+VectorDouble VectorHelper::initVDouble(const double* values, Id number)
 {
   if (values == nullptr) return VectorDouble();
   VectorDouble vec(number);
-  for (int i = 0; i < number; i++) vec[i] = values[i];
+  for (Id i = 0; i < number; i++) vec[i] = values[i];
   return vec;
 }
 
-VectorVectorDouble VectorHelper::initVVDouble(const double* value, int n1, int n2)
+VectorVectorDouble VectorHelper::initVVDouble(const double* value, Id n1, Id n2)
 {
   if (value == nullptr) return VectorVectorDouble();
   VectorVectorDouble vec;
   vec.resize(n1);
-  for (int i1 = 0; i1 < n1; i1++) vec[i1].resize(n2);
+  for (Id i1 = 0; i1 < n1; i1++) vec[i1].resize(n2);
 
-  int lec = 0;
-  for (int i1 = 0; i1 < n1; i1++)
-    for (int i2 = 0; i2 < n2; i2++)
+  Id lec = 0;
+  for (Id i1 = 0; i1 < n1; i1++)
+    for (Id i2 = 0; i2 < n2; i2++)
       vec[i1][i2] = value[lec++];
   return vec;
 }
 
-VectorString VectorHelper::initVString(int ntab, char** names)
+VectorString VectorHelper::initVString(Id ntab, char** names)
 {
   VectorString rettab(ntab);
   if (names == nullptr) return rettab;
-  for (int i = 0; i < ntab; i++) rettab[i] = names[i];
+  for (Id i = 0; i < ntab; i++) rettab[i] = names[i];
   return rettab;
 }
 
@@ -176,17 +184,17 @@ String VectorHelper::toStringAsVI(const VectorInt& vec)
   return toVector(String(), vec);
 }
 
-void VectorHelper::dumpStats(const String& title, constvect vect, int nmax)
+void VectorHelper::dumpStats(const String& title, constvect vect, Id nmax)
 {
-  int ntotal = (int)vect.size();
+  Id ntotal = static_cast<Id>(vect.size());
   if (nmax > 0 && nmax < ntotal) ntotal = nmax;
-  int number  = 0;
+  Id number   = 0;
   double mean = 0.;
   double stdv = 0.;
   double mini = MAXIMUM_BIG;
   double maxi = MINIMUM_BIG;
 
-  for (int i = 0; i < ntotal; i++)
+  for (Id i = 0; i < ntotal; i++)
   {
     double value = vect[i];
     if (FFFF(value)) continue;
@@ -200,8 +208,8 @@ void VectorHelper::dumpStats(const String& title, constvect vect, int nmax)
   if (!title.empty()) message("%s\n", title.c_str());
   if (number > 0)
   {
-    mean /= (double)number;
-    stdv = stdv / (double)number - mean * mean;
+    mean /= static_cast<double>(number);
+    stdv = stdv / static_cast<double>(number) - mean * mean;
     stdv = (stdv > 0.) ? sqrt(stdv) : 0.;
 
     message("- Number of samples = %d / %d\n", number, ntotal);
@@ -216,27 +224,27 @@ void VectorHelper::dumpStats(const String& title, constvect vect, int nmax)
   }
 }
 
-void VectorHelper::dumpStats(const String& title, const VectorDouble& vectin, int nmax)
+void VectorHelper::dumpStats(const String& title, const VectorDouble& vectin, Id nmax)
 {
   constvect vect(vectin);
   dumpStats(title, vect, nmax);
 }
 
-void VectorHelper::dumpRange(const String& title, const VectorDouble& vectin, int nmax)
+void VectorHelper::dumpRange(const String& title, const VectorDouble& vectin, Id nmax)
 {
   constvect vect(vectin);
   dumpRange(title, vect, nmax);
 }
 
-void VectorHelper::dumpRange(const String& title, constvect vect, int nmax)
+void VectorHelper::dumpRange(const String& title, constvect vect, Id nmax)
 {
-  int ntotal = (int)vect.size();
+  Id ntotal = static_cast<Id>(vect.size());
   if (nmax > 0 && nmax < ntotal) ntotal = nmax;
-  int number  = 0;
+  Id number   = 0;
   double mini = MAXIMUM_BIG;
   double maxi = MINIMUM_BIG;
 
-  for (int i = 0; i < ntotal; i++)
+  for (Id i = 0; i < ntotal; i++)
   {
     double value = vect[i];
     if (FFFF(value)) continue;
@@ -260,14 +268,14 @@ void VectorHelper::dumpRange(const String& title, constvect vect, int nmax)
 
 void VectorHelper::dumpRange(const String& title, const VectorInt& vect)
 {
-  int ntotal = (int)vect.size();
-  int number = 0;
-  int mini   = 100000000;
-  int maxi   = -100000000;
+  Id ntotal = static_cast<Id>(vect.size());
+  Id number = 0;
+  Id mini   = 100000000;
+  Id maxi   = -100000000;
 
-  for (int i = 0; i < ntotal; i++)
+  for (Id i = 0; i < ntotal; i++)
   {
-    int value = vect[i];
+    Id value = vect[i];
     if (FFFF(value)) continue;
     number++;
     if (value < mini) mini = value;
@@ -287,17 +295,17 @@ void VectorHelper::dumpRange(const String& title, const VectorInt& vect)
   }
 }
 
-void VectorHelper::dumpNNZ(const String& title, const VectorDouble& vect, int nclass)
+void VectorHelper::dumpNNZ(const String& title, const VectorDouble& vect, Id nclass)
 {
-  int ntotal = (int)vect.size();
+  Id ntotal = static_cast<Id>(vect.size());
   VectorInt total(nclass);
-  for (int ic = 0; ic < nclass; ic++) total[ic] = 0.;
+  for (Id ic = 0; ic < nclass; ic++) total[ic] = 0.;
 
-  for (int i = 0; i < ntotal; i++)
+  for (Id i = 0; i < ntotal; i++)
   {
     double value = ABS(vect[i]);
     double tol   = 1.;
-    for (int ic = 0; ic < nclass; ic++)
+    for (Id ic = 0; ic < nclass; ic++)
     {
       tol /= 10.;
       if (value > tol) break;
@@ -306,21 +314,21 @@ void VectorHelper::dumpNNZ(const String& title, const VectorDouble& vect, int nc
   }
 
   if (!title.empty()) message("%s\n", title.c_str());
-  for (int ic = 0; ic < nclass; ic++)
+  for (Id ic = 0; ic < nclass; ic++)
     message("Count below 10.e-%d = %d\n", ic + 1, total[ic]);
 }
 
 bool VectorHelper::hasUndefined(const VectorDouble& vec)
 {
-  for (int i = 0, n = (int)vec.size(); i < n; i++)
+  for (Id i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
     if (FFFF(vec[i])) return true;
   return false;
 }
 
-int VectorHelper::maximum(const VectorInt& vec, bool flagAbs)
+Id VectorHelper::maximum(const VectorInt& vec, bool flagAbs)
 {
   if (vec.size() <= 0) return 0;
-  int max = -10000000;
+  Id max = -10000000;
   for (auto v: vec)
   {
     if (IFFFF(v)) continue;
@@ -333,7 +341,7 @@ int VectorHelper::maximum(const VectorInt& vec, bool flagAbs)
 double VectorHelper::maximum(const std::vector<std::vector<double>>& vec, bool flagAbs)
 {
   double val = VH::maximum(vec[0]);
-  for (int i = 1, n = (int)vec.size(); i < n; i++)
+  for (Id i = 1, n = static_cast<Id>(vec.size()); i < n; i++)
     val = MAX(val, VH::maximum(vec[i], flagAbs));
   return val;
 }
@@ -341,15 +349,15 @@ double VectorHelper::maximum(const std::vector<std::vector<double>>& vec, bool f
 double VectorHelper::maximum(const VectorVectorDouble& vect, bool flagAbs)
 {
   double val = VH::maximum(vect[0]);
-  for (int i = 1, n = (int)vect.size(); i < n; i++)
+  for (Id i = 1, n = static_cast<Id>(vect.size()); i < n; i++)
     val = MAX(val, VH::maximum(vect[i], flagAbs));
   return val;
 }
 
-int VectorHelper::minimum(const VectorInt& vec, bool flagAbs)
+Id VectorHelper::minimum(const VectorInt& vec, bool flagAbs)
 {
   if (vec.size() <= 0) return 0;
-  int min = 10000000;
+  Id min = 10000000;
   for (auto v: vec)
   {
     if (IFFFF(v)) continue;
@@ -372,11 +380,11 @@ int VectorHelper::minimum(const VectorInt& vec, bool flagAbs)
  * @remarks - mode>0: statistics calculated only when 'vec' > 'aux'
  * @remarks - mode<0: statistics calculated only when 'vec' < 'aux'
  */
-double VectorHelper::maximum(const VectorDouble& vec, bool flagAbs, const VectorDouble& aux, int mode)
+double VectorHelper::maximum(const VectorDouble& vec, bool flagAbs, const VectorDouble& aux, Id mode)
 {
   if (vec.empty()) return TEST;
-  int size     = (int)vec.size();
-  bool flagAux = (!aux.empty() && (int)aux.size() == size);
+  Id size      = static_cast<Id>(vec.size());
+  bool flagAux = (!aux.empty() && static_cast<Id>(aux.size()) == size);
   double max   = MINIMUM_BIG;
 
   if (!flagAux)
@@ -395,7 +403,7 @@ double VectorHelper::maximum(const VectorDouble& vec, bool flagAbs, const Vector
     const double* ptra = aux.data();
     double val_aux;
 
-    for (int i = 0; i < size; i++)
+    for (Id i = 0; i < size; i++)
     {
       val_vec = (*ptrv);
       val_aux = (*ptra);
@@ -433,11 +441,11 @@ double VectorHelper::maximum(const VectorDouble& vec, bool flagAbs, const Vector
  * @remarks - mode>0: statistics calculated only when 'vec' > 'aux'
  * @remarks - mode<0: statistics calculated only when 'vec' < 'aux'
  */
-double VectorHelper::minimum(const VectorDouble& vec, bool flagAbs, const VectorDouble& aux, int mode)
+double VectorHelper::minimum(const VectorDouble& vec, bool flagAbs, const VectorDouble& aux, Id mode)
 {
   if (vec.empty()) return TEST;
-  int size     = (int)vec.size();
-  bool flagAux = (!aux.empty() && (int)aux.size() == size);
+  Id size      = static_cast<Id>(vec.size());
+  bool flagAux = (!aux.empty() && static_cast<Id>(aux.size()) == size);
   double min   = MAXIMUM_BIG;
 
   if (!flagAux)
@@ -456,7 +464,7 @@ double VectorHelper::minimum(const VectorDouble& vec, bool flagAbs, const Vector
     const double* ptra = aux.data();
     double val_aux;
 
-    for (int i = 0; i < size; i++)
+    for (Id i = 0; i < size; i++)
     {
       val_vec = (*ptrv);
       val_aux = (*ptra);
@@ -484,7 +492,7 @@ double VectorHelper::minimum(const VectorDouble& vec, bool flagAbs, const Vector
 double VectorHelper::minimum(const VectorVectorDouble& vect, bool flagAbs)
 {
   double val = VH::minimum(vect[0]);
-  for (int i = 1, n = (int)vect.size(); i < n; i++)
+  for (Id i = 1, n = static_cast<Id>(vect.size()); i < n; i++)
     val = MAX(val, VH::minimum(vect[i], flagAbs));
   return val;
 }
@@ -493,7 +501,7 @@ double VectorHelper::mean(const VectorDouble& vec)
 {
   if (vec.size() <= 0) return 0.;
   double mean = 0.;
-  int number  = 0;
+  Id number   = 0;
   for (const auto& v: vec)
   {
     if (FFFF(v)) continue;
@@ -501,13 +509,13 @@ double VectorHelper::mean(const VectorDouble& vec)
     number++;
   }
   if (number > 0)
-    return (mean / (double)number);
+    return (mean / static_cast<double>(number));
   return TEST;
 }
 
-int VectorHelper::cumul(const VectorInt& vec)
+Id VectorHelper::cumul(const VectorInt& vec)
 {
-  int total = 0.;
+  Id total = 0.;
   for (const auto& v: vec)
   {
     total += v;
@@ -515,9 +523,9 @@ int VectorHelper::cumul(const VectorInt& vec)
   return total;
 }
 
-int VectorHelper::cumul(const VectorVectorInt& vec)
+Id VectorHelper::cumul(const VectorVectorInt& vec)
 {
-  int total = 0.;
+  Id total = 0.;
   for (const auto& v: vec)
   {
     total += cumul(v);
@@ -525,12 +533,12 @@ int VectorHelper::cumul(const VectorVectorInt& vec)
   return total;
 }
 
-int VectorHelper::count(const VectorVectorInt& vec)
+Id VectorHelper::count(const VectorVectorInt& vec)
 {
-  int total = 0.;
+  Id total = 0.;
   for (const auto& v: vec)
   {
-    total += (int)v.size();
+    total += static_cast<Id>(v.size());
   }
   return total;
 }
@@ -557,13 +565,13 @@ double VectorHelper::cumulLog(const VectorDouble& vec)
 
 VectorInt VectorHelper::cumulIncrement(const VectorVectorInt& vec)
 {
-  int nvar = (int)vec.size();
+  Id nvar = static_cast<Id>(vec.size());
   VectorInt cumul(nvar, 0);
-  int number = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  Id number = 0;
+  for (Id ivar = 0; ivar < nvar; ivar++)
   {
     cumul[ivar] = number;
-    number += (int)vec[ivar].size();
+    number += static_cast<Id>(vec[ivar].size());
   }
   return cumul;
 }
@@ -573,7 +581,7 @@ double VectorHelper::variance(const VectorDouble& vec, bool scaleByN)
   if (vec.size() <= 0) return 0.;
   double mean = 0.;
   double var  = 0.;
-  int number  = 0;
+  Id number   = 0;
   for (const auto& v: vec)
   {
     if (FFFF(v)) continue;
@@ -582,11 +590,11 @@ double VectorHelper::variance(const VectorDouble& vec, bool scaleByN)
     number++;
   }
   if (number <= 1) return TEST;
-  mean /= (double)number;
+  mean /= static_cast<double>(number);
   if (scaleByN)
-    var = var / (double)number - mean * mean;
+    var = var / static_cast<double>(number) - mean * mean;
   else
-    var = (var - (double)number * mean * mean) / (double)(number - 1);
+    var = (var - static_cast<double>(number) * mean * mean) / static_cast<double>(number - 1);
   return var;
 }
 
@@ -599,8 +607,8 @@ double VectorHelper::correlation(const VectorDouble& veca, const VectorDouble& v
   double v11 = 0.;
   double v22 = 0.;
   double v12 = 0.;
-  int number = 0;
-  for (int i = 0; i < (int)veca.size(); i++)
+  Id number  = 0;
+  for (Id i = 0; i < static_cast<Id>(veca.size()); i++)
   {
     double z1 = veca[i];
     double z2 = vecb[i];
@@ -613,11 +621,11 @@ double VectorHelper::correlation(const VectorDouble& veca, const VectorDouble& v
     number++;
   }
   if (number <= 0) return TEST;
-  m1 /= (double)number;
-  m2 /= (double)number;
-  v11 = v11 / (double)number - m1 * m1;
-  v22 = v22 / (double)number - m2 * m2;
-  v12 = v12 / (double)number - m1 * m2;
+  m1 /= static_cast<double>(number);
+  m2 /= static_cast<double>(number);
+  v11 = v11 / static_cast<double>(number) - m1 * m1;
+  v22 = v22 / static_cast<double>(number) - m2 * m2;
+  v12 = v12 / static_cast<double>(number) - m1 * m2;
   if (v11 <= 0.) return TEST;
   if (v22 <= 0.) return TEST;
   double corr = v12 / sqrt(v11 * v22);
@@ -633,8 +641,8 @@ double VectorHelper::correlation(const VectorDouble& veca, const VectorDouble& v
 VectorDouble VectorHelper::quantiles(const VectorDouble& vec,
                                      const VectorDouble& probas)
 {
-  int nproba = (int)probas.size();
-  int nech   = (int)vec.size();
+  Id nproba = static_cast<Id>(probas.size());
+  Id nech   = static_cast<Id>(vec.size());
   if (nech <= 0 || nproba <= 0) return VectorDouble();
 
   VectorDouble retval(nproba, TEST);
@@ -642,10 +650,10 @@ VectorDouble VectorHelper::quantiles(const VectorDouble& vec,
   // Sort the data in ascending order
   VectorDouble sorted = VH::sort(vec, true);
 
-  for (int ip = 0; ip < nproba; ip++)
+  for (Id ip = 0; ip < nproba; ip++)
   {
     double proba = probas[ip];
-    int rank     = (int)(proba * (double)nech);
+    Id rank      = static_cast<Id>(proba * static_cast<double>(nech));
 
     double value = TEST;
     if (rank < 0)
@@ -656,8 +664,8 @@ VectorDouble VectorHelper::quantiles(const VectorDouble& vec,
     {
       double v1 = sorted[rank];
       double v2 = sorted[rank + 1];
-      double p1 = (double)rank / (double)nech;
-      double p2 = (double)(1 + rank) / (double)nech;
+      double p1 = static_cast<double>(rank) / static_cast<double>(nech);
+      double p2 = static_cast<double>(1 + rank) / static_cast<double>(nech);
       value     = v1 + (proba - p1) * (v2 - v1) / (p2 - p1);
     }
     else
@@ -690,9 +698,9 @@ double VectorHelper::norm(const std::vector<double>& vec)
 
 double VectorHelper::normL1(const VectorDouble& vec)
 {
-  int nval      = (int)vec.size();
+  Id nval       = static_cast<Id>(vec.size());
   double normL1 = 0.;
-  for (int i = 0; i < nval; i++)
+  for (Id i = 0; i < nval; i++)
   {
     double value = ABS(vec[i]);
     normL1 += value;
@@ -703,7 +711,7 @@ double VectorHelper::normL1(const VectorDouble& vec)
 double VectorHelper::norminf(const VectorDouble& vec)
 {
   double norminf = 0.;
-  for (int i = 0, nval = (int)vec.size(); i < nval; i++)
+  for (Id i = 0, nval = static_cast<Id>(vec.size()); i < nval; i++)
   {
     double value = ABS(vec[i]);
     if (value > norminf) norminf = value;
@@ -714,14 +722,14 @@ double VectorHelper::norminf(const VectorDouble& vec)
 double VectorHelper::median(const VectorDouble& vec)
 {
   VectorDouble med;
-  for (int i = 0, n = (int)vec.size(); i < n; i++)
+  for (Id i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
     if (!FFFF(vec[i])) med.push_back(vec[i]);
 
   // Sort the values
   med = sort(med);
 
   // Return the median value
-  int number = (int)med.size();
+  Id number = static_cast<Id>(med.size());
   if (number <= 0) return TEST;
   if (isOdd(number)) return med[number / 2];
   return (med[number / 2] + med[number / 2 - 1]) / 2.;
@@ -734,7 +742,7 @@ double VectorHelper::normDistance(const VectorDouble& veca,
   double delta       = 0.;
   const double* ptra = veca.data();
   const double* ptrb = vecb.data();
-  for (int i = 0, n = (int)veca.size(); i < n; i++)
+  for (Id i = 0, n = static_cast<Id>(veca.size()); i < n; i++)
   {
     delta = (*ptra) - (*ptrb);
     prod += delta * delta;
@@ -744,12 +752,12 @@ double VectorHelper::normDistance(const VectorDouble& veca,
   return sqrt(prod);
 }
 
-int VectorHelper::product(const VectorInt& vec)
+Id VectorHelper::product(const VectorInt& vec)
 {
   if (vec.empty()) return 0;
-  int nprod       = 1;
-  const int* iptr = vec.data();
-  for (int i = 0, n = (int)vec.size(); i < n; i++)
+  Id nprod       = 1;
+  const Id* iptr = vec.data();
+  for (Id i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
   {
     nprod *= (*iptr);
     iptr++;
@@ -762,7 +770,7 @@ double VectorHelper::product(const VectorDouble& vec)
   if (vec.empty()) return 0;
   double nprod       = 1.;
   const double* iptr = vec.data();
-  for (int i = 0, n = (int)vec.size(); i < n; i++)
+  for (Id i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
   {
     nprod *= (*iptr);
     iptr++;
@@ -770,7 +778,7 @@ double VectorHelper::product(const VectorDouble& vec)
   return nprod;
 }
 
-void VectorHelper::normalize(VectorDouble& vec, int norm)
+void VectorHelper::normalize(VectorDouble& vec, Id norm)
 {
   double ratio;
   if (norm == 2)
@@ -782,9 +790,9 @@ void VectorHelper::normalize(VectorDouble& vec, int norm)
     v /= ratio;
 }
 
-void VectorHelper::normalize(double* tab, int ntab)
+void VectorHelper::normalize(double* tab, Id ntab)
 {
-  int i;
+  Id i;
   double norme;
 
   norme = 0.;
@@ -802,7 +810,7 @@ void VectorHelper::normalizeFromGaussianDistribution(VectorDouble& vec,
                                                      double maxi)
 {
   double* iptr = vec.data();
-  for (int i = 0, n = (int)vec.size(); i < n; i++)
+  for (Id i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
   {
     if (!FFFF(*iptr))
       (*iptr) = mini + (maxi - mini) * law_cdf_gaussian(*iptr);
@@ -812,18 +820,18 @@ void VectorHelper::normalizeFromGaussianDistribution(VectorDouble& vec,
 
 VectorDouble VectorHelper::qnormVec(const VectorDouble& vec)
 {
-  int number = (int)vec.size();
+  Id number = static_cast<Id>(vec.size());
   VectorDouble retvec(number, TEST);
-  for (int i = 0; i < number; i++)
+  for (Id i = 0; i < number; i++)
     retvec[i] = law_invcdf_gaussian(vec[i]);
   return retvec;
 }
 
 VectorDouble VectorHelper::pnormVec(const VectorDouble& vec)
 {
-  int number = (int)vec.size();
+  Id number = static_cast<Id>(vec.size());
   VectorDouble retvec(number, TEST);
-  for (int i = 0; i < number; i++)
+  for (Id i = 0; i < number; i++)
     retvec[i] = law_cdf_gaussian(vec[i]);
   return retvec;
 }
@@ -831,12 +839,12 @@ VectorDouble VectorHelper::pnormVec(const VectorDouble& vec)
 VectorDouble VectorHelper::normalScore(const VectorDouble& data,
                                        const VectorDouble& wt)
 {
-  int nech = (int)data.size();
+  Id nech = static_cast<Id>(data.size());
   VectorDouble vec(nech, TEST);
   if (nech <= 0) return vec;
 
   // Check dimension of vector
-  if (!wt.empty() && nech != (int)wt.size())
+  if (!wt.empty() && nech != static_cast<Id>(wt.size()))
   {
     messerr("Arguments 'data' and 'wt' should have the same dimension");
     return VectorDouble();
@@ -845,7 +853,7 @@ VectorDouble VectorHelper::normalScore(const VectorDouble& data,
   // Check that weights of active samples are positive
   double wtotal  = 0.;
   double nechtot = 0.;
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     if (!FFFF(data[iech]))
     {
@@ -872,9 +880,9 @@ VectorDouble VectorHelper::normalScore(const VectorDouble& data,
 
   // Loop on the samples
   double wpartial = 0.;
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
-    int jech = idx[iech];
+    Id jech = idx[iech];
     if (!FFFF(data[jech]))
     {
       double wtloc = (wt.empty()) ? 1. : wt[jech];
@@ -900,7 +908,7 @@ bool VectorHelper::isConstant(const VectorDouble& vect, double refval)
   if (vect.empty()) return false;
   if (FFFF(refval)) refval = vect[0];
   const double* iptr = vect.data();
-  for (int i = 0, n = (int)vect.size(); i < n; i++)
+  for (Id i = 0, n = static_cast<Id>(vect.size()); i < n; i++)
   {
     if ((*iptr) != refval) return false;
     iptr++;
@@ -914,12 +922,12 @@ bool VectorHelper::isConstant(const VectorDouble& vect, double refval)
  * @param refval Reference value (ITEST if not defined)
  * @return
  */
-bool VectorHelper::isConstant(const VectorInt& vect, int refval)
+bool VectorHelper::isConstant(const VectorInt& vect, Id refval)
 {
   if (vect.empty()) return false;
   if (IFFFF(refval)) refval = vect[0];
-  const int* iptr = vect.data();
-  for (int i = 0, n = (int)vect.size(); i < n; i++)
+  const Id* iptr = vect.data();
+  for (Id i = 0, n = static_cast<Id>(vect.size()); i < n; i++)
   {
     if ((*iptr) != refval) return false;
     iptr++;
@@ -955,13 +963,13 @@ bool VectorHelper::isEqual(const VectorInt& v1, const VectorInt& v2)
   return true;
 }
 
-void VectorHelper::fill(VectorDouble& vec, double value, int size)
+void VectorHelper::fill(VectorDouble& vec, double value, Id size)
 {
   if (size > 0) vec.resize(size);
   std::fill(vec.begin(), vec.end(), value);
 }
 
-void VectorHelper::fill(VectorInt& vec, int value, int size)
+void VectorHelper::fill(VectorInt& vec, Id value, Id size)
 {
   if (size > 0) vec.resize(size);
   std::fill(vec.begin(), vec.end(), value);
@@ -985,10 +993,10 @@ void VectorHelper::fillUndef(VectorDouble& vec, double repl)
   }
 }
 
-void VectorHelper::sequenceInPlace(int n, VectorInt& vec)
+void VectorHelper::sequenceInPlace(Id n, VectorInt& vec)
 {
   vec.resize(n);
-  for (int i = 0; i < n; i++)
+  for (Id i = 0; i < n; i++)
     vec[i] = i;
 }
 /**
@@ -998,12 +1006,12 @@ void VectorHelper::sequenceInPlace(int n, VectorInt& vec)
  * @param ideb    Index of the first element of the output vector
  * @param step    Step between two consecutive values
  */
-VectorInt VectorHelper::sequence(int number, int ideb, int step)
+VectorInt VectorHelper::sequence(Id number, Id ideb, Id step)
 {
   VectorInt vec(number);
 
-  int jdeb = ideb;
-  for (int i = 0; i < number; i++)
+  Id jdeb = ideb;
+  for (Id i = 0; i < number; i++)
   {
     vec[i] = jdeb;
     jdeb += step;
@@ -1023,10 +1031,10 @@ VectorInt VectorHelper::sequence(int number, int ideb, int step)
  * @param ratio   The whole sequence can be ultimately scaled by 'ratio'
  * @return
  */
-VectorDouble VectorHelper::sequence(double valFrom,
-                                    double valTo,
-                                    double valStep,
-                                    double ratio)
+VectorDouble VectorHelper::sequenceVD(double valFrom,
+                                      double valTo,
+                                      double valStep,
+                                      double ratio)
 {
   VectorDouble vec;
 
@@ -1039,7 +1047,7 @@ VectorDouble VectorHelper::sequence(double valFrom,
   return vec;
 }
 
-VectorDouble VectorHelper::simulateUniform(int n, double mini, double maxi)
+VectorDouble VectorHelper::simulateUniform(Id n, double mini, double maxi)
 {
   VectorDouble vec(n);
   VectorDouble::iterator it(vec.begin());
@@ -1051,7 +1059,7 @@ VectorDouble VectorHelper::simulateUniform(int n, double mini, double maxi)
   return vec;
 }
 
-VectorDouble VectorHelper::simulateBernoulli(int n, double proba, double vone, double velse)
+VectorDouble VectorHelper::simulateBernoulli(Id n, double proba, double vone, double velse)
 {
   VectorDouble vec(n);
   VectorDouble::iterator it(vec.begin());
@@ -1067,7 +1075,7 @@ VectorDouble VectorHelper::simulateBernoulli(int n, double proba, double vone, d
   return vec;
 }
 
-VectorDouble VectorHelper::simulateGaussian(int n, double mean, double sigma)
+VectorDouble VectorHelper::simulateGaussian(Id n, double mean, double sigma)
 {
   VectorDouble vec(n);
   simulateGaussianInPlace(vec, mean, sigma);
@@ -1113,7 +1121,7 @@ void VectorHelper::concatenateInPlace(VectorDouble& veca, const VectorDouble& ve
 
 void VectorHelper::cumulateInPlace(VectorDouble& vec)
 {
-  VectorDouble::iterator it(vec.begin());
+  auto it(vec.begin());
   double old = 0.;
   while (it < vec.end())
   {
@@ -1130,7 +1138,7 @@ VectorDouble VectorHelper::cumsum(const VectorDouble& vecin, bool flagAddZero, b
     vecout.push_back(0.);
 
   double total = 0.;
-  for (int i = 0, n = (int)vecin.size(); i < n; i++)
+  for (Id i = 0, n = static_cast<Id>(vecin.size()); i < n; i++)
   {
     total += vecin[i];
     vecout.push_back(total);
@@ -1138,9 +1146,9 @@ VectorDouble VectorHelper::cumsum(const VectorDouble& vecin, bool flagAddZero, b
 
   if (revert)
   {
-    int size       = (int)vecout.size();
+    Id size        = static_cast<Id>(vecout.size());
     double lastval = vecout[size - 1];
-    for (int i = 0; i < size; i++)
+    for (Id i = 0; i < size; i++)
       vecout[i] = lastval - vecout[i];
   }
   return vecout;
@@ -1175,12 +1183,12 @@ void VectorHelper::cumulate(VectorDouble& veca,
  * @param tol  Tolerance above which a value is significant (in absolute value)
  * @param nmax Limit on the number of values printed (-1: no limit)
  */
-void VectorHelper::getMostSignificant(const VectorDouble& vec, double tol, int nmax)
+void VectorHelper::getMostSignificant(const VectorDouble& vec, double tol, Id nmax)
 {
-  int nsize = (int)vec.size();
+  Id nsize = static_cast<Id>(vec.size());
   VectorDouble absval(nsize, 0.);
-  int ninvalid = 0;
-  for (int i = 0; i < nsize; i++)
+  Id ninvalid = 0;
+  for (Id i = 0; i < nsize; i++)
   {
     double value = vec[i];
     if (FFFF(value)) continue;
@@ -1193,11 +1201,11 @@ void VectorHelper::getMostSignificant(const VectorDouble& vec, double tol, int n
   if (ninvalid <= 0) return;
 
   VectorInt ranks = orderRanks(absval, false);
-  int nend        = ninvalid;
+  Id nend         = ninvalid;
   if (nmax > 0) nend = MIN(ninvalid, nmax);
-  for (int i = 0; i < nend; i++)
+  for (Id i = 0; i < nend; i++)
   {
-    int j = ranks[i];
+    Id j = ranks[i];
     message("Sample %d - Value = %lf\n", j, vec[j]);
   }
   if (nmax > 0 && ninvalid > nmax)
@@ -1216,21 +1224,21 @@ void VectorHelper::getMostSignificant(const VectorDouble& vec, double tol, int n
  * @remark If 'proportion' and 'number' are not specified,
  * @remark the output vector has dimension equal to 'ntotal'
  */
-VectorInt VectorHelper::sampleRanks(int ntotal,
+VectorInt VectorHelper::sampleRanks(Id ntotal,
                                     double proportion,
-                                    int number,
-                                    int seed,
-                                    int optSort)
+                                    Id number,
+                                    Id seed,
+                                    Id optSort)
 {
   if (proportion <= 0. && number <= 0) return VectorInt();
   law_set_random_seed(seed);
 
   // Find the number of expected values
-  int count;
+  Id count;
   if (proportion <= 0. && number <= 0)
     count = ntotal;
   else if (proportion > 0.)
-    count = (int)(ntotal * proportion);
+    count = static_cast<Id>(ntotal * proportion);
   else
     count = number;
   count = MIN(ntotal, MAX(1, count));
@@ -1245,7 +1253,7 @@ VectorInt VectorHelper::sampleRanks(int ntotal,
   else if (optSort < 0)
     ranks = sort(ranks, false);
 
-  std::vector<int>::iterator it;
+  std::vector<Id>::iterator it;
   it = std::unique(ranks.begin(), ranks.end());
   ranks.resize(distance(ranks.begin(), it));
 
@@ -1321,7 +1329,7 @@ void VectorHelper::addInPlace(constvect in, vect dest)
 {
   const double* inp = in.data();
   double* outp      = dest.data();
-  for (int i = 0; i < (int)in.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(in.size()); i++)
   {
     *(outp++) += *(inp++);
   }
@@ -1370,17 +1378,17 @@ void VectorHelper::addSquareInPlace(VectorDouble& dest, const VectorDouble& src)
 void VectorHelper::addInPlace(const VectorDouble& veca,
                               const VectorDouble& vecb,
                               VectorDouble& res,
-                              int size)
+                              Id size)
 {
-  if (size <= 0) size = (int)veca.size();
-  if (size != (int)vecb.size())
+  if (size <= 0) size = static_cast<Id>(veca.size());
+  if (size != static_cast<Id>(vecb.size()))
     my_throw("Wrong size");
-  if ((int)res.size() != size) res.resize(size);
+  if (static_cast<Id>(res.size()) != size) res.resize(size);
 
   const double* iptra = veca.data();
   const double* iptrb = vecb.data();
   double* iptrv       = res.data();
-  for (int i = 0; i < size; i++)
+  for (Id i = 0; i < size; i++)
   {
     (*iptrv) = (*iptra) + (*iptrb);
     iptrv++;
@@ -1392,16 +1400,16 @@ void VectorHelper::addInPlace(const VectorDouble& veca,
 void VectorHelper::addInPlace(const VectorInt& veca,
                               const VectorInt& vecb,
                               VectorInt& res,
-                              int size)
+                              Id size)
 {
-  if (size <= 0) size = (int)veca.size();
-  if (size != (int)vecb.size()) my_throw("Wrong size");
-  if ((int)res.size() != size) res.resize(size);
+  if (size <= 0) size = static_cast<Id>(veca.size());
+  if (size != static_cast<Id>(vecb.size())) my_throw("Wrong size");
+  if (static_cast<Id>(res.size()) != size) res.resize(size);
 
-  const int* iptra = veca.data();
-  const int* iptrb = vecb.data();
-  int* iptrv       = res.data();
-  for (int i = 0; i < size; i++)
+  const Id* iptra = veca.data();
+  const Id* iptrb = vecb.data();
+  Id* iptrv       = res.data();
+  for (Id i = 0; i < size; i++)
   {
     (*iptrv) = (*iptra) + (*iptrb);
     iptrv++;
@@ -1413,9 +1421,9 @@ void VectorHelper::addInPlace(const VectorInt& veca,
 void VectorHelper::addInPlace(const double* veca,
                               const double* vecb,
                               double* res,
-                              int size)
+                              Id size)
 {
-  for (int i = 0; i < size; i++)
+  for (Id i = 0; i < size; i++)
     res[i] = veca[i] + vecb[i];
 }
 
@@ -1423,9 +1431,9 @@ void VectorHelper::addInPlace(const VectorVectorDouble& in1,
                               const VectorVectorDouble& in2,
                               VectorVectorDouble& outv)
 {
-  for (int is = 0, ns = (int)in1.size(); is < ns; is++)
+  for (Id is = 0, ns = static_cast<Id>(in1.size()); is < ns; is++)
   {
-    for (int i = 0, n = (int)in1[is].size(); i < n; i++)
+    for (Id i = 0, n = static_cast<Id>(in1[is].size()); i < n; i++)
     {
       outv[is][i] = in2[is][i] + in1[is][i];
     }
@@ -1442,7 +1450,7 @@ VectorDouble VectorHelper::subtract(constvect veca,
                                     constvect vecb)
 {
   VectorDouble res(veca.size());
-  for (int i = 0; i < (int)veca.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(veca.size()); i++)
   {
     res[i] = vecb[i] - veca[i];
   }
@@ -1453,9 +1461,9 @@ void VectorHelper::addInPlace(const std::vector<std::vector<double>>& in1,
                               const std::vector<std::vector<double>>& in2,
                               std::vector<std::vector<double>>& outv)
 {
-  for (int is = 0, ns = (int)in1.size(); is < ns; is++)
+  for (Id is = 0, ns = static_cast<Id>(in1.size()); is < ns; is++)
   {
-    for (int i = 0, n = (int)in1[is].size(); i < n; i++)
+    for (Id i = 0, n = static_cast<Id>(in1[is].size()); i < n; i++)
     {
       outv[is][i] = in2[is][i] + in1[is][i];
     }
@@ -1547,11 +1555,17 @@ void VectorHelper::subtractInPlace(VectorInt& dest, const VectorInt& src)
   }
 }
 
+/**
+ * Performs: outv = in2 - in1
+ * @param in1 Input vector
+ * @param in2 Input vector
+ * @param outv Output vector
+ */
 void VectorHelper::subtractInPlace(const constvect in1,
                                    const constvect in2,
                                    vect outv)
 {
-  for (int is = 0, ns = (int)in1.size(); is < ns; is++)
+  for (Id is = 0, ns = static_cast<Id>(in1.size()); is < ns; is++)
   {
     outv[is] = in2[is] - in1[is];
   }
@@ -1561,9 +1575,9 @@ void VectorHelper::subtractInPlace(const VectorVectorDouble& in1,
                                    const VectorVectorDouble& in2,
                                    VectorVectorDouble& outv)
 {
-  for (int is = 0, ns = (int)in1.size(); is < ns; is++)
+  for (Id is = 0, ns = static_cast<Id>(in1.size()); is < ns; is++)
   {
-    for (int i = 0, n = (int)in1[is].size(); i < n; i++)
+    for (Id i = 0, n = static_cast<Id>(in1[is].size()); i < n; i++)
     {
       outv[is][i] = in2[is][i] - in1[is][i];
     }
@@ -1575,9 +1589,9 @@ void VectorHelper::subtractInPlace(const std::vector<std::vector<double>>& in1,
                                    const std::vector<std::vector<double>>& in2,
                                    std::vector<std::vector<double>>& outv)
 {
-  for (int is = 0, ns = (int)in1.size(); is < ns; is++)
+  for (Id is = 0, ns = static_cast<Id>(in1.size()); is < ns; is++)
   {
-    for (int i = 0, n = (int)in1[is].size(); i < n; i++)
+    for (Id i = 0, n = static_cast<Id>(in1[is].size()); i < n; i++)
     {
       outv[is][i] = in2[is][i] - in1[is][i];
     }
@@ -1767,11 +1781,11 @@ void VectorHelper::multiplyConstantSelfInPlace(VectorDouble& vec, double v)
 void VectorHelper::addMultiplyConstantInPlace(double val1,
                                               const VectorDouble& in,
                                               VectorDouble& out,
-                                              int iad)
+                                              Id iad)
 {
   double* outp      = out.data() + iad;
   const double* inp = in.data();
-  for (int i = 0; i < (int)in.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(in.size()); i++)
   {
     *(outp++) += val1 * *(inp++);
   }
@@ -1779,12 +1793,12 @@ void VectorHelper::addMultiplyConstantInPlace(double val1,
 void VectorHelper::addMultiplyVectVectInPlace(const constvect in1,
                                               const constvect in2,
                                               vect out,
-                                              int iad)
+                                              Id iad)
 { // TODO check if one can use eigen operators
   double* outp       = out.data() + iad;
   const double* inp1 = in1.data();
   const double* inp2 = in2.data();
-  for (int i = 0; i < (int)in1.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(in1.size()); i++)
   {
     *(outp++) += *(inp1++) * *(inp2++);
   }
@@ -1793,11 +1807,11 @@ void VectorHelper::addMultiplyVectVectInPlace(const constvect in1,
 void VectorHelper::addMultiplyConstantInPlace(double val1,
                                               const constvect in,
                                               vect out,
-                                              int iad)
+                                              Id iad)
 {
   double* outp      = out.data() + iad;
   const double* inp = in.data();
-  for (int i = 0; i < (int)in.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(in.size()); i++)
   {
     *(outp++) += val1 * *(inp++);
   }
@@ -1806,9 +1820,9 @@ void VectorHelper::addMultiplyConstantInPlace(double val1,
                                               const VectorVectorDouble& in1,
                                               VectorVectorDouble& outv)
 {
-  for (int is = 0, ns = (int)in1.size(); is < ns; is++)
+  for (Id is = 0, ns = static_cast<Id>(in1.size()); is < ns; is++)
   {
-    for (int i = 0, n = (int)in1[is].size(); i < n; i++)
+    for (Id i = 0, n = static_cast<Id>(in1[is].size()); i < n; i++)
     {
       outv[is][i] += val1 * in1[is][i];
     }
@@ -1823,15 +1837,15 @@ void VectorHelper::divideConstant(VectorDouble& vec, double v)
                 { d /= v; });
 }
 
-void VectorHelper::copy(const VectorDouble& vecin, VectorDouble& vecout, int size)
+void VectorHelper::copy(const VectorDouble& vecin, VectorDouble& vecout, Id size)
 {
-  if (size < 0) size = (int)vecin.size();
-  if (size > (int)vecout.size())
+  if (size < 0) size = static_cast<Id>(vecin.size());
+  if (size > static_cast<Id>(vecout.size()))
     my_throw("Wrong size");
 
   VectorDouble::iterator itout(vecout.begin());
   VectorDouble::const_iterator itin(vecin.begin());
-  for (int i = 0; i < size; i++)
+  for (Id i = 0; i < size; i++)
   {
     (*itout) = (*itin);
     itin++;
@@ -1839,15 +1853,15 @@ void VectorHelper::copy(const VectorDouble& vecin, VectorDouble& vecout, int siz
   }
 }
 
-void VectorHelper::copy(const VectorInt& vecin, VectorInt& vecout, int size)
+void VectorHelper::copy(const VectorInt& vecin, VectorInt& vecout, Id size)
 {
-  if (size < 0) size = (int)vecin.size();
-  if (size > (int)vecout.size())
+  if (size < 0) size = static_cast<Id>(vecin.size());
+  if (size > static_cast<Id>(vecout.size()))
     my_throw("Wrong size");
 
   VectorInt::iterator itout(vecout.begin());
   VectorInt::const_iterator itin(vecin.begin());
-  for (int i = 0; i < size; i++)
+  for (Id i = 0; i < size; i++)
   {
     (*itout) = (*itin);
     itin++;
@@ -1856,9 +1870,9 @@ void VectorHelper::copy(const VectorInt& vecin, VectorInt& vecout, int size)
 }
 void VectorHelper::copy(const std::vector<std::vector<double>>& inv, std::vector<std::vector<double>>& outv)
 {
-  for (int is = 0, ns = (int)inv.size(); is < ns; is++)
+  for (Id is = 0, ns = static_cast<Id>(inv.size()); is < ns; is++)
   {
-    for (int i = 0, n = (int)inv[is].size(); i < n; i++)
+    for (Id i = 0, n = static_cast<Id>(inv[is].size()); i < n; i++)
     {
       outv[is][i] = inv[is][i];
     }
@@ -1866,9 +1880,9 @@ void VectorHelper::copy(const std::vector<std::vector<double>>& inv, std::vector
 }
 void VectorHelper::copy(const VectorVectorDouble& inv, VectorVectorDouble& outv)
 {
-  for (int is = 0, ns = (int)inv.size(); is < ns; is++)
+  for (Id is = 0, ns = static_cast<Id>(inv.size()); is < ns; is++)
   {
-    for (int i = 0, n = (int)inv[is].size(); i < n; i++)
+    for (Id i = 0, n = static_cast<Id>(inv[is].size()); i < n; i++)
     {
       outv[is][i] = inv[is][i];
     }
@@ -1881,33 +1895,33 @@ void VectorHelper::addConstant(VectorDouble& vec, double v)
                 { d += v; });
 }
 
-void VectorHelper::addConstant(VectorInt& vec, int v)
+void VectorHelper::addConstant(VectorInt& vec, Id v)
 {
-  std::for_each(vec.begin(), vec.end(), [v](int& d)
+  std::for_each(vec.begin(), vec.end(), [v](Id& d)
                 { d += v; });
 }
 
 void VectorHelper::mean1AndMean2ToStdev(const VectorDouble& mean1,
                                         const VectorDouble& mean2,
                                         VectorDouble& std,
-                                        int number)
+                                        Id number)
 {
-  double dnumber = (double)number;
-  int size       = (int)mean1.size();
-  if ((int)mean2.size() != size)
+  auto dnumber = static_cast<double>(number);
+  Id size      = static_cast<Id>(mean1.size());
+  if (static_cast<Id>(mean2.size()) != size)
   {
     messerr("Arguments 'mean1'(%d) and 'mean2'(%d) should have same dimension",
-            size, (int)mean2.size());
+            size, static_cast<Id>(mean2.size()));
     return;
   }
-  if ((int)std.size() != size)
+  if (static_cast<Id>(std.size()) != size)
   {
     messerr("Arguments 'mean1'(%d) and 'std'(%d) should have same dimension",
-            size, (int)std.size());
+            size, static_cast<Id>(std.size()));
     return;
   }
 
-  for (int i = 0; i < size; i++)
+  for (Id i = 0; i < size; i++)
   {
     if (FFFF(mean1[i]) || FFFF(mean2[i]))
       std[i] = TEST;
@@ -1953,9 +1967,9 @@ void VectorHelper::inverse(VectorDouble& res, const constvect vec)
   }
 }
 
-int VectorHelper::countUndefined(const VectorDouble& vec)
+Id VectorHelper::countUndefined(const VectorDouble& vec)
 {
-  int count = 0;
+  Id count = 0;
   VectorDouble::const_iterator it(vec.begin());
   while (it < vec.end())
   {
@@ -1965,9 +1979,9 @@ int VectorHelper::countUndefined(const VectorDouble& vec)
   return count;
 }
 
-int VectorHelper::countDefined(const VectorDouble& vec)
+Id VectorHelper::countDefined(const VectorDouble& vec)
 {
-  int count = 0;
+  Id count = 0;
   VectorDouble::const_iterator it(vec.begin());
   while (it < vec.end())
   {
@@ -1989,8 +2003,8 @@ double VectorHelper::extensionDiagonal(const VectorDouble& mini,
 {
   double diag        = 0.;
   VectorDouble delta = VH::subtract(mini, maxi);
-  int ndim           = (int)delta.size();
-  for (int idim = 0; idim < ndim; idim++)
+  Id ndim            = static_cast<Id>(delta.size());
+  for (Id idim = 0; idim < ndim; idim++)
   {
     double dval = delta[idim];
     if (FFFF(dval)) return TEST;
@@ -2000,9 +2014,9 @@ double VectorHelper::extensionDiagonal(const VectorDouble& mini,
   return diag;
 }
 
-VectorInt VectorHelper::unique(const VectorInt& vecin, int size)
+VectorInt VectorHelper::unique(const VectorInt& vecin, Id size)
 {
-  if (size < 0) size = (int)vecin.size();
+  if (size < 0) size = static_cast<Id>(vecin.size());
 
   VectorInt vecout = vecin;
   vecout.resize(size);
@@ -2012,9 +2026,9 @@ VectorInt VectorHelper::unique(const VectorInt& vecin, int size)
   return vecout;
 }
 
-VectorDouble VectorHelper::unique(const VectorDouble& vecin, int size)
+VectorDouble VectorHelper::unique(const VectorDouble& vecin, Id size)
 {
-  if (size < 0) size = (int)vecin.size();
+  if (size < 0) size = static_cast<Id>(vecin.size());
 
   VectorDouble vecout = vecin;
   vecout.resize(size);
@@ -2024,15 +2038,15 @@ VectorDouble VectorHelper::unique(const VectorDouble& vecin, int size)
   return vecout;
 }
 
-bool VectorHelper::isInList(const VectorInt& vec, int item)
+bool VectorHelper::isInList(const VectorInt& vec, Id item)
 {
   return std::count(vec.begin(), vec.end(), item);
 }
 
-VectorInt VectorHelper::sort(const VectorInt& vecin, bool ascending, int size)
+VectorInt VectorHelper::sort(const VectorInt& vecin, bool ascending, Id size)
 {
   if (vecin.empty()) return VectorInt();
-  if (size < 0) size = (int)vecin.size();
+  if (size < 0) size = static_cast<Id>(vecin.size());
   VectorInt vecout = vecin;
   vecout.resize(size);
   std::sort(vecout.begin(), vecout.end());
@@ -2041,10 +2055,10 @@ VectorInt VectorHelper::sort(const VectorInt& vecin, bool ascending, int size)
   return vecout;
 }
 
-VectorDouble VectorHelper::sort(const VectorDouble& vecin, bool ascending, int size)
+VectorDouble VectorHelper::sort(const VectorDouble& vecin, bool ascending, Id size)
 {
   if (vecin.empty()) return VectorDouble();
-  if (size < 0) size = (int)vecin.size();
+  if (size < 0) size = static_cast<Id>(vecin.size());
   VectorDouble vecout = vecin;
   vecout.resize(size);
   std::sort(vecout.begin(), vecout.end());
@@ -2053,14 +2067,14 @@ VectorDouble VectorHelper::sort(const VectorDouble& vecin, bool ascending, int s
   return vecout;
 }
 
-void VectorHelper::sortInPlace(VectorInt& vecin, bool ascending, int size)
+void VectorHelper::sortInPlace(VectorInt& vecin, bool ascending, Id size)
 {
   if (vecin.empty()) return;
   VectorInt vecout = sort(vecin, ascending, size);
   copy(vecout, vecin, size);
 }
 
-void VectorHelper::sortInPlace(VectorDouble& vecin, bool ascending, int size)
+void VectorHelper::sortInPlace(VectorDouble& vecin, bool ascending, Id size)
 {
   if (vecin.empty()) return;
   VectorDouble vecout = sort(vecin, ascending, size);
@@ -2069,12 +2083,12 @@ void VectorHelper::sortInPlace(VectorDouble& vecin, bool ascending, int size)
 
 bool VectorHelper::isSorted(const VectorDouble& vec, bool ascending)
 {
-  int nval = (int)vec.size();
+  Id nval = static_cast<Id>(vec.size());
 
   if (ascending)
   {
     // Ascending order
-    for (int i = 1; i < nval; i++)
+    for (Id i = 1; i < nval; i++)
     {
       if (vec[i] > vec[i - 1]) continue;
       return false;
@@ -2083,7 +2097,7 @@ bool VectorHelper::isSorted(const VectorDouble& vec, bool ascending)
   else
   {
     // Descending order
-    for (int i = 1; i < nval; i++)
+    for (Id i = 1; i < nval; i++)
     {
       if (vec[i] < vec[i - 1]) continue;
       return false;
@@ -2101,7 +2115,7 @@ bool VectorHelper::isSorted(const VectorDouble& vec, bool ascending)
  * @param ascending True for ascending order; False for descending order
  * @return Output array (integers)
  */
-VectorInt VectorHelper::filter(const VectorInt& vecin, int vmin, int vmax, bool ascending)
+VectorInt VectorHelper::filter(const VectorInt& vecin, Id vmin, Id vmax, bool ascending)
 {
   VectorInt vecout = vecin;
 
@@ -2111,15 +2125,15 @@ VectorInt VectorHelper::filter(const VectorInt& vecin, int vmin, int vmax, bool 
     std::reverse(vecout.begin(), vecout.end());
 
   // Unique occurrence
-  std::vector<int>::iterator it;
+  std::vector<Id>::iterator it;
   it = std::unique(vecout.begin(), vecout.end());
   vecout.resize(distance(vecout.begin(), it));
 
   // Filter out the irrelevant values
-  int nech = (int)vecout.size();
-  for (int j = 0; j < nech; j++)
+  Id nech = static_cast<Id>(vecout.size());
+  for (Id j = 0; j < nech; j++)
   {
-    int i = nech - j - 1;
+    Id i = nech - j - 1;
     if (!IFFFF(vmin))
     {
       if (vecout[i] < vmin)
@@ -2160,10 +2174,10 @@ VectorInt VectorHelper::complement(const VectorInt& vec, const VectorInt& sel)
   VectorInt offVec = sel;
   std::sort(offVec.begin(), offVec.end());
 
-  int j, k, idx;
-  int nvec = (int)allVec.size();
-  int noff = (int)offVec.size();
-  for (int i = 0; i < nvec; i++)
+  Id j, k, idx;
+  Id nvec = static_cast<Id>(allVec.size());
+  Id noff = static_cast<Id>(offVec.size());
+  for (Id i = 0; i < nvec; i++)
   {
     j = allVec.at(i);
 
@@ -2190,17 +2204,17 @@ VectorInt VectorHelper::complement(const VectorInt& vec, const VectorInt& sel)
  * @param size Optional dimension of the input vector
  * @return Vector of orders
  */
-VectorInt VectorHelper::orderRanks(const VectorInt& vecin, bool ascending, int size)
+VectorInt VectorHelper::orderRanks(const VectorInt& vecin, bool ascending, Id size)
 {
   if (vecin.empty()) return VectorInt();
 
-  if (size < 0) size = (int)vecin.size();
+  if (size < 0) size = static_cast<Id>(vecin.size());
   VectorInt idx(size);
-  for (int i = 0; i < size; i++) idx[i] = i;
+  for (Id i = 0; i < size; i++) idx[i] = i;
 
   // sort indexes based on comparing values in v using std::stable_sort instead of std::sort
   // to avoid unnecessary index re-orderings when v contains elements of equal values
-  VectorT<int>::iterator last = idx.begin() + size;
+  VectorT<Id>::iterator last = idx.begin() + size;
   if (ascending)
   {
     stable_sort(idx.begin(), last,
@@ -2220,16 +2234,16 @@ VectorInt VectorHelper::orderRanks(const VectorInt& vecin, bool ascending, int s
 /**
  * @overload
  */
-VectorInt VectorHelper::orderRanks(const VectorDouble& vecin, bool ascending, int size)
+VectorInt VectorHelper::orderRanks(const VectorDouble& vecin, bool ascending, Id size)
 {
   if (vecin.empty()) return VectorInt();
-  if (size < 0) size = (int)vecin.size();
+  if (size < 0) size = static_cast<Id>(vecin.size());
   VectorInt idx(size);
-  for (int i = 0; i < size; i++) idx[i] = i;
+  for (Id i = 0; i < size; i++) idx[i] = i;
 
   // sort indexes based on comparing values in v using std::stable_sort instead of std::sort
   // to avoid unnecessary index re-orderings when v contains elements of equal values
-  VectorT<int>::iterator last = idx.begin() + size;
+  VectorT<Id>::iterator last = idx.begin() + size;
   if (ascending)
   {
     stable_sort(idx.begin(), last,
@@ -2246,49 +2260,49 @@ VectorInt VectorHelper::orderRanks(const VectorDouble& vecin, bool ascending, in
   return idx;
 }
 
-VectorInt VectorHelper::sortRanks(const VectorDouble& vecin, bool ascending, int size)
+VectorInt VectorHelper::sortRanks(const VectorDouble& vecin, bool ascending, Id size)
 {
   if (vecin.empty()) return VectorInt();
-  if (size < 0) size = (int)vecin.size();
+  if (size < 0) size = static_cast<Id>(vecin.size());
   VectorInt order = orderRanks(vecin, ascending, size);
   VectorInt idx(size);
-  for (int i = 0; i < size; i++) idx[order[i]] = i;
+  for (Id i = 0; i < size; i++) idx[order[i]] = i;
 
   return idx;
 }
 
-VectorInt VectorHelper::reorder(const VectorInt& vecin, const VectorInt& order, int size)
+VectorInt VectorHelper::reorder(const VectorInt& vecin, const VectorInt& order, Id size)
 {
-  if (size < 0) size = (int)vecin.size();
+  if (size < 0) size = static_cast<Id>(vecin.size());
   VectorInt vecout(size);
-  for (int i = 0; i < size; i++)
+  for (Id i = 0; i < size; i++)
     vecout[i] = vecin[order[i]];
   return vecout;
 }
 
-VectorDouble VectorHelper::reorder(const VectorDouble& vecin, const VectorInt& order, int size)
+VectorDouble VectorHelper::reorder(const VectorDouble& vecin, const VectorInt& order, Id size)
 {
-  if (size < 0) size = (int)vecin.size();
+  if (size < 0) size = static_cast<Id>(vecin.size());
   VectorDouble vecout(size);
-  for (int i = 0; i < size; i++)
+  for (Id i = 0; i < size; i++)
     vecout[i] = vecin[order[i]];
   return vecout;
 }
 
 VectorDouble VectorHelper::revert(const VectorDouble& vecin)
 {
-  int nech = (int)vecin.size();
+  Id nech = static_cast<Id>(vecin.size());
   VectorDouble vecout(nech);
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
     vecout[nech - 1 - iech] = vecin[iech];
   return vecout;
 }
 
 VectorInt VectorHelper::revert(const VectorInt& vecin)
 {
-  int nech = (int)vecin.size();
+  Id nech = static_cast<Id>(vecin.size());
   VectorInt vecout(nech);
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
     vecout[nech - 1 - iech] = vecin[iech];
   return vecout;
 }
@@ -2302,18 +2316,18 @@ VectorInt VectorHelper::revert(const VectorInt& vecin)
  ** \param[in]  ascending Sorting order
  ** \param[in]  size   Optional vector dimension
  **
- ** \param[out] ranks  input and output int array
+ ** \param[out] ranks  input and output Id array
  ** \param[out] values input and output double array
  **
  ** \remark  If ranks = NULL, ranks is ignored
  ** \remark  When using 'size', the remaining part of arrays is unchanged
  **
  *****************************************************************************/
-void VectorHelper::arrangeInPlace(int safe,
+void VectorHelper::arrangeInPlace(Id safe,
                                   VectorInt& ranks,
                                   VectorDouble& values,
                                   bool ascending,
-                                  int size)
+                                  Id size)
 {
   VectorInt order = orderRanks(values, ascending, size);
 
@@ -2332,14 +2346,14 @@ void VectorHelper::arrangeInPlace(int safe,
 
 /*****************************************************************************/
 /*!
- ** Sorts the (int) array value() and the array ranks() if provided
+ ** Sorts the static_cast<Id>(array) value() and the array ranks() if provided
  ** @overload
  **/
-void VectorHelper::arrangeInPlace(int safe,
+void VectorHelper::arrangeInPlace(Id safe,
                                   VectorInt& ranks,
                                   VectorInt& values,
                                   bool ascending,
-                                  int size)
+                                  Id size)
 {
   VectorInt order = orderRanks(values, ascending, size);
 
@@ -2359,7 +2373,7 @@ void VectorHelper::arrangeInPlace(int safe,
 std::pair<double, double> VectorHelper::rangeVals(const VectorDouble& vec)
 {
   std::pair<double, double> res(vec[0], vec[0]);
-  for (int i = 1; i < (int)vec.size(); i++)
+  for (Id i = 1; i < static_cast<Id>(vec.size()); i++)
   {
     res.first  = MIN(res.first, vec[i]);
     res.second = MAX(res.second, vec[i]);
@@ -2367,10 +2381,10 @@ std::pair<double, double> VectorHelper::rangeVals(const VectorDouble& vec)
   return res;
 }
 
-double VectorHelper::innerProduct(const std::vector<double>& veca, const std::vector<double>& vecb, int size)
+double VectorHelper::innerProduct(const std::vector<double>& veca, const std::vector<double>& vecb, Id size)
 {
-  if (size < 0) size = (int)veca.size();
-  if (size > (int)veca.size() || size > (int)vecb.size())
+  if (size < 0) size = static_cast<Id>(veca.size());
+  if (size > static_cast<Id>(veca.size()) || size > static_cast<Id>(vecb.size()))
     my_throw("Incompatible sizes");
 
   return innerProduct(veca.data(), vecb.data(), size);
@@ -2378,15 +2392,15 @@ double VectorHelper::innerProduct(const std::vector<double>& veca, const std::ve
 
 double VectorHelper::innerProduct(const constvect veca, const constvect vecb)
 {
-  return innerProduct(veca.data(), vecb.data(), (int)veca.size());
+  return innerProduct(veca.data(), vecb.data(), static_cast<Id>(veca.size()));
 }
 
 double VectorHelper::innerProduct(const VectorDouble& veca,
                                   const VectorDouble& vecb,
-                                  int size)
+                                  Id size)
 {
-  if (size < 0) size = (int)veca.size();
-  if (size > (int)veca.size() || size > (int)vecb.size())
+  if (size < 0) size = static_cast<Id>(veca.size());
+  if (size > static_cast<Id>(veca.size()) || size > static_cast<Id>(vecb.size()))
     my_throw("Incompatible sizes");
 
   return innerProduct(veca.data(), vecb.data(), size);
@@ -2394,12 +2408,12 @@ double VectorHelper::innerProduct(const VectorDouble& veca,
 
 double VectorHelper::innerProduct(const double* veca,
                                   const double* vecb,
-                                  int size)
+                                  Id size)
 {
   double prod        = 0.;
   const double* ptra = &veca[0];
   const double* ptrb = &vecb[0];
-  for (int i = 0; i < size; i++)
+  for (Id i = 0; i < size; i++)
   {
     prod += (*ptra) * (*ptrb);
     ptra++;
@@ -2412,7 +2426,7 @@ double VectorHelper::innerProduct(const std::vector<std::vector<double>>& x,
                                   const std::vector<std::vector<double>>& y)
 {
   double s = 0.;
-  for (int i = 0, n = (int)x.size(); i < n; i++)
+  for (Id i = 0, n = static_cast<Id>(x.size()); i < n; i++)
     s += VH::innerProduct(x[i], y[i]);
   return s;
 }
@@ -2420,7 +2434,7 @@ double VectorHelper::innerProduct(const VectorVectorDouble& x,
                                   const VectorVectorDouble& y)
 {
   double s = 0.;
-  for (int i = 0, n = (int)x.size(); i < n; i++)
+  for (Id i = 0, n = static_cast<Id>(x.size()); i < n; i++)
     s += VH::innerProduct(x[i], y[i]);
   return s;
 }
@@ -2457,8 +2471,8 @@ VectorDouble VectorHelper::flatten(const VectorVectorDouble& vvd)
 {
   VectorDouble vd;
 
-  for (int i = 0; i < (int)vvd.size(); i++)
-    for (int j = 0; j < (int)vvd[i].size(); j++)
+  for (Id i = 0; i < static_cast<Id>(vvd.size()); i++)
+    for (Id j = 0; j < static_cast<Id>(vvd[i].size()); j++)
       vd.push_back(vvd[i][j]);
 
   return vd;
@@ -2466,9 +2480,9 @@ VectorDouble VectorHelper::flatten(const VectorVectorDouble& vvd)
 
 void VectorHelper::flattenInPlace(const VectorVectorDouble& vvd, VectorDouble& vd)
 {
-  int ecr = 0;
-  for (int i = 0; i < (int)vvd.size(); i++)
-    for (int j = 0; j < (int)vvd[i].size(); j++)
+  Id ecr = 0;
+  for (Id i = 0; i < static_cast<Id>(vvd.size()); i++)
+    for (Id j = 0; j < static_cast<Id>(vvd[i].size()); j++)
       vd[ecr++] = (vvd[i][j]);
 }
 
@@ -2476,12 +2490,12 @@ VectorVectorDouble VectorHelper::unflatten(const VectorDouble& vd, const VectorI
 {
   VectorVectorDouble vvd;
 
-  int lec = 0;
-  for (int i = 0, n = (int)sizes.size(); i < n; i++)
+  Id lec = 0;
+  for (Id i = 0, n = static_cast<Id>(sizes.size()); i < n; i++)
   {
-    int lng = sizes[i];
+    Id lng = sizes[i];
     VectorDouble local(lng);
-    for (int j = 0; j < lng; j++)
+    for (Id j = 0; j < lng; j++)
       local[j] = vd[lec++];
     vvd.push_back(local);
   }
@@ -2490,17 +2504,17 @@ VectorVectorDouble VectorHelper::unflatten(const VectorDouble& vd, const VectorI
 
 void VectorHelper::flattenInPlace(const std::vector<std::vector<double>>& vvd, std::vector<double>& vd)
 {
-  int ecr = 0;
-  for (int i = 0; i < (int)vvd.size(); i++)
-    for (int j = 0; j < (int)vvd[i].size(); j++)
+  Id ecr = 0;
+  for (Id i = 0; i < static_cast<Id>(vvd.size()); i++)
+    for (Id j = 0; j < static_cast<Id>(vvd[i].size()); j++)
       vd[ecr++] = (vvd[i][j]);
 }
 
 void VectorHelper::unflattenInPlace(const std::vector<double>& vd, std::vector<std::vector<double>>& vvd)
 {
-  int lec = 0;
-  for (int i = 0, n = (int)vvd.size(); i < n; i++)
-    for (int j = 0; j < (int)vvd[i].size(); j++)
+  Id lec = 0;
+  for (Id i = 0, n = static_cast<Id>(vvd.size()); i < n; i++)
+    for (Id j = 0; j < static_cast<Id>(vvd[i].size()); j++)
       vvd[i][j] = vd[lec++];
 }
 
@@ -2508,8 +2522,8 @@ std::vector<double> VectorHelper::flatten(const std::vector<std::vector<double>>
 {
   std::vector<double> vd;
 
-  for (int i = 0; i < (int)vvd.size(); i++)
-    for (int j = 0; j < (int)vvd[i].size(); j++)
+  for (Id i = 0; i < static_cast<Id>(vvd.size()); i++)
+    for (Id j = 0; j < static_cast<Id>(vvd[i].size()); j++)
       vd.push_back(vvd[i][j]);
 
   return vd;
@@ -2519,12 +2533,12 @@ std::vector<std::vector<double>> VectorHelper::unflatten(const std::vector<doubl
 {
   std::vector<std::vector<double>> vvd;
 
-  int lec = 0;
-  for (int i = 0, n = (int)sizes.size(); i < n; i++)
+  Id lec = 0;
+  for (Id i = 0, n = static_cast<Id>(sizes.size()); i < n; i++)
   {
-    int lng = sizes[i];
+    Id lng = sizes[i];
     VectorDouble local(lng);
-    for (int j = 0; j < lng; j++)
+    for (Id j = 0; j < lng; j++)
       local[j] = vd[lec++];
     vvd.push_back(local);
   }
@@ -2533,7 +2547,7 @@ std::vector<std::vector<double>> VectorHelper::unflatten(const std::vector<doubl
 VectorDouble VectorHelper::suppressTest(const VectorDouble& vecin)
 {
   VectorDouble vecout;
-  for (int i = 0, n = (int)vecin.size(); i < n; i++)
+  for (Id i = 0, n = static_cast<Id>(vecin.size()); i < n; i++)
   {
     if (!FFFF(vecin[i])) vecout.push_back(vecin[i]);
   }
@@ -2547,7 +2561,7 @@ void VectorHelper::linearCombinationInPlace(double val1,
                                             VectorDouble& outv)
 {
   if (vd1.empty() || vd2.empty()) return;
-  for (int i = 0, n = (int)vd1.size(); i < n; i++)
+  for (Id i = 0, n = static_cast<Id>(vd1.size()); i < n; i++)
   {
     double value = 0.;
     if (val1 != 0. && !vd1.empty()) value += val1 * vd1[i];
@@ -2563,9 +2577,9 @@ void VectorHelper::linearCombinationVVDInPlace(double val1,
 {
   if (vvd1.empty() || vvd2.empty()) return;
 
-  for (int is = 0, ns = (int)vvd1.size(); is < ns; is++)
+  for (Id is = 0, ns = static_cast<Id>(vvd1.size()); is < ns; is++)
   {
-    for (int i = 0, n = (int)vvd1[is].size(); i < n; i++)
+    for (Id i = 0, n = static_cast<Id>(vvd1[is].size()); i < n; i++)
     {
       double value = 0.;
       if (val1 != 0. && !vvd1.empty()) value += val1 * vvd1[is][i];
@@ -2582,9 +2596,9 @@ void VectorHelper::linearCombinationVVDInPlace(double val1,
 {
   if (vvd1.empty() || vvd2.empty()) return;
 
-  for (int is = 0, ns = (int)vvd1.size(); is < ns; is++)
+  for (Id is = 0, ns = static_cast<Id>(vvd1.size()); is < ns; is++)
   {
-    for (int i = 0, n = (int)vvd1[is].size(); i < n; i++)
+    for (Id i = 0, n = static_cast<Id>(vvd1[is].size()); i < n; i++)
     {
       double value = 0.;
       if (val1 != 0. && !vvd1.empty()) value += val1 * vvd1[is][i];
@@ -2601,7 +2615,7 @@ void VectorHelper::linearCombinationVVDInPlace(double val1,
  * @param vecout Resulting vector (already allocated)
  * @param start  Starting address (within 'vecin')
  */
-void VectorHelper::extractInPlace(const VectorDouble& vecin, VectorDouble& vecout, int start)
+void VectorHelper::extractInPlace(const VectorDouble& vecin, VectorDouble& vecout, Id start)
 {
   std::copy(vecin.begin() + start, vecin.begin() + start + vecout.size(), vecout.begin());
 }
@@ -2612,7 +2626,7 @@ void VectorHelper::extractInPlace(const VectorDouble& vecin, VectorDouble& vecou
  * @param vecout Vector where 'vecin' should be copied
  * @param start  Starting address (in 'vecout')
  */
-void VectorHelper::mergeInPlace(const VectorDouble& vecin, VectorDouble& vecout, int start)
+void VectorHelper::mergeInPlace(const VectorDouble& vecin, VectorDouble& vecout, Id start)
 {
   std::copy(vecin.begin(), vecin.end(), vecout.begin() + start);
 }
@@ -2622,11 +2636,11 @@ void VectorHelper::mergeInPlace(const VectorDouble& vecin, VectorDouble& vecout,
  * @param tab  Vector of double values
  * @param oper_choice Operation on the diagonal term (see Utilities::operate_XXX)
  */
-void VectorHelper::transformVD(VectorDouble& tab, int oper_choice)
+void VectorHelper::transformVD(VectorDouble& tab, Id oper_choice)
 {
   operate_function oper_func = operate_Identify(oper_choice);
-  int number                 = (int)tab.size();
-  for (int i = 0; i < number; i++)
+  Id number                  = static_cast<Id>(tab.size());
+  for (Id i = 0; i < number; i++)
     tab[i] = oper_func(tab[i]);
 }
 
@@ -2639,7 +2653,7 @@ void VectorHelper::transformVD(VectorDouble& tab, int oper_choice)
  ** \param[in,out]  codir Input/Output Direction coefficients
  **
  *****************************************************************************/
-void VectorHelper::normalizeCodir(int ndim, VectorDouble& codir)
+void VectorHelper::normalizeCodir(Id ndim, VectorDouble& codir)
 {
   double norme;
 
@@ -2647,14 +2661,14 @@ void VectorHelper::normalizeCodir(int ndim, VectorDouble& codir)
   norme = VH::innerProduct(codir, codir, ndim);
   if (norme <= 0.)
   {
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
       codir[idim] = 0.;
     codir[0] = 1.;
   }
   else
   {
     norme = sqrt(norme);
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
       codir[idim] /= norme;
   }
 }
@@ -2679,19 +2693,19 @@ void VectorHelper::squeezeAndStretchInPlaceForward(const VectorDouble& vecin,
                                                    double top,
                                                    double bot)
 {
-  int nzin     = (int)vecin.size();
-  int nzout    = (int)vecout.size();
+  Id nzin      = static_cast<Id>(vecin.size());
+  Id nzout     = static_cast<Id>(vecout.size());
   double thick = top - bot;
   double ratio = thick / nzout;
 
   // Loop on the positions of the pile in the sugar box system
-  for (int iz = 0; iz < nzout; iz++)
+  for (Id iz = 0; iz < nzout; iz++)
   {
     // Corresponding coordinate of the sample in the structural system
-    double zzin = bot + (double)iz * ratio;
+    double zzin = bot + static_cast<double>(iz) * ratio;
 
     // Find the index in the input vector
-    int izin = (int)((zzin - origin) / mesh);
+    Id izin = static_cast<Id>((zzin - origin) / mesh);
     if (izin < 0 || izin >= nzin) continue;
 
     // Assign the value
@@ -2720,8 +2734,8 @@ void VectorHelper::squeezeAndStretchInPlaceBackward(const VectorDouble& vecin,
                                                     double top,
                                                     double bot)
 {
-  int nzin  = (int)vecin.size();
-  int nzout = (int)vecout.size();
+  Id nzin  = static_cast<Id>(vecin.size());
+  Id nzout = static_cast<Id>(vecout.size());
 
   // Blank out the output vector
   vecout.fill(TEST);
@@ -2729,21 +2743,21 @@ void VectorHelper::squeezeAndStretchInPlaceBackward(const VectorDouble& vecin,
   if (thick <= 0) return;
 
   // Get the top and bottom indices in the output vector
-  int indbot = floor((bot - origin) / mesh);
+  Id indbot = floor((bot - origin) / mesh);
   if (indbot < 0) indbot = 0;
-  int indtop = ceil((top - origin) / mesh);
+  Id indtop = ceil((top - origin) / mesh);
   if (indtop >= nzout) indtop = nzout - 1;
 
-  double ratio = (double)nzin / thick;
+  double ratio = static_cast<double>(nzin) / thick;
 
   // Loop on the positions of the pile in the structural system
-  for (int izout = indbot; izout <= indtop; izout++)
+  for (Id izout = indbot; izout <= indtop; izout++)
   {
     // Get the location of the sample in the structural system
     double zzout = origin + izout * mesh;
 
     // Find the index in the input vector (sugar box)
-    int izin = ratio * (zzout - bot);
+    Id izin = ratio * (zzout - bot);
     if (izin < 0 || izin >= nzin) continue;
 
     // Assign the value
@@ -2760,11 +2774,11 @@ void VectorHelper::squeezeAndStretchInPlaceBackward(const VectorDouble& vecin,
  ** \param[in]  tab  Vector of values
  **
  *****************************************************************************/
-int VectorHelper::whereMinimum(const VectorDouble& tab)
+Id VectorHelper::whereMinimum(const VectorDouble& tab)
 {
-  int ibest    = -1;
+  Id ibest     = -1;
   double vbest = MAXIMUM_BIG;
-  for (int i = 0, ntab = (int)tab.size(); i < ntab; i++)
+  for (Id i = 0, ntab = static_cast<Id>(tab.size()); i < ntab; i++)
   {
     if (FFFF(tab[i])) continue;
     if (tab[i] > vbest) continue;
@@ -2783,11 +2797,11 @@ int VectorHelper::whereMinimum(const VectorDouble& tab)
  ** \param[in]  tab  Vector of values
  **
  *****************************************************************************/
-int VectorHelper::whereMaximum(const VectorDouble& tab)
+Id VectorHelper::whereMaximum(const VectorDouble& tab)
 {
-  int ibest    = -1;
+  Id ibest     = -1;
   double vbest = MINIMUM_BIG;
-  for (int i = 0, ntab = (int)tab.size(); i < ntab; i++)
+  for (Id i = 0, ntab = static_cast<Id>(tab.size()); i < ntab; i++)
   {
     if (FFFF(tab[i])) continue;
     if (tab[i] < vbest) continue;
@@ -2805,9 +2819,9 @@ int VectorHelper::whereMaximum(const VectorDouble& tab)
  *
  * @return Rank at which the target value has been found (-1 if not found)
  */
-int VectorHelper::whereElement(const VectorInt& tab, int target)
+Id VectorHelper::whereElement(const VectorInt& tab, Id target)
 {
-  for (int i = 0, ntab = (int)tab.size(); i < ntab; i++)
+  for (Id i = 0, ntab = static_cast<Id>(tab.size()); i < ntab; i++)
   {
     if (tab[i] == target) return i;
   }
@@ -2820,7 +2834,7 @@ int VectorHelper::whereElement(const VectorInt& tab, int target)
  * @param vecin Input vector (double)
  * @param index Index to be suppressed
  */
-VectorDouble VectorHelper::reduceOne(const VectorDouble& vecin, int index)
+VectorDouble VectorHelper::reduceOne(const VectorDouble& vecin, Id index)
 {
   VectorInt vindex(1);
   vindex[0] = index;
@@ -2841,10 +2855,10 @@ VectorDouble VectorHelper::reduce(const VectorDouble& vecin, const VectorInt& vi
   VectorInt indexLocal = vindex;
   std::sort(indexLocal.begin(), indexLocal.end());
 
-  int nsel = (int)indexLocal.size();
-  for (int j = 0; j < nsel; j++)
+  Id nsel = static_cast<Id>(indexLocal.size());
+  for (Id j = 0; j < nsel; j++)
   {
-    int i = indexLocal[nsel - j - 1];
+    Id i = indexLocal[nsel - j - 1];
     vecout.erase(vecout.begin() + i);
   }
   return vecout;
@@ -2859,26 +2873,26 @@ VectorDouble VectorHelper::reduce(const VectorDouble& vecin, const VectorInt& vi
 VectorDouble VectorHelper::compress(const VectorDouble& vecin, const VectorInt& vindex)
 {
   VectorDouble vecout;
-  for (int j = 0, nsel = (int)vindex.size(); j < nsel; j++)
+  for (Id j = 0, nsel = static_cast<Id>(vindex.size()); j < nsel; j++)
   {
-    int i = vindex[j];
+    Id i = vindex[j];
     vecout.push_back(vecin[i]);
   }
   return vecout;
 }
 
-void VectorHelper::truncateDecimalsInPlace(VectorDouble& vec, int ndec)
+void VectorHelper::truncateDecimalsInPlace(VectorDouble& vec, Id ndec)
 {
-  for (int i = 0, n = (int)vec.size(); i < n; i++)
+  for (Id i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
   {
     if (FFFF(vec[i])) continue;
     vec[i] = truncateDecimals(vec[i], ndec);
   }
 }
 
-void VectorHelper::truncateDigitsInPlace(VectorDouble& vec, int ndec)
+void VectorHelper::truncateDigitsInPlace(VectorDouble& vec, Id ndec)
 {
-  for (int i = 0, n = (int)vec.size(); i < n; i++)
+  for (Id i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
   {
     if (FFFF(vec[i])) continue;
     vec[i] = truncateDigits(vec[i], ndec);
@@ -2898,18 +2912,18 @@ VectorDouble VectorHelper::sample(const VectorDouble& vecin,
   VectorDouble vecout;
 
   VectorInt indices = indKeep;
-  if (indices.empty()) indices = VH::sequence((int)vecin.size());
+  if (indices.empty()) indices = VH::sequence(static_cast<Id>(vecin.size()));
 
-  int nindices = (int)indices.size();
+  Id nindices = static_cast<Id>(indices.size());
   if (nindices <= 0) return vecout;
 
-  for (int i = 0; i < nindices; i++)
+  for (Id i = 0; i < nindices; i++)
   {
-    if (!checkArg("Selected index", indices[i], (int)vecin.size())) return vecout;
+    if (!checkArg("Selected index", indices[i], static_cast<Id>(vecin.size()))) return vecout;
   }
 
   vecout.resize(nindices);
-  for (int i = 0; i < nindices; i++) vecout[i] = vecin[indices[i]];
+  for (Id i = 0; i < nindices; i++) vecout[i] = vecin[indices[i]];
   return vecout;
 }
 
@@ -2943,14 +2957,14 @@ bool VectorHelper::isEqualExtended(const VectorDouble& v1,
     message("Impossible to compare vectors of different dimensions\n");
     return false;
   }
-  int size          = (int)v1.size();
+  Id size           = static_cast<Id>(v1.size());
   VectorDouble vec1 = v1;
   VectorDouble vec2 = v2;
 
   // Check is performed on the absolute value of each term of each vector
   if (flagAbsolute)
   {
-    for (int i = 0; i < size; i++)
+    for (Id i = 0; i < size; i++)
     {
       vec1[i] = ABS(vec1[i]);
       vec2[i] = ABS(vec2[i]);
@@ -2959,7 +2973,7 @@ bool VectorHelper::isEqualExtended(const VectorDouble& v1,
 
   // Evaluate the comparison test
   double diff = 0.;
-  for (int i = 0; i < size; i++)
+  for (Id i = 0; i < size; i++)
   {
     double value = (vec1[i] - vec2[i]);
     if (flagRelative) value /= (vec1[i] + vec2[i] + eps);
@@ -2978,12 +2992,12 @@ bool VectorHelper::isEqualExtended(const VectorDouble& v1,
 
 bool VectorHelper::isIsotropic(const VectorVectorInt& sampleRanks)
 {
-  int nvar = (int)sampleRanks.size();
+  Id nvar = static_cast<Id>(sampleRanks.size());
   if (nvar <= 0) return true;
 
-  int refSize = (int)sampleRanks[0].size();
-  for (int ivar = 1; ivar < nvar; ivar++)
-    if (refSize != (int)sampleRanks[ivar].size()) return false;
+  Id refSize = static_cast<Id>(sampleRanks[0].size());
+  for (Id ivar = 1; ivar < nvar; ivar++)
+    if (refSize != static_cast<Id>(sampleRanks[ivar].size())) return false;
   return true;
 }
 

@@ -1,52 +1,49 @@
-Testing for Integer : 12 
-Testing for Double : 2.300000 
-Testing for VectorInt : 1 2 3 
-Testing for VectorDouble : 1.100000 2.200000 3.300000 
-Testing for String : my_String 
-Testing for VectorString : 
+Testing for TestInt : 12 
+Testing for TestDouble : 2.300000 
+Testing for TestVectorInt : 1 2 3 
+Testing for TestVectorDouble : 1.100000 2.200000 3.300000 
+Testing for TestString : my_String 
+Testing for TestVectorString : 
 my_String 
-Testing for VectorString : 
+Testing for TestVectorString : 
 my_String1 my_String2 my_String3 
-Testing for VectorVectorInt : 
+Testing for TestVectorVectorInt : 
 [1][1] : 2 
 [2][1] : 3 
 [1][2] : 1 
 [2][2] : 5 
 
-Testing for VectorVectorDouble : 
+Testing for TestVectorVectorDouble : 
 [1][1] : 2.000000 
 [2][1] : 3.000000 
 [1][2] : 1.000000 
 [2][2] : 5.000000 
 
-Testing for VectorString : 
+Testing for TestVectorString : 
 toto titi 
 NULL
-NULL
-NULL
-Testing for VectorInt : 12 13 
-NULL
+Testing for TestVectorInt : 12 13 
 [1] 12 13
-Testing for VectorDouble : 12.000000 13.000000 
+Testing for TestVectorDouble : 12.000000 13.000000 
 [1] 12 13
-Testing for Integer : NA 
-Testing for Double : NA 
-Testing for VectorInt : NA 
-Testing for VectorDouble : NA 
+Testing for TestInt : NA 
+Testing for TestDouble : NA 
+Testing for TestVectorInt : NA 
+Testing for TestVectorDouble : NA 
 Case : Value = 2 - Descr = Enum test case 2
-Testing for Integer : 12 
+Testing for ReturnInt : 12 
 [1] 12
-Testing for Integer : NA 
+Testing for ReturnInt : NA 
 [1] NA
-Testing for Double : 21.400000 
+Testing for ReturnDouble : 21.400000 
 [1] 21.4
-Testing for Double : NA 
+Testing for ReturnDouble : NA 
 [1] NA
-Testing for VectorDouble : 1.000000 2.000000 3.000000 
+Testing for ReturnVectorDouble : 1.000000 2.000000 3.000000 
 [1] 1 2 3
-Testing for VectorInt : 3 2 8 
+Testing for ReturnVectorInt : 3 2 8 
 [1] 3 2 8
-Testing for VectorVectorInt : 
+Testing for ReturnVectorVectorInt : 
 [1][1] : 1 
 [2][1] : 2 
 [1][2] : 3 
@@ -58,7 +55,7 @@ Testing for VectorVectorInt :
 [[2]]
 [1] 3 4
 
-Testing for VectorVectorDouble : 
+Testing for ReturnVectorVectorDouble : 
 [1][1] : 1.000000 
 [2][1] : 2.000000 
 [1][2] : 3.000000 
@@ -70,14 +67,14 @@ Testing for VectorVectorDouble :
 [[2]]
 [1] 3 4
 
-Testing for VectorVectorInt : 
+Testing for ReturnVectorVectorInt : 
 [1][1] : 5 
 [2][1] : 6 
 
 [[1]]
 [1] 5 6
 
-Testing for VectorVectorDouble : 
+Testing for ReturnVectorVectorDouble : 
 [1][1] : 5.000000 
 [2][1] : 6.000000 
 
@@ -87,16 +84,16 @@ Testing for VectorVectorDouble :
 Integer = -1 - Real = -1.100000 - String = NA
 [1] -1
 Integer = 21 - Real = -1.100000 - String = NA
-Testing for Integer : 2 
-Testing for Double : 2.000000 
-Testing for String : Default String 
-Testing for Vector Int : Found an empty argument. This is correct
-Testing for Vector Double : Found an empty argument. This is correct
-Testing for Vector String : Found an empty argument. This is correct
-Testing for Vector Vector Double : Found an empty argument. This is correct
-Testing for Vector Int : Found an empty argument. This is correct
-Testing for Vector Double : Found an empty argument. This is correct
-Testing for Vector String : Found an empty argument. This is correct
+Testing for DefTestInt : 2 
+Testing for DefTestDouble : 2.000000 
+Testing for DefTestString : Default String 
+Testing for DefTestVectorInt : Found an empty argument. This is correct
+Testing for DefTestVectorDouble : Found an empty argument. This is correct
+Testing for DefTestVectorString : Found an empty argument. This is correct
+Testing for DefTestVectorVectorDouble : Found an empty argument. This is correct
+Testing for DefTestVectorInt : Found an empty argument. This is correct
+Testing for DefTestVectorDouble : Found an empty argument. This is correct
+Testing for DefTestVectorString : Found an empty argument. This is correct
 - Number of rows    = 3
 - Number of columns = 2
                [,  0]    [,  1]

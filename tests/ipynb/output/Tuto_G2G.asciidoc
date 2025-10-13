@@ -73,7 +73,7 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = x3 - Locator = x3
 Column = 4 - Name = Interpolation - Locator = z1
- ----
+----
 
 
 #NO_DIFF#XXX

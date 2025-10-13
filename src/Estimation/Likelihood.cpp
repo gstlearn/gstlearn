@@ -27,12 +27,14 @@ Likelihood::Likelihood(ModelGeneric* model,
                        const Db* db,
                        bool reml)
   : ALikelihood(model, db, reml)
+  , _cov(std::make_shared<MatrixSymmetric>(0))
 {
   setAuthorizedAnalyticalGradients(true);
 }
 
 Likelihood::Likelihood(const Likelihood& r)
   : ALikelihood(r)
+  , _cov(r._cov)
 {
 }
 
@@ -41,6 +43,7 @@ Likelihood& Likelihood::operator=(const Likelihood& r)
   if (this != &r)
   {
     ALikelihood::operator=(r);
+    _cov = r._cov;
   }
   return *this;
 }
@@ -61,13 +64,11 @@ double logLikelihood(const Db* db,
 
 Likelihood* Likelihood::createForOptim(ModelGeneric* model,
                                        const Db* db,
-                                       bool reml)
+                                       bool reml,
+                                       bool verbose)
 {
-  auto* vec            = new Likelihood(model, db, reml);
-  MatrixSymmetric vars = dbVarianceMatrix(db);
-  double hmax          = db->getExtensionDiagonal();
-  vec->setEnvironment(vars, hmax);
-  vec->init();
+  auto* vec = new Likelihood(model, db, reml);
+  vec->_initLikelihood(verbose);
   return vec;
 }
 
@@ -79,10 +80,10 @@ void Likelihood::_computeCm1X()
   }
 }
 
-void Likelihood::_computeCm1Y()
+void Likelihood::_computeCm1Yc()
 {
-  _Cm1Y.resize(_Y.size());
-  if (_covChol.solve(_Y, _Cm1Y))
+  _Cm1Yc.resize(_Yc.size());
+  if (_covChol.solve(_Yc, _Cm1Yc))
   {
     messerr("Error when calculating Cm1Z");
   }
@@ -96,33 +97,32 @@ double Likelihood::_computeLogDet() const
 void Likelihood::_updateModel(bool verbose)
 {
   DECLARE_UNUSED(verbose);
-  _model->evalCovMatSymInPlace(_cov, _db);
-  _covChol.setMatrix(&_cov);
+  _model->evalCovMatSymInPlace(*_cov, _db);
+  _covChol.setMatrix(*_cov);
 }
 
 void Likelihood::evalGrad(vect res)
 {
-
-  _temp.resize(_Y.size());
-  _gradCovMatTimesInvCov.resize(_Y.size(), _Y.size());
+  _temp.resize(_Yc.size());
+  _gradCovMatTimesInvCov.resize(static_cast<Id>(_Yc.size()), static_cast<Id>(_Yc.size()));
   auto invcov = _covChol.inverse();
   RankHandler rkh(_db);
   rkh.defineSampleRanks();
   auto gradcov = _model->getGradients();
-  _gradCovMat.resize(_Y.size(), _Y.size());
+  _gradCovMat.resize(static_cast<Id>(_Yc.size()), static_cast<Id>(_Yc.size()));
   CholeskyDense XtCm1XChol;
   MatrixSymmetric invXtCm1X;
   if (_reml && _model->getNDriftEquation() > 0)
   {
-    XtCm1XChol.setMatrix(&_XtCm1X);
+    XtCm1XChol.setMatrix(_XtCm1X);
     invXtCm1X = XtCm1XChol.inverse();
   }
   for (size_t iparam = 0; iparam < gradcov.size(); iparam++)
   {
     _fillGradCovMat(rkh, gradcov[iparam]);
-    _gradCovMat.prodMatVecInPlace(_Cm1Y, _temp);
-    double dquad = -VH::innerProduct(_Cm1Y, _temp);
-    res[iparam] = 0.0;
+    _gradCovMat.prodMatVecInPlace(_Cm1Yc, _temp);
+    double dquad = -VH::innerProduct(_Cm1Yc, _temp);
+    res[iparam]  = 0.0;
     if (_reml && _model->getNDriftEquation() > 0)
     {
       MatrixSymmetric temp(_X.getNCols());
@@ -133,18 +133,17 @@ void Likelihood::evalGrad(vect res)
     double dlogdet = MatrixDense::traceProd(invcov, _gradCovMat); // Warning: _gradCovMat is modified so the line
     // has to be after _gradCovMat.prodMatVecInPlace(_Cm1Y, _temp);
     res[iparam] += 0.5 * (dlogdet + dquad);
-
   }
 }
 
 void Likelihood::_fillGradCovMat(RankHandler& rkh, covmaptype& gradcov)
 {
-  int icur, jcur = 0;
+  Id icur, jcur = 0;
 
   SpacePoint p1, p2;
   rkh.defineSampleRanks();
 
-  for (size_t jvar = 0; (int)jvar < _model->getNVar(); jvar++)
+  for (Id jvar = 0; static_cast<Id>(jvar) < _model->getNVar(); jvar++)
   {
     auto indsj = rkh.getSampleRanksByVariable(jvar);
 
@@ -153,7 +152,7 @@ void Likelihood::_fillGradCovMat(RankHandler& rkh, covmaptype& gradcov)
       icur = 0;
       _db->getSampleAsSPInPlace(p1, j);
 
-      for (size_t ivar = 0; (int)ivar < _model->getNVar(); ivar++)
+      for (Id ivar = 0; static_cast<Id>(ivar) < _model->getNVar(); ivar++)
       {
         auto indsi = rkh.getSampleRanksByVariable(ivar);
         for (auto& i: indsi)
@@ -168,4 +167,4 @@ void Likelihood::_fillGradCovMat(RankHandler& rkh, covmaptype& gradcov)
     }
   }
 }
-}
+} // namespace gstlrn

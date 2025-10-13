@@ -9,19 +9,19 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Calculators/ACalcDbVarCreator.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Calculators/ACalculator.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
-#include "Basic/VectorHelper.hpp"
 
 namespace gstlrn
 {
 ACalcDbVarCreator::ACalcDbVarCreator()
-    : ACalculator(),
-      _db(nullptr),
-      _namconv(),
-      _listVariablePermDb(),
-      _listVariableTempDb()
+  : ACalculator()
+  , _db(nullptr)
+  , _namconv()
+  , _listVariablePermDb()
+  , _listVariableTempDb()
 {
 }
 
@@ -29,16 +29,16 @@ ACalcDbVarCreator::~ACalcDbVarCreator()
 {
 }
 
-int ACalcDbVarCreator::_getNDim() const
+Id ACalcDbVarCreator::_getNDim() const
 {
   if (_db == nullptr) return -1;
-  return  _db->getNDim();
+  return _db->getNDim();
 }
 
-int ACalcDbVarCreator::_getNVar() const
+Id ACalcDbVarCreator::_getNVar() const
 {
   if (_db == nullptr) return -1;
-  return  _db->getNLoc(ELoc::Z);
+  return _db->getNLoc(ELoc::Z);
 }
 
 /**
@@ -46,47 +46,47 @@ int ACalcDbVarCreator::_getNVar() const
  * @param status  1 for variables to be stored; 2 for Temporary variable
  * @param iuids   Vector of UIDs of the new variable
  */
-void ACalcDbVarCreator::_storeInVariableList(int status, const VectorInt& iuids)
+void ACalcDbVarCreator::_storeInVariableList(Id status, const VectorInt& iuids)
 {
-  int number = (int) iuids.size();
+  Id number = static_cast<Id>(iuids.size());
   if (number <= 0) return;
 
   if (status == 1)
   {
-    for (int i = 0; i < number; i++)
+    for (Id i = 0; i < number; i++)
       _listVariablePermDb.push_back(iuids[i]);
   }
   else
   {
-    for (int i = 0; i < number; i++)
+    for (Id i = 0; i < number; i++)
       _listVariableTempDb.push_back(iuids[i]);
   }
 }
 
-int ACalcDbVarCreator::_addVariableDb(int status,
-                                      const ELoc& locatorType,
-                                      int locatorIndex,
-                                      int number,
-                                      double valinit)
+Id ACalcDbVarCreator::_addVariableDb(Id status,
+                                     const ELoc& locatorType,
+                                     Id locatorIndex,
+                                     Id number,
+                                     double valinit)
 {
   if (_db == nullptr) return -1;
-  int iuid = _db->addColumnsByConstant(number, valinit, String(), locatorType, locatorIndex);
+  Id iuid = _db->addColumnsByConstant(number, valinit, String(), locatorType, locatorIndex);
   if (iuid < 0) return -1;
   VectorInt iuids = VH::sequence(number, iuid);
   _storeInVariableList(status, iuids);
   return iuid;
 }
 
-void ACalcDbVarCreator::_renameVariable(int nvar,
-                                        int iptr,
+void ACalcDbVarCreator::_renameVariable(Id nvar,
+                                        Id iptr,
                                         const ELoc& locatorInType,
-                                        const String &qualifier,
-                                        int count)
+                                        const String& qualifier,
+                                        Id count)
 {
   _namconv.setNamesAndLocators(_db, VectorString(), locatorInType, nvar, _db, iptr, qualifier, count);
 }
 
-void ACalcDbVarCreator::_cleanVariableDb(int status)
+void ACalcDbVarCreator::_cleanVariableDb(Id status)
 {
   // Dispatch
 
@@ -94,7 +94,7 @@ void ACalcDbVarCreator::_cleanVariableDb(int status)
   {
     if (!_listVariablePermDb.empty())
     {
-      for (int i = 0; i < (int) _listVariablePermDb.size(); i++)
+      for (Id i = 0; i < static_cast<Id>(_listVariablePermDb.size()); i++)
         _db->deleteColumnByUID(_listVariablePermDb[i]);
     }
     _listVariablePermDb.clear();
@@ -103,7 +103,7 @@ void ACalcDbVarCreator::_cleanVariableDb(int status)
   {
     if (!_listVariableTempDb.empty())
     {
-      for (int i = 0; i < (int) _listVariableTempDb.size(); i++)
+      for (Id i = 0; i < static_cast<Id>(_listVariableTempDb.size()); i++)
         _db->deleteColumnByUID(_listVariableTempDb[i]);
     }
     _listVariableTempDb.clear();
@@ -120,4 +120,4 @@ bool ACalcDbVarCreator::hasDb(bool verbose) const
   }
   return true;
 }
-}
+} // namespace gstlrn

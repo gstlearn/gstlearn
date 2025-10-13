@@ -42,30 +42,30 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Global parameters
-  int ndim = 2;
+  Id ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
   OptCst::define(ECst::NTROW, -1);
   OptCst::define(ECst::NTCOL, -1);
   bool verbose = true;
 
   // Generate the input data (in the 1x1 square) with 'nvar' variables and 'nfex' external drifts
-  int ndat = 10;
-  int nvar   = 2;
-  int nfex   = 2;
-  int seedin = 13227;
+  Id ndat    = 10;
+  Id nvar    = 2;
+  Id nfex    = 2;
+  Id seedin  = 13227;
   Db* dbin   = Db::createFillRandom(ndat, ndim, nvar, nfex, 0, 0., 0.,
                                     VectorDouble(), VectorDouble(), VectorDouble(), seedin);
   if (verbose) dbin->display();
 
   // Generate the output data set
-  int nout    = 20;
-  int seedout = 134484;
+  Id nout     = 20;
+  Id seedout  = 134484;
   Db* dbout   = Db::createFillRandom(nout, ndim, 0, nfex, 0, 0., 0.,
                                      VectorDouble(), VectorDouble(), VectorDouble(), seedout);
   if (verbose) dbout->display();
 
   // Create the Model
-  int order               = 0;
+  Id order                = 0;
   std::vector<ECov> types = {ECov::NUGGET, ECov::SPHERICAL};
   Model* model            = Model::createFillRandom(ndim, nvar, types, 1., order, nfex);
   if (verbose) model->display();
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
 
   // Loop on the target sites
   VectorDouble result;
-  for (int iout = 0; iout < nout; iout++)
+  for (Id iout = 0; iout < nout; iout++)
   {
     if (model->evalCovMatRHSInPlaceFromIdx(Sigma0, dbin, dbout, sampleRanks, iout, krigopt, false)) break;
     if (verbose && iout == 0) Sigma0.dumpStatistics("RHS(target:1): Covariance part");  

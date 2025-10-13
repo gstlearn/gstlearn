@@ -12,7 +12,7 @@
 
 namespace gstlrn
 {
-RuleStringFormat::RuleStringFormat(int level)
+RuleStringFormat::RuleStringFormat(Id level)
     : AStringFormat(level),
       _flagProp(false),
       _flagThresh(false)

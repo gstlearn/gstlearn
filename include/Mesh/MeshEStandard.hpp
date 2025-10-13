@@ -31,15 +31,15 @@ public:
   virtual ~MeshEStandard();
 
   /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface for AMesh
-  int     getNApices() const override;
-  int     getNMeshes() const override;
-  int     getApex(int imesh, int rank) const override;
-  double  getCoor(int imesh, int rank, int idim) const override;
-  double  getApexCoor(int i, int idim) const override;
-  double  getMeshSize(int imesh) const override;
+  Id     getNApices() const override;
+  Id     getNMeshes() const override;
+  Id     getApex(Id imesh, Id rank) const override;
+  double  getCoor(Id imesh, Id rank, Id idim) const override;
+  double  getApexCoor(Id i, Id idim) const override;
+  double  getMeshSize(Id imesh) const override;
   static MeshEStandard* createFromNF(const String& NFFilename, bool verbose = true);
   static MeshEStandard* createFromExternal(const MatrixDense& apices,
                                            const MatrixInt& meshes,
@@ -47,23 +47,23 @@ public:
 
   VectorInt    getMeshList() const { return _meshes.getValues(); }
   VectorDouble getPointList(bool byCol = true) const;
-  int reset(const MatrixDense& apices,
+  Id reset(const MatrixDense& apices,
             const MatrixInt& meshes,
             bool verbose = false);
-  int reset(int ndim,
-            int napexpermesh,
+  Id reset(Id ndim,
+            Id napexpermesh,
             const VectorDouble &apices,
             const VectorInt &meshes,
             bool byCol = true,
             bool verbose = false);
-  int resetFromTurbo(const MeshETurbo &turbo, bool verbose = false);
+  Id resetFromTurbo(const MeshETurbo &turbo, bool verbose = false);
 
   const MatrixDense& getApices() const { return _apices; }
   const MatrixInt& getMeshes() const { return _meshes; }
 
 protected:
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  virtual bool _serializeAscii(std::ostream& os,bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os,bool verbose = false) const override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
@@ -73,13 +73,13 @@ protected:
 
 private:
   bool _coorInMesh(const VectorDouble& coor,
-                   int imesh,
+                   Id imesh,
                    double meshsize,
                    VectorDouble& weights) const;
   void _deallocate();
-  int  _recopy(const MeshEStandard &m);
+  Id  _recopy(const MeshEStandard &m);
   void _checkConsistency() const;
-  void _setApex(int imesh, int rank, int value);
+  void _setApex(Id imesh, Id rank, Id value);
   void _validate();
 
 private:

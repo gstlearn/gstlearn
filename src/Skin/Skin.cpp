@@ -19,9 +19,9 @@
 
 namespace gstlrn
 {
-static int ndir[4]   = {0, 2, 4, 6};
-static int invdir[6] = {1, 0, 3, 2, 5, 4};
-static int id[6][3]  = {{1, 0, 0},
+static Id ndir[4]   = {0, 2, 4, 6};
+static Id invdir[6] = {1, 0, 3, 2, 5, 4};
+static Id id[6][3]  = {{1, 0, 0},
                         {-1, 0, 0},
                         {0, 1, 0},
                         {0, -1, 0},
@@ -90,7 +90,7 @@ Skin::~Skin()
  ** \param[in]  idir  Rank of the direction
  **
  *****************************************************************************/
-double Skin::_getWeight(int ipos, int idir)
+double Skin::_getWeight(Id ipos, Id idir)
 {
   return _skf->getWeight(ipos, idir);
 }
@@ -105,14 +105,14 @@ double Skin::_getWeight(int ipos, int idir)
  ** \param[in]  dir    Rank of the direction
  **
  *****************************************************************************/
-int Skin::_gridShift(const VectorInt& indg0, int dir)
+Id Skin::_gridShift(const VectorInt& indg0, Id dir)
 {
   VectorInt indg = indg0;
-  int ndim       = _getNDim();
+  auto ndim      = _getNDim();
 
   /* Shift the target grid node and check if it belongs to the grid */
 
-  for (int i = 0; i < ndim; i++)
+  for (Id i = 0; i < ndim; i++)
   {
     indg[i] = indg0[i] + id[dir][i];
     if (indg[i] < 0 || indg[i] >= _dbgrid->getNX(i)) return ITEST;
@@ -130,9 +130,9 @@ int Skin::_gridShift(const VectorInt& indg0, int dir)
  ** \param[in]  dir   Rank of the direction
  **
  *****************************************************************************/
-int Skin::gridShift(int lec, int dir)
+Id Skin::gridShift(Id lec, Id dir)
 {
-  int ndim = _getNDim();
+  auto ndim = _getNDim();
   VectorInt indg(ndim);
 
   /* Convert an absolute address into the grid indices */
@@ -154,7 +154,7 @@ int Skin::gridShift(int lec, int dir)
  ** \remark  in the place of the deleted one
  **
  *****************************************************************************/
-void Skin::_cellDelete(int rank)
+void Skin::_cellDelete(Id rank)
 {
   /* Delete the target cell : move the last cell to the target location */
 
@@ -177,9 +177,9 @@ void Skin::_cellDelete(int rank)
  ** \param[in]  ipos     Cell location
  **
  *****************************************************************************/
-int Skin::_cellAlreadyFilled(int ipos)
+Id Skin::_cellAlreadyFilled(Id ipos)
 {
-  for (int i = 0; i < _nval; i++)
+  for (Id i = 0; i < _nval; i++)
     if (_address[i] == ipos) return (i);
   return (-1);
 }
@@ -192,7 +192,7 @@ int Skin::_cellAlreadyFilled(int ipos)
  ** \param[in]  energy   Additional energy for the new cell
  **
  *****************************************************************************/
-void Skin::_cellModify(int rank, double energy)
+void Skin::_cellModify(Id rank, double energy)
 {
   _energy[rank] += energy;
   _total += energy;
@@ -209,9 +209,9 @@ void Skin::_cellModify(int rank, double energy)
  ** \param[in]  energy   Energy for the new cell
  **
  *****************************************************************************/
-int Skin::_cellAdd(int ipos, double energy)
+Id Skin::_cellAdd(Id ipos, double energy)
 {
-  int rank = _nval;
+  Id rank = _nval;
   _address.resize(_nval + 1);
   _energy.resize(_nval + 1);
   _address[rank] = ipos;
@@ -235,23 +235,23 @@ int Skin::_cellAdd(int ipos, double energy)
  ** \param[in] verbose  Verbose flag
  **
  *****************************************************************************/
-int Skin::init(bool verbose)
+Id Skin::init(bool verbose)
 {
-  int ndim = _getNDim();
+  auto ndim = _getNDim();
   if (_skf == nullptr || ndim <= 0)
   {
     messerr("SKF and DbGrid must be defined beforehand");
     return 1;
   }
   VectorInt indg(ndim);
-  int nb_mask  = 0;
-  int nb_count = 0;
-  int nb_done  = 0;
-  int total    = _nxyz;
+  Id nb_mask  = 0;
+  Id nb_count = 0;
+  Id nb_done  = 0;
+  Id total    = _nxyz;
 
   // Loop on all the cells
 
-  for (int lec = 0; lec < total; lec++)
+  for (Id lec = 0; lec < total; lec++)
   {
     if (_skf->isAlreadyFilled(lec))
     {
@@ -273,14 +273,14 @@ int Skin::init(bool verbose)
     /* The cell is eligible */
 
     nb_count++;
-    int local = 0;
+    Id local = 0;
     _dbgrid->rankToIndice(lec, indg);
-    for (int dir = 0; dir < ndir[ndim]; dir++)
+    for (Id dir = 0; dir < ndir[ndim]; dir++)
     {
-      int ecr = _gridShift(indg, dir);
+      Id ecr = _gridShift(indg, dir);
       if (IFFFF(ecr)) continue;
       if (!_skf->isAlreadyFilled(ecr)) continue;
-      local += (int)_skf->getWeight(ecr, invdir[dir]);
+      local += static_cast<Id>(_skf->getWeight(ecr, invdir[dir]));
     }
     if (local > 0.)
     {
@@ -318,13 +318,13 @@ int Skin::init(bool verbose)
  ** \return  Returns the number of cells still to be processed
  **
  *****************************************************************************/
-int Skin::remains(bool verbose)
+Id Skin::remains(bool verbose)
 {
   _date++;
   if (verbose)
     message("Skin iteration:%5d - Length:%4d - Energy:%lf\n",
             _date, _nval, _total);
-  return ((int)_total);
+  return (static_cast<Id>(_total));
 }
 
 /*****************************************************************************/
@@ -335,7 +335,7 @@ int Skin::remains(bool verbose)
  ** \param[out] ipos     Cell location
  **
  *****************************************************************************/
-void Skin::getNext(int* rank, int* ipos)
+void Skin::getNext(Id* rank, Id* ipos)
 {
   /* Draw a random cell */
 
@@ -344,7 +344,7 @@ void Skin::getNext(int* rank, int* ipos)
   /* Find the cell */
 
   double total = 0.;
-  for (int i = 0; i < _nval; i++)
+  for (Id i = 0; i < _nval; i++)
   {
     total += _energy[i];
     if (total >= tirage)
@@ -371,9 +371,9 @@ void Skin::getNext(int* rank, int* ipos)
  ** \param[in] ipos0    Cell location
  **
  *****************************************************************************/
-int Skin::unstack(int rank0, int ipos0)
+Id Skin::unstack(Id rank0, Id ipos0)
 {
-  int ndim = _getNDim();
+  auto ndim = _getNDim();
   VectorInt indg(ndim);
 
   /* Suppress the current cell from the skin */
@@ -383,18 +383,18 @@ int Skin::unstack(int rank0, int ipos0)
 
   /* Update the neighboring cells */
 
-  int local = 0;
+  Id local = 0;
   _dbgrid->rankToIndice(ipos0, indg);
-  for (int dir = 0; dir < ndir[ndim]; dir++)
+  for (Id dir = 0; dir < ndir[ndim]; dir++)
   {
-    int ecr = _gridShift(indg, dir);
+    Id ecr = _gridShift(indg, dir);
     if (IFFFF(ecr)) continue;
 
     /* Discard the neighboring cell if it cannot filled */
 
     if (!_skf->isToBeFilled(ecr)) continue;
-    local    = (int)_skf->getWeight(ipos0, dir);
-    int rank = _cellAlreadyFilled(ecr);
+    local    = static_cast<Id>(_skf->getWeight(ipos0, dir));
+    Id rank = _cellAlreadyFilled(ecr);
     if (rank < 0)
     {
 
@@ -425,7 +425,7 @@ void Skin::skinPrint() const
   message("- Maximum energy                = %lf\n", _totalMax);
 }
 
-int Skin::_getNDim() const
+Id Skin::_getNDim() const
 {
   if (_dbgrid != nullptr)
     return _dbgrid->getNDim();

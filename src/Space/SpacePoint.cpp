@@ -41,7 +41,7 @@ SpacePoint::SpacePoint(const SpacePoint& r)
 {
 }
 
-SpacePoint::SpacePoint(const VectorDouble& coord, int iech, const ASpaceSharedPtr& space)
+SpacePoint::SpacePoint(const VectorDouble& coord, Id iech, const ASpaceSharedPtr& space)
   : ASpaceObject(space)
   , _coord(coord)
   , _iech(iech)
@@ -57,14 +57,9 @@ SpacePoint::SpacePoint(const VectorDouble& coord, int iech, const ASpaceSharedPt
   }
 }
 
-double SpacePoint::getCoord(int idim) const
+double SpacePoint::getCoord(Id idim) const
 {
   return _coord[idim];
-}
-
-constvect SpacePoint::getCoords() const
-{
-  return constvect(_coord.data(), getNDim());
 }
 
 SpacePoint& SpacePoint::operator=(const SpacePoint& r)
@@ -90,16 +85,16 @@ void SpacePoint::setCoord(double coord)
 
 void SpacePoint::setCoords(const VectorDouble& coord)
 {
-  if ((int)getNDim() != (int)coord.size())
+  if (static_cast<Id>(getNDim()) != static_cast<Id>(coord.size()))
     std::cout << "Error: Wrong number of coordinates. Point not modified."
               << std::endl;
   else
     _coord = coord;
 }
 
-SpacePoint SpacePoint::spacePointOnSubspace(int ispace) const
+SpacePoint SpacePoint::spacePointOnSubspace(Id ispace) const
 {
-  if (ispace < 0 || ispace >= (int)getNDim())
+  if (ispace < 0 || ispace >= static_cast<Id>(getNDim()))
     return *this;
 
   /// TODO : Memory copies
@@ -109,12 +104,12 @@ SpacePoint SpacePoint::spacePointOnSubspace(int ispace) const
   return p;
 }
 
-void SpacePoint::setCoords(const double* coord, int size)
+void SpacePoint::setCoords(const double* coord, Id size)
 {
-  if ((int)getNDim() != size)
+  if (static_cast<Id>(getNDim()) != size)
     std::cout << "Error: Wrong number of coordinates. Point not modified." << std::endl;
   else
-    for (int idim = 0; idim < size; idim++)
+    for (Id idim = 0; idim < size; idim++)
       _coord[idim] = coord[idim];
 }
 
@@ -129,7 +124,7 @@ void SpacePoint::move(const VectorDouble& vec)
   getSpace()->move(*this, vec);
 }
 
-double SpacePoint::getDistance(const SpacePoint& pt, int ispace) const
+double SpacePoint::getDistance(const SpacePoint& pt, Id ispace) const
 {
   return ASpaceObject::getDistance(*this, pt, ispace);
 }
@@ -139,12 +134,12 @@ VectorDouble SpacePoint::getDistances(const SpacePoint& pt) const
   return ASpaceObject::getDistances(*this, pt);
 }
 
-VectorDouble SpacePoint::getIncrement(const SpacePoint& pt, int ispace) const
+VectorDouble SpacePoint::getIncrement(const SpacePoint& pt, Id ispace) const
 {
   return ASpaceObject::getIncrement(*this, pt, ispace);
 }
 
-void SpacePoint::getIncrementInPlace(VectorDouble& inc, const SpacePoint& pt, int ispace) const
+void SpacePoint::getIncrementInPlace(VectorDouble& inc, const SpacePoint& pt, Id ispace) const
 {
   ASpaceObject::getIncrementInPlace(*this, pt, inc, ispace);
 }
@@ -161,7 +156,7 @@ void SpacePoint::setFFFF()
 
 bool SpacePoint::isFFFF() const
 {
-  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
+  for (Id idim = 0, ndim = static_cast<Id>(getNDim()); idim < ndim; idim++)
     if (!FFFF(_coord[idim])) return false;
   return true;
 }
@@ -175,7 +170,7 @@ double SpacePoint::getCosineToDirection(const SpacePoint& T2,
   _delta.clear();
   _delta.resize(getNDim());
   getIncrementInPlace(_delta, T2);
-  for (int idim = 0; idim < (int)getNDim(); idim++)
+  for (Id idim = 0; idim < static_cast<Id>(getNDim()); idim++)
   {
     cosdir += _delta[idim] * codir[idim];
     dn1 += _delta[idim] * _delta[idim];
@@ -196,7 +191,7 @@ double SpacePoint::getOrthogonalDistance(const SpacePoint& P2,
   _delta.clear();
   _delta.resize(getNDim());
   getIncrementInPlace(_delta, P2);
-  for (int idim = 0; idim < (int)getNDim(); idim++)
+  for (Id idim = 0; idim < static_cast<Id>(getNDim()); idim++)
   {
     dproj += _delta[idim] * codir[idim];
     dn1 += codir[idim] * codir[idim];

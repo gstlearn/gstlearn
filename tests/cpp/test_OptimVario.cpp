@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
-  ASerializable::setPrefixName("OptimVario-");
+  ASerializable::setPrefixName("test_OptimVario-");
 
   Db* db          = Db::createFillRandom(1000, 2, 0);
   Model* model    = Model::createFromParam(ECov::EXPONENTIAL, TEST, 2., 1., {0.1, 0.3}, MatrixSymmetric(), {30., 0});
@@ -43,21 +43,21 @@ int main(int argc, char* argv[])
   simtub(nullptr, db, model, nullptr, 1, 234555, 3000);
 
   // Calculating the experimental variogram
-  double diagonal = db->getExtensionDiagonal();
-  int nlag = 10;
-  double dlag = diagonal / 2. / nlag;
+  double diagonal        = db->getExtensionDiagonal();
+  Id nlag                = 10;
+  double dlag            = diagonal / 2. / nlag;
   VarioParam* varioparam = VarioParam::createMultiple(4, nlag, dlag);
-  Vario* vario = Vario::computeFromDb(*varioparam, db);
+  Vario* vario           = Vario::computeFromDb(*varioparam, db);
   vario->dumpToNF("vario.NF");
 
   mestitle(1, "Initial Model");
   modelfit->display();
 
   // Fitting procedure
-  ModelOptimParam mop = ModelOptimParam();
+  ModelOptimParam mop;
   mop.setFlagGoulard(true);
   bool verbose = false;
-  bool trace = false;
+  bool trace   = false;
   modelfit->fitNew(nullptr, vario, nullptr, nullptr, mop,
                    ITEST, verbose, trace);
 

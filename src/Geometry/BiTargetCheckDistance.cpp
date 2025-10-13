@@ -32,7 +32,7 @@ BiTargetCheckDistance::BiTargetCheckDistance(double radius,
 {
   if (!coeffs.empty())
   {
-    _ndim = (int)coeffs.size();
+    _ndim = static_cast<Id>(coeffs.size());
 
     //    _flagAniso = (ut_vector_constant(coeffs)) ? 0 : 1;
     _flagAniso = true;
@@ -122,7 +122,7 @@ String BiTargetCheckDistance::toString(const AStringFormat* /*strfmt*/) const
     else
     {
       VectorDouble ranges(_ndim);
-      for (int idim = 0; idim < _ndim; idim++)
+      for (Id idim = 0; idim < _ndim; idim++)
         ranges[idim] = _radius * _anisoCoeffs[idim];
       sstr << toMatrix("Anisotropic Ranges :", VectorString(), VectorString(),
                        true, 1, _ndim, ranges);
@@ -148,7 +148,7 @@ double BiTargetCheckDistance::getNormalizedDistance(const VectorDouble& dd) cons
 
 void BiTargetCheckDistance::_calculateDistance() const
 {
-  int ndim = getNDim();
+  auto ndim = getNDim();
 
   /* Anisotropic neighborhood */
 
@@ -163,7 +163,7 @@ void BiTargetCheckDistance::_calculateDistance() const
                           _anisoRotMat.data(), _movingAux.data());
       _movingIncr = _movingAux;
     }
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
       _movingIncr[idim] /= _anisoCoeffs[idim];
   }
 
@@ -176,12 +176,12 @@ void BiTargetCheckDistance::_calculateDistance() const
 bool BiTargetCheckDistance::isOK(const SpaceTarget& T1,
                                  const SpaceTarget& T2) const
 {
-  int ndim = getNDim();
-  for (int idim = 0; idim < ndim; idim++)
+  auto ndim = getNDim();
+  for (Id idim = 0; idim < ndim; idim++)
     _movingIncr[idim] = T1.getCoord(idim) - T2.getCoord(idim);
 
   _calculateDistance();
 
   return _dist <= _radius;
 }
-}
+} // namespace gstlrn

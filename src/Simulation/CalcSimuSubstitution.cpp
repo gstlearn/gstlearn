@@ -22,7 +22,7 @@
 namespace gstlrn
 {
 
-CalcSimuSubstitution::CalcSimuSubstitution(int nbsimu, int seed, bool verbose)
+CalcSimuSubstitution::CalcSimuSubstitution(Id nbsimu, Id seed, bool verbose)
   : ACalcSimulation(nbsimu, seed)
   , _verbose(verbose)
   , _iattOut(-1)
@@ -50,7 +50,7 @@ CalcSimuSubstitution::~CalcSimuSubstitution()
 bool CalcSimuSubstitution::_simulate()
 {
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  int np         = 0;
+  Id np          = 0;
 
   /***********************/
   /* Information process */
@@ -71,12 +71,12 @@ bool CalcSimuSubstitution::_simulate()
 
     /* Assigning a value to the half-space that contains the center */
 
-    for (int ip = 0; ip < np; ip++)
+    for (Id ip = 0; ip < np; ip++)
     {
       if (!_subparam.isFlagOrient())
       {
-        int ival = (_planes[ip].getRndval() > 0.5) ? -1 : 1;
-        _planes[ip].setValue((double)ival);
+        Id ival = (_planes[ip].getRndval() > 0.5) ? -1 : 1;
+        _planes[ip].setValue(static_cast<double>(ival));
       }
       else if (!_subparam.isLocal())
       {
@@ -86,17 +86,17 @@ bool CalcSimuSubstitution::_simulate()
 
     /* Simulating the directing function */
 
-    for (int iech = 0; iech < dbgrid->getNSample(); iech++)
+    for (Id iech = 0; iech < dbgrid->getNSample(); iech++)
     {
       VectorDouble cen = dbgrid->getSampleCoordinates(iech);
 
       /* Loop on the planes */
 
       double valtot = 0.;
-      for (int ip = 0; ip < np; ip++)
+      for (Id ip = 0; ip < np; ip++)
       {
         double prod = 0.;
-        for (int i = 0; i < (int)cen.size(); i++)
+        for (Id i = 0; i < static_cast<Id>(cen.size()); i++)
           prod += _planes[ip].getCoor(i) * cen[i];
 
         if (_subparam.isLocal())
@@ -106,14 +106,14 @@ bool CalcSimuSubstitution::_simulate()
           if (_subparam.getColfac() >= 0)
           {
             factor = dbgrid->getArray(iech, _subparam.getColfac());
-            _subparam.isValidFactor(&factor);
+            SimuSubstitutionParam::isValidFactor(&factor);
           }
           if (_subparam.isAngleLocal())
           {
-            for (int i = 0; i < 3; i++)
+            for (Id i = 0; i < 3; i++)
               if (_subparam.getColang(i) >= 0)
                 vector[i] = dbgrid->getArray(iech, _subparam.getColang(i));
-            _subparam.isValidOrientation(vector);
+            SimuSubstitutionParam::isValidOrientation(vector);
           }
           _calculValue(ip, factor, vector);
         }
@@ -140,7 +140,7 @@ bool CalcSimuSubstitution::_simulate()
 
   double vmin = MAXIMUM_BIG;
   double vmax = MINIMUM_BIG;
-  for (int iech = 0; iech < dbgrid->getNSample(); iech++)
+  for (Id iech = 0; iech < dbgrid->getNSample(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
     double value = (_subparam.isFlagDirect()) ? dbgrid->getArray(iech, _iattOut) : dbgrid->getZVariable(iech, 0);
@@ -153,13 +153,13 @@ bool CalcSimuSubstitution::_simulate()
     messerr("before the Coding Process takes place");
     return false;
   }
-  np = (int)(vmax - vmin + 0.5);
+  np = lround(vmax - vmin + 0.5);
 
   /******************/
   /* Coding process */
   /******************/
 
-  int nstates = _subparam.getNstates();
+  Id nstates = _subparam.getNstates();
   if (_subparam.isFlagCoding())
   {
     if (_subparam.isFlagAuto()) nstates = np;
@@ -176,7 +176,7 @@ bool CalcSimuSubstitution::_simulate()
 
     double u  = law_uniform(0., 1.);
     double w0 = 0.;
-    int ie    = 0;
+    Id ie     = 0;
     while (w0 < u)
       w0 += props[ie++];
     status[0] = ie - 1;
@@ -184,12 +184,12 @@ bool CalcSimuSubstitution::_simulate()
     /* Simulation of the current state */
 
     VectorDouble trans = _subparam.getTrans();
-    int nfacies        = _subparam.getNfacies();
-    for (int ip = 1; ip < nstates; ip++)
+    Id nfacies         = _subparam.getNfacies();
+    for (Id ip = 1; ip < nstates; ip++)
     {
       u         = law_uniform(0., 1.);
       double p0 = 0.;
-      int je    = 0;
+      Id je     = 0;
       ie        = status[ip - 1];
       while (p0 < u)
       {
@@ -201,11 +201,11 @@ bool CalcSimuSubstitution::_simulate()
 
     /* Simulating the directing function */
 
-    for (int iech = 0; iech < dbgrid->getNSample(); iech++)
+    for (Id iech = 0; iech < dbgrid->getNSample(); iech++)
     {
       if (!dbgrid->isActive(iech)) continue;
       double value = (_subparam.isFlagDirect()) ? dbgrid->getArray(iech, _iattOut) : dbgrid->getZVariable(iech, 0);
-      int ival     = (int)((value - vmin) / (vmax - vmin) * nstates);
+      Id ival      = static_cast<Id>((value - vmin) / (vmax - vmin) * nstates);
       if (ival < 0) ival = 0;
       if (ival >= nstates) ival = nstates - 1;
       dbgrid->setArray(iech, _iattOut, 1 + status[ival]);
@@ -231,16 +231,16 @@ bool CalcSimuSubstitution::_simulate()
  ** \param[in,out]  ip      Rank of the Plane
  **
  *****************************************************************************/
-void CalcSimuSubstitution::_calculValue(int ip,
+void CalcSimuSubstitution::_calculValue(Id ip,
                                         double factor,
                                         const VectorDouble& vector)
 {
-  int ival      = ((2. * _planes[ip].getRndval()) > (1. + factor)) ? -1 : 1;
+  Id ival       = ((2. * _planes[ip].getRndval()) > (1. + factor)) ? -1 : 1;
   double cossin = 0.;
-  for (int i = 0; i < (int)vector.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(vector.size()); i++)
     cossin += _planes[ip].getCoor(i) * vector[i];
   if (cossin < 0) ival = -ival;
-  _planes[ip].setValue((double)ival);
+  _planes[ip].setValue(static_cast<double>(ival));
 }
 
 /****************************************************************************/
@@ -264,7 +264,7 @@ VectorDouble CalcSimuSubstitution::_transToProp(const SimuSubstitutionParam& sub
 
   /* Initializations */
 
-  int nfacies = subparam.getNfacies();
+  auto nfacies = subparam.getNfacies();
   if (nfacies <= 0 || subparam.getTrans().empty()) return props;
   props.resize(nfacies);
   propold.resize(nfacies);
@@ -272,16 +272,16 @@ VectorDouble CalcSimuSubstitution::_transToProp(const SimuSubstitutionParam& sub
   /* Checks the transition matrix */
 
   bool flag_error = false;
-  for (int i = 0; i < nfacies && !flag_error; i++)
+  for (Id i = 0; i < nfacies && !flag_error; i++)
   {
     double total = 0.;
-    for (int j = 0; j < nfacies; j++)
+    for (Id j = 0; j < nfacies; j++)
       total += ABS(TRANS(i, j));
 
     if (total <= 0.)
       flag_error = 1;
     else
-      for (int j = 0; j < nfacies; j++)
+      for (Id j = 0; j < nfacies; j++)
         TRANS(i, j) = ABS(TRANS(i, j)) / total;
   }
 
@@ -289,14 +289,14 @@ VectorDouble CalcSimuSubstitution::_transToProp(const SimuSubstitutionParam& sub
 
   if (flag_error)
   {
-    for (int i = 0; i < nfacies; i++)
-      for (int j = 0; j < nfacies; j++)
+    for (Id i = 0; i < nfacies; i++)
+      for (Id j = 0; j < nfacies; j++)
         TRANS(i, j) = 1. / nfacies;
   }
 
   /* Initialize the proportion matrix */
 
-  for (int i = 0; i < nfacies; i++)
+  for (Id i = 0; i < nfacies; i++)
     props[i] = 1. / nfacies;
 
   /* Loop to reach the stationarity of the proportions */
@@ -306,18 +306,18 @@ VectorDouble CalcSimuSubstitution::_transToProp(const SimuSubstitutionParam& sub
   {
     double w0 = 0.;
     diff      = 0.;
-    for (int i = 0; i < nfacies; i++)
+    for (Id i = 0; i < nfacies; i++)
       propold[i] = props[i];
-    for (int i = 0; i < nfacies; i++)
+    for (Id i = 0; i < nfacies; i++)
     {
       double val = 0.;
-      for (int j = 0; j < nfacies; j++)
+      for (Id j = 0; j < nfacies; j++)
         val += TRANS(j, i) * propold[j];
       props[i] = val;
       w0 += val;
     }
     if (w0 == 0.) w0 = 1.;
-    for (int i = 0; i < nfacies; i++)
+    for (Id i = 0; i < nfacies; i++)
     {
       props[i] /= w0;
       diff += ABS(propold[i] - props[i]);
@@ -337,7 +337,7 @@ bool CalcSimuSubstitution::_check()
   if (!ACalcSimulation::_check()) return false;
 
   if (!hasDbout()) return false;
-  int ndim = _getNDim();
+  auto ndim = _getNDim();
   if (ndim > 3)
   {
     messerr("The Substitution Method is not a relevant simulation model");
@@ -395,11 +395,11 @@ void CalcSimuSubstitution::_rollback()
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-int substitution(DbGrid* dbgrid,
-                 SimuSubstitutionParam& subparam,
-                 int seed,
-                 int verbose,
-                 const NamingConvention& namconv)
+Id substitution(DbGrid* dbgrid,
+                SimuSubstitutionParam& subparam,
+                Id seed,
+                Id verbose,
+                const NamingConvention& namconv)
 {
   CalcSimuSubstitution simsub(1, seed, verbose);
   simsub.setDbout(dbgrid);
@@ -407,7 +407,7 @@ int substitution(DbGrid* dbgrid,
   simsub.setSubparam(subparam);
 
   // Run the calculator
-  int error = (simsub.run()) ? 0 : 1;
+  Id error = (simsub.run()) ? 0 : 1;
   return error;
 }
 } // namespace gstlrn

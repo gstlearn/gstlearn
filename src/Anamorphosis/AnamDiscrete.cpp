@@ -64,9 +64,9 @@ AnamDiscrete::~AnamDiscrete()
 
 void AnamDiscrete::_resize()
 {
-  int ncut   = getNCut();
-  int nclass = getNClass();
-  int nelem  = getNElem();
+  auto ncut   = getNCut();
+  auto nclass = getNClass();
+  auto nelem  = getNElem();
 
   _zCut.resize(ncut, 0.);
   _stats.resetFromValue(nclass, nelem, 0.);
@@ -100,130 +100,130 @@ void AnamDiscrete::calculateMeanAndVariance()
   _variance = TEST;
 }
 
-double AnamDiscrete::getDDStatProp(int iclass) const
+double AnamDiscrete::getDDStatProp(Id iclass) const
 {
   if (!_isClassValid(iclass)) return TEST;
   return _stats.getValue(iclass, 0);
 }
-double AnamDiscrete::getDDStatZmoy(int iclass) const
+double AnamDiscrete::getDDStatZmoy(Id iclass) const
 {
   if (!_isClassValid(iclass)) return TEST;
   return _stats.getValue(iclass, 1);
 }
-double AnamDiscrete::getDDStatCnorm(int iclass) const
+double AnamDiscrete::getDDStatCnorm(Id iclass) const
 {
   if (!_isClassValid(iclass)) return TEST;
   return _stats.getValue(iclass, 2);
 }
-double AnamDiscrete::getDDStatLambda(int iclass) const
+double AnamDiscrete::getDDStatLambda(Id iclass) const
 {
   if (!_isClassValid(iclass)) return TEST;
   return _stats.getValue(iclass, 3);
 }
-double AnamDiscrete::getDDStatU(int iclass) const
+double AnamDiscrete::getDDStatU(Id iclass) const
 {
   if (!_isClassValid(iclass)) return TEST;
   return _stats.getValue(iclass, 4);
 }
-double AnamDiscrete::getDDStatMul(int iclass) const
+double AnamDiscrete::getDDStatMul(Id iclass) const
 {
   if (!_isClassValid(iclass)) return TEST;
   return _stats.getValue(iclass, 5);
 }
-void AnamDiscrete::setDDStatProp(int iclass, double value)
+void AnamDiscrete::setDDStatProp(Id iclass, double value)
 {
   if (!_isClassValid(iclass)) return;
   _stats.setValue(iclass, 0, value);
 }
-void AnamDiscrete::setDDStatZmoy(int iclass, double value)
+void AnamDiscrete::setDDStatZmoy(Id iclass, double value)
 {
   if (!_isClassValid(iclass)) return;
   _stats.setValue(iclass, 1, value);
 }
-void AnamDiscrete::setDDStatCnorm(int iclass, double value)
+void AnamDiscrete::setDDStatCnorm(Id iclass, double value)
 {
   if (!_isClassValid(iclass)) return;
   _stats.setValue(iclass, 2, value);
 }
-void AnamDiscrete::setDDStatLambda(int iclass, double value)
+void AnamDiscrete::setDDStatLambda(Id iclass, double value)
 {
   if (!_isClassValid(iclass)) return;
   _stats.setValue(iclass, 3, value);
 }
-void AnamDiscrete::setDDStatU(int iclass, double value)
+void AnamDiscrete::setDDStatU(Id iclass, double value)
 {
   if (!_isClassValid(iclass)) return;
   _stats.setValue(iclass, 4, value);
 }
-void AnamDiscrete::setDDStatMul(int iclass, double value)
+void AnamDiscrete::setDDStatMul(Id iclass, double value)
 {
   if (!_isClassValid(iclass)) return;
   _stats.setValue(iclass, 5, value);
 }
 
 // Function for using Stats in IR anamorphosis
-double AnamDiscrete::getIRStatT(int iclass) const
+double AnamDiscrete::getIRStatT(Id iclass) const
 {
   if (!_isClassValid(iclass)) return TEST;
   return _stats.getValue(iclass, 0);
 }
-double AnamDiscrete::getIRStatQ(int iclass) const
+double AnamDiscrete::getIRStatQ(Id iclass) const
 {
   if (!_isClassValid(iclass)) return TEST;
   return _stats.getValue(iclass, 1);
 }
-double AnamDiscrete::getIRStatZ(int iclass) const
+double AnamDiscrete::getIRStatZ(Id iclass) const
 {
   if (!_isClassValid(iclass)) return TEST;
   return _stats.getValue(iclass, 2);
 }
-double AnamDiscrete::getIRStatB(int iclass) const
+double AnamDiscrete::getIRStatB(Id iclass) const
 {
   if (!_isClassValid(iclass)) return TEST;
   return _stats.getValue(iclass, 3);
 }
-double AnamDiscrete::getIRStatR(int iclass) const
+double AnamDiscrete::getIRStatR(Id iclass) const
 {
   if (!_isClassValid(iclass)) return TEST;
   return _stats.getValue(iclass, 4);
 }
-double AnamDiscrete::getIRStatRV(int iclass) const
+double AnamDiscrete::getIRStatRV(Id iclass) const
 {
   if (!_isClassValid(iclass)) return TEST;
   return _stats.getValue(iclass, 5);
 }
-void AnamDiscrete::setIRStatT(int iclass, double value)
+void AnamDiscrete::setIRStatT(Id iclass, double value)
 {
   if (!_isClassValid(iclass)) return;
   _stats.setValue(iclass, 0, value);
 }
-void AnamDiscrete::setIRStatQ(int iclass, double value)
+void AnamDiscrete::setIRStatQ(Id iclass, double value)
 {
   if (!_isClassValid(iclass)) return;
   _stats.setValue(iclass, 1, value);
 }
-void AnamDiscrete::setIRStatZ(int iclass, double value)
+void AnamDiscrete::setIRStatZ(Id iclass, double value)
 {
   if (!_isClassValid(iclass)) return;
   _stats.setValue(iclass, 2, value);
 }
-void AnamDiscrete::setIRStatB(int iclass, double value)
+void AnamDiscrete::setIRStatB(Id iclass, double value)
 {
   if (!_isClassValid(iclass)) return;
   _stats.setValue(iclass, 3, value);
 }
-void AnamDiscrete::setIRStatR(int iclass, double value)
+void AnamDiscrete::setIRStatR(Id iclass, double value)
 {
   if (!_isClassValid(iclass)) return;
   _stats.setValue(iclass, 4, value);
 }
-void AnamDiscrete::setIRStatRV(int iclass, double value)
+void AnamDiscrete::setIRStatRV(Id iclass, double value)
 {
   if (!_isClassValid(iclass)) return;
   _stats.setValue(iclass, 5, value);
 }
 
-bool AnamDiscrete::_isClassValid(int iclass) const
+bool AnamDiscrete::_isClassValid(Id iclass) const
 {
   return checkArg("Class Index", iclass, getNClass());
 }
@@ -231,9 +231,9 @@ bool AnamDiscrete::_isClassValid(int iclass) const
 bool AnamDiscrete::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = true;
-  ret      = ret && _recordWrite<int>(os, "Number of Cuttofs", getNCut());
-  ret      = ret && _recordWrite<int>(os, "Number of classes", getNClass());
-  ret      = ret && _recordWrite<int>(os, "Number of elements", getNElem());
+  ret      = ret && _recordWrite<Id>(os, "Number of Cuttofs", getNCut());
+  ret      = ret && _recordWrite<Id>(os, "Number of classes", getNClass());
+  ret      = ret && _recordWrite<Id>(os, "Number of elements", getNElem());
   ret      = ret && _tableWrite(os, "Cutoff value", getNCut(), getZCut());
   ret      = ret && _tableWrite(os, "DD Stats", getNClass() * getNElem(), getStats().getValues());
   return ret;
@@ -242,14 +242,14 @@ bool AnamDiscrete::_serializeAscii(std::ostream& os, bool /*verbose*/) const
 bool AnamDiscrete::_deserializeAscii(std::istream& is, bool /*verbose*/)
 {
   VectorDouble zCut, stats;
-  int nCut   = 0;
-  int nClass = 0;
-  int nElem  = 0;
+  Id nCut   = 0;
+  Id nClass = 0;
+  Id nElem  = 0;
 
   bool ret = true;
-  ret      = ret && _recordRead<int>(is, "Number of Cutoffs", nCut);
-  ret      = ret && _recordRead<int>(is, "Number of Classes", nClass);
-  ret      = ret && _recordRead<int>(is, "Number of Statistic Columns", nElem);
+  ret      = ret && _recordRead<Id>(is, "Number of Cutoffs", nCut);
+  ret      = ret && _recordRead<Id>(is, "Number of Classes", nClass);
+  ret      = ret && _recordRead<Id>(is, "Number of Statistic Columns", nElem);
 
   if (ret)
   {
@@ -273,7 +273,7 @@ bool AnamDiscrete::_deserializeAscii(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-void AnamDiscrete::setNCut(int ncut)
+void AnamDiscrete::setNCut(Id ncut)
 {
   _nCut = ncut;
   _resize();
@@ -281,12 +281,12 @@ void AnamDiscrete::setNCut(int ncut)
 
 void AnamDiscrete::setZCut(const VectorDouble& zcut)
 {
-  _nCut = (int)zcut.size();
+  _nCut = static_cast<Id>(zcut.size());
   _resize();
   _zCut = zcut;
 };
 
-void AnamDiscrete::setNElem(int nelem)
+void AnamDiscrete::setNElem(Id nelem)
 {
   _nElem = nelem;
   _resize();
@@ -294,9 +294,9 @@ void AnamDiscrete::setNElem(int nelem)
 
 void AnamDiscrete::setStats(const VectorDouble& stats)
 {
-  int nclass = getNClass();
-  int nelem  = getNElem();
-  if ((int)stats.size() != nclass * nelem)
+  auto nclass = getNClass();
+  auto nelem  = getNElem();
+  if (static_cast<Id>(stats.size()) != nclass * nelem)
   {
     messerr("Argument 'stats' incorrect. Its dimension (%d) should be %d * %d",
             stats.size(), nclass, nelem);
@@ -314,10 +314,10 @@ bool AnamDiscrete::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   }
 
   /* Read the grid characteristics */
-  bool ret   = true;
-  int ncut   = 0;
-  int nclass = 0;
-  int nelem  = 0;
+  bool ret  = true;
+  Id ncut   = 0;
+  Id nclass = 0;
+  Id nelem  = 0;
   VectorDouble zcuts;
   VectorDouble stats;
 

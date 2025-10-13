@@ -40,21 +40,21 @@ public:
   }
 
 protected:
-  int _getNDim() const;
-  int _getNVar() const;
+  Id _getNDim() const;
+  Id _getNVar() const;
 
-  int _addVariableDb(int status,
+  Id _addVariableDb(Id status,
                      const ELoc& locatorType,
-                     int locatorIndex = 0,
-                     int number = 1,
+                     Id locatorIndex = 0,
+                     Id number = 1,
                      double valinit = 0.);
-  void _renameVariable(int nvar,
-                       int iptr,
+  void _renameVariable(Id nvar,
+                       Id iptr,
                        const ELoc& locatorInType,
                        const String &qualifier,
-                       int count);
-  void _storeInVariableList(int status, const VectorInt& iuids);
-  void _cleanVariableDb(int status);
+                       Id count);
+  void _storeInVariableList(Id status, const VectorInt& iuids);
+  void _cleanVariableDb(Id status);
 
 private:
   Db* _db;

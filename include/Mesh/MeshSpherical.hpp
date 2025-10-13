@@ -30,39 +30,39 @@ public:
   virtual ~MeshSpherical();
 
   /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface to AMesh
-  int     getNApices() const override;
-  int     getNMeshes() const override;
-  double  getMeshSize(int imesh) const override;
-  int     getApex(int imesh, int rank) const override;
-  double  getCoor(int imesh, int rank, int idim) const override;
-  double  getApexCoor(int i, int idim) const override;
-  int     getEmbeddedNDim() const override { return 3; }
-  void    getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const override;
-  void    getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const override;
-  void    getBarycenterInPlace(int imesh, VectorDouble& coord) const override;
+  Id getNApices() const override;
+  Id getNMeshes() const override;
+  double getMeshSize(Id imesh) const override;
+  Id getApex(Id imesh, Id rank) const override;
+  double getCoor(Id imesh, Id rank, Id idim) const override;
+  double getApexCoor(Id i, Id idim) const override;
+  Id getEmbeddedNDim() const override { return 3; }
+  void getEmbeddedCoorPerMesh(Id imesh, Id ic, VectorDouble& coords) const override;
+  void getEmbeddedCoorPerApex(Id iapex, VectorDouble& coords) const override;
+  void getBarycenterInPlace(Id imesh, vect coord) const override;
 
   static MeshSpherical* createFromNF(const String& NFFilename, bool verbose = true);
   static MeshSpherical* create(const MatrixDense& apices = MatrixDense(),
                                const MatrixInt& meshes         = MatrixInt());
 
-  int reset(int ndim,
-            int napexpermesh,
-            const VectorDouble &apices,
-            const VectorInt &meshes,
-            bool byCol,
-            bool verbose = false);
-  int  getVariety() const override { return 1; }
+  Id reset(Id ndim,
+           Id napexpermesh,
+           const VectorDouble& apices,
+           const VectorInt& meshes,
+           bool byCol,
+           bool verbose = false);
+  Id getVariety() const override { return 1; }
 
   const MatrixDense& getApices() const { return _apices; }
   const MatrixInt& getMeshes() const { return _meshes; }
   VectorVectorInt getMeshesAsVVI() const {return _meshes.getMatrix();}
 
 protected:
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  virtual bool _serializeAscii(std::ostream& os,bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os,bool verbose = false) const override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
@@ -72,7 +72,7 @@ protected:
 private:
   void _defineBoundingBox();
   VectorDouble _defineUnits() const;
-  int _recopy(const MeshSpherical &m);
+  Id _recopy(const MeshSpherical& m);
   static double _closestValue(double ref, double coor, double period);
   void _checkConsistency() const;
   bool _weightsInMesh(const VectorDouble& coor,

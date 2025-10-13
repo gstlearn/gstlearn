@@ -29,7 +29,7 @@ class AAnam;
 class GSTLEARN_EXPORT Selectivity: public AStringable, public ICloneable
 {
 public:
-  Selectivity(int ncut = 0);
+  Selectivity(Id ncut = 0);
   Selectivity(const VectorDouble &zcuts,
               double zmax = TEST,
               double proba = TEST,
@@ -42,9 +42,9 @@ public:
   IMPLEMENT_CLONING(Selectivity)
 
   /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static Selectivity* create(int ncut);
+  static Selectivity* create(Id ncut);
   static Selectivity* createByCuts(const VectorDouble& zcut);
   static Selectivity* createByCodes(const std::vector<ESelectivity>& codes,
                                     const VectorDouble& zcuts = VectorDouble(),
@@ -64,11 +64,11 @@ public:
                                           const Selectivity& selecin,
                                           bool verbose);
 
-  int calculateFromDb(const Db* db, bool autoCuts = false);
-  int calculateFromArray(const VectorDouble& tab,
+  Id calculateFromDb(const Db* db, bool autoCuts = false);
+  Id calculateFromArray(const VectorDouble& tab,
                          const VectorDouble& weights = VectorDouble(),
                          bool autoCuts = false);
-  int calculateFromAnamorphosis(AAnam* anam);
+  Id calculateFromAnamorphosis(AAnam* anam);
 
   Table eval(const Db *db, bool autoCuts = false);
   Table evalFromArray(const VectorDouble &tab,
@@ -77,28 +77,28 @@ public:
   Table evalFromAnamorphosis(AAnam *anam);
 
   void   resetCuts(const VectorDouble& zcuts);
-  int    getNCuts() const { return static_cast<int>(_Zcut.size()); }
-  static int getNQT() { return static_cast<int>(ESelectivity::getSize()); }
-  int    getNVar() const;
-  String getVariableName(const ESelectivity& code, int icut, int mode) const;
-  String getVariableName(int rank0) const;
+  Id    getNCuts() const { return static_cast<Id>(_Zcut.size()); }
+  static Id getNQT() { return static_cast<Id>(ESelectivity::getSize()); }
+  Id    getNVar() const;
+  String getVariableName(const ESelectivity& code, Id icut, Id mode) const;
+  String getVariableName(Id rank0) const;
   VectorString getVariableNames() const;
 
-  void   setZcut(int iclass, double zcut);
-  void   setBest(int iclass, double best);
-  void   setMest(int iclass, double mest);
-  void   setQest(int iclass, double qest);
-  void   setQstd(int iclass, double qstd);
-  void   setTest(int iclass, double test);
-  void   setTstd(int iclass, double tstd);
+  void   setZcut(Id iclass, double zcut);
+  void   setBest(Id iclass, double best);
+  void   setMest(Id iclass, double mest);
+  void   setQest(Id iclass, double qest);
+  void   setQstd(Id iclass, double qstd);
+  void   setTest(Id iclass, double test);
+  void   setTstd(Id iclass, double tstd);
 
-  double getZcut(int iclass) const;
-  double getBest(int iclass) const;
-  double getMest(int iclass) const;
-  double getQest(int iclass) const;
-  double getQstd(int iclass) const;
-  double getTest(int iclass) const;
-  double getTstd(int iclass) const;
+  double getZcut(Id iclass) const;
+  double getBest(Id iclass) const;
+  double getMest(Id iclass) const;
+  double getQest(Id iclass) const;
+  double getQstd(Id iclass) const;
+  double getTest(Id iclass) const;
+  double getTstd(Id iclass) const;
   const VectorDouble& getZcut() const { return _Zcut; }
 
   void calculateBenefitAndGrade();
@@ -115,13 +115,13 @@ public:
   bool isUsedStD(const ESelectivity& code) const;
   bool isNeededT() const;
   bool isNeededQ() const;
-  int  getAddressQTEst(const ESelectivity& code, int iptr0, int rank=0) const;
-  int  getAddressQTStd(const ESelectivity& code, int iptr0, int rank=0) const;
-  int  getNQTEst(const ESelectivity& code) const;
-  int  getNQTStd(const ESelectivity& code) const;
+  Id  getAddressQTEst(const ESelectivity& code, Id iptr0, Id rank=0) const;
+  Id  getAddressQTStd(const ESelectivity& code, Id iptr0, Id rank=0) const;
+  Id  getNQTEst(const ESelectivity& code) const;
+  Id  getNQTStd(const ESelectivity& code) const;
   VectorInt getNQTEst() const;
   VectorInt geNQTStd() const;
-  void storeInDb(Db *db, int iech0, int iptr, double zestim, double zstdev) const;
+  void storeInDb(Db *db, Id iech0, Id iptr, double zestim, double zstdev) const;
   void interpolateSelectivity(const Selectivity* selecin);
 
   void setFlagTonnageCorrect(bool flagTonnageCorrect) { _flagTonnageCorrect = flagTonnageCorrect; }
@@ -138,10 +138,10 @@ public:
 
 private:
   static VectorString _getAllNames();
-  static void _printQTvars(const char *title, int type, int number);
+  static void _printQTvars(const char *title, Id type, Id number);
   void _defineVariableRanks();
   bool _isRecoveryDefined() const;
-  bool _isValidCut(int iclass) const;
+  bool _isValidCut(Id iclass) const;
   static void _interpolateInterval(double zval,
                                    double zi0,
                                    double zi1,
@@ -154,7 +154,7 @@ private:
                                    double tol = EPSILON3);
   void _concatenate(VectorString& names,
                     const ESelectivity& code,
-                    int mode) const;
+                    Id mode) const;
   static bool _isMultiplied(const ESelectivity& code);
   void _defineAutomaticCutoffs(const VectorDouble& tab, double eps = EPSILON3);
 
@@ -169,7 +169,7 @@ private:
   bool _flagOnlyZDefined;
 };
 
-GSTLEARN_EXPORT int dbSelectivity(Db *db,
+GSTLEARN_EXPORT Id dbSelectivity(Db *db,
                                   const String &name,
                                   const VectorDouble& zcuts,
                                   const NamingConvention &namconv = NamingConvention(

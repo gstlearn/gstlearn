@@ -19,14 +19,15 @@
 #define _TL(i, j)     _tl[SQ(i, j, neq) - TRI(j)] /* for i >= j */
 #define _XL(i, j)     _xl[SQ(i, j, neq) - TRI(j)] /* for i >= j */
 
-namespace gstlrn{
-CholeskyDense::CholeskyDense(const MatrixSymmetric* mat)
+namespace gstlrn
+{
+CholeskyDense::CholeskyDense(const MatrixSymmetric& mat)
   : ACholesky(mat)
   , _tl()
   , _xl()
   , _factor()
 {
-  (void)_prepare();
+  (void)_prepare(mat);
 }
 
 CholeskyDense::CholeskyDense(const CholeskyDense& m)
@@ -74,15 +75,15 @@ MatrixDense CholeskyDense::inverse() const
   if (!isReady()) return MatrixDense();
   auto Id = Eigen::MatrixXd::Identity(_size, _size);
   MatrixDense res(_size, _size);
-  res.getEigenMat() = _factor.solve(Id);
+  res.eigenMat() = _factor.solve(Id);
   return res;
 }
 void CholeskyDense::solveMatInPlace(const MatrixDense& mat, MatrixDense& res) const
 {
   if (!isReady()) return;
-  res.getEigenMat() = _factor.solve(mat.getEigenMat());
+  res.eigenMat() = _factor.solve(mat.eigenMat());
 }
-int CholeskyDense::addInvLtX(const constvect vecin, vect vecout) const
+Id CholeskyDense::addInvLtX(const constvect vecin, vect vecout) const
 {
   if (!isReady()) return 1;
   Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
@@ -91,7 +92,7 @@ int CholeskyDense::addInvLtX(const constvect vecin, vect vecout) const
   return 0;
 }
 
-int CholeskyDense::addLtX(const constvect vecin, vect vecout) const
+Id CholeskyDense::addLtX(const constvect vecin, vect vecout) const
 {
   if (!isReady()) return 1;
   Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
@@ -100,7 +101,7 @@ int CholeskyDense::addLtX(const constvect vecin, vect vecout) const
   return 0;
 }
 
-int CholeskyDense::addLX(const constvect vecin, vect vecout) const
+Id CholeskyDense::addLX(const constvect vecin, vect vecout) const
 {
   if (!isReady()) return 1;
   Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
@@ -109,7 +110,7 @@ int CholeskyDense::addLX(const constvect vecin, vect vecout) const
   return 0;
 }
 
-int CholeskyDense::addInvLX(const constvect vecin, vect vecout) const
+Id CholeskyDense::addInvLX(const constvect vecin, vect vecout) const
 {
   if (!isReady()) return 1;
   Eigen::Map<const Eigen::VectorXd> mvecin(vecin.data(), vecin.size());
@@ -118,20 +119,20 @@ int CholeskyDense::addInvLX(const constvect vecin, vect vecout) const
   return 0;
 }
 
-int CholeskyDense::addSolveX(const constvect vecin, vect vecout) const
+Id CholeskyDense::addSolveX(const constvect vecin, vect vecout) const
 {
   if (!isReady()) return 1;
-  int size = (int)vecin.size();
+  Id size = static_cast<Id>(vecin.size());
   Eigen::Map<const Eigen::VectorXd> bm(vecin.data(), size);
   Eigen::Map<Eigen::VectorXd> xm(vecout.data(), size);
   xm += _factor.solve(bm);
   return 0;
 }
 
-int CholeskyDense::_getTriangleSize() const
+Id CholeskyDense::_getTriangleSize() const
 {
-  int neq = _size;
-  int tri = neq * (neq + 1) / 2;
+  Id neq = _size;
+  Id tri = neq * (neq + 1) / 2;
   return tri;
 }
 
@@ -140,7 +141,7 @@ double CholeskyDense::computeLogDeterminant() const
   if (!isReady()) return TEST;
   auto diag  = _factor.matrixLLT().diagonal();
   double det = 0.;
-  for (int i = 0; i < _factor.rows(); i++) det += log(diag[i]);
+  for (Id i = 0; i < _factor.rows(); i++) det += log(diag[i]);
   return 2. * det;
 }
 
@@ -150,10 +151,10 @@ VectorDouble CholeskyDense::getLowerTriangle() const
   return _tl;
 }
 
-double CholeskyDense::getLowerTriangle(int i, int j) const
+double CholeskyDense::getLowerTriangle(Id i, Id j) const
 {
   if (_computeTL()) return TEST;
-  int neq = _size;
+  Id neq = _size;
   return (i >= j) ? _TL(i, j) : 0.;
 }
 
@@ -163,58 +164,56 @@ VectorDouble CholeskyDense::getUpperTriangleInverse() const
   return _xl;
 }
 
-double CholeskyDense::getUpperTriangleInverse(int i, int j) const
+double CholeskyDense::getUpperTriangleInverse(Id i, Id j) const
 {
   if (_computeXL()) return TEST;
   ;
-  int neq = _size;
+  Id neq = _size;
   return (i >= j) ? _XL(i, j) : 0.;
 }
 
-int CholeskyDense::_prepare() const
+Id CholeskyDense::_prepare(const MatrixSymmetric& mat) const
 {
-  if (_mat == nullptr) return 1;
-  const auto a = dynamic_cast<const MatrixDense*>(_mat)->getEigenMat();
-  _factor      = a.llt();
+  const auto& a = mat.eigenMat();
+  _factor       = a.llt();
   _setReady();
   return 0;
 }
 
-int CholeskyDense::setMatrix(const MatrixSymmetric* mat)
+Id CholeskyDense::setMatrix(const MatrixSymmetric& mat)
 {
-  _mat  = mat;
-  _size = mat->getNRows();
-  return _prepare();
+  _size = mat.getNRows();
+  return _prepare(mat);
 }
 
-int CholeskyDense::_computeTL() const
+Id CholeskyDense::_computeTL() const
 {
   if (!_tl.empty()) return 0;
   if (!isReady()) return 1;
-  int neq = _size;
+  Id neq = _size;
 
   _tl.resize(_getTriangleSize());
   Eigen::MatrixXd mymat = _factor.matrixL();
-  for (int ip = 0; ip < neq; ip++)
-    for (int jp = 0; jp <= ip; jp++) _TL(ip, jp) = mymat(ip, jp);
+  for (Id ip = 0; ip < neq; ip++)
+    for (Id jp = 0; jp <= ip; jp++) _TL(ip, jp) = mymat(ip, jp);
   return 0;
 }
 
-int CholeskyDense::_computeXL() const
+Id CholeskyDense::_computeXL() const
 {
   if (!_xl.empty()) return 0;
   if (!isReady()) return 1;
   if (_computeTL()) return 1;
 
-  int neq = _size;
+  Id neq = _size;
   _xl.resize(_getTriangleSize());
 
-  for (int i = 0; i < neq; i++)
+  for (Id i = 0; i < neq; i++)
   {
-    for (int j = 0; j < i; j++)
+    for (Id j = 0; j < i; j++)
     {
       double sum = 0.;
-      for (int l = j; l < i; l++) sum += _TL(i, l) * _XL(l, j);
+      for (Id l = j; l < i; l++) sum += _TL(i, l) * _XL(l, j);
       _XL(i, j) = -sum / _TL(i, i);
     }
     _XL(i, i) = 1. / _TL(i, i);
@@ -241,27 +240,27 @@ int CholeskyDense::_computeXL() const
  ** \remark Anyhow 'x' is resized to the same dimension as 'a'
  **
  *****************************************************************************/
-void CholeskyDense::matProductInPlace(int mode,
+void CholeskyDense::matProductInPlace(Id mode,
                                       const MatrixDense& a,
                                       MatrixDense& x)
 {
   if (_computeTL()) return;
-  int n1 = a.getNRows();
-  int n2 = a.getNCols();
+  auto n1 = a.getNRows();
+  auto n2 = a.getNCols();
   x.reset(n1, n2);
 
-  int neq;
-  int nrhs;
+  Id neq;
+  Id nrhs;
   double val = 0.;
   if (mode == 0)
   {
     neq  = n1;
     nrhs = n2;
-    for (int irhs = 0; irhs < nrhs; irhs++)
-      for (int i = 0; i < neq; i++)
+    for (Id irhs = 0; irhs < nrhs; irhs++)
+      for (Id i = 0; i < neq; i++)
       {
         val = 0.;
-        for (int j = i; j < neq; j++)
+        for (Id j = i; j < neq; j++)
           val += _TL(j, i) * a.getValue(j, irhs);
         x.setValue(i, irhs, val);
       }
@@ -270,11 +269,11 @@ void CholeskyDense::matProductInPlace(int mode,
   {
     neq  = n1;
     nrhs = n2;
-    for (int irhs = 0; irhs < nrhs; irhs++)
-      for (int i = 0; i < neq; i++)
+    for (Id irhs = 0; irhs < nrhs; irhs++)
+      for (Id i = 0; i < neq; i++)
       {
         val = 0.;
-        for (int j = 0; j <= i; j++)
+        for (Id j = 0; j <= i; j++)
           val += _TL(i, j) * a.getValue(j, irhs);
         x.setValue(i, irhs, val);
       }
@@ -283,11 +282,11 @@ void CholeskyDense::matProductInPlace(int mode,
   {
     nrhs = n1;
     neq  = n2;
-    for (int irhs = 0; irhs < nrhs; irhs++)
-      for (int i = 0; i < neq; i++)
+    for (Id irhs = 0; irhs < nrhs; irhs++)
+      for (Id i = 0; i < neq; i++)
       {
         val = 0.;
-        for (int j = 0; j <= i; j++)
+        for (Id j = 0; j <= i; j++)
           val += a.getValue(irhs, j) * _TL(i, j);
         x.setValue(irhs, i, val);
       }
@@ -296,11 +295,11 @@ void CholeskyDense::matProductInPlace(int mode,
   {
     nrhs = n1;
     neq  = n2;
-    for (int irhs = 0; irhs < nrhs; irhs++)
-      for (int i = 0; i < neq; i++)
+    for (Id irhs = 0; irhs < nrhs; irhs++)
+      for (Id i = 0; i < neq; i++)
       {
         val = 0.;
-        for (int j = i; j < neq; j++)
+        for (Id j = i; j < neq; j++)
           val += a.getValue(irhs, j) * _TL(j, i);
         x.setValue(irhs, i, val);
       }
@@ -309,11 +308,11 @@ void CholeskyDense::matProductInPlace(int mode,
   {
     nrhs = n1;
     neq  = n2;
-    for (int irhs = 0; irhs < nrhs; irhs++)
-      for (int i = 0; i < neq; i++)
+    for (Id irhs = 0; irhs < nrhs; irhs++)
+      for (Id i = 0; i < neq; i++)
       {
         val = 0.;
-        for (int j = 0; j <= i; j++)
+        for (Id j = 0; j <= i; j++)
           val += a.getValue(irhs, j) * _TL(i, j);
         x.setValue(irhs, i, val);
       }
@@ -322,11 +321,11 @@ void CholeskyDense::matProductInPlace(int mode,
   {
     nrhs = n1;
     neq  = n2;
-    for (int irhs = 0; irhs < nrhs; irhs++)
-      for (int i = 0; i < neq; i++)
+    for (Id irhs = 0; irhs < nrhs; irhs++)
+      for (Id i = 0; i < neq; i++)
       {
         val = 0.;
-        for (int j = i; j < neq; j++)
+        for (Id j = i; j < neq; j++)
           val += a.getValue(irhs, j) * _TL(j, i);
         x.setValue(irhs, i, val);
       }
@@ -347,8 +346,8 @@ void CholeskyDense::matProductInPlace(int mode,
  ** \remark but this matrix is optional, hence the presence of argument 'neq'
  **
  *****************************************************************************/
-void CholeskyDense::normMatInPlace(int mode,
-                                   int neq,
+void CholeskyDense::normMatInPlace(Id mode,
+                                   Id neq,
                                    const MatrixSymmetric& a,
                                    MatrixSymmetric& b)
 {
@@ -356,35 +355,35 @@ void CholeskyDense::normMatInPlace(int mode,
   b.resize(neq, neq);
   double vala;
 
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++)
+  for (Id i = 0; i < neq; i++)
+    for (Id j = 0; j < neq; j++)
     {
       double val = 0.;
       if (mode == 0)
       {
-        for (int l = 0; l <= j; l++)
-          for (int k = 0; k <= i; k++)
+        for (Id l = 0; l <= j; l++)
+          for (Id k = 0; k <= i; k++)
           {
             if (!a.empty())
               vala = a.getValue(k, l);
             else
-              vala = (double)(k == l);
+              vala = static_cast<double>(k == l);
             val += _TL(i, k) * vala * _TL(j, l);
           }
       }
       else
       {
-        for (int l = j; l < neq; l++)
-          for (int k = i; k < neq; k++)
+        for (Id l = j; l < neq; l++)
+          for (Id k = i; k < neq; k++)
           {
             if (!a.empty())
               vala = a.getValue(k, l);
             else
-              vala = (double)(k == l);
+              vala = static_cast<double>(k == l);
             val += _TL(k, i) * vala * _TL(l, j);
           }
       }
       b.setValue(i, j, val);
     }
 }
-}
+} // namespace gstlrn

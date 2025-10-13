@@ -60,13 +60,14 @@ jobs:
         python-version: ${{env.PYTHON_VERSION}}
         activate-environment: true
 
+    # Downgrade notebook and plotly (for 3D render) using nbconvert generation
     - name: Install Python dependencies
       run: |
         uv pip install numpy
         uv pip install jupyter
         uv pip install notebook==6.1.6
         uv pip install matplotlib
-        uv pip install plotly
+        uv pip install plotly==6.0.1
         uv pip install pandas
         uv pip install scipy
         uv pip install dash
@@ -80,7 +81,7 @@ jobs:
     - name: Install R dependencies
       uses: r-lib/actions/setup-r-dependencies@v2
       with:
-        packages: ggpubr, ggplot2, ggnewscale, vctrs, lares, rgl, Matrix, FNN, tidyr, geigen, callr
+        packages: ggpubr, ggplot2, ggnewscale, vctrs, lares, rgl, Matrix, FNN, tidyr, geigen, callr, knitr, readxl, tictoc
         install-pandoc: false
             
     - name: Install the customized SWIG from source

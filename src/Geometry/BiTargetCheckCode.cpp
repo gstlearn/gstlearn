@@ -13,7 +13,7 @@
 
 namespace gstlrn
 {
-BiTargetCheckCode::BiTargetCheckCode(int optcode, double tolcode)
+BiTargetCheckCode::BiTargetCheckCode(Id optcode, double tolcode)
   : ABiTargetCheck()
   , _optCode(optcode)
   , _tolCode(tolcode)
@@ -42,7 +42,7 @@ BiTargetCheckCode::~BiTargetCheckCode()
 {
 }
 
-BiTargetCheckCode* BiTargetCheckCode::create(int optcode, double tolcode)
+BiTargetCheckCode* BiTargetCheckCode::create(Id optcode, double tolcode)
 {
   return new BiTargetCheckCode(optcode, tolcode);
 }

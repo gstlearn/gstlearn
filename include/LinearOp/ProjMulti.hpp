@@ -23,20 +23,20 @@ public:
   ProjMulti(const std::vector<std::vector<const IProj*>> &projs, bool silent = false);
 
   /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
   
-  int getNApex() const override;
-  int getNPoint() const override;
-  int getNVariable() const { return _nvariable; }
-  int getNLatent() const { return _nlatent; }
+  Id getNApex() const override;
+  Id getNPoint() const override;
+  Id getNVariable() const { return _nvariable; }
+  Id getNLatent() const { return _nlatent; }
   virtual ~ProjMulti();
   bool empty() const { return _projs.empty();}
 
 #ifndef SWIG
 
 protected:
-  virtual int _addPoint2mesh(const constvect inv, vect outv) const override;
-  virtual int _addMesh2point(const constvect inv, vect outv) const override;
+  Id _addPoint2mesh(const constvect inv, vect outv) const override;
+  Id _addMesh2point(const constvect inv, vect outv) const override;
 #endif
 
 private:
@@ -45,21 +45,21 @@ private:
   virtual void _clear() {};
 
 protected:
-  int findFirstNoNullOnRow(int j) const;
-  int findFirstNoNullOnCol(int j) const;
-  const std::vector<int>& getNPoints() const { return _pointNumbers; }
-  const std::vector<int>& getNApexs() const { return _apexNumbers; }
+  Id findFirstNoNullOnRow(Id j) const;
+  Id findFirstNoNullOnCol(Id j) const;
+  const std::vector<Id>& getNPoints() const { return _pointNumbers; }
+  const std::vector<Id>& getNApexs() const { return _apexNumbers; }
 
 protected:
 std::vector<std::vector<const IProj*>> _projs; // NOT TO BE DELETED
 
 private:
-int _pointNumber;
-int _apexNumber;
-int _nlatent;
-int _nvariable;
-std::vector<int> _pointNumbers;
-std::vector<int> _apexNumbers;
+Id _pointNumber;
+Id _apexNumber;
+Id _nlatent;
+Id _nvariable;
+std::vector<Id> _pointNumbers;
+std::vector<Id> _apexNumbers;
 bool _silent;
 mutable std::vector<double> _work;
 mutable std::vector<double> _workmesh;

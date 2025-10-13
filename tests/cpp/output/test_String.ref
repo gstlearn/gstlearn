@@ -8,3 +8,13 @@ Testing gslStrcat:
 Testing gslSPrintf:
 - Expected result: A+fgh
 - Result(char) = A+fgh
+Testing gslSPrintf2:
+- Expected result: BC+fgh
+- Result(char) = BC+fgh
+Testing gslAddSPrintf2:
+- Result(char) = BC+fgh added 1 times
+Testing gslStrcat2:
+- Result(char) = BC+fgh added 1 times (Tested successfully)
+Testing gslStrcpy2:
+- Result(char) = After a copy
+String length = 12

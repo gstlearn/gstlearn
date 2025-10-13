@@ -64,8 +64,8 @@ void CovProportional::setCor(ACov* cor)
 
 double CovProportional::_eval(const SpacePoint& p1,
                               const SpacePoint& p2,
-                              int ivar,
-                              int jvar,
+                              Id ivar,
+                              Id jvar,
                               const CovCalcMode* mode) const
 {
   return _sillCur.getValue(ivar,jvar) * getCor()->evalCov(p1, p2,0, 0, mode);

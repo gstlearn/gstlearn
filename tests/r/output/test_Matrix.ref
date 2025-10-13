@@ -134,7 +134,6 @@ Extracting Vectors from Matrix
 
 Product of the matrix by a vector
 =================================
-[1] "nrow = 7"
 [1] "Are results for MRR and MSG similar: TRUE"
 [1] "Are results for MRR and MSS similar: TRUE"
 [1] "Are results for MRR and MSP similar: TRUE"

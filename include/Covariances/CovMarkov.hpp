@@ -27,7 +27,7 @@ public:
   CovMarkov& operator= (const CovMarkov &r);
   virtual ~CovMarkov();
 
-  virtual String getFormula() const override;
+  String getFormula() const override;
   String         getCovName() const override { return "Markov"; }
 
   bool   hasParam() const override { return true; }
@@ -37,7 +37,7 @@ public:
   bool   hasSpectrumOnRn() const override { return true; }
   bool   hasSpectrumOnSphere() const override { return true; }
   bool   hasMarkovCoeffs() const override { return true; }
-  double normalizeOnSphere(int n = 50,double scale = 1.) const override;
+  double normalizeOnSphere(Id n = 50,double scale = 1.) const override;
   double evaluateSpectrum(double freq) const override;
   VectorDouble getMarkovCoeffs() const override { return _markovCoeffs; }
   void   setMarkovCoeffs(const VectorDouble& coeffs) override { _markovCoeffs = coeffs;}
@@ -45,11 +45,11 @@ public:
   void   setCorrec(double val) override { _correc = val;}
 
 protected:
-  VectorDouble _evaluateSpectrumOnSphere(int n,
+  VectorDouble _evaluateSpectrumOnSphere(Id n,
                                          double scale = 1.) const override;
 
 private:
-  VectorDouble _evaluateSpectrumOnSphereWithoutNormalization(int n, double scale = 1.) const;
+  VectorDouble _evaluateSpectrumOnSphereWithoutNormalization(Id n, double scale = 1.) const;
 
 private :
   VectorDouble _markovCoeffs;

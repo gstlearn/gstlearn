@@ -75,8 +75,8 @@ Data Base Statistics
 9 - Name z1 - Locator z1
  Nb of data          =      10000
  Nb of active values =      10000
- Minimum value       =  -1.441052
- Maximum value       =   2.158351
- Mean value          =   0.094083
- Standard Deviation  =   0.443946
- Variance            =   0.197088
+ Minimum value       =  -0.720975
+ Maximum value       =   2.160286
+ Mean value          =   0.123284
+ Standard Deviation  =   0.399823
+ Variance            =   0.159859

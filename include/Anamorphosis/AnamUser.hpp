@@ -10,13 +10,14 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
 #include "Anamorphosis/AnamContinuous.hpp"
 
-namespace gstlrn {
- 
+namespace gstlrn
+{
+
 class GSTLEARN_EXPORT AnamUser: public AnamContinuous
 {
 private:
@@ -25,22 +26,22 @@ private:
 
 public:
   AnamUser();
-  AnamUser(const AnamUser &m);
-  AnamUser& operator= (const AnamUser &m);
+  AnamUser(const AnamUser& m);
+  AnamUser& operator=(const AnamUser& m);
   virtual ~AnamUser();
 
   /// ICloneable Interface
   IMPLEMENT_CLONING(AnamUser)
 
   /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// AAnam Interface
   const EAnam& getType() const override { return EAnam::fromKey("EXTERNAL"); }
   bool isChangeSupportDefined() const override { return false; }
 
   /// AnamContinuous Interface
-  void   calculateMeanAndVariance() override;
+  void calculateMeanAndVariance() override;
   double transformToRawValue(double h) const override;
   double rawToTransformValue(double h) const override;
 
@@ -48,12 +49,12 @@ public:
   void setZ2yFunction(double (*z2y_function)(double)) { _z2y_function = z2y_function; }
 
 protected:
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
 #endif
   String _getNFName() const override { return "AnamUser"; }
 };
-}
+} // namespace gstlrn

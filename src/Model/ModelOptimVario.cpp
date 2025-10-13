@@ -22,7 +22,7 @@
 #define WT(ijvar, ipadir)    wt[IJDIR(ijvar, ipadir)]
 
 namespace gstlrn
-{ 
+{
 
 ModelOptimVario::ModelOptimVario(ModelGeneric* model,
                                  const Constraints* constraints,
@@ -33,7 +33,7 @@ ModelOptimVario::ModelOptimVario(ModelGeneric* model,
   , _vario()
   , _lags()
 {
-  bool useGradientsAnalytical = (bool) OptCustom::query("AnalyticalGradients",1);
+  bool useGradientsAnalytical = static_cast<bool>(OptCustom::query("AnalyticalGradients", 1));
   setAuthorizedAnalyticalGradients(useGradientsAnalytical);
 }
 
@@ -70,7 +70,7 @@ ModelOptimVario::~ModelOptimVario()
 
 bool ModelOptimVario::_checkConsistency()
 {
-  if (_vario->getNDim() != (int)_model->getNDim())
+  if (_vario->getNDim() != static_cast<Id>(_model->getNDim()))
   {
     messerr("'_vario'(%d) and '_model'(%d) should have same Space Dimension",
             _vario->getNDim(), _model->getNDim());
@@ -85,7 +85,7 @@ bool ModelOptimVario::_checkConsistency()
   return true;
 }
 
-int ModelOptimVario::_buildExperimental()
+Id ModelOptimVario::_buildExperimental()
 {
   if (_vario == nullptr)
   {
@@ -96,17 +96,17 @@ int ModelOptimVario::_buildExperimental()
   // Clean previous contents
   _lags.clear();
 
-  int nvar = _vario->getNVar();
-  int ndim = _vario->getNDim();
+  Id nvar = _vario->getNVar();
+  Id ndim = _vario->getNDim();
   VectorDouble dd(ndim);
 
-  for (int idir = 0, ndir = _vario->getNDir(); idir < ndir; idir++)
+  for (Id idir = 0, ndir = _vario->getNDir(); idir < ndir; idir++)
   {
-    for (int ilag = 0, nlag = _vario->getNLag(idir); ilag < nlag; ilag++)
+    for (Id ilag = 0, nlag = _vario->getNLag(idir); ilag < nlag; ilag++)
     {
-      int ijvar = 0;
-      for (int ivar = ijvar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+      Id ijvar = 0;
+      for (Id ivar = ijvar = 0; ivar < nvar; ivar++)
+        for (Id jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {
 
           /* Calculate the variogram value */
@@ -115,8 +115,8 @@ int ModelOptimVario::_buildExperimental()
           double gg   = TEST;
           if (_vario->getFlagAsym())
           {
-            int iad    = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
-            int jad    = _vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
+            Id iad     = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+            Id jad     = _vario->getDirAddress(idir, ivar, jvar, ilag, false, -1);
             double c00 = _vario->getC00(idir, ivar, jvar);
             double n1  = _vario->getSwByIndex(idir, iad);
             double n2  = _vario->getSwByIndex(idir, jad);
@@ -135,7 +135,7 @@ int ModelOptimVario::_buildExperimental()
           }
           else
           {
-            int iad = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
+            Id iad = _vario->getDirAddress(idir, ivar, jvar, ilag, false, 1);
             if (_vario->isLagCorrect(idir, iad))
             {
               gg   = _vario->getGgByIndex(idir, iad);
@@ -154,26 +154,26 @@ int ModelOptimVario::_buildExperimental()
 
   // Update the weight
   VectorDouble wt = _vario->computeWeightsFromVario(_mop.getWmode());
-  int npadir      = _vario->getTotalLagsPerDirection();
-  int ecr         = 0;
-  int ipadir      = 0;
+  Id npadir       = _vario->getTotalLagsPerDirection();
+  Id ecr          = 0;
+  Id ipadir       = 0;
 
-  for (int idir = 0, ndir = _vario->getNDir(); idir < ndir; idir++)
-    for (int ilag = 0, nlag = _vario->getNLag(idir); ilag < nlag; ilag++, ipadir++)
+  for (Id idir = 0, ndir = _vario->getNDir(); idir < ndir; idir++)
+    for (Id ilag = 0, nlag = _vario->getNLag(idir); ilag < nlag; ilag++, ipadir++)
     {
-      int ijvar = 0;
-      for (int ivar = ijvar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
+      Id ijvar = 0;
+      for (Id ivar = ijvar = 0; ivar < nvar; ivar++)
+        for (Id jvar = 0; jvar <= ivar; jvar++, ijvar++)
           _lags[ecr++]._weight = WT(ijvar, ipadir);
     }
 
   return 0;
 }
 
-ModelOptimVario::OneLag ModelOptimVario::_createOneLag(int ndim,
-                                                       int idir,
-                                                       int ivar,
-                                                       int jvar,
+ModelOptimVario::OneLag ModelOptimVario::_createOneLag(Id ndim,
+                                                       Id idir,
+                                                       Id ivar,
+                                                       Id jvar,
                                                        double gg,
                                                        double dist) const
 {
@@ -183,7 +183,7 @@ ModelOptimVario::OneLag ModelOptimVario::_createOneLag(int ndim,
   onelag._gg     = gg;
   onelag._weight = 1.;
   VectorDouble dd(ndim);
-  for (int idim = 0; idim < ndim; idim++)
+  for (Id idim = 0; idim < ndim; idim++)
     dd[idim] = dist * _vario->getCodir(idir, idim);
   onelag._P.setCoords(dd);
   return onelag;
@@ -237,16 +237,17 @@ ModelOptimVario* ModelOptimVario::createForOptim(ModelGeneric* model,
   return optim;
 }
 
-double ModelOptimVario::computeCost(bool verbose)
+double ModelOptimVario::computeCost(bool flagPrint, bool verbose)
 {
+  DECLARE_UNUSED(flagPrint);
   DECLARE_UNUSED(verbose);
 
   // Evaluate the Cost function
-  int nlags    = (int)_lags.size();
+  Id nlags     = static_cast<Id>(_lags.size());
   double score = 0.;
   SpacePoint origin;
   _resid.resize(nlags);
-  for (int ilag = 0; ilag < nlags; ilag++)
+  for (Id ilag = 0; ilag < nlags; ilag++)
   {
     const OneLag& lag = _lags[ilag];
     double vtheo      = _model->evalCov(origin, lag._P, lag._ivar, lag._jvar, &_calcmode);
@@ -262,13 +263,13 @@ void ModelOptimVario::evalGrad(vect res)
 {
 
   auto gradcov = _model->getGradients();
-  int nlags    = (int)_lags.size();
+  Id nlags     = static_cast<Id>(_lags.size());
   SpacePoint origin;
 
   for (size_t i = 0; i < gradcov.size(); i++)
     res[i] = 0.;
 
-  for (int ilag = 0; ilag < nlags; ilag++)
+  for (Id ilag = 0; ilag < nlags; ilag++)
     for (size_t i = 0; i < gradcov.size(); i++)
     {
       {
@@ -279,4 +280,4 @@ void ModelOptimVario::evalGrad(vect res)
     }
 }
 
-}
+} // namespace gstlrn

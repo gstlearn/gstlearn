@@ -16,20 +16,19 @@
 
 #include "API/SPDE.hpp"
 
-#include "Mesh/MeshETurbo.hpp"
-#include "Matrix/MatrixSparse.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Basic/OptCst.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/OptCst.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Covariances/CovContext.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Space/ASpaceObject.hpp"
-#include "Covariances/CovContext.hpp"
-#include "Model/Model.hpp"
 #include "LinearOp/PrecisionOpMatrix.hpp"
-#include "Basic/Memory.hpp"
+#include "Matrix/MatrixSparse.hpp"
+#include "Mesh/MeshETurbo.hpp"
+#include "Model/Model.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 
@@ -45,35 +44,35 @@ using namespace gstlrn;
 ** \param[in]  z        Array giving the simulated field
 **
 *****************************************************************************/
-static int st_save(Db* dbgrid,
-                   const VectorInt& colors,
-                   const VectorDouble& consmin,
-                   const VectorDouble& consmax,
-                   const VectorDouble& z)
+static Id st_save(Db* dbgrid,
+                  const VectorInt& colors,
+                  const VectorDouble& consmin,
+                  const VectorDouble& consmax,
+                  const VectorDouble& z)
 {
-  int iptr;
-  int nech = dbgrid->getNSample();
+  Id iptr;
+  auto nech = dbgrid->getNSample();
 
   /* Add the terms to 'dbgrid' */
 
   if (!consmin.empty())
   {
     if (db_locator_attribute_add(dbgrid, ELoc::L, 1, 0, 0., &iptr)) return (1);
-    for (int i = 0; i < nech; i++) dbgrid->setArray(i, iptr, consmin[i]);
+    for (Id i = 0; i < nech; i++) dbgrid->setArray(i, iptr, consmin[i]);
   }
   if (!consmax.empty())
   {
     if (db_locator_attribute_add(dbgrid, ELoc::U, 1, 0, 0., &iptr)) return (1);
-    for (int i = 0; i < nech; i++) dbgrid->setArray(i, iptr, consmax[i]);
+    for (Id i = 0; i < nech; i++) dbgrid->setArray(i, iptr, consmax[i]);
   }
   iptr = dbgrid->addColumnsByConstant(1, 0., "Color");
-  for (int i = 0; i < nech; i++) dbgrid->setArray(i, iptr, colors[i]);
+  for (Id i = 0; i < nech; i++) dbgrid->setArray(i, iptr, colors[i]);
   if (db_locator_attribute_add(dbgrid, ELoc::Z, 1, 0, 0., &iptr)) return (1);
-  for (int i = 0; i < nech; i++) dbgrid->setArray(i, iptr, z[i]);
+  for (Id i = 0; i < nech; i++) dbgrid->setArray(i, iptr, z[i]);
 
   /* Save the resulting 'dbgrid' in a neutral file */
 
-  (void)dbgrid->dumpToNF("Colored_Gibbs");
+  (void)dbgrid->dumpToNF("Grid");
   return (0);
 }
 
@@ -115,12 +114,12 @@ static void st_print_all(const VectorInt& colors,
 ** \param[in]  z        Array of input values
 ** \param[in]  colors   Array of colors (same dimension as 'z')
 **
-** \param[out]  ind     Array which contains address in 'z' of items of 'zred'
+** \param[out]  ind     Array of complementary addresses
 ** \param[out]  zred    Array of output values retained
 **
 *****************************************************************************/
-static void st_vector_compress(int nvertex,
-                               int colref,
+static void st_vector_compress(Id nvertex,
+                               Id colref,
                                const VectorDouble& z,
                                const VectorInt& colors,
                                VectorInt& ind,
@@ -128,9 +127,9 @@ static void st_vector_compress(int nvertex,
 {
   ind.clear();
   zred.clear();
-  for (int i = 0; i < nvertex; i++)
+  for (Id i = 0; i < nvertex; i++)
   {
-    if (colors[i] != colref)
+    if (colors[i] == colref)
       zred.push_back(z[i]);
     else
       ind.push_back(i);
@@ -152,8 +151,8 @@ static void st_vector_compress(int nvertex,
 ** \param[in]  sigma    Standard deviation of the Gaussian distribution
 **
 *****************************************************************************/
-static double st_simcond(int iter,
-                         int niter,
+static double st_simcond(Id iter,
+                         Id niter,
                          double valmin,
                          double valmax,
                          double mean,
@@ -209,33 +208,33 @@ static double st_simcond(int iter,
 ** \remarks        (Dimension 'nvertex')
 **
 *****************************************************************************/
-static int st_gibbs(int niter,
-                    int ncolor,
-                    int nvertex,
-                    const VectorInt& colors,
-                    const VectorInt& colref,
-                    MatrixSparse** Qcols,
-                    const VectorDouble& consmin,
-                    const VectorDouble& consmax,
-                    const VectorDouble& sigma,
-                    VectorDouble& z,
-                    VectorDouble& krig)
+static Id st_gibbs(Id niter,
+                   Id ncolor,
+                   Id nvertex,
+                   const VectorInt& colors,
+                   const VectorInt& colref,
+                   MatrixSparse** Qcols,
+                   const VectorDouble& consmin,
+                   const VectorDouble& consmax,
+                   const VectorDouble& sigma,
+                   VectorDouble& z,
+                   VectorDouble& krig)
 {
   mestitle(1, "Entering in Gibbs algorithm with niter=%d and ncolor=%d", niter, ncolor);
   VectorInt ind;
   VectorDouble zred;
 
-  for (int iter = 0; iter < niter; iter++)
+  for (Id iter = 0; iter < niter; iter++)
   {
     if (iter % 1000 == 0) message("Iteration %d\n", iter);
-    for (int icol = 0; icol < ncolor; icol++)
+    for (Id icol = 0; icol < ncolor; icol++)
     {
       st_vector_compress(nvertex, colref[icol], z, colors, ind, zred);
-      Qcols[icol]->prodVecMatInPlacePtr(zred.data(), krig.data(), false);
+      Qcols[icol]->prodVecMatInPlace(zred, krig, false);
 
-      for (int ic = 0, nc = (int)ind.size(); ic < nc; ic++)
+      for (Id ic = 0, nc = static_cast<Id>(ind.size()); ic < nc; ic++)
       {
-        int i         = ind[ic];
+        auto i        = ind[ic];
         double valmin = (!consmin.empty()) ? consmin[i] : -10.;
         double valmax = (!consmax.empty()) ? consmax[i] : +10.;
         z[i]          = st_simcond(iter, niter, valmin, valmax, krig[ic], sigma[i]);
@@ -263,17 +262,15 @@ int main(int argc, char* argv[])
   /***********************/
   /* 1 - Initializations */
   /***********************/
-  int ndim = 2;
+  Id ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
-  ASerializable::setPrefixName("Gibbs-");
+  ASerializable::setPrefixName("test_Gibbs-");
 
   // Setup constants
 
   OptDbg::reset();
   OptCst::define(ECst::NTCAR, 10.);
   OptCst::define(ECst::NTDEC, 6.);
-
-  setGlobalFlagEigen(true);
 
   // 2-D grid output file
 
@@ -302,14 +299,14 @@ int main(int argc, char* argv[])
   MeshETurbo mesh(dbgrid);
   auto P                   = PrecisionOpMatrix(&mesh, model1->getCovAniso(0));
   const MatrixSparse* Qref = P.getQ();
-  MatrixSparse* Q          = new MatrixSparse(*Qref);
-  int nvertex              = mesh.getNApices();
+  auto* Q                  = new MatrixSparse(*Qref);
+  auto nvertex             = mesh.getNApices();
 
   // Coding the various colors
 
   VectorInt colors = Q->colorCoding();
   VectorInt colref = VH::unique(colors);
-  int ncolor       = (int)colref.size();
+  Id ncolor        = static_cast<Id>(colref.size());
 
   // Core allocation
 
@@ -320,14 +317,14 @@ int main(int argc, char* argv[])
 
   // Creating the constraints
 
-  int seed = 31415;
+  Id seed = 31415;
   law_set_random_seed(seed);
-  int nsimu       = 2;
-  int useCholesky = 1;
-  (void)gstlrn::simulateSPDE(nullptr, dbgrid, model2, nsimu, useCholesky);
+  Id nsimu       = 2;
+  Id useCholesky = 1;
+  (void)simulateSPDE(nullptr, dbgrid, model2, nsimu, useCholesky);
 
-  int rank = dbgrid->getNColumn();
-  for (int i = 0; i < nvertex; i++)
+  auto rank = dbgrid->getNColumn();
+  for (Id i = 0; i < nvertex; i++)
   {
     consmin[i] = MIN(dbgrid->getArray(i, rank - 1), dbgrid->getArray(i, rank - 2));
     consmax[i] = MAX(dbgrid->getArray(i, rank - 1), dbgrid->getArray(i, rank - 2));
@@ -351,13 +348,13 @@ int main(int argc, char* argv[])
   // Main Algorithm //
   //----------------//
 
-  MatrixSparse** Qcols = new MatrixSparse*[ncolor];
-  for (int icol = 0; icol < ncolor; icol++)
+  std::vector<MatrixSparse*> Qcols(ncolor);
+  for (Id icol = 0; icol < ncolor; icol++)
     Qcols[icol] = Q->extractSubmatrixByColor(colors, colref[icol], true, false);
 
   // Perform the Gibbs sampler
-  int niter = 10;
-  (void)st_gibbs(niter, ncolor, nvertex, colors, colref, Qcols, consmin, consmax,
+  Id niter = 10;
+  (void)st_gibbs(niter, ncolor, nvertex, colors, colref, Qcols.data(), consmin, consmax,
                  sigma, z, krig);
 
   // Add the newly created field to the grid for printout
@@ -368,9 +365,8 @@ int main(int argc, char* argv[])
     dbgrid->display(&dbfmt);
   }
 
-  for (int icol = 0; icol < ncolor; icol++)
+  for (Id icol = 0; icol < ncolor; icol++)
     delete Qcols[icol];
-  delete[] Qcols;
   delete dbgrid;
   delete model1;
   delete model2;

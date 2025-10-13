@@ -12,7 +12,7 @@
 
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
-#include "Basic/Memory.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Core/Keypair.hpp"
 #include "Db/Db.hpp"
 #include "Geometry/GeometryHelper.hpp"
@@ -40,12 +40,12 @@ void meshes_2D_sph_init(SphTriangle* t)
 {
   t->n_nodes  = 0;
   t->sph_size = 0;
-  t->sph_x    = nullptr;
-  t->sph_y    = nullptr;
-  t->sph_z    = nullptr;
-  t->sph_list = nullptr;
-  t->sph_lptr = nullptr;
-  t->sph_lend = nullptr;
+  t->sph_x.clear();
+  t->sph_y.clear();
+  t->sph_z.clear();
+  t->sph_list.clear();
+  t->sph_lptr.clear();
+  t->sph_lend.clear();
 }
 
 /*****************************************************************************/
@@ -57,19 +57,19 @@ void meshes_2D_sph_init(SphTriangle* t)
  **                    0 for total deallocation
  **
  *****************************************************************************/
-void meshes_2D_sph_free(SphTriangle* t, int mode)
+void meshes_2D_sph_free(SphTriangle* t, Id mode)
 {
-  if (t == (SphTriangle*)NULL) return;
+  if (t == nullptr) return;
   if (mode == 0)
   {
-    t->sph_x   = (double*)mem_free((char*)t->sph_x);
-    t->sph_y   = (double*)mem_free((char*)t->sph_y);
-    t->sph_z   = (double*)mem_free((char*)t->sph_z);
+    t->sph_x.clear();
+    t->sph_y.clear();
+    t->sph_z.clear();
     t->n_nodes = 0;
   }
-  t->sph_list = (int*)mem_free((char*)t->sph_list);
-  t->sph_lptr = (int*)mem_free((char*)t->sph_lptr);
-  t->sph_lend = (int*)mem_free((char*)t->sph_lend);
+  t->sph_list.clear();
+  t->sph_lptr.clear();
+  t->sph_lend.clear();
   t->sph_size = 0;
 }
 
@@ -85,9 +85,9 @@ void meshes_2D_sph_free(SphTriangle* t, int mode)
  ** \remarks (longitude,latitude) into 3-D coordinates
  **
  *****************************************************************************/
-int meshes_2D_sph_from_db(Db* db, SphTriangle* t)
+Id meshes_2D_sph_from_db(Db* db, SphTriangle* t)
 {
-  int error, nech, ndim, neff, nold, ecr;
+  Id error, nech, ndim, neff, nold, ecr;
   double xx, yy, zz;
 
   /* Initializations */
@@ -110,21 +110,15 @@ int meshes_2D_sph_from_db(Db* db, SphTriangle* t)
 
   /* Core allocation */
 
-  nold     = t->n_nodes;
-  ecr      = nold;
-  t->sph_x = (double*)mem_realloc((char*)t->sph_x,
-                                  sizeof(double) * (nold + neff), 0);
-  if (t->sph_x == nullptr) goto label_end;
-  t->sph_y = (double*)mem_realloc((char*)t->sph_y,
-                                  sizeof(double) * (nold + neff), 0);
-  if (t->sph_y == nullptr) goto label_end;
-  t->sph_z = (double*)mem_realloc((char*)t->sph_z,
-                                  sizeof(double) * (nold + neff), 0);
-  if (t->sph_z == nullptr) goto label_end;
+  nold = t->n_nodes;
+  ecr  = nold;
+  t->sph_x.resize(nold + neff);
+  t->sph_y.resize(nold + neff);
+  t->sph_z.resize(nold + neff);
 
   /* Load the points */
 
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
     GH::convertSph2Cart(db->getCoordinate(iech, 0), db->getCoordinate(iech, 1),
@@ -134,13 +128,12 @@ int meshes_2D_sph_from_db(Db* db, SphTriangle* t)
     t->sph_z[ecr] = zz;
     ecr++;
   }
-  t->n_nodes = nold + neff;
+  t->n_nodes = static_cast<I32>(nold + neff);
 
   /* Set the error return code */
 
   error = 0;
 
-label_end:
   if (error) meshes_2D_sph_free(t, 0);
   return (error);
 }
@@ -157,9 +150,9 @@ label_end:
  ** \remarks SphTriangle structure
  **
  *****************************************************************************/
-int meshes_2D_sph_from_points(int nech, double* x, double* y, SphTriangle* t)
+Id meshes_2D_sph_from_points(Id nech, double* x, double* y, SphTriangle* t)
 {
-  int error, ecr, nold;
+  Id error, ecr, nold;
   double xx, yy, zz;
 
   /* Initializations */
@@ -168,21 +161,15 @@ int meshes_2D_sph_from_points(int nech, double* x, double* y, SphTriangle* t)
 
   /* List of points */
 
-  nold     = t->n_nodes;
-  ecr      = nold;
-  t->sph_x = (double*)mem_realloc((char*)t->sph_x,
-                                  sizeof(double) * (nold + nech), 0);
-  if (t->sph_x == nullptr) goto label_end;
-  t->sph_y = (double*)mem_realloc((char*)t->sph_y,
-                                  sizeof(double) * (nold + nech), 0);
-  if (t->sph_y == nullptr) goto label_end;
-  t->sph_z = (double*)mem_realloc((char*)t->sph_z,
-                                  sizeof(double) * (nold + nech), 0);
-  if (t->sph_z == nullptr) goto label_end;
+  nold = t->n_nodes;
+  ecr  = nold;
+  t->sph_x.resize(nold + nech);
+  t->sph_y.resize(nold + nech);
+  t->sph_z.resize(nold + nech);
 
   /* Load the information */
 
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     GH::convertSph2Cart(x[iech], y[iech], &xx, &yy, &zz);
     t->sph_x[ecr] = xx;
@@ -190,13 +177,12 @@ int meshes_2D_sph_from_points(int nech, double* x, double* y, SphTriangle* t)
     t->sph_z[ecr] = zz;
     ecr++;
   }
-  t->n_nodes = nold + nech;
+  t->n_nodes = static_cast<I32>(nold + nech);
 
   /* Set the error return code */
 
   error = 0;
 
-label_end:
   if (error) meshes_2D_sph_free(t, 0);
   return (error);
 }
@@ -211,9 +197,9 @@ label_end:
  ** \remarks This function adds the vertices to an existing SphTriangle structure
  **
  *****************************************************************************/
-int meshes_2D_sph_from_auxiliary(const String& triswitch, SphTriangle* t)
+Id meshes_2D_sph_from_auxiliary(const String& triswitch, SphTriangle* t)
 {
-  int error, npoint, ecr, found_close, nech, nold, ndecode, flag_reg, flag_vdc;
+  Id error, npoint, ecr, found_close, nech, nold, ndecode, flag_reg, flag_vdc;
   double c1[3], c2[3], dist;
   static double eps = 1.e-3;
 
@@ -233,18 +219,18 @@ int meshes_2D_sph_from_auxiliary(const String& triswitch, SphTriangle* t)
   if (triswitch[0] == '-' && triswitch[1] == 'n')
   {
     flag_vdc = 1;
-    ndecode  = (int)strtod(&triswitch[2], nullptr);
+    ndecode  = static_cast<Id>(strtod(&triswitch[2], nullptr));
     if (ndecode <= 0) return (0);
   }
   if (triswitch[0] == '-' && triswitch[1] == 'r')
   {
     flag_reg = 1;
-    ndecode  = (int)strtod(&triswitch[2], nullptr);
+    ndecode  = static_cast<Id>(strtod(&triswitch[2], nullptr));
     if (ndecode <= 0) return (0);
   }
   if (triswitch[0] == '-' && triswitch[1] == 'h')
   {
-    message("  usage [-nrh]\n");
+    message("  usage [-n|r|h]\n");
     message("  -n  Use Van der Corput algorithm to generate N points.\n");
     message("  -r  Generate points from N iterated sphere discretization.\n");
     message("  -h  Help:  A brief instruction.\n");
@@ -264,20 +250,14 @@ int meshes_2D_sph_from_auxiliary(const String& triswitch, SphTriangle* t)
 
   /* Reallocate to maximum size */
 
-  t->sph_x = (double*)mem_realloc((char*)t->sph_x,
-                                  sizeof(double) * (nold + npoint), 0);
-  if (t->sph_x == nullptr) goto label_end;
-  t->sph_y = (double*)mem_realloc((char*)t->sph_y,
-                                  sizeof(double) * (nold + npoint), 0);
-  if (t->sph_y == nullptr) goto label_end;
-  t->sph_z = (double*)mem_realloc((char*)t->sph_z,
-                                  sizeof(double) * (nold + npoint), 0);
-  if (t->sph_z == nullptr) goto label_end;
+  t->sph_x.resize(nold + npoint);
+  t->sph_y.resize(nold + npoint);
+  t->sph_z.resize(nold + npoint);
 
   /* Check that random points are not too close from hard nodes */
 
   ecr = nold;
-  for (int lec = 0; lec < npoint; lec++)
+  for (Id lec = 0; lec < npoint; lec++)
   {
     c1[0] = COORD(0, lec);
     c1[1] = COORD(1, lec);
@@ -286,7 +266,7 @@ int meshes_2D_sph_from_auxiliary(const String& triswitch, SphTriangle* t)
     /* Loop on the old points */
 
     found_close = -1;
-    for (int i = 0; i < t->n_nodes && found_close < 0; i++)
+    for (Id i = 0; i < t->n_nodes && found_close < 0; i++)
     {
       c2[0] = t->sph_x[i];
       c2[1] = t->sph_y[i];
@@ -296,7 +276,7 @@ int meshes_2D_sph_from_auxiliary(const String& triswitch, SphTriangle* t)
       /* which requires long-lat information */
 
       dist = 0.;
-      for (int j = 0; j < 3; j++)
+      for (Id j = 0; j < 3; j++)
         dist += (c1[j] - c2[j]) * (c1[j] - c2[j]);
       if (dist < eps) found_close = i;
     }
@@ -309,14 +289,11 @@ int meshes_2D_sph_from_auxiliary(const String& triswitch, SphTriangle* t)
 
   /* Final resize */
 
-  nech     = ecr;
-  t->sph_x = (double*)mem_realloc((char*)t->sph_x, sizeof(double) * nech, 0);
-  if (t->sph_x == nullptr) goto label_end;
-  t->sph_y = (double*)mem_realloc((char*)t->sph_y, sizeof(double) * nech, 0);
-  if (t->sph_y == nullptr) goto label_end;
-  t->sph_z = (double*)mem_realloc((char*)t->sph_z, sizeof(double) * nech, 0);
-  if (t->sph_z == nullptr) goto label_end;
-  t->n_nodes = nech;
+  nech = ecr;
+  t->sph_x.resize(nech);
+  t->sph_y.resize(nech);
+  t->sph_z.resize(nech);
+  t->n_nodes = static_cast<I32>(nech);
 
   /* Set the error return code */
 
@@ -335,16 +312,16 @@ label_end:
  ** \param[in]  brief     1 for a brief output; 0 otherwise
  **
  *****************************************************************************/
-void meshes_2D_sph_print(SphTriangle* t, int brief)
+void meshes_2D_sph_print(SphTriangle* t, Id brief)
 {
   double rlong, rlat;
 
   message("- Number of nodes   = %d\n", t->n_nodes);
 
-  if (!brief && t->n_nodes > 0 && t->sph_x != nullptr && t->sph_y != nullptr && t->sph_z != nullptr)
+  if (!brief && t->n_nodes > 0 && !t->sph_x.empty() && !t->sph_y.empty() && !t->sph_z.empty())
   {
     message("\nCoordinates in Cartesian (R=1); then in Longitude - Latitude\n");
-    for (int i = 0; i < t->n_nodes; i++)
+    for (Id i = 0; i < t->n_nodes; i++)
     {
       message("%3d", i + 1);
       GH::convertCart2Sph(t->sph_x[i], t->sph_y[i], t->sph_z[i], &rlong, &rlat);
@@ -365,55 +342,42 @@ void meshes_2D_sph_print(SphTriangle* t, int brief)
  ** \param[in]  t          SphTriangle structure
  **
  *****************************************************************************/
-int meshes_2D_sph_create(int verbose, SphTriangle* t)
+Id meshes_2D_sph_create(Id verbose, SphTriangle* t)
 {
-  int *loc_near, *loc_next, *loc_lnew, error, skip_rnd, seed_memo;
-  double *loc_dist, memo[3][3], ampli, value, cste;
+  std::vector<I32> loc_near, loc_next, loc_lnew;
+  VectorDouble loc_dist;
+  I32 error, skip_rnd, seed_memo;
+  double memo[3][3], ampli, value, cste;
 
   /* Initializations */
 
   error    = 1;
-  skip_rnd = (int)get_keypone("Skip_Random", 0);
-  loc_near = loc_next = loc_lnew = nullptr;
-  loc_dist                       = nullptr;
-  if (t == (SphTriangle*)NULL || t->n_nodes < 3) return (1);
+  skip_rnd = static_cast<I32>(get_keypone("Skip_Random", 0));
+  if (t == nullptr || t->n_nodes < 3) return (1);
 
   /* Re-allocate the arrays within the SphTriangle structure */
 
   meshes_2D_sph_free(t, 1);
   t->sph_size = 6 * t->n_nodes - 12;
-  t->sph_list = (int*)mem_alloc(sizeof(int) * t->sph_size, 0);
-  if (t->sph_list == nullptr) goto label_end;
-  for (int i = 0; i < t->sph_size; i++)
-    t->sph_list[i] = ITEST;
-  t->sph_lptr = (int*)mem_alloc(sizeof(int) * t->sph_size, 0);
-  if (t->sph_lptr == nullptr) goto label_end;
-  for (int i = 0; i < t->sph_size; i++)
-    t->sph_lptr[i] = ITEST;
-  t->sph_lend = (int*)mem_alloc(sizeof(int) * t->n_nodes, 0);
-  if (t->sph_lend == nullptr) goto label_end;
-  for (int i = 0; i < t->n_nodes; i++)
-    t->sph_lend[i] = ITEST;
+  t->sph_list.resize(t->sph_size, ITEST);
+  t->sph_lptr.resize(t->sph_size, ITEST);
+  t->sph_lend.resize(t->sph_size, ITEST);
 
   /* Allocate local arrays */
 
-  loc_lnew = (int*)mem_alloc(sizeof(int) * t->sph_size, 0);
-  if (loc_lnew == nullptr) goto label_end;
-  loc_near = (int*)mem_alloc(sizeof(int) * t->n_nodes, 0);
-  if (loc_near == nullptr) goto label_end;
-  loc_next = (int*)mem_alloc(sizeof(int) * t->n_nodes, 0);
-  if (loc_next == nullptr) goto label_end;
-  loc_dist = (double*)mem_alloc(sizeof(double) * t->n_nodes, 0);
-  if (loc_dist == nullptr) goto label_end;
+  loc_lnew.resize(t->sph_size);
+  loc_near.resize(t->n_nodes);
+  loc_next.resize(t->n_nodes);
+  loc_dist.resize(t->n_nodes);
 
   /* Avoid having three first points colinear */
 
   if (!skip_rnd)
   {
-    seed_memo = law_get_random_seed();
+    seed_memo = static_cast<I32>(law_get_random_seed());
     law_set_random_seed(132231);
     ampli = 1.e-2;
-    for (int i = 0; i < 3; i++)
+    for (I32 i = 0; i < 3; i++)
     {
       memo[i][0] = t->sph_x[i];
       memo[i][1] = t->sph_y[i];
@@ -428,13 +392,14 @@ int meshes_2D_sph_create(int verbose, SphTriangle* t)
     law_set_random_seed(seed_memo);
   }
 
-  (void)trmesh_(&t->n_nodes, t->sph_x, t->sph_y, t->sph_z, t->sph_list,
-                t->sph_lptr, t->sph_lend, loc_lnew, loc_near, loc_next,
-                loc_dist, &error);
+  (void)trmesh_(&t->n_nodes, t->sph_x.data(), t->sph_y.data(), t->sph_z.data(), t->sph_list.data(),
+                t->sph_lptr.data(), t->sph_lend.data(),
+                loc_lnew.data(), loc_near.data(), loc_next.data(),
+                loc_dist.data(), &error);
 
   /* Restore the initial coordinates */
 
-  for (int i = 0; i < 3; i++)
+  for (I32 i = 0; i < 3; i++)
   {
     t->sph_x[i] = memo[i][0];
     t->sph_y[i] = memo[i][1];
@@ -470,10 +435,6 @@ int meshes_2D_sph_create(int verbose, SphTriangle* t)
   meshes_2D_sph_free(t, 1);
 
 label_end:
-  mem_free((char*)loc_near);
-  mem_free((char*)loc_next);
-  mem_free((char*)loc_lnew);
-  mem_free((char*)loc_dist);
   return (error);
 }
 

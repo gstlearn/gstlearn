@@ -39,13 +39,13 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  int error = 1;
-  int ndim = 2;
+  Id error = 1;
+  Id ndim  = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
   CovContext ctxt(1,2,1.); // use default space
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
-  int nech = 1000;
+  Id nech = 1000;
   Db* db = Db::createFromBox(nech,{0.,0.},{1.,1.}, 3242);
   db->display();
 
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
   // ===============
 
   mestitle(1, "Experimental variogram on Data Samples");
-  int nlag = 20;
+  Id nlag                 = 20;
   VarioParam* varioparamP = VarioParam::createMultiple(2, nlag, 0.5 / nlag);
   Vario* variop = Vario::computeFromDb(*varioparamP,db,ECalcVario::VARIOGRAM);
   variop->display();
@@ -121,5 +121,5 @@ int main(int argc, char *argv[])
   delete vmapG;
   delete vmapP;
 
-  return (error);
+  return static_cast<int>(error);
 }

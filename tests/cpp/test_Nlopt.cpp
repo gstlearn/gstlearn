@@ -18,8 +18,8 @@
  *    variogram and retrieve the parameters of the Model
  */
 
-#include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/Optim.hpp"
 #include "Basic/VectorNumT.hpp"
 
@@ -45,30 +45,31 @@ static void _firstTest()
 {
   mestitle(0, "Minimization of a Function");
   std::vector<double> x = {1.};
-  Optim* opt            = new Optim(NELDERMEAD, (int) x.size());
+  auto* opt             = new Optim(NELDERMEAD, static_cast<Id>(x.size()));
 
   // Bounds for each parameter
   VectorDouble lb = {1., 10.};
   opt->setLowerBounds(lb);
   VectorDouble ub = {5., 10.};
   opt->setUpperBounds(ub);
-  auto func = [](const std::vector<double>& x) { return myfunc2(x);};
-  opt -> setObjective(func);
+  auto func = [](const std::vector<double>& x)
+  { return myfunc2(x); };
+  opt->setObjective(func);
   opt->setXtolRel(EPSILON4);
   double minf = opt->minimize(x);
   std::cout << "Optimum: x = " << x[0] << " -> Minimum value = " << minf << std::endl;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    std::stringstream sfn;
-    sfn << gslBaseName(__FILE__) << ".out";
-    StdoutRedirect sr(sfn.str(), argc, argv);
-    ASerializable::setPrefixName("NlOpt-");
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str(), argc, argv);
+  ASerializable::setPrefixName("test_NlOpt-");
 
-    // Optimization tests
+  // Optimization tests
 
-   _firstTest();
+  _firstTest();
 
-    return 0;
+  return 0;
 }

@@ -1,6 +1,6 @@
-import gstlearn as gl
-import gstlearn.plot as gp
-import gstlearn.test as gt
+import gstlearn          as gl
+import gstlearn.plot     as gp
+import gstlearn.test     as gt
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -92,6 +92,12 @@ for iext in exts:
         print("Difference with", name1, " = " +
               str(np.round(np.max(np.abs(grid[name1]-grid[name2]))/totalSill,5)))
 
+for iext in exts:
+    for ivar in range (nvar):
+        name1  = getName("KF", ivar, iext)
+        name2  = getName("KM", ivar, iext)
+        print("Difference between Matrix-Free and Matrix ("+ iext.replace(".","") +") for variable " + iext, ivar+1, " = " +
+                  str(np.round(np.max(np.abs(grid[name1]- grid[name2]))/totalSill,5)))
 grid.dumpToNF("grid.NF")
         
 ###############
@@ -148,4 +154,17 @@ if flag_plot:
             gp.decoration(title = "Comparing Kriging" + iext + " - Variable " + str(ivar+1),
                       xlabel = "SPDE (Matrix-Free)",
                       ylabel = "Traditional")
+            gp.close()
+            
+    for iext in exts:
+        for ivar in range(nvar):
+            fig, ax = gp.init()
+            gp.correlation(grid,
+                           getName("KF", ivar, iext),
+                           getName("KM", ivar, iext),
+                           bissLine=True, bissColor="blue",
+                           bins=100, cmin=1)
+            gp.decoration(title = "Comparing Matrix-Free/Matrix" + iext + " - Variable " + str(ivar+1),
+                      xlabel = "SPDE (Matrix-Free)",
+                      ylabel = "SPDE (Matrix)")
             gp.close()

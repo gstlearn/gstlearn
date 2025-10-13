@@ -23,8 +23,8 @@ namespace gstlrn
 {
 typedef struct
 {
-  int number;
-  int nvalid;
+  Id number;
+  Id nvalid;
   double mini;
   double maxi;
   double delta;
@@ -33,10 +33,10 @@ typedef struct
 } StatResults;
 
 GSTLEARN_EXPORT bool isInteger(double value, double eps = EPSILON10);
-GSTLEARN_EXPORT int getClosestInteger(double value);
-GSTLEARN_EXPORT bool isMultiple(int nbig, int nsmall);
-GSTLEARN_EXPORT bool isOdd(int number);
-GSTLEARN_EXPORT bool isEven(int number);
+GSTLEARN_EXPORT Id getClosestInteger(double value);
+GSTLEARN_EXPORT bool isMultiple(Id nbig, Id nsmall);
+GSTLEARN_EXPORT bool isOdd(Id number);
+GSTLEARN_EXPORT bool isEven(Id number);
 GSTLEARN_EXPORT bool isZero(double value, double eps = EPSILON10);
 GSTLEARN_EXPORT bool isOne(double value, double eps = EPSILON10);
 GSTLEARN_EXPORT bool isEqual(double v1, double v2, double eps = EPSILON10);
@@ -56,9 +56,9 @@ GSTLEARN_EXPORT bool isEqualExtended(double v1,
 #ifndef SWIG
 
 GSTLEARN_EXPORT bool FFFF(double value); // TODO isNA<double>
-GSTLEARN_EXPORT bool IFFFF(int value);   // TODO isNA<int>
+GSTLEARN_EXPORT bool IFFFF(Id value);   // TODO isNA<Id>
 GSTLEARN_EXPORT double getTEST();        // TODO getNA<double>
-GSTLEARN_EXPORT int getITEST();          // TODO getNA<int>
+GSTLEARN_EXPORT Id getITEST();          // TODO getNA<Id>
 
 #  define DOUBLE_NA TEST
 #  define INT_NA    ITEST
@@ -73,7 +73,7 @@ inline double getNA()
   return DOUBLE_NA;
 }
 template<>
-inline int getNA()
+inline Id getNA()
 {
   return INT_NA;
 }
@@ -96,9 +96,9 @@ inline bool isNA(const double& v)
   return (v == getNA<double>() || std::isnan(v) || std::isinf(v));
 }
 template<>
-inline bool isNA(const int& v)
+inline bool isNA(const Id& v)
 {
-  return (v == getNA<int>());
+  return (v == getNA<Id>());
 }
 template<>
 inline bool isNA(const String& v)
@@ -115,42 +115,42 @@ inline bool isNA(const float& v)
 
 // Other Utility functions
 
-GSTLEARN_EXPORT void ut_sort_double(int safe, int nech, int* ind, double* value);
-GSTLEARN_EXPORT StatResults ut_statistics(int nech,
+GSTLEARN_EXPORT void ut_sort_double(Id safe, Id nech, Id* ind, double* value);
+GSTLEARN_EXPORT StatResults ut_statistics(Id nech,
                                           const double* tab,
                                           const double* sel = nullptr,
                                           const double* wgt = nullptr);
-GSTLEARN_EXPORT void ut_stats_mima_print(const char* title, int nech, double* tab, double* sel);
-GSTLEARN_EXPORT void ut_facies_statistics(int nech,
+GSTLEARN_EXPORT void ut_stats_mima_print(const char* title, Id nech, double* tab, double* sel);
+GSTLEARN_EXPORT void ut_facies_statistics(Id nech,
                                           double* tab,
                                           double* sel,
-                                          int* nval,
-                                          int* mini,
-                                          int* maxi);
-GSTLEARN_EXPORT void ut_classify(int nech,
+                                          Id* nval,
+                                          Id* mini,
+                                          Id* maxi);
+GSTLEARN_EXPORT void ut_classify(Id nech,
                                  const double* tab,
                                  double* sel,
-                                 int nclass,
+                                 Id nclass,
                                  double start,
                                  double pas,
-                                 int* nmask,
-                                 int* ntest,
-                                 int* nout,
-                                 int* classe);
-GSTLEARN_EXPORT double ut_median(VectorDouble& tab, int ntab);
-GSTLEARN_EXPORT double ut_cnp(int n, int k);
-GSTLEARN_EXPORT MatrixSquare ut_pascal(int ndim);
-GSTLEARN_EXPORT int* ut_combinations(int n, int maxk, int* ncomb);
-GSTLEARN_EXPORT void ut_shuffle_array(int nrow, int ncol, VectorDouble& tab);
+                                 Id* nmask,
+                                 Id* ntest,
+                                 Id* nout,
+                                 Id* classe);
+GSTLEARN_EXPORT double ut_median(VectorDouble& tab, Id ntab);
+GSTLEARN_EXPORT double ut_cnp(Id n, Id k);
+GSTLEARN_EXPORT MatrixSquare ut_pascal(Id ndim);
+GSTLEARN_EXPORT VectorInt ut_combinations(Id n, Id maxk, Id* ncomb);
+GSTLEARN_EXPORT void ut_shuffle_array(Id nrow, Id ncol, VectorDouble& tab);
 
 GSTLEARN_EXPORT VectorInt getListActiveToAbsolute(const VectorDouble& sel);
-GSTLEARN_EXPORT std::map<int, int> getMapAbsoluteToRelative(const VectorDouble& sel,
+GSTLEARN_EXPORT std::map<Id, Id> getMapAbsoluteToRelative(const VectorDouble& sel,
                                                             bool verbose = false);
-GSTLEARN_EXPORT int getRankMapAbsoluteToRelative(const std::map<int, int>& map, int iabs);
-GSTLEARN_EXPORT int getRankMapRelativeToAbsolute(const std::map<int, int>& map, int irel);
+GSTLEARN_EXPORT Id getRankMapAbsoluteToRelative(const std::map<Id, Id>& map, Id iabs);
+GSTLEARN_EXPORT Id getRankMapRelativeToAbsolute(const std::map<Id, Id>& map, Id irel);
 
 typedef double (*operate_function)(double);
-GSTLEARN_EXPORT operate_function operate_Identify(int oper);
+GSTLEARN_EXPORT operate_function operate_Identify(Id oper);
 GSTLEARN_EXPORT double operate_Identity(double x);
 GSTLEARN_EXPORT double operate_Inverse(double x);
 GSTLEARN_EXPORT double operate_Square(double x);
@@ -161,13 +161,10 @@ GSTLEARN_EXPORT double modifyOperator(const EOperator& oper, double oldval, doub
 
 GSTLEARN_EXPORT double roundZero(double value, double eps = EPSILON6);
 
-GSTLEARN_EXPORT double truncateDecimals(double value, int ndec = 0);
-GSTLEARN_EXPORT double truncateDigits(double value, int ndigits);
+GSTLEARN_EXPORT double truncateDecimals(double value, Id ndec = 0);
+GSTLEARN_EXPORT double truncateDigits(double value, Id ndigits);
 
-GSTLEARN_EXPORT void setInternalDebug(bool status);
-GSTLEARN_EXPORT bool isInternalDebug();
+GSTLEARN_EXPORT void print_range(const char* title, Id ntab, const double* tab, const double* sel);
 
-GSTLEARN_EXPORT void print_range(const char* title, int ntab, const double* tab, const double* sel);
-
-GSTLEARN_EXPORT void convertIndptrToIndices(int ncumul, const int* cumul, int* tab);
+GSTLEARN_EXPORT void convertIndptrToIndices(Id ncumul, const I32* cumul, I32* tab);
 } // namespace gstlrn

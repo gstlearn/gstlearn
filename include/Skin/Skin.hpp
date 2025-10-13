@@ -26,29 +26,29 @@ public:
   Skin& operator=(const Skin& r);
   virtual ~Skin();
 
-  int gridShift(int lec, int dir);
-  int init(bool verbose = false);
-  int remains(bool verbose = false);
-  void getNext(int *rank, int *ipos);
-  int unstack(int rank0, int ipos0);
+  Id gridShift(Id lec, Id dir);
+  Id init(bool verbose = false);
+  Id remains(bool verbose = false);
+  void getNext(Id *rank, Id *ipos);
+  Id unstack(Id rank0, Id ipos0);
   void skinPrint() const;
 
 private:
-  double _getWeight(int ipos, int idir);
-  int    _gridShift(const VectorInt& indg0, int dir);
-  void   _cellDelete(int rank);
-  int    _cellAlreadyFilled(int ipos);
-  void   _cellModify(int rank, double energy);
-  int    _cellAdd(int ipos, double energy);
-  int    _getNDim() const;
+  double _getWeight(Id ipos, Id idir);
+  Id    _gridShift(const VectorInt& indg0, Id dir);
+  void   _cellDelete(Id rank);
+  Id    _cellAlreadyFilled(Id ipos);
+  void   _cellModify(Id rank, double energy);
+  Id    _cellAdd(Id ipos, double energy);
+  Id    _getNDim() const;
 
 private:
   const ISkinFunctions* _skf;
   DbGrid* _dbgrid;
-  int _nxyz;
-  int _nval;
-  int _date;
-  int _nvalMax;
+  Id _nxyz;
+  Id _nval;
+  Id _date;
+  Id _nvalMax;
   double  _total;
   double  _totalMax;
   VectorInt _address;

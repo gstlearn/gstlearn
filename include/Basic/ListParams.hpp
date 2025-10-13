@@ -20,17 +20,17 @@ public:
   ListParams& operator=(const ListParams& other) = delete;
   virtual ~ListParams()                          = default;
 
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void addParam(ParamInfo& param);
   void addParams(std::vector<ParamInfo>& params);
   void clear();
-  double getValue(int index) const;
-  void setValue(int index, double value);
+  double getValue(Id index) const;
+  void setValue(Id index, double value);
   std::vector<double> getOptimizableValues() const;
   void setValues(const std::vector<double>& values);
-  std::vector<double> getMinValues() const;
-  std::vector<double> getMaxValues() const;
+  std::vector<double> getMinValues(double epsilon = 0.) const;
+  std::vector<double> getMaxValues(double epsilon = 0.) const;
   void makeDispatchIndexFromDispatch();
   double getOptimizableValue(size_t index) const;
 

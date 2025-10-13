@@ -39,14 +39,14 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  int ndim = 2;
+  Id ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
-  int ndat        = 3;
-  int nvar        = 2;
-  int nbsimu      = 4;
-  int nbtuba      = 100;
+  Id ndat         = 3;
+  Id nvar         = 2;
+  Id nbsimu       = 4;
+  Id nbtuba       = 100;
   bool flagSK     = false;
   bool verbose    = true;
 
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
   DbGrid* grid = DbGrid::create(nx, dx);
 
   // Create the Model
-  int order = (flagSK) ? -1 : 0;
+  Id order = (flagSK) ? -1 : 0;
   Model* model =
     Model::createFillRandom(ndim, nvar, {ECov::EXPONENTIAL}, 1., order);
 

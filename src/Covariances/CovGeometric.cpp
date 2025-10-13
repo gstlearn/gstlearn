@@ -42,20 +42,20 @@ CovGeometric::~CovGeometric()
 
 double CovGeometric::_evaluateCovOnSphere(double alpha,
                                           double scale,
-                                          int degree) const
+                                          Id degree) const
 {
   DECLARE_UNUSED(degree);
   double rho = scale;
   return ((1. - rho) / sqrt(1. - 2. * rho * cos(alpha) + rho * rho));
 }
 
-VectorDouble CovGeometric::_evaluateSpectrumOnSphere(int n, double scale) const
+VectorDouble CovGeometric::_evaluateSpectrumOnSphere(Id n, double scale) const
 {
   double rho = scale;
   VectorDouble sp(1 + n, 0.);
 
   double rhoprod = 1.;
-  for (int k = 0; k <= n; k++)
+  for (Id k = 0; k <= n; k++)
   {
     sp[k] = rhoprod;
     rhoprod *= rho;

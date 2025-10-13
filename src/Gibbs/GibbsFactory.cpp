@@ -43,13 +43,13 @@ AGibbs* GibbsFactory::createGibbs(Db* db,
 
     // Moving Neighborhood
 
-    GibbsMMulti* gibbs = new GibbsMMulti(db, model);
+    auto* gibbs = new GibbsMMulti(db, model);
     return (static_cast<AGibbs*>(gibbs));
   }
 
   // Unique Neighborhood
 
-  GibbsUMulti* gibbs = new GibbsUMulti(db, model);
+  auto* gibbs = new GibbsUMulti(db, model);
   return (static_cast<AGibbs*>(gibbs));
 }
 
@@ -84,13 +84,13 @@ AGibbs* GibbsFactory::createGibbs(Db* db,
 
       // Propagation algorithm
 
-      GibbsUPropMono* gibbs = new GibbsUPropMono(db, models, 1.);
+      auto* gibbs = new GibbsUPropMono(db, models, 1.);
       return (static_cast<AGibbs*>(gibbs));
     }
 
     // Standard case
 
-    GibbsUMultiMono* gibbs = new GibbsUMultiMono(db, models, rho);
+    auto* gibbs = new GibbsUMultiMono(db, models, rho);
     return (static_cast<AGibbs*>(gibbs));
   }
 
@@ -101,7 +101,7 @@ AGibbs* GibbsFactory::createGibbs(Db* db,
     return nullptr;
   }
 
-  GibbsUMultiMono* gibbs = new GibbsUMultiMono(db, models, rho);
+  auto* gibbs = new GibbsUMultiMono(db, models, rho);
   return (static_cast<AGibbs*>(gibbs));
 }
 }

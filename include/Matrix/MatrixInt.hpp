@@ -22,7 +22,7 @@ namespace gstlrn
 class GSTLEARN_EXPORT MatrixInt : public AStringable, public ICloneable {
 
 public:
-  MatrixInt(int nrow = 0, int ncol = 0);
+  MatrixInt(Id nrow = 0, Id ncol = 0);
   MatrixInt(const MatrixInt &r);
   MatrixInt& operator= (const MatrixInt &r);
 	virtual ~MatrixInt();
@@ -31,56 +31,56 @@ public:
   IMPLEMENT_CLONING(MatrixInt)
 
   /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static MatrixInt* createFromVI(const VectorInt &X,
-                                 int nrow,
-                                 int ncol,
+                                 Id nrow,
+                                 Id ncol,
                                  bool byCol = false);
   static MatrixInt* createFromVVI(const VectorVectorInt &X);
 
-  void   reset(int nrows, int ncols);
-  void   resetFromArray(int nrows, int ncols, const int* tab, bool byCol = true);
-  int    getValue(int irow, int icol) const;
-  int    getValue(int irank) const;
+  void   reset(Id nrows, Id ncols);
+  void   resetFromArray(Id nrows, Id ncols, const Id* tab, bool byCol = true);
+  Id    getValue(Id irow, Id icol) const;
+  Id    getValue(Id irank) const;
 
-  void   setValueByRank(int rank, int value);
-  void   setValue(int irow, int icol, int value);
-  int    getMatrixSize() const;
-  int    size() const { return getMatrixSize(); }
+  void   setValueByRank(Id rank, Id value);
+  void   setValue(Id irow, Id icol, Id value);
+  Id    getMatrixSize() const;
+  Id    size() const { return getMatrixSize(); }
   VectorInt getValues() const;
-  VectorInt getValuesPerRow(int irow) const;
-  VectorInt getValuesPerColumn(int icol) const;
+  VectorInt getValuesPerRow(Id irow) const;
+  VectorInt getValuesPerColumn(Id icol) const;
   VectorVectorInt getMatrix() const;
   void   setValues(const VectorInt& values, bool byCol = true);
-  void   setValuesOldStyle(const int* values, bool byCol = true);
+  void   setValuesOldStyle(const Id* values, bool byCol = true);
   void   transposeInPlace();
   bool   empty() const { return _nRows <= 0 || _nCols <= 0; }
-  void   fill(int value);
+  void   fill(Id value);
 
-  int  getNCols() const { return _nCols; }
-  void setNCols(int cols) { _nCols = cols; }
-  int  getNRows() const { return _nRows; }
-  void setNRows(int rows) { _nRows = rows; }
+  Id  getNCols() const { return _nCols; }
+  void setNCols(Id cols) { _nCols = cols; }
+  Id  getNRows() const { return _nRows; }
+  void setNRows(Id rows) { _nRows = rows; }
 
   /*! Get value operator override */
-  int  operator()(int irow, int icol) const { return getValue(irow, icol); }
+  Id  operator()(Id irow, Id icol) const { return getValue(irow, icol); }
   /*! Set value operator override */
-  int &operator()(int irow, int icol)       { return _getValueRef(irow, icol); }
+  Id &operator()(Id irow, Id icol)       { return _getValueRef(irow, icol); }
 
 private:
-  void   _allocate();
-  void   _deallocate();
-  bool   _isIndexValid(int irow, int icol) const;
-  bool   _isRankValid(int rank) const;
-  static bool   _isNumbersValid(int nrows, int ncols);
-  int    _getIndexToRank(int irow,int icol) const;
-  int&   _getValueRef(int irow, int icol);
-  static void   _transposeInPlace(int n1, int n2, const int *v1, int *w1);
+  void _allocate();
+  void _deallocate();
+  bool _isIndexValid(Id irow, Id icol) const;
+  bool _isRankValid(Id rank) const;
+  Id  _getIndexToRank(Id irow, Id icol) const;
+  Id& _getValueRef(Id irow, Id icol);
+  static bool _isNumbersValid(Id nrows, Id ncols);
+  static void _transposeInPlace(Id n1, Id n2, const Id* v1, Id* w1);
 
 private:
-  int _nRows;
-  int _nCols;
+  Id _nRows;
+  Id _nCols;
   VectorInt _rectMatrix;
 };
 }

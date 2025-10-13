@@ -5,9 +5,9 @@ Date: @PROJET_DATE@
 Author: Team gstlearn <gstlearn@groupes.mines-paristech.fr>,
 Depends:
     R (>= 3.6),
-    ggplot2 (>= 3.5.1),
+    ggplot2 (>= 3.4.4),
     ggpubr, 
-    ggnewscale (>= 0.5.0)
+    ggnewscale (>= 0.4.9)
 Suggests:
     vctrs,
     ggrepel,

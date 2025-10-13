@@ -24,7 +24,7 @@ namespace gstlrn
 /**
  * Setting the default values for the parameters
  */
-std::map<int, double> OptCst::_cst =
+std::map<Id, double> OptCst::_cst =
  {{ ECst::E_NTCAR,  10. },
   { ECst::E_NTDEC,   3. },
   { ECst::E_NTROW,   7. },

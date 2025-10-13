@@ -49,8 +49,8 @@ namespace gstlrn
 {
 bool _isValid(ACovFunc* cova, const CovContext& ctxt)
 {
-  return (int)cova->getMaxNDim() <= 0 ||
-         (int)ctxt.getNDim() <= (int)cova->getMaxNDim();
+  return static_cast<Id>(cova->getMaxNDim()) <= 0 ||
+         static_cast<Id>(ctxt.getNDim()) <= static_cast<Id>(cova->getMaxNDim());
 }
 
 ACovFunc* CovFactory::createCovFunc(const ECov& type, const CovContext& ctxt)
@@ -162,7 +162,7 @@ void CovFactory::displayCovList(const CovContext& ctxt)
  * @param ctxt  Context from which we want authorized covariances
  * @param order Maximum order for the IRF
  */
-VectorString CovFactory::getCovList(const CovContext& ctxt, int order)
+VectorString CovFactory::getCovList(const CovContext& ctxt, Id order)
 {
   VectorString names;
   auto it = ECov::getIterator();
@@ -218,11 +218,11 @@ ECov CovFactory::identifyCovariance(const String& cov_name,
 
 double CovFactory::getScaleFactor(const ECov& type, double param)
 {
-  CovContext ctxt = CovContext(1, 1);
-  ACovFunc* cova  = CovFactory::createCovFunc(type, ctxt);
+  CovContext ctxt(1, 1);
+  ACovFunc* cova = CovFactory::createCovFunc(type, ctxt);
   cova->setParam(param);
   double scadef = cova->getScadef();
   delete cova;
   return scadef;
 }
-}
+} // namespace gstlrn

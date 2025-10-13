@@ -89,17 +89,17 @@ GSTLEARN_EXPORT VectorDouble dbStatisticsPerCell(Db *db,
                                                  const VectorDouble &cuts = VectorDouble());
 /**@}*/
 
-GSTLEARN_EXPORT int statisticsProportion(DbGrid *dbin,
+GSTLEARN_EXPORT Id statisticsProportion(DbGrid *dbin,
                                          DbGrid *dbout,
-                                         int pos,
-                                         int nfacies,
-                                         int radius);
-GSTLEARN_EXPORT int statisticsTransition(DbGrid *dbin,
+                                         Id pos,
+                                         Id nfacies,
+                                         Id radius);
+GSTLEARN_EXPORT Id statisticsTransition(DbGrid *dbin,
                                          DbGrid *dbout,
-                                         int pos,
-                                         int nfacies,
-                                         int radius,
-                                         int orient);
+                                         Id pos,
+                                         Id nfacies,
+                                         Id radius,
+                                         Id orient);
 
 GSTLEARN_EXPORT VectorDouble dbStatisticsFacies(Db *db);
 GSTLEARN_EXPORT double dbStatisticsIndicator(Db *db);
@@ -116,25 +116,25 @@ GSTLEARN_EXPORT VectorVectorInt hscatterPairs(Db *db,
                                               const String &name1,
                                               const String &name2,
                                               VarioParam *varioparam,
-                                              int ilag = 0,
-                                              int idir = 0,
+                                              Id ilag = 0,
+                                              Id idir = 0,
                                               bool verbose = false);
-GSTLEARN_EXPORT int correlationIdentify(Db *db1,
+GSTLEARN_EXPORT Id correlationIdentify(Db *db1,
                                         Db *db2,
-                                        int icol1,
-                                        int icol2,
+                                        Id icol1,
+                                        Id icol2,
                                         Polygons *polygon);
 GSTLEARN_EXPORT VectorVectorDouble condexp(Db *db1,
                                            Db *db2,
-                                           int icol1,
-                                           int icol2,
+                                           Id icol1,
+                                           Id icol2,
                                            double mini,
                                            double maxi,
-                                           int nclass,
+                                           Id nclass,
                                            bool verbose = false);
 
-GSTLEARN_EXPORT std::map<int, int> contingencyTable(const VectorInt& values);
-GSTLEARN_EXPORT std::map<int, std::map<int, int>>contingencyTable2(const VectorInt& values, const VectorInt& bins);
+GSTLEARN_EXPORT std::map<Id, Id> contingencyTable(const VectorInt& values);
+GSTLEARN_EXPORT std::map<Id, std::map<Id, Id>>contingencyTable2(const VectorInt& values, const VectorInt& bins);
 GSTLEARN_EXPORT MatrixSymmetric dbVarianceMatrix(const Db* db);
 
 #ifndef SWIG
@@ -159,18 +159,18 @@ GSTLEARN_EXPORT MatrixSymmetric dbVarianceMatrix(const Db* db);
 GSTLEARN_EXPORT void dbStatisticsVariables(Db* db,
                                            const VectorString& names,
                                            const std::vector<EStatOption>& opers,
-                                           int iptr0,
+                                           Id iptr0,
                                            double proba = TEST,
                                            double vmin  = TEST,
                                            double vmax  = TEST);
 /**@}*/
 
-GSTLEARN_EXPORT int dbStatisticsInGridTool(Db* db,
+GSTLEARN_EXPORT Id dbStatisticsInGridTool(Db* db,
                                            DbGrid* dbgrid,
                                            const VectorString& names,
                                            const EStatOption& oper,
-                                           int radius,
-                                           int iptr0);
+                                           Id radius,
+                                           Id iptr0);
 
 #endif // SWIG
 }

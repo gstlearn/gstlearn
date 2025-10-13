@@ -12,21 +12,24 @@
 
 #include "gstlearn_export.hpp"
 
+#include <Basic/VectorNumT.hpp>
+
 namespace gstlrn
 {
+
 GSTLEARN_EXPORT void set_keypair(
-  const char* keyword, int origin, int nrow, int ncol, const double* values);
+  const char* keyword, Id origin, Id nrow, Id ncol, const double* values);
 GSTLEARN_EXPORT void app_keypair(
-  const char* keyword, int origin, int nrow, int ncol, double* values);
+  const char* keyword, Id origin, Id nrow, Id ncol, double* values);
 GSTLEARN_EXPORT void set_keypair_int(
-  const char* keyword, int origin, int nrow, int ncol, int* values);
+  const char* keyword, Id origin, Id nrow, Id ncol, Id* values);
 GSTLEARN_EXPORT void app_keypair_int(
-  const char* keyword, int origin, int nrow, int ncol, int* values);
+  const char* keyword, Id origin, Id nrow, Id ncol, Id* values);
 GSTLEARN_EXPORT double get_keypone(const char* keyword, double valdef);
-GSTLEARN_EXPORT int
-get_keypair(const char* keyword, int* nrow, int* ncol, double** values);
-GSTLEARN_EXPORT int
-get_keypair_int(const char* keyword, int* nrow, int* ncol, int** values);
-GSTLEARN_EXPORT void del_keypair(const char* keyword, int flag_exact);
-GSTLEARN_EXPORT void print_keypair(int flag_short);
+GSTLEARN_EXPORT Id
+get_keypair(const char* keyword, Id* nrow, Id* ncol, VectorDouble& values);
+GSTLEARN_EXPORT Id
+get_keypair_int(const char* keyword, Id* nrow, Id* ncol, VectorInt& values);
+GSTLEARN_EXPORT void del_keypair(const char* keyword, Id flag_exact);
+GSTLEARN_EXPORT void print_keypair(Id flag_short);
 }

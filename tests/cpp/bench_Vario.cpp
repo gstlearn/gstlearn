@@ -41,14 +41,14 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  int ndim = 2;
+  Id ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
-  int nech = 2000;
-  int nvar = 1;
-  int ncode = 5;
-  int seed = 143421;
+  Id nech  = 2000;
+  Id nvar  = 1;
+  Id ncode = 5;
+  Id seed  = 143421;
   Db *db = Db::createFillRandom(nech, ndim, nvar, 0, ncode, 0., 0.,
                                 VectorDouble(), VectorDouble(), VectorDouble(), seed, 1);
 
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
   (void) simtub(nullptr,grid,model);
 
   // Defining a Fault system
-  Faults* faults = new Faults();
+  auto* faults = new Faults();
   PolyLine2D polyline({0.1, 0.6, 0.7}, {0.1, 0.4, 0.9});
   faults->addFault(polyline);
 
@@ -74,8 +74,8 @@ int main(int argc, char *argv[])
   // ===============
 
   mestitle(1, "Experimental variogram on Data Samples");
-  int ndir = 4;
-  int nlag = 20;
+  Id ndir = 4;
+  Id nlag = 20;
   message("- on a Db containing %d samples\n", nech);
   message("- for a variogram calculated in %d directions with %d lags\n", ndir, nlag);
 
@@ -98,12 +98,12 @@ int main(int argc, char *argv[])
   double dlag = 0.05;
   double toldis = 0.5;
   double tolang = 45.;
-  int optcode = 1;
+  Id optcode        = 1;
   double tolcode = 2;
   double angle2D = 30.;
   DirParam dirparam = DirParam(nlag, dlag, toldis, tolang, optcode, 0, TEST, TEST, tolcode,
                                 VectorDouble(), VectorDouble(), angle2D);
-  VarioParam varioparamC = VarioParam();
+  VarioParam varioparamC;
   varioparamC.addDir(dirparam);
   varioparamC.addFaults(faults);
   Vario* varioC = Vario::computeFromDb(varioparamC,db,ECalcVario::VARIOGRAM);
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
   // ==========================================
 
   mestitle(1, "Variogram Map on Isolated Data");
-  int ncell = 50;
+  Id ncell = 50;
   message("- on a Db containing %d samples\n", nech);
   message("- for %d by %d cells (automatic dimensions)\n", ncell, ncell);
 

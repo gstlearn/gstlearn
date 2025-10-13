@@ -17,14 +17,14 @@
 namespace gstlrn
 {
   // Forward declaration of the static method
-  BiTargetCheckGeometry* create(int ndim,
+  BiTargetCheckGeometry* create(Id ndim,
                                 const VectorDouble &codir,
                                 double tolang,
                                 double bench,
                                 double cylrad,
                                 bool flagasym);
 
-BiTargetCheckGeometry::BiTargetCheckGeometry(int ndim,
+BiTargetCheckGeometry::BiTargetCheckGeometry(Id ndim,
                                              const VectorDouble& codir,
                                              double tolang,
                                              double bench,
@@ -77,7 +77,7 @@ BiTargetCheckGeometry::~BiTargetCheckGeometry()
 {
 }
 
-BiTargetCheckGeometry* BiTargetCheckGeometry::create(int ndim,
+BiTargetCheckGeometry* BiTargetCheckGeometry::create(Id ndim,
                                                      const VectorDouble& codir,
                                                      double tolang,
                                                      double bench,
@@ -117,7 +117,7 @@ bool BiTargetCheckGeometry::isOK(const SpaceTarget& T1, const SpaceTarget& T2) c
   double dproj = 0.;
   double dn1   = 0.;
   double dn2   = 0.;
-  for (int idim = 0; idim < _ndim; idim++)
+  for (Id idim = 0; idim < _ndim; idim++)
   {
     dproj += _delta[idim] * _codir[idim];
     dn1 += _delta[idim] * _delta[idim];

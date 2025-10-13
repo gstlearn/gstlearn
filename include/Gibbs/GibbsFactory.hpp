@@ -25,12 +25,12 @@ public:
   GibbsFactory();
   virtual ~GibbsFactory();
 
-  static AGibbs *createGibbs(Db* db,
+  static AGibbs* createGibbs(Db* db,
                              Model* model,
                              bool flagMoving);
-  static AGibbs *createGibbs(Db* db,
-                             const std::vector<Model *>& models,
+  static AGibbs* createGibbs(Db* db,
+                             const std::vector<Model*>& models,
                              double rho,
                              bool flag_propagation);
 };
-}
+} // namespace gstlrn

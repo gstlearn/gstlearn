@@ -8,12 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Matrix/AMatrix.hpp"
-#include "Matrix/MatrixSquare.hpp"
 #include "Matrix/MatrixFactory.hpp"
+#include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
+#include "Matrix/MatrixSquare.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 
 #include "Basic/VectorHelper.hpp"
 
@@ -31,15 +31,15 @@ namespace gstlrn
  ** \param[in]  transposeY True if Second matrix is transposed
  **
  *****************************************************************************/
-AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
-                                   const AMatrix *y,
+AMatrix* MatrixFactory::prodMatMat(const AMatrix* x,
+                                   const AMatrix* y,
                                    bool transposeX,
                                    bool transposeY)
 {
-  int nrow1 = (transposeX) ? x->getNCols() : x->getNRows();
-  int ncol1 = (transposeX) ? x->getNRows() : x->getNCols();
-  int ncol2 = (transposeY) ? y->getNRows() : y->getNCols();
-  int nrow2 = (transposeY) ? y->getNCols() : y->getNRows();
+  Id nrow1 = (transposeX) ? x->getNCols() : x->getNRows();
+  Id ncol1 = (transposeX) ? x->getNRows() : x->getNCols();
+  Id ncol2 = (transposeY) ? y->getNRows() : y->getNCols();
+  Id nrow2 = (transposeY) ? y->getNCols() : y->getNRows();
   if (ncol1 != nrow2)
   {
     messerr("Matrix dimensions inconsistency:");
@@ -48,23 +48,23 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
     return nullptr;
   }
 
-  const MatrixSparse* mxsparse = dynamic_cast<const MatrixSparse*>(x);
-  const MatrixSparse* mysparse = dynamic_cast<const MatrixSparse*>(y);
+  const auto* mxsparse = dynamic_cast<const MatrixSparse*>(x);
+  const auto* mysparse = dynamic_cast<const MatrixSparse*>(y);
 
   AMatrix* res = nullptr;
   if (mxsparse != nullptr && mysparse != nullptr)
   {
     // Case of a resulting Sparse matrix
 
-    res = new MatrixSparse(mxsparse->isFlagEigen() ? 1 : 0);
+    res = new MatrixSparse();
   }
   else
   {
 
     // Case of a resulting Dense matrix
 
-    const MatrixSymmetric* mxsym = dynamic_cast<const MatrixSymmetric*>(x);
-    const MatrixSymmetric* mysym = dynamic_cast<const MatrixSymmetric*>(y);
+    const auto* mxsym = dynamic_cast<const MatrixSymmetric*>(x);
+    const auto* mysym = dynamic_cast<const MatrixSymmetric*>(y);
 
     if (nrow1 == ncol2)
     {
@@ -111,12 +111,12 @@ AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
  ** \param[in]  nrow       Number of rows
  **
  *****************************************************************************/
-MatrixSquare* MatrixFactory::createMatrixSquare(const MatrixSquare *x,
-                                                 int nrow)
+MatrixSquare* MatrixFactory::createMatrixSquare(const MatrixSquare* x,
+                                                Id nrow)
 {
   /// TODO : use typeinfo
-  const MatrixSquare*     mxsg  = dynamic_cast<const MatrixSquare*>(x);
-  const MatrixSymmetric*   mxsym = dynamic_cast<const MatrixSymmetric*>(x);
+  const auto* mxsg     = dynamic_cast<const MatrixSquare*>(x);
+  const auto* mxsym = dynamic_cast<const MatrixSymmetric*>(x);
 
   MatrixSquare* res = nullptr;
   if (mxsg != nullptr)
@@ -143,13 +143,13 @@ MatrixSquare* MatrixFactory::createMatrixSquare(const MatrixSquare *x,
  * @remark If a list if not defined, the whole set of rows (resp. columns) is considered)
  * @remark (this assumes that flagKeep is True)
  */
-AMatrix* MatrixFactory::createReduce(const AMatrix *x,
-                                     const VectorInt &selRows,
-                                     const VectorInt &selCols,
+AMatrix* MatrixFactory::createReduce(const AMatrix* x,
+                                     const VectorInt& selRows,
+                                     const VectorInt& selCols,
                                      bool flagKeepRows,
                                      bool flagKeepCols)
 {
-  int nrows = x->getNRows();
+  Id nrows = x->getNRows();
   VectorInt localSelRows;
   if (selRows.empty())
     localSelRows = VH::sequence(nrows);
@@ -158,14 +158,14 @@ AMatrix* MatrixFactory::createReduce(const AMatrix *x,
     localSelRows = VH::filter(selRows, 0, x->getNRows());
     if (!flagKeepRows) localSelRows = VH::complement(VH::sequence(nrows), localSelRows);
   }
-  int newNRows = (int) localSelRows.size();
+  Id newNRows = static_cast<Id>(localSelRows.size());
   if (newNRows <= 0)
   {
     messerr("The new Matrix has no Row left");
     return nullptr;
   }
 
-  int ncols = x->getNCols();
+  Id ncols = x->getNCols();
   VectorInt localSelCols;
   if (selCols.empty())
     localSelCols = VH::sequence(ncols);
@@ -174,7 +174,7 @@ AMatrix* MatrixFactory::createReduce(const AMatrix *x,
     localSelCols = VH::filter(selCols, 0, x->getNCols());
     if (!flagKeepCols) localSelCols = VH::complement(VH::sequence(ncols), localSelCols);
   }
-  int newNCols = (int) localSelCols.size();
+  Id newNCols = static_cast<Id>(localSelCols.size());
   if (newNCols <= 0)
   {
     messerr("The new Matrix has no Column left");
@@ -183,10 +183,10 @@ AMatrix* MatrixFactory::createReduce(const AMatrix *x,
   bool flagSame = (localSelRows == localSelCols);
 
   /// TODO : use typeinfo
-  AMatrix* res = nullptr;
-  const MatrixDense*        mxrg  = dynamic_cast<const MatrixDense*>(x);
-  const MatrixSquare*      mxsg  = dynamic_cast<const MatrixSquare*>(x);
-  const MatrixSymmetric*    mxsym = dynamic_cast<const MatrixSymmetric*>(x);
+  AMatrix* res                 = nullptr;
+  const auto* mxrg      = dynamic_cast<const MatrixDense*>(x);
+  const auto* mxsg     = dynamic_cast<const MatrixSquare*>(x);
+  const auto* mxsym = dynamic_cast<const MatrixSymmetric*>(x);
 
   if (mxsym != nullptr)
   {
@@ -229,9 +229,9 @@ AMatrix* MatrixFactory::createReduce(const AMatrix *x,
  * @remark If a rank is negative, the whole set of rows (resp. columns) is considered)
  * @remark (this assumes that flagKeep is True)
  */
-AMatrix* MatrixFactory::createReduceOne(const AMatrix *x,
-                                        int selRow,
-                                        int selCol,
+AMatrix* MatrixFactory::createReduceOne(const AMatrix* x,
+                                        Id selRow,
+                                        Id selCol,
                                         bool flagKeepRow,
                                         bool flagKeepCol)
 {
@@ -240,7 +240,7 @@ AMatrix* MatrixFactory::createReduceOne(const AMatrix *x,
   {
     localSelRows.resize(1);
     localSelRows[0] = selRow;
-   }
+  }
 
   VectorInt localSelCols;
   if (selCol >= 0)
@@ -268,21 +268,21 @@ AMatrix* MatrixFactory::createGlue(const AMatrix* a1,
                                    bool flagShiftRow,
                                    bool flagShiftCol)
 {
-  AMatrix *a = nullptr;
+  AMatrix* a = nullptr;
 
   // Preliminary checks
 
   bool isSparse = a1->isSparse();
-  if ((a1->isSparse() && ! a2->isSparse()) || (! a1->isSparse() && a2->isSparse()))
+  if ((a1->isSparse() && !a2->isSparse()) || (!a1->isSparse() && a2->isSparse()))
   {
     messerr("In 'createGlue()' both matrices should be sparse or not sparse");
     return a;
   }
-  int n11 = a1->getNRows();
-  int n12 = a1->getNCols();
-  int n21 = a2->getNRows();
-  int n22 = a2->getNCols();
-  if (flagShiftRow && ! isSparse)
+  Id n11 = a1->getNRows();
+  Id n12 = a1->getNCols();
+  Id n21 = a2->getNRows();
+  Id n22 = a2->getNCols();
+  if (flagShiftRow && !isSparse)
   {
     if (n12 != n22)
     {
@@ -290,7 +290,7 @@ AMatrix* MatrixFactory::createGlue(const AMatrix* a1,
       return a;
     }
   }
-  if (flagShiftCol && ! isSparse)
+  if (flagShiftCol && !isSparse)
   {
     if (n11 != n21)
     {
@@ -303,9 +303,9 @@ AMatrix* MatrixFactory::createGlue(const AMatrix* a1,
 
   if (isSparse)
   {
-    const MatrixSparse* aloc1 = dynamic_cast<const MatrixSparse*>(a1);
-    const MatrixSparse* aloc2 = dynamic_cast<const MatrixSparse*>(a2);
-    a = MatrixSparse::glue(aloc1, aloc2, flagShiftRow, flagShiftCol);
+    const auto* aloc1 = dynamic_cast<const MatrixSparse*>(a1);
+    const auto* aloc2 = dynamic_cast<const MatrixSparse*>(a2);
+    a                 = MatrixSparse::glue(aloc1, aloc2, flagShiftRow, flagShiftCol);
   }
   else
   {
@@ -313,4 +313,4 @@ AMatrix* MatrixFactory::createGlue(const AMatrix* a1,
   }
   return a;
 }
-}
+} // namespace gstlrn

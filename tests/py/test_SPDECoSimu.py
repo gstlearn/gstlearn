@@ -4,7 +4,7 @@ import gstlearn.plot as gp
 import matplotlib.pyplot as plt
 import numpy as np
 
-# %% Various plots
+# %% Various functions
 def getName(radix, ivar, isimu, flagShort=True):
     if flagShort:
         name = radix + str(isimu+1) + "V" + str(ivar+1)
@@ -18,6 +18,7 @@ ndim = 2
 nvar = 2
 nbsimu = 2
 gl.OptCst.define(gl.ECst.NTDEC,2)
+gl.ASerializable.setPrefixName("test_SPDECoSimu-")
 
 # %% Model (multivariate) for the field 
 if nvar == 1:
@@ -98,10 +99,8 @@ modelNugg = gl.Model.createFromParam(gl.ECov.NUGGET, sills = sillsNugg)
 AM        = gl.ProjMulti(vectproj)
 AMout     = gl.ProjMulti(vectprojOut)
 Qop       = gl.PrecisionOpMulti(model,meshes,True)
-invnoise  = gl.buildInvNugget(dat,modelNugg)
-invnoisep = gl.MatrixSymmetricSim(invnoise)
-
-spdeop    = gl.SPDEOp(Qop, AM, invnoisep)
+invnoise  = gl.InvNuggetOp(dat,modelNugg)
+spdeop    = gl.SPDEOp(Qop, AM, invnoise)
 ntarget   = grid.getNSample(True)
 local     = gl.VectorDouble(ntarget)
 for i in range(nbsimu):
@@ -112,6 +111,7 @@ for i in range(nbsimu):
 
 
 gl.dbStatisticsMono(grid, ["HF*"]).display()
+grid.dumpToNF("grid.NF")
 
 ######################################################
 # %% Checking the exactness of conditional simulations

@@ -27,7 +27,7 @@ class Model;
 typedef struct
 {
   String name; // Useless but allows checking the correct match
-  int maxNDim;  /* Maximum dimension for validity */
+  Id maxNDim;  /* Maximum dimension for validity */
   double (*tapeFunc)(double);
 } Def_Tapering;
 
@@ -40,7 +40,7 @@ GSTLEARN_EXPORT double _tape_storkey(double);
 GSTLEARN_EXPORT double _tape_wendland1(double);
 GSTLEARN_EXPORT double _tape_wendland2(double);
 
-GSTLEARN_EXPORT Def_Tapering& D_TAPE(int rank);
+GSTLEARN_EXPORT Def_Tapering& D_TAPE(Id rank);
 
 class GSTLEARN_EXPORT CovLMCTapering : public CovAnisoList
 {
@@ -56,14 +56,14 @@ public:
   IMPLEMENT_CLONING(CovLMCTapering)
 
   /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// ACov interface
-  virtual double eval0(int ivar = 0,
-                       int jvar = 0,
+  double eval0(Id ivar = 0,
+                       Id jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
   
-  int init(const ETape& tapetype, double taperange);
+  Id init(const ETape& tapetype, double taperange);
 
   std::string_view getName() const;
   double getTapeRange() const { return _tapeRange; }
@@ -78,8 +78,8 @@ protected:
 private:
 virtual double _eval(const SpacePoint& p1,
                      const SpacePoint& p2,
-                     int ivar,
-                     int jvar,
+                     Id ivar,
+                     Id jvar,
                      const CovCalcMode* mode = nullptr) const override;
 private:
   ETape  _tapeType;

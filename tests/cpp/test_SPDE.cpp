@@ -14,12 +14,12 @@
 
 #include "API/SPDE.hpp"
 
-#include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Space/ASpaceObject.hpp"
 #include "Model/Model.hpp"
+#include "Space/ASpaceObject.hpp"
 
 #define VERBOSE 0
 
@@ -29,7 +29,7 @@ using namespace gstlrn;
 ** Main Program
 **
 *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
@@ -41,46 +41,46 @@ int main(int argc, char *argv[])
 
   /* 1.b - Setup the default space */
 
-  int ndim     = 2;
+  Id ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
-  ASerializable::setPrefixName("SPDE-");
+  ASerializable::setPrefixName("test_SPDE-");
 
   /* 1.c - Setup constants */
 
   OptDbg::reset();
-  
+
   // Create the 2-D grid output file
 
-  VectorInt    nx = { 400, 300 };
-  VectorDouble dx = { 1., 1. };
-  VectorDouble x0 = { 0., 0. };
-  DbGrid *dbgrid = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN,
-                                  VectorDouble(), VectorString(),
-                                  VectorString(), 1);
-    
-  // Model 
+  VectorInt nx    = {400, 300};
+  VectorDouble dx = {1., 1.};
+  VectorDouble x0 = {0., 0.};
+  DbGrid* dbgrid  = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN,
+                                   VectorDouble(), VectorString(),
+                                   VectorString(), 1);
 
-  double range    = 79.8;
-  double sill     = 1.;
-  double param    = 1.;
-  Model* model = Model::createFromParam(ECov::MATERN,range,sill,param);
+  // Model
+
+  double range = 79.8;
+  double sill  = 1.;
+  double param = 1.;
+  Model* model = Model::createFromParam(ECov::MATERN, range, sill, param);
 
   // Perform the non-conditional simulation
 
-  int seed        = 31415;
-  int nsimu       = 10;
-  int useCholesky = 1;
+  Id seed        = 31415;
+  Id nsimu       = 10;
+  Id useCholesky = 1;
   law_set_random_seed(seed);
-  (void) gstlrn::simulateSPDE(nullptr, dbgrid, model, nsimu, useCholesky);
+  (void)simulateSPDE(nullptr, dbgrid, model, nsimu, useCholesky);
 
   // Print statistics on the results
 
   DbStringFormat dbfmt;
   dbfmt.setFlags(true, true, true, true, true);
   dbgrid->display(&dbfmt);
-  (void) dbgrid->dumpToNF("pgs.NF");
-  
+  (void)dbgrid->dumpToNF("grid.NF");
+
   delete dbgrid;
   delete model;
-  return(0);
+  return (0);
 }

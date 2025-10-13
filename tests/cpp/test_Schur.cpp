@@ -13,19 +13,19 @@
 #include "Basic/VectorHelper.hpp"
 #include "Enum/ESpaceType.hpp"
 
-#include "Matrix/MatrixDense.hpp"
-#include "Matrix/MatrixSymmetric.hpp"
-#include "Space/ASpaceObject.hpp"
+#include "Basic/File.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/OptCst.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Basic/Law.hpp"
-#include "Model/Model.hpp"
-#include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Basic/OptCst.hpp"
-#include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
 #include "Estimation/KrigingAlgebra.hpp"
+#include "Matrix/MatrixDense.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 
@@ -36,22 +36,22 @@ static Db* _dataComplement(Db* data, Db* target, const VectorDouble& valuesTarge
   Db* datap = data->clone();
   DbStringFormat* dbfmt =
     DbStringFormat::createFromFlags(false, false, false, false, true);
-  
-  int iech = datap->addSamples(1);
+
+  auto iech = datap->addSamples(1);
   datap->setSampleCoordinates(iech, target->getSampleCoordinates(0));
   datap->setLocVariables(ELoc::Z, iech, valuesTarget);
   datap->display(dbfmt);
   return datap;
 }
 
-static Db* _dataTargetDeplement(Db* data, const VectorInt& varXvalid, int iech0)
+static Db* _dataTargetDeplement(Db* data, const VectorInt& varXvalid, Id iech0)
 {
   Db* datap = data->clone();
   DbStringFormat* dbfmt =
     DbStringFormat::createFromFlags(false, false, false, false, true);
 
   // Delete the cross-validation information
-  for (int i = 0, nval = (int) varXvalid.size(); i < nval; i++)
+  for (Id i = 0, nval = static_cast<Id>(varXvalid.size()); i < nval; i++)
     datap->setLocVariable(ELoc::Z, iech0, varXvalid[i], TEST);
   datap->display(dbfmt);
 
@@ -65,7 +65,7 @@ static Db* _dataAsIs(Db* data)
     DbStringFormat::createFromFlags(false, false, false, false, true);
   datap->display(dbfmt);
   delete dbfmt;
-  
+
   return datap;
 }
 
@@ -88,11 +88,11 @@ static void _firstTest(Db* data,
     messerr("The 'Model' must have drift defined to check 'Bayesian' option");
     return;
   }
-  
+
   // Local parameters
   bool debugPrint = false;
   bool debugSchur = false;
-  int iech0 = 0;
+  Id iech0        = 0;
   if (debugPrint) OptDbg::setReference(iech0 + 1);
 
   // Title
@@ -104,7 +104,7 @@ static void _firstTest(Db* data,
 
   // Creating the data file
   Db* dataP = _dataAsIs(data);
-   
+
   // ---------------------- Using Standard Kriging procedure ---------------
   mestitle(1, "Using Standard Kriging procedure");
   Table table;
@@ -116,13 +116,13 @@ static void _firstTest(Db* data,
   // ---------------------- Using Schur Class ------------------------------
   mestitle(1, "Using Schur class");
 
-  MatrixSymmetric Sigma00 = model->eval0Mat();
-  MatrixSymmetric Sigma   = model->evalCovMatSym(data);
-  MatrixDense X           = model->evalDriftMat(data);
-  MatrixDense Sigma0      = model->evalCovMat(data, target);
-  MatrixDense X0          = model->evalDriftMat(target);
-  VectorVectorInt sampleRanks   = data->getSampleRanks();
-  VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
+  MatrixSymmetric Sigma00     = model->eval0Mat();
+  MatrixSymmetric Sigma       = model->evalCovMatSym(data);
+  MatrixDense X               = model->evalDriftMat(data);
+  MatrixDense Sigma0          = model->evalCovMat(data, target);
+  MatrixDense X0              = model->evalDriftMat(target);
+  VectorVectorInt sampleRanks = data->getSampleRanks();
+  VectorDouble Z              = data->getValuesByRanks(sampleRanks, means);
 
   KrigingAlgebra Kcalc;
   Kcalc.setData(&Z, &sampleRanks, &means);
@@ -142,6 +142,7 @@ static void _firstTest(Db* data,
   VH::dump("Kriging Value(s)", Kcalc.getEstimation());
   VH::dump("Standard Deviation of Estimation Error", Kcalc.getStdv());
   VH::dump("Variance of Estimator", Kcalc.getVarianceZstar());
+
   if (debugSchur) Kcalc.printStatus();
 
   delete dataP;
@@ -154,9 +155,9 @@ static void _firstTest(Db* data,
  *****************************************************************************/
 static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorDouble& means)
 {
-  Model* modelc = dynamic_cast<Model*>(model);
+  auto* modelc = dynamic_cast<Model*>(model);
   // Local parameters
-  int nvar = modelc->getNVar();
+  auto nvar           = modelc->getNVar();
   VectorInt varColCok = {0, -1, 2}; // Ranks of collcated variables (dim = nvar)
   bool debugSchur     = false;
   if (nvar <= 1)
@@ -166,17 +167,16 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   }
 
   // Title
-  mestitle(0,"Collocated Option (in Unique Neighborhood):");
+  mestitle(0, "Collocated Option (in Unique Neighborhood):");
   message("- using 'KrigingAlgebra' on the Complemented Data Set\n");
-  message(
-    "- using 'KrigingAlgebra' on Standard Data Set adding Collocated Option\n");
+  message("- using 'KrigingAlgebra' on Standard Data Set adding Collocated Option\n");
   VH::dump("- Collocated Variable ranks", varColCok, false);
 
   // Creating the Complemented Data Set
   VectorDouble valuesTarget(nvar, TEST);
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (Id ivar = 0; ivar < nvar; ivar++)
   {
-    int jvar = varColCok[ivar];
+    auto jvar = varColCok[ivar];
     if (jvar >= 0) valuesTarget[varColCok[jvar]] = law_gaussian();
   }
   Db* dataP = _dataComplement(data, target, valuesTarget);
@@ -184,13 +184,13 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   // ---------------------- With complemented Data Base ---------------------
   mestitle(1, "With Complemented input Data Base");
 
-  MatrixSymmetric Sigma00P = model->eval0Mat();
-  MatrixSymmetric SigmaP   = model->evalCovMatSym(dataP);
-  MatrixDense XP           = model->evalDriftMat(dataP);
-  MatrixDense Sigma0P      = model->evalCovMat(dataP, target);
-  MatrixDense X0P          = model->evalDriftMat(target);
-  VectorVectorInt sampleRanksP   = dataP->getSampleRanks();
-  VectorDouble ZP                = dataP->getValuesByRanks(sampleRanksP, means);
+  MatrixSymmetric Sigma00P     = model->eval0Mat();
+  MatrixSymmetric SigmaP       = model->evalCovMatSym(dataP);
+  MatrixDense XP               = model->evalDriftMat(dataP);
+  MatrixDense Sigma0P          = model->evalCovMat(dataP, target);
+  MatrixDense X0P              = model->evalDriftMat(target);
+  VectorVectorInt sampleRanksP = dataP->getSampleRanks();
+  VectorDouble ZP              = dataP->getValuesByRanks(sampleRanksP, means);
 
   KrigingAlgebra KcalcP;
   KcalcP.setData(&ZP, &sampleRanksP, &means);
@@ -207,13 +207,13 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   // ---------------------- With Collocated Option -------------------------
   mestitle(1, "With Collocated Option");
 
-  MatrixSymmetric Sigma00 = model->eval0Mat();
-  MatrixSymmetric Sigma   = model->evalCovMatSym(data);
-  MatrixDense X           = model->evalDriftMat(data);
-  MatrixDense Sigma0      = model->evalCovMat(data, target);
-  MatrixDense X0          = model->evalDriftMat(target);
-  VectorVectorInt sampleRanks   = data->getSampleRanks();
-  VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
+  MatrixSymmetric Sigma00     = model->eval0Mat();
+  MatrixSymmetric Sigma       = model->evalCovMatSym(data);
+  MatrixDense X               = model->evalDriftMat(data);
+  MatrixDense Sigma0          = model->evalCovMat(data, target);
+  MatrixDense X0              = model->evalDriftMat(target);
+  VectorVectorInt sampleRanks = data->getSampleRanks();
+  VectorDouble Z              = data->getValuesByRanks(sampleRanks, means);
 
   KrigingAlgebra Kcalc;
   Kcalc.setData(&Z, &sampleRanks, &means);
@@ -241,14 +241,14 @@ static void _secondTest(Db* data, Db* target, ModelGeneric* model, const VectorD
 static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
 {
   // Set of ranks of cross-validated information
-  VectorInt varXvalid = {1,2};
-  int iech0           = 1;
+  VectorInt varXvalid = {1, 2};
+  Id iech0            = 1;
   AStringFormat format;
   bool debugSchur = false;
 
   const VectorVectorInt index = data->getSampleRanks();
-  VectorInt rankXvalidEqs = Db::getMultipleSelectedRanks(index, varXvalid, {iech0});
-  VectorInt rankXvalidVars = Db::getMultipleSelectedVariables(index, varXvalid, {iech0});
+  VectorInt rankXvalidEqs     = Db::getMultipleSelectedRanks(index, varXvalid, {iech0});
+  VectorInt rankXvalidVars    = Db::getMultipleSelectedVariables(index, varXvalid, {iech0});
 
   // Title
   mestitle(0, "Cross-Validation (in Unique Neighborhood)");
@@ -258,18 +258,18 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
 
   // Creating the Complemented Data Set
   Db* targetP = data->clone();
-  Db* dataP = _dataTargetDeplement(data, varXvalid, iech0);
+  Db* dataP   = _dataTargetDeplement(data, varXvalid, iech0);
 
   // ----------------------With Deplemented Data Base ---------------------
   mestitle(1, "With Deplemented input Data Base");
 
-  MatrixSymmetric Sigma00P = model->eval0Mat();
-  MatrixSymmetric SigmaP   = model->evalCovMatSym(dataP);
-  MatrixDense XP           = model->evalDriftMat(dataP);
-  MatrixDense Sigma0P      = model->evalCovMat(dataP, targetP, -1, -1, VectorInt(), VectorInt({iech0}));
-  MatrixDense X0P          = model->evalDriftMat(targetP, VectorInt{iech0});
-  VectorVectorInt sampleRanksP   = dataP->getSampleRanks();
-  VectorDouble ZP                = dataP->getValuesByRanks(sampleRanksP, means);
+  MatrixSymmetric Sigma00P     = model->eval0Mat();
+  MatrixSymmetric SigmaP       = model->evalCovMatSym(dataP);
+  MatrixDense XP               = model->evalDriftMat(dataP);
+  MatrixDense Sigma0P          = model->evalCovMat(dataP, targetP, -1, -1, VectorInt(), VectorInt({iech0}));
+  MatrixDense X0P              = model->evalDriftMat(targetP, VectorInt {iech0});
+  VectorVectorInt sampleRanksP = dataP->getSampleRanks();
+  VectorDouble ZP              = dataP->getValuesByRanks(sampleRanksP, means);
 
   KrigingAlgebra KcalcP;
   KcalcP.setData(&ZP, &sampleRanksP, &means);
@@ -286,13 +286,13 @@ static void _thirdTest(Db* data, ModelGeneric* model, const VectorDouble& means)
   // ---------------------- With Cross-validation Option -------------------------
   mestitle(1, "With Cross-Validation Option");
 
-  MatrixSymmetric Sigma00 = model->eval0Mat();
-  MatrixSymmetric Sigma   = model->evalCovMatSym(data);
-  MatrixDense X           = model->evalDriftMat(data);
-  MatrixDense Sigma0      = model->evalCovMat(data, targetP);
-  MatrixDense X0          = model->evalDriftMat(targetP);
-  VectorVectorInt sampleRanks   = data->getSampleRanks();
-  VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
+  MatrixSymmetric Sigma00     = model->eval0Mat();
+  MatrixSymmetric Sigma       = model->evalCovMatSym(data);
+  MatrixDense X               = model->evalDriftMat(data);
+  MatrixDense Sigma0          = model->evalCovMat(data, targetP);
+  MatrixDense X0              = model->evalDriftMat(targetP);
+  VectorVectorInt sampleRanks = data->getSampleRanks();
+  VectorDouble Z              = data->getValuesByRanks(sampleRanks, means);
 
   KrigingAlgebra Kcalc;
   Kcalc.setData(&Z, &sampleRanks, &means);
@@ -324,13 +324,13 @@ static void _fourthTest(Db* data, Db* target, ModelGeneric* model, const VectorD
   // ---------------------- Without Dual option ---------------------
   mestitle(1, "Without Dual option");
 
-  MatrixSymmetric Sigma00 = model->eval0Mat();
-  MatrixSymmetric Sigma   = model->evalCovMatSym(data);
-  MatrixDense X           = model->evalDriftMat(data);
-  MatrixDense Sigma0      = model->evalCovMat(data, target);
-  MatrixDense X0          = model->evalDriftMat(target);
-  VectorVectorInt sampleRanks   = data->getSampleRanks();
-  VectorDouble Z                = data->getValuesByRanks(sampleRanks, means);
+  MatrixSymmetric Sigma00     = model->eval0Mat();
+  MatrixSymmetric Sigma       = model->evalCovMatSym(data);
+  MatrixDense X               = model->evalDriftMat(data);
+  MatrixDense Sigma0          = model->evalCovMat(data, target);
+  MatrixDense X0              = model->evalDriftMat(target);
+  VectorVectorInt sampleRanks = data->getSampleRanks();
+  VectorDouble Z              = data->getValuesByRanks(sampleRanks, means);
 
   KrigingAlgebra Kcalc1(false);
   Kcalc1.setData(&Z, &sampleRanks, &means);
@@ -374,7 +374,7 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Global parameters
-  int ndim = 2;
+  Id ndim = 2;
   law_set_random_seed(32131);
   AStringFormat format;
 
@@ -384,13 +384,13 @@ int main(int argc, char* argv[])
   OptDbg::define(EDbg::BAYES);
 
   // Parameters
-  bool debugPrint   = false;
-  int nech          = 3;
-  int nvar          = 3;
-  int nfex          = 0;
-  int nbfl          = (nfex + 1) * nvar;
-  bool flagSK       = false;
-  int mode = 0;
+  bool debugPrint = false;
+  Id nech         = 3;
+  Id nvar         = 3;
+  Id nfex         = 0;
+  Id nbfl         = (nfex + 1) * nvar;
+  bool flagSK     = false;
+  Id mode         = 0;
 
   // Generate the data base
   Db* data = Db::createFillRandom(nech, ndim, nvar, nfex);
@@ -404,13 +404,13 @@ int main(int argc, char* argv[])
 
   // Create the Model
   ModelGeneric* model;
-  
+
   double scale = 0.7;
   MatrixSymmetric* sills =
     MatrixSymmetric::createRandomDefinitePositive(nvar);
-  model = Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
-                                 *sills, VectorDouble(), nullptr, false);
-  Model* modelc = dynamic_cast<Model*>(model);
+  model        = Model::createFromParam(ECov::EXPONENTIAL, scale, 0., 0., VectorDouble(),
+                                        *sills, VectorDouble(), nullptr, false);
+  auto* modelc = dynamic_cast<Model*>(model);
   modelc->setMeans(means);
   if (!flagSK) modelc->setDriftIRF(0, nfex);
 
@@ -423,7 +423,7 @@ int main(int argc, char* argv[])
   NeighUnique* neigh = NeighUnique::create();
 
   // Define the verbose option
-  int iech0 = 0;
+  Id iech0 = 0;
   if (debugPrint) OptDbg::setReference(iech0 + 1);
 
   // Test on Bayesian

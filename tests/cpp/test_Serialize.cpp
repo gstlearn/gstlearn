@@ -38,18 +38,18 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setPrefixName("Neutral-");
+  ASerializable::setPrefixName("test_Serialize-");
 
   // Next flag indicates if the format is NF (true) or H5 (false)
   bool flagNeutral = false;
   bool verbose     = false;
-  int mode         = 0;
+  Id mode          = 0;
 
   // =================
   // Preliminary tasks
   // =================
 
-  int nech          = 20;
+  Id nech           = 20;
   Db* db            = Db::createFromBox(nech, {0., 0.}, {1., 1.}, 32432);
   VectorDouble vec1 = VH::simulateGaussian(nech);
   db->addColumns(vec1, "myvar1", ELoc::Z, 0);
@@ -64,9 +64,9 @@ int main(int argc, char* argv[])
   vec2[5] = TEST;
   dbg->addColumns(vec2, "myvar2", ELoc::Z, 1);
 
-  // ===========
-  // Checking Db
-  // ===========
+  // ==
+  // Db
+  // ==
 
   if (mode == 0 || mode == 1)
   {
@@ -91,9 +91,9 @@ int main(int argc, char* argv[])
     delete db2;
   }
 
-  // ===============
-  // Checking DbGrid
-  // ===============
+  // ======
+  // DbGrid
+  // ======
 
   if (mode == 0 || mode == 2)
   {
@@ -118,15 +118,15 @@ int main(int argc, char* argv[])
     delete dbg2;
   }
 
-  // =================
-  // Checking Polygons
-  // =================
+  // ========
+  // Polygons
+  // ========
 
   if (mode == 0 || mode == 3)
   {
-    Polygons* poly1 = new Polygons();
+    auto* poly1 = new Polygons();
     poly1->resetFromDb(db);
-    Polygons* polyb = new Polygons();
+    auto* polyb = new Polygons();
     polyb->resetFromDb(dbg);
     poly1->addPolyElem(polyb->getPolyElem(0));
     poly1->display();
@@ -150,16 +150,16 @@ int main(int argc, char* argv[])
     delete poly2;
   }
 
-  // ==============
-  // Checking Vario
-  // ==============
+  // =====
+  // Vario
+  // =====
 
   if (mode == 0 || mode == 4)
   {
     VarioParam varioparam;
     DirParam dirparam(10, 0.02);
     varioparam.addDir(dirparam);
-    Vario vario1 = Vario(varioparam);
+    Vario vario1(varioparam);
     vario1.compute(db, ECalcVario::VARIOGRAM);
     vario1.display();
 
@@ -180,11 +180,43 @@ int main(int argc, char* argv[])
     delete vario2;
   }
 
-  // ==============
-  // Checking Model
-  // ==============
+  // ==========
+  // Covariance
+  // ==========
 
   if (mode == 0 || mode == 5)
+  {
+    VarioParam varioparam;
+    DirParam dirparam(10, 0.02);
+    varioparam.addDir(dirparam);
+    Vario covariance1(varioparam);
+    covariance1.compute(db, ECalcVario::COVARIANCE);
+    covariance1.display();
+
+    // Serialize
+    if (flagNeutral)
+      // (void)covariance1.dumpToNF("Covariance.NF.ascii", EFormatNF::ASCII);
+      messerr("Useless trying to save a Covariance in old format");
+    else
+      (void)covariance1.dumpToNF("Covariance.NF.h5", EFormatNF::H5);
+
+    // Deserialize
+    Vario* covariance2 = nullptr;
+    if (flagNeutral)
+      // covariance2 = Vario::createFromNF("Covariance.NF.ascii", verbose);
+      messerr("Useless trying to recover a Covariance in old format");
+    else
+      covariance2 = Vario::createFromNF("Covariance.NF.h5", verbose);
+    covariance2->display();
+
+    delete covariance2;
+  }
+
+  // =====
+  // Model
+  // =====
+
+  if (mode == 0 || mode == 6)
   {
     Model* model1 = Model::createFromParam(ECov::EXPONENTIAL, 0.3, 0.2, 1.);
     model1->display();
@@ -207,18 +239,18 @@ int main(int argc, char* argv[])
     delete model2;
   }
 
-  // =======================
-  // Checking Table
-  // =======================
+  // =====
+  // Table
+  // =====
 
-  if (mode == 0 || mode == 6)
+  if (mode == 0 || mode == 7)
   {
     VectorVectorDouble table;
-    int ncols     = 3;
-    int nrows     = 10;
+    Id ncols      = 3;
+    Id nrows      = 10;
     Table* table1 = Table::create(nrows, ncols);
-    for (int irow = 0; irow < nrows; irow++)
-      for (int icol = 0; icol < ncols; icol++)
+    for (Id irow = 0; irow < nrows; irow++)
+      for (Id icol = 0; icol < ncols; icol++)
         table1->setValue(irow, icol, law_uniform());
     table1->display();
 
@@ -240,11 +272,11 @@ int main(int argc, char* argv[])
     delete table2;
   }
 
-  // =============
-  // Checking Rule
-  // =============
+  // ====
+  // Rule
+  // ====
 
-  if (mode == 0 || mode == 7)
+  if (mode == 0 || mode == 8)
   {
     Rule* rule1 = Rule::createFromNames({"S", "F1", "T", "F2", "S", "F3", "F4"});
     rule1->display();
@@ -267,16 +299,16 @@ int main(int argc, char* argv[])
     delete rule2;
   }
 
-  // ===================
-  // Checking PolyLine2D
-  // ===================
+  // ==========
+  // PolyLine2D
+  // ==========
 
-  if (mode == 0 || mode == 8)
+  if (mode == 0 || mode == 9)
   {
-    int npolyline          = 100;
+    Id npolyline           = 100;
     VectorDouble xpolyline = VH::simulateGaussian(npolyline);
     VectorDouble ypolyline = VH::simulateGaussian(npolyline);
-    PolyLine2D* polyline1  = new PolyLine2D(xpolyline, ypolyline);
+    auto* polyline1        = new PolyLine2D(xpolyline, ypolyline);
     AStringFormat afmt(3);
     polyline1->display(&afmt);
 
@@ -298,17 +330,17 @@ int main(int argc, char* argv[])
     delete polyline2;
   }
 
-  // ============================
-  // Checking Moving Neighborhood
-  // ============================
+  // ===================
+  // Moving Neighborhood
+  // ===================
 
-  if (mode == 0 || mode == 9)
+  if (mode == 0 || mode == 10)
   {
-    int nmaxi           = 20;
+    Id nmaxi            = 20;
     double radius       = 4.;
-    int nmini           = 2;
-    int nsect           = 5;
-    int nsmax           = 3;
+    Id nmini            = 2;
+    Id nsect            = 5;
+    Id nsmax            = 3;
     VectorDouble coeffs = {2., 3.};
     VectorDouble angles = {25., 0.};
     bool useBallTree    = true;
@@ -336,11 +368,11 @@ int main(int argc, char* argv[])
     delete neigh2;
   }
 
-  // ============================
-  // Checking Unique Neighborhood
-  // ============================
+  // ===================
+  // Unique Neighborhood
+  // ===================
 
-  if (mode == 0 || mode == 10)
+  if (mode == 0 || mode == 11)
   {
     NeighUnique* neigh1 = NeighUnique::create();
     neigh1->display();
@@ -363,11 +395,11 @@ int main(int argc, char* argv[])
     delete neigh2;
   }
 
-  // ========================
-  // Checking Meshing (Turbo)
-  // ========================
+  // ===============
+  // Meshing (Turbo)
+  // ===============
 
-  if (mode == 0 || mode == 11)
+  if (mode == 0 || mode == 12)
   {
     MeshETurbo* mesh1 = MeshETurbo::create({10, 10});
     mesh1->display();

@@ -6,20 +6,21 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 3
-Total number of samples      = 10
+Number of Columns            = 4
+Total number of samples      = 100
 
 Variables
 ---------
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x-1 - Locator = x1
 Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = Data - Locator = z1
 
 Model characteristics
 =====================
 Space dimension              = 2
 Number of variable(s)        = 1
-Number of basic structure(s) = 1
+Number of basic structure(s) = 2
 Number of drift function(s)  = 0
 Number of drift equation(s)  = 0
 
@@ -27,28 +28,30 @@ Covariance Part
 ---------------
 Matern (Third Parameter = 1)
 - Sill         =      1.000
-- Range        =     20.000
-- Theo. Range  =      5.774
-Total Sill     =      1.000
-Known Mean(s)     0.000
-
-Model characteristics
-=====================
-Space dimension              = 2
-Number of variable(s)        = 1
-Number of basic structure(s) = 1
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
-
-Covariance Part
----------------
+- Range        =      0.200
+- Theo. Range  =      0.058
 Matern (Third Parameter = 2)
 - Sill         =      1.000
-- Range        =     40.000
-- Theo. Range  =      8.165
-Total Sill     =      1.000
+- Range        =      0.400
+- Theo. Range  =      0.082
+Total Sill     =      2.000
 Known Mean(s)     0.000
-The Db is not defined
+
+RuleProp in Stationary Case
+===========================
+- Constant Proportions     0.200     0.500     0.300
+
+
+Lithotype Rule
+==============
+- Number of nodes               = 5
+- Number of facies              = 3
+- Number of thresholds along G1 = 2
+- Number of thresholds along G2 = 0
+
+Node F1 - Facies 1
+Node F2 - Facies 2
+Node F3 - Facies 3
 
 Data Base Grid Characteristics
 ==============================
@@ -67,31 +70,39 @@ Data Base Statistics
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =      0.000
- Maximum value       =    100.000
- Mean value          =     50.000
- Standard Deviation  =     29.155
- Variance            =    850.000
+ Maximum value       =      1.000
+ Mean value          =      0.500
+ Standard Deviation  =      0.292
+ Variance            =      0.085
 3 - Name x2 - Locator x2
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =      0.000
- Maximum value       =    100.000
- Mean value          =     50.000
- Standard Deviation  =     29.155
- Variance            =    850.000
-4 - Name Facies-NC - Locator NA
+ Maximum value       =      1.000
+ Mean value          =      0.500
+ Standard Deviation  =      0.292
+ Variance            =      0.085
+4 - Name SimPGSSPDE - Locator NA
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =      1.000
  Maximum value       =      3.000
- Mean value          =      2.191
- Standard Deviation  =      0.489
- Variance            =      0.239
-5 - Name Facies-CD - Locator z1
+ Mean value          =      2.192
+ Standard Deviation  =      0.690
+ Variance            =      0.476
+5 - Name SimPGSSPDE.1 - Locator NA
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =      1.000
  Maximum value       =      3.000
- Mean value          =      2.005
- Standard Deviation  =      0.773
- Variance            =      0.598
+ Mean value          =      2.187
+ Standard Deviation  =      0.727
+ Variance            =      0.529
+6 - Name SimPGSSPDE.1.1 - Locator z1
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =      1.000
+ Maximum value       =      3.000
+ Mean value          =      2.188
+ Standard Deviation  =      0.735
+ Variance            =      0.540

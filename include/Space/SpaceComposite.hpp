@@ -44,22 +44,22 @@ public:
   void setOrigin(const VectorDouble& origin) override;
 
   /// Get the number of dimensions
-  unsigned int getNDim(int ispace = -1) const override;
+  size_t getNDim(Id ispace = -1) const override;
 
   /// Get the offset index for coordinates
-  unsigned int getOffset(int ispace = -1) const override;
-  
+  size_t getOffset(Id ispace = -1) const override;
+
   /// Return the space origin coordinates
-  const VectorDouble& getOrigin(int ispace = -1) const override;
+  const VectorDouble& getOrigin(Id ispace = -1) const override;
 
   /// Get the number of space components
-  unsigned int getNComponents() const override;
+  size_t getNComponents() const override;
 
   /// Return the space component at index ispace
-  ASpaceSharedPtr getComponent(int ispace = -1) const override;
+  ASpaceSharedPtr getComponent(Id ispace = -1) const override;
 
   /// Dump a space in a string (given the space index)
-  String toString(const AStringFormat* strfmt = nullptr, int ispace = 0) const override;
+  String toString(const AStringFormat* strfmt = nullptr, Id ispace = 0) const override;
 
   /// Return true if the given space is equal to me (same dimension and space
   /// definition)
@@ -82,32 +82,32 @@ protected:
   /// Return the distance between two space points
   double _getDistance(const SpacePoint& p1,
                       const SpacePoint& p2,
-                      int ispace = -1) const override;
+                      Id ispace = -1) const override;
 
   /// Return the distance between two space points with the given tensor
   double _getDistance(const SpacePoint& p1,
                       const SpacePoint& p2,
                       const Tensor& tensor,
-                      int ispace = -1) const override;
+                      Id ispace = -1) const override;
 
   /// Return the distance in frequential domain between two space points with
   /// the given tensor
   double _getFrequentialDistance(const SpacePoint& p1,
                                  const SpacePoint& p2,
                                  const Tensor& tensor,
-                                 int ispace = -1) const override;
+                                 Id ispace = -1) const override;
 
   /// Return the increment vector between two space points for the current space
   /// context
   VectorDouble _getIncrement(const SpacePoint& p1,
                              const SpacePoint& p2,
-                             int ispace = -1) const override;
+                             Id ispace = -1) const override;
 
   /// Return the increment vector between two space points in a given vector
   void _getIncrementInPlace(const SpacePoint& p1,
                             const SpacePoint& p2,
                             VectorDouble& ptemp,
-                            int ispace = -1) const override;
+                            Id ispace = -1) const override;
 
 
 private:

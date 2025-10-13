@@ -14,10 +14,10 @@
 
 #include "geoslib_define.h"
 
-#include "Simulation/ACalcSimulation.hpp"
-#include "Simulation/SimuFFTParam.hpp"
 #include "Basic/Plane.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Simulation/ACalcSimulation.hpp"
+#include "Simulation/SimuFFTParam.hpp"
 
 namespace gstlrn
 {
@@ -29,75 +29,75 @@ class Model;
 class GSTLEARN_EXPORT CalcSimuFFT: public ACalcSimulation
 {
 public:
-  CalcSimuFFT(int nbsimu = 0, bool verbose = false, int seed = 4324324);
-  CalcSimuFFT(const CalcSimuFFT &r) = delete;
-  CalcSimuFFT& operator=(const CalcSimuFFT &r) = delete;
+  CalcSimuFFT(Id nbsimu = 0, bool verbose = false, Id seed = 4324324);
+  CalcSimuFFT(const CalcSimuFFT& r)            = delete;
+  CalcSimuFFT& operator=(const CalcSimuFFT& r) = delete;
   virtual ~CalcSimuFFT();
 
-  void setParam(const SimuFFTParam &param) { _param = param; }
+  void setParam(const SimuFFTParam& param) { _param = param; }
   void setVerbose(bool verbose) { _verbose = verbose; }
-  VectorDouble changeSupport(const VectorDouble &sigma);
+  VectorDouble changeSupport(const VectorDouble& sigma);
 
 private:
-  virtual bool _check() override;
-  virtual bool _preprocess() override;
-  virtual bool _run() override;
-  virtual bool _postprocess() override;
-  virtual void _rollback() override;
+  bool _check() override;
+  bool _preprocess() override;
+  bool _run() override;
+  bool _postprocess() override;
+  void _rollback() override;
 
   bool _simulate();
   void _alloc();
-  static int _getNOptimalEven(int number, int largeFactor = 11);
-  static VectorInt _getFactors(int number);
+  static Id _getNOptimalEven(Id number, Id largeFactor = 11);
+  static VectorInt _getFactors(Id number);
   void _gridDilate();
   bool _checkCorrect(const VectorVectorDouble& xyz,
-                     int ix,
-                     int iy,
-                     int iz,
+                     Id ix,
+                     Id iy,
+                     Id iz,
                      double percent);
   void _prepar(bool flag_amplitude, double eps = EPSILON5);
   void _defineRandom();
-  void _setVariance(int ix, int iy, int iz);
+  void _setVariance(Id ix, Id iy, Id iz);
   void _defineSymmetry(void);
   void _defineSym1();
-  void _defineSym2(int iz0);
+  void _defineSym2(Id iz0);
   void _defineSym3();
-  void _setZero(int ix, int iy, int iz);
-  void _setConjugate(int ix, int iy, int iz, int jx, int jy, int jz);
-  void _final(DbGrid *db, int iad);
+  void _setZero(Id ix, Id iy, Id iz);
+  void _setConjugate(Id ix, Id iy, Id iz, Id jx, Id jy, Id jz);
+  void _final(DbGrid* db, Id iad);
   double _support(double sigma);
   double _support1(double sigma);
   double _support2(double sigma);
   double _support3(double sigma);
-  double _rhoSigma(double sigma, int ix, int iy, int iz);
+  double _rhoSigma(double sigma, Id ix, Id iy, Id iz);
 
 private:
-  int _iattOut;
+  Id _iattOut;
   bool _verbose;
   SimuFFTParam _param;
-  int _nxyz;
+  Id _nxyz;
   VectorInt _nx;
   VectorInt _shift;
   VectorInt _dims;
   VectorInt _dim2;
-  int _sizes_alloc;
+  Id _sizes_alloc;
   VectorDouble _cmat;
   VectorDouble _rnd;
   VectorDouble _u;
   VectorDouble _v;
 };
 
-GSTLEARN_EXPORT int simfft(DbGrid *db,
-                           ModelGeneric *model,
+GSTLEARN_EXPORT Id simfft(DbGrid* db,
+                           ModelGeneric* model,
                            SimuFFTParam& param,
-                           int nbsimu = 1,
-                           int seed = 432431,
-                           int verbose = false,
+                           Id nbsimu                      = 1,
+                           Id seed                        = 432431,
+                           Id verbose                     = false,
                            const NamingConvention& namconv = NamingConvention("FFT"));
-GSTLEARN_EXPORT VectorDouble getChangeSupport(DbGrid *db,
-                                              ModelGeneric *model,
-                                              const SimuFFTParam &param,
-                                              const VectorDouble &sigma = VectorDouble(),
-                                              int seed = 14333,
-                                              bool verbose = false);
-}
+GSTLEARN_EXPORT VectorDouble getChangeSupport(DbGrid* db,
+                                              ModelGeneric* model,
+                                              const SimuFFTParam& param,
+                                              const VectorDouble& sigma = VectorDouble(),
+                                              Id seed                  = 14333,
+                                              bool verbose              = false);
+} // namespace gstlrn

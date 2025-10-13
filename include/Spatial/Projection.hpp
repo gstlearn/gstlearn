@@ -31,9 +31,9 @@ public:
 
   void operateInPlace(VectorDouble& coor) const;
   VectorDouble operateInvert(const VectorDouble& coor) const;
-  int operateVecInPlace(VectorDouble& x, VectorDouble& y) const;
-  int operateOnDb(Db *db) const;
-  int operateOnPolygons(Polygons* poly) const;
+  Id operateVecInPlace(VectorDouble& x, VectorDouble& y) const;
+  Id operateOnDb(Db *db) const;
+  Id operateOnPolygons(Polygons* poly) const;
 
   bool isFlagMean() const { return _flagMean; }
   double getXcenter() const { return _xcenter; }

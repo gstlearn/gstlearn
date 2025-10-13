@@ -31,15 +31,15 @@ public:
                        const AMatrix *y,
                        bool transposeX = false,
                        bool transposeY = false);
-  static MatrixSquare* createMatrixSquare(const MatrixSquare* x,int nrow);
+  static MatrixSquare* createMatrixSquare(const MatrixSquare* x,Id nrow);
   static AMatrix* createReduce(const AMatrix *x,
                                const VectorInt &selRows = VectorInt(),
                                const VectorInt &selCols = VectorInt(),
                                bool flagKeepRows = true,
                                bool flagKeepCols = true);
   static AMatrix* createReduceOne(const AMatrix *x,
-                                  int selRow = -1,
-                                  int selCol = -1,
+                                  Id selRow = -1,
+                                  Id selCol = -1,
                                   bool flagKeepRow = true,
                                   bool flagKeepCol = true);
   static AMatrix* createGlue(const AMatrix *a1,
@@ -70,12 +70,12 @@ T* MatrixFactory::prodMatMat(const AMatrix *x,
                              bool transposeX,
                              bool transposeY)
 {
-  T* res = new T(); /// TODO : if MatrixSparse => x or y 'eigen flag' is ignored
+  auto* res = new T();
 
-  int nxrows = (! transposeX) ? x->getNRows() : x->getNCols();
-  int nxcols = (! transposeX) ? x->getNCols() : x->getNRows();
-  int nyrows = (! transposeY) ? y->getNRows() : y->getNCols();
-  int nycols = (! transposeY) ? y->getNCols() : y->getNRows();
+  Id nxrows = (! transposeX) ? x->getNRows() : x->getNCols();
+  Id nxcols = (! transposeX) ? x->getNCols() : x->getNRows();
+  Id nyrows = (! transposeY) ? y->getNRows() : y->getNCols();
+  Id nycols = (! transposeY) ? y->getNCols() : y->getNRows();
 
   if (nxcols != nyrows)
   {

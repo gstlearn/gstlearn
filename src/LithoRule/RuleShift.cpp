@@ -74,7 +74,7 @@ RuleShift::~RuleShift()
  * @param nodes List of "integer" nodes (should only include "S", no "T")
  * @param shift Vector defining the Shift
  */
-int RuleShift::resetFromNodes(const VectorInt& nodes, const VectorDouble& shift)
+Id RuleShift::resetFromNodes(const VectorInt& nodes, const VectorDouble& shift)
 {
   _shift = shift;
   setModeRule(ERule::SHIFT);
@@ -82,7 +82,7 @@ int RuleShift::resetFromNodes(const VectorInt& nodes, const VectorDouble& shift)
   return 0;
 }
 
-int RuleShift::resetFromNames(const VectorString& nodnames, const VectorDouble& shift)
+Id RuleShift::resetFromNames(const VectorString& nodnames, const VectorDouble& shift)
 {
   _shift = shift;
   setModeRule(ERule::SHIFT);
@@ -95,7 +95,7 @@ int RuleShift::resetFromNames(const VectorString& nodnames, const VectorDouble& 
  * @param nfacies Number of facies
  * @param shift Vector defining the shift
  */
-int RuleShift::resetFromFaciesCount(int nfacies, const VectorDouble& shift)
+Id RuleShift::resetFromFaciesCount(Id nfacies, const VectorDouble& shift)
 {
   _shift = shift;
   setModeRule(ERule::SHIFT);
@@ -104,9 +104,9 @@ int RuleShift::resetFromFaciesCount(int nfacies, const VectorDouble& shift)
   return 0;
 }
 
-int RuleShift::resetFromNumericalCoding(const VectorInt& n_type,
-                                        const VectorInt& n_facs,
-                                        const VectorDouble& shift)
+Id RuleShift::resetFromNumericalCoding(const VectorInt& n_type,
+                                       const VectorInt& n_facs,
+                                       const VectorDouble& shift)
 {
   _shift = shift;
   setModeRule(ERule::SHIFT);
@@ -174,13 +174,13 @@ String RuleShift::displaySpecific() const
 ** \param[in]  flag_stat       1 for stationary; 0 otherwise
 **
 *****************************************************************************/
-int RuleShift::particularities(Db* db,
-                               const Db* /*dbprop*/,
-                               Model* model,
-                               int flag_grid_check,
-                               int /*flag_stat*/) const
+Id RuleShift::particularities(Db* db,
+                              const Db* /*dbprop*/,
+                              Model* model,
+                              Id flag_grid_check,
+                              Id /*flag_stat*/) const
 {
-  int ndim = (model != nullptr) ? model->getNDim() : 0;
+  Id ndim = (model != nullptr) ? static_cast<Id>(model->getNDim()) : 0;
   VectorDouble wxyz(ndim);
   double rhoval;
 
@@ -188,7 +188,7 @@ int RuleShift::particularities(Db* db,
 
   _xyz.resize(ndim);
   double hval = 0.;
-  for (int idim = 0; idim < ndim; idim++)
+  for (Id idim = 0; idim < ndim; idim++)
   {
     _xyz[idim] = _shift[idim];
     hval += _xyz[idim] * _xyz[idim];
@@ -197,7 +197,7 @@ int RuleShift::particularities(Db* db,
 
   /* Calculate the covariance between the two GRF */
 
-  for (int idim = 0; idim < ndim; idim++)
+  for (Id idim = 0; idim < ndim; idim++)
     wxyz[idim] = _xyz[idim];
   rhoval = model->evaluateOneIncr(hval, wxyz);
   setRho(rhoval);
@@ -208,7 +208,7 @@ int RuleShift::particularities(Db* db,
   return (0);
 }
 
-int RuleShift::_st_shift_on_grid(Db* db, int ndim, int flag_grid_check) const
+Id RuleShift::_st_shift_on_grid(Db* db, Id ndim, Id flag_grid_check) const
 {
   _xyz.resize(ndim);
   _ind1.resize(ndim);
@@ -221,15 +221,15 @@ int RuleShift::_st_shift_on_grid(Db* db, int ndim, int flag_grid_check) const
     return (1);
   }
 
-  for (int idim = 0; idim < ndim; idim++)
+  for (Id idim = 0; idim < ndim; idim++)
     _xyz[idim] = _shift[idim] + dbgrid->getX0(idim);
 
   (void)point_to_grid(dbgrid, _xyz.data(), -1, _ind1.data());
 
   /* Check that the translation is significant */
 
-  int ntot = 0;
-  for (int idim = 0; idim < ndim; idim++)
+  Id ntot = 0;
+  for (Id idim = 0; idim < ndim; idim++)
     ntot += ABS(_ind1[idim]);
   if (ntot <= 0)
   {
@@ -240,7 +240,7 @@ int RuleShift::_st_shift_on_grid(Db* db, int ndim, int flag_grid_check) const
   return (0);
 }
 
-bool RuleShift::checkModel(const Model* model, int nvar) const
+bool RuleShift::checkModel(const Model* model, Id nvar) const
 {
   if (model == nullptr)
   {
@@ -273,14 +273,14 @@ bool RuleShift::checkModel(const Model* model, int nvar) const
 ** \remark Attributes ELoc::FACIES and ELoc::SIMU are mandatory
 **
 *****************************************************************************/
-int RuleShift::gaus2facResult(PropDef* propdef,
-                              Db* dbout,
-                              int* /*flag_used*/,
-                              int ipgs,
-                              int isimu,
-                              int nbsimu) const
+Id RuleShift::gaus2facResult(PropDef* propdef,
+                             Db* dbout,
+                             Id* /*flag_used*/,
+                             Id ipgs,
+                             Id isimu,
+                             Id nbsimu) const
 {
-  int ndim, iech, jech, idim, igrf, icase;
+  Id ndim, iech, jech, idim, igrf, icase;
   double t1min, t1max, t2min, t2max, facies, y[2];
 
   /* Initializations */
@@ -340,15 +340,15 @@ int RuleShift::gaus2facResult(PropDef* propdef,
 ** \param[in]  nbsimu     Number of simulations (if EProcessOper::CONDITIONAL)
 **
 *****************************************************************************/
-int RuleShift::evaluateBounds(PropDef* propdef,
-                              Db* dbin,
-                              Db* dbout,
-                              int isimu,
-                              int igrf,
-                              int ipgs,
-                              int nbsimu) const
+Id RuleShift::evaluateBounds(PropDef* propdef,
+                             Db* dbin,
+                             Db* dbout,
+                             Id isimu,
+                             Id igrf,
+                             Id ipgs,
+                             Id nbsimu) const
 {
-  int iech, jech, nadd, nech, idim, facies;
+  Id iech, jech, nadd, nech, idim, facies;
   double t1min, t1max, t2min, t2max, s1min, s1max, s2min, s2max;
 
   /* Initializations */
@@ -366,7 +366,7 @@ int RuleShift::evaluateBounds(PropDef* propdef,
   {
     /* Convert the proportions into thresholds for data point */
     if (!dbin->isActive(iech)) continue;
-    facies = (int)dbin->getZVariable(iech, 0);
+    facies = static_cast<Id>(dbin->getZVariable(iech, 0));
     if (rule_thresh_define(propdef, dbin, this, facies, iech, isimu, nbsimu, 1,
                            &t1min, &t1max, &t2min, &t2max)) return (1);
     dbin->setLocVariable(ELoc::L, iech, get_rank_from_propdef(propdef, ipgs, igrf),
@@ -420,7 +420,7 @@ int RuleShift::evaluateBounds(PropDef* propdef,
 RuleShift* RuleShift::createFromNodes(const VectorInt& nodes,
                                       const VectorDouble& shift)
 {
-  RuleShift* ruleshift = new RuleShift();
+  auto* ruleshift = new RuleShift();
   if (ruleshift->resetFromNodes(nodes, shift))
   {
     messerr("Problem when creating RuleShift from Nodes");
@@ -432,7 +432,7 @@ RuleShift* RuleShift::createFromNodes(const VectorInt& nodes,
 RuleShift* RuleShift::createFromNames(const VectorString& nodnames,
                                       const VectorDouble& shift)
 {
-  RuleShift* ruleshift = new RuleShift();
+  auto* ruleshift = new RuleShift();
   if (ruleshift->resetFromNames(nodnames, shift))
   {
     messerr("Problem when creating RuleShift from Node Names");
@@ -441,10 +441,10 @@ RuleShift* RuleShift::createFromNames(const VectorString& nodnames,
   }
   return ruleshift;
 }
-RuleShift* RuleShift::createFromFaciesCount(int nfacies,
+RuleShift* RuleShift::createFromFaciesCount(Id nfacies,
                                             const VectorDouble& shift)
 {
-  RuleShift* ruleshift = new RuleShift();
+  auto* ruleshift = new RuleShift();
   if (ruleshift->resetFromFaciesCount(nfacies, shift))
   {
     messerr("Problem when creating RuleShift from Count of Facies");
@@ -457,7 +457,7 @@ RuleShift* RuleShift::createFromNumericalCoding(const VectorInt& n_type,
                                                 const VectorInt& n_facs,
                                                 const VectorDouble& shift)
 {
-  RuleShift* ruleshift = new RuleShift();
+  auto* ruleshift = new RuleShift();
   if (ruleshift->resetFromNumericalCoding(n_type, n_facs, shift))
   {
     messerr("Problem when creating RuleShift from Numerical Coding");

@@ -8,11 +8,11 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "LinearOp/OptimCostBinary.hpp"
 #include "LinearOp/OptimCostColored.hpp"
-#include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "LinearOp/OptimCostBinary.hpp"
 
 namespace gstlrn
 {
@@ -24,41 +24,40 @@ OptimCostColored::OptimCostColored()
 {
 }
 
-OptimCostColored::OptimCostColored(int nprop,
+OptimCostColored::OptimCostColored(Id nprop,
                                    PrecisionOp* pmat,
                                    const ProjMatrix* projdata,
                                    const ProjMatrix* projseis,
                                    const VectorDouble& propseis,
                                    const VectorDouble& varseis)
-    : OptimCostBinary(),
-      _nprop(0),
-      _splits(),
-      _meanProps()
+  : OptimCostBinary()
+  , _nprop(0)
+  , _splits()
+  , _meanProps()
 {
-  reset(nprop,pmat,projdata,projseis,propseis,varseis);
+  reset(nprop, pmat, projdata, projseis, propseis, varseis);
 }
 
-OptimCostColored::OptimCostColored(const OptimCostColored &m)
-    : OptimCostBinary(),
-      _nprop(m._nprop),
-      _splits(m._splits),
-      _meanProps(m._meanProps)
+OptimCostColored::OptimCostColored(const OptimCostColored& m)
+  : OptimCostBinary(m)
+  , _nprop(m._nprop)
+  , _splits(m._splits)
+  , _meanProps(m._meanProps)
 {
-
 }
 
-OptimCostColored& OptimCostColored::operator= (const OptimCostColored &m)
+OptimCostColored& OptimCostColored::operator=(const OptimCostColored& m)
 {
   if (this != &m)
   {
-    _nprop = m._nprop;
-    _splits = m._splits;
+    _nprop     = m._nprop;
+    _splits    = m._splits;
     _meanProps = m._meanProps;
   }
   return *this;
 }
 
-OptimCostColored::~OptimCostColored() 
+OptimCostColored::~OptimCostColored()
 {
 }
 
@@ -74,20 +73,20 @@ OptimCostColored::~OptimCostColored()
 ** \param[in]  varseis  Array of variance attached to the seismic
 **
 *****************************************************************************/
-void OptimCostColored::reset(int                 nprop,
-                            PrecisionOp*  		  pmat,
-                            const ProjMatrix*   projdata,
-                            const ProjMatrix*   projseis,
-                            const VectorDouble& propseis,
-                            const VectorDouble& varseis)
+void OptimCostColored::reset(Id nprop,
+                             PrecisionOp* pmat,
+                             const ProjMatrix* projdata,
+                             const ProjMatrix* projseis,
+                             const VectorDouble& propseis,
+                             const VectorDouble& varseis)
 {
   // Assignment of pointers
-  _nprop  = nprop;
-  VH::fill(_meanProps, 1./_nprop, _nprop);
+  _nprop = nprop;
+  VH::fill(_meanProps, 1. / _nprop, _nprop);
   _splits = initSplit(_nprop);
-  
+
   // Pass arguments to the OptimCostBinary class
-  
+
   OptimCostBinary::reset(pmat, projdata, projseis, propseis, varseis);
 }
 
@@ -113,10 +112,10 @@ VectorVectorDouble OptimCostColored::minimize(const VectorDouble& facies,
                                               const VectorVectorInt& splits,
                                               const VectorDouble& meanprops,
                                               bool verbose,
-                                              int maxiter,
+                                              Id maxiter,
                                               double eps)
 {
-  VectorDouble indic,propfac;
+  VectorDouble indic, propfac;
   VectorVectorDouble propfacs;
 
   // Initialization
@@ -126,55 +125,55 @@ VectorVectorDouble OptimCostColored::minimize(const VectorDouble& facies,
   // Check the mean proportions
   if (_checkMeanProportions(meanprops)) return propfacs;
 
-  try 
+  try
   {
-    if (! isInitialized()) 
+    if (!isInitialized())
       my_throw("'OptimCostColored' must be initialized beforehand");
-    int npoint  = getNPoint();
-    int nvertex = getNVertex();
-    int nlevel  = _nprop - 1;
+    auto npoint  = getNPoint();
+    auto nvertex = getNVertex();
+    Id nlevel    = _nprop - 1;
     propfacs.resize(_nprop, VectorDouble(nvertex, 0));
 
     // Optional printout
     if (verbose)
     {
-      message("Number of points   = %d\n",npoint);
-      message("Number of vertices = %d\n",nvertex);
-      message("Number of facies   = %d\n",_nprop);
-      message("Number of levels   = %d\n",nlevel);
+      message("Number of points   = %d\n", npoint);
+      message("Number of vertices = %d\n", nvertex);
+      message("Number of facies   = %d\n", _nprop);
+      message("Number of levels   = %d\n", nlevel);
       printSplits();
     }
 
-     // Local Core allocation
+    // Local Core allocation
 
     indic.resize(npoint);
     propfac.resize(nvertex);
 
-    for (int level=0; level<nlevel; level++)
+    for (Id level = 0; level < nlevel; level++)
     {
-      if (verbose) message("\nProcessing Level %d/%d\n",level+1,nlevel);
+      if (verbose) message("\nProcessing Level %d/%d\n", level + 1, nlevel);
 
       // Cancel the Seismic for level higher than the first one
       toggleSeismic(level == 0);
 
       // Get the active facies at samples
-      _getFaciesToIndic(facies,_splits[level],indic);
+      _getFaciesToIndic(facies, _splits[level], indic);
 
       // Set the proportion of the active facies
       if (setMeanProportion(_getFaciesToProportion(_splits[level])))
         my_throw("Error in '_getFaciesToProportion'");
 
       // Perform the minimization
-      propfac = OptimCostBinary::minimize(indic,verbose,maxiter,eps);
+      propfac = OptimCostBinary::minimize(indic, verbose, maxiter, eps);
       if (propfac.empty())
         my_throw("Error in 'OptimCostBinary'");
 
       // Convert the results into conditional proportions
-      for (int ip=0; ip<_nprop; ip++)
-        _copyMultProportions(level,ip,propfac,propfacs);
+      for (Id ip = 0; ip < _nprop; ip++)
+        _copyMultProportions(level, ip, propfac, propfacs);
     }
   }
-  catch(const std::string& str)
+  catch (const std::string& str)
   {
     // TODO : Check if std::exception can be used
     messerr("%s", str.c_str());
@@ -190,24 +189,24 @@ VectorVectorDouble OptimCostColored::minimize(const VectorDouble& facies,
  * @param indic  Array of output indicator values
  */
 void OptimCostColored::_getFaciesToIndic(const VectorDouble& facies,
-                                         const VectorInt&    split,
+                                         const VectorInt& split,
                                          VectorDouble& indic) const
 {
-  int facloc;
-  int npoint = getNPoint();
-  
-  for (int i=0; i<npoint; i++)
+  Id facloc;
+  auto npoint = getNPoint();
+
+  for (Id i = 0; i < npoint; i++)
   {
-    facloc = static_cast<int> (facies[i]);
+    facloc   = static_cast<Id>(facies[i]);
     indic[i] = TEST;
     if (facloc < 1 || facloc > _nprop) continue;
 
-    if (split[facloc-1] == 1)
+    if (split[facloc - 1] == 1)
     {
       // When facies corresponds to split==1, set indic to 0
       indic[i] = 0;
     }
-    else if (split[facloc-1] == 2)
+    else if (split[facloc - 1] == 2)
     {
       // When facies corresponds to split==2, set indic to 1
       indic[i] = 1;
@@ -234,14 +233,14 @@ double OptimCostColored::_getFaciesToProportion(const VectorInt& split) const
 {
   double sum1 = 0.;
   double sum2 = 0.;
-  for (int ip=0; ip<_nprop; ip++)
+  for (Id ip = 0; ip < _nprop; ip++)
   {
     if (split[ip] == 1)
       sum1 += _meanProps[ip];
     else if (split[ip] == 2)
       sum2 += _meanProps[ip];
   }
-  return(sum2 / (sum1 + sum2));
+  return (sum2 / (sum1 + sum2));
 }
 
 /*****************************************************************************/
@@ -254,22 +253,22 @@ double OptimCostColored::_getFaciesToProportion(const VectorInt& split) const
 **                        (Dimension: npoint)
 **
 *****************************************************************************/
-int OptimCostColored::_checkFacies(const VectorDouble& facies) const
+Id OptimCostColored::_checkFacies(const VectorDouble& facies) const
 {
-  int npoint = getNPoint();
+  auto npoint = getNPoint();
 
-  int nerr = 0;
-  for (int i=0; i<npoint; i++)
+  Id nerr = 0;
+  for (Id i = 0; i < npoint; i++)
   {
     if (FFFF(facies[i])) continue;
-    if (facies[i] < 1 || facies[i] > _nprop) 
+    if (facies[i] < 1 || facies[i] > _nprop)
     {
       messerr("Error: At sample #%d - Facies (%d) should be in [1,%d]",
-              i+1,(int) facies[i],_nprop);
+              i + 1, static_cast<Id>(facies[i]), _nprop);
       nerr++;
     }
   }
-  return(nerr > 0);
+  return (nerr > 0);
 }
 
 /*****************************************************************************/
@@ -279,16 +278,16 @@ int OptimCostColored::_checkFacies(const VectorDouble& facies) const
 *****************************************************************************/
 void OptimCostColored::printSplits(const VectorVectorInt& splits) const
 {
-  int nlevel = _nprop - 1;
+  Id nlevel = _nprop - 1;
 
   if (splits.empty())
   {
-    for (int level = 0; level < nlevel; level++)
-      VH::dump(String(),_splits[level]);
+    for (Id level = 0; level < nlevel; level++)
+      VH::dump(String(), _splits[level]);
   }
   else
   {
-    for (int level = 0; level < nlevel; level++)
+    for (Id level = 0; level < nlevel; level++)
       VH::dump(String(), splits[level]);
   }
 }
@@ -303,21 +302,21 @@ void OptimCostColored::printSplits(const VectorVectorInt& splits) const
 **                        (Dimension: nfacies * (nfacies-1))
 **
 *****************************************************************************/
-int OptimCostColored::_checkSplits(const VectorVectorInt& splits)
+Id OptimCostColored::_checkSplits(const VectorVectorInt& splits)
 {
   if (splits.empty()) return 0;
-  int nlevel = _nprop - 1;
+  Id nlevel = _nprop - 1;
 
   // Check that split values are 0, 1 or 2 only
-  int nerr = 0;
-  for (int level = 0; level < nlevel; level++)
+  Id nerr = 0;
+  for (Id level = 0; level < nlevel; level++)
   {
-    for (int ip=0; ip <_nprop; ip++)
+    for (Id ip = 0; ip < _nprop; ip++)
     {
       if (splits[level][ip] != 0 && splits[level][ip] != 1 && splits[level][ip] != 2)
       {
         messerr("For Level=%d/%d and Facies=%d/%d, argument 'splits' is invalid (%d)",
-                level+1,nlevel,ip+1,_nprop,splits[level][ip]);
+                level + 1, nlevel, ip + 1, _nprop, splits[level][ip]);
         messerr("       It should be either 0, 1 or 2");
         nerr++;
       }
@@ -327,22 +326,22 @@ int OptimCostColored::_checkSplits(const VectorVectorInt& splits)
 
   // The first level should only contain 1 and 2
 
-  for (int ip=0; ip <_nprop; ip++)
+  for (Id ip = 0; ip < _nprop; ip++)
     if (splits[0][ip] != 1 && splits[0][ip] != 2)
     {
-      messerr("SPLIT(1,%d) is incorrect (%d)",ip+1);
+      messerr("SPLIT(1,%d) is incorrect (%d)", ip + 1);
       messerr("It should either 1 or 2");
       nerr++;
-    }      
+    }
   if (nerr > 0) goto label_error;
 
   // Each level must have at least a 1 and a 2
 
-  for (int level = 0; level < nlevel; level++)
+  for (Id level = 0; level < nlevel; level++)
   {
-    int none = 0;
-    int ntwo = 0;
-    for (int ip=0; ip <_nprop; ip++)
+    Id none = 0;
+    Id ntwo = 0;
+    for (Id ip = 0; ip < _nprop; ip++)
     {
       if (splits[level][ip] == 0) continue;
       if (splits[level][ip] == 1)
@@ -353,7 +352,7 @@ int OptimCostColored::_checkSplits(const VectorVectorInt& splits)
     if (none <= 0 || ntwo <= 0)
     {
       messerr("At level #%d, there must be at least a 1 and a 2",
-              level+1);
+              level + 1);
       nerr++;
     }
   }
@@ -361,20 +360,20 @@ int OptimCostColored::_checkSplits(const VectorVectorInt& splits)
 
   // All non-zero of level L should have same value at level L-1
 
-  for (int level = 1; level < nlevel; level++)
+  for (Id level = 1; level < nlevel; level++)
   {
-    int previous = -1;
-    for (int ip = 0; ip <_nprop; ip++)
+    Id previous = -1;
+    for (Id ip = 0; ip < _nprop; ip++)
     {
       if (splits[level][ip] == 0) continue;
       if (previous < 0)
-        previous = splits[level-1][ip];
+        previous = splits[level - 1][ip];
       else
       {
-        if (previous != splits[level-1][ip])
+        if (previous != splits[level - 1][ip])
         {
           messerr("Non-zero values at level #%d should share same value previous level",
-                  level+1);
+                  level + 1);
           nerr++;
         }
       }
@@ -403,11 +402,11 @@ label_error:
 ** \param[in]  meanprops  Array of mean of proportions (Dimension: nfacies)
 **
 *****************************************************************************/
-int OptimCostColored::_checkMeanProportions(const VectorDouble& meanprops)
+Id OptimCostColored::_checkMeanProportions(const VectorDouble& meanprops)
 {
   if (meanprops.empty()) return 0;
   double total = 0.;
-  for (int ip=0; ip<_nprop; ip++)
+  for (Id ip = 0; ip < _nprop; ip++)
     total += meanprops[ip];
   if (ABS(total - 1.) > 1.e-4)
   {
@@ -432,33 +431,33 @@ int OptimCostColored::_checkMeanProportions(const VectorDouble& meanprops)
 **                        (Dimension: nvertex * _nprop)
 **
 *****************************************************************************/
-void OptimCostColored::_copyMultProportions(int level,
-                                            int ip,
+void OptimCostColored::_copyMultProportions(Id level,
+                                            Id ip,
                                             const VectorDouble& propfac,
                                             VectorVectorDouble& propfacs)
 {
-  int nvertex = getNVertex();
-  int mode = _splits[level][ip];
+  auto nvertex = getNVertex();
+  Id mode      = _splits[level][ip];
   if (mode == 0) return;
 
   if (level == 0)
   {
     if (mode == 2)
-      for (int ivert=0; ivert<nvertex; ivert++)
+      for (Id ivert = 0; ivert < nvertex; ivert++)
         propfacs[ip][ivert] = propfac[ivert];
     else
-      for (int ivert=0; ivert<nvertex; ivert++)
+      for (Id ivert = 0; ivert < nvertex; ivert++)
         propfacs[ip][ivert] = 1. - propfac[ivert];
   }
   else
   {
     if (mode == 2)
-      for (int ivert=0; ivert<nvertex; ivert++)
+      for (Id ivert = 0; ivert < nvertex; ivert++)
         propfacs[ip][ivert] *= propfac[ivert];
     else
-      for (int ivert=0; ivert<nvertex; ivert++)
+      for (Id ivert = 0; ivert < nvertex; ivert++)
         propfacs[ip][ivert] *= 1. - propfac[ivert];
-  }                                       
+  }
 }
 
 /**
@@ -467,16 +466,16 @@ void OptimCostColored::_copyMultProportions(int level,
  * @param verbose Verbose flag
  * @return For each level, Vector of regrouped facies
  */
-VectorVectorInt OptimCostColored::initSplit(int nfacies, bool verbose) const
+VectorVectorInt OptimCostColored::initSplit(Id nfacies, bool verbose) const
 {
-  int nlevel = nfacies - 1;
+  Id nlevel = nfacies - 1;
 
   VectorVectorInt splits;
   splits.resize(nlevel, VectorInt(nfacies, 0));
 
-  for (int ilevel = 0; ilevel < nlevel; ilevel++)
+  for (Id ilevel = 0; ilevel < nlevel; ilevel++)
   {
-    for (int ifacies = 0; ifacies < nfacies; ifacies++)
+    for (Id ifacies = 0; ifacies < nfacies; ifacies++)
     {
       if (ifacies > nfacies - ilevel - 1) continue;
       if (ifacies == nfacies - ilevel - 1)
@@ -490,4 +489,4 @@ VectorVectorInt OptimCostColored::initSplit(int nfacies, bool verbose) const
 
   return splits;
 }
-}
+} // namespace gstlrn

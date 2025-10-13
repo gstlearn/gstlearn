@@ -76,12 +76,14 @@ jobs:
       run: |
         echo "/opt/python/${{ matrix.python }}/bin" >> $GITHUB_PATH
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v4
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        python-version: ${{env.PYTHON_VERSION}}
+        activate-environment: true
 
     - name: Install Python dependencies
       run: |
-        uv venv
         uv pip install numpy
 
     - name: Build & install NLopt static libraries
@@ -92,7 +94,7 @@ jobs:
 
     - name : Configure build directory
       run : |
-        uv run cmake \
+        cmake \
           -B${{ env.BUILD_DIR }} \
           -DHDF5_USE_STATIC_LIBRARIES=ON \
           -DBUILD_PYTHON=ON \
@@ -150,20 +152,23 @@ jobs:
       run: |
         echo "/opt/python/${{ matrix.python }}/bin" >> $GITHUB_PATH
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v4
+    - name: Setup uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        python-version: ${{env.PYTHON_VERSION}}
+        activate-environment: true
 
     - name: Install Python package
       run: |
-        uv venv
         uv pip install "./$(ls *.whl)[conv]"
 
     - name: Test installed Python package
       run: |
-        uv run python -c 'import gstlearn as gl; gl.acknowledge_gstlearn()'
-        uv run python tests/py/test_Arguments.py
-        uv run python tests/py/test_Assessors.py
-        uv run python tests/py/test_Matrix.py
+        python -c 'import gstlearn as gl; gl.acknowledge_gstlearn()'
+        python tests/py/test_Arguments.py
+        python tests/py/test_Assessors.py
+        python tests/py/test_Matrix.py
+        python tests/py/test_h5.py
 
   publish:
     needs: test

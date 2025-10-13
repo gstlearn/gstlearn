@@ -25,26 +25,26 @@ public:
   virtual ~FracDesc();
 
   /// Interface for AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int getNPoint() const { return (int) _x.size(); }
+  Id getNPoint() const { return static_cast<Id>(_x.size()); }
 
-  int getFamily() const { return _family; }
-  void setFamily(int family) { _family = family; }
+  Id getFamily() const { return _family; }
+  void setFamily(Id family) { _family = family; }
   double getOrient() const { return _orient; }
   void setOrient(double orient) { _orient = orient; }
-  double getXXF(int i) const { return _x[i]; }
-  double getYYF(int i) const { return _y[i]; }
-  void setXXF(int i, double value) { _x[i] = value; }
-  void setYYF(int i, double value) { _y[i] = value; }
+  double getXXF(Id i) const { return _x[i]; }
+  double getYYF(Id i) const { return _y[i]; }
+  void setXXF(Id i, double value) { _x[i] = value; }
+  void setYYF(Id i, double value) { _y[i] = value; }
 
   void addPoint(double x, double y);
   double fractureExtension(double cote, double dcote) const;
 
 private:
-  int _family;
+  Id _family;
   double _orient;
   VectorDouble _x;
   VectorDouble _y;
 };
-}
+} // namespace gstlrn

@@ -14,7 +14,7 @@
 namespace gstlrn
 {
 
-ACalcSimulation::ACalcSimulation(int nbsimu, int seed)
+ACalcSimulation::ACalcSimulation(Id nbsimu, Id seed)
   : ACalcInterpolator()
   , _nbsimu(nbsimu)
   , _seed(seed)

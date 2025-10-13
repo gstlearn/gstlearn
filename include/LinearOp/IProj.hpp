@@ -19,33 +19,43 @@ class GSTLEARN_EXPORT IProj
 public:
   IProj() { }
   virtual ~IProj() { }
-  int point2mesh(const VectorDouble& inv, VectorDouble& outv) const;
-  int mesh2point(const VectorDouble& inv, VectorDouble& outv) const;
+  VectorDouble point2mesh(const VectorDouble& inv) const;
+  VectorDouble mesh2point(const VectorDouble& inv) const;
+  Id point2mesh(const VectorDouble& inv, VectorDouble& outv) const;
+  Id mesh2point(const VectorDouble& inv, VectorDouble& outv) const;
 #ifndef SWIG
-  int point2mesh(const constvect inv, vect out) const;
-  int mesh2point(const constvect inv, vect out) const;
+  Id point2mesh(const constvect inv, vect out) const;
+  Id mesh2point(const constvect inv, vect out) const;
 #endif
 
-  virtual int getNApex() const = 0;
-  virtual int getNPoint() const = 0;
+  virtual Id getNApex() const = 0;
+  virtual Id getNPoint() const = 0;
+
 
 #ifndef SWIG
-  int addMesh2point(const constvect inv, vect outv) const;
-  int addPoint2mesh(const constvect inv, vect outv) const;
+  Id addMesh2point(const constvect inv, vect outv) const;
+  Id addPoint2mesh(const constvect inv, vect outv) const;
+  void mesh2point2mesh(const constvect inv, vect outv) const;
+  void point2mesh2point(const constvect inv, vect outv) const;
 
 protected:
-  virtual int _addPoint2mesh(const constvect inv, vect outv) const
+  virtual Id _addPoint2mesh(const constvect inv, vect outv) const
   {
     DECLARE_UNUSED(inv);
     DECLARE_UNUSED(outv);
     return 1;
   }
-  virtual int _addMesh2point(const constvect inv, vect outv) const
+  virtual Id _addMesh2point(const constvect inv, vect outv) const
   {
     DECLARE_UNUSED(inv);
     DECLARE_UNUSED(outv);
     return 1;
   }
   #endif
+
+private:
+  mutable VectorDouble _workpoint;
+  mutable VectorDouble _workmesh;
+
 };
 }

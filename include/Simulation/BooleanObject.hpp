@@ -34,20 +34,20 @@ public:
   virtual ~BooleanObject();
 
   /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  void setMode(int mode) { _mode = mode; }
+  void setMode(Id mode) { _mode = mode; }
   void setOrientation(double orientation) { _orientation = orientation; }
-  void setCenter(int idim, double value) { _center[idim] = value; }
+  void setCenter(Id idim, double value) { _center[idim] = value; }
   void setCenter(const VectorDouble& center);
-  void setExtension(int idim, double value) { _extension[idim] = value; }
-  void setValue(int rank, double value) { _values[rank] = value; }
+  void setExtension(Id idim, double value) { _extension[idim] = value; }
+  void setValue(Id rank, double value) { _values[rank] = value; }
 
-  int getMode() const { return _mode; }
-  double getCenter(int idim) const { return _center[idim]; }
-  double getExtension(int idim) const { return _extension[idim]; }
+  Id getMode() const { return _mode; }
+  double getCenter(Id idim) const { return _center[idim]; }
+  double getExtension(Id idim) const { return _extension[idim]; }
   double getOrientation() const { return _orientation; }
-  double getValue(int rank) const { return _values[rank]; }
+  double getValue(Id rank) const { return _values[rank]; }
   const AShape* getToken() const { return _token; }
 
   static BooleanObject* generate(const DbGrid* dbout,
@@ -58,13 +58,13 @@ public:
 
   bool isCompatiblePore(const Db* db);
   bool isCompatibleGrainAdd(const Db* db);
-  bool isCompatibleGrainDelete(const Db* db, int iptr_cover);
+  bool isCompatibleGrainDelete(const Db* db, Id iptr_cover);
   void projectToGrid(DbGrid* dbout,
-                     int iptr_simu,
-                     int iptr_rank,
-                     int facies,
-                     int rank);
-  int  coverageUpdate(Db* db, int iptr_cover, int val);
+                     Id iptr_simu,
+                     Id iptr_rank,
+                     Id facies,
+                     Id rank);
+  Id  coverageUpdate(Db* db, Id iptr_cover, Id val);
   VectorDouble getValues() const;
 
 private:
@@ -72,21 +72,21 @@ private:
                               const ModelBoolean* tokens,
                               const VectorDouble& coor,
                               double eps = EPSILON3);
-  static bool _isPore(const Db* db, int iech);
-  static bool _isGrain(const Db* db, int iech);
+  static bool _isPore(const Db* db, Id iech);
+  static bool _isGrain(const Db* db, Id iech);
   void _defineBoundingBox(double eps = EPSILON3);
   void _extensionLinkage();
-  bool _isInObject(const VectorDouble& coor, int ndim);
+  bool _isInObject(const VectorDouble& coor, Id ndim);
 
-  bool _isInBoundingBox(const VectorDouble& coor, int ndim);
-  static int  _getCoverageAtSample(const Db* db, int iptr_cover, int iech);
-  static void _updateCoverageAtSample(Db* db, int iptr_cover, int iech, int ival);
+  bool _isInBoundingBox(const VectorDouble& coor, Id ndim);
+  static Id  _getCoverageAtSample(const Db* db, Id iptr_cover, Id iech);
+  static void _updateCoverageAtSample(Db* db, Id iptr_cover, Id iech, Id ival);
   static void _drawCoordinate(const DbGrid *dbout,
                               const SimuBooleanParam& boolparam,
                               VectorDouble& coor);
 
 private:
-  int _mode;                // 1 for Primary; 2 for Secondary object
+  Id _mode;                // 1 for Primary; 2 for Secondary object
   const AShape* _token;     // Token to which the Object belongs
   std::array<double, 3> _center;     // Coordinates of the center of the object
   std::array<double, 3> _extension;  // Extension of the object

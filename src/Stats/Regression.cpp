@@ -64,13 +64,13 @@ String Regression::toString(const AStringFormat* strfmt) const
   sstr << toTitle(1, "Linear Regression");
   sstr << "- Calculated on " << _count << " active values" << std::endl;
 
-  int ecr = 0;
-  int nvar = _nvar;
+  Id ecr = 0;
+  Id nvar = _nvar;
   if (_flagCst) nvar--;
 
   if (_flagCst)
     sstr << "- Constant term           = " << _coeffs[ecr++] << std::endl;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (Id ivar = 0; ivar < nvar; ivar++)
     sstr << "- Explanatory Variable #" << ivar+1 << " = " << _coeffs[ecr++] << std::endl;
 
   sstr << "- Initial variance        = " << _variance << std::endl;
@@ -80,14 +80,14 @@ String Regression::toString(const AStringFormat* strfmt) const
 }
 
 bool _regressionCheck(Db *db1,
-                      int icol0,
+                      Id icol0,
                       const VectorInt &icols,
-                      int mode,
+                      Id mode,
                       Db *db2,
                       const Model *model)
 {
-  int ncol = (int) icols.size();
-  int nfex = db2->getNLoc(ELoc::F);
+  Id ncol = static_cast<Id>(icols.size());
+  Id nfex = db2->getNLoc(ELoc::F);
 
   switch (mode)
   {
@@ -97,7 +97,7 @@ bool _regressionCheck(Db *db1,
         messerr("The regression requires a valid target variable");
         return false;
       }
-      for (int icol = 0; icol < ncol; icol++)
+      for (Id icol = 0; icol < ncol; icol++)
       {
         if (icols[icol] < 0 || icols[icol] >= db2->getNUIDMax())
         {
@@ -135,25 +135,25 @@ bool _regressionCheck(Db *db1,
 
 bool _regressionLoad(Db *db1,
                      Db *db2,
-                     int iech,
-                     int icol0,
+                     Id iech,
+                     Id icol0,
                      const VectorInt &icols,
-                     int mode,
-                     int flagCst,
+                     Id mode,
+                     Id flagCst,
                      const Model *model,
                      double *value,
                      VectorDouble &x)
 {
-  int nfex = 0;
-  int nbfl = 0;
+  Id nfex = 0;
+  Id nbfl = 0;
 
-  int ecr  = 0;
+  Id ecr  = 0;
   switch (mode)
   {
     case 0:
       *value = db1->getArray(iech, icol0);
       if (flagCst) x[ecr++] = 1.;
-      for (int icol = 0; icol < (int) icols.size(); icol++)
+      for (Id icol = 0; icol < static_cast<Id>(icols.size()); icol++)
         x[ecr++] = db2->getArray(iech, icols[icol]);
       break;
 
@@ -161,20 +161,20 @@ bool _regressionLoad(Db *db1,
       nfex = db2->getNLoc(ELoc::F);
       *value = db1->getZVariable(iech, 0);
       if (flagCst) x[ecr++] = 1.;
-      for (int i = 0; i < nfex; i++)
+      for (Id i = 0; i < nfex; i++)
         x[ecr++] = db2->getLocVariable(ELoc::F,iech, i);
       break;
 
     case 2:
       nbfl = model->getNDrift();
       *value = db1->getZVariable(iech, 0);
-      for (int i = 0; i < nbfl; i++)
+      for (Id i = 0; i < nbfl; i++)
          x[ecr++] = model->evalDrift(db2, iech, i, ECalcMember::LHS);
       break;
   }
 
   bool flagTest = false;
-  for (int i = 0; i < (int) x.size() && !flagTest; i++)
+  for (Id i = 0; i < static_cast<Id>(x.size()) && !flagTest; i++)
     flagTest = FFFF(x[i]);
   return (FFFF(*value) || flagTest);
 }
@@ -195,23 +195,23 @@ VectorDouble regressionDeming(const VectorDouble &x,
                               double delta)
 {
   VectorDouble beta(2,TEST);
-  int nech = (int) x.size();
+  Id nech = static_cast<Id>(x.size());
   if (nech <= 1) return beta;
 
   double xmean = 0.;
   double ymean = 0.;
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     xmean += x[iech];
     ymean += y[iech];
   }
-  xmean /= (double) nech;
-  ymean /= (double) nech;
+  xmean /= static_cast<double>(nech);
+  ymean /= static_cast<double>(nech);
 
   double sxx = 0.;
   double sxy = 0.;
   double syy = 0.;
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     double deltax = (x[iech] - xmean);
     double deltay = (y[iech] - ymean);
@@ -219,9 +219,9 @@ VectorDouble regressionDeming(const VectorDouble &x,
     sxy += deltax * deltay;
     syy += deltay * deltay;
   }
-  sxx /= (double) nech;
-  sxy /= (double) nech;
-  syy /= (double) nech;
+  sxx /= static_cast<double>(nech);
+  sxy /= static_cast<double>(nech);
+  syy /= static_cast<double>(nech);
 
   double T = syy - delta * sxx;
   beta[1] = (T + sqrt(T * T + 4. * delta * sxy * sxy)) / (2. * sxy);
@@ -254,7 +254,7 @@ VectorDouble regressionDeming(const VectorDouble &x,
 Regression regression(Db *db1,
                       const String &nameResp,
                       const VectorString &nameAux,
-                      int mode,
+                      Id mode,
                       bool flagCst,
                       Db *db2,
                       const Model *model)
@@ -264,13 +264,13 @@ Regression regression(Db *db1,
   if (db1 == nullptr) return regr;
   if (db2 == nullptr) db2 = db1;
 
-  int icol0 = db1->getUID(nameResp);
+  Id icol0 = db1->getUID(nameResp);
   VectorInt icols = db2->getUIDs(nameAux);
 
-  int nfex = db2->getNLoc(ELoc::F);
-  int nech = db1->getNSample();
-  int ncol = (int) icols.size();
-  int size = 0;
+  Id nfex = db2->getNLoc(ELoc::F);
+  Id nech = db1->getNSample();
+  Id ncol = static_cast<Id>(icols.size());
+  Id size = 0;
   switch (mode)
   {
     case 0:
@@ -298,12 +298,12 @@ Regression regression(Db *db1,
 
   /* Loop on the samples */
 
-  int number = 0;
+  Id number = 0;
   double prod = 0.;
   double mean = 0.;
   double value = 0.;
 
-  for (int iech=0; iech < nech; iech++)
+  for (Id iech=0; iech < nech; iech++)
   {
     if (! db1->isActive(iech)) continue;
 
@@ -318,10 +318,10 @@ Regression regression(Db *db1,
 
     /* Update the matrices */
 
-    for (int i = 0; i < size; i++)
+    for (Id i = 0; i < size; i++)
     {
       b[i] += value * x[i];
-      for (int j=0; j<=i; j++)
+      for (Id j=0; j<=i; j++)
         a.setValue(i, j, a.getValue(i,j) + x[i] * x[j]);
     }
   }
@@ -334,7 +334,7 @@ Regression regression(Db *db1,
 
   /* Solve the regression system */
 
-  int pivot = a.solve(b, x);
+  Id pivot = a.solve(b, x);
   if (pivot > 0)
   {
     messerr("Error during regression calculation: pivot %d is null", pivot);
@@ -351,10 +351,10 @@ Regression regression(Db *db1,
 
   /* Calculate the residuals */
 
-  for (int i = 0; i < size; i++)
+  for (Id i = 0; i < size; i++)
   {
     prod -= 2. * x[i] * b[i];
-    for (int j = 0; j < size; j++)
+    for (Id j = 0; j < size; j++)
       prod += x[i] * x[j] * a.getValue(i,j);
   }
   regr.setVarres(prod / number);
@@ -390,27 +390,27 @@ Regression regression(Db *db1,
  ** \remark  been calculated).
  **
  *****************************************************************************/
-int Regression::apply(Db *db1,
-                      int iptr0,
+Id Regression::apply(Db *db1,
+                      Id iptr0,
                       const String &nameResp,
                       const VectorString &nameAux,
-                      int mode,
+                      Id mode,
                       bool flagCst,
                       Db *db2,
                       const Model *model) const
 {
   if (db2 == nullptr) db2 = db1;
-  int icol0 = db1->getUID(nameResp);
+  Id icol0 = db1->getUID(nameResp);
   VectorInt icols;
   if (! nameAux.empty()) icols = db2->getUIDs(nameAux);
 
   /* Store the regression error at sample points */
 
-  int size = (int) getCoeffs().size();
+  Id size = static_cast<Id>(getCoeffs().size());
   double value = 0;
   VectorDouble x(size);
 
-  for (int iech = 0; iech < db1->getNSample(); iech++)
+  for (Id iech = 0; iech < db1->getNSample(); iech++)
   {
     if (db1->isActive(iech))
     {
@@ -423,7 +423,7 @@ int Regression::apply(Db *db1,
       }
       else
       {
-        for (int i = 0; i < size; i++)
+        for (Id i = 0; i < size; i++)
           value -= x[i] * getCoeff(i);
       }
     }

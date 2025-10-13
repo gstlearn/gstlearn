@@ -47,13 +47,14 @@ GridZycor::~GridZycor()
 {
 }
 
-int GridZycor::writeInFile()
+Id GridZycor::writeInFile()
 {
-  int nx[2];
+  Id nx[2];
   double rbid, x0[2], xf[2], dx[2];
   double buff[5]; /* Size = nbyline */
+  Id card_max = 100;
   char card[100]; /* Size = nbyline * 20 */
-  static int nbyline    = 5;
+  static Id nbyline     = 5;
   static double testval = MAXIMUM_BIG;
 
   /* Open the file */
@@ -68,12 +69,12 @@ int GridZycor::writeInFile()
 
   /* Title line */
 
-  fprintf(_file, "@GRID ZYCOR FILE    ,   GRID,  %d\n", nbyline);
+  fprintf(_file, "@GRID ZYCOR FILE    ,   GRID,  %ld\n", nbyline);
   fprintf(_file, "     15, %13lg,    ,    0,     1\n", testval);
 
   /* Grid description */
 
-  for (int i = 0; i < 2; i++)
+  for (Id i = 0; i < 2; i++)
   {
     nx[i] = _dbgrid->getNX(i);
     x0[i] = _dbgrid->getX0(i);
@@ -82,36 +83,36 @@ int GridZycor::writeInFile()
   }
 
   rbid = 0.;
-  fprintf(_file, "%6d, %6d, %13lf, %13lf, %13lf, %13lf\n", nx[1], nx[0], x0[0],
+  fprintf(_file, "%6ld, %6ld, %13lf, %13lf, %13lf, %13lf\n", nx[1], nx[0], x0[0],
           xf[0], x0[1], xf[1]);
   fprintf(_file, " %15lf, %15lf, %15lf\n", rbid, rbid, rbid);
   fprintf(_file, "@\n");
 
   /* The set of values */
 
-  for (int jj = nx[0] - 1; jj >= 0; jj--)
+  for (Id jj = nx[0] - 1; jj >= 0; jj--)
   {
-    int kk = 0;
-    int ii = ((nx[1] * nx[0]) - (jj + 1));
-    for (int loop = 1; loop <= nx[1]; loop++)
+    Id kk = 0;
+    Id ii = ((nx[1] * nx[0]) - (jj + 1));
+    for (Id loop = 1; loop <= nx[1]; loop++)
     {
       buff[kk++] = _dbgrid->getArray(ii, _cols[0]);
       ii -= nx[0];
       if (kk == nbyline)
       {
-        for (int yy = 0; yy < nbyline; yy++)
+        for (Id yy = 0; yy < nbyline; yy++)
         {
-          int ind = yy * 15;
+          Id ind = yy * 15;
           if (!FFFF(buff[yy]))
           {
-            gslSPrintf(&card[ind], "%15g", buff[yy]);
+            gslSPrintf(&card[ind], card_max, "%15g", buff[yy]);
           }
           else
           {
-            memcpy(&card[ind], (char*)ZYCOR_NULL_CH, 15);
+            gslStrcpy(&card[ind], card_max, ZYCOR_NULL_CH);
           }
         }
-        gslSPrintf(&card[15 * nbyline], "\n");
+        gslSPrintf(&card[15 * nbyline], card_max, "\n");
         fprintf(_file, "%s", card);
         kk = 0;
       }
@@ -119,19 +120,19 @@ int GridZycor::writeInFile()
 
     if (kk > 0)
     {
-      for (int yy = 0; yy < kk; yy++)
+      for (Id yy = 0; yy < kk; yy++)
       {
-        int ind = yy * 15;
+        Id ind = yy * 15;
         if (!FFFF(buff[yy]))
         {
-          gslSPrintf(&card[ind], "%15g", buff[yy]);
+          gslSPrintf(&card[ind], card_max, "%15g", buff[yy]);
         }
         else
         {
-          memcpy(&card[ind], (char*)ZYCOR_NULL_CH, 15);
+          gslStrcpy(&card[ind], card_max, ZYCOR_NULL_CH);
         }
       }
-      gslSPrintf(&card[15 * kk], "\n");
+      gslSPrintf(&card[15 * kk], card_max, "\n");
       fprintf(_file, "%s", card);
     }
   }
@@ -143,12 +144,6 @@ int GridZycor::writeInFile()
 DbGrid* GridZycor::readGridFromFile()
 {
   DbGrid* dbgrid = nullptr;
-  char string[100];
-  double xf[2], rbid1, rbid2, rbid3, test, value;
-  int nval, ibid1, ibid2, ibid3;
-  VectorInt nx(2);
-  VectorDouble dx(2);
-  VectorDouble x0(2);
 
   /* Open the file */
 
@@ -156,63 +151,71 @@ DbGrid* GridZycor::readGridFromFile()
 
   /* Define the delimitors */
 
-  _file_delimitors('!', ",", '_');
+  _token_delimitors('!', ',', ' ');
 
   /* Read the lines */
 
-  if (_record_read(_file, "%s", string)) return dbgrid;
+  String string;
+  if (_record_read(_file, "%s", &string)) return dbgrid;
   if (string[0] != '@')
   {
-    messerr("Missing string starting with (@). Instead: '%s'", string);
+    messerr("Missing string starting with (@). Instead: '%s'", string.data());
     return dbgrid;
   }
-  if (_record_read(_file, "%s", string)) return dbgrid;
-  if (strcmp(string, "GRID") != 0)
+  if (_record_read(_file, "%s", &string)) return dbgrid;
+  if (string != "GRID")
   {
-    messerr("Missing string (GRID). Instead: '%s'", string);
+    messerr("Missing string (GRID). Instead: '%s'", string.data());
     return dbgrid;
   }
-  if (_record_read(_file, "%d", &nval)) return dbgrid;
-  if (_record_read(_file, "%d", &ibid1)) return dbgrid;
+
+  double rbid1, rbid2, rbid3, test, value;
+  Id nval, ibid1, ibid2, ibid3;
+  VectorInt nx(2);
+  VectorDouble x0(2);
+  VectorDouble xf(2);
+  if (_record_read(_file, "%ld", &nval)) return dbgrid;
+  if (_record_read(_file, "%ld", &ibid1)) return dbgrid;
   if (_record_read(_file, "%lg", &test)) return dbgrid;
-  if (_record_read(_file, "%s", string)) return dbgrid;
-  if (_record_read(_file, "%d", &ibid2)) return dbgrid;
-  if (_record_read(_file, "%d", &ibid3)) return dbgrid;
-  if (_record_read(_file, "%d", &nx[1])) return dbgrid;
-  if (_record_read(_file, "%d", &nx[0])) return dbgrid;
-  if (_record_read(_file, "%lf", &x0[0])) return dbgrid;
-  if (_record_read(_file, "%lf", &xf[0])) return dbgrid;
-  if (_record_read(_file, "%lf", &x0[1])) return dbgrid;
-  if (_record_read(_file, "%lf", &xf[1])) return dbgrid;
+  if (_record_read(_file, "%s", &string)) return dbgrid;
+  if (_record_read(_file, "%ld", &ibid2)) return dbgrid;
+  if (_record_read(_file, "%ld", &ibid3)) return dbgrid;
+  if (_record_read(_file, "%ld", nx.data() + 1)) return dbgrid;
+  if (_record_read(_file, "%ld", nx.data() + 0)) return dbgrid;
+  if (_record_read(_file, "%lf", x0.data() + 0)) return dbgrid;
+  if (_record_read(_file, "%lf", xf.data() + 0)) return dbgrid;
+  if (_record_read(_file, "%lf", x0.data() + 1)) return dbgrid;
+  if (_record_read(_file, "%lf", xf.data() + 1)) return dbgrid;
   if (_record_read(_file, "%lf", &rbid1)) return dbgrid;
   if (_record_read(_file, "%lf", &rbid2)) return dbgrid;
   if (_record_read(_file, "%lf", &rbid3)) return dbgrid;
 
-  if (_record_read(_file, "%s", string)) return dbgrid;
-  if (strcmp(string, "@") != 0)
+  if (_record_read(_file, "%s", &string)) return dbgrid;
+  if (string != "@")
   {
-    messerr("Missing string (@). Instead: %s", string);
+    messerr("Missing string (@). Instead: %s", string.data());
     return dbgrid;
   }
 
   /* Final calculations */
 
+  VectorDouble dx(2);
   dx[0] = (xf[0] - x0[0]) / (nx[0] - 1);
   dx[1] = (xf[1] - x0[1]) / (nx[1] - 1);
 
   /* Reset the delimitors */
 
-  _file_delimitors('#', " ", ' ');
+  _token_delimitors('#', ' ', ' ');
 
   /* Core allocation */
 
-  int size = nx[0] * nx[1];
+  Id size = nx[0] * nx[1];
   VectorDouble tab(size);
 
   /* Read the array of real values */
 
-  for (int ix = 0; ix < nx[0]; ix++)
-    for (int iy = 0; iy < nx[1]; iy++)
+  for (Id ix = 0; ix < nx[0]; ix++)
+    for (Id iy = 0; iy < nx[1]; iy++)
     {
       if (_record_read(_file, "%lf", &value)) break;
       if (value == test) value = TEST;

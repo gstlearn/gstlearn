@@ -69,7 +69,7 @@ String Plane::toString(const AStringFormat* /*strfmt*/) const
  ** \remarks  The valuation of each line is assigned a uniform value [0,1]
  **
  *****************************************************************************/
-std::vector<Plane> Plane::poissonPlanesGenerate(DbGrid* dbgrid, int np)
+std::vector<Plane> Plane::poissonPlanesGenerate(DbGrid* dbgrid, Id np)
 {
   double ap[3];
 
@@ -81,35 +81,35 @@ std::vector<Plane> Plane::poissonPlanesGenerate(DbGrid* dbgrid, int np)
 
   /* Loop on the planes to be generated */
 
-  for (int ip = 0; ip < np; ip++)
+  for (Id ip = 0; ip < np; ip++)
   {
     double d0 = diagonal * law_uniform(-1., 1.) / 2.;
     double u  = 0.;
-    for (int idim = 0; idim < 3; idim++)
+    for (Id idim = 0; idim < 3; idim++)
     {
       ap[idim] = law_gaussian();
       u += ap[idim] * ap[idim];
     }
     u = sqrt(u);
-    for (int idim = 0; idim < 3; idim++)
+    for (Id idim = 0; idim < 3; idim++)
     {
       ap[idim] /= u;
     }
     // Check position of the Center (in its OWN space dimension)
-    for (int idim = 0; idim < (int)center.size(); idim++)
+    for (Id idim = 0; idim < static_cast<Id>(center.size()); idim++)
     {
       d0 -= ap[idim] * center[idim];
     }
     if (d0 < 0)
     {
-      for (int idim = 0; idim < 3; idim++)
+      for (Id idim = 0; idim < 3; idim++)
         ap[idim] = -ap[idim];
       d0 = -d0;
     }
 
     /* Storing the plane */
 
-    for (int idim = 0; idim < 3; idim++)
+    for (Id idim = 0; idim < 3; idim++)
       planes[ip].setCoor(idim, ap[idim]);
     planes[ip].setIntercept(d0);
     planes[ip].setRndval(law_uniform(0., 1.));
@@ -118,16 +118,16 @@ std::vector<Plane> Plane::poissonPlanesGenerate(DbGrid* dbgrid, int np)
   return planes;
 }
 
-double Plane::getCoor(int idim) const
+double Plane::getCoor(Id idim) const
 {
-  if (idim < (int)_coor.size())
+  if (idim < static_cast<Id>(_coor.size()))
     return _coor[idim];
   return 0.;
 }
 
-void Plane::setCoor(int idim, double value)
+void Plane::setCoor(Id idim, double value)
 {
-  if (idim < (int)_coor.size())
+  if (idim < static_cast<Id>(_coor.size()))
     _coor[idim] = value;
 }
 } // namespace gstlrn

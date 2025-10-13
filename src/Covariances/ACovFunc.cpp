@@ -72,38 +72,26 @@ double ACovFunc::evalCorFunc(double h) const
 {
   return _evaluateCov(h);
 }
-double ACovFunc::evalCovDerivative(int degree, double h) const
+double ACovFunc::evalCovDerivative(Id degree, double h) const
 {
   return _evaluateCovDerivative(degree, h);
 }
-
+double ACovFunc::evalCovFirstDerivativeOverH(double h) const
+{
+  return _evaluateCovFirstDerivativeOverH(h);
+}
 double ACovFunc::evalCovOnSphere(double alpha,
                                  double scale,
-                                 int degree) const
+                                 Id degree) const
 {
   return _evaluateCovOnSphere(alpha, scale, degree);
 }
 
-VectorDouble ACovFunc::evalSpectrumOnSphere(int n, double scale) const
+VectorDouble ACovFunc::evalSpectrumOnSphere(Id n, double scale) const
 {
   return _evaluateSpectrumOnSphere(n, scale);
 }
 
-VectorDouble ACovFunc::evalCovVec(const VectorDouble& vech) const
-{
-  VectorDouble vec;
-  for (const auto& h: vech)
-    vec.push_back(evalCorFunc(h));
-  return vec;
-}
-VectorDouble ACovFunc::evalCovDerivativeVec(int degree,
-                                            const VectorDouble& vech) const
-{
-  VectorDouble vec;
-  for (const auto& i: vech)
-    vec.push_back(evalCovDerivative(degree, i));
-  return vec;
-}
 String ACovFunc::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
@@ -123,7 +111,7 @@ bool ACovFunc::hasCovOnSphere() const
 /// Test consistency with the current context
 bool ACovFunc::isConsistent() const
 {
-  unsigned int maxndim = getMaxNDim();
+  auto maxndim = getMaxNDim();
   if (maxndim <= 0.) return true;
   if (maxndim >= _ctxt.getNDim()) return true;
   /// TODO : Test irfDegree vs getMinOrder in CovElem because zonal anisotropies
@@ -148,7 +136,7 @@ bool ACovFunc::hasInt2D() const
  * @param h Normalized distance
  * @return
  */
-double ACovFunc::_evaluateCovDerivative(int degree, double h) const
+double ACovFunc::_evaluateCovDerivative(Id degree, double h) const
 {
   DECLARE_UNUSED(degree);
   DECLARE_UNUSED(h);
@@ -201,7 +189,7 @@ double ACovFunc::evaluateSpectrum(double freq) const
 
 double ACovFunc::_evaluateCovOnSphere(double alpha,
                                       double scale,
-                                      int degree) const
+                                      Id degree) const
 {
   double s = 0.;
 
@@ -209,7 +197,7 @@ double ACovFunc::_evaluateCovOnSphere(double alpha,
 
   if (isZero(alpha))
   {
-    for (int i = 0; i < degree; i++)
+    for (Id i = 0; i < degree; i++)
     {
       s += spectrum[i];
     }
@@ -220,7 +208,7 @@ double ACovFunc::_evaluateCovOnSphere(double alpha,
     double u0     = 1.;
     double u2     = 0.;
     double u1     = calpha;
-    for (int i = 1; i < (degree + 2); i++)
+    for (Id i = 1; i < (degree + 2); i++)
     {
       u2 = 1. / (i + 1) * ((2 * i + 1) * calpha * u1 - i * u0);
       s += u0 * spectrum[i - 1];
@@ -231,7 +219,7 @@ double ACovFunc::_evaluateCovOnSphere(double alpha,
   return s;
 }
 
-VectorDouble ACovFunc::_evaluateSpectrumOnSphere(int n, double scale) const
+VectorDouble ACovFunc::_evaluateSpectrumOnSphere(Id n, double scale) const
 {
   DECLARE_UNUSED(n);
   DECLARE_UNUSED(scale);
@@ -245,21 +233,21 @@ VectorDouble ACovFunc::_evaluateSpectrumOnSphere(int n, double scale) const
   my_throw("This should never happen");
 }
 
-Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
+Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, Id N) const
 {
   N *= 2;
-  int ndim = (int)hmax.size();
+  Id ndim = static_cast<Id>(hmax.size());
   VectorInt nxs(ndim);
-  for (int idim = 0; idim < ndim; idim++)
+  for (Id idim = 0; idim < ndim; idim++)
     nxs[idim] = N;
   Array array(nxs);
 
-  int ntotal = (int)pow(N, ndim);
+  Id ntotal = static_cast<Id>(pow(N, ndim));
   VectorDouble a(ndim);
   double coeff = 0;
   double prod  = 1.;
 
-  for (int idim = 0; idim < ndim; idim++)
+  for (Id idim = 0; idim < ndim; idim++)
   {
     coeff   = 1. / (2. * hmax[idim]);
     a[idim] = GV_PI * (N - 1) / (hmax[idim]);
@@ -270,14 +258,14 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
   VectorDouble Im(ntotal, 0.);
   VectorInt indices(ndim);
 
-  for (int iad = 0; iad < ntotal; iad++)
+  for (Id iad = 0; iad < ntotal; iad++)
   {
     array.rankToIndice(iad, indices);
 
     double s = 0.;
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
     {
-      double temp = a[idim] * ((double)indices[idim] / (N - 1) - 0.5);
+      double temp = a[idim] * (static_cast<double>(indices[idim]) / (N - 1) - 0.5);
       s += temp * temp;
     }
     Re[iad] = prod * evaluateSpectrum(s);
@@ -289,18 +277,18 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
   // Retrieve information from the Re array and load them back in the array result.
 
   VectorInt nxs2(ndim);
-  for (int idim = 0; idim < ndim; idim++)
+  for (Id idim = 0; idim < ndim; idim++)
     nxs2[idim] = N / 2;
   Array result(nxs2);
   VectorInt newIndices(ndim);
 
-  for (int iad = 0; iad < ntotal; iad++)
+  for (Id iad = 0; iad < ntotal; iad++)
   {
     array.rankToIndice(iad, indices);
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
     {
-      int odd          = indices[idim] % 2;
-      int s            = 1 - 2 * odd;
+      Id odd           = indices[idim] % 2;
+      Id s             = 1 - 2 * odd;
       newIndices[idim] = nxs[idim] / 2 + s * (indices[idim] / 2 + odd);
       Re[iad] *= s;
     }
@@ -308,12 +296,12 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
   }
 
   bool cont;
-  int iadr = 0;
-  for (int iad = 0; iad < ntotal; iad++)
+  Id iadr = 0;
+  for (Id iad = 0; iad < ntotal; iad++)
   {
     array.rankToIndice(iad, indices);
     cont = true;
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
     {
       if (indices[idim] < (nxs2[idim] / 2) || indices[idim] >= (3 * nxs2[idim] / 2))
       {
@@ -330,13 +318,13 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
   return result;
 }
 
-void ACovFunc::computeCorrec(int ndim)
+void ACovFunc::computeCorrec(Id ndim)
 {
   if (!hasSpectrumOnRn()) return;
-  int N = (int)pow(2, 8);
+  Id N = static_cast<Id>(pow(2, 8));
   VectorInt Nv(ndim);
   VectorDouble hmax(ndim);
-  for (int idim = 0; idim < ndim; idim++)
+  for (Id idim = 0; idim < ndim; idim++)
   {
     hmax[idim] = 3 * getScadef();
     Nv[idim]   = N / 2;

@@ -14,7 +14,7 @@
 #include "gstlearn_export.hpp"
 
 namespace gstlrn
-{ 
+{
 class AModelOptim;
 class ModelGeneric;
 class Db;
@@ -36,6 +36,7 @@ public:
    * @param constraints Constraints (optional)
    * @param mop ModelOptimParam containing fitting options.
    * @param nb_neighVecchia Number of Vecchia neighbors to use (for Vecchia Likelihood).
+   * @param reml Boolean parameter used for Optimization
    * @return AModelOptim*
    */
   static AModelOptim* create(ModelGeneric* model,
@@ -44,7 +45,7 @@ public:
                              const DbGrid* dbmap,
                              Constraints* constraints,
                              const ModelOptimParam& mop,
-                             int nb_neighVecchia = ITEST,
-                             bool reml = false);
+                             Id nb_neighVecchia = ITEST,
+                             bool reml           = false);
 };
-}
+} // namespace gstlrn

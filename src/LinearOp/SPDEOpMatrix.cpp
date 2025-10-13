@@ -9,34 +9,27 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/SPDEOpMatrix.hpp"
-#include "LinearOp/MatrixSymmetricSim.hpp"
+#include "LinearOp/InvNuggetOp.hpp"
 #include "LinearOp/PrecisionOpMultiMatrix.hpp"
 #include "LinearOp/ProjMultiMatrix.hpp"
 #include "Matrix/MatrixSparse.hpp"
+#include <memory>
 
 namespace gstlrn
 {
 SPDEOpMatrix::SPDEOpMatrix(const PrecisionOpMultiMatrix* pop,
                            const ProjMultiMatrix* A,
-                           const MatrixSparse* invNoise,
-                           const ProjMultiMatrix* projOut)
-  : SPDEOp(pop,
-           A,
-           (invNoise == nullptr) ? nullptr : new MatrixSymmetricSim(invNoise),
-           nullptr,
-           nullptr,
-           projOut,
-           projOut,
-           true)
-  , _QpAinvNoiseAt(MatrixSparse(0, 0))
+                           const InvNuggetOp* invNoise)
+  : SPDEOp(pop, A, invNoise, nullptr, nullptr)
+  , _QpAinvNoiseAt(std::make_shared<MatrixSparse>(0, 0))
   , _chol(nullptr)
 {
-  _QpAinvNoiseAt.resize(pop->getSize(), pop->getSize());
+  _QpAinvNoiseAt->resize(pop->getSize(), pop->getSize());
   if (A != nullptr)
   {
-    _QpAinvNoiseAt.prodNormMatMatInPlace(A->getProj(), invNoise, true);
+    _QpAinvNoiseAt->prodNormMatMatInPlace(A->getProj(), invNoise, true);
   }
-  _QpAinvNoiseAt.addMatInPlace(*pop->getQ());
+  _QpAinvNoiseAt->addMat(*pop->getQ());
 }
 
 SPDEOpMatrix::~SPDEOpMatrix()
@@ -44,10 +37,10 @@ SPDEOpMatrix::~SPDEOpMatrix()
   delete _chol;
 }
 
-int SPDEOpMatrix::_solve(const constvect inv, vect outv) const
+Id SPDEOpMatrix::_solve(const constvect inv, vect outv) const
 {
   if (_chol == nullptr)
-    _chol = new CholeskySparse(&_QpAinvNoiseAt);
+    _chol = new CholeskySparse(*_QpAinvNoiseAt);
   return _chol->solve(inv, outv);
 }
 
@@ -60,17 +53,17 @@ int SPDEOpMatrix::_solve(const constvect inv, vect outv) const
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-int SPDEOpMatrix::_addToDest(const constvect inv, vect outv) const
+Id SPDEOpMatrix::_addToDest(const constvect inv, vect outv) const
 {
-  return _QpAinvNoiseAt.addToDest(inv, outv);
+  return _QpAinvNoiseAt->addToDest(inv, outv);
 }
 
-double SPDEOpMatrix::computeLogDetOp(int nbsimu) const
+double SPDEOpMatrix::computeLogDetOp(Id nbsimu) const
 {
   DECLARE_UNUSED(nbsimu);
 
   if (_chol == nullptr)
-    _chol = new CholeskySparse(&_QpAinvNoiseAt);
+    _chol = new CholeskySparse(*_QpAinvNoiseAt); // TODO avoid to do it twice
   return _chol->computeLogDeterminant();
 }
 
@@ -81,18 +74,25 @@ double SPDEOpMatrix::computeLogDetOp(int nbsimu) const
  * @param dat Vector of Data
  * @param nMC  Number of Monte-Carlo simulations (unused)
  * @param seed Random seed for the Monte-Carlo simulations (unused)
+ * @param projK Projection Matrix used for Kriging
+ * @param projS Projection matrix used for Simulations (unused)
  * @return VectorDouble
  */
-VectorDouble SPDEOpMatrix::stdev(const VectorDouble& dat, int nMC, int seed) const
+VectorDouble SPDEOpMatrix::stdev(const VectorDouble& dat,
+                                 Id nMC,
+                                 Id seed,
+                                 const ProjMulti* projK,
+                                 const ProjMulti* projS) const
 {
   DECLARE_UNUSED(dat);
   DECLARE_UNUSED(nMC);
   DECLARE_UNUSED(seed);
+  DECLARE_UNUSED(projS);
 
   if (_chol == nullptr)
-    _chol = new CholeskySparse(&_QpAinvNoiseAt);
+    _chol = new CholeskySparse(*_QpAinvNoiseAt); // TODO avoid to do it twice
 
-  const ProjMultiMatrix* proj = dynamic_cast<const ProjMultiMatrix*>(_projOutKriging);
+  const auto* proj            = dynamic_cast<const ProjMultiMatrix*>(projK);
   const MatrixSparse* projmat = proj->getProj();
 
   VectorDouble result(projmat->getNRows());
@@ -100,4 +100,4 @@ VectorDouble SPDEOpMatrix::stdev(const VectorDouble& dat, int nMC, int seed) con
 
   return result;
 }
-}
+} // namespace gstlrn

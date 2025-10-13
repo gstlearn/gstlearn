@@ -48,19 +48,6 @@ Website: https://gstlearn.org
 */
 #pragma once
 
-class SphTriangle
-{
-public:
-  int n_nodes; /* Number of nodes */
-  int sph_size; /* Size of arrays sph_list and sph_lptr */
-  double *sph_x; /* Array of X-coordinates for nodes */
-  double *sph_y; /* Array of Y-coordinates for nodes */
-  double *sph_z; /* Array of Z-coordinates for nodes */
-  int *sph_list; /* Set of nodal indexes */
-  int *sph_lptr; /* Set of pointers (sph_list indexes) */
-  int *sph_lend; /* Set of pointers to adjacency lists */
-};
-
 int trmesh_(int *n,
             double *x,
             double *y,

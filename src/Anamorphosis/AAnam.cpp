@@ -71,8 +71,8 @@ double AAnam::invertVariance(double cvv) const
 {
   if (!allowChangeSupport()) return TEST;
   double s0, s1, s2, var0, var1;
-  int converge, niter;
-  static int niter_max = 1000;
+  Id converge, niter;
+  static Id niter_max = 1000;
 
   s1   = 0.;
   var1 = computeVariance(s1);
@@ -113,7 +113,7 @@ double AAnam::computeVariance(double /*sval*/) const
   return TEST;
 }
 
-int AAnam::updatePointToBlock(double /*r_coef*/)
+Id AAnam::updatePointToBlock(double /*r_coef*/)
 {
   messerr("This function is not programmed yet");
   return 1;
@@ -148,7 +148,7 @@ double AAnam::transformToRawValue(double /*y*/) const
  **
  *****************************************************************************/
 bool AAnam::_isSampleSkipped(Db* db,
-                             int iech,
+                             Id iech,
                              const VectorInt& cols_est,
                              const VectorInt& cols_std)
 {
@@ -156,20 +156,20 @@ bool AAnam::_isSampleSkipped(Db* db,
 
   if (!db->isActive(iech)) return true;
 
-  int nb_est = (int)cols_est.size();
+  Id nb_est = static_cast<Id>(cols_est.size());
   if (!cols_est.empty())
   {
-    for (int ivar = 0; ivar < nb_est; ivar++)
+    for (Id ivar = 0; ivar < nb_est; ivar++)
     {
       value = db->getArray(iech, cols_est[ivar]);
       if (FFFF(value)) return true;
     }
   }
 
-  int nb_std = (int)cols_std.size();
+  Id nb_std = static_cast<Id>(cols_std.size());
   if (!cols_std.empty())
   {
-    for (int ivar = 0; ivar < nb_std; ivar++)
+    for (Id ivar = 0; ivar < nb_std; ivar++)
     {
       value = db->getArray(iech, cols_std[ivar]);
       if (FFFF(value)) return true;
@@ -178,7 +178,7 @@ bool AAnam::_isSampleSkipped(Db* db,
   return false;
 }
 
-bool AAnam::_isNcutValid(int ncut)
+bool AAnam::_isNcutValid(Id ncut)
 {
   if (ncut <= 0)
   {
@@ -212,7 +212,7 @@ bool AAnam::_isProbaValid(double proba)
  ** \param[in]  number       Number of cutoffs
  **
  *****************************************************************************/
-void AAnam::_printQTvars(const char* title, int type, int number)
+void AAnam::_printQTvars(const char* title, Id type, Id number)
 {
   message("- %s", title);
   if (type == 1)
@@ -224,23 +224,23 @@ void AAnam::_printQTvars(const char* title, int type, int number)
 
 VectorDouble AAnam::rawToTransformVec(const VectorDouble& z) const
 {
-  VectorDouble y = VectorDouble(z.size(), TEST);
-  for (int i = 0; i < (int)z.size(); i++)
+  VectorDouble y(z.size(), TEST);
+  for (Id i = 0; i < static_cast<Id>(z.size()); i++)
     y[i] = rawToTransformValue(z[i]);
   return y;
 }
 
 VectorDouble AAnam::transformToRawVec(const VectorDouble& y) const
 {
-  VectorDouble z = VectorDouble(y.size(), TEST);
-  for (int i = 0; i < (int)z.size(); i++)
+  VectorDouble z(y.size(), TEST);
+  for (Id i = 0; i < static_cast<Id>(z.size()); i++)
     z[i] = transformToRawValue(y[i]);
   return z;
 }
 
-int AAnam::fitFromLocator(Db* db, const ELoc& locatorType)
+Id AAnam::fitFromLocator(Db* db, const ELoc& locatorType)
 {
-  int number = db->getNLoc(locatorType);
+  Id number = db->getNLoc(locatorType);
   if (number != 1)
   {
     messerr("The number of items for locator(%d) is %d. It should be 1",
@@ -257,7 +257,7 @@ int AAnam::fitFromLocator(Db* db, const ELoc& locatorType)
   return 0;
 }
 
-int AAnam::fit(Db* db, const String& name)
+Id AAnam::fit(Db* db, const String& name)
 {
   VectorDouble tab = db->getColumn(name, true);
   VectorDouble wt;
@@ -275,7 +275,7 @@ int AAnam::fit(Db* db, const String& name)
  * @param namconv Naming Convention
  * @return
  */
-int AAnam::rawToGaussianByLocator(Db* db, const NamingConvention& namconv)
+Id AAnam::rawToGaussianByLocator(Db* db, const NamingConvention& namconv)
 {
   CalcAnamTransform transfo(this);
   transfo.setFlagVars(true);
@@ -285,13 +285,13 @@ int AAnam::rawToGaussianByLocator(Db* db, const NamingConvention& namconv)
   transfo.setNamingConvention(namconv);
 
   // Run the calculator
-  int error = (transfo.run()) ? 0 : 1;
+  Id error = (transfo.run()) ? 0 : 1;
   return error;
 }
 
-int AAnam::rawToGaussian(Db* db,
-                         const String& name,
-                         const NamingConvention& namconv)
+Id AAnam::rawToGaussian(Db* db,
+                        const String& name,
+                        const NamingConvention& namconv)
 {
   if (db == nullptr) return 1;
   db->setLocator(name, ELoc::Z, 0, true);
@@ -304,11 +304,11 @@ int AAnam::rawToGaussian(Db* db,
   transfo.setNamingConvention(namconv);
 
   // Run the calculator
-  int error = (transfo.run()) ? 0 : 1;
+  Id error = (transfo.run()) ? 0 : 1;
   return error;
 }
 
-int AAnam::gaussianToRawByLocator(Db* db, const NamingConvention& namconv)
+Id AAnam::gaussianToRawByLocator(Db* db, const NamingConvention& namconv)
 {
   CalcAnamTransform transfo(this);
   transfo.setFlagZToY(true);
@@ -317,13 +317,13 @@ int AAnam::gaussianToRawByLocator(Db* db, const NamingConvention& namconv)
   transfo.setNamingConvention(namconv);
 
   // Run the calculator
-  int error = (transfo.run()) ? 0 : 1;
+  Id error = (transfo.run()) ? 0 : 1;
   return error;
 }
 
-int AAnam::gaussianToRaw(Db* db,
-                         const String& name,
-                         const NamingConvention& namconv)
+Id AAnam::gaussianToRaw(Db* db,
+                        const String& name,
+                        const NamingConvention& namconv)
 {
   if (db == nullptr) return 1;
   db->setLocator(name, ELoc::Z, 0, true);
@@ -336,7 +336,7 @@ int AAnam::gaussianToRaw(Db* db,
   transfo.setNamingConvention(namconv);
 
   // Run the calculator
-  int error = (transfo.run()) ? 0 : 1;
+  Id error = (transfo.run()) ? 0 : 1;
   return error;
 }
 
@@ -351,9 +351,9 @@ int AAnam::gaussianToRaw(Db* db,
  ** \param[in]  namconv    Naming convention
  **
  *****************************************************************************/
-int AAnam::normalScore(Db* db,
-                       const String& name,
-                       const NamingConvention& namconv)
+Id AAnam::normalScore(Db* db,
+                      const String& name,
+                      const NamingConvention& namconv)
 {
   if (db == nullptr) return 1;
   db->setLocator(name, ELoc::Z, 0, true);
@@ -366,7 +366,7 @@ int AAnam::normalScore(Db* db,
   transfo.setNamingConvention(namconv);
 
   // Run the calculator
-  int error = (transfo.run()) ? 0 : 1;
+  Id error = (transfo.run()) ? 0 : 1;
   return error;
 }
 
@@ -381,9 +381,9 @@ int AAnam::normalScore(Db* db,
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-int AAnam::rawToFactorByRanks(Db* db,
-                              const VectorInt& ifacs,
-                              const NamingConvention& namconv)
+Id AAnam::rawToFactorByRanks(Db* db,
+                             const VectorInt& ifacs,
+                             const NamingConvention& namconv)
 {
   CalcAnamTransform transfo(this);
   transfo.setDb(db);
@@ -392,7 +392,7 @@ int AAnam::rawToFactorByRanks(Db* db,
   transfo.setNamingConvention(namconv);
 
   // Run the calculator
-  int error = (transfo.run()) ? 0 : 1;
+  Id error = (transfo.run()) ? 0 : 1;
   return error;
 }
 
@@ -407,9 +407,9 @@ int AAnam::rawToFactorByRanks(Db* db,
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-int AAnam::rawToFactor(Db* db,
-                       int nfactor,
-                       const NamingConvention& namconv)
+Id AAnam::rawToFactor(Db* db,
+                      Id nfactor,
+                      const NamingConvention& namconv)
 {
   CalcAnamTransform transfo(this);
   transfo.setDb(db);
@@ -419,7 +419,7 @@ int AAnam::rawToFactor(Db* db,
   transfo.setNamingConvention(namconv);
 
   // Run the calculator
-  int error = (transfo.run()) ? 0 : 1;
+  Id error = (transfo.run()) ? 0 : 1;
   return error;
 }
 } // namespace gstlrn

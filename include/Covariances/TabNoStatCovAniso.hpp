@@ -26,16 +26,16 @@ class GSTLEARN_EXPORT TabNoStatCovAniso : public TabNoStat
   TabNoStatCovAniso(const TabNoStatCovAniso &m);
   TabNoStatCovAniso& operator= (const TabNoStatCovAniso &m);
   virtual ~TabNoStatCovAniso();
-  int getNAngles() const {return _nAngles;}
-  int getNRanges() const {return _nRanges;}
-  int getNScales() const {return _nScales;}
+  Id getNAngles() const {return _nAngles;}
+  Id getNRanges() const {return _nRanges;}
+  Id getNScales() const {return _nScales;}
   
   bool isParam()   const {return _param;}
   bool isDefinedForTensor()  const {return _definedForTensor;}
   bool isDefinedForAnisotropy() const;
   bool isDefinedForRotation() const;
-  int addElem(std::shared_ptr<ANoStat> &nostat, const EConsElem &econs, int iv1=0, int iv2 = 0) override;
-  int removeElem(const EConsElem &econs, int iv1=0, int iv2 = 0) override;
+  Id addElem(std::shared_ptr<ANoStat> &nostat, const EConsElem &econs, Id iv1=0, Id iv2 = 0) override;
+  Id removeElem(const EConsElem &econs, Id iv1=0, Id iv2 = 0) override;
 
   private:
     void _clear() override;
@@ -43,10 +43,10 @@ class GSTLEARN_EXPORT TabNoStatCovAniso : public TabNoStat
     bool _isValid(const EConsElem &econs) const override;
 
   private:
-    int  _nAngles;
-    int  _nRanges;
-    int  _nScales;
-    int  _nTensor;
+    Id  _nAngles;
+    Id  _nRanges;
+    Id  _nScales;
+    Id  _nTensor;
     bool _param;
     bool _definedForAnisotropy;
     bool _definedByAnglesAndScales;

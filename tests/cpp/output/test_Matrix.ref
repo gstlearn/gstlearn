@@ -861,6 +861,7 @@ Cholesky Decomposition for Sparse matrices
      [  4,]    -0.328    -0.340     1.714    -1.879     2.672    -1.519    -0.038
      [  5,]     0.009     0.427         .     0.464    -1.519     2.980         .
      [  6,]         .         .     2.190     0.291    -0.038         .     1.561
+
 Input vector
      2.165    -0.502    -0.259     0.650     1.364    -0.059     1.768
 Cholesky Solve (Eigen Library)
@@ -963,6 +964,7 @@ Product by Diagonal from Vector (No Eigen)
      [  4,]    -0.969     0.233    -0.605    -1.666     4.971     0.123    -0.091
      [  5,]    -0.001     0.013         .    -0.018     0.123     0.010         .
      [  6,]         .         .    -1.002     0.335    -0.091         .     4.882
+
 Product by Diagonal from Vector In Place with operation (No Eigen)
 - Number of rows    = 7
 - Number of columns = 7
@@ -975,6 +977,7 @@ Product by Diagonal from Vector In Place with operation (No Eigen)
      [  4,]    -2.861    -0.159     0.214    -1.478     9.249    -0.010    -0.219
      [  5,]     0.000     0.000         .     0.001    -0.010     0.000         .
      [  6,]         .         .     0.459     0.385    -0.219         .    15.265
+
 - Number of rows    = 14
 - Number of columns = 14
 - Sparse Format
@@ -1042,6 +1045,7 @@ Product by Diagonal from Vector In Place with operation (No Eigen)
      [ 11,]    -2.861    -0.159     0.214    -1.478     9.249    -0.010    -0.219
      [ 12,]     0.000     0.000         .     0.001    -0.010     0.000         .
      [ 13,]         .         .     0.459     0.385    -0.219         .    15.265
+
 
 Generalized Eigen values calculation for Dense matrices
 =======================================================
@@ -1090,3 +1094,19 @@ Generalized Eigen Values (no Eigen Library)
      [  4,]     1.386    -0.582    -0.080    -0.026     0.155     0.045     0.150
      [  5,]    -0.108     0.190     0.099    -0.200     0.114    -0.011     0.059
      [  6,]     0.491     0.165     0.056     0.207     0.269    -0.151     0.022
+
+Constructing Square tridiagonal matrix and performing Eigen decomposition
+=========================================================================
+Eigen Values
+     0.858     0.140     0.092    -0.261    -1.807    -2.026    -2.309
+Eigen Vectors
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.000     0.015     0.001     0.819     0.060    -0.570     0.032
+     [  1,]     0.000     0.018     0.001     0.573    -0.070     0.814    -0.057
+     [  2,]     0.001     0.421     0.015     0.001    -0.664    -0.023     0.618
+     [  3,]     0.002     0.875     0.031    -0.023     0.121    -0.025    -0.467
+     [  4,]     0.004     0.237     0.005    -0.008     0.732     0.108     0.629
+     [  5,]     0.839     0.016    -0.543     0.000    -0.004    -0.001    -0.003
+     [  6,]     0.544    -0.031     0.839     0.000     0.001     0.000     0.000

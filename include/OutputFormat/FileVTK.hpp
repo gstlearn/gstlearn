@@ -27,21 +27,21 @@ public:
 
   bool mustBeGrid() const override { return false; }
   bool mustBeOneVariable() const override { return true; }
-  bool mustBeForNDim(int ndim) const override { return ndim <= 3; }
-  bool mustBeForRotation(int mode) const override { return mode == 0; }
-  int  writeInFile() override;
+  bool mustBeForNDim(Id ndim) const override { return ndim <= 3; }
+  bool mustBeForRotation(Id mode) const override { return mode == 0; }
+  Id  writeInFile() override;
 
   void setFactvar(float factvar) { _factvar = factvar; }
-  void setFactx(int factx) { _factx = factx; }
-  void setFacty(int facty) { _facty = facty; }
-  void setFactz(int factz) { _factz = factz; }
+  void setFactx(Id factx) { _factx = factx; }
+  void setFacty(Id facty) { _facty = facty; }
+  void setFactz(Id factz) { _factz = factz; }
   void setFlagBinary(bool flagBinary) { _flagBinary = flagBinary; }
 
 private:
   bool _flagBinary;
-  int _factx;
-  int _facty;
-  int _factz;
+  Id _factx;
+  Id _facty;
+  Id _factz;
   float _factvar;
 };
 }

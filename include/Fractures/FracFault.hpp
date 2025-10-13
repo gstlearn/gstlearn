@@ -12,8 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Basic/AStringable.hpp"
 
 namespace gstlrn
 {
@@ -26,7 +26,7 @@ public:
   virtual ~FracFault();
 
   /// Interface for AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   double getCoord() const { return _coord; }
   double getOrient() const { return _orient; }
@@ -34,12 +34,12 @@ public:
   VectorDouble getRanger() const { return _ranger; }
   VectorDouble getThetal() const { return _thetal; }
   VectorDouble getThetar() const { return _thetar; }
-  double getRangel(int i) const { return _rangel[i]; }
-  double getRanger(int i) const { return _ranger[i]; }
-  double getThetal(int i) const { return _thetal[i]; }
-  double getThetar(int i) const { return _thetar[i]; }
+  double getRangel(Id i) const { return _rangel[i]; }
+  double getRanger(Id i) const { return _ranger[i]; }
+  double getThetal(Id i) const { return _thetal[i]; }
+  double getThetar(Id i) const { return _thetar[i]; }
 
-  int getNFamilies() const { return  (int) _thetal.size(); }
+  Id getNFamilies() const { return static_cast<Id>(_thetal.size()); }
   double faultAbscissae(double cote) const;
 
   void addFaultPerFamily(double thetal,
@@ -53,8 +53,8 @@ public:
   void setThetar(const VectorDouble& thetar) { _thetar = thetar; }
 
 protected:
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  virtual bool _serializeAscii(std::ostream& os,bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
@@ -62,13 +62,13 @@ protected:
   String _getNFName() const override { return "FracFault"; }
 
 private:
-  double _coord;                //!< Abscissas of the first Fault point
-  double _orient;               //!< Fault orientation
-  VectorDouble _thetal;         //!< Maximum density on left
-  VectorDouble _thetar;         //!< Maximum density on right
-  VectorDouble _rangel;         //!< Decrease range on left
-  VectorDouble _ranger;         //!< Decrease range on right
+  double _coord;        //!< Abscissas of the first Fault point
+  double _orient;       //!< Fault orientation
+  VectorDouble _thetal; //!< Maximum density on left
+  VectorDouble _thetar; //!< Maximum density on right
+  VectorDouble _rangel; //!< Decrease range on left
+  VectorDouble _ranger; //!< Decrease range on right
 
   friend class FracEnviron;
 };
-}
+} // namespace gstlrn

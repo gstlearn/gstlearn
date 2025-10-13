@@ -14,7 +14,7 @@
 
 namespace gstlrn
 {
-AFunctional::AFunctional(int ndim)
+AFunctional::AFunctional(Id ndim)
     : _ndim(ndim)
 {
 }
@@ -48,11 +48,11 @@ VectorDouble AFunctional::getFunctionValues(const Db *db, bool useSel) const
   VectorDouble coor(_ndim);
   VectorDouble vec;
 
-  for (int iech = 0; iech < db->getNSample(); iech++)
+  for (Id iech = 0; iech < db->getNSample(); iech++)
   {
     if (useSel && ! db->isActive(iech)) continue;
 
-    for (int idim = 0; idim < _ndim; idim++)
+    for (Id idim = 0; idim < _ndim; idim++)
       coor[idim] = db->getCoordinate(iech,idim);
 
     double value = getFunctionValue(coor);

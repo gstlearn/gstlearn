@@ -25,7 +25,7 @@ namespace gstlrn
 CovLMCConvolution::CovLMCConvolution(const EConvType& conv_type,
                                      const EConvDir& conv_dir,
                                      double conv_range,
-                                     int conv_ndisc,
+                                     Id conv_ndisc,
                                      const CovContext& ctxt)
   : CovAnisoList(ctxt)
   , _convType(conv_type)
@@ -73,10 +73,10 @@ CovLMCConvolution::~CovLMCConvolution()
 {
 }
 
-int CovLMCConvolution::init(const EConvType& conv_type,
+Id CovLMCConvolution::init(const EConvType& conv_type,
                             const EConvDir& conv_idir,
                             double conv_range,
-                            int conv_ndisc)
+                            Id conv_ndisc)
 {
   for (auto& e: _covs)
   {
@@ -95,7 +95,7 @@ int CovLMCConvolution::init(const EConvType& conv_type,
 
   /* Load the CovLMCConvolution parameters */
 
-  int ndim        = getNDim();
+  auto ndim       = getNDim();
   _convType       = conv_type;
   _convDir        = conv_idir;
   _convDiscNumber = conv_ndisc;
@@ -104,8 +104,8 @@ int CovLMCConvolution::init(const EConvType& conv_type,
 
   /* Calculate the discretization points */
 
-  int navail[3];
-  for (int i = 0; i < 3; i++) navail[i] = 0;
+  Id navail[3];
+  for (Id i = 0; i < 3; i++) navail[i] = 0;
   switch (_convDir.getValue())
   {
     case 0:
@@ -140,18 +140,18 @@ int CovLMCConvolution::init(const EConvType& conv_type,
   /* Calculate the total number of discretization points */
 
   _convNumber = 1;
-  for (int i = 0; i < 3; i++)
+  for (Id i = 0; i < 3; i++)
     _convNumber *= 2 * navail[i] + 1;
 
   _convIncr = MatrixDense(ndim, _convNumber);
   _convWeight.resize(_convNumber);
 
   double delta, weight;
-  int ecr      = 0;
+  Id ecr      = 0;
   double total = 0.;
-  for (int ix = -navail[0]; ix <= navail[0]; ix++)
-    for (int iy = -navail[1]; iy <= navail[1]; iy++)
-      for (int iz = -navail[2]; iz <= navail[2]; iz++)
+  for (Id ix = -navail[0]; ix <= navail[0]; ix++)
+    for (Id iy = -navail[1]; iy <= navail[1]; iy++)
+      for (Id iz = -navail[2]; iz <= navail[2]; iz++)
       {
         double local = 1.;
         if (ndim >= 1)
@@ -182,12 +182,12 @@ int CovLMCConvolution::init(const EConvType& conv_type,
 
   /* Normalize the weights */
 
-  for (int i = 0; i < _convNumber; i++) _convWeight[i] /= total;
+  for (Id i = 0; i < _convNumber; i++) _convWeight[i] /= total;
 
   return 0;
 }
 
-Def_Convolution& D_CONV(int rank)
+Def_Convolution& D_CONV(Id rank)
 {
   static Def_Convolution DEF_CONVS[] =
     {
@@ -248,18 +248,18 @@ String CovLMCConvolution::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-double CovLMCConvolution::eval0(int ivar,
-                                int jvar,
+double CovLMCConvolution::eval0(Id ivar,
+                                Id jvar,
                                 const CovCalcMode* mode) const
 {
   double cov0 = 0.;
   SpacePoint p11;
   SpacePoint p22;
-  for (int i1 = 0; i1 < _convNumber; i1++)
+  for (Id i1 = 0; i1 < _convNumber; i1++)
   {
     double w1 = _convWeight[i1];
     p11.move(_convIncr.getColumn(i1));
-    for (int i2 = 0; i2 < _convNumber; i2++)
+    for (Id i2 = 0; i2 < _convNumber; i2++)
     {
       double w2 = _convWeight[i2];
       p22.move(_convIncr.getColumn(i2));
@@ -271,8 +271,8 @@ double CovLMCConvolution::eval0(int ivar,
 
 double CovLMCConvolution::_eval(const SpacePoint& p1,
                                 const SpacePoint& p2,
-                                int ivar,
-                                int jvar,
+                                Id ivar,
+                                Id jvar,
                                 const CovCalcMode* mode) const
 {
   SpacePoint p11;
@@ -293,11 +293,11 @@ double CovLMCConvolution::_eval(const SpacePoint& p1,
   double cov = 0.;
   p11        = p1;
   p22        = p2;
-  for (int i1 = 0; i1 < _convNumber; i1++)
+  for (Id i1 = 0; i1 < _convNumber; i1++)
   {
     double w1 = _convWeight[i1];
     p11.move(_convIncr.getColumn(i1));
-    for (int i2 = 0; i2 < _convNumber; i2++)
+    for (Id i2 = 0; i2 < _convNumber; i2++)
     {
       double w2 = _convWeight[i2];
       p22.move(_convIncr.getColumn(i2));
@@ -315,11 +315,11 @@ double CovLMCConvolution::_eval(const SpacePoint& p1,
     double cov0 = 0.;
     p11         = p1;
     p22         = p1;
-    for (int i1 = 0; i1 < _convNumber; i1++)
+    for (Id i1 = 0; i1 < _convNumber; i1++)
     {
       double w1 = _convWeight[i1];
       p11.move(_convIncr.getColumn(i1));
-      for (int i2 = 0; i2 < _convNumber; i2++)
+      for (Id i2 = 0; i2 < _convNumber; i2++)
       {
         double w2 = _convWeight[i2];
         p22.move(_convIncr.getColumn(i2));

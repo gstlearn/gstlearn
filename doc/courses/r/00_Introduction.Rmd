@@ -36,7 +36,7 @@ The principle is to browse the different steps of a standard geostatistical stud
 
 ### Get familiar with the library
 
-The contents of this paragraph is described in the [**Tutorial for Db**](./02_Db.Rmd).
+The contents of this paragraph is described in the [**Tutorial for Db**](./02_Db.html).
 
 1. Download Data Sets (using URL): we will use the 2D Scotland files.
 
@@ -61,7 +61,7 @@ The contents of this paragraph is described in the [**Tutorial for Db**](./02_Db
 
 1. Variography
 
-- The contents of this chapter is described in the [**Tutorial for Variography**](./04_Variography.Rmd)
+- The contents of this chapter is described in the [**Tutorial for Variography**](./04_Variography.html)
 - Variogram cloud
 - Experimental variogram: isotropic and directional variogram
 - Fitting a Model: automatic version, selecting basic structures, with constraints ,...
@@ -69,7 +69,7 @@ The contents of this paragraph is described in the [**Tutorial for Db**](./02_Db
   
 2. Estimation using Kriging
 
-- The contents of this chapter is described in the [**Tutorial for Estimation**](./05_Kriging.Rmd)
+- The contents of this chapter is described in the [**Tutorial for Estimation**](./05_Kriging.html)
 - Simple Kriging
 - Ordinary Kriging (adding Universality condition)
 - Produce maps for estimation and standard deviation of the estimation errors
@@ -78,13 +78,13 @@ The contents of this paragraph is described in the [**Tutorial for Db**](./02_Db
   
 3. Simulations
 
-- The contents of this chapter is described in the [**Tutorial for Simulations**](./07_Simulations.Rmd)
+- The contents of this chapter is described in the [**Tutorial for Simulations**](./07_Simulations.html)
 - Using Turning Bands method
 - Non-conditional or conditioning to data
   
 4. Multivariate case
 
-- The contents of this chapter is described in the [**Tutorial for Multivariate**](./06_Multivariate.Rmd)
+- The contents of this chapter is described in the [**Tutorial for Multivariate**](./06_Multivariate.html)
 - Define several target variables simultaneously and re-run previous steps
 - Simple and cross-variograms
 - Coiging
@@ -98,6 +98,7 @@ How to turn **gstlearn** for personal usage?
  
 # Quick overview of SPDE
 
+- The contents of this chapter is described in the [**Tutorial for SPDE**](./09_SPDE.html)
 - Some theory (meshing, precision matrix, sparse matrix)
 - Using API for performing estimation and  somulations
 - Highlighting the non-stationarity: variable anisotropy

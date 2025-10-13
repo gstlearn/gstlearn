@@ -19,7 +19,7 @@ class GSTLEARN_EXPORT OptimCostColored : public OptimCostBinary
 {
 public:
   OptimCostColored();
-  OptimCostColored(int nprop,
+  OptimCostColored(Id nprop,
                    PrecisionOp* pmat,
                    const ProjMatrix* projdata,
                    const ProjMatrix* projseis = nullptr,
@@ -29,7 +29,7 @@ public:
   OptimCostColored& operator = (const OptimCostColored &m);
 	virtual ~OptimCostColored();
 
-  void reset(int nprop,
+  void reset(Id nprop,
              PrecisionOp* pmat,
              const ProjMatrix* projdata,
              const ProjMatrix* projseis = nullptr,
@@ -40,10 +40,10 @@ public:
                               const VectorVectorInt& splits = VectorVectorInt(),
                               const VectorDouble& meanprops = VectorDouble(),
                               bool verbose = false,
-                              int maxiter = 100,
+                              Id maxiter = 100,
                               double eps = 5.e-4);
 
-  VectorVectorInt initSplit(int nfacies, bool verbose = false) const;
+  VectorVectorInt initSplit(Id nfacies, bool verbose = false) const;
   void   printSplits(const VectorVectorInt& splits = VectorVectorInt()) const;
 
   void setMeanProps(const VectorDouble& meanProps) { _meanProps = meanProps; }
@@ -54,16 +54,16 @@ private:
                            const VectorInt&    split,
                            VectorDouble&       indic) const;
   double _getFaciesToProportion(const VectorInt& split) const;
-  int    _checkFacies(const VectorDouble& facies) const;
-  int    _checkSplits(const VectorVectorInt& splits);
-  int    _checkMeanProportions(const VectorDouble& meanprops);
-  void   _copyMultProportions(int level,
-                              int ip,
+  Id    _checkFacies(const VectorDouble& facies) const;
+  Id    _checkSplits(const VectorVectorInt& splits);
+  Id    _checkMeanProportions(const VectorDouble& meanprops);
+  void   _copyMultProportions(Id level,
+                              Id ip,
                               const VectorDouble& propfac,
                               VectorVectorDouble& propfacs);
                                 
 private:
-  int             _nprop;
+  Id             _nprop;
   VectorVectorInt _splits;
   VectorDouble    _meanProps;
 };

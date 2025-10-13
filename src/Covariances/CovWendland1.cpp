@@ -38,9 +38,10 @@ CovWendland1::~CovWendland1()
 
 double CovWendland1::_evaluateCov(double h) const
 {
+  // From "Computed Supported Correlation Functions" by T. Gneiting with n=3
   double cov = 0.;
-  double h2  = h * h;
-  if (h < 1) cov = 1. - h2 * (10. - h * (20. - h * (15. - h * 4)));
+  if (h < 1)
+    cov = (1. + 4. * h) * pow(1. - h, 4.);
   return (cov);
 }
 

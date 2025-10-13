@@ -94,9 +94,9 @@ String DbStringFormat::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-bool DbStringFormat::_matchFlag(int flag) const
+bool DbStringFormat::_matchFlag(Id flag) const
 {
-  int reste = _params & flag;
+  Id reste = _params & flag;
   return (reste > 0);
 }
 
@@ -126,7 +126,7 @@ DbStringFormat* DbStringFormat::createFromFlags(bool flag_resume,
                                                 const VectorInt& cols,
                                                 bool useSel)
 {
-  DbStringFormat* dbfmt = new DbStringFormat();
+  auto* dbfmt = new DbStringFormat();
   dbfmt->setFlags(flag_resume, flag_vars, flag_extend, flag_stats, flag_array,
                   flag_locator, names, cols, useSel);
   return dbfmt;

@@ -1,5 +1,7 @@
 #NO_DIFF#XXX
-----<IPython.core.display.Javascript object>----
+----
+
+<IPython.core.display.Javascript object>----
 
 
 #NO_DIFF#XXX
@@ -113,6 +115,18 @@ Column = 1 - Name = y - Locator = x2
 Column = 2 - Name = sizes - Locator = NA
 Column = 3 - Name = colors - Locator = NA
 Column = 4 - Name = simu - Locator = z1----
+
+
+#NO_DIFF#XXX
+----np.int64(0)----
+
+
+#NO_DIFF#XXX
+----np.int64(0)----
+
+
+#NO_DIFF#XXX
+--------
 
 
 #NO_DIFF#XXX

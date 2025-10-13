@@ -94,7 +94,7 @@ SpatialIndices::~SpatialIndices()
  **
  *****************************************************************************/
 bool SpatialIndices::_discardData(bool flag_w,
-                                  int iech,
+                                  Id iech,
                                   const String& name,
                                   VectorDouble& coor,
                                   double* value,
@@ -138,7 +138,7 @@ bool SpatialIndices::_discardData(bool flag_w,
   /* Check if the sample has defined coordinates */
 
   _db->getCoordinatesInPlace(coor, iech);
-  for (int idim = 0, ndim = _db->getNDim(); idim < ndim; idim++)
+  for (Id idim = 0, ndim = _db->getNDim(); idim < ndim; idim++)
     if (FFFF(coor[idim])) return true;
 
   /* Returning argument */
@@ -157,12 +157,12 @@ bool SpatialIndices::_discardData(bool flag_w,
  ** \param[in]  name Name of the optional attribute
  **
  *****************************************************************************/
-int SpatialIndices::computeCGI(const String &name)
+Id SpatialIndices::computeCGI(const String &name)
 {
   // Initializations
   double wvalue, value, weight;
-  int nech = _db->getNSample();
-  int ndim = _db->getNDim();
+  Id nech = _db->getNSample();
+  Id ndim = _db->getNDim();
   bool flag_w = _db->hasLocVariable(ELoc::W);
 
   /* Calculate the Center of Gravity */
@@ -171,10 +171,10 @@ int SpatialIndices::computeCGI(const String &name)
   _nvalid = 0;
   _center.resize(ndim, 0.);
   VectorDouble coor(ndim, 0.);
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue)) continue;
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
       _center[idim] += wvalue * coor[idim];
     _wztot += wvalue;
     _nvalid++;
@@ -184,30 +184,30 @@ int SpatialIndices::computeCGI(const String &name)
     messerr("The sum of the weights must be positive : %lf", _wztot);
     return 1;
   }
-  for (int idim = 0; idim < ndim; idim++)
+  for (Id idim = 0; idim < ndim; idim++)
     _center[idim] /= _wztot;
 
   /* Calculate the inertia and the weighted PCA */
 
   _inertia = 0.;
   MatrixSymmetric mm(ndim);
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue)) continue;
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
       coor[idim] -= _center[idim];
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
     {
       _inertia += wvalue * coor[idim] * coor[idim];
-      for (int jdim = 0; jdim <= idim; jdim++)
+      for (Id jdim = 0; jdim <= idim; jdim++)
         mm.updValue(idim, jdim, EOperator::ADD, wvalue * coor[idim] * coor[jdim]);
     }
   }
 
   /* Normation */
   _inertia /= _wztot;
-  for (int idim = 0; idim < ndim; idim++)
-    for (int jdim = 0; jdim <= idim; jdim++)
+  for (Id idim = 0; idim < ndim; idim++)
+    for (Id jdim = 0; jdim <= idim; jdim++)
       mm.updValue(idim, jdim, EOperator::DIVIDE, _wztot);
 
   /* Calculate the eigen values and vectors */
@@ -236,18 +236,18 @@ double SpatialIndices::getLIC(const String &name1, const String &name2)
 {
   // Initializations
   double wvalue, value1, value2, weight;
-  int nech = _db->getNSample();
-  int ndim = _db->getNDim();
+  Id nech = _db->getNSample();
+  Id ndim = _db->getNDim();
   bool flag_w = _db->hasLocVariable(ELoc::W);
 
   /* Calculate the Local Index of Collocation */
 
-  int number = 0;
+  Id number = 0;
   double lic_z11 = 0.;
   double lic_z12 = 0.;
   double lic_z22 = 0.;
   VectorDouble coor(ndim, 0.);
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name1, coor, &value1, &weight, &wvalue))
       continue;
@@ -305,7 +305,7 @@ VectorVectorDouble SpatialIndices::getAxes() const
   return vec;
 }
 
-VectorDouble SpatialIndices::getAxe(int rank) const
+VectorDouble SpatialIndices::getAxe(Id rank) const
 {
   VectorDouble vec;
   if (rank < 0 || rank > 3)
@@ -394,7 +394,7 @@ void SpatialIndices::spatial(const String &name)
     maille = dbgrid->getCellSize();
   }
   double wvalue, value, weight;
-  int ndim = _db->getNDim();
+  Id ndim = _db->getNDim();
   bool flag_w = _db->hasLocVariable(ELoc::W);
   VectorDouble coor(ndim, 0.);
 
@@ -403,7 +403,7 @@ void SpatialIndices::spatial(const String &name)
   double top = 0.;
   double bot = 0.;
   double sum = 0.;
-  for (int iech = 0, nech = _db->getNSample(); iech < nech; iech++)
+  for (Id iech = 0, nech = _db->getNSample(); iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue)) continue;
     if (value > 0)
@@ -445,7 +445,7 @@ VectorVectorDouble SpatialIndices::getQT(const String &name) const
 
   // Initializations
   double wvalue, value, weight;
-  int ndim = _db->getNDim();
+  Id ndim = _db->getNDim();
   bool flag_w = _db->hasLocVariable(ELoc::W);
   VectorDouble coor(ndim, 0.);
 
@@ -454,7 +454,7 @@ VectorVectorDouble SpatialIndices::getQT(const String &name) const
   VectorDouble zz;
   VectorDouble ww;
   VectorDouble wz;
-  for (int iech = 0, nech = _db->getNSample(); iech < nech; iech++)
+  for (Id iech = 0, nech = _db->getNSample(); iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue))
       continue;
@@ -474,7 +474,7 @@ VectorVectorDouble SpatialIndices::getQT(const String &name) const
   double Q = VH::cumul(wzs);
   double SA = 0.;
   VectorDouble QT = VH::cumsum(wzs, true);
-  for (int ib = 0, nb = (int)ww.size(); ib < nb; ib++)
+  for (Id ib = 0, nb = static_cast<Id>(ww.size()); ib < nb; ib++)
     SA += (QT[ib] + QT[ib + 1]) * wws[ib];
   SA /= Q;
   message("Spreading Area  = %lf\n", SA);
@@ -484,7 +484,7 @@ VectorVectorDouble SpatialIndices::getQT(const String &name) const
   vec[1] = VH::cumsum(wzs, true, true);
 
   // Upgrade Q(T) into (Q-Q(T))/Q
-  for (int i = 0, n = (int)vec[1].size(); i < n; i++)
+  for (Id i = 0, n = static_cast<Id>(vec[1].size()); i < n; i++)
     vec[1][i] = (Q - vec[1][i]) / Q;
   
   return vec;
@@ -494,21 +494,21 @@ double SpatialIndices::getMicroStructure(const String& name,
                                          double h0,
                                          const Polygons* polygon,
                                          double dlim,
-                                         int ndisc)
+                                         Id ndisc)
 {
   // Initializations
   double wvalue, value, weight;
-  int ndim = _db->getNDim();
+  Id ndim = _db->getNDim();
   bool flag_w = _db->hasLocVariable(ELoc::W);
   VectorDouble coor(ndim, 0.);
 
   // Calculate the Field extension 
-  int number = 0;
+  Id number = 0;
   double xmin = MAXIMUM_BIG;
   double xmax = MINIMUM_BIG;
   double ymin = MAXIMUM_BIG;
   double ymax = MINIMUM_BIG;
-  for (int iech = 0, nech = _db->getNSample(); iech < nech; iech++)
+  for (Id iech = 0, nech = _db->getNSample(); iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue))
       continue;
@@ -533,8 +533,8 @@ double SpatialIndices::getMicroStructure(const String& name,
   xmax += dx * extend;
   ymin -= dy * extend;
   ymax += dy * extend;
-  dx = (xmax - xmin) / (double) ndisc;
-  dy = (ymax - ymin) / (double) ndisc;
+  dx = (xmax - xmin) / static_cast<double>(ndisc);
+  dy = (ymax - ymin) / static_cast<double>(ndisc);
   double maille = dx * dy;
 
   // Create the internal Grid
@@ -547,7 +547,7 @@ double SpatialIndices::getMicroStructure(const String& name,
   // Migrate the Data to the Grid
   migrate(_db, grid, name, 1, VectorDouble(), true);
   double g0 = 0.;
-  for (int i = 0; i < ndisc * ndisc; i++)
+  for (Id i = 0; i < ndisc * ndisc; i++)
   {
     value = grid->getValue("VMAP.Migrate.Var", i);
     g0 += value * value;
@@ -557,16 +557,16 @@ double SpatialIndices::getMicroStructure(const String& name,
   grid->display();
 
   // Prepare the variogram map calculation
-  int nlag = ceil((3. * h0 / 2.) / MIN(dx, dy));
-  int nrow = 2 * nlag + 1;
-  int ncol = 2 * nlag + 1;
+  Id nlag = ceil((3. * h0 / 2.) / MIN(dx, dy));
+  Id nrow = 2 * nlag + 1;
+  Id ncol = 2 * nlag + 1;
   message("nrow=%d ncol=%d dx=%lf dy=%lf maille=%lf\n", nrow, ncol, dx, dy, maille);
   DbGrid* vmap =
     db_vmap(grid, ECalcVario::E_COVARIOGRAM, {nlag, nlag}, {dx, dy});
   vmap->dumpToNF("vmap.NF");
 
   // Calculate the Microstructure index
-  int icenter = nrow * ncol / 2;
+  Id icenter = nrow * ncol / 2;
   double gh0 = vmap->getValue("VMAP.Migrate.Var", icenter);
 
   double mi   = (g0 - gh0) / g0;
@@ -586,7 +586,7 @@ static void _updateGravityCenter(const VectorDouble& xxs,
                                  VectorDouble& pa,
                                  VectorDouble& pb,
                                  VectorInt& ig,
-                                 int found)
+                                 Id found)
 {
   // Review the list of SpacePoints assigned to the current target group
   // to update the center of gravity
@@ -597,7 +597,7 @@ static void _updateGravityCenter(const VectorDouble& xxs,
   double yb = 0.;
   double paval = 0.;
   double pbval = 0.;
-  for (int iech = 0, nech = (int)ig.size(); iech < nech; iech++)
+  for (Id iech = 0, nech = static_cast<Id>(ig.size()); iech < nech; iech++)
   {
     if (ig[iech] != found)
       continue;
@@ -629,7 +629,7 @@ static SpacePoint _calculateGlobalGravityCenter(const VectorDouble& xxs,
   double yb = 0.;
   (*patot) = 0.;
   (*pbtot) = 0.;
-  for (int iech = 0, nech = (int)xxs.size(); iech < nech; iech++) {
+  for (Id iech = 0, nech = static_cast<Id>(xxs.size()); iech < nech; iech++) {
     xt += wws[iech] * zzs[iech] * xxs[iech];
     xb += wws[iech] * zzs[iech];
     yt += wws[iech] * zzs[iech] * yys[iech];
@@ -645,7 +645,7 @@ static SpacePoint _calculateGlobalGravityCenter(const VectorDouble& xxs,
   return centerG;
 }
 
-static void _createNewPatch(int iech,
+static void _createNewPatch(Id iech,
                             const VectorDouble& xxs,
                             const VectorDouble& yys,
                             const VectorDouble& zzs,
@@ -681,7 +681,7 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
 
   // Initializations
   double wvalue, value, weight;
-  int ndim = _db->getNDim();
+  Id ndim = _db->getNDim();
   bool flag_w = _db->hasLocVariable(ELoc::W);
   VectorDouble coor(ndim, 0.);
 
@@ -691,7 +691,7 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
   VectorDouble ww;
   VectorDouble zz;
   VectorInt origRank;
-  for (int iech = 0, nech = _db->getNSample(); iech < nech; iech++)
+  for (Id iech = 0, nech = _db->getNSample(); iech < nech; iech++)
   {
     if (_discardData(flag_w, iech, name, coor, &value, &weight, &wvalue))
       continue;
@@ -702,7 +702,7 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
     origRank.push_back(iech);
   }
 
-  int nech = (int)origRank.size();
+  Id nech = static_cast<Id>(origRank.size());
   if (nech <= 0)
     return centers;
   VH::normalize(ww, 1); // Normalize the weights
@@ -717,21 +717,21 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
   VectorInt ig(nech, -1);
 
    // The first point is automatically assigned to the first center of gravity
-  int iech = 0;
-  ig[iech] = (int)centers.size();
+  Id iech = 0;
+  ig[iech] = static_cast<Id>(centers.size());
   _createNewPatch(0, xxs, yys, zzs, wws, centers, pa, pb);
 
   // Loop on the samples
   SpacePoint current;
-  for (int jech = 0; jech < nech; jech++)
+  for (Id jech = 0; jech < nech; jech++)
   {
     current.setCoord(0, xxs[jech]);
     current.setCoord(1, yys[jech]);
 
     // Find which gravity center the current point aggregates to
-    int found = -1;
+    Id found = -1;
     double dmin = MAXIMUM_BIG;
-    for (int ic = 0, ncenter = (int)centers.size(); ic < ncenter; ic++)
+    for (Id ic = 0, ncenter = static_cast<Id>(centers.size()); ic < ncenter; ic++)
     {
       double dist = current.getDistance(centers[ic]);
       if (dist > dmin)
@@ -748,14 +748,14 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
     else
     {
       // Create a new center of gravity
-      ig[jech] = (int)centers.size();
+      ig[jech] = static_cast<Id>(centers.size());
       _createNewPatch(jech, xxs, yys, zzs, wws, centers, pa, pb);
     }
   }
 
   // Store the patch rank in the Data Base
-  int iuid = _db->addColumnsByConstant(1, ITEST, "Patch");
-  for (int i = 0, n = (int)origRank.size(); i < n; i++)
+  Id iuid = _db->addColumnsByConstant(1, ITEST, "Patch");
+  for (Id i = 0, n = static_cast<Id>(origRank.size()); i < n; i++)
     _db->setArray(origs[i], iuid, ig[i]);
 
   // Calculate the global center of gravity
@@ -767,25 +767,25 @@ std::vector<SpacePoint> SpatialIndices::getPatches(const String &name,
   VH::divideConstant(pb, pbtot);
 
   // Printout
-  int ncenter = (int) centers.size();
+  Id ncenter = static_cast<Id>(centers.size());
   message("Regrouping the information of %s by patches\n", name.c_str());
   message("- Distance to Center of Gravity = %lf\n", Dmin);
   message("- Total Number of patches = %d\n", ncenter);
 
-  int nover = 0;
-  for (int ic = 0; ic < ncenter; ic++)
+  Id nover = 0;
+  for (Id ic = 0; ic < ncenter; ic++)
   {
     if (pb[ic] > Amin / 100) nover++;
   }
   message("- Number of patches with abundance > %3.0lf %% = %d\n", Amin, nover);
   message("- Percentage of abundance in these patches = ");
-  for (int ic = 0; ic < ncenter; ic++) {
+  for (Id ic = 0; ic < ncenter; ic++) {
     if (pb[ic] > Amin / 100)
       message(" %6.3lf", 100. * pb[ic]);
   }
   message("\n");
   message("- Percentage of area in these patches = ");
-  for (int ic = 0; ic < ncenter; ic++) {
+  for (Id ic = 0; ic < ncenter; ic++) {
     if (pb[ic] > Amin / 100)
       message(" %6.3lf", 100. * pa[ic]);
   }

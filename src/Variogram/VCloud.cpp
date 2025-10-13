@@ -27,7 +27,7 @@
 namespace gstlrn
 {
   
-static int IPTR;
+static Id IPTR;
 static Polygons* POLYGON = nullptr;
 static VectorDouble IDS;
 
@@ -61,7 +61,7 @@ VCloud::~VCloud()
 {
 }
 
-double VCloud::_getIVAR(const Db *db, int iech, int ivar) const
+double VCloud::_getIVAR(const Db *db, Id iech, Id ivar) const
 {
   return db->getZVariable( iech, ivar);
 }
@@ -82,13 +82,13 @@ double VCloud::_getIVAR(const Db *db, int iech, int ivar) const
  ** \param[in]  value       Variogram value
  **
  *****************************************************************************/
-void VCloud::_setResult(int iech1,
-                        int iech2,
-                        int nvar,
-                        int ilag,
-                        int ivar,
-                        int jvar,
-                        int orient,
+void VCloud::_setResult(Id iech1,
+                        Id iech2,
+                        Id nvar,
+                        Id ilag,
+                        Id ivar,
+                        Id jvar,
+                        Id orient,
                         double ww,
                         double dist,
                         double value)
@@ -100,7 +100,7 @@ void VCloud::_setResult(int iech1,
   DECLARE_UNUSED(orient);
   DECLARE_UNUSED(ww);
 
-  int igrid = _update_discretization_grid(dist, value);
+  Id igrid = _update_discretization_grid(dist, value);
   if (igrid < 0) return;
 
   if (POLYGON == nullptr)
@@ -133,7 +133,7 @@ void VCloud::_setResult(int iech1,
  ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
-int VCloud::compute(Db *db, const NamingConvention &namconv)
+Id VCloud::compute(Db *db, const NamingConvention &namconv)
 {
   if (db == nullptr) return (1);
 
@@ -156,13 +156,13 @@ int VCloud::compute(Db *db, const NamingConvention &namconv)
   /* Allocate new variables */
 
   setCalcul(ECalcVario::VARIOGRAM);
-  int ndir = _varioparam->getNDir();
-  int iptr = _dbcloud->addColumnsByConstant(ndir, 0.);
+  Id ndir = _varioparam->getNDir();
+  Id iptr = _dbcloud->addColumnsByConstant(ndir, 0.);
   if (iptr < 0) return (1);
 
   /* Loop on the directions to evaluate */
 
-  for (int idir = 0; idir < ndir; idir++)
+  for (Id idir = 0; idir < ndir; idir++)
   {
     IPTR = iptr + idir;
     _variogram_cloud(db, idir);
@@ -184,8 +184,8 @@ int VCloud::compute(Db *db, const NamingConvention &namconv)
  *****************************************************************************/
 void VCloud::_final_discretization_grid()
 {
-  int nech = _dbcloud->getNSample();
-  for (int iech = 0; iech < nech; iech++)
+  Id nech = _dbcloud->getNSample();
+  for (Id iech = 0; iech < nech; iech++)
   {
     double value = _dbcloud->getArray(iech, IPTR);
     if (value != 0.) continue;
@@ -201,7 +201,7 @@ void VCloud::_final_discretization_grid()
  ** \param[in]  idir    Rank of the Direction
  **
  *****************************************************************************/
-void VCloud::_variogram_cloud(Db *db, int idir)
+void VCloud::_variogram_cloud(Db *db, Id idir)
 {
   double dist;
   SpaceTarget T1(_varioparam->getSpace());
@@ -214,18 +214,18 @@ void VCloud::_variogram_cloud(Db *db, int idir)
 
   // Local variables to speed up calculations
   bool hasSel = db->hasLocVariable(ELoc::SEL);
-  int nech = db->getNSample();
-  int nvar = db->getNLoc(ELoc::Z);
+  Id nech = db->getNSample();
+  Id nvar = db->getNLoc(ELoc::Z);
 
   /* Loop on the first point */
 
-  for (int iech = 0; iech < nech - 1; iech++)
+  for (Id iech = 0; iech < nech - 1; iech++)
   {
     if (hasSel && !db->isActive(iech)) continue;
     db->getSampleAsSTInPlace(iech, T1);
 
-    int ideb = (_varioparam->isDateUsed(db)) ? 0 : iech + 1;
-    for (int jech = ideb; jech < nech; jech++)
+    Id ideb = (_varioparam->isDateUsed(db)) ? 0 : iech + 1;
+    for (Id jech = ideb; jech < nech; jech++)
     {
       if (hasSel && !db->isActive(jech)) continue;
       db->getSampleAsSTInPlace(jech, T2);
@@ -250,13 +250,13 @@ void VCloud::_variogram_cloud(Db *db, int idir)
  ** \param[in]  y     Coordinate along the first axis
  **
  *****************************************************************************/
-int VCloud::_update_discretization_grid(double x, double y)
+Id VCloud::_update_discretization_grid(double x, double y)
 {
-  int ndim = _dbcloud->getNDim();
+  Id ndim = _dbcloud->getNDim();
   VectorInt indg(ndim,0);
 
-  int ix = (int) floor((x - _dbcloud->getX0(0)) / _dbcloud->getDX(0) + 0.5);
-  int iy = (int) floor((y - _dbcloud->getX0(1)) / _dbcloud->getDX(1) + 0.5);
+  Id ix = static_cast<Id>(floor((x - _dbcloud->getX0(0)) / _dbcloud->getDX(0) + 0.5));
+  Id iy = static_cast<Id>(floor((y - _dbcloud->getX0(1)) / _dbcloud->getDX(1) + 0.5));
   if (ix < 0 || ix >= _dbcloud->getNX(0)) return (-1);
   if (iy < 0 || iy >= _dbcloud->getNX(1)) return (-1);
   indg[0] = ix;
@@ -288,8 +288,8 @@ DbGrid* db_vcloud(Db *db,
                   const VarioParam *varioparam,
                   double lagmax,
                   double varmax,
-                  int lagnb,
-                  int varnb,
+                  Id lagnb,
+                  Id varnb,
                   const NamingConvention &namconv)
 {
   if (FFFF(lagmax)) lagmax = db->getExtensionDiagonal();
@@ -301,8 +301,8 @@ DbGrid* db_vcloud(Db *db,
   nx[0] = lagnb;
   nx[1] = varnb;
   VectorDouble dx(2);
-  dx[0] = lagmax / (double) lagnb;
-  dx[1] = varmax / (double) varnb;
+  dx[0] = lagmax / static_cast<double>(lagnb);
+  dx[1] = varmax / static_cast<double>(varnb);
   VectorDouble x0(2);
   x0[0] = 0.;
   x0[1] = 0.;
@@ -311,7 +311,7 @@ DbGrid* db_vcloud(Db *db,
   // Calling the variogram cloud calculation function
 
   VCloud vcloud(dbgrid, varioparam);
-  int error = vcloud.compute(db, namconv);
+  Id error = vcloud.compute(db, namconv);
 
   // In case of error, free the newly created structure
 
@@ -333,10 +333,10 @@ DbGrid* db_vcloud(Db *db,
  ** \param[in]  idir    Rank of the direction of itnerest
  **
  *****************************************************************************/
-int VCloud::selectFromPolygon(Db *db, Polygons *polygon, int idir)
+Id VCloud::selectFromPolygon(Db *db, Polygons *polygon, Id idir)
 {
   POLYGON = polygon;
-  int nech = db->getNSample();
+  Id nech = db->getNSample();
   IDS.resize(nech, 0.);
 
   _variogram_cloud(db, idir);
@@ -347,11 +347,11 @@ int VCloud::selectFromPolygon(Db *db, Polygons *polygon, int idir)
   VectorInt rank = VH::sequence(nech);
   ut_sort_double(0, nech, rank.data(), IDS.data());
 
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
-    int jech = nech - iech - 1;
+    Id jech = nech - iech - 1;
     if (IDS[jech] <= 0.) break;
-    message("Sample #%3d: %d occurence(s)\n", rank[jech] + 1, (int) IDS[jech]);
+    message("Sample #%3d: %d occurence(s)\n", rank[jech] + 1, static_cast<Id>(IDS[jech]));
   }
 
   POLYGON = nullptr;

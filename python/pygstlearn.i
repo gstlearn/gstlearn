@@ -100,7 +100,7 @@
 
   template <typename Type> int convertToCpp(PyObject* obj, Type& value);
   
-  template <> int convertToCpp(PyObject* obj, int& value)
+  template <> int convertToCpp(PyObject* obj, Id& value)
   {
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
@@ -113,10 +113,10 @@
       if (myres == SWIG_OverflowError || v == NPY_INT_NA) // NaN, Inf or out of bound value becomes NA
       {
         myres = SWIG_OK;
-        value = getNA<int>();
+        value = getNA<Id>();
       }
       else
-        myres = SWIG_AsVal_int(obj, &value);
+        myres = SWIG_AsVal_long(obj, &value);
     }
     return myres;
   }
@@ -163,8 +163,8 @@
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
     
-    int v = 0;
-    int myres = SWIG_AsVal_int(obj, &v);
+    long v = 0;
+    int myres = SWIG_AsVal_long(obj, &v);
     //std::cout << "convertToCpp(UChar): value=" << v << std::endl;
     if (myres == SWIG_OverflowError || 
         v < std::numeric_limits<UChar>::min() ||
@@ -187,8 +187,8 @@
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
     
-    int v = 0;
-    int myres = SWIG_AsVal_int(obj, &v);
+    long v = 0;
+    int myres = SWIG_AsVal_long(obj, &v);
     //std::cout << "convertToCpp(bool): value=" << v << std::endl;
     if (v == 0)
       value = false;
@@ -324,7 +324,7 @@
     return myres;
   }
 
-  void convertIndices(PyObject* obj, VectorInt& vec)
+  void convertIndices(PyObject* obj, std::vector<int>& vec)
   {
     // Initialize output vector
     vec.clear();
@@ -352,7 +352,7 @@
         auto ni = PyArray_Size((PyObject*)(indices_array));
         vec.resize(ni);
         for (int i=0 ; i < ni; i++)
-          vec[i] = (int)indices[i];
+          vec[i] = static_cast<int>(indices[i]);
         break;
       }
       default :
@@ -380,8 +380,8 @@
       messerr("Could not extract shape from sparse matrix");
       return SWIG_TypeError;
     }
-    int nrows = PyLong_AsLong(PyTuple_GetItem(shape, 0));
-    int ncols = PyLong_AsLong(PyTuple_GetItem(shape, 1));
+    auto nrows = PyLong_AsLong(PyTuple_GetItem(shape, 0));
+    auto ncols = PyLong_AsLong(PyTuple_GetItem(shape, 1));
     
     // Reading the storage format
     PyObject* format_obj = PyObject_GetAttrString(obj, "format");
@@ -400,17 +400,17 @@
     double* values = (double*) PyArray_DATA(data_array);
 
     // Number of non empty cells
-    int nnz = PyArray_DIM(data_array, 0);
+    auto nnz = PyArray_DIM(data_array, 0);
 
     // Reading 'row' and 'col' or 'indices' and 'indptr' information
     // And build rows and cols indices vectors for creating triplets
-    gstlrn::VectorInt rows(nnz);
-    gstlrn::VectorInt cols(nnz);
+    std::vector<int> rows(nnz);
+    std::vector<int> cols(nnz);
     if (strcmp(format_str, "coo") != 0) 
     {
       // The format is CSC or CSR
-      gstlrn::VectorInt vindc;
-      gstlrn::VectorInt viptr;
+      std::vector<int> vindc;
+      std::vector<int> viptr;
       PyObject* indices_obj = PyObject_GetAttrString(obj, "indices");
       PyObject* indptr_obj  = PyObject_GetAttrString(obj, "indptr");
       
@@ -481,7 +481,7 @@ namespace gstlrn
 %fragment("FromCpp", "header")
 {
   template <typename Type> NPY_TYPES numpyType();
-  template <> NPY_TYPES numpyType<int>()     { return NPY_INT_TYPE; }
+  template <> NPY_TYPES numpyType<Id>()      { return NPY_INT_TYPE; }
   template <> NPY_TYPES numpyType<double>()  { return NPY_DOUBLE; }
   template <> NPY_TYPES numpyType<String>()  { return NPY_STRING; }
   template <> NPY_TYPES numpyType<float>()   { return NPY_FLOAT; }
@@ -489,7 +489,7 @@ namespace gstlrn
   template <> NPY_TYPES numpyType<bool>()    { return NPY_BOOL; }
   
   template<typename Type> struct TypeHelper;
-  template <> struct TypeHelper<int>    { static bool hasFixedSize() { return true; } };
+  template <> struct TypeHelper<Id>    { static bool hasFixedSize() { return true; } };
   template <> struct TypeHelper<double> { static bool hasFixedSize() { return true; } };
   template <> struct TypeHelper<String> { static bool hasFixedSize() { return false; } };
   template <> struct TypeHelper<float>  { static bool hasFixedSize() { return true; } };
@@ -498,7 +498,7 @@ namespace gstlrn
   template <typename Type> bool hasFixedSize() { return TypeHelper<Type>::hasFixedSize(); }
   
   template <typename InputType> struct OutTraits;
-  template <> struct OutTraits<int>     { using OutputType = NPY_INT_OUT_TYPE; };
+  template <> struct OutTraits<Id>      { using OutputType = NPY_INT_OUT_TYPE; };
   template <> struct OutTraits<double>  { using OutputType = double; };
   template <> struct OutTraits<String>  { using OutputType = const char*; };
   template <> struct OutTraits<float>   { using OutputType = float; };
@@ -506,11 +506,11 @@ namespace gstlrn
   template <> struct OutTraits<bool>    { using OutputType = bool; };
   
   template <typename Type> typename OutTraits<Type>::OutputType convertFromCpp(const Type& value);
-  template <> NPY_INT_OUT_TYPE convertFromCpp(const int& value)
+  template <> NPY_INT_OUT_TYPE convertFromCpp(const Id& value)
   {
     //std::cout << "convertFromCpp(int): value=" << value << std::endl;
     NPY_INT_OUT_TYPE vres = static_cast<NPY_INT_OUT_TYPE>(value);
-    if (isNA<int>(value))
+    if (isNA<Id>(value))
       vres = NPY_INT_NA;
     return vres;
   }
@@ -545,7 +545,7 @@ namespace gstlrn
   }
   
   template <typename Type> PyObject* objectFromCpp(const Type& value);
-  template <> PyObject* objectFromCpp(const int& value)
+  template <> PyObject* objectFromCpp(const Id& value)
   {
     return PyLong_FromLongLong(convertFromCpp(value));
   }
@@ -706,8 +706,8 @@ namespace gstlrn
       return SWIG_OK;
     
     // Conversion to a 2D numpy array
-    int nrows = mat.getNRows();
-    int ncols = mat.getNCols();
+    auto nrows = mat.getNRows();
+    auto ncols = mat.getNCols();
 
     NF_Triplet NFT = mat.getMatrixToTriplet();
     const npy_intp nnz = NFT.getNElements();
@@ -726,8 +726,8 @@ namespace gstlrn
 
     for (npy_intp i = 0; i < nnz; ++i) 
     {
-      rows_ptr[i] = NFT.getRow(i);
-      cols_ptr[i] = NFT.getCol(i);
+      rows_ptr[i] = static_cast<int>(NFT.getRow(i));
+      cols_ptr[i] = static_cast<int>(NFT.getCol(i));
       data_ptr[i] = NFT.getValue(i);
     }
 
@@ -900,7 +900,7 @@ namespace gstlrn {
 %extend VectorT<String> {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorNumT<int> {
+%extend VectorNumT<long> {
   std::string __repr__() {  return $self->toString(); }
 }
 %extend VectorNumT<double> {
@@ -912,7 +912,7 @@ namespace gstlrn {
 %extend VectorNumT<UChar> {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorT<VectorNumT<int> > {
+%extend VectorT<VectorNumT<long> > {
   std::string __repr__() {  return $self->toString(); }
 }
 %extend VectorT<VectorNumT<double> >{
@@ -1229,4 +1229,3 @@ except ModuleNotFoundError:
     pass
 
 %}
-

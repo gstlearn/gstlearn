@@ -14,12 +14,12 @@
 
 #include "ACalcDbToDb.hpp"
 
-#include <Enum/EPostUpscale.hpp>
 #include <Enum/EPostStat.hpp>
+#include <Enum/EPostUpscale.hpp>
 
-#include "Db/DbGrid.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Db/DbGrid.hpp"
 
 namespace gstlrn
 {
@@ -27,86 +27,84 @@ class GSTLEARN_EXPORT CalcSimuPost: public ACalcDbToDb
 {
 public:
   CalcSimuPost();
-  CalcSimuPost(const CalcSimuPost &r) = delete;
-  CalcSimuPost& operator=(const CalcSimuPost &r) = delete;
+  CalcSimuPost(const CalcSimuPost& r)            = delete;
+  CalcSimuPost& operator=(const CalcSimuPost& r) = delete;
   virtual ~CalcSimuPost();
 
-
-  void setNames(const VectorString& names)           { _names = names; }
-  void setNfact(const VectorInt& nfact)              { _nfact = nfact; }
-  void setUpscale(const EPostUpscale &upscale)       { _upscale = upscale; }
-  void setVerbose(bool verbose)                      { _verbose = verbose; }
-  void setFlagMatch(bool match)                      { _flagMatch = match; }
-  void setFlagUpscale(bool flagUpscale)              { _flagUpscale = flagUpscale; }
+  void setNames(const VectorString& names) { _names = names; }
+  void setNfact(const VectorInt& nfact) { _nfact = nfact; }
+  void setUpscale(const EPostUpscale& upscale) { _upscale = upscale; }
+  void setVerbose(bool verbose) { _verbose = verbose; }
+  void setFlagMatch(bool match) { _flagMatch = match; }
+  void setFlagUpscale(bool flagUpscale) { _flagUpscale = flagUpscale; }
   void setStats(const std::vector<EPostStat>& stats) { _stats = stats; }
-  void setCheckTargets(const VectorInt& ranks)       { _checkTargets = ranks; }
-  void setCheckLevel(int level)                      { _checkLevel = level; }
+  void setCheckTargets(const VectorInt& ranks) { _checkTargets = ranks; }
+  void setCheckLevel(Id level) { _checkLevel = level; }
 
 protected:
-  /// Interface for ACalcDbToDb
-  virtual bool _check() override;
-  virtual bool _preprocess() override;
-  virtual bool _run() override;
-  virtual bool _postprocess() override;
-  virtual void _rollback() override;
+  bool _check() override;
+  bool _preprocess() override;
+  bool _run() override;
+  bool _postprocess() override;
+  void _rollback() override;
 
 protected:
-  virtual int _getTransfoNvar() const { return 0; }
+  virtual Id _getTransfoNvar() const { return 0; }
   virtual void _transformFunction(const VectorDouble& tabin, VectorDouble& tabout) const { DECLARE_UNUSED(tabin, tabout); }
 
-  int  _getIechout() const { return _iechout; }
+  Id _getIechout() const { return _iechout; }
   bool _getFlagUpscale() const { return _flagUpscale; }
 
 private:
-  int  _defineNames();
+  Id _defineNames();
   void _defineIterations();
-  int  _process();
-  int  _getNiter() const { return _niter; }
+  Id _process();
+  Id _getNiter() const { return _niter; }
 
-  int  _getNVarout() const { return _nvarOut; }
-  int  _getNStats() const { return (int) _stats.size(); }
-  int  _getNEff() const;
+  Id _getNVarout() const { return _nvarOut; }
+  Id _getNStats() const { return static_cast<Id>(_stats.size()); }
+  Id _getNEff() const;
 
   VectorVectorInt _getIndices() const;
   VectorInt _samplesInCellIdenticalSpaceDimension(const VectorInt& indblock) const;
   VectorInt _samplesInCellDifferentSpaceDimension() const;
   void _upscaleFunction(const VectorVectorDouble& Y_p_k_s, VectorDouble& tabout) const;
-  void _readIn(int iech, const VectorInt& indices, VectorDouble& tabin) const;
+  void _readIn(Id iech, const VectorInt& indices, VectorDouble& tabin) const;
   void _statisticsFunction(const VectorVectorDouble& Y_p, VectorDouble& tabout) const;
-  void _printIndices(const VectorVectorInt &indices) const;
-  int  _defineVaroutNumber();
-  void _writeOut(int iech, const VectorDouble& tabout) const;
+  void _printIndices(const VectorVectorInt& indices) const;
+  Id _defineVaroutNumber();
+  void _writeOut(Id iech, const VectorDouble& tabout) const;
   void _environPrint() const;
-  bool _mustBeChecked(int level = 0) const;
-  int  _getSortingCase() const;
+  bool _mustBeChecked(Id level = 0) const;
+  Id _getSortingCase() const;
 
 private:
   bool _verbose;
   bool _flagMatch;
   bool _flagUpscale;
-  int  _checkLevel;
+  Id _checkLevel;
   VectorInt _checkTargets;
   EPostUpscale _upscale;
   std::vector<EPostStat> _stats;
   VectorString _names;
 
-  mutable int  _iechout;
-  mutable int  _iter;
-  mutable int  _iattOut;
-  mutable int  _niter;
-  mutable int  _nvarOut;
+  mutable Id _iechout;
+  mutable Id _iter;
+  mutable Id _iattOut;
+  mutable Id _niter;
+  mutable Id _nvarOut;
   mutable VectorInt _nfact;
   mutable VectorVectorInt _iuids;
 };
 
-GSTLEARN_EXPORT int simuPost(Db *dbin,
-                             DbGrid *dbout,
+GSTLEARN_EXPORT Id simuPost(Db* dbin,
+                             DbGrid* dbout,
                              const VectorString& names,
-                             bool flag_match = false,
-                             const EPostUpscale& upscale = EPostUpscale::fromKey("MEAN"),
+                             bool flag_match                     = false,
+                             const EPostUpscale& upscale         = EPostUpscale::fromKey("MEAN"),
                              const std::vector<EPostStat>& stats = EPostStat::fromKeys({"MEAN"}),
-                             bool verbose = false,
-                             const VectorInt& check_targets = VectorInt(),
-                             int check_level = 0,
-                             const NamingConvention &namconv = NamingConvention("Post"));
-}
+                             bool verbose                        = false,
+                             const VectorInt& check_targets      = VectorInt(),
+                             Id check_level                     = 0,
+                             const NamingConvention& namconv     = NamingConvention("Post"));
+} // namespace gstlrn

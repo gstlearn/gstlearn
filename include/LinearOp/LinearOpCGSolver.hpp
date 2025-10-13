@@ -29,9 +29,9 @@ class ALinearOpCGSolver
 public:
   virtual ~ALinearOpCGSolver() = default;
   virtual void solve(const VectorDouble& rhs, VectorDouble& out) = 0;
-  virtual void setMaxIterations(int n) = 0;
+  virtual void setMaxIterations(Id n) = 0;
   virtual void setTolerance(double tol) = 0;
-  virtual int  getIterations() const = 0;
+  virtual Id  getIterations() const = 0;
   virtual double getError() const = 0;
 #ifndef SWIG
   virtual void solve(const constvect in, const vect out) = 0;
@@ -54,9 +54,9 @@ public:
   virtual ~LinearOpCGSolver() = default;
 
   void solve(const VectorDouble& rhs, VectorDouble& out) override;
-  void setMaxIterations(int n) override {cg.setMaxIterations(n);}
+  void setMaxIterations(Id n) override {cg.setMaxIterations(n);}
   void setTolerance(double tol) override {cg.setTolerance(tol);}
-  int  getIterations() const override { return cg.iterations();}
+  Id  getIterations() const override { return cg.iterations();}
   double getError() const override { return  cg.error();}
 #ifndef SWIG
   void solve(const constvect in, const vect out) override;

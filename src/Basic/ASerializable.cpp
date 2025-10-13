@@ -10,15 +10,15 @@
 /******************************************************************************/
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/File.hpp"
 #include "Basic/SerializeHDF5.hpp"
 #include "Basic/SerializeNeutralFile.hpp"
-#include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Enum/EFormatNF.hpp"
 
-#include <iostream>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 
 namespace gstlrn
 {
@@ -52,7 +52,7 @@ void ASerializable::setDefaultFormatNF(const EFormatNF& format)
  * ASerializable::DefaultFormatNF()
  */
 bool ASerializable::dumpToNF(const String& NFFilename,
-                             const EFormatNF& format, 
+                             const EFormatNF& format,
                              bool verbose) const
 {
   bool ret = true;
@@ -74,7 +74,7 @@ bool ASerializable::dumpToNF(const String& NFFilename,
     if (SerializeNeutralFile::fileOpenWrite(*this, NFFilename, os, true))
     {
       ret = _serializeAscii(os, verbose);
-      if (! ret)
+      if (!ret)
         messerr("Problem writing in the Neutral File.");
       os.close();
     }
@@ -85,7 +85,7 @@ bool ASerializable::dumpToNF(const String& NFFilename,
   if (formatLocal == EFormatNF::H5)
   {
     auto file = SerializeHDF5::fileOpenWrite(*this, NFFilename);
-    bool ret  = _serializeH5(file, verbose);
+    ret       = _serializeH5(file, verbose);
     if (!ret)
       messerr("Problem writing in the HDF5 file.");
     return ret;
@@ -96,21 +96,24 @@ bool ASerializable::dumpToNF(const String& NFFilename,
   return false;
 }
 
-bool ASerializable::_fileOpenAndDeserialize(const String& filename,
-                                            bool verbose)
+bool ASerializable::_fileOpenAndDeserialize(const String& filename, bool verbose)
 {
   // Check that the file exists
   String filepath = ASerializable::buildFileName(1, filename, true);
   std::ifstream file(filepath);
-  if (!file.good()) return false;
+  if (!file.good())
+  {
+    if (verbose) messerr("The file %s does not exist", filepath.c_str());
+    return false;
+  }
 
   // Try to open it according to HDF5 format
 #ifdef HDF5
   if (H5::H5File::isHdf5(filepath))
   {
-    auto file = SerializeHDF5::fileOpenRead(filename);
+    auto fileStr = SerializeHDF5::fileOpenRead(filename);
 
-    return _deserializeH5(file, verbose);
+    return _deserializeH5(fileStr, verbose);
   }
 #endif
 
@@ -147,16 +150,16 @@ bool ASerializable::_commentWrite(std::ostream& os, const String& comment)
 
 bool ASerializable::_tableWrite(std::ostream& os,
                                 const String& string,
-                                int ntab,
+                                Id ntab,
                                 const VectorDouble& tab)
 {
   return SerializeNeutralFile::tableWrite(os, string, ntab, tab);
 }
 
-bool ASerializable::_tableRead(std::istream &is,
-                               const String &string,
-                               int ntab,
-                               double *tab)
+bool ASerializable::_tableRead(std::istream& is,
+                               const String& string,
+                               Id ntab,
+                               double* tab)
 {
   return SerializeNeutralFile::tableRead(is, string, ntab, tab);
 }
@@ -168,7 +171,7 @@ bool ASerializable::_tableRead(std::istream &is,
  * @param ensureDirExist When TRUE, the Directory is created if not already existing
  * @return
  */
-String ASerializable::buildFileName(int status, const String& filename, bool ensureDirExist)
+String ASerializable::buildFileName(Id status, const String& filename, bool ensureDirExist)
 {
   // In the case of Output File (2), 'filename' is appended after the 'containerName' and 'prefixName'
   // In the case of Input file (1), the process depends on the contents of 'filename':
@@ -181,7 +184,6 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
   {
     return fileLocal.string();
   }
-
   fileLocal.clear();
 
   // container name: first search for the GSTLEARN_OUTPUT_DIR
@@ -227,7 +229,7 @@ String ASerializable::getFileIdentity(const String& filename, bool verbose)
     message("Input File Path = %s\n", filepath.c_str());
 
   // Open the file according to various formats
-  int ret_type = -1;
+  Id ret_type = -1;
   String classType;
 
 #ifdef HDF5
@@ -292,4 +294,4 @@ const String& ASerializable::getPrefixName()
 {
   return _myPrefixName;
 }
-}
+} // namespace gstlrn

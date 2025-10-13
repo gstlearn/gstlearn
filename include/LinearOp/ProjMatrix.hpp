@@ -10,9 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "LinearOp/IProj.hpp"
 #include "Matrix/MatrixSparse.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
@@ -25,10 +25,10 @@ public:
   ProjMatrix();
   ProjMatrix(const Db* db,
              const AMesh* a_mesh,
-             int rankZ    = -1,
+             Id rankZ    = -1,
              bool verbose = false);
   ProjMatrix(const ProjMatrix& m);
-  ProjMatrix(const MatrixSparse* m);
+  ProjMatrix(const MatrixSparse& m);
   ProjMatrix& operator=(const ProjMatrix& m);
   virtual ~ProjMatrix();
 
@@ -39,33 +39,29 @@ public:
   IMPLEMENT_CLONING(ProjMatrix)
 
   /// Interface for AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface for IProj
 
 #ifndef SWIG
-  protected:
-    int _addMesh2point(const constvect inv, vect outv) const override;
-    int _addPoint2mesh(const constvect inv, vect outv) const override;
+
+protected:
+  Id _addMesh2point(const constvect inv, vect outv) const override;
+  Id _addPoint2mesh(const constvect inv, vect outv) const override;
 #endif
-  public:
 
-  int getNApex() const override { return getNCols(); }
-  int getNPoint() const override { return getNRows(); }
+public:
+  Id getNApex() const override { return getNCols(); }
+  Id getNPoint() const override { return getNRows(); }
 
-  static ProjMatrix* create(const Db *db,
-                            const AMesh *a_mesh,
-                            int rankZ = -1,
+  static ProjMatrix* create(const Db* db,
+                            const AMesh* a_mesh,
+                            Id rankZ    = -1,
                             bool verbose = false);
   void resetFromMeshAndDb(const Db* db,
                           const AMesh* a_mesh,
-                          int rankZ = -1,
+                          Id rankZ    = -1,
                           bool verbose = false);
-  void dumpVerticesUsed(int npmax = -1) const;
-//  int resetFromDbByNeigh(const Db *db,   // currently unused feature
-//                         AMesh *amesh,
-//                         double radius,
-//                         int flag_exact = 0,
-//                         bool verbose = false);
+  void dumpVerticesUsed(Id npmax = -1) const;
 };
-}
+} // namespace gstlrn

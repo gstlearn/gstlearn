@@ -13,7 +13,7 @@
 namespace gstlrn
 { 
 CSVformat::CSVformat(bool flagHeader,
-                     int nSkip,
+                     Id nSkip,
                      char charSep,
                      char charDec,
                      const String& naString)
@@ -55,7 +55,7 @@ CSVformat::~CSVformat()
 }
 
 CSVformat* CSVformat::create(bool flagHeader,
-                             int nSkip,
+                             Id nSkip,
                              char charSep,
                              char charDec,
                              const String& naString)

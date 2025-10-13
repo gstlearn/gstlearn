@@ -34,7 +34,7 @@ namespace gstlrn
 { 
 static const VectorString symbol = {"F","S","T"};
 
-Node::Node(const String& nodnam, int orient, int facies)
+Node::Node(const String& nodnam, Id orient, Id facies)
     : AStringable(),
       _nodnam(nodnam),
       _r1(nullptr),
@@ -58,7 +58,7 @@ Node::Node(const String& nodnam, int orient, int facies)
 }
 
 Node::Node(const String& nodnam, const VectorInt& n_type, const VectorInt& n_facs,
-           int *ipos, int *n_fac, int *n_y1, int *n_y2)
+           Id *ipos, Id *n_fac, Id *n_y1, Id *n_y2)
     : AStringable(),
       _nodnam(nodnam),
       _r1(nullptr),
@@ -82,9 +82,9 @@ Node::Node(const String& nodnam, const VectorInt& n_type, const VectorInt& n_fac
 
   /* Decode the next operation */
 
-  int rank = 0;
-  int jpos = *ipos;
-  int type = n_type[jpos];
+  Id rank = 0;
+  Id jpos = *ipos;
+  Id type = n_type[jpos];
   (*ipos)++;
 
   /* Compose the name of the node */
@@ -212,12 +212,12 @@ Node& Node::operator=(const Node& m)
 
 Node::~Node()
 {
-  if (_r1 != (Node *) NULL)
+  if (_r1 != nullptr)
   {
     delete _r1;
     _r1 = nullptr;
   }
-  if (_r2 != (Node *) NULL)
+  if (_r2 != nullptr)
   {
     delete _r2;
     _r2 = nullptr;
@@ -236,9 +236,9 @@ String Node::nodePrint(bool flagProp, bool flagThresh) const
 
 {
   std::stringstream sstr;
-  if (_r1 != (Node *) NULL)
+  if (_r1 != nullptr)
     sstr << _r1->nodePrint(flagProp, flagThresh);
-  if (_r2 != (Node *) NULL)
+  if (_r2 != nullptr)
     sstr << _r2->nodePrint(flagProp, flagThresh);
 
   switch (_orient)
@@ -275,9 +275,9 @@ String Node::nodePrint(bool flagProp, bool flagThresh) const
 String Node::nodePrintShadow(bool flagProp, bool flagThresh) const
 {
   std::stringstream sstr;
-  if (_r1 != (Node *) NULL)
+  if (_r1 != nullptr)
     sstr << _r1->nodePrintShadow(flagProp, flagThresh);
-  if (_r2 != (Node *) NULL)
+  if (_r2 != nullptr)
     sstr << _r2->nodePrintShadow(flagProp, flagThresh);
 
   switch (_orient)
@@ -322,10 +322,10 @@ String Node::nodePrintShadow(bool flagProp, bool flagThresh) const
 ** \remark  as arguments of the call
 **
 *****************************************************************************/
-void Node::getStatistics(int *node_tot,
-                         int *nfac_tot,
-                         int *ny1_tot,
-                         int *ny2_tot,
+void Node::getStatistics(Id *node_tot,
+                         Id *nfac_tot,
+                         Id *ny1_tot,
+                         Id *ny2_tot,
                          double *prop_tot)
 {
   *node_tot = 0;
@@ -336,20 +336,20 @@ void Node::getStatistics(int *node_tot,
   _getStatistics(node_tot,nfac_tot,ny1_tot,ny2_tot,prop_tot);
 }
 
-void Node::_getStatistics(int *node_tot,
-                          int *nfac_tot,
-                          int *ny1_tot,
-                          int *ny2_tot,
+void Node::_getStatistics(Id *node_tot,
+                          Id *nfac_tot,
+                          Id *ny1_tot,
+                          Id *ny2_tot,
                           double *prop_tot)
 {
   double p1_loc,p2_loc;
 
   p1_loc = 0.;
-  if (_r1 != (Node *) NULL)
+  if (_r1 != nullptr)
     _r1->_getStatistics(node_tot,nfac_tot,ny1_tot,ny2_tot,&p1_loc);
 
   p2_loc = 0.;
-  if (_r2 != (Node *) NULL)
+  if (_r2 != nullptr)
     _r2->_getStatistics(node_tot,nfac_tot,ny1_tot,ny2_tot,&p2_loc);
 
   _p1 = p1_loc;
@@ -383,19 +383,19 @@ void Node::_getStatistics(int *node_tot,
 ** \param[in]  facies Array for counting the presence of facies
 **
 *****************************************************************************/
-int Node::isValid(VectorInt& facies)
+Id Node::isValid(VectorInt& facies)
 {
-  if (_r1 != (Node *) NULL)
+  if (_r1 != nullptr)
   {
     if (_r1->isValid(facies)) return(1);
   }
-  if (_r2 != (Node *) NULL)
+  if (_r2 != nullptr)
   {
     if (_r2->isValid(facies)) return(1);
   }
 
   if (_orient != THRESH_IDLE) return(0);
-  int nfac = static_cast<int> (facies.size());
+  Id nfac = static_cast<Id> (facies.size());
   if (IFFFF(_facies))
   {
     messerr("The facies of node %s has not been defined",_nodnam.c_str());
@@ -421,8 +421,8 @@ int Node::isValid(VectorInt& facies)
 *****************************************************************************/
 void Node::scaleProp(double scale)
 {
-  if (_r1 != (Node *) NULL) _r1->scaleProp(scale);
-  if (_r2 != (Node *) NULL) _r2->scaleProp(scale);
+  if (_r1 != nullptr) _r1->scaleProp(scale);
+  if (_r2 != nullptr) _r2->scaleProp(scale);
 
   if (_orient == THRESH_IDLE) _prop /= scale;
 }
@@ -434,15 +434,15 @@ String Node::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-int Node::proportionDefine(const VectorDouble& props)
+Id Node::proportionDefine(const VectorDouble& props)
 {
   static double eps = 1.e-3;
 
-  if (_r1 != (Node *) NULL)
+  if (_r1 != nullptr)
   {
     if (_r1->proportionDefine(props)) return(1);
   }
-  if (_r2 != (Node *) NULL)
+  if (_r2 != nullptr)
   {
     if (_r2->proportionDefine(props)) return(1);
   }
@@ -451,7 +451,7 @@ int Node::proportionDefine(const VectorDouble& props)
 
   if (_orient == THRESH_IDLE) // [FO] 21/09/13 => nothing to do in splitting nodes (facies=0)
   {
-    int facies = _facies;
+    Id facies = _facies;
     if (IFFFF(facies)) return(0);
 
     double propval = props[facies - 1];
@@ -477,13 +477,13 @@ int Node::proportionDefine(const VectorDouble& props)
  * @param prop   Returned proportion
  * @return 1 if the facies is found; 0 otherwise
  */
-int Node::getProportion(int facies, double *prop)
+Id Node::getProportion(Id facies, double *prop)
 {
-  if (_r1 != (Node *) NULL)
+  if (_r1 != nullptr)
   {
     if (_r1->getProportion(facies,prop)) return(1);
   }
-  if (_r2 != (Node *) NULL)
+  if (_r2 != nullptr)
   {
     if (_r2->getProportion(facies,prop)) return(1);
   }
@@ -513,21 +513,21 @@ int Node::getProportion(int facies, double *prop)
 ** \remark Argument 'rank' must be initialized to 0 in the calling function
 **
 *****************************************************************************/
-int Node::getThresh(int  mode,
-                    int  istop,
-                    int *rank,
-                    int *facies,
+Id Node::getThresh(Id  mode,
+                    Id  istop,
+                    Id *rank,
+                    Id *facies,
                     double *t1min,
                     double *t1max,
                     double *t2min,
                     double *t2max)
 {
-  if (_r1 != (Node *) NULL)
+  if (_r1 != nullptr)
   {
     if (_r1->getThresh(mode, istop, rank, facies, t1min, t1max, t2min, t2max))
       return (1);
   }
-  if (_r2 != (Node *) NULL)
+  if (_r2 != nullptr)
   {
     if (_r2->getThresh(mode, istop, rank, facies, t1min, t1max, t2min, t2max))
       return (1);
@@ -583,16 +583,16 @@ void Node::proportionToThresh(double rho,
 
   if (_orient == THRESH_Y1)
   {
-    if (_r1 != (Node *) NULL)
+    if (_r1 != nullptr)
       _r1->proportionToThresh(rho, t1min, _thresh, t2min, t2max);
-    if (_r2 != (Node *) NULL)
+    if (_r2 != nullptr)
       _r2->proportionToThresh(rho, _thresh, t1max, t2min, t2max);
   }
   else
   {
-    if (_r1 != (Node *) NULL)
+    if (_r1 != nullptr)
       _r1->proportionToThresh(rho, t1min, t1max, t2min, _thresh);
-    if (_r2 != (Node *) NULL)
+    if (_r2 != nullptr)
       _r2->proportionToThresh(rho, t1min, t1max, _thresh, t2max);
   }
 }
@@ -607,7 +607,7 @@ void Node::proportionToThresh(double rho,
 ** \param[in]  value   Input value
 **
 *****************************************************************************/
-double Node::_transform(int mode, double value)
+double Node::_transform(Id mode, double value)
 {
   if (mode < 0)
   {
@@ -684,10 +684,10 @@ double Node::_threshFromPropcum(double rho)
 double Node::_threshDichotomy(double rho) const
 {
   double low[2],sup[2],mini[2],maxi[2],prop,error;
-  int    i,infin[2],ier,ind;
+  Id    i,infin[2],ier,ind;
   static double abseps = 1.e-08;
   static double releps = 0.;
-  static int maxpts    = 40000;
+  static Id maxpts    = 40000;
 
   /* Initializations */
 
@@ -728,13 +728,13 @@ double Node::_threshDichotomy(double rho) const
 ** \param[out]  facies Facies value
 **
 *****************************************************************************/
-int Node::gaussianToFacies(double y1, double y2, double *facies)
+Id Node::gaussianToFacies(double y1, double y2, double *facies)
 {
-  if (_r1 != (Node *) NULL)
+  if (_r1 != nullptr)
   {
     if (_r1->gaussianToFacies(y1,y2,facies)) return(1);
   }
-  if (_r2 != (Node *) NULL)
+  if (_r2 != nullptr)
   {
     if (_r2->gaussianToFacies(y1,y2,facies)) return(1);
   }
@@ -744,7 +744,7 @@ int Node::gaussianToFacies(double y1, double y2, double *facies)
   if (_t1max < get_rule_extreme(+1) && y1 > _t1max) return(0);
   if (_t2min > get_rule_extreme(-1) && y2 < _t2min) return(0);
   if (_t2max < get_rule_extreme(+1) && y2 > _t2max) return(0);
-  *facies = (double) _facies;
+  *facies = static_cast<double>(_facies);
   return(1);
 }
 
@@ -762,16 +762,16 @@ int Node::gaussianToFacies(double y1, double y2, double *facies)
 ** \param[in]  n_y2        Number of the threshold along Y2
 **
 *****************************************************************************/
-void Node::_getInfo(int *nodes,
-                    int parent_type,
-                    int parent_rank,
-                    int parent_vers,
-                    int *rank,
-                    int *n_fac,
-                    int *n_y1,
-                    int *n_y2) const
+void Node::_getInfo(Id *nodes,
+                    Id parent_type,
+                    Id parent_rank,
+                    Id parent_vers,
+                    Id *rank,
+                    Id *n_fac,
+                    Id *n_y1,
+                    Id *n_y2) const
 {
-  int type,number;
+  Id type,number;
 
   /* Load the parameters of the parent node */
 
@@ -804,24 +804,24 @@ void Node::_getInfo(int *nodes,
 
   /* Process the subsequent tree */
 
-  if (_r1 != (Node *) NULL)
+  if (_r1 != nullptr)
   {
     (*rank)++;
     _r1->_getInfo(nodes,type,number,1,rank,n_fac,n_y1,n_y2);
   }
-  if (_r2 != (Node *) NULL)
+  if (_r2 != nullptr)
   {
     (*rank)++;
     _r2->_getInfo(nodes,type,number,2,rank,n_fac,n_y1,n_y2);
   }
 }
 
-void Node::getInfo(int *nodes) const
+void Node::getInfo(Id *nodes) const
 {
-  int rank = 0;
-  int n_fac = 0;
-  int n_y1 = 0;
-  int n_y2 = 0;
+  Id rank = 0;
+  Id n_fac = 0;
+  Id n_y1 = 0;
+  Id n_y2 = 0;
   _getInfo(nodes, 0, 0, 0, &rank, &n_fac, &n_y1, &n_y2);
 }
 }

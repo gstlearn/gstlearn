@@ -13,19 +13,18 @@
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Enum/EModelProperty.hpp"
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
 #include "Enum/ECov.hpp"
 
 #include "Basic/ICloneable.hpp"
-#include "Covariances/CovList.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "Covariances/CovList.hpp"
 
-
-
-namespace gstlrn {
-class AAnam;  // Forward declaration
+namespace gstlrn
+{
+class AAnam; // Forward declaration
 class CovAniso;
 class CovContext;
 class AnamHermite;
@@ -55,17 +54,17 @@ public:
   IMPLEMENT_CLONING(CovAnisoList)
 
   /// Interface for ASpaceObject
-  virtual bool isConsistent(const ASpace* space) const override;
+  bool isConsistent(const ASpace* space) const override;
 
   /// Interface for ACov
-  virtual int getNVar() const override;
-  virtual bool isIndexable() const override { return true; }
-  virtual double eval0(int ivar                = 0,
-                       int jvar                = 0,
-                       const CovCalcMode* mode = nullptr) const override;
+  Id getNVar() const override;
+  bool isIndexable() const override { return true; }
+  double eval0(Id ivar                 = 0,
+               Id jvar                 = 0,
+               const CovCalcMode* mode = nullptr) const override;
 
   /// Interface for AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// CovAnisoList Interface
   void addCov(const CovBase& cov) override;
@@ -74,76 +73,76 @@ public:
   const EModelProperty& getCovMode() const;
   virtual bool hasAnam() const { return false; }
   virtual const AAnam* getAnam() const { return nullptr; }
-  virtual void setActiveFactor(int /*iclass*/) {}
-  virtual int getActiveFactor() const { return 0; }
-  virtual int getAnamNClass() const { return 0; }
+  virtual void setActiveFactor(Id /*iclass*/) {}
+  virtual Id getActiveFactor() const { return 0; }
+  virtual Id getAnamNClass() const { return 0; }
 
   void addCovList(const CovAnisoList& covs);
 
-  int getNCov(bool skipNugget = false) const;
+  Id getNCov(bool skipNugget = false) const;
   bool hasRange() const;
   bool isStationary() const;
   double getMaximumDistance() const;
-  double getTotalSill(int ivar = 0, int jvar = 0) const override;
+  double getTotalSill(Id ivar = 0, Id jvar = 0) const override;
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
-  const CovAniso* getCovAniso(int icov) const;
-  CovAniso* getCovAniso(int icov); // TODO : beurk :(
-  void setCov(int icov, const CovBase* cov) override;
-  const ECov& getCovType(int icov) const override;
-  String getCovName(int icov) const override;
-  void setRangeIsotropic(int icov, double range);
-  void setType(int icov, const ECov& type);
-  void setParam(int icov, double value);
-  void setMarkovCoeffs(int icov, const VectorDouble& coeffs);
-  double getParam(int icov) const;
-  double getRange(int icov) const;
-  VectorDouble getRanges(int icov) const;
-  VectorDouble getAngles(int icov) const;
-  int getNGradParam(int icov) const;
-  CovAniso extractCova(int icov) const;
-  int getCovMinIRFOrder() const;
+  const CovAniso* getCovAniso(Id icov) const;
+  CovAniso* getCovAniso(Id icov); // TODO : beurk :(
+  void setCov(Id icov, const CovBase* cov) override;
+  const ECov& getCovType(Id icov) const override;
+  String getCovName(Id icov) const override;
+  void setRangeIsotropic(Id icov, double range);
+  void setType(Id icov, const ECov& type);
+  void setParam(Id icov, double value);
+  void setMarkovCoeffs(Id icov, const VectorDouble& coeffs);
+  double getParam(Id icov) const;
+  double getRange(Id icov) const;
+  VectorDouble getRanges(Id icov) const;
+  VectorDouble getAngles(Id icov) const;
+  Id getNGradParam(Id icov) const;
+  CovAniso extractCova(Id icov) const;
+  Id getCovMinIRFOrder() const;
   double getBallRadius() const;
-  int hasExternalCov() const;
+  Id hasExternalCov() const;
   bool isChangeSupportDefined() const;
   void appendParams(ListParams& listParams,
                     std::vector<covmaptype>* gradFuncs = nullptr) override;
   // Methods necessary for Optimization
   bool hasNugget() const;
-  int getRankNugget() const;
+  Id getRankNugget() const;
   const CovAnisoList* createReduce(const VectorInt& validVars) const;
 
   // Non-stationary parameters
-  void makeRangeNoStatDb(int icov, const String& namecol, int idim = 0);
-  void makeScaleNoStatDb(int icov, const String& namecol, int idim = 0);
-  void makeAngleNoStatDb(int icov, const String& namecol, int idim = 0);
+  void makeRangeNoStatDb(Id icov, const String& namecol, Id idim = 0);
+  void makeScaleNoStatDb(Id icov, const String& namecol, Id idim = 0);
+  void makeAngleNoStatDb(Id icov, const String& namecol, Id idim = 0);
 
-  void makeTensorNoStatDb(int icov, const String& namecol, int idim = 0, int jdim = 0);
-  void makeParamNoStatDb(int icov, const String& namecol);
-  void makeRangeNoStatFunctional(int icov, const AFunctional* func, int idim = 0);
-  void makeScaleNoStatFunctional(int icov, const AFunctional* func, int idim = 0);
-  void makeAngleNoStatFunctional(int icov, const AFunctional* func, int idim = 0);
-  void makeTensorNoStatFunctional(int icov, const AFunctional* func, int idim = 0, int jdim = 0);
-  void makeParamNoStatFunctional(int icov, const AFunctional* func);
-  void makeRangeStationary(int icov, int idim = 0);
-  void makeScaleStationary(int icov, int idim = 0);
-  void makeAngleStationary(int icov, int idim = 0);
+  void makeTensorNoStatDb(Id icov, const String& namecol, Id idim = 0, Id jdim = 0);
+  void makeParamNoStatDb(Id icov, const String& namecol);
+  void makeRangeNoStatFunctional(Id icov, const AFunctional* func, Id idim = 0);
+  void makeScaleNoStatFunctional(Id icov, const AFunctional* func, Id idim = 0);
+  void makeAngleNoStatFunctional(Id icov, const AFunctional* func, Id idim = 0);
+  void makeTensorNoStatFunctional(Id icov, const AFunctional* func, Id idim = 0, Id jdim = 0);
+  void makeParamNoStatFunctional(Id icov, const AFunctional* func);
+  void makeRangeStationary(Id icov, Id idim = 0);
+  void makeScaleStationary(Id icov, Id idim = 0);
+  void makeAngleStationary(Id icov, Id idim = 0);
 
-  void makeTensorStationary(int icov, int idim, int jdim);
-  void makeParamStationary(int icov);
+  void makeTensorStationary(Id icov, Id idim, Id jdim);
+  void makeParamStationary(Id icov);
 
   bool getSameRotation() const { return _sameRotation; }
   void setSameRotation(bool samerot) { _sameRotation = samerot; }
 
 private:
   // Returns a pointer on an existing Cov and cast it to CovAniso
-  const CovAniso* _getCovAniso(int icov) const;
-  CovAniso* _getCovAnisoModify(int icov);
+  const CovAniso* _getCovAniso(Id icov) const;
+  CovAniso* _getCovAnisoModify(Id icov);
 
 protected:
-  bool _isCovarianceIndexValid(int icov) const;
+  bool _isCovarianceIndexValid(Id icov) const;
 
 private:
   bool _sameRotation;
 };
-}
+} // namespace gstlrn

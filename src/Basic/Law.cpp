@@ -20,11 +20,11 @@
 
 namespace gstlrn
 {
-static int Random_factor     = 105;
-static int Random_congruent  = 20000159;
-static int Random_value      = 43241421;
-static bool Random_Old_Style = true;
-std::mt19937 Random_gen;
+thread_local Id Random_factor      = 105;
+thread_local Id Random_congruent   = 20000159;
+thread_local Id Random_value       = 43241421;
+thread_local bool Random_Old_Style = true;
+thread_local std::mt19937 Random_gen;
 
 /*! \cond */
 #define TABIN_BY_COL(iech, ivar)   (tabin[(ivar) * nechin + (iech)])
@@ -50,7 +50,7 @@ void law_set_old_style(bool style)
  ** \return  The current value of the seed (integer)
  **
  *****************************************************************************/
-int law_get_random_seed(void)
+Id law_get_random_seed(void)
 
 {
   return Random_value;
@@ -63,13 +63,13 @@ int law_get_random_seed(void)
  ** \param[in]  seed the new value given to the seed
  **
  *****************************************************************************/
-void law_set_random_seed(int seed)
+void law_set_random_seed(Id seed)
 {
   if (seed > 0)
   {
     Random_value = seed;
     if (!Random_Old_Style)
-      Random_gen.seed((unsigned)seed);
+      Random_gen.seed(static_cast<unsigned>(seed));
   }
 }
 
@@ -90,10 +90,10 @@ double law_uniform(double mini, double maxi)
 
   if (Random_Old_Style)
   {
-    unsigned int random_product;
-    random_product = Random_factor * Random_value;
+    unsigned random_product;
+    random_product = static_cast<unsigned>(Random_factor * Random_value);
     Random_value   = random_product % Random_congruent;
-    value          = (double)Random_value / (double)Random_congruent;
+    value          = static_cast<double>(Random_value) / static_cast<double>(Random_congruent);
     value          = mini + value * (maxi - mini);
   }
   else
@@ -114,14 +114,14 @@ double law_uniform(double mini, double maxi)
  ** \param[in]  maxi  maximum value
  **
  *****************************************************************************/
-int law_int_uniform(int mini, int maxi)
+Id law_int_uniform(Id mini, Id maxi)
 {
   double rndval;
-  int number, rank;
+  Id number, rank;
 
   number = maxi - mini + 1;
-  rndval = law_uniform(0., (double)number);
-  rank   = (int)floor(rndval);
+  rndval = law_uniform(0., static_cast<double>(number));
+  rank   = static_cast<Id>(floor(rndval));
   return (rank + mini);
 }
 
@@ -201,7 +201,7 @@ double law_gamma(double alpha, double beta)
   if (Random_Old_Style)
   {
 
-    if (fabs((double)alpha - 1.) < 0.00001) return (-log(law_uniform(0., 1.)));
+    if (fabs(alpha - 1.) < 0.00001) return (-log(law_uniform(0., 1.)));
     if (alpha > 1.)
     {
       double c1 = alpha - 1.;
@@ -218,7 +218,7 @@ double law_gamma(double alpha, double beta)
     double c1 = 1. + alpha / GV_EE;
     double c2 = 1 / alpha;
     double c3 = alpha - 1;
-    int test;
+    Id test;
     do
     {
       double v = law_uniform(0., 1.);
@@ -484,7 +484,7 @@ double law_cdf_gaussian(double value)
                        1.330274429};
   static double p   = 0.2316419;
   double u, v, x, t;
-  int i;
+  Id i;
 
   x = fabs(value);
   t = 1. / (1. + p * x);
@@ -565,7 +565,7 @@ double law_gaussian_between_bounds(double binf, double bsup)
 {
   double atab[4], btab[4], ptab[4];
   double a, b, aa, bb, total, a2, b2, c2, u, x;
-  int k, n, isim, type, ok, rank, itab[4];
+  Id k, n, isim, type, ok, rank, itab[4];
   static double seuil = 2.;
   static double large = 20.;
   static double sqe   = 1.6487212707;
@@ -640,7 +640,7 @@ label_norme:
 
   if (total <= 0.)
   {
-    rank = (int)((double)n * law_uniform(0., 1.));
+    rank = static_cast<Id>(static_cast<double>(n) * law_uniform(0., 1.));
     x    = atab[rank];
     return (x);
   }
@@ -750,13 +750,13 @@ double law_df_bigaussian(VectorDouble& vect,
  *****************************************************************************/
 double law_df_quadgaussian(VectorDouble& vect, MatrixSymmetric& correl)
 {
-  int nvar       = (int)vect.size();
+  Id nvar        = static_cast<Id>(vect.size());
   double density = -2. * log(2 * GV_PI);
 
   if (correl.computeEigen()) return TEST;
 
   VectorDouble eigval = correl.getEigenValues();
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (Id ivar = 0; ivar < nvar; ivar++)
     density -= 0.5 * log(eigval[ivar]);
 
   MatrixSymmetric invcor = correl;
@@ -780,13 +780,13 @@ double law_df_quadgaussian(VectorDouble& vect, MatrixSymmetric& correl)
 double law_df_multigaussian(VectorDouble& vect, MatrixSymmetric& correl)
 
 {
-  int nvar       = (int)vect.size();
+  Id nvar        = static_cast<Id>(vect.size());
   double density = -0.5 * nvar * log(2 * GV_PI);
 
   if (correl.computeEigen()) return TEST;
   VectorDouble eigval = correl.getEigenValues();
 
-  for (int i = 0; i < nvar; i++)
+  for (Id i = 0; i < nvar; i++)
     density -= 0.5 * log(eigval[i]);
 
   MatrixSymmetric invcor(correl);
@@ -799,14 +799,14 @@ double law_df_multigaussian(VectorDouble& vect, MatrixSymmetric& correl)
 
 VectorDouble law_df_poisson_vec(VectorInt is, double parameter)
 {
-  int size = (int)is.size();
+  Id size = static_cast<Id>(is.size());
   VectorDouble res(size);
-  for (int ii = 0; ii < size; ii++)
+  for (Id ii = 0; ii < size; ii++)
     res[ii] = law_df_poisson(is[ii], parameter);
   return res;
 }
 
-double law_df_poisson(int i, double parameter)
+double law_df_poisson(Id i, double parameter)
 {
   return (exp(-parameter) * pow(parameter, i) / ut_factorial(i));
 }
@@ -822,20 +822,20 @@ double law_df_poisson(int i, double parameter)
  ** \remarks  Method Ahrens-Dieter (1973)
  **
  *****************************************************************************/
-int law_poisson(double parameter)
+Id law_poisson(double parameter)
 {
   if (Random_Old_Style)
   {
     double x, p, q;
-    int n, ok;
+    Id n, ok;
 
-    int k    = 0;
+    Id k     = 0;
     double t = parameter;
 
     while (t >= 16)
     {
-      n = (int)floor(0.875 * t);
-      x = law_gamma((double)n, 1.);
+      n = static_cast<Id>(floor(0.875 * t));
+      x = law_gamma(static_cast<double>(n), 1.);
       if (FFFF(x)) return (ITEST);
 
       if (x > t)
@@ -865,7 +865,7 @@ int law_poisson(double parameter)
     }
     return (k - 1);
   }
-  std::poisson_distribution<int> d(parameter);
+  std::poisson_distribution<I32> d(parameter);
   return d(Random_gen);
 }
 
@@ -876,12 +876,12 @@ int law_poisson(double parameter)
  ** \param[in] nech       : Number of samples
  **
  *****************************************************************************/
-VectorInt law_random_path(int nech)
+VectorInt law_random_path(Id nech)
 {
   VectorDouble order(nech);
   VectorInt path(nech);
 
-  for (int i = 0; i < nech; i++)
+  for (Id i = 0; i < nech; i++)
   {
     path[i]  = i;
     order[i] = law_uniform(0., 1.);
@@ -900,7 +900,7 @@ VectorInt law_random_path(int nech)
  ** \param[in]  p    Event probability
  **
  *****************************************************************************/
-int law_binomial(int n, double p)
+Id law_binomial(Id n, double p)
 {
   const double q = 1 - p;
   if (n * p < 30.0) /* Algorithm BINV */
@@ -908,7 +908,7 @@ int law_binomial(int n, double p)
     const double s = p / q;
     const double a = (n + 1) * s;
     double r       = exp(n * log(q)); /* pow() causes a crash on AIX */
-    int x          = 0;
+    Id x           = 0;
     double u       = law_uniform(0., 1.);
     while (1)
     {
@@ -922,7 +922,7 @@ int law_binomial(int n, double p)
   {
     /* Step 0 */
     const double fm      = n * p + p;
-    const int m          = (int)fm;
+    const Id m           = static_cast<Id>(fm);
     const double p1      = floor(2.195 * sqrt(n * p * q) - 4.6 * q) + 0.5;
     const double xm      = m + 0.5;
     const double xl      = xm - p1;
@@ -938,12 +938,12 @@ int law_binomial(int n, double p)
     while (1)
     {
       /* Step 1 */
-      int y;
-      int k;
+      Id y;
+      Id k;
       double u = law_uniform(0., 1.);
       double v = law_uniform(0., 1.);
       u *= p4;
-      if (u <= p1) return (int)(xm - p1 * v + u);
+      if (u <= p1) return static_cast<Id>(xm - p1 * v + u);
       /* Step 2 */
       if (u > p2)
       {
@@ -951,14 +951,14 @@ int law_binomial(int n, double p)
         if (u > p3)
         {
           /* Step 4 */
-          y = (int)(xr - log(v) / lambdar);
+          y = static_cast<Id>(xr - log(v) / lambdar);
           if (y > n) continue;
           /* Go to step 5 */
           v = v * (u - p3) * lambdar;
         }
         else
         {
-          y = (int)(xl + log(v) / lambdal);
+          y = static_cast<Id>(xl + log(v) / lambdal);
           if (y < 0) continue;
           /* Go to step 5 */
           v = v * (u - p2) * lambdal;
@@ -970,7 +970,7 @@ int law_binomial(int n, double p)
         v              = v * c + 1.0 - fabs(m - x + 0.5) / p1;
         if (v > 1) continue;
         /* Go to step 5 */
-        y = (int)x;
+        y = static_cast<Id>(x);
       }
       /* Step 5 */
       /* Step 5.0 */
@@ -1007,7 +1007,7 @@ int law_binomial(int n, double p)
         return y;
       }
       /* Step 5.1 */
-      int i;
+      Id i;
       const double s  = p / q;
       const double aa = s * (n + 1);
       double f        = 1.0;
@@ -1053,18 +1053,18 @@ int law_binomial(int n, double p)
  **
  *****************************************************************************/
 VectorDouble law_exp_sample(const double* tabin,
-                            int mode,
-                            int nvar,
-                            int nechin,
-                            int nechout,
-                            int niter,
-                            int nconst,
+                            Id mode,
+                            Id nvar,
+                            Id nechin,
+                            Id nechout,
+                            Id niter,
+                            Id nconst,
                             double* consts,
-                            int seed,
+                            Id seed,
                             double percent)
 {
   double value, rab, total;
-  int iechin, selec, nvarin, nvarout, nvar1, flag_cont, flag_ok;
+  Id iechin, selec, nvarin, nvarout, nvar1, flag_cont, flag_ok;
 
   /* Initializations */
 
@@ -1084,7 +1084,7 @@ VectorDouble law_exp_sample(const double* tabin,
 
   for (iechin = 0; iechin < nechin; iechin++)
   {
-    for (int ivar = 0; ivar < nvarin; ivar++)
+    for (Id ivar = 0; ivar < nvarin; ivar++)
     {
       value = (mode == 1) ? TABIN_BY_COL(iechin, ivar) : TABIN_BY_LINE(iechin, ivar);
       if (FFFF(value))
@@ -1102,10 +1102,10 @@ VectorDouble law_exp_sample(const double* tabin,
 
   /* Normalize the statistics */
 
-  for (int ivar = 0; ivar < nvarin; ivar++)
+  for (Id ivar = 0; ivar < nvarin; ivar++)
   {
-    mean[ivar] /= (double)nechin;
-    stdv[ivar] = stdv[ivar] / (double)nechin - mean[ivar] * mean[ivar];
+    mean[ivar] /= static_cast<double>(nechin);
+    stdv[ivar] = stdv[ivar] / static_cast<double>(nechin) - mean[ivar] * mean[ivar];
     stdv[ivar] = (stdv[ivar] > 0) ? sqrt(stdv[ivar]) : 0.;
     stdv[ivar] *= percent / 100.;
   }
@@ -1116,26 +1116,26 @@ VectorDouble law_exp_sample(const double* tabin,
 
   /* Generate the samples */
 
-  for (int iechout = 0; iechout < nechout; iechout++)
+  for (Id iechout = 0; iechout < nechout; iechout++)
   {
 
     /* Loop on the trials */
 
     flag_cont = 1;
-    for (int iter = 0; iter < niter && flag_cont; iter++)
+    for (Id iter = 0; iter < niter && flag_cont; iter++)
     {
 
       /* Get the closest experimental sample (the reference) */
 
-      selec            = (int)law_uniform(1., (double)nechin);
+      selec            = static_cast<Id>(law_uniform(1., static_cast<double>(nechin)));
       auto placeholder = (selec + 0.5);
-      iechin           = (int)placeholder;
+      iechin           = static_cast<Id>(placeholder);
       if (iechin < 0) iechin = 0;
       if (iechin >= nechin) iechin = nechin - 1;
 
       /* Generate values around the reference */
 
-      for (int ivar = 0; ivar < nvarout; ivar++)
+      for (Id ivar = 0; ivar < nvarout; ivar++)
       {
         rab = stdv[ivar] * law_gaussian();
         if (mode == 1)
@@ -1150,10 +1150,10 @@ VectorDouble law_exp_sample(const double* tabin,
       flag_ok = 1;
       if (nconst > 0 && consts != nullptr)
       {
-        for (int iconst = 0; iconst < nconst && flag_ok; iconst++)
+        for (Id iconst = 0; iconst < nconst && flag_ok; iconst++)
         {
           total = 0.;
-          for (int ivar1 = 0; ivar1 < nvar1; ivar1++)
+          for (Id ivar1 = 0; ivar1 < nvar1; ivar1++)
             total += CONSTS(iconst, ivar1) * temp[ivar1];
           if (total < 0) flag_ok = 0;
         }
@@ -1163,7 +1163,7 @@ VectorDouble law_exp_sample(const double* tabin,
 
       if (flag_ok)
       {
-        for (int ivar = 0; ivar < nvar; ivar++)
+        for (Id ivar = 0; ivar < nvar; ivar++)
         {
           if (mode == 1)
             TABOUT_BY_COL(iechout, ivar) = temp[ivar];
@@ -1179,7 +1179,7 @@ VectorDouble law_exp_sample(const double* tabin,
       messerr("Please check the consistency between your Training Data Base");
       messerr("and the set of constraints");
       messerr("Statistics on the Training Date Base");
-      for (int ivar = 0; ivar < nvar; ivar++)
+      for (Id ivar = 0; ivar < nvar; ivar++)
       {
         messerr(" %d - Mini=%lf - Maxi=%lf - Mean=%lf - Stdv=%lf", ivar + 1,
                 mini[ivar], maxi[ivar], mean[ivar], stdv[ivar]);
@@ -1197,12 +1197,13 @@ VectorDouble law_exp_sample(const double* tabin,
  * @param mini Lower bound (included)
  * @param maxi Upper bound (included)
  */
-int sampleInteger(int mini, int maxi)
+Id sampleInteger(Id mini, Id maxi)
 {
   double rmini = mini - 0.5;
   double rmaxi = maxi + 0.5;
   double rand  = law_uniform(rmini, rmaxi);
-  int retval   = (rand > 0) ? (int)trunc(rand + 0.5) : (int)-trunc(-rand + 0.5);
+  Id retval    = (rand > 0) ? static_cast<Id>(trunc(rand + 0.5)) : static_cast<Id>(-trunc(-rand + 0.5));
   return retval;
 }
+
 } // namespace gstlrn

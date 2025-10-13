@@ -18,47 +18,47 @@ namespace gstlrn
 class DbGrid;
 class Model;
 
-GSTLEARN_EXPORT int seismic_estimate_XZ(DbGrid* db,
+GSTLEARN_EXPORT Id seismic_estimate_XZ(DbGrid* db,
                                         Model* model,
-                                        int nbench,
-                                        int nv2max,
-                                        int flag_ks,
-                                        int flag_std,
-                                        int flag_sort,
-                                        int flag_stat);
-GSTLEARN_EXPORT int seismic_simulate_XZ(DbGrid* db,
+                                        Id nbench,
+                                        Id nv2max,
+                                        Id flag_ks,
+                                        Id flag_std,
+                                        Id flag_sort,
+                                        Id flag_stat);
+GSTLEARN_EXPORT Id seismic_simulate_XZ(DbGrid* db,
                                         Model* model,
-                                        int nbench,
-                                        int nv2max,
-                                        int nbsimu,
-                                        int seed,
-                                        int flag_ks,
-                                        int flag_sort,
-                                        int flag_stat);
-GSTLEARN_EXPORT int seismic_z2t_grid(
-  int verbose,
+                                        Id nbench,
+                                        Id nv2max,
+                                        Id nbsimu,
+                                        Id seed,
+                                        Id flag_ks,
+                                        Id flag_sort,
+                                        Id flag_stat);
+GSTLEARN_EXPORT Id seismic_z2t_grid(
+  Id verbose,
   DbGrid* db_z,
-  int iatt_v,
-  int* nx,
+  Id iatt_v,
+  Id* nx,
   double* x0,
   double* dx);
-GSTLEARN_EXPORT int seismic_t2z_grid(
-  int verbose,
+GSTLEARN_EXPORT Id seismic_t2z_grid(
+  Id verbose,
   DbGrid* db_t,
-  int iatt_v,
-  int* nx,
+  Id iatt_v,
+  Id* nx,
   double* x0,
   double* dx);
-GSTLEARN_EXPORT int seismic_z2t_convert(DbGrid* db_z, int iatt_v, DbGrid* db_t);
-GSTLEARN_EXPORT int seismic_t2z_convert(DbGrid* db_t, int iatt_v, DbGrid* db_z);
-GSTLEARN_EXPORT int seismic_operate(DbGrid* db, int oper);
-GSTLEARN_EXPORT int seismic_convolve(DbGrid* db,
-                                     int flag_operate,
-                                     int flag_contrast,
-                                     int type,
-                                     int ntw,
-                                     int option,
-                                     int tindex,
+GSTLEARN_EXPORT Id seismic_z2t_convert(DbGrid* db_z, Id iatt_v, DbGrid* db_t);
+GSTLEARN_EXPORT Id seismic_t2z_convert(DbGrid* db_t, Id iatt_v, DbGrid* db_z);
+GSTLEARN_EXPORT Id seismic_operate(DbGrid* db, Id oper);
+GSTLEARN_EXPORT Id seismic_convolve(DbGrid* db,
+                                     Id flag_operate,
+                                     Id flag_contrast,
+                                     Id type,
+                                     Id ntw,
+                                     Id option,
+                                     Id tindex,
                                      double fpeak,
                                      double period,
                                      double amplitude,

@@ -41,7 +41,7 @@ double CovGC1::_evaluateCov(double h) const
 {
   double cov;
   double r = getContext().getField();
-  int ndim = getContext().getNDim();
+  auto ndim = getContext().getNDim();
 
   if (ndim == 1)
     cov = r - h;

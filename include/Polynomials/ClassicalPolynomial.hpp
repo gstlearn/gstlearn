@@ -38,21 +38,21 @@ public:
   // void evalDerivOp(ShiftOpMatrix* shiftOp,
   //                         const constvect& inv,
   //                         vect& outv,
-  //                         int iapex,
-  //                         int igparam);
+  //                         Id iapex,
+  //                         Id igparam);
   // static void evalDerivOpOptim(ShiftOpMatrix* shiftOp,
   //                              vect& temp1,
   //                              vect& temp2,
   //                              vect& outv,
   //                              const VectorVectorDouble& workpoly,
-  //                              int iapex,
-  //                              int igparam);
+  //                              Id iapex,
+  //                              Id igparam);
 #ifndef SWIG
   // void evalDerivOp(ShiftOpMatrix* shiftOp,const std::vector<double>& inv,
-  //                  std::vector<double>& outv,int iapex,int igparam)const;
+  //                  std::vector<double>& outv,Id iapex,Id igparam)const;
   
   // void evalDerivOpOptim(ShiftOpMatrix* shiftOp,Eigen::VectorXd& temp1,Eigen::VectorXd& temp2,
-  //                      Eigen::VectorXd& outv,const std::vector<Eigen::VectorXd>& workpoly,int iapex,int igparam)const;
+  //                      Eigen::VectorXd& outv,const std::vector<Eigen::VectorXd>& workpoly,Id iapex,Id igparam)const;
   // void evalOp(const ALinearOpMulti* /*Op*/,
   //            const std::vector<Eigen::VectorXd>& /*inv*/,
   //           std::vector<Eigen::VectorXd>& /*outv*/) const override { }
@@ -63,12 +63,12 @@ public:
                       std::vector<double>& work) const override;
   void evalOpCumul(MatrixSparse* Op, const constvect inv, vect outv) const;
   void evalOp(MatrixSparse* Op, const constvect inv, vect outv) const override;
-  double evalOpByRank(MatrixSparse* S, int rank) const override;
+  double evalOpByRank(MatrixSparse* S, Id rank) const override;
 #endif
   
 #ifndef SWIG
 
-  void _addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const override;
+  void _addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const override;
 
 #endif
 

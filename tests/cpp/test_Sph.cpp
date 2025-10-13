@@ -8,14 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ECst.hpp"
-
 #include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/String.hpp"
+#include "Enum/ECst.hpp"
 #include "Geometry/GeometryHelper.hpp"
-
 #include <cmath>
 
 #define VERBOSE 0
@@ -32,7 +30,7 @@ static void st_test_1(void)
 {
   mestitle(1, "Testing the distance between two points");
 
-  int test     = 1;
+  Id test      = 1;
   double long1 = 10.;
   double lat1  = 4.;
   double long2 = 20.;
@@ -56,7 +54,7 @@ static void st_test_1(void)
 
     if (!INTER) break;
     message("Continue (1) or Stop(0) : ");
-    if (gslScanf("%d", &test) == EOF) return;
+    if (gslScanf("%ld", &test) == EOF) return;
   }
 }
 
@@ -67,7 +65,7 @@ static void st_test_2(void)
 
   mestitle(1, "Testing angles of a spherical triangle");
 
-  int test     = 1;
+  Id test      = 1;
   double long1 = 10.;
   double lat1  = 23.;
   double long2 = 5.;
@@ -109,7 +107,7 @@ static void st_test_2(void)
 
     if (!INTER) break;
     message("Continue (1) or Stop(0) : ");
-    if (gslScanf("%d", &test) == EOF) return;
+    if (gslScanf("%ld", &test) == EOF) return;
   }
 }
 
@@ -118,28 +116,28 @@ static void st_test_3(void)
   double dx, dy, s1, s2, x1, x2, y1, y2, total;
 
   mestitle(1, "Covering half-sphere with spherical triangles");
-  int nx = 40;
-  int ny = 40;
+  Id nx = 40;
+  Id ny = 40;
 
   if (INTER)
   {
     message("nx = ");
-    if (gslScanf("%d", &nx) == EOF) return;
+    if (gslScanf("%ld", &nx) == EOF) return;
     message("ny = ");
-    if (gslScanf("%d", &ny) == EOF) return;
+    if (gslScanf("%ld", &ny) == EOF) return;
   }
-  dy = 90. / (double)ny;
-  dx = 360. / (double)nx;
+  dy = 90. / static_cast<double>(ny);
+  dx = 360. / static_cast<double>(nx);
 
   total = 0.;
-  for (int iy = 0; iy < ny; iy++)
+  for (Id iy = 0; iy < ny; iy++)
   {
-    y1 = dy * (double)(iy);
-    y2 = dy * (double)(iy + 1.);
-    for (int ix = 0; ix < nx; ix++)
+    y1 = dy * static_cast<double>(iy);
+    y2 = dy * (iy + 1.);
+    for (Id ix = 0; ix < nx; ix++)
     {
-      x1 = dx * (double)(ix);
-      x2 = dx * (double)(ix + 1.);
+      x1 = dx * static_cast<double>(ix);
+      x2 = dx * (ix + 1.);
 
       s1 = GH::geodeticTriangleSurface(x1, y1, x2, y1, x1, y2);
       s2 = GH::geodeticTriangleSurface(x2, y1, x1, y2, x2, y2);
@@ -147,7 +145,7 @@ static void st_test_3(void)
     }
   }
   total /= (2. * GV_PI);
-  message("Surface totale = %lf\n", total);
+  message("Surface totale = %5.3lf\n", total);
 }
 
 /****************************************************************************/
@@ -161,9 +159,9 @@ int main(int argc, char* argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  int flag_1 = 1;
-  int flag_2 = 1;
-  int flag_3 = 1;
+  Id flag_1 = 1;
+  Id flag_2 = 1;
+  Id flag_3 = 1;
 
   /* 1.c - Setup constants */
 

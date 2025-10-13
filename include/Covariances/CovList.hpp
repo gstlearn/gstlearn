@@ -10,18 +10,18 @@
 #pragma once
 
 #include "Basic/VectorNumT.hpp"
-#include "Enum/ECalcMember.hpp"
-#include "Model/AModelFitSills.hpp"
-#include "Space/ASpace.hpp"
-#include "gstlearn_export.hpp"
-#include "geoslib_define.h"
-#include "Enum/ECov.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "Enum/ECalcMember.hpp"
+#include "Enum/ECov.hpp"
+#include "Model/AModelFitSills.hpp"
+#include "Space/ASpace.hpp"
+#include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
 #include <vector>
 
-namespace gstlrn 
+namespace gstlrn
 {
 class ASpace;
 class SpacePoint;
@@ -52,106 +52,107 @@ public:
   virtual ~CovList();
 
   /// Interface for ACov
-  virtual int getNVar() const override;
-  virtual bool isIndexable() const override { return true; }
-  virtual double eval0(int ivar                = 0,
-                       int jvar                = 0,
-                       const CovCalcMode* mode = nullptr) const override;
+  Id getNVar() const override;
+  bool isIndexable() const override { return true; }
+  double eval0(Id ivar                 = 0,
+               Id jvar                 = 0,
+               const CovCalcMode* mode = nullptr) const override;
 
-  virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) const override;
+  void updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const override;
 
   /// Interface for AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// CovList Interface
   virtual void addCov(const CovBase& cov);
 
   void addCovList(const CovList& covs);
   // Remove an elementary covariance structure
-  void delCov(int icov);
+  void delCov(Id icov);
   // Remove all elementary covariance structures
   void delAllCov();
 #ifndef SWIG
-  int addEvalCovVecRHSInPlace(vect vect,
-                              const VectorInt& index1,
-                              int iech2,
-                              const KrigOpt& krigopt,
-                              SpacePoint& pin,
-                              SpacePoint& pout,
-                              VectorDouble& tabwork,
-                              double lambda                 = 1,
-                              const ECalcMember& calcMember = ECalcMember::RHS) const override;
+  Id addEvalCovVecRHSInPlace(vect vect,
+                             const VectorInt& index1,
+                             Id iech2,
+                             const KrigOpt& krigopt,
+                             SpacePoint& pin,
+                             SpacePoint& pout,
+                             VectorDouble& tabwork,
+                             double lambda                 = 1,
+                             const ECalcMember& calcMember = ECalcMember::RHS) const override;
 #endif
-  void setCovFiltered(int icov, bool filtered);
-  int getNCov() const;
-  int getNCovNuggetExcluded() const;
-  bool isFiltered(int icov) const;
-  virtual double getTotalSill(int ivar = 0, int jvar = 0) const;
+  void setCovFiltered(Id icov, bool filtered);
+  Id getNCov() const;
+  Id getNCovNuggetExcluded() const;
+  bool isFiltered(Id icov) const;
+  virtual double getTotalSill(Id ivar = 0, Id jvar = 0) const;
   MatrixSymmetric getTotalSills() const;
   bool isAllActiveCovList() const;
 
   void setOptimEnabled(bool flag) const override;
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
-  const CovBase* getCov(int icov) const;
-  CovBase* getCovModify(int icov);
-  virtual String getCovName(int icov) const;
-  virtual const ECov& getCovType(int icov) const;
-  virtual void setCov(int icov, const CovBase* covs);
-  void setSill(int icov, int ivar, int jvar, double value);
-  void setSills(int icov, const MatrixSymmetric& sills);
-  const MatrixSymmetric& getSills(int icov) const;
-  double getSill(int icov, int ivar, int jvar) const;
+  const CovBase* getCov(Id icov) const;
+  CovBase* getCovModify(Id icov);
+  virtual String getCovName(Id icov) const;
+  virtual const ECov& getCovType(Id icov) const;
+  virtual void setCov(Id icov, const CovBase* covs);
+  void setSill(Id icov, Id ivar, Id jvar, double value);
+  void setSills(Id icov, const MatrixSymmetric& sills);
+  const MatrixSymmetric& getSills(Id icov) const;
+  double getSill(Id icov, Id ivar, Id jvar) const;
 
   // Methods necessary for Optimization
-  void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
+  void _optimizationPreProcess(Id mode, const std::vector<SpacePoint>& ps) const override;
   void _optimizationPostProcess() const override;
-  SpacePoint& _optimizationLoadInPlace(int iech, int mode, int rank) const override;
+  SpacePoint& _optimizationLoadInPlace(Id iech, Id mode, Id rank) const override;
   void _optimizationSetTarget(SpacePoint& pt) const override;
 
-  void setActiveCovListFromOne(int keepOnlyCovIdx) const;
-  void setActiveCovListFromInterval(int inddeb, int indto) const;
+  void setActiveCovListFromOne(Id keepOnlyCovIdx) const;
+  void setActiveCovListFromInterval(Id inddeb, Id indto) const;
   void setActiveCovList(const VectorInt& activeCovList, bool allActiveCov) const;
 
   void copyCovContext(const CovContext& ctxt) override;
-  void normalize(double sill = 1., int ivar = 0, int jvar = 0);
+  void normalize(double sill = 1., Id ivar = 0, Id jvar = 0);
 
-  int makeElemNoStat(const EConsElem& econs,
-                     int iv1,
-                     int iv2,
-                     const AFunctional* func = nullptr,
-                     const Db* db            = nullptr,
-                     const String& namecol   = String()) override;
-  void makeSillNoStatDb(int icov, const String& namecol, int ivar = 0, int jvar = 0);
-  void makeSillStationary(int icov, int ivar = 0, int jvar = 0);
-  void makeSillsStationary(int icov, bool silent = false);
-  void makeSillNoStatFunctional(int icov, const AFunctional* func, int ivar = 0, int jvar = 0);
+  Id makeElemNoStat(const EConsElem& econs,
+                    Id iv1,
+                    Id iv2,
+                    const AFunctional* func = nullptr,
+                    const Db* db            = nullptr,
+                    const String& namecol   = String()) override;
+  void makeSillNoStatDb(Id icov, const String& namecol, Id ivar = 0, Id jvar = 0);
+  void makeSillStationary(Id icov, Id ivar = 0, Id jvar = 0);
+  void makeSillsStationary(Id icov, bool silent = false);
+  void makeSillNoStatFunctional(Id icov, const AFunctional* func, Id ivar = 0, Id jvar = 0);
 
-  virtual void appendParams(ListParams& listParams,
-                            std::vector<covmaptype>* gradFuncs = nullptr) override;
+  void appendParams(ListParams& listParams,
+                    std::vector<covmaptype>* gradFuncs = nullptr) override;
   void updateCov() override;
   void initParams(const MatrixSymmetric& vars, double href = 1.) override;
   void deleteFitSills() const;
 
   void setFitSills(AModelFitSills* amopts) const;
   AModelFitSills* getFitSills() const;
-  int getNitergCum() const { return _itergCum; }
+  Id getNitergCum() const { return _itergCum; }
+  void setAllCovActive();
 
   bool isValidForSpectral() const override;
   MatrixDense simulateSpectralOmega(int ns) const override;
 protected:
-  bool _isCovarianceIndexValid(int icov) const;
+  bool _isCovarianceIndexValid(Id icov) const;
   void _load(const SpacePoint& p, bool case1) const override;
 
 protected:
   const VectorInt& _getListActiveCovariances(const CovCalcMode* mode) const;
   void _updateLists();
 
-  virtual double _eval(const SpacePoint& p1,
-                       const SpacePoint& p2,
-                       int ivar                = 0,
-                       int jvar                = 0,
-                       const CovCalcMode* mode = nullptr) const override;
+  double _eval(const SpacePoint& p1,
+               const SpacePoint& p2,
+               Id ivar                 = 0,
+               Id jvar                 = 0,
+               const CovCalcMode* mode = nullptr) const override;
 
 private:
   void _attachNoStatDb(const Db* db) override;
@@ -160,22 +161,23 @@ private:
 
   bool _isNoStat() const override;
   void _setContext(const CovContext& ctxt) override;
-  virtual void _delCov(int icov) { DECLARE_UNUSED(icov) };
+  virtual void _delCov(Id icov) { DECLARE_UNUSED(icov) };
   // Remove all elementary covariance structures
   virtual void _delAllCov() {};
   void _manage(const Db* db1, const Db* db2) const override;
 
 #ifndef SWIG
+
 protected:
-  std::vector<std::shared_ptr<CovBase>> _covs;         /// Vector of elementary covariances
-  VectorBool _filtered;                /// Vector of filtered flags (size is nb. cova)
-  mutable bool _allActiveCov;          /*! True if all covariances are active */
-  mutable VectorInt _allActiveCovList; /*! List of indices of all covariances */
-  mutable VectorInt _activeCovList;    /*! List of indices of the active covariances */
+  std::vector<std::shared_ptr<CovBase>> _covs; /// Vector of elementary covariances
+  VectorBool _filtered;                        /// Vector of filtered flags (Dimension = nbcova)
+  mutable bool _allActiveCov;                  /*! True if all covariances are active */
+  mutable VectorInt _allActiveCovList;         /*! List of indices of all covariances */
+  mutable VectorInt _activeCovList;            /*! List of indices of the active covariances */
 #endif
 
 private:
   mutable AModelFitSills* _modelFitSills; /* Model fitting procedure for Sills */
-  mutable int _itergCum;
+  mutable Id _itergCum;
 };
-}
+} // namespace gstlrn

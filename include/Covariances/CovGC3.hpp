@@ -29,8 +29,8 @@ public:
   CovGC3& operator= (const CovGC3 &r);
   virtual ~CovGC3();
 
-  int    hasRange() const override { return -1; }
-  int    getMinOrder()  const override { return 1; }
+  Id    hasRange() const override { return -1; }
+  Id    getMinOrder()  const override { return 1; }
   String getCovName() const override { return "Order-3 G.C."; }
   bool   getCompatibleSpaceR() const override { return true; }
 

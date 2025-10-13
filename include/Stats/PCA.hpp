@@ -27,29 +27,29 @@ class GSTLEARN_EXPORT PCA: public AStringable
 {
 
 public:
-  PCA(int nvar = 0);
+  PCA(Id nvar = 0);
   PCA(const PCA &m);
   PCA& operator= (const PCA &m);
   virtual ~PCA();
 
   /// Interface for AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  void init(int nvar);
+  void init(Id nvar);
 
   const VectorDouble& getEigVals() const { return _eigval; }
-  double getEigVal(int ivar) const { return _eigval[ivar]; }
+  double getEigVal(Id ivar) const { return _eigval[ivar]; }
   const MatrixDense& getEigVecs() const { return _eigvec; }
-  double getEigVec(int ivar, int jvar) const { return _eigvec.getValue(ivar,jvar); }
+  double getEigVec(Id ivar, Id jvar) const { return _eigvec.getValue(ivar,jvar); }
   VectorDouble getVarianceRatio() const;
   const VectorDouble& getMeans() const { return _mean; }
-  double getMean(int ivar) const { return _mean[ivar]; }
+  double getMean(Id ivar) const { return _mean[ivar]; }
   const MatrixSymmetric& getC0() const { return _c0; }
-  int getNVar() const { return _nVar; }
+  Id getNVar() const { return _nVar; }
   const MatrixSquare& getF2Zs() const { return _F2Z; }
   const MatrixSquare& getZ2Fs() const { return _Z2F; }
   const VectorDouble& getSigmas() const { return _sigma; }
-  double getSigma(int ivar) const { return _sigma[ivar]; }
+  double getSigma(Id ivar) const { return _sigma[ivar]; }
 
   void setMeans(const VectorDouble &mean) { _mean = mean; }
   void setSigmas(const VectorDouble &sigma) { _sigma = sigma; }
@@ -57,35 +57,35 @@ public:
   void setF2Zs(const MatrixSquare& f2z) { _F2Z = f2z; }
 
   void setEigVals(VectorDouble& eigval) { _eigval = eigval; }
-  void setEigVal(int ivar, double eigval) { _eigval[ivar] = eigval; }
+  void setEigVal(Id ivar, double eigval) { _eigval[ivar] = eigval; }
   void setEigVecs(const MatrixDense& eigvec) { _eigvec = eigvec; }
-  void setEigVec(int ivar, int jvar, double eigvec) { _eigvec.setValue(ivar,jvar,eigvec); }
+  void setEigVec(Id ivar, Id jvar, double eigvec) { _eigvec.setValue(ivar,jvar,eigvec); }
 
-  int pca_compute(const Db *db, bool verbose = false, bool optionPositive = true);
-  int maf_compute(Db *db,
+  Id pca_compute(const Db *db, bool verbose = false, bool optionPositive = true);
+  Id maf_compute(Db *db,
                   const VarioParam &varioparam,
-                  int ilag0 = 1,
-                  int idir0 = 0,
+                  Id ilag0 = 1,
+                  Id idir0 = 0,
                   bool verbose = false);
-  int maf_compute_interval(Db *db, double hmin, double hmax, bool verbose = false);
-  int dbZ2F(Db* db,
+  Id maf_compute_interval(Db *db, double hmin, double hmax, bool verbose = false);
+  Id dbZ2F(Db* db,
             bool verbose = false,
             const NamingConvention& namconv = NamingConvention("F", false));
-  int dbF2Z(Db* db,
+  Id dbF2Z(Db* db,
             bool verbose = false,
             const NamingConvention& namconv = NamingConvention("Z", false));
   VectorDouble mafOfIndex() const;
 
 private:
-  double _getF2Z(int ivar, int ifac) const { return _F2Z.getValue(ivar, ifac); }
-  void   _setF2Z(int ivar, int ifac, double f2z) {  _F2Z.setValue(ivar, ifac, f2z); }
-  double _getZ2F(int ifac, int ivar) const { return _Z2F.getValue(ifac, ivar); }
-  void   _setZ2F(int ifac, int ivar, double z2f) {  _Z2F.setValue(ifac, ivar, z2f); }
+  double _getF2Z(Id ivar, Id ifac) const { return _F2Z.getValue(ivar, ifac); }
+  void   _setF2Z(Id ivar, Id ifac, double f2z) {  _F2Z.setValue(ivar, ifac, f2z); }
+  double _getZ2F(Id ifac, Id ivar) const { return _Z2F.getValue(ifac, ivar); }
+  void   _setZ2F(Id ifac, Id ivar, double z2f) {  _Z2F.setValue(ifac, ivar, z2f); }
 
   static VectorBool _getVectorIsotopic(const Db* db);
-  static void _loadData(const Db* db, int iech, VectorDouble& data);
-  int  _calculateEigen(bool verbose = false, bool optionPositive = true);
-  int  _calculateGEigen(bool verbose);
+  static void _loadData(const Db* db, Id iech, VectorDouble& data);
+  Id  _calculateEigen(bool verbose = false, bool optionPositive = true);
+  Id  _calculateGEigen(bool verbose);
   void _calculateNormalization(const Db *db,
                                const VectorBool &isoFlag,
                                bool verbose = false,
@@ -96,8 +96,8 @@ private:
                     bool flag_nm1 = false);
   void _variogramh(Db *db,
                    const VarioParam &varioparam,
-                   int ilag0,
-                   int idir0,
+                   Id ilag0,
+                   Id idir0,
                    double hmin,
                    double hmax,
                    const VectorBool &isoFlag,
@@ -112,28 +112,28 @@ private:
                         const VectorDouble& sigma,
                         bool flag_center = true,
                         bool flag_scale  = false);
-  void _pcaZ2F(int iptr,
+  void _pcaZ2F(Id iptr,
                Db* db,
                const VectorBool& isoFlag,
                const VectorDouble& mean,
                const VectorDouble& sigma);
-  void _pcaF2Z(int iptr,
+  void _pcaF2Z(Id iptr,
                Db *db,
                const VectorBool &isoFlag,
                const VectorDouble &mean,
                const VectorDouble &sigma);
   void _pcaFunctions(bool verbose);
   void _mafFunctions(bool verbose);
-  int _mafCompute(Db *db,
+  Id _mafCompute(Db *db,
                   const VarioParam &varioparam,
-                  int ilag0,
-                  int idir0,
+                  Id ilag0,
+                  Id idir0,
                   double hmin,
                   double hmax,
                   bool verbose);
 
 private:
-  int          _nVar;
+  Id          _nVar;
   VectorDouble _mean;
   VectorDouble _sigma;
   VectorDouble          _eigval;

@@ -28,8 +28,8 @@ public:
   CovLinear& operator= (const CovLinear &r);
   virtual ~CovLinear();
 
-  int    hasRange() const override { return -1; }
-  int    getMinOrder()  const override { return 0; }
+  Id    hasRange() const override { return -1; }
+  Id    getMinOrder()  const override { return 0; }
   String getCovName() const override { return "Linear"; }
   bool   getCompatibleSpaceR() const override { return true; }
 

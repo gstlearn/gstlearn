@@ -38,16 +38,16 @@ double CovExponential::simulateTurningBand(double t0, TurningBandOperate& operTB
   return operTB.spectralOne(t0);
 }
 
-MatrixDense CovExponential::simulateSpectralOmega(int nb) const
+MatrixDense CovExponential::simulateSpectralOmega(Id nb) const
 {
-  int ndim     = getContext().getNDim();
+  auto ndim    = static_cast<Id>(getContext().getNDim());
   double param = 0.5;
   MatrixDense mat(nb, ndim);
 
-  for (int irow = 0; irow < nb; irow++)
+  for (Id irow = 0; irow < nb; irow++)
   {
     double scale = sqrt(param / law_gamma(param));
-    for (int icol = 0; icol < ndim; icol++)
+    for (Id icol = 0; icol < ndim; icol++)
       mat.setValue(irow, icol, scale * law_gaussian());
   }
   return mat;
@@ -55,21 +55,21 @@ MatrixDense CovExponential::simulateSpectralOmega(int nb) const
 
 double CovExponential::_evaluateCovOnSphere(double alpha,
                                             double scale,
-                                            int degree) const
+                                            Id degree) const
 {
   DECLARE_UNUSED(degree);
   double nu = scale * getScadef();
   return exp(-nu * alpha);
 }
 
-VectorDouble CovExponential::_evaluateSpectrumOnSphere(int n, double scale) const
+VectorDouble CovExponential::_evaluateSpectrumOnSphere(Id n, double scale) const
 {
   double nu    = scale * getScadef();
   double nu2   = nu * nu;
   double expnu = exp(-nu * GV_PI);
 
   VectorDouble sp(1 + n, 0.);
-  int k;
+  Id k;
 
   k     = 0;
   sp[k] = 1. / 2. * (1. + expnu) / (1. + nu2);
@@ -88,7 +88,7 @@ VectorDouble CovExponential::_evaluateSpectrumOnSphere(int n, double scale) cons
   return sp;
 }
 
-// double CovExponential::_evaluateCovDerivative(double h) const
+// double CovExponential::_evaluateCovFirstDerivative(double h) const
 // {
 //   if (h > MAX_EXP) return (0.);
 //   double cov = -exp(-h);

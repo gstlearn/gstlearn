@@ -15,7 +15,7 @@
 #include "Model/ModelCovList.hpp"
 
 namespace gstlrn
-{ 
+{
 AModelOptim::AModelOptim(ModelGeneric* model, bool verbose)
   : _model(model)
   , _verbose(verbose)
@@ -24,18 +24,18 @@ AModelOptim::AModelOptim(ModelGeneric* model, bool verbose)
   if (_model == nullptr)
     throw std::invalid_argument("Model cannot be null");
 
-  bool useGradient = (bool)OptCustom::query("UseGradient", 1);
+  bool useGradient = static_cast<bool>(OptCustom::query("UseGradient", 1));
   _params          = _model->generateListParams();
 
-  // int nvar                 = _model->getNVar();
+  // Id nvar                 = _model->getNVar();
   // MatrixSymmetric varsUnit = MatrixSymmetric(nvar);
-  // for (int ivar = 0; ivar < nvar; ivar++) varsUnit.setValue(ivar, ivar, 1.);
+  // for (Id ivar = 0; ivar < nvar; ivar++) varsUnit.setValue(ivar, ivar, 1.);
   // _model->initParams(varsUnit, 1.);
-  _x    = _params->getOptimizableValues();
+  _x = _params->getOptimizableValues();
   if (useGradient)
-    _opt = new Optim(LBFGS, (int)_x.size());
+    _opt = new Optim(LBFGS, static_cast<Id>(_x.size()));
   else
-    _opt = new Optim(NELDERMEAD, (int)_x.size());
+    _opt = new Optim(NELDERMEAD, static_cast<Id>(_x.size()));
 
   _opt->setXtolRel(EPSILON6);
   _opt->setObjective([this](const std::vector<double>& x)
@@ -47,11 +47,11 @@ AModelOptim::AModelOptim(ModelGeneric* model, bool verbose)
   resetIter();
 };
 
-void AModelOptim::setEnvironment(const MatrixSymmetric& vars, double href)
+void AModelOptim::setEnvironment(const MatrixSymmetric& vars, double href, double epsilon)
 {
   _model->initParams(vars, href);
-  _opt->setLowerBounds(_params->getMinValues());
-  _opt->setUpperBounds(_params->getMaxValues());
+  _opt->setLowerBounds(_params->getMinValues(epsilon), _params->getDispatch());
+  _opt->setUpperBounds(_params->getMaxValues(epsilon), _params->getDispatch());
   _x = _params->getOptimizableValues();
 }
 
@@ -135,7 +135,7 @@ double AModelOptim::eval(const std::vector<double>& x)
   _model->updateModel();
 
   // Calculate the cost
-  double result = computeCost(false);
+  double result = computeCost(false, false);
 
   if (_trace)
   {
@@ -146,6 +146,16 @@ double AModelOptim::eval(const std::vector<double>& x)
   return result;
 };
 
+void AModelOptim::evalGradInEffectiveDimension(vect res)
+{
+  if (_opt == nullptr)
+  {
+    messerr("Optimizer is not initialized");
+    return;
+  }
+  _opt->evalGrad(res);
+}
+
 void AModelOptim::evalGrad(vect res) {
   DECLARE_UNUSED(res)
 };
@@ -155,24 +165,26 @@ void AModelOptim::_printSummary(double minf, const std::vector<double>& x) const
   message("Count of Iterations = %4d - Final Cost = %lf\n",
           _iter, minf);
   VH::dump("- Final parameters", x, false);
-  ModelCovList* mcv   = dynamic_cast<ModelCovList*>(_model);
+  auto* mcv           = dynamic_cast<ModelCovList*>(_model);
   AModelFitSills* amf = mcv->getFitSills();
   if (amf != nullptr)
   {
-    int nitergCum = mcv->getCovList()->getNitergCum();
+    Id nitergCum = mcv->getCovList()->getNitergCum();
     amf->printFitSillSummary(nitergCum);
   }
 }
 
-void AModelOptim::run()
+double AModelOptim::run()
 {
   double minf = _opt->minimize(_x);
 
   if (_verbose) _printSummary(minf, _x);
+  resetIter();
+  return minf;
 }
 
 void AModelOptim::resetIter()
 {
   _iter = 0;
 }
-}
+} // namespace gstlrn

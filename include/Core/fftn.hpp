@@ -11,13 +11,14 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "geoslib_define.h"
 
 namespace gstlrn
 {
-GSTLEARN_EXPORT int fftn(int ndim,
-                         const int dims[],
+GSTLEARN_EXPORT Id fftn(Id ndim,
+                         const Id dims[],
                          double Re[],
                          double Im[],
-                         int iSign = 1,
+                         Id iSign = 1,
                          double scaling = 1.);
 }

@@ -21,7 +21,7 @@ namespace gstlrn
 typedef struct
 {
   char SREF[LOCAL_SIZE];       /* Name of the Locator */
-  int IREF;                    /* Unicity of the locator */
+  Id IREF;                    /* Unicity of the locator */
   char COMMENT[STRING_LENGTH]; /* Meaning */
 } Def_Locator;
 
@@ -61,33 +61,33 @@ void PtrGeos::clear()
   _r.clear();
 }
 
-void PtrGeos::erase(int locatorIndex)
+void PtrGeos::erase(Id locatorIndex)
 {
   _r.erase(_r.begin() + locatorIndex);
 }
 
-int PtrGeos::findUIDInLocator(int iuid) const
+Id PtrGeos::findUIDInLocator(Id iuid) const
 {
-  for (int locatorIndex = 0; locatorIndex < getNLoc(); locatorIndex++)
+  for (Id locatorIndex = 0; locatorIndex < getNLoc(); locatorIndex++)
     if (getLocatorByIndex(locatorIndex) == iuid) return (locatorIndex);
   return -1;
 }
 
-String PtrGeos::dumpLocator(int rank, const ELoc& locatorType) const
+String PtrGeos::dumpLocator(Id rank, const ELoc& locatorType) const
 {
   std::stringstream sstr;
 
-  int i = locatorType.getValue();
+  auto i = locatorType.getValue();
   sstr << rank + 1 << " - Locator: " << DEF_LOCATOR[i].SREF << std::endl;
   sstr << "- Attributes = ";
-  for (int locatorIndex = 0; locatorIndex < getNLoc(); locatorIndex++)
+  for (Id locatorIndex = 0; locatorIndex < getNLoc(); locatorIndex++)
     sstr << _r[locatorIndex] << " ";
   sstr << std::endl;
 
   return sstr.str();
 }
 
-bool PtrGeos::isLocatorIndexValid(int locatorIndex) const
+bool PtrGeos::isLocatorIndexValid(Id locatorIndex) const
 {
   return checkArg("Locator Index", locatorIndex, getNLoc());
 }
@@ -98,7 +98,7 @@ bool PtrGeos::isLocatorIndexValid(int locatorIndex) const
  * @param locatorIndex   Rank within the locator starting from 1 (can be <0 for the keyword only)
  * @return
  */
-String getLocatorName(const ELoc& locatorType, int locatorIndex)
+String getLocatorName(const ELoc& locatorType, Id locatorIndex)
 {
   std::stringstream sstr;
   if (locatorType == ELoc::UNKNOWN)
@@ -110,7 +110,7 @@ String getLocatorName(const ELoc& locatorType, int locatorIndex)
   {
     return STRING_NA;
   }
-  int i = locatorType.getValue();
+  auto i = locatorType.getValue();
   if (DEF_LOCATOR[i].IREF == 1)
   {
     sstr << DEF_LOCATOR[i].SREF;
@@ -143,15 +143,15 @@ bool isLocatorTypeValid(const ELoc& locatorType, bool unknownValid)
   return true;
 }
 
-int getLocatorTypeFromName(const String& name_type)
+Id getLocatorTypeFromName(const String& name_type)
 {
   auto it = ELoc::getIterator();
   while (it.hasNext())
   {
     if (*it != ELoc::UNKNOWN)
     {
-      int i            = it.getValue();
-      unsigned int lng = static_cast<unsigned int>(strlen(DEF_LOCATOR[i].SREF));
+      auto i           = it.getValue();
+      auto lng         = static_cast<size_t>(strlen(DEF_LOCATOR[i].SREF));
       if (name_type.compare(0, lng, DEF_LOCATOR[i].SREF) == 0) return i;
     }
     it.toNext();
@@ -167,13 +167,13 @@ int getLocatorTypeFromName(const String& name_type)
  * @param ret_mult   Resulting Locator multiplicity (1: unique; 0: multiple)
  * @return Error code
  */
-int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_locatorIndex, int* ret_mult)
+Id locatorIdentify(String string, ELoc* ret_locatorType, Id* ret_locatorIndex, Id* ret_mult)
 {
   *ret_locatorType  = ELoc::UNKNOWN;
   *ret_locatorIndex = -1;
   *ret_mult         = 1;
-  int inum          = -1;
-  int found         = -1;
+  Id inum          = -1;
+  Id found         = -1;
   bool mult         = 0;
 
   // Transform the input argument into lower case for comparison
@@ -185,8 +185,8 @@ int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_locatorIndex,
   {
     if (*it != ELoc::UNKNOWN)
     {
-      int i            = it.getValue();
-      unsigned int lng = static_cast<unsigned int>(strlen(DEF_LOCATOR[i].SREF));
+      auto i           = it.getValue();
+      auto lng         = static_cast<size_t>(strlen(DEF_LOCATOR[i].SREF));
       if (string_loc.compare(0, lng, DEF_LOCATOR[i].SREF) == 0) found = i;
     }
     it.toNext();
@@ -201,7 +201,7 @@ int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_locatorIndex,
   }
 
   // Decode the remaining characteristics
-  unsigned int lng = static_cast<unsigned int>(strlen(DEF_LOCATOR[found].SREF));
+  size_t lng = static_cast<size_t>(strlen(DEF_LOCATOR[found].SREF));
   if (string_loc.size() > lng) inum = atoi(&string_loc[lng]);
   mult = (DEF_LOCATOR[found].IREF == 0);
   if (!mult && inum > 1)
@@ -227,7 +227,7 @@ void printLocatorList()
   {
     if (*it != ELoc::UNKNOWN)
     {
-      int i = it.getValue();
+      auto i = it.getValue();
       if (DEF_LOCATOR[i].IREF == 1)
         message(" %10s %s\n", DEF_LOCATOR[i].SREF, DEF_LOCATOR[i].COMMENT);
       else
@@ -246,7 +246,7 @@ VectorString getLocatorNames()
   {
     if (*it != ELoc::UNKNOWN)
     {
-      int i = it.getValue();
+      auto i = it.getValue();
       strings.push_back(DEF_LOCATOR[i].SREF);
     }
     it.toNext();
@@ -262,7 +262,7 @@ VectorInt getLocatorMultiples()
   {
     if (*it != ELoc::UNKNOWN)
     {
-      int i = it.getValue();
+      auto i = it.getValue();
       mult.push_back(DEF_LOCATOR[i].IREF);
     }
     it.toNext();

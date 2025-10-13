@@ -20,8 +20,8 @@
 namespace gstlrn
 {
 std::vector<EDbg> OptDbg::_dbg = std::vector<EDbg>();
-int OptDbg::_currentIndex = -1;
-int OptDbg::_reference = -1;
+Id OptDbg::_currentIndex = -1;
+Id OptDbg::_reference = -1;
 
 void OptDbg::reset()
 {

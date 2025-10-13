@@ -27,62 +27,62 @@ public:
 
   bool mustBeGrid() const override { return true; }
   bool mustBeOneVariable() const override { return true; }
-  bool mustBeForNDim(int ndim) const override { return ndim == 2; }
-  bool mustBeForRotation(int mode) const override { return mode == 0; }
-  int  writeInFile() override;
+  bool mustBeForNDim(Id ndim) const override { return ndim == 2; }
+  bool mustBeForRotation(Id mode) const override { return mode == 0; }
+  Id  writeInFile() override;
   DbGrid* readGridFromFile() override;
 
   void setColors(const VectorInt& reds, const VectorInt& greens, const VectorInt& blues);
-  void setFFFF(int red, int green, int blue);
-  void setHigh(int red, int green, int blue);
-  void setLow(int red, int green, int blue);
-  void setMask(int red, int green, int blue);
+  void setFFFF(Id red, Id green, Id blue);
+  void setHigh(Id red, Id green, Id blue);
+  void setLow(Id red, Id green, Id blue);
+  void setMask(Id red, Id green, Id blue);
   void setFlagHigh(bool flagHigh) { _flag_high = flagHigh; }
   void setFlagLow(bool flagLow)   { _flag_low = flagLow; }
 
-  void setNcolor(int ncolor) { _ncolor = ncolor; }
-  void setNmult(int nmult) { _nmult = nmult; }
-  void setNsamplex(int nsamplex) { _nsamplex = nsamplex; }
-  void setNsampley(int nsampley) { _nsampley = nsampley; }
+  void setNcolor(Id ncolor) { _ncolor = ncolor; }
+  void setNmult(Id nmult) { _nmult = nmult; }
+  void setNsamplex(Id nsamplex) { _nsamplex = nsamplex; }
+  void setNsampley(Id nsampley) { _nsampley = nsampley; }
   void setValmax(double valmax) { _valmax = valmax; }
   void setValmin(double valmin) { _valmin = valmin; }
 
 private:
-  void _writeOut(int mode, unsigned int ival);
-  int  _colorRank(int iech, int ncolor, double vmin, double vmax);
-  void _colorInRGB(int rank,
+  void _writeOut(Id mode, I32 ival);
+  Id  _colorRank(Id iech, Id ncolor, double vmin, double vmax);
+  void _colorInRGB(Id rank,
                    bool flag_color_scale,
                    unsigned char *ired,
                    unsigned char *igreen,
                    unsigned char *iblue);
-  int _compose(int nb);
+  Id _compose(Id nb);
   unsigned char _readIn();
-  //void _num2rgb(unsigned char value, int *r, int *g, int *b, int *a);
-  static void _rgb2num(int red, int green, int blue, int a, unsigned char *c);
+  //void _num2rgb(unsigned char value, Id *r, Id *g, Id *b, Id *a);
+  static void _rgb2num(Id red, Id green, Id blue, Id a, unsigned char *c);
 
 private:
-  int _nsamplex;
-  int _nsampley;
-  int _nmult;
-  int _ncolor;
+  Id _nsamplex;
+  Id _nsampley;
+  Id _nmult;
+  Id _ncolor;
   bool _flag_low;
   bool _flag_high;
-  int _mask_red;
-  int _mask_green;
-  int _mask_blue;
-  int _ffff_red;
-  int _ffff_green;
-  int _ffff_blue;
-  int _low_red;
-  int _low_green;
-  int _low_blue;
-  int _high_red;
-  int _high_green;
-  int _high_blue;
+  Id _mask_red;
+  Id _mask_green;
+  Id _mask_blue;
+  Id _ffff_red;
+  Id _ffff_green;
+  Id _ffff_blue;
+  Id _low_red;
+  Id _low_green;
+  Id _low_blue;
+  Id _high_red;
+  Id _high_green;
+  Id _high_blue;
   double _valmin;
   double _valmax;
   VectorInt _reds;
   VectorInt _greens;
   VectorInt _blues;
 };
-}
+} // namespace gstlrn

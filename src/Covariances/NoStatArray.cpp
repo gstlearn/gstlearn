@@ -41,7 +41,7 @@ void NoStatArray::_informField(const VectorVectorDouble& coords,
 {
   // Identify the attribute in the Db
 
-  int iatt = _dbNoStat->getUID(_colName);
+  Id iatt = _dbNoStat->getUID(_colName);
   if (iatt < 0)
   {
     messerr("The Non-stationary attribute  is not defined in _dbNoStat anymore");
@@ -52,7 +52,7 @@ void NoStatArray::_informField(const VectorVectorDouble& coords,
 
   if (_dbNoStat->isGrid())
   {
-    const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbNoStat.get());
+    const auto* dbgrid = dynamic_cast<const DbGrid*>(_dbNoStat.get());
     if (migrateGridToCoor(dbgrid, iatt, coords, tab)) return;
   }
   else
@@ -60,7 +60,7 @@ void NoStatArray::_informField(const VectorVectorDouble& coords,
     if (expandPointToCoor(_dbNoStat.get(), iatt, coords, tab)) return;
   }
 
-  int ndef = VH::countUndefined(tab);
+  Id ndef = VH::countUndefined(tab);
   if (ndef > 0)
   {
 
@@ -89,10 +89,9 @@ void NoStatArray::_informField(const VectorVectorDouble& coords,
 
   if (verbose)
   {
-    char str[LONG_SIZE];
-    (void)gslSPrintf(str,
-                     "Statistics for Non-Stationary Parameter on Mesh");
+    String str;
+    (void)gslSPrintf(str, "Statistics for Non-Stationary Parameter on Mesh");
     VH::dumpStats(str, tab);
   }
 }
-}
+} // namespace gstlrn

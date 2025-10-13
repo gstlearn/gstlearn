@@ -22,9 +22,8 @@
 
 namespace gstlrn
 {
-MatrixDense::MatrixDense(int nrow, int ncol)
+MatrixDense::MatrixDense(Id nrow, Id ncol)
   : AMatrix(nrow, ncol)
-  , _flagEigenDecompose(false)
   , _eigenValues()
   , _eigenVectors(nullptr)
   , _eigenMatrix()
@@ -35,7 +34,6 @@ MatrixDense::MatrixDense(int nrow, int ncol)
 
 MatrixDense::MatrixDense(const MatrixDense& r)
   : AMatrix(r)
-  , _flagEigenDecompose(false)
   , _eigenValues()
   , _eigenVectors(nullptr)
   , _eigenMatrix()
@@ -48,7 +46,6 @@ MatrixDense::MatrixDense(const MatrixDense& r)
 
 MatrixDense::MatrixDense(const AMatrix& r)
   : AMatrix(r)
-  , _flagEigenDecompose(false)
   , _eigenValues()
   , _eigenVectors(nullptr)
   , _eigenMatrix()
@@ -93,33 +90,34 @@ void MatrixDense::_deallocate()
   _eigenMatrix.clear();
 }
 
-double MatrixDense::getValue(int irow, int icol, bool flagCheck) const
+double MatrixDense::getValue(Id irow, Id icol) const
 {
-  if (flagCheck && !_isIndexValid(irow, icol)) return TEST;
-  return getEigenMat()(irow, icol);
+  if (getFlagMatrixCheck() && !_isIndexValid(irow, icol)) return TEST;
+  return eigenMat()(irow, icol);
 }
 
-double MatrixDense::_getValueByRank(int irank) const
+double MatrixDense::_getValueByRank(Id irank) const
 {
-  return *(getEigenMat().data() + irank);
+  return *(eigenMat().data() + irank);
 }
 
-constvect MatrixDense::getColumnPtr(int icol) const
+constvect MatrixDense::getColumnPtr(Id icol) const
 {
-  const auto a = getEigenMat().col(icol);
+  const auto a = eigenMat().col(icol);
   size_t n     = getNRows();
   return {a.data(), n};
 }
-void MatrixDense::_setValueByRank(int irank, double value)
+void MatrixDense::_setValueByRank(Id irank, double value)
 {
-  *(getEigenMat().data() + irank) = value;
+  *(eigenMat().data() + irank) = value;
 }
 
-void MatrixDense::setValue(int irow, int icol, double value, bool flagCheck)
+void MatrixDense::setValue(Id irow, Id icol, double value)
 {
-  if (flagCheck && !_isIndexValid(irow, icol)) return;
-  getEigenMat()(irow, icol) = value;
-  if (mustBeSymmetric() && irow != icol) getEigenMat()(icol, irow) = value;
+  if (getFlagMatrixCheck() && !_isIndexValid(irow, icol)) return;
+  eigenMat().coeffRef(irow, icol) = value;
+  if (mustBeSymmetric() && irow != icol)
+    eigenMat().coeffRef(icol, irow) = value;
 }
 
 double MatrixDense::traceProd(const MatrixDense& a, MatrixDense& b)
@@ -133,175 +131,185 @@ double MatrixDense::traceProd(const MatrixDense& a, MatrixDense& b)
   array *= a.getEigenMat().transpose().array();
   return b.getEigenMat().sum();
 }
-void MatrixDense::updValue(int irow,
-                           int icol,
+void MatrixDense::updValue(Id irow,
+                           Id icol,
                            const EOperator& oper,
-                           double value,
-                           bool flagCheck)
+                           double value)
 {
-  if (flagCheck && !_isIndexValid(irow, icol)) return;
-  double result             = modifyOperator(oper, getEigenMat()(irow, icol), value);
-  getEigenMat()(irow, icol) = result;
+  if (getFlagMatrixCheck() && !_isIndexValid(irow, icol)) return;
+  double result                   = modifyOperator(oper, eigenMat()(irow, icol), value);
+  eigenMat().coeffRef(irow, icol) = result;
+  eigenMat()(irow, icol)          = result;
   if (mustBeSymmetric() && irow != icol)
-    getEigenMat()(icol, irow) = result;
+    eigenMat()(icol, irow) = result;
 }
 
-double& MatrixDense::_getValueRef(int irow, int icol)
+double& MatrixDense::_getValueRef(Id irow, Id icol)
 {
-  return *(getEigenMat().data() + _getIndexToRank(irow, icol));
+  return *(eigenMat().data() + _getIndexToRank(irow, icol));
 }
 
-int MatrixDense::_getMatrixPhysicalSize() const
+Id MatrixDense::_getMatrixPhysicalSize() const
 {
-  return getEigenMat().size();
+  return eigenMat().size();
 }
 
 // Default storage in Eigen is column-major (see https://eigen.tuxfamily.org/dox/group__TopicStorageOrders.html)
-int MatrixDense::_getIndexToRank(int irow, int icol) const
+Id MatrixDense::_getIndexToRank(Id irow, Id icol) const
 {
   return (icol * getNRows() + irow);
 }
 
 void MatrixDense::_transposeInPlace()
 {
-  int nrows = getNRows();
-  int ncols = getNCols();
-  getEigenMat().transposeInPlace();
+  auto nrows = getNRows();
+  auto ncols = getNCols();
+  eigenMat().transposeInPlace();
   _setNCols(nrows);
   _setNRows(ncols);
 }
 
-void MatrixDense::_addProdMatVecInPlaceToDestPtr(const double* x, double* y, bool transpose) const
+void MatrixDense::_addProdMatVecInPlacePtr(constvect x, vect y, bool transpose) const
 {
-  Eigen::Map<const Eigen::VectorXd> xm(x, getNCols());
-  Eigen::Map<Eigen::VectorXd> ym(y, getNRows());
   if (transpose)
-    ym.noalias() += getEigenMat().transpose() * xm;
+  {
+    Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNRows());
+    Eigen::Map<Eigen::VectorXd> ym(y.data(), getNCols());
+    ym.noalias() += eigenMat().transpose() * xm;
+  }
   else
-    ym.noalias() += getEigenMat() * xm;
+  {
+    Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNCols());
+    Eigen::Map<Eigen::VectorXd> ym(y.data(), getNRows());
+    ym.noalias() += eigenMat() * xm;
+  }
 }
 
-// TODO supress this method and implement it in the virtual class AMatrix
-void MatrixDense::_prodMatVecInPlacePtr(const double* x, double* y, bool transpose) const
+void MatrixDense::_addProdVecMatInPlacePtr(constvect x, vect y, bool transpose) const
 {
-  int nc = transpose ? getNRows() : getNCols();
-  int nr = transpose ? getNCols() : getNRows();
-  Eigen::Map<const Eigen::VectorXd> xm(x, nc);
-  Eigen::Map<Eigen::VectorXd> ym(y, nr);
   if (transpose)
-    ym.noalias() = getEigenMat().transpose() * xm;
+  {
+    Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNCols());
+    Eigen::Map<Eigen::VectorXd> ym(y.data(), getNRows());
+    ym.noalias() += xm.transpose() * eigenMat().transpose();
+  }
   else
-    ym.noalias() = getEigenMat() * xm;
+  {
+    Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNRows());
+    Eigen::Map<Eigen::VectorXd> ym(y.data(), getNCols());
+    ym.noalias() += xm.transpose() * eigenMat();
+  }
 }
 
-void MatrixDense::_prodVecMatInPlacePtr(const double* x, double* y, bool transpose) const
-{
-  Eigen::Map<const Eigen::VectorXd> xm(x, getNRows());
-  Eigen::Map<Eigen::VectorXd> ym(y, getNCols());
-  if (transpose)
-    ym.noalias() = xm.transpose() * getEigenMat().transpose();
-  else
-    ym.noalias() = xm.transpose() * getEigenMat();
-}
-
-int MatrixDense::_invert()
+Id MatrixDense::_invert()
 {
   /// TODO : check beforehand if matrix is invertible ?
-  getEigenMat() = getEigenMat().inverse();
+  eigenMat() = eigenMat().inverse();
   return 0;
 }
 
-int MatrixDense::invert2(MatrixDense& res) const
+Id MatrixDense::invert2(MatrixDense& res) const
 {
   /// TODO : check beforehand if matrix is invertible ?
-  res.getEigenMat() = getEigenMat().inverse();
+  res.eigenMat() = eigenMat().inverse();
   return 0;
 }
-int MatrixDense::_solve(const VectorDouble& b, VectorDouble& x) const
+Id MatrixDense::_solve(const VectorDouble& b, VectorDouble& x) const
 {
   /// TODO : check beforehand if matrix is invertible ?
   Eigen::Map<const Eigen::VectorXd> bm(b.data(), getNCols());
   Eigen::Map<Eigen::VectorXd> xm(x.data(), getNRows());
-  xm = getEigenMat().inverse() * bm;
+  xm = eigenMat().inverse() * bm;
   return 0;
 }
 
-void MatrixDense::setColumn(int icol, const VectorDouble& tab, bool flagCheck)
+void MatrixDense::setColumn(Id icol, const VectorDouble& tab)
 {
-  if (flagCheck)
+  if (getFlagMatrixCheck())
   {
     if (!_isColumnValid(icol)) return;
     if (!_isColumnSizeConsistent(tab)) return;
   }
   Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNRows());
-  getEigenMat().col(icol) = tabm;
+  eigenMat().col(icol) = tabm;
 }
 
-void MatrixDense::setColumnToConstant(int icol, double value, bool flagCheck)
+void MatrixDense::setColumnToConstant(Id icol, double value)
 {
-  if (flagCheck)
+  if (getFlagMatrixCheck())
   {
     if (!_isColumnValid(icol)) return;
   }
-  getEigenMat().col(icol) = Eigen::VectorXd::Constant(getNRows(), value);
+  eigenMat().col(icol) = Eigen::VectorXd::Constant(getNRows(), value);
 }
 
-void MatrixDense::setRow(int irow, const VectorDouble& tab, bool flagCheck)
+void MatrixDense::setRow(Id irow, const VectorDouble& tab)
 {
-  if (flagCheck)
+  if (getFlagMatrixCheck())
   {
     if (!_isRowValid(irow)) return;
     if (!_isRowSizeConsistent(tab)) return;
   }
   Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNCols());
-  getEigenMat().row(irow) = tabm;
+  eigenMat().row(irow) = tabm;
 }
 
-void MatrixDense::setRowToConstant(int irow, double value, bool flagCheck)
+void MatrixDense::setRowToConstant(Id irow, double value)
 {
-  if (flagCheck)
+  if (getFlagMatrixCheck())
   {
     if (!_isRowValid(irow)) return;
   }
-  getEigenMat().row(irow) = Eigen::VectorXd::Constant(getNCols(), value);
+  eigenMat().row(irow) = Eigen::VectorXd::Constant(getNCols(), value);
 }
 
-void MatrixDense::setDiagonal(const VectorDouble& tab, bool flagCheck)
+void MatrixDense::setDiagonal(const VectorDouble& tab)
 {
-  if (flagCheck)
+  if (getFlagMatrixCheck())
   {
     if (!_isRowSizeConsistent(tab)) return;
   }
-  getEigenMat().setZero();
+  eigenMat().setZero();
   Eigen::Map<const Eigen::VectorXd> tabm(tab.data(), getNRows());
-  getEigenMat().diagonal() = tabm;
+  eigenMat().diagonal() = tabm;
 }
 
 void MatrixDense::setDiagonalToConstant(double value)
 {
-  getEigenMat().setZero();
-  getEigenMat().diagonal() = Eigen::VectorXd::Constant(getNRows(), value);
+  eigenMat().setZero();
+  eigenMat().diagonal() = Eigen::VectorXd::Constant(getNRows(), value);
 }
 
 void MatrixDense::addScalar(double v)
 {
-  getEigenMat().array() += v;
+  eigenMat().array() += v;
 }
 
 void MatrixDense::addScalarDiag(double v)
 {
-  getEigenMat().diagonal() += Eigen::VectorXd::Constant(getNRows(), v);
+  if (isZero(v)) return;
+  eigenMat().diagonal() += Eigen::VectorXd::Constant(getNRows(), v);
 }
 
 void MatrixDense::prodScalar(double v)
 {
-  getEigenMat().array() *= v;
+  if (isOne(v)) return;
+  eigenMat().array() *= v;
 }
 
-void MatrixDense::addMatInPlace(const MatrixDense& y, double cx, double cy)
+void MatrixDense::addMat(const AMatrix& y, double cx, double cy)
 {
-  if (y.getEigenMat().size() <= 0) return;
-  getEigenMat() = cx * getEigenMat() + cy * y.getEigenMat();
+  const auto* ym = dynamic_cast<const MatrixDense*>(&y);
+  if (ym == nullptr || ym == this)
+  {
+    AMatrix::addMat(y, cx, cy);
+  }
+  else
+  {
+    eigenMat().noalias() = cx * eigenMat();
+    if (cy == 0. || (getFlagMatrixCheck() && !isSameSize(y))) return;
+    eigenMat().noalias() += cy * ym->eigenMat();
+  }
 }
 
 void MatrixDense::prodMatMatInPlace(const AMatrix* x,
@@ -309,65 +317,40 @@ void MatrixDense::prodMatMatInPlace(const AMatrix* x,
                                     bool transposeX,
                                     bool transposeY)
 {
-  const MatrixDense* xm = dynamic_cast<const MatrixDense*>(x);
-  const MatrixDense* ym = dynamic_cast<const MatrixDense*>(y);
-  if (xm != nullptr && ym != nullptr)
+  if (getFlagMatrixCheck() &&
+      !_isMatrixCompatible("MatrixDense::prodMatMatInPlace",
+                           x, 0, transposeX,
+                           y, 0, transposeY)) return;
+
+  const auto* xm = dynamic_cast<const MatrixDense*>(x);
+  const auto* ym = dynamic_cast<const MatrixDense*>(y);
+  if (xm == nullptr || ym == nullptr)
+  {
+    AMatrix::prodMatMatInPlace(x, y, transposeX, transposeY);
+  }
+  else
   {
     if (transposeX)
     {
       if (transposeY)
       {
-        getEigenMat() = xm->getEigenMat().transpose() * ym->getEigenMat().transpose();
+        eigenMat().noalias() = xm->eigenMat().transpose() * ym->eigenMat().transpose();
       }
       else
       {
-        getEigenMat() = xm->getEigenMat().transpose() * ym->getEigenMat();
+        eigenMat().noalias() = xm->eigenMat().transpose() * ym->eigenMat();
       }
     }
     else
     {
       if (transposeY)
       {
-        getEigenMat() = xm->getEigenMat() * ym->getEigenMat().transpose();
+        eigenMat().noalias() = xm->eigenMat() * ym->eigenMat().transpose();
       }
       else
       {
-        getEigenMat() = xm->getEigenMat() * ym->getEigenMat();
+        eigenMat().noalias() = xm->eigenMat() * ym->eigenMat();
       }
-    }
-  }
-  else
-  {
-    AMatrix::prodMatMatInPlace(x, y, transposeX, transposeY);
-  }
-}
-
-void MatrixDense::prodMatMatInPlaceOptim(const MatrixDense* x,
-                                         const MatrixDense* y,
-                                         bool transposeX,
-                                         bool transposeY)
-{
-
-  if (transposeX)
-  {
-    if (transposeY)
-    {
-      getEigenMat() = x->getEigenMat().transpose() * y->getEigenMat().transpose();
-    }
-    else
-    {
-      getEigenMat() = x->getEigenMat().transpose() * y->getEigenMat();
-    }
-  }
-  else
-  {
-    if (transposeY)
-    {
-      getEigenMat() = x->getEigenMat() * y->getEigenMat().transpose();
-    }
-    else
-    {
-      getEigenMat() = x->getEigenMat() * y->getEigenMat();
     }
   }
 }
@@ -383,17 +366,32 @@ void MatrixDense::prodMatMatInPlaceOptim(const MatrixDense* x,
  *
  * @note: 'a' and 'm' may NOT coincide with 'this'
  */
-void MatrixDense::prodNormMatMatInPlace(const MatrixDense* a,
-                                        const MatrixDense* m,
+void MatrixDense::prodNormMatMatInPlace(const AMatrix* a,
+                                        const AMatrix* m,
                                         bool transpose)
 {
-  if (transpose)
+  if (getFlagMatrixCheck() &&
+      !_isMatrixCompatible("MatrixSparse::prodNormMatMatInPlace",
+                           a, 0, transpose,
+                           m, 0, false,
+                           a, 0, !transpose)) return;
+
+  const auto* am = dynamic_cast<const MatrixDense*>(a);
+  const auto* mm = dynamic_cast<const MatrixDense*>(m);
+  if (am == nullptr || mm == nullptr)
   {
-    getEigenMat() = a->getEigenMat().transpose() * m->getEigenMat() * a->getEigenMat();
+    AMatrix::prodNormMatMatInPlace(a, m, transpose);
   }
   else
   {
-    getEigenMat() = a->getEigenMat() * m->getEigenMat() * a->getEigenMat().transpose();
+    if (transpose)
+    {
+      eigenMat().noalias() = am->eigenMat().transpose() * mm->eigenMat() * am->eigenMat();
+    }
+    else
+    {
+      eigenMat().noalias() = am->eigenMat() * mm->eigenMat() * am->eigenMat().transpose();
+    }
   }
 }
 
@@ -404,131 +402,181 @@ void MatrixDense::prodNormMatMatInPlace(const MatrixDense* a,
  * @param vec Input vector
  * @param transpose When True, the input Matrix is transposed
  */
-void MatrixDense::prodNormMatVecInPlace(const MatrixDense& a, const VectorDouble& vec, bool transpose)
+void MatrixDense::prodNormMatVecInPlace(const AMatrix* a, const VectorDouble& vec, bool transpose)
 {
-  if (transpose)
+  if (getFlagMatrixCheck() &&
+      !_isMatrixCompatible("MatrixDense::prodNormMatVecInPlace",
+                           a, 0, transpose,
+                           a, 0, !transpose)) return;
+
+  const auto* am = dynamic_cast<const MatrixDense*>(a);
+  if (am == nullptr)
   {
-    if (vec.empty())
-      getEigenMat() = a.getEigenMat().transpose() * a.getEigenMat();
-    else
-    {
-      Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
-      getEigenMat() = a.getEigenMat().transpose() * vecm * a.getEigenMat();
-    }
+    AMatrix::prodNormMatVecInPlace(a, vec, transpose);
   }
   else
   {
-    if (vec.empty())
-      getEigenMat() = a.getEigenMat() * a.getEigenMat().transpose();
+    if (transpose)
+    {
+      Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
+      eigenMat().noalias() = am->eigenMat().transpose() * vecm * am->eigenMat();
+    }
     else
     {
       Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), vec.size());
-      getEigenMat() = a.getEigenMat() * vecm * a.getEigenMat().transpose();
+      eigenMat().noalias() = am->eigenMat() * vecm * am->eigenMat().transpose();
     }
+  }
+}
+
+void MatrixDense::prodNormMatInPlace(const AMatrix* a, bool transpose)
+{
+  if (getFlagMatrixCheck() &&
+      !_isMatrixCompatible("MatrixDense::prodNormMatInPlace",
+                           a, 0, transpose,
+                           a, 0, !transpose)) return;
+
+  const auto* am = dynamic_cast<const MatrixDense*>(a);
+  if (am == nullptr)
+  {
+    AMatrix::prodNormMatInPlace(a, transpose);
+  }
+  else
+  {
+    if (transpose)
+    {
+      eigenMat() = am->eigenMat().transpose() * am->eigenMat();
+    }
+    else
+    {
+      eigenMat() = am->eigenMat() * am->eigenMat().transpose();
+    }
+  }
+}
+
+void MatrixDense::linearCombination(double val1,
+                                    const AMatrix* mat1,
+                                    double val2,
+                                    const AMatrix* mat2,
+                                    double val3,
+                                    const AMatrix* mat3)
+{
+  const auto* mmat1 = dynamic_cast<const MatrixDense*>(mat1);
+  const auto* mmat2 = dynamic_cast<const MatrixDense*>(mat2);
+  const auto* mmat3 = dynamic_cast<const MatrixDense*>(mat3);
+
+  if ((mat1 != nullptr && mmat1 == nullptr) ||
+      (mat2 != nullptr && mmat2 == nullptr) || (mat2 == this) ||
+      (mat3 != nullptr && mmat3 == nullptr) || (mat3 == this))
+  {
+    AMatrix::linearCombination(val1, mat1, val2, mat2, val3, mat3);
+  }
+  else
+  {
+    if (mat1 != nullptr && val1 != 0.)
+      eigenMat() = val1 * mmat1->eigenMat();
+    if (mat2 != nullptr && val2 != 0.)
+      eigenMat() += val2 * mmat2->eigenMat();
+    if (mat3 != nullptr && val3 != 0.)
+      eigenMat() += val3 * mmat3->eigenMat();
   }
 }
 
 void MatrixDense::fill(double value)
 {
-  getEigenMat().setConstant(value);
+  eigenMat().setConstant(value);
 }
 
 /*! Multiply a Matrix row-wise */
 void MatrixDense::multiplyRow(const VectorDouble& vec)
 {
+  if (getFlagMatrixCheck() && getNRows() != static_cast<Id>(vec.size()))
+  {
+    messerr("The size of 'vec' must match the number of rows. Nothing is done");
+    return;
+  }
   Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNCols());
-  getEigenMat() = vecm.asDiagonal() * getEigenMat();
+  eigenMat() = vecm.asDiagonal() * eigenMat();
 }
 
 /*! Multiply a Matrix column-wise */
 void MatrixDense::multiplyColumn(const VectorDouble& vec)
 {
+  if (getFlagMatrixCheck() && getNCols() != static_cast<Id>(vec.size()))
+  {
+    messerr("The size of 'vec' must match the number of columns. Nothing is done");
+    return;
+  }
   Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNRows());
-  getEigenMat() = getEigenMat() * vecm.asDiagonal();
+  eigenMat() = eigenMat() * vecm.asDiagonal();
 }
 
 /*! Divide a Matrix row-wise */
 void MatrixDense::divideRow(const VectorDouble& vec)
 {
+  if (getFlagMatrixCheck() && getNRows() != static_cast<Id>(vec.size()))
+  {
+    messerr("The size of 'vec' must match the number of rows. Nothing is done");
+    return;
+  }
   VectorDouble temp = VH::inverse(vec);
   Eigen::Map<const Eigen::VectorXd> vecm(temp.data(), getNCols());
-  getEigenMat() = vecm.asDiagonal() * getEigenMat();
+  eigenMat() = vecm.asDiagonal() * eigenMat();
 }
 
 /*! Divide a Matrix column-wise */
 void MatrixDense::divideColumn(const VectorDouble& vec)
 {
+  if (getFlagMatrixCheck() && getNCols() != static_cast<Id>(vec.size()))
+  {
+    messerr("The size of 'vec' must match the number of columns. Nothing is done");
+    return;
+  }
   VectorDouble temp = VH::inverse(vec);
   Eigen::Map<const Eigen::VectorXd> vecm(temp.data(), getNRows());
-  getEigenMat() = getEigenMat() * vecm.asDiagonal();
-}
-
-/*! Perform 'vec' * 'this' */
-VectorDouble MatrixDense::prodVecMat(const VectorDouble& x, bool transpose) const
-{
-  Eigen::Map<const Eigen::VectorXd> xm(x.data(), x.size());
-  VectorDouble y(transpose ? getNRows() : getNCols());
-  Eigen::Map<Eigen::VectorXd> ym(y.data(), y.size());
-  if (transpose)
-    ym = xm.transpose() * getEigenMat().transpose();
-  else
-    ym = xm.transpose() * getEigenMat();
-  return y;
-}
-
-/*! Perform 'this' * 'vec' */
-VectorDouble MatrixDense::prodMatVec(const VectorDouble& x, bool transpose) const
-{
-  Eigen::Map<const Eigen::VectorXd> xm(x.data(), x.size());
-  VectorDouble y(transpose ? getNCols() : getNRows());
-  Eigen::Map<Eigen::VectorXd> ym(y.data(), y.size());
-  if (transpose)
-    ym = getEigenMat().transpose() * xm;
-  else
-    ym = getEigenMat() * xm;
-  return y;
+  eigenMat() = eigenMat() * vecm.asDiagonal();
 }
 
 /*! Extract a Row */
-VectorDouble MatrixDense::getRow(int irow) const
+VectorDouble MatrixDense::getRow(Id irow) const
 {
   VectorDouble res(getNCols());
   for (size_t i = 0; i < res.size(); ++i)
   {
-    res[i] = getEigenMat().row(irow)[i];
+    res[i] = eigenMat().row(irow)[i];
   }
   return res;
 }
 
 /*! Extract a Column */
-VectorDouble MatrixDense::getColumn(int icol) const
+VectorDouble MatrixDense::getColumn(Id icol) const
 {
   VectorDouble res(getNRows());
   for (size_t i = 0; i < res.size(); ++i)
   {
-    res[i] = getEigenMat().col(icol)[i];
+    res[i] = eigenMat().col(icol)[i];
   }
   return res;
 }
 
-constvect MatrixDense::getViewOnColumn(int icol) const
+constvect MatrixDense::getViewOnColumn(Id icol) const
 {
-  constvect res(getEigenMat().col(icol).data(), getNRows());
+  constvect res(eigenMat().col(icol).data(), getNRows());
   return res;
 }
 
-vect MatrixDense::getViewOnColumnModify(int icol)
+vect MatrixDense::getViewOnColumnModify(Id icol)
 {
-  vect res(getEigenMat().col(icol).data(), getNRows());
+  vect res(eigenMat().col(icol).data(), getNRows());
   return res;
 }
-int MatrixDense::_terminateEigen(const Eigen::VectorXd& eigenValues,
+Id MatrixDense::_terminateEigen(const Eigen::VectorXd& eigenValues,
                                  const Eigen::MatrixXd& eigenVectors,
                                  bool optionPositive,
                                  bool changeOrder)
 {
-  int nrows = getNRows();
-  int ncols = getNCols();
+  auto nrows = getNRows();
+  auto ncols = getNCols();
 
   _eigenValues                                                         = VectorDouble(nrows);
   Eigen::Map<Eigen::VectorXd>(_eigenValues.data(), eigenValues.size()) = eigenValues;
@@ -543,34 +591,33 @@ int MatrixDense::_terminateEigen(const Eigen::VectorXd& eigenValues,
 
   _eigenVectors = MatrixSquare::createFromVD(vec, nrows, false, changeOrder);
 
-  if (optionPositive) _eigenVectors->makePositiveColumn();
-
-  _flagEigenDecompose = true;
+  if (optionPositive)
+    _eigenVectors->makePositiveColumn();
 
   return 0;
 }
 
-int MatrixDense::_computeGeneralizedEigen(const MatrixSymmetric& b, bool optionPositive)
+Id MatrixDense::_computeGeneralizedEigen(const MatrixSymmetric& b, bool optionPositive)
 {
-  Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> solver(getEigenMat(), b.getEigenMat());
+  Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> solver(eigenMat(), b.eigenMat());
   Eigen::VectorXd eigenValues  = solver.eigenvalues().real();
   Eigen::MatrixXd eigenVectors = solver.eigenvectors().real();
 
   return _terminateEigen(eigenValues, eigenVectors, optionPositive, true);
 }
 
-int MatrixDense::_computeEigen(bool optionPositive)
+Id MatrixDense::_computeEigen(bool optionPositive)
 {
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(getEigenMat());
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(eigenMat());
   Eigen::VectorXd eigenValues  = solver.eigenvalues().real();
   Eigen::MatrixXd eigenVectors = solver.eigenvectors().real();
 
   return _terminateEigen(eigenValues, eigenVectors, optionPositive, true);
 }
 
-bool MatrixDense::_needToReset(int nrows, int ncols)
+bool MatrixDense::_needToReset(Id nrows, Id ncols)
 {
-  int newsize = nrows * ncols;
+  Id newsize = nrows * ncols;
 
   if (newsize > _maxSize)
   {
@@ -582,9 +629,8 @@ bool MatrixDense::_needToReset(int nrows, int ncols)
 
 void MatrixDense::_recopy(const MatrixDense& r)
 {
-  _eigenMatrix        = r._eigenMatrix;
-  _flagEigenDecompose = r._flagEigenDecompose;
-  _eigenValues        = r._eigenValues;
+  _eigenMatrix = r._eigenMatrix;
+  _eigenValues = r._eigenValues;
   delete _eigenVectors;
   _eigenVectors = nullptr;
   if (r._eigenVectors != nullptr)
@@ -597,7 +643,7 @@ MatrixDense* MatrixDense::create(const MatrixDense* mat)
 {
   return new MatrixDense(*mat);
 }
-MatrixDense* MatrixDense::create(int nrow, int ncol)
+MatrixDense* MatrixDense::create(Id nrow, Id ncol)
 {
   return new MatrixDense(nrow, ncol);
 }
@@ -612,43 +658,43 @@ MatrixDense* MatrixDense::create(int nrow, int ncol)
  */
 MatrixDense* MatrixDense::createFromVVD(const VectorVectorDouble& X)
 {
-  int nrow = (int)X.size();
-  int ncol = (int)X[0].size();
+  Id nrow = static_cast<Id>(X.size());
+  Id ncol = static_cast<Id>(X[0].size());
 
-  MatrixDense* mat = new MatrixDense(nrow, ncol);
+  auto* mat = new MatrixDense(nrow, ncol);
   mat->_fillFromVVD(X);
   return mat;
 }
 
 MatrixDense* MatrixDense::createFromVD(const VectorDouble& X,
-                                       int nrow,
-                                       int ncol,
+                                       Id nrow,
+                                       Id ncol,
                                        bool byCol,
                                        bool invertColumnOrder)
 {
-  if (nrow * ncol != (int)X.size())
+  if (nrow * ncol != static_cast<Id>(X.size()))
   {
     messerr("Inconsistency between arguments 'nrow'(%d) and 'ncol'(%d)", nrow, ncol);
-    messerr("and the dimension of the input Vector (%d)", (int)X.size());
+    messerr("and the dimension of the input Vector (%d)", static_cast<Id>(X.size()));
   }
-  MatrixDense* mat = new MatrixDense(nrow, ncol);
+  auto* mat = new MatrixDense(nrow, ncol);
 
-  int lec = 0;
+  Id lec = 0;
   if (byCol)
   {
-    for (int irow = 0; irow < nrow; irow++)
-      for (int icol = 0; icol < ncol; icol++)
+    for (Id irow = 0; irow < nrow; irow++)
+      for (Id icol = 0; icol < ncol; icol++)
       {
-        int jcol = (invertColumnOrder) ? ncol - icol - 1 : icol;
+        Id jcol = (invertColumnOrder) ? ncol - icol - 1 : icol;
         mat->setValue(irow, jcol, X[lec++]);
       }
   }
   else
   {
-    for (int icol = 0; icol < ncol; icol++)
-      for (int irow = 0; irow < nrow; irow++)
+    for (Id icol = 0; icol < ncol; icol++)
+      for (Id irow = 0; irow < nrow; irow++)
       {
-        int jcol = (invertColumnOrder) ? ncol - icol - 1 : icol;
+        Id jcol = (invertColumnOrder) ? ncol - icol - 1 : icol;
         mat->setValue(irow, jcol, X[lec++]);
       }
   }
@@ -661,52 +707,52 @@ MatrixDense* MatrixDense::glue(const AMatrix* A1,
                                bool flagShiftCol)
 {
   // Create the new matrix
-  int shiftRow = (flagShiftRow) ? A1->getNRows() : 0;
-  int shiftCol = (flagShiftCol) ? A1->getNCols() : 0;
+  Id shiftRow = (flagShiftRow) ? A1->getNRows() : 0;
+  Id shiftCol = (flagShiftCol) ? A1->getNCols() : 0;
 
-  int nrows = (flagShiftRow) ? A1->getNRows() + A2->getNRows() : MAX(A1->getNRows(), A2->getNRows());
-  int ncols = (flagShiftCol) ? A1->getNCols() + A2->getNCols() : MAX(A1->getNCols(), A2->getNCols());
+  Id nrows = (flagShiftRow) ? A1->getNRows() + A2->getNRows() : MAX(A1->getNRows(), A2->getNRows());
+  Id ncols = (flagShiftCol) ? A1->getNCols() + A2->getNCols() : MAX(A1->getNCols(), A2->getNCols());
 
-  MatrixDense* mat = new MatrixDense(nrows, ncols);
+  auto* mat = new MatrixDense(nrows, ncols);
   mat->fill(0.);
 
   // Copy the first input matrix
 
-  for (int irow = 0; irow < A1->getNRows(); irow++)
-    for (int icol = 0; icol < A1->getNCols(); icol++)
+  for (Id irow = 0; irow < A1->getNRows(); irow++)
+    for (Id icol = 0; icol < A1->getNCols(); icol++)
       mat->setValue(irow, icol, A1->getValue(irow, icol));
 
   // Copy the second input matrix
 
-  for (int irow = 0; irow < A2->getNRows(); irow++)
-    for (int icol = 0; icol < A2->getNCols(); icol++)
+  for (Id irow = 0; irow < A2->getNRows(); irow++)
+    for (Id icol = 0; icol < A2->getNCols(); icol++)
       mat->setValue(irow + shiftRow, icol + shiftCol, A2->getValue(irow, icol));
 
   return mat;
 }
 
-void MatrixDense::addRow(int nrow_added)
+void MatrixDense::addRow(Id nrow_added)
 {
-  int nrows = getNRows();
-  int ncols = getNCols();
+  auto nrows = getNRows();
+  auto ncols = getNCols();
 
   AMatrix* statsSave = this->clone();
   reset(nrows + nrow_added, ncols);
-  for (int irow = 0; irow < nrows; irow++)
-    for (int icol = 0; icol < ncols; icol++)
+  for (Id irow = 0; irow < nrows; irow++)
+    for (Id icol = 0; icol < ncols; icol++)
       setValue(irow, icol, statsSave->getValue(irow, icol));
   delete statsSave;
 }
 
-void MatrixDense::addColumn(int ncolumn_added)
+void MatrixDense::addColumn(Id ncolumn_added)
 {
-  int nrows = getNRows();
-  int ncols = getNCols();
+  auto nrows = getNRows();
+  auto ncols = getNCols();
 
   AMatrix* statsSave = this->clone();
   reset(nrows, ncols + ncolumn_added);
-  for (int irow = 0; irow < nrows; irow++)
-    for (int icol = 0; icol < ncols; icol++)
+  for (Id irow = 0; irow < nrows; irow++)
+    for (Id icol = 0; icol < ncols; icol++)
       setValue(irow, icol, statsSave->getValue(irow, icol));
   delete statsSave;
 }
@@ -729,8 +775,8 @@ bool MatrixDense::sample(MatrixDense& res,
                          bool flagInvertRow,
                          bool flagInvertCol)
 {
-  int nrowtotal  = A.getNRows();
-  int ncoltotal  = A.getNCols();
+  auto nrowtotal = A.getNRows();
+  auto ncoltotal = A.getNCols();
   VectorInt rows = rowKeep;
   if (rows.empty()) rows = VH::sequence(nrowtotal);
   if (flagInvertRow) rows = VH::complement(VH::sequence(nrowtotal), rows);
@@ -738,22 +784,22 @@ bool MatrixDense::sample(MatrixDense& res,
   if (cols.empty()) cols = VH::sequence(ncoltotal);
   if (flagInvertCol) cols = VH::complement(VH::sequence(ncoltotal), cols);
 
-  int nrows = (int)rows.size();
-  int ncols = (int)cols.size();
+  Id nrows = static_cast<Id>(rows.size());
+  Id ncols = static_cast<Id>(cols.size());
   if (nrows <= 0 || ncols <= 0) return false;
 
-  for (int irow = 0; irow < nrows; irow++)
+  for (Id irow = 0; irow < nrows; irow++)
   {
     if (!checkArg("Selected Row index", rows[irow], nrowtotal)) return false;
   }
-  for (int icol = 0; icol < ncols; icol++)
+  for (Id icol = 0; icol < ncols; icol++)
   {
     if (!checkArg("Selected Column index", cols[icol], ncoltotal)) return false;
   }
 
   res.resize(nrows, ncols);
-  for (int irow = 0; irow < nrows; irow++)
-    for (int icol = 0; icol < ncols; icol++)
+  for (Id irow = 0; irow < nrows; irow++)
+    for (Id icol = 0; icol < ncols; icol++)
       res.setValue(irow, icol, A.getValue(rows[irow], cols[icol]));
   return true;
 }
@@ -773,8 +819,8 @@ void MatrixDense::unsample(const AMatrix* A,
                            bool flagInvertRow,
                            bool flagInvertCol)
 {
-  int nrowtotal  = getNRows();
-  int ncoltotal  = getNCols();
+  auto nrowtotal = getNRows();
+  auto ncoltotal = getNCols();
   VectorInt rows = rowFetch;
   if (rows.empty()) rows = VH::sequence(nrowtotal);
   if (flagInvertRow) rows = VH::complement(VH::sequence(nrowtotal), rows);
@@ -782,23 +828,23 @@ void MatrixDense::unsample(const AMatrix* A,
   if (cols.empty()) cols = VH::sequence(ncoltotal);
   if (flagInvertCol) cols = VH::complement(VH::sequence(ncoltotal), cols);
 
-  int nrows = (int)rows.size();
-  int ncols = (int)cols.size();
+  Id nrows = static_cast<Id>(rows.size());
+  Id ncols = static_cast<Id>(cols.size());
   if (nrows <= 0 || ncols <= 0) return;
 
-  for (int irow = 0; irow < nrows; irow++)
+  for (Id irow = 0; irow < nrows; irow++)
   {
     if (!checkArg("Selected Row index", rows[irow], getNRows()))
       return;
   }
-  for (int icol = 0; icol < ncols; icol++)
+  for (Id icol = 0; icol < ncols; icol++)
   {
     if (!checkArg("Selected Column index", cols[icol], getNCols()))
       return;
   }
 
-  for (int irow = 0; irow < nrows; irow++)
-    for (int icol = 0; icol < ncols; icol++)
+  for (Id irow = 0; irow < nrows; irow++)
+    for (Id icol = 0; icol < ncols; icol++)
       setValue(rows[irow], cols[icol], A->getValue(irow, icol));
 }
 
@@ -814,10 +860,10 @@ void MatrixDense::unsample(const AMatrix* A,
 MatrixDense MatrixDense::compressMatLC(const MatrixDense& matLC,
                                        bool transpose)
 {
-  int nrows  = getNRows();
-  int ncols  = getNCols();
-  int nrowCL = matLC.getNRows();
-  int ncolCL = matLC.getNCols();
+  auto nrows = getNRows();
+  auto ncols = getNCols();
+  auto nrowCL = matLC.getNRows();
+  auto ncolCL = matLC.getNCols();
   MatrixDense mat;
 
   if (!transpose)
@@ -829,11 +875,11 @@ MatrixDense MatrixDense::compressMatLC(const MatrixDense& matLC,
       return mat;
     }
     mat.resize(nrows, nrowCL);
-    for (int irow = 0; irow < nrows; irow++)
-      for (int irowCL = 0; irowCL < nrowCL; irowCL++)
+    for (Id irow = 0; irow < nrows; irow++)
+      for (Id irowCL = 0; irowCL < nrowCL; irowCL++)
       {
         double value = 0.;
-        for (int k = 0; k < ncols; k++)
+        for (Id k = 0; k < ncols; k++)
           value += getValue(irow, k) * matLC.getValue(irowCL, k);
         mat.setValue(irow, irowCL, value);
       }
@@ -847,11 +893,11 @@ MatrixDense MatrixDense::compressMatLC(const MatrixDense& matLC,
       return mat;
     }
     mat.resize(nrowCL, ncols);
-    for (int irowCL = 0; irowCL < nrowCL; irowCL++)
-      for (int icol = 0; icol < ncols; icol++)
+    for (Id irowCL = 0; irowCL < nrowCL; irowCL++)
+      for (Id icol = 0; icol < ncols; icol++)
       {
         double value = 0.;
-        for (int k = 0; k < nrows; k++)
+        for (Id k = 0; k < nrows; k++)
           value += matLC.getValue(irowCL, k) * getValue(k, icol);
         mat.setValue(irowCL, icol, value);
       }
@@ -864,7 +910,7 @@ void MatrixDense::sum(const MatrixDense* mat1,
                       const MatrixDense* mat2,
                       MatrixDense* mat3)
 {
-  mat3->getEigenMat() = mat1->getEigenMat() + mat2->getEigenMat();
+  mat3->eigenMat().noalias() = mat1->eigenMat() + mat2->eigenMat();
 }
 
 } // namespace gstlrn

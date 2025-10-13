@@ -53,7 +53,7 @@ class GSTLEARN_EXPORT Option_VarioFit: public AStringable
   Option_VarioFit& operator= (const Option_VarioFit &m);
   virtual ~Option_VarioFit();
 
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
   bool getAuthAniso() const { return _auth_aniso; }
   void setAuthAniso(bool authAniso) { _auth_aniso = authAniso; }
   bool getAuthRotation() const { return _auth_rotation; }

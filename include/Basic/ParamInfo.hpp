@@ -3,8 +3,8 @@
 #include "geoslib_define.h"
 #include "gstlearn_export.hpp"
 
-#include "Basic/AStringable.hpp"
 #include "Basic/AStringFormat.hpp"
+#include "Basic/AStringable.hpp"
 
 #include <array>
 #include <cstddef>
@@ -18,7 +18,7 @@ namespace gstlrn
 
 /**
  * @brief Definition of the generic parameter
- * 
+ *
  * @param _name Name assigned to the parameter
  * @param _value Value (initial) assigned to the parameter
  * @param _currentValue Value currently assigned to the parameter
@@ -28,34 +28,35 @@ namespace gstlrn
  * @param _description String describing the role of this parameter
  * @param _address Address of the parameter in the optimization vector (ListParams)
  */
-class GSTLEARN_EXPORT ParamInfo : public AStringable {
+class GSTLEARN_EXPORT ParamInfo: public AStringable
+{
 public:
-    ParamInfo(const String& name = "", 
-              double value = TEST,
-              const std::array<double,2>& absoluteBounds = {-INF, INF},
-              const std::string& description = "",
-              bool  isfixed = false);
-    ParamInfo(const ParamInfo& other);
-    ParamInfo& operator=(const ParamInfo& other);
-    virtual ~ParamInfo();
+  ParamInfo(const String& name                          = "",
+            double value                                = TEST,
+            const std::array<double, 2>& absoluteBounds = {-INF, INF},
+            const std::string& description              = "",
+            bool isfixed                                = false);
+  ParamInfo(const ParamInfo& other);
+  ParamInfo& operator=(const ParamInfo& other);
+  virtual ~ParamInfo();
 
-    double getValue() const {return _value;};
-    double getAbsoluteMinValue() const {return _absoluteBounds[0];};
-    double getAbsoluteMaxValue() const {return _absoluteBounds[1];};
+  double getValue() const { return _value; };
+  double getAbsoluteMinValue() const { return _absoluteBounds[0]; };
+  double getAbsoluteMaxValue() const { return _absoluteBounds[1]; };
 
-    void setMinValue(double value);
-    void setMaxValue(double value);
-    void decreaseMax(double value);
-    void increaseMin(double value);
-    void setValue(double value);
-    String getName() const {return _name;};
-    double getUserMin() const {return _userBounds[0];};
-    double getUserMax() const {return _userBounds[1];};
-    void   setFixed(bool isFixed) {_isFixed = isFixed;};
-    bool   isFixed() const {return _isFixed;};
-    void   setAddress(int addr) const {_address = addr;};
-    size_t getAddress() const {return _address;};
-    String toString(const AStringFormat* strfmt = nullptr) const override;
+  void setMinValue(double value);
+  void setMaxValue(double value);
+  void decreaseMax(double value);
+  void increaseMin(double value);
+  void setValue(double value);
+  String getName() const { return _name; };
+  double getUserMin() const { return _userBounds[0]; };
+  double getUserMax() const { return _userBounds[1]; };
+  void setFixed(bool isFixed) { _isFixed = isFixed; };
+  bool isFixed() const { return _isFixed; };
+  void setAddress(Id addr) const { _address = addr; };
+  size_t getAddress() const { return _address; };
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
 private:
   String _name;
@@ -65,6 +66,6 @@ private:
   std::array<double, 2> _userBounds;
   bool _isFixed;
   String _description;
-  mutable size_t _address;
+  mutable Id _address;
 };
-}
+} // namespace gstlrn

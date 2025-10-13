@@ -39,15 +39,15 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Global parameters
-  int ndim = 2;
+  Id ndim = 2;
   law_set_random_seed(32131);
   AStringFormat format;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
   bool verbose    = true;
-  int nech        = 3;
-  int nvar        = 2;
+  Id nech         = 3;
+  Id nvar         = 2;
   bool flagSK     = false;
   bool flagUnique = false;
 
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 
   // Neighborhood
   ANeigh* neigh;
-  int nmaxi     = nech;
+  Id nmaxi      = nech;
   double radius = 5.;
   if (flagUnique)
     neigh = NeighUnique::create();

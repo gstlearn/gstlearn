@@ -48,7 +48,7 @@ bool CalcStatistics::_check()
   if (!hasDbin()) return false;
   if (!hasDbout()) return false;
 
-  int nvar = getDbin()->getNLoc(ELoc::Z);
+  auto nvar = getDbin()->getNLoc(ELoc::Z);
   if (nvar <= 0)
   {
     messerr("These methods require some variable to be defined");
@@ -147,10 +147,10 @@ bool CalcStatistics::_run()
  ** \param[in]  namconv Naming convention
  **
  *****************************************************************************/
-int dbStatisticsOnGrid(Db* db,
+Id dbStatisticsOnGrid(Db* db,
                        DbGrid* dbgrid,
                        const EStatOption& oper,
-                       int radius,
+                       Id radius,
                        const NamingConvention& namconv)
 {
   CalcStatistics stats;
@@ -164,14 +164,14 @@ int dbStatisticsOnGrid(Db* db,
   stats.setRadius(radius);
 
   // Run the calculator
-  int error = (stats.run()) ? 0 : 1;
+  Id error = (stats.run()) ? 0 : 1;
   return error;
 }
 
-int dbRegression(Db* db1,
+Id dbRegression(Db* db1,
                  const String& nameResp,
                  const VectorString& nameAux,
-                 int mode,
+                 Id mode,
                  bool flagCst,
                  Db* db2,
                  const Model* model,
@@ -192,7 +192,7 @@ int dbRegression(Db* db1,
   stats.setModel(model);
 
   // Run the calculator
-  int error = (stats.run()) ? 0 : 1;
+  Id error = (stats.run()) ? 0 : 1;
   return error;
 }
 } // namespace gstlrn

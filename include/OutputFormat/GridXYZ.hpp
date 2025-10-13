@@ -28,7 +28,7 @@ public:
 
   bool mustBeGrid() const override { return true; }
   bool mustBeOneVariable() const override { return true; }
-  bool mustBeForNDim(int ndim) const override { return ndim == 2; }
-  int  writeInFile() override;
+  bool mustBeForNDim(Id ndim) const override { return ndim == 2; }
+  Id  writeInFile() override;
 };
 }

@@ -1,5 +1,7 @@
 #NO_DIFF#XXX
-----<IPython.core.display.Javascript object>----
+----
+
+<IPython.core.display.Javascript object>----
 
 
 #NO_DIFF#XXX
@@ -32,34 +34,34 @@ Data Base Contents
      [  7,]   162.597   140.488    -3.040    -3.493
      [  8,]   172.682   151.285    -3.228    -2.714
      [  9,]   131.565   184.920    -2.987    -2.919
- ----
-
-
-#NO_DIFF#XXX
-----
-#NO_DIFF#XXX
 ----
 
 
 #NO_DIFF#XXX
 ----
+#NO_DIFF#XXX
+----
 
- Simulation Post-Processing
- --------------------------
- Multiplicity order for all variables
- - Variable 1 (SimuA*) = 3
- - Variable 2 (SimuB*) = 2
- - Variable 3 (SimuC*) = 2
- Number of Iterations: 12  (using the 'product' criterion)
- Number of Statistics: 2
- Number of Output Variables: 6
- 
+
+#NO_DIFF#XXX
+----
+
+Simulation Post-Processing
+--------------------------
+Multiplicity order for all variables
+- Variable 1 (SimuA*) = 3
+- Variable 2 (SimuB*) = 2
+- Variable 3 (SimuC*) = 2
+Number of Iterations: 12 (using the 'product' criterion)
+Number of Statistics: 2
+Number of Output Variables: 6
+
 == Cell #4/25 (regrouping 2 samples)
-             Mean   Variance
+            Mean   Variance
 Var 1     -0.170      0.160
 Var 2    143.343    462.942
 Var 3     -3.342      0.068
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -102,49 +104,49 @@ Column = 8 - Name = Post1.Var3.Variance - Locator = NA----
 #NO_DIFF#XXX
 ----
 
- Simulation Post-Processing
- --------------------------
- Multiplicity order for all variables
- - Variable 1 (SimuA*) = 3
- - Variable 2 (SimuB*) = 2
- - Variable 3 (SimuC*) = 2
- Number of Iterations: 12  (using the 'product' criterion)
- Number of Statistics: 2
- Number of Transform Variables: 2
- Number of Output Variables: 4
- 
+Simulation Post-Processing
+--------------------------
+Multiplicity order for all variables
+- Variable 1 (SimuA*) = 3
+- Variable 2 (SimuB*) = 2
+- Variable 3 (SimuC*) = 2
+Number of Iterations: 12 (using the 'product' criterion)
+Number of Statistics: 2
+Number of Transform Variables: 2
+Number of Output Variables: 4
+
 == Cell #4/25 (regrouping 2 samples)
-             Mean   Variance
+            Mean   Variance
 Var 1     46.610     51.463
 Var 2     83.789    154.267
- ----
-
-
-#NO_DIFF#XXX
-----
-#NO_DIFF#XXX
 ----
 
 
 #NO_DIFF#XXX
 ----
+#NO_DIFF#XXX
+----
 
- Simulation Post-Processing
- --------------------------
- Multiplicity order for all variables
- - Variable 1 (SimuA*) = 3
- - Variable 2 (SimuB*) = 2
- - Variable 3 (SimuC*) = 2
- Number of Iterations: 12  (using the 'product' criterion)
- Number of Statistics: 2
- Number of Output Variables: 6
- 
+
+#NO_DIFF#XXX
+----
+
+Simulation Post-Processing
+--------------------------
+Multiplicity order for all variables
+- Variable 1 (SimuA*) = 3
+- Variable 2 (SimuB*) = 2
+- Variable 3 (SimuC*) = 2
+Number of Iterations: 12 (using the 'product' criterion)
+Number of Statistics: 2
+Number of Output Variables: 6
+
 == Cell #4/10
-             Mean   Variance
+            Mean   Variance
 Var 1      0.158      1.380
 Var 2    146.042   1886.664
 Var 3     -3.386      0.097
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -188,28 +190,28 @@ Data Base Contents
      [  7,]     133.306      -3.266       0.056
      [  8,]     124.859      -2.971       0.072
      [  9,]     776.385      -2.953       0.001
- ----
+----
 
 
 #NO_DIFF#XXX
 ----
 
- Simulation Post-Processing
- --------------------------
- Multiplicity order for all variables
- - Variable 1 (SimuA*) = 3
- - Variable 2 (SimuB*) = 2
- - Variable 3 (SimuC*) = 2
- Number of Iterations: 12  (using the 'product' criterion)
- Number of Statistics: 2
- Number of Transform Variables: 2
- Number of Output Variables: 4
- 
+Simulation Post-Processing
+--------------------------
+Multiplicity order for all variables
+- Variable 1 (SimuA*) = 3
+- Variable 2 (SimuB*) = 2
+- Variable 3 (SimuC*) = 2
+Number of Iterations: 12 (using the 'product' criterion)
+Number of Statistics: 2
+Number of Transform Variables: 2
+Number of Output Variables: 4
+
 == Cell #4/10
-             Mean   Variance
+            Mean   Variance
 Var 1     47.605    209.793
 Var 2     85.271    628.676
- ----
+----
 
 
 #NO_DIFF#XXX
@@ -253,4 +255,4 @@ Data Base Contents
      [  7,]     133.306      -3.266       0.056      49.369      14.874      88.499      44.465
      [  8,]     124.859      -2.971       0.072      52.911      14.054      94.471      41.738
      [  9,]     776.385      -2.953       0.001      51.569      86.303      92.390     258.776
- ----
+----

@@ -12,25 +12,25 @@
 
 #include "gstlearn_export.hpp"
 
-#include "LinearOp/IProj.hpp"
 #include "Basic/AStringable.hpp"
+#include "LinearOp/IProj.hpp"
 
 namespace gstlrn
 {
-class GSTLEARN_EXPORT TestInheritance : public AStringable
+class GSTLEARN_EXPORT TestInheritance: public AStringable
 {
 public:
   TestInheritance();
-  TestInheritance(const TestInheritance& r) = delete;
+  TestInheritance(const TestInheritance& r)            = delete;
   TestInheritance& operator=(const TestInheritance& r) = delete;
 
   /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  void setIproj(IProj* ipr){ _iproj = ipr;}
+  void setIproj(IProj* ipr) { _iproj = ipr; }
   virtual ~TestInheritance();
 
 private:
- IProj* _iproj;
+  IProj* _iproj;
 };
-}
+} // namespace gstlrn

@@ -36,10 +36,10 @@ public:
   IMPLEMENT_CLONING(DriftM)
 
   String getDriftName() const override;
-  int    getOrderIRF()  const override;
-  int    getOrderIRFIdim(int idim) const override;
-  int    getDriftNDimMax()      const override;
-  double eval(const Db* db, int iech) const override;
+  Id    getOrderIRF()  const override;
+  Id    getOrderIRFIdim(Id idim) const override;
+  Id    getDriftNDimMax()      const override;
+  double eval(const Db* db, Id iech) const override;
   VectorInt getPowers() const override { return _monomialPower; }
 
   static DriftM* createByIdentifier(const String &driftname);

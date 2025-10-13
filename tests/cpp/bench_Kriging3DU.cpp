@@ -8,17 +8,17 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
+#include "Enum/ESpaceType.hpp"
 
-#include "Space/ASpaceObject.hpp"
-#include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
-#include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
-#include "Neigh/NeighUnique.hpp"
+#include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Estimation/CalcKriging.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 
@@ -27,29 +27,29 @@ using namespace gstlrn;
  ** Main Program
  **
  *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  bool verbose  = false;
-  bool graphic  = false;
+  bool verbose = false;
+  bool graphic = false;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setPrefixName("BenchKrigingU3D-");
+  ASerializable::setPrefixName("bench_Kriging3DU-");
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 3);
 
   // Generate the data base
 
-  Db* data = Db::createFillRandom(100, 3, 1, 0,0,0,0,VectorDouble(),{0,0,0}, {100,100,100});
+  Db* data = Db::createFillRandom(100, 3, 1, 0, 0, 0, 0, VectorDouble(), {0, 0, 0}, {100, 100, 100});
 
   if (graphic)
-    (void) data->dumpToNF("Data.NF");
+    (void)data->dumpToNF("Data.NF");
 
   // Generate the output grid
-  VectorInt nx = {100,100,100};
+  VectorInt nx = {100, 100, 100};
 
   DbGrid* grid = DbGrid::create(nx);
   if (verbose) grid->display();
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
   delete gridfmt;
 
   if (graphic)
-    (void) grid->dumpToNF("Grid.NF");
+    (void)grid->dumpToNF("Grid.NF");
 
   delete neighU;
   delete data;

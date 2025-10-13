@@ -28,9 +28,9 @@ public:
   CovMatern& operator= (const CovMatern &r);
   virtual ~CovMatern();
 
-  virtual String getFormula() const override;
+  String getFormula() const override;
   String         getCovName() const override { return "Matern"; }
-  int            getMinOrder() const override { return -1; }
+  Id            getMinOrder() const override { return -1; }
   bool           getCompatibleSpaceR() const override { return true; }
   bool           getCompatibleSpaceS() const override { return true; }
 
@@ -44,20 +44,20 @@ public:
   void   setMarkovCoeffs(const VectorDouble& coeffs) override { _markovCoeffs = coeffs;}
   VectorDouble getMarkovCoeffs() const override;
   double getCorrec() const override { return _correc;}
-  void   computeCorrec(int ndim) override;
+  void   computeCorrec(Id ndim) override;
   void   setCorrec(double val) override { _correc = val;}
-  void   computeMarkovCoeffs(int dim) override;
+  void   computeMarkovCoeffs(Id dim) override;
 
   bool isValidForTurningBand() const override { return true; }
   double simulateTurningBand(double t0, TurningBandOperate &operTB) const override;
 
   bool isValidForSpectral() const override { return true; }
-  MatrixDense simulateSpectralOmega(int nb) const override;
+  MatrixDense simulateSpectralOmega(Id nb) const override;
 
 protected:
   double _evaluateCov(double h) const override;
-  double _evaluateCovDerivative(double h) const override;
-  VectorDouble _evaluateSpectrumOnSphere(int n, double scale = 1.) const override;
+  double _evaluateCovFirstDerivative(double h) const override;
+  VectorDouble _evaluateSpectrumOnSphere(Id n, double scale = 1.) const override;
 
 private:
   static double _besselK(double nu, double h);

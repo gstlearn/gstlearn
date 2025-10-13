@@ -72,11 +72,11 @@ namespace gstlrn
    **
    *****************************************************************************/
   double TurningBandDirection::projectGrid(const DbGrid* db,
-                                           int ix,
-                                           int iy,
-                                           int iz) const
+                                           Id ix,
+                                           Id iy,
+                                           Id iz) const
   {
-    int ndim = 3;
+    Id ndim = 3;
     _indg.clear();
     _indg.resize(ndim, 0);
     _xyz.clear();
@@ -88,7 +88,7 @@ namespace gstlrn
     db->indicesToCoordinateInPlace(_indg, _xyz);
 
     double t = 0.;
-    for (int idim = 0; idim < db->getNDim(); idim++)
+    for (Id idim = 0; idim < db->getNDim(); idim++)
       t += _xyz[idim] * _ang[idim];
     return t;
   }
@@ -103,10 +103,10 @@ namespace gstlrn
    ** \param[in]  iech    rank of the sample
    **
    *****************************************************************************/
-  double TurningBandDirection::projectPoint(const Db* db, int iech) const
+  double TurningBandDirection::projectPoint(const Db* db, Id iech) const
   {
     double t = 0.;
-    for (int idim = 0; idim < db->getNDim(); idim++)
+    for (Id idim = 0; idim < db->getNDim(); idim++)
       t += db->getCoordinate(iech, idim) * _ang[idim];
     return (t);
   }

@@ -32,7 +32,7 @@ const char* AException::what() const noexcept
 
 void throw_exp(const std::string& msg,
                const std::string& file,
-               int line)
+               Id line)
 {
   std::stringstream sstr;
   if (!file.empty())

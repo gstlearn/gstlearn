@@ -37,59 +37,59 @@ public:
   virtual const EAnam& getType() const = 0;
   virtual double       getVariance() const { return TEST; }
   virtual bool         hasFactor() const { return false; }
-  virtual int          getNFactor() const { return 0; }
-  virtual int          getNClass() const { return 0; }
+  virtual Id          getNFactor() const { return 0; }
+  virtual Id          getNClass() const { return 0; }
   virtual bool         isChangeSupportDefined() const = 0;
   virtual VectorDouble z2factor(double z, const VectorInt& ifacs) const;
   virtual double       computeVariance(double sval) const;
-  virtual int          updatePointToBlock(double r_coef);
+  virtual Id          updatePointToBlock(double r_coef);
   virtual bool         allowChangeSupport() const { return false; }
   virtual bool         hasGaussian() const { return false; }
   virtual double       rawToTransformValue(double z) const;
   virtual double       transformToRawValue(double y) const;
-  virtual int          fitFromArray(const VectorDouble &tab,
+  virtual Id          fitFromArray(const VectorDouble &tab,
                                     const VectorDouble &wt = VectorDouble()) { DECLARE_UNUSED(tab,wt); return 0;}
 
   double invertVariance(double cvv) const;
   VectorDouble rawToTransformVec(const VectorDouble& z) const;
   VectorDouble transformToRawVec(const VectorDouble& y) const;
 
-  int fitFromLocator(Db *db, const ELoc& locatorType = ELoc::fromKey("Z"));
-  int fit(Db *db, const String& name);
+  Id fitFromLocator(Db *db, const ELoc& locatorType = ELoc::fromKey("Z"));
+  Id fit(Db *db, const String& name);
 
-  int rawToGaussianByLocator(Db *db,
+  Id rawToGaussianByLocator(Db *db,
                              const NamingConvention &namconv = NamingConvention("Y"));
-  int rawToGaussian(Db *db,
+  Id rawToGaussian(Db *db,
                     const String &name,
                     const NamingConvention &namconv = NamingConvention("Y"));
-  int normalScore(Db *db,
+  Id normalScore(Db *db,
                   const String& name,
                   const NamingConvention &namconv = NamingConvention("Gaussian"));
-  int gaussianToRawByLocator(Db *db,
+  Id gaussianToRawByLocator(Db *db,
                              const NamingConvention &namconv = NamingConvention("Z"));
-  int gaussianToRaw(Db *db,
+  Id gaussianToRaw(Db *db,
                     const String &name,
                     const NamingConvention &namconv = NamingConvention("Z"));
 
-  int rawToFactorByRanks(Db *db,
+  Id rawToFactorByRanks(Db *db,
                          const VectorInt &ifacs,
                          const NamingConvention &namconv = NamingConvention(
                              "Factor"));
-  int rawToFactor(Db *db,
-                  int nfactor,
+  Id rawToFactor(Db *db,
+                  Id nfactor,
                   const NamingConvention &namconv = NamingConvention("Factor"));
 
 protected:
   static bool _isSampleSkipped(Db* db,
-                               int iech,
+                               Id iech,
                                const VectorInt& cols_est,
                                const VectorInt& cols_std);
   bool _isFitted() const { return _flagFitted; }
 
 private:
-  static bool _isNcutValid(int ncut);
+  static bool _isNcutValid(Id ncut);
   static bool _isProbaValid(double proba);
-  static void _printQTvars(const char *title, int type, int number);
+  static void _printQTvars(const char *title, Id type, Id number);
 
 private:
   bool _flagFitted;

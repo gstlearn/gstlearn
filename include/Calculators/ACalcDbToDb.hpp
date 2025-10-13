@@ -12,22 +12,21 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Basic/NamingConvention.hpp"
 #include "Calculators/ACalculator.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Basic/NamingConvention.hpp"
-
 
 namespace gstlrn
-{ 
+{
 class ELoc;
 
 class GSTLEARN_EXPORT ACalcDbToDb: public ACalculator
 {
 public:
   ACalcDbToDb(bool mustShareSameSpaceDimension = true);
-  ACalcDbToDb(const ACalcDbToDb &r) = delete;
-  ACalcDbToDb& operator=(const ACalcDbToDb &r) = delete;
+  ACalcDbToDb(const ACalcDbToDb& r)            = delete;
+  ACalcDbToDb& operator=(const ACalcDbToDb& r) = delete;
   virtual ~ACalcDbToDb();
 
   void setDbin(Db* dbin) { _dbin = dbin; }
@@ -42,6 +41,7 @@ public:
   Db* getDbout() const { return _dbout; }
   DbGrid* getGridin() const;
   DbGrid* getGridout() const;
+  const NamingConvention& getNamingConvention() const { return _namconv; }
 
   bool hasDbin(bool verbose = true) const;
   bool hasDbout(bool verbose = true) const;
@@ -49,33 +49,33 @@ public:
   bool isGridOut(bool verbose = true) const;
 
 protected:
-  virtual bool _check() override;
-  virtual bool _preprocess() override;
-  int _getNDim() const { return _ndim; }
-  int _getNVar() const { return _nvar; }
-  bool _setNdim(int ndim, bool flagForce = false);
-  bool _setNvar(int nvar, bool flagForce = false);
+  bool _check() override;
+  bool _preprocess() override;
+  Id _getNDim() const { return _ndim; }
+  Id _getNVar() const { return _nvar; }
+  bool _setNdim(Id ndim, bool flagForce = false);
+  bool _setNvar(Id nvar, bool flagForce = false);
 
-  int _addVariableDb(int whichDb,
-                     int status,
-                     const ELoc& locatorType,
-                     int locatorIndex = 0,
-                     int number = 1,
-                     double valinit = 0.);
-  void _renameVariable(int whichDb,
+  Id _addVariableDb(Id whichDb,
+                    Id status,
+                    const ELoc& locatorType,
+                    Id locatorIndex = 0,
+                    Id number       = 1,
+                    double valinit  = 0.);
+  void _renameVariable(Id whichDb,
                        const VectorString& names,
                        const ELoc& locatorType,
-                       int nvar,
-                       int iptr,
+                       Id nvar,
+                       Id iptr,
                        const String& qualifier,
-                       int count,
+                       Id count,
                        bool flagSetLocator = true,
-                       int locatorShift    = 0);
-  void _storeInVariableList(int whichDb, int status, const VectorInt& iuids);
-  int  _expandInformation(int mode, const ELoc& locatorType) const;
-  void _cleanVariableDb(int status);
-  Db*  _whichDb(int whichDb);
-  String _identifyVariable(int iuid) const;
+                       Id locatorShift     = 0);
+  void _storeInVariableList(Id whichDb, Id status, const VectorInt& iuids);
+  Id _expandInformation(Id mode, const ELoc& locatorType) const;
+  void _cleanVariableDb(Id status);
+  Db* _whichDb(Id whichDb);
+  String _identifyVariable(Id iuid) const;
 
 private:
   bool _checkSpaceDimension();
@@ -90,7 +90,7 @@ private:
   VectorInt _listVariablePermDbOut;
   VectorInt _listVariableTempDbIn;
   VectorInt _listVariableTempDbOut;
-  int _ndim;
-  int _nvar;
+  Id _ndim;
+  Id _nvar;
 };
-}
+} // namespace gstlrn

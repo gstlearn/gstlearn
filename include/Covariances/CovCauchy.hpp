@@ -25,9 +25,9 @@ public:
   CovCauchy& operator= (const CovCauchy &r);
   virtual ~CovCauchy();
 
-  virtual String getFormula() const override;
+  String getFormula() const override;
   String         getCovName() const override { return "Cauchy"; }
-  int            getMinOrder() const override { return -1; }
+  Id            getMinOrder() const override { return -1; }
   bool           getCompatibleSpaceR() const override { return true; }
 
   bool   hasParam()  const override { return true; }

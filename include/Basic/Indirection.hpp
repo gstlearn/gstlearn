@@ -23,42 +23,42 @@ namespace gstlrn
 class GSTLEARN_EXPORT Indirection: public AStringable
 {
 public:
-  Indirection(int mode = 0);
+  Indirection(Id mode = 0);
   ~Indirection();
   Indirection(const Indirection &m);
   Indirection& operator=(const Indirection &m);
 
   /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void buildFromSel(const VectorDouble& sel);
-  void buildFromRankRInA(const VectorInt& rels, int nabs);
-  void buildFromMap(const std::map<int, int> &map, int nabs);
-  int  getAToR(int iabs) const;
-  int  getRToA(int irel) const;
-  int  getAbsSize() const { return _nabs; }
-  int  getRelSize() const { return _nrel; }
-  void setMode(int mode);
+  void buildFromRankRInA(const VectorInt& rels, Id nabs);
+  void buildFromMap(const std::map<Id, Id> &map, Id nabs);
+  Id  getAToR(Id iabs) const;
+  Id  getRToA(Id irel) const;
+  Id  getAbsSize() const { return _nabs; }
+  Id  getRelSize() const { return _nrel; }
+  void setMode(Id mode);
 
   bool isDefined() const { return _defined; }
 
   VectorInt getRelRanks() const { return _vecRToA; }
-  int getMode() const { return _mode; }
+  Id getMode() const { return _mode; }
 
 private:
   void _resetMap();
-  int  _getMapAToR(int iabs) const;
-  int  _getArrayAToR(int iabs) const;
-  bool _isValidAbs(int iabs) const;
-  bool _isValidRel(int irel) const;
+  Id  _getMapAToR(Id iabs) const;
+  Id  _getArrayAToR(Id iabs) const;
+  bool _isValidAbs(Id iabs) const;
+  bool _isValidRel(Id irel) const;
 
 private:
   bool _defined;
-  int  _mode;     // 0 by array; 1 by MAP
-  int  _nabs;     // Number of absolute elements
-  int  _nrel;     // Number of relative elements
+  Id  _mode;     // 0 by array; 1 by MAP
+  Id  _nabs;     // Number of absolute elements
+  Id  _nrel;     // Number of relative elements
   VectorInt _vecRToA;
   VectorInt _vecAToR;
-  std::map<int, int> _mapAToR;
+  std::map<Id, Id> _mapAToR;
 };
 }

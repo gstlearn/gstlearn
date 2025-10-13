@@ -31,34 +31,34 @@ public:
   KrigOpt& operator=(const KrigOpt &m);
   virtual ~KrigOpt();
 
-  int setOptionCalcul(const EKrigOpt& calcul  = EKrigOpt::POINT,
+  Id setOptionCalcul(const EKrigOpt& calcul  = EKrigOpt::POINT,
                       const VectorInt& ndiscs = VectorInt(),
                       bool flag_per_cell      = false);
-  int setColCok(const VectorInt& rank_colcok);
-  int setMatLC(const MatrixDense* matLC);
+  Id setColCok(const VectorInt& rank_colcok);
+  Id setMatLC(const MatrixDense* matLC);
   void setMode(const CovCalcMode* mode);
   void setOptionDGM(bool flag_dgm);
 
   const CovCalcMode& getMode() const { return _mode; }
   const EKrigOpt& getCalcul() const { return _calcul; }
 
-  int getNDisc() const { return _nDiscNumber; }
+  Id getNDisc() const { return _nDiscNumber; }
   bool hasDiscs() const { return ! _ndiscs.empty(); }
   const VectorInt& getDiscs() const { return _ndiscs; }
-  int getDisc(int idim) const { return _ndiscs[idim]; }
+  Id getDisc(Id idim) const { return _ndiscs[idim]; }
   bool hasFlagPerCell() const { return _flagPerCell; }
-  void blockDiscretize(int iechout, bool flagRandom = false, int seed = 1234546) const;
-  VectorDouble getDisc1VD(int idisc) const;
-  VectorDouble getDisc2VD(int idisc) const;
+  void blockDiscretize(Id iechout, bool flagRandom = false, Id seed = 1234546) const;
+  VectorDouble getDisc1VD(Id idisc) const;
+  VectorDouble getDisc2VD(Id idisc) const;
   VectorVectorDouble getDisc1VVD() const;
   VectorVectorDouble getDisc2VVD() const;
   const MatrixDense* getMatLC() const { return _matLC; }
-  double getMatLCValue(int ivarcl, int ivar) const;
+  double getMatLCValue(Id ivarcl, Id ivar) const;
   bool hasMatLC() const { return _matLC != nullptr; }
-  int getMatLCNRows() const { return _matLC->getNRows(); }
-  int getNvarLC() const;
+  Id getMatLCNRows() const { return _matLC->getNRows(); }
+  Id getNvarLC() const;
   const VectorInt& getRankColcok() const { return _rankColcok; }
-  int getRankColcok(int i) const { return _rankColcok[i]; }
+  Id getRankColcok(Id i) const { return _rankColcok[i]; }
   bool hasColcok() const { return _flagColcok; }
   bool hasFlagDGM() const { return _flagDGM; }
 
@@ -66,8 +66,8 @@ public:
   void dumpOptions() const;
 
 private:
-  double _getDisc1(int idisc, int idim) const;
-  double _getDisc2(int idisc, int idim) const;
+  double _getDisc1(Id idisc, Id idim) const;
+  double _getDisc2(Id idisc, Id idim) const;
   bool _isValidCalcul(const Db* dbout, const ANeigh* neigh) const;
   bool _isValidColcok(const Db* dbout, const ModelGeneric* model) const;
   bool _isValidMatLC(const ModelGeneric* model) const;
@@ -80,8 +80,8 @@ private:
 
   // Discretization of cell for block calculation
   mutable bool _flagPerCell;
-  int _nDiscDim;
-  int _nDiscNumber;
+  Id _nDiscDim;
+  Id _nDiscNumber;
   VectorInt _ndiscs;
   mutable VectorVectorDouble _disc1; // Dimension: ndiscNumber, ndim
   mutable VectorVectorDouble _disc2; // Dimension: ndiscNumber, ndim

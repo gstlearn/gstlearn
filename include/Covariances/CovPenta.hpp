@@ -26,10 +26,10 @@ public:
   CovPenta& operator= (const CovPenta &r);
   virtual ~CovPenta();
 
-  unsigned int getMaxNDim()   const  override { return 3; }
+  size_t getMaxNDim() const override { return 3; }
 
   String         getCovName() const override { return "Penta"; }
-  int            getMinOrder() const override { return -1; }
+  Id            getMinOrder() const override { return -1; }
   bool           getCompatibleSpaceR() const override { return true; }
 
 protected:

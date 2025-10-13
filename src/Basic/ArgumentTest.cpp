@@ -8,13 +8,12 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Basic/ArgumentTest.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Basic/ArgumentTest.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Matrix/MatrixSquare.hpp"
-
 
 ENUM_DEFINE(ENUM_TESTS)
 
@@ -31,7 +30,7 @@ void _test()
 }
 void _introduction(const String& title, bool end_of_line = false)
 {
-  message("Testing for %s : ",title.c_str());
+  message("Testing for %s : ", title.c_str());
   if (end_of_line) _endOfLine();
 }
 
@@ -40,12 +39,12 @@ void _printEmpty()
   message("Found an empty argument. This is correct\n");
 }
 
-void _printInt(int value)
+void _printInt(Id value)
 {
   if (IFFFF(value))
-   _test();
+    _test();
   else
-    message("%d ",value);
+    message("%ld ", value);
 }
 
 void _printDouble(double value)
@@ -53,39 +52,39 @@ void _printDouble(double value)
   if (FFFF(value))
     _test();
   else
-    message("%lf ",value);
+    message("%lf ", value);
 }
 
 void _printString(const String& value)
 {
-  message("%s ",value.c_str());
+  message("%s ", value.c_str());
 }
 
 void _printVectorInt(const VectorInt& values)
 {
-  for (int i = 0; i < (int) values.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(values.size()); i++)
     _printInt(values[i]);
 }
 
 void _printVectorDouble(const VectorDouble& values)
 {
-  for (int i = 0; i < (int) values.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(values.size()); i++)
     _printDouble(values[i]);
 }
 
 void _printVectorString(const VectorString& values)
 {
-  for (int i = 0; i < (int) values.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(values.size()); i++)
     _printString(values[i]);
 }
 
 void _printVectorVectorInt(const VectorVectorInt& values)
 {
-  for (int i = 0; i < (int) values.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(values.size()); i++)
   {
-    for (int j = 0; j < (int) values[i].size(); j++)
+    for (Id j = 0; j < static_cast<Id>(values[i].size()); j++)
     {
-      message("[%d][%d] : ",j+1,i+1);
+      message("[%d][%d] : ", j + 1, i + 1);
       _printInt(values[i][j]);
       _endOfLine();
     }
@@ -94,11 +93,11 @@ void _printVectorVectorInt(const VectorVectorInt& values)
 
 void _printVectorVectorDouble(const VectorVectorDouble& values)
 {
-  for (int i = 0; i < (int) values.size(); i++)
+  for (Id i = 0; i < static_cast<Id>(values.size()); i++)
   {
-    for (int j = 0; j < (int) values[i].size(); j++)
+    for (Id j = 0; j < static_cast<Id>(values[i].size()); j++)
     {
-      message("[%d][%d] : ",j+1,i+1);
+      message("[%d][%d] : ", j + 1, i + 1);
       _printDouble(values[i][j]);
       _endOfLine();
     }
@@ -109,9 +108,9 @@ void _printVectorVectorDouble(const VectorVectorDouble& values)
  * Function to test Integer argument
  * @param value Integer input argument
  */
-void argumentTestInt(int value)
+void argumentTestInt(Id value)
 {
-  _introduction("Integer");
+  _introduction("TestInt");
   _printInt(value);
   _endOfLine();
 }
@@ -122,103 +121,103 @@ void argumentTestInt(int value)
  */
 void argumentTestDouble(double value)
 {
-  _introduction("Double");
+  _introduction("TestDouble");
   _printDouble(value);
   _endOfLine();
 }
 
 void argumentTestVectorInt(const VectorInt& values)
 {
-  _introduction("VectorInt");
+  _introduction("TestVectorInt");
   _printVectorInt(values);
   _endOfLine();
 }
 
 void argumentTestVectorDouble(const VectorDouble& values)
 {
-  _introduction("VectorDouble");
+  _introduction("TestVectorDouble");
   _printVectorDouble(values);
   _endOfLine();
 }
 
 void argumentTestString(const String& value)
 {
-  _introduction("String");
+  _introduction("TestString");
   _printString(value);
   _endOfLine();
 }
 
 void argumentTestVectorVectorInt(const VectorVectorInt& values)
 {
-  _introduction("VectorVectorInt",true);
+  _introduction("TestVectorVectorInt", true);
   _printVectorVectorInt(values);
   _endOfLine();
 }
 
 void argumentTestVectorVectorDouble(const VectorVectorDouble& values)
 {
-  _introduction("VectorVectorDouble",true);
+  _introduction("TestVectorVectorDouble", true);
   _printVectorVectorDouble(values);
   _endOfLine();
 }
 
 void argumentTestVectorString(const VectorString& values)
 {
-  _introduction("VectorString", true);
+  _introduction("TestVectorString", true);
   _printVectorString(values);
   _endOfLine();
 }
 
 void argumentTestStringOverload(const String& value)
 {
-  _introduction("String (Overload)");
+  _introduction("TestString (Overload)");
   _printString(value);
   _endOfLine();
 }
 
-void argumentTestIntOverload(int value)
+void argumentTestIntOverload(Id value)
 {
-  _introduction("Int (Overload)");
+  _introduction("TestInt (Overload)");
   _printInt(value);
   _endOfLine();
 }
 
 void argumentTestIntOverload(const VectorInt& values)
 {
-  _introduction("VectorInt (Overload)");
+  _introduction("TestVectorInt (Overload)");
   _printVectorInt(values);
   _endOfLine();
 }
 
 void argumentTestDoubleOverload(double value)
 {
-  _introduction("Double (Overload)");
+  _introduction("TestDouble (Overload)");
   _printDouble(value);
   _endOfLine();
 }
 
 void argumentTestDoubleOverload(const VectorDouble& values)
 {
-  _introduction("VectorDouble (Overload)");
+  _introduction("TestVectorDouble (Overload)");
   _printVectorDouble(values);
   _endOfLine();
 }
 
 void argumentTestStringOverload(const VectorString& values)
 {
-  _introduction("VectorString (Overload)");
+  _introduction("TestVectorString (Overload)");
   _printVectorString(values);
   _endOfLine();
 }
 
 void argumentTestEnum(const ETests& value)
 {
-  message("Case : Value = %d - Descr = %s\n", value.getValue(),value.getDescr().data());
+  message("Case : Value = %d - Descr = %s\n", value.getValue(), value.getDescr().data());
 }
 
-int argumentReturnInt(int value)
+Id argumentReturnInt(Id value)
 {
-  _introduction("Integer");
+  _introduction("ReturnInt");
   _printInt(value);
   _endOfLine();
   return value;
@@ -226,7 +225,7 @@ int argumentReturnInt(int value)
 
 double argumentReturnDouble(double value)
 {
-  _introduction("Double");
+  _introduction("ReturnDouble");
   _printDouble(value);
   _endOfLine();
   return value;
@@ -234,7 +233,7 @@ double argumentReturnDouble(double value)
 
 VectorInt argumentReturnVectorInt(const VectorInt& values)
 {
-  _introduction("VectorInt");
+  _introduction("ReturnVectorInt");
   _printVectorInt(values);
   _endOfLine();
   return values;
@@ -242,7 +241,7 @@ VectorInt argumentReturnVectorInt(const VectorInt& values)
 
 VectorDouble argumentReturnVectorDouble(const VectorDouble& values)
 {
-  _introduction("VectorDouble");
+  _introduction("ReturnVectorDouble");
   _printVectorDouble(values);
   _endOfLine();
   return values;
@@ -250,7 +249,7 @@ VectorDouble argumentReturnVectorDouble(const VectorDouble& values)
 
 VectorVectorInt argumentReturnVectorVectorInt(const VectorVectorInt& values)
 {
-  _introduction("VectorVectorInt", true);
+  _introduction("ReturnVectorVectorInt", true);
   _printVectorVectorInt(values);
   _endOfLine();
   return values;
@@ -258,60 +257,60 @@ VectorVectorInt argumentReturnVectorVectorInt(const VectorVectorInt& values)
 
 VectorVectorDouble argumentReturnVectorVectorDouble(const VectorVectorDouble& values)
 {
-  _introduction("VectorVectorDouble", true);
+  _introduction("ReturnVectorVectorDouble", true);
   _printVectorVectorDouble(values);
   _endOfLine();
   return values;
 }
 
-void argumentDefTestInt(int argInt)
+void argumentDefTestInt(Id argInt)
 {
-  _introduction("Integer");
+  _introduction("DefTestInt");
   _printInt(argInt);
   _endOfLine();
 }
 
 void argumentDefTestDbl(double argDbl)
 {
-  _introduction("Double");
-   _printDouble(argDbl);
-   _endOfLine();
+  _introduction("DefTestDouble");
+  _printDouble(argDbl);
+  _endOfLine();
 }
 
 void argumentDefTestStr(const String& argstr)
 {
-  _introduction("String");
-   _printString(argstr);
-   _endOfLine();
+  _introduction("DefTestString");
+  _printString(argstr);
+  _endOfLine();
 }
 
 void argumentDefTestVInt(const VectorInt& argVInt)
 {
-  _introduction("Vector Int");
+  _introduction("DefTestVectorInt");
   if (argVInt.empty()) _printEmpty();
 }
 
 void argumentDefTestVDbl(const VectorDouble& argVDbl)
 {
-  _introduction("Vector Double");
+  _introduction("DefTestVectorDouble");
   if (argVDbl.empty()) _printEmpty();
 }
 
 void argumentDefTestVString(const VectorString& argVString)
 {
-  _introduction("Vector String");
+  _introduction("DefTestVectorString");
   if (argVString.empty()) _printEmpty();
 }
 
 void argumentDefTestVVDbl(VectorVectorDouble argVVDbl)
 {
-  _introduction("Vector Vector Double");
+  _introduction("DefTestVectorVectorDouble");
   if (argVVDbl.empty() || argVVDbl[0].empty()) _printEmpty();
 }
 
 void argumentDefTestVVInt(VectorVectorInt argVVInt)
 {
-  _introduction("Vector Vector Int");
+  _introduction("DefTestVectorVectorInt");
   if (argVVInt.empty() || argVVInt[0].empty()) _printEmpty();
 }
 
@@ -327,9 +326,9 @@ void argumentTestMatrixSymmetric(const MatrixSymmetric& mat)
 {
   if (!mat.empty()) mat.display();
 }
-MatrixDense argumentReturnMatrix(int nrows,
-                                       int ncols,
-                                       int seed)
+MatrixDense argumentReturnMatrix(Id nrows,
+                                 Id ncols,
+                                 Id seed)
 {
   MatrixDense mat(nrows, ncols);
   mat.fillRandom(seed);
@@ -341,14 +340,14 @@ void argumentTestMatrixSparse(const MatrixSparse& mat)
   if (!mat.empty()) mat.display();
 }
 
-MatrixSparse argumentReturnMatrixSparse(int nrows,
-                                        int ncols,
+MatrixSparse argumentReturnMatrixSparse(Id nrows,
+                                        Id ncols,
                                         double zeroPercent,
-                                        int seed)
+                                        Id seed)
 {
   MatrixSparse mat(nrows, ncols);
   mat.fillRandom(seed, zeroPercent);
   mat.display();
   return mat;
 }
-}
+} // namespace gstlrn

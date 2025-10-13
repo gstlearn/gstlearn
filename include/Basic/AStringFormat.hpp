@@ -19,20 +19,20 @@ namespace gstlrn
 class GSTLEARN_EXPORT AStringFormat
 {
 public:
-  AStringFormat(int level = 1);
+  AStringFormat(Id level = 1);
   AStringFormat(const String& title);
   AStringFormat(const AStringFormat& r);
   AStringFormat& operator=(const AStringFormat& r);
   virtual ~AStringFormat();
 
-  int getLevel() const { return _level; }
+  Id getLevel() const { return _level; }
   bool hasTitle() const { return !_title.empty(); }
   String getTitle() const { return _title; }
 
   void setTitle(const String& title) { _title = title; }
 
 private:
-  int _level;
+  Id _level;
   String _title;
 };
 }

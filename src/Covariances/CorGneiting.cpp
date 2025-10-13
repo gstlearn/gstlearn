@@ -12,11 +12,11 @@
 #include "Covariances/CorGneiting.hpp"
 #include "Basic/AStringable.hpp"
 #include "Covariances/CorAniso.hpp"
+#include "Covariances/CovCalcMode.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceComposite.hpp"
 #include "Space/SpacePoint.hpp"
-#include "Covariances/CovCalcMode.hpp"
 #include <memory>
 
 namespace gstlrn
@@ -44,8 +44,8 @@ CorGneiting::CorGneiting(const CorAniso* covS, const CorAniso* covTemp, double s
   space->addSpaceComponent(covTemp->getSpace());
   _ctxt.setSpace(space);
 
-  int nvar        = covS->getNVar();
-  CovContext ctxt = CovContext(nvar, space);
+  Id nvar = covS->getNVar();
+  CovContext ctxt(nvar, space);
   setContext(ctxt);
 }
 
@@ -82,7 +82,7 @@ CorGneiting::~CorGneiting()
 //   _covTemp->optimizationSetTarget(pt);
 // }
 
-// void CorGneiting::_optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const
+// void CorGneiting::_optimizationPreProcess(Id mode, const std::vector<SpacePoint>& ps) const
 // {
 //   // DECLARE_UNUSED(mode)
 //   // DECLARE_UNUSED(ps)
@@ -100,8 +100,8 @@ CorGneiting::~CorGneiting()
 
 double CorGneiting::_eval(const SpacePoint& p1,
                           const SpacePoint& p2,
-                          int ivar,
-                          int jvar,
+                          Id ivar,
+                          Id jvar,
                           const CovCalcMode* mode) const
 {
   auto p1_S = p1.spacePointOnSubspace(0);
@@ -111,10 +111,10 @@ double CorGneiting::_eval(const SpacePoint& p1,
   double ct = _covTemp->evalCov(p1_T, p2_T, ivar, jvar, mode);
 
   double scale = pow(ct, _separability / _covSCopy.getNDim(0));
-  for (int i = 0; i < (int)_covSCopy.getNDim(); i++)
+  for (Id i = 0; i < static_cast<Id>(_covSCopy.getNDim()); i++)
     _covSCopy.setScaleDim(i, _covS->getScale(i) / scale);
   double cs = _covSCopy.evalCov(p1_S, p2_S, ivar, jvar, mode);
 
   return cs * ct;
 }
-}
+} // namespace gstlrn

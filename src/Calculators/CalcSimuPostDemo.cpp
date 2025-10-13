@@ -27,7 +27,7 @@ CalcSimuPostDemo::~CalcSimuPostDemo()
  * In the current version, this number is set to 2
  * @return
  */
-int CalcSimuPostDemo::_getTransfoNvar() const
+Id CalcSimuPostDemo::_getTransfoNvar() const
 {
   return 2;
 }
@@ -61,7 +61,7 @@ void CalcSimuPostDemo::_transformFunction(const VectorDouble& Z_n_k_s, VectorDou
  * For a detailed list of arguments, see \link CalcSimuPost.cpp simuPost \endlink
  *
  */
-int simuPostDemo(Db *dbin,
+Id simuPostDemo(Db *dbin,
                  DbGrid *dbout,
                  const VectorString &names,
                  bool flag_match,
@@ -69,7 +69,7 @@ int simuPostDemo(Db *dbin,
                  const std::vector<EPostStat> &stats,
                  bool verbose,
                  const VectorInt& check_targets,
-                 int check_level,
+                 Id check_level,
                  const NamingConvention &namconv)
 {
   CalcSimuPostDemo calcul;
@@ -88,7 +88,7 @@ int simuPostDemo(Db *dbin,
   calcul.setCheckLevel(check_level);
   calcul.setNamingConvention(namconv);
 
-  int error = (calcul.run()) ? 0 : 1;
+  Id error = (calcul.run()) ? 0 : 1;
   return error;
 }
 }

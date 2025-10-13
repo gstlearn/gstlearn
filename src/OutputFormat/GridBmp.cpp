@@ -21,7 +21,7 @@
 #define COLOR_FFFF            -2
 #define COLOR_LOWER           -3
 #define COLOR_UPPER           -4
-#define N_SAMPLE(nx, nsample) ((int)((nx - 1) / nsample) + 1)
+#define N_SAMPLE(nx, nsample) ((Id)((nx - 1) / nsample) + 1)
 
 namespace gstlrn
 {
@@ -124,33 +124,33 @@ void GridBmp::setColors(const VectorInt& reds, const VectorInt& greens, const Ve
   _blues  = blues;
 }
 
-void GridBmp::setFFFF(int red, int green, int blue)
+void GridBmp::setFFFF(Id red, Id green, Id blue)
 {
   _ffff_red   = red;
   _ffff_green = green;
   _ffff_blue  = blue;
 }
 
-void GridBmp::setHigh(int red, int green, int blue)
+void GridBmp::setHigh(Id red, Id green, Id blue)
 {
   _high_red   = red;
   _high_green = green;
   _high_blue  = blue;
 }
-void GridBmp::setLow(int red, int green, int blue)
+void GridBmp::setLow(Id red, Id green, Id blue)
 {
   _low_red   = red;
   _low_green = green;
   _low_blue  = blue;
 }
-void GridBmp::setMask(int red, int green, int blue)
+void GridBmp::setMask(Id red, Id green, Id blue)
 {
   _mask_red   = red;
   _mask_green = green;
   _mask_blue  = blue;
 }
 
-int GridBmp::writeInFile()
+Id GridBmp::writeInFile()
 {
   VectorInt indg(2);
   unsigned char ired, igreen, iblue;
@@ -161,20 +161,20 @@ int GridBmp::writeInFile()
 
   /* Preliminary checks */
 
-  int ncolor            = _ncolor;
+  Id ncolor            = _ncolor;
   bool flag_color_scale = (_ncolor > 0 && !_reds.empty() && !_greens.empty() && !_blues.empty());
   if (!flag_color_scale) ncolor = 256;
 
   /* Initializations */
 
-  int nx = _dbgrid->getNX(0);
-  int ny = _dbgrid->getNX(1);
+  Id nx = _dbgrid->getNX(0);
+  Id ny = _dbgrid->getNX(1);
 
   /* Calculate the statistics */
 
   double vmin = MAXIMUM_BIG;
   double vmax = MINIMUM_BIG;
-  for (int i = 0; i < nx * ny; i++)
+  for (Id i = 0; i < nx * ny; i++)
   {
     if (!_dbgrid->isActive(i)) continue;
     double value = _dbgrid->getArray(i, _cols[0]);
@@ -190,11 +190,11 @@ int GridBmp::writeInFile()
 
   /* Figure out the constants */
 
-  int infosize   = 40;
-  int headersize = 14;
-  int width      = _nmult * N_SAMPLE(nx, _nsamplex);
-  int height     = _nmult * N_SAMPLE(ny, _nsampley);
-  int imagesize  = 3 * width * height;
+  I32 infosize   = 40;
+  I32 headersize = 14;
+  auto width     = static_cast<I32>(_nmult * N_SAMPLE(nx, _nsamplex));
+  auto height    = static_cast<I32>(_nmult * N_SAMPLE(ny, _nsampley));
+  auto imagesize = 3 * width * height;
 
   /* Write the file header, bitmap information, and bitmap pixel data... */
   _writeOut(0, BF_TYPE);
@@ -219,23 +219,23 @@ int GridBmp::writeInFile()
 
   indg[0]  = 0;
   indg[1]  = 0;
-  int ipad = nx * _nmult;
-  ipad     = ipad - 4 * ((int)(ipad / 4));
-  for (int iy = 0; iy < ny; iy++)
+  Id ipad = nx * _nmult;
+  ipad     = ipad - 4 * ((ipad / 4));
+  for (Id iy = 0; iy < ny; iy++)
   {
     if (iy % _nsampley != 0) continue;
-    for (int jmult = 0; jmult < _nmult; jmult++)
+    for (Id jmult = 0; jmult < _nmult; jmult++)
     {
-      for (int ix = 0; ix < nx; ix++)
+      for (Id ix = 0; ix < nx; ix++)
       {
         if (ix % _nsamplex != 0) continue;
         indg[0]  = ix;
         indg[1]  = iy;
-        int iech = _dbgrid->indiceToRank(indg);
-        int rank = _colorRank(iech, ncolor, vmin, vmax);
+        Id iech = _dbgrid->indiceToRank(indg);
+        Id rank = _colorRank(iech, ncolor, vmin, vmax);
         _colorInRGB(rank, flag_color_scale, &ired, &igreen, &iblue);
 
-        for (int imult = 0; imult < _nmult; imult++)
+        for (Id imult = 0; imult < _nmult; imult++)
         {
           (void)fwrite(&iblue, 1, 1, _file);
           (void)fwrite(&igreen, 1, 1, _file);
@@ -245,8 +245,8 @@ int GridBmp::writeInFile()
 
       /* Write the padding */
 
-      int color = 0;
-      for (int i = 0; i < ipad; i++)
+      Id color = 0;
+      for (Id i = 0; i < ipad; i++)
         (void)fwrite(&color, 1, 1, _file);
     }
   }
@@ -266,7 +266,7 @@ int GridBmp::writeInFile()
  ** \param[in]  ival  Integer value to be written
  **
  *****************************************************************************/
-void GridBmp::_writeOut(int mode, unsigned int ival)
+void GridBmp::_writeOut(Id mode, I32 ival)
 {
   switch (mode)
   {
@@ -283,7 +283,7 @@ void GridBmp::_writeOut(int mode, unsigned int ival)
       break;
 
     case 2: /* Signed 32-bit */
-      int jval = (int)ival;
+      auto jval = ival;
       putc(jval, _file);
       putc(jval >> 8, _file);
       putc(jval >> 16, _file);
@@ -308,7 +308,7 @@ void GridBmp::_writeOut(int mode, unsigned int ival)
  ** \param[in]  vmax       Maximum value to be represented
  **
  *****************************************************************************/
-int GridBmp::_colorRank(int iech, int ncolor, double vmin, double vmax)
+Id GridBmp::_colorRank(Id iech, Id ncolor, double vmin, double vmax)
 {
   /* Check if the sample is masked off */
   if (!_dbgrid->isActive(iech)) return COLOR_MASK;
@@ -320,7 +320,7 @@ int GridBmp::_colorRank(int iech, int ncolor, double vmin, double vmax)
   if (FFFF(value)) return COLOR_FFFF;
 
   /* Find the color */
-  int ival = (int)(ncolor * (value - vmin) / (vmax - vmin));
+  Id ival = static_cast<Id>(ncolor * (value - vmin) / (vmax - vmin));
 
   /* Value lower than vmin */
   if (ival < 0)
@@ -355,7 +355,7 @@ int GridBmp::_colorRank(int iech, int ncolor, double vmin, double vmax)
  ** \param[out] iblue       Value for the blue beam
  **
  *****************************************************************************/
-void GridBmp::_colorInRGB(int rank,
+void GridBmp::_colorInRGB(Id rank,
                           bool flag_color_scale,
                           unsigned char* ired,
                           unsigned char* igreen,
@@ -364,41 +364,41 @@ void GridBmp::_colorInRGB(int rank,
   switch (rank)
   {
     case COLOR_MASK:
-      *ired   = (unsigned char)_mask_red;
-      *igreen = (unsigned char)_mask_green;
-      *iblue  = (unsigned char)_mask_blue;
+      *ired   = static_cast<unsigned char>(_mask_red);
+      *igreen = static_cast<unsigned char>(_mask_green);
+      *iblue  = static_cast<unsigned char>(_mask_blue);
       break;
 
     case COLOR_FFFF:
-      *ired   = (unsigned char)_ffff_red;
-      *igreen = (unsigned char)_ffff_green;
-      *iblue  = (unsigned char)_ffff_blue;
+      *ired   = static_cast<unsigned char>(_ffff_red);
+      *igreen = static_cast<unsigned char>(_ffff_green);
+      *iblue  = static_cast<unsigned char>(_ffff_blue);
       break;
 
     case COLOR_LOWER:
-      *ired   = (unsigned char)_low_red;
-      *igreen = (unsigned char)_low_green;
-      *iblue  = (unsigned char)_low_blue;
+      *ired   = static_cast<unsigned char>(_low_red);
+      *igreen = static_cast<unsigned char>(_low_green);
+      *iblue  = static_cast<unsigned char>(_low_blue);
       break;
 
     case COLOR_UPPER:
-      *ired   = (unsigned char)_high_red;
-      *igreen = (unsigned char)_high_green;
-      *iblue  = (unsigned char)_high_blue;
+      *ired   = static_cast<unsigned char>(_high_red);
+      *igreen = static_cast<unsigned char>(_high_green);
+      *iblue  = static_cast<unsigned char>(_high_blue);
       break;
 
     default:
       if (flag_color_scale)
       {
-        *ired   = (unsigned char)_reds[rank];
-        *igreen = (unsigned char)_greens[rank];
-        *iblue  = (unsigned char)_blues[rank];
+        *ired   = static_cast<unsigned char>(_reds[rank]);
+        *igreen = static_cast<unsigned char>(_greens[rank]);
+        *iblue  = static_cast<unsigned char>(_blues[rank]);
       }
       else
       {
-        *ired   = (unsigned char)rank;
-        *igreen = (unsigned char)rank;
-        *iblue  = (unsigned char)rank;
+        *ired   = static_cast<unsigned char>(rank);
+        *igreen = static_cast<unsigned char>(rank);
+        *iblue  = static_cast<unsigned char>(rank);
       }
   }
 }
@@ -406,7 +406,7 @@ void GridBmp::_colorInRGB(int rank,
 DbGrid* GridBmp::readGridFromFile()
 {
   DbGrid* dbgrid = nullptr;
-  int ir[256], ig[256], ib[256];
+  Id ir[256], ig[256], ib[256];
   VectorDouble x0(2);
   VectorDouble dx(2);
   VectorInt nx(2);
@@ -435,12 +435,12 @@ DbGrid* GridBmp::readGridFromFile()
   nx[0] = _compose(4);
   nx[1] = _compose(4);
   (void)_compose(2);
-  int nbits    = _compose(2);
-  int compress = _compose(4);
+  Id nbits    = _compose(2);
+  Id compress = _compose(4);
   (void)_compose(4);
-  int ndx  = _compose(4);
-  int ndy  = _compose(4);
-  int ncol = _compose(4);
+  Id ndx  = _compose(4);
+  Id ndy  = _compose(4);
+  Id ncol = _compose(4);
   (void)_compose(4);
   if (ncol > 256)
   {
@@ -451,7 +451,7 @@ DbGrid* GridBmp::readGridFromFile()
 
   /* Read the Color Scale (optional) */
 
-  for (int icol = 0; icol < ncol; icol++)
+  for (Id icol = 0; icol < ncol; icol++)
   {
     ir[icol] = _readIn();
     ig[icol] = _readIn();
@@ -469,21 +469,21 @@ DbGrid* GridBmp::readGridFromFile()
 
   /* Final results */
 
-  if (ndx > 0) dx[0] = 100. / (double)ndx;
-  if (ndy > 0) dx[1] = 100. / (double)ndy;
+  if (ndx > 0) dx[0] = 100. / static_cast<double>(ndx);
+  if (ndy > 0) dx[1] = 100. / static_cast<double>(ndy);
 
   /* Reading the image (from bottom to up) */
 
-  int noct = nx[0] * nbits / 8;
-  int npad = 4 - noct % 4;
+  Id noct = nx[0] * nbits / 8;
+  Id npad = 4 - noct % 4;
   if (npad == 4) npad = 0;
-  int size = nx[0] * nx[1];
+  Id size = nx[0] * nx[1];
   VectorDouble tab(size);
 
-  int ecr = 0;
-  for (int jy = 0; jy < nx[1]; jy++)
+  Id ecr = 0;
+  for (Id jy = 0; jy < nx[1]; jy++)
   {
-    for (int ix = 0; ix < nx[0]; ix++)
+    for (Id ix = 0; ix < nx[0]; ix++)
     {
       unsigned char ctab = 0;
       if (nbits == 8)
@@ -505,7 +505,7 @@ DbGrid* GridBmp::readGridFromFile()
 
     /* Reading the padding */
 
-    for (int ix = 0; ix < npad; ix++) (void)_readIn();
+    for (Id ix = 0; ix < npad; ix++) (void)_readIn();
   }
 
   dbgrid = new DbGrid();
@@ -527,10 +527,10 @@ DbGrid* GridBmp::readGridFromFile()
  ** \param[in]  nb    Number of bytes to be considered
  **
  *****************************************************************************/
-int GridBmp::_compose(int nb)
+Id GridBmp::_compose(Id nb)
 
 {
-  int i, value, factor;
+  Id i, value, factor;
   unsigned char c;
 
   /* Initializations */
@@ -556,7 +556,7 @@ unsigned char GridBmp::_readIn()
 
 {
   unsigned char c;
-  c = (unsigned char)fgetc(_file);
+  c = static_cast<unsigned char>(fgetc(_file));
   if (!feof(_file)) return c;
   return (c);
 }
@@ -574,12 +574,12 @@ unsigned char GridBmp::_readIn()
 // **
 // *****************************************************************************/
 /* Warning because value is 8 bits, and you want to shift it up to 24 bits!
-void GridBmp::_num2rgb(unsigned char value, int *r, int *g, int *b, int *a)
+void GridBmp::_num2rgb(unsigned char value, Id *r, Id *g, Id *b, Id *a)
 {
-  *r = static_cast<int>((value >> 24) & 0xff);
-  *g = static_cast<int>((value >> 16) & 0xff);
-  *b = static_cast<int>((value >> 8) & 0xff);
-  *a = static_cast<int>((value) & 0xff);
+  *r = static_cast<Id>((value >> 24) & 0xff);
+  *g = static_cast<Id>((value >> 16) & 0xff);
+  *b = static_cast<Id>((value >> 8) & 0xff);
+  *a = static_cast<Id>((value) & 0xff);
 }
 */
 /****************************************************************************/
@@ -594,20 +594,20 @@ void GridBmp::_num2rgb(unsigned char value, int *r, int *g, int *b, int *a)
  ** \param[out] c       Numeric value
  **
  *****************************************************************************/
-void GridBmp::_rgb2num(int red,
-                       int green,
-                       int blue,
-                       int a,
+void GridBmp::_rgb2num(Id red,
+                       Id green,
+                       Id blue,
+                       Id a,
                        unsigned char* c)
 {
   DECLARE_UNUSED(a);
   double value;
 
-  value = (double)(red + green + blue) / 3.;
+  value = static_cast<double>(red + green + blue) / 3.;
 
   if (value < 0.) value = 0.;
   if (value > 255.) value = 255.;
-  *c = (unsigned char)value;
+  *c = static_cast<unsigned char>(value);
 }
 
 } // namespace gstlrn

@@ -9,37 +9,35 @@
 /*                                                                            */
 /******************************************************************************/
 #include "OutputFormat/FileLAS.hpp"
-#include "OutputFormat/AOF.hpp"
-#include "Db/Db.hpp"
 #include "Basic/String.hpp"
+#include "Db/Db.hpp"
+#include "OutputFormat/AOF.hpp"
 
-#include <cstring>
 #include <cctype>
+#include <cstring>
 
 #if defined(_WIN32) || defined(_WIN64)
 namespace
 {
-  // STL replacement for strcasestr - far from optimal (several copies)
-  // C++23 introduces std::string::contains
-  // TODO: should be moved elsewhere...
-  std::string tolower(const std::string &s)
-  {
-    std::string result;
-    result.reserve(s.size());
-    std::transform(s.begin(), s.end(), std::back_inserter(result),
-        [](unsigned char c)
-        { return std::tolower(c);});
-    return result;
-  }
-  ;
-  const char* strcasestr(const char *s, const char *ss)
-  {
-    const auto pos = tolower(s).find(tolower(ss));
-    if (pos == std::string::npos) return (const char*) nullptr;
-    return s + pos;
-  }
-  ;
-}
+// STL replacement for strcasestr - far from optimal (several copies)
+// C++23 introduces std::string::contains
+// TODO: should be moved elsewhere...
+std::string tolower(const std::string& s)
+{
+  std::string result;
+  result.reserve(s.size());
+  std::transform(s.begin(), s.end(), std::back_inserter(result),
+                 [](unsigned char c)
+                 { return std::tolower(c); });
+  return result;
+};
+const char* strcasestr(const char* s, const char* ss)
+{
+  const auto pos = tolower(s).find(tolower(ss));
+  if (pos == std::string::npos) return (const char*)nullptr;
+  return s + pos;
+};
+} // namespace
 #endif
 
 namespace gstlrn
@@ -53,10 +51,10 @@ FileLAS::FileLAS(const char* filename, const Db* db)
 }
 
 FileLAS::FileLAS(const FileLAS& r)
-    : AOF(r),
-      _xwell(r._xwell),
-      _ywell(r._ywell),
-      _cwell(r._cwell)
+  : AOF(r)
+  , _xwell(r._xwell)
+  , _ywell(r._ywell)
+  , _cwell(r._cwell)
 {
 }
 
@@ -79,10 +77,11 @@ FileLAS::~FileLAS()
 Db* FileLAS::readFromFile()
 {
   Db* db = nullptr;
+  Id string_max = 1000;
   char string[1000], *lcur, sep_blank[2], sep_point[2], *token;
   double value;
-  static int s_length = 1000;
-  VectorString names = { "X", "Y", "CODE" };
+  static I32 s_length = 1000;
+  VectorString names  = {"X", "Y", "CODE"};
 
   /* Open the file */
 
@@ -90,17 +89,17 @@ Db* FileLAS::readFromFile()
 
   // Initializations */
 
-  double test = TEST;
+  double test  = TEST;
   sep_blank[0] = ' ';
   sep_blank[1] = '\0';
   sep_point[0] = '.';
   sep_point[1] = '\0';
-  int nvar = (int) names.size();
+  Id nvar      = static_cast<Id>(names.size());
 
   // Loop on the lines
 
-  int numline = 0;
-  (void) gslStrcpy(string, "");
+  Id numline = 0;
+  (void)gslStrcpy(string, string_max, "");
 
   // Decode the header
   if (_readFind(s_length, "~Well", &numline, string)) return db;
@@ -143,7 +142,7 @@ Db* FileLAS::readFromFile()
   if (_readFind(s_length, "~A", &numline, string)) return db;
 
   VectorDouble tab;
-  int nech = 0;
+  Id nech = 0;
   while (1)
   {
     if (_readNext(s_length, 1, &numline, string)) break;
@@ -153,7 +152,7 @@ Db* FileLAS::readFromFile()
     tab.push_back(_xwell);
     tab.push_back(_ywell);
     tab.push_back(_cwell);
-    int nvarlu = 3;
+    Id nvarlu = 3;
 
     // Add other variables
 
@@ -161,7 +160,7 @@ Db* FileLAS::readFromFile()
     while (nvarlu < nvar)
     {
       token = gslStrtok(lcur, sep_blank);
-      if (token == NULL) break;
+      if (token == nullptr) break;
       lcur = NULL;
       if (gslSScanf(token, "%lf", &value) == EOF) break;
       if (value == test) value = TEST;
@@ -171,7 +170,7 @@ Db* FileLAS::readFromFile()
 
     if (nvarlu < nvar)
     {
-      if (fgets(string, s_length, _file) == NULL) break;
+      if (fgets(string, s_length, _file) == nullptr) break;
     }
     nech++;
   }
@@ -198,10 +197,10 @@ Db* FileLAS::readFromFile()
  ** \param[out]     string     New line
  **
  *****************************************************************************/
-int FileLAS::_readFind(int s_length,
-                       const char *target,
-                       int *numline,
-                       char *string)
+Id FileLAS::_readFind(I32 s_length,
+                      const char* target,
+                      Id* numline,
+                      char* string)
 {
   /* Check the current line */
   if (strcasestr(string, target)) return (0);
@@ -228,20 +227,20 @@ int FileLAS::_readFind(int s_length,
  ** TODO : Replace char* by String
  **
  *****************************************************************************/
-int FileLAS::_readNext(int s_length, int flag_up, int *numline, char *string)
+Id FileLAS::_readNext(I32 s_length, Id flag_up, Id* numline, char* string)
 {
-  int size;
+  Id size;
 
   (*numline)++;
-  if (fgets(string, s_length, _file) == NULL) return (1);
-  size = static_cast<int>(strlen(string));
+  if (fgets(string, s_length, _file) == nullptr) return (1);
+  size = static_cast<Id>(strlen(string));
 
   // Suppress the trailing newline
   if (string[size - 1] == '\n') string[size - 1] = '\0';
-  size = static_cast<int>(strlen(string));
+  size = static_cast<Id>(strlen(string));
 
   // Replace any illegal character from the string by a blank
-  for (int i = 0; i < size; i++)
+  for (Id i = 0; i < size; i++)
   {
     if (string[i] < ' ' || string[i] > '~') string[i] = ' ';
   }
@@ -252,11 +251,11 @@ int FileLAS::_readNext(int s_length, int flag_up, int *numline, char *string)
   return (0);
 }
 
-void FileLAS::_stringToUppercase(char *string)
+void FileLAS::_stringToUppercase(char* string)
 {
-  int n = static_cast<int>(strlen(string));
-  for (int i = 0; i < n; i++)
+  Id n = static_cast<Id>(strlen(string));
+  for (Id i = 0; i < n; i++)
     if (string[i] >= 'a' && string[i] <= 'z')
       string[i] = ('A' + string[i] - 'a');
 }
-}
+} // namespace gstlrn

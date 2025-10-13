@@ -14,11 +14,11 @@
 
 namespace gstlrn
 {
-CovParamId::CovParamId(int igrf,
-                       int icov,
+CovParamId::CovParamId(Id igrf,
+                       Id icov,
                        const EConsElem& elem,
-                       int iv1,
-                       int iv2)
+                       Id iv1,
+                       Id iv2)
     : AStringable(),
       _igrf(igrf),
       _icov(icov),
@@ -58,20 +58,20 @@ CovParamId::~CovParamId()
 
 }
 
-CovParamId* CovParamId::create(int igrf,
-                               int icov,
+CovParamId* CovParamId::create(Id igrf,
+                               Id icov,
                                const EConsElem &elem,
-                               int iv1,
-                               int iv2)
+                               Id iv1,
+                               Id iv2)
 {
   return new CovParamId(igrf, icov, elem, iv1, iv2);
 }
 
-int CovParamId::init(int igrf,
-                     int icov,
+Id CovParamId::init(Id igrf,
+                     Id icov,
                      const EConsElem& type,
-                     int v1,
-                     int v2)
+                     Id v1,
+                     Id v2)
 {
   _igrf  = igrf;
   _icov  = icov;

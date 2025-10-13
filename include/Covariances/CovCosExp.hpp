@@ -30,7 +30,7 @@ public:
   double getScadef() const override;
 
   String getCovName() const override { return "Cosexp"; }
-  int    getMinOrder() const override { return -1; }
+  Id    getMinOrder() const override { return -1; }
   bool   getCompatibleSpaceR() const override { return true; }
 
 protected:

@@ -12,7 +12,7 @@
 
 namespace gstlrn
 {
-PCAStringFormat::PCAStringFormat(int level)
+PCAStringFormat::PCAStringFormat(Id level)
     : AStringFormat(level),
       _flagCenter(true),
       _flagStats(true)

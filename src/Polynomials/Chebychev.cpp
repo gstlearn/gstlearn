@@ -37,12 +37,12 @@ Chebychev::~Chebychev()
 
 Chebychev* Chebychev::createFromCoeffs(const VectorDouble& coeffs)
 {
-  Chebychev* cheb = new Chebychev();
+  auto* cheb = new Chebychev();
   cheb->setCoeffs(coeffs);
   return cheb;
 }
 
-void Chebychev::init(int ncMax, int nDisc, double a, double b, bool verbose)
+void Chebychev::init(Id ncMax, Id nDisc, double a, double b, bool verbose)
 {
   _ncMax   = ncMax;
   _nDisc   = nDisc;
@@ -51,17 +51,17 @@ void Chebychev::init(int ncMax, int nDisc, double a, double b, bool verbose)
   _verbose = verbose;
 }
 
-int Chebychev::fit2(AFunction* f,
-                    double a,
-                    double b,
-                    double tol)
+Id Chebychev::fit2(AFunction* f,
+                   double a,
+                   double b,
+                   double tol)
 {
   std::function<double(double)> func = [f](double val)
   { return f->eval(val); };
   return fit(func, a, b, tol);
 }
 
-int Chebychev::fit(const std::function<double(double)>& f, double a, double b, double tol)
+Id Chebychev::fit(const std::function<double(double)>& f, double a, double b, double tol)
 {
 
   _coeffs.resize(_ncMax, 0.);
@@ -72,13 +72,13 @@ int Chebychev::fit(const std::function<double(double)>& f, double a, double b, d
 
   /* Loop on some discretized samples of the interval */
 
-  int number   = 0;
+  Id number    = 0;
   double incr  = (b - a) / (_nDisc + 1);
   double value = a;
   while (value <= b)
   {
-    int numloc = _countCoeffs(f, value, a, b);
-    number     = MAX(number, numloc);
+    Id numloc = _countCoeffs(f, value, a, b);
+    number    = MAX(number, numloc);
     value += incr;
   }
 
@@ -99,7 +99,7 @@ int Chebychev::fit(const std::function<double(double)>& f, double a, double b, d
   // Optional printout
 
   if (_verbose)
-    for (int i = 0; i < (int)_coeffs.size(); i++)
+    for (Id i = 0; i < static_cast<Id>(_coeffs.size()); i++)
       message("Chebychev coefficient[%d] = %lf\n", i + 1, _coeffs[i]);
 
   return 0;
@@ -115,7 +115,7 @@ double Chebychev::eval(double x) const
   y   = _coeffs[0] + _coeffs[1] * xc;
   Tm2 = 1.;
   Tm1 = xc;
-  for (int i = 2; i < _ncMax; i++)
+  for (Id i = 2; i < _ncMax; i++)
   {
     Tx = 2. * xc * Tm1 - Tm2;
     y += _coeffs[i] * Tx;
@@ -126,7 +126,7 @@ double Chebychev::eval(double x) const
   return y;
 }
 
-int Chebychev::_countCoeffs(const std::function<double(double)>& f, double x, double a, double b, double tol) const
+Id Chebychev::_countCoeffs(const std::function<double(double)>& f, double x, double a, double b, double tol) const
 {
   double y, y0, y_2, xc, Tx, Tm1, Tm2;
 
@@ -144,7 +144,7 @@ int Chebychev::_countCoeffs(const std::function<double(double)>& f, double x, do
   Tm2 = 1.;
   Tm1 = xc;
 
-  for (int i = 2; i < _ncMax; i++)
+  for (Id i = 2; i < _ncMax; i++)
   {
     Tx = 2. * Tm1 * xc - Tm2;
     y += _coeffs[i] * Tx;
@@ -161,15 +161,15 @@ int Chebychev::_countCoeffs(const std::function<double(double)>& f, double x, do
 void Chebychev::_fillCoeffs(const std::function<double(double)>& f, double a, double b)
 {
   VectorDouble coeffs, x1, y1, x2, y2;
-  int n;
+  Id n;
 
   /* Initializations */
 
   double minsubdiv = pow(2., 20.);
   if (minsubdiv >= (_ncMax + 1.) / 2.)
-    n = static_cast<int>(minsubdiv);
+    n = static_cast<Id>(minsubdiv);
   else
-    n = static_cast<int>(ceil((double)(_ncMax + 1) / 2));
+    n = static_cast<Id>(ceil(static_cast<double>(_ncMax + 1) / 2));
 
   /* Core allocation */
 
@@ -180,9 +180,9 @@ void Chebychev::_fillCoeffs(const std::function<double(double)>& f, double a, do
 
   /* Filling the arrays */
 
-  for (int i = 0; i < n; i++)
+  for (Id i = 0; i < n; i++)
   {
-    double theta = 2. * GV_PI * ((double)i) / ((double)n);
+    double theta = 2. * GV_PI * (static_cast<double>(i)) / (static_cast<double>(n));
     double ct    = cos(theta / 2.);
     double val1  = f(((b + a) + (b - a) * ct) / 2.);
     double val2  = f(((b + a) - (b - a) * ct) / 2.);
@@ -201,8 +201,8 @@ void Chebychev::_fillCoeffs(const std::function<double(double)>& f, double a, do
 
   /* Store the coefficients */
 
-  double value = 2. / (double)n;
-  for (int i = 0; i < n; i++)
+  double value = 2. / static_cast<double>(n);
+  for (Id i = 0; i < n; i++)
   {
     if (2 * i >= _ncMax) break;
     _coeffs[2 * i] = value * x1[i];
@@ -237,7 +237,7 @@ void Chebychev::_fillCoeffs(const std::function<double(double)>& f, double a, do
 /* v1 *= 2.;
 v2 *= 2.;
 
-for (int ib = 2; ib < (int) _coeffs.size(); ib++)
+for (Id ib = 2; ib < (Id) _coeffs.size(); ib++)
 {
   // t0 = (v1 Op + v2 I) tm1
   Op->evalDirect(*tm1, *t0);
@@ -261,7 +261,7 @@ for (int ib = 2; ib < (int) _coeffs.size(); ib++)
 void Chebychev::evalOp(MatrixSparse* S, const constvect x, vect y) const
 {
   VectorDouble tm1, tm2, px, tx;
-  int nvertex;
+  Id nvertex;
   MatrixSparse* T1;
 
   /* Initializations */
@@ -279,12 +279,12 @@ void Chebychev::evalOp(MatrixSparse* S, const constvect x, vect y) const
   /* Create the T1 sparse matrix */
 
   T1 = MatrixSparse::diagConstant(nvertex, 1.);
-  if (T1 == nullptr) my_throw("Problem in cs_eye");
-  T1->addMatInPlace(*S, v2, v1);
+  if (T1 == nullptr) my_throw("Problem in MatrixSparse::diagCOnstant");
+  T1->addMat(*S, v2, v1);
 
   /* Initialize the simulation */
 
-  for (int i = 0; i < nvertex; i++)
+  for (Id i = 0; i < nvertex; i++)
   {
     tm1[i] = 0.;
     y[i]   = x[i];
@@ -292,7 +292,7 @@ void Chebychev::evalOp(MatrixSparse* S, const constvect x, vect y) const
   constvect ys(y);
   vect tm1s(tm1);
   if (T1->addVecInPlace(ys, tm1)) my_throw("Problem in addVecInPlace");
-  for (int i = 0; i < nvertex; i++)
+  for (Id i = 0; i < nvertex; i++)
   {
     px[i]  = _coeffs[0] * y[i] + _coeffs[1] * tm1[i];
     tm2[i] = y[i];
@@ -300,10 +300,10 @@ void Chebychev::evalOp(MatrixSparse* S, const constvect x, vect y) const
 
   /* Loop on the AChebychev polynomials */
 
-  for (int ib = 2; ib < (int)_coeffs.size(); ib++)
+  for (Id ib = 2; ib < static_cast<Id>(_coeffs.size()); ib++)
   {
-    T1->prodVecMatInPlacePtr(tm1.data(), tx.data(), false);
-    for (int i = 0; i < nvertex; i++)
+    T1->prodVecMatInPlace(tm1, tx, false);
+    for (Id i = 0; i < nvertex; i++)
     {
       tx[i] = 2. * tx[i] - tm2[i];
       px[i] += _coeffs[ib] * tx[i];
@@ -314,16 +314,16 @@ void Chebychev::evalOp(MatrixSparse* S, const constvect x, vect y) const
 
   /* Return the results */
 
-  for (int i = 0; i < nvertex; i++)
+  for (Id i = 0; i < nvertex; i++)
     y[i] = px[i];
 
   delete T1;
 }
 
-void Chebychev::_addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const
+void Chebychev::_addEvalOp(const ALinearOp* Op, const constvect inv, vect outv) const
 {
   VectorDouble tm1, tm2, px, tx;
-  int nvertex;
+  Id nvertex;
 
   /* Initializations */
 
@@ -343,7 +343,7 @@ void Chebychev::_addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const
 
   /* Initialize the simulation */
 
-  for (int i = 0; i < nvertex; i++)
+  for (Id i = 0; i < nvertex; i++)
   {
     tm1[i]  = 0.;
     outv[i] = inv[i];
@@ -353,7 +353,7 @@ void Chebychev::_addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const
   if (Op->addToDest(ys, tm1)) my_throw("Problem in addVecInPlace");
   // Op->addToDest(ys, tm1);
 
-  for (int i = 0; i < nvertex; i++)
+  for (Id i = 0; i < nvertex; i++)
   {
     px[i]  = _coeffs[0] * outv[i] + _coeffs[1] * tm1[i];
     tm2[i] = outv[i];
@@ -361,10 +361,10 @@ void Chebychev::_addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const
 
   /* Loop on the AChebychev polynomials */
 
-  for (int ib = 2; ib < (int)_coeffs.size(); ib++)
+  for (Id ib = 2; ib < static_cast<Id>(_coeffs.size()); ib++)
   {
     Op->addToDest(tm1, tx);
-    for (int i = 0; i < nvertex; i++)
+    for (Id i = 0; i < nvertex; i++)
     {
       tx[i] = 2. * tx[i] - tm2[i];
       px[i] += _coeffs[ib] * tx[i];
@@ -375,7 +375,7 @@ void Chebychev::_addEvalOp(ALinearOp* Op, const constvect inv, vect outv) const
 
   /* Return the results */
 
-  for (int i = 0; i < nvertex; i++)
+  for (Id i = 0; i < nvertex; i++)
     outv[i] = px[i];
 
   Op->resetModif();

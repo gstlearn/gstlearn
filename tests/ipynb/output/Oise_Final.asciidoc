@@ -1,5 +1,7 @@
 #NO_DIFF#XXX
-----<IPython.core.display.Javascript object>----
+----
+
+<IPython.core.display.Javascript object>----
 
 
 #NO_DIFF#XXX
@@ -516,6 +518,12 @@ Total Sill     =      6.900
 Drift Part
 ----------
 Universality_Condition----
+
+
+#NO_DIFF#XXX
+----
+#NO_DIFF#XXX
+----
 
 
 #NO_DIFF#XXX

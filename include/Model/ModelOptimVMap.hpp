@@ -37,7 +37,7 @@ public:
   ModelOptimVMap& operator=(const ModelOptimVMap& m);
   virtual ~ModelOptimVMap();
 
-  double computeCost(bool verbose = false) override;
+  double computeCost(bool flagPrint = false, bool verbose = false) override;
 
   static ModelOptimVMap* createForOptim(ModelGeneric* model,
                                         const DbGrid* dbmap,
@@ -47,7 +47,7 @@ public:
 
 private:
   bool _checkConsistency();
-  int _getDimensions();
+  Id _getDimensions();
   void _allocateInternalArrays();
 
 protected:
@@ -66,9 +66,9 @@ protected:
   // Following members are simply there to accelerate the computation
   VectorInt _indg1;
   VectorInt _indg2;
-  int _ndim;
-  int _nvar;
-  int _nech;
-  int _npadir;
+  Id _ndim;
+  Id _nvar;
+  Id _nech;
+  Id _npadir;
 };
 }

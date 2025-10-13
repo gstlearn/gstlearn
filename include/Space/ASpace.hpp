@@ -35,7 +35,7 @@ class Tensor;
 class GSTLEARN_EXPORT ASpace: public AStringable, public ICloneable
 {
 protected:
-  ASpace(unsigned int ndim);
+  ASpace(size_t ndim);
   ASpace(const ASpace& r);
   ASpace& operator=(const ASpace& r);
 
@@ -56,22 +56,22 @@ public:
   virtual void setOrigin(const VectorDouble& origin);
 
   /// Get the number of dimensions
-  virtual unsigned int getNDim(int ispace = -1) const;
+  virtual size_t getNDim(Id ispace = -1) const;
 
   /// Get the offset index for coordinates
-  virtual unsigned int getOffset(int ispace = -1) const;
+  virtual size_t getOffset(Id ispace = -1) const;
 
   /// Return the space origin coordinates
-  virtual const VectorDouble& getOrigin(int ispace = -1) const;
+  virtual const VectorDouble& getOrigin(Id ispace = -1) const;
 
   /// Get the number of space components
-  virtual unsigned int getNComponents() const;
+  virtual size_t getNComponents() const;
 
   /// Return the space component at index ispace
-  virtual std::shared_ptr<const ASpace> getComponent(int ispace = -1) const;
+  virtual std::shared_ptr<const ASpace> getComponent(Id ispace = -1) const;
 
   /// Dump a space in a string (given the space index)
-  virtual String toString(const AStringFormat* strfmt, int ispace) const;
+  virtual String toString(const AStringFormat* strfmt, Id ispace) const;
 
   /// Return true if the given space is equal to me (same dimension and space
   /// definition)
@@ -98,37 +98,37 @@ public:
   /// Return the distance between two space points
   double getDistance(const SpacePoint &p1,
                      const SpacePoint &p2,
-                     int ispace = -1) const;
+                     Id ispace = -1) const;
 
   /// Return the distance between two space points with the given tensor
   double getDistance(const SpacePoint& p1,
                      const SpacePoint& p2,
                      const Tensor& tensor,
-                     int ispace = -1) const;
+                     Id ispace = -1) const;
 
   /// Return the distance in frequential domain between two space points with the given tensor
   double getFrequentialDistance(const SpacePoint& p1,
                                 const SpacePoint& p2,
                                 const Tensor& tensor,
-                                int ispace = -1) const;
+                                Id ispace = -1) const;
 
   /// Return the increment vector between two space points
   VectorDouble getIncrement(const SpacePoint& p1,
                             const SpacePoint& p2,
-                            int ispace = -1) const;
+                            Id ispace = -1) const;
   void getIncrementInPlace(const SpacePoint& p1,
                            const SpacePoint& p2,
                            VectorDouble& ptemp,
-                           int ispace = -1) const;
+                           Id ispace = -1) const;
 
 VectorDouble getUnitaryVector() const;
   /// Project the coordinates in the given space
   virtual VectorDouble projCoord(const VectorDouble& coord,
-                                 int ispace = -1) const;
+                                 Id ispace = -1) const;
   
   /// Customize the dimension offset index of the current space
   /// TODO : to be made private
-  void setOffset(unsigned int offset) { _offset = offset; }
+  void setOffset(size_t offset) { _offset = offset; }
 
   static std::shared_ptr<const ASpace> getDefaultSpaceIfNull(const std::shared_ptr<const ASpace>& space);
 protected:
@@ -139,43 +139,43 @@ protected:
   /// Return the distance between two space points
   virtual double _getDistance(const SpacePoint& p1,
                               const SpacePoint& p2,
-                              int ispace = -1) const = 0;
+                              Id ispace = -1) const = 0;
 
   /// Return the distance between two space points with the given tensor
   virtual double _getDistance(const SpacePoint& p1,
                               const SpacePoint& p2,
                               const Tensor& tensor,
-                              int ispace = -1) const = 0;
+                              Id ispace = -1) const = 0;
 
   /// Return the distance in frequential domain between two space points with the given tensor
   virtual double _getFrequentialDistance(const SpacePoint& p1,
                                          const SpacePoint& p2,
                                          const Tensor& tensor,
-                                         int ispace = -1) const = 0;
+                                         Id ispace = -1) const = 0;
 
   /// Return the increment vector between two space points
   /// (prefer the in-place variant below in C++ code)
   virtual VectorDouble _getIncrement(const SpacePoint& p1,
                                      const SpacePoint& p2,
-                                     int ispace = -1) const = 0;
+                                     Id ispace = -1) const = 0;
   
   /// Return the increment vector between two space points in a given vector
   virtual void _getIncrementInPlace(const SpacePoint& p1,
                                     const SpacePoint& p2,
                                     VectorDouble& ptemp,
-                                    int ispace = -1) const = 0;
+                                    Id ispace = -1) const = 0;
 
 protected:
   /// Customize the dimension offset index of the current space
-  //void _setOffset(unsigned int offset) { _offset = offset; }
-  
+  // void _setOffset(size_t offset) { _offset = offset; }
+
 protected:
   /// Number of space dimensions
-  unsigned int _nDim;
+  size_t _nDim;
   /// Coordinates of the origin (size = _nDim)
   VectorDouble _origin;
   /// Dimension offset index (0 if single space, relative if sub-space)
-  unsigned int _offset;
+  size_t _offset;
 
   /// The next vectors are specified as working members in order to avoid too many allocations
   mutable VectorDouble _work1;

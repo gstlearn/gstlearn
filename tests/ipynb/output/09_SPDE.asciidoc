@@ -1,5 +1,7 @@
 #NO_DIFF#XXX
-----<IPython.core.display.Javascript object>----
+----
+
+<IPython.core.display.Javascript object>----
 
 
 #NO_DIFF#XXX
@@ -184,7 +186,7 @@ External_Drift:0
 
 #NO_DIFF#XXX
 ----
-Trend coefficients: [ 3.97002567 -0.00659772]
+Trend coefficients: [ 3.98  -0.007]
 ----
 
 

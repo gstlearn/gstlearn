@@ -30,9 +30,9 @@ public:
   char getCharOne() const { return _charOne; }
   char getCharZero() const { return _charZero; }
   VectorInt getIndMax() const { return _indMax; }
-  int getIndMin(int idim) const;
+  Id getIndMin(Id idim) const;
   const VectorInt& getIndMin() const { return _indMin; }
-  int getIndMax(int idim) const;
+  Id getIndMax(Id idim) const;
 
 private:
   VectorInt _indMin;

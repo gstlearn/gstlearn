@@ -8,22 +8,22 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "API/SPDE.hpp"
+#include "Basic/File.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/OptCst.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovAnisoList.hpp"
-#include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
+#include "Covariances/CovLMCTapering.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Basic/Law.hpp"
-#include "API/SPDE.hpp"
-#include "Model/Model.hpp"
 #include "Drifts/DriftM.hpp"
-#include "Basic/File.hpp"
-#include "Basic/VectorHelper.hpp"
-#include "Basic/OptCst.hpp"
 #include "Enum/ESpaceType.hpp"
 #include "Matrix/MatrixSymmetric.hpp"
+#include "Model/Model.hpp"
 
 using namespace gstlrn;
 /****************************************************************************/
@@ -31,23 +31,23 @@ using namespace gstlrn;
  ** Main Program
  **
  *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setPrefixName("Model-");
-  int seed = 10355;
-  int ndim = 2;
-  int nvar = 1;
+  ASerializable::setPrefixName("test_Model-");
+  Id seed = 10355;
+  Id ndim = 2;
+  Id nvar = 1;
   law_set_random_seed(seed);
 
   ///////////////////////
   // Creating the Db
-  auto nx = { 2, 3 };
-  auto x0 = { 5.2, 8.3 };
-  auto dx = { 1.3, 0.6 };
+  VectorInt nx       = {2, 3};
+  VectorDouble x0    = {5.2, 8.3};
+  VectorDouble dx    = {1.3, 0.6};
   DbGrid* workingDbc = DbGrid::create(nx, dx, x0);
 
   // Building the Covariance Context
@@ -55,16 +55,16 @@ int main(int argc, char *argv[])
 
   ///////////////////////
   // Creating the Model
-  Model modellmc = Model(ctxt);
+  Model modellmc(ctxt);
   // Build the List of Covariances
-  CovAnisoList covlmc = CovAnisoList(ctxt);
+  CovAnisoList covlmc(ctxt);
   // Build the Elementary Covariances
-  CovAniso cov1 = CovAniso(ECov::CUBIC,ctxt);
+  CovAniso cov1(ECov::CUBIC, ctxt);
   VectorDouble ranges = {1.2, 2.1};
   cov1.setRanges(ranges);
   cov1.setSill(1.5);
   covlmc.addCov(cov1);
-  CovAniso cov2 = CovAniso(ECov::NUGGET,ctxt);
+  CovAniso cov2(ECov::NUGGET, ctxt);
   cov2.setSill(0.5);
   covlmc.addCov(cov2);
   // Assembling the Model
@@ -76,37 +76,37 @@ int main(int argc, char *argv[])
   result.display();
 
   // Sample the Model at regular steps
-  VectorDouble hh = VH::sequence(0., 3., 3./50.);
+  VectorDouble hh = VH::sequenceVD(0., 3., 3. / 50.);
   CovCalcMode mode(ECalcMember::LHS);
   mode.setAsVario(true);
-  VH::dump("\nModel sampled",modellmc.sample(hh,VectorDouble(),0,0,&mode));
+  VH::dump("\nModel sampled", modellmc.sample(hh, VectorDouble(), 0, 0, &mode));
 
   /////////////////////////////
   // Creating the Tapered Model
-  CovLMCTapering covtape = CovLMCTapering(ETape::STORKEY, 4., ctxt);
+  CovLMCTapering covtape(ETape::STORKEY, 4., ctxt);
   // Build the Covariance list
   covtape.addCov(cov1);
   covtape.addCov(cov2);
   // Building the Model
-  Model modeltape = Model(ctxt);
+  Model modeltape(ctxt);
   modeltape.setCovAnisoList(&covtape);
   modeltape.display();
 
   // Sample the Tapered Model at regular steps
-  VH::dump("\nTapered Model",modeltape.sample(hh,VectorDouble(),0,0,&mode));
+  VH::dump("\nTapered Model", modeltape.sample(hh, VectorDouble(), 0, 0, &mode));
 
   /////////////////////////////
   // Creating the Convoluted Model
-  CovLMCConvolution covconv = CovLMCConvolution(EConvType::EXPONENTIAL, EConvDir::X, 1., 10, ctxt);
+  CovLMCConvolution covconv(EConvType::EXPONENTIAL, EConvDir::X, 1., 10, ctxt);
   // Build the Covariance list
   covconv.addCov(cov1);
   covconv.addCov(cov2);
   // Building the Model
-  Model modelconv = Model(ctxt);
+  Model modelconv(ctxt);
   modelconv.setCovAnisoList(&covconv);
   modelconv.display();
   // Sample the Tapered Model at regular steps
-  VH::dump("\nConvoluted Model", modelconv.sample(hh,VectorDouble(),0,0,&mode));
+  VH::dump("\nConvoluted Model", modelconv.sample(hh, VectorDouble(), 0, 0, &mode));
 
   /////////////////////////////////////////
   // Creating Covariance and Drift matrices
@@ -142,23 +142,23 @@ int main(int argc, char *argv[])
   FF = DriftM(); // Universality Condition
   modelM->addDrift(&FF);
   FF = DriftM(VectorInt({1})); // Drift: X
-  modelM->addDrift(&FF); 
-  FF = DriftM(VectorInt({0,1})); // Drift: Y
+  modelM->addDrift(&FF);
+  FF = DriftM(VectorInt({0, 1})); // Drift: Y
   modelM->addDrift(&FF);
   modelM->display();
 
-  int nsample = workingDbc->getNSample();
+  auto nsample = workingDbc->getNSample();
   // Adding a first variable (filled completely)
   VectorDouble rnd1 = VH::simulateGaussian(nsample);
   workingDbc->addColumns(rnd1, "Z1");
   // Adding a second variable (with one TEST values)
   VectorDouble rnd2 = VH::simulateGaussian(nsample);
-  rnd2[1] = TEST;
+  rnd2[1]           = TEST;
   workingDbc->addColumns(rnd2, "Z2");
-  VectorDouble verr1 = VectorDouble(nsample, 0.1);
-  verr1[3] = TEST;
+  VectorDouble verr1(nsample, 0.1);
+  verr1[3]           = TEST;
   workingDbc->addColumns(verr1, "V1");
-  VectorDouble verr2 = VectorDouble(nsample, 0.25);
+  VectorDouble verr2(nsample, 0.25);
   workingDbc->addColumns(verr2, "V2");
   // Adding a Selection
   workingDbc->addColumns({1, 1, 1, 0, 1, 0}, "Sel");
@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
 
   // Selecting samples
   VectorInt nbgh = {0, 2, 3, 5};
-  VH::dump("Ranks of selected samples = ",nbgh);
+  VH::dump("Ranks of selected samples = ", nbgh);
 
   message("Covariance Matrix (selection & heterotopic multivariate & sampling)\n");
   covM = modelM->evalCovMatSym(workingDbc, nbgh, -1);
@@ -230,24 +230,23 @@ int main(int argc, char *argv[])
   // Testing Models on the Sphere
 
   defineDefaultSpace(ESpaceType::SN, 2);
-  int ns = 20;
-  int nincr = 30;
-  VectorDouble incr = VH::sequence(0., GV_PI + EPSILON10, GV_PI / (nincr-1.));
-  double mu = 1.0;
-  double kappa = 2.0;
+  Id ns             = 20;
+  Id nincr          = 30;
+  VectorDouble incr = VH::sequenceVD(0., GV_PI + EPSILON10, GV_PI / (nincr - 1.));
+  double mu         = 1.0;
+  double kappa      = 2.0;
 
-//  Model* modelSph = Model::createFromParam(ECov::LINEARSPH);
-//  Model* modelSph = Model::createFromParam(ECov::GEOMETRIC, 0.9);
-//  Model* modelSph = Model::createFromParam(ECov::POISSON, 1., 1., 10.);
-//  Model* modelSph = Model::createFromParam(ECov::EXPONENTIAL, 5.0, 1., 0.,
-//                                           VectorDouble(), MatrixSymmetric(), VectorDouble(),
-//                                           nullptr, true);
-  Model *modelSph = Model::createFromParam(ECov::MATERN, 1./kappa, 1., mu,
+  //  Model* modelSph = Model::createFromParam(ECov::LINEARSPH);
+  //  Model* modelSph = Model::createFromParam(ECov::GEOMETRIC, 0.9);
+  //  Model* modelSph = Model::createFromParam(ECov::POISSON, 1., 1., 10.);
+  //  Model* modelSph = Model::createFromParam(ECov::EXPONENTIAL, 5.0, 1., 0.,
+  //                                           VectorDouble(), MatrixSymmetric(), VectorDouble(),
+  //                                           nullptr, true);
+  Model* modelSph = Model::createFromParam(ECov::MATERN, 1. / kappa, 1., mu,
                                            VectorDouble(), MatrixSymmetric(),
                                            VectorDouble(), nullptr, false);
   VH::dump("Spectrum", modelSph->getCovAniso(0)->evalSpectrumOnSphere(ns));
   VH::dump("Covariance", modelSph->getCovAniso(0)->evalCovOnSphereVec(incr));
-
 
   delete workingDbc;
   delete modelM;

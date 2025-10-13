@@ -50,28 +50,28 @@ public:
   IMPLEMENT_CLONING(DbGraphO)
 
   /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Db Interface
   bool isLine() const override { return true; }
   bool mayChangeSampleNumber() const override { return false; }
   bool isConsistent() const override;
 
-  int resetFromSamples(int nech,
+  Id resetFromSamples(Id nech,
                        const ELoadBy& order,
                        const VectorDouble& tab,
                        NF_Triplet& NF_arcs,
                        const VectorString& names        = VectorString(),
                        const VectorString& locatorNames = VectorString(),
                        bool flagAddSampleRank           = true);
-  int resetFromMatrix(int nech,
+  Id resetFromMatrix(Id nech,
                        const ELoadBy& order,
                        const VectorDouble& tab,
                        const MatrixSparse& MatArcs,
                        const VectorString& names        = VectorString(),
                        const VectorString& locatorNames = VectorString(),
                        bool flagAddSampleRank           = true);
-  static DbGraphO* createFromSamples(int nech,
+  static DbGraphO* createFromSamples(Id nech,
                                      const ELoadBy& order,
                                      const VectorDouble& tab,
                                      NF_Triplet& NF_arcs,
@@ -79,7 +79,7 @@ public:
                                      const VectorString& locatorNames = VectorString(),
                                      bool flagAddSampleRank           = true);
 
-  static DbGraphO* createFromMatrix(int nech,
+  static DbGraphO* createFromMatrix(Id nech,
                                     const ELoadBy& order,
                                     const VectorDouble& tab,
                                     const MatrixSparse& MatArcs,
@@ -89,17 +89,17 @@ public:
 
   static DbGraphO* createFromNF(const String& NFFilename, bool verbose = true);
 
-  int getNArc() const;
-  int getNNode() const;
-  VectorDouble getArc(int iarc, int idim) const;
-  double getArcValue(int iarc) const;
-  VectorInt getOrderDown(int node = 0) const;
-  VectorDouble getCumulDown(int node) const;
-  VectorInt getIndicesNextDown(int node = 0) const;
-  VectorInt getIndicesNextUp(int node = 0) const;
-  bool isEndDown(int node = 0) const;
-  bool isEndUp(int node = 0) const;
-  bool areConnected(int node1, int node2) const;
+  Id getNArc() const;
+  Id getNNode() const;
+  VectorDouble getArc(Id iarc, Id idim) const;
+  double getArcValue(Id iarc) const;
+  VectorInt getOrderDown(Id node = 0) const;
+  VectorDouble getCumulDown(Id node) const;
+  VectorInt getIndicesNextDown(Id node = 0) const;
+  VectorInt getIndicesNextUp(Id node = 0) const;
+  bool isEndDown(Id node = 0) const;
+  bool isEndUp(Id node = 0) const;
+  bool areConnected(Id node1, Id node2) const;
   VectorInt getEndsDown() const;
   VectorInt getEndsUp() const;
   VectorInt getOrphans() const;
@@ -109,8 +109,8 @@ public:
   void setArcLine(const VectorInt& nodes, double value = 1.);
 
 protected:
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
@@ -118,14 +118,14 @@ protected:
   String _getNFName() const override { return "DbGraphO"; }
 
 private:
-  int  _arcLinkage(NF_Triplet& NF_arcs, int nech);
-  bool _isValidArcRank(int iarc) const;
-  bool _isValidNode(int node) const;
-  void _checkForceDimension(int nech);
+  Id  _arcLinkage(NF_Triplet& NF_arcs, Id nech);
+  bool _isValidArcRank(Id iarc) const;
+  bool _isValidNode(Id node) const;
+  void _checkForceDimension(Id nech);
   static VectorInt _getNoneZeroIndices(const VectorDouble& v);
   static VectorInt _getRanks(const VectorDouble& v);
-  static void _updateOrder(int rank, const VectorDouble& v, VectorInt& order);
-  static void _updateCumul(int rank, const VectorDouble& v, VectorDouble& cumul);
+  static void _updateOrder(Id rank, const VectorDouble& v, VectorInt& order);
+  static void _updateCumul(Id rank, const VectorDouble& v, VectorDouble& cumul);
   void _iterateCumul(const VectorInt& inds,
                      VectorDouble& cumul,
                      VectorDouble& v1,

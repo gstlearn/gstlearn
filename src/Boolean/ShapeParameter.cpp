@@ -8,33 +8,33 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ELaw.hpp"
 #include "Boolean/ShapeParameter.hpp"
 #include "Basic/Law.hpp"
+#include "Enum/ELaw.hpp"
 
 namespace gstlrn
 {
 ShapeParameter::ShapeParameter(const ELaw& law, double value)
-    : AStringable(),
-      _law(law),
-      _valarg()
+  : AStringable()
+  , _law(law)
+  , _valarg()
 {
   _valarg.push_back(value);
 }
 
-ShapeParameter::ShapeParameter(const ShapeParameter &r)
-    : AStringable(r),
-      _law(r._law),
-      _valarg(r._valarg)
+ShapeParameter::ShapeParameter(const ShapeParameter& r)
+  : AStringable(r)
+  , _law(r._law)
+  , _valarg(r._valarg)
 {
 }
 
-ShapeParameter& ShapeParameter::operator=(const ShapeParameter &r)
+ShapeParameter& ShapeParameter::operator=(const ShapeParameter& r)
 {
   if (this != &r)
   {
-    AStringable::operator =(r);
-    _law = r._law;
+    AStringable::operator=(r);
+    _law    = r._law;
     _valarg = r._valarg;
   }
   return *this;
@@ -111,31 +111,31 @@ String ShapeParameter::toString(const AStringFormat* /*strfmt*/) const
     case ELaw::E_BETA2:
       sstr << " Beta2 - Par1=" << _valarg[0] << " - Par2=" << _valarg[1];
       break;
-    }
+  }
   return sstr.str();
 }
 
-bool ShapeParameter::_isValidArgIndex(int iarg) const
+bool ShapeParameter::_isValidArgIndex(Id iarg) const
 {
-  int nargs = (int) _valarg.size();
+  Id nargs = static_cast<Id>(_valarg.size());
   if (iarg < 0 || iarg >= nargs)
   {
-    messerr("Index %d is not valid. It should lie in [0,%d[",iarg,nargs);
+    messerr("Index %d is not valid. It should lie in [0,%d[", iarg, nargs);
     return false;
   }
   return true;
 }
 
-double ShapeParameter::getValarg(int iarg) const
+double ShapeParameter::getValarg(Id iarg) const
 {
-  if (! _isValidArgIndex(iarg)) return TEST;
+  if (!_isValidArgIndex(iarg)) return TEST;
   return _valarg[iarg];
 }
 
-void ShapeParameter::setValarg(int iarg, double value)
+void ShapeParameter::setValarg(Id iarg, double value)
 {
-  if (! _isValidArgIndex(iarg)) return;
+  if (!_isValidArgIndex(iarg)) return;
   _valarg[iarg] = value;
 }
 
-}
+} // namespace gstlrn

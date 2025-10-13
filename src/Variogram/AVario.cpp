@@ -41,7 +41,7 @@ AVario& AVario::operator=(const AVario& r)
 AVario::~AVario() {}
 
 void AVario::_evaluateVariogram(
-  Db* db, int nvar, int iech1, int iech2, int ilag, double dist, bool do_asym)
+  Db* db, Id nvar, Id iech1, Id iech2, Id ilag, double dist, bool do_asym)
 {
   DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
@@ -49,12 +49,12 @@ void AVario::_evaluateVariogram(
   if (FFFF(w1) || FFFF(w2)) return;
   dist         = ABS(dist);
   double scale = w1 * w2;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (Id ivar = 0; ivar < nvar; ivar++)
   {
     double z11 = _getIVAR(db, iech1, ivar);
     double z12 = _getIVAR(db, iech2, ivar);
     if (FFFF(z11) || FFFF(z12)) continue;
-    for (int jvar = 0; jvar <= ivar; jvar++)
+    for (Id jvar = 0; jvar <= ivar; jvar++)
     {
       double z21 = _getIVAR(db, iech1, jvar);
       double z22 = _getIVAR(db, iech2, jvar);
@@ -66,7 +66,7 @@ void AVario::_evaluateVariogram(
 }
 
 void AVario::_evaluateMadogram(
-  Db* db, int nvar, int iech1, int iech2, int ilag, double dist, bool do_asym)
+  Db* db, Id nvar, Id iech1, Id iech2, Id ilag, double dist, bool do_asym)
 {
   DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
@@ -74,12 +74,12 @@ void AVario::_evaluateMadogram(
   if (FFFF(w1) || FFFF(w2)) return;
   dist         = ABS(dist);
   double scale = w1 * w2;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (Id ivar = 0; ivar < nvar; ivar++)
   {
     double z11 = _getIVAR(db, iech1, ivar);
     double z12 = _getIVAR(db, iech2, ivar);
     if (FFFF(z11) || FFFF(z12)) continue;
-    for (int jvar = 0; jvar <= ivar; jvar++)
+    for (Id jvar = 0; jvar <= ivar; jvar++)
     {
       double z21 = _getIVAR(db, iech1, jvar);
       double z22 = _getIVAR(db, iech2, jvar);
@@ -91,7 +91,7 @@ void AVario::_evaluateMadogram(
 }
 
 void AVario::_evaluateRodogram(
-  Db* db, int nvar, int iech1, int iech2, int ilag, double dist, bool do_asym)
+  Db* db, Id nvar, Id iech1, Id iech2, Id ilag, double dist, bool do_asym)
 {
   DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
@@ -99,12 +99,12 @@ void AVario::_evaluateRodogram(
   if (FFFF(w1) || FFFF(w2)) return;
   dist         = ABS(dist);
   double scale = w1 * w2;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (Id ivar = 0; ivar < nvar; ivar++)
   {
     double z11 = _getIVAR(db, iech1, ivar);
     double z12 = _getIVAR(db, iech2, ivar);
     if (FFFF(z11) || FFFF(z12)) continue;
-    for (int jvar = 0; jvar <= ivar; jvar++)
+    for (Id jvar = 0; jvar <= ivar; jvar++)
     {
       double z21 = _getIVAR(db, iech1, jvar);
       double z22 = _getIVAR(db, iech2, jvar);
@@ -116,7 +116,7 @@ void AVario::_evaluateRodogram(
 }
 
 void AVario::_evaluatePoisson(
-  Db* db, int nvar, int iech1, int iech2, int ilag, double dist, bool do_asym)
+  Db* db, Id nvar, Id iech1, Id iech2, Id ilag, double dist, bool do_asym)
 {
   DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
@@ -124,12 +124,12 @@ void AVario::_evaluatePoisson(
   if (FFFF(w1) || FFFF(w2)) return;
   dist         = ABS(dist);
   double scale = (w1 * w2) / (w1 + w2);
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (Id ivar = 0; ivar < nvar; ivar++)
   {
     double z11 = _getIVAR(db, iech1, ivar);
     double z12 = _getIVAR(db, iech2, ivar);
     if (FFFF(z11) || FFFF(z12)) continue;
-    for (int jvar = 0; jvar <= ivar; jvar++)
+    for (Id jvar = 0; jvar <= ivar; jvar++)
     {
       double z21 = _getIVAR(db, iech1, jvar);
       double z22 = _getIVAR(db, iech2, jvar);
@@ -141,20 +141,20 @@ void AVario::_evaluatePoisson(
 }
 
 void AVario::_evaluateCovariance(
-  Db* db, int nvar, int iech1, int iech2, int ilag, double dist, bool do_asym)
+  Db* db, Id nvar, Id iech1, Id iech2, Id ilag, double dist, bool do_asym)
 {
   double w1 = db->getWeight(iech1);
   double w2 = db->getWeight(iech2);
   if (FFFF(w1) || FFFF(w2)) return;
-  int orient = (dist > 0) ? 1 : -1;
+  Id orient = (dist > 0) ? 1 : -1;
   dist       = ABS(dist);
   double scale = w1 * w2;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (Id ivar = 0; ivar < nvar; ivar++)
   {
     double z11 = _getIVAR(db, iech1, ivar);
     double z12 = _getIVAR(db, iech2, ivar);
     if (FFFF(z11) || FFFF(z12)) continue;
-    for (int jvar = 0; jvar <= ivar; jvar++)
+    for (Id jvar = 0; jvar <= ivar; jvar++)
     {
       double z21 = _getIVAR(db, iech1, jvar);
       double z22 = _getIVAR(db, iech2, jvar);
@@ -173,20 +173,20 @@ void AVario::_evaluateCovariance(
 }
 
 void AVario::_evaluateCovariogram(
-  Db* db, int nvar, int iech1, int iech2, int ilag, double dist, bool do_asym)
+  Db* db, Id nvar, Id iech1, Id iech2, Id ilag, double dist, bool do_asym)
 {
   double w1 = db->getWeight(iech1);
   double w2 = db->getWeight(iech2);
   if (FFFF(w1) || FFFF(w2)) return;
-  int orient = (dist > 0) ? 1 : -1;
+  Id orient = (dist > 0) ? 1 : -1;
   dist       = ABS(dist);
   double scale = w2;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (Id ivar = 0; ivar < nvar; ivar++)
   {
     double z11 = _getIVAR(db, iech1, ivar);
     double z12 = _getIVAR(db, iech2, ivar);
     if (FFFF(z11) || FFFF(z12)) continue;
-    for (int jvar = 0; jvar <= ivar; jvar++)
+    for (Id jvar = 0; jvar <= ivar; jvar++)
     {
       double z21 = _getIVAR(db, iech1, jvar);
       double z22 = _getIVAR(db, iech2, jvar);
@@ -205,7 +205,7 @@ void AVario::_evaluateCovariogram(
 }
 
 void AVario::_evaluateOrder4(
-  Db* db, int nvar, int iech1, int iech2, int ilag, double dist, bool do_asym)
+  Db* db, Id nvar, Id iech1, Id iech2, Id ilag, double dist, bool do_asym)
 {
   DECLARE_UNUSED(do_asym);
   double w1 = db->getWeight(iech1);
@@ -213,12 +213,12 @@ void AVario::_evaluateOrder4(
   if (FFFF(w1) || FFFF(w2)) return;
   dist         = ABS(dist);
   double scale = w1 * w2;
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (Id ivar = 0; ivar < nvar; ivar++)
   {
     double z11 = _getIVAR(db, iech1, ivar);
     double z12 = _getIVAR(db, iech2, ivar);
     if (FFFF(z11) || FFFF(z12)) continue;
-    for (int jvar = 0; jvar <= ivar; jvar++)
+    for (Id jvar = 0; jvar <= ivar; jvar++)
     {
       double z21 = _getIVAR(db, iech1, jvar);
       double z22 = _getIVAR(db, iech2, jvar);

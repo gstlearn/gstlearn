@@ -15,7 +15,7 @@
 
 namespace gstlrn
 {
-SimuPartitionParam::SimuPartitionParam(int nbtuba,
+SimuPartitionParam::SimuPartitionParam(Id nbtuba,
                                        double intensity,
                                        const VectorDouble& dilate)
   : AStringable()
@@ -61,7 +61,7 @@ String SimuPartitionParam::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-double SimuPartitionParam::getDilate(int idim) const
+double SimuPartitionParam::getDilate(Id idim) const
 {
   if (_dilate.empty()) return 0.;
   return _dilate[idim];

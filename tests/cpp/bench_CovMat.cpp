@@ -24,22 +24,22 @@
 #include <string>
 
 using namespace gstlrn;
-void st_bench_writing_in_matrix(int nrows, int ncols, Timer& timer)
+void st_bench_writing_in_matrix(Id nrows, Id ncols, Timer& timer)
 {
   mestitle(1, "Writing into the Rectangular Covariance Matrix");
   MatrixDense mat(nrows, ncols);
 
   // consecutive writes: loop in row then col
   timer.reset();
-  for (int irow = 0; irow < nrows; irow++)
-    for (int icol = 0; icol < ncols; icol++)
+  for (Id irow = 0; irow < nrows; irow++)
+    for (Id icol = 0; icol < ncols; icol++)
       mat.setValue(irow, icol, 12.);
   timer.displayIntervalMilliseconds("Writing consecutively by row then by col");
 
   // consecutive writes: loop in col then row
   timer.reset();
-  for (int icol = 0; icol < ncols; icol++)
-    for (int irow = 0; irow < nrows; irow++)
+  for (Id icol = 0; icol < ncols; icol++)
+    for (Id irow = 0; irow < nrows; irow++)
       mat.setValue(irow, icol, 12.);
   timer.displayIntervalMilliseconds("Writing consecutively by col then by row");
 
@@ -48,15 +48,15 @@ void st_bench_writing_in_matrix(int nrows, int ncols, Timer& timer)
 
   // Writing ar random
   timer.reset();
-  for (int irow = 0; irow < nrows; irow++)
-    for (int icol = 0; icol < ncols; icol++)
+  for (Id irow = 0; irow < nrows; irow++)
+    for (Id icol = 0; icol < ncols; icol++)
       mat.setValue(rowRand[irow], colRand[icol], 12.);
   timer.displayIntervalMilliseconds("Writing randomly by row then by col");
 
   // Writing ar random
   timer.reset();
-  for (int icol = 0; icol < ncols; icol++)
-    for (int irow = 0; irow < nrows; irow++)
+  for (Id icol = 0; icol < ncols; icol++)
+    for (Id irow = 0; irow < nrows; irow++)
       mat.setValue(rowRand[irow], colRand[icol], 12.);
   timer.displayIntervalMilliseconds("Writing randomly by col then by row");
 }
@@ -75,19 +75,19 @@ void st_bench_writing_in_matrix(int nrows, int ncols, Timer& timer)
     StdoutRedirect sr(sfn.str(), argc, argv);
 
     // Global parameters
-    int mode = 3;
-    int ndim = 2;
+    Id mode = 3;
+    Id ndim = 2;
     defineDefaultSpace(ESpaceType::RN, ndim);
 
     // Generate the input data base
-    int nall = 100;
+    Id nall  = 100;
     Db* dbin = Db::createFillRandom(nall, ndim);
     dbin->addSelectionRandom(0.9);
-    int ndat = dbin->getNSample(true);
+    Id ndat = dbin->getNSample(true);
     if (verbose) dbin->display();
 
     // Generate the output data base
-    int nout  = 100000;
+    Id nout   = 100000;
     Db* dbout = Db::createFillRandom(nout, ndim);
     if (verbose) dbout->display();
 
@@ -118,7 +118,7 @@ void st_bench_writing_in_matrix(int nrows, int ncols, Timer& timer)
       mestitle(1, "Traditional solution");
       message("Double loop on the input and output points\n");
       timer.reset();
-      for (int i = 0; i < nout; i++)
+      for (Id i = 0; i < nout; i++)
       {
         dbout->getSampleAsSPInPlace(p2, i);
         model->evalPointToDb(rhs1, p2, dbin);
@@ -149,7 +149,7 @@ void st_bench_writing_in_matrix(int nrows, int ncols, Timer& timer)
       dbin->getSamplesAsSP(p1s, model->getSpace(), true);
       VectorDouble rhs2;
 
-      for (int i = 0; i < nout; i++)
+      for (Id i = 0; i < nout; i++)
       {
         dbout->getSampleAsSPInPlace(p2, i);
         model->evalPointToDbAsSP(rhs2, p1s, p2);
@@ -176,11 +176,11 @@ void st_bench_writing_in_matrix(int nrows, int ncols, Timer& timer)
       timer.reset();
       OptCustom::define("OptimCovMat", mode);
       (void) model->evalCovMatInPlace(mat, dbin, dbout);
-      timer.displayIntervalMilliseconds("Establishing RHS V" + std::to_string(int(mode)));
+      timer.displayIntervalMilliseconds("Establishing RHS V" + std::to_string(Id(mode)));
 
       // Some printout for comparison
       VH::fill(cumul, 0.);
-      for (int i = 0; i < nout; i++)
+      for (Id i = 0; i < nout; i++)
         VH::addInPlace(cumul, mat.getColumn(i));
       VH::divideConstant(cumul, nout);
       VH::dumpRange("", cumul);

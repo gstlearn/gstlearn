@@ -13,7 +13,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 
-#define N_SAMPLE(nx,nsample) ((int) ((nx-1) / nsample) + 1)
+#define N_SAMPLE(nx,nsample) ((Id) ((nx-1) / nsample) + 1)
 
 namespace gstlrn
 {
@@ -46,7 +46,7 @@ GridIrap::~GridIrap()
 {
 }
 
-int GridIrap::writeInFile()
+Id GridIrap::writeInFile()
 {
   VectorInt indg(2);
 
@@ -56,8 +56,8 @@ int GridIrap::writeInFile()
 
   /* Preliminary calculations */
 
-  int nx = N_SAMPLE(_dbgrid->getNX(0), _nsamplex);
-  int ny = N_SAMPLE(_dbgrid->getNX(1), _nsampley);
+  Id nx = N_SAMPLE(_dbgrid->getNX(0), _nsamplex);
+  Id ny = N_SAMPLE(_dbgrid->getNX(1), _nsampley);
   double dx = _dbgrid->getDX(0) * _nsamplex;
   double dy = _dbgrid->getDX(1) * _nsampley;
   double xmin = _dbgrid->getX0(0);
@@ -66,19 +66,19 @@ int GridIrap::writeInFile()
   double ymax = ymin + dy * (ny - 1);
 
   /* Write the header */
-  fprintf(_file, "%d %d %lf %lf\n", nx, ny, dx, dy);
+  fprintf(_file, "%ld %ld %lf %lf\n", nx, ny, dx, dy);
   fprintf(_file, "%lf %lf %lf %lf\n", xmin, xmax, ymin, ymax);
 
-  int necr = 0;
-  for (int iy = 0; iy < ny; iy++)
+  Id necr = 0;
+  for (Id iy = 0; iy < ny; iy++)
   {
     if (iy % _nsampley != 0) continue;
-    for (int ix = 0; ix < nx; ix++)
+    for (Id ix = 0; ix < nx; ix++)
     {
       if (ix % _nsamplex != 0) continue;
       indg[0] = ix;
       indg[1] = iy;
-      int iech = _dbgrid->indiceToRank(indg);
+      Id iech = _dbgrid->indiceToRank(indg);
       double value = _dbgrid->getArray(iech, _cols[0]);
       if (FFFF(value)) value = 9999990.;
       fprintf(_file, "%10.3lf ", value);

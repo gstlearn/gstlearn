@@ -29,15 +29,14 @@
 
 namespace gstlrn
 {
-  class EConsElem;
+class EConsElem;
 
-  class CovAniso;
-  class AMatrix;
-  class MatrixSquare;
-  class MatrixDense;
-  class MatrixSymmetric;
-  class MatrixSparse;
-
+class CovAniso;
+class AMatrix;
+class MatrixSquare;
+class MatrixDense;
+class MatrixSymmetric;
+class MatrixSparse;
 
 class GSTLEARN_EXPORT ShiftOpMatrix: public AShiftOp
 {
@@ -52,105 +51,104 @@ public:
   IMPLEMENT_CLONING(ShiftOpMatrix)
   void normalizeLambdaBySills(const AMesh* mesh) override;
 #ifndef SWIG
-  int _addToDest(const constvect inv, vect outv) const override;
+  Id _addToDest(const constvect inv, vect outv) const override;
 #endif
 
   static ShiftOpMatrix* create(const AMesh* amesh, const CovAniso* cova, const Db* dbout = nullptr, bool verbose = false);
-  static ShiftOpMatrix* createFromSparse(
-    const MatrixSparse* S,
-    const VectorDouble& TildeC,
-    const VectorDouble& Lambda,
-    const CovAniso* cova,
-    bool verbose = false);
-  int initFromMesh(const AMesh* amesh, const CovAniso* cova, const Db* dbout = nullptr, bool flagAdvection = false, bool verbose = false);
-  int initGradFromMesh(const AMesh* amesh, const CovAniso* cova, bool verbose = false, double tol = EPSILON10);
-  int initFromCS(const MatrixSparse* S, const VectorDouble& TildeC, const VectorDouble& Lambda, const CovAniso* cova, bool verbose = false);
+  static ShiftOpMatrix* createFromSparse(const MatrixSparse* S,
+                                         const VectorDouble& TildeC,
+                                         const VectorDouble& Lambda,
+                                         const CovAniso* cova,
+                                         bool verbose = false);
+  Id initFromMesh(const AMesh* amesh, const CovAniso* cova, const Db* dbout = nullptr, bool flagAdvection = false, bool verbose = false);
+  Id initGradFromMesh(const AMesh* amesh, const CovAniso* cova, bool verbose = false, double tol = EPSILON10);
+  Id initFromCS(const MatrixSparse* S, const VectorDouble& TildeC, const VectorDouble& Lambda, const CovAniso* cova, bool verbose = false);
 
-  int getNDim() const
+  Id getNDim() const
   {
     return _ndim;
   }
-  int getNCovAnisoGradParam() const
+  Id getNCovAnisoGradParam() const
   {
     return _nCovAnisoGradParam;
   }
   void prodTildeC(const VectorDouble& x, VectorDouble& y, const EPowerPT& power) const;
 
   void prodLambdaOnSqrtTildeC(const VectorDouble& inv, VectorDouble& outv, double puis = 2) const;
-  double getMaxEigenValue() const override;
   MatrixSparse* getS() const { return _S; }
-  MatrixSparse* getTildeCGrad(int iapex, int igparam) const;
-  MatrixSparse* getSGrad(int iapex, int igparam) const;
+  MatrixSparse* getTildeCGrad(Id iapex, Id igparam) const;
+  MatrixSparse* getSGrad(Id iapex, Id igparam) const;
 
   const VectorDouble& getTildeC() const { return _TildeC; }
-  const VectorDouble& getLambdaGrads(int idim) const { return _LambdaGrad[idim]; }
-  double getLambdaGrad(int idim, int iapex) const { return _LambdaGrad[idim][iapex]; }
-  int getSGradAddress(int iapex, int igparam) const;
+  const VectorDouble& getLambdaGrads(Id idim) const { return _LambdaGrad[idim]; }
+  double getLambdaGrad(Id idim, Id iapex) const { return _LambdaGrad[idim][iapex]; }
+  Id getSGradAddress(Id iapex, Id igparam) const;
 
-  int getLambdaGradSize() const;
+  Id getLambdaGradSize() const;
   // void multiplyByValueAndAddDiagonal(double v1 = 1.,double v2 = 0.) override;
 
 private:
-  int _buildS(const AMesh* amesh, double tol = EPSILON10);
-  int _buildSGrad(const AMesh* amesh, double tol = EPSILON10);
+  double _getMaxEigenValue() const override;
+  Id _buildS(const AMesh* amesh, double tol = EPSILON10);
+  Id _buildSGrad(const AMesh* amesh, double tol = EPSILON10);
   void _buildLambda(const AMesh* amesh);
   bool _buildLambdaGrad(const AMesh* amesh);
 
-  static void _loadAux(VectorDouble& tab, const EConsElem& type, int imesh = 0);
-  void _loadHH(const AMesh* amesh, MatrixSymmetric& hh, int imesh = 0);
-  void _loadHHRegular(MatrixSymmetric& hh, int imesh);
-  void _loadHHVariety(MatrixSymmetric& hh, int imesh);
-  void _loadHHGrad(const AMesh* amesh, MatrixSymmetric& hh, int igparam, int ipref);
-  double _computeGradLogDetHH(const AMesh* amesh, int igparam, int ipref, const MatrixSymmetric& HH, MatrixSymmetric& work, MatrixSymmetric& work2);
+  static void _loadAux(VectorDouble& tab, const EConsElem& type, Id imesh = 0);
+  void _loadHH(const AMesh* amesh, MatrixSymmetric& hh, Id imesh = 0);
+  void _loadHHRegular(MatrixSymmetric& hh, Id imesh);
+  void _loadHHVariety(MatrixSymmetric& hh, Id imesh);
+  void _loadHHGrad(const AMesh* amesh, MatrixSymmetric& hh, Id igparam, Id ipref);
+  double _computeGradLogDetHH(const AMesh* amesh, Id igparam, Id ipref, const MatrixSymmetric& HH, MatrixSymmetric& work, MatrixSymmetric& work2);
 
   void _reset();
-  int _resetGrad();
+  Id _resetGrad();
   void _reallocate(const ShiftOpMatrix& shift);
   static void _projectMesh(const AMesh* amesh,
                            const VectorDouble& srot,
-                           int imesh,
+                           Id imesh,
                            double coeff[3][2]);
-  int _preparMatrices(const AMesh* amesh, int imesh, MatrixSquare& matu, MatrixDense& matw) const;
-  int _prepareMatricesSVariety(const AMesh* amesh,
-                               int imesh,
+  Id _preparMatrices(const AMesh* amesh, Id imesh, MatrixSquare& matu, MatrixDense& matw) const;
+  Id _prepareMatricesSVariety(const AMesh* amesh,
+                               Id imesh,
                                VectorVectorDouble& coords,
                                MatrixDense& matM,
                                MatrixSymmetric& matMtM,
                                AMatrix& matP,
                                double* deter) const;
-  int _prepareMatricesSphere(const AMesh* amesh,
-                             int imesh,
+  Id _prepareMatricesSphere(const AMesh* amesh,
+                             Id imesh,
                              VectorVectorDouble& coords,
                              MatrixSquare& matMs,
                              double* deter) const;
-  static void _updateCova(std::shared_ptr<CovAniso>& cova, int imesh);
-  VectorT<std::map<int, double>> _mapCreate() const;
-  VectorT<VectorT<std::map<int, double>>> _mapVectorCreate() const;
-  VectorT<std::map<int, double>> _mapTildeCCreate() const;
-  static void _mapTildeCUpdate(std::map<int, double>& tab,
-                               int ip0,
+  static void _updateCova(std::shared_ptr<CovAniso>& cova, Id imesh);
+  VectorT<std::map<Id, double>> _mapCreate() const;
+  VectorT<VectorT<std::map<Id, double>>> _mapVectorCreate() const;
+  VectorT<std::map<Id, double>> _mapTildeCCreate() const;
+  static void _mapTildeCUpdate(std::map<Id, double>& tab,
+                               Id ip0,
                                double value,
                                double tol = EPSILON10);
 
-  static void _mapGradUpdate(std::map<std::pair<int, int>, double>& tab,
-                             int ip0,
-                             int ip1,
+  static void _mapGradUpdate(std::map<std::pair<Id, Id>, double>& tab,
+                             Id ip0,
+                             Id ip1,
                              double value,
                              double tol = EPSILON10);
-  MatrixSparse* _BuildTildeCGradfromMap(std::map<int, double>& tab) const;
-  MatrixSparse* _BuildSGradfromMap(std::map<std::pair<int, int>, double>&
+  MatrixSparse* _BuildTildeCGradfromMap(std::map<Id, double>& tab) const;
+  MatrixSparse* _BuildSGradfromMap(std::map<std::pair<Id, Id>, double>&
                                      tab) const;
 
-  static bool _cond(int indref, int igparam, int ipref);
+  static bool _cond(Id indref, Id igparam, Id ipref);
   void _determineFlagNoStatByHH();
-  void _updateHH(MatrixSymmetric& hh, int imesh);
+  void _updateHH(MatrixSymmetric& hh, Id imesh);
   static MatrixSparse* _prepareSparse(const AMesh* amesh);
 
 private:
   VectorDouble _TildeC;
   MatrixSparse* _S;
 
-  int _nCovAnisoGradParam;
+  Id _nCovAnisoGradParam;
   VectorT<MatrixSparse*> _SGrad;
   VectorT<MatrixSparse*> _TildeCGrad;
   VectorVectorDouble _LambdaGrad;
@@ -158,7 +156,7 @@ private:
   std::vector<double> _detHH;
   mutable VectorDouble _diag;
 
-  int _ndim;
+  Id _ndim;
 };
 
-}
+} // namespace gstlrn

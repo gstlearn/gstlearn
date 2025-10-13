@@ -22,7 +22,25 @@
 
 namespace gstlrn
 {
-CalcGlobal::CalcGlobal(int ivar0, bool verbose)
+
+String Global_Result::toString(const AStringFormat* strfmt) const
+{
+  DECLARE_UNUSED(strfmt);
+
+  std::stringstream sstr;
+  sstr << "Global Results" << std::endl;
+  sstr << "Total number of data     = " << ntot << std::endl;
+  sstr << "Number of active data    = " << np << std::endl;
+  sstr << "Number of grid nodes     = " << ng << std::endl;
+  sstr << "Surface                  = " << surface << std::endl;
+  sstr << "Estimation               = " << zest << std::endl;
+  sstr << "St. dev. of estimation   = " << sse << std::endl;
+  sstr << "Coefficient of Variation = " << cvgeo << std::endl;
+  sstr << "Variance over Domain     = " << cvv << std::endl;
+  return sstr.str();
+};
+
+CalcGlobal::CalcGlobal(Id ivar0, bool verbose)
   : ACalcInterpolator()
   , _flagArithmetic(false)
   , _flagKriging(false)
@@ -108,13 +126,13 @@ bool CalcGlobal::_run()
   return true;
 }
 
-int CalcGlobal::_globalKriging()
+Id CalcGlobal::_globalKriging()
 {
   VectorDouble rhsCum;
   Db* dbin  = getDbin();
   Db* dbout = getDbout();
-  int nvar  = _modelLocal->getNVar();
-  int ng    = 0;
+  Id nvar   = _modelLocal->getNVar();
+  Id ng     = 0;
   VectorDouble wgt;
 
   KrigOpt krigopt;
@@ -122,10 +140,9 @@ int CalcGlobal::_globalKriging()
   MatrixDense X;
 
   // Get the Covariance between data (Unique Neighborhood)
-  CovCalcMode mode            = CovCalcMode(ECalcMember::LHS);
-  VectorVectorInt sampleRanks = dbin->getSampleRanks({_ivar0});
-  VectorDouble Z              = dbin->getValuesByRanks(sampleRanks,
-                                                       _modelLocal->getMeans(),
+  CovCalcMode mode(ECalcMember::LHS);
+  VectorVectorInt sampleRanks = dbin->getSampleRanks();
+  VectorDouble Z              = dbin->getValuesByRanks(sampleRanks, _modelLocal->getMeans(),
                                                        !_modelLocal->hasDrift());
   if (_modelLocal->evalCovMatSymInPlaceFromIdx(Sigma, dbin, sampleRanks, &mode, false)) return 1;
   if (_modelLocal->evalDriftMatByRanksInPlace(X, dbin, sampleRanks, ECalcMember::LHS)) return 1;
@@ -136,14 +153,14 @@ int CalcGlobal::_globalKriging()
   algebra.setLHS(&Sigma, &X);
 
   // Prepare the cumulative matrices
-  MatrixDense Sigma0Cum(Sigma.getNRows(), 1);
-  MatrixDense X0Cum(1, X.getNCols());
+  MatrixDense Sigma0Cum(Sigma.getNRows(), nvar);
+  MatrixDense X0Cum(nvar, X.getNCols());
   MatrixDense Sigma0;
   MatrixDense X0;
   MatrixSymmetric Sigma00;
 
   /* Loop on the targets to be processed */
-  for (int iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
+  for (Id iech = 0, nech = dbout->getNSample(); iech < nech; iech++)
   {
     mes_process("Kriging sample", dbout->getNSample(), iech);
     if (!dbout->isActive(iech)) continue;
@@ -152,46 +169,45 @@ int CalcGlobal::_globalKriging()
     if (_modelLocal->evalDriftMatByTargetInPlace(X0, dbout, iech, krigopt)) return 1;
 
     // Cumulate the R.H.S.
-    Sigma0Cum.addMatInPlace(Sigma0);
-    X0Cum.addMatInPlace(X0);
+    Sigma0Cum.addMat(Sigma0);
+    if (X0.size() > 0) X0Cum.addMat(X0);
     ng++;
   }
 
-  // Normalize the cumulative R.H.S.
-  double oneOverNG = 1. / (double)ng;
+  // Normalize the cumulative R.H.S. to fake the RHS corresponding to the average target
+  double oneOverNG = 1. / static_cast<double>(ng);
   Sigma0Cum.prodScalar(oneOverNG);
-  X0Cum.prodScalar(oneOverNG);
+  if (X0Cum.size() > 0) X0Cum.prodScalar(oneOverNG);
   algebra.setRHS(&Sigma0Cum, &X0Cum);
 
+  // Get matrix of covariances between last target and itself (C00) for all variables
   if (_modelLocal->evalCovMat0InPlace(Sigma00, dbout, 0)) return 1;
   algebra.setVariance(&Sigma00);
 
-  double estim = algebra.getEstimation()[0];
-  double stdv  = algebra.getStdv()[0];
+  double estim = algebra.getEstimation()[_ivar0];
+  double stdv  = algebra.getStdv()[_ivar0];
   // The previous term corresponds to the standard deviation calculated
   // with a punctual target. Therefore the corresponding variance
   // must be corrected (C00 -> Cvv) to pass to a correct Territory variance
   // of estimation
   double c00 = Sigma00.getValue(0, 0);
+  wgt        = algebra.getLambda()->getColumn(_ivar0);
 
   /* Preliminary checks */
 
-  int ntot       = dbin->getNSample(false);
-  int np         = dbin->getNSample(true);
-  double cell    = 1.;
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  Id ntot      = dbin->getNSample(false);
+  Id np        = dbin->getNSample(true);
+  double cell  = 1.;
+  auto* dbgrid = dynamic_cast<DbGrid*>(dbout);
   if (dbgrid != nullptr) cell = dbgrid->getCellSize();
   double surface = ng * cell;
 
   /* Average covariance over the territory */
-
-  double cvv = _modelLocal->evalAverageDbToDb(dbout, dbout, _ivar0, _ivar0,
-                                              dbin->getExtensionDiagonal() / 1.e3, 0);
+  double cvv = _modelLocal->evalAverageDbToDb(dbout, dbout, _ivar0, _ivar0);
 
   /* Perform the estimation */
 
   double cvvgeo = stdv * stdv - c00 + cvv;
-
   double stdgeo = (cvvgeo > 0) ? sqrt(cvvgeo) : 0.;
   double cvgeo  = (isZero(estim) || FFFF(estim)) ? TEST : stdgeo / estim;
 
@@ -236,12 +252,12 @@ int CalcGlobal::_globalKriging()
   return 0;
 }
 
-int CalcGlobal::_globalArithmetic()
+Id CalcGlobal::_globalArithmetic()
 {
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  int ntot       = getDbin()->getNSample(false);
-  int np         = getDbin()->getNSample(true);
-  int ng         = dbgrid->getNSample(true);
+  auto* dbgrid   = dynamic_cast<DbGrid*>(getDbout());
+  auto ntot      = getDbin()->getNSample(false);
+  auto np        = getDbin()->getNSample(true);
+  Id ng          = dbgrid->getNSample(true);
   double surface = ng * dbgrid->getCellSize();
 
   /* Average covariance over the data */
@@ -261,7 +277,7 @@ int CalcGlobal::_globalArithmetic()
 
   /* Calculating basic statistics */
 
-  int iatt = getDbin()->getUIDByLocator(ELoc::Z, _ivar0);
+  auto iatt = getDbin()->getUIDByLocator(ELoc::Z, _ivar0);
   double wtot;
   double ave;
   double var;
@@ -323,7 +339,7 @@ int CalcGlobal::_globalArithmetic()
 Global_Result global_arithmetic(Db* dbin,
                                 DbGrid* dbgrid,
                                 ModelGeneric* model,
-                                int ivar0,
+                                Id ivar0,
                                 bool verbose)
 {
   Global_Result gres;
@@ -341,7 +357,7 @@ Global_Result global_arithmetic(Db* dbin,
 Global_Result global_kriging(Db* dbin,
                              Db* dbout,
                              ModelGeneric* model,
-                             int ivar0,
+                             Id ivar0,
                              bool verbose)
 {
   Global_Result gres;
@@ -356,4 +372,4 @@ Global_Result global_kriging(Db* dbin,
   return gres;
 }
 
-}
+} // namespace gstlrn

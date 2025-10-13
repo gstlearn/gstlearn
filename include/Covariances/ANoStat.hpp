@@ -26,14 +26,14 @@ class GSTLEARN_EXPORT ANoStat : public AStringable
 public:
   ANoStat();
   ANoStat(const ANoStat &m) = delete;
-  double getValueOnDbOut(int iech) const;
-  double getValueOnDbIn(int iech) const;
-  double getValueOnDb(int iech,int icas) const;
-  bool   getValuesOnDb(int icas1, int iech1,double* val1, 
-                       int icas2, int iech2, double* val2) const;
-  double getValueOnMeshByMesh(int imesh) const;
-  double getValueOnMeshByApex(int iapex) const;
-  double getValueOnMesh(int iapex,bool center = false) const;
+  double getValueOnDbOut(Id iech) const;
+  double getValueOnDbIn(Id iech) const;
+  double getValueOnDb(Id iech,Id icas) const;
+  bool   getValuesOnDb(Id icas1, Id iech1,double* val1, 
+                       Id icas2, Id iech2, double* val2) const;
+  double getValueOnMeshByMesh(Id imesh) const;
+  double getValueOnMeshByApex(Id iapex) const;
+  double getValueOnMesh(Id iapex,bool center = false) const;
   void informField(const VectorVectorDouble & coords, VectorDouble& tab, bool verbose = false);
   void informMeshByMesh(const AMesh* amesh, bool verbose = false);
   void informMeshByApex(const AMesh* amesh, bool verbose = false);
@@ -52,7 +52,7 @@ private:
                             bool verbose = false) = 0;
 
 protected:
-  bool _isValid(int icas, int rank) const;
+  bool _isValid(Id icas, Id rank) const;
   mutable VectorDouble _tabdbin;
   mutable VectorDouble _tabdbout;
   mutable VectorDouble _tabmesh; // Dimension: nmeshes

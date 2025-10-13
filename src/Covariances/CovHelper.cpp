@@ -16,15 +16,15 @@
 
 namespace gstlrn
 {
-bool _isSelected(ACovFunc *cov,
-                 int ndim,
-                 int minorder,
+bool _isSelected(ACovFunc* cov,
+                 Id ndim,
+                 Id minorder,
                  bool hasrange,
                  bool flagSimtub,
                  bool flagSimuSpectral)
 {
   if (cov == nullptr) return false;
-  if (ndim > (int)cov->getMaxNDim()) return false;
+  if (ndim > static_cast<Id>(cov->getMaxNDim())) return false;
   if (minorder < cov->getMinOrder()) return false;
   if (hasrange && !cov->hasRange()) return false;
   if (flagSimtub && !cov->isValidForTurningBand()) return false;
@@ -41,8 +41,8 @@ bool _isSelected(ACovFunc *cov,
  * @param flagSimtub Check that the Covariance can be simulated using Turning Band Method
  * @param flagSimuSpectral Check if the Covariance can be simulated using the Spectral Method
  */
-VectorString CovHelper::getAllCovariances(int ndim,
-                                          int minorder,
+VectorString CovHelper::getAllCovariances(Id ndim,
+                                          Id minorder,
                                           bool hasrange,
                                           bool flagSimtub,
                                           bool flagSimuSpectral)
@@ -69,4 +69,4 @@ VectorString CovHelper::getAllCovariances(int ndim,
   return vs;
 }
 
-}
+} // namespace gstlrn

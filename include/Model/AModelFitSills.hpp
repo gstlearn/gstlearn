@@ -15,10 +15,10 @@
 #include "Matrix/MatrixDense.hpp"
 #include "gstlearn_export.hpp"
 
-#include "Basic/VectorNumT.hpp"
-#include "Model/ModelOptimParam.hpp"
 #include "Basic/ICloneable.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "Model/ModelOptimParam.hpp"
 
 namespace gstlrn
 {
@@ -42,72 +42,72 @@ public:
   AModelFitSills& operator=(const AModelFitSills& m);
   virtual ~AModelFitSills();
 
-  virtual int fitSillMatrices() { return 0; }
-  int  getNiter() const { return _iterg; }
-  void printFitSillSummary(int niter) const;
-  void setTrace(bool trace) { _trace = trace;}
-  void setVerbose(bool verbose) { _verbose = verbose;}
+  virtual Id fitSillMatrices() { return 0; }
+  Id getNiter() const { return _iterg; }
+  void printFitSillSummary(Id niter) const;
+  void setTrace(bool trace) { _trace = trace; }
+  void setVerbose(bool verbose) { _verbose = verbose; }
 
 protected:
   void _resetInitialSill(std::vector<MatrixSymmetric>& sill) const;
   void _allocateInternalArrays(bool flag_exp = true);
-  int  _fitSillMatrices();
+  Id _fitSillMatrices();
 
 private:
-  int _sillFittingIntrinsic();
-  int _goulardWithConstraints();
-  int _goulardWithoutConstraint(int niter,
-                                int nvar,
-                                int ncova,
-                                int npadir,
-                                VectorDouble& wt,
-                                VectorDouble& gg,
-                                std::vector<MatrixDense>& ge,
-                                std::vector<MatrixSymmetric>& sill) const;
+  Id _sillFittingIntrinsic();
+  Id _goulardWithConstraints();
+  Id _goulardWithoutConstraint(Id niter,
+                               Id nvar,
+                               Id ncova,
+                               Id npadir,
+                               VectorDouble& wt,
+                               VectorDouble& gg,
+                               std::vector<MatrixDense>& ge,
+                               std::vector<MatrixSymmetric>& sill) const;
   void _storeSillsInModel() const;
   void _optimizeUnderConstraints();
-  int _makeDefinitePositive(int icov0, double eps = EPSILON12);
+  Id _makeDefinitePositive(Id icov0, double eps = EPSILON12);
   void _initializeGoulard();
-  int _truncateNegativeEigen(int icov0);
-  double _sumSills(int ivar0, std::vector<MatrixSymmetric>& alpha) const;
-  double _score() const;
-  double _scoreMP(int nvar,
-                  int npadir,
-                  VectorDouble& wt,
-                  VectorDouble& gg,
-                  const MatrixDense& mp) const;
-  static int _combineVariables(int ivar0, int jvar0);
-  double _minimizeP4(int icov0,
-                     int ivar0,
+  Id _truncateNegativeEigen(Id icov0);
+  double _sumSills(Id ivar0, std::vector<MatrixSymmetric>& alpha) const;
+  double _calculateScore() const;
+  double _calculateScoreMP(Id nvar,
+                           Id npadir,
+                           VectorDouble& wt,
+                           VectorDouble& gg,
+                           const MatrixDense& mp) const;
+  static Id _combineVariables(Id ivar0, Id jvar0);
+  double _minimizeP4(Id icov0,
+                     Id ivar0,
                      double xrmax,
                      VectorDouble& xr,
                      std::vector<MatrixSymmetric>& alpha);
-  void _updateAlphaDiag(int icov0,
-                        int ivar0,
+  void _updateAlphaDiag(Id icov0,
+                        Id ivar0,
                         VectorDouble& xr,
                         std::vector<MatrixSymmetric>& alpha);
-  void _updateOtherSills(int icov0,
-                         int ivar0,
+  void _updateOtherSills(Id icov0,
+                         Id ivar0,
                          std::vector<MatrixSymmetric>& alpha,
                          VectorDouble& xr);
-  void _updateCurrentSillGoulard(int icov0, int ivar0);
-  void _updateCurrentSillDiag(int icov0,
-                              int ivar0,
+  void _updateCurrentSillGoulard(Id icov0, Id ivar0);
+  void _updateCurrentSillDiag(Id icov0,
+                              Id ivar0,
                               std::vector<MatrixSymmetric>& alpha,
                               VectorDouble& xr);
-  void _updateAlphaNoDiag(int icov0,
-                          int ivar0,
+  void _updateAlphaNoDiag(Id icov0,
+                          Id ivar0,
                           VectorDouble& xr,
                           std::vector<MatrixSymmetric>& alpha);
-  bool _convergenceReached(int iter, double crit, double crit_mem) const;
+  bool _convergenceReached(Id iter, double crit, double crit_mem) const;
 
 protected:
-  int _ndim;
-  int _nvar;
-  int _nvs2;
-  int _ncova;
-  int _nbexp;
-  int _npadir;
+  Id _ndim;
+  Id _nvar;
+  Id _nvs2;
+  Id _ncova;
+  Id _nbexp;
+  Id _npadir;
   VectorDouble _wt;
   VectorDouble _gg;
   VectorDouble _ggc;
@@ -124,13 +124,13 @@ protected:
 
   bool _verbose;
   bool _trace;
-  mutable int _iterg;
-  mutable double score;
+  mutable Id _iterg;
+  mutable double _score;
 
   // Storing external pointers or references (not to be deleted)
-  ModelCovList*      _model;
+  ModelCovList* _model;
   const Constraints* _constraints;
-  ModelOptimParam    _mop;
-  CovCalcMode        _calcmode;
+  ModelOptimParam _mop;
+  CovCalcMode _calcmode;
 };
-}
+} // namespace gstlrn

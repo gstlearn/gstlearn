@@ -100,7 +100,7 @@ void TabNoStatCovAniso::_updateDescription()
   _definedForAnisotropy = _definedForRotation || _definedForTensor;
 }
 
-int TabNoStatCovAniso::addElem(std::shared_ptr<ANoStat>& nostat, const EConsElem& econs, int iv1, int iv2)
+Id TabNoStatCovAniso::addElem(std::shared_ptr<ANoStat>& nostat, const EConsElem& econs, Id iv1, Id iv2)
 {
   if (econs == EConsElem::RANGE)
   {
@@ -136,7 +136,7 @@ int TabNoStatCovAniso::addElem(std::shared_ptr<ANoStat>& nostat, const EConsElem
       return 0;
     }
   }
-  int res = TabNoStat::addElem(nostat, econs, iv1, iv2);
+  Id res = TabNoStat::addElem(nostat, econs, iv1, iv2);
   if (res == 0) return res;
   if (econs == EConsElem::PARAM)
     _param = true;
@@ -152,9 +152,9 @@ int TabNoStatCovAniso::addElem(std::shared_ptr<ANoStat>& nostat, const EConsElem
   return res;
 }
 
-int TabNoStatCovAniso::removeElem(const EConsElem& econs, int iv1, int iv2)
+Id TabNoStatCovAniso::removeElem(const EConsElem& econs, Id iv1, Id iv2)
 {
-  int res = TabNoStat::removeElem(econs, iv1, iv2);
+  Id res = TabNoStat::removeElem(econs, iv1, iv2);
   if (res == 0) return res;
   if (econs == EConsElem::PARAM)
     _param = false;

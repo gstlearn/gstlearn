@@ -38,15 +38,15 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Global parameters
-  int ndim = 2;
+  Id ndim = 2;
   law_set_random_seed(32131);
   AStringFormat format;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
   bool verbose    = true;
-  int nech        = 4;
-  int nvar        = 1;
+  Id nech         = 4;
+  Id nvar         = 1;
   bool flagSK     = false;
 
   // Generate the data base
@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
 
   // Neighborhood
   ANeigh* neigh;
-  int nmaxi     = nech;
+  Id nmaxi      = nech;
   double radius = 5.;
   neigh         = NeighMoving::create(false, nmaxi, radius);
 

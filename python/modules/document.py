@@ -18,9 +18,12 @@ import re
 import base64
 
 import gstlearn as gl
+from IPython.display import HTML
+
 
 try:
-    from IPython.display import display, Javascript, Markdown
+#   from IPython.display import display, Javascript, Markdown
+    from IPython import get_ipython
     import requests
 except ModuleNotFoundError as ex:
     msg = ("Python dependencies 'IPython' and 'requests' not found.\n"
@@ -57,20 +60,85 @@ def internetAvailable(timeout=1):
 """
 Extension for disabling autoscrolling long output, which is super annoying sometimes
 
-Usage:
-
-    %load_ext disable_autoscroll
-
-You can also put the js snippet below in profile_dir/static/js/custom.js
 """
+from IPython.display import HTML, Javascript, display
 
-disable_js = """
-IPython.OutputArea.prototype._should_scroll = function(lines) {
-    return false;
-}
-"""
 def setNoScroll():
-    display(Javascript(disable_js))
+    css = """
+    <style id="no-scroll-outputs">
+    /* cibles communes JupyterLab / Notebook 7 et fallback classique */
+    .jp-OutputArea-child,
+    .jp-OutputArea-output,
+    .jp-OutputArea,
+    .jp-RenderedText,
+    .jp-RenderedHTMLCommon,
+    .output_scroll,
+    .output_area .output_subarea {
+        max-height: none !important;
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+    }
+    /* blocs <pre> / code */
+    .jp-OutputArea-child pre,
+    .jp-OutputArea-output pre,
+    .jp-RenderedHTMLCommon pre,
+    .output_scroll pre {
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    </style>
+    """
+    js = r"""
+    (function() {
+      const selectors = [
+        '.jp-OutputArea-child',
+        '.jp-OutputArea-output',
+        '.jp-OutputArea',
+        '.output_scroll',
+        '.output_area .output_subarea'
+      ];
+      function unscroll(node){
+        try{
+          if(!(node instanceof HTMLElement)) return;
+          node.style.maxHeight = 'none';
+          node.style.overflow = 'visible';
+          node.style.height = 'auto';
+          node.style.minHeight = '0';
+        }catch(e){}
+      }
+      function processAll(){
+        selectors.forEach(sel => {
+          document.querySelectorAll(sel).forEach(unscroll);
+        });
+      }
+      processAll();
+      // Observer : annule les styles inline quand des sorties sont ajoutées / modifiées
+      const mo = new MutationObserver(muts => {
+        muts.forEach(m => {
+          m.addedNodes.forEach(n => {
+            if(!(n instanceof HTMLElement)) return;
+            selectors.forEach(sel => {
+              if(n.matches && n.matches(sel)) unscroll(n);
+              if(n.querySelectorAll) n.querySelectorAll(sel).forEach(unscroll);
+            });
+          });
+          if(m.type === 'attributes' && m.target){
+            selectors.forEach(sel => {
+              if(m.target.matches && m.target.matches(sel)) unscroll(m.target);
+            });
+          }
+        });
+      });
+      mo.observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ['style','class'] });
+      // garder une référence globale pour éviter GC
+      window.__no_scroll_observer = mo;
+    })();
+    """
+    if get_ipython() and get_ipython().__class__.__name__ == 'ZMQInteractiveShell':
+        from IPython.display import Javascript, display
+        display(HTML(css))
+        display(Javascript(js))
 
 def locateFile(filename, where='references', directory=None, verbose=False, version=package_version):
     '''

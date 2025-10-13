@@ -10,8 +10,8 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "gstlearn_export.hpp"
 
 #include "Enum/EAnam.hpp"
 
@@ -20,36 +20,37 @@
 #include "Stats/PCA.hpp"
 #include "Stats/Selectivity.hpp"
 
-namespace gstlrn {
-  
+namespace gstlrn
+{
+
 class GSTLEARN_EXPORT AnamDiscreteDD: public AnamDiscrete
 {
 public:
   AnamDiscreteDD(double mu = 1., double scoef = 0.);
-  AnamDiscreteDD(const AnamDiscreteDD &m);
-  AnamDiscreteDD& operator= (const AnamDiscreteDD &m);
+  AnamDiscreteDD(const AnamDiscreteDD& m);
+  AnamDiscreteDD& operator=(const AnamDiscreteDD& m);
   virtual ~AnamDiscreteDD();
 
   /// ICloneable Interface
   IMPLEMENT_CLONING(AnamDiscreteDD)
 
   /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// ASerializable Interface
   static AnamDiscreteDD* createFromNF(const String& NFFilename, bool verbose = true);
 
   /// AAnam Interface
-  const EAnam&  getType() const override { return EAnam::fromKey("DISCRETE_DD"); }
+  const EAnam& getType() const override { return EAnam::fromKey("DISCRETE_DD"); }
   bool hasFactor() const override { return true; }
-  int getNFactor() const override { return 0; }
+  Id getNFactor() const override { return 0; }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
   double computeVariance(double sval) const override;
-  int  updatePointToBlock(double r_coef) override;
+  Id updatePointToBlock(double r_coef) override;
   bool allowChangeSupport() const override { return true; }
   bool isChangeSupportDefined() const override { return (_sCoef > 0.); }
-  int fitFromArray(const VectorDouble &tab,
-                   const VectorDouble &wt = VectorDouble()) override;
+  Id fitFromArray(const VectorDouble& tab,
+                   const VectorDouble& wt = VectorDouble()) override;
 
   /// AnamDiscrete Interface
   void calculateMeanAndVariance() override;
@@ -57,16 +58,16 @@ public:
   VectorDouble factors_exp(bool verbose = false);
   VectorDouble factors_maf(bool verbose = false);
   VectorDouble factors_mod();
-  MatrixSquare chi2I(const VectorDouble& chi, int mode);
+  MatrixSquare chi2I(const VectorDouble& chi, Id mode);
 
   static AnamDiscreteDD* create(double mu = 1., double scoef = 0.);
-  void reset(int ncut,
+  void reset(Id ncut,
              double scoef,
              double mu,
-             const VectorDouble &zcut,
-             const MatrixSquare &pcaz2f,
-             const MatrixSquare &pcaf2z,
-             const VectorDouble &stats);
+             const VectorDouble& zcut,
+             const MatrixSquare& pcaz2f,
+             const MatrixSquare& pcaf2z,
+             const VectorDouble& stats);
 
   PCA& getMAF() { return _maf; }
   double getMu() const { return _mu; }
@@ -81,15 +82,15 @@ public:
   void setPcaF2Z(const MatrixSquare& pcaf2z) { _maf.setF2Zs(pcaf2z); }
   void setI2Chi(const MatrixSquare& i2Chi) { _i2Chi = i2Chi; }
 
-  int factor2Selectivity(Db *db,
+  Id factor2Selectivity(Db* db,
                          Selectivity* selectivity,
                          const VectorInt& cols_est,
                          const VectorInt& cols_std,
-                         int iptr0);
+                         Id iptr0);
 
 protected:
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
@@ -97,7 +98,7 @@ protected:
   String _getNFName() const override { return "AnamDiscreteDD"; }
 
 private:
-  int _stats(int nech, const VectorDouble& tab);
+  Id _stats(Id nech, const VectorDouble& tab);
   VectorDouble _generator(const VectorDouble& vecc,
                           const VectorDouble& veca,
                           const VectorDouble& vecb,
@@ -110,9 +111,9 @@ private:
 private:
   double _mu;
   double _sCoef;
-  PCA    _maf;
+  PCA _maf;
   MatrixSquare _i2Chi; // Dimension: nclass * nfacies
 
   friend class Selectivity;
 };
-}
+} // namespace gstlrn

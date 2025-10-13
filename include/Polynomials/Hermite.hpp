@@ -19,20 +19,20 @@ namespace gstlrn
 {
 GSTLEARN_EXPORT VectorDouble hermitePolynomials(double y,
                                                 double r,
-                                                int nbpoly);
+                                                Id nbpoly);
 GSTLEARN_EXPORT VectorDouble hermitePolynomials(double y,
                                                 double r,
                                                 const VectorInt& ifacs);
-GSTLEARN_EXPORT VectorDouble hermiteCoefIndicator(double yc, int nbpoly);
+GSTLEARN_EXPORT VectorDouble hermiteCoefIndicator(double yc, Id nbpoly);
 GSTLEARN_EXPORT VectorDouble hermiteCoefMetal(double yc,
                                               const VectorDouble &phi);
-GSTLEARN_EXPORT VectorDouble hermiteCoefLower(double y, int nbpoly);
-GSTLEARN_EXPORT VectorDouble hermiteIndicatorLower(double y, int nbpoly);
+GSTLEARN_EXPORT VectorDouble hermiteCoefLower(double y, Id nbpoly);
+GSTLEARN_EXPORT VectorDouble hermiteIndicatorLower(double y, Id nbpoly);
 GSTLEARN_EXPORT MatrixSquare hermiteIncompleteIntegral(double yc,
-                                                              int nbpoly);
+                                                              Id nbpoly);
 GSTLEARN_EXPORT VectorDouble hermiteLognormal(double mean,
                                               double sigma,
-                                              int nbpoly);
+                                              Id nbpoly);
 GSTLEARN_EXPORT double hermiteSeries(const VectorDouble &an,
                                      const VectorDouble &hn);
 

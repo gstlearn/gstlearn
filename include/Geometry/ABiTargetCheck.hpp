@@ -43,7 +43,7 @@ public:
 /*
 #ifndef SWIG
   // Implement clone for permitting director feature
-  virtual ICloneable* clone() const override { return nullptr; } ;
+  ICloneable* clone() const override { return nullptr; } ;
 #endif
 */
 };

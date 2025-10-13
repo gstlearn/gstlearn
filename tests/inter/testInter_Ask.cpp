@@ -18,7 +18,7 @@
 using namespace gstlrn;
 int main()
 {
-  int ianswer;
+  Id ianswer;
   double ranswer;
 
   // Testing numerical input

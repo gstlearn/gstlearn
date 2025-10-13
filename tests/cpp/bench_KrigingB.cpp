@@ -8,17 +8,17 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
+#include "Enum/ESpaceType.hpp"
 
-#include "Space/ASpaceObject.hpp"
-#include "Db/Db.hpp"
-#include "Db/DbStringFormat.hpp"
-#include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
-#include "Neigh/NeighBench.hpp"
+#include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Estimation/CalcKriging.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/NeighBench.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 
@@ -27,7 +27,7 @@ using namespace gstlrn;
  ** Main Program
  **
  *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   bool graphic = false;
 
@@ -35,19 +35,19 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setPrefixName("BenchKrigingB-");
+  ASerializable::setPrefixName("bench_KrigingB-");
 
   // Global parameters
-  int ndim = 2;
+  Id ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Generate the data base
-  int nech = 1000;
-  int nvar = 1;
+  Id nech  = 1000;
+  Id nvar  = 1;
   Db* data = Db::createFillRandom(nech, ndim, nvar);
 
   // Generate the output grid
-  int ncell       = 100;
+  Id ncell        = 100;
   VectorInt nx    = {ncell, ncell};
   VectorDouble dx = {1. / ncell, 1. / ncell};
   DbGrid* grid    = DbGrid::create(nx, dx);
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
   Model* model = Model::createFromParam(ECov::SPHERICAL, range, sill);
 
   // Bench Neighborhood
-  double width = 0.5;
+  double width       = 0.5;
   NeighBench* neighB = NeighBench::create(false, width);
 
   // Print the test environment
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
   delete dbfmt;
 
   if (graphic)
-    (void) grid->dumpToNF("Grid.NF");
+    (void)grid->dumpToNF("Grid.NF");
   delete neighB;
   delete data;
   delete grid;

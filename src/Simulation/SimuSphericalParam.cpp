@@ -12,11 +12,11 @@
 
 namespace gstlrn
 {
-SimuSphericalParam::SimuSphericalParam(int special,
-                                       int nbf,
-                                       int nfmax,
-                                       int degmax,
-                                       int ndisc,
+SimuSphericalParam::SimuSphericalParam(Id special,
+                                       Id nbf,
+                                       Id nfmax,
+                                       Id degmax,
+                                       Id ndisc,
                                        double tol)
     : AStringable(),
       _special(special),

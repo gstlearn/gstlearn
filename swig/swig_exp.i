@@ -12,16 +12,16 @@
 // Export VectorXXX classes
 %include Basic/VectorT.hpp
 %include Basic/VectorNumT.hpp
-%template(VectorTInt)         gstlrn::VectorT< int >;
+%template(VectorTInt)         gstlrn::VectorT< long >;
 %template(VectorTDouble)      gstlrn::VectorT< double >;
 %template(VectorTFloat)       gstlrn::VectorT< float >;
 %template(VectorBool)         gstlrn::VectorT< UChar >; // See VectorT.hpp
 %template(VectorString)       gstlrn::VectorT< String >;
-%template(VectorInt)          gstlrn::VectorNumT< int >;
+%template(VectorInt)          gstlrn::VectorNumT< long >;
 %template(VectorDouble)       gstlrn::VectorNumT< double >;
 %template(VectorFloat)        gstlrn::VectorNumT< float >;
 %template(VectorUChar)        gstlrn::VectorNumT< UChar >;
-%template(VectorVectorInt)    gstlrn::VectorT< VectorNumT< int > >;
+%template(VectorVectorInt)    gstlrn::VectorT< VectorNumT< long > >;
 %template(VectorVectorDouble) gstlrn::VectorT< VectorNumT< double > >;
 %template(VectorVectorFloat)  gstlrn::VectorT< VectorNumT< float > >;
 //}
@@ -150,6 +150,7 @@
 %include Matrix/AMatrix.hpp
 %include Matrix/MatrixDense.hpp
 %include Matrix/MatrixSparse.hpp
+%include LinearOp/InvNuggetOp.hpp
 %include Matrix/MatrixSquare.hpp
 %include Matrix/NF_Triplet.hpp
 %include Matrix/MatrixSymmetric.hpp
@@ -247,13 +248,13 @@
 %include Covariances/CovList.hpp
 %include Covariances/CovAnisoList.hpp
 %include Covariances/CovAniso.hpp
-%include Covariances/ACovGradient.hpp
+%include Covariances/CovGradientGeneric.hpp
+%include Covariances/CovGradientAnalytic.hpp
 %include Covariances/CorGneiting.hpp
 %include Covariances/CorMatern.hpp
 %include Covariances/CovLMCTapering.hpp
 %include Covariances/CovLMCConvolution.hpp
 %include Covariances/CovLMCAnamorphosis.hpp
-%include Covariances/CovLMGradient.hpp
 %include Covariances/CovContext.hpp
 %include Covariances/CovCalcMode.hpp
 %include Covariances/CovBesselJ.hpp
@@ -297,10 +298,10 @@
 %include Drifts/DriftFactory.hpp
 
 %include API/SPDE.hpp
-%include API/PGSSPDE.hpp
 %include API/TestInheritance.hpp
 %include API/Style.hpp
 %include API/SPDEParam.hpp
+%include API/Potential.hpp
 
 %include Db/Db.hpp
 %include Db/DbGrid.hpp
@@ -347,11 +348,13 @@
 %include Estimation/KrigingAlgebra.hpp
 %include Estimation/CalcKriging.hpp
 %include Estimation/CalcKrigingFactors.hpp
+%include Estimation/CalcKrigingGradient.hpp
 %include Estimation/CalcSimpleInterpolation.hpp
 %include Estimation/CalcImage.hpp
 %include Estimation/CalcGlobal.hpp
 %include Estimation/KrigOpt.hpp
 %include Estimation/AModelOptim.hpp
+%include Estimation/AModelOptimFactory.hpp
 %include Estimation/ALikelihood.hpp
 %include Estimation/Vecchia.hpp
 %include Estimation/Likelihood.hpp
@@ -403,7 +406,6 @@
 %include Spatial/SpatialIndices.hpp
 
 %include Core/Acknowledge.hpp
-%include Core/Potential.hpp
 %include Core/Seismic.hpp
 
 %include/API/newAPIs.hpp
@@ -412,7 +414,6 @@
 #pragma SWIG nowarn=511
 #pragma SWIG nowarn=506
 #pragma SWIG nowarn=509
-
 
 %template(LinearOpCGSolver) LinearOpCGSolver< ScaleOp >;
 %template(LinearSPDEOpCGSolver) LinearOpCGSolver< SPDEOp >;

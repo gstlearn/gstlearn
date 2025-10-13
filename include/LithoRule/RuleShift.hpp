@@ -10,10 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-#include "LithoRule/Rule.hpp"
-#include "LithoRule/Node.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "LithoRule/Rule.hpp"
+#include "gstlearn_export.hpp"
 
 namespace gstlrn
 {
@@ -29,10 +28,10 @@ public:
 
   String displaySpecific() const override;
 
-  int resetFromNodes(const VectorInt& nodes, const VectorDouble& shift);
-  int resetFromNames(const VectorString& nodnames,const VectorDouble& shift);
-  int resetFromFaciesCount(int nfacies, const VectorDouble& shift);
-  int resetFromNumericalCoding(const VectorInt& n_type,
+  Id resetFromNodes(const VectorInt& nodes, const VectorDouble& shift);
+  Id resetFromNames(const VectorString& nodnames, const VectorDouble& shift);
+  Id resetFromFaciesCount(Id nfacies, const VectorDouble& shift);
+  Id resetFromNumericalCoding(const VectorInt& n_type,
                                const VectorInt& n_facs,
                                const VectorDouble& shift);
 
@@ -40,43 +39,42 @@ public:
                                     const VectorDouble& shift);
   static RuleShift* createFromNames(const VectorString& nodnames,
                                     const VectorDouble& shift);
-  static RuleShift* createFromFaciesCount(int nfacies,
+  static RuleShift* createFromFaciesCount(Id nfacies,
                                           const VectorDouble& shift);
   static RuleShift* createFromNumericalCoding(const VectorInt& n_type,
                                               const VectorInt& n_facs,
                                               const VectorDouble& shift);
 
-  int particularities(Db *db,
-                      const Db *dbprop,
-                      Model *model,
-                      int flag_grid_check,
-                      int flag_stat) const override;
-  int gaus2facResult(PropDef *propdef,
-                     Db *dbout,
-                     int *flag_used,
-                     int ipgs,
-                     int isimu,
-                     int nbsimu) const override;
-  int evaluateBounds(PropDef *propdef,
-                     Db *dbin,
-                     Db *dbout,
-                     int isimu,
-                     int igrf,
-                     int ipgs,
-                     int nbsimu) const override;
+  Id particularities(Db* db,
+                      const Db* dbprop,
+                      Model* model,
+                      Id flag_grid_check,
+                      Id flag_stat) const override;
+  Id gaus2facResult(PropDef* propdef,
+                     Db* dbout,
+                     Id* flag_used,
+                     Id ipgs,
+                     Id isimu,
+                     Id nbsimu) const override;
+  Id evaluateBounds(PropDef* propdef,
+                     Db* dbin,
+                     Db* dbout,
+                     Id isimu,
+                     Id igrf,
+                     Id ipgs,
+                     Id nbsimu) const override;
 
-
-  bool checkModel(const Model* model, int nvar = 0) const override;
+  bool checkModel(const Model* model, Id nvar = 0) const override;
 
   double getShDown() const { return _shDown; }
   double getShDsup() const { return _shDsup; }
-  double getSlope()  const { return _slope;  }
+  double getSlope() const { return _slope; }
   const VectorDouble& getShift() const { return _shift; }
-  double getShift(int idim) const { return _shift[idim]; }
+  double getShift(Id idim) const { return _shift[idim]; }
 
 protected:
-  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
@@ -84,17 +82,17 @@ protected:
   String _getNFName() const override { return "RuleShift"; }
 
 private:
-  int _st_shift_on_grid(Db *db, int ndim, int flag_grid_check) const;
+  Id _st_shift_on_grid(Db* db, Id ndim, Id flag_grid_check) const;
 
 private:
-  double _shDsup;       /* Upper limit */
-  double _shDown;       /* Downwards limit */
-  double _slope;        /* Slope used for shadow option */
-  VectorDouble _shift;  /* Shadow or translation orientation */
+  double _shDsup;      /* Upper limit */
+  double _shDown;      /* Downwards limit */
+  double _slope;       /* Slope used for shadow option */
+  VectorDouble _shift; /* Shadow or translation orientation */
 
-  mutable double       _incr;
+  mutable double _incr;
   mutable VectorDouble _xyz;
-  mutable VectorInt    _ind1;
-  mutable VectorInt    _ind2;
+  mutable VectorInt _ind1;
+  mutable VectorInt _ind2;
 };
-}
+} // namespace gstlrn

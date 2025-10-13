@@ -52,7 +52,7 @@ CovLMCTapering::~CovLMCTapering()
 {
 }
 
-int CovLMCTapering::init(const ETape& tapetype, double taperange)
+Id CovLMCTapering::init(const ETape& tapetype, double taperange)
 {
   for (auto& e: _covs)
   {
@@ -74,7 +74,7 @@ int CovLMCTapering::init(const ETape& tapetype, double taperange)
   return 0;
 }
 
-Def_Tapering& D_TAPE(int rank)
+Def_Tapering& D_TAPE(Id rank)
 {
   static Def_Tapering DEF_TAPES[] =
     {
@@ -173,8 +173,8 @@ String CovLMCTapering::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-double CovLMCTapering::eval0(int ivar,
-                             int jvar,
+double CovLMCTapering::eval0(Id ivar,
+                             Id jvar,
                              const CovCalcMode* mode) const
 {
   double cov0 = CovAnisoList::eval0(ivar, jvar, mode);
@@ -183,8 +183,8 @@ double CovLMCTapering::eval0(int ivar,
 
 double CovLMCTapering::_eval(const SpacePoint& p1,
                              const SpacePoint& p2,
-                             int ivar,
-                             int jvar,
+                             Id ivar,
+                             Id jvar,
                              const CovCalcMode* mode) const
 {
   // The calculation flag 'as.Vario' must be treated here rather than relying on calculation

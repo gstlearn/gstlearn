@@ -44,13 +44,13 @@ public:
   void informMeshByApex(const AMesh* amesh, const EConsElem& econs) const;
   void informDbIn(const Db* dbin, const EConsElem& econs) const;
   void informDbOut(const Db* dbout, const EConsElem& econs) const;
-  int size() const { return (int) _items.size(); }
+  Id size() const { return static_cast<Id>(_items.size()); }
   bool empty() const { return _items.empty(); }
   void updateDescription();
   const mapNoStat& getTable() const { return _items; }
   bool isValid(const EConsElem& econs) const;
-  virtual int addElem(std::shared_ptr<ANoStat>& nostat, const EConsElem& econs, int iv1 = 0, int iv2 = 0);
-  virtual int removeElem(const EConsElem& econs, int iv1 = 0, int iv2 = 0);
+  virtual Id addElem(std::shared_ptr<ANoStat>& nostat, const EConsElem& econs, Id iv1 = 0, Id iv2 = 0);
+  virtual Id removeElem(const EConsElem& econs, Id iv1 = 0, Id iv2 = 0);
   void clear();
   void setDbNoStatRef(const Db* dbref);
   void setDbNoStatRef(std::shared_ptr<const Db>& dbref);
@@ -58,13 +58,13 @@ public:
   const Db* getDbNoStatRefRaw() const;
   void informCoords(const VectorVectorDouble& coords,
                     const EConsElem& econs,
-                    int iv1,
-                    int iv2,
+                    Id iv1,
+                    Id iv2,
                     VectorDouble& result) const;
   String toString(const AStringFormat* strfmt = nullptr) const override;
-  String toStringInside(const AStringFormat* strfmt = nullptr, int i = 0) const;
-  bool isElemDefined(const EConsElem& econs, int iv1 = 0, int iv2 = 0) const;
-  std::shared_ptr<ANoStat> getElem(const EConsElem& econs, int iv1 = 0, int iv2 = 0);
+  String toStringInside(const AStringFormat* strfmt = nullptr, Id i = 0) const;
+  bool isElemDefined(const EConsElem& econs, Id iv1 = 0, Id iv2 = 0) const;
+  std::shared_ptr<ANoStat> getElem(const EConsElem& econs, Id iv1 = 0, Id iv2 = 0);
 
 protected:
 

@@ -36,20 +36,20 @@ class GSTLEARN_EXPORT TurboOptimizer
 {
 private:
   bool _isCalculated;
-  int _nx;
-  int _ny;
+  Id _nx;
+  Id _ny;
   double _dx;
   double _dy;
   double _x0;
   double _y0;
   double _scale;
   double _sill;
-  int _param;
-  int _poncif;
-  int _center;
-  int _nxred;
-  int _half;
-  int _flagOne;
+  Id _param;
+  Id _poncif;
+  Id _center;
+  Id _nxred;
+  Id _half;
+  Id _flagOne;
   VectorDouble _Blin;
   VectorDouble _TildeC_T;
   VectorDouble _Lambda_T;
@@ -57,29 +57,29 @@ private:
   VectorDouble _Q_T;
 
 public:
-  TurboOptimizer(int nx = 2,
-                 int ny = 2,
+  TurboOptimizer(Id nx = 2,
+                 Id ny = 2,
                  double dx = 1.,
                  double dy = 1.,
                  double x0 = 0.,
                  double y0 = 0.,
                  double scale = 1.,
                  double sill = 1.,
-                 int param = 1,
-                 int flagOne = 1);
+                 Id param = 1,
+                 Id flagOne = 1);
   TurboOptimizer(const TurboOptimizer &tbo);
   TurboOptimizer& operator=(const TurboOptimizer &tbo);
   virtual ~TurboOptimizer();
 
-  void setGrid(int nx = 2,
-               int ny = 2,
+  void setGrid(Id nx = 2,
+               Id ny = 2,
                double dx = 1.,
                double dy = 1.,
                double x0 = 0.,
                double y0 = 0.);
-  void setModelByRange(double range = 1., double sill = 1., int param = 1);
-  void setModelByScale(double scale = 1., double sill = 1., int param = 1);
-  void setEnviron(int flagOne = 1);
+  void setModelByRange(double range = 1., double sill = 1., Id param = 1);
+  void setModelByScale(double scale = 1., double sill = 1., Id param = 1);
+  void setEnviron(Id flagOne = 1);
   void run(bool verbose = false);
   VectorDouble getBlin() const;
   VectorDouble getTildeC() const;
@@ -120,30 +120,30 @@ public:
 
   void printClass() const;
   void printMeshes() const;
-  void printS(int nper_batch = 5,
-              int row_begin = 0,
-              int row_end = 0,
-              int col_begin = 0,
-              int col_end = 0) const;
-  void printQ(int nper_batch = 5,
-              int row_begin = 0,
-              int row_end = 0,
-              int col_begin = 0,
-              int col_end = 0) const;
+  void printS(Id nper_batch = 5,
+              Id row_begin = 0,
+              Id row_end = 0,
+              Id col_begin = 0,
+              Id col_end = 0) const;
+  void printQ(Id nper_batch = 5,
+              Id row_begin = 0,
+              Id row_end = 0,
+              Id col_begin = 0,
+              Id col_end = 0) const;
 
-  int getHalf() const
+  Id getHalf() const
   {
     return _half;
   }
-  int getCenter() const
+  Id getCenter() const
   {
     return _center;
   }
-  int getNxred() const
+  Id getNxred() const
   {
     return _nxred;
   }
-  int getPoncif() const
+  Id getPoncif() const
   {
     return _poncif;
   }
@@ -165,15 +165,15 @@ public:
   }
 
 private:
-  int _getNMeshes() const
+  Id _getNMeshes() const
   {
     return ((_nx - 1) * (_ny - 1) * TO_npercell);
   }
-  int _getNVertices() const
+  Id _getNVertices() const
   {
     return _nx * _ny;
   }
-  int _getNVertices_red() const
+  Id _getNVertices_red() const
   {
     return _nxred * _nxred;
   }
@@ -181,44 +181,44 @@ private:
   {
     return (_dx * _dy / TO_npercell);
   }
-  int _getVertex(int imesh, int rank) const;
-  double _getCoor(int node, int idim0) const;
-  double _getCoorByMesh(int imesh, int rank, int idim0) const;
-  void _fromMeshToIndex(int imesh, int *node, int *icas) const;
-  void _rankToIndice(int rank, VectorInt& indice, bool minusOne) const;
-  static int _MSS(int icas, int icorn, int idim0);
-  int _indiceToRank(VectorInt& indice, bool flag_complete = true) const;
+  Id _getVertex(Id imesh, Id rank) const;
+  double _getCoor(Id node, Id idim0) const;
+  double _getCoorByMesh(Id imesh, Id rank, Id idim0) const;
+  void _fromMeshToIndex(Id imesh, Id *node, Id *icas) const;
+  void _rankToIndice(Id rank, VectorInt& indice, bool minusOne) const;
+  static Id _MSS(Id icas, Id icorn, Id idim0);
+  Id _indiceToRank(VectorInt& indice, bool flag_complete = true) const;
   void _loadHH(VectorDouble& hh) const;
   double _rangeToScale(double range) const;
-  int _coordinateToIndice(double x, double y, VectorInt& indice) const;
-  double _indiceToCoordinate(int idim0, const VectorInt& indice) const;
+  Id _coordinateToIndice(double x, double y, VectorInt& indice) const;
+  double _indiceToCoordinate(Id idim0, const VectorInt& indice) const;
   static void _printVector(const std::string& title,
                            VectorDouble& uu,
-                           int width = 10,
-                           int ndec  = 3);
+                           I32 width = 10,
+                           I32 ndec  = 3);
   static void _printMatrix(const std::string& title,
-                           int nrow,
-                           int ncol,
+                           Id nrow,
+                           Id ncol,
                            VectorDouble& uu,
-                           int nper_batch,
-                           int row_shift = 0,
-                           int col_shift = 0,
-                           int width     = 10,
-                           int ndec      = 6);
+                           Id nper_batch,
+                           Id row_shift = 0,
+                           Id col_shift = 0,
+                           I32 width    = 10,
+                           I32 ndec     = 6);
   static void _invert_3x3(VectorDouble& uu, VectorDouble& vv, double tol = 1.e-6);
-  static void _prodMatrix(int size,
+  static void _prodMatrix(Id size,
                           const VectorDouble& aa,
                           const VectorDouble& bb,
                           VectorDouble& cc);
-  static void _prodMatrixVector(int size,
+  static void _prodMatrixVector(Id size,
                                 const VectorDouble& aa,
                                 const VectorDouble& bb,
                                 VectorDouble& cc);
 
-  void _updateMargin(int idim0, VectorInt& indice) const;
+  void _updateMargin(Id idim0, VectorInt& indice) const;
   void _getRankInTemplate(VectorInt& indice1,
                           VectorInt& indice2) const;
-  int _determineInternalGrid(bool verbose);
+  Id _determineInternalGrid(bool verbose);
   VectorDouble _buildTildeC() const;
   VectorDouble _buildLambda(const VectorDouble& TildeC) const;
   VectorDouble _buildS(const VectorDouble& TildeC) const;
@@ -228,17 +228,17 @@ private:
                        const VectorDouble& lambda) const;
   VectorDouble _getVectorFromTemplate(const VectorDouble& vecin) const;
   TripletND _getMatrixFromTemplate(const VectorDouble& matin,
-                                 int nperline) const;
-  int _addWeights(int icas,
+                                 Id nperline) const;
+  Id _addWeights(Id icas,
                   double x,
                   double y,
                   const VectorInt& indg0,
                   VectorInt& indices,
                   VectorDouble& lambda) const;
-  VectorDouble _expandTripletToMatrix(int row_begin,
-                                             int row_end,
-                                             int col_begin,
-                                             int col_end,
+  VectorDouble _expandTripletToMatrix(Id row_begin,
+                                             Id row_end,
+                                             Id col_begin,
+                                             Id col_end,
                                              const TripletND& triplet) const;
 };
-}
+} // namespace gstlrn

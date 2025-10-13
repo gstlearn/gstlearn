@@ -27,7 +27,7 @@
 
 namespace gstlrn
 {
-SimuSpherical::SimuSpherical(int nbsimu, int seed)
+SimuSpherical::SimuSpherical(Id nbsimu, Id seed)
   : ACalcSimulation(nbsimu, seed)
 {
 }
@@ -36,27 +36,27 @@ SimuSpherical::~SimuSpherical()
 {
 }
 
-int SimuSpherical::simulate(DbGrid* db,
-                            Model* model,
-                            const SimuSphericalParam& sphepar,
-                            int iptr,
-                            bool verbose)
+Id SimuSpherical::simulate(DbGrid* db,
+                           Model* model,
+                           const SimuSphericalParam& sphepar,
+                           Id iptr,
+                           bool verbose)
 {
-  int special = sphepar.getSpecial();
-  int degmax  = sphepar.getDegmax();
-  int nx      = db->getNX(0);
-  int ny      = db->getNX(1);
-  int nech    = db->getNSample();
-  int shunt   = (int)get_keypone("Simsph_Shunt", 0);
+  auto special = sphepar.getSpecial();
+  auto degmax  = sphepar.getDegmax();
+  Id nx        = db->getNX(0);
+  Id ny        = db->getNX(1);
+  Id nech      = db->getNSample();
+  Id shunt     = static_cast<Id>(get_keypone("Simsph_Shunt", 0));
   law_set_random_seed(getSeed());
 
   /* Core allocation */
 
-  int nbf;
+  Id nbf;
   VectorDouble phase;
   VectorInt degree;
   VectorInt order;
-  int flag_test = (int)get_keypone("Simsph_Test", 0);
+  Id flag_test = static_cast<Id>(get_keypone("Simsph_Test", 0));
   if (flag_test)
   {
     nbf = 1;
@@ -64,8 +64,8 @@ int SimuSpherical::simulate(DbGrid* db,
     degree.resize(nbf);
     order.resize(nbf);
     phase[0]  = get_keypone("Simsph_Test_Phase", 0);
-    degree[0] = (int)get_keypone("Simsph_Test_Degree", 1);
-    order[0]  = (int)get_keypone("Simsph_Test_Order", 0);
+    degree[0] = static_cast<Id>(get_keypone("Simsph_Test_Degree", 1));
+    order[0]  = static_cast<Id>(get_keypone("Simsph_Test_Order", 0));
   }
   else
   {
@@ -85,14 +85,14 @@ int SimuSpherical::simulate(DbGrid* db,
   else
     freqs = _spectrum_any(model, sphepar);
   if (freqs.empty()) return 1;
-  set_keypair("Simsph_Spectrum_Frequencies", 1, (int)freqs.size(), 1, freqs.data());
+  set_keypair("Simsph_Spectrum_Frequencies", 1, static_cast<Id>(freqs.size()), 1, freqs.data());
 
   /* Optional printout */
 
   if (verbose)
   {
     message("Random generation seed    = %d\n", law_get_random_seed());
-    message("Number of frequencies     = %d\n", (int)freqs.size());
+    message("Number of frequencies     = %d\n", static_cast<Id>(freqs.size()));
   }
   _spectrum_normalize(verbose, freqs);
   if (shunt == 1) return 0;
@@ -102,14 +102,14 @@ int SimuSpherical::simulate(DbGrid* db,
 
   if (!flag_test)
   {
-    for (int ibf = 0; ibf < nbf; ibf++)
+    for (Id ibf = 0; ibf < nbf; ibf++)
     {
       degree[ibf] = _gdiscrete(freqs);
       if (degmax > 0) degree[ibf] = MIN(degmax, degree[ibf]);
     }
-    for (int ibf = 0; ibf < nbf; ibf++)
+    for (Id ibf = 0; ibf < nbf; ibf++)
       order[ibf] = law_int_uniform(-degree[ibf], degree[ibf]);
-    for (int ibf = 0; ibf < nbf; ibf++)
+    for (Id ibf = 0; ibf < nbf; ibf++)
       phase[ibf] = law_uniform(0., 2. * GV_PI);
   }
   if (_check_degree_order(freqs, degree, order, verbose)) return 1;
@@ -124,20 +124,20 @@ int SimuSpherical::simulate(DbGrid* db,
   /* We benefit in writing this as a double loop on coordinates */
   /* as some calculations can be factorized as they only concern latitude */
 
-  int ecr  = 0;
-  int ntot = nbf * nech;
-  for (int iy = 0; iy < ny; iy++)
+  Id ecr  = 0;
+  Id ntot = nbf * nech;
+  for (Id iy = 0; iy < ny; iy++)
   {
     double theta = ut_deg2rad(db->getCoordinate(IPTR(0, iy), 1) + 90.); // Latitude[-90,90]
-    for (int ibf = 0; ibf < nbf; ibf++)
+    for (Id ibf = 0; ibf < nbf; ibf++)
     {
       double degree_loc = degree[ibf];
       double order_loc  = order[ibf];
       double phase_loc  = phase[ibf];
-      double t1         = ut_flegendre((int)degree_loc, (int)order_loc, theta);
-      for (int ix = 0; ix < nx; ix++, ecr++)
+      double t1         = ut_flegendre(static_cast<Id>(degree_loc), static_cast<Id>(order_loc), theta);
+      for (Id ix = 0; ix < nx; ix++, ecr++)
       {
-        int jech = IPTR(ix, iy);
+        Id jech = IPTR(ix, iy);
         mes_process("Simulation on Sphere", ntot, ecr);
         if (!db->isActive(jech)) continue;
         double phi = ut_deg2rad(db->getCoordinate(jech, 0)); // Longitude [0,360]
@@ -149,8 +149,8 @@ int SimuSpherical::simulate(DbGrid* db,
 
   /* Final normalization */
 
-  double val = 2. / sqrt((double)nbf);
-  for (int iech = 0; iech < nech; iech++)
+  double val = 2. / sqrt(static_cast<double>(nbf));
+  for (Id iech = 0; iech < nech; iech++)
   {
     if (db->isActive(iech)) db->updArray(iech, iptr, EOperator::DIVIDE, val);
   }
@@ -162,10 +162,10 @@ VectorDouble SimuSpherical::simulate_mesh(MeshSpherical* mesh,
                                           const SimuSphericalParam& sphepar,
                                           bool verbose)
 {
-  int nbf     = sphepar.getNbf();
-  int special = sphepar.getSpecial();
-  int degmax  = sphepar.getDegmax();
-  int nech    = mesh->getNApices();
+  auto nbf     = sphepar.getNbf();
+  auto special = sphepar.getSpecial();
+  auto degmax  = sphepar.getDegmax();
+  Id nech      = mesh->getNApices();
   law_set_random_seed(getSeed());
 
   /* Core allocation */
@@ -191,21 +191,21 @@ VectorDouble SimuSpherical::simulate_mesh(MeshSpherical* mesh,
   if (verbose)
   {
     message("Random generation seed    = %d\n", law_get_random_seed());
-    message("Number of frequencies     = %d\n", (int)freqs.size());
+    message("Number of frequencies     = %d\n", static_cast<Id>(freqs.size()));
   }
   _spectrum_normalize(verbose, freqs);
 
   /* Get the model ingredients (generated by separate flows in order to  */
   /* avoid intermeshing dependencies) */
 
-  for (int ibf = 0; ibf < nbf; ibf++)
+  for (Id ibf = 0; ibf < nbf; ibf++)
   {
     degree[ibf] = _gdiscrete(freqs);
     if (degmax > 0) degree[ibf] = MIN(degmax, degree[ibf]);
   }
-  for (int ibf = 0; ibf < nbf; ibf++)
+  for (Id ibf = 0; ibf < nbf; ibf++)
     order[ibf] = law_int_uniform(-degree[ibf], degree[ibf]);
-  for (int ibf = 0; ibf < nbf; ibf++)
+  for (Id ibf = 0; ibf < nbf; ibf++)
     phase[ibf] = law_uniform(0., 2. * GV_PI);
   if (_check_degree_order(freqs, degree, order, verbose)) return simu;
 
@@ -214,15 +214,15 @@ VectorDouble SimuSpherical::simulate_mesh(MeshSpherical* mesh,
   /* as some calculations can be factorized as they only concern latitude */
 
   simu.resize(nech, 0.);
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     double theta = ut_deg2rad(mesh->getApexCoor(iech, 1) + 90.); // Latitude [-90,90]
-    for (int ibf = 0; ibf < nbf; ibf++)
+    for (Id ibf = 0; ibf < nbf; ibf++)
     {
       double degree_loc = degree[ibf];
       double order_loc  = order[ibf];
       double phase_loc  = phase[ibf];
-      double t1         = ut_flegendre((int)degree_loc, (int)order_loc, theta);
+      double t1         = ut_flegendre(static_cast<Id>(degree_loc), static_cast<Id>(order_loc), theta);
 
       double phi = ut_deg2rad(mesh->getApexCoor(iech, 0)); // Longitude [0,360]
       double t2  = cos(phi * order_loc + phase_loc);
@@ -232,8 +232,8 @@ VectorDouble SimuSpherical::simulate_mesh(MeshSpherical* mesh,
 
   /* Final normalization */
 
-  double val = 2. / sqrt((double)nbf);
-  for (int iech = 0; iech < nech; iech++)
+  double val = 2. / sqrt(static_cast<double>(nbf));
+  for (Id iech = 0; iech < nech; iech++)
     simu[iech] /= val;
 
   return simu;
@@ -251,7 +251,7 @@ VectorDouble SimuSpherical::simulate_mesh(MeshSpherical* mesh,
 VectorDouble SimuSpherical::_spectrum_chentsov(const SimuSphericalParam& sphepar)
 {
   VectorDouble freqs;
-  int ifreq    = 0;
+  Id ifreq     = 0;
   double total = 0.;
 
   /* Loop on the spectrum items */
@@ -269,7 +269,7 @@ VectorDouble SimuSpherical::_spectrum_chentsov(const SimuSphericalParam& sphepar
     freqs.push_back(0.);
     ifreq++;
 
-    double ratio = ((double)(ifreq - 2.)) / ((double)(ifreq + 1.));
+    double ratio = ((ifreq - 2.)) / ((ifreq + 1.));
     double value = freqs[ifreq - 2] * (2. * ifreq + 1.) / (2. * ifreq - 3.);
     value *= ratio * ratio;
     freqs.push_back(value);
@@ -296,7 +296,7 @@ VectorDouble SimuSpherical::_spectrum_exponential(Model* model,
                                                   const SimuSphericalParam& sphepar)
 {
   VectorDouble freqs;
-  int ifreq    = 0;
+  Id ifreq     = 0;
   double total = 0.;
   double fcs   = 1. / model->getCovAniso(0)->getScaleIso();
   double fcs2  = fcs * fcs;
@@ -348,23 +348,23 @@ VectorDouble SimuSpherical::_spectrum_exponential(Model* model,
 VectorDouble SimuSpherical::_spectrum_any(Model* model,
                                           const SimuSphericalParam& sphepar)
 {
-  int ndisc = sphepar.getNdisc();
-  ndisc     = (int)get_keypone("Simsph_Ndisc", ndisc);
+  auto ndisc = sphepar.getNdisc();
+  ndisc      = static_cast<Id>(get_keypone("Simsph_Ndisc", ndisc));
   VectorDouble freqs;
   VectorDouble dd(2);
   dd[0] = dd[1] = 0.;
-  int ifreq     = 0;
-  double dincr  = GV_PI / ((double)sphepar.getNdisc());
+  Id ifreq      = 0;
+  double dincr  = GV_PI / (static_cast<double>(sphepar.getNdisc()));
   VectorDouble covs(ndisc);
 
   /* Calculate the discretized covariance values */
 
-  for (int idisc = 0; idisc < ndisc; idisc++)
+  for (Id idisc = 0; idisc < ndisc; idisc++)
   {
     double alpha = DISCRET(idisc);
     dd[0]        = 2. * sin(alpha / 2.);
     double ca    = 0.;
-    for (int icova = 0; icova < model->getNCov(); icova++)
+    for (Id icova = 0; icova < model->getNCov(); icova++)
       ca += model->evalCovFromIncr(dd, icova, ECalcMember::LHS);
     covs[idisc] = ca;
   }
@@ -377,7 +377,7 @@ VectorDouble SimuSpherical::_spectrum_any(Model* model,
     /* Discretization of the frequency item */
 
     double an = 0.;
-    for (int idisc = 0; idisc < ndisc; idisc++)
+    for (Id idisc = 0; idisc < ndisc; idisc++)
     {
       double alpha = DISCRET(idisc);
       double cosa  = cos(alpha);
@@ -409,12 +409,12 @@ VectorDouble SimuSpherical::_spectrum_any(Model* model,
  ** \param[out] freqs   Array of frequencies
  **
  *****************************************************************************/
-void SimuSpherical::_spectrum_normalize(int verbose, VectorDouble& freqs)
+void SimuSpherical::_spectrum_normalize(Id verbose, VectorDouble& freqs)
 {
-  int nfreq     = (int)freqs.size();
+  Id nfreq      = static_cast<Id>(freqs.size());
   double totpos = 0.;
   double totneg = 0.;
-  for (int ifreq = 0; ifreq < nfreq; ifreq++)
+  for (Id ifreq = 0; ifreq < nfreq; ifreq++)
   {
     if (freqs[ifreq] < 0)
     {
@@ -427,7 +427,7 @@ void SimuSpherical::_spectrum_normalize(int verbose, VectorDouble& freqs)
     }
   }
 
-  for (int ifreq = 0; ifreq < nfreq; ifreq++)
+  for (Id ifreq = 0; ifreq < nfreq; ifreq++)
     freqs[ifreq] /= totpos;
 
   /* Printout (optional) */
@@ -446,13 +446,13 @@ void SimuSpherical::_spectrum_normalize(int verbose, VectorDouble& freqs)
  ** \param[in]  freqs  Array of frequencies (which add up to 1)
  **
  *****************************************************************************/
-int SimuSpherical::_gdiscrete(VectorDouble& freqs)
+Id SimuSpherical::_gdiscrete(VectorDouble& freqs)
 {
-  int nfreq = (int)freqs.size();
-  double u  = law_uniform(0., 1.);
+  Id nfreq = static_cast<Id>(freqs.size());
+  double u = law_uniform(0., 1.);
 
   double partvec = 0.;
-  for (int ifreq = 0; ifreq < nfreq; ifreq++)
+  for (Id ifreq = 0; ifreq < nfreq; ifreq++)
   {
     partvec += freqs[ifreq];
     if (u < partvec) return (ifreq);
@@ -472,18 +472,18 @@ int SimuSpherical::_gdiscrete(VectorDouble& freqs)
  ** \param[in]  verbose Verbose flag
  **
  *****************************************************************************/
-int SimuSpherical::_check_degree_order(const VectorDouble& freqs,
-                                       VectorInt& degree,
-                                       VectorInt& order,
-                                       int verbose)
+Id SimuSpherical::_check_degree_order(const VectorDouble& freqs,
+                                      VectorInt& degree,
+                                      VectorInt& order,
+                                      Id verbose)
 {
-  int nbf    = (int)degree.size();
-  int degmax = 0;
-  int nfreq  = (int)freqs.size();
-  int ordmin = nfreq;
-  int ordmax = -nfreq;
+  Id nbf    = static_cast<Id>(degree.size());
+  Id degmax = 0;
+  Id nfreq  = static_cast<Id>(freqs.size());
+  Id ordmin = nfreq;
+  Id ordmax = -nfreq;
 
-  for (int ibf = 0; ibf < nbf; ibf++)
+  for (Id ibf = 0; ibf < nbf; ibf++)
   {
     if (degree[ibf] > degmax) degmax = degree[ibf];
     if (order[ibf] < ordmin) ordmin = order[ibf];

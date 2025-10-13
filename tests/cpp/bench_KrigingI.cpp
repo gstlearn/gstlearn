@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
   if (verbose) image->display();
 
   // Create the Model
-  Model* model = new Model();
+  auto* model = new Model();
   model->addCovFromParam(ECov::NUGGET, 0., 1.);
   model->addCovFromParam(ECov::SPHERICAL, 40, 2.);
   if (verbose) model->display();

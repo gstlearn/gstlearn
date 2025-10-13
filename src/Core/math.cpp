@@ -10,15 +10,11 @@
 /******************************************************************************/
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
-#include "Basic/Memory.hpp"
 #include "Basic/Utilities.hpp"
 #include "geoslib_d.h"
 
 /*! \cond */
-#define INTRESX(ic, i)        (ctables->CT[ic]->res[(i)])
-#define COVAL(ctables, iconf) (ctables->cmin + iconf * ctables->dc)
-#define NELEM(ctables)        ((ctables->flag_cumul) ? ctables->ndisc + 1 : ctables->ndisc)
-#define INTRESX(ic, i)        (ctables->CT[ic]->res[(i)])
+#define INTRESX(ic, i)        (ctables->res[ic][i])
 #define COVAL(ctables, iconf) (ctables->cmin + iconf * ctables->dc)
 #define NELEM(ctables)        ((ctables->flag_cumul) ? ctables->ndisc + 1 : ctables->ndisc)
 /*! \endcond */
@@ -36,7 +32,7 @@ namespace gstlrn
  **
  ** IN_ARGS:  ctables : Pointer to the CTables structure
  ** IN_ARGS:  mode    : 1 for allocation; -1 for deallocation
- ** IN_ARGS:  rank    : rank of the CTable structure
+ ** IN_ARGS:  rank    : rank within the CTables structure
  **
  ** OUT_ARGS: nb_used : Number of defined items for this discretization level
  **                     0 if the discretization level has not been used
@@ -44,12 +40,12 @@ namespace gstlrn
  **
  *****************************************************************************/
 static void st_tableone_manage(CTables* ctables,
-                               int mode,
-                               int rank,
-                               int* nb_used,
-                               int* nb_max)
+                               Id mode,
+                               Id rank,
+                               Id* nb_used,
+                               Id* nb_max)
 {
-  int nelem, size, number;
+  Id nelem, size, number;
 
   // Initializations
 
@@ -65,28 +61,23 @@ static void st_tableone_manage(CTables* ctables,
 
     // Allocation
 
-    if (ctables->CT[rank] == nullptr)
+    if (ctables->res[rank].empty())
     {
-      if (ctables->CT[rank] == NULL)
-      {
-        ctables->CT[rank] = (CTable*)mem_alloc(sizeof(CTable), 1);
-        ctables->CT[rank]->res.resize(size);
-        for (int i = 0; i < size; i++)
-          INTRESX(rank, i) = TEST;
-        return;
-      }
+      ctables->res[rank].resize(size);
+      for (Id i = 0; i < size; i++)
+        INTRESX(rank, i) = TEST;
+      return;
     }
   }
   else
   {
-    if (ctables->CT[rank] != nullptr)
+    if (ctables->res[rank].empty())
     {
       number = 0;
-      for (int i = 0; i < size; i++)
+      for (Id i = 0; i < size; i++)
         if (FFFF(INTRESX(rank, i))) number++;
-      ctables->CT[rank]->res.clear();
-      *nb_used          = number;
-      ctables->CT[rank] = (CTable*)mem_alloc(sizeof(CTable), 1);
+      ctables->res[rank].clear();
+      *nb_used = number;
       return;
     }
   }
@@ -106,18 +97,18 @@ static void st_tableone_manage(CTables* ctables,
  ** OUT_ARGS: cround  : Round discretized covariance value
  **
  *****************************************************************************/
-int ct_tableone_covrank(const CTables* ctables,
-                        double cova,
-                        double* cround)
+Id ct_tableone_covrank(const CTables* ctables,
+                       double cova,
+                       double* cround)
 {
   double dc, ecart;
-  int iconf, nconf;
+  Id iconf, nconf;
 
   nconf            = ctables->nconf;
   ecart            = (cova - ctables->cmin);
   dc               = ctables->dc;
   auto placeholder = (0.5 + ecart / dc);
-  iconf            = (int)placeholder;
+  iconf            = static_cast<Id>(placeholder);
 
   if (iconf < 0) iconf = 0;
   if (iconf >= nconf) iconf = nconf - 1;
@@ -142,19 +133,19 @@ int ct_tableone_covrank(const CTables* ctables,
  **
  *****************************************************************************/
 double ct_INTRES2(CTables* ctables,
-                  int iconf0,
-                  int idisc0,
-                  int jdisc0)
+                  Id iconf0,
+                  Id idisc0,
+                  Id jdisc0)
 {
   double lower[2], upper[2], error, value, cova;
-  int infin[2], inform, nelem, iad, nb_used, nb_max;
+  Id infin[2], inform, nelem, iad, nb_used, nb_max;
   static double abseps = 1.e-8;
   static double releps = 0.;
-  static int maxpts    = 25000;
+  static Id maxpts     = 25000;
 
   // Check if integral has already been defined
 
-  if (ctables->CT[iconf0] == nullptr)
+  if (ctables->res[iconf0].empty())
     st_tableone_manage(ctables, 1, iconf0, &nb_used, &nb_max);
 
   // Dispatch
@@ -234,20 +225,20 @@ double ct_INTRES2(CTables* ctables,
  **
  *****************************************************************************/
 double ct_INTRES3(CTables* ctables,
-                  int iconf0,
-                  int idisc0,
-                  int jdisc0,
-                  int kdisc0)
+                  Id iconf0,
+                  Id idisc0,
+                  Id jdisc0,
+                  Id kdisc0)
 {
   double lower[3], upper[3], error, value, cova;
-  int infin[3], inform, nelem, iad, nb_used, nb_max;
+  Id infin[3], inform, nelem, iad, nb_used, nb_max;
   static double abseps = 1.e-8;
   static double releps = 0.;
-  static int maxpts    = 25000;
+  static Id maxpts     = 25000;
 
   // Check if integral has already been defined
 
-  if (ctables->CT[iconf0] == nullptr)
+  if (ctables->res[iconf0].empty())
     st_tableone_manage(ctables, 1, iconf0, &nb_used, &nb_max);
 
   // Dispatch
@@ -311,7 +302,7 @@ double ct_INTRES3(CTables* ctables,
            &value, &inform);
     if (inform) messageAbort("Error in function 'mvndst'");
   }
-  // Store it int the table
+  // Store it Id the table
 
   INTRESX(iconf0, iad) = value;
   return (value);
@@ -327,9 +318,9 @@ double ct_INTRES3(CTables* ctables,
  ** IN_ARGS:  flag_print : Verbose option (0, 1 or 2)
  **
  *****************************************************************************/
-void ct_tables_print(CTables* ctables, int flag_print)
+void ct_tables_print(CTables* ctables, Id flag_print)
 {
-  int ndisc, nconf, nelem;
+  Id ndisc, nconf, nelem;
 
   ndisc = ctables->ndisc;
   nconf = ctables->nconf;
@@ -349,24 +340,24 @@ void ct_tables_print(CTables* ctables, int flag_print)
 
   message("\n");
   message("Number of Probability Discretizations       = %d\n", ndisc);
-  if (ctables->v != nullptr)
+  if (!ctables->v.empty())
     print_matrix("List of Gaussian Thresholds", 0, 1, 1, ctables->ndisc + 1,
-                 NULL, ctables->v);
+                 NULL, ctables->v.data());
 
   if (flag_print > 0)
   {
     mestitle(2, "List of the configurations already calculated");
 
-    for (int iconf = 0; iconf < ctables->nconf; iconf++)
+    for (Id iconf = 0; iconf < ctables->nconf; iconf++)
     {
-      if (ctables->CT[iconf] == NULL) continue;
+      if (ctables->res[iconf].empty()) continue;
 
       if (flag_print > 0)
         message("- Configuration %d/%d (Cov=%lf)\n", iconf + 1, ctables->nconf,
                 COVAL(ctables, iconf));
 
       if (flag_print == 2)
-        print_matrix(NULL, 0, 1, nelem, nelem, NULL, ctables->CT[iconf]->res.data());
+        print_matrix(NULL, 0, 1, nelem, nelem, NULL, ctables->res[iconf].data());
     }
     message("\n");
   }
@@ -391,18 +382,17 @@ void ct_tables_print(CTables* ctables, int flag_print)
  ** IN_ARGS:  ctables_old : Address to CTables to be freed
  **
  *****************************************************************************/
-CTables* ct_tables_manage(int mode,
-                          int verbose,
-                          int flag_cumul,
-                          int nconf,
-                          int ndisc,
+CTables* ct_tables_manage(Id mode,
+                          Id verbose,
+                          Id flag_cumul,
+                          Id nconf,
+                          Id ndisc,
                           double cmin,
                           double cmax,
                           CTables* ctables_old)
 {
   CTables* ctables;
-  double* v;
-  int n_used, nb_used, nb_max;
+  Id n_used, nb_used, nb_max;
 
   /* Dispatch */
 
@@ -413,26 +403,26 @@ CTables* ct_tables_manage(int mode,
     if (verbose)
       message("Allocating CTables (%dx%d) for %d possible configurations\n",
               ndisc, ndisc, nconf);
-    ctables             = (CTables*)mem_alloc(sizeof(CTables), 1);
+    ctables             = new CTables;
     ctables->flag_cumul = flag_cumul;
     ctables->nconf      = nconf;
     ctables->ndisc      = ndisc;
     ctables->cmin       = cmin;
     ctables->cmax       = cmax;
-    ctables->dc         = (ctables->cmax - ctables->cmin) / (double)(nconf - 1);
-    ctables->dp         = 1. / (double)ndisc;
+    ctables->dc         = (ctables->cmax - ctables->cmin) / static_cast<double>(nconf - 1);
+    ctables->dp         = 1. / static_cast<double>(ndisc);
 
-    ctables->CT = (CTable**)mem_alloc(sizeof(CTable*) * ctables->nconf, 1);
-    for (int iconf = 0; iconf < ctables->nconf; iconf++)
-      ctables->CT[iconf] = nullptr;
+    ctables->res.resize(ctables->nconf);
+    for (Id iconf = 0; iconf < ctables->nconf; iconf++)
+      ctables->res[iconf].clear();
 
     // Define the array of thresholds
 
-    v = ctables->v = (double*)mem_alloc(sizeof(double) * (ndisc + 1), 1);
-    v[0]           = THRESH_INF;
-    v[ndisc]       = THRESH_SUP;
-    for (int idisc = 0; idisc < ndisc; idisc++)
-      v[idisc] = law_invcdf_gaussian((double)idisc * ctables->dp);
+    ctables->v.resize(ndisc + 1);
+    ctables->v[0]     = THRESH_INF;
+    ctables->v[ndisc] = THRESH_SUP;
+    for (Id idisc = 0; idisc < ndisc; idisc++)
+      ctables->v[idisc] = law_invcdf_gaussian(static_cast<double>(idisc) * ctables->dp);
   }
   else
   {
@@ -441,12 +431,12 @@ CTables* ct_tables_manage(int mode,
 
     ctables = ctables_old;
     if (ctables == nullptr) return (ctables);
-    ctables->v = (double*)mem_free((char*)ctables->v);
+    ctables->v.clear();
     if (verbose)
       message("Freeing CTables from %d configuration(s)\n", ctables->nconf);
 
     n_used = 0;
-    for (int iconf = 0; iconf < ctables->nconf; iconf++)
+    for (Id iconf = 0; iconf < ctables->nconf; iconf++)
     {
       st_tableone_manage(ctables, -1, iconf, &nb_used, &nb_max);
       if (nb_used > 0)
@@ -458,7 +448,8 @@ CTables* ct_tables_manage(int mode,
       }
     }
     if (verbose) message("Total of configurations actually used: %d\n", n_used);
-    ctables = (CTables*)mem_free((char*)ctables);
+    delete ctables;
+    ctables = nullptr;
   }
   return (ctables);
 }
@@ -484,11 +475,11 @@ CTables* ct_tables_manage(int mode,
 static void st_tableone_getrank(const CTables* ctables,
                                 double low,
                                 double up,
-                                int* indmin,
-                                int* indmax)
+                                Id* indmin,
+                                Id* indmax)
 {
   double v1;
-  int nelem;
+  Id nelem;
 
   // Initializations
 
@@ -503,7 +494,7 @@ static void st_tableone_getrank(const CTables* ctables,
 
     // Pixelated case
 
-    for (int idisc = 0; idisc < nelem - 1; idisc++)
+    for (Id idisc = 0; idisc < nelem - 1; idisc++)
     {
       v1 = (ctables->v[idisc] + ctables->v[idisc + 1]) / 2.;
       if (v1 < low) continue;
@@ -521,7 +512,7 @@ static void st_tableone_getrank(const CTables* ctables,
 
     // Cumulative case
 
-    for (int idisc = 0; idisc < nelem; idisc++)
+    for (Id idisc = 0; idisc < nelem; idisc++)
     {
       v1 = ctables->v[idisc];
       if (v1 < low) continue;
@@ -555,12 +546,12 @@ static void st_tableone_getrank(const CTables* ctables,
  **
  *****************************************************************************/
 double ct_tableone_calculate(CTables* ctables,
-                             int iconf0,
+                             Id iconf0,
                              double* lows,
                              double* ups)
 {
   double result;
-  int i1min, i1max, i2min, i2max;
+  Id i1min, i1max, i2min, i2max;
 
   // Initializations
 
@@ -575,8 +566,8 @@ double ct_tableone_calculate(CTables* ctables,
 
     st_tableone_getrank(ctables, lows[0], ups[0], &i1min, &i1max);
     st_tableone_getrank(ctables, lows[1], ups[1], &i2min, &i2max);
-    for (int idisc = i1min; idisc < i1max; idisc++)
-      for (int jdisc = i2min; jdisc < i2max; jdisc++)
+    for (Id idisc = i1min; idisc < i1max; idisc++)
+      for (Id jdisc = i2min; jdisc < i2max; jdisc++)
         result += ct_INTRES2(ctables, iconf0, idisc, jdisc);
   }
   else
@@ -610,7 +601,7 @@ double ct_tableone_calculate(CTables* ctables,
  **
  *****************************************************************************/
 double ct_tableone_calculate_by_rank(CTables* ctables,
-                                     int iconf0,
+                                     Id iconf0,
                                      double* rklows,
                                      double* rkups)
 {
@@ -627,8 +618,8 @@ double ct_tableone_calculate_by_rank(CTables* ctables,
 
     // Pixelated case
 
-    for (int idisc = (int)rklows[0]; idisc < (int)rkups[0]; idisc++)
-      for (int jdisc = (int)rklows[1]; jdisc < (int)rkups[1]; jdisc++)
+    for (Id idisc = static_cast<Id>(rklows[0]); idisc < static_cast<Id>(rkups[0]); idisc++)
+      for (Id jdisc = static_cast<Id>(rklows[1]); jdisc < static_cast<Id>(rkups[1]); jdisc++)
         result += ct_INTRES2(ctables, iconf0, idisc, jdisc);
   }
   else
@@ -636,7 +627,10 @@ double ct_tableone_calculate_by_rank(CTables* ctables,
 
     // Cumulative case
 
-    result = (ct_INTRES2(ctables, iconf0, (int)rkups[0], (int)rkups[1]) - ct_INTRES2(ctables, iconf0, (int)rklows[0], (int)rkups[1]) - ct_INTRES2(ctables, iconf0, (int)rkups[0], (int)rklows[1]) + ct_INTRES2(ctables, iconf0, (int)rklows[0], (int)rklows[1]));
+    result = (ct_INTRES2(ctables, iconf0, static_cast<Id>(rkups[0]), static_cast<Id>(rkups[1])) -
+              ct_INTRES2(ctables, iconf0, static_cast<Id>(rklows[0]), static_cast<Id>(rkups[1])) -
+              ct_INTRES2(ctables, iconf0, static_cast<Id>(rkups[0]), static_cast<Id>(rklows[1])) +
+              ct_INTRES2(ctables, iconf0, static_cast<Id>(rklows[0]), static_cast<Id>(rklows[1])));
   }
   return (result);
 }
@@ -654,11 +648,11 @@ double ct_tableone_calculate_by_rank(CTables* ctables,
  ** IN_ARGS:  gaussian : Gaussian bound
  **
  *****************************************************************************/
-int ct_tableone_getrank_from_proba(CTables* ctables,
-                                   double gaussian)
+Id ct_tableone_getrank_from_proba(CTables* ctables,
+                                  double gaussian)
 {
   double dp, proba, vmin, vmax;
-  int iad, nelem;
+  Id iad, nelem;
 
   // Initializations
 
@@ -667,7 +661,7 @@ int ct_tableone_getrank_from_proba(CTables* ctables,
 
   proba = law_cdf_gaussian(gaussian);
 
-  iad  = static_cast<int>(proba / dp);
+  iad  = static_cast<Id>(proba / dp);
   vmin = dp * iad;
   vmax = dp * (iad + 1);
   if (vmax - proba < proba - vmin) iad++;

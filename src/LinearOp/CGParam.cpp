@@ -12,7 +12,7 @@
 
 namespace gstlrn
 {
-CGParam::CGParam(int nitermax, double eps)
+CGParam::CGParam(Id nitermax, double eps)
   : AStringable()
   , _nIterMax(nitermax)
   , _eps(eps)
@@ -63,11 +63,11 @@ CGParam::~CGParam()
 ** \remarks When 'precond' argument is not provided, 'status' is forced to 0
 **
 *****************************************************************************/
-void CGParam::setPrecond(const ALinearOp* precond, int status)
+void CGParam::setPrecond(const ALinearOp* precond, Id status)
 {
   _precond       = precond;
   _precondStatus = status;
-  if (precond == NULL) _precondStatus = 0;
+  if (precond == nullptr) _precondStatus = 0;
 }
 
 String CGParam::toString(const AStringFormat* strfmt) const
@@ -81,4 +81,4 @@ String CGParam::toString(const AStringFormat* strfmt) const
   sstr << "Using a Pre-conditioner = " << _precondStatus << std::endl;
   return sstr.str();
 }
-}
+} // namespace gstlrn

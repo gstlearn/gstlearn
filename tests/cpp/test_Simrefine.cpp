@@ -11,14 +11,14 @@
 #include "Enum/ECov.hpp"
 #include "Enum/ESpaceType.hpp"
 
-#include "Space/ASpaceObject.hpp"
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/SimuRefineParam.hpp"
 #include "Simulation/CalcSimuRefine.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/SimuRefineParam.hpp"
+#include "Space/ASpaceObject.hpp"
 
 using namespace gstlrn;
 
@@ -29,22 +29,22 @@ using namespace gstlrn;
  ** This exercise is to demonstrate the Refinement simulation capability
  **
  *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setPrefixName("SimRefine-");
+  ASerializable::setPrefixName("test_Simrefine-");
 
   // Global parameters
-  int ndim = 2;
-  int seed = 3322;
-  int nxcell = 5;
+  Id ndim   = 2;
+  Id seed   = 3322;
+  Id nxcell = 5;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Generate the output grid
-  VectorInt nx = {nxcell,nxcell};
+  VectorInt nx = {nxcell, nxcell};
   DbGrid* grid = DbGrid::create(nx);
   grid->display();
 
@@ -55,18 +55,18 @@ int main(int argc, char *argv[])
   // ====================== Create Parameter File ===================
   message("\n<----- Creating Reference Simulation ----->\n");
   simtub(nullptr, grid, model, nullptr);
-  (void) grid->dumpToNF("grid_small.NF");
+  (void)grid->dumpToNF("grid_small.NF");
 
   // ====================== Create Parameter File ===================
   message("\n<----- Creating Parameter File ----->\n");
-  int nmult = 5;
+  Id nmult = 5;
   SimuRefineParam param(nmult);
   param.display();
 
   // ====================== Perform Boolean simulation ===================
   message("\n<----- Perform Refinement Simulation ----->\n");
   DbGrid* grid2 = simulation_refine(grid, model, param, seed);
-  (void) grid2->dumpToNF("grid_large.NF");
+  (void)grid2->dumpToNF("grid_large.NF");
 
   delete grid;
   delete grid2;

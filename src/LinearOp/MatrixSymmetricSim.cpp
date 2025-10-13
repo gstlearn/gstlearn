@@ -8,40 +8,48 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-
 #include "LinearOp/MatrixSymmetricSim.hpp"
 #include "Basic/AStringable.hpp"
+#include "LinearOp/ACholesky.hpp"
 #include "LinearOp/CholeskyDense.hpp"
 #include "LinearOp/CholeskySparse.hpp"
-#include "Matrix/MatrixSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include "LinearOp/ACholesky.hpp"
+#include "Matrix/MatrixSymmetric.hpp"
 #include <Eigen/src/Core/Matrix.h>
 
 namespace gstlrn
 {
-MatrixSymmetricSim::MatrixSymmetricSim(const AMatrix* m,
+MatrixSymmetricSim::MatrixSymmetricSim(const AMatrix& m,
                                        bool inverse)
   : ASimulable()
   , _inverse(inverse)
   , _factor(nullptr)
+  , _mat(m)
 
 {
-  if (!m->isSquare())
+  if (!m.isSquare())
   {
     messerr("The matrix must be square!");
     return;
   }
 
-  if (m->isSparse())
+  if (m.isSparse())
   {
-    const MatrixSparse* matCS = dynamic_cast<const MatrixSparse*>(m);
-    if (matCS != nullptr) _factor = new CholeskySparse(matCS);
+    const auto& matCS = dynamic_cast<const MatrixSparse&>(m);
+    _factor           = new CholeskySparse(matCS);
   }
   else
   {
-    const MatrixSymmetric* matSym = dynamic_cast<const MatrixSymmetric*>(m);
-    if (matSym != nullptr) _factor = new CholeskyDense(matSym);
+    const auto* matSym = dynamic_cast<const MatrixSymmetric*>(&m);
+    if (matSym == nullptr)
+    {
+      _matSymConverted = MatrixSymmetric(m);
+      _factor          = new CholeskyDense(_matSymConverted);
+    }
+    else
+    {
+      _factor = new CholeskyDense(*matSym);
+    }
   }
   if (_factor == nullptr)
   {
@@ -59,36 +67,34 @@ MatrixSymmetricSim::~MatrixSymmetricSim()
   _factor = nullptr;
 }
 
-int MatrixSymmetricSim::_addToDest(const constvect inv, vect outv) const
+Id MatrixSymmetricSim::_addToDest(const constvect inv, vect outv) const
 {
-  if (_inverse) return _factor->getMatrix()->addProdMatVecInPlace(inv, outv);
+  if (_inverse)
+  {
+    _mat.addProdMatVecInPlaceC(inv, outv);
+    return 0;
+  }
   return _factor->addSolveX(inv, outv);
 }
 
-int MatrixSymmetricSim::_addSimulateToDest(const constvect whitenoise,
-                                                 vect outv) const
+Id MatrixSymmetricSim::_addSimulateToDest(const constvect whitenoise,
+                                           vect outv) const
 {
   if (_inverse) return _factor->addInvLtX(whitenoise, outv);
   return _factor->addLX(whitenoise, outv);
 }
 
-const AMatrix* MatrixSymmetricSim::getMatrix() const
-{
-  if (_factor == nullptr) return nullptr;
-  return _factor->getMatrix();
-}
-
-int MatrixSymmetricSim::getSize() const
+Id MatrixSymmetricSim::getSize() const
 {
   if (_factor == nullptr) return 0;
   return _factor->getSize();
 }
 
-double MatrixSymmetricSim::computeLogDet(int nMC) const
+double MatrixSymmetricSim::computeLogDet(Id nMC) const
 {
   DECLARE_UNUSED(nMC);
   if (_factor == nullptr) return TEST;
-  int sign = _inverse ? -1 : 1;
+  Id sign = _inverse ? -1 : 1;
   return sign * _factor->computeLogDeterminant();
 }
-}
+} // namespace gstlrn

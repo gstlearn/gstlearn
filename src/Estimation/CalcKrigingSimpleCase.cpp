@@ -45,7 +45,7 @@ bool CalcKrigingSimpleCase::_check()
 {
   if (!ACalcInterpolator::_check()) return false;
 
-  if (!hasDbin()) return false;
+  if (!hasDbin())  return false;
   if (!hasDbout()) return false;
   if (!hasModel()) return false;
   if (!hasNeigh()) return false;
@@ -67,7 +67,7 @@ bool CalcKrigingSimpleCase::_preprocess()
 {
   if (!ACalcInterpolator::_preprocess()) return false;
 
-  int status = 1;
+  Id status = 1;
   if (_iechSingleTarget >= 0) status = 2;
 
   if (_flagEst)
@@ -94,7 +94,7 @@ bool CalcKrigingSimpleCase::_postprocess()
   /* Free the temporary variables */
   _cleanVariableDb(2);
 
-  int nvar = _getNVar();
+  auto nvar = _getNVar();
 
   _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
   _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);
@@ -110,14 +110,14 @@ void CalcKrigingSimpleCase::_rollback()
 
 void CalcKrigingSimpleCase::_storeResultsForExport(const KrigingSystemSimpleCase& ksys,
                                                    KrigingAlgebraSimpleCase& algebra,
-                                                   int iechout)
+                                                   Id iechout)
 {
   _ktest.ndim = ksys.getNDim();
   _ktest.nvar = ksys.getNVar();
   _ktest.xyz  = ksys.getSampleCoordinates(algebra, iechout);
   //_ktest.lhs   = ksys.getLHS();
-  _ktest.wgt = ksys.getWeights(algebra);
-  _ktest.mu  = ksys.getMu(algebra);
+  _ktest.wgt = gstlrn::KrigingSystemSimpleCase::getWeights(algebra);
+  _ktest.mu  = gstlrn::KrigingSystemSimpleCase::getMu(algebra);
   // _ktest.var   = ksys.getVariance();
 }
 
@@ -143,24 +143,24 @@ bool CalcKrigingSimpleCase::_run()
 
   KrigingAlgebraSimpleCase algebra(ksys.getAlgebra());
   bool use_parallel = !getModel()->isNoStat();
-  int nech_out      = getDbout()->getNSample();
-  int nbthread      = OptCustom::query("ompthreads", 1); // TODO : would like to use more threads
+  Id nech_out       = getDbout()->getNSample();
+  auto nbthread     = static_cast<I32>(OptCustom::query("ompthreads", 1)); // TODO : would like to use more threads
   omp_set_num_threads(nbthread);
 
   SpacePoint pin(getModel()->getSpace());
   SpacePoint pout(getModel()->getSpace());
   ModelGeneric model(*ksys.getModel());
-  int ndim                        = getModel()->getSpace()->getNDim();
+  auto ndim                       = getModel()->getSpace()->getNDim();
   const VectorVectorDouble coords = getDbout()->getAllCoordinates();
   static ANeigh* neigh            = nullptr;
 #pragma omp threadprivate(neigh)
 #pragma omp parallel for firstprivate(pin, pout, tabwork, algebra, model) schedule(guided) if (use_parallel)
-  for (int iech_out = 0; iech_out < nech_out; iech_out++)
+  for (Id iech_out = 0; iech_out < nech_out; iech_out++)
   {
     if (!getDbout()->isActive(iech_out)) continue;
     if (neigh == nullptr)
     {
-      neigh = (ANeigh*)getNeigh()->clone();
+      neigh = static_cast<ANeigh*>(getNeigh()->clone());
       getDbout()->initThread();
     }
     else
@@ -168,7 +168,7 @@ bool CalcKrigingSimpleCase::_run()
       neigh->reset();
     }
     // TODO : encapsulate in Db (threadsafe)
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < static_cast<Id>(ndim); idim++)
     {
       pin.setCoord(idim, coords[idim][iech_out]);
     }
@@ -187,4 +187,4 @@ bool CalcKrigingSimpleCase::_run()
 
   return true;
 }
-}
+} // namespace gstlrn

@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Global parameters
-  int ndim = 2;
+  Id ndim = 2;
   law_set_random_seed(32131);
   defineDefaultSpace(ESpaceType::RN, ndim);
   DbStringFormat* dbfmt;
@@ -42,10 +42,10 @@ int main(int argc, char* argv[])
   // Parameters
   bool debug         = false;
   bool verbose       = true;
-  int nx             = 100;
-  int ny             = 100;
-  int nvar           = 3;
-  int skip           = 0;
+  Id nx              = 100;
+  Id ny              = 100;
+  Id nvar            = 3;
+  Id skip            = 0;
   bool flagSK        = true;
   bool flagFFT       = true;
   VectorInt radius   = {10, 10};
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
   db->display();
 
   // Create the Model
-  int order    = (flagSK) ? -1 : 0;
+  Id order     = (flagSK) ? -1 : 0;
   Model* model = Model::createFillRandom(ndim, nvar,
                                          {ECov::NUGGET, ECov::SPHERICAL},
                                          1., order);

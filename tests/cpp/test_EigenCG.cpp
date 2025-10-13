@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  int n = 5;
+  Id n = 5;
 
   VectorDouble b({2, 4, 6, 8, 10});
 

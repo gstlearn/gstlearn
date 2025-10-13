@@ -9,20 +9,19 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ACholesky.hpp"
+#include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixDense.hpp"
 
 namespace gstlrn{
-ACholesky::ACholesky(const AMatrix* mat)
-  : _mat(mat)
-  , _size(0)
+ACholesky::ACholesky(const AMatrix& mat)
+  : _size(0)
   , _ready(false)
 {
-  if (mat != nullptr) _size = mat->getNRows();
+  _size = mat.getNRows();
 }
 
 ACholesky::ACholesky(const ACholesky& m)
-  : _mat(m._mat)
-  , _size(m._size)
+  : _size(m._size)
   , _ready(m._ready)
 {
 }
@@ -31,70 +30,69 @@ ACholesky& ACholesky::operator=(const ACholesky& m)
 {
   if (this != &m)
   {
-    _mat   = m._mat;
     _size  = m._size;
     _ready = m._ready;
   }
   return *this;
 }
 
-int ACholesky::_addToDest(const constvect vecin, vect vecout) const
+Id ACholesky::_addToDest(const constvect vecin, vect vecout) const
 {
   if (!isReady()) return 1;
   return addLX(vecin, vecout);
 }
 
-int ACholesky::_addSimulateToDest(const constvect whitenoise, vect vecout) const
+Id ACholesky::_addSimulateToDest(const constvect whitenoise, vect vecout) const
 {
   if (!isReady()) return 1;
   return addInvLtX(whitenoise, vecout);
 }
 
-int ACholesky::solve(const constvect vecin, vect vecout) const
+Id ACholesky::solve(const constvect vecin, vect vecout) const
 {
   if (!isReady()) return 1;
   std::fill(vecout.begin(), vecout.end(), 0.);
   return addSolveX(vecin, vecout);
 }
 
-int ACholesky::LX(const constvect whitenoise, vect vecout) const
+Id ACholesky::LX(const constvect whitenoise, vect vecout) const
 {
   if (!isReady()) return 1;
   std::fill(vecout.begin(), vecout.end(), 0.);
   return addLX(whitenoise, vecout);
 }
 
-int ACholesky::InvLX(const constvect whitenoise, vect vecout) const
+Id ACholesky::InvLX(const constvect whitenoise, vect vecout) const
 {
   if (!isReady()) return 1;
   std::fill(vecout.begin(), vecout.end(), 0.);
   return addInvLX(whitenoise, vecout);
 }
 
-int ACholesky::InvLtX(const constvect whitenoise, vect vecout) const
+Id ACholesky::InvLtX(const constvect whitenoise, vect vecout) const
 {
   if (!isReady()) return 1;
   std::fill(vecout.begin(), vecout.end(), 0.);
   return addInvLtX(whitenoise, vecout);
 }
 
-int ACholesky::LtX(const constvect whitenoise, vect vecout) const
+Id ACholesky::LtX(const constvect whitenoise, vect vecout) const
 {
   if (!isReady()) return 1;
   std::fill(vecout.begin(), vecout.end(), 0.);
   return addLtX(whitenoise, vecout);
 }
 
-int ACholesky::solveMatrix(const MatrixDense& b, MatrixDense& x) const
+Id ACholesky::solveMatrix(const MatrixDense& b, MatrixDense& x) const
 {
   if (!isReady()) return 1;
 
-  int nrows = b.getNRows();
-  int ncols = b.getNCols();
+  auto nrows = b.getNRows();
+  auto ncols = b.getNCols();
   x.resize(nrows, ncols);
 
   VectorDouble xcol(nrows);
-  for (int icol = 0; icol < ncols; icol++)
+  for (Id icol = 0; icol < ncols; icol++)
   {
     auto bcol = b.getViewOnColumn(icol);
     solve(bcol, xcol);
@@ -145,5 +143,11 @@ VectorDouble ACholesky::solveX(const VectorDouble& vecin) const
   vect spout(vecout);
   addSolveX(spin, spout);
   return vecout;
+}
+
+double ACholesky::computeLogDet(Id nMC) const
+{
+  DECLARE_UNUSED(nMC);
+  return computeLogDeterminant();
 }
 }

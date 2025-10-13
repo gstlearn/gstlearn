@@ -9,43 +9,42 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Boolean/ModelBoolean.hpp"
-#include "Boolean/AShape.hpp"
 #include "Basic/Law.hpp"
+#include "Boolean/AShape.hpp"
 
 namespace gstlrn
 {
 ModelBoolean::ModelBoolean(double thetaCst, bool flagStat)
-    : AStringable(),
-      _flagStat(flagStat),
-      _thetaCst(thetaCst),
-      _shapes()
+  : AStringable()
+  , _flagStat(flagStat)
+  , _thetaCst(thetaCst)
+  , _shapes()
 {
 }
 
-ModelBoolean::ModelBoolean(const ModelBoolean &r)
-    : AStringable(r),
-      _flagStat(r._flagStat),
-      _thetaCst(r._thetaCst),
-      _shapes(r._shapes)
+ModelBoolean::ModelBoolean(const ModelBoolean& r)
+  : AStringable(r)
+  , _flagStat(r._flagStat)
+  , _thetaCst(r._thetaCst)
+  , _shapes(r._shapes)
 {
-
 }
 
-ModelBoolean& ModelBoolean::operator=(const ModelBoolean &r)
+ModelBoolean& ModelBoolean::operator=(const ModelBoolean& r)
 {
   if (this != &r)
   {
-    AStringable::operator =(r);
+    AStringable::operator=(r);
     _flagStat = r._flagStat;
     _thetaCst = r._thetaCst;
-    _shapes = r._shapes;
+    _shapes   = r._shapes;
   }
   return *this;
 }
 
 ModelBoolean::~ModelBoolean()
 {
-  for (int itok = 0, ntok = (int) _shapes.size(); itok < ntok; itok++)
+  for (Id itok = 0, ntok = static_cast<Id>(_shapes.size()); itok < ntok; itok++)
     delete _shapes[itok];
   _shapes.clear();
 }
@@ -63,40 +62,40 @@ void ModelBoolean::addToken(const AShape& token)
 void ModelBoolean::normalizeProportions()
 
 {
-  int nb_tokens = (int) _shapes.size();
+  Id nb_tokens = static_cast<Id>(_shapes.size());
   double total = 0.;
-  for (int itok = 0; itok < nb_tokens; itok++)
+  for (Id itok = 0; itok < nb_tokens; itok++)
     total += _shapes[itok]->getProportion();
 
   if (ABS(total) <= 0.)
   {
-    for (int itok = 0; itok < nb_tokens; itok++)
-      _shapes[itok]->setProportion(1. / (double) nb_tokens);
+    for (Id itok = 0; itok < nb_tokens; itok++)
+      _shapes[itok]->setProportion(1. / static_cast<double>(nb_tokens));
   }
   else
   {
-    for (int itok = 0; itok < nb_tokens; itok++)
-      _shapes[itok]->setProportion( _shapes[itok]->getProportion() / total);
+    for (Id itok = 0; itok < nb_tokens; itok++)
+      _shapes[itok]->setProportion(_shapes[itok]->getProportion() / total);
   }
 }
 
-BooleanObject* ModelBoolean::generateObject(int ndim) const
+BooleanObject* ModelBoolean::generateObject(Id ndim) const
 {
-  int nb_token = (int) _shapes.size();
+  Id nb_token = static_cast<Id>(_shapes.size());
 
   /* Calculate the total probability */
 
   double total = 0.;
-  for (int itok = 0; itok < nb_token; itok++)
+  for (Id itok = 0; itok < nb_token; itok++)
     total += _shapes[itok]->getProportion();
   if (total <= 0.) return nullptr;
 
   /* Find the type of token to be generated */
 
   double value = total * law_uniform(0., 1.);
-  int rank = -1;
+  Id rank      = -1;
   double cumul = 0.;
-  for (int itok = 0; itok < nb_token; itok++)
+  for (Id itok = 0; itok < nb_token; itok++)
   {
     cumul += _shapes[itok]->getProportion();
     rank = itok;
@@ -117,11 +116,11 @@ String ModelBoolean::toString(const AStringFormat* strfmt) const
   else
     sstr << "- Variable Poisson Intensity" << std::endl;
 
-  for (int itok = 0; itok < getNbTokens(); itok++)
+  for (Id itok = 0; itok < getNbTokens(); itok++)
   {
     sstr << toTitle(1, "Token %d", itok + 1);
     sstr << _shapes[itok]->toString(strfmt);
   }
   return sstr.str();
 }
-}
+} // namespace gstlrn

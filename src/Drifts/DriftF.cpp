@@ -20,7 +20,7 @@
 
 namespace gstlrn
 {
-DriftF::DriftF(int rank_fex)
+DriftF::DriftF(Id rank_fex)
   : ADrift()
   , _rankFex(rank_fex)
 {
@@ -46,7 +46,7 @@ DriftF::~DriftF()
 {
 }
 
-double DriftF::eval(const Db* db, int iech) const
+double DriftF::eval(const Db* db, Id iech) const
 {
   return db->getLocVariable(ELoc::F, iech, _rankFex);
 }
@@ -65,7 +65,7 @@ DriftF* DriftF::createByIdentifier(const String& driftname)
   std::size_t found = driftname.find(substring);
   if (found != 0) return nullptr;
   String string_rank = driftname.substr(substring.size(), driftname.size() - 1);
-  int rank_fex       = atoi(string_rank.c_str());
+  Id rank_fex       = atoi(string_rank.c_str());
   return new DriftF(rank_fex);
 }
 }

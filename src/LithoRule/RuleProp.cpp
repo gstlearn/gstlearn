@@ -63,7 +63,7 @@ RuleProp::~RuleProp()
  * @param dbprop  Db containing the Proportion information (ELoc::P fields)
  * @param propcst Vector of constant proportions
  */
-int RuleProp::resetFromDb(const Db* dbprop, const VectorDouble& propcst)
+Id RuleProp::resetFromDb(const Db* dbprop, const VectorDouble& propcst)
 {
   _clear();
 
@@ -75,13 +75,13 @@ int RuleProp::resetFromDb(const Db* dbprop, const VectorDouble& propcst)
   if (! _checkConsistency()) return 1;
 
   // A generic rule is created on the fly
-  int nfacies = _getNFacies();
+  auto nfacies = _getNFacies();
   _rules.push_back(Rule::createFromFaciesCount(nfacies));
 
   return 0;
 }
 
-int RuleProp::resetFromRule(const Rule* rule, const VectorDouble& propcst)
+Id RuleProp::resetFromRule(const Rule* rule, const VectorDouble& propcst)
 {
   _clear();
 
@@ -94,7 +94,7 @@ int RuleProp::resetFromRule(const Rule* rule, const VectorDouble& propcst)
   return 0;
 }
 
-int RuleProp::resetFromRuleAndDb(const Rule* rule, const Db* dbprop)
+Id RuleProp::resetFromRuleAndDb(const Rule* rule, const Db* dbprop)
 {
   _clear();
 
@@ -107,7 +107,7 @@ int RuleProp::resetFromRuleAndDb(const Rule* rule, const Db* dbprop)
   return 0;
 }
 
-int RuleProp::resetFromRules(const Rule* rule1,
+Id RuleProp::resetFromRules(const Rule* rule1,
                              const Rule* rule2,
                              const VectorDouble& propcst)
 {
@@ -123,7 +123,7 @@ int RuleProp::resetFromRules(const Rule* rule1,
   return 0;
 }
 
-int RuleProp::resetFromRulesAndDb(const Rule* rule1, const Rule* rule2, const Db* dbprop)
+Id RuleProp::resetFromRulesAndDb(const Rule* rule1, const Rule* rule2, const Db* dbprop)
 {
   _clear();
 
@@ -142,7 +142,7 @@ void RuleProp::_clear()
   _dbprop = nullptr;
   if (_ruleInternal)
   {
-    for (int ir = 0; ir < getNRule(); ir++)
+    for (Id ir = 0; ir < getNRule(); ir++)
       delete _rules[ir];
   }
 }
@@ -167,7 +167,7 @@ String RuleProp::toString(const AStringFormat* strfmt) const
   //   sstr << _dbprop->toString(strfmt);
 
   // Rules
-  for (int ir = 0; ir < getNRule(); ir++)
+  for (Id ir = 0; ir < getNRule(); ir++)
   {
     const Rule* rule = _rules[ir];
     sstr << rule->toString(strfmt);
@@ -178,15 +178,15 @@ String RuleProp::toString(const AStringFormat* strfmt) const
 
 bool RuleProp::_checkConsistency()
 {
-  int nfacies = 0;
+  Id nfacies = 0;
 
   // Check the number of facies against the Rule(s)
   if (getNRule() > 0)
   {
     // In case of several rules, the number of facies is the product
     // of the number of facies per rule.
-    int nfacrule = 1;
-    for (int ir = 0; ir < getNRule(); ir++)
+    Id nfacrule = 1;
+    for (Id ir = 0; ir < getNRule(); ir++)
       nfacrule *= _rules[ir]->getNFacies();
     nfacies = nfacrule;
   }
@@ -198,7 +198,7 @@ bool RuleProp::_checkConsistency()
     _propcst.clear();
 
     // Check consistency of the number of facies
-    int nfacdb = _dbprop->getNLoc(ELoc::P);
+    Id nfacdb = _dbprop->getNLoc(ELoc::P);
     if (nfacies > 0 && nfacies != nfacdb)
     {
       messerr("Mismatch between:");
@@ -216,7 +216,7 @@ bool RuleProp::_checkConsistency()
     _dbprop = nullptr;
 
     // Check consistency of the number of facies
-    int nfacprop = static_cast<int>(_propcst.size());
+    Id nfacprop = static_cast<Id>(_propcst.size());
     if (nfacies > 0 && nfacies != nfacprop)
     {
       messerr("Mismatch between:");
@@ -235,22 +235,22 @@ bool RuleProp::_checkConsistency()
   }
   _flagStat = true;
   _dbprop = nullptr;
-  _propcst.resize(nfacies, 1./(double) nfacies);
+  _propcst.resize(nfacies, 1./static_cast<double>(nfacies));
   return true;
 }
 
-bool RuleProp::_checkRuleRank(int rank) const
+bool RuleProp::_checkRuleRank(Id rank) const
 {
   return checkArg("Rule Rank", rank, getNRule());
 }
 
-int RuleProp::_getNFacies()
+Id RuleProp::_getNFacies()
 {
   // Check the number of facies against the Rule
   if (! _rules.empty())
   {
-    int nfacies = 1;
-    for (int ir = 0; ir < getNRule(); ir++)
+    Id nfacies = 1;
+    for (Id ir = 0; ir < getNRule(); ir++)
       nfacies *= _rules[ir]->getNFacies();
     return nfacies;
   }
@@ -264,12 +264,12 @@ int RuleProp::_getNFacies()
   // Stationary proportions provided by 'propcst'
   if (! _propcst.empty())
   {
-    return static_cast<int>(_propcst.size());
+    return static_cast<Id>(_propcst.size());
   }
 
   return 0;
 }
-const Rule* RuleProp::getRule(int rank) const
+const Rule* RuleProp::getRule(Id rank) const
 {
   if (! _checkRuleRank(rank)) return nullptr;
   return _rules[rank];
@@ -285,7 +285,7 @@ void RuleProp::clearRule()
   _rules.clear();
 }
 
-int RuleProp::fit(Db* db, const VarioParam* varioparam, int ngrfmax, bool verbose)
+Id RuleProp::fit(Db* db, const VarioParam* varioparam, Id ngrfmax, bool verbose)
 {
   Rule* ruleFit = _rule_auto(db,varioparam,this,ngrfmax,verbose);
   if (ruleFit == nullptr) return 1;
@@ -301,7 +301,7 @@ int RuleProp::fit(Db* db, const VarioParam* varioparam, int ngrfmax, bool verbos
  * @return Error return code
  * @remarks The input variables must be locatorized Z or SIMU
  */
-int RuleProp::gaussToCategory(Db* db, const NamingConvention& namconv) const
+Id RuleProp::gaussToCategory(Db* db, const NamingConvention& namconv) const
 {
   if (_rules[0]->getModeRule() != ERule::STD)
   {
@@ -317,7 +317,7 @@ int RuleProp::gaussToCategory(Db* db, const NamingConvention& namconv) const
  * @param namconv Naming convention
  * @return Error return code
  */
-int RuleProp::categoryToThresh(Db *db, const NamingConvention& namconv) const
+Id RuleProp::categoryToThresh(Db *db, const NamingConvention& namconv) const
 {
   if (_rules[0]->getModeRule() != ERule::STD)
   {
@@ -333,7 +333,7 @@ int RuleProp::categoryToThresh(Db *db, const NamingConvention& namconv) const
  * @param namconv Naming convention
  * @return Error return code
  */
-int RuleProp::computeAllThreshes(Db *db, const NamingConvention& namconv) const
+Id RuleProp::computeAllThreshes(Db *db, const NamingConvention& namconv) const
 {
   if (_rules[0]->getModeRule() != ERule::STD)
   {

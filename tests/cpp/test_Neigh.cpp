@@ -25,7 +25,7 @@ using namespace gstlrn;
 int main(int argc, char *argv[])
 {
   // Global parameters
-  int ndim = 2;
+  Id ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   std::stringstream sfn;
@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Generate the data base
-  int nech = 20;
+  Id nech              = 20;
   VectorDouble coormin = {0.,0.};
   VectorDouble coormax = {100.,100.};
   Db* db = Db::createFromBox(nech, coormin, coormax, 12345);
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
   delete neighU;
 
   // Creating a Moving Neighborhood
-  int nmaxi = 5;
+  Id nmaxi            = 5;
   double radius = 30.;
   NeighMoving* neighM = NeighMoving::create(false, nmaxi, radius);
   neighM->attach(db, target);

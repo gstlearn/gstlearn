@@ -44,7 +44,7 @@ CovPoisson::~CovPoisson()
 
 double CovPoisson::_evaluateCovOnSphere(double alpha,
                                         double scale,
-                                        int degree) const
+                                        Id degree) const
 {
   DECLARE_UNUSED(scale);
   DECLARE_UNUSED(degree);
@@ -53,7 +53,7 @@ double CovPoisson::_evaluateCovOnSphere(double alpha,
   return exp(lambda * (cos(alpha) - 1.)) * valbes;
 }
 
-VectorDouble CovPoisson::_evaluateSpectrumOnSphere(int n, double scale) const
+VectorDouble CovPoisson::_evaluateSpectrumOnSphere(Id n, double scale) const
 {
   DECLARE_UNUSED(scale);
   double lambda   = getParam();

@@ -17,8 +17,8 @@
 
 namespace gstlrn
 {
-DbMeshStandard::DbMeshStandard(int ndim,
-                               int napexpermesh,
+DbMeshStandard::DbMeshStandard(Id ndim,
+                               Id napexpermesh,
                                const VectorDouble& apices,
                                const VectorInt& meshes,
                                const ELoadBy& order,
@@ -30,7 +30,7 @@ DbMeshStandard::DbMeshStandard(int ndim,
   , _mesh()
 {
   _mesh.reset(ndim, napexpermesh, apices, meshes, true, verbose);
-  int napices = _mesh.getNApices();
+  Id napices = _mesh.getNApices();
 
   addColumns(apices, "x", ELoc::X, 0, false, 0., ndim);
 
@@ -62,7 +62,7 @@ String DbMeshStandard::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  const DbStringFormat* dbfmt = dynamic_cast<const DbStringFormat*>(strfmt);
+  const auto* dbfmt = dynamic_cast<const DbStringFormat*>(strfmt);
   DbStringFormat dsf;
   if (dbfmt != nullptr) dsf = *dbfmt;
 
@@ -80,8 +80,8 @@ String DbMeshStandard::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-DbMeshStandard* DbMeshStandard::create(int ndim,
-                                       int napexpermesh,
+DbMeshStandard* DbMeshStandard::create(Id ndim,
+                                       Id napexpermesh,
                                        const VectorDouble& apices,
                                        const VectorInt& meshes,
                                        const ELoadBy& order,
@@ -121,7 +121,7 @@ DbMeshStandard::createFromExternal(const MatrixDense& apices,
   }
   if (!tab.empty())
   {
-    int nech = apices.getNCols();
+    auto nech = apices.getNCols();
     (void)dbmesh->resetFromSamples(nech, order, tab, names, locatorNames);
   }
   return dbmesh;
@@ -129,12 +129,12 @@ DbMeshStandard::createFromExternal(const MatrixDense& apices,
 
 bool DbMeshStandard::_deserializeAscii(std::istream& is, bool verbose)
 {
-  int ndim = 0;
+  Id ndim = 0;
   bool ret = true;
 
   // Reading the header
 
-  ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
+  ret = ret && _recordRead<Id>(is, "Space Dimension", ndim);
 
   // Reading the meshing information
 
@@ -153,7 +153,7 @@ bool DbMeshStandard::_serializeAscii(std::ostream& os, bool verbose) const
 
   /* Writing the header */
 
-  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
+  ret = ret && _recordWrite<Id>(os, "Space Dimension", getNDim());
 
   // Writing the Meshing information
 
@@ -191,7 +191,7 @@ DbMeshStandard* DbMeshStandard::createFromNF(const String& NFFilename, bool verb
 bool DbMeshStandard::isConsistent() const
 {
   // Check on the count of addresses
-  int nech = getNSample();
+  auto nech = getNSample();
   if (_mesh.getNApices() > nech)
   {
     messerr("Number of meshes (%d)", _mesh.getNApices());
@@ -201,35 +201,35 @@ bool DbMeshStandard::isConsistent() const
   return true;
 }
 
-double DbMeshStandard::getCoor(int imesh, int rank, int idim) const
+double DbMeshStandard::getCoor(Id imesh, Id rank, Id idim) const
 {
   return getCoordinate(_mesh.getApex(imesh, rank), idim);
 }
-void DbMeshStandard::getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const
+void DbMeshStandard::getCoordinatesPerMeshInPlace(Id imesh, Id rank, VectorDouble& coords) const
 {
-  for (int idim = 0; idim < getNDim(); idim++)
+  for (Id idim = 0; idim < getNDim(); idim++)
     coords[idim] = getCoor(imesh, rank, idim);
 }
-double DbMeshStandard::getApexCoor(int i, int idim) const
+double DbMeshStandard::getApexCoor(Id i, Id idim) const
 {
   return getCoordinate(i, idim);
 }
-void DbMeshStandard::getApexCoordinatesInPlace(int i, VectorDouble& coords) const
+void DbMeshStandard::getApexCoordinatesInPlace(Id i, VectorDouble& coords) const
 {
-  for (int idim = 0; idim < getNDim(); idim++)
+  for (Id idim = 0; idim < getNDim(); idim++)
     coords[idim] = getApexCoor(i, idim);
 }
-VectorDouble DbMeshStandard::getCoordinatesPerMesh(int imesh, int idim, bool flagClose) const
+VectorDouble DbMeshStandard::getCoordinatesPerMesh(Id imesh, Id idim, bool flagClose) const
 {
   VectorDouble vec;
-  int ncorner = _mesh.getNApexPerMesh();
+  Id ncorner = _mesh.getNApexPerMesh();
 
   if (flagClose)
     vec.resize(ncorner + 1);
   else
     vec.resize(ncorner);
 
-  for (int ic = 0; ic < ncorner; ic++) vec[ic] = getCoor(imesh, ic, idim);
+  for (Id ic = 0; ic < ncorner; ic++) vec[ic] = getCoor(imesh, ic, idim);
   if (flagClose) vec[ncorner] = getCoor(imesh, 0, idim);
 
   return vec;
@@ -245,7 +245,7 @@ bool DbMeshStandard::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbos
 
   /* Read the grid characteristics */
   bool ret = true;
-  int ndim = 0;
+  Id ndim = 0;
 
   ret = ret && SerializeHDF5::readValue(*dbg, "NDim", ndim);
 

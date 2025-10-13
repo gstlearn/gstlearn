@@ -44,65 +44,65 @@ public:
   IMPLEMENT_CLONING(CovLMCAnamorphosis)
 
   /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// ACov Interface
-  virtual double eval0(int ivar = 0,
-                       int jvar = 0,
+  virtual double eval0(Id ivar = 0,
+                       Id jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
   
   void addCov(const CovBase& cov) override;
   bool hasAnam() const override { return true; }
   const AAnam* getAnam() const override { return _anam; }
-  void setActiveFactor(int iclass) override;
-  int getActiveFactor() const override { return _activeFactor; }
-  int getAnamNClass() const override;
+  void setActiveFactor(Id iclass) override;
+  Id getActiveFactor() const override { return _activeFactor; }
+  Id getAnamNClass() const override;
 
-  int init(const VectorInt& strcnt = VectorInt());
+  Id init(const VectorInt& strcnt = VectorInt());
   EAnam getAnamType() const;
   void setAnam(const AAnam*& anam) { _anam = anam; }
 
 private:
 virtual double _eval(const SpacePoint& p1,
                      const SpacePoint& p2,
-                     int ivar = 0,
-                     int jvar = 0,
+                     Id ivar = 0,
+                     Id jvar = 0,
                      const CovCalcMode* mode = nullptr) const override;                   
-  double _evalHermite(int ivar,
-                      int jvar,
+  double _evalHermite(Id ivar,
+                      Id jvar,
                       double h,
                       const CovCalcMode* mode) const;
-  double _evalDiscreteDD(int ivar,
-                         int jvar,
+  double _evalDiscreteDD(Id ivar,
+                         Id jvar,
                          double h,
                          const CovCalcMode* mode) const;
-  double _evalDiscreteIR(int ivar,
-                         int jvar,
+  double _evalDiscreteIR(Id ivar,
+                         Id jvar,
                          double h,
                          const CovCalcMode* mode) const;
 
-  double _evalHermite(int ivar,
-                      int jvar,
+  double _evalHermite(Id ivar,
+                      Id jvar,
                       const SpacePoint& p1,
                       const SpacePoint& p2,
                       const CovCalcMode* mode) const;
-  double _evalDiscreteDD(int ivar,
-                         int jvar,
+  double _evalDiscreteDD(Id ivar,
+                         Id jvar,
                          const SpacePoint& p1,
                          const SpacePoint& p2,
                          const CovCalcMode* mode) const;
-  double _evalDiscreteIR(int ivar,
-                         int jvar,
+  double _evalDiscreteIR(Id ivar,
+                         Id jvar,
                          const SpacePoint& p1,
                          const SpacePoint& p2,
                          const CovCalcMode* mode) const;
-  double _evalHermite0(int ivar, int jvar, const CovCalcMode* mode) const;
-  double _evalDiscreteDD0(int ivar, int jvar, const CovCalcMode* mode) const;
-  double _evalDiscreteIR0(int ivar, int jvar, const CovCalcMode* mode) const;
-  void   _transformCovCalcModeIR(int iclass) const;
+  double _evalHermite0(Id ivar, Id jvar, const CovCalcMode* mode) const;
+  double _evalDiscreteDD0(Id ivar, Id jvar, const CovCalcMode* mode) const;
+  double _evalDiscreteIR0(Id ivar, Id jvar, const CovCalcMode* mode) const;
+  void   _transformCovCalcModeIR(Id iclass) const;
 
 private:
-  int       _activeFactor;    /* Target factor (-1: Raw; 1: Gaussian; n: rank of factor) */
+  Id       _activeFactor;    /* Target factor (-1: Raw; 1: Gaussian; n: rank of factor) */
   VectorInt _anamStrCount;    /* List of covariances in the Model (for RI only) */
   const AAnam* _anam;
 };

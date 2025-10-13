@@ -17,15 +17,15 @@
 
 namespace gstlrn
 {
-int ProjMulti::findFirstNoNullOnRow(int j) const
+Id ProjMulti::findFirstNoNullOnRow(Id j) const
 {
-  int i = 0;
+  Id i = 0;
 
-  while (i < (int)_projs[j].size() && _projs[j][i] == nullptr)
+  while (i < static_cast<Id>(_projs[j].size()) && _projs[j][i] == nullptr)
   {
     i++;
   }
-  if (i == (int)_projs[j].size())
+  if (i == static_cast<Id>(_projs[j].size()))
   {
     messerr("All the projectors of row %d are nullptr", j);
     return -1;
@@ -33,14 +33,14 @@ int ProjMulti::findFirstNoNullOnRow(int j) const
   return i;
 }
 
-int ProjMulti::findFirstNoNullOnCol(int j) const
+Id ProjMulti::findFirstNoNullOnCol(Id j) const
 {
-  int i = 0;
-  while (i < (int)_projs.size() && _projs[i][j] == nullptr)
+  Id i = 0;
+  while (i < static_cast<Id>(_projs.size()) && _projs[i][j] == nullptr)
   {
     i++;
   }
-  if (i == (int)_projs.size())
+  if (i == static_cast<Id>(_projs.size()))
   {
     i = -1;
     messerr("All the projectors of column %d are nullptr.", j);
@@ -57,8 +57,8 @@ bool ProjMulti::_checkArg(const std::vector<std::vector<const IProj*>>& projs) c
     return true;
   }
 
-  int nvariable = (int)projs.size();
-  int nlatent   = (int)projs[0].size();
+  Id nvariable = static_cast<Id>(projs.size());
+  Id nlatent   = static_cast<Id>(projs[0].size());
 
   if (nlatent == 0)
   {
@@ -66,9 +66,9 @@ bool ProjMulti::_checkArg(const std::vector<std::vector<const IProj*>>& projs) c
     return true;
   }
 
-  for (int i = 1; i < nvariable; i++)
+  for (Id i = 1; i < nvariable; i++)
   {
-    if ((int)projs[i].size() != nlatent)
+    if (static_cast<Id>(projs[i].size()) != nlatent)
     {
       messerr("All the elements of proj have to share the same size.");
       messerr("Line %d has %d elements instead of %d.", i, projs[i].size(), nlatent);
@@ -76,14 +76,14 @@ bool ProjMulti::_checkArg(const std::vector<std::vector<const IProj*>>& projs) c
     }
   }
 
-  for (int i = 0; i < nvariable; i++)
+  for (Id i = 0; i < nvariable; i++)
   {
-    int fcol = findFirstNoNullOnRow(i);
+    Id fcol = findFirstNoNullOnRow(i);
     if (fcol == -1)
       return true;
 
     auto npoints = projs[i][fcol]->getNPoint();
-    for (int j = fcol + 1; j < nlatent; j++)
+    for (Id j = fcol + 1; j < nlatent; j++)
     {
       if (projs[i][j] != nullptr)
       {
@@ -98,14 +98,14 @@ bool ProjMulti::_checkArg(const std::vector<std::vector<const IProj*>>& projs) c
     }
   }
 
-  for (int j = 0; j < nlatent; j++)
+  for (Id j = 0; j < nlatent; j++)
   {
-    int frow = findFirstNoNullOnCol(j);
+    Id frow = findFirstNoNullOnCol(j);
     if (frow == -1)
       return true;
 
     auto nvertex = projs[frow][j]->getNApex();
-    for (int i = frow + 1; i < nvariable; i++)
+    for (Id i = frow + 1; i < nvariable; i++)
     {
       if (projs[i][j] != nullptr)
       {
@@ -124,20 +124,20 @@ bool ProjMulti::_checkArg(const std::vector<std::vector<const IProj*>>& projs) c
 
 void ProjMulti::_init()
 {
-  _nvariable = (int)_projs.size();
-  _nlatent   = (int)_projs[0].size();
+  _nvariable = static_cast<Id>(_projs.size());
+  _nlatent   = static_cast<Id>(_projs[0].size());
 
-  for (int i = 0; i < _nvariable; i++)
+  for (Id i = 0; i < _nvariable; i++)
   {
-    int fcol     = findFirstNoNullOnRow(i);
+    Id fcol      = findFirstNoNullOnRow(i);
     auto npoints = _projs[i][fcol]->getNPoint();
     _pointNumbers.push_back(npoints);
     _pointNumber += npoints;
   }
 
-  for (int j = 0; j < _nlatent; j++)
+  for (Id j = 0; j < _nlatent; j++)
   {
-    int frow     = findFirstNoNullOnCol(j);
+    Id frow      = findFirstNoNullOnCol(j);
     auto nvertex = _projs[frow][j]->getNApex();
     _apexNumbers.push_back(nvertex);
     _apexNumber += nvertex;
@@ -170,17 +170,17 @@ ProjMulti::ProjMulti(const std::vector<std::vector<const IProj*>>& projs, bool s
   _init();
 }
 
-int ProjMulti::_addPoint2mesh(const constvect inv, vect outv) const
+Id ProjMulti::_addPoint2mesh(const constvect inv, vect outv) const
 {
   vect wms;
-  int iadvar = 0;
-  for (int i = 0; i < _nlatent; i++)
+  Id iadvar = 0;
+  for (Id i = 0; i < _nlatent; i++)
   {
-    int iad     = 0;
-    int nvertex = _apexNumbers[i];
+    Id iad     = 0;
+    Id nvertex = _apexNumbers[i];
     _workmesh.resize(nvertex);
     std::fill(_workmesh.begin(), _workmesh.end(), 0.);
-    for (int j = 0; j < _nvariable; j++)
+    for (Id j = 0; j < _nvariable; j++)
     {
       if (_projs[j][i] != nullptr)
       {
@@ -198,17 +198,17 @@ int ProjMulti::_addPoint2mesh(const constvect inv, vect outv) const
   return 0;
 }
 
-int ProjMulti::_addMesh2point(const constvect inv, vect outv) const
+Id ProjMulti::_addMesh2point(const constvect inv, vect outv) const
 {
   vect ws;
-  int iadvar = 0;
-  for (int i = 0; i < _nvariable; i++)
+  Id iadvar = 0;
+  for (Id i = 0; i < _nvariable; i++)
   {
-    int iad    = 0;
-    int npoint = _pointNumbers[i];
+    Id iad    = 0;
+    Id npoint = _pointNumbers[i];
     _work.resize(npoint);
     std::fill(_work.begin(), _work.end(), 0.);
-    for (int j = 0; j < _nlatent; j++)
+    for (Id j = 0; j < _nlatent; j++)
     {
       if (_projs[i][j] != nullptr)
       {
@@ -225,12 +225,12 @@ int ProjMulti::_addMesh2point(const constvect inv, vect outv) const
   return 0;
 }
 
-int ProjMulti::getNApex() const
+Id ProjMulti::getNApex() const
 {
   return _apexNumber;
 }
 
-int ProjMulti::getNPoint() const
+Id ProjMulti::getNPoint() const
 {
   return _pointNumber;
 }
@@ -239,7 +239,7 @@ String ProjMulti::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  const ProjMultiMatrix* test = dynamic_cast<const ProjMultiMatrix*>(this);
+  const auto* test = dynamic_cast<const ProjMultiMatrix*>(this);
   if (test != nullptr)
     sstr << "Description of the ProjMultiMatrix" << std::endl;
   else
@@ -248,9 +248,9 @@ String ProjMulti::toString(const AStringFormat* /*strfmt*/) const
   sstr << "Number of Variables = " << _nvariable << std::endl;
   sstr << "Number of Latents = " << _nlatent << std::endl;
 
-  for (int irow = 0; irow < _nvariable; irow++)
+  for (Id irow = 0; irow < _nvariable; irow++)
   {
-    for (int icol = 0; icol < _nlatent; icol++)
+    for (Id icol = 0; icol < _nlatent; icol++)
     {
       sstr << "- Row (" << irow + 1 << ") - Col (" << icol + 1 << ") : ";
       const IProj* proj = _projs[irow][icol];
@@ -265,7 +265,6 @@ String ProjMulti::toString(const AStringFormat* /*strfmt*/) const
   sstr << "Total Number of Rows    = " << getNPoint() << std::endl;
   sstr << "Total Number of Columns = " << getNApex() << std::endl;
 
-
   return sstr.str();
 }
-}
+} // namespace gstlrn

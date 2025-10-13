@@ -10,10 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/VectorNumT.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-
+#include "Basic/AStringable.hpp"
+#include "Basic/VectorNumT.hpp"
 
 namespace gstlrn
 {
@@ -21,97 +20,96 @@ class MatrixDense;
 class ProjMatrix;
 class MatrixInt;
 class Db;
-class GSTLEARN_EXPORT AMesh : public AStringable, public ASerializable
+class GSTLEARN_EXPORT AMesh: public AStringable, public ASerializable
 {
-
 public:
-	AMesh();
-  AMesh(const AMesh &m);
-  AMesh& operator= (const AMesh &m);
-	virtual ~AMesh();
+  AMesh();
+  AMesh(const AMesh& m);
+  AMesh& operator=(const AMesh& m);
+  virtual ~AMesh();
 
-	/// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  /// Interface to AStringable
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface for AMesh
   /*! Returns the number of apex per mesh */
-  virtual int getNApexPerMesh() const { return _nDim + 1; }
+  virtual Id getNApexPerMesh() const { return _nDim + 1; }
   /*! Returns the number of apices */
-  virtual int getNApices() const = 0;
+  virtual Id getNApices() const = 0;
   /*! Returns the number of meshes */
-  virtual int getNMeshes() const = 0;
+  virtual Id getNMeshes() const = 0;
   /*! Returns the rank of apex 'rank' for mesh 'imesh' */
-  virtual int getApex(int imesh, int rank) const = 0;
+  virtual Id getApex(Id imesh, Id rank) const = 0;
   /*! Returns coordinate 'idim' of apex 'rank' of mesh 'imesh' */
-  virtual double getCoor(int imesh, int rank, int idim) const = 0;
+  virtual double getCoor(Id imesh, Id rank, Id idim) const = 0;
   /*! Returns coordinate 'idim' of apex 'rank' of mesh 'imesh' */
-  virtual void getCoordinatesPerMeshInPlace(int imesh, int rank, VectorDouble& coords) const;
+  virtual void getCoordinatesPerMeshInPlace(Id imesh, Id rank, VectorDouble& coords) const;
   /*! Returns coordinate 'idim' of apex 'i' */
-  virtual double getApexCoor(int i, int idim) const = 0;
+  virtual double getApexCoor(Id i, Id idim) const = 0;
   /*! Returns coordinates of apex 'i' */
-  virtual void getApexCoordinatesInPlace(int i, VectorDouble& coords) const;
+  virtual void getApexCoordinatesInPlace(Id i, VectorDouble& coords) const;
   /*! Returns the mesh size */
-  virtual double getMeshSize(int imesh) const = 0;
+  virtual double getMeshSize(Id imesh) const = 0;
   /*! Initialize the Sparse Matrix for projecting the Db on a Mesh */
-  virtual void resetProjFromDb(ProjMatrix* m, const Db* db, int rankZ = -1, bool verbose = false) const;
+  virtual void resetProjFromDb(ProjMatrix* m, const Db* db, Id rankZ = -1, bool verbose = false) const;
 
   /*! Returns the space variety */
-  virtual int  getVariety() const { return 0; }
-  virtual int  getEmbeddedNDim() const { return _nDim; }
-  virtual void getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const;
-  virtual void getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const;
-  virtual void getBarycenterInPlace(int imesh, VectorDouble& coord) const;
+  virtual Id getVariety() const { return 0; }
+  virtual Id getEmbeddedNDim() const { return _nDim; }
+  virtual void getEmbeddedCoorPerMesh(Id imesh, Id ic, VectorDouble& coords) const;
+  virtual void getEmbeddedCoorPerApex(Id iapex, VectorDouble& coords) const;
+  virtual void getBarycenterInPlace(Id imesh, vect coord) const;
 
   /*! Returns the Sparse Matrix for projecting the Mesh to a Db */
-  ProjMatrix* createProjMatrix(const Db* db, int rankZ = -1, bool verbose = false) const;
+  ProjMatrix* createProjMatrix(const Db* db, Id rankZ = -1, bool verbose = false) const;
 
   /*! Returns the space dimension */
-  int getNDim() const { return _nDim; }
+  Id getNDim() const { return _nDim; }
   /*! Returns the minimum of the Bounding box for a given space dimension */
-  double getExtendMin(int idim) const { return _extendMin[idim]; }
+  double getExtendMin(Id idim) const { return _extendMin[idim]; }
   /*! Returns the maximum of the Bounding box for a given space dimension */
-  double getExtendMax(int idim) const { return _extendMax[idim]; }
+  double getExtendMax(Id idim) const { return _extendMax[idim]; }
   /*! Returns the Vector of Extrema of the Bounding Box */
-  VectorDouble getExtrema(int idim) const;
+  VectorDouble getExtrema(Id idim) const;
   /*! Returns the list of apexes and meshes */
   void getElements(MatrixDense& apices, MatrixInt& meshes) const;
 
-  int  isCompatibleDb(const Db *db) const;
+  Id isCompatibleDb(const Db* db) const;
   VectorDouble getMeshSizes() const;
 
   /*! Print the list of meshes and apices */
-  void printMesh(int imesh0) const;
-  void printMeshes(int level=0, int nline_max=-1) const;
+  void printMesh(Id imesh0 = -1) const;
+  void printMeshes(Id level = 0, Id nline_max = -1) const;
   /*! Returns Vector of Apex coordinates for space index */
-  VectorDouble getCoordinatesPerApex(int idim) const;
+  VectorDouble getCoordinatesPerApex(Id idim) const;
   /*! Returns the list of indices of Meshes sharing the same Apex */
-  VectorInt getMeshByApexPair(int apex1, int apex2) const;
+  VectorInt getMeshByApexPair(Id apex1, Id apex2) const;
   /*! Returns the vector of coordinates for a mesh */
-  VectorDouble getCoordinatesPerMesh(int imesh, int idim, bool flagClose=false) const;
+  VectorDouble getCoordinatesPerMesh(Id imesh, Id idim, bool flagClose = false) const;
   /*! Returns the coordinates of an Apex */
-  VectorDouble getApexCoordinates(int iapex) const;
+  VectorDouble getApexCoordinates(Id iapex) const;
 
-  VectorVectorDouble getCoordinatesPerMesh(int imesh) const;
-  VectorVectorDouble getEmbeddedCoordinatesPerMesh(int imesh = 0) const;
-  void getEmbeddedCoordinatesPerMeshInPlace(int imesh, VectorVectorDouble& vec) const;
+  VectorVectorDouble getCoordinatesPerMesh(Id imesh) const;
+  VectorVectorDouble getEmbeddedCoordinatesPerMesh(Id imesh = 0) const;
+  void getEmbeddedCoordinatesPerMeshInPlace(Id imesh, VectorVectorDouble& vec) const;
   VectorVectorDouble getEmbeddedCoordinatesPerApex() const;
 
-  VectorDouble getDistances(int iapex0, const VectorInt& japices = VectorInt()) const;
+  VectorDouble getDistances(Id iapex0, const VectorInt& japices = VectorInt()) const;
 
   VectorVectorDouble getAllCoordinates() const;
   MatrixDense getAllApices() const;
   MatrixInt getAllMeshes() const;
 
-  double getCenterCoordinate(int imesh, int idim) const;
+  double getCenterCoordinate(Id imesh, Id idim) const;
   VectorVectorDouble getAllCenterCoordinates() const;
 
   VectorVectorInt getNeighborhoodPerMesh() const;
   VectorVectorInt getNeighborhoodPerApex() const;
-  static void dumpNeighborhood(std::vector<VectorInt>& Vmesh, int nline_max = 1);
+  static void dumpNeighborhood(std::vector<VectorInt>& Vmesh, Id nline_max = 1);
 
 protected:
-  void _setNDim(int ndim) { _nDim = ndim; }
-  int  _setExtend(const VectorDouble& extendmin, const VectorDouble& extendmax);
+  void _setNDim(Id ndim) { _nDim = ndim; }
+  Id _setExtend(const VectorDouble& extendmin, const VectorDouble& extendmax);
   virtual bool _weightsInMesh(const VectorDouble& coor,
                               const VectorVectorDouble& corners,
                               double meshsize,
@@ -121,8 +119,8 @@ protected:
 
 protected:
   void _recopy(const AMesh& m);
-  virtual bool _deserializeAscii(std::istream& is, bool verbose = false) override;
-  virtual bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
+  bool _deserializeAscii(std::istream& is, bool verbose = false) override;
+  bool _serializeAscii(std::ostream& os, bool verbose = false) const override;
 #ifdef HDF5
   bool _deserializeH5(H5::Group& grp, bool verbose = false) override;
   bool _serializeH5(H5::Group& grp, bool verbose = false) const override;
@@ -130,21 +128,24 @@ protected:
   String _getNFName() const override { return "AMesh"; }
 
 private:
-  bool _isSpaceDimensionValid(int idim) const;
-  void _printMeshListByIndices(int nline_max = -1) const;
-  void _printMeshListByCoordinates(int nline_max = -1) const;
-  int _findBarycenter(const VectorDouble& target,
-                      const VectorDouble& units,
-                      int nb_neigh,
-                      VectorInt& neighs,
-                      VectorDouble& weight) const;
+  bool _isSpaceDimensionValid(Id idim) const;
+  void _printMeshListByIndices(Id nline_max = -1) const;
+  void _printMeshListByCoordinates(Id nline_max = -1) const;
+  Id _findBarycenter(const VectorDouble& target,
+                     const VectorDouble& units,
+                     Id nb_neigh,
+                     VectorInt& neighs,
+                     VectorDouble& weight) const;
   VectorDouble _defineUnits(void) const;
 
 private:
-  int _nDim;
+  Id _nDim;
   VectorDouble _extendMin;
   VectorDouble _extendMax;
 };
 
 typedef std::vector<const AMesh*> VectorMeshes;
-}
+
+GSTLEARN_EXPORT void dumpMeshes(const VectorMeshes& meshes);
+
+} // namespace gstlrn

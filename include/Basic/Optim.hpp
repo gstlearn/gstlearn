@@ -10,11 +10,11 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "geoslib_define.h"
-#include <vector>
+#include "gstlearn_export.hpp"
 #include <functional>
 #include <memory>
+#include <vector>
 
 struct nlopt_opt_s;
 
@@ -104,18 +104,17 @@ typedef enum
 
 } opt_algorithm;
 
-
 class GSTLEARN_EXPORT Optim
 {
 public:
-  Optim(opt_algorithm algo, int dim);
+  Optim(opt_algorithm algo, Id dim);
   Optim(const Optim&)            = delete;
   Optim& operator=(const Optim&) = delete;
   ~Optim();
 
   void setObjective(std::function<double(const std::vector<double>&)> objective);
   void setGradient(std::function<void(vect)> gradient,
-                   const std::vector<size_t>& dispatch = {},
+                   const std::vector<size_t>& dispatch      = {},
                    const std::vector<size_t>& dispatchIndex = {});
   void setAuthorizedAnalyticalGradients(bool authorized)
   {
@@ -126,10 +125,12 @@ public:
     return _authorizedAnalyticalGradients;
   }
   void setGradientComponents(const std::vector<std::function<double(const std::vector<double>&)>>& partials);
-
+  void evalGrad(vect res);
   void setXtolRel(double tol);
-  void setLowerBounds(const std::vector<double>& lb);
-  void setUpperBounds(const std::vector<double>& ub);
+  void setLowerBounds(const std::vector<double>& lb,
+                      const std::vector<size_t>& dispatch = {});
+  void setUpperBounds(const std::vector<double>& ub,
+                      const std::vector<size_t>& dispatch = {});
   double minimize(std::vector<double>& x);
 
 private:
@@ -142,4 +143,4 @@ private:
   mutable std::vector<double> _gradBuffer; // Buffer for gradient evaluation
   bool _authorizedAnalyticalGradients;
 };
-}
+} // namespace gstlrn

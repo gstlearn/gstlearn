@@ -55,21 +55,21 @@ namespace gstlrn
 {
 typedef struct
 {
-  int flag_same;  /* 1 if input and output files coincide */
-  int flag_vel;   /* 1 for velocity; 0 for thickness */
-  int flag_cumul; /* 1 for cumulating in depth */
-  int flag_ext;   /* Use external drift */
-  int flag_z;     /* 1 if output must be converted into depth */
-  int colrefd;    /* Reference depth map (if >= 0) */
-  int colreft;    /* Reference time map (if >= 0) */
-  int colrefb;    /* Bottom map (if >= 0) */
-  int match_time; /* 1 if Time provided through External Drift */
-  ELoc ptime;     /* Pointer to the Time variables */
-  int nlayers;    /* Number of layers */
-  int nbfl;       /* Number of drift functions */
-  int nech;       /* Number of active samples */
-  int neq;        /* Number of equations */
-  int npar;       /* Nb. of layers * Nb. of drift functions */
+  Id flag_same;  /* 1 if input and output files coincide */
+  Id flag_vel;   /* 1 for velocity; 0 for thickness */
+  Id flag_cumul; /* 1 for cumulating in depth */
+  Id flag_ext;   /* Use external drift */
+  Id flag_z;     /* 1 if output must be converted into depth */
+  Id colrefd;    /* Reference depth map (if >= 0) */
+  Id colreft;    /* Reference time map (if >= 0) */
+  Id colrefb;    /* Bottom map (if >= 0) */
+  Id match_time; /* 1 if Time provided through External Drift */
+  ELoc ptime;    /* Pointer to the Time variables */
+  Id nlayers;    /* Number of layers */
+  Id nbfl;       /* Number of drift functions */
+  Id nech;       /* Number of active samples */
+  Id neq;        /* Number of equations */
+  Id npar;       /* Nb. of layers * Nb. of drift functions */
 } LMlayers;
 
 /****************************************************************************/
@@ -99,7 +99,7 @@ static LMlayers* lmlayers_free(LMlayers* lmlayers)
  ** \param[in]  flag_ext  1 if external drift must be used; 0 otherwise
  **
  *****************************************************************************/
-static int st_get_number_drift(int irf_rank, int flag_ext)
+static Id st_get_number_drift(Id irf_rank, Id flag_ext)
 {
   switch (irf_rank)
   {
@@ -148,17 +148,17 @@ static int st_get_number_drift(int irf_rank, int flag_ext)
  ** \param[in]  nlayers    Number of layers
  **
  *****************************************************************************/
-static LMlayers* lmlayers_alloc(int flag_same,
-                                int flag_vel,
-                                int flag_cumul,
-                                int flag_ext,
-                                int flag_z,
-                                int colrefd,
-                                int colreft,
-                                int colrefb,
-                                int irf_rank,
-                                int match_time,
-                                int nlayers)
+static LMlayers* lmlayers_alloc(Id flag_same,
+                                Id flag_vel,
+                                Id flag_cumul,
+                                Id flag_ext,
+                                Id flag_z,
+                                Id colrefd,
+                                Id colreft,
+                                Id colrefb,
+                                Id irf_rank,
+                                Id match_time,
+                                Id nlayers)
 {
   LMlayers* lmlayers   = new LMlayers;
   lmlayers->flag_same  = flag_same;
@@ -238,11 +238,11 @@ static void lmlayers_print(LMlayers* lmlayers)
  ** \param[out] igrid     Rank of the node in the output Db
  **
  *****************************************************************************/
-static int st_locate_sample_in_output(LMlayers* lmlayers,
-                                      Db* dbin,
-                                      DbGrid* dbout,
-                                      int iech,
-                                      int* igrid)
+static Id st_locate_sample_in_output(LMlayers* lmlayers,
+                                     Db* dbin,
+                                     DbGrid* dbout,
+                                     Id iech,
+                                     Id* igrid)
 {
   /* In the case the input and output files coincide, simply return 'iech' */
   if (lmlayers->flag_same)
@@ -251,12 +251,12 @@ static int st_locate_sample_in_output(LMlayers* lmlayers,
     return (0);
   }
 
-  int ndim = dbout->getNDim();
+  Id ndim = dbout->getNDim();
   VectorInt indg(ndim, 0);
   VectorDouble coor(ndim);
 
   /* The files are different */
-  for (int idim = 0; idim < dbin->getNDim(); idim++)
+  for (Id idim = 0; idim < dbin->getNDim(); idim++)
     coor[idim] = dbin->getCoordinate(iech, idim);
   if (point_to_grid(dbout, coor.data(), 0, indg.data()) != 0) return (1);
   *igrid = dbout->indiceToRank(indg);
@@ -275,7 +275,7 @@ static int st_locate_sample_in_output(LMlayers* lmlayers,
  ** \remarks and the program is interrupted as this must never happen.
  **
  *****************************************************************************/
-static void st_check_layer(const char* string, LMlayers* lmlayers, int ilayer0)
+static void st_check_layer(const char* string, LMlayers* lmlayers, Id ilayer0)
 {
   if (ilayer0 >= 1 && ilayer0 <= lmlayers->nlayers) return;
 
@@ -299,14 +299,14 @@ static void st_check_layer(const char* string, LMlayers* lmlayers, int ilayer0)
  ** \param[out] props     Working array (Dimension: nlayers)
  **
  *****************************************************************************/
-static int st_get_props_result(LMlayers* lmlayers,
-                               Db* dbout,
-                               int iech,
-                               int ilayer0,
-                               VectorDouble& props)
+static Id st_get_props_result(LMlayers* lmlayers,
+                              Db* dbout,
+                              Id iech,
+                              Id ilayer0,
+                              VectorDouble& props)
 {
   double pval, t0, t1, tlast, tt;
-  int ilayer;
+  Id ilayer;
 
   /* Initializations */
 
@@ -365,14 +365,14 @@ static int st_get_props_result(LMlayers* lmlayers,
  ** \param[out] props     Working array (Dimension: nlayers)
  **
  *****************************************************************************/
-static int st_get_props_data(LMlayers* lmlayers,
-                             Db* dbin,
-                             DbGrid* dbout,
-                             int iech,
-                             int ilayer0,
-                             VectorDouble& props)
+static Id st_get_props_data(LMlayers* lmlayers,
+                            Db* dbin,
+                            DbGrid* dbout,
+                            Id iech,
+                            Id ilayer0,
+                            VectorDouble& props)
 {
-  int igrid, ilayer;
+  Id igrid, ilayer;
 
   /* Initializations */
 
@@ -406,8 +406,8 @@ static int st_get_props_data(LMlayers* lmlayers,
  *****************************************************************************/
 static double st_get_drift_result(LMlayers* lmlayers,
                                   Db* dbout,
-                                  int iech,
-                                  int ilayer0)
+                                  Id iech,
+                                  Id ilayer0)
 {
   double drift;
 
@@ -434,10 +434,10 @@ static double st_get_drift_result(LMlayers* lmlayers,
 static double st_get_drift_data(LMlayers* lmlayers,
                                 Db* dbin,
                                 DbGrid* dbout,
-                                int iech,
-                                int ilayer0)
+                                Id iech,
+                                Id ilayer0)
 {
-  int igrid;
+  Id igrid;
   double drift;
 
   if (!lmlayers->flag_ext) return (TEST);
@@ -472,7 +472,7 @@ static void st_covariance_c00(LMlayers* lmlayers,
                               MatrixSquare& covtab,
                               double* c00)
 {
-  int nlayers, flag_interrupt;
+  Id nlayers, flag_interrupt;
   double value;
 
   nlayers = lmlayers->nlayers;
@@ -480,12 +480,12 @@ static void st_covariance_c00(LMlayers* lmlayers,
 
   if (lmlayers->flag_cumul)
   {
-    for (int k = 0; k < nlayers; k++)
+    for (Id k = 0; k < nlayers; k++)
     {
       value          = 0.;
       flag_interrupt = 0;
-      for (int i = 0; i <= k && flag_interrupt == 0; i++)
-        for (int j = 0; j <= k && flag_interrupt == 0; j++)
+      for (Id i = 0; i <= k && flag_interrupt == 0; i++)
+        for (Id j = 0; j <= k && flag_interrupt == 0; j++)
         {
           if (FFFF(prop1[i]) || FFFF(prop1[j]))
             flag_interrupt = 1;
@@ -497,7 +497,7 @@ static void st_covariance_c00(LMlayers* lmlayers,
   }
   else
   {
-    for (int k = 0; k < nlayers; k++)
+    for (Id k = 0; k < nlayers; k++)
       c00[k] = covtab.getValue(k, k);
   }
 }
@@ -523,9 +523,9 @@ static void st_covariance_c00(LMlayers* lmlayers,
  *****************************************************************************/
 static double st_cij(LMlayers* lmlayers,
                      Model* model,
-                     int ilayer,
+                     Id ilayer,
                      const VectorDouble& prop1,
-                     int jlayer,
+                     Id jlayer,
                      const VectorDouble& prop2,
                      const double* dd,
                      MatrixSquare& covtab)
@@ -543,8 +543,8 @@ static double st_cij(LMlayers* lmlayers,
   /* Evaluate the covariance term */
 
   double value = 0.;
-  for (int i = 0; i < ilayer; i++)
-    for (int j = 0; j < jlayer; j++)
+  for (Id i = 0; i < ilayer; i++)
+    for (Id j = 0; j < jlayer; j++)
     {
       if (FFFF(prop1[i])) return (TEST);
       if (FFFF(prop2[j])) return (TEST);
@@ -573,9 +573,9 @@ static double st_cij(LMlayers* lmlayers,
  *****************************************************************************/
 static double st_ci0(LMlayers* lmlayers,
                      Model* model,
-                     int ilayer,
+                     Id ilayer,
                      const VectorDouble& prop1,
-                     int jlayer,
+                     Id jlayer,
                      const double* dd,
                      MatrixSquare& covtab)
 {
@@ -592,7 +592,7 @@ static double st_ci0(LMlayers* lmlayers,
   /* Evaluate the covariance term */
 
   double value = 0.;
-  for (int i = 0; i < ilayer; i++)
+  for (Id i = 0; i < ilayer; i++)
   {
     if (FFFF(prop1[i])) return (1);
     value += prop1[i] * covtab.getValue(i, jlayer - 1);
@@ -616,14 +616,14 @@ static double st_ci0(LMlayers* lmlayers,
  ** \param[out] b         Array for storing the drift
  **
  *****************************************************************************/
-static int st_drift(LMlayers* lmlayers,
-                    const double* coor,
-                    double propval,
-                    double drext,
-                    int* ipos_loc,
-                    VectorDouble& b)
+static Id st_drift(LMlayers* lmlayers,
+                   const double* coor,
+                   double propval,
+                   double drext,
+                   Id* ipos_loc,
+                   VectorDouble& b)
 {
-  int ipos;
+  Id ipos;
 
   if (lmlayers->flag_ext && FFFF(drext)) return (1);
   ipos = *ipos_loc;
@@ -679,20 +679,20 @@ static int st_drift(LMlayers* lmlayers,
  ** \param[out] b         R.H.S. vector (Dimension = neq)
  **
  *****************************************************************************/
-static int st_lhs_one(LMlayers* lmlayers,
-                      Db* dbin,
-                      DbGrid* dbout,
-                      Model* model,
-                      VectorInt& seltab,
-                      int iech0,
-                      int ilayer0,
-                      double* coor,
-                      VectorDouble& prop0,
-                      VectorDouble& prop2,
-                      MatrixSquare& covtab,
-                      VectorDouble& b)
+static Id st_lhs_one(LMlayers* lmlayers,
+                     Db* dbin,
+                     DbGrid* dbout,
+                     Model* model,
+                     VectorInt& seltab,
+                     Id iech0,
+                     Id ilayer0,
+                     double* coor,
+                     VectorDouble& prop0,
+                     VectorDouble& prop2,
+                     MatrixSquare& covtab,
+                     VectorDouble& b)
 {
-  int jech, jjech, jfois, jlayer, nlayers, i;
+  Id jech, jjech, jfois, jlayer, nlayers, i;
   double drext, coor2[2], d1[2];
 
   /* Initializations */
@@ -708,7 +708,7 @@ static int st_lhs_one(LMlayers* lmlayers,
     coor2[1] = dbin->getCoordinate(jech, 1);
     for (jfois = 0; jfois < seltab[jech]; jfois++, jjech++)
     {
-      jlayer = (jfois == 0) ? (int)dbin->getFromLocator(ELoc::LAYER, jech) : nlayers;
+      jlayer = (jfois == 0) ? static_cast<Id>(dbin->getFromLocator(ELoc::LAYER, jech)) : nlayers;
 
       /* Evaluate the proportion vector */
 
@@ -754,20 +754,20 @@ static int st_lhs_one(LMlayers* lmlayers,
  ** \param[out] b         R.H.S. vector (Dimension = neq)
  **
  *****************************************************************************/
-static int st_rhs(LMlayers* lmlayers,
-                  Db* dbin,
-                  DbGrid* dbout,
-                  Model* model,
-                  double* coor,
-                  VectorInt& seltab,
-                  int iechout,
-                  int ilayer0,
-                  VectorDouble& prop0,
-                  VectorDouble& prop2,
-                  MatrixSquare& covtab,
-                  VectorDouble& b)
+static Id st_rhs(LMlayers* lmlayers,
+                 Db* dbin,
+                 DbGrid* dbout,
+                 Model* model,
+                 double* coor,
+                 VectorInt& seltab,
+                 Id iechout,
+                 Id ilayer0,
+                 VectorDouble& prop0,
+                 VectorDouble& prop2,
+                 MatrixSquare& covtab,
+                 VectorDouble& b)
 {
-  int jech, jjech, i, jlayer, ipos, ifois, nlayers, ideb;
+  Id jech, jjech, i, jlayer, ipos, ifois, nlayers, ideb;
   double drext, d1[2], coor2[2], propval;
 
   /* Get the coordinates of the target */
@@ -791,7 +791,7 @@ static int st_rhs(LMlayers* lmlayers,
     coor2[1] = dbin->getCoordinate(jech, 1);
     for (ifois = 0; ifois < seltab[jech]; ifois++, jjech++)
     {
-      jlayer = (ifois == 0) ? (int)dbin->getFromLocator(ELoc::LAYER, jech) : nlayers;
+      jlayer = (ifois == 0) ? static_cast<Id>(dbin->getFromLocator(ELoc::LAYER, jech)) : nlayers;
 
       /* Evaluate the proportion vector */
 
@@ -841,39 +841,39 @@ static int st_rhs(LMlayers* lmlayers,
  ** \param[out] acov      L.H.S. (square) covariance matrix
  **
  *****************************************************************************/
-static int st_lhs(LMlayers* lmlayers,
-                  Db* dbin,
-                  DbGrid* dbout,
-                  Model* model,
-                  VectorInt& seltab,
-                  VectorDouble& prop1,
-                  VectorDouble& prop2,
-                  MatrixSquare& covtab,
-                  double* a,
-                  double* acov)
+static Id st_lhs(LMlayers* lmlayers,
+                 Db* dbin,
+                 DbGrid* dbout,
+                 Model* model,
+                 VectorInt& seltab,
+                 VectorDouble& prop1,
+                 VectorDouble& prop2,
+                 MatrixSquare& covtab,
+                 double* a,
+                 double* acov)
 {
-  int iiech, jjech;
+  Id iiech, jjech;
   double coor[2];
 
   /* Initialize the matrix with zeroes */
 
-  int nech    = lmlayers->nech;
-  int neq     = lmlayers->neq;
-  int nlayers = lmlayers->nlayers;
-  for (int i = 0; i < neq * neq; i++) a[i] = 0.;
+  Id nech    = lmlayers->nech;
+  Id neq     = lmlayers->neq;
+  Id nlayers = lmlayers->nlayers;
+  for (Id i = 0; i < neq * neq; i++) a[i] = 0.;
   VectorDouble b(neq);
 
   /* Loop on the first sample */
 
   iiech = 0;
-  for (int iech = 0; iech < dbin->getNSample(); iech++)
+  for (Id iech = 0; iech < dbin->getNSample(); iech++)
   {
     if (seltab[iech] == 0) continue;
     coor[0] = dbin->getCoordinate(iech, 0);
     coor[1] = dbin->getCoordinate(iech, 1);
-    for (int ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
+    for (Id ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
     {
-      int ilayer = (ifois == 0) ? (int)dbin->getFromLocator(ELoc::LAYER, iech) : nlayers;
+      Id ilayer = (ifois == 0) ? static_cast<Id>(dbin->getFromLocator(ELoc::LAYER, iech)) : nlayers;
 
       /* Evaluate the proportion vector */
 
@@ -885,7 +885,7 @@ static int st_lhs(LMlayers* lmlayers,
       if (st_lhs_one(lmlayers, dbin, dbout, model, seltab, iech, ilayer, coor,
                      prop1, prop2, covtab, b)) return (1);
 
-      for (int i = 0; i < neq; i++)
+      for (Id i = 0; i < neq; i++)
         A(iiech, i) = b[i];
     }
   }
@@ -898,8 +898,8 @@ static int st_lhs(LMlayers* lmlayers,
 
   /* Extraction of the Covariance matrix */
 
-  for (int iech = 0; iech < nech; iech++)
-    for (int jech = 0; jech < nech; jech++)
+  for (Id iech = 0; iech < nech; iech++)
+    for (Id jech = 0; jech < nech; jech++)
       ACOV(iech, jech) = A(iech, jech);
 
   if (get_keypone("Bayes_Debug_Flag", 0))
@@ -927,7 +927,7 @@ static void st_data_vector(LMlayers* lmlayers,
                            VectorDouble& zval)
 {
   double value, dtime;
-  int i, iech, iiech, igrid, ifois, ilayer, nlayers;
+  Id i, iech, iiech, igrid, ifois, ilayer, nlayers;
 
   /* Initialize the vector with zeroes */
 
@@ -949,7 +949,7 @@ static void st_data_vector(LMlayers* lmlayers,
 
     for (ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
     {
-      ilayer = (ifois == 0) ? (int)dbin->getFromLocator(ELoc::LAYER, iech) : nlayers;
+      ilayer = (ifois == 0) ? static_cast<Id>(dbin->getFromLocator(ELoc::LAYER, iech)) : nlayers;
 
       if (ifois == 0)
       {
@@ -1005,21 +1005,16 @@ static void st_data_vector(LMlayers* lmlayers,
  ** \remarks "Optim_Drift_Coeffs" which returns 'ipos' values
  **
  *****************************************************************************/
-static int st_subtract_optimal_drift(LMlayers* lmlayers,
-                                     int verbose,
-                                     Db* dbin,
-                                     DbGrid* dbout,
-                                     VectorInt& seltab,
-                                     VectorDouble& zval)
+static Id st_subtract_optimal_drift(LMlayers* lmlayers,
+                                    Id verbose,
+                                    Db* dbin,
+                                    DbGrid* dbout,
+                                    VectorInt& seltab,
+                                    VectorDouble& zval)
 {
   double drext, coor[2];
-  int nlayers, error, iech, iiech, ifois, ilayer, nbfl, neq, ipos;
-  int flag_subtract = 1;
-  VectorDouble props;
-  VectorDouble drift;
-  VectorDouble coeff;
-  VectorDouble atab;
-  VectorDouble btab;
+  Id nlayers, error, iech, iiech, ifois, ilayer, nbfl, neq, ipos;
+  Id flag_subtract = 1;
 
   /* Initializations */
 
@@ -1030,11 +1025,11 @@ static int st_subtract_optimal_drift(LMlayers* lmlayers,
 
   /* Core allocation */
 
-  coeff.resize(neq);
-  drift.resize(neq, 0);
-  props.resize(nlayers);
-  atab.resize(neq * neq, 0.);
-  btab.resize(neq, 0.);
+  VectorDouble props(nlayers);
+  VectorDouble drift(neq);
+  VectorDouble coeff(neq);
+  VectorDouble atab(neq * neq);
+  VectorDouble btab(neq);
 
   /* Find the vector of optimal mean values */
 
@@ -1044,7 +1039,7 @@ static int st_subtract_optimal_drift(LMlayers* lmlayers,
 
     for (ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
     {
-      ilayer = (ifois == 0) ? (int)dbin->getFromLocator(ELoc::LAYER, iech) : nlayers;
+      ilayer = (ifois == 0) ? static_cast<Id>(dbin->getFromLocator(ELoc::LAYER, iech)) : nlayers;
 
       /* Evaluate the proportion vector */
 
@@ -1059,7 +1054,7 @@ static int st_subtract_optimal_drift(LMlayers* lmlayers,
       /* Get the drift vector */
 
       ipos = 0;
-      for (int i = 0; i < nlayers; i++)
+      for (Id i = 0; i < nlayers; i++)
       {
         drext = st_get_drift_data(lmlayers, dbin, dbout, iech, i + 1);
         if (st_drift(lmlayers, coor, props[i], drext, &ipos, drift)) continue;
@@ -1067,10 +1062,10 @@ static int st_subtract_optimal_drift(LMlayers* lmlayers,
 
       /* Calculate the contribution to the different arrays */
 
-      for (int k1 = 0; k1 < ipos; k1++)
+      for (Id k1 = 0; k1 < ipos; k1++)
       {
         btab[k1] += zval[iiech] * drift[k1];
-        for (int k2 = 0; k2 < ipos; k2++)
+        for (Id k2 = 0; k2 < ipos; k2++)
           ATAB(neq, k1, k2) += drift[k1] * drift[k2];
       }
     }
@@ -1094,7 +1089,7 @@ static int st_subtract_optimal_drift(LMlayers* lmlayers,
 
     for (ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
     {
-      ilayer = (ifois == 0) ? (int)dbin->getFromLocator(ELoc::LAYER, iech) : nlayers;
+      ilayer = (ifois == 0) ? static_cast<Id>(dbin->getFromLocator(ELoc::LAYER, iech)) : nlayers;
 
       /* Evaluate the proportion vector */
 
@@ -1109,7 +1104,7 @@ static int st_subtract_optimal_drift(LMlayers* lmlayers,
       /* Get the drift vector */
 
       ipos = 0;
-      for (int i = 0; i < nlayers; i++)
+      for (Id i = 0; i < nlayers; i++)
       {
         drext = st_get_drift_data(lmlayers, dbin, dbout, iech, i + 1);
         if (st_drift(lmlayers, coor, props[i], drext, &ipos, drift)) continue;
@@ -1118,7 +1113,7 @@ static int st_subtract_optimal_drift(LMlayers* lmlayers,
       /* Subtract the optimal estimation of the drift */
 
       if (flag_subtract)
-        for (int k1 = 0; k1 < ipos; k1++)
+        for (Id k1 = 0; k1 < ipos; k1++)
           zval[iiech] -= coeff[k1] * drift[k1];
 
       /* Save the results of the optimal drift */
@@ -1154,12 +1149,12 @@ label_end:
  ** \param[in]  coor      Coordinates of the target
  **
  *****************************************************************************/
-static int st_get_close_sample(LMlayers* lmlayers,
-                               Db* dbin,
-                               int iech0,
-                               const double* coor)
+static Id st_get_close_sample(LMlayers* lmlayers,
+                              Db* dbin,
+                              Id iech0,
+                              const double* coor)
 {
-  int iech, ilayer;
+  Id iech, ilayer;
   double dx, dy;
   static double EPS = 1.e-05;
 
@@ -1183,7 +1178,7 @@ static int st_get_close_sample(LMlayers* lmlayers,
     if (ABS(dx) > EPS) continue;
     dy = dbin->getCoordinate(iech, 1) - coor[1];
     if (ABS(dy) > EPS) continue;
-    ilayer = (int)dbin->getFromLocator(ELoc::LAYER, iech);
+    ilayer = static_cast<Id>(dbin->getFromLocator(ELoc::LAYER, iech));
     if (ilayer == lmlayers->nlayers) return (0);
   }
   return (1);
@@ -1211,24 +1206,24 @@ static int st_get_close_sample(LMlayers* lmlayers,
  ** \param[out] ratio     Ratio value
  **
  *****************************************************************************/
-static int st_collocated_prepare(LMlayers* lmlayers,
-                                 int iechout,
-                                 double* coor,
-                                 Db* dbin,
-                                 DbGrid* dbout,
-                                 Model* model,
-                                 VectorInt& seltab,
-                                 double* a,
-                                 VectorDouble& zval,
-                                 VectorDouble& prop1,
-                                 VectorDouble& prop2,
-                                 MatrixSquare& covtab,
-                                 double* b2,
-                                 VectorDouble& baux,
-                                 double* ratio)
+static Id st_collocated_prepare(LMlayers* lmlayers,
+                                Id iechout,
+                                double* coor,
+                                Db* dbin,
+                                DbGrid* dbout,
+                                Model* model,
+                                VectorInt& seltab,
+                                double* a,
+                                VectorDouble& zval,
+                                VectorDouble& prop1,
+                                VectorDouble& prop2,
+                                MatrixSquare& covtab,
+                                double* b2,
+                                VectorDouble& baux,
+                                double* ratio)
 {
   double botval, c0, coefa, coefz;
-  int nlayers, neq;
+  Id nlayers, neq;
 
   (*ratio) = 0.;
   neq      = lmlayers->neq;
@@ -1268,7 +1263,7 @@ static int st_collocated_prepare(LMlayers* lmlayers,
  **
  *****************************************************************************/
 static void st_estimate_regular(LMlayers* lmlayers,
-                                int flag_std,
+                                Id flag_std,
                                 double c00,
                                 double* a,
                                 VectorDouble& b,
@@ -1278,7 +1273,7 @@ static void st_estimate_regular(LMlayers* lmlayers,
                                 double* stdev)
 {
   double c00val, stdv;
-  int neq;
+  Id neq;
 
   /* Initializations */
 
@@ -1329,7 +1324,7 @@ static void st_estimate_regular(LMlayers* lmlayers,
  **
  *****************************************************************************/
 static void st_estimate_bayes(LMlayers* lmlayers,
-                              int flag_std,
+                              Id flag_std,
                               double c00,
                               const double* acov,
                               VectorDouble& zval,
@@ -1344,7 +1339,7 @@ static void st_estimate_bayes(LMlayers* lmlayers,
                               double* stdev)
 {
   double *rhs, *ff0, estim1, estim2, stdv;
-  int nech, npar;
+  Id nech, npar;
   VectorDouble temp;
   VectorDouble fsf0;
   VectorDouble c2;
@@ -1366,7 +1361,7 @@ static void st_estimate_bayes(LMlayers* lmlayers,
   /* Perform the estimation */
 
   matrix_product_safe(nech, npar, 1, a0, ff0, fsf0.data());
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
     c2[iech] = rhs[iech] + fsf0[iech];
   matrix_product_safe(nech, nech, 1, cc, c2.data(), wgt);
 
@@ -1379,16 +1374,16 @@ static void st_estimate_bayes(LMlayers* lmlayers,
   if (flag_std)
   {
     matrix_product_safe(1, nech, npar, rhs, ss, temp.data());
-    for (int ipar = 0; ipar < npar; ipar++)
+    for (Id ipar = 0; ipar < npar; ipar++)
       temp[ipar] -= ff0[ipar];
 
     stdv = c00;
-    for (int iech = 0; iech < nech; iech++)
-      for (int jech = 0; jech < nech; jech++)
+    for (Id iech = 0; iech < nech; iech++)
+      for (Id jech = 0; jech < nech; jech++)
         stdv -= rhs[iech] * ACOV(iech, jech) * rhs[jech];
 
-    for (int ipar = 0; ipar < npar; ipar++)
-      for (int jpar = 0; jpar < npar; jpar++)
+    for (Id ipar = 0; ipar < npar; ipar++)
+      for (Id jpar = 0; jpar < npar; jpar++)
         stdv += temp[ipar] * GS(ipar, jpar) * temp[jpar];
 
     stdv   = (stdv > 0) ? sqrt(stdv) : 0.;
@@ -1431,8 +1426,8 @@ static void st_estimate(LMlayers* lmlayers,
                         DbGrid* dbout,
                         Model* model,
                         VectorInt& seltab,
-                        int flag_bayes,
-                        int flag_std,
+                        Id flag_bayes,
+                        Id flag_std,
                         double* a,
                         VectorDouble& zval,
                         double* dual,
@@ -1453,7 +1448,7 @@ static void st_estimate(LMlayers* lmlayers,
                         double* post_mean)
 {
   double estim, cx, coor[2], coefb, botval, ratio, stdv;
-  int iechout, ilayer, flag_correc, nlayers, neq;
+  Id iechout, ilayer, flag_correc, nlayers, neq;
 
   /* Loop on the grid nodes */
 
@@ -1563,12 +1558,12 @@ static void st_estimate(LMlayers* lmlayers,
  ** \param[in,out]  seltab    Number of sample definition (0, 1 or 2)
  **
  *****************************************************************************/
-static int st_check_auxiliary_variables(LMlayers* lmlayers,
-                                        Db* dbin,
-                                        DbGrid* dbout,
-                                        VectorInt& seltab)
+static Id st_check_auxiliary_variables(LMlayers* lmlayers,
+                                       Db* dbin,
+                                       DbGrid* dbout,
+                                       VectorInt& seltab)
 {
-  int iech, ilayer, igrid, newval, nechtot;
+  Id iech, ilayer, igrid, newval, nechtot;
   double drift, value, coor[2];
 
   nechtot = 0;
@@ -1577,7 +1572,7 @@ static int st_check_auxiliary_variables(LMlayers* lmlayers,
     if (seltab[iech] == 0) continue;
     coor[0] = dbin->getCoordinate(iech, 0);
     coor[1] = dbin->getCoordinate(iech, 1);
-    ilayer  = (int)dbin->getFromLocator(ELoc::LAYER, iech);
+    ilayer  = static_cast<Id>(dbin->getFromLocator(ELoc::LAYER, iech));
     if (st_locate_sample_in_output(lmlayers, dbin, dbout, iech, &igrid))
       goto label_suppress;
 
@@ -1640,10 +1635,10 @@ static int st_check_auxiliary_variables(LMlayers* lmlayers,
  ** \remarks The standard deviation is also transformed
  **
  *****************************************************************************/
-static void st_convert_results(LMlayers* lmlayers, Db* dbout, int flag_std)
+static void st_convert_results(LMlayers* lmlayers, Db* dbout, Id flag_std)
 {
   double depth0, depth, value, stdv, time0, time, depth_prev, time_prev, delta;
-  int iechout, ilayer, nlayers;
+  Id iechout, ilayer, nlayers;
 
   /* Initializations */
 
@@ -1742,21 +1737,21 @@ static void st_convert_results(LMlayers* lmlayers, Db* dbout, int flag_std)
  ** \param[out] fftab     Drift array (Dimension: npar[nrow] * nech[ncol])
  **
  *****************************************************************************/
-static int st_drift_data(LMlayers* lmlayers,
-                         Db* dbin,
-                         DbGrid* dbout,
-                         VectorInt& seltab,
-                         VectorDouble& prop1,
-                         VectorDouble& fftab)
+static Id st_drift_data(LMlayers* lmlayers,
+                        Db* dbin,
+                        DbGrid* dbout,
+                        VectorInt& seltab,
+                        VectorDouble& prop1,
+                        VectorDouble& fftab)
 {
-  int npar, nech, iech, iiech, ilayer, ipos;
+  Id npar, nech, iech, iiech, ilayer, ipos;
   double coor[2], drext;
 
   /* Initializations */
 
   npar = lmlayers->npar;
   nech = lmlayers->nech;
-  for (int i = 0; i < npar * nech; i++)
+  for (Id i = 0; i < npar * nech; i++)
     fftab[i] = 0.;
 
   for (iech = iiech = 0; iech < dbin->getNSample(); iech++)
@@ -1764,9 +1759,9 @@ static int st_drift_data(LMlayers* lmlayers,
     if (seltab[iech] == 0) continue;
     coor[0] = dbin->getCoordinate(iech, 0);
     coor[1] = dbin->getCoordinate(iech, 1);
-    for (int ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
+    for (Id ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
     {
-      ilayer = (ifois == 0) ? (int)dbin->getFromLocator(ELoc::LAYER, iech) : lmlayers->nlayers;
+      ilayer = (ifois == 0) ? static_cast<Id>(dbin->getFromLocator(ELoc::LAYER, iech)) : lmlayers->nlayers;
 
       /* Evaluate the proportion vector */
 
@@ -1776,7 +1771,7 @@ static int st_drift_data(LMlayers* lmlayers,
       /* Loop on the second sample */
 
       ipos = iech * lmlayers->npar;
-      for (int i = 0; i < ilayer; i++)
+      for (Id i = 0; i < ilayer; i++)
       {
         drext = st_get_drift_data(lmlayers, dbin, dbout, iech, i + 1);
         if (st_drift(lmlayers, coor, prop1[i], drext, &ipos, fftab)) return (1);
@@ -1800,21 +1795,21 @@ static int st_drift_data(LMlayers* lmlayers,
  ** \remarks post_S contains the inverse of post_S
  **
  *****************************************************************************/
-static int st_drift_bayes(LMlayers* lmlayers,
-                          int verbose,
-                          double* prior_mean,
-                          const double* prior_vars,
-                          double* acov,
-                          VectorDouble& zval,
-                          VectorDouble& fftab,
-                          double* a0,
-                          double* cc,
-                          double* ss,
-                          double* gs,
-                          double* post_mean,
-                          double* post_S)
+static Id st_drift_bayes(LMlayers* lmlayers,
+                         Id verbose,
+                         double* prior_mean,
+                         const double* prior_vars,
+                         double* acov,
+                         VectorDouble& zval,
+                         VectorDouble& fftab,
+                         double* a0,
+                         double* cc,
+                         double* ss,
+                         double* gs,
+                         double* post_mean,
+                         double* post_S)
 {
-  int error, npar, nech, npar2, nech2;
+  Id error, npar, nech, npar2, nech2;
   VectorDouble ffc;
   VectorDouble fm1z;
   VectorDouble gg;
@@ -1840,8 +1835,8 @@ static int st_drift_bayes(LMlayers* lmlayers,
 
   /* Constitute the prior Variance-Covariance matrix */
 
-  for (int ipar = 0; ipar < npar; ipar++)
-    for (int jpar = 0; jpar < npar; jpar++)
+  for (Id ipar = 0; ipar < npar; ipar++)
+    for (Id jpar = 0; jpar < npar; jpar++)
       INVS(npar, ipar, jpar) = (ipar == jpar) ? prior_vars[ipar] : 0.;
 
   /* Optional printout */
@@ -1877,7 +1872,7 @@ static int st_drift_bayes(LMlayers* lmlayers,
 
   /* Calculate the Posterior Variance-Covariance matrix */
 
-  for (int i = 0; i < npar2; i++)
+  for (Id i = 0; i < npar2; i++)
     post_S[i] = invS[i] + invH[i];
   if (matrix_invert(post_S, npar, -1)) goto label_end;
   if (get_keypone("Bayes_Debug_Flag", 0))
@@ -1886,7 +1881,7 @@ static int st_drift_bayes(LMlayers* lmlayers,
   /* Calculate the Posterior Mean vector */
 
   matrix_product_safe(npar, npar, 1, invS.data(), prior_mean, post_mean);
-  for (int i = 0; i < npar; i++)
+  for (Id i = 0; i < npar; i++)
     fm1z[i] += post_mean[i];
   matrix_product_safe(npar, npar, 1, post_S, fm1z.data(), post_mean);
   if (get_keypone("Bayes_Debug_Flag", 0))
@@ -1902,8 +1897,8 @@ static int st_drift_bayes(LMlayers* lmlayers,
 
   /* Modify the Data vector */
 
-  for (int iech = 0; iech < nech; iech++)
-    for (int ipar = 0; ipar < npar; ipar++)
+  for (Id iech = 0; iech < nech; iech++)
+    for (Id ipar = 0; ipar < npar; ipar++)
       zval[iech] -= FFTAB(ipar, iech) * post_mean[ipar];
   if (get_keypone("Bayes_Debug_Flag", 0))
     set_keypair("Mlayers_Zval2_Matrix", 1, lmlayers->neq, 1, zval.data());
@@ -1912,19 +1907,19 @@ static int st_drift_bayes(LMlayers* lmlayers,
 
   matrix_product_safe(nech, npar, npar, fft.data(), post_S, a0);
   matrix_product_safe(nech, nech, npar, acov, fft.data(), ss);
-  for (int i = 0; i < npar2; i++)
+  for (Id i = 0; i < npar2; i++)
     invS[i] = post_S[i];
   if (matrix_invert(invS.data(), npar, -1)) goto label_end;
-  for (int i = 0; i < npar2; i++)
+  for (Id i = 0; i < npar2; i++)
     gg[i] = invH[i] + invS[i];
   if (matrix_invert(gg.data(), npar, -1)) goto label_end;
   if (get_keypone("Bayes_Debug_Flag", 0))
     set_keypair("Mlayers_GG_Matrix", 1, npar, npar, gg.data());
 
   matrix_prod_norme(1, nech, npar, ss, gg.data(), cc);
-  for (int i = 0; i < nech2; i++)
+  for (Id i = 0; i < nech2; i++)
     cc[i] = acov[i] - cc[i];
-  for (int i = 0; i < npar2; i++)
+  for (Id i = 0; i < npar2; i++)
     gs[i] = invH[i] + invS[i];
   if (matrix_invert(gs, npar, -1)) goto label_end;
   if (get_keypone("Bayes_Debug_Flag", 0))
@@ -1966,28 +1961,28 @@ label_end:
  ** \param[in]  verbose    Verbose option
  **
  *****************************************************************************/
-int multilayers_kriging(Db* dbin,
-                        DbGrid* dbout,
-                        Model* model,
-                        ANeigh* neigh,
-                        int flag_same,
-                        int flag_z,
-                        int flag_vel,
-                        int flag_cumul,
-                        int flag_ext,
-                        int flag_std,
-                        int flag_bayes,
-                        int irf_rank,
-                        int match_time,
-                        int dim_prior,
-                        double* prior_mean,
-                        double* prior_vars,
-                        int colrefd,
-                        int colreft,
-                        int colrefb,
-                        int verbose)
+Id multilayers_kriging(Db* dbin,
+                       DbGrid* dbout,
+                       Model* model,
+                       ANeigh* neigh,
+                       Id flag_same,
+                       Id flag_z,
+                       Id flag_vel,
+                       Id flag_cumul,
+                       Id flag_ext,
+                       Id flag_std,
+                       Id flag_bayes,
+                       Id irf_rank,
+                       Id match_time,
+                       Id dim_prior,
+                       double* prior_mean,
+                       double* prior_vars,
+                       Id colrefd,
+                       Id colreft,
+                       Id colrefb,
+                       Id verbose)
 {
-  int nlayers, ilayer, nechmax, nech, iech, neq, nvar, npar, error;
+  Id nlayers, ilayer, nechmax, nech, iech, neq, nvar, npar, error;
   double* a;
   MatrixSquare covtab;
   bool flag_created;
@@ -2116,7 +2111,7 @@ int multilayers_kriging(Db* dbin,
   for (iech = 0; iech < nechmax; iech++)
   {
     seltab[iech] = 0;
-    ilayer       = (int)dbin->getFromLocator(ELoc::LAYER, iech);
+    ilayer       = static_cast<Id>(dbin->getFromLocator(ELoc::LAYER, iech));
     if (ilayer < 1 || ilayer > nlayers) continue;
     if (st_get_props_data(lmlayers, dbin, dbout, iech, ilayer, prop1)) continue;
     seltab[iech] = 1;
@@ -2240,23 +2235,23 @@ label_end:
  ** \param[out] btab       Working array (Dimension: nhalf)
  **
  *****************************************************************************/
-static int st_evaluate_lag(LMlayers* lmlayers,
-                           Db* dbin,
-                           DbGrid* dbout,
-                           Vario_Order* vorder,
-                           int nlayers,
-                           int ifirst,
-                           int ilast,
-                           VectorDouble& zval,
-                           int* nval,
-                           double* distsum,
-                           int* stat,
-                           VectorDouble& phia,
-                           VectorDouble& phib,
-                           double* atab,
-                           double* btab)
+static Id st_evaluate_lag(LMlayers* lmlayers,
+                          Db* dbin,
+                          DbGrid* dbout,
+                          Vario_Order* vorder,
+                          Id nlayers,
+                          Id ifirst,
+                          Id ilast,
+                          VectorDouble& zval,
+                          Id* nval,
+                          double* distsum,
+                          Id* stat,
+                          VectorDouble& phia,
+                          VectorDouble& phib,
+                          double* atab,
+                          double* btab)
 {
-  int iech, jech, iiech, jjech, ilayer, jlayer, ecr1, ecr2, nhalf;
+  Id iech, jech, iiech, jjech, ilayer, jlayer, ecr1, ecr2, nhalf;
   double z1, z2, dist, fact1, fact2;
 
   /* Local initializations */
@@ -2264,44 +2259,46 @@ static int st_evaluate_lag(LMlayers* lmlayers,
   (*nval)    = 0;
   (*distsum) = 0.;
   nhalf      = nlayers * (nlayers + 1) / 2;
-  for (int i = 0; i < nhalf; i++)
+  for (Id i = 0; i < nhalf; i++)
     btab[i] = 0.;
-  for (int i = 0; i < nhalf * nhalf; i++)
+  for (Id i = 0; i < nhalf * nhalf; i++)
     atab[i] = 0.;
-  for (int i = 0; i < nlayers * nlayers; i++)
+  for (Id i = 0; i < nlayers * nlayers; i++)
     stat[i] = 0;
 
   /* Loop on the pairs contributing to the lag */
 
-  for (int ipair = ifirst; ipair < ilast; ipair++)
+  for (Id ipair = ifirst; ipair < ilast; ipair++)
   {
     vario_order_get_indices(vorder, ipair, &iiech, &jjech, &dist);
-    vario_order_get_auxiliary(vorder, ipair, (char*)&iech, (char*)&jech);
+    vario_order_get_auxiliary(vorder, ipair,
+                              reinterpret_cast<char*>(&iech),
+                              reinterpret_cast<char*>(&jech));
     z1 = zval[iiech];
     z2 = zval[jjech];
     (*distsum) += dist;
 
-    ilayer = (int)dbin->getFromLocator(ELoc::LAYER, iech);
+    ilayer = static_cast<Id>(dbin->getFromLocator(ELoc::LAYER, iech));
     if (st_get_props_data(lmlayers, dbin, dbout, iech, ilayer, phia))
       return (1);
 
-    jlayer = (int)dbin->getFromLocator(ELoc::LAYER, jech);
+    jlayer = static_cast<Id>(dbin->getFromLocator(ELoc::LAYER, jech));
     if (st_get_props_data(lmlayers, dbin, dbout, jech, jlayer, phib))
       return (1);
 
     ecr1 = 0;
     stat[(ilayer - 1) * nlayers + (jlayer - 1)] += 1;
 
-    for (int il1 = 0; il1 < nlayers; il1++)
-      for (int jl1 = 0; jl1 <= il1; jl1++, ecr1++)
+    for (Id il1 = 0; il1 < nlayers; il1++)
+      for (Id jl1 = 0; jl1 <= il1; jl1++, ecr1++)
       {
         fact1 = phia[il1] * phib[jl1];
         if (il1 != jl1) fact1 += phia[jl1] * phib[il1];
         btab[ecr1] += fact1 * z1 * z2;
 
         ecr2 = 0;
-        for (int il2 = 0; il2 < nlayers; il2++)
-          for (int jl2 = 0; jl2 <= il2; jl2++, ecr2++)
+        for (Id il2 = 0; il2 < nlayers; il2++)
+          for (Id jl2 = 0; jl2 <= il2; jl2++, ecr2++)
           {
             fact2 = phia[il2] * phib[jl2];
             if (il2 != jl2) fact2 += phia[jl2] * phib[il2];
@@ -2332,18 +2329,18 @@ static int st_evaluate_lag(LMlayers* lmlayers,
  ** \param[out] vario      Vario structure
  **
  *****************************************************************************/
-static int st_varioexp_chh(LMlayers* lmlayers,
-                           int verbose,
-                           Db* dbin,
-                           DbGrid* dbout,
-                           Vario_Order* vorder,
-                           VectorDouble& zval,
-                           int idir,
-                           Vario* vario)
+static Id st_varioexp_chh(LMlayers* lmlayers,
+                          Id verbose,
+                          Db* dbin,
+                          DbGrid* dbout,
+                          Vario_Order* vorder,
+                          VectorDouble& zval,
+                          Id idir,
+                          Vario* vario)
 {
   double distsum;
-  int error, nlayers, iadlag, nhalf, nhalf2, nval;
-  int ilag, number, ifirst, ilast, ilayer, jlayer, ijl;
+  Id error, nlayers, iadlag, nhalf, nhalf2, nval;
+  Id ilag, number, ifirst, ilast, ilayer, jlayer, ijl;
   VectorDouble phia;
   VectorDouble phib;
   VectorDouble btab;
@@ -2458,19 +2455,19 @@ label_end:
  ** \param[in]  verbose    1 for a  verbose option
  **
  *****************************************************************************/
-int multilayers_vario(Db* dbin,
-                      DbGrid* dbout,
-                      Vario* vario,
-                      int nlayers,
-                      int flag_vel,
-                      int flag_ext,
-                      int irf_rank,
-                      int match_time,
-                      int colrefd,
-                      int colreft,
-                      int verbose)
+Id multilayers_vario(Db* dbin,
+                     DbGrid* dbout,
+                     Vario* vario,
+                     Id nlayers,
+                     Id flag_vel,
+                     Id flag_ext,
+                     Id irf_rank,
+                     Id match_time,
+                     Id colrefd,
+                     Id colreft,
+                     Id verbose)
 {
-  int error, ilayer, nechmax, nech, iech, idir;
+  Id error, ilayer, nechmax, nech, iech, idir;
   bool flag_created;
   ELoc ptime;
   LMlayers* lmlayers;
@@ -2538,7 +2535,7 @@ int multilayers_vario(Db* dbin,
   for (iech = 0; iech < nechmax; iech++)
   {
     seltab[iech] = 0;
-    ilayer       = (int)dbin->getFromLocator(ELoc::LAYER, iech);
+    ilayer       = static_cast<Id>(dbin->getFromLocator(ELoc::LAYER, iech));
     if (ilayer < 1 || ilayer > nlayers) continue;
     if (st_get_props_data(lmlayers, dbin, dbout, iech, ilayer, prop1)) continue;
     seltab[iech] = 1;
@@ -2562,7 +2559,7 @@ int multilayers_vario(Db* dbin,
 
   /* Evaluate the Geometry */
 
-  vorder = vario_order_manage(1, 1, sizeof(int), NULL);
+  vorder = vario_order_manage(1, 1, sizeof(Id), NULL);
   if (vario->computeGeometryMLayers(dbin, seltab, vorder)) goto label_end;
 
   /* Evaluate the variogram */
@@ -2579,7 +2576,7 @@ int multilayers_vario(Db* dbin,
 
 label_end:
   (void)manageExternalInformation(-1, ELoc::F, dbin, dbout, &flag_created);
-  vario_order_manage(-1, 1, sizeof(int), vorder);
+  vario_order_manage(-1, 1, sizeof(Id), vorder);
   lmlayers_free(lmlayers);
   return (error);
 }
@@ -2599,12 +2596,12 @@ label_end:
  ** \param[out] vars       Array of variances
  **
  *****************************************************************************/
-static int st_get_prior(int nech,
-                        int npar,
-                        VectorDouble& zval,
-                        VectorDouble& fftab,
-                        double* mean,
-                        double* vars)
+static Id st_get_prior(Id nech,
+                       Id npar,
+                       VectorDouble& zval,
+                       VectorDouble& fftab,
+                       double* mean,
+                       double* vars)
 {
   MatrixSymmetric atab(npar);
   MatrixSymmetric atab0(npar);
@@ -2614,18 +2611,18 @@ static int st_get_prior(int nech,
 
   atab0.fill(0.);
   btab0.fill(0.);
-  for (int i = 0; i < npar; i++)
+  for (Id i = 0; i < npar; i++)
     mean[i] = 0.;
-  for (int i = 0; i < npar * npar; i++)
+  for (Id i = 0; i < npar * npar; i++)
     vars[i] = 0.;
 
   /* Loop on the data */
 
-  for (int iech = 0; iech < nech; iech++)
-    for (int ipar = 0; ipar < npar; ipar++)
+  for (Id iech = 0; iech < nech; iech++)
+    for (Id ipar = 0; ipar < npar; ipar++)
     {
       btab0[ipar] += zval[iech] * FFTAB(ipar, iech);
-      for (int jpar = 0; jpar <= ipar; jpar++)
+      for (Id jpar = 0; jpar <= ipar; jpar++)
         atab0.updValue(ipar, jpar, EOperator::ADD, FFTAB(ipar, iech) * FFTAB(jpar, iech));
     }
 
@@ -2639,17 +2636,17 @@ static int st_get_prior(int nech,
 
   /* Bootstrap for the variance-covariance */
 
-  for (int iech = 0; iech < nech; iech++)
+  for (Id iech = 0; iech < nech; iech++)
   {
     btab = btab0;
     atab = atab0;
 
     /* Update the arrays by suppressing the current data */
 
-    for (int ipar = 0; ipar < npar; ipar++)
+    for (Id ipar = 0; ipar < npar; ipar++)
     {
       btab[ipar] -= zval[iech] * FFTAB(ipar, iech);
-      for (int jpar = 0; jpar <= ipar; jpar++)
+      for (Id jpar = 0; jpar <= ipar; jpar++)
         atab.setValue(ipar, jpar, atab.getValue(ipar, jpar) - FFTAB(ipar, iech) * FFTAB(jpar, iech));
     }
 
@@ -2659,20 +2656,20 @@ static int st_get_prior(int nech,
 
     /* Update the statistics */
 
-    for (int ipar = 0; ipar < npar; ipar++)
+    for (Id ipar = 0; ipar < npar; ipar++)
     {
       mean[ipar] += result[ipar];
-      for (int jpar = 0; jpar < npar; jpar++)
+      for (Id jpar = 0; jpar < npar; jpar++)
         VARS(npar, ipar, jpar) += result[ipar] * result[jpar];
     }
   }
 
   /* Normalize the results */
 
-  for (int ipar = 0; ipar < npar; ipar++)
+  for (Id ipar = 0; ipar < npar; ipar++)
     mean[ipar] /= nech;
-  for (int ipar = 0; ipar < npar; ipar++)
-    for (int jpar = 0; jpar < npar; jpar++)
+  for (Id ipar = 0; ipar < npar; ipar++)
+    for (Id jpar = 0; jpar < npar; jpar++)
       VARS(npar, ipar, jpar) = VARS(npar, ipar, jpar) / nech - mean[ipar] * mean[jpar];
 
   return 0;
@@ -2702,23 +2699,23 @@ static int st_get_prior(int nech,
  ** \param[out] vars       Array of variances
  **
  *****************************************************************************/
-int multilayers_get_prior(Db* dbin,
-                          DbGrid* dbout,
-                          Model* model,
-                          int flag_same,
-                          int flag_vel,
-                          int flag_ext,
-                          int irf_rank,
-                          int match_time,
-                          int colrefd,
-                          int colreft,
-                          int colrefb,
-                          int verbose,
-                          int* npar_arg,
-                          VectorDouble& mean,
-                          VectorDouble& vars)
+Id multilayers_get_prior(Db* dbin,
+                         DbGrid* dbout,
+                         Model* model,
+                         Id flag_same,
+                         Id flag_vel,
+                         Id flag_ext,
+                         Id irf_rank,
+                         Id match_time,
+                         Id colrefd,
+                         Id colreft,
+                         Id colrefb,
+                         Id verbose,
+                         Id* npar_arg,
+                         VectorDouble& mean,
+                         VectorDouble& vars)
 {
-  int nlayers, ilayer, nechmax, nech, iech, npar, error, neq;
+  Id nlayers, ilayer, nechmax, nech, iech, npar, error, neq;
   bool flag_created;
   VectorInt seltab;
   VectorDouble zval;
@@ -2790,7 +2787,7 @@ int multilayers_get_prior(Db* dbin,
   for (iech = 0; iech < nechmax; iech++)
   {
     seltab[iech] = 0;
-    ilayer       = (int)dbin->getFromLocator(ELoc::LAYER, iech);
+    ilayer       = static_cast<Id>(dbin->getFromLocator(ELoc::LAYER, iech));
     if (ilayer < 1 || ilayer > nlayers) continue;
     if (st_get_props_data(lmlayers, dbin, dbout, iech, ilayer, props)) continue;
     seltab[iech] = 1;

@@ -53,11 +53,12 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
-    - name: Install R dependencies
-      uses: r-lib/actions/setup-r-dependencies@v2
-      with:
-        packages: ggpubr, ggplot2, ggnewscale, roxygen2, pkgbuild
-        install-pandoc: false
+    # In R 4.2 ggplot2 & ggpubr prefer older Matrix version
+    - name: Install R Matrix dependency
+      run: Rscript -e "install.packages ('https://cran.r-project.org/src/contrib/Archive/Matrix/Matrix_1.6-5.tar.gz')"
+
+    - name: Install R dependencies (binary)
+      run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale', 'roxygen2', 'pkgbuild'), type='binary')"
 
     - name: Install dependencies
       run: |
@@ -149,12 +150,13 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
-    - name: Install R dependencies
-      uses: r-lib/actions/setup-r-dependencies@v2
-      with:
-        packages: ggpubr, ggplot2, ggnewscale
-        install-pandoc: false
-        
+    # In R 4.2 ggplot2 & ggpubr prefer older Matrix version
+    - name: Install R Matrix dependency
+      run: Rscript -e "install.packages ('https://cran.r-project.org/src/contrib/Archive/Matrix/Matrix_1.6-5.tar.gz')"
+
+    - name: Install R dependencies (binary)
+      run: Rscript -e "install.packages (c('ggplot2', 'ggpubr', 'ggnewscale', 'roxygen2', 'pkgbuild'), type='binary')"
+
     - name: Install R package
       run: Rscript -e "install.packages(""'""./$(ls *.zip)""'"", repos=NULL, type='source')"
       shell: bash
@@ -165,6 +167,7 @@ jobs:
         Rscript tests/r/test_Arguments.R
         Rscript tests/r/test_Assessors.R
         Rscript tests/r/test_Matrix.R
+        Rscript tests/r/test_dumpToNF.R
 
   publish:
     needs: test

@@ -131,16 +131,16 @@ public:
 
   // Example of a method with a standard documentation (do not use doxygen
   // here - all the documentation is in the body file!)
-  static int documentedStandard(int myArg);
+  static Id documentedStandard(Id myArg);
   // Example of a method with a documentation having a Latex formula (do not use
   // doxygen here!)
-  static int documentedWithFormula(int myArg);
+  static Id documentedWithFormula(Id myArg);
   // Example of a method where argument is not used (do not use doxygen here!)
-  static int unusedArgument(int a);
+  static Id unusedArgument(Id a);
 
   // Special static function (global) with a default argument (do not use
   // doxygen here!)
-  static void myFunction(int myArgInt, double myArgDoubleDef = 2.);
+  static void myFunction(Id myArgInt, double myArgDoubleDef = 2.);
 
   /**
    * \defgroup Getters Style: Defining the Style
@@ -159,7 +159,7 @@ public:
    *  @{
    */
   inline double getArgDouble() const { return _argDouble; }
-  inline int getArgInt() const { return _argInt; }
+  inline Id getArgInt() const { return _argInt; }
   inline const VectorDouble& getArgVectorDouble() const
   {
     return _argVectorDouble;
@@ -178,7 +178,7 @@ public:
    * @{
    */
   inline void setArgDouble(double argDouble) { _argDouble = argDouble; }
-  inline void setArgInt(int argInt) { _argInt = argInt; }
+  inline void setArgInt(Id argInt) { _argInt = argInt; }
   inline void setArgVectorDouble(const VectorDouble& argVectorDouble)
   {
     _argVectorDouble = argVectorDouble;
@@ -191,11 +191,11 @@ public:
 
 private:
   // Example of a private method
-  static int _increment(int arg, bool verbose = false);
+  static Id _increment(Id arg, bool verbose = false);
 
 private:
   // Use same line documentation for private members
-  int _argInt;                   //!< Private attribute of type `int`
+  Id _argInt;                   //!< Private attribute of type `Id`
   double _argDouble;             //!< Private attribute of type `double`
   VectorInt _argVectorInt;       //!< Private attribute of type `VectorInt`
   VectorDouble _argVectorDouble; //!< Private attribute of type `VectorDouble`

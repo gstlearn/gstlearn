@@ -8,15 +8,15 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "gmtsph.hpp"
-#include "Mesh/MeshSpherical.hpp"
 #include "Mesh/MeshSphericalExt.hpp"
-#include "Mesh/LinkSphTriangle.hpp"
 #include "Mesh/AMesh.hpp"
+#include "Mesh/LinkSphTriangle.hpp"
+#include "Mesh/MeshSpherical.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "gmtsph.hpp"
 
-#include "Geometry/GeometryHelper.hpp"
 #include "Db/Db.hpp"
+#include "Geometry/GeometryHelper.hpp"
 
 // External library /// TODO : Dependency to gmtsph to be removed
 
@@ -27,12 +27,12 @@ MeshSphericalExt::MeshSphericalExt()
 {
 }
 
-MeshSphericalExt::MeshSphericalExt(const MeshSphericalExt &m)
+MeshSphericalExt::MeshSphericalExt(const MeshSphericalExt& m)
   : MeshSpherical(m)
 {
 }
 
-MeshSphericalExt& MeshSphericalExt::operator= (const MeshSphericalExt &m)
+MeshSphericalExt& MeshSphericalExt::operator=(const MeshSphericalExt& m)
 {
   if (this != &m)
   {
@@ -55,7 +55,7 @@ MeshSphericalExt::~MeshSphericalExt()
 ** \param[in]  verbose         Verbose flag
 **
 *****************************************************************************/
-int MeshSphericalExt::resetFromDb(Db* dbin,
+Id MeshSphericalExt::resetFromDb(Db* dbin,
                                   Db* dbout,
                                   const String& triswitch,
                                   bool verbose)
@@ -64,7 +64,7 @@ int MeshSphericalExt::resetFromDb(Db* dbin,
 
   /* Initializations */
 
-  int ndim_ref = 2;
+  Id ndim_ref = 2;
 
   /* Define the environment */
 
@@ -78,26 +78,26 @@ int MeshSphericalExt::resetFromDb(Db* dbin,
 
   if (dbout != nullptr)
   {
-    if (meshes_2D_sph_from_db(dbout,&in)) return 1;
+    if (meshes_2D_sph_from_db(dbout, &in)) return 1;
   }
   if (dbin != nullptr)
   {
-    if (meshes_2D_sph_from_db(dbin,&in)) return 1;
+    if (meshes_2D_sph_from_db(dbin, &in)) return 1;
   }
 
   /* Add auxiliary random points */
 
-  if (meshes_2D_sph_from_auxiliary(triswitch,&in)) return 1;
+  if (meshes_2D_sph_from_auxiliary(triswitch, &in)) return 1;
 
   /* Perform the triangulation */
 
-  if (meshes_2D_sph_create(verbose,&in)) return 1;
+  if (meshes_2D_sph_create(verbose, &in)) return 1;
 
   /* Final meshing */
 
   _meshesSphLoadVertices(&in);
 
-  meshes_2D_sph_free(&in,0);
+  meshes_2D_sph_free(&in, 0);
   return 0;
 }
 
@@ -108,37 +108,37 @@ int MeshSphericalExt::resetFromDb(Db* dbin,
  ** \param[in]  t      Pointer to the SphTriangle structure to be downloaded
  **
  *****************************************************************************/
-void MeshSphericalExt::_meshesSphLoadVertices(SphTriangle *t)
+void MeshSphericalExt::_meshesSphLoadVertices(SphTriangle* t)
 {
-  int ecr, lec, nt, error;
+  I32 ecr, lec, nt, error;
   double rlong, rlat;
 
-  int natt = 2;
-  int ntab = t->n_nodes;
+  Id natt = 2;
+  Id ntab = t->n_nodes;
 
   ecr = 0;
   VectorDouble rtab(ntab * natt, 0);
-  for (int i = 0; i < ntab; i++)
+  for (Id i = 0; i < ntab; i++)
   {
     GH::convertCart2Sph(t->sph_x[i], t->sph_y[i], t->sph_z[i], &rlong, &rlat);
     rtab[ecr++] = rlong;
     rtab[ecr++] = rlat;
   }
 
-  ecr = 0;
-  lec = 0;
-  int nrow = 6;
-  VectorInt ltri(2 * nrow * t->n_nodes, 0);
-  (void) trlist_(&t->n_nodes, t->sph_list, t->sph_lptr, t->sph_lend, &nrow,
-                 &nt, ltri.data(), &error);
+  ecr      = 0;
+  lec      = 0;
+  I32 nrow = 6;
+  std::vector<I32> ltri(2 * nrow * t->n_nodes, 0);
+  (void)trlist_(&t->n_nodes, t->sph_list.data(), t->sph_lptr.data(), t->sph_lend.data(), &nrow,
+                &nt, ltri.data(), &error);
   if (error) return;
 
   natt = 3;
   ntab = nt;
   VectorInt itab(ntab * natt, 0);
-  for (int i = 0; i < ntab; i++)
+  for (Id i = 0; i < ntab; i++)
   {
-    for (int j = 0; j < natt; j++)
+    for (Id j = 0; j < natt; j++)
       itab[ecr + j] = ltri[lec + j] - 1;
     ecr += natt;
     lec += nrow;
@@ -160,15 +160,15 @@ void MeshSphericalExt::_meshesSphLoadVertices(SphTriangle *t)
  ** \param[in]  verbose    Verbose option
  **
  *****************************************************************************/
-AMesh* MeshSphericalExt::spde_mesh_load(Db *dbin,
-                                        Db *dbout,
-                                        const VectorDouble &gext,
-                                        const String &triswitch,
+AMesh* MeshSphericalExt::spde_mesh_load(Db* dbin,
+                                        Db* dbout,
+                                        const VectorDouble& gext,
+                                        const String& triswitch,
                                         bool verbose)
 {
   DECLARE_UNUSED(gext);
 
-  int ndim_loc = 0;
+  Id ndim_loc = 0;
   if (dbin != nullptr) ndim_loc = MAX(ndim_loc, dbin->getNDim());
   if (dbout != nullptr) ndim_loc = MAX(ndim_loc, dbout->getNDim());
   bool flag_sphere = isDefaultSpaceSphere();
@@ -199,9 +199,9 @@ AMesh* MeshSphericalExt::spde_mesh_load(Db *dbin,
  **
  *****************************************************************************/
 AMesh* MeshSphericalExt::_load2DSph(bool verbose,
-                                    Db *dbin,
-                                    Db *dbout,
-                                    const String &triswitch)
+                                    Db* dbin,
+                                    Db* dbout,
+                                    const String& triswitch)
 {
   DECLARE_UNUSED(verbose);
   SphTriangle in;
@@ -231,11 +231,11 @@ AMesh* MeshSphericalExt::_load2DSph(bool verbose,
 
   /* Final meshing */
 
-  MeshSphericalExt* amesh = new MeshSphericalExt();
+  auto* amesh = new MeshSphericalExt();
   amesh->_meshesSphLoadVertices(&in);
 
   meshes_2D_sph_free(&in, 0);
 
   return amesh;
 }
-}
+} // namespace gstlrn

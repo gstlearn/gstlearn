@@ -19,8 +19,8 @@ namespace gstlrn
 typedef struct
 {
   std::string tapeName;
-  int tapeType; /* Rank in the covariance list */
-  int maxNDim;  /* Maximum dimension for validity */
+  Id tapeType; /* Rank in the covariance list */
+  Id maxNDim;  /* Maximum dimension for validity */
   double (*tapeFunc)(double);
 } Def_Tapering;
 
@@ -33,7 +33,7 @@ double _tape_storkey(double);
 double _tape_wendland1(double);
 double _tape_wendland2(double);
 
-GSTLEARN_EXPORT Def_Tapering& D_TAPE(int rank);
+GSTLEARN_EXPORT Def_Tapering& D_TAPE(Id rank);
 
 class GSTLEARN_EXPORT Tapering : public AStringable
 {
@@ -43,23 +43,23 @@ public:
   Tapering& operator= (const Tapering &m);
   virtual ~Tapering();
 
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static int getNTape();
+  static Id getNTape();
 
   double getRange() const         { return _range; }
-  int getType() const             { return _type; }
-  int getMaxNDim() const          { return _maxNDim; }
+  Id getType() const             { return _type; }
+  Id getMaxNDim() const          { return _maxNDim; }
   void setRange(double taperange) { _range = taperange; }
-  void setType(int tapetype)      { _type = tapetype; }
+  void setType(Id tapetype)      { _type = tapetype; }
 
   double evaluate(double h) const { return D_TAPE(_type).tapeFunc(h); }
 
-  int init(int tape_type,double tape_range);
+  Id init(Id tape_type,double tape_range);
 
 private:
-  int    _type;
-  int    _maxNDim;
+  Id    _type;
+  Id    _maxNDim;
   double _range;
   String _name;
 };

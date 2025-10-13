@@ -50,12 +50,12 @@ Faults::~Faults()
 String Faults::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  int nfaults = getNFaults();
+  auto nfaults = getNFaults();
   if (nfaults <= 0) return sstr.str();
 
   sstr << "Number of Faults = " << nfaults << std::endl;
 
-  for (int i = 0; i < nfaults; i++)
+  for (Id i = 0; i < nfaults; i++)
   {
     sstr << "Fault #" << i + 1 << std::endl;
     sstr << _faults[i].toString(strfmt);
@@ -66,19 +66,19 @@ String Faults::toString(const AStringFormat* strfmt) const
 bool Faults::_serializeAscii(std::ostream& os, bool verbose) const
 {
   bool ret = true;
-  ret      = ret && _recordWrite<int>(os, "Number of Faults", getNFaults());
-  for (int i = 0; ret && i < getNFaults(); i++)
+  ret      = ret && _recordWrite<Id>(os, "Number of Faults", getNFaults());
+  for (Id i = 0; ret && i < getNFaults(); i++)
     ret = ret && _faults[i]._serializeAscii(os, verbose);
   return ret;
 }
 
 bool Faults::_deserializeAscii(std::istream& is, bool verbose)
 {
-  int nfaults = 0;
+  Id nfaults = 0;
   bool ret    = true;
-  ret         = ret && _recordRead<int>(is, "Number of Faults", nfaults);
+  ret         = ret && _recordRead<Id>(is, "Number of Faults", nfaults);
 
-  for (int i = 0; ret && i < nfaults; i++)
+  for (Id i = 0; ret && i < nfaults; i++)
   {
     PolyLine2D fault;
     ret = ret && fault._deserializeAscii(is, verbose);
@@ -89,7 +89,7 @@ bool Faults::_deserializeAscii(std::istream& is, bool verbose)
 
 Faults* Faults::createFromNF(const String& NFFilename, bool verbose)
 {
-  Faults* faults = new Faults();
+  auto* faults = new Faults();
   if (faults->_fileOpenAndDeserialize(NFFilename, verbose)) return faults;
   delete faults;
   return nullptr;
@@ -130,7 +130,7 @@ bool Faults::isSplitByFault(double xt1, double yt1, double xt2, double yt2) cons
 
   // Loop on the Fault polylines
 
-  for (int ifault = 0, nfault = getNFaults(); ifault < nfault; ifault++)
+  for (Id ifault = 0, nfault = getNFaults(); ifault < nfault; ifault++)
   {
     const PolyLine2D& fault = getFault(ifault);
 
@@ -148,7 +148,7 @@ bool Faults::isSplitByFault(double xt1, double yt1, double xt2, double yt2) cons
 
     double x1 = x[0];
     double y1 = y[0];
-    for (int ip = 1, np = fault.getNPoints(); ip < np; ip++)
+    for (Id ip = 1, np = fault.getNPoints(); ip < np; ip++)
     {
       const double x2 = x[ip];
       const double y2 = y[ip];
@@ -168,13 +168,13 @@ bool Faults::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
 
   /* Read the grid characteristics */
   bool ret    = true;
-  int nfaults = 0;
+  Id nfaults = 0;
 
   ret = ret && SerializeHDF5::readValue(*faultG, "NFaults", nfaults);
 
   auto faultsG = SerializeHDF5::getGroup(*faultG, "Lines");
   if (!faultsG) return false;
-  for (int i = 0; ret && i < nfaults; i++)
+  for (Id i = 0; ret && i < nfaults; i++)
   {
     String locName = "Line" + std::to_string(i);
     auto lineG     = SerializeHDF5::getGroup(*faultsG, locName);
@@ -196,7 +196,7 @@ bool Faults::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) const
   ret = ret && SerializeHDF5::writeValue(faultG, "NFaults", getNFaults());
 
   auto faultsG = faultG.createGroup("Lines");
-  for (int ifault = 0, nfaults = getNFaults(); ret && ifault < nfaults; ifault++)
+  for (Id ifault = 0, nfaults = getNFaults(); ret && ifault < nfaults; ifault++)
   {
     String locName = "Line" + std::to_string(ifault);
     auto lineG     = faultsG.createGroup(locName);

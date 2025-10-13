@@ -48,16 +48,16 @@ namespace gstlrn
  ** \remarks When 'ndim' is provided as negative, a special case is programmed
  **
  *****************************************************************************/
-int MSS(int ndim, int ipol, int icas, int icorn, int idim)
+Id MSS(Id ndim, Id ipol, Id icas, Id icorn, Id idim)
 {
   // Arrays S*D are provided for [ipol][icas][icorn][idim]
 
-  constexpr int S1D[1][1][2][1] = {{{{0}, {1}}}};
-  constexpr int S2D[2][2][3][2] = {{{{0, 0}, {1, 0}, {0, 1}},
+  constexpr Id S1D[1][1][2][1] = {{{{0}, {1}}}};
+  constexpr Id S2D[2][2][3][2] = {{{{0, 0}, {1, 0}, {0, 1}},
                                     {{0, 1}, {1, 0}, {1, 1}}},
                                    {{{0, 0}, {1, 0}, {1, 1}},
                                     {{0, 0}, {0, 1}, {1, 1}}}};
-  constexpr int S3D[1][6][4][3] = {{{{0, 0, 0},
+  constexpr Id S3D[1][6][4][3] = {{{{0, 0, 0},
                                      {1, 0, 0},
                                      {1, 0, 1},
                                      {1, 1, 1}},
@@ -82,7 +82,7 @@ int MSS(int ndim, int ipol, int icas, int icorn, int idim)
                                      {1, 1, 0},
                                      {1, 1, 1}}}};
 
-  int ival = 0;
+  Id ival = 0;
   if (ipol < 0 || icorn < 0 || icas < 0 || idim < 0) return ival;
 
   if (ndim == 1)
@@ -114,15 +114,15 @@ int MSS(int ndim, int ipol, int icas, int icorn, int idim)
  ** \remarks The returned array 'ext' must be freed by the calling function
  **
  *****************************************************************************/
-VectorDouble extend_grid(DbGrid* db, const VectorDouble& gext, int* nout)
+VectorDouble extend_grid(DbGrid* db, const VectorDouble& gext, Id* nout)
 {
-  int ndim, number, ndiv, ndiv0, rank, ival, delta;
+  Id ndim, number, ndiv, ndiv0, rank, ival, delta;
 
   /* Initializations */
 
   ndim   = db->getNDim();
-  number = (int)pow(2., ndim);
-  ndiv0  = (int)pow(2., ndim - 1);
+  number = static_cast<Id>(pow(2., ndim));
+  ndiv0  = static_cast<Id>(pow(2., ndim - 1));
   *nout  = 0;
 
   /* Core allocation */
@@ -133,13 +133,13 @@ VectorDouble extend_grid(DbGrid* db, const VectorDouble& gext, int* nout)
 
   /* Generate the corner points */
 
-  for (int corner = 0; corner < number; corner++)
+  for (Id corner = 0; corner < number; corner++)
   {
     rank = corner;
     ndiv = ndiv0;
-    for (int idim = ndim - 1; idim >= 0; idim--)
+    for (Id idim = ndim - 1; idim >= 0; idim--)
     {
-      delta = static_cast<int>((ceil)(gext[idim] / db->getDX(idim)));
+      delta = static_cast<Id>((ceil)(gext[idim] / db->getDX(idim)));
       ival  = rank / ndiv;
       rank  = rank - ndiv * ival;
       ndiv /= 2;
@@ -147,7 +147,7 @@ VectorDouble extend_grid(DbGrid* db, const VectorDouble& gext, int* nout)
     }
     db->indicesToCoordinateInPlace(indg, coor);
 
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
       EXT(idim, corner) = coor[idim];
   }
 
@@ -169,11 +169,11 @@ VectorDouble extend_grid(DbGrid* db, const VectorDouble& gext, int* nout)
  ** \remarks The returned array 'ext' must be freed by the calling function
  **
  *****************************************************************************/
-VectorDouble extend_point(Db* db, const VectorDouble& gext, int* nout)
+VectorDouble extend_point(Db* db, const VectorDouble& gext, Id* nout)
 {
-  int ndim   = db->getNDim();
-  int number = (int)pow(2., ndim);
-  int ndiv0  = (int)pow(2., ndim - 1);
+  Id ndim   = db->getNDim();
+  Id number = static_cast<Id>(pow(2., ndim));
+  Id ndiv0  = static_cast<Id>(pow(2., ndim - 1));
 
   /* Core allocation */
 
@@ -189,19 +189,19 @@ VectorDouble extend_point(Db* db, const VectorDouble& gext, int* nout)
 
   /* Generate the corner points */
 
-  for (int corner = 0; corner < number; corner++)
+  for (Id corner = 0; corner < number; corner++)
   {
-    int rank = corner;
-    int ndiv = ndiv0;
-    for (int idim = ndim - 1; idim >= 0; idim--)
+    Id rank = corner;
+    Id ndiv = ndiv0;
+    for (Id idim = ndim - 1; idim >= 0; idim--)
     {
-      int ival = rank / ndiv;
+      Id ival = rank / ndiv;
       rank     = rank - ndiv * ival;
       ndiv /= 2;
       coor[idim] = (ival == 0) ? mini[idim] - gext[idim] : maxi[idim] + gext[idim];
     }
 
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
       EXT(idim, corner) = coor[idim];
   }
 
@@ -224,13 +224,13 @@ VectorDouble extend_point(Db* db, const VectorDouble& gext, int* nout)
  ** \remarks with its dimension: ndim * 2^ndim
  **
  *****************************************************************************/
-VectorDouble get_db_extension(Db* dbin, Db* dbout, int* nout)
+VectorDouble get_db_extension(Db* dbin, Db* dbout, Id* nout)
 {
-  int ndim = 0;
+  Id ndim = 0;
   if (dbin != nullptr) ndim = dbin->getNDim();
   if (dbout != nullptr) ndim = dbout->getNDim();
-  int number = (int)pow(2., ndim);
-  int ndiv0  = (int)pow(2., ndim - 1);
+  Id number = static_cast<Id>(pow(2., ndim));
+  Id ndiv0  = static_cast<Id>(pow(2., ndim - 1));
 
   /* Core allocation */
 
@@ -255,18 +255,18 @@ VectorDouble get_db_extension(Db* dbin, Db* dbout, int* nout)
 
   /* Generate the corner points */
 
-  for (int corner = 0; corner < number; corner++)
+  for (Id corner = 0; corner < number; corner++)
   {
-    int rank = corner;
-    int ndiv = ndiv0;
-    for (int idim = ndim - 1; idim >= 0; idim--)
+    Id rank = corner;
+    Id ndiv = ndiv0;
+    for (Id idim = ndim - 1; idim >= 0; idim--)
     {
-      int ival = rank / ndiv;
+      Id ival = rank / ndiv;
       rank     = rank - ndiv * ival;
       ndiv /= 2;
       coor[idim] = (ival == 0) ? mini_abs[idim] : maxi_abs[idim];
     }
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
       EXT(idim, corner) = coor[idim];
   }
 
@@ -292,17 +292,17 @@ VectorDouble get_db_extension(Db* dbin, Db* dbout, int* nout)
  ** \remarks negative if the grid node is masked off
  **
  *****************************************************************************/
-static int st_load_segment(DbGrid* dbgrid,
+static Id st_load_segment(DbGrid* dbgrid,
                            VectorInt& mesh,
                            VectorInt& order,
-                           int ipos,
-                           int ix1,
-                           int ix2)
+                           Id ipos,
+                           Id ix1,
+                           Id ix2)
 {
-  int iech1, iech2, imask1, imask2;
+  Id iech1, iech2, imask1, imask2;
   VectorInt indg(1);
 
-  int nactive = 0;
+  Id nactive = 0;
 
   indg[0]        = ix1;
   iech1          = dbgrid->indiceToRank(indg);
@@ -346,21 +346,21 @@ static int st_load_segment(DbGrid* dbgrid,
  ** \remarks negative if the grid node is masked off
  **
  *****************************************************************************/
-static int st_load_triangle(DbGrid* dbgrid,
+static Id st_load_triangle(DbGrid* dbgrid,
                             VectorInt& mesh,
                             VectorInt& order,
-                            int ipos,
-                            int ix1,
-                            int iy1,
-                            int ix2,
-                            int iy2,
-                            int ix3,
-                            int iy3)
+                            Id ipos,
+                            Id ix1,
+                            Id iy1,
+                            Id ix2,
+                            Id iy2,
+                            Id ix3,
+                            Id iy3)
 {
-  int iech1, iech2, iech3, imask1, imask2, imask3;
+  Id iech1, iech2, iech3, imask1, imask2, imask3;
   VectorInt indg(2);
 
-  int nactive = 0;
+  Id nactive = 0;
 
   indg[0]        = ix1;
   indg[1]        = iy1;
@@ -419,27 +419,27 @@ static int st_load_triangle(DbGrid* dbgrid,
  ** \remarks negative if the grid node is masked off
  **
  *****************************************************************************/
-static int st_load_tetra(DbGrid* dbgrid,
+static Id st_load_tetra(DbGrid* dbgrid,
                          VectorInt& mesh,
                          VectorInt& order,
-                         int ipos,
-                         int ix1,
-                         int iy1,
-                         int iz1,
-                         int ix2,
-                         int iy2,
-                         int iz2,
-                         int ix3,
-                         int iy3,
-                         int iz3,
-                         int ix4,
-                         int iy4,
-                         int iz4)
+                         Id ipos,
+                         Id ix1,
+                         Id iy1,
+                         Id iz1,
+                         Id ix2,
+                         Id iy2,
+                         Id iz2,
+                         Id ix3,
+                         Id iy3,
+                         Id iz3,
+                         Id ix4,
+                         Id iy4,
+                         Id iz4)
 {
-  int iech1, iech2, iech3, iech4, imask1, imask2, imask3, imask4;
+  Id iech1, iech2, iech3, iech4, imask1, imask2, imask3, imask4;
   VectorInt indg(3);
 
-  int nactive = 0;
+  Id nactive = 0;
 
   indg[0]        = ix1;
   indg[1]        = iy1;
@@ -498,20 +498,20 @@ static int st_load_tetra(DbGrid* dbgrid,
  **
  *****************************************************************************/
 static MeshEStandard* st_ultimate_regular_grid(Db* dbgrid,
-                                               int ndim,
-                                               int nmesh,
-                                               int ncorner,
+                                               Id ndim,
+                                               Id nmesh,
+                                               Id ncorner,
                                                VectorInt& meshes,
                                                VectorInt& order)
 {
   /* Count the number of active vertices */
 
-  int number  = dbgrid->getNSample();
-  int nvertex = 0;
-  int nin     = 0;
-  for (int iech = 0; iech < number; iech++)
+  Id number  = dbgrid->getNSample();
+  Id nvertex = 0;
+  Id nin     = 0;
+  for (Id iech = 0; iech < number; iech++)
   {
-    int local = order[iech];
+    Id local = order[iech];
     if (IFFFF(local)) continue;
     if (local > 0) nin++;
     nvertex++;
@@ -519,12 +519,12 @@ static MeshEStandard* st_ultimate_regular_grid(Db* dbgrid,
 
   /* Define the addresses assigned to information */
 
-  int rank_in  = 0;
-  int rank_out = nin;
+  Id rank_in  = 0;
+  Id rank_out = nin;
   VectorInt ranks(number);
-  for (int iech = 0; iech < number; iech++)
+  for (Id iech = 0; iech < number; iech++)
   {
-    int local = order[iech];
+    Id local = order[iech];
     if (IFFFF(local)) continue;
     if (local > 0)
       ranks[iech] = rank_in++;
@@ -535,23 +535,23 @@ static MeshEStandard* st_ultimate_regular_grid(Db* dbgrid,
   /* Store the (active) vertices */
 
   VectorDouble points(nvertex * ndim, 0);
-  for (int iech = 0; iech < number; iech++)
+  for (Id iech = 0; iech < number; iech++)
   {
-    int local = order[iech];
+    Id local = order[iech];
     if (IFFFF(local)) continue;
-    int jech = ranks[iech];
-    for (int idim = 0; idim < ndim; idim++)
+    Id jech = ranks[iech];
+    for (Id idim = 0; idim < ndim; idim++)
       points[jech * ndim + idim] = dbgrid->getCoordinate(iech, idim);
   }
 
   // Update the point ranks in the mesh */
 
-  for (int i = 0; i < nmesh * ncorner; i++)
+  for (Id i = 0; i < nmesh * ncorner; i++)
     meshes[i] = ranks[meshes[i]];
 
   // Store the information in the returned AMesh structure
 
-  MeshEStandard* amesh = new MeshEStandard();
+  auto* amesh = new MeshEStandard();
   amesh->reset(ndim, ncorner, points, meshes, false);
 
   return amesh;
@@ -568,11 +568,11 @@ static MeshEStandard* st_ultimate_regular_grid(Db* dbgrid,
  *****************************************************************************/
 AMesh* meshes_turbo_2D_grid_build(DbGrid* dbgrid)
 {
-  int ndim    = 2;
-  int ncorner = 3;
-  int nx      = dbgrid->getNX(0);
-  int ny      = dbgrid->getNX(1);
-  int number  = nx * ny;
+  Id ndim    = 2;
+  Id ncorner = 3;
+  Id nx      = dbgrid->getNX(0);
+  Id ny      = dbgrid->getNX(1);
+  Id number  = nx * ny;
 
   /* Core allocation */
 
@@ -581,12 +581,12 @@ AMesh* meshes_turbo_2D_grid_build(DbGrid* dbgrid)
 
   /* Store the indices per mesh */
 
-  int nmesh = 0;
-  for (int ix = 0; ix < nx - 1; ix++)
-    for (int iy = 0; iy < ny - 1; iy++)
+  Id nmesh = 0;
+  for (Id ix = 0; ix < nx - 1; ix++)
+    for (Id iy = 0; iy < ny - 1; iy++)
     {
-      int ipol = ((ix + iy) % 2 == 1) ? 0 : 1;
-      for (int i = 0; i < 2; i++)
+      Id ipol = ((ix + iy) % 2 == 1) ? 0 : 1;
+      for (Id i = 0; i < 2; i++)
         if (st_load_triangle(dbgrid, meshes, order, nmesh * ncorner,
                              ix + MSS(2, ipol, i, 0, 0),
                              iy + MSS(2, ipol, i, 0, 1),
@@ -624,19 +624,19 @@ AMesh* meshes_turbo_2D_grid_build(DbGrid* dbgrid)
  ** \param[in]  points    Array of 3-D coordinates for triangle vertices
  **
  *****************************************************************************/
-int meshes_2D_write(const char* file_name,
+Id meshes_2D_write(const char* file_name,
                     const char* obj_name,
-                    int verbose,
-                    int ndim,
-                    int ncode,
-                    int ntri,
-                    int npoints,
+                    Id verbose,
+                    Id ndim,
+                    Id ncode,
+                    Id ntri,
+                    Id npoints,
                     const VectorInt& ntcode,
                     const VectorInt& triangles,
                     const VectorDouble& points)
 {
   FILE* file;
-  int i, itri, ntriloc;
+  Id i, itri, ntriloc;
   double normal[3];
 
   /* Opening the ASCII File */
@@ -670,27 +670,27 @@ int meshes_2D_write(const char* file_name,
   /* Loop on the different codes */
 
   itri = 0;
-  for (int icode = 0; icode < ncode; icode++)
+  for (Id icode = 0; icode < ncode; icode++)
   {
     ntriloc = ntcode[icode];
 
     /* Loop on the triangles */
 
-    for (int jtri = 0; jtri < ntriloc; jtri++, itri++)
+    for (Id jtri = 0; jtri < ntriloc; jtri++, itri++)
     {
       fprintf(file, " facet normal %lf %lf %lf\n", normal[0], normal[1], normal[2]);
       fprintf(file, "   outer loop\n");
 
       /* Loop on the vertices */
 
-      for (int icorn = 0; icorn < 3; icorn++)
+      for (Id icorn = 0; icorn < 3; icorn++)
       {
         i = TRIANGLES(itri, icorn);
         fprintf(file, "    vertex ");
 
         /* Loop on the space dimension */
 
-        for (int idim = 0; idim < ndim; idim++)
+        for (Id idim = 0; idim < ndim; idim++)
           fprintf(file, "%lf ", POINTS(i, idim));
         fprintf(file, "\n");
       }
@@ -715,28 +715,28 @@ int meshes_2D_write(const char* file_name,
  ** \param[in]  points    Array of 'ndim' coordinates for mesh vertex
  **
  *****************************************************************************/
-void mesh_stats(int ndim, int ncorner, int nmesh, const int* meshes, const double* points)
+void mesh_stats(Id ndim, Id ncorner, Id nmesh, const I32* meshes, const double* points)
 {
   VectorDouble mini(ndim, 0.);
   VectorDouble maxi(ndim, 0.);
-  for (int i = 0; i < ndim; i++)
+  for (Id i = 0; i < ndim; i++)
   {
     mini[i] = MAXIMUM_BIG;
     maxi[i] = MINIMUM_BIG;
   }
-  int imin = 10000000;
-  int imax = -1;
+  Id imin = 10000000;
+  Id imax = -1;
 
   /* Loop on the meshes */
 
-  for (int imesh = 0; imesh < nmesh; imesh++)
+  for (Id imesh = 0; imesh < nmesh; imesh++)
   {
-    for (int icorn = 0; icorn < ncorner; icorn++)
+    for (Id icorn = 0; icorn < ncorner; icorn++)
     {
-      int i = MESHES(imesh, icorn);
+      Id i = MESHES(imesh, icorn);
       if (i < imin) imin = i;
       if (i > imax) imax = i;
-      for (int idim = 0; idim < ndim; idim++)
+      for (Id idim = 0; idim < ndim; idim++)
       {
         double value = POINTS(i, idim);
         if (value < mini[idim]) mini[idim] = value;
@@ -748,7 +748,7 @@ void mesh_stats(int ndim, int ncorner, int nmesh, const int* meshes, const doubl
   /* Print the statistics */
 
   bool flag_print = true;
-  for (int idim = 0; idim < ndim; idim++)
+  for (Id idim = 0; idim < ndim; idim++)
     if (mini[idim] > maxi[idim]) flag_print = false;
   if (imin > imax) flag_print = false;
 
@@ -756,7 +756,7 @@ void mesh_stats(int ndim, int ncorner, int nmesh, const int* meshes, const doubl
   {
     message("Statistics on the Meshes:\n");
     message("- Apex rank: from %d to %d\n", imin, imax);
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
       message("- Coord#%d: from %lf to %lf\n", idim + 1, mini[idim], maxi[idim]);
   }
 }
@@ -772,12 +772,12 @@ void mesh_stats(int ndim, int ncorner, int nmesh, const int* meshes, const doubl
  *****************************************************************************/
 AMesh* meshes_turbo_3D_grid_build(DbGrid* dbgrid)
 {
-  int ndim    = 3;
-  int ncorner = 4;
-  int nx      = dbgrid->getNX(0);
-  int ny      = dbgrid->getNX(1);
-  int nz      = dbgrid->getNX(2);
-  int number  = nx * ny * nz;
+  Id ndim    = 3;
+  Id ncorner = 4;
+  Id nx      = dbgrid->getNX(0);
+  Id ny      = dbgrid->getNX(1);
+  Id nz      = dbgrid->getNX(2);
+  Id number  = nx * ny * nz;
 
   /* Core allocation */
 
@@ -786,11 +786,11 @@ AMesh* meshes_turbo_3D_grid_build(DbGrid* dbgrid)
 
   /* Store the indices per mesh */
 
-  int nmesh = 0;
-  for (int ix = 0; ix < nx - 1; ix++)
-    for (int iy = 0; iy < ny - 1; iy++)
-      for (int iz = 0; iz < nz - 1; iz++)
-        for (int i = 0; i < 6; i++)
+  Id nmesh = 0;
+  for (Id ix = 0; ix < nx - 1; ix++)
+    for (Id iy = 0; iy < ny - 1; iy++)
+      for (Id iz = 0; iz < nz - 1; iz++)
+        for (Id i = 0; i < 6; i++)
         {
           if (st_load_tetra(dbgrid, meshes, order, nmesh * ncorner,
                             ix + MSS(3, 0, i, 0, 0), iy + MSS(3, 0, i, 0, 1),
@@ -824,10 +824,10 @@ AMesh* meshes_turbo_3D_grid_build(DbGrid* dbgrid)
  *****************************************************************************/
 AMesh* meshes_turbo_1D_grid_build(DbGrid* dbgrid)
 {
-  int ndim    = 1;
-  int ncorner = 2;
-  int nx      = dbgrid->getNX(0);
-  int number  = nx - 1;
+  Id ndim    = 1;
+  Id ncorner = 2;
+  Id nx      = dbgrid->getNX(0);
+  Id number  = nx - 1;
 
   /* Core allocation */
 
@@ -836,8 +836,8 @@ AMesh* meshes_turbo_1D_grid_build(DbGrid* dbgrid)
 
   /* Store the indices per mesh */
 
-  int nmesh = 0;
-  for (int ix = 0; ix < nx - 1; ix++)
+  Id nmesh = 0;
+  for (Id ix = 0; ix < nx - 1; ix++)
   {
     if (st_load_segment(dbgrid, meshes, order, nmesh * ncorner,
                         ix + MSS(1, 0, 1, 0, 0), ix + MSS(1, 0, 1, 1, 0)))

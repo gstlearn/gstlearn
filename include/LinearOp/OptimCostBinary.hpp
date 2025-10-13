@@ -37,20 +37,20 @@ public:
              const VectorDouble& varseis = VectorDouble());
   VectorDouble minimize(VectorDouble& indic,
                         bool verbose = false,
-                        int maxiter = 100,
+                        Id maxiter = 100,
                         double eps = 5.e-4);
   void calculateGradient(const VectorDouble& indic,
                          const VectorDouble& lambda,
                          double* out);
-  int setMeanProportion(double meanprop);
+  Id setMeanProportion(double meanprop);
   /*!  Set the constant parameters for internal Pre-Conditioner */
-  static void setPreCondParams(int chebncmax = 10001, double chebtol = 5.e-3)
+  static void setPreCondParams(Id chebncmax = 10001, double chebtol = 5.e-3)
   {
     DECLARE_UNUSED(chebncmax, chebtol);
   }
-  int isInitialized() const { return _isInitialized; }
-  int getNPoint() const;
-  int getNVertex() const;
+  Id isInitialized() const { return _isInitialized; }
+  Id getNPoint() const;
+  Id getNVertex() const;
   void toggleSeismic(bool status);
 
 private:

@@ -32,11 +32,10 @@ public:
 
 private:
 #ifndef SWIG
-  virtual int _addToDest(const constvect vecin,
-                         vect vecout) const override;
+  Id _addToDest(const constvect vecin, vect vecout) const override;
 #endif
-  MatrixSparse _prepareMatrixNoStat(int icov, const MatrixSparse* Q) const;
-  MatrixSparse _prepareMatrixStationary(int icov, const MatrixSparse* Q) const;
+  MatrixSparse _prepareMatrixNoStat(Id icov, const MatrixSparse* Q) const;
+  MatrixSparse _prepareMatrixStationary(Id icov, const MatrixSparse* Q) const;
   void _prepareMatrix();
   void _buildQop(bool stencil = false) override;
   bool _isSingle() const { return _getNVar() == 1 && _getNCov() == 1;}

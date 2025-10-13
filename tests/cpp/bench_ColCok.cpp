@@ -37,15 +37,15 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Global parameters
-  int ndim = 2;
+  Id ndim = 2;
   law_set_random_seed(32131);
   AStringFormat format;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Parameters
   bool debug      = true;
-  int nech        = 3;
-  int nvar        = 3;
+  Id nech         = 3;
+  Id nvar         = 3;
   bool flagSK     = true;
   bool flagUnique = false;
 
@@ -59,12 +59,12 @@ int main(int argc, char* argv[])
   Db* target = Db::createFillRandom(1, ndim, nvar, 0);
 
   // Create the Model
-  int order    = (flagSK) ? -1 : 0;
+  Id order     = (flagSK) ? -1 : 0;
   Model* model = Model::createFillRandom(ndim, nvar, {ECov::EXPONENTIAL}, 1., order);
 
   // Neighborhood
   ANeigh* neigh;
-  int nmaxi     = nech;
+  Id nmaxi      = nech;
   double radius = 5.;
   if (flagUnique)
     neigh = NeighUnique::create();

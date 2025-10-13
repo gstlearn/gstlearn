@@ -40,20 +40,19 @@ public:
     DECLARE_UNUSED(space)
     return true;
   }
+  
   /// ACov Interface
- 
-
-  virtual int getNVar() const override { return 1; }
+  Id getNVar() const override { return 1; }
 
 protected:
   //void _optimizationSetTarget(SpacePoint& pt) const override;
   virtual double _eval(const SpacePoint& p1,
                        const SpacePoint& p2,
-                       int ivar                = 0,
-                       int jvar                = 0,
+                       Id ivar                = 0,
+                       Id jvar                = 0,
                        const CovCalcMode* mode = nullptr) const override;
   //private:
-  // void _optimizationPreProcess(int mode, const std::vector<SpacePoint>& ps) const override;
+  // void _optimizationPreProcess(Id mode, const std::vector<SpacePoint>& ps) const override;
   //void _optimizationPostProcess() const override;
 
 private:

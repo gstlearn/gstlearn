@@ -6,15 +6,15 @@ using namespace gstlrn;
 int test_NF(const DbGrid& db)
 {
   Timer tm;
-  db.dumpToNF("dbgrid.NF.ascii", EFormatNF::ASCII);
-  auto db2 = std::unique_ptr<DbGrid>(DbGrid::createFromNF("dbgrid.NF.ascii"));
+  db.dumpToNF("NF.dbgrid.ascii", EFormatNF::ASCII);
+  auto db2 = std::unique_ptr<DbGrid>(DbGrid::createFromNF("NF.dbgrid.ascii"));
   if (db2 != nullptr)
   {
-    db2->dumpToNF("dbgrid2.NF.ascii", EFormatNF::ASCII);
+    db2->dumpToNF("NF.dbgrid2.ascii", EFormatNF::ASCII);
   }
   else
   {
-    messerr("Cannot Deserialize `dbgrid.NF.ascii'");
+    messerr("Cannot Deserialize `NF.dbgrid.ascii'");
     return 1;
   }
   tm.displayIntervalMilliseconds("Serialize + Deserialize + Serialize Neutral File",
@@ -27,15 +27,15 @@ int test_HDF5(const DbGrid& db)
 #ifdef HDF5
   Timer tm;
 
-  db.dumpToNF("dbgrid.NF.h5", EFormatNF::H5);
-  auto db2 = std::unique_ptr<DbGrid>(DbGrid::createFromNF("dbgrid.NF.h5"));
+  db.dumpToNF("NF.dbgrid.h5", EFormatNF::H5);
+  auto db2 = std::unique_ptr<DbGrid>(DbGrid::createFromNF("NF.dbgrid.h5"));
   if (db2 != nullptr)
   {
-    db2->dumpToNF("dbgrid2.NF.h5", EFormatNF::H5);
+    db2->dumpToNF("NF.dbgrid2.h5", EFormatNF::H5);
   }
   else
   {
-    messerr("Cannot Deserialize `dbgrid.NF.h5'");
+    messerr("Cannot Deserialize `NF.dbgrid.h5'");
     return 1;
   }
   tm.displayIntervalMilliseconds("Serialize + Deserialize + Serialize HDF5", 80);

@@ -31,34 +31,34 @@ public:
   Constraints& operator= (const Constraints &m);
   virtual ~Constraints();
 
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void addItem(const ConsItem* item);
   void addItemFromParamId(const EConsElem &elem = EConsElem::fromKey("UNKNOWN"),
-                          int icov = 0,
-                          int iv1 = 0,
-                          int iv2 = 0,
+                          Id icov = 0,
+                          Id iv1 = 0,
+                          Id iv2 = 0,
                           const EConsType &type = EConsType::fromKey("DEFAULT"),
                           double value = 0.);
 
-  int isDefined() const { return _consItems.size() > 0; }
-  int isDefinedForSill() const;
-  int getNConsItem() const { return static_cast<int>(_consItems.size()); }
+  Id isDefined() const { return _consItems.size() > 0; }
+  Id isDefinedForSill() const;
+  Id getNConsItem() const { return static_cast<Id>(_consItems.size()); }
 
   const std::vector<ConsItem*>& getConsItems() const { return _consItems; }
-  const ConsItem* getConsItems(int i) const { return _consItems[i]; }
+  const ConsItem* getConsItems(Id i) const { return _consItems[i]; }
   void modifyConstraintsForSill();
 
   double getConstantSillValue() const { return _constantSillValue; }
   const VectorDouble& getConstantSills() const { return _constantSills; }
-  double getConstantSills(int ivar) const { return _constantSills[ivar]; }
+  double getConstantSills(Id ivar) const { return _constantSills[ivar]; }
   void setConstantSillValue(double value) { _constantSillValue = value; }
   void setConstantSills(const VectorDouble& constantSills) { _constantSills = constantSills; }
-  void expandConstantSill(int nvar);
+  void expandConstantSill(Id nvar);
   bool isConstraintSillDefined() const;
 
   // Pipe to Consitem
-  void setValue(int item, double value);
+  void setValue(Id item, double value);
 
 private:
   double _constantSillValue;       /* Constant Sill as a constraint */
@@ -68,12 +68,12 @@ private:
 
 GSTLEARN_EXPORT double constraints_get(const Constraints& constraints,
                                        const EConsType& icase,
-                                       int igrf,
-                                       int icov,
+                                       Id igrf,
+                                       Id icov,
                                        const EConsElem& icons,
-                                       int v1,
-                                       int v2);
+                                       Id v1,
+                                       Id v2);
 GSTLEARN_EXPORT void constraints_print(const Constraints& constraints);
-GSTLEARN_EXPORT int modify_constraints_on_sill(Constraints& constraints);
-GSTLEARN_EXPORT int add_unit_sill_constraints(Constraints& constraints);
+GSTLEARN_EXPORT Id modify_constraints_on_sill(Constraints& constraints);
+GSTLEARN_EXPORT Id add_unit_sill_constraints(Constraints& constraints);
 }

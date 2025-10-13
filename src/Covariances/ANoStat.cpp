@@ -24,7 +24,7 @@ ANoStat::~ANoStat()
 {
 }
 
-double ANoStat::getValueOnDb(int iech, int icas) const
+double ANoStat::getValueOnDb(Id iech, Id icas) const
 {
   if (icas == 1)
     return getValueOnDbIn(iech);
@@ -33,14 +33,14 @@ double ANoStat::getValueOnDb(int iech, int icas) const
   return TEST;
 }
 
-double ANoStat::getValueOnMesh(int iapex, bool center) const
+double ANoStat::getValueOnMesh(Id iapex, bool center) const
 {
   if (center)
     return getValueOnMeshByMesh(iapex);
   return getValueOnMeshByApex(iapex);
 }
 
-bool ANoStat::getValuesOnDb(int icas1, int iech1, double* val1, int icas2, int iech2, double* val2) const
+bool ANoStat::getValuesOnDb(Id icas1, Id iech1, double* val1, Id icas2, Id iech2, double* val2) const
 {
   *val1 = getValueOnDb(iech1, icas1);
   *val2 = getValueOnDb(iech2, icas2);
@@ -52,17 +52,17 @@ bool ANoStat::getValuesOnDb(int icas1, int iech1, double* val1, int icas2, int i
   return *val1 != *val2;
 }
 
-double ANoStat::getValueOnDbOut(int iech) const
+double ANoStat::getValueOnDbOut(Id iech) const
 {
   return _tabdbout[iech];
 }
 
-double ANoStat::getValueOnDbIn(int iech) const
+double ANoStat::getValueOnDbIn(Id iech) const
 {
   return _tabdbin[iech];
 }
 
-double ANoStat::getValueOnMeshByMesh(int imesh) const
+double ANoStat::getValueOnMeshByMesh(Id imesh) const
 {
   return _tabmesh[imesh];
 }
@@ -74,7 +74,7 @@ String ANoStat::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-double ANoStat::getValueOnMeshByApex(int iapex) const
+double ANoStat::getValueOnMeshByApex(Id iapex) const
 {
   return _tabvertices[iapex];
 }

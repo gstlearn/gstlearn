@@ -27,8 +27,8 @@ public:
 
   bool mustBeGrid() const override { return false; }
   bool mustBeOneVariable() const override { return true; }
-  bool mustBeForNDim(int ndim) const override { return ndim <= 3; }
-  bool mustBeForRotation(int mode) const override { return mode == 0; }
+  bool mustBeForNDim(Id ndim) const override { return ndim <= 3; }
+  bool mustBeForRotation(Id mode) const override { return mode == 0; }
   Db* readFromFile() override;
 
   void setCwell(double cwell) { _cwell = cwell; }
@@ -36,8 +36,8 @@ public:
   void setYwell(double ywell) { _ywell = ywell; }
 
 private:
-  int _readFind(int s_length, const char *target, int *numline, char *string);
-  int _readNext(int s_length, int flag_up, int *numline, char *string);
+  Id _readFind(I32 s_length, const char* target, Id* numline, char* string);
+  Id _readNext(I32 s_length, Id flag_up, Id* numline, char* string);
   static void _stringToUppercase(char *string);
 
 private:
@@ -45,4 +45,4 @@ private:
   double _ywell;
   double _cwell;
 };
-}
+} // namespace gstlrn

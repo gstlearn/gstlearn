@@ -32,7 +32,7 @@ public:
   virtual ~TurningBandDirection();
 
   const VectorDouble& getAng() const { return _ang; }
-  double getAng(int i) const { return _ang[i]; }
+  double getAng(Id i) const { return _ang[i]; }
   double getDXP()   const { return _dxp; }
   double getDYP()   const { return _dyp; }
   double getDZP()   const { return _dzp; }
@@ -42,7 +42,7 @@ public:
   double getScale() const { return _scale; }
 
   void setAng(const VectorDouble& ang) { _ang = ang; }
-  void setAng(int i, double value) { _ang[i] = value; }
+  void setAng(Id i, double value) { _ang[i] = value; }
   void setDXP(double dxp)     { _dxp = dxp; }
   void setDYP(double dyp)     { _dyp = dyp; }
   void setDZP(double dzp)     { _dzp = dzp; }
@@ -51,8 +51,8 @@ public:
   void setTmin(double tmin)   { _tmin = tmin; }
   void setScale(double scale) { _scale = scale; }
 
-  double projectPoint(const Db* db, int iech) const;
-  double projectGrid(const DbGrid* db, int ix, int iy, int iz) const;
+  double projectPoint(const Db* db, Id iech) const;
+  double projectGrid(const DbGrid* db, Id ix, Id iy, Id iz) const;
 
   void dump(bool flagGrid = true) const;
 

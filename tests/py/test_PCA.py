@@ -30,6 +30,7 @@ names = gl.generateMultipleNames("x",ncol, delim="")
 locatornames = gl.generateMultipleNames("z",ncol, delim="")
 db = gl.Db.createFromSamples(nech=Xtrain.shape[0], tab=Xtrain.flatten(), names=names, locatorNames=locatornames)
 dbfmt = gl.DbStringFormat.createFromFlags(flag_array=True, flag_resume=False, flag_vars=False)
+
 gl.OptCst.defineByKey("NTCOL",-1)
 db
 

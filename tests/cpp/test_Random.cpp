@@ -21,7 +21,7 @@
 
 using namespace gstlrn;
 
-void st_do_it(bool style, int seed)
+void st_do_it(bool style, Id seed)
 {
   if (style)
     message("\nUsing Old Style Random Number Generator\n");
@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  int seed = 432432;
-  int number = 10000;
+  Id seed   = 432432;
+  Id number = 10000;
   VectorDouble tab;
   message("All subsequent tests are performed on a set of %d samples\n",number);
 
@@ -53,10 +53,10 @@ int main(int argc, char *argv[])
   tab.resize(number,0.);
   message("\nUniform Distribution: mini=%lf maxi=%lf\n",mini,maxi);
   law_set_old_style(true);
-  for (int i = 0; i < number; i++) tab[i] = law_uniform(mini,maxi);
+  for (Id i = 0; i < number; i++) tab[i] = law_uniform(mini, maxi);
   VH::dumpStats("Old Style", tab);
   law_set_old_style(false);
-  for (int i = 0; i < number; i++) tab[i] = law_uniform(mini,maxi);
+  for (Id i = 0; i < number; i++) tab[i] = law_uniform(mini, maxi);
   VH::dumpStats("New Style", tab);
 
   // Sampling Gaussian distribution
@@ -66,10 +66,10 @@ int main(int argc, char *argv[])
   tab.resize(number,0.);
   message("\nNormal Distribution: mean=%lf sigma=%lf\n",mean,stdv);
   law_set_old_style(true);
-  for (int i = 0; i < number; i++) tab[i] = law_gaussian();
+  for (Id i = 0; i < number; i++) tab[i] = law_gaussian();
   VH::dumpStats("Old Style", tab);
   law_set_old_style(false);
-  for (int i = 0; i < number; i++) tab[i] = law_gaussian();
+  for (Id i = 0; i < number; i++) tab[i] = law_gaussian();
   VH::dumpStats("New Style", tab);
 
   // Sampling Exponential distribution
@@ -78,10 +78,10 @@ int main(int argc, char *argv[])
   tab.resize(number,0.);
   message("\nExponential Distribution: param=%lf\n",param);
   law_set_old_style(true);
-  for (int i = 0; i < number; i++) tab[i] = law_exponential(param);
+  for (Id i = 0; i < number; i++) tab[i] = law_exponential(param);
   VH::dumpStats("Old Style", tab);
   law_set_old_style(false);
-  for (int i = 0; i < number; i++) tab[i] = law_exponential(param);
+  for (Id i = 0; i < number; i++) tab[i] = law_exponential(param);
   VH::dumpStats("New Style", tab);
 
   // Sampling Gamma distribution
@@ -91,10 +91,10 @@ int main(int argc, char *argv[])
   tab.resize(number,0.);
   message("\nGamma Distribution: alpha=%lf beta=%lf\n",alpha,beta);
   law_set_old_style(true);
-  for (int i = 0; i < number; i++) tab[i] = law_gamma(alpha,beta);
+  for (Id i = 0; i < number; i++) tab[i] = law_gamma(alpha, beta);
   VH::dumpStats("Old Style", tab);
   law_set_old_style(false);
-  for (int i = 0; i < number; i++) tab[i] = law_gamma(alpha,beta);
+  for (Id i = 0; i < number; i++) tab[i] = law_gamma(alpha, beta);
   VH::dumpStats("New Style", tab);
 
   // Sampling Poisson distribution
@@ -102,14 +102,14 @@ int main(int argc, char *argv[])
   double lambda = 4.6;
   number = 100000; // Use larger sample for convergence
   tab.resize(number,0.);
-  int ndec = (int) OptCst::query(ECst::NTDEC);
+  Id ndec = static_cast<Id>(OptCst::query(ECst::NTDEC));
   OptCst::define(ECst::NTDEC, 4);
   message("\nPoisson Distribution: lambda=%lf\n",lambda);
   law_set_old_style(true);
-  for (int i = 0; i < number; i++) tab[i] = (double) law_poisson(lambda);
+  for (Id i = 0; i < number; i++) tab[i] = static_cast<double>(law_poisson(lambda));
   VH::dumpStats("Old Style", tab);
   law_set_old_style(false);
-  for (int i = 0; i < number; i++) tab[i] = (double) law_poisson(lambda);
+  for (Id i = 0; i < number; i++) tab[i] = static_cast<double>(law_poisson(lambda));
   VH::dumpStats("New Style", tab);
   OptCst::define(ECst::NTDEC, ndec);
 
@@ -127,11 +127,11 @@ int main(int argc, char *argv[])
   message("\nUniform Distribution: mini=%lf maxi=%lf\n",mini,maxi);
   law_set_old_style(true);
   law_set_random_seed(seed);
-  for (int i = 0; i < number; i++) tab[i] = law_uniform(mini,maxi);
+  for (Id i = 0; i < number; i++) tab[i] = law_uniform(mini, maxi);
   VH::dump("Old Style", tab);
   law_set_old_style(false);
   law_set_random_seed(seed);
-  for (int i = 0; i < number; i++) tab[i] = law_uniform(mini,maxi);
+  for (Id i = 0; i < number; i++) tab[i] = law_uniform(mini, maxi);
   VH::dump("New Style", tab);
 
   // Testing miscellaneous functions

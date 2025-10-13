@@ -174,17 +174,17 @@ String RuleShadow::displaySpecific() const
  ** \param[in]  flag_stat       1 for stationary; 0 otherwise
  **
  *****************************************************************************/
-int RuleShadow::particularities(Db* db,
-                                const Db* dbprop,
-                                Model* model,
-                                int /*flag_grid_check*/,
-                                int flag_stat) const
+Id RuleShadow::particularities(Db* db,
+                               const Db* dbprop,
+                               Model* model,
+                               Id /*flag_grid_check*/,
+                               Id flag_stat) const
 {
   double sh_dsup_max, sh_down_max;
-  int ndim = (model != nullptr) ? model->getNDim() : 0;
+  Id ndim = (model != nullptr) ? static_cast<Id>(model->getNDim()) : 0;
 
   _incr = MAXIMUM_BIG;
-  for (int idim = 0; idim < ndim; idim++)
+  for (Id idim = 0; idim < ndim; idim++)
     if (_shift[idim] != 0) _incr = MIN(_incr, db->getUnit(idim));
 
   /* Calculate the maximum distance */
@@ -197,11 +197,11 @@ int RuleShadow::particularities(Db* db,
 }
 
 void RuleShadow::_st_shadow_max(const Db* dbprop,
-                                int flag_stat,
+                                Id flag_stat,
                                 double* sh_dsup_max,
                                 double* sh_down_max) const
 {
-  int iech;
+  Id iech;
   double val2, val3;
 
   if (flag_stat || dbprop == nullptr)
@@ -240,23 +240,23 @@ void RuleShadow::_st_shadow_max(const Db* dbprop,
  **
  *****************************************************************************/
 double RuleShadow::_st_grid_eval(DbGrid* dbgrid,
-                                 int isimu,
-                                 int icase,
-                                 int nbsimu,
+                                 Id isimu,
+                                 Id icase,
+                                 Id nbsimu,
                                  VectorDouble& xyz0) const
 {
   double top = 0.;
   double bot = 0.;
-  int ndim   = dbgrid->getNDim();
+  Id ndim    = dbgrid->getNDim();
 
   /* First point */
-  int iech = dbgrid->indiceToRank(_ind2);
+  Id iech  = dbgrid->indiceToRank(_ind2);
   double z = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
   if (!FFFF(z))
   {
     double d2 = 0.;
     dbgrid->indicesToCoordinateInPlace(_ind2, xyz0);
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
     {
       double delta = _xyz[idim] - xyz0[idim];
       d2 += delta * delta;
@@ -274,7 +274,7 @@ double RuleShadow::_st_grid_eval(DbGrid* dbgrid,
   {
     double d2 = 0.;
     dbgrid->indicesToCoordinateInPlace(_ind2, xyz0);
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
     {
       double delta = _xyz[idim] - xyz0[idim];
       d2 += delta * delta;
@@ -292,7 +292,7 @@ double RuleShadow::_st_grid_eval(DbGrid* dbgrid,
   {
     double d2 = 0.;
     dbgrid->indicesToCoordinateInPlace(_ind2, xyz0);
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
     {
       double delta = _xyz[idim] - xyz0[idim];
       d2 += delta * delta;
@@ -310,7 +310,7 @@ double RuleShadow::_st_grid_eval(DbGrid* dbgrid,
   {
     double d2 = 0.;
     dbgrid->indicesToCoordinateInPlace(_ind2, xyz0);
-    for (int idim = 0; idim < ndim; idim++)
+    for (Id idim = 0; idim < ndim; idim++)
     {
       double delta = _xyz[idim] - xyz0[idim];
       d2 += delta * delta;
@@ -344,13 +344,13 @@ double RuleShadow::_st_grid_eval(DbGrid* dbgrid,
  ** \remark Attributes ELoc::FACIES are mandatory
  **
  *****************************************************************************/
-int RuleShadow::gaus2facData(PropDef* propdef,
-                             Db* dbin,
-                             Db* /*dbout*/,
-                             int* flag_used,
-                             int ipgs,
-                             int isimu,
-                             int nbsimu)
+Id RuleShadow::gaus2facData(PropDef* propdef,
+                            Db* dbin,
+                            Db* /*dbout*/,
+                            Id* flag_used,
+                            Id ipgs,
+                            Id isimu,
+                            Id nbsimu)
 {
   double y[2], facies, t1min, t1max, t2min, t2max, sh_dsup, sh_down;
 
@@ -360,23 +360,23 @@ int RuleShadow::gaus2facData(PropDef* propdef,
 
   /* Processing the translation */
 
-  for (int iech = 0; iech < dbin->getNSample(); iech++)
+  for (Id iech = 0; iech < dbin->getNSample(); iech++)
   {
     if (!dbin->isActive(iech)) continue;
 
     /* Initializations */
 
     facies = TEST;
-    for (int igrf = 0; igrf < 2; igrf++)
+    for (Id igrf = 0; igrf < 2; igrf++)
       y[igrf] = TEST;
 
     if (rule_thresh_define_shadow(propdef, dbin, this, ITEST, iech, isimu,
                                   nbsimu, &t1min, &t1max, &t2min, &t2max,
                                   &sh_dsup, &sh_down)) return 1;
 
-    for (int igrf = 0; igrf < 2; igrf++)
+    for (Id igrf = 0; igrf < 2; igrf++)
     {
-      int icase = get_rank_from_propdef(propdef, ipgs, igrf);
+      auto icase = get_rank_from_propdef(propdef, ipgs, igrf);
       y[igrf] =
         (flag_used[igrf]) ? dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, 0,
                                             icase, nbsimu, 1)
@@ -407,14 +407,14 @@ int RuleShadow::gaus2facData(PropDef* propdef,
  ** \remark Attributes ELoc::FACIES and ELoc::SIMU are mandatory
  **
  *****************************************************************************/
-int RuleShadow::gaus2facResult(PropDef* propdef,
-                               Db* dbout,
-                               int* /*flag_used*/,
-                               int ipgs,
-                               int isimu,
-                               int nbsimu) const
+Id RuleShadow::gaus2facResult(PropDef* propdef,
+                              Db* dbout,
+                              Id* /*flag_used*/,
+                              Id ipgs,
+                              Id isimu,
+                              Id nbsimu) const
 {
-  int ndim, nech, iech, jech, error, idim, nstep, istep, flag, flag_shadow, igrf, icase;
+  Id ndim, nech, iech, jech, error, idim, nstep, istep, flag, flag_shadow, igrf, icase;
   double y[2], facies, dinc, dy, ys, yc_dsup, yc_down;
   double t1min, t1max, t2min, t2max, s1min, s1max, s2min, s2max, sh_dsup, sh_down, seuil;
 
@@ -438,7 +438,7 @@ int RuleShadow::gaus2facResult(PropDef* propdef,
 
   VectorDouble del(nech);
   dinc  = getIncr();
-  nstep = (int)floor(getDMax() / dinc);
+  nstep = static_cast<Id>(floor(getDMax() / dinc));
   dy    = dinc * getTgte();
   for (idim = 0; idim < ndim; idim++)
     del[idim] = dinc * _shift[idim];
@@ -518,15 +518,15 @@ label_end:
  ** \param[in]  nbsimu     Number of simulations (if EProcessOper::CONDITIONAL)
  **
  *****************************************************************************/
-int RuleShadow::evaluateBounds(PropDef* propdef,
-                               Db* dbin,
-                               Db* dbout,
-                               int isimu,
-                               int igrf,
-                               int ipgs,
-                               int nbsimu) const
+Id RuleShadow::evaluateBounds(PropDef* propdef,
+                              Db* dbin,
+                              Db* dbout,
+                              Id isimu,
+                              Id igrf,
+                              Id ipgs,
+                              Id nbsimu) const
 {
-  int iech, jech, nadd, nech, idim, facies, nstep, istep, valid;
+  Id iech, jech, nadd, nech, idim, facies, nstep, istep, valid;
   double dist, t1min, t1max, t2min, t2max, s1min, s1max, s2min, s2max;
   double dinc, seuil, alea, sh_dsup, sh_down, yc_down, dval;
   const DbGrid* dbgrid;
@@ -538,7 +538,7 @@ int RuleShadow::evaluateBounds(PropDef* propdef,
   nech        = dbin->getNSample();
   dist        = 0.;
   dinc        = getIncr();
-  nstep       = (int)floor(getDMax() / dinc);
+  nstep       = static_cast<Id>(floor(getDMax() / dinc));
   seuil = s1min = s1max = s2min = s2max = TEST;
   dbgrid                                = dynamic_cast<const DbGrid*>(dbout);
 
@@ -552,7 +552,7 @@ int RuleShadow::evaluateBounds(PropDef* propdef,
     /* Convert the proportions into thresholds for data point */
     if (!dbin->isActive(iech)) continue;
     if (!point_inside_grid(dbin, iech, dbgrid)) continue;
-    facies = (int)dbin->getZVariable(iech, 0);
+    facies = static_cast<Id>(dbin->getZVariable(iech, 0));
     if (rule_thresh_define_shadow(propdef, dbin, this, facies, iech, isimu,
                                   nbsimu, &t1min, &t1max, &t2min, &t2max,
                                   &sh_dsup, &sh_down)) return (1);

@@ -78,7 +78,7 @@ FracEnviron::~FracEnviron()
  */
 FracEnviron* FracEnviron::createFromNF(const String& NFFilename, bool verbose)
 {
-  FracEnviron* envir = new FracEnviron();
+  auto* envir = new FracEnviron();
   if (envir->_fileOpenAndDeserialize(NFFilename, verbose)) return envir;
   delete envir;
   return nullptr;
@@ -112,7 +112,7 @@ String FracEnviron::toString(const AStringFormat* strfmt) const
 
   /* Loop on the families */
 
-  for (int i = 0; i < getNFamilies(); i++)
+  for (Id i = 0; i < getNFamilies(); i++)
   {
     sstr << toTitle(2, "Family #%d/%d", i + 1, getNFamilies());
     sstr << _families[i].toString(strfmt);
@@ -120,7 +120,7 @@ String FracEnviron::toString(const AStringFormat* strfmt) const
 
   /* Loop on the faults */
 
-  for (int i = 0; i < getNFaults(); i++)
+  for (Id i = 0; i < getNFaults(); i++)
   {
     sstr << toTitle(2, "Fault #%d/%d", i + 1, getNFaults());
     sstr << _faults[i].toString(strfmt);
@@ -131,11 +131,11 @@ String FracEnviron::toString(const AStringFormat* strfmt) const
 
 bool FracEnviron::_deserializeAscii(std::istream& is, bool verbose)
 {
-  int nfamilies = 0;
-  int nfaults   = 0;
+  Id nfamilies = 0;
+  Id nfaults   = 0;
   bool ret      = true;
-  ret           = ret && _recordRead<int>(is, "Number of families", nfamilies);
-  ret           = ret && _recordRead<int>(is, "Number of main faults", nfaults);
+  ret           = ret && _recordRead<Id>(is, "Number of families", nfamilies);
+  ret           = ret && _recordRead<Id>(is, "Number of main faults", nfaults);
   ret           = ret && _recordRead<double>(is, "Maximum horizontal distance", _xmax);
   ret           = ret && _recordRead<double>(is, "Maximum vertical distance", _ymax);
   ret           = ret && _recordRead<double>(is, "Dilation along the horizontal axis", _deltax);
@@ -144,14 +144,14 @@ bool FracEnviron::_deserializeAscii(std::istream& is, bool verbose)
   ret           = ret && _recordRead<double>(is, "Stdev of thickness distribution", _stdev);
   if (!ret) return ret;
 
-  for (int ifam = 0; ret && ifam < nfamilies; ifam++)
+  for (Id ifam = 0; ret && ifam < nfamilies; ifam++)
   {
     FracFamily family;
     ret = ret && family._deserializeAscii(is, verbose);
     if (ret) addFamily(family);
   }
 
-  for (int ifault = 0; ret && ifault < nfaults; ifault++)
+  for (Id ifault = 0; ret && ifault < nfaults; ifault++)
   {
     FracFault fault;
     ret = ret && fault._deserializeAscii(is, verbose);
@@ -163,8 +163,8 @@ bool FracEnviron::_deserializeAscii(std::istream& is, bool verbose)
 bool FracEnviron::_serializeAscii(std::ostream& os, bool verbose) const
 {
   bool ret = true;
-  ret      = ret && _recordWrite<int>(os, "Number of families", getNFamilies());
-  ret      = ret && _recordWrite<int>(os, "Number of main faults", getNFaults());
+  ret      = ret && _recordWrite<Id>(os, "Number of families", getNFamilies());
+  ret      = ret && _recordWrite<Id>(os, "Number of main faults", getNFaults());
   ret      = ret && _recordWrite<double>(os, "Maximum horizontal distance", _xmax);
   ret      = ret && _recordWrite<double>(os, "Maximum vertical distance", _ymax);
   ret      = ret && _recordWrite<double>(os, "Dilation along the horizontal axis", _deltax);
@@ -172,7 +172,7 @@ bool FracEnviron::_serializeAscii(std::ostream& os, bool verbose) const
   ret      = ret && _recordWrite<double>(os, "Mean of thickness distribution", _mean);
   ret      = ret && _recordWrite<double>(os, "Stdev of thickness distribution", _stdev);
 
-  for (int ifam = 0; ret && ifam < getNFamilies(); ifam++)
+  for (Id ifam = 0; ret && ifam < getNFamilies(); ifam++)
   {
     ret                      = ret && _commentWrite(os, "Characteristics of family");
     const FracFamily& family = getFamily(ifam);
@@ -181,7 +181,7 @@ bool FracEnviron::_serializeAscii(std::ostream& os, bool verbose) const
 
   /* Loop on the main faults */
 
-  for (int ifault = 0; ret && ifault < getNFaults(); ifault++)
+  for (Id ifault = 0; ret && ifault < getNFaults(); ifault++)
   {
     ret                    = ret && _commentWrite(os, "Characteristics of main fault");
     const FracFault& fault = getFault(ifault);
@@ -202,8 +202,8 @@ bool FracEnviron::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
 
   /* Read the grid characteristics */
   bool ret      = true;
-  int nfamilies = 0;
-  int nfaults   = 0;
+  Id nfamilies = 0;
+  Id nfaults   = 0;
 
   ret = ret && SerializeHDF5::readValue(*fracG, "NFamilies", nfamilies);
   ret = ret && SerializeHDF5::readValue(*fracG, "NFaults", nfaults);
@@ -215,7 +215,7 @@ bool FracEnviron::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   ret = ret && SerializeHDF5::readValue(*fracG, "Stdev", _stdev);
 
   // Loop on the families
-  for (int ifam = 0; ret && ifam < getNFamilies(); ifam++)
+  for (Id ifam = 0; ret && ifam < getNFamilies(); ifam++)
   {
     String locName = "Family" + std::to_string(ifam);
     auto famG      = SerializeHDF5::getGroup(*fracG, locName);
@@ -227,7 +227,7 @@ bool FracEnviron::_deserializeH5(H5::Group& grp, [[maybe_unused]] bool verbose)
   }
 
   // Loop on the main faults
-  for (int ifault = 0; ret && ifault < getNFaults(); ifault++)
+  for (Id ifault = 0; ret && ifault < getNFaults(); ifault++)
   {
     String locName = "Fault" + std::to_string(ifault);
     auto faultG    = SerializeHDF5::getGroup(*fracG, locName);
@@ -258,7 +258,7 @@ bool FracEnviron::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) co
 
   // Loop on the families
   auto famsG = fracG.createGroup("Families");
-  for (int ifam = 0, nfam = getNFamilies(); ret && ifam < nfam; ifam++)
+  for (Id ifam = 0, nfam = getNFamilies(); ret && ifam < nfam; ifam++)
   {
     const FracFamily& family = getFamily(ifam);
     String locName           = "Family" + std::to_string(ifam);
@@ -268,7 +268,7 @@ bool FracEnviron::_serializeH5(H5::Group& grp, [[maybe_unused]] bool verbose) co
 
   // Loop on the main faults
   auto faultsG = fracG.createGroup("Fauts");
-  for (int ifault = 0, nfault = getNFaults(); ret && ifault < nfault; ifault++)
+  for (Id ifault = 0, nfault = getNFaults(); ret && ifault < nfault; ifault++)
   {
     const FracFault& fault = getFault(ifault);
     String locName         = "Fault" + std::to_string(ifault);

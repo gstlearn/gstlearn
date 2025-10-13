@@ -61,10 +61,10 @@ ElemNostat::~ElemNostat()
 }
 
 void ElemNostat::init(const EConsElem& loctype,
-                      int rank_grf,
-                      int rank_str,
-                      int rank_v1,
-                      int rank_v2)
+                      Id rank_grf,
+                      Id rank_str,
+                      Id rank_v1,
+                      Id rank_v2)
 {
   _locType = loctype;
   _rankGRF = rank_grf;
