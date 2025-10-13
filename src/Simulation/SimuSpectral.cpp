@@ -11,38 +11,38 @@
 #include "Simulation/SimuSpectral.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Stats/Classical.hpp"
-#include "Matrix/MatrixDense.hpp"
 #include "Covariances/ACov.hpp"
-#include "Model/ModelGeneric.hpp"
 #include "Db/Db.hpp"
+#include "Matrix/MatrixDense.hpp"
 #include "Model/Model.hpp"
+#include "Model/ModelGeneric.hpp"
+#include "Stats/Classical.hpp"
 
 #include <cmath>
 
 namespace gstlrn
 {
-  SimuSpectral::  SimuSpectral(const ACov* cova)
-    : _ndim(0),
-      _ns(0),
-      _isPrepared(false),
-      _phi(),
-      _gamma(),
-      _omega(),
-      _spSims(),
-      _cova(cova)
+SimuSpectral::SimuSpectral(const ACov* cova)
+  : _ndim(0)
+  , _ns(0)
+  , _isPrepared(false)
+  , _phi()
+  , _gamma()
+  , _omega()
+  , _spSims()
+  , _cova(cova)
 {
 }
 
-  SimuSpectral::  SimuSpectral(const   SimuSpectral &r)
-    : _ndim(r._ndim),
-      _ns(r._ns),
-      _isPrepared(r._isPrepared),
-      _phi(r._phi),
-      _gamma(r._gamma),
-      _omega(r._omega),
-      _spSims(r._spSims),
-      _cova(r._cova)
+SimuSpectral::SimuSpectral(const SimuSpectral& r)
+  : _ndim(r._ndim)
+  , _ns(r._ns)
+  , _isPrepared(r._isPrepared)
+  , _phi(r._phi)
+  , _gamma(r._gamma)
+  , _omega(r._omega)
+  , _spSims(r._spSims)
+  , _cova(r._cova)
 {
 }
 
@@ -53,11 +53,11 @@ SimuSpectral& SimuSpectral::operator=(const SimuSpectral& r)
     _ndim       = r._ndim;
     _ns         = r._ns;
     _isPrepared = r._isPrepared;
-    _phi = r._phi;
-    _gamma = r._gamma;
-    _omega = r._omega;
-    _spSims = r._spSims;
-    _cova= r._cova;
+    _phi        = r._phi;
+    _gamma      = r._gamma;
+    _omega      = r._omega;
+    _spSims     = r._spSims;
+    _cova       = r._cova;
   }
   return *this;
 }
@@ -82,7 +82,7 @@ Id SimuSpectral::simulate(Id ns, Id seed, bool verbose, Id nd)
     messerr("A Covariance should be attached beforehand");
     return 1;
   }
-  if (! isValidForSpectral(_cova)) return 1;
+  if (!isValidForSpectral(_cova)) return 1;
   if (ns <= 0)
   {
     messerr("The number of simulated harmonic components should be positive");
@@ -95,7 +95,7 @@ Id SimuSpectral::simulate(Id ns, Id seed, bool verbose, Id nd)
   }
 
   _ndim = static_cast<Id>(_cova->getNDim());
-  _ns = ns;
+  _ns   = ns;
 
   // Cleaning any previously allocated memory
   _phi.clear();
@@ -207,13 +207,8 @@ void SimuSpectral::_simulateOnSphere(Id nd, bool verbose)
 
 void SimuSpectral::_computeOnRn(Db* dbout, Id iuid, bool verbose)
 {
-  Id nech = dbout->getNSample(true);
+  Id nech      = dbout->getNSample(true);
   double scale = sqrt(2. / _ns);
-
-  // Preparation
-  MatrixSquare tensor = _model->getCovAniso(0)->getAniso().getTensorInverse();
-  double scale        = sqrt(2. / _ns);
-  AMatrix* res        = MatrixFactory::prodMatMat(&_omega, &tensor);
 
   // Optional printout
   if (verbose)
@@ -550,15 +545,15 @@ bool SimuSpectral::isValidForSpectral(const ACov* cov)
  *
  * @note The conditional version is not yet available
  */
-int simuSpectral(Db *dbin,
-                 Db *dbout,
-                 ModelGeneric *model,
-                 Id nbsimu,
-                 Id seed,
-                 Id ns,
-                 Id nd,
-                 bool verbose,
-                 const NamingConvention& namconv)
+Id simuSpectral(Db* dbin,
+                Db* dbout,
+                ModelGeneric* model,
+                Id nbsimu,
+                Id seed,
+                Id ns,
+                Id nd,
+                bool verbose,
+                const NamingConvention& namconv)
 {
   if (dbin != nullptr)
   {

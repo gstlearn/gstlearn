@@ -76,7 +76,7 @@ bool CovProportional::isValidForSpectral() const
   return getCor()->isValidForSpectral();
 }
 
-MatrixDense CovProportional::simulateSpectralOmega(int ns) const
+MatrixDense CovProportional::simulateSpectralOmega(Id ns) const
 {
   return getCor()->simulateSpectralOmega(ns);
 }

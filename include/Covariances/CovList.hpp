@@ -139,7 +139,7 @@ public:
   void setAllCovActive();
 
   bool isValidForSpectral() const override;
-  MatrixDense simulateSpectralOmega(int ns) const override;
+  MatrixDense simulateSpectralOmega(Id ns) const override;
 protected:
   bool _isCovarianceIndexValid(Id icov) const;
   void _load(const SpacePoint& p, bool case1) const override;

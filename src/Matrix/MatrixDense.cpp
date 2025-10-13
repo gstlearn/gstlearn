@@ -127,9 +127,9 @@ double MatrixDense::traceProd(const MatrixDense& a, MatrixDense& b)
     messerr("MatrixDense::traceProd: incompatible matrix sizes");
     return TEST;
   }
-  auto array = b.getEigenMat().array();
-  array *= a.getEigenMat().transpose().array();
-  return b.getEigenMat().sum();
+  auto array = b.eigenMat().array();
+  array *= a.eigenMat().transpose().array();
+  return b.eigenMat().sum();
 }
 void MatrixDense::updValue(Id irow,
                            Id icol,

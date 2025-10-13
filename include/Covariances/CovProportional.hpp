@@ -30,7 +30,7 @@ public:
   void setCor(ACov* cor) override;
   bool isValidForSpectral() const override;
 
-  MatrixDense simulateSpectralOmega(int ns) const override;
+  MatrixDense simulateSpectralOmega(Id ns) const override;
   IMPLEMENT_CLONING(CovProportional)
 protected:
   double _eval(const SpacePoint& p1, 

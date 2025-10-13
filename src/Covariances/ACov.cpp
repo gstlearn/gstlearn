@@ -2523,7 +2523,7 @@ bool ACov::isValidForSpectral() const
   return false;
 }
 
-MatrixDense ACov::simulateSpectralOmega(int ns) const 
+MatrixDense ACov::simulateSpectralOmega(Id ns) const 
 {
   DECLARE_UNUSED(ns);
   messerr("Spectral method is not implemented for this covariance");

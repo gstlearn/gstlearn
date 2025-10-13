@@ -624,7 +624,7 @@ bool CovList::isValidForSpectral() const
 }
 
 
-MatrixDense CovList::simulateSpectralOmega(int ns) const
+MatrixDense CovList::simulateSpectralOmega(Id ns) const
 {
   return getCov(0)->simulateSpectralOmega(ns);
 }
