@@ -1068,6 +1068,18 @@ VectorVectorDouble interpolateVariablesToPoint(DbGrid* dbgrid,
   return tab;
 }
 
+VectorDouble interpolateOneVariableToPoint(DbGrid* dbgrid,
+                                           const VectorDouble& xp,
+                                           const VectorDouble& yp,
+                                           const VectorDouble& zp,
+                                           const String& name)
+{
+  VectorDouble tab;
+  Id iatt = dbgrid->getUID(name);
+  (void)interpolateVariableToPoint(dbgrid, iatt, xp, yp, zp, tab);
+  return tab;
+}
+
 /*****************************************************************************/
 /*!
  ** Interpolate a variable from a grid Db on discretization points

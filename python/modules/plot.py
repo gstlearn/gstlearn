@@ -2012,31 +2012,42 @@ def lagDefine(i, lag, tol=0):
         maxi = maxi + reltol
     return mini, center, maxi  
 
-def sectionFromGrid(trace, grid, ptype = gl.ELoc.Z, colors = None, linestyle = 'solid', disc = 1,
-            flagFill = False, checkOrder = 0, flagReverseOrder = False, *args, **kwargs):
+def sectionFromGrid(trace, grid, ptype = gl.ELoc.Z, addNames = None, 
+                    disc = 1, flagFill = False, flagUp = True, checkOrder = 0, flagReverseOrder = False, 
+                    colors = None, linestyle = 'solid', coladd = 'black', lineadd = 'solid', 
+                    *args, **kwargs):
     ax = _getNewAxes()
-    return _ax_sectionFromGrid(ax, trace, grid, ptype, colors, linestyle, disc, 
-                       flagFill, checkOrder, flagReverseOrder, *args, **kwargs)
+    return _ax_sectionFromGrid(ax, trace, grid, ptype, addNames, disc, 
+                               flagFill, flagUp, checkOrder, flagReverseOrder, 
+                               colors, linestyle, coladd, lineadd,
+                               *args, **kwargs)
 
-def _ax_sectionFromGrid(ax, trace, grid, ptype = gl.ELoc.Z, colors = None, linestyle = 'solid', 
-                disc = 1, flagFill = False, checkOrder = 0, flagReverseOrder = False,
-                percent = 0.1, *args, **kwargs):
+def _ax_sectionFromGrid(ax, trace, grid, ptype = gl.ELoc.Z, addNames = None, 
+                        disc = 1, flagFill = False, flagUp = True, checkOrder = 0, flagReverseOrder = False,
+                        colors = None, linestyle = 'solid', coladd = 'black', lineadd = 'solid',
+                        percent = 0.1, *args, **kwargs):
     xp = gl.VectorDouble()
     yp = gl.VectorDouble()
     zp = gl.VectorDouble()
     dd = gl.VectorDouble()
     ddel = gl.VectorDouble()
+    if not flagUp:
+        ax.invert_yaxis()
     distTot = gl.ut_trace_discretize(trace, disc, xp, yp, dd, ddel)
 
     tab    = gl.interpolateVariablesToPoint(grid, xp, yp, zp, ptype, checkOrder, True)
-    tabx   = np.array(list(dd))
-    ntab   = len(tabx)
+    tabdd  = np.array(list(dd))
+    ntab   = len(tabdd)
+    tabx   = tabdd
     if flagFill:
         tabx = np.append(tabx, [tabx[ntab-1], tabx[0]])
     nsurf  = len(tab)
     mini = gl.VH.minimumVVD(tab)
     maxi = gl.VH.maximumVVD(tab)
-    refval = gl.VH.minimumVVD(tab) - percent * (maxi - mini)
+    if flagUp:
+        refval = mini - percent * (maxi - mini)
+    else:
+        refval = maxi + percent * (maxi - mini)
 
     for jsurf in range(nsurf):
         isurf = jsurf
@@ -2052,20 +2063,30 @@ def _ax_sectionFromGrid(ax, trace, grid, ptype = gl.ELoc.Z, colors = None, lines
             taby = np.append(taby, [refval, refval])
             res = ax.fill(tabx, taby, facecolor=color, edgecolor=color, **kwargs)
         else:
-            res = ax.plot(tabx, taby, color = color, linestyle = linestyle, **kwargs)
+            res = ax.plot(tabdd, taby, color = color, linestyle = linestyle, **kwargs)
+
+    if addNames is not None:
+        naux = len(addNames)
+        for name in addNames:
+            tabaux = gl.interpolateOneVariableToPoint(grid, xp, yp, zp, name)
+            resaux = ax.plot(tabdd, tabaux, color = coladd, linestyle = lineadd, **kwargs)
+    
     return
 
 def sectionFromPoints(trace, points, ptype = gl.ELoc.Z, colors = None, 
-                      disc = 1, radius = 1, *args, **kwargs):
+                      disc = 1, flagUp = True, radius = 1, *args, **kwargs):
     ax = _getNewAxes()
-    return _ax_sectionFromPoints(ax, trace, points, ptype, colors, disc, radius, *args, **kwargs)
+    return _ax_sectionFromPoints(ax, trace, points, ptype, colors, disc, flagUp, 
+                                 radius, *args, **kwargs)
 
 def _ax_sectionFromPoints(ax, trace, points, ptype = gl.ELoc.Z, colors = None, 
-                          disc = 1, radius = 1, *args, **kwargs):
+                          disc = 1, flagUp = True, radius = 1, *args, **kwargs):
     xp = gl.VectorDouble()
     yp = gl.VectorDouble()
     dd = gl.VectorDouble()
     ddel = gl.VectorDouble()
+    if not flagUp:
+        ax.invert_yaxis()
     distTot = gl.ut_trace_discretize(trace, disc, xp, yp, dd, ddel)
 
     xs = gl.VectorDouble()

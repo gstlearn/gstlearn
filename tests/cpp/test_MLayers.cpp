@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "API/SPDE.hpp"
 #include "Basic/File.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Db/Db.hpp"
@@ -36,20 +37,20 @@ int main(int argc, char* argv[])
   ASerializable::setPrefixName("test_Db-");
 
   Id nech          = 14;
-  VectorDouble tab = {10., 10., -3., 1, 1,
-                      10., 10., -4., 2, 1,
-                      10., 10., -5.1, 3, 1,
-                      10., 10., -6.4, 4, 1,
-                      80., 10., -3.5, 1, 2,
-                      81., 9.5, -3.8, 2, 2,
-                      81., 9.2, -5.5, 4, 2,
-                      12., 75., -2.6, 1, 3,
-                      12., 75., -3.8, 2, 3,
-                      12., 75.1, -4.5, 3, 3,
-                      12., 75.4, -5.5, 4, 3,
-                      65., 65., -3.2, 2, 4,
-                      70., 70., -4.2, 3, 4,
-                      80., 80., -6.2, 4, 4};
+  VectorDouble tab = {10., 10.0, 3.0, 1, 1,
+                      10., 10.0, 4.0, 2, 1,
+                      10., 10.0, 5.1, 3, 1,
+                      10., 10.0, 6.4, 4, 1,
+                      80., 10.0, 3.5, 1, 2,
+                      81., 9.0, 3.8, 2, 2,
+                      81., 9.0, 5.5, 4, 2,
+                      12., 75.0, 2.6, 1, 3,
+                      12., 75.0, 3.8, 2, 3,
+                      12., 75.0, 4.5, 3, 3,
+                      12., 75.0, 5.5, 4, 3,
+                      65., 65.0, 3.2, 2, 4,
+                      70., 70.0, 4.2, 3, 4,
+                      80., 80.0, 6.2, 4, 4};
   auto* db         = Db::createFromSamples(nech, ELoadBy::SAMPLE, tab,
                                            {"x1", "x2", "z1", "layer", "well"});
   db->setLocators({"x1", "x2"}, ELoc::X);
@@ -70,47 +71,54 @@ int main(int argc, char* argv[])
   auto* model = Model::createFromParam(ECov::CUBIC, 40., 0., 0., VectorDouble(), *sills);
   model->display();
 
-  // Id nbtuba    = 100;
-  // auto* modelT = Model::createFromParam(ECov::SPHERICAL, 10, 4);
-  // modelT->setMean(1000);
-  // (void)simtub(nullptr, grid, modelT, neigh, 1, 0, nbtuba);
-  // grid->setName("Simu", "Time1000");
+  Id nbtuba    = 100;
+  auto* modelT = Model::createFromParam(ECov::SPHERICAL, 10, 4);
+  modelT->setMean(1000);
+  (void)simtub(nullptr, grid, modelT, neigh, 1, 0, nbtuba);
+  grid->setName("Simu", "Time1000");
 
-  // modelT->setMean(1200);
-  // (void)simtub(nullptr, grid, modelT, neigh, 1, 0, nbtuba);
-  // grid->setName("Simu", "Time1200");
+  modelT->setMean(1200);
+  (void)simtub(nullptr, grid, modelT, neigh, 1, 0, nbtuba);
+  grid->setName("Simu", "Time1200");
 
-  // modelT->setMean(1400);
-  // (void)simtub(nullptr, grid, modelT, neigh, 1, 0, nbtuba);
-  // grid->setName("Simu", "Time1400");
+  modelT->setMean(1400);
+  (void)simtub(nullptr, grid, modelT, neigh, 1, 0, nbtuba);
+  grid->setName("Simu", "Time1400");
 
-  // modelT->setMean(1600);
-  // (void)simtub(nullptr, grid, modelT, neigh, 1, 0, nbtuba);
-  // grid->setName("Simu", "Time1600");
+  modelT->setMean(1600);
+  (void)simtub(nullptr, grid, modelT, neigh, 1, 0, nbtuba);
+  grid->setName("Simu", "Time1600");
 
-  // grid->setLocators({"Time*"}, ELoc::TIME);
+  grid->setLocators({"Time*"}, ELoc::TIME);
 
-  (void)multilayers_kriging(db, grid, model, neigh);
+  Id rank         = 1010;
+  bool flag_same  = false;
+  bool flag_z     = false;
+  bool flag_vel   = true;
+  bool flag_cumul = true;
 
-  MatrixDense* trace = MatrixDense::createFromVD({0, 50, 100, 0, 50, 100}, 3, 2);
-  trace->display();
+  OptDbg::setReference(rank);
+  (void)multilayers_kriging(db, grid, model, neigh, flag_same, flag_z, flag_vel, flag_cumul);
 
-  double disc = 10.;
-  VectorDouble xp;
-  VectorDouble yp;
-  VectorDouble zp;
-  VectorDouble dd;
-  VectorDouble ddel;
-  (void)ut_trace_discretize(*trace, disc, xp, yp, dd, ddel);
+  // MatrixDense* trace = MatrixDense::createFromVD({0, 50, 100, 0, 50, 100}, 3, 2);
+  // trace->display();
 
-  Id checkOrder          = 2;
-  VectorVectorDouble res = interpolateVariablesToPoint(grid, xp, yp, zp, ELoc::Z,
-                                                       checkOrder, true);
-  VH::dump("Interpolation along lines", res);
+  // double disc = 10.;
+  // VectorDouble xp;
+  // VectorDouble yp;
+  // VectorDouble zp;
+  // VectorDouble dd;
+  // VectorDouble ddel;
+  // (void)ut_trace_discretize(*trace, disc, xp, yp, dd, ddel);
+
+  // Id checkOrder          = 2;
+  // VectorVectorDouble res = interpolateVariablesToPoint(grid, xp, yp, zp, ELoc::Z,
+  //                                                      checkOrder, true);
+  // VH::dump("Interpolation along lines", res);
+  // delete trace;
 
   delete db;
   delete grid;
   delete neigh;
   delete model;
-  delete trace;
 }

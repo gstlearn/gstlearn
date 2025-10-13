@@ -55,21 +55,21 @@ namespace gstlrn
 {
 typedef struct
 {
-  Id flag_same;  /* 1 if input and output files coincide */
-  Id flag_vel;   /* 1 for velocity; 0 for thickness */
-  Id flag_cumul; /* 1 for cumulating in depth */
-  Id flag_ext;   /* Use external drift */
-  Id flag_z;     /* 1 if output must be converted into depth */
-  Id colrefd;    /* Reference depth map (if >= 0) */
-  Id colreft;    /* Reference time map (if >= 0) */
-  Id colrefb;    /* Bottom map (if >= 0) */
-  Id match_time; /* 1 if Time provided through External Drift */
-  ELoc ptime;    /* Pointer to the Time variables */
-  Id nlayers;    /* Number of layers */
-  Id nbfl;       /* Number of drift functions */
-  Id nech;       /* Number of active samples */
-  Id neq;        /* Number of equations */
-  Id npar;       /* Nb. of layers * Nb. of drift functions */
+  bool flag_same;  /* True if input and output files coincide */
+  bool flag_vel;   /* True for velocity; False for thickness */
+  bool flag_cumul; /* True for cumulating in depth */
+  bool flag_ext;   /* Use external drift */
+  bool flag_z;     /* True if output must be converted into depth */
+  Id colrefd;      /* Reference depth map (if >= 0) */
+  Id colreft;      /* Reference time map (if >= 0) */
+  Id colrefb;      /* Bottom map (if >= 0) */
+  Id match_time;   /* True if Time provided through External Drift */
+  ELoc ptime;      /* Pointer to the Time variables */
+  Id nlayers;      /* Number of layers */
+  Id nbfl;         /* Number of drift functions */
+  Id nech;         /* Number of active samples */
+  Id neq;          /* Number of equations */
+  Id npar;         /* Nb. of layers * Nb. of drift functions */
 } LMlayers;
 
 /****************************************************************************/
@@ -96,10 +96,10 @@ static LMlayers* lmlayers_free(LMlayers* lmlayers)
  ** \return  Number of drift conditions
  **
  ** \param[in]  irf_rank  Rank of the Intrinsic Random Function (0 or 1)
- ** \param[in]  flag_ext  1 if external drift must be used; 0 otherwise
+ ** \param[in]  flag_ext  True if external drift must be used; False otherwise
  **
  *****************************************************************************/
-static Id st_get_number_drift(Id irf_rank, Id flag_ext)
+static Id st_get_number_drift(Id irf_rank, bool flag_ext)
 {
   switch (irf_rank)
   {
@@ -128,39 +128,23 @@ static Id st_get_number_drift(Id irf_rank, Id flag_ext)
   return (0);
 }
 
-/****************************************************************************/
-/*!
- **  Allocate the Multi-Layers internal structure
- **
- ** \return Pointer to the allocated structure
- **
- ** \param[in]  flag_same  1 if input and output files coincide
- ** \param[in]  flag_vel   1 if work is performed in Velocity, 0 for Depth
- ** \param[in]  flag_cumul 1 if work must be done on Depth; 0 on Thickness
- ** \param[in]  flag_ext   1 if external drift must be used; 0 otherwise
- ** \param[in]  flag_z     1 if the output must be provided in depth
- ** \param[in]  colrefd    Rank of the reference depth variable
- ** \param[in]  colreft    Rank of the reference Time variable in Dbout
- ** \param[in]  colrefb    Rank of the reference Bottom Depth variable
- ** \param[in]  irf_rank   Rank of the Intrinsic Random Function (0 or 1)
- ** \param[in]  match_time Pointer to the Time pointer
- **                        (1 if defined as ELoc::F or 0 for ELoc::TIME)
- ** \param[in]  nlayers    Number of layers
- **
- *****************************************************************************/
-static LMlayers* lmlayers_alloc(Id flag_same,
-                                Id flag_vel,
-                                Id flag_cumul,
-                                Id flag_ext,
-                                Id flag_z,
-                                Id colrefd,
-                                Id colreft,
-                                Id colrefb,
+static LMlayers* lmlayers_alloc(const Db* dbout,
+                                bool flag_same,
+                                bool flag_vel,
+                                bool flag_cumul,
+                                bool flag_ext,
+                                bool flag_z,
+                                const String& namerefd,
+                                const String& namereft,
+                                const String& namerefb,
                                 Id irf_rank,
-                                Id match_time,
+                                bool match_time,
                                 Id nlayers)
 {
-  LMlayers* lmlayers   = new LMlayers;
+  Id colrefd           = (namerefd.empty()) ? -1 : dbout->getColIdx(namerefd);
+  Id colreft           = (namereft.empty()) ? -1 : dbout->getColIdx(namereft);
+  Id colrefb           = (namerefb.empty()) ? -1 : dbout->getColIdx(namerefb);
+  auto* lmlayers       = new LMlayers;
   lmlayers->flag_same  = flag_same;
   lmlayers->flag_vel   = flag_vel;
   lmlayers->flag_cumul = flag_cumul;
@@ -608,7 +592,7 @@ static double st_ci0(LMlayers* lmlayers,
  **
  ** \param[in]  lmlayers    Pointer to the LMlayers structure to be freed
  ** \param[in]  coor        Array of coordinates
- ** \param[in]  propval     Value for the proportion (used if flag_cumul=TRUE)
+ ** \param[in]  propval     Value for the proportion (used if flag_cumul)
  ** \param[in]  drext       Value of the external drift
  ** \param[in,out] ipos_loc Address for the first drift term.
  **                         On output, address for the next term after the drift
@@ -698,6 +682,7 @@ static Id st_lhs_one(LMlayers* lmlayers,
   /* Initializations */
 
   nlayers = lmlayers->nlayers;
+  b.fill(0);
 
   /* Covariance part */
 
@@ -891,13 +876,11 @@ static Id st_lhs(LMlayers* lmlayers,
   }
 
   /* Symmetrization */
-
   for (iiech = 0; iiech < neq; iiech++)
     for (jjech = 0; jjech <= iiech; jjech++)
       A(iiech, jjech) = A(jjech, iiech);
 
   /* Extraction of the Covariance matrix */
-
   for (Id iech = 0; iech < nech; iech++)
     for (Id jech = 0; jech < nech; jech++)
       ACOV(iech, jech) = A(iech, jech);
@@ -993,7 +976,7 @@ static void st_data_vector(LMlayers* lmlayers,
  **  Calculate the Drift and subtract it from the Data
  **
  ** \param[in]  lmlayers  LMlayers structure
- ** \param[in]  verbose   1 for a  verbose option
+ ** \param[in]  verbose   True for a  verbose option
  ** \param[in]  dbin      Input Db structure
  ** \param[in]  dbout     Output Db structure
  ** \param[in]  seltab    Number of sample definition (0, 1 or 2)
@@ -1006,7 +989,7 @@ static void st_data_vector(LMlayers* lmlayers,
  **
  *****************************************************************************/
 static Id st_subtract_optimal_drift(LMlayers* lmlayers,
-                                    Id verbose,
+                                    bool verbose,
                                     Db* dbin,
                                     DbGrid* dbout,
                                     VectorInt& seltab,
@@ -1251,7 +1234,7 @@ static Id st_collocated_prepare(LMlayers* lmlayers,
  **  Perform the estimation at the grid nodes in regular case
  **
  ** \param[in]  lmlayers  LMlayers structure
- ** \param[in]  flag_std  1 if the estimation error must be calculated
+ ** \param[in]  flag_std  True if the estimation error must be calculated
  ** \param[in]  c00       Variance for target
  ** \param[in]  a         L.H.S. (square) inverted matrix
  ** \param[in]  b         Working vector (Dimension = neq)
@@ -1263,7 +1246,7 @@ static Id st_collocated_prepare(LMlayers* lmlayers,
  **
  *****************************************************************************/
 static void st_estimate_regular(LMlayers* lmlayers,
-                                Id flag_std,
+                                bool flag_std,
                                 double c00,
                                 double* a,
                                 VectorDouble& b,
@@ -1307,7 +1290,7 @@ static void st_estimate_regular(LMlayers* lmlayers,
  **  Perform the estimation at the grid nodes in the bayesian case
  **
  ** \param[in]  lmlayers  LMlayers structure
- ** \param[in]  flag_std  1 if the estimation error must be calculated
+ ** \param[in]  flag_std  True if the estimation error must be calculated
  ** \param[in]  c00       Variance at target
  ** \param[in]  acov      L.H.S. (square) inverted matrix
  ** \param[in]  zval      Data vector
@@ -1324,7 +1307,7 @@ static void st_estimate_regular(LMlayers* lmlayers,
  **
  *****************************************************************************/
 static void st_estimate_bayes(LMlayers* lmlayers,
-                              Id flag_std,
+                              bool flag_std,
                               double c00,
                               const double* acov,
                               VectorDouble& zval,
@@ -1400,8 +1383,8 @@ static void st_estimate_bayes(LMlayers* lmlayers,
 ** \param[in]  dbout      Output Db structure
 ** \param[in]  model      Model
 ** \param[in]  seltab     Number of sample definition (0, 1 or 2)
-** \param[in]  flag_bayes 1 if the Bayesian hypothesis is used on drift coeffs
-** \param[in]  flag_std   1 if the estimation error must be calculated
+** \param[in]  flag_bayes True if the Bayesian hypothesis is used on drift coeffs
+** \param[in]  flag_std   True if the estimation error must be calculated
 ** \param[in]  a          L.H.S. (square) inverted matrix
 ** \param[in]  zval       Data vector (extended)
 ** \param[in]  dual       Dual vector
@@ -1427,8 +1410,8 @@ static void st_estimate(LMlayers* lmlayers,
                         DbGrid* dbout,
                         Model* model,
                         VectorInt& seltab,
-                        Id flag_bayes,
-                        Id flag_std,
+                        bool flag_bayes,
+                        bool flag_std,
                         double* a,
                         VectorDouble& zval,
                         double* dual,
@@ -1493,7 +1476,7 @@ static void st_estimate(LMlayers* lmlayers,
       if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH))
         mestitle(2, "Layer #%d", ilayer + 1);
 
-      /* Find the proportions for the target if flag_cumul=TRUE */
+      /* Find the proportions for the target if flag_cumul */
 
       if (lmlayers->flag_cumul)
       {
@@ -1629,7 +1612,7 @@ static Id st_check_auxiliary_variables(LMlayers* lmlayers,
  **
  ** \param[in]  lmlayers  LMlayers structure
  ** \param[in]  dbout     Output Db structure
- ** \param[in]  flag_std  1 if the estimation error must be calculated
+ ** \param[in]  flag_std  True if the estimation error must be calculated
  **
  ** \remarks The conversion is performed:
  ** \remarks - if the calculations have been performed in Velocity or Thickness
@@ -1637,7 +1620,9 @@ static Id st_check_auxiliary_variables(LMlayers* lmlayers,
  ** \remarks The standard deviation is also transformed
  **
  *****************************************************************************/
-static void st_convert_results(LMlayers* lmlayers, Db* dbout, Id flag_std)
+static void st_convert_results(LMlayers* lmlayers,
+                               Db* dbout,
+                               bool flag_std)
 {
   double depth0, depth, value, stdv, time0, time, depth_prev, time_prev, delta;
   Id iechout, ilayer, nlayers;
@@ -1798,7 +1783,7 @@ static Id st_drift_data(LMlayers* lmlayers,
  **
  *****************************************************************************/
 static Id st_drift_bayes(LMlayers* lmlayers,
-                         Id verbose,
+                         bool verbose,
                          const VectorDouble& prior_mean,
                          const VectorDouble& prior_vars,
                          double* acov,
@@ -1945,45 +1930,45 @@ label_end:
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
  ** \param[in]  neigh      ANeigh structure
- ** \param[in]  flag_same  1 if input and output files coincide
- ** \param[in]  flag_z     1 if the output must be converted back into depth
- ** \param[in]  flag_vel   1 if work is performed in Velocity, 0 for Depth
- ** \param[in]  flag_cumul 1 if work is performed in Depth; 0 in Thickness
- ** \param[in]  flag_ext   1 if external drift must be used; 0 otherwise
- ** \param[in]  flag_std   1 if the estimation error must be calculated
- ** \param[in]  flag_bayes 1 if the Bayesian hypothesis is used on drift coeffs
+ ** \param[in]  flag_same  True if input and output files coincide
+ ** \param[in]  flag_z     True if the output must be converted back into depth
+ ** \param[in]  flag_vel   True if work is performed in Velocity, False for Depth
+ ** \param[in]  flag_cumul True if work is performed in Depth; False in Thickness
+ ** \param[in]  flag_ext   True if external drift must be used; False otherwise
+ ** \param[in]  flag_std   True if the estimation error must be calculated
+ ** \param[in]  flag_bayes True if the Bayesian hypothesis is used on drift coeffs
  ** \param[in]  irf_rank   Rank of the Intrinsic Random Function (0 or 1)
- ** \param[in]  match_time 1 if external drift matches time; 0 otherwise
+ ** \param[in]  match_time True if external drift matches time; False otherwise
  ** \param[in]  dim_prior  Dimension of the prior information (for verification)
  ** \param[in]  prior_mean Vector of prior means for drift coefficients
  ** \param[in]  prior_vars Vector of prior variances for drift coefficients
- ** \param[in]  colrefd    Rank of the reference Depth variable in Dbout
- ** \param[in]  colreft    Rank of the reference Time variable in Dbout
- ** \param[in]  colrefb    Rank of the Bottom Depth variable in Dbout (or -1)
+ ** \param[in]  namerefd   Name of the reference Depth variable in Dbout
+ ** \param[in]  namereft   Name of the reference Time variable in Dbout
+ ** \param[in]  namerefb   Name of the Bottom Depth variable in Dbout (or -1)
  ** \param[in]  verbose    Verbose option
- ** \param[in]  namconv    Naming convention for output variables
+ ** \param[in]  namconv    Naming convention for output
  **
  *****************************************************************************/
 Id multilayers_kriging(Db* dbin,
                        DbGrid* dbout,
                        Model* model,
                        ANeigh* neigh,
-                       Id flag_same,
-                       Id flag_z,
-                       Id flag_vel,
-                       Id flag_cumul,
-                       Id flag_ext,
-                       Id flag_std,
-                       Id flag_bayes,
+                       bool flag_same,
+                       bool flag_z,
+                       bool flag_vel,
+                       bool flag_cumul,
+                       bool flag_ext,
+                       bool flag_std,
+                       bool flag_bayes,
                        Id irf_rank,
-                       Id match_time,
+                       bool match_time,
                        Id dim_prior,
                        const VectorDouble& prior_mean,
                        const VectorDouble& prior_vars,
-                       Id colrefd,
-                       Id colreft,
-                       Id colrefb,
-                       Id verbose,
+                       const String& namerefd,
+                       const String& namereft,
+                       const String& namerefb,
+                       bool verbose,
                        const NamingConvention& namconv)
 {
   Id nlayers, ilayer, nechmax, nech, iech, neq, nvar, npar, error, iptr;
@@ -2066,25 +2051,25 @@ Id multilayers_kriging(Db* dbin,
     messerr("This procedure is only available in Unique Neighborhood");
     goto label_end;
   }
-  if (flag_std && colrefb >= 0)
+  if (flag_std && !namerefb.empty())
   {
     messerr("Calculation of the standard deviation of the estimation error");
     messerr("has not been programmed yet in collocation case");
     goto label_end;
   }
-  if (flag_bayes && colrefb >= 0)
+  if (flag_bayes && !namerefb.empty())
   {
     messerr("Use of Bayesian hypothesis has not been programmed yet");
     messerr("in collocation case");
     goto label_end;
   }
-  if (flag_cumul && colrefb >= 0)
+  if (flag_cumul && !namerefb.empty())
   {
     messerr("Collocation option is not coded when the results are expected");
     messerr("directly expressed in Depth (rather than Thickness)");
     goto label_end;
   }
-  if (prior_mean.empty() || prior_vars.empty()) flag_bayes = 0;
+  if (prior_mean.empty() || prior_vars.empty()) flag_bayes = false;
   if (flag_bayes && dim_prior != st_get_number_drift(irf_rank, flag_ext) * nlayers)
   {
     messerr("The dimension of the Prior information (%d)", dim_prior);
@@ -2101,8 +2086,8 @@ Id multilayers_kriging(Db* dbin,
 
   /* Fill the Multi-Layers internal structure */
 
-  lmlayers = lmlayers_alloc(flag_same, flag_vel, flag_cumul, flag_ext, flag_z,
-                            colrefd, colreft, colrefb, irf_rank, match_time,
+  lmlayers = lmlayers_alloc(dbout, flag_same, flag_vel, flag_cumul, flag_ext, flag_z,
+                            namerefd, namereft, namerefb, irf_rank, match_time,
                             nlayers);
 
   /* Core allocation */
@@ -2326,7 +2311,7 @@ static Id st_evaluate_lag(LMlayers* lmlayers,
  ** \return  Error return code
  **
  ** \param[in]  lmlayers   LMlayers structure
- ** \param[in]  verbose    1 for a verbose option
+ ** \param[in]  verbose    True for a verbose option
  ** \param[in]  dbin       Input Db structure
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  vorder     Vario_Order structure
@@ -2337,7 +2322,7 @@ static Id st_evaluate_lag(LMlayers* lmlayers,
  **
  *****************************************************************************/
 static Id st_varioexp_chh(LMlayers* lmlayers,
-                          Id verbose,
+                          bool verbose,
                           Db* dbin,
                           DbGrid* dbout,
                           Vario_Order* vorder,
@@ -2453,26 +2438,26 @@ label_end:
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  vario      Vario structure
  ** \param[in]  nlayers    Number of layers
- ** \param[in]  flag_vel   1 if work is performed in Velocity, 0 for Depth
- ** \param[in]  flag_ext   1 if external drift must be used; 0 otherwise
+ ** \param[in]  flag_vel   True if work is performed in Velocity, False for Depth
+ ** \param[in]  flag_ext   True if external drift must be used; False otherwise
  ** \param[in]  irf_rank   Rank of the Intrinsic Random Function (0 or 1)
- ** \param[in]  match_time 1 if external drift matches time; 0 otherwise
- ** \param[in]  colrefd    Rank of the reference Depth variable in Dbout
- ** \param[in]  colreft    Rank of the reference Time variable in Dbout
- ** \param[in]  verbose    1 for a  verbose option
+ ** \param[in]  match_time True if external drift matches time; False otherwise
+ ** \param[in]  namerefd   Name of the reference Depth variable in Dbout
+ ** \param[in]  namereft   Name of the reference Time variable in Dbout
+ ** \param[in]  verbose    True for a  verbose option
  **
  *****************************************************************************/
 Id multilayers_vario(Db* dbin,
                      DbGrid* dbout,
                      Vario* vario,
                      Id nlayers,
-                     Id flag_vel,
-                     Id flag_ext,
+                     bool flag_vel,
+                     bool flag_ext,
                      Id irf_rank,
-                     Id match_time,
-                     Id colrefd,
-                     Id colreft,
-                     Id verbose)
+                     bool match_time,
+                     const String& namerefd,
+                     const String& namereft,
+                     bool verbose)
 {
   Id error, ilayer, nechmax, nech, iech, idir;
   bool flag_created;
@@ -2527,7 +2512,7 @@ Id multilayers_vario(Db* dbin,
 
   /* Fill the Multi-Layers internal structure */
 
-  lmlayers = lmlayers_alloc(0, flag_vel, 0, flag_ext, 0, colrefd, colreft, -1,
+  lmlayers = lmlayers_alloc(dbout, 0, flag_vel, 0, flag_ext, 0, namerefd, namereft, String(),
                             irf_rank, match_time, nlayers);
   if (verbose) lmlayers_print(lmlayers);
 
@@ -2691,29 +2676,29 @@ static Id st_get_prior(Id nech,
  ** \param[in]  dbin       Input Db structure
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  flag_same  1 if input and output files coincide
- ** \param[in]  flag_vel   1 if work is performed in Velocity, 0 for Depth
- ** \param[in]  flag_ext   1 if external drift must be used; 0 otherwise
+ ** \param[in]  flag_same  True if input and output files coincide
+ ** \param[in]  flag_vel   True if work is performed in Velocity, False for Depth
+ ** \param[in]  flag_ext   True if external drift must be used; False otherwise
  ** \param[in]  irf_rank   Rank of the Intrinsic Random Function (0 or 1)
- ** \param[in]  match_time 1 if external drift matches time; 0 otherwise
- ** \param[in]  colrefd    Rank of the reference Depth variable in Dbout
- ** \param[in]  colreft    Rank of the reference Time variable in Dbout
- ** \param[in]  colrefb    Rank of the Bottom Depth variable in Dbout (or -1)
+ ** \param[in]  match_time True if external drift matches time; False otherwise
+ ** \param[in]  namerefd   Name of the reference Depth variable in Dbout
+ ** \param[in]  namereft   Name of the reference Time variable in Dbout
+ ** \param[in]  namerefb   Name of the Bottom Depth variable in Dbout (or -1)
  ** \param[in]  verbose    Verbose option
  **
  *****************************************************************************/
 Id multilayers_get_prior(Db* dbin,
                          DbGrid* dbout,
                          Model* model,
-                         Id flag_same,
-                         Id flag_vel,
-                         Id flag_ext,
+                         bool flag_same,
+                         bool flag_vel,
+                         bool flag_ext,
                          Id irf_rank,
-                         Id match_time,
-                         Id colrefd,
-                         Id colreft,
-                         Id colrefb,
-                         Id verbose)
+                         bool match_time,
+                         const String& namerefd,
+                         const String& namereft,
+                         const String& namerefb,
+                         bool verbose)
 {
   Id nlayers, ilayer, nechmax, nech, iech, npar, error, neq;
   bool flag_created;
@@ -2776,8 +2761,8 @@ Id multilayers_get_prior(Db* dbin,
 
   /* Fill the Multi-Layers internal structure */
 
-  lmlayers = lmlayers_alloc(flag_same, flag_vel, 0, flag_ext, 1, colrefd,
-                            colreft, colrefb, irf_rank, match_time, nlayers);
+  lmlayers = lmlayers_alloc(dbout, flag_same, flag_vel, 0, flag_ext, 1, namerefd,
+                            namereft, namerefb, irf_rank, match_time, nlayers);
 
   /* Core allocation */
 

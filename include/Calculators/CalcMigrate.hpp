@@ -169,6 +169,11 @@ GSTLEARN_EXPORT VectorVectorDouble interpolateVariablesToPoint(DbGrid* dbgrid,
                                                                const ELoc& ptype = ELoc::fromKey("Z"),
                                                                Id checkOrder     = 0,
                                                                bool flagCap      = false);
+GSTLEARN_EXPORT VectorDouble interpolateOneVariableToPoint(DbGrid* dbgrid,
+                                                           const VectorDouble& xp,
+                                                           const VectorDouble& yp,
+                                                           const VectorDouble& zp,
+                                                           const String& name);
 GSTLEARN_EXPORT VectorDouble dbgridLineSampling(DbGrid* dbgrid,
                                                 const VectorDouble& x1,
                                                 const VectorDouble& x2,
