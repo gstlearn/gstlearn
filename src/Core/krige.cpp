@@ -2535,7 +2535,7 @@ static void st_vario_dump(FILE* file,
   Id ix, iy, iz, num;
   double cov;
 
-  fprintf(file, "*%3ld %3ld\n", ix0, iy0);
+  fprintf(file, "*%3lld %3lld\n", ix0, iy0);
 
   for (ix = -cov_nn[0]; ix <= cov_nn[0]; ix++)
     for (iy = -cov_nn[1]; iy <= cov_nn[1]; iy++)
@@ -2543,7 +2543,7 @@ static void st_vario_dump(FILE* file,
       {
         num = (num_tot == nullptr) ? 0 : NUM_TOT(ix, iy, iz);
         cov = COV_TOT(ix, iy, iz);
-        fprintf(file, "%3ld %3ld %3ld %3ld %lf\n", ix, iy, iz, num, cov);
+        fprintf(file, "%3lld %3lld %3lld %3lld %lf\n", ix, iy, iz, num, cov);
       }
 }
 

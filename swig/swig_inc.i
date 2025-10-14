@@ -398,6 +398,7 @@
 %include std_string.i
 %template(DoNotUseVectorIntStd)     std::vector< int >;
 %template(DoNotUseVectorLongStd)    std::vector< long >;
+%template(DoNotUseVectorLLongStd)   std::vector< long long >;
 %template(DoNotUseVectorSizeT)      std::vector< size_t >; // Keep size_t here otherwise asptr fails!
 %template(DoNotUseVectorDoubleStd)  std::vector< double >;
 %template(DoNotUseVectorStringStd)  std::vector< std::string >; // Keep std::string here otherwise asptr fails!
@@ -406,6 +407,7 @@
 %template(DoNotUseVectorBoolStd)    std::vector< bool >;
 %template(DoNotUseVVectorIntStd)    std::vector< std::vector< int > >;
 %template(DoNotUseVVectorLongStd)   std::vector< std::vector< long > >;
+%template(DoNotUseVVectorLLongStd)  std::vector< std::vector< long long > >;
 %template(DoNotUseVVectorDoubleStd) std::vector< std::vector< double > >;
 %template(DoNotUseVVectorFloatStd)  std::vector< std::vector< float > >; 
 
