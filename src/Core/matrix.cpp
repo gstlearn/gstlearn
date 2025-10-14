@@ -223,6 +223,23 @@ void matrix_transpose(Id n1, Id n2, VectorDouble& v1, VectorDouble& w1)
       w1[ecr++] = V1(i1, i2);
 }
 
+/**
+ * @brief This is temporary matrix inversion function.
+ * It is meant to perform a soft transition before suppressing the old matrix material
+ *
+ * @param mata MatrixSquare to be inverted (in place)
+ * @param neq Dimension of the matrix (not used)
+ * @param rank Rank when inversion problem (not used)
+ * @return Id Returned value
+ */
+Id matrix_invertFromMatrixSquare(MatrixSquare* mata, Id neq, Id rank)
+{
+  DECLARE_UNUSED(neq);
+  DECLARE_UNUSED(rank);
+  mata->invert();
+  return 0;
+}
+
 /*****************************************************************************/
 /*!
  **  Invert a symmetric square matrix

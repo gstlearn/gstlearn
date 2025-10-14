@@ -91,10 +91,10 @@ int main(int argc, char* argv[])
 
   grid->setLocators({"Time*"}, ELoc::TIME);
 
-  Id rank         = 1010;
+  Id rank         = 1000;
   bool flag_same  = false;
-  bool flag_z     = false;
-  bool flag_vel   = true;
+  bool flag_z     = true;
+  bool flag_vel   = false;
   bool flag_cumul = true;
 
   OptDbg::setReference(rank);

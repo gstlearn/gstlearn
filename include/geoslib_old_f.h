@@ -87,6 +87,7 @@ GSTLEARN_EXPORT void ut_distance_allocated(Id ndim,
 /*****************************************/
 
 GSTLEARN_EXPORT Id matrix_invert(double* a, Id neq, Id rank);
+GSTLEARN_EXPORT Id matrix_invertFromMatrixSquare(MatrixSquare* a, Id neq, Id rank);
 GSTLEARN_EXPORT double matrix_determinant(Id neq, const VectorDouble& b);
 GSTLEARN_EXPORT void matrix_product_safe(Id n1,
                                          Id n2,
