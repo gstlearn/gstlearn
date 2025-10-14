@@ -279,6 +279,8 @@ public:
   Id getNSampleActive() const;
   Id getRankRelativeToAbsolute(Id irel) const;
   Id getRankAbsoluteToRelative(Id iabs) const;
+  VectorInt getRankRelativeToAbsoluteVec() const;
+  VectorInt getRankAbsoluteToRelativeVec() const;
 
   void clearLocators(const ELoc& locatorType);
   void clearSelection() { clearLocators(ELoc::SEL); }
@@ -930,17 +932,25 @@ public:
   // Operator overload
   double& operator()(Id iech, const String& name)
   {
-    auto iuid = getUID(name);
+    static double dummy = std::numeric_limits<double>::quiet_NaN();
+    auto iuid           = getUID(name);
+    if (!isUIDValid(iuid)) return dummy;
     auto icol = getColIdxByUID(iuid);
-    auto iad  = _getAddress(iech, icol);
+    if (!isColIdxValid(icol)) return dummy;
+    if (!isSampleIndexValid(iech)) return dummy;
+    auto iad = _getAddress(iech, icol);
     return _array[iad];
   }
 
   const double& operator()(Id iech, const String& name) const
   {
-    auto iuid = getUID(name);
+    static const double dummy = std::numeric_limits<double>::quiet_NaN();
+    auto iuid                 = getUID(name);
+    if (!isUIDValid(iuid)) return dummy;
     auto icol = getColIdxByUID(iuid);
-    auto iad  = _getAddress(iech, icol);
+    if (!isColIdxValid(icol)) return dummy;
+    if (!isSampleIndexValid(iech)) return dummy;
+    auto iad = _getAddress(iech, icol);
     return _array[iad];
   }
 

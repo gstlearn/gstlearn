@@ -3011,6 +3011,56 @@ Id Db::getRankAbsoluteToRelative(Id iabs) const
 }
 
 /**
+ * @brief Returns the vector of Relative ranks attached to each sample using its absolute address
+ *
+ * @return A vector of (integer) addresses (dimension = total number of samples)
+ *
+ * @remarks If a sample is masked, the corresponding returned relative rank value is set to TEST
+ */
+VectorInt Db::getRankRelativeToAbsoluteVec() const
+{
+  Id nechtot = getNSample(false);
+  if (getNLoc(ELoc::SEL) <= 0)
+  {
+    // No selection is defined
+    return VH::sequence(nechtot);
+  }
+
+  // When a selection is defined
+  Id nech = getNSample(true);
+  VectorInt vec(nech);
+  Id count = 0;
+  for (Id iech = 0; iech < nechtot; iech++)
+  {
+    if (isZero(getFromLocator(ELoc::SEL, iech, 0))) continue;
+    vec[count++] = iech;
+  }
+  return vec;
+}
+
+VectorInt Db::getRankAbsoluteToRelativeVec() const
+{
+  Id nechtot = getNSample(false);
+  if (getNLoc(ELoc::SEL) <= 0)
+  {
+    // No selection is defined
+    return VH::sequence(nechtot);
+  }
+
+  // When a selection is defined
+  VectorInt vec(nechtot);
+  Id count = 0;
+  for (Id iech = 0; iech < nechtot; iech++)
+  {
+    if (isZero(getFromLocator(ELoc::SEL, iech, 0)))
+      vec[iech] = ITEST;
+    else
+      vec[iech] = count++;
+  }
+  return vec;
+}
+
+/**
  * Returns the Number of samples
  * @param useSel When FALSE returns the total sample number.
  * When TRUE returns the number of active samples
