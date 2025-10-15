@@ -522,9 +522,9 @@ void SimuSpectral::_computeOnSphere(Db* dbout, Id iuid, bool verbose)
 /*!
  **  Check if the Model can be simulated using Spectral Method
  **
- ** \return  True if the Model is valid; 0 otherwise
+ ** \return  True if the covariance is valid; 0 otherwise
  **
- ** \param[in]  model    Model structure
+ ** \param[in]  cov    Covariance structure
  **
  *****************************************************************************/
 bool SimuSpectral::isValidForSpectral(const ACov* cov)
@@ -538,11 +538,11 @@ bool SimuSpectral::isValidForSpectral(const ACov* cov)
  * @param dbin Input Db where the conditioning data are read
  * @param dbout Output Db where the results are stored
  * @param model Model (should only contain covariances that can cope with spectral method)
- * @param ns Number of spectral components
  * @param nbsimu Number of simulations processed simultaneously
  * @param seed Seed used for the Random number generator
- * @param verbose Verbose flag
+ * @param ns Number of spectral components
  * @param nd Number of discretization steps (used for the Spectrum on Sphere)
+ * @param verbose Verbose flag
  * @param namconv Naming Convention
  *
  * @note The conditional version is not yet available
