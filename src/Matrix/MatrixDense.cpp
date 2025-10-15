@@ -128,7 +128,8 @@ double MatrixDense::traceProd(const MatrixDense& a, MatrixDense& b)
     return TEST;
   }
 
-  b.eigenMat().array() *= a.eigenMat().transpose().array();
+  auto array = b.eigenMat().array();
+  array *= a.eigenMat().transpose().array();
   return b.eigenMat().sum();
 }
 void MatrixDense::updValue(Id irow,
@@ -349,7 +350,9 @@ void MatrixDense::prodMatMatInPlace(const AMatrix* x,
       }
       else
       {
-        eigenMat().noalias() = xm->eigenMat() * ym->eigenMat();
+        auto a = eigenMat();
+        auto b = xm->eigenMat();
+        a = b * ym->eigenMat();
       }
     }
   }
