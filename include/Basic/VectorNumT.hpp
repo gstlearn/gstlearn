@@ -50,7 +50,7 @@ public:
     : Parent(vec)
   {
   }
-  inline VectorNumT(size_type count, const T& value = T())
+  inline VectorNumT(size_type count, const T& value = {})
     : Parent(count, value)
   {
   }

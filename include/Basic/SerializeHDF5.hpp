@@ -38,9 +38,9 @@ namespace SerializeHDF5
   {
     return H5::PredType::NATIVE_DOUBLE;
   }
-  inline H5::DataType getHDF5Type([[maybe_unused]] const long a)
+  inline H5::DataType getHDF5Type([[maybe_unused]] const Id a)
   {
-    return H5::PredType::NATIVE_LONG;
+    return H5::PredType::NATIVE_LLONG;
   }
   inline H5::DataType getHDF5Type([[maybe_unused]] const bool a)
   {

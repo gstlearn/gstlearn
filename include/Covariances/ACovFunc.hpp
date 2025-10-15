@@ -88,7 +88,8 @@ public:
 
   ///////////////////////////////////////////////////
 
-  void setParam(double param);
+  void setParam(double param, Id ipar = 0);
+  void setParams(const VectorDouble& params);
   void setField(double field);
   void setContext(const CovContext& ctxt) { _ctxt = ctxt; }
   double evalCorFunc(double h) const;
@@ -100,7 +101,9 @@ public:
   VectorDouble evalSpectrumOnSphere(Id n, double scale = 1.) const;
   const ECov& getType() const { return _type; }
   const CovContext& getContext() const { return _ctxt; }
-  double getParam() const { return _param; }
+  Id getNParams() const { return static_cast<Id>(_params.size()); }
+  double getParam(Id ipar = 0) const;
+  const VectorDouble& getParams() const { return _params; }
 
   void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
   virtual double evaluateSpectrum(double freq) const;
@@ -148,8 +151,8 @@ protected:
 
 private:
   Array _evalCovFFT(const VectorDouble& hmax, Id N = 128) const;
-  ECov _type;       /*! Covariance function type */
-  CovContext _ctxt; /*! Context (space, number of variables, ...) */
-  double _param;    /*! Third parameter (TEST if not used) */
+  ECov _type;            /*! Covariance function type */
+  CovContext _ctxt;      /*! Context (space, number of variables, ...) */
+  VectorDouble _params;  /*! Parameters vector (empty if not used) */
 };
 } // namespace gstlrn

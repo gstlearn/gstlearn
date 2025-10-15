@@ -2614,6 +2614,7 @@ MatrixDense ut_legendreMatNorm(Id n, const VectorDouble& v)
 MatrixDense ut_legendreAssociatedMat(Id l, const VectorDouble& v, bool flagNorm)
 {
   Id nrow = static_cast<Id>(v.size());
+  if(nrow <= 0) return {};
   Id ncol = l + 1;
   MatrixDense res(nrow, ncol);
 
