@@ -306,7 +306,7 @@ void AMatrix::transposeInPlace()
 
 AMatrix* AMatrix::transpose() const
 {
-  AMatrix* mat = dynamic_cast<AMatrix*>(clone());
+  auto* mat = dynamic_cast<AMatrix*>(clone());
   mat->transposeInPlace();
   return mat;
 }

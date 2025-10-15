@@ -139,7 +139,6 @@ set(SRC
   Core/foxleg.cpp
   Core/util.cpp
   Core/ascii.cpp
-  Core/mlayers.cpp
   Core/thresh.cpp
   Core/fft.cpp
   Core/convert.cpp
@@ -201,6 +200,7 @@ set(SRC
   LinearOp/SPDEOpMatrix.cpp
   LinearOp/ASimulable.cpp
   LinearOp/MatrixSymmetricSim.cpp
+  MLayers/MLayers.cpp
   Space/SpaceSN.cpp
   Space/SpaceRN.cpp
   Space/SpacePoint.cpp

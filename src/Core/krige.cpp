@@ -4709,7 +4709,7 @@ Id inhomogeneous_kriging(Db* dbdat,
 
     /* Perform the estimation */
 
-    matrix_product_safe(1, np, 1, data.data(), lambda.data(), &estim);
+    estim = VH::innerProduct(data, lambda);
     matrix_product_safe(1, np, 1, rhs, lambda.data(), &stdev);
 
     /* Update the variance in presence of drift */

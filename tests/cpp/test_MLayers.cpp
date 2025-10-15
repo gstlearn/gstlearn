@@ -15,6 +15,7 @@
 #include "Calculators/CalcMigrate.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "MLayers/MLayers.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
@@ -96,9 +97,12 @@ int main(int argc, char* argv[])
   bool flag_z     = true;
   bool flag_vel   = false;
   bool flag_cumul = true;
+  bool flag_ext   = false;
 
   OptDbg::setReference(rank);
-  (void)multilayers_kriging(db, grid, model, neigh, flag_same, flag_z, flag_vel, flag_cumul);
+
+  (void)multilayers_getPrior(db, grid, model, flag_same, flag_vel, flag_ext);
+  (void)multilayers_kriging(db, grid, model, flag_same, flag_z, flag_vel, flag_cumul);
 
   // MatrixDense* trace = MatrixDense::createFromVD({0, 50, 100, 0, 50, 100}, 3, 2);
   // trace->display();

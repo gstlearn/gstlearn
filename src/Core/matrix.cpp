@@ -207,7 +207,7 @@ Id matrix_prod_norme(Id transpose, Id n1, Id n2, const double* v1, const double*
  ** \remark  The matrix w1[] may NOT coincide with v1[]
  **
  *****************************************************************************/
-void matrix_transpose(Id n1, Id n2, VectorDouble& v1, VectorDouble& w1)
+void matrix_transpose(Id n1, Id n2, const VectorDouble& v1, VectorDouble& w1)
 {
   if (RENARD)
   {
