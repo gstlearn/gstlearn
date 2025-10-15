@@ -12,6 +12,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Covariances/ACov.hpp"
+#include "Covariances/CovBase.hpp"
 #include "Db/Db.hpp"
 #include "Matrix/MatrixDense.hpp"
 #include "Model/Model.hpp"
@@ -140,7 +141,8 @@ void SimuSpectral::_simulateOnSphere(Id nd, bool verbose)
   VH::sortInPlace(U);
   double maxU = VH::maximum(U);
 
-  VectorDouble spectrum = _cova->evalSpectrumOnSphere(nd);
+  const auto* cl = dynamic_cast<const CovList*>(_cova);
+  VectorDouble spectrum = cl->getCov(0)->evalSpectrumOnSphere(nd);
 
   // Simulate vector N
   Id n     = 0;
