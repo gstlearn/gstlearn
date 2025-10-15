@@ -100,6 +100,7 @@ public:
   FORWARD_METHOD(getCov, evalAverageDbToDb, TEST)
   FORWARD_METHOD(getCov, evalAverageIncrToIncr, TEST)
   FORWARD_METHOD(getCov, evalAveragePointToDb, TEST)
+  FORWARD_METHOD(getCov, isValidForSpectral, false)
   FORWARD_METHOD(getCov, samplingDensityVariance, TEST)
   FORWARD_METHOD(getCov, specificVolume, TEST)
   FORWARD_METHOD(getCov, coefficientOfVariation, TEST)
@@ -118,6 +119,8 @@ public:
   FORWARD_METHOD(getCov, manage)
   FORWARD_METHOD(getCov, optimizationPreProcessForData)
   FORWARD_METHOD(getCov, optimizationPostProcess)
+  FORWARD_METHOD(getCov,  simulateSpectralOmega, MatrixDense())
+  
   FORWARD_METHOD_NON_CONST(_getCovModify, setOptimEnabled)
   FORWARD_METHOD_NON_CONST(_getCovModify, attachNoStatDb)
   FORWARD_METHOD_NON_CONST(_getCovModify, makeStationary)

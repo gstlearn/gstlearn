@@ -85,6 +85,9 @@ public:
                  Id jvar                 = 0,
                  const CovCalcMode* mode = nullptr) const;
 
+  virtual bool isValidForSpectral() const;
+  virtual MatrixDense simulateSpectralOmega(Id ns) const;
+
   std::vector<double> evalCovGrad(const SpacePoint& p1,
                                   const SpacePoint& p2,
                                   Id ivar                 = 0,
@@ -99,6 +102,7 @@ public:
     DECLARE_UNUSED(degree);
     DECLARE_UNUSED(flagScaleDistance);
     DECLARE_UNUSED(mode);
+    message("ACov::evalCovOnSphere: Not implemented");
     return TEST;
   }
 
@@ -109,6 +113,7 @@ public:
     DECLARE_UNUSED(n);
     DECLARE_UNUSED(flagNormDistance);
     DECLARE_UNUSED(flagCumul);
+    message("ACov::evalSpectrumOnSphere: Not implemented");
     return VectorDouble();
   }
   virtual double evalSpectrum(const VectorDouble& freq,
@@ -118,6 +123,7 @@ public:
     DECLARE_UNUSED(freq);
     DECLARE_UNUSED(ivar);
     DECLARE_UNUSED(jvar);
+    message("ACov::evalSpectrum: Not implemented");
     return TEST;
   }
 
@@ -478,6 +484,7 @@ public:
     DECLARE_UNUSED(iech1);
     DECLARE_UNUSED(icas2);
     DECLARE_UNUSED(iech2);
+    message("ACov::updateCovByPoints: Not implemented");
   }
   Id getNDim(Id ispace = -1) const { return static_cast<Id>(_ctxt.getNDim(ispace)); }
   void optimizationPreProcessForData(const Db* db1 = nullptr) const;
@@ -492,12 +499,14 @@ public:
                             std::vector<covmaptype>* gradFuncs = nullptr)
   {
     DECLARE_UNUSED(listParams, gradFuncs);
+    message("ACov::appendParams: Not implemented");
   }
   virtual void updateCov() {}
   virtual void initParams(const MatrixSymmetric& vars,
                           double href = 1.)
   {
     DECLARE_UNUSED(vars, href);
+    message("ACov::initParams: Not implemented");
   }
 
 private:

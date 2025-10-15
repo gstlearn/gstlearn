@@ -143,7 +143,6 @@ private:
                   SpacePoint* p2A,
                   MatrixSquare& mat,
                   const CovCalcMode* mode) const;
-
   void _load(const SpacePoint& p, bool case1) const override;
   void _optimizationSetTarget(SpacePoint& pt) const override;
   virtual double _eval(const SpacePoint& p1,

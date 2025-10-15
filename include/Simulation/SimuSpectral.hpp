@@ -26,15 +26,15 @@ typedef struct
   std::map<Id, std::map<Id, Id>> _tab;
 } spSim;
 
-class Model;
-
+class ACov;
+class ModelGeneric;
 /**
  * Class for operating the Spectral simulations
  */
 class GSTLEARN_EXPORT SimuSpectral
 {
 public:
-  SimuSpectral(const Model *model = nullptr);
+  SimuSpectral(const ACov *cova = nullptr);
   SimuSpectral(const SimuSpectral &r);
   SimuSpectral& operator=(const SimuSpectral &r);
   virtual ~SimuSpectral();
@@ -45,9 +45,9 @@ public:
               bool verbose = false,
               const NamingConvention& namconv = NamingConvention("Simu"));
 
-  static bool isValidForSpectral(const Model *model);
+  static bool isValidForSpectral(const ACov* cova);
 
-  void setModel(const Model *&model) { _model = model; }
+  void setCov(const ACov *&cova) { _cova = cova; }
   void setNdim(Id ndim) { _ndim = ndim; }
   void setNs(Id ns) { _ns = ns; }
 
@@ -74,12 +74,12 @@ private:
   MatrixDense _omega; // Matrix nrows=_ns, ncols=ndim
   std::vector<spSim> _spSims;
 
-  const Model* _model; // Storing the pointer (not to be deleted)
+  const ACov* _cova; // Storing the pointer (not to be deleted)
 };
 
 GSTLEARN_EXPORT Id simuSpectral(Db *dbin = nullptr,
                                  Db *dbout = nullptr,
-                                 Model *model = nullptr,
+                                 ModelGeneric* model = nullptr,
                                  Id nbsimu = 1,
                                  Id seed = 43431,
                                  Id ns = 100,

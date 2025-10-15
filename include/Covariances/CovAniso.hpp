@@ -169,8 +169,6 @@ public:
   FORWARD_METHOD(getCorAniso, getScale, TEST)
   FORWARD_METHOD(getCorAniso, isValidForTurningBand, false)
   FORWARD_METHOD(getCorAniso, simulateTurningBand, TEST)
-  FORWARD_METHOD(getCorAniso, isValidForSpectral, false)
-  FORWARD_METHOD(getCorAniso, simulateSpectralOmega, MatrixDense())
   FORWARD_METHOD(getCorAniso, getRanges, VectorDouble())
   FORWARD_METHOD(getCorAniso, getScales, VectorDouble())
   FORWARD_METHOD(getCorAniso, getRangeIso, TEST)
@@ -208,6 +206,7 @@ public:
 
   FORWARD_METHOD(getCorAniso, getDetTensor, false)
 
+  bool isValidForSpectral() const override; //Do not use FORWARD_METHOD because "override" creates compilation issue on Windows
   double getSlope(Id ivar, Id jvar) const;
   const Rotation& getAnisoRotation() const { return getCorAniso()->getAniso().getRotation(); }
   bool getFlagAniso() const { return !isIsotropic(); }

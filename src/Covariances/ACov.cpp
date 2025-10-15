@@ -249,8 +249,13 @@ void ACov::_setNoStatDbIfNecessary(const Db* db)
   if (_tabNoStat->getDbNoStatRef() == nullptr)
     attachNoStatDb(db);
 }
-void ACov::_attachNoStatDb(const Db* db) {
-  DECLARE_UNUSED(db)} VectorDouble ACov::informCoords(const VectorVectorDouble& coords,
+
+void ACov::_attachNoStatDb(const Db* db)
+{
+  DECLARE_UNUSED(db)
+}
+
+VectorDouble ACov::informCoords(const VectorVectorDouble& coords,
                                                       const EConsElem& econs,
                                                       Id iv1,
                                                       Id iv2) const
@@ -2517,4 +2522,17 @@ void ACov::setContext(const CovContext& ctxt)
   _ctxt = ctxt;
   _setContext(ctxt);
 }
-} // namespace gstlrn
+
+bool ACov::isValidForSpectral() const 
+{
+  return false;
+}
+
+MatrixDense ACov::simulateSpectralOmega(Id ns) const 
+{
+  DECLARE_UNUSED(ns);
+  message("ACov::simulateSpectralOmega: Not implemented");
+  return MatrixDense();
+}
+}
+

@@ -64,28 +64,28 @@ double CovGaussian::_evaluateCovFirstDerivativeOverH(double h) const
 
 double CovGaussian::_evaluateCovDerivative(Id degree, double h) const
 {
-  double r2 = h * h;
-  if (r2 > MAX_EXP) return 0.;
+  double h2 = h * h;
+  if (h2 > MAX_EXP) return 0.;
 
   double cov   = 0.;
-  double expr2 = exp(-r2);
+  double expr2 = exp(-h2);
   switch (degree)
   {
     case 1: // First order derivative
-      cov = -2. * h * expr2;
+      cov = -2. * h * expr2; // Derivative of e^(-h^2) is -2h * e^(-h^2)
       break;
 
     case 2: // Second order derivative
-      cov = (4. * r2 - 2.) * expr2;
+      cov = (4. * h2 - 2.) * expr2; // Derivative of e^(-h^2) is -2h * e^(-h^2)
       break;
 
     case 3: // Third order derivative
-      cov = 4. * expr2 * h * (3 - 2. * r2);
+      cov = 4. * expr2 * h * (3 - 2. * h2); //[-2h * (4h^2-2) +8h]e^(-h^2) = (12h -8h^3)e(-h2)  
       break;
 
     case 4: // Fourth order derivative
-      double r4 = r2 * r2;
-      cov       = 4. * expr2 * (3. - 12. * r2 + 4. * r4);
+      double h4 = h2 * h2;
+      cov       = 4. * expr2 * (3. - 12. * h2 + 4 * h4);  //[(12-24h2) -2h(12h-8h^3)]e(-h^2) = (12-48h2 + 16h4)
       break;
   }
   return (cov);
@@ -93,7 +93,7 @@ double CovGaussian::_evaluateCovDerivative(Id degree, double h) const
 
 String CovGaussian::getFormula() const
 {
-  return "C(h)=1-\\frac{7h^2}{a^2}+\\frac{35h^3}{4a^3}-\\frac{7h^5}{2a^5}-\\frac{3h^7}{4a^7}";
+  return "C(h)=1-e^{-h^2}";
 }
 
 double CovGaussian::simulateTurningBand(double t0, TurningBandOperate& operTB) const
@@ -103,11 +103,15 @@ double CovGaussian::simulateTurningBand(double t0, TurningBandOperate& operTB) c
 
 MatrixDense CovGaussian::simulateSpectralOmega(Id nb) const
 {
-  auto ndim = getContext().getNDim();
-  MatrixDense mat(nb, static_cast<Id>(ndim));
-  for (Id irow = 0; irow < nb; irow++)
-    for (size_t icol = 0; icol < ndim; icol++)
-      mat.setValue(irow, static_cast<Id>(icol), law_gaussian());
+  Id ndim = getContext().getNDim();
+  MatrixDense mat(nb, ndim);
+  double sqrt2 = sqrt(2.0);
+  for (Id icol = 0; icol < ndim; icol++)
+  { 
+    auto view = mat.getViewOnColumnModify(icol);
+    for (Id irow = 0; irow < nb; irow++)
+      view[irow] =  sqrt2 * law_gaussian();
+  }
   return mat;
 }
 } // namespace gstlrn

@@ -11,19 +11,19 @@
 #include "Simulation/SimuSpectral.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Covariances/CorAniso.hpp"
-#include "Covariances/CovAniso.hpp"
+#include "Covariances/ACov.hpp"
+#include "Covariances/CovBase.hpp"
 #include "Db/Db.hpp"
 #include "Matrix/MatrixDense.hpp"
-#include "Matrix/MatrixFactory.hpp"
 #include "Model/Model.hpp"
+#include "Model/ModelGeneric.hpp"
 #include "Stats/Classical.hpp"
 
 #include <cmath>
 
 namespace gstlrn
 {
-SimuSpectral::SimuSpectral(const Model* model)
+SimuSpectral::SimuSpectral(const ACov* cova)
   : _ndim(0)
   , _ns(0)
   , _isPrepared(false)
@@ -31,7 +31,7 @@ SimuSpectral::SimuSpectral(const Model* model)
   , _gamma()
   , _omega()
   , _spSims()
-  , _model(model)
+  , _cova(cova)
 {
 }
 
@@ -43,7 +43,7 @@ SimuSpectral::SimuSpectral(const SimuSpectral& r)
   , _gamma(r._gamma)
   , _omega(r._omega)
   , _spSims(r._spSims)
-  , _model(r._model)
+  , _cova(r._cova)
 {
 }
 
@@ -58,7 +58,7 @@ SimuSpectral& SimuSpectral::operator=(const SimuSpectral& r)
     _gamma      = r._gamma;
     _omega      = r._omega;
     _spSims     = r._spSims;
-    _model      = r._model;
+    _cova       = r._cova;
   }
   return *this;
 }
@@ -78,12 +78,12 @@ SimuSpectral::~SimuSpectral()
  */
 Id SimuSpectral::simulate(Id ns, Id seed, bool verbose, Id nd)
 {
-  if (_model == nullptr)
+  if (_cova == nullptr)
   {
-    messerr("A Model should be attached beforehand");
+    messerr("A Covariance should be attached beforehand");
     return 1;
   }
-  if (!isValidForSpectral(_model)) return 1;
+  if (!isValidForSpectral(_cova)) return 1;
   if (ns <= 0)
   {
     messerr("The number of simulated harmonic components should be positive");
@@ -95,7 +95,7 @@ Id SimuSpectral::simulate(Id ns, Id seed, bool verbose, Id nd)
     return 1;
   }
 
-  _ndim = static_cast<Id>(_model->getNDim());
+  _ndim = static_cast<Id>(_cova->getNDim());
   _ns   = ns;
 
   // Cleaning any previously allocated memory
@@ -125,7 +125,7 @@ void SimuSpectral::_simulateOnRn()
   _gamma = VectorDouble(_ns);
   for (Id ib = 0; ib < _ns; ib++)
     _gamma[ib] = sqrt(-log(law_uniform()));
-  _omega = _model->getCovAniso(0)->simulateSpectralOmega(_ns);
+  _omega = _cova->simulateSpectralOmega(_ns);
 }
 
 /**
@@ -141,7 +141,8 @@ void SimuSpectral::_simulateOnSphere(Id nd, bool verbose)
   VH::sortInPlace(U);
   double maxU = VH::maximum(U);
 
-  VectorDouble spectrum = _model->getCovAniso(0)->evalSpectrumOnSphere(nd);
+  const auto* cl = dynamic_cast<const CovList*>(_cova);
+  VectorDouble spectrum = cl->getCov(0)->evalSpectrumOnSphere(nd);
 
   // Simulate vector N
   Id n     = 0;
@@ -208,12 +209,8 @@ void SimuSpectral::_simulateOnSphere(Id nd, bool verbose)
 
 void SimuSpectral::_computeOnRn(Db* dbout, Id iuid, bool verbose)
 {
-  Id nech = dbout->getNSample(true);
-
-  // Preparation
-  MatrixSquare tensor = _model->getCovAniso(0)->getAniso().getTensorInverse();
-  double scale        = sqrt(2. / _ns);
-  AMatrix* res        = MatrixFactory::prodMatMat(&_omega, &tensor);
+  Id nech      = dbout->getNSample(true);
+  double scale = sqrt(2. / _ns);
 
   // Optional printout
   if (verbose)
@@ -232,7 +229,7 @@ void SimuSpectral::_computeOnRn(Db* dbout, Id iuid, bool verbose)
   {
     Id iech = ranks[jech];
     dbout->getCoordinatesInPlace(coor, iech);
-    VectorDouble u = res->prodMatVec(coor);
+    VectorDouble u = _omega.prodMatVec(coor);
 
     double value = 0.;
     for (Id ib = 0; ib < _ns; ib++)
@@ -241,9 +238,6 @@ void SimuSpectral::_computeOnRn(Db* dbout, Id iuid, bool verbose)
 
     dbout->setArray(iech, iuid, value);
   }
-
-  // Delete temporary matrix
-  delete res;
 }
 
 /**
@@ -528,32 +522,14 @@ void SimuSpectral::_computeOnSphere(Db* dbout, Id iuid, bool verbose)
 /*!
  **  Check if the Model can be simulated using Spectral Method
  **
- ** \return  True if the Model is valid; 0 otherwise
+ ** \return  True if the covariance is valid; 0 otherwise
  **
- ** \param[in]  model    Model structure
+ ** \param[in]  cov    Covariance structure
  **
  *****************************************************************************/
-bool SimuSpectral::isValidForSpectral(const Model* model)
+bool SimuSpectral::isValidForSpectral(const ACov* cov)
 {
-  ESpaceType type = getDefaultSpaceType();
-  if (model->getNCov() != 1)
-  {
-    messerr("This method only considers Model with a single covariance structure");
-    return false;
-  }
-
-  /* Loop on the structures */
-
-  for (Id is = 0; is < model->getNCov(); is++)
-  {
-    const CovAniso* cova = model->getCovAniso(is);
-    if (!cova->isValidForSpectral())
-    {
-      messerr("The current structure is not valid for Spectral Simulation on Rn");
-      return false;
-    }
-  }
-  return true;
+  return cov->isValidForSpectral();
 }
 
 /**
@@ -562,18 +538,18 @@ bool SimuSpectral::isValidForSpectral(const Model* model)
  * @param dbin Input Db where the conditioning data are read
  * @param dbout Output Db where the results are stored
  * @param model Model (should only contain covariances that can cope with spectral method)
- * @param ns Number of spectral components
  * @param nbsimu Number of simulations processed simultaneously
  * @param seed Seed used for the Random number generator
- * @param verbose Verbose flag
+ * @param ns Number of spectral components
  * @param nd Number of discretization steps (used for the Spectrum on Sphere)
+ * @param verbose Verbose flag
  * @param namconv Naming Convention
  *
  * @note The conditional version is not yet available
  */
 Id simuSpectral(Db* dbin,
                 Db* dbout,
-                Model* model,
+                ModelGeneric* model,
                 Id nbsimu,
                 Id seed,
                 Id ns,
@@ -599,7 +575,7 @@ Id simuSpectral(Db* dbin,
   }
 
   // Instantiate the SimuSpectral class
-  SimuSpectral simsph(model);
+  SimuSpectral simsph = SimuSpectral(model->getCov());
 
   // Set the seed for Random number generator (for all simulations)
   law_set_random_seed(seed);
