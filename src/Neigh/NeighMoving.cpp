@@ -293,7 +293,7 @@ double NeighMoving::getMaxRadius() const
   double radius = _biPtDist->getRadius();
   if (!getFlagAniso()) return radius;
   double max = -1.0;
-  for (auto anisoRatio : getAnisoCoeffs())
+  for (auto anisoRatio: getAnisoCoeffs())
   {
     if (anisoRatio * radius > max) max = anisoRatio * radius;
   }
@@ -528,8 +528,7 @@ void NeighMoving::getNeigh(Id iech_out, VectorInt& ranks)
 Id NeighMoving::_moving(Id iech_out, VectorInt& ranks, double eps)
 {
   Id nech = _dbin->getNSample();
-  ranks.resize(nech);
-  ranks.fill(-1);
+  ranks.fill(-1, nech);
   Id isect = 0;
   if (nech < getNMini()) return 1;
 
@@ -585,7 +584,7 @@ Id NeighMoving::_moving(Id iech_out, VectorInt& ranks, double eps)
     // The rejection with respect to maximum distance is bypassed if
     // '_forceWithinCell'
 
-    if (!_biPtDist->isOK(_T1, _T2)) 
+    if (!_biPtDist->isOK(_T1, _T2))
     {
       // Shortcut
       if (_useBallSearch) break;
@@ -614,7 +613,7 @@ Id NeighMoving::_moving(Id iech_out, VectorInt& ranks, double eps)
     if (_useBallSearch)
     {
       // Shortcut
-       if (nsel >= getNMaxi()) break;
+      if (nsel >= getNMaxi()) break;
     }
   }
 
@@ -627,7 +626,7 @@ Id NeighMoving::_moving(Id iech_out, VectorInt& ranks, double eps)
   if (nsel < getNMini()) return 1;
 
   // Slightly modify the distances in order to ensure the sorting results
-  // In the case of equal distances                                      
+  // In the case of equal distances
 
   for (Id isel = 0; isel < nsel; isel++)
     _movingDst[isel] += distmax * isel * eps;
