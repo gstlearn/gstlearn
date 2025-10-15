@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
     
     message("Original (start=0 always):\n");
     message("  Found %d/%d elements\n", count, n);
-    message("  Time: %lld microseconds\n", (long long)duration.count());
+    messageNoDiff("  Time: %lld microseconds\n", duration.count());
     message("\n");
   }
   
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
     
     message("Optimized (start=lastPos):\n");
     message("  Found %d/%d elements\n", count, n);
-    message("  Time: %lld microseconds\n", (long long)duration.count());
+    messageNoDiff("  Time: %lld microseconds\n", duration.count());
     message("\n");
   }
   

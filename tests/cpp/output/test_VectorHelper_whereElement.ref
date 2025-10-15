@@ -1,0 +1,30 @@
+
+=== Test 1: Basic whereElement ===
+PASS: Found 30 at position 2
+PASS: Element 100 not found (returned -1)
+
+=== Test 2: Optimized whereElement with start ===
+PASS: Found 25 at position 2 (start=0)
+PASS: Found 25 at position 2 (start=2)
+PASS: Element 25 not found when starting from position 3 (returned -1)
+
+=== Test 3: Sequential search pattern ===
+Found 0 at position 0 (started from 0)
+Found 2 at position 1 (started from 0)
+Found 5 at position 2 (started from 1)
+Found 7 at position 3 (started from 2)
+Found 10 at position 4 (started from 3)
+Found 12 at position 5 (started from 4)
+Found 15 at position 6 (started from 5)
+Found 18 at position 7 (started from 6)
+Found 20 at position 8 (started from 7)
+Found 25 at position 9 (started from 8)
+PASS: All elements found in sequential order
+
+=== Test 4: Edge cases ===
+PASS: Empty vector returns -1
+PASS: Empty vector with start returns -1
+PASS: Single element found at position 0
+PASS: Start beyond vector size returns -1
+
+=== All tests completed ===
