@@ -116,6 +116,10 @@ CorAniso* CovAniso::getCorAnisoModify()
   return static_cast<CorAniso*>(getCorModify());
 }
 
+bool CovAniso::isValidForSpectral() const
+{
+  return getCorAniso()->isValidForSpectral();
+}
 double CovAniso::_getSillValue(Id ivar, Id jvar, const CovCalcMode* mode) const
 {
   if (mode != nullptr && mode->getUnitary()) return 1.;
