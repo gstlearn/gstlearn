@@ -1307,8 +1307,7 @@ void MLayers::_estimate(VectorInt& seltab,
         _estimateBayes(c00[ilayer], a, zval, b, wgt, post_mean, a0, cc, ss, gs,
                        &estim, &stdv);
       else
-        _estimateRegular(c00[ilayer], a, b, dual, wgt,
-                         &estim, &stdv);
+        _estimateRegular(c00[ilayer], a, b, dual, wgt, &estim, &stdv);
 
       /* Perform the correction (in case of collocated bottom) */
 
@@ -1326,6 +1325,9 @@ void MLayers::_estimate(VectorInt& seltab,
       if (_flagStd) _dbout->setLocVariable(ELoc::Z, iechout, _nlayers + ilayer, stdv);
       if (OptDbg::query(EDbg::RESULTS))
       {
+        message("Traitement pour debug\n");
+        VH::dump("dual", dual);
+        VH::dump("b", b);
         message("Estimate = %lf", ilayer + 1, estim);
         if (_flagStd) message(" - Variance = %lf", stdv * stdv);
         message("\n");
