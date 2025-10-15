@@ -46,7 +46,7 @@ namespace gstlrn {
     int myres = SWIG_TypeError;
     if (Rf_length(obj) > 0) // Prevent NULL value from becoming NA
     {
-      myres = SWIG_AsVal_long(obj, &value);
+      myres = SWIG_AsVal_long_SS_long(obj, &value);
       //std::cout << "convertToCpp(int): value=" << value << std::endl;
       if (SWIG_IsOK(myres) && value == R_NaInt) // NA, NaN, Inf or out of bounds value becomes NA
         value = getNA<Id>();
@@ -680,15 +680,15 @@ setMethod(f = "show", signature = "_p_gstlrn__AStringable",                     
 setMethod(f = "show", signature = "_p_gstlrn__VectorTT_double_t",               definition = function(object){ VectorTDouble_display(object) })
 setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_double_t",            definition = function(object){ VectorTDouble_display(object) })
 
-setMethod(f = "show", signature = "_p_gstlrn__VectorTT_long_t",                  definition = function(object){ VectorTInt_display(object) })
-setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_long_t",               definition = function(object){ VectorTInt_display(object) })
+setMethod(f = "show", signature = "_p_gstlrn__VectorTT_long_long_t",            definition = function(object){ VectorTInt_display(object) })
+setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_long_long_t",         definition = function(object){ VectorTInt_display(object) })
 
 setMethod(f = "show", signature = "_p_gstlrn__VectorTT_float_t",                definition = function(object){ VectorTFloat_display(object) })
 setMethod(f = "show", signature = "_p_gstlrn__VectorNumTT_float_t",             definition = function(object){ VectorTFloat_display(object) })
 
-setMethod(f = "show", signature = "_p_gstlrn__VectorTT_gstlrn__String_t",               definition = function(object){ VectorString_display(object) })
+setMethod(f = "show", signature = "_p_gstlrn__VectorTT_gstlrn__String_t",       definition = function(object){ VectorString_display(object) })
 
-setMethod(f = "show", signature = "_p_gstlrn__VectorTT_gstlrn__VectorNumTT_long_t_t",    definition = function(object){ VectorVectorInt_display(object) })
+setMethod(f = "show", signature = "_p_gstlrn__VectorTT_gstlrn__VectorNumTT_long_long_t_t", definition = function(object){ VectorVectorInt_display(object) })
 
 setMethod(f = "show", signature = "_p_gstlrn__VectorTT_gstlrn__VectorNumTT_double_t_t", definition = function(object){ VectorVectorDouble_display(object) })
 
@@ -791,8 +791,8 @@ function(x, i, value)
   x
 }
 
-setMethod('[',    '_p_gstlrn__VectorTT_long_t',                         getVitem)
-setMethod('[<-',  '_p_gstlrn__VectorTT_long_t',                         setVitem)
+setMethod('[',    '_p_gstlrn__VectorTT_long_long_t',                    getVitem)
+setMethod('[<-',  '_p_gstlrn__VectorTT_long_long_t',                    setVitem)
 setMethod('[',    '_p_gstlrn__VectorTT_double_t',                       getVitem)
 setMethod('[<-',  '_p_gstlrn__VectorTT_double_t',                       setVitem)
 setMethod('[',    '_p_gstlrn__VectorTT_gstlrn__String_t',               getVitem) # TODO : Different from swigex and don't know why (_p_VectorTT_std__string_t)
@@ -801,16 +801,16 @@ setMethod('[',    '_p_gstlrn__VectorTT_float_t',                        getVitem
 setMethod('[<-',  '_p_gstlrn__VectorTT_float_t',                        setVitem)
 setMethod('[',    '_p_gstlrn__VectorTT_gstlrn__UChar_t',                getVitem)
 setMethod('[<-',  '_p_gstlrn__VectorTT_gstlrn__UChar_t',                setVitem)
-setMethod('[',    '_p_gstlrn__VectorNumTT_long_t',                      getVitem)
-setMethod('[<-',  '_p_gstlrn__VectorNumTT_long_t',                      setVitem)
+setMethod('[',    '_p_gstlrn__VectorNumTT_long_long_t',                 getVitem)
+setMethod('[<-',  '_p_gstlrn__VectorNumTT_long_long_t',                 setVitem)
 setMethod('[',    '_p_gstlrn__VectorNumTT_double_t',                    getVitem)
 setMethod('[<-',  '_p_gstlrn__VectorNumTT_double_t',                    setVitem)
 setMethod('[',    '_p_gstlrn__VectorNumTT_float_t',                     getVitem)
 setMethod('[<-',  '_p_gstlrn__VectorNumTT_float_t',                     setVitem)
 setMethod('[',    '_p_gstlrn__VectorNumTT_gstlrn__UChar_t',             getVitem)
 setMethod('[<-',  '_p_gstlrn__VectorNumTT_gstlrn__UChar_t',             setVitem)
-setMethod('[[',   '_p_gstlrn__VectorTT_gstlrn__VectorNumTT_long_t_t',   getVitem)
-setMethod('[[<-', '_p_gstlrn__VectorTT_gstlrn__VectorNumTT_long_t_t',   setVitem)
+setMethod('[[',   '_p_gstlrn__VectorTT_gstlrn__VectorNumTT_long_long_t_t', getVitem)
+setMethod('[[<-', '_p_gstlrn__VectorTT_gstlrn__VectorNumTT_long_long_t_t', setVitem)
 setMethod('[[',   '_p_gstlrn__VectorTT_gstlrn__VectorNumTT_double_t_t', getVitem)
 setMethod('[[<-', '_p_gstlrn__VectorTT_gstlrn__VectorNumTT_double_t_t', setVitem)
 setMethod('[[',   '_p_gstlrn__VectorTT_gstlrn__VectorNumTT_float_t_t',  getVitem)

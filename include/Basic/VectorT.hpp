@@ -44,7 +44,7 @@ public:
 public:
   inline VectorT()                                                    : _v() { }
   inline VectorT(const Vector& vec)                                   : _v(vec) { }
-  inline VectorT(size_type count, const T& value = T())               : _v(count, value) { }
+  inline VectorT(size_type count, const T& value = {})                : _v(count, value) { }
   template< class InputIt >
   inline VectorT(InputIt first, InputIt last)                         : _v() { _v.assign(first, last); }
   inline VectorT(const VectorT& other) = default;

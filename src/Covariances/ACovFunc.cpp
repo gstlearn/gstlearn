@@ -21,7 +21,7 @@ ACovFunc::ACovFunc(const ECov& type, const CovContext& ctxt)
   : AStringable()
   , _type(type)
   , _ctxt(ctxt)
-  , _param(TEST)
+  , _params()
 {
   if (!isConsistent())
     my_throw("Cannot create such covariance function in that context");
@@ -31,7 +31,7 @@ ACovFunc::ACovFunc(const ACovFunc& r)
   : AStringable(r)
   , _type(r._type)
   , _ctxt(r._ctxt)
-  , _param(r._param)
+  , _params(r._params)
 {
 }
 
@@ -40,9 +40,9 @@ ACovFunc& ACovFunc::operator=(const ACovFunc& r)
   if (this != &r)
   {
     AStringable::operator=(r);
-    _type  = r._type;
-    _ctxt  = r._ctxt;
-    _param = r._param;
+    _type   = r._type;
+    _ctxt   = r._ctxt;
+    _params = r._params;
   }
   return *this;
 }
@@ -51,14 +51,41 @@ ACovFunc::~ACovFunc()
 {
 }
 
-void ACovFunc::setParam(double param)
+void ACovFunc::setParam(double param, Id ipar)
 {
   /// TODO : Do not throw in setter. Check range and build the error message here.
   if (!hasParam()) return;
   double max = getParMax();
   if (param < 0. || (!FFFF(max) && param > max))
     my_throw("Wrong third parameter value");
-  _param = param;
+  
+  // Ensure the vector is large enough
+  if (ipar >= static_cast<Id>(_params.size()))
+    _params.resize(ipar + 1, TEST);
+  
+  _params[ipar] = param;
+}
+
+void ACovFunc::setParams(const VectorDouble& params)
+{
+  if (!hasParam()) return;
+  double max = getParMax();
+  
+  // Validate all parameters
+  for (const auto& param : params)
+  {
+    if (param < 0. || (!FFFF(max) && param > max))
+      my_throw("Wrong parameter value");
+  }
+  
+  _params = params;
+}
+
+double ACovFunc::getParam(Id ipar) const
+{
+  if (ipar >= static_cast<Id>(_params.size()))
+    return TEST;
+  return _params[ipar];
 }
 
 void ACovFunc::setField(double field)
@@ -97,7 +124,21 @@ String ACovFunc::toString(const AStringFormat* /*strfmt*/) const
   std::stringstream sstr;
   sstr << getCovName();
   if (hasParam())
-    sstr << " (Third Parameter = " << getParam() << ")";
+  {
+    if (_params.size() == 1)
+    {
+      sstr << " (Third Parameter = " << getParam() << ")";
+    }
+    else if (_params.size() > 1)
+    {
+      sstr << " (Parameters =";
+      for (Id i = 0; i < static_cast<Id>(_params.size()); i++)
+      {
+        sstr << " " << _params[i];
+      }
+      sstr << ")";
+    }
+  }
   sstr << std::endl;
   return sstr.str();
 }

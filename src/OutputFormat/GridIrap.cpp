@@ -66,7 +66,7 @@ Id GridIrap::writeInFile()
   double ymax = ymin + dy * (ny - 1);
 
   /* Write the header */
-  fprintf(_file, "%ld %ld %lf %lf\n", nx, ny, dx, dy);
+  fprintf(_file, "%lld %lld %lf %lf\n", nx, ny, dx, dy);
   fprintf(_file, "%lf %lf %lf %lf\n", xmin, xmax, ymin, ymax);
 
   Id necr = 0;
