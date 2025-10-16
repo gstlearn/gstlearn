@@ -361,12 +361,12 @@ VectorDouble ASPDEOp::computeDriftCoeffs(const VectorDouble& Z,
 
     constvect ym(Z.data(), Z.size());
     constvect wd1(_workdat1.data(), _workdat1.size());
-    XtInvSigmaZ[i] = VH::innerProduct(ym, wd1);
+    XtInvSigmaZ[i] = VH::innerProductCV(ym, wd1);
 
     for (Id j = i; j < xsize; j++)
     {
       constvect xmj = driftMat.getViewOnColumn(j);
-      double prod   = VH::innerProduct(xmj, w1s);
+      double prod   = VH::innerProductCV(xmj, w1s);
       XtInvSigmaX.setValue(i, j, prod);
     }
   }
@@ -422,7 +422,7 @@ double ASPDEOp::computeQuadratic(const std::vector<double>& x) const
   vect w1s(_workdat4);
   constvect xm(x);
   evalInvCov(xm, w1s);
-  return VH::innerProduct(w1s, xm);
+  return VH::innerProductCV(w1s, xm);
 }
 
 double ASPDEOp::computeLogDetQ(Id nMC) const

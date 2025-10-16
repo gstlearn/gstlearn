@@ -395,12 +395,12 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y,
 
     constvect Ys(Y);
     constvect w1i(_work1ter);
-    XtInvSigmaZ[i] = VH::innerProduct(Ys, w1i);
+    XtInvSigmaZ[i] = VH::innerProductCV(Ys, w1i);
 
     for (Id j = i; j < xsize; j++)
     {
       constvect xmj(X[j].data(), X[j].size());
-      double prod = VH::innerProduct(xmj, w1i);
+      double prod = VH::innerProductCV(xmj, w1i);
       XtInvSigmaX.setValue(i, j, prod);
     }
   }

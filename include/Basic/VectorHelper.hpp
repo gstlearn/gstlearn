@@ -37,7 +37,9 @@ public:
   static void dump(const String& title, const VectorDouble& vect, bool skipLine = true);
   static void dump(const String& title, const VectorString& vect, bool skipLine = true);
   static void dump(const String& title, const VectorInt& vect, bool skipLine = true);
+#ifndef SWIG
   static String toStringAsSpan(constvect vec);
+#endif
   static String toStringAsVD(const VectorDouble& vec); // TODO rename
   static String toStringAsVVD(const VectorVectorDouble& vec);
   static String toStringAsVVI(const VectorVectorInt& vec);
@@ -115,15 +117,12 @@ public:
                                          const constvect in,
                                          vect out,
                                          Id iad);
-  static double innerProduct(const constvect veca, const constvect vecb);
-
+  static double innerProductCV(const constvect veca, const constvect vecb);
   static void addMultiplyVectVectInPlace(const constvect in1,
                                          const constvect in2,
                                          vect out,
                                          Id iad);
-
   static void addInPlace(constvect in, vect dest);
-
 #endif
   static VectorDouble add(const VectorDouble& veca, const VectorDouble& vecb);
   static void addInPlace(VectorDouble& dest, const VectorDouble& src);
@@ -150,11 +149,11 @@ public:
 
   static void addSquareInPlace(VectorDouble& dest, const VectorDouble& src);
   static VectorDouble subtract(const VectorDouble& veca, const VectorDouble& vecb);
-  static VectorDouble subtract(constvect veca, constvect vecb);
   static VectorInt subtract(const VectorInt& veca, const VectorInt& vecb);
-  static void subtractInPlace(const constvect in1,
-                              const constvect in2,
-                              vect outv);
+#ifndef SWIG
+  static VectorDouble subtract(constvect veca, constvect vecb);
+  static void subtractInPlace(const constvect in1, const constvect in2, vect outv);
+#endif
   static void subtractInPlace(VectorDouble& dest, const VectorDouble& src);
   static void subtractInPlace(VectorInt& dest, const VectorInt& src);
   static void subtractInPlace(const VectorVectorDouble& in1,
@@ -217,8 +216,7 @@ public:
 #ifndef SWIG
   static void power(VectorDouble& res, const constvect vec, double power);
   static void inverse(VectorDouble& res, const constvect vec);
-#endif // !SWIG
-
+#endif
   static double innerProductVD(const VectorDouble& veca, const VectorDouble& vecb, Id size = -1);
   static double innerProduct(const double* veca, const double* vecb, Id size = -1);
   static double innerProductVVD(const VectorVectorDouble& x,
@@ -304,8 +302,8 @@ public:
                                           double val2,
                                           const VectorVectorDouble& vvd2,
                                           VectorVectorDouble& outv);
-  static double innerProduct(const std::vector<std::vector<double>>& x,
-                             const std::vector<std::vector<double>>& y);
+  static double innerProductVVec(const std::vector<std::vector<double>>& x,
+                                 const std::vector<std::vector<double>>& y);
   static void linearCombinationVVDInPlace(double val1,
                                           const std::vector<std::vector<double>>& vvd1,
                                           double val2,

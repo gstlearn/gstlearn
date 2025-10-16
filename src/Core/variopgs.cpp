@@ -2626,7 +2626,7 @@ static double st_nkl(VectorDouble& u,
   double cdflow        = law_cdf_gaussian((lower - meanj) / stdj);
   double invval        = invvari[index2];
   VectorDouble invpart = VH::reduceOne(invvari, index2);
-  double total         = VH::innerProduct(invpart, u);
+  double total         = VH::innerProductCV(invpart, u);
   double S             = (dfupp - dflow) * varj * invval - (cdfupp - cdflow) * (invval * meanj + total);
   return (S);
 }
@@ -2763,7 +2763,7 @@ static double st_d2_dkldkj(Id index1,
           flag_out = ISNOT_GAUSS_DEF(u[i]);
         }
         if (flag_out) continue;
-        double mu     = VH::innerProduct(temp, u);
+        double mu     = VH::innerProductCV(temp, u);
         double random = law_df_multigaussian(u, *varcori);
 
         S += pow(-1., 3 - i1 + i2 + i3) * random * st_nkl(u, lowj, uppj, invvarcori, index2, mu, covar, sdcovar);
@@ -3201,7 +3201,7 @@ static double st_optim_onelag_pgs(Local_Pgs* local_pgs,
 
       mdiminution = Snew - Sr;
       if (barrier) mdiminution = Spen - Srpen;
-      double stepgr           = VH::innerProduct(step, gr);
+      double stepgr           = VH::innerProductCV(step, gr);
       double mdiminution_pred = stepgr + 0.5 * Gn.normVec(step);
       rval                    = mdiminution / mdiminution_pred;
       flag_moved              = (mdiminution < 0);

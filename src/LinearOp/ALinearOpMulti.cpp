@@ -17,7 +17,8 @@
 #include "Basic/VectorHelper.hpp"
 #include <vector>
 
-namespace gstlrn{
+namespace gstlrn
+{
 ALinearOpMulti::ALinearOpMulti(Id nitermax, double eps)
   : _nIterMax(nitermax)
   , _nIterRestart(0)
@@ -87,7 +88,7 @@ void ALinearOpMulti::prepare() const
   if (_initialized) return;
 
   _initialized = true;
-  Id ns       = sizes();
+  Id ns        = sizes();
   _r.resize(ns);
   _p.resize(ns);
   _temp.resize(ns);
@@ -159,7 +160,7 @@ void ALinearOpMulti::evalInverse(const std::vector<std::vector<double>>& vecin,
   {
     evalDirect(vecout, _temp);                       // temp = Ax0 (x0 est stocké dans outv)
     VectorHelper::subtractInPlace(_temp, vecin, _r); // r=b-Ax0
-    nb = VectorHelper::innerProduct(_r, _r);
+    nb = VectorHelper::innerProductVVec(_r, _r);
 
     // If _nb is not set, then initialize the internal state from scratch.
     // If _nb is set, reuse the internal state of the solver (_p) to add
@@ -181,19 +182,19 @@ void ALinearOpMulti::evalInverse(const std::vector<std::vector<double>>& vecin,
   }
 
   if (OptDbg::query(EDbg::CONVERGE))
-    message("initial crit %lg \n", VectorHelper::innerProduct(_r, _r));
+    message("initial crit %lg \n", VectorHelper::innerProductVVec(_r, _r));
 
   if (_precondStatus)
   {
-    _precond->evalDirect(_r, _temp);               // z=Mr
-    VectorHelper::copy(_temp, _p);                 // p=z
-    rsold = VectorHelper::innerProduct(_r, _temp); //<r, z>
-    crit  = VectorHelper::innerProduct(_r, _r);    //<r,r>
+    _precond->evalDirect(_r, _temp);                   // z=Mr
+    VectorHelper::copy(_temp, _p);                     // p=z
+    rsold = VectorHelper::innerProductVVec(_r, _temp); //<r, z>
+    crit  = VectorHelper::innerProductVVec(_r, _r);    //<r,r>
   }
   else if (!_userInitialValue || isNA(_nb)) // _p, rsold and crit are already set (see above)
   {
     VectorHelper::copy(_r, _p); // p=r (=z)
-    crit = rsold = VectorHelper::innerProduct(_r, _r);
+    crit = rsold = VectorHelper::innerProductVVec(_r, _r);
   }
 
   crit /= nb;
@@ -204,7 +205,7 @@ void ALinearOpMulti::evalInverse(const std::vector<std::vector<double>>& vecin,
   {
     niter++;
     evalDirect(_p, _temp);                                                    // temp = Ap
-    alpha = rsold / VectorHelper::innerProduct(_temp, _p);                    // r'r/p'Ap
+    alpha = rsold / VectorHelper::innerProductVVec(_temp, _p);                // r'r/p'Ap
     VectorHelper::linearCombinationVVDInPlace(1., vecout, alpha, _p, vecout); // x = x + alpha * p
 
     if (_nIterRestart > 0 && (niter + 1) % _nIterRestart == 0)
@@ -220,12 +221,12 @@ void ALinearOpMulti::evalInverse(const std::vector<std::vector<double>>& vecin,
     if (_precondStatus)
     {
       _precond->evalDirect(_r, _temp);                                             // z = Mr
-      rsnew = VectorHelper::innerProduct(_r, _temp);                               // r'z
+      rsnew = VectorHelper::innerProductVVec(_r, _temp);                           // r'z
       VectorHelper::linearCombinationVVDInPlace(1., _temp, rsnew / rsold, _p, _p); // p = z+beta p
     }
     else
     {
-      rsnew = VectorHelper::innerProduct(_r, _r);
+      rsnew = VectorHelper::innerProductVVec(_r, _r);
       VectorHelper::linearCombinationVVDInPlace(1., _r, rsnew / rsold, _p, _p); // p = r+beta p
     }
     crit = rsnew / nb;
@@ -286,4 +287,4 @@ void ALinearOpMulti::_updated() const
 {
   _initialized = false;
 }
-}
+} // namespace gstlrn

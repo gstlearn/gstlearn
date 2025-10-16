@@ -2392,7 +2392,7 @@ double VectorHelper::innerProductVec(const std::vector<double>& veca,
   return innerProduct(veca.data(), vecb.data(), size);
 }
 
-double VectorHelper::innerProduct(const constvect veca, const constvect vecb)
+double VectorHelper::innerProductCV(const constvect veca, const constvect vecb)
 {
   return innerProduct(veca.data(), vecb.data(), static_cast<Id>(veca.size()));
 }
@@ -2424,8 +2424,8 @@ double VectorHelper::innerProduct(const double* veca,
   return prod;
 }
 
-double VectorHelper::innerProduct(const std::vector<std::vector<double>>& x,
-                                  const std::vector<std::vector<double>>& y)
+double VectorHelper::innerProductVVec(const std::vector<std::vector<double>>& x,
+                                      const std::vector<std::vector<double>>& y)
 {
   double s = 0.;
   for (Id i = 0, n = static_cast<Id>(x.size()); i < n; i++)
