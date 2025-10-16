@@ -149,7 +149,7 @@ public:
 
 #ifndef SWIG
   Id addVecInPlaceEigen(const Eigen::Map<const Eigen::VectorXd>& xm,
-                         Eigen::Map<Eigen::VectorXd>& ym) const;
+                        Eigen::Map<Eigen::VectorXd>& ym) const;
 #endif
 
   // Static functions
@@ -247,9 +247,9 @@ protected:
 private:
   static void _forbiddenForSparse(const String& func);
   Id _eigen_findColor(Id imesh,
-                       Id ncolor,
-                       VectorInt& colors,
-                       VectorInt& temp) const;
+                      Id ncolor,
+                      VectorInt& colors,
+                      VectorInt& temp) const;
 
 #ifndef SWIG
 
