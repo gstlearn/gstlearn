@@ -21,7 +21,6 @@
 #include "geoslib_define.h"
 #include <cmath>
 #include <memory>
-#include <omp.h>
 
 namespace gstlrn
 {

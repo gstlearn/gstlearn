@@ -18,7 +18,6 @@
 #include "geoslib_define.h"
 
 #include <cmath>
-#include <omp.h>
 
 namespace gstlrn
 {

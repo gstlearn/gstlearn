@@ -124,9 +124,6 @@ mark_as_advanced(USE_BOOST_SPAN)
 
 # Look for OpenMP
 find_package(OpenMP REQUIRED)
-if (OPENMP_FOUND)
-  add_definitions(-DOPENMP)
-endif()
 
 # Look for Eigen
 find_package(Eigen3 REQUIRED) 

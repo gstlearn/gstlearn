@@ -18,7 +18,6 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Db/Db.hpp"
-#include <omp.h>
 
 namespace gstlrn
 {
