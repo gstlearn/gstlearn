@@ -333,6 +333,7 @@ public:
   static Id whereMinimum(const VectorDouble& tab);
   static Id whereMaximum(const VectorDouble& tab);
   static Id whereElement(const VectorInt& tab, Id target);
+  static Id whereElement(const VectorInt& tab, Id target, Id start);
   static double norm(const std::vector<double>& vec);
   static bool isIsotropic(const VectorVectorInt& sampleRanks);
 

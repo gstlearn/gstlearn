@@ -89,7 +89,8 @@ static Id _loadPositions(Id iech,
                          const VectorInt& cumul,
                          VectorInt& positions,
                          VectorInt& identity,
-                         Id* rank_arg)
+                         Id* rank_arg,
+                         VectorInt& lastPositions)
 {
   Id nvar = static_cast<Id>(cumul.size());
   Id ndef = 0;
@@ -97,7 +98,7 @@ static Id _loadPositions(Id iech,
   for (Id ivar = 0; ivar < nvar; ivar++)
   {
     rank    = 2 * rank;
-    Id ipos = VH::whereElement(index1[ivar], iech);
+    Id ipos = VH::whereElement(index1[ivar], iech, lastPositions[ivar]);
     if (ipos < 0)
       positions[ivar] = -1;
     else
@@ -106,6 +107,8 @@ static Id _loadPositions(Id iech,
       identity[ndef]  = ivar;
       ndef++;
       rank += 1;
+      // Update last position for next search
+      lastPositions[ivar] = ipos;
     }
   }
   *rank_arg = rank;
@@ -245,12 +248,13 @@ void InvNuggetOp::_buildInvNugget(const Db* db, Model* model, const SPDEParam& p
   Id ndef = nvar;
   VectorInt position(nvar);
   VectorInt identity(nvar);
+  VectorInt lastPositions(nvar, 0);  // Track last found positions for optimization
   for (Id iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
 
     // Count the number of variables for which current sample is valid
-    ndef = _loadPositions(iech, index1, cumul, position, identity, &rank);
+    ndef = _loadPositions(iech, index1, cumul, position, identity, &rank, lastPositions);
     if (ndef <= 0) continue;
 
     // If all samples are defined, in the stationary case, use the inverted sill matrix

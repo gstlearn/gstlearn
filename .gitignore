@@ -53,3 +53,5 @@ doc/details/*.fls
 doc/details/*.synctex.gz
 .venv
 2
+test_*.NF
+test_*.out
