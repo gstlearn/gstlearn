@@ -219,11 +219,11 @@ public:
   static void inverse(VectorDouble& res, const constvect vec);
 #endif // !SWIG
 
-  static double innerProduct(const VectorDouble& veca, const VectorDouble& vecb, Id size = -1);
-  static double innerProduct(const double* veca, const double* vecb, Id size);
-  static double innerProduct(const VectorVectorDouble& x,
-                             const VectorVectorDouble& y);
-  static double innerProduct(const std::vector<double>& veca, const std::vector<double>& vecb, Id size = -1);
+  static double innerProductVD(const VectorDouble& veca, const VectorDouble& vecb, Id size = -1);
+  static double innerProduct(const double* veca, const double* vecb, Id size = -1);
+  static double innerProductVVD(const VectorVectorDouble& x,
+                                const VectorVectorDouble& y);
+  static double innerProductVec(const std::vector<double>& veca, const std::vector<double>& vecb, Id size = -1);
 
   static VectorDouble crossProduct3D(const VectorDouble& veca, const VectorDouble& vecb);
   static void crossProduct3DInPlace(const double* a, const double* b, double* v);

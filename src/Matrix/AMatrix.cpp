@@ -667,7 +667,7 @@ double AMatrix::prodVecMatVec(const VectorDouble& x, const VectorDouble& y) cons
 
   VectorDouble left(_nRows);
   prodMatVecInPlace(y, left, false);
-  return VH::innerProduct(x, left);
+  return VH::innerProductVD(x, left);
 }
 
 Id AMatrix::invert()

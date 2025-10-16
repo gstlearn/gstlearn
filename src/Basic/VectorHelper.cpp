@@ -686,13 +686,13 @@ double VectorHelper::stdv(const VectorDouble& vec, bool scaleByN)
 
 double VectorHelper::norm(const VectorDouble& vec)
 {
-  double ip = innerProduct(vec, vec);
+  double ip = innerProductVD(vec, vec);
   return sqrt(ip);
 }
 
 double VectorHelper::norm(const std::vector<double>& vec)
 {
-  double ip = innerProduct(vec, vec);
+  double ip = innerProductVec(vec, vec);
   return sqrt(ip);
 }
 
@@ -2381,7 +2381,9 @@ std::pair<double, double> VectorHelper::rangeVals(const VectorDouble& vec)
   return res;
 }
 
-double VectorHelper::innerProduct(const std::vector<double>& veca, const std::vector<double>& vecb, Id size)
+double VectorHelper::innerProductVec(const std::vector<double>& veca,
+                                     const std::vector<double>& vecb,
+                                     Id size)
 {
   if (size < 0) size = static_cast<Id>(veca.size());
   if (size > static_cast<Id>(veca.size()) || size > static_cast<Id>(vecb.size()))
@@ -2395,9 +2397,9 @@ double VectorHelper::innerProduct(const constvect veca, const constvect vecb)
   return innerProduct(veca.data(), vecb.data(), static_cast<Id>(veca.size()));
 }
 
-double VectorHelper::innerProduct(const VectorDouble& veca,
-                                  const VectorDouble& vecb,
-                                  Id size)
+double VectorHelper::innerProductVD(const VectorDouble& veca,
+                                    const VectorDouble& vecb,
+                                    Id size)
 {
   if (size < 0) size = static_cast<Id>(veca.size());
   if (size > static_cast<Id>(veca.size()) || size > static_cast<Id>(vecb.size()))
@@ -2427,15 +2429,15 @@ double VectorHelper::innerProduct(const std::vector<std::vector<double>>& x,
 {
   double s = 0.;
   for (Id i = 0, n = static_cast<Id>(x.size()); i < n; i++)
-    s += VH::innerProduct(x[i], y[i]);
+    s += VH::innerProductVec(x[i], y[i]);
   return s;
 }
-double VectorHelper::innerProduct(const VectorVectorDouble& x,
-                                  const VectorVectorDouble& y)
+double VectorHelper::innerProductVVD(const VectorVectorDouble& x,
+                                     const VectorVectorDouble& y)
 {
   double s = 0.;
   for (Id i = 0, n = static_cast<Id>(x.size()); i < n; i++)
-    s += VH::innerProduct(x[i], y[i]);
+    s += VH::innerProductVD(x[i], y[i]);
   return s;
 }
 
@@ -2658,7 +2660,7 @@ void VectorHelper::normalizeCodir(Id ndim, VectorDouble& codir)
   double norme;
 
   if (codir.empty()) return;
-  norme = VH::innerProduct(codir, codir, ndim);
+  norme = VH::innerProductVD(codir, codir, ndim);
   if (norme <= 0.)
   {
     for (Id idim = 0; idim < ndim; idim++)

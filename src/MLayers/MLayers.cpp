@@ -1069,8 +1069,8 @@ Id MLayers::_prepareCollocation(Id iechout,
   if (_computeLhsOne(seltab, iechout, _nlayers, coor,
                      prop1, prop2, covtab, baux)) return (1);
   a->prodMatVecInPlace(baux, b2);
-  double coefz = VH::innerProduct(b2, zval);
-  double coefa = VH::innerProduct(b2, baux);
+  double coefz = VH::innerProductVD(b2, zval);
+  double coefa = VH::innerProductVD(b2, baux);
   (*ratio)     = (ABS(c0 - coefa) > 1.e-6) ? (botval - coefz) / (c0 - coefa) : 0.;
 
   return (0);
@@ -1098,7 +1098,7 @@ void MLayers::_estimateRegular(double c00,
                                double* estim,
                                double* stdev) const
 {
-  *estim = VH::innerProduct(dual, b);
+  *estim = VH::innerProductVD(dual, b);
 
   /* Perform the variance of estimation error */
 
@@ -1111,7 +1111,7 @@ void MLayers::_estimateRegular(double c00,
     else
     {
       a->prodMatVecInPlace(b, wgt);
-      stdv = c00val - VH::innerProduct(b, wgt);
+      stdv = c00val - VH::innerProductVD(b, wgt);
       stdv = (stdv > 0) ? sqrt(stdv) : 0.;
     }
     *stdev = stdv;
@@ -1127,11 +1127,11 @@ void MLayers::_estimateRegular(double c00,
  ** \param[in]  zval      Data vector
  ** \param[in]  b         Working vector (Dimension = neq)
  ** \param[in]  wgt       Working array (Dimension = neq)
- ** \param[out] post_mean  Array of posterior mean
- ** \param[out] a0         Constant term
- ** \param[out] cc         Output value
- ** \param[out] ss         Output value
- ** \param[out] gs         Output value
+ ** \param[out] post_mean Array of posterior mean
+ ** \param[out] a0        Constant term
+ ** \param[out] cc        Output value
+ ** \param[out] ss        Output value
+ ** \param[out] gs        Output value
  **
  ** \param[out] estim     Estimated value
  ** \param[out] stdev     Standard deviation of estimation error
@@ -1165,8 +1165,8 @@ void MLayers::_estimateBayes(double c00,
     c2[iech] = b[iech] + fsf0[iech];
   cc.prodMatVecInPlace(c2, wgt);
 
-  double estim1 = VH::innerProduct(wgt, zval);
-  double estim2 = VH::innerProduct(ff0, post_mean);
+  double estim1 = VH::innerProductVD(wgt, zval);
+  double estim2 = VH::innerProductVD(ff0, post_mean);
   *estim        = estim1 + estim2;
 
   /* Calculate the standard deviation */
@@ -1315,7 +1315,7 @@ void MLayers::_estimate(VectorInt& seltab,
       {
         double cx = _getCI0(_nlayers, prop1, ilayer + 1, VectorDouble(), covtab);
         if (FFFF(cx)) continue;
-        coefb = VH::innerProduct(b2, b);
+        coefb = VH::innerProductVD(b2, b);
         estim += (cx - coefb) * ratio;
       }
 
@@ -1325,6 +1325,7 @@ void MLayers::_estimate(VectorInt& seltab,
       if (_flagStd) _dbout->setLocVariable(ELoc::Z, iechout, _nlayers + ilayer, stdv);
       if (OptDbg::query(EDbg::RESULTS))
       {
+        // TODO a supprimer dans la version finale ... apres DEBUG
         message("Traitement pour debug\n");
         VH::dump("dual", dual);
         VH::dump("b", b);

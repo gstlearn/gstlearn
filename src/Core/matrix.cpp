@@ -131,7 +131,8 @@ Id matrix_prod_norme(Id transpose, Id n1, Id n2, const double* v1, const double*
       mata.resetFromArray(n2, n2, a);
       matw.reset(n1, n1);
     }
-    matw.prodNormMatMatInPlace(&matv1, &mata, transpose);
+    bool local_transpose = transpose < 0;
+    matw.prodNormMatMatInPlace(&matv1, &mata, local_transpose);
     (void)memcpy(w, matw.getValues().data(), matw.getNSize() * sizeof(double));
     return 0;
   }

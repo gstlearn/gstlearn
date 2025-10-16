@@ -3154,13 +3154,13 @@ static double st_optim_onelag_pgs(Local_Pgs* local_pgs,
 
     /* Determine the lag (hgn, alpha*hsd) or a convex combination of both */
 
-    if (VH::innerProduct(hgn, hgn, npar) <= delta2)
+    if (VH::innerProductVD(hgn, hgn, npar) <= delta2)
     {
       step = hgn;
     }
     else
     {
-      double normgrad2 = VH::innerProduct(gr, gr, npar);
+      double normgrad2 = VH::innerProductVD(gr, gr, npar);
       double alpha     = normgrad2 / Gn.normVec(gr);
       double normgrad  = sqrt(normgrad2);
       if (normgrad > (delta / alpha))
@@ -3171,9 +3171,9 @@ static double st_optim_onelag_pgs(Local_Pgs* local_pgs,
       {
         VH::linearCombinationInPlace(alpha, hsd, 0., VectorDouble(), a);
         VH::linearCombinationInPlace(1., hgn, -1., a, hgna);
-        double c     = VH::innerProduct(a, hgn);
-        double a2    = VH::innerProduct(a, a, npar);
-        double hgna2 = VH::innerProduct(hgna, hgna, npar);
+        double c     = VH::innerProductVD(a, hgn);
+        double a2    = VH::innerProductVD(a, a, npar);
+        double hgna2 = VH::innerProductVD(hgna, hgna, npar);
         double beta  = 0.;
         if (c <= 0.)
           beta = (-c + sqrt(c * c + hgna2 * (delta2 - a2))) / hgna2;
@@ -3226,7 +3226,7 @@ static double st_optim_onelag_pgs(Local_Pgs* local_pgs,
         JJ.linearCombination(npar, &JJ, -penalize / (eigval[3] * eigval[3]), &d2);
         penalize /= 2.;
       }
-      if (rval > 0.75) delta = MAX(delta, 3. * sqrt(VH::innerProduct(step, step, npar)));
+      if (rval > 0.75) delta = MAX(delta, 3. * sqrt(VH::innerProductVD(step, step, npar)));
     }
     if (rval < 0.25) delta /= 2.;
 
@@ -4119,7 +4119,7 @@ static void st_calcul_covmatrix(Local_Pgs* local_pgs,
   }
   else if (rule->getModeRule() == ERule::SHIFT)
   {
-    auto* ruleshift = (RuleShift*)rule;
+    auto* ruleshift = static_cast<RuleShift*>(const_cast<Rule*>(rule));
     cov[0]          = covh.getValue(0, 0);                                     /* C11(h)  */
     cov[5]          = (nvar == 1) ? covh.getValue(0, 0) : covh.getValue(1, 1); /* C22(h)  */
 
