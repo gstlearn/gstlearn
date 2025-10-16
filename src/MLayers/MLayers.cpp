@@ -283,10 +283,9 @@ Id MLayers::_getPropsResult(Id iech,
                             Id ilayer0,
                             VectorDouble& props) const
 {
-  double tlast;
   _isValidLayer("_getPropsResult", ilayer0);
-  for (Id ilayer = 0; ilayer < _nlayers; ilayer++)
-    props[ilayer] = 0.;
+  props.fill(0.);
+  double tlast;
 
   /* Dispatch */
 
@@ -680,8 +679,7 @@ Id MLayers::_computeRHS(VectorDouble& coor,
 
   /* Initialize the vector with zeroes */
 
-  for (Id i = 0; i < _neq; i++)
-    b[i] = 0.;
+  b.fill(0.);
 
   /* Covariance part */
 
@@ -813,8 +811,7 @@ void MLayers::_getDataVector(VectorInt& seltab, VectorDouble& zval)
 
     /* Calculate the grid node index (optional) */
 
-    if (_colrefD >= 0 || _colrefT >= 0 ||
-        _colrefB >= 0 || _flagVel)
+    if (_colrefD >= 0 || _colrefT >= 0 || _colrefB >= 0 || _flagVel)
       igrid = _locateSampleInDbout(iech);
 
     for (Id ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
@@ -1010,7 +1007,7 @@ Id MLayers::_getCloseSample(Id iech0, const VectorDouble& coor, double eps)
     if (ABS(dx) > eps) continue;
     double dy = _dbin->getCoordinate(iech, 1) - coor[1];
     if (ABS(dy) > eps) continue;
-    return (0);
+    return 0;
   }
 
   /* Check among the subsequent samples if a sample with matching coordinates */
@@ -1023,9 +1020,9 @@ Id MLayers::_getCloseSample(Id iech0, const VectorDouble& coor, double eps)
     double dy = _dbin->getCoordinate(iech, 1) - coor[1];
     if (ABS(dy) > eps) continue;
     Id ilayer = static_cast<Id>(_dbin->getFromLocator(ELoc::LAYER, iech));
-    if (ilayer == _nlayers) return (0);
+    if (ilayer == _nlayers) return 0;
   }
-  return (1);
+  return 1;
 }
 
 /****************************************************************************/
@@ -1326,11 +1323,6 @@ void MLayers::_estimate(VectorInt& seltab,
       if (_flagStd) _dbout->setLocVariable(ELoc::Z, iechout, _nlayers + ilayer, stdv);
       if (OptDbg::query(EDbg::RESULTS))
       {
-        // TODO a supprimer dans la version finale ... apres DEBUG
-        message("Traitement pour debug\n");
-        message("flagbayes = %d\n", _flagBayes);
-        VH::dump("dual", dual);
-        VH::dump("b", b);
         message("Estimate = %lf", estim);
         if (_flagStd) message(" - Variance = %lf", stdv * stdv);
         message("\n");
@@ -1349,7 +1341,7 @@ void MLayers::_estimate(VectorInt& seltab,
  ** \param[in,out]  seltab    Number of sample definition (0, 1 or 2)
  **
  *****************************************************************************/
-Id MLayers::_checkAuxiliaryVariables(VectorInt& seltab)
+void MLayers::_checkAuxiliaryVariables(VectorInt& seltab)
 {
   Id newval;
   VectorDouble coor(2);
@@ -1401,7 +1393,8 @@ Id MLayers::_checkAuxiliaryVariables(VectorInt& seltab)
     seltab[iech] = 0;
   }
 
-  return (nechtot);
+  _nech = nechtot;
+  _neq  = nechtot + _npar;
 }
 
 /****************************************************************************/
@@ -2049,10 +2042,9 @@ Id MLayers::kriging(bool verbose)
   /* Check the definition of all auxiliary variables defined on output file */
   /* Count the number of active samples (including the duplicates) */
   VectorInt seltab = _establishSelection(prop1);
-  _nech            = _checkAuxiliaryVariables(seltab);
+  _checkAuxiliaryVariables(seltab);
 
   /* Complementary allocation */
-
   VectorDouble b2(_neq);
   VectorDouble b(_neq);
   VectorDouble baux(_neq);
@@ -2067,8 +2059,8 @@ Id MLayers::kriging(bool verbose)
 
   MatrixDense fftab;
   MatrixDense a0;
-  MatrixSquare cc;
   MatrixDense ss;
+  MatrixSquare cc;
   MatrixSquare gs;
   MatrixSquare postVars;
   VectorDouble postMean;
@@ -2155,7 +2147,7 @@ Id MLayers::vario(Vario* vario, bool verbose)
   /* Check the definition of all auxiliary variables defined on output file */
   /* Count the number of active samples (including the duplicates) */
   VectorInt seltab = _establishSelection(prop1);
-  _nech            = _checkAuxiliaryVariables(seltab);
+  _checkAuxiliaryVariables(seltab);
 
   /* Establish the data vector */
 
@@ -2206,7 +2198,7 @@ Id MLayers::calculatePrior()
   /* Check the definition of all auxiliary variables defined on output file */
   /* Count the number of active samples (including the duplicates) */
   VectorInt seltab = _establishSelection(props);
-  _nech            = _checkAuxiliaryVariables(seltab);
+  _checkAuxiliaryVariables(seltab);
 
   /* Allocation */
 

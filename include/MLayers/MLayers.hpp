@@ -165,7 +165,7 @@ private:
                  MatrixDense& ss,
                  MatrixSquare& gs,
                  VectorDouble& post_mean);
-  Id _checkAuxiliaryVariables(VectorInt& seltab);
+  void _checkAuxiliaryVariables(VectorInt& seltab);
   void _convertResults();
   Id _calculateDriftBayes(bool verbose,
                           const VectorDouble& prior_mean,

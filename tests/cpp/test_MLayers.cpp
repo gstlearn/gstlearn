@@ -36,6 +36,7 @@ int main(int argc, char* argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   ASerializable::setPrefixName("test_Db-");
+  Id nbtuba = 100;
 
   Id nech          = 14;
   VectorDouble tab = {10., 10.0, 3.0, 1, 1,
@@ -59,20 +60,26 @@ int main(int argc, char* argv[])
   db->setLocators({"layer"}, ELoc::LAYER);
   db->display();
 
-  auto* grid        = DbGrid::create({100, 100});
-  VectorDouble gadd = VH::add(grid->getColumn("x1"), grid->getColumn("x2"));
-  VH::divideConstant(gadd, 200.);
-  (void)grid->addColumns(gadd, "reference");
-  grid->display();
-
   auto* neigh = NeighUnique::create();
   neigh->display();
 
+  auto* grid = DbGrid::create({100, 100});
+
+  VectorDouble gadd = VH::add(grid->getColumn("x1"), grid->getColumn("x2"));
+  VH::divideConstant(gadd, 200.);
+  (void)grid->addColumns(gadd, "reference");
+
+  auto* model = Model::createFromParam(ECov::SPHERICAL, 10, 0.05);
+  model->setDriftIRF(0);
+  (void)db->addSelectionByVariable("layer", 4, 4);
+  (void)simtub(db, grid, model, neigh, 1, 0, nbtuba);
+  grid->setName("Simu.z1", "bottom");
+  db->clearSelection();
+
   auto* sills = MatrixSymmetric::createFromDiagonal({1., 3., 2., 4.});
-  auto* model = Model::createFromParam(ECov::CUBIC, 40., 0., 0., VectorDouble(), *sills);
+  model       = Model::createFromParam(ECov::CUBIC, 40., 0., 0., VectorDouble(), *sills);
   model->display();
 
-  Id nbtuba    = 100;
   auto* modelT = Model::createFromParam(ECov::SPHERICAL, 10, 4);
   modelT->setMean(1000);
   (void)simtub(nullptr, grid, modelT, neigh, 1, 0, nbtuba);
@@ -91,18 +98,27 @@ int main(int argc, char* argv[])
   grid->setName("Simu", "Time1600");
 
   grid->setLocators({"Time*"}, ELoc::TIME);
+  grid->display();
 
   Id rank         = 1000;
   bool flag_same  = false;
-  bool flag_z     = true;
+  bool flag_Z     = true;
   bool flag_vel   = false;
-  bool flag_cumul = true;
+  bool flag_cumul = false;
   bool flag_ext   = false;
+  bool flag_std   = false;
+  bool match_time = false;
+  Id irf_rank     = 0;
 
   OptDbg::setReference(rank);
 
   (void)multilayers_getPrior(db, grid, model, flag_same, flag_vel, flag_ext);
-  (void)multilayers_kriging(db, grid, model, flag_same, flag_z, flag_vel, flag_cumul);
+  message("Done\n");
+  (void)multilayers_kriging(db, grid, model, flag_same, flag_Z, flag_vel, flag_cumul,
+                            flag_ext, flag_std, match_time, irf_rank,
+                            VectorDouble(), VectorDouble(),
+                            "reference", String(), "bottom");
+  grid->display();
 
   // MatrixDense* trace = MatrixDense::createFromVD({0, 50, 100, 0, 50, 100}, 3, 2);
   // trace->display();
