@@ -796,7 +796,7 @@ Id CalcAnamTransform::_uniformConditioning(Db* db,
       VectorDouble hn = hermitePolynomials(yv, 1., nbpoly);
       for (Id ih = 0; ih < nbpoly; ih++)
         hn[ih] *= pow(sv / r_coef, static_cast<double>(ih));
-      double metal = VH::innerProduct(hn, phi_b_zc[icut]);
+      double metal = VH::innerProductVD(hn, phi_b_zc[icut]);
 
       if (sv < sv_min) sv_min = sv;
       if (sv > sv_max) sv_max = sv;

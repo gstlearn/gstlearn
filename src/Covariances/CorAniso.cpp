@@ -1632,7 +1632,7 @@ void CorAniso::appendParams(ListParams& listparams,
 
         this->_dRot[i].prodMatVecInPlace(temp, res);
 
-        double dist2  = VH::innerProduct(res, incr);
+        double dist2  = VH::innerProductVD(res, incr);
         double result = deriv * dist2;
         return result;
       });

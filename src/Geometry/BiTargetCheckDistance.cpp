@@ -169,7 +169,7 @@ void BiTargetCheckDistance::_calculateDistance() const
 
   /* Calculate the distance */
 
-  _dist = sqrt(VH::norm(_movingIncr));
+  _dist = VH::norm(_movingIncr);
 }
 
 bool BiTargetCheckDistance::isOK(const SpaceTarget& T1,

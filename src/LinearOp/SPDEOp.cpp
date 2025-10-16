@@ -411,7 +411,7 @@ double ASPDEOp::computeLogDetOp(Id nbsimu) const
     VH::simulateGaussianInPlace(_workNoiseMesh);
     std::fill(_workmesh.begin(), _workmesh.end(), 0.);
     logPoly.addEvalOp(this, _workNoiseMesh, _workmesh);
-    val += VH::innerProduct(_workNoiseMesh, _workmesh);
+    val += VH::innerProductVD(_workNoiseMesh, _workmesh);
   }
   return val / nbsimu;
 }

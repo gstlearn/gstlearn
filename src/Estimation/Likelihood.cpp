@@ -121,7 +121,7 @@ void Likelihood::evalGrad(vect res)
   {
     _fillGradCovMat(rkh, gradcov[iparam]);
     _gradCovMat.prodMatVecInPlace(_Cm1Yc, _temp);
-    double dquad = -VH::innerProduct(_Cm1Yc, _temp);
+    double dquad = -VH::innerProductVD(_Cm1Yc, _temp);
     res[iparam]  = 0.0;
     if (_reml && _model->getNDriftEquation() > 0)
     {

@@ -163,7 +163,7 @@ double PrecisionOpMultiConditional::computeLogDetOp(Id nbsimu) const
       vect w1s(_work1);
       vect w1bis(_work1bis);
       logPoly.addEvalOp(_multiPrecisionOp[j], w1s, w1bis);
-      val += VH::innerProduct(_work1bis, _work1);
+      val += VH::innerProductVec(_work1bis, _work1);
     }
   }
   return val / nbsimu;
@@ -216,7 +216,7 @@ double PrecisionOpMultiConditional::computeTotalLogDet(Id nMC, bool verbose, Id 
 double PrecisionOpMultiConditional::computeQuadratic(const std::vector<double>& x) const
 {
   evalInvCov(x, _work1ter);
-  return VH::innerProduct(_work1ter, x);
+  return VH::innerProductVec(_work1ter, x);
 }
 
 void PrecisionOpMultiConditional::_AtA(const std::vector<std::vector<double>>& inv, std::vector<std::vector<double>>& outv) const

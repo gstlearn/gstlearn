@@ -196,7 +196,7 @@ static double st_essai(const VectorDouble& hgnadm,
                        const VectorDouble& grad_red,
                        MatrixSquare& gauss_red)
 {
-  double v1     = VH::innerProduct(hgnadm, grad_red);
+  double v1     = VH::innerProductVD(hgnadm, grad_red);
   double v2     = gauss_red.normVec(hgnadm);
   double result = v1 + v2 / 2.;
 

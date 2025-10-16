@@ -1062,18 +1062,19 @@ Id MLayers::_prepareCollocation(Id iechout,
   double botval = _dbout->getArray(iechout, _colrefB);
   if (_colrefD >= 0)
     botval -= _dbout->getArray(iechout, _colrefD);
-  if (_getPropsResult(iechout, _nlayers, prop1)) return (1);
+
+  if (_getPropsResult(iechout, _nlayers, prop1)) return 1;
   double c0 = _getCIJ(_nlayers, prop1, _nlayers, prop1, VectorDouble(), covtab);
-  if (FFFF(c0)) return (1);
+  if (FFFF(c0)) return 1;
 
   if (_computeLhsOne(seltab, iechout, _nlayers, coor,
-                     prop1, prop2, covtab, baux)) return (1);
+                     prop1, prop2, covtab, baux)) return 1;
   a->prodMatVecInPlace(baux, b2);
   double coefz = VH::innerProductVD(b2, zval);
   double coefa = VH::innerProductVD(b2, baux);
   (*ratio)     = (ABS(c0 - coefa) > 1.e-6) ? (botval - coefz) / (c0 - coefa) : 0.;
 
-  return (0);
+  return 0;
 }
 
 /****************************************************************************/
@@ -1884,6 +1885,7 @@ Id MLayers::_getPrior(Id nech,
   btab0.fill(0.);
   mean.fill(0.);
   vars.fill(0.);
+  result.fill(0.);
 
   /* Loop on the data */
 
@@ -1935,6 +1937,12 @@ Id MLayers::_getPrior(Id nech,
   return 0;
 }
 
+/**
+ * @brief Check if the environment is valid
+ *
+ * @return true
+ * @return false
+ */
 bool MLayers::checkValid()
 {
   if (_dbin->getNDim() != 2)
