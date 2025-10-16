@@ -1,3 +1,4 @@
 exportPattern("*")
 
 useDynLib($<TARGET_FILE_BASE_NAME:r_build>)
+$<$<PLATFORM_ID:Darwin>:useDynLib(libomp)>
