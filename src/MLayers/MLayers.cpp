@@ -1308,8 +1308,6 @@ void MLayers::_estimate(VectorInt& seltab,
                        &estim, &stdv);
       else
         _estimateRegular(c00[ilayer], a, b, dual, wgt, &estim, &stdv);
-      // TODO a supprimer dans la version finale ... apres DEBUG
-      message("Estimate parasite = %lf\n", ilayer + 1, estim);
 
       /* Perform the correction (in case of collocated bottom) */
 
@@ -1329,6 +1327,7 @@ void MLayers::_estimate(VectorInt& seltab,
       {
         // TODO a supprimer dans la version finale ... apres DEBUG
         message("Traitement pour debug\n");
+        message("flagbayes = %d\n", _flagBayes);
         VH::dump("dual", dual);
         VH::dump("b", b);
         message("Estimate = %lf", ilayer + 1, estim);
