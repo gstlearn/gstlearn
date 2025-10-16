@@ -153,19 +153,19 @@ Data Base Statistics
 7 - Name Neigh.Var.MaxDist - Locator NA
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =      5.954
- Maximum value       =      7.307
- Mean value          =      6.610
- Standard Deviation  =      0.304
- Variance            =      0.093
+ Minimum value       =     35.453
+ Maximum value       =     53.389
+ Mean value          =     43.790
+ Standard Deviation  =      4.025
+ Variance            =     16.197
 8 - Name Neigh.Var.MinDist - Locator NA
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =      0.403
- Maximum value       =      4.163
- Mean value          =      2.567
- Standard Deviation  =      0.656
- Variance            =      0.430
+ Minimum value       =      0.163
+ Maximum value       =     17.333
+ Mean value          =      7.019
+ Standard Deviation  =      3.235
+ Variance            =     10.464
 9 - Name Neigh.Var.NbNESect - Locator NA
  Nb of data          =       2500
  Nb of active values =       2500

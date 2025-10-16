@@ -1265,12 +1265,10 @@ double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy)
 
   // Vector orthogonal to the tilted plane
   VectorDouble vort(ndim);
-  vort[0]      = dzoverdx;
-  vort[1]      = dzoverdy;
-  vort[2]      = -1.;
-  double norme = VH::norm(vort);
-  for (Id idim = 0; idim < ndim; idim++)
-    vort[idim] /= norme;
+  vort[0] = dzoverdx;
+  vort[1] = dzoverdy;
+  vort[2] = -1.;
+  VH::normalize(vort);
 
   // Cross product
   VectorDouble axis(ndim, 0.);
@@ -1305,12 +1303,10 @@ MatrixSquare GeometryHelper::gradXYToRotmat(double dzoverdx,
 
   // Vector orthogonal to the tilted plane
   VectorDouble vort(ndim);
-  vort[0]      = dzoverdx;
-  vort[1]      = dzoverdy;
-  vort[2]      = -1.;
-  double norme = VH::norm(vort);
-  for (Id idim = 0; idim < ndim; idim++)
-    vort[idim] /= norme;
+  vort[0] = dzoverdx;
+  vort[1] = dzoverdy;
+  vort[2] = -1.;
+  VH::normalize(vort);
 
   // Cross product
   axis[0] = vort[1];
