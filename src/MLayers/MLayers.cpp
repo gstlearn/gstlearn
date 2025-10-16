@@ -1097,10 +1097,10 @@ void MLayers::_estimateRegular(double c00,
                                VectorDouble& b,
                                VectorDouble& dual,
                                VectorDouble& wgt,
-                               double* estim,
-                               double* stdev) const
+                               double& estim,
+                               double& stdev) const
 {
-  *estim = VH::innerProductVD(dual, b);
+  estim = VH::innerProductVD(dual, b);
 
   /* Perform the variance of estimation error */
 
@@ -1116,7 +1116,7 @@ void MLayers::_estimateRegular(double c00,
       stdv = c00val - VH::innerProductVD(b, wgt);
       stdv = (stdv > 0) ? sqrt(stdv) : 0.;
     }
-    *stdev = stdv;
+    stdev = stdv;
   }
 }
 
@@ -1149,8 +1149,8 @@ void MLayers::_estimateBayes(double c00,
                              MatrixSquare& cc,
                              MatrixDense& ss,
                              const MatrixSquare& gs,
-                             double* estim,
-                             double* stdev) const
+                             double& estim,
+                             double& stdev) const
 {
   VectorDouble ff0(b.begin() + _nech, b.end());
 
@@ -1169,7 +1169,7 @@ void MLayers::_estimateBayes(double c00,
 
   double estim1 = VH::innerProductVD(wgt, zval);
   double estim2 = VH::innerProductVD(ff0, post_mean);
-  *estim        = estim1 + estim2;
+  estim         = estim1 + estim2;
 
   /* Calculate the standard deviation */
 
@@ -1188,8 +1188,7 @@ void MLayers::_estimateBayes(double c00,
       for (Id jpar = 0; jpar < _npar; jpar++)
         stdv += temp[ipar] * gs.getValue(ipar, jpar) * temp[jpar];
 
-    stdv   = (stdv > 0) ? sqrt(stdv) : 0.;
-    *stdev = stdv;
+    stdev = (stdv > 0) ? sqrt(stdv) : 0.;
   }
 }
 
@@ -1307,9 +1306,9 @@ void MLayers::_estimate(VectorInt& seltab,
       estim = stdv = TEST;
       if (_flagBayes)
         _estimateBayes(c00[ilayer], a, zval, b, wgt, post_mean, a0, cc, ss, gs,
-                       &estim, &stdv);
+                       estim, stdv);
       else
-        _estimateRegular(c00[ilayer], a, b, dual, wgt, &estim, &stdv);
+        _estimateRegular(c00[ilayer], a, b, dual, wgt, estim, stdv);
 
       /* Perform the correction (in case of collocated bottom) */
 
@@ -1332,7 +1331,7 @@ void MLayers::_estimate(VectorInt& seltab,
         message("flagbayes = %d\n", _flagBayes);
         VH::dump("dual", dual);
         VH::dump("b", b);
-        message("Estimate = %lf", ilayer + 1, estim);
+        message("Estimate = %lf", estim);
         if (_flagStd) message(" - Variance = %lf", stdv * stdv);
         message("\n");
       }

@@ -132,8 +132,8 @@ private:
                         VectorDouble& b,
                         VectorDouble& dual,
                         VectorDouble& wgt,
-                        double* estim,
-                        double* stdev) const;
+                        double& estim,
+                        double& stdev) const;
   void _estimateBayes(double c00,
                       const MatrixSquare* acov,
                       VectorDouble& zval,
@@ -144,8 +144,8 @@ private:
                       MatrixSquare& cc,
                       MatrixDense& ss,
                       const MatrixSquare& gs,
-                      double* estim,
-                      double* stdev) const;
+                      double& estim,
+                      double& stdev) const;
   void _estimate(VectorInt& seltab,
                  MatrixSquare* a,
                  VectorDouble& zval,
