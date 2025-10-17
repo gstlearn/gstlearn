@@ -629,4 +629,4 @@ MatrixDense CovList::simulateSpectralOmega(Id ns) const
   return getCov(0)->simulateSpectralOmega(ns);
 }
 
-}
+} // namespace gstlrn

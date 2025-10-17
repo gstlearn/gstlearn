@@ -133,6 +133,7 @@ public:
     DECLARE_UNUSED(iech1);
     DECLARE_UNUSED(icas2);
     DECLARE_UNUSED(iech2);
+    message("ACov::updateCovByPoints: Not implemented");
   }
 
   void attachNoStatDb(const Db* db);
@@ -478,14 +479,6 @@ public:
                             Id iv2 = 0) const;
   void informDbIn(const Db* dbin) const;
   void informDbOut(const Db* dbout) const;
-  virtual void updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2)
-  {
-    DECLARE_UNUSED(icas1);
-    DECLARE_UNUSED(iech1);
-    DECLARE_UNUSED(icas2);
-    DECLARE_UNUSED(iech2);
-    message("ACov::updateCovByPoints: Not implemented");
-  }
   Id getNDim(Id ispace = -1) const { return static_cast<Id>(_ctxt.getNDim(ispace)); }
   void optimizationPreProcessForData(const Db* db1 = nullptr) const;
   virtual void setOptimEnabled(bool enabled) const { _optimEnabled = enabled; }
