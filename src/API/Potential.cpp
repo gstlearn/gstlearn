@@ -155,6 +155,7 @@ bool Potential::_isEnvironmentValid(DbGrid* dbout, Id nring)
   if (dbout == NULL && next > 0)
   {
     messerr("Usage of External drift is forbidden without Output Grid");
+    return false;
   }
   if (next > 0)
   {
@@ -164,7 +165,7 @@ bool Potential::_isEnvironmentValid(DbGrid* dbout, Id nring)
       messerr("Check your output file");
       return false;
     }
-    if (!dbout->isGrid())
+    if (!dbout || !dbout->isGrid())
     {
       messerr("The External Drift requires an Output Grid File");
       return false;

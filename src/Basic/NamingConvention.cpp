@@ -597,6 +597,8 @@ VectorString NamingConvention::_createSimulationNames(const VectorString &names,
                                                       Id nbsimu,
                                                       bool flagSimuFirst) const
 {
+  if (nvar <= 0 || nbsimu <= 0) return {};
+
   VectorString outnames;
   
   // Determine variable names
@@ -669,4 +671,4 @@ String NamingConvention::toString(const AStringFormat* /*strfmt*/) const
 
   return sstr.str();
 }
-}
+} // namespace gstlrn
