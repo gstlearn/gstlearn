@@ -113,12 +113,10 @@ int main(int argc, char* argv[])
   OptDbg::setReference(rank);
 
   (void)multilayers_getPrior(db, grid, model, flag_same, flag_vel, flag_ext);
-  message("Done\n");
   (void)multilayers_kriging(db, grid, model, flag_same, flag_Z, flag_vel, flag_cumul,
                             flag_ext, flag_std, match_time, irf_rank,
                             VectorDouble(), VectorDouble(),
                             "reference", String(), "bottom");
-  grid->display();
 
   // MatrixDense* trace = MatrixDense::createFromVD({0, 50, 100, 0, 50, 100}, 3, 2);
   // trace->display();
