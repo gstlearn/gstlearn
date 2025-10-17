@@ -71,7 +71,7 @@ public:
   virtual std::shared_ptr<const ASpace> getComponent(Id ispace = -1) const;
 
   /// Dump a space in a string (given the space index)
-  virtual String toString(const AStringFormat* strfmt, Id ispace) const;
+  virtual String toStringIdx(const AStringFormat* strfmt, Id ispace) const;
 
   /// Return true if the given space is equal to me (same dimension and space
   /// definition)

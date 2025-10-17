@@ -113,17 +113,17 @@ ASpaceSharedPtr SpaceComposite::getComponent(Id ispace) const
   return _comps[ispace];
 }
 
-String SpaceComposite::toString(const AStringFormat* strfmt, Id ispace) const
+String SpaceComposite::toStringIdx(const AStringFormat* strfmt, Id ispace) const
 {
   DECLARE_UNUSED(ispace)
   std::stringstream sstr;
-  sstr << ASpace::toString(strfmt, -1);
+  sstr << ASpace::toStringIdx(strfmt, -1);
   if (strfmt != nullptr && strfmt->getLevel() == 0) sstr << ": ";
   auto nc = static_cast<Id>(getNComponents());
   for (Id idx = 0; idx < nc; idx++)
   {
     const auto c = getComponent(idx);
-    sstr << c->toString(strfmt, idx);
+    sstr << c->toStringIdx(strfmt, idx);
     if (idx < nc - 1 && strfmt != nullptr && strfmt->getLevel() == 0) sstr << " + ";
   }
   if (strfmt != nullptr && strfmt->getLevel() == 0) sstr << std::endl;
