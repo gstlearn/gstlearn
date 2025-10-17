@@ -97,6 +97,7 @@ jobs:
       run : |
         cmake `
           -B${{ env.BUILD_DIR }} `
+          -DCMAKE_COMPILE_WARNING_AS_ERROR=ON `
           -A ${{matrix.arch.of}} `
           -DBUILD_PYTHON=ON `
           -DBUILD_R=OFF `
