@@ -123,10 +123,10 @@ DriftM* DriftM::createByIdentifier(const String& driftname)
   while (input.size() > 0)
   {
     // Decode the character "x"
-    substring = "x";
-    found     = input.find(substring);
+    auto subchar = 'x';
+    found        = input.find(subchar);
     if (found != 0) return nullptr;
-    input = input.substr(substring.size(), input.size() - 1);
+    input = input.substr(1, input.size() - 1);
 
     // Decode the power
     Id rank = atoi(input.c_str());
@@ -135,25 +135,25 @@ DriftM* DriftM::createByIdentifier(const String& driftname)
 
     // Attempt to read the exponentiation
     Id power = 1;
-    substring = "^";
-    found     = input.find(substring);
+    subchar  = '^';
+    found    = input.find(subchar);
     if (found == 0)
     {
       // Attempt to read the exponent
-      input = input.substr(substring.size(), input.size() - 1);
+      input = input.substr(1, input.size() - 1);
       power = atoi(input.c_str());
       input = input.substr(1, input.size() - 1);
     }
 
     // Attempt to read the character "*"
-    substring = "*";
-    found     = input.find(substring);
+    subchar = '*';
+    found   = input.find(subchar);
 
     // Concatenate the results
     powers[rank - 1] = power;
 
     if (found != 0) break;
-    input = input.substr(substring.size(), input.size() - 1);
+    input = input.substr(1, input.size() - 1);
   }
 
   // Final Resizing
