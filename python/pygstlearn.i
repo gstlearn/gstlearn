@@ -674,7 +674,7 @@ namespace gstlrn
   int matrixDenseFromCpp(PyObject** obj, const gstlrn::MatrixDense& mat)
   {
     // Conversion to a 2D numpy array
-    npy_intp dims[2] = { mat.getNRows(), mat.getNCols() };
+    npy_intp dims[2] = { static_cast<npy_intp>(mat.getNRows()), static_cast<npy_intp>(mat.getNCols()) };
     *obj = PyArray_SimpleNew(2, dims, numpyType<double>());
     if (*obj == NULL) return SWIG_TypeError;
 
@@ -707,7 +707,7 @@ namespace gstlrn
     auto ncols = mat.getNCols();
 
     NF_Triplet NFT = mat.getMatrixToTriplet();
-    const npy_intp nnz = NFT.getNElements();
+    const npy_intp nnz = static_cast<npy_intp>(NFT.getNElements());
 
     // Create 1D NumPy arrays for row indices, column indices, and values
     npy_intp dim[1] = {nnz};
