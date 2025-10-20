@@ -248,7 +248,7 @@ public:
 
   /// Tell if the use of Optimization is enabled or not
 
-  void updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) override;
+  void updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const override;
   void updateCovByMesh(Id imesh, bool aniso = true) const override;
   double getValue(const EConsElem& econs, Id iv1, Id iv2) const override;
   void computeCorrec();

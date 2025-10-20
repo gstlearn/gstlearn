@@ -2534,5 +2534,4 @@ MatrixDense ACov::simulateSpectralOmega(Id ns) const
   message("ACov::simulateSpectralOmega: Not implemented");
   return MatrixDense();
 }
-}
-
+} // namespace gstlrn

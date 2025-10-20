@@ -59,7 +59,7 @@ public:
   ASpaceSharedPtr getComponent(Id ispace = -1) const override;
 
   /// Dump a space in a string (given the space index)
-  String toString(const AStringFormat* strfmt = nullptr, Id ispace = 0) const override;
+  String toStringIdx(const AStringFormat* strfmt = nullptr, Id ispace = 0) const override;
 
   /// Return true if the given space is equal to me (same dimension and space
   /// definition)

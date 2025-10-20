@@ -62,7 +62,7 @@ ASpace::~ASpace()
 String ASpace::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << toString(strfmt, -1);
+  sstr << toStringIdx(strfmt, -1);
   if (strfmt != nullptr && strfmt->getLevel() == 0) sstr << std::endl;
   return sstr.str();
 }
@@ -119,7 +119,7 @@ ASpaceSharedPtr ASpace::getComponent(Id ispace) const
 }
 
 /// Dump a space in a string (given the space index)
-String ASpace::toString(const AStringFormat* strfmt, Id ispace) const
+String ASpace::toStringIdx(const AStringFormat* strfmt, Id ispace) const
 {
   std::stringstream sstr;
   if (strfmt != nullptr && strfmt->getLevel() == 0)

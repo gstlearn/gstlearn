@@ -32,6 +32,7 @@ else()
     -Wnon-virtual-dtor
     -Wvla
     -Wundef
+    -Woverloaded-virtual
   )
   if (APPLE)
     add_compile_options(-Wno-absolute-value -Wno-inconsistent-missing-override)

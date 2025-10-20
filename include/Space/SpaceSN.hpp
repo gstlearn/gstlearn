@@ -40,8 +40,8 @@ public:
   double getRadius() const { return _radius; }
 
   /// Dump a space in a string
-  virtual String toString(const AStringFormat* strfmt,
-                          Id idx = -1) const override;
+  String toStringIdx(const AStringFormat* strfmt,
+                     Id idx = -1) const override;
 
   /// Return true if the given space is equal to me
   bool isEqual(const ASpace *space) const override;

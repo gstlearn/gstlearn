@@ -1348,7 +1348,7 @@ void CorAniso::informDbOutForAnisotropy(const Db* dbout) const
  * @param icas2 Type of first Db: 1 for Input; 2 for Output
  * @param iech2 Rank of the target within Dbout (or -2)
  */
-void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2)
+void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2) const
 {
   // If no non-stationary parameter is defined, simply skip
   if (!getTabNoStatCovAniso()->isNoStat()) return;
@@ -1366,7 +1366,7 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2)
 
     if (type == EConsElem::PARAM)
     {
-      setParam(0.5 * (val1 + val2));
+      const_cast<CorAniso*>(this)->setParam(0.5 * (val1 + val2));
     }
   }
 
@@ -1464,7 +1464,7 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2)
     // Update the tensor (squared version)
     Tensor tensor = getAniso();
     tensor.setTensorDirect2(direct2);
-    setAniso(tensor);
+    const_cast<CorAniso*>(this)->setAniso(tensor);
     ratio = det1 * det2 / detM;
   }
   else if (flagRotOne || flagRangeOne || flagScaleOne)
@@ -1472,7 +1472,7 @@ void CorAniso::updateCovByPoints(Id icas1, Id iech1, Id icas2, Id iech2)
     // Simply update the model with one set of parameters
     setRotationAnglesAndRadius(angle1, range1, scale1);
   }
-  setNoStatFactor(ratio);
+  const_cast<CorAniso*>(this)->setNoStatFactor(ratio);
 }
 
 void CorAniso::updateCovByMesh(Id imesh, bool aniso) const
