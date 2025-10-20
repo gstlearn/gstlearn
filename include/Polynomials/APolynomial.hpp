@@ -39,10 +39,6 @@ public:
   void init(const VectorDouble& coeffs);
   virtual double eval(double x) const = 0;
 #ifndef SWIG
-  virtual void evalOp(MatrixSparse* Op,
-                      const VectorDouble& inv,
-                      VectorDouble& outv) const { DECLARE_UNUSED(Op,inv,outv);} //TODO write it by calling Eigen version;
-  
   virtual void evalOp(MatrixSparse* Op, const constvect inv, vect outv) const = 0;
   VectorDouble evalOp(MatrixSparse* Op, const constvect inv) const;
   virtual void evalOpTraining(MatrixSparse* Op,
