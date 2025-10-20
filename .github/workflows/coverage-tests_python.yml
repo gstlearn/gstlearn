@@ -30,12 +30,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install dependencies
-      if: ${{ contains(matrix.os, 'macos') }}
-      run: |
-        brew install llvm
-      shell: bash
-
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
