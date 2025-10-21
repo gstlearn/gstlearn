@@ -597,6 +597,8 @@ VectorString NamingConvention::_createSimulationNames(const VectorString &names,
                                                       Id nbsimu,
                                                       bool flagSimuFirst) const
 {
+  if (nvar <= 0 || nbsimu <= 0) return {};
+
   VectorString outnames;
   
   // Determine variable names
@@ -615,7 +617,7 @@ VectorString NamingConvention::_createSimulationNames(const VectorString &names,
     // Non-conditional simulation: use V1, V2, ... format
     for (Id ivar = 0; ivar < nvar; ivar++)
     {
-      String varname = "V" + std::to_string(ivar + 1);
+      String varname = 'V' + std::to_string(ivar + 1);
       varnames.push_back(varname);
     }
   }
@@ -628,7 +630,7 @@ VectorString NamingConvention::_createSimulationNames(const VectorString &names,
     {
       for (Id isimu = 0; isimu < nbsimu; isimu++)
       {
-        String simuname = "S" + std::to_string(isimu + 1);
+        String simuname = 'S' + std::to_string(isimu + 1);
         String name = concatenateStrings(_delim, _prefix, varnames[ivar], simuname);
         if (name.empty()) name = "Dummy";
         outnames.push_back(name);
@@ -642,7 +644,7 @@ VectorString NamingConvention::_createSimulationNames(const VectorString &names,
     {
       for (Id ivar = 0; ivar < nvar; ivar++)
       {
-        String simuname = "S" + std::to_string(isimu + 1);
+        String simuname = 'S' + std::to_string(isimu + 1);
         String name = concatenateStrings(_delim, _prefix, varnames[ivar], simuname);
         if (name.empty()) name = "Dummy";
         outnames.push_back(name);
@@ -669,4 +671,4 @@ String NamingConvention::toString(const AStringFormat* /*strfmt*/) const
 
   return sstr.str();
 }
-}
+} // namespace gstlrn

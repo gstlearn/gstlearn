@@ -2542,6 +2542,7 @@ VectorDouble ut_legendreVec(Id n, const VectorDouble& vecin, bool flagNorm)
 MatrixDense ut_legendreMatNorm(Id n, const VectorDouble& v)
 {
   Id nrow = static_cast<Id>(v.size());
+  if (nrow <= 0) return {};
   Id ncol = n + 1;
   MatrixDense res(nrow, ncol);
 
