@@ -131,7 +131,8 @@ Id matrix_prod_norme(Id transpose, Id n1, Id n2, const double* v1, const double*
       mata.resetFromArray(n2, n2, a);
       matw.reset(n1, n1);
     }
-    matw.prodNormMatMatInPlace(&matv1, &mata, transpose);
+    bool local_transpose = transpose < 0;
+    matw.prodNormMatMatInPlace(&matv1, &mata, local_transpose);
     (void)memcpy(w, matw.getValues().data(), matw.getNSize() * sizeof(double));
     return 0;
   }
@@ -207,7 +208,7 @@ Id matrix_prod_norme(Id transpose, Id n1, Id n2, const double* v1, const double*
  ** \remark  The matrix w1[] may NOT coincide with v1[]
  **
  *****************************************************************************/
-void matrix_transpose(Id n1, Id n2, VectorDouble& v1, VectorDouble& w1)
+void matrix_transpose(Id n1, Id n2, const VectorDouble& v1, VectorDouble& w1)
 {
   if (RENARD)
   {
@@ -221,6 +222,23 @@ void matrix_transpose(Id n1, Id n2, VectorDouble& v1, VectorDouble& w1)
   for (Id i1 = 0; i1 < n1; i1++)
     for (Id i2 = 0; i2 < n2; i2++)
       w1[ecr++] = V1(i1, i2);
+}
+
+/**
+ * @brief This is temporary matrix inversion function.
+ * It is meant to perform a soft transition before suppressing the old matrix material
+ *
+ * @param mata MatrixSquare to be inverted (in place)
+ * @param neq Dimension of the matrix (not used)
+ * @param rank Rank when inversion problem (not used)
+ * @return Id Returned value
+ */
+Id matrix_invertFromMatrixSquare(MatrixSquare* mata, Id neq, Id rank)
+{
+  DECLARE_UNUSED(neq);
+  DECLARE_UNUSED(rank);
+  mata->invert();
+  return 0;
 }
 
 /*****************************************************************************/

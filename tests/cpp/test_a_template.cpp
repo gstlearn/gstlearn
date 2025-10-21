@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/ASerializable.hpp"
 #include "geoslib_define.h"
 
 using namespace gstlrn;
@@ -17,11 +16,6 @@ int main(int argc, char* argv[])
 {
   DECLARE_UNUSED(argc);
   DECLARE_UNUSED(argv);
-
-  std::stringstream sfn;
-  sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str(), argc, argv);
-  ASerializable::setPrefixName("test_a_template-");
 
   return 0;
 }

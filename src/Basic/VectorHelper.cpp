@@ -325,7 +325,7 @@ bool VectorHelper::hasUndefined(const VectorDouble& vec)
   return false;
 }
 
-Id VectorHelper::maximum(const VectorInt& vec, bool flagAbs)
+Id VectorHelper::maximumVI(const VectorInt& vec, bool flagAbs)
 {
   if (vec.size() <= 0) return 0;
   Id max = -10000000;
@@ -346,7 +346,7 @@ double VectorHelper::maximum(const std::vector<std::vector<double>>& vec, bool f
   return val;
 }
 
-double VectorHelper::maximum(const VectorVectorDouble& vect, bool flagAbs)
+double VectorHelper::maximumVVD(const VectorVectorDouble& vect, bool flagAbs)
 {
   double val = VH::maximum(vect[0]);
   for (Id i = 1, n = static_cast<Id>(vect.size()); i < n; i++)
@@ -354,7 +354,7 @@ double VectorHelper::maximum(const VectorVectorDouble& vect, bool flagAbs)
   return val;
 }
 
-Id VectorHelper::minimum(const VectorInt& vec, bool flagAbs)
+Id VectorHelper::minimumVI(const VectorInt& vec, bool flagAbs)
 {
   if (vec.size() <= 0) return 0;
   Id min = 10000000;
@@ -489,11 +489,11 @@ double VectorHelper::minimum(const VectorDouble& vec, bool flagAbs, const Vector
   return (min);
 }
 
-double VectorHelper::minimum(const VectorVectorDouble& vect, bool flagAbs)
+double VectorHelper::minimumVVD(const VectorVectorDouble& vect, bool flagAbs)
 {
   double val = VH::minimum(vect[0]);
   for (Id i = 1, n = static_cast<Id>(vect.size()); i < n; i++)
-    val = MAX(val, VH::minimum(vect[i], flagAbs));
+    val = MIN(val, VH::minimum(vect[i], flagAbs));
   return val;
 }
 
@@ -686,13 +686,13 @@ double VectorHelper::stdv(const VectorDouble& vec, bool scaleByN)
 
 double VectorHelper::norm(const VectorDouble& vec)
 {
-  double ip = innerProduct(vec, vec);
+  double ip = innerProductVD(vec, vec);
   return sqrt(ip);
 }
 
 double VectorHelper::norm(const std::vector<double>& vec)
 {
-  double ip = innerProduct(vec, vec);
+  double ip = innerProductVec(vec, vec);
   return sqrt(ip);
 }
 
@@ -938,8 +938,8 @@ bool VectorHelper::isConstant(const VectorInt& vect, Id refval)
 bool VectorHelper::isEqual(const VectorDouble& v1, const VectorDouble& v2, double eps)
 {
   if (v1.size() != v2.size()) return false;
-  VectorDouble::const_iterator it1(v1.begin());
-  VectorDouble::const_iterator it2(v2.begin());
+  auto it1(v1.begin());
+  auto it2(v2.begin());
   while (it1 < v1.end())
   {
     if (ABS(*it1 - *it2) > eps) return false;
@@ -952,8 +952,8 @@ bool VectorHelper::isEqual(const VectorDouble& v1, const VectorDouble& v2, doubl
 bool VectorHelper::isEqual(const VectorInt& v1, const VectorInt& v2)
 {
   if (v1.size() != v2.size()) return false;
-  VectorInt::const_iterator it1(v1.begin());
-  VectorInt::const_iterator it2(v2.begin());
+  auto it1(v1.begin());
+  auto it2(v2.begin());
   while (it1 < v1.end())
   {
     if (*it1 != *it2) return false;
@@ -985,7 +985,7 @@ void VectorHelper::fill(VectorVectorDouble& vec, double value)
 
 void VectorHelper::fillUndef(VectorDouble& vec, double repl)
 {
-  VectorDouble::iterator it(vec.begin());
+  auto it(vec.begin());
   while (it < vec.end())
   {
     if (FFFF(*it)) *it = repl;
@@ -1050,7 +1050,7 @@ VectorDouble VectorHelper::sequenceVD(double valFrom,
 VectorDouble VectorHelper::simulateUniform(Id n, double mini, double maxi)
 {
   VectorDouble vec(n);
-  VectorDouble::iterator it(vec.begin());
+  auto it(vec.begin());
   while (it < vec.end())
   {
     *it = law_uniform(mini, maxi);
@@ -1062,7 +1062,7 @@ VectorDouble VectorHelper::simulateUniform(Id n, double mini, double maxi)
 VectorDouble VectorHelper::simulateBernoulli(Id n, double proba, double vone, double velse)
 {
   VectorDouble vec(n);
-  VectorDouble::iterator it(vec.begin());
+  auto it(vec.begin());
   while (it < vec.end())
   {
     double rand = law_uniform(0., 1.);
@@ -1086,7 +1086,7 @@ void VectorHelper::simulateGaussianInPlace(VectorDouble& vec,
                                            double mean,
                                            double sigma)
 {
-  VectorDouble::iterator it(vec.begin());
+  auto it(vec.begin());
   while (it < vec.end())
   {
     *it = mean + sigma * law_gaussian();
@@ -1098,7 +1098,7 @@ void VectorHelper::simulateGaussianInPlace(std::vector<double>& vec,
                                            double mean,
                                            double sigma)
 {
-  std::vector<double>::iterator it(vec.begin());
+  auto it(vec.begin());
   while (it < vec.end())
   {
     *it = mean + sigma * law_gaussian();
@@ -1165,8 +1165,8 @@ void VectorHelper::cumulate(VectorDouble& veca,
     return;
   }
 
-  VectorDouble::iterator ita(veca.begin());
-  VectorDouble::const_iterator itb(vecb.begin());
+  auto ita(veca.begin());
+  auto itb(vecb.begin());
   while (ita < veca.end())
   {
     *ita += coeff * (*itb) + addval;
@@ -1269,9 +1269,9 @@ VectorDouble VectorHelper::add(const VectorDouble& veca, const VectorDouble& vec
   }
 
   VectorDouble res(veca.size());
-  VectorDouble::iterator it(res.begin());
-  VectorDouble::const_iterator ita(veca.begin());
-  VectorDouble::const_iterator itb(vecb.begin());
+  auto it(res.begin());
+  auto ita(veca.begin());
+  auto itb(vecb.begin());
 
   while (it < res.end())
   {
@@ -1296,8 +1296,8 @@ void VectorHelper::addInPlace(VectorDouble& dest, const VectorDouble& src)
     return;
   }
 
-  VectorDouble::iterator itd(dest.begin());
-  VectorDouble::const_iterator its(src.begin());
+  auto itd(dest.begin());
+  auto its(src.begin());
   while (itd < dest.end())
   {
     *itd += *its;
@@ -1315,8 +1315,8 @@ void VectorHelper::addInPlace(VectorInt& dest, const VectorInt& src)
     return;
   }
 
-  VectorInt::iterator itd(dest.begin());
-  VectorInt::const_iterator its(src.begin());
+  auto itd(dest.begin());
+  auto its(src.begin());
   while (itd < dest.end())
   {
     *itd += *its;
@@ -1342,8 +1342,8 @@ void VectorHelper::addInPlace(std::vector<double>& dest, const std::vector<doubl
     return;
   }
 
-  VectorDouble::iterator itd(dest.begin());
-  VectorDouble::const_iterator its(src.begin());
+  auto itd(dest.begin());
+  auto its(src.begin());
   while (itd < dest.end())
   {
     *itd += *its;
@@ -1365,8 +1365,8 @@ void VectorHelper::addSquareInPlace(VectorDouble& dest, const VectorDouble& src)
     return;
   }
 
-  VectorDouble::iterator itd(dest.begin());
-  VectorDouble::const_iterator its(src.begin());
+  auto itd(dest.begin());
+  auto its(src.begin());
   while (itd < dest.end())
   {
     *itd += (*its) * (*its);
@@ -1479,9 +1479,9 @@ VectorDouble VectorHelper::subtract(const VectorDouble& veca,
     my_throw("Wrong size");
 
   VectorDouble res(veca.size());
-  VectorDouble::iterator it(res.begin());
-  VectorDouble::const_iterator ita(veca.begin());
-  VectorDouble::const_iterator itb(vecb.begin());
+  auto it(res.begin());
+  auto ita(veca.begin());
+  auto itb(vecb.begin());
   while (it < res.end())
   {
     *it = *itb - *ita;
@@ -1505,9 +1505,9 @@ VectorInt VectorHelper::subtract(const VectorInt& veca,
     my_throw("Wrong size");
 
   VectorInt res(veca.size());
-  VectorInt::iterator it(res.begin());
-  VectorInt::const_iterator ita(veca.begin());
-  VectorInt::const_iterator itb(vecb.begin());
+  auto it(res.begin());
+  auto ita(veca.begin());
+  auto itb(vecb.begin());
   while (it < res.end())
   {
     *it = *itb - *ita;
@@ -1529,8 +1529,8 @@ void VectorHelper::subtractInPlace(VectorDouble& dest, const VectorDouble& src)
   if (dest.size() != src.size())
     my_throw("Wrong size");
 
-  VectorDouble::iterator itd(dest.begin());
-  VectorDouble::const_iterator its(src.begin());
+  auto itd(dest.begin());
+  auto its(src.begin());
   while (itd < dest.end())
   {
     *itd -= *its;
@@ -1545,8 +1545,8 @@ void VectorHelper::subtractInPlace(VectorInt& dest, const VectorInt& src)
   if (dest.size() != src.size())
     my_throw("Wrong size");
 
-  VectorInt::iterator itd(dest.begin());
-  VectorInt::const_iterator its(src.begin());
+  auto itd(dest.begin());
+  auto its(src.begin());
   while (itd < dest.end())
   {
     *itd -= *its;
@@ -1603,8 +1603,8 @@ void VectorHelper::multiplyInPlace(VectorDouble& vec, const VectorDouble& v)
   if (vec.size() != v.size())
     my_throw("Arguments 'vec' and 'v' should have same dimension");
 
-  VectorDouble::iterator it(vec.begin());
-  VectorDouble::const_iterator itv(v.begin());
+  auto it(vec.begin());
+  auto itv(v.begin());
   while (it < vec.end())
   {
     *it *= (*itv);
@@ -1644,9 +1644,9 @@ void VectorHelper::multiplyInPlace(const VectorDouble& veca,
     return;
   }
 
-  VectorDouble::iterator it(res.begin());
-  VectorDouble::const_iterator ita(veca.begin());
-  VectorDouble::const_iterator itb(vecb.begin());
+  auto it(res.begin());
+  auto ita(veca.begin());
+  auto itb(vecb.begin());
 
   while (it < res.end())
   {
@@ -1662,8 +1662,8 @@ void VectorHelper::divideInPlace(VectorDouble& vec, const VectorDouble& v)
   if (vec.size() != v.size())
     my_throw("Arguments 'vec' and 'v' should have same dimension");
 
-  VectorDouble::iterator it(vec.begin());
-  VectorDouble::const_iterator itv(v.begin());
+  auto it(vec.begin());
+  auto itv(v.begin());
   while (it < vec.end())
   {
     if (ABS(*itv) >= EPSILON20)
@@ -1678,8 +1678,8 @@ void VectorHelper::divideInPlace(std::vector<double>& vec, const std::vector<dou
   if (vec.size() != v.size())
     my_throw("Arguments 'vec' and 'v' should have same dimension");
 
-  VectorDouble::iterator it(vec.begin());
-  VectorDouble::const_iterator itv(v.begin());
+  auto it(vec.begin());
+  auto itv(v.begin());
   while (it < vec.end())
   {
     if (ABS(*itv) >= EPSILON20)
@@ -1706,9 +1706,9 @@ void VectorHelper::divideInPlace(const VectorDouble& veca,
     return;
   }
 
-  VectorDouble::iterator it(res.begin());
-  VectorDouble::const_iterator ita(veca.begin());
-  VectorDouble::const_iterator itb(vecb.begin());
+  auto it(res.begin());
+  auto ita(veca.begin());
+  auto itb(vecb.begin());
 
   while (it < res.end())
   {
@@ -1758,8 +1758,8 @@ void VectorHelper::multiplyConstant(VectorDouble& vec, double v)
 
 void VectorHelper::multiplyConstantInPlace(const VectorDouble& vecin, double v, VectorDouble& vecout)
 {
-  VectorDouble::iterator itout(vecout.begin());
-  VectorDouble::const_iterator itin(vecin.begin());
+  auto itout(vecout.begin());
+  auto itin(vecin.begin());
   while (itin < vecin.end())
   {
     *itout = (*itin) * v;
@@ -1770,7 +1770,7 @@ void VectorHelper::multiplyConstantInPlace(const VectorDouble& vecin, double v, 
 
 void VectorHelper::multiplyConstantSelfInPlace(VectorDouble& vec, double v)
 {
-  VectorDouble::iterator it(vec.begin());
+  auto it(vec.begin());
   while (it < vec.end())
   {
     *it = (*it) * v;
@@ -1843,8 +1843,8 @@ void VectorHelper::copy(const VectorDouble& vecin, VectorDouble& vecout, Id size
   if (size > static_cast<Id>(vecout.size()))
     my_throw("Wrong size");
 
-  VectorDouble::iterator itout(vecout.begin());
-  VectorDouble::const_iterator itin(vecin.begin());
+  auto itout(vecout.begin());
+  auto itin(vecin.begin());
   for (Id i = 0; i < size; i++)
   {
     (*itout) = (*itin);
@@ -1859,8 +1859,8 @@ void VectorHelper::copy(const VectorInt& vecin, VectorInt& vecout, Id size)
   if (size > static_cast<Id>(vecout.size()))
     my_throw("Wrong size");
 
-  VectorInt::iterator itout(vecout.begin());
-  VectorInt::const_iterator itin(vecin.begin());
+  auto itout(vecout.begin());
+  auto itin(vecin.begin());
   for (Id i = 0; i < size; i++)
   {
     (*itout) = (*itin);
@@ -1970,7 +1970,7 @@ void VectorHelper::inverse(VectorDouble& res, const constvect vec)
 Id VectorHelper::countUndefined(const VectorDouble& vec)
 {
   Id count = 0;
-  VectorDouble::const_iterator it(vec.begin());
+  auto it(vec.begin());
   while (it < vec.end())
   {
     if (FFFF(*it)) count++;
@@ -1982,7 +1982,7 @@ Id VectorHelper::countUndefined(const VectorDouble& vec)
 Id VectorHelper::countDefined(const VectorDouble& vec)
 {
   Id count = 0;
-  VectorDouble::const_iterator it(vec.begin());
+  auto it(vec.begin());
   while (it < vec.end())
   {
     if (!FFFF(*it)) count++;
@@ -2214,7 +2214,7 @@ VectorInt VectorHelper::orderRanks(const VectorInt& vecin, bool ascending, Id si
 
   // sort indexes based on comparing values in v using std::stable_sort instead of std::sort
   // to avoid unnecessary index re-orderings when v contains elements of equal values
-  VectorT<Id>::iterator last = idx.begin() + size;
+  auto last = idx.begin() + size;
   if (ascending)
   {
     stable_sort(idx.begin(), last,
@@ -2243,7 +2243,7 @@ VectorInt VectorHelper::orderRanks(const VectorDouble& vecin, bool ascending, Id
 
   // sort indexes based on comparing values in v using std::stable_sort instead of std::sort
   // to avoid unnecessary index re-orderings when v contains elements of equal values
-  VectorT<Id>::iterator last = idx.begin() + size;
+  auto last = idx.begin() + size;
   if (ascending)
   {
     stable_sort(idx.begin(), last,
@@ -2381,7 +2381,9 @@ std::pair<double, double> VectorHelper::rangeVals(const VectorDouble& vec)
   return res;
 }
 
-double VectorHelper::innerProduct(const std::vector<double>& veca, const std::vector<double>& vecb, Id size)
+double VectorHelper::innerProductVec(const std::vector<double>& veca,
+                                     const std::vector<double>& vecb,
+                                     Id size)
 {
   if (size < 0) size = static_cast<Id>(veca.size());
   if (size > static_cast<Id>(veca.size()) || size > static_cast<Id>(vecb.size()))
@@ -2390,14 +2392,14 @@ double VectorHelper::innerProduct(const std::vector<double>& veca, const std::ve
   return innerProduct(veca.data(), vecb.data(), size);
 }
 
-double VectorHelper::innerProduct(const constvect veca, const constvect vecb)
+double VectorHelper::innerProductCV(const constvect veca, const constvect vecb)
 {
   return innerProduct(veca.data(), vecb.data(), static_cast<Id>(veca.size()));
 }
 
-double VectorHelper::innerProduct(const VectorDouble& veca,
-                                  const VectorDouble& vecb,
-                                  Id size)
+double VectorHelper::innerProductVD(const VectorDouble& veca,
+                                    const VectorDouble& vecb,
+                                    Id size)
 {
   if (size < 0) size = static_cast<Id>(veca.size());
   if (size > static_cast<Id>(veca.size()) || size > static_cast<Id>(vecb.size()))
@@ -2422,20 +2424,20 @@ double VectorHelper::innerProduct(const double* veca,
   return prod;
 }
 
-double VectorHelper::innerProduct(const std::vector<std::vector<double>>& x,
-                                  const std::vector<std::vector<double>>& y)
+double VectorHelper::innerProductVVec(const std::vector<std::vector<double>>& x,
+                                      const std::vector<std::vector<double>>& y)
 {
   double s = 0.;
   for (Id i = 0, n = static_cast<Id>(x.size()); i < n; i++)
-    s += VH::innerProduct(x[i], y[i]);
+    s += VH::innerProductVec(x[i], y[i]);
   return s;
 }
-double VectorHelper::innerProduct(const VectorVectorDouble& x,
-                                  const VectorVectorDouble& y)
+double VectorHelper::innerProductVVD(const VectorVectorDouble& x,
+                                     const VectorVectorDouble& y)
 {
   double s = 0.;
   for (Id i = 0, n = static_cast<Id>(x.size()); i < n; i++)
-    s += VH::innerProduct(x[i], y[i]);
+    s += VH::innerProductVD(x[i], y[i]);
   return s;
 }
 
@@ -2658,7 +2660,7 @@ void VectorHelper::normalizeCodir(Id ndim, VectorDouble& codir)
   double norme;
 
   if (codir.empty()) return;
-  norme = VH::innerProduct(codir, codir, ndim);
+  norme = VH::innerProductVD(codir, codir, ndim);
   if (norme <= 0.)
   {
     for (Id idim = 0; idim < ndim; idim++)
@@ -3021,6 +3023,31 @@ bool VectorHelper::isIsotropic(const VectorVectorInt& sampleRanks)
   for (Id ivar = 1; ivar < nvar; ivar++)
     if (refSize != static_cast<Id>(sampleRanks[ivar].size())) return false;
   return true;
+}
+
+void VectorHelper::capInPlace(VectorDouble& vec, double vmin, double vmax)
+{
+  for (Id i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
+  {
+    double value = vec[i];
+    if (!FFFF(vmin))
+    {
+      if (FFFF(value) || value < vmin)
+        value = vmin;
+    }
+    if (!FFFF(vmax))
+    {
+      if (FFFF(value) || value > vmax)
+        value = vmax;
+    }
+    vec[i] = value;
+  }
+}
+
+void VectorHelper::capInPlaceVVD(VectorVectorDouble& vec, double vmin, double vmax)
+{
+  for (Id i = 0, n = static_cast<Id>(vec.size()); i < n; i++)
+    VH::capInPlace(vec[i], vmin, vmax);
 }
 
 } // namespace gstlrn

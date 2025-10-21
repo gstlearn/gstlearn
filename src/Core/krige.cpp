@@ -178,7 +178,7 @@ static VectorInt st_relative_position_array(Id neq)
  ** \param[in]  dbout  output Db structure
  **
  *****************************************************************************/
-static void st_global_init(Db* dbin, Db* dbout)
+void global_init(Db* dbin, Db* dbout)
 {
   FLAG_COLK = FLAG_PROF = FLAG_SIMU = 0;
   IPTR_EST = IPTR_STD = IPTR_VARZ = IPTR_NBGH = 0;
@@ -1499,7 +1499,7 @@ Id global_transitive(DbGrid* dbgrid,
   /* Initializations */
 
   cvv = wtot = dsse = gint = dsum = 0.;
-  st_global_init(dbgrid, dbgrid);
+  global_init(dbgrid, dbgrid);
   if (st_check_environment(0, 1, model)) return 1;
   ;
   Id ndim = dbgrid->getNDim();
@@ -1926,7 +1926,7 @@ Id anakexp_f(DbGrid* db,
   /* Initializations */
 
   error = 1;
-  st_global_init(db, db);
+  global_init(db, db);
   FLAG_EST    = true;
   ndim        = db->getNDim();
   nvarin      = db->getNLoc(ELoc::Z);
@@ -2598,7 +2598,7 @@ Id anakexp_3D(DbGrid* db,
   /* Initializations */
 
   error = 1;
-  st_global_init(db, db);
+  global_init(db, db);
   FLAG_EST = true;
   fildmp   = nullptr;
   ndim     = db->getNDim();
@@ -3208,7 +3208,7 @@ Id st_krige_data(Db* db,
     s              = model->evalCovMat(db, db, -1, -1, rutil, vech).getValues();
 
     tutil.prodVecMatInPlace(s, aux3);
-    double estim   = VH::innerProduct(aux2, aux3);
+    double estim   = VH::innerProductVD(aux2, aux3);
     data_est[iech] = estim + model->getMean(0);
 
     if (flag_abs)
@@ -3221,7 +3221,7 @@ Id st_krige_data(Db* db,
     }
 
     invsig.prodVecMatInPlace(aux3, aux4);
-    double variance = VH::innerProduct(aux3, aux4);
+    double variance = VH::innerProductVD(aux3, aux4);
     data_var[iech]  = c00[0] - variance;
   }
   return 0;
@@ -3295,10 +3295,10 @@ Id st_crit_global(Db* db,
     invc.prodMatVecInPlace(cs, temp_loc);
     temp.setColumn(ecr, temp_loc);
 
-    estim       = VH::innerProduct(datm, temp_loc);
+    estim       = VH::innerProductVD(datm, temp_loc);
     olderr[ecr] = estim + model->getMean(0) - db->getZVariable(iech, 0);
 
-    sigma       = VH::innerProduct(cs, temp_loc);
+    sigma       = VH::innerProductVD(cs, temp_loc);
     olddiv[ecr] = olderr[ecr] / (c00[0] - sigma);
     ecr++;
   }
@@ -3488,7 +3488,7 @@ Id krigsampling_f(Db* dbin,
   Id nsize1    = static_cast<Id>(ranks1.size());
   Id nsize2    = static_cast<Id>(ranks2.size());
   double sigma = 0.;
-  st_global_init(dbin, dbout);
+  global_init(dbin, dbout);
   FLAG_EST = true;
   FLAG_STD = flag_std;
   if (st_check_environment(1, 1, model)) return 1;
@@ -3580,13 +3580,13 @@ Id krigsampling_f(Db* dbin,
       c00 = model->evalCovMat(dbout, dbout, -1, -1, vech, vech).getValues();
 
     tutil.prodVecMatInPlace(s, aux3);
-    estim = VH::innerProduct(aux2, aux3) + model->getMean(0);
+    estim = VH::innerProductVD(aux2, aux3) + model->getMean(0);
     DBOUT->setArray(IECH_OUT, IPTR_EST, estim);
 
     if (FLAG_STD)
     {
       invsig.prodVecMatInPlace(aux3, aux4);
-      sigma = VH::innerProduct(aux3, aux4);
+      sigma = VH::innerProductVD(aux3, aux4);
       sigma = c00[0] - sigma;
       sigma = (sigma > 0) ? sqrt(sigma) : 0.;
       DBOUT->setArray(IECH_OUT, IPTR_STD, sigma);
@@ -4539,7 +4539,7 @@ Id inhomogeneous_kriging(Db* dbdat,
 
   error = nvar        = 1;
   NeighUnique* neighU = NeighUnique::create(false);
-  st_global_init(dbdat, dbout);
+  global_init(dbdat, dbout);
   FLAG_EST = true;
   FLAG_STD = true;
   if (st_check_environment(1, 1, model_dat)) goto label_end;
@@ -4709,7 +4709,7 @@ Id inhomogeneous_kriging(Db* dbdat,
 
     /* Perform the estimation */
 
-    matrix_product_safe(1, np, 1, data.data(), lambda.data(), &estim);
+    estim = VH::innerProductVD(data, lambda);
     matrix_product_safe(1, np, 1, rhs, lambda.data(), &stdev);
 
     /* Update the variance in presence of drift */

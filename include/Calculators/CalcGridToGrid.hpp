@@ -68,22 +68,22 @@ private:
 };
 
 GSTLEARN_EXPORT Id dbg2gCopy(DbGrid* dbin,
-                              DbGrid* dbout,
-                              const NamingConvention& namconv = NamingConvention(
-                                "Copy"));
+                             DbGrid* dbout,
+                             const NamingConvention& namconv = NamingConvention(
+                               "Copy"));
 GSTLEARN_EXPORT Id dbg2gExpand(DbGrid* dbin,
-                                DbGrid* dbout,
-                                const NamingConvention& namconv = NamingConvention(
-                                  "Expand"));
+                               DbGrid* dbout,
+                               const NamingConvention& namconv = NamingConvention(
+                                 "Expand"));
 GSTLEARN_EXPORT Id dbg2gShrink(DbGrid* dbin,
-                                DbGrid* dbout,
-                                const NamingConvention& namconv = NamingConvention(
-                                  "Shrink"));
+                               DbGrid* dbout,
+                               const NamingConvention& namconv = NamingConvention(
+                                 "Shrink"));
 GSTLEARN_EXPORT Id dbg2gInterpolate(DbGrid* dbin,
-                                     DbGrid* dbout,
-                                     const VectorString& tops        = VectorString(),
-                                     const VectorString& bots        = VectorString(),
-                                     const NamingConvention& namconv = NamingConvention(
-                                       "Interpolation",
-                                       false));
+                                    DbGrid* dbout,
+                                    const VectorString& tops        = VectorString(),
+                                    const VectorString& bots        = VectorString(),
+                                    const NamingConvention& namconv = NamingConvention(
+                                      "Interpolation",
+                                      false));
 } // namespace gstlrn

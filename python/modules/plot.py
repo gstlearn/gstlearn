@@ -28,6 +28,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from numpy                   import shape
 from pandas.io               import orc
 from matplotlib.pyplot       import axes
+import random
 
 #Set of global values
 defaultDims = [[5,5], [8,8]]
@@ -1949,9 +1950,9 @@ def _ax_neigh(ax, neighobj, grid=None, node=0, flagCell=False, flagZoom=False, *
             ax.set_ylim(limits[1])
     
 def _ax_neighWeights(ax, res, flagWeights=True, 
-                 horizontalalignment='center',
-                 verticalalignment='bottom',
-                 **kwargs):
+                     horizontalalignment='center',
+                     verticalalignment='bottom',
+                     **kwargs):
     # Number of neighboring samples
     nech = res.nech
     
@@ -2010,6 +2011,101 @@ def lagDefine(i, lag, tol=0):
             mini = center - reltol
         maxi = maxi + reltol
     return mini, center, maxi  
+
+def sectionFromGrid(trace, grid, ptype = gl.ELoc.Z, addNames = None, 
+                    disc = 1, flagFill = False, flagUp = True, checkOrder = 0, flagReverseOrder = False, 
+                    colors = None, linestyle = 'solid', coladd = 'black', lineadd = 'solid', 
+                    *args, **kwargs):
+    ax = _getNewAxes()
+    return _ax_sectionFromGrid(ax, trace, grid, ptype, addNames, disc, 
+                               flagFill, flagUp, checkOrder, flagReverseOrder, 
+                               colors, linestyle, coladd, lineadd,
+                               *args, **kwargs)
+
+def _ax_sectionFromGrid(ax, trace, grid, ptype = gl.ELoc.Z, addNames = None, 
+                        disc = 1, flagFill = False, flagUp = True, checkOrder = 0, flagReverseOrder = False,
+                        colors = None, linestyle = 'solid', coladd = 'black', lineadd = 'solid',
+                        percent = 0.1, *args, **kwargs):
+    xp = gl.VectorDouble()
+    yp = gl.VectorDouble()
+    zp = gl.VectorDouble()
+    dd = gl.VectorDouble()
+    ddel = gl.VectorDouble()
+    if not flagUp:
+        ax.invert_yaxis()
+    distTot = gl.ut_trace_discretize(trace, disc, xp, yp, dd, ddel)
+
+    tab    = gl.interpolateVariablesToPoint(grid, xp, yp, zp, ptype, checkOrder, True)
+    tabdd  = np.array(list(dd))
+    ntab   = len(tabdd)
+    tabx   = tabdd
+    if flagFill:
+        tabx = np.append(tabx, [tabx[ntab-1], tabx[0]])
+    nsurf  = len(tab)
+    mini = gl.VH.minimumVVD(tab)
+    maxi = gl.VH.maximumVVD(tab)
+    if flagUp:
+        refval = mini - percent * (maxi - mini)
+    else:
+        refval = maxi + percent * (maxi - mini)
+
+    for jsurf in range(nsurf):
+        isurf = jsurf
+        if flagReverseOrder:
+            isurf = nsurf - jsurf - 1 
+        taby = tab[isurf]
+        if colors is not None and isurf < len(colors):
+            color = colors[isurf]
+        else:
+            color = f"#{random.randint(0, 0xFFFFFF):06x}"
+
+        if flagFill:
+            taby = np.append(taby, [refval, refval])
+            res = ax.fill(tabx, taby, facecolor=color, edgecolor=color, **kwargs)
+        else:
+            res = ax.plot(tabdd, taby, color = color, linestyle = linestyle, **kwargs)
+
+    if addNames is not None:
+        naux = len(addNames)
+        for name in addNames:
+            tabaux = gl.interpolateOneVariableToPoint(grid, xp, yp, zp, name)
+            resaux = ax.plot(tabdd, tabaux, color = coladd, linestyle = lineadd, **kwargs)
+    
+    return
+
+def sectionFromPoints(trace, points, ptype = gl.ELoc.Z, colors = None, 
+                      disc = 1, flagUp = True, radius = 1, *args, **kwargs):
+    ax = _getNewAxes()
+    return _ax_sectionFromPoints(ax, trace, points, ptype, colors, disc, flagUp, 
+                                 radius, *args, **kwargs)
+
+def _ax_sectionFromPoints(ax, trace, points, ptype = gl.ELoc.Z, colors = None, 
+                          disc = 1, flagUp = True, radius = 1, *args, **kwargs):
+    xp = gl.VectorDouble()
+    yp = gl.VectorDouble()
+    dd = gl.VectorDouble()
+    ddel = gl.VectorDouble()
+    if not flagUp:
+        ax.invert_yaxis()
+    distTot = gl.ut_trace_discretize(trace, disc, xp, yp, dd, ddel)
+
+    xs = gl.VectorDouble()
+    ys = gl.VectorDouble()
+    rks = gl.VectorInt()
+    lys = gl.VectorInt()
+    typ = gl.VectorInt()
+    gl.ut_trace_sample(points, xp, yp, dd, ptype, radius, xs, ys, rks, lys, typ)
+    tabxs   = np.array(list(xs))
+    tabys   = np.array(list(ys))
+    tablys  = np.array(list(lys))
+    colloc = None
+    if colors is not None:
+        mask = (tablys >= 1) & (tablys <= len(colors))
+        colloc = np.full(tablys.shape, "black", dtype=object)
+        colloc[mask] = np.array(colors)[tablys[mask] - 1]
+
+    res = ax.scatter(x = tabxs, y = tabys, c = colloc, **kwargs)
+    return
 
 def plot(object, name1=None, name2=None, ranks=None, **kwargs):
     '''

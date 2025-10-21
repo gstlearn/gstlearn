@@ -476,7 +476,7 @@ Id Vecchia::computeLower(const MatrixT<Id>& Ranks, bool verbose)
           Id irel2 = neighDescr[i][2];
           _LFull.setValue(irel2, irel1, -_work[i]);
         }
-        _DFull[irel1] = 1. / (varK - VH::innerProduct(_work, vect));
+        _DFull[irel1] = 1. / (varK - VH::innerProductCV(_work, vect));
       }
     }
   }

@@ -158,6 +158,8 @@
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
 
+%include MLayers/MLayers.hpp
+
 %include Skin/ISkinFunctions.hpp
 %include Skin/Skin.hpp
 

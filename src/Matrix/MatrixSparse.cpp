@@ -408,7 +408,7 @@ MatrixSparse* MatrixSparse::addMatMat(const MatrixSparse* x,
 
 MatrixSparse* MatrixSparse::diagVec(const VectorDouble& vec)
 {
-  Id size  = static_cast<Id>(vec.size());
+  Id size   = static_cast<Id>(vec.size());
   auto* mat = new MatrixSparse(size, size);
 
   mat->setDiagonal(vec);
@@ -487,7 +487,7 @@ VectorDouble MatrixSparse::extractDiag(Id oper_choice) const
 }
 
 Id MatrixSparse::addVecInPlaceEigen(const Eigen::Map<const Eigen::VectorXd>& xm,
-                                     Eigen::Map<Eigen::VectorXd>& ym) const
+                                    Eigen::Map<Eigen::VectorXd>& ym) const
 {
   ym = eigenMat() * xm + ym;
   return 0;
@@ -642,8 +642,8 @@ MatrixSparse* prodNormMatMat(const MatrixSparse* a,
                              const MatrixSparse* m,
                              bool transpose)
 {
-  Id nrow  = (transpose) ? a->getNCols() : a->getNRows();
-  Id ncol  = (transpose) ? a->getNRows() : a->getNCols();
+  Id nrow   = (transpose) ? a->getNCols() : a->getNRows();
+  Id ncol   = (transpose) ? a->getNRows() : a->getNCols();
   auto* mat = new MatrixSparse(nrow, ncol);
   mat->prodNormMatMatInPlace(a, m, transpose);
   return mat;
@@ -651,7 +651,7 @@ MatrixSparse* prodNormMatMat(const MatrixSparse* a,
 
 MatrixSparse* prodNormMatVec(const MatrixSparse* a, const VectorDouble& vec, bool transpose)
 {
-  Id nsym  = (transpose) ? a->getNCols() : a->getNRows();
+  Id nsym   = (transpose) ? a->getNCols() : a->getNRows();
   auto* mat = new MatrixSparse(nsym, nsym);
   mat->prodNormMatVecInPlace(a, vec, transpose);
   return mat;
@@ -659,7 +659,7 @@ MatrixSparse* prodNormMatVec(const MatrixSparse* a, const VectorDouble& vec, boo
 
 MatrixSparse* prodNormMat(const MatrixSparse* a, bool transpose)
 {
-  Id nsym  = (transpose) ? a->getNCols() : a->getNRows();
+  Id nsym   = (transpose) ? a->getNCols() : a->getNRows();
   auto* mat = new MatrixSparse(nsym, nsym);
   mat->prodNormMatInPlace(a, transpose);
   return mat;
@@ -669,8 +669,8 @@ MatrixSparse* prodNormDiagVec(const MatrixSparse* a,
                               const VectorDouble& vec,
                               Id oper_choice)
 {
-  Id nrow  = a->getNRows();
-  Id ncol  = a->getNCols();
+  Id nrow   = a->getNRows();
+  Id ncol   = a->getNCols();
   auto* mat = new MatrixSparse(nrow, ncol, -1);
 
   // Perform the transformation of the input vector
@@ -973,9 +973,9 @@ MatrixSparse* createFromAnyMatrix(const AMatrix* matin)
 }
 
 Id MatrixSparse::_eigen_findColor(Id imesh,
-                                   Id ncolor,
-                                   VectorInt& colors,
-                                   VectorInt& temp) const
+                                  Id ncolor,
+                                  VectorInt& colors,
+                                  VectorInt& temp) const
 {
   temp.fill(0);
 
@@ -1001,7 +1001,7 @@ VectorInt MatrixSparse::colorCoding() const
 {
   Id next_col = 0;
   Id ncol     = 0;
-  auto nmesh   = getNCols();
+  auto nmesh  = getNCols();
 
   /* Core allocation */
 
@@ -1033,8 +1033,8 @@ void MatrixSparse::glueInPlace(MatrixSparse* A1,
                                bool flagShiftRow,
                                bool flagShiftCol)
 {
-  Id shiftRow  = (flagShiftRow) ? A1->getNRows() : 0;
-  Id shiftCol  = (flagShiftCol) ? A1->getNCols() : 0;
+  Id shiftRow   = (flagShiftRow) ? A1->getNRows() : 0;
+  Id shiftCol   = (flagShiftCol) ? A1->getNCols() : 0;
   NF_Triplet T1 = A1->getMatrixToTriplet();
   NF_Triplet T2 = A2->getMatrixToTriplet(shiftRow, shiftCol);
 
@@ -1205,7 +1205,7 @@ void MatrixSparse::setDiagonal(const Eigen::Map<const Eigen::VectorXd>& tab)
 MatrixSparse* MatrixSparse::getRowAsMatrixSparse(Id irow, double coeff) const
 {
   auto ncols = getNCols();
-  auto* res = new MatrixSparse(1, ncols);
+  auto* res  = new MatrixSparse(1, ncols);
 
   // The input sparse matrix being symmetrical, we benefit from its
   // column-major storage (setting icol = irow)
@@ -1220,7 +1220,7 @@ MatrixSparse* MatrixSparse::getRowAsMatrixSparse(Id irow, double coeff) const
 MatrixSparse* MatrixSparse::getColumnAsMatrixSparse(Id icol, double coeff) const
 {
   auto nrows = getNRows();
-  auto* res = new MatrixSparse(nrows, 1);
+  auto* res  = new MatrixSparse(nrows, 1);
 
   for (Eigen::SparseMatrix<double>::InnerIterator it(eigenMat(), icol); it; ++it)
     res->eigenMat().coeffRef(it.row(), 0) = coeff * it.value();

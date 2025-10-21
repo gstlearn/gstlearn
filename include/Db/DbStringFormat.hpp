@@ -10,16 +10,16 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
 #include "Basic/AStringFormat.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/VectorT.hpp"
 #include "Basic/VectorNumT.hpp"
+#include "Basic/VectorT.hpp"
+#include "gstlearn_export.hpp"
 
 #include "geoslib_define.h"
 
 // Do not convert to AEnum (mask combination is not used as enum)
-//typedef enum
+// typedef enum
 //{
 //  FLAG_RESUME = 1,    //!< Print the Db summary
 //  FLAG_VARS = 2,      //!< Print the Field names
@@ -32,20 +32,20 @@
 
 namespace gstlrn
 {
- static unsigned char FLAG_RESUME = 1;  //!< Print the Db summary
- static unsigned char FLAG_VARS = 2;   //!< Print the Field names
- static unsigned char FLAG_EXTEND = 4; //!< Print the Db extension
- static unsigned char FLAG_STATS = 8; //!< Print the variable statistics
- static unsigned char FLAG_ARRAY = 16; //!< Print the variable contents
- static unsigned char FLAG_LOCATOR = 32;  //!< Print the locators
+static unsigned char FLAG_RESUME  = 1;  //!< Print the Db summary
+static unsigned char FLAG_VARS    = 2;  //!< Print the Field names
+static unsigned char FLAG_EXTEND  = 4;  //!< Print the Db extension
+static unsigned char FLAG_STATS   = 8;  //!< Print the variable statistics
+static unsigned char FLAG_ARRAY   = 16; //!< Print the variable contents
+static unsigned char FLAG_LOCATOR = 32; //!< Print the locators
 
 class GSTLEARN_EXPORT DbStringFormat: public AStringable, public AStringFormat
 {
 public:
-  DbStringFormat(unsigned char params = FLAG_RESUME | FLAG_VARS,
+  DbStringFormat(unsigned char params      = FLAG_RESUME | FLAG_VARS,
                  const VectorString& names = VectorString(),
-                 const VectorInt& cols = VectorInt(),
-                 bool useSel = true);
+                 const VectorInt& cols     = VectorInt(),
+                 bool useSel               = true);
   DbStringFormat(const DbStringFormat& r);
   DbStringFormat& operator=(const DbStringFormat& r);
   virtual ~DbStringFormat();
@@ -53,25 +53,25 @@ public:
   /// Interface to AStringable
   String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static DbStringFormat* create(unsigned char params = FLAG_RESUME | FLAG_VARS,
+  static DbStringFormat* create(unsigned char params      = FLAG_RESUME | FLAG_VARS,
                                 const VectorString& names = VectorString(),
-                                const VectorInt& cols = VectorInt(),
-                                bool useSel = true);
+                                const VectorInt& cols     = VectorInt(),
+                                bool useSel               = true);
 
   static DbStringFormat* createFromKeys(unsigned char params,
-                                        const VectorString &names,
-                                        const VectorInt &cols,
-                                        bool useSel);
+                                        const VectorString& names = VectorString(),
+                                        const VectorInt& cols     = VectorInt(),
+                                        bool useSel               = true);
 
-  static DbStringFormat* createFromFlags(bool flag_resume = true,
-                                         bool flag_vars = true,
-                                         bool flag_extend = false,
-                                         bool flag_stats = false,
-                                         bool flag_array = false,
-                                         bool flag_locator = false,
-                                         const VectorString &names = VectorString(),
-                                         const VectorInt &cols = VectorInt(),
-                                         bool useSel = true);
+  static DbStringFormat* createFromFlags(bool flag_resume          = true,
+                                         bool flag_vars            = true,
+                                         bool flag_extend          = false,
+                                         bool flag_stats           = false,
+                                         bool flag_array           = false,
+                                         bool flag_locator         = false,
+                                         const VectorString& names = VectorString(),
+                                         const VectorInt& cols     = VectorInt(),
+                                         bool useSel               = true);
 
   const VectorInt& getCols() const { return _cols; }
   bool getUseSel() const { return _useSel; }
@@ -84,7 +84,11 @@ public:
    * @param cols Vector of Column indices on which Stats or Array is applied (optional)
    * @remark This selection is performed by Column Rank. It invalidates any possible selection already performed.
    */
-  void setCols(const VectorInt& cols) { _names.clear(); _cols = cols; }
+  void setCols(const VectorInt& cols)
+  {
+    _names.clear();
+    _cols = cols;
+  }
   /**
    * Using the current Selection or Not
    * @param useSel Take the selection into account when true
@@ -112,27 +116,27 @@ public:
    * @remark - FLAG_ARRAY:  for the extensive printout of the variables
    */
   void setParams(unsigned char params) { _params = params; }
-  void setFlags(bool flag_resume = true,
-                bool flag_vars = true,
-                bool flag_extend = false,
-                bool flag_stats = false,
-                bool flag_array = false,
-                bool flag_locator = false,
+  void setFlags(bool flag_resume          = true,
+                bool flag_vars            = true,
+                bool flag_extend          = false,
+                bool flag_stats           = false,
+                bool flag_array           = false,
+                bool flag_locator         = false,
                 const VectorString& names = VectorString(),
-                const VectorInt& cols = VectorInt(),
-                bool useSel = true);
-  void setResume()  { _params = _params | FLAG_RESUME; }
-  void setVars()    { _params = _params | FLAG_VARS; }
-  void setExtend()  { _params = _params | FLAG_EXTEND; }
-  void setStats()   { _params = _params | FLAG_STATS; }
-  void setArray()   { _params = _params | FLAG_ARRAY; }
+                const VectorInt& cols     = VectorInt(),
+                bool useSel               = true);
+  void setResume() { _params = _params | FLAG_RESUME; }
+  void setVars() { _params = _params | FLAG_VARS; }
+  void setExtend() { _params = _params | FLAG_EXTEND; }
+  void setStats() { _params = _params | FLAG_STATS; }
+  void setArray() { _params = _params | FLAG_ARRAY; }
   void setLocator() { _params = _params | FLAG_LOCATOR; }
 
-  bool matchResume()  const { return _matchFlag(FLAG_RESUME); }
-  bool matchVars()    const { return _matchFlag(FLAG_VARS); }
-  bool matchExtend()  const { return _matchFlag(FLAG_EXTEND); }
-  bool matchStats()   const { return _matchFlag(FLAG_STATS); }
-  bool matchArray()   const { return _matchFlag(FLAG_ARRAY); }
+  bool matchResume() const { return _matchFlag(FLAG_RESUME); }
+  bool matchVars() const { return _matchFlag(FLAG_VARS); }
+  bool matchExtend() const { return _matchFlag(FLAG_EXTEND); }
+  bool matchStats() const { return _matchFlag(FLAG_STATS); }
+  bool matchArray() const { return _matchFlag(FLAG_ARRAY); }
   bool matchLocator() const { return _matchFlag(FLAG_LOCATOR); }
 
 private:
@@ -145,4 +149,4 @@ private:
   bool _useSel;
   Id _mode;
 };
-}
+} // namespace gstlrn

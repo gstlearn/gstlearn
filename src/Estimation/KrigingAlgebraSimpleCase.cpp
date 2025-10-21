@@ -746,7 +746,7 @@ double KrigingAlgebraSimpleCase::getLTerm()
   if (_needDual()) return 1;
   if (_notFindZ()) return 1;
 
-  return VH::innerProduct(*_bDual, *_Z);
+  return VH::innerProductVec(*_bDual, *_Z);
 }
 
 Id KrigingAlgebraSimpleCase::prepare()

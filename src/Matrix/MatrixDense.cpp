@@ -573,9 +573,9 @@ vect MatrixDense::getViewOnColumnModify(Id icol)
   return res;
 }
 Id MatrixDense::_terminateEigen(const Eigen::VectorXd& eigenValues,
-                                 const Eigen::MatrixXd& eigenVectors,
-                                 bool optionPositive,
-                                 bool changeOrder)
+                                const Eigen::MatrixXd& eigenVectors,
+                                bool optionPositive,
+                                bool changeOrder)
 {
   auto nrows = getNRows();
   auto ncols = getNCols();
@@ -862,8 +862,8 @@ void MatrixDense::unsample(const AMatrix* A,
 MatrixDense MatrixDense::compressMatLC(const MatrixDense& matLC,
                                        bool transpose)
 {
-  auto nrows = getNRows();
-  auto ncols = getNCols();
+  auto nrows  = getNRows();
+  auto ncols  = getNCols();
   auto nrowCL = matLC.getNRows();
   auto ncolCL = matLC.getNCols();
   MatrixDense mat;

@@ -98,7 +98,7 @@ double SpaceRN::_getDistance(const SpacePoint& p1,
     return VH::norm(_work2);
   }
   tensor.applyInverse2InPlace(_work1, _work2);
-  return sqrt(VH::innerProduct(_work1, _work2));
+  return sqrt(VH::innerProductVD(_work1, _work2));
 }
 
 double SpaceRN::_getFrequentialDistance(const SpacePoint& p1,

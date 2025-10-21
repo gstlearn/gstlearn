@@ -1265,12 +1265,10 @@ double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy)
 
   // Vector orthogonal to the tilted plane
   VectorDouble vort(ndim);
-  vort[0]      = dzoverdx;
-  vort[1]      = dzoverdy;
-  vort[2]      = -1.;
-  double norme = VH::norm(vort);
-  for (Id idim = 0; idim < ndim; idim++)
-    vort[idim] /= norme;
+  vort[0] = dzoverdx;
+  vort[1] = dzoverdy;
+  vort[2] = -1.;
+  VH::normalize(vort);
 
   // Cross product
   VectorDouble axis(ndim, 0.);
@@ -1279,8 +1277,8 @@ double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy)
   axis[2] = 0.;
 
   // Norm of the cross product and dot product between ref and vort
-  double normcross = sqrt(VH::innerProduct(axis, axis));
-  double dot       = VH::innerProduct(vert, vort);
+  double normcross = sqrt(VH::innerProductVD(axis, axis));
+  double dot       = VH::innerProductVD(vert, vort);
 
   // Rotation angle
   double angle = atan2(normcross, dot);
@@ -1305,12 +1303,10 @@ MatrixSquare GeometryHelper::gradXYToRotmat(double dzoverdx,
 
   // Vector orthogonal to the tilted plane
   VectorDouble vort(ndim);
-  vort[0]      = dzoverdx;
-  vort[1]      = dzoverdy;
-  vort[2]      = -1.;
-  double norme = VH::norm(vort);
-  for (Id idim = 0; idim < ndim; idim++)
-    vort[idim] /= norme;
+  vort[0] = dzoverdx;
+  vort[1] = dzoverdy;
+  vort[2] = -1.;
+  VH::normalize(vort);
 
   // Cross product
   axis[0] = vort[1];
@@ -1318,8 +1314,8 @@ MatrixSquare GeometryHelper::gradXYToRotmat(double dzoverdx,
   axis[2] = 0.;
 
   // Norm of the cross product and dot product between ref and vort
-  double normcross = sqrt(VH::innerProduct(axis, axis));
-  double dot       = VH::innerProduct(vert, vort);
+  double normcross = sqrt(VH::innerProductVD(axis, axis));
+  double dot       = VH::innerProductVD(vert, vort);
 
   // Rotation axis (normalized
   for (Id idim = 0; idim < ndim; idim++)
@@ -1785,22 +1781,22 @@ VectorDouble GeometryHelper::rayTriangleIntersect(const VectorDouble& dir,
   VectorDouble v10 = VH::subtract(v0, v1);
 
   VectorDouble pvec = VH::crossProduct3D(dir, v20);
-  double det        = VH::innerProduct(pvec, v10);
+  double det        = VH::innerProductVD(pvec, v10);
 
   if (det == 0.) return res;
 
   double invDet = 1. / det;
 
-  double u = -VH::innerProduct(pvec, v0) * invDet;
+  double u = -VH::innerProductVD(pvec, v0) * invDet;
   if (u < 0 || u > 1) return res;
 
   VectorDouble vm0 = v0;
   VH::multiplyConstant(vm0, -1.);
   VectorDouble qvec = VH::crossProduct3D(vm0, v10);
-  double v          = VH::innerProduct(dir, qvec) * invDet;
+  double v          = VH::innerProductVD(dir, qvec) * invDet;
   if (v < 0 || u + v > 1) return res;
 
-  res[0] = VH::innerProduct(qvec, v20) * invDet;
+  res[0] = VH::innerProductVD(qvec, v20) * invDet;
   res[1] = u;
   res[2] = v;
 

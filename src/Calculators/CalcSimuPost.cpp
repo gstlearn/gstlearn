@@ -416,7 +416,7 @@ void CalcSimuPost::_defineIterations()
 
   if (_flagMatch)
   {
-    _niter = VH::minimum(_nfact);
+    _niter = VH::minimumVI(_nfact);
   }
   else
   {

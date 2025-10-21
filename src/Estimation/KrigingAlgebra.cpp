@@ -785,7 +785,7 @@ double KrigingAlgebra::getLTerm()
   if (_needDual()) return 1;
   if (_needZ()) return 1;
 
-  return VH::innerProduct(_bDual, *_Z);
+  return VH::innerProductVD(_bDual, *_Z);
 }
 
 Id KrigingAlgebra::_needZstar()

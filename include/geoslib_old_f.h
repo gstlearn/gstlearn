@@ -77,28 +77,6 @@ GSTLEARN_EXPORT VectorInt ut_split_into_two(Id ncolor,
                                             Id verbose,
                                             Id* nposs);
 
-GSTLEARN_EXPORT void ut_trace_discretize(Id nseg,
-                                         const double* trace,
-                                         double disc,
-                                         Id* np_arg,
-                                         VectorDouble& xp,
-                                         VectorDouble& yp,
-                                         VectorDouble& dd,
-                                         VectorDouble& del,
-                                         double* dist_arg);
-GSTLEARN_EXPORT void ut_trace_sample(Db* db,
-                                     const ELoc& ptype,
-                                     Id np,
-                                     const double* xp,
-                                     const double* yp,
-                                     const double* dd,
-                                     double radius,
-                                     Id* ns_arg,
-                                     VectorDouble& xs,
-                                     VectorDouble& ys,
-                                     VectorInt& rks,
-                                     VectorInt& lys,
-                                     VectorInt& typ);
 GSTLEARN_EXPORT double ut_distance(Id ndim, const double* tab1, const double* tab2);
 GSTLEARN_EXPORT void ut_distance_allocated(Id ndim,
                                            double** tab1,
@@ -109,6 +87,7 @@ GSTLEARN_EXPORT void ut_distance_allocated(Id ndim,
 /*****************************************/
 
 GSTLEARN_EXPORT Id matrix_invert(double* a, Id neq, Id rank);
+GSTLEARN_EXPORT Id matrix_invertFromMatrixSquare(MatrixSquare* a, Id neq, Id rank = 0);
 GSTLEARN_EXPORT double matrix_determinant(Id neq, const VectorDouble& b);
 GSTLEARN_EXPORT void matrix_product_safe(Id n1,
                                          Id n2,
@@ -122,7 +101,7 @@ GSTLEARN_EXPORT Id matrix_prod_norme(Id transpose,
                                      const double* v1,
                                      const double* a,
                                      double* w);
-GSTLEARN_EXPORT void matrix_transpose(Id n1, Id n2, VectorDouble& v1, VectorDouble& w1);
+GSTLEARN_EXPORT void matrix_transpose(Id n1, Id n2, const VectorDouble& v1, VectorDouble& w1);
 GSTLEARN_EXPORT Id matrix_cholesky_decompose(const double* a,
                                              double* tl,
                                              Id neq);
@@ -470,6 +449,7 @@ GSTLEARN_EXPORT Id inhomogeneous_kriging(Db* dbdat,
                                          Id flag_source,
                                          Model* model_dat,
                                          Model* model_src);
+GSTLEARN_EXPORT void global_init(Db* dbin, Db* dbout);
 
 /*****************************************/
 /* Prototyping the functions in simtub.c */
@@ -604,56 +584,6 @@ GSTLEARN_EXPORT Id time_3db(double* HS,
                             double ZS,
                             double HS_EPS_INIT,
                             Id MSG);
-
-/******************************************/
-/* Prototyping the functions in mlayers.c */
-/******************************************/
-GSTLEARN_EXPORT Id multilayers_vario(Db* dbin,
-                                     DbGrid* dbout,
-                                     Vario* vario,
-                                     Id nlayers,
-                                     Id flag_vel,
-                                     Id flag_ext,
-                                     Id irf_rank,
-                                     Id match_time,
-                                     Id colrefd,
-                                     Id colreft,
-                                     Id verbose);
-GSTLEARN_EXPORT Id multilayers_kriging(Db* dbin,
-                                       DbGrid* dbout,
-                                       Model* model,
-                                       ANeigh* neigh,
-                                       Id flag_same,
-                                       Id flag_z,
-                                       Id flag_vel,
-                                       Id flag_cumul,
-                                       Id flag_ext,
-                                       Id flag_std,
-                                       Id flag_bayes,
-                                       Id irf_rank,
-                                       Id match_time,
-                                       Id dim_prior,
-                                       double* prior_mean,
-                                       double* prior_vars,
-                                       Id colrefd,
-                                       Id colreft,
-                                       Id colrefb,
-                                       Id verbose);
-GSTLEARN_EXPORT Id multilayers_get_prior(Db* dbin,
-                                         DbGrid* dbout,
-                                         Model* model,
-                                         Id flag_same,
-                                         Id flag_vel,
-                                         Id flag_ext,
-                                         Id irf_rank,
-                                         Id match_time,
-                                         Id colrefd,
-                                         Id colreft,
-                                         Id colrefb,
-                                         Id verbose,
-                                         Id* npar_arg,
-                                         VectorDouble& mean,
-                                         VectorDouble& vars);
 
 /***************************************/
 /* Prototyping the functions in spde.c */

@@ -1083,6 +1083,7 @@ static void st_compute_hh()
     if (Calcul.flag_sphere) scale /= Calcul.R;
     TEMP(ndim, i, i) = scale * scale;
   }
+  // cova->getAnisoRotMat().prodNormMatMatInPlace(&temp, Calcul.hh, false);
   matrix_prod_norme(1, ndim, ndim, cova->getAnisoRotMat().getValues().data(),
                     temp.data(), Calcul.hh.data());
 }

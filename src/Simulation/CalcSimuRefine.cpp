@@ -74,9 +74,9 @@ Id CalcSimuRefine::_simulate()
     nx2.resize(ndim);
     x02.resize(ndim);
     dx2.resize(ndim);
-    db2       = DbGrid::create(nx2, dx2, x02, dbin->getGrid().getRotAngles(),
-                               ELoadBy::SAMPLE, VectorDouble(), VectorString(),
-                               VectorString(), 1);
+    db2      = DbGrid::create(nx2, dx2, x02, dbin->getGrid().getRotAngles(),
+                              ELoadBy::SAMPLE, VectorDouble(), VectorString(),
+                              VectorString(), 1);
     Id iatt2 = db2->addColumnsByConstant(1, TEST);
 
     /* Establish the Kriging system */
@@ -266,9 +266,9 @@ void CalcSimuRefine::_merge_data(DbGrid* db1, Id iatt1, DbGrid* db2, Id iatt2)
     for (Id iy1 = 0; iy1 < _nx1[1]; iy1++)
       for (Id iz1 = 0; iz1 < _nx1[2]; iz1++)
       {
-        Id ix2      = 1 + 2 * ix1;
-        Id iy2      = 1 + 2 * iy1;
-        Id iz2      = iz1;
+        Id ix2       = 1 + 2 * ix1;
+        Id iy2       = 1 + 2 * iy1;
+        Id iz2       = iz1;
         double value = _read(db1, iatt1, ix1, iy1, iz1, 0, 0, 0);
         _write(db2, iatt2, ix2, iy2, iz2, value);
       }
@@ -338,9 +338,9 @@ double CalcSimuRefine::_read(DbGrid* db,
 void CalcSimuRefine::_write(DbGrid* db, Id iatt, Id ix0, Id iy0, Id iz0, double value)
 {
   VectorInt ind(3);
-  ind[0]  = ix0;
-  ind[1]  = iy0;
-  ind[2]  = iz0;
+  ind[0] = ix0;
+  ind[1] = iy0;
+  ind[2] = iz0;
   Id iad = db->indiceToRank(ind);
   db->setArray(iad, iatt, value);
 }
@@ -380,7 +380,7 @@ void CalcSimuRefine::_truncate_result(DbGrid* db2, Id iatt2, DbGrid* db1, Id iat
  *****************************************************************************/
 Id CalcSimuRefine::_kriging_solve(Id type, Id rank, Id nb, bool verbose)
 {
-  Id neq  = (_param.isFlagSK()) ? nb : nb + 1;
+  Id neq    = (_param.isFlagSK()) ? nb : nb + 1;
   auto ndim = _getNDim();
   VectorDouble d1(ndim);
   VectorDouble lhs(36);

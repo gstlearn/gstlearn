@@ -1249,8 +1249,7 @@ void ShiftOpMatrix::_projectMesh(const AMesh* amesh,
     for (Id i = 0; i < 3; i++)
       center[i] += xyz[icorn][i];
   }
-  double ratio = VH::norm(center);
-  VH::divideConstant(center, sqrt(ratio));
+  VH::normalize(center);
 
   // Center gives the vector joining the origin to the center of triangle
   double phi    = srot[1] * GV_PI / 180.;
