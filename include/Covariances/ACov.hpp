@@ -513,8 +513,8 @@ private:
   virtual void _load(const SpacePoint& p, bool option) const;
   virtual void _attachNoStatDb(const Db* db);
 
-  void _optimizationPreProcessForTarget(const Db* db2,
-                                        const VectorInt& nbgh2 = VectorInt()) const;
+  void _optimizationPreProcessForTarget(const Db* db,
+                                        const VectorInt& nbgh = VectorInt()) const;
 
   void _loopOnData(MatrixDense& mat,
                    const SpacePoint& p2,
