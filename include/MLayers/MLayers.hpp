@@ -190,8 +190,7 @@ private:
                   VectorDouble& phib,
                   MatrixSquare& atab,
                   VectorDouble& btab);
-  Id _getVarioCHH(bool verbose,
-                  Vario_Order* vorder,
+  Id _getVarioCHH(Vario_Order* vorder,
                   VectorDouble& zval,
                   Id idir,
                   Vario* vario);

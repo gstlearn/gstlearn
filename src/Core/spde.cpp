@@ -22,6 +22,7 @@
 #include "Db/Db.hpp"
 #include "Enum/ELoadBy.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include "LinearOp/CholeskyDense.hpp"
 #include "LinearOp/CholeskySparse.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Matrix/MatrixFactory.hpp"
@@ -1558,41 +1559,17 @@ label_end:
  *****************************************************************************/
 static Id st_fill_Csill(void)
 {
-  Model* model;
-  VectorDouble mcova;
-  Id nvar, nvs2, error, icov;
-
-  /* Initializations */
-
-  error                 = 1;
-  model                 = st_get_model();
-  nvar                  = S_ENV.nvar;
-  nvs2                  = nvar * (nvar + 1) / 2;
-  icov                  = SPDE_CURRENT_ICOV;
+  Model* model          = st_get_model();
+  Id icov               = SPDE_CURRENT_ICOV;
   SPDE_Matelem& Matelem = spde_get_current_matelem(icov);
 
-  /* Core allocation */
-
-  mcova.resize(nvs2);
-
   /* Load the sills of continuous covariance elements */
-
-  if (matrix_cholesky_decompose(model->getSills(icov).getValues().data(),
-                                mcova.data(), nvar))
-    goto label_end;
+  CholeskyDense chol(model->getSills(icov));
+  Matelem.Csill = chol.getLowerTriangle();
 
   /* Optional printout */
-
   if (VERBOSE) message("Calculation of Csill\n");
-
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  if (error) mcova.clear();
-  Matelem.Csill = mcova;
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/

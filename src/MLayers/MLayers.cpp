@@ -928,7 +928,7 @@ Id MLayers::_subtractOptimalDrift(bool verbose,
 
   /* Find the optimal drift coefficients */
 
-  if (matrix_invertFromMatrixSquare(&atab, neqd)) goto label_end;
+  atab.invert();
   atab.prodMatVecInPlace(btab, coeff);
 
   /* Optional printout of the result */
@@ -1559,7 +1559,6 @@ Id MLayers::_calculateDriftBayes(bool verbose,
                                  VectorDouble& post_mean,
                                  MatrixSquare& post_vars) const
 {
-  Id error = 1;
   MatrixDense ffc(_npar, _nech);
   VectorDouble fm1z(_npar);
   MatrixSquare gg(_npar);
@@ -1581,10 +1580,10 @@ Id MLayers::_calculateDriftBayes(bool verbose,
   }
 
   /* Invert the Data Variance-Covariance matrix */
-  if (matrix_invertFromMatrixSquare(acov, _nech)) goto label_end;
+  acov->invert();
 
   /* Invert the prior Variance-Covariance matrix */
-  if (matrix_invertFromMatrixSquare(&invS, _npar)) goto label_end;
+  invS.invert();
 
   /* Auxiliary calculations */
   ffc.prodMatMatInPlace(&fftab, acov);
@@ -1595,7 +1594,7 @@ Id MLayers::_calculateDriftBayes(bool verbose,
   for (Id ipar = 0; ipar < _npar; ipar++)
     for (Id jpar = 0; jpar < _npar; jpar++)
       post_vars.setValue(ipar, jpar, invS.getValue(ipar, jpar) + invH.getValue(ipar, jpar));
-  if (matrix_invertFromMatrixSquare(&post_vars, _npar)) goto label_end;
+  post_vars.invert();
 
   /* Calculate the Posterior Mean vector */
 
@@ -1627,11 +1626,11 @@ Id MLayers::_calculateDriftBayes(bool verbose,
   for (Id ipar = 0; ipar < _npar; ipar++)
     for (Id jpar = 0; jpar < _npar; jpar++)
       invS.setValue(ipar, jpar, post_vars.getValue(ipar, jpar));
-  if (matrix_invertFromMatrixSquare(&invS, _npar)) goto label_end;
+  invS.invert();
   for (Id ipar = 0; ipar < _npar; ipar++)
     for (Id jpar = 0; jpar < _npar; jpar++)
       gg.setValue(ipar, jpar, invH.getValue(ipar, jpar) + invS.getValue(ipar, jpar));
-  if (matrix_invertFromMatrixSquare(&gg, _npar)) goto label_end;
+  gg.invert();
 
   cc.prodNormMatMatInPlace(&ss, &gg, false);
   for (Id ipar = 0; ipar < _npar; ipar++)
@@ -1640,14 +1639,9 @@ Id MLayers::_calculateDriftBayes(bool verbose,
   for (Id ipar = 0; ipar < _npar; ipar++)
     for (Id jpar = 0; jpar < _npar; jpar++)
       gs.setValue(ipar, jpar, invH.getValue(ipar, jpar) + invS.getValue(ipar, jpar));
-  if (matrix_invertFromMatrixSquare(&gs, _npar)) goto label_end;
+  gs.invert();
 
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -1743,7 +1737,6 @@ Id MLayers::_evaluateLag(Vario_Order* vorder,
  **
  ** \return  Error return code
  **
- ** \param[in]  verbose    True for a verbose option
  ** \param[in]  vorder     Vario_Order structure
  ** \param[in]  zval       Data vector
  ** \param[in]  idir       Rank of the Direction
@@ -1751,8 +1744,7 @@ Id MLayers::_evaluateLag(Vario_Order* vorder,
  ** \param[out] vario      Vario structure
  **
  *****************************************************************************/
-Id MLayers::_getVarioCHH(bool verbose,
-                         Vario_Order* vorder,
+Id MLayers::_getVarioCHH(Vario_Order* vorder,
                          VectorDouble& zval,
                          Id idir,
                          Vario* vario)
@@ -1795,24 +1787,7 @@ Id MLayers::_getVarioCHH(bool verbose,
       print_matrix("R.H.S.", 0, 1, 1, nhalf, NULL, btab.data());
     }
 
-    if (matrix_invertFromMatrixSquare(&atab, nhalf))
-    {
-      messerr("--> Inversion problem for lag %d", ilag + 1);
-      if (verbose)
-      {
-        /* Matrix must be evaluated (as it has been destroyed by inversion) */
-        (void)_evaluateLag(vorder, ifirst,
-                           ilast, zval, &nval, &distsum, stat, phia, phib,
-                           atab, btab);
-        messerr("Number of pairs  = %d", nval);
-        messerr("Average distance = %lf", distsum);
-        print_imatrix("Number of samples per layer", 0, 1, _nlayers, _nlayers,
-                      NULL, stat.data());
-        print_matrix("L.H.S.", 0, 1, nhalf, nhalf, NULL, atab.getValues().data());
-        print_matrix("R.H.S.", 0, 1, 1, nhalf, NULL, btab.data());
-      }
-      continue;
-    }
+    atab.invert();
     atab.prodVecMatInPlace(btab, sill);
 
     /* Optional printout */
@@ -2107,7 +2082,7 @@ Id MLayers::kriging(bool verbose)
   }
   else
   {
-    if (matrix_invertFromMatrixSquare(a, _neq, -1)) return -1;
+    a->invert();
     a->prodMatVecInPlace(zval, dual);
   }
 
@@ -2166,7 +2141,7 @@ Id MLayers::vario(Vario* vario, bool verbose)
 
   for (Id idir = 0; idir < vario->getNDir(); idir++)
   {
-    if (_getVarioCHH(verbose, vorder, zval, idir, vario)) goto label_end;
+    if (_getVarioCHH(vorder, zval, idir, vario)) goto label_end;
   }
 
   /* Set the error return code */

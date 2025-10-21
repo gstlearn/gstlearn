@@ -239,7 +239,7 @@ public:
   void computeMarkovCoeffs();
   double getCorrec() const;
   double getFullCorrec() const;
-  void nostatUpdate(CovInternal* covint);
+  void nostatUpdate(CovInternal* covint) const;
 
   void informMeshByMeshForAnisotropy(const AMesh* amesh) const;
   void informMeshByApexForAnisotropy(const AMesh* amesh) const;

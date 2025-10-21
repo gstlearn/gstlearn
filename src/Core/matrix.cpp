@@ -224,23 +224,6 @@ void matrix_transpose(Id n1, Id n2, const VectorDouble& v1, VectorDouble& w1)
       w1[ecr++] = V1(i1, i2);
 }
 
-/**
- * @brief This is temporary matrix inversion function.
- * It is meant to perform a soft transition before suppressing the old matrix material
- *
- * @param mata MatrixSquare to be inverted (in place)
- * @param neq Dimension of the matrix (not used)
- * @param rank Rank when inversion problem (not used)
- * @return Id Returned value
- */
-Id matrix_invertFromMatrixSquare(MatrixSquare* mata, Id neq, Id rank)
-{
-  DECLARE_UNUSED(neq);
-  DECLARE_UNUSED(rank);
-  mata->invert();
-  return 0;
-}
-
 /*****************************************************************************/
 /*!
  **  Invert a symmetric square matrix
@@ -353,61 +336,6 @@ double matrix_determinant(Id neq, const VectorDouble& b)
       }
       return deter;
   }
-}
-
-/*****************************************************************************/
-/*!
- **  Performs the Cholesky triangular decomposition of a definite
- **  positive symmetric matrix
- **         A = t(TL) * TL
- **
- ** \return  Return code: >0 rank of zero pivot or 0 if no error
- **
- ** \param[in]  a   symmetric matrix
- ** \param[in]  neq number of equations in the system
- **
- ** \param[out] tl  Lower triangular matrix defined by column
- **
- ** \remark  the matrix a[] is destroyed during the calculations
- **
- *****************************************************************************/
-Id matrix_cholesky_decompose(const double* a, double* tl, Id neq)
-{
-
-  if (RENARD)
-  {
-    MatrixSymmetric mata(neq);
-    mata.resetFromArray(neq, neq, a);
-    CholeskyDense chol(mata);
-    VectorDouble mattl = chol.getLowerTriangle();
-    (void)memcpy(tl, mattl.data(), mattl.size() * sizeof(double));
-    return 0;
-  }
-  double prod;
-  Id ip, jp, kp;
-
-  for (ip = 0; ip < neq; ip++)
-    for (jp = 0; jp <= ip; jp++)
-      TL(ip, jp) = AS(ip, jp);
-
-  for (ip = 0; ip < neq; ip++)
-  {
-    prod = TL(ip, ip);
-    for (kp = 0; kp < ip; kp++)
-      prod -= TL(ip, kp) * TL(ip, kp);
-    if (prod < 0.) return (ip + 1);
-    TL(ip, ip) = sqrt(prod);
-
-    for (jp = ip + 1; jp < neq; jp++)
-    {
-      prod = TL(jp, ip);
-      for (kp = 0; kp < ip; kp++)
-        prod -= TL(ip, kp) * TL(jp, kp);
-      if (TL(ip, ip) <= 0.) return (ip + 1);
-      TL(jp, ip) = prod / TL(ip, ip);
-    }
-  }
-  return (0);
 }
 
 } // namespace gstlrn
