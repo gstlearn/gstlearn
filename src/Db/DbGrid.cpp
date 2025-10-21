@@ -163,7 +163,7 @@ Id DbGrid::reset(const VectorInt& nx,
  * @param x0       Vector of the expected origin of the grid (in coordinate)
  * @param margin   Vector of the expected margins of the grid (in distance)
  *
- * @remarks Arguments 'nodes' and 'dcell' are disjunctive. If both defined, 'dcell' prevails
+ * @remarks Arguments 'nx' and 'dx' are disjunctive. If both defined, 'nx' prevails
  */
 Id DbGrid::resetCoveringDb(const Db* db,
                            const VectorInt& nx,
@@ -230,8 +230,8 @@ Id DbGrid::resetCoveringDb(const Db* db,
 }
 
 Id DbGrid::resetFromPolygon(Polygons* polygon,
-                            const VectorInt& nodes,
-                            const VectorDouble& dcell,
+                            const VectorInt& nx,
+                            const VectorDouble& dx,
                             bool flagAddSelection,
                             bool flagAddSampleRank)
 {
@@ -252,23 +252,23 @@ Id DbGrid::resetFromPolygon(Polygons* polygon,
     double x0  = (idim == 0) ? xmin : ymin;
     double ext = (idim == 0) ? xmax - xmin : ymax - ymin;
 
-    Id nx     = 10;
-    double dx = ext / static_cast<double>(nx);
-    if (ndim == static_cast<Id>(nodes.size()))
+    Id nxloc     = 10;
+    double dxloc = ext / static_cast<double>(nxloc);
+    if (ndim == static_cast<Id>(nx.size()))
     {
-      nx = nodes[idim];
-      dx = ext / static_cast<double>(nx);
+      nxloc = nx[idim];
+      dxloc = ext / static_cast<double>(nxloc);
     }
-    if (ndim == static_cast<Id>(dcell.size()))
+    if (ndim == static_cast<Id>(dx.size()))
     {
-      dx = dcell[idim];
-      nx = static_cast<Id>(ext / dx);
+      dxloc = dx[idim];
+      nxloc = static_cast<Id>(ext / dxloc);
     }
 
-    nx_tab.push_back(nx);
+    nx_tab.push_back(nxloc);
     x0_tab.push_back(x0);
-    dx_tab.push_back(dx);
-    nech *= nx;
+    dx_tab.push_back(dxloc);
+    nech *= nxloc;
   }
   Id ncol = (flagAddSampleRank) ? ndim + 1 : ndim;
 
@@ -335,26 +335,26 @@ DbGrid* DbGrid::createCoveringDb(const Db* db,
  * Creating a regular unrotated grid Db which covers the input Polygon
  *
  * @param polygon    Pointer to the input Polygon
- * @param nodes      Vector of the expected number of nodes
- * @param dcell      Vector of the expected dimensions for the grid cells
+ * @param nx         Vector of the expected number of nodes
+ * @param dx         Vector of the expected dimensions for the grid cells
  * @param flagAddSelection true if a selection variable must be created
  * @param flagAddSampleRank true if the sample rank must be generated
  *
  * @remarks The aim of this procedure is to create a regular (unrotated) grid
  *          which covers the extension of the input Polygon
- * @remarks If 'nodes' is not defined, it is set to 10 by default along each space dimension
- * @remarks If 'nodes' is defined, 'dcell' is derived
- * @remarks If 'dcell' is defined, 'nodes' is derived
- * @remarks If both 'nodes' and 'dcell' are defined, 'dcell' prevails over 'nodes'
+ * @remarks If 'nx' is not defined, it is set to 10 by default along each space dimension
+ * @remarks If 'nx' is defined, 'dx' is derived
+ * @remarks If 'dx' is defined, 'nx' is derived
+ * @remarks If both 'nx' and 'dx' are defined, 'dx' prevails over 'nx'
  */
 DbGrid* DbGrid::createFromPolygon(Polygons* polygon,
-                                  const VectorInt& nodes,
-                                  const VectorDouble& dcell,
+                                  const VectorInt& nx,
+                                  const VectorDouble& dx,
                                   bool flagAddSelection,
                                   bool flagAddSampleRank)
 {
   auto* dbgrid = new DbGrid;
-  if (dbgrid->resetFromPolygon(polygon, nodes, dcell, flagAddSelection, flagAddSampleRank))
+  if (dbgrid->resetFromPolygon(polygon, nx, dx, flagAddSelection, flagAddSampleRank))
   {
     messerr("Error when creating DbGrid from Polygon");
     delete dbgrid;

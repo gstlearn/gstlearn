@@ -101,10 +101,10 @@ public:
                                   const VectorDouble& x0     = VectorDouble(),
                                   const VectorDouble& margin = VectorDouble());
   static DbGrid* createFromPolygon(Polygons* polygon,
-                                   const VectorInt& nodes    = VectorInt(),
-                                   const VectorDouble& dcell = VectorDouble(),
-                                   bool flagAddSelection     = true,
-                                   bool flagAddSampleRank    = true);
+                                   const VectorInt& nx    = VectorInt(),
+                                   const VectorDouble& dx = VectorDouble(),
+                                   bool flagAddSelection  = true,
+                                   bool flagAddSampleRank = true);
   static DbGrid* createCoarse(DbGrid* dbin,
                               const VectorInt& nmult,
                               bool flagCell          = true,
@@ -179,10 +179,10 @@ public:
                      const VectorDouble& x0     = VectorDouble(),
                      const VectorDouble& margin = VectorDouble());
   Id resetFromPolygon(Polygons* polygon,
-                      const VectorInt& nodes    = VectorInt(),
-                      const VectorDouble& dcell = VectorDouble(),
-                      bool flagAddSelection     = true,
-                      bool flagAddSampleRank    = true);
+                      const VectorInt& nx    = VectorInt(),
+                      const VectorDouble& dx = VectorDouble(),
+                      bool flagAddSelection  = true,
+                      bool flagAddSampleRank = true);
 
   DbGrid* coarsify(const VectorInt& nmult);
   DbGrid* refine(const VectorInt& nmult);

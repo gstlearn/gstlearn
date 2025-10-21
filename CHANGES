@@ -4,6 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.10.0
 ==============
+- Improvement in DbGrid::createFromPolygon (better management of default value + ability to define the selection in the newly create Grid File)
+- Correct the Polygon extension calculation
 - New functions in Db: getRanksAbsoluteToRelativeVec() and getRanksRelativeToAbsolute()
 - For generating a VectorDouble containing the sequence of values, please now use VH::sequenceVD() 
 - Db() offers the possibility to overload operators (robustified against illegal argument).
