@@ -251,6 +251,10 @@ void Polygons::getExtension(double* xmin,
                             double* ymax) const
 {
   double xmin_loc, xmax_loc, ymin_loc, ymax_loc;
+  *xmin = 1.e30;
+  *ymin = 1.e30;
+  *xmax = -1.e30;
+  *ymax = -1.e30;
 
   for (Id ipol = 0; ipol < getNPolyElem(); ipol++)
   {
