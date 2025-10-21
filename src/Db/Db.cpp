@@ -809,10 +809,23 @@ void Db::getSamplesAsSP(std::vector<SpacePoint>& pvec,
 }
 
 void Db::getSamplesFromNbghAsSP(std::vector<SpacePoint>& pvec,
+                                const std::shared_ptr<const ASpace>& space,
                                 const VectorInt& nbgh) const
 {
   Id nbsize = static_cast<Id>(nbgh.size());
-  pvec.resize(nbsize);
+
+  // If pvec already exist, check the space dimension (only on the first element)
+  if (pvec.empty() || pvec.front().getSpace().get() != space.get())
+  {
+    pvec.clear();
+    SpacePoint p(space);
+    pvec.assign(nbsize, p);
+  }
+  else
+  {
+    pvec.resize(nbsize);
+  }
+
   for (Id irel = 0; irel < nbsize; irel++)
     getSampleAsSPInPlace(pvec[irel], nbgh[irel]);
 }
@@ -853,7 +866,10 @@ double Db::getCoordinate(Id iech, Id idim, bool flag_rotate) const
 void Db::getCoordinatesInPlace(VectorDouble& coor, Id iech, bool flag_rotate) const
 {
   DECLARE_UNUSED(flag_rotate);
-  for (Id idim = 0, ndim = getNDim(); idim < ndim; idim++)
+  // Adding a light protection
+  Id nsize = static_cast<Id>(coor.size());
+  Id ndim  = MIN(nsize, getNDim());
+  for (Id idim = 0; idim < ndim; idim++)
   {
     auto icol  = getColIdxByLocator(ELoc::X, idim);
     coor[idim] = _array[_getAddress(iech, icol)];
