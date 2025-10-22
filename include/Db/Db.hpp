@@ -212,7 +212,7 @@ public:
                           const VectorInt& ranks    = VectorInt(),
                           bool flagIsotopic         = false,
                           bool verbose              = false);
-  static Db* createFillRandom(Id ndat,
+  static Db* createFillRandom(Id ndat                         = 10,
                               Id ndim                         = 2,
                               Id nvar                         = 1,
                               Id nfex                         = 0,
