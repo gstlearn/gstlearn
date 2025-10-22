@@ -161,8 +161,11 @@ void correctNamesForDuplicates(VectorString& list)
   for (Id i = 1; i < number; i++)
   {
     // Check that a similar name does not appear among the previous names in list
+    String nameref = list[i];
+    Id rank        = 0;
 
   label_try:
+    rank++;
     Id found = -1;
     for (Id j = 0; j < i && found < 0; j++)
     {
@@ -172,7 +175,7 @@ void correctNamesForDuplicates(VectorString& list)
 
     // We have found a similar name. Modify it as long as it matches an already existing name
 
-    list[i] = incrementStringVersion(list[i]);
+    list[i] = incrementStringVersion(nameref, rank);
     goto label_try;
   }
 }
