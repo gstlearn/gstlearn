@@ -46,6 +46,7 @@
 %include Enum/ECalcVario.hpp
 %include Enum/EConvType.hpp
 %include Enum/ECov.hpp
+%include Enum/ECSV.hpp
 %include Enum/ETape.hpp
 %include Enum/ELoadBy.hpp
 %include Enum/ELoc.hpp

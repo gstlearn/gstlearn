@@ -8,27 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/AStringable.hpp"
-#include "Db/Db.hpp"
-#include "geoslib_define.h"
-#include "utils.hpp"
+#pragma once
 
-using namespace gstlrn;
+#include "Enum/AEnum.hpp"
 
-int main(int argc, char* argv[])
-{
-  DECLARE_UNUSED(argc);
-  DECLARE_UNUSED(argv);
+#define ENUM_CSV ECSV, ENGLISH,             \
+                 FRENCH, 0, "French CSV",   \
+                 ENGLISH, 1, "English CSV", \
+                 TABULATED, 2, "Tabulated CSV"
 
-  String filename = getTestData("Alluvial", "Oise_Thickness.csv");
-  message("File = %s\n", filename.c_str());
-
-  auto* csvformat = CSVformat::createStandard(ECSV::FRENCH);
-  csvformat->display();
-  auto* db = Db::createFromCSV(filename, *csvformat);
-  db->display();
-
-  delete csvformat;
-  delete db;
-  return 0;
-}
+ENUM_DECLARE(ENUM_CSV)
