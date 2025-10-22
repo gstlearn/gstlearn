@@ -69,9 +69,6 @@ Id GibbsUMulti::covmatAlloc(bool verbose, bool /*verboseTimer*/)
   if (verbose) mestitle(1, "Gibbs using Unique Neighborhood");
   Db* db       = getDb();
   Model* model = getModel();
-  Id nvar      = model->getNVar();
-  auto nact    = _getSampleRankNumber();
-  Id neq       = nvar * nact;
 
   // Establish Covariance Matrix
 
@@ -79,16 +76,12 @@ Id GibbsUMulti::covmatAlloc(bool verbose, bool /*verboseTimer*/)
 
   /* Establish the covariance matrix and invert it */
 
-  _covmat = model->evalCovMat(db, db, -1, -1).getValues();
+  _covmat = model->evalCovMat(db, db, -1, -1);
 
   // Invert Covariance Matrix
 
   if (verbose) message("Invert Covariance matrix\n");
-  if (matrix_invert(_covmat.data(), neq, -1))
-  {
-    messerr("Error during the covariance matrix inversion");
-    return 1;
-  }
+  _covmat.invert();
 
   // Initialize the statistics (optional)
 
@@ -106,15 +99,13 @@ Id GibbsUMulti::_getSize() const
 
 double GibbsUMulti::_getVariance(Id iecr) const
 {
-  auto neq = _getSize();
-  return (1. / COVMAT(iecr, iecr));
+  return (1. / _covmat.getValue(iecr, iecr));
 }
 
 double GibbsUMulti::_getEstimate(Id ipgs, Id iecr, VectorVectorDouble& y)
 {
   auto nvar = getNvar();
   auto nact = _getSampleRankNumber();
-  auto neq  = _getSize();
 
   double yk = 0.;
   for (Id jvar = 0, jecr = 0; jvar < nvar; jvar++)
@@ -122,7 +113,7 @@ double GibbsUMulti::_getEstimate(Id ipgs, Id iecr, VectorVectorDouble& y)
     auto jcase = getRank(ipgs, jvar);
     for (Id jact = 0; jact < nact; jact++, jecr++)
     {
-      yk -= y[jcase][jact] * COVMAT(iecr, jecr);
+      yk -= y[jcase][jact] * _covmat.getValue(iecr, jecr);
     }
   }
   return yk;

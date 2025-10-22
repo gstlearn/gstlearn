@@ -120,7 +120,7 @@ typedef struct
   MatrixSparse* Aproj;
   QChol* QC;
   std::vector<QChol*> QCov;
-  VectorDouble Isill;
+  MatrixSquare Isill;
   VectorDouble Csill;
   QSimu* qsimu;
   Cheb_Elem* s_cheb;

@@ -159,8 +159,9 @@ void BiTargetCheckDistance::_calculateDistance() const
 
     if (_flagRotation)
     {
-      matrix_product_safe(1, ndim, ndim, _movingIncr.data(),
-                          _anisoRotMat.data(), _movingAux.data());
+      MatrixSquare anisoMat(ndim);
+      anisoMat.resetFromVD(ndim, ndim, _anisoRotMat);
+      anisoMat.prodVecMatInPlace(_movingIncr, _movingAux);
       _movingIncr = _movingAux;
     }
     for (Id idim = 0; idim < ndim; idim++)

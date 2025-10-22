@@ -132,7 +132,6 @@ set(SRC
   Core/model_auto.cpp
   Core/cluster.cpp
   Core/simtub.cpp
-  Core/matrix.cpp
   Core/spill.cpp
   Core/acknowledge.cpp
   Core/geophy.cpp

@@ -69,7 +69,6 @@ Id GibbsUMultiMono::covmatAlloc(bool verbose, bool /*verboseTimer*/)
   // Initialization
 
   if (verbose) mestitle(1, "Gibbs using Unique Neighborhood in MultiMono case");
-  auto nact = _getSampleRankNumber();
   auto nvar = getNVar();
   _covmat.resize(nvar);
 
@@ -78,21 +77,16 @@ Id GibbsUMultiMono::covmatAlloc(bool verbose, bool /*verboseTimer*/)
   for (Id ivar = 0; ivar < nvar; ivar++)
   {
     Model* model = getModels(ivar);
-    _covmat[ivar].resize(nact * nact, 0.);
 
     // Establish Covariance Matrix (always based on the first variable in MultiMono case)
 
     if (verbose) message("Establish Covariance matrix (Var=%d)\n", ivar + 1);
-    _covmat[ivar] = model->evalCovMat(db, db, 0, 0).getValues();
+    _covmat[ivar] = model->evalCovMat(db, db, 0, 0);
 
     // Invert Covariance Matrix
 
     if (verbose) message("Invert Covariance matrix (Var=%d)\n", ivar + 1);
-    if (matrix_invert(_covmat[ivar].data(), nact, -1))
-    {
-      messerr("Error during the covariance matrix inversion");
-      return 1;
-    }
+    _covmat[ivar].invert();
   }
 
   // Initialize the statistics (optional)
@@ -104,8 +98,7 @@ Id GibbsUMultiMono::covmatAlloc(bool verbose, bool /*verboseTimer*/)
 
 double GibbsUMultiMono::_getVariance(Id ivar, Id iact) const
 {
-  auto nact = _getSampleRankNumber();
-  return (1. / COVMAT(ivar, iact, iact));
+  return 1. / _covmat[ivar].getValue(iact, iact);
 }
 
 double GibbsUMultiMono::_getEstimate(Id icase, Id ivar, Id iact, VectorVectorDouble& y) const
@@ -115,7 +108,7 @@ double GibbsUMultiMono::_getEstimate(Id icase, Id ivar, Id iact, VectorVectorDou
   double yk = 0.;
   for (Id jact = 0; jact < nact; jact++)
   {
-    yk -= y[icase][jact] * COVMAT(ivar, iact, jact);
+    yk -= y[icase][jact] * _covmat[ivar].getValue(iact, jact);
   }
   return yk;
 }
@@ -173,4 +166,4 @@ void GibbsUMultiMono::update(VectorVectorDouble& y,
 
   _updateStats(y, ipgs, iter);
 }
-}
+} // namespace gstlrn

@@ -862,11 +862,9 @@ VectorDouble PCA::mafOfIndex() const
     }
   }
 
-  VectorDouble local(nclass * ncut);
-  matrix_product_safe(nclass, ncut, ncut, i_norm_val.getValues().data(),
-                      _Z2F.getValues().data(), local.data());
-
-  VectorDouble maf_index = VH::concatenate(VH::initVDouble(nclass, 1.), local);
+  MatrixDense local(nclass, ncut);
+  local.prodMatMatInPlace(&i_norm_val, &_Z2F);
+  VectorDouble maf_index = VH::concatenate(VH::initVDouble(nclass, 1.), local.getValues());
 
   return maf_index;
 }
