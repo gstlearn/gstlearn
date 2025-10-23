@@ -149,15 +149,15 @@ void ACov::optimizationPreProcessForData(const Db* db1) const
   _optimPreProcessedData = true;
 }
 
-void ACov::_optimizationPreProcessForTarget(const Db* db2, const VectorInt& nbgh2) const
+void ACov::_optimizationPreProcessForTarget(const Db* db, const VectorInt& nbgh) const
 {
   std::vector<SpacePoint> ps;
 
-  // Add projected samples from db2 (optional)
-  if (nbgh2.empty())
-    db2->getSamplesAsSP(ps, getSpace(), true);
+  // Add projected samples from db (optional)
+  if (nbgh.empty())
+    db->getSamplesAsSP(ps, getSpace(), true);
   else
-    db2->getSamplesFromNbghAsSP(ps, nbgh2);
+    db->getSamplesFromNbghAsSP(ps, getSpace(), nbgh);
   _optimizationPreProcess(2, ps);
 }
 
@@ -250,15 +250,13 @@ void ACov::_setNoStatDbIfNecessary(const Db* db)
     attachNoStatDb(db);
 }
 
-void ACov::_attachNoStatDb(const Db* db)
-{
-  DECLARE_UNUSED(db)
-}
+void ACov::_attachNoStatDb(const Db* db) {
+  DECLARE_UNUSED(db)}
 
 VectorDouble ACov::informCoords(const VectorVectorDouble& coords,
-                                                      const EConsElem& econs,
-                                                      Id iv1,
-                                                      Id iv2) const
+                                const EConsElem& econs,
+                                Id iv1,
+                                Id iv2) const
 {
   VectorDouble result(coords[0].size(), getValue(econs, iv1, iv2));
   _tabNoStat->informCoords(coords, econs, iv1, iv2, result);
@@ -2523,12 +2521,12 @@ void ACov::setContext(const CovContext& ctxt)
   _setContext(ctxt);
 }
 
-bool ACov::isValidForSpectral() const 
+bool ACov::isValidForSpectral() const
 {
   return false;
 }
 
-MatrixDense ACov::simulateSpectralOmega(Id ns) const 
+MatrixDense ACov::simulateSpectralOmega(Id ns) const
 {
   DECLARE_UNUSED(ns);
   message("ACov::simulateSpectralOmega: Not implemented");
