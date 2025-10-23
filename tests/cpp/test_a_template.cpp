@@ -8,10 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Basic/AStringable.hpp"
-#include "Db/Db.hpp"
 #include "geoslib_define.h"
-#include "utils.hpp"
 
 using namespace gstlrn;
 
@@ -20,15 +17,5 @@ int main(int argc, char* argv[])
   DECLARE_UNUSED(argc);
   DECLARE_UNUSED(argv);
 
-  String filename = getTestData("Alluvial", "Oise_Thickness.csv");
-  message("File = %s\n", filename.c_str());
-
-  auto* csvformat = CSVformat::createStandard(ECSV::FRENCH);
-  csvformat->display();
-  auto* db = Db::createFromCSV(filename, *csvformat);
-  db->display();
-
-  delete csvformat;
-  delete db;
   return 0;
 }
