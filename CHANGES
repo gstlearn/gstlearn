@@ -4,6 +4,8 @@ This file contains the logs between consecutive releases
 
 Release 1.10.0
 ==============
+- New function creating a random Polygon (can create a circle).
+- Adding the possibility of creating a Polygon from two vectors of 2-D coordinates
 - Class CSVformat allows more explicit definition using ECSV style (French or English)
 - Improvement in DbGrid::createFromPolygon (better management of default value + ability to define the selection in the newly create Grid File)
 - Correct the Polygon extension calculation
