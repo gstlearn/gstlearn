@@ -59,7 +59,7 @@ public:
                                  Id nrow_max          = -1);
   static Polygons* createFromDb(const Db* db, double dilate = 0., bool verbose = false);
   static Polygons* createFromVD(const VectorDouble& x, const VectorDouble& y);
-  static Polygons* createFillRandom(Id nseg      = 10,
+  static Polygons* createFillRandom(Id nseg      = 50,
                                     double ratio = 0.1,
                                     double mini  = 0.,
                                     double maxi  = 1.,
