@@ -148,7 +148,6 @@ private:
                                 double upper);
   Id _record_sample(Db* db,
                     Id iech,
-                    Id ndim,
                     Id natt,
                     Id bypass,
                     Id* number_arg,
@@ -214,29 +213,28 @@ private:
   static QChol* _derive_Qc(double s2, QChol* Qc, SPDE_Matelem& Matelem);
   static SPDE_Matelem& _get_current_matelem(Id icov);
   static void _matelem_print(Id icov);
-  static double _get_isill(Id icov, Id ivar, Id jvar);
+  double _get_isill(Id icov, Id ivar, Id jvar) const;
   QSimu* _qsimu_manage(Id mode, QSimu* qsimu);
   static Id _get_nvertex(Id icov);
-  static Id _fill_Isill(void);
-  static Id _fill_Csill(void);
+  Id _fill_Isill(void) const;
+  Id _fill_Csill(void) const;
   Id _spde_prepar(Db* dbin,
                   Db* dbout,
                   const VectorDouble& gext,
                   SPDE_Option& s_option);
-  static Id _fill_Bhetero(Db* dbin, Db* dbout);
-  static MatrixSparse* _extract_Q1_hetero(Id row_var,
-                                          Id col_var,
-                                          Id row_oper,
-                                          Id col_oper,
-                                          Id* nrows,
-                                          Id* ncols);
-  static Id _build_QCov(SPDE_Matelem& Matelem);
-  static Id _spde_build_matrices(Model* model, bool verbose);
+  Id _fill_Bhetero(Db* dbin, Db* dbout) const;
+  MatrixSparse* _extract_Q1_hetero(Id row_var,
+                                   Id col_var,
+                                   Id row_oper,
+                                   Id col_oper,
+                                   Id* nrows,
+                                   Id* ncols);
+  Id _build_QCov(SPDE_Matelem& Matelem);
+  Id _spde_build_matrices(bool verbose);
   void _matelem_manage(Id mode);
   Id _spde_check(const Db* dbin,
                  const Db* dbout,
                  Model* model1,
-                 Model* model2,
                  bool verbose,
                  const VectorDouble& gext,
                  bool mesh_dbin,
@@ -283,7 +281,7 @@ private:
                           Id nlayer,
                           Id nech,
                           double* ydat);
-  static Id _active_sample(Db* db, Id ndim, Id nlayer, Id iech, Id bypass);
+  Id _active_sample(Db* db, Id nlayer, Id iech, Id bypass) const;
   static void _print_details(Db* dbc, Id nech, Id ilayer);
   Id _migrate_pinch_to_point(Db* dbout, Db* dbc) const;
   static Id _spde_external_copy(SPDE_Matelem& matelem, Id icov0);
@@ -303,11 +301,10 @@ private:
                                      const VectorDouble& Lambda,
                                      Id nblin,
                                      double* blin);
-  static VectorDouble _spde_fill_Lambda(Model* model,
-                                        AMesh* amesh,
+  static VectorDouble _spde_fill_Lambda(AMesh* amesh,
                                         const VectorDouble& TildeC);
   static VectorDouble _spde_fill_TildeC(AMesh* amesh, const double* units);
-  static MatrixSparse* _spde_fill_S(AMesh* amesh, Model* model, const double* units);
+  MatrixSparse* _spde_fill_S(AMesh* amesh, const double* units);
   static void _tangent_calculate(double center[3],
                                  const double srot[2],
                                  double axes[2][3]);
@@ -321,21 +318,21 @@ private:
                                double center[3],
                                double xyz[3][3]);
   static VectorInt _get_vertex_ranks(AMesh* amesh, Db* dbin, Db* dbout);
-  static Id _fill_Bnugget(Db* dbin);
-  static VectorDouble _spde_get_mesh_dimension(AMesh* amesh);
+  Id _fill_Bnugget(Db* dbin) const;
+  VectorDouble _spde_get_mesh_dimension(AMesh* amesh) const;
   static Id _identify_nostat_param(const EConsElem& type0,
                                    Id icov0 = -1,
                                    Id ivar0 = -1,
                                    Id jvar0 = -1);
-  static Id _check_model(const Db* dbin, const Db* dbout, Model* model);
+  Id _check_model(const Db* dbin, const Db* dbout, Model* model) const;
   static void _convert_exponential2matern(CovAniso* cova);
-  static void _calcul_update(void);
-  static void _calcul_init(Id ndim);
-  static void _compute_hh();
-  static void _compute_blin(void);
-  static void _compute_correc(void);
-  static double _spde_compute_correc(Id ndim, double param);
-  static void _print_all(const char* title);
+  void _calcul_update(void);
+  void _calcul_init() const;
+  void _compute_hh() const;
+  void _compute_blin(void) const;
+  void _compute_correc(void) const;
+  double _spde_compute_correc(double param) const;
+  void _print_all(const char* title) const;
   static double _get_sill_total(Id ivar, Id jvar);
   static double _get_cova_range(void);
   static Id _get_ncova(void);
@@ -357,7 +354,6 @@ private:
   static CovAniso* _get_nugget(void);
   static bool _is_model_nugget(void);
   static void _environ_init(void);
-  static Id _get_number_grf(void);
   static Model* _get_model(void);
 
 private:
@@ -365,6 +361,7 @@ private:
   Db* _dbout;
   Model* _model;
   Id _ndim;
+  Id _nvar;
   Id _nechin;
   Id _nechout;
   Id _nlayer;
