@@ -210,7 +210,7 @@ Id AnamDiscreteDD::_stats(Id nech, const VectorDouble& tab)
 
 VectorDouble AnamDiscreteDD::factors_exp(bool verbose)
 {
-  VectorDouble chi, maf, lambda, veca, vecb, vecc, f1, eigval, eigvec;
+  VectorDouble chi, lambda, eigval, eigvec;
 
   /* Initializations */
 
@@ -218,21 +218,21 @@ VectorDouble AnamDiscreteDD::factors_exp(bool verbose)
 
   /* Core allocation */
 
-  f1.resize(nclass);
-  veca.resize(nclass);
-  vecb.resize(nclass);
-  vecc.resize(nclass);
+  VectorDouble f1(nclass);
+  VectorDouble veca(nclass);
+  VectorDouble vecb(nclass);
+  VectorDouble vecc(nclass);
   eigvec.resize(nclass * nclass);
   eigval.resize(nclass);
 
   /* Calculate the experimental MAF array */
 
-  maf = factors_maf(verbose);
+  MatrixDense maf = factors_maf(verbose);
 
   /* Calculate the array 'F1' (based on the first MAF) */
 
   for (Id iclass = 0; iclass < nclass; iclass++)
-    f1[iclass] = maf[iclass] / maf[0];
+    f1[iclass] = maf.getValue(iclass, 0) / maf.getValue(0, 0);
 
   /* Establish the tri-diagonal matrix */
 
@@ -303,34 +303,32 @@ VectorDouble AnamDiscreteDD::factors_exp(bool verbose)
   return chi;
 }
 
-VectorDouble AnamDiscreteDD::factors_maf(bool verbose)
+MatrixDense AnamDiscreteDD::factors_maf(bool verbose)
 {
-  VectorDouble maf, tab;
   auto ncut   = getNCut();
   auto nclass = getNClass();
 
   /* Core allocation */
 
-  maf.resize(nclass * nclass, 0);
-  tab.resize(nclass * nclass, 0);
+  MatrixDense maf(nclass, ncut);
+  MatrixDense tab(nclass, ncut);
 
   /* Calculate the experimental MAF array */
 
-  Id ecr = 0;
   for (Id icut = 0; icut < ncut; icut++)
-    for (Id iclass = 0; iclass < nclass; iclass++, ecr++)
+    for (Id iclass = 0; iclass < nclass; iclass++)
     {
       double bval = (iclass >= icut) ? 1 : 0;
       double cval = (iclass >= (icut + 1)) ? 1 : 0;
       double prop = getDDStatProp(icut);
-      tab[ecr]    = ((bval - cval) - prop) / sqrt(prop * (1. - prop));
+      tab.setValue(iclass, icut, ((bval - cval) - prop) / sqrt(prop * (1. - prop)));
     }
-  matrix_product_safe(nclass, ncut, ncut, tab.data(), getPcaZ2Fs().getValues().data(), maf.data());
+  getPcaZ2Fs().prodMatMatInPlace(&tab, &maf);
 
   /* Verbose option */
 
   if (verbose)
-    print_matrix("MAF", 0, 1, ncut, nclass, NULL, maf.data());
+    print_matrix("MAF", 0, 1, ncut, nclass, NULL, maf.getValues().data());
 
   return maf;
 }

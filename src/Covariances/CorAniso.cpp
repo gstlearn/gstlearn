@@ -402,7 +402,7 @@ bool CorAniso::isValidForSpectral() const
 }
 MatrixDense CorAniso::simulateSpectralOmega(Id nb) const
 {
-  MatrixDense omega = _corfunc->simulateSpectralOmega(nb);
+  MatrixDense omega   = _corfunc->simulateSpectralOmega(nb);
   MatrixSquare tensor = getAniso().getTensorInverse();
   // omega = omega * tensor;
   omega.prodMat(&tensor);
@@ -761,7 +761,7 @@ String CorAniso::toString(const AStringFormat* strfmt) const
  **                          or NULL (for stationary case)
  **
  *****************************************************************************/
-void CorAniso::nostatUpdate(CovInternal* covint)
+void CorAniso::nostatUpdate(CovInternal* covint) const
 {
   if (covint == nullptr) return;
   updateCovByPoints(covint->getIcas1(), covint->getIech1(),
@@ -1588,7 +1588,7 @@ void CorAniso::appendParams(ListParams& listparams,
 {
   listparams.addParams(_scales);
   listparams.addParams(_angles);
-  if (_scales.size () == 0 && _angles.size() == 0)
+  if (_scales.size() == 0 && _angles.size() == 0)
     return;
   auto derivCache = std::make_shared<DerivCache>();
   _handleConstraints();

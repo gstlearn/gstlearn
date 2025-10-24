@@ -78,11 +78,13 @@ MatrixDense CholeskyDense::inverse() const
   res.eigenMat() = _factor.solve(Id);
   return res;
 }
+
 void CholeskyDense::solveMatInPlace(const MatrixDense& mat, MatrixDense& res) const
 {
   if (!isReady()) return;
   res.eigenMat() = _factor.solve(mat.eigenMat());
 }
+
 Id CholeskyDense::addInvLtX(const constvect vecin, vect vecout) const
 {
   if (!isReady()) return 1;

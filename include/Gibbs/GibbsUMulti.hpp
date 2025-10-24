@@ -37,6 +37,6 @@ private:
   double _getEstimate(Id ipgs, Id iecr, VectorVectorDouble& y);
 
 private:
-  VectorDouble _covmat;
+  MatrixSquare _covmat;
 };
 } // namespace gstlrn

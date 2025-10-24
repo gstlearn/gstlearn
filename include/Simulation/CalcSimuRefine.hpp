@@ -12,6 +12,7 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Arrays/Array3D.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/SimuRefineParam.hpp"
@@ -46,9 +47,9 @@ private:
   static void _write(DbGrid* db, Id iatt, Id ix0, Id iy0, Id iz0, double value);
   void _truncate_result(DbGrid* db2, Id iatt2, DbGrid* db1, Id iatt1);
   Id _kriging_solve(Id type,
-                     Id rank,
-                     Id nb,
-                     bool verbose = false);
+                    Id rank,
+                    Id nb,
+                    bool verbose = false);
   void _simulate_nodes(DbGrid* db, Id iatt);
   void _simulate_target(DbGrid* db, Id type, Id iatt, Id ix0, Id iy0, Id iz0);
   Id _simulate();
@@ -63,15 +64,15 @@ private:
   VectorDouble _x02;
 
   DbGrid* _dbres; // Resulting Grid
-  Id _IXYZ[3][2][5];
-  double _XYZN[3][2][5];
-  double _WGT[2][2][5];
+  Array3D<Id, 3, 2, 5> _IXYZ;
+  Array3D<double, 3, 2, 5> _XYZN;
+  Array3D<double, 2, 2, 5> _WGT;
   double _STDV[2][2];
 };
 
 GSTLEARN_EXPORT DbGrid* simulation_refine(DbGrid* dbin,
                                           Model* model,
                                           const SimuRefineParam& param,
-                                          Id seed                        = 432432,
+                                          Id seed                         = 432432,
                                           const NamingConvention& namconv = NamingConvention("Refine"));
 } // namespace gstlrn

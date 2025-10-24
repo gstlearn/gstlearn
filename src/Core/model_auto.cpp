@@ -4244,7 +4244,6 @@ static void st_vario_varchol_manage(const Vario* vario,
 static void st_vmap_varchol_manage(const Db* dbmap, VectorDouble& varchol)
 {
   Id nvar = dbmap->getNLoc(ELoc::Z);
-  Id size = nvar * (nvar + 1) / 2;
 
   /* Allocation */
 
@@ -4255,9 +4254,8 @@ static void st_vmap_varchol_manage(const Db* dbmap, VectorDouble& varchol)
     VectorDouble ranges = dbmap->getRange(name);
     aux.setValue(ivar, ivar, ranges[1] - ranges[0]);
   }
-  varchol.resize(size);
-  if (matrix_cholesky_decompose(aux.getValues().data(), varchol.data(), nvar))
-    messageAbort("Error in the Cholesky decomposition of the variance matrix");
+  CholeskyDense chol(aux);
+  varchol = chol.getLowerTriangle();
 }
 
 /****************************************************************************/

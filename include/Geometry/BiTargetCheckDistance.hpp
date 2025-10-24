@@ -19,9 +19,9 @@ namespace gstlrn
 class GSTLEARN_EXPORT BiTargetCheckDistance: public ABiTargetCheck
 {
 public:
-  BiTargetCheckDistance(double radius = TEST,
-                       const VectorDouble& coeffs = VectorDouble(),
-                       const VectorDouble& angles = VectorDouble());
+  BiTargetCheckDistance(double radius              = TEST,
+                        const VectorDouble& coeffs = VectorDouble(),
+                        const VectorDouble& angles = VectorDouble());
   BiTargetCheckDistance(const BiTargetCheckDistance& r);
   BiTargetCheckDistance& operator=(const BiTargetCheckDistance& r);
   virtual ~BiTargetCheckDistance();
@@ -29,7 +29,7 @@ public:
   /// ICloneable Interface
   IMPLEMENT_CLONING(BiTargetCheckDistance)
 
-  bool isOK(const SpaceTarget &T1, const SpaceTarget &T2) const override;
+  bool isOK(const SpaceTarget& T1, const SpaceTarget& T2) const override;
 
   static BiTargetCheckDistance*
   create(double radius              = TEST,
@@ -63,15 +63,15 @@ private:
   void _calculateDistance() const;
 
 private:
-  Id    _ndim;                  /* Space dimension (used for array dimensioning) */
-  bool   _flagAniso;             /* 1 if the MOVING neigh. is anisotropic */
-  bool   _flagRotation;          /* 1 if the anisotropy is rotated */
-  double _radius;                /* Maximum isotropic distance */
-  VectorDouble _anisoCoeffs;     /* Anisotropy ratio for moving neighborhood */
-  VectorDouble _anisoRotMat;     /* Anisotropy rotation matrix */
+  Id _ndim;                  /* Space dimension (used for array dimensioning) */
+  bool _flagAniso;           /* 1 if the MOVING neigh. is anisotropic */
+  bool _flagRotation;        /* 1 if the anisotropy is rotated */
+  double _radius;            /* Maximum isotropic distance */
+  VectorDouble _anisoCoeffs; /* Anisotropy ratio for moving neighborhood */
+  VectorDouble _anisoRotMat; /* Anisotropy rotation matrix */
 
   mutable double _dist;
   mutable VectorDouble _movingIncr;
   mutable VectorDouble _movingAux;
 };
-}
+} // namespace gstlrn

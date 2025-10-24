@@ -43,6 +43,6 @@ private:
   double _getEstimate(Id icase, Id ivar, Id iact, VectorVectorDouble& y) const;
 
 private:
-  VectorVectorDouble _covmat; // One matrix per variable
+  std::vector<MatrixSquare> _covmat; // One matrix per variable
 };
 } // namespace gstlrn
