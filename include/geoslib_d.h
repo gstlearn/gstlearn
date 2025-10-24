@@ -14,7 +14,6 @@
 #include "geoslib_define.h"
 
 #include "Enum/EKrigOpt.hpp"
-#include "Matrix/MatrixSparse.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Model/Option_VarioFit.hpp"
 
@@ -90,13 +89,6 @@ typedef struct
   std::vector<SubPlan> plans;
 } SubPlanes;
 
-struct QChol;
-typedef struct
-{
-  QChol* QCtt;
-  QChol* QCtd;
-} QSimu;
-
 class Cheb_Elem
 {
 public:
@@ -111,22 +103,6 @@ public:
   double tol;          /* Tolerance */
   VectorDouble coeffs; /* Array of coefficients */
 };
-
-#ifndef SWIG
-typedef struct
-{
-  VectorDouble Lambda;
-  MatrixSparse* S;
-  MatrixSparse* Aproj;
-  QChol* QC;
-  std::vector<QChol*> QCov;
-  MatrixSquare Isill;
-  VectorDouble Csill;
-  QSimu* qsimu;
-  Cheb_Elem* s_cheb;
-  AMesh* amesh;
-} SPDE_Matelem;
-#endif
 
 typedef struct
 {

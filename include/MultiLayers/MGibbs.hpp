@@ -11,7 +11,9 @@
 #pragma once
 
 #include "Basic/AStringable.hpp"
+#include "LinearOp/CholeskySparse.hpp"
 #include "Variogram/Vario.hpp"
+#include "geoslib_d.h"
 #include "gstlearn_export.hpp"
 
 namespace gstlrn
@@ -19,7 +21,6 @@ namespace gstlrn
 class M2D_Environ
 {
 public:
-  Id flag_ed;
   Id iatt_fd;
   Id iatt_fg;
   double zmean;
@@ -33,11 +34,45 @@ public:
   VectorDouble dcoef;
 };
 
+class QChol
+{
+public:
+  MatrixSparse* Q;
+  CholeskySparse* chol;
+};
+
+class QSimu
+{
+public:
+  QChol* QCtt;
+  QChol* QCtd;
+};
+
+class SPDE_Matelem
+{
+public:
+  VectorDouble Lambda;
+  MatrixSparse* S;
+  MatrixSparse* Aproj;
+  QChol* QC;
+  std::vector<QChol*> QCov;
+  VectorDouble Isill;
+  VectorDouble Csill;
+  QSimu* qsimu;
+  Cheb_Elem* s_cheb;
+  AMesh* amesh;
+};
+
 class Db;
 class Model;
 class MatrixSquare;
+class MatrixSparse;
 class Vario;
 class M2D_Environ;
+class Cheb_Elem;
+class AMesh;
+class EConsElem;
+class CovAniso;
 
 class GSTLEARN_EXPORT MGibbs: public AStringable
 {
@@ -65,103 +100,265 @@ public:
 private:
   bool _checkValid();
   bool _checkPinchout();
-  static void st_m2denv_manage(double ystdv, M2D_Environ& m2denv);
-  void st_m2d_stats_init(M2D_Environ& m2denv, double percent = 0.05);
-  Id st_m2d_drift_manage(M2D_Environ& m2denv, Id* iatt_f);
-  void st_print_db_constraints(const char* title,
-                               Db* db,
-                               const VectorDouble& ydat) const;
-  Db* st_m2d_create_constraints(M2D_Environ& m2denv, Id* number_hard);
-  void st_m2d_drift_save(M2D_Environ& m2denv, double* gwork);
-  void st_define_locators(M2D_Environ& m2denv, Db* db, Id nvar) const;
-  Id st_m2d_initial_elevations(M2D_Environ& m2denv,
-                               Db* dbc,
-                               VectorDouble& work) const;
-  void st_m2d_stats_updt(M2D_Environ& m2denv, Db* dbc) const;
-  Id st_m2d_drift_fitting(M2D_Environ& m2denv,
-                          Db* dbc,
-                          Id number_hard) const;
-  Id st_m2d_drift_inc_manage(M2D_Environ& m2denv,
-                             Id mode,
-                             Db* dbc);
-  void st_m2d_set_M(M2D_Environ& m2denv,
-                    Id icol_pinch,
+  static void _m2denv_manage(double ystdv, M2D_Environ& m2denv);
+  void _stats_init(M2D_Environ& m2denv, double percent = 0.05);
+  Id _drift_manage(M2D_Environ& m2denv, Id* iatt_f, double percent = 0.05);
+  void _print_db_constraints(const char* title,
+                             Db* db,
+                             const VectorDouble& ydat) const;
+  Db* _create_constraints(Id* number_hard);
+  void _drift_save(M2D_Environ& m2denv, double* gwork);
+  void _define_locators(Db* db, Id nvar) const;
+  Id _initial_elevations(M2D_Environ& m2denv,
+                         Db* dbc,
+                         VectorDouble& work,
+                         Id njter_max = 20) const;
+  void _stats_updt(M2D_Environ& m2denv, Db* dbc, double percent = 0.05) const;
+  Id _drift_fitting(M2D_Environ& m2denv,
+                    Db* dbc,
+                    Id number_hard) const;
+  Id _drift_inc_manage(M2D_Environ& m2denv,
+                       Id mode,
+                       Db* dbc);
+  void _set_M(M2D_Environ& m2denv,
+              Id icol_pinch,
+              Db* db,
+              Id iatt) const;
+  double _get_drift(M2D_Environ& m2denv,
                     Db* db,
-                    Id iatt) const;
-  static double st_m2d_get_drift(M2D_Environ& m2denv,
-                                 Db* db,
-                                 Id ilayer0,
-                                 Id iech0);
-  static double st_m2d_external_drift_increment(M2D_Environ& m2denv,
-                                                Db* db,
-                                                Id ilayer0,
-                                                Id iech0);
-  static double st_m2d_get_M(M2D_Environ& m2denv,
-                             Db* db,
-                             Id type,
-                             Id ilayer,
-                             Id iech);
-  static double st_m2d_get_S(M2D_Environ& m2denv,
-                             Db* db,
-                             Id type,
-                             Id ilayer,
-                             Id iech);
-  static double st_m2d_draw_elevation(M2D_Environ& m2denv,
-                                      Id ilayer,
-                                      double lower,
-                                      double upper);
-  Id st_record_sample(M2D_Environ& m2denv,
-                      Db* db,
-                      Id iech,
-                      Id ndim,
-                      Id natt,
-                      Id bypass,
-                      Id* number_arg,
-                      double* tab) const;
-  static double st_m2d_draw_gaussian(M2D_Environ& m2denv,
-                                     Db* dbc,
-                                     bool verbose,
-                                     Id iter,
-                                     Id ilayer,
-                                     Id iech,
-                                     double Zval,
-                                     double Zcum,
-                                     double Zmin,
-                                     double Zmax,
-                                     double Ymean,
-                                     double Ysigma);
-  void st_convert_Z2Y(M2D_Environ& m2denv,
-                      Db* dbc,
-                      Id type,
-                      Id iech,
-                      VectorDouble& tab) const;
-  void st_convert_Y2Z(M2D_Environ& m2denv,
-                      Db* db,
-                      Id type,
-                      Id iech,
-                      VectorDouble& tab) const;
-  Id st_global_gibbs(M2D_Environ& m2denv,
+                    Id ilayer0,
+                    Id iech0) const;
+  static double _external_drift_increment(M2D_Environ& m2denv,
+                                          Db* db,
+                                          Id ilayer0,
+                                          Id iech0);
+  static double _get_M(M2D_Environ& m2denv,
+                       Db* db,
+                       Id type,
+                       Id ilayer,
+                       Id iech);
+  static double _get_S(M2D_Environ& m2denv,
+                       Db* db,
+                       Id type,
+                       Id ilayer,
+                       Id iech);
+  static double _draw_elevation(M2D_Environ& m2denv,
+                                Id ilayer,
+                                double lower,
+                                double upper);
+  Id _record_sample(Db* db,
+                    Id iech,
+                    Id ndim,
+                    Id natt,
+                    Id bypass,
+                    Id* number_arg,
+                    double* tab) const;
+  static double _draw_gaussian(M2D_Environ& m2denv,
+                               Db* dbc,
+                               bool verbose,
+                               Id iter,
+                               Id ilayer,
+                               Id iech,
+                               double Zval,
+                               double Zcum,
+                               double Zmin,
+                               double Zmax,
+                               double Ymean,
+                               double Ysigma);
+  void _convert_Z2Y(M2D_Environ& m2denv,
+                    Db* dbc,
+                    Id type,
+                    Id iech,
+                    VectorDouble& tab) const;
+  void _convert_Y2Z(M2D_Environ& m2denv,
+                    Db* db,
+                    Id type,
+                    Id iech,
+                    VectorDouble& tab) const;
+  Id _global_gibbs(M2D_Environ& m2denv,
+                   Db* dbc,
+                   Id iter,
+                   double sigma,
+                   VectorDouble& ymean,
+                   VectorDouble& ydat,
+                   VectorDouble& work);
+  void _print_sample(const char* title,
+                     M2D_Environ& m2denv,
                      Db* dbc,
-                     Id iter,
-                     double sigma,
-                     VectorDouble& ymean,
-                     VectorDouble& ydat,
-                     VectorDouble& work);
-  void st_print_sample(const char* title,
+                     Id iech,
+                     VectorDouble& work) const;
+  Id _check_gibbs_data(const char* title,
                        M2D_Environ& m2denv,
                        Db* dbc,
-                       Id iech,
-                       VectorDouble& work) const;
-  Id st_check_gibbs_data(const char* title,
-                         M2D_Environ& m2denv,
-                         Db* dbc,
-                         VectorDouble& ydat,
-                         VectorDouble& work);
-  void st_m2d_vector_extract(M2D_Environ& m2denv,
-                             Db* dbc,
-                             VectorDouble& ydat,
-                             VectorDouble& work);
-  static void st_m2d_print_environ(const char* title, M2D_Environ& m2denv);
+                       VectorDouble& ydat,
+                       VectorDouble& work);
+  void _vector_extract(M2D_Environ& m2denv,
+                       Db* dbc,
+                       VectorDouble& ydat,
+                       VectorDouble& work);
+  void _print_environ(const char* title, M2D_Environ& m2denv) const;
+  static Id _check_validity_MS(Db* db,
+                               Id ilayer,
+                               Id iech,
+                               bool flag_positive,
+                               bool flag_verbose,
+                               double M,
+                               double S,
+                               double eps = 1.e-3);
+  static Id _kriging_cholesky(QChol* QC,
+                              VectorDouble& rhs,
+                              VectorDouble& work,
+                              VectorDouble& z);
+  static Id _qchol_cholesky(bool verbose, QChol* QC);
+  static Id _simulate_cholesky(QChol* QC, VectorDouble& work, VectorDouble& zsnc);
+  static QChol* _derive_Qc(double s2, QChol* Qc, SPDE_Matelem& Matelem);
+  static SPDE_Matelem& _get_current_matelem(Id icov);
+  static void _matelem_print(Id icov);
+  static double _get_isill(Id icov, Id ivar, Id jvar);
+  QSimu* _qsimu_manage(Id mode, QSimu* qsimu);
+  static Id _get_nvertex(Id icov);
+  static Id _fill_Isill(void);
+  static Id _fill_Csill(void);
+  Id _spde_prepar(Db* dbin,
+                  Db* dbout,
+                  const VectorDouble& gext,
+                  SPDE_Option& s_option);
+  static Id _fill_Bhetero(Db* dbin, Db* dbout);
+  static MatrixSparse* _extract_Q1_hetero(Id row_var,
+                                          Id col_var,
+                                          Id row_oper,
+                                          Id col_oper,
+                                          Id* nrows,
+                                          Id* ncols);
+  static Id _build_QCov(SPDE_Matelem& Matelem);
+  static Id _spde_build_matrices(Model* model, bool verbose);
+  void _matelem_manage(Id mode);
+  Id _spde_check(const Db* dbin,
+                 const Db* dbout,
+                 Model* model1,
+                 Model* model2,
+                 bool verbose,
+                 const VectorDouble& gext,
+                 bool mesh_dbin,
+                 bool mesh_dbout,
+                 bool flag_advanced,
+                 bool flag_est,
+                 bool flag_std,
+                 bool flag_gibbs,
+                 bool flag_modif);
+  static SPDE_Option _spde_option_alloc(void);
+  static Id _get_rank(Id ivar, Id jvar);
+  static MatrixSparse* _extract_Q1_nugget(Id row_var,
+                                          Id col_var,
+                                          Id* nrows,
+                                          Id* ncols);
+  static double _get_nugget_sill(Id ivar, Id jvar);
+  static void _environ_print(const Db* dbout, const VectorDouble& gext);
+  static void _chol_invert(QChol* qctt,
+                           VectorDouble& xcr,
+                           const VectorDouble& rhs,
+                           const VectorDouble& work);
+  static void _chol_simulate(QChol* qctt,
+                             VectorDouble& simu,
+                             const VectorDouble& work);
+  Cheb_Elem* _spde_cheb_manage(Id mode,
+                               bool verbose,
+                               double power,
+                               const VectorDouble& blin,
+                               MatrixSparse* S,
+                               Cheb_Elem* cheb_old);
+  static Id _spde_posterior();
+  static void _print_concatenate_interval(const char* title,
+                                          double lower,
+                                          double upper,
+                                          Id tail);
+  static void _print_constraints_per_point(Id ilayer,
+                                           Id iech,
+                                           double value,
+                                           double drift,
+                                           double vgaus,
+                                           double lower,
+                                           double upper);
+  static void _stats_gaus(const char* title,
+                          Id nlayer,
+                          Id nech,
+                          double* ydat);
+  static Id _active_sample(Db* db, Id ndim, Id nlayer, Id iech, Id bypass);
+  static void _print_details(Db* dbc, Id nech, Id ilayer);
+  Id _migrate_pinch_to_point(Db* dbout, Db* dbc) const;
+  static Id _spde_external_copy(SPDE_Matelem& matelem, Id icov0);
+  static Id _is_external_AQ_defined(Id icov0);
+  static AMesh* _create_meshes(Db* dbin,
+                               Db* dbout,
+                               const VectorDouble& gext,
+                               SPDE_Option& s_option);
+  static Id _chebychev_calculate_coeffs(Cheb_Elem* cheb_elem,
+                                        bool verbose,
+                                        const VectorDouble& blin);
+  static double _chebychev_function(double x,
+                                    double power,
+                                    const VectorDouble& blin);
+  static Id _build_Q(SPDE_Matelem& Matelem);
+  static MatrixSparse* _spde_build_Q(MatrixSparse* S,
+                                     const VectorDouble& Lambda,
+                                     Id nblin,
+                                     double* blin);
+  static VectorDouble _spde_fill_Lambda(Model* model,
+                                        AMesh* amesh,
+                                        const VectorDouble& TildeC);
+  static VectorDouble _spde_fill_TildeC(AMesh* amesh, const double* units);
+  static MatrixSparse* _spde_fill_S(AMesh* amesh, Model* model, const double* units);
+  static void _tangent_calculate(double center[3],
+                                 const double srot[2],
+                                 double axes[2][3]);
+  static void _project_plane(double center[3],
+                             double axes[2][3],
+                             double xyz[3],
+                             double coeff[2]);
+  static void _triangle_center(AMesh* amesh,
+                               Id ncorner,
+                               Id imesh,
+                               double center[3],
+                               double xyz[3][3]);
+  static VectorInt _get_vertex_ranks(AMesh* amesh, Db* dbin, Db* dbout);
+  static Id _fill_Bnugget(Db* dbin);
+  static VectorDouble _spde_get_mesh_dimension(AMesh* amesh);
+  static Id _identify_nostat_param(const EConsElem& type0,
+                                   Id icov0 = -1,
+                                   Id ivar0 = -1,
+                                   Id jvar0 = -1);
+  static Id _check_model(const Db* dbin, const Db* dbout, Model* model);
+  static void _convert_exponential2matern(CovAniso* cova);
+  static void _calcul_update(void);
+  static void _calcul_init(Id ndim);
+  static void _compute_hh();
+  static void _compute_blin(void);
+  static void _compute_correc(void);
+  static double _spde_compute_correc(Id ndim, double param);
+  static void _print_all(const char* title);
+  static double _get_sill_total(Id ivar, Id jvar);
+  static double _get_cova_range(void);
+  static Id _get_ncova(void);
+  static double _get_cova_param(void);
+  static void _set_title(Id flag_igrf, Id flag_icov, Id rank, const char* title);
+  static void _set_filnug(Id flag_filnug);
+  static double _get_cova_sill(Id ivar, Id jvar);
+  static QChol* _extract_QC_from_Q(const char* title,
+                                   QChol* QC_in,
+                                   Id row_auth,
+                                   Id col_auth);
+  static QChol* _qchol_manage(Id mode, QChol* QC);
+  static MatrixSparse* _extract_Q_from_Q(MatrixSparse* Q_in, Id row_auth, Id col_auth);
+  static void _qchol_filter(const char* title, Id auth);
+  static void _print_status(Id auth);
+  static Id _get_filnug(void);
+  static void _set_model(Model* model);
+  static CovAniso* _get_cova(void);
+  static CovAniso* _get_nugget(void);
+  static bool _is_model_nugget(void);
+  static void _environ_init(void);
+  static Id _get_number_grf(void);
+  static Model* _get_model(void);
 
 private:
   Db* _dbin;

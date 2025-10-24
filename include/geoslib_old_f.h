@@ -561,9 +561,6 @@ GSTLEARN_EXPORT Id time_3db(double* HS,
                             double HS_EPS_INIT,
                             Id MSG);
 
-#ifndef SWIG
-GSTLEARN_EXPORT SPDE_Matelem& spde_get_current_matelem(Id icov);
-#endif
 GSTLEARN_EXPORT AMesh* spde_mesh_load(Db* dbin,
                                       Db* dbout,
                                       const VectorDouble& gext,
