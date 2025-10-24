@@ -8,7 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "MLayers/MLayers.hpp"
+#include "MultiLayers/MLayers.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
@@ -18,9 +18,6 @@
 #include "Matrix/MatrixSquare.hpp"
 #include "Model/Model.hpp"
 #include "geoslib_old_f.h"
-
-#define IAD(n, i, j)      ((n) * (i) + (j))
-#define INVS(_npar, i, j) (invS[IAD(_npar, i, j)])
 
 namespace gstlrn
 {

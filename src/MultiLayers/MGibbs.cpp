@@ -8,6 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "MultiLayers/MGibbs.hpp"
+
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
@@ -47,9 +49,8 @@
 #define SPDE_MAX_NGRF 2
 
 /*! \cond */
-#define VT_NONE -1
-#define VT_IDLE 0
-
+#define VT_NONE  -1
+#define VT_IDLE  0
 #define VT_FREE  1
 #define VT_GIBBS 2
 #define VT_HARD  4
@@ -81,11 +82,11 @@
 #define XCUR(icov, ivar, icur)  (xcur[ADM(icov, ivar, icur)])
 #define TAB(icov, ivar, icur)   (tab[ADM(icov, ivar, icur)])
 #define DATA(ivar, idata)       (data[(ivar) * ndata + (idata)])
-#define GWORK(ilayer, iech)     (gwork[(ilayer) * ngrid + (iech)])
+#define GWORK(ilayer, iech)     (gwork[(ilayer) * _nechout + (iech)])
 #define YVERT(ilayer, iech)     (yvert[(ilayer) * nvertex + (iech)])
 #define YDAT(ilayer, iech)      (ydat[(ilayer) * nech + (iech)])
 #define YMEAN(ilayer, iech)     (ymean[(ilayer) * nech + (iech)])
-#define DCOEF(ilayer)           (m2denv->dcoef[ilayer])
+#define DCOEF(ilayer)           (m2denv.dcoef[ilayer])
 
 namespace gstlrn
 {
@@ -132,22 +133,6 @@ typedef struct
 
 typedef struct
 {
-  Id flag_ed;
-  Id iatt_fd;
-  Id iatt_fg;
-  double zmean;
-  double zstdv;
-  double zeps;
-  double zmini;
-  double zmaxi;
-  double dmini;
-  double dmaxi;
-  double ystdv;
-  VectorDouble dcoef;
-} M2D_Environ;
-
-typedef struct
-{
   Id flag_sphere;
   double sqdeth;
   double correc;
@@ -182,6 +167,77 @@ static SPDE_Decision S_DECIDE;
 static String string_encode;
 static SPDE_Calcul Calcul;
 
+MGibbs::MGibbs(Db* dbin, Db* dbout, Model* model)
+  : AStringable()
+  , _dbin(dbin)
+  , _dbout(dbout)
+  , _model(model)
+  , _ndim(0)
+  , _nechin(0)
+  , _nechout(0)
+  , _nlayer(0)
+  , _niter(0)
+  , _seed(0)
+  , _nbsimu(0)
+  , _icolPinch(-1)
+  , _flagED(false)
+  , _flagDrift(false)
+  , _flagCE(false)
+  , _flagCStd(false)
+  , _verbose(false)
+{
+}
+
+MGibbs::MGibbs(const MGibbs& m)
+  : AStringable(m)
+  , _dbin(m._dbin)
+  , _dbout(m._dbout)
+  , _model(m._model)
+  , _ndim(m._ndim)
+  , _nechin(m._nechin)
+  , _nechout(m._nechout)
+  , _nlayer(m._nlayer)
+  , _niter(m._niter)
+  , _seed(m._seed)
+  , _nbsimu(m._nbsimu)
+  , _icolPinch(m._icolPinch)
+  , _flagED(m._flagED)
+  , _flagDrift(m._flagDrift)
+  , _flagCE(m._flagCE)
+  , _flagCStd(m._flagCStd)
+  , _verbose(m._verbose)
+{
+}
+
+MGibbs& MGibbs::operator=(const MGibbs& m)
+{
+  if (this != &m)
+  {
+    AStringable::operator=(m);
+    _dbin      = m._dbin;
+    _dbout     = m._dbout;
+    _model     = m._model;
+    _ndim      = m._ndim;
+    _nechin    = m._nechin;
+    _nechout   = m._nechout;
+    _nlayer    = m._nlayer;
+    _niter     = m._niter;
+    _seed      = m._seed;
+    _nbsimu    = m._nbsimu;
+    _icolPinch = m._icolPinch;
+    _flagED    = m._flagED;
+    _flagDrift = m._flagDrift;
+    _flagCE    = m._flagCE;
+    _flagCStd  = m._flagCStd;
+    _verbose   = m._verbose;
+  }
+  return *this;
+}
+
+MGibbs::~MGibbs()
+{
+}
+
 static bool is_chol_ready(QChol* QC)
 {
   return QC->chol != nullptr;
@@ -215,7 +271,7 @@ Id qchol_getNCols(QChol* QC)
  ** \remarks If the decomposition is already performed, nothing is done
  **
  *****************************************************************************/
-static Id qchol_cholesky(Id verbose, QChol* QC)
+static Id qchol_cholesky(bool verbose, QChol* QC)
 {
   /* Check that the Q matrix has already been defined */
 
@@ -2429,7 +2485,7 @@ label_end:
  ** \remarks It must be freed by the calling functions
  **
  *****************************************************************************/
-static Id st_spde_build_matrices(Model* model, Id verbose)
+static Id st_spde_build_matrices(Model* model, bool verbose)
 {
   Id error = 1;
   VectorDouble tildec;
@@ -2518,7 +2574,7 @@ static double st_chebychev_function(double x,
  **
  *****************************************************************************/
 static Id st_chebychev_calculate_coeffs(Cheb_Elem* cheb_elem,
-                                        Id verbose,
+                                        bool verbose,
                                         const VectorDouble& blin)
 
 {
@@ -2636,7 +2692,7 @@ static Id st_simulate_cholesky(QChol* QC, VectorDouble& work, VectorDouble& zsnc
  **
  *****************************************************************************/
 static Cheb_Elem* st_spde_cheb_manage(Id mode,
-                                      Id verbose,
+                                      bool verbose,
                                       double power,
                                       const VectorDouble& blin,
                                       MatrixSparse* S,
@@ -3299,35 +3355,30 @@ static Id st_spde_check(const Db* dbin,
  **
  ** \return Error returned code
  **
- ** \param[in]  dbgrid      Grid structure
- ** \param[in]  icol_pinch  Pointer to the pinchout variabe
- **
  *****************************************************************************/
-static Id st_m2d_check_pinchout(Db* dbgrid, Id icol_pinch)
+bool MGibbs::_checkPinchout()
 {
-  if (dbgrid == nullptr) return 0;
-  if (icol_pinch < 0) return 0;
+  if (_icolPinch < 0) return true;
 
   // Initializations
 
-  Id nech          = dbgrid->getNSample();
-  VectorDouble tab = dbgrid->getColumnByUID(icol_pinch);
+  Id nech          = _dbout->getNSample();
+  VectorDouble tab = _dbout->getColumnByUID(_icolPinch);
 
   // Check that values are within [0,1] interval
 
   for (Id iech = 0; iech < nech; iech++)
   {
-    if (!dbgrid->isActive(iech)) continue;
+    if (!_dbout->isActive(iech)) continue;
     if (FFFF(tab[iech])) continue;
     if (tab[iech] < 0 || tab[iech] > 1)
     {
       messerr("Pinchout variable should lie in [0,1]");
-      messerr("At grid node %d/%d, the value is %lf", iech + 1, nech,
-              tab[iech]);
-      return 1;
+      messerr("At grid node %d/%d, the value is %lf", iech + 1, nech, tab[iech]);
+      return false;
     }
   }
-  return 0;
+  return true;
 }
 
 /****************************************************************************/
@@ -3337,20 +3388,21 @@ static Id st_m2d_check_pinchout(Db* dbgrid, Id icol_pinch)
  ** \return The value assigned to this inequality
  **
  ** \param[in]  m2denv      M2D_Environ structure
+ ** \param[in]  ilayer      Rank of the layer
  ** \param[in]  lower       Lower bound
  ** \param[in]  upper       Upper bound
  **
  *****************************************************************************/
-static double st_m2d_draw_elevation(M2D_Environ* m2denv,
-                                    Id /*nlayer*/,
-                                    Id /*ilayer*/,
-                                    double lower,
-                                    double upper)
+double MGibbs::st_m2d_draw_elevation(M2D_Environ& m2denv,
+                                     Id ilayer,
+                                     double lower,
+                                     double upper)
 {
+  DECLARE_UNUSED(ilayer);
   double value, lowloc, upploc, mean, stdv;
 
-  mean   = m2denv->zmean;
-  stdv   = m2denv->zstdv;
+  mean   = m2denv.zmean;
+  stdv   = m2denv.zstdv;
   lowloc = lower;
   upploc = upper;
   value  = 0.;
@@ -3510,20 +3562,14 @@ static Id st_check_validity_MS(Db* db,
  ** \param[in]  iech        Rank of the sample of interest
  **
  *****************************************************************************/
-static double st_m2d_get_M(M2D_Environ* m2denv,
-                           Db* db,
-                           Id type,
-                           Id ilayer,
-                           Id iech)
+double MGibbs::st_m2d_get_M(M2D_Environ& m2denv,
+                            Db* db,
+                            Id type,
+                            Id ilayer,
+                            Id iech)
 {
-  double value;
-  Id iatt;
-
-  if (type == 1)
-    iatt = m2denv->iatt_fd;
-  else
-    iatt = m2denv->iatt_fg;
-  value = db->getArray(iech, iatt + ilayer);
+  Id iatt      = (type == 1) ? m2denv.iatt_fd : m2denv.iatt_fg;
+  double value = db->getArray(iech, iatt + ilayer);
   return (value);
 }
 
@@ -3534,18 +3580,24 @@ static double st_m2d_get_M(M2D_Environ* m2denv,
  ** \return The mean value or TEST value
  **
  ** \param[in]  m2denv      M2D_Environ structure
+ ** \param[in]  db          Db structure containing the constraints
+ ** \param[in]  type        1 for the constraining Db
+ **                         2 for the grid output Db
+ ** \param[in]  ilayer      Rank of the layer of interest
+ ** \param[in]  iech        Rank of the sample of interest
  **
  *****************************************************************************/
-static double st_m2d_get_S(M2D_Environ* m2denv,
-                           Db* /*db*/,
-                           Id /*type*/,
-                           Id /*ilayer*/,
-                           Id /*iech*/)
+double MGibbs::st_m2d_get_S(M2D_Environ& m2denv,
+                            Db* db,
+                            Id type,
+                            Id ilayer,
+                            Id iech)
 {
-  double value;
-
-  value = m2denv->ystdv;
-  return (value);
+  DECLARE_UNUSED(db);
+  DECLARE_UNUSED(type);
+  DECLARE_UNUSED(ilayer);
+  DECLARE_UNUSED(iech);
+  return m2denv.ystdv;
 }
 
 /****************************************************************************/
@@ -3560,10 +3612,10 @@ static double st_m2d_get_S(M2D_Environ* m2denv,
  ** \param[in]  iech0       Rank of the sample of interest
  **
  *****************************************************************************/
-static double st_m2d_external_drift_increment(M2D_Environ* m2denv,
-                                              Db* db,
-                                              Id ilayer0,
-                                              Id iech0)
+double MGibbs::st_m2d_external_drift_increment(M2D_Environ& m2denv,
+                                               Db* db,
+                                               Id ilayer0,
+                                               Id iech0)
 {
   double value, previous;
 
@@ -3572,7 +3624,7 @@ static double st_m2d_external_drift_increment(M2D_Environ* m2denv,
   if (ilayer0 > 1)
     previous = db->getLocVariable(ELoc::F, iech0, ilayer0 - 1);
   else
-    previous = m2denv->dmini;
+    previous = m2denv.dmini;
   if (FFFF(previous)) return (TEST);
   value -= previous;
   return (value);
@@ -3591,15 +3643,15 @@ static double st_m2d_external_drift_increment(M2D_Environ* m2denv,
  ** \param[in]  iech0       Rank of the sample of interest
  **
  *****************************************************************************/
-static double st_m2d_get_drift(M2D_Environ* m2denv,
-                               Db* db,
-                               Id ilayer0,
-                               Id iech0)
+double MGibbs::st_m2d_get_drift(M2D_Environ& m2denv,
+                                Db* db,
+                                Id ilayer0,
+                                Id iech0)
 {
   double coeff, value, drift;
 
   coeff = DCOEF(ilayer0);
-  if (m2denv->flag_ed)
+  if (m2denv.flag_ed)
     drift = st_m2d_external_drift_increment(m2denv, db, ilayer0, iech0);
   else
     drift = 1.;
@@ -3613,21 +3665,19 @@ static double st_m2d_get_drift(M2D_Environ* m2denv,
  **  Calculate the drift increment in a Db
  **
  ** \param[in]  m2denv      M2D_Environ structure
- ** \param[in]  nlayer      Number of layers
  ** \param[in]  icol_pinch  Pointer to the pinchout variabe
  ** \param[in]  db          Db structure
  ** \param[in]  iatt        Pointer to the drift vector
  **
  *****************************************************************************/
-static void st_m2d_set_M(M2D_Environ* m2denv,
-                         Id nlayer,
-                         Id icol_pinch,
-                         Db* db,
-                         Id iatt)
+void MGibbs::st_m2d_set_M(M2D_Environ& m2denv,
+                          Id icol_pinch,
+                          Db* db,
+                          Id iatt) const
 {
   double drift;
 
-  for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+  for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
   {
     for (Id iech = 0; iech < db->getNSample(); iech++)
     {
@@ -3703,25 +3753,18 @@ static Id st_m2d_migrate_pinch_to_point(Db* dbout, Db* dbc, Id icol_pinch)
  **
  ** \param[in]  m2denv      M2D_Environ structure
  ** \param[in]  mode        1 adding; -1 deleting
- ** \param[in]  nlayer      Number of layers
- ** \param[in]  icol_pinch  Pointer to the pinchout variabe
  ** \param[in]  dbc         Db constraints structure
- ** \param[in]  dbout       Db output structure
  **
  *****************************************************************************/
-static Id st_m2d_drift_inc_manage(M2D_Environ* m2denv,
-                                  Id mode,
-                                  Id nlayer,
-                                  Id icol_pinch,
-                                  Db* dbc,
-                                  Db* dbout)
+Id MGibbs::st_m2d_drift_inc_manage(M2D_Environ& m2denv,
+                                   Id mode,
+                                   Db* dbc)
 {
   double M, S;
   Id iptr;
 
   /* Initializations */
 
-  if (m2denv == nullptr) return (1);
   iptr = -1;
 
   /* Dispatch */
@@ -3731,13 +3774,13 @@ static Id st_m2d_drift_inc_manage(M2D_Environ* m2denv,
 
     /* Identify the drift at the constraining samples */
 
-    m2denv->iatt_fd = dbc->addColumnsByConstant(nlayer, TEST);
-    if (m2denv->iatt_fd < 0) return (1);
+    m2denv.iatt_fd = dbc->addColumnsByConstant(_nlayer, TEST);
+    if (m2denv.iatt_fd < 0) return (1);
 
     /* If pinch-out is defined, interpolate it at well data */
 
-    iptr = st_m2d_migrate_pinch_to_point(dbout, dbc, icol_pinch);
-    st_m2d_set_M(m2denv, nlayer, iptr, dbc, m2denv->iatt_fd);
+    iptr = st_m2d_migrate_pinch_to_point(_dbout, dbc, _icolPinch);
+    st_m2d_set_M(m2denv, iptr, dbc, m2denv.iatt_fd);
     if (iptr >= 0) dbc->deleteColumnByUID(iptr);
 
     /* Check validity of drift at data points */
@@ -3745,7 +3788,7 @@ static Id st_m2d_drift_inc_manage(M2D_Environ* m2denv,
     for (Id iech = 0; iech < dbc->getNSample(); iech++)
     {
       if (!dbc->isActive(iech)) continue;
-      for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+      for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
       {
         M = st_m2d_get_M(m2denv, dbc, 1, ilayer, iech);
         S = st_m2d_get_S(m2denv, dbc, 1, ilayer, iech);
@@ -3755,22 +3798,22 @@ static Id st_m2d_drift_inc_manage(M2D_Environ* m2denv,
 
     /* Identify the drift at the target grid nodes */
 
-    m2denv->iatt_fg = dbout->addColumnsByConstant(nlayer, TEST);
-    if (m2denv->iatt_fg < 0) return (1);
-    st_m2d_set_M(m2denv, nlayer, icol_pinch, dbout, m2denv->iatt_fg);
+    m2denv.iatt_fg = _dbout->addColumnsByConstant(_nlayer, TEST);
+    if (m2denv.iatt_fg < 0) return (1);
+    st_m2d_set_M(m2denv, _icolPinch, _dbout, m2denv.iatt_fg);
   }
   else
   {
 
     /* Deleting the drift at the constraining samples */
 
-    if (m2denv->iatt_fd >= 0)
-      dbc->deleteColumnsByUIDRange(m2denv->iatt_fd, nlayer);
+    if (m2denv.iatt_fd >= 0)
+      dbc->deleteColumnsByUIDRange(m2denv.iatt_fd, _nlayer);
 
     /* Deleting the drift at the target grid */
 
-    if (m2denv->iatt_fg >= 0)
-      dbout->deleteColumnsByUIDRange(m2denv->iatt_fg, nlayer);
+    if (m2denv.iatt_fg >= 0)
+      _dbout->deleteColumnsByUIDRange(m2denv.iatt_fg, _nlayer);
   }
   return (0);
 }
@@ -3780,39 +3823,29 @@ static Id st_m2d_drift_inc_manage(M2D_Environ* m2denv,
  **  Calculate global statistics on elevations
  **
  ** \param[in]  m2denv      M2D_Environ structure
- ** \param[in]  dbin        Db input structure
- ** \param[in]  nlayer      Number of layers
- ** \param[in]  verbose     Verbose flag
+ ** \param[in]  percent     Extension percentage for min and max values
  **
  *****************************************************************************/
-static void st_m2d_stats_init(M2D_Environ* m2denv,
-                              Db* dbin,
-                              Id nlayer,
-                              Id verbose)
+void MGibbs::st_m2d_stats_init(M2D_Environ& m2denv, double percent)
 {
-  Id nech;
-  double lower, upper, nb, mm, vv, mini, maxi, delta;
-  static double percent = 0.05;
-
-  /* Initializations */
-
-  nech = dbin->getNSample();
-  nb = mm = vv = 0.;
-  mini         = MAXIMUM_BIG;
-  maxi         = MINIMUM_BIG;
+  double nb   = 0.;
+  double mm   = 0.;
+  double vv   = 0.;
+  double mini = MAXIMUM_BIG;
+  double maxi = MINIMUM_BIG;
 
   /* Loop on the layers */
 
-  for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+  for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
   {
 
     /* Loop on the samples */
 
-    for (Id iech = 0; iech < nech; iech++)
+    for (Id iech = 0; iech < _nechin; iech++)
     {
-      if (!dbin->isActive(iech)) continue;
-      lower = dbin->getLocVariable(ELoc::L, iech, ilayer);
-      upper = dbin->getLocVariable(ELoc::U, iech, ilayer);
+      if (!_dbin->isActive(iech)) continue;
+      double lower = _dbin->getLocVariable(ELoc::L, iech, ilayer);
+      double upper = _dbin->getLocVariable(ELoc::U, iech, ilayer);
 
       // Process the minimum bound
 
@@ -3853,27 +3886,27 @@ static void st_m2d_stats_init(M2D_Environ* m2denv,
     maxi = 0.5;
   }
 
-  delta = maxi - mini;
+  double delta = maxi - mini;
   if (delta <= 0) delta = ABS(mm) / 10.;
   if (delta <= 0) delta = 1.;
-  m2denv->zmean = mm;
-  m2denv->zeps  = ABS(mm) / 1.e4;
-  m2denv->zstdv = (vv > 0) ? sqrt(vv) : 1.;
-  m2denv->zmini = mini - delta * percent;
-  m2denv->zmaxi = maxi + delta * percent;
+  m2denv.zmean = mm;
+  m2denv.zeps  = ABS(mm) / 1.e4;
+  m2denv.zstdv = (vv > 0) ? sqrt(vv) : 1.;
+  m2denv.zmini = mini - delta * percent;
+  m2denv.zmaxi = maxi + delta * percent;
 
-  if (verbose)
+  if (_verbose)
   {
     mestitle(2, "Global Statistics on Raw Elevations (extended by %4.2lf)",
              percent);
     message("Statistics are derived from compiling bounds (when defined)\n");
     message("Number of valid bounds = %d\n", static_cast<Id>(nb));
-    message("Mean                   = %lf\n", m2denv->zmean);
-    message("St. Deviation          = %lf\n", m2denv->zstdv);
-    message("Tolerance              = %lf\n", m2denv->zeps);
-    message("Minimum                = %lf\n", m2denv->zmini);
-    message("Maximum                = %lf\n", m2denv->zmaxi);
-    message("Range                  = %lf\n", m2denv->zmaxi - m2denv->zmini);
+    message("Mean                   = %lf\n", m2denv.zmean);
+    message("St. Deviation          = %lf\n", m2denv.zstdv);
+    message("Tolerance              = %lf\n", m2denv.zeps);
+    message("Minimum                = %lf\n", m2denv.zmini);
+    message("Maximum                = %lf\n", m2denv.zmaxi);
+    message("Range                  = %lf\n", m2denv.zmaxi - m2denv.zmini);
   }
 }
 
@@ -3883,14 +3916,9 @@ static void st_m2d_stats_init(M2D_Environ* m2denv,
  **
  ** \param[in]  m2denv      M2D_Environ structure
  ** \param[in]  dbc         Db structure for constraints
- ** \param[in]  nlayer      Number of layers
- ** \param[in]  verbose     Verbose flag
  **
  *****************************************************************************/
-static void st_m2d_stats_updt(M2D_Environ* m2denv,
-                              Db* dbc,
-                              Id nlayer,
-                              Id verbose)
+void MGibbs::st_m2d_stats_updt(M2D_Environ& m2denv, Db* dbc) const
 {
   Id nech;
   double nb, mm, vv, mini, maxi, zval, delta;
@@ -3905,7 +3933,7 @@ static void st_m2d_stats_updt(M2D_Environ* m2denv,
 
   /* Loop on the layers */
 
-  for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+  for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
   {
 
     /* Loop on the samples */
@@ -3940,23 +3968,23 @@ static void st_m2d_stats_updt(M2D_Environ* m2denv,
   delta = maxi - mini;
   if (delta <= 0.) delta = ABS(mm) / 10.;
   if (delta <= 0) delta = 1.;
-  m2denv->zmean = mm;
-  m2denv->zeps  = ABS(mm) / 1.e4;
-  m2denv->zstdv = (vv > 0) ? sqrt(vv) : 1.;
-  m2denv->zmini = mini - delta * percent;
-  m2denv->zmaxi = maxi + delta * percent;
+  m2denv.zmean = mm;
+  m2denv.zeps  = ABS(mm) / 1.e4;
+  m2denv.zstdv = (vv > 0) ? sqrt(vv) : 1.;
+  m2denv.zmini = mini - delta * percent;
+  m2denv.zmaxi = maxi + delta * percent;
 
-  if (verbose)
+  if (_verbose)
   {
     mestitle(2, "Global Statistics on Centered Elevations");
     message("Statistics are compiled from initial values within bounds\n");
     message("Number of values = %d\n", static_cast<Id>(nb));
-    message("Mean             = %lf\n", m2denv->zmean);
-    message("St. Deviation    = %lf\n", m2denv->zstdv);
-    message("Tolerance        = %lf\n", m2denv->zeps);
-    message("Minimum          = %lf\n", m2denv->zmini);
-    message("Maximum          = %lf\n", m2denv->zmaxi);
-    message("Range            = %lf\n", m2denv->zmaxi - m2denv->zmini);
+    message("Mean             = %lf\n", m2denv.zmean);
+    message("St. Deviation    = %lf\n", m2denv.zstdv);
+    message("Tolerance        = %lf\n", m2denv.zeps);
+    message("Minimum          = %lf\n", m2denv.zmini);
+    message("Maximum          = %lf\n", m2denv.zmaxi);
+    message("Range            = %lf\n", m2denv.zmaxi - m2denv.zmini);
   }
 }
 
@@ -3968,7 +3996,6 @@ static void st_m2d_stats_updt(M2D_Environ* m2denv,
  **
  ** \param[in]  m2denv      M2D_Environ structure
  ** \param[in]  dbc         Db structure for constraints
- ** \param[in]  nlayer      Number of layers
  **
  ** \param[out] work        Array of tentative values (Dimension: nlayer)
  **
@@ -3976,10 +4003,9 @@ static void st_m2d_stats_updt(M2D_Environ* m2denv,
  ** \remarks - the initial value (ELoc::Z)
  **
  *****************************************************************************/
-static Id st_m2d_initial_elevations(M2D_Environ* m2denv,
-                                    Db* dbc,
-                                    Id nlayer,
-                                    VectorDouble& work)
+Id MGibbs::st_m2d_initial_elevations(M2D_Environ& m2denv,
+                                     Db* dbc,
+                                     VectorDouble& work) const
 {
   Id nech;
   double zmin, zmax, zval, eps;
@@ -3988,7 +4014,7 @@ static Id st_m2d_initial_elevations(M2D_Environ* m2denv,
   /* Initializations */
 
   nech         = dbc->getNSample();
-  eps          = m2denv->zeps;
+  eps          = m2denv.zeps;
   Id flag_jter = 0;
 
   /* Loop on the samples */
@@ -3998,11 +4024,11 @@ static Id st_m2d_initial_elevations(M2D_Environ* m2denv,
 
     /* Define the values at sample as unconstrained information */
 
-    for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+    for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
     {
       zmin         = dbc->getLocVariable(ELoc::L, iech, ilayer);
       zmax         = dbc->getLocVariable(ELoc::U, iech, ilayer);
-      work[ilayer] = st_m2d_draw_elevation(m2denv, nlayer, ilayer, zmin, zmax);
+      work[ilayer] = st_m2d_draw_elevation(m2denv, ilayer, zmin, zmax);
     }
 
     /* Loop on iterations for ordering the values */
@@ -4013,7 +4039,7 @@ static Id st_m2d_initial_elevations(M2D_Environ* m2denv,
 
       /* Loop on the layers */
 
-      for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+      for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
       {
 
         /* Determine the bounds at data locations */
@@ -4023,7 +4049,7 @@ static Id st_m2d_initial_elevations(M2D_Environ* m2denv,
 
         /* Loop on the other layers */
 
-        for (Id jlayer = 0; jlayer < nlayer; jlayer++)
+        for (Id jlayer = 0; jlayer < _nlayer; jlayer++)
         {
           if (ilayer == jlayer) continue;
           zval = work[jlayer];
@@ -4062,8 +4088,7 @@ static Id st_m2d_initial_elevations(M2D_Environ* m2denv,
 
         // Update target value according to constraints
 
-        work[ilayer] = st_m2d_draw_elevation(m2denv, nlayer, ilayer, zmin,
-                                             zmax);
+        work[ilayer] = st_m2d_draw_elevation(m2denv, ilayer, zmin, zmax);
       }
 
       /* Interrupt iterations */
@@ -4079,7 +4104,7 @@ static Id st_m2d_initial_elevations(M2D_Environ* m2denv,
               iech + 1, nech);
       messerr("has not been reached after %d iterations. Run is aborted",
               njter_max);
-      for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+      for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
       {
         zmin = dbc->getLocVariable(ELoc::L, iech, ilayer);
         zmax = dbc->getLocVariable(ELoc::U, iech, ilayer);
@@ -4096,7 +4121,7 @@ static Id st_m2d_initial_elevations(M2D_Environ* m2denv,
 
     /* Store the resulting values */
 
-    for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+    for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
       dbc->setLocVariable(ELoc::Z, iech, ilayer, work[ilayer]);
   }
 
@@ -4110,10 +4135,6 @@ static Id st_m2d_initial_elevations(M2D_Environ* m2denv,
  ** \return  Error returned code
  **
  ** \param[in]  m2denv      M2D_Environ structure
- ** \param[in]  dbin        Db input structure
- ** \param[in]  dbout       Db output structure
- ** \param[in]  nlayer      Number of layers
- ** \param[in]  verbose     Verbose flag
  **
  ** \param[out] iatt_f      Pointer in dbin to the added variables ELoc::F
  **
@@ -4121,14 +4142,9 @@ static Id st_m2d_initial_elevations(M2D_Environ* m2denv,
  ** \remarks - the external drift values (ELoc::F)
  **
  *****************************************************************************/
-static Id st_m2d_drift_manage(M2D_Environ* m2denv,
-                              Db* dbin,
-                              Db* dbout,
-                              Id nlayer,
-                              Id verbose,
-                              Id* iatt_f)
+Id MGibbs::st_m2d_drift_manage(M2D_Environ& m2denv, Id* iatt_f)
 {
-  Id nechin, error, nb;
+  Id error, nb;
   VectorDouble dval;
   double value, delta;
   static double percent = 0.05;
@@ -4137,90 +4153,89 @@ static Id st_m2d_drift_manage(M2D_Environ* m2denv,
   /* Initializations */
 
   error     = 1;
-  nechin    = dbin->getNSample();
   (*iatt_f) = -1;
 
   /* Core allocation */
 
-  if (m2denv->flag_ed)
+  if (m2denv.flag_ed)
   {
-    dval.resize(nechin);
+    dval.resize(_nechin);
   }
 
   /* Add attributes to 'dbin' */
   /* - the external drift value at data points (optional) */
   /* - the initial value at data points */
 
-  if (m2denv->flag_ed)
+  if (m2denv.flag_ed)
   {
-    if (db_locator_attribute_add(dbin, ELoc::F, nlayer, 0, TEST, iatt_f))
+    if (db_locator_attribute_add(_dbin, ELoc::F, _nlayer, 0, TEST, iatt_f))
       goto label_end;
   }
 
   /* Loop on the layers */
 
   nb = 0;
-  for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+  for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
   {
 
     /* Export External drift from 'dbout' to 'dbin' (optional) */
 
-    if (m2denv->flag_ed)
+    if (m2denv.flag_ed)
     {
-      cols[0] = dbout->getColIdxByLocator(ELoc::F, ilayer);
+      cols[0] = _dbout->getColIdxByLocator(ELoc::F, ilayer);
 
       // Migrate the information from Grid to Wells
 
-      migrateByAttribute(dbout, dbin, cols, 0, VectorDouble(), false, false);
+      migrateByAttribute(_dbout, _dbin, cols, 0, VectorDouble(), false, false);
 
       // Calculate the statistics of the external drift on the grid
 
-      for (Id iech = 0; iech < dbout->getNSample(); iech++)
+      for (Id iech = 0; iech < _dbout->getNSample(); iech++)
       {
-        if (!dbout->isActive(iech)) continue;
-        value = dbout->getLocVariable(ELoc::F, iech, ilayer);
+        if (!_dbout->isActive(iech)) continue;
+        value = _dbout->getLocVariable(ELoc::F, iech, ilayer);
         if (FFFF(value)) continue;
         nb++;
-        if (FFFF(m2denv->dmini) || value < m2denv->dmini) m2denv->dmini = value;
-        if (FFFF(m2denv->dmaxi) || value > m2denv->dmaxi) m2denv->dmaxi = value;
+        if (FFFF(m2denv.dmini) || value < m2denv.dmini) m2denv.dmini = value;
+        if (FFFF(m2denv.dmaxi) || value > m2denv.dmaxi) m2denv.dmaxi = value;
       }
     }
 
     /* Loop on the samples */
 
-    for (Id iech = 0; iech < nechin; iech++)
+    for (Id iech = 0; iech < _nechin; iech++)
     {
-      if (!dbin->isActive(iech)) continue;
-      if (m2denv->flag_ed)
+      if (!_dbin->isActive(iech)) continue;
+      if (m2denv.flag_ed)
       {
         if (FFFF(dval[iech])) continue;
-        dbin->setLocVariable(ELoc::F, iech, ilayer, dval[iech]);
+        _dbin->setLocVariable(ELoc::F, iech, ilayer, dval[iech]);
       }
     }
   }
 
   /* Patch the statistics on drift if no external drift */
 
-  if (!m2denv->flag_ed)
+  if (!m2denv.flag_ed)
   {
-    m2denv->dmini = 0.;
-    m2denv->dmaxi = 1.;
+    m2denv.dmini = 0.;
+    m2denv.dmaxi = 1.;
   }
   else
   {
-    delta = m2denv->dmaxi - m2denv->dmini;
-    m2denv->dmini -= delta * percent;
-    m2denv->dmaxi += delta * percent;
+    delta = m2denv.dmaxi - m2denv.dmini;
+    m2denv.dmini -= delta * percent;
+    m2denv.dmaxi += delta * percent;
   }
 
-  if (verbose)
+  if (_verbose)
   {
     mestitle(2, "Global Statistics on Trends (extended by %4.2lf)", percent);
     message("Statistics are derived from compiling drift at grid nodes\n");
     message("Number of valid nodes  = %d\n", static_cast<Id>(nb));
-    message("Minimum Drift          = %lf\n", m2denv->dmini);
-    message("Maximum Drift          = %lf\n", m2denv->dmaxi);
-    message("Range of Drift         = %lf\n", m2denv->dmaxi - m2denv->dmini);
+    message("Minimum Drift          = %lf\n", m2denv.dmini);
+    message("Maximum Drift          = %lf\n", m2denv.dmaxi);
+    message("Range of Drift         = %lf\n", m2denv.dmaxi - m2denv.dmini);
   }
 
   /* Set the error return code */
@@ -4271,9 +4286,7 @@ static void st_print_details(Db* dbc, Id nech, Id ilayer)
  **
  ** \param[in]  m2denv      M2D_Environ structure
  ** \param[in]  dbc         Db structure for constraints
- ** \param[in]  nlayer      Number of layers
  ** \param[in]  number_hard Number of hard data used to fit the drift
- ** \param[in]  verbose     Verbose flag
  **
  ** \remarks The drift is only established on data where lower and upper bounds
  ** \remarks are both defined. The drift coefficients are assumed to be the same
@@ -4283,11 +4296,9 @@ static void st_print_details(Db* dbc, Id nech, Id ilayer)
  ** \remarks samples (which correspond to constraints coming from 'dbin'.
  **
  *****************************************************************************/
-static Id st_m2d_drift_fitting(M2D_Environ* m2denv,
-                               Db* dbc,
-                               Id nlayer,
-                               Id number_hard,
-                               Id verbose)
+Id MGibbs::st_m2d_drift_fitting(M2D_Environ& m2denv,
+                                Db* dbc,
+                                Id number_hard) const
 {
   Id nech, numb, nbfl;
   double ff, mean, ffmean, stdv, epais, mini, maxi, ffmini, ffmaxi;
@@ -4301,13 +4312,13 @@ static Id st_m2d_drift_fitting(M2D_Environ* m2denv,
 
   /* Core allocation */
 
-  m2denv->dcoef.resize(nlayer);
+  m2denv.dcoef.resize(_nlayer);
   a.resize(nbfl * nbfl);
   b.resize(nbfl);
 
   /* Loop on the layers */
 
-  for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+  for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
   {
 
     /* Initializations */
@@ -4332,11 +4343,11 @@ static Id st_m2d_drift_fitting(M2D_Environ* m2denv,
       if (ilayer > 0)
         epais -= dbc->getZVariable(iech, ilayer - 1);
       else
-        epais -= m2denv->zmini;
+        epais -= m2denv.zmini;
 
       /* Set the drift vector at data point */
 
-      if (m2denv->flag_ed)
+      if (m2denv.flag_ed)
         ff = st_m2d_external_drift_increment(m2denv, dbc, ilayer, iech);
       else
         ff = 1.;
@@ -4374,13 +4385,13 @@ static Id st_m2d_drift_fitting(M2D_Environ* m2denv,
 
     /* Print statistics (optional) */
 
-    if (verbose)
+    if (_verbose)
     {
       message("\nLayer #%d\n", ilayer + 1);
       message("- Number of Constraints = %d \n", numb);
       st_print_details(dbc, nech, ilayer);
       message("- Drift:\n");
-      if (m2denv->flag_ed)
+      if (m2denv.flag_ed)
       {
         message("  . Mean          = %lf\n", ffmean);
         message("  . Minimum       = %lf\n", ffmini);
@@ -4402,8 +4413,6 @@ static Id st_m2d_drift_fitting(M2D_Environ* m2denv,
  **  Save the drift at the grid nodes
  **
  ** \param[in]  m2denv      M2D_Environ structure
- ** \param[in]  dbout       Db otput structure
- ** \param[in]  nlayer      Number of layers
  **
  ** \param[out] gwork       Working array
  **
@@ -4411,30 +4420,22 @@ static Id st_m2d_drift_fitting(M2D_Environ* m2denv,
  ** \remarks of the linear combinaison.
  **
  *****************************************************************************/
-static void st_m2d_drift_save(M2D_Environ* m2denv,
-                              Db* dbout,
-                              Id nlayer,
-                              double* gwork)
+void MGibbs::st_m2d_drift_save(M2D_Environ& m2denv, double* gwork)
 {
   double drift, value;
-  Id ngrid;
-
-  /* Initializations */
-
-  ngrid = dbout->getNSample();
 
   /* Loop on the target nodes */
 
-  for (Id igrid = 0; igrid < ngrid; igrid++)
+  for (Id igrid = 0; igrid < _nechout; igrid++)
   {
-    if (!dbout->isActive(igrid)) continue;
-    drift = m2denv->zmini;
+    if (!_dbout->isActive(igrid)) continue;
+    drift = m2denv.zmini;
 
     /* Loop no the layers */
 
-    for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+    for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
     {
-      value = st_m2d_get_drift(m2denv, dbout, ilayer, igrid);
+      value = st_m2d_get_drift(m2denv, _dbout, ilayer, igrid);
       if (FFFF(value))
         drift = TEST;
       else
@@ -4496,22 +4497,20 @@ static Id st_active_sample(Db* db, Id ndim, Id nlayer, Id iech, Id bypass)
  ** \param[in]  iech        Sample rank in 'db'
  ** \param[in]  ndim        Space dimension
  ** \param[in]  natt        Number of attributes
- ** \param[in]  nlayer      Number of layers
  ** \param[in]  bypass      1 to bypass check that at least one bound is defined
  **
  ** \param[in,out] number_arg Number of samples
  ** \param[in,out] tab        Array of samples
  **
  *****************************************************************************/
-static Id st_record_sample(M2D_Environ* m2denv,
-                           Db* db,
-                           Id iech,
-                           Id ndim,
-                           Id natt,
-                           Id nlayer,
-                           Id bypass,
-                           Id* number_arg,
-                           double* tab)
+Id MGibbs::st_record_sample(M2D_Environ& m2denv,
+                            Db* db,
+                            Id iech,
+                            Id ndim,
+                            Id natt,
+                            Id bypass,
+                            Id* number_arg,
+                            double* tab) const
 {
   double lower, upper;
   Id ecr, number;
@@ -4520,7 +4519,7 @@ static Id st_record_sample(M2D_Environ* m2denv,
 
   number = *number_arg;
   if (!db->isActive(iech)) return (0);
-  if (!st_active_sample(db, ndim, nlayer, iech, bypass)) return (0);
+  if (!st_active_sample(db, ndim, _nlayer, iech, bypass)) return (0);
 
   // Perform the different assignments
 
@@ -4537,7 +4536,7 @@ static Id st_record_sample(M2D_Environ* m2denv,
 
   // For each layer, set the bounds and the initial value
 
-  for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+  for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
   {
     lower = db->getLocVariable(ELoc::L, iech, ilayer);
     upper = db->getLocVariable(ELoc::U, iech, ilayer);
@@ -4549,8 +4548,8 @@ static Id st_record_sample(M2D_Environ* m2denv,
 
   // For each layer, set the External Drift value (optional)
 
-  if (m2denv->flag_ed)
-    for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+  if (m2denv.flag_ed)
+    for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
       tab[ecr++] = db->getLocVariable(ELoc::F, iech, ilayer);
 
   /* Increment the number of records by 1 */
@@ -4569,30 +4568,24 @@ static Id st_record_sample(M2D_Environ* m2denv,
  **
  ** \param[in]  m2denv      M2D_Environ structure
  ** \param[in]  db          Db constraints structure
- ** \param[in]  ndim        Number of coodinates
- ** \param[in]  nlayer      Number of layers
  ** \param[in]  nvar        Number of variables
  **
  *****************************************************************************/
-static void st_define_locators(M2D_Environ* m2denv,
-                               Db* db,
-                               Id ndim,
-                               Id nvar,
-                               Id nlayer)
+void MGibbs::st_define_locators(M2D_Environ& m2denv, Db* db, Id nvar) const
 {
   Id ivar;
 
   ivar = 1;
-  db->setLocatorsByUID(ndim, ivar, ELoc::X, 0);
-  ivar += ndim;
-  for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+  db->setLocatorsByUID(_ndim, ivar, ELoc::X, 0);
+  ivar += _ndim;
+  for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
   {
     db->setLocatorByUID(ivar++, ELoc::L, ilayer);
     db->setLocatorByUID(ivar++, ELoc::U, ilayer);
     if (ilayer < nvar) db->setLocatorByUID(ivar, ELoc::Z, ilayer);
     ivar++;
   }
-  if (m2denv->flag_ed) db->setLocatorsByUID(nlayer, ivar, ELoc::F, 0);
+  if (m2denv.flag_ed) db->setLocatorsByUID(_nlayer, ivar, ELoc::F, 0);
 }
 
 /****************************************************************************/
@@ -4600,22 +4593,22 @@ static void st_define_locators(M2D_Environ* m2denv,
  **  Print the Environnement
  **
  *****************************************************************************/
-static void st_m2d_print_environ(const char* title, M2D_Environ* m2denv)
+void MGibbs::st_m2d_print_environ(const char* title, M2D_Environ& m2denv)
 {
   mestitle(1, title);
 
-  if (m2denv->flag_ed)
+  if (m2denv.flag_ed)
     message("Use of External Drift\n");
   else
     message("No External Drift\n");
-  message("Z Minimum               = %lf\n", m2denv->zmini);
-  message("Z Maximum               = %lf\n", m2denv->zmaxi);
-  message("Z Mean                  = %lf\n", m2denv->zmean);
-  message("Z St. Deviation         = %lf\n", m2denv->zstdv);
-  message("Z Tolerance             = %lf\n", m2denv->zeps);
-  message("Drift Minimum           = %lf\n", m2denv->dmini);
-  message("Drift Maximum           = %lf\n", m2denv->dmaxi);
-  message("Y St. Deviation         = %lf\n", m2denv->ystdv);
+  message("Z Minimum               = %lf\n", m2denv.zmini);
+  message("Z Maximum               = %lf\n", m2denv.zmaxi);
+  message("Z Mean                  = %lf\n", m2denv.zmean);
+  message("Z St. Deviation         = %lf\n", m2denv.zstdv);
+  message("Z Tolerance             = %lf\n", m2denv.zeps);
+  message("Drift Minimum           = %lf\n", m2denv.dmini);
+  message("Drift Maximum           = %lf\n", m2denv.dmaxi);
+  message("Y St. Deviation         = %lf\n", m2denv.ystdv);
 }
 
 /****************************************************************************/
@@ -4625,10 +4618,6 @@ static void st_m2d_print_environ(const char* title, M2D_Environ* m2denv)
  ** \return  Pointer to the newly created Db or NULL
  **
  ** \param[in]  m2denv      M2D_Environ structure
- ** \param[in]  dbin        Db input structure
- ** \param[in]  dbout       Db output structure
- ** \param[in]  ndim        Space dimension
- ** \param[in]  nlayer      Number of layers
  **
  ** \param[out] number_hard Number of hard data which will serve for
  **                         seting the optimal drift
@@ -4637,50 +4626,43 @@ static void st_m2d_print_environ(const char* title, M2D_Environ* m2denv)
  ** \remark as the number of ACTIVE samples of the input Db
  **
  *****************************************************************************/
-static Db* st_m2d_create_constraints(M2D_Environ* m2denv,
-                                     Db* dbin,
-                                     Db* dbout,
-                                     Id ndim,
-                                     Id nlayer,
-                                     Id* number_hard)
+Db* MGibbs::st_m2d_create_constraints(M2D_Environ& m2denv, Id* number_hard)
 {
   Db* db;
   VectorDouble tab;
-  Id nechin, nechout, nech, natt, number, error, ecr;
+  Id nechtot, natt, number, error, ecr;
 
   /* Initializations */
 
   error   = 1;
   db      = nullptr;
-  nechin  = dbin->getNSample(true);
-  nechout = dbout->getNSample(true);
-  nech    = nechin + nechout;
+  nechtot = _nechin + _nechout;
   natt    = 1;                         // Rank
-  natt += ndim;                        // Coordinates
-  natt += 3 * nlayer;                  // LowBound, UppBound and Variable per layer
-  if (m2denv->flag_ed) natt += nlayer; // External Drift
+  natt += _ndim;                       // Coordinates
+  natt += 3 * _nlayer;                 // LowBound, UppBound and Variable per layer
+  if (m2denv.flag_ed) natt += _nlayer; // External Drift
 
   /* Core allocation */
 
-  tab.resize(nech * natt);
+  tab.resize(nechtot * natt);
 
   /* Load information from 'dbin' */
 
   number = 0;
-  for (Id iech = 0; iech < dbin->getNSample(); iech++)
+  for (Id iech = 0; iech < _nechin; iech++)
   {
-    if (!dbin->isActive(iech)) continue;
-    if (st_record_sample(m2denv, dbin, iech, ndim, natt, nlayer, 0, &number,
+    if (!_dbin->isActive(iech)) continue;
+    if (st_record_sample(m2denv, _dbin, iech, _ndim, natt, 0, &number,
                          tab.data())) goto label_end;
   }
   *number_hard = number;
 
   /* Load information from 'dbout' */
 
-  for (Id iech = 0; iech < dbout->getNSample(); iech++)
+  for (Id iech = 0; iech < _nechout; iech++)
   {
-    if (!dbout->isActive(iech)) continue;
-    if (st_record_sample(m2denv, dbout, iech, ndim, natt, nlayer, 0, &number,
+    if (!_dbout->isActive(iech)) continue;
+    if (st_record_sample(m2denv, _dbout, iech, _ndim, natt, 0, &number,
                          tab.data())) goto label_end;
   }
 
@@ -4688,10 +4670,10 @@ static Db* st_m2d_create_constraints(M2D_Environ* m2denv,
 
   if (number <= 0)
   {
-    for (Id iech = 0; iech < dbin->getNSample(); iech++)
+    for (Id iech = 0; iech < _nechin; iech++)
     {
-      if (!dbin->isActive(iech)) continue;
-      if (st_record_sample(m2denv, dbin, iech, ndim, natt, nlayer, 1, &number,
+      if (!_dbin->isActive(iech)) continue;
+      if (st_record_sample(m2denv, _dbin, iech, _ndim, natt, 1, &number,
                            tab.data())) goto label_end;
       if (number > 0) break;
     }
@@ -4699,7 +4681,7 @@ static Db* st_m2d_create_constraints(M2D_Environ* m2denv,
 
   /* Core reallocation */
 
-  if (number < nech) tab.resize(number * natt);
+  if (number < nechtot) tab.resize(number * natt);
 
   /* Create the output Db */
 
@@ -4711,12 +4693,12 @@ static Db* st_m2d_create_constraints(M2D_Environ* m2denv,
 
   ecr = 0;
   db->setNameByUID(ecr++, "rank");
-  for (Id idim = 0; idim < ndim; idim++)
+  for (Id idim = 0; idim < _ndim; idim++)
   {
     (void)gslSPrintf(string_encode, "X%d", idim + 1);
     db->setNameByUID(ecr++, string_encode);
   }
-  for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+  for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
   {
     (void)gslSPrintf(string_encode, "Lower%d", ilayer + 1);
     db->setNameByUID(ecr++, string_encode);
@@ -4725,9 +4707,9 @@ static Db* st_m2d_create_constraints(M2D_Environ* m2denv,
     (void)gslSPrintf(string_encode, "Value%d", ilayer + 1);
     db->setNameByUID(ecr++, string_encode);
   }
-  if (m2denv->flag_ed)
+  if (m2denv.flag_ed)
   {
-    for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+    for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
     {
       (void)gslSPrintf(string_encode, "Drift%d", ilayer + 1);
       db->setNameByUID(ecr++, string_encode);
@@ -4823,18 +4805,18 @@ label_end:
  ** \param[in]  Ysigma      Standard deviation of the Y Law
  **
  *****************************************************************************/
-static double st_m2d_draw_gaussian(M2D_Environ* m2denv,
-                                   Db* dbc,
-                                   Id verbose,
-                                   Id iter,
-                                   Id ilayer,
-                                   Id iech,
-                                   double Zval,
-                                   double Zcum,
-                                   double Zmin,
-                                   double Zmax,
-                                   double Ymean,
-                                   double Ysigma)
+double MGibbs::st_m2d_draw_gaussian(M2D_Environ& m2denv,
+                                    Db* dbc,
+                                    bool verbose,
+                                    Id iter,
+                                    Id ilayer,
+                                    Id iech,
+                                    double Zval,
+                                    double Zcum,
+                                    double Zmin,
+                                    double Zmax,
+                                    double Ymean,
+                                    double Ysigma)
 {
   double M, S, Yval, Ymin, Ymax, Zminc, Zmaxc;
   static Id verif = 1;
@@ -4898,7 +4880,7 @@ static double st_m2d_draw_gaussian(M2D_Environ* m2denv,
       st_print_concatenate_interval(NULL, Zmin, Zmax, 1);
       messageAbort("Strange output value for Zval");
     }
-    if (!FFFF(Zmin) && Zval < Zmin - m2denv->zeps)
+    if (!FFFF(Zmin) && Zval < Zmin - m2denv.zeps)
     {
       message("Iteration #%d - Layer #%d - Sample #%d\n", iter + 1, ilayer + 1,
               iech + 1);
@@ -4908,7 +4890,7 @@ static double st_m2d_draw_gaussian(M2D_Environ* m2denv,
       st_print_concatenate_interval(NULL, Ymin, Ymax, 1);
       messageAbort("Zval should not be smaller than Zmin");
     }
-    if (!FFFF(Zmax) && Zval > Zmax + m2denv->zeps)
+    if (!FFFF(Zmax) && Zval > Zmax + m2denv.zeps)
     {
       message("Iteration #%d - Layer #%d - Sample #%d\n", iter + 1, ilayer + 1,
               iech + 1);
@@ -4935,26 +4917,24 @@ static double st_m2d_draw_gaussian(M2D_Environ* m2denv,
  **
  ** \param[in]  m2denv      M2D_Environ structure
  ** \param[in]  dbc         Db structure
- ** \param[in]  nlayer      Number of layers
  ** \param[in]  type        1 for the constraining Db
  **                         2 for the grid output Db
  ** \param[in]  iech        Rank of the sample
  ** \param[in,out] tab      Input/Output array of Z-values (Dimension: nlayer)
  **
  *****************************************************************************/
-static void st_convert_Z2Y(M2D_Environ* m2denv,
-                           Db* dbc,
-                           Id nlayer,
-                           Id type,
-                           Id iech,
-                           VectorDouble& tab)
+void MGibbs::st_convert_Z2Y(M2D_Environ& m2denv,
+                            Db* dbc,
+                            Id type,
+                            Id iech,
+                            VectorDouble& tab) const
 {
   double M, S, Yval, Zval, Zcur, Zcum;
   Id flag_undef;
 
   flag_undef = 0;
-  Zcum       = m2denv->zmini;
-  for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+  Zcum       = m2denv.zmini;
+  for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
   {
     M = st_m2d_get_M(m2denv, dbc, type, ilayer, iech);
     S = st_m2d_get_S(m2denv, dbc, type, ilayer, iech);
@@ -4986,26 +4966,24 @@ static void st_convert_Z2Y(M2D_Environ* m2denv,
  **
  ** \param[in]  m2denv      M2D_Environ structure
  ** \param[in]  db          Db structure
- ** \param[in]  nlayer      Number of layers
  ** \param[in]  type        1 for the constraining Db
  **                         2 for the grid output Db
  ** \param[in]  iech        Rank of the sample
  ** \param[in,out] tab      Input/Ouput array of Y-values (Dimension: nlayer)
  **
  *****************************************************************************/
-static void st_convert_Y2Z(M2D_Environ* m2denv,
-                           Db* db,
-                           Id nlayer,
-                           Id type,
-                           Id iech,
-                           VectorDouble& tab)
+void MGibbs::st_convert_Y2Z(M2D_Environ& m2denv,
+                            Db* db,
+                            Id type,
+                            Id iech,
+                            VectorDouble& tab) const
 {
   double M, S, Zval, Yval, Zcur;
   Id flag_undef;
 
   flag_undef = 0;
-  Zcur       = m2denv->zmini;
-  for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+  Zcur       = m2denv.zmini;
+  for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
   {
     M = st_m2d_get_M(m2denv, db, type, ilayer, iech);
     S = st_m2d_get_S(m2denv, db, type, ilayer, iech);
@@ -5029,26 +5007,26 @@ static void st_convert_Y2Z(M2D_Environ* m2denv,
  **  Print the values at a sample location
  **
  ** \param[in]  title       Title
+ ** \param[in]  m2denv      M2D_Environ structure
  ** \param[in]  dbc         Db structure containing the constraints
- ** \param[in]  nlayer      Number of layers
  ** \param[in]  iech        Sample rank
  ** \param[in]  work        Array of values (defined in Z)
  **
  *****************************************************************************/
-static void st_print_sample(const char* title,
-                            M2D_Environ* /*m2denv*/,
-                            Db* dbc,
-                            Id nlayer,
-                            Id iech,
-                            VectorDouble& work)
+void MGibbs::st_print_sample(const char* title,
+                             M2D_Environ& m2denv,
+                             Db* dbc,
+                             Id iech,
+                             VectorDouble& work) const
 {
+  DECLARE_UNUSED(m2denv);
   Id nech;
   double zmin, zmax;
 
   nech = dbc->getNSample();
   message("%s - Sample #%d/%d\n", title, iech + 1, nech);
 
-  for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+  for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
   {
     zmin = dbc->getLocVariable(ELoc::L, iech, ilayer);
     zmax = dbc->getLocVariable(ELoc::U, iech, ilayer);
@@ -5065,9 +5043,7 @@ static void st_print_sample(const char* title,
  **
  ** \param[in]  m2denv      M2D_Environ structure
  ** \param[in]  dbc         Db structure containing the constraints
- ** \param[in]  verbose     Verbose flag
  ** \param[in]  iter        Rank of the iteration
- ** \param[in]  nlayer      Number of layers
  ** \param[in]  sigma       Standard deviation of the nugget value
  ** \param[in]  ymean       Array of mean values at constraints
  ** \param[in,out] ydat     Array of values at constraints samples
@@ -5079,16 +5055,15 @@ static void st_print_sample(const char* title,
  ** \remarks be compared to the bounds.
  **
  *****************************************************************************/
-static Id st_global_gibbs(M2D_Environ* m2denv,
-                          Db* dbc,
-                          Id verbose,
-                          Id iter,
-                          Id nlayer,
-                          double sigma,
-                          VectorDouble& ymean,
-                          VectorDouble& ydat,
-                          VectorDouble& work)
+Id MGibbs::st_global_gibbs(M2D_Environ& m2denv,
+                           Db* dbc,
+                           Id iter,
+                           double sigma,
+                           VectorDouble& ymean,
+                           VectorDouble& ydat,
+                           VectorDouble& work)
 {
+  bool local_verbose = false;
   Id nech;
   double zval, zmin, zmax, zcum;
 
@@ -5103,26 +5078,26 @@ static Id st_global_gibbs(M2D_Environ* m2denv,
 
     // Set the initial values
 
-    for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+    for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
       work[ilayer] = YDAT(ilayer, iech);
-    st_convert_Y2Z(m2denv, dbc, nlayer, 1, iech, work);
-    if (verbose)
-      st_print_sample("Entering in Gibbs", m2denv, dbc, nlayer, iech, work);
+    st_convert_Y2Z(m2denv, dbc, 1, iech, work);
+    if (local_verbose)
+      st_print_sample("Entering in Gibbs", m2denv, dbc, iech, work);
 
     // Loop on the layers
 
-    for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+    for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
     {
 
       // Get the elevation of the previous layer
 
-      zcum = m2denv->zmini;
+      zcum = m2denv.zmini;
 
       // Getting the elevation and the bounds for the current layer
 
       zmin = dbc->getLocVariable(ELoc::L, iech, ilayer);
       zmax = dbc->getLocVariable(ELoc::U, iech, ilayer);
-      if (verbose)
+      if (local_verbose)
       {
         message("ilayer=%d", ilayer);
         st_print_concatenate_interval(NULL, zmin, zmax, 1);
@@ -5130,11 +5105,11 @@ static Id st_global_gibbs(M2D_Environ* m2denv,
 
       // Loop on the other layers
 
-      for (Id jlayer = 0; jlayer < nlayer; jlayer++)
+      for (Id jlayer = 0; jlayer < _nlayer; jlayer++)
       {
         if (ilayer == jlayer) continue;
         zval = work[jlayer];
-        if (verbose)
+        if (local_verbose)
           message("Constrained by jlayer=%d zval=%lf\n", jlayer, zval);
 
         if (jlayer < ilayer)
@@ -5162,20 +5137,20 @@ static Id st_global_gibbs(M2D_Environ* m2denv,
 
       // Drawing plausible values according to constraints
 
-      work[ilayer] = st_m2d_draw_gaussian(m2denv, dbc, verbose, iter, ilayer,
+      work[ilayer] = st_m2d_draw_gaussian(m2denv, dbc, local_verbose, iter, ilayer,
                                           iech, work[ilayer], zcum, zmin, zmax,
                                           YMEAN(ilayer, iech), sigma);
     }
 
     // Load the new values
 
-    if (verbose)
-      st_print_sample("Exiting Gibbs", m2denv, dbc, nlayer, iech, work);
-    st_convert_Z2Y(m2denv, dbc, nlayer, 1, iech, work);
+    if (local_verbose)
+      st_print_sample("Exiting Gibbs", m2denv, dbc, iech, work);
+    st_convert_Z2Y(m2denv, dbc, 1, iech, work);
 
     /* Store in the extracted vector */
 
-    for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+    for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
       YDAT(ilayer, iech) = work[ilayer];
   }
   return (0);
@@ -5190,20 +5165,16 @@ static Id st_global_gibbs(M2D_Environ* m2denv,
  ** \param[in]  title       Title for the printout (if error)
  ** \param[in]  m2denv      M2D_Environ structure
  ** \param[in]  dbc         Db structure containing the constraints
- ** \param[in]  nlayer      Number of layers
- ** \param[in]  verbose     Verbose flag
  ** \param[in]  ydat        Array of simulations on the data
  **
  ** \param[out] work        Array of tentative values (Dimension: nlayer)
  **
  *****************************************************************************/
-static Id st_check_gibbs_data(const char* title,
-                              M2D_Environ* m2denv,
-                              Db* dbc,
-                              Id nlayer,
-                              Id verbose,
-                              VectorDouble& ydat,
-                              VectorDouble& work)
+Id MGibbs::st_check_gibbs_data(const char* title,
+                               M2D_Environ& m2denv,
+                               Db* dbc,
+                               VectorDouble& ydat,
+                               VectorDouble& work)
 {
   Id error, nech;
   double zmin, zmax, depth, eps;
@@ -5212,19 +5183,19 @@ static Id st_check_gibbs_data(const char* title,
 
   error = 0;
   nech  = dbc->getNSample();
-  eps   = m2denv->zeps;
+  eps   = m2denv.zeps;
 
   // Loop on the constraints samples
 
   for (Id iech = 0; iech < nech; iech++)
   {
-    for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+    for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
       work[ilayer] = YDAT(ilayer, iech);
-    st_convert_Y2Z(m2denv, dbc, nlayer, 1, iech, work);
+    st_convert_Y2Z(m2denv, dbc, 1, iech, work);
 
     // Loop on the layers
 
-    for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+    for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
     {
       depth = work[ilayer];
 
@@ -5240,7 +5211,7 @@ static Id st_check_gibbs_data(const char* title,
         if (depth < zmin - eps)
         {
           messerr("%s: Sample(%d/%d) of Layer(%d/%d): Depth(%lf) < Lower(%lf)",
-                  title, iech + 1, nech, ilayer + 1, nlayer, depth, zmin);
+                  title, iech + 1, nech, ilayer + 1, _nlayer, depth, zmin);
           error++;
         }
       }
@@ -5249,14 +5220,14 @@ static Id st_check_gibbs_data(const char* title,
         if (depth > zmax + eps)
         {
           messerr("%s: Sample(%d/%d) of Layer(%d/%d): Depth(%lf) > Upper(%lf)",
-                  title, iech + 1, nech, ilayer + 1, nlayer, depth, zmax);
+                  title, iech + 1, nech, ilayer + 1, _nlayer, depth, zmax);
           error++;
         }
       }
     }
   }
 
-  if (verbose)
+  if (_verbose)
   {
     if (error == 0)
       message("%s: No inconsistency\n", title);
@@ -5272,53 +5243,23 @@ static Id st_check_gibbs_data(const char* title,
  **
  ** \return  Pointer to the M2D_Environ structure
  **
- ** \param[in]  mode        1 for allocation; -1 for deallocation
- ** \param[in]  flag_ed     1 if external drift is used; 0 otherwise
  ** \param[in]  ystdv       Stamdard deviation of the Gaussian Transformed
- ** \param[in]  m2denv_old  Pointer to the already existing M2D_Environ
- **                         (only used when mode==-1)
+ ** \param[in]  m2denv      M2D_Environ structure (if NULL, a new one is created)
  **
  *****************************************************************************/
-static M2D_Environ* st_m2denv_manage(Id mode,
-                                     Id flag_ed,
-                                     double ystdv,
-                                     M2D_Environ* m2denv_old)
+void MGibbs::st_m2denv_manage(double ystdv, M2D_Environ& m2denv)
 {
-  M2D_Environ* m2denv;
-
-  /* Dispatch */
-
-  if (mode > 0)
-  {
-
-    // Allocation
-
-    m2denv          = new M2D_Environ;
-    m2denv->flag_ed = flag_ed;
-    m2denv->iatt_fd = -1;
-    m2denv->iatt_fg = -1;
-    m2denv->zmean   = 0.;
-    m2denv->zstdv   = 1.;
-    m2denv->zeps    = 0.;
-    m2denv->zmini   = TEST;
-    m2denv->zmaxi   = TEST;
-    m2denv->dmini   = TEST;
-    m2denv->dmaxi   = TEST;
-    m2denv->ystdv   = ystdv;
-    m2denv->dcoef.clear();
-  }
-  else
-  {
-    m2denv = m2denv_old;
-    if (m2denv != nullptr)
-
-    {
-      m2denv->dcoef.clear();
-      delete m2denv;
-      m2denv = nullptr;
-    }
-  }
-  return (m2denv);
+  m2denv.iatt_fd = -1;
+  m2denv.iatt_fg = -1;
+  m2denv.zmean   = 0.;
+  m2denv.zstdv   = 1.;
+  m2denv.zeps    = 0.;
+  m2denv.zmini   = TEST;
+  m2denv.zmaxi   = TEST;
+  m2denv.dmini   = TEST;
+  m2denv.dmaxi   = TEST;
+  m2denv.ystdv   = ystdv;
+  m2denv.dcoef.clear();
 }
 
 /****************************************************************************/
@@ -5327,18 +5268,16 @@ static M2D_Environ* st_m2denv_manage(Id mode,
  **
  ** \param[in]  m2denv      M2D_Environ structure
  ** \param[in]  dbc         Db constraints structure
- ** \param[in]  nlayer      Number of layers
  **
  ** \param[out] ydat        Array of values at constraints samples
  **                         (Dimension: nech * nlayer)
  ** \param[out] work        Array of tentative values (Dimension: nlayer)
  **
  *****************************************************************************/
-static void st_m2d_vector_extract(M2D_Environ* m2denv,
-                                  Db* dbc,
-                                  Id nlayer,
-                                  VectorDouble& ydat,
-                                  VectorDouble& work)
+void MGibbs::st_m2d_vector_extract(M2D_Environ& m2denv,
+                                   Db* dbc,
+                                   VectorDouble& ydat,
+                                   VectorDouble& work)
 {
   Id nech;
 
@@ -5353,16 +5292,16 @@ static void st_m2d_vector_extract(M2D_Environ* m2denv,
 
     /* Loop on the layers */
 
-    for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+    for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
       work[ilayer] = dbc->getZVariable(iech, ilayer);
 
     /* Convert from the depth to thickness */
 
-    st_convert_Z2Y(m2denv, dbc, nlayer, 1, iech, work);
+    st_convert_Z2Y(m2denv, dbc, 1, iech, work);
 
     /* Store in the extracted vector */
 
-    for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+    for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
       YDAT(ilayer, iech) = work[ilayer];
   }
 }
@@ -5374,8 +5313,6 @@ static void st_m2d_vector_extract(M2D_Environ* m2denv,
  ** \param[in]  title       Title
  ** \param[in]  db          Db constraints structure
  ** \param[in]  ydat        Array of gaussian values at constraints (optional)
- ** \param[in]  nlayer      Number of layers
- ** \param[in]  verbose     Verbose flag
  **
  ** \remarks This function tends to produce verbose outputs.
  ** \remarks This is the reason why it has been conditioned to print only
@@ -5385,11 +5322,9 @@ static void st_m2d_vector_extract(M2D_Environ* m2denv,
  ** \remarks The default number of samples i s 0 (no printout)
  **
  *****************************************************************************/
-static void st_print_db_constraints(const char* title,
-                                    Db* db,
-                                    const VectorDouble& ydat,
-                                    Id nlayer,
-                                    Id verbose)
+void MGibbs::st_print_db_constraints(const char* title,
+                                     Db* db,
+                                     const VectorDouble& ydat) const
 {
   double value, lower, drift, upper, vgaus;
   Id nech, nprint;
@@ -5397,7 +5332,7 @@ static void st_print_db_constraints(const char* title,
   // Initializations
 
   nprint = static_cast<Id>(get_keypone("Print_Data", 10.));
-  if (!verbose || nprint == 0) return;
+  if (!_verbose || nprint == 0) return;
 
   // Printout
 
@@ -5407,7 +5342,7 @@ static void st_print_db_constraints(const char* title,
   for (Id iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+    for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
     {
       lower = db->getLocVariable(ELoc::L, iech, ilayer);
       upper = db->getLocVariable(ELoc::U, iech, ilayer);
@@ -5445,55 +5380,70 @@ static void st_m2d_stats_gaus(const char* title,
   }
 }
 
+bool MGibbs::_checkValid()
+{
+  _ndim = static_cast<Id>(_model->getNDim());
+  if (_ndim != 2)
+  {
+    messerr("This application is restricted to the 2-D case (ndim=%d)", _ndim);
+    return false;
+  }
+  if (_model->getNVar() != 1)
+  {
+    messerr("This function should be called in the case of a single Model");
+    messerr("In your case: %d\n", _model->getNVar());
+    return false;
+  }
+  if (_nlayer <= 0)
+  {
+    messerr("This application requires the Number of Layers to be positive");
+    return false;
+  }
+  if (_dbin->getNInterval() < _nlayer)
+  {
+    messerr("This application requires Lower and Upper variables");
+    messerr("to be defined in the Input Db for each layer (nint=%d)",
+            _dbin->getNInterval());
+    return false;
+  }
+  _nechin = _dbin->getNSample();
+  if (!_dbout->isGrid())
+  {
+    messerr("This application is restricted to a Grid output Db");
+    return false;
+  }
+  _nechout = _dbout->getNSample();
+  if (_flagED && _nlayer > _dbout->getNLoc(ELoc::F))
+  {
+    messerr("External Drifts are used for Drift definition");
+    messerr("- Count of F-variables (%d) must match Count of layers (%d)",
+            _dbout->getNLoc(ELoc::F), _nlayer);
+    return false;
+  }
+  if (_nbsimu <= 0)
+  {
+    if (!_flagDrift)
+    {
+      messerr("When 'nbsimu=0', the option 'flag.drift' is set to TRUE");
+      messerr("Then the Optimal Drift is calculated only");
+    }
+    _flagDrift = true;
+  }
+  if (_checkPinchout()) return false;
+
+  return true;
+}
+
 /****************************************************************************/
 /*!
  **  Perform Gibbs on a multilayer setup
  **
  ** \return  Error return code
  **
- ** \param[in]  dbin        Db input structure
- ** \param[in]  dbout       Db output structure
- ** \param[in]  model       Model structure
- ** \param[in]  flag_ed     1 if External Drit is used
- ** \param[in]  nlayer      Number of layers
- ** \param[in]  niter       Number of iterations
- ** \param[in]  seed        Seed for random number generator
- ** \param[in]  nbsimu      Number of simulaations
- ** \param[in]  icol_pinch  Address of the variable containing the pinchout
- ** \param[in]  flag_drift  1 to return the drift only
- **                         0 the simulations
- ** \param[in]  flag_ce     1 if the conditional expectation
- **                         should be returned instead of simulations
- ** \param[in]  flag_cstd   1 if the conditional standard deviation
- **                         should be returned instead of simulations
- ** \param[in]  verbose     Verbose option
- **
- ** \remarks In 'dbin':
- ** \remarks - the lower and upper bounds must be defined for each datum
- ** \remarks   (set to the locator ELoc::L and ELoc::U
- ** \remarks In 'dbout':
- ** \remarks - the trend (if flag_ed is 1) must be defined and set to
- ** \remarks   the locator ELoc::F
- ** \remarks When defined, the pinchout should be defined as a grid variable
- ** \remarks with values ranging between 0 and 1 (FFFF are admitted).
- ** \remarks It will serve as a multiplier to the Mean thickness maps.
- **
  *****************************************************************************/
-Id m2d_gibbs_spde(Db* dbin,
-                  Db* dbout,
-                  Model* model,
-                  Id flag_ed,
-                  Id nlayer,
-                  Id niter,
-                  Id seed,
-                  Id nbsimu,
-                  Id icol_pinch,
-                  Id flag_drift,
-                  Id flag_ce,
-                  Id flag_cstd,
-                  Id verbose)
+Id MGibbs::run()
 {
-  Id error, iatt_f, iatt_out, nvertex, nech, ngrid, ndim, number_hard, nfois;
+  Id error, iatt_f, iatt_out, nvertex, nech, number_hard, nfois;
   Id iptr_ce, iptr_cstd, ecr;
   double nugget, ysigma, vartot;
   VectorDouble gwork;
@@ -5511,7 +5461,7 @@ Id m2d_gibbs_spde(Db* dbin,
   MatrixSparse* Bproj = nullptr;
   Db* dbc;
   QChol* Qc;
-  M2D_Environ* m2denv;
+  M2D_Environ m2denv;
   SPDE_Option s_option;
 
   /* Initializations */
@@ -5520,109 +5470,46 @@ Id m2d_gibbs_spde(Db* dbin,
   iatt_f = iatt_out = -1;
   dbc               = nullptr;
   Qc                = nullptr;
-  m2denv            = nullptr;
   ysigma            = 0.;
   number_hard       = 0;
 
   /* Preliminary checks */
+  if (!_checkValid()) return 1;
 
-  if (dbin == nullptr)
-  {
-    messerr("The function requires an input Db argument");
-    goto label_end;
-  }
-  if (dbout == nullptr)
-  {
-    messerr("The function requires an output Db argument");
-    goto label_end;
-  }
-  ndim = static_cast<Id>(model->getNDim());
-  if (model->getNVar() != 1)
-  {
-    messerr("This function should be called in the case of a single Model");
-    messerr("In your case: %d\n", model->getNVar());
-    goto label_end;
-  }
-  if (nlayer <= 0)
-  {
-    messerr("This application requires the Number of Layers to be positive");
-    goto label_end;
-  }
-  if (dbin->getNInterval() < nlayer)
-  {
-    messerr("This application requires Lower and Upper variables");
-    messerr("to be defined in the Input Db for each layer (nint=%d)",
-            dbin->getNInterval());
-    goto label_end;
-  }
-  if (!dbout->isGrid())
-  {
-    messerr("This application is restricted to a Grid output Db");
-    goto label_end;
-  }
-  if (ndim != 2)
-  {
-    messerr("This application is restricted to the 2-D case (ndim=%d)", ndim);
-    goto label_end;
-  }
-  if (flag_ed && nlayer > dbout->getNLoc(ELoc::F))
-  {
-    messerr("External Drifts are used for Drift definition");
-    messerr("- Count of F-variables (%d) must match Count of layers (%d)",
-            dbout->getNLoc(ELoc::F), nlayer);
-    goto label_end;
-  }
-  if (nbsimu <= 0)
-  {
-    if (!flag_drift)
-    {
-      messerr("When 'nbsimu=0', the option 'flag.drift' is set to TRUE");
-      messerr("Then the Optimal Drift is calculated only");
-    }
-    flag_drift = 1;
-  }
-  if (st_m2d_check_pinchout(dbout, icol_pinch)) goto label_end;
-
-  law_set_random_seed(seed);
-  ngrid = dbout->getNSample();
+  law_set_random_seed(_seed);
 
   /* Prepare the M2D_Environ structure */
 
-  vartot = model->getTotalSill(0, 0);
-
-  m2denv = st_m2denv_manage(1, flag_ed, sqrt(vartot), NULL);
-  if (m2denv == nullptr) goto label_end;
+  vartot = _model->getTotalSill(0, 0);
+  st_m2denv_manage(sqrt(vartot), m2denv);
 
   /* Preparing the variables in 'dbout' */
 
-  nfois    = (flag_drift) ? 1 : nbsimu;
-  iatt_out = dbout->addColumnsByConstant(nlayer * nfois, TEST);
+  nfois    = (_flagDrift) ? 1 : _nbsimu;
+  iatt_out = _dbout->addColumnsByConstant(_nlayer * nfois, TEST);
   if (iatt_out < 0) goto label_end;
 
   /* Core allocation */
 
-  lwork.resize(nlayer, 0);
+  lwork.resize(_nlayer, 0);
 
   /* Global statistics on Raw elevations */
 
-  st_m2d_stats_init(m2denv, dbin, nlayer, verbose);
+  st_m2d_stats_init(m2denv);
 
   /* Manage the Drift: define External Drift on input and output Db */
 
-  if (verbose)
+  if (_verbose)
     message("\n==> Migrating Drift Information from Grid to Wells\n");
-  if (st_m2d_drift_manage(m2denv, dbin, dbout, nlayer, verbose, &iatt_f))
-    goto label_end;
-  st_print_db_constraints("List of Initial Constraining Data", dbin, VectorDouble(),
-                          nlayer, verbose);
+  if (st_m2d_drift_manage(m2denv, &iatt_f)) goto label_end;
+  st_print_db_constraints("List of Initial Constraining Data", _dbin, VectorDouble());
 
   /* Constitute the new Db containing all the inequality constraints */
   /* whether they belong to 'dbin' or to 'dbout' */
 
-  if (verbose)
+  if (_verbose)
     message("\n==> Creating a Temporary Data Base with all constraints\n");
-  dbc = st_m2d_create_constraints(m2denv, dbin, dbout, ndim, nlayer,
-                                  &number_hard);
+  dbc = st_m2d_create_constraints(m2denv, &number_hard);
   if (dbc == nullptr) goto label_end;
   nech = dbc->getNSample(true);
 
@@ -5631,38 +5518,37 @@ Id m2d_gibbs_spde(Db* dbin,
   // let the checks be performed on a mono-variate case (as all variables
   // will share the same Q matrix)
   // Then the environment is set to the multivariate case
-  if (verbose) message("\n==> Checking SPDE Environment\n");
-  st_define_locators(m2denv, dbc, ndim, 1, nlayer);
-  if (st_spde_check(dbc, dbout, model, NULL, 0, VectorDouble(), false, true, true,
+  if (_verbose) message("\n==> Checking SPDE Environment\n");
+  st_define_locators(m2denv, dbc, 1);
+  if (st_spde_check(dbc, _dbout, _model, NULL, 0, VectorDouble(), false, true, true,
                     false, false, false, false)) goto label_end;
-  st_define_locators(m2denv, dbc, ndim, nlayer, nlayer);
+  st_define_locators(m2denv, dbc, _nlayer);
 
   /* Define initial values at constraints and set in Db */
 
-  if (verbose) message("\n==> Creating Initial Value within bounds at Wells\n");
-  if (st_m2d_initial_elevations(m2denv, dbc, nlayer, lwork)) goto label_end;
+  if (_verbose) message("\n==> Creating Initial Value within bounds at Wells\n");
+  if (st_m2d_initial_elevations(m2denv, dbc, lwork)) goto label_end;
 
   /* Global statistics on Centered Elevations */
 
-  st_m2d_stats_updt(m2denv, dbc, nlayer, verbose);
+  st_m2d_stats_updt(m2denv, dbc);
 
   /* Fitting the coefficients of the drift (external or not) */
 
-  if (verbose) message("\n==> Fitting the optimal Drift(s)\n");
-  if (st_m2d_drift_fitting(m2denv, dbc, nlayer, number_hard, verbose))
-    goto label_end;
+  if (_verbose) message("\n==> Fitting the optimal Drift(s)\n");
+  if (st_m2d_drift_fitting(m2denv, dbc, number_hard)) goto label_end;
 
   /* Save the drift only (optional) */
 
-  if (flag_drift)
+  if (_flagDrift)
   {
-    gwork.resize(ngrid * nlayer);
-    st_m2d_drift_save(m2denv, dbout, nlayer, gwork.data());
-    for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+    gwork.resize(_nechout * _nlayer);
+    st_m2d_drift_save(m2denv, gwork.data());
+    for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
     {
-      dbout->setColumnByUIDOldStyle(&GWORK(ilayer, 0), iatt_out + ilayer);
+      _dbout->setColumnByUIDOldStyle(&GWORK(ilayer, 0), iatt_out + ilayer);
       (void)gslSPrintf(string_encode, "Drift%d", ilayer + 1);
-      dbout->setNameByUID(iatt_out + ilayer, string_encode);
+      _dbout->setNameByUID(iatt_out + ilayer, string_encode);
     }
     error = 0;
     goto label_end;
@@ -5675,24 +5561,23 @@ Id m2d_gibbs_spde(Db* dbin,
   /* Manage Drift: */
   /* Drift (corrected by pinch-out) is stored in 'dbc' and 'dbout' */
 
-  if (verbose) message("\n==> Transforming Drift information as Thickness\n");
-  if (st_m2d_drift_inc_manage(m2denv, 1, nlayer, icol_pinch, dbc, dbout))
-    goto label_end;
+  if (_verbose) message("\n==> Transforming Drift information as Thickness\n");
+  if (st_m2d_drift_inc_manage(m2denv, 1, dbc)) goto label_end;
 
   /* Prepare all material */
 
-  if (verbose) message("\n==> Preparing SPDE\n");
+  if (_verbose) message("\n==> Preparing SPDE\n");
   s_option = st_spde_option_alloc();
-  if (st_spde_prepar(dbc, dbout, VectorDouble(), s_option)) goto label_end;
+  if (st_spde_prepar(dbc, _dbout, VectorDouble(), s_option)) goto label_end;
   {
     SPDE_Matelem& Matelem = spde_get_current_matelem(0);
     nvertex               = st_get_nvertex(0);
 
     /* Core allocation */
 
-    ydat.resize(nech * nlayer, 0);
-    ymean.resize(nech * nlayer, 0);
-    yvert.resize(nlayer * nvertex, 0);
+    ydat.resize(nech * _nlayer, 0);
+    ymean.resize(nech * _nlayer, 0);
+    yvert.resize(_nlayer * nvertex, 0);
     ydat_loc.resize(nech);
     yvert_loc.resize(nvertex);
     ymean_loc.resize(nech);
@@ -5702,32 +5587,31 @@ Id m2d_gibbs_spde(Db* dbin,
 
     /* Extract the vector of current data */
 
-    if (verbose) message("\n==> Extracting the Initial Values at Wells\n");
-    st_print_db_constraints("List of Initial Constraining Data", dbc, VectorDouble(),
-                            nlayer, verbose);
-    st_m2d_vector_extract(m2denv, dbc, nlayer, ydat, lwork);
-    st_print_db_constraints("List of Constraining Data at Wells", dbc, ydat,
-                            nlayer, verbose);
-    st_m2d_stats_gaus("G-vect (initial)", nlayer, nech, ydat.data());
+    if (_verbose) message("\n==> Extracting the Initial Values at Wells\n");
+    st_print_db_constraints("List of Initial Constraining Data", dbc, VectorDouble());
+    st_m2d_vector_extract(m2denv, dbc, ydat, lwork);
+    st_print_db_constraints("List of Constraining Data at Wells", dbc, ydat);
+    st_m2d_stats_gaus("G-vect (initial)", _nlayer, nech, ydat.data());
 
     /* Print environment just before entering in iterative process */
 
-    if (verbose) st_m2d_print_environ("Environment before Simulations", m2denv);
+    if (_verbose)
+      st_m2d_print_environ("Environment before Simulations", m2denv);
 
     /* Loop on the simulations */
 
-    for (Id isimu = 0; isimu < nbsimu; isimu++)
+    for (Id isimu = 0; isimu < _nbsimu; isimu++)
     {
-      message("Simulation #%d/%d\n", isimu + 1, nbsimu);
+      message("Simulation #%d/%d\n", isimu + 1, _nbsimu);
 
       /* Loop on Gibbs iterations */
 
-      if (verbose)
-        message("\n==> Launching the Simulations (%d iterations)\n", niter);
+      if (_verbose)
+        message("\n==> Launching the Simulations (%d iterations)\n", _niter);
       nugget = vartot;
-      for (Id iter = 0; iter < niter; iter++)
+      for (Id iter = 0; iter < _niter; iter++)
       {
-        if (verbose) message(">>>> Iteration #%d/%d\n", iter + 1, niter);
+        if (_verbose) message(">>>> Iteration #%d/%d\n", iter + 1, _niter);
 
         // Update the Cholesky matrix
 
@@ -5741,7 +5625,7 @@ Id m2d_gibbs_spde(Db* dbin,
 
         // Perform the conditional simulation at meshing vartices
 
-        for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+        for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
         {
           VH::extractInPlace(ydat, ydat_loc, ilayer * nech);
           VH::extractInPlace(yvert, yvert_loc, ilayer * nvertex);
@@ -5769,106 +5653,105 @@ Id m2d_gibbs_spde(Db* dbin,
 
         // Perform a Gibbs iteration on the constraints
 
-        st_m2d_stats_gaus("G-Mean before Gibbs", nlayer, nech, ymean.data());
-        if (st_global_gibbs(m2denv, dbc, 0, iter, nlayer, ysigma, ymean, ydat,
+        st_m2d_stats_gaus("G-Mean before Gibbs", _nlayer, nech, ymean.data());
+        if (st_global_gibbs(m2denv, dbc, iter, ysigma, ymean, ydat,
                             lwork)) goto label_end;
-        st_m2d_stats_gaus("G-vect after Gibbs", nlayer, nech, ydat.data());
+        st_m2d_stats_gaus("G-vect after Gibbs", _nlayer, nech, ydat.data());
       }
 
       /* Check that the Constraints on the Wells are honored */
 
-      if (verbose) message("\n==> Checking the Constraints at Wells\n");
+      if (_verbose) message("\n==> Checking the Constraints at Wells\n");
       if (st_check_gibbs_data("Checking Constraints at Wells", m2denv, dbc,
-                              nlayer, verbose, ydat, lwork)) goto label_end;
-      st_m2d_stats_gaus("G-vect final", nlayer, nech, ydat.data());
+                              ydat, lwork)) goto label_end;
+      st_m2d_stats_gaus("G-vect final", _nlayer, nech, ydat.data());
 
       /* Store the conditional simulation on the grid */
 
-      Bproj = dynamic_cast<MatrixSparse*>(Matelem.amesh->createProjMatrix(dbout, -1, false));
+      Bproj = dynamic_cast<MatrixSparse*>(Matelem.amesh->createProjMatrix(_dbout, -1, false));
       if (Bproj == nullptr) goto label_end;
-      gwork.resize(ngrid * nlayer);
+      gwork.resize(_nechout * _nlayer);
 
       /* Project from vertices to grid nodes */
 
-      for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+      for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
       {
         constvect cyvert(&YVERT(ilayer, 0), nvertex);
-        vect cgwork(&GWORK(ilayer, 0), ngrid);
+        vect cgwork(&GWORK(ilayer, 0), _nechout);
         Bproj->prodVecMatInPlaceC(cyvert, cgwork, false);
       }
 
       /* Convert from Gaussian to Depth */
 
-      for (Id igrid = 0; igrid < ngrid; igrid++)
+      for (Id igrid = 0; igrid < _nechout; igrid++)
       {
-        if (!dbout->isActive(igrid)) continue;
-        for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+        if (!_dbout->isActive(igrid)) continue;
+        for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
           lwork[ilayer] = GWORK(ilayer, igrid);
-        st_convert_Y2Z(m2denv, dbout, nlayer, 2, igrid, lwork);
-        for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+        st_convert_Y2Z(m2denv, _dbout, 2, igrid, lwork);
+        for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
           GWORK(ilayer, igrid) = lwork[ilayer];
       }
 
-      st_m2d_stats_gaus("Depth on grid", nlayer, ngrid, gwork.data());
-      for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+      st_m2d_stats_gaus("Depth on grid", _nlayer, _nechout, gwork.data());
+      for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
       {
-        dbout->setColumnByUIDOldStyle(&GWORK(ilayer, 0),
-                                      iatt_out + isimu * nlayer + ilayer);
+        _dbout->setColumnByUIDOldStyle(&GWORK(ilayer, 0),
+                                       iatt_out + isimu * _nlayer + ilayer);
       }
     }
 
     // Renaming the simulation outcomes
 
     ecr = 0;
-    for (Id isimu = 0; isimu < nbsimu; isimu++)
+    for (Id isimu = 0; isimu < _nbsimu; isimu++)
     {
-      for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+      for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
       {
-        (void)gslSPrintfCat(string_encode, "Layer-%d_Simu-%d", ilayer + 1,
-                            isimu + 1);
-        dbout->setNameByUID(iatt_out + ecr, string_encode);
+        (void)gslSPrintfCat(string_encode, "Layer-%d_Simu-%d", ilayer + 1, isimu + 1);
+        _dbout->setNameByUID(iatt_out + ecr, string_encode);
         ecr++;
       }
     }
 
     /* Convert the simulations into the mean and variance */
 
-    if (flag_ce || flag_cstd)
+    if (_flagCE || _flagCStd)
     {
       // Modify the locator to ELoc::GAUSFAC before grouping to CE estimation
 
-      dbout->setLocatorsByUID(nbsimu * nlayer, iatt_out, ELoc::GAUSFAC, 0);
+      _dbout->setLocatorsByUID(_nbsimu * _nlayer, iatt_out, ELoc::GAUSFAC, 0);
 
-      if (db_simulations_to_ce(dbout, ELoc::GAUSFAC, nbsimu, nlayer, &iptr_ce,
+      if (db_simulations_to_ce(_dbout, ELoc::GAUSFAC, _nbsimu, _nlayer, &iptr_ce,
                                &iptr_cstd)) goto label_end;
 
       // We release the attributes dedicated to simulations on Dbout
 
-      if (!flag_ce)
+      if (!_flagCE)
       {
-        dbout->deleteColumnsByUIDRange(iptr_ce, nlayer);
+        _dbout->deleteColumnsByUIDRange(iptr_ce, _nlayer);
         iptr_ce = -1;
       }
-      if (!flag_cstd)
+      if (!_flagCStd)
       {
-        dbout->deleteColumnsByUIDRange(iptr_cstd, nlayer);
+        _dbout->deleteColumnsByUIDRange(iptr_cstd, _nlayer);
         iptr_cstd = -1;
       }
-      dbout->deleteColumnsByLocator(ELoc::GAUSFAC);
+      _dbout->deleteColumnsByLocator(ELoc::GAUSFAC);
 
       // Renaming the resulting variables
 
       if (iptr_ce >= 0)
-        for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+        for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
         {
           (void)gslSPrintf(string_encode, "Layer-%d_CE", ilayer + 1);
-          dbout->setNameByUID(iptr_ce + ilayer, string_encode);
+          _dbout->setNameByUID(iptr_ce + ilayer, string_encode);
         }
       if (iptr_cstd >= 0)
-        for (Id ilayer = 0; ilayer < nlayer; ilayer++)
+        for (Id ilayer = 0; ilayer < _nlayer; ilayer++)
         {
           (void)gslSPrintf(string_encode, "Layer-%d_CStd", ilayer + 1);
-          dbout->setNameByUID(iptr_cstd + ilayer, string_encode);
+          _dbout->setNameByUID(iptr_cstd + ilayer, string_encode);
         }
     }
   }
@@ -5879,14 +5762,92 @@ Id m2d_gibbs_spde(Db* dbin,
   error = 0;
 
 label_end:
-  (void)st_m2d_drift_inc_manage(m2denv, -1, nlayer, icol_pinch, dbc, dbout);
-  st_m2denv_manage(-1, flag_ed, 0., m2denv);
+  (void)st_m2d_drift_inc_manage(m2denv, -1, dbc);
   st_qchol_manage(-1, Qc);
   delete Bproj;
-  if (iatt_f >= 0) dbin->deleteColumnsByUIDRange(iatt_f, nlayer);
+  if (iatt_f >= 0) _dbin->deleteColumnsByUIDRange(iatt_f, _nlayer);
   if (error && iatt_out >= 0)
-    dbout->deleteColumnsByUIDRange(iatt_out, nlayer);
+    _dbout->deleteColumnsByUIDRange(iatt_out, _nlayer);
   return (error);
+}
+
+void MGibbs::setOptions(Id nlayer,
+                        Id niter,
+                        Id seed,
+                        Id nbsimu,
+                        Id icol_pinch,
+                        bool flag_ed,
+                        bool flag_drift,
+                        bool flag_ce,
+                        bool flag_cstd,
+                        bool verbose)
+{
+  _nlayer    = nlayer;
+  _niter     = niter;
+  _seed      = seed;
+  _nbsimu    = nbsimu;
+  _icolPinch = icol_pinch;
+  _flagED    = flag_ed;
+  _flagDrift = flag_drift;
+  _flagCE    = flag_ce;
+  _flagCStd  = flag_cstd;
+  _verbose   = verbose;
+}
+
+/****************************************************************************/
+/*!
+ **  Perform Gibbs on a multilayer setup
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin        Db input structure
+ ** \param[in]  dbout       Db output structure
+ ** \param[in]  model       Model structure
+ ** \param[in]  nlayer      Number of layers
+ ** \param[in]  niter       Number of iterations
+ ** \param[in]  seed        Seed for random number generator
+ ** \param[in]  nbsimu      Number of simulaations
+ ** \param[in]  icol_pinch  Address of the variable containing the pinchout
+ ** \param[in]  flag_ed     1 if External Drit is used
+ ** \param[in]  flag_drift  True to return the drift only
+ **                         False the simulations
+ ** \param[in]  flag_ce     True if the conditional expectation
+ **                         should be returned instead of simulations
+ ** \param[in]  flag_cstd   True if the conditional standard deviation
+ **                         should be returned instead of simulations
+ ** \param[in]  verbose     Verbose option
+ **
+ ** \remarks In 'dbin':
+ ** \remarks - the lower and upper bounds must be defined for each datum
+ ** \remarks   (set to the locator ELoc::L and ELoc::U
+ ** \remarks In 'dbout':
+ ** \remarks - the trend (if flag_ed is 1) must be defined and set to
+ ** \remarks   the locator ELoc::F
+ ** \remarks When defined, the pinchout should be defined as a grid variable
+ ** \remarks with values ranging between 0 and 1 (FFFF are admitted).
+ ** \remarks It will serve as a multiplier to the Mean thickness maps.
+ **
+ *****************************************************************************/
+Id MLayers_spde(Db* dbin,
+                Db* dbout,
+                Model* model,
+                Id nlayer,
+                Id niter,
+                Id seed,
+                Id nbsimu,
+                Id icol_pinch,
+                bool flag_ed,
+                bool flag_drift,
+                bool flag_ce,
+                bool flag_cstd,
+                bool verbose)
+{
+  MGibbs mgibbs(dbin, dbout, model);
+
+  mgibbs.setOptions(nlayer, niter, seed, nbsimu, icol_pinch,
+                    flag_ed, flag_drift, flag_ce, flag_cstd, verbose);
+
+  return mgibbs.run();
 }
 
 } // namespace gstlrn

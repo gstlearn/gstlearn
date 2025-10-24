@@ -561,23 +561,6 @@ GSTLEARN_EXPORT Id time_3db(double* HS,
                             double HS_EPS_INIT,
                             Id MSG);
 
-/***************************************/
-/* Prototyping the functions in spde.c */
-/***************************************/
-GSTLEARN_EXPORT Id m2d_gibbs_spde(Db* dbin,
-                                  Db* dbout,
-                                  Model* model,
-                                  Id flag_ed,
-                                  Id nlayer,
-                                  Id niter,
-                                  Id seed,
-                                  Id nbsimu,
-                                  Id icol_pinch,
-                                  Id flag_drift,
-                                  Id flag_ce,
-                                  Id flag_cstd,
-                                  Id verbose);
-
 #ifndef SWIG
 GSTLEARN_EXPORT SPDE_Matelem& spde_get_current_matelem(Id icov);
 #endif

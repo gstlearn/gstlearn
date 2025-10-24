@@ -270,7 +270,8 @@
   #include "Matrix/MatrixFactory.hpp"
   #include "Matrix/MatrixInt.hpp"
   #include "Matrix/Table.hpp"
-  #include "MLayers/MLayers.hpp"
+  #include "MultiLayers/MLayers.hpp"
+  #include "MultiLayers/MGibbs.hpp"
   #include "LinearOp/InvNuggetOp.hpp"
 
   #include "API/SPDE.hpp"
