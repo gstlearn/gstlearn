@@ -35,7 +35,6 @@
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Model/Model.hpp"
-#include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
 #include "geoslib_define.h"
 #include "geoslib_f_private.h"
@@ -92,16 +91,10 @@ typedef struct
   Id ndata;                            /* Number of active data */
   VectorInt ndata1;                    /* Number of data per variable (icov=0) */
   VectorInt ntarget1;                  /* Number of target per variable (icov=0) */
-  Model* model;                        /* Pointer to the Model */
   VectorDouble Csill;                  /* Array of LU of sill matrices */
   std::vector<MatrixSparse*> Bnugget;  /* Sparse matrices for nugget effect (nvs2) */
   std::vector<MatrixSparse*> BheteroD; /* Sparse matrices for heterotopy (_nvar)*/
   std::vector<MatrixSparse*> BheteroT; /* Sparse matrices for heterotopy (_nvar)*/
-} SPDE_SS_Environ;
-
-typedef struct
-{
-  SPDE_SS_Environ SS_ENV;
 } SPDE_Environ;
 
 typedef struct
@@ -398,8 +391,8 @@ SPDE_Option MGibbs::_spde_option_alloc(void)
 SPDE_Matelem& MGibbs::_get_current_matelem(Id icov)
 {
   if (icov < 0)
-    return (MATGRF->Matelems[SPDE_CURRENT_ICOV]);
-  return (MATGRF->Matelems[icov]);
+    return (S_ENV.Matelems[SPDE_CURRENT_ICOV]);
+  return (S_ENV.Matelems[icov]);
 }
 
 /****************************************************************************/
@@ -454,13 +447,9 @@ void MGibbs::_set_title(Id flag_igrf, Id flag_icov, Id rank, const char* title)
  *****************************************************************************/
 void MGibbs::_environ_init(void)
 {
-  SPDE_SS_Environ* SS;
-
-  SS        = &S_ENV.SS_ENV;
-  SS->ndata = 0;
-  SS->ndata1.clear();
-  SS->ntarget1.clear();
-  SS->model = nullptr;
+  S_ENV.ndata = 0;
+  S_ENV.ndata1.clear();
+  S_ENV.ntarget1.clear();
 }
 
 /****************************************************************************/
@@ -544,20 +533,10 @@ void MGibbs::_set_filnug(Id flag_filnug)
  **  a pair of variables
  **
  *****************************************************************************/
-double MGibbs::_get_isill(Id icov, Id ivar, Id jvar) const
+double MGibbs::_get_isill(Id icov, Id ivar, Id jvar)
 {
-<<<<<<< HEAD
-<<<<<<< HEAD
-  const SPDE_Matelem& Maticov = spde_get_current_matelem(icov);
-  return Maticov.Isill.getValue(ivar, jvar);
-=======
-  Id nvar                     = S_ENV.nvar;
-=======
->>>>>>> b8f112da8 (Deuxieme passe de nettoyage)
   const SPDE_Matelem& Maticov = _get_current_matelem(icov);
-  double value                = Maticov.Isill[(jvar) + _nvar * (ivar)];
-  return (value);
->>>>>>> cef30530e (Premiere phase de nettoyage)
+  return Maticov.Isill.getValue(ivar, jvar);
 }
 
 /****************************************************************************/
@@ -888,11 +867,8 @@ void MGibbs::_print_all(const char* title) const
 
   /* 'H' Rotation */
 
-<<<<<<< HEAD
-  print_matrix("Anisotropy H matrix", 0, 1, ndim, ndim, NULL, Calcul.hh.getValues().data());
-=======
-  print_matrix("Anisotropy H matrix", 0, 1, _ndim, _ndim, NULL, Calcul.hh.data());
->>>>>>> b8f112da8 (Deuxieme passe de nettoyage)
+  print_matrix("Anisotropy H matrix", 0, 1, _ndim, _ndim, NULL,
+               Calcul.hh.getValues().data());
   message("Square root of Determinant                    = %lf\n",
           Calcul.sqdeth);
   message("Correction factor                             = %lf\n",
@@ -997,19 +973,8 @@ void MGibbs::_compute_hh() const
 
   /* Initializations */
 
-<<<<<<< HEAD
-  Id ndim        = S_ENV.ndim;
-<<<<<<< HEAD
-  CovAniso* cova = st_get_cova();
-  MatrixSquare temp(ndim);
-=======
   CovAniso* cova = _get_cova();
-  VectorDouble temp(ndim * ndim, 0.);
->>>>>>> cef30530e (Premiere phase de nettoyage)
-=======
-  CovAniso* cova = _get_cova();
-  VectorDouble temp(_ndim * _ndim, 0.);
->>>>>>> b8f112da8 (Deuxieme passe de nettoyage)
+  MatrixSquare temp(_ndim);
 
   /* Processing */
 
@@ -1017,17 +982,9 @@ void MGibbs::_compute_hh() const
   {
     double scale = cova->getScale(i);
     if (Calcul.flag_sphere) scale /= Calcul.R;
-<<<<<<< HEAD
     temp.setValue(i, i, scale * scale);
   }
   Calcul.hh.prodNormMatMatInPlace(&cova->getAnisoRotMat(), &temp, false);
-=======
-    TEMP(_ndim, i, i) = scale * scale;
-  }
-  // cova->getAnisoRotMat().prodNormMatMatInPlace(&temp, Calcul.hh, false);
-  matrix_prod_norme(1, _ndim, _ndim, cova->getAnisoRotMat().getValues().data(),
-                    temp.data(), Calcul.hh.data());
->>>>>>> b8f112da8 (Deuxieme passe de nettoyage)
 }
 
 /****************************************************************************/
@@ -1041,12 +998,7 @@ void MGibbs::_calcul_init() const
   Calcul.sqdeth      = 0.;
   Calcul.correc      = 0.;
   Calcul.R           = 0.;
-<<<<<<< HEAD
-  Calcul.hh.reset(ndim, ndim);
-  Calcul.hh.fill(0.);
-=======
   Calcul.hh.resize(_ndim * _ndim, 0.);
->>>>>>> b8f112da8 (Deuxieme passe de nettoyage)
   if (Calcul.flag_sphere)
   {
     const ASpace* space = getDefaultSpaceSh().get();
@@ -1079,11 +1031,7 @@ void MGibbs::_calcul_update(void)
   _compute_hh();
 
   // Calculate the determinant of HH
-<<<<<<< HEAD
   Calcul.sqdeth = sqrt(Calcul.hh.determinant());
-=======
-  Calcul.sqdeth = sqrt(matrix_determinant(_ndim, Calcul.hh));
->>>>>>> b8f112da8 (Deuxieme passe de nettoyage)
 }
 
 /****************************************************************************/
@@ -1316,26 +1264,11 @@ Id MGibbs::_kriging_cholesky(QChol* QC,
  ** \remark The array returned by this function must be deallocated
  **
  *****************************************************************************/
-VectorDouble MGibbs::_spde_get_mesh_dimension(AMesh* amesh) const
+VectorDouble MGibbs::_get_mesh_dimension(AMesh* amesh) const
 
 {
-<<<<<<< HEAD
   Id nmesh = amesh->getNMeshes();
   VectorDouble units(nmesh);
-=======
-  VectorDouble units;
-  VectorDouble mat(9);
-
-  /* Initializations */
-
-  Id nmesh         = amesh->getNMeshes();
-  Id ncorner       = amesh->getNApexPerMesh();
-  bool flag_sphere = isDefaultSpaceSphere();
-
-  /* Core allocation */
-
-  units.resize(nmesh);
->>>>>>> b8f112da8 (Deuxieme passe de nettoyage)
 
   /* Dispatch */
 
@@ -1354,22 +1287,14 @@ VectorDouble MGibbs::_spde_get_mesh_dimension(AMesh* amesh) const
   else
   {
     MatrixSquare mat(3);
-    Id ndim    = amesh->getNDim();
     Id ncorner = amesh->getNApexPerMesh();
-
     for (Id imesh = 0; imesh < nmesh; imesh++)
     {
       for (Id icorn = 1; icorn < ncorner; icorn++)
-<<<<<<< HEAD
-        for (Id idim = 0; idim < ndim; idim++)
+        for (Id idim = 0; idim < _ndim; idim++)
           mat.setValue(idim, icorn - 1,
                        amesh->getCoor(imesh, icorn, idim) - amesh->getCoor(imesh, 0, idim));
-      units[imesh] = ABS(mat.determinant()) / FACDIM[ndim];
-=======
-        for (Id idim = 0; idim < _ndim; idim++)
-          mat[ecr++] = (amesh->getCoor(imesh, icorn, idim) - amesh->getCoor(imesh, 0, idim));
-      units[imesh] = ABS(matrix_determinant(_ndim, mat)) / FACDIM[_ndim];
->>>>>>> b8f112da8 (Deuxieme passe de nettoyage)
+      units[imesh] = ABS(mat.determinant()) / FACDIM[_ndim];
     }
   }
   return (units);
@@ -1386,55 +1311,26 @@ VectorDouble MGibbs::_spde_get_mesh_dimension(AMesh* amesh) const
  *****************************************************************************/
 Id MGibbs::_fill_Isill(void) const
 {
-<<<<<<< HEAD
-  Id nvar               = S_ENV.nvar;
   Id icov               = SPDE_CURRENT_ICOV;
-  SPDE_Matelem& Matelem = spde_get_current_matelem(icov);
-=======
-  VectorDouble mcova;
-  Id nvar2, error, icov, ecr;
-
-  /* Initializations */
-
-  error                 = 1;
-  nvar2                 = _nvar * _nvar;
-  icov                  = SPDE_CURRENT_ICOV;
   SPDE_Matelem& Matelem = _get_current_matelem(icov);
->>>>>>> cef30530e (Premiere phase de nettoyage)
 
   /* Core allocation */
 
-  MatrixSquare mcova(nvar);
+  MatrixSquare mcova(_nvar);
 
   /* Load the sill of the covariance */
 
-<<<<<<< HEAD
-  for (Id ivar = 0; ivar < nvar; ivar++)
-    for (Id jvar = 0; jvar < nvar; jvar++)
-<<<<<<< HEAD
-      mcova.setValue(ivar, jvar, st_get_cova_sill(ivar, jvar));
-=======
-=======
-  ecr = 0;
   for (Id ivar = 0; ivar < _nvar; ivar++)
     for (Id jvar = 0; jvar < _nvar; jvar++)
->>>>>>> b8f112da8 (Deuxieme passe de nettoyage)
-      mcova[ecr++] = _get_cova_sill(ivar, jvar);
->>>>>>> cef30530e (Premiere phase de nettoyage)
+      mcova.setValue(ivar, jvar, _get_cova_sill(ivar, jvar));
 
   /* Loop on the structures to invert the sill matrices */
 
-<<<<<<< HEAD
   mcova.invert();
-=======
-  if (matrix_invert(mcova.data(), _nvar, -1)) goto label_end;
->>>>>>> b8f112da8 (Deuxieme passe de nettoyage)
 
   /* Optional printout */
 
   if (VERBOSE) message("Calculation of Isill\n");
-
-  /* Set the error return code */
 
   Matelem.Isill = mcova;
   return 0;
@@ -1452,39 +1348,18 @@ Id MGibbs::_fill_Isill(void) const
  *****************************************************************************/
 Id MGibbs::_fill_Csill(void) const
 {
-<<<<<<< HEAD
-<<<<<<< HEAD
-  Model* model          = st_get_model();
   Id icov               = SPDE_CURRENT_ICOV;
-  SPDE_Matelem& Matelem = spde_get_current_matelem(icov);
-=======
-  Model* model;
-=======
->>>>>>> 028d6dfb9 (En vue de creer un test)
-  VectorDouble mcova;
-  Id nvs2, error, icov;
-
-  /* Initializations */
-
-  error                 = 1;
-  nvs2                  = _nvar * (_nvar + 1) / 2;
-  icov                  = SPDE_CURRENT_ICOV;
   SPDE_Matelem& Matelem = _get_current_matelem(icov);
->>>>>>> cef30530e (Premiere phase de nettoyage)
 
   /* Load the sills of continuous covariance elements */
-<<<<<<< HEAD
-  CholeskyDense chol(model->getSills(icov));
-  Matelem.Csill = chol.getLowerTriangle();
-=======
 
-  if (matrix_cholesky_decompose(_model->getSills(icov).getValues().data(),
-                                mcova.data(), _nvar))
-    goto label_end;
->>>>>>> b8f112da8 (Deuxieme passe de nettoyage)
+  CholeskyDense chol(_model->getSills(icov));
+  Matelem.Csill = chol.getLowerTriangle();
 
   /* Optional printout */
+
   if (VERBOSE) message("Calculation of Csill\n");
+
   return 0;
 }
 
@@ -1518,16 +1393,12 @@ Id MGibbs::_fill_Bnugget() const
   /* In the non-stationary case, identify the rank of the parameter */
   /* which corresponds to the sill of the nugget effect */
 
-<<<<<<< HEAD
-  flag_nostat_sillnug = st_identify_nostat_param(EConsElem::SILL) >= 0;
-=======
   flag_nostat_sillnug = _identify_nostat_param(EConsElem::SILL) >= 0;
   /*  if (flag_nostat_sillnug)
     {
       messerr("Non-stationarity on nugget sill values not programmed yet");
       goto label_end;
     } */
->>>>>>> cef30530e (Premiere phase de nettoyage)
 
   /* Core allocation */
 
@@ -1537,28 +1408,6 @@ Id MGibbs::_fill_Bnugget() const
   ind.resize(ndata);
   mat.resize(size, 0);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  /* Loop on the active samples */
-
-  ecr = 0;
-=======
-  /* Establish the nugget sill matrix for isotopic case (only in stationary) */
-
-  /* if (!flag_nostat_sillnug)
-  {
-    for (ivar = 0; ivar < nvar; ivar++)
-      for (jvar = 0; jvar < nvar; jvar++)
-        LOCAL0(ivar,jvar) = _get_nugget_sill(ivar, jvar);
-    if (matrix_invert(local0, nvar, -1))
-    {
-      messerr("Problem when inverting the Global Nugget matrix of sill");
-      goto label_end;
-    }
-  } */
-
-=======
->>>>>>> b8f112da8 (Deuxieme passe de nettoyage)
   /* Loop on the active samples */
 
   ecr = 0;
@@ -1630,12 +1479,7 @@ Id MGibbs::_fill_Bnugget() const
   /* Define the sparse matrices */
 
   ecr = 0;
-<<<<<<< HEAD
->>>>>>> cef30530e (Premiere phase de nettoyage)
-  for (ivar = 0; ivar < nvar; ivar++)
-=======
   for (ivar = 0; ivar < _nvar; ivar++)
->>>>>>> b8f112da8 (Deuxieme passe de nettoyage)
     for (jvar = 0; jvar <= ivar; jvar++, ecr++)
     {
       VectorDouble diag = VH::initVDouble(&mat[ecr * ndata], ndata);
@@ -1646,8 +1490,8 @@ Id MGibbs::_fill_Bnugget() const
 
   if (VERBOSE) message("Calculation of Bnugget (%d sparse matrices)\n", nvs2);
 
-  MATGRF->Bnugget = Bnugget;
-  MATGRF->ndata   = ndata;
+  S_ENV.Bnugget = Bnugget;
+  S_ENV.ndata   = ndata;
   return 0;
 }
 
@@ -1823,11 +1667,11 @@ Id MGibbs::_fill_Bhetero() const
 
   /* Set the error return code */
 
-  MATGRF->BheteroD = BheteroD;
-  MATGRF->BheteroT = BheteroT;
-  MATGRF->ndata    = ndata;
-  MATGRF->ndata1   = ndata1;
-  MATGRF->ntarget1 = ntarget1;
+  S_ENV.BheteroD = BheteroD;
+  S_ENV.BheteroT = BheteroT;
+  S_ENV.ndata    = ndata;
+  S_ENV.ndata1   = ndata1;
+  S_ENV.ntarget1 = ntarget1;
   return 0;
 }
 
@@ -1964,15 +1808,8 @@ void MGibbs::_tangent_calculate(double center[3],
  *****************************************************************************/
 MatrixSparse* MGibbs::_spde_fill_S(AMesh* amesh, const double* units)
 {
-<<<<<<< HEAD
-  DECLARE_UNUSED(model)
   double xyz[3][3], center[3], axes[2][3], coeff[3][2], vald;
-  Id errcod, error, ndim, ncorner, flag_nostat;
-=======
-  double vald, mat[16], mat1[16];
-  double xyz[3][3], center[3], axes[2][3], matv[3], coeff[3][2];
-  Id ecr, errcod, error, ncorner, flag_nostat;
->>>>>>> b8f112da8 (Deuxieme passe de nettoyage)
+  Id errcod, error, ncorner, flag_nostat;
   bool flag_sphere;
   long ip1, ip2;
   MatrixSparse* G = nullptr;
@@ -1987,16 +1824,8 @@ MatrixSparse* MGibbs::_spde_fill_S(AMesh* amesh, const double* units)
   NF_Triplet Gtriplet;
   flag_sphere = isDefaultSpaceSphere();
   flag_nostat = false;
-<<<<<<< HEAD
-  // flag_nostat = model->isNoStat();
-<<<<<<< HEAD
-  if (!flag_nostat) st_calcul_update();
-  MatrixSquare mat(4);
-=======
-=======
->>>>>>> 028d6dfb9 (En vue de creer un test)
   if (!flag_nostat) _calcul_update();
->>>>>>> cef30530e (Premiere phase de nettoyage)
+  MatrixSquare mat(4);
   MatrixSquare matu(4);
   MatrixSquare matw(4);
   MatrixSquare mat1(4);
@@ -2007,13 +1836,10 @@ MatrixSparse* MGibbs::_spde_fill_S(AMesh* amesh, const double* units)
   for (Id imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
 
-<<<<<<< HEAD
-=======
     /* Get parameters in the non-stationary case */
     // Not coded in this version
     // if (flag_nostat) _calcul_update_nostat(amesh, imesh);
 
->>>>>>> cef30530e (Premiere phase de nettoyage)
     // Processing on the Sphere
 
     if (flag_sphere)
@@ -2075,25 +1901,13 @@ MatrixSparse* MGibbs::_spde_fill_S(AMesh* amesh, const double* units)
     else
     {
       for (Id icorn = 0; icorn < ncorner; icorn++)
-<<<<<<< HEAD
-        for (Id idim = 0; idim < ndim; idim++)
+        for (Id idim = 0; idim < _ndim; idim++)
           matw.setValue(idim, icorn, matu.getValue(idim, icorn));
 
-      /*! Perform 'this' = 'x' * 'y' */
       mat1.prodMatMatInPlace(&matw, &Calcul.hh, true, false);
       if (flag_nostat)
         matw.prodMatVecInPlace(Calcul.vv, matv, true);
       mat.prodMatMatInPlace(&mat1, &matw);
-=======
-        for (Id idim = 0; idim < _ndim; idim++)
-          matw[ecr++] = matu.getValue(idim, icorn);
-      matrix_transpose(_ndim, ncorner, matw, matinvw);
-
-      matrix_product_safe(ncorner, _ndim, _ndim, matinvw.data(), Calcul.hh.data(), mat1);
-      if (flag_nostat)
-        matrix_product_safe(ncorner, _ndim, 1, matinvw.data(), Calcul.vv.data(), matv);
-      matrix_product_safe(ncorner, _ndim, ncorner, mat1, matw.data(), mat);
->>>>>>> b8f112da8 (Deuxieme passe de nettoyage)
 
       for (Id j0 = 0; j0 < ncorner; j0++)
         for (Id j1 = 0; j1 < ncorner; j1++)
@@ -2229,11 +2043,7 @@ MatrixSparse* MGibbs::_extract_Q1_nugget(Id row_var,
                                          Id* nrows,
                                          Id* ncols)
 {
-  SPDE_SS_Environ* SS;
-  MatrixSparse* B0;
-
-  SS = MATGRF;
-  B0 = SS->Bnugget[_get_rank(row_var, col_var)]->clone();
+  MatrixSparse* B0 = S_ENV.Bnugget[_get_rank(row_var, col_var)]->clone();
   if (B0 != nullptr)
   {
     *nrows = B0->getNRows();
@@ -2271,20 +2081,18 @@ MatrixSparse* MGibbs::_extract_Q1_hetero(Id row_var,
 {
   Id error;
   MatrixSparse *Q, *Brow, *Bcol, *B1, *Bt, *Qn;
-  SPDE_SS_Environ* SS;
 
   /* Initializations */
 
   error = 1;
   Q = Brow = Bcol = B1 = Bt = Qn = nullptr;
-  SS                             = MATGRF;
   SPDE_Matelem& Matelem1         = _get_current_matelem(0);
 
   /* Identify the operating matrices */
 
-  Brow = (row_oper == 1) ? SS->BheteroD[row_var] : SS->BheteroT[row_var];
+  Brow = (row_oper == 1) ? S_ENV.BheteroD[row_var] : S_ENV.BheteroT[row_var];
   if (Brow == nullptr) goto label_end;
-  Bcol = (col_oper == 1) ? SS->BheteroD[col_var] : SS->BheteroT[col_var];
+  Bcol = (col_oper == 1) ? S_ENV.BheteroD[col_var] : S_ENV.BheteroT[col_var];
   if (Bcol == nullptr) goto label_end;
   Bt = Bcol->transpose();
   if (Bt == nullptr) goto label_end;
@@ -2301,8 +2109,8 @@ MatrixSparse* MGibbs::_extract_Q1_hetero(Id row_var,
   /* Set the error return code */
 
   error  = 0;
-  *nrows = (row_oper == 1) ? SS->ndata1[row_var] : SS->ntarget1[row_var];
-  *ncols = (col_oper == 1) ? SS->ndata1[col_var] : SS->ntarget1[col_var];
+  *nrows = (row_oper == 1) ? S_ENV.ndata1[row_var] : S_ENV.ntarget1[row_var];
+  *ncols = (col_oper == 1) ? S_ENV.ndata1[col_var] : S_ENV.ntarget1[col_var];
 
 label_end:
   delete B1;
@@ -2332,14 +2140,12 @@ Id MGibbs::_build_QCov(SPDE_Matelem& Matelem)
   Id error, icov0, nrows, ncols;
   MatrixSparse *B0, *Bi;
   std::vector<QChol*> QCov;
-  SPDE_SS_Environ* SS;
 
   /* Initializations */
 
   if (!S_DECIDE.flag_several) return (0);
   error = 1;
   Bi = B0 = nullptr;
-  SS      = MATGRF;
   icov0   = SPDE_CURRENT_ICOV;
 
   /* Core allocation */
@@ -2357,7 +2163,7 @@ Id MGibbs::_build_QCov(SPDE_Matelem& Matelem)
     /* Case when a nugget effect is present */
     /****************************************/
 
-    if (Matelem.Aproj == NULL || SS->Bnugget.empty()) return (1);
+    if (Matelem.Aproj == NULL || S_ENV.Bnugget.empty()) return (1);
 
     for (Id ivar = 0; ivar < _nvar; ivar++)
     {
@@ -2379,7 +2185,7 @@ Id MGibbs::_build_QCov(SPDE_Matelem& Matelem)
     /* Case when there is no nugget effect */
     /***************************************/
 
-    if (Matelem.Aproj == NULL || SS->BheteroD.empty() || SS->BheteroT.empty())
+    if (Matelem.Aproj == NULL || S_ENV.BheteroD.empty() || S_ENV.BheteroT.empty())
       return (1);
 
     for (Id ivar = 0; ivar < _nvar; ivar++)
@@ -2548,7 +2354,7 @@ Id MGibbs::_spde_build_matrices(bool verbose)
 
   /* Calculate the units of the meshes */
 
-  units = _spde_get_mesh_dimension(amesh);
+  units = _get_mesh_dimension(amesh);
 
   /* Fill S sparse matrix */
 
@@ -2803,19 +2609,18 @@ Id MGibbs::_spde_cheb_manage(SPDE_Matelem& Matelem,
 void MGibbs::_matelem_manage(Id mode)
 
 {
-  auto ncova          = _get_ncova();
-  SPDE_SS_Environ* SS = MATGRF;
+  auto ncova = _get_ncova();
 
   /* Dispatch */
 
   switch (mode)
   {
     case 1: // Allocation
-      SS->Matelems.resize(ncova);
+      S_ENV.Matelems.resize(ncova);
 
       for (Id is = 0; is < ncova; is++)
       {
-        SPDE_Matelem& Matelem = SS->Matelems[is];
+        SPDE_Matelem& Matelem = S_ENV.Matelems[is];
         Matelem.S             = nullptr;
         Matelem.Aproj         = nullptr;
         Matelem.QC            = nullptr;

@@ -45,7 +45,7 @@ class SPDE_Matelem
 {
 public:
   VectorDouble Lambda;
-  VectorDouble Isill;
+  MatrixSquare Isill;
   VectorDouble Csill;
   MatrixSparse* S;
   MatrixSparse* Aproj;
@@ -97,6 +97,29 @@ private:
   bool _checkValidAuxiliary() const;
   bool _checkValidOption();
   bool _checkValidPinchout();
+
+  static double _get_isill(Id icov, Id ivar, Id jvar);
+  static Id _get_nvertex(Id icov);
+  double _get_nugget_sill(Id ivar, Id jvar);
+  double _get_sill_total(Id ivar, Id jvar) const;
+  double _get_cova_range(void) const;
+  Id _get_ncova(void) const;
+  double _get_cova_param(void) const;
+  static Id _get_rank(Id ivar, Id jvar);
+  double _get_cova_sill(Id ivar, Id jvar) const;
+  static Id _get_filnug(void);
+  CovAniso* _get_cova(void) const;
+  CovAniso* _get_nugget(void) const;
+
+  double _get_drift(M2D_Environ& m2denv, Db* db, Id ilayer0, Id iech0) const;
+  static double _get_M(M2D_Environ& m2denv, Db* db, Id type, Id ilayer, Id iech);
+  static double _get_S(M2D_Environ& m2denv, Db* db, Id type, Id ilayer, Id iech);
+  VectorInt _get_vertex_ranks(AMesh* amesh) const;
+  static SPDE_Matelem& _get_current_matelem(Id icov);
+  VectorDouble _get_mesh_dimension(AMesh* amesh) const;
+
+  bool _is_model_nugget(void) const;
+
   static void _m2denv_manage(double ystdv, M2D_Environ& m2denv);
   void _stats_init(M2D_Environ& m2denv, double percent = 0.05);
   Id _drift_manage(M2D_Environ& m2denv, Id* iatt_f, double percent = 0.05);
@@ -116,24 +139,12 @@ private:
               Id icol_pinch,
               Db* db,
               Id iatt) const;
-  double _get_drift(M2D_Environ& m2denv,
-                    Db* db,
-                    Id ilayer0,
-                    Id iech0) const;
+
   static double _external_drift_increment(M2D_Environ& m2denv,
                                           Db* db,
                                           Id ilayer0,
                                           Id iech0);
-  static double _get_M(M2D_Environ& m2denv,
-                       Db* db,
-                       Id type,
-                       Id ilayer,
-                       Id iech);
-  static double _get_S(M2D_Environ& m2denv,
-                       Db* db,
-                       Id type,
-                       Id ilayer,
-                       Id iech);
+
   static double _draw_elevation(M2D_Environ& m2denv,
                                 Id ilayer,
                                 double lower,
@@ -197,21 +208,21 @@ private:
   static Id _qchol_cholesky(bool verbose, QChol* QC);
   static Id _simulate_cholesky(QChol* QC, VectorDouble& work, VectorDouble& zsnc);
   static QChol* _derive_Qc(double s2, QChol* Qc, SPDE_Matelem& Matelem);
-  static SPDE_Matelem& _get_current_matelem(Id icov);
+
   static void _matelem_print(Id icov);
-  double _get_isill(Id icov, Id ivar, Id jvar) const;
+
   static Id _qsimu_manage(SPDE_Matelem& Matelem);
-  static Id _get_nvertex(Id icov);
+
   Id _fill_Isill(void) const;
   Id _fill_Csill(void) const;
   Id _spde_prepar();
   Id _fill_Bhetero() const;
-  MatrixSparse* _extract_Q1_hetero(Id row_var,
-                                   Id col_var,
-                                   Id row_oper,
-                                   Id col_oper,
-                                   Id* nrows,
-                                   Id* ncols);
+  static MatrixSparse* _extract_Q1_hetero(Id row_var,
+                                          Id col_var,
+                                          Id row_oper,
+                                          Id col_oper,
+                                          Id* nrows,
+                                          Id* ncols);
   Id _build_QCov(SPDE_Matelem& Matelem);
   Id _spde_build_matrices(bool verbose);
   void _matelem_manage(Id mode);
@@ -220,12 +231,12 @@ private:
                  bool flag_gibbs,
                  bool flag_modif);
   static SPDE_Option _spde_option_alloc(void);
-  static Id _get_rank(Id ivar, Id jvar);
+
   static MatrixSparse* _extract_Q1_nugget(Id row_var,
                                           Id col_var,
                                           Id* nrows,
                                           Id* ncols);
-  double _get_nugget_sill(Id ivar, Id jvar);
+
   static void _chol_invert(QChol* qctt,
                            VectorDouble& xcr,
                            const VectorDouble& rhs,
@@ -284,9 +295,9 @@ private:
                                Id imesh,
                                double center[3],
                                double xyz[3][3]);
-  VectorInt _get_vertex_ranks(AMesh* amesh) const;
+
   Id _fill_Bnugget() const;
-  VectorDouble _spde_get_mesh_dimension(AMesh* amesh) const;
+
   static Id _identify_nostat_param(const EConsElem& type0,
                                    Id icov0 = -1,
                                    Id ivar0 = -1,
@@ -300,13 +311,10 @@ private:
   void _compute_correc(void) const;
   double _spde_compute_correc(double param) const;
   void _print_all(const char* title) const;
-  double _get_sill_total(Id ivar, Id jvar) const;
-  double _get_cova_range(void) const;
-  Id _get_ncova(void) const;
-  double _get_cova_param(void) const;
+
   static void _set_title(Id flag_igrf, Id flag_icov, Id rank, const char* title);
   static void _set_filnug(Id flag_filnug);
-  double _get_cova_sill(Id ivar, Id jvar) const;
+
   static QChol* _extract_QC_from_Q(const char* title,
                                    QChol* QC_in,
                                    Id row_auth,
@@ -315,10 +323,7 @@ private:
   static MatrixSparse* _extract_Q_from_Q(MatrixSparse* Q_in, Id row_auth, Id col_auth);
   static void _qchol_filter(const char* title, Id auth);
   static void _print_status(Id auth);
-  static Id _get_filnug(void);
-  CovAniso* _get_cova(void) const;
-  CovAniso* _get_nugget(void) const;
-  bool _is_model_nugget(void) const;
+
   static void _environ_init(void);
 
 private:
